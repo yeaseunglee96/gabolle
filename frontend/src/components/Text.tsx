@@ -2,9 +2,9 @@
 // variant 를 고르면 색까지 기본값이 따라온다 — 색이 필요하면 그때만 color prop 으로 덮어쓴다.
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
-import { color, fontFamily, type as typeTokens } from '@/design/tokens';
+import { color, fontFamilyStack, type as typeTokens } from '@/design/tokens';
 
-type Variant = 'hero' | 'display' | 'title' | 'body' | 'caption' | 'eyebrow';
+type Variant = 'hero' | 'display' | 'title' | 'body' | 'util' | 'caption' | 'eyebrow';
 
 type Weight = 'regular' | 'medium' | 'bold';
 
@@ -20,15 +20,17 @@ const DEFAULT_COLOR: Record<Variant, string> = {
   display: color.text.heading,
   title: color.text.heading,
   body: color.text.body,
+  util: color.text.muted,
   caption: color.text.muted,
   eyebrow: color.text.eyebrow,
 };
 
-const SIZE: Record<Variant, { size: number; lineHeight: number }> = {
+const SIZE: Record<Variant, { size: number; lineHeight: number; letterSpacing: number }> = {
   hero: typeTokens.hero,
   display: typeTokens.display,
   title: typeTokens.title,
   body: typeTokens.body,
+  util: typeTokens.util,
   caption: typeTokens.caption,
   eyebrow: typeTokens.caption,
 };
@@ -40,13 +42,13 @@ const FONT_WEIGHT: Record<Weight, '400' | '500' | '700'> = {
 };
 
 const FONT_FAMILY: Record<Weight, string> = {
-  regular: fontFamily.regular,
-  medium: fontFamily.medium,
-  bold: fontFamily.bold,
+  regular: fontFamilyStack.regular,
+  medium: fontFamilyStack.medium,
+  bold: fontFamilyStack.bold,
 };
 
 export function Text({ variant = 'body', color: colorOverride, weight = 'regular', style, ...rest }: TextProps) {
-  const { size, lineHeight } = SIZE[variant];
+  const { size, lineHeight, letterSpacing } = SIZE[variant];
   return (
     <RNText
       {...rest}
@@ -55,6 +57,7 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
           fontFamily: FONT_FAMILY[weight],
           fontSize: size,
           lineHeight,
+          letterSpacing,
           fontWeight: FONT_WEIGHT[weight],
           color: colorOverride ?? DEFAULT_COLOR[variant],
         },

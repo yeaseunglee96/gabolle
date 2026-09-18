@@ -12,5 +12,7 @@ module.exports = {
   // 🔴 S15P21E201-775 — tests/e2e/*.spec.ts는 @playwright/test의 test()를 쓴다(jest의
   //    test()가 아니다). 기본 testMatch에 걸려 jest가 이 파일을 집어 들면 "test is not
   //    a function" 류로 죽는다 — Playwright 전용 테스트 러너(npx playwright test)로만 돈다.
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/tests/e2e/'],
+  // Jest가 Windows에서는 검사 경로를 역슬래시로 넘기므로 슬래시 하나만 적으면 제외가
+  // 적용되지 않는다. 두 운영체제 경로 구분자를 모두 받는 정규식으로 고정한다.
+  testPathIgnorePatterns: ['[\\\\/]node_modules[\\\\/]', '[\\\\/]tests[\\\\/]e2e[\\\\/]'],
 };

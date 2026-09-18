@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:Pretendard;font-weight:400;font-display:swap;src:url("fonts/Pretendard-Regular.woff2") format("woff2")}
+@font-face{font-family:Pretendard;font-weight:500;font-display:swap;src:url("fonts/Pretendard-Medium.woff2") format("woff2")}
+@font-face{font-family:Pretendard;font-weight:600;font-display:swap;src:url("fonts/Pretendard-SemiBold.woff2") format("woff2")}
+@font-face{font-family:Pretendard;font-weight:700;font-display:swap;src:url("fonts/Pretendard-Bold.woff2") format("woff2")}
+body{margin:0;background:transparent;font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0b1d3a}a:hover{color:#f26532}
+@keyframes gbPrint{0%{transform:translateY(-100%)}100%{transform:translateY(0)}}
+@keyframes gbFade{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes gbPulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes gbQr{0%{opacity:0;transform:scale(.6);filter:blur(6px)}100%{opacity:1;transform:none;filter:blur(0)}}
+@keyframes gbQrCell{0%{opacity:0}100%{opacity:1}}
+</style>
+</helmet>
+<sc-if value="{{ isMobile }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="trip-pass-mobile" style="font-family:Pretendard,-apple-system,'Malgun Gothic',sans-serif;position:relative;width:100%;height:100%;background:#fffdf8;display:flex;flex-direction:column;overflow:hidden;user-select:none">
+    <div style="flex-shrink:0;padding:56px 16px 0;display:flex;align-items:center;justify-content:space-between">
+      <div style="width:44px;height:44px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b1d3a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap">다가오는 여행</span><span style="font-size:11px;line-height:14px;color:#667882;white-space:nowrap">{{ trip.origin }} → <span style="color:#f26532;font-weight:700">{{ trip.cityKo }}</span></span></div>
+      <div style="width:44px;height:44px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#64748b">⋯</div>
+    </div>
+    <div style="position:relative;flex:1;min-height:0;margin-top:20px;display:flex;flex-direction:column;align-items:center">
+      <div style="position:relative;z-index:3;width:318px;height:52px;border-radius:14px;background:linear-gradient(180deg,#3a3f47,#23272d);box-shadow:0 8px 20px rgba(11,29,58,.28);display:flex;align-items:center;justify-content:center"><div style="width:286px;height:14px;border-radius:999px;background:linear-gradient(180deg,#0d0f12,#2b2f36);box-shadow:inset 0 2px 4px rgba(0,0,0,.8)"></div></div>
+      <div style="position:absolute;top:26px;left:0;right:0;bottom:0;z-index:2;display:flex;justify-content:center;overflow:hidden;pointer-events:none">
+        <sc-if value="{{ mounted }}" hint-placeholder-val="{{ true }}">
+          <div style="width:286px;padding-top:26px;animation:gbPrint 1.6s cubic-bezier(.25,.7,.25,1) both;pointer-events:auto">
+            <div onPointerDown="{{ down }}" onPointerMove="{{ move }}" onPointerUp="{{ up }}" onPointerCancel="{{ up }}" style="transform:{{ ticketTransform }};opacity:{{ ticketOpacity }};transition:{{ ticketTransition }};touch-action:none;cursor:grab;filter:drop-shadow(0 12px 22px rgba(11,29,58,.18))">
+              <div style="background:#fff;padding:18px 20px 12px;display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:15px;letter-spacing:.5px;font-weight:700;color:#152238">GAB<span style="color:#f26532">O</span>LLE</span><span style="font-size:11px;line-height:14px;font-weight:700;color:#667882">{{ trip.code }}</span></div>
+                <div style="display:flex;align-items:flex-end;justify-content:space-between">
+                  <div><div style="font-size:11px;line-height:14px;color:#667882">출발</div><div style="font-size:28px;line-height:32px;letter-spacing:-.2px;font-weight:700;color:#152238">{{ trip.fromCode }}</div><div style="font-size:13px;line-height:18px;color:#667882">{{ trip.startTime }}</div></div>
+                  <div style="flex:1;display:flex;align-items:center;gap:6px;padding:0 10px 22px"><div style="flex:1;border-top:1px dashed #c9c3ba"></div><svg width="16" height="16" viewBox="0 0 24 24" fill="#152238"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"></path></svg><div style="flex:1;border-top:1px dashed #c9c3ba"></div></div>
+                  <div style="text-align:right"><div style="font-size:11px;line-height:14px;color:#667882">도착</div><div style="font-size:28px;line-height:32px;letter-spacing:-.2px;font-weight:700;color:#152238">{{ trip.city }}</div><div style="font-size:13px;line-height:18px;color:#667882">{{ trip.arriveTime }}</div></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:11px;line-height:14px;color:#667882">날짜</div><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238;white-space:nowrap">{{ trip.dateKo }}</div></div><span style="flex-shrink:0;padding:4px 10px;border-radius:999px;border:1px solid #e4ddd3;font-size:11px;line-height:14px;font-weight:700;color:#152238">{{ trip.mode }}</span></div>
+                <div><div style="font-size:11px;line-height:14px;color:#667882">여행자</div><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238">{{ trip.owner }}</div></div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:10px;border-top:1px dashed #e4ddd3">
+                  <sc-for list="{{ fields }}" as="f" hint-placeholder-count="6"><div style="text-align:{{ f.align }}"><div style="font-size:11px;line-height:14px;color:#667882">{{ f.k }}</div><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238">{{ f.v }}</div></div></sc-for>
+                </div>
+              </div>
+              <div style="height:14px;background:linear-gradient(45deg,transparent 33.333%,#fff 33.333%,#fff 66.667%,transparent 66.667%),linear-gradient(-45deg,transparent 33.333%,#fff 33.333%,#fff 66.667%,transparent 66.667%);background-size:14px 28px;background-position:0 -14px"></div>
+              <div style="margin-top:4px;background:#fff;padding:16px 20px 6px;display:flex;flex-direction:column;align-items:center;gap:8px">
+                <div style="display:flex;align-items:stretch;height:48px;width:100%"><sc-for list="{{ bars }}" as="b" hint-placeholder-count="60"><div style="width:{{ b.w }};background:{{ b.c }}"></div></sc-for></div>
+                <span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ trip.valid }}</span>
+              </div>
+              <div style="height:14px;background:linear-gradient(45deg,transparent 33.333%,#fff 33.333%,#fff 66.667%,transparent 66.667%),linear-gradient(-45deg,transparent 33.333%,#fff 33.333%,#fff 66.667%,transparent 66.667%);background-size:14px 28px;background-position:0 -14px"></div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <div style="flex-shrink:0;padding:12px 24px 34px;display:flex;flex-direction:column;align-items:center;gap:8px;background:linear-gradient(180deg,rgba(255,253,248,0),#fffdf8 30%)">
+      <div style="width:100%;min-height:48px;padding:12px 16px;box-sizing:border-box;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;line-height:22px;font-weight:700;color:#fff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>일정 보기</div>
+      <div style="display:flex;align-items:center;gap:20px"><div style="min-height:40px;display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:700;color:#667882;white-space:nowrap;text-decoration:underline;text-underline-offset:3px">여행 상세 보기</div><div onClick="{{ reprint }}" style="min-height:40px;display:flex;align-items:center;gap:6px;font-size:13px;line-height:18px;font-weight:700;color:#f26532;white-space:nowrap;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f26532" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"></path><path d="M20 4v5h-5"></path></svg>다시 출력</div></div>
+    </div>
+  </div>
+</sc-if>
+<sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="trip-pass-desktop" style="width:100%;min-height:820px;box-sizing:border-box;background:#fffdf8;border-radius:24px;border:1px solid #e8e4dd;padding:28px 40px 36px;display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="width:44px;height:44px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b1d3a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></div>
+      <span style="font-size:11px;line-height:14px;letter-spacing:1.5px;font-weight:700;color:#152238;white-space:nowrap">TRIP PASS</span>
+      <span style="padding:6px 12px;border-radius:999px;background:#f8f3eb;font-size:11px;line-height:14px;font-weight:700;color:#152238">{{ trip.code }}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:340px minmax(0,1fr);gap:48px;align-items:start">
+      <div style="position:relative;min-height:760px;display:flex;flex-direction:column;align-items:center;padding-top:8px">
+        <div style="position:relative;z-index:3;width:318px;height:52px;border-radius:14px;background:linear-gradient(180deg,#3a3f47,#23272d);box-shadow:0 8px 20px rgba(11,29,58,.28);display:flex;align-items:center;justify-content:center"><div style="width:286px;height:14px;border-radius:999px;background:linear-gradient(180deg,#0d0f12,#2b2f36);box-shadow:inset 0 2px 4px rgba(0,0,0,.8)"></div></div>
+      <div style="position:absolute;top:26px;left:0;right:0;bottom:0;z-index:2;display:flex;justify-content:center;overflow:hidden;pointer-events:none">
+        <sc-if value="{{ mounted }}" hint-placeholder-val="{{ true }}">
+          <div style="width:286px;padding-top:26px;animation:gbPrint 1.6s cubic-bezier(.25,.7,.25,1) both;pointer-events:auto">
+            <div onPointerDown="{{ down }}" onPointerMove="{{ move }}" onPointerUp="{{ up }}" onPointerCancel="{{ up }}" style="transform:{{ ticketTransform }};opacity:{{ ticketOpacity }};transition:{{ ticketTransition }};touch-action:none;cursor:grab;filter:drop-shadow(0 12px 22px rgba(11,29,58,.18))">
+              <div style="background:#fff;padding:18px 20px 12px;display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:15px;letter-spacing:.5px;font-weight:700;color:#152238">GAB<span style="color:#f26532">O</span>LLE</span><span style="font-size:11px;line-height:14px;font-weight:700;color:#667882">{{ trip.code }}</span></div>
+                <div style="display:flex;align-items:flex-end;justify-content:space-between">
+                  <div><div style="font-size:11px;line-height:14px;color:#667882">출발</div><div style="font-size:28px;line-height:32px;letter-spacing:-.2px;font-weight:700;color:#152238">{{ trip.fromCode }}</div><div style="font-size:13px;line-height:18px;color:#667882">{{ trip.startTime }}</div></div>
+                  <div style="flex:1;display:flex;align-items:center;gap:6px;padding:0 10px 22px"><div style="flex:1;border-top:1px dashed #c9c3ba"></div><svg width="16" height="16" viewBox="0 0 24 24" fill="#152238"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"></path></svg><div style="flex:1;border-top:1px dashed #c9c3ba"></div></div>
+                  <div style="text-align:right"><div style="font-size:11px;line-height:14px;color:#667882">도착</div><div style="font-size:28px;line-height:32px;letter-spacing:-.2px;font-weight:700;color:#152238">{{ trip.city }}</div><div style="font-size:13px;line-height:18px;color:#667882">{{ trip.arriveTime }}</div></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:11px;line-height:14px;color:#667882">날짜</div><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238;white-space:nowrap">{{ trip.dateKo }}</div></div><span style="flex-shrink:0;padding:4px 10px;border-radius:999px;border:1px solid #e4ddd3;font-size:11px;line-height:14px;font-weight:700;color:#152238">{{ trip.mode }}</span></div>
+                <div><div style="font-size:11px;line-height:14px;color:#667882">여행자</div><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238">{{ trip.owner }}</div></div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:10px;border-top:1px dashed #e4ddd3">
+                  <sc-for list="{{ fields }}" as="f" hint-placeholder-count="6"><div style="text-align:{{ f.align }}"><div style="font-size:11px;line-height:14px;color:#667882">{{ f.k }}</div><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238">{{ f.v }}</div></div></sc-for>
+                </div>
+              </div>
+              <div style="height:14px;background:linear-gradient(45deg,transparent 33.333%,#fff 33.333%,#fff 66.667%,transparent 66.667%),linear-gradient(-45deg,transparent 33.333%,#fff 33.333%,#fff 66.667%,transparent 66.667%);background-size:14px 28px;background-position:0 -14px"></div>
+              <div style="margin-top:4px;background:#fff;padding:16px 20px 6px;display:flex;flex-direction:column;align-items:center;gap:8px">
+                <div style="display:flex;align-items:stretch;height:48px;width:100%"><sc-for list="{{ bars }}" as="b" hint-placeholder-count="60"><div style="width:{{ b.w }};background:{{ b.c }}"></div></sc-for></div>
+                <span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ trip.valid }}</span>
+              </div>
+              <div style="margin-top:4px;background:#fff;padding:16px 20px 14px;display:flex;flex-direction:column;align-items:center;gap:8px"><div style="display:grid;grid-template-columns:repeat(21,1fr);width:120px;height:120px;animation:gbQr .7s cubic-bezier(.2,.8,.2,1) 1.7s both"><sc-for list="{{ qr }}" as="c" hint-placeholder-count="441"><div style="background:{{ c }};animation:gbQrCell .4s ease 1.9s both"></div></sc-for></div><span style="font-size:11px;line-height:14px;font-weight:700;color:#152238">QR로 함께 보기</span><span style="font-size:11px;line-height:14px;color:#64748b">같은 일정을 동행자와 나눌 수 있어요</span></div>
+              <div style="height:14px;background:linear-gradient(45deg,transparent 33.333%,#fff 33.333%,#fff 66.667%,transparent 66.667%),linear-gradient(-45deg,transparent 33.333%,#fff 33.333%,#fff 66.667%,transparent 66.667%);background-size:14px 28px;background-position:0 -14px"></div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    
+        <div onClick="{{ reprint }}" style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:6px;min-height:40px;font-size:13px;line-height:18px;font-weight:700;color:#f26532;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f26532" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"></path><path d="M20 4v5h-5"></path></svg>다시 출력</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:28px;line-height:34px;letter-spacing:-.2px;font-weight:700;color:#152238">{{ trip.origin }} → {{ trip.cityKo }}</span><div style="display:flex;align-items:center;gap:8px;font-size:15px;line-height:22px;color:#667882;white-space:nowrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>{{ trip.dateKo }}</div></div>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ details }}" as="d" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;align-items:center;min-height:44px;border-bottom:1px solid #e8e4dd"><span style="font-size:15px;line-height:22px;color:#667882">{{ d.k }}</span><span style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;text-align:right">{{ d.v }}</span></div></sc-for>
+          <div style="display:flex;justify-content:space-between;align-items:center;min-height:44px;border-bottom:1px solid #e8e4dd"><span style="font-size:15px;line-height:22px;color:#667882">일정 상태</span><span style="display:flex;align-items:center;gap:6px;font-size:15px;line-height:22px;font-weight:700;color:#152238"><span style="width:8px;height:8px;border-radius:999px;background:#30a687"></span>생성 완료</span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:auto">
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px;max-width:360px">
+            <div style="min-height:48px;padding:12px 16px;box-sizing:border-box;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#fff">일정 보기</div>
+            <div style="min-height:48px;padding:12px 16px;box-sizing:border-box;border-radius:14px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;line-height:22px;font-weight:700;color:#0b1d3a"><img src="assets/tab-map.png" alt="" style="width:18px;height:18px">지도에서 보기</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;mobile&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;mobile&quot;,&quot;desktop&quot;]}}">
+class Component extends DCLogic {
+  state = { flipped: false, mounted: true, dy: 0, dragging: false, tearing: false };
+  renderVals() {
+    const trip = { city: 'BUSAN', cityKo: '부산', origin: '서울', fromCode: 'SEOUL', code: 'GB-8F21', startTime: '09:00', arriveTime: '20:08', dateKo: '2026년 9월 19일 (토)', mode: '대중교통', owner: 'HJ Jang', duration: '1일 · 4곳', placesLabel: '4곳', valid: '일정 확정 · 2026-09-19' };
+    if (!this.bars) { let s = 3; const r = () => (s = (s * 16807) % 2147483647) / 2147483647; this.bars = Array.from({ length: 64 }, (_, i) => ({ w: (r() > .6 ? 3 : r() > .5 ? 2 : 1) * 1.6 + 'px', c: i % 2 ? '#fff' : '#152238' })); }
+    if (!this.qr) {
+      let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647; const N = 21, cells = [];
+      const finder = (r, c) => { for (const [fr, fc] of [[0, 0], [0, N - 7], [N - 7, 0]]) { const dr = r - fr, dc = c - fc; if (dr >= 0 && dr < 7 && dc >= 0 && dc < 7) { const ring = Math.max(Math.abs(dr - 3), Math.abs(dc - 3)); return ring === 3 || ring <= 1; } if (dr >= -1 && dr < 8 && dc >= -1 && dc < 8) return false; } return null; };
+      for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) { const f = finder(r, c); const on = f !== null ? f : (r === 6 || c === 6) ? (r + c) % 2 === 0 : rnd() > .55; cells.push(on ? '#0b1d3a' : '#fff'); }
+      this.qr = cells;
+    }
+    const { dy, dragging, tearing } = this.state;
+    const reprint = () => { this.setState({ mounted: false, dy: 0, dragging: false, tearing: false }, () => setTimeout(() => this.setState({ mounted: true }), 120)); };
+    return {
+      frameW: 390, frameH: 844, isMobile: (this.props.mode ?? 'mobile') === 'mobile', isDesktop: (this.props.mode ?? 'mobile') === 'desktop', trip, bars: this.bars, qr: this.qr,
+      fields: [['일수', '1일', 'left'], ['장소', '4곳', 'center'], ['이동', '155분', 'right'], ['시작', '09:00', 'left'], ['종료', '20:08', 'center'], ['예산', '10만 원', 'right']].map(([k, v, align]) => ({ k, v, align })),
+      strip: [['일수', '1일'], ['장소', '4곳'], ['이동', '155분'], ['시작', '09:00']].map(([k, v]) => ({ k, v })),
+      details: [['출발지', '부산역'], ['첫 일정', '12:51 · 제로베이스'], ['마지막 일정', '20:08 · 용두산 자갈치 관광특구'], ['이동 합계', '155분 (어림)'], ['예산', '10만 원']].map(([k, v]) => ({ k, v })),
+      mounted: this.state.mounted, reprint,
+      ticketTransform: tearing ? 'translateY(720px) rotate(14deg)' : `translateY(${dy}px) rotate(${dy / 40}deg)`,
+      ticketOpacity: tearing ? 0 : 1,
+      ticketTransition: dragging ? 'none' : tearing ? 'transform .7s cubic-bezier(.4,0,.9,.6), opacity .5s .2s' : 'transform .35s cubic-bezier(.2,.8,.2,1)',
+      down: (e) => { e.currentTarget.setPointerCapture?.(e.pointerId); this.startY = e.clientY; this.setState({ dragging: true }); },
+      move: (e) => { if (!this.state.dragging) return; const d = Math.max(0, e.clientY - this.startY); this.setState({ dy: d }); },
+      up: () => { if (!this.state.dragging) return; if (this.state.dy > 110) { this.setState({ dragging: false, tearing: true }); setTimeout(reprint, 750); } else this.setState({ dragging: false, dy: 0 }); },
+      flipTransform: this.state.flipped ? 'rotateY(180deg)' : 'rotateY(0deg)', frontOp: this.state.flipped ? 0 : 1, backOp: this.state.flipped ? 1 : 0,
+      toggle: () => this.setState(s => ({ flipped: !s.flipped })),
+    };
+  }
+}
+</script>
+</body>
+</html>

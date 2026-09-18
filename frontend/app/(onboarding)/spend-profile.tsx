@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -24,6 +25,9 @@ export default function SpendProfileScreen() {
   const [answers, setAnswers] = useState<SpendAnswers>({});
   const [checking, setChecking] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
+  const [checkFailed, setCheckFailed] = useState(false);
+  const [checkAttempt, setCheckAttempt] = useState(0);
 
   // 직접 주소로 들어오는 등 이미 답한 계정이면 다시 묻지 않는다 — 서버 상태가 유일한 기준이다
   // (로컬 플래그를 따로 두지 않는다, home.tsx 의 1회성 안내와 같은 원칙).
@@ -31,24 +35,28 @@ export default function SpendProfileScreen() {
     if (!ready) return;
     if (!accessToken) { router.replace('/home'); return; }
     let active = true;
+    setChecking(true);
+    setCheckFailed(false);
     void getSpendProfile(accessToken).then((result) => {
       if (!active) return;
       if (result.status !== 'UNKNOWN') { router.replace('/home'); return; }
       setChecking(false);
-    }).catch(() => { if (active) setChecking(false); });
+    }).catch(() => { if (active) { setChecking(false); setCheckFailed(true); } });
     return () => { active = false; };
-  }, [ready, accessToken, router]);
+  }, [ready, accessToken, router, checkAttempt]);
 
   const finish = async (finalAnswers: SpendAnswers) => {
     if (submitting) return;
     setSubmitting(true);
+    setSaveFailed(false);
     try {
       await putSpendProfile(finalAnswers, accessToken);
+      router.replace('/taste-profile');
     } catch {
-      // 저장에 실패해도 이 화면에 사람을 가둬 두지 않는다 — 다음에 홈에 들어올 때
-      // 상태가 여전히 UNKNOWN이면 다시 물어볼 기회가 있다.
+      // 다음 화면으로 조용히 넘기면 저장된 줄 알고 같은 설문을 반복하게 된다.
+      setSaveFailed(true);
     } finally {
-      router.replace('/home');
+      setSubmitting(false);
     }
   };
 
@@ -62,6 +70,13 @@ export default function SpendProfileScreen() {
 
   if (checking) {
     return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
+  }
+  if (checkFailed) {
+    return <Screen scroll style={styles.screen}><View style={styles.heading}>
+      <Text accessibilityRole="alert">{tx('저장한 답변을 확인하지 못했어요. 이미 답한 설문을 다시 묻지 않도록 연결을 확인한 뒤 재시도해 주세요.', 'We could not check your saved answers. Please retry so we do not ask you to repeat a completed survey.')}</Text>
+      <Button label={tx('다시 확인', 'Check again')} onPress={() => setCheckAttempt((value) => value + 1)} />
+      <Button variant="ghost" label={tx('홈으로', 'Go to home')} onPress={() => router.replace('/home')} />
+    </View></Screen>;
   }
 
   const question = SPEND_QUESTIONS[step];
@@ -78,7 +93,13 @@ export default function SpendProfileScreen() {
 
     {step === 0 && <View style={styles.heading}><Text variant="display" weight="bold">{tx(header.titleKo, header.titleEn)}</Text><Text color={color.text.body}>{tx(header.bodyKo, header.bodyEn)}</Text></View>}
 
-    <Text variant="title" weight="bold" style={styles.question}>{question.titleKo('USER')}</Text>
+    {saveFailed && <View style={styles.options}>
+      <Text accessibilityRole="alert">{tx('답변을 저장하지 못했어요. 이 화면에서는 선택한 답이 유지돼요. 다시 저장하거나, 저장하지 않고 나중에 답할 수 있어요.', 'Your answers could not be saved. Your selections are kept on this screen. Retry saving, or leave without saving and answer later.')}</Text>
+      <Button label={tx('다시 저장', 'Retry saving')} disabled={submitting} onPress={() => void finish(answers)} />
+      <Button variant="ghost" label={tx('저장하지 않고 나중에', 'Leave without saving')} disabled={submitting} onPress={() => router.replace('/home')} />
+    </View>}
+
+    <Text variant="title" weight="bold" style={styles.question}>{tx(question.titleKo('USER'), question.titleEn('USER'))}</Text>
 
     <View style={styles.options}>
       {question.options.map((option) => (
@@ -108,7 +129,10 @@ export default function SpendProfileScreen() {
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.brand.ivory },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
-  topBar: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
+  // 🔴 marginTop — Screen 의 기본 paddingTop(24) 만으로는 전역 언어 배지(우측 상단
+  //    절대좌표)를 못 피한다(home.tsx·app-intro.tsx 에서 실사용 리포트로 확인된 것과
+  //    같은 자리). "전체 건너뛰기" 가 배지와 겹치던 결함을 여기도 같은 값으로 고친다.
+  topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
   logo: { width: 88, height: 24 },
   stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
   skipAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },

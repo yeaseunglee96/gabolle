@@ -32,7 +32,8 @@ export type Registration = {
   email: string;
   status: string;
 };
-export type AuthUser = { userId: string; email: string; displayName: string; language: string; status: string };
+// avatarUrl 은 레코드 맨 끝에 붙은 칸이다(S15P21E201-844) — 안 고른 사람은 null 이고 화면이 기본 그림을 그린다.
+export type AuthUser = { userId: string; email: string; displayName: string; language: string; status: string; avatarUrl?: string | null };
 export type AuthTokens = { accessToken: string; refreshToken: string | null; expiresIn: number; sessionId: string; user: AuthUser };
 export type OAuthProvider = 'google' | 'naver' | 'kakao' | 'apple';
 export type OAuthChallenge = { state: string; nonce: string; expiresAt: string };
@@ -74,6 +75,12 @@ export async function signup(input: SignupInput) {
 
 export function resendEmailVerification(email: string) {
   return apiRequest<void>('/api/v1/auth/email-verification/resend', { method: 'POST', body: { email: email.trim() } });
+}
+// S15P21E201-941 — 메일 링크가 화면으로 오면서 확인을 화면이 부른다. skipUnauthorizedHandling 을
+// 켜는 이유는 재설정 확인과 같다 — 이 요청은 로그인한 사람이 부르는 것이 아니라 메일에서 온
+// 사람이 부르므로, 401 을 받았다고 로그인 화면으로 밀어내면 실패 이유를 못 보여 준다.
+export function confirmEmailVerification(token: string) {
+  return apiRequest<void>('/api/v1/auth/email-verification/confirm', { method: 'POST', body: { token }, skipUnauthorizedHandling: true });
 }
 export function requestPasswordReset(email: string) {
   return apiRequest<void>('/api/v1/auth/password-reset/request', { method: 'POST', body: { email: email.trim() }, skipUnauthorizedHandling: true });
@@ -155,7 +162,7 @@ export async function linkOAuthAccount(
   }
 }
 export function getMe(accessToken: string) { return apiRequest<AuthUser>('/api/v1/auth/me', { accessToken }); }
-export function updateMe(accessToken: string, input: { displayName?: string; language?: SignupLanguage }) {
+export function updateMe(accessToken: string, input: { displayName?: string; language?: SignupLanguage; avatarUrl?: string | null }) {
   return apiRequest<AuthUser>('/api/v1/auth/me', { method: 'PATCH', accessToken, body: input });
 }
 // 박재현 님 계약(S15P21E201-837, 2026-09-11, back/dev MR !598): 소셜로만 가입한 계정은
@@ -174,6 +181,22 @@ export type AccountDeletionPreview = { ownedTripCount: number; itineraryCount: n
 
 export function getAccountDeletionPreview(accessToken: string) {
   return apiRequest<AccountDeletionPreview>('/api/v1/auth/me/deletion-preview', { accessToken });
+}
+
+// 가입 뒤 동의를 읽고 바꾸는 자리 — S15P21E201-735(고지혁 님 · MR !585/!600, 2026-09-11).
+// PATCH는 부분 수정이다 — 보낸 항목만 바뀌고 안 보낸 항목은 그대로다. TERMS_OF_SERVICE·
+// PRIVACY_POLICY는 이 경로로 못 끈다(서버가 400 REQUIRED_CONSENT_NOT_REVOCABLE로 거부한다) —
+// 그건 철회가 아니라 탈퇴다.
+export type ConsentName = 'BEHAVIOR_PERSONALIZATION' | 'PRECISE_LOCATION' | 'HEALTH_CONSTRAINTS';
+export type ConsentItem = { consentType: string; status: 'GRANTED' | 'REVOKED'; policyVersion: string; decidedAt: string };
+export type MyConsents = { behaviorPersonalizationEnabled: boolean; consents: ConsentItem[] };
+
+export function getMyConsents(accessToken: string) {
+  return apiRequest<MyConsents>('/api/v1/auth/me/consents', { accessToken });
+}
+
+export function updateMyConsents(accessToken: string, consents: Partial<Record<ConsentName, boolean>>) {
+  return apiRequest<MyConsents>('/api/v1/auth/me/consents', { method: 'PATCH', accessToken, body: { consents } });
 }
 export function refreshWebSession() { return apiRequest<AuthTokens>('/api/v1/auth/web/refresh', { method: 'POST', skipUnauthorizedHandling: true }); }
 export function refreshMobileSession(refreshToken: string) { return apiRequest<AuthTokens>('/api/v1/auth/refresh', { method: 'POST', body: { refreshToken }, skipUnauthorizedHandling: true }); }

@@ -7,7 +7,7 @@
 // 🔴 이 앱은 "모르는 것을 아는 척하지 않는다" 는 원칙(PASS/FAIL/UNKNOWN)을 따른다.
 //    그래서 판정이 안 된 구간이 있다는 것도 숨기지 않고 UNKNOWN 으로 그대로 보여준다.
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AppState, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import * as Location from 'expo-location';
 
@@ -16,7 +16,10 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { SampleNotice } from '@/components/SampleNotice';
 import { RouteMap, type CurrentLocation } from '@/map/RouteMap';
+import { loadItineraryStops, localizeItineraryStops, type ItineraryDaySeed } from '@/map/itineraryStops';
+import { useAuth } from '@/auth/AuthProvider';
 import { city3dUrlForStops, openCity3D } from '@/map/city3d';
 
 const pinIcon = require('../../../assets/icons/common/pin.png');
@@ -85,6 +88,9 @@ const DAY_STOPS_SEED: Record<'DAY 1' | 'DAY 2', MapStopSeed[]> = {
 };
 
 const DAY_COLORS = { 'DAY 1': color.brand.orange, 'DAY 2': color.state.success } as const;
+// S15P21E201-1113 — 실제 일정은 사흘 이상일 수 있다. 색은 돌려 쓰되 첫 두 날은 쓰던 색 그대로다.
+const DAY_PALETTE = [DAY_COLORS['DAY 1'], DAY_COLORS['DAY 2'], color.brand.navy, color.text.eyebrow] as const;
+const dayColor = (index: number) => DAY_PALETTE[index % DAY_PALETTE.length];
 const EXTRA_STOPS_SEED = {
   souvenir: [
     { id: 'souvenir-nampo', number: 1, nameKo: '남포동 부산 기념품점', nameEn: 'Nampo-dong Busan souvenir shop', latitude: 35.0979, longitude: 129.0298 },
@@ -140,12 +146,37 @@ export default function Map() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { tx } = useI18n();
-  const [day, setDay] = useState<'DAY 1' | 'DAY 2'>('DAY 1');
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { accessToken } = useAuth();
+  const [day, setDay] = useState<string>('DAY 1');
   const [routeScope, setRouteScope] = useState<'selected' | 'all'>('selected');
   const [showSouvenirs, setShowSouvenirs] = useState(false);
   const [showNight, setShowNight] = useState(false);
-  const stops = useMemo(() => localizeStops(tx, DAY_STOPS_SEED[day]), [day, tx]);
+
+  // S15P21E201-1113 — 내 일정을 가져와 지도에 찍는다. 못 가져오면 real 이 null 로 남고
+  // 화면은 예시 일정으로 돌아가며 「샘플」이라고 말한다. **빈 지도를 그리지 않는다.**
+  const [real, setReal] = useState<{ days: ItineraryDaySeed[]; missingCount: number } | null>(null);
+  useEffect(() => {
+    if (!id) return;
+    const controller = new AbortController();
+    void loadItineraryStops(id, accessToken, controller.signal).then((result) => {
+      if (controller.signal.aborted) return;
+      setReal(result.state === 'success' ? { days: result.days, missingCount: result.missingCount } : null);
+    });
+    return () => controller.abort();
+  }, [accessToken, id]);
+
+  const dayEntries = useMemo(() => (real
+    ? real.days.map((entry) => ({ key: tx(`${entry.index}일차`, `DAY ${entry.index}`), stops: localizeItineraryStops(tx, entry.stops) }))
+    : (Object.keys(DAY_STOPS_SEED) as Array<keyof typeof DAY_STOPS_SEED>).map((key) => ({ key, stops: localizeStops(tx, DAY_STOPS_SEED[key]) }))), [real, tx]);
+  // 고른 날짜가 목록에 없으면(일정이 막 들어와 이름이 바뀐 직후) 첫 날로 돌아간다.
+  const activeIndex = Math.max(0, dayEntries.findIndex((entry) => entry.key === day));
+  const activeDay = dayEntries[activeIndex];
+  const stops = activeDay.stops;
   const [selectedId, setSelectedId] = useState(stops[0].id);
+  useEffect(() => {
+    if (!stops.some((stop) => stop.id === selectedId)) setSelectedId(stops[0].id);
+  }, [selectedId, stops]);
   const [locationPermission, setLocationPermission] = useState<'checking' | 'undetermined' | 'granted' | 'denied'>(Platform.OS === 'web' ? 'granted' : 'checking');
   const [requestingLocation, setRequestingLocation] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<CurrentLocation | null>(null);
@@ -183,17 +214,18 @@ export default function Map() {
       setRequestingLocation(false);
     }
   }
-  const routes = useMemo(() => routeScope === 'all'
-    ? (Object.keys(DAY_STOPS_SEED) as Array<keyof typeof DAY_STOPS_SEED>).map((key) => ({ id: key, color: DAY_COLORS[key], stops: localizeStops(tx, DAY_STOPS_SEED[key]) }))
-    : [{ id: day, color: DAY_COLORS[day], stops }], [day, routeScope, stops, tx]);
+  const routes = useMemo(() => (routeScope === 'all'
+    ? dayEntries.map((entry, index) => ({ id: entry.key, color: dayColor(index), stops: entry.stops }))
+    : [{ id: activeDay.key, color: dayColor(activeIndex), stops }]), [activeDay.key, activeIndex, dayEntries, routeScope, stops]);
   const points = useMemo(() => [
     ...(showSouvenirs ? [{ id: 'souvenir', label: tx('선물', 'Souvenirs'), color: color.text.eyebrow, stops: localizeStops(tx, EXTRA_STOPS_SEED.souvenir) }] : []),
     ...(showNight ? [{ id: 'night', label: tx('야경', 'Night views'), color: color.brand.navy, stops: localizeStops(tx, EXTRA_STOPS_SEED.night) }] : []),
   ], [showNight, showSouvenirs, tx]);
 
-  const selectDay = (nextDay: 'DAY 1' | 'DAY 2') => {
+  const selectDay = (nextDay: string) => {
     setDay(nextDay);
-    setSelectedId(DAY_STOPS_SEED[nextDay][0].id);
+    const next = dayEntries.find((entry) => entry.key === nextDay);
+    if (next) setSelectedId(next.stops[0].id);
   };
   const selectStopFromMap = useCallback((id: string) => {
     setSelectedId(id);
@@ -213,20 +245,20 @@ export default function Map() {
       <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: showSouvenirs }} onPress={() => setShowSouvenirs((value) => !value)} style={[styles.layerChip, showSouvenirs && styles.layerChipActive]}><Text variant="caption" weight="bold" color={showSouvenirs ? color.text.onAction : color.text.body}>{tx('기념품샵', 'Souvenir shops')}</Text></Pressable>
       <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: showNight }} onPress={() => setShowNight((value) => !value)} style={[styles.layerChip, showNight && styles.layerChipActive]}><Text variant="caption" weight="bold" color={showNight ? color.text.onAction : color.text.body}>{tx('야경 명소', 'Night view spots')}</Text></Pressable>
     </View>
-    {routeScope === 'all' ? <View style={styles.legend}><Text variant="caption" color={DAY_COLORS['DAY 1']}>● DAY 1</Text><Text variant="caption" color={DAY_COLORS['DAY 2']}>● DAY 2</Text></View> : null}
+    {routeScope === 'all' ? <View style={styles.legend}>{dayEntries.map((entry, index) => <Text key={entry.key} variant="caption" color={dayColor(index)}>{`● ${entry.key}`}</Text>)}</View> : null}
   </View>;
 
   return (
     <Screen scroll wide>
       <View style={styles.headerRow}>
         <View>
-          <Text variant="caption">{tx(`${day} · ${stops.length}곳`, `${day} · ${stops.length} places`)}</Text>
+          <Text variant="caption">{tx(`${activeDay.key} · ${stops.length}곳`, `${activeDay.key} · ${stops.length} places`)}</Text>
           <Text variant="display" weight="bold" style={styles.title}>{tx('여행 지도', 'Trip map')}</Text>
         </View>
         <View accessibilityRole="tablist" style={styles.dayToggle}>
-          {(['DAY 1', 'DAY 2'] as const).map((option) => (
-            <Pressable key={option} accessibilityRole="tab" accessibilityState={{ selected: day === option }} onPress={() => selectDay(option)} style={[styles.dayOption, day === option && styles.dayOptionSelected]}>
-              <Text variant="caption" weight="bold" color={day === option ? color.text.onAction : color.text.muted}>{option}</Text>
+          {dayEntries.map((entry, index) => (
+            <Pressable key={entry.key} accessibilityRole="tab" accessibilityState={{ selected: index === activeIndex }} onPress={() => selectDay(entry.key)} style={[styles.dayOption, index === activeIndex && styles.dayOptionSelected]}>
+              <Text variant="caption" weight="bold" color={index === activeIndex ? color.text.onAction : color.text.muted}>{entry.key}</Text>
             </Pressable>
           ))}
         </View>
@@ -243,6 +275,22 @@ export default function Map() {
           onRequest={() => void requestLocation()}
         />
       )}
+
+      {/* S15P21E201-1009 · -1113 — 내 일정을 가져왔으면 그것을 그리고, 못 가져왔을 때만
+          예시를 그리되 반드시 그렇다고 말한다. 이 화면이 여행 주소 안에 있어서, 표시가
+          없으면 자기 일정이 그려진 줄 안다. */}
+      {real === null ? (
+        <SampleNotice
+          badge={tx('샘플 일정', 'Sample itinerary')}
+          description={tx('지도에 찍힌 장소는 화면을 보여주기 위한 예시 일정이에요. 내가 만든 일정이 아니에요.', 'The stops on this map are an example itinerary for this screen — not the trip you created.')}
+        />
+      ) : real.missingCount > 0 ? (
+        // 🔴 못 찍은 곳을 조용히 빼지 않는다 — 그러면 이 지도가 일정 전부라고 믿게 된다.
+        <SampleNotice
+          badge={tx('일부만 표시', 'Partial map')}
+          description={tx(`${real.missingCount}곳은 위치를 받지 못해 지도에 없어요. 일정에는 그대로 있어요.`, `${real.missingCount} stop(s) have no location yet, so they are missing from this map. They are still in your itinerary.`)}
+        />
+      ) : null}
 
       <View style={styles.mapStage}>
         <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} currentLocation={currentLocation} onBackToList={() => router.back()} height={widthTier(width) === 'sm' ? 420 : 600} />
@@ -272,6 +320,14 @@ export default function Map() {
       </View>
 
       <Text variant="title" weight="bold" style={styles.sectionTitle}>{tx('실측 경로 비교', 'Measured route comparison')}</Text>
+
+      {/* S15P21E201-1009 — 🔴 이 숫자는 지어낸 것이 아니라 실측이다. 다만 고정된 두 구간을
+          잰 것이라 이 여행의 경로가 아니다. 「샘플」이라고 적으면 실측을 가짜라고 말하게 되고,
+          아무 말도 안 하면 자기 여행을 잰 것으로 읽힌다. 그래서 둘 다 적는다. */}
+      <SampleNotice
+        badge={tx('예시 구간', 'Example route')}
+        description={tx('아래는 정해진 두 구간을 실제로 재어 본 값이에요. 이 여행의 경로를 잰 것은 아니에요.', 'These are real measurements of two fixed routes — not of this trip.')}
+      />
 
       <View style={styles.comparisons}><ComparisonCard route={SHADE_ROUTE} /><ComparisonCard route={WHEELCHAIR_ROUTE} /></View>
 

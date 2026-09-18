@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+body{margin:0;background:#fffdf8;font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0b1d3a}a:hover{color:#f26532}
+@keyframes gb-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+<div data-screen-label="explore" style="width:100%;height:100%;overflow:auto;background:#fffdf8;font-family:Pretendard,-apple-system,sans-serif;display:flex;flex-direction:column;box-sizing:border-box">
+
+  <sc-if value="{{ isMdUp }}" hint-placeholder-val="{{ true }}">
+    <div style="position:sticky;top:0;z-index:2;flex-shrink:0;display:flex;flex-direction:column">
+      <div style="height:36px;padding:0 {{ navPad }}px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:12px;background:#f8f3eb">
+        <div style="display:flex;align-items:center;height:36px;padding:0 4px;white-space:nowrap;font-size:13px;line-height:18px;font-weight:{{ koWeight }};color:#64748b">KO</div>
+        <span style="padding:0 4px;font-size:13px;line-height:18px;color:#e4ddd3">|</span>
+        <div style="display:flex;align-items:center;height:36px;padding:0 4px;white-space:nowrap;font-size:13px;line-height:18px;font-weight:{{ enWeight }};color:#64748b">EN</div>
+        <span style="width:1px;height:14px;background:#e4ddd3"></span>
+        <div style="display:flex;align-items:center;height:36px;padding:0 4px;white-space:nowrap;font-size:13px;line-height:18px;font-weight:700;color:#64748b">{{ t.login }}</div>
+        <div style="display:flex;align-items:center;height:36px;padding:0 4px;white-space:nowrap;font-size:13px;line-height:18px;font-weight:700;color:#0b1d3a">{{ t.signup }}</div>
+      </div>
+      <div style="height:60px;padding:0 {{ navPad }}px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;background:#fffdf8;border-bottom:1px solid #e8e4dd">
+        <img src="assets/logo.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb">
+          <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;white-space:nowrap;font-size:15px;line-height:22px;font-weight:500;color:#667882">{{ t.navHome }}</div>
+          <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;white-space:nowrap;font-size:15px;line-height:22px;font-weight:500;color:#667882">{{ t.navFeed }}</div>
+          <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;white-space:nowrap;font-size:15px;line-height:22px;font-weight:500;color:#667882">{{ t.navTrips }}</div>
+        </div>
+        <div style="height:40px;white-space:nowrap;padding:0 16px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff;flex-shrink:0">{{ t.navCreate }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="width:100%;max-width:{{ maxW }};box-sizing:border-box;align-self:center;padding:{{ padTop }}px 24px 32px;display:flex;flex-direction:column;flex:1">
+
+    <sc-if value="{{ isSm }}" hint-placeholder-val="{{ false }}">
+      <div style="min-height:52px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="width:44px;height:44px;border-radius:999px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:24px;font-weight:700;color:#152238">‹</div>
+        <img src="assets/logo.png" alt="GABOLLE" style="width:96px;height:28px;object-fit:contain">
+        <div style="width:44px"></div>
+      </div>
+    </sc-if>
+
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:24px">
+      <sc-if value="{{ isMdUp }}" hint-placeholder-val="{{ true }}">
+        <div style="width:44px;height:44px;flex-shrink:0;border-radius:999px;background:#fff;border:1px solid #e8e4dd;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:24px;font-weight:700;color:#152238">‹</div>
+      </sc-if>
+      <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0;max-width:720px">
+        <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">{{ t.eyebrow }}</div>
+        <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238;text-wrap:pretty">{{ t.title }}</div>
+        <div style="font-size:15px;line-height:22px;color:#667882;text-wrap:pretty">{{ t.desc }}</div>
+      </div>
+    </div>
+
+    <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+      <div aria-live="polite" style="width:100%;max-width:480px;align-self:center;margin-top:16px;padding:24px;box-sizing:border-box;border-radius:20px;background:#fff;border:1px solid #e8e4dd;display:flex;flex-direction:column;align-items:center;gap:12px">
+        {{ spinner }}
+        <div style="font-size:15px;line-height:22px;color:#667882">{{ t.loading }}</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+      <div role="alert" style="width:100%;max-width:480px;align-self:center;margin-top:16px;padding:24px;box-sizing:border-box;border-radius:20px;background:#fff;border:1px solid #e8e4dd;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+        <img src="assets/mascot-thinking.png" alt="" style="width:72px;height:72px;object-fit:contain">
+        <div style="font-size:18px;line-height:24px;font-weight:700;color:#152238;text-wrap:pretty">{{ errorTitle }}</div>
+        <div style="font-size:15px;line-height:22px;color:#667882;text-wrap:pretty">{{ errorMessage }}</div>
+        <div style="width:100%;min-height:48px;padding:12px;box-sizing:border-box;border-radius:14px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#0b1d3a">{{ t.retry }}</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="width:100%;max-width:480px;align-self:center;margin-top:16px;padding:24px;box-sizing:border-box;border-radius:20px;background:#fff;border:1px solid #e8e4dd;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+        <img src="assets/mascot-idle.png" alt="" style="width:72px;height:72px;object-fit:contain">
+        <div style="font-size:15px;line-height:22px;color:#667882;text-wrap:pretty">{{ t.noFacets }}</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isOk }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:{{ cols }};gap:24px;align-items:start">
+
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0;position:sticky;top:{{ stickyTop }}px;border-right:{{ sideBorder }};padding-right:{{ sidePadR }}px">
+          <div role="tablist" style="display:flex;flex-direction:{{ facetDir }};flex-wrap:{{ facetWrap }};gap:8px;overflow-x:{{ facetOverflow }};margin:0 -24px;padding:0 24px;scrollbar-width:none">
+            <sc-for list="{{ facets }}" as="f" hint-placeholder-count="3">
+              <div role="button" aria-pressed="{{ f.selected }}" style="min-height:44px;box-sizing:border-box;flex-shrink:0;width:{{ chipW }};padding:10px 16px;border-radius:{{ chipRadius }}px;background:{{ f.bg }};border:1px solid {{ f.border }};display:flex;align-items:center;justify-content:{{ chipJustify }};gap:8px;white-space:nowrap;font-size:15px;line-height:22px;font-weight:700;color:{{ f.fg }}">
+                <span style="display:flex;align-items:flex-start;gap:6px;min-width:0;white-space:{{ labelWrap }}"><sc-if value="{{ f.selected }}" hint-placeholder-val="{{ false }}"><span>✓</span></sc-if><span>{{ f.label }}</span></span>
+                <span style="font-weight:{{ countWeight }};color:{{ f.countFg }};flex-shrink:0">{{ f.countText }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div role="tablist" style="display:flex;padding:4px;border-radius:999px;background:#f8f3eb">
+            <div role="tab" style="flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:{{ nearbyBg }};font-size:15px;line-height:22px;font-weight:700;color:{{ nearbyFg }};white-space:nowrap;padding:0 12px">{{ nearbyLabel }}</div>
+            <div role="tab" style="flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:{{ allBg }};font-size:15px;line-height:22px;font-weight:700;color:{{ allFg }};white-space:nowrap;padding:0 12px">{{ allLabel }}</div>
+          </div>
+          <div style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b;text-wrap:pretty">{{ scopeHint }}</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+          <sc-if value="{{ isNearby }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ t.range }}</div>
+          </sc-if>
+          <sc-if value="{{ isDenied }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:14px;background:#fff1e8">
+              <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532;text-wrap:pretty">{{ t.fallback }}</div>
+              <div style="align-self:flex-start;min-height:48px;padding:12px 16px;box-sizing:border-box;border-radius:14px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;white-space:nowrap;font-size:15px;line-height:22px;font-weight:700;color:#0b1d3a">{{ t.retryLocation }}</div>
+            </div>
+          </sc-if>
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:4px">
+            <div style="font-size:18px;line-height:24px;font-weight:700;color:#152238">{{ selectedLabel }}</div>
+            <div style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b;white-space:nowrap">{{ resultCount }}</div>
+          </div>
+
+          <sc-if value="{{ isSm }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ places }}" as="p" hint-placeholder-count="4">
+                <div role="link" style="display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid #e8e4dd">
+                  <div style="position:relative;width:72px;height:72px;flex-shrink:0;border-radius:14px;overflow:hidden;background:#f8f3eb;display:flex;align-items:center;justify-content:center">
+                    <sc-if value="{{ p.hasPhoto }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background:linear-gradient(135deg,#e4ddd3,#f8f3eb)"></div></sc-if>
+                    <sc-if value="{{ p.noPhoto }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg></sc-if>
+                  </div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238">{{ p.name }}</div>
+                    <div style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.address }}</div>
+                    <sc-if value="{{ p.hasPhoto }}" hint-placeholder-val="{{ false }}"><div style="margin-top:4px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ p.photoSource }}</div></sc-if>
+                  </div>
+                  <sc-if value="{{ isNearby }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532;white-space:nowrap">{{ p.distance }}</div></sc-if>
+                  <div style="font-size:18px;line-height:24px;color:#f26532">›</div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMdUp }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:4px">
+              <sc-for list="{{ places }}" as="p" hint-placeholder-count="4">
+                <div role="link" style="display:flex;flex-direction:column;background:#fff;border:1px solid #e8e4dd;border-radius:20px;overflow:hidden;min-width:0">
+                  <div style="position:relative;aspect-ratio:16/9;background:#f8f3eb;display:flex;align-items:center;justify-content:center">
+                    <sc-if value="{{ p.hasPhoto }}" hint-placeholder-val="{{ true }}">
+                      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#e4ddd3,#f8f3eb)"></div>
+                      <div style="position:absolute;left:12px;bottom:8px;max-width:calc(100% - 24px);box-sizing:border-box;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.85);font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.photoSource }}</div>
+                    </sc-if>
+                    <sc-if value="{{ p.noPhoto }}" hint-placeholder-val="{{ false }}">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 16px">
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;text-wrap:pretty">{{ p.name }}</div>
+                      <div style="margin-top:2px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ p.address }}</div>
+                      <sc-if value="{{ isNearby }}" hint-placeholder-val="{{ false }}"><div style="margin-top:8px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">{{ p.distance }}</div></sc-if>
+                    </div>
+                    <div style="font-size:18px;line-height:24px;color:#f26532">›</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ isXl }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px;position:sticky;top:{{ stickyTop }}px">
+            <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">{{ t.mapEyebrow }}</div>
+            <div style="border:1px solid #e8e4dd;border-radius:20px;background:#fff;overflow:hidden">
+              <div style="position:relative;height:360px;background:#f8f3eb;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">
+                <span style="position:absolute;left:12px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.85)">{{ t.mapPlaceholder }}</span>
+                <sc-for list="{{ pins }}" as="pin" hint-placeholder-count="0">
+                  <div style="position:absolute;left:{{ pin.x }}%;top:{{ pin.y }}%;width:22px;height:22px;margin:-11px;border-radius:999px;background:{{ pin.bg }};border:2px solid #fff;box-shadow:0 1px 3px rgba(11,29,58,.2);display:flex;align-items:center;justify-content:center;font-size:11px;line-height:14px;font-weight:700;color:{{ pin.fg }}">{{ pin.n }}</div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;padding:12px 16px">
+                <div style="font-size:15px;line-height:22px;color:#667882">{{ mapCount }}</div>
+                <sc-if value="{{ isNearby }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ t.mapCenter }}</div></sc-if>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;width&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1440,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;레이아웃&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;ok&quot;,&quot;options&quot;:[&quot;ok&quot;,&quot;denied&quot;,&quot;loading&quot;,&quot;error-offline&quot;,&quot;error-unavailable&quot;,&quot;error-other&quot;,&quot;empty&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;상태&quot;},&quot;scope&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;all&quot;,&quot;options&quot;:[&quot;all&quot;,&quot;nearby&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;상태&quot;},&quot;facetCount&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:8,&quot;options&quot;:[3,8,12],&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;자료&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;ko&quot;,&quot;options&quot;:[&quot;ko&quot;,&quot;en&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;자료&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const width = Number(this.props.width ?? 1440);
+    const state = this.props.state ?? 'ok';
+    const lang = this.props.lang ?? 'ko';
+    const facetCount = Number(this.props.facetCount ?? 8);
+    const scopeProp = this.props.scope ?? 'all';
+    const en = lang === 'en';
+    const tx = (ko, e) => en ? e : ko;
+
+    const isSm = width <= 599, isMdUp = width >= 600, isLgUp = width >= 1024, isXl = width >= 1440;
+    const isDenied = state === 'denied';
+    const isNearby = isDenied || scopeProp === 'nearby';
+    const isOk = state === 'ok' || isDenied;
+    const isError = state.startsWith('error');
+
+    const t = {
+      navHome: tx('홈', 'Home'), navFeed: tx('피드', 'Feed'), navTrips: tx('내 여행', 'My trips'), navCreate: tx('여행 만들기', 'Create trip'),
+      langCode: en ? 'EN' : 'KO', login: tx('로그인', 'Log in'), signup: tx('회원가입', 'Sign up'),
+      eyebrow: tx('로컬 탐색', 'Local explore'), title: tx('부산 로컬 탐색', 'Explore Busan like a local'),
+      desc: tx('관심 갈래를 고르고 내 근처 또는 부산 전체에서 찾아보세요.', 'Choose a category, then search nearby or across Busan.'),
+      loading: tx('갈래를 불러오고 있어요', 'Loading categories'), retry: tx('다시 시도', 'Try again'),
+      noFacets: tx('지금은 둘러볼 수 있는 갈래가 없어요. 자료가 들어오면 다시 열어 드릴게요.', 'No categories to explore right now — check back once new places are added.'),
+      range: tx('검색 범위: 3km 이내', 'Search range: within 3 km'),
+      fallback: tx('내 위치를 몰라 부산 중심에서 찾았어요. 거리도 그 기준이에요.', 'We searched from the center of Busan because your location is unavailable. Distances use that point.'),
+      retryLocation: tx('내 위치로 다시 찾기', 'Search from my location'),
+      mapEyebrow: tx('결과 위치', 'Result locations'), mapPlaceholder: tx('지도 (RouteMap · 웹 전용)', 'Map (RouteMap · web only)'),
+      mapCenter: tx('기준점: 부산시청 · 반경 3km', 'Center: Busan City Hall · 3 km radius'),
+    };
+    const errors = {
+      'error-offline': [tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection'), tx('네트워크에 연결할 수 없어요.', 'Could not reach the network.')],
+      'error-unavailable': [tx('로컬 탐색 API를 기다리고 있어요', 'Waiting for the local explore API'), tx('로컬 탐색 API가 아직 준비되지 않았어요.', 'The local explore API is not ready yet.')],
+      'error-other': [tx('갈래를 불러오지 못했어요', 'Could not load categories'), tx('요청을 처리하지 못했어요.', 'The request could not be processed.')],
+    };
+    const [errorTitle, errorMessage] = errors[state] ?? ['', ''];
+
+    // 서버가 정하는 목록 — 여덟은 계약(labelKo 포함), 뒤 넷은 「늘어날 때」 견본
+    const facetsRaw = [
+      ['FESTIVAL', '축제', 'Festivals', 14], ['NIGHT_MARKET', '야시장', 'Night markets', 6], ['TRADITIONAL_MARKET', '전통시장', 'Traditional markets', 33],
+      ['ACTIVITY', '액티비티', 'Activities', 22], ['WALK', '산책', 'Walks', 18], ['NATURE', '자연', 'Nature', 27], ['NIGHT_VIEW', '야경', 'Night views', 11],
+      ['SOUVENIR_SHOP', '기념품샵', 'Souvenir shops', 9], ['CAFE_STREET', '카페거리', 'Cafe streets', 15], ['BEACH', '해수욕장', 'Beaches', 7],
+      ['TEMPLE', '사찰', 'Temples', 12], ['ALLEY_TOUR', '골목 투어', 'Alley walking tours', 8],
+    ].slice(0, facetCount);
+    const chipMode = !isLgUp;
+    const facets = facetsRaw.map(([key, ko, e, n], i) => {
+      const selected = i === 0;
+      return { key, label: en ? e : ko, selected, countText: chipMode ? `· ${n}` : String(n),
+        bg: selected ? '#0b1d3a' : '#fff', border: selected ? '#0b1d3a' : '#e8e4dd', fg: selected ? '#fff' : '#152238',
+        countFg: selected ? '#fff' : (chipMode ? '#152238' : '#64748b') };
+    });
+    const selectedLabel = facets[0] ? facets[0].label : '';
+
+    const placesRaw = [
+      ['영도다리축제', 'Yeongdo Bridge Festival', '부산광역시 영도구 해양로301번길 45 (동삼동)', 3240, true],
+      ['전포커피축제', 'Jeonpo Coffee Festival', '부산광역시 부산진구 전포동', 1870, true],
+      ['부산고등어축제', 'Busan Mackerel Festival', '부산광역시 서구 송도해변로 100 (암남동)', 4120, false],
+      ['부산국제아동도서전', 'Busan International Children\u2019s Book Fair', '부산광역시 해운대구 APEC로 55 (우동)', 9640, true],
+      ['부산중구반려동물축제', 'Busan Jung-gu Pet Festival', '부산광역시 중구 용두산길 37-30 (광복동2가)', 1210, false],
+      ['옥토버페스타 인 광안리', 'Oktoberfest in Gwangalli', '부산광역시 수영구 민락수변로6번길 29 (민락동)', 6380, true],
+      ['카운트다운 부산', 'Countdown Busan', '부산광역시 수영구 광안해변로 219 (광안동)', 5960, false],
+      ['부산불꽃축제', 'Busan Fireworks Festival', '부산광역시 수영구 광안해변로 219 (광안동)', 5980, true],
+    ];
+    const places = placesRaw.map(([ko, e, address, m, hasPhoto]) => ({
+      name: en ? e : ko, address, distance: `${m.toLocaleString()}m`, hasPhoto, noPhoto: !hasPhoto,
+      photoSource: tx('사진: 한국관광공사', 'Photo: Korea Tourism Organization'),
+    }));
+    const pinPos = [[62, 78], [40, 52], [22, 70], [88, 40], [34, 60], [74, 58], [70, 62], [72, 64]];
+    const pins = places.map((p, i) => ({ n: i + 1, x: pinPos[i][0], y: pinPos[i][1], bg: i === 0 ? '#f26532' : '#0b1d3a', fg: '#fff' }));
+
+    const spinner = React.createElement('div', { style: { width: 24, height: 24, borderRadius: 999, border: '3px solid #fff1e8', borderTopColor: '#f26532', animation: 'gb-spin .8s linear infinite' } });
+
+    return {
+      t, isSm, isMdUp, isXl, isOk, isDenied, isNearby, isLoading: state === 'loading', isError, isEmpty: state === 'empty',
+      errorTitle, errorMessage,
+      navPad: isLgUp ? 40 : 24, maxW: isLgUp ? '1440px' : (isMdUp ? '720px' : 'none'), padTop: isSm ? 78 : 32,
+      cols: isXl ? '320px minmax(0,1fr) 320px' : (isLgUp ? '320px minmax(0,1fr)' : 'minmax(0,1fr)'),
+      stickyTop: isLgUp ? 120 : 0, koWeight: en ? 500 : 700, enWeight: en ? 700 : 500, sideBorder: isLgUp ? '1px solid #e4ddd3' : 'none', sidePadR: isLgUp ? 16 : 0,
+      facetDir: chipMode ? 'row' : 'column', facetWrap: (chipMode && !isSm) ? 'wrap' : 'nowrap', facetOverflow: isSm ? 'auto' : 'visible',
+      labelWrap: chipMode ? 'nowrap' : 'normal', chipW: chipMode ? 'auto' : '100%', chipRadius: chipMode ? 999 : 14, chipJustify: chipMode ? 'center' : 'space-between', countWeight: chipMode ? 700 : 500,
+      facets, selectedLabel, places, pins,
+      resultCount: tx(`${places.length}곳`, `${places.length} places`),
+      mapCount: tx(`지도에 표시 ${places.length}곳`, `${places.length} places on the map`),
+      nearbyBg: isNearby ? '#f26532' : 'transparent', nearbyFg: isNearby ? '#fff' : '#667882', nearbyLabel: (isNearby ? '✓ ' : '') + tx('내 근처', 'Nearby'),
+      allBg: isNearby ? 'transparent' : '#f26532', allFg: isNearby ? '#667882' : '#fff', allLabel: (isNearby ? '' : '✓ ') + tx('부산 전체', 'All Busan'),
+      scopeHint: isNearby ? tx('내 근처는 반경 안에서 찾아요. 결과의 검색 범위를 확인하거나 부산 전체로 바꿔 보세요.', 'Nearby searches within a radius. Check the range shown with results, or switch to All Busan.') : tx('부산 전체는 거리 제한 없이 찾아요.', 'All Busan searches without a distance limit.'),
+      spinner,
+    };
+  }
+}
+</script>
+</body>
+</html>

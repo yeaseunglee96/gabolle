@@ -14,6 +14,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
+import { SampleNotice } from '@/components/SampleNotice';
 import { Button } from '@/components/Button';
 import { Toggle } from '@/components/Toggle';
 import { useI18n } from '@/i18n';
@@ -44,7 +45,7 @@ export default function CheckIn() {
   const { tx } = useI18n();
   const { id: tripId } = useLocalSearchParams<{ id?: string }>();
   const { accessToken } = useAuth();
-  const { enabled: reflectInRecommendations, setEnabled: setReflectInRecommendations } = useBehaviorConsent();
+  const { enabled: reflectInRecommendations, setEnabled: setReflectInRecommendations } = useBehaviorConsent(accessToken);
   const [rating, setRating] = useState(5);
   const [feedback, setFeedback] = useState<Set<FeedbackKey>>(() => new Set(['sea', 'alley', 'accurate']));
   const [accuracy, setAccuracy] = useState<Accuracy>('accurate');
@@ -92,6 +93,13 @@ export default function CheckIn() {
       <Text variant="display" weight="bold" style={styles.title}>
         {tx('여행은 어떠셨나요?', 'How was your trip?')}
       </Text>
+
+      {/* S15P21E201-1009 — 장소·체류 시간·「위치 기반 방문 인증 완료」는 고정 목업이다.
+          GPS 판정 로직이 아직 없다(파일 머리말 참고). 인증됐다고 읽히면 안 된다. */}
+      <SampleNotice
+        badge={tx('샘플', 'Sample')}
+        description={tx('아래 장소와 「방문 인증 완료」 표시는 예시예요. 위치 확인은 아직 실제로 돌지 않아요.', 'The place and the "visit verified" mark below are placeholders — location checking is not live yet.')}
+      />
 
       <View style={styles.placeCard}>
         {/* TODO: 실제 방문 장소 사진. 자산이 오기 전까지 색 면으로 대체한다. */}

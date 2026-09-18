@@ -18,6 +18,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 
 // 기본값 /home — sign-in.tsx 의 resolveDestination 과 같은 이유(jaehyeon 님 제안).
 async function resolveDestination(returnTo?: string) {
@@ -29,6 +30,7 @@ export default function OAuthSignup() {
   const router = useRouter();
   const { tx } = useI18n();
   const { acceptTokens } = useAuth();
+  const { setLanguage: setOnboardingLanguage } = useOnboardingPreferences();
   const params = useLocalSearchParams<{
     provider?: OAuthProvider; signupTicket?: string; email?: string; displayName?: string; language?: string; emailProvided?: string; returnTo?: string;
   }>();
@@ -112,7 +114,7 @@ export default function OAuthSignup() {
           <Text variant="caption" weight="bold">{tx('언어', 'Language')}</Text>
           <View accessibilityRole="radiogroup" style={styles.languageRow}>
             {(['KO', 'EN'] as const).map((value) => (
-              <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: language === value }} onPress={() => setLanguage(value)} style={[styles.language, language === value && styles.languageSelected]}>
+              <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: language === value }} onPress={() => { setLanguage(value); setOnboardingLanguage(value === 'KO' ? 'ko' : 'en'); }} style={[styles.language, language === value && styles.languageSelected]}>
                 <Text variant="body" weight="bold" color={language === value ? color.text.onAction : color.text.heading}>{value === 'KO' ? '한국어' : 'English'}</Text>
               </Pressable>
             ))}
@@ -142,7 +144,7 @@ function CheckRow({ checked, label, onPress }: { checked: boolean; label: string
 }
 
 const styles = StyleSheet.create({
-  topBar: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
+  topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
   logo: { width: 112, height: 32 },
   backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   title: { marginTop: spacing[3] },

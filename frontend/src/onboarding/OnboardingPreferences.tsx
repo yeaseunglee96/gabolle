@@ -1,21 +1,29 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { getApiLanguage, setApiLanguage } from '@/api/client';
+// 🔴 언어 정의는 src/i18n/languages.ts 한 곳에 있다 (S15P21E201-1109). 여기 두면 화면 문구
+//    번역 규칙과 떨어져서, 언어를 늘릴 때 한쪽만 늘어난다. 쓰던 이름은 그대로 내보낸다.
+import { LANGUAGE_CODES, parseLanguageCode, resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
+
+export { LANGUAGE_CODES };
+export type { LanguageCode };
 
 // 이 컨텍스트 밖에서 부르면 언어 정보를 이 컨텍스트에서 얻을 수 없다 — 그래서 이 에러 메시지 자체는
 // setApiLanguage로 동기화되는 모듈 변수(기본값 'ko')를 대신 읽는다.
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
-export const LANGUAGE_CODES = ['ko', 'en'] as const;
+
 export const MOBILITY_CODES = ['none', 'wheelchair', 'stroller', 'slow'] as const;
 
-export type LanguageCode = (typeof LANGUAGE_CODES)[number];
+
 export type MobilityCode = (typeof MOBILITY_CODES)[number];
 
 type OnboardingPreferencesValue = {
   language: LanguageCode;
   mobility: MobilityCode;
   hydrated: boolean;
+  hasEnteredApp: boolean;
+  markEnteredApp: () => void;
   setLanguage: (language: LanguageCode) => void;
   setPreferences: (language: LanguageCode, mobility: MobilityCode) => void;
   reset: () => void;
@@ -42,23 +50,29 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
   const [language, setLanguage] = useState<LanguageCode>('ko');
   const [mobility, setMobility] = useState<MobilityCode>('none');
   const [hydrated, setHydrated] = useState(false);
+  const [hasEnteredApp, setHasEnteredApp] = useState(false);
   const changedBeforeHydration = useRef(false);
 
   useEffect(() => {
     let active = true;
     void AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
-      if (!active || !raw || changedBeforeHydration.current) return;
+      if (!active || !raw) return;
       try {
-        const stored = JSON.parse(raw) as { language?: unknown; mobility?: unknown };
-        if (typeof stored.language === 'string' && LANGUAGE_CODES.some((code) => code === stored.language)) {
-          setLanguage(stored.language as LanguageCode);
+        const stored = JSON.parse(raw) as { language?: unknown; mobility?: unknown; hasEnteredApp?: unknown };
+        if (stored.hasEnteredApp === true) setHasEnteredApp(true);
+        if (changedBeforeHydration.current) return;
+        if (typeof stored.language === 'string') {
+          // 🔴 언어가 둘뿐이던 시절의 값도 그대로 산다 — parseLanguageCode 가 받아 준다.
+          setLanguage(parseLanguageCode(stored.language));
         }
         if (typeof stored.mobility === 'string' && MOBILITY_CODES.some((code) => code === stored.mobility)) {
           setMobility(stored.mobility as MobilityCode);
         }
       } catch {
-        void AsyncStorage.removeItem(STORAGE_KEY);
+        void AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
       }
+    }).catch(() => {
+      // 저장소를 읽지 못해도 첫 화면을 영원히 가로막지 않는다.
     }).finally(() => {
       if (active) setHydrated(true);
     });
@@ -67,27 +81,32 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
 
   useEffect(() => {
     if (!hydrated) return;
-    setApiLanguage(language);
-    void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ language, mobility }));
-  }, [hydrated, language, mobility]);
+    // 🔴 서버에 넘기는 Accept-Language 는 **번역이 있는 언어**다. 일본어를 넘기면 서버가
+    //    일본어 오류 문구를 줄 것처럼 보이지만 지금 서버에는 그 문구가 없다.
+    setApiLanguage(resolveTextLanguage(language));
+    void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ language, mobility, hasEnteredApp })).catch(() => {});
+  }, [hydrated, language, mobility, hasEnteredApp]);
 
   const value = useMemo<OnboardingPreferencesValue>(
-    () => ({ language, mobility, hydrated, setLanguage: (nextLanguage) => {
+    () => ({ language, mobility, hydrated, hasEnteredApp, markEnteredApp: () => setHasEnteredApp(true), setLanguage: (nextLanguage) => {
       if (!hydrated) changedBeforeHydration.current = true;
+      setApiLanguage(resolveTextLanguage(nextLanguage));
       setLanguage(nextLanguage);
     }, setPreferences: (nextLanguage, nextMobility) => {
       if (!hydrated) changedBeforeHydration.current = true;
+      setApiLanguage(resolveTextLanguage(nextLanguage));
       setLanguage(nextLanguage);
       setMobility(nextMobility);
     },
     // 로그아웃·계정 삭제 때 부른다 — 같은 기기에서 다음 사람이 로그인하면 이 값들이
-    // 그 사람 것처럼 보인다(S15P21E201-740). 기본값으로 되돌리고 저장된 값도 지운다.
+    // 그 사람 것처럼 보인다(S15P21E201-740). 개인 설정만 초기화하고 앱 이용 이력은 유지한다.
     reset: () => {
+      setApiLanguage('ko');
       setLanguage('ko');
       setMobility('none');
-      void AsyncStorage.removeItem(STORAGE_KEY);
+      void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ language: 'ko', mobility: 'none', hasEnteredApp })).catch(() => {});
     } }),
-    [hydrated, language, mobility],
+    [hydrated, language, mobility, hasEnteredApp],
   );
 
   return <OnboardingPreferencesContext.Provider value={value}>{children}</OnboardingPreferencesContext.Provider>;

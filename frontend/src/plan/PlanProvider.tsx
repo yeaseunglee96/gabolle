@@ -4,11 +4,13 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { getApiLanguage } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { conflictingFoodCode, foodLabel } from './foodConflicts';
+import { conditionsToDraftPatch, loadTravelConditions } from './travelConditions';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
 export type Transport = 'TRANSIT' | 'WALK' | 'CAR';
 export type MustVisitPlace = { placeId: string; nameKo: string; nameEn: string | null; lat: number; lng: number };
+export type AccommodationPlace = MustVisitPlace & { address: string; addressEn?: string };
 export type ConstraintSelectionStatus = 'UNKNOWN' | 'NONE' | 'VALUES';
 export type PreferenceAnswerStatus = 'UNKNOWN' | 'SELECTED' | 'SKIPPED';
 export type PreferenceDimension = 'category' | 'atmosphere' | 'locality' | 'quietness' | 'touristPreference' | 'foodPreference';
@@ -55,8 +57,12 @@ export type PlanDraft = {
   foreignCardRequired: boolean;
   soloDiningPreferred: boolean;
   accommodation: string;
+  accommodationPlace: AccommodationPlace | null;
   maxTransfers: number | null;
   mustVisitPlaces: MustVisitPlace[];
+  /** 공유 일정에서 "내 조건으로 새 여행 만들기"로 들어왔을 때만 채워진다(S15P21E201-340).
+   *  채워져 있으면 제출 시 일반 생성 대신 POST /api/v1/shares/{token}/clone 을 부른다. */
+  cloneShareToken: string | null;
 };
 
 const VERSION = 1;
@@ -73,7 +79,7 @@ const ANONYMOUS_KEY = `${STORAGE_PREFIX}:anonymous`;
 const LEGACY_STORAGE_KEY = STORAGE_PREFIX;
 
 const storageKeyFor = (userId: string | null) => (userId ? `${STORAGE_PREFIX}:${userId}` : ANONYMOUS_KEY);
-export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, transport: 'TRANSIT', budgetKrw: 100000, dayStartTime: '09:00', dayEndTime: '18:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', maxTransfers: null, mustVisitPlaces: [] };
+export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, transport: 'TRANSIT', budgetKrw: 100000, dayStartTime: '09:00', dayEndTime: '18:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null };
 
 const VOLATILE_CONSTRAINTS: Partial<PlanDraft> = {
   allergies: [], dietTypes: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false,
@@ -96,7 +102,7 @@ type PlanContextValue = {
 const PlanContext = createContext<PlanContextValue | null>(null);
 
 export function PlanProvider({ children }: { children: ReactNode }) {
-  const { user, ready: authReady } = useAuth();
+  const { user, accessToken, ready: authReady } = useAuth();
   const storageKey = storageKeyFor(user?.userId ?? null);
 
   const [draft, setDraft] = useState<PlanDraft>(EMPTY_PLAN);
@@ -144,6 +150,30 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   }, [authReady, hydratedKey, storageKey]);
 
   useEffect(() => { void AsyncStorage.removeItem(LEGACY_STORAGE_KEY); }, []);
+
+  // 🔴 저장해 둔 여행 조건을 **모든 새 여행의 기본값으로** 얹는다 (S15P21E201-1245).
+  //
+  //    아래 VOLATILE_CONSTRAINTS 가 이 칸들을 저장에서 빼는 것은 그대로 둔다 — 초안은
+  //    「이번 여행」이고, 조건은 「이 사람」의 것이라 사는 곳이 다르다(계정에 붙는 서버 표,
+  //    S15P21E201-1231). 대신 매번 여기서 다시 얹는다. 그러지 않으면 한 번 적은 사람이
+  //    새로고침할 때마다 「미확인」으로 돌아가고, 모달은 이미 물어봤다며 안 뜬다.
+  //
+  // 🔴 **사용자가 이번에 고른 것을 덮지 않는다.** 아직 UNKNOWN 인 자리에만 얹는다.
+  const userId = user?.userId ?? null;
+  useEffect(() => {
+    // 🔴 로그인 안 한 사람에게도 얹는다. 그 사람의 답은 기기에만 있지만, **이번 여행에는
+    //    똑같이 걸린다** — 여기서 빼면 로그인 전에 적은 알레르기가 새로고침 한 번에 사라진다.
+    if (!authReady || hydratedKey !== storageKey) return;
+    let alive = true;
+    void loadTravelConditions(userId, accessToken).then((record) => {
+      const saved = record.conditions;
+      if (!alive || !saved) return;
+      setDraft((current) => (current.allergyStatus === 'UNKNOWN' && current.dietStatus === 'UNKNOWN'
+        ? { ...current, ...conditionsToDraftPatch(saved) }
+        : current));
+    });
+    return () => { alive = false; };
+  }, [accessToken, authReady, hydratedKey, storageKey, userId]);
 
   useEffect(() => {
     if (hydratedKey !== storageKey) return;

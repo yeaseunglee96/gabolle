@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;font-weight:400;src:url(fonts/Pretendard-Regular.woff2) format("woff2")}
+@font-face{font-family:Pretendard;font-weight:500;src:url(fonts/Pretendard-Medium.woff2) format("woff2")}
+@font-face{font-family:Pretendard;font-weight:600;src:url(fonts/Pretendard-SemiBold.woff2) format("woff2")}
+@font-face{font-family:Pretendard;font-weight:700;src:url(fonts/Pretendard-Bold.woff2) format("woff2")}
+body{margin:0;background:#ece7df;font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0b1d3a;text-decoration:none}a:hover{color:#f26532}
+::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<section style="display:flex;flex-direction:column;gap:20px;padding:40px 40px 0;box-sizing:border-box">
+<div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">2턴 — 유저 콘텐츠를 「진열대」가 아니라 「살아있는 것」으로 보이게 하는 세 방향 (모바일 본문만)</div>
+<div style="display:flex;gap:32px;align-items:flex-start;width:max-content">
+
+<!-- 2a -->
+<div id="2a" style="display:flex;flex-direction:column;gap:12px;width:390px">
+<div style="display:flex;align-items:center;gap:12px"><div style="padding:4px 10px;border-radius:999px;background:#0b1d3a;font-size:11px;line-height:14px;font-weight:700;color:#fff">2a</div><div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">이유 줄 — 줄 제목이 알고리즘 근거, 첫 칸은 쓰기</div></div>
+<div style="font-size:13px;line-height:18px;color:#667882;text-wrap:pretty">서버가 <b>sections[{reason, posts}]</b>만 내려주면 됨. 카드 배지가 「왜 나에게」를 말하고, 로그인 유저는 줄 첫 칸에서 바로 씀.</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="390" height="844" style="width:390px;flex-shrink:0" hint-size="390px,844px">
+<div data-screen-label="2a" style="position:relative;width:100%;height:100%;background:#fffdf8;font-family:Pretendard,-apple-system,sans-serif;display:flex;flex-direction:column">
+  <div style="flex:1;min-height:0;overflow:auto;padding:54px 0 110px;display:flex;flex-direction:column">
+    <div style="min-height:44px;display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0"><img src="assets/logo.png" alt="GABOLLE" style="width:110px;height:26px;object-fit:contain"><div style="display:flex;align-items:center;gap:4px;height:32px;padding:0 12px;border-radius:999px;background:#f8f3eb"><span style="font-size:11px;line-height:14px;font-weight:700;color:#64748b">흐림</span><span style="font-size:11px;line-height:14px;color:#64748b">23°</span></div></div>
+    <div style="padding:16px 24px 0"><div style="height:52px;padding:0 20px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;box-shadow:0 8px 24px rgba(11,29,58,.1);display:flex;align-items:center;justify-content:center;gap:10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><span style="font-size:15px;line-height:22px;font-weight:700;color:#667882">여행 계획 시작해 보세요</span></div></div>
+    <sc-for list="{{ reasonRows }}" as="r" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;gap:12px;padding-top:28px">
+        <div style="display:flex;flex-direction:column;gap:2px;padding:0 24px">
+          <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">{{ r.eyebrow }}</div>
+          <div style="font-size:18px;line-height:24px;font-weight:700;color:#152238;text-wrap:pretty">{{ r.title }}</div>
+        </div>
+        <div style="display:flex;gap:12px;padding:0 24px;overflow-x:auto">
+          <sc-if value="{{ r.write }}" hint-placeholder-val="{{ false }}">
+            <div style="width:140px;flex-shrink:0;aspect-ratio:1/1;border-radius:14px;border:1.5px dashed #e4ddd3;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;box-sizing:border-box;text-align:center">
+              <div style="width:36px;height:36px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">H</div>
+              <div style="font-size:13px;line-height:18px;font-weight:700;color:#152238">오늘 어디<br>다녀왔어요?</div>
+              <div style="height:28px;padding:0 10px;border-radius:999px;background:#fff1e8;display:flex;align-items:center;font-size:11px;font-weight:700;color:#f26532">사진 올리기</div>
+            </div>
+          </sc-if>
+          <sc-for list="{{ r.posts }}" as="s" hint-placeholder-count="3">
+            <div style="width:140px;flex-shrink:0;display:flex;flex-direction:column;gap:6px">
+              <div style="position:relative;width:100%;aspect-ratio:1/1;border-radius:14px;overflow:hidden;background:{{ s.cover }};display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box">
+                <div style="position:absolute;top:8px;left:8px;height:22px;padding:0 8px;border-radius:999px;background:rgba(255,253,248,.94);display:flex;align-items:center;font-size:11px;line-height:14px;font-weight:700;color:#152238">{{ s.badge }}</div>
+                <sc-if value="{{ s.noImages }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238;text-align:center;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden">{{ s.body }}</div></sc-if>
+              </div>
+              <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.title }}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:-2px"><div style="width:18px;height:18px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">{{ s.initial }}</div><span style="font-size:11px;line-height:14px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.author }} · {{ s.when }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-import>
+</div>
+
+<!-- 2b -->
+<div id="2b" style="display:flex;flex-direction:column;gap:12px;width:390px">
+<div style="display:flex;align-items:center;gap:12px"><div style="padding:4px 10px;border-radius:999px;background:#0b1d3a;font-size:11px;line-height:14px;font-weight:700;color:#fff">2b</div><div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">지도 위 기록 — 사진 핀이 곧 피드, 아래는 「지금 근처」</div></div>
+<div style="font-size:13px;line-height:18px;color:#667882;text-wrap:pretty">콘텍스트가 위치·시간. 지도의 사진 핀을 누르면 아래 목록이 그 글로 스크롤. 여행 중인 유저에게 가장 강한 형태.</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="390" height="844" style="width:390px;flex-shrink:0" hint-size="390px,844px">
+<div data-screen-label="2b" style="position:relative;width:100%;height:100%;background:#fffdf8;font-family:Pretendard,-apple-system,sans-serif;display:flex;flex-direction:column">
+  <div style="flex:1;min-height:0;overflow:auto;padding:54px 0 110px;display:flex;flex-direction:column">
+    <div style="min-height:44px;display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0"><img src="assets/logo.png" alt="GABOLLE" style="width:110px;height:26px;object-fit:contain"><div style="display:flex;align-items:center;gap:4px;height:32px;padding:0 12px;border-radius:999px;background:#f8f3eb"><span style="font-size:11px;line-height:14px;font-weight:700;color:#64748b">흐림</span><span style="font-size:11px;line-height:14px;color:#64748b">23°</span></div></div>
+    <div style="padding:16px 24px 0"><div style="height:52px;padding:0 20px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;box-shadow:0 8px 24px rgba(11,29,58,.1);display:flex;align-items:center;justify-content:center;gap:10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><span style="font-size:15px;line-height:22px;font-weight:700;color:#667882">여행 계획 시작해 보세요</span></div></div>
+    <div style="margin:20px 24px 0;position:relative;height:300px;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#e9f0f4 0%,#dfe8ec 60%,#d6e3d8 100%)">
+      <div style="position:absolute;left:0;right:0;top:118px;height:14px;background:#cfd9e0;transform:rotate(-8deg)"></div>
+      <div style="position:absolute;left:150px;top:0;bottom:0;width:10px;background:#cfd9e0;transform:rotate(12deg)"></div>
+      <div style="position:absolute;right:-30px;bottom:-20px;width:200px;height:120px;border-radius:50%;background:#bcd4e6"></div>
+      <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
+        <div onClick="{{ p.pick }}" style="position:absolute;left:{{ p.x }};top:{{ p.y }};display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translate(-50%,-100%)">
+          <div style="width:{{ p.size }};height:{{ p.size }};border-radius:14px;border:3px solid {{ p.ring }};background:{{ p.cover }};box-shadow:0 4px 12px rgba(11,29,58,.25)"></div>
+          <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid {{ p.ring }}"></div>
+        </div>
+      </sc-for>
+      <div style="position:absolute;left:12px;top:12px;height:28px;padding:0 10px;border-radius:999px;background:rgba(255,253,248,.94);display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;font-weight:700;color:#152238"><span style="width:6px;height:6px;border-radius:999px;background:#30a687"></span>지금 광안리 · 기록 12개</div>
+      <div style="position:absolute;right:12px;bottom:12px;height:36px;padding:0 12px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:13px;font-weight:700;color:#fff">전체 지도</div>
+    </div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;padding:24px 24px 0"><div style="font-size:18px;line-height:24px;font-weight:700;color:#152238">{{ pinTitle }}</div><span style="font-size:11px;line-height:14px;color:#64748b">가까운 순</span></div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:12px 24px 0">
+      <sc-for list="{{ nearby }}" as="s" hint-placeholder-count="4">
+        <div style="display:flex;gap:12px;padding:12px;border-radius:20px;background:#fff;border:1.5px solid {{ s.border }}">
+          <div style="width:96px;height:96px;flex-shrink:0;border-radius:14px;background:{{ s.cover }}"></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:22px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">{{ s.initial }}</div><span style="font-size:13px;line-height:18px;font-weight:700;color:#152238">{{ s.author }}</span><span style="font-size:11px;line-height:14px;color:#64748b">{{ s.when }}</span></div>
+            <div style="font-size:15px;line-height:22px;color:#152238;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ s.body }}</div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:11px;line-height:14px;font-weight:700;color:#f26532"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f26532" stroke-width="2.4"><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"></path></svg>{{ s.place }} · {{ s.dist }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-import>
+</div>
+
+<!-- 2c -->
+<div id="2c" style="display:flex;flex-direction:column;gap:12px;width:390px">
+<div style="display:flex;align-items:center;gap:12px"><div style="padding:4px 10px;border-radius:999px;background:#0b1d3a;font-size:11px;line-height:14px;font-weight:700;color:#fff">2c</div><div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">오늘의 기록 하나 + 섞인 격자 — 장소와 글이 한 흐름</div></div>
+<div style="font-size:13px;line-height:18px;color:#667882;text-wrap:pretty">맨 위 큼직한 한 편(알고리즘 1위, 이유 문장 포함). 아래는 2열 격자에 <b>기록</b>과 <b>장소</b>가 섞여 흐르고, 장소 카드엔 「기록 N개」가 붙어 둘을 잇는다.</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="390" height="844" style="width:390px;flex-shrink:0" hint-size="390px,844px">
+<div data-screen-label="2c" style="position:relative;width:100%;height:100%;background:#fffdf8;font-family:Pretendard,-apple-system,sans-serif;display:flex;flex-direction:column">
+  <div style="flex:1;min-height:0;overflow:auto;padding:54px 0 110px;display:flex;flex-direction:column">
+    <div style="min-height:44px;display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0"><img src="assets/logo.png" alt="GABOLLE" style="width:110px;height:26px;object-fit:contain"><div style="display:flex;align-items:center;gap:4px;height:32px;padding:0 12px;border-radius:999px;background:#f8f3eb"><span style="font-size:11px;line-height:14px;font-weight:700;color:#64748b">흐림</span><span style="font-size:11px;line-height:14px;color:#64748b">23°</span></div></div>
+    <div style="padding:16px 24px 0"><div style="height:52px;padding:0 20px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;box-shadow:0 8px 24px rgba(11,29,58,.1);display:flex;align-items:center;justify-content:center;gap:10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><span style="font-size:15px;line-height:22px;font-weight:700;color:#667882">여행 계획 시작해 보세요</span></div></div>
+    <div style="margin:24px 24px 0;position:relative;border-radius:24px;overflow:hidden;background:{{ hero.cover }};aspect-ratio:4/5;display:flex;flex-direction:column;justify-content:flex-end">
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,29,58,0) 40%,rgba(11,29,58,.85) 100%)"></div>
+      <div style="position:absolute;top:16px;left:16px;height:28px;padding:0 10px;border-radius:999px;background:rgba(255,253,248,.94);display:flex;align-items:center;font-size:11px;line-height:14px;font-weight:700;color:#f26532">{{ hero.reason }}</div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:8px;padding:20px">
+        <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#fff;text-wrap:pretty">{{ hero.body }}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:999px;background:#fffdf8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0b1d3a">{{ hero.initial }}</div><div><div style="font-size:13px;line-height:18px;font-weight:700;color:#fff">{{ hero.author }}</div><div style="font-size:11px;line-height:14px;color:rgba(255,255,255,.75)">{{ hero.place }} · {{ hero.when }}</div></div></div>
+          <div style="font-size:13px;line-height:18px;font-weight:700;color:#fff">♡ {{ hero.likes }}</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;padding:20px 24px 0;overflow-x:auto;flex-shrink:0">
+      <sc-for list="{{ mixFilters }}" as="f" hint-placeholder-count="4"><div onClick="{{ f.pick }}" style="min-height:36px;padding:0 14px;border-radius:999px;background:{{ f.bg }};display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:{{ f.weight }};color:{{ f.color }};white-space:nowrap;flex-shrink:0;cursor:pointer">{{ f.label }}</div></sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 24px 0">
+      <sc-for list="{{ mixed }}" as="m" hint-placeholder-count="6">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="position:relative;width:100%;aspect-ratio:{{ m.ratio }};border-radius:14px;overflow:hidden;background:{{ m.cover }};display:flex;align-items:flex-end;padding:10px;box-sizing:border-box">
+            <div style="position:absolute;top:8px;left:8px;height:22px;padding:0 8px;border-radius:999px;background:{{ m.tagBg }};display:flex;align-items:center;font-size:11px;line-height:14px;font-weight:700;color:{{ m.tagColor }}">{{ m.tag }}</div>
+            <sc-if value="{{ m.isPlace }}" hint-placeholder-val="{{ false }}"><div style="height:24px;padding:0 8px;border-radius:999px;background:rgba(11,29,58,.75);display:flex;align-items:center;font-size:11px;line-height:14px;font-weight:700;color:#fff">기록 {{ m.count }}개</div></sc-if>
+          </div>
+          <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ m.title }}</div>
+          <div style="margin-top:-4px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.sub }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-import>
+</div>
+
+</div>
+
+<div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532;padding-top:20px">같은 세 방향 · 데스크톱 1440</div>
+
+<!-- 2a·D -->
+<div id="2a-d" style="display:flex;flex-direction:column;gap:12px;width:1440px">
+<div style="display:flex;align-items:center;gap:12px"><div style="padding:4px 10px;border-radius:999px;background:#0b1d3a;font-size:11px;line-height:14px;font-weight:700;color:#fff">2a·D</div><div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">이유 줄 — 줄마다 근거 제목, 첫 칸은 쓰기, 카드 배지</div></div>
+<div data-screen-label="2a-desktop" style="width:1440px;background:#fffdf8;border-radius:20px;overflow:hidden;box-shadow:0 12px 40px rgba(11,29,58,.12);display:flex;flex-direction:column;font-family:Pretendard,-apple-system,sans-serif">
+  <div style="height:36px;padding:0 40px;display:flex;align-items:center;justify-content:flex-end;gap:20px;background:#f8f3eb"><span style="font-size:13px;font-weight:700;color:#64748b">KO</span><span style="font-size:13px;color:#e4ddd3">|</span><span style="font-size:13px;font-weight:500;color:#64748b">EN</span><span style="width:1px;height:14px;background:#e4ddd3"></span><span style="font-size:13px;font-weight:700;color:#0b1d3a">HJ Jang</span></div>
+  <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e4dd"><img src="assets/logo.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain"><div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="height:40px;padding:0 20px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(11,29,58,.08);display:flex;align-items:center;font-size:15px;font-weight:700;color:#0b1d3a">홈</span><span style="height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">피드</span><span style="height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">내 여행</span></div><div style="height:40px;padding:0 16px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;font-weight:700;color:#fff">여행 만들기</div></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:40px 40px 8px">
+    <div style="font-size:34px;line-height:40px;letter-spacing:-.25px;font-weight:700;color:#0b1d3a">부산의 모든 여행, 가볼래?</div>
+    <div style="width:860px;height:72px;display:flex;align-items:center;padding:0 8px 0 0;border-radius:999px;background:#fff;border:1px solid #e8e4dd;box-shadow:0 8px 24px rgba(11,29,58,.08);box-sizing:border-box">
+      <sc-for list="{{ segsD }}" as="s" hint-placeholder-count="3"><div onClick="{{ s.pick }}" style="flex:1;min-width:0;height:64px;margin:3px 0 3px 3px;padding:0 28px;border-radius:999px;display:flex;flex-direction:column;justify-content:center;gap:2px;cursor:pointer;background:{{ s.bg }};box-shadow:{{ s.shadow }}"><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238">{{ s.label }}</div><div style="font-size:15px;line-height:22px;color:{{ s.valColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.value }}</div></div><sc-if value="{{ s.divider }}" hint-placeholder-val="{{ true }}"><div style="width:1px;height:32px;background:#e8e4dd;flex-shrink:0"></div></sc-if></sc-for>
+      <div style="height:56px;padding:0 24px 0 20px;margin-left:8px;border-radius:999px;background:#f26532;display:flex;align-items:center;gap:8px;flex-shrink:0;font-size:15px;font-weight:700;color:#fff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"></path></svg>일정 만들기</div>
+    </div>
+  </div>
+  <sc-for list="{{ reasonRows }}" as="r" hint-placeholder-count="3">
+    <div style="display:flex;flex-direction:column;gap:16px;padding:40px 0 0">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;padding:0 40px">
+        <div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">{{ r.eyebrow }}</div><div style="display:flex;align-items:center;gap:10px"><div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">{{ r.title }}</div><span style="font-size:15px;font-weight:700;color:#0b1d3a">→</span></div></div>
+        <div style="display:flex;gap:8px"><div style="width:32px;height:32px;border-radius:999px;border:1px solid #e8e4dd;display:flex;align-items:center;justify-content:center;color:#64748b">‹</div><div style="width:32px;height:32px;border-radius:999px;border:1px solid #e8e4dd;background:#fff;display:flex;align-items:center;justify-content:center;color:#152238">›</div></div>
+      </div>
+      <div style="display:flex;gap:16px;padding:0 40px;overflow-x:auto">
+        <sc-if value="{{ r.write }}" hint-placeholder-val="{{ false }}">
+          <div style="width:212px;flex-shrink:0;aspect-ratio:1/1;border-radius:20px;border:1.5px dashed #e4ddd3;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;box-sizing:border-box;text-align:center"><div style="width:44px;height:44px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff">H</div><div style="font-size:15px;line-height:22px;font-weight:700;color:#152238">오늘 어디 다녀왔어요?</div><div style="height:32px;padding:0 12px;border-radius:999px;background:#fff1e8;display:flex;align-items:center;font-size:13px;font-weight:700;color:#f26532">사진 올리기</div></div>
+        </sc-if>
+        <sc-for list="{{ r.postsD }}" as="s" hint-placeholder-count="5">
+          <div style="width:212px;flex-shrink:0;display:flex;flex-direction:column;gap:8px">
+            <div style="position:relative;width:100%;aspect-ratio:1/1;border-radius:20px;overflow:hidden;background:{{ s.cover }};display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box"><div style="position:absolute;top:12px;left:12px;height:26px;padding:0 10px;border-radius:999px;background:rgba(255,253,248,.94);display:flex;align-items:center;font-size:11px;line-height:14px;font-weight:700;color:#152238">{{ s.badge }}</div><sc-if value="{{ s.noImages }}" hint-placeholder-val="{{ false }}"><div style="font-size:18px;line-height:24px;font-weight:700;color:#152238;text-align:center">{{ s.body }}</div></sc-if></div>
+            <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.title }}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:-4px"><div style="width:18px;height:18px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">{{ s.initial }}</div><span style="font-size:13px;line-height:18px;color:#667882">{{ s.author }} · {{ s.when }}</span></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+  <div style="height:48px"></div>
+</div>
+</div>
+
+<!-- 2b·D -->
+<div id="2b-d" style="display:flex;flex-direction:column;gap:12px;width:1440px">
+<div style="display:flex;align-items:center;gap:12px"><div style="padding:4px 10px;border-radius:999px;background:#0b1d3a;font-size:11px;line-height:14px;font-weight:700;color:#fff">2b·D</div><div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">지도 위 기록 — 좌 목록 560 · 우 지도 고정, 핀 ↔ 카드 연결</div></div>
+<div data-screen-label="2b-desktop" style="width:1440px;height:1000px;background:#fffdf8;border-radius:20px;overflow:hidden;box-shadow:0 12px 40px rgba(11,29,58,.12);display:flex;flex-direction:column;font-family:Pretendard,-apple-system,sans-serif">
+  <div style="height:36px;padding:0 40px;display:flex;align-items:center;justify-content:flex-end;gap:20px;background:#f8f3eb;flex-shrink:0"><span style="font-size:13px;font-weight:700;color:#64748b">KO</span><span style="font-size:13px;color:#e4ddd3">|</span><span style="font-size:13px;font-weight:500;color:#64748b">EN</span><span style="width:1px;height:14px;background:#e4ddd3"></span><span style="font-size:13px;font-weight:700;color:#0b1d3a">HJ Jang</span></div>
+  <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e4dd;flex-shrink:0"><img src="assets/logo.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain"><div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="height:40px;padding:0 20px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(11,29,58,.08);display:flex;align-items:center;font-size:15px;font-weight:700;color:#0b1d3a">홈</span><span style="height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">피드</span><span style="height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">내 여행</span></div><div style="height:40px;padding:0 16px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;font-weight:700;color:#fff">여행 만들기</div></div>
+  <div style="flex:1;min-height:0;display:flex">
+    <div style="width:560px;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid #e8e4dd">
+      <div style="display:flex;flex-direction:column;gap:12px;padding:24px 32px 16px;border-bottom:1px solid #e8e4dd">
+        <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#0b1d3a">부산의 모든 여행, 가볼래?</div>
+        <div style="height:56px;padding:0 6px 0 24px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;box-shadow:0 6px 18px rgba(11,29,58,.08);display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="font-size:15px;line-height:22px;color:#64748b">언제 · 누구와 · 어떻게</span><div style="height:44px;padding:0 18px;border-radius:999px;background:#f26532;display:flex;align-items:center;font-size:15px;font-weight:700;color:#fff">일정 만들기</div></div>
+      </div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:20px 32px 0"><div style="font-size:18px;line-height:24px;font-weight:700;color:#152238">{{ pinTitle }}</div><span style="font-size:13px;line-height:18px;color:#64748b">가까운 순 · 12개</span></div>
+      <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:12px 32px 24px">
+        <sc-for list="{{ nearbyD }}" as="s" hint-placeholder-count="5">
+          <div onClick="{{ s.pick }}" style="display:flex;gap:16px;padding:12px;border-radius:20px;background:#fff;border:1.5px solid {{ s.border }};cursor:pointer">
+            <div style="width:120px;height:120px;flex-shrink:0;border-radius:14px;background:{{ s.cover }}"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">{{ s.initial }}</div><span style="font-size:13px;line-height:18px;font-weight:700;color:#152238">{{ s.author }}</span><span style="font-size:13px;line-height:18px;color:#64748b">{{ s.when }}</span></div>
+              <div style="font-size:15px;line-height:22px;color:#152238;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ s.body }}</div>
+              <div style="display:flex;align-items:center;gap:4px;font-size:13px;line-height:18px;font-weight:700;color:#f26532"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f26532" stroke-width="2.4"><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"></path></svg>{{ s.place }} · {{ s.dist }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="flex:1;position:relative;background:linear-gradient(180deg,#e9f0f4 0%,#dfe8ec 60%,#d6e3d8 100%);overflow:hidden">
+      <div style="position:absolute;left:0;right:0;top:44%;height:18px;background:#cfd9e0;transform:rotate(-6deg)"></div>
+      <div style="position:absolute;left:38%;top:0;bottom:0;width:12px;background:#cfd9e0;transform:rotate(10deg)"></div>
+      <div style="position:absolute;right:-80px;bottom:-60px;width:520px;height:300px;border-radius:50%;background:#bcd4e6"></div>
+      <sc-for list="{{ pinsD }}" as="p" hint-placeholder-count="5">
+        <div onClick="{{ p.pick }}" style="position:absolute;left:{{ p.x }};top:{{ p.y }};display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translate(-50%,-100%)">
+          <div style="display:flex;align-items:center;gap:8px;padding:4px;border-radius:16px;background:#fff;border:3px solid {{ p.ring }};box-shadow:0 6px 16px rgba(11,29,58,.22)"><div style="width:{{ p.size }};height:{{ p.size }};border-radius:10px;background:{{ p.cover }}"></div><sc-if value="{{ p.on }}" hint-placeholder-val="{{ false }}"><div style="padding-right:10px;display:flex;flex-direction:column;gap:2px"><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238;white-space:nowrap">{{ p.place }}</div><div style="font-size:11px;line-height:14px;color:#64748b;white-space:nowrap">{{ p.author }} · {{ p.when }}</div></div></sc-if></div>
+          <div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid {{ p.ring }}"></div>
+        </div>
+      </sc-for>
+      <div style="position:absolute;left:24px;top:24px;height:36px;padding:0 14px;border-radius:999px;background:rgba(255,253,248,.94);box-shadow:0 2px 8px rgba(11,29,58,.1);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#152238"><span style="width:8px;height:8px;border-radius:999px;background:#30a687"></span>지금 광안리 · 기록 12개 · 24시간 이내</div>
+      <div style="position:absolute;right:24px;top:24px;display:flex;gap:8px"><div style="height:36px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:13px;font-weight:700;color:#fff">기록</div><div style="height:36px;padding:0 14px;border-radius:999px;background:rgba(255,253,248,.94);display:flex;align-items:center;font-size:13px;font-weight:700;color:#152238">장소</div><div style="height:36px;padding:0 14px;border-radius:999px;background:rgba(255,253,248,.94);display:flex;align-items:center;font-size:13px;font-weight:700;color:#152238">축제</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 2c·D -->
+<div id="2c-d" style="display:flex;flex-direction:column;gap:12px;width:1440px">
+<div style="display:flex;align-items:center;gap:12px"><div style="padding:4px 10px;border-radius:999px;background:#0b1d3a;font-size:11px;line-height:14px;font-weight:700;color:#fff">2c·D</div><div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">오늘의 기록 + 섞인 격자 — 큰 한 편 옆에 2·3위, 아래 4열 매거진</div></div>
+<div data-screen-label="2c-desktop" style="width:1440px;background:#fffdf8;border-radius:20px;overflow:hidden;box-shadow:0 12px 40px rgba(11,29,58,.12);display:flex;flex-direction:column;font-family:Pretendard,-apple-system,sans-serif">
+  <div style="height:36px;padding:0 40px;display:flex;align-items:center;justify-content:flex-end;gap:20px;background:#f8f3eb"><span style="font-size:13px;font-weight:700;color:#64748b">KO</span><span style="font-size:13px;color:#e4ddd3">|</span><span style="font-size:13px;font-weight:500;color:#64748b">EN</span><span style="width:1px;height:14px;background:#e4ddd3"></span><span style="font-size:13px;font-weight:700;color:#0b1d3a">HJ Jang</span></div>
+  <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e4dd"><img src="assets/logo.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain"><div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="height:40px;padding:0 20px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(11,29,58,.08);display:flex;align-items:center;font-size:15px;font-weight:700;color:#0b1d3a">홈</span><span style="height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">피드</span><span style="height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">내 여행</span></div><div style="height:40px;padding:0 16px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;font-weight:700;color:#fff">여행 만들기</div></div>
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;padding:32px 40px 0">
+    <div style="position:relative;border-radius:24px;overflow:hidden;background:{{ hero.cover }};min-height:480px;display:flex;flex-direction:column;justify-content:flex-end">
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,29,58,0) 35%,rgba(11,29,58,.85) 100%)"></div>
+      <div style="position:absolute;top:20px;left:20px;height:30px;padding:0 12px;border-radius:999px;background:rgba(255,253,248,.94);display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:700;color:#f26532">{{ hero.reason }}</div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:12px;padding:32px;max-width:640px">
+        <div style="font-size:34px;line-height:40px;letter-spacing:-.25px;font-weight:700;color:#fff;text-wrap:pretty">{{ hero.body }}</div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:999px;background:#fffdf8;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#0b1d3a">{{ hero.initial }}</div><div><div style="font-size:15px;line-height:22px;font-weight:700;color:#fff">{{ hero.author }}</div><div style="font-size:13px;line-height:18px;color:rgba(255,255,255,.75)">{{ hero.place }} · {{ hero.when }} · ♡ {{ hero.likes }}</div></div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:24px;background:#fff;border:1px solid #e8e4dd;box-shadow:0 8px 24px rgba(11,29,58,.06)">
+        <div style="font-size:18px;line-height:24px;font-weight:700;color:#0b1d3a">부산의 모든 여행, 가볼래?</div>
+        <sc-for list="{{ segsD }}" as="s" hint-placeholder-count="3"><div onClick="{{ s.pick }}" style="min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3;background:{{ s.bg }};display:flex;align-items:center;justify-content:space-between;cursor:pointer"><span style="font-size:13px;line-height:18px;font-weight:700;color:#152238">{{ s.label }}</span><span style="font-size:15px;line-height:22px;color:{{ s.valColor }}">{{ s.value }}</span></div></sc-for>
+        <div style="min-height:48px;border-radius:14px;background:#f26532;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff">일정 만들기</div>
+      </div>
+      <sc-for list="{{ runners }}" as="r" hint-placeholder-count="2">
+        <div style="flex:1;display:flex;gap:12px;padding:12px;border-radius:20px;background:#fff;border:1px solid #e8e4dd"><div style="width:72px;height:72px;flex-shrink:0;border-radius:14px;background:{{ r.cover }}"></div><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><div style="font-size:11px;line-height:14px;font-weight:700;color:#f26532">{{ r.reason }}</div><div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ r.title }}</div><div style="font-size:11px;line-height:14px;color:#64748b">{{ r.sub }}</div></div></div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:32px 40px 0">
+    <div style="display:flex;gap:8px"><sc-for list="{{ mixFilters }}" as="f" hint-placeholder-count="4"><div onClick="{{ f.pick }}" style="min-height:40px;padding:0 16px;border-radius:999px;background:{{ f.bg }};display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:{{ f.weight }};color:{{ f.color }};cursor:pointer">{{ f.label }}</div></sc-for></div>
+    <span style="font-size:13px;line-height:18px;color:#64748b">기록과 장소가 한 흐름 · 장소 카드의 「기록 N개」로 서로 이어져요</span>
+  </div>
+  <div style="columns:4;column-gap:16px;padding:16px 40px 48px">
+    <sc-for list="{{ mixedD }}" as="m" hint-placeholder-count="8">
+      <div style="break-inside:avoid;display:flex;flex-direction:column;gap:8px;margin-bottom:24px">
+        <div style="position:relative;width:100%;aspect-ratio:{{ m.ratio }};border-radius:20px;overflow:hidden;background:{{ m.cover }};display:flex;align-items:flex-end;padding:12px;box-sizing:border-box">
+          <div style="position:absolute;top:12px;left:12px;height:26px;padding:0 10px;border-radius:999px;background:{{ m.tagBg }};display:flex;align-items:center;font-size:11px;line-height:14px;font-weight:700;color:{{ m.tagColor }}">{{ m.tag }}</div>
+          <sc-if value="{{ m.isPlace }}" hint-placeholder-val="{{ false }}"><div style="height:26px;padding:0 10px;border-radius:999px;background:rgba(11,29,58,.75);display:flex;align-items:center;font-size:11px;line-height:14px;font-weight:700;color:#fff">기록 {{ m.count }}개</div></sc-if>
+        </div>
+        <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;text-wrap:pretty">{{ m.title }}</div>
+        <div style="margin-top:-4px;font-size:13px;line-height:18px;color:#64748b">{{ m.sub }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+<section style="display:flex;flex-direction:column;gap:20px;padding:40px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:12px"><div style="padding:4px 10px;border-radius:999px;background:#0b1d3a;font-size:11px;line-height:14px;font-weight:700;color:#fff">1a</div><div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">홈 v2 — 일정 만들기 바가 주인공, 로컬·기록은 사진 카드 줄</div></div>
+<div style="max-width:1100px;font-size:15px;line-height:22px;color:#667882;text-wrap:pretty">히어로 사진·문구·도구 카드를 걷어내고 「언제 · 누구와 · 어떻게」 한 줄 바로 시작해요. 그 아래는 갈래 탭으로 거르는 로컬 사진 줄, 여행자 기록 줄, 야경 줄 — 셋 다 같은 카드 문법(정방형 사진 · 제목 · 한 줄 부제).</div>
+<div style="display:flex;gap:40px;align-items:flex-start;width:max-content">
+
+<!-- ═══ DESKTOP 1440 ═══ -->
+<div data-screen-label="home-desktop" style="width:1440px;flex-shrink:0;background:#fffdf8;border-radius:20px;overflow:hidden;box-shadow:0 12px 40px rgba(11,29,58,.12);display:flex;flex-direction:column;font-family:Pretendard,-apple-system,sans-serif">
+  <div style="height:36px;padding:0 40px;display:flex;align-items:center;justify-content:flex-end;gap:20px;background:#f8f3eb">
+    <span style="font-size:13px;line-height:18px;font-weight:700;color:#64748b">KO</span><span style="font-size:13px;color:#e4ddd3">|</span><span style="font-size:13px;line-height:18px;font-weight:500;color:#64748b">EN</span>
+    <span style="width:1px;height:14px;background:#e4ddd3"></span>
+    <sc-if value="{{ signedOut }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;line-height:18px;font-weight:700;color:#64748b">로그인</span><span style="font-size:13px;line-height:18px;font-weight:700;color:#0b1d3a">회원가입</span></sc-if>
+    <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;line-height:18px;font-weight:700;color:#0b1d3a">HJ Jang</span></sc-if>
+  </div>
+  <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e4dd">
+    <img src="assets/logo.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain">
+    <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="height:40px;padding:0 20px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(11,29,58,.08);display:flex;align-items:center;font-size:15px;font-weight:700;color:#0b1d3a">홈</span><span style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">피드</span><span style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">내 여행</span></div>
+    <div style="height:40px;padding:0 16px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;font-weight:700;color:#fff">여행 만들기</div>
+  </div>
+
+  <!-- planner bar -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:20px;padding:48px 40px 28px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+      <div style="font-size:34px;line-height:40px;letter-spacing:-.25px;font-weight:700;color:#0b1d3a">부산의 모든 여행, 가볼래?</div>
+      <div style="font-size:15px;line-height:22px;color:#667882">언제, 누구와, 어떻게 다닐지만 알려주세요. 일정은 가볼래가 짜요.</div>
+    </div>
+    <div style="width:860px;height:72px;display:flex;align-items:center;padding:0 8px 0 0;border-radius:999px;background:#fff;border:1px solid #e8e4dd;box-shadow:0 8px 24px rgba(11,29,58,.08);box-sizing:border-box">
+      <sc-for list="{{ segsD }}" as="s" hint-placeholder-count="3">
+        <div onClick="{{ s.pick }}" style="flex:1;min-width:0;height:64px;margin:3px 0 3px 3px;padding:0 28px;border-radius:999px;display:flex;flex-direction:column;justify-content:center;gap:2px;cursor:pointer;background:{{ s.bg }};box-shadow:{{ s.shadow }}">
+          <div style="font-size:13px;line-height:18px;font-weight:700;color:#152238">{{ s.label }}</div>
+          <div style="font-size:15px;line-height:22px;color:{{ s.valColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.value }}</div>
+        </div>
+        <sc-if value="{{ s.divider }}" hint-placeholder-val="{{ true }}"><div style="width:1px;height:32px;background:#e8e4dd;flex-shrink:0"></div></sc-if>
+      </sc-for>
+      <div style="height:56px;padding:0 24px 0 20px;margin-left:8px;border-radius:999px;background:#f26532;display:flex;align-items:center;gap:8px;flex-shrink:0;font-size:15px;line-height:22px;font-weight:700;color:#fff;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"></path><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"></path></svg>일정 만들기</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:13px;line-height:18px;color:#64748b">바로 시작</span>
+      <sc-for list="{{ presets }}" as="p" hint-placeholder-count="4">
+        <div onClick="{{ p.pick }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid #e8e4dd;background:#fff;display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:500;color:#152238;cursor:pointer">{{ p.label }}</div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- category tabs -->
+  <div style="display:flex;justify-content:center;gap:4px;padding:8px 40px 0;border-bottom:1px solid #e8e4dd">
+    <sc-for list="{{ catsD }}" as="c" hint-placeholder-count="8">
+      <div onClick="{{ c.pick }}" style="position:relative;height:52px;padding:0 16px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:{{ c.weight }};color:{{ c.color }};cursor:pointer;white-space:nowrap">{{ c.label }}<sc-if value="{{ c.on }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;bottom:-1px;left:16px;right:16px;height:3px;border-radius:2px;background:#f26532"></div></sc-if></div>
+    </sc-for>
+  </div>
+
+  <!-- row: local -->
+  <div style="display:flex;flex-direction:column;gap:16px;padding:32px 0 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 40px">
+      <div style="display:flex;align-items:center;gap:10px"><div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">{{ localTitle }}</div><span style="font-size:15px;font-weight:700;color:#0b1d3a">→</span></div>
+      <div style="display:flex;gap:8px"><div style="width:32px;height:32px;border-radius:999px;border:1px solid #e8e4dd;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:15px">‹</div><div style="width:32px;height:32px;border-radius:999px;border:1px solid #e8e4dd;background:#fff;display:flex;align-items:center;justify-content:center;color:#152238;font-size:15px">›</div></div>
+    </div>
+    <div style="display:flex;gap:16px;padding:0 40px;overflow-x:auto">
+      <sc-for list="{{ localsD }}" as="p" hint-placeholder-count="6">
+        <div style="width:212px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;cursor:pointer">
+          <div style="position:relative;width:100%;aspect-ratio:1/1;border-radius:20px;overflow:hidden;background:{{ p.cover }}">
+            <div style="position:absolute;top:12px;left:12px;height:26px;padding:0 10px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">{{ p.cat }}</div>
+            <div style="position:absolute;top:8px;right:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="rgba(11,29,58,.35)" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"></path></svg></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</div>
+            <div style="font-size:13px;line-height:18px;color:#667882;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sub }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- row: feed -->
+  <div style="display:flex;flex-direction:column;gap:16px;padding:40px 0 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 40px">
+      <div style="display:flex;align-items:center;gap:10px"><div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">지금 부산에서 남긴 기록</div><span style="font-size:15px;font-weight:700;color:#0b1d3a">→</span></div>
+      <div style="display:flex;gap:8px"><div style="width:32px;height:32px;border-radius:999px;border:1px solid #e8e4dd;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:15px">‹</div><div style="width:32px;height:32px;border-radius:999px;border:1px solid #e8e4dd;background:#fff;display:flex;align-items:center;justify-content:center;color:#152238;font-size:15px">›</div></div>
+    </div>
+    <sc-if value="{{ signedOut }}" hint-placeholder-val="{{ true }}">
+      <div style="margin:0 40px;padding:20px 24px;border-radius:20px;border:1px solid #e8e4dd;background:#fff;display:flex;align-items:center;gap:16px">
+        <img src="assets/mascot-thinking.png" alt="" style="width:56px;height:56px;object-fit:contain">
+        <div style="flex:1;font-size:15px;line-height:22px;color:#667882">다른 여행자들이 남긴 기록은 로그인하면 볼 수 있어요.</div>
+        <div style="height:44px;padding:0 20px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;font-weight:700;color:#fff">로그인하고 보기</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:16px;padding:0 40px;overflow-x:auto">
+        <sc-for list="{{ stories }}" as="s" hint-placeholder-count="6">
+          <div style="width:212px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;cursor:pointer">
+            <div style="position:relative;width:100%;aspect-ratio:1/1;border-radius:20px;overflow:hidden;background:{{ s.cover }};display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
+              <sc-if value="{{ s.noImages }}" hint-placeholder-val="{{ false }}"><div style="font-size:18px;line-height:24px;font-weight:700;color:#152238;text-align:center;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden">{{ s.body }}</div></sc-if>
+              <sc-if value="{{ s.hasImages }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:4px"><sc-for list="{{ s.dots }}" as="d" hint-placeholder-count="3"><div style="width:5px;height:5px;border-radius:999px;background:#fff;opacity:{{ d.op }}"></div></sc-for></div></sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.title }}</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:13px;line-height:18px;color:#667882"><div style="width:18px;height:18px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">{{ s.initial }}</div><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.author }} · {{ s.when }}</span></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- row: night -->
+  <div style="display:flex;flex-direction:column;gap:16px;padding:40px 0 48px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 40px">
+      <div style="display:flex;align-items:center;gap:10px"><div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">오늘 밤, 부산 야경</div><span style="font-size:15px;font-weight:700;color:#0b1d3a">→</span></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;line-height:18px;color:#64748b"><span style="font-size:18px;line-height:24px;font-weight:700;color:#152238">23°</span>흐림 · 부산 지금 · 해 지는 시각 18:32</div>
+    </div>
+    <div style="display:flex;gap:16px;padding:0 40px;overflow-x:auto">
+      <sc-for list="{{ nights }}" as="p" hint-placeholder-count="6">
+        <div style="width:212px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;cursor:pointer">
+          <div style="position:relative;width:100%;aspect-ratio:1/1;border-radius:20px;overflow:hidden;background:{{ p.cover }}"><div style="position:absolute;top:8px;right:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="rgba(11,29,58,.35)" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"></path></svg></div></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</div>
+            <div style="font-size:13px;line-height:18px;color:#667882;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sub }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position:sticky;bottom:0;display:flex;justify-content:flex-end;padding:0 32px 24px;pointer-events:none"><div style="display:flex;align-items:center;gap:12px;height:64px;padding:0 20px 0 24px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;box-shadow:0 8px 24px rgba(11,29,58,.14)"><div><div style="font-size:15px;line-height:22px;font-weight:700;color:#152238">AI에게 물어보기</div><div style="font-size:11px;line-height:14px;color:#64748b">일정 · 통역 · 여행 도움</div></div><img src="assets/mascot-idle.png" alt="" style="width:44px;height:44px;object-fit:contain"></div></div>
+</div>
+
+<!-- ═══ MOBILE 390 ═══ -->
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="390" height="844" style="width:390px;flex-shrink:0" hint-size="390px,844px">
+<div data-screen-label="home-mobile" style="position:relative;width:100%;height:100%;background:#fffdf8;font-family:Pretendard,-apple-system,sans-serif;display:flex;flex-direction:column">
+  <div style="flex:1;min-height:0;overflow:auto;padding:54px 0 110px;display:flex;flex-direction:column">
+    <div style="min-height:44px;display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0">
+      <img src="assets/logo.png" alt="GABOLLE" style="width:110px;height:26px;object-fit:contain">
+      <div style="display:flex;align-items:center;gap:4px;height:32px;padding:0 12px;border-radius:999px;background:#f8f3eb"><span style="font-size:11px;line-height:14px;font-weight:700;color:#64748b">흐림</span><span style="font-size:11px;line-height:14px;color:#64748b">23°</span></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;padding:24px 24px 0">
+      <div style="font-size:28px;line-height:34px;letter-spacing:-.25px;font-weight:700;color:#0b1d3a;white-space:pre-line">부산의 모든 여행,
+가볼래?</div>
+      <div onClick="{{ openSheet }}" style="height:56px;padding:0 20px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;box-shadow:0 8px 24px rgba(11,29,58,.1);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <span style="font-size:15px;line-height:22px;font-weight:700;color:{{ summaryColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ summary }}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;padding:20px 24px 0;overflow-x:auto;flex-shrink:0">
+      <sc-for list="{{ catsM }}" as="c" hint-placeholder-count="6">
+        <div onClick="{{ c.pick }}" style="min-height:40px;padding:0 14px;border-radius:999px;background:{{ c.bg }};border:1px solid {{ c.border }};display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:{{ c.weight }};color:{{ c.colorM }};white-space:nowrap;flex-shrink:0;cursor:pointer">{{ c.label }}</div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;padding-top:28px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 24px"><div style="font-size:18px;line-height:24px;font-weight:700;color:#152238">{{ localTitle }}</div><span style="font-size:15px;line-height:22px;font-weight:700;color:#0b1d3a">전체 →</span></div>
+      <div style="display:flex;gap:12px;padding:0 24px;overflow-x:auto">
+        <sc-for list="{{ localsM }}" as="p" hint-placeholder-count="4">
+          <div style="width:156px;flex-shrink:0;display:flex;flex-direction:column;gap:6px">
+            <div style="position:relative;width:100%;aspect-ratio:1/1;border-radius:14px;overflow:hidden;background:{{ p.cover }}"><div style="position:absolute;top:8px;left:8px;height:22px;padding:0 8px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;font-size:11px;line-height:14px;font-weight:700;color:#152238">{{ p.cat }}</div></div>
+            <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</div>
+            <div style="margin-top:-4px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sub }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;padding-top:28px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 24px"><div style="font-size:18px;line-height:24px;font-weight:700;color:#152238">지금 부산에서 남긴 기록</div><sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}"><span style="font-size:15px;line-height:22px;font-weight:700;color:#0b1d3a">피드 →</span></sc-if></div>
+      <sc-if value="{{ signedOut }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:12px;margin:0 24px;padding:16px;border-radius:20px;border:1px solid #e8e4dd;background:#fff">
+          <img src="assets/mascot-thinking.png" alt="" style="width:56px;height:56px;object-fit:contain;flex-shrink:0">
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px"><div style="font-size:15px;line-height:22px;color:#667882">여행자 기록은 로그인하면 볼 수 있어요.</div><div style="align-self:flex-start;min-height:44px;display:flex;align-items:center;padding:0 16px;border-radius:999px;background:#0b1d3a;font-size:15px;font-weight:700;color:#fff">로그인하고 보기</div></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:12px;padding:0 24px;overflow-x:auto">
+          <sc-for list="{{ stories }}" as="s" hint-placeholder-count="4">
+            <div style="width:156px;flex-shrink:0;display:flex;flex-direction:column;gap:6px">
+              <div style="position:relative;width:100%;aspect-ratio:1/1;border-radius:14px;overflow:hidden;background:{{ s.cover }};display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box">
+                <sc-if value="{{ s.noImages }}" hint-placeholder-val="{{ false }}"><div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;text-align:center;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden">{{ s.body }}</div></sc-if>
+              </div>
+              <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.title }}</div>
+              <div style="margin-top:-4px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.author }} · {{ s.when }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;padding-top:28px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 24px"><div style="font-size:18px;line-height:24px;font-weight:700;color:#152238">오늘 밤, 부산 야경</div><span style="font-size:11px;line-height:14px;color:#64748b">해 지는 시각 18:32</span></div>
+      <div style="display:flex;gap:12px;padding:0 24px;overflow-x:auto">
+        <sc-for list="{{ nights }}" as="p" hint-placeholder-count="4">
+          <div style="width:156px;flex-shrink:0;display:flex;flex-direction:column;gap:6px">
+            <div style="width:100%;aspect-ratio:1/1;border-radius:14px;background:{{ p.cover }}"></div>
+            <div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</div>
+            <div style="margin-top:-4px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sub }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="plan-sheet" style="position:absolute;inset:0;background:#f8f3eb;display:flex;flex-direction:column;padding-top:54px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px 8px 24px">
+      <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">AI TRAVEL PLANNER · BUSAN</div>
+      <div onClick="{{ closeSheet }}" style="width:44px;height:44px;border-radius:999px;background:#fff;border:1px solid #e8e4dd;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+    </div>
+    <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:8px 16px 16px">
+      <sc-for list="{{ steps }}" as="st" hint-placeholder-count="3">
+        <sc-if value="{{ st.closed }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ st.pick }}" style="min-height:56px;padding:0 20px;border-radius:20px;background:#fff;box-shadow:0 2px 8px rgba(11,29,58,.06);display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer">
+            <span style="font-size:15px;line-height:22px;font-weight:500;color:#667882">{{ st.label }}</span>
+            <span style="font-size:15px;line-height:22px;font-weight:700;color:{{ st.valColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ st.value }}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ st.open }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:24px 20px 20px;border-radius:24px;background:#fff;box-shadow:0 12px 32px rgba(11,29,58,.12);display:flex;flex-direction:column;gap:16px">
+            <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">{{ st.title }}</div>
+            <sc-if value="{{ st.isWhen }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-for list="{{ dateOpts }}" as="o" hint-placeholder-count="4"><div onClick="{{ o.pick }}" style="min-height:40px;padding:0 14px;border-radius:999px;background:{{ o.bg }};border:1px solid {{ o.border }};display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:{{ o.weight }};color:{{ o.color }};cursor:pointer">{{ o.label }}</div></sc-for>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg><span style="font-size:15px;line-height:22px;color:#64748b">날짜 직접 고르기</span></div>
+            </sc-if>
+            <sc-if value="{{ st.isWho }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ counters }}" as="c" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;justify-content:space-between;min-height:44px">
+                  <div><div style="font-size:15px;line-height:22px;font-weight:700;color:#152238">{{ c.label }}</div><div style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ c.sub }}</div></div>
+                  <div style="display:flex;align-items:center;gap:12px"><div onClick="{{ c.dec }}" style="width:36px;height:36px;border-radius:999px;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;color:#152238;font-size:18px;cursor:pointer">−</div><span style="min-width:20px;text-align:center;font-size:15px;font-weight:700;color:#152238">{{ c.n }}</span><div onClick="{{ c.inc }}" style="width:36px;height:36px;border-radius:999px;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;color:#152238;font-size:18px;cursor:pointer">+</div></div>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ st.isHow }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#64748b">이동</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:-8px"><sc-for list="{{ moveOpts }}" as="o" hint-placeholder-count="3"><div onClick="{{ o.pick }}" style="min-height:40px;padding:0 14px;border-radius:999px;background:{{ o.bg }};border:1px solid {{ o.border }};display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:{{ o.weight }};color:{{ o.color }};cursor:pointer">{{ o.label }}</div></sc-for></div>
+              <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#64748b">취향 · 여러 개 가능</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:-8px"><sc-for list="{{ tasteOpts }}" as="o" hint-placeholder-count="5"><div onClick="{{ o.pick }}" style="min-height:40px;padding:0 14px;border-radius:999px;background:{{ o.bg }};border:1px solid {{ o.border }};display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:{{ o.weight }};color:{{ o.color }};cursor:pointer">{{ o.label }}</div></sc-for></div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px 40px;background:#fffdf8;border-top:1px solid #e8e4dd">
+      <div onClick="{{ clearAll }}" style="min-height:44px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#152238;text-decoration:underline;cursor:pointer">전체 삭제</div>
+      <div style="height:48px;padding:0 24px;border-radius:14px;background:#f26532;display:flex;align-items:center;gap:8px;font-size:15px;line-height:22px;font-weight:700;color:#fff"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"></path></svg>일정 만들기</div>
+    </div>
+  </div>
+  </sc-if>
+  <div style="position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;padding-bottom:8px;pointer-events:none">
+    <div style="display:flex;align-items:center;width:calc(100% - 32px);max-width:328px;height:64px;padding:0 8px;box-sizing:border-box;background:#fff;border:1px solid #e8e4dd;border-radius:20px;box-shadow:0 8px 24px rgba(11,29,58,.12)">
+      <div style="position:relative;flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="position:absolute;top:0;width:18px;height:3px;border-radius:2px;background:#f26532"></div><img src="assets/tab-home.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;font-weight:700;color:#0b1d3a">홈</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-heart.png" alt="" style="width:26px;height:26px;opacity:.6"><span style="font-size:11px;line-height:14px;color:#64748b">피드</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="width:32px;height:32px;border-radius:16px;background:#f26532;display:flex;align-items:center;justify-content:center"><img src="assets/tab-plus.png" alt="" style="width:24px;height:24px"></div></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-map.png" alt="" style="width:26px;height:26px;opacity:.6"><span style="font-size:11px;line-height:14px;color:#64748b">내 여행</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-user.png" alt="" style="width:26px;height:26px;opacity:.6"><span style="font-size:11px;line-height:14px;color:#64748b">내 정보</span></div>
+    </div>
+  </div>
+</div>
+</x-import>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;signedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;상태&quot;},&quot;sheetOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;상태&quot;}}">
+class Component extends DCLogic {
+  state = { cat: '전체', seg: null, when: '', who: '', how: '', sheet: null, step: 'when', adults: 0, kids: 0, move: '', tastes: [] };
+  renderVals() {
+    const signedIn = this.props.signedIn ?? true;
+    const sheetOpen = this.state.sheet ?? (this.props.sheetOpen ?? false);
+    const { cat, seg, when, how, step, adults, kids, move, tastes } = this.state;
+    const who = this.state.who || [adults ? '어른 ' + adults : '', kids ? '어린이 ' + kids : ''].filter(Boolean).join(' · ');
+    const chip = (label, on, pick) => ({ label, pick, bg: on ? '#0b1d3a' : '#fff', border: on ? '#0b1d3a' : '#e4ddd3', weight: on ? 700 : 500, color: on ? '#fff' : '#152238' });
+    const dateOpts = ['이번 주말', '다음 주말', '당일치기', '1박 2일', '2박 3일'].map(l => chip(l, when === l, () => this.setState({ when: l, step: 'who' })));
+    const moveOpts = ['대중교통', '자가용', '도보 위주'].map(l => chip(l, move === l, () => this.setState({ move: l })));
+    const tasteOpts = ['맛집', '카페', '바다', '야경', '문화', '쇼핑'].map(l => chip(l, tastes.includes(l), () => this.setState({ tastes: tastes.includes(l) ? tastes.filter(t => t !== l) : [...tastes, l] })));
+    const howVal = how || [move, tastes.join('·')].filter(Boolean).join(' · ');
+    const counters = [{ key: 'adults', label: '어른', sub: '13세 이상', n: adults }, { key: 'kids', label: '어린이', sub: '2 – 12세', n: kids }].map(c => ({ ...c, inc: () => this.setState({ [c.key]: c.n + 1, who: '' }), dec: () => this.setState({ [c.key]: Math.max(0, c.n - 1), who: '' }) }));
+    const steps = [
+      { key: 'when', label: '언제', title: '언제 떠나요?', value: when || '날짜 추가' },
+      { key: 'who', label: '누구와', title: '누구와 가요?', value: who || '인원 추가' },
+      { key: 'how', label: '어떻게', title: '어떻게 다닐까요?', value: howVal || '이동 · 취향' },
+    ].map(s => ({ ...s, open: step === s.key, closed: step !== s.key, isWhen: s.key === 'when', isWho: s.key === 'who', isHow: s.key === 'how',
+      valColor: s.value.includes('추가') || s.value === '이동 · 취향' ? '#64748b' : '#152238', pick: () => this.setState({ step: s.key }) }));
+    const filled = [when, who, howVal].filter(Boolean);
+    const summary = filled.length ? filled.join(' · ') : '여행 계획 시작해 보세요';
+    const g = ['linear-gradient(160deg,#f7c59f,#e07a5f)', 'linear-gradient(160deg,#a8c5da,#3d5a80)', 'linear-gradient(160deg,#ffd6a5,#f26532)', 'linear-gradient(160deg,#cdd9c2,#5b7b5a)', 'linear-gradient(160deg,#e8dcc8,#9a7b5b)', 'linear-gradient(160deg,#c9d6ea,#0b1d3a)', 'linear-gradient(160deg,#f6d5d0,#b5545c)', 'linear-gradient(160deg,#d4e6f1,#2a6f97)'];
+    const segDefs = [
+      { key: 'when', label: '언제', ph: '날짜 추가', val: when },
+      { key: 'who', label: '누구와', ph: '인원 추가', val: who },
+      { key: 'how', label: '어떻게', ph: '이동 · 취향', val: how },
+    ];
+    const segs = segDefs.map((s, i) => {
+      const on = seg === s.key;
+      return { label: s.label, value: s.val || s.ph, valColor: s.val ? '#152238' : '#64748b',
+        bg: on ? '#f8f3eb' : 'transparent', shadow: on ? 'inset 0 0 0 1px #e8e4dd' : 'none', bgM: on ? '#f8f3eb' : '#fff',
+        divider: i < 2 && !on && seg !== segDefs[i + 1].key,
+        pick: () => this.setState({ seg: on ? null : s.key }) };
+    });
+    const presets = [
+      { label: '이번 주말 1박 2일', set: { when: '9.20(토) – 9.21(일)', who: '' } },
+      { label: '둘이서 2박 3일', set: { when: '2박 3일', who: '어른 2' } },
+      { label: '아이와 당일치기', set: { when: '당일', who: '어른 2 · 어린이 1' } },
+      { label: '대중교통만', set: { how: '지하철 · 버스' } },
+    ].map(p => ({ label: p.label, pick: () => this.setState(p.set) }));
+    const catList = ['전체', '축제', '야시장', '전통시장', '액티비티', '산책', '자연', '야경', '기념품샵'];
+    const cats = catList.map(c => { const on = c === cat; return { label: c, on, weight: on ? 700 : 500, color: on ? '#0b1d3a' : '#667882', colorM: on ? '#fff' : '#152238', bg: on ? '#0b1d3a' : '#f8f3eb', border: on ? '#0b1d3a' : '#f8f3eb', pick: () => this.setState({ cat: c }) }; });
+    const all = [
+      ['부산불꽃축제', '축제', '해운대해수욕장 · 11.1(토)'], ['광안리어방축제', '축제', '광안리해수욕장 · 봄'], ['부산국제영화제', '축제', '영화의전당 · 10.1 – 10.10'],
+      ['부평깡통야시장', '야시장', '중구 부평동 · 19:30 – 24:00'], ['해운대 구남로 야시장', '야시장', '해운대구 · 주말 저녁'],
+      ['자갈치시장', '전통시장', '중구 남포동 · 수산물'], ['국제시장', '전통시장', '중구 신창동 · 먹자골목'], ['부전시장', '전통시장', '부산진구 · 부산 최대 재래시장'],
+      ['해운대 블루라인파크', '액티비티', '스카이캡슐 · 미포 – 청사포'], ['송도 해상케이블카', '액티비티', '서구 암남동 · 1.62km'], ['수영만 요트 투어', '액티비티', '해운대구 · 일몰 코스'],
+      ['이기대 해안산책로', '산책', '남구 · 광안대교 뷰 4.7km'], ['흰여울문화마을', '산책', '영도구 · 절영해안산책로'], ['오시리아 해안산책로', '산책', '기장군 · 해동용궁사 연결'],
+      ['태종대', '자연', '영도구 · 다누비열차'], ['오륙도 스카이워크', '자연', '남구 · 갈맷길 시작점'], ['다대포해수욕장', '자연', '사하구 · 낙조 명소'],
+      ['황령산 봉수대', '야경', '연제구 · 360° 전망'], ['광안대교', '야경', '수영구 · 경관조명 20:00'], ['더베이101', '야경', '해운대 마린시티 · 반영'],
+      ['감천문화마을 공방', '기념품샵', '사하구 · 어린왕자'], ['전포 카페거리 소품샵', '기념품샵', '부산진구 · 로컬 굿즈'],
+    ].map((p, i) => ({ name: p[0], cat: p[1], sub: p[2], cover: g[i % g.length] }));
+    const locals = cat === '전체' ? all.filter((_, i) => i % 3 !== 1).slice(0, 10) : all.filter(p => p.cat === cat);
+    const nights = all.filter(p => p.cat === '야경').concat([{ name: '다이아몬드베이 야경 크루즈', cat: '야경', sub: '용호만 · 19:00 출항', cover: g[5] }, { name: '송도 구름산책로', cat: '야경', sub: '서구 · 조명 22:00까지', cover: g[1] }, { name: '용두산공원 부산타워', cat: '야경', sub: '중구 · 전망대 21:30까지', cover: g[6] }]);
+    const raw = [
+      { author: 'Yeaseung Lee', when: '6시간 전', place: '광안리해수욕장', count: 3, body: '' },
+      { author: 'HJ Jang', when: '16시간 전', place: '온천장 누가지움', count: 1, body: '' },
+      { author: 'Yeaseung Lee', when: '2일 전', place: '', count: 0, body: '해운대 새벽 바다, 아무도 없어서 좋았다.' },
+      { author: 'Minji Park', when: '2일 전', place: '전포 카페거리', count: 5, body: '' },
+      { author: 'Doyun Kim', when: '3일 전', place: '', count: 0, body: '자갈치에서 회 떠서 태종대까지. 완벽.' },
+      { author: 'HJ Jang', when: '4일 전', place: '흰여울문화마을', count: 2, body: '' },
+    ];
+    const stories = raw.map((s, i) => ({ ...s, hasImages: s.count > 0, noImages: s.count === 0, cover: s.count ? g[(i + 3) % g.length] : '#fff1e8', initial: s.author[0],
+      dots: Array.from({ length: Math.min(s.count, 5) }, (_, k) => ({ op: k === 0 ? 1 : 0.5 })), title: s.place || s.author + '의 기록' }));
+    // ── 2턴 시안 데이터 ──
+    const { pin = 0, mix = '전체' } = this.state;
+    const reasonRows = [
+      { eyebrow: '이번 주말 광안리 가는 사람들이 본', title: '광안리 · 이번 주 가장 많이 본 기록', write: signedIn, posts: [
+        { title: '광안리해수욕장', author: 'Yeaseung Lee', when: '6시간 전', badge: '내 일정에 있는 곳', cover: g[0] },
+        { title: '민락수변공원', author: 'Doyun Kim', when: '어제', badge: '댓글 12', cover: g[1] },
+        { title: '광안대교 드론쇼', author: 'Minji Park', when: '2일 전', badge: '토요일 20:00', cover: g[5] } ] },
+      { eyebrow: '당신이 고른 취향 · 카페', title: '카페 좋아하는 당신을 위한 기록', write: false, posts: [
+        { title: '전포 카페거리', author: 'Minji Park', when: '2일 전', badge: '취향 일치', cover: g[3] },
+        { title: '온천장 누가지움', author: 'HJ Jang', when: '16시간 전', badge: '내가 쓴 글', cover: g[4] },
+        { title: '', author: 'Yeaseung Lee', when: '3일 전', badge: '글만', cover: '#fff1e8', noImages: true, body: '흰여울 골목 끝 카페, 창밖이 그냥 바다.' } ] },
+      { eyebrow: '지금 열리는 축제', title: '부산불꽃축제 현장에서 올라온 기록', write: false, posts: [
+        { title: '해운대해수욕장', author: 'Doyun Kim', when: '20분 전', badge: '방금', cover: g[2] },
+        { title: '동백섬', author: 'HJ Jang', when: '1시간 전', badge: '3km 이내', cover: g[6] },
+        { title: '더베이101', author: 'Minji Park', when: '2시간 전', badge: '야경', cover: g[7] } ] },
+    ].map(r => ({ ...r, posts: r.posts.map(p => ({ ...p, initial: p.author[0], title: p.title || p.author + '의 기록', noImages: !!p.noImages })) }));
+    const nearbyRaw = [
+      { author: 'Yeaseung Lee', when: '6시간 전', place: '광안리해수욕장', dist: '350m', body: '새벽 6시 광안리, 대교 조명 꺼지기 직전이 제일 예뻐요.', cover: g[0], x: '38%', y: '58%' },
+      { author: 'Doyun Kim', when: '어제', place: '민락수변공원', dist: '900m', body: '회 떠와서 여기 앉으면 끝. 편의점 돗자리 3천원.', cover: g[1], x: '70%', y: '40%' },
+      { author: 'Minji Park', when: '2일 전', place: '남천동 카페', dist: '1.2km', body: '벚꽃 아니어도 남천동은 걷기 좋아요.', cover: g[3], x: '18%', y: '32%' },
+      { author: 'HJ Jang', when: '3일 전', place: '수영만 요트', dist: '2.1km', body: '일몰 요트, 바람 세니까 겉옷 필수.', cover: g[7], x: '82%', y: '78%' },
+      { author: 'Yeaseung Lee', when: '4일 전', place: '황령산 봉수대', dist: '3.4km', body: '차로 15분, 야경은 여기가 1등.', cover: g[5], x: '55%', y: '22%' },
+    ];
+    const pins = nearbyRaw.map((s, i) => ({ ...s, size: i === pin ? '56px' : '40px', ring: i === pin ? '#f26532' : '#fff', pick: () => this.setState({ pin: i }) }));
+    const nearby = nearbyRaw.map((s, i) => ({ ...s, initial: s.author[0], border: i === pin ? '#f26532' : '#e8e4dd' }));
+    const hero = { reason: '이번 주 가장 많이 저장한 기록', body: '자갈치에서 회 떠서 태종대 절벽까지. 부산 하루가 이걸로 완성.', author: 'Doyun Kim', place: '태종대', when: '3일 전', likes: 128, initial: 'D', cover: g[5] };
+    const mixFilters = ['전체', '기록', '장소', '내 일정 근처'].map(l => ({ label: l, pick: () => this.setState({ mix: l }), bg: mix === l ? '#0b1d3a' : '#f8f3eb', weight: mix === l ? 700 : 500, color: mix === l ? '#fff' : '#152238' }));
+    const mixedAll = [
+      { kind: '기록', title: '광안리 새벽 바다, 아무도 없어서 좋았다', sub: 'Yeaseung Lee · 6시간 전', cover: g[0], ratio: '4/5' },
+      { kind: '장소', title: '부평깡통야시장', sub: '중구 · 19:30 – 24:00', cover: g[2], ratio: '1/1', count: 34 },
+      { kind: '장소', title: '이기대 해안산책로', sub: '남구 · 4.7km', cover: g[3], ratio: '4/5', count: 51 },
+      { kind: '기록', title: '온천장 누가지움, 대용량 사진 테스트', sub: 'HJ Jang · 16시간 전', cover: g[4], ratio: '1/1' },
+      { kind: '기록', title: '전포 카페거리 3곳 비교', sub: 'Minji Park · 2일 전', cover: g[1], ratio: '1/1' },
+      { kind: '장소', title: '황령산 봉수대', sub: '연제구 · 야경', cover: g[6], ratio: '4/5', count: 19 },
+    ].map(m => ({ ...m, tag: m.kind, isPlace: m.kind === '장소', tagBg: m.kind === '장소' ? 'rgba(255,253,248,.94)' : '#0b1d3a', tagColor: m.kind === '장소' ? '#152238' : '#fff' }));
+    const mixed = mix === '전체' || mix === '내 일정 근처' ? mixedAll : mixedAll.filter(m => m.kind === mix);
+    const extraD = [
+      { title: '민락회타운', author: 'Minji Park', when: '어제', badge: '댓글 8', cover: g[7] },
+      { title: '남천동 벚꽃길', author: 'Doyun Kim', when: '3일 전', badge: '3km 이내', cover: g[3] },
+    ].map(p => ({ ...p, initial: p.author[0], noImages: false }));
+    const reasonRowsD = reasonRows.map(r => ({ ...r, postsD: r.posts.concat(extraD) }));
+    const dPos = [['32%', '62%'], ['62%', '40%'], ['18%', '30%'], ['80%', '78%'], ['50%', '18%']];
+    const pinsD = nearbyRaw.map((s, i) => ({ ...s, x: dPos[i][0], y: dPos[i][1], on: i === pin, size: i === pin ? '56px' : '44px', ring: i === pin ? '#f26532' : '#fff', pick: () => this.setState({ pin: i }) }));
+    const nearbyD = nearby.map((s, i) => ({ ...s, pick: () => this.setState({ pin: i }) }));
+    const runners = [
+      { reason: '내 일정에 있는 곳', title: '광안리 새벽 바다, 아무도 없어서 좋았다', sub: 'Yeaseung Lee · 6시간 전', cover: g[0] },
+      { reason: '취향 일치 · 카페', title: '전포 카페거리 3곳 비교, 결론은 골목 안쪽', sub: 'Minji Park · 2일 전', cover: g[1] },
+    ];
+    const mixedD = mixed.concat([
+      { kind: '기록', title: '수영만 일몰 요트, 바람 세니까 겉옷 필수', sub: 'HJ Jang · 3일 전', cover: g[7], ratio: '4/5' },
+      { kind: '장소', title: '자갈치시장', sub: '중구 · 수산물 · 새벽 경매', cover: g[0], ratio: '1/1', count: 88 },
+      { kind: '기록', title: '흰여울 골목 끝 카페, 창밖이 그냥 바다', sub: 'Yeaseung Lee · 3일 전', cover: g[2], ratio: '1/1' },
+      { kind: '장소', title: '해운대 블루라인파크', sub: '스카이캡슐 · 미포 – 청사포', cover: g[5], ratio: '4/5', count: 143 },
+    ].map(m => ({ ...m, tag: m.kind, isPlace: m.kind === '장소', tagBg: m.kind === '장소' ? 'rgba(255,253,248,.94)' : '#0b1d3a', tagColor: m.kind === '장소' ? '#152238' : '#fff' })).filter(m => mix === '전체' || mix === '내 일정 근처' || m.kind === mix));
+    return { reasonRows: reasonRowsD, pins, pinsD, nearby, nearbyD, runners, mixedD, pinTitle: nearbyRaw[pin].place + ' 근처에서 지금', hero, mixFilters, mixed,
+      signedIn, signedOut: !signedIn, segsD: segs, presets, sheetOpen, steps, dateOpts, moveOpts, tasteOpts, counters,
+      summary, summaryColor: filled.length ? '#152238' : '#667882',
+      openSheet: () => this.setState({ sheet: true }), closeSheet: () => this.setState({ sheet: false }),
+      clearAll: () => this.setState({ when: '', who: '', how: '', adults: 0, kids: 0, move: '', tastes: [], step: 'when' }), catsD: cats, catsM: cats,
+      localTitle: cat === '전체' ? '부산 로컬 둘러보기' : '부산 ' + cat, localsD: locals, localsM: locals, nights, stories };
+  }
+}
+</script>
+</body>
+</html>

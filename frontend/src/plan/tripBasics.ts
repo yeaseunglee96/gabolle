@@ -10,7 +10,6 @@ function validDate(value: string) {
 function dateDays(from: string, to: string) { return (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000; }
 function minutes(value: string) { const match = /^(\d{2}):(\d{2})$/.exec(value); if (!match) return Number.NaN; const hour = Number(match[1]); const minute = Number(match[2]); return hour <= 23 && minute <= 59 ? hour * 60 + minute : Number.NaN; }
 export function localToday(now = new Date()) { const offset = now.getTimezoneOffset() * 60000; return new Date(now.getTime() - offset).toISOString().slice(0, 10); }
-export function addDays(value: string, days: number) { const date = new Date(`${value}T00:00:00Z`); date.setUTCDate(date.getUTCDate() + days); return date.toISOString().slice(0, 10); }
 
 /** 예산 한 칸의 크기. 검증도 10,000원 단위를 요구하므로 같은 값을 쓴다. */
 export const BUDGET_UNIT_KRW = 10000;
@@ -46,7 +45,7 @@ export function validateTripBasics(draft: PlanDraft, today = localToday()): Trip
   const start = minutes(draft.dayStartTime); const end = minutes(draft.dayEndTime);
   if (Number.isNaN(start)) errors.dayStartTime = '시작 시각을 HH:MM 형식으로 입력해 주세요.';
   if (Number.isNaN(end)) errors.dayEndTime = '종료 시각을 HH:MM 형식으로 입력해 주세요.';
-  if (!errors.dayStartTime && !errors.dayEndTime && end <= start) errors.dayEndTime = '종료 시각은 시작 시각보다 느져야 해요.';
+  if (!errors.dayStartTime && !errors.dayEndTime && end <= start) errors.dayEndTime = '종료 시각은 시작 시각보다 늦어야 해요.';
   if (draft.transport !== 'CAR' && draft.transport !== 'TRANSIT' && draft.transport !== 'WALK') errors.transport = '이동수단을 선택해 주세요.';
   return errors;
 }

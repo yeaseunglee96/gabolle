@@ -63,6 +63,12 @@ export default function Permissions() {
     await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify({ notification: notificationGranted }));
     router.replace({ pathname: '/sign-in', params: { returnTo: path } });
   }
+  async function browseAsGuest() {
+    if (requesting) return;
+    setRequesting(true);
+    await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify({ notification: false }));
+    router.replace('/home');
+  }
 
   return (
     <Screen wide style={styles.screen}>
@@ -113,13 +119,16 @@ export default function Permissions() {
         </View>
       </Pressable>
 
-      <Pressable accessibilityRole="button" accessibilityState={{ disabled: requesting }} disabled={requesting} onPress={() => void continueTo('/home', false)}>
+      <Pressable testID="permissions-later" accessibilityRole="button" accessibilityState={{ disabled: requesting }} disabled={requesting} onPress={() => void continueTo('/home', false)}>
         <Text variant="caption" weight="bold" color={color.text.muted} style={styles.laterLink}>
           {tx('나중에 설정', 'Set up later')}
         </Text>
       </Pressable>
 
-      <Button label={requesting ? tx('권한 확인 중…', 'Checking permissions…') : tx('선택하고 로그인·회원가입으로', 'Continue to sign in / sign up')} disabled={requesting} containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
+      <Button testID="permissions-continue" label={requesting ? tx('권한 확인 중…', 'Checking permissions…') : tx('선택하고 로그인·회원가입으로', 'Continue to sign in / sign up')} disabled={requesting} variant="accent" pill containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
+      {/* 🔴 사용자 리포트 — 위 버튼은 pill(완전히 둥근 모양)인데 이 버튼만 각진 radius.md라
+          두 버튼이 붙어 있을 때 모양이 갑자기 바뀌는 것처럼 보였다. pill을 맞추고 간격을 준다. */}
+      <Button testID="permissions-browse-guest" label={tx('비회원으로 먼저 둘러보기', 'Browse as guest first')} variant="ghost" pill disabled={requesting} containerStyle={styles.secondaryCta} onPress={() => void browseAsGuest()} />
       </View>
       </View>
     </Screen>
@@ -210,9 +219,12 @@ const styles = StyleSheet.create({
     marginTop: spacing[3],
   },
   cta: {
+    // 🔴 여백만 남긴다 (2026-09-17). 여기 있던 minHeight·borderRadius·backgroundColor 는
+    // 버튼이 아니라 **바깥 껍데기**에 붙어서 남색 버튼 뒤로 주황색이 삐져나왔다.
+    // 색과 모양은 이제 버튼이 직접 갖는다 — `variant="accent" pill`.
     marginTop: spacing[3],
-    minHeight: 54,
-    borderRadius: radius.full,
-    backgroundColor: color.brand.orange,
+  },
+  secondaryCta: {
+    marginTop: spacing[2],
   },
 });

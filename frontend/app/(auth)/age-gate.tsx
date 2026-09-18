@@ -63,7 +63,7 @@ export default function AgeGate() {
       </View>
 
       <View style={styles.footer}>
-        <Pressable accessibilityRole="checkbox" accessibilityState={{ checked }} style={({ pressed }) => [styles.checkboxRow, pressed && styles.pressed]} onPress={() => setChecked((prev) => !prev)}>
+        <Pressable testID="age-gate-check" accessibilityRole="checkbox" accessibilityState={{ checked }} style={({ pressed }) => [styles.checkboxRow, pressed && styles.pressed]} onPress={() => setChecked((prev) => !prev)}>
           <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
             {checked && (
               <Text variant="caption" weight="bold" color={color.text.onAction}>
@@ -74,7 +74,7 @@ export default function AgeGate() {
           <Text variant="body">{tx('만 14세 이상이며, 위 내용을 확인했어요.', 'I am 14 or older and understand the information above.')}</Text>
         </Pressable>
 
-        <Button label={tx('계속', 'Continue')} disabled={!checked} onPress={continueOnboarding} containerStyle={styles.continueButton} />
+        <Button testID="age-gate-continue" label={tx('계속', 'Continue')} variant="accent" pill disabled={!checked} onPress={continueOnboarding} />
       </View>
       </View>
       </View>
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   webIntro: { width: '44%', justifyContent: 'center', gap: spacing[4], padding: spacing[6], backgroundColor: color.brand.navy },
   webIntroTitle: { fontSize: 28, lineHeight: 38 },
   webTrust: { marginTop: spacing[4], gap: spacing[2] },
-  header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  header: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   logo: { width: 100, height: 24 },
   step: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.tint },
   body: {
@@ -130,5 +130,8 @@ const styles = StyleSheet.create({
     backgroundColor: color.brand.orange,
     borderColor: color.brand.orange,
   },
-  continueButton: { minHeight: 54, borderRadius: radius.full, backgroundColor: color.brand.orange },
+  // 🔴 continueButton 을 지웠다 (2026-09-17). 여기에 { minHeight: 54, borderRadius: full,
+  // backgroundColor: orange } 를 담아 containerStyle 로 넘겼는데, 그건 버튼이 아니라 **바깥
+  // 껍데기**에 붙어서 남색 버튼 뒤로 주황색이 삐져나왔다(실기기 리포트). 지금은 버튼이
+  // 직접 그 색과 모양을 갖는다 — `variant="accent" pill`.
 });

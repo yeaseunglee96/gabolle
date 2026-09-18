@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;src:url(assets/fonts/Pretendard-Regular.ttf);font-weight:400}
+@font-face{font-family:Pretendard;src:url(assets/fonts/Pretendard-Medium.ttf);font-weight:500}
+@font-face{font-family:Pretendard;src:url(assets/fonts/Pretendard-Bold.ttf);font-weight:700}
+body{margin:0;background:#f3efe8;font-family:Pretendard,system-ui,sans-serif;color:#152238;-webkit-font-smoothing:antialiased}
+a{color:#f26532;text-decoration:none}a:hover{color:#0b1d3a}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+
+<section id="1" style="padding:40px 48px;display:flex;flex-direction:column;gap:56px;min-width:1960px">
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:1300px">
+    <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:11px;font-weight:700;letter-spacing:.1px;color:#f26532;background:#fff1e8;padding:4px 10px;border-radius:999px">턴 1</span><h1 style="margin:0;font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700">여행 일정 추천 결과 — 사진 없음 · 텍스트 + 경로 중심 · 세 방향 × 데스크톱/폰</h1></div>
+    <span style="font-size:15px;line-height:22px;color:#667882;text-wrap:pretty">그리는 값은 전부 <b>ItineraryDto</b> 실제 필드: <code>days[].date</code> · <code>items[].startsAt / title / description / estimatedCostKrw / walkingMeters / locked / dataStatus</code> · <code>totalEstimatedCostKrw / totalWalkingMeters / fallbackMode</code> · 추천 <code>reasonCodes / crowdLevel / estimatedTravelMinutes</code>. 장소 카테고리·주소·이동 수단(버스/지하철)은 응답에 없어 그리지 않고, 정차 사이 구간은 <code>walkingMeters</code>만 표시. 일차 탭 · 잠금(🔒 = <code>locked</code> POST) · 펼침은 실제 동작. 사진 칸(<code>photo_url</code>)이 채워질 자리는 비워 둠(카드 왼쪽 번호 타일이 그 자리).</span>
+  </div>
+
+  <!-- A -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:18px;font-weight:700">A · 하루 타임라인</span><span style="font-size:15px;color:#667882">시각 축 + 오전/오후/저녁 묶음 · 정차 사이 점선에 도보 거리 · 참고 이미지와 가장 가까운 구조</span></div>
+    <div style="display:flex;gap:40px;align-items:flex-start">
+      <div id="1a" style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px"><a href="#1a" style="font-size:11px;font-weight:700;color:#fff;background:#0b1d3a;padding:3px 8px;border-radius:6px">1a</a><span style="font-size:15px;font-weight:700">데스크톱 1440</span></div>
+        <div data-screen-label="일정 추천 A · 데스크톱" style="width:1440px;background:#fffdf8;border-radius:20px;border:1px solid #e8e4dd;overflow:hidden;display:flex;flex-direction:column">
+          <div style="height:56px;display:flex;align-items:center;padding:0 40px;gap:40px;border-bottom:1px solid #e8e4dd">
+            <img src="assets/logo.png" alt="GABOLLE" style="height:28px">
+            <nav style="display:flex;gap:28px;margin-left:auto;align-items:stretch;height:56px;font-size:15px;font-weight:500">
+              <a href="#" style="display:flex;align-items:center;color:#667882">홈</a><a href="#" style="display:flex;align-items:center;color:#667882">피드</a>
+              <a href="#" style="display:flex;align-items:center;color:#0b1d3a;font-weight:700;position:relative">내 여행<span style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:18px;height:3px;border-radius:2px;background:#f26532"></span></a>
+              <a href="#" style="display:flex;align-items:center;color:#667882">마이페이지</a>
+              <a href="#" style="align-self:center;height:36px;padding:0 16px;display:inline-flex;align-items:center;border-radius:14px;background:#0b1d3a;color:#fff;font-weight:700;margin-left:8px">여행 만들기</a>
+            </nav>
+          </div>
+          <div style="display:grid;grid-template-columns:400px 1fr;gap:48px;padding:40px 80px 64px">
+            <div style="display:flex;flex-direction:column;gap:20px;position:sticky;top:24px;align-self:start">
+              <div style="display:flex;gap:8px"><span style="font-size:11px;font-weight:700;letter-spacing:.1px;padding:6px 12px;border-radius:999px;background:#fff1e8;color:#f26532">AI 추천 일정 · 초안 v{{ trip.version }}</span><span style="font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;background:#f8f3eb;color:#667882">{{ trip.fallbackLabel }}</span></div>
+              <h2 style="margin:0;font-size:36px;line-height:42px;letter-spacing:-.3px;font-weight:700;color:#0b1d3a;text-wrap:pretty">{{ trip.title }}</h2>
+              <span style="font-size:18px;color:#667882">{{ trip.dates }} · {{ trip.days }}일 · {{ trip.stops }}곳</span>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #e8e4dd;border-radius:20px;background:#fff;overflow:hidden">
+                <div style="padding:16px;display:flex;flex-direction:column;gap:4px;border-right:1px solid #e8e4dd"><span style="font-size:22px;font-weight:700;line-height:28px">{{ trip.walkKm }}<span style="font-size:15px;color:#667882;font-weight:500">km</span></span><span style="font-size:11px;color:#64748b">총 도보</span></div>
+                <div style="padding:16px;display:flex;flex-direction:column;gap:4px;border-right:1px solid #e8e4dd"><span style="font-size:22px;font-weight:700;line-height:28px">{{ trip.moveMin }}<span style="font-size:15px;color:#667882;font-weight:500">분</span></span><span style="font-size:11px;color:#64748b">예상 이동</span></div>
+                <div style="padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font-size:22px;font-weight:700;line-height:28px">{{ trip.costMan }}<span style="font-size:15px;color:#667882;font-weight:500">만원</span></span><span style="font-size:11px;color:#64748b">예상 비용 · 추정</span></div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e8e4dd;border-radius:20px;padding:16px">
+                <img src="assets/dongbaek-idle.png" alt="" style="width:48px;height:48px;object-fit:contain;flex:0 0 auto">
+                <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;font-weight:700;color:#f26532">동백의 한마디</span><span style="font-size:15px;line-height:22px;text-wrap:pretty">{{ trip.note }}</span></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <a href="#" style="height:52px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#f26532;color:#fff;font-size:18px;font-weight:700" style-hover="color:#fff">이 일정으로 저장</a>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                  <a href="#" style="height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid #e4ddd3;color:#0b1d3a;font-size:15px;font-weight:700">순서 직접 수정</a>
+                  <a href="#" style="height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid #e4ddd3;color:#0b1d3a;font-size:15px;font-weight:700">다시 추천받기</a>
+                </div>
+                <span style="font-size:11px;color:#64748b;text-align:center">🔒 잠근 장소는 다시 추천받아도 그대로 남아요</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:24px;min-width:0">
+              <div style="display:flex;gap:8px;border-bottom:1px solid #e8e4dd">
+                <sc-for list="{{ A.tabs }}" as="d" hint-placeholder-count="3">
+                  <button onClick="{{ d.select }}" style="height:56px;padding:0 20px;border:0;background:transparent;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;position:relative;color:{{ d.color }}"><span style="font-size:11px;font-weight:700;letter-spacing:.1px">{{ d.label }}</span><span style="font-size:18px;font-weight:700;line-height:24px">{{ d.date }}</span><sc-if value="{{ d.active }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:20px;right:20px;bottom:-1px;height:3px;border-radius:2px;background:#f26532"></span></sc-if></button>
+                </sc-for>
+                <span style="margin-left:auto;align-self:center;font-size:15px;color:#667882">{{ A.day.summary }}</span>
+              </div>
+              <sc-for list="{{ A.day.groups }}" as="g" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:18px;font-weight:700">{{ g.label }}</span><span style="font-size:15px;color:#667882">{{ g.sub }}</span></div>
+                  <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+                    <sc-if value="{{ it.isStop }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:grid;grid-template-columns:72px 24px 1fr;gap:0 12px;align-items:stretch">
+                        <span style="font-size:15px;font-weight:700;color:#0b1d3a;padding-top:20px">{{ it.time }}</span>
+                        <div style="display:flex;flex-direction:column;align-items:center"><span style="width:12px;height:12px;border-radius:999px;background:#f26532;border:3px solid #fff1e8;margin-top:20px;flex:0 0 auto"></span><span style="flex:1;width:2px;background:#e8e4dd"></span></div>
+                        <div style="display:flex;align-items:center;gap:16px;background:#fff;border:1px solid {{ it.border }};border-radius:20px;padding:16px 20px;color:#152238">
+                          <span style="width:44px;height:44px;border-radius:14px;background:#f8f3eb;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#0b1d3a;flex:0 0 auto">{{ it.n }}</span>
+                          <a href="#" style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;color:#152238">
+                            <span style="display:flex;align-items:center;gap:8px"><span style="font-size:18px;font-weight:700;line-height:24px">{{ it.title }}</span><span style="font-size:11px;font-weight:700;color:{{ it.statusFg }};background:{{ it.statusBg }};padding:3px 8px;border-radius:999px">{{ it.status }}</span></span>
+                            <span style="font-size:15px;line-height:22px;color:#667882;text-wrap:pretty">{{ it.desc }}</span>
+                            <span style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px"><sc-for list="{{ it.reasons }}" as="r" hint-placeholder-count="2"><span style="font-size:11px;font-weight:700;color:#30a687;background:#e9f7f2;padding:4px 10px;border-radius:999px">{{ r }}</span></sc-for></span>
+                          </a>
+                          <span style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:0 0 auto"><span style="font-size:15px;font-weight:700;color:#0b1d3a">{{ it.cost }}</span><button onClick="{{ it.toggleLock }}" aria-pressed="{{ it.locked }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ it.lockBorder }};background:{{ it.lockBg }};color:{{ it.lockFg }};font-size:11px;font-weight:700">{{ it.lockLabel }}</button></span>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ it.isTravel }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:grid;grid-template-columns:72px 24px 1fr;gap:0 12px;align-items:center;min-height:40px">
+                        <span></span>
+                        <div style="display:flex;justify-content:center;align-self:stretch"><span style="width:0;border-left:2px dashed #cfc7bb"></span></div>
+                        <span style="display:inline-flex;align-items:center;gap:8px;font-size:15px;color:#667882;padding-left:20px"><span style="width:16px;height:16px;background:#667882;mask:url(assets/icons/shoes.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/shoes.svg) center/contain no-repeat"></span>도보 {{ it.walk }}<span style="font-size:11px;color:#64748b">· 이동 수단 · API 없음</span></span>
+                      </div>
+                    </sc-if>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="1b" style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px"><a href="#1b" style="font-size:11px;font-weight:700;color:#fff;background:#0b1d3a;padding:3px 8px;border-radius:6px">1b</a><span style="font-size:15px;font-weight:700">폰 390</span></div>
+        <div data-screen-label="일정 추천 A · 폰" style="width:390px;height:844px;flex:0 0 auto;background:#fffdf8;border-radius:34px;border:1px solid #e8e4dd;overflow:hidden;display:flex;flex-direction:column;position:relative">
+          <div style="flex:1;overflow:auto;padding-bottom:176px;display:flex;flex-direction:column;scrollbar-width:none">
+            <div style="padding:56px 16px 0;display:flex;align-items:center;justify-content:space-between"><a href="#" aria-label="뒤로" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#152238;font-size:22px">‹</a><span style="font-size:11px;font-weight:700;letter-spacing:.1px;padding:6px 12px;border-radius:999px;background:#fff1e8;color:#f26532">AI 추천 · 초안 v{{ trip.version }}</span><a href="#" aria-label="더보기" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#152238;font-size:22px">⋯</a></div>
+            <div style="padding:8px 24px 0;display:flex;flex-direction:column;gap:6px">
+              <h2 style="margin:0;font-size:28px;line-height:34px;letter-spacing:-.3px;font-weight:700;color:#0b1d3a;text-wrap:pretty">{{ trip.title }}</h2>
+              <span style="font-size:15px;color:#667882">{{ trip.dates }} · {{ trip.stops }}곳 · 도보 {{ trip.walkKm }}km · 약 {{ trip.costMan }}만원</span>
+            </div>
+            <div style="padding:20px 24px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+              <sc-for list="{{ A.tabs }}" as="d" hint-placeholder-count="3"><button onClick="{{ d.select }}" style="height:64px;border:1px solid {{ d.border }};border-radius:16px;background:{{ d.bg }};color:{{ d.fg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:11px;font-weight:700">{{ d.label }}</span><span style="font-size:18px;font-weight:700">{{ d.dateShort }}</span></button></sc-for>
+            </div>
+            <div style="padding:24px 24px 0;display:flex;flex-direction:column;gap:20px">
+              <sc-for list="{{ A.day.groups }}" as="g" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:15px;font-weight:700">{{ g.label }}</span><span style="font-size:11px;color:#667882">{{ g.sub }}</span></div>
+                  <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+                    <sc-if value="{{ it.isStop }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:grid;grid-template-columns:44px 16px 1fr;gap:0 8px">
+                        <span style="font-size:11px;font-weight:700;color:#0b1d3a;padding-top:16px">{{ it.time }}</span>
+                        <div style="display:flex;flex-direction:column;align-items:center"><span style="width:10px;height:10px;border-radius:999px;background:#f26532;border:3px solid #fff1e8;margin-top:14px;flex:0 0 auto"></span><span style="flex:1;width:2px;background:#e8e4dd"></span></div>
+                        <div style="display:flex;flex-direction:column;gap:6px;background:#fff;border:1px solid {{ it.border }};border-radius:16px;padding:14px 16px;color:#152238">
+                          <span style="display:flex;justify-content:space-between;align-items:center;gap:8px"><a href="#" style="font-size:15px;font-weight:700;line-height:20px;color:#152238">{{ it.title }}</a><button onClick="{{ it.toggleLock }}" aria-label="잠금" aria-pressed="{{ it.locked }}" style="width:44px;height:44px;margin:-10px -12px -10px 0;border:0;background:transparent;display:flex;align-items:center;justify-content:center;color:{{ it.lockFg }};font-size:15px">{{ it.lockIcon }}</button></span>
+                          <span style="font-size:11px;line-height:16px;color:#667882;text-wrap:pretty">{{ it.desc }}</span>
+                          <span style="display:flex;justify-content:space-between;align-items:center;gap:6px"><span style="display:flex;gap:4px;flex-wrap:wrap"><sc-for list="{{ it.reasons }}" as="r" hint-placeholder-count="2"><span style="font-size:11px;font-weight:700;color:#30a687">#{{ r }}</span></sc-for></span><span style="font-size:11px;font-weight:700;color:#0b1d3a;flex:0 0 auto">{{ it.cost }}</span></span>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ it.isTravel }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:grid;grid-template-columns:44px 16px 1fr;gap:0 8px;align-items:center;min-height:32px">
+                        <span></span><div style="display:flex;justify-content:center;align-self:stretch"><span style="width:0;border-left:2px dashed #cfc7bb"></span></div>
+                        <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:#667882;padding-left:16px"><span style="width:14px;height:14px;background:#667882;mask:url(assets/icons/shoes.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/shoes.svg) center/contain no-repeat"></span>도보 {{ it.walk }}</span>
+                      </div>
+                    </sc-if>
+                  </sc-for>
+                </div>
+              </sc-for>
+              <div style="display:flex;gap:12px;align-items:flex-start;background:#f8f3eb;border-radius:16px;padding:14px 16px">
+                <img src="assets/dongbaek-idle.png" alt="" style="width:40px;height:40px;object-fit:contain;flex:0 0 auto">
+                <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;font-weight:700;color:#f26532">동백의 한마디</span><span style="font-size:15px;line-height:20px;text-wrap:pretty">{{ trip.note }}</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="position:absolute;left:31px;right:31px;bottom:16px;height:64px;background:#fff;border:1px solid #e8e4dd;border-radius:20px;box-shadow:0 -2px 8px rgba(11,29,58,.13);display:flex;align-items:center;padding:0 8px">
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:20px;height:20px;background:#64748b;mask:url(assets/icons/home.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/home.svg) center/contain no-repeat"></span>홈</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:20px;height:20px;background:#64748b;mask:url(assets/icons/heart.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/heart.svg) center/contain no-repeat"></span>피드</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:32px;height:32px;border-radius:999px;background:#f26532;display:flex;align-items:center;justify-content:center;margin:-6px 0"><span style="width:16px;height:16px;background:#fff;mask:url(assets/icons/plus.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/plus.svg) center/contain no-repeat"></span></span>여행 만들기</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#0b1d3a;font-size:11px;font-weight:700;position:relative"><span style="position:absolute;top:-10px;width:18px;height:3px;border-radius:2px;background:#f26532"></span><span style="width:20px;height:20px;background:#0b1d3a;mask:url(assets/icons/map.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/map.svg) center/contain no-repeat"></span>내 여행</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:20px;height:20px;background:#64748b;mask:url(assets/icons/user.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/user.svg) center/contain no-repeat"></span>마이페이지</a>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:88px;padding:12px 24px 8px;background:linear-gradient(to top,#fffdf8 70%,rgba(255,253,248,0));display:flex;gap:8px">
+            <a href="#" aria-label="다시 추천받기" style="width:52px;height:52px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid #e4ddd3;color:#0b1d3a;font-size:18px;font-weight:700">↻</a>
+            <a href="#" style="flex:1;height:52px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#f26532;color:#fff;font-size:18px;font-weight:700" style-hover="color:#fff">이 일정으로 저장</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:18px;font-weight:700">B · 경로 노선도</span><span style="font-size:15px;color:#667882">지도 대신 노선도처럼 정차역을 잇는 가로 스트립 · 구간 라벨은 도보 거리 · 아래에 정차 목록 + 이동 요약</span></div>
+    <div style="display:flex;gap:40px;align-items:flex-start">
+      <div id="1c" style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px"><a href="#1c" style="font-size:11px;font-weight:700;color:#fff;background:#0b1d3a;padding:3px 8px;border-radius:6px">1c</a><span style="font-size:15px;font-weight:700">데스크톱 1440</span></div>
+        <div data-screen-label="일정 추천 B · 데스크톱" style="width:1440px;background:#fffdf8;border-radius:20px;border:1px solid #e8e4dd;overflow:hidden;display:flex;flex-direction:column">
+          <div style="height:56px;display:flex;align-items:center;padding:0 40px;gap:40px;border-bottom:1px solid #e8e4dd">
+            <img src="assets/logo.png" alt="GABOLLE" style="height:28px">
+            <nav style="display:flex;gap:28px;margin-left:auto;align-items:stretch;height:56px;font-size:15px;font-weight:500">
+              <a href="#" style="display:flex;align-items:center;color:#667882">홈</a><a href="#" style="display:flex;align-items:center;color:#667882">피드</a>
+              <a href="#" style="display:flex;align-items:center;color:#0b1d3a;font-weight:700;position:relative">내 여행<span style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:18px;height:3px;border-radius:2px;background:#f26532"></span></a>
+              <a href="#" style="display:flex;align-items:center;color:#667882">마이페이지</a>
+              <a href="#" style="align-self:center;height:36px;padding:0 16px;display:inline-flex;align-items:center;border-radius:14px;background:#0b1d3a;color:#fff;font-weight:700;margin-left:8px">여행 만들기</a>
+            </nav>
+          </div>
+          <div style="background:#0b1d3a;padding:48px 80px 0;display:flex;flex-direction:column;gap:24px;color:#fff">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+              <div style="display:flex;flex-direction:column;gap:10px"><span style="align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.1px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.12)">AI 추천 일정 · 초안 v{{ trip.version }} · {{ trip.fallbackLabel }}</span><h2 style="margin:0;font-size:36px;line-height:42px;letter-spacing:-.3px;font-weight:700">{{ trip.title }}</h2><span style="font-size:18px;color:rgba(255,255,255,.72)">{{ trip.dates }} · {{ trip.days }}일 · {{ trip.stops }}곳 · 도보 {{ trip.walkKm }}km · 약 {{ trip.costMan }}만원</span></div>
+              <div style="display:flex;gap:8px"><a href="#" style="height:44px;padding:0 20px;display:inline-flex;align-items:center;border-radius:999px;border:1px solid rgba(255,255,255,.28);color:#fff;font-size:15px;font-weight:700" style-hover="background:rgba(255,255,255,.1);color:#fff">다시 추천받기</a><a href="#" style="height:44px;padding:0 24px;display:inline-flex;align-items:center;border-radius:999px;background:#f26532;color:#fff;font-size:15px;font-weight:700" style-hover="color:#fff">이 일정으로 저장</a></div>
+            </div>
+            <div style="display:flex;gap:4px">
+              <sc-for list="{{ B.tabs }}" as="d" hint-placeholder-count="3"><button onClick="{{ d.select }}" style="height:48px;padding:0 20px;border:0;border-radius:14px 14px 0 0;background:{{ d.tabBg }};color:{{ d.tabFg }};font-size:15px;font-weight:700;display:inline-flex;align-items:center;gap:8px">{{ d.label }}<span style="font-weight:500;opacity:.75">{{ d.date }}</span></button></sc-for>
+            </div>
+          </div>
+          <div style="padding:40px 80px 32px;border-bottom:1px solid #e8e4dd;overflow-x:auto">
+            <div style="display:flex;align-items:flex-start;min-width:max-content">
+              <sc-for list="{{ B.strip }}" as="s" hint-placeholder-count="7">
+                <sc-if value="{{ s.isStop }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:180px">
+                    <span style="width:40px;height:40px;border-radius:999px;background:{{ s.nodeBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;border:4px solid #fffdf8;box-shadow:0 0 0 2px {{ s.nodeBg }}">{{ s.n }}</span>
+                    <span style="font-size:15px;font-weight:700;text-align:center;line-height:20px;text-wrap:pretty">{{ s.title }}</span>
+                    <span style="font-size:11px;color:#667882;text-align:center">{{ s.time }} · {{ s.cost }}</span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ s.isTravel }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;align-items:center;width:120px;margin:0 -40px;padding-top:19px">
+                    <span style="width:100%;height:0;border-top:3px solid #0b1d3a"></span>
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#0b1d3a;background:#fffdf8;padding:0 6px;margin-top:-9px"><span style="width:14px;height:14px;background:#0b1d3a;mask:url(assets/icons/shoes.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/shoes.svg) center/contain no-repeat"></span>{{ s.walk }}</span>
+                  </div>
+                </sc-if>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 360px;gap:48px;padding:32px 80px 64px">
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ B.stops }}" as="st" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:40px 1fr auto;gap:20px;align-items:center;padding:20px 0;border-bottom:1px solid #e8e4dd;color:#152238">
+                  <span style="width:40px;height:40px;border-radius:999px;background:{{ st.nodeBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">{{ st.n }}</span>
+                  <a href="#" style="display:flex;flex-direction:column;gap:4px;min-width:0;color:#152238"><span style="display:flex;align-items:center;gap:8px"><span style="font-size:18px;font-weight:700;line-height:24px">{{ st.title }}</span><span style="font-size:11px;font-weight:700;color:{{ st.statusFg }};background:{{ st.statusBg }};padding:3px 8px;border-radius:999px">{{ st.status }}</span></span><span style="font-size:15px;color:#667882;text-wrap:pretty">{{ st.desc }}</span><span style="display:flex;gap:6px"><sc-for list="{{ st.reasons }}" as="r" hint-placeholder-count="2"><span style="font-size:11px;font-weight:700;color:#30a687">#{{ r }}</span></sc-for></span></a>
+                  <span style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:18px;font-weight:700;color:#0b1d3a">{{ st.time }}</span><span style="font-size:11px;color:#64748b">{{ st.cost }}</span><button onClick="{{ st.toggleLock }}" aria-pressed="{{ st.locked }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ st.lockBorder }};background:{{ st.lockBg }};color:{{ st.lockFg }};font-size:11px;font-weight:700">{{ st.lockLabel }}</button></span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px;align-self:start;position:sticky;top:24px">
+              <div style="background:#fff;border:1px solid #e8e4dd;border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:14px">
+                <span style="font-size:11px;font-weight:700;letter-spacing:.1px;color:#f26532">{{ B.day.label }} 이동 요약</span>
+                <div style="display:flex;justify-content:space-between;font-size:15px"><span style="color:#667882">도보 합계</span><span style="font-weight:700">{{ B.day.walkKm }}km</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:15px"><span style="color:#667882">예상 비용</span><span style="font-weight:700">{{ B.day.cost }}</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:15px"><span style="color:#667882">혼잡도</span><span style="font-weight:700;color:{{ B.day.crowdColor }}">{{ B.day.crowd }}</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:15px"><span style="color:#667882">대중교통 시간</span><span style="font-size:11px;font-weight:700;color:#64748b;background:#f8f3eb;padding:4px 8px;border-radius:6px">제안 · API 없음</span></div>
+                <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;color:#64748b">정차별 도보 비중</span><div style="height:8px;border-radius:999px;background:#f8f3eb;overflow:hidden;display:flex;gap:2px"><sc-for list="{{ B.day.bars }}" as="b" hint-placeholder-count="3"><span style="width:{{ b.w }};background:{{ b.c }}"></span></sc-for></div></div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;background:#f8f3eb;border-radius:20px;padding:16px">
+                <img src="assets/dongbaek-idle.png" alt="" style="width:44px;height:44px;object-fit:contain;flex:0 0 auto">
+                <span style="font-size:15px;line-height:22px;text-wrap:pretty">{{ trip.note }}</span>
+              </div>
+              <a href="#" style="height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid #e4ddd3;color:#0b1d3a;font-size:15px;font-weight:700">순서 직접 수정</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="1d" style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px"><a href="#1d" style="font-size:11px;font-weight:700;color:#fff;background:#0b1d3a;padding:3px 8px;border-radius:6px">1d</a><span style="font-size:15px;font-weight:700">폰 390</span></div>
+        <div data-screen-label="일정 추천 B · 폰" style="width:390px;height:844px;flex:0 0 auto;background:#fffdf8;border-radius:34px;border:1px solid #e8e4dd;overflow:hidden;display:flex;flex-direction:column;position:relative">
+          <div style="flex:1;overflow:auto;padding-bottom:176px;display:flex;flex-direction:column;scrollbar-width:none">
+            <div style="background:#0b1d3a;color:#fff;padding:56px 16px 0;display:flex;flex-direction:column">
+              <div style="display:flex;align-items:center;justify-content:space-between"><a href="#" aria-label="뒤로" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px" style-hover="color:#fff">‹</a><span style="font-size:11px;font-weight:700;letter-spacing:.1px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.12)">AI 추천 · 초안 v{{ trip.version }}</span><a href="#" aria-label="더보기" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px" style-hover="color:#fff">⋯</a></div>
+              <div style="padding:8px 8px 20px;display:flex;flex-direction:column;gap:6px"><h2 style="margin:0;font-size:28px;line-height:34px;letter-spacing:-.3px;font-weight:700">{{ trip.title }}</h2><span style="font-size:15px;color:rgba(255,255,255,.72)">{{ trip.dates }} · {{ trip.stops }}곳 · 약 {{ trip.costMan }}만원</span></div>
+              <div style="display:flex;gap:4px;padding:0 8px"><sc-for list="{{ B.tabs }}" as="d" hint-placeholder-count="3"><button onClick="{{ d.select }}" style="flex:1;height:44px;border:0;border-radius:14px 14px 0 0;background:{{ d.tabBg }};color:{{ d.tabFg }};font-size:15px;font-weight:700">{{ d.label }}</button></sc-for></div>
+            </div>
+            <div style="padding:20px 24px 0;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:15px;font-weight:700">{{ B.day.date }}</span><span style="font-size:11px;color:#667882">도보 {{ B.day.walkKm }}km · {{ B.day.cost }}</span></div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ B.strip }}" as="s" hint-placeholder-count="7">
+                  <sc-if value="{{ s.isStop }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:center;color:#152238">
+                      <span style="width:32px;height:32px;border-radius:999px;background:{{ s.nodeBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;border:3px solid #fffdf8;box-shadow:0 0 0 2px {{ s.nodeBg }}">{{ s.n }}</span>
+                      <a href="#" style="display:flex;flex-direction:column;gap:2px;min-width:0;color:#152238"><span style="font-size:15px;font-weight:700;line-height:20px">{{ s.title }}</span><span style="font-size:11px;color:#667882;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.desc }}</span></a>
+                      <span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:15px;font-weight:700;color:#0b1d3a">{{ s.time }}</span><button onClick="{{ s.toggleLock }}" aria-label="잠금" aria-pressed="{{ s.locked }}" style="width:44px;height:32px;margin-right:-12px;border:0;background:transparent;color:{{ s.lockFg }};font-size:13px">{{ s.lockIcon }}</button></span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ s.isTravel }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center;height:44px">
+                      <span style="justify-self:center;height:100%;border-left:3px solid #0b1d3a"></span>
+                      <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#0b1d3a"><span style="width:14px;height:14px;background:#0b1d3a;mask:url(assets/icons/shoes.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/shoes.svg) center/contain no-repeat"></span>도보 {{ s.walk }}</span>
+                    </div>
+                  </sc-if>
+                </sc-for>
+              </div>
+              <div style="margin-top:8px;background:#fff;border:1px solid #e8e4dd;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:11px;font-weight:700;color:#f26532">{{ B.day.label }} 이동 요약</span>
+                <div style="height:6px;border-radius:999px;background:#f8f3eb;overflow:hidden;display:flex;gap:2px"><sc-for list="{{ B.day.bars }}" as="b" hint-placeholder-count="3"><span style="width:{{ b.w }};background:{{ b.c }}"></span></sc-for></div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#667882"><span>도보 {{ B.day.walkKm }}km · 혼잡 {{ B.day.crowd }}</span><span style="font-weight:700;color:#64748b">대중교통 · API 없음</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="position:absolute;left:31px;right:31px;bottom:16px;height:64px;background:#fff;border:1px solid #e8e4dd;border-radius:20px;box-shadow:0 -2px 8px rgba(11,29,58,.13);display:flex;align-items:center;padding:0 8px">
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:20px;height:20px;background:#64748b;mask:url(assets/icons/home.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/home.svg) center/contain no-repeat"></span>홈</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:20px;height:20px;background:#64748b;mask:url(assets/icons/heart.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/heart.svg) center/contain no-repeat"></span>피드</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:32px;height:32px;border-radius:999px;background:#f26532;display:flex;align-items:center;justify-content:center;margin:-6px 0"><span style="width:16px;height:16px;background:#fff;mask:url(assets/icons/plus.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/plus.svg) center/contain no-repeat"></span></span>여행 만들기</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#0b1d3a;font-size:11px;font-weight:700;position:relative"><span style="position:absolute;top:-10px;width:18px;height:3px;border-radius:2px;background:#f26532"></span><span style="width:20px;height:20px;background:#0b1d3a;mask:url(assets/icons/map.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/map.svg) center/contain no-repeat"></span>내 여행</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:20px;height:20px;background:#64748b;mask:url(assets/icons/user.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/user.svg) center/contain no-repeat"></span>마이페이지</a>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:88px;padding:12px 24px 8px;background:linear-gradient(to top,#fffdf8 70%,rgba(255,253,248,0));display:flex;gap:8px">
+            <a href="#" style="flex:1;height:52px;display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid #e4ddd3;color:#0b1d3a;font-size:15px;font-weight:700">순서 수정</a>
+            <a href="#" style="flex:1.4;height:52px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#f26532;color:#fff;font-size:18px;font-weight:700" style-hover="color:#fff">저장</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:18px;font-weight:700">C · 전체 일정 한눈에</span><span style="font-size:15px;color:#667882">일차 열을 나란히 · 장소는 한 줄, 누르면 설명·이유 펼침 · 탭 없이 3일 비교 · 폰은 일차 아코디언</span></div>
+    <div style="display:flex;gap:40px;align-items:flex-start">
+      <div id="1e" style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px"><a href="#1e" style="font-size:11px;font-weight:700;color:#fff;background:#0b1d3a;padding:3px 8px;border-radius:6px">1e</a><span style="font-size:15px;font-weight:700">데스크톱 1440</span></div>
+        <div data-screen-label="일정 추천 C · 데스크톱" style="width:1440px;background:#fffdf8;border-radius:20px;border:1px solid #e8e4dd;overflow:hidden;display:flex;flex-direction:column">
+          <div style="height:56px;display:flex;align-items:center;padding:0 40px;gap:40px;border-bottom:1px solid #e8e4dd">
+            <img src="assets/logo.png" alt="GABOLLE" style="height:28px">
+            <nav style="display:flex;gap:28px;margin-left:auto;align-items:stretch;height:56px;font-size:15px;font-weight:500">
+              <a href="#" style="display:flex;align-items:center;color:#667882">홈</a><a href="#" style="display:flex;align-items:center;color:#667882">피드</a>
+              <a href="#" style="display:flex;align-items:center;color:#0b1d3a;font-weight:700;position:relative">내 여행<span style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:18px;height:3px;border-radius:2px;background:#f26532"></span></a>
+              <a href="#" style="display:flex;align-items:center;color:#667882">마이페이지</a>
+              <a href="#" style="align-self:center;height:36px;padding:0 16px;display:inline-flex;align-items:center;border-radius:14px;background:#0b1d3a;color:#fff;font-weight:700;margin-left:8px">여행 만들기</a>
+            </nav>
+          </div>
+          <div style="padding:40px 80px 64px;display:flex;flex-direction:column;gap:32px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;gap:8px"><span style="font-size:11px;font-weight:700;letter-spacing:.1px;padding:6px 12px;border-radius:999px;background:#fff1e8;color:#f26532">AI 추천 일정 · 초안 v{{ trip.version }}</span><span style="font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;background:#f8f3eb;color:#667882">{{ trip.fallbackLabel }}</span></div>
+                <h2 style="margin:0;font-size:36px;line-height:42px;letter-spacing:-.3px;font-weight:700;color:#0b1d3a">{{ trip.title }}</h2>
+                <span style="font-size:18px;color:#667882">{{ trip.dates }} · {{ trip.days }}일 · {{ trip.stops }}곳 · 도보 {{ trip.walkKm }}km · 예상 이동 {{ trip.moveMin }}분 · 약 {{ trip.costMan }}만원</span>
+              </div>
+              <div style="display:flex;gap:8px"><a href="#" style="height:44px;padding:0 20px;display:inline-flex;align-items:center;border-radius:999px;border:1px solid #e4ddd3;color:#0b1d3a;font-size:15px;font-weight:700">다시 추천받기</a><a href="#" style="height:44px;padding:0 20px;display:inline-flex;align-items:center;border-radius:999px;border:1px solid #e4ddd3;color:#0b1d3a;font-size:15px;font-weight:700">순서 직접 수정</a><a href="#" style="height:44px;padding:0 24px;display:inline-flex;align-items:center;border-radius:999px;background:#f26532;color:#fff;font-size:15px;font-weight:700" style-hover="color:#fff">이 일정으로 저장</a></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start">
+              <sc-for list="{{ C.cols }}" as="d" hint-placeholder-count="3">
+                <div style="background:#fff;border:1px solid #e8e4dd;border-radius:20px;overflow:hidden;display:flex;flex-direction:column">
+                  <div style="padding:20px 24px;border-bottom:1px solid #e8e4dd;display:flex;justify-content:space-between;align-items:baseline"><span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:22px;font-weight:700;color:#0b1d3a">{{ d.label }}</span><span style="font-size:15px;color:#667882">{{ d.date }}</span></span><span style="font-size:11px;color:#667882">도보 {{ d.walkKm }}km · {{ d.cost }}</span></div>
+                  <div style="padding:8px 24px 16px;display:flex;flex-direction:column">
+                    <sc-for list="{{ d.items }}" as="it" hint-placeholder-count="5">
+                      <sc-if value="{{ it.isStop }}" hint-placeholder-val="{{ true }}">
+                        <div style="display:flex;flex-direction:column;padding:12px 0">
+                          <button onClick="{{ it.toggle }}" aria-expanded="{{ it.open }}" style="border:0;background:transparent;text-align:left;padding:0;display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:baseline;width:100%;color:#152238"><span style="font-size:15px;font-weight:700;color:#0b1d3a">{{ it.time }}</span><span style="font-size:18px;font-weight:700;line-height:24px;display:flex;align-items:center;gap:6px">{{ it.title }}<sc-if value="{{ it.locked }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;color:#f26532">🔒</span></sc-if></span><span style="font-size:15px;color:#64748b">{{ it.chev }}</span></button>
+                          <sc-if value="{{ it.open }}" hint-placeholder-val="{{ false }}">
+                            <div style="margin:10px 0 0 64px;display:flex;flex-direction:column;gap:8px">
+                              <span style="font-size:15px;line-height:22px;color:#667882;text-wrap:pretty">{{ it.desc }}</span>
+                              <span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><sc-for list="{{ it.reasons }}" as="r" hint-placeholder-count="2"><span style="font-size:11px;font-weight:700;color:#30a687;background:#e9f7f2;padding:4px 10px;border-radius:999px">{{ r }}</span></sc-for><span style="font-size:11px;font-weight:700;color:{{ it.statusFg }};background:{{ it.statusBg }};padding:4px 10px;border-radius:999px">{{ it.status }}</span></span>
+                              <span style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:15px;font-weight:700">{{ it.cost }}</span><button onClick="{{ it.toggleLock }}" aria-pressed="{{ it.locked }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ it.lockBorder }};background:{{ it.lockBg }};color:{{ it.lockFg }};font-size:11px;font-weight:700">{{ it.lockLabel }}</button></span>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ it.isTravel }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center"><span style="justify-self:center;width:0;height:20px;border-left:2px dashed #cfc7bb"></span><span style="font-size:11px;color:#667882;display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:#667882;mask:url(assets/icons/shoes.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/shoes.svg) center/contain no-repeat"></span>도보 {{ it.walk }}</span></div>
+                      </sc-if>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;background:#f8f3eb;border-radius:20px;padding:16px 20px;max-width:720px">
+              <img src="assets/dongbaek-idle.png" alt="" style="width:44px;height:44px;object-fit:contain;flex:0 0 auto">
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;font-weight:700;color:#f26532">동백의 한마디</span><span style="font-size:15px;line-height:22px;text-wrap:pretty">{{ trip.note }}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="1f" style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px"><a href="#1f" style="font-size:11px;font-weight:700;color:#fff;background:#0b1d3a;padding:3px 8px;border-radius:6px">1f</a><span style="font-size:15px;font-weight:700">폰 390</span></div>
+        <div data-screen-label="일정 추천 C · 폰" style="width:390px;height:844px;flex:0 0 auto;background:#fffdf8;border-radius:34px;border:1px solid #e8e4dd;overflow:hidden;display:flex;flex-direction:column;position:relative">
+          <div style="flex:1;overflow:auto;padding-bottom:176px;display:flex;flex-direction:column;scrollbar-width:none">
+            <div style="padding:56px 16px 0;display:flex;align-items:center;justify-content:space-between"><a href="#" aria-label="뒤로" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#152238;font-size:22px">‹</a><span style="font-size:11px;font-weight:700;letter-spacing:.1px;padding:6px 12px;border-radius:999px;background:#fff1e8;color:#f26532">AI 추천 · 초안 v{{ trip.version }}</span><a href="#" aria-label="더보기" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#152238;font-size:22px">⋯</a></div>
+            <div style="padding:8px 24px 0;display:flex;flex-direction:column;gap:6px">
+              <h2 style="margin:0;font-size:28px;line-height:34px;letter-spacing:-.3px;font-weight:700;color:#0b1d3a;text-wrap:pretty">{{ trip.title }}</h2>
+              <span style="font-size:15px;color:#667882">{{ trip.dates }} · {{ trip.stops }}곳 · 도보 {{ trip.walkKm }}km · 약 {{ trip.costMan }}만원</span>
+            </div>
+            <div style="padding:20px 24px 0;display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ C.acc }}" as="d" hint-placeholder-count="3">
+                <div style="background:#fff;border:1px solid {{ d.border }};border-radius:20px;overflow:hidden;display:flex;flex-direction:column">
+                  <button onClick="{{ d.toggle }}" aria-expanded="{{ d.open }}" style="border:0;background:transparent;text-align:left;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:8px;color:#152238;min-height:56px">
+                    <span style="display:flex;flex-direction:column;gap:2px"><span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:18px;font-weight:700;color:#0b1d3a">{{ d.label }}</span><span style="font-size:15px;color:#667882">{{ d.date }}</span></span><span style="font-size:11px;color:#64748b">{{ d.preview }}</span></span>
+                    <span style="font-size:15px;color:#64748b;flex:0 0 auto">{{ d.chev }}</span>
+                  </button>
+                  <sc-if value="{{ d.open }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:0 16px 16px;display:flex;flex-direction:column;border-top:1px solid #e8e4dd">
+                      <sc-for list="{{ d.items }}" as="it" hint-placeholder-count="5">
+                        <sc-if value="{{ it.isStop }}" hint-placeholder-val="{{ true }}">
+                          <div style="display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:start;padding:12px 0">
+                            <span style="font-size:11px;font-weight:700;color:#0b1d3a;padding-top:3px">{{ it.time }}</span>
+                            <a href="#" style="display:flex;flex-direction:column;gap:2px;min-width:0;color:#152238"><span style="font-size:15px;font-weight:700;line-height:20px">{{ it.title }}</span><span style="font-size:11px;line-height:16px;color:#667882;text-wrap:pretty">{{ it.desc }}</span><span style="font-size:11px;font-weight:700;color:#30a687">{{ it.reasonLine }}</span></a>
+                            <button onClick="{{ it.toggleLock }}" aria-label="잠금" aria-pressed="{{ it.locked }}" style="width:44px;height:44px;margin:-10px -12px -10px 0;border:0;background:transparent;color:{{ it.lockFg }};font-size:15px">{{ it.lockIcon }}</button>
+                          </div>
+                        </sc-if>
+                        <sc-if value="{{ it.isTravel }}" hint-placeholder-val="{{ false }}">
+                          <div style="display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center"><span style="justify-self:center;width:0;height:16px;border-left:2px dashed #cfc7bb"></span><span style="font-size:11px;color:#667882">도보 {{ it.walk }}</span></div>
+                        </sc-if>
+                      </sc-for>
+                      <span style="font-size:11px;color:#64748b;padding-top:8px;border-top:1px solid #e8e4dd;display:flex;justify-content:space-between"><span>도보 {{ d.walkKm }}km</span><span>{{ d.cost }}</span></span>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <div style="display:flex;gap:12px;align-items:flex-start;background:#f8f3eb;border-radius:16px;padding:14px 16px">
+                <img src="assets/dongbaek-idle.png" alt="" style="width:40px;height:40px;object-fit:contain;flex:0 0 auto">
+                <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;font-weight:700;color:#f26532">동백의 한마디</span><span style="font-size:15px;line-height:20px;text-wrap:pretty">{{ trip.note }}</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="position:absolute;left:31px;right:31px;bottom:16px;height:64px;background:#fff;border:1px solid #e8e4dd;border-radius:20px;box-shadow:0 -2px 8px rgba(11,29,58,.13);display:flex;align-items:center;padding:0 8px">
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:20px;height:20px;background:#64748b;mask:url(assets/icons/home.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/home.svg) center/contain no-repeat"></span>홈</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:20px;height:20px;background:#64748b;mask:url(assets/icons/heart.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/heart.svg) center/contain no-repeat"></span>피드</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:32px;height:32px;border-radius:999px;background:#f26532;display:flex;align-items:center;justify-content:center;margin:-6px 0"><span style="width:16px;height:16px;background:#fff;mask:url(assets/icons/plus.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/plus.svg) center/contain no-repeat"></span></span>여행 만들기</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#0b1d3a;font-size:11px;font-weight:700;position:relative"><span style="position:absolute;top:-10px;width:18px;height:3px;border-radius:2px;background:#f26532"></span><span style="width:20px;height:20px;background:#0b1d3a;mask:url(assets/icons/map.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/map.svg) center/contain no-repeat"></span>내 여행</a>
+            <a href="#" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#64748b;font-size:11px"><span style="width:20px;height:20px;background:#64748b;mask:url(assets/icons/user.svg) center/contain no-repeat;-webkit-mask:url(assets/icons/user.svg) center/contain no-repeat"></span>마이페이지</a>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:88px;padding:12px 24px 8px;background:linear-gradient(to top,#fffdf8 70%,rgba(255,253,248,0));display:flex;gap:8px">
+            <a href="#" aria-label="다시 추천받기" style="width:52px;height:52px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid #e4ddd3;color:#0b1d3a;font-size:18px;font-weight:700">↻</a>
+            <a href="#" style="flex:1;height:52px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#f26532;color:#fff;font-size:18px;font-weight:700" style-hover="color:#fff">이 일정으로 저장</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { dayA: 0, dayB: 0, locked: { a2: true }, openC: { a1: true }, accC: { 0: true } };
+  renderVals() {
+    const s = this.state;
+    const DAYS = [
+      { date: '9.19', dateFull: '9월 19일 (금)', items: [
+        { id: 'a1', t: '09:30', title: '해운대 해변 산책', desc: '이른 아침 인파가 적어 걷기 좋아요. 동백섬 방향으로 30분.', cost: 0, walk: 1200, st: 'VERIFIED', why: ['자연·산책 취향', '아침 한산'] },
+        { id: 'a2', t: '11:30', title: '기장 대변항 물회 골목', desc: '현지 어부들이 아침에 잡은 회. 대기 15분 예상.', cost: 18000, walk: 400, st: 'ESTIMATED', why: ['음식 취향', '평점 4.6'] },
+        { id: 'a3', t: '14:00', title: '해동용궁사', desc: '바다 절벽 위 사찰. 108계단이 있어 무릎이 약하면 천천히.', cost: 0, walk: 900, st: 'VERIFIED', why: ['문화·사찰 취향'] },
+        { id: 'a4', t: '17:30', title: '광안리 해변 & 광안대교 야경', desc: '일몰 후 20분쯤 다리 조명이 켜져요. 카페 2층 창가 추천.', cost: 7000, walk: 0, st: 'ESTIMATED', why: ['야경 취향', '혼잡 낮음'] },
+      ]},
+      { date: '9.20', dateFull: '9월 20일 (토)', items: [
+        { id: 'b1', t: '10:00', title: '감천문화마을', desc: '골목 계단이 많아 편한 신발 필수. 스탬프 지도 2,000원.', cost: 2000, walk: 1500, st: 'VERIFIED', why: ['문화 취향', '평점 4.5'] },
+        { id: 'b2', t: '12:30', title: '자갈치시장 점심', desc: '2층 식당가에서 고른 생선을 바로 조리. 흥정은 1층에서.', cost: 25000, walk: 600, st: 'ESTIMATED', why: ['음식 취향'] },
+        { id: 'b3', t: '15:00', title: '보수동 책방골목', desc: '중고 서점 40여 곳. 비 오면 실내 대안으로도 좋아요.', cost: 0, walk: 800, st: 'UNKNOWN', why: ['도심 취향', '비 대비'] },
+        { id: 'b4', t: '18:00', title: '남포동 BIFF 광장 · 씨앗호떡', desc: '저녁 노점이 가장 활기찬 시간. 호떡 줄은 10분 내외.', cost: 5000, walk: 0, st: 'ESTIMATED', why: ['음식 취향', '주말 혼잡 주의'] },
+      ]},
+      { date: '9.21', dateFull: '9월 21일 (일)', items: [
+        { id: 'c1', t: '09:00', title: '태종대 유원지', desc: '다누비 열차로 한 바퀴 40분. 전망대에서 대마도가 보이는 날도.', cost: 4000, walk: 2000, st: 'VERIFIED', why: ['자연·산책 취향'] },
+        { id: 'c2', t: '12:30', title: '영도 흰여울문화마을 카페', desc: '절영해안산책로 끝. 창가 자리는 11시 전에 차요.', cost: 9000, walk: 700, st: 'ESTIMATED', why: ['카페·힐링 취향', '바다 전망'] },
+        { id: 'c3', t: '15:30', title: '부산역 · 귀가', desc: 'KTX 16:40. 역 2층 밀면 가게에서 마지막 식사 가능.', cost: 0, walk: 0, st: 'VERIFIED', why: ['귀가 동선'] },
+      ]},
+    ];
+    const STAT = { VERIFIED: ['확인됨', '#30a687', '#e9f7f2'], ESTIMATED: ['추정', '#b8860b', '#fdf5dc'], UNKNOWN: ['미확인', '#64748b', '#f8f3eb'] };
+    const won = n => n === 0 ? '무료' : n.toLocaleString('ko-KR') + '원';
+    const km = m => (m / 1000).toFixed(1);
+    const walkStr = m => m >= 1000 ? km(m) + 'km' : m + 'm';
+    const hour = t => +t.slice(0, 2);
+    const setLock = id => this.setState({ locked: { ...s.locked, [id]: !s.locked[id] } });
+    const stop = (it, i) => {
+      const locked = !!s.locked[it.id]; const [status, statusFg, statusBg] = STAT[it.st];
+      return { isStop: true, isTravel: false, n: i + 1, time: it.t, title: it.title, desc: it.desc, cost: won(it.cost), reasons: it.why, reasonLine: it.why.map(w => '#' + w).join('  '), status, statusFg, statusBg, locked,
+        border: locked ? '#f26532' : '#e8e4dd', lockLabel: locked ? '🔒 잠김' : '잠그기', lockIcon: locked ? '🔒' : '🔓', lockFg: locked ? '#f26532' : '#64748b', lockBg: locked ? '#fff1e8' : '#fff', lockBorder: locked ? '#f26532' : '#e4ddd3', toggleLock: () => setLock(it.id), walkM: it.walk,
+        nodeBg: i === 0 ? '#f26532' : '#0b1d3a' };
+    };
+    const travel = it => ({ isStop: false, isTravel: true, walk: walkStr(it.walk) });
+    const seq = day => day.items.flatMap((it, i) => i < day.items.length - 1 ? [stop(it, i), travel(it)] : [stop(it, i)]);
+    const dayWalk = d => d.items.reduce((a, b) => a + b.walk, 0), dayCost = d => d.items.reduce((a, b) => a + b.cost, 0);
+    const totalWalk = DAYS.reduce((a, d) => a + dayWalk(d), 0), totalCost = DAYS.reduce((a, d) => a + dayCost(d), 0), stops = DAYS.reduce((a, d) => a + d.items.length, 0);
+    const trip = { title: '바다와 골목을 걷는 부산 3일', dates: '9.19 – 9.21', days: 3, stops, version: 1, fallbackLabel: '모델 추천', walkKm: km(totalWalk), moveMin: 186, costMan: (totalCost / 10000).toFixed(1), note: '둘째 날 오후에 비 소식이 있어 책방골목을 실내 대안으로 넣었어요. 일정을 잠그면 다시 추천받아도 그 자리는 지켜요.' };
+
+    // A
+    const dA = DAYS[s.dayA];
+    const groups = [['오전', '가볍게 시작', h => h < 12], ['오후', '본격 이동', h => h >= 12 && h < 17], ['저녁', '마무리', h => h >= 17]].map(([label, sub, f]) => {
+      const idx = dA.items.map((it, i) => f(hour(it.t)) ? i : -1).filter(i => i >= 0);
+      const items = idx.flatMap((i, k) => { const st = stop(dA.items[i], i); return k < idx.length - 1 || i < dA.items.length - 1 ? [st, travel(dA.items[i])] : [st]; });
+      return { label, sub, items };
+    }).filter(g => g.items.length);
+    if (groups.length) { const last = groups[groups.length - 1]; if (last.items[last.items.length - 1].isTravel) last.items.pop(); }
+    const A = { tabs: DAYS.map((d, i) => { const a = i === s.dayA; return { label: (i + 1) + '일차', date: d.dateFull, dateShort: d.date, active: a, color: a ? '#0b1d3a' : '#667882', bg: a ? '#0b1d3a' : '#fff', fg: a ? '#fff' : '#152238', border: a ? '#0b1d3a' : '#e8e4dd', select: () => this.setState({ dayA: i }) }; }), day: { groups, summary: dA.items.length + '곳 · 도보 ' + km(dayWalk(dA)) + 'km · ' + won(dayCost(dA)) } };
+
+    // B
+    const dB = DAYS[s.dayB], stopsB = dB.items.map(stop), wB = dayWalk(dB) || 1;
+    const B = { tabs: DAYS.map((d, i) => { const a = i === s.dayB; return { label: (i + 1) + '일차', date: d.date, tabBg: a ? '#fffdf8' : 'rgba(255,255,255,.1)', tabFg: a ? '#0b1d3a' : '#fff', select: () => this.setState({ dayB: i }) }; }),
+      strip: seq(dB), stops: stopsB,
+      day: { label: (s.dayB + 1) + '일차', date: dB.dateFull, walkKm: km(dayWalk(dB)), cost: won(dayCost(dB)), crowd: s.dayB === 1 ? '높음 (주말)' : '낮음', crowdColor: s.dayB === 1 ? '#f26532' : '#30a687', bars: dB.items.filter(it => it.walk).map((it, i) => ({ w: Math.round(it.walk / wB * 100) + '%', c: i % 2 ? '#0b1d3a' : '#f26532' })) } };
+
+    // C
+    const C = {
+      cols: DAYS.map((d, di) => ({ label: (di + 1) + '일차', date: d.date, walkKm: km(dayWalk(d)), cost: won(dayCost(d)), items: seq(d).map(x => x.isStop ? { ...x, open: !!s.openC[d.items[x.n - 1].id], chev: s.openC[d.items[x.n - 1].id] ? '∧' : '∨', toggle: () => this.setState({ openC: { ...s.openC, [d.items[x.n - 1].id]: !s.openC[d.items[x.n - 1].id] } }) } : x) })),
+      acc: DAYS.map((d, di) => { const open = !!s.accC[di]; return { label: (di + 1) + '일차', date: d.dateFull, open, chev: open ? '∧' : '∨', border: open ? '#0b1d3a' : '#e8e4dd', preview: d.items.map(it => it.title.split(' ')[0]).join(' → '), walkKm: km(dayWalk(d)), cost: won(dayCost(d)), items: seq(d), toggle: () => this.setState({ accC: { ...s.accC, [di]: !open } }) }; }),
+    };
+    return { trip, A, B, C };
+  }
+}
+</script>
+</body>
+</html>

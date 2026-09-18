@@ -189,7 +189,7 @@ export default function Now() {
 }
 
 const styles = StyleSheet.create({
-  header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  header: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   backButton: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   headerSpacer: { width: 44 },
   intro: { marginTop: spacing[2], marginBottom: spacing[4] },
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   locationButton: { marginTop: spacing[1] },
   deniedRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   deniedText: { flex: 1 },
-  settingsLink: { minHeight: 32, justifyContent: 'center' },
+  settingsLink: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
   locationDone: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   input: { minHeight: 48, marginTop: spacing[1], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, color: color.text.heading },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
@@ -214,5 +214,5 @@ const styles = StyleSheet.create({
   sampleChip: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[1] },
   tag: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.sm, backgroundColor: color.surface.tint },
-  detailLink: { minHeight: 32, justifyContent: 'center' },
+  detailLink: { minHeight: 44, justifyContent: 'center' },
 });

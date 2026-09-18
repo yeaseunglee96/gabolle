@@ -1,0 +1,89 @@
+// 목록 응답을 화면 모양으로 옮길 때 칸을 흘리지 않는지 잰다 — S15P21E201-1195.
+//
+// 🔴 이 시험이 생긴 이유.
+//
+//    `toPlaceSearchItem` 은 칸을 **하나씩 열거해서** 옮긴다. 화면이 안 쓰는 칸
+//    (`matchedField`)을 안 들고 오려는 것이라 그 자체는 의도한 설계다.
+//
+//    문제는 **칸을 더할 때**다. 타입에만 더하고 옮기는 자리를 잊으면
+//    **타입 검사가 통과하고 값만 조용히 사라진다.** 화면에는 아무 오류 없이 빈칸이 뜬다.
+//    영문 주소(S15P21E201-1195)에서 실제로 그럴 뻔했다.
+//
+// 🔴 그래서 「addressEn 이 있나」를 재지 않는다.
+//
+//    그렇게 쓰면 **다음에 더할 칸은 못 막는다.** 대신 「서버가 준 칸 중 일부러 뺀 것
+//    말고 빠진 게 있으면 실패」로 쓴다. 앞으로 어떤 칸을 더해도 같은 자리에서 걸리고,
+//    일부러 빼는 칸은 목록에 적으면 되니 **거짓 실패가 안 난다.**
+//
+//    이건 답을 강제하는 검사가 아니라 **질문을 그 자리에 띄우는 검사**다 — 칸을 더한
+//    사람이 「목록에도?」를 한 번 대답하고 지나가게 한다.
+
+import {
+  PLACE_SEARCH_FIELDS_DROPPED_ON_PURPOSE,
+  toPlaceSearchItem,
+  type PlaceSearchItemDto,
+} from '../places';
+
+/**
+ * 서버가 주는 칸을 **하나도 빠짐없이** 채운 본보기.
+ *
+ * 🔴 타입이 `Required<...>` 인 것이 이 파일의 두 번째 장치다 (S15P21E201-1206).
+ *
+ *    그냥 `PlaceSearchItemDto` 로 두면 **선택 칸을 안 적어도 컴파일이 통과한다.** 그러면
+ *    아래 시험이 「본보기에 적힌 칸」만 보게 되어, 새로 더한 칸은 **본보기에 적는 사람이
+ *    기억해야** 검사에 들어온다. 사람이 기억해야 하는 것은 반드시 또 빠진다.
+ *
+ *    `Required<...>` 면 **칸을 하나 더하는 순간 이 본보기가 컴파일이 안 된다.** 채우지
+ *    않고는 지나갈 수 없다. 실제로 「무엇을 찍은 사진인가」 칸을 더할 때 그렇게 걸렸다.
+ */
+const FULL: Required<PlaceSearchItemDto> = {
+  placeId: 'p-1',
+  nameKo: '광안리해수욕장',
+  nameEn: 'Gwangalli Beach',
+  category: 'SEA_BEACH',
+  address: '부산 수영구 광안해변로 219',
+  addressEn: '219 Gwangan Haebyeon-ro, Suyeong-gu, Busan',
+  lat: 35.1531,
+  lng: 129.1186,
+  matchedField: 'NAME_KO',
+  photoUrl: 'https://example.test/a.jpg',
+  photoSource: '한국관광공사',
+  photoSubject: 'VENUE',
+};
+
+describe('toPlaceSearchItem', () => {
+  it('서버가 준 칸 중 일부러 뺀 것 말고는 하나도 안 버린다', () => {
+    const item = toPlaceSearchItem(FULL) as Record<string, unknown>;
+    const dropped: readonly string[] = PLACE_SEARCH_FIELDS_DROPPED_ON_PURPOSE;
+
+    const missing = Object.keys(FULL).filter((key) => !dropped.includes(key) && !(key in item));
+
+    expect(missing).toEqual([]);
+  });
+
+  it('값도 그대로 옮긴다 — 키만 있고 값이 undefined 이면 안 된다', () => {
+    const item = toPlaceSearchItem(FULL) as Record<string, unknown>;
+    const dropped: readonly string[] = PLACE_SEARCH_FIELDS_DROPPED_ON_PURPOSE;
+
+    for (const [key, value] of Object.entries(FULL)) {
+      if (dropped.includes(key)) continue;
+      expect(item[key]).toEqual(value);
+    }
+  });
+
+  it('일부러 빼기로 한 칸은 안 들고 온다', () => {
+    const item = toPlaceSearchItem(FULL) as Record<string, unknown>;
+
+    for (const key of PLACE_SEARCH_FIELDS_DROPPED_ON_PURPOSE) {
+      expect(key in item).toBe(false);
+    }
+  });
+
+  it('영문 주소가 없는 장소도 그대로 지나간다 — 키 자체가 안 올 수 있다', () => {
+    const { addressEn: _drop, ...withoutEn } = FULL;
+    const item = toPlaceSearchItem(withoutEn as PlaceSearchItemDto);
+
+    expect(item.address).toBe(FULL.address);
+    expect(item.addressEn).toBeUndefined();
+  });
+});

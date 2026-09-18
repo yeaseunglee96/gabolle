@@ -30,6 +30,12 @@ yarn-error.*
 # macOS
 .DS_Store
 *.pem
+# 🔴 2026-09-11 정정(S15P21E201-827) — 한때 여기에 !/android-certs/*.pem 예외를
+# 추가해 Let's Encrypt 루트 인증서 파일을 커밋해 뒀었다(git add -f 사용). git
+# check-ignore로는 정상 확인됐는데도 EAS 클라우드 빌드는 그 파일을 계속 못 찾았다
+# (원인 불명 — EAS 업로드 단계가 정확히 무엇을 근거로 뺐는지 끝내 못 밝힘). 그
+# 파일 자체를 없애고 인증서 내용을 plugins/withExtraTrustedRoots.js 안에 문자열로
+# 옮겨서 이 문제를 우회했다 — 그래서 이 예외 규칙도 더는 필요 없다.
 
 # env files
 .env

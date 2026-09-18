@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // Figma 에서 실측한 디자인 토큰이다. 화면에서 색·숫자를 직접 하드코딩하지 않고
 // 반드시 이 파일을 거쳐서 쓴다 — 나중에 값이 바뀌어도 여기 한 곳만 고치면 되게 하기 위해서다.
 //
@@ -96,22 +98,58 @@ export const color = {
 // Bold)을 넣고 app/_layout.tsx 에서 expo-font 로 로드한다.
 // RN 은 굵기별로 다른 파일을 다른 이름으로 등록해야 한다 — 커스텀 폰트에 fontWeight 숫자만
 // 주면 대부분 플랫폼에서 그냥 Regular 로 보인다. 그래서 굵기마다 별도 family 이름을 둔다.
+//
+// 🔴 이 이름 그대로 app/_layout.tsx 의 useFonts() 에 등록 키로 쓰인다 — 여기 값을
+// CSS 처럼 쉼표로 이어 붙이면 그 등록 자체가 깨진다. 화면에 실제로 칠할 값은
+// 아래 fontFamilyStack 이다.
 export const fontFamily = {
   regular: 'Pretendard-Regular',
   medium: 'Pretendard-Medium',
   bold: 'Pretendard-Bold',
 } as const;
 
+// 🔴 5개 국어 지원(S15P21E201-1109) 이후 — Pretendard 는 한글·영문 글자만 그려 넣은
+// 정적 폰트라 중국어(간체·번체) 글자는 애초에 들어있지 않다. 네이티브(iOS/Android)는
+// OS가 알아서 시스템 CJK 폰트로 넘어가 문제가 없지만, 웹(react-native-web)은 `fontFamily`
+// 가 브라우저 CSS 로 그대로 나가므로 **쉼표로 이어진 대체 목록을 직접 적어야** 한다 —
+// 안 적으면 브라우저 기본 세리프체로 떨어지거나 자모가 깨져 보인다(실사용 리포트).
+// 네이티브에는 이 목록을 주지 않는다 — RN 네이티브는 등록된 폰트 하나만 이름으로
+// 받고, 쉼표로 이어 붙이면 그 글자 그대로를 폰트 이름으로 찾다가 못 찾아 깨진다.
+// 화면 스타일(Text.tsx 등)은 fontFamily 가 아니라 이 fontFamilyStack 을 쓴다.
+const CJK_FALLBACK_WEB = ', "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans SC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", "Malgun Gothic", sans-serif';
+
+export const fontFamilyStack = Platform.select({
+  web: {
+    regular: `${fontFamily.regular}${CJK_FALLBACK_WEB}`,
+    medium: `${fontFamily.medium}${CJK_FALLBACK_WEB}`,
+    bold: `${fontFamily.bold}${CJK_FALLBACK_WEB}`,
+  },
+  default: fontFamily,
+}) as { regular: string; medium: string; bold: string };
+
 // 🔴 body 는 Figma 실측(10~13px)이 아니라 15px 이다. 실수로 되돌리지 않는다.
 //    이 앱의 차별점이 접근성(휠체어·알레르기)인데 본문이 11px 이면 그 자체로 모순이고,
 //    iOS 최소 권장이 11pt·Android 12sp 인데 그마저 *캡션* 기준이다.
+//
+// letterSpacing(자간, S15P21E201-641)은 Figma 실측 값이 아니다 — 실측할 자간 자체가
+// 디자인 파일에 없었다. 그래서 가독성 쪽으로 보수적으로만 정했다: 작은 글자(caption)는
+// 살짝 벌려 뭉쳐 보이지 않게 하고, 큰 글자(display·hero)는 살짝 좁혀 헤드라인이 늘어져
+// 보이지 않게 한다. body·title 은 그대로 0 — 이 앱은 접근성이 차별점이라, 본문 자간을
+// taste 로 좁히는 모험을 하지 않는다.
 export const type = {
-  caption: { size: 11, lineHeight: 14 },
-  body: { size: 15, lineHeight: 22 },
-  title: { size: 18, lineHeight: 24 },
-  display: { size: 22, lineHeight: 28 },
+  caption: { size: 11, lineHeight: 14, letterSpacing: 0.1 },
+  // lineHeight 는 22 였다가 23으로 올렸다 — 22/15는 146.7%로 팀 UX 가이드라인 39번
+  // ("본문의 행간을 150% 이상이어야 읽기가 쉽습니다")에 못 미쳤다. 23/15 = 153.3%.
+  body: { size: 15, lineHeight: 23, letterSpacing: 0 },
+  title: { size: 18, lineHeight: 24, letterSpacing: 0 },
+  display: { size: 22, lineHeight: 28, letterSpacing: -0.15 },
+  /** 상단 바 1층(유틸 바)의 작은 글자 전용 — 시안 실측 13px (S15P21E201-1103).
+   *  caption(11)은 언어·로그인 같은 **누를 수 있는 글자**로 쓰기에 작고, body(15)는 유틸 바
+   *  높이 36 안에서 본문처럼 무겁다. 인계 문서가 「caption 을 쓰거나 13 을 추가」로 열어 둔
+   *  자리라 추가했다 — 화면에 숫자를 직접 쓰는 것은 파트 규칙이 금지한다. */
+  util: { size: 13, lineHeight: 18, letterSpacing: 0 },
   /** 01 Welcome 히어로 브랜드 타이틀 전용(Figma 실측 34px). 다른 화면엔 이 크기가 없어서 추가했다. */
-  hero: { size: 34, lineHeight: 40 },
+  hero: { size: 34, lineHeight: 40, letterSpacing: -0.25 },
 } as const;
 
 // Figma 는 반경이 10종(18·14·34·5·16·13·15·12·20…)이고 14.75847053527832 같은 값도 있다.
