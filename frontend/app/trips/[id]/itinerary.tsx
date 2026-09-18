@@ -2,6 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TripNameSheet } from '@/trip/TripNameSheet';
+import { NowCard } from '@/plan/NowCard';
+import {
+  EMPTY_PROGRESS, arrive as arriveAt, drift, loadProgress, needsManualArrival,
+  isToday, localDateKey, pause as pauseRun, saveProgress, skip as skipStop, start as startRun, stepStates,
+  type TripProgress,
+} from '@/plan/tripProgress';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -116,7 +122,9 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
 }
 
 // 정차 한 칸 — 시안 design_handoff_itinerary 2.5(넓은 화면) · 3.3(폰).
-function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null }) {
+function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken, stepState }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null;
+  /** 시안 ⑤ — 다녀옴 · 현재 · 다음 · 이후. 모르면 안 준다(진행을 안 켠 화면). */
+  stepState?: 'done' | 'current' | 'next' | 'later' }) {
   const { tx } = useI18n();
   const disabled = !canEdit || lockBusy || excludeBusy || dayBusy;
 
@@ -178,7 +186,21 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
     </View> : null}
     <View style={[styles.stopRow, wide && styles.stopRowWide]}>
       <View style={styles.rail}>
-        <View style={[styles.node, index === 0 && styles.nodeFirst, wide && styles.nodeWide]}><Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
+        {/* 🔴 노드가 「어디까지 왔나」를 말한다(시안 ⑤). 다녀옴 ✓ 초록 · 현재 ● 오렌지 ·
+            다음 네이비 번호 · 이후 흐린 번호. 순서 수정 중에는 셋 다 ≡ 손잡이가 되어
+            **끌 수 있다는 것**을 그림으로 말한다 — 글로 적으면 아무도 안 읽는다. */}
+        <View style={[
+          styles.node,
+          wide && styles.nodeWide,
+          stepState === 'done' && styles.nodeDone,
+          stepState === 'current' && styles.nodeCurrent,
+          stepState === 'later' && styles.nodeLater,
+          !stepState && index === 0 && styles.nodeFirst,
+        ]}>
+          <Text variant="caption" weight="bold" color={stepState === 'later' ? color.text.muted : color.text.onAction}>
+            {reorderMode ? '≡' : stepState === 'done' ? '✓' : stepState === 'current' ? '●' : index + 1}
+          </Text>
+        </View>
         {!isLast && !wide ? <View style={styles.railLine} /> : null}
       </View>
       <View style={[styles.stopBody, pace?.atRisk && styles.stopBodyAtRisk]}>
@@ -266,6 +288,25 @@ export default function ItineraryScreen() {
   const [menuOpen, setMenuOpen] = useState(false);
   // ③ 에서 넘어온 직후에는 열린 채로 들어온다. 그 뒤로는 「이름 바꾸기」로만 연다.
   const [naming, setNaming] = useState(nameParam === '1');
+
+  // ── 일정 진행 (시안 ⑤) ──────────────────────────────────────────────────
+  //
+  // 🔴 서버에 이 자리가 아직 없다(S15P21E201-1325). 그래서 **이 기기에만** 남는다.
+  //    다른 기기에서는 안 보이고 앱을 지우면 사라진다 — 카드가 그 한계를 말한다.
+  const [progress, setProgress] = useState<TripProgress>(EMPTY_PROGRESS);
+  // 🔴 위치 권한·정확도를 아직 안 잰다. 그래서 「GPS 를 쓸 수 있다」로 두고, 손으로 찍는
+  //    단추를 기본으로 감춘다 — 늘 보이면 사람이 그걸 정상 절차로 안다.
+  const gpsUsable = true;
+  useEffect(() => {
+    if (!itineraryId) return;
+    let alive = true;
+    void loadProgress(itineraryId).then((saved) => { if (alive) setProgress(saved); });
+    return () => { alive = false; };
+  }, [itineraryId]);
+  const applyProgress = (next: TripProgress) => {
+    setProgress(next);
+    void saveProgress(itineraryId, next);
+  };
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
 
   const refreshVersions = useCallback(async (targetId: string) => {
@@ -354,6 +395,27 @@ export default function ItineraryScreen() {
 
   const itinerary = result.state === 'success' ? result.itinerary : null;
   const day = itinerary?.days[selectedDay];
+
+  // ── 「지금」 카드가 쓰는 값들 ────────────────────────────────────────────
+  const dayStops = day?.items ?? [];
+  const dayStopIds = dayStops.map((item) => item.id);
+  const currentStopId = dayStopIds[Math.min(progress.currentStopIndex, Math.max(0, dayStopIds.length - 1))] ?? null;
+  const currentStop = dayStops.find((item) => item.id === currentStopId) ?? null;
+  const nowClock = new Date().toTimeString().slice(0, 5);
+  const nowDriftValue = drift(new Date().toISOString(), currentStop?.startsAt ?? null);
+  const nowDrift = nowDriftValue
+    ? tx(`예정보다 ${nowDriftValue.minutes}분 ${nowDriftValue.early ? '빠름' : '늦음'}`,
+      `${nowDriftValue.minutes} min ${nowDriftValue.early ? 'early' : 'late'}`)
+    : null;
+  const nowTitle = progress.status === 'DONE'
+    ? tx('오늘 일정을 다 돌았어요', 'You finished today')
+    : progress.status === 'RUNNING' && currentStop
+      ? tx(`${currentStop.title}(으)로 이동 중`, `Heading to ${currentStop.title}`)
+      : currentStop
+        ? tx(`다음은 ${currentStop.title}`, `Next: ${currentStop.title}`)
+        : tx('오늘 갈 곳이 없어요', 'Nothing planned today');
+  // 🔴 없는 안내를 지어내지 않는다. 서버가 구간 안내를 안 주므로 설명 칸만 쓴다.
+  const nowDetail = currentStop?.description ?? null;
   // 넓은 화면에서만 2단으로 나눈다. 저장소 반응형 표가 「1024~ 사이드바 + 본문」이라
   // 그 경계를 그대로 쓴다 — 여기서 숫자를 새로 정하지 않는다(layout/breakpoints.ts).
   const { width } = useLayout();
@@ -371,6 +433,9 @@ export default function ItineraryScreen() {
     const itemsById = new Map(day.items.map((item) => [item.id, item]));
     return orderDraft.map((itemId) => itemsById.get(itemId)).filter((entry): entry is ItineraryItemDto => Boolean(entry));
   }, [day, orderDraft]);
+  // 🔴 **그리는 목록의 순서**로 센다. 순서 수정 중에는 초안 순서가 원본과 달라서,
+  //    원본 순서로 세면 초록 ✓ 가 엉뚱한 줄에 붙는다.
+  const dayStepStates = stepStates(displayedItems.map((item) => item.id), progress);
   const dayTravelMinutes = useMemo(() => totalTravelMinutes(displayedItems), [displayedItems]);
   // 값이 없는 칸을 0 으로 세지 않는다. 자료가 있는 칸만 더하므로 이 합계는 「적어도 이만큼」이다.
   const dayWalkingMeters = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.walkingMeters ?? 0), 0), [displayedItems]);
@@ -607,6 +672,34 @@ export default function ItineraryScreen() {
         ) : null}
       </View>
       {heroSummary ? <Text color={color.text.onDarkMuted}>{heroSummary}</Text> : null}
+
+      {/* 🔴 「지금」 카드 — 시안 ⑤. 일정표는 「오늘 무엇을 하나」를 말하지만 이 카드는
+          「지금 무엇을 하고 있나」를 말한다. 길 안내를 보는 사람이 실제로 읽는 것은 뒤쪽이다.
+          오늘 날짜의 일차에서만 그린다 — 지난 날짜나 다음 날짜에 「출발」이 있으면 거짓이다. */}
+      {itinerary && dayStops.length && isToday(day?.date, localDateKey(new Date())) ? (
+        <View style={styles.nowWrap}>
+          <NowCard
+            status={progress.status}
+            gpsUsable={gpsUsable}
+            title={nowTitle}
+            detail={nowDetail}
+            clock={nowClock}
+            driftText={nowDrift}
+            progress={null}
+            showManualArrival={needsManualArrival(progress.status, gpsUsable)}
+            onStart={() => applyProgress(startRun(progress))}
+            onPause={() => applyProgress(pauseRun(progress))}
+            onArrive={() => currentStopId && applyProgress(arriveAt(progress, dayStopIds, currentStopId, new Date().toISOString(), 'manual'))}
+            onSkip={() => currentStopId && applyProgress(skipStop(progress, dayStopIds, currentStopId, new Date().toISOString()))}
+            tx={tx}
+          />
+          {/* 🔴 기기에만 남는다는 것을 적는다. 안 적으면 사용자는 어디서나 이어지는 줄 안다. */}
+          <Text variant="caption" color={color.text.onDarkMuted}>
+            {tx('진행 상태는 이 기기에만 저장돼요. 다른 기기에서는 아직 안 보여요.',
+              'Progress is saved on this device only — it does not show on your other devices yet.')}
+          </Text>
+        </View>
+      ) : null}
       {/* — 지도로 가는 문. 이 화면에는 지도로 가는 길이 아예 없었다.
           그래서 카카오 지도·경로선·3D 부산·그늘/휠체어 실측이 다 들어 있는 화면에 아무도
           못 들어갔다(주소를 직접 쳐야만 보였다). 「추천 다시 보기」는 서버가 여행 번호를
@@ -700,7 +793,7 @@ export default function ItineraryScreen() {
           {!reorderMode && wide ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} /> : null}
           {displayedItems.length ? <View style={wide ? styles.wideGrid : undefined}>
             <View style={wide ? styles.timelineColumn : undefined}>
-              <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} />)}</View>
+              <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} stepState={dayStepStates[index]} />)}</View>
             </View>
             {/* 이동 요약 — 시안 p6 의 3칸(장소 · 이동 합계 · 수단). 폰에도 둔다
                 「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다.
@@ -801,6 +894,7 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   heroGhost: { minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.4)', alignItems: 'center', justifyContent: 'center' },
   heroTitle: { flex: 1, minWidth: 0, marginTop: spacing[2] },
   heroTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
+  nowWrap: { gap: spacing[2], marginTop: spacing[3] },
   renameButton: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.card },
   // 탭은 헤더 바닥에 붙는다 — 위쪽만 둥글고 아래는 각져서 헤더와 한 덩이로 보인다.
   // 지도·추천으로 가는 문. 일차 탭과 같은 반투명 흰색이라 헤더와 한 덩이로
@@ -865,4 +959,7 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   stop: { width: 112, alignItems: 'center', gap: spacing[1] },
   stopName: { textAlign: 'center' },
   node: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
-  nodeFirst: { backgroundColor: color.brand.orange }, itemRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3] }, time: { width: 48, paddingTop: spacing[4] }, itemCard: { flex: 1, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, itemTitleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2], flexWrap: 'wrap' }, grow: { flex: 1, gap: spacing[1], minWidth: 180 }, itemActions: { flexDirection: 'row', gap: spacing[2] }, lockButton: { minWidth: 64, minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' }, lockButtonActive: { backgroundColor: color.brand.navy }, lockBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, excludeButton: { minWidth: 56, minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.state.dangerBg, alignItems: 'center', justifyContent: 'center' }, actionDisabled: { opacity: 0.5 }, metaRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] }, empty: { marginTop: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' }, rhythmCard: { gap: spacing[1], marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint }, itemCardAtRisk: { borderWidth: 1, borderColor: color.state.danger }, paceRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginTop: spacing[1] }, actualButtons: { flexDirection: 'row', gap: spacing[2] }, actualButton: { minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, replanActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] }, reviewButton: { alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, reviewedBadge: { alignSelf: 'flex-start', minHeight: 28, paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, backgroundColor: color.state.successBg, alignItems: 'center', justifyContent: 'center' } });
+  nodeFirst: { backgroundColor: color.brand.orange },
+  nodeDone: { backgroundColor: color.state.success },
+  nodeCurrent: { backgroundColor: color.brand.orange, borderWidth: 4, borderColor: color.surface.tint },
+  nodeLater: { backgroundColor: color.surface.card, borderWidth: 2, borderColor: color.surface.field }, itemRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3] }, time: { width: 48, paddingTop: spacing[4] }, itemCard: { flex: 1, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, itemTitleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2], flexWrap: 'wrap' }, grow: { flex: 1, gap: spacing[1], minWidth: 180 }, itemActions: { flexDirection: 'row', gap: spacing[2] }, lockButton: { minWidth: 64, minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' }, lockButtonActive: { backgroundColor: color.brand.navy }, lockBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, excludeButton: { minWidth: 56, minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.state.dangerBg, alignItems: 'center', justifyContent: 'center' }, actionDisabled: { opacity: 0.5 }, metaRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] }, empty: { marginTop: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' }, rhythmCard: { gap: spacing[1], marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint }, itemCardAtRisk: { borderWidth: 1, borderColor: color.state.danger }, paceRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginTop: spacing[1] }, actualButtons: { flexDirection: 'row', gap: spacing[2] }, actualButton: { minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, replanActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] }, reviewButton: { alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, reviewedBadge: { alignSelf: 'flex-start', minHeight: 28, paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, backgroundColor: color.state.successBg, alignItems: 'center', justifyContent: 'center' } });
