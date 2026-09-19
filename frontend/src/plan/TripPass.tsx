@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({
-      web: { boxShadow: '0 8px 20px rgba(11,29,58,.28)' } as object,
+      web: { boxShadow: '0 8px 20px rgba(25,25,25,.28)' } as object,
       default: { shadowColor: color.brand.navy, shadowOpacity: 0.28, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 6 },
     }),
   },

@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   badge: {
     position: 'absolute', top: spacing[3], left: spacing[3],
     paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full,
-    backgroundColor: 'rgba(11,29,58,0.78)',
+    backgroundColor: 'rgba(25,25,25,0.78)',
   },
   badgeOn: { backgroundColor: color.brand.navy },
 

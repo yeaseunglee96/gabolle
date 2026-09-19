@@ -226,6 +226,8 @@ const ALLOWED_MULTI_FILL = {
     '남은 셋은 신고 접수 알림(reported) · 댓글 남기기(story && !reported) · 기록 없음(state.status) 이다. 세 조건이 서로 배타적이라 한 번에 하나만 그려진다. 같이 뜨던 댓글 수정 저장은 secondary 로, 삭제 확정 둘은 danger(연분홍 배경)로 내렸다.',
   'app/(tabs)/me.tsx':
     '넷이지만 화면에는 하나다. 넓은 화면과 좁은 화면이 같은 버튼과 모달을 각각 한 벌씩 갖고 있고(레이아웃이 먼저 갈린다), 그 안에서 다시 로그인(비회원)과 로그아웃 확인(로그인)으로 갈린다.',
+  'app/(tabs)/feed.tsx':
+    '둘이지만 화면에는 하나다. 맨 위 입력창과 떠 있는 ✎ 단추가 **둘 다 composeEntryFor 의 답 하나**를 보고 뜬다(inline / headerButton). 25e0306a 전에는 ✎ 단추만 폭을 직접 봐서 600~1023 에서 둘 다 떴다 — 색 문제가 아니라 동작 결함이었고, 색으로 덮지 않고 고쳤다.',
   'app/(trip)/[id]/share.tsx':
     '「로그인하기」는 accessToken 이 없을 때, 「초대 링크 만들기」는 있을 때만 그려진다.',
   'app/(plan)/generating.tsx':
