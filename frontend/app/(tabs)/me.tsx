@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   sheetBackdrop: {
     position: Platform.OS === 'web' ? ('fixed' as 'absolute') : 'absolute',
     top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(11,29,58,0.62)',
+    backgroundColor: 'rgba(25,25,25,0.62)',
     zIndex: 20,
   },
 
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   logout: { marginTop: spacing[6], marginBottom: spacing[4] },
   guestActions: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[4] },
 
-  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   modalCard: { width: '100%', maxWidth: 400, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   modalActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] },
   modalAction: { flex: 1 },

@@ -56,7 +56,7 @@ export function ExcludeConfirmModal({ visible, placeTitle, busy, onCancel, onCon
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   card: { width: '100%', maxWidth: 420, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   row: { flexDirection: 'row', gap: spacing[3], alignItems: 'flex-start' },
   dot: { width: 10, height: 10, marginTop: spacing[1], borderRadius: radius.full },

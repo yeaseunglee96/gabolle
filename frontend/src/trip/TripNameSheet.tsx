@@ -229,7 +229,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, backgroundColor: 'rgba(25,25,25,0.62)' },
   backdropPhone: { justifyContent: 'flex-end' },
   backdropWide: { alignItems: 'center', justifyContent: 'center', padding: spacing[4] },
   sheet: {

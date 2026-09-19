@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     padding: spacing[4],
     zIndex: 40,
   },
-  backdrop: { backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { backgroundColor: 'rgba(25,25,25,0.62)' },
   card: {
     width: '100%', maxWidth: 640, maxHeight: '100%',
     borderRadius: radius.lg, overflow: 'hidden',

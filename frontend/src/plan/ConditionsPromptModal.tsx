@@ -216,7 +216,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(11,29,58,0.45)', alignItems: 'center', justifyContent: 'center', padding: spacing[4] },
+  backdrop: { flex: 1, backgroundColor: 'rgba(25,25,25,0.45)', alignItems: 'center', justifyContent: 'center', padding: spacing[4] },
   backdropPhone: { justifyContent: 'flex-end', padding: 0 },
   sheet: { backgroundColor: color.brand.ivory, overflow: 'hidden' },
   sheetWide: { width: '100%', maxWidth: 640, maxHeight: '88%', borderRadius: radius.lg },

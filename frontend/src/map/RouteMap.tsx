@@ -117,10 +117,10 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
             img.alt = '';
             Object.assign(img.style, { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '999px' });
             content.appendChild(img);
-            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(25,25,25,.18)' });
           } else {
             content.textContent = pointLayer ? pointLayer.label : String(stop.number);
-            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(25,25,25,.18)' });
           }
           content.onclick = () => onSelect(stop.id);
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
