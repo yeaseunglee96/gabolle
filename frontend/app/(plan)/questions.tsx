@@ -145,6 +145,21 @@ export default function PlanConditions() {
   //    모자란지 말해 주는 근거다. 잠그기만 하고 이유를 안 적으면 사람은 고장인 줄 안다.
   const missing = PLAN_QUESTIONS.filter((item) => !item.skippable && !item.answered(draft));
 
+  /**
+   * 🔴 -1337 — 날짜는 여기서 묻지 않는데 <b>서버는 반드시 요구한다.</b>
+   *
+   * <p>위쪽 「여행 만들기」로 들어오면 날짜가 비어 있다. 그대로 열 개를 다 답하고 마지막
+   * 단추를 누르면 <b>서버 말투가 그대로</b> 나왔다 — {@code finishDate: 널이어서는 안됩니다
+   * (TRIP_VALIDATION_FAILED)}. 열 개를 다 답한 뒤에.
+   *
+   * <p>화면은 처음부터 알고 있다 — 옆 기둥이 「날짜를 아직 안 정했어요」라고 적고 있다.
+   * 알면서 보내지 않는다.
+   */
+  const datesMissing = !draft.startDate || !draft.endDate;
+
+  /** 날짜를 정하는 자리 — 폰은 홈의 시작 줄, 넓은 화면은 첫 화면의 시작 줄이다. */
+  const goSetDates = () => router.push(wide ? '/' : '/home');
+
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
   /**
@@ -403,7 +418,7 @@ export default function PlanConditions() {
             label={last
               ? job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('이 조건으로 일정 만들기', 'Build my itinerary')
               : tx('다음', 'Next')}
-            disabled={last ? missing.length > 0 || job?.state === 'submitting' : !canAdvance(question, draft) && !question.skippable}
+            disabled={last ? missing.length > 0 || datesMissing || job?.state === 'submitting' : !canAdvance(question, draft) && !question.skippable}
             onPress={() => {
               completeStep(index + 1);
               if (last) void submitPlan();
@@ -412,6 +427,17 @@ export default function PlanConditions() {
           />
         </View>
       </View>
+
+      {/* 🔴 날짜가 없으면 여기서 막는다. 서버가 어차피 거절하는데, 그 거절은 열 개를 다
+          답한 뒤에 서버 말투로 온다. 🔴 <b>누르면 정하러 갈 수 있게</b> 한다 — 잠그기만 하고
+          문을 안 주면 나갈 길이 없다. 날짜를 대신 지어 넣지는 않는다. */}
+      {last && datesMissing ? (
+        <Pressable accessibilityRole="button" onPress={goSetDates}>
+          <Text accessibilityRole="alert" variant="caption" weight="bold" color={color.state.danger}>
+            {tx('날짜를 아직 안 정했어요 — 눌러서 정해 주세요.', 'No dates yet — tap to choose them.')}
+          </Text>
+        </Pressable>
+      ) : null}
 
       {/* 🔴 무엇이 모자란지 적는다. 단추만 잠그면 사람은 고장인 줄 알고 새로고침한다. */}
       {last && missing.length ? (
@@ -468,11 +494,14 @@ export default function PlanConditions() {
             {headerChips.map((chip) => (
               <View key={chip} style={styles.phoneGivenChip}><Text variant="caption" weight="bold" numberOfLines={1}>{chip}</Text></View>
             ))}
-            {headerChips.length ? (
-              <Pressable accessibilityRole="button" onPress={() => router.push('/home')} style={styles.phoneGivenEdit}>
-                <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('수정', 'Edit')}</Text>
-              </Pressable>
-            ) : null}
+            {/* 🔴 -1337 — 예전에는 <b>받은 것이 있을 때만</b> 이 단추를 그렸다. 그래서
+                날짜가 없는 사람에게는 날짜를 정하러 갈 길이 화면에 아예 없었다 —
+                막아 놓고 문을 안 준 상태였다. 지금은 없을 때도 그리고, 말만 바꾼다. */}
+            <Pressable accessibilityRole="button" onPress={goSetDates} style={styles.phoneGivenEdit}>
+              <Text variant="caption" weight="bold" color={color.brand.orange}>
+                {headerChips.length ? tx('수정', 'Edit') : tx('날짜 정하기', 'Set dates')}
+              </Text>
+            </Pressable>
           </View>
         </View>
       )}
