@@ -138,7 +138,7 @@ export default function SignUp() {
 
           {(kind === 'tablet' || panelIndex === 0) && <Field label={tx('이메일', 'Email')}>
           <View style={[styles.inputRow, ((emailTouched && !emailValid) || duplicateEmail) && styles.inputError]}>
-            <TextInput accessibilityLabel={tx('이메일', 'Email')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="username" returnKeyType="next" onSubmitEditing={() => passwordRef.current?.focus()} submitBehavior="submit" onBlur={() => setEmailTouched(true)} onChangeText={(value) => { setEmail(value); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={email} />
+            <TextInput testID="sign-up-email" accessibilityLabel={tx('이메일', 'Email')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="username" returnKeyType="next" onSubmitEditing={() => passwordRef.current?.focus()} submitBehavior="submit" onBlur={() => setEmailTouched(true)} onChangeText={(value) => { setEmail(value); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={email} />
             {email.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이메일 지우기', 'Clear email')} onPress={() => setEmail('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           {emailTouched && !emailValid && <ErrorText>{tx('올바른 이메일 주소를 입력해 주세요.', 'Please enter a valid email address.')}</ErrorText>}
@@ -148,7 +148,7 @@ export default function SignUp() {
         {(kind === 'tablet' || panelIndex === 1) && <>
         <Field label={tx('비밀번호', 'Password')}>
           <View style={styles.inputRow}>
-            <TextInput accessibilityLabel={tx('비밀번호', 'Password')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => passwordConfirmRef.current?.focus()} submitBehavior="submit" ref={passwordRef} onChangeText={setPassword} placeholder={tx('영문·숫자·특수문자 포함 8~64자', '8-64 characters with letters, numbers, and symbols')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={password} />
+            <TextInput testID="sign-up-password" accessibilityLabel={tx('비밀번호', 'Password')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => passwordConfirmRef.current?.focus()} submitBehavior="submit" ref={passwordRef} onChangeText={setPassword} placeholder={tx('영문·숫자·특수문자 포함 8~64자', '8-64 characters with letters, numbers, and symbols')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={password} />
             {password.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 지우기', 'Clear password')} onPress={() => setPassword('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           <View style={styles.ruleRow}><Rule ok={passwordChecks.length} label={tx('8~64자', '8-64 characters')} /><Rule ok={passwordChecks.letter} label={tx('영문', 'Letters')} /><Rule ok={passwordChecks.number} label={tx('숫자', 'Numbers')} /><Rule ok={passwordChecks.special} label={tx('특수문자 (!@#$% 등)', 'Symbols (!@#$% etc.)')} /></View>
@@ -156,7 +156,7 @@ export default function SignUp() {
 
         <Field label={tx('비밀번호 확인', 'Confirm password')}>
           <View style={[styles.inputRow, passwordConfirm.length > 0 && !passwordMatches && styles.inputError]}>
-            <TextInput accessibilityLabel={tx('비밀번호 확인', 'Confirm password')} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => displayNameRef.current?.focus()} submitBehavior="submit" ref={passwordConfirmRef} onChangeText={setPasswordConfirm} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={passwordConfirm} />
+            <TextInput testID="sign-up-confirm" accessibilityLabel={tx('비밀번호 확인', 'Confirm password')} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => displayNameRef.current?.focus()} submitBehavior="submit" ref={passwordConfirmRef} onChangeText={setPasswordConfirm} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={passwordConfirm} />
             {passwordConfirm.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 확인 지우기', 'Clear password confirmation')} onPress={() => setPasswordConfirm('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           {passwordConfirm.length > 0 && <Text variant="caption" color={passwordMatches ? color.state.success : color.state.danger}>{passwordMatches ? tx('비밀번호가 일치해요.', 'Passwords match.') : tx('비밀번호가 일치하지 않아요.', 'Passwords do not match.')}</Text>}
@@ -166,7 +166,7 @@ export default function SignUp() {
         {(kind === 'tablet' || panelIndex === 2) && <>
         <Field label={tx('이름', 'Name')}>
           <View style={[styles.inputRow, displayName.length > 0 && !nameValid && styles.inputError]}>
-            <TextInput accessibilityLabel={tx('이름', 'Name')} autoFocus={kind === 'phone'} autoComplete="name" textContentType="name" returnKeyType="done" ref={displayNameRef} maxLength={30} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={displayName} />
+            <TextInput testID="sign-up-name" accessibilityLabel={tx('이름', 'Name')} autoFocus={kind === 'phone'} autoComplete="name" textContentType="name" returnKeyType="done" ref={displayNameRef} maxLength={30} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={displayName} />
             {displayName.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이름 지우기', 'Clear name')} onPress={() => setDisplayName('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           <Text variant="caption" color={nameValid ? color.state.success : color.text.muted}>{tx(`${displayName.trim().length}/30자`, `${displayName.trim().length}/30`)}</Text>
@@ -192,13 +192,13 @@ export default function SignUp() {
         {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
 
         {kind === 'tablet' ? (
-          <Button label={submitting ? tx('가입 중…', 'Signing up…') : tx('회원가입', 'Sign up')} disabled={!canSubmit} onPress={() => void submit()} />
+          <Button testID="sign-up-submit" label={submitting ? tx('가입 중…', 'Signing up…') : tx('회원가입', 'Sign up')} disabled={!canSubmit} onPress={() => void submit()} />
         ) : (
           <View style={styles.panelNav}>
             {panelIndex > 0 && <Pressable accessibilityRole="button" onPress={() => goToPanel(panelIndex - 1)} style={styles.panelNavButton}><Text variant="caption" weight="bold">{tx('이전', 'Back')}</Text></Pressable>}
             {panelIndex < PANEL_LABELS.length - 1
-              ? <Button accessibilityRole="button" label={tx('다음', 'Next')} disabled={!panelValid[panelIndex]} containerStyle={styles.panelCta} onPress={() => goToPanel(panelIndex + 1)} />
-              : <Button accessibilityRole="button" label={submitting ? tx('가입 중…', 'Signing up…') : tx('회원가입', 'Sign up')} disabled={!canSubmit} containerStyle={styles.panelCta} onPress={() => void submit()} />}
+              ? <Button testID="sign-up-next" accessibilityRole="button" label={tx('다음', 'Next')} disabled={!panelValid[panelIndex]} containerStyle={styles.panelCta} onPress={() => goToPanel(panelIndex + 1)} />
+              : <Button testID="sign-up-submit" accessibilityRole="button" label={submitting ? tx('가입 중…', 'Signing up…') : tx('회원가입', 'Sign up')} disabled={!canSubmit} containerStyle={styles.panelCta} onPress={() => void submit()} />}
           </View>
         )}
           </Animated.View>

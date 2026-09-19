@@ -101,7 +101,6 @@ export type TripPassInput = {
   startDate: string | null;
   endDate: string | null;
   transport: string | null;
-  travelers: number | null;
   ownerName: string | null;
   language: 'ko' | 'en';
 };
@@ -133,8 +132,18 @@ export function buildTripPass(input: TripPassInput): TripPassData {
   const cost = formatCost(input.itinerary?.totalEstimatedCostKrw, ko);
   if (cost) fields.push({ key: ko ? '예상 비용' : 'Est. cost', value: cost });
 
-  if (typeof input.travelers === 'number' && input.travelers > 0) {
-    fields.push({ key: ko ? '인원' : 'Travelers', value: ko ? `${input.travelers}명` : String(input.travelers) });
+  // 🔴 -1338 — 인원은 **일정이 말할 때만** 적는다.
+  //
+  // 예전에는 기기에 남은 초안(`draft.travelers`)에서 읽었다. 그 값은 기본이 **1** 이라
+  // 초안이 비면 「1명」이라고 **단언**했고, 성인 2명으로 만든 여행도 그렇게 나왔다 —
+  // 새로고침 한 번, 다른 기기면 전부 1명이었다(배포된 화면에서 실측).
+  //
+  // 🔴 초안으로 되돌아가지 않는다. 그 값은 「모른다」와 「혼자다」가 구분이 안 된다.
+  //    옛 서버에 붙은 앱에서는 이 칸이 **아예 안 나온다** — 틀린 숫자보다 낫다.
+  //    날짜가 이미 같은 규칙을 쓴다(위 「실제 일정이 있으면 그 날짜가 이긴다」).
+  const partySize = input.itinerary?.partySize;
+  if (typeof partySize === 'number' && Number.isFinite(partySize) && partySize > 0) {
+    fields.push({ key: ko ? '인원' : 'Travelers', value: ko ? `${partySize}명` : String(partySize) });
   }
 
   const firstStopName = allItems[0]?.title?.trim();
