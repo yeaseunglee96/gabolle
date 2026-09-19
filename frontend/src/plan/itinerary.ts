@@ -33,6 +33,14 @@ export type ItineraryDto = {
   id: string;
   title: string;
   version: number;
+  /**
+   * 이 여행을 몇 명이 가는가 —-1339.
+   *
+   * 🔴 **옛 서버에는 이 칸이 아예 없다.** 그때는 `undefined` 이고, 화면은 인원 칸을
+   *    **안 그린다**. 기기에 남은 초안으로 대신 채우지 않는다 — 그 값은 기본이 1 이라
+   *    「모른다」와 「혼자다」가 구분이 안 된다.
+   */
+  partySize?: number | null;
   days: Array<{ date: string; items: ItineraryItemDto[] }>;
   totalEstimatedCostKrw?: number | null;
   totalWalkingMeters?: number | null;

@@ -55,6 +55,9 @@ const PREVIEW_ITINERARY: ItineraryDto = {
     { id: 'preview-2', startsAt: '2026-09-12T12:00:00', title: '로컬 맛집', locked: false, placeId: 'preview-place-2' },
     { id: 'preview-3', startsAt: '2026-09-12T17:30:00', title: '광안리 노을', locked: false, placeId: 'preview-place-3' },
   ] }], totalEstimatedCostKrw: 78000, totalWalkingMeters: 3200, fallbackMode: 'MODEL',
+  // 🔴 -1338 — 미리보기도 서버가 보내는 것과 같은 모양이어야 한다. 이 칸이 없으면
+  //    미리보기에서만 「인원」 줄이 사라지고, 시안을 볼 때 있어야 할 줄이 없어 보인다.
+  partySize: 2,
 };
 
 export default function Generating() {
@@ -183,14 +186,13 @@ export default function Generating() {
     startDate: draft.startDate || null,
     endDate: draft.endDate || null,
     transport: draft.transport || null,
-    travelers: draft.travelers || null,
     ownerName: user?.displayName ?? null,
     language: language === 'en' ? 'en' : 'ko',
   });
   const ticketReady = job.state === 'completed';
   const tripPassDetails = buildTripPassDetails({
     itinerary, origin: draft.origin || null, startDate: draft.startDate || null, endDate: draft.endDate || null,
-    transport: draft.transport || null, travelers: draft.travelers || null, ownerName: user?.displayName ?? null,
+    transport: draft.transport || null, ownerName: user?.displayName ?? null,
     language: language === 'en' ? 'en' : 'ko',
   });
   const printedHeight = ticketReveal.interpolate({ inputRange: [0, 1], outputRange: [0, 620] });
