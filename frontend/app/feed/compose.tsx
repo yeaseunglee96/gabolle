@@ -115,6 +115,7 @@ export default function ComposeStory() {
     <Text variant="display" weight="bold" style={styles.title}>{tx('기록 남기기', 'Write a record')}</Text>
 
     <TextInput
+      testID="compose-body"
       accessibilityLabel={tx('기록 내용', 'Record body')}
       style={styles.bodyInput}
       multiline
@@ -165,7 +166,7 @@ export default function ComposeStory() {
         </>;
       }}
     /> : null}
-    {canAddMore ? <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} onPress={() => void addImage()} style={styles.imageAddRow}><Text variant="caption" weight="bold" color={color.action.primary}>{tx('+ 사진 추가', '+ Add photo')}</Text></Pressable> : null}
+    {canAddMore ? <Pressable testID="compose-add-photo" accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} onPress={() => void addImage()} style={styles.imageAddRow}><Text variant="caption" weight="bold" color={color.action.primary}>{tx('+ 사진 추가', '+ Add photo')}</Text></Pressable> : null}
     {/* — 약관 제6조의2 를 화면 말로 옮긴다. 약관에 적혀 있다고
         화면에서 숨기면, 사용자는 자기 사진이 어디에 쓰이는지 모른 채 올리게 된다.
     */}
@@ -206,7 +207,7 @@ export default function ComposeStory() {
 
     {error ? <Text accessibilityRole="alert" color={color.state.danger} style={styles.error}>{error}</Text> : null}
 
-    <Button label={submitting ? tx('올리는 중…', 'Posting…') : tx('기록 올리기', 'Post record')} disabled={!canSubmit} onPress={() => void submit()} containerStyle={styles.submit} />
+    <Button testID="compose-submit" label={submitting ? tx('올리는 중…', 'Posting…') : tx('기록 올리기', 'Post record')} disabled={!canSubmit} onPress={() => void submit()} containerStyle={styles.submit} />
   </Screen>;
 }
 

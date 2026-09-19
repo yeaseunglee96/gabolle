@@ -78,6 +78,9 @@ export default function Translate() {
         {tools.map((tool) => (
           <Pressable
             key={tool.key}
+            // 🔴 자동화가 찾는 이름표. 화면 글자는 언어를 바꾸면 통째로 달라지지만
+            //    이 이름은 안 변한다 — src/components/__tests__/automationTestIds.test.ts 참고.
+            testID={`field-${tool.key}`}
             accessibilityRole="button"
             onPress={tool.onPress}
             style={styles.card}
