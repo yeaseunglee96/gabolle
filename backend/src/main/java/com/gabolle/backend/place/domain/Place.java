@@ -1,5 +1,6 @@
 package com.gabolle.backend.place.domain;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -56,6 +57,19 @@ public class Place {
 
 	@Column(name = "lng")
 	private Double lng;
+
+	/**
+	 * 언제 문을 닫았나 — S15P21E201-1341.
+	 *
+	 * <p>🔴 <b>{@code null} 은 「영업 중」이 아니라 「모른다」다.</b> 인허가 자료와 안 이어진
+	 * 장소가 많다 — 해수욕장·전망대는 애초에 음식·주류 인허가가 없다. 그것을 폐업으로
+	 * 떨어뜨리면 멀쩡한 곳이 통째로 사라진다.
+	 *
+	 * <p>그래서 추천에서 빼는 것은 <b>값이 실제로 있는 줄뿐</b>이다
+	 * ({@code PlaceRepository.findWithinBoundingBox…}).
+	 */
+	@Column(name = "closed_on")
+	private LocalDate closedOn;
 
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private OffsetDateTime createdAt;
@@ -209,6 +223,22 @@ public class Place {
 
 	public Double getLng() {
 		return lng;
+	}
+
+	/** 폐업일자. {@code null} 은 「모른다」다 — 「영업 중」이 아니다. */
+	public LocalDate getClosedOn() {
+		return closedOn;
+	}
+
+	/**
+	 * 폐업일자를 적는다 — 인허가 자료가 이어졌을 때만 부른다.
+	 *
+	 * <p>🔴 <b>모르는 것을 {@code null} 로 되돌리는 데도 쓸 수 있다.</b> 잘못 이어졌던 것이
+	 * 풀리면 「닫았다」를 「모른다」로 되돌려야 한다 — 한번 적은 폐업이 영영 안 지워지면,
+	 * 잘못 붙은 가게 하나가 영영 추천에서 사라진다.
+	 */
+	public void recordClosedOn(LocalDate closedOn) {
+		this.closedOn = closedOn;
 	}
 
 	public OffsetDateTime getCreatedAt() {

@@ -80,12 +80,21 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	 * 남는지가 <b>정해져 있다</b>는 것이 여기서 필요한 전부다. 지리적으로 고르게 남기는
 	 * 일은 정렬이 아니라 상한을 넉넉히 두는 쪽이 한다
 	 * ({@code gabolle.place.candidate-max-scanned}).
+	 *
+	 * <p>🔴 <b>문 닫은 가게는 뺀다</b> (S15P21E201-1341). 장소는 그때 영업 중이던 목록에서
+	 * 들어오고, 그 뒤에 닫아도 표는 그대로다. 닫은 곳을 추천하면 사람을 없는 가게 앞에
+	 * 세워 놓는 것이다.
+	 *
+	 * <p>🔴 <b>{@code closedOn IS NULL} 은 「영업 중」이 아니라 「모른다」다.</b> 인허가
+	 * 자료와 안 이어진 장소가 많다 — 해수욕장·전망대는 애초에 음식·주류 인허가가 없다.
+	 * 그래서 빼는 것은 <b>값이 실제로 있는 줄뿐</b>이고, 모르는 것은 그대로 후보에 남는다.
 	 */
 	@Query("""
 			SELECT p FROM Place p
 			WHERE p.lat IS NOT NULL
 			  AND p.lat BETWEEN :minLat AND :maxLat
 			  AND p.lng BETWEEN :minLng AND :maxLng
+			  AND p.closedOn IS NULL
 			ORDER BY p.placeId
 			""")
 	List<Place> findWithinBoundingBox(@Param("minLat") double minLat, @Param("maxLat") double maxLat,
@@ -109,6 +118,7 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			WHERE p.lat IS NOT NULL
 			  AND p.lat BETWEEN :minLat AND :maxLat
 			  AND p.lng BETWEEN :minLng AND :maxLng
+			  AND p.closedOn IS NULL
 			  AND EXISTS (SELECT 1 FROM PlaceFeature f
 			              WHERE f.placeId = p.placeId
 			                AND f.featureType = :featureType
