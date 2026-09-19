@@ -253,6 +253,7 @@ const offenders = [];
 const legacy = [];
 const fills = new Map();
 const duplicates = [];
+const painted = [];
 
 for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))]) {
   const rel = file.slice(ROOT.length + 1).replace(/\\/g, '/');
@@ -287,6 +288,28 @@ for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))
   // 🔴 여는 태그가 여러 줄에 걸치므로 줄 단위로 못 센다. 파일을 통째로 훑는다.
   //    ([^>] 가 이미 `>` 를 막으므로 줄바꿈은 알아서 넘어간다. 다만 속성값 안에 `>` 가
   //    들어 있으면 거기서 끊긴다 — 못 잡는 자리다.)
+  // 🔴 `containerStyle` 에 배경색을 주면 **바깥 껍데기**가 칠해진다. 그 껍데기는 각지고
+  //    더 크므로, 안쪽 둥근 버튼 뒤로 네모가 삐져나온다. Button.tsx 머리 주석이 이미
+  //    적어 둔 결함이다 — 그때 색이 다른 6곳을 고쳤고, **남색 13곳은 안쪽과 같은 색이라
+  //    안 보였을 뿐 같은 결함**이라고 남겨 뒀다. 배색이 갈리자 그게 검은 네모로 드러났다.
+  for (const m of text.matchAll(/containerStyle=\{styles\.(\w+)\}/g)) {
+    // 스타일 정의를 정규식 없이 찾는다 — 이름이 변수라 정규식을 문자열로 짜야 하는데,
+    // 그 과정에서 역슬래시가 한 겹 벗겨지면 규칙이 조용히 아무것도 안 잡게 된다.
+    const key = m[1] + ':';
+    let at = text.indexOf(key);
+    while (at !== -1) {
+      const before = at === 0 ? ' ' : text[at - 1];
+      const open = text.indexOf('{', at);
+      const close = text.indexOf('}', open);
+      if (!/[A-Za-z0-9_$]/.test(before) && open !== -1 && close > open
+          && text.slice(open + 1, close).includes('backgroundColor:')) {
+        painted.push(rel + '  ' + m[1]);
+        break;
+      }
+      at = text.indexOf(key, at + 1);
+    }
+  }
+
   for (const { index, tag } of buttonTags(text)) {
     // 🔴 같은 태그에 variant 가 둘이면 알린다. tsc 도 잡지만(TS17001), 그때는 이미
     //    **팀 전체의 타입 검사가 멈춘 뒤**다. 손으로 variant 를 끼워 넣는 작업에서
@@ -325,6 +348,18 @@ for (const rule of [...LEGACY, ...MISUSE]) {
   console.error('');
   for (const hit of hits) console.error(`   ${hit.where}  ${hit.line}`);
   if (LEGACY.includes(rule)) console.error('\n   다 고른 뒤에는 tokens.ts 에서 그 이름을 지우세요 — 남겨 두면 다음 사람이 또 씁니다.');
+}
+
+if (painted.length) {
+  failed = true;
+  const uniq = [...new Set(painted)];
+  console.error(`\n🔴 버튼 바깥 껍데기에 배경색을 칠했습니다 — ${uniq.length}곳.\n`);
+  for (const u of uniq) console.error('   ' + u);
+  console.error('\n   containerStyle 은 Button 의 **바깥 껍데기**에 붙습니다. 그 껍데기는 각지고 더 커서,');
+  console.error('   안쪽 둥근 버튼 뒤로 네모가 삐져나옵니다. 색이 같을 때는 안 보이다가 배색이');
+  console.error('   갈리는 날 드러납니다 — 실제로 그렇게 검은 네모가 나타났습니다.');
+  console.error('');
+  console.error('   버튼 색은 variant 로 정하세요. containerStyle 은 폭·여백에만 씁니다.');
 }
 
 if (duplicates.length) {

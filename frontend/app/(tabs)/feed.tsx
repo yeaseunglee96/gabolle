@@ -902,7 +902,7 @@ const styles = StyleSheet.create({
   emptyText: { flex: 1, gap: spacing[2], minWidth: 0 },
   emptyDescription: { maxWidth: 420 },
   emptyActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2], flexWrap: 'wrap' },
-  emptyPrimary: { width: 'auto', minWidth: 180, paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
+  emptyPrimary: { width: 'auto', minWidth: 180, paddingHorizontal: spacing[4] },
 
   list: { gap: spacing[3], marginTop: spacing[4] },
   // 넓은 화면은 2열. flexWrap 이라 폭이 모자라면 자연히 한 열이 된다
