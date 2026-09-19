@@ -143,7 +143,7 @@ export default function PlaceReviews() {
             <Button label={tx('방문 인증하기', 'Verify my visit')} onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
-        {verify.kind === 'checking' ? <View style={styles.verifyingRow}><ActivityIndicator color={color.brand.orange} /><Text color={color.text.body}>{tx('위치를 확인하고 있어요…', 'Checking your location…')}</Text></View> : null}
+        {verify.kind === 'checking' ? <View style={styles.verifyingRow}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('위치를 확인하고 있어요…', 'Checking your location…')}</Text></View> : null}
         {verify.kind === 'verified' ? <Text variant="body" weight="bold" color={color.state.success}>{tx('방문이 인증되었습니다.', 'Your visit has been verified.')}</Text> : null}
         {verify.kind === 'permission-denied' ? (
           <>
@@ -211,7 +211,7 @@ export default function PlaceReviews() {
       <Text variant="title" weight="bold" style={styles.listTitle}>{tx('리뷰', 'Reviews')}</Text>
       {averageScore != null ? <Text color={color.text.body} style={styles.average}>{tx(`인증된 평가 평균 ${averageScore.toFixed(1)}점`, `Average of verified reviews: ${averageScore.toFixed(1)}`)}</Text> : null}
 
-      {listState === 'loading' ? <View style={styles.notice}><ActivityIndicator color={color.brand.orange} /></View> : null}
+      {listState === 'loading' ? <View style={styles.notice}><ActivityIndicator color={color.action.primary} /></View> : null}
       {listState === 'error' ? <View style={styles.notice}><Text color={color.text.body}>{tx('리뷰를 불러오지 못했어요.', 'Could not load reviews.')}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReviews()} /></View> : null}
       {listState === 'ready' && reviews && reviews.length === 0 ? <View style={styles.notice}><Text color={color.text.body}>{tx('아직 리뷰가 없어요.', 'No reviews yet.')}</Text></View> : null}
       {listState === 'ready' && reviews && reviews.length > 0 ? (
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   stepOption: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.soft, borderWidth: 1, borderColor: color.surface.field },
   stepOptionSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   bodyInput: { minHeight: 72, padding: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.soft, color: color.text.heading, textAlignVertical: 'top' },
-  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange },
+  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.action.primary },
   submitButtonDisabled: { opacity: 0.5 },
   listTitle: { marginTop: spacing[6] },
   average: { marginTop: spacing[1] },

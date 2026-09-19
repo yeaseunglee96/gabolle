@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   sun: { position: 'absolute', top: spacing[3], right: spacing[3], width: 28, height: 28, borderRadius: radius.full, backgroundColor: '#ffd391' },
   waveBack: { position: 'absolute', left: -24, right: -24, bottom: -28, height: '58%', borderRadius: radius.full, backgroundColor: '#8fcbd3', transform: [{ rotate: '-4deg' }] },
   waveFront: { position: 'absolute', left: -32, right: -20, bottom: -48, height: '58%', borderRadius: radius.full, backgroundColor: '#4da8b5', transform: [{ rotate: '5deg' }] },
-  pin: { position: 'absolute', top: '27%', left: '44%', width: 30, height: 30, borderRadius: radius.full, borderBottomRightRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.orange, transform: [{ rotate: '45deg' }] },
+  pin: { position: 'absolute', top: '27%', left: '44%', width: 30, height: 30, borderRadius: radius.full, borderBottomRightRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.secondary, transform: [{ rotate: '45deg' }] },
   pinCore: { width: 10, height: 10, borderRadius: radius.full, backgroundColor: color.surface.card },
   fallbackLabel: { position: 'absolute', left: spacing[3], top: spacing[3], letterSpacing: 1.2 },
 });

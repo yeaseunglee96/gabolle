@@ -43,7 +43,7 @@ export class AppErrorBoundary extends Component<Props, State> {
     return (
       <View style={styles.screen} accessibilityRole="alert">
         <View style={styles.mark} accessibilityElementsHidden>
-          <Text variant="display" weight="bold" color={color.brand.orange}>!</Text>
+          <Text variant="display" weight="bold" color={color.state.danger}>!</Text>
         </View>
         <Text variant="display" weight="bold" color={color.text.heading}>{tx('화면을 불러오지 못했어요', 'Could not load this screen')}</Text>
         <Text variant="body" color={color.text.body} style={styles.description}>

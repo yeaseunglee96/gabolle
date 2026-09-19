@@ -14,6 +14,9 @@ import { RouteMap, type CurrentLocation } from '@/map/RouteMap';
 import { loadItineraryStops, localizeItineraryStops, type ItineraryDaySeed } from '@/map/itineraryStops';
 import { useAuth } from '@/auth/AuthProvider';
 import { city3dUrlForStops, openCity3D } from '@/map/city3d';
+// 🔴 날짜 색은 여기서 다시 정하지 않는다. 코스 화면과 지도가 「1일차」를 다른 색으로
+//    그리면, 같은 여행을 두 곳에서 본 사람이 서로 다른 것으로 읽는다.
+import { dayColor } from '@/plan/courseMap';
 
 const pinIcon = require('../../../assets/icons/common/pin.png');
 import type { MapStop } from '@/map/types';
@@ -80,10 +83,6 @@ const DAY_STOPS_SEED: Record<'DAY 1' | 'DAY 2', MapStopSeed[]> = {
   ],
 };
 
-const DAY_COLORS = { 'DAY 1': color.brand.orange, 'DAY 2': color.state.success } as const;
-// — 실제 일정은 사흘 이상일 수 있다. 색은 돌려 쓰되 첫 두 날은 쓰던 색 그대로다.
-const DAY_PALETTE = [DAY_COLORS['DAY 1'], DAY_COLORS['DAY 2'], color.brand.navy, color.text.eyebrow] as const;
-const dayColor = (index: number) => DAY_PALETTE[index % DAY_PALETTE.length];
 const EXTRA_STOPS_SEED = {
   souvenir: [
     { id: 'souvenir-nampo', number: 1, nameKo: '남포동 부산 기념품점', nameEn: 'Nampo-dong Busan souvenir shop', latitude: 35.0979, longitude: 129.0298 },
@@ -350,7 +349,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   dayOptionSelected: {
-    backgroundColor: color.brand.orange,
+    backgroundColor: color.action.secondary,
   },
   city3dCard: {
     marginTop: spacing[4],
@@ -377,9 +376,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.surface.field,
   },
+  // 🔴 고른 줄은 「위험」이 아니다. 옅은 빨강 바탕에 빨간 테두리를 두르면 오류로 읽힌다.
   stopRowSelected: {
-    borderColor: color.brand.orange,
-    backgroundColor: color.state.dangerBg,
+    borderColor: color.action.secondary,
+    backgroundColor: color.surface.tint,
   },
   stopName: {
     flex: 1,
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: radius.full,
-    backgroundColor: color.brand.orange,
+    backgroundColor: color.action.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

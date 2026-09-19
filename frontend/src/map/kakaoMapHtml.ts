@@ -75,13 +75,13 @@ export function buildKakaoMapHtml(appKey: string): string {
         content.appendChild(img);
         content.style.width = '40px'; content.style.height = '40px'; content.style.padding = '0'; content.style.overflow = 'hidden';
         content.style.borderRadius = '999px';
-        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.orange : markerColor);
+        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.selected : markerColor);
         content.style.background = colors.canvas; content.style.cursor = 'pointer'; content.style.boxShadow = '0 4px 12px rgba(11,29,58,.18)';
       } else {
         content.textContent = layer ? layer.label : String(stop.number);
         content.style.minWidth = '34px'; content.style.height = '34px'; content.style.padding = '0 8px';
         content.style.borderRadius = '999px';
-        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.orange : markerColor);
+        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.selected : markerColor);
         content.style.background = colors.canvas; content.style.color = markerColor; content.style.fontWeight = '700';
         content.style.cursor = 'pointer'; content.style.boxShadow = '0 4px 12px rgba(11,29,58,.18)';
       }
@@ -138,4 +138,4 @@ export function buildKakaoMapHtml(appKey: string): string {
 
 // RouteMap.tsx·RouteMap.native.tsx 양쪽이 마커 색을 이 표기로 넘긴다 — 디자인 토큰의
 // hex 값을 그대로 문자열로 실어 보낸다(HTML 안 JS는 우리 색 토큰 파일을 못 읽는다).
-export type KakaoMapColors = { navy: string; orange: string; canvas: string };
+export type KakaoMapColors = { navy: string; selected: string; canvas: string };

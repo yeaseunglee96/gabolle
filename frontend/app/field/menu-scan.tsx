@@ -90,7 +90,7 @@ export default function MenuScanScreen() {
     )}
 
     {phase.state === 'reading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}>
-      <ActivityIndicator color={color.brand.orange} />
+      <ActivityIndicator color={color.action.primary} />
       <Text variant="title" weight="bold">{tx('글자를 읽고 있어요', 'Reading the text')}</Text>
       <Text color={color.text.body}>{tx('메뉴가 많으면 20초쯤 걸려요. 화면을 켜 둔 채 기다려 주세요.', 'A menu with many dishes takes about 20 seconds. Please keep this screen open.')}</Text>
     </View>}
@@ -216,7 +216,7 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
         <Text>{heading}</Text>
         {/* 같은 글자를 두 번 그리지 않는다 — 한국어를 골랐거나 옛 앱 빌드면 둘이 같다. */}
         {heading !== original && <Text variant="caption" color={color.text.muted}>{original}</Text>}
-        {line.allergenWords.length > 0 && <Text variant="caption" color={color.brand.orange}>{line.allergenWords.join(' · ')}</Text>}
+        {line.allergenWords.length > 0 && <Text variant="caption" color={color.state.danger}>{line.allergenWords.join(' · ')}</Text>}
       </View>
       {/* 가격은 사진에서 읽은 그대로다 — 숫자로 바꾸거나 통화를 붙이지 않는다. */}
       {line.price !== '' && <View style={styles.price}><Text weight="bold">{line.price}</Text></View>}
@@ -319,7 +319,7 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
 
   if (!dish) {
     return <View style={styles.dishPanel} accessibilityLiveRegion="polite">
-      <ActivityIndicator color={color.brand.orange} />
+      <ActivityIndicator color={color.action.primary} />
       <Text variant="caption" color={color.text.muted}>{tx('어떤 음식인지 알아보고 있어요', 'Looking up this dish')}</Text>
     </View>;
   }
@@ -346,7 +346,7 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
     </Text>}
 
     {stillPainting && <View style={styles.dishImageWaiting} accessibilityLiveRegion="polite">
-      <ActivityIndicator color={color.brand.orange} />
+      <ActivityIndicator color={color.action.primary} />
       <Text variant="caption" color={color.text.muted}>{tx('그림을 그리고 있어요 (10초쯤 걸려요)', 'Drawing a picture (takes about 10 seconds)')}</Text>
     </View>}
 
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   result: { gap: spacing[4] },
   allergenCard: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.warningBg },
   wordRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-  word: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.orange },
+  word: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.danger },
   exampleNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
   dishThumb: { width: 56, height: 56, borderRadius: radius.md, backgroundColor: color.surface.tint },
   unreadCard: { padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },

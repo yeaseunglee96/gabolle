@@ -117,7 +117,7 @@ function SouvenirsForTrip({ tripId }: { tripId: string }) {
           <RouteMap stops={stops} selectedId={selectedId} onSelect={setSelectedId} routes={[]} height={280} />
 
           {result.radiusExpanded ? (
-            <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
+            <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.state.info}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
           ) : null}
 
           <View style={styles.list}>
@@ -153,6 +153,6 @@ const styles = StyleSheet.create({
   expandedNotice: { marginTop: spacing[3], padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
   list: { marginTop: spacing[4], gap: spacing[2] },
   placeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
-  placeRowSelected: { borderColor: color.brand.orange },
+  placeRowSelected: { borderColor: color.action.secondary },
   grow: { flex: 1 },
 });

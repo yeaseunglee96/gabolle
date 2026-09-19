@@ -62,10 +62,10 @@ export function RouteMap({
     const data = {
       stops,
       points,
-      routes: routes ?? [{ id: 'selected', color: color.brand.orange, stops }],
+      routes: routes ?? [{ id: 'selected', color: color.action.primary, stops }],
       selectedId,
       currentLocation: currentLocation ?? null,
-      colors: { navy: color.brand.navy, orange: color.brand.orange, canvas: color.canvas },
+      colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas },
     };
     webViewRef.current.injectJavaScript(`window.__renderKakaoMap(${JSON.stringify(data)}); true;`);
   };

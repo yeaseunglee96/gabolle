@@ -117,10 +117,10 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
             img.alt = '';
             Object.assign(img.style, { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '999px' });
             content.appendChild(img);
-            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
           } else {
             content.textContent = pointLayer ? pointLayer.label : String(stop.number);
-            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
           }
           content.onclick = () => onSelect(stop.id);
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
@@ -134,7 +134,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
         }
-        (routes ?? [{ id: 'selected', color: color.brand.orange, stops }]).forEach((route) => {
+        (routes ?? [{ id: 'selected', color: color.action.primary, stops }]).forEach((route) => {
           // 실제 길 좌표가 있으면 그것을, 없으면 장소를 직선으로 잇는다.
           const points = route.path?.length ? route.path : route.stops;
           const path = points.map((point) => new maps.LatLng(point.latitude, point.longitude));
@@ -253,6 +253,6 @@ const styles = StyleSheet.create({
   backButton: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   routePreview: { flexDirection: 'row', alignItems: 'center', marginTop: spacing[3] },
   routeItem: { flexDirection: 'row', alignItems: 'center' },
-  marker: { width: 30, height: 30, borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' },
-  line: { width: 28, height: 2, backgroundColor: color.brand.orange },
+  marker: { width: 30, height: 30, borderRadius: radius.full, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
+  line: { width: 28, height: 2, backgroundColor: color.action.primary },
 });

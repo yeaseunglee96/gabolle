@@ -131,7 +131,7 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
           </View>
 
           {step === 'loadingTrips' || step === 'loadingItineraries' || step === 'submitting' ? (
-            <View style={styles.centerState}><ActivityIndicator color={color.brand.orange} /></View>
+            <View style={styles.centerState}><ActivityIndicator color={color.action.primary} /></View>
           ) : null}
 
           {step === 'pickTrip' && trips.length === 0 ? (
@@ -209,5 +209,5 @@ const styles = StyleSheet.create({
   centerState: { gap: spacing[3], alignItems: 'center', paddingVertical: spacing[4] },
   list: { gap: spacing[2] },
   optionRow: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[4], marginTop: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
-  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.orange },
+  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.action.primary },
 });

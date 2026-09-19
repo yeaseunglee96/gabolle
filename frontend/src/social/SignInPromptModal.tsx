@@ -30,7 +30,7 @@ export function SignInPromptModal({ visible, onClose, onSignIn }: SignInPromptMo
           <View style={styles.gainList}>
             {gains.map(([ko, en]) => (
               <View key={ko} style={styles.gainRow}>
-                <Text variant="body" weight="bold" color={color.brand.orange}>·</Text>
+                <Text variant="body" weight="bold" color={color.state.dot}>·</Text>
                 <Text color={color.text.body} style={styles.gainText}>{tx(ko, en)}</Text>
               </View>
             ))}
@@ -60,5 +60,5 @@ const styles = StyleSheet.create({
   buttonRow: { flexDirection: 'row', gap: spacing[2] },
   button: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   ghostButton: { backgroundColor: color.surface.card },
-  primaryButton: { backgroundColor: color.brand.orange },
+  primaryButton: { backgroundColor: color.action.primary },
 });

@@ -98,6 +98,6 @@ const styles = StyleSheet.create({
   reasonOption: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   reasonOptionSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   detailInput: { minHeight: 80, padding: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },
-  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange },
+  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.action.primary },
   submitButtonDisabled: { opacity: 0.5 },
 });

@@ -119,7 +119,7 @@ export default function Place() {
         <View style={styles.spacer} />
       </View>
 
-      {loading ? <View style={styles.notice} accessibilityLiveRegion="polite"><ActivityIndicator color={color.brand.orange} /><Text color={color.text.body} style={styles.noticeCopy}>{tx('장소 정보를 불러오고 있어요', 'Loading place details')}</Text></View> : null}
+      {loading ? <View style={styles.notice} accessibilityLiveRegion="polite"><ActivityIndicator color={color.action.primary} /><Text color={color.text.body} style={styles.noticeCopy}>{tx('장소 정보를 불러오고 있어요', 'Loading place details')}</Text></View> : null}
 
       {resolved ? <>
         {demoPlace ? (

@@ -64,7 +64,7 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
         autoCorrect={false}
       />
 
-      {busy ? <View style={styles.row}><ActivityIndicator color={color.brand.orange} /></View> : null}
+      {busy ? <View style={styles.row}><ActivityIndicator color={color.action.primary} /></View> : null}
 
       {/* 검색이 실패해도 손으로 쓰는 길은 막지 않는다. */}
       {failed ? <Text variant="caption" color={color.text.muted} style={styles.note}>
@@ -84,7 +84,7 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
             <Text variant="caption" color={color.text.muted} numberOfLines={1}>{item.address}</Text>
           </View>
           {/* 우리 DB 장소만 글에 이을 수 있다. 그 차이를 사용자가 알아야 고를 이유가 생긴다. */}
-          {item.placeId ? <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('장소 연결', 'Linked place')}</Text> : null}
+          {item.placeId ? <Text variant="caption" weight="bold" color={color.state.info}>{tx('장소 연결', 'Linked place')}</Text> : null}
         </Pressable>
       ))}
 
