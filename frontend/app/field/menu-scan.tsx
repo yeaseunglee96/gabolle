@@ -121,7 +121,7 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
     <View style={styles.allergenCard} accessibilityRole="summary">
       <Text variant="title" weight="bold">{allergen.headline}</Text>
       {allergen.words.length > 0 && <View style={styles.wordRow}>
-        {allergen.words.map((word) => <View key={word} style={styles.word}><Text variant="caption" weight="bold" color={color.text.onAction}>{word}</Text></View>)}
+        {allergen.words.map((word) => <View key={word} style={styles.word}><Text variant="caption" weight="bold" color={color.state.danger}>{word}</Text></View>)}
       </View>}
       <Text color={color.text.body}>{allergen.caution}</Text>
     </View>
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   result: { gap: spacing[4] },
   allergenCard: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.warningBg },
   wordRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-  word: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.danger },
+  word: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.dangerBg },
   exampleNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
   dishThumb: { width: 56, height: 56, borderRadius: radius.md, backgroundColor: color.surface.tint },
   unreadCard: { padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
