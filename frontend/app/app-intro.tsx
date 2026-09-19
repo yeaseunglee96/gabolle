@@ -66,7 +66,7 @@ export default function AppIntro() {
     </ScrollView>
     <View style={styles.footer}><View accessibilityLabel={tx(`${PAGES.length}개 중 ${page + 1}번째`, `${page + 1} of ${PAGES.length}`)} style={styles.dots}>{PAGES.map((item, index) => <View key={item.id} style={[styles.dot, index === page && styles.dotActive]} />)}</View>{/* 🔴 testID 는 언어와 무관하게 고정한다 (S15P21E201-1191). 글자로 찾으면
             English·日本語 로 바꾸는 순간 시험이 깨진다 — 5개국어를 지원하는 앱이다. */}
-      <Button testID="app-intro-primary" label={page === PAGES.length - 1 ? tx('시작하기', 'Get started') : tx('다음', 'Next')} onPress={() => page === PAGES.length - 1 ? void finish() : go(page + 1)} variant="accent" pill /></View>
+      <Button testID="app-intro-primary" label={page === PAGES.length - 1 ? tx('시작하기', 'Get started') : tx('다음', 'Next')} onPress={() => page === PAGES.length - 1 ? void finish() : go(page + 1)} variant="primary" pill /></View>
     </View>
   </SafeAreaView>;
 }

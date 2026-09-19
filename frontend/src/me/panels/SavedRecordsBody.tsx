@@ -50,7 +50,7 @@ export function SavedRecordsBody() {
       {!loading && result.state !== 'success' ? (
         <View style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('저장한 기록을 불러오지 못했어요', "We couldn't load your saved records")}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
 

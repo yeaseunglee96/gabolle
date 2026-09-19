@@ -97,7 +97,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
       </View>
       {error ? <Text variant="caption" color={color.state.danger}>{error}</Text> : null}
       <View style={styles.buttonRow}>
-        <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={busy} onPress={() => setConfirmClear(false)} containerStyle={styles.rowButton} />
+        <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={busy} onPress={() => setConfirmClear(false)} containerStyle={styles.rowButton} />
         <Pressable
           accessibilityRole="button"
           accessibilityState={{ busy, disabled: busy }}
@@ -186,7 +186,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
       {error ? <Text variant="caption" color={color.state.danger}>{error}</Text> : null}
 
       <View style={styles.buttonRow}>
-        <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={busy} onPress={onClose} containerStyle={styles.rowButton} />
+        <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={busy} onPress={onClose} containerStyle={styles.rowButton} />
         <Button
           label={willClear
             ? (mode === 'edit' ? tx('지우고 저장', 'Clear and save') : tx('날짜로 둘게요', 'Keep the dates'))
@@ -201,7 +201,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
       {mode === 'edit' ? (
         <Button
           label={tx('이름 지우기', 'Clear the name')}
-          variant="ghost"
+          variant="tertiary"
           disabled={busy}
           onPress={() => { setError(''); setConfirmClear(true); }}
           containerStyle={styles.clearButton}

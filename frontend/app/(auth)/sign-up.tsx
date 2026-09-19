@@ -113,7 +113,7 @@ export default function SignUp() {
           {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
         </View>
         <View style={styles.resultActions}>
-          <Button label={resending ? tx('재전송 중…', 'Resending…') : tx('인증 메일 다시 보내기', 'Resend verification email')} variant="ghost" disabled={resending} onPress={() => void resend()} />
+          <Button label={resending ? tx('재전송 중…', 'Resending…') : tx('인증 메일 다시 보내기', 'Resend verification email')} variant="tertiary" disabled={resending} onPress={() => void resend()} />
           <Button label={tx('이메일 확인 후 로그인', 'Sign in after verifying')} onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} />
         </View>
       </Screen>
@@ -203,7 +203,7 @@ export default function SignUp() {
         )}
           </Animated.View>
 
-        <Button label={tx('비회원으로 둘러보기', 'Browse as guest')} variant="ghost" onPress={() => router.replace(isSafeReturnPath(returnTo) ? returnTo : '/home')} />
+        <Button label={tx('비회원으로 둘러보기', 'Browse as guest')} variant="tertiary" onPress={() => router.replace(isSafeReturnPath(returnTo) ? returnTo : '/home')} />
         <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">{tx('이미 계정이 있나요? ', 'Already have an account? ')}<Text variant="body" weight="bold" color={color.brand.orange}>{tx('로그인', 'Sign in')}</Text></Text></Pressable>
         </View>
       </View>

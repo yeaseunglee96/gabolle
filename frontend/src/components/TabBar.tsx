@@ -154,7 +154,7 @@ export function TabBar({
           >
             {selected && <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.activeMarker} />}
             <View style={[styles.iconWrap, tab.key === 'schedule' && styles.createIconWrap]}><Image source={tab.icon} resizeMode="contain" style={[styles.icon, tab.key !== 'schedule' && (selected ? styles.iconSelected : styles.iconInactive)]} /></View>
-            <Text variant="caption" weight={selected ? 'bold' : 'regular'} color={selected ? color.brand.navy : color.text.muted}>
+            <Text variant="micro" weight={selected ? 'bold' : 'regular'} color={selected ? color.text.heading : color.text.inactiveTab}>
               {tx(tab.labelKo, tab.labelEn)}
             </Text>
           </Pressable>
@@ -193,12 +193,13 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing[4],
     overflow: 'hidden',
     backgroundColor: color.surface.card,
-    borderWidth: 1,
-    borderColor: color.surface.border,
     borderRadius: radius.lg,
+    // 🔴 선을 뺐다 (S15P21E201-1343). 새 배색은 어디에도 카드 선을 안 둔다 — 이 막대가
+    //    떠 보이는 것은 그림자가 한다. 선과 그림자를 같이 두면 테두리가 두 겹으로 보인다.
+    //    🔴 **그림자는 여기만 예외다.** 다른 카드에는 안 둔다.
     shadowColor: color.brand.navy,
-    shadowOpacity: 0.13,
-    shadowRadius: 8,
+    shadowOpacity: 0.10,
+    shadowRadius: 14,
     shadowOffset: { width: 0, height: -2 },
     elevation: 8,
   },
@@ -215,10 +216,13 @@ const styles = StyleSheet.create({
     gap: spacing[1],
   },
   itemPressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
-  activeMarker: { position: 'absolute', top: 0, width: 18, height: 3, borderRadius: 2, backgroundColor: color.brand.orange },
+  // 🔴 위의 막대에서 **아래의 점**으로 바뀌었다 (S15P21E201-1343). 빨강의 자리를 「채움」이
+  //    아니라 「점·선·글자」로 옮기는 규칙을 따른다 — 탭은 글자가 이미 검정으로 굵어지므로
+  //    표시는 점 하나면 된다.
+  activeMarker: { position: 'absolute', bottom: 0, width: 5, height: 5, borderRadius: 999, backgroundColor: color.state.dot },
   iconWrap: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  createIconWrap: { width: 32, height: 32, borderRadius: 16, backgroundColor: color.brand.orange },
+  createIconWrap: { width: 32, height: 32, borderRadius: 16, backgroundColor: color.action.primary },
   icon: { width: 20, height: 20 },
-  iconSelected: { tintColor: color.brand.navy },
+  iconSelected: { tintColor: color.text.heading },
   iconInactive: { tintColor: color.text.muted },
 });

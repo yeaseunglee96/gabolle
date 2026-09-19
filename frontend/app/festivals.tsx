@@ -85,7 +85,7 @@ export default function Festivals() {
     </View>
 
     {state === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text variant="title" weight="bold">{tx('축제를 확인하고 있어요', 'Checking festivals')}</Text><Text color={color.text.body}>{tx('선택한 기간과 부산 지역을 기준으로 조회합니다.', 'Searching based on your selected period and the Busan area.')}</Text></View>}
-    {state === 'error' && <View accessibilityRole="alert" style={styles.stateCard}><Text variant="title" weight="bold">{tx('불러오지 못했습니다', 'Could not load')}</Text><Text color={color.text.body}>{errorMessage}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} /></View>}
+    {state === 'error' && <View accessibilityRole="alert" style={styles.stateCard}><Text variant="title" weight="bold">{tx('불러오지 못했습니다', 'Could not load')}</Text><Text color={color.text.body}>{errorMessage}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
     {state === 'ready' && sorted.length === 0 && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기간에 열리는 축제가 없습니다', 'No festivals run during this period')}</Text><Text color={color.text.body}>{tx('날짜를 바꿔 다시 조회해 보세요. 기간과 무관한 축제는 대신 보여드리지 않아요.', "Try different dates. We don't show festivals outside the period instead.")}</Text></View>}
     {state === 'ready' && sorted.length > 0 && sorted.some((festival) => 'isSample' in festival) && (
       <View style={styles.sampleNotice}><Text variant="caption" weight="bold">{tx('축제 API 연동 전이라 예시 일정을 보여드려요. 실제 날짜와 다를 수 있어요.', "The festival API isn't connected yet, so these are example dates — actual dates may differ.")}</Text></View>

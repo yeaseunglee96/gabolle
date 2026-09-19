@@ -111,7 +111,7 @@ export function RouteMap({
           )}
         </Text>
         <Text variant="caption" style={styles.tech}>EXPO_PUBLIC_KAKAO_MAP_JS_KEY = (빈 값) · EAS 빌드 환경 변수로 넣어야 한다</Text>
-        {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
+        {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} /> : null}
       </View>
     );
   }
@@ -131,7 +131,7 @@ export function RouteMap({
             'The Kakao map file could not be fetched. The network may be blocked, or this app may not be registered in the Kakao developer console.',
           )}
         </Text>
-        {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
+        {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} /> : null}
       </View>
     );
   }
@@ -153,7 +153,7 @@ export function RouteMap({
       />
       {onBackToList ? (
         <View style={styles.backRow}>
-          <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} />
+          <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} />
         </View>
       ) : null}
     </View>

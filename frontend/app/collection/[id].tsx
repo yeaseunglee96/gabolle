@@ -105,7 +105,7 @@ export default function CollectionListDetail() {
     setSearchResults([]); setSearched(false); setSearching(false);
   };
 
-  if (!list) return <View style={styles.shell}><Screen scroll><View style={styles.empty}><Text variant="title" weight="bold">{tx('리스트를 찾을 수 없어요', "Couldn't find this list")}</Text><Button label={tx('부슐랭으로', 'Back to collection')} variant="ghost" onPress={() => router.replace('/collection')} /></View></Screen></View>;
+  if (!list) return <View style={styles.shell}><Screen scroll><View style={styles.empty}><Text variant="title" weight="bold">{tx('리스트를 찾을 수 없어요', "Couldn't find this list")}</Text><Button label={tx('부슐랭으로', 'Back to collection')} variant="tertiary" onPress={() => router.replace('/collection')} /></View></Screen></View>;
 
   const listPlaces = list.placeIds.map((placeId) => places[placeId]).filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 
@@ -170,7 +170,7 @@ export default function CollectionListDetail() {
       {confirmDelete ? <View style={styles.deleteConfirm}><Pressable accessibilityRole="button" onPress={() => setConfirmDelete(false)}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('취소', 'Cancel')}</Text></Pressable><Pressable accessibilityRole="button" onPress={confirmDeleteList}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제 확정', 'Confirm delete')}</Text></Pressable></View> : <Pressable accessibilityRole="button" accessibilityLabel={tx('리스트 삭제', 'Delete list')} onPress={() => setConfirmDelete(true)}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text></Pressable>}
     </View>
 
-    <Button label={adding ? tx('취소', 'Cancel') : tx('+ 장소 담기', '+ Add a place')} variant={adding ? 'ghost' : 'primary'} onPress={() => setAdding((value) => !value)} containerStyle={styles.addToggle} />
+    <Button label={adding ? tx('취소', 'Cancel') : tx('+ 장소 담기', '+ Add a place')} variant={adding ? 'tertiary' : 'primary'} onPress={() => setAdding((value) => !value)} containerStyle={styles.addToggle} />
 
     {adding ? <Card style={styles.form}>
       <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 선택', 'Choose photo')} onPress={() => void pickPhoto()} style={styles.photoPicker}>

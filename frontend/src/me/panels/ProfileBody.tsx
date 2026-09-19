@@ -239,8 +239,8 @@ export function ProfileBody() {
             <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${user.userId}/following`)} style={styles.stat}><Text variant="title" weight="bold">{followingCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></Pressable>
           </View>
           <View style={styles.statActions}>
-            <Button label={tx('내 피드 보기', 'View my posts')} variant="ghost" compact onPress={() => router.push('/me?panel=posts')} />
-            <Button label={tx('프로필 공유', 'Share profile')} variant="ghost" compact onPress={() => void shareProfile()} />
+            <Button label={tx('내 피드 보기', 'View my posts')} variant="tertiary" compact onPress={() => router.push('/me?panel=posts')} />
+            <Button label={tx('프로필 공유', 'Share profile')} variant="tertiary" compact onPress={() => void shareProfile()} />
           </View>
         </View>
       ) : null}
@@ -349,14 +349,14 @@ export function ProfileBody() {
               <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{deletionPreview ? tx(`${deletionPreview.recordCount}개`, `${deletionPreview.recordCount} items`) : '—'}</Text><Text style={styles.impactCopy}>{tx('작성한 여행 기록이 삭제돼요.', 'Travel records you wrote will be deleted.')}</Text></View>
             </View>
             <Text accessibilityRole="alert" weight="bold" color={color.state.danger}>{tx('계정 삭제는 되돌릴 수 없습니다.', 'Account deletion cannot be undone.')}</Text>
-            <View style={styles.modalActions}><Button label={tx('취소', 'Cancel')} variant="ghost" onPress={closeDeletion} containerStyle={styles.modalAction} /><Button label={tx('계속', 'Continue')} onPress={() => setDeleteStep(2)} containerStyle={styles.modalAction} /></View>
+            <View style={styles.modalActions}><Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={closeDeletion} containerStyle={styles.modalAction} /><Button label={tx('계속', 'Continue')} onPress={() => setDeleteStep(2)} containerStyle={styles.modalAction} /></View>
           </> : <>
             <Text variant="caption" weight="bold" color={color.state.danger}>{tx('2 / 2 · 본인 확인', '2 / 2 · Verify identity')}</Text>
             <Text variant="display" weight="bold">{tx('삭제하려면 DELETE를 입력해 주세요', 'Type DELETE to confirm')}</Text>
             <Text color={color.text.body}>{tx('대문자 DELETE를 정확히 입력해야 계정과 데이터가 삭제됩니다.', 'Your account is deleted only after you type DELETE exactly.')}</Text>
             <TextInput accessibilityLabel={tx('계정 삭제 확인 입력', 'Text to confirm account deletion')} autoCapitalize="none" autoCorrect={false} autoFocus value={deleteConfirmation} onChangeText={(value) => { setDeleteConfirmation(value); setDeleteError(null); }} onSubmitEditing={() => void confirmDeletion()} placeholder="DELETE" placeholderTextColor={color.text.muted} style={[styles.input, deleteError && styles.inputError]} />
             {deleteError ? <Text accessibilityRole="alert" color={color.state.danger}>{deleteError}</Text> : null}
-            <View style={styles.modalActions}><Button label={tx('이전', 'Back')} variant="ghost" disabled={deleting} onPress={() => { setDeleteStep(1); setDeleteError(null); }} containerStyle={styles.modalAction} /><Pressable accessibilityRole="button" accessibilityState={{ disabled: !deleteConfirmed || deleting }} disabled={!deleteConfirmed || deleting} onPress={() => void confirmDeletion()} style={[styles.deleteConfirm, (!deleteConfirmed || deleting) && styles.deleteConfirmDisabled]}><Text weight="bold" color={color.text.onAction}>{tx('계정 영구 삭제', 'Delete permanently')}</Text></Pressable></View>
+            <View style={styles.modalActions}><Button label={tx('이전', 'Back')} variant="tertiary" disabled={deleting} onPress={() => { setDeleteStep(1); setDeleteError(null); }} containerStyle={styles.modalAction} /><Pressable accessibilityRole="button" accessibilityState={{ disabled: !deleteConfirmed || deleting }} disabled={!deleteConfirmed || deleting} onPress={() => void confirmDeletion()} style={[styles.deleteConfirm, (!deleteConfirmed || deleting) && styles.deleteConfirmDisabled]}><Text weight="bold" color={color.text.onAction}>{tx('계정 영구 삭제', 'Delete permanently')}</Text></Pressable></View>
           </>}
         </View></View>
       </Modal>

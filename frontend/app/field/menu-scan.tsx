@@ -82,7 +82,7 @@ export default function MenuScanScreen() {
 
     {phase.state === 'idle' && <View style={styles.actions}>
       <Button label={tx('사진 찍기', 'Take a photo')} onPress={() => void pickFromCamera()} containerStyle={styles.action} />
-      <Button label={tx('앨범에서 고르기', 'Choose from album')} variant="ghost" onPress={() => void pickFromAlbum()} containerStyle={styles.action} />
+      <Button label={tx('앨범에서 고르기', 'Choose from album')} variant="tertiary" onPress={() => void pickFromAlbum()} containerStyle={styles.action} />
     </View>}
 
     {phase.state !== 'idle' && phase.photoUri !== '' && (
@@ -98,7 +98,7 @@ export default function MenuScanScreen() {
     {phase.state === 'failed' && <View accessibilityRole="alert" style={styles.stateCard}>
       <Text variant="title" weight="bold">{tx('읽지 못했어요', 'Could not read it')}</Text>
       <Text color={color.text.body}>{phase.message}</Text>
-      <Button label={tx('다른 사진으로 다시', 'Try another photo')} variant="ghost" onPress={() => setPhase({ state: 'idle' })} containerStyle={styles.action} />
+      <Button label={tx('다른 사진으로 다시', 'Try another photo')} variant="tertiary" onPress={() => setPhase({ state: 'idle' })} containerStyle={styles.action} />
     </View>}
 
     {phase.state === 'done' && <ScanResult scan={phase.scan} onRetry={() => setPhase({ state: 'idle' })} />}
@@ -143,7 +143,7 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
           ))}
         </View>}
 
-    <Button label={tx('다른 메뉴판 찍기', 'Scan another menu')} variant="ghost" onPress={onRetry} containerStyle={styles.action} />
+    <Button label={tx('다른 메뉴판 찍기', 'Scan another menu')} variant="tertiary" onPress={onRetry} containerStyle={styles.action} />
   </View>;
 }
 

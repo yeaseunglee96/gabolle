@@ -215,7 +215,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
             <Text variant="title" weight="bold">{failure.title}</Text>
             <Text variant="body" style={styles.description}>{failure.reason}</Text>
             <Text variant="caption" style={styles.tech}>{failure.tech}</Text>
-            {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
+            {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} /> : null}
           </View>
         ) : null}
       </View>
@@ -229,7 +229,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     <View style={styles.fallback}>
       <Text variant="title" weight="bold">{tx('이 환경에서는 지도를 못 그려요', 'The map cannot be drawn here')}</Text>
       <Text variant="body" style={styles.description}>{tx('방문 순서와 장소 목록은 그대로 확인할 수 있습니다.', 'You can still see the visit order and place list.')}</Text>
-      {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
+      {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} /> : null}
       <View style={styles.routePreview}>
         {stops.map((stop, index) => (
           <View key={stop.id} style={styles.routeItem}>

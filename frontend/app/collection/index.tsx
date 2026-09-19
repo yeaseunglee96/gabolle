@@ -59,13 +59,13 @@ export default function CollectionHome() {
       )}
     </View>
 
-    <View style={styles.sectionHeading}><Text variant="title" weight="bold">{tx('내 리스트', 'My lists')}</Text><Button label={tx('+ 새 리스트', '+ New list')} variant="ghost" onPress={() => setCreating(true)} containerStyle={styles.newListButton} /></View>
+    <View style={styles.sectionHeading}><Text variant="title" weight="bold">{tx('내 리스트', 'My lists')}</Text><Button label={tx('+ 새 리스트', '+ New list')} variant="tertiary" onPress={() => setCreating(true)} containerStyle={styles.newListButton} /></View>
 
     {creating ? <Card style={styles.createCard}>
       <Text variant="caption" weight="bold" color={color.text.muted}>{tx('리스트 이름', 'List name')}</Text>
       <TextInput accessibilityLabel={tx('리스트 이름', 'List name')} maxLength={COLLECTION_LIMITS.name} value={newName} onChangeText={setNewName} placeholder={tx('예: 다시 가고 싶은 카페', 'e.g. Cafés to revisit')} placeholderTextColor={color.text.muted} autoFocus style={styles.input} />
       <View style={styles.createActions}>
-        <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => { setCreating(false); setNewName(''); }} containerStyle={styles.createActionButton} />
+        <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => { setCreating(false); setNewName(''); }} containerStyle={styles.createActionButton} />
         <Button label={tx('만들기', 'Create')} disabled={!newName.trim()} onPress={submitCreate} containerStyle={styles.createActionButton} />
       </View>
     </Card> : null}

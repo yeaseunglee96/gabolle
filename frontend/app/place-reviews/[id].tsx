@@ -155,20 +155,20 @@ export default function PlaceReviews() {
           <>
             <Text variant="body" weight="bold" color={color.state.danger}>{tx('현재 위치가 장소에서 멀리 떨어져 있습니다', 'Your current location is far from this place')}</Text>
             {verify.distanceM != null ? <Text variant="caption" color={color.text.body}>{tx(`약 ${verify.distanceM}m 떨어져 있어요.`, `About ${verify.distanceM}m away.`)}</Text> : null}
-            <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
+            <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
         {verify.kind === 'LOW_ACCURACY' ? (
           <>
             <Text variant="body" weight="bold" color={color.state.danger}>{tx('위치 정확도가 낮아요', 'Location accuracy is too low')}</Text>
             <Text variant="caption" color={color.text.body}>{verify.message}</Text>
-            <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
+            <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
         {verify.kind === 'error' ? (
           <>
             <Text variant="body" weight="bold" color={color.state.danger}>{verify.message}</Text>
-            <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
+            <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
       </View>
@@ -212,7 +212,7 @@ export default function PlaceReviews() {
       {averageScore != null ? <Text color={color.text.body} style={styles.average}>{tx(`인증된 평가 평균 ${averageScore.toFixed(1)}점`, `Average of verified reviews: ${averageScore.toFixed(1)}`)}</Text> : null}
 
       {listState === 'loading' ? <View style={styles.notice}><ActivityIndicator color={color.brand.orange} /></View> : null}
-      {listState === 'error' ? <View style={styles.notice}><Text color={color.text.body}>{tx('리뷰를 불러오지 못했어요.', 'Could not load reviews.')}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void loadReviews()} /></View> : null}
+      {listState === 'error' ? <View style={styles.notice}><Text color={color.text.body}>{tx('리뷰를 불러오지 못했어요.', 'Could not load reviews.')}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReviews()} /></View> : null}
       {listState === 'ready' && reviews && reviews.length === 0 ? <View style={styles.notice}><Text color={color.text.body}>{tx('아직 리뷰가 없어요.', 'No reviews yet.')}</Text></View> : null}
       {listState === 'ready' && reviews && reviews.length > 0 ? (
         <View style={styles.reviewList}>

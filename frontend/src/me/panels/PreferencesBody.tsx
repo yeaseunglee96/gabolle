@@ -379,7 +379,7 @@ export function PreferencesBody() {
       </View>
       {clearConfirm
         ? <View style={[styles.confirmRow, wide && styles.confirmRowWide]}>
-            <Button label={tx('취소', 'Cancel')} variant="ghost" containerStyle={styles.confirmButton} onPress={() => setClearConfirm(false)} />
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" containerStyle={styles.confirmButton} onPress={() => setClearConfirm(false)} />
             <Pressable accessibilityRole="button" onPress={clearAll} style={styles.dangerConfirm}>
               <Text weight="bold" color={color.text.onAction}>{tx('모두 지우기', 'Clear all')}</Text>
             </Pressable>

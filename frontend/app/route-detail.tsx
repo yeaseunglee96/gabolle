@@ -159,7 +159,7 @@ export default function RouteDetail() {
             <View style={styles.actions}>
               {destPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} /> : null}
               {mapApps.map((app) => (
-                <Button key={app.key} variant="ghost" label={tx(`${app.labelKo}에서 경로 열기`, `Open route in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.actionButton} />
+                <Button key={app.key} variant="tertiary" label={tx(`${app.labelKo}에서 경로 열기`, `Open route in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.actionButton} />
               ))}
             </View>
           </View>

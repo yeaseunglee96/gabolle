@@ -51,7 +51,7 @@ export class AppErrorBoundary extends Component<Props, State> {
         </Text>
         <View style={styles.actions}>
           <Button label={tx('다시 시도', 'Try again')} onPress={this.retry} />
-          <Button label={tx('홈으로 돌아가기', 'Back to home')} variant="ghost" onPress={this.goHome} />
+          <Button label={tx('홈으로 돌아가기', 'Back to home')} variant="tertiary" onPress={this.goHome} />
         </View>
         {__DEV__ ? (
           <View style={styles.debugBox}>

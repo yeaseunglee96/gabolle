@@ -97,7 +97,7 @@ export default function TripCollaborate() {
 
     {state.status === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text weight="bold">{tx('참여자를 불러오고 있어요.', 'Loading participants.')}</Text></View>}
     {state.status === 'forbidden' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 여행의 참여자만 볼 수 있어요', 'Only participants of this trip can view this')}</Text><Text color={color.text.body}>{state.message}</Text></View>}
-    {state.status === 'error' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('참여자를 불러오지 못했어요', "Couldn't load participants")}</Text><Text color={color.text.body}>{state.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} /></View>}
+    {state.status === 'error' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('참여자를 불러오지 못했어요', "Couldn't load participants")}</Text><Text color={color.text.body}>{state.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
 
     {state.status === 'ready' && <>
       <View style={styles.list}>{state.view.members.map((member) => {

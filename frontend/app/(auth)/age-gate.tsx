@@ -74,7 +74,7 @@ export default function AgeGate() {
           <Text variant="body">{tx('만 14세 이상이며, 위 내용을 확인했어요.', 'I am 14 or older and understand the information above.')}</Text>
         </Pressable>
 
-        <Button testID="age-gate-continue" label={tx('계속', 'Continue')} variant="accent" pill disabled={!checked} onPress={continueOnboarding} />
+        <Button testID="age-gate-continue" label={tx('계속', 'Continue')} variant="primary" pill disabled={!checked} onPress={continueOnboarding} />
       </View>
       </View>
       </View>

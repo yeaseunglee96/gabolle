@@ -97,7 +97,7 @@ export default function VerifyEmail() {
             </Text>
             <Text variant="body" color={color.text.muted}>{failureText}</Text>
             <Button label={tx('가입 화면으로', 'Back to sign-up')} onPress={() => router.replace('/sign-up')} />
-            <Button label={tx('로그인 화면으로', 'Back to sign-in')} variant="ghost" onPress={() => router.replace('/sign-in')} />
+            <Button label={tx('로그인 화면으로', 'Back to sign-in')} variant="tertiary" onPress={() => router.replace('/sign-in')} />
           </>
         )}
       </View>

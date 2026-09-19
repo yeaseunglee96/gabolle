@@ -163,7 +163,7 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
         <Text variant="display" weight="bold" color={color.brand.orange}>{visitCount}</Text>
         <Text variant="caption" color={color.text.muted}>{tx('방문지', 'Places visited')}</Text>
       </View>
-      <Button label={sharing ? tx('공유 링크 만드는 중…', 'Creating share link…') : tx('여행 공유하기', 'Share this trip')} variant="ghost" disabled={sharing} onPress={() => void share()} />
+      <Button label={sharing ? tx('공유 링크 만드는 중…', 'Creating share link…') : tx('여행 공유하기', 'Share this trip')} variant="tertiary" disabled={sharing} onPress={() => void share()} />
       {shareError ? <Text variant="caption" color={color.state.danger}>{shareError}</Text> : null}
     </View>
   );

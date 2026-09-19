@@ -88,9 +88,9 @@ export default function StoryCoauthors() {
     <View style={styles.heading}><Eyebrow>{tx('함께 쓰는 기록', 'Co-written record')}</Eyebrow><Text variant="display" weight="bold">{tx('참여자 관리', 'Manage participants')}</Text><Text color={color.text.body}>{tx('이 기록을 함께 쓰는 사람들이에요.', 'Everyone writing this record together.')}</Text></View>
 
     {state.status === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /><Text weight="bold">{tx('참여자를 불러오고 있어요.', 'Loading participants.')}</Text></View>}
-    {state.status === 'not-found' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('기록을 찾을 수 없어요', 'Could not find this record')}</Text><Button label={tx('피드로 돌아가기', 'Back to feed')} variant="ghost" onPress={() => router.replace('/feed')} /></View>}
+    {state.status === 'not-found' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('기록을 찾을 수 없어요', 'Could not find this record')}</Text><Button label={tx('피드로 돌아가기', 'Back to feed')} variant="tertiary" onPress={() => router.replace('/feed')} /></View>}
     {state.status === 'forbidden' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기록을 볼 수 있는 사람만 볼 수 있어요', 'Only people who can see this record can view this')}</Text><Text color={color.text.body}>{state.message}</Text></View>}
-    {state.status === 'error' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('참여자를 불러오지 못했어요', "Couldn't load participants")}</Text><Text color={color.text.body}>{state.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} /></View>}
+    {state.status === 'error' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('참여자를 불러오지 못했어요', "Couldn't load participants")}</Text><Text color={color.text.body}>{state.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
 
     {state.status === 'ready' && <>
       <View style={styles.list}>{state.coauthors.map((member) => {
@@ -113,7 +113,7 @@ export default function StoryCoauthors() {
       {isAuthor && <>
         <Button label={inviting ? tx('초대 링크 만드는 중…', 'Creating invite link…') : tx('초대 링크 만들기', 'Create invite link')} disabled={inviting} onPress={() => void makeInvite()} containerStyle={styles.actionRowButton} />
         {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{tx(`만료: ${new Date(invite.expiresAt).toLocaleString(locale)}`, `Expires: ${new Date(invite.expiresAt).toLocaleString(locale)}`)}</Text></View>}
-        {state.story.tripId && <Button label={tx('여행 동행자 추가', 'Add a trip companion')} variant="ghost" onPress={() => setPickerVisible(true)} containerStyle={styles.actionRowButton} />}
+        {state.story.tripId && <Button label={tx('여행 동행자 추가', 'Add a trip companion')} variant="tertiary" onPress={() => setPickerVisible(true)} containerStyle={styles.actionRowButton} />}
       </>}
     </>}
 

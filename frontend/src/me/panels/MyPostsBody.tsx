@@ -81,7 +81,7 @@ export function MyPostsBody() {
       {!loading && result.state !== 'success' ? (
         <View style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('기록을 불러오지 못했어요', "We couldn't load your records")}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
 
@@ -117,7 +117,7 @@ export function MyPostsBody() {
               <View style={styles.confirm}>
                 <Text variant="caption" weight="bold" color={color.state.danger}>{tx('이 기록을 지울까요? 지도 핀도 함께 사라져요.', 'Delete this record? Its map pin goes too.')}</Text>
                 <View style={styles.confirmActions}>
-                  <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={busy} onPress={() => setAskDelete(null)} containerStyle={styles.confirmAction} />
+                  <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={busy} onPress={() => setAskDelete(null)} containerStyle={styles.confirmAction} />
                   <Pressable accessibilityRole="button" disabled={busy} onPress={() => void remove(story.id)} style={[styles.delete, busy && styles.deleteBusy]}>
                     <Text weight="bold" color={color.text.onAction}>{busy ? tx('지우는 중…', 'Deleting…') : tx('지우기', 'Delete')}</Text>
                   </Pressable>

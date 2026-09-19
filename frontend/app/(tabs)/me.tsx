@@ -185,14 +185,14 @@ export default function Me() {
     </View>
   </>;
 
-  const logoutButton = user ? <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="ghost" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>;
+  const logoutButton = user ? <Button label={tx('로그아웃', 'Sign out')} variant="tertiary" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>;
 
   const logoutModal = <Modal visible={logoutAsk} transparent animationType="fade" onRequestClose={() => setLogoutAsk(false)}>
       <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
         <Text variant="title" weight="bold">{tx('로그아웃할까요?', 'Sign out?')}</Text>
         <Text>{tx('여행과 기록은 계정에 그대로 남아요.', 'Your trips and records stay on your account.')}</Text>
         <View style={styles.modalActions}>
-          <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => setLogoutAsk(false)} containerStyle={styles.modalAction} />
+          <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => setLogoutAsk(false)} containerStyle={styles.modalAction} />
           <Button label={tx('로그아웃', 'Sign out')} onPress={() => void (async () => { setLogoutAsk(false); await signOut(); await plan.clear(); })()} containerStyle={styles.modalAction} />
         </View>
       </View></View>
@@ -283,14 +283,14 @@ export default function Me() {
     {accountGroup}
     <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('앱', 'App')}</Text>
     {appGroup}
-    {user ? <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="ghost" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>}
+    {user ? <Button label={tx('로그아웃', 'Sign out')} variant="tertiary" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>}
 
     <Modal visible={logoutAsk} transparent animationType="fade" onRequestClose={() => setLogoutAsk(false)}>
       <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
         <Text variant="title" weight="bold">{tx('로그아웃할까요?', 'Sign out?')}</Text>
         <Text>{tx('여행과 기록은 계정에 그대로 남아요.', 'Your trips and records stay on your account.')}</Text>
         <View style={styles.modalActions}>
-          <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => setLogoutAsk(false)} containerStyle={styles.modalAction} />
+          <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => setLogoutAsk(false)} containerStyle={styles.modalAction} />
           <Button label={tx('로그아웃', 'Sign out')} onPress={() => void (async () => { setLogoutAsk(false); await signOut(); await plan.clear(); })()} containerStyle={styles.modalAction} />
         </View>
       </View></View>

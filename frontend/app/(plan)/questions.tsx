@@ -453,7 +453,7 @@ export default function PlanConditions() {
         <View style={styles.consent}>
           <Text accessibilityRole="alert" variant="caption" weight="bold">{tx('알레르기·식단 정보 사용에 동의가 필요해요', 'We need your consent to use allergy/diet info')}</Text>
           <Text variant="caption" color={color.text.body}>{tx('입력하신 조건으로 안전한 곳만 고르려면 이 정보를 써야 해요.', 'We need this information to pick places that are safe for you.')}</Text>
-          <Button label={tx('동의하고 계속', 'Agree and continue')} variant="ghost" onPress={() => void grantHealthConsentAndRetry()} />
+          <Button label={tx('동의하고 계속', 'Agree and continue')} variant="tertiary" onPress={() => void grantHealthConsentAndRetry()} />
         </View>
       ) : null}
       {job?.errorMessage && job.state !== 'consent-required' ? (

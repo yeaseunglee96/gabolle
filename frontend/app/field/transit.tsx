@@ -210,7 +210,7 @@ export default function Bus() {
             ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/field/transit' } })} />
             : reason === 'not-ready'
               ? null
-              : <Button label={tx('다시 시도', 'Try again')} variant="ghost" containerStyle={styles.cta} onPress={() => void load(coords)} />}
+              : <Button label={tx('다시 시도', 'Try again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />}
         </View>
       ) : null}
 
@@ -220,7 +220,7 @@ export default function Bus() {
           <Text color={color.text.body} style={styles.blockedBody}>
             {tx('조금 움직인 뒤 다시 찾아보세요.', 'Move a little and search again.')}
           </Text>
-          <Button label={tx('다시 찾기', 'Search again')} variant="ghost" containerStyle={styles.cta} onPress={() => void load(coords)} />
+          <Button label={tx('다시 찾기', 'Search again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />
         </View>
       ) : null}
 
@@ -252,7 +252,7 @@ export default function Bus() {
               </View>
             ))}
           </View>
-          <Button label={tx('다시 불러오기', 'Refresh')} variant="ghost" containerStyle={styles.refresh} onPress={() => void load(coords)} />
+          <Button label={tx('다시 불러오기', 'Refresh')} variant="tertiary" containerStyle={styles.refresh} onPress={() => void load(coords)} />
           {checkedAt ? (
             <Text variant="caption" color={color.text.muted} style={styles.checkedAt}>
               {tx(`${timeOnly} 기준이에요`, `As of ${timeOnly}`)}

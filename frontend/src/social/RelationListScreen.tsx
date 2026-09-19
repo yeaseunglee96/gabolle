@@ -39,7 +39,7 @@ function FollowActionButton({ item, refresh }: { item: RelationItem; refresh: ()
   return (
     <Button
       compact
-      variant={item.following ? 'ghost' : 'primary'}
+      variant={item.following ? 'tertiary' : 'primary'}
       label={busy ? tx('처리 중…', 'Working…') : item.following ? tx('팔로잉', 'Following') : tx('팔로우', 'Follow')}
       disabled={busy}
       onPress={() => void toggle()}
@@ -84,7 +84,7 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
       {state.status === 'unavailable' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text color={color.text.body}>{state.message}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
 
@@ -113,7 +113,7 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
           {state.nextCursor ? (
             loadingMore
               ? <ActivityIndicator color={color.brand.orange} style={styles.footerSpinner} />
-              : <Button label={tx('더 보기', 'Load more')} variant="ghost" onPress={() => void loadMore()} />
+              : <Button label={tx('더 보기', 'Load more')} variant="tertiary" onPress={() => void loadMore()} />
           ) : null}
         </View>
       ) : null}

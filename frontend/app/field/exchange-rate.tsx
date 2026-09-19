@@ -135,7 +135,7 @@ export default function Exchange() {
             ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/field/exchange-rate' } })} />
             : reason === 'not-ready'
               ? null
-              : <Button label={tx('다시 시도', 'Try again')} variant="ghost" containerStyle={styles.cta} onPress={() => void load()} />}
+              : <Button label={tx('다시 시도', 'Try again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load()} />}
         </View>
       ) : null}
 

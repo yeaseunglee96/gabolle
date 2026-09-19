@@ -102,15 +102,15 @@ export default function Trips() {
   const trips = result.state === 'success' ? result.trips : [];
 
   return <View style={styles.shell}><Screen scroll wide withTabBar style={styles.canvas}>
-    <View style={styles.header}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('부슐랭', 'My places')} variant="ghost" onPress={() => router.push('/collection')} containerStyle={styles.newTrip} /><Button label={tx('새 여행', 'New trip')} onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
+    <View style={styles.header}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('부슐랭', 'My places')} variant="tertiary" onPress={() => router.push('/collection')} containerStyle={styles.newTrip} /><Button label={tx('새 여행', 'New trip')} onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
 
-    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('비회원으로 여행 만들기 화면을 둘러볼 수 있어요.', 'You can browse the trip planner as a guest.')}</Text><Text color={color.text.body}>{tx('내 여행을 저장하고 다시 보려면 로그인해 주세요.', 'Sign in to save and revisit your trips.')}</Text><Button label={tx('여행 만들기 둘러보기', 'Browse trip planner')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /><Button label={tx('로그인', 'Sign in')} variant="ghost" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}
+    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('비회원으로 여행 만들기 화면을 둘러볼 수 있어요.', 'You can browse the trip planner as a guest.')}</Text><Text color={color.text.body}>{tx('내 여행을 저장하고 다시 보려면 로그인해 주세요.', 'Sign in to save and revisit your trips.')}</Text><Button label={tx('여행 만들기 둘러보기', 'Browse trip planner')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /><Button label={tx('로그인', 'Sign in')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}
 
     {feedback ? <Pressable accessibilityRole="button" accessibilityLabel={tx('안내 닫기', 'Dismiss notice')} accessibilityLiveRegion="polite" onPress={() => setFeedback('')} style={styles.feedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{feedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Close')}</Text></Pressable> : null}
 
     {accessToken && loading ? <View accessibilityLiveRegion="polite" style={styles.state}><ActivityIndicator color={color.brand.orange} /><Text weight="bold">{tx('내 여행을 불러오고 있어요', 'Loading your trips')}</Text></View> : null}
 
-    {accessToken && !loading && result.state !== 'success' ? <View style={styles.state}><Text weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('내 여행을 불러오지 못했어요', 'Could not load your trips')}</Text><Text color={color.text.body}>{result.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void reload()} /></View> : null}
+    {accessToken && !loading && result.state !== 'success' ? <View style={styles.state}><Text weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('내 여행을 불러오지 못했어요', 'Could not load your trips')}</Text><Text color={color.text.body}>{result.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
 
     {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><View style={styles.emptyMark}><Image source={require('../../assets/icons/home/route.png')} accessibilityLabel={tx('여행 경로', 'Trip route')} style={styles.emptyIcon} /></View><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
 
@@ -173,7 +173,7 @@ export default function Trips() {
       <Text variant="title" weight="bold">{tx('열 일정을 골라주세요', 'Choose which itinerary to open')}</Text>
       <Text color={color.text.body}>{tx('이 여행에는 일정이 여러 개 있어요.', 'This trip has more than one itinerary.')}</Text>
       <View style={styles.pickerList}>{picker?.itineraries.map((itinerary) => <Pressable key={itinerary.itineraryId} accessibilityRole="button" onPress={() => { setPicker(null); openItinerary(itinerary.itineraryId); }} style={styles.pickerItem}><Text weight="bold">{tx(`버전 ${itinerary.latestVersion}`, `Version ${itinerary.latestVersion}`)}</Text><Text variant="title" color={color.brand.orange}>›</Text></Pressable>)}</View>
-      <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => setPicker(null)} />
+      <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => setPicker(null)} />
     </View></View>
   </Modal>
 
@@ -182,7 +182,7 @@ export default function Trips() {
       <Text variant="title" weight="bold">{confirmTarget?.role === 'OWNER' ? tx('이 여행을 삭제할까요?', 'Delete this trip?') : tx('이 여행에서 나갈까요?', 'Leave this trip?')}</Text>
       <Text color={color.text.body}>{confirmTarget?.role === 'OWNER' ? tx('일정·기록·초대 링크가 모두 사라지고 되돌릴 수 없어요.', "The itinerary, records, and invite links will all be gone — this can't be undone.") : tx('이 여행 목록에서 빠지고, 다시 초대받아야 볼 수 있어요.', "You'll be removed from this trip and need a new invite to see it again.")}</Text>
       <View style={styles.confirmActions}>
-        <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => setConfirmTarget(null)} containerStyle={styles.confirmButton} />
+        <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => setConfirmTarget(null)} containerStyle={styles.confirmButton} />
         <Button label={confirmTarget?.role === 'OWNER' ? tx('삭제', 'Delete') : tx('나가기', 'Leave')} onPress={() => void confirmRemove()} variant="danger" containerStyle={[styles.confirmButton]} />
       </View>
     </View></View>
