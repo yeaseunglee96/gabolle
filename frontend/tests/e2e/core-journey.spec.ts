@@ -95,9 +95,11 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   for (let i = 0; i < 6; i += 1) {
     await page.getByRole('button', { name: '건너뛰기', exact: true }).click();
   }
-  // 마지막 질문(꼭 가고 싶은 곳)은 "없음도 답"이라 언제나 답한 것으로 본다
-  // (planQuestions.ts의 must.answered === () => true) — "입력 완료"로 바로 넘어간다.
-  await page.getByRole('button', { name: '입력 완료', exact: true }).click();
+  // 🔴 여기 있던 "입력 완료" 클릭을 지웠다 — 그런 단추가 화면에 없다.
+  //    지금 이 화면의 아래 단추는 둘 중 하나다: 마지막 질문이 아니면 "다음",
+  //    마지막이면 "이 조건으로 일정 만들기"(questions.tsx의 last 분기).
+  //    질문 열 중 셋을 답하고 여섯을 건너뛰면 열째(꼭 가고 싶은 장소)에 서고,
+  //    그 질문은 "없음도 답"이라 곧바로 아래의 제출 단추가 열린다.
 
   // 4) 추천 요청 제출 — 알레르기·식단은 1.5단계에서 이미 답했으므로(hardUnknown이
   //    false다) 여행 조건 모달이 다시 뜨지 않고 바로 제출된다. 이 클릭이
