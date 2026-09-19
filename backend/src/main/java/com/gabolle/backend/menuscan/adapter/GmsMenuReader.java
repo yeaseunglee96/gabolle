@@ -93,7 +93,9 @@ public class GmsMenuReader {
 			   그 음식을 가리킬 때 쓰는 말로 옮긴다 — 발음 그대로 옮겨 적지 않는다
 			   (예: "돼지국밥"을 "Dwaeji-gukbap"이 아니라 "Pork bone soup"처럼).
 			6. text 가 이미 그 언어면 translatedText 를 text 와 같게 낸다.
-			7. 각 줄에서 알레르기와 관련된 낱말이 보이면 그 낱말을 text 의 언어 그대로 적는다
+			7. 각 줄에서 알레르기와 관련된 낱말이 «글자로 적혀 있으면» 그 낱말을 text 에 적힌
+			   그대로 적는다. text 에 그 글자가 없으면 적지 않는다 — 음식 이름에서 재료를
+			   짐작하지 않는다(「제육」을 보고 돼지고기를 적는 식으로 하지 않는다)
 			   (예: 새우, 게, 우유, 달걀, 땅콩, 메밀, 밀, 대두, 돼지고기, 복숭아, 오징어).
 			   🔴 여기에는 «재료» 낱말만 넣는다. «음식 이름»을 넣지 않는다 — 「만두」·「떡사리」
 			   같은 것은 재료가 아니라 음식이다. 확실하지 않으면 비운다. 이 칸은 사람이
@@ -255,7 +257,8 @@ public class GmsMenuReader {
 				List<String> words = new ArrayList<>();
 				for (JsonNode word : line.path("allergenWords")) {
 					String value = clamp(word.asString(""));
-					if (!value.isBlank() && words.size() < 20) {
+					// 🔴 사진에 그 낱말이 «글자로» 보일 때만 남긴다 (S15P21E201-1332).
+					if (!value.isBlank() && appearsIn(text, value) && words.size() < 20) {
 						words.add(value);
 					}
 				}
@@ -270,6 +273,37 @@ public class GmsMenuReader {
 			throw new MenuReadFailedException(MenuReadFailedException.Reason.UNPARSEABLE,
 					"사진에서 글자를 읽지 못했습니다", exception);
 		}
+	}
+
+	/**
+	 * 🔴 <b>사진에 그 낱말이 글자로 보이는가.</b>
+	 *
+	 * <p>프롬프트 규칙 9가 이미 「그 음식에 무엇이 들어가는지 짐작해서 적지 않는다」라고
+	 * 막고 있는데도 모델이 지키지 않았다. 2026-09-19 실측 — 재료 낱말이 한 글자도 없는
+	 * 메뉴판(음식 이름과 가격뿐)에서 이렇게 나왔다.
+	 *
+	 * <pre>
+	 *   제육볶음    allergens=[돼지고기]
+	 *   불고기정식  allergens=[돼지고기]   &lt;-- 불고기는 소고기다
+	 * </pre>
+	 *
+	 * 같은 사진인데 실행마다 붙는 낱말이 달랐다 — 짐작이라는 증거다.
+	 *
+	 * <p>이 칸은 사람이 «무엇을 먹을지» 정하는 데 쓰인다. 틀린 표시는 먹을 수 있는 것을
+	 * 못 먹게 만들고, 짐작이 섞이는 순간 <b>표시가 없는 줄을 「안전하다」로 읽게 된다</b> —
+	 * 클래스 주석의 「없다를 묻지 않는다」가 막으려던 바로 그 함정이다.
+	 *
+	 * <p>그래서 프롬프트에 맡기지 않고 여기서 자른다. 그 줄에서 실제로 읽어 낸 글자
+	 * ({@code text}) 안에 낱말이 그대로 들어 있지 않으면 버린다. 공백은 무시한다 —
+	 * 모델이 「돼지 고기」처럼 띄어 적어도 사진에 있으면 살린다.
+	 */
+	private static boolean appearsIn(String text, String word) {
+		if (text == null || text.isBlank()) {
+			return false;
+		}
+		String haystack = text.replaceAll("\\s+", "");
+		String needle = word.replaceAll("\\s+", "");
+		return !needle.isEmpty() && haystack.contains(needle);
 	}
 
 	private String clamp(String value) {
