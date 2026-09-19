@@ -13,7 +13,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { findDishImage, type DishMatch } from '@/field/dishImages';
-import { describeDish, dishImageHeaders, loadDishImage, DISH_IMAGE_POLL, type Dish } from '@/field/dish';
+import { describeDish, loadDishImage, DISH_IMAGE_POLL, type Dish } from '@/field/dish';
 import { allergenNotice, emptyNotice, scanMenu, unreadNotice, type MenuLine, type MenuScan } from '@/field/menuScan';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_OPTIONS, toBcp47, type LanguageCode } from '@/i18n/languages';
@@ -228,7 +228,12 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
     {/* 🔴 출처는 줄 안이 아니라 아래 전체 폭에 둔다. 가격 칸이 생기면서 글자 칸이
         좁아져 「관광사진갤러 / 리」로 잘렸다 — 띄워 보고 알았다. 출처를 줄이거나 빼는
         것은 답이 아니다(dishImages.ts: 「출처를 한 줄로 못 적는 사진은 안 쓴다」). */}
-    {bundled && <Text variant="caption" color={color.text.muted} style={styles.credit}>{tx(`예시 · ${bundled.image.source}`, `Example · ${bundled.image.source}`)}</Text>}
+    {bundled && <Text variant="caption" color={color.text.muted} style={styles.credit}>
+      {/* 🔴 `tx(「예시 · ${출처}」, …)` 로 한 덩어리였다. 문구에 값이 끼면 번역표의
+          키가 실행할 때마다 달라져 **영원히 못 찾는다** — 그래서 일본어 화면에
+          「Example · 한국관광공사 관광사진갤러리」가 반은 영어로 떴다. 둘로 나눠 각자 찾는다. */}
+      {tx('예시', 'Example')} · {tx(bundled.image.source, bundled.image.source)}
+    </Text>}
 
     {isFood && <View style={styles.askRow}>
       <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen((was) => !was)} style={({ pressed }) => [styles.askChip, pressed && styles.pressed]}>
@@ -348,7 +353,7 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
 
     {showGenerated && <View style={styles.dishImageBlock}>
       <Image
-        source={{ uri: imageUri!, headers: dishImageHeaders(accessToken ?? '') }}
+        source={{ uri: imageUri! }}
         resizeMode="cover"
         accessibilityLabel={tx(`${name} 을(를) AI 가 그린 그림`, `An AI-drawn picture of ${name}`)}
         style={styles.dishImage}
@@ -389,7 +394,10 @@ const styles = StyleSheet.create({
   credit: { marginTop: spacing[1] },
   // 44 는 손가락이 닿는 최소 크기다 — 칩 자체를 작게 만들지 않고 감싸는 칸으로 맞춘다.
   askRow: { minHeight: 44, justifyContent: 'center', alignItems: 'flex-start' },
-  listenRow: { gap: spacing[1], alignItems: 'stretch' },
+  // 🔴 flexDirection 을 안 적으면 React Native 는 세로로 쌓는다. 이름이 listenRow 인데
+  //    실제로는 세로로 쌓여 줄마다 키가 두 배가 되고 이름 칸이 좁아져 「キムチもやし
+  //    クッパ」처럼 잘렸다 — S15P21E201-1335. 한국어를 고르면 버튼이 하나라 안 보였다.
+  listenRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[1], alignItems: 'center', justifyContent: 'flex-end' },
   askChip: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   dishPanel: { gap: spacing[2], marginLeft: spacing[3], marginBottom: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   dishImageBlock: { gap: spacing[1] },
