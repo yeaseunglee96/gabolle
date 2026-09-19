@@ -154,11 +154,11 @@ const styles = StyleSheet.create({
   input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4] },
   languageRow: { flexDirection: 'row', gap: spacing[2] },
   language: { flex: 1, alignItems: 'center', padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  languageSelected: { backgroundColor: color.action.primary, borderColor: color.action.primary },
+  languageSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   agreements: { gap: spacing[3], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   checkLabel: { flex: 1 },
   checkbox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1.5, borderColor: color.surface.field },
-  checkboxChecked: { backgroundColor: color.action.primary, borderColor: color.action.primary },
+  checkboxChecked: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   expiredBody: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing[3], padding: spacing[6] },
 });

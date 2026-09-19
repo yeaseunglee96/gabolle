@@ -59,6 +59,6 @@ const styles = StyleSheet.create({
   gainText: { flex: 1 },
   buttonRow: { flexDirection: 'row', gap: spacing[2] },
   button: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  ghostButton: { backgroundColor: color.surface.card },
+  ghostButton: { backgroundColor: color.action.tertiary },
   primaryButton: { backgroundColor: color.action.primary },
 });

@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 128, height: 128, borderRadius: radius.full, overflow: 'hidden',
     alignItems: 'center', justifyContent: 'center',
-    backgroundColor: color.brand.navy, borderWidth: 5, borderColor: color.brand.ivory,
+    backgroundColor: color.action.secondary, borderWidth: 5, borderColor: color.brand.ivory,
   },
   avatarPhoto: { width: '100%', height: '100%' },
   copy: { gap: spacing[2], flexShrink: 1, minWidth: 0 },

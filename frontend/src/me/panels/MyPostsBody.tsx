@@ -119,7 +119,7 @@ export function MyPostsBody() {
                 <View style={styles.confirmActions}>
                   <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={busy} onPress={() => setAskDelete(null)} containerStyle={styles.confirmAction} />
                   <Pressable accessibilityRole="button" disabled={busy} onPress={() => void remove(story.id)} style={[styles.delete, busy && styles.deleteBusy]}>
-                    <Text weight="bold" color={color.text.onAction}>{busy ? tx('지우는 중…', 'Deleting…') : tx('지우기', 'Delete')}</Text>
+                    <Text weight="bold" color={color.state.danger}>{busy ? tx('지우는 중…', 'Deleting…') : tx('지우기', 'Delete')}</Text>
                   </Pressable>
                 </View>
               </View>
@@ -143,7 +143,7 @@ export function MyPostsBody() {
 const styles = StyleSheet.create({
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginBottom: spacing[4] },
   filter: { minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card },
-  filterOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  filterOn: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   toast: { marginBottom: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.successBg },
   loading: { marginTop: spacing[4] },
   stateCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
@@ -171,6 +171,6 @@ const styles = StyleSheet.create({
   confirm: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.dangerBg },
   confirmActions: { flexDirection: 'row', gap: spacing[2] },
   confirmAction: { flex: 1 },
-  delete: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.state.danger },
+  delete: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.state.dangerBg, borderWidth: 1, borderColor: color.state.danger },
   deleteBusy: { opacity: 0.6 },
 });

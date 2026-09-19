@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   categoryRow: { gap: spacing[2] },
   stepRow: { flexDirection: 'row', gap: spacing[2] },
   stepOption: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.soft, borderWidth: 1, borderColor: color.surface.field },
-  stepOptionSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  stepOptionSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   bodyInput: { minHeight: 72, padding: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.soft, color: color.text.heading, textAlignVertical: 'top' },
   submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.action.primary },
   submitButtonDisabled: { opacity: 0.5 },
