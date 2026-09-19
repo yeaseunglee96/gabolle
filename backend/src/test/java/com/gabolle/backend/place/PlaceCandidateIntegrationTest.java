@@ -193,6 +193,40 @@ class PlaceCandidateIntegrationTest extends PlacePostgresIntegrationTest {
 
 	// ── 도구 ──────────────────────────────────────────────────────────────────
 
+	// ── 문 닫은 가게 (S15P21E201-1341) ────────────────────────────────────────
+
+	/**
+	 * 🔴 장소는 <b>그때 영업 중이던</b> 목록에서 들어오고, 그 뒤에 닫아도 우리 표는 그대로다.
+	 * 닫은 곳을 추천하면 사람을 <b>없는 가게 앞에</b> 세워 놓는 것이다.
+	 */
+	@Test
+	@DisplayName("🔴 티켓 완료 기준 — 문 닫은 가게는 후보에서 빠진다")
+	void closedPlacesAreNotCandidates() {
+		insertNearbyPlaces(2, "SEA");
+		UUID closed = this.fixture.insertPlace("문 닫은 집", null, "CAFE", CENTER_LAT, CENTER_LNG);
+		this.fixture.insertTagFeature(closed, "INTEREST_TAG", "SEA", "VERIFIED", "{\"present\": true}");
+		this.jdbcTemplate.update("UPDATE place SET closed_on = DATE '2026-03-31' WHERE place_id = ?", closed);
+
+		PlaceCandidateResponse response = this.candidateQueryService.findCandidates(request(200, 0));
+
+		assertThat(response.candidates()).extracting(PlaceCandidateResponse.Candidate::placeId)
+				.doesNotContain(closed);
+		assertThat(response.candidates()).hasSize(2);
+	}
+
+	/**
+	 * 🔴 <b>{@code closed_on} 이 비어 있는 것은 「영업 중」이 아니라 「모른다」다.</b> 인허가
+	 * 자료와 안 이어진 장소가 많다 — 해수욕장·전망대는 애초에 음식·주류 인허가가 없다.
+	 * 모르는 것을 닫은 것으로 떨어뜨리면 <b>멀쩡한 곳이 통째로 사라진다.</b>
+	 */
+	@Test
+	@DisplayName("🔴 폐업일자를 모르는 곳은 그대로 후보다 — 「모른다」를 「닫았다」로 보지 않는다")
+	void unknownClosureStaysACandidate() {
+		insertNearbyPlaces(3, "SEA");
+
+		assertThat(this.candidateQueryService.findCandidates(request(200, 0)).candidates()).hasSize(3);
+	}
+
 	private PlaceCandidateRequest request(int radiusM, int minimumCount) {
 		return new PlaceCandidateRequest(
 				new PlaceCandidateRequest.Center(CENTER_LAT, CENTER_LNG), radiusM, null,
