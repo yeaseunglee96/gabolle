@@ -105,7 +105,7 @@ export default function RouteDetail() {
         <Card style={styles.stateCard}><Text variant="title" weight="bold">{tx('경로 정보가 없어요', 'No route information')}</Text><Text color={color.text.body}>{tx('출발지와 도착지 좌표를 확인할 수 없어요.', "We couldn't find the origin and destination coordinates.")}</Text></Card>
       ) : (
         <View style={twoColumn ? styles.columns : undefined}>
-          {!twoColumn ? <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={[{ id: 'route', color: color.action.primary, stops }]} height={260} /> : null}
+          {!twoColumn ? <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={[{ id: 'route', color: color.text.heading, stops }]} height={260} /> : null}
 
           <View style={twoColumn ? styles.infoColumn : styles.infoStack}>
             {loading ? (
@@ -166,7 +166,7 @@ export default function RouteDetail() {
 
           {twoColumn ? (
             <View style={styles.mapColumn}>
-              <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={[{ id: 'route', color: color.action.primary, stops }]} height={480} />
+              <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={[{ id: 'route', color: color.text.heading, stops }]} height={480} />
             </View>
           ) : null}
         </View>
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   stepsTitle: { marginBottom: spacing[1] },
   stepList: { gap: spacing[3] }, mapAppsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[1] }, mapAppButton: { minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
-  stepMarker: { width: 26, height: 26, borderRadius: radius.full, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
+  stepMarker: { width: 26, height: 26, borderRadius: radius.full, backgroundColor: color.action.secondary, alignItems: 'center', justifyContent: 'center' },
   grow: { flex: 1 },
   actions: { gap: spacing[2] },
   actionButton: { alignSelf: 'stretch' },

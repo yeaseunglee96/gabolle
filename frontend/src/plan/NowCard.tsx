@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   pulse: { position: 'absolute', width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.state.dot },
 
   track: { height: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.12)', overflow: 'hidden' },
-  fill: { height: 6, borderRadius: radius.full, backgroundColor: color.action.primary },
+  fill: { height: 6, borderRadius: radius.full, backgroundColor: color.state.dot },
 
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2], marginTop: spacing[1] },
   go: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.action.primary },

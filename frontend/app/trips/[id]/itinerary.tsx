@@ -979,7 +979,8 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   bottomBar: { paddingHorizontal: gutter, paddingBottom: spacing[2] },
   // 정차별 도보 비중 (시안 2.5 · 3.4)
   shareBar: { flexDirection: 'row', gap: 2, height: 6, borderRadius: radius.full, overflow: 'hidden' },
-  shareSlice: { backgroundColor: color.action.primary, borderRadius: radius.full },
+  // 도보 비중 막대 — 누를 것이 아니라 읽을 값이다. 동백은 누를 것에만 쓴다.
+  shareSlice: { backgroundColor: color.action.secondary, borderRadius: radius.full },
 
   titleText: { flexShrink: 1 },
   statusChip: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full },
@@ -1003,7 +1004,8 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   stop: { width: 112, alignItems: 'center', gap: spacing[1] },
   stopName: { textAlign: 'center' },
   node: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
-  nodeFirst: { backgroundColor: color.action.primary },
+  // 출발점 — 시안의 노드 색은 다녀옴 초록 · 현재 F25454 · 다음 2B2B2E · 이후 흰색 넷뿐이고 빨강은 「현재」 하나다.
+  nodeFirst: { backgroundColor: color.action.secondary },
   nodeDone: { backgroundColor: color.state.success },
-  nodeCurrent: { backgroundColor: color.action.primary, borderWidth: 4, borderColor: color.surface.tint },
+  nodeCurrent: { backgroundColor: color.state.dot, borderWidth: 4, borderColor: color.surface.tint },
   nodeLater: { backgroundColor: color.surface.card, borderWidth: 2, borderColor: color.surface.field }, itemRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3] }, time: { width: 48, paddingTop: spacing[4] }, itemCard: { flex: 1, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, itemTitleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2], flexWrap: 'wrap' }, grow: { flex: 1, gap: spacing[1], minWidth: 180 }, itemActions: { flexDirection: 'row', gap: spacing[2] }, lockButton: { minWidth: 64, minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' }, lockButtonActive: { backgroundColor: color.brand.navy }, lockBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, excludeButton: { minWidth: 56, minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.state.dangerBg, alignItems: 'center', justifyContent: 'center' }, actionDisabled: { opacity: 0.5 }, metaRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] }, empty: { marginTop: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' }, rhythmCard: { gap: spacing[1], marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint }, itemCardAtRisk: { borderWidth: 1, borderColor: color.state.danger }, paceRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginTop: spacing[1] }, actualButtons: { flexDirection: 'row', gap: spacing[2] }, actualButton: { minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, replanActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] }, reviewButton: { alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, reviewedBadge: { alignSelf: 'flex-start', minHeight: 28, paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, backgroundColor: color.state.successBg, alignItems: 'center', justifyContent: 'center' } });

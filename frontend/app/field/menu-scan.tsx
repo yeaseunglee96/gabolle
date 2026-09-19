@@ -81,7 +81,7 @@ export default function MenuScanScreen() {
     </View>
 
     {phase.state === 'idle' && <View style={styles.actions}>
-      <Button label={tx('사진 찍기', 'Take a photo')} onPress={() => void pickFromCamera()} containerStyle={styles.action} />
+      <Button label={tx('사진 찍기', 'Take a photo')} variant="field" onPress={() => void pickFromCamera()} containerStyle={styles.action} />
       <Button label={tx('앨범에서 고르기', 'Choose from album')} variant="tertiary" onPress={() => void pickFromAlbum()} containerStyle={styles.action} />
     </View>}
 

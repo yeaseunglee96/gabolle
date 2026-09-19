@@ -130,11 +130,11 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const position = new maps.LatLng(currentLocation.latitude, currentLocation.longitude);
           const content = document.createElement('div');
           content.setAttribute('aria-label', tx('현재 위치', 'Your current location'));
-          Object.assign(content.style, { width: '18px', height: '18px', borderRadius: '999px', border: `3px solid ${color.canvas}`, background: color.brand.navy, boxShadow: '0 0 0 2px rgba(11,29,58,.35), 0 4px 10px rgba(11,29,58,.28)' });
+          Object.assign(content.style, { width: '18px', height: '18px', borderRadius: '999px', border: `3px solid ${color.canvas}`, background: color.state.dot, boxShadow: '0 0 0 13px rgba(216,58,72,.25), 0 4px 10px rgba(25,25,25,.20)' });
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
         }
-        (routes ?? [{ id: 'selected', color: color.action.primary, stops }]).forEach((route) => {
+        (routes ?? [{ id: 'selected', color: color.text.heading, stops }]).forEach((route) => {
           // 실제 길 좌표가 있으면 그것을, 없으면 장소를 직선으로 잇는다.
           const points = route.path?.length ? route.path : route.stops;
           const path = points.map((point) => new maps.LatLng(point.latitude, point.longitude));
@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
   backButton: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   routePreview: { flexDirection: 'row', alignItems: 'center', marginTop: spacing[3] },
   routeItem: { flexDirection: 'row', alignItems: 'center' },
-  marker: { width: 30, height: 30, borderRadius: radius.full, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
-  line: { width: 28, height: 2, backgroundColor: color.action.primary },
+  // 지도를 못 그릴 때의 대체 미리보기 — 번호 마커와 동선이다. 누를 것이 아니라 읽을 것이라 동백을 안 쓴다.
+  marker: { width: 30, height: 30, borderRadius: radius.full, backgroundColor: color.action.secondary, alignItems: 'center', justifyContent: 'center' },
+  line: { width: 28, height: 2, backgroundColor: color.text.heading },
 });
