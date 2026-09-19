@@ -3,7 +3,7 @@
 // 🔴 이 시험들이 지키는 것은 「기능이 도는가」가 아니라 **두 가지를 안 섞는가**이다.
 //    (1) 모델이 아는 것과 사진에서 읽은 것
 //    (2) 「아직」과 「그만 물어봐」
-import { describeDish, loadDishImage, dishImageHeaders } from '../dish';
+import { describeDish, loadDishImage } from '../dish';
 
 const tx = (ko: string) => ko;
 
@@ -127,22 +127,35 @@ describe('그림을 받아 온다', () => {
     expect((await loadDishImage('id', 'token')).state).toBe('pending');
   });
 
-  it('다 됐으면 그릴 수 있는 주소를 낸다', async () => {
-    globalThis.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200 }) as unknown as typeof fetch;
+  /**
+   * 🔴 **그리는 쪽이 통신을 하면 안 된다 — S15P21E201-1335.**
+   *
+   * 예전에는 여기서 `http…/dishes/images/id` 를 그대로 내주고 `<Image>` 가 인증 헤더를
+   * 붙여 다시 받아 오게 했다. 안드로이드 실기에서 **그림 칸이 흰색으로만 떴다**
+   * (2026-09-19, 운영 빌드 versionCode 22) — 서버는 같은 주소·같은 토큰에 512×512
+   * JPEG 를 그대로 내주고 있었다. 그래서 받은 바이트를 주소 안에 담아 넘긴다.
+   */
+  it('🔴 다 됐으면 바이트가 담긴 주소를 낸다 — 다시 받아 오게 하지 않는다', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      blob: async () => ({ size: 3, type: 'image/jpeg' }),
+    }) as unknown as typeof fetch;
+    // React Native 의 FileReader 를 대신한다 — readAsDataURL 하나만 쓴다.
+    class FakeFileReader {
+      result: string | null = null;
+      error: unknown = null;
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      readAsDataURL() { this.result = 'data:image/jpeg;base64,/9j/4AAQ'; this.onload?.(); }
+    }
+    (globalThis as { FileReader?: unknown }).FileReader = FakeFileReader;
 
     const result = await loadDishImage('id', 'token');
 
     expect(result.state).toBe('ready');
     if (result.state !== 'ready') return;
-    expect(result.uri).toContain('/api/v1/dishes/images/id');
-  });
-
-  /**
-   * 🔴 이 주소는 로그인을 요구한다. 앱의 `Image` 는 헤더를 보낼 수 있지만 웹의
-   * `Image` 는 결국 `<img src>` 라 **못 보낸다** — 앱에서만 되는 것을 보고 다 된 줄
-   * 알기 쉬운 자리라, 헤더를 붙이는 판단을 한 함수에 모아 두고 여기서 지킨다.
-   */
-  it('🔴 앱에서는 인증 헤더를 붙인다', () => {
-    expect(dishImageHeaders('token')).toEqual({ Authorization: 'Bearer token' });
+    expect(result.uri.startsWith('http')).toBe(false);
+    expect(result.uri.startsWith('data:image/')).toBe(true);
   });
 });

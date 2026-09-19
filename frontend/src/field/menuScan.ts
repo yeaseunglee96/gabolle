@@ -145,13 +145,21 @@ function errorMessage(error: unknown, tx: Translate): string {
 
 // ── 화면이 무슨 말을 할지 여기서 정한다 ───────────────────────────────────────
 
-/** 못 읽은 줄이 있으면 반드시 말한다. 없으면 줄을 만들지 않는다. */
+/**
+ * 못 읽은 줄이 있으면 반드시 말한다. 없으면 줄을 만들지 않는다.
+ *
+ * 🔴 **값을 문구 안에 직접 넣지 않는다 — S15P21E201-1335.** 번역표(`src/i18n/translations.ts`)
+ * 는 한국어 «원문 그대로»를 키로 쓴다. 문구 안에 개수가 끼어 있으면 키가 실행할 때마다
+ * 달라져서 표에 올릴 수조차 없고, 일본어·중국어 화면에서 **영원히 영어로 떨어진다.**
+ * 실제로 일본어 화면 맨 아래에 이 줄만 영어로 떠 있었다. 그래서 자리표(`%d`)가 든
+ * 문구를 번역하고 값은 찾은 뒤에 끼운다.
+ */
 export function unreadNotice(scan: MenuScan, tx: Translate): string | null {
   if (scan.unreadLineCount <= 0) return null;
   return tx(
-    `사진이 흐리거나 잘려서 못 읽은 줄이 ${scan.unreadLineCount}개 있어요.`,
-    `${scan.unreadLineCount} line(s) could not be read — the photo may be blurry or cropped.`,
-  );
+    '사진이 흐리거나 잘려서 못 읽은 줄이 %d개 있어요.',
+    '%d line(s) could not be read — the photo may be blurry or cropped.',
+  ).replace('%d', String(scan.unreadLineCount));
 }
 
 /** 알레르기 안내. */

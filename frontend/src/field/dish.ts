@@ -108,16 +108,38 @@ export type DishImageLoad =
   /** 그만 물어봐야 한다 — 없거나 못 만들었다. */
   | { state: 'gone' };
 
+/** 받은 바이트를 그대로 그릴 수 있는 주소로 바꾼다. */
+async function asDataUri(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error('read failed'));
+    reader.onload = () => resolve(String(reader.result));
+    // readAsArrayBuffer 는 React Native 에 없다. readAsDataURL 은 웹·앱 양쪽 다 있다.
+    reader.readAsDataURL(blob);
+  });
+}
+
 /**
  * 그림이 다 됐는지 한 번 물어보고, 됐으면 그릴 수 있는 주소까지 만들어 낸다.
  *
  * 🔴 **202 와 404 를 같게 다루지 않는다.** 202 는 「아직」이고 404 는 「그만 물어봐」다.
  * 둘을 같게 보면 화면이 영원히 다시 묻거나, 10초만 더 기다리면 올 그림을 영영 안 받는다.
  *
- * 🔴 **웹과 앱이 다른 길로 간다.** 이 주소는 로그인을 요구하는데, 웹의 `Image` 는
- * 결국 `<img src>` 라서 **인증 헤더를 못 보낸다** — 앱에서만 되는 것을 보고 다 된 줄
- * 알기 쉬운 자리다. 그래서 웹에서는 받은 바이트를 브라우저 안 주소(object URL)로
- * 바꿔서 그린다. 앱(iOS·Android)의 `Image` 는 헤더를 보낼 수 있어 주소를 그대로 준다.
+ * <h2>🔴 주소를 건네지 않고 «바이트를» 건넨다 — S15P21E201-1335</h2>
+ *
+ * 예전에는 앱에서 주소를 그대로 주고 `<Image source={{ uri, headers }}>` 가 인증 헤더를
+ * 붙여 다시 받아 오게 했다. **안드로이드 실기에서 그림 칸이 흰색으로만 떴다**
+ * (2026-09-19, 운영 빌드 versionCode 22). 서버는 멀쩡했다 — 같은 주소를 같은 토큰으로
+ * curl 하면 512×512 JPEG 가 그대로 온다. 화면에서도 그림 칸은 제 크기대로 자리를
+ * 차지하고 「AI 가 그린 그림이에요」 안내까지 떴다. **비트맵만 안 왔다.**
+ *
+ * 그래서 **그림 칸이 직접 통신하지 않게** 한다. 여기서 이미 받은 바이트를 data URI 로
+ * 바꿔 넘기면, 그리는 쪽은 네트워크도 인증도 몰라도 된다. 웹에서 이미 그렇게 하고
+ * 있었고(웹의 `<img src>` 는 헤더를 못 보낸다), 앱만 다른 길로 가던 것을 없앴다.
+ *
+ * 🔴 **바이트를 두 번 받던 것도 함께 없어졌다.** 예전 주석은 「주소를 그대로 주면 두 번
+ * 안 받는다」고 적어 둔 자리인데 사실은 반대였다 — 이 `fetch` 가 이미 몸통을 다 받아
+ * 놓고 버렸고, `<Image>` 가 같은 그림을 한 번 더 받았다.
  */
 export async function loadDishImage(imageId: string, accessToken: string, signal?: AbortSignal)
   : Promise<DishImageLoad> {
@@ -131,25 +153,21 @@ export async function loadDishImage(imageId: string, accessToken: string, signal
     if (response.status === 202) return { state: 'pending' };
     if (!response.ok) return { state: 'gone' };
 
-    if (Platform.OS !== 'web') {
-      // 앱은 헤더를 보낼 수 있으므로 주소를 그대로 준다 — 바이트를 두 번 받지 않는다.
-      return { state: 'ready', uri, revoke: null };
-    }
     const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    // 🔴 다 쓰면 돌려줘야 한다. 안 돌려주면 메뉴 줄을 열 때마다 브라우저 메모리에
-    //    그림이 쌓인다 — 화면을 떠나도 안 사라진다.
-    return { state: 'ready', uri: objectUrl, revoke: () => URL.revokeObjectURL(objectUrl) };
+    if (Platform.OS === 'web') {
+      const objectUrl = URL.createObjectURL(blob);
+      // 🔴 다 쓰면 돌려줘야 한다. 안 돌려주면 메뉴 줄을 열 때마다 브라우저 메모리에
+      //    그림이 쌓인다 — 화면을 떠나도 안 사라진다.
+      return { state: 'ready', uri: objectUrl, revoke: () => URL.revokeObjectURL(objectUrl) };
+    }
+    // 앱은 data URI 로 그린다. 브라우저 밖이라 돌려줄 것이 없어 revoke 는 null 이다 —
+    // 그 줄을 접으면 문자열도 함께 사라진다.
+    return { state: 'ready', uri: await asDataUri(blob), revoke: null };
   } catch {
     // 통신이 한 번 끊긴 것과 그림이 없는 것은 다르다. 여기서 'gone' 으로 떨어뜨리면
     // 지하철에서 한 번 끊긴 사람이 다시는 그림을 못 본다.
     return { state: 'pending' };
   }
-}
-
-/** 앱에서만 쓰는 인증 헤더. 웹에서는 object URL 이라 헤더가 필요 없다. */
-export function dishImageHeaders(accessToken: string): Record<string, string> | undefined {
-  return Platform.OS === 'web' ? undefined : { Authorization: `Bearer ${accessToken}` };
 }
 
 /** 그림을 얼마나 자주·얼마나 오래 물어볼 것인가. */
