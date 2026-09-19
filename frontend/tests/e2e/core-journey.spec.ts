@@ -74,7 +74,10 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   await expect(page).toHaveURL(/\/plan(\?|$)/);
 
   // 여행 범위(필수) — 하나 이상 고른다.
-  await page.getByRole('checkbox', { name: '해운대', exact: true }).click();
+  // 🔴 정확일치로 찾지 않는다. 선택지 카드가 제목 아래에 부제를 같이 그리므로(-1320,
+  //    OptionCard) 접근성 이름이 「해운대해변 · 동백섬 · 해리단길」이 된다. exact 는
+  //    영영 못 맞춘다 — 앞글자로 찾는다.
+  await page.getByRole('checkbox', { name: /^해운대/ }).click();
   await page.getByRole('button', { name: '다음', exact: true }).click();
 
   // 총예산(필수) — "+10만"을 한 번만 눌러도 0보다 커져 답한 것으로 본다.
@@ -83,7 +86,8 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
 
   // 하루 여행 시간 · 이동수단(필수) — 이동수단만 고르면 답한 것으로 본다
   // (시작/종료 시각은 answered() 조건에 없다).
-  await page.getByRole('checkbox', { name: '대중교통', exact: true }).click();
+  // 같은 이유 — 「대중교통」 뒤에 「지하철·버스 환승 최소」가 붙는다.
+  await page.getByRole('checkbox', { name: /^대중교통/ }).click();
   await page.getByRole('button', { name: '다음', exact: true }).click();
 
   // 나머지 여섯(카테고리 · 기분 · 분위기 · 로컬성 등 · 음식 · 이동 보조)은 전부
