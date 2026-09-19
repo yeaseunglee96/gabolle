@@ -145,12 +145,78 @@ const FILL = /backgroundColor:\s*color\.action\.(primary|brand)\b/;
  *    갈래를 명시하는 것만으로 검사를 통과시킬 수 있다 — 화면은 하나도 안 바뀌었는데.
  *    검사가 세는 것은 **적힌 글자**가 아니라 **화면에 뜨는 빨강**이어야 한다.
  */
-const BUTTON_TAG = /<Button\b[^>]*?\/?>/g;
 const isCamelliaButton = (tag) => !/\bvariant\s*=/.test(tag) || /\bvariant\s*=\s*[{"']*(primary|brand)[}"']*/.test(tag);
 
-/** 🔴 화면에는 하나뿐인데 파일에는 둘로 보이는 자리. 왜 그런지를 함께 적는다. */
+/**
+ * 🔴 `<Button …>` 의 여는 태그를 끝까지 읽는다. **정규식으로 못 한다.**
+ *
+ * `<Button[^>]*>` 로 자르면 `onPress={() => …}` 의 **화살표에 있는 `>`** 에서 끊긴다.
+ * 그러면 그 뒤에 적힌 `variant` 를 못 보고 「갈래 없음 = 동백」으로 잘못 센다.
+ * 실측(2026-09-19): 그렇게 세면 80개, 제대로 세면 70개 — **10개가 거짓 적발**이었다.
+ *
+ * 이 저장소의 버튼은 거의 다 `onPress={() => …}` 를 달고 있으므로 드문 일이 아니다.
+ * 나도 이걸로 한 번 틀렸다 — 이미 `variant="danger"` 인 버튼에 같은 것을 또 붙였고,
+ * **타입 검사가 잡았다**(같은 이름의 속성이 둘). 검사가 잡아 줄 거라고 믿을 수 없다.
+ *
+ * 그래서 중괄호·괄호 깊이를 세면서 **깊이 0에서 만나는 `>`** 를 태그의 끝으로 본다.
+ */
+function buttonTags(text) {
+  const out = [];
+  const re = /<Button\b/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    let i = m.index + m[0].length;
+    let depth = 0;
+    while (i < text.length) {
+      const c = text[i];
+      if (c === '{' || c === '(') depth += 1;
+      else if (c === '}' || c === ')') depth -= 1;
+      else if (c === '>' && depth === 0) break;
+      i += 1;
+    }
+    out.push({ index: m.index, tag: text.slice(m.index, i + 1) });
+  }
+  return out;
+}
+
+/**
+ * 🔴 화면에는 하나뿐인데 파일에는 둘로 보이는 자리. 왜 그런지를 함께 적는다.
+ *
+ * 여기 적힌 것은 **한 화면에 같이 뜨지 않는다는 것을 코드에서 확인한** 자리다.
+ * 「고치기 어려워서」가 아니다. 확인하는 법은 하나 — 두 버튼을 감싼 조건이 서로
+ * 배타적인가(다른 `state` 값, 이른 `return`, `accessToken` 유무)를 본다.
+ */
 const ALLOWED_MULTI_FILL = {
-  // 예: 'app/x.tsx': '로그인 전/후로 갈리는 같은 버튼이라 화면에는 하나만 그려진다',
+  'app/(tabs)/trips.tsx':
+    '비회원 안내와 「여행이 하나도 없음」은 accessToken 유무로 갈려 같이 안 뜬다. 늘 떠 있는 「새 여행」은 outline 으로 내렸다 — 그건 둘 중 어느 쪽과도 같이 뜬다.',
+  'app/place/[id].tsx':
+    '「장소를 찾을 수 없어요」와 「불러오지 못했어요」는 서로 다른 알림이고, 본문과도 배타적이다. 같이 뜨던 현장 도구 둘(한국어로 말하기·택시 기사에게 보여주기)은 시안 「현장 도구」 규칙대로 action.field(짙은 회색)로 내렸다.',
+  'app/story-invite/[token].tsx':
+    'status.state 가 갈라 놓은 세 알림(만료·없음·실패)에 「홈으로」가 하나씩이다. 한 번에 하나만 그려진다.',
+  'app/invite/[token].tsx':
+    '위와 같다 — 두 알림에 「홈으로」가 하나씩.',
+  'app/s/[token].tsx':
+    "만료면 72번째 줄에서 일찍 return 한다. 아래의 같은 버튼은 그때 실행되지 않는다.",
+  'app/taxi-card/[id].tsx':
+    "not-found 와 error 는 서로 다른 state 다.",
+  'app/(auth)/sign-up.tsx':
+    "가입 완료 결과 화면은 100번째 줄에서 일찍 return 한다. 나머지 셋은 194번째 줄의 kind === 'tablet' 삼항으로 갈려, 태블릿의 제출과 폰 패널의 「다음」·제출 중 하나만 그려진다.",
+  'app/(auth)/oauth-signup.tsx':
+    '티켓이 만료면 일찍 return 하는 화면의 버튼과, 본 화면의 「가입 완료」다. 같이 안 뜬다.',
+  'app/(auth)/oauth-link.tsx':
+    '위와 같은 구조 — 만료 화면과 「연결하고 로그인」.',
+  'app/auth/email/verify.tsx':
+    "phase 가 'done' 일 때의 「지금 로그인하기」와 'failed' 일 때의 「가입 화면으로」다.",
+  'app/auth/password/reset.tsx':
+    '한 줄짜리 삼항이다 — validToken 이면 「비밀번호 변경」, 아니면 「재설정 링크 다시 받기」. 둘 중 하나만 그려진다.',
+  'app/(onboarding)/taste-profile.tsx':
+    '완료 화면의 「홈으로」와 질문 화면의 「선택 완료」. 완료면 일찍 return 한다.',
+  'app/(onboarding)/spend-profile.tsx':
+    '확인 실패 화면의 「다시 확인」(일찍 return)과, 질문 화면 안 저장 실패 알림의 「다시 저장」이다.',
+  'app/feed/[id].tsx':
+    '남은 셋은 신고 접수 알림(reported) · 댓글 남기기(story && !reported) · 기록 없음(state.status) 이다. 세 조건이 서로 배타적이라 한 번에 하나만 그려진다. 같이 뜨던 댓글 수정 저장은 secondary 로, 삭제 확정 둘은 danger(연분홍 배경)로 내렸다.',
+  'app/feed/[id]/coauthors.tsx':
+    '하나는 화면의 「초대 링크 만들기」, 하나는 TripCompanionPicker <Modal> 안의 제출 버튼이다. 모달이 열리면 어둠막이 뒤를 덮으므로 두 빨강이 나란히 놓이지 않는다 — 시안도 「모달 전부: 제출 버튼은 primary」라고 적었다.',
 };
 
 /** 색으로 안 보는 것 — 투명도만 얹은 흰검. */
@@ -203,11 +269,11 @@ for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))
   // 🔴 여는 태그가 여러 줄에 걸치므로 줄 단위로 못 센다. 파일을 통째로 훑는다.
   //    ([^>] 가 이미 `>` 를 막으므로 줄바꿈은 알아서 넘어간다. 다만 속성값 안에 `>` 가
   //    들어 있으면 거기서 끊긴다 — 못 잡는 자리다.)
-  for (const m of text.matchAll(BUTTON_TAG)) {
-    if (!isCamelliaButton(m[0])) continue;
+  for (const { index, tag } of buttonTags(text)) {
+    if (!isCamelliaButton(tag)) continue;
     const found = fills.get(rel) ?? [];
-    const how = /\bvariant\s*=/.test(m[0]) ? '<Button variant="primary">' : 'variant 없는 <Button> (기본값이 primary)';
-    found.push({ where: `${rel}:${text.slice(0, m.index).split('\n').length}`, how });
+    const how = /\bvariant\s*=/.test(tag) ? '<Button variant="primary">' : 'variant 없는 <Button> (기본값이 primary)';
+    found.push({ where: `${rel}:${text.slice(0, index).split('\n').length}`, how });
     fills.set(rel, found);
   }
 }

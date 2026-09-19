@@ -234,9 +234,9 @@ export default function Place() {
         */}
         <View style={styles.actions}>
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="tertiary" onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
-          <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
+          <Button label={tx('한국어로 말하기', 'Speak Korean')} variant="field" onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
           {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="tertiary" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
-          {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
+          {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} variant="field" onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
         </View>
