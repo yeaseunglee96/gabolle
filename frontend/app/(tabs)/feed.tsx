@@ -489,8 +489,8 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
       </Text>
       <View style={styles.emptyActions}>
         {following
-          ? <Button label={tx('전체 보기', 'See all')} onPress={onSeeAll} containerStyle={styles.emptyPrimary} />
-          : <Button label={signedIn ? tx('기록 남기기', 'Write a record') : tx('로그인', 'Sign in')} onPress={onWrite} containerStyle={styles.emptyPrimary} />}
+          ? <Button label={tx('전체 보기', 'See all')} variant="outline" onPress={onSeeAll} containerStyle={styles.emptyPrimary} />
+          : <Button label={signedIn ? tx('기록 남기기', 'Write a record') : tx('로그인', 'Sign in')} variant="outline" onPress={onWrite} containerStyle={styles.emptyPrimary} />}
       </View>
     </View>
   </View>;
@@ -956,8 +956,8 @@ const styles = StyleSheet.create({
   compose: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   composeInput: { minHeight: 64, fontSize: 18, lineHeight: 24, color: color.text.heading },
   composeImages: { flexDirection: 'row', gap: spacing[2] },
-  composeImageOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.45)' },
-  composeImageRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.6)', alignItems: 'center', justifyContent: 'center' },
+  composeImageOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(25,25,25,0.45)' },
+  composeImageRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(25,25,25,0.6)', alignItems: 'center', justifyContent: 'center' },
   composeTools: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border, flexWrap: 'wrap' },
   toolButton: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.sm },
   toolButtonOn: { backgroundColor: color.surface.soft },
