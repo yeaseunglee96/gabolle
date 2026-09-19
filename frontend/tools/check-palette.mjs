@@ -87,6 +87,35 @@ const MISUSE = [
   },
 ];
 
+/**
+ * 🔴 **동백 채움은 화면당 하나.** 시안이 「자주 틀리는 것」의 첫 줄로 꼽은 규칙이다.
+ *
+ * 앞의 두 검사는 **색을 토큰으로 썼는가**만 본다. 그런데 전부 토큰으로 써도 한 화면에
+ * 빨강 채움이 셋이면 규칙은 깨진다 — 그리고 그때 **검사는 초록이다.** 화면도 멀쩡히
+ * 그려진다. 다만 사람이 「그다음에 할 일」을 못 고른다.
+ *
+ * 그래서 세는 것을 사람에게 맡기지 않는다. 사람은 화면 하나를 고칠 때 그 화면만 보고,
+ * 빨강이 둘이 되는 것은 **두 번째 사람이 다른 날 한 줄 더할 때** 생긴다.
+ *
+ * 🔴 **이 검사가 못 잡는 것** (검사를 만들 때 함께 적는다 — 초록인데 아무것도 안 막는
+ *    검사가 제일 위험하다):
+ *
+ *    ① **파일 단위로 센다.** 화면 하나가 화면 파일 + 부품 파일로 나뉘어 각각 하나씩
+ *       가지고 있으면, 실제 화면에는 둘인데 여기서는 통과한다
+ *    ② **서로 배타적인 두 갈래**(A 상태면 이 버튼, B 상태면 저 버튼)도 둘로 센다.
+ *       그건 진짜로 화면에 하나뿐이므로, 아래 ALLOWED_MULTI_FILL 에 이유를 적는다
+ *    ③ `backgroundColor:` 와 값이 **줄이 나뉘어 있으면** 못 잡는다
+ *
+ *    ①과 ③은 사람이 화면을 봐야 한다. 이 검사는 사람을 대신하지 않고, 사람이 놓치는
+ *    종류만 맡는다.
+ */
+const FILL = /backgroundColor:\s*color\.action\.primary\b/;
+
+/** 🔴 화면에는 하나뿐인데 파일에는 둘로 보이는 자리. 왜 그런지를 함께 적는다. */
+const ALLOWED_MULTI_FILL = {
+  // 예: 'app/x.tsx': '로그인 전/후로 갈리는 같은 버튼이라 화면에는 하나만 그려진다',
+};
+
 /** 색으로 안 보는 것 — 투명도만 얹은 흰검. */
 const IGNORED = /rgba?\(\s*(0|255)\s*,\s*(0|255)\s*,\s*(0|255)\s*,/;
 
@@ -102,6 +131,7 @@ function sources(dir, found = []) {
 
 const offenders = [];
 const legacy = [];
+const fills = new Map();
 
 for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))]) {
   const rel = file.slice(ROOT.length + 1).replace(/\\/g, '/');
@@ -117,6 +147,14 @@ for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))
     }
     for (const rule of [...LEGACY, ...MISUSE]) {
       if (rule.pattern.test(code)) legacy.push({ rule, where, line: line.trim().slice(0, 78) });
+    }
+    // 🔴 한 줄에 여러 번 나온다. 이 저장소의 StyleSheet.create 는 통째로 한 줄인 곳이
+    //    많아서, 줄 단위로 있나 없나만 보면 셋을 하나로 센다.
+    const hits = code.match(new RegExp(FILL.source, 'g'));
+    if (hits) {
+      const found = fills.get(rel) ?? [];
+      for (const _ of hits) found.push(where);
+      fills.set(rel, found);
     }
   });
 }
@@ -146,9 +184,28 @@ for (const rule of [...LEGACY, ...MISUSE]) {
   if (LEGACY.includes(rule)) console.error('\n   다 고른 뒤에는 tokens.ts 에서 그 이름을 지우세요 — 남겨 두면 다음 사람이 또 씁니다.');
 }
 
+const crowded = [...fills].filter(([rel, at]) => at.length > 1 && !ALLOWED_MULTI_FILL[rel]);
+
+if (crowded.length) {
+  failed = true;
+  console.error(`\n🔴 동백 채움이 한 파일에 둘 이상입니다 — 파일 ${crowded.length}개.\n`);
+  console.error('   동백(action.primary) 채움은 **그 화면에서 그다음에 할 일** 하나를 가리킵니다.');
+  console.error('   둘이 되는 순간 둘 다 그 뜻을 잃습니다 — 화면은 멀쩡하고 색도 전부 토큰이라,');
+  console.error('   이건 눈으로도 앞의 검사로도 안 잡힙니다.');
+  console.error('\n   둘째부터 이 중에서 고르세요.');
+  console.error('     · action.outline    붉은 1.5px 선 + 붉은 글자. 큰 면적이 부담스러울 때');
+  console.error('     · action.secondary  짙은 회색 채움. 보조 행동·고른 것');
+  console.error('     · action.tertiary   연회색 채움. 「다음에 하기」류');
+  console.error('     · action.field      현장 기능 전폭 버튼(짙은 회색). 🔴 동백이 아닙니다');
+  console.error('');
+  for (const [rel, at] of crowded) console.error(`   ${rel}  ${at.length}곳  →  ${at.map((w) => w.split(':')[1]).join(', ')}번째 줄`);
+  console.error('\n   화면에는 하나뿐인데 파일에 둘로 보이는 자리라면(서로 배타적인 두 갈래),');
+  console.error('   이 파일의 ALLOWED_MULTI_FILL 에 **왜 그런지와 함께** 적으세요.');
+}
+
 if (failed) {
   console.error('');
   process.exit(1);
 }
 
-console.log('배색 검사 통과 — 화면에 직접 박힌 색도, 옛 이름도 없습니다.');
+console.log('배색 검사 통과 — 화면에 직접 박힌 색도, 옛 이름도, 겹친 동백 채움도 없습니다.');
