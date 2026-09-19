@@ -545,7 +545,7 @@ export default function PlanConditions() {
 }
 
 const styles = StyleSheet.create({
-  canvas: { backgroundColor: color.brand.ivory },
+  canvas: { backgroundColor: color.canvas },
   split: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8], marginTop: spacing[6] },
   questions: { flex: 1, minWidth: 0, maxWidth: 760, gap: spacing[3] },
 

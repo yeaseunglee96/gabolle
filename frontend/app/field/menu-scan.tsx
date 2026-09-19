@@ -366,7 +366,7 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },

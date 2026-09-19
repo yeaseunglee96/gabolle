@@ -283,13 +283,14 @@ export default function Recommendations() {
 }
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
   // 🔴 넓은 화면만 가로 2단이다. 폰에서 가로로 두면 목록이 600 을 차지해 화면 밖으로 나간다.
   shellWide: { flexDirection: 'row' },
 
   // 데스크톱: 왼쪽 목록 600 · 오른쪽 전면 지도 (시안 ③).
   // 🔴 폭을 셋 다 적는다. 가로 배치에서 width 하나만 주면 남는 자리를 채우려고 늘어난다.
-  listPane: { width: 600, maxWidth: 600, flexGrow: 0, flexShrink: 0, flexBasis: 600, backgroundColor: color.brand.ivory },
+  // 목록 칸도 화면 바탕이다 — 순백이면 그 위의 선 없는 흰 카드가 사라진다.
+  listPane: { width: 600, maxWidth: 600, flexGrow: 0, flexShrink: 0, flexBasis: 600, backgroundColor: color.canvas },
   listPaneInner: { padding: spacing[6], gap: spacing[4] },
   mapPane: { flex: 1, minWidth: 0, backgroundColor: color.surface.soft },
   mapLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], padding: spacing[4] },
