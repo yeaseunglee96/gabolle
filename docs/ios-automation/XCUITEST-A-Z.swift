@@ -128,38 +128,38 @@ final class C_SignUpTests: GabolleUITestCase {
 
     func test_C1_비밀번호_규칙_네_줄이_입력에_따라_바뀐다() {
         toSignUp()
-        type(byLabel("이메일"), QA.freshEmail(), "이메일 칸")
+        type(byId("sign-up-email"), QA.freshEmail(), "이메일 칸")
         shot("C1-메일만")
-        type(byLabel("비밀번호"), "abc", "비밀번호 칸")
+        type(byId("sign-up-password"), "abc", "비밀번호 칸")
         shot("C1-짧은비번")     // 👁 「8~64자」「영문」「숫자」「특수문자」 네 줄의 상태가 보이는가
         byLabel("비밀번호 지우기").tap()
-        type(byLabel("비밀번호"), QA.goodPassword, "비밀번호 칸")
+        type(byId("sign-up-password"), QA.goodPassword, "비밀번호 칸")
         shot("C1-올바른비번")   // 👁 네 줄이 모두 만족으로 바뀌었는가
     }
 
     func test_C2_비밀번호_확인이_다르면_막힌다() {
         toSignUp()
-        type(byLabel("이메일"), QA.freshEmail(), "이메일 칸")
-        type(byLabel("비밀번호"), QA.goodPassword, "비밀번호 칸")
-        type(byLabel("비밀번호 확인"), QA.goodPassword + "X", "비밀번호 확인 칸")
+        type(byId("sign-up-email"), QA.freshEmail(), "이메일 칸")
+        type(byId("sign-up-password"), QA.goodPassword, "비밀번호 칸")
+        type(byId("sign-up-confirm"), QA.goodPassword + "X", "비밀번호 확인 칸")
         shot("C2-불일치")
-        tapLabel("다음")
-        XCTAssertTrue(byLabel("비밀번호 확인").exists, "비밀번호가 다른데 다음 단계로 넘어갔다")
+        tapId("sign-up-next")
+        XCTAssertTrue(byId("sign-up-confirm").exists, "비밀번호가 다른데 다음 단계로 넘어갔다")
     }
 
     func test_C3_약관_세_개를_다_눌러야_넘어간다() {
         toSignUp()
-        type(byLabel("이메일"), QA.freshEmail(), "이메일 칸")
-        type(byLabel("비밀번호"), QA.goodPassword, "비밀번호 칸")
-        type(byLabel("비밀번호 확인"), QA.goodPassword, "비밀번호 확인 칸")
-        type(byLabel("이름"), "큐에이", "이름 칸")
+        type(byId("sign-up-email"), QA.freshEmail(), "이메일 칸")
+        type(byId("sign-up-password"), QA.goodPassword, "비밀번호 칸")
+        type(byId("sign-up-confirm"), QA.goodPassword, "비밀번호 확인 칸")
+        type(byId("sign-up-name"), "큐에이", "이름 칸")
         tapLabel("만 14세 이상입니다.")
         shot("C3-동의하나만")
-        tapLabel("다음")                       // 아직 약관 둘이 남았다 — 안 넘어가야 한다
+        tapId("sign-up-next")                  // 아직 약관 둘이 남았다 — 안 넘어가야 한다
         tapLabel("이용약관에 동의합니다. (필수)")
         tapLabel("개인정보 처리방침에 동의합니다. (필수)")
         shot("C3-동의전부")
-        tapLabel("다음")
+        tapId("sign-up-next")
         shot("C3-가입결과")                    // 👁 「이메일 확인 후 로그인」이 나왔는가
     }
 
@@ -186,9 +186,9 @@ final class D_SignInTests: GabolleUITestCase {
 
     func test_D1_틀린_비밀번호는_거절된다() {
         toSignIn()
-        type(byLabel("이메일"), QA.signedInEmail, "이메일 칸")
-        type(byLabel("비밀번호"), "WrongPassword!1", "비밀번호 칸")
-        tapLabel("로그인")
+        type(byId("sign-in-email"), QA.signedInEmail, "이메일 칸")
+        type(byId("sign-in-password"), "WrongPassword!1", "비밀번호 칸")
+        tapId("sign-in-submit")
         shot("D1-틀린비번")
         XCTAssertFalse(byId("tab-home").waitForExistence(timeout: 8),
                        "틀린 비밀번호로 로그인이 됐다")
@@ -208,7 +208,7 @@ final class D_SignInTests: GabolleUITestCase {
     func test_D3_비밀번호_찾기_화면이_열리고_메일을_받는다() {
         toSignIn()
         tapLabel("비밀번호 찾기")
-        type(byLabel("이메일"), QA.signedInEmail, "이메일 칸")
+        type(byLabel("이메일"), QA.signedInEmail, "이메일 칸")   // 이 화면은 아직 이름표가 없다
         tapLabel("재설정 링크 받기")
         shot("D3-재설정요청")   // 👁 「…재설정 링크를 보내드렸어요」가 나왔는가
     }
@@ -361,6 +361,116 @@ final class K_PlanTests: GabolleUITestCase {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// MARK: - M. 일정 — 가장 복잡한 화면
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// 🔴 일정은 **여행이 하나 있어야** 돌아간다. K장에서 만든 여행이 남아 있어야 하고,
+///    로그인한 계정이어야 한다. 여행이 없으면 시험이 «그 자리에서» 멈춘다 —
+///    「여행이 없어서 통과」로 적히지 않게 하려는 것이다.
+final class M_ItineraryTests: GabolleUITestCase {
+
+    private func openItinerary() {
+        enterSignedIn(email: QA.signedInEmail, password: QA.signedInPassword)
+        tab("map")                                   // 내 여행
+        let card = byLabel("여행 경로")
+        guard card.waitForExistence(timeout: 15) else {
+            shot("M-여행없음")
+            XCTFail("내 여행에 여행이 없다 — K장에서 하나 만든 뒤 이 시험을 돌린다")
+            return
+        }
+        card.tap()
+        XCTAssertTrue(byId("itinerary-day-1").waitForExistence(timeout: 20), "일정 화면에 못 갔다")
+        shot("M-일정도착")
+    }
+
+    func test_M1_날짜_탭을_차례로_눌러_본다() {
+        openItinerary()
+        for day in 1...5 {
+            let tab = byId("itinerary-day-\(day)")
+            guard tab.exists else { break }          // 여행 일수만큼만 있다
+            tab.tap()
+            shot("M1-\(day)일차")
+        }
+        // 👁 「N일차」 개수가 여행 일수와 같은가 · 같은 장소가 두 번 들어가 있지 않은가
+    }
+
+    /// 🔴 저장과 취소를 «둘 다» 본다. 저장만 보면, 취소가 저장으로 동작해도 통과한다.
+    func test_M2_순서를_바꾸고_저장하면_남고_취소하면_돌아온다() {
+        openItinerary()
+
+        // ① 저장하는 길
+        tapId("itinerary-reorder")
+        shot("M2-순서수정중")
+        let down = byLabel("아래로 이동")            // 첫 항목을 한 칸 내린다
+        if down.waitForExistence(timeout: 8) { down.tap() }
+        tapId("itinerary-save-order")
+        shot("M2-저장직후")
+        tab("home"); tab("map")                      // 화면을 나갔다 온다
+        shot("M2-다시들어옴")                        // 👁 바뀐 순서가 남아 있는가
+
+        // ② 취소하는 길
+        openItinerary()
+        tapId("itinerary-reorder")
+        if byLabel("아래로 이동").waitForExistence(timeout: 8) { byLabel("아래로 이동").tap() }
+        tapId("itinerary-cancel-order")
+        shot("M2-취소직후")                          // 👁 원래 순서로 돌아왔는가
+    }
+
+    func test_M3_최근_변경_취소는_직전_하나만_되돌린다() {
+        openItinerary()
+        let undo = byId("itinerary-undo")
+        guard undo.waitForExistence(timeout: 10) else {
+            XCTSkip("되돌릴 변경이 없다 — M2 를 먼저 돌린 뒤 이 시험을 돌린다")
+        }
+        shot("M3-되돌리기전")
+        undo.tap()
+        shot("M3-되돌린뒤")                          // 👁 «직전 하나»만 되돌아갔는가
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MARK: - Q. 피드 — 기록 쓰기
+// ─────────────────────────────────────────────────────────────────────────────
+
+final class Q_ComposeTests: GabolleUITestCase {
+
+    /// 🔴 「업로드 다시 시도」나 「실패」가 뜨면 **그 자체가 버그**다 (과거 S15P21E201-1187).
+    func test_Q1_글만_있는_기록을_올린다() {
+        enterSignedIn(email: QA.signedInEmail, password: QA.signedInPassword)
+        tab("feed")
+        tapLabel("기록 남기기")
+
+        type(byId("compose-body"), "자동화 시험 기록 — 글만", "기록 내용")
+        shot("Q1-글만입력")
+        tapId("compose-submit")
+        shot("Q1-올린뒤")                            // 👁 피드에 «바로» 보이는가
+
+        XCTAssertFalse(textExists("업로드 다시 시도", timeout: 5), "업로드가 실패했다")
+    }
+
+    /// 사진 3장까지 붙고 4장째가 막히는지 본다.
+    func test_Q2_사진을_세_장까지_붙이고_네_장째는_막힌다() {
+        enterSignedIn(email: QA.signedInEmail, password: QA.signedInPassword)
+        tab("feed")
+        tapLabel("기록 남기기")
+        type(byId("compose-body"), "자동화 시험 기록 — 사진", "기록 내용")
+
+        for round in 1...3 {
+            tapId("compose-add-photo")
+            nudge()                                  // 사진 권한 창이 뜨면 대신 눌러 준다
+            let photos = XCUIApplication(bundleIdentifier: "com.apple.mobileslideshow")
+            let cell = (photos.state == .runningForeground ? photos : app).cells.element(boundBy: round - 1)
+            if cell.waitForExistence(timeout: 12) { cell.tap() }
+            shot("Q2-\(round)장")                    // 👁 미리보기에 «실제로» 뜨는가 (회색 네모면 버그)
+        }
+
+        // 🔴 네 장째: 「사진 추가」가 사라져 있어야 한다 (canAddMore 가 거짓이 된다)
+        XCTAssertFalse(byId("compose-add-photo").exists, "사진 3장을 넘겨 붙일 수 있다")
+        shot("Q2-세장에서멈춤")
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MARK: - V·W. 현장 도구 허브 · 메뉴판 읽기
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -369,10 +479,12 @@ final class VW_FieldToolsTests: GabolleUITestCase {
     func test_V1_현장_도구_넷을_차례로_열고_돌아온다() {
         enterAsGuest()
         openDeepLink("gabolle://field/translate")
-        for label in ["메뉴판 읽기", "장소별 한국어", "환율 계산", "주변 버스"] {
-            tapLabel(label)
-            shot("V1-\(label)")
-            XCTAssertEqual(app.state, .runningForeground, "\(label) 에서 앱이 꺼졌다")
+        // 🔴 이름표는 코드의 tool.key 로 만들어진다 — speak/transit 이 아니라 phrase/bus 다.
+        //    「메뉴판 읽기」 같은 글자로 찾으면 언어를 바꾸는 순간 전부 깨진다.
+        for key in ["menu", "phrase", "exchange", "bus", "weather"] {
+            tapId("field-\(key)")
+            shot("V1-\(key)")
+            XCTAssertEqual(app.state, .runningForeground, "field-\(key) 에서 앱이 꺼졌다")
             openDeepLink("gabolle://field/translate")
         }
     }
@@ -384,7 +496,7 @@ final class VW_FieldToolsTests: GabolleUITestCase {
 
         for index in 1...QA.menuPhotoCount {
             openDeepLink("gabolle://field/menu-scan")
-            tapLabel("앨범에서 고르기")
+            tapLabel("앨범에서 고르기")   // 🔴 메뉴판 화면은 아직 이름표가 없다 (문서 3-3)
             nudge()                                  // 사진 권한 창이 뜨면 대신 눌러 준다
 
             // 앨범의 첫 사진을 고른다. 시뮬레이터 사진 앱의 셀에는 이름표가 없다.

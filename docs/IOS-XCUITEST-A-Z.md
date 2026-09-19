@@ -146,22 +146,46 @@ xcrun simctl addmedia booted ~/Downloads/menu-1.jpg ~/Downloads/menu-2.jpg
 
 ## 3. 🔴 자동화의 최대 약점 — 이것을 모르고 시작하면 어제와 같아진다
 
-### 3-1. 앱 전체에 이름표(`testID`)가 **12개뿐**이다
-
-실측했다. 앱의 모든 `.tsx` 파일에서 `testID` 는 아래가 전부다.
+### 3-1. 이름표(`testID`)가 있는 자리 — 여기서는 글자로 안 찾는다
 
 ```
-age-gate-check      age-gate-continue
-app-intro-skip      app-intro-primary
-permissions-later   permissions-continue   permissions-browse-guest
-start-gabolle       sign-in
+── 앱에 들어가는 길 (원래 있던 것) ────────────────────────────────
 language            lang-<언어코드>        pick-japanese
-place-photo-credit
+start-gabolle
+app-intro-skip      app-intro-primary
+age-gate-check      age-gate-continue
+permissions-later   permissions-continue   permissions-browse-guest
+sign-in             place-photo-credit
 tab-home  tab-feed  tab-schedule  tab-map  tab-me
+
+── 2026-09-19 에 새로 심은 것 (S15P21E201-1336) ───────────────────
+로그인        sign-in-email        sign-in-password     sign-in-submit
+회원가입      sign-up-email        sign-up-password     sign-up-confirm
+              sign-up-name         sign-up-next         sign-up-submit
+기록 쓰기     compose-body         compose-add-photo    compose-submit
+일정          itinerary-day-<번호> itinerary-reorder    itinerary-reorder-button
+              itinerary-save-order itinerary-cancel-order
+              itinerary-undo
+현장 도구     field-menu  field-phrase  field-exchange  field-bus  field-weather
 ```
 
-**나머지 수백 개의 버튼에는 이름표가 없다.** 그 버튼들을 찾는 방법은 **화면에 보이는
-글자(accessibilityLabel)뿐**이고, **그 글자는 언어를 바꾸면 통째로 달라진다.**
+> 🔴 **현장 도구의 이름은 `field-speak`·`field-transit` 이 아니다.** 타일의 이름표는
+> 코드에 이미 있던 `key` 로 만들어진다(`menu` `phrase` `exchange` `bus` `weather`).
+> 문서에 맞추려고 코드 이름을 바꾸지 않았다 — 코드가 진짜이고 문서가 따라간다.
+>
+> 🔴 **`sign-up-submit` 은 화면에 두 번 적혀 있다.** 넓은 화면용과 좁은 화면(패널)용
+> 가입 버튼이 따로 있고 **한 번에 하나만 그려진다.** `firstMatch` 로 잡으면 맞다.
+>
+> 🔴 **`itinerary-day-<번호>` 는 1부터 센다.** `itinerary-day-1` 이 1일차다.
+> 화면에 보이는 「1일차」와 같은 번호라 헷갈리지 않는다.
+
+이 이름들은 **`frontend/src/components/__tests__/automationTestIds.test.ts`** 가 지킨다.
+누가 지우거나 이름을 바꾸면 **CI 가 먼저 빨개진다** — 자동화가 조용히 거짓 성공을
+찍기 전에. 그래서 **이 표는 낡지 않는다.**
+
+**아직 이름표가 없는 화면이 둘 있다** — 아래 3-3.
+그 밖의 버튼은 **화면에 보이는 글자(accessibilityLabel)** 로 찾고, **그 글자는 언어를
+바꾸면 통째로 달라진다.**
 
 ### 3-2. 그래서 이 시험은 규칙 셋을 지킨다
 
@@ -172,21 +196,23 @@ tab-home  tab-feed  tab-schedule  tab-map  tab-me
    2026-09-17 밤에 실제로 그랬다. 온보딩 본문의 「부슐랭」이라는 낱말에 걸려서
    로그에는 「✅ 탭: 부슐랭 · 6/6 완료」가 찍혔고, **같은 순간 스크린샷은 온보딩 3페이지**였다
 
-### 3-3. 이름표를 더 달아 달라고 요청할 목록
+### 3-3. 아직 이름표가 없는 두 화면
 
-자동화를 제대로 하려면 아래에 `testID` 가 필요하다. **이 문서를 받은 뒤 바로 요청한다**
-(이예승에게 쪽지 또는 Jira). 이름표가 없는 동안에는 글자로 돌리되, 그 항목은 결과표에
-**「글자로 찾음 — 언어 바꾸면 깨짐」** 이라고 표시한다.
+다섯 화면에는 2026-09-19 에 심었다(위 3-1). **둘은 못 심었다** — 그때 다른 사람이
+그 파일을 잡고 있었다. 선점 장치가 「코드 충돌이 나기 전에 의도 충돌을 먼저 터뜨리는」
+일을 한 것이고, 뺏지 않는 것이 규칙이다.
 
-| 화면 | 필요한 이름표(제안) |
-|---|---|
-| 로그인 | `sign-in-email` `sign-in-password` `sign-in-submit` |
-| 회원가입 | `sign-up-next` `sign-up-email` `sign-up-password` `sign-up-confirm` `sign-up-name` |
-| 여행 만들기 10문항 | `plan-q-<질문키>` `plan-next` `plan-skip` `plan-submit` |
-| 일정 | `itinerary-day-<n>` `itinerary-reorder` `itinerary-save-order` `itinerary-undo` |
-| 피드 작성 | `compose-body` `compose-add-photo` `compose-submit` |
-| 메뉴판 읽기 | `menu-take-photo` `menu-pick-album` `menu-ask-dish-<n>` `menu-dish-image` |
-| 현장 도구 허브 | `field-menu` `field-speak` `field-exchange` `field-transit` |
+| 화면 | 넣을 이름표 | 왜 아직 없나 |
+|---|---|---|
+| 여행 만들기 10문항 `app/(plan)/questions.tsx` | `plan-q-<질문키>` `plan-next` `plan-skip` `plan-submit` | 장효준이 `S15P21E201-1337`(날짜 없이 일정 만들기로 못 가게 한다)로 잡고 있었다 |
+| 메뉴판 읽기 `app/field/menu-scan.tsx` | `menu-take-photo` `menu-pick-album` `menu-ask-dish-<번호>` `menu-dish-image` | 같은 파일을 `S15P21E201-1335`(그림 시험)이 고치는 중이었다 |
+
+**그래서 K장(여행 만들기)과 W장(메뉴판)은 반자동이다.** 그 두 장은 이름표가 들어올
+때까지 **글자로 찾거나 스크린샷만 남긴다.** 결과표에는
+**「글자로 찾음 — 언어 바꾸면 깨짐」** 이라고 적는다.
+
+**풀리는 대로 이예승이 넣고 쪽지로 알린다.** 그 전에 필요하면 말해 달라 —
+순서를 바꿀 수 있다.
 
 ---
 
@@ -358,9 +384,9 @@ extension GabolleUITestCase {
         tapId("age-gate-continue")
         tapId("permissions-continue")       // 권한 안내에서 계속
         tapId("sign-in")
-        type(byLabel("이메일"),   email,    "이메일 칸")
-        type(byLabel("비밀번호"), password, "비밀번호 칸")
-        tapLabel("로그인")
+        type(byId("sign-in-email"),    email,    "이메일 칸")
+        type(byId("sign-in-password"), password, "비밀번호 칸")
+        tapId("sign-in-submit")
         XCTAssertTrue(byId("tab-home").waitForExistence(timeout: 25), "로그인 뒤 홈에 도착 못 했다")
         shot("홈도착-로그인")
     }
@@ -484,15 +510,16 @@ final class BackSweepTests: GabolleUITestCase {
 
 | 누를 것 / 채울 것 | 무엇 |
 |---|---|
-| `「이메일」` `「이메일 지우기」` | 이메일 입력 · 지우기 |
-| `「비밀번호」` `「비밀번호 지우기」` | 자리표시자 `영문·숫자·특수문자 포함 8~64자` |
-| `「비밀번호 확인」` `「비밀번호 확인 지우기」` | 자리표시자 `한 번 더 입력하세요` |
-| `「이름」` `「이름 지우기」` | 자리표시자 `1~30자` |
+| `[sign-up-email]` · `「이메일 지우기」` | 이메일 입력 · 지우기 |
+| `[sign-up-password]` · `「비밀번호 지우기」` | 자리표시자 `영문·숫자·특수문자 포함 8~64자` |
+| `[sign-up-confirm]` · `「비밀번호 확인 지우기」` | 자리표시자 `한 번 더 입력하세요` |
+| `[sign-up-name]` · `「이름 지우기」` | 자리표시자 `1~30자` |
 | `「언어」` | 가입 시 언어 |
 | `「만 14세 이상입니다.」` | 필수 체크 |
 | `「이용약관에 동의합니다. (필수)」` | 필수 체크 → 누르면 `/legal/terms` |
 | `「개인정보 처리방침에 동의합니다. (필수)」` | 필수 체크 → 누르면 `/legal/privacy` |
-| `「다음」` | 단계 진행 |
+| `[sign-up-next]` | 단계 진행(좁은 화면) |
+| `[sign-up-submit]` | 가입 — 넓은 화면·좁은 화면에 하나씩 있고 «한 번에 하나만» 그려진다 |
 | `「이메일 확인 후 로그인」` | 가입 완료 뒤 |
 | `「비회원으로 둘러보기」` | 가입 안 하고 홈으로 |
 
@@ -522,7 +549,8 @@ final class BackSweepTests: GabolleUITestCase {
 | 누를 것 | 무엇 |
 |---|---|
 | `[sign-in]` | 로그인 진입(권한 화면에서) |
-| `「이메일」` `「이메일 지우기」` `「비밀번호」` `「비밀번호 지우기」` | 입력 |
+| `[sign-in-email]` `[sign-in-password]` `[sign-in-submit]` | 입력 · 로그인 |
+| `「이메일 지우기」` `「비밀번호 지우기」` | 지우기 |
 | `「비밀번호 찾기」` | → `/forgot-password` |
 | `「GABOLLE 홈으로 이동」` | 로고 |
 | `「소셜 로그인 처리 중」` | 소셜 진행 표시(E장) |
@@ -743,12 +771,12 @@ final class BackSweepTests: GabolleUITestCase {
 
 | 누를 것 | 무엇 |
 |---|---|
-| `「N일차」` · `「N일차만 보기」` | 날짜 전환 |
-| `「순서 수정」` → `「<장소> 위로 이동」` `「<장소> 아래로 이동」` → `「순서 저장」` / `「순서 변경 취소」` | 순서 바꾸기 |
+| `[itinerary-day-1]` `[itinerary-day-2]` … · `「N일차만 보기」` | 날짜 전환 (번호는 1부터) |
+| `[itinerary-reorder]`(헤더 ≡) 또는 `[itinerary-reorder-button]`(아래 「순서 수정」) → `「<장소> 위로 이동」` `「<장소> 아래로 이동」` → `[itinerary-save-order]` / `[itinerary-cancel-order]` | 순서 바꾸기 |
 | `「<장소> 고정」` / `「<장소> 고정 해제」` | 고정 |
 | `「<장소> 자세히」` / `「<장소> 접기」` | 펼치기 |
 | `「이 날짜 다시 계산」` `「남은 하루 다시 계획」` → `「다시 계획 확인」` / `「다시 계획 취소」` | 재계산 |
-| `「최근 변경 취소」` | 되돌리기 |
+| `[itinerary-undo]` | 되돌리기 |
 | `「<장소> 도착 찍기」` `「<장소> 출발 찍기」` | 체크인 |
 | `「<장소> 제외」` | 빼기 |
 | `「<장소> 다녀오셨나요? 평가하기」` | → 후기 |
@@ -830,7 +858,7 @@ final class BackSweepTests: GabolleUITestCase {
 | 화면 | 누를 것 |
 |---|---|
 | 피드 | `「기록 남기기」`(자리표시자 `이번 부산 여행, 어땠어요?`) · `「기록 자세히 보기」` · `「전체 보기」` · `「신고하기」` · `「<이름> 프로필 보기」` · `「<이름> 언팔로우」` · `「지도 내리기」` · `「동백 마스코트」` |
-| 작성 | `「기록 내용」`(자리표시자 `오늘 부산에서 있었던 일을 남겨보세요`) · `「사진 추가」`(최대 3장) · `「사진 삭제」` · `「업로드 다시 시도」` · `「지역 적기」` · `「공개 범위 바꾸기」` |
+| 작성 | `[compose-body]`(자리표시자 `오늘 부산에서 있었던 일을 남겨보세요`) · `[compose-add-photo]`(최대 3장) · `[compose-submit]` · `「사진 삭제」` · `「업로드 다시 시도」` · `「지역 적기」` · `「공개 범위 바꾸기」` |
 | 상세 | `「댓글 입력」`(자리표시자 `댓글을 남겨 보세요`) · `「댓글 수정」` · `「댓글 삭제」` · `「댓글 신고」` · `「더 보기」` · `「공동 작성자 보기」` · `「<장소> 상세 보기」` |
 | 공동작성 | `「여행 동행자 추가」` · `「피드로 돌아가기」` |
 
@@ -932,11 +960,11 @@ final class BackSweepTests: GabolleUITestCase {
 
 | 누를 것 | 가는 곳 |
 |---|---|
-| `「메뉴판 읽기」` | `/field/menu-scan` (W장) |
-| `「장소별 한국어」` | `/field/speak` (X장) |
-| `「환율 계산」` | `/field/exchange-rate` (X장) |
-| `「주변 버스」` | `/field/transit` (X장) |
-| `「내 여행 날씨·준비물」` | 준비 화면 |
+| `[field-menu]` 「메뉴판 읽기」 | `/field/menu-scan` (W장) |
+| `[field-phrase]` 「장소별 한국어」 | `/field/speak` (X장) |
+| `[field-exchange]` 「환율 계산」 | `/field/exchange-rate` (X장) |
+| `[field-bus]` 「주변 버스」 | `/field/transit` (X장) |
+| `[field-weather]` 「내 여행 날씨·준비물」 | 준비 화면 |
 | `「현장 도구」` | 제목 |
 
 **자동화** 넷을 차례로 들어갔다 나온다. **나올 때마다 허브로 돌아오는지** 본다.
