@@ -21,6 +21,13 @@ describe('피드 글쓰기 입구', () => {
     expect(composeEntryFor(599, true)).toBe('headerButton');
   });
 
+  // 🔴 1023/1024 는 떠 있는 단추가 뜨던 경계다. 그 단추는 이제 폭이 아니라 이 함수의
+  //    답('headerButton')을 보고 뜨므로, 이 경계가 곧 「입구가 하나인가」의 경계다.
+  it('경계 — 1023 까지도, 1024 부터도 맨 위 입력창이다', () => {
+    expect(composeEntryFor(1023, true)).toBe('inline');
+    expect(composeEntryFor(1024, true)).toBe('inline');
+  });
+
   it('넓은 화면은 그대로 맨 위 입력창이다', () => {
     expect(composeEntryFor(1440, true)).toBe('inline');
     expect(composeEntryFor(1920, true)).toBe('inline');

@@ -771,7 +771,10 @@ export default function Feed() {
         올라가 버린다 — 탭바가 같은 이유로 받침에 담겨 떠 있다.
         `pointerEvents="box-none"` 이라 단추가 없는 자리는 손짓이 그대로 통과한다.
     */}
-    {!wide
+    {/* 🔴 폭이 아니라 composeEntry 로 묻는다. 폭으로 물으면 글쓰기 입구가 두 개 뜬다 —
+       맨 위 입력창은 600 부터, 이 단추는 1023 까지 떠서 그 사이가 겹쳤다. 입구를 고르는
+       곳은 composeEntryFor 하나이므로, 그 답을 그대로 쓰면 겹칠 수가 없다. */}
+    {composeEntry === 'headerButton'
       ? <Animated.View
           // 🔴 시트가 열리면 눌리지도 않아야 한다. 투명하기만 하면 지도를 누르려던
           //    손가락이 「지도 표시하기」를 다시 누른다 — 바로 그 자리에 있다.
