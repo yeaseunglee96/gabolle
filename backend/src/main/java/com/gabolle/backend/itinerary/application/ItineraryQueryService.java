@@ -139,7 +139,9 @@ public class ItineraryQueryService {
 				// S15P21E201-1113 — 이미 손에 있는 값이다. 여행을 다시 조회하지 않는다.
 				trip.tripId(),
 				// S15P21E201-1158 — 이미 읽어 둔 항목에서 센다. DB 를 다시 묻지 않는다.
-				accessibilityUnverifiedCount(content.items()));
+				accessibilityUnverifiedCount(content.items()),
+				// S15P21E201-1339 — 여행을 다시 조회하지 않는다. tripId 와 같은 이유로 이미 손에 있다.
+				trip.partySize());
 	}
 
 	/**
