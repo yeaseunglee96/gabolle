@@ -30,7 +30,7 @@ export function SignInPromptModal({ visible, onClose, onSignIn }: SignInPromptMo
           <View style={styles.gainList}>
             {gains.map(([ko, en]) => (
               <View key={ko} style={styles.gainRow}>
-                <Text variant="body" weight="bold" color={color.state.dot}>·</Text>
+                <Text variant="body" weight="bold" color={color.text.muted}>·</Text>
                 <Text color={color.text.body} style={styles.gainText}>{tx(ko, en)}</Text>
               </View>
             ))}

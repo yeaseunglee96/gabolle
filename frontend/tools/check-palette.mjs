@@ -15,6 +15,7 @@
 // 보는 것이 둘이다.
 //   ① 화면 파일에 박힌 색값(#rrggbb)
 //   ② 값이 바뀌었는데 이름이 그대로인 토큰 — 아래 LEGACY
+//   ③ 이름은 맞는데 자리가 틀린 것 — 아래 MISUSE
 //
 // 사용법: node tools/check-palette.mjs   (종료 코드 0 통과 · 1 남은 자리 있음)
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -66,6 +67,26 @@ const LEGACY = [
   },
 ];
 
+/**
+ * 🔴 이름은 맞는데 **자리가 틀린** 것.
+ *
+ * 시안이 「자주 틀리는 것」으로 따로 적어 둔 항목이다. 이름을 고르는 것과 달리 이쪽은
+ * **화면을 봐도 안 틀려 보인다** — 색은 시안에 있는 색이고, 다만 있으면 안 되는 자리에 있다.
+ */
+const MISUSE = [
+  {
+    pattern: /color=\{color\.state\.dot\}/,
+    name: '글자 색으로 쓴 state.dot',
+    why: 'state.dot(#F25454)은 글자가 없는 표시 전용입니다 — 램프·동그라미·탭 밑의 점. 글자와 채움에는 동백 빨강(#D83A48)을 씁니다. 두 빨강이 한 화면에 섞이면 둘 중 하나가 바랜 것처럼 보입니다.',
+    pick: [
+      'text.muted       글머리·구분점처럼 읽기를 돕는 글자라면',
+      'action.primary   눌러야 할 것을 가리키는 글자라면',
+      'state.danger     경고·삭제라면',
+      '점을 그대로 두려면 글자를 빼고 View 로 그리세요',
+    ],
+  },
+];
+
 /** 색으로 안 보는 것 — 투명도만 얹은 흰검. */
 const IGNORED = /rgba?\(\s*(0|255)\s*,\s*(0|255)\s*,\s*(0|255)\s*,/;
 
@@ -94,7 +115,7 @@ for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))
       const hit = code.match(/#[0-9a-fA-F]{3,8}\b/);
       if (hit) offenders.push(`${where}  ${hit[0]}  ${line.trim().slice(0, 70)}`);
     }
-    for (const rule of LEGACY) {
+    for (const rule of [...LEGACY, ...MISUSE]) {
       if (rule.pattern.test(code)) legacy.push({ rule, where, line: line.trim().slice(0, 78) });
     }
   });
@@ -111,7 +132,7 @@ if (offenders.length) {
   console.error('   토큰으로 바꾸거나, 될 수 없는 색이면 이 파일의 ALLOWED 에 이유와 함께 적으세요.');
 }
 
-for (const rule of LEGACY) {
+for (const rule of [...LEGACY, ...MISUSE]) {
   const hits = legacy.filter((item) => item.rule === rule);
   if (!hits.length) continue;
   failed = true;
@@ -122,7 +143,7 @@ for (const rule of LEGACY) {
   for (const choice of rule.pick) console.error('     · ' + choice);
   console.error('');
   for (const hit of hits) console.error(`   ${hit.where}  ${hit.line}`);
-  console.error('\n   다 고른 뒤에는 tokens.ts 에서 그 이름을 지우세요 — 남겨 두면 다음 사람이 또 씁니다.');
+  if (LEGACY.includes(rule)) console.error('\n   다 고른 뒤에는 tokens.ts 에서 그 이름을 지우세요 — 남겨 두면 다음 사람이 또 씁니다.');
 }
 
 if (failed) {
