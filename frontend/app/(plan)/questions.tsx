@@ -147,8 +147,13 @@ export default function PlanConditions() {
 
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
-  const submitPlan = async () => {
-    if (hardUnknown) { setConditionsOpen(true); return; }
+  /**
+   * @param afterConditions 조건 창에서 막 돌아온 길인가.
+   *     🔴 참이면 조건을 <b>다시 묻지 않는다.</b> 안 그러면 저장 → 창 열림 → 저장 →
+   *     창 열림이 되어 영영 못 나간다.
+   */
+  const submitPlan = async (afterConditions = false) => {
+    if (hardUnknown && !afterConditions) { setConditionsOpen(true); return; }
     if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan' } }); return; }
     setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
     const next = await createRecommendationJobAdapter(accessToken).submit(draft);
@@ -489,7 +494,23 @@ export default function PlanConditions() {
         questionColumn
       )}
 
-      <ConditionsPromptModal visible={conditionsOpen} reprompt onClose={() => setConditionsOpen(false)} />
+      {/*
+        🔴 -1334 — 닫힐 때 무엇을 골랐는지를 <b>반드시 본다.</b> 예전에는 그 값을 버리고
+        닫기만 해서, 「저장하고 시작」을 눌러도 <b>시작이 안 됐다.</b> 창만 사라지고 같은
+        자리에 남는데 화면은 아무 말도 안 해서, 큰 단추를 한 번 더 눌러야 하는 줄 아무도
+        몰랐다.
+
+        ✕ 로 닫은 것(DISMISSED)만 그 자리에 남는다. 건너뛰든 저장하든 가려던 곳으로 간다 —
+        홈 화면이 이미 같은 규칙을 쓴다. 조건을 안 적었다고 길을 막지 않는다.
+      */}
+      <ConditionsPromptModal
+        visible={conditionsOpen}
+        reprompt
+        onClose={(outcome) => {
+          setConditionsOpen(false);
+          if (outcome !== 'DISMISSED') void submitPlan(true);
+        }}
+      />
     </Screen>
   );
 }
