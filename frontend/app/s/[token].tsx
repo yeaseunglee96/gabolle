@@ -138,7 +138,7 @@ export default function SharedItinerary() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   center: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.ivory },
   card: { gap: spacing[3], width: '100%', maxWidth: 420, padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   heading: { gap: spacing[1], marginTop: spacing[6], marginBottom: spacing[4] },

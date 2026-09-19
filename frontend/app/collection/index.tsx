@@ -112,7 +112,7 @@ export default function CollectionHome() {
 }
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   hero: { gap: spacing[2], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy },
   heroTitle: { marginTop: spacing[1] },

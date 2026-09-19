@@ -90,6 +90,6 @@ export default function AcceptInvite() {
 }
 
 const styles = StyleSheet.create({
-  screen: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.ivory },
+  screen: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.canvas },
   card: { gap: spacing[3], width: '100%', maxWidth: 420, padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
 });

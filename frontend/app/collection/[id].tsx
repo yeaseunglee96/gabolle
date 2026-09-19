@@ -229,7 +229,7 @@ export default function CollectionListDetail() {
 }
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3] },
   grow: { flex: 1, gap: spacing[1] },

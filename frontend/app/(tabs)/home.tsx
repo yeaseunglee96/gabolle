@@ -250,7 +250,7 @@ export default function Home() {
 const CARD_WIDTH = 240;
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
   screenContent: { paddingHorizontal: 0, paddingTop: 0 },
   pressed: { opacity: 0.75 },
 
