@@ -54,7 +54,7 @@ const LEGACY = [
   {
     pattern: /rgba\(\s*11\s*,\s*29\s*,\s*58\s*,/,
     name: '옛 남색 rgba(11,29,58,…)',
-    why: '옛 배색의 남색(#0B1D3A)이 투명도만 얹은 채 남은 자리입니다. 전부 모달의 어둠막과 사진 위 그림자막인데, 새 배색에는 이 남색이 아예 없습니다 — 모달을 열 때마다 **파란 기운의 막**이 덮입니다. 색이 조금 다를 뿐이라 아무도 오류로 안 읽습니다.',
+    why: '옛 배색의 남색(#0B1D3A)이 투명도만 얹은 채 남은 자리입니다. 새 배색에는 이 남색이 아예 없어서, 모달을 열 때마다 **파란 기운의 막**이 덮입니다. 색이 조금 다를 뿐이라 아무도 오류로 안 읽습니다. 🔴 어둠막만이 아닙니다 — 실측(2026-09-19)으로 어둠막·사진막 26곳, `boxShadow` 7곳, 사진 위 그러데이션 배열 3곳이었습니다. 「내 건 어둠막이 아닌데」 하고 건너뛰지 마세요.',
     pick: [
       "rgba(25,25,25,α)   시안이 값을 직접 정해 뒀습니다 — 「어둠막 rgba(25,25,25,.62)」",
       '🔴 투명도(α)는 그대로 두세요. .62 는 어둠막, 더 옅은 것은 사진 위 글자를 읽히게 하는 막입니다',
@@ -140,8 +140,13 @@ const FILL = /backgroundColor:\s*color\.action\.(primary|brand)\b/;
  *
  * 실측(2026-09-19): `variant` 없는 `<Button>` 이 80개, 파일 45개.
  * 이걸 세어 넣으면 화면 23개가 「둘 이상」이 된다.
+ *
+ * 🔴 **`variant="primary"` 를 적은 것도 똑같이 센다.** 안 그러면 고치는 사람이
+ *    갈래를 명시하는 것만으로 검사를 통과시킬 수 있다 — 화면은 하나도 안 바뀌었는데.
+ *    검사가 세는 것은 **적힌 글자**가 아니라 **화면에 뜨는 빨강**이어야 한다.
  */
-const IMPLICIT_FILL = /<Button\b[^>]*?\/?>/g;
+const BUTTON_TAG = /<Button\b[^>]*?\/?>/g;
+const isCamelliaButton = (tag) => !/\bvariant\s*=/.test(tag) || /\bvariant\s*=\s*[{"']*(primary|brand)[}"']*/.test(tag);
 
 /** 🔴 화면에는 하나뿐인데 파일에는 둘로 보이는 자리. 왜 그런지를 함께 적는다. */
 const ALLOWED_MULTI_FILL = {
@@ -179,7 +184,11 @@ for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))
       if (hit) offenders.push(`${where}  ${hit[0]}  ${line.trim().slice(0, 70)}`);
     }
     for (const rule of [...LEGACY, ...MISUSE]) {
-      if (rule.pattern.test(code)) legacy.push({ rule, where, line: line.trim().slice(0, 78) });
+      // 🔴 한 줄에 여러 번 나온다. 있나 없나만 보면 셋을 하나로 센다 — 그러면 손으로 센
+      //    사람의 수(18)와 검사의 수(16)가 어긋나고, 둘 다 맞는데 읽는 사람만 헷갈린다.
+      //    실제로 걸린 줄: colors={['rgba(11,29,58,0.10)', …0.55…, …0.80…]}
+      const times = (code.match(new RegExp(rule.pattern.source, 'g')) ?? []).length;
+      for (let i = 0; i < times; i += 1) legacy.push({ rule, where, line: line.trim().slice(0, 78) });
     }
     // 🔴 한 줄에 여러 번 나온다. 이 저장소의 StyleSheet.create 는 통째로 한 줄인 곳이
     //    많아서, 줄 단위로 있나 없나만 보면 셋을 하나로 센다.
@@ -194,10 +203,11 @@ for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))
   // 🔴 여는 태그가 여러 줄에 걸치므로 줄 단위로 못 센다. 파일을 통째로 훑는다.
   //    ([^>] 가 이미 `>` 를 막으므로 줄바꿈은 알아서 넘어간다. 다만 속성값 안에 `>` 가
   //    들어 있으면 거기서 끊긴다 — 못 잡는 자리다.)
-  for (const m of text.matchAll(IMPLICIT_FILL)) {
-    if (/\bvariant\s*=/.test(m[0])) continue;
+  for (const m of text.matchAll(BUTTON_TAG)) {
+    if (!isCamelliaButton(m[0])) continue;
     const found = fills.get(rel) ?? [];
-    found.push({ where: `${rel}:${text.slice(0, m.index).split('\n').length}`, how: 'variant 없는 <Button>' });
+    const how = /\bvariant\s*=/.test(m[0]) ? '<Button variant="primary">' : 'variant 없는 <Button> (기본값이 primary)';
+    found.push({ where: `${rel}:${text.slice(0, m.index).split('\n').length}`, how });
     fills.set(rel, found);
   }
 }
