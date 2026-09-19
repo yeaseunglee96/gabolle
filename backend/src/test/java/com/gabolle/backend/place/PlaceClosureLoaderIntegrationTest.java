@@ -42,10 +42,37 @@ class PlaceClosureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	/** 이 시험이 쓰는 가게. 상가업소번호에서 나오는 아이디가 정해져 있어 지울 것도 정해진다. */
+	private static final List<String> STORE_IDS = List.of("STORE-A", "STORE-B");
+
+	/**
+	 * 🔴 <b>내가 넣은 것만 지운다.</b>
+	 *
+	 * <p>여기는 원래 {@code DELETE FROM place} 였다. 그런데 이 시험은 <b>여러 시험이 함께 쓰는
+	 * 진짜 DB</b> 위에서 돌고, 다른 시험이 만든 일정({@code itinerary_item})이 그 장소들을
+	 * 가리키고 있다. 그래서 표를 통째로 비우려다 외래키에 걸려 <b>이 파일의 시험 넷이 전부
+	 * 터졌다</b> (MR !1284 의 {@code backend:build}, 2026-09-19):
+	 *
+	 * <pre>
+	 *   ERROR: update or delete on table "place" violates foreign key constraint
+	 *          "fk_itinerary_item_place" on table "itinerary_item"
+	 * </pre>
+	 *
+	 * 🔴 <b>남의 일정을 지워서 통과시키면 안 된다.</b> 그러면 이 시험이 도는 순서에 따라 옆
+	 * 시험이 터진다 — 고장을 옮기는 것이지 고치는 것이 아니다.
+	 *
+	 * <p>이 파일의 단언은 전부 {@code STORE-A}·{@code STORE-B} 두 곳만 본다. 표가 비어 있을
+	 * 필요가 없다. 그래서 그 둘만 지운다 — 옆 시험이 무엇을 남겼든 상관없어진다.
+	 * 같은 패키지의 {@code SbizPlaceLoaderIntegrationTest}·{@code PopularityScoreLoaderIntegrationTest}
+	 * 도 {@code source_type} 으로 좁혀 지우고 있다. 이쪽이 한 칸 더 좁을 뿐 같은 규칙이다.
+	 */
 	@BeforeEach
 	void seedPlaces() {
-		this.jdbcTemplate.update("DELETE FROM place_feature");
-		this.jdbcTemplate.update("DELETE FROM place");
+		for (String storeId : STORE_IDS) {
+			UUID placeId = SbizPlaceLoader.placeIdOf(storeId);
+			this.jdbcTemplate.update("DELETE FROM place_feature WHERE place_id = ?", placeId);
+			this.jdbcTemplate.update("DELETE FROM place WHERE place_id = ?", placeId);
+		}
 		this.sbizLoader.saveChunk(List.of(
 				new SbizRow("STORE-A", "가게가", null, "한식", "부산 해운대구 1", 35.16, 129.16),
 				new SbizRow("STORE-B", "가게나", null, "한식", "부산 해운대구 2", 35.17, 129.17)),
