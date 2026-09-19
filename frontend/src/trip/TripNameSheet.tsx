@@ -105,7 +105,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
           onPress={() => void commit('')}
           style={[styles.dangerButton, busy && styles.disabled]}
         >
-          {busy ? <ActivityIndicator color={color.text.onAction} size={16} /> : <Text weight="bold" color={color.text.onAction}>{tx('지우기', 'Clear')}</Text>}
+          {busy ? <ActivityIndicator color={color.state.danger} size={16} /> : <Text weight="bold" color={color.state.danger}>{tx('지우기', 'Clear')}</Text>}
         </Pressable>
       </View>
     </>
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   rowButton: { flex: 1 },
   clearButton: { width: '100%' },
   dangerButton: {
-    flex: 1, minHeight: 48, borderRadius: radius.md, backgroundColor: color.state.danger,
+    flex: 1, minHeight: 48, borderRadius: radius.md, backgroundColor: color.state.dangerBg,
     alignItems: 'center', justifyContent: 'center',
   },
   disabled: { opacity: 0.4 },

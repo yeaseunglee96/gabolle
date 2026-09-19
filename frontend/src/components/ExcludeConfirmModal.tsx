@@ -46,7 +46,7 @@ export function ExcludeConfirmModal({ visible, placeTitle, busy, onCancel, onCon
               <Text weight="bold" color={color.brand.navy}>{tx('취소', 'Cancel')}</Text>
             </Pressable>
             <Pressable accessibilityRole="button" accessibilityLabel={tx('제외 확인', 'Confirm exclude')} accessibilityState={{ busy, disabled: busy }} disabled={busy} onPress={onConfirm} style={[styles.confirmButton, busy && styles.actionDisabled]}>
-              {busy ? <ActivityIndicator color={color.text.onAction} /> : <Text weight="bold" color={color.text.onAction}>{tx('제외', 'Exclude')}</Text>}
+              {busy ? <ActivityIndicator color={color.state.danger} /> : <Text weight="bold" color={color.state.danger}>{tx('제외', 'Exclude')}</Text>}
             </Pressable>
           </View>
         </View>
@@ -61,10 +61,11 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing[3], alignItems: 'flex-start' },
   dot: { width: 10, height: 10, marginTop: spacing[1], borderRadius: radius.full },
   dotKeep: { backgroundColor: color.state.success },
-  dotChange: { backgroundColor: color.state.danger },
+  // 글자 없는 점이라 점 전용 빨강을 쓴다. 채움·글자의 동백과 섞지 않는다.
+  dotChange: { backgroundColor: color.state.dot },
   rowCopy: { flex: 1, gap: spacing[1] },
   actions: { flexDirection: 'row', gap: spacing[3], marginTop: spacing[2] },
   cancelButton: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy },
-  confirmButton: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.state.danger },
+  confirmButton: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.state.dangerBg },
   actionDisabled: { opacity: 0.5 },
 });
