@@ -186,7 +186,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
         onPress={onToggleSave}
         style={[storyReactionStyles.button, savingStar && styles.busy]}
       >
-        <Text variant="caption" weight="bold" color={saved ? color.brand.orange : color.text.muted}>
+        <Text variant="caption" weight="bold" color={saved ? color.action.secondary : color.text.muted}>
           {saved ? tx('★ 저장됨', 'Saved') : tx('☆ 저장', 'Save')}
         </Text>
       </Pressable>
@@ -489,8 +489,8 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
       </Text>
       <View style={styles.emptyActions}>
         {following
-          ? <Button label={tx('전체 보기', 'See all')} onPress={onSeeAll} containerStyle={styles.emptyPrimary} />
-          : <Button label={signedIn ? tx('기록 남기기', 'Write a record') : tx('로그인', 'Sign in')} onPress={onWrite} containerStyle={styles.emptyPrimary} />}
+          ? <Button label={tx('전체 보기', 'See all')} variant="outline" onPress={onSeeAll} containerStyle={styles.emptyPrimary} />
+          : <Button label={signedIn ? tx('기록 남기기', 'Write a record') : tx('로그인', 'Sign in')} variant="outline" onPress={onWrite} containerStyle={styles.emptyPrimary} />}
       </View>
     </View>
   </View>;
@@ -681,7 +681,7 @@ export default function Feed() {
     {!signedIn
       ? <View style={styles.loginNotice}>
           <Text variant="caption" color={color.text.body}>{tx('로그인하면 기록을 남기고 팔로잉 피드를 볼 수 있어요.', 'Sign in to write records and see your following feed.')}</Text>
-          <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('로그인 →', 'Sign in →')}</Text></Pressable>
+          <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}><Text variant="caption" weight="bold" color={color.state.info}>{tx('로그인 →', 'Sign in →')}</Text></Pressable>
         </View>
       : null}
 
@@ -693,14 +693,14 @@ export default function Feed() {
       : null}
 
     {loading
-      ? <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /><Text variant="title" weight="bold">{tx('피드를 불러오고 있어요', 'Loading the feed')}</Text></View>
+      ? <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text variant="title" weight="bold">{tx('피드를 불러오고 있어요', 'Loading the feed')}</Text></View>
       : null}
 
     {!loading && result.state !== 'success'
       ? <View style={styles.stateCard}>
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('피드 API를 기다리고 있어요', 'Waiting for the feed API') : tx('피드를 불러오지 못했어요', 'Could not load the feed')}</Text>
           <Text color={color.text.body}>{result.message}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void feedQuery.refetch()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void feedQuery.refetch()} />
         </View>
       : null}
 
@@ -737,7 +737,7 @@ export default function Feed() {
       : null}
 
     {!loading && result.state === 'success' && result.nextCursor
-      ? <Button label={loadingMore ? tx('불러오는 중…', 'Loading…') : tx('더 보기', 'Load more')} variant="ghost" disabled={loadingMore} onPress={() => void loadMore()} containerStyle={styles.loadMore} />
+      ? <Button label={loadingMore ? tx('불러오는 중…', 'Loading…') : tx('더 보기', 'Load more')} variant="tertiary" disabled={loadingMore} onPress={() => void loadMore()} containerStyle={styles.loadMore} />
       : null}
   </View>;
 
@@ -771,7 +771,10 @@ export default function Feed() {
         올라가 버린다 — 탭바가 같은 이유로 받침에 담겨 떠 있다.
         `pointerEvents="box-none"` 이라 단추가 없는 자리는 손짓이 그대로 통과한다.
     */}
-    {!wide
+    {/* 🔴 폭이 아니라 composeEntry 로 묻는다. 폭으로 물으면 글쓰기 입구가 두 개 뜬다 —
+       맨 위 입력창은 600 부터, 이 단추는 1023 까지 떠서 그 사이가 겹쳤다. 입구를 고르는
+       곳은 composeEntryFor 하나이므로, 그 답을 그대로 쓰면 겹칠 수가 없다. */}
+    {composeEntry === 'headerButton'
       ? <Animated.View
           // 🔴 시트가 열리면 눌리지도 않아야 한다. 투명하기만 하면 지도를 누르려던
           //    손가락이 「지도 표시하기」를 다시 누른다 — 바로 그 자리에 있다.
@@ -826,7 +829,7 @@ export default function Feed() {
 }
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
 
   // 넓은 화면: 본문 + 보조 칸. 보조 칸은 폭 고정, 본문이 남는 만큼 가져간다.
   wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6], marginTop: spacing[6] },
@@ -840,7 +843,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] },
   fabDock: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[3], paddingHorizontal: gutter },
   mapToggle: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.navy },
-  writeFab: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: color.brand.orange },
+  writeFab: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: color.action.primary },
   // 시트 안 — 위 손잡이, 머리 줄, 지도, 장소 칩 가로 줄.
   sheetHandleHit: { alignSelf: 'center', width: 44, height: 20, alignItems: 'center', justifyContent: 'center' },
   sheetHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: color.surface.field },
@@ -956,8 +959,8 @@ const styles = StyleSheet.create({
   compose: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   composeInput: { minHeight: 64, fontSize: 18, lineHeight: 24, color: color.text.heading },
   composeImages: { flexDirection: 'row', gap: spacing[2] },
-  composeImageOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.45)' },
-  composeImageRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.6)', alignItems: 'center', justifyContent: 'center' },
+  composeImageOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(25,25,25,0.45)' },
+  composeImageRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(25,25,25,0.6)', alignItems: 'center', justifyContent: 'center' },
   composeTools: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border, flexWrap: 'wrap' },
   toolButton: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.sm },
   toolButtonOn: { backgroundColor: color.surface.soft },

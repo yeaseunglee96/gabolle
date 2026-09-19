@@ -75,15 +75,15 @@ export function buildKakaoMapHtml(appKey: string): string {
         content.appendChild(img);
         content.style.width = '40px'; content.style.height = '40px'; content.style.padding = '0'; content.style.overflow = 'hidden';
         content.style.borderRadius = '999px';
-        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.orange : markerColor);
-        content.style.background = colors.canvas; content.style.cursor = 'pointer'; content.style.boxShadow = '0 4px 12px rgba(11,29,58,.18)';
+        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.selected : markerColor);
+        content.style.background = colors.canvas; content.style.cursor = 'pointer'; content.style.boxShadow = '0 4px 12px rgba(25,25,25,.18)';
       } else {
         content.textContent = layer ? layer.label : String(stop.number);
         content.style.minWidth = '34px'; content.style.height = '34px'; content.style.padding = '0 8px';
         content.style.borderRadius = '999px';
-        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.orange : markerColor);
+        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.selected : markerColor);
         content.style.background = colors.canvas; content.style.color = markerColor; content.style.fontWeight = '700';
-        content.style.cursor = 'pointer'; content.style.boxShadow = '0 4px 12px rgba(11,29,58,.18)';
+        content.style.cursor = 'pointer'; content.style.boxShadow = '0 4px 12px rgba(25,25,25,.18)';
       }
       (function (stopId) { content.onclick = function () { post('select', stopId); }; })(stop.id);
       var overlay = new maps.CustomOverlay({ position: position, content: content, yAnchor: 0.5 });
@@ -96,7 +96,7 @@ export function buildKakaoMapHtml(appKey: string): string {
       curEl.setAttribute('aria-label', '현재 위치');
       curEl.style.width = '18px'; curEl.style.height = '18px'; curEl.style.borderRadius = '999px';
       curEl.style.border = '3px solid ' + colors.canvas; curEl.style.background = colors.navy;
-      curEl.style.boxShadow = '0 0 0 2px rgba(11,29,58,.35), 0 4px 10px rgba(11,29,58,.28)';
+      curEl.style.boxShadow = '0 0 0 2px rgba(25,25,25,.35), 0 4px 10px rgba(25,25,25,.28)';
       var curOverlay = new maps.CustomOverlay({ position: curPos, content: curEl, yAnchor: 0.5 });
       curOverlay.setMap(map); overlays.push(curOverlay);
     }
@@ -138,4 +138,4 @@ export function buildKakaoMapHtml(appKey: string): string {
 
 // RouteMap.tsx·RouteMap.native.tsx 양쪽이 마커 색을 이 표기로 넘긴다 — 디자인 토큰의
 // hex 값을 그대로 문자열로 실어 보낸다(HTML 안 JS는 우리 색 토큰 파일을 못 읽는다).
-export type KakaoMapColors = { navy: string; orange: string; canvas: string };
+export type KakaoMapColors = { navy: string; selected: string; canvas: string };

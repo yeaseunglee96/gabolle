@@ -84,7 +84,7 @@ export default function SharedItinerary() {
       <View accessibilityRole="alert" style={styles.card}>
         <Text variant="title" weight="bold">{tx('공유 일정을 찾을 수 없어요', 'This shared itinerary could not be found')}</Text>
         <Text color={color.text.body}>{status.state === 'error' ? status.message : tx('링크가 정확한지 확인해 주세요. 지워졌거나 잘못된 링크일 수 있어요.', 'Please check the link. It may be invalid, or the trip may have been deleted.')}</Text>
-        <Button label={tx('홈으로', 'Go home')} variant="ghost" onPress={() => router.replace('/home')} />
+        <Button label={tx('홈으로', 'Go home')} variant="tertiary" onPress={() => router.replace('/home')} />
       </View>
     </Screen>;
   }
@@ -132,13 +132,13 @@ export default function SharedItinerary() {
 
     <View style={styles.actions}>
       <Button label={tx('내 조건으로 새 여행 만들기', 'Create a new trip with my own conditions')} onPress={() => void startMyOwnTrip()} />
-      <Button label={copied ? tx('링크 복사됨 ✓', 'Link copied ✓') : tx('링크 복사', 'Copy link')} variant="ghost" onPress={() => void copyLink()} />
+      <Button label={copied ? tx('링크 복사됨 ✓', 'Link copied ✓') : tx('링크 복사', 'Copy link')} variant="tertiary" onPress={() => void copyLink()} />
     </View>
   </Screen>;
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   center: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.ivory },
   card: { gap: spacing[3], width: '100%', maxWidth: 420, padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   heading: { gap: spacing[1], marginTop: spacing[6], marginBottom: spacing[4] },

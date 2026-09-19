@@ -134,8 +134,8 @@ function ReplyCard({
           />
           {saveError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{saveError}</Text> : null}
           <View style={styles.confirmButtons}>
-            <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={saving} onPress={() => setEditing(false)} containerStyle={styles.confirmButton} />
-            <Button label={saving ? tx('저장 중…', 'Saving…') : tx('저장', 'Save')} disabled={saving || !draft.trim()} onPress={() => void saveEdit()} containerStyle={styles.confirmButton} />
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={saving} onPress={() => setEditing(false)} containerStyle={styles.confirmButton} />
+            <Button label={saving ? tx('저장 중…', 'Saving…') : tx('저장', 'Save')} variant="secondary" disabled={saving || !draft.trim()} onPress={() => void saveEdit()} containerStyle={styles.confirmButton} />
           </View>
         </View>
       ) : (
@@ -153,8 +153,8 @@ function ReplyCard({
               <View style={styles.confirmRow}>
                 <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('댓글을 삭제할까요?', 'Delete this comment?')}</Text>
                 <View style={styles.confirmButtons}>
-                  <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
-                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
+                  <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
+                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
                 </View>
               </View>
             ) : (
@@ -395,7 +395,7 @@ export default function StoryDetail() {
       </Pressable>
 
       {state.status === 'loading' && !story ? (
-        <View accessibilityLiveRegion="polite" style={styles.notice}><ActivityIndicator color={color.brand.orange} /><Text color={color.text.body}>{tx('기록을 불러오고 있어요', 'Loading the record')}</Text></View>
+        <View accessibilityLiveRegion="polite" style={styles.notice}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('기록을 불러오고 있어요', 'Loading the record')}</Text></View>
       ) : null}
 
       {reported ? (
@@ -450,8 +450,8 @@ export default function StoryDetail() {
               <View style={styles.confirmRow}>
                 <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('정말 삭제할까요? 되돌릴 수 없어요.', 'Delete this record? This cannot be undone.')}</Text>
                 <View style={styles.confirmButtons}>
-                  <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
-                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
+                  <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
+                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
                 </View>
               </View>
             ) : null}
@@ -482,10 +482,10 @@ export default function StoryDetail() {
           {repliesError ? (
             <View accessibilityRole="alert" style={styles.replyNotice}>
               <Text variant="caption" color={color.text.body}>{tx('댓글을 불러오지 못했어요.', "We couldn't load the comments.")}</Text>
-              <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void loadReplies()} containerStyle={styles.recoveryButton} />
+              <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReplies()} containerStyle={styles.recoveryButton} />
             </View>
           ) : replies === null ? (
-            <ActivityIndicator color={color.brand.orange} />
+            <ActivityIndicator color={color.action.primary} />
           ) : shownReplies.length === 0 ? (
             <Text variant="caption" color={color.text.muted}>{tx('아직 댓글이 없어요.', 'No comments yet.')}</Text>
           ) : (
@@ -554,7 +554,7 @@ export default function StoryDetail() {
         <View style={styles.notice} accessibilityRole="alert">
           <Text variant="title" weight="bold">{tx('기록을 불러오지 못했어요', "We couldn't load this record")}</Text>
           <Text color={color.text.body}>{state.message}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} containerStyle={styles.recoveryButton} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} containerStyle={styles.recoveryButton} />
         </View>
       ) : null}
 
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   gridCell: { position: 'relative', flexBasis: '31.5%', flexGrow: 1, aspectRatio: 1, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.soft },
   gridImage: { width: '100%', height: '100%' },
-  gridMore: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.45)' },
+  gridMore: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(25,25,25,0.45)' },
 
   placeHeading: { gap: spacing[2] },
   placeMetaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },

@@ -64,7 +64,7 @@ export function NotificationsBody() {
           <View style={styles.permissionCopy}><Text variant="body" weight="bold">{statusCopy.label}</Text><Text variant="caption" color={color.text.body}>{statusCopy.body}</Text></View>
         </View>
         {permission === 'undetermined' && <Button label={busy ? tx('확인 중…', 'Checking…') : tx('알림 허용하기', 'Allow notifications')} disabled={busy} onPress={() => void requestPermission()} containerStyle={styles.action} />}
-        {permission === 'denied' && <Button label={tx('기기 알림 설정 열기', 'Open device notification settings')} variant="ghost" onPress={() => void Linking.openSettings()} containerStyle={styles.action} />}
+        {permission === 'denied' && <Button label={tx('기기 알림 설정 열기', 'Open device notification settings')} variant="tertiary" onPress={() => void Linking.openSettings()} containerStyle={styles.action} />}
       </View>
   );
 }

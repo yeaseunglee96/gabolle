@@ -74,7 +74,7 @@ export default function AdminStoryReports() {
       <View style={styles.titleRow}>
         <Text variant="display" weight="bold">신고 검토</Text>
         {state === 'ready' && items.length > 0 && (
-          <View style={styles.countBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>미처리 {items.length}건</Text></View>
+          <View style={styles.countBadge}><Text variant="caption" weight="bold" color={color.state.danger}>미처리 {items.length}건</Text></View>
         )}
       </View>
       <Text variant="caption" color={color.text.body} style={styles.subtitle}>
@@ -148,7 +148,7 @@ export default function AdminStoryReports() {
 
 const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
-  countBadge: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: 999, backgroundColor: color.state.danger },
+  countBadge: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: 999, backgroundColor: color.state.dangerBg },
   subtitle: { marginTop: spacing[1], marginBottom: spacing[4] },
   spinner: { marginTop: spacing[6] },
   retry: { marginTop: spacing[2] },

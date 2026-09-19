@@ -72,7 +72,7 @@ export default function VerifyEmail() {
       <View style={styles.body}>
         {phase === 'checking' && (
           <>
-            <ActivityIndicator accessibilityLabel={tx('인증 확인 중', 'Verifying')} color={color.brand.orange} />
+            <ActivityIndicator accessibilityLabel={tx('인증 확인 중', 'Verifying')} color={color.action.primary} />
             <Text variant="title" weight="bold">{tx('인증을 확인하고 있어요', 'Verifying your email')}</Text>
             <Text variant="body" color={color.text.muted}>{tx('잠시만 기다려 주세요.', 'This will take a moment.')}</Text>
           </>
@@ -97,7 +97,7 @@ export default function VerifyEmail() {
             </Text>
             <Text variant="body" color={color.text.muted}>{failureText}</Text>
             <Button label={tx('가입 화면으로', 'Back to sign-up')} onPress={() => router.replace('/sign-up')} />
-            <Button label={tx('로그인 화면으로', 'Back to sign-in')} variant="ghost" onPress={() => router.replace('/sign-in')} />
+            <Button label={tx('로그인 화면으로', 'Back to sign-in')} variant="tertiary" onPress={() => router.replace('/sign-in')} />
           </>
         )}
       </View>

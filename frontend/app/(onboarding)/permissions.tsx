@@ -35,7 +35,7 @@ function ToggleSwitch({ value, onChange, accessibilityLabel }: { value: boolean;
   const thumbOffset = progress.interpolate({ inputRange: [0, 1], outputRange: [SWITCH_PADDING, SWITCH_WIDTH - SWITCH_THUMB - SWITCH_PADDING] });
   return (
     <Pressable accessibilityRole="switch" accessibilityLabel={accessibilityLabel} accessibilityState={{ checked: value }} onPress={() => onChange(!value)} hitSlop={8}>
-      <View style={[styles.switchTrack, { backgroundColor: value ? color.brand.orange : color.surface.field }]}>
+      <View style={[styles.switchTrack, { backgroundColor: value ? color.action.primary : color.surface.field }]}>
         <Animated.View style={[styles.switchThumb, { transform: [{ translateX: thumbOffset }] }]} />
       </View>
     </Pressable>
@@ -123,11 +123,11 @@ export default function Permissions() {
         </Text>
       </Pressable>
 
-      <Button testID="permissions-continue" label={requesting ? tx('권한 확인 중…', 'Checking permissions…') : tx('선택하고 로그인·회원가입으로', 'Continue to sign in / sign up')} disabled={requesting} variant="accent" pill containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
+      <Button testID="permissions-continue" label={requesting ? tx('권한 확인 중…', 'Checking permissions…') : tx('선택하고 로그인·회원가입으로', 'Continue to sign in / sign up')} disabled={requesting} variant="primary" pill containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
       {/* 사용자 리포트 — 위 버튼은 pill(완전히 둥근 모양)인데 이 버튼만 각진 radius.md라
           두 버튼이 붙어 있을 때 모양이 갑자기 바뀌는 것처럼 보였다. pill을 맞추고 간격을 준다.
       */}
-      <Button testID="permissions-browse-guest" label={tx('비회원으로 먼저 둘러보기', 'Browse as guest first')} variant="ghost" pill disabled={requesting} containerStyle={styles.secondaryCta} onPress={() => void browseAsGuest()} />
+      <Button testID="permissions-browse-guest" label={tx('비회원으로 먼저 둘러보기', 'Browse as guest first')} variant="tertiary" pill disabled={requesting} containerStyle={styles.secondaryCta} onPress={() => void browseAsGuest()} />
       </View>
       </View>
     </Screen>
@@ -135,7 +135,7 @@ export default function Permissions() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   layout: { flex: 1 },
   layoutWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[8] },
   introColumn: {},
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   switchTrack: { width: SWITCH_WIDTH, height: SWITCH_HEIGHT, borderRadius: SWITCH_HEIGHT / 2, justifyContent: 'center' },
-  switchThumb: { width: SWITCH_THUMB, height: SWITCH_THUMB, borderRadius: SWITCH_THUMB / 2, backgroundColor: '#fff' },
+  switchThumb: { width: SWITCH_THUMB, height: SWITCH_THUMB, borderRadius: SWITCH_THUMB / 2, backgroundColor: color.surface.card },
   cardBottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -46,7 +46,7 @@ function isChromeless(pathname: string) {
   return pathname.startsWith('/oauth/');
 }
 
-/** 폰 TabBar 의 활성 표식과 같은 모양 — 18×3 오렌지 바. */
+/** 폰 TabBar 의 활성 표식과 같은 모양 — 5×5 점. */
 function ActiveMarker() {
   return <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.marker} />;
 }
@@ -121,15 +121,16 @@ export function TopNav() {
           const paths = [item.path, ...item.extra];
           const active = !planActive && paths.some((path) => pathname === path || (path !== '/' && pathname.startsWith(`${path}/`)));
           return (
-            <Pressable key={item.key} accessibilityRole="link" accessibilityState={{ selected: active }} onPress={() => router.push(item.path)} style={[styles.capsuleItem, active && styles.capsuleItemActive]}>
+            <Pressable key={item.key} accessibilityRole="link" accessibilityState={{ selected: active }} onPress={() => router.push(item.path)} style={styles.capsuleItem}>
               <Text weight={active ? 'bold' : 'medium'} color={active ? color.brand.navy : color.text.body} style={styles.noUnderline}>{tx(item.labelKo, item.labelEn)}</Text>
+              {active ? <ActiveMarker /> : null}
             </Pressable>
           );
         })}
       </View>
 
       <Pressable accessibilityRole="link" accessibilityState={{ selected: planActive }} onPress={() => router.push('/plan')} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
-        <Text weight="bold" color={color.text.onAction} style={styles.noUnderline}>{tx('여행 만들기', 'Plan a trip')}</Text>
+        <Text weight="bold" color={color.action.outline} style={styles.noUnderline}>{tx('여행 만들기', 'Plan a trip')}</Text>
         {planActive ? <ActiveMarker /> : null}
       </Pressable>
     </View>
@@ -162,20 +163,16 @@ const styles = StyleSheet.create({
   nav: { height: NAV_HEIGHT, paddingHorizontal: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: color.brand.ivory, borderBottomWidth: 1, borderBottomColor: color.surface.border },
   logo: { width: 120, height: 28 },
 
-  // 가운데 캡슐 — 흰 카드가 「지금 여기」를 말한다.
-  capsule: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  // 가운데 칸들 — 알약 바탕도 흰 카드도 없다. 「지금 여기」는 검은 글자와 밑의 점이 말한다.
+  // 바탕으로 말하면 「고른 것」이 되고, 이 배색에서 고른 것은 색이 아니라 굵기와 점으로 뜬다.
+  capsule: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], padding: spacing[1] },
   capsuleItem: { height: CTA_HEIGHT, paddingHorizontal: spacing[4] + spacing[1], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
-  capsuleItemActive: {
-    backgroundColor: color.surface.card,
-    // 웹은 boxShadow, 안드로이드는 elevation 이 그림자를 그린다. 둘 다 둔다.
-    shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 2, shadowOffset: { width: 0, height: 1 }, elevation: 1,
-  },
 
-  cta: { height: CTA_HEIGHT, paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
+  cta: { height: CTA_HEIGHT, paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.action.outline, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   ctaPressed: { opacity: 0.88 },
 
-  // 절대배치라 alignSelf 는 믿지 않는다 — 폭(18)의 절반을 왼쪽으로 당겨 가운데를 맞춘다.
-  marker: { position: 'absolute', bottom: CTA_MARKER_DROP, left: '50%', marginLeft: -9, width: 18, height: 3, borderRadius: 2, backgroundColor: color.brand.orange },
+  // 절대배치라 alignSelf 는 믿지 않는다 — 폭(5)의 절반을 왼쪽으로 당겨 가운데를 맞춘다.
+  marker: { position: 'absolute', bottom: CTA_MARKER_DROP, left: '50%', marginLeft: -2.5, width: 5, height: 5, borderRadius: radius.full, backgroundColor: color.state.dot },
 
   // 웹에서 Pressable 안의 글자에 기본 밑줄이 붙는 경우가 있어 명시적으로 끈다.
   noUnderline: { textDecorationLine: 'none' },

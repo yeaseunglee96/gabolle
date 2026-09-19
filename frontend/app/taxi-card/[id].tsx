@@ -57,7 +57,7 @@ export default function TaxiCardScreen() {
 
       {state.status === 'loading' ? (
         <View style={styles.notice} accessibilityLiveRegion="polite">
-          <ActivityIndicator color={color.brand.orange} />
+          <ActivityIndicator color={color.action.primary} />
           <Text color={color.text.body}>{tx('택시 카드를 준비하고 있어요', 'Preparing the taxi card')}</Text>
         </View>
       ) : null}

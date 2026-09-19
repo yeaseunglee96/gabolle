@@ -84,7 +84,7 @@ export default function Saved() {
 
     {state === 'ready' && cards.length === 0 && (
       <View accessibilityLiveRegion="polite" style={styles.empty}>
-        <View style={styles.mark}><Text variant="display" color={color.brand.orange}>⌁</Text></View>
+        <View style={styles.mark}><Text variant="display" color={color.action.primary}>⌁</Text></View>
         <Text variant="title" weight="bold">{tx('아직 저장한 장소가 없어요', 'No saved places yet')}</Text>
         <Text color={color.text.body} style={styles.description}>{tx('마음에 드는 장소와 추천 코스를 저장하면 이곳에서 다시 볼 수 있어요.', 'Save places and recommended routes you like to find them here again.')}</Text>
         <Pressable accessibilityRole="button" onPress={() => router.push('/home')} style={styles.action}><Text weight="bold" color={color.text.onAction}>{tx('부산 둘러보기', 'Explore Busan')}</Text></Pressable>
@@ -95,7 +95,7 @@ export default function Saved() {
       <View style={styles.list}>
         {cards.map((card) => (
           <Pressable key={card.placeId} accessibilityRole="button" onPress={() => router.push(`/place/${card.placeId}`)} style={styles.card}>
-            {card.image ? <Image source={card.image} resizeMode="cover" style={styles.cardImage} /> : <View style={[styles.cardImage, styles.cardImageFallback]}><Text weight="bold" color={color.brand.orange}>GABOLLE</Text></View>}
+            {card.image ? <Image source={card.image} resizeMode="cover" style={styles.cardImage} /> : <View style={[styles.cardImage, styles.cardImageFallback]}><Text weight="bold" color={color.text.heading}>GABOLLE</Text></View>}
             <View style={styles.cardBody}>
               <Text variant="title" weight="bold">{card.title}</Text>
               <Text variant="caption" color={color.text.muted}>{card.subtitle}</Text>
@@ -113,8 +113,8 @@ export default function Saved() {
 }
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
-  screen: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
+  screen: { flex: 1, backgroundColor: color.canvas },
   heading: { gap: spacing[2], marginBottom: spacing[6] },
   notice: { padding: spacing[4], marginBottom: spacing[6], borderRadius: radius.md, backgroundColor: color.surface.tint },
   spinner: { marginTop: spacing[8] },

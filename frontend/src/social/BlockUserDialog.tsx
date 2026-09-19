@@ -52,7 +52,7 @@ export function BlockUserDialog({ visible, displayName, onClose, onConfirm }: Bl
               <Text variant="body" weight="bold">{tx('취소', 'Cancel')}</Text>
             </Pressable>
             <Pressable accessibilityRole="button" accessibilityState={{ disabled: submitting }} disabled={submitting} onPress={() => void confirm()} style={[styles.button, styles.confirmButton, submitting && styles.disabled]}>
-              {submitting ? <ActivityIndicator color={color.text.onAction} /> : <Text variant="body" weight="bold" color={color.text.onAction}>{tx('차단하기', 'Block')}</Text>}
+              {submitting ? <ActivityIndicator color={color.state.danger} /> : <Text variant="body" weight="bold" color={color.state.danger}>{tx('차단하기', 'Block')}</Text>}
             </Pressable>
           </View>
         </View>
@@ -62,12 +62,13 @@ export function BlockUserDialog({ visible, displayName, onClose, onConfirm }: Bl
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   card: { width: '100%', maxWidth: 420, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   warning: { padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   buttonRow: { flexDirection: 'row', gap: spacing[2] },
   button: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   cancelButton: { backgroundColor: color.surface.card },
-  confirmButton: { backgroundColor: color.state.danger },
+  // 위험은 채우지 않는다 — 연분홍 배경 + 빨간 글자. 주 버튼과 같은 무게로 보이면 안 된다.
+  confirmButton: { backgroundColor: color.state.dangerBg },
   disabled: { opacity: 0.5 },
 });

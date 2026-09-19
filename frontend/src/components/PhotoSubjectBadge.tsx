@@ -32,6 +32,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing[2],
     borderRadius: radius.full,
-    backgroundColor: 'rgba(11,29,58,0.72)',
+    backgroundColor: 'rgba(25,25,25,0.72)',
   },
 });

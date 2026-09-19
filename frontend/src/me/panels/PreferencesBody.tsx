@@ -73,7 +73,7 @@ function Row({ label, current, open, onPress, children }: {
           {current ?? tx('답 안 함', 'Not answered')}
         </Text>
       </View>
-      <Text variant="caption" weight="bold" color={color.brand.orange}>
+      <Text variant="caption" weight="bold" color={color.action.secondary}>
         {current ? tx('수정', 'Edit') : tx('답하기', 'Answer')}
       </Text>
     </Pressable>
@@ -249,7 +249,7 @@ export function PreferencesBody() {
   // 미리보기)에서 isPending 은 영원히 참이라 돌아가는 동그라미에 갇힌다. isLoading 은
   // "지금 실제로 받아오는 중" 만 참이다.
   if (query.isLoading) {
-    return <ActivityIndicator color={color.brand.orange} />;
+    return <ActivityIndicator color={color.action.primary} />;
   }
 
   // 머리(뒤로 버튼·눈썹·제목·설명)는 MyPageShell 이 그린다 — 마이페이지 탭 다섯이 같은
@@ -379,9 +379,9 @@ export function PreferencesBody() {
       </View>
       {clearConfirm
         ? <View style={[styles.confirmRow, wide && styles.confirmRowWide]}>
-            <Button label={tx('취소', 'Cancel')} variant="ghost" containerStyle={styles.confirmButton} onPress={() => setClearConfirm(false)} />
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" containerStyle={styles.confirmButton} onPress={() => setClearConfirm(false)} />
             <Pressable accessibilityRole="button" onPress={clearAll} style={styles.dangerConfirm}>
-              <Text weight="bold" color={color.text.onAction}>{tx('모두 지우기', 'Clear all')}</Text>
+              <Text weight="bold" color={color.state.danger}>{tx('모두 지우기', 'Clear all')}</Text>
             </Pressable>
           </View>
         : <Pressable accessibilityRole="button" onPress={() => setClearConfirm(true)} style={[styles.dangerButton, wide && styles.dangerButtonWide]}>
@@ -403,7 +403,7 @@ const SPEND_ROW_LABEL: Record<SpendKey, [string, string]> = {
 };
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[2] },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
@@ -433,18 +433,18 @@ const styles = StyleSheet.create({
   openTitle: { marginBottom: spacing[1] },
   rowActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[1] },
   clearLink: { minHeight: 44, justifyContent: 'center' },
-  closeButton: { minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  closeButton: { minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.secondary },
   scaleEnds: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing[2] },
   scaleTrack: { flexDirection: 'row', justifyContent: 'space-between', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.card },
   scalePoint: { width: 48, height: 48, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
-  scalePointSelected: { backgroundColor: color.brand.navy },
+  scalePointSelected: { backgroundColor: color.action.secondary },
   cardChoices: { gap: spacing[2] },
   cardChoice: { minHeight: 44, justifyContent: 'center', gap: spacing[1], padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  cardChoiceSelected: { borderColor: color.brand.orange, backgroundColor: color.surface.warm },
+  cardChoiceSelected: { borderColor: color.action.secondary, backgroundColor: color.surface.tint },
   cardChoiceDesc: { lineHeight: 18 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  chipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  chipSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   dangerCard: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
   dangerCardWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[6], padding: spacing[6] },
   dangerCopy: { flex: 1, gap: spacing[1] },
@@ -453,6 +453,6 @@ const styles = StyleSheet.create({
   confirmRow: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[1] },
   confirmRowWide: { marginTop: 0, minWidth: 280 },
   confirmButton: { flex: 1, minHeight: 44 },
-  dangerConfirm: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.state.danger },
+  dangerConfirm: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.state.dangerBg, borderWidth: 1, borderColor: color.state.danger },
   toast: { marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.successBg },
 });

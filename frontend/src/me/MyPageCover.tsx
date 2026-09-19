@@ -54,7 +54,7 @@ export function MyPageCover({
       <Image source={coverUri ? { uri: coverUri } : DEFAULT_COVER} resizeMode="cover" accessibilityLabel="" style={StyleSheet.absoluteFill} />
       {/* 시안의 세 단계 — 위는 살짝, 아래로 갈수록 진하게. */}
       <LinearGradient
-        colors={['rgba(11,29,58,0.10)', 'rgba(11,29,58,0.55)', 'rgba(11,29,58,0.80)']}
+        colors={['rgba(25,25,25,0.10)', 'rgba(25,25,25,0.55)', 'rgba(25,25,25,0.80)']}
         locations={[0, 0.6, 1]}
         style={StyleSheet.absoluteFill}
       />
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 128, height: 128, borderRadius: radius.full, overflow: 'hidden',
     alignItems: 'center', justifyContent: 'center',
-    backgroundColor: color.brand.navy, borderWidth: 5, borderColor: color.brand.ivory,
+    backgroundColor: color.action.secondary, borderWidth: 5, borderColor: color.brand.ivory,
   },
   avatarPhoto: { width: '100%', height: '100%' },
   copy: { gap: spacing[2], flexShrink: 1, minWidth: 0 },

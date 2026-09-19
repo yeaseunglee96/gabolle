@@ -102,7 +102,7 @@ export function IdentitiesBody() {
   return (
     <>
       {state.status === 'loading' ? (
-        <View style={styles.loading}><ActivityIndicator color={color.brand.orange} /></View>
+        <View style={styles.loading}><ActivityIndicator color={color.action.primary} /></View>
       ) : null}
 
       {state.status !== 'loading' ? (
@@ -128,13 +128,13 @@ export function IdentitiesBody() {
 
                 {asking ? (
                   <View style={styles.confirm}>
-                    <Button compact variant="ghost" label={tx('그만', 'Cancel')} onPress={() => setConfirming(null)} />
+                    <Button compact variant="tertiary" label={tx('그만', 'Cancel')} onPress={() => setConfirming(null)} />
                     <Button compact variant="danger" label={tx('뗀다', 'Disconnect')} onPress={() => void disconnect(provider.id)} />
                   </View>
                 ) : linked ? (
                   <Button
                     compact
-                    variant="ghost"
+                    variant="tertiary"
                     // 🔴 뗄 수 있는지는 서버가 정한다(canUnlink). 화면이 그 규칙을 다시 적지 않는다.
                     disabled={working || !linked.canUnlink}
                     label={working ? tx('처리 중…', 'Working…') : tx('연결 해제', 'Disconnect')}
@@ -149,7 +149,7 @@ export function IdentitiesBody() {
                     onPress={() => void connect(provider.id)}
                     style={({ pressed }) => [styles.connect, pressed && styles.pressed]}
                   >
-                    <Text variant="caption" weight="bold" color={color.brand.orange}>
+                    <Text variant="caption" weight="bold" color={color.action.secondary}>
                       {working ? tx('연결하는 중…', 'Connecting…') : tx('연결하기', 'Connect')}
                     </Text>
                   </Pressable>

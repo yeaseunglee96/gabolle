@@ -123,7 +123,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             </Text>
 
             <View style={styles.block}>
-              <Text weight="bold">{tx('알레르기', 'Allergies')} <Text color={color.brand.orange}>*</Text></Text>
+              <Text weight="bold">{tx('알레르기', 'Allergies')} <Text color={color.state.danger}>*</Text></Text>
               {statusRow(tx('알레르기', 'Allergies'), 'allergyStatus', 'allergyAnswered', 'allergies')}
               {draft.allergyStatus === 'VALUES' ? (
                 <View style={styles.chips}>{ALLERGIES.map(([code, ko, en]) => (
@@ -133,7 +133,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             </View>
 
             <View style={styles.block}>
-              <Text weight="bold">{tx('식단', 'Diet')} <Text color={color.brand.orange}>*</Text></Text>
+              <Text weight="bold">{tx('식단', 'Diet')} <Text color={color.state.danger}>*</Text></Text>
               {statusRow(tx('식단', 'Diet'), 'dietStatus', 'dietAnswered', 'dietTypes')}
               {draft.dietStatus === 'VALUES' ? (
                 <View style={styles.chips}>{DIETS.map(([code, ko, en]) => (
@@ -191,7 +191,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
                 </Text>
               </Pressable>
               <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: never }} onPress={() => setNever((on) => !on)} style={styles.never}>
-                <Text variant="caption" color={never ? color.brand.orange : color.text.muted}>
+                <Text variant="caption" color={never ? color.action.secondary : color.text.muted}>
                   {never ? '☑ ' : '☐ '}{tx('다시 묻지 않기', 'Do not ask again')}
                 </Text>
               </Pressable>
@@ -216,7 +216,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(11,29,58,0.45)', alignItems: 'center', justifyContent: 'center', padding: spacing[4] },
+  backdrop: { flex: 1, backgroundColor: 'rgba(25,25,25,0.45)', alignItems: 'center', justifyContent: 'center', padding: spacing[4] },
   backdropPhone: { justifyContent: 'flex-end', padding: 0 },
   sheet: { backgroundColor: color.brand.ivory, overflow: 'hidden' },
   sheetWide: { width: '100%', maxWidth: 640, maxHeight: '88%', borderRadius: radius.lg },

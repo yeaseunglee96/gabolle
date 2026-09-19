@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[3],
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: color.brand.orange,
+    borderColor: color.action.outline,
     backgroundColor: color.brand.ivory,
     shadowColor: color.brand.navy,
     shadowOpacity: 0.12,
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: color.brand.orange,
+    backgroundColor: color.state.dot,
   },
   copy: { flex: 1, gap: spacing[1] },
 });

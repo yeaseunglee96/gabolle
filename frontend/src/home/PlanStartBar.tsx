@@ -77,7 +77,7 @@ function MonthGrid({
                 weight={isStart || isEnd ? 'bold' : 'regular'}
                 // 지난 날짜를 숨기지 않고 흐리게 둔다. 사라지면 달력의 칸이 밀려서
                 // 사람이 날짜를 잘못 짚는다.
-                color={past ? '#c9c3ba' : isStart || isEnd ? color.text.onAction : color.text.heading}
+                color={past ? color.text.muted : isStart || isEnd ? color.text.onAction : color.text.heading}
               >
                 {String(parseDateKey(key)?.getDate() ?? '')}
               </Text>
@@ -233,7 +233,7 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
         style={styles.search}
         accessibilityLabel={tx('출발지 검색', 'Search starting point')}
       />
-      {searching ? <ActivityIndicator color={color.brand.orange} /> : null}
+      {searching ? <ActivityIndicator color={color.action.primary} /> : null}
       <Text variant="caption" color={color.text.muted}>{tx('추천 출발지', 'Suggested starting points')}</Text>
       {(results.length ? results : MAJOR_BUSAN_ORIGINS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickOrigin(candidate)} accessibilityRole="button" style={styles.originRow}>
@@ -254,7 +254,7 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
           accessibilityLabel={tx('이전 달', 'Previous month')}
           style={styles.navButton}
         >
-          <Text weight="bold" color={monthOffset === 0 ? '#c9c3ba' : color.text.heading}>‹</Text>
+          <Text weight="bold" color={monthOffset === 0 ? color.text.muted : color.text.heading}>‹</Text>
         </Pressable>
         <Pressable onPress={() => setMonthOffset((n) => n + 1)} accessibilityRole="button" accessibilityLabel={tx('다음 달', 'Next month')} style={styles.navButton}>
           <Text weight="bold">›</Text>
@@ -436,9 +436,9 @@ const styles = StyleSheet.create({
   // 하나를 깔고 자리만 옮기면 미끄러진다(에어비앤비가 그렇게 한다).
   // 글자를 가리지 않도록 칸 뒤에 깔고 pointerEvents 를 끈다.
   highlight: { position: 'absolute', top: spacing[2], bottom: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft },
-  cta: { minHeight: 56, paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' },
+  cta: { minHeight: 56, paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
   ctaWide: { alignSelf: 'stretch', marginTop: spacing[3] },
-  ctaOff: { backgroundColor: '#c9c3ba' },
+  ctaOff: { backgroundColor: color.surface.field },
   phonePill: {
     minHeight: 56, paddingHorizontal: spacing[4], justifyContent: 'center',
     borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border,
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   cell: { width: `${100 / 7}%`, height: 40, alignItems: 'center', justifyContent: 'center' },
   headCell: { width: `${100 / 7}%`, textAlign: 'center' },
-  cellBetween: { backgroundColor: color.surface.warm },
+  cellBetween: { backgroundColor: color.surface.tint },
   cellPicked: { backgroundColor: color.brand.navy, borderRadius: radius.full },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },
   chip: { minHeight: 32, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },

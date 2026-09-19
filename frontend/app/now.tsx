@@ -39,7 +39,7 @@ function CandidateCard({ candidate, onOpen }: { candidate: NowCandidate; onOpen:
       </Text>
       {candidate.reasons.length > 0 && (
         <View style={styles.tags}>{candidate.reasons.map((reason, index) => (
-          <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.brand.orange}>#{reason}</Text></View>
+          <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.text.muted}>#{reason}</Text></View>
         ))}</View>
       )}
       <Pressable accessibilityRole="button" onPress={onOpen} style={styles.detailLink}>
@@ -168,7 +168,7 @@ export default function Now() {
         <View style={styles.stateCard}>
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('지금 갈 곳을 찾지 못했어요', 'Could not find a place to go now')}</Text>
           <Text color={color.text.body}>{result.message}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void search()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void search()} />
         </View>
       )}
       {result.state === 'empty' && (

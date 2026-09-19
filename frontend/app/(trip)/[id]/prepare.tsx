@@ -160,10 +160,10 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
       {photoUrl ? <Image source={{ uri: photoUrl }} style={styles.summaryPhoto} /> : null}
       <Text variant="title" weight="bold">{title}</Text>
       <View style={styles.summaryStat}>
-        <Text variant="display" weight="bold" color={color.brand.orange}>{visitCount}</Text>
+        <Text variant="display" weight="bold" color={color.action.primary}>{visitCount}</Text>
         <Text variant="caption" color={color.text.muted}>{tx('방문지', 'Places visited')}</Text>
       </View>
-      <Button label={sharing ? tx('공유 링크 만드는 중…', 'Creating share link…') : tx('여행 공유하기', 'Share this trip')} variant="ghost" disabled={sharing} onPress={() => void share()} />
+      <Button label={sharing ? tx('공유 링크 만드는 중…', 'Creating share link…') : tx('여행 공유하기', 'Share this trip')} variant="tertiary" disabled={sharing} onPress={() => void share()} />
       {shareError ? <Text variant="caption" color={color.state.danger}>{shareError}</Text> : null}
     </View>
   );
@@ -280,7 +280,7 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
                 : tx('강수확률 미확인', 'Rain chance unknown')}
             </Text>
             {weather.forecast.precipitationProbability != null && weather.forecast.precipitationProbability >= 60 ? (
-              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('☂ 우산을 챙기세요', '☂ Bring an umbrella')}</Text>
+              <Text variant="caption" weight="bold" color={color.state.info}>{tx('☂ 우산을 챙기세요', '☂ Bring an umbrella')}</Text>
             ) : null}
           </>
         ) : weather ? (
@@ -430,9 +430,9 @@ const styles = StyleSheet.create({
     gap: spacing[2],
   },
   dialectCardExpanded: {
-    borderColor: color.brand.orange,
-    borderWidth: 2,
-    backgroundColor: color.surface.warm,
+    borderColor: color.action.secondary,
+    borderWidth: 1.5,
+    backgroundColor: color.surface.tint,
   },
   dialectMeaningRow: {
     gap: spacing[1],

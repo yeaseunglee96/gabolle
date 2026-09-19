@@ -18,7 +18,7 @@ function UnblockButton({ item, refresh }: { item: RelationItem; refresh: () => v
     setBusy(false);
     refresh();
   };
-  return <Button compact variant="ghost" label={busy ? tx('처리 중…', 'Working…') : tx('차단 해제', 'Unblock')} disabled={busy} onPress={() => void unblock()} />;
+  return <Button compact variant="tertiary" label={busy ? tx('처리 중…', 'Working…') : tx('차단 해제', 'Unblock')} disabled={busy} onPress={() => void unblock()} />;
 }
 
 export function BlockedAccountsBody() {

@@ -232,7 +232,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
           <View style={styles.sheet}>
             <View style={styles.rowBetween}>
               <Text variant="body" weight="bold" style={styles.wordmark}>
-                GAB<Text variant="body" weight="bold" color={color.brand.orange}>O</Text>LLE
+                GAB<Text variant="body" weight="bold" color={color.action.primary}>O</Text>LLE
               </Text>
               {!!data.code && <Text variant="caption" weight="bold" color={color.text.body}>{data.code}</Text>}
             </View>
@@ -318,7 +318,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
           <TearLine />
           {canFlip ? (
             <View style={styles.flipHint}>
-              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('눌러서 여행표 상세 보기 ↻', 'Tap to see trip pass details ↻')}</Text>
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('눌러서 여행표 상세 보기 ↻', 'Tap to see trip pass details ↻')}</Text>
             </View>
           ) : null}
           </Pressable>
@@ -390,7 +390,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
 
       {!!onReprint && (
         <Pressable onPress={onReprint} style={styles.reprint} accessibilityRole="button">
-          <Text variant="caption" weight="bold" color={color.brand.orange}>
+          <Text variant="caption" weight="bold" color={color.action.secondary}>
             {tx('다시 출력', 'Print again')}
           </Text>
         </Pressable>
@@ -406,15 +406,15 @@ const styles = StyleSheet.create({
     width: PRINTER_WIDTH,
     height: PRINTER_HEIGHT,
     borderRadius: radius.md,
-    backgroundColor: '#2b3037',
+    backgroundColor: color.action.secondary,
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({
-      web: { boxShadow: '0 8px 20px rgba(11,29,58,.28)' } as object,
+      web: { boxShadow: '0 8px 20px rgba(25,25,25,.28)' } as object,
       default: { shadowColor: color.brand.navy, shadowOpacity: 0.28, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 6 },
     }),
   },
-  slot: { width: RECEIPT_WIDTH, height: 14, borderRadius: radius.full, backgroundColor: '#14171b' },
+  slot: { width: RECEIPT_WIDTH, height: 14, borderRadius: radius.full, backgroundColor: color.brand.navy },
   // 종이가 프린터 뒤에서 나오는 것처럼 보이게 창을 잘라 둔다. overflow 를 빼면
   // 아직 안 나온 종이가 프린터 위에 떠 보인다.
   // 🔴 잘라내기(overflow)는 **인쇄 중에만** 켠다. 켜 둔 채로 뒤집으면 커진 카드의
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   legEnd: { flexShrink: 1 },
   legEndRight: { alignItems: 'flex-end' },
   legMiddle: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingBottom: 22 },
-  dashed: { flex: 1, borderTopWidth: 1, borderColor: '#c9c3ba', borderStyle: 'dashed' },
+  dashed: { flex: 1, borderTopWidth: 1, borderColor: color.surface.field, borderStyle: 'dashed' },
   modeBadge: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingTop: 10, borderTopWidth: 1, borderColor: color.surface.field, borderStyle: 'dashed' },
   gridCell: { width: '33.33%', paddingTop: spacing[1], paddingRight: spacing[1] },

@@ -98,7 +98,7 @@ export function MustVisitSearch({
       {query.trim().length >= MIN_QUERY ? (
         <View style={styles.panel}>
           {searching ? (
-            <View style={styles.note}><ActivityIndicator color={color.brand.orange} /><Text variant="caption" color={color.text.muted}>{tx('찾는 중이에요…', 'Searching…')}</Text></View>
+            <View style={styles.note}><ActivityIndicator color={color.action.primary} /><Text variant="caption" color={color.text.muted}>{tx('찾는 중이에요…', 'Searching…')}</Text></View>
           ) : failed ? (
             <View style={styles.note}><Text variant="caption" color={color.text.muted}>{tx('장소를 찾지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not search right now. Please try again shortly.')}</Text></View>
           ) : results.length === 0 ? (
@@ -114,7 +114,7 @@ export function MustVisitSearch({
                 onPress={() => add(item)}
                 style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
               >
-                <View style={styles.badge}><Text variant="caption" weight="bold" color={color.brand.orange} numberOfLines={1}>{item.category.slice(0, 2)}</Text></View>
+                <View style={styles.badge}><Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>{item.category.slice(0, 2)}</Text></View>
                 <View style={styles.rowCopy}>
                   <Text weight="bold" numberOfLines={1}>{ko ? item.nameKo : item.nameEn ?? item.nameKo}</Text>
                   <Text variant="caption" color={color.text.muted} numberOfLines={1}>{item.address}</Text>

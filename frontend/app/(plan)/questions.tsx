@@ -249,7 +249,7 @@ export default function PlanConditions() {
                 </Pressable>
               ))}
               <Pressable accessibilityRole="button" onPress={() => update({ budgetKrw: 0 })} style={styles.chip}>
-                <Text weight="bold" color={color.brand.orange}>{tx('전체 지우기', 'Clear')}</Text>
+                <Text weight="bold" color={color.action.secondary}>{tx('전체 지우기', 'Clear')}</Text>
               </Pressable>
             </View>
           </View>
@@ -365,7 +365,7 @@ export default function PlanConditions() {
     <View style={styles.questions}>
       <View style={styles.stepHead}>
         <View style={styles.stepCopy}>
-          <Text variant="caption" weight="bold" color={color.brand.orange}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>
             {tx(`질문 ${index + 1} / ${PLAN_QUESTIONS.length}`, `Question ${index + 1} / ${PLAN_QUESTIONS.length}`)}
           </Text>
           <Text variant="title" weight="bold">{tx('여행 조건 알려주기', 'Tell us about your trip')}</Text>
@@ -387,13 +387,13 @@ export default function PlanConditions() {
       <View key={question.key} style={[styles.card, wide ? styles.cardWide : styles.cardPhone]}>
         <View style={styles.cardHead}>
           <View style={styles.cardCopy}>
-            <Text variant="caption" weight="bold" color={color.brand.orange}>{index + 1} / {PLAN_QUESTIONS.length}</Text>
+            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{index + 1} / {PLAN_QUESTIONS.length}</Text>
             <Text variant="title" weight="bold">{ko ? question.ko : question.en}</Text>
             <Text color={color.text.muted}>{ko ? question.hintKo : question.hintEn}</Text>
           </View>
           {question.skippable ? (
             <Pressable accessibilityRole="button" onPress={() => skip(question)} style={styles.skip}>
-              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('건너뛰기', 'Skip')}</Text>
+              <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('건너뛰기', 'Skip')}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -453,7 +453,7 @@ export default function PlanConditions() {
         <View style={styles.consent}>
           <Text accessibilityRole="alert" variant="caption" weight="bold">{tx('알레르기·식단 정보 사용에 동의가 필요해요', 'We need your consent to use allergy/diet info')}</Text>
           <Text variant="caption" color={color.text.body}>{tx('입력하신 조건으로 안전한 곳만 고르려면 이 정보를 써야 해요.', 'We need this information to pick places that are safe for you.')}</Text>
-          <Button label={tx('동의하고 계속', 'Agree and continue')} variant="ghost" onPress={() => void grantHealthConsentAndRetry()} />
+          <Button label={tx('동의하고 계속', 'Agree and continue')} variant="tertiary" onPress={() => void grantHealthConsentAndRetry()} />
         </View>
       ) : null}
       {job?.errorMessage && job.state !== 'consent-required' ? (
@@ -498,7 +498,7 @@ export default function PlanConditions() {
                 날짜가 없는 사람에게는 날짜를 정하러 갈 길이 화면에 아예 없었다 —
                 막아 놓고 문을 안 준 상태였다. 지금은 없을 때도 그리고, 말만 바꾼다. */}
             <Pressable accessibilityRole="button" onPress={goSetDates} style={styles.phoneGivenEdit}>
-              <Text variant="caption" weight="bold" color={color.brand.orange}>
+              <Text variant="caption" weight="bold" color={color.action.secondary}>
                 {headerChips.length ? tx('수정', 'Edit') : tx('날짜 정하기', 'Set dates')}
               </Text>
             </Pressable>
@@ -545,7 +545,7 @@ export default function PlanConditions() {
 }
 
 const styles = StyleSheet.create({
-  canvas: { backgroundColor: color.brand.ivory },
+  canvas: { backgroundColor: color.canvas },
   split: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8], marginTop: spacing[6] },
   questions: { flex: 1, minWidth: 0, maxWidth: 760, gap: spacing[3] },
 
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
   stepHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
   stepCopy: { flex: 1, minWidth: 0, gap: 2 },
   track: { height: 4, borderRadius: radius.full, backgroundColor: color.surface.field, overflow: 'hidden' },
-  fill: { height: 4, borderRadius: radius.full, backgroundColor: color.brand.orange },
+  fill: { height: 4, borderRadius: radius.full, backgroundColor: color.action.secondary },
 
   card: { gap: spacing[4], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   cardWide: { minHeight: 360 },

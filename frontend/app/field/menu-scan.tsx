@@ -81,8 +81,8 @@ export default function MenuScanScreen() {
     </View>
 
     {phase.state === 'idle' && <View style={styles.actions}>
-      <Button label={tx('사진 찍기', 'Take a photo')} onPress={() => void pickFromCamera()} containerStyle={styles.action} />
-      <Button label={tx('앨범에서 고르기', 'Choose from album')} variant="ghost" onPress={() => void pickFromAlbum()} containerStyle={styles.action} />
+      <Button label={tx('사진 찍기', 'Take a photo')} variant="field" onPress={() => void pickFromCamera()} containerStyle={styles.action} />
+      <Button label={tx('앨범에서 고르기', 'Choose from album')} variant="tertiary" onPress={() => void pickFromAlbum()} containerStyle={styles.action} />
     </View>}
 
     {phase.state !== 'idle' && phase.photoUri !== '' && (
@@ -90,7 +90,7 @@ export default function MenuScanScreen() {
     )}
 
     {phase.state === 'reading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}>
-      <ActivityIndicator color={color.brand.orange} />
+      <ActivityIndicator color={color.action.primary} />
       <Text variant="title" weight="bold">{tx('글자를 읽고 있어요', 'Reading the text')}</Text>
       <Text color={color.text.body}>{tx('메뉴가 많으면 20초쯤 걸려요. 화면을 켜 둔 채 기다려 주세요.', 'A menu with many dishes takes about 20 seconds. Please keep this screen open.')}</Text>
     </View>}
@@ -98,7 +98,7 @@ export default function MenuScanScreen() {
     {phase.state === 'failed' && <View accessibilityRole="alert" style={styles.stateCard}>
       <Text variant="title" weight="bold">{tx('읽지 못했어요', 'Could not read it')}</Text>
       <Text color={color.text.body}>{phase.message}</Text>
-      <Button label={tx('다른 사진으로 다시', 'Try another photo')} variant="ghost" onPress={() => setPhase({ state: 'idle' })} containerStyle={styles.action} />
+      <Button label={tx('다른 사진으로 다시', 'Try another photo')} variant="tertiary" onPress={() => setPhase({ state: 'idle' })} containerStyle={styles.action} />
     </View>}
 
     {phase.state === 'done' && <ScanResult scan={phase.scan} onRetry={() => setPhase({ state: 'idle' })} />}
@@ -121,7 +121,7 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
     <View style={styles.allergenCard} accessibilityRole="summary">
       <Text variant="title" weight="bold">{allergen.headline}</Text>
       {allergen.words.length > 0 && <View style={styles.wordRow}>
-        {allergen.words.map((word) => <View key={word} style={styles.word}><Text variant="caption" weight="bold" color={color.text.onAction}>{word}</Text></View>)}
+        {allergen.words.map((word) => <View key={word} style={styles.word}><Text variant="caption" weight="bold" color={color.state.danger}>{word}</Text></View>)}
       </View>}
       <Text color={color.text.body}>{allergen.caution}</Text>
     </View>
@@ -143,7 +143,7 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
           ))}
         </View>}
 
-    <Button label={tx('다른 메뉴판 찍기', 'Scan another menu')} variant="ghost" onPress={onRetry} containerStyle={styles.action} />
+    <Button label={tx('다른 메뉴판 찍기', 'Scan another menu')} variant="tertiary" onPress={onRetry} containerStyle={styles.action} />
   </View>;
 }
 
@@ -216,7 +216,7 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
         <Text>{heading}</Text>
         {/* 같은 글자를 두 번 그리지 않는다 — 한국어를 골랐거나 옛 앱 빌드면 둘이 같다. */}
         {heading !== original && <Text variant="caption" color={color.text.muted}>{original}</Text>}
-        {line.allergenWords.length > 0 && <Text variant="caption" color={color.brand.orange}>{line.allergenWords.join(' · ')}</Text>}
+        {line.allergenWords.length > 0 && <Text variant="caption" color={color.state.danger}>{line.allergenWords.join(' · ')}</Text>}
       </View>
       {/* 가격은 사진에서 읽은 그대로다 — 숫자로 바꾸거나 통화를 붙이지 않는다. */}
       {line.price !== '' && <View style={styles.price}><Text weight="bold">{line.price}</Text></View>}
@@ -319,7 +319,7 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
 
   if (!dish) {
     return <View style={styles.dishPanel} accessibilityLiveRegion="polite">
-      <ActivityIndicator color={color.brand.orange} />
+      <ActivityIndicator color={color.action.primary} />
       <Text variant="caption" color={color.text.muted}>{tx('어떤 음식인지 알아보고 있어요', 'Looking up this dish')}</Text>
     </View>;
   }
@@ -346,7 +346,7 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
     </Text>}
 
     {stillPainting && <View style={styles.dishImageWaiting} accessibilityLiveRegion="polite">
-      <ActivityIndicator color={color.brand.orange} />
+      <ActivityIndicator color={color.action.primary} />
       <Text variant="caption" color={color.text.muted}>{tx('그림을 그리고 있어요 (10초쯤 걸려요)', 'Drawing a picture (takes about 10 seconds)')}</Text>
     </View>}
 
@@ -366,7 +366,7 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   result: { gap: spacing[4] },
   allergenCard: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.warningBg },
   wordRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-  word: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.orange },
+  word: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.dangerBg },
   exampleNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
   dishThumb: { width: 56, height: 56, borderRadius: radius.md, backgroundColor: color.surface.tint },
   unreadCard: { padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },

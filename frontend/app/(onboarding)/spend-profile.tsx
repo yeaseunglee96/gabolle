@@ -66,13 +66,13 @@ export default function SpendProfileScreen() {
   };
 
   if (checking) {
-    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
+    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.action.primary} /></Screen>;
   }
   if (checkFailed) {
     return <Screen scroll style={styles.screen}><View style={styles.heading}>
       <Text accessibilityRole="alert">{tx('저장한 답변을 확인하지 못했어요. 이미 답한 설문을 다시 묻지 않도록 연결을 확인한 뒤 재시도해 주세요.', 'We could not check your saved answers. Please retry so we do not ask you to repeat a completed survey.')}</Text>
       <Button label={tx('다시 확인', 'Check again')} onPress={() => setCheckAttempt((value) => value + 1)} />
-      <Button variant="ghost" label={tx('홈으로', 'Go to home')} onPress={() => enterApp(router, '/home')} />
+      <Button variant="tertiary" label={tx('홈으로', 'Go to home')} onPress={() => enterApp(router, '/home')} />
     </View></Screen>;
   }
 
@@ -93,7 +93,7 @@ export default function SpendProfileScreen() {
     {saveFailed && <View style={styles.options}>
       <Text accessibilityRole="alert">{tx('답변을 저장하지 못했어요. 이 화면에서는 선택한 답이 유지돼요. 다시 저장하거나, 저장하지 않고 나중에 답할 수 있어요.', 'Your answers could not be saved. Your selections are kept on this screen. Retry saving, or leave without saving and answer later.')}</Text>
       <Button label={tx('다시 저장', 'Retry saving')} disabled={submitting} onPress={() => void finish(answers)} />
-      <Button variant="ghost" label={tx('저장하지 않고 나중에', 'Leave without saving')} disabled={submitting} onPress={() => enterApp(router, '/home')} />
+      <Button variant="tertiary" label={tx('저장하지 않고 나중에', 'Leave without saving')} disabled={submitting} onPress={() => enterApp(router, '/home')} />
     </View>}
 
     <Text variant="title" weight="bold" style={styles.question}>{tx(question.titleKo('USER'), question.titleEn('USER'))}</Text>
@@ -118,13 +118,13 @@ export default function SpendProfileScreen() {
 
     <View style={styles.footer}>
       {step > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 질문으로', 'Previous question')} disabled={submitting} onPress={() => setStep(step - 1)} style={styles.backLink}><Text weight="bold" color={color.brand.navy}>{tx('‹ 이전', '‹ Back')}</Text></Pressable>}
-      {submitting && <ActivityIndicator color={color.brand.orange} />}
+      {submitting && <ActivityIndicator color={color.action.primary} />}
     </View>
   </Screen>;
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
   // marginTop — Screen 의 기본 paddingTop(24) 만으로는 전역 언어 배지(우측 상단
   // 절대좌표)를 못 피한다(home.tsx·app-intro.tsx 에서 실사용 리포트로 확인된 것과
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   question: { marginTop: spacing[4], marginBottom: spacing[4] },
   options: { gap: spacing[3] },
   option: { minHeight: 64, gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
-  optionPressed: { borderColor: color.brand.orange, backgroundColor: color.surface.tint },
+  optionPressed: { borderColor: color.action.secondary, backgroundColor: color.surface.tint },
   optionDesc: { lineHeight: 18 },
   skipQuestion: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: spacing[1] },
   footer: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[6] },

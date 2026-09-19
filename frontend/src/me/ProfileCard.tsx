@@ -39,7 +39,7 @@ export function ProfileCard({ name, email, avatarUri, coverUri, counts, onEdit, 
               : <Text variant="display" weight="bold" color={color.text.onAction}>{initial}</Text>}
           </View>
           <Pressable accessibilityRole="button" onPress={onEdit} style={styles.editButton}>
-            <Text weight="bold" color={color.text.onAction} numberOfLines={1}>{tx('프로필 편집', 'Edit profile')}</Text>
+            <Text weight="bold" color={color.action.outline} numberOfLines={1}>{tx('프로필 편집', 'Edit profile')}</Text>
           </Pressable>
         </View>
 
@@ -85,10 +85,10 @@ const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing[3] },
   avatar: {
     width: AVATAR, height: AVATAR, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: color.brand.navy, borderWidth: 4, borderColor: color.surface.card, overflow: 'hidden',
+    backgroundColor: color.action.secondary, borderWidth: 4, borderColor: color.surface.card, overflow: 'hidden',
   },
   avatarPhoto: { width: '100%', height: '100%' },
-  editButton: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.navy },
+  editButton: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
 
   counts: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] },
   count: {

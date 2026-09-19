@@ -30,7 +30,7 @@ export function SignInPromptModal({ visible, onClose, onSignIn }: SignInPromptMo
           <View style={styles.gainList}>
             {gains.map(([ko, en]) => (
               <View key={ko} style={styles.gainRow}>
-                <Text variant="body" weight="bold" color={color.brand.orange}>·</Text>
+                <Text variant="body" weight="bold" color={color.text.muted}>·</Text>
                 <Text color={color.text.body} style={styles.gainText}>{tx(ko, en)}</Text>
               </View>
             ))}
@@ -52,13 +52,13 @@ export function SignInPromptModal({ visible, onClose, onSignIn }: SignInPromptMo
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   card: { width: '100%', maxWidth: 420, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   gainList: { gap: spacing[2] },
   gainRow: { flexDirection: 'row', gap: spacing[2] },
   gainText: { flex: 1 },
   buttonRow: { flexDirection: 'row', gap: spacing[2] },
   button: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  ghostButton: { backgroundColor: color.surface.card },
-  primaryButton: { backgroundColor: color.brand.orange },
+  ghostButton: { backgroundColor: color.action.tertiary },
+  primaryButton: { backgroundColor: color.action.primary },
 });

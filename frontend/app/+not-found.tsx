@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   message: { gap: spacing[4] },
   routeLine: { flexDirection: 'row', alignItems: 'center' },
   routeDot: { width: 10, height: 10, borderRadius: radius.full, borderWidth: 2, borderColor: color.text.onAction },
-  routeDotActive: { backgroundColor: color.brand.orange, borderColor: color.brand.orange },
+  routeDotActive: { backgroundColor: color.state.dot, borderColor: color.state.dot },
   routeDash: { flex: 1, height: 1, marginHorizontal: spacing[2], backgroundColor: color.text.muted },
   actionPanel: { gap: spacing[8], backgroundColor: color.brand.ivory, padding: spacing[6], paddingBottom: spacing[8] },
   desktopActionPanel: { flex: 1, justifyContent: 'center', padding: 48 },

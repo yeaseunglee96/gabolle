@@ -1,5 +1,7 @@
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
+import { color } from '@/design/tokens';
+
 const buildSha = process.env.EXPO_PUBLIC_BUILD_SHA?.slice(0, 8);
 const buildRef = process.env.EXPO_PUBLIC_BUILD_REF;
 const alwaysShow = process.env.EXPO_PUBLIC_SHOW_BUILD_INFO === '1';
@@ -47,7 +49,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   text: {
-    color: '#fff',
+    color: color.text.onAction,
     fontSize: 11,
     fontWeight: '700',
   },

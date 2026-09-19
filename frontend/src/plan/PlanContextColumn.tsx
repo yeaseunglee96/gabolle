@@ -72,7 +72,7 @@ export function PlanContextColumn({
           <View style={styles.tasteTop}>
             <Text variant="caption" weight="bold" color={color.text.heading}>{tx('계정에 기억된 취향', 'Saved on your account')}</Text>
             <Pressable accessibilityRole="button" onPress={onOpenTastes}>
-              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('마이페이지 › 여행 취향', 'My page › Preferences')}</Text>
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('마이페이지 › 여행 취향', 'My page › Preferences')}</Text>
             </Pressable>
           </View>
           <View style={styles.tasteChips}>

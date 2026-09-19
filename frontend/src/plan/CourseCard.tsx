@@ -76,7 +76,7 @@ export function CourseCard({
             onPress={onToggleSave}
             style={({ pressed }) => [styles.save, pressed && styles.pressed]}
           >
-            <Text variant="caption" weight="bold" color={saved ? color.brand.orange : color.text.muted}>{saved ? '★' : '☆'}</Text>
+            <Text variant="caption" weight="bold" color={saved ? color.action.secondary : color.text.muted}>{saved ? '★' : '☆'}</Text>
           </Pressable>
         </View>
 
@@ -123,7 +123,7 @@ export function CourseCard({
               </Pressable>
             ) : (
               <Pressable accessibilityRole="button" onPress={onSelect} style={({ pressed }) => [styles.pick, pressed && styles.pressed]}>
-                <Text weight="bold" color={color.brand.orange}>{tx('이 코스 선택', 'Pick this')}</Text>
+                <Text weight="bold" color={color.action.secondary}>{tx('이 코스 선택', 'Pick this')}</Text>
               </Pressable>
             )}
           </View>
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   badge: {
     position: 'absolute', top: spacing[3], left: spacing[3],
     paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full,
-    backgroundColor: 'rgba(11,29,58,0.78)',
+    backgroundColor: 'rgba(25,25,25,0.78)',
   },
   badgeOn: { backgroundColor: color.brand.navy },
 

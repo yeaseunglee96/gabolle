@@ -97,7 +97,7 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
 
         {tab === 'TAXI' ? (
           <Pressable accessibilityRole="button" onPress={() => { if (onOpenTaxiCard) onOpenTaxiCard(); else router.push('/field/speak?tab=taxi'); }} style={styles.taxiLink}>
-            <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('택시 목적지 카드 전체보기 →', 'View full taxi destination card →')}</Text>
+            <Text variant="caption" weight="bold" color={color.action.primary}>{tx('택시 목적지 카드 전체보기 →', 'View full taxi destination card →')}</Text>
           </Pressable>
         ) : null}
       </ScrollView>
@@ -113,10 +113,10 @@ const styles = StyleSheet.create({
   list: { flexGrow: 0 },
   listContent: { gap: spacing[3], paddingVertical: spacing[1] },
   phraseCard: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
-  phraseCardExpanded: { borderColor: color.brand.orange, borderWidth: 2, backgroundColor: color.surface.warm },
+  phraseCardExpanded: { borderColor: color.text.heading, borderWidth: 1.5, backgroundColor: color.surface.tint },
   enText: { marginTop: spacing[1] },
   speedRow: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] },
   speedButton: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
-  speedButtonSlow: { backgroundColor: color.text.eyebrow },
+  speedButtonSlow: { backgroundColor: color.action.secondary },
   taxiLink: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

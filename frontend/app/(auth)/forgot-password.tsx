@@ -57,7 +57,7 @@ export default function ForgotPassword() {
           </View>
         )}
         {error && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="caption" weight="bold" color={color.state.danger}>{error}</Text></View>}
-        {sent ? <Button label={submitting ? tx('전송 중…', 'Sending…') : tx('메일 다시 보내기', 'Resend email')} variant="ghost" disabled={submitting} onPress={() => void submit()} /> : <Button label={submitting ? tx('전송 중…', 'Sending…') : tx('재설정 링크 받기', 'Get reset link')} disabled={!email.trim() || submitting} onPress={() => void submit()} />}
+        {sent ? <Button label={submitting ? tx('전송 중…', 'Sending…') : tx('메일 다시 보내기', 'Resend email')} variant="tertiary" disabled={submitting} onPress={() => void submit()} /> : <Button label={submitting ? tx('전송 중…', 'Sending…') : tx('재설정 링크 받기', 'Get reset link')} disabled={!email.trim() || submitting} onPress={() => void submit()} />}
         {submitting && <ActivityIndicator color={color.action.secondary} />}
       </View>
       <Pressable accessibilityRole="link" onPress={() => router.replace('/sign-in')} style={styles.loginLink}><Text variant="body" weight="bold" color={color.action.secondary}>{tx('로그인으로 돌아가기', 'Back to sign in')}</Text></Pressable>

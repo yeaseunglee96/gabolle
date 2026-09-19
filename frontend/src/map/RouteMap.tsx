@@ -117,10 +117,10 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
             img.alt = '';
             Object.assign(img.style, { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '999px' });
             content.appendChild(img);
-            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(25,25,25,.18)' });
           } else {
             content.textContent = pointLayer ? pointLayer.label : String(stop.number);
-            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(25,25,25,.18)' });
           }
           content.onclick = () => onSelect(stop.id);
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
@@ -130,11 +130,11 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const position = new maps.LatLng(currentLocation.latitude, currentLocation.longitude);
           const content = document.createElement('div');
           content.setAttribute('aria-label', tx('현재 위치', 'Your current location'));
-          Object.assign(content.style, { width: '18px', height: '18px', borderRadius: '999px', border: `3px solid ${color.canvas}`, background: color.brand.navy, boxShadow: '0 0 0 2px rgba(11,29,58,.35), 0 4px 10px rgba(11,29,58,.28)' });
+          Object.assign(content.style, { width: '18px', height: '18px', borderRadius: '999px', border: `3px solid ${color.canvas}`, background: color.state.dot, boxShadow: '0 0 0 13px rgba(216,58,72,.25), 0 4px 10px rgba(25,25,25,.20)' });
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
         }
-        (routes ?? [{ id: 'selected', color: color.brand.orange, stops }]).forEach((route) => {
+        (routes ?? [{ id: 'selected', color: color.text.heading, stops }]).forEach((route) => {
           // 실제 길 좌표가 있으면 그것을, 없으면 장소를 직선으로 잇는다.
           const points = route.path?.length ? route.path : route.stops;
           const path = points.map((point) => new maps.LatLng(point.latitude, point.longitude));
@@ -215,7 +215,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
             <Text variant="title" weight="bold">{failure.title}</Text>
             <Text variant="body" style={styles.description}>{failure.reason}</Text>
             <Text variant="caption" style={styles.tech}>{failure.tech}</Text>
-            {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
+            {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} /> : null}
           </View>
         ) : null}
       </View>
@@ -229,7 +229,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     <View style={styles.fallback}>
       <Text variant="title" weight="bold">{tx('이 환경에서는 지도를 못 그려요', 'The map cannot be drawn here')}</Text>
       <Text variant="body" style={styles.description}>{tx('방문 순서와 장소 목록은 그대로 확인할 수 있습니다.', 'You can still see the visit order and place list.')}</Text>
-      {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
+      {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} /> : null}
       <View style={styles.routePreview}>
         {stops.map((stop, index) => (
           <View key={stop.id} style={styles.routeItem}>
@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
   backButton: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   routePreview: { flexDirection: 'row', alignItems: 'center', marginTop: spacing[3] },
   routeItem: { flexDirection: 'row', alignItems: 'center' },
-  marker: { width: 30, height: 30, borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' },
-  line: { width: 28, height: 2, backgroundColor: color.brand.orange },
+  // 지도를 못 그릴 때의 대체 미리보기 — 번호 마커와 동선이다. 누를 것이 아니라 읽을 것이라 동백을 안 쓴다.
+  marker: { width: 30, height: 30, borderRadius: radius.full, backgroundColor: color.action.secondary, alignItems: 'center', justifyContent: 'center' },
+  line: { width: 28, height: 2, backgroundColor: color.text.heading },
 });

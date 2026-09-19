@@ -79,14 +79,14 @@ export default function UserProfile() {
       </Pressable>
 
       {state.status === 'loading' ? (
-        <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /><Text color={color.text.body}>{tx('프로필을 불러오고 있어요', 'Loading profile')}</Text></View>
+        <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('프로필을 불러오고 있어요', 'Loading profile')}</Text></View>
       ) : null}
 
       {state.status === 'unavailable' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('프로필을 불러오지 못했어요', "We couldn't load this profile")}</Text>
           <Text color={color.text.body}>{state.message}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
 
@@ -101,12 +101,12 @@ export default function UserProfile() {
           </View>
           {/* 문자열로 맞춰 비교한다 — 두 응답의 userId가 타입 선언과 다르게 오면(숫자 vs 문자열) !==가 늘 참이 되어 본인 프로필에도 팔로우 버튼이 뜬다. */}
           {accessToken && String(user?.userId ?? '') === String(state.profile.userId) ? (
-            <Button label={tx('프로필 수정', 'Edit profile')} variant="ghost" onPress={() => router.push('/me')} containerStyle={styles.followButton} />
+            <Button label={tx('프로필 수정', 'Edit profile')} variant="tertiary" onPress={() => router.push('/me')} containerStyle={styles.followButton} />
           ) : accessToken && !state.profile.blockedByUser ? (
             <View style={styles.actionRow}>
               <Button
                 label={followBusy ? tx('처리 중…', 'Working…') : state.profile.following ? tx('팔로잉', 'Following') : tx('팔로우', 'Follow')}
-                variant={state.profile.following ? 'ghost' : 'primary'}
+                variant={state.profile.following ? 'tertiary' : 'primary'}
                 disabled={followBusy || state.profile.blocked}
                 onPress={() => void toggleFollow()}
                 containerStyle={styles.followButton}
@@ -116,7 +116,7 @@ export default function UserProfile() {
               */}
               <Button
                 label={blockBusy ? tx('처리 중…', 'Working…') : state.profile.blocked ? tx('차단 해제', 'Unblock') : tx('차단하기', 'Block')}
-                variant="ghost"
+                variant="tertiary"
                 disabled={blockBusy}
                 onPress={() => (state.profile.blocked ? void unblock() : setConfirmingBlock(true))}
                 containerStyle={styles.followButton}
@@ -139,7 +139,7 @@ export default function UserProfile() {
 
       {state.status === 'loaded' && !state.profile.blockedByUser ? (
         <View style={styles.list}>
-          {storiesLoading ? <ActivityIndicator color={color.brand.orange} /> : null}
+          {storiesLoading ? <ActivityIndicator color={color.action.primary} /> : null}
           {!storiesLoading && !items.length ? <Text color={color.text.body} style={styles.empty}>{tx('아직 공개된 기록이 없어요.', 'No public records yet.')}</Text> : null}
           {items.map((story: StoryDto) => (
             <Pressable key={story.id} accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>

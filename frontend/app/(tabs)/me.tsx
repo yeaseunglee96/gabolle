@@ -185,14 +185,14 @@ export default function Me() {
     </View>
   </>;
 
-  const logoutButton = user ? <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="ghost" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>;
+  const logoutButton = user ? <Button label={tx('로그아웃', 'Sign out')} variant="tertiary" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>;
 
   const logoutModal = <Modal visible={logoutAsk} transparent animationType="fade" onRequestClose={() => setLogoutAsk(false)}>
       <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
         <Text variant="title" weight="bold">{tx('로그아웃할까요?', 'Sign out?')}</Text>
         <Text>{tx('여행과 기록은 계정에 그대로 남아요.', 'Your trips and records stay on your account.')}</Text>
         <View style={styles.modalActions}>
-          <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => setLogoutAsk(false)} containerStyle={styles.modalAction} />
+          <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => setLogoutAsk(false)} containerStyle={styles.modalAction} />
           <Button label={tx('로그아웃', 'Sign out')} onPress={() => void (async () => { setLogoutAsk(false); await signOut(); await plan.clear(); })()} containerStyle={styles.modalAction} />
         </View>
       </View></View>
@@ -283,14 +283,14 @@ export default function Me() {
     {accountGroup}
     <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('앱', 'App')}</Text>
     {appGroup}
-    {user ? <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="ghost" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>}
+    {user ? <Button label={tx('로그아웃', 'Sign out')} variant="tertiary" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>}
 
     <Modal visible={logoutAsk} transparent animationType="fade" onRequestClose={() => setLogoutAsk(false)}>
       <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
         <Text variant="title" weight="bold">{tx('로그아웃할까요?', 'Sign out?')}</Text>
         <Text>{tx('여행과 기록은 계정에 그대로 남아요.', 'Your trips and records stay on your account.')}</Text>
         <View style={styles.modalActions}>
-          <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => setLogoutAsk(false)} containerStyle={styles.modalAction} />
+          <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => setLogoutAsk(false)} containerStyle={styles.modalAction} />
           <Button label={tx('로그아웃', 'Sign out')} onPress={() => void (async () => { setLogoutAsk(false); await signOut(); await plan.clear(); })()} containerStyle={styles.modalAction} />
         </View>
       </View></View>
@@ -328,7 +328,7 @@ export default function Me() {
 }
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
 
   // ── 넓은 화면 (시안 01) ───────────────────────────────────────────────────
   //
@@ -338,11 +338,11 @@ const styles = StyleSheet.create({
   sheetBackdrop: {
     position: Platform.OS === 'web' ? ('fixed' as 'absolute') : 'absolute',
     top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(11,29,58,0.62)',
+    backgroundColor: 'rgba(25,25,25,0.62)',
     zIndex: 20,
   },
 
-  wideScroll: { flex: 1, backgroundColor: color.brand.ivory },
+  wideScroll: { flex: 1, backgroundColor: color.canvas },
   wideContent: { minHeight: '100%' },
   wideGrid: {
     flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6],
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   logout: { marginTop: spacing[6], marginBottom: spacing[4] },
   guestActions: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[4] },
 
-  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   modalCard: { width: '100%', maxWidth: 400, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   modalActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] },
   modalAction: { flex: 1 },

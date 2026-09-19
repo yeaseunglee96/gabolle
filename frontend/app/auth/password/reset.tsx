@@ -65,7 +65,7 @@ export default function PasswordReset() {
         </View>
         {error && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="caption" weight="bold" color={color.state.danger}>{error}</Text></View>}
         {validToken ? <Button label={submitting ? tx('변경 중…', 'Changing…') : tx('비밀번호 변경', 'Change password')} disabled={!canSubmit} onPress={() => void submit()} /> : <Button label={tx('재설정 링크 다시 받기', 'Get a new reset link')} onPress={() => router.replace('/forgot-password')} />}
-        {error && validToken && <Button label={tx('재설정 링크 다시 받기', 'Get a new reset link')} variant="ghost" onPress={() => router.replace('/forgot-password')} />}
+        {error && validToken && <Button label={tx('재설정 링크 다시 받기', 'Get a new reset link')} variant="tertiary" onPress={() => router.replace('/forgot-password')} />}
         {submitting && <ActivityIndicator color={color.action.secondary} />}
       </View>
     </Screen>

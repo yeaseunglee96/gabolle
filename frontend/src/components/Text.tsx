@@ -4,7 +4,7 @@ import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
 import { color, fontFamilyStack, type as typeTokens } from '@/design/tokens';
 
-type Variant = 'hero' | 'display' | 'title' | 'body' | 'util' | 'caption' | 'eyebrow';
+type Variant = 'hero' | 'display' | 'title' | 'body' | 'util' | 'caption' | 'eyebrow' | 'micro';
 
 type Weight = 'regular' | 'medium' | 'bold';
 
@@ -23,6 +23,7 @@ const DEFAULT_COLOR: Record<Variant, string> = {
   util: color.text.muted,
   caption: color.text.muted,
   eyebrow: color.text.eyebrow,
+  micro: color.text.muted,
 };
 
 const SIZE: Record<Variant, { size: number; lineHeight: number; letterSpacing: number }> = {
@@ -33,6 +34,8 @@ const SIZE: Record<Variant, { size: number; lineHeight: number; letterSpacing: n
   util: typeTokens.util,
   caption: typeTokens.caption,
   eyebrow: typeTokens.caption,
+  /** 눈썹·탭 라벨·배지 — caption 보다 작고 자간이 넓다 (S15P21E201-1343). */
+  micro: typeTokens.micro,
 };
 
 const FONT_WEIGHT: Record<Weight, '400' | '500' | '700'> = {
