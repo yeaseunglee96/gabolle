@@ -349,7 +349,7 @@ export function ProfileBody() {
               <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{deletionPreview ? tx(`${deletionPreview.recordCount}개`, `${deletionPreview.recordCount} items`) : '—'}</Text><Text style={styles.impactCopy}>{tx('작성한 여행 기록이 삭제돼요.', 'Travel records you wrote will be deleted.')}</Text></View>
             </View>
             <Text accessibilityRole="alert" weight="bold" color={color.state.danger}>{tx('계정 삭제는 되돌릴 수 없습니다.', 'Account deletion cannot be undone.')}</Text>
-            <View style={styles.modalActions}><Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={closeDeletion} containerStyle={styles.modalAction} /><Button label={tx('계속', 'Continue')} onPress={() => setDeleteStep(2)} containerStyle={styles.modalAction} /></View>
+            <View style={styles.modalActions}><Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={closeDeletion} containerStyle={styles.modalAction} /><Button variant="outline" label={tx('계속', 'Continue')} onPress={() => setDeleteStep(2)} containerStyle={styles.modalAction} /></View>
           </> : <>
             <Text variant="caption" weight="bold" color={color.state.danger}>{tx('2 / 2 · 본인 확인', '2 / 2 · Verify identity')}</Text>
             <Text variant="display" weight="bold">{tx('삭제하려면 DELETE를 입력해 주세요', 'Type DELETE to confirm')}</Text>
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   dangerCopy: { flex: 1, gap: spacing[1] },
   dangerButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.state.danger, borderRadius: radius.md, backgroundColor: color.surface.card },
 
-  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   modalCard: { width: '100%', maxWidth: 560, gap: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   impactList: { gap: spacing[2] },
   impactRow: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
