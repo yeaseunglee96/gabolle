@@ -95,6 +95,15 @@ const MISUSE = [
     ],
   },
   {
+    pattern: /\b(screen|shell|canvas|page|body|webShell|webScreen|wideScroll)\s*:\s*\{[^{}]*backgroundColor:\s*color\.brand\.ivory\b/,
+    name: '화면 바탕을 brand.ivory 로 덮어쓴 것',
+    why: '🔴 이 배색에서 **카드는 바탕과의 차이로만 보입니다** — 선도 그림자도 없기 때문입니다. 그런데 이 자리들은 Screen 의 회색 바탕(canvas #F5F5F7)을 흰색으로 덮어씁니다. 그 위의 흰 카드는 **사라집니다.** 옛 배색에서는 canvas 와 brand.ivory 가 **둘 다 #fffdf8 로 같은 값**이어서 이 덮어쓰기가 아무 일도 안 했습니다 — 값을 가르는 순간 살아난 자리입니다. 실측(2026-09-19): 이런 화면 34개 중 26개가 그 위에 선 없는 흰 카드를 올립니다.',
+    pick: [
+      'color.canvas     화면 바탕입니다. 대개 이 줄을 통째로 지워도 됩니다 — Screen 이 이미 canvas 를 칠합니다',
+      "brand.ivory 는 시안에서 **모달 카드 배경** 자리입니다. 화면 바탕이 아닙니다",
+    ],
+  },
+  {
     pattern: /backgroundColor:\s*color\.state\.danger\b/,
     name: '채움으로 쓴 state.danger',
     why: '위험은 채우지 않습니다. 시안은 삭제·제외를 **연분홍 배경(state.dangerBg) + 빨간 글자(state.danger)**로 합니다. 채우면 그 화면에 같은 빨강 덩어리가 둘이 되고(주 버튼도 #D83A48 입니다), 사람은 「그다음에 할 일」과 「돌이킬 수 없는 일」을 같은 무게로 봅니다. Button 의 danger 갈래는 이미 그렇게 돼 있습니다 — 손으로 다시 만들지 마세요.',
@@ -215,6 +224,12 @@ const ALLOWED_MULTI_FILL = {
     '확인 실패 화면의 「다시 확인」(일찍 return)과, 질문 화면 안 저장 실패 알림의 「다시 저장」이다.',
   'app/feed/[id].tsx':
     '남은 셋은 신고 접수 알림(reported) · 댓글 남기기(story && !reported) · 기록 없음(state.status) 이다. 세 조건이 서로 배타적이라 한 번에 하나만 그려진다. 같이 뜨던 댓글 수정 저장은 secondary 로, 삭제 확정 둘은 danger(연분홍 배경)로 내렸다.',
+  'app/(tabs)/me.tsx':
+    '넷이지만 화면에는 하나다. 넓은 화면과 좁은 화면이 같은 버튼과 모달을 각각 한 벌씩 갖고 있고(레이아웃이 먼저 갈린다), 그 안에서 다시 로그인(비회원)과 로그아웃 확인(로그인)으로 갈린다.',
+  'app/(trip)/[id]/share.tsx':
+    '「로그인하기」는 accessToken 이 없을 때, 「초대 링크 만들기」는 있을 때만 그려진다.',
+  'app/(plan)/generating.tsx':
+    '「조건 다시 확인하기」는 실패했을 때, 「일정 자세히 보기」는 완료됐을 때만 그려진다. 진행 중에는 둘 다 없다.',
   'app/feed/[id]/coauthors.tsx':
     '하나는 화면의 「초대 링크 만들기」, 하나는 TripCompanionPicker <Modal> 안의 제출 버튼이다. 모달이 열리면 어둠막이 뒤를 덮으므로 두 빨강이 나란히 놓이지 않는다 — 시안도 「모달 전부: 제출 버튼은 primary」라고 적었다.',
 };
@@ -235,6 +250,7 @@ function sources(dir, found = []) {
 const offenders = [];
 const legacy = [];
 const fills = new Map();
+const duplicates = [];
 
 for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))]) {
   const rel = file.slice(ROOT.length + 1).replace(/\\/g, '/');
@@ -270,6 +286,12 @@ for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))
   //    ([^>] 가 이미 `>` 를 막으므로 줄바꿈은 알아서 넘어간다. 다만 속성값 안에 `>` 가
   //    들어 있으면 거기서 끊긴다 — 못 잡는 자리다.)
   for (const { index, tag } of buttonTags(text)) {
+    // 🔴 같은 태그에 variant 가 둘이면 알린다. tsc 도 잡지만(TS17001), 그때는 이미
+    //    **팀 전체의 타입 검사가 멈춘 뒤**다. 손으로 variant 를 끼워 넣는 작업에서
+    //    나오는 실수다 — 이미 있는 것을 못 보고 또 붙인다. 실제로 한 번 났다.
+    if ((tag.match(/\bvariant\s*=/g) ?? []).length > 1) {
+      duplicates.push(`${rel}:${text.slice(0, index).split('\n').length}`);
+    }
     if (!isCamelliaButton(tag)) continue;
     const found = fills.get(rel) ?? [];
     const how = /\bvariant\s*=/.test(tag) ? '<Button variant="primary">' : 'variant 없는 <Button> (기본값이 primary)';
@@ -301,6 +323,14 @@ for (const rule of [...LEGACY, ...MISUSE]) {
   console.error('');
   for (const hit of hits) console.error(`   ${hit.where}  ${hit.line}`);
   if (LEGACY.includes(rule)) console.error('\n   다 고른 뒤에는 tokens.ts 에서 그 이름을 지우세요 — 남겨 두면 다음 사람이 또 씁니다.');
+}
+
+if (duplicates.length) {
+  failed = true;
+  console.error(`\n🔴 한 <Button> 태그에 variant 가 두 번 적혀 있습니다 — ${duplicates.length}곳.\n`);
+  for (const d of duplicates) console.error('   ' + d);
+  console.error('\n   뒤에 적힌 것이 이깁니다. tsc 도 TS17001 로 잡지만, 그때는 이미 팀 전체의');
+  console.error('   타입 검사가 멈춘 뒤입니다. 하나만 남기세요.');
 }
 
 const crowded = [...fills].filter(([rel, at]) => at.length > 1 && !ALLOWED_MULTI_FILL[rel]);
