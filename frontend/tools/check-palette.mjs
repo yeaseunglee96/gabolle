@@ -52,6 +52,15 @@ const ALLOWED = [
  */
 const LEGACY = [
   {
+    pattern: /rgba\(\s*11\s*,\s*29\s*,\s*58\s*,/,
+    name: '옛 남색 rgba(11,29,58,…)',
+    why: '옛 배색의 남색(#0B1D3A)이 투명도만 얹은 채 남은 자리입니다. 전부 모달의 어둠막과 사진 위 그림자막인데, 새 배색에는 이 남색이 아예 없습니다 — 모달을 열 때마다 **파란 기운의 막**이 덮입니다. 색이 조금 다를 뿐이라 아무도 오류로 안 읽습니다.',
+    pick: [
+      "rgba(25,25,25,α)   시안이 값을 직접 정해 뒀습니다 — 「어둠막 rgba(25,25,25,.62)」",
+      '🔴 투명도(α)는 그대로 두세요. .62 는 어둠막, 더 옅은 것은 사진 위 글자를 읽히게 하는 막입니다',
+    ],
+  },
+  {
     pattern: /color\.brand\.orange/,
     name: 'color.brand.orange',
     why: '이 이름의 값이 동백 빨강이 됐습니다. 예전의 「강조색」 자리에 그대로 두면 한 화면에 빨강이 여러 개가 됩니다.',
@@ -85,6 +94,17 @@ const MISUSE = [
       '점을 그대로 두려면 글자를 빼고 View 로 그리세요',
     ],
   },
+  {
+    pattern: /backgroundColor:\s*color\.state\.danger\b/,
+    name: '채움으로 쓴 state.danger',
+    why: '위험은 채우지 않습니다. 시안은 삭제·제외를 **연분홍 배경(state.dangerBg) + 빨간 글자(state.danger)**로 합니다. 채우면 그 화면에 같은 빨강 덩어리가 둘이 되고(주 버튼도 #D83A48 입니다), 사람은 「그다음에 할 일」과 「돌이킬 수 없는 일」을 같은 무게로 봅니다. Button 의 danger 갈래는 이미 그렇게 돼 있습니다 — 손으로 다시 만들지 마세요.',
+    pick: [
+      '<Button variant="danger">   이미 dangerBg 배경 + danger 글자입니다',
+      'state.dangerBg 배경 + state.danger 글자   직접 만들어야 한다면',
+      'state.dot                   글자가 없는 점이라면',
+      'surface.soft                그냥 배지였다면 (배지는 회색이 기본입니다)',
+    ],
+  },
 ];
 
 /**
@@ -109,7 +129,19 @@ const MISUSE = [
  *    ①과 ③은 사람이 화면을 봐야 한다. 이 검사는 사람을 대신하지 않고, 사람이 놓치는
  *    종류만 맡는다.
  */
-const FILL = /backgroundColor:\s*color\.action\.primary\b/;
+const FILL = /backgroundColor:\s*color\.action\.(primary|brand)\b/;
+
+/**
+ * 🔴 **색 이름이 화면 파일에 없는 동백 채움.**
+ *
+ * `<Button>` 은 `variant` 를 안 적으면 기본이 `primary` 다 — 즉 **동백 채움**이다.
+ * 그런데 그 색은 `Button.tsx` 안에 있어서, 화면 파일에는 색 이름이 한 글자도 안 나온다.
+ * 위의 FILL 로 세면 그 화면은 **채움 0** 으로 세어진다. 실제로는 빨간 버튼이 여섯인데도.
+ *
+ * 실측(2026-09-19): `variant` 없는 `<Button>` 이 80개, 파일 45개.
+ * 이걸 세어 넣으면 화면 23개가 「둘 이상」이 된다.
+ */
+const IMPLICIT_FILL = /<Button\b[^>]*?\/?>/g;
 
 /** 🔴 화면에는 하나뿐인데 파일에는 둘로 보이는 자리. 왜 그런지를 함께 적는다. */
 const ALLOWED_MULTI_FILL = {
@@ -136,7 +168,8 @@ const fills = new Map();
 for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))]) {
   const rel = file.slice(ROOT.length + 1).replace(/\\/g, '/');
   const skipHex = ALLOWED.includes(rel);
-  readFileSync(file, 'utf8').split('\n').forEach((line, index) => {
+  const text = readFileSync(file, 'utf8');
+  text.split('\n').forEach((line, index) => {
     // 🔴 주석은 뺀다. 「전에는 이 색이었다」고 적어 둔 기록까지 잡으면, 왜 바꿨는지를
     //    적지 못하게 된다 — 검사가 기록을 막는 꼴이다.
     const code = line.replace(/\/\/.*$/, '').replace(/\/\*.*?\*\//g, '');
@@ -153,10 +186,20 @@ for (const file of [...sources(join(ROOT, 'app')), ...sources(join(ROOT, 'src'))
     const hits = code.match(new RegExp(FILL.source, 'g'));
     if (hits) {
       const found = fills.get(rel) ?? [];
-      for (const _ of hits) found.push(where);
+      for (const _ of hits) found.push({ where, how: '색 이름' });
       fills.set(rel, found);
     }
   });
+
+  // 🔴 여는 태그가 여러 줄에 걸치므로 줄 단위로 못 센다. 파일을 통째로 훑는다.
+  //    ([^>] 가 이미 `>` 를 막으므로 줄바꿈은 알아서 넘어간다. 다만 속성값 안에 `>` 가
+  //    들어 있으면 거기서 끊긴다 — 못 잡는 자리다.)
+  for (const m of text.matchAll(IMPLICIT_FILL)) {
+    if (/\bvariant\s*=/.test(m[0])) continue;
+    const found = fills.get(rel) ?? [];
+    found.push({ where: `${rel}:${text.slice(0, m.index).split('\n').length}`, how: 'variant 없는 <Button>' });
+    fills.set(rel, found);
+  }
 }
 
 let failed = false;
@@ -198,7 +241,10 @@ if (crowded.length) {
   console.error('     · action.tertiary   연회색 채움. 「다음에 하기」류');
   console.error('     · action.field      현장 기능 전폭 버튼(짙은 회색). 🔴 동백이 아닙니다');
   console.error('');
-  for (const [rel, at] of crowded) console.error(`   ${rel}  ${at.length}곳  →  ${at.map((w) => w.split(':')[1]).join(', ')}번째 줄`);
+  for (const [rel, at] of crowded) {
+    console.error(`   ${rel}  ${at.length}곳`);
+    for (const hit of at) console.error(`       ${hit.where.split(':')[1]}번째 줄  (${hit.how})`);
+  }
   console.error('\n   화면에는 하나뿐인데 파일에 둘로 보이는 자리라면(서로 배타적인 두 갈래),');
   console.error('   이 파일의 ALLOWED_MULTI_FILL 에 **왜 그런지와 함께** 적으세요.');
 }
