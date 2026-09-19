@@ -77,7 +77,7 @@ function MonthGrid({
                 weight={isStart || isEnd ? 'bold' : 'regular'}
                 // 지난 날짜를 숨기지 않고 흐리게 둔다. 사라지면 달력의 칸이 밀려서
                 // 사람이 날짜를 잘못 짚는다.
-                color={past ? '#c9c3ba' : isStart || isEnd ? color.text.onAction : color.text.heading}
+                color={past ? color.text.muted : isStart || isEnd ? color.text.onAction : color.text.heading}
               >
                 {String(parseDateKey(key)?.getDate() ?? '')}
               </Text>
@@ -254,7 +254,7 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
           accessibilityLabel={tx('이전 달', 'Previous month')}
           style={styles.navButton}
         >
-          <Text weight="bold" color={monthOffset === 0 ? '#c9c3ba' : color.text.heading}>‹</Text>
+          <Text weight="bold" color={monthOffset === 0 ? color.text.muted : color.text.heading}>‹</Text>
         </Pressable>
         <Pressable onPress={() => setMonthOffset((n) => n + 1)} accessibilityRole="button" accessibilityLabel={tx('다음 달', 'Next month')} style={styles.navButton}>
           <Text weight="bold">›</Text>
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
   highlight: { position: 'absolute', top: spacing[2], bottom: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft },
   cta: { minHeight: 56, paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' },
   ctaWide: { alignSelf: 'stretch', marginTop: spacing[3] },
-  ctaOff: { backgroundColor: '#c9c3ba' },
+  ctaOff: { backgroundColor: color.surface.field },
   phonePill: {
     minHeight: 56, paddingHorizontal: spacing[4], justifyContent: 'center',
     borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border,

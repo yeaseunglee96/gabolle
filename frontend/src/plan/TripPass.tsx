@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     width: PRINTER_WIDTH,
     height: PRINTER_HEIGHT,
     borderRadius: radius.md,
-    backgroundColor: '#2b3037',
+    backgroundColor: color.action.secondary,
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
       default: { shadowColor: color.brand.navy, shadowOpacity: 0.28, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 6 },
     }),
   },
-  slot: { width: RECEIPT_WIDTH, height: 14, borderRadius: radius.full, backgroundColor: '#14171b' },
+  slot: { width: RECEIPT_WIDTH, height: 14, borderRadius: radius.full, backgroundColor: color.brand.navy },
   // 종이가 프린터 뒤에서 나오는 것처럼 보이게 창을 잘라 둔다. overflow 를 빼면
   // 아직 안 나온 종이가 프린터 위에 떠 보인다.
   // 🔴 잘라내기(overflow)는 **인쇄 중에만** 켠다. 켜 둔 채로 뒤집으면 커진 카드의
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   legEnd: { flexShrink: 1 },
   legEndRight: { alignItems: 'flex-end' },
   legMiddle: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingBottom: 22 },
-  dashed: { flex: 1, borderTopWidth: 1, borderColor: '#c9c3ba', borderStyle: 'dashed' },
+  dashed: { flex: 1, borderTopWidth: 1, borderColor: color.surface.field, borderStyle: 'dashed' },
   modeBadge: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingTop: 10, borderTopWidth: 1, borderColor: color.surface.field, borderStyle: 'dashed' },
   gridCell: { width: '33.33%', paddingTop: spacing[1], paddingRight: spacing[1] },

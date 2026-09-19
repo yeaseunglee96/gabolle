@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   switchTrack: { width: SWITCH_WIDTH, height: SWITCH_HEIGHT, borderRadius: SWITCH_HEIGHT / 2, justifyContent: 'center' },
-  switchThumb: { width: SWITCH_THUMB, height: SWITCH_THUMB, borderRadius: SWITCH_THUMB / 2, backgroundColor: '#fff' },
+  switchThumb: { width: SWITCH_THUMB, height: SWITCH_THUMB, borderRadius: SWITCH_THUMB / 2, backgroundColor: color.surface.card },
   cardBottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

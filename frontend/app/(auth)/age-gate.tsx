@@ -84,7 +84,7 @@ export default function AgeGate() {
 
 const styles = StyleSheet.create({
   canvas: { backgroundColor: color.brand.ivory },
-  webCanvas: { justifyContent: 'center', backgroundColor: '#f5eee8' },
+  webCanvas: { justifyContent: 'center', backgroundColor: color.canvas },
   panel: { flex: 1 },
   webPanel: { minHeight: 600, maxHeight: 700, flexDirection: 'row', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.brand.ivory, shadowColor: color.brand.navy, shadowOpacity: 0.1, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 5 },
   gateContent: { flex: 1 },
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing[3],
   },
-  ageMark: { width: 64, height: 64, marginBottom: spacing[2], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint, borderWidth: 1, borderColor: '#f7cdbd' },
+  ageMark: { width: 64, height: 64, marginBottom: spacing[2], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint },
   description: {
     color: color.text.body,
   },
