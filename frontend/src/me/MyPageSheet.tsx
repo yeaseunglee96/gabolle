@@ -56,6 +56,6 @@ const styles = StyleSheet.create({
   closeChip: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
   pressed: { opacity: 0.72 },
   // 머리와 본문 사이에 선을 긋는다 — 본문이 길면 머리가 어디까지인지 안 보인다.
-  body: { flex: 1, marginTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border, backgroundColor: color.brand.ivory },
+  body: { flex: 1, marginTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border, backgroundColor: color.canvas },
   bodyContent: { paddingTop: spacing[4], paddingBottom: spacing[4] },
 });

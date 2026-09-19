@@ -83,7 +83,7 @@ export default function AgeGate() {
 }
 
 const styles = StyleSheet.create({
-  canvas: { backgroundColor: color.brand.ivory },
+  canvas: { backgroundColor: color.canvas },
   webCanvas: { justifyContent: 'center', backgroundColor: color.canvas },
   panel: { flex: 1 },
   webPanel: { minHeight: 600, maxHeight: 700, flexDirection: 'row', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.brand.ivory, shadowColor: color.brand.navy, shadowOpacity: 0.1, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 5 },
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     gap: spacing[3],
     paddingHorizontal: spacing[3],
     borderRadius: radius.md,
-    backgroundColor: color.surface.card,
+    backgroundColor: color.action.tertiary,
   },
   pressed: { opacity: 0.72, transform: [{ scale: 0.99 }] },
   checkbox: {

@@ -135,7 +135,7 @@ export default function Permissions() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   layout: { flex: 1 },
   layoutWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[8] },
   introColumn: {},

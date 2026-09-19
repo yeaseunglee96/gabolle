@@ -140,7 +140,7 @@ export default function PlaceReviews() {
           <>
             <Text variant="body" weight="bold">{tx('다녀오셨나요?', 'Have you visited?')}</Text>
             <Text variant="caption" color={color.text.muted}>{tx('현재 위치로 방문을 인증하면 신뢰도 높은 평가를 남길 수 있어요.', 'Verify your visit with your current location to leave a trusted review.')}</Text>
-            <Button label={tx('방문 인증하기', 'Verify my visit')} onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
+            <Button variant="outline" label={tx('방문 인증하기', 'Verify my visit')} onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
         {verify.kind === 'checking' ? <View style={styles.verifyingRow}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('위치를 확인하고 있어요…', 'Checking your location…')}</Text></View> : null}
@@ -236,7 +236,7 @@ export default function PlaceReviews() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },

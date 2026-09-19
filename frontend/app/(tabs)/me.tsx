@@ -328,7 +328,7 @@ export default function Me() {
 }
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
 
   // ── 넓은 화면 (시안 01) ───────────────────────────────────────────────────
   //
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
 
-  wideScroll: { flex: 1, backgroundColor: color.brand.ivory },
+  wideScroll: { flex: 1, backgroundColor: color.canvas },
   wideContent: { minHeight: '100%' },
   wideGrid: {
     flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6],

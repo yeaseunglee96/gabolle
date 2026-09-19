@@ -113,8 +113,8 @@ export default function Saved() {
 }
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
-  screen: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
+  screen: { flex: 1, backgroundColor: color.canvas },
   heading: { gap: spacing[2], marginBottom: spacing[6] },
   notice: { padding: spacing[4], marginBottom: spacing[6], borderRadius: radius.md, backgroundColor: color.surface.tint },
   spinner: { marginTop: spacing[8] },

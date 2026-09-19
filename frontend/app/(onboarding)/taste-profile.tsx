@@ -283,7 +283,7 @@ export default function TasteProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
   // 넓은 화면에서 읽는 열. Screen 이 이미 720 으로 묶고 있지만 문항 하나를 읽기에는
   // 그것도 넓다 — 눈이 줄 끝에서 다음 줄 앞으로 돌아오는 거리가 멀어진다.

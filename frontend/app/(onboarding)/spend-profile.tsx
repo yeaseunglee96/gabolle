@@ -124,7 +124,7 @@ export default function SpendProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
   // marginTop — Screen 의 기본 paddingTop(24) 만으로는 전역 언어 배지(우측 상단
   // 절대좌표)를 못 피한다(home.tsx·app-intro.tsx 에서 실사용 리포트로 확인된 것과
