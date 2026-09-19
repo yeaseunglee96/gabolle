@@ -261,6 +261,24 @@ class ItineraryQueryServiceTest {
 				.isInstanceOf(ItineraryQueryController.ItineraryNotFoundException.class);
 	}
 
+	/**
+	 * 🔴 여행표의 「인원」이 <b>언제나 1명</b>으로 나오고 있었다 — 그 칸만 기기에 남은 초안에서
+	 * 읽는데 초안의 기본값이 1 이라, 비면 「1명」이라고 <b>단언</b>했다. 성인 2명으로 만든
+	 * 여행도 그랬다. 이 값이 그 자리를 채운다.
+	 */
+	@Test
+	@DisplayName("🔴 티켓 완료 기준 — 일정 응답이 여행 인원을 싣는다")
+	void detailCarriesPartySize() {
+		// 🔴 일부러 1 이 아닌 수로 만든다. 1 로 두면 「그 값을 옮겼나」와 「1 을 박아
+		//    넣었나」가 구분이 안 되는데, 지금 고치는 버그가 바로 그 1 이다.
+		Trip trip = new Trip(this.tripId, this.requesterId, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12),
+				null, null, null, 3, null, "Asia/Seoul", Instant.now());
+		stubTripMembership(trip);
+		String itineraryId = seedItinerary(1, List.of());
+
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).partySize()).isEqualTo(3);
+	}
+
 	// ── 방문지 좌표 (S15P21E201-1330) ─────────────────────────────────────────
 
 	/**

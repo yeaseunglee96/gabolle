@@ -73,7 +73,23 @@ public record ItineraryDetailResponse(
 		 * 하나 더 두면 두 값이 어긋날 자리만 생긴다. 이 칸은 <b>일정 화면에서 다시 볼 때</b>를
 		 * 위한 것이다.
 		 */
-		int accessibilityUnverifiedCount) {
+		int accessibilityUnverifiedCount,
+
+		/**
+		 * 🔴 S15P21E201-1339 — 이 여행을 몇 명이 가는가. 맨 뒤에 더한 칸이다.
+		 *
+		 * <p>여행표(TRIP PASS)의 「인원」이 <b>언제나 1명</b>으로 나오고 있었다. 그 칸만
+		 * 기기에 남은 초안에서 읽는데, 초안의 기본값이 1 이라 <b>비면 「1명」이라고
+		 * 단언</b>했다 — 성인 2명으로 만든 여행도 그랬다. 새로고침 한 번, 다른 기기면
+		 * 전부 1명이다.
+		 *
+		 * <p>여행표의 다른 칸은 전부 여기서 온다. 날짜에는 <i>「실제 일정이 있으면 그 날짜가
+		 * 이긴다」</i>고 적혀 있다. 인원만 그 규칙에서 빠져 있었다.
+		 *
+		 * <p>값은 {@code trip.party_size} 그대로고, 그 줄은 이 응답을 만들면서 <b>이미 읽고
+		 * 있다</b> — 질의가 늘지 않는다.
+		 */
+		int partySize) {
 
 	/** 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}). */
 	public record Day(String date, List<Item> items) {
