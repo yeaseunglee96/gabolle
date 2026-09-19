@@ -79,7 +79,7 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
 
   return (
     <View style={styles.body}>
-      {state.status === 'loading' ? <View style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /></View> : null}
+      {state.status === 'loading' ? <View style={styles.stateCard}><ActivityIndicator color={color.action.primary} /></View> : null}
 
       {state.status === 'unavailable' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
@@ -112,7 +112,7 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
           ))}
           {state.nextCursor ? (
             loadingMore
-              ? <ActivityIndicator color={color.brand.orange} style={styles.footerSpinner} />
+              ? <ActivityIndicator color={color.action.primary} style={styles.footerSpinner} />
               : <Button label={tx('더 보기', 'Load more')} variant="tertiary" onPress={() => void loadMore()} />
           ) : null}
         </View>

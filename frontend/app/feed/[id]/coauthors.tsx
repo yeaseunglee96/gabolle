@@ -87,7 +87,7 @@ export default function StoryCoauthors() {
     <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('이전 화면으로 이동', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace(`/feed/${id}`)} style={({ pressed }) => [styles.back, pressed && styles.pressed]}><Text variant="title" weight="bold">‹</Text></Pressable><BrandLogoLink href="/home" imageStyle={styles.logo} /><View style={styles.spacer} /></View>
     <View style={styles.heading}><Eyebrow>{tx('함께 쓰는 기록', 'Co-written record')}</Eyebrow><Text variant="display" weight="bold">{tx('참여자 관리', 'Manage participants')}</Text><Text color={color.text.body}>{tx('이 기록을 함께 쓰는 사람들이에요.', 'Everyone writing this record together.')}</Text></View>
 
-    {state.status === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /><Text weight="bold">{tx('참여자를 불러오고 있어요.', 'Loading participants.')}</Text></View>}
+    {state.status === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text weight="bold">{tx('참여자를 불러오고 있어요.', 'Loading participants.')}</Text></View>}
     {state.status === 'not-found' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('기록을 찾을 수 없어요', 'Could not find this record')}</Text><Button label={tx('피드로 돌아가기', 'Back to feed')} variant="tertiary" onPress={() => router.replace('/feed')} /></View>}
     {state.status === 'forbidden' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기록을 볼 수 있는 사람만 볼 수 있어요', 'Only people who can see this record can view this')}</Text><Text color={color.text.body}>{state.message}</Text></View>}
     {state.status === 'error' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('참여자를 불러오지 못했어요', "Couldn't load participants")}</Text><Text color={color.text.body}>{state.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
@@ -168,7 +168,7 @@ function TripCompanionPicker({ visible, tripId, accessToken, excludeUserIds, onC
           <Text variant="title" weight="bold">{tx('여행 동행자 고르기', 'Choose trip companions')}</Text>
           <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={onClose} style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}><Text variant="title" weight="bold">✕</Text></Pressable>
         </View>
-        {members === null && !loadError && <View style={styles.pickerLoading}><ActivityIndicator color={color.brand.orange} /></View>}
+        {members === null && !loadError && <View style={styles.pickerLoading}><ActivityIndicator color={color.action.primary} /></View>}
         {loadError ? <Text color={color.state.danger}>{loadError}</Text> : null}
         {members !== null && members.length === 0 && <Text color={color.text.body}>{tx('추가할 수 있는 동행자가 없어요 — 이미 모두 참여 중이에요.', 'No companions left to add — everyone is already a participant.')}</Text>}
         {members !== null && members.length > 0 && <View style={styles.pickerList}>{members.map((member) => {

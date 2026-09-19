@@ -233,7 +233,7 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
         style={styles.search}
         accessibilityLabel={tx('출발지 검색', 'Search starting point')}
       />
-      {searching ? <ActivityIndicator color={color.brand.orange} /> : null}
+      {searching ? <ActivityIndicator color={color.action.primary} /> : null}
       <Text variant="caption" color={color.text.muted}>{tx('추천 출발지', 'Suggested starting points')}</Text>
       {(results.length ? results : MAJOR_BUSAN_ORIGINS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickOrigin(candidate)} accessibilityRole="button" style={styles.originRow}>
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   // 하나를 깔고 자리만 옮기면 미끄러진다(에어비앤비가 그렇게 한다).
   // 글자를 가리지 않도록 칸 뒤에 깔고 pointerEvents 를 끈다.
   highlight: { position: 'absolute', top: spacing[2], bottom: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft },
-  cta: { minHeight: 56, paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' },
+  cta: { minHeight: 56, paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
   ctaWide: { alignSelf: 'stretch', marginTop: spacing[3] },
   ctaOff: { backgroundColor: color.surface.field },
   phonePill: {
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   cell: { width: `${100 / 7}%`, height: 40, alignItems: 'center', justifyContent: 'center' },
   headCell: { width: `${100 / 7}%`, textAlign: 'center' },
-  cellBetween: { backgroundColor: color.surface.warm },
+  cellBetween: { backgroundColor: color.surface.tint },
   cellPicked: { backgroundColor: color.brand.navy, borderRadius: radius.full },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },
   chip: { minHeight: 32, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },

@@ -72,7 +72,7 @@ export default function VerifyEmail() {
       <View style={styles.body}>
         {phase === 'checking' && (
           <>
-            <ActivityIndicator accessibilityLabel={tx('인증 확인 중', 'Verifying')} color={color.brand.orange} />
+            <ActivityIndicator accessibilityLabel={tx('인증 확인 중', 'Verifying')} color={color.action.primary} />
             <Text variant="title" weight="bold">{tx('인증을 확인하고 있어요', 'Verifying your email')}</Text>
             <Text variant="body" color={color.text.muted}>{tx('잠시만 기다려 주세요.', 'This will take a moment.')}</Text>
           </>

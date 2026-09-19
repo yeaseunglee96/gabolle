@@ -45,7 +45,7 @@ export function SavedRecordsBody() {
 
   return (
     <>
-      {loading ? <ActivityIndicator color={color.brand.orange} style={styles.loading} /> : null}
+      {loading ? <ActivityIndicator color={color.action.primary} style={styles.loading} /> : null}
 
       {!loading && result.state !== 'success' ? (
         <View style={styles.stateCard}>

@@ -73,7 +73,7 @@ function Row({ label, current, open, onPress, children }: {
           {current ?? tx('답 안 함', 'Not answered')}
         </Text>
       </View>
-      <Text variant="caption" weight="bold" color={color.brand.orange}>
+      <Text variant="caption" weight="bold" color={color.action.secondary}>
         {current ? tx('수정', 'Edit') : tx('답하기', 'Answer')}
       </Text>
     </Pressable>
@@ -249,7 +249,7 @@ export function PreferencesBody() {
   // 미리보기)에서 isPending 은 영원히 참이라 돌아가는 동그라미에 갇힌다. isLoading 은
   // "지금 실제로 받아오는 중" 만 참이다.
   if (query.isLoading) {
-    return <ActivityIndicator color={color.brand.orange} />;
+    return <ActivityIndicator color={color.action.primary} />;
   }
 
   // 머리(뒤로 버튼·눈썹·제목·설명)는 MyPageShell 이 그린다 — 마이페이지 탭 다섯이 같은
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   scalePointSelected: { backgroundColor: color.brand.navy },
   cardChoices: { gap: spacing[2] },
   cardChoice: { minHeight: 44, justifyContent: 'center', gap: spacing[1], padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  cardChoiceSelected: { borderColor: color.brand.orange, backgroundColor: color.surface.warm },
+  cardChoiceSelected: { borderColor: color.action.secondary, backgroundColor: color.surface.tint },
   cardChoiceDesc: { lineHeight: 18 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },

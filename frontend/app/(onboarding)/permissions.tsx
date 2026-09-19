@@ -35,7 +35,7 @@ function ToggleSwitch({ value, onChange, accessibilityLabel }: { value: boolean;
   const thumbOffset = progress.interpolate({ inputRange: [0, 1], outputRange: [SWITCH_PADDING, SWITCH_WIDTH - SWITCH_THUMB - SWITCH_PADDING] });
   return (
     <Pressable accessibilityRole="switch" accessibilityLabel={accessibilityLabel} accessibilityState={{ checked: value }} onPress={() => onChange(!value)} hitSlop={8}>
-      <View style={[styles.switchTrack, { backgroundColor: value ? color.brand.orange : color.surface.field }]}>
+      <View style={[styles.switchTrack, { backgroundColor: value ? color.action.primary : color.surface.field }]}>
         <Animated.View style={[styles.switchThumb, { transform: [{ translateX: thumbOffset }] }]} />
       </View>
     </Pressable>

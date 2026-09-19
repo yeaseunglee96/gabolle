@@ -66,7 +66,7 @@ export default function SpendProfileScreen() {
   };
 
   if (checking) {
-    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
+    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.action.primary} /></Screen>;
   }
   if (checkFailed) {
     return <Screen scroll style={styles.screen}><View style={styles.heading}>
@@ -118,7 +118,7 @@ export default function SpendProfileScreen() {
 
     <View style={styles.footer}>
       {step > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 질문으로', 'Previous question')} disabled={submitting} onPress={() => setStep(step - 1)} style={styles.backLink}><Text weight="bold" color={color.brand.navy}>{tx('‹ 이전', '‹ Back')}</Text></Pressable>}
-      {submitting && <ActivityIndicator color={color.brand.orange} />}
+      {submitting && <ActivityIndicator color={color.action.primary} />}
     </View>
   </Screen>;
 }
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   question: { marginTop: spacing[4], marginBottom: spacing[4] },
   options: { gap: spacing[3] },
   option: { minHeight: 64, gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
-  optionPressed: { borderColor: color.brand.orange, backgroundColor: color.surface.tint },
+  optionPressed: { borderColor: color.action.secondary, backgroundColor: color.surface.tint },
   optionDesc: { lineHeight: 18 },
   skipQuestion: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: spacing[1] },
   footer: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[6] },

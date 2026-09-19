@@ -79,7 +79,7 @@ export default function UserProfile() {
       </Pressable>
 
       {state.status === 'loading' ? (
-        <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /><Text color={color.text.body}>{tx('프로필을 불러오고 있어요', 'Loading profile')}</Text></View>
+        <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('프로필을 불러오고 있어요', 'Loading profile')}</Text></View>
       ) : null}
 
       {state.status === 'unavailable' ? (
@@ -139,7 +139,7 @@ export default function UserProfile() {
 
       {state.status === 'loaded' && !state.profile.blockedByUser ? (
         <View style={styles.list}>
-          {storiesLoading ? <ActivityIndicator color={color.brand.orange} /> : null}
+          {storiesLoading ? <ActivityIndicator color={color.action.primary} /> : null}
           {!storiesLoading && !items.length ? <Text color={color.text.body} style={styles.empty}>{tx('아직 공개된 기록이 없어요.', 'No public records yet.')}</Text> : null}
           {items.map((story: StoryDto) => (
             <Pressable key={story.id} accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>

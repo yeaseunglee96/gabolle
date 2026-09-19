@@ -86,7 +86,7 @@ export function HomeRow({
     <View style={[styles.row, { paddingTop: gutter, paddingHorizontal: gutter }]}>
       <View style={styles.head}>
         <View style={styles.headLeft}>
-          {eyebrow ? <Text variant="caption" weight="bold" color={color.brand.orange}>{eyebrow}</Text> : null}
+          {eyebrow ? <Text variant="caption" weight="bold" color={color.text.eyebrow}>{eyebrow}</Text> : null}
           <View style={styles.titleLine}>
             <Text variant="display" weight="bold" color={color.text.heading}>{title}</Text>
             <CircleButton icon={arrowRight} label={openLabel} onPress={onOpen} filled />

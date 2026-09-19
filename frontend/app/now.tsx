@@ -39,7 +39,7 @@ function CandidateCard({ candidate, onOpen }: { candidate: NowCandidate; onOpen:
       </Text>
       {candidate.reasons.length > 0 && (
         <View style={styles.tags}>{candidate.reasons.map((reason, index) => (
-          <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.brand.orange}>#{reason}</Text></View>
+          <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.text.muted}>#{reason}</Text></View>
         ))}</View>
       )}
       <Pressable accessibilityRole="button" onPress={onOpen} style={styles.detailLink}>

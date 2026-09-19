@@ -131,7 +131,7 @@ export default function LocalExplore() {
       </View>
 
       {loading ? (
-        <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /><Text color={color.text.body}>{tx('갈래를 불러오고 있어요', 'Loading categories')}</Text></View>
+        <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('갈래를 불러오고 있어요', 'Loading categories')}</Text></View>
       ) : null}
 
       {!loading && result.state !== 'success' ? (
@@ -271,7 +271,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   }, [center.lat, center.lng, facet.featureKey, facet.placeFeatureType, scope, tx]);
 
   if (loading || (scope === 'nearby' && !result) || (scope === 'all' && !allItems)) {
-    return <View accessibilityLiveRegion="polite" style={styles.branchBody}><ActivityIndicator color={color.brand.orange} /></View>;
+    return <View accessibilityLiveRegion="polite" style={styles.branchBody}><ActivityIndicator color={color.action.primary} /></View>;
   }
   if (scope === 'all') {
     if (allError) return <View style={styles.branchBody}><Text color={color.text.body}>{allError}</Text></View>;
@@ -301,14 +301,14 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
       */}
       {usingFallback && (
         <View style={styles.expandedNotice}>
-          <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('내 위치를 몰라 부산 중심에서 찾았어요. 거리도 그 기준이에요.', 'We searched from the center of Busan because your location is unavailable. Distances use that point.')}</Text>
+          <Text variant="caption" weight="bold" color={color.state.info}>{tx('내 위치를 몰라 부산 중심에서 찾았어요. 거리도 그 기준이에요.', 'We searched from the center of Busan because your location is unavailable. Distances use that point.')}</Text>
           {canAskAgain
             ? <Button label={tx('내 위치로 다시 찾기', 'Search from my location')} variant="tertiary" onPress={onRetryLocation} containerStyle={styles.branchRetry} />
             : <Button label={tx('설정에서 위치 허용하기', 'Allow location in Settings')} variant="tertiary" onPress={() => void Linking.openSettings()} containerStyle={styles.branchRetry} />}
         </View>
       )}
       {result.radiusExpanded && (
-        <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
+        <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.state.info}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
       )}
       <PlaceRows items={result.items} showDistance cardWidth={cardWidth} />
     </View>

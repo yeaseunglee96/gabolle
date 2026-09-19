@@ -354,14 +354,14 @@ const styles = StyleSheet.create({
   heartBackdrop: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   heartBackdropOn: { backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
   heartIcon: { width: 16, height: 16 },
-  heartOn: { tintColor: color.brand.orange },
+  heartOn: { tintColor: color.action.secondary },
   heartOff: { tintColor: color.surface.card },
 
   tripBlock: { width: 360, gap: spacing[3] },
   // 시안은 패딩 20 인데 간격 토큰에 20 이 없다(4·8·12·16·24·32). 16 으로 내린다
   // 토큰 밖 숫자를 화면에 직접 쓰지 않는 것이 이 저장소 규칙이다.
   tripCard: { gap: spacing[2], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },
-  tripCardPressed: { borderColor: color.brand.orange },
+  tripCardPressed: { borderColor: color.action.secondary },
   tripSkeleton: { height: 160 },
   tripGo: { marginTop: spacing[2] },
   tripEmpty: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },

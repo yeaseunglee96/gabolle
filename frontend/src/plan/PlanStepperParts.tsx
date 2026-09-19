@@ -81,7 +81,7 @@ export function OptionCard({
 export function EffectBand({ text, tx }: { text: string; tx: (ko: string, en: string) => string }) {
   return (
     <View style={styles.effect}>
-      <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('이렇게 반영돼요', 'What this changes')}</Text>
+      <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 반영돼요', 'What this changes')}</Text>
       <Text variant="caption" color={color.text.heading} style={styles.effectBody}>{text}</Text>
     </View>
   );
@@ -101,7 +101,7 @@ export function AnsweredChip({ label, value, onPress }: { label: string; value: 
 const styles = StyleSheet.create({
   dots: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
   dot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.surface.field },
-  dotNow: { width: 22, backgroundColor: color.brand.orange },
+  dotNow: { width: 22, backgroundColor: color.action.secondary },
   dotDone: { backgroundColor: color.state.success },
 
   option: {

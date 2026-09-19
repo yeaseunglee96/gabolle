@@ -130,7 +130,7 @@ export default function SignUp() {
           <Text variant="body" style={styles.subtitle}>{tx('여행을 저장하고 어디서든 이어보세요.', 'Save your trip and continue it anywhere.')}</Text>
 
           {kind === 'phone' && <View style={styles.questionProgress}>
-            <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(PANEL_LABELS[panelIndex][0], PANEL_LABELS[panelIndex][1])} {panelIndex + 1} / {PANEL_LABELS.length}</Text></View>
+            <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx(PANEL_LABELS[panelIndex][0], PANEL_LABELS[panelIndex][1])} {panelIndex + 1} / {PANEL_LABELS.length}</Text></View>
             <View style={styles.questionDots}>{PANEL_LABELS.map(([labelKo, labelEn], index) => <Pressable key={labelKo} accessibilityRole="button" accessibilityLabel={tx(`${labelKo} 단계로 이동`, `Go to ${labelEn}`)} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, panelValid[index] && styles.questionDotAnswered]} />)}</View>
           </View>}
 
@@ -142,7 +142,7 @@ export default function SignUp() {
             {email.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이메일 지우기', 'Clear email')} onPress={() => setEmail('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           {emailTouched && !emailValid && <ErrorText>{tx('올바른 이메일 주소를 입력해 주세요.', 'Please enter a valid email address.')}</ErrorText>}
-          {duplicateEmail && <View style={styles.inlineRow}><ErrorText>{tx('이미 가입된 이메일이에요.', 'This email is already registered.')}</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('로그인하기', 'Sign in')}</Text></Pressable></View>}
+          {duplicateEmail && <View style={styles.inlineRow}><ErrorText>{tx('이미 가입된 이메일이에요.', 'This email is already registered.')}</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })}><Text variant="caption" weight="bold" color={color.action.secondary}>{tx('로그인하기', 'Sign in')}</Text></Pressable></View>}
         </Field>}
 
         {(kind === 'tablet' || panelIndex === 1) && <>
@@ -181,11 +181,11 @@ export default function SignUp() {
           <CheckRow checked={ageAccepted} label={tx('만 14세 이상입니다.', 'I am 14 years of age or older.')} onPress={() => setAgeAccepted((value) => !value)} />
           <CheckRow checked={termsAccepted} label={tx('이용약관에 동의합니다. (필수)', 'I agree to the Terms of Service. (required)')} onPress={() => setTermsAccepted((value) => !value)} />
           <Pressable accessibilityRole="link" onPress={() => router.push('/legal/terms')} style={styles.policyLink}>
-            <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('이용약관 보기 ›', 'View Terms of Service ›')}</Text>
+            <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('이용약관 보기 ›', 'View Terms of Service ›')}</Text>
           </Pressable>
           <CheckRow checked={privacyAccepted} label={tx('개인정보 처리방침에 동의합니다. (필수)', 'I agree to the Privacy Policy. (required)')} onPress={() => setPrivacyAccepted((value) => !value)} />
           <Pressable accessibilityRole="link" onPress={() => router.push('/legal/privacy')} style={styles.policyLink}>
-            <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('개인정보 처리 안내 보기 ›', 'View Privacy Policy ›')}</Text>
+            <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('개인정보 처리 안내 보기 ›', 'View Privacy Policy ›')}</Text>
           </Pressable>
         </View>}
 
@@ -204,7 +204,7 @@ export default function SignUp() {
           </Animated.View>
 
         <Button label={tx('비회원으로 둘러보기', 'Browse as guest')} variant="tertiary" onPress={() => router.replace(isSafeReturnPath(returnTo) ? returnTo : '/home')} />
-        <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">{tx('이미 계정이 있나요? ', 'Already have an account? ')}<Text variant="body" weight="bold" color={color.brand.orange}>{tx('로그인', 'Sign in')}</Text></Text></Pressable>
+        <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">{tx('이미 계정이 있나요? ', 'Already have an account? ')}<Text variant="body" weight="bold" color={color.action.secondary}>{tx('로그인', 'Sign in')}</Text></Text></Pressable>
         </View>
       </View>
     </Screen>
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   resultCopy: { color: color.text.body },
   resultActions: { gap: spacing[2] },
   form: { marginTop: spacing[6], gap: spacing[4] },
-  questionProgress: { gap: spacing[2], marginTop: spacing[4] }, questionMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, questionDots: { flexDirection: 'row', gap: spacing[2] }, questionDot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field }, questionDotCurrent: { backgroundColor: color.brand.orange }, questionDotAnswered: { opacity: 0.72, backgroundColor: color.brand.orange },
+  questionProgress: { gap: spacing[2], marginTop: spacing[4] }, questionMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, questionDots: { flexDirection: 'row', gap: spacing[2] }, questionDot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field }, questionDotCurrent: { backgroundColor: color.action.secondary }, questionDotAnswered: { opacity: 0.72, backgroundColor: color.action.secondary },
   panelNav: { marginTop: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, panelNavButton: { minWidth: 72, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, panelCta: { flex: 1, marginTop: 0 },
   field: { gap: spacing[2] },
   input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4] },

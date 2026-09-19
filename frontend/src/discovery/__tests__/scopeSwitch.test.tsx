@@ -35,7 +35,7 @@ function orangeCount(view: ReturnType<typeof mount>) {
     if (typeof node.type !== 'string') return false;
     const style = node.props?.style;
     const flat = Array.isArray(style) ? Object.assign({}, ...style.flat(Infinity).filter(Boolean)) : style;
-    return Boolean(flat && flat.backgroundColor === color.brand.orange);
+    return Boolean(flat && flat.backgroundColor === color.action.secondary);
   }).length;
 }
 

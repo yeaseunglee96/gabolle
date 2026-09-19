@@ -186,7 +186,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
         onPress={onToggleSave}
         style={[storyReactionStyles.button, savingStar && styles.busy]}
       >
-        <Text variant="caption" weight="bold" color={saved ? color.brand.orange : color.text.muted}>
+        <Text variant="caption" weight="bold" color={saved ? color.action.secondary : color.text.muted}>
           {saved ? tx('★ 저장됨', 'Saved') : tx('☆ 저장', 'Save')}
         </Text>
       </Pressable>
@@ -681,7 +681,7 @@ export default function Feed() {
     {!signedIn
       ? <View style={styles.loginNotice}>
           <Text variant="caption" color={color.text.body}>{tx('로그인하면 기록을 남기고 팔로잉 피드를 볼 수 있어요.', 'Sign in to write records and see your following feed.')}</Text>
-          <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('로그인 →', 'Sign in →')}</Text></Pressable>
+          <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}><Text variant="caption" weight="bold" color={color.state.info}>{tx('로그인 →', 'Sign in →')}</Text></Pressable>
         </View>
       : null}
 
@@ -693,7 +693,7 @@ export default function Feed() {
       : null}
 
     {loading
-      ? <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /><Text variant="title" weight="bold">{tx('피드를 불러오고 있어요', 'Loading the feed')}</Text></View>
+      ? <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text variant="title" weight="bold">{tx('피드를 불러오고 있어요', 'Loading the feed')}</Text></View>
       : null}
 
     {!loading && result.state !== 'success'
@@ -840,7 +840,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] },
   fabDock: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[3], paddingHorizontal: gutter },
   mapToggle: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.navy },
-  writeFab: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: color.brand.orange },
+  writeFab: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: color.action.primary },
   // 시트 안 — 위 손잡이, 머리 줄, 지도, 장소 칩 가로 줄.
   sheetHandleHit: { alignSelf: 'center', width: 44, height: 20, alignItems: 'center', justifyContent: 'center' },
   sheetHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: color.surface.field },

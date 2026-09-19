@@ -102,7 +102,7 @@ export function IdentitiesBody() {
   return (
     <>
       {state.status === 'loading' ? (
-        <View style={styles.loading}><ActivityIndicator color={color.brand.orange} /></View>
+        <View style={styles.loading}><ActivityIndicator color={color.action.primary} /></View>
       ) : null}
 
       {state.status !== 'loading' ? (
@@ -149,7 +149,7 @@ export function IdentitiesBody() {
                     onPress={() => void connect(provider.id)}
                     style={({ pressed }) => [styles.connect, pressed && styles.pressed]}
                   >
-                    <Text variant="caption" weight="bold" color={color.brand.orange}>
+                    <Text variant="caption" weight="bold" color={color.action.secondary}>
                       {working ? tx('연결하는 중…', 'Connecting…') : tx('연결하기', 'Connect')}
                     </Text>
                   </Pressable>

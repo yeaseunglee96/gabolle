@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   hero: { gap: spacing[3], paddingHorizontal: spacing[6], paddingTop: spacing[6] },
   heroBadge: { alignSelf: 'flex-start', paddingHorizontal: spacing[3], paddingVertical: 6, borderRadius: radius.full, backgroundColor: color.surface.tint },
   heroTitle: { fontSize: 36, lineHeight: 42, letterSpacing: -0.3 },
-  primaryCta: { minHeight: 52, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange, marginTop: spacing[1] },
+  primaryCta: { minHeight: 52, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.action.primary, marginTop: spacing[1] },
 
   section: { gap: spacing[3], paddingTop: spacing[8] },
   sectionPadded: { gap: spacing[3], paddingTop: spacing[8], paddingHorizontal: spacing[6] },
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   heartBackdrop: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   heartBackdropOn: { backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
   heartIcon: { width: 16, height: 16 },
-  heartOn: { tintColor: color.brand.orange },
+  heartOn: { tintColor: color.action.secondary },
   heartOff: { tintColor: color.text.muted },
 
   tripCard: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },

@@ -82,6 +82,6 @@ export function ScopeSwitch<T extends string>({
 
 const styles = StyleSheet.create({
   track: { position: 'relative', flexDirection: 'row', padding: INSET, borderRadius: radius.full, backgroundColor: color.surface.soft },
-  pill: { position: 'absolute', left: INSET, top: INSET, bottom: INSET, borderRadius: radius.full, backgroundColor: color.brand.orange },
+  pill: { position: 'absolute', left: INSET, top: INSET, bottom: INSET, borderRadius: radius.full, backgroundColor: color.action.secondary },
   option: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
 });

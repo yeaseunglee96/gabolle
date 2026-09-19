@@ -76,7 +76,7 @@ export function CourseCard({
             onPress={onToggleSave}
             style={({ pressed }) => [styles.save, pressed && styles.pressed]}
           >
-            <Text variant="caption" weight="bold" color={saved ? color.brand.orange : color.text.muted}>{saved ? '★' : '☆'}</Text>
+            <Text variant="caption" weight="bold" color={saved ? color.action.secondary : color.text.muted}>{saved ? '★' : '☆'}</Text>
           </Pressable>
         </View>
 
@@ -123,7 +123,7 @@ export function CourseCard({
               </Pressable>
             ) : (
               <Pressable accessibilityRole="button" onPress={onSelect} style={({ pressed }) => [styles.pick, pressed && styles.pressed]}>
-                <Text weight="bold" color={color.brand.orange}>{tx('이 코스 선택', 'Pick this')}</Text>
+                <Text weight="bold" color={color.action.secondary}>{tx('이 코스 선택', 'Pick this')}</Text>
               </Pressable>
             )}
           </View>

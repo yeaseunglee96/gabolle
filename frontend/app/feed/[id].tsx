@@ -395,7 +395,7 @@ export default function StoryDetail() {
       </Pressable>
 
       {state.status === 'loading' && !story ? (
-        <View accessibilityLiveRegion="polite" style={styles.notice}><ActivityIndicator color={color.brand.orange} /><Text color={color.text.body}>{tx('기록을 불러오고 있어요', 'Loading the record')}</Text></View>
+        <View accessibilityLiveRegion="polite" style={styles.notice}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('기록을 불러오고 있어요', 'Loading the record')}</Text></View>
       ) : null}
 
       {reported ? (
@@ -485,7 +485,7 @@ export default function StoryDetail() {
               <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReplies()} containerStyle={styles.recoveryButton} />
             </View>
           ) : replies === null ? (
-            <ActivityIndicator color={color.brand.orange} />
+            <ActivityIndicator color={color.action.primary} />
           ) : shownReplies.length === 0 ? (
             <Text variant="caption" color={color.text.muted}>{tx('아직 댓글이 없어요.', 'No comments yet.')}</Text>
           ) : (

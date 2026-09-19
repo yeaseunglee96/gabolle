@@ -232,7 +232,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
           <View style={styles.sheet}>
             <View style={styles.rowBetween}>
               <Text variant="body" weight="bold" style={styles.wordmark}>
-                GAB<Text variant="body" weight="bold" color={color.brand.orange}>O</Text>LLE
+                GAB<Text variant="body" weight="bold" color={color.action.primary}>O</Text>LLE
               </Text>
               {!!data.code && <Text variant="caption" weight="bold" color={color.text.body}>{data.code}</Text>}
             </View>
@@ -318,7 +318,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
           <TearLine />
           {canFlip ? (
             <View style={styles.flipHint}>
-              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('눌러서 여행표 상세 보기 ↻', 'Tap to see trip pass details ↻')}</Text>
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('눌러서 여행표 상세 보기 ↻', 'Tap to see trip pass details ↻')}</Text>
             </View>
           ) : null}
           </Pressable>
@@ -390,7 +390,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
 
       {!!onReprint && (
         <Pressable onPress={onReprint} style={styles.reprint} accessibilityRole="button">
-          <Text variant="caption" weight="bold" color={color.brand.orange}>
+          <Text variant="caption" weight="bold" color={color.action.secondary}>
             {tx('다시 출력', 'Print again')}
           </Text>
         </Pressable>

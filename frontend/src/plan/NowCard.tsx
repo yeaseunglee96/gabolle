@@ -76,7 +76,7 @@ export function NowCard({
             />
             <View style={styles.dot} />
           </View>
-          <Text variant="caption" weight="bold" color={color.brand.orange}>
+          <Text variant="caption" weight="bold" color={color.action.primary}>
             {running ? tx('지금 · 위치 추적 중', 'Now · tracking') : tx('지금', 'Now')}
           </Text>
         </View>
@@ -132,14 +132,14 @@ const styles = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
   live: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   dotWrap: { width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
-  dot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.brand.orange },
-  pulse: { position: 'absolute', width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.brand.orange },
+  dot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.state.dot },
+  pulse: { position: 'absolute', width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.state.dot },
 
   track: { height: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.12)', overflow: 'hidden' },
-  fill: { height: 6, borderRadius: radius.full, backgroundColor: color.brand.orange },
+  fill: { height: 6, borderRadius: radius.full, backgroundColor: color.action.primary },
 
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2], marginTop: spacing[1] },
-  go: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.brand.orange },
+  go: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.action.primary },
   ghost: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.16)' },
   outline: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },
   pressed: { opacity: 0.82 },

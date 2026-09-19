@@ -99,7 +99,7 @@ export function StoryReactionRow({
         onPress={() => onReact('LIKE')}
         style={[storyReactionStyles.button, reacting && storyReactionStyles.busy]}
       >
-        <Text variant="caption" weight="bold" color={liked ? color.brand.orange : color.text.muted}>
+        <Text variant="caption" weight="bold" color={liked ? color.action.secondary : color.text.muted}>
           {'👍'}{typeof story.likeCount === 'number' ? ` ${story.likeCount}` : ''}
         </Text>
       </Pressable>

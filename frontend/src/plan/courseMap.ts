@@ -14,7 +14,7 @@ import type { TripCourse } from '@/plan/tripCourses';
  * 🔴 여행 지도 화면(`app/(trip)/[id]/map.tsx`)이 쓰는 것과 **같은 팔레트**다 — 두 화면의
  * 「1일차」가 다른 색이면, 같은 여행을 두 곳에서 보는 사람이 다른 것으로 읽는다.
  */
-const DAY_PALETTE = [color.brand.orange, color.state.success, color.brand.navy, color.text.eyebrow] as const;
+const DAY_PALETTE = [color.action.primary, color.state.success, color.brand.navy, color.text.eyebrow] as const;
 
 export const dayColor = (index: number) => DAY_PALETTE[index % DAY_PALETTE.length];
 

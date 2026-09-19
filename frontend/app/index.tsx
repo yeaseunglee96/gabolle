@@ -134,7 +134,7 @@ export default function Welcome() {
       <StatusBar style="light" />
       <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={styles.mobileSafeArea}>
         <ScrollView style={styles.mobileSafeArea} contentContainerStyle={styles.mobileContent}>
-        <View style={styles.mobileBrand}><Pressable testID="start-gabolle" accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
+        <View style={styles.mobileBrand}><Pressable testID="start-gabolle" accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.text.onAction}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
         {/* 사용자 요청(2026-09-17): 예전 흰 시트 목록이 화면을 너무 많이 차지했고, 이 화면은
             로그인 화면이 아닌데 "비회원으로 둘러보기" 가 있는 것도 어색했다 — 그 선택지는
             로그인 화면(sign-in.tsx)에 이미 있다. 국기 동그라미 다섯 줄로 압축하고, 배경 사진이
@@ -269,9 +269,9 @@ const styles = StyleSheet.create({
   // 동그라미를 접고 국기 비율에 맞춘 둥근 네모 + resizeMode「contain」으로 바꿔
   // 어떤 국기도 잘리지 않게 한다.
   languageFlagCircle: { position: 'relative', width: 56, height: 40, borderRadius: radius.sm, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 2, borderColor: 'transparent' },
-  languageFlagCircleSelected: { borderColor: color.brand.orange },
+  languageFlagCircleSelected: { borderColor: color.action.secondary },
   languageFlagImage: { width: '86%', height: '86%' },
-  languageFlagCheck: { position: 'absolute', right: -2, bottom: -2, width: 20, height: 20, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.orange, borderWidth: 2, borderColor: color.brand.navy },
+  languageFlagCheck: { position: 'absolute', right: -2, bottom: -2, width: 20, height: 20, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.secondary, borderWidth: 2, borderColor: color.brand.navy },
   languageFlagCheckMark: { fontSize: 11, fontWeight: '700', color: color.text.onAction },
   languageFlagLabel: { textAlign: 'center' },
   languageNotice: { marginTop: spacing[1], textAlign: 'center', lineHeight: 18 },

@@ -83,7 +83,7 @@ function FoodChips({ values, desktop, onChange }: { values: string[]; desktop: b
         onPress={() => onChange(selected ? values.filter((value) => value !== code) : [...values, code])}
         style={[styles.chip, selected && (desktop ? styles.chipSelectedDesktop : styles.chipSelected)]}
       >
-        <Text weight="bold" color={selected ? (desktop ? color.brand.orange : color.text.onAction) : color.text.heading}>{tx(labelKo, labelEn)}</Text>
+        <Text weight="bold" color={selected ? (desktop ? color.action.secondary : color.text.onAction) : color.text.heading}>{tx(labelKo, labelEn)}</Text>
       </Pressable>;
     })}
   </View>;
@@ -166,7 +166,7 @@ export default function TasteProfileScreen() {
   };
 
   if (checking) {
-    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
+    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.action.primary} /></Screen>;
   }
 
   if (done !== null) {
@@ -276,7 +276,7 @@ export default function TasteProfileScreen() {
 
     <View style={styles.footer}>
       {!wide && backLink}
-      {submitting && <ActivityIndicator color={color.brand.orange} />}
+      {submitting && <ActivityIndicator color={color.action.primary} />}
     </View>
     </View>
   </Screen>;
@@ -298,9 +298,9 @@ const styles = StyleSheet.create({
   skipAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
   dots: { flexDirection: 'row', gap: 6, marginTop: spacing[3] },
   dot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
-  dotCurrent: { backgroundColor: color.brand.orange },
+  dotCurrent: { backgroundColor: color.action.secondary },
   // 답했거나 건너뛴 단계. 현재 단계와 구별되게 흐리다 — 같은 색이면 어디까지 왔는지 모른다.
-  dotSettled: { backgroundColor: color.brand.orange, opacity: 0.5 },
+  dotSettled: { backgroundColor: color.action.secondary, opacity: 0.5 },
   heading: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[6] },
   question: { marginTop: spacing[6], marginBottom: spacing[4] },
   scaleEnds: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing[2] },
@@ -308,19 +308,19 @@ const styles = StyleSheet.create({
   scaleTrackDesktop: { backgroundColor: color.surface.subtle },
   scalePoint: { width: 56, height: 56, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   scalePointSelected: { backgroundColor: color.brand.navy },
-  scalePointSelectedDesktop: { backgroundColor: color.brand.orange },
+  scalePointSelectedDesktop: { backgroundColor: color.action.secondary },
   multi: { gap: spacing[4] },
   multiCta: { minHeight: 46 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   chipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  chipSelectedDesktop: { backgroundColor: color.surface.warm, borderColor: color.brand.orange },
+  chipSelectedDesktop: { backgroundColor: color.surface.tint, borderColor: color.action.secondary },
   options: { gap: spacing[3] },
   // 넓은 화면에서는 두 카드를 한 줄에 나란히 — 세로로 쌓으면 카드 하나가 화면 폭을 다 먹는다.
   optionsDesktop: { flexDirection: 'row' },
   option: { minHeight: 64, gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   optionDesktop: { flex: 1, minHeight: 80, borderRadius: radius.md },
-  optionPressed: { borderColor: color.brand.orange, backgroundColor: color.surface.tint },
+  optionPressed: { borderColor: color.action.secondary, backgroundColor: color.surface.tint },
   optionDesc: { lineHeight: 18 },
   skipQuestion: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: spacing[4] },
   footer: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[4] },

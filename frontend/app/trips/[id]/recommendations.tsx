@@ -98,7 +98,7 @@ export default function Recommendations() {
 
   const header = (
     <View style={styles.head}>
-      <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('추천 코스 고르기', 'Pick a course')}</Text>
+      <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('추천 코스 고르기', 'Pick a course')}</Text>
       <Text variant="hero" weight="bold" color={color.text.heading}>
         {courses.length > 1
           ? tx(`${courses.length}가지 코스`, `${courses.length} courses`)
@@ -184,7 +184,7 @@ export default function Recommendations() {
           <ScrollView style={styles.mapBody} contentContainerStyle={styles.mapBodyInner}>
             {current ? (
               <>
-                <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('코스 내용', 'What is in this course')}</Text>
+                <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('코스 내용', 'What is in this course')}</Text>
                 <Text variant="title" weight="bold">{current.title}</Text>
                 <Text variant="caption" color={color.text.muted}>{courseFacts(current, ko)}</Text>
                 {current.days.map((day) => (
@@ -205,7 +205,7 @@ export default function Recommendations() {
                 ))}
                 {current.rationale ? (
                   <View style={styles.rationale}>
-                    <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('이렇게 골랐어요', 'Why this course')}</Text>
+                    <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 골랐어요', 'Why this course')}</Text>
                     <Text variant="caption" color={color.text.body}>{current.rationale}</Text>
                   </View>
                 ) : null}

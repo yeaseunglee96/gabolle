@@ -98,16 +98,16 @@ export default function Festivals() {
         {festival.photoUrl ? <View>
           <Image source={{ uri: festival.photoUrl }} resizeMode="cover" style={styles.image} />
           {photo.badge && <View style={styles.photoBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{photo.badge}</Text></View>}
-        </View> : <View style={styles.imageFallback}><Text weight="bold" color={color.brand.orange}>GABOLLE</Text></View>}
+        </View> : <View style={styles.imageFallback}><Text weight="bold" color={color.text.heading}>GABOLLE</Text></View>}
         <View style={styles.cardBody}>
           <View style={styles.cardTopRow}>
-            <Text variant="caption" weight="bold" color={color.brand.orange}>{festival.startDate} — {festival.endDate}</Text>
+            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{festival.startDate} — {festival.endDate}</Text>
             {'isSample' in festival && <View style={styles.sampleBadge}><Text variant="caption" weight="bold">{tx('샘플', 'Sample')}</Text></View>}
           </View>
           <Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
           {festival.photoUrl && photo.credit && <Text variant="caption" color={color.text.muted}>{photo.credit}</Text>}
           <Pressable accessibilityRole="button" onPress={() => accessToken ? setAddPlaceId(festival.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/festivals' } })} style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}>
-            <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('+ 내 일정에 추가', '+ Add to my itinerary')}</Text>
+            <Text variant="caption" weight="bold" color={color.action.outline}>{tx('+ 내 일정에 추가', '+ Add to my itinerary')}</Text>
           </Pressable>
         </View>
       </View>;
@@ -123,12 +123,12 @@ const styles = StyleSheet.create({
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[6] },
   filterCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, filterCardWide: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap' },
   dateField: { flex: 1, minWidth: 180, gap: spacing[1] }, input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.brand.ivory }, inputError: { borderColor: color.state.danger }, searchButton: { minWidth: 180, width: undefined },
-  sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.brand.orange, backgroundColor: color.brand.orange },
+  sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.action.secondary, backgroundColor: color.action.secondary },
   stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   sampleNotice: { marginBottom: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] }, card: { width: '100%', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card }, cardWide: { width: '48%' }, image: { width: '100%', height: 180 }, imageFallback: { height: 180, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint }, cardBody: { gap: spacing[2], padding: spacing[4] },
   cardTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   sampleBadge: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
   photoBadge: { position: 'absolute', top: spacing[2], left: spacing[2], paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.78)' },
-  addButton: { alignSelf: 'flex-start', minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.orange },
+  addButton: { alignSelf: 'flex-start', minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.action.outline },
 });

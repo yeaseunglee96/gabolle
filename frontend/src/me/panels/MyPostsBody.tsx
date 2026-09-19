@@ -76,7 +76,7 @@ export function MyPostsBody() {
 
       {toast ? <View accessibilityRole="alert" style={styles.toast}><Text variant="caption" weight="bold" color={color.state.success}>{toast}</Text></View> : null}
 
-      {loading ? <ActivityIndicator color={color.brand.orange} style={styles.loading} /> : null}
+      {loading ? <ActivityIndicator color={color.action.primary} style={styles.loading} /> : null}
 
       {!loading && result.state !== 'success' ? (
         <View style={styles.stateCard}>
