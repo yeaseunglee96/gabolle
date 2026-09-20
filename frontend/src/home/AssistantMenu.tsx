@@ -107,7 +107,7 @@ export function AssistantMenu({
             <View style={styles.iconCircle}>
               {item.icon
                 ? <Image source={item.icon} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.icon} />
-                : <GabolleMascot state="idle" style={styles.itemMascot} />}
+                : <GabolleMascot state="idle" still style={styles.itemMascot} />}
             </View>
             <View style={styles.itemText}>
               <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1}>{tx(item.ko, item.en)}</Text>

@@ -20,6 +20,7 @@ import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localP
 import { getPlacesByFacet, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
 // 이 값과 일치하는 항목만 골라 순서는 서버가 준 그대로 둔다. 화면 쪽에서 새로 만들지 않는다.
@@ -138,7 +139,7 @@ export default function LocalExplore() {
       {!loading && result.state !== 'success' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('로컬 탐색 API를 기다리고 있어요', 'Waiting for the local explore API') : tx('갈래를 불러오지 못했어요', 'Could not load categories')}</Text>
-          <Text color={color.text.body}>{result.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
           <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
@@ -282,7 +283,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   if (!result) return null;
   if (result.state !== 'success') {
     return <View style={styles.branchBody}>
-      <Text color={color.text.body}>{result.message}</Text>
+      <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
       <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }).then(setResult)} containerStyle={styles.branchRetry} />
     </View>;
   }
@@ -375,7 +376,7 @@ const styles = StyleSheet.create({
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
-  logo: { width: 96, height: 28 },
+  logo: { width: 154, height: 28 },
   spacer: { width: 44 },
   heading: { gap: spacing[2], marginBottom: spacing[6] },
   stateCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },

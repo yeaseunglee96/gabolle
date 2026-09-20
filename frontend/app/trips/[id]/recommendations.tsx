@@ -26,6 +26,7 @@ import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/re
 import { loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
 import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { loadTrips } from '@/trip/trips';
+import { localizeMessage } from '@/i18n/messages';
 
 type Loaded = { state: 'loading' } | { state: 'ready'; result: TripCoursesResult };
 
@@ -124,7 +125,7 @@ export default function Recommendations() {
         </>
       ) : loaded.result.state !== 'success' ? (
         <View style={styles.stateCard}>
-          <Text color={color.text.body}>{loaded.result.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, loaded.result.message)}</Text>
           <Pressable accessibilityRole="button" onPress={() => void load()} style={styles.retry}>
             <Text weight="bold" color={color.brand.navy}>{tx('다시 시도', 'Try again')}</Text>
           </Pressable>

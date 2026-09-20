@@ -31,6 +31,7 @@ import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 import { useStoryVideo } from '@/social/useStoryVideo';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 // 열쇠는 src/social/stories.ts 로 옮겼다 — 글쓰기 화면도 같은 것을 써야 해서다
 // 이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
@@ -342,7 +343,7 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
 
     {/* 동영상이 실패하면 이유를 말한다 — 올라간 것만 글에 붙고, 실패한 것은 안 붙는다. */}
     {video?.error ? <Text variant="caption" color={color.state.danger}>{video.error}</Text> : null}
-    {error ? <Text variant="caption" color={color.state.danger}>{error}</Text> : null}
+    {error ? <Text variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
   </View>;
 }
 
@@ -689,7 +690,7 @@ export default function Feed() {
           {/* 연결이 끊기거나 못 불러왔을 때는 우는 동백이 — 빈 카드에 글자만 있으면 고장 화면으로 읽힌다. */}
           <GabolleMascot state="sad" style={styles.sadMascot} />
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('피드 API를 기다리고 있어요', 'Waiting for the feed API') : tx('피드를 불러오지 못했어요', 'Could not load the feed')}</Text>
-          <Text color={color.text.body}>{result.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
           <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void feedQuery.refetch()} />
         </View>
       : null}

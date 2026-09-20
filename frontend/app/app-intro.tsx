@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.canvas },
   frame: { flex: 1, minHeight: 0, width: '100%', maxWidth: 720, alignSelf: 'center' },
   top: { height: 56, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[6] },
-  logoButton: { minWidth: 100, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center', borderRadius: radius.sm }, logo: { width: 100, height: 24 },
+  logoButton: { minWidth: 100, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center', borderRadius: radius.sm }, logo: { width: 132, height: 24 },
   skip: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, pressed: { opacity: 0.65, transform: [{ scale: 0.97 }] },
   page: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing[6], paddingVertical: spacing[4] },
   photoPreview: { minHeight: 220, justifyContent: 'flex-end', gap: spacing[3], overflow: 'hidden', padding: spacing[4], borderRadius: 28, backgroundColor: color.surface.soft, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 4 },

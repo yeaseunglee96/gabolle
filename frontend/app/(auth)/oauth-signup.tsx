@@ -19,6 +19,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+import { localizeMessage } from '@/i18n/messages';
 
 // 기본값 /home — sign-in.tsx 의 resolveDestination 과 같은 이유(jaehyeon 님 제안).
 async function resolveDestination(returnTo?: string) {
@@ -127,7 +128,7 @@ export default function OAuthSignup() {
           <CheckRow checked={privacyAccepted} label={tx('개인정보 처리방침에 동의합니다. (필수)', 'I agree to the Privacy Policy. (required)')} onPress={() => setPrivacyAccepted((value) => !value)} />
         </View>
 
-        {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{error}</Text></Card>}
+        {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text></Card>}
         <Button label={submitting ? tx('가입 중…', 'Signing up…') : tx('가입 완료', 'Finish signing up')} disabled={!canSubmit} onPress={() => void submit()} />
       </View>
     </Screen>
@@ -145,7 +146,7 @@ function CheckRow({ checked, label, onPress }: { checked: boolean; label: string
 
 const styles = StyleSheet.create({
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
-  logo: { width: 112, height: 32 },
+  logo: { width: 176, height: 32 },
   backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   title: { marginTop: spacing[3] },
   subtitle: { marginTop: spacing[1], marginBottom: spacing[6] },

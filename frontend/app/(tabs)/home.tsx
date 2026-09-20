@@ -13,7 +13,8 @@ import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
-import { TabBar } from '@/components/TabBar';
+import { TAB_BAR_HEIGHT, TabBar, tabBarBottomMargin } from '@/components/TabBar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { PlaceRow, StoryRow } from '@/home/HomeBlocks';
@@ -57,6 +58,9 @@ export default function Home() {
   const saved = useSavedPlaces(accessToken, 'home-mobile');
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [openingTrip, setOpeningTrip] = useState(false);
+  // 동백이 단추는 탭바 윗변에서 12 위 — 안전영역이 있는 폰이든 없는 웹이든 탭바와의 간격이 같다.
+  const insets = useSafeAreaInsets();
+  const assistantBottom = tabBarBottomMargin(insets.bottom) + TAB_BAR_HEIGHT + spacing[3];
 
   useEffect(() => {
     if (hydrated && !hasEnteredApp) markEnteredApp();
@@ -273,7 +277,7 @@ export default function Home() {
 
       {/* 판이 먼저다 — 메뉴와 단추보다 아래에 깔려야 그 둘은 그대로 눌린다. */}
       <AssistantBackdrop open={assistantOpen} onClose={() => setAssistantOpen(false)} />
-      <View ref={assistantRef} collapsable={false} style={styles.assistantAnchor}>
+      <View ref={assistantRef} collapsable={false} style={[styles.assistantAnchor, { bottom: assistantBottom }]}>
         {/* 폰은 부제 없이 232 폭. 마스코트 위로 뜬다. */}
         <AssistantMenu compact open={assistantOpen} onClose={() => setAssistantOpen(false)} />
         <Pressable
@@ -301,7 +305,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.75 },
 
   header: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[6], paddingTop: spacing[4] },
-  logo: { width: 110, height: 26 },
+  logo: { width: 143, height: 26 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], height: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
   bell: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
@@ -351,7 +355,7 @@ const styles = StyleSheet.create({
   saveFeedback: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[6], marginHorizontal: spacing[6], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy },
 
   // 메뉴가 이 상자 위에 뜬다. 절대 위치를 단추가 아니라 감싸는 상자가 가진다.
-  assistantAnchor: { position: 'absolute', right: spacing[6], bottom: 100, zIndex: 20 },
+  assistantAnchor: { position: 'absolute', right: spacing[6], zIndex: 20 },
   assistantButton: { width: 68, height: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   assistantMascot: { width: 60, height: 60 },
 });

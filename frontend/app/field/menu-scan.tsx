@@ -20,6 +20,7 @@ import { LANGUAGE_OPTIONS, toBcp47, type LanguageCode } from '@/i18n/languages';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 type Phase =
   | { state: 'idle' }
@@ -98,7 +99,7 @@ export default function MenuScanScreen() {
 
     {phase.state === 'failed' && <View accessibilityRole="alert" style={styles.stateCard}>
       <Text variant="title" weight="bold">{tx('읽지 못했어요', 'Could not read it')}</Text>
-      <Text color={color.text.body}>{phase.message}</Text>
+      <Text color={color.text.body}>{localizeMessage(tx, phase.message)}</Text>
       <Button label={tx('다른 사진으로 다시', 'Try another photo')} variant="tertiary" onPress={() => setPhase({ state: 'idle' })} containerStyle={styles.action} />
     </View>}
 
@@ -374,7 +375,7 @@ const styles = StyleSheet.create({
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
-  logo: { width: 96, height: 28 },
+  logo: { width: 154, height: 28 },
   spacer: { width: 44 },
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[4] },
   privacyCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint, marginBottom: spacing[4] },

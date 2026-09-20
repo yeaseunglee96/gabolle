@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   // 절대좌표)를 못 피한다(home.tsx·app-intro.tsx 에서 실사용 리포트로 확인된 것과
   // 같은 자리). "전체 건너뛰기" 가 배지와 겹치던 결함을 여기도 같은 값으로 고친다.
   topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
-  logo: { width: 88, height: 24 },
+  logo: { width: 132, height: 24 },
   stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
   skipAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
   heading: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[6] },

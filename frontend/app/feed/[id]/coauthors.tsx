@@ -18,6 +18,7 @@ import { getStory, type StoryDto } from '@/social/stories';
 import { addStoryCoauthors, createStoryInvite, listStoryCoauthors, removeStoryCoauthor, type StoryCoauthor } from '@/social/storyCoauthors';
 import { listTripMembers, type TripMember } from '@/trip/collaboration';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 type State =
   | { status: 'loading' }
@@ -90,8 +91,8 @@ export default function StoryCoauthors() {
 
     {state.status === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text weight="bold">{tx('참여자를 불러오고 있어요.', 'Loading participants.')}</Text></View>}
     {state.status === 'not-found' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('기록을 찾을 수 없어요', 'Could not find this record')}</Text><Button label={tx('피드로 돌아가기', 'Back to feed')} variant="tertiary" onPress={() => router.replace('/feed')} /></View>}
-    {state.status === 'forbidden' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기록을 볼 수 있는 사람만 볼 수 있어요', 'Only people who can see this record can view this')}</Text><Text color={color.text.body}>{state.message}</Text></View>}
-    {state.status === 'error' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('참여자를 불러오지 못했어요', "Couldn't load participants")}</Text><Text color={color.text.body}>{state.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
+    {state.status === 'forbidden' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기록을 볼 수 있는 사람만 볼 수 있어요', 'Only people who can see this record can view this')}</Text><Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text></View>}
+    {state.status === 'error' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('참여자를 불러오지 못했어요', "Couldn't load participants")}</Text><Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
 
     {state.status === 'ready' && <>
       <View style={styles.list}>{state.coauthors.map((member) => {
@@ -185,7 +186,7 @@ function TripCompanionPicker({ visible, tripId, accessToken, excludeUserIds, onC
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.canvas }, topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] }, logo: { width: 96, height: 28 }, spacer: { width: 44 },
+  screen: { backgroundColor: color.canvas }, topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] }, logo: { width: 154, height: 28 }, spacer: { width: 44 },
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[6] }, stateCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   list: { gap: spacing[3] }, memberCard: { gap: spacing[3], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   memberInfo: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing[2] },

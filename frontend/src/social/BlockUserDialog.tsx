@@ -6,6 +6,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 type BlockUserDialogProps = {
   visible: boolean;
@@ -46,7 +47,7 @@ export function BlockUserDialog({ visible, displayName, onClose, onConfirm }: Bl
             </Text>
           </View>
 
-          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{error}</Text> : null}
+          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
 
           <View style={styles.buttonRow}>
             <Pressable accessibilityRole="button" disabled={submitting} onPress={close} style={[styles.button, styles.cancelButton]}>

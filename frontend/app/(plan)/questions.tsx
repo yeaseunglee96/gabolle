@@ -38,6 +38,7 @@ import {
 import { startBarChips } from '@/home/startBarValue';
 import { assistantPrefillPatch } from '@/plan/assistantPrefill';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 const BUDGET_STEPS = [10000, 30000, 50000, 100000] as const;
 const SCALES = [
@@ -470,7 +471,7 @@ export default function PlanConditions() {
         </View>
       ) : null}
       {job?.errorMessage && job.state !== 'consent-required' ? (
-        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{job.errorMessage}</Text>
+        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, job.errorMessage)}</Text>
       ) : null}
 
       {/* 답한 질문 — 누르면 그 질문으로 돌아간다. 요약이 없으면 안 그린다. */}

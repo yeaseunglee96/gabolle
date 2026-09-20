@@ -31,7 +31,7 @@ export default function Help() {
 const styles = StyleSheet.create({
   top: { minHeight: 52, marginBottom: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
-  logo: { width: 96, height: 28 },
+  logo: { width: 154, height: 28 },
   spacer: { width: 44 },
   title: { marginTop: spacing[2] },
   lead: { marginTop: spacing[2], marginBottom: spacing[6], lineHeight: 24 },

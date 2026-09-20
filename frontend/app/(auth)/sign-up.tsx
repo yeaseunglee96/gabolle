@@ -17,6 +17,7 @@ import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SPECIAL_CHARACTER_PATTERN = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
@@ -111,7 +112,7 @@ export default function SignUp() {
           {/* — 서버 열거값(PENDING_EMAIL_VERIFICATION)을 그대로 찍고 있었다. 읽는 사람에게는 오류 문구로 보인다. 바로 위에서 이미 "인증 링크를 보냈다" 고 말하므로 같은 사실을 상태값으로 한 번 더 적지 않는다. */}
           <Text variant="caption" color={color.text.muted}>{tx(`메일이 안 보이면 스팸함도 확인해 주세요. 링크는 30분 동안 쓸 수 있어요.`, `If you do not see it, check your spam folder. The link works for 30 minutes.`)}</Text>
           {resent && <Text accessibilityRole="alert" variant="caption" color={color.state.success}>{tx('인증 메일을 다시 보냈어요.', 'Verification email resent.')}</Text>}
-          {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
+          {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{localizeMessage(tx, error)}</ErrorText></View>}
         </View>
         <View style={styles.resultActions}>
           <Button label={resending ? tx('재전송 중…', 'Resending…') : tx('인증 메일 다시 보내기', 'Resend verification email')} variant="tertiary" disabled={resending} onPress={() => void resend()} />
@@ -190,7 +191,7 @@ export default function SignUp() {
           </Pressable>
         </View>}
 
-        {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
+        {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{localizeMessage(tx, error)}</ErrorText></View>}
 
         {kind === 'tablet' ? (
           <Button testID="sign-up-submit" label={submitting ? tx('가입 중…', 'Signing up…') : tx('회원가입', 'Sign up')} disabled={!canSubmit} onPress={() => void submit()} />
@@ -220,7 +221,7 @@ function CheckRow({ checked, label, onPress }: { checked: boolean; label: string
 const styles = StyleSheet.create({
   subtitle: { marginTop: spacing[1] },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
-  logo: { width: 112, height: 32 },
+  logo: { width: 176, height: 32 },
   backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   columns: { width: '100%' },
   columnsWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8] },

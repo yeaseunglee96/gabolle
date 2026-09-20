@@ -10,6 +10,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { localizeMessage } from '@/i18n/messages';
 
 const logo = require('../../../assets/brand/gabolle-logo-hd.png');
 
@@ -63,7 +64,7 @@ export default function PasswordReset() {
           <TextInput accessibilityLabel={tx('새 비밀번호 확인', 'Confirm new password')} autoCapitalize="none" autoComplete="new-password" onChangeText={setConfirm} onSubmitEditing={() => void submit()} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.input} value={confirm} />
           {confirm.length > 0 && <Text variant="caption" color={matches ? color.state.success : color.state.danger}>{matches ? tx('✓ 비밀번호가 일치해요.', '✓ Passwords match.') : tx('비밀번호가 일치하지 않아요.', 'Passwords do not match.')}</Text>}
         </View>
-        {error && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="caption" weight="bold" color={color.state.danger}>{error}</Text></View>}
+        {error && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="caption" weight="bold" color={color.state.danger}>{localizeMessage(tx, error)}</Text></View>}
         {validToken ? <Button label={submitting ? tx('변경 중…', 'Changing…') : tx('비밀번호 변경', 'Change password')} disabled={!canSubmit} onPress={() => void submit()} /> : <Button label={tx('재설정 링크 다시 받기', 'Get a new reset link')} onPress={() => router.replace('/forgot-password')} />}
         {error && validToken && <Button label={tx('재설정 링크 다시 받기', 'Get a new reset link')} variant="tertiary" onPress={() => router.replace('/forgot-password')} />}
         {submitting && <ActivityIndicator color={color.action.secondary} />}
@@ -75,7 +76,7 @@ export default function PasswordReset() {
 const styles = StyleSheet.create({
   backButton: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   logoLink: { minWidth: 154, minHeight: 44, marginTop: spacing[6], alignSelf: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm },
-  logo: { width: 154, height: 40 },
+  logo: { width: 220, height: 40 },
   pressed: { opacity: 0.75 },
   title: { marginTop: spacing[8] },
   subtitle: { marginTop: spacing[2], color: color.text.body },

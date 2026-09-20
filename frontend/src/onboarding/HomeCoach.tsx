@@ -2,6 +2,7 @@
 //
 // 앱 소개 세 장을 막 넘긴 사람에게 홈에서 딱 두 가지만 짚는다 — 「여기서 시작한다」(시작 바)와
 // 「궁금하면 동백이」(오른쪽 아래 단추). 나머지는 보면 안다. 장수가 늘면 아무도 안 읽는다.
+// 한 장이라 「건너뛰기」가 따로 없다 — 닫는 길은 「먼저 둘러볼게요」 하나다. 닫는 단추가 둘이면 둘 중 무엇이 다른지 사람이 고민한다.
 //
 // 어두운 막에 두 구멍을 뚫는다(SVG 마스크). 구멍 자리는 홈이 실제로 잰 값(measureInWindow)이라
 // 화면 폭이 바뀌어도 맞다 — 좌표를 박아 두면 폴드 같은 기기에서 엉뚱한 곳을 가리킨다.
@@ -32,7 +33,9 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
   const holes = [startBar, assistant].filter((hole): hole is CoachHole => Boolean(hole));
   // 시작 바 설명은 바 아래에, 동백이 설명은 단추 왼쪽 위에 — 구멍을 가리지 않는 자리.
   const startCopyTop = startBar ? startBar.y + startBar.height + spacing[4] : height * 0.28;
-  const assistantCopyBottom = assistant ? height - assistant.y + spacing[3] : height * 0.2;
+  // 설명은 단추 위 64 — 그 사이 56px 이 화살표 자리다. 전에는 12 위에 두고 화살표를 46 위에서 시작해 글자를 가로질렀다.
+  const ASSISTANT_COPY_GAP = 64;
+  const assistantCopyBottom = assistant ? height - assistant.y + ASSISTANT_COPY_GAP : height * 0.2;
   const assistantCopyRight = assistant ? width - assistant.x - assistant.width : spacing[6];
 
   return (
@@ -55,15 +58,11 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
           {assistant ? (
             // 동백이 설명에서 단추로 흐르는 화살표 — 「저 단추」를 손가락 대신 가리킨다.
             <>
-              <Path d={`M${assistant.x - 34} ${assistant.y - 46} Q${assistant.x - 8} ${assistant.y - 40} ${assistant.x + 6} ${assistant.y - 8}`} stroke={color.text.onAction} strokeWidth={2} fill="none" strokeLinecap="round" />
-              <Circle cx={assistant.x + 6} cy={assistant.y - 8} r={3.5} fill={color.text.onAction} />
+              <Path d={`M${assistant.x + assistant.width * 0.15} ${assistant.y - ASSISTANT_COPY_GAP + 10} Q${assistant.x + assistant.width * 0.2} ${assistant.y - 16} ${assistant.x + assistant.width * 0.45} ${assistant.y - 10}`} stroke={color.text.onAction} strokeWidth={2} fill="none" strokeLinecap="round" />
+              <Circle cx={assistant.x + assistant.width * 0.45} cy={assistant.y - 10} r={3.5} fill={color.text.onAction} />
             </>
           ) : null}
         </Svg>
-
-        <Pressable accessibilityRole="button" onPress={onClose} style={({ pressed }) => [styles.skip, pressed && styles.pressed]}>
-          <Text variant="util" weight="bold" color={color.text.onAction}>{tx('건너뛰기', 'Skip')}</Text>
-        </Pressable>
 
         <View style={[styles.copy, { top: startCopyTop }]}>
           <Text variant="micro" weight="bold" color={RING} style={styles.eyebrow}>{tx('GABOLLE · 부산 전용 AI 여행 가이드', 'GABOLLE · AI travel guide just for Busan')}</Text>
@@ -91,7 +90,6 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  skip: { position: 'absolute', top: 54, left: spacing[4], minHeight: 36, paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.7)', justifyContent: 'center' },
   copy: { position: 'absolute', left: spacing[6], right: spacing[6], gap: spacing[2], alignItems: 'center' },
   eyebrow: { letterSpacing: 1 },
   center: { textAlign: 'center' },

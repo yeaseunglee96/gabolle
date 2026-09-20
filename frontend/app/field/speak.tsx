@@ -11,6 +11,7 @@ import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PlacePhraseBrowser } from '@/components/PlacePhraseBrowser';
 import { useI18n } from '@/i18n';
+import { toBcp47 } from '@/i18n/languages';
 import { useAuth } from '@/auth/AuthProvider';
 import { directionForLanguage, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
 import { canSearchDestination, destinationSubtitle, searchTaxiDestinations, type TaxiDestinationOutcome } from '@/field/taxiDestination';
@@ -99,7 +100,8 @@ export default function Speak() {
     setTranslating(false);
     if (outcome.state === 'translated') {
       setSpokenText(outcome.text);
-      setTranslateNotice(null);
+      // 고른 언어 방향을 서버가 아직 몰라 영어 방향으로 번역했으면 그 사실을 한 줄 남긴다 — 결과가 어색해도 이유를 안다.
+      setTranslateNotice(outcome.viaEnglish ? tx('이 언어의 직접 번역은 준비 중이라 영어를 거쳐 번역했어요.', 'Direct translation for this language is on the way — this one went through English.') : null);
       speakAloud(outcome.text, speechLanguageFor(direction));
       return;
     }
@@ -107,7 +109,7 @@ export default function Speak() {
     // 이때는 원문의 언어로 읽는다. 영어 문장을 한국어 음성으로 읽으면 아무 쓸모가 없다.
     setSpokenText(null);
     setTranslateNotice(blockedNotice(outcome.reason));
-    speakAloud(text, language === 'en' ? 'en-US' : 'ko-KR');
+    speakAloud(text, toBcp47(language));
   }
 
   async function copySpokenText() {

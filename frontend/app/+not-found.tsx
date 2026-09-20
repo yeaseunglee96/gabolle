@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   desktopShell: { flex: 0, minHeight: 560, flexDirection: 'row', borderRadius: radius.lg, overflow: 'hidden' },
   messagePanel: { flex: 1, paddingHorizontal: spacing[6], paddingTop: spacing[4], paddingBottom: spacing[8], justifyContent: 'space-between' },
   desktopMessagePanel: { padding: spacing[8] },
-  logo: { width: 94, height: 32, tintColor: color.text.onAction },
+  logo: { width: 176, height: 32, tintColor: color.text.onAction },
   message: { gap: spacing[4] },
   routeLine: { flexDirection: 'row', alignItems: 'center' },
   routeDot: { width: 10, height: 10, borderRadius: radius.full, borderWidth: 2, borderColor: color.text.onAction },
