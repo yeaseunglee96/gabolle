@@ -169,7 +169,7 @@ export default function Welcome() {
             <Text variant="title" weight="bold" color={color.text.heading}>{tx('시작하기', 'Get started')}</Text>
             <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M9 5l7 7-7 7" stroke={color.text.heading} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" /></Svg>
           </Pressable>
-          <Pressable accessibilityRole="link" onPress={() => router.push('/sign-in')} style={({ pressed }) => [styles.signInLink, pressed && styles.pressed]}>
+          <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.signInLink, pressed && styles.pressed]}>
             <Text variant="util" weight="bold" color="rgba(255,255,255,0.9)">{tx('이미 계정이 있어요 · 로그인', 'Already have an account · Sign in')}</Text>
           </Pressable>
           {/* 번역이 아직 없다는 사실을 숨기지 않는다. 다 된 척하면 고른 사람이 영어를 보고
