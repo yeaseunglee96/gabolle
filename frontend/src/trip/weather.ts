@@ -42,7 +42,9 @@ export async function loadWeatherForecast(date: string, accessToken: string | nu
   } catch (error) {
     if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '날씨 API가 아직 준비되지 않았어요.' };
     // 서버 원문: 「date 가 이 발표 회차의 단기예보 범위를 벗어났습니다」(2026-09-21 실서버 실기, 출발 6일 전 여행).
-    if (error instanceof ApiClientError && error.status === 400 && error.code === 'WEATHER_INVALID_REQUEST' && /범위/.test(error.message)) return { state: 'out-of-range', message: error.message };
+    // 🔴 말투를 보지 않는다 — 이 화면이 보내는 값 가운데 사람이 바꾸는 것은 날짜뿐이라(좌표는 상수),
+    //    이 코드의 400 은 곧 「날짜가 범위 밖」이다. 서버 문구가 바뀌어도 안 흔들린다.
+    if (error instanceof ApiClientError && error.status === 400 && error.code === 'WEATHER_INVALID_REQUEST') return { state: 'out-of-range', message: error.message };
     if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) return { state: 'offline', message: error.message };
     if (error instanceof ApiClientError && error.status === 502) return { state: 'error', message: '기상청 응답을 받지 못했어요.' };
     return { state: 'error', message: error instanceof Error ? error.message : '예보를 가져오지 못했어요.' };
