@@ -1,4 +1,4 @@
-// 마크다운 글을 그린다 —.
+// 마크다운 글을 그린다 — S15P21E201-1136.
 import { Fragment } from 'react';
 import { Linking, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 

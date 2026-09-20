@@ -1,4 +1,4 @@
-// 주변 버스 도착 —.
+// 주변 버스 도착 — S15P21E201-1138.
 import { useCallback, useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';

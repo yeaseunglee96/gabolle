@@ -1,4 +1,4 @@
-// 챗봇이 보내도 된다고 정한 주소가 앱에 실제로 있고, 앱이 그 주소를 받아들이는가 —.
+// 챗봇이 보내도 된다고 정한 주소가 앱에 실제로 있고, 앱이 그 주소를 받아들이는가 — S15P21E201-1209.
 import { ALLOWED_NAVIGATE_HREFS, isAllowedNavigateHref } from '@/assistant/assistantApi';
 import type ExchangeRateScreen from '../../app/field/exchange-rate';
 import type PlanBasicScreen from '../../app/plan/basic';

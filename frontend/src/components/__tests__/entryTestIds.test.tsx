@@ -1,4 +1,4 @@
-// 앱에 들어가는 길의 선택자 이름이 그대로인가 —.
+// 앱에 들어가는 길의 선택자 이름이 그대로인가 — S15P21E201-1193.
 import { render } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';

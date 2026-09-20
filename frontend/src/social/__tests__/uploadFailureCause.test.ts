@@ -1,4 +1,4 @@
-// 사진이 안 올라갈 때 왜인지가 화면에 남는가 —.
+// 사진이 안 올라갈 때 왜인지가 화면에 남는가 — S15P21E201-1187.
 jest.mock('@/api/multipart', () => ({ singleFileFormData: jest.fn(async () => new FormData()) }));
 jest.mock('@/api/client', () => {
   class ApiClientError extends Error {

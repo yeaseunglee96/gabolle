@@ -1,4 +1,4 @@
-// 사진이 무엇을 찍은 것인지 말하는 표 —.
+// 사진이 무엇을 찍은 것인지 말하는 표 — S15P21E201-1206.
 
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 

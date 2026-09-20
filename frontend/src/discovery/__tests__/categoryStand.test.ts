@@ -1,7 +1,7 @@
 import { categoryStand, MIN_CANDIDATES_PER_CATEGORY } from '../categoryStand';
 
 // 후보가 모자란 갈래를 고르게 두면 여행 조건을 다 넣은 뒤에야 「조건을 만족하는 코스가
-// 없어요」를 만난다 —. 고르기 전에 가른다.
+// 없어요」를 만난다 — S15P21E201-1005. 고르기 전에 가른다.
 const MIN = MIN_CANDIDATES_PER_CATEGORY;
 
 describe('갈래 후보가 충분한가', () => {

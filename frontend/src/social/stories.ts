@@ -24,11 +24,11 @@ export type StoryDto = {
   updatedAt: string;
   mine: boolean;
   published: boolean;
-  /** 댓글이면 부모 글의 id, 원글이면 null —. */
+  /** 댓글이면 부모 글의 id, 원글이면 null — S15P21E201-1183. */
   parentId?: string | null;
   /** 이 글에 직접 달린 댓글 수. 손자는 안 센다 — 서버 주석과 같은 규칙이다. */
   replyCount?: number;
-  /** 이 글을 연 횟수 —. */
+  /** 이 글을 연 횟수 — S15P21E201-1213. */
   viewCount?: number;
   /** 이 글의 링크를 복사한 횟수. */
   linkCopyCount?: number;
@@ -57,7 +57,7 @@ function withDisplayImageUrls(story: StoryDto): StoryDto {
   return { ...story, images: story.images.map((image) => ({ ...image, url: resolveStoryImageUrl(image.url) })) };
 }
 
-/** 글에 붙일 지표 문구들 —. */
+/** 글에 붙일 지표 문구들 — S15P21E201-1213. */
 export function storyMetricLabels(
   story: Pick<StoryDto, 'viewCount' | 'linkCopyCount'>,
   tx: (ko: string, en: string) => string,
@@ -153,7 +153,7 @@ function failure(error: unknown): FeedFailure {
   return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
 }
 
-/** 피드를 보관소(react-query)에서 찾는 열쇠 —. */
+/** 피드를 보관소(react-query)에서 찾는 열쇠 — S15P21E201-1124. */
 export const FEED_QUERY_PREFIX = ['feed'] as const;
 export const feedQueryKey = (scope: FeedScope, signedIn: boolean) =>
   [...FEED_QUERY_PREFIX, scope, signedIn] as const;
@@ -186,7 +186,7 @@ export async function createStory(input: {
   // "지금 바로 공개"를 고른 경우에만 현재 시각을 실어 보낸다.
   publishAt?: string;
   /**
-   * 있으면 이 글의 댓글로 들어간다 —.
+   * 있으면 이 글의 댓글로 들어간다 — S15P21E201-1197.
    * 없으면 지금까지처럼 원글이다. 서버의 StoryCreateRequest 가 같은 이름의 칸을 받는다.
    */
   parentStoryId?: string;

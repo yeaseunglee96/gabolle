@@ -1,4 +1,4 @@
-// 피드 사진 배치 —.
+// 피드 사진 배치 — S15P21E201-1135.
 
 /** 크기를 알 수도, 모를 수도 있다. 모르면 null — 모르는 것을 0 으로 적지 않는다. */
 export type PhotoGridItem = { width?: number | null; height?: number | null };

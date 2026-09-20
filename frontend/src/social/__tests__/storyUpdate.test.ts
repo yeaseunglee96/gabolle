@@ -1,4 +1,4 @@
-// 글(원글·댓글 공통) 본문 수정 —.
+// 글(원글·댓글 공통) 본문 수정 — S15P21E201-1239.
 
 import { updateStory } from '../stories';
 

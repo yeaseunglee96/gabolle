@@ -1,4 +1,4 @@
-// 환율 계산기 —.
+// 환율 계산기 — S15P21E201-1137.
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';

@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import { API_BASE_URL, getApiLanguage } from '@/api/client';
 
-/** `GET /api/v1/jobs/{jobId}/progress` (SSE) 를 읽는다 —. */
+/** `GET /api/v1/jobs/{jobId}/progress` (SSE) 를 읽는다 — S15P21E201-69. */
 export type JobStreamStatus = 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED' | 'EXPIRED';
 
 export type RecommendationJobStreamSnapshot = {

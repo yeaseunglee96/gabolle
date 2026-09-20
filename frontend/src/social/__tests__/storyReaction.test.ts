@@ -1,4 +1,4 @@
-// 반응 토글과 낙관적 수 계산 —.
+// 반응 토글과 낙관적 수 계산 — S15P21E201-1247.
 import { applyReaction, nextReaction, type ReactableStory } from '@/social/StoryReactionRow';
 
 function story(over: Partial<ReactableStory> = {}): ReactableStory {

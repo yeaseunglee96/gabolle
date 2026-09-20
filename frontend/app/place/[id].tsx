@@ -145,7 +145,7 @@ export default function Place() {
                   {hasLocalityScore(resolved.apiPlace) ? (
                     <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
                   ) : null}
-                  {/* 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 —.
+                  {/* 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 — S15P21E201-1206.
                       여태 축제 화면만 말하고 여기는 아무 말도 안 했다.
                   */}
                   <PhotoSubjectBadge photoSubject={resolved.apiPlace.photoSubject} style={styles.subjectBadge} />

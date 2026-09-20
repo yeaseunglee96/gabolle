@@ -1,4 +1,4 @@
-// 신고 검토(운영자) 화면 —. 탭 네비게이션에는 안 올린다 — 일반
+// 신고 검토(운영자) 화면 — S15P21E201-599. 탭 네비게이션에는 안 올린다 — 일반
 // 사용자가 볼 이유가 없는 화면이고, 접근 자체는 어차피 서버가 ROLE_ADMIN으로 막는다
 // (moderation.ts 주석 참고). 운영자는 이 경로(/admin/story-reports)로 직접 들어온다.
 import { useCallback, useEffect, useState } from 'react';

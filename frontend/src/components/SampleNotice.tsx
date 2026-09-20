@@ -1,4 +1,4 @@
-// 「이 자리는 진짜 내 데이터가 아니다」 를 말하는 띠 —.
+// 「이 자리는 진짜 내 데이터가 아니다」 를 말하는 띠 — S15P21E201-1009.
 import { StyleSheet, View } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';

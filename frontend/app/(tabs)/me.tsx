@@ -125,7 +125,7 @@ export default function Me() {
         onPress={() => openPanel('posts')}
         disabled={!user}
       />
-      {/* 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" —. */}
+      {/* 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" — S15P21E201-1221. */}
       <InfoRow
         label={tx('저장한 기록', 'Saved records')}
         value="›"

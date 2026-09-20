@@ -1,4 +1,4 @@
-// 장소 상세가 서버 값을 사람이 읽는 말로 옮기는가 —.
+// 장소 상세가 서버 값을 사람이 읽는 말로 옮기는가 — S15P21E201-1202.
 import { formatFeatureSlot, formatOpeningHoursValue, formatSlopePercent } from '../places';
 import type { Place } from '../places';
 

@@ -1,4 +1,4 @@
-// 택시 목적지 고르기 —.
+// 택시 목적지 고르기 — S15P21E201-1141.
 import { ApiClientError } from '@/api/client';
 import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
 

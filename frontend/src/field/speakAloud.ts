@@ -1,4 +1,4 @@
-// 기기 음성으로 소리 내어 읽기 —.
+// 기기 음성으로 소리 내어 읽기 — S15P21E201-1126.
 import * as Speech from 'expo-speech';
 import { setAudioModeAsync } from 'expo-audio';
 

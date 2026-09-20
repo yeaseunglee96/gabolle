@@ -1,4 +1,4 @@
-// 「지역」 검색 —.
+// 「지역」 검색 — S15P21E201-1145.
 import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
 import { searchOrigins, type OriginCandidate } from '@/plan/origins';
 

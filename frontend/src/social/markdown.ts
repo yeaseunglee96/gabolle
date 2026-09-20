@@ -1,4 +1,4 @@
-// 피드 글의 마크다운 —.
+// 피드 글의 마크다운 — S15P21E201-1136.
 import MarkdownIt from 'markdown-it';
 
 /** markdown-it 이 내는 토큰 중 우리가 읽는 칸만. 깊은 경로 import 를 피한다. */

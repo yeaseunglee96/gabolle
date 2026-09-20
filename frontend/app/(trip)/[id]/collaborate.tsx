@@ -1,4 +1,4 @@
-// 동행자 공동 편집 화면 — 참여자·역할 관리·최근 변경 (상세설계서 Part II P-22) —.
+// 동행자 공동 편집 화면 — 참여자·역할 관리·최근 변경 (상세설계서 Part II P-22) — S15P21E201-327.
 // 초대 링크 만들기는 share.tsx가 이미 하므로 여기서는 그 화면으로 보내는 진입점만 둔다.
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';

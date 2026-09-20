@@ -1,4 +1,4 @@
-// 로그인 유도를 언제 띄우나 —.
+// 로그인 유도를 언제 띄우나 — S15P21E201-1012.
 export const SIGN_IN_PROMPT_AFTER_STORIES = 8;
 
 /**

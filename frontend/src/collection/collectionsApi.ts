@@ -62,8 +62,8 @@ function codePoints(value: string): number {
   return [...value].length;
 }
 
-/** 아직 서버에 못 보낸 지우기 —. */
-/** 아직 서버에 못 보낸 이름·설명 고치기 —. */
+/** 아직 서버에 못 보낸 지우기 — S15P21E201-1148. */
+/** 아직 서버에 못 보낸 이름·설명 고치기 — S15P21E201-1153. */
 export type PendingRename = { collectionId: string; name: string; description: string | null };
 
 export type PendingDelete =
@@ -103,7 +103,7 @@ export function serverToDevice(collections: ServerCollection[]): DeviceCollectio
         addedAt: collection.updatedAt,
         lat: item.lat ?? null,
         lng: item.lng ?? null,
-        // 지울 때 쓸 서버 이름표 —.
+        // 지울 때 쓸 서버 이름표 — S15P21E201-1148.
         serverItemId: item.itemId,
       };
     }
@@ -151,7 +151,7 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
   const byName = new Map(server.lists.map((list) => [list.name.trim(), list]));
   const merged: CollectionList[] = [...server.lists];
   const onlyOnDevice: CollectionList[] = [];
-  /** 이미 서버에 있는 리스트에, 기기에만 있는 장소 —. */
+  /** 이미 서버에 있는 리스트에, 기기에만 있는 장소 — S15P21E201-1133. */
   const pendingUploads: Array<{ collectionId: string; placeIds: string[] }> = [];
 
   for (const deviceList of device.lists) {
@@ -175,14 +175,14 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
   return { merged: { lists: merged, places }, onlyOnDevice, pendingUploads };
 }
 
-/** 서버가 아는 것인가 —. */
+/** 서버가 아는 것인가 — S15P21E201-1117. */
 const SERVER_PLACE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function isServerId(value: string): boolean {
   return SERVER_PLACE_ID.test(value);
 }
 
-/** 담을 것 하나를 서버 말로 옮긴다 —. */
+/** 담을 것 하나를 서버 말로 옮긴다 — S15P21E201-1117. */
 export function buildItemRequest(placeId: string, place: CollectionPlace) {
   if (isServerId(placeId)) {
     return { kind: 'PLACE' as const, placeId, note: place.note ?? null };
@@ -198,8 +198,8 @@ export function buildItemRequest(placeId: string, place: CollectionPlace) {
 }
 
 /** 담을 것 하나를 서버에 올린다. 실패는 부르는 쪽이 센다. */
-/** 보류해 둔 지우기를 서버로 보낸다 —. */
-/** 보류해 둔 이름·설명 고치기를 서버로 보낸다 —. */
+/** 보류해 둔 지우기를 서버로 보낸다 — S15P21E201-1148. */
+/** 보류해 둔 이름·설명 고치기를 서버로 보낸다 — S15P21E201-1153. */
 async function sendPendingRenames(pending: PendingRename[], accessToken: string): Promise<PendingRename[]> {
   const remaining: PendingRename[] = [];
   for (const entry of pending) {
@@ -351,7 +351,7 @@ export async function loadCollections(device: DeviceCollections, accessToken: st
   }
 }
 
-/** 못 올린 장소를 서버 것 위에 얹는다 —. */
+/** 못 올린 장소를 서버 것 위에 얹는다 — S15P21E201-1133. */
 export function restoreUnuploaded(fresh: DeviceCollections, previous: DeviceCollections, unuploaded: Set<string>): DeviceCollections {
   if (unuploaded.size === 0) return fresh;
 

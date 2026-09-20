@@ -37,7 +37,7 @@ export type MapPointLayer = { id: string; label: string; color: string; stops: M
 // `points` 매개변수 기본값을 여기서 한 번만 만든다. 함수 시그니처에 `points = []` 로
 // 직접 쓰면 이 컴포넌트가 스스로 재렌더될 때마다(예: 아래 setFailure) 새 배열이 다시
 // 만들어져 effect 의존성이 매번 바뀌고, 그게 다시 setFailure 를 불러 무한 루프가 됐다
-// (points 를 안 넘기는 호출부에서 실측 —.
+// (points 를 안 넘기는 호출부에서 실측 — S15P21E201-435).
 const NO_POINT_LAYERS: MapPointLayer[] = [];
 
 export type CurrentLocation = { latitude: number; longitude: number };

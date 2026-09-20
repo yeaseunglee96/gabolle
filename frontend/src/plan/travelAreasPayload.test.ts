@@ -1,4 +1,4 @@
-// 여행 범위가 여행 생성 요청에 실리는가 —.
+// 여행 범위가 여행 생성 요청에 실리는가 — S15P21E201-980.
 import { toCreateTripPayload } from '@/api/tripApi';
 import { EMPTY_PLAN } from '@/plan/PlanProvider';
 

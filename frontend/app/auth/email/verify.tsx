@@ -1,4 +1,4 @@
-// 메일의 인증 링크가 도착하는 화면 —.
+// 메일의 인증 링크가 도착하는 화면 — S15P21E201-941.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
