@@ -437,9 +437,12 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date(), 
 
 const styles = StyleSheet.create({
   root: { width: '100%', gap: spacing[3], zIndex: 10 },
+  // 🔴 새 배색은 「카드에 선을 두지 않는다」지만 시작 바는 예외로 붉은 선 하나를 둔다.
+  // 이것이 화면의 «유일한 입력 진입점»이라, 선이 없으면 다른 카드들 사이에 묻힌다.
+  // 검색 입력(styles.search)에는 넣지 않는다 — 그건 이 바 «안»의 부품이다.
   bar: {
     flexDirection: 'row', alignItems: 'center', alignSelf: 'center', width: '100%', maxWidth: 860, minHeight: 72,
-    padding: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border,
+    padding: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.action.outline,
   },
   segment: { flex: 1, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
   segmentDivider: { borderLeftWidth: 1, borderLeftColor: color.surface.border },
@@ -452,7 +455,7 @@ const styles = StyleSheet.create({
   ctaOff: { backgroundColor: color.surface.field },
   phonePill: {
     minHeight: 56, paddingHorizontal: spacing[4], justifyContent: 'center',
-    borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border,
+    borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.action.outline,
   },
   panelShell: { marginTop: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   panelShellWide: { alignSelf: 'center', width: '100%', maxWidth: 860 },
