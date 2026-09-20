@@ -7,6 +7,7 @@ import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-nat
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { Text } from './Text';
+import { txf } from '@/i18n/format';
 
 type ExcludeConfirmModalProps = {
   visible: boolean;
@@ -23,7 +24,7 @@ export function ExcludeConfirmModal({ visible, placeTitle, busy, onCancel, onCon
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.backdrop}>
         <View accessibilityViewIsModal style={styles.card}>
-          <Text variant="title" weight="bold">{tx(`'${placeTitle}'를 제외할까요?`, `Exclude '${placeTitle}'?`)}</Text>
+          <Text variant="title" weight="bold">{txf(tx, '\'%s\'를 제외할까요?', 'Exclude \'%s\'?', placeTitle)}</Text>
           <Text color={color.text.body}>{tx('제외하면 이 날짜 일정을 다시 계산해요. 확인하기 전에 무엇이 바뀔 수 있는지 확인해 주세요.', "Excluding this recalculates today's itinerary. Please check what may change before confirming.")}</Text>
 
           <View style={styles.row}>

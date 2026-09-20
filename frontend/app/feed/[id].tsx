@@ -52,7 +52,7 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={tx(`${story.place.name} 상세 보기`, `View details for ${story.place.name}`)}
+      accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', story.place.name)}
       onPress={onOpen}
       style={({ pressed }) => [styles.placeHeading, pressed && styles.pressed]}
     >

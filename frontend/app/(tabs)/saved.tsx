@@ -21,6 +21,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { getPlace, hasLocalityScore, needsFoodSafetyCheck } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 
 type SavedCard = { placeId: string; title: string; subtitle: string; image: number | { uri: string } | null; hasLocalityScore: boolean; needsFoodSafetyCheck: boolean };
 
@@ -102,7 +103,7 @@ export default function Saved() {
               {card.hasLocalityScore && <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>}
               {card.needsFoodSafetyCheck && <Text variant="caption" weight="bold" color={color.state.danger}>{tx('알레르기·식단 확인 필요', 'Check allergy/dietary info')}</Text>}
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel={tx(`${card.title} 저장 취소`, `Unsave ${card.title}`)} onPress={(event) => { event.stopPropagation(); void unsave(card.placeId); }} style={styles.unsaveButton}>
+            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 저장 취소', 'Unsave %s', card.title)} onPress={(event) => { event.stopPropagation(); void unsave(card.placeId); }} style={styles.unsaveButton}>
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('저장 취소', 'Unsave')}</Text>
             </Pressable>
           </Pressable>

@@ -17,6 +17,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
+import { txf } from '@/i18n/format';
 
 function errorMessage(cause: unknown, tx: (ko: string, en: string) => string, context: 'password' | 'social') {
   if (cause instanceof ApiClientError && cause.status === 429) return tx('요청이 너무 많아요. 잠시 후 다시 시도해 주세요.', 'Too many attempts. Please try again shortly.');
@@ -113,7 +114,7 @@ export default function SignIn() {
       { item: 'apple', name: 'Apple', backgroundColor: '#000000', borderColor: '#000000' },
       { item: 'kakao', name: 'Kakao', backgroundColor: '#fee500', borderColor: '#fee500' },
       { item: 'naver', name: 'Naver', backgroundColor: '#03c75a', borderColor: '#03c75a' },
-    ] as const).map(({ item, name, backgroundColor, borderColor }) => { const action = tx(`${name}로 계속하기`, `Continue with ${name}`); return <Pressable key={item} accessibilityRole="button" accessibilityLabel={action} accessibilityState={{ disabled: busy || !!provider, busy: provider === item }} disabled={busy || !!provider} onPress={() => void social(item)} style={({ pressed }) => [styles.social, { backgroundColor, borderColor }, pressed && styles.pressed]}><SocialProviderIcon provider={item} /></Pressable>; })}</View>
+    ] as const).map(({ item, name, backgroundColor, borderColor }) => { const action = txf(tx, '%s로 계속하기', 'Continue with %s', name); return <Pressable key={item} accessibilityRole="button" accessibilityLabel={action} accessibilityState={{ disabled: busy || !!provider, busy: provider === item }} disabled={busy || !!provider} onPress={() => void social(item)} style={({ pressed }) => [styles.social, { backgroundColor, borderColor }, pressed && styles.pressed]}><SocialProviderIcon provider={item} /></Pressable>; })}</View>
     {provider && <ActivityIndicator accessibilityLabel={tx('소셜 로그인 처리 중', 'Processing social sign-in')} color={color.action.primary} style={styles.socialsSpinner} />}
     <Pressable accessibilityRole="link" style={[styles.signup, styles.signupTop]} onPress={() => router.push({ pathname: '/sign-up', params: returnTo ? { returnTo } : {} })}><Text variant="caption">{tx('처음이신가요? ', 'New here? ')}<Text variant="caption" weight="bold" color={color.action.secondary}>{tx('회원가입', 'Create an account')}</Text></Text></Pressable>
   </View></View></Screen>;

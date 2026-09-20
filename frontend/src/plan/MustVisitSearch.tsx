@@ -144,10 +144,8 @@ export function MustVisitSearch({
 
       <Text variant="caption" color={color.text.muted}>
         {picked.length
-          ? tx(`${picked.length}곳 담았어요 · 최대 ${MUST_VISIT_MAX}곳. 일정에 꼭 넣고 나머지를 주변으로 채워요.`,
-            `${picked.length} added · up to ${MUST_VISIT_MAX}. We always include these and fill around them.`)
-          : tx(`최대 ${MUST_VISIT_MAX}곳까지 담을 수 있어요. 담은 곳은 일정에 꼭 들어가요.`,
-            `Up to ${MUST_VISIT_MAX} places. Whatever you add always makes the itinerary.`)}
+          ? txf(tx, '%s곳 담았어요 · 최대 %s곳. 일정에 꼭 넣고 나머지를 주변으로 채워요.', '%s added · up to %s. We always include these and fill around them.', picked.length, MUST_VISIT_MAX)
+          : txf(tx, '최대 %s곳까지 담을 수 있어요. 담은 곳은 일정에 꼭 들어가요.', 'Up to %s places. Whatever you add always makes the itinerary.', MUST_VISIT_MAX)}
       </Text>
     </View>
   );

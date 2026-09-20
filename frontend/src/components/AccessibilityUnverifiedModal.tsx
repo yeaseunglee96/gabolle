@@ -4,6 +4,7 @@ import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { Text } from './Text';
+import { txf } from '@/i18n/format';
 
 type AccessibilityUnverifiedModalProps = {
   visible: boolean;
@@ -19,14 +20,9 @@ export function AccessibilityUnverifiedModal({ visible, unverifiedCount, totalCo
 
   // 전체 수를 모르면(일정을 아직 못 읽었다) 분모를 지어내지 않는다.
   const headline = totalCount > 0
-    ? tx(
-        `이번 일정 ${totalCount}곳 중 ${unverifiedCount}곳은 휠체어로 들어갈 수 있는지 아직 확인되지 않았어요.`,
-        `${unverifiedCount} of the ${totalCount} places in this trip have not been checked for wheelchair access yet.`,
-      )
-    : tx(
-        `이번 일정의 ${unverifiedCount}곳은 휠체어로 들어갈 수 있는지 아직 확인되지 않았어요.`,
-        `${unverifiedCount} places in this trip have not been checked for wheelchair access yet.`,
-      );
+    // 영어는 「전체 중 몇」이 아니라 「몇 / 전체」 순이라 값 순서를 한국어(전체 · 몇)에 맞춰 영어 틀을 고쳐 적었다 — txf 는 앞에서부터 차례로 끼운다.
+    ? txf(tx, '이번 일정 %s곳 중 %s곳은 휠체어로 들어갈 수 있는지 아직 확인되지 않았어요.', 'Of the %s places in this trip, %s have not been checked for wheelchair access yet.', totalCount, unverifiedCount)
+    : txf(tx, '이번 일정의 %s곳은 휠체어로 들어갈 수 있는지 아직 확인되지 않았어요.', '%s places in this trip have not been checked for wheelchair access yet.', unverifiedCount);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>

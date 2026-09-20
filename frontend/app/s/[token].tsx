@@ -112,7 +112,7 @@ export default function SharedItinerary() {
       <View style={styles.dayCard}><Text color={color.text.body}>{tx('아직 짜인 일정이 없어요.', 'No itinerary has been planned yet.')}</Text></View>
     ) : data.days.map((day, index) => (
       <View key={day.date} style={styles.dayCard}>
-        <Text variant="title" weight="bold" style={styles.dayTitle}>{tx(`${index + 1}일차 · ${day.date}`, `Day ${index + 1} · ${day.date}`)}</Text>
+        <Text variant="title" weight="bold" style={styles.dayTitle}>{txf(tx, '%s일차 · %s', 'Day %s · %s', index + 1, day.date)}</Text>
         {day.items.length === 0 ? (
           <Text variant="caption" color={color.text.muted}>{tx('이 날은 일정이 없어요.', 'Nothing planned for this day.')}</Text>
         ) : day.items.map((item) => (

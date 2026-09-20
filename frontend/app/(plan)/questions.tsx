@@ -37,6 +37,7 @@ import {
 } from '@/plan/planQuestions';
 import { startBarChips } from '@/home/startBarValue';
 import { assistantPrefillPatch } from '@/plan/assistantPrefill';
+import { txf } from '@/i18n/format';
 
 const BUDGET_STEPS = [10000, 30000, 50000, 100000] as const;
 const SCALES = [
@@ -454,8 +455,7 @@ export default function PlanConditions() {
       {/* 🔴 무엇이 모자란지 적는다. 단추만 잠그면 사람은 고장인 줄 알고 새로고침한다. */}
       {last && missing.length ? (
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
-          {tx(`아직 안 답한 게 있어요: ${missing.map((item) => item.ko).join(' · ')}`,
-            `Still missing: ${missing.map((item) => item.en).join(' · ')}`)}
+          {txf(tx, '아직 안 답한 게 있어요: %s', 'Still missing: %s', missing.map((item) => tx(item.ko, item.en)).join(' · '))}
         </Text>
       ) : null}
       {last && hardUnknown ? (

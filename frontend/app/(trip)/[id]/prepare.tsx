@@ -149,7 +149,7 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
     setShareError('');
     try {
       const issued = await issueShareLink(tripId, accessToken);
-      await NativeShare.share({ title, message: tx(`${title} 일정을 공유해요.\n${issued.shareUrl}`, `Sharing my ${title} itinerary.\n${issued.shareUrl}`), url: issued.shareUrl });
+      await NativeShare.share({ title, message: txf(tx, '%s 일정을 공유해요.\n%s', 'Sharing my %s itinerary.\n%s', title, issued.shareUrl), url: issued.shareUrl });
     } catch (cause) {
       setShareError(cause instanceof ApiClientError ? cause.message : tx('공유 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the share link. Please try again shortly.'));
     } finally {

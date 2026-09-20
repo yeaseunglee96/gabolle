@@ -21,6 +21,7 @@ import {
   toDateKey,
   type StartBarValue,
 } from '@/home/startBarValue';
+import { txf } from '@/i18n/format';
 
 type Section = StartBarSection;
 
@@ -308,7 +309,7 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date(), 
           <View style={styles.counter}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={tx(`${row.ko} 줄이기`, `Fewer ${row.en}`)}
+              accessibilityLabel={txf(tx, '%s 줄이기', 'Fewer %s', tx(row.ko, row.en))}
               onPress={() => setValue((prev) => ({ ...prev, [row.key]: Math.max(row.key === 'adults' ? 1 : 0, prev[row.key] - 1) }))}
               style={styles.counterButton}
             >
@@ -317,7 +318,7 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date(), 
             <Text weight="bold" style={styles.counterValue}>{value[row.key]}</Text>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={tx(`${row.ko} 늘리기`, `More ${row.en}`)}
+              accessibilityLabel={txf(tx, '%s 늘리기', 'More %s', tx(row.ko, row.en))}
               onPress={() => setValue((prev) => ({ ...prev, [row.key]: Math.min(20, prev[row.key] + 1) }))}
               style={styles.counterButton}
             >

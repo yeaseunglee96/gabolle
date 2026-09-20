@@ -19,6 +19,7 @@ import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useMyPageCounts } from '@/me/myPageCounts';
 import { usePlan } from '@/plan/PlanProvider';
+import { txf } from '@/i18n/format';
 
 // 박재현 님 계약 — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
 const DELETE_CONFIRMATION_PHRASE = 'DELETE';
@@ -45,7 +46,7 @@ export function ProfileBody() {
     if (!user?.userId) return;
     const url = `${APP_WEB_BASE_URL}/user/${user.userId}`;
     try {
-      await Share.share({ title: tx('가볼래 프로필 공유', 'Share GABOLLE profile'), message: tx(`제 가볼래 프로필을 확인해 보세요.\n${url}`, `Check out my GABOLLE profile.\n${url}`), url });
+      await Share.share({ title: tx('가볼래 프로필 공유', 'Share GABOLLE profile'), message: txf(tx, '제 가볼래 프로필을 확인해 보세요.\n%s', 'Check out my GABOLLE profile.\n%s', url), url });
     } catch {
       // 사용자가 공유 시트를 닫은 것도 실패로 취급하지 않는다 — 별도 안내가 필요 없다.
     }

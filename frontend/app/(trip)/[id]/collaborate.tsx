@@ -129,7 +129,7 @@ export default function TripCollaborate() {
         {activity.status === 'ready' && activity.entries.map((entry) => (
           <View key={`${entry.itineraryId}-${entry.version}`} style={styles.activityRow}>
             <Text variant="caption" color={color.text.body}>
-              {tx(`${entry.actorName ?? '(탈퇴한 사용자)'}${entry.isMe ? '(나)' : ''}님이 `, `${entry.actorName ?? '(deleted user)'}${entry.isMe ? ' (you)' : ''} `)}
+              {txf(tx, '%s%s님이 ', '%s%s ', entry.actorName ?? tx('(탈퇴한 사용자)', '(deleted user)'), entry.isMe ? tx('(나)', ' (you)') : '')}
               {tx(...OPERATION_LABEL[entry.operation])}
               {` · ${relativeStoryTime(entry.at, tx)}`}
             </Text>

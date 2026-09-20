@@ -12,6 +12,7 @@ import {
   measureBytes,
 } from '@/social/videoCompress';
 import { uploadStoryVideo } from '@/social/stories';
+import { txf } from '@/i18n/format';
 
 /** 한 기록에 붙일 수 있는 동영상 수. 서버 계약과 같은 값이다. */
 export const MAX_STORY_VIDEOS = 1;
@@ -68,14 +69,8 @@ export function useStoryVideo(accessToken: string | null, tx: Translate) {
           // 숫자를 문구에 박지 않는다. 상한을 바꿨는데 문구에 옛 숫자가 남으면
           // 사용자는 틀린 이유를 읽는다 — 이유를 안 보여 주는 것보다 나쁘다.
           error: compressFailure
-            ? tx(
-                `동영상을 줄이지 못했고 ${mb(bytes)}MB 라 올릴 수 없어요. 더 짧은 영상으로 해보세요. (${compressFailure})`,
-                `Could not compress, and it is ${mb(bytes)}MB — try a shorter clip. (${compressFailure})`,
-              )
-            : tx(
-                `줄여도 ${mb(bytes)}MB 라 올릴 수 없어요. 동영상은 ${MAX_VIDEO_UPLOAD_LABEL}까지예요. 더 짧은 영상으로 해보세요.`,
-                `Still ${mb(bytes)}MB after compressing — a video must be ${MAX_VIDEO_UPLOAD_LABEL} or less. Try a shorter clip.`,
-              ),
+            ? txf(tx, '동영상을 줄이지 못했고 %sMB 라 올릴 수 없어요. 더 짧은 영상으로 해보세요. (%s)', 'Could not compress, and it is %sMB — try a shorter clip. (%s)', mb(bytes), compressFailure)
+            : txf(tx, '줄여도 %sMB 라 올릴 수 없어요. 동영상은 %s까지예요. 더 짧은 영상으로 해보세요.', 'Still %sMB after compressing — a video must be %s or less. Try a shorter clip.', mb(bytes), MAX_VIDEO_UPLOAD_LABEL),
         });
         return;
       }
@@ -90,10 +85,7 @@ export function useStoryVideo(accessToken: string | null, tx: Translate) {
     } catch (error) {
       patch({
         uploading: false,
-        error: tx(
-          `동영상을 처리하지 못했어요. 더 짧은 영상으로 해보세요. (${describeCause(error)})`,
-          `Could not process the video. Try a shorter clip. (${describeCause(error)})`,
-        ),
+        error: txf(tx, '동영상을 처리하지 못했어요. 더 짧은 영상으로 해보세요. (%s)', 'Could not process the video. Try a shorter clip. (%s)', describeCause(error)),
       });
     }
   };
@@ -118,10 +110,7 @@ export function useStoryVideo(accessToken: string | null, tx: Translate) {
         durationSec,
         videoUrl: null,
         uploading: false,
-        error: tx(
-          `${Math.round(durationSec)}초짜리라 너무 길어요. 동영상은 ${MAX_VIDEO_SECONDS_LABEL}까지예요.`,
-          `This clip is ${Math.round(durationSec)}s — a video must be ${MAX_VIDEO_SECONDS}s or less.`,
-        ),
+        error: txf(tx, '%s초짜리라 너무 길어요. 동영상은 %s초까지예요.', 'This clip is %ss — a video must be %ss or less.', Math.round(durationSec), MAX_VIDEO_SECONDS),
       });
       return;
     }

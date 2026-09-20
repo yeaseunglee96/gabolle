@@ -6,6 +6,7 @@ import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { MapPathPoint, MapStop } from './types';
+import { txf } from '@/i18n/format';
 
 declare global { interface Window { kakao?: any } }
 
@@ -110,7 +111,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const pointLayer = points.find((layer) => layer.stops.some((item) => item.id === stop.id));
           const markerColor = pointLayer?.color ?? color.brand.navy;
           content.type = 'button';
-          content.setAttribute('aria-label', pointLayer ? `${pointLayer.label} ${stop.name}` : tx(`${stop.number}번 ${stop.name}`, `Stop ${stop.number} ${stop.name}`));
+          content.setAttribute('aria-label', pointLayer ? `${pointLayer.label} ${stop.name}` : txf(tx, '%s번 %s', 'Stop %s %s', stop.number, stop.name));
           if (stop.imageUrl) {
             const img = document.createElement('img');
             img.src = stop.imageUrl;

@@ -10,6 +10,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { setFollowing, type RelationItem, type RelationListResult } from './stories';
+import { txf } from '@/i18n/format';
 
 type RelationListProps = {
   emptyMessage: string;
@@ -103,7 +104,7 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
                     단언하게 되는데, 차단 목록처럼 세지 않은 자리에서는 사실이 아니다. */}
                 {item.storyCount === null ? null : (
                   <Text variant="caption" color={color.text.muted}>
-                    {tx(`기록 ${item.storyCount}개`, `${item.storyCount} ${item.storyCount === 1 ? 'record' : 'records'}`)}
+                    {txf(tx, '기록 %s개', item.storyCount === 1 ? '%s record' : '%s records', item.storyCount)}
                   </Text>
                 )}
               </View>

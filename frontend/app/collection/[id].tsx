@@ -158,9 +158,7 @@ export default function CollectionListDetail() {
         {/* 어디에 저장되는지를 이 화면에서도 말한다. 홈에서만 말하면 여기 들어온
             사람은 못 본다 — 저장되는 곳은 화면마다 달라지지 않지만 사람의 기억은 달라진다.
         */}
-        <Text variant="caption" color={color.text.muted}>{tx(
-          `저장한 곳 ${list.placeIds.length} · ${syncedToServer ? '내 계정에 저장돼요' : '이 기기에만 저장돼요'}`,
-          `${list.placeIds.length} place(s) · ${syncedToServer ? 'saved to your account' : 'saved on this device only'}`)}</Text>{editing
+        <Text variant="caption" color={color.text.muted}>{txf(tx, '저장한 곳 %s · %s', '%s place(s) · %s', list.placeIds.length, syncedToServer ? tx('내 계정에 저장돼요', 'saved to your account') : tx('이 기기에만 저장돼요', 'saved on this device only'))}</Text>{editing
           ? <><TextInput accessibilityLabel={tx('리스트 설명', 'List description')} maxLength={COLLECTION_LIMITS.description} value={draftDescription} onChangeText={setDraftDescription} placeholder={tx('설명 (선택)', 'Description (optional)')} placeholderTextColor={color.text.muted} style={styles.input} />
             <View style={styles.deleteConfirm}>
               <Pressable accessibilityRole="button" onPress={() => setEditing(false)}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('취소', 'Cancel')}</Text></Pressable>

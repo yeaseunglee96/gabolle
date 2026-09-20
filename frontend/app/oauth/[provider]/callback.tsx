@@ -17,6 +17,7 @@ import { color, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 
 const LABEL: Record<string, { ko: string; en: string }> = {
   google: { ko: '구글', en: 'Google' },
@@ -70,9 +71,9 @@ export default function OAuthCallback() {
           }, accessToken);
           if (cancelled) return;
           if (linkResult.status === 'TAKEN') {
-            setResult({ kind: 'link-done', message: tx(`이미 다른 계정에 연결된 ${label} 계정이에요.`, `This ${label} account is already connected to a different account.`), backTo });
+            setResult({ kind: 'link-done', message: txf(tx, '이미 다른 계정에 연결된 %s 계정이에요.', 'This %s account is already connected to a different account.', label), backTo });
           } else {
-            setResult({ kind: 'link-done', message: linkResult.alreadyLinked ? tx(`이미 연결되어 있어요.`, 'Already connected.') : tx(`${label} 계정을 연결했어요.`, `Connected your ${label} account.`), backTo });
+            setResult({ kind: 'link-done', message: linkResult.alreadyLinked ? tx(`이미 연결되어 있어요.`, 'Already connected.') : txf(tx, '%s 계정을 연결했어요.', 'Connected your %s account.', label), backTo });
           }
           return;
         }
@@ -106,7 +107,7 @@ export default function OAuthCallback() {
           </>
         ) : (
           <>
-            <Text>{tx(`${label} 로그인을 처리하고 있어요.`, `Completing ${label} sign-in.`)}</Text>
+            <Text>{txf(tx, '%s 로그인을 처리하고 있어요.', 'Completing %s sign-in.', label)}</Text>
             <Text>{tx('창이 자동으로 닫히지 않으면 닫고 다시 시도해 주세요.', 'If this window does not close automatically, close it and try again.')}</Text>
           </>
         )}

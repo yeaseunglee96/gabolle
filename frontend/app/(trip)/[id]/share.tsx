@@ -13,6 +13,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { createCompanionInvite, type CompanionInvite, type CompanionRole } from '@/trip/collaboration';
 import { issueShareLink, type ShareLinkIssued } from '@/share/sharedItinerary';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 
 const ROLES: { value: CompanionRole; titleKo: string; titleEn: string; descriptionKo: string; descriptionEn: string }[] = [
   { value: 'EDITOR', titleKo: '함께 편집', titleEn: 'Edit together', descriptionKo: '일정의 장소와 순서를 같이 바꿀 수 있어요.', descriptionEn: 'Can change places and order in the itinerary together.' },
@@ -39,7 +40,7 @@ export default function TripShare() {
     try {
       const created = await createCompanionInvite(id, role, accessToken);
       setInvite(created);
-      await NativeShare.share({ title: tx('가볼래 부산 여행 초대', 'GABOLLE Busan trip invite'), message: tx(`부산 여행 일정에 초대할게요.\n${created.inviteUrl}`, `You're invited to a Busan trip itinerary.\n${created.inviteUrl}`), url: created.inviteUrl });
+      await NativeShare.share({ title: tx('가볼래 부산 여행 초대', 'GABOLLE Busan trip invite'), message: txf(tx, '부산 여행 일정에 초대할게요.\n%s', 'You\'re invited to a Busan trip itinerary.\n%s', created.inviteUrl), url: created.inviteUrl });
     } catch (cause) {
       setError(cause instanceof ApiClientError ? cause.message : tx('초대 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the invite link. Please try again shortly.'));
     } finally {
@@ -71,16 +72,16 @@ export default function TripShare() {
       <View accessibilityRole="radiogroup" accessibilityLabel={tx('초대할 동행자의 역할', 'Role for the companion to invite')} style={styles.roleList}>{ROLES.map((item) => { const selected = item.value === role; return <Pressable key={item.value} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => { setRole(item.value); setInvite(null); setError(''); }} style={({ pressed }) => [styles.roleCard, selected && styles.roleSelected, pressed && styles.pressed]}><View style={[styles.radio, selected && styles.radioSelected]}>{selected && <View style={styles.radioDot} />}</View><View style={styles.roleCopy}><Text variant="title" weight="bold">{tx(item.titleKo, item.titleEn)}</Text><Text color={color.text.body}>{tx(item.descriptionKo, item.descriptionEn)}</Text></View></Pressable>; })}</View>
       <View style={styles.notice}><Text variant="caption" weight="bold">{tx('초대 전 확인', 'Before you invite')}</Text><Text variant="caption" color={color.text.body}>{tx('링크를 받은 사람만 참여할 수 있어요. 링크는 7일 뒤 만료돼요.', 'Only people with the link can join. It expires in 7 days.')}</Text></View>
       <Button label={tx('참여자 목록·역할 관리', 'Manage participants and roles')} variant="tertiary" onPress={() => router.push(`/${id}/collaborate`)} containerStyle={styles.manageButton} />
-      <Button label={creating ? tx('초대 링크 만드는 중…', 'Creating invite link…') : tx(`${role === 'EDITOR' ? '편집자' : '열람자'} 초대 링크 만들기`, `Create ${role === 'EDITOR' ? 'editor' : 'viewer'} invite link`)} disabled={creating || !id} onPress={() => void createInvite()} />
+      <Button label={creating ? tx('초대 링크 만드는 중…', 'Creating invite link…') : txf(tx, '%s 초대 링크 만들기', 'Create %s invite link', role === 'EDITOR' ? tx('편집자', 'editor') : tx('열람자', 'viewer'))} disabled={creating || !id} onPress={() => void createInvite()} />
       {error && <View accessibilityRole="alert" style={styles.errorCard}><Text weight="bold" color={color.state.danger}>{tx('초대 링크를 만들지 못했습니다', 'Could not create the invite link')}</Text><Text color={color.text.body}>{error}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void createInvite()} /></View>}
-      {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{tx(`만료: ${new Date(invite.expiresAt).toLocaleString(locale)}`, `Expires: ${new Date(invite.expiresAt).toLocaleString(locale)}`)}</Text><Button label={tx('공유 창 다시 열기', 'Reopen share sheet')} variant="tertiary" onPress={() => void NativeShare.share({ message: invite.inviteUrl, url: invite.inviteUrl })} /></View>}
+      {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{txf(tx, '만료: %s', 'Expires: %s', new Date(invite.expiresAt).toLocaleString(locale))}</Text><Button label={tx('공유 창 다시 열기', 'Reopen share sheet')} variant="tertiary" onPress={() => void NativeShare.share({ message: invite.inviteUrl, url: invite.inviteUrl })} /></View>}
 
       <View style={styles.divider} />
 
       <View style={styles.heading}><Eyebrow>{tx('구경만 시키기', 'Just show it off')}</Eyebrow><Text variant="title" weight="bold">{tx('읽기 전용 링크로 공유해요', 'Share a read-only link')}</Text><Text color={color.text.body}>{tx('가볼래 계정이 없어도 볼 수 있어요. 날짜별 일정만 보이고 출발지·연락처·예산·인원은 공유되지 않아요. 30일 뒤 만료돼요.', "Viewable without a GABOLLE account. Only the day-by-day itinerary is shown — starting point, contact info, budget, and party size aren't shared. Expires in 30 days.")}</Text></View>
       <Button label={issuingReadLink ? tx('링크 만드는 중…', 'Creating link…') : tx('읽기 전용 링크 만들기', 'Create read-only link')} variant="tertiary" disabled={issuingReadLink || !id} onPress={() => void createReadLink()} />
       {readLinkError && <View accessibilityRole="alert" style={styles.errorCard}><Text weight="bold" color={color.state.danger}>{tx('링크를 만들지 못했습니다', 'Could not create the link')}</Text><Text color={color.text.body}>{readLinkError}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void createReadLink()} /></View>}
-      {readLink && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('읽기 전용 링크를 만들었어요', 'Read-only link created')}</Text><Text selectable color={color.text.body}>{readLink.shareUrl}</Text><Text variant="caption" color={color.text.muted}>{tx(`만료: ${new Date(readLink.expiresAt).toLocaleString(locale)}`, `Expires: ${new Date(readLink.expiresAt).toLocaleString(locale)}`)}</Text><Button label={tx('공유 창 열기', 'Open share sheet')} variant="tertiary" onPress={() => void NativeShare.share({ message: readLink.shareUrl, url: readLink.shareUrl })} /></View>}
+      {readLink && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('읽기 전용 링크를 만들었어요', 'Read-only link created')}</Text><Text selectable color={color.text.body}>{readLink.shareUrl}</Text><Text variant="caption" color={color.text.muted}>{txf(tx, '만료: %s', 'Expires: %s', new Date(readLink.expiresAt).toLocaleString(locale))}</Text><Button label={tx('공유 창 열기', 'Open share sheet')} variant="tertiary" onPress={() => void NativeShare.share({ message: readLink.shareUrl, url: readLink.shareUrl })} /></View>}
     </>}
   </Screen>;
 }

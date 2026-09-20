@@ -9,6 +9,7 @@ import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_CODES, LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+import { txf } from '@/i18n/format';
 
 // 국기는 유니코드 그림문자(🇰🇷)가 아니라 실제 이미지를 쓴다 — 윈도우 브라우저는 국가
 // 그림문자를 정책적으로 지원하지 않아 KR·US 같은 두 글자로 떨어진다
@@ -84,7 +85,7 @@ export function TopNav() {
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ selected: current }}
-              accessibilityLabel={tx(`언어를 ${option.endonym}로 변경`, `Change language to ${option.englishName}`)}
+              accessibilityLabel={txf(tx, '언어를 %s로 변경', 'Change language to %s', option.endonym)}
               onPress={() => pickLanguage(code)}
               style={[styles.utilFlagTouch, current && styles.utilFlagTouchSelected]}
             >
