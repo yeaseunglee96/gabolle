@@ -51,8 +51,11 @@ import { nextSyncPollDelay, SYNC_POLL_BASE_MS } from '@/plan/syncPoll';
 import { formatTravelLabel, itineraryStats, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlaceReviews, submitPlaceReview } from '@/review/placeReviews';
 import { useI18n } from '@/i18n';
+import { takeItineraryHint } from '@/onboarding/firstRun';
+import { ItineraryHint } from '@/onboarding/ItineraryHint';
 import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
+import { localizeMessage } from '@/i18n/messages';
 
 // 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고.
 
@@ -454,6 +457,9 @@ export default function ItineraryScreen() {
   // — 통계는 값이 있는 것만 만든다. 판정은 itinerarySummary.ts 에 있다.
   const stats = useMemo(() => (itinerary ? itineraryStats(itinerary, tx) : []), [itinerary, tx]);
   const canEdit = itinerary?.canEdit !== false;
+  // 첫 일정을 연 사람에게 한 번 — 「초안이니 고정·제외·다시 계산으로 고쳐라」 (S15P21E201-1361)
+  const [hint, setHint] = useState(false);
+  useEffect(() => { let alive = true; void takeItineraryHint().then((show) => { if (alive && show) setHint(true); }); return () => { alive = false; }; }, []);
   // — 모르는 코드는 안 그린다.
   const latestWarnings = useMemo(() => describeWarningCodes(versions[0]?.warningCodes, tx), [versions, tx]);
   const reorderMode = orderDraft !== null;
@@ -770,8 +776,9 @@ export default function ItineraryScreen() {
         <View style={styles.stopBody}><Skeleton width="60%" height={16} /><View style={styles.metaRow}><Skeleton width="30%" height={12} /><Skeleton width="30%" height={12} /></View></View>
       </View>
     ))}</View> : null}
-    {!loading && result.state !== 'success' ? <View style={styles.stateCard}><Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('일정 API를 기다리고 있어요', 'Waiting for the itinerary API') : tx('일정을 불러오지 못했어요', 'Could not load the itinerary')}</Text><Text color={color.text.body}>{result.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
+    {!loading && result.state !== 'success' ? <View style={styles.stateCard}><Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('일정 API를 기다리고 있어요', 'Waiting for the itinerary API') : tx('일정을 불러오지 못했어요', 'Could not load the itinerary')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
     {!loading && itinerary ? <>
+      {hint && canEdit ? <ItineraryHint onDone={() => setHint(false)} /> : null}
       {menuOpen ? <View style={styles.menuPanel}>
         <View style={styles.stats}>{stats.map((stat) => <View key={stat.key} style={styles.stat}><Text variant="title" weight="bold">{stat.value}</Text><Text variant="caption" color={color.text.muted}>{stat.label}</Text></View>)}</View>
         {rhythm ? <Text variant="caption" color={color.text.body}>{tx(`하루 평균 ${rhythm.averageItemsPerDay}곳`, `${rhythm.averageItemsPerDay} places/day avg.`)}{rhythm.travelShare != null ? txf(tx, ' · 이동 비중 %s%', ' · %s% travel time', Math.round(rhythm.travelShare * 100)) : ''}{rhythm.plannedVsActual != null ? txf(tx, ' · 계획 대비 실제 %s배', ' · %sx planned pace', rhythm.plannedVsActual) : ''}</Text> : null}

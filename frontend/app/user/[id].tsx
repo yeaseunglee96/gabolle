@@ -10,6 +10,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { getUserProfile, loadUserStories, relativeStoryTime, setBlocked, setFollowing, type FeedLoadResult, type StoryDto, type UserProfileDto } from '@/social/stories';
+import { localizeMessage } from '@/i18n/messages';
 
 type ProfileState = { status: 'loading' } | { status: 'loaded'; profile: UserProfileDto } | { status: 'unavailable'; message: string };
 
@@ -85,7 +86,7 @@ export default function UserProfile() {
       {state.status === 'unavailable' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('프로필을 불러오지 못했어요', "We couldn't load this profile")}</Text>
-          <Text color={color.text.body}>{state.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text>
           <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}

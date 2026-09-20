@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { requestHomeCoachAgain } from '@/onboarding/firstRun';
+
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -31,7 +33,7 @@ export function HelpBody() {
 
   return <>
 
-    <View style={styles.tourCard}><View style={styles.tourCopy}><Text variant="title" weight="bold" color={color.text.onAction}>{tx('가볼래 한눈에 보기', 'Tour GABOLLE')}</Text><Text variant="caption" color={color.text.onDarkMuted}>{tx('AI 일정·부산 장소·현장 말하기를 1분 안에 둘러봐요.', 'See AI planning, Busan places, and field phrases in under a minute.')}</Text></View><Button label={tx('앱 소개 다시 보기', 'Replay app tour')} onPress={() => router.push({ pathname: '/app-intro', params: { returnTo: '/help' } })} variant="primary" /></View>
+    <View style={styles.tourCard}><View style={styles.tourCopy}><Text variant="title" weight="bold" color={color.text.onAction}>{tx('가볼래 한눈에 보기', 'Tour GABOLLE')}</Text><Text variant="caption" color={color.text.onDarkMuted}>{tx('AI 일정·부산 장소·현장 말하기를 1분 안에 둘러봐요.', 'See AI planning, Busan places, and field phrases in under a minute.')}</Text></View><Button label={tx('앱 소개 다시 보기', 'Replay app tour')} onPress={() => router.push({ pathname: '/app-intro', params: { returnTo: '/help' } })} variant="primary" /><Button label={tx('홈 안내 다시 보기', 'Replay the home guide')} onPress={() => { void requestHomeCoachAgain().then(() => router.replace('/home')); }} variant="secondary" /></View>
 
     <Text variant="title" weight="bold" style={styles.sectionTitle}>{tx('자주 묻는 질문', 'Frequently asked questions')}</Text>
     <View style={styles.faqList}>{FAQS.map(([koTitle, enTitle, koBody, enBody], index) => { const expanded = open === index; return <Pressable key={koTitle} accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setOpen(expanded ? null : index)} style={({ pressed }) => [styles.faq, pressed && styles.pressed]}><View style={styles.faqHeading}><Text weight="bold" style={styles.faqTitle}>{tx(koTitle, enTitle)}</Text><Text weight="bold" color={color.text.muted}>{expanded ? '−' : '+'}</Text></View>{expanded && <Text color={color.text.body} style={styles.answer}>{tx(koBody, enBody)}</Text>}</Pressable>; })}</View>
@@ -42,7 +44,7 @@ export function HelpBody() {
 }
 
 const styles = StyleSheet.create({
-  top: { minHeight: 52, marginBottom: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, logo: { width: 96, height: 28 }, spacer: { width: 44 }, title: { marginTop: spacing[2] }, lead: { marginTop: spacing[2], marginBottom: spacing[6], lineHeight: 24 },
+  top: { minHeight: 52, marginBottom: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, logo: { width: 154, height: 28 }, spacer: { width: 44 }, title: { marginTop: spacing[2] }, lead: { marginTop: spacing[2], marginBottom: spacing[6], lineHeight: 24 },
   tourCard: { gap: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy }, tourCopy: { gap: spacing[2] }, sectionTitle: { marginTop: spacing[8], marginBottom: spacing[3] },
   faqList: { overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card }, faq: { minHeight: 60, padding: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border }, faqHeading: { minHeight: 32, flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, faqTitle: { flex: 1 }, answer: { marginTop: spacing[2], lineHeight: 23 }, pressed: { backgroundColor: color.surface.tint },
   contactCard: { gap: spacing[3], marginTop: spacing[6], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.soft }, legalLinks: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[6], marginTop: spacing[6] },

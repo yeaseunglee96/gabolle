@@ -18,6 +18,7 @@ import { placeNameForLanguage } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
 import { loadPlaceReviews, submitPlaceReview, verifyPlaceVisit, type PlaceReviewDto, type ThreeStepScore, type VisitVerificationStatus } from '@/review/placeReviews';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 const CATEGORIES: Array<{ key: 'food' | 'price' | 'accessibility' | 'onsite'; labelKo: string; labelEn: string }> = [
   { key: 'food', labelKo: '음식', labelEn: 'Food' },
@@ -162,13 +163,13 @@ export default function PlaceReviews() {
         {verify.kind === 'LOW_ACCURACY' ? (
           <>
             <Text variant="body" weight="bold" color={color.state.danger}>{tx('위치 정확도가 낮아요', 'Location accuracy is too low')}</Text>
-            <Text variant="caption" color={color.text.body}>{verify.message}</Text>
+            <Text variant="caption" color={color.text.body}>{localizeMessage(tx, verify.message)}</Text>
             <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
         {verify.kind === 'error' ? (
           <>
-            <Text variant="body" weight="bold" color={color.state.danger}>{verify.message}</Text>
+            <Text variant="body" weight="bold" color={color.state.danger}>{localizeMessage(tx, verify.message)}</Text>
             <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
@@ -241,7 +242,7 @@ const styles = StyleSheet.create({
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
-  logo: { width: 96, height: 28 },
+  logo: { width: 154, height: 28 },
   spacer: { width: 44 },
   subtitle: { marginTop: spacing[1] },
   verifyCard: { gap: spacing[2], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },

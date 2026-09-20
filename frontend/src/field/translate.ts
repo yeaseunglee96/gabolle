@@ -3,7 +3,10 @@ import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import { apiRequest, ApiClientError } from '@/api/client';
 import { isVendorNotReady } from '@/api/vendorReady';
 
-export type TranslationDirection = 'EN_TO_KO' | 'KO_TO_EN';
+// 🔴 서버(back/dev 의 TranslationDirection)는 아직 EN_TO_KO · KO_TO_EN 둘뿐이다. 일본어·중국어 방향은
+//    백엔드에 요청해 둔 것(S15P21E201-1363)이고, 서버가 모르는 방향을 받으면 400 을 준다 — 그때는
+//    영어 방향으로 한 번 더 부른다(아래 translateText). 업체가 LLM 이라 일본어 입력도 대개 번역된다.
+export type TranslationDirection = 'EN_TO_KO' | 'KO_TO_EN' | 'JA_TO_KO' | 'ZH_HANS_TO_KO' | 'ZH_HANT_TO_KO';
 
 /** 번역이 안 되는 이유. 화면이 이유마다 다르게 말해야 해서 뭉뚱그리지 않는다. */
 export type TranslationBlockedReason =
@@ -19,7 +22,8 @@ export type TranslationBlockedReason =
   | 'error';
 
 export type TranslationOutcome =
-  | { state: 'translated'; text: string; provider: string; cached: boolean }
+  /** viaEnglish — 고른 언어 방향을 서버가 몰라 영어 방향으로 번역했다. 화면이 한 줄 알린다. */
+  | { state: 'translated'; text: string; provider: string; cached: boolean; viaEnglish?: boolean }
   | { state: 'blocked'; reason: TranslationBlockedReason };
 
 type TranslateResponseDto = { translatedText: string; cached: boolean; provider: string };
@@ -29,14 +33,20 @@ export const TRANSLATE_MAX_LENGTH = 120;
 
 /** 앱 언어에 맞는 번역 방향. */
 export function directionForLanguage(language: LanguageCode): TranslationDirection | null {
-  // 일본어·중국어를 고른 사람도 번역이 필요하다. 서버가 받는 방향은 아직 EN_TO_KO 뿐이라
-  // 그분들은 영어로 쓴다 — 화면 문구도 영어로 나오므로 어긋나지 않는다.
-  return resolveTextLanguage(language) === 'en' ? 'EN_TO_KO' : null;
+  // 고른 언어 그대로 쓰게 한다 — 일본어 화면에서 「영어로 적어라」는 말이 안 된다. 서버가 그 방향을
+  // 아직 모르면 translateText 가 영어 방향으로 물러선다.
+  switch (language) {
+    case 'ko': return null;
+    case 'ja': return 'JA_TO_KO';
+    case 'zh-Hans': return 'ZH_HANS_TO_KO';
+    case 'zh-Hant': return 'ZH_HANT_TO_KO';
+    default: return resolveTextLanguage(language) === 'en' ? 'EN_TO_KO' : null;
+  }
 }
 
 /** 번역된 문장을 읽을 때 쓸 음성. 영어 문장을 한국어 음성으로 읽으면 알아들을 수 없다. */
 export function speechLanguageFor(direction: TranslationDirection): string {
-  return direction === 'EN_TO_KO' ? 'ko-KR' : 'en-US';
+  return direction === 'KO_TO_EN' ? 'en-US' : 'ko-KR';
 }
 
 function blockedReason(error: unknown): TranslationBlockedReason {
@@ -60,17 +70,29 @@ export async function translateText(
   // 로그인 없이 부르면 서버가 401 을 준다. 갔다 와서 알기보다 여기서 바로 말해 준다
   // 기다렸다가 "안 됐어요" 를 듣는 것이 제일 나쁘다.
   if (!accessToken) return { state: 'blocked', reason: 'signed-out' };
-  try {
+  const call = async (dir: TranslationDirection) => {
     const dto = await apiRequest<TranslateResponseDto>('/api/v1/tools/translate', {
       method: 'POST',
       accessToken,
       signal,
-      body: { sourceText: text.slice(0, TRANSLATE_MAX_LENGTH), direction },
+      body: { sourceText: text.slice(0, TRANSLATE_MAX_LENGTH), direction: dir },
     });
+    return dto;
+  };
+  try {
+    let dto: TranslateResponseDto; let viaEnglish = false;
+    try {
+      dto = await call(direction);
+    } catch (error) {
+      // 서버가 모르는 방향(400) — 영어 방향으로 한 번 더. 다른 실패는 그대로 올린다.
+      const unknownDirection = error instanceof ApiClientError && error.status === 400 && direction !== 'EN_TO_KO' && direction !== 'KO_TO_EN';
+      if (!unknownDirection) throw error;
+      dto = await call('EN_TO_KO'); viaEnglish = true;
+    }
     const translated = dto?.translatedText?.trim();
     // 빈 번역을 성공이라고 하지 않는다 — 화면이 빈 칸을 읽어 주게 된다.
     if (!translated) return { state: 'blocked', reason: 'vendor' };
-    return { state: 'translated', text: translated, provider: dto.provider, cached: dto.cached };
+    return { state: 'translated', text: translated, provider: dto.provider, cached: dto.cached, viaEnglish };
   } catch (error) {
     return { state: 'blocked', reason: blockedReason(error) };
   }

@@ -20,6 +20,7 @@ import { getRouteDirections, type RouteDirectionsResult, type TravelMode } from 
 import { listAvailableRouteMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 import { txf } from '@/i18n/format';
 import { resolveTextLanguage } from '@/i18n/languages';
+import { localizeMessage } from '@/i18n/messages';
 
 const MODE_LABEL: Record<TravelMode, readonly [string, string]> = {
   CAR: ['자동차', 'Car'],
@@ -115,7 +116,7 @@ export default function RouteDetail() {
             ) : null}
 
             {!loading && result && result.state !== 'success' ? (
-              <Card style={styles.stateCard} accessibilityRole="alert"><Text variant="title" weight="bold">{tx('경로를 불러오지 못했어요', 'Could not load the route')}</Text><Text color={color.text.body}>{result.message}</Text></Card>
+              <Card style={styles.stateCard} accessibilityRole="alert"><Text variant="title" weight="bold">{tx('경로를 불러오지 못했어요', 'Could not load the route')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text></Card>
             ) : null}
 
             {directions ? (

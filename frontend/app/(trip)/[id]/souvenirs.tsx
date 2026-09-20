@@ -19,6 +19,7 @@ import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries } from '@/trip/trips';
+import { localizeMessage } from '@/i18n/messages';
 
 const SOUVENIR_FACET_KEY = 'SOUVENIR_SHOP';
 
@@ -97,14 +98,14 @@ function SouvenirsForTrip({ tripId }: { tripId: string }) {
       {!loading && origin && (origin.state === 'unavailable' || origin.state === 'offline' || origin.state === 'error') ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('마지막 방문지를 확인하지 못했어요', "Couldn't check your last stop")}</Text>
-          <Text color={color.text.body}>{origin.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, origin.message)}</Text>
         </View>
       ) : null}
 
       {!loading && origin?.state === 'success' && result && result.state !== 'success' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('기념품샵을 불러오지 못했어요', 'Could not load souvenir shops')}</Text>
-          <Text color={color.text.body}>{result.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
         </View>
       ) : null}
 

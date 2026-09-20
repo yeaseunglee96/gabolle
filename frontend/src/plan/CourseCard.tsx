@@ -15,19 +15,21 @@ export function courseLetter(index: number) {
   return String.fromCharCode('A'.charCodeAt(0) + index);
 }
 
-export function courseFacts(course: TripCourse, ko: boolean): string {
+type Tx = (ko: string, en: string) => string;
+
+export function courseFacts(course: TripCourse, tx: Tx): string {
   const { places, moveMin, walkKm } = course.summary;
   return [
-    places === null ? null : ko ? `장소 ${places}곳` : `${places} places`,
-    moveMin === null ? null : ko ? `이동 ${moveMin}분` : `${moveMin} min travel`,
-    walkKm === null ? null : ko ? `${walkKm}km` : `${walkKm} km`,
+    places === null ? null : tx(`장소 ${places}곳`, `${places} places`),
+    moveMin === null ? null : tx(`이동 ${moveMin}분`, `${moveMin} min travel`),
+    walkKm === null ? null : tx(`${walkKm}km`, `${walkKm} km`),
   ].filter(Boolean).join(' · ');
 }
 
-export function courseCost(course: TripCourse, ko: boolean): string | null {
+export function courseCost(course: TripCourse, tx: Tx): string | null {
   const cost = course.summary.costKrw;
   if (cost === null) return null;
-  return ko ? `${(cost / 10000).toFixed(1)}만원` : `₩${cost.toLocaleString()}`;
+  return tx(`${(cost / 10000).toFixed(1)}만원`, `₩${cost.toLocaleString()}`);
 }
 
 export function CourseCard({
@@ -45,7 +47,7 @@ export function CourseCard({
   ko: boolean;
 }) {
   const cover = course.days[0]?.stops.find((stop) => stop.photoUrl)?.photoUrl ?? null;
-  const cost = courseCost(course, ko);
+  const cost = courseCost(course, tx);
 
   /**
    * 🔴 표지에 «얹을» 것인가.

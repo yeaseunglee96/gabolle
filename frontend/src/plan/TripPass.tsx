@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   backGhost: { minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   backPressed: { opacity: 0.8 },
   sheet: { backgroundColor: color.surface.card, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 12, gap: spacing[3] },
-  wordmark: { width: 90, height: 30, marginLeft: -2 },
+  wordmark: { width: 116, height: 21, marginLeft: -2 },
   // 도장 — 스터브 오른쪽, QR 옆 빈 자리. 유효기간 글줄(바코드 바로 아래) 위에 얹히지 않게 그 밑에서 시작한다.
   stamp: { position: 'absolute', right: 0, top: 104, width: 84, height: 84, transform: [{ rotate: '-12deg' }], opacity: 0.92, zIndex: 1, pointerEvents: 'none' },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

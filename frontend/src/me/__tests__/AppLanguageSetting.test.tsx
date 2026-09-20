@@ -45,7 +45,8 @@ it('offers all five UI languages and approximates non-Korean picks as EN for the
   expect(view.getByLabelText('繁體中文')).toBeTruthy();
   fireEvent.press(view.getByLabelText('日本語'));
   await waitFor(() => expect(mockUpdateProfile).toHaveBeenCalledWith({ language: 'EN' }));
-  // "메뉴는 아직 영어로 나와요" 안내는 아직 ja/zh 번역이 없어(translations.ts) en으로
-  // 물러선다 — 그 자체가 needsTranslationNotice의 의도다(app/index.tsx와 같은 규칙).
-  await view.findByText('Menus are in English for now. Place names and guides come in your language.');
+  // 🔴 이 줄은 예전에 «영어로 뜨는 것»을 기대했다 — 번역표에 그 문구가 없어서였고,
+  //    시험이 그 빈자리를 「의도된 것」이라고 적어 두고 있었다. S15P21E201-1356 에서
+  //    표를 채웠으므로 이제 일본어로 뜬다. 빠진 번역을 시험이 굳혀 두지 않게 고친다.
+  await view.findByText('メニューはまだ英語で表示されます。場所の名前と案内は選んだ言語で表示されます。');
 });

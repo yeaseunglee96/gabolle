@@ -205,7 +205,8 @@ describe('댓글 카드 — 수정·삭제·신고', () => {
     fireEvent.press(view.getByText('스팸'));
     fireEvent.press(view.getByText('신고 접수'));
 
-    await waitFor(() => expect(view.queryByText('남의 댓글이에요')).toBeNull(), { timeout: 5000 });
+    // CI 러너가 느릴 때 5초를 넘긴 적이 있다(2026-09-20 파이프라인 210291). 판정이 아니라 기다림이라 넉넉히 둔다.
+    await waitFor(() => expect(view.queryByText('남의 댓글이에요')).toBeNull(), { timeout: 15000 });
     const reportCall = requests.find((r) => r.path.includes('/reports'));
     expect(reportCall?.path).toBe(`/api/v1/stories/${OTHER_REPLY_ID}/reports`);
     // 원글 신고와 다르다 — "신고가 접수됐어요" 전체 화면 안내로 안 바뀐다. 원글 본문은 그대로 있다.

@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
 
   // 2층
   nav: { height: NAV_HEIGHT, paddingHorizontal: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: color.brand.ivory, borderBottomWidth: 1, borderBottomColor: color.surface.border },
-  logo: { width: 120, height: 28 },
+  logo: { width: 154, height: 28 },
 
   // 가운데 칸들 — 알약 바탕도 흰 카드도 없다. 「지금 여기」는 검은 글자와 밑의 점이 말한다.
   // 바탕으로 말하면 「고른 것」이 되고, 이 배색에서 고른 것은 색이 아니라 굵기와 점으로 뜬다.

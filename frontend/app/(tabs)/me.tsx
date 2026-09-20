@@ -211,10 +211,11 @@ export default function Me() {
           tripCount={tripCount}
           avatarUri={avatarUri}
           coverUri={user?.coverUrl ?? null}
+          // 로그인 전에도 눌린다 — 「–」 타일이 아무 반응이 없으면 고장으로 읽힌다. 로그인하고 그 패널로 돌아온다.
           counts={[
-            { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && openPanel('posts') },
-            { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && openPanel('followers') },
-            { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && openPanel('following') },
+            { label: tx('기록', 'Records'), value: storyCount, onPress: () => (user ? openPanel('posts') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=posts' } })) },
+            { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => (user ? openPanel('followers') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=followers' } })) },
+            { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => (user ? openPanel('following') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=following' } })) },
           ]}
           onEdit={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
           tx={tx}
@@ -271,9 +272,9 @@ export default function Me() {
         // 🔴 -1331 — 여기만 겹쳐 열기로 안 옮겨져 있었다. 폰에서 이 숫자를 누르면
         //    시트가 아니라 옛 전체 페이지로 넘어갔다. 같은 화면에서 어떤 것은 겹쳐
         //    열리고 어떤 것은 화면이 바뀌는 상태였다.
-        { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && openPanel('posts') },
-        { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && openPanel('followers') },
-        { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && openPanel('following') },
+        { label: tx('기록', 'Records'), value: storyCount, onPress: () => (user ? openPanel('posts') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=posts' } })) },
+        { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => (user ? openPanel('followers') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=followers' } })) },
+        { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => (user ? openPanel('following') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=following' } })) },
       ]}
       onEdit={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
       tx={tx}

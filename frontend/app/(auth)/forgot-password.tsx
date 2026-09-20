@@ -9,6 +9,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { localizeMessage } from '@/i18n/messages';
 
 const logo = require('../../assets/brand/gabolle-logo-hd.png');
 const envelopeIcon = require('../../assets/icons/common/envelope.png');
@@ -56,7 +57,7 @@ export default function ForgotPassword() {
             <TextInput accessibilityLabel={tx('이메일', 'Email')} autoCapitalize="none" autoComplete="email" keyboardType="email-address" onChangeText={setEmail} onSubmitEditing={() => void submit()} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.input} value={email} />
           </View>
         )}
-        {error && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="caption" weight="bold" color={color.state.danger}>{error}</Text></View>}
+        {error && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="caption" weight="bold" color={color.state.danger}>{localizeMessage(tx, error)}</Text></View>}
         {sent ? <Button label={submitting ? tx('전송 중…', 'Sending…') : tx('메일 다시 보내기', 'Resend email')} variant="tertiary" disabled={submitting} onPress={() => void submit()} /> : <Button label={submitting ? tx('전송 중…', 'Sending…') : tx('재설정 링크 받기', 'Get reset link')} disabled={!email.trim() || submitting} onPress={() => void submit()} />}
         {submitting && <ActivityIndicator color={color.action.secondary} />}
       </View>
@@ -68,7 +69,7 @@ export default function ForgotPassword() {
 const styles = StyleSheet.create({
   backButton: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   logoLink: { minWidth: 154, minHeight: 44, marginTop: spacing[8], alignSelf: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm },
-  logo: { width: 154, height: 40 },
+  logo: { width: 220, height: 40 },
   pressed: { opacity: 0.75 },
   body: { flex: 1, justifyContent: 'center', gap: spacing[4] },
   subtitle: { color: color.text.body },

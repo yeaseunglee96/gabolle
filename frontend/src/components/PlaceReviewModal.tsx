@@ -8,6 +8,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { ThreeStepScore } from '@/review/placeReviews';
 import { Text } from './Text';
+import { localizeMessage } from '@/i18n/messages';
 
 const CATEGORIES: Array<{ key: 'food' | 'price' | 'accessibility' | 'onsite'; labelKo: string; labelEn: string }> = [
   { key: 'food', labelKo: '음식', labelEn: 'Food' },
@@ -98,7 +99,7 @@ export function PlaceReviewModal({ visible, placeTitle, onClose, onSubmit }: Pla
             />
           </ScrollView>
 
-          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{error}</Text> : null}
+          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
 
           <Pressable accessibilityRole="button" accessibilityState={{ disabled: !hasAnyScore || submitting }} disabled={!hasAnyScore || submitting} onPress={() => void submit()} style={[styles.submitButton, (!hasAnyScore || submitting) && styles.submitButtonDisabled]}>
             {submitting ? <ActivityIndicator color={color.text.onAction} /> : <Text variant="body" weight="bold" color={color.text.onAction}>{tx('평가 제출', 'Submit review')}</Text>}

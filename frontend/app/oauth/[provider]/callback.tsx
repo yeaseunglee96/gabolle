@@ -18,6 +18,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 const LABEL: Record<string, { ko: string; en: string }> = {
   google: { ko: '구글', en: 'Google' },
@@ -100,7 +101,7 @@ export default function OAuthCallback() {
       <View style={styles.body}>
         {result ? (
           <>
-            <Text accessibilityRole="alert" weight="bold" color={result.kind === 'error' ? color.state.danger : color.state.success}>{result.message}</Text>
+            <Text accessibilityRole="alert" weight="bold" color={result.kind === 'error' ? color.state.danger : color.state.success}>{localizeMessage(tx, result.message)}</Text>
             <Pressable accessibilityRole="link" onPress={() => router.replace(result.backTo as never)}>
               <Text weight="bold" color={color.brand.navy}>{result.backTo === '/sign-in' ? tx('로그인 화면으로 돌아가기', 'Back to sign-in') : tx('설정으로 돌아가기', 'Back to settings')}</Text>
             </Pressable>

@@ -231,7 +231,7 @@ export function PlaceRow({
   return (
     <HomeRow
       eyebrow={tx('로컬 탐색', 'Explore locally')}
-      title={language === 'ko' ? row.titleKo : row.titleEn}
+      title={tx(row.titleKo, row.titleEn)}
       openLabel={tx('이 갈래 전체 보기', 'See all in this category')}
       onOpen={() => router.push({ pathname: '/explore', params: { facet: row.facetKey } })}
       width={width}

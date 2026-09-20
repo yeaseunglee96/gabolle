@@ -11,6 +11,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { setFollowing, type RelationItem, type RelationListResult } from './stories';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 type RelationListProps = {
   emptyMessage: string;
@@ -84,7 +85,7 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
 
       {state.status === 'unavailable' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
-          <Text color={color.text.body}>{state.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text>
           <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}

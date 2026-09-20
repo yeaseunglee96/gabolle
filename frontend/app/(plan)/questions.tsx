@@ -38,6 +38,7 @@ import {
 import { startBarChips } from '@/home/startBarValue';
 import { assistantPrefillPatch } from '@/plan/assistantPrefill';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 const BUDGET_STEPS = [10000, 30000, 50000, 100000] as const;
 const SCALES = [
@@ -46,8 +47,9 @@ const SCALES = [
   { key: 'touristLevel' as const, ko: '관광지 비중', en: 'Tourist spots', lowKo: '적게', lowEn: 'Fewer', highKo: '많이', highEn: 'More' },
 ];
 
-function labelOf(option: PlanOption, ko: boolean) { return ko ? option[1] : option[2]; }
-function subOf(option: PlanOption, ko: boolean) { return ko ? option[3] : option[4]; }
+type Tx = (ko: string, en: string) => string;
+function labelOf(option: PlanOption, tx: Tx) { return tx(option[1], option[2]); }
+function subOf(option: PlanOption, tx: Tx) { return tx(option[3], option[4]); }
 
 function Scale({ value, onChange, lowLabel, highLabel }: { value: number | null; onChange: (next: number) => void; lowLabel: string; highLabel: string }) {
   return (
@@ -75,37 +77,37 @@ function Scale({ value, onChange, lowLabel, highLabel }: { value: number | null;
 }
 
 /** 답한 내용을 한 줄로. 안 고른 칸은 적지 않는다 — 「미정」이 답처럼 보인다. */
-export function summaryOf(key: QuestionKey, draft: PlanDraft, ko: boolean, skipped: boolean): string {
-  if (skipped) return ko ? '건너뜀' : 'Skipped';
+export function summaryOf(key: QuestionKey, draft: PlanDraft, tx: Tx, skipped: boolean, koNames = true): string {
+  if (skipped) return tx('건너뜀', 'Skipped');
   const labels = (list: readonly PlanOption[], picked: string[]) =>
-    list.filter(([code]) => picked.includes(code)).map((option) => labelOf(option, ko)).join(' · ');
+    list.filter(([code]) => picked.includes(code)).map((option) => labelOf(option, tx)).join(' · ');
   switch (key) {
     case 'areas': return labels(AREA_OPTIONS, draft.travelAreas);
-    case 'budget': return draft.budgetKrw ? (ko ? `${(draft.budgetKrw / 10000).toLocaleString()}만원` : `₩${draft.budgetKrw.toLocaleString()}`) : '';
+    case 'budget': return draft.budgetKrw ? tx(`${(draft.budgetKrw / 10000).toLocaleString()}만원`, `₩${draft.budgetKrw.toLocaleString()}`) : '';
     case 'move': {
       const transport = TRANSPORT_OPTIONS.find(([code]) => code === draft.transport);
       const hours = draft.dayStartTime && draft.dayEndTime ? `${draft.dayStartTime}–${draft.dayEndTime}` : '';
-      return [hours, transport ? labelOf(transport, ko) : ''].filter(Boolean).join(' · ');
+      return [hours, transport ? labelOf(transport, tx) : ''].filter(Boolean).join(' · ');
     }
     case 'cats': return labels(CATEGORY_OPTIONS, draft.preferences);
     case 'pace': {
       const pace = PACE_OPTIONS.find(([code]) => code === draft.paceLevel);
-      return pace ? labelOf(pace, ko) : '';
+      return pace ? labelOf(pace, tx) : '';
     }
     case 'moods': return labels(ATMOSPHERE_OPTIONS, draft.atmospheres);
     case 'scales': return SCALES.filter((scale) => draft[scale.key] !== null)
-      .map((scale) => `${ko ? scale.ko : scale.en} ${draft[scale.key]}`).join(' · ');
-    case 'foods': return FOODS.filter(([code]) => draft.foods.includes(code)).map(([, k, e]) => (ko ? k : e)).join(' · ');
+      .map((scale) => `${tx(scale.ko, scale.en)} ${draft[scale.key]}`).join(' · ');
+    case 'foods': return FOODS.filter(([code]) => draft.foods.includes(code)).map(([, k, e]) => tx(k, e)).join(' · ');
     case 'aids': {
       const parts: string[] = [];
-      if (draft.wheelchair) parts.push(ko ? '휠체어' : 'Wheelchair');
-      if (draft.stroller) parts.push(ko ? '유아차' : 'Stroller');
-      if (draft.luggage) parts.push(ko ? '큰 짐' : 'Large luggage');
-      return parts.length ? parts.join(' · ') : ko ? '해당 없음' : 'None';
+      if (draft.wheelchair) parts.push(tx('휠체어', 'Wheelchair'));
+      if (draft.stroller) parts.push(tx('유아차', 'Stroller'));
+      if (draft.luggage) parts.push(tx('큰 짐', 'Large luggage'));
+      return parts.length ? parts.join(' · ') : tx('해당 없음', 'None');
     }
     case 'must': return draft.mustVisitPlaces.length
-      ? draft.mustVisitPlaces.map((place) => (ko ? place.nameKo : place.nameEn ?? place.nameKo)).join(' · ')
-      : ko ? '없음' : 'None';
+      ? draft.mustVisitPlaces.map((place) => (koNames ? place.nameKo : place.nameEn ?? place.nameKo)).join(' · ')
+      : tx('없음', 'None');
     default: return '';
   }
 }
@@ -206,16 +208,16 @@ export default function PlanConditions() {
     origin: draft.origin, originLat: draft.originLat, originLng: draft.originLng,
     startDate: draft.startDate, endDate: draft.endDate,
     adults: draft.adults, children: draft.children,
-  }, ko), [draft.adults, draft.children, draft.endDate, draft.origin, draft.originLat, draft.originLng, draft.startDate, ko]);
+  }, tx), [draft.adults, draft.children, draft.endDate, draft.origin, draft.originLat, draft.originLng, draft.startDate, tx]);
 
   // 계정에 기억된 취향 — 옆 기둥이 쓴다.
   const tastes = useMemo(() => {
     const picked: string[] = [];
-    for (const option of CATEGORY_OPTIONS) if (draft.preferences.includes(option[0])) picked.push(labelOf(option, ko));
-    for (const option of ATMOSPHERE_OPTIONS) if (draft.atmospheres.includes(option[0])) picked.push(labelOf(option, ko));
-    for (const scale of SCALES) if (draft[scale.key] !== null) picked.push(`${ko ? scale.ko : scale.en} ${draft[scale.key]}`);
+    for (const option of CATEGORY_OPTIONS) if (draft.preferences.includes(option[0])) picked.push(labelOf(option, tx));
+    for (const option of ATMOSPHERE_OPTIONS) if (draft.atmospheres.includes(option[0])) picked.push(labelOf(option, tx));
+    for (const scale of SCALES) if (draft[scale.key] !== null) picked.push(`${tx(scale.ko, scale.en)} ${draft[scale.key]}`);
     return picked;
-  }, [draft.atmospheres, draft.localityLevel, draft.preferences, draft.quietLevel, draft.touristLevel, ko]);
+  }, [draft.atmospheres, draft.localityLevel, draft.preferences, draft.quietLevel, draft.touristLevel, tx]);
 
   const goTo = (next: number) => setState((prev) => ({ ...prev, open: Math.max(0, Math.min(PLAN_QUESTIONS.length - 1, next)), editing: null }));
   const skip = (item: PlanQuestion) => {
@@ -234,8 +236,8 @@ export default function PlanConditions() {
       {options.map((option) => (
         <View key={option[0]} style={styles.optionCell}>
           <OptionCard
-            label={labelOf(option, ko)}
-            sub={subOf(option, ko)}
+            label={labelOf(option, tx)}
+            sub={subOf(option, tx)}
             selected={picked.includes(option[0])}
             disabled={Boolean(max) && picked.length >= (max as number) && !picked.includes(option[0])}
             onPress={() => onPick(option[0])}
@@ -253,12 +255,12 @@ export default function PlanConditions() {
         return (
           <View style={styles.stack}>
             <Text variant="hero" weight="bold" color={color.text.heading}>
-              {ko ? `${((draft.budgetKrw ?? 0) / 10000).toLocaleString()}만원` : `₩${(draft.budgetKrw ?? 0).toLocaleString()}`}
+              {tx(`${((draft.budgetKrw ?? 0) / 10000).toLocaleString()}만원`, `₩${(draft.budgetKrw ?? 0).toLocaleString()}`)}
             </Text>
             <View style={styles.chips}>
               {BUDGET_STEPS.map((step) => (
                 <Pressable key={step} accessibilityRole="button" onPress={() => update({ budgetKrw: (draft.budgetKrw ?? 0) + step })} style={styles.chip}>
-                  <Text weight="bold">+{ko ? `${step / 10000}만` : `${step / 1000}k`}</Text>
+                  <Text weight="bold">+{tx(`${step / 10000}만`, `${step / 1000}k`)}</Text>
                 </Pressable>
               ))}
               <Pressable accessibilityRole="button" onPress={() => update({ budgetKrw: 0 })} style={styles.chip}>
@@ -273,7 +275,7 @@ export default function PlanConditions() {
             <View style={styles.timeRow}>
               {([['dayStartTime', '시작', 'Start'], ['dayEndTime', '종료', 'End']] as const).map(([field, k, e]) => (
                 <View key={field} style={styles.timeField}>
-                  <Text variant="caption" color={color.text.muted}>{ko ? k : e}</Text>
+                  <Text variant="caption" color={color.text.muted}>{tx(k, e)}</Text>
                   <TextInput
                     value={draft[field]}
                     onChangeText={(value) => update({ [field]: value } as Partial<PlanDraft>)}
@@ -281,7 +283,7 @@ export default function PlanConditions() {
                     maxLength={5}
                     placeholder={field === 'dayStartTime' ? '09:00' : '18:00'}
                     placeholderTextColor={color.text.muted}
-                    accessibilityLabel={ko ? k : e}
+                    accessibilityLabel={tx(k, e)}
                     style={styles.input}
                   />
                 </View>
@@ -299,12 +301,12 @@ export default function PlanConditions() {
       case 'scales':
         return <View style={styles.stack}>{SCALES.map((scale) => (
           <View key={scale.key} style={styles.stack}>
-            <Text weight="bold">{ko ? scale.ko : scale.en}</Text>
+            <Text weight="bold">{tx(scale.ko, scale.en)}</Text>
             <Scale
               value={draft[scale.key]}
               onChange={(level) => update({ [scale.key]: level } as Partial<PlanDraft>)}
-              lowLabel={ko ? scale.lowKo : scale.lowEn}
-              highLabel={ko ? scale.highKo : scale.highEn}
+              lowLabel={tx(scale.lowKo, scale.lowEn)}
+              highLabel={tx(scale.highKo, scale.highEn)}
             />
           </View>
         ))}</View>;
@@ -318,8 +320,8 @@ export default function PlanConditions() {
               return (
                 <View key={code} style={styles.optionCell}>
                   <OptionCard
-                    label={ko ? k : e}
-                    sub={conflict ? tx(...CONFLICT_LABEL_PAIR[conflict.code]) : hint ? (ko ? hint[0] : hint[1]) : ''}
+                    label={tx(k, e)}
+                    sub={conflict ? tx(...CONFLICT_LABEL_PAIR[conflict.code]) : hint ? tx(hint[0], hint[1]) : ''}
                     selected={draft.foods.includes(code)}
                     disabled={conflict !== null}
                     onPress={() => update({ foods: toggleIn(draft.foods, code) })}
@@ -336,7 +338,7 @@ export default function PlanConditions() {
           ['luggage', '큰 짐이 있어요', 'I have large luggage'],
         ] as const).map(([field, k, e]) => (
           <View key={field} style={styles.binaryRow}>
-            <Text style={styles.binaryLabel}>{ko ? k : e}</Text>
+            <Text style={styles.binaryLabel}>{tx(k, e)}</Text>
             <View style={styles.chips}>
               {([[true, '예', 'Yes'], [false, '아니요', 'No']] as const).map(([value, yk, ye]) => (
                 <Pressable
@@ -346,7 +348,7 @@ export default function PlanConditions() {
                   onPress={() => update({ [field]: value } as Partial<PlanDraft>)}
                   style={[styles.chip, draft[field] === value && styles.chipOn]}
                 >
-                  <Text weight="bold" color={draft[field] === value ? color.text.onAction : color.text.heading}>{ko ? yk : ye}</Text>
+                  <Text weight="bold" color={draft[field] === value ? color.text.onAction : color.text.heading}>{tx(yk, ye)}</Text>
                 </Pressable>
               ))}
             </View>
@@ -368,7 +370,7 @@ export default function PlanConditions() {
 
   if (!ready) return <Screen scroll><Text>{tx('불러오는 중이에요…', 'Loading…')}</Text></Screen>;
 
-  const effect = effectOf(question.key, draft, ko);
+  const effect = effectOf(question.key, draft, tx);
   const settledAt = (i: number) => {
     const item = PLAN_QUESTIONS[i];
     return Boolean(state.skipped[item.key]) || item.answered(draft);
@@ -388,7 +390,7 @@ export default function PlanConditions() {
           index={index}
           settled={settledAt}
           onJump={goTo}
-          label={(i) => (ko ? PLAN_QUESTIONS[i].ko : PLAN_QUESTIONS[i].en)}
+          label={(i) => tx(PLAN_QUESTIONS[i].ko, PLAN_QUESTIONS[i].en)}
         />
       </View>
       <View style={styles.track}>
@@ -401,8 +403,8 @@ export default function PlanConditions() {
         <View style={styles.cardHead}>
           <View style={styles.cardCopy}>
             <Text variant="caption" weight="bold" color={color.text.eyebrow}>{index + 1} / {PLAN_QUESTIONS.length}</Text>
-            <Text variant="title" weight="bold">{ko ? question.ko : question.en}</Text>
-            <Text color={color.text.muted}>{ko ? question.hintKo : question.hintEn}</Text>
+            <Text variant="title" weight="bold">{tx(question.ko, question.en)}</Text>
+            <Text color={color.text.muted}>{tx(question.hintKo, question.hintEn)}</Text>
           </View>
           {question.skippable ? (
             <Pressable accessibilityRole="button" onPress={() => skip(question)} style={styles.skip}>
@@ -469,7 +471,7 @@ export default function PlanConditions() {
         </View>
       ) : null}
       {job?.errorMessage && job.state !== 'consent-required' ? (
-        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{job.errorMessage}</Text>
+        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, job.errorMessage)}</Text>
       ) : null}
 
       {/* 답한 질문 — 누르면 그 질문으로 돌아간다. 요약이 없으면 안 그린다. */}
@@ -479,9 +481,9 @@ export default function PlanConditions() {
           //    이동수단 대중교통) 그대로 세면 「답했다」고 거짓말하게 된다. 사람은 그걸 보고
           //    답한 줄 알고 넘어가고, 정작 자기가 안 고른 조건으로 일정을 받는다.
           if (i >= index || !settledAt(i)) return null;
-          const value = summaryOf(item.key, draft, ko, Boolean(state.skipped[item.key]));
+          const value = summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko);
           if (!value) return null;
-          return <AnsweredChip key={item.key} label={ko ? item.ko : item.en} value={value} onPress={() => goTo(i)} />;
+          return <AnsweredChip key={item.key} label={tx(item.ko, item.en)} value={value} onPress={() => goTo(i)} />;
         })}
       </View>
     </View>

@@ -6,6 +6,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { REPORT_REASON_LABEL, type StoryReportReason } from '@/social/stories';
 import { Text } from './Text';
+import { localizeMessage } from '@/i18n/messages';
 
 const REASONS: StoryReportReason[] = ['PRIVACY', 'OFFENSIVE', 'SPAM', 'OTHER'];
 const DETAIL_MAX = 300;
@@ -77,7 +78,7 @@ export function ReportModal({ visible, onClose, onSubmit }: ReportModalProps) {
             />
           ) : null}
 
-          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{error}</Text> : null}
+          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
 
           <Pressable accessibilityRole="button" accessibilityState={{ disabled: !reason || submitting }} disabled={!reason || submitting} onPress={() => void submit()} style={[styles.submitButton, (!reason || submitting) && styles.submitButtonDisabled]}>
             {submitting ? <ActivityIndicator color={color.text.onAction} /> : <Text variant="body" weight="bold" color={color.text.onAction}>{tx('신고 접수', 'Submit report')}</Text>}

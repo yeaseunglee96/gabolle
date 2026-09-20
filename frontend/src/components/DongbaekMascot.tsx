@@ -13,7 +13,7 @@ const sources = {
 
 export type GabolleMascotState = keyof typeof sources;
 
-export function GabolleMascot({ state = 'idle', style, delay = 0 }: { state?: GabolleMascotState; style?: StyleProp<ImageStyle>; delay?: number }) {
+export function GabolleMascot({ state = 'idle', style, delay = 0, still = false }: { state?: GabolleMascotState; style?: StyleProp<ImageStyle>; delay?: number; /** 움직이지 않는다 — 메뉴 행·목록처럼 「살아 있는 단추」가 아닌 자리. */ still?: boolean }) {
   const { tx } = useI18n();
   const y = useRef(new Animated.Value(0)).current;
   const rotate = useRef(new Animated.Value(0)).current;
@@ -21,7 +21,7 @@ export function GabolleMascot({ state = 'idle', style, delay = 0 }: { state?: Ga
   useEffect(() => {
     y.setValue(0);
     rotate.setValue(0);
-    if (state === 'sad') return;
+    if (state === 'sad' || still) return;
     const animation = state === 'idle'
       ? Animated.loop(Animated.sequence([
           Animated.timing(y, { toValue: -5, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
@@ -46,7 +46,7 @@ export function GabolleMascot({ state = 'idle', style, delay = 0 }: { state?: Ga
 
     animation.start();
     return () => animation.stop();
-  }, [delay, rotate, state, y]);
+  }, [delay, rotate, state, still, y]);
 
   return (
     <Animated.View style={{ transform: [{ translateY: y }, { rotate: rotate.interpolate({ inputRange: [-1, 1], outputRange: ['-2deg', '2deg'] }) }] }}>

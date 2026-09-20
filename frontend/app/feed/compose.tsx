@@ -15,7 +15,9 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { createStory, FEED_QUERY_PREFIX, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
+import { markChecklistStep } from '@/onboarding/firstRun';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
+import { localizeMessage } from '@/i18n/messages';
 
 const BODY_MAX = 500;
 // 업로드 실패 뒤 화면을 새로 고쳐도 쓰던 글이 남아 있어야 한다완료 기준).
@@ -100,6 +102,7 @@ export default function ComposeStory() {
     });
     setSubmitting(false);
     if (outcome.state === 'success') {
+      void markChecklistStep('story');
       await AsyncStorage.removeItem(DRAFT_KEY);
       // — 돌아가기 전에 피드 보관본을 버린다.
       await queryClient.invalidateQueries({ queryKey: FEED_QUERY_PREFIX });
@@ -205,7 +208,7 @@ export default function ComposeStory() {
       })}
     </View>
 
-    {error ? <Text accessibilityRole="alert" color={color.state.danger} style={styles.error}>{error}</Text> : null}
+    {error ? <Text accessibilityRole="alert" color={color.state.danger} style={styles.error}>{localizeMessage(tx, error)}</Text> : null}
 
     <Button testID="compose-submit" label={submitting ? tx('올리는 중…', 'Posting…') : tx('기록 올리기', 'Post record')} disabled={!canSubmit} onPress={() => void submit()} containerStyle={styles.submit} />
   </Screen>;

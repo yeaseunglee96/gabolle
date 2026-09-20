@@ -17,6 +17,7 @@ import {
   type TripNameSource,
 } from '@/trip/tripNaming';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 /** 시안이 정한 상한. 서버는 60자까지 받지만 화면은 40자로 끊는다. */
 const DRAFT_MAX_LENGTH = 40;
@@ -96,7 +97,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
         <Text variant="caption" color={color.text.muted}>{tx('지운 뒤 카드', 'After clearing')}</Text>
         <Text variant="title" weight="bold">{dateLabel ?? tx('날짜 미확인', 'Date unknown')}</Text>
       </View>
-      {error ? <Text variant="caption" color={color.state.danger}>{error}</Text> : null}
+      {error ? <Text variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
       <View style={styles.buttonRow}>
         <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={busy} onPress={() => setConfirmClear(false)} containerStyle={styles.rowButton} />
         <Pressable
@@ -184,7 +185,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
         </Text>
       </View>
 
-      {error ? <Text variant="caption" color={color.state.danger}>{error}</Text> : null}
+      {error ? <Text variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
 
       <View style={styles.buttonRow}>
         <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={busy} onPress={onClose} containerStyle={styles.rowButton} />

@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   webIntroTitle: { fontSize: 28, lineHeight: 38 },
   webTrust: { marginTop: spacing[4], gap: spacing[2] },
   header: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  logo: { width: 100, height: 24 },
+  logo: { width: 132, height: 24 },
   step: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.tint },
   body: {
     flex: 1,

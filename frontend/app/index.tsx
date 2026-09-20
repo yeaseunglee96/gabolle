@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   mobileContent: { flexGrow: 1, justifyContent: 'space-between', gap: spacing[8], paddingHorizontal: spacing[6], paddingTop: spacing[8], paddingBottom: spacing[6] },
   // 로고는 위에서 약 1/4 지점 — 시안 4 의 00a. 아래 남는 자리는 영상이 보이는 자리다.
   mobileBrand: { alignItems: 'center', gap: spacing[4], paddingTop: 120, paddingBottom: spacing[8] },
-  mobileLogo: { width: 260, height: 86 },
+  mobileLogo: { width: 300, height: 55 },
   mobileTagline: { textAlign: 'center', lineHeight: 26 },
   mobileActions: { width: '100%', maxWidth: 480, alignSelf: 'center', gap: spacing[3] },
   // 언어 카드 — 반투명 흰 판. 국기는 3:2 그대로(잘리면 다른 나라로 오인된다).

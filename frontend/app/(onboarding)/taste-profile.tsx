@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   // marginTop — Screen 의 기본 paddingTop 만으로는 전역 언어 배지(우측 상단 절대좌표)를
   // 못 피한다. spend-profile 과 같은 값으로 맞춘다.
   topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
-  logo: { width: 88, height: 24 },
+  logo: { width: 132, height: 24 },
   stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
   skipAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
   dots: { flexDirection: 'row', gap: 6, marginTop: spacing[3] },

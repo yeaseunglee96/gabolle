@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   introColumn: {},
   introWide: { flex: 1, alignSelf: 'stretch', justifyContent: 'center', padding: spacing[8], borderRadius: radius.lg, backgroundColor: color.surface.tint },
   actionColumn: { flex: 1, width: '100%', justifyContent: 'center' },
-  logo: { width: 120, height: 44, marginBottom: spacing[8] },
+  logo: { width: 242, height: 44, marginBottom: spacing[8] },
   webNote: { marginTop: spacing[8], gap: spacing[2] },
   title: {
     marginTop: spacing[1],

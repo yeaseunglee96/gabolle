@@ -14,6 +14,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { idleNowResult, requestNowRecommendations, type NowCandidate, type NowViewModel } from '@/plan/nowRecommendations';
+import { localizeMessage } from '@/i18n/messages';
 
 const REMAINING_OPTIONS = [30, 60, 90, 120, 180] as const;
 
@@ -149,7 +150,7 @@ export default function Now() {
       <Button label={tx('지금 갈 곳 찾기', 'Find a place now')} disabled={!canSearch || result.state === 'loading'} onPress={() => void search()} containerStyle={styles.searchButton} />
 
       {result.state === 'loading' && (
-        <View accessibilityLabel={result.message} style={styles.results}>
+        <View accessibilityLabel={localizeMessage(tx, result.message)} style={styles.results}>
           {[0, 1, 2].map((key) => (
             <View key={key} style={styles.card}>
               <View style={styles.cardTop}><Skeleton width="60%" height={18} /><Skeleton width={56} height={20} radius={radius.full} /></View>
@@ -162,17 +163,17 @@ export default function Now() {
       {(result.state === 'error' || result.state === 'offline') && (
         <View style={styles.stateCard}>
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('지금 갈 곳을 찾지 못했어요', 'Could not find a place to go now')}</Text>
-          <Text color={color.text.body}>{result.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
           <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void search()} />
         </View>
       )}
       {result.state === 'empty' && (
-        <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('갈 만한 곳을 찾지 못했어요', 'No suitable place found')}</Text><Text color={color.text.body}>{result.message}</Text></View>
+        <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('갈 만한 곳을 찾지 못했어요', 'No suitable place found')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text></View>
       )}
       {(result.state === 'success' || result.state === 'partial') && (
         <View style={styles.results}>
           {result.state === 'partial' && (
-            <View style={styles.notice}><Text accessibilityRole="alert" variant="caption" weight="bold">{result.message}</Text></View>
+            <View style={styles.notice}><Text accessibilityRole="alert" variant="caption" weight="bold">{localizeMessage(tx, result.message)}</Text></View>
           )}
           {result.candidates.map((candidate) => (
             <CandidateCard key={candidate.placeId} candidate={candidate} onOpen={() => router.push(`/place/${candidate.placeId}`)} />

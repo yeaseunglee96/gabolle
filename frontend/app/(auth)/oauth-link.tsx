@@ -18,6 +18,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 // 기본값 /home — sign-in.tsx 의 resolveDestination 과 같은 이유(jaehyeon 님 제안).
 async function resolveDestination(returnTo?: string) {
@@ -99,7 +100,7 @@ export default function OAuthLink() {
           </View>
         </View>
 
-        {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{error}</Text></Card>}
+        {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text></Card>}
         <Button label={submitting ? tx('연결 중…', 'Linking…') : tx('연결하고 로그인', 'Link and sign in')} disabled={!canSubmit} onPress={() => void submit()} />
         <Pressable accessibilityRole="link" style={styles.forgot} onPress={() => router.push('/forgot-password')}>
           <Text variant="caption" color={color.action.primary}>{tx('비밀번호를 잊으셨나요?', 'Forgot your password?')}</Text>
@@ -111,7 +112,7 @@ export default function OAuthLink() {
 
 const styles = StyleSheet.create({
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
-  logo: { width: 112, height: 32 },
+  logo: { width: 176, height: 32 },
   backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   title: { marginTop: spacing[3] },
   subtitle: { marginTop: spacing[1], marginBottom: spacing[6] },

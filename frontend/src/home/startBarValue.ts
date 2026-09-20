@@ -1,6 +1,8 @@
 // 홈 시작 바가 다루는 값 — 화면이 아니라 여기서 만든다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 
+import { txf } from '@/i18n/format';
+
 export type StartBarValue = {
   origin: string;
   originLat: number | null;
@@ -93,15 +95,18 @@ export function nightCount(startKey: string, endKey: string): number {
   return days > 0 ? days - 1 : 0;
 }
 
-export function formatDateShort(key: string, ko: boolean): string {
+export type StartBarTx = (ko: string, en: string) => string;
+
+/** 「9.20(토)」 — 요일은 고른 언어로(번역표에 요일 일곱 개가 있다). */
+export function formatDateShort(key: string, tx: StartBarTx): string {
   const date = parseDateKey(key);
   if (!date) return '';
-  const weekday = ko ? WEEKDAY_KO[date.getDay()] : WEEKDAY_EN[date.getDay()];
+  const weekday = tx(WEEKDAY_KO[date.getDay()], WEEKDAY_EN[date.getDay()]);
   return `${date.getMonth() + 1}.${date.getDate()}(${weekday})`;
 }
 
 /** 시작 바에 한 줄로 보여 줄 요약 — 「부산역 · 9.20(토) – 9.21(일) · 1박 · 성인 2」. */
-export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
+export function summarizeStartBar(value: StartBarValue, tx: StartBarTx): string {
   // 인원에는 기본값(성인 2)이 들어 있다. 그래서 아무것도 안 고른 사람에게도
   // 요약이 「성인 2」로 나왔고, 알약에 안내 문구 대신 그것이 찍혔다
   // 고른 적 없는 값이 고른 것처럼 보였다.
@@ -112,37 +117,37 @@ export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
 
   if (value.startDate) {
     const range = value.endDate && value.endDate !== value.startDate
-      ? `${formatDateShort(value.startDate, ko)} – ${formatDateShort(value.endDate, ko)}`
-      : formatDateShort(value.startDate, ko);
+      ? `${formatDateShort(value.startDate, tx)} – ${formatDateShort(value.endDate, tx)}`
+      : formatDateShort(value.startDate, tx);
     parts.push(range);
     const nights = nightCount(value.startDate, value.endDate || value.startDate);
-    parts.push(nights > 0 ? (ko ? `${nights}박` : `${nights} nights`) : ko ? '당일치기' : 'Day trip');
+    parts.push(nights > 0 ? tx(`${nights}박`, `${nights} nights`) : tx('당일치기', 'Day trip'));
   }
 
   const people: string[] = [];
-  if (value.adults > 0) people.push(ko ? `성인 ${value.adults}` : `${value.adults} adults`);
-  if (value.children > 0) people.push(ko ? `어린이 ${value.children}` : `${value.children} children`);
+  if (value.adults > 0) people.push(tx(`성인 ${value.adults}`, `${value.adults} adults`));
+  if (value.children > 0) people.push(tx(`어린이 ${value.children}`, `${value.children} children`));
   if (people.length) parts.push(people.join(' · '));
 
   return parts.join(' · ');
 }
 
 /** 「홈에서 받은 정보」를 칩 세 개로 쪼갠다 — 시안 p1 */
-export function startBarChips(value: StartBarValue, ko: boolean): string[] {
+export function startBarChips(value: StartBarValue, tx: StartBarTx): string[] {
   if (!value.origin.trim() && !value.startDate) return [];
   const chips: string[] = [];
-  if (value.origin.trim()) chips.push(ko ? `${value.origin.trim()} 출발` : `From ${value.origin.trim()}`);
+  if (value.origin.trim()) chips.push(txf(tx, '%s 출발', 'From %s', value.origin.trim()));
   if (value.startDate) {
     const range = value.endDate && value.endDate !== value.startDate
-      ? `${formatDateShort(value.startDate, ko)} – ${formatDateShort(value.endDate, ko)}`
-      : formatDateShort(value.startDate, ko);
+      ? `${formatDateShort(value.startDate, tx)} – ${formatDateShort(value.endDate, tx)}`
+      : formatDateShort(value.startDate, tx);
     const nights = nightCount(value.startDate, value.endDate || value.startDate);
-    const stay = nights > 0 ? (ko ? `${nights}박` : `${nights} nights`) : ko ? '당일치기' : 'Day trip';
+    const stay = nights > 0 ? tx(`${nights}박`, `${nights} nights`) : tx('당일치기', 'Day trip');
     chips.push(`${range} · ${stay}`);
   }
   const people: string[] = [];
-  if (value.adults > 0) people.push(ko ? `성인 ${value.adults}` : `${value.adults} adults`);
-  if (value.children > 0) people.push(ko ? `어린이 ${value.children}` : `${value.children} children`);
+  if (value.adults > 0) people.push(tx(`성인 ${value.adults}`, `${value.adults} adults`));
+  if (value.children > 0) people.push(tx(`어린이 ${value.children}`, `${value.children} children`));
   if (people.length) chips.push(people.join(' · '));
   return chips;
 }

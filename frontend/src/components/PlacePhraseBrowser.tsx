@@ -21,7 +21,7 @@ type PlacePhraseBrowserProps = {
 
 export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrowserProps) {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const [tab, setTab] = useState<PlaceTabKey>(() => defaultTabForCategory(category));
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
@@ -76,7 +76,8 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
                   찾으러 온다 — 한국어를 먼저 크게 보여주면 "그게 무슨 뜻인지" 되짚어야 한다.
                   뜻(en)을 먼저 보여주고, 누르면 그제서야 한국어·발음·듣기 버튼이 나오게
                   순서를 뒤집는다. */}
-              <Text variant={expanded ? 'display' : 'title'} weight="bold">{phrase.en}</Text>
+              {/* 뜻은 고른 언어로 — 일본어 화면에서 영어 뜻을 읽게 하지 않는다. 한국어 화면만 영어 뜻(한국어를 두 번 적을 이유가 없다). */}
+              <Text variant={expanded ? 'display' : 'title'} weight="bold">{language === 'ko' ? phrase.en : tx(phrase.ko, phrase.en)}</Text>
               {expanded ? (
                 <>
                   <Text variant="body" weight="bold" color={color.text.body} style={styles.enText}>{phrase.ko}</Text>
