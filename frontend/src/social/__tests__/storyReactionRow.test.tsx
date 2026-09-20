@@ -27,7 +27,7 @@ describe('반응 줄', () => {
 
   it('좋아요 수를 그린다', () => {
     row({ likeCount: 12 });
-    expect(screen.getByText('👍 12')).toBeTruthy();
+    expect(screen.getByText('좋아요 12')).toBeTruthy();
   });
 
   it('인용 수가 오면 그린다', () => {
