@@ -83,6 +83,17 @@ describe('화면들이 실제로 그렇게 이어져 있다', () => {
 
   it('시작 바가 그 둘을 처음 상태로 쓴다', () => {
     expect(BAR).toContain('useState<StartBarValue>(initialValue ?? EMPTY_START_BAR)');
-    expect(BAR).toContain('useState<Section>(initialSection)');
+    // 🔴 2026-09-21 — 모바일 전체 화면 시트가 생기면서 뒤에 갈래가 붙었다
+    //    (`initialSection ?? (sheet ? 'origin' : null)`). 그래서 앞부분만 본다.
+    //    이 시험이 막는 것은 「initialSection 을 처음 상태로 쓰는가」이고 그건 그대로다.
+    //    통째로 지우지 않고 기준점만 옮긴다 — 지우면 이 방어가 같이 사라진다.
+    expect(BAR).toContain('useState<Section>(initialSection ??');
+  });
+
+  it('🔴 폰은 시트가 «열린 채로» 받는다 — 접힌 알약을 보여 주면 아무 데도 안 간 것이다', () => {
+    // 1350 이 고친 것과 같은 실수다. 시트가 생기면서 「연다」의 뜻이 «칸을 펼친다»에서
+    // «시트를 띄운다»로 바뀌었으므로, 그 새 자리도 같이 잠근다.
+    expect(HOME).toContain('useState(Boolean(editSection))');
+    expect(HOME).toContain('hidden={startBarSheet}');
   });
 });

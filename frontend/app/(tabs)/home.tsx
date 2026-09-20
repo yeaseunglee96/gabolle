@@ -8,7 +8,7 @@ import { PlanStartBar } from '@/home/PlanStartBar';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
-import { startBarEditSection, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
+import { EMPTY_START_BAR, startBarEditSection, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
@@ -123,6 +123,15 @@ export default function Home() {
   //    접힌 바를 보여 주면 그 사람이 보기에는 아무 데도 안 간 것이다.
   const editSection = startBarEditSection(useLocalSearchParams().edit);
 
+  // 🔴 시작 바의 값을 홈이 들고 있다.
+  //
+  // <p>알약은 화면 «안»에 있고 시트는 화면 «전체»를 덮어야 해서 탭바의 형제로 올라간다.
+  // 한 부품이 두 자리에 동시에 있을 수 없으므로 둘로 나누고, 값은 홈이 들고 둘에게
+  // 같은 것을 준다 — 안 그러면 시트에서 고른 것이 알약 요약에 안 나타난다.
+  const [barValue, setBarValue] = useState<StartBarValue>(() => (editSection ? startBarFromDraft(planDraft) : EMPTY_START_BAR));
+  // 「날짜 정하기」로 들어온 사람은 시트가 «열린 채로» 받는다 — S15P21E201-1350 과 같은 이유다.
+  const [startBarSheet, setStartBarSheet] = useState(Boolean(editSection));
+
   const applyBarAndGo = (value: StartBarValue) => {
     updatePlan({
       origin: value.origin,
@@ -208,7 +217,14 @@ export default function Home() {
               조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다.
           */}
           <View ref={startBarRef} collapsable={false}>
-            <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
+            <PlanStartBar
+              wide={false}
+              accessToken={accessToken}
+              onSubmit={startPlanFromBar}
+              value={barValue}
+              onChange={setBarValue}
+              onOpenSheet={() => setStartBarSheet(true)}
+            />
           </View>
 
  {/* 「현장 도구」 카드를 뺐다 (2026-09-18 지시). 화면(/field/translate)과
@@ -291,7 +307,22 @@ export default function Home() {
         </Pressable>
       </View>
 
-      <TabBar active="home" />
+      {/* 🔴 시트는 탭바 «앞»에 그린다. 그래야 탭바(받침 zIndex 30)가 시트(25) 위로
+          미끄러져 내려가는 것이 보인다. 뒤에 그리면 탭바가 시트에 가려 그냥 사라진다. */}
+      {startBarSheet ? (
+        <PlanStartBar
+          sheet
+          wide={false}
+          accessToken={accessToken}
+          onSubmit={startPlanFromBar}
+          value={barValue}
+          onChange={setBarValue}
+          onClose={() => setStartBarSheet(false)}
+          initialSection={editSection}
+        />
+      ) : null}
+
+      <TabBar active="home" hidden={startBarSheet} />
       <HomeCoach visible={coach.visible} startBar={coach.startBar} assistant={coach.assistant} onClose={closeCoach} onStart={() => { closeCoach(); router.push('/plan'); }} />
     </View>
   );
