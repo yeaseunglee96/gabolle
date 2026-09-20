@@ -58,6 +58,7 @@ export function HomeRow({
    * 그래서 부르는 쪽이 끌 수 있게 열어 둔다.
    */
   arrows = Platform.OS === 'web',
+  cardWidth,
   children,
 }: {
   eyebrow?: string;
@@ -68,6 +69,13 @@ export function HomeRow({
   width: number;
   gutter?: number;
   arrows?: boolean;
+  /**
+   * 카드 한 장의 폭. 화살표가 «한 장씩» 밀려면 이 값이 맞아야 한다.
+   *
+   * <p>기본은 홈의 7열 폭이다. 마이페이지의 기록 줄은 4열이라 카드가 훨씬 넓고,
+   * 기본값을 그대로 쓰면 화살표가 카드 절반쯤만 밀어서 «반쯤 걸친 카드»에서 멈춘다.
+   */
+  cardWidth?: number;
   children: React.ReactNode;
 }) {
   const { tx } = useI18n();
@@ -81,7 +89,7 @@ export function HomeRow({
   // 였다. 앞의 걱정은 맞았지만 뒤의 걱정이 더 컸다 — 80%도 여섯 장이 한꺼번에
   // 지나가서, 화살표를 누른 사람이 «어디로 갔는지»를 눈으로 따라가지 못했다.
   // 한 장씩이면 누른 만큼만 움직여서 눈이 따라간다. 여러 장을 보려면 여러 번 누른다.
-  const step = homeCardWidth(width) + spacing[3];
+  const step = (cardWidth ?? homeCardWidth(width)) + spacing[3];
   const slide = (direction: 1 | -1) => {
     const next = Math.max(0, offset.current + direction * step);
     scroller.current?.scrollTo({ x: next, animated: true });
