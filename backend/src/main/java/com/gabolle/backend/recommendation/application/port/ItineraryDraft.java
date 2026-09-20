@@ -15,9 +15,8 @@ public record ItineraryDraft(
         String policyVersion, String datasetVersion,
         List<DraftItem> items, List<DraftLeg> legs,
         /**
-         * 이 판을 만들면서 있었던 일 — {@code itinerary_versions.warning_codes} 로 간다.
-         * 🔴 항목 경고와 대상이 다르다. <b>담을 항목 행 자체가 없는 사실</b>(빈 시간대 등)이
-         * 여기로 온다 — {@code ItineraryWarningCodes} javadoc 참고.
+         * {@code itinerary_versions.warning_codes} 로 가는 값. 항목 경고와 대상이 달라서,
+         * 담을 항목 행 자체가 없는 사실(빈 시간대 등)이 여기로 온다.
          */
         List<String> warningCodes) {
 
@@ -31,16 +30,15 @@ public record ItineraryDraft(
             String dataStatus, List<String> reasonCodes, List<String> warningCodes) { }
 
     /**
-     * @param dataStatus S15P21E201-179 — 거리·시간이 길찾기 실제 응답인지({@code VERIFIED})
-     *        직선거리 어림값인지({@code ESTIMATED}) 아예 못 쟀는지({@code UNKNOWN})
-     * @param fareKrw S15P21E201-1109 — 이 구간의 이동 요금(원). 🔴 {@code null} 은 "모른다"
-     *        이고 {@code 0} 은 "공짜" 다. 지금 값이 있는 것은 자동차 계열뿐이다
+     * {@code dataStatus} 는 거리·시간이 길찾기 실제 응답인지({@code VERIFIED}) 직선거리
+     * 어림값인지({@code ESTIMATED}) 아예 못 쟀는지({@code UNKNOWN})를 가른다.
+     * {@code fareKrw} 는 이동 요금(원)이고 {@code null} 은 모른다, {@code 0} 은 공짜다 —
+     * 지금 값이 있는 것은 자동차 계열뿐이다.
      */
     public record DraftLeg(int dayIndex, int sequence, UUID fromPlaceId, UUID toPlaceId,
             String travelMode, Integer distanceM, Integer durationMin, Integer walkingMeters,
             com.gabolle.backend.itinerary.domain.ItineraryItem.DataStatus dataStatus, Integer fareKrw) {
 
-        /** 요금 없이 만든다 — S15P21E201-1109 이전의 모양 그대로다. */
         public DraftLeg(int dayIndex, int sequence, UUID fromPlaceId, UUID toPlaceId, String travelMode,
                 Integer distanceM, Integer durationMin, Integer walkingMeters,
                 com.gabolle.backend.itinerary.domain.ItineraryItem.DataStatus dataStatus) {

@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * 무장애 수집본을 읽어 접근성 표식을 붙인다 — S15P21E201-331.
+ * 무장애 수집본을 읽어 접근성 표식을 붙인다.
  *
  * <pre>
  * java -jar gabolle-backend.jar \
@@ -24,9 +24,8 @@ import org.springframework.stereotype.Component;
  *   --gabolle.place.loader.dataset-version=tourapi-busan-20260911
  * </pre>
  *
- * <p>장소 적재를 먼저 돌려야 한다. 무장애 자료의 179곳은 전부 관광공사 656곳 안에 있으므로
- * 장소 적재가 끝났으면 붙을 자리가 다 있다 — "붙일 장소가 없어 넘긴" 수가 0 이 정상이다.
- * 그 수가 0 이 아니면 장소 적재를 안 돌렸거나 수집분이 어긋난 것이다.
+ * <p>장소 적재를 먼저 돌려야 한다. 무장애 자료는 전부 관광공사 수집본 안에 있으므로
+ * "붙일 장소가 없어 넘긴" 수가 0 이 정상이다.
  */
 @Component
 @Profile({ "db", "dev" })

@@ -30,31 +30,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 두 편집이 얽혀 들어올 때의 불변식 — S15P21E201-313 · S15P21E201-154.
+ * 두 편집이 얽혀 들어올 때의 불변식.
  *
- * <h2>이 테스트가 증명하는 것</h2>
- * 저장 지점에 관문을 두어 <b>A 가 저장 중일 때 B 가 끼어드는 순서를 결정론적으로</b>
- * 만든다. 그 상태에서 셋을 단정한다.
- * <ol>
- *   <li>정확히 하나만 성공한다</li>
- *   <li>실패한 쪽은 409({@link StaleItineraryVersionException}) 를 받는다</li>
- *   <li>🔴 판이 건너뛰어지지 않는다 — 6번만 있고 7번은 없다</li>
- * </ol>
+ * <p>저장 지점에 관문을 두어 A 가 저장 중일 때 B 가 끼어드는 순서를 결정론적으로 만든다.
+ * 그 상태에서 셋을 단정한다 — 정확히 하나만 성공한다, 실패한 쪽은
+ * 409({@link StaleItineraryVersionException})를 받는다, 판이 건너뛰어지지 않는다.
+ * 승자가 누구인지는 단정하지 않는다. 관문의 위치에 따라 달라지고, 실제 서비스에서도
+ * 누가 먼저 커밋하느냐는 우연이다.
  *
- * <p>승자가 누구인지는 단정하지 않는다. 관문의 위치에 따라 달라지고,
- * 실제 서비스에서도 누가 먼저 커밋하느냐는 우연이다.
- *
- * <h2>🔴 이 테스트가 증명하지 못하는 것 — 정직하게 적는다</h2>
- * 마지막 방어선은 {@code putIfAbsent}(DB 에서는 {@code UNIQUE (itinerary_id, version)})
- * 이고 그것은 여기서 검증된다. 그런데 <b>그 앞단의 좁은 창은 검증하지 못한다.</b>
- *
- * <p>{@code Itinerary.nextVersionFrom} 은 검증과 번호 계산을 한 메서드로 합쳐
- * "검증 통과 후 latestVersion 이 바뀌는" 창을 없앴다. 남은 창은 바이트코드 두 개
- * 사이라, 결정론적으로 그 틈에 다른 스레드를 끼워 넣을 방법이 없다.
- *
- * <p>즉 그 수정은 <b>테스트로 증명된 것이 아니라 창을 구조적으로 없앤 것</b>이다.
- * 대신 그 결과인 불변식 {@code version == baseVersion + 1} 은
- * {@code ItineraryVersionConflictTest} 에서 값으로 확인한다.
+ * <p>증명하지 못하는 것도 적어 둔다. 마지막 방어선인 {@code putIfAbsent}(DB 에서는
+ * {@code UNIQUE (itinerary_id, version)})는 여기서 검증되지만, 그 앞단의 좁은 창은 아니다.
+ * {@code Itinerary.nextVersionFrom} 이 검증과 번호 계산을 한 메서드로 합쳐 그 창을 없앴고,
+ * 남은 창은 바이트코드 두 개 사이라 결정론적으로 끼워 넣을 방법이 없다. 그 결과인 불변식
+ * {@code version == baseVersion + 1} 은 {@code ItineraryVersionConflictTest} 가 값으로 본다.
  */
 class ItineraryVersionRaceTest {
 
@@ -103,7 +91,7 @@ class ItineraryVersionRaceTest {
         @Override
         public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion,
                 List<ItineraryItem> items, List<ItineraryLeg> legs) {
-            // 🔴 이 테스트는 appendVersion() 의 경쟁만 본다 — create() 는 관문을 걸지 않는다.
+            // 이 테스트는 appendVersion() 의 경쟁만 본다 — create() 는 관문을 걸지 않는다.
             return delegate.create(itinerary, firstVersion, items, legs);
         }
 
@@ -114,8 +102,8 @@ class ItineraryVersionRaceTest {
 
         @Override
         public VersionPage findVersions(String itineraryId, int page, int size) {
-            // 🔴 S15P21E201-284 — 이 테스트는 appendVersion() 의 경쟁만 본다. 목록 조회는
-            // 관문을 걸지 않고 그대로 위임한다.
+            // 이 테스트는 appendVersion() 의 경쟁만 본다. 목록 조회는 관문을 걸지 않고
+            // 그대로 위임한다.
             return delegate.findVersions(itineraryId, page, size);
         }
 
@@ -139,10 +127,8 @@ class ItineraryVersionRaceTest {
     }
 
     /**
-     * 🔴 A 가 저장하는 중에 B 가 끼어든다 — 판이 건너뛰어지지 않아야 한다.
-     *
-     * <p>이 테스트는 버그({@code latestVersion + 1})가 있으면 <b>반드시</b> 실패한다.
-     * 운에 맡기지 않는다.
+     * A 가 저장하는 중에 B 가 끼어든다 — 판이 건너뛰어지지 않아야 한다. 버그
+     * ({@code latestVersion + 1})가 있으면 운에 맡기지 않고 반드시 실패한다.
      */
     @Test
     @DisplayName("🔴 A 가 저장하는 중에 B 가 끼어들어도 판이 건너뛰어지지 않는다")
@@ -155,13 +141,12 @@ class ItineraryVersionRaceTest {
                 // 구간 계획기와 영업시간 검사기는 순서 바꾸기에서만 쓰인다. 이 검사는 고정만
                 // 부르고, 여행 저장소도 비어 있어 그 갈래에 닿지 않는다.
                 null, new InMemoryTripRepository(), null, Clock.systemUTC(),
-                // 실제 시각 저장소는 재계획(S15P21E201-308)만 읽는다. 이 검사가 보는 것은
-                // 판 번호 경쟁이라 그 자리에 닿지 않지만, 빈 대역을 줘서 나중에 닿게 되더라도
-                // NPE 가 아니라 "기록이 없는 일정" 으로 이어지게 한다.
+                // 실제 시각 저장소는 재계획만 읽는다. 이 검사가 닿지 않는 자리지만, 빈
+                // 대역을 줘서 나중에 닿게 되더라도 NPE 가 아니라 기록 없는 일정이 되게 한다.
                 new FakeItineraryItemActualRepository());
         repo.seed("itn_1", "trp_1", 5);
 
-        // 🔴 바탕 판에 내용이 있어야 한다 — 편집은 그것을 새 판으로 복사한다(S15P21E201-662).
+        // 바탕 판에 내용이 있어야 한다 — 편집은 그것을 새 판으로 복사한다.
         String seedVersionId = UUID.randomUUID().toString();
         repo.seedVersion(
                 new ItineraryVersion(seedVersionId, "itn_1", 5, 4,
@@ -207,19 +192,10 @@ class ItineraryVersionRaceTest {
         a.join(5000);
         b.join(5000);
 
-        // 🔴 지켜야 하는 불변식은 "누가 이기는가" 가 아니다.
-        //
-        //    관문이 A 를 실제 저장 직전에 붙잡으므로, B 가 그 사이에 먼저 저장하고
-        //    A 가 나중에 409 를 받는다. 즉 승자는 관문의 위치에 따라 달라진다.
-        //    실제 서비스에서도 누가 먼저 커밋하느냐는 우연이다.
-        //
-        //    그래서 단정하는 것은 셋이다.
-        //      ① 정확히 하나만 성공한다
-        //      ② 실패한 쪽은 409(StaleItineraryVersionException) 를 받는다
-        //      ③ 🔴 판이 건너뛰어지지 않는다 — 6번만 있고 7번은 없다
-        //
-        //    ③ 이 이 테스트의 존재 이유다. 버그(latestVersion + 1)가 있으면
-        //    두 번째 요청이 7번을 만들고 ③ 이 깨진다.
+        // 지켜야 하는 불변식은 "누가 이기는가" 가 아니다. 관문이 A 를 저장 직전에 붙잡으므로
+        // 승자는 관문의 위치에 따라 달라진다. 단정하는 것은 셋이다 — 정확히 하나만 성공,
+        // 실패한 쪽은 409, 그리고 판이 건너뛰어지지 않는다(6번만 있고 7번은 없다).
+        // 마지막 것이 이 테스트의 존재 이유다.
 
         int succeeded = (aVersion.get() != null ? 1 : 0) + (bVersion.get() != null ? 1 : 0);
         assertEquals(1, succeeded, "① 정확히 하나만 성공해야 한다");

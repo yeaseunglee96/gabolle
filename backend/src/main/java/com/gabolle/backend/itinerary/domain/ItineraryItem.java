@@ -7,15 +7,10 @@ import java.util.List;
 
 /**
  * 일정 항목 하나 — 어느 판의 어느 날, 몇 번째로 어느 장소를 들르는가.
- *
- * <p>🔴 부모는 {@link Itinerary} 가 아니라 {@link ItineraryVersion} 이다. 이 판이
- * "덮어쓰지 않는 스냅샷"(ItineraryVersion 클래스 주석 참고)이기 때문에 항목도 판마다
- * 복사된다 — {@code itineraryId} 에 매달면 v2 를 만들며 항목을 고치는 순간 v1 이
- * 가리키던 내용이 소급해서 바뀐다. 3박 일정이라 해 봐야 하루 최대 몇 개뿐이라 판마다
- * 복사하는 비용은 문제가 되지 않는다.
- *
- * <p>🔴 이 클래스는 JPA·Spring 을 import 하지 않는다 — {@link ItineraryRepository} 와 같은
- * 이유다.
+ * 부모는 {@link Itinerary} 가 아니라 {@link ItineraryVersion} 이다. 판이 덮어쓰지 않는
+ * 스냅샷이라 항목도 판마다 복사된다 — {@code itineraryId} 에 매달면 v2 를 만들며 항목을 고치는
+ * 순간 v1 이 가리키던 내용이 소급해서 바뀐다.
+ * JPA·Spring 을 import 하지 않는다.
  */
 public class ItineraryItem {
 
@@ -23,9 +18,9 @@ public class ItineraryItem {
     private final String itineraryVersionId;
 
     /**
-     * 🔴 판을 건너 같은 항목을 가리키는 열쇠. {@code ItineraryEditController} 가 URL 로
-     * 받는 {@code itemId} 가 이 값이다. PK({@code itineraryItemId})는 판마다 새로 생겨서
-     * 그 자리를 대신할 수 없다 — 판을 복사할 때는 이 값을 그대로 물려준다.
+     * 판을 건너 같은 항목을 가리키는 열쇠. 컨트롤러가 URL 로 받는 {@code itemId} 가 이 값이다.
+     * PK({@code itineraryItemId})는 판마다 새로 생겨 그 자리를 대신할 수 없다 — 판을 복사할 때는
+     * 이 값을 그대로 물려준다.
      */
     private final String itemKey;
 
@@ -38,8 +33,8 @@ public class ItineraryItem {
     private final String placeId;
 
     /**
-     * 🔴 전부 NULL 일 수 있다. 프리셋(여행의 활동 시간대)을 실제 시각으로 바꾸는 규칙이
-     * 아직 확정되지 않았다 — 지어내지 않는다.
+     * 전부 NULL 일 수 있다. 프리셋(여행의 활동 시간대)을 실제 시각으로 바꾸는 규칙이 아직
+     * 확정되지 않았다 — 지어내지 않는다.
      */
     private final LocalTime startTime;
     private final LocalTime endTime;
@@ -47,7 +42,7 @@ public class ItineraryItem {
 
     private final boolean locked;
 
-    /** 🔴 NULL 이면 "모른다"다. {@code place} 표에 비용 칸이 없다 — 0 은 "공짜"라는 다른 사실이다. */
+    /** NULL 이면 "모른다" 다. {@code place} 표에 비용 칸이 없다 — 0 은 "공짜" 라는 다른 사실이다. */
     private final Integer estimatedCostKrw;
 
     private final DataStatus dataStatus;
@@ -113,7 +108,7 @@ public class ItineraryItem {
     public enum DataStatus {
         VERIFIED,
         ESTIMATED,
-        /** 🔴 지어낸 값이 아니라 "모른다"를 그대로 남긴 상태. */
+        /** 지어낸 값이 아니라 "모른다" 를 그대로 남긴 상태. */
         UNKNOWN
     }
 

@@ -97,7 +97,7 @@ class PasswordResetServiceTest {
 		assertThat(session.getRevokedAt()).isEqualTo(now);
 	}
 
-	// ── S15P21E201-433 완료 기준 ────────────────────────────────────────────────
+	// ── 비밀번호 재설정 링크 ────────────────────────────────────────────────
 
 	@Test
 	void resetLinkIsValidForThirtyMinutes() {
@@ -115,9 +115,9 @@ class PasswordResetServiceTest {
 	}
 
 	/**
-	 * 🔴 링크가 실제로 착지하는 곳을 못 박는다. 기본값이 존재하지 않는 화면
-	 * ({@code localhost:3000/reset-password})이었고, 그래서 메일은 나갔지만 링크는 아무 데도
-	 * 닿지 않았다. 프런트의 실제 화면은 {@code /auth/password/reset} 이고 쿼리 {@code token} 을 읽는다.
+	 * 링크가 실제로 착지하는 곳을 못 박는다. 프런트의 화면은 {@code /auth/password/reset}
+	 * 이고 쿼리 {@code token} 을 읽는다 — 주소가 어긋나면 메일은 나가지만 링크는 아무 데도
+	 * 닿지 않는다.
 	 */
 	@Test
 	void resetMailLinkPointsAtTheFrontendScreenWithTheToken() {
@@ -137,7 +137,7 @@ class PasswordResetServiceTest {
 		assertThat(link.getValue()).doesNotContain("localhost");
 	}
 
-	/** 🔴 1회용이다. 한 번 쓴 링크로 다시 바꿀 수 있으면 메일함을 본 사람이 언제든 계정을 가져간다. */
+	/** 1회용이다. 한 번 쓴 링크로 다시 바꿀 수 있으면 메일함을 본 사람이 언제든 계정을 가져간다. */
 	@Test
 	void consumedTokenCannotBeUsedAgain() {
 		String rawToken = "reset-token";

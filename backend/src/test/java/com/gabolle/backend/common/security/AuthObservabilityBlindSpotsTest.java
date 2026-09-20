@@ -20,20 +20,9 @@ import org.springframework.web.client.RestClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-682 후속 — 관측이 없던 두 자리를 메운 것이 실제로 남는지, 그리고 남으면서
- * 개인정보와 공격자가 준 문자열을 흘리지 않는지 확인한다.
- *
- * <h2>왜 이 둘이 사각지대였나</h2>
- * {@code GlobalAuthExceptionHandler} 는 {@code AuthException} 을 <b>상태 코드로 보고</b> 남긴다 —
- * 401 이면 토큰 거부, 403 이면 인가 실패. 그래서 그 둘이 아닌 코드는 통째로 안 남았다.
- *
- * <p>잠긴 계정에 오는 요청은 429 다. 계정이 잠기는 <b>순간</b>은
- * {@link SecurityEventLogger#accountLocked} 가 남기지만 그 뒤로 계속 두드리는 시도는 아무 데도
- * 안 남아서, 잠금이 공격을 막고 있는지 아니면 공격자가 이미 떠났는지 알 수 없었다.
- *
- * <p>허용 목록에 없는 redirect URI 로 오는 챌린지 요청은 400 이다. 형식 오류와 같은 층에서
- * 거부되므로 역시 안 남았다. 🔴 그런데 이것은 오타가 아니라 대개 공격이다 — 통과하면 우리가
- * 발급한 표가 남의 주소로 간다.
+ * 401·403 이 아니라 {@code GlobalAuthExceptionHandler} 의 상태 코드 규칙에 안 걸리는 두 자리(429 로
+ * 나가는 잠긴 계정 재시도, 400 으로 나가는 redirect URI 거부)가 실제로 로그에 남는지, 남으면서
+ * 개인정보와 공격자가 준 문자열을 흘리지 않는지 본다.
  */
 class AuthObservabilityBlindSpotsTest {
 
@@ -50,9 +39,8 @@ class AuthObservabilityBlindSpotsTest {
 	@BeforeEach
 	void setUp() {
 		this.logbackLogger = (Logger) LoggerFactory.getLogger(SecurityEventLogger.class);
-		// 🔴 수준을 명시한다. 전체 빌드에서 앞선 Spring 테스트가 로그백을 재설정해 아무것도
-		//    안 잡히면 아래 확인들이 빈 목록을 훑고 조용히 통과한다 — 그건 "문제가 없다" 가
-		//    아니라 "안 봤다" 다. 원래 수준은 tearDown 에서 되돌린다.
+		// 수준을 명시한다. 앞선 Spring 테스트가 로그백을 재설정하면 아무것도 안 잡혀,
+		// 아래 확인들이 빈 목록을 훑고 조용히 통과한다.
 		this.originalLevel = this.logbackLogger.getLevel();
 		this.logbackLogger.setLevel(Level.INFO);
 		this.appender = new ListAppender<>();
@@ -83,8 +71,7 @@ class AuthObservabilityBlindSpotsTest {
 
 		String line = lines.get(0);
 		assertThat(line).contains("emailHash=").contains("lockedForSeconds=240").contains("outcome=REJECTED");
-		// 🔴 원문도, 앞부분(traveler)도 남으면 안 된다. 해시의 목적이 같은 주소의 반복을
-		//    세는 것뿐이므로 사람이 읽을 수 있는 조각은 필요하지 않다.
+		// 원문도, 앞부분도 남으면 안 된다 — 해시의 목적은 같은 주소의 반복을 세는 것뿐이다.
 		assertThat(line).doesNotContain(EMAIL).doesNotContain("traveler");
 	}
 
@@ -99,8 +86,7 @@ class AuthObservabilityBlindSpotsTest {
 
 		String line = lines.get(0);
 		assertThat(line).contains("provider=GOOGLE").contains("redirectHost=evil.example.com:8443");
-		// 🔴 이것이 이 테스트의 요점이다. 경로·질의를 그대로 적으면, 우리가 저장하지 않기로 한
-		//    것(표·남의 이메일)을 공격자가 우리 로그에 대신 적어 넣게 된다.
+		// 경로·질의를 그대로 적으면, 우리가 저장하지 않기로 한 것을 공격자가 우리 로그에 대신 적어 넣는다.
 		assertThat(line).doesNotContain("/steal").doesNotContain("token=").doesNotContain("abc123")
 				.doesNotContain("victim").doesNotContain("traveler");
 	}

@@ -21,21 +21,13 @@ import com.gabolle.testslice.AuthSliceApplication;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 탈퇴 삭제 목록({@link AccountDeletionService#USER_OWNED_ROWS})이 <b>실재하는 것만</b> 가리키는지
- * 본다 — S15P21E201-1157.
+ * 탈퇴 삭제 목록({@link AccountDeletionService#USER_OWNED_ROWS})이 실재하는 것만 가리키는지 본다.
  *
- * <h2>🔴 이 시험이 막는 것</h2>
+ * <p>그 목록은 엔티티 이름과 칸 경로를 문자열로 들고 있고 JPQL 은 실행할 때 비로소 검사하므로,
+ * 오타는 컴파일을 통과하고 탈퇴가 죽는 순간에 처음 드러난다. 여기서 DB 없이 먼저 잡는다 —
+ * 실제 JPQL 실행을 보는 {@code AccountDeletionIntegrationTest} 는 Postgres 가 없으면 건너뛴다.
  *
- * 그 목록은 엔티티 이름과 칸 경로를 <b>문자열로</b> 들고 있고, JPQL 은 그것을 <b>실행할 때</b>
- * 비로소 검사한다. 오타가 나면 컴파일은 통과하고 <b>탈퇴가 500 으로 죽는 순간에</b> 처음 드러난다.
- * 그 자리는 사용자가 계정을 지우는 자리라 가장 늦게, 가장 나쁘게 드러나는 자리다.
- *
- * <p>여기서 <b>DB 없이</b> 같은 것을 먼저 잡는다. 실제 JPQL 실행은
- * {@code AccountDeletionIntegrationTest} 가 진짜 PostgreSQL 에서 하지만, 그 시험은 도커가 없는
- * 곳에서 <b>실패가 아니라 건너뜀</b>이 된다 — 그래서 이쪽이 필요하다.
- *
- * <p>🔴 이 시험은 <b>"목록이 빠짐없는가" 는 보지 않는다.</b> 그건 {@code pg_constraint} 를 읽어야
- * 알 수 있고 다음 티켓의 CI 검사가 할 일이다. 여기는 <b>"적어 둔 것이 실재하는가" 까지</b>다.
+ * <p>목록이 빠짐없는지는 보지 않는다. 여기는 적어 둔 것이 실재하는가까지다.
  */
 class AccountDeletionOwnedRowsTest {
 
@@ -98,13 +90,9 @@ class AccountDeletionOwnedRowsTest {
 	@Test
 	@DisplayName("🔴 인증 슬라이스가 목록의 엔티티를 전부 올린다 — 빠지면 CI 에서만 빨개진다")
 	void authSliceMapsEveryEntityInTheList() {
-		// 🔴 이 시험이 왜 있나. 2026-09-17 에 이 목록을 처음 넣었을 때 AuthSliceApplication 의
-		//    @EntityScan 에 네 패키지가 빠져 있었고, 탈퇴 통합 테스트 11개가 통째로
-		//    UnknownEntityException("Could not resolve root entity 'Collection'") 으로 죽었다.
-		//
-		//    로컬에서는 그 시험들이 도커가 없어 **실패가 아니라 건너뜀**이라 안 보였다.
-		//    클래스패스에 @Entity 클래스가 있다는 것과 그것이 이 슬라이스의 영속성 단위에
-		//    올라와 있다는 것은 **다른 사실**이다 — 앞의 시험들은 앞엣것만 봤다.
+		// 클래스패스에 @Entity 클래스가 있다는 것과 그것이 이 슬라이스의 영속성 단위에
+		// 올라와 있다는 것은 다른 사실이다. @EntityScan 에서 패키지가 빠지면 탈퇴 통합
+		// 검사가 UnknownEntityException 으로 죽는데, 그쪽은 Postgres 가 없으면 건너뛴다.
 		EntityScan entityScan = AuthSliceApplication.class.getAnnotation(EntityScan.class);
 		assertThat(entityScan).as("슬라이스에 @EntityScan 이 없다").isNotNull();
 		List<String> scanned = List.of(entityScan.basePackages());

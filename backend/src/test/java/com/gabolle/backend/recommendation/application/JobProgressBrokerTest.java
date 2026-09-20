@@ -18,11 +18,8 @@ import com.gabolle.backend.recommendation.domain.JobStage;
 import com.gabolle.backend.recommendation.domain.JobStatus;
 
 /**
- * 진행률이 <b>제 작업을 보는 사람에게만</b> 가는가, 그리고 연결이 쌓이지 않는가 —
- * S15P21E201-193.
- *
- * <p>Spring 도 DB 도 필요 없다. 나간 건수와 닫혔는지만 세는 연결({@link RecordingEmitter})을
- * 손으로 만들어 붙인다.
+ * 진행률이 제 작업을 보는 사람에게만 가는가, 그리고 연결이 쌓이지 않는가. Spring 도 DB 도
+ * 필요 없이 나간 건수와 닫혔는지만 세는 연결({@link RecordingEmitter})을 붙인다.
  */
 class JobProgressBrokerTest {
 
@@ -34,12 +31,9 @@ class JobProgressBrokerTest {
 	}
 
 	/**
-	 * 나간 건수와 닫힘을 기억하는 연결.
-	 *
-	 * <p>{@link SseEmitter} 가 실제로 흘려보내는 자리(핸들러)는 패키지 밖에서 붙일 수 없다.
-	 * 그래서 공개 메서드를 덮어 <b>무엇을 보내려 했는지</b>를 센다 — 이 검사가 보려는 것은
-	 * "어느 연결에 몇 건이 갔나" 이고 SSE 의 줄 모양은 Spring 의 몫이라 여기서 잴 것이 아니다.
-	 * 줄 모양은 스트림 검사({@code RecommendationJobProgressStreamTest})가 본다.
+	 * 나간 건수와 닫힘을 기억하는 연결. {@link SseEmitter} 가 실제로 흘려보내는 핸들러는
+	 * 패키지 밖에서 붙일 수 없어 공개 메서드를 덮어 무엇을 보내려 했는지를 센다. 줄 모양은
+	 * {@code RecommendationJobProgressStreamTest} 가 본다.
 	 */
 	static class RecordingEmitter extends SseEmitter {
 

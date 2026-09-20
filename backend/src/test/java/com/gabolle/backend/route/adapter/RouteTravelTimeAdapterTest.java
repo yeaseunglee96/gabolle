@@ -20,13 +20,6 @@ import com.gabolle.backend.route.domain.RouteLeg;
 import com.gabolle.backend.route.domain.RouteQuery;
 import com.gabolle.backend.route.domain.TravelMode;
 
-/**
- * 일정이 쓰는 이동시간 포트를 경로 조회로 채우는 자리 — S15P21E201-179.
- *
- * <p>여기서 재는 것은 <b>두 계층 사이의 번역</b>이다 — 여행이 고른 아홉 갈래를 경로가 아는
- * 셋으로 옮기는 것, 그리고 "추정인지" 를 일정이 쓰는 낱말로 바꾸는 것. 경로를 실제로 구하는
- * 일은 {@code RouteQueryServiceTest} 가 따로 잰다.
- */
 class RouteTravelTimeAdapterTest {
 
 	private final RouteQueryService routeQueryService = mock(RouteQueryService.class);

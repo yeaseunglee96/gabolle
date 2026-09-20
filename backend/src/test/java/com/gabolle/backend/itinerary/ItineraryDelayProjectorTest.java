@@ -19,7 +19,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryItemActual;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 
 /**
- * 남은 방문지의 예상 도착 시각과 지연 위험 — S15P21E201-304 · -96.
+ * 남은 방문지의 예상 도착 시각과 지연 위험.
  *
  * <p>하루를 이렇게 세워 두고 잰다(계획).
  *

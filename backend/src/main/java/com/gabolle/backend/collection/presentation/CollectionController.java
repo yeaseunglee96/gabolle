@@ -28,7 +28,7 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
 
 /**
- * 컬렉션 — S15P21E201-1013.
+ * 컬렉션.
  *
  * <pre>
  * GET    /api/v1/me/collections                        내 컬렉션 전부 (담긴 것까지)
@@ -42,11 +42,10 @@ import com.gabolle.backend.common.security.AuthenticatedUsers;
  * DELETE /api/v1/me/collections/{id}/items/{itemId}    뺀다
  * </pre>
  *
- * <p>🔴 경로에 <b>남의 번호를 넣을 자리가 없다</b>({@code /me}). 사용자 번호는 인증 주체에서만
- * 읽고, 컬렉션도 언제나 주인과 함께 찾는다 — 저장한 장소({@code /me/saved-places})와 같은 방식이다.
+ * <p>경로에 남의 번호를 넣을 자리가 없다({@code /me}). 사용자 번호는 인증 주체에서만 읽고,
+ * 컬렉션도 언제나 주인과 함께 찾는다.
  *
- * <p>🔴 <b>담는 경로가 하나다.</b> 종류마다 경로를 나누면 화면이 «무엇을 담는가» 에 따라 다른
- * 주소를 알아야 하고, 나중에 종류가 늘 때 경로가 또 는다. 본문의 {@code kind} 가 가른다.
+ * <p>담는 경로는 종류와 무관하게 하나이고 본문의 {@code kind} 가 가른다.
  */
 @RestController
 @RequestMapping("/api/v1/me/collections")
@@ -105,8 +104,8 @@ public class CollectionController {
 	 *   "photoUrl": "…", "note": "…" }
 	 * </pre>
 	 *
-     * <p>🔴 {@code photoUrl} 은 <b>이미 올라간 사진의 주소</b>다. 파일을 이 경로로 직접 받지
-	 * 않는다 — 기존 이미지 업로드 경로로 먼저 올리고 그 주소를 준다. 프로필 사진(-844)과 같다.
+	 * <p>{@code photoUrl} 은 이미 올라간 사진의 주소다. 파일을 이 경로로 직접 받지 않는다 —
+	 * 이미지 업로드 창구로 먼저 올리고 그 주소를 준다.
 	 */
 	@PostMapping("/{collectionId}/items")
 	public ResponseEntity<ApiResponse<CollectionResponse>> addItem(@PathVariable UUID collectionId,
@@ -142,7 +141,7 @@ public class CollectionController {
 		return ok(CollectionResponse.of(this.service.get(userId, collectionId)));
 	}
 
-	/** 🔴 없는 것을 빼도 성공이다 — 이유는 {@link CollectionService#removeItem}. */
+	/** 없는 것을 빼도 성공이다 — 이유는 {@link CollectionService#removeItem}. */
 	@DeleteMapping("/{collectionId}/items/{itemId}")
 	public ResponseEntity<Void> removeItem(@PathVariable UUID collectionId, @PathVariable UUID itemId,
 			Authentication authentication) {
@@ -165,10 +164,9 @@ public class CollectionController {
 	/**
 	 * 컬렉션의 이름과 설명.
 	 *
-	 * <p>상한은 {@link Collection} 의 상수에서 읽는다 (S15P21E201-1037) — 여기에 숫자를
-	 * 다시 적으면 열을 넓히는 날 한쪽만 고쳐진다. 도메인도 같은 상수로 한 번 더 보므로,
-	 * 이 어노테이션이 없어도 값은 안전하다. 여기 있는 이유는 <b>어느 칸이 틀렸는지</b>를
-	 * 응답에 담아 주기 위해서다.
+	 * <p>상한은 {@link Collection} 의 상수에서 읽는다 — 여기에 숫자를 다시 적으면 열을 넓히는
+	 * 날 한쪽만 고쳐진다. 도메인도 같은 상수로 한 번 더 보므로 이 어노테이션은 어느 칸이
+	 * 틀렸는지를 응답에 담기 위한 것이다.
 	 */
 	public record NameRequest(
 			@NotBlank(message = "이름은 비울 수 없어요")

@@ -30,14 +30,7 @@ import com.gabolle.backend.weather.domain.WeatherForecastCacheRepository;
 
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * {@code GET /api/v1/weather} 의 HTTP 경계 — S15P21E201-366.
- *
- * <p>{@code TranslateControllerTest}·{@code RouteControllerTest} 와 같은 방식으로
- * 컨트롤러+예외 처리기만 세워 HTTP 계약을 잰다. 캐시·격자 변환·집계 규칙 자체는
- * {@code WeatherServiceTest}·{@code KmaGridConverterTest}·{@code KmaForecastAggregatorTest}
- * 가 잰다.
- */
+/** {@code GET /api/v1/weather} 의 HTTP 경계. */
 class WeatherControllerTest {
 
 	private static final Instant NOW = Instant.parse("2026-09-10T01:00:00Z");

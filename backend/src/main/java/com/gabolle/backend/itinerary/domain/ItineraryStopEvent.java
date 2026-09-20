@@ -3,19 +3,15 @@ package com.gabolle.backend.itinerary.domain;
 import java.time.Instant;
 
 /**
- * 일정 진행 중 일어난 일 — S15P21E201-1325 (시안 ⑤).
+ * 일정 진행 중 일어난 일. 덮어쓰지 않고 쌓는다 — 상태 한 줄만 두면 건너뛴 곳과 아직 안 간
+ * 곳을 가를 수 없다.
  *
- * <h2>🔴 덮어쓰지 않고 쌓는다</h2>
- * 상태 한 줄만 두면 <b>「건너뛴 곳」과 「안 간 곳」을 가를 수 없다.</b> 나중에 「거기
- * 갔었나?」를 기억으로만 풀어야 하고, 그건 기록이 있는데 못 읽는 것과 같다.
- * 건너뛴 곳은 <b>안 간 곳</b>이다 — 다녀온 곳과 같은 모습으로 그리면 안 된다.
- *
- * <h2>🔴 정차지 이름은 {@code itemKey} 다</h2>
- * 일정은 고칠 때마다 항목을 통째로 복사한다({@link ItineraryRevision}). 항목 행 id 를
- * 적으면 한 번 고치는 순간 어제 남긴 기록이 <b>어느 정차지의 것인지 알 수 없게 된다.</b>
+ * <p>정차지는 항목 행 id 가 아니라 {@code itemKey} 로 가리킨다. 일정을 고칠 때마다 항목이
+ * 통째로 복사되므로({@link ItineraryRevision}) 행 id 로는 판이 바뀌는 순간 기록이 어느
+ * 정차지의 것인지 알 수 없게 된다.
  *
  * @param itemKey {@link Type#START}·{@link Type#PAUSE} 는 정차지가 없는 사건이라 {@code null}
- * @param occurredAt 그 일이 일어난 시각. 기록한 시각과 다르다 — 신호가 늦게 올라올 수 있다
+ * @param occurredAt 그 일이 일어난 시각. 신호가 늦게 올라올 수 있어 기록한 시각과 다르다
  */
 public record ItineraryStopEvent(
 		String eventId,

@@ -19,27 +19,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 피처 갈래 목록은 줄어들지 않는다 — S15P21E201-852.
+ * 피처 갈래 목록은 줄어들지 않는다. {@code ck_place_feature_type} 은 갈래를 더할 때마다
+ * {@code DROP CONSTRAINT} 뒤 {@code ADD CONSTRAINT} 로 목록 전체를 다시 쓰므로, 바로 앞 파일이
+ * 아니라 그보다 앞선 파일에서 목록을 복사하면 그 사이에 들어온 갈래가 조용히 금지된다.
  *
- * <h2>🔴 이 검사가 막는 실수</h2>
- * {@code ck_place_feature_type} 은 갈래를 더할 때마다 <b>목록 전체를 다시 쓴다</b>
- * ({@code DROP CONSTRAINT} 뒤 {@code ADD CONSTRAINT}). 그래서 새 마이그레이션을 쓰는 사람이
- * <b>바로 앞 파일이 아니라 그 앞의 파일에서 목록을 복사하면</b> 그 사이에 들어온 갈래가
- * 조용히 금지된다.
- *
- * <p>실제로 이 티켓에서 그렇게 썼다. {@code V20260907160000} 에서 목록을 옮겨 와서
- * {@code V20260909020000} 이 더한 {@code SOLO_FRIENDLY} · {@code BREAK_TIME} ·
- * {@code LAST_ORDER_TIME} 셋이 빠졌다. 그 상태로 머지되면 어떻게 되나 —
- *
- * <ul>
- * <li>그 갈래의 행이 <b>이미 있으면</b> 배포가 이 마이그레이션에서 멈춘다. 그건 그나마 낫다</li>
- * <li>행이 <b>아직 없으면</b> 아무 일도 일어나지 않는다. 그리고 나중에 그 갈래를 넣는 적재가
- *     실패하는데, 그때 원인이 몇 달 전 마이그레이션이라는 것을 아무도 짚지 못한다</li>
- * </ul>
- *
- * <p>🔴 <b>DB 없이 돈다.</b> 마이그레이션 파일을 글로 읽어 목록을 뽑는다 — DB 를 띄워야
- * 하는 검사로 만들면 노트북에 PostgreSQL 이 없는 사람에게는 CI 에서 처음 돌고, 이 종류의
- * 실수는 코드를 쓰는 그 자리에서 잡혀야 한다.
+ * <p>마이그레이션 파일을 글로 읽어 목록을 뽑는다 — DB 가 없어도 돈다.
  */
 class PlaceFeatureTypeConstraintTest {
 
@@ -82,9 +66,9 @@ class PlaceFeatureTypeConstraintTest {
 				"INTEREST_TAG",
 				// 인기도 적재
 				"POPULARITY_SCORE",
-				// 영업시간 적재 (S15P21E201-852)
+				// 영업시간 적재
 				"OPENING_HOURS", "CHECK_IN_OUT",
-				// 혼밥 안심·시각 사실 (S15P21E201-265)
+				// 혼밥 안심·시각 사실
 				"SOLO_FRIENDLY", "BREAK_TIME", "LAST_ORDER_TIME");
 	}
 

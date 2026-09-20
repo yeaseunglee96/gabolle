@@ -22,25 +22,11 @@ import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.itinerary.application.ItineraryRunService;
 
 /**
- * 일정 진행 — S15P21E201-1325 (시안 ⑤).
+ * 일정 진행. 여행이 아니라 일정에 붙는다 — 「몇 번째를 향하고 있나」는 한 일정의 정차지
+ * 순서 안에서만 뜻이 있고, 여행 하나에 일정이 여럿일 수 있다.
  *
- * <pre>
- * GET  /api/v1/itineraries/{id}/progress                     지금 어디인가
- * POST /api/v1/itineraries/{id}/progress/start               출발
- * POST /api/v1/itineraries/{id}/progress/pause               중지
- * POST /api/v1/itineraries/{id}/progress/stops/{key}/arrive  도착 (auto|manual)
- * POST /api/v1/itineraries/{id}/progress/stops/{key}/skip    건너뛰기
- * </pre>
- *
- * <h2>🔴 여행이 아니라 일정에 붙는다</h2>
- * 인계 문서는 {@code tripId} 당이라고 적었지만, 「몇 번째를 향하고 있나」는 <b>한 일정의
- * 정차지 순서 안에서만</b> 뜻이 있다. 일정은 고칠 때마다 새 판이 생기고 여행 하나에 일정이
- * 여럿일 수 있어서, 여행에 붙이면 그 번호가 어느 일정의 몇 번째인지 알 수 없게 된다.
- *
- * <h2>🔴 {@code POST} 인 이유</h2>
- * 출발·중지·도착·건너뛰기는 <b>일어난 일</b>이지 값이 아니다. {@code PUT} 으로 상태를
- * 덮어쓰게 하면 화면이 「지금 RUNNING 이다」를 통째로 보내게 되고, 그러면 두 기기가
- * 서로의 상태를 덮어쓴다. 사건을 보내면 서버가 순서를 정한다.
+ * <p>상태를 덮어쓰는 {@code PUT} 이 아니라 사건을 보내는 {@code POST} 다. 상태를 통째로
+ * 보내게 하면 두 기기가 서로의 상태를 덮어쓴다.
  */
 @RestController
 @RequestMapping("/api/v1/itineraries")
@@ -70,11 +56,8 @@ public class ItineraryRunController {
 	}
 
 	/**
-	 * 정차지 하나의 지금.
-	 *
-	 * <p>🔴 {@code arrivedAt} 과 {@code skipped} 를 <b>한 칸으로 합치지 않는다.</b> 건너뛴 곳은
-	 * 안 간 곳이다 — 화면이 둘을 같은 모습으로 그리면 나중에 「거기 갔었나?」를 기억으로만
-	 * 풀어야 한다.
+	 * 정차지 하나의 지금. {@code arrivedAt} 과 {@code skipped} 는 한 칸으로 합치지 않는다 —
+	 * 건너뛴 곳은 다녀온 곳이 아니다.
 	 */
 	public record StopResponse(String itemKey, int index, String arrivedAt, String arrivedHow, boolean skipped) {
 
@@ -127,8 +110,8 @@ public class ItineraryRunController {
 	}
 
 	/**
-	 * 🔴 409 다. 이건 잘못된 요청이 아니라 <b>순서가 안 맞는</b> 것이다 — 화면은 출발을
-	 * 누르라고 안내하면 되고, 400 으로 주면 「보낸 값이 틀렸다」로 읽혀 엉뚱한 곳을 고친다.
+	 * 400 이 아니라 409 다. 보낸 값이 틀린 것이 아니라 순서가 안 맞는 것이고, 화면은 출발을
+	 * 누르라고 안내하면 된다.
 	 */
 	@ExceptionHandler(ItineraryRunService.NotRunningException.class)
 	@ResponseStatus(HttpStatus.CONFLICT)

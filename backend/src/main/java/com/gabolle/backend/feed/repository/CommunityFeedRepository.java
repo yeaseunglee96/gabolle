@@ -13,10 +13,7 @@ import com.gabolle.backend.feed.domain.FeedEntryId;
 
 public interface CommunityFeedRepository extends JpaRepository<CommunityFeedEntry, FeedEntryId> {
 
-	/**
-	 * 한 세대의 커뮤니티 줄을 위치 순서대로 읽는다.
-	 * {@link UserFeedRepository#readPage} 와 같은 모양이고 같은 이유다.
-	 */
+	/** {@link UserFeedRepository#readPage} 와 같은 모양이고 같은 이유다. */
 	@Query("select e from CommunityFeedEntry e "
 			+ "where e.id.buildId = :buildId and e.id.position > :afterPosition "
 			+ "order by e.id.position asc")

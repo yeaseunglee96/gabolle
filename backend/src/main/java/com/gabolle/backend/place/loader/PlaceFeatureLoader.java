@@ -19,77 +19,33 @@ import jakarta.persistence.PersistenceContext;
 /**
  * {@link PlaceFeatureNdjsonReader} 가 읽은 사실을 {@code place_feature} 에 넣는다.
  *
- * <h2>🔴 없는 장소에는 안 넣는다 — 세어서 돌려준다</h2>
+ * <p>{@code place} 에 그 열쇠로 만든 행이 있어야만 넣을 수 있다({@code fk_place_feature_place}).
+ * 장소가 없는 열쇠는 건너뛰되 세어서 돌려준다 — 예외로 멈추면 나머지가 통째로 안 들어가고,
+ * 조용히 넘기면 다 넣은 줄 아는데 일부만 들어간 상태가 된다.
  *
- * 두 산출물의 열쇠는 상가업소번호이고, {@code place} 에 그 번호로 만든 행이 <b>있어야만</b> 넣을 수
- * 있다({@code fk_place_feature_place}). 상가정보 전체(53,716곳)를 적재하지 않은 환경에서는 값은
- * 있는데 장소가 없는 번호가 나온다. 그때 예외로 멈추면 나머지가 통째로 안 들어가고, 조용히
- * 넘어가면 <b>"967곳을 넣었다" 고 믿는데 실제로는 300곳만 들어간 상태</b>가 된다.
- * 그래서 <b>건너뛰되 세어서 돌려준다</b> — 넣은 수와 못 넣은 수를 부르는 쪽이 함께 남긴다.
+ * <p>이미 있는 사실은 건너뛰고 고치지 않는다. 같은 파일을 두 번 돌려도 행이 두 배가 되지 않는
+ * 것이 여기서 지키는 전부고, 새 판으로 갱신할지는 별개의 결정이다.
  *
- * <h2>🔴 이미 있는 사실은 건너뛴다 — 고치지 않는다</h2>
+ * <p>증거 등급은 {@code ESTIMATED} 다. 조사원이 적은 것이지 가게에 확인한 것이 아니다.
  *
- * {@link SbizPlaceLoader#saveChunk} 와 같은 규칙이다. 같은 파일을 두 번 돌려도 행이 두 배가 되지
- * 않는 것이 여기서 지키는 전부고, "새 판으로 갱신한다" 는 별개의 결정이라 여기서 미리 정하지 않는다.
- * 표에 {@code (place_id, feature_type) WHERE feature_key IS NULL} 부분 유일 색인이 걸려 있다
- * ({@code uq_place_feature_unkeyed}).
- *
- * <h2>🔴 S15P21E201-948 — "먼저 조회해서 없으면 넣는다" 가 아니라 {@code ON CONFLICT DO NOTHING} 이다</h2>
- *
- * 전에는 {@code findAllById} 로 기존 행을 미리 읽어 메모리 {@code Set} 으로 중복을 걸렀다. 이 적재는
- * 사람이 CLI 로 한 번 돌리는 것이 정상 경로라 동시 실행 확률은 낮지만, 같은 파일을 실수로 두 번
- * 동시에 돌리거나 서버 두 대에서 각각 돌리면 그 사이(읽고 나서 쓰기 전) 다른 실행이 같은 사실을
- * 먼저 넣을 수 있다 — 그러면 이 트랜잭션의 insert 가 유일 색인 위반으로 실패하고, PostgreSQL 은
- * 트랜잭션 안에서 문장 하나가 실패하면 그 트랜잭션 전체를 못 쓰게 만든다({@code JpaItineraryRepository}
- * ·{@code JpaItineraryItemActualRepository} 클래스 주석이 같은 실측을 남겨 뒀다). 그래서 여기서도
- * 같은 해법을 쓴다 — 행마다 {@code ON CONFLICT DO NOTHING} 으로 넣어, 충돌해도 예외 없이 그 행만
- * 건너뛴다. (대상 색인을 왜 안 적는지는 {@link #INSERT_IF_ABSENT} 참고 — 이 표에는 서로 다른
- * 이유로 충돌할 수 있는 유일 제약이 둘이다.)
- *
- * <h2>🔴 {@code ESTIMATED} 로 넣는다</h2>
- *
- * 가격대는 <b>조사원이 적은 것이지 가게에 확인한 것이 아니다.</b> {@code VERIFIED} 로 적으면
- * 나중에 아무도 이 값을 의심하지 않는다. {@code PRICE_LEVEL} 은 안전 피처가 아니라
- * {@code ESTIMATED} 가 DB 에서 허용된다
- * ({@code ck_place_feature_safety_never_estimated} 는 알레르기·식단·접근성·계단만 막는다).
- *
- * <h2>🔴 S15P21E201-453·1047 — 상가업소번호(SBIZ) 전용이었다</h2>
- *
- * 처음엔 이 적재기가 {@link SbizPlaceLoader#placeIdOf}·{@link SbizPlaceLoader#featureIdOf} 를
- * 그대로 불렀다. 그러면 TourAPI 로 적재한 장소(328곳, {@link TourApiPlaceLoader})에는 이 적재기로
- * 사실을 못 붙인다 — 앞머리가 {@code SBIZ} 로 고정돼 있어 TourAPI 장소의 아이디({@code TOURAPI}
- * 앞머리)와 절대 안 맞기 때문이다.
- *
- * <p>🔴 <b>열쇠 체계는 {@code source_type} 과 다른 것이다.</b> 처음에는 {@code place_feature.source_type}
- * 으로 장소 아이디를 만들려다 DB 통합 시험에 걸렸다 — 가격대는 {@code source_type} 이
- * {@code RESEARCH_PRICEBAND}(조사에서 왔다)인데 <b>열쇠는 상가업소번호</b>다. 둘은 서로 독립이다.
- * 그래서 {@link PlaceFeatureNdjsonReader.Fact} 가 {@code keySource} 를 따로 들고 다니고, 읽는 쪽
- * (파일을 파싱한 쪽)이 그 값을 정한다. {@link #placeIdOf}·{@link #featureIdOf} 가 그 값을 보고
- * {@link SbizPlaceLoader}·{@link TourApiPlaceLoader} 중 어느 공식으로 계산할지 고른다 — <b>모르는
- * 원천은 짐작하지 않고 거절한다.</b>
+ * <p>열쇠 체계는 {@code source_type} 과 다른 것이다 — 가격대는 {@code source_type} 이
+ * {@code RESEARCH_PRICEBAND} 인데 열쇠는 상가업소번호다. 그래서
+ * {@link PlaceFeatureNdjsonReader.Fact} 가 {@code keySource} 를 따로 들고 다니고, 읽는 쪽이 그
+ * 값을 정한다.
  */
 @Component
 @Profile({ "db", "dev" })
 public class PlaceFeatureLoader {
 
 	/**
-	 * 🔴 S15P21E201-948 후속(2026-09-15) — 대상을 지정한 {@code ON CONFLICT} 를 버리고
-	 * 대상 없는 {@code ON CONFLICT DO NOTHING} 으로 바꿨다.
+	 * {@code ON CONFLICT} 에 대상을 적지 않는다. 이 문장이 맞설 수 있는 유일 제약이 둘이기
+	 * 때문이다 — 기본키와 부분 색인 {@code uq_place_feature_unkeyed}
+	 * ({@code (place_id, feature_type) WHERE feature_key IS NULL}, 같은 장소에 열쇠가 여럿 걸릴
+	 * 때 충돌한다). 대상을 적으면 PostgreSQL 은 그 색인의 충돌만 흡수하고 다른 색인의 충돌은
+	 * 예외로 던진다.
 	 *
-	 * <p>이 문장이 실제로 맞설 수 있는 유일 제약이 <b>둘</b>이다 — 기본키({@code place_feature_id},
-	 * {@code featureIdOf(storeId, featureType, null)} 로 정해지는 결정적 값이라 같은 상가업소번호가
-	 * 두 번 들어오면 그대로 충돌한다)와 부분 색인 {@code uq_place_feature_unkeyed}
-	 * ({@code (place_id, feature_type) WHERE feature_key IS NULL} — 상가업소번호는 다른데 같은
-	 * 장소·같은 종류를 가리키면 충돌한다, 실제로 같은 장소에 상가업소번호가 여럿 걸리는 경우가 있다).
-	 * {@code ON CONFLICT} 에 대상을 적으면 PostgreSQL 은 <b>그 색인에서 난 충돌만</b> 흡수하고 다른
-	 * 색인에서 난 충돌은 그대로 예외로 던진다 — 부분 색인을 대상으로 뒀을 때 기본키 충돌이,
-	 * 기본키를 대상으로 뒀을 때 부분 색인 충돌이 각각 그렇게 새어 나가는 것을 둘 다 실측했다
-	 * ({@code PlaceFeatureLoaderIntegrationTest} 의 동시성 검사). 대상을 아예 안 적으면 PostgreSQL 이
-	 * 이 표의 모든 유일 제약을 대상으로 삼으므로 — 어느 쪽이 충돌하든 이 한 줄로 잡는다.
-	 *
-	 * <p>🔴 {@code ?4::jsonb} 처럼 순번 파라미터 바로 뒤에 {@code ::} 캐스트를 붙이면 Hibernate 네이티브
-	 * 쿼리 파서가 {@code 4::jsonb} 를 파라미터 번호로 통째로 읽으려다 {@code ParameterLabelException}
-	 * ("Ordinal parameter label was not an integer")을 던진다(CI 파이프라인 193865 에서 실측) —
+	 * <p>{@code ?5::jsonb} 처럼 순번 파라미터 바로 뒤에 {@code ::} 캐스트를 붙이면 Hibernate 가
+	 * {@code 5::jsonb} 를 파라미터 번호로 읽으려다 {@code ParameterLabelException} 을 던진다 —
 	 * {@code CAST(... AS jsonb)} 로 쓴다.
 	 */
 	private static final String INSERT_IF_ABSENT = """
@@ -110,11 +66,8 @@ public class PlaceFeatureLoader {
 	}
 
 	/**
-	 * 넣은 것과 못 넣은 것.
-	 *
-	 * @param inserted 실제로 들어간 행
-	 * @param missingPlace 🔴 그 상가업소번호로 만든 장소가 표에 없어서 못 넣은 것
-	 * @param alreadyPresent 같은 장소에 같은 종류가 이미 있어서 건너뛴 것
+	 * {@code missingPlace} 는 그 열쇠로 만든 장소가 표에 없어서 못 넣은 것,
+	 * {@code alreadyPresent} 는 같은 장소에 같은 종류가 이미 있어서 건너뛴 것이다.
 	 */
 	public record Saved(int inserted, int missingPlace, int alreadyPresent) {
 
@@ -131,11 +84,9 @@ public class PlaceFeatureLoader {
 	}
 
 	/**
-	 * 한 덩어리를 넣는다.
-	 *
-	 * @param sourceType {@code place_feature.source_type}. 어느 산출물에서 온 값인지 되짚는 자리다
-	 * @param datasetVersion {@code place_feature.source_version}. 🔴 없으면 이 값으로 만든 추천을
-	 *     나중에 되짚을 수 없다 — 부르는 쪽이 검사한다
+	 * {@code sourceType} 은 {@code place_feature.source_type}, {@code datasetVersion} 은
+	 * {@code source_version} 에 들어간다. 후자가 비면 이 값으로 만든 추천을 되짚을 수 없어
+	 * 부르는 쪽이 미리 검사한다.
 	 */
 	@Transactional
 	public Saved saveChunk(List<PlaceFeatureNdjsonReader.Fact> facts, String sourceType, String datasetVersion,
@@ -158,16 +109,14 @@ public class PlaceFeatureLoader {
 					.setParameter(1, featureId)
 					.setParameter(2, placeId)
 					.setParameter(3, fact.featureType())
-					// 🔴 태그형(DESIRED_FOOD_TAG·SOUVENIR_ITEM_TAG 등)은 이 칸이 있어야 한다
-					// (ck_place_feature_key_shape). 예전엔 이 자리가 SQL NULL 로 박혀 있었다 —
-					// 참거짓형·값형만 있던 시절엔 우연히 맞았지만 태그형이 생기며 어긋났다.
+					// 태그형은 이 칸이 있어야 하고 나머지는 비어 있어야 한다
+					// (ck_place_feature_key_shape).
 					.setParameter(4, fact.featureKey())
 					.setParameter(5, fact.value())
 					.setParameter(6, PlaceEvidenceStatus.ESTIMATED.name())
 					.setParameter(7, sourceType)
 					.setParameter(8, fact.storeId())
-					// 🔴 원천에 "이 사실이 언제 관측됐나" 칸이 없다. 지어내지 않고 비운다 —
-					// 어느 산출물인지는 sourceVersion 이 말해 준다.
+					// 원천에 "이 사실이 언제 관측됐나" 칸이 없다. 지어내지 않고 비운다.
 					.setParameter(9, (OffsetDateTime) null)
 					.setParameter(10, datasetVersion)
 					.setParameter(11, collectedAt)
@@ -176,8 +125,8 @@ public class PlaceFeatureLoader {
 				inserted++;
 			}
 			else {
-				// 🔴 같은 덩어리 안의 중복도 여기서 걸린다 — 앞선 행이 같은 트랜잭션 안에서 이미
-				// 커밋 전 상태로 들어가 있어, 뒤이은 행의 INSERT 가 그 행과 충돌한다.
+				// 같은 덩어리 안의 중복도 여기서 걸린다 — 앞선 행이 같은 트랜잭션 안에 이미
+				// 들어가 있어 뒤이은 INSERT 가 그 행과 충돌한다.
 				alreadyPresent++;
 			}
 		}
@@ -185,27 +134,13 @@ public class PlaceFeatureLoader {
 	}
 
 	/**
-	 * 산출물의 열쇠로 장소 아이디를 만든다 — S15P21E201-1047.
-	 *
-	 * <h2>🔴 열쇠 체계는 {@code source_type} 과 다른 것이다</h2>
-	 *
-	 * <p>이 값은 {@link PlaceFeatureNdjsonReader.Fact#keySource()} 에서 온다. 처음에는
-	 * {@code source_type} 으로 만들려다 DB 통합 시험에 걸렸다 — 가격대는 {@code source_type}
-	 * 이 {@code RESEARCH_PRICEBAND} 인데 열쇠는 상가업소번호다. 둘은 서로 독립이다.
-	 *
-	 * <h2>🔴 원천마다 열쇠가 다르다</h2>
-	 *
-	 * 상가정보는 <b>상가업소번호</b>({@code MA0101…})이고 관광공사는 <b>{@code contentid}</b> 다.
-	 * 둘 다 결정적 UUID 라 DB 를 안 읽고도 만들 수 있지만 <b>앞에 붙는 말이 다르다</b>
-	 * ({@code gabolle:place:SBIZ:} 대 {@code gabolle:place:TOURAPI:}).
-	 *
-	 * <p>🔴 <b>섞이면 아무 오류도 안 난다.</b> 있는 장소를 "없어서 못 넣음" 으로 세고 조용히
-	 * 끝난다 — 숫자만 이상하고 어디가 틀렸는지는 안 보인다. 그래서 모르는 원천은
-	 * <b>짐작하지 않고 거절한다.</b>
+	 * 산출물의 열쇠({@link PlaceFeatureNdjsonReader.Fact#keySource()})로 장소 아이디를 만든다.
+	 * 원천마다 앞에 붙는 말이 달라({@code gabolle:place:SBIZ:} 대
+	 * {@code gabolle:place:TOURAPI:}) 섞이면 아무 오류 없이 있는 장소를 "없어서 못 넣음" 으로
+	 * 세고 끝난다. 그래서 모르는 원천은 짐작하지 않고 거절한다.
 	 */
-	// 🔴 패키지 전용이다(private 가 아니다) — SubwayExitLoader(S15P21E201-479)가 같은 열쇠
-	// 체계로 장소를 찾아야 해서 이 계산을 그대로 재사용한다. 새 계산을 또 만들면 두 곳의
-	// 공식이 갈라질 여지가 생긴다.
+	// 패키지 전용이다 — SubwayExitLoader 가 같은 열쇠 체계로 장소를 찾느라 이 계산을 그대로
+	// 재사용한다. 새 계산을 또 만들면 두 곳의 공식이 갈라질 여지가 생긴다.
 	static UUID placeIdOf(String sourceType, String key) {
 		if (TourApiPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
 			return TourApiPlaceLoader.placeIdOf(key);
@@ -218,12 +153,9 @@ public class PlaceFeatureLoader {
 	}
 
 	/**
-	 * 같은 이유로 피처 아이디도 원천을 따라간다.
-	 *
-	 * @param featureKey 태그형만 값이 있다(DESIRED_FOOD_TAG·SOUVENIR_ITEM_TAG 등, S15P21E201-453·448).
-	 *     참거짓형·값형(PRICE_LEVEL·SLOPE_PERCENT 등)은 {@code null} — {@code null} 이면 그대로
-	 *     문자열 {@code "null"} 로 이어붙는다({@link SbizPlaceLoader#featureIdOf} 와 같은 규칙이라
-	 *     여기서 고치지 않는다. 고치면 이미 적재된 행의 아이디가 새 공식과 어긋난다).
+	 * 같은 이유로 피처 아이디도 원천을 따라간다. {@code featureKey} 는 태그형만 값이 있고,
+	 * {@code null} 이면 그대로 문자열 {@code "null"} 로 이어붙는다 — 고치면 이미 적재된 행의
+	 * 아이디가 새 공식과 어긋난다.
 	 */
 	static UUID featureIdOf(String sourceType, String key, String featureType, String featureKey) {
 		if (TourApiPlaceLoader.SOURCE_TYPE.equals(sourceType)) {

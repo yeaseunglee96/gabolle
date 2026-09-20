@@ -29,27 +29,12 @@ import com.gabolle.testslice.StorySliceApplication;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-1284 — 어디에도 안 붙은 업로드를 치운다. <b>그리고 붙어 있는 것은 안 건드린다.</b>
+ * 어디에도 안 붙은 업로드를 치우고 붙어 있는 것은 안 건드리는지 본다. 동영상 썸네일은
+ * {@code story_image} 에 없어 고아로 오인되기 쉬우므로 그것이 살아남는지가 핵심이다.
  *
- * <h2>🔴 이 파일이 진짜 막는 것은 「썸네일을 전부 지우는 것」이다</h2>
+ * <p>저장 루트를 임시 폴더로 돌리고 진짜 파일을 만들어 둔 뒤 행이 아니라 파일을 본다.
  *
- * 고아를 찾는 자연스러운 질의는 {@code story_image} 만 본다. 그런데 <b>동영상 썸네일은 거기
- * 안 들어간다</b> — 「한 기록에 사진 3장」 한 칸을 안 먹게 하려고 일부러 그렇게 뒀다
- * (S15P21E201-1275 · -1279). 그래서 {@code story_image} 만 보면 <b>붙어 있는 동영상의 썸네일이
- * 전부 고아로 보인다.</b>
- *
- * <p>그 실수는 <b>아무 오류도 안 낸다.</b> 글은 멀쩡히 살아 있고 화면에 <b>검은 칸</b>만 남는다.
- * 몇 주 뒤 사람이 눈으로 볼 때까지 아무도 모른다. 그래서 <b>「썸네일이 살아남는다」가 이
- * 파일에서 제일 중요한 시험</b>이다.
- *
- * <h2>행이 아니라 파일을 본다</h2>
- *
- * 저장 루트를 임시 폴더로 돌리고 <b>진짜 파일을 만들어 둔 뒤</b> 있는지 없는지를 본다.
- * 행만 보면 <b>파일이 저장소에 그대로 남아 있어도 초록</b>이다.
- *
- * <h2>DB 가 없으면 건너뛴다</h2>
- *
- * 🔴 도커가 꺼진 PC 에서는 건너뛴 채 초록이다. <b>진짜 판정은 CI 다.</b>
+ * <p>DB 가 없으면 건너뛴 채 초록이다 — 진짜 판정은 CI 다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -103,7 +88,7 @@ class OrphanUploadSweeperIntegrationTest {
 	@AfterEach
 	void tearDown() {
 		this.storageProperties.getOrphanCleanup().setEnabled(this.originalEnabled);
-		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다.
+		// 표를 비우지 않는다. 내가 만든 것만 지운다.
 		this.jdbc.update("DELETE FROM story_video WHERE story_id = ?", this.storyId);
 		this.jdbc.update("DELETE FROM story_image WHERE story_id = ?", this.storyId);
 		this.jdbc.update("DELETE FROM story WHERE story_id = ?", this.storyId);
@@ -119,7 +104,7 @@ class OrphanUploadSweeperIntegrationTest {
 		String thumbnailKey = insertOldImage();
 		attachVideo(videoKey, thumbnailKey);
 
-		// 🔴 먼저 「넣었는가」.
+		// 먼저 「넣었는가」.
 		assertThat(fileOf(thumbnailKey)).exists();
 
 		this.sweeper.sweep();
@@ -271,7 +256,7 @@ class OrphanUploadSweeperIntegrationTest {
 				""", UUID.randomUUID(), this.storyId, storageKey);
 	}
 
-	/** 계정에 사진을 건다. 계정은 업로드 식별자가 아니라 <b>주소</b>를 들고 있다. */
+	/** 계정에 사진을 건다. 계정은 업로드 식별자가 아니라 주소를 들고 있다. */
 	private void attachToAccount(String column, String storageKey) {
 		this.jdbc.update("""
 				UPDATE app_user SET %s =

@@ -25,55 +25,30 @@ import com.gabolle.backend.route.transit.TransitNetworkPort;
 import com.gabolle.backend.route.transit.TransitProperties;
 
 /**
- * 대중교통 경로를 우리 노선망에서 직접 찾는다 — S15P21E201-1104.
+ * 대중교통 경로를 우리 노선망에서 직접 찾는다. 부산 지하철에는 경로 탐색 공개 API 가 없고
+ * 카카오모빌리티 길찾기는 자동차만 주기 때문이다.
  *
- * <h2>🔴 왜 업체에 안 묻고 직접 찾나</h2>
+ * 좌표에서 걸어갈 만한 정류장을 고르고, RaptorPlanner 에 넘기고, 결과를 RouteLeg 로 접는다.
  *
- * 부산 지하철은 <b>실시간 경로 탐색 공개 API 가 없다.</b> 카카오·네이버는 2025-05 에
- * 부산교통공사와 개별 제휴를 맺어 받는다 — 그 전에는 그들도 시각표 기반이었다. 우리에게는
- * 그 제휴가 없고, 카카오모빌리티 길찾기는 자동차만 준다
- * ({@link KakaoMobilityRouteAdapter#supports} 가 {@code CAR} 에만 참을 주는 이유).
- *
- * <p>그래서 노선망을 우리가 들고 탐색한다. 경로 탐색은 API 가 아니라 그래프 문제다.
- *
- * <h2>이 어댑터가 하는 일은 셋뿐이다</h2>
- *
- * <ol>
- *   <li>출발·도착 좌표에서 <b>걸어갈 만한 정류장</b>을 고른다</li>
- *   <li>{@link RaptorPlanner} 에 넘긴다 — 탐색 자체는 순수 계산이라 여기 없다</li>
- *   <li>찾은 것을 {@link RouteLeg} 로 접는다</li>
- * </ol>
- *
- * <h2>🔴 모른다를 안다로 바꿔 말하지 않는다</h2>
- *
- * 출발 시각을 알면 시각표에서 실제로 탈 수 있는 차를 찾고, 모르면 하루의 여러 시각을 재서
- * 가운데 값을 준다. <b>뒤쪽은 "이 시각에 가면 이렇다" 가 아니라 "보통 이 정도 걸린다" 라서
- * {@code estimated=true} 와 이유를 함께 싣는다.</b> 표시 없이 내보내면 그건 추정이 아니라
- * 창작이고, 화면은 그것을 실제 소요시간으로 그린다 —
- * {@code StraightLineRouteEstimator} 가 같은 규칙을 지킨다.
+ * 출발 시각을 모르고 낸 답에는 estimated=true 와 이유를 함께 싣는다 — 표시 없이 내보내면
+ * 화면이 그것을 실제 소요시간으로 그린다.
  */
 @Component
 public class TransitRouteAdapter implements RouteProviderPort {
 
-	/** 이 값이 {@code RouteLeg.provider} 에 실린다 — 화면이 「무엇이 답했나」를 알 수 있게. */
+	/** RouteLeg.provider 에 실려 화면이 무엇이 답했는지 알게 한다. */
 	public static final String PROVIDER_TRANSIT_NETWORK = "TRANSIT_NETWORK";
 
 	static final String REASON_NO_DEPARTURE_TIME =
 			"출발 시각을 몰라 하루의 여러 시각을 재서 가운데 값으로 답했습니다.";
 
-	/**
-	 * 🔴 배차간격으로 낸 값이라는 것을 화면까지 들고 간다 — S15P21E201-1123.
-	 * "이 차를 타면 이 시각에 도착한다" 가 아니라 "평균 이만큼 걸린다" 이다.
-	 */
+	/** 배차간격으로 낸 값이라는 것을 화면까지 들고 간다 — 도착 시각이 아니라 평균 소요시간이다. */
 	static final String REASON_HEADWAY_ESTIMATE =
 			"시각표가 없어 노선의 평균 배차간격과 정거장 수로 계산한 값입니다.";
 
 	/**
-	 * 출발 시각을 모를 때 "언제쯤 가는가" 로 삼는 시각 — 13:00.
-	 *
-	 * <p>🔴 아무 값이나 고른 것이 아니다. 앱의 기본 일정 시간대가 {@code 09:00-18:00} 이고
-	 * 그 한가운데다. 이 값이 필요한 이유는 <b>노선마다 다니는 시간이 다르기 때문</b>이다 —
-	 * 기준이 없으면 심야버스가 낮 경로로 추천된다(S15P21E201-1123).
+	 * 출발 시각을 모를 때 기준으로 삼는 시각 — 13:00. 앱 기본 일정 시간대 09:00-18:00 의
+	 * 한가운데다. 기준이 없으면 심야버스가 낮 경로로 추천된다.
 	 */
 	static final int TYPICAL_DAYTIME_MINUTE = 13 * 60;
 
@@ -113,15 +88,15 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		}
 		TransitNetwork network = this.networkPort.network();
 		if (network.isEmpty()) {
-			// 노선망이 아직 없다. 고장이 아니라 정상 흐름의 한 갈래다 — 호출자가 어림값으로 간다.
+			// 노선망이 아직 없다. 고장이 아니라 정상 흐름이다 — 호출자가 어림값으로 간다.
 			return Optional.empty();
 		}
 
 		Map<String, Integer> origins = nearestStops(network, query.originLat(), query.originLng());
 		Map<String, Integer> destinations = nearestStops(network, query.destLat(), query.destLng());
 		if (origins.isEmpty() || destinations.isEmpty()) {
-			// 🔴 걸어갈 만한 정류장이 없다. 이것도 답이다 — 억지로 먼 정류장을 붙이면
-			//    "걸어서 20분 + 지하철" 이 대중교통 경로로 나오고, 사람은 그 길을 안 쓴다.
+			// 걸어갈 만한 정류장이 없는 것도 답이다. 억지로 먼 정류장을 붙이면
+			// "걸어서 20분 + 지하철" 이 대중교통 경로로 나온다.
 			return Optional.empty();
 		}
 
@@ -135,19 +110,11 @@ public class TransitRouteAdapter implements RouteProviderPort {
 			return Optional.of(toLeg(network, journey.get(), exact ? null : REASON_NO_DEPARTURE_TIME));
 		}
 
-		// 🔴 시각표가 없으면 위의 탐색기는 아무것도 못 찾는다 — 운행 한 대 한 대의 출발시각을
-		//    보는 방식이기 때문이다. 부산 버스에는 그 자료가 없다(BIMS 가 시각표를 안 준다).
-		//    그래서 배차간격으로 낸다. 시각표가 생기면(지하철) 위쪽이 먼저 답하므로 여기까지
-		//    안 온다 — 좋은 답이 있을 때 덜 좋은 답으로 덮지 않는다.
+		// 시각표가 없는 노선(부산 버스 — BIMS 가 시각표를 안 준다)은 위의 탐색기가 못 찾으므로
+		// 배차간격으로 낸다. 시각표가 있으면 위쪽이 먼저 답해 여기까지 오지 않는다.
 		//
-		// 🔴 <b>출발 시각을 아는 요청에는 이 길을 안 쓴다.</b> 배차간격은 "평균 이만큼
-		//    걸린다" 를 낼 뿐 "그 시각에 차가 있다" 를 모른다. 시각을 알고 물었는데 위에서
-		//    빈 값이 왔다면 그 답은 <b>"그 시각에는 못 간다"</b> 이고(막차가 지났거나
-		//    첫차 전이다), 그걸 평균값으로 덮으면 없는 차를 타라고 말하는 것이 된다.
-		//    `returnsEmptyAfterLastTrain` 이 지키는 것이 정확히 이것이다.
-		//
-		//    실제 쓰임에서는 이 제한이 아무것도 잃지 않는다 — 일정 구간을 재는 쪽도
-		//    경로 API 도 출발 시각 없이 부른다(RouteQuery 5인자 생성자).
+		// 출발 시각을 아는 요청에는 이 길을 쓰지 않는다. 그때 위가 빈 값이면 답은 "그 시각에는
+		// 못 간다" 인데, 평균값으로 덮으면 없는 차를 타라고 말하는 것이 된다.
 		if (!exact) {
 			Optional<RaptorPlanner.Journey> byHeadway =
 					new HeadwayJourneyPlanner(this.properties.getRideSpeedKmh())
@@ -157,17 +124,12 @@ public class TransitRouteAdapter implements RouteProviderPort {
 			}
 		}
 
-		// 🔴 좌표를 로그에 남기지 않는다 — 사용자가 어디에 있었는지가 로그에 쌓인다.
+		// 좌표는 로그에 남기지 않는다 — 사용자가 어디에 있었는지가 로그에 쌓인다.
 		log.debug("대중교통 경로를 못 찾았다 (정류장 {}곳 → {}곳)", origins.size(), destinations.size());
 		return Optional.empty();
 	}
 
-	/**
-	 * 걸어갈 만한 정류장 → 거기까지 걷는 분.
-	 *
-	 * <p>가까운 것부터 정해진 개수만 본다. 반경 안에 스무 곳이 있어도 먼 것을 넣으면 답이
-	 * 좋아지지 않고 계산만 는다.
-	 */
+	/** 걸어갈 만한 정류장 → 거기까지 걷는 분. 가까운 것부터 maxAccessStops 개만 본다. */
 	private Map<String, Integer> nearestStops(TransitNetwork network, double lat, double lng) {
 		int radius = this.properties.getAccessRadiusM();
 		record Candidate(String stopId, double distanceM) {
@@ -197,9 +159,7 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		return kst.getHour() * 60 + kst.getMinute();
 	}
 
-	/**
-	 * @param estimateReason 어림값이면 그 이유, 실제 시각표로 정확히 잰 것이면 {@code null}
-	 */
+	/** estimateReason 은 어림값일 때만 채우고, 실제 시각표로 잰 것이면 null 이다. */
 	private RouteLeg toLeg(TransitNetwork network, RaptorPlanner.Journey journey, String estimateReason) {
 		List<RouteLeg.Step> steps = new ArrayList<>();
 		int distanceM = 0;
@@ -223,8 +183,8 @@ public class TransitRouteAdapter implements RouteProviderPort {
 			steps.add(new RouteLeg.Step(name, guidance, segmentM, ride.durationMin()));
 		}
 
-		// 🔴 S15P21E201-1291 — 요금은 구간별 합이 아니라 여정 전체다. 환승 할인·차액이
-		//    그 안에서 끝나기 때문이다. 요금을 모르는 노선이 끼면 null 이 오고, 그대로 싣는다.
+		// 요금은 구간별 합이 아니라 여정 전체다 — 환승 할인·차액이 그 안에서 끝나기 때문이다.
+		// 요금을 모르는 노선이 끼면 null 이 오고, 그대로 싣는다.
 		Integer fareKrw = this.fareCalculator.fareKrw(journey, network);
 		return new RouteLeg(TravelMode.TRANSIT, distanceM, journey.durationMin(), null, null,
 				journey.transferCount(), estimateReason != null, estimateReason,
@@ -232,11 +192,8 @@ public class TransitRouteAdapter implements RouteProviderPort {
 	}
 
 	/**
-	 * 두 좌표 사이의 큰원 거리(m).
-	 *
-	 * <p>🔴 <b>이것은 걸어가는 거리가 아니라 직선거리다.</b> 정류장이 가까운지 고르는 데는
-	 * 충분하지만, 화면에 "도보 거리" 로 쓰면 실제보다 짧다 — 그래서 여기서 나온 값은
-	 * {@code RouteLeg.distanceM} 에만 들어가고 <b>도보 합계로는 쓰이지 않는다.</b>
+	 * 두 좌표 사이의 큰원 거리(m). 걸어가는 거리가 아니라 직선거리라 실제보다 짧다 —
+	 * RouteLeg.distanceM 에만 들어가고 도보 합계로는 쓰지 않는다.
 	 */
 	private static double haversineM(double lat1, double lng1, double lat2, double lng2) {
 		double dLat = Math.toRadians(lat2 - lat1);

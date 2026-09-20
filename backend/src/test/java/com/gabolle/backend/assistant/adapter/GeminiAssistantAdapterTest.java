@@ -12,10 +12,8 @@ import com.gabolle.backend.assistant.domain.AssistantActionKind;
 import com.gabolle.backend.assistant.domain.AssistantReply;
 
 /**
- * {@link GeminiAssistantAdapter#toDomain}·{@code parseKind} 검증 — S15P21E201-802.
- *
- * <p>실제 Gemini 호출 없이, 모델이 낼 수 있는 구조화 출력 모양을 직접 만들어 변환 로직만
- * 잰다 — 특히 모델이 허용 목록 밖의 href 나 모르는 kind 를 지어냈을 때 안전하게 HELP 로
+ * {@link GeminiAssistantAdapter#toDomain}·{@code parseKind} 검증. 실제 Gemini 호출 없이 구조화 출력
+ * 모양을 직접 만들어 변환만 잰다 — 모델이 허용 목록 밖의 href 나 모르는 kind 를 지어냈을 때 HELP 로
  * 낮추는지가 핵심이다.
  */
 class GeminiAssistantAdapterTest {
@@ -61,7 +59,7 @@ class GeminiAssistantAdapterTest {
 		assertThat(reply.href()).isNull();
 	}
 
-	// ── /plan 사전 채우기 (S15P21E201-985) ────────────────────────
+	// ── /plan 사전 채우기 ──────────────────────────────────────────
 
 	@Test
 	@DisplayName("/plan 이고 days·people 이 있으면 쿼리 파라미터로 실어 보낸다")
@@ -118,7 +116,7 @@ class GeminiAssistantAdapterTest {
 		assertThat(reply.label()).isEqualTo("여행 만들기");
 	}
 
-	// ── 대중교통 (S15P21E201-988) ────────────────────────────────────────
+	// ── 대중교통 ─────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("navigate + '/field/transit' 는 허용된 href 로 통과한다")
@@ -143,7 +141,7 @@ class GeminiAssistantAdapterTest {
 		assertThat(reply.label()).isEqualTo("버스 도착정보 보기");
 	}
 
-	// ── 환율 (S15P21E201-1079) ───────────────────────────────────────────
+	// ── 환율 ─────────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("navigate + '/field/exchange-rate' 는 허용된 href 로 통과한다")
@@ -176,11 +174,10 @@ class GeminiAssistantAdapterTest {
 		assertThat(this.adapter.parseKind(null)).isEqualTo(AssistantActionKind.HELP);
 	}
 
-	// ── 어디로, 얼마나 기다려 부르는가 — S15P21E201-1253 ──────────────────────────
+	// ── 어디로, 얼마나 기다려 부르는가 ────────────────────────────────────
 	//
-	// 🔴 이 셋이 붙드는 것은 「사용자에게 거짓말하지 않기」다. 시간 제한이 없으면 앱이
-	//    12초에 끊은 뒤에도 서버는 계속 기다리고, 그 사람의 하루 한도는 이미 깎여 있다.
-	//    주소를 안 걸면 개인 키 한도(429)로 돌아가 「잠시 후 다시 시도」가 영원히 반복된다.
+	// 시간 제한이 없으면 앱이 12초에 끊은 뒤에도 서버는 계속 기다리고, 그 사람의 하루
+	// 한도는 이미 깎여 있다. 주소를 안 걸면 개인 키 한도(429)로 돌아간다.
 
 	@Test
 	@DisplayName("🔴 시간 제한을 밀리초로 건다 — 앱이 끊는 12초 안이어야 한다")

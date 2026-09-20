@@ -13,10 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * 이음 파일에서 폐업만 뽑아 읽는다 — S15P21E201-1341.
- *
- * <p>🔴 이 시험이 지키는 것은 <b>「닫았다」를 지어내지 않는가</b>다. 상태만 「폐업」이고 날짜가
- * 없는 줄을 오늘 날짜로 채우면, 나중에 <b>언제 닫았는지 영영 모르는 채로</b> 남는다.
+ * 이음 파일에서 폐업만 뽑아 읽는다. 지키는 것은 「닫았다」를 지어내지 않는가다 — 날짜가 없는
+ * 폐업 줄을 오늘 날짜로 채우면 언제 닫았는지 영영 모르는 채로 남는다.
  */
 class PlaceClosureReaderTest {
 
@@ -45,10 +43,7 @@ class PlaceClosureReaderTest {
 		assertThat(loaded.closed()).isEqualTo(1);
 	}
 
-	/**
-	 * 🔴 <b>「영업」도 담는다.</b> 담아야 지우는 쪽이 생긴다 — 잘못 이어졌던 가게 하나가 영영
-	 * 추천에서 사라지지 않으려면, 다음 판에서 「안 닫았다」로 되돌릴 수 있어야 한다.
-	 */
+	/** 「영업」도 담는다. 담아야 잘못 이어졌던 가게를 다음 판에서 되돌릴 수 있다. */
 	@Test
 	@DisplayName("🔴 영업 중인 곳도 담는다 — 되돌릴 수 있어야 한다")
 	void openRowsAreCarriedWithNullDate() throws IOException {

@@ -16,7 +16,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import tools.jackson.databind.ObjectMapper;
 
-/** {@link SubwayExitReader} 검증 — S15P21E201-479. */
 class SubwayExitReaderTest {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();

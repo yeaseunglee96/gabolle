@@ -18,11 +18,6 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * 숙소 후보 조회 — S15P21E201-456.
- *
- * <p>완료 기준 "숙소 조회에 숙소 종류만 나온다" 를 그대로 검증한다.
- */
 class AccommodationQueryIntegrationTest extends PlacePostgresIntegrationTest {
 
 	@Autowired

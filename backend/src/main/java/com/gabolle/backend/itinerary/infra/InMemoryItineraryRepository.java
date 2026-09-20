@@ -20,17 +20,12 @@ import org.springframework.stereotype.Repository;
 
 /**
  * DB 없이 도는 일정 저장소 — {@code no-db} 프로필과 도메인 단위 테스트가 쓴다.
- *
- * <p>🔴 <b>이 구현은 DB 구현과 같은 계약을 지켜야 한다.</b> 여기서만 통과하는 코드는
- * 실제 배포에서 깨진다. 그래서 DB 가 제약으로 막는 것을 이 클래스도 흉내낸다 —
- * 판 번호 중복({@code uq_itinerary_version}), 같은 판 안의 자리 중복
- * ({@code uq_itinerary_item_slot}), 그리고 최신 판 포인터 이동.
- *
- * <p>2026-09-06 (S15P21E201-662) 이전에는 포인터를 이 클래스가 <b>안</b> 옮겼다.
- * 응용 계층({@code ItineraryEditService})이 뒤이어 부르는 {@code Itinerary.moveTo} 가
- * 같은 객체를 직접 고쳐서 "저절로" 반영되는 것처럼 보였을 뿐이다(참조 동일성). JPA 는
- * 조회할 때마다 새 도메인 객체를 만들어 그 트릭이 안 통하므로 저장소가 직접 옮겼다 —
- * 즉 <b>두 구현이 서로 다른 계약 위에서 돌고 있었다.</b> 지금은 둘 다 저장소가 옮긴다.
+ * 이 구현은 DB 구현과 같은 계약을 지켜야 한다. 여기서만 통과하는 코드는 실제 배포에서 깨진다.
+ * 그래서 DB 가 제약으로 막는 것을 흉내낸다 — 판 번호 중복({@code uq_itinerary_version}),
+ * 같은 판 안의 자리 중복({@code uq_itinerary_item_slot}), 그리고 최신 판 포인터 이동.
+ * 포인터를 저장소가 옮기지 않으면 두 구현이 서로 다른 계약 위에서 돌게 된다 — 인메모리에서는
+ * 응용 계층이 같은 객체를 직접 고쳐 "저절로" 반영되는 것처럼 보이지만, JPA 는 조회할 때마다
+ * 새 도메인 객체를 만들어 그 트릭이 안 통한다.
  */
 @Repository
 @Profile("!db & !dev")
@@ -52,7 +47,7 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
     @Override
     public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion,
                             List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
-        // 🔴 DB 구현과 같은 보장 — 같은 itineraryId 로 두 번 create 하면 뒤엣것이 이긴다.
+        // DB 구현과 같은 보장 — 같은 itineraryId 로 두 번 create 하면 뒤엣것이 이긴다.
         //    실제로는 새 UUID 를 매번 만들어 부르므로 이 경로에서 충돌은 생기지 않는다.
         itineraries.put(itinerary.itineraryId(), itinerary);
         versions.put(key(firstVersion.itineraryId(), firstVersion.version()), firstVersion);
@@ -74,10 +69,9 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
                                           List<ItineraryLeg> newLegs, List<ItineraryExclusion> newExclusions) {
         String key = key(version.itineraryId(), version.version());
 
-        // 🔴 putIfAbsent 는 "없을 때만 넣는다" 를 원자적으로 한다.
-        //    DB 의 UNIQUE 제약과 같은 보장이다 — 두 요청이 동시에 와도 하나만 성공한다.
-        //    이것이 마지막 방어선이다. 응용 계층의 사전 확인만으로는
-        //    확인과 저장 사이에 다른 요청이 끼어들 수 있다(경쟁 조건).
+        // putIfAbsent 는 "없을 때만 넣는다" 를 원자적으로 한다. DB 의 UNIQUE 제약과 같은 보장이다.
+        //    이것이 마지막 방어선이다 — 응용 계층의 사전 확인만으로는 확인과 저장 사이에 다른
+        //    요청이 끼어들 수 있다.
         ItineraryVersion existing = versions.putIfAbsent(key, version);
         if (existing != null) {
             throw stale(version);
@@ -85,7 +79,7 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
 
         putContent(version.itineraryVersionId(), newItems, newLegs, newExclusions);
 
-        // 🔴 포인터를 여기서 옮긴다. DB 구현의 조건부 UPDATE 와 짝이 되는 자리다.
+        // 포인터를 여기서 옮긴다. DB 구현의 조건부 UPDATE 와 짝이 되는 자리다.
         //    Itinerary.moveTo 가 "한 칸씩만" 을 검사하므로 같은 불변식이 여기서도 선다.
         Itinerary itinerary = itineraries.get(version.itineraryId());
         if (itinerary != null) {
@@ -107,8 +101,7 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
     }
 
     /**
-     * 🔴 S15P21E201-284 — 최신 판이 먼저(version DESC). DB 구현({@code
-     * ix_itinerary_version_itinerary (itinerary_id, version DESC)})과 같은 계약이다.
+     * 최신 판이 먼저(version DESC). DB 구현과 같은 계약이다.
      */
     @Override
     public VersionPage findVersions(String itineraryId, int page, int size) {
@@ -117,8 +110,8 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
                 .sorted((a, b) -> Integer.compare(b.version(), a.version()))
                 .toList();
 
-        // 🔴 long 으로 곱한다. page·size 는 요청에서 그대로 들어오는 값이라, int 로 곱하면
-        //    큰 page 에서 값이 넘쳐 음수가 되고 subList 가 예외를 던져 500 이 된다.
+        // long 으로 곱한다. page·size 는 요청에서 그대로 들어오는 값이라, int 로 곱하면 큰 page 에서
+        //    값이 넘쳐 음수가 되고 subList 가 예외를 던져 500 이 된다.
         int from = (int) Math.min((long) page * size, all.size());
         int to = (int) Math.min((long) from + size, all.size());
         return new VersionPage(all.subList(from, to), to < all.size());
@@ -149,14 +142,10 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
 
     /**
      * 시연·테스트용 — 판 하나와 그 내용(제외 목록은 빈 목록)을 검사 없이 그대로 넣는다.
-     *
-     * <p>🔴 {@link #appendVersion} 과 달리 판 번호 경쟁도 포인터도 건드리지 않는다.
-     * {@link #seed} 로 만든 "이미 5번 판까지 와 있는 일정" 에 그 5번 판의 내용을 채워 넣는
-     * 용도다 — 편집은 바탕 판의 내용을 복사하므로 바탕이 비어 있으면 검사할 것이 없다.
-     *
-     * <p>🔴 S15P21E201-249 — 제외 목록도 심어야 하는 테스트는 {@link #seedVersion(ItineraryVersion,
-     * List, List, List)} 4-인자를 쓴다. 이 3-인자 오버로드는 기존 호출부(제외 목록을
-     * 모르는 테스트)가 컴파일이 안 깨지도록 남겨 뒀다.
+     * {@link #appendVersion} 과 달리 판 번호 경쟁도 포인터도 건드리지 않는다. {@link #seed} 로
+     * 만든 "이미 5번 판까지 와 있는 일정" 에 그 5번 판의 내용을 채워 넣는 용도다.
+     * 제외 목록도 심어야 하는 테스트는 4-인자 오버로드를 쓴다. 이 3-인자는 제외 목록을 모르는
+     * 기존 호출부가 컴파일이 안 깨지도록 남겨 뒀다.
      */
     public void seedVersion(ItineraryVersion version, List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
         seedVersion(version, newItems, newLegs, List.of());
@@ -178,11 +167,9 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
     }
 
     /**
-     * 🔴 {@code uq_itinerary_item_slot}·{@code uq_itinerary_leg_slot} 을 흉내낸다.
-     *
-     * <p>재계산이 항목 순번을 다시 매길 때 같은 자리를 두 번 쓰는 버그가 나면, 이 검사가
-     * 없으면 인메모리에서는 통과하고 DB 에서만 터진다. 실제 DB 없이 도는 테스트가 많은
-     * 저장소일수록 그 차이가 늦게 드러난다.
+     * {@code uq_itinerary_item_slot}·{@code uq_itinerary_leg_slot} 을 흉내낸다.
+     * 재계산이 항목 순번을 다시 매길 때 같은 자리를 두 번 쓰는 버그가 나면, 이 검사가 없으면
+     * 인메모리에서는 통과하고 DB 에서만 터진다.
      */
     private static void assertNoDuplicateSlot(List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
         Set<String> itemSlots = new HashSet<>();

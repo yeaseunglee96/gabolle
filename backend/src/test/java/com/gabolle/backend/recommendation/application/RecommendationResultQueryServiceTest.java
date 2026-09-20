@@ -35,8 +35,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * S15P21E201-604 — 결과 DTO 매핑. 실제 값이 없는 칸을 지어내지 않는가와, 반환되지 않은
- * 후보가 새지 않는가를 본다.
+ * 결과 DTO 매핑. 실제 값이 없는 칸을 지어내지 않는가와, 반환되지 않은 후보가 새지 않는가를
+ * 본다.
  */
 class RecommendationResultQueryServiceTest {
 
@@ -247,8 +247,8 @@ class RecommendationResultQueryServiceTest {
 		assertThat(response.errorMessage()).isEqualTo("ENGINE_TIMEOUT");
 	}
 
-	// S15P21E201-1084 — 앱의 추천 화면은 경로에 작업 번호만 들고 있어서, 담아두기·빼기를 보낼
-	// 주소(/api/v1/trips/{tripId}/recommendation-actions)를 응답에서 받지 못하면 알 수 없다.
+	// 앱의 추천 화면은 경로에 작업 번호만 들고 있어서, 담아두기·빼기를 보낼 주소를 응답에서
+	// 받지 못하면 알 수 없다.
 
 	@Test
 	@DisplayName("🔴 성공 응답에 tripId 가 실린다 — 앱이 담아두기·빼기를 보낼 주소다")

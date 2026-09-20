@@ -11,16 +11,10 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort.Answer;
 
 /**
- * 영업시간 값 판정 — S15P21E201-852.
+ * 영업시간 값 판정. 값 모양은 실제 정규화 출력({@code bigData/process/opening-hours.mjs})에서
+ * 그대로 옮겼다 — 지어낸 모양으로 재면 이 검사가 통과하고 운영에서만 틀린다.
  *
- * <p>🔴 이 검사가 이 기능에서 가장 중요한 자리다. 판정이 틀리면 사용자는 <b>닫힌 문 앞에
- * 도착하거나</b>, 열려 있는 곳을 "문 닫았다" 는 경고와 함께 본다. 그리고 둘 다
- * <b>아무것도 빨개지지 않는다</b> — 값이 있고 응답도 200 이다.
- *
- * <p>값 모양은 실제 정규화 출력({@code bigData/process/opening-hours.mjs}, 2026-09-11 실측)에서
- * 그대로 옮겼다. 옮긴 것이 실제와 다르면 이 검사가 통과하고 운영에서만 틀린다.
- *
- * <p>2026-09-10 은 <b>목요일</b>이다. 아래 시각들이 그 요일 칸을 고르는 근거다.
+ * <p>아래 시각의 기준 날짜 2026-09-10 은 목요일이라 byDay 의 {@code thu} 칸이 골라진다.
  */
 class OpeningHoursValueTest {
 
@@ -47,7 +41,7 @@ class OpeningHoursValueTest {
 		assertThat(OpeningHoursValue.answerAt(value, THU_10AM)).isEqualTo(Answer.OPEN);
 		assertThat(OpeningHoursValue.answerAt(value, THU_10AM.withHour(17))).isEqualTo(Answer.OPEN);
 		assertThat(OpeningHoursValue.answerAt(value, THU_10AM.withHour(9))).isEqualTo(Answer.CLOSED);
-		// 🔴 끝 시각은 포함하지 않는다. 18:00 에 들어가는 손님을 받는 집은 없다.
+		// 끝 시각은 포함하지 않는다.
 		assertThat(OpeningHoursValue.answerAt(value, THU_10AM.withHour(18))).isEqualTo(Answer.CLOSED);
 	}
 
@@ -79,8 +73,7 @@ class OpeningHoursValueTest {
 	@Test
 	@DisplayName("🔴 한 요일에 구간이 여럿이면 합집합으로 본다")
 	void manyIntervalsOnOneDayAreUnioned() {
-		// 실측에서 한 곳의 수요일에 네 구간이 붙어 있었다 — 부속 시설의 시간이 한 레코드에
-		// 함께 들어와서다. 어느 것이 본관인지 값에 없다.
+		// 한 레코드에 부속 시설의 시간까지 들어오는 경우가 있고, 어느 것이 본관인지는 값에 없다.
 		String value = """
 				{"status":"PARSED","byDay":{"thu":[\
 				["09:00","18:00"],["08:00","20:00"],["09:30","17:00"]]}}""";
@@ -107,8 +100,7 @@ class OpeningHoursValueTest {
 	@Test
 	@DisplayName("🔴 자정을 넘기는 구간은 다음 날 새벽까지 이어진다 — 어제 칸까지 본다")
 	void intervalCrossingMidnightSpillsIntoTheNextDay() {
-		// 수요일 18:00~02:00 인 집에 목요일 새벽 1시를 물으면 열려 있어야 한다. 어제 칸을 안
-		// 보면 새벽에 여는 집이 전부 닫힌 것으로 나온다.
+		// 수요일 18:00~02:00 인 집에 목요일 새벽 1시를 묻는다 — 어제 칸을 안 보면 닫힌 것으로 나온다.
 		String value = """
 				{"status":"PARSED","byDay":{"wed":[["18:00","02:00"]],"thu":[]}}""";
 
@@ -140,8 +132,7 @@ class OpeningHoursValueTest {
 	@Test
 	@DisplayName("🔴 시각은 서울 기준으로 읽는다 — 세계시로 온 값이 하루 앞으로 밀리지 않는다")
 	void timeIsReadInSeoul() {
-		// 세계시 목요일 22:00 은 서울에서 금요일 07:00 이다. 시간대를 안 맞추면 목요일 칸을
-		// 보고 "열려 있다" 고 답한다.
+		// 세계시 목요일 22:00 은 서울에서 금요일 07:00 이다.
 		String value = """
 				{"status":"PARSED","byDay":{"thu":[["10:00","18:00"]],"fri":[]}}""";
 		OffsetDateTime thursdayNightUtc =

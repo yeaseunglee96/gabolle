@@ -15,20 +15,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * Editor's Pick 발행본 한 판 (S15P21E201-555).
+ * Editor's Pick 발행본 한 판. 취향을 전부 건너뛴 계정과 추천 엔진이 죽은 요청에 돌려줄
+ * 기준선이다.
  *
- * <p>취향을 전부 건너뛴 계정과 추천 엔진이 죽은 요청에 돌려줄 기준선이다.
- * FR-REC-03 · FR-REC-11 · FR-REC-15.
+ * <p>읽기 전용이다. 이 서비스는 Pick 을 발행하지 않는다 — 편집자가 고른 목록을 데이터
+ * 작업으로 넣고 우리는 읽기만 한다. 그래서 setter 도 공개 생성자도 없다.
  *
- * <p>🔴 <b>읽기 전용이다.</b> {@code Place} 와 같은 판단이다 — 이 서비스는 Pick 을 발행하지
- * 않는다. 편집자가 고른 목록을 데이터 작업으로 넣고 우리는 읽어서 기준선으로 쓴다. 그래서
- * setter 도 공개 생성자도 두지 않는다. 발행 화면이 필요해지면 그 티켓이 필요한 것만 연다 —
- * 지금 열어 두면 "누가 Pick 을 쓰는가" 에 답이 둘이 된다.
- *
- * <p>🔴 <b>같은 행을 고치지 않는다.</b> 내용을 바꿀 때는 같은 {@code pickKey} 의 새
- * {@code contentVersion} 을 만들고 앞 판을 {@link EditorialPickStatus#RETIRED} 로 물린다.
- * 3일 전에 나간 추천 결과가 그 판을 가리키고 있어서, 행을 갱신하면 그때 무엇을 보여줬는지를
- * 아는 방법이 없어진다 — 되짚을 수 있게 남기는 것이 이 저장의 목적 절반이다.
+ * <p>같은 행을 고치지 않는다. 내용을 바꿀 때는 같은 {@code pickKey} 의 새
+ * {@code contentVersion} 을 만들고 앞 판을 {@link EditorialPickStatus#RETIRED} 로 물린다 —
+ * 이미 나간 추천 결과가 앞 판을 가리키고 있다.
  */
 @Entity
 @Table(name = "editorial_pick")
@@ -55,14 +50,14 @@ public class EditorialPick {
 	private EditorialPickStatus status;
 
 	/**
-	 * 🔴 두 언어 다 필수다. 하나를 비워 두면 영어 사용자에게 한국어 제목이 그대로 나가거나
-	 * 빈 칸이 나가는데, <b>둘 다 오류를 내지 않아</b> 아무도 모른다. 번역이 없으면 발행하지
+	 * 두 언어 다 필수다. 하나를 비워 두면 영어 사용자에게 한국어 제목이 그대로 나가거나
+	 * 빈 칸이 나가는데, 둘 다 오류를 내지 않아 아무도 모른다. 번역이 없으면 발행하지
 	 * 않는 것이 맞고, 그것이 {@link EditorialPickStatus#DRAFT} 다.
 	 */
 	@Column(name = "title_ko", nullable = false, length = 200)
 	private String titleKo;
 
-	/** 🔴 {@link #getTitleKo()} 와 같은 이유로 필수다. */
+	/** {@link #getTitleKo()} 와 같은 이유로 필수다. */
 	@Column(name = "title_en", nullable = false, length = 200)
 	private String titleEn;
 
@@ -83,12 +78,12 @@ public class EditorialPick {
 	private int displayOrder;
 
 	/**
-	 * 🔴 <b>발행 시점에 이미 아는 편집자의 경고만</b> 들어 있다 — "계단이 있습니다" 같은 것.
+	 * 발행 시점에 이미 아는 편집자의 경고만 들어 있다 — "계단이 있습니다" 같은 것.
 	 *
 	 * <p>사용자의 제약과 대조해 나오는 경고는 여기 없다. 그것은 요청마다
 	 * {@code BaselineCandidateScorer} 가 계산해 {@code recommendation_candidate.warning_codes}
 	 * 에 남는다. 둘을 섞으면 사용자마다 달라야 하는 값이 모두에게 같게 나가거나 편집자가 적어
-	 * 둔 주의사항이 사용자에 따라 사라지고, <b>어느 쪽도 오류를 내지 않는다.</b>
+	 * 둔 주의사항이 사용자에 따라 사라지고, 어느 쪽도 오류를 내지 않는다.
 	 */
 	@JdbcTypeCode(SqlTypes.ARRAY)
 	@Column(name = "warning_codes", nullable = false)
@@ -149,7 +144,7 @@ public class EditorialPick {
 		return this.displayOrder;
 	}
 
-	/** 🔴 배열을 그대로 돌려주지 않는다 — 부르는 쪽이 저장된 값을 바꿀 수 있다. */
+	/** 배열을 그대로 돌려주지 않는다 — 부르는 쪽이 저장된 값을 바꿀 수 있다. */
 	public List<String> getWarningCodes() {
 		return (this.warningCodes == null) ? List.of() : List.of(this.warningCodes);
 	}
@@ -165,7 +160,7 @@ public class EditorialPick {
 	/**
 	 * 이 판을 지금 내보낼 수 있는가.
 	 *
-	 * <p>🔴 상태만 본다. 장소가 실제로 들어 있는지는 여기서 알 수 없다(다른 표다) — 그
+	 * <p> 상태만 본다. 장소가 실제로 들어 있는지는 여기서 알 수 없다(다른 표다) — 그
 	 * 확인은 Pick 을 읽는 쪽의 일이다. 여기서 "발행 가능" 이라고 답해 두고 장소가 0건이면
 	 * 빈 기준선이 나가는데, 그건 기준선이 없는 것보다 나쁘다.
 	 */

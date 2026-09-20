@@ -36,13 +36,8 @@ import com.gabolle.backend.assistant.domain.AssistantReply;
 import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
- * {@code POST /api/v1/assistant/messages} 의 HTTP 경계 — S15P21E201-802.
- *
- * <p>{@code TranslateControllerTest} 와 같은 방식으로 컨트롤러+예외 처리기만 세워 HTTP 계약을
- * 잰다. 실제 Gemini 호출·구조화 출력 파싱은 어댑터 쪽 몫이라 여기서는 벤더를 스텁으로 대신한다.
- *
- * <p>MVP 범위는 은행 앱 챗봇처럼 관련 화면으로 안내하는 것까지다 — 여기서는 그중 navigate 를
- * 검증한다.
+ * {@code POST /api/v1/assistant/messages} 의 HTTP 경계. 컨트롤러와 예외 처리기만 세워 HTTP 계약을
+ * 잰다 — 실제 Gemini 호출과 구조화 출력 파싱은 어댑터 몫이라 벤더를 스텁으로 대신한다.
  */
 class AssistantControllerTest {
 

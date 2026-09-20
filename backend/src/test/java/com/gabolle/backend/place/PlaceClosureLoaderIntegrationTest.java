@@ -20,14 +20,9 @@ import com.gabolle.backend.place.loader.SbizRow;
 import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
 /**
- * 폐업 여부를 장소에 적는다 — S15P21E201-1341.
- *
- * <h2>🔴 왜 진짜 DB 인가</h2>
- * 이 적재가 하는 일은 <b>이미 있는 장소를 찾아 고치는 것</b>이다. 가짜 저장소로는 「상가업소번호로
- * 만든 아이디가 실제로 그 장소를 가리키는가」가 검증되지 않는다 — 그게 틀리면 아무것도 안 고치고
- * <b>조용히 성공</b>한다.
- *
- * <p>실측(2026-09-19): 이어진 36,458곳 중 <b>3,530곳(9.7%)이 이미 폐업</b>이었다.
+ * 폐업 여부를 장소에 적는다. 진짜 DB 를 쓰는 이유는 이 적재가 이미 있는 장소를 찾아 고치는
+ * 일이라서다 — 상가업소번호로 만든 아이디가 실제로 그 장소를 가리키지 않으면 아무것도 안
+ * 고치고 조용히 성공한다.
  */
 class PlaceClosureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -46,25 +41,12 @@ class PlaceClosureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	private static final List<String> STORE_IDS = List.of("STORE-A", "STORE-B");
 
 	/**
-	 * 🔴 <b>내가 넣은 것만 지운다.</b>
+	 * 내가 넣은 것만 지운다. 여러 시험이 같은 진짜 DB 를 쓰고 다른 시험이 만든 일정이 장소를
+	 * 가리키므로, 표를 통째로 비우면 {@code fk_itinerary_item_place} 에 걸린다. 그렇다고 남의
+	 * 일정을 지우면 고장을 옆 시험으로 옮기는 것이다.
 	 *
-	 * <p>여기는 원래 {@code DELETE FROM place} 였다. 그런데 이 시험은 <b>여러 시험이 함께 쓰는
-	 * 진짜 DB</b> 위에서 돌고, 다른 시험이 만든 일정({@code itinerary_item})이 그 장소들을
-	 * 가리키고 있다. 그래서 표를 통째로 비우려다 외래키에 걸려 <b>이 파일의 시험 넷이 전부
-	 * 터졌다</b> (MR !1284 의 {@code backend:build}, 2026-09-19):
-	 *
-	 * <pre>
-	 *   ERROR: update or delete on table "place" violates foreign key constraint
-	 *          "fk_itinerary_item_place" on table "itinerary_item"
-	 * </pre>
-	 *
-	 * 🔴 <b>남의 일정을 지워서 통과시키면 안 된다.</b> 그러면 이 시험이 도는 순서에 따라 옆
-	 * 시험이 터진다 — 고장을 옮기는 것이지 고치는 것이 아니다.
-	 *
-	 * <p>이 파일의 단언은 전부 {@code STORE-A}·{@code STORE-B} 두 곳만 본다. 표가 비어 있을
-	 * 필요가 없다. 그래서 그 둘만 지운다 — 옆 시험이 무엇을 남겼든 상관없어진다.
-	 * 같은 패키지의 {@code SbizPlaceLoaderIntegrationTest}·{@code PopularityScoreLoaderIntegrationTest}
-	 * 도 {@code source_type} 으로 좁혀 지우고 있다. 이쪽이 한 칸 더 좁을 뿐 같은 규칙이다.
+	 * <p>이 파일의 단언은 {@code STORE-A}·{@code STORE-B} 두 곳만 보므로 표가 비어 있을 필요가
+	 * 없다.
 	 */
 	@BeforeEach
 	void seedPlaces() {
@@ -97,10 +79,7 @@ class PlaceClosureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(result.marked()).isEqualTo(1);
 	}
 
-	/**
-	 * 🔴 이음은 <b>이름과 자리</b>로 맞추는 것이라 틀릴 수 있다. 되돌리는 쪽이 없으면 잘못
-	 * 이어진 가게 하나가 <b>영영 추천에서 사라진다.</b>
-	 */
+	/** 이음은 이름과 자리로 맞추는 것이라 틀릴 수 있다. 되돌리는 쪽이 없으면 영영 사라진다. */
 	@Test
 	@DisplayName("🔴 다시 열었으면 닫힘을 지운다 — 한번 적은 폐업이 영영 안 지워지면 안 된다")
 	void clearsClosureWhenTheShopIsOpenAgain() {
@@ -127,8 +106,8 @@ class PlaceClosureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	/**
-	 * 🔴 장소 적재를 안 돌렸으면 붙을 자리가 없다. 여기서 <b>실패하지 않는다</b> — 조용히 넘어가고
-	 * 그 수를 센다. 부르는 쪽이 그 수를 보고 순서가 뒤집혔는지 판단한다.
+	 * 장소 적재를 안 돌렸으면 붙을 자리가 없다. 실패하지 않고 그 수를 세며, 부르는 쪽이 그 수를
+	 * 보고 순서가 뒤집혔는지 판단한다.
 	 */
 	@Test
 	@DisplayName("🔴 붙일 장소가 없으면 조용히 넘기고 그 수를 센다")

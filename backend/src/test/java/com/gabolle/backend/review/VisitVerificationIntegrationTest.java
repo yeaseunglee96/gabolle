@@ -29,15 +29,8 @@ import com.gabolle.backend.review.presentation.VisitVerificationController;
 import com.gabolle.backend.review.support.ReviewPostgresIntegrationTest;
 
 /**
- * 방문 인증 — S15P21E201-279.
- *
- * <p>완료 기준 넷 중 앞의 셋(같은 위치는 인증, 1km 는 거절, 정확도 200m 는 재시도)은 응답으로
- * 확인하고, 마지막(좌표가 어디에도 없다)은 실제 표를 직접 훑어 확인한다({@link
- * #verifiedRowLeavesNoCoordinateAnywhereInTheTable()}).
- *
- * <p>표준 도(latitude) 1도는 자오선을 따라가면 정확히 {@code EARTH_RADIUS_METERS * 라디안} 이다
- * (경도차가 0이면 하버사인 공식이 근사 없이 그 등식으로 접힌다 — {@link #northOf} 참고). 그래서
- * 경계값 테스트(199m·201m)를 오차 없이 만들 수 있다.
+ * 위도만 움직이면(경도차 0) 하버사인 공식이 근사 없이 {@code 반지름 * 라디안} 으로 접힌다.
+ * 그래서 {@link #northOf} 로 만든 좌표는 경계값(199m·201m)을 오차 없이 재현한다.
  */
 class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 
@@ -65,9 +58,8 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 	@BeforeEach
 	void setUp() {
 		this.mockMvc = MockMvcBuilders.standaloneSetup(this.controller)
-				// 🔴 GlobalAuthExceptionHandler 를 함께 등록한다 — 정밀 위치 미동의는
-				//    AuthException(403) 으로 나가는데, 리뷰 도메인 처리기만 걸면 그 예외가
-				//    번역되지 않아 500 으로 보인다 (S15P21E201-549 후속).
+				// 정밀 위치 미동의는 AuthException(403) 으로 나간다. 리뷰 처리기만 걸면 번역되지
+				// 않아 500 으로 보이므로 전역 처리기를 함께 등록한다.
 				.setControllerAdvice(this.exceptionHandler, this.globalAuthExceptionHandler)
 				.build();
 		this.placeFixture = new PlaceFixture(this.jdbcTemplate);
@@ -84,13 +76,7 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 				id, now, now);
 	}
 
-	/**
-	 * 🔴 방문 인증은 <b>정밀 위치 동의가 있어야</b> 지난다 (S15P21E201-549 후속).
-	 *
-	 * <p>이 줄이 없으면 아래 검사들이 전부 403 으로 죽는다. 그것이 정상이다 — 동의 없이
-	 * 방문을 판정하지 않는다는 것이 그 변경의 내용이고,
-	 * {@link #verificationIsRefusedWithoutPreciseLocationConsent()} 가 그 쪽을 잰다.
-	 */
+	/** 이것 없이는 방문 인증이 403 이다. 미동의 쪽은 다른 검사가 따로 잰다. */
 	private void grantPreciseLocation(UUID id) {
 		this.jdbcTemplate.update(
 				"INSERT INTO user_consent (consent_id, user_id, consent_type, status, policy_version, decided_at) "
@@ -119,16 +105,6 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 		return count == null ? 0 : count;
 	}
 
-	// ── 정밀 위치 동의 (S15P21E201-549 후속) ─────────────────────────────────
-
-	/**
-	 * 🔴 이 검사가 없을 때 무엇이 통과했나.
-	 *
-	 * <p>{@code ConsentType.PRECISE_LOCATION} 은 열거형과 응답 DTO 에만 있었고 <b>아무도 안
-	 * 봤다.</b> 동의를 한 번도 안 한 사람의 좌표로 방문을 판정해 {@code place_visit_verification}
-	 * 에 행을 남겼다 — {@code docs/recommendation-data-collection-p0.md} 11.4 가 "위치 미동의
-	 * 사용자의 방문 여부를 추측해서 채우지 않는다" 고 적어 둔 바로 그 일이다.
-	 */
 	@Test
 	@DisplayName("🔴 정밀 위치에 동의하지 않았으면 방문 인증이 거절된다 — 행도 안 남는다")
 	void verificationIsRefusedWithoutPreciseLocationConsent() throws Exception {
@@ -168,12 +144,8 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 	}
 
 	/**
-	 * 🔴 방침 판이 올라가도 이미 동의한 사람은 계속 쓸 수 있어야 한다.
-	 *
-	 * <p>{@code user_consent} 는 판마다 행이 쌓이는데, 판정을 <b>현재 판</b>으로 찾으면
-	 * 방침을 새로 올리는 날 동의한 사람 전원이 조용히 미동의가 되고 방문 인증이 그날부터
-	 * 403 을 낸다. 코드는 아무것도 안 바뀌었으므로 원인을 찾기 어렵다. 그래서 판을 가리지
-	 * 않고 <b>가장 최근 결정</b>을 본다.
+	 * 동의 판정은 방침 판을 가리지 않고 가장 최근 결정만 본다. 현재 판으로 찾으면 방침을 올리는
+	 * 날 기존 동의자 전원이 조용히 미동의가 된다.
 	 */
 	@Test
 	@DisplayName("🔴 옛 방침 판에 동의했어도 통과한다 — 판을 올리는 날 전원이 막히면 안 된다")
@@ -242,10 +214,7 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 				.andExpect(jsonPath("$.data.verified").value(true))
 				.andExpect(jsonPath("$.data.distanceM").value(199));
 
-		// 🔴 둘째 사용자에게도 동의를 준다 (S15P21E201-549). createUser 는 계정만 만들고
-		//    동의는 안 준다 — 그 구분이 일부러 있는 것이라
-		//    verificationIsRefusedWithoutPreciseLocationConsent 가 그 상태를 쓴다.
-		//    여기서 재려는 것은 거리 경계이지 동의가 아니므로 명시적으로 켠다.
+		// createUser 는 계정만 만들고 동의는 안 준다. 여기서 재려는 것은 거리 경계이므로 켠다.
 		UUID secondUser = UUID.randomUUID();
 		createUser(secondUser);
 		grantPreciseLocation(secondUser);
@@ -306,18 +275,10 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 	}
 
 	/**
-	 * 🔴 이 테스트가 완료 기준의 핵심이다 — "인증 뒤 데이터베이스 어디에도 좌표 값이 없다."
+	 * 칸이 없다는 것과 값이 없다는 것을 따로 확인한다. 하나만 보면 다른 칸에 같은 문자열이 박힌
+	 * 경우나 칸은 있는데 이번만 비어 있는 경우를 놓친다.
 	 *
-	 * <p>두 가지를 <b>따로</b> 확인한다. (1) 표 자체에 좌표를 담을 칸이 없다
-	 * ({@code information_schema.columns}). (2) 실제 인증 행의 모든 칸 값을 문자열로 훑어 보낸
-	 * 좌표 값이 어디에도 없다. 하나만 확인하면 "칸은 없는데 다른 칸에 우연히 같은 문자열이
-	 * 박히는 경우" 나 "칸은 있는데 이번엔 비어 있는 경우" 를 놓칠 수 있다.
-	 *
-	 * <p>🔴 {@code table_schema = current_schema()} 를 반드시 넣는다 — 이 표에는 스키마 격리가
-	 * 걸려 있어(테스트는 {@code rev_b}) 그것 없이 세면 다른 스키마의 동명 칸까지 섞여 든다.
-	 *
-	 * <p>인증 행이 실제로 만들어졌다는 것도 함께 잰다({@code rowCount == 1}) — 그러지 않으면
-	 * 행이 하나도 없어도 "좌표가 없다" 는 훑기가 그냥 통과해 버린다.
+	 * {@code table_schema = current_schema()} 는 빼면 안 된다 — 다른 스키마의 동명 칸이 섞여 든다.
 	 */
 	@Test
 	@DisplayName("🔴 인증 뒤 DB 에 좌표가 없다 — 칸도 없고 값도 없다")
@@ -333,7 +294,7 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.verified").value(true));
 
-		// 행이 실제로 만들어졌다 — 이게 없으면 아래 훑기가 빈 결과를 보고 통과한다.
+		// 이 검사가 없으면 행이 하나도 없을 때 아래 훑기가 빈 결과를 보고 그냥 통과한다.
 		assertThat(verificationRowCount(placeId, this.userId)).isEqualTo(1);
 
 		List<String> columnNames = this.jdbcTemplate.queryForList(

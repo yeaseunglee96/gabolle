@@ -18,13 +18,7 @@ import com.gabolle.backend.exchangerate.domain.ExchangeRatesResult;
 
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * {@link ExchangeRateService} 검증 — S15P21E201-1079.
- *
- * <p>실제 벤더 호출·JSON 파싱은 {@code KoreaeximExchangeRateVendorAdapterTest}·{@code
- * KoreaeximExchangeRateJsonParserTest} 몫이라 여기서는 벤더를 스텁으로 대신해 <b>캐시 동작</b>
- * 만 잰다.
- */
+/** 벤더를 스텁으로 대신해 캐시와 되감기 동작만 잰다. */
 class ExchangeRateServiceTest {
 
 	private static final String SAMPLE_JSON = """
@@ -69,7 +63,7 @@ class ExchangeRateServiceTest {
 		assertThatThrownBy(service::getLatestRates).isInstanceOf(ExchangeRateVendorException.class);
 	}
 
-	// ── 주말·공휴일 되감기 (S15P21E201-1300) ────────────────────────────────
+	// 주말·공휴일 되감기
 
 	@Test
 	@DisplayName("🔴 주말이라 오늘 값이 없으면 직전 영업일 값을 준다 — 예전에는 502 로 죽었다")

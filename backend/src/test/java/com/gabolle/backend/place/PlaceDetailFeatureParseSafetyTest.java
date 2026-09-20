@@ -29,19 +29,12 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * 상세 응답이 <b>표현할 수 없는 조합</b>을 만들지 않는지 본다 — S15P21E201-749 후속.
+ * 상세 응답이 {@link PlaceFeatureView} 가 정의하지 않은 조합({@code VERIFIED} +
+ * {@code value:null})을 만들지 않는지 본다.
  *
- * <h2>🔴 왜 통합 테스트가 아니라 목(mock) 인가</h2>
- *
- * <p>{@code place_feature.value} 는 {@code JSONB} 라서 PostgreSQL 이 쓰는 시점에 JSON 을
- * 검사한다. 깨진 값은 <b>DB 에 저장 자체가 안 된다</b> — 그래서 진짜 DB 를 쓰는 통합 테스트로는
- * 이 경로를 만들 수가 없다. 목으로 저장소를 대신해서 "DB 를 거치지 않고 만들어진
- * {@link PlaceFeature}" 를 넣는 것만이 이 가지를 지나는 유일한 방법이다.
- *
- * <p>🔴 <b>그러므로 이 테스트가 지키는 것은 "오늘 나는 버그" 가 아니라 계약이다.</b>
- * {@code VERIFIED} + {@code value:null} 은 {@link PlaceFeatureView} 가 정의한 다섯 상태
- * 어디에도 없다. 그 조합을 만들 수 있는 경로가 생기면 여기서 빨개진다.
- * 자세한 사정은 {@code PlaceDetailService.toView} 주석에 있다.
+ * <p>{@code place_feature.value} 는 {@code JSONB} 라 깨진 값은 DB 에 저장 자체가 안 된다.
+ * 목(mock)으로 저장소를 대신해 DB 를 거치지 않은 {@link PlaceFeature} 를 넣는 것이 이 가지를
+ * 지나는 유일한 방법이다.
  */
 class PlaceDetailFeatureParseSafetyTest {
 
@@ -105,8 +98,7 @@ class PlaceDetailFeatureParseSafetyTest {
 
 		PlaceFeatureView view = onlyFeature();
 
-		// 🔴 이 둘이 함께여야 한다. 상태만 낮추고 값을 남기거나, 값만 비우고 VERIFIED 를
-		//    남기면 둘 다 PlaceFeatureView 가 정의하지 않은 조합이다.
+		// 둘 중 하나만 하면 PlaceFeatureView 가 정의하지 않은 조합이 된다.
 		assertThat(view.evidenceStatus()).isEqualTo("UNKNOWN");
 		assertThat(view.value()).isNull();
 		// 행 자체는 남는다 — 버리면 "수집 대상에 안 들어갔다"(NOT_COLLECTED)로 읽혀 버린다.

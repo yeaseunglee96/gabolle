@@ -20,23 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 모델 호출이 실패하면 무엇이 나가는가 — S15P21E201-1102.
+ * 모델 호출이 실패하면 무엇이 나가는가. 키가 없으면 그 앞의 설정 검사에서 끝나 이 경로가 아예 안
+ * 돌므로, 감싸는 코드가 사라져도 다른 시험에서는 티가 안 난다.
  *
- * <h2>왜 시험으로 두는가</h2>
- *
- * 이 경로는 <b>운영에 키가 들어가기 전까지 한 번도 안 돌았다.</b> 키가 없으면 그 앞의
- * 설정 검사에서 끝나기 때문이다. 그래서 키를 넣은 날(2026-09-16) 처음 실행됐고, 그때
- * {@code retrieve()} 가 던지는 것을 아무도 안 받아서 <b>봉투 없는 500</b> 이 나갔다.
- * 화면에는 「사진을 읽지 못했어요」 만 보이고 무엇이 막힌 것인지는 알 수 없었다.
- *
- * 감싸는 코드는 눈에 잘 안 띄어서 다음 사람이 정리하다 지우기 쉽다. 지우면 같은 날이
- * 다시 온다 — 그때도 증상은 「그냥 500」 이라 원인을 찾는 데 또 반나절이 든다.
- *
- * <h2>무엇을 가르나</h2>
- *
- * <b>닿지 못한 것</b>과 <b>거절당한 것</b>은 사람이 할 일이 다르다. 앞은 서버가 바깥으로
- * 나가는 길을 보는 일이고, 뒤는 키와 모델 이름을 보는 일이다. 둘 다 502 로 나가지만
- * 메시지가 달라야 로그 한 줄로 갈린다.
+ * <p>닿지 못한 것과 거절당한 것은 사람이 할 일이 다르다 — 앞은 바깥으로 나가는 길, 뒤는 키와 모델
+ * 이름이다. 둘 다 502 로 나가지만 메시지가 달라야 로그 한 줄로 갈린다.
  */
 class GmsMenuReaderFailureTest {
 
@@ -196,8 +184,8 @@ class GmsMenuReaderFailureTest {
 					"choices", java.util.List.of(java.util.Map.of(
 							"message", java.util.Map.of("content", modelContent)))));
 			byte[] payload = envelope.getBytes(StandardCharsets.UTF_8);
-			// 🔴 charset 을 안 적으면 클라이언트가 ISO-8859-1 로 읽어 한글이 깨진다.
-			//    진짜 중계는 이 헤더를 준다 — 가짜도 같게 둬야 시험이 거짓말을 안 한다.
+			// charset 을 안 적으면 클라이언트가 ISO-8859-1 로 읽어 한글이 깨진다.
+			// 진짜 중계는 이 헤더를 주므로 가짜도 같게 둔다.
 			exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
 			exchange.sendResponseHeaders(200, payload.length);
 			try (OutputStream out = exchange.getResponseBody()) {
@@ -214,7 +202,7 @@ class GmsMenuReaderFailureTest {
 		}
 	}
 
-	// ── 줄을 이름과 가격으로 나눈다 (S15P21E201-1271) ────────────────────────
+	// ── 줄을 이름과 가격으로 나눈다 ────────────────────────────────────────
 
 	@Test
 	@DisplayName("모델이 나눠 준 이름과 가격을 그대로 싣는다")
@@ -235,10 +223,8 @@ class GmsMenuReaderFailureTest {
 	}
 
 	/**
-	 * 🔴 <b>{@code text} 로 물러서지 않는다.</b> {@code translatedText} 는 「못 옮겼으면
-	 * 원문이라도」가 성립하지만 이름은 아니다 — 못 나눈 줄의 {@code name} 에 줄 전체를 넣으면
-	 * 화면이 <b>안내문을 음식으로 그리고</b>, S15P21E201-1272 가 붙으면 그 「음식」의
-	 * <b>그림까지 만든다.</b> 못 나눈 것은 빈 칸으로 두는 편이 언제나 낫다.
+	 * {@code translatedText} 는 «못 옮겼으면 원문이라도»가 성립하지만 이름은 아니다 — 못 나눈 줄의
+	 * {@code name} 에 줄 전체를 넣으면 화면이 안내문을 음식으로 그리고 그림까지 만든다.
 	 */
 	@Test
 	@DisplayName("🔴 모델이 이름·가격을 빠뜨리면 빈 문자열이다 — 원문으로 물러서지 않는다")

@@ -17,8 +17,7 @@ public record ItineraryDraftCommand(
 
     /**
      * @param category 장소 갈래({@code place.category}). 하루 구성에서 밥집과 명소를 가르는 데
-     *     쓴다 — S15P21E201-903. 모르면 {@code null} 이고 그때는 명소도 밥집도 아닌 것으로
-     *     다룬다(지어내지 않는다).
+     *     쓴다. 모르면 {@code null} 이고 그때는 명소도 밥집도 아닌 것으로 다룬다
      */
     public record PlannedPlace(UUID placeId, int rank,
             List<String> reasonCodes, List<String> warningCodes, String category) { }

@@ -23,10 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * 여행 조회 - S15P21E201-461 완료 기준
- * "그 식별자로 조회하면 보낸 조건이 그대로 나온다" 를 직접 검증한다.
- */
 class TripQueryServiceTest {
 
     private static final Instant NOW = Instant.parse("2026-09-03T00:00:00Z");
@@ -69,7 +65,7 @@ class TripQueryServiceTest {
         assertEquals(300000, view.trip().budgetKrw());
         assertEquals(1, view.constraints().size());
         assertEquals("MOBILITY", view.constraints().get(0).type());
-        // 🔴 S15P21E201-224 — 만든 사람은 trip_member 에 OWNER 로 들어간다(TripCreationService).
+        // 만든 사람은 trip_member 에 OWNER 로 들어간다(TripCreationService).
         assertEquals(TripMember.Role.OWNER, view.role());
 
         var pace = view.snapshot().answers().stream()

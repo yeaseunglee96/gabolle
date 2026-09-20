@@ -21,19 +21,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
- * S15P21E201-945 — {@code deleteOrEnqueue} 가 진행 중인 트랜잭션이 있으면 저장소 호출을 커밋
- * 이후로 미루는지 순수 단위 테스트로 확인한다(DB 없이 {@link TransactionSynchronizationManager}
- * 만 직접 다룬다 — 실제 Postgres 를 띄우는 통합 테스트는 {@code StorageCleanupServiceTest} 참고).
+ * {@code deleteOrEnqueue} 가 진행 중인 트랜잭션이 있으면 저장소 호출을 커밋 이후로 미루는지 본다.
+ * DB 없이 {@link TransactionSynchronizationManager} 만 직접 다룬다.
  */
 class StorageCleanupServiceDeferralTest {
 
 	private final StoragePort storagePort = mock(StoragePort.class);
 	private final StorageCleanupRepository storageCleanupRepository = mock(StorageCleanupRepository.class);
 	private final Clock clock = Clock.fixed(Instant.parse("2026-09-14T00:00:00Z"), ZoneOffset.UTC);
-	// 🔴 두 테스트 다 storagePort.delete 가 성공하는 경로만 재므로 enqueue() 가 안 불리고,
-	// 따라서 이 트랜잭션 매니저도 실제로 쓰이지 않는다(verifyNoInteractions 로 그것도 확인한다).
-	// REQUIRES_NEW 트랜잭션으로 실제 DB에 쓰는 경로는 Postgres 가 있어야 재는 통합 테스트
-	// (StorageCleanupServiceTest 등) 의 몫이다.
+	// 두 테스트 다 삭제가 성공하는 경로만 재므로 enqueue() 가 안 불리고, 이 매니저도 쓰이지 않는다.
 	private final PlatformTransactionManager transactionManager = mock(PlatformTransactionManager.class);
 	private final StorageCleanupService service = new StorageCleanupService(this.storagePort,
 			this.storageCleanupRepository, this.clock, this.transactionManager);

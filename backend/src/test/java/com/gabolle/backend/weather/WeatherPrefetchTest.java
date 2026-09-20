@@ -28,11 +28,6 @@ import tools.jackson.databind.ObjectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * 미리 받아 두기와 익명 경계 — S15P21E201-993.
- *
- * <p>DB 도 바깥 호출도 없다. 컨테이너 없이 돈다.
- */
 class WeatherPrefetchTest {
 
 	/** 부산 한가운데 근처. 범위 안이라는 것만 쓰면 되므로 정확한 지점일 필요는 없다. */

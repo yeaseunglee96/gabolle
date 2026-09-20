@@ -12,16 +12,15 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 지하철 출구 안내 산출물(NDJSON)을 읽는다 — S15P21E201-479.
+ * 지하철 출구 안내 산출물(NDJSON)을 읽는다. 한 줄은
+ * {@code {"namespace":"TOURAPI","storeId":"129156","subwayExit":"2호선 강남역 3번 출구"}} 다.
  *
- * <p>한 줄은 {@code {"namespace":"TOURAPI","storeId":"129156","subwayExit":"2호선 강남역 3번 출구"}}
- * 다. {@link PlacePhotoReader} 와 같은 이유로, 칸이 빠진 줄을 조용히 건너뛰지 않고
- * <b>멈춘다</b> — 출구 안내 하나가 빠진 것을 아무도 모르는 상태가 "이 장소는 원래 안내가
- * 없다" 와 구분되지 않는다.
+ * <p>칸이 빠진 줄은 조용히 건너뛰지 않고 멈춘다 — 안내 하나가 빠진 것이 "이 장소는 원래
+ * 안내가 없다" 와 구분되지 않는다.
  */
 final class SubwayExitReader {
 
-	/** 지금 이 적재기가 장소를 찾을 수 있는 출처. {@link PlaceFeatureNdjsonReader#NAMESPACES} 와 같다. */
+	/** 장소를 찾을 수 있는 출처. {@link PlaceFeatureNdjsonReader#NAMESPACES} 와 같아야 한다. */
 	private static final Set<String> NAMESPACES = Set.of("SBIZ", "TOURAPI");
 
 	private final ObjectMapper objectMapper;

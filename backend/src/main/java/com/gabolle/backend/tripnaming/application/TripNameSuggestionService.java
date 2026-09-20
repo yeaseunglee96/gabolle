@@ -21,27 +21,11 @@ import com.gabolle.backend.tripnaming.config.TripNamingProperties;
 import com.gabolle.backend.tripnaming.presentation.dto.TripNameSuggestionsResponse;
 
 /**
- * 여행 이름 후보를 만든다 — S15P21E201-1025.
+ * 여행 이름 후보를 만든다. 모델이 죽었든 키가 없든 지어낸 이름이 전부 버려졌든 사용자는
+ * 이름을 받고, 응답의 {@code source} 가 그것이 모델이 지은 것인지를 말한다.
  *
- * <h2>🔴 이름은 <b>언제나</b> 나온다. 다만 어디서 나왔는지를 숨기지 않는다</h2>
- *
- * 모델이 죽었든, 키가 없든, 지어낸 이름이 전부 버려졌든 사용자는 이름을 받는다 —
- * 일정에서 그대로 만든 템플릿 이름이다. 그리고 응답의 {@code source} 가 그것이
- * <b>모델이 지은 것이 아님</b>을 말한다.
- *
- * <p>🔴 메뉴판 읽기({@code MenuScanService})는 정반대로 <b>실패를 실패로</b> 답한다.
- * 규칙이 다른 이유는 <b>실패가 뜻하는 것이 다르기 때문</b>이다. 거기서 빈 결과는
- * 「알레르기가 없다」로 읽혀 사람이 다칠 수 있고, 여기서 템플릿 이름은 그냥
- * <b>덜 멋진 이름</b>이다. 같은 규칙을 기계적으로 복사하지 않는다.
- *
- * <h2>순서</h2>
- * <ol>
- *   <li>참여자인지 본다 — {@code TripQueryService} 가 아니면 존재를 감춘 404</li>
- *   <li>이 여행의 일정에 있는 장소 이름을 모은다. <b>없으면 여기서 템플릿</b></li>
- *   <li>모델을 부른다 (키가 없거나 한도를 넘었으면 건너뛴다)</li>
- *   <li>🔴 받은 이름을 <b>검사한다</b> — 일정에 없는 장소가 들어 있으면 버린다</li>
- *   <li>남은 것이 없으면 템플릿</li>
- * </ol>
+ * <p>메뉴판 읽기({@code MenuScanService})는 반대로 실패를 실패로 답한다. 거기서 빈 결과는
+ * 「알레르기가 없다」로 읽히지만, 여기서 템플릿 이름은 덜 멋진 이름일 뿐이다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -59,12 +43,8 @@ public class TripNameSuggestionService {
 	private final Clock clock;
 
 	/**
-	 * 사용자마다 최근 호출 시각.
-	 *
-	 * <p>🔴 {@code MenuScanRateLimiter} 와 같은 일을 하는 <b>두 번째 사본</b>이다. 지금
-	 * 합치지 않은 이유는 그쪽이 방금 머지됐고, 두 기능이 넘칠 때 하는 일이 서로 다르기
-	 * 때문이다 — 메뉴판은 <b>거절</b>하고 이쪽은 <b>템플릿으로 물러선다.</b> 세 번째가
-	 * 생기면 그때 합치는 것이 맞다.
+	 * 사용자마다 최근 호출 시각. {@code MenuScanRateLimiter} 와 같은 일을 하지만 한도를 넘을
+	 * 때의 행동이 다르다 — 메뉴판은 거절하고 이쪽은 템플릿으로 물러선다.
 	 */
 	private final Map<String, Deque<Instant>> recentCalls = new ConcurrentHashMap<>();
 
@@ -84,7 +64,7 @@ public class TripNameSuggestionService {
 
 		List<String> placeNames = this.vocabulary.placeNamesOf(tripId);
 		if (placeNames.isEmpty() || !this.namer.isConfigured() || !withinLimit(requesterUserId)) {
-			// 🔴 기댈 곳이 없는데 지어내게 두면 그게 전부 거짓이 된다.
+			// 기댈 곳이 없는데 지어내게 두면 그게 전부 거짓이 된다.
 			return template(trip, placeNames);
 		}
 
@@ -110,8 +90,8 @@ public class TripNameSuggestionService {
 	}
 
 	/**
-	 * 저장할 수 있는 이름인가. 🔴 {@link Trip#rename} 이 거부할 이름을 <b>후보로 내놓지
-	 * 않는다</b> — 고른 순간 400 이 나면 그건 우리가 만든 막다른 길이다.
+	 * 저장할 수 있는 이름인가. {@link Trip#rename} 이 거부할 이름은 후보로 내놓지 않는다 —
+	 * 고른 순간 400 이 나면 막다른 길이다.
 	 */
 	private boolean isUsable(String candidate) {
 		if (candidate == null || candidate.isBlank()) {
@@ -124,10 +104,7 @@ public class TripNameSuggestionService {
 	}
 
 	/**
-	 * 일정에서 그대로 만든 이름. <b>지어낸 것이 하나도 없다.</b>
-	 *
-	 * <p>장소가 하나도 없으면 날짜로만 만든다 — 지금 화면이 쓰는 것과 같은 모양이라
-	 * 사용자에게 새로울 것이 없지만, <b>거짓은 아니다.</b>
+	 * 일정에서 그대로 만든 이름. 지어낸 것이 하나도 없다. 장소가 없으면 날짜로만 만든다.
 	 */
 	private TripNameSuggestionsResponse template(Trip trip, List<String> placeNames) {
 		List<String> names = new ArrayList<>();
@@ -142,7 +119,7 @@ public class TripNameSuggestionService {
 		return new TripNameSuggestionsResponse(List.copyOf(names), TripNameSuggestionsResponse.TEMPLATE, 0);
 	}
 
-	/** 넘으면 <b>거절하지 않고</b> 템플릿으로 간다 — 이름을 못 받는 것보다 낫다. */
+	/** 넘으면 거절하지 않고 템플릿으로 간다. */
 	private boolean withinLimit(String userId) {
 		Instant now = Instant.now(this.clock);
 		Deque<Instant> calls = this.recentCalls.computeIfAbsent(userId, (key) -> new ArrayDeque<>());

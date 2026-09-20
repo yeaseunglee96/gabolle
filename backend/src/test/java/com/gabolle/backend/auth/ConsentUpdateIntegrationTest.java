@@ -28,19 +28,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 가입한 뒤에 동의를 바꾼다 — S15P21E201-735.
+ * 가입한 뒤에 동의를 바꾼다. 실제 DB 에서만 드러나는 위험이 둘이다.
  *
- * <h2>🔴 왜 진짜 DB 가 필요한가</h2>
- * 이 기능의 위험 둘이 실제 DB 에서만 드러난다.
+ * <p>하나는 유일 제약이다. {@code user_consent} 는 {@code (user_id, consent_type,
+ * policy_version)} 이 유일해서 같은 판에서 행을 새로 넣으면 저장 시점에 터지는데,
+ * 가짜 저장소에는 그 제약이 없다.
  *
- * <p>하나는 <b>유일 제약</b>이다. {@code user_consent} 는 {@code (user_id, consent_type,
- * policy_version)} 이 유일해서, 같은 판에서 결정을 바꿀 때 행을 새로 넣으면 저장 시점에
- * 터진다. 가짜 저장소로는 그 제약이 없어서 초록이 나오고, 운영에서 처음 빨개진다.
- *
- * <p>다른 하나는 <b>두 자리가 같이 바뀌는가</b>다. 행동 개인화는 {@code app_user
- * .personalization_mode}(판정에 쓰는 값)와 {@code user_consent}(기록) 두 군데에 있고,
- * 하나만 바뀌면 "개인화는 켜져 있는데 동의는 없는" 상태가 된다. 어느 쪽도 오류로 나타나지
- * 않으므로 표를 직접 읽어 확인한다.
+ * <p>다른 하나는 두 자리가 같이 바뀌는가다. 행동 개인화는
+ * {@code app_user.personalization_mode}(판정에 쓰는 값)와 {@code user_consent}(기록)에 나뉘어
+ * 있고, 하나만 바뀌어도 오류가 안 나므로 표를 직접 읽어 확인한다.
  */
 class ConsentUpdateIntegrationTest extends AuthPostgresIntegrationTest {
 
@@ -88,8 +84,8 @@ class ConsentUpdateIntegrationTest extends AuthPostgresIntegrationTest {
 		assertThat(after.consents())
 				.anySatisfy(item -> assertThat(item.consentType()).isEqualTo("BEHAVIOR_PERSONALIZATION"));
 
-		// 🔴 판정에 쓰는 값과 기록이 <b>둘 다</b> 바뀌어야 한다. 하나만 바뀌면
-		//    "개인화는 켜져 있는데 동의는 없다" 가 되고, 그건 코드가 아니라 방침을 어긴 것이다.
+		// 판정에 쓰는 값과 기록이 둘 다 바뀌어야 한다. 하나만 바뀌면 개인화는 켜져 있는데
+		// 동의는 없는 상태가 된다.
 		assertThat(personalizationMode()).isEqualTo("BEHAVIOR_ENABLED");
 		assertThat(consentStatus(ConsentType.BEHAVIOR_PERSONALIZATION)).isEqualTo("GRANTED");
 	}
@@ -159,18 +155,12 @@ class ConsentUpdateIntegrationTest extends AuthPostgresIntegrationTest {
 				.hasMessageContaining("사용할 수 없는 계정");
 	}
 
-	// ── 2026-09-11 (S15P21E201-549) — 끄면 이미 만들어 둔 것도 사라지는가 ─────────
+	// ── 끄면 이미 만들어 둔 것도 사라지는가 ─────────
 
 	/**
-	 * 🔴 이 검사가 없을 때 무엇이 통과했나.
-	 *
-	 * <p>스위치와 동의 기록만 바뀌고 <b>취향 벡터·미리 만든 피드·행동 이벤트는 그대로</b>
-	 * 남았다. 위쪽 검사들은 전부 초록이었다 — 그것들이 재는 것이 스위치와 기록뿐이기
-	 * 때문이다. 껐다고 눌러도 추천은 어제 프로필로 나오고, 배치가 backfill 하면 그 프로필이
-	 * 다시 자란다.
-	 *
-	 * <p>그래서 여기서는 <b>표를 직접 읽어</b> 없어졌는지 본다. 서비스가 무엇을 불렀는지가
-	 * 아니라 행이 남았는지가 사용자에게 일어나는 일이다.
+	 * 위쪽 검사들은 스위치와 동의 기록만 본다. 그것만으로는 취향 벡터·미리 만든 피드·행동
+	 * 이벤트가 남아 껐는데도 추천이 어제 프로필로 나가는 것을 못 잡는다. 그래서 여기서는
+	 * 표를 직접 읽어 행이 없어졌는지 본다.
 	 */
 	@Test
 	@DisplayName("🔴 행동 개인화를 끄면 취향 벡터·미리 만든 피드·행동 이벤트가 함께 지워진다")
@@ -192,8 +182,7 @@ class ConsentUpdateIntegrationTest extends AuthPostgresIntegrationTest {
 		assertThat(count("SELECT count(*) FROM user_feed WHERE build_id = ?", buildId)).isZero();
 		assertThat(count("SELECT count(*) FROM feed_build WHERE user_id = ?", this.userId)).isZero();
 
-		// 🔴 행동 관찰은 지우고, 사람이 직접 넣은 것은 남긴다. 껐다는 것이
-		//    "내가 고른 것도 잊으라" 는 뜻은 아니다.
+		// 행동 관찰은 지우고 사람이 직접 넣은 것은 남긴다.
 		assertThat(count("SELECT count(*) FROM event_outbox WHERE event_id = ?", behaviorEventId)).isZero();
 		assertThat(count("SELECT count(*) FROM event_outbox WHERE event_id = ?", explicitEventId)).isOne();
 	}

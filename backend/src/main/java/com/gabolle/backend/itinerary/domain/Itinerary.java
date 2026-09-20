@@ -1,16 +1,14 @@
 package com.gabolle.backend.itinerary.domain;
 
 /**
- * 한 여행의 일정. 최신 판을 가리키는 포인터를 갖는다.
- *
- * <p>실체는 {@link ItineraryVersion} 들이고, 이 클래스는 "지금 최신이 몇 번인가" 를 안다.
+ * 한 여행의 일정. 실체는 {@link ItineraryVersion} 들이고, 이 클래스는 "지금 최신이 몇 번인가" 를 안다.
  */
 public class Itinerary {
 
     private final String itineraryId;
     private final String tripId;
 
-    /** 🔴 409 판정의 기준값. */
+    /** 409 판정의 기준값. */
     private int latestVersion;
 
     public Itinerary(String itineraryId, String tripId, int latestVersion) {
@@ -21,14 +19,9 @@ public class Itinerary {
 
     /**
      * 편집 요청이 최신 판을 바탕으로 하고 있는지 확인한다.
-     *
-     * <p>🔴 이 검사만으로는 부족하다. 확인과 저장 사이에 다른 요청이 끼어들 수 있어서
-     * 두 요청이 모두 통과할 수 있다(경쟁 조건). 마지막 방어선은 DB 의
-     * {@code UNIQUE (itinerary_id, version)} 제약이다 — 두 번째 INSERT 가
-     * 물리적으로 실패하고, 그 실패를 다시 409 로 바꿔 준다.
-     *
-     * <p>즉 이 메서드는 <b>흔한 경우를 빨리 걸러내는 것</b>이고,
-     * 진짜 보장은 DB 가 한다.
+     * 이 검사만으로는 부족하다 — 확인과 저장 사이에 다른 요청이 끼어들면 두 요청이 모두 통과할 수
+     * 있다. 마지막 방어선은 DB 의 {@code UNIQUE (itinerary_id, version)} 이고, 그 실패를 다시
+     * 409 로 바꾼다. 이 메서드는 흔한 경우를 빨리 걸러내는 것이고 진짜 보장은 DB 가 한다.
      *
      * @param baseVersion 클라이언트가 화면에서 보고 있던 판 번호
      * @throws StaleItineraryVersionException 그 사이에 누가 고쳤을 때
@@ -41,19 +34,10 @@ public class Itinerary {
 
     /**
      * 검증하고 다음 판 번호를 돌려준다.
-     *
-     * <p>🔴 <b>번호를 latestVersion 이 아니라 검증된 baseVersion 에서 만든다.</b>
-     * 이게 중요한 이유 — 두 요청이 동시에 들어왔을 때 다음 순서가 가능하다.
-     *
-     * <pre>
-     * A: 검증(5) 통과          B: 검증(5) 통과        ← 둘 다 latest=5 를 읽음
-     * A: 6번 저장, latest=6
-     * B: latest 를 다시 읽으면 6 → 7번을 만든다 → 저장 성공   🔴 둘 다 통과
-     * </pre>
-     *
-     * <p>B 가 5번을 바탕으로 7번을 만들었고 409 가 안 났다. 판이 하나 건너뛰어졌다.
-     * baseVersion + 1 로 고정하면 둘 다 6번을 시도하고, 저장 시점의
-     * UNIQUE 제약이 하나만 통과시킨다.
+     * 번호를 latestVersion 이 아니라 검증된 baseVersion 에서 만든다. 두 요청이 동시에 latest=5 를
+     * 읽었을 때, 앞선 쪽이 6번을 저장한 뒤 뒤엣쪽이 latest 를 다시 읽으면 6이라 7번을 만들어
+     * 저장에 성공한다 — 5번을 바탕으로 한 편집이 409 없이 통과하고 판이 하나 건너뛰어진다.
+     * baseVersion + 1 로 고정하면 둘 다 6번을 시도하고 UNIQUE 제약이 하나만 통과시킨다.
      *
      * @throws StaleItineraryVersionException 그 사이에 누가 고쳤을 때
      */

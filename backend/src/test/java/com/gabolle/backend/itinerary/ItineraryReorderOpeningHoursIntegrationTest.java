@@ -44,25 +44,17 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 일정을 편집했을 때 영업시간 위반이 응답에 실리는가 — S15P21E201-268 · -858.
+ * 일정을 편집했을 때 영업시간 위반이 응답에 실리는가. 순서 바꾸기·장소 더하기·되돌리기
+ * 세 경로가 같은 씨앗 데이터를 쓰므로 한 클래스에서 함께 잰다.
  *
- * <p>처음에는 순서 바꾸기만 재는 클래스였다(`-268` 의 마지막 완료 기준). `-858` 에서 장소
- * 더하기와 되돌리기도 같은 판정을 싣게 되어 그 둘을 여기서 함께 잰다 — 세 경로가 같은 씨앗
- * 데이터를 쓰므로 클래스를 하나 더 만드는 것보다 낫다.
+ * <p>권한과 검증(409 · 400 · 403 · 404)은 {@link ItineraryReorderIntegrationTest} 가, 바뀐
+ * 날의 이동시간은 {@link ItineraryReorderLegRebuildIntegrationTest} 가 잰다. 여기서는 경고가
+ * 나가는지만 잰다.
  *
- * <p>다른 두 검사가 이미 옆에 있다. {@link ItineraryReorderIntegrationTest} 는 권한과 검증
- * (409 · 400 · 403 · 404)을, {@link ItineraryReorderLegRebuildIntegrationTest} 는 바뀐 날의
- * 이동시간이 다시 채워지는지를 잰다. 여기서는 <b>경고가 나가는지</b>만 잰다.
- *
- * <h2>가짜 문을 세우는 이유</h2>
- * 실제 구현({@code PlaceFeatureOpeningHoursFilter})은 적재된 값을 읽는다. 그 값을 여기서
- * 만들려면 장소마다 영업시간 JSON 을 심어야 하고, 그러면 이 검사가 <b>재려는 것</b>(경고가
- * 순서를 안 건드리고 나가는가)보다 값 모양이 더 큰 자리를 차지한다. 값 모양은 DB 없이 도는
- * {@code OpeningHoursValueTest} 가 따로 잰다.
- *
- * <p>그래서 {@link SwitchableOpeningHours} 로 <b>답을 정할 수 있는 문</b>을 세운다. 🔴 실제
- * 계약과 같은 세 갈래(연다 · 닫는다 · 모른다)를 그대로 돌려준다 — 가짜가 두 갈래로 줄이면
- * "모른다" 갈래가 검사에서 빠지고, 그것이 이 기능에서 가장 틀리기 쉬운 자리다.
+ * <p>영업시간 문은 {@link SwitchableOpeningHours} 로 답을 정할 수 있는 가짜를 세운다. 실제
+ * 구현은 적재된 값을 읽어서, 장소마다 영업시간 JSON 을 심으면 값 모양이 이 검사의 주제보다
+ * 커진다. 가짜도 실제 계약과 같은 세 갈래(연다·닫는다·모른다)를 돌려준다 — 두 갈래로 줄이면
+ * 가장 틀리기 쉬운 「모른다」가 검사에서 빠진다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -114,14 +106,9 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 	}
 
 	/**
-	 * 브레이크타임·라스트오더용 가짜 문 — S15P21E201-94.
-	 *
-	 * <p>이 검사 파일은 이름 그대로 <b>영업시간(OPENING_HOURS)만</b> 잰다({@code
-	 * SwitchableOpeningHours} 의 클래스 주석 참고). 실제 구현({@code PlaceFeatureTimeFactFilter})을
-	 * 그대로 두면 이 씨앗 장소들에는 브레이크타임·라스트오더 값이 없어 매 항목마다 NOT_COLLECTED 가
-	 * 섞여 들어오고, {@code notChecked} 개수가 이 파일이 기대하는 값(영업시간 하나만 반영한 값)과
-	 * 어긋난다 — 이 검사가 재려는 것과 무관한 잡음이라 {@code SwitchableOpeningHours} 와 같은 이유로
-	 * 가짜로 대체하고 기본값을 {@code OPEN} 으로 둔다.
+	 * 브레이크타임·라스트오더용 가짜 문. 이 파일은 영업시간만 재는데, 실제 구현을 그대로
+	 * 두면 씨앗 장소에 그 값이 없어 매 항목마다 NOT_COLLECTED 가 섞여 {@code notChecked}
+	 * 개수가 어긋난다. 기본값은 {@code OPEN} 이다.
 	 */
 	static class SwitchableTimeFact implements PlaceTimeFactFilterPort {
 
@@ -205,9 +192,9 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 	/**
 	 * 0일차에 셋(A 09:00 · B 11:00 · C 13:00).
 	 *
-	 * <p>🔴 <b>순서를 바꿔도 시각표는 그 자리에 남고 항목만 자리를 옮겨 앉는다</b>
+	 * <p>순서를 바꿔도 시각표는 그 자리에 남고 항목만 자리를 옮겨 앉는다
 	 * ({@code ItineraryRevision.withReorderedDay}). 그래서 C 를 맨 앞으로 보내면 C 가 09:00 을
-	 * 받는다. "C 는 09:00 에 문을 안 연다" 를 이 문에 심어 두면 위반이 확정적으로 하나 생긴다.
+	 * 받고, C 가 그 시각에 안 연다고 심어 두면 위반이 하나 확정된다.
 	 */
 	@BeforeEach
 	void seedThreePlacesWithTimesOnDayZero() {
@@ -286,7 +273,7 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 		reorderDay(0, List.of(this.keyC.toString(), this.keyA.toString(), this.keyB.toString()), 1)
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.days[0].items[0].id").value(this.keyC.toString()))
-				// 🔴 빈 경고 목록만 보내면 "확인했고 문제 없음" 으로 읽힌다. 그래서 왜 못 봤는지를 싣는다.
+				// 빈 경고 목록만 보내면 "확인했고 문제 없음" 으로 읽힌다. 왜 못 봤는지를 싣는다.
 				.andExpect(jsonPath("$.data.warnings.length()").value(0))
 				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
 				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
@@ -301,8 +288,8 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 
 		reorderDay(0, List.of(this.keyC.toString(), this.keyA.toString(), this.keyB.toString()), 1)
 				.andExpect(status().isOk())
-				// 🔴 둘 중 하나만 올라오면 화면이 거짓말을 한다. 경고만 오면 "나머지는 확인했고
-				//    문제 없음" 으로 읽히고, 못 한 검사만 오면 실제 위반이 묻힌다.
+				// 둘 중 하나만 올라오면 화면이 거짓말을 한다 — 경고만 오면 나머지를 확인한 것으로
+				// 읽히고, 못 한 검사만 오면 실제 위반이 묻힌다.
 				.andExpect(jsonPath("$.data.warnings.length()").value(1))
 				.andExpect(jsonPath("$.data.warnings[0].placeId").value(this.placeC.toString()))
 				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
@@ -321,8 +308,8 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 		reorderDay(0, List.of(this.keyC.toString(), this.keyA.toString(), this.keyB.toString(), keyD.toString()), 1)
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.warnings.length()").value(0))
-				// 🔴 S15P21E201-94 — 시각을 모르면 영업시간·브레이크타임·라스트오더 셋 다 못 잰다.
-				//    세 축 각각이 "이 항목은 시각이 없어 못 잰다" 를 따로 보고한다.
+				// 시각을 모르면 영업시간·브레이크타임·라스트오더 셋 다 못 재고, 세 축이 각각
+				// 따로 보고한다.
 				.andExpect(jsonPath("$.data.notChecked.length()").value(3))
 				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
 				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"))
@@ -360,7 +347,7 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 				// 시각은 그 날짜 재계산이 정하고 화면이 이어서 부른다. 그때까지는 판정할 수 없다 —
 				// 여는 것으로 넘기면 화면이 "확인했고 문제 없음" 으로 읽는다.
 				.andExpect(jsonPath("$.data.warnings.length()").value(0))
-				// 🔴 S15P21E201-94 — 시각을 모르면 영업시간·브레이크타임·라스트오더 셋 다 못 잰다.
+				// 시각을 모르면 영업시간·브레이크타임·라스트오더 셋 다 못 잰다.
 				.andExpect(jsonPath("$.data.notChecked.length()").value(3))
 				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
 				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"))

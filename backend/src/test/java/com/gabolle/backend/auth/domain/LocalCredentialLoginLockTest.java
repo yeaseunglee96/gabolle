@@ -14,7 +14,7 @@ import com.gabolle.backend.user.domain.UserStatus;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 로그인 연속 실패를 세고 잠그는 규칙 — S15P21E201-421.
+ * 로그인 연속 실패를 세고 잠그는 규칙.
  *
  * <p>시간이 걸린 규칙이라 고정된 시각으로 잰다. 실제 DB 에 남는지는
  * {@code LoginAttemptLimitIntegrationTest} 가 따로 본다.

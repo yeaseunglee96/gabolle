@@ -19,14 +19,9 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
- * {@link ActorNames} 검증 — S15P21E201-1095.
- *
- * <p>🔴 <b>이 시험이 지키는 것은 "탈퇴한 사람이 만든 판"이다.</b> 판 이력의 작성자 칸은
- * 앞으로 탈퇴하면 비워질 자리이고({@code ON DELETE SET NULL}), 그 {@code null} 이 여기로
- * 흘러든다. 거르지 않으면 {@code UUID.fromString(null)} 이 터지고, <b>판 하나 때문에 판
- * 목록과 여행 활동 기록이 통째로 안 그려진다.</b>
- *
- * <p>그리고 그 피해는 탈퇴한 본인이 아니라 <b>같은 여행을 쓰던 동행자</b>에게 간다.
+ * {@link ActorNames} 검증. 지키는 것은 탈퇴한 사람이 만든 판이다 — 작성자 칸은 탈퇴하면
+ * 비워지고({@code ON DELETE SET NULL}), 그 {@code null} 을 거르지 않으면 판 하나 때문에
+ * 판 목록과 여행 활동 기록이 통째로 안 그려진다.
  */
 class ActorNamesTest {
 
@@ -49,8 +44,7 @@ class ActorNamesTest {
 		Map<String, String> names = this.actorNames.resolve(Arrays.asList(null, null));
 
 		assertThat(names).isEmpty();
-		// 🔴 빈 IN 질의를 보내지 않는다. 결과가 같더라도 왕복 한 번은 공짜가 아니고,
-		//    판 목록은 사람이 여는 화면마다 이 길을 지난다.
+		// 빈 IN 질의를 보내지 않는다. 판 목록은 화면을 열 때마다 이 길을 지난다.
 		verify(this.appUserRepository, never()).findAllById(any());
 	}
 

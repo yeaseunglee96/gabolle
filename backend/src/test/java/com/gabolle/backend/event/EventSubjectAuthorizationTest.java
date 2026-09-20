@@ -30,19 +30,11 @@ import com.gabolle.backend.event.presentation.EventIngestController;
 import com.gabolle.backend.event.presentation.EventIngestExceptionHandler;
 
 /**
- * S15P21E201-705 — 행동 이벤트의 주체를 <b>인증에서만</b> 읽는지 본다.
+ * 행동 이벤트의 주체를 인증에서만 읽는지 본다. 요청 본문의 {@code userId} 를 그대로
+ * 믿으면 로그인한 사람 누구나 남의 이름으로 이벤트를 넣을 수 있고, 행동 이벤트는 개인화
+ * 입력이라 남의 추천 결과가 오염된다.
  *
- * <h2>🔴 왜 이 테스트가 필요한가</h2>
- * 2026-09-07 인가 점검(`-672`)까지 이 컨트롤러는 {@code Authentication} 을 받지 않고 요청 본문의
- * {@code userId} 를 그대로 저장했다. 로그인한 사람 누구나 임의의 사용자 ID 로 이벤트를 넣을 수
- * 있었고, 행동 이벤트는 개인화 입력으로 들어가므로 <b>남의 추천 결과를 오염시킬 수 있었다.</b>
- *
- * <p>여행·일정 API 가 {@code X-User-Id} 헤더로 사용자를 정하던 것(`-607`·`-610`)과 같은 종류다.
- * 헤더 대신 본문이라는 점만 다르다. 그 둘은 사람이 손으로 찔러 보다 발견됐고 그때까지 아무
- * 테스트도 잡지 않았다 — 그래서 이번에는 회귀 테스트를 남긴다.
- *
- * <p>🔴 이 테스트는 <b>HTTP 층을 지난다.</b> 서비스를 직접 부르면 컨트롤러가 신원을 어디서
- * 읽는지 검증되지 않는다. 같은 함정으로 이 저장소는 오늘 이미 두 번 헛돌았다.
+ * <p>HTTP 층을 지난다. 서비스를 직접 부르면 컨트롤러가 신원을 어디서 읽는지 검증되지 않는다.
  */
 class EventSubjectAuthorizationTest {
 
@@ -73,7 +65,7 @@ class EventSubjectAuthorizationTest {
 				.principal(asMe())
 				.content(body(this.someoneElse)))
 				.andExpect(status().isForbidden())
-				// 🔴 500 이 아니어야 한다. 처리기가 없으면 이 예외가 500 으로 나간다
+				// 500 이 아니어야 한다. 처리기가 없으면 이 예외가 500 으로 나간다.
 				.andExpect(jsonPath("$.error.code").value("EVENT_SUBJECT_MISMATCH"));
 
 		verify(this.service, never()).ingestFromClient(any(), any(EventType.class), anyInt(), any(), any(),

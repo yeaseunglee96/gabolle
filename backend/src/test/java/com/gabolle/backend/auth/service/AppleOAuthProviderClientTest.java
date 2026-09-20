@@ -25,7 +25,7 @@ import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 애플 코드 교환 — S15P21E201-825.
+ * 애플 코드 교환.
  *
  * <p>확인하는 것은 셋이다. 서명해 만든 client secret 을 실어 보내는가, 신원을 {@code id_token} 에서만
  * 꺼내는가, 가려진 주소일 때 "유효" 라고 단정하지 않는가.

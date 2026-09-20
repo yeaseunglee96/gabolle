@@ -8,13 +8,8 @@ import com.gabolle.backend.place.domain.FeaturePresence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * {@link FeaturePresence} 진리표 — DB 없이 돈다 (S15P21E201-604).
- *
- * <p>evidenceStatus 세 값({@code VERIFIED} · {@code ESTIMATED} · {@code UNKNOWN}) ×
- * value 네 모양({@code null} · {@code "true"} · {@code "false"} · 공백)을 전부 못 박는다.
- * 어제 배포를 막은 결함이 {@link FeaturePresence#indicatesPresence(String, String)} 과
- * {@link FeaturePresence#cannotRuleOutPresence(String, String)} 의 방향을 뒤집은 것이었다 —
- * 이 표가 그 방향을 다시 뒤집어도 잡아낸다.
+ * {@link FeaturePresence} 진리표 — evidenceStatus 값 × value 네 모양({@code null} ·
+ * {@code "true"} · {@code "false"} · 공백)의 조합을 전부 못 박는다. DB 없이 돈다.
  */
 class FeaturePresenceTest {
 
@@ -153,9 +148,7 @@ class FeaturePresenceTest {
 	@Test
 	@DisplayName("🔴 두 판정은 서로의 반대가 아니다 — UNKNOWN 에서 갈린다")
 	void theTwoPredicatesDivergeExactlyAtUnknown() {
-		// UNKNOWN: indicatesPresence=false, cannotRuleOutPresence=true — 둘 다 "있다 취급"이 아니라
-		// "안전 쪽으로 취급"이 갈린다. indicatesPresence 의 반대였다면 여기서 true/true 가 아니라
-		// true/false 여야 하는데, 안전 제약(cannotRuleOutPresence)은 모르는 것도 있는 것으로 봐야 한다.
+		// 안전 제약(cannotRuleOutPresence)은 모르는 것도 있는 것으로 봐야 하므로 서로의 반대가 아니다.
 		assertThat(FeaturePresence.indicatesPresence("UNKNOWN", null)).isFalse();
 		assertThat(FeaturePresence.cannotRuleOutPresence("UNKNOWN", null)).isTrue();
 	}

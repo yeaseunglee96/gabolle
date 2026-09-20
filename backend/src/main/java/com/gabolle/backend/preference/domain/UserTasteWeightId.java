@@ -9,12 +9,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
-/**
- * {@link UserTasteWeight} 의 복합 키 — (판, 차원, 코드).
- *
- * <p>{@code place} 패키지의 {@code UserPlaceCodeMapId} 와 같은 모양으로 맞췄다
- * ({@code @EmbeddedId}). 이 저장소에 이미 있는 방식을 따른다.
- */
+/** {@link UserTasteWeight} 의 복합 키 — (판, 차원, 코드). */
 @Embeddable
 public class UserTasteWeightId implements Serializable {
 
@@ -28,11 +23,8 @@ public class UserTasteWeightId implements Serializable {
 	private TasteDimension dimension;
 
 	/**
-	 * 차원 안의 값. 예: {@code dimension=CATEGORY} 일 때 {@code code=CAFE}.
-	 *
-	 * <p>🔴 코드 목록은 화면 옵션과 장소 태그 온톨로지가 확정된 뒤 고정한다. 그전까지
-	 * DB 도 막지 않는다 — {@code preference_answer} 가 {@code value} 안쪽을 안 막은 것과
-	 * 같은 이유다. 지어낸 목록이 계약이 되는 것보다 담당자가 정하고 나서 박는 것이 맞다.
+	 * 차원 안의 값. 예: {@code dimension=CATEGORY} 일 때 {@code code=CAFE}. 코드 목록은 화면
+	 * 옵션과 장소 태그 온톨로지가 확정된 뒤에 고정한다 — 그전까지는 DB 도 막지 않는다.
 	 */
 	@Column(name = "code", nullable = false, length = 50, updatable = false)
 	private String code;

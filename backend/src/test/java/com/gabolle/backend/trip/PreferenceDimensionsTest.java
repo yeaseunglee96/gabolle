@@ -11,10 +11,8 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.trip.domain.PreferenceDimensions;
 
 /**
- * 앱 이름 → DB 어휘 — S15P21E201-665.
- *
- * <p>왼쪽 아홉 개는 {@code frontend/src/api/tripApi.ts} 의 {@code preference('…')} 호출과
- * 글자 그대로 같아야 한다. 앱이 이름을 하나 더 보내기 시작하면 이 표가 먼저 빨개져야 한다.
+ * 앱 이름 → DB 어휘. 왼쪽 아홉 개는 {@code frontend/src/api/tripApi.ts} 의
+ * {@code preference('…')} 호출과 글자 그대로 같아야 한다.
  */
 class PreferenceDimensionsTest {
 

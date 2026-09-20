@@ -11,7 +11,7 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-/** {@code trip_travel_area} 표 매핑 (V20260915060000) — S15P21E201-980. 기본키는 (trip_id, area_code). */
+/** {@code trip_travel_area} 표 매핑. 기본키는 (trip_id, area_code). */
 @Entity
 @Table(name = "trip_travel_area")
 public class TripTravelAreaJpaEntity {

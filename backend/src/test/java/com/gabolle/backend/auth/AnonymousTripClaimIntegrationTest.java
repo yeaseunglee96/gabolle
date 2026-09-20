@@ -23,12 +23,11 @@ import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripRepository;
 
 /**
- * S15P21E201-317 — 완료 기준 셋을 진짜 PostgreSQL 위에서 잰다.
+ * 익명 세션이 만든 여행의 승계를 진짜 PostgreSQL 위에서 잰다.
  *
- * <h2>왜 진짜 DB 가 필요한가</h2>
- * 승계는 {@code trip}·{@code trip_member} 두 표를 함께 옮긴다({@code JpaTripRepository.claimAnonymousTrips}
- * 의 네이티브 SQL). Mockito 로는 그 SQL 이 실제로 두 칸을 바꾸는지, {@code updatable = false} 인
- * 칸이 정말 바뀌는지를 증명할 수 없다.
+ * <p>승계는 {@code trip}·{@code trip_member} 두 표를 함께 옮긴다
+ * ({@code JpaTripRepository.claimAnonymousTrips} 의 네이티브 SQL). 그 SQL 이 실제로 두 칸을
+ * 바꾸는지, {@code updatable = false} 인 칸이 정말 바뀌는지는 실제 DB 에서만 알 수 있다.
  */
 class AnonymousTripClaimIntegrationTest extends AuthPostgresIntegrationTest {
 
@@ -91,8 +90,7 @@ class AnonymousTripClaimIntegrationTest extends AuthPostgresIntegrationTest {
 		TripCreationService.Command command = new TripCreationService.Command(
 				sessionId,
 				LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
-				// 출발지 좌표(해운대). S15P21E201-440 으로 필수가 됐다 — 없으면 여행 생성 자체가
-				// 400 이라 이 검사가 보려는 승계 갈래에 닿지 못한다.
+				// 출발지 좌표는 필수다 — 없으면 여행 생성이 400 이라 승계 갈래에 닿지 못한다.
 				35.1587, 129.1604, null, 1,
 				null, "Asia/Seoul",
 				List.<PreferenceSnapshot.PreferenceAnswer>of(),

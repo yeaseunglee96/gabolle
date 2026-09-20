@@ -10,12 +10,7 @@ import com.gabolle.backend.collection.application.CollectionService;
 import com.gabolle.backend.collection.domain.Collection;
 import com.gabolle.backend.collection.domain.CollectionItem;
 
-/**
- * 컬렉션 하나 — S15P21E201-1013.
- *
- * <p>값이 없는 칸은 <b>키째 뺀다</b>({@code @JsonInclude(NON_NULL)}) — 이 저장소의 다른
- * 응답과 같은 규칙이다.
- */
+/** 컬렉션 하나. 값이 없는 칸은 키째 뺀다({@code @JsonInclude(NON_NULL)}). */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CollectionResponse(UUID collectionId, String name, String description, int count,
 		List<Item> items, boolean hasMore, OffsetDateTime updatedAt) {
@@ -30,11 +25,10 @@ public record CollectionResponse(UUID collectionId, String name, String descript
 	/**
 	 * 컬렉션에 담긴 것 하나.
 	 *
-	 * @param kind 🔴 <b>{@code PLACE} 인지 {@code CUSTOM} 인지를 값으로 말한다.</b> 화면이
-	 *     «{@code placeId} 가 없으면 직접 적은 것» 으로 추론하지 않게 하려는 것이다 — 그렇게
-	 *     두면 장소가 지워진 항목과 직접 적은 항목이 구분되지 않는다
-	 * @param placeId {@code PLACE} 일 때만 온다. <b>이름·좌표·사진은 이 번호로 장소를 따로
-	 *     불러 얻는다</b> — 여기 베껴 담으면 장소 이름이 바뀌었을 때 한쪽만 낡는다
+	 * @param kind {@code PLACE} 인지 {@code CUSTOM} 인지를 값으로 말한다. {@code placeId} 가
+	 *     없는지로 추론하면 장소가 지워진 항목과 직접 적은 항목이 구분되지 않는다
+	 * @param placeId {@code PLACE} 일 때만 온다. 이름·좌표·사진은 이 번호로 장소를 따로 불러
+	 *     얻는다 — 여기 베껴 담으면 장소 이름이 바뀌었을 때 한쪽만 낡는다
 	 * @param name {@code CUSTOM} 일 때만 온다
 	 */
 	@JsonInclude(JsonInclude.Include.NON_NULL)
@@ -47,12 +41,11 @@ public record CollectionResponse(UUID collectionId, String name, String descript
 		}
 	}
 
-	/** 내 컬렉션 전부. 모양은 이 저장소의 다른 목록 응답과 같다 ({@code items}·{@code count}). */
 	/**
 	 * 내 컬렉션 목록.
 	 *
-	 * @param hasMore 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037). 컬렉션 안쪽
-	 *     항목이 잘린 것은 각 {@link CollectionResponse} 의 같은 이름 칸이 따로 알린다
+	 * @param hasMore 컬렉션이 상한에 걸려 더 있는데 안 보냈다. 컬렉션 안쪽 항목이 잘린 것은
+	 *     각 {@link CollectionResponse} 의 같은 이름 칸이 따로 알린다
 	 */
 	public record Page(List<CollectionResponse> items, int count, boolean hasMore) {
 

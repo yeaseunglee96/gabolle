@@ -34,29 +34,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
- * S15P21E201-1275 — <b>탈퇴하면 동영상 파일도 실제로 사라지는가</b>, 그리고 <b>탈퇴가 끝까지 도는가.</b>
+ * 탈퇴하면 동영상 파일도 실제로 사라지는가, 그리고 탈퇴가 끝까지 도는가.
  *
- * <h2>🔴 이 검사가 막는 것은 「안 지워짐」이 아니라 「탈퇴가 죽는 것」이다</h2>
+ * <p>{@code story_video} 가 {@code uploaded_video}·{@code uploaded_image} 를 가리키는데 그
+ * 외래키에 {@code ON DELETE} 가 없다. {@code story_video} 를 먼저 안 지우고 업로드 행을
+ * 지우면 외래키 위반으로 탈퇴 전체가 되돌아간다. {@code AccountDeletionTableInventoryTest} 는
+ * {@code app_user} 로 가는 외래키만 훑으므로 이 자리에 닿지 않는다.
  *
- * {@code story_video} 가 {@code uploaded_video}·{@code uploaded_image} 를 가리키는데 그 외래키에
- * {@code ON DELETE} 가 없다. 탈퇴가 <b>{@code story_video} 를 먼저 안 지우고</b> 업로드 행을
- * 지우면 외래키 위반으로 <b>트랜잭션이 통째로 되돌아간다</b> — 파일 하나가 아니라
- * <b>탈퇴 전체가 500 으로 죽는다.</b> 애플 심사 5.1.1(v) 항목이다.
+ * <p>지우기 전에 시드가 들어갔는지를 먼저 센다. 조용히 실패하면 지운 뒤에도 0건이라 거저
+ * 통과한다.
  *
- * <p>🔴 <b>그리고 지금 있는 검사가 이 자리에 안 닿는다.</b>
- * {@code AccountDeletionTableInventoryTest} 는 <b>{@code app_user} 로 가는 외래키</b>만 훑는다.
- * {@code story_video} 는 {@code story}·{@code uploaded_video}·{@code uploaded_image} 만 가리키므로
- * <b>그 검사를 조용히 통과한다.</b> 그래서 이 파일이 <b>유일한 그물</b>이다.
- *
- * <h2>🔴 지우기 전에 「넣었는가」를 먼저 센다</h2>
- *
- * 시드가 조용히 실패하면 지운 뒤에도 0건이라 <b>거저 통과한다.</b>
- * {@code AccountDeletionOwnedRowsRemovedTest} 가 같은 규약을 먼저 썼다.
- *
- * <h2>행이 아니라 파일을 본다</h2>
- *
- * 저장 루트를 임시 폴더로 돌리고 <b>진짜 파일을 만들어 둔다.</b> 행만 보면 <b>파일이 저장소에
- * 그대로 남아 있어도 초록</b>이다 — 애플이 묻는 것은 파일 쪽이다.
+ * <p>저장 루트를 임시 폴더로 돌리고 진짜 파일을 만들어 둔다. 행만 보면 파일이 저장소에
+ * 남아 있어도 초록이다.
  */
 class AccountDeletionVideoFilesTest extends AuthPostgresIntegrationTest {
 
@@ -127,7 +116,7 @@ class AccountDeletionVideoFilesTest extends AuthPostgresIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다.
+		// 표를 비우지 않고 내가 만든 것만 지운다.
 		this.jdbc.update("DELETE FROM story_video WHERE story_id = ?", this.storyId);
 		this.jdbc.update("DELETE FROM uploaded_video WHERE uploaded_video_id = ?", this.videoUploadId);
 		this.jdbc.update("DELETE FROM uploaded_image WHERE uploaded_image_id = ?", this.thumbnailUploadId);
@@ -149,7 +138,7 @@ class AccountDeletionVideoFilesTest extends AuthPostgresIntegrationTest {
 	@Test
 	@DisplayName("🔴 탈퇴 뒤 uploaded_video 에 그 사람 행이 0건이다")
 	void withdrawalRemovesUploadedVideoRows() {
-		// 🔴 먼저 「넣었는가」. 안 넣었으면 지운 뒤 0건인 것이 무엇 때문인지 모른다.
+		// 먼저 넣었는지 본다. 안 넣었으면 지운 뒤 0건인 것이 무엇 때문인지 모른다.
 		assertThat(countUploadedVideo()).isEqualTo(1);
 
 		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);

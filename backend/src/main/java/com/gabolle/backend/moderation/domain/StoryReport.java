@@ -11,17 +11,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 기록 하나에 대한 신고 한 건 — S15P21E201-254 · -267.
+ * 기록 하나에 대한 신고 한 건.
  *
- * <h2>🔴 신고자를 외래키로 걸지 않는다</h2>
- * {@code reporter_user_id} 는 {@code app_user} 를 참조하지만 외래키가 없다. 탈퇴한 사람의
- * 신고도 <b>검토 근거로 남아야</b> 하기 때문이다. 외래키를 걸면 계정 삭제가 이 행을 지우거나
- * ({@code CASCADE}) 신고자를 비우는데({@code SET NULL}), 둘 다 곤란하다 — 지우면 신고 수가
- * 줄어 "두 사람이 신고했다" 가 한 사람으로 보이고, 비우면 같은 사람의 중복 신고를 막는
- * UNIQUE 가 무력해진다.
- *
- * <p>대신 신고자 이름은 <b>검토 화면에 보여주지 않는다.</b> 운영자가 판단할 것은 기록의 내용이고
- * 누가 신고했는지가 판단을 바꾸면 안 된다. 그래서 이 값의 유일한 용도는 중복 신고 판정이다.
+ * {@code reporter_user_id} 는 {@code app_user} 를 참조하지만 외래키가 없다 — 탈퇴한 사람의 신고도
+ * 검토 근거로 남아야 한다. CASCADE 면 신고 수가 줄고, SET NULL 이면 중복 신고를 막는 UNIQUE 가
+ * 무력해진다. 이 값의 유일한 용도는 중복 신고 판정이고, 신고자는 검토 화면에 보여주지 않는다.
  */
 @Entity
 @Table(name = "story_report")
@@ -72,11 +66,8 @@ public class StoryReport {
 	}
 
 	/**
-	 * 신고를 접수한다.
-	 *
-	 * <p>🔴 {@code detail} 은 {@link StoryReportReason#OTHER} 가 아니면 버린다. 사유를 골라
-	 * 놓고 자유 입력을 함께 보내는 클라이언트가 있으면 그 글이 검토 화면에 섞여 운영자가
-	 * 읽어야 하는 것이 늘어난다.
+	 * 신고를 접수한다. {@code detail} 은 {@link StoryReportReason#OTHER} 가 아니면 버린다 — 사유를
+	 * 골라 놓고 자유 입력을 함께 보내는 클라이언트가 있어도 검토 화면에 섞이지 않게 한다.
 	 */
 	public static StoryReport file(UUID storyId, UUID reporterUserId, StoryReportReason reason, String detail,
 			Instant now) {
@@ -88,10 +79,8 @@ public class StoryReport {
 	}
 
 	/**
-	 * 운영자가 처리했다고 표시한다.
-	 *
-	 * <p>이미 처리된 신고를 다시 처리하지 않는다 — 두 운영자가 같은 신고를 동시에 열었을 때
-	 * 나중 판단이 앞선 판단을 덮어쓰면 어느 것이 실제 결정인지 알 수 없다.
+	 * 운영자가 처리했다고 표시한다. 이미 처리된 신고면 던진다 — 두 운영자가 같은 신고를 동시에
+	 * 열었을 때 나중 판단이 앞선 판단을 덮어쓰면 어느 것이 실제 결정인지 알 수 없다.
 	 */
 	public void resolve(StoryReportResolution resolution, UUID adminUserId, Instant now) {
 		if (this.resolvedAt != null) {
@@ -150,7 +139,7 @@ public class StoryReport {
 		return this.resolvedBy;
 	}
 
-	/** 이미 처리된 신고를 다시 처리하려 했다 — 409. */
+	/** 이미 처리된 신고를 다시 처리하려 했다 — 409 로 나간다. */
 	public static class AlreadyResolvedException extends RuntimeException {
 
 		private final UUID storyReportId;

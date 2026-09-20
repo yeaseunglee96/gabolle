@@ -18,15 +18,10 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 개인화 입력(여행 조건 · 취향 · 제약)을 애플리케이션을 우회해서 넣어도 DB 가 막는가.
+ * 개인화 입력을 애플리케이션을 우회해서 넣어도 DB 가 막는가. 애플리케이션 코드로만 지키는
+ * 규칙은 배치나 손으로 쓴 SQL 이 옆으로 걸어 들어오므로 원시 SQL 로 넣어 본다.
  *
- * <p>🔴 여기서 하는 일은 정상 동작 확인이 아니라 <b>일부러 고장을 내는 것</b>이다.
- * 수집 명세(S15P21E201-542) 2.1 이 요구하는 "값과 응답 상태를 분리한다" 는 규칙은
- * 애플리케이션 코드로만 지키면 배치 작업이나 손으로 쓴 SQL 이 그 옆으로 걸어 들어온다.
- * 그래서 원시 SQL 로 넣어 보고, DB 가 거부하는지를 본다.
- *
- * <p>이 표들의 엔티티(자바 클래스)는 없다 — S15P21E201-461(모진성) 자리다. 엔티티 없이
- * 표만 검증할 수 있어야 하므로 {@link JdbcTemplate} 로 직접 넣는다.
+ * <p>이 표들의 엔티티가 아직 없어서 {@link JdbcTemplate} 로 직접 넣는다.
  */
 class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 
@@ -75,11 +70,10 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 				.isInstanceOf(DataIntegrityViolationException.class);
 	}
 
-	// ── 취향: CATEGORY 낱말은 사전에 있어야 한다 (S15P21E201-915) ─────────────
+	// ── 취향: CATEGORY 낱말은 사전에 있어야 한다 ─────────────────────────────
 	//
-	// 🔴 여기서 막는 것은 "틀린 낱말" 이 아니라 **조용한 0건**이다. 사전 밖 낱말이 들어가면
-	//    장소 쪽 낱말과 교집합이 언제나 비고, 그 결과는 오류가 아니라 "맞는 장소 없음" 으로
-	//    나타난다. 아무도 못 보는 고장이라 DB 가 입구에서 막아야 한다.
+	// 막는 것은 "틀린 낱말" 이 아니라 조용한 0건이다. 사전 밖 낱말이 들어가면 장소 쪽 낱말과
+	// 교집합이 언제나 비고, 그 결과는 오류가 아니라 "맞는 장소 없음" 으로 나타난다.
 
 	@Test
 	@DisplayName("🔴 CATEGORY 에 사전에 없는 낱말을 넣으면 DB 가 거부한다 — 맨 배열 모양")
@@ -104,7 +98,7 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 		assertThatCode(() -> insertPreferenceAnswer("CATEGORY", "[\"SEA_BEACH\",\"FOOD\"]", "SELECTED"))
 				.doesNotThrowAnyException();
 
-		// 기존 시험과 다른 클라이언트가 쓰는 모양 (S15P21E201-635 가 둘 다 읽기로 한 자리다).
+		// 기존 시험과 다른 클라이언트가 쓰는 모양.
 		assertThatCode(() -> insertPreferenceAnswer("ATMOSPHERE", "{\"codes\": [\"ANYTHING\"]}", "SELECTED"))
 				.doesNotThrowAnyException();
 	}
@@ -120,7 +114,7 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 	@DisplayName("🔴 사전이 없는 차원은 막지 않는다 — 모르는 것을 아는 척하지 않는다")
 	void databaseDoesNotGuardDimensionsWithoutADictionary() {
 		// 분위기·음식종류의 낱말 목록은 아무도 정한 적이 없다. 여기서 지어내면 실제로 쓰이던
-		// 값이 배포 때 거부된다 (V20260913210000 이 같은 이유로 거절한 것과 같다).
+		// 값이 배포 때 거부된다.
 		assertThatCode(() -> insertPreferenceAnswer("FOOD_PREFERENCE", "[\"WHATEVER\"]", "SELECTED"))
 				.doesNotThrowAnyException();
 
@@ -147,8 +141,8 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 	@Test
 	@DisplayName("🔴 사용자 쪽 낱말과 장소 쪽 낱말이 같은 사전을 본다 — 교집합이 비면 실패한다")
 	void userAndPlaceSidesShareOneDictionary() {
-		// 904 는 장소 쪽에, 915 는 사용자 쪽에 같은 표를 물렸다. 이 검사는 그 표가 비거나
-		// 둘이 다른 표를 보게 되는 순간 빨개진다 — 그때가 "조용한 0건" 이 돌아오는 때다.
+		// 장소 쪽과 사용자 쪽이 같은 표를 본다. 그 표가 비거나 둘이 다른 표를 보게 되는
+		// 순간 빨개진다 — 그때가 "조용한 0건" 이 돌아오는 때다.
 		Integer shared = this.jdbcTemplate.queryForObject("""
 				SELECT count(*) FROM place_feature_code WHERE feature_type = 'CATEGORY_TAG'
 				""", Integer.class);
@@ -220,13 +214,11 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 				.isInstanceOf(DataIntegrityViolationException.class);
 	}
 
-	// ── 제약 값은 종류마다 필요 여부가 다르다 (S15P21E201-554 후속) ───────────
+	// ── 제약 값은 종류마다 필요 여부가 다르다 ────────────────────────────────
 
 	@Test
 	@DisplayName("🔴 알레르기·식단은 값 없이 저장된다 — 코드가 constraint_key 에 있고 value 는 담을 것이 없다")
 	void allergyAndDietAreStoredWithoutValue() {
-		// 고친 것이 이 자리다. 전에는 SELECTED 면 value 를 강요해서, 담을 것이 없는데도
-		// 아무 JSON 이나 채워 넣어야 했다. 자리를 채운 값은 나중에 진짜 데이터와 구별되지 않는다.
 		assertThatCode(() -> insertConstraintAnswer("ALLERGY", "PEANUT", null, true, "SELECTED"))
 				.doesNotThrowAnyException();
 		assertThatCode(() -> insertConstraintAnswer("DIET", "HALAL", null, false, "SELECTED"))
@@ -252,7 +244,7 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 				.isInstanceOf(DataIntegrityViolationException.class);
 	}
 
-	// ── 여행 시간대 프리셋 (S15P21E201-461 이 버리고 있던 값) ─────────────────
+	// ── 여행 시간대 프리셋 ───────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("시간대 프리셋 원본이 저장된다 — 시각 두 칸이 비어 있어도 사용자가 고른 것은 남는다")
@@ -373,7 +365,7 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 				.isInstanceOf(DataIntegrityViolationException.class);
 	}
 
-	// ── S15P21E201-543 이 남긴 자리: 외래키 ──────────────────────────────────
+	// ── 외래키 ───────────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("🔴 없는 스냅샷을 가리키는 추천 Job 은 DB 가 거부한다 — 543 이 이름만 맞춰 두고 남긴 자리다")
@@ -395,9 +387,8 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 	@DisplayName("후보 → 노출을 잇는 축이 실제로 조인된다 — 명세 14장 마지막 항목")
 	void candidateJoinsBackToItsInputSnapshot() {
 		UUID requestId = UUID.randomUUID();
-		// 🔴 V20260905120000 이 ck_recommendation_job_result_present 를 붙였다 —
-		//    SUCCEEDED 인 ITINERARY_GENERATION Job 은 itinerary_id·itinerary_version 이
-		//    있어야 한다. 여기서 쓸 최소 일정 하나를 함께 만든다.
+		// SUCCEEDED 인 ITINERARY_GENERATION Job 은 itinerary_id·itinerary_version 이 있어야
+		// 한다. 여기서 쓸 최소 일정 하나를 함께 만든다.
 		UUID itineraryId = insertItinerary(this.references.tripId(), this.references.userId());
 
 		this.jdbcTemplate.update("""
@@ -420,14 +411,12 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 				VALUES (?, ?, ?, 'ONTOLOGY_SEED', 'RETURNED', TRUE, 'PASS', 0.9, 1, TRUE, now())
 				""", UUID.randomUUID(), requestId, placeId);
 
-		// 🔴 이 검사가 보는 것은 낱말이 아니라 **조인이 끝까지 닿는가**다. 그래서 낱말이 무엇인지는
-		//    상관없었고, 원래는 사전에 없는 SEA·ALLEY 를 쓰고 있었다. S15P21E201-915 가 CATEGORY 에
-		//    사전 강제를 걸면서 진짜 낱말로 바꾼다 — 검사의 의도는 그대로다.
+		// 이 검사가 보는 것은 낱말이 아니라 조인이 끝까지 닿는가다. 다만 CATEGORY 는 사전을
+		// 강제하므로 사전에 있는 낱말을 써야 한다.
 		insertPreferenceAnswer("CATEGORY", "{\"codes\": [\"SEA_BEACH\", \"NATURE_WALK\"]}", "SELECTED");
 		insertPreferenceAnswer("QUIETNESS", null, "SKIPPED");
 
-		// (request_id, place_id) 에서 그 요청을 만든 취향 답까지 한 번에 닿는다.
-		// 🔴 건너뛴 답도 함께 나와야 한다 — 분석에서 "안 물어봤다" 를 세려면 그 행이 있어야 한다.
+		// 건너뛴 답도 함께 나와야 한다 — 분석에서 "안 물어봤다" 를 세려면 그 행이 있어야 한다.
 		Integer joinedAnswers = this.jdbcTemplate.queryForObject("""
 				SELECT count(*)
 				FROM recommendation_candidate c
@@ -442,7 +431,7 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 
 	// ── 넣는 도구들 ───────────────────────────────────────────────────────────
 
-	/** {@code recommendation_job.itinerary_id} 의 FK 대상 — 판 1의 최소 일정 하나. */
+	/** {@code recommendation_job.itinerary_id} 의 FK 대상. */
 	private UUID insertItinerary(UUID tripId, UUID createdBy) {
 		UUID itineraryId = UUID.randomUUID();
 		this.jdbcTemplate.update(

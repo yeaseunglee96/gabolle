@@ -27,24 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * S15P21E201-1282 — 기록에 동영상을 <b>붙이는</b> 길.
+ * 기록에 동영상을 붙이는 길. 주제는 모양이 아니라 권한이다 — 주소만 알면 남이 올린 동영상을
+ * 내 기록에 붙일 수 있는 자리라 그것을 막는지 본다.
  *
- * <h2>🔴 이 파일의 주제는 모양이 아니라 권한이다</h2>
+ * <p>같은 동영상이 기록 둘에 붙는 것은 {@code uq_story_video_upload} 가 DB 에서 막는다. 응용이
+ * 먼저 보는 것은 오류 모양 때문이다 — 제약에 부딪히면 500 에 제약 이름만 남는다.
  *
- * 주소만 알면 <b>남이 올린 동영상을 내 기록에 붙일 수 있는</b> 자리가 생긴다 — 올린 사람과
- * 붙이는 사람이 갈릴 수 있는 구조이기 때문이다. 사진이 같은 규칙을 먼저 썼고
- * ({@code resolveImages} 의 <i>「남의 업로드를 내 기록에 붙이는 것 — 주소를 훔쳐도 안 된다」</i>),
- * 동영상에도 같은 그물이 필요하다.
- *
- * <h2>같은 동영상이 기록 둘에 붙는 것은 표가 이미 막는다</h2>
- *
- * {@code uq_story_video_upload}(UNIQUE)가 DB 에서 막는다 — <b>없는 것을 새로 만들지 않았다.</b>
- * 다만 응용에서 먼저 보는 이유는 <b>오류의 모양</b>이다. 제약에 부딪히면 500 에 제약 이름만
- * 남고, 먼저 보면 400 에 사람이 읽을 문장과 그 주소가 나간다.
- *
- * <h2>DB 가 없으면 건너뛴다</h2>
- *
- * 🔴 도커가 꺼진 PC 에서는 건너뛴 채 초록이다. <b>진짜 판정은 CI 다.</b>
+ * <p>DB 가 없으면 건너뛴 채 초록이다 — 진짜 판정은 CI 다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -79,7 +68,7 @@ class StoryVideoAttachIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다.
+		// 표를 비우지 않는다. 내가 만든 것만 지운다.
 		if (this.createdStoryId != null) {
 			this.jdbc.update("DELETE FROM story_video WHERE story_id = ?", this.createdStoryId);
 			this.jdbc.update("DELETE FROM story_image WHERE story_id = ?", this.createdStoryId);

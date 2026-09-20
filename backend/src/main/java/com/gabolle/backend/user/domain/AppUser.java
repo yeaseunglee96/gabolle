@@ -55,10 +55,8 @@ public class AppUser {
 	private Instant deletedAt;
 
 	/**
-	 * 회원이 반복해서 쓰는 출발지 (S15P21E201-265). {@code trip.origin_lat/lng} 와 다르다 —
-	 * 그건 여행마다 바뀌고 이건 회원에 고정된 값이다. 이동시간 캐시가 매번 새 좌표라 못
-	 * 맞는 문제 때문에 필요해졌다 — 이 칸을 실제로 읽는 캐시 로직은 이 티켓 몫이 아니고,
-	 * 여기서는 저장 자리만 연다.
+	 * 회원이 반복해서 쓰는 출발지. {@code trip.origin_lat/lng} 와 다르다 — 그건 여행마다
+	 * 바뀌고 이건 회원에 고정된 값이다. 이동시간 캐시가 이 값을 쓰라고 만든 칸이다.
 	 */
 	@Column(name = "frequent_origin_lat")
 	private Double frequentOriginLat;
@@ -71,7 +69,7 @@ public class AppUser {
 	private String frequentOriginLabel;
 
 	/**
-	 * 프로필 사진 주소 (S15P21E201-844). 사진 파일은 업로드 자리에 올라가고 여기엔 주소만 남는다.
+	 * 프로필 사진 주소. 사진 파일은 업로드 자리에 올라가고 여기엔 주소만 남는다.
 	 *
 	 * <p>{@code null} 은 "안 골랐다" 다. 빈 문자열을 쓰지 않는 이유는 화면이 그것을 주소로 알고
 	 * 깨진 이미지를 그리기 때문이고, DB 쪽에도 같은 규칙이 걸려 있다
@@ -81,16 +79,14 @@ public class AppUser {
 	private String avatarUrl;
 
 	/**
-	 * 커버 사진 주소 (S15P21E201-1297). 마이페이지 맨 위에 전폭으로 깔리는 사진이다.
+	 * 커버 사진 주소. 마이페이지 맨 위에 깔리는 사진이다.
 	 *
-	 * <p>프로필 사진과 <b>같은 업로드 자리</b>에서 나온 주소가 들어온다 — 창구를 새로 만들지
-	 * 않았다. 다른 점은 <b>주소를 받아들이는 기준</b>이다. 프로필 사진은 주소의 앞부분만 보는데
-	 * (「우리 서버에서 나온 주소인가」), 커버는 <b>올린 사람이 본인인지</b>까지 본다 —
-	 * 그 판정은 {@code ProfileUpdateService} 가 소유한다.
+	 * <p>프로필 사진과 같은 업로드 자리에서 나온 주소가 들어오지만 받아들이는 기준이 더 좁다 —
+	 * 프로필 사진은 주소의 앞부분만 보고, 커버는 올린 사람이 본인인지까지 본다. 그 판정은
+	 * {@code ProfileUpdateService} 가 소유한다.
 	 *
-	 * <p>{@code null} 은 "안 골랐다" 다. 기본 사진 주소를 여기 넣지 않는다 — 넣으면 "고른 사람"
-	 * 과 "안 고른 사람" 을 표에서 구분할 수 없어진다. 기본 사진은 화면이 고른다
-	 * ({@code ck_app_user_cover_url_not_blank} 가 빈 문자열도 막는다).
+	 * <p>{@code null} 은 "안 골랐다" 다. 기본 사진 주소를 여기 넣으면 고른 사람과 안 고른
+	 * 사람을 구분할 수 없어진다. 기본 사진은 화면이 고른다.
 	 */
 	@Column(name = "cover_url", length = 500)
 	private String coverUrl;
@@ -110,8 +106,8 @@ public class AppUser {
 	}
 
 	/**
-	 * 가입 경로 전부(로컬·OAuth)가 이 팩토리를 거친다 — S15P21E201-686. {@code role} 을 인자로
-	 * 받지 않는 이유: ADMIN 은 가입으로 얻는 값이 아니라 운영자가 DB에서 직접 올리는 값이다.
+	 * 가입 경로 전부가 이 팩토리를 거친다. {@code role} 을 인자로 받지 않는다 — ADMIN 은
+	 * 가입으로 얻는 값이 아니라 운영자가 DB 에서 직접 올리는 값이다.
 	 */
 	public static AppUser register(String displayName, String language, Instant ageVerifiedAt,
 			String ageGatePolicyVersion, PersonalizationMode personalizationMode, UserStatus status) {
@@ -119,11 +115,8 @@ public class AppUser {
 	}
 
 	/**
-	 * 표시 이름을 바꾼다 (S15P21E201-423).
-	 *
-	 * <p>🔴 빈 이름을 허용하지 않는다. "지운다" 와 "안 바꾼다" 를 구분해야 하는데, 지우는 쪽은
-	 * 이름 없는 계정을 만들기 때문에 제품 결정 없이 열지 않는다. 안 바꾸는 것은 이 메서드를
-	 * 부르지 않는 것으로 표현한다.
+	 * 표시 이름을 바꾼다. 빈 이름은 허용하지 않는다 — 이름 없는 계정이 생긴다.
+	 * 안 바꾸는 것은 이 메서드를 부르지 않는 것으로 표현한다.
 	 */
 	public void rename(String displayName) {
 		if (displayName == null || displayName.isBlank()) {
@@ -133,12 +126,11 @@ public class AppUser {
 	}
 
 	/**
-	 * 프로필 사진을 바꾸거나 뗀다 (S15P21E201-844). 주소가 우리 업로드 자리에서 나온 것인지는
-	 * 부르는 쪽이 확인한 뒤 넘긴다 — 그 판정에 필요한 설정을 이 엔티티가 알 이유가 없다.
+	 * 프로필 사진을 바꾸거나 뗀다. 주소가 우리 업로드 자리에서 나온 것인지는 부르는 쪽이
+	 * 확인한 뒤 넘긴다.
 	 *
-	 * <p>{@code null} 이 "뗀다" 다. 빈 문자열은 받지 않는다 — 이름과 달리 사진은 없어도 되는
-	 * 값이라 지우는 길을 열어야 하고, 그 길을 {@code null} 하나로만 둔다. 빈 문자열까지 지우기로
-	 * 받으면 "안 골랐다" 를 표현하는 방법이 둘이 되고 화면은 그 둘을 다르게 그린다.
+	 * <p>{@code null} 이 "뗀다" 다. 빈 문자열은 받지 않는다 — 받으면 "안 골랐다" 를 표현하는
+	 * 방법이 둘이 되고 화면은 그 둘을 다르게 그린다.
 	 */
 	public void changeAvatarUrl(String avatarUrl) {
 		if (avatarUrl != null && avatarUrl.isBlank()) {
@@ -148,11 +140,10 @@ public class AppUser {
 	}
 
 	/**
-	 * 커버 사진을 바꾸거나 뗀다 (S15P21E201-1297).
+	 * 커버 사진을 바꾸거나 뗀다. {@code null} 이 "뗀다" 로 {@link #changeAvatarUrl} 과 같다.
 	 *
-	 * <p>{@code null} 이 "뗀다" 다 — {@link #changeAvatarUrl} 과 같은 규칙이다. 주소가 <b>본인이
-	 * 올린 사진</b>인지는 부르는 쪽이 확인한 뒤 넘긴다. 그 판정에는 업로드 표를 봐야 하는데,
-	 * 엔티티가 남의 표를 들여다보게 만들면 이 클래스를 시험하려고 DB 를 띄워야 한다.
+	 * <p>주소가 본인이 올린 사진인지는 부르는 쪽이 확인한 뒤 넘긴다 — 그 판정에는 업로드 표가
+	 * 필요하고, 엔티티가 그것을 들여다보면 이 클래스를 시험하려고 DB 를 띄워야 한다.
 	 */
 	public void changeCoverUrl(String coverUrl) {
 		if (coverUrl != null && coverUrl.isBlank()) {
@@ -170,29 +161,19 @@ public class AppUser {
 	}
 
 	/**
-	 * 탈퇴한 계정으로 만든다 (S15P21E201-425).
+	 * 탈퇴한 계정으로 만든다. 행을 지우지 않고 비운다 —
+	 * {@code itinerary_versions.created_by} 가 필수 값이면서 이 표를 가리켜, 동행자의 일정을
+	 * 편집한 적이 있으면 행을 지울 때 남의 편집 이력까지 지워야 한다.
 	 *
-	 * <p>🔴 행을 지우지 않고 비우는 이유가 있다. {@code itinerary_versions.created_by} 가 필수 값이면서
-	 * 이 표를 가리키는데, 이 사람이 동행자의 일정을 편집한 적이 있으면 행을 지울 때 <b>남의 일정
-	 * 편집 이력까지 함께 지워야</b> 한다. 그건 탈퇴한 사람의 권한 밖이다.
-	 *
-	 * <p>대신 로그인에 필요한 것(비밀번호·소셜 연결·세션)과 본인 데이터는 전부 지운다. 이메일이
-	 * 풀려서 같은 주소로 다시 가입할 수 있고, 남는 행에는 개인을 알아볼 값이 없다.
-	 *
-	 * <p>{@code status} 와 {@code deletedAt} 은 원래 이 용도로 만들어져 있던 칸이다.
+	 * <p>로그인에 필요한 것과 본인 데이터는 전부 지운다. {@code status} 와 {@code deletedAt}
+	 * 이 이 용도의 칸이다.
 	 */
 	/**
-	 * 행동 기반 개인화를 켜고 끈다 — 2026-09-07 추가 (S15P21E201-735).
+	 * 행동 기반 개인화를 켜고 끈다.
 	 *
-	 * <p>이 값은 가입할 때 한 번 정해지고 그 뒤로 <b>바꿀 방법이 아예 없었다.</b> 앱은
-	 * 마이페이지에 토글을 뒀는데 그 선택이 기기 안에만 남았고, 서버는 가입 때의 값을
-	 * 계속 믿었다 — 껐다고 생각한 사람의 행동이 계속 개인화에 들어가는 상태다.
-	 *
-	 * <p>🔴 동의 표({@code user_consent})와 <b>따로 두지 않는다.</b> 이 칸은 판정에 쓰는
-	 * 현재 값이고 동의 표는 "언제 무엇에 동의했나" 의 기록이다. 둘 중 하나만 바뀌면
-	 * 개인화는 켜져 있는데 동의는 없는(또는 그 반대) 상태가 되고, 그건 코드가 아니라
-	 * 방침을 어기는 것이다. 그래서 바꾸는 자리를 하나로 둔다 —
-	 * {@code ConsentUpdateService} 가 둘을 같은 트랜잭션에서 고친다.
+	 * <p>이 칸은 판정에 쓰는 현재 값이고 동의 표({@code user_consent})는 언제 무엇에
+	 * 동의했나의 기록이다. 둘 중 하나만 바뀌면 개인화는 켜져 있는데 동의는 없는 상태가
+	 * 되므로, {@code ConsentUpdateService} 가 둘을 같은 트랜잭션에서 고친다.
 	 */
 	public void changePersonalizationMode(PersonalizationMode personalizationMode) {
 		if (personalizationMode == null) {
@@ -203,10 +184,8 @@ public class AppUser {
 
 	public void anonymizeForDeletion(Instant deletedAt) {
 		this.displayName = "탈퇴한 사용자";
-		// 🔴 사진 주소도 비운다 (S15P21E201-1297). 탈퇴는 올린 사진 파일을 실제로 지우므로
-		//    (AccountDeletionService.deleteUploadedFiles) 이 주소는 **없는 파일을 가리킨 채** 남는다.
-		//    그리고 탈퇴한 사람도 동행자 목록·팔로우 목록에는 "탈퇴한 사용자" 로 남는데, 이름만
-		//    지우고 얼굴을 남겨 두면 지운 것이 아니다.
+		// 사진 주소도 비운다. 탈퇴는 올린 사진 파일을 실제로 지우므로 이 주소는 없는 파일을
+		// 가리킨 채 남고, 탈퇴한 사람도 동행자·팔로우 목록에는 남는다.
 		this.avatarUrl = null;
 		this.coverUrl = null;
 		this.ageVerifiedAt = null;
@@ -260,14 +239,9 @@ public class AppUser {
 	}
 
 	/**
-	 * 이 계정을 운영자로 올린다 — S15P21E201-225.
-	 *
-	 * <p>🔴 이 메서드를 부를 수 있는 곳은 기동 시점 동기화({@code AdminRoleStartupSynchronizer})
-	 * 하나뿐이다. 운영자를 만드는 HTTP 경로는 만들지 않았다 — 그 경로가 있으면 그 자체가
-	 * 새 공격면이 되고, "누가 운영자인가" 의 근거가 배포 설정이 아니라 요청 기록으로 흩어진다.
-	 *
-	 * <p>가입 팩토리({@link #register})가 {@code role} 을 인자로 받지 않는 것도 같은 이유다.
-	 * 운영자 권한은 가입으로 얻을 수 있는 값이 아니다.
+	 * 이 계정을 운영자로 올린다. 부르는 곳은 기동 시점 동기화
+	 * ({@code AdminRoleStartupSynchronizer}) 하나뿐이고 운영자를 만드는 HTTP 경로는 없다 —
+	 * 그 경로가 있으면 누가 운영자인가의 근거가 배포 설정이 아니라 요청 기록으로 흩어진다.
 	 */
 	public void grantAdmin() {
 		this.role = UserRole.ADMIN;
@@ -289,10 +263,8 @@ public class AppUser {
 	}
 
 	/**
-	 * 자주 쓰는 출발지를 정하거나 바꾼다 (S15P21E201-265).
-	 *
-	 * <p>🔴 좌표는 함께 있거나 함께 없어야 한다 — {@code place} 의 {@code ck_place_origin_pair}
-	 * 와 같은 이유다. 위도만 주고 경도를 안 주면 반쪽 좌표가 저장된다.
+	 * 자주 쓰는 출발지를 정하거나 바꾼다. 좌표는 함께 있거나 함께 없어야 한다 —
+	 * 위도만 주면 반쪽 좌표가 저장된다.
 	 */
 	public void changeFrequentOrigin(Double lat, Double lng, String label) {
 		if ((lat == null) != (lng == null)) {

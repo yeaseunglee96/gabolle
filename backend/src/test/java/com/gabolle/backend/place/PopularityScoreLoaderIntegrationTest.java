@@ -27,12 +27,8 @@ import com.gabolle.backend.place.loader.TruthSignalReader;
 import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
 /**
- * 목록 근거를 인기도 점수로 넣는다 — S15P21E201-826.
- *
- * <p>2026-09-10 운영 실측에서 점수 여섯 축 중 넷이 값 없이 비어 있었고, 그래서 추천이 사실상
- * "가까운 순" 이었다. 그중 인기도를 채우는 것이 이 검사가 지키는 것이다.
- *
- * <p>표본은 실제 파일에서 뜬 59줄이다({@code TruthSignalReaderTest} 참고).
+ * 목록 근거가 인기도 점수 행이 되는지 잰다. 표본은 실제 파일에서 뜬 59줄이다
+ * ({@code TruthSignalReaderTest} 와 같은 파일).
  */
 class PopularityScoreLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -40,7 +36,7 @@ class PopularityScoreLoaderIntegrationTest extends PlacePostgresIntegrationTest 
 
 	private static final String SAMPLE = "/research/truth-sample.ndjson";
 
-	/** 표본에 실제로 들어 있는 가게. 「공개글448」 하나에 오르고 글이 두 번 지목했다. */
+	/** 표본에 실제로 들어 있는 가게. 목록 하나에 오르고 글이 두 번 지목했다. */
 	private static final String LISTED_STORE = "MA010120220811437741";
 
 	@Autowired
@@ -163,8 +159,7 @@ class PopularityScoreLoaderIntegrationTest extends PlacePostgresIntegrationTest 
 				"SELECT (value->>'score')::float8 FROM place_feature "
 						+ "WHERE place_id = ? AND feature_type = 'POPULARITY_SCORE'",
 				Double.class, placeId);
-		// 이 가게는 「공개글448」 하나에 올랐다. 표본 안에서 그 목록이 가장 흔하므로
-		// 무게가 작다 — 그것이 희소성 방식의 요점이다.
+		// 이 가게가 오른 목록은 표본 안에서 가장 흔해 무게가 작다 — 희소성 방식의 요점이다.
 		assertThat(score).isBetween(0.0, 1.0).isNotNull();
 	}
 }

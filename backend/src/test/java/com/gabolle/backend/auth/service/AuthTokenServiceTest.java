@@ -82,12 +82,9 @@ class AuthTokenServiceTest {
 	}
 
 	/**
-	 * S15P21E201-739 — 손 놓고 2시간이 지나면 풀린다.
-	 *
-	 * <p>사용자가 "반나절을 안 썼는데도 로그인이 유지된다" 고 제보해서 줄인 값이다. 이 테스트가
-	 * 재는 것은 두 가지다 — 설정 없이 띄웠을 때의 기본값이 2시간인 것과, <b>갱신할 때마다
-	 * 만료가 그 시점 기준으로 다시 밀리는 것</b>. 뒤의 것이 없으면 이 값은 "손 놓은 시간" 이
-	 * 아니라 "로그인한 뒤 총 시간" 이 되고, 쓰는 도중에 튕긴다.
+	 * 손 놓고 2시간이 지나면 풀린다. 재는 것은 둘이다 — 설정 없이 띄웠을 때의 기본값이
+	 * 2시간인 것과, 갱신할 때마다 만료가 그 시점 기준으로 다시 밀리는 것. 뒤의 것이 없으면
+	 * 이 값은 손 놓은 시간이 아니라 로그인한 뒤 총 시간이 되어 쓰는 도중에 튕긴다.
 	 */
 	@Test
 	void refreshPushesSessionExpiryToTwoHoursFromNow() {
@@ -113,9 +110,8 @@ class AuthTokenServiceTest {
 	}
 
 	/**
-	 * 🔴 S15P21E201-723 — 이 테스트는 원래 {@code now.minusSeconds(10)} 을 썼다. 유예(기본 30초)가
-	 * 생기면서 10초 전은 <b>도난이 아니라 경쟁</b>으로 처리되므로, 도난을 재려면 유예를 넘겨야
-	 * 한다. 기대를 바꾼 것이 아니라 <b>재는 대상을 유예 밖으로 옮긴 것</b>이다.
+	 * 소비된 표를 다시 쓰면 세션 계열을 폐기한다. 유예(기본 30초) 안의 재사용은 도난이
+	 * 아니라 경쟁으로 처리되므로, 도난을 재려면 시각을 유예 밖으로 잡아야 한다.
 	 */
 	@Test
 	void revokesTokenFamilyWhenConsumedRefreshTokenIsReused() {
@@ -140,16 +136,11 @@ class AuthTokenServiceTest {
 	}
 
 	/**
-	 * S15P21E201-723 — 거의 동시에 두 번 갱신하면 <b>둘 다 성공하고 세션이 살아 있다.</b>
+	 * 거의 동시에 두 번 갱신하면 둘 다 성공하고 세션이 살아 있다.
 	 *
-	 * <h2>🔴 왜 이것이 필요한가</h2>
-	 * 접속 표가 만료된 상태에서 브라우저 탭 둘이(또는 웹 쿠키 경로와 앱 경로가) 거의 동시에
-	 * 갱신을 시도하면 하나만 성공하고 나머지는 <b>같은 표</b>를 낸다. 그것을 도난으로 보고 세션
-	 * 계열을 폐기하면 아무도 잘못하지 않았는데 로그아웃된다.
-	 *
-	 * <p>2026-09-07 에 사용자가 "축제 화면을 열면 로그아웃된다" 고 알려 줬고, 운영 로그의
-	 * {@code REFRESH_TOKEN_REUSED} 가 원인이었다. 화면은 원인이 아니었다 — 접속 표가 만료된 뒤
-	 * 여는 것이 무엇이든 같은 일이 났다.
+	 * <p>접속 토큰이 만료된 상태에서 탭 둘이 거의 동시에 갱신하면 하나만 성공하고 나머지는
+	 * 같은 표를 낸다. 그것을 도난으로 보고 세션 계열을 폐기하면 아무도 잘못하지 않았는데
+	 * 로그아웃된다.
 	 */
 	@Test
 	void allowsNearSimultaneousRefreshWithoutRevokingTheSession() {
@@ -174,7 +165,7 @@ class AuthTokenServiceTest {
 		AuthTokenService.IssuedTokens result = service.refresh(rawToken, "device-1");
 
 		assertThat(result.refreshToken()).isNotBlank().isNotEqualTo(rawToken);
-		// 🔴 이 두 줄이 이 테스트의 핵심이다 — 세션이 죽지 않았다
+		// 세션이 죽지 않았다
 		assertThat(session.getRevokedAt()).isNull();
 		assertThat(raced.getRevokedAt()).isNull();
 	}

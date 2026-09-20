@@ -20,19 +20,14 @@ import com.gabolle.backend.itinerary.domain.ItineraryRun;
 import com.gabolle.backend.itinerary.domain.ItineraryStopEvent;
 
 /**
- * 손으로 쓴 upsert SQL 과 표 정의가 맞는지 본다 — S15P21E201-1325.
+ * 손으로 쓴 upsert SQL 과 표 정의가 맞는지 본다.
  *
- * <h2>이 검사가 막는 것</h2>
- * {@code JpaItineraryRunRepository} 의 {@code INSERT ... ON CONFLICT} 는 원시 SQL 이라
- * <b>컴파일러가 칸 이름을 봐 주지 않는다.</b> 마이그레이션에서 칸 이름을 바꾸면 그 어긋남은
- * 실행할 때까지 안 드러나고, 실행되는 자리는 사용자가 「출발」을 누르는 순간이다.
- *
- * <p>{@link ItineraryItemActualSqlMatchesMigrationTest} 와 같은 갈래다 — 그쪽 주석이
- * 이 검사가 무엇이 <b>아닌지</b>도 적어 두었다. DB 검증이 아니다.
+ * <p>{@code JpaItineraryRunRepository} 의 {@code INSERT ... ON CONFLICT} 는 원시 SQL 이라
+ * 컴파일러가 칸 이름을 봐 주지 않고, 마이그레이션과 어긋나도 실행할 때까지 안 드러난다.
+ * {@link ItineraryItemActualSqlMatchesMigrationTest} 와 같은 갈래이고, DB 검증은 아니다.
  *
  * <p>여기에 하나 더 본다: 표의 {@code CHECK} 에 적힌 이름들과 자바 {@code enum} 이 같은가.
- * 둘은 <b>같은 사실</b>인데 두 파일에 나뉘어 적혀 있어서, 한쪽에만 값을 더하면 그 값을 쓰는
- * 순간 제약 위반이 난다.
+ * 같은 사실이 두 파일에 나뉘어 있어 한쪽에만 값을 더하면 쓰는 순간 제약 위반이 난다.
  */
 class ItineraryRunSqlMatchesMigrationTest {
 
@@ -58,8 +53,8 @@ class ItineraryRunSqlMatchesMigrationTest {
 	@Test
 	@DisplayName("🔴 ON CONFLICT 대상이 표의 기본키와 같다 — 다르면 덮어쓰기가 아니라 오류가 난다")
 	void conflictTargetIsThePrimaryKey() throws IOException {
-		// 🔴 파일 전체가 아니라 SQL 덩이만 본다. 지금은 주석에 괄호가 없어 우연히 맞지만,
-		//    누가 주석에 「ON CONFLICT (itinerary_id)」라고 적는 순간 이 검사가 그걸 잡는다.
+		// 파일 전체가 아니라 SQL 덩이만 본다 — 주석에 「ON CONFLICT (itinerary_id)」라고
+		// 적는 순간 파일 전체 검사는 헛돈다.
 		Matcher matcher = Pattern.compile("ON CONFLICT\\s*\\(([^)]*)\\)").matcher(upsertSql());
 
 		assertThat(matcher.find()).isTrue();
@@ -68,14 +63,13 @@ class ItineraryRunSqlMatchesMigrationTest {
 	}
 
 	/**
-	 * 🔴 {@code started_at} 은 덮어쓰지 않는다. 중지했다 다시 출발했다고 「언제 시작했나」가
-	 * 바뀌면, 그 여행이 몇 시에 시작했는지 아무도 못 답한다.
+	 * {@code started_at} 은 덮어쓰지 않는다. 다시 출발해도 처음 출발 시각이 바뀌면 안 된다.
 	 */
 	@Test
 	@DisplayName("🔴 DO UPDATE 가 started_at 을 안 건드린다")
 	void doUpdateKeepsStartedAt() throws IOException {
-		// 🔴 SQL 덩이를 먼저 집는다. 파일 전체에서 「DO UPDATE」를 찾으면 **주석에 적힌 말**이
-		//    먼저 걸린다 — 처음 그렇게 썼다가 이 시험이 자기 설명문을 검사했다.
+		// SQL 덩이를 먼저 집는다. 파일 전체에서 「DO UPDATE」를 찾으면 주석에 적힌 말이
+		// 먼저 걸린다.
 		String doUpdate = upsertSql().split("DO UPDATE")[1];
 
 		assertThat(doUpdate).doesNotContain("started_at");

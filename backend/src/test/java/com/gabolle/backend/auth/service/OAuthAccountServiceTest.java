@@ -47,12 +47,7 @@ import com.gabolle.backend.user.domain.UserStatus;
 import com.gabolle.backend.user.repository.AppUserRepository;
 import com.gabolle.backend.user.repository.UserConsentRepository;
 
-/**
- * S15P21E201-689 · -690 — 소셜 인증이 세 갈래로 갈리는 규칙.
- *
- * <p>2026-09-07 재설계로 이 클래스가 보는 것이 바뀌었다. 예전에는 "처음 보는 신원이면 그 자리에서 계정을 만든다" 가
- * 규칙이었고 테스트도 그것을 고정했다. 지금은 <b>계정을 만들지 않는 것</b>이 규칙이라, 그 자리에 새 단정을 둔다.
- */
+/** 소셜 인증이 세 갈래로 갈리는 규칙. 처음 보는 신원이어도 그 자리에서 계정을 만들지 않는다. */
 @ExtendWith(MockitoExtension.class)
 class OAuthAccountServiceTest {
 
@@ -74,8 +69,8 @@ class OAuthAccountServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		// 🔴 수준을 명시하고 원래대로 되돌린다. 앞선 Spring 테스트가 로그백을 재설정하면
-		//    로깅 확인이 빈 목록을 훑고 조용히 통과한다.
+		// 수준을 명시하고 원래대로 되돌린다. 앞선 Spring 검사가 로그백을 재설정하면
+		// 로깅 확인이 빈 목록을 훑고 조용히 통과한다.
 		logbackLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(SecurityEventLogger.class);
 		originalLevel = logbackLogger.getLevel();
 		logbackLogger.setLevel(Level.INFO);
@@ -111,7 +106,7 @@ class OAuthAccountServiceTest {
 		assertThat(signup.displayName()).isEqualTo("여행자");
 		assertThat(signup.language()).isEqualTo("EN");
 		assertThat(signup.emailProvided()).isTrue();
-		// 🔴 이것이 이 티켓의 핵심이다 — 동의도 안 받았는데 계정이 생기면 안 된다.
+		// 동의도 안 받았는데 계정이 생기면 안 된다.
 		verify(userRepository, never()).save(any(AppUser.class));
 		verify(identityRepository, never()).save(any(AuthIdentity.class));
 	}
@@ -144,9 +139,8 @@ class OAuthAccountServiceTest {
 	@Test
 	@DisplayName("🔴 소셜 연결에서 비밀번호가 틀리면 보안 로그에 남는다 — 여기가 사각지대였다")
 	void wrongPasswordOnSocialLinkIsRecorded() {
-		// 🔴 S15P21E201-682 후속. 전역 예외 처리기는 이 코드(INVALID_CREDENTIALS)를 "던지는
-		//    지점에서 이미 남긴다" 는 이유로 건너뛴다. 그 전제가 LocalAuthService 에서만 참이라
-		//    소셜 연결 화면을 통한 비밀번호 시도는 통째로 안 남고 있었다.
+		// 전역 예외 처리기는 INVALID_CREDENTIALS 를 던지는 지점에서 이미 남긴다고 보고
+		// 건너뛴다. 그 전제는 LocalAuthService 에서만 참이라 여기서 직접 남긴다.
 		AppUser owner = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
 				UserStatus.ACTIVE);
 		LocalCredential credential = mock(LocalCredential.class);
@@ -207,7 +201,7 @@ class OAuthAccountServiceTest {
 				UserStatus.ACTIVE);
 		LocalCredential credential = mock(LocalCredential.class);
 		when(credential.getUser()).thenReturn(owner);
-		// S15P21E201-923 — 인증 전에는 그 주소가 이 사람 것인지 우리가 확인하지 못했다. 자동 연결의 전제가 없다.
+		// 인증 전에는 그 주소가 이 사람 것인지 확인되지 않았다. 자동 연결의 전제가 없다.
 		when(credential.getEmailVerifiedAt()).thenReturn(null);
 		when(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, "google-subject"))
 				.thenReturn(Optional.empty());
@@ -224,7 +218,7 @@ class OAuthAccountServiceTest {
 		assertThat(link.linkTicket()).isEqualTo("link-ticket");
 		assertThat(link.maskedEmail()).isEqualTo("t***@example.com");
 		assertThat(link.provider()).isEqualTo(AuthProvider.GOOGLE);
-		// 🔴 옛 앱이 동의까지 보냈어도(oneStep) 연결 필요가 먼저다 — 계정을 새로 만들지 않는다.
+		// 동의까지 함께 보냈어도 연결 필요가 먼저다 — 계정을 새로 만들지 않는다.
 		verify(userRepository, never()).save(any(AppUser.class));
 		verify(identityRepository, never()).save(any(AuthIdentity.class));
 	}
@@ -284,7 +278,7 @@ class OAuthAccountServiceTest {
 		AppUser owner = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
 				UserStatus.ACTIVE);
 		AuthIdentity kakao = AuthIdentity.link(owner, AuthProvider.KAKAO, "kakao-subject", "traveler@example.com");
-		// 카카오는 그 주소가 다른 카카오계정으로 옮겨가면 유효하지 않다고 답한다(S15P21E201-741).
+		// 카카오는 그 주소가 다른 카카오계정으로 옮겨가면 유효하지 않다고 답한다.
 		kakao.recordProviderEmail("traveler@example.com", Boolean.TRUE, Boolean.FALSE);
 		when(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, "google-subject"))
 				.thenReturn(Optional.empty());

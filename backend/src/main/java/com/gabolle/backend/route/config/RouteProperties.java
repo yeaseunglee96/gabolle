@@ -5,31 +5,21 @@ import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 경로 조회 설정 — S15P21E201-184 · -189 · -196.
+ * 경로 조회 설정. 필드 기본값만으로 기동해야 한다 — 카카오 키가 비면 추정으로 답할 뿐
+ * 기동이 실패하면 안 된다.
  *
- * <p>🔴 <b>필드 기본값만으로 기동해야 한다.</b> 카카오 키가 비어 있으면 실제 경로 대신
- * 추정으로 답할 뿐, 기동이 실패하면 안 된다 — {@code OriginSearchProperties} 가 같은 이유로
- * 같은 규칙을 지킨다.
- *
- * <h2>🔴 추정에 쓰는 속도는 잰 값이 아니다</h2>
- *
- * 아래 {@code carSpeedKmh}·{@code walkSpeedKmh}·{@code transitSpeedKmh}·{@code detourFactor}
- * 는 <b>아무도 재지 않은 값</b>이다. 그래서 코드에 박지 않고 설정으로 뺐다 — 나중에 실제
- * 이동 기록(S15P21E201-293 이 모으고 있다)으로 맞출 수 있게 하려는 것이다.
- *
- * <p>이 값들로 만든 답에는 반드시 "추정" 표시가 붙는다. 표시 없이 내보내면 그건 추정이
- * 아니라 창작이고, 화면은 그것을 실제 소요시간으로 그린다.
+ * carSpeedKmh · walkSpeedKmh · transitSpeedKmh · detourFactor 는 실측이 아니다. 나중에
+ * 실제 이동 기록으로 맞출 수 있도록 코드에 박지 않고 설정으로 뺐다.
+ * 이 값들로 만든 답에는 반드시 추정 표시가 붙는다 — 표시 없이 나가면 화면이 실제
+ * 소요시간으로 그린다.
  */
 @ConfigurationProperties(prefix = "gabolle.route")
 public class RouteProperties {
 
 	/**
 	 * 카카오 REST API 키. 비어 있으면 자차 경로도 추정으로 답한다.
-	 *
-	 * <p>🔴 카카오는 앱 하나에 REST API 키를 <b>하나만</b> 준다. 로그인에 쓰는 값
-	 * ({@code gabolle.oauth.kakao.client-id})과 길찾기에 쓰는 값이 같은 키다 — 우연이 아니라
-	 * 카카오가 그렇게 설계했다. 그래서 배포 설정에서 그 값을 그대로 물려받게 해 두었고,
-	 * 나중에 앱을 나누면 이 키만 따로 주면 된다.
+	 * 카카오는 앱 하나에 REST API 키를 하나만 주므로 로그인용 gabolle.oauth.kakao.client-id 와
+	 * 같은 값이고, 배포 설정에서 그대로 물려받는다.
 	 */
 	private String kakaoRestApiKey = "";
 
@@ -38,12 +28,12 @@ public class RouteProperties {
 	private Duration connectTimeout = Duration.ofSeconds(2);
 
 	/**
-	 * 🔴 읽기 시간 제한을 3초로 짧게 잡는다. 경로는 화면이 기다리는 값이고, 늦게 오는 정확한
-	 * 답보다 <b>바로 오는 추정</b>이 낫다 — 추정이라는 사실이 응답에 실려 나가기 때문이다.
+	 * 읽기 시간 제한을 3초로 짧게 잡는다. 경로는 화면이 기다리는 값이라 늦게 오는 정확한
+	 * 답보다 바로 오는 추정이 낫다 — 추정이라는 사실이 응답에 실려 나간다.
 	 */
 	private Duration readTimeout = Duration.ofSeconds(3);
 
-	/** 도심 자차 평균 속도. 잰 값이 아니다(클래스 javadoc 참고). */
+	/** 도심 자차 평균 속도. 잰 값이 아니다. */
 	private double carSpeedKmh = 25;
 
 	/** 걷는 속도. 잰 값이 아니다. */
@@ -58,7 +48,7 @@ public class RouteProperties {
 	 */
 	private double detourFactor = 1.3;
 
-	/** 같은 경로를 다시 물었을 때 답을 재사용하는 시간 — S15P21E201-196. */
+	/** 같은 경로를 다시 물었을 때 답을 재사용하는 시간. */
 	private Duration cacheTtl = Duration.ofHours(6);
 
 	/** 캐시에 담아 두는 최대 경로 수. 넘으면 가장 오래 안 쓴 것부터 버린다. */

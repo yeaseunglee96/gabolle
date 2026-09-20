@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import com.gabolle.backend.trip.domain.TripInvite;
 import com.gabolle.backend.trip.domain.TripInviteRepository;
 
-/** {@link TripInviteRepository} 의 JPA 구현 — S15P21E201-294. */
 @Repository
 @Profile({ "db", "dev" })
 public class JpaTripInviteRepository implements TripInviteRepository {

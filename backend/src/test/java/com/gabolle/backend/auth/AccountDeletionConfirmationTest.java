@@ -26,18 +26,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * 탈퇴 확인 값 검사 — DB 없이 도는 부분 (S15P21E201-837).
+ * 탈퇴 확인 값 검사 — DB 없이 도는 부분.
  *
- * <h2>왜 통합 검사와 따로 두나</h2>
+ * <p>통합 검사들은 Postgres 가 있어야 돌아 DB 없는 기계에서는 확인 값 검사를 한 번도 못 본다.
+ * 여기서는 저장소를 전부 흉내 내서 그 한 겹만 본다.
  *
- * {@code AccountDeletionIntegrationTest} 와 {@code AccountDeletionJourneyFunctionalTest} 는
- * 진짜 PostgreSQL 이 있어야 돈다. 그래서 DB 가 없는 기계에서는 <b>확인 값 검사가 살아 있는지를
- * 한 번도 못 본다.</b> 이 검사는 저장소를 전부 흉내 내서 그 한 겹만 본다 — 개발 기계에서도 돌고,
- * 확인 검사를 떼면 여기서 바로 빨개진다.
- *
- * <p>🔴 <b>저장소를 한 번도 안 건드리는 것</b>까지 함께 본다. 확인이 틀렸는데 계정을 조회하면,
- * 그 자체가 "확인 전에 무언가를 했다" 는 뜻이다. 지금은 조회뿐이라 해가 없지만 나중에 그 자리에
- * 지우는 코드가 끼어들 수 있다.
+ * <p>저장소를 한 번도 안 건드리는 것까지 함께 본다. 확인이 틀렸는데 계정을 조회하면 그 자체가
+ * 확인 전에 무언가를 했다는 뜻이고, 나중에 그 자리에 지우는 코드가 끼어들 수 있다.
  */
 class AccountDeletionConfirmationTest {
 

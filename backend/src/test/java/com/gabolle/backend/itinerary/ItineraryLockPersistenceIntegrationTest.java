@@ -36,23 +36,16 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 고정·해제가 실제 표에 무엇을 남기는가 — S15P21E201-662.
+ * 고정·해제가 실제 표에 무엇을 남기는가.
  *
- * <h2>🔴 이 테스트가 대체한 것</h2>
- * 예전 {@code ItineraryEditControllerTest} 는 Spring 컨텍스트 없이 인메모리 저장소로 돌았다.
- * 그 구성으로는 <b>이번 결함을 구조적으로 못 잡는다</b> — 인메모리 저장소에 애초에 항목이
- * 없었으므로 "판을 복사했는가" 를 물을 대상 자체가 없었다. 그래서 진짜 PostgreSQL 위로 옮겼다.
+ * <p>진짜 PostgreSQL 위에서 돈다. 인메모리 저장소에는 애초에 항목이 없어 「판을 복사했는가」를
+ * 물을 대상 자체가 없다.
  *
- * <h2>🔴 응답값이 아니라 표를 읽어 단정하는 자리가 있다</h2>
- * {@code locked} 는 {@link JdbcTemplate} 로 {@code itinerary_item} 을 직접 읽어 확인한다.
- * 응답만 보면 서버가 저장하지 않은 값을 그대로 되돌려줘도 통과한다 — 실제로 고치기 전
- * 코드가 URL 로 받은 {@code itemId} 를 응답에 그대로 실어 "고정됐다" 처럼 보이게 하고
- * 있었다.
+ * <p>{@code locked} 는 응답이 아니라 {@link JdbcTemplate} 로 {@code itinerary_item} 을 직접
+ * 읽어 확인한다. 응답만 보면 서버가 저장하지 않은 값을 그대로 되돌려줘도 통과한다.
  *
- * <p>MockMvc 는 {@code standaloneSetup} 으로 컨트롤러 빈만 올린다({@code
- * RecommendationResultAuthorizationTest} 와 같은 방식). 서비스·저장소는 컨텍스트에서
- * 주입받은 <b>진짜</b> 구현이고, 인증 필터 체인만 안 태운다 — 그 설정은 {@code auth}
- * 패키지 소유라 이 슬라이스가 스캔하지 않는다.
+ * <p>MockMvc 는 {@code standaloneSetup} 으로 컨트롤러 빈만 올린다. 서비스·저장소는
+ * 컨텍스트에서 주입받은 진짜 구현이고, 인증 필터 체인만 안 태운다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -113,7 +106,7 @@ class ItineraryLockPersistenceIntegrationTest {
 				"INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, party_size, created_at, updated_at) "
 						+ "VALUES (?, ?, '2026-09-10', '2026-09-12', 1, ?, ?)",
 				tripId, this.userId, now, now);
-		// 🔴 조회 권한 판정이 이 표를 본다(TripQueryService). 없으면 자기 일정도 못 본다.
+		// 조회 권한 판정이 이 표를 본다(TripQueryService). 없으면 자기 일정도 못 본다.
 		jdbcTemplate.update(
 				"INSERT INTO trip_member (trip_member_id, trip_id, user_id, role, joined_at) VALUES (?, ?, ?, 'OWNER', ?)",
 				UUID.randomUUID(), tripId, this.userId, now);
@@ -162,10 +155,8 @@ class ItineraryLockPersistenceIntegrationTest {
 	}
 
 	/**
-	 * 🔴 이 테스트가 이 파일의 존재 이유다 — 고정 한 번에 일정이 사라지던 결함.
-	 *
-	 * <p>{@code ItineraryRevision.copyOf} 의 항목 복사를 빼면 새 판의 항목 수가 0이 되어
-	 * 여기서 빨개진다.
+	 * 고정 한 번에 일정이 사라지던 결함을 막는다. {@code ItineraryRevision.copyOf} 의 항목
+	 * 복사를 빼면 새 판의 항목 수가 0이 되어 여기서 빨개진다.
 	 */
 	@Test
 	@DisplayName("🔴 고정하면 새 판이 생기고 그 판에 항목이 그대로 남는다")
@@ -178,7 +169,7 @@ class ItineraryLockPersistenceIntegrationTest {
 				.andExpect(jsonPath("$.data.version").value(2))
 				.andExpect(jsonPath("$.data.baseVersion").value(1))
 				.andExpect(jsonPath("$.data.operation").value("LOCK_ITEM"))
-				// 🔴 앱이 이 응답을 일정 전체로 받아 화면 상태에 그대로 넣는다.
+				// 앱이 이 응답을 일정 전체로 받아 화면 상태에 그대로 넣는다.
 				.andExpect(jsonPath("$.data.days").isArray())
 				.andExpect(jsonPath("$.data.days[0].items.length()").value(2))
 				.andExpect(jsonPath("$.meta.requestId").exists())
@@ -197,8 +188,8 @@ class ItineraryLockPersistenceIntegrationTest {
 	}
 
 	/**
-	 * 🔴 {@code itemKey} 를 복사할 때 새로 만들면 두 번째 요청이 404 가 되어 빨개진다.
-	 * DB 의 {@code uq_itinerary_item_key} 는 같은 판 안의 중복만 막으므로 이 실수를 못 잡는다.
+	 * {@code itemKey} 를 복사할 때 새로 만들면 두 번째 요청이 404 가 되어 빨개진다.
+	 * DB 의 {@code uq_itinerary_item_key} 는 같은 판 안의 중복만 막으므로 못 잡는다.
 	 */
 	@Test
 	@DisplayName("🔴 같은 itemKey 로 두 번 연속 편집할 수 있다")
@@ -245,11 +236,9 @@ class ItineraryLockPersistenceIntegrationTest {
 	}
 
 	/**
-	 * 🔴 앱이 읽는 자리 그대로 단정한다.
-	 *
-	 * <p>{@code frontend/src/plan/itinerary.ts} 가 {@code error.fields} 를
-	 * {@code /^latestVersion=/} 로 훑어 최신 판 번호를 뽑는다. 코드와 상태만 맞고 이
-	 * 문자열이 없으면 충돌 배너에 최신 번호가 안 뜬다 — 고치기 전이 그 상태였다.
+	 * 앱이 읽는 자리 그대로 단정한다. {@code frontend/src/plan/itinerary.ts} 가
+	 * {@code error.fields} 를 {@code /^latestVersion=/} 로 훑어 최신 판 번호를 뽑으므로,
+	 * 코드와 상태만 맞고 이 문자열이 없으면 충돌 배너에 번호가 안 뜬다.
 	 */
 	@Test
 	@DisplayName("🔴 낡은 baseVersion 은 409 이고 error.fields 에 latestVersion=<n> 이 있다")

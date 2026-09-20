@@ -36,20 +36,10 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 앱이 실제로 보내는 본문으로 여행을 만든다 — S15P21E201-665.
+ * 앱이 실제로 보내는 본문으로 여행을 만든다 — 다른 생성 테스트는 대문자 차원으로 부르지만 앱은
+ * 소문자 camelCase 로 보내고 DB CHECK 는 대문자만 받는다.
  *
- * <h2>🔴 이 테스트가 없어서 실제 앱은 여행을 만들 수 없었다</h2>
- * 여행 생성 테스트가 전부 대문자 차원({@code CATEGORY})으로 만들었다. 앱은 소문자 camelCase
- * ({@code category}, {@code touristPreference} …)로 보내고, DB CHECK 는 대문자만 받는다.
- * 그 사이를 컨트롤러가 그대로 통과시켜서 실제 요청은 전부 CHECK 위반으로 롤백됐는데,
- * 어느 테스트도 앱 모양으로 컨트롤러를 통과시키지 않아 아무도 몰랐다.
- *
- * <p>그래서 이 본문은 {@code frontend/src/api/tripApi.ts} 의 {@code toCreateTripPayload} 가
- * 만드는 것과 <b>같은 모양</b>이다 — 차원 이름 아홉 개, 소문자 camelCase, {@code transport}
- * 포함, 답 안 한 차원은 {@code UNKNOWN} 에 {@code value: null}, 값은 {@code JSON.stringify}
- * 문자열. 제약({@code constraints})은 비워 둔다 — 이 결함은 취향 쪽이고 제약은 별도 테스트가 있다.
- *
- * <p>단정은 응답이 아니라 <b>표</b>로 한다. 응답이 201 이어도 취향이 어떻게 저장됐는지는
+ * <p>단정은 응답이 아니라 표로 한다 — 201 이어도 취향이 어떻게 저장됐는지는
  * {@code preference_answer} 를 읽어야 안다.
  */
 @SpringBootTest(classes = TripSliceApplication.class, properties = {
@@ -100,21 +90,11 @@ class TripCreateAppPayloadIntegrationTest {
 
 	/**
 	 * {@code tripApi.ts} 의 {@code toCreateTripPayload} 와 같은 모양. 차원 이름은 그 파일의
-	 * 문자열 그대로다.
+	 * 문자열 그대로이고, {@code category} 값은 앱의 어휘 여섯 개 중에서만 고른다 — 지어낸 낱말을
+	 * 넣으면 DB 가 거부한다.
 	 *
-	 * <p>🔴 2026-09-14 — {@code category} 값을 {@code ["BEACH","CAFE"]} 에서 바꿨다. <b>그 두
-	 * 낱말은 앱에서 온 것이 아니었다</b> — 앱의 어휘는 여섯이다({@code SEA_BEACH}·{@code CITY}·
-	 * {@code CAFE_HEALING}·{@code CULTURE_TEMPLE}·{@code FOOD}·{@code NATURE_WALK}).
-	 * S15P21E201-915 가 {@code CATEGORY} 에 사전 강제를 걸었으므로 <b>지어낸 낱말로 되돌리면
-	 * DB 가 거부한다.</b>
-	 *
-	 * <p>🔴 2026-09-10 — 출발지 좌표를 실제 값으로 바꿨다. 그전까지 여기에 {@code null} 이
-	 * 박혀 있었는데, 그것은 앱이 좌표를 받아 두고도 안 보내던 결함(S15P21E201-791)을 <b>사실로
-	 * 고정</b>하고 있던 것이다. 그 결함이 고쳐졌으므로(!479) 이 본문도 따라간다.
-	 *
-	 * <p>고정한 본문이 낡으면 검사는 초록인데 지키는 것이 없다 — 앱이 실제로 보내는 모양이
-	 * 아니라 <b>예전에 보내던 모양</b>을 지키게 되기 때문이다. 이 파일의 존재 이유가 정확히
-	 * 그 어긋남을 잡는 것이라, 프런트가 요청 모양을 바꾸면 여기도 같이 바꾼다.
+	 * <p>이 본문이 낡으면 검사는 초록인데 지키는 것이 없다. 프런트가 요청 모양을 바꾸면 여기도
+	 * 같이 바꾼다.
 	 */
 	private static String appPayload(String transportDimensionName) {
 		return """
@@ -157,7 +137,7 @@ class TripCreateAppPayloadIntegrationTest {
 		JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
 		UUID tripId = UUID.fromString(body.path("data").path("tripId").asText());
 
-		// 여행이 실제로 남았다 — 예전에는 취향 CHECK 위반으로 이 행까지 롤백됐다.
+		// 여행이 실제로 남았다 — 취향이 CHECK 를 어기면 이 행까지 롤백된다.
 		Integer trips = jdbcTemplate.queryForObject(
 				"SELECT count(*) FROM trip WHERE trip_id = ?", Integer.class, tripId);
 		assertThat(trips).isEqualTo(1);
@@ -173,7 +153,7 @@ class TripCreateAppPayloadIntegrationTest {
 				"ATMOSPHERE", "CATEGORY", "FOOD_PREFERENCE", "LOCALITY",
 				"QUIETNESS", "SHADE_PREFERENCE", "SLOPE_PREFERENCE", "TOURIST_PREFERENCE");
 
-		// transport 답은 스냅샷이 아니라 여행의 이동수단 칸에 있다 (S15P21E201-664 배선).
+		// transport 답은 스냅샷이 아니라 여행의 이동수단 칸에 있다.
 		String travelModes = jdbcTemplate.queryForObject(
 				"SELECT array_to_string(travel_modes, ',') FROM trip WHERE trip_id = ?", String.class, tripId);
 		assertThat(travelModes).isEqualTo("BUS,SUBWAY");

@@ -2,12 +2,7 @@ package com.gabolle.backend.weather.domain;
 
 import java.time.LocalDate;
 
-/**
- * 날씨 조회 요청 하나 — S15P21E201-366.
- *
- * <p>🔴 좌표 검사를 <b>여기서</b> 한다 — {@code RouteQuery} 가 같은 이유로 자기 생성자에서
- * 좌표를 검사하는 것과 같은 판단이다.
- */
+/** 날씨 조회 요청 하나. 좌표 검사를 컨트롤러가 아니라 여기서 한다. */
 public record WeatherQuery(double lat, double lon, LocalDate date) {
 
 	public WeatherQuery {

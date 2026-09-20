@@ -30,14 +30,7 @@ import com.gabolle.backend.story.presentation.StoryExceptionHandler;
 import com.gabolle.backend.story.presentation.UserSocialController;
 import com.gabolle.testslice.StorySliceApplication;
 
-/**
- * 팔로워·팔로잉·차단 목록 — S15P21E201-1179.
- *
- * <p>커서·문턱 값 자체는 {@code FollowIntegrationTest}·{@code StoryRepository} 가 이미 확인했다.
- * 여기서는 이 세 목록에만 있는 것만 본다 — (1) 최근 맺은 순으로 오는가, (2) 「한 개 더 읽기」로
- * 다음 페이지가 있는가, (3) 차단 목록은 남이 못 보는가, (4) 그 사람이 나를 차단했으면 팔로워·팔로잉
- * 목록도 403 인가(기록과 같은 규칙).
- */
+/** 팔로워·팔로잉·차단 목록. 커서 동작 자체는 다른 테스트가 보므로 여기서는 세 목록에만 있는 규칙을 본다. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",
@@ -128,7 +121,6 @@ class RelationListIntegrationTest {
 				.andExpect(jsonPath("$.data.items[1].displayName").value("A"));
 	}
 
-	/** S15P21E201-1179 계약 — 목록의 following은 목록 주인이 아니라 <b>보는 사람</b> 기준이다. */
 	@Test
 	@DisplayName("🔴 계약 — 팔로워 목록의 following은 목록 주인이 아니라 보는 사람 기준이다")
 	void followingFlagReflectsViewerNotListOwner() throws Exception {
@@ -145,7 +137,6 @@ class RelationListIntegrationTest {
 				.andExpect(jsonPath("$.data.items[?(@.displayName=='C')].following").value(false));
 	}
 
-	/** 차단은 팔로우를 양쪽 다 끊으므로(BlockService.block), 차단 목록의 following은 언제나 false다. */
 	@Test
 	@DisplayName("차단 목록의 following은 언제나 false다 — 차단하면 팔로우가 함께 끊긴다")
 	void blockListFollowingIsAlwaysFalse() throws Exception {
@@ -200,13 +191,9 @@ class RelationListIntegrationTest {
 				.andExpect(jsonPath("$.data.items.length()").value(0));
 	}
 
-	// ── 줄마다 기록 수 (S15P21E201-1317) ──────────────────────────────────────
+	// ── 줄마다 기록 수 ──────────────────────────────────────────────────────
 
-	/**
-	 * 🔴 <b>세는 범위가 사람마다 다르다.</b> 팔로우하는 사람의 「팔로워 공개」 글은 보이고, 모르는
-	 * 사람의 것은 안 보인다. 한 숫자로 뭉뚱그리면 <b>목록의 숫자와 그 사람 프로필의 숫자가 서로
-	 * 다르게</b> 나오는데, 둘 다 그럴듯해서 아무도 오류로 못 알아챈다.
-	 */
+	/** 세는 범위가 사람마다 다르다 — 목록의 숫자는 그 사람 프로필의 숫자와 같아야 한다. */
 	@Test
 	@DisplayName("🔴 티켓 완료 기준 — 줄마다 기록 수가 오고, 세는 범위는 보는 사람과의 관계를 따른다")
 	void storyCountFollowsWhatTheViewerCanSee() throws Exception {
@@ -229,14 +216,11 @@ class RelationListIntegrationTest {
 				.andExpect(jsonPath("$.data.items[?(@.displayName=='A')].storyCount").value(1))
 				// 맞팔한 B — 팔로워 공개까지 보인다. 비공개는 누구에게도 안 보인다.
 				.andExpect(jsonPath("$.data.items[?(@.displayName=='B')].storyCount").value(2))
-				// 🔴 한 글도 안 쓴 C 는 세는 질의 결과에 아예 안 나온다. 「모른다」가 아니라 0 이다.
+				// 한 글도 안 쓴 C 는 세는 질의 결과에 안 나온다. 「모른다」가 아니라 0 이다.
 				.andExpect(jsonPath("$.data.items[?(@.displayName=='C')].storyCount").value(0));
 	}
 
-	/**
-	 * 🔴 남의 팔로워 목록에는 <b>내가 들어 있을 수 있다.</b> 그 줄만은 내 비공개 기록까지 세야
-	 * 한다 — 내 프로필이 나에게 보여주는 숫자와 같아야 하기 때문이다.
-	 */
+	/** 남의 팔로워 목록에 내가 들어 있으면 그 줄은 내 비공개 기록까지 세야 한다. */
 	@Test
 	@DisplayName("🔴 목록에 나 자신이 있으면 그 줄은 내 비공개 기록까지 센다")
 	void ownRowCountsPrivateStories() throws Exception {
@@ -250,10 +234,7 @@ class RelationListIntegrationTest {
 				.andExpect(jsonPath("$.data.items[?(@.displayName=='나')].storyCount").value(2));
 	}
 
-	/**
-	 * 🔴 <b>{@code null} 은 0 이 아니다.</b> 차단 목록은 이 숫자를 안 그리므로 세지 않는다. 안 센
-	 * 것을 0 으로 채우면 화면이 「기록 0개」라고 <b>단언</b>하게 되는데, 그건 사실이 아니다.
-	 */
+	/** {@code null} 은 0 이 아니다. 차단 목록은 이 숫자를 안 그리므로 세지 않는다. */
 	@Test
 	@DisplayName("🔴 차단 목록은 기록 수를 안 센다 — 0 이 아니라 null 이다")
 	void blockListDoesNotCountStories() throws Exception {

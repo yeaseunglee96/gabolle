@@ -32,10 +32,7 @@ public class AuthTokenService {
 	private final AuthIdentityRepository identityRepository;
 	private final SessionTokenGenerator tokenGenerator;
 
-	/**
-	 * 🔴 {@code null} 일 수 있다. 이 서비스를 직접 만드는 테스트가 관측 때문에 목을 하나 더
-	 * 준비해야 하는 것을 막으려고 그렇게 뒀다 — 관측이 없어도 기능은 그대로다.
-	 */
+	/** {@code null} 일 수 있다 — 이 서비스를 직접 만드는 테스트가 목을 하나 더 두지 않게 한다. */
 	private final SecurityEventLogger securityEventLogger;
 	private final Clock clock;
 
@@ -95,18 +92,9 @@ public class AuthTokenService {
 			throw new AuthException("DEVICE_MISMATCH", "refresh token이 발급된 기기와 일치하지 않습니다.",
 					org.springframework.http.HttpStatus.UNAUTHORIZED);
 		}
-		// 🔴 S15P21E201-723 — 이미 쓴 표가 왔을 때 <b>얼마나 전에 썼는지</b>로 갈린다.
-		//
-		//    유예 시간 안이면 정상 경쟁이다. 접속 표가 만료된 상태에서 브라우저 탭 둘이(또는
-		//    웹 쿠키 경로와 앱 경로가) 거의 동시에 갱신을 시도하면 하나만 성공하고 나머지는
-		//    같은 표를 낸다. 그것을 도난으로 보고 세션 계열을 폐기하면 <b>아무도 잘못하지
-		//    않았는데 로그아웃된다.</b> 2026-09-07 에 사용자가 "축제 화면을 열면 로그아웃된다"
-		//    고 알려 줬고, 운영 로그의 REFRESH_TOKEN_REUSED 가 원인이었다.
-		//
-		//    유예 시간이 지난 표가 오면 지금처럼 도난으로 보고 계열을 폐기한다.
-		//
-		//    같은 표를 그대로 다시 돌려주는 방식은 불가능하다 — 표를 해시로만 저장하므로
-		//    서버가 원문을 갖고 있지 않다. 그래서 새 표 한 쌍을 다시 발급한다.
+		// 이미 쓴 토큰이 왔을 때 얼마나 전에 썼는지로 갈린다. 유예 시간 안이면 정상 경쟁이고
+		// (두 곳이 거의 동시에 갱신하면 하나만 성공한다), 지났으면 도난으로 보고 계열을 폐기한다.
+		// 경쟁이어도 같은 토큰을 다시 돌려줄 수는 없다 — 해시로만 저장하므로 서버에 원문이 없다.
 		if (presentedToken.wasUsed()) {
 			Duration sinceUsed = Duration.between(presentedToken.getUsedAt(), now);
 			boolean withinGrace = !sinceUsed.isNegative()
@@ -140,8 +128,8 @@ public class AuthTokenService {
 	/**
 	 * 새 갱신 표와 접속 표 한 쌍을 발급하고 세션을 그 표로 돌린다.
 	 *
-	 * <p>정상 갱신과 유예로 허용한 경쟁이 <b>같은 코드를 지나게</b> 하려고 뽑았다. 둘이 서로
-	 * 다른 발급 경로를 쓰면 한쪽만 고쳐지는 날이 온다.
+	 * <p>정상 갱신과 유예로 허용한 경쟁이 같은 코드를 지나야 한다 — 둘이 서로 다른 발급 경로를
+	 * 쓰면 한쪽만 고쳐지는 날이 온다.
 	 */
 	private IssuedTokens rotate(AuthSession session, Instant now) {
 		String nextRefreshToken = tokenGenerator.issue();

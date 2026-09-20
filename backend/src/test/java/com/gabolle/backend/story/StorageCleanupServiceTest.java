@@ -26,21 +26,13 @@ import com.gabolle.backend.story.domain.StorageCleanupEntry;
 import com.gabolle.backend.story.storage.StoragePort;
 import com.gabolle.testslice.StorySliceApplication;
 
-/**
- * 저장소가 항상 실패할 때 {@link StorageCleanupService#deleteOrEnqueue} 가 예외를 밖으로 내지 않고
- * 대기열에 쌓는지 — S15P21E201-226.
- *
- * <p>🔴 성공 경로({@code retryPending})는 다른 저장소 스텁이 필요해 별도 클래스
- * ({@link StorageCleanupServiceRetryTest})로 나눴다 — 스프링 컨텍스트를 클래스마다 새로 띄우는
- * 편이 같은 클래스 안에서 빈을 바꿔치기하는 것보다 단순하다.
- */
+/** 실패 경로만 본다. 성공 경로({@code retryPending})는 저장소 스텁이 달라 {@link StorageCleanupServiceRetryTest} 로 나눴다. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",
 		"spring.flyway.enabled=true"
 })
-// 🔴 classes= 로 앱을 명시하면 중첩 @TestConfiguration 이 자동으로 잡히지 않는다 — 명시적으로 끌어온다
-// (ItineraryRecalculationIntegrationTest 의 같은 실측).
+// classes= 로 앱을 명시하면 중첩 @TestConfiguration 이 자동으로 잡히지 않아 직접 끌어온다.
 @Import(StorageCleanupServiceTest.FailingStorageConfig.class)
 @ExtendWith(PostgresAvailableCondition.class)
 class StorageCleanupServiceTest {

@@ -46,24 +46,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * 추천 결과를 날짜·구간으로 조립하는 규칙 — S15P21E201-604.
- *
- * <p>🔴 Spring 컨텍스트를 띄우지 않는다({@code ItineraryVersionConflictTest} 와 같은 판단) —
- * 도메인 계산 규칙을 보는 것이고, {@link TripRepository}·{@link PlaceRepository} 는
- * Mockito 로 대신한다.
+ * 추천 결과를 날짜·구간으로 조립하는 규칙.
+ * Spring 컨텍스트를 띄우지 않는다 — 도메인 계산 규칙을 보는 것이고 {@link TripRepository}·
+ * {@link PlaceRepository} 는 Mockito 로 대신한다.
  */
 class ItineraryDraftServiceTest {
 
 	/**
-	 * 영업시간을 모른다고만 답하는 문 — S15P21E201-857 로 생성자에 들어왔다.
-	 *
-	 * <p>이 검사들이 재는 것은 날짜 배분과 시각 배정이다. 모름은 자리 배정을 안 바꾸므로
-	 * 여기서는 예전과 같은 결과가 나와야 한다 — 그것이 이 값을 고른 이유다.
+	 * 영업시간을 모른다고만 답하는 문. 이 검사들이 재는 것은 날짜 배분과 시각 배정이고, 모름은
+	 * 자리 배정을 안 바꾼다.
 	 */
 	private static final OpeningHoursFilterPort ALWAYS_UNKNOWN =
 			(placeId, at) -> OpeningHoursFilterPort.Answer.NOT_COLLECTED;
 
-	/** 브레이크타임·라스트오더를 모른다고만 답하는 문 — S15P21E201-94 로 생성자에 들어왔다. */
+	/** 브레이크타임·라스트오더를 모른다고만 답하는 문. */
 	private static final PlaceTimeFactFilterPort ALWAYS_UNKNOWN_TIME_FACT = new PlaceTimeFactFilterPort() {
 		@Override
 		public OpeningHoursFilterPort.Answer breakTimeAt(UUID placeId, java.time.OffsetDateTime at) {
@@ -89,8 +85,9 @@ class ItineraryDraftServiceTest {
 		this.tripRepository = mock(TripRepository.class);
 		this.placeRepository = mock(PlaceRepository.class);
 		ItineraryRepository itineraryRepository = mock(ItineraryRepository.class);
-		// 🔴 이동시간 포트를 "없는" 상태로 준다(S15P21E201-179). 이 검사들이 재는 것은
-		//    날짜 배분과 시각 배정이지 바깥 길찾기가 아니고, 포트가 없으면 예전처럼
+		// 이동시간 포트를 "없는" 상태로 준다. 이 검사들이 재는 것은 날짜 배분과 시각 배정이지
+		//    바깥 길찾기가 아니고, 포트가 없으면 직선거리만 채우는 갈래로 떨어진다 — 그 갈래도
+		//    살아 있어야 한다.
 		//    직선거리만 채우는 갈래로 떨어진다 — 그 갈래도 살아 있어야 한다.
 		@SuppressWarnings("unchecked")
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
@@ -104,20 +101,8 @@ class ItineraryDraftServiceTest {
 	}
 
 	/**
-	 * S15P21E201-902 — 1일 여행에 하루 상한이 안 걸리던 자리.
-	 *
-	 * <p>배분이 "하루가 차면 다음 날로" 만 보고 더 넘길 날이 없을 때를 안 막아서, 남은 것을
-	 * 전부 마지막 날에 쌓았다. 1일 여행은 넘길 날이 아예 없어 추천 10곳이 통째로 하루에
-	 * 들어갔다 — 운영에서 실제로 그랬다.
-	 */
-	/**
-	 * S15P21E201-903 — 운영 후보의 89%가 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다.
-	 * 실제로 그랬다 — 하루에 밥집 열 곳이 들어간 일정이 나왔다.
-	 *
-	 * <p>🔴 S15P21E201-1129 로 <b>상한을 정하는 것이 바뀌었다.</b> 예전에는 설정값 3 이
-	 * 하루가 몇 시간이든 그대로 상한이었는데, 이제는 <b>그 여행의 활동 시간대에 실제로
-	 * 들어가는 끼니 수</b>가 상한이다. 09:00~18:00(운영 여행 60건 중 49건)은 점심과 저녁만
-	 * 들어가므로 <b>2</b> 다 — 9시에 시작하는 여행에 아침을 끼워 넣지 않는다.
+	 * 밥집 상한은 설정값이 아니라 그 여행의 활동 시간대에 실제로 들어가는 끼니 수다.
+	 * 09:00~18:00 은 점심과 저녁만 들어가므로 2 다 — 9시에 시작하는 여행에 아침을 끼워 넣지 않는다.
 	 */
 	@Test
 	@DisplayName("09~18시 여행은 끼니가 둘이라 밥집이 순위를 다 차지해도 둘까지만 들어간다")
@@ -138,11 +123,9 @@ class ItineraryDraftServiceTest {
 	}
 
 	/**
-	 * S15P21E201-1129 — 밥집은 밥 때에 놓는다. 자리 순서가 아니라 <b>그 칸의 시각</b>이 정한다.
-	 *
-	 * <p>09:00~18:00 에 네 곳이면 칸이 2시간 15분씩 넷이고, 그중 점심·저녁에 60분 이상
-	 * 걸리는 것은 둘째와 넷째다. 첫 칸(09:00~11:15)은 아침 시간대에 30분 걸치지만 스친
-	 * 것이라 명소 자리다 — 아침 먹고 나온 사람에게 9시에 또 밥을 권하지 않는다.
+	 * 밥집은 밥 때에 놓는다. 자리 순서가 아니라 그 칸의 시각이 정한다.
+	 * 09:00~18:00 에 네 곳이면 칸이 2시간 15분씩 넷이고, 점심·저녁에 60분 이상 걸리는 것은
+	 * 둘째와 넷째다. 첫 칸(09:00~11:15)은 아침에 30분 걸치지만 스친 것이라 명소 자리다.
 	 */
 	@Test
 	@DisplayName("밥집은 점심·저녁 칸에만 들어가고 오전 첫 칸은 명소가 차지한다")
@@ -165,12 +148,8 @@ class ItineraryDraftServiceTest {
 	}
 
 	/**
-	 * 🔴 S15P21E201-1129 — <b>예전에는 여기서 빈 자리를 밥집으로 메웠다.</b> 이제 안 메운다.
-	 *
-	 * <p>메우는 쪽이 친절해 보였지만, 운영에서 그 결과는 3일 12곳이 전부 음식점인 일정이었다.
-	 * 바다로 분류된 장소가 16곳뿐이라 명소가 금방 떨어지고 나머지를 밥집이 전부 가져갔다.
-	 * 메우면 데이터가 모자라다는 사실이 화면에도 팀에게도 안 보인다. 그래서 비워 두고,
-	 * 판에 {@code SIGHT_SLOT_UNFILLED} 를 남겨 <b>말한다.</b>
+	 * 빈 자리를 밥집으로 메우지 않는다. 메우면 명소 데이터가 모자라다는 사실이 화면에도 팀에게도
+	 * 안 보여서, 비워 두고 판에 {@code SIGHT_SLOT_UNFILLED} 를 남긴다.
 	 */
 	@Test
 	@DisplayName("명소가 없으면 빈 자리를 밥집으로 메우지 않고 그 사실을 판에 남긴다")
@@ -203,7 +182,7 @@ class ItineraryDraftServiceTest {
 				.isEqualTo(3);
 	}
 
-	/** 갈래를 모르면 밥집으로 세지 않는다 — 모르는 것을 끼니로 세지 않는다. */
+	/** 갈래를 모르면 밥집으로 세지 않는다. */
 	@Test
 	@DisplayName("갈래를 모르는 장소는 끼니로 세지 않는다")
 	void unknownCategoryIsNotCountedAsFood() {
@@ -287,8 +266,8 @@ class ItineraryDraftServiceTest {
 		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
 		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
 
-		// 이동시간을 아는 포트를 끼운다. 좌표가 없어도 포트가 답을 주면 그 값이 그대로
-		// 구간에 실려야 한다 — 이 검사가 보는 것은 배선이지 거리 계산이 아니다.
+		// 이동시간을 아는 포트를 끼운다. 좌표가 없어도 포트가 답을 주면 그 값이 그대로 구간에
+		// 실려야 한다 — 이 검사가 보는 것은 배선이지 거리 계산이 아니다.
 		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) ->
 				new TravelTime(1234, 25, ItineraryItem.DataStatus.VERIFIED);
 		@SuppressWarnings("unchecked")
@@ -342,9 +321,8 @@ class ItineraryDraftServiceTest {
 	@Test
 	@DisplayName("🔴 대중교통 구간은 walkingMeters 가 NULL 이다 — 직선거리를 지하철 이동거리인 척하지 않는다")
 	void walkingMetersIsOnlyFilledForWalkMode() {
-		// 🔴 지금 buildLegs()는 Trip 이 이동수단을 아직 노출하지 않아 항상 WALK 만 만든다 —
-		//    그래서 이 규칙 자체는 ItineraryLegPlanner.walkingMetersFor(...) 를 직접
-		//    불러 확인한다. Trip 이 실제 이동수단을 노출하게 되면 buildLegs() 를 통해서도
+		// buildLegs() 는 Trip 이 이동수단을 아직 노출하지 않아 항상 WALK 만 만든다 — 그래서 이
+		//    규칙 자체는 ItineraryLegPlanner.walkingMetersFor(...) 를 직접 불러 확인한다.
 		//    이 갈래가 나오게 된다.
 		assertThat(ItineraryLegPlanner.walkingMetersFor("WALK", 350)).isEqualTo(350);
 		assertThat(ItineraryLegPlanner.walkingMetersFor("SUBWAY", 350)).isNull();
@@ -539,13 +517,6 @@ class ItineraryDraftServiceTest {
 				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact);
 	}
 
-	/**
-	 * S15P21E201-964 — 일정이 생겼는데도 여행이 PLANNING 에 머물던 자리.
-	 *
-	 * <p>{@code Trip.markReady} 는 진작 있었지만 <b>운영 코드에서 한 번도 불리지 않았다.</b>
-	 * 그래서 {@code GET /api/v1/trips} 가 모든 여행을 PLANNING 으로 내려보냈고, 내 여행
-	 * 목록은 일정이 여러 판 쌓인 여행까지 "일정 준비 중" 으로 보여 줬다.
-	 */
 	@Test
 	@DisplayName("일정을 처음 저장하면 여행이 준비 중에서 일정 있음으로 바뀐다")
 	void persistMovesTripFromPlanningToReady() {
@@ -559,10 +530,7 @@ class ItineraryDraftServiceTest {
 		assertThat(saved.getValue().status()).isEqualTo(Trip.Status.READY);
 	}
 
-	/**
-	 * 🔴 PLANNING 일 때만 옮긴다. 여행 중인 여행의 일정을 다시 만들 때도 READY 로 쓰면
-	 * 진행 단계가 뒤로 밀린다 — 목록에서 "여행 중" 이던 것이 "일정 있음" 으로 돌아간다.
-	 */
+	/** PLANNING 일 때만 옮긴다. 여행 중인 여행의 일정을 다시 만들 때 READY 로 쓰면 진행 단계가 뒤로 밀린다. */
 	@Test
 	@DisplayName("여행 중인 여행은 일정을 다시 만들어도 단계가 뒤로 밀리지 않는다")
 	void persistDoesNotDowngradeTripAlreadyUnderway() {
@@ -596,13 +564,12 @@ class ItineraryDraftServiceTest {
 				Instant.now());
 	}
 
-	/** 활동 시간대까지 정한 여행 — 끼니가 몇 번인지는 이 두 값이 정한다(S15P21E201-1129). */
+	/** 활동 시간대까지 정한 여행 — 끼니가 몇 번인지는 이 두 값이 정한다. */
 	private Trip tripOf(LocalDate startDate, LocalDate finishDate, LocalTime windowStart, LocalTime windowEnd) {
 		return new Trip("itn_trip_1", "usr_1", startDate, finishDate, null, null, null, 2,
 				windowStart + "-" + windowEnd, "Asia/Seoul", null, windowStart, windowEnd, Instant.now());
 	}
 
-	/** 갈래를 지정해 만든다 — 하루 구성 검사(S15P21E201-903)가 쓴다. */
 	/** {@link #plannedPlacesOf} 가 만든 장소의 갈래 — 초안 항목에는 placeId 만 있어서 되짚는다. */
 	private final Map<UUID, String> categoryByPlaceId = new HashMap<>();
 
@@ -622,14 +589,9 @@ class ItineraryDraftServiceTest {
 	}
 
 	/**
-	 * S15P21E201-1130 — 일정 시각이 이동 시간을 무시해서 「예상 도착」이 하루 내내 밀렸다.
-	 *
-	 * <p>활동 시간대를 항목 수로 그냥 나누면 칸과 칸이 딱 붙는다. 그런데 사람은 그 사이를
-	 * 걸어서 간다. 그래서 두 번째 장소부터 계획보다 늦게 도착하고, 그 지각이 쌓여 하루
-	 * 끝에는 78분 차이가 났다(운영 DB 실측 — 머무는 시간 180/180/180 에 이동 12/2/13,
-	 * 사이 간격 0).
-	 *
-	 * <p>아래 셋이 이 버그를 다시 못 생기게 막는다.
+	 * 시각은 이동 시간을 빼고 깐다. 활동 시간대를 항목 수로 그냥 나누면 칸과 칸이 딱 붙어,
+	 * 두 번째 장소부터 계획보다 늦게 도착하고 그 지각이 하루 끝까지 쌓인다.
+	 * 아래 셋이 그것을 막는다.
 	 */
 	@Test
 	@DisplayName("🔴 S15P21E201-1130 — 시각이 이동 시간을 비켜 간다: 머무는 시간이 줄고 사이가 벌어진다")
@@ -645,13 +607,12 @@ class ItineraryDraftServiceTest {
 		assertThat(items).hasSize(3);
 
 		// 활동 시간대 09:00~17:00 = 480분. 이동 75분을 빼고 3으로 나누면 135분씩이다.
-		// 예전에는 480/3 = 160분이었다 — 이동할 시간이 어디에도 없었다.
 		assertThat(items).allSatisfy((item) ->
 				assertThat(item.stayMinutes())
 						.as("머무는 시간에서 이동 시간을 빼지 않으면 그만큼 매번 늦는다")
 						.isEqualTo(135));
 
-		// 🔴 첫 장소도 09:00 에 시작하지 않는다 — 출발지에서 거기까지 25분이 걸린다.
+		// 첫 장소도 09:00 에 시작하지 않는다 — 출발지에서 거기까지 25분이 걸린다.
 		assertThat(items.get(0).startTime()).isEqualTo(LocalTime.of(9, 25));
 
 		// 항목과 항목 사이가 정확히 이동 시간만큼 벌어져 있다.
@@ -661,7 +622,7 @@ class ItineraryDraftServiceTest {
 					.isEqualTo(25);
 		}
 
-		// 🔴 그러고도 활동 시간대를 넘지 않는다. 넘던 것이 이 티켓이다.
+		// 그러고도 활동 시간대를 넘지 않는다.
 		assertThat(items.get(items.size() - 1).endTime()).isEqualTo(LocalTime.of(17, 0));
 	}
 
@@ -671,7 +632,7 @@ class ItineraryDraftServiceTest {
 		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
 		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
 
-		// this.service 는 이동시간 포트가 없는 갈래다(setUp 주석 참고) — durationMin 이 null 이다.
+		// this.service 는 이동시간 포트가 없는 갈래다 — durationMin 이 null 이다.
 		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlaces(3)));
 
 		assertThat(draft.items()).allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(160));
@@ -697,7 +658,7 @@ class ItineraryDraftServiceTest {
 		});
 	}
 
-	/** 구간마다 같은 소요를 돌려주는 서비스를 만든다 — S15P21E201-1130 검사들이 쓴다. */
+	/** 구간마다 같은 소요를 돌려주는 서비스를 만든다. */
 	private ItineraryDraftService serviceWithTravelMinutes(int minutes) {
 		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) ->
 				new TravelTime(1000, minutes, ItineraryItem.DataStatus.VERIFIED);

@@ -31,15 +31,11 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 배포 설정으로만 운영자가 되는 것을 진짜 PostgreSQL 위에서 확인한다 — S15P21E201-225.
+ * 배포 설정으로만 운영자가 되는 것을 진짜 PostgreSQL 위에서 확인한다.
  *
- * <h2>🔴 왜 실제 DB 로 보는가</h2>
- *
- * 이 기능의 결과물은 응답이 아니라 <b>{@code app_user.role} 에 남은 값</b>이다. 리포지토리를
- * 흉내 내면 "권한을 올렸다고 부르는 코드" 만 확인되고, 그 변경이 커밋됐는지는 확인되지 않는다.
- * 그런데 권한 변경은 {@code @PostConstruct} 안에서 직접 만든 트랜잭션에 들어 있어서, 트랜잭션이
- * 안 걸렸거나 되돌려지면 <b>서버는 정상 기동하고 로그도 "올렸다" 고 남는데 DB 는 그대로다.</b>
- * 그 상태는 운영자가 화면을 열려다 막힐 때까지 아무에게도 안 보인다.
+ * <p>결과물은 응답이 아니라 {@code app_user.role} 에 남은 값이다. 권한 변경은
+ * {@code @PostConstruct} 안에서 직접 만든 트랜잭션에 들어 있어, 트랜잭션이 안 걸렸거나
+ * 되돌려지면 서버는 정상 기동하고 로그도 올렸다고 남는데 DB 는 그대로다.
  *
  * <p>그래서 확인은 항상 {@link JdbcTemplate} 로 표를 직접 읽어서 한다. 엔티티로 읽으면 같은
  * 영속성 컨텍스트의 캐시를 보게 되어 증거가 되지 않는다.
@@ -183,9 +179,8 @@ class AdminRoleStartupSynchronizerIntegrationTest extends AuthPostgresIntegratio
 				.hasMessageContaining(AdminRoleStartupSynchronizer.PROPERTY)
 				.hasMessageContaining(AdminRoleStartupSynchronizer.PROPERTY + "[1]")
 				.hasMessageContaining(EmailMasker.mask(absent))
-				// 🔴 팀 규칙 — 실제 계정 정보를 로그나 오류에 남기지 않는다. 가려 적었는지
-				//    "가린 값이 있다" 로만 보면 원문이 함께 실려 있어도 통과한다. 그래서
-				//    원문이 없다는 것을 따로 단정한다.
+				// 가린 값이 있다는 것만 보면 원문이 함께 실려 있어도 통과하므로,
+				// 원문이 없다는 것을 따로 단정한다.
 				.hasMessageNotContaining(absent)
 				.hasMessageNotContaining(absentLocalPart);
 

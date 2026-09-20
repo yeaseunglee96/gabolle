@@ -22,12 +22,7 @@ import com.gabolle.backend.transit.config.TransitProperties;
 
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * {@code GET /api/v1/transit/nearby-bus-arrivals}의 HTTP 경계 — S15P21E201-988.
- *
- * <p>{@code WeatherControllerTest}와 같은 방식으로 컨트롤러+예외 처리기만 세워 HTTP 계약을
- * 잰다.
- */
+/** {@code GET /api/v1/transit/nearby-bus-arrivals} 의 HTTP 경계. */
 class TransitControllerTest {
 
 	private static final String STOPS_JSON = """

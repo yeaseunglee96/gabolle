@@ -29,13 +29,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 카카오모빌리티 길찾기({@code /v1/directions}) 호출 — S15P21E201-184.
- *
- * <p>🔴 카카오모빌리티는 <b>자동차 경로만</b> 공개한다 — 대중교통·도보 경로를 물어볼 API 가
- * 없다. 그래서 {@link #supports(TravelMode)} 는 {@link TravelMode#CAR} 에만 참을 준다.
- *
- * <p>{@code RestClient.Builder} 는 {@code KakaoLocalOriginSearchAdapter} 와 같은 방식으로
- * 쓴다 — 주입받은 builder 에 타임아웃이 걸린 {@code SimpleClientHttpRequestFactory} 를 꽂는다.
+ * 카카오모빌리티 길찾기(/v1/directions) 호출. 카카오모빌리티는 자동차 경로만 공개해서
+ * supports 가 CAR 에만 참을 준다.
  */
 @Component
 @Profile({"db", "dev"})
@@ -50,14 +45,8 @@ public class KakaoMobilityRouteAdapter implements RouteProviderPort {
 	private final RouteProperties properties;
 
 	/**
-	 * 🔴 2026-09-08 사고(S15P21E201-357 배포 조사 중 발견) — {@code @Autowired} 가 없으면
-	 * Spring Framework 7 이 이 클래스에 생성자가 둘(이 public 3-인자와 아래 package-private
-	 * 4-인자 테스트 전용)이라 <b>어느 것도 자동으로 못 고른다.</b> package-private 생성자는
-	 * {@code private} 이 아니라서 {@code BeanUtils.getResolvableConstructor} 의 "생성자가
-	 * 하나뿐" 판정에서 제외되지 않고, 결국 기본(무인자) 생성자를 찾다가 없어서
-	 * {@code BeanCreationException: No default constructor found} 로 기동이 죽는다
-	 * ({@code spring-beans-7.0.9}, Spring Boot 4.0.8 기준 실측). 이 애노테이션이 "DI 는
-	 * 반드시 이 생성자로" 를 명시해 그 모호함을 없앤다.
+	 * @Autowired 를 지우면 기동이 죽는다. 아래 package-private 생성자가 private 이 아니라서
+	 * 스프링의 "생성자가 하나뿐" 판정에서 빠지지 않고, 둘 중 어느 것도 자동으로 못 고른다.
 	 */
 	@Autowired
 	public KakaoMobilityRouteAdapter(RestClient.Builder restClientBuilder, ObjectMapper objectMapper,
@@ -66,16 +55,9 @@ public class KakaoMobilityRouteAdapter implements RouteProviderPort {
 	}
 
 	/**
-	 * 🔴 시간 제한을 거는 자리를 갈아 끼울 수 있게 열어 둔 생성자 — <b>테스트 전용</b>이다.
-	 *
-	 * <p>{@code MockRestServiceServer.bindTo(builder)} 는 builder 에 <b>가짜 요청 공장</b>을 꽂아
-	 * 바깥 호출을 가로챈다. 그런데 위의 공개 생성자가 그 자리를 시간 제한이 걸린 진짜 공장으로
-	 * 덮어써서, 가짜 서버에는 요청이 한 건도 안 닿고 <b>진짜 카카오를 부르러 나간다.</b> 실제로
-	 * 이 조합으로 검사 넷이 "요청이 0건 실행됐다" 며 빨개졌다.
-	 *
-	 * <p>그래서 {@code null} 을 주면 builder 의 공장을 그대로 둔다. {@code auth} 쪽
-	 * {@code AbstractRestClientOAuthProvider} 가 같은 함정을 같은 방법으로 이미 풀어 두었고,
-	 * 그 방식을 그대로 따른다.
+	 * 테스트 전용 생성자. requestFactory 에 null 을 주면 builder 의 요청 공장을 그대로 둔다.
+	 * 공개 생성자처럼 시간 제한이 걸린 진짜 공장으로 덮으면 MockRestServiceServer 가 꽂아 둔
+	 * 가짜 공장이 밀려나 진짜 카카오를 부르러 나간다.
 	 */
 	KakaoMobilityRouteAdapter(RestClient.Builder restClientBuilder, ObjectMapper objectMapper,
 			RouteProperties properties, ClientHttpRequestFactory requestFactory) {
@@ -113,7 +95,7 @@ public class KakaoMobilityRouteAdapter implements RouteProviderPort {
 		if (apiKey == null || apiKey.isBlank()) {
 			return Optional.empty();
 		}
-		// 🔴 좌표 순서가 경도(x) 먼저다 — 위도를 먼저 넣으면 엉뚱한 곳의 경로가 온다.
+		// 좌표 순서가 경도(x) 먼저다 — 위도를 먼저 넣으면 엉뚱한 곳의 경로가 온다.
 		URI uri = UriComponentsBuilder.fromUriString(this.properties.getKakaoMobilityBaseUrl())
 				.path("/v1/directions")
 				.queryParam("origin", query.originLng() + "," + query.originLat())
@@ -128,7 +110,7 @@ public class KakaoMobilityRouteAdapter implements RouteProviderPort {
 					.retrieve()
 					.body(String.class);
 		} catch (RestClientException exception) {
-			// 🔴 URL 을 통째로 찍지 않는다 — 좌표가 로그에 남으면 사용자 위치가 남는다.
+			// URL 을 통째로 찍지 않는다 — 좌표가 로그에 남으면 사용자 위치가 남는다.
 			log.warn("경로 조회 provider=KAKAO_MOBILITY 호출 실패 status={}", statusOf(exception));
 			return Optional.empty();
 		}
@@ -146,14 +128,14 @@ public class KakaoMobilityRouteAdapter implements RouteProviderPort {
 			return Optional.empty();
 		}
 		JsonNode route = routes.get(0);
-		// 🔴 카카오는 길을 못 찾아도 HTTP 200 을 준다 — result_code 를 반드시 봐야 한다.
+		// 카카오는 길을 못 찾아도 HTTP 200 을 준다 — result_code 를 반드시 봐야 한다.
 		if (route.path("result_code").asInt(-1) != 0) {
 			return Optional.empty();
 		}
 		JsonNode summary = route.path("summary");
 		int distanceM = summary.path("distance").asInt(0);
 		int durationSec = summary.path("duration").asInt(0);
-		// 🔴 초 → 분은 올림이 아니라 반올림, 최소 1분이다 — 0분이면 화면이 이동이 없다고 읽는다.
+		// 초 → 분은 올림이 아니라 반올림, 최소 1분이다 — 0분이면 화면이 이동이 없다고 읽는다.
 		int durationMin = Math.max(1, Math.round(durationSec / 60.0f));
 
 		JsonNode fare = summary.path("fare");
@@ -165,7 +147,7 @@ public class KakaoMobilityRouteAdapter implements RouteProviderPort {
 		for (JsonNode section : route.path("sections")) {
 			for (JsonNode road : section.path("roads")) {
 				JsonNode vertexes = road.path("vertexes");
-				// 🔴 vertexes 는 [경도, 위도, 경도, 위도, ...] 로 납작하다 — 둘씩 끊어 짝짓는다.
+				// vertexes 는 [경도, 위도, 경도, 위도, ...] 로 납작하다 — 둘씩 끊어 짝짓는다.
 				int pairCount = vertexes.size() / 2;
 				for (int i = 0; i < pairCount; i++) {
 					double lng = vertexes.get(i * 2).asDouble();
@@ -180,7 +162,7 @@ public class KakaoMobilityRouteAdapter implements RouteProviderPort {
 				}
 				String name = guide.path("name").asText(null);
 				int stepDistanceM = guide.path("distance").asInt(0);
-				// 🔴 여기는 최소 1분 규칙을 적용하지 않는다 — 안내 한 줄은 실제로 0분일 수 있다.
+				// 여기는 최소 1분 규칙을 적용하지 않는다 — 안내 한 줄은 실제로 0분일 수 있다.
 				int stepDurationMin = Math.round(guide.path("duration").asInt(0) / 60.0f);
 				steps.add(new RouteLeg.Step(name, guidance, stepDistanceM, stepDurationMin));
 			}

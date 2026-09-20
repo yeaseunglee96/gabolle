@@ -32,22 +32,14 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 실제 Google Gemini 호출 — S15P21E201-802.
- *
- * <p>{@code TranslationVendorAdapter} 와 같은 자리다 — 키가 비어 있으면 호출을 시도하지 않고
- * 즉시 명확한 실패를 던지고({@code ASSISTANT_VENDOR_NOT_CONFIGURED} 와 같은 모양), 원문을
+ * 실제 Google Gemini 호출. 키가 비어 있으면 호출을 시도하지 않고 즉시 명확한 실패를 던지며, 원문을
  * 로그에 남기지 않는다.
  *
- * <h2>🔴 MVP 범위 — 일정을 대신 짜지 않는다</h2>
- * 이 도우미는 은행 앱 챗봇처럼 <b>안내</b>만 한다 — 사용자의 말을 알아듣고 이 앱의 관련
- * 화면으로 가는 버튼을 만들어 주거나(navigate), 현장 문구를 알려주거나(phrase), 그 외에는
- * 짧게 안내한다(help). 실제 여행 일정·장소 추천은 이 앱의 기존 화면(설문·현지인 추천 데이터
- * 기반)이 한다 — AI 가 일정 조건을 만들어 대신 채우지 않는다.
+ * <p>이 도우미는 안내만 한다 — 화면으로 가는 버튼을 만들어 주거나(navigate), 현장 문구를
+ * 알려주거나(phrase), 짧게 안내한다(help). 실제 여행 일정·장소 추천은 기존 화면이 한다.
  *
- * <p>구조화 출력을 {@link #RESPONSE_SCHEMA}(JSON 스키마)로 강제해 파싱을 어렵게 만들지
- * 않는다 — 모델이 잘못된 모양으로 답할 수가 없다. Claude 의 {@code StructuredMessageCreateParams}
- * 와 달리 이 SDK 는 POJO 를 직접 만들어 주지 않아서, 응답 원문(JSON 문자열)을
- * {@link GeminiStructuredReply} 로 수동 파싱한다.
+ * <p>출력을 {@link #RESPONSE_SCHEMA} 로 강제해 모델이 잘못된 모양으로 답할 수 없게 한다. 이 SDK 는
+ * POJO 를 만들어 주지 않아 응답 원문을 {@link GeminiStructuredReply} 로 수동 파싱한다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -62,10 +54,8 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	 * (frontend/src/assistant/assistantApi.ts 의 {@code ALLOWED_NAVIGATE_HREFS})과 같아야 한다 —
 	 * 앱은 모르는 주소가 오면 이동 버튼을 지우고 안내문만 남긴다.
 	 *
-	 * 🔴 2026-09-18 에 {@code /plan/basic} 을 {@code /plan} 으로 옮겼다 (S15P21E201-1273).
-	 * S15P21E201-1233 이 여행 만들기를 한 페이지로 합치면서 {@code /plan/basic} 은 {@code /plan}
-	 * 으로 보내는 리다이렉트 화면만 남았는데, 리다이렉트는 쿼리를 안 실어 나른다 — 아래
-	 * {@code withPrefill} 이 붙여 보내는 {@code ?days=2} 가 그 자리에서 버려졌다.
+	 * <p>{@code /plan/basic} 을 넣지 않는다 — 그쪽은 {@code /plan} 으로 보내는 리다이렉트인데,
+	 * 리다이렉트는 쿼리를 안 실어 나르므로 {@code withPrefill} 이 붙인 값이 버려진다.
 	 */
 	static final Set<String> ALLOWED_HREFS = Set.of("/plan", "/trips", "/field/translate", "/field/transit",
 			"/field/exchange-rate");
@@ -77,11 +67,9 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	private static final int MAX_PEOPLE = 20;
 
 	/**
-	 * 🔴 {@code propertyOrdering} 을 명시한다 — Gemini 구조화 출력은 필드를 이 순서대로
-	 * 생성하는데, {@code properties} 를 {@code Map.of()} 로 주면 반복 순서가 보장되지 않아
-	 * (JVM 이 매번 무작위로 섞는다) 순서가 흐트러진다. 순서가 흐트러지면 {@code days}·
-	 * {@code people} 같은 뒤쪽 필드를 모델이 채우다 만 것처럼 빠뜨리는 문제가 실제로
-	 * 있었다(라이브 테스트로 확인, S15P21E201-985).
+	 * {@code propertyOrdering} 을 명시한다 — Gemini 구조화 출력은 필드를 이 순서대로 생성하는데,
+	 * {@code properties} 를 {@code Map.of()} 로 주면 반복 순서가 보장되지 않는다. 순서가 흐트러지면
+	 * 모델이 {@code days}·{@code people} 같은 뒤쪽 필드를 빠뜨린다.
 	 */
 	private static final Schema RESPONSE_SCHEMA = Schema.builder()
 			.type(Type.Known.OBJECT)
@@ -243,22 +231,11 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	}
 
 	/**
-	 * 🔴 <b>주소와 시간 제한을 여기서 정한다 — S15P21E201-1253.</b>
+	 * 주소와 시간 제한을 기본값에 맡기지 않는다. 구글을 직접 부르면 개인 키의 무료 한도가 좁아 같은
+	 * 질문을 연달아 보낼 때 대부분 429 가 되고, 시간 제한이 없으면 30초 넘게 요청 스레드를 붙잡는다 —
+	 * 앱은 12초에 이미 끊으므로 그 뒤는 아무도 안 기다리는 시간이다.
 	 *
-	 * <p>예전에는 {@code Client.builder().apiKey(...)} 뿐이었다. 그러면 두 가지가 기본값에
-	 * 맡겨진다.
-	 *
-	 * <ul>
-	 *   <li><b>주소</b> — 구글을 직접 부른다. 개인 키의 무료 한도가 좁아 같은 질문을 여섯 번
-	 *       연속으로 보내면 <b>첫 한 번만 성공하고 나머지가 429</b> 였다(2026-09-18 실측).
-	 *       사용자에게는 「제공처가 잠시 응답하지 않아요」로 보인다</li>
-	 *   <li><b>시간 제한</b> — 사실상 없다. 실제로 <b>35.96초</b>를 붙잡고 죽는 것을 봤다.
-	 *       앱은 12초에 이미 끊으므로 그 24초는 <b>아무도 안 기다리는 시간</b>인데, 요청
-	 *       스레드는 묶여 있고 사용자의 하루 한도는 이미 깎인 뒤다</li>
-	 * </ul>
-	 *
-	 * <p>{@code baseUrl} 이 비어 있으면 <b>안 건다</b> — 그때는 예전처럼 구글을 직접 부른다.
-	 * 시간 제한은 주소와 무관하게 언제나 건다.
+	 * <p>{@code baseUrl} 이 비어 있으면 안 건다. 시간 제한은 주소와 무관하게 언제나 건다.
 	 */
 	HttpOptions httpOptions() {
 		HttpOptions.Builder builder = HttpOptions.builder()
@@ -306,7 +283,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			rawJson = response.text();
 		}
 		catch (RuntimeException exception) {
-			// 🔴 원문을 찍지 않는다 — 실패했다는 사실만 남긴다.
+			// 원문을 찍지 않는다 — 실패했다는 사실만 남긴다.
 			log.warn("AI 여행 도우미 호출 실패");
 			throw new AssistantVendorException("ASSISTANT_VENDOR_UNAVAILABLE",
 					"AI 여행 도우미 호출에 실패했습니다.", HttpStatus.BAD_GATEWAY, exception);
@@ -371,7 +348,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 		AssistantActionKind kind = parseKind(parsed.kind());
 
 		if (kind == AssistantActionKind.NAVIGATE && !ALLOWED_HREFS.contains(parsed.href())) {
-			// 🔴 모델이 허용 목록 밖의 경로를 지어내면 안내만 하는 HELP 로 낮춘다 — 화면이 모르는
+			// 모델이 허용 목록 밖의 경로를 지어내면 안내만 하는 HELP 로 낮춘다 — 화면이 모르는
 			// 경로로 이동을 시도하게 두지 않는다.
 			return new AssistantReply(AssistantActionKind.HELP, parsed.reply(), null, null, null, null);
 		}
@@ -393,9 +370,8 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			"/field/exchange-rate", "환율 보기");
 
 	/**
-	 * 🔴 label 은 스키마에서 required 가 아니라, 모델이 이따금 비워서 준다(라이브 테스트로
-	 * 확인, S15P21E201-985) — 채워 넣을 값이 이 셋뿐이라 모델 프롬프트로 100% 잡으려 하기보다
-	 * href 별 기본 문구로 안전하게 채운다. 버튼은 항상 눌러야 하는 자리라 비워 둘 수 없다.
+	 * label 은 스키마에서 required 가 아니라 모델이 이따금 비워서 준다. 버튼은 비워 둘 수 없는
+	 * 자리라 href 별 기본 문구로 채운다.
 	 */
 	private String label(GeminiStructuredReply parsed) {
 		if (parsed.label() != null && !parsed.label().isBlank()) {
@@ -437,7 +413,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			return AssistantActionKind.valueOf(raw.trim().toUpperCase(Locale.ROOT));
 		}
 		catch (IllegalArgumentException exception) {
-			// 🔴 모델이 모르는 kind 를 지어내면 HELP 로 낮춘다 — 화면이 모르는 kind 를 받고
+			// 모델이 모르는 kind 를 지어내면 HELP 로 낮춘다 — 화면이 모르는 kind 를 받고
 			// 죽지 않게 한다.
 			return AssistantActionKind.HELP;
 		}

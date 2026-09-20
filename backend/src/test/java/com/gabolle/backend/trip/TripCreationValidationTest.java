@@ -32,20 +32,10 @@ import com.gabolle.backend.trip.presentation.TripController;
 import com.gabolle.backend.trip.presentation.TripExceptionHandler;
 
 /**
- * S15P21E201-664 — {@code TripExceptionHandler} 가 새로 추가한 두 예외를 400 으로
- * 정확히 옮기는지 HTTP 계층에서 검증한다.
- *
- * <p>{@link TripCreationTest} 는 {@code TripCreationService} 를 직접 부르는 순수
- * 단위 테스트라 예외가 <b>던져지는 것까지만</b> 본다. {@link TripControllerGetTest} 와
- * 같은 이유로, "그 예외가 HTTP 400·정확한 코드로 바뀌는지"는 이 파일에서 따로 본다 —
- * 그래서 이 티켓 작업에서 새 파일로 추가했다({@code TripCreationTest} 에 더하지
- * 않은 이유는 그 파일이 도메인 단위 테스트라 MockMvc 를 안 쓰기 때문이다).
- *
- * <p>🔴 {@link TimeWindows.InvalidTimeWindowException} 과
- * {@link TravelModes.UnsupportedTravelModeException} 은 둘 다
- * {@link IllegalArgumentException} 의 하위 타입이다. 이 테스트는 그보다 <b>더 구체적인
- * 핸들러가 먼저 잡히는지</b>(= {@code handleIllegalArgument} 의 범용 코드
- * {@code TRIP_VALIDATION_FAILED} 로 뭉개지지 않는지)를 코드값으로 직접 확인한다.
+ * {@link TimeWindows.InvalidTimeWindowException} 과
+ * {@link TravelModes.UnsupportedTravelModeException} 은 둘 다 {@link IllegalArgumentException}
+ * 의 하위 타입이다. 더 구체적인 핸들러가 먼저 잡히는지를, 즉 {@code handleIllegalArgument} 의
+ * 범용 코드 {@code TRIP_VALIDATION_FAILED} 로 뭉개지지 않는지를 코드값으로 확인한다.
  */
 class TripCreationValidationTest {
 

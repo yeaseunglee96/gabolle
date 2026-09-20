@@ -21,11 +21,8 @@ public interface StorySaveRepository extends JpaRepository<StorySave, UUID> {
 	void deleteByUserIdAndStoryId(UUID userId, UUID storyId);
 
 	/**
-	 * 없으면 넣고, 이미 있으면 아무것도 안 한다.
-	 *
-	 * <p>연타·재시도로 두 요청이 동시에 오면 한쪽만 실제로 넣는다 — {@code
-	 * SavedPlaceRepository#insertIfAbsent}와 같은 이유(DB 한 문장 안에서 판정을 끝내
-	 * {@code uk_story_save} 위반 500을 막는다).
+	 * 없으면 넣고, 이미 있으면 아무것도 안 한다. 판정을 DB 한 문장 안에서 끝내므로 연타·재시도로 두
+	 * 요청이 동시에 와도 유일 제약 위반 500 이 나지 않는다.
 	 *
 	 * @return 실제로 넣었으면 1, 이미 있어서 아무것도 안 했으면 0
 	 */

@@ -8,20 +8,11 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 탈퇴한 계정에 무엇이 남는가 — S15P21E201-1297.
+ * 탈퇴한 계정에 무엇이 남는가.
  *
- * <h2>🔴 이름만 지우고 얼굴을 남기면 지운 것이 아니다</h2>
- *
- * 탈퇴해도 행은 남는다 — 동행자의 일정 편집 이력이 이 행을 가리키기 때문이다
- * ({@link AppUser#anonymizeForDeletion} 참고). 그래서 그 사람은 동행자 목록·팔로우 목록에
- * <b>「탈퇴한 사용자」로 계속 보인다.</b> 이름은 지우면서 <b>프로필 사진과 커버 사진 주소를
- * 남겨 두면</b> 목록에 얼굴이 그대로 뜬다.
- *
- * <p>게다가 탈퇴는 그 사람이 올린 사진 <b>파일을 실제로 지운다</b>
- * ({@code AccountDeletionService.deleteUploadedFiles}). 주소만 남으면 <b>없는 파일을 가리킨
- * 채</b>라 화면에는 깨진 이미지가 뜬다 — 지우는 쪽과 가리키는 쪽이 어긋난 것이다.
- *
- * <p>이 시험이 재는 것은 그 어긋남 하나다. DB 를 안 띄운다 — 엔티티 하나의 상태 변화라서.
+ * <p>탈퇴해도 행은 남으므로({@link AppUser#anonymizeForDeletion} 참고) 그 사람은 동행자·팔로우
+ * 목록에 계속 보인다. 이름만 지우고 사진 주소를 남기면 목록에 얼굴이 그대로 뜨고, 탈퇴는 그
+ * 사진 파일을 실제로 지우므로 그 주소는 없는 파일을 가리킨다.
  */
 class AppUserAnonymizeTest {
 

@@ -21,45 +21,28 @@ import com.gabolle.backend.common.privacy.SensitiveDataInPayloadException;
 import com.gabolle.backend.common.privacy.SensitivePayloadGuard;
 
 /**
- * 추천 후보와 실제 노출이 실제로 이어지는지 검사한다 — S15P21E201-546.
+ * 추천 후보와 실제 노출이 실제로 이어지는지 검사한다. 로그는 쌓였는데 추천과 행동이 안 이어진
+ * 상태는 어디에서도 오류로 안 나타나고 — 표도 멀쩡하고 API 는 202 를 주고 이벤트 수도 늘어난다
+ * — 조인해 봐야 안다. 축을 푸는 자리는 {@code recommendation_exposure} 뷰 하나이고 판정은 여기다.
  *
- * <h2>왜 필요한가</h2>
- * 티켓의 목적 그대로다 — <b>"로그는 쌓였지만 추천과 행동이 연결되지 않는 상태를 배포 전에
- * 발견한다."</b> 그 상태는 어디에서도 오류로 나타나지 않는다. 표도 멀쩡하고 API 는 202 를
- * 주고 이벤트 수도 늘어난다. <b>조인해 봐야 알 수 있다.</b>
- *
- * <p>그래서 조인을 사람이 기억하는 것에 맡기지 않는다. 축을 푸는 자리는
- * {@code recommendation_exposure} 뷰 하나이고, 판정은 이 클래스 하나다.
- *
- * <h2>비율과 위반을 나눈 이유</h2>
- * 비율(스키마 유효율·중복률·누락률·결측률)은 <b>추세를 보는 값</b>이고, 위반(고아 노출·순위
- * 불일치·버전 누락·개인정보·FAIL 노출)은 <b>통과를 막는 값</b>이다.
- *
- * <p>🔴 비율에 문턱을 두지 않았다. "결측률 5% 미만이면 통과" 같은 숫자를 지금 정하면 그것이
- * 계약이 되는데, 실제 분포를 아직 한 번도 못 봤다. 재서 남기고, 문턱은 값을 본 뒤에 정한다.
- * 대신 <b>위반은 한 건이라도 있으면 막는다</b> — 그건 분포와 무관하게 틀린 것이다.
+ * <p>비율은 추세를 보는 값이고 위반은 통과를 막는 값이다. 비율에 문턱을 두지 않은 것은 실제
+ * 분포를 아직 못 봤기 때문이다 — 지금 숫자를 정하면 그것이 계약이 된다. 위반은 분포와 무관하게
+ * 틀린 것이라 한 건이라도 있으면 막는다.
  */
 @Component
 @Profile({ "db", "dev" })
 public class EventQualityGate {
 
 	/**
-	 * 🔴 애플리케이션이 설정한 {@code ObjectMapper} 빈을 주입받지 않는다. 두 가지 이유다.
-	 *
-	 * <ol>
-	 * <li>추천 테스트 슬라이스에는 그 빈이 없다 (Jackson 자동 설정이 안 올라온다).
-	 * 게이트가 남의 빈 유무에 매달리면 검사가 못 도는 환경이 생긴다</li>
-	 * <li>더 중요한 것 — <b>게이트는 앱이 관대하게 읽어 주는 것을 그대로 믿으면 안 된다.</b>
-	 * 앱 설정이 알 수 없는 필드를 무시하거나 느슨하게 읽도록 되어 있으면, 망가진 payload 가
-	 * 게이트 눈에는 멀쩡해 보인다. 기본 설정으로 읽어야 망가진 것이 망가진 것으로 보인다</li>
-	 * </ol>
+	 * 애플리케이션이 설정한 {@code ObjectMapper} 빈을 일부러 안 쓴다. 앱 설정이 느슨하게 읽도록
+	 * 되어 있으면 망가진 payload 가 게이트 눈에 멀쩡해 보인다. 테스트 슬라이스에 그 빈이 없어
+	 * 검사가 못 도는 환경이 생기는 것도 막는다.
 	 */
 	private static final ObjectMapper STRICT_MAPPER = new ObjectMapper();
 
 	/**
-	 * schema 이름으로 허용하는 모양. 🔴 {@code SET search_path} 는 바인딩 파라미터를 받지
-	 * 못해서 이름을 문자열로 이어 붙여야 한다. 설정값이라 사용자 입력은 아니지만, 이어
-	 * 붙이는 SQL 에 검사 없이 값을 넣는 습관을 남기지 않는다.
+	 * schema 이름으로 허용하는 모양. {@code SET search_path} 는 바인딩 파라미터를 못 받아 이름을
+	 * 문자열로 이어 붙여야 하므로, 설정값이라도 검사 없이 넣지 않는다.
 	 */
 	private static final Pattern SAFE_SCHEMA = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
 
@@ -72,17 +55,12 @@ public class EventQualityGate {
 	/**
 	 * 표가 어느 schema 에 있는가. 비어 있으면 아무것도 하지 않는다.
 	 *
-	 * <p>🔴 <b>이 필드가 있는 이유.</b> 운영은 백엔드 표를 {@code gabolle} schema 에 두고
-	 * 개인화 파이프라인의 {@code public} 과 분리한다 (S15P21E201-583, 박재현). 그 설정은
-	 * Flyway 와 Hibernate 에만 걸린다 — <b>{@link JdbcTemplate} 로 던지는 수식 없는 SQL 은
-	 * 그것을 물려받지 않고</b> 연결의 {@code search_path}(기본 {@code "$user", public})를 쓴다.
+	 * <p>운영은 백엔드 표를 별도 schema 에 두는데 그 설정은 Flyway 와 Hibernate 에만 걸린다 —
+	 * {@link JdbcTemplate} 로 던지는 수식 없는 SQL 은 물려받지 않고 연결의 {@code search_path}
+	 * 를 쓴다. 테스트 데이터소스에는 그 설정이 없어 초록인데 운영에서 표를 못 찾는 조합이 된다.
 	 *
-	 * <p>그래서 이 게이트는 운영에서 표를 못 찾는다. 그리고 <b>테스트로는 안 잡힌다</b> —
-	 * 테스트 데이터소스에는 이 설정이 없어 표가 전부 {@code public} 에 생기고 초록이 뜬다.
-	 * 초록인데 운영에서 깨지는 조합이었다.
-	 *
-	 * <p>🔴 표 이름에 {@code gabolle.} 을 박아서 고치지 않았다. 그러면 schema 이름을 바꾸는
-	 * 날 이 파일을 다시 뒤져야 하고, 팀이 만든 {@code GABOLLE_DB_SCHEMA} 변수가 무의미해진다.
+	 * <p>표 이름에 schema 를 박지 않는 것은 이름을 바꾸는 날 이 파일을 다시 뒤지지 않으려는
+	 * 것이다.
 	 */
 	private final String defaultSchema;
 
@@ -95,14 +73,11 @@ public class EventQualityGate {
 	}
 
 	/**
-	 * 이 트랜잭션 안에서만 표를 찾는 순서를 맞춘다.
+	 * 이 트랜잭션 안에서만 표를 찾는 순서를 맞춘다. 반드시 {@code SET LOCAL} 이다 — 그냥
+	 * {@code SET} 은 연결 풀에 남아서 그 연결을 다음에 빌려 쓰는 코드까지 바뀐 채로 돈다.
 	 *
-	 * <p>🔴 {@code SET LOCAL} 이다 — 트랜잭션이 끝나면 되돌아간다. 그냥 {@code SET} 을 쓰면
-	 * <b>연결 풀에 남아서</b> 그 연결을 다음에 빌려 쓰는 남의 코드까지 {@code search_path} 가
-	 * 바뀐 채로 돈다. 그건 이 클래스가 고치려는 것보다 나쁜 고장이다.
-	 *
-	 * <p>{@code public} 을 뒤에 남겨 둔다. PostGIS 함수처럼 {@code public} 에 사는 것을
-	 * 쓰게 되는 날 조용히 깨지지 않게 한다.
+	 * <p>{@code public} 을 뒤에 남겨 둔다. PostGIS 함수처럼 거기 사는 것을 쓰게 되는 날
+	 * 조용히 깨지지 않게 한다.
 	 */
 	private void alignSearchPath() {
 		if (this.defaultSchema.isEmpty()) {
@@ -116,7 +91,7 @@ public class EventQualityGate {
 	}
 
 	/**
-	 * 검사하고 결과를 남긴다. <b>실패해도 예외를 던지지 않는다</b> — 결과를 보고 판단하려는
+	 * 검사하고 결과를 남긴다. 실패해도 예외를 던지지 않는다 — 결과를 보고 판단하려는
 	 * 호출자를 위한 입구다.
 	 */
 	@Transactional
@@ -128,10 +103,8 @@ public class EventQualityGate {
 	}
 
 	/**
-	 * 검사하고, 위반이 하나라도 있으면 던진다 — <b>이것이 게이트다.</b>
-	 *
-	 * <p>🔴 실패해도 결과는 먼저 남긴다. 실패한 날의 숫자가 없으면 "언제부터 나빠졌는가" 를
-	 * 되짚을 수 없고, 그건 게이트가 있는 이유의 절반을 버리는 것이다.
+	 * 검사하고, 위반이 하나라도 있으면 던진다. 실패해도 결과는 먼저 남긴다 — 실패한 날의
+	 * 숫자가 없으면 언제부터 나빠졌는지 되짚을 수 없다.
 	 */
 	@Transactional
 	public EventQualityReport gate(String datasetVersion) {
@@ -149,17 +122,16 @@ public class EventQualityGate {
 		long impressions = count("SELECT count(*) FROM recommendation_exposure");
 		long candidates = count("SELECT count(*) FROM recommendation_candidate");
 
-		// 🔴 스키마 유효율 — placeId·finalRank 가 뷰에서 uuid·integer 로 풀렸는가.
-		//    뷰가 모양을 먼저 검사하므로, NULL 인 것은 "값이 없다" 가 아니라 "모양이 틀렸다" 다.
+		// 스키마 유효율 — 뷰가 모양을 먼저 검사하므로 NULL 인 것은 "값이 없다" 가 아니라
+		// "모양이 틀렸다" 다.
 		long schemaValid = count("""
 				SELECT count(*) FROM recommendation_exposure
 				WHERE place_id IS NOT NULL AND final_rank IS NOT NULL
 				""");
 
-		// 🔴 중복률을 event_id 로 세지 않는다. event_id 는 PK 라서 중복이 애초에 불가능하고,
-		//    그것을 세면 언제나 0 이 나와서 "중복이 없다" 는 거짓 안심을 준다.
-		//    실제 위험은 같은 (요청, 장소)가 서로 다른 event_id 로 두 번 들어오는 것이다 —
-		//    클라이언트가 재렌더링 때 새 UUID 를 만들면 그렇게 된다 (S15P21E201-544).
+		// 중복률을 event_id 로 세지 않는다. PK 라서 중복이 불가능해 언제나 0 이 나오고 거짓
+		// 안심을 준다. 실제 위험은 같은 (요청, 장소)가 서로 다른 event_id 로 두 번 들어오는
+		// 것이다 — 클라이언트가 재렌더링 때 새 UUID 를 만들면 그렇게 된다.
 		long distinctExposures = count("""
 				SELECT count(*) FROM (
 				    SELECT DISTINCT request_id, place_id FROM recommendation_exposure
@@ -183,13 +155,12 @@ public class EventQualityGate {
 
 		List<String> violations = new ArrayList<>();
 
-		// (0) 🔴 requestId 가 없는 노출 — 완료 기준 "requestId 누락이 조용히 통과하지 않는다".
-		//     비율로만 남기면 조용히 통과한다. 축이 없는 노출은 영영 후보와 못 잇는다 (API-07).
+		// 비율로만 남기면 조용히 통과한다. 축이 없는 노출은 영영 후보와 못 잇는다.
 		if (requestIdMissing > 0) {
 			violations.add("requestId 없는 노출 " + requestIdMissing + "건 (후보와 이을 축이 없음)");
 		}
 
-		// (1) 존재하지 않는 후보의 노출 — 축이 끊겼다는 가장 직접적인 증거다.
+		// 존재하지 않는 후보의 노출 — 축이 끊겼다는 가장 직접적인 증거다.
 		long orphans = count("""
 				SELECT count(*) FROM recommendation_exposure e
 				WHERE e.request_id IS NOT NULL AND e.place_id IS NOT NULL
@@ -201,7 +172,7 @@ public class EventQualityGate {
 			violations.add("존재하지 않는 후보의 노출 " + orphans + "건 (request_id + place_id 로 후보를 못 찾음)");
 		}
 
-		// (2) 순위 불일치 — 화면이 보여준 순위와 저장된 순위가 다르면 둘 중 하나가 거짓이다.
+		// 순위 불일치 — 화면이 보여준 순위와 저장된 순위가 다르면 둘 중 하나가 거짓이다.
 		long rankMismatches = count("""
 				SELECT count(*) FROM recommendation_exposure e
 				JOIN recommendation_candidate c
@@ -212,8 +183,8 @@ public class EventQualityGate {
 			violations.add("순위 불일치 " + rankMismatches + "건 (노출 finalRank ≠ 후보 final_rank)");
 		}
 
-		// (3) 버전 누락 — FR-REC-12. 요구 버전은 fallbackMode 가 정한다.
-		//     🔴 fallbackMode 가 없으면 MODEL(가장 엄격)로 본다. 없는 값을 낙관적으로 채우지 않는다.
+		// 버전 누락 — 요구 버전은 fallbackMode 가 정한다. fallbackMode 가 없으면 가장 엄격한
+		// MODEL 로 본다. 없는 값을 낙관적으로 채우지 않는다.
 		long versionMissing = count("""
 				SELECT count(*) FROM recommendation_exposure
 				WHERE dataset_version IS NULL
@@ -227,9 +198,9 @@ public class EventQualityGate {
 			violations.add("버전 누락 " + versionMissing + "건 (fallbackMode 가 요구하는 버전이 비었음)");
 		}
 
-		// (4) 🔴 하드 제약을 위반한 후보가 화면에 나갔다. 데이터 문제가 아니라 안전 문제다.
-		//     DB CHECK 가 returned=true 를 막지만, 노출 이벤트는 클라이언트가 만들어 보내므로
-		//     그 CHECK 를 지나지 않는다. 여기가 그것을 잡는 유일한 자리다.
+		// 하드 제약을 위반한 후보가 화면에 나갔다. 데이터 문제가 아니라 안전 문제다. DB CHECK
+		// 가 returned=true 를 막지만 노출 이벤트는 클라이언트가 만들어 보내 그 CHECK 를 안
+		// 지나므로, 여기가 그것을 잡는 유일한 자리다.
 		long failExposed = count("""
 				SELECT count(*) FROM recommendation_exposure e
 				JOIN recommendation_candidate c
@@ -240,12 +211,12 @@ public class EventQualityGate {
 			violations.add("🔴 하드 제약 위반(FAIL) 후보가 노출됨 " + failExposed + "건 — 안전 문제");
 		}
 
-		// (5) 개인정보·정밀 좌표가 payload 에 들어왔다 (DR-13).
+		// 개인정보·정밀 좌표가 payload 에 들어왔다.
 		long piiViolations = countSensitivePayloads(violations);
 
 		return new EventQualityReport(LocalDate.now(this.clock.withZone(ZoneId.of("Asia/Seoul"))), datasetVersion,
 				events, impressions, candidates,
-				// 🔴 좋은 비율과 나쁜 비율은 비어 있을 때의 기본값이 반대다. 아래 두 함수 참고.
+				// 좋은 비율과 나쁜 비율은 비어 있을 때의 기본값이 반대다. 아래 두 함수 참고.
 				goodRate(schemaValid, impressions),
 				badRate(identifiableExposures - distinctExposures, identifiableExposures),
 				badRate(requestIdMissing, impressions), badRate(featureMissing, candidates), orphans, rankMismatches,
@@ -253,12 +224,8 @@ public class EventQualityGate {
 	}
 
 	/**
-	 * 쌓인 payload 를 개인정보 검사에 다시 통과시킨다.
-	 *
-	 * <p>🔴 쓰는 쪽({@code OutboxService})이 이미 같은 검사를 한다. 그런데도 여기서 또 보는
-	 * 이유는, 게이트의 일이 <b>그 검사가 꺼졌거나 우회됐을 때를 잡는 것</b>이기 때문이다.
-	 * 원시 SQL 로 넣은 행, 검사가 없던 시절의 행, 검사를 지나지 않는 경로가 생긴 행은
-	 * 쓰는 쪽 검사로는 절대 안 잡힌다.
+	 * 쌓인 payload 를 개인정보 검사에 다시 통과시킨다. 쓰는 쪽이 이미 같은 검사를 하지만,
+	 * 원시 SQL 로 넣은 행이나 검사를 지나지 않는 경로로 들어온 행은 그 검사로는 안 잡힌다.
 	 */
 	private long countSensitivePayloads(List<String> violations) {
 		List<Map<String, Object>> rows = this.jdbcTemplate
@@ -298,10 +265,8 @@ public class EventQualityGate {
 	// ── 남기는 것 ─────────────────────────────────────────────────────────────
 
 	/**
-	 * 같은 날 같은 판을 다시 재면 뒤에 잰 것으로 덮는다.
-	 *
-	 * <p>🔴 행을 지우고 넣지 않고 {@code ON CONFLICT} 로 덮는다. 지우고 넣는 사이에 다른
-	 * 트랜잭션이 읽으면 그 날 리포트가 없는 것처럼 보인다.
+	 * 같은 날 같은 판을 다시 재면 뒤에 잰 것으로 덮는다. 지우고 넣지 않고 {@code ON CONFLICT}
+	 * 로 덮는 것은, 그 사이에 다른 트랜잭션이 읽으면 그 날 리포트가 없는 것처럼 보이기 때문이다.
 	 */
 	private void save(EventQualityReport report) {
 		this.jdbcTemplate.update("""
@@ -342,19 +307,17 @@ public class EventQualityGate {
 	}
 
 	/**
-	 * 높을수록 좋은 비율(유효율). 🔴 분모가 0 이면 <b>1.0</b> 이다 — 노출이 없으면 잘못된
-	 * 노출도 없다. 0.0 으로 두면 빈 DB 가 "유효율 0%" 로 읽히고, 그건 사실이 아니다.
+	 * 높을수록 좋은 비율. 분모가 0 이면 1.0 이다 — 노출이 없으면 잘못된 노출도 없다.
+	 * 0.0 으로 두면 빈 DB 가 "유효율 0%" 로 읽힌다.
 	 */
 	private double goodRate(long numerator, long denominator) {
 		return (denominator <= 0) ? 1.0 : clamp((double) numerator / (double) denominator);
 	}
 
 	/**
-	 * 낮을수록 좋은 비율(중복률 · 누락률 · 결측률). 🔴 분모가 0 이면 <b>0.0</b> 이다.
-	 *
-	 * <p>이 둘을 한 함수로 합쳐 뒀다가 실제로 틀렸다 — 빈 DB 에서 중복률이 1.0 으로
-	 * 기록됐다. CHECK 는 0~1 만 보므로 <b>그 거짓말이 그대로 저장된다.</b> 방향이 반대인
-	 * 값을 같은 함수로 계산하면 언제나 한쪽이 틀린다.
+	 * 낮을수록 좋은 비율. 분모가 0 이면 0.0 이다. {@link #goodRate} 와 합치면 안 된다 —
+	 * 방향이 반대인 값을 한 함수로 계산하면 빈 DB 에서 한쪽이 반드시 틀리고, CHECK 는 0~1 만
+	 * 보므로 그 거짓말이 그대로 저장된다.
 	 */
 	private double badRate(long numerator, long denominator) {
 		return (denominator <= 0) ? 0.0 : clamp((double) numerator / (double) denominator);

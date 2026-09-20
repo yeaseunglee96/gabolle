@@ -23,30 +23,13 @@ import com.gabolle.testslice.StorySliceApplication;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-1279 — 응답이 {@code media} 를 <b>실제로 싣는가.</b>
+ * 응답이 {@code media} 를 실제로 싣는지 본다. 칸을 더해 놓고 값을 안 옮기는 실수는 컴파일도
+ * 기존 검사도 통과한다.
  *
- * <h2>🔴 왜 이 검사가 따로 필요한가</h2>
+ * <p>썸네일이 없을 때 {@code null} 로 나가는지, 그리고 썸네일이 사진 3장 한 칸을 먹지 않는지가
+ * 이 파일의 핵심이다.
  *
- * <b>칸을 더해 놓고 값을 안 옮기는 실수</b>는 컴파일도 기존 검사도 통과한다. 이 저장소는 같은
- * 병으로 <b>세 번</b> 넓어졌다({@code ListResponseFieldsTest} 가 그 셋을 적어 두고 있다 —
- * 사진 주소·영문 주소·사진 갈래가 차례로 상세에만 있었다). 그래서 「만드는 쪽이 값을 끝까지
- * 옮기는가」를 따로 잰다.
- *
- * <h2>🔴 썸네일이 없을 때가 이 파일의 핵심이다</h2>
- *
- * 앱이 썸네일을 못 만들면 {@code null} 이고 그것이 <b>정상 상태</b>다. 이때
- * <b>빈 문자열이나 자리표시 주소를 넣으면 안 된다</b> — 화면은 그것을 「있다」로 읽고
- * <b>깨진 그림</b>을 그린다. 「없으면 없다고만」 해야 화면이 대신 그릴 것을 고를 수 있다.
- *
- * <h2>🔴 그리고 썸네일이 사진 3장을 안 먹는지</h2>
- *
- * 썸네일은 {@code uploaded_image} 행이지만 {@code story_image} 에는 안 들어간다. 들어가면
- * 「한 기록에 사진 3장」 한 칸을 먹어서 <b>동영상을 넣으면 사진이 2장만</b> 들어간다 —
- * 사용자에게 설명할 수 없다. 그 분리가 실제로 지켜지는지 센다.
- *
- * <h2>DB 가 없으면 건너뛴다</h2>
- *
- * 🔴 도커가 꺼진 PC 에서는 건너뛴 채 초록이다. <b>진짜 판정은 CI 다.</b>
+ * <p>DB 가 없으면 건너뛴 채 초록이다 — 진짜 판정은 CI 다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -87,7 +70,7 @@ class StoryMediaResponseIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다.
+		// 표를 비우지 않는다. 내가 만든 것만 지운다.
 		this.jdbc.update("DELETE FROM story_video WHERE story_id = ?", this.storyId);
 		this.jdbc.update("DELETE FROM story_image WHERE story_id = ?", this.storyId);
 		this.jdbc.update("DELETE FROM story_view WHERE story_id = ?", this.storyId);
@@ -125,7 +108,7 @@ class StoryMediaResponseIntegrationTest {
 		StoryResponse response = this.storyService.get(this.storyId, this.viewer, null);
 
 		assertThat(response.media()).hasSize(1);
-		// 🔴 「없다」와 「빈 문자열」은 다르다. 빈 문자열이면 화면이 있다고 읽고 깨진 그림을 그린다.
+		// 「없다」와 「빈 문자열」은 다르다. 빈 문자열이면 화면이 있다고 읽고 깨진 그림을 그린다.
 		assertThat(response.media().get(0).thumbnailUrl()).isNull();
 		assertThat(response.media().get(0).url()).isNotBlank();
 	}

@@ -3,10 +3,8 @@ package com.gabolle.backend.place.service;
 import java.util.UUID;
 
 /**
- * 그 아이디의 장소가 없다 — 404 로 나간다.
- *
- * <p>장소는 공개 카탈로그라 "없다" 와 "권한이 없다" 를 구분해 숨길 것이 없다. 여행처럼 존재
- * 자체를 감춰야 하는 자원과 다르다.
+ * 그 아이디의 장소가 없다 — 404 로 나간다. 장소는 공개 카탈로그라 여행과 달리 존재 자체를
+ * 감추지 않는다.
  */
 public class PlaceNotFoundException extends RuntimeException {
 

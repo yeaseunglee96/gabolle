@@ -1,6 +1,6 @@
 package com.gabolle.backend.moderation.domain;
 
-/** 운영자의 처리 결과 — S15P21E201-267. */
+/** 운영자의 처리 결과. */
 public enum StoryReportResolution {
 
 	/** 기록과 저장소 사진을 지웠다. */

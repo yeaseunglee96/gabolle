@@ -30,15 +30,10 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.CollaborationSliceApplication;
 
 /**
- * 여행 하나를 눌렀을 때 무엇을 열지 — {@code GET /api/v1/trips/{tripId}/itineraries} · S15P21E201-738.
+ * 여행 하나를 눌렀을 때 무엇을 열지 — {@code GET /api/v1/trips/{tripId}/itineraries}.
  *
- * <p>내 여행 목록({@code GET /api/v1/trips})은 일정 식별자를 담지 않는다. 담으면 여행 모듈이
- * 일정 표를 알게 되기 때문이다. 그래서 이 자리가 그 답을 준다.
- *
- * <p>재는 것은 셋이다 — 회원이면 열람자라도 볼 수 있는가, 비회원에게 <b>404 로 존재를 감추는가</b>,
- * 일정이 아직 없는 여행이 오류가 아니라 빈 목록인가. 마지막 것이 중요하다. 여행을 만들고
- * 계산이 끝나기 전에 목록을 열면 그 상태가 정상인데, 여기서 404 를 내면 사용자에게는
- * "방금 만든 여행이 없어졌다" 로 보인다.
+ * <p>재는 것은 셋이다 — 회원이면 열람자라도 볼 수 있는가, 비회원에게 404 로 존재를 감추는가,
+ * 일정이 아직 없는 여행이 오류가 아니라 빈 목록인가.
  */
 @SpringBootTest(classes = CollaborationSliceApplication.class, properties = {
 		"spring.profiles.active=db",

@@ -25,17 +25,12 @@ import com.gabolle.backend.itinerary.domain.ItineraryStopEvent;
 import com.gabolle.backend.itinerary.presentation.ItineraryQueryController;
 
 /**
- * 일정 진행 — 「지금 어느 단계인가」 (S15P21E201-1325, 시안 ⑤).
+ * 일정 진행 — 지금 어느 단계인가.
  *
- * <h2>🔴 도착 시각은 여기서 새로 만들지 않는다</h2>
- * {@link ItineraryActualTimeService} 가 이미 그 자리다. 도착 사건이 오면 <b>그 표에</b>
- * 시각을 적고, 이 서비스는 그 위에 「자동인가 손인가」와 「몇 번째를 향하고 있나」만 얹는다.
- * 같은 사실을 두 곳에 담으면 둘이 어긋나는 날이 오고, 그때 어느 쪽이 진짜인지 아무도
- * 답할 수 없다.
+ * <p>도착 시각은 여기서 새로 만들지 않는다. {@link ItineraryActualTimeService} 가 쓰는 표에
+ * 적고, 이 서비스는 그 위에 「자동인가 손인가」와 「몇 번째를 향하고 있나」만 얹는다.
  *
- * <h2>🔴 시간을 여기서 읽지 않는다</h2>
- * {@link Clock} 을 받는다. 서비스가 {@code Instant.now()} 를 부르면 시험이 실제 시각에 따라
- * 통과했다 실패했다 하고, 그런 시험은 없는 것보다 나쁘다 — 통과가 무엇을 뜻하는지 알 수 없다.
+ * <p>시각은 {@link Clock} 에서만 읽는다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -66,10 +61,8 @@ public class ItineraryRunService {
 	}
 
 	/**
-	 * 정차지 하나의 지금.
-	 *
-	 * <p>🔴 {@code arrivedAt} 과 {@code skipped} 를 <b>한 칸으로 합치지 않는다.</b> 건너뛴 곳은
-	 * 안 간 곳이다 — 합치면 나중에 「거기 갔었나?」를 기억으로만 풀어야 한다.
+	 * 정차지 하나의 지금. {@code arrivedAt} 과 {@code skipped} 는 한 칸으로 합치지 않는다 —
+	 * 건너뛴 곳은 다녀온 곳이 아니다.
 	 *
 	 * @param arrivedHow {@code auto} 또는 {@code manual}. 안 갔으면 {@code null}
 	 */
@@ -98,8 +91,7 @@ public class ItineraryRunService {
 	 * 도착했다.
 	 *
 	 * @param how {@code auto} 면 GPS 가 알아챈 것, {@code manual} 이면 사람이 찍은 것.
-	 *     🔴 둘을 가르는 이유는 <b>나중에 자동 판정이 맞았는지를 재기 위해서</b>다. 한 칸으로
-	 *     합치면 「GPS 가 얼마나 맞히나」를 영영 못 잰다
+	 *     둘을 가르는 것은 나중에 자동 판정이 얼마나 맞았는지를 재기 위해서다
 	 */
 	@Transactional
 	public View arrive(String itineraryId, String userId, String itemKey, String how) {
@@ -117,8 +109,7 @@ public class ItineraryRunService {
 
 	private View apply(String itineraryId, String userId, ItineraryStopEvent.Type type, String itemKey,
 			Instant arrivedAt) {
-		// 🔴 편집 권한을 요구한다. 보기 전용으로 초대된 사람이 남의 여행을 「다녀온 것」으로
-		//    만들 수 있으면 안 된다 — 그 기록은 여행이 끝난 뒤에도 남는다.
+		// 편집 권한을 요구한다. 보기 전용으로 초대된 사람은 진행 기록을 남길 수 없다.
 		ItineraryAccess.Access granted = this.access.requireEditor(itineraryId, userId);
 		String tripId = granted.itinerary().tripId();
 		List<String> keys = stopKeys(itineraryId);
@@ -131,8 +122,7 @@ public class ItineraryRunService {
 		ItineraryRun run = this.runs.find(itineraryId)
 				.orElseGet(() -> ItineraryRun.planned(itineraryId, tripId, now));
 
-		// 🔴 달리는 중이 아니면 정차지 사건을 안 받는다. 멈춰 놓고 기록이 쌓이면
-		//    「멈췄다」가 거짓이 된다.
+		// 달리는 중이 아니면 정차지 사건을 안 받는다.
 		if (type.settlesStop() && run.status() != ItineraryRun.Status.RUNNING) {
 			throw new NotRunningException(itineraryId, run.status());
 		}
@@ -144,8 +134,8 @@ public class ItineraryRunService {
 		};
 
 		if (type.settlesStop()) {
-			// 🔴 같은 정차지를 두 번 찍어도 한 번만 센다. 재시도와 늦게 온 신호가 정상
-			//    경로라, 막지 않으면 사건이 쌓이며 「몇 번째」가 실제보다 앞서 간다.
+			// 같은 정차지를 두 번 찍어도 한 번만 센다. 재시도와 늦게 온 신호가 정상 경로라,
+			// 막지 않으면 「몇 번째」가 실제보다 앞서 간다.
 			Map<String, Stop> before = stopsByKey(itineraryId, keys);
 			Stop already = before.get(itemKey);
 			if (already != null && (already.arrivedAt() != null || already.skipped())) {
@@ -168,8 +158,7 @@ public class ItineraryRunService {
 		if (!type.isArrival()) {
 			return;
 		}
-		// 🔴 도착 시각은 이미 있는 표에 적는다. 이 기능이 따로 들고 있으면 옛 화면의
-		//    「도착 기록」과 새 화면의 「다녀옴」이 서로 다른 값을 말하게 된다.
+		// 도착 시각은 따로 들지 않고 이미 있는 표에 적는다.
 		this.actuals.upsert(new ItineraryItemActual(itineraryId, itemKey, arrivedAt == null ? now : arrivedAt, null,
 				userId, now));
 	}
@@ -181,10 +170,8 @@ public class ItineraryRunService {
 	}
 
 	/**
-	 * 그 일정의 정차지를 <b>순서대로</b>.
-	 *
-	 * <p>🔴 최신 판을 읽는다. 진행 상태는 판 체인 밖에 있어서, 일정을 고친 뒤에도 「몇 번째」는
-	 * 새 판의 순서로 읽혀야 한다.
+	 * 그 일정의 정차지를 순서대로. 최신 판을 읽는다 — 진행 상태는 판 체인 밖에 있어서
+	 * 일정을 고친 뒤에도 「몇 번째」는 새 판의 순서로 읽혀야 한다.
 	 */
 	private List<String> stopKeys(String itineraryId) {
 		var itinerary = this.itineraries.findById(itineraryId)

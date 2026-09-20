@@ -15,23 +15,13 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
 /**
- * 모델이 준 큰 그림을 <b>보관할 크기로 줄인다</b> — S15P21E201-1272.
+ * 모델이 준 큰 그림을 보관할 크기로 줄인다.
  *
- * <h2>왜 줄이나</h2>
+ * <p>원본은 1MB 가 넘는 1024x1024 PNG 인데 화면에는 손바닥만 하게 뜬다. 그대로 두면 표가 그만큼
+ * 늘고, 여행지 식당 안의 통신망으로 그 1MB 를 매번 내려받게 된다.
  *
- * 모델이 주는 것은 1,358KB 짜리 1024x1024 PNG 다(2026-09-18 실측). 화면에는 메뉴 한 줄
- * 옆에 손바닥만 하게 뜬다. 그대로 두면 두 가지가 같이 나빠진다.
- *
- * <ul>
- *   <li>표가 음식 수의 1MB 배로 늘어난다</li>
- *   <li>🔴 <b>앱이 그 1MB 를 통신망으로 내려받는다.</b> 이 기능을 쓰는 자리가 여행지의
- *       식당 안이라 대개 통신망이 좋지 않고, 데이터도 그 사람이 낸다</li>
- * </ul>
- *
- * <h2>투명한 그림을 흰 바탕에 깐다</h2>
- *
- * JPEG 에는 투명이 없다. 투명한 PNG 를 그대로 JPEG 로 쓰면 투명했던 자리가 <b>검게</b>
- * 나온다. 음식 그림이 검은 얼룩과 함께 나오는 것을 눈으로 보기 전에는 모른다.
+ * <p>JPEG 에는 투명이 없어, 투명한 PNG 를 그대로 쓰면 투명했던 자리가 검게 나온다. 그래서 흰 바탕을
+ * 먼저 깐다.
  */
 public final class DishImageShrinker {
 
@@ -56,7 +46,7 @@ public final class DishImageShrinker {
 
 		int width = source.getWidth();
 		int height = source.getHeight();
-		// 🔴 원본이 이미 작으면 키우지 않는다. 키워 봐야 흐려지기만 하고 용량만 는다.
+		// 원본이 이미 작으면 키우지 않는다. 키워 봐야 흐려지기만 하고 용량만 는다.
 		double scale = Math.min(1.0, (double) longestSide / Math.max(width, height));
 		int targetWidth = Math.max(1, (int) Math.round(width * scale));
 		int targetHeight = Math.max(1, (int) Math.round(height * scale));

@@ -15,13 +15,13 @@ import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import jakarta.validation.Valid;
 
 /**
- * 추천 후보 사전 필터 (S15P21E201-102).
+ * 추천 후보 사전 필터.
  *
- * <p>🔴 조회인데 {@code POST} 인 이유는 조건이 중첩된 객체 배열이라 질의 문자열에 담기 어렵기
+ * <p>조회인데 {@code POST} 인 이유는 조건이 중첩된 객체 배열이라 질의 문자열에 담기 어렵기
  * 때문이다. 서버 상태를 바꾸지 않으므로 멱등하다.
  *
- * <p>이 엔드포인트를 부르는 것은 사용자 화면이 아니라 추천 계산이다. 그래서 응답에 랭킹 점수가
- * 없다 — 점수는 이 뒤 단계의 몫이고, 여기서는 <b>무엇을 후보로 볼 것인가</b>만 정한다.
+ * <p>부르는 것은 사용자 화면이 아니라 추천 계산이다. 그래서 응답에 랭킹 점수가 없다 — 점수는 이
+ * 뒤 단계의 몫이고, 여기서는 무엇을 후보로 볼 것인가만 정한다.
  */
 @RestController
 @RequestMapping("/api/v1/places")

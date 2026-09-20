@@ -75,8 +75,8 @@ class SmtpEmailSenderFromHeaderTest {
 	}
 
 	/**
-	 * S15P21E201-1017 — 중계 업체가 From 을 자기 도메인으로 바꿔 보내므로, 답장이 갈 곳을
-	 * 따로 실어야 한다. 이게 없으면 사용자가 답장을 눌러도 아무도 안 보는 주소로 간다.
+	 * 중계 업체가 From 을 자기 도메인으로 바꿔 보내므로 답장이 갈 곳을 따로 실어야 한다.
+	 * 없으면 사용자가 답장을 눌러도 아무도 안 보는 주소로 간다.
 	 */
 	@Test
 	void repliesGoBackToTheRealAddressEvenIfTheRelayRewritesFrom() throws Exception {

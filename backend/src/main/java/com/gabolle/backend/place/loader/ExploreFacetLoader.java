@@ -17,23 +17,16 @@ import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 import com.gabolle.backend.place.repository.PlaceRepository;
 
 /**
- * 로컬 탐색 여덟 갈래의 표식을 이미 적재된 장소에 붙인다 — S15P21E201-474.
+ * 로컬 탐색 여덟 갈래의 표식을 이미 적재된 장소에 붙인다.
  *
- * <h2>장소를 넣지 않고 표식만 붙인다</h2>
- * {@link TourApiPlaceLoader} 는 이미 있는 장소를 건너뛴다. 그 규칙을 지키면 운영에 장소가
- * 들어간 뒤에는 표식을 더할 길이 없으므로, 표식만 다루는 적재를 따로 둔다.
- * {@link OpeningHoursLoader} 가 영업시간에 대해 같은 모양을 쓴다 — 장소가 없는 줄은 세어서
- * 넘기고, 이미 있는 행은 건드리지 않는다.
+ * <p>{@link TourApiPlaceLoader} 는 이미 있는 장소를 건너뛰므로, 운영에 장소가 들어간 뒤에는
+ * 표식을 더할 길이 없다. 그래서 표식만 다루는 적재를 따로 둔다.
  *
- * <h2>기존 갈래 표식을 덮지 않는다</h2>
- * 같은 {@code INTEREST_TAG} 자리에 추천이 쓰는 어휘({@code SEA_BEACH}·{@code NATURE_WALK} 등)가
- * 이미 들어 있다. 표식 id 를 갈래 코드까지 넣어 계산하므로 두 어휘가 같은 장소에 나란히
- * 남는다 — 한 장소가 추천에서는 자연 산책이고 탐색에서는 산책일 수 있고, 그 둘은 서로 다른
- * 질문에 답한다.
+ * <p>같은 {@code INTEREST_TAG} 자리에 추천이 쓰는 어휘가 이미 들어 있다. 표식 id 를 갈래
+ * 코드까지 넣어 계산하므로 두 어휘가 같은 장소에 나란히 남는다 — 서로 다른 질문에 답한다.
  *
- * <h2>증거 등급</h2>
- * {@code ESTIMATED} 다. 원천의 분류 칸을 옮긴 것이지 장소에 직접 확인한 것이 아니다.
- * {@link TourApiPlaceLoader} 가 같은 이유로 같은 등급을 쓴다.
+ * <p>증거 등급은 {@code ESTIMATED} 다. 원천의 분류 칸을 옮긴 것이지 장소에 직접 확인한 것이
+ * 아니다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -106,12 +99,7 @@ public class ExploreFacetLoader {
 		return TourApiExploreFacet.of(row.contentTypeId(), row.cat1(), row.cat3());
 	}
 
-	/**
-	 * @param inserted     새로 붙인 표식
-	 * @param noPlace      붙일 장소가 없어 넘긴 줄
-	 * @param alreadyThere 이미 있어 넘긴 표식
-	 * @param noFacet      여덟 갈래 중 어디에도 안 드는 줄. 대부분이 여기다
-	 */
+	/** {@code noFacet} 은 여덟 갈래 중 어디에도 안 드는 줄이다 — 대부분이 여기로 간다. */
 	public record Result(int inserted, int noPlace, int alreadyThere, int noFacet) {
 
 		public Result plus(Result other) {

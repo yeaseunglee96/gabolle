@@ -20,21 +20,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * 탈퇴 — 실제 소켓과 실제 {@code SecurityFilterChain} 을 지나는 검사 (S15P21E201-837).
+ * 탈퇴를 실제 소켓과 실제 {@code SecurityFilterChain} 으로 지난다. 서비스를 직접 부르는 검사는 요청
+ * 본문이 실제로 어떻게 묶이는지를 못 보는데, 이 기능의 핵심이 본문 계약이다 — 칸이 잘못 묶이면
+ * 서비스 검사는 전부 초록인데 실제 요청만 400 으로 떨어진다.
  *
- * <h2>왜 HTTP 로 다시 보나</h2>
- *
- * {@code AccountDeletionIntegrationTest} 는 서비스를 직접 부른다. 그래서 <b>요청 본문이 실제로
- * 어떻게 묶이는지</b> 를 못 본다. 이번 변경의 핵심이 바로 본문 계약이다 — 비밀번호를
- * {@code @NotBlank} 에서 내리고 확인 값을 필수로 올렸다. 그 두 칸이 잘못 묶이면 서비스 검사는
- * 전부 초록인데 실제 요청만 400 으로 떨어진다. 2026-09-10 에 가입 경로에서 똑같은 일이 났다
- * (S15P21E201-816 — 원시 {@code boolean} 이라 키를 빼면 이유 없는 400 이 나갔다).
- *
- * <h2>🔴 소셜 계정을 어떻게 만드나</h2>
- *
- * 소셜 로그인을 실제로 태우려면 provider 를 흉내 내야 하고 그건 이 검사의 목적이 아니다. 대신
- * 가입으로 만든 계정에서 <b>자격증명 행을 지우고 소셜 신원 행을 넣어</b> 소셜로만 가입한 계정과
- * 같은 모양으로 만든다. 이 기능이 보는 것은 "자격증명이 있느냐" 하나뿐이므로 그 모양이면 충분하다.
+ * <p>소셜 계정은 provider 를 흉내 내지 않고, 가입으로 만든 계정의 자격증명 행을 지우고 소셜 신원 행을
+ * 넣어 만든다. 이 기능이 보는 것은 "자격증명이 있느냐" 하나뿐이다.
  */
 class AccountDeletionJourneyFunctionalTest extends FunctionalJourneyTest {
 

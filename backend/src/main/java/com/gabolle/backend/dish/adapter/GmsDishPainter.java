@@ -17,46 +17,23 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 음식 묘사 한 줄을 받아 <b>그림을 그려 온다</b> — S15P21E201-1272.
+ * 음식 묘사 한 줄을 받아 그림을 그려 온다.
  *
- * <h2>🔴 이 호출은 요청 밖에서만 돈다</h2>
+ * <p>이 호출은 요청 밖에서만 돈다. 가장 빠른 설정으로도 10초가 넘어 앱의 12초 제한 안에 못 들어간다.
+ * 시간 제한을 90초로 넉넉히 잡는 것도 그래서다 — 짧게 잡으면 값은 치르고 답만 버린다.
  *
- * 2026-09-18 에 같은 중계로 잰 값이다.
+ * <p>받은 그림은 1MB 가 넘는 1024 짜리라 그대로 보관하지 않는다. {@link DishImageShrinker} 가
+ * 줄여서 JPEG 로 바꾼 것을 보관한다. 받을 형식을 {@code png} 로 두는 이유는 자바 기본
+ * {@code ImageIO} 가 webp 를 못 읽기 때문이다.
  *
- * <pre>
- *   low     / 1024x1024   10.90초
- *   medium  / 1024x1024   15.55초
- *   (기본)  / 1024x1024   45.77초
- * </pre>
- *
- * 앱은 12초에 끊는다. 가장 빠른 {@code low} 도 10.9초라 <b>요청 안에서는 못 준다.</b>
- * 그래서 이 클래스를 부르는 것은 언제나 다른 스레드이고, 시간 제한도 거기에 맞춰
- * 넉넉히(90초) 잡는다 — 짧게 잡으면 정상 호출을 우리가 먼저 끊고 값은 이미 치른 뒤가 된다.
- *
- * <h2>🔴 받은 그림을 그대로 보관하지 않는다</h2>
- *
- * 모델이 주는 것은 1MB 가 넘는 1024 짜리 PNG 인데, 화면에는 손바닥만 하게 뜬다.
- * 그대로 들고 있으면 표가 음식 수의 1MB 배로 늘고, 앱은 그 1MB 를 매번 내려받는다.
- * 그래서 {@link DishImageShrinker} 가 줄여서 JPEG 로 바꾼 것을 보관한다.
- *
- * <p>모델에게 받을 형식을 {@code png} 로 두는 이유가 여기 있다 — 자바 기본
- * {@code ImageIO} 는 <b>webp 를 못 읽는다.</b> webp 가 조금 작지만(1,099KB 대 1,358KB)
- * 어차피 줄이면서 버리는 크기다.
- *
- * <h2>{@code dall-e-3} 는 이 중계에 없다</h2>
- *
- * {@code Model dall-e-3 is not available} 이 돌아온다(2026-09-18 실측). 설정에서 이름만
- * 바꿔 넣으면 그 자리에서 죽는다.
+ * <p>{@code dall-e-3} 는 이 중계에 없다. 설정에서 이름만 바꿔 넣으면 그 자리에서 죽는다.
  */
 @Component
 public class GmsDishPainter {
 
 	/**
-	 * 묘사 앞에 늘 붙이는 말.
-	 *
-	 * <p>🔴 <b>글자를 안 그리게 한다.</b> 모델이 그림 안에 메뉴판이나 간판 글자를 그려
-	 * 넣으면, 그 글자는 <b>우리가 읽은 적 없는 글자</b>다. 사용자는 그것을 메뉴판에서 온
-	 * 것으로 읽는다 — 우리가 만든 오해가 된다.
+	 * 묘사 앞에 늘 붙이는 말. 글자를 안 그리게 한다 — 그림 안의 글자는 우리가 읽은 적 없는 글자인데
+	 * 사용자는 메뉴판에서 온 것으로 읽는다.
 	 */
 	private static final String PROMPT_PREFIX =
 			"A simple, appetizing food photograph of Korean food, plain background, no text, "
@@ -122,8 +99,7 @@ public class GmsDishPainter {
 			JsonNode root = this.objectMapper.readTree(raw);
 			String encoded = root.path("data").path(0).path("b64_json").asString("");
 			if (encoded.isBlank()) {
-				// 🔴 빈 그림을 «성공» 으로 올리지 않는다. 올리면 READY 인데 바이트가 없는
-				//    행이 생기고, 화면은 깨진 그림을 그린다.
+				// 빈 그림을 성공으로 올리면 READY 인데 바이트가 없는 행이 생긴다.
 				throw new DishPaintFailedException("그림 모델이 빈 답을 줬다", null);
 			}
 			return Base64.getDecoder().decode(encoded);

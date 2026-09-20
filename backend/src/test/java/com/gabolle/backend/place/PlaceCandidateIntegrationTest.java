@@ -25,10 +25,8 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 추천 후보 사전 필터 — S15P21E201-102.
- *
- * <p>완료 기준 셋 중 <b>"질의 개수가 장소 수에 비례하지 않는다"</b> 를 실제로 재는 것이 이
- * 클래스의 핵심이다. 응답만 보면 N+1 이 나도 정상으로 보이므로, Hibernate 통계로 문장 수를 센다.
+ * 추천 후보 사전 필터. 응답만 보면 N+1 이 나도 정상으로 보이므로 질의 수는 Hibernate
+ * 통계로 센다.
  */
 @TestPropertySource(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 class PlaceCandidateIntegrationTest extends PlacePostgresIntegrationTest {
@@ -193,12 +191,9 @@ class PlaceCandidateIntegrationTest extends PlacePostgresIntegrationTest {
 
 	// ── 도구 ──────────────────────────────────────────────────────────────────
 
-	// ── 문 닫은 가게 (S15P21E201-1341) ────────────────────────────────────────
+	// ── 문 닫은 가게 ──────────────────────────────────────────────────────────
 
-	/**
-	 * 🔴 장소는 <b>그때 영업 중이던</b> 목록에서 들어오고, 그 뒤에 닫아도 우리 표는 그대로다.
-	 * 닫은 곳을 추천하면 사람을 <b>없는 가게 앞에</b> 세워 놓는 것이다.
-	 */
+	/** 장소는 수집 시점에 영업 중이던 목록에서 들어오므로, 그 뒤에 닫은 곳이 표에 남는다. */
 	@Test
 	@DisplayName("🔴 티켓 완료 기준 — 문 닫은 가게는 후보에서 빠진다")
 	void closedPlacesAreNotCandidates() {
@@ -215,9 +210,8 @@ class PlaceCandidateIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	/**
-	 * 🔴 <b>{@code closed_on} 이 비어 있는 것은 「영업 중」이 아니라 「모른다」다.</b> 인허가
-	 * 자료와 안 이어진 장소가 많다 — 해수욕장·전망대는 애초에 음식·주류 인허가가 없다.
-	 * 모르는 것을 닫은 것으로 떨어뜨리면 <b>멀쩡한 곳이 통째로 사라진다.</b>
+	 * {@code closed_on} 이 비어 있는 것은 「영업 중」이 아니라 「모른다」다 — 인허가 자료와
+	 * 안 이어진 장소가 많다.
 	 */
 	@Test
 	@DisplayName("🔴 폐업일자를 모르는 곳은 그대로 후보다 — 「모른다」를 「닫았다」로 보지 않는다")

@@ -15,11 +15,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * 목록 근거 파일을 읽어 인기도 점수를 넣는다 — S15P21E201-826.
+ * 목록 근거 파일을 읽어 인기도 점수를 넣는다.
  *
- * <p>{@link ResearchPlaceLoaderRunner} 와 같은 모양이다. 적재는 사람이 한 번 하는 일이지
- * 서비스가 제공하는 기능이 아니므로 API 가 아니라 실행 인자로 켠다. 프로퍼티를 안 주면 이
- * 빈은 만들어지지도 않아 평소 기동에 아무 영향이 없다.
+ * <p>적재는 사람이 한 번 하는 일이지 서비스가 제공하는 기능이 아니므로 API 가 아니라 실행
+ * 인자로 켠다. 프로퍼티를 안 주면 이 빈은 만들어지지도 않아 평소 기동에 아무 영향이 없다.
  *
  * <pre>
  * java -jar gabolle-backend.jar \

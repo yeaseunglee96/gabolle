@@ -24,51 +24,25 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * 배포 설정에 적힌 계정만 기동 시점에 운영자(ADMIN)로 만든다 — S15P21E201-225.
+ * 배포 설정에 적힌 계정만 기동 시점에 운영자(ADMIN)로 만든다. 권한을 주는 경로는 이것 하나뿐이고
+ * HTTP 경로는 만들지 않는다.
  *
- * <h2>티켓이 막으려던 구멍과 이 저장소의 실제 모양</h2>
+ * <p>정한 것과 그 이유.
+ * <ul>
+ * <li>설정에 기본값을 두지 않는다. 비어 있으면 아무도 운영자가 아니고 기동은 성공한다.</li>
+ * <li>식별자는 이메일이다. {@link EmailNormalizer} 로 정규화하므로 설정에 {@code Boss@Example.COM}
+ *     이라고 적어도 가입할 때 쓴 주소와 같게 취급된다.</li>
+ * <li>목록에서 빠지면 내린다. 올리기만 하면 권한 회수 방법이 "DB 를 손으로 고치기" 가 된다.</li>
+ * <li>적었는데 계정이 없으면 기동을 멈춘다. 조용히 넘기면 오타 하나로 "운영자를 지정했다고
+ *     생각했는데 아무도 없는" 상태가 유지된다.</li>
+ * </ul>
  *
- * 티켓은 "추측 가능한 관리자 토큰 기본값" 을 없애라고 적혀 있는데, 이 저장소에는 관리자 토큰이
- * 없다. 권한은 표({@code app_user.role})에서 오고, {@code HmacJwtAuthenticationFilter} 가 매 요청
- * 그 값을 읽어 {@code ROLE_ADMIN} 을 심고, {@code SecurityConfig} 가 {@code /api/v1/admin/**} 를
- * 그 권한으로 막는다. 즉 <b>기본 토큰으로 뚫리는 문은 처음부터 없었다.</b>
+ * <p>{@code @PostConstruct} 에서 {@code IllegalStateException} 을 던지면 컨텍스트 조립이 실패해
+ * 서버가 뜨지 않는다. 리포지토리를 주입받으므로 이 시점에 Flyway 는 이미 돌았다.
  *
- * <p>🔴 문제는 반대쪽이었다. {@code role} 은 전부 {@code USER} 로 시작하고 ADMIN 을 주는 코드가
- * 어디에도 없었다. 그래서 <b>신고 검토 큐에 아무도 들어갈 수 없다.</b> 지금은 잠겨 있어 안전하지만
- * 그대로 두면 결말이 정해져 있다 — 급한 날 누가 DB 행을 손으로 고치거나 "임시 관리자 토큰" 을
- * 만든다. 티켓이 막으려던 구멍이 그렇게 생긴다. 그래서 <b>권한을 주는 경로를 하나만, 배포 설정
- * 으로만 열어 둔다.</b>
- *
- * <h2>정한 것과 그 이유</h2>
- *
- * <p><b>설정에 기본값을 두지 않는다.</b> 비어 있으면 아무도 운영자가 아니고 기동은 성공한다.
- * 미리 적어 둔 계정이 하나라도 있으면 그 배포에서는 아무 확인 없이 그 사람이 운영자다.
- *
- * <p><b>식별자는 이메일이다.</b> 사용자 UUID 는 사람이 배포 설정에 옮겨 적을 수 있는 값이 아니고,
- * 이메일은 이 저장소가 이미 {@link EmailNormalizer} 로 정규화해 다루는 값이다. 같은 규칙을 쓰기
- * 때문에 설정에 {@code Boss@Example.COM} 이라고 적어도 가입할 때 쓴 주소와 같게 취급된다.
- *
- * <p><b>목록에서 빠지면 내린다.</b> 이 목록이 유일한 사실이어야 한다. 올리는 일만 있으면 설정에서
- * 지워도 그 사람이 계속 운영자로 남아, 권한 회수 방법이 다시 "DB 를 손으로 고치기" 가 된다.
- *
- * <p><b>적었는데 계정이 없으면 안 뜬다.</b> 조용히 넘기면 오타 하나로 "운영자를 지정했다고
- * 생각했는데 아무도 없는" 상태가 유지되고, 그 사실은 누군가 신고 검토 큐를 열려다 막힐 때야
- * 드러난다. 기동을 멈추면 배포한 사람이 그 자리에서 안다.
- *
- * <p><b>HTTP 경로를 만들지 않는다.</b> 운영자를 올리는 엔드포인트는 그 자체가 새 공격면이고,
- * "누가 운영자인가" 의 근거를 배포 설정 밖으로 흩는다.
- *
- * <h2>왜 {@code @PostConstruct} 이고, 왜 {@code TransactionTemplate} 인가</h2>
- *
- * 같은 패키지의 {@code AuthStartupValidator} 가 쓰는 방식을 따른다 — {@code @PostConstruct} 에서
- * {@code IllegalStateException} 을 던지면 컨텍스트 조립 자체가 실패해서 서버가 뜨지 않는다.
- * 여기서 리포지토리를 주입받으므로 Flyway 는 이미 돌았다(JPA 가 Flyway 뒤에 초기화된다).
- *
- * <p>🔴 {@code @Transactional} 을 쓰지 않는 이유: 그 애너테이션은 프록시가 가로챌 때만 동작하는데
- * 생명주기 콜백({@code @PostConstruct})은 프록시가 아니라 대상 객체에서 직접 불린다. 붙여 놓고
- * 트랜잭션이 없는 상태 — 붙였는데 안 걸리는 것이 가장 나쁘다. 그래서 {@link TransactionTemplate}
- * 로 명시적으로 감싼다. 내림과 올림이 한 트랜잭션에 있어야 <b>중간에 실패했을 때 절반만 적용된
- * 권한 상태가 남지 않는다.</b>
+ * <p>{@code @Transactional} 은 안 쓴다 — 생명주기 콜백은 프록시가 아니라 대상 객체에서 직접
+ * 불려서 붙여도 안 걸린다. 그래서 {@link TransactionTemplate} 로 명시적으로 감싼다. 내림과 올림이
+ * 한 트랜잭션에 있어야 중간에 실패했을 때 절반만 적용된 권한 상태가 남지 않는다.
  */
 @Component
 @Profile({"db", "dev"})
@@ -112,9 +86,8 @@ public class AdminRoleStartupSynchronizer {
 	/**
 	 * 설정에 적힌 이메일의 계정만 ADMIN 으로 두고 나머지 ADMIN 은 USER 로 내린다.
 	 *
-	 * <p>인자로 받는 이유: 기동 경로는 {@link AuthProperties} 에서 읽어 넘기고, 테스트는 여러
-	 * 설정을 컨텍스트 하나에서 확인할 수 있다. 이 저장소는 테스트 컨텍스트가 늘어나면 실제로
-	 * PostgreSQL 연결 자리가 말라 붙은 적이 있다({@code TestDatabase} 주석).
+	 * <p>목록을 인자로 받는 이유는 테스트가 여러 설정을 컨텍스트 하나에서 확인할 수 있게 하려는
+	 * 것이다 — 컨텍스트가 늘어나면 PostgreSQL 연결 자리가 마른다.
 	 *
 	 * @param configuredEmails 배포 설정에 적힌 그대로의 이메일 목록. 비어 있어도 된다.
 	 * @return 실제로 바뀐 계정
@@ -184,13 +157,12 @@ public class AdminRoleStartupSynchronizer {
 		}
 
 		if (!missing.isEmpty() || !ambiguous.isEmpty() || !unusable.isEmpty()) {
-			// 🔴 확인을 다 끝낸 뒤에 한 번만 던진다. 첫 오류에서 바로 던지면 배포하는 사람이
-			//    설정을 고쳐 다시 띄울 때마다 다음 오류를 하나씩 새로 만나게 된다.
+			// 확인을 다 끝낸 뒤에 한 번만 던진다. 첫 오류에서 바로 던지면 설정을 고쳐 다시
+			// 띄울 때마다 다음 오류를 하나씩 새로 만나게 된다.
 			throw new IllegalStateException(failureMessage(missing, ambiguous, unusable));
 		}
 
-		// 🔴 내리는 일을 먼저 한다. 올린 뒤에 훑으면 방금 올린 계정까지 "지금 ADMIN" 으로 잡혀서
-		//    목록 대조를 한 번 더 해야 하고, 그 대조를 틀리면 방금 올린 사람을 다시 내린다.
+		// 내리는 일이 먼저다. 올린 뒤에 훑으면 방금 올린 계정까지 "지금 ADMIN" 으로 잡힌다.
 		Set<UUID> keep = new LinkedHashSet<>(resolved.values());
 		List<UUID> demoted = new ArrayList<>();
 		for (AppUser admin : userRepository.findAllByRole(UserRole.ADMIN)) {
@@ -208,9 +180,8 @@ public class AdminRoleStartupSynchronizer {
 			}
 		}
 
-		// save 를 부르지 않는 이유: 위 엔티티는 이 트랜잭션의 영속성 컨텍스트가 들고 있는
-		// 것들이라 커밋할 때 바뀐 값이 그대로 나간다(더티 체킹). save 를 부르면 같은 일을
-		// 두 번 적는 셈이고, 읽어 온 것이 관리 대상이 아닌 것처럼 보여 오해를 만든다.
+		// save 를 부르지 않는다 — 위 엔티티는 이 트랜잭션의 영속성 컨텍스트가 들고 있어
+		// 커밋할 때 바뀐 값이 그대로 나간다.
 		return new Result(List.copyOf(promoted), List.copyOf(demoted), targets.size());
 	}
 
@@ -218,12 +189,10 @@ public class AdminRoleStartupSynchronizer {
 	 * 이 이메일로 로그인할 수 있는 계정을 찾는다.
 	 *
 	 * <p>두 곳을 본다. 비밀번호로 로그인하는 사람은 {@code local_credential} 에 이메일이 있고,
-	 * 소셜 로그인만 쓰는 사람은 {@code auth_identity} 에만 있다. 한쪽만 보면 소셜로 가입한
-	 * 운영자를 설정으로 지정할 수 없어서, 결국 DB 를 손으로 고치게 된다.
+	 * 소셜 로그인만 쓰는 사람은 {@code auth_identity} 에만 있다.
 	 *
-	 * @return 계정이 하나면 원소 하나. 아무도 없거나(오타·미가입) 둘 이상이면(같은 이메일이
-	 *         서로 다른 계정의 소셜 연결에 걸려 있는 경우) 부르는 쪽이 기동을 멈춘다 — 어느
-	 *         쪽에 권한을 줄지 코드가 임의로 고를 문제가 아니다.
+	 * @return 계정이 하나면 원소 하나. 아무도 없거나 둘 이상이면 부르는 쪽이 기동을 멈춘다 —
+	 *         어느 쪽에 권한을 줄지 코드가 임의로 고를 문제가 아니다.
 	 */
 	private Set<UUID> userIdsFor(String email) {
 		Set<UUID> userIds = new LinkedHashSet<>();

@@ -14,37 +14,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * S15P21E201-1167 — 조용함·로컬성 산출물을 {@code place_feature} 사실로 옳게 옮기는지.
+ * 여기 쓰는 줄은 실제 산출물에서 그대로 가져온 것이다. 지어낸 예로 검사하면 정리 프로그램이
+ * 실제로 내는 모양과 어긋나도 초록이 된다.
  *
- * <p>🔴 여기 쓰는 줄은 <b>실제 산출물에서 그대로 가져온 것</b>이다
- * ({@code bigData/data/staged/place-quietness.ndjson} · {@code place-locality-sbiz.ndjson},
- * 2026-09-17). 지어낸 예로 검사하면 «정리 프로그램이 실제로 내는 모양» 과 어긋나도 초록이 된다 —
- * {@code PlaceSlopeReaderTest} 가 같은 이유로 같은 규칙을 먼저 적어 뒀다.
- *
- * <p>고른 두 줄은 대조군이다 — 가덕도 등대(90)와 가덕도 연대봉(10). 같은 섬인데 90 대 10 으로
- * 갈리는 것이 이 값이 쓸모 있다는 근거다.
+ * <p>가덕도 등대와 연대봉은 대조군이다 — 같은 섬인데 90 대 10 으로 갈리는 것이 이 값이 쓸모
+ * 있다는 근거다.
  */
 class PlaceQuietnessReaderTest {
 
-	/** 실제 산출물 — 가덕도 등대. 관광공사 열쇠({@code contentid}). */
+	/** 관광공사 열쇠({@code contentid})를 쓰는 줄. */
 	private static final String LIGHTHOUSE = """
 			{"contentid":"129156","title":"가덕도 등대","featureType":"QUIETNESS_SCORE",\
 			"evidenceStatus":"ESTIMATED","quietnessScore":90,"noiseP90":0.1,"roads":12,\
 			"roadLengthM":1098,"radiusM":200}""";
 
-	/** 실제 산출물 — 가덕도 연대봉. 같은 섬인데 시끄러운 쪽이다. */
+	/** 같은 섬인데 시끄러운 쪽. */
 	private static final String PEAK = """
 			{"contentid":"2726843","title":"가덕도 연대봉","featureType":"QUIETNESS_SCORE",\
 			"evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":42,\
 			"roadLengthM":5310,"radiusM":200}""";
 
-	/** 실제 산출물 — 상가 열쇠({@code sourceType}+{@code sourceId}). */
+	/** 상가 열쇠({@code sourceType}+{@code sourceId})를 쓰는 줄. */
 	private static final String BURGER_KING = """
 			{"sourceType":"SBIZ","sourceId":"MA0106202201A0010681","title":"버거킹부산센텀오일뱅크점",\
 			"featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,\
 			"noiseP90":0.65,"roads":57,"roadLengthM":4310,"radiusM":200}""";
 
-	/** 실제 산출물 — 로컬성. {@code noiseP90} 이 없어 검산을 건너뛰는 쪽이다. */
+	/** 로컬성 — {@code noiseP90} 이 없어 검산을 건너뛰는 쪽이다. */
 	private static final String LOCALITY = """
 			{"sourceType":"SBIZ","sourceId":"MA0106202201A0010681","title":"버거킹부산센텀오일뱅크점",\
 			"featureType":"LOCALITY_SCORE","evidenceStatus":"ESTIMATED","localityScore":66.2,\
@@ -68,8 +64,8 @@ class PlaceQuietnessReaderTest {
 		List<PlaceFeatureNdjsonReader.Fact> facts =
 				readAll("quietnessScore", "QUIETNESS_SCORE", LIGHTHOUSE, PEAK);
 
-		// 🔴 90 과 10 이 아니라 0.9 와 0.1 이어야 한다. 그대로 넣으면 채점기가
-		//    1 - |장소값 - 선호값| 을 계산할 때 clamp01 이 축을 통째로 0 으로 뭉갠다.
+		// 90 과 10 이 아니라 0.9 와 0.1 이어야 한다. 그대로 넣으면 채점기가
+		// 1 - |장소값 - 선호값| 을 계산할 때 축을 통째로 0 으로 뭉갠다.
 		assertThat(facts).extracting(PlaceFeatureNdjsonReader.Fact::value)
 				.containsExactly(
 						"{\"score\":0.9,\"radiusM\":200.0,\"noiseP90\":0.1,\"roads\":12.0,\"roadLengthM\":1098.0}",
@@ -143,7 +139,7 @@ class PlaceQuietnessReaderTest {
 	@Test
 	@DisplayName("🔴 그늘도 같은 읽기로 처리된다 — 되짚기 값(treeDensity 등)이 함께 남는다")
 	void readsShadeWithItsProvenanceFields() throws Exception {
-		// 실제 산출물 — 감지해변. noiseP90 같은 검산용 짝이 없는 쪽이다.
+		// noiseP90 같은 검산용 짝이 없는 쪽이다.
 		String shade = """
 				{"contentid":"2785289","title":"감지해변","featureType":"SHADE_SCORE",\
 				"evidenceStatus":"ESTIMATED","shadeScore":21,"treeDensity":0.0398,"sections":1,\
@@ -153,8 +149,7 @@ class PlaceQuietnessReaderTest {
 
 		assertThat(facts.get(0).featureType()).isEqualTo("SHADE_SCORE");
 		assertThat(facts.get(0).keySource()).isEqualTo(TourApiPlaceLoader.SOURCE_TYPE);
-		// 21 → 0.21. treeDensity 는 검산용이 아니라 되짚기용이다 — shadeScore 와 일정한
-		// 비율이 아니라서(실측 527·687·784배) 검산에 쓸 수 없다.
+		// 21 → 0.21. treeDensity 는 shadeScore 와 일정한 비율이 아니라 검산에 쓸 수 없다.
 		assertThat(facts.get(0).value())
 				.contains("\"score\":0.21")
 				.contains("\"treeDensity\":0.0398")
@@ -164,11 +159,8 @@ class PlaceQuietnessReaderTest {
 	@Test
 	@DisplayName("🔴 검산할 짝이 없는 축도 눈금을 지킨다 — 파일 전체가 1 이하면 한 줄도 안 넣고 멈춘다")
 	void refusesAnAlreadyScaledFileEvenWithoutACrossCheckPartner() throws Exception {
-		// 🔴 그늘·로컬에는 noiseP90 같은 짝이 없다. 한 줄만 보면 0.5 가 0~100 눈금의 작은
-		//    값인지 0~1 눈금의 큰 값인지 가를 수 없다 — 그래서 범위 검사로는 못 막는다.
-		//
-		//    파일 전체를 보면 갈린다. 수백 줄짜리 0~100 산출물에서 모든 값이 1 이하일 수는
-		//    사실상 없다(실측: 그늘 99.8·99.9, 로컬 100·99.9).
+		// 그늘·로컬에는 noiseP90 같은 짝이 없다. 한 줄만 보면 0~100 의 작은 값인지 0~1 의 큰
+		// 값인지 가를 수 없어 범위 검사로는 못 막지만, 파일 전체를 보면 갈린다.
 		String[] alreadyScaled = new String[60];
 		for (int i = 0; i < alreadyScaled.length; i++) {
 			alreadyScaled[i] = """

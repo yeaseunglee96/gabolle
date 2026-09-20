@@ -9,21 +9,15 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * 브레이크타임·라스트오더 값 하나를 읽어 "그 시각에 걸리는가" 를 판정한다 — S15P21E201-94.
- *
- * <h2>값의 모양</h2>
- * {@code V20260909020000__place_feature_solo_friendly_and_time_facts.sql} 이 정한 자리다.
+ * 브레이크타임·라스트오더 값 하나를 읽어 그 시각에 걸리는가를 판정한다.
  *
  * <pre>
  * BREAK_TIME      value = {"start": "15:00", "end": "17:00"}
  * LAST_ORDER_TIME value = {"time": "21:30"}
  * </pre>
  *
- * <p>행 자체가 없으면 그 가게에 브레이크타임·라스트오더가 없다는 뜻일 수도, 아직 아무도 확인하지
- * 않았다는 뜻일 수도 있다 — 마이그레이션 주석이 이미 그렇게 적어 뒀다. 어느 쪽이든 <b>지금 이
- * 시각을 막을 근거는 없다</b>는 점은 같으므로 {@link OpeningHoursFilterPort.Answer#NOT_COLLECTED}
- * 로 답한다. {@link OpeningHoursValue} 와 같은 이유로 예외를 던지지 않는다 — 값 한 줄이 깨졌다고
- * 일정 편집 전체가 실패하면 안 된다.
+ * <p>값이 없거나 깨졌으면 예외가 아니라 {@link OpeningHoursFilterPort.Answer#NOT_COLLECTED} 다.
+ * 값 한 줄 때문에 일정 편집 전체가 실패하면 안 된다.
  */
 public final class TimeFactValue {
 
@@ -35,7 +29,7 @@ public final class TimeFactValue {
 	private TimeFactValue() {
 	}
 
-	/** 그 시각이 브레이크타임 구간 안인가. */
+	/** 끝이 시작보다 작거나 같으면 자정을 넘긴 구간으로 읽는다. */
 	public static OpeningHoursFilterPort.Answer answerBreakTimeAt(String valueJson, OffsetDateTime at) {
 		JsonNode root = parse(valueJson);
 		if (root == null) {
@@ -51,7 +45,6 @@ public final class TimeFactValue {
 		return within ? OpeningHoursFilterPort.Answer.CLOSED : OpeningHoursFilterPort.Answer.OPEN;
 	}
 
-	/** 그 시각이 라스트오더를 지났는가. */
 	public static OpeningHoursFilterPort.Answer answerLastOrderAt(String valueJson, OffsetDateTime at) {
 		JsonNode root = parse(valueJson);
 		if (root == null) {
@@ -74,7 +67,6 @@ public final class TimeFactValue {
 			return MAPPER.readTree(valueJson);
 		}
 		catch (RuntimeException ex) {
-			// 🔴 던지지 않는다 — OpeningHoursValue 와 같은 이유.
 			return null;
 		}
 	}

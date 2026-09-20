@@ -23,18 +23,9 @@ import com.gabolle.backend.place.loader.SbizPlaceLoader;
 import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
 /**
- * 조사한 2,355곳을 장소 표에 넣는다 — S15P21E201-804.
- *
- * <p>{@code place} 표가 비어 있어서 추천이 매 요청 후보 0건으로 끝난다. 원본 상가정보 CSV 는
- * 82MB 이고 저장소에 없는데, {@code bigData} 쪽이 그중 2,355곳을 골라 만든 조사 대기열
- * (547KB)에 우리가 쓰는 칸이 전부 들어 있다. 그것부터 넣는다.
- *
- * <p>대기열 줄의 모양은 실제 파일({@code bigData/research/data/queue.ndjson})에서 그대로 떠 왔다.
- * 지어낸 모양으로 재면 실제 파일이 조금만 달라도 통과하는 검사가 된다.
- *
- * <p>🔴 여기서 가장 중요한 것은 <b>두 번 돌려도 안 는다</b> 이다. 적재는 사람이 손으로 하는
- * 일이라 두 번 눌리는 일이 실제로 생기고, 그때 장소가 두 배가 되면 같은 가게가 추천에 두 번
- * 나온다. {@code SbizPlaceLoaderIntegrationTest} 가 같은 이유로 같은 것을 잰다.
+ * 조사 대기열을 장소 표에 넣는다. 대기열 줄의 모양은 실제 파일
+ * ({@code bigData/research/data/queue.ndjson})에서 그대로 떠 왔다 — 지어낸 모양으로 재면
+ * 실제 파일이 조금만 달라도 통과하는 검사가 된다.
  */
 class ResearchQueueLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -144,8 +135,8 @@ class ResearchQueueLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(keys).contains("MILMYEON");
 
 		// 모든 장소에 FOOD 갈래 표식이 붙는다 — AppFoodVocabulary 의 규칙이다.
-		// 🔴 갈래는 CATEGORY_TAG 다 (S15P21E201-904). 전에는 INTEREST_TAG 였는데, 그 갈래는
-		//    둘러보기 화면의 여덟 낱말이 쓰는 자리라 두 사전이 한 서랍에 섞여 있었다.
+		// 갈래는 INTEREST_TAG 가 아니라 CATEGORY_TAG 다. INTEREST_TAG 는 둘러보기 화면의
+		// 여덟 낱말이 쓰는 자리라 섞으면 안 된다.
 		Integer food = this.jdbcTemplate.queryForObject(
 				"SELECT COUNT(*) FROM place_feature WHERE feature_type = 'CATEGORY_TAG' "
 						+ "AND feature_key = 'FOOD' AND source_version = ?",

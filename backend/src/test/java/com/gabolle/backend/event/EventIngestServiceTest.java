@@ -32,12 +32,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
- * 수집 서비스가 <b>OutboxService 를 통해</b> 적는지, envelope 축을 제대로 채우는지 본다.
+ * 수집 서비스가 OutboxService 를 통해 적는지, envelope 축을 제대로 채우는지 본다.
  *
- * <p>🔴 이 테스트가 있는 이유는 2026-09-03 의 고장이다 — 같은 패키지에 이름이 같은
- * 리포지토리 인터페이스가 둘 있어서 수집 API 가 <b>DB 가 아니라 메모리에</b> 적고 있었다.
- * 표는 멀쩡해 보이는데 안이 비는 종류라 아무도 못 봤다.
- * 그래서 여기서 <b>"OutboxService 로 갔는가"</b> 를 직접 확인한다.
+ * <p>이름이 같은 리포지토리 인터페이스가 둘 있어 수집 API 가 DB 가 아니라 메모리에 적던
+ * 적이 있다. 표는 멀쩡해 보이고 안만 비는 종류라, 여기서 OutboxService 로 갔는지를 직접
+ * 확인한다.
  */
 class EventIngestServiceTest {
 
@@ -62,9 +61,8 @@ class EventIngestServiceTest {
     }
 
     /**
-     * 🔴 기본을 <b>켜짐</b>으로 두는 이유 — 이 파일의 나머지 검사는 개인화가 아니라 적재 경로를
-     * 잰다. 기본이 꺼짐이면 그 검사들이 전부 "안 적힘" 으로 통과해 버리고, 그건 적재가
-     * 깨져도 초록인 상태다. 꺼짐은 그것을 재는 검사에서만 명시적으로 만든다.
+     * 기본을 켜짐으로 두는 이유 — 이 파일의 나머지 검사는 개인화가 아니라 적재 경로를
+     * 잰다. 기본이 꺼짐이면 그 검사들이 전부 「안 적힘」으로 통과해 적재가 깨져도 초록이다.
      */
     private void givenBehaviorPersonalization(PersonalizationMode mode) {
         given(this.users.findPersonalizationMode(any())).willReturn(Optional.ofNullable(mode));
@@ -110,7 +108,7 @@ class EventIngestServiceTest {
         assertThat(outcome).isEqualTo(EventIngestService.Outcome.DUPLICATE);
     }
 
-    // ── 행동 기반 개인화를 끈 사람 (S15P21E201-549) ───────────────────
+    // ── 행동 기반 개인화를 끈 사람 ───────────────────
 
     @Test
     @DisplayName("🔴 개인화를 끈 사람의 행동 이벤트는 적히지 않는다 — OutboxService 까지 가지도 않는다")
@@ -222,9 +220,7 @@ class EventIngestServiceTest {
         assertThat(captureCommand().partitionKey()).isEqualTo(requestId.toString());
     }
 
-    // ── 2026-09-03 — request_id·user_id·trip_id·producer 는 이제 실컬럼이다 ─────
-    //    (고지혁 님이 S15P21E201-352-event-outbox-join-axes 에서 컬럼을 추가했다.
-    //    payload 에 욱여넣던 옛 방식은 지웠다 — 아래는 그 실컬럼 배선을 검증한다.)
+    // ── request_id·user_id·trip_id·producer 는 payload 가 아니라 실컬럼이다 ─────
 
     @Test
     @DisplayName("user_id · trip_id · producer 는 커맨드의 실컬럼으로 간다 — payload 에 안 실린다")
@@ -295,7 +291,7 @@ class EventIngestServiceTest {
                 .hasMessageContaining("API-07");
     }
 
-    // ── 2026-09-07 (S15P21E201-735) — 축이 USER 인 이벤트와 requestId 범위 ──────
+    // ── 축이 USER 인 이벤트와 requestId 범위 ──────
 
     @Test
     @DisplayName("🔴 여행 밖 저장은 requestId 없이도 적힌다 — 홈·장소 상세에는 줄 값이 없다")

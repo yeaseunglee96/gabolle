@@ -29,26 +29,15 @@ import com.gabolle.backend.user.domain.UserStatus;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 🔴 어떤 설정값으로도 운영자 권한이 저절로 생기지 않는다 — S15P21E201-225 의 본래 목적.
+ * 어떤 설정값으로도 운영자 권한이 저절로 생기지 않는다.
  *
- * <h2>이 파일이 막는 것</h2>
+ * <p>값을 주지 않았을 때 편의로 권한이 열리는 자리는 코드가 아니라 배포 설정 파일에 조용히
+ * 생긴다. {@code ...admin-emails=${GABOLLE_ADMIN_EMAILS:boss@example.com}} 같은 한 줄은 어떤
+ * 통합 검사도 빨갛게 만들지 않는다. 그래서 설정 파일을 직접 읽어서 본다.
  *
- * 티켓의 문장은 "추측 가능한 기본값을 없애라" 지만, 진짜 요구는 그보다 넓다 — <b>값을 주지
- * 않았을 때 편의로 권한이 열리는 자리를 만들지 말라</b>는 것이다. 그런 자리는 코드가 아니라
- * 배포 설정 파일에 조용히 생긴다. 누군가 급한 날 {@code application-dev.properties} 에
- * {@code ...admin-emails=${GABOLLE_ADMIN_EMAILS:boss@example.com}} 이라고 적어 두면 그 배포는
- * 환경변수 없이도 운영자를 하나 갖는다. 그 한 줄은 어떤 통합 테스트도 빨갛게 만들지 않는다.
- *
- * <p>그래서 이 저장소가 이미 쓰던 방식으로 <b>파일을 읽어서</b> 본다 —
- * {@code SecurityAllowlistMatchesRoutesTest} 가 {@code SecurityConfig} 를 읽어 허용 목록을 검사하는
- * 것과 같은 형식이다.
- *
- * <h2>🔴 검사가 공허하게 통과하는 것을 먼저 막는다</h2>
- *
- * 없는 것을 세는 검사는 <b>아무것도 못 읽었을 때도 초록</b>이 된다. 그것은 "문제가 없다" 가
- * 아니라 "안 봤다" 다. 그래서 세 겹으로 막는다. 파일을 읽었는지 단정하고, 검사 대상 속성이
- * 실제로 그 파일에 있는지 단정하고, {@link #theDetectorActuallyFires} 에서 <b>일부러 심은
- * 위험한 설정</b>을 같은 판정 함수에 넣어 걸리는지 확인한다.
+ * <p>없는 것을 세는 검사는 아무것도 못 읽었을 때도 초록이 된다. 그래서 파일을 읽었는지,
+ * 검사 대상 속성이 실제로 그 파일에 있는지 단정하고, {@link #theDetectorActuallyFires} 가
+ * 일부러 심은 위험한 설정을 같은 판정 함수에 넣어 걸리는지 확인한다.
  */
 class NoDefaultAdminGrantTest {
 
@@ -161,9 +150,8 @@ class NoDefaultAdminGrantTest {
 	 * <p>두 가지를 본다. 이름이 권한을 가리키는 키({@link #PRIVILEGE_KEY_HINTS})가 비어 있지 않은
 	 * 기본값을 갖는 것, 그리고 어떤 키든 기본값이 역할 이름 {@code ADMIN} 을 담고 있는 것이다.
 	 *
-	 * <p>판정에 쓰는 것은 <b>기본값</b>이지 원문이 아니다. {@code ${GABOLLE_ADMIN_EMAILS:}} 는
-	 * 변수 이름에 {@code ADMIN} 이 들어 있지만 기본값은 비어 있으므로 문제가 아니다 — 원문으로
-	 * 판정하면 올바르게 적은 줄이 빨개진다.
+	 * <p>판정에 쓰는 것은 기본값이지 원문이 아니다. {@code ${GABOLLE_ADMIN_EMAILS:}} 는 변수
+	 * 이름에 {@code ADMIN} 이 들어 있지만 기본값이 비어 있으므로 문제가 아니다.
 	 */
 	private static Set<String> offendingKeys(Map<String, String> properties) {
 		Set<String> offenders = new LinkedHashSet<>();

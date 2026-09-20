@@ -30,13 +30,9 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * "이미 있는 SBIZ 장소"에 {@code DESIRED_FOOD_TAG}가 붙는지 진짜 PostgreSQL 에서 잰다
- * — S15P21E201-448.
- *
- * <p>🔴 이게 이 티켓의 핵심이다 — {@link SbizPlaceLoader}로 이미 만든 장소는 재적재로
- * 새 표식을 못 받는다("이미 있는 장소는 건너뛴다"). {@link DesiredFoodTagLoaderRunner}가
- * {@link PlaceFeatureLoader}로 <b>따로</b> 붙이는 것이 이 문제를 푸는 방식이고, 그것을
- * 여기서 확인한다.
+ * {@link SbizPlaceLoader} 로 이미 만든 장소는 재적재로 새 표식을 못 받으므로
+ * ("이미 있는 장소는 건너뛴다"), {@link DesiredFoodTagLoaderRunner} 가
+ * {@link PlaceFeatureLoader} 로 따로 붙인다. 그것이 되는지 진짜 PostgreSQL 에서 잰다.
  */
 class DesiredFoodTagIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -71,11 +67,8 @@ class DesiredFoodTagIntegrationTest extends PlacePostgresIntegrationTest {
 	private Path queueFile(String storeId, String name) {
 		try {
 			Path path = this.tempDir.resolve("queue.ndjson");
-			// 🔴 괄호가 있어야 한다. `.formatted(...)` 는 `+` 보다 먼저 묶여서, 괄호가 없으면
-			//    뒤쪽 조각 하나에만 붙는다 — 그 조각에는 %s 가 없으니 아무 일도 안 일어나고
-			//    앞 조각의 %s 두 개가 글자 그대로 파일에 적힌다. 그러면 이 검사는 "%s" 라는
-			//    이름의 가게를 찾게 되고, 낱말 매칭이 0건이라 붙일 표식도 0건이 된다
-			//    (2026-09-16 CI 실측 — `expected: 1 but was: 0` 의 원인이 이것이었다).
+			// 괄호가 있어야 한다. `.formatted(...)` 는 `+` 보다 먼저 묶여서, 괄호가 없으면
+			// 뒤쪽 조각 하나에만 붙고 앞 조각의 %s 는 글자 그대로 파일에 적힌다.
 			String line = ("{\"id\":\"%s\",\"name\":\"%s\",\"branch\":null,"
 					+ "\"roadAddr\":\"부산광역시 해운대구 중동1로43번길 23\","
 					+ "\"gu\":\"해운대구\",\"hdong\":\"중1동\",\"category\":\"백반/한정식\","
@@ -124,7 +117,7 @@ class DesiredFoodTagIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(row.get("feature_type")).isEqualTo("DESIRED_FOOD_TAG");
 		assertThat(row.get("feature_key")).isEqualTo("BOKGUK");
 		assertThat(row.get("value")).isEqualTo("true");
-		// 🔴 조사원이 이름으로 가른 것이지 가게에 확인한 것이 아니다.
+		// 이름으로 가른 것이지 가게에 확인한 것이 아니다.
 		assertThat(row.get("evidence_status")).isEqualTo("ESTIMATED");
 	}
 

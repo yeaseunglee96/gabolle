@@ -10,8 +10,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * TAGO 응답 공통 검증 — S15P21E201-988. 정류소 응답·도착정보 응답이 같은 봉투 모양
- * ({@code response.header.resultCode}, {@code response.body.items.item})을 쓰므로 여기 모은다.
+ * TAGO 응답 공통 검증. 정류소 응답·도착정보 응답이 같은 봉투 모양
+ * ({@code response.header.resultCode}, {@code response.body.items.item})을 쓴다.
  */
 final class TagoResponseValidator {
 

@@ -23,15 +23,13 @@ import com.gabolle.backend.route.domain.TravelMode;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 실제 부산 노선망을 올려서 <b>나오는 값이 말이 되는지</b> 본다 — S15P21E201-1123 · S15P21E201-1310.
+ * 실제 부산 노선망을 올려서 나오는 값이 말이 되는지 본다.
  *
- * <p>이 검사가 지키는 것은 "코드가 돈다" 가 아니라 <b>"사람이 보고 이상하다고 하지 않는
- * 값이 나온다"</b> 이다. 운영에서 <b>219m 를 버스로 1분</b>에 가는 값이 나갔던 것이 이
- * 티켓의 출발점이고, 그건 코드가 안 돌아서가 아니라 <b>도는데 틀린 값</b>이었다.
+ * 지키는 것은 "코드가 돈다" 가 아니라 "사람이 보고 이상하다고 하지 않는 값이 나온다" 다 —
+ * 219m 를 버스로 1분에 가는 값이 운영으로 나갔던 것이 이 검사의 출발점이다.
  *
- * <p>🔴 2026-09-19 에 <b>지하철이 들어왔다</b>(S15P21E201-1310). 아래쪽 절이 그것을 잰다 —
- * 특히 <b>버스와 지하철이 한 지도 위에 있는가</b>다. 따로 올라가 있으면 각각은 멀쩡히 돌면서
- * <b>갈아타는 경로만 조용히 안 나온다.</b>
+ * 아래쪽 절은 버스와 지하철이 한 지도 위에 있는지를 잰다. 따로 올라가 있으면 각각은 멀쩡히
+ * 돌면서 갈아타는 경로만 조용히 안 나온다.
  */
 class BusanTransitNetworkIntegrationTest {
 
@@ -55,8 +53,8 @@ class BusanTransitNetworkIntegrationTest {
 	}
 
 	private static TransitRouteAdapter adapter() {
-		// 🔴 S15P21E201-1291 — 요금 계산기가 생성자에 늘었다. 이 파일이 재는 것(노선망으로
-		//    경로가 나오는가)은 그대로다 — 진짜 요금표를 넣어 두면 요금도 함께 나온다.
+		// 요금 계산기가 생성자에 있지만 이 파일이 재는 것(노선망으로 경로가 나오는가)은
+		// 그대로다 — 진짜 요금표를 넣어 두면 요금도 함께 나온다.
 		return new TransitRouteAdapter(new BusanTransitNetworkPort(new ObjectMapper()), new TransitProperties(),
 				new TransitFareCalculator(new TransitFareTable(new ObjectMapper())));
 	}
@@ -98,8 +96,8 @@ class BusanTransitNetworkIntegrationTest {
 		assertThat(leg).as("부산역에서 해운대까지 대중교통 경로를 못 찾았다").isPresent();
 		RouteLeg found = leg.get();
 
-		// 🔴 이 구간은 직선으로도 15km 가 넘는다. 예전 식(직선 ÷ 18km/h)은 여기서 50분쯤을
-		//    냈는데, 그건 기다리는 시간도 서는 시간도 안 센 값이다. 실제로는 한 시간 안팎이다.
+		// 이 구간은 직선으로도 15km 가 넘는다. 예전 식(직선 ÷ 18km/h)은 여기서 50분쯤을
+		// 냈는데, 그건 기다리는 시간도 서는 시간도 안 센 값이다. 실제로는 한 시간 안팎이다.
 		assertThat(found.durationMin())
 				.as("부산역→해운대가 %d분으로 나왔다. 사람이 보면 바로 이상한 값이다", found.durationMin())
 				.isBetween(30, 120);
@@ -134,8 +132,8 @@ class BusanTransitNetworkIntegrationTest {
 						TransitRouteAdapter.TYPICAL_DAYTIME_MINUTE);
 
 		assertThat(journey).as("한 정거장 옆인데 경로를 못 찾았다").isPresent();
-		// 🔴 기다리는 시간이 없으면 한 정거장은 1분이 된다. 배차간격의 절반이 붙어야 한다 —
-		//    부산 버스 배차 중앙값이 10~12분이므로 최소 몇 분은 나온다.
+		// 기다리는 시간이 없으면 한 정거장은 1분이 된다. 배차간격의 절반이 붙어야 한다 —
+		// 부산 버스 배차 중앙값이 10~12분이므로 최소 몇 분은 나온다.
 		assertThat(journey.get().durationMin())
 				.as("한 정거장 옆인데 %d분이다 — 기다리는 시간이 안 붙었다", journey.get().durationMin())
 				.isGreaterThanOrEqualTo(3);
@@ -144,9 +142,9 @@ class BusanTransitNetworkIntegrationTest {
 	@Test
 	@DisplayName("🔴 낮 경로에 심야버스를 추천하지 않는다 — 오지 않는 버스를 타라고 말하면 안 된다")
 	void aNightOnlyRouteIsNeverSuggestedForADaytimeTrip() {
-		// 🔴 2026-09-16 에 실제로 났다. 부산역→해운대를 물었더니 `1003(심야)`(22:40~23:45)이
-		//    나왔다 — 그 노선의 배차가 실측 10분이라, 채운 값 20분을 쓰는 낮 노선보다 대기가
-		//    짧게 계산돼 이겼다. 숫자만 보면 합리적이었지만 사람에게는 오지 않는 버스다.
+		// 심야버스가 낮 경로로 뽑히던 적이 있다 — `1003(심야)`(22:40~23:45)의 배차가 실측
+		// 10분이라, 채운 값 20분을 쓰는 낮 노선보다 대기가 짧게 계산돼 이겼다. 숫자만 보면
+		// 합리적이었지만 사람에게는 오지 않는 버스다.
 		Optional<RouteLeg> leg = adapter().find(new RouteQuery(
 				BUSAN_STATION_LAT, BUSAN_STATION_LNG, HAEUNDAE_LAT, HAEUNDAE_LNG, TravelMode.TRANSIT));
 
@@ -181,7 +179,7 @@ class BusanTransitNetworkIntegrationTest {
 				.count();
 	}
 
-	// ── 지하철 — S15P21E201-1310 ────────────────────────────────────────────
+	// 지하철
 
 	@Test
 	@DisplayName("🔴 버스와 지하철이 한 지도 위에 있다 — 따로 올라가면 갈아타는 경로만 조용히 안 나온다")
@@ -311,13 +309,9 @@ class BusanTransitNetworkIntegrationTest {
 	}
 
 	/**
-	 * 🔴 <b>갈아타는 길은 아직 안 나온다.</b> 부산역 → 해운대는 1호선에서 2호선으로 갈아타야
-	 * 하는데, 탐색기가 <b>한 번 타는 길만</b> 본다({@code HeadwayJourneyPlanner} 주석). 그래서
-	 * 그 구간은 지하철이 있어도 버스로 답한다.
-	 *
-	 * <p>이 시험은 <b>그 한계를 적어 두는 것</b>이다. 못 하는 것을 시험으로 남기지 않으면,
-	 * 나중에 환승이 들어왔을 때 <b>무엇이 달라졌는지</b>를 아무도 못 가리킨다. 환승이 되면
-	 * 이 시험이 먼저 빨개진다 — 그때 지우면 된다.
+	 * 갈아타는 길은 아직 안 나온다. 부산역 → 해운대는 1호선에서 2호선으로 갈아타야 하는데
+	 * 탐색기가 한 번 타는 길만 보므로, 그 구간은 지하철이 있어도 버스로 답한다.
+	 * 이 시험은 그 한계를 적어 두는 것이다 — 환승이 되면 여기가 먼저 빨개진다.
 	 */
 	@Test
 	@DisplayName("⚠️ 갈아타야 하는 길은 아직 지하철이 안 나온다 — 환승이 들어오면 이 시험이 먼저 빨개진다")

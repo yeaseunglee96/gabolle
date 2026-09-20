@@ -19,11 +19,8 @@ import com.gabolle.backend.story.application.VideoUploadService;
 import com.gabolle.backend.story.storage.StoragePort;
 
 /**
- * {@link VideoUploadController} 전용 오류 번역기 — S15P21E201-1275.
- *
- * <p>{@code UploadExceptionHandler}(사진)와 <b>같은 모양이되 범위가 다르다.</b>
- * {@code assignableTypes} 로 컨트롤러 하나에 묶여 있어서, 사진 쪽 문구가 동영상 오류에 나가거나
- * 그 반대가 되는 일이 없다 — <b>창구를 가른 이유가 여기서도 이어진다.</b>
+ * {@link VideoUploadController} 전용 오류 번역기. {@code assignableTypes} 로 컨트롤러 하나에
+ * 묶여 있어서 사진 쪽 문구가 동영상 오류에 나가거나 그 반대가 되지 않는다.
  */
 @RestControllerAdvice(assignableTypes = VideoUploadController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -39,12 +36,8 @@ public class VideoUploadExceptionHandler {
 	}
 
 	/**
-	 * 🔴 상한을 <b>응답에 실어 보낸다.</b> 사진은 문구에 "3MB" 를 박아 뒀지만 동영상 상한은
-	 * <b>설정값</b>이라 배포마다 다를 수 있다 — 문구에 박으면 설정을 바꾼 날 문구가 거짓이 된다.
-	 *
-	 * <p>서비스 자체 검사와 서블릿 컨테이너의 크기 제한이 같은 응답을 낸다. 다만 후자일 때는
-	 * 상한을 알 수 없어({@code MaxUploadSizeExceededException} 은 우리 설정값을 모른다) 세부를
-	 * 비운다 — 🔴 <b>모르는 값을 지어내지 않는다.</b>
+	 * 상한을 문구에 박지 않고 응답 세부에 실어 보낸다. 동영상 상한은 설정값이라 배포마다 다를
+	 * 수 있다. 서블릿 컨테이너가 먼저 자르는 경우는 상한을 알 수 없어 세부를 비운다.
 	 */
 	@ExceptionHandler(VideoUploadService.VideoTooLargeException.class)
 	public ResponseEntity<ApiResponse<Void>> handleTooLarge(VideoUploadService.VideoTooLargeException e) {
@@ -69,10 +62,7 @@ public class VideoUploadExceptionHandler {
 	}
 
 	/**
-	 * 🔴 <b>반드시 로그에 남긴다.</b> 사진 쪽이 2026-09-17 새벽에 저장소 실패를 로그에 한 줄도
-	 * 안 남겨서 원인을 못 찾았다({@code UploadExceptionHandler} 주석 참고).
-	 * {@code @ExceptionHandler} 가 잡으면 스프링은 아무것도 안 찍는다 — <b>같은 실수를 새 창구에서
-	 * 반복하지 않는다.</b>
+	 * 반드시 로그에 남긴다. {@code @ExceptionHandler} 가 잡으면 스프링은 아무것도 찍지 않는다.
 	 */
 	@ExceptionHandler(StoragePort.StorageException.class)
 	public ResponseEntity<ApiResponse<Void>> handleStorageUnavailable(StoragePort.StorageException e) {

@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 /**
- * 애플 {@code client_secret} 서명 — S15P21E201-825.
+ * 애플 {@code client_secret} 서명.
  *
  * <p>이 표가 틀리면 애플은 {@code invalid_client} 만 돌려주고 어디가 틀렸는지 말해 주지 않는다.
  * 그래서 헤더·클레임·수명을 여기서 하나씩 확인한다.

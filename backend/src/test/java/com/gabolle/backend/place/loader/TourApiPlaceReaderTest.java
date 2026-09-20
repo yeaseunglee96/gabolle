@@ -13,15 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * 관광공사 수집본 판독 — S15P21E201-854.
- *
- * <p>DB 가 필요 없는 판정이라 파일만 만들어 읽힌다. 여기서 재는 것은 셋이다 — <b>음식을
- * 빼는가</b>, <b>깨진 줄에서 멈추지 않는가</b>, <b>버린 것을 세어 올리는가</b>.
- *
- * <p>🔴 실제 수집본은 이 저장소에 없다({@code bigData/dev} 에 있다). 그래서 응답 모양을 옮겨
- * 적는다 — 옮겨 적은 것이 실제와 다르면 이 검사가 통과하고 운영에서 0 건이 된다. 그 위험을
- * 줄이려고 <b>실제 파일에서 확인한 모양 그대로</b> 썼다: {@code raw} 가 객체가 아니라
- * <b>문자열</b>이고, 항목이 {@code response.body.items.item} 아래 있다.
+ * 실제 수집본이 이 저장소에 없어 응답 모양을 옮겨 적는다. 옮겨 적은 것이 실제와 다르면 이
+ * 검사가 통과하고 운영에서 0 건이 되므로, 실제 파일에서 확인한 모양 그대로 썼다 — {@code raw}
+ * 가 객체가 아니라 문자열이고, 항목이 {@code response.body.items.item} 아래 있다.
  */
 class TourApiPlaceReaderTest {
 
@@ -141,7 +135,7 @@ class TourApiPlaceReaderTest {
 		return file;
 	}
 
-	/** 🔴 실제 파일과 같은 모양 — {@code raw} 가 <b>문자열</b>이다. */
+	/** 실제 파일과 같은 모양 — {@code raw} 가 문자열이다. */
 	private static String listLine(String... items) {
 		String raw = "{\"response\":{\"body\":{\"items\":{\"item\":[" + String.join(",", items) + "]}}}}";
 		return "{\"stage\":\"list\",\"contentTypeId\":12,\"page\":1,\"raw\":" + quote(raw) + "}";

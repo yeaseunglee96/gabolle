@@ -18,13 +18,11 @@ import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripRepository;
 
 /**
- * 계정 기본 씀씀이 성향 — 읽기·쓰기 (S15P21E201-709).
+ * 계정 기본 씀씀이 성향 — 읽기·쓰기.
  *
- * <p>{@link PreferenceDefaultsService#replace}(전체 교체)를 그대로 쓰지 않는다. 계정 기본
- * 스냅샷에는 SPEND_PROFILE 말고 다른 차원의 답도 함께 있을 수 있는데, 전체 교체로
- * SPEND_PROFILE 하나만 바꾸려 하면 나머지 차원이 사라진다. 그래서 여기서는 <b>현재 판을 읽고,
- * SPEND_PROFILE 만 바꾼 뒤, 그 전부를 다시 저장</b>한다 — {@code PreferenceDefaultsService}
- * 클래스 주석의 "부분 갱신이 아니다" 경고가 정확히 이 상황을 가리킨다.
+ * <p>{@link PreferenceDefaultsService#replace}(전체 교체)를 그대로 쓰지 않는다. 같은 스냅샷에
+ * 다른 차원의 답도 들어 있어, 전체 교체로 SPEND_PROFILE 만 바꾸면 나머지 차원이 사라진다.
+ * 그래서 현재 판을 읽어 SPEND_PROFILE 만 갈아 끼우고 전부 다시 저장한다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -52,11 +50,7 @@ public class SpendProfileService {
 						.findFirst());
 	}
 
-	/**
-	 * SPEND_PROFILE 을 새 값으로 바꾸고 계정 기본값을 새 판으로 저장한다.
-	 *
-	 * <p>🔴 다른 차원의 답은 그대로 옮긴다 — 이 메서드가 SPEND_PROFILE 만 아는 유일한 이유다.
-	 */
+	/** SPEND_PROFILE 만 새 값으로 바꿔 새 판으로 저장한다. 다른 차원의 답은 그대로 옮긴다. */
 	@Transactional
 	public PreferenceSnapshot.PreferenceAnswer put(UUID userId, String value, String answerStatusRaw,
 			UUID requestId) {

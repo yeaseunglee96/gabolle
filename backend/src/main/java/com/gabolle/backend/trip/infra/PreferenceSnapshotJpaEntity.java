@@ -13,11 +13,9 @@ import jakarta.persistence.Table;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 
 /**
- * {@code preference_snapshot} 표 매핑 (V120000) — S15P21E201-461.
- *
- * <p>🔴 {@code user_id} 는 도메인 {@code PreferenceSnapshot} 에 없는 값이다.
- * {@link JpaTripRepository} 가 {@code save} 로 함께 받는 {@code TripMember owner} 에서
- * 채운다 — 이 스냅샷은 항상 그 여행을 만든 사람의 것이다(scope=TRIP 고정, TripCreationService).
+ * {@code preference_snapshot} 표 매핑. {@code user_id} 는 도메인 {@code PreferenceSnapshot} 에 없어
+ * {@link JpaTripRepository} 가 {@code save} 로 함께 받는 {@code TripMember owner} 에서 채운다 —
+ * scope=TRIP 스냅샷은 항상 그 여행을 만든 사람의 것이다.
  */
 @Entity
 @Table(name = "preference_snapshot")

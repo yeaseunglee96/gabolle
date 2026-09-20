@@ -13,16 +13,13 @@ import com.gabolle.backend.place.api.PlaceDetailResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-476 완료 기준 — "기존 필드가 하나도 사라지지 않는다".
- *
- * <p>{@code PlaceDetailResponse} 는 이미 배포된 앱이 읽는 계약이다. 이 티켓은 칸을 <b>더하는</b>
- * 작업이라 {@code SharedItineraryResponseWhitelistTest} 처럼 전체를 고정 목록과 정확히 맞추지는
- * 않는다 — 대신 기존 열 개의 이름·자리·타입이 그대로인지, 그리고 실제로 새 칸이 늘었는지를 본다.
- * {@code SharedItineraryResponseWhitelistTest} 를 참고해 같은 리플렉션 방식으로 만들었다.
+ * {@code PlaceDetailResponse} 는 이미 배포된 앱이 읽는 계약이라 기존 필드가 하나도 사라지면
+ * 안 된다. 칸은 더해지므로 전체를 고정 목록과 맞추지 않고, 기존 열 개의 이름·자리·타입이
+ * 그대로인지와 새 칸이 실제로 늘었는지만 본다.
  */
 class PlaceDetailResponseFieldsTest {
 
-	/** -476 최초 계약의 필드 순서 그대로다. 자리가 바뀌면(순서가 바뀌면) 이 테스트가 빨개진다. */
+	/** 최초 계약의 필드 순서 그대로다. */
 	private static final List<String> ORIGINAL_FIELD_NAMES = List.of(
 			"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng",
 			"provenance", "features", "itineraryInclusion");
@@ -54,7 +51,6 @@ class PlaceDetailResponseFieldsTest {
 				.map(RecordComponent::getName)
 				.toList();
 
-		// photoSubject 는 2026-09-16 (S15P21E201-1039) 에 photoSource 바로 뒤로 들어왔다.
 		// 사진에 관한 세 칸을 붙여 두면 사진만 그리고 출처·피사체를 빠뜨리기 어렵다.
 		assertThat(names).containsSubsequence(
 				"addressEn", "photoUrl", "photoSource", "photoSubject", "openingHours", "priceLevel",

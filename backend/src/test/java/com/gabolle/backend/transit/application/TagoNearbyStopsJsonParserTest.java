@@ -1,6 +1,6 @@
 package com.gabolle.backend.transit.application;
 
-// 🔴 패키지 전용(package-private) 파서와 같은 패키지에 둔다.
+// 패키지 전용(package-private) 파서와 같은 패키지에 둔다.
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -14,12 +14,6 @@ import com.gabolle.backend.transit.domain.NearbyBusStop;
 
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * {@link TagoNearbyStopsJsonParser} 검증 — S15P21E201-988.
- *
- * <p>{@code KmaForecastJsonParserTest}와 같은 방식 — resultCode 확인, 단일 객체·배열·빈
- * 결과 셋 다를 잰다.
- */
 class TagoNearbyStopsJsonParserTest {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();

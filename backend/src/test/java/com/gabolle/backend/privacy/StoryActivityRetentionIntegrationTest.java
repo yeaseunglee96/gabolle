@@ -24,33 +24,19 @@ import com.gabolle.backend.story.StoryFixture;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-1216 — 90일 지난 조회·복사 낱개를 개인정보 자동 정리 배치가 치우는가.
+ * 보관 기간이 지난 조회·복사 낱개를 개인정보 자동 정리 배치가 치우는가. 기준선 바깥은
+ * 지워지고 안쪽은 남으며, 누적 칸은 내려가지 않고, 실행 기록 행에 두 카테고리 건수가 남는다.
  *
- * <h2>재는 것 — 완료 기준 그대로</h2>
+ * <p>낱개의 날짜 칸({@code viewed_on}·{@code copied_on})은 DATE 이고 {@code StoryService} 가
+ * 한국 시각으로 계산해 넣으므로, 이 검사도 기준일을 한국 시각의 오늘에서 뺀다. 서버 시각(UTC)
+ * 으로 세면 한국 시각 오전 9시 전에 기준선이 하루 어긋난다.
  *
- * <ul>
- *   <li>보관 기준선 <b>바깥</b>(91일 전) 낱개는 <b>지워진다</b></li>
- *   <li>기준선 <b>바로 안쪽</b>(딱 90일 전·89일 전·오늘) 낱개는 <b>남는다</b></li>
- *   <li>🔴 <b>누적 칸은 한 톨도 안 내려간다</b> — {@code story.view_count} · {@code link_copy_count}</li>
- *   <li>실행 기록 행({@code privacy_cleanup_run})에 두 카테고리 건수가 남는다</li>
- *   <li>조회 낱개와 복사 낱개가 <b>둘 다</b> 치워진다 — 한쪽만 하고 끝내는 실수를 잡는다</li>
- * </ul>
- *
- * <h2>🔴 하루의 경계가 한국 시각이라 날짜를 한국 시각으로 만든다</h2>
- *
- * 낱개의 날짜 칸({@code viewed_on} · {@code copied_on})은 <b>DATE</b> 이고, 그 값을 채우는
- * {@code StoryService} 가 한국 시각으로 계산해서 넣는다. 그래서 이 검사도 기준일을 한국 시각의
- * 「오늘」에서 뺀다. 서버 시각(UTC)으로 세면 한국 시각 오전 9시 전에 기준선이 하루 어긋난다.
- *
- * <h2>🔴 이 검사는 남의 행도 지운다 — 그래서 「내 것」만 센다</h2>
- *
- * 배치는 표 전체를 훑으므로, 같은 DB 를 쓰는 다른 검사가 남긴 오래된 낱개도 함께 지워진다.
- * 그래서 삭제 건수는 <b>{@code isGreaterThanOrEqualTo}</b> 로 보고, 정확한 판정은 <b>내가 심은
- * 행이 있는가/없는가</b>로 한다 — 기존 {@code PrivacyCleanupIntegrationTest} 와 같은 규칙이다.
+ * <p>배치는 표 전체를 훑으므로 같은 DB 를 쓰는 다른 검사가 남긴 낱개도 함께 지워진다. 그래서
+ * 삭제 건수는 {@code isGreaterThanOrEqualTo} 로 보고, 정확한 판정은 내가 심은 행의 유무로 한다.
  */
 class StoryActivityRetentionIntegrationTest extends PrivacyPostgresIntegrationTest {
 
-	/** 🔴 {@code PrivacyCleanupService.STORY_ACTIVITY_ZONE} 과 같아야 한다. */
+	/** {@code PrivacyCleanupService.STORY_ACTIVITY_ZONE} 과 같아야 한다. */
 	private static final ZoneId STORY_ACTIVITY_ZONE = ZoneId.of("Asia/Seoul");
 
 	@Autowired
@@ -87,7 +73,7 @@ class StoryActivityRetentionIntegrationTest extends PrivacyPostgresIntegrationTe
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 이 검사가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
+		// 표를 비우지 않는다. 이 검사가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
 		this.jdbc.update("DELETE FROM privacy_cleanup_run");
 		this.jdbc.update("DELETE FROM story_view WHERE story_id = ?", this.storyId);
 		this.jdbc.update("DELETE FROM story_link_copy WHERE story_id = ?", this.storyId);
@@ -149,8 +135,8 @@ class StoryActivityRetentionIntegrationTest extends PrivacyPostgresIntegrationTe
 		assertThat(result.storyViewsDeleted()).as("결과에 조회 낱개 건수가 안 담겼다").isGreaterThanOrEqualTo(1);
 		assertThat(result.storyLinkCopiesDeleted()).as("결과에 복사 낱개 건수가 안 담겼다").isGreaterThanOrEqualTo(1);
 
-		// 🔴 지운 뒤에 한 번 더 돌린다 — 앞 실행이 이미 치웠으므로 이번 실행의 건수는 0 이어야
-		//    하고, 그래야 기록 행의 숫자가 「이번에 지운 것」인지 확인된다.
+		// 지운 뒤에 한 번 더 돌린다 — 앞 실행이 이미 치웠으므로 이번 실행의 건수는 0 이어야
+		// 하고, 그래야 기록 행의 숫자가 「이번에 지운 것」인지 확인된다.
 		insertMemberView(this.today.minusDays(retention + 1L));
 		insertMemberLinkCopy(this.today.minusDays(retention + 1L));
 

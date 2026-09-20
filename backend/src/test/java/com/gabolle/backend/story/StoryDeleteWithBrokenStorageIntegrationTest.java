@@ -34,14 +34,8 @@ import com.gabolle.backend.story.storage.StoragePort;
 import com.gabolle.testslice.StorySliceApplication;
 
 /**
- * S15P21E201-226 완료 기준 — "저장소를 끊어 놓고 지우면 기록은 지워지고 못 지운 사진이 기록으로 남는다".
- *
- * <p>저장소가 언제나 실패하는 구현을 {@code @Primary} 로 끼운다. 기록 삭제는 204 로 끝나야 하고(파일 하나 때문에
- * 사용자를 "몇 번을 눌러도 안 지워지는" 상태에 가두지 않는다), 그 키는 {@code storage_cleanup_queue} 에 남아야 한다
- * (조용히 잊지 않는다).
- *
- * <p>부수기: {@code StoryService.delete} 가 {@code deleteOrEnqueue} 대신 {@code StoragePort.delete} 를 직접 부르면
- * 예외가 트랜잭션을 되돌려 여기서 500 이 나와 빨개진다.
+ * 저장소가 언제나 실패하는 구현을 {@code @Primary} 로 끼운다. 파일 하나 때문에 사용자를 몇 번을 눌러도
+ * 안 지워지는 상태에 가두지 않으면서, 못 지운 키를 조용히 잊지도 않아야 한다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",

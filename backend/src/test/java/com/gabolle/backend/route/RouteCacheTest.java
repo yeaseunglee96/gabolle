@@ -17,12 +17,6 @@ import com.gabolle.backend.route.domain.RouteLeg;
 import com.gabolle.backend.route.domain.RouteQuery;
 import com.gabolle.backend.route.domain.TravelMode;
 
-/**
- * 경로 캐시 — S15P21E201-196.
- *
- * <p>시계를 주입해서 잰다. {@code Thread.sleep} 으로 시간이 지나기를 기다리면 검사가 느려지고,
- * 느린 컴퓨터에서 간헐적으로 빨개진다.
- */
 class RouteCacheTest {
 
 	private static final Instant NOW = Instant.parse("2026-09-08T00:00:00Z");

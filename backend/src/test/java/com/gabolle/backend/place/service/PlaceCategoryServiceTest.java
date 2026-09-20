@@ -13,10 +13,8 @@ import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.PlaceRepository.CategoryCount;
 
 /**
- * S15P21E201-896 — 적재된 갈래를 그대로 내는지 본다.
- *
- * <p>이 검사가 지키는 것은 "무엇을 안 하는가" 다. 앱의 여섯 낱말을 서버가 알고 있다가 0 을
- * 채워 내보내면 그 목록이 계약이 되고, 적재가 새 갈래를 넣어도 서버를 고칠 때까지 안 보인다.
+ * 적재된 갈래를 그대로 내는지 본다. 지키는 것은 "무엇을 안 하는가" 다 — 앱의 낱말 목록을 서버가
+ * 알고 있다가 0 을 채워 내보내면 그 목록이 계약이 되고, 적재가 새 갈래를 넣어도 안 보인다.
  */
 class PlaceCategoryServiceTest {
 
@@ -38,10 +36,7 @@ class PlaceCategoryServiceTest {
 		assertThat(response.generatedAt()).isNotNull();
 	}
 
-	/**
-	 * 지금 운영이 이 모습이다 — 음식만 적재돼 있다. 화면은 이 응답을 보고 나머지 다섯 갈래를
-	 * 감춰서, 고르면 반드시 실패하는 선택지를 아예 안 만든다.
-	 */
+	/** 화면은 이 응답에 없는 갈래를 감춰서, 고르면 반드시 실패하는 선택지를 아예 안 만든다. */
 	@Test
 	void returnsOnlyWhatIsLoaded() {
 		when(this.placeRepository.countByCategory()).thenReturn(List.of(count("FOOD", 2355)));

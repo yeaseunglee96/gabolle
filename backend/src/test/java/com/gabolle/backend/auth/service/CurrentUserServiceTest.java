@@ -61,8 +61,8 @@ class CurrentUserServiceTest {
 	}
 
 	/**
-	 * 애플만 쓰는 계정 — 로컬 비밀번호 계정도 없고 provider 가 준 이메일도 없다. 예전에는 여기서
-	 * 500 이 나가서 로그인 직후의 {@code GET /api/v1/auth/me} 가 매번 실패했다(S15P21E201-893).
+	 * 애플만 쓰는 계정 — 로컬 비밀번호 계정도 없고 provider 가 준 이메일도 없다.
+	 * 이 갈래를 못 다루면 로그인 직후의 {@code GET /api/v1/auth/me} 가 500 으로 죽는다.
 	 */
 	@Test
 	void returnsNullEmailWhenProviderGaveNone() {

@@ -16,14 +16,12 @@ import org.hibernate.type.SqlTypes;
 import com.gabolle.backend.trip.domain.TripConstraint;
 
 /**
- * {@code constraint_answer} 표 매핑 (V120000, !150 으로 CHECK 완화) — S15P21E201-461.
+ * {@code constraint_answer} 표 매핑.
  *
- * <p>🔴 알레르기 자유 입력 전용 칸({@code other_allergy_ciphertext}·
- * {@code encryption_key_version}·{@code encryption_nonce}·{@code cross_contact_policy}·
- * {@code verification_policy})은 여기 매핑하지 않는다 — M1 에는 그 값을 채울 암호화
- * 경로가 없고, 도메인({@link TripConstraint})도 그 값을 들고 있지 않다. 자유 입력은
- * {@code constraintKey == "OTHER"} 일 때 생성자 단계에서 이미 거부된다({@code
- * SensitiveConstraintNotSupportedException}) — 여기 도달하는 것은 전부 코드로 된 값이다.
+ * <p>알레르기 자유 입력 전용 칸({@code other_allergy_ciphertext}·{@code encryption_key_version}·
+ * {@code encryption_nonce}·{@code cross_contact_policy}·{@code verification_policy})은 매핑하지
+ * 않는다 — 자유 입력은 {@code constraintKey == "OTHER"} 일 때 생성자 단계에서 이미 거부되므로
+ * 여기 도달하는 것은 전부 코드로 된 값이다.
  */
 @Entity
 @Table(name = "constraint_answer")

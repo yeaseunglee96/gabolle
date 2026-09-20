@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 
-/** S15P21E201-338 — 씨앗 우대는 점수만 올리고 판정은 건드리지 않는다. */
+/** 씨앗 우대는 점수만 올리고 판정은 건드리지 않는다. */
 class SeedBoostTest {
 
 	private static final UUID SEED_A = UUID.randomUUID();

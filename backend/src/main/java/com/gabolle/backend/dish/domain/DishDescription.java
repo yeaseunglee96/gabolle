@@ -9,16 +9,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 음식 하나에 대한 한 줄 설명 — S15P21E201-1272.
+ * 음식 하나에 대한 한 줄 설명.
  *
- * <h2>🔴 이것은 사진에서 읽은 값이 아니다</h2>
- *
- * 나머지 메뉴판 응답({@code text}·{@code name}·{@code price}·{@code allergenWords})은
- * 전부 <b>사진에 보이는 것</b>이다. 이 칸만 다르다 — 모델이 <b>아는 것</b>을 말한 값이다.
- * 그래서 틀릴 수 있고, 그 식당이 실제로 무엇을 넣는지는 여기에 들어 있지 않다.
- *
- * <p>화면은 이 둘을 같은 무게로 그리면 안 된다. 그리고 <b>알레르기 판단에 이 값을
- * 쓰지 않는다</b> — 그 통로는 {@code allergenWords} 하나뿐이다.
+ * <p>사진에서 읽은 값이 아니라 모델이 아는 것을 말한 값이다. 나머지 메뉴판 응답과 달리 틀릴 수 있고,
+ * 그 식당이 실제로 무엇을 넣는지는 여기 들어 있지 않다. 알레르기 판단에 이 값을 쓰지 않는다 — 그
+ * 통로는 {@code allergenWords} 하나뿐이다.
  */
 @Entity
 @Table(name = "dish_description")

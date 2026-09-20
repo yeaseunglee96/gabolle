@@ -24,16 +24,13 @@ import com.gabolle.backend.trip.presentation.dto.CreateTripRequestMapper;
 import jakarta.validation.Valid;
 
 /**
- * {@code POST /api/v1/shares/{token}/clone} — 공유 일정을 내 조건으로 복제 (S15P21E201-338).
+ * 공유 일정을 내 조건으로 복제한다. 조회와 달리 인증이 필요하다 — 새 여행에 주인이 있어야
+ * 하기 때문이고, SecurityConfig 가 GET 만 열어 둔 이유다.
  *
- * <p>🔴 <b>인증이 필요하다.</b> 공유 조회({@code GET /api/v1/shares/{token}})는 로그인 없이 열리지만, 복제는
- * 새 여행에 주인이 있어야 하니 로그인한 사람만 부른다. {@code SecurityConfig} 가 GET 만 열어 둔 이유다.
+ * 본문은 여행 생성과 같은 CreateTripRequest 이고 같은 매퍼를 지난다.
  *
- * <p>본문은 여행 생성({@code POST /api/v1/trips})과 <b>같은 {@link CreateTripRequest}</b> 다 — 앱이 이미 갖고
- * 있는 조건 입력 화면을 그대로 쓰라는 뜻이다. 번역도 같은 {@link CreateTripRequestMapper} 를 지난다.
- *
- * <p>응답 상태 — 새 여행을 만들고 Job 을 접수했으면 {@code 202}(비동기, 폴링 필요), 여행은 만들었지만 Job 을
- * 접수하지 못했으면 {@code 201}, {@code Idempotency-Key} 재시도면 {@code 200}. 셋 다 성공이다.
+ * 응답 상태는 셋 다 성공이다 — 여행과 Job 을 만들었으면 202, 여행만 만들었으면 201,
+ * Idempotency-Key 재시도면 200.
  */
 @RestController
 @Profile({ "db", "dev" })

@@ -32,24 +32,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 계정·데이터 일괄 삭제 — S15P21E201-425 (-183 포함).
+ * 계정·데이터 일괄 삭제.
  *
- * <h2>🔴 왜 진짜 DB 가 필요한가</h2>
- *
- * 이 기능의 위험은 두 가지이고 둘 다 실제 DB 에서만 드러난다.
- *
- * <p>하나는 <b>지우는 순서</b>다. 자식 행을 먼저 지우지 않으면 외래키에 걸려 통째로 실패한다.
- * 순서가 틀렸는지는 실제 제약이 걸린 표에서만 알 수 있다.
- *
- * <p>다른 하나는 <b>JPQL 이 가리키는 엔티티 이름</b>이다. 다른 담당자의 코드를 고치지 않으려고
- * 문자열로 썼기 때문에, 그쪽이 이름을 바꾸면 컴파일이 아니라 실행에서 터진다. 이 테스트가 삭제
- * 경로를 통째로 돌려서 그것을 잡는다.
+ * <p>실제 DB 가 필요한 이유는 둘이다. 지우는 순서가 틀렸는지는 실제 제약이 걸린 표에서만
+ * 알 수 있고, JPQL 이 문자열로 가리키는 엔티티 이름이 바뀌면 컴파일이 아니라 실행에서
+ * 터진다. 이 검사가 삭제 경로를 통째로 돌려 둘 다 잡는다.
  */
 class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 
 	private static final String PASSWORD = "DeleteMe!2026";
 
-	/** 사용자가 탈퇴 화면에서 직접 치는 값 — S15P21E201-837. */
+	/** 사용자가 탈퇴 화면에서 직접 치는 값. */
 	private static final String CONFIRM = AccountDeletionService.CONFIRMATION_PHRASE;
 
 	@Autowired
@@ -83,7 +76,7 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 
 	private UUID otherTripId;
 
-	/** S15P21E201-837 — 소셜로만 가입한 계정. 만든 것만 tearDown 에서 지운다. */
+	/** 소셜로만 가입한 계정. 만든 것만 tearDown 에서 지운다. */
 	private final List<UUID> socialUserIds = new ArrayList<>();
 
 	@BeforeEach
@@ -98,12 +91,12 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다.
+		// 표를 비우지 않고 내가 만든 것만 지운다.
 		for (UUID user : new UUID[] {this.userId, this.otherUserId}) {
 			this.jdbcTemplate.update("DELETE FROM story WHERE author_user_id = ?", user);
 		}
-		// S15P21E201-977 — 일정·추천 작업을 만든 검사가 있어서 여행보다 먼저 치운다.
-		//    운영 삭제와 같은 순서다: 판 → 작업 → 일정 행.
+		// 일정·추천 작업을 만든 검사가 있어서 여행보다 먼저 치운다.
+		// 운영 삭제와 같은 순서다: 판 → 작업 → 일정 행.
 		for (UUID trip : new UUID[] {this.tripId, this.otherTripId}) {
 			this.jdbcTemplate.update("""
 					DELETE FROM itinerary_versions WHERE itinerary_id IN
@@ -117,9 +110,8 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 			this.jdbcTemplate.update("DELETE FROM auth_session WHERE user_id = ?", user);
 			this.jdbcTemplate.update("DELETE FROM app_user WHERE user_id = ?", user);
 		}
-		// S15P21E201-837 — auth_identity 는 app_user 에 ON DELETE CASCADE 로 달려 있지만,
-		// 지우는 순서를 코드로 못 박아 둔다. 이 표가 남으면 provider_subject 유일 제약에 걸려
-		// 다음 실행이 깨진다.
+		// auth_identity 는 app_user 에 ON DELETE CASCADE 로 달려 있지만 순서를 코드로 못
+		// 박아 둔다. 이 표가 남으면 provider_subject 유일 제약에 걸려 다음 실행이 깨진다.
 		for (UUID user : this.socialUserIds) {
 			this.jdbcTemplate.update("DELETE FROM auth_identity WHERE user_id = ?", user);
 			this.jdbcTemplate.update("DELETE FROM auth_session WHERE user_id = ?", user);
@@ -169,16 +161,13 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 		assertThat(preview.ownedTripCount()).isEqualTo(1);
 		assertThat(preview.itineraryCount()).isZero();
 		assertThat(preview.recordCount()).isEqualTo(2);
-		// 🔴 이름 그대로 미리보기다 — 아무것도 지워지면 안 된다.
+		// 미리보기이므로 아무것도 지워지면 안 된다.
 		assertThat(tripExists(this.tripId)).isTrue();
 		assertThat(this.credentialRepository.findByUserUserId(this.userId)).isPresent();
 	}
 
 	/**
-	 * S15P21E201-913 — 이미 지운 여행이 안내 숫자에 섞이던 자리.
-	 *
-	 * <p>"내 여행" 목록은 {@code deleted_at} 이 빈 것만 내주는데 미리보기는 그 조건이 없어서,
-	 * 목록에 한 개뿐인 계정에 "3개가 삭제돼요" 가 떴다. 되돌릴 수 없는 동작의 안내 숫자라
+	 * 미리보기는 "내 여행" 목록과 같은 기준으로 센다 — 되돌릴 수 없는 동작의 안내 숫자라
 	 * 실제보다 크게 보이면 사용자가 무엇을 잃는지 잘못 알고 결정하게 된다.
 	 */
 	@Test
@@ -245,20 +234,15 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	void deletingTwiceIsRejected() {
 		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
 
-		// 🔴 S15P21E201-837 이전에는 자격증명이 사라진 덕분에 LOCAL_CREDENTIAL_REQUIRED 로 막혔다.
-		// 비밀번호가 선택이 된 지금은 그 우연한 방어가 없어서 상태를 직접 본다.
-		//
-		// 🔴 이 검사는 **순서**도 함께 못 박는다. 비밀번호를 실어 보내는 것이 핵심이다 — 계정 상태를
-		// 비밀번호보다 나중에 보면, 자격증명이 이미 사라졌으므로 PASSWORD_NOT_SET("소셜 계정입니다")
-		// 이 나간다. 사실과 다른 안내이고, 쓸 수 없는 계정에 대해 "비밀번호가 있는 계정인가" 를
-		// 알려 주는 것이기도 하다. 실제로 그렇게 짰다가 CI 에서 잡혔다(파이프라인 189067).
+		// 검사 순서도 함께 못 박는다. 비밀번호를 실어 보내는 것이 핵심이다 — 계정 상태를
+		// 비밀번호보다 나중에 보면 자격증명이 이미 사라졌으므로 PASSWORD_NOT_SET 이 나간다.
 		assertThatThrownBy(() -> this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD))
 				.isInstanceOf(AuthException.class)
 				.extracting(exception -> ((AuthException) exception).getCode())
 				.isEqualTo("ACCOUNT_UNAVAILABLE");
 	}
 
-	// ── S15P21E201-837 · 소셜로만 가입한 계정 ────────────────────────────────────
+	// ── 소셜로만 가입한 계정 ────────────────────────────────────
 
 	@Test
 	@DisplayName("완료 기준 — 소셜로만 가입한 계정이 확인 값만으로 탈퇴된다 (비밀번호가 없다)")
@@ -320,15 +304,9 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	// ── 도구 ──────────────────────────────────────────────────────────────────
 
 	/**
-	 * 🔴 S15P21E201-977 — 운영에서 탈퇴가 500 으로 실패하던 자리.
-	 *
-	 * <p>일정과 추천 작업이 서로를 가리킨다. {@code itinerary_versions.source_request_id} 가
-	 * 작업을 가리키고, {@code recommendation_job.itinerary_id} 가 일정을 가리킨다. 지우는
-	 * 순서가 뒤집혀 있으면 <b>일정을 한 번이라도 만든 계정은 탈퇴가 통째로 실패한다.</b>
-	 *
-	 * <p>이 검사가 없던 동안 이 파일의 다른 검사들은 전부 통과했다 — <b>일정도 추천 작업도
-	 * 한 번도 안 만들었기 때문이다.</b> 빈 여행만 지워 보고 있었다. 운영 계정은 예외 없이
-	 * 일정을 갖고 있다.
+	 * 일정과 추천 작업이 서로를 가리킨다. {@code itinerary_versions.source_request_id} 가
+	 * 작업을, {@code recommendation_job.itinerary_id} 가 일정을 가리킨다. 지우는 순서가
+	 * 뒤집혀 있으면 일정을 한 번이라도 만든 계정은 탈퇴가 통째로 실패한다.
 	 */
 	@Test
 	@DisplayName("🔴 일정과 추천 작업이 있는 계정도 탈퇴가 된다 — 서로 가리키는 외래키")
@@ -374,15 +352,14 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	/**
-	 * 서로를 가리키는 일정과 추천 작업 한 벌 — S15P21E201-977.
+	 * 서로를 가리키는 일정과 추천 작업 한 벌.
 	 *
 	 * <p>작업을 먼저 넣는다. 일정 판의 {@code source_request_id} 가 작업의 {@code request_id}
-	 * 를 가리키고 그 칸은 비울 수 없다. 그다음 작업이 일정을 가리키게 돌려 채운다 — 이렇게
-	 * 해야 운영과 같은 고리가 된다.
+	 * 를 가리키고 그 칸은 비울 수 없다. 그다음 작업이 일정을 가리키게 돌려 채운다.
 	 *
-	 * <p>🔴 작업 상태를 {@code RUNNING} 으로 둔다. {@code SUCCEEDED} 면
-	 * {@code ck_recommendation_job_versions_present} 가 모델·피처·온톨로지·정책·데이터셋
-	 * 판 다섯을 모두 요구한다 — 이 검사가 보려는 것은 외래키 고리이지 그 다섯 칸이 아니다.
+	 * <p>작업 상태를 {@code RUNNING} 으로 둔다. {@code SUCCEEDED} 면
+	 * {@code ck_recommendation_job_versions_present} 가 판 다섯을 모두 요구하는데, 여기서
+	 * 보려는 것은 외래키 고리다.
 	 */
 	private UUID createItineraryWithJob(UUID owner, UUID trip) {
 		UUID jobId = UUID.randomUUID();
@@ -431,10 +408,8 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	/**
-	 * 소셜로만 가입한 계정 — S15P21E201-837.
-	 *
-	 * <p>🔴 {@code local_credential} 을 만들지 않는다. 그것이 이 테스트의 전부다 — 실제 소셜 가입
-	 * 경로({@code OAuthAccountService}) 도 자격증명을 만들지 않는다.
+	 * 소셜로만 가입한 계정. {@code local_credential} 을 만들지 않는다 — 실제 소셜 가입
+	 * 경로({@code OAuthAccountService})도 자격증명을 만들지 않는다.
 	 */
 	private UUID createSocialOnlyUser(String providerSubject) {
 		UUID socialUserId = this.transactionTemplate.execute(status -> this.userRepository
@@ -467,11 +442,8 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 				VALUES (?, ?, 1, ?, 0, 'test-v1', 'test-onto-v1', now())
 				""", UUID.randomUUID(), this.userId, snapshotId);
 
-		// 🔴 고치기 전에는 여기서 통째로 실패했다. deleteTripData 가 preference_snapshot 을
-		//    먼저 지우는데 user_taste_vector 가 아직 그것을 가리키고 있었고,
-		//    fk_user_taste_vector_preference_snapshot 은 ON DELETE 가 없어 NO ACTION 이다.
-		//    트랜잭션이 하나라 500 만 나가고 아무것도 안 지워진다 — 배치가 매일 다시 접으므로
-		//    다시 눌러도 성공하는 날이 없다. App Store 5.1.1(v) 가 요구하는 바로 그 기능이다.
+		// 스냅샷을 취향 벡터보다 먼저 지우면 여기서 통째로 실패한다 —
+		// fk_user_taste_vector_preference_snapshot 은 ON DELETE 가 없어 NO ACTION 이다.
 		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
 
 		assertThat(this.userRepository.findById(this.userId))

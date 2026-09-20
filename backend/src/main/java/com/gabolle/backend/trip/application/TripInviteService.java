@@ -17,15 +17,12 @@ import com.gabolle.backend.trip.presentation.dto.AcceptInviteResponse;
 import com.gabolle.backend.trip.presentation.dto.TripInviteResponse;
 
 /**
- * 동행자 초대 발급·수락 — S15P21E201-294 · -299.
+ * 동행자 초대 발급·수락.
  *
- * <p>발급은 그 여행의 소유자만 부를 수 있다({@link #issue}). 수락은 표(token)를 아는 로그인
- * 사용자면 누구나 부를 수 있다({@link #accept}) — 표 자체가 유일한 잠금이다.
+ * <p>발급은 소유자만, 수락은 표(token)를 아는 로그인 사용자면 누구나 — 표 자체가 유일한 잠금이다.
  *
- * <p>🔴 "이미 참여 중" 을 실패가 아니라 성공(200)으로 번역하는 것이 이 서비스의 핵심 책임이다.
- * 같은 표를 두 번 누른 것도, 동시에 두 번 눌러 {@link TripMembershipRepository.AlreadyMemberException}
- * 이 난 것도 전부 여기서 "이미 참여했다" 로 합쳐진다 — 링크를 두 번 눌렀다고 사용자에게
- * 실패 화면을 보여주지 않는다.
+ * <p>"이미 참여 중" 은 실패가 아니라 성공(200)이다. 같은 표를 두 번 누른 것도, 동시에 눌러
+ * {@link TripMembershipRepository.AlreadyMemberException} 이 난 것도 전부 여기서 합쳐진다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -101,7 +98,7 @@ public class TripInviteService {
 			return toAcceptResponse(invite.tripId(), saved, false);
 		}
 		catch (TripMembershipRepository.AlreadyMemberException e) {
-			// 🔴 같은 표를 동시에 두 번 눌렀다 — UNIQUE 가 막은 경쟁이다. 진 쪽도 성공(이미 참여)이다.
+			// 같은 표를 동시에 두 번 눌러 UNIQUE 가 막은 경쟁이다. 진 쪽도 성공(이미 참여)이다.
 			TripMember existing = this.membershipRepository.findMember(invite.tripId(), requesterId)
 					.orElseThrow(() -> e);
 			return toAcceptResponse(invite.tripId(), existing, true);
@@ -121,34 +118,32 @@ public class TripInviteService {
 			throw new InvalidInviteRoleException(raw);
 		}
 		if (role == TripMember.Role.OWNER) {
-			// 🔴 소유자는 초대로 만들 수 없다 — TripMember.invited·TripInvite 생성자와 같은 규칙.
+			// 소유자는 초대로 만들 수 없다 — TripMember.invited·TripInvite 생성자와 같은 규칙.
 			throw new InvalidInviteRoleException(raw);
 		}
 		return role;
 	}
 
-	/** 요청자가 그 여행의 소유자가 아니다. */
 	public static class TripInviteForbiddenException extends RuntimeException {
 		public TripInviteForbiddenException() {
 			super("여행 소유자만 초대할 수 있어요.");
 		}
 	}
 
-	/** {@code role} 이 {@code EDITOR}·{@code VIEWER} 가 아니다(빈 값·{@code OWNER}·모르는 값 포함). */
+	/** 빈 값·{@code OWNER}·모르는 값이 전부 여기로 온다. */
 	public static class InvalidInviteRoleException extends RuntimeException {
 		public InvalidInviteRoleException(String raw) {
 			super("초대 역할은 EDITOR 또는 VIEWER 여야 해요: " + raw);
 		}
 	}
 
-	/** 표(token)가 존재하지 않는다. */
 	public static class TripInviteNotFoundException extends RuntimeException {
 		public TripInviteNotFoundException() {
 			super("초대를 찾을 수 없습니다.");
 		}
 	}
 
-	/** 표는 있지만 발급 후 7일이 지났다 — 행은 그대로 둔다(TripInvite 문서 참고). */
+	/** 표는 있지만 발급 후 7일이 지났다. 표 행은 지우지 않는다. */
 	public static class TripInviteExpiredException extends RuntimeException {
 		public TripInviteExpiredException() {
 			super("초대가 만료됐어요.");

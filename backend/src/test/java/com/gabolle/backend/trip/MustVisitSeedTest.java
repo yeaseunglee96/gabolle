@@ -25,18 +25,12 @@ import com.gabolle.backend.user.support.ConsentGuards;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * 꼭 가고 싶은 장소가 씨앗으로 남는가 — S15P21E201-973.
- *
- * <p>앱이 고른 장소를 서버가 받은 적이 없어서 일정에 전혀 반영되지 않았다. 화면은
- * "일정에 반드시 포함돼요" 라고 적어 두고 있었다. 받은 목록을 {@code trip_seed_place}
- * 에 적어 두면 추천 엔진이 이미 그 표를 읽어 후보를 앞세운다({@code SeedBoost}).
- */
+/** 고른 장소를 {@code trip_seed_place} 에 적어 두면 추천 엔진이 그 표를 읽어 후보를 앞세운다. */
 class MustVisitSeedTest {
 
 	private static final Instant NOW = Instant.parse("2026-09-15T00:00:00Z");
 
-	/** 저장된 씨앗을 그대로 들고 있는 가짜 저장소. 이 검사가 보려는 것은 무엇을 넘기는가다. */
+	/** 저장된 씨앗을 그대로 들고 있는 가짜 저장소 — 무엇을 넘기는가만 본다. */
 	private static final class RecordingSeeds implements TripSeedPlaceRepository {
 
 		private final List<TripSeedPlace> saved = new ArrayList<>();
@@ -52,7 +46,7 @@ class MustVisitSeedTest {
 		}
 	}
 
-	/** 저장된 범위를 그대로 들고 있는 가짜 저장소 — S15P21E201-980. */
+	/** 저장된 범위를 그대로 들고 있는 가짜 저장소. */
 	private static final class RecordingAreas implements TripTravelAreaRepository {
 
 		private final java.util.Map<String, List<TravelArea>> saved = new java.util.LinkedHashMap<>();
@@ -98,10 +92,7 @@ class MustVisitSeedTest {
 						org.assertj.core.api.Assertions.tuple(second, 2));
 	}
 
-	/**
-	 * 🔴 표의 기본키가 (여행, 장소)라 같은 장소가 두 번 들어가면 트랜잭션 전체가 롤백된다 —
-	 * 여행 생성 자체가 실패한다. 앱이 같은 곳을 두 번 담아 보내도 그러면 안 된다.
-	 */
+	/** 표의 기본키가 (여행, 장소)라 같은 장소가 두 번 들어가면 여행 생성 자체가 실패한다. */
 	@Test
 	@DisplayName("같은 장소를 두 번 골라도 한 번만 적는다")
 	void duplicatedChoiceIsStoredOnce() {
@@ -138,12 +129,6 @@ class MustVisitSeedTest {
 	}
 
 
-	/**
-	 * S15P21E201-980 — 기본 정보 화면의 지역 칩이 화면에서만 받고 서버로 안 오던 자리.
-	 *
-	 * <p>해운대를 골라도 추천 스무 곳이 전부 출발지 근처였다. 서버가 받은 적이 없으니
-	 * 반영할 것도 없었다.
-	 */
 	@Test
 	@DisplayName("고른 여행 범위가 순서대로 남는다")
 	void chosenTravelAreasAreStoredInOrder() {
@@ -154,10 +139,7 @@ class MustVisitSeedTest {
 				.containsExactly(TravelArea.SONGJEONG, TravelArea.HAEUNDAE);
 	}
 
-	/**
-	 * 🔴 앱이 새 지역을 먼저 내보내는 날 여행 생성 자체가 막히면 안 된다. 모르는 지역은
-	 * "범위를 안 골랐다" 와 같게 다루는 편이 낫다.
-	 */
+	/** 앱이 새 지역을 먼저 내보내도 여행 생성이 막히면 안 된다 — 모르는 지역은 안 고른 것과 같게 다룬다. */
 	@Test
 	@DisplayName("모르는 지역 코드는 버리고 나머지는 저장한다")
 	void unknownAreaCodeIsDroppedWithoutFailing() {

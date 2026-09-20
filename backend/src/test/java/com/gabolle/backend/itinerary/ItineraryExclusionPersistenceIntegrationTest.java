@@ -41,11 +41,9 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 장소 제외(ITN-08)·판 경고 코드가 실제 표에 남는가 — S15P21E201-249.
- *
- * <p>🔴 진짜 PostgreSQL 위에서 돈다 — {@code ItineraryLockPersistenceIntegrationTest} 와 같은
- * 판단이다. 제외 목록의 {@code uq_itinerary_excluded} 위반, 배열 칸({@code warning_codes})
- * 저장은 인메모리 저장소로는 DB 제약 자체를 검증할 수 없다.
+ * 장소 제외·판 경고 코드가 실제 표에 남는가. 진짜 PostgreSQL 위에서 돈다 —
+ * {@code uq_itinerary_excluded} 위반과 배열 칸({@code warning_codes}) 저장은 인메모리
+ * 저장소로 검증할 수 없다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -178,7 +176,7 @@ class ItineraryExclusionPersistenceIntegrationTest {
 				.orElseThrow();
 		assertThat(v3Content.exclusions()).hasSize(1);
 		ItineraryExclusion carried = v3Content.exclusions().get(0);
-		// 🔴 새 판을 가리키는 새 행이다 — PK 도 itineraryVersionId 도 바뀐다.
+		// 새 판을 가리키는 새 행이다 — PK 도 itineraryVersionId 도 바뀐다.
 		assertThat(carried.itineraryVersionId()).isEqualTo(v3.itineraryVersionId());
 		assertThat(carried.itineraryExclusionId()).isNotEqualTo(exclusion.itineraryExclusionId());
 		// 나머지 사실은 그대로 물려받는다.

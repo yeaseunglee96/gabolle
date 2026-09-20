@@ -33,21 +33,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 /**
- * 사진·스토리·피드·신고·모더레이션 여정 — S15P21E201-782.
+ * 사진 업로드 → 스토리 작성 → 피드 노출 → 신고 → 운영자 처리까지 다섯 도메인을 실제 HTTP 로 잇는다.
  *
- * <p>사진 업로드(ImageUploadService) → 스토리 작성(StoryService) → 피드 노출(StoryFeedService) →
- * 신고(StoryReportService) → 운영자 처리(ModerationQueueService)까지 다섯 도메인 클래스가 순서대로
- * 엮이는데, 이 전체를 실제 HTTP로 잇는 테스트가 이전엔 없었다.
+ * <p>«피드 노출»은 {@code FeedController} 가 아니라 {@code StoryController.feed()} 로 확인한다 —
+ * 전자는 채우는 배치가 없어 모든 사용자에게 {@code NOT_BUILT_YET} 만 답하는 자리표시자다.
  *
- * <p>🔴 실측(2026-09-10) — 티켓이 말한 "피드 노출"은 {@link com.gabolle.backend.feed.presentation.FeedController}
- * (S15P21E201-632)가 아니라 {@code StoryController.feed()}({@link com.gabolle.backend.story.application.StoryFeedService}가
- * 뒤에 있다)로 확인한다. {@code FeedController}는 클래스 자체 javadoc이 밝히듯 아직 채우는 배치가 없어
- * <b>모든 사용자에게 {@code NOT_BUILT_YET}만 답하는 자리표시자</b>다 — 지금 이 시점엔 그 경로로 노출을
- * 확인할 방법이 없다. {@code GET /api/v1/stories}는 실제로 도는 경로라 여기로 노출·비노출을 잰다.
- *
- * <p>운영자 승격은 가입 경로로 못 만드는 값이라({@link ModerationFixture} javadoc) 로그인 뒤 DB에서
- * 직접 올린다 — {@code HmacJwtAuthenticationFilter}가 role을 JWT 클레임이 아니라 매 요청 DB에서
- * 다시 읽으므로(S15P21E201-686), 이미 로그인해 둔 토큰 그대로 다음 요청부터 ADMIN 권한이 먹는다.
+ * <p>운영자 승격은 가입 경로로 못 만드는 값이라 로그인 뒤 DB 에서 직접 올린다. 필터가 role 을 JWT
+ * 클레임이 아니라 매 요청 DB 에서 다시 읽으므로, 이미 받아 둔 토큰 그대로 다음 요청부터 먹는다.
  */
 class StoryModerationJourneyFunctionalTest extends FunctionalJourneyTest {
 
@@ -59,7 +51,7 @@ class StoryModerationJourneyFunctionalTest extends FunctionalJourneyTest {
 	void storyModerationJourneyEndToEnd() throws IOException {
 		AuthedClient author = loginAsNewUser("story-author");
 
-		// 1) 사진 업로드 — 인증 필요(S15P21E201-216).
+		// 1) 사진 업로드 — 인증 필요.
 		MultiValueMap<String, Object> uploadParts = new LinkedMultiValueMap<>();
 		org.springframework.http.HttpHeaders fileHeaders = new org.springframework.http.HttpHeaders();
 		fileHeaders.setContentType(MediaType.IMAGE_JPEG);

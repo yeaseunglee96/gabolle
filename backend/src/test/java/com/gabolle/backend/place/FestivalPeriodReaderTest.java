@@ -19,11 +19,7 @@ import com.gabolle.backend.place.domain.PlaceEventPeriod;
 import com.gabolle.backend.place.loader.FestivalPeriodReader;
 
 /**
- * 축제 수집본을 읽는 규칙 — S15P21E201-863.
- *
- * <p>DB 없이 도는 검사다. 여기서 지키는 약속은 하나로 모인다 — <b>기간을 지어내지 않는다.</b>
- * 날짜가 비었거나 뒤집힌 줄을 통과시키면 사람이 안 열리는 축제를 보러 간다. 화면에 아무것도
- * 안 뜨는 것보다 나쁘다.
+ * 축제 수집본을 읽는 규칙. 지키는 약속은 하나다 — 기간을 지어내지 않는다. DB 없이 돈다.
  */
 class FestivalPeriodReaderTest {
 

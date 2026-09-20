@@ -16,15 +16,10 @@ import com.gabolle.backend.story.repository.StoryRepository;
 import com.gabolle.backend.story.repository.StorySaveRepository;
 
 /**
- * 기록(글) 저장(북마크) — 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게".
+ * 기록(글) 저장(북마크). 좋아요·싫어요와 별도 표라, 한 글에 반응과 저장을 동시에 가질 수 있다.
  *
- * <p>{@code StoryReaction}(좋아요/싫어요)과 별도 표다 — {@link
- * com.gabolle.backend.story.domain.ReactionType} 주석 참고. 한 글에 반응과 저장을 동시에
- * 가질 수 있다.
- *
- * <p>🔴 <b>자기 글도 저장할 수 있다.</b> 반응(좋아요/싫어요)은 인기순 조작을 막으려 자기 글을
- * 금지하지만, 저장은 순위에 반영되지 않는 개인 북마크라 막을 이유가 없다 — 나중에 다시 보려고
- * 자기 글을 저장하는 것은 흔한 동작이다.
+ * <p>자기 글도 저장할 수 있다. 반응은 인기순 조작을 막으려 자기 글을 금지하지만, 저장은 순위에
+ * 반영되지 않는 개인 북마크다.
  */
 @Service
 @Profile({ "db", "dev" })
