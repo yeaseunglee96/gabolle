@@ -10,7 +10,7 @@ import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { formatDayHeading } from '@/i18n/datetime';
-import { tripStatusLabel, tripTimingLabel } from '@/trip/tripStatus';
+import { effectiveTripStatus, tripStatusLabel, tripTimingLabel } from '@/trip/tripStatus';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -130,7 +130,7 @@ export default function Trips() {
         */}
         {/* 상태 배지 — 계획 중은 붉은 선(사용자가 손볼 것), 진행 중은 초록 점, 나머지는 회색. 언제인지(「3일 뒤 출발」)도 한 칸. */}
         {trip.status === 'PLANNING' ? <View style={styles.statusPillPending}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('일정 준비 중', 'Itinerary pending')}</Text></View>
-          : <View style={[styles.metaPill, trip.status === 'IN_PROGRESS' && styles.statusPillLive]}>{trip.status === 'IN_PROGRESS' ? <View style={styles.liveDot} /> : null}<Text variant="caption" weight="bold" color={trip.status === 'IN_PROGRESS' ? color.state.success : color.text.heading}>{tripStatusLabel(trip.status, tx)}</Text></View>}
+          : <View style={[styles.metaPill, effectiveTripStatus(trip) === 'IN_PROGRESS' && styles.statusPillLive]}>{effectiveTripStatus(trip) === 'IN_PROGRESS' ? <View style={styles.liveDot} /> : null}<Text variant="caption" weight="bold" color={effectiveTripStatus(trip) === 'IN_PROGRESS' ? color.state.success : color.text.heading}>{tripStatusLabel(effectiveTripStatus(trip), tx)}</Text></View>}
         {tripTimingLabel(trip, tx) ? <Text variant="caption" color={color.text.muted}>{tripTimingLabel(trip, tx)}</Text> : null}
         <View style={styles.metaPill}><Text variant="caption" weight="bold">{tx(`${trip.dayCount}일`, `${trip.dayCount} days`)}</Text></View><View style={styles.metaPill}><Text variant="caption" weight="bold">{txf(tx, '%s명', '%s travelers', trip.partySize)}</Text></View>
       </View>

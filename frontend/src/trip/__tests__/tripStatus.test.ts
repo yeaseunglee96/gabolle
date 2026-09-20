@@ -26,3 +26,18 @@ describe('여행이 언제인가', () => {
     expect(tripStatusLabel('SOMETHING_NEW', KO)).toBe('예정');
   });
 });
+
+describe('effectiveTripStatus — 날짜가 서버 상태를 이긴다 (S15P21E201-1376)', () => {
+  const { effectiveTripStatus } = require('../tripStatus');
+  const now = new Date(2026, 8, 21);
+  it('지난 READY 는 다녀옴, 오늘 걸친 READY 는 진행 중, 앞으로는 예정', () => {
+    expect(effectiveTripStatus({ status: 'READY', startDate: '2026-09-18', endDate: '2026-09-18' }, now)).toBe('COMPLETED');
+    expect(effectiveTripStatus({ status: 'READY', startDate: '2026-09-21', endDate: '2026-09-23' }, now)).toBe('IN_PROGRESS');
+    expect(effectiveTripStatus({ status: 'READY', startDate: '2026-09-25', endDate: '2026-09-27' }, now)).toBe('READY');
+  });
+  it('일정이 없는 PLANNING 과 서버가 닫은 COMPLETED 는 그대로', () => {
+    expect(effectiveTripStatus({ status: 'PLANNING', startDate: '2026-09-15', endDate: '2026-09-17' }, now)).toBe('PLANNING');
+    expect(effectiveTripStatus({ status: 'COMPLETED', startDate: '2026-09-25', endDate: '2026-09-27' }, now)).toBe('COMPLETED');
+    expect(effectiveTripStatus({ status: 'READY', startDate: null, endDate: null }, now)).toBe('READY');
+  });
+});
