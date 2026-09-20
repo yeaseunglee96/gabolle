@@ -228,11 +228,14 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
     {/* 🔴 출처는 줄 안이 아니라 아래 전체 폭에 둔다. 가격 칸이 생기면서 글자 칸이
         좁아져 「관광사진갤러 / 리」로 잘렸다 — 띄워 보고 알았다. 출처를 줄이거나 빼는
         것은 답이 아니다(dishImages.ts: 「출처를 한 줄로 못 적는 사진은 안 쓴다」). */}
-    {/* 🔴 일본어 화면에 「Example · 한국관광공사 관광사진갤러리」로, 반은 영어 반은
-        한국어로 뜬다. 문구에 값이 끼면 번역표의 키가 실행할 때마다 달라져 **영원히 못
-        찾기** 때문이다. 고치려면 번역표에 줄을 넣어야 하는데 그 파일을 지금 다른
-        사람이 잡고 있다 — 값이 끼어든 tx 208곳과 함께 따로 잡는다(S15P21E201-1335). */}
-    {bundled && <Text variant="caption" color={color.text.muted} style={styles.credit}>{tx(`예시 · ${bundled.image.source}`, `Example · ${bundled.image.source}`)}</Text>}
+    {/* 🔴 문구와 «값»을 갈라서 부른다 — S15P21E201-1344.
+        예전에는 tx(`예시 · ${출처}`, `Example · ${출처}`) 였다. 문구에 값이 끼면
+        번역표의 열쇠가 실행할 때마다 달라져 **영원히 못 찾고**, 일본어 화면에
+        「Example · 한국관광공사 관광사진갤러리」처럼 반은 영어 반은 한국어로 떴다.
+        번역할 것은 「예시」 한 낱말뿐이므로 그것만 표에 묻고 출처는 붙이기만 한다.
+        🔴 출처 이름은 옮기지 않는다 — 기관 이름이고, dishImages.ts 가 「출처를 한 줄로
+        못 적는 사진은 안 쓴다」고 한 그 한 줄이다. */}
+    {bundled && <Text variant="caption" color={color.text.muted} style={styles.credit}>{`${tx('예시', 'Example')} · ${bundled.image.source}`}</Text>}
 
     {isFood && <View style={styles.askRow}>
       <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen((was) => !was)} style={({ pressed }) => [styles.askChip, pressed && styles.pressed]}>
