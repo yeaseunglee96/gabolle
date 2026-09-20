@@ -5,7 +5,10 @@ export type PlaceTabKey = 'SIGHT' | 'FOOD' | 'TAXI' | 'STAY';
 export type PlacePhrase = {
   id: string;
   ko: string;
+  /** 로마자 발음 — 영어·중국어 화면. */
   pronunciation: string;
+  /** 가타카나 발음 — 일본어 화면. 로마자는 일본어 사용자에게 두 번 읽는 일이다(S15P21E201-1367). */
+  pronunciationJa: string;
   en: string;
 };
 
@@ -18,28 +21,28 @@ export const PLACE_TABS: { key: PlaceTabKey; icon: string; labelKo: string; labe
 
 export const PLACE_PHRASES: Record<PlaceTabKey, PlacePhrase[]> = {
   SIGHT: [
-    { id: 'sight-restroom', ko: '화장실이 어디예요?', pronunciation: 'hwajangsiri eodiyeyo?', en: 'Where is the restroom?' },
-    { id: 'sight-photo', ko: '사진 좀 찍어 주시겠어요?', pronunciation: 'sajin jom jjigeo jusigesseoyo?', en: 'Could you take a photo for me?' },
-    { id: 'sight-fee', ko: '입장료가 얼마예요?', pronunciation: 'ipjangnyoga eolmayeyo?', en: 'How much is the admission fee?' },
-    { id: 'sight-close', ko: '몇 시에 문을 닫아요?', pronunciation: 'myeot sie muneul dadayo?', en: 'What time does it close?' },
+    { id: 'sight-restroom', ko: '화장실이 어디예요?', pronunciation: 'hwajangsiri eodiyeyo?', pronunciationJa: 'ファジャンシリ オディエヨ?', en: 'Where is the restroom?' },
+    { id: 'sight-photo', ko: '사진 좀 찍어 주시겠어요?', pronunciation: 'sajin jom jjigeo jusigesseoyo?', pronunciationJa: 'サジン ジョム チゴ ジュシゲッソヨ?', en: 'Could you take a photo for me?' },
+    { id: 'sight-fee', ko: '입장료가 얼마예요?', pronunciation: 'ipjangnyoga eolmayeyo?', pronunciationJa: 'イプチャンニョガ オルマエヨ?', en: 'How much is the admission fee?' },
+    { id: 'sight-close', ko: '몇 시에 문을 닫아요?', pronunciation: 'myeot sie muneul dadayo?', pronunciationJa: 'ミョッ シエ ムヌル タダヨ?', en: 'What time does it close?' },
   ],
   FOOD: [
-    { id: 'food-one', ko: '이거 하나 주세요', pronunciation: 'igeo hana juseyo', en: 'One of these, please' },
-    { id: 'food-nospicy', ko: '맵지 않게 해 주세요', pronunciation: 'maepji anke hae juseyo', en: 'Please make it not spicy' },
-    { id: 'food-bill', ko: '계산서 주세요', pronunciation: 'gyesanseo juseyo', en: 'Check, please' },
-    { id: 'food-togo', ko: '포장 되나요?', pronunciation: 'pojang doenayo?', en: 'Can I get this to go?' },
+    { id: 'food-one', ko: '이거 하나 주세요', pronunciation: 'igeo hana juseyo', pronunciationJa: 'イゴ ハナ ジュセヨ', en: 'One of these, please' },
+    { id: 'food-nospicy', ko: '맵지 않게 해 주세요', pronunciation: 'maepji anke hae juseyo', pronunciationJa: 'メプチ アンケ ヘ ジュセヨ', en: 'Please make it not spicy' },
+    { id: 'food-bill', ko: '계산서 주세요', pronunciation: 'gyesanseo juseyo', pronunciationJa: 'ケサンソ ジュセヨ', en: 'Check, please' },
+    { id: 'food-togo', ko: '포장 되나요?', pronunciation: 'pojang doenayo?', pronunciationJa: 'ポジャン トェナヨ?', en: 'Can I get this to go?' },
   ],
   TAXI: [
-    { id: 'taxi-here', ko: '여기로 가 주세요', pronunciation: 'yeogiro ga juseyo', en: 'Please take me here' },
-    { id: 'taxi-time', ko: '얼마나 걸려요?', pronunciation: 'eolmana geollyeoyo?', en: 'How long will it take?' },
-    { id: 'taxi-card', ko: '카드로 계산할게요', pronunciation: 'kadeuro gyesanhalgeyo', en: "I'll pay by card" },
-    { id: 'taxi-stop', ko: '여기서 내려 주세요', pronunciation: 'yeogiseo naeryeo juseyo', en: 'Please let me off here' },
+    { id: 'taxi-here', ko: '여기로 가 주세요', pronunciation: 'yeogiro ga juseyo', pronunciationJa: 'ヨギロ カ ジュセヨ', en: 'Please take me here' },
+    { id: 'taxi-time', ko: '얼마나 걸려요?', pronunciation: 'eolmana geollyeoyo?', pronunciationJa: 'オルマナ コルリョヨ?', en: 'How long will it take?' },
+    { id: 'taxi-card', ko: '카드로 계산할게요', pronunciation: 'kadeuro gyesanhalgeyo', pronunciationJa: 'カドゥロ ケサナルケヨ', en: "I'll pay by card" },
+    { id: 'taxi-stop', ko: '여기서 내려 주세요', pronunciation: 'yeogiseo naeryeo juseyo', pronunciationJa: 'ヨギソ ネリョ ジュセヨ', en: 'Please let me off here' },
   ],
   STAY: [
-    { id: 'stay-checkin', ko: '체크인하고 싶어요', pronunciation: 'chekeuinhago sipeoyo', en: "I'd like to check in" },
-    { id: 'stay-wifi', ko: '와이파이 비밀번호가 뭐예요?', pronunciation: 'waipai bimilbeonhoga mwoyeyo?', en: "What's the wifi password?" },
-    { id: 'stay-luggage', ko: '짐을 맡길 수 있나요?', pronunciation: 'jimeul matgil su innayo?', en: 'Can I leave my luggage here?' },
-    { id: 'stay-checkout', ko: '체크아웃은 몇 시예요?', pronunciation: 'chekeuaus-eun myeot siyeyo?', en: 'What time is checkout?' },
+    { id: 'stay-checkin', ko: '체크인하고 싶어요', pronunciation: 'chekeuinhago sipeoyo', pronunciationJa: 'チェクインハゴ シポヨ', en: "I'd like to check in" },
+    { id: 'stay-wifi', ko: '와이파이 비밀번호가 뭐예요?', pronunciation: 'waipai bimilbeonhoga mwoyeyo?', pronunciationJa: 'ワイパイ ピミルボノガ ムォエヨ?', en: "What's the wifi password?" },
+    { id: 'stay-luggage', ko: '짐을 맡길 수 있나요?', pronunciation: 'jimeul matgil su innayo?', pronunciationJa: 'ジムル マッキル ス インナヨ?', en: 'Can I leave my luggage here?' },
+    { id: 'stay-checkout', ko: '체크아웃은 몇 시예요?', pronunciation: 'chekeuaus-eun myeot siyeyo?', pronunciationJa: 'チェクアウスン ミョッ シエヨ?', en: 'What time is checkout?' },
   ],
 };
 

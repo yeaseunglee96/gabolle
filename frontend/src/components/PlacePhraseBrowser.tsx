@@ -77,11 +77,14 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
                   뜻(en)을 먼저 보여주고, 누르면 그제서야 한국어·발음·듣기 버튼이 나오게
                   순서를 뒤집는다. */}
               {/* 뜻은 고른 언어로 — 일본어 화면에서 영어 뜻을 읽게 하지 않는다. 한국어 화면만 영어 뜻(한국어를 두 번 적을 이유가 없다). */}
+              {/* 세 줄을 한꺼번에 — 뜻(고른 언어) 크게, 그 밑에 한국어와 발음. 전에는 눌러야 한국어가 나와서
+                  가게에서 폰을 내밀 때 한 번 더 눌러야 했다(2026-09-21 사용자 지적). 누르면 듣기 단추만 펼친다. */}
               <Text variant={expanded ? 'display' : 'title'} weight="bold">{language === 'ko' ? phrase.en : tx(phrase.ko, phrase.en)}</Text>
+              <Text variant={expanded ? 'title' : 'body'} weight="bold" color={color.text.heading} style={styles.enText}>{phrase.ko}</Text>
+              {/* 발음은 읽는 사람의 글자로 — 일본어는 가타카나, 그 밖은 로마자. */}
+              <Text variant="caption" color={color.text.muted}>{language === 'ja' ? phrase.pronunciationJa : phrase.pronunciation}</Text>
               {expanded ? (
                 <>
-                  <Text variant="body" weight="bold" color={color.text.body} style={styles.enText}>{phrase.ko}</Text>
-                  <Text variant="caption" color={color.text.muted}>{phrase.pronunciation}</Text>
                   <View style={styles.speedRow}>
                     <Pressable accessibilityRole="button" accessibilityLabel={tx('보통 속도로 듣기', 'Listen at normal speed')} onPress={() => speak(phrase, NORMAL_RATE)} style={styles.speedButton}>
                       <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id && speakingRate === NORMAL_RATE ? tx('재생 중', 'Playing') : tx('▶ 보통', '▶ Normal')}</Text>
