@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
+import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -24,7 +25,7 @@ import { useLayout } from '@/layout/useLayout';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RouteMap } from '@/map/RouteMap';
-import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { applyReaction, nextReaction, StoryReactionRow } from '@/social/StoryReactionRow';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
@@ -94,7 +95,7 @@ function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: bool
   );
 }
 
-function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingStar, reacting, onUnfollow, onOpen, onOpenAuthor, onReport, onToggleSave, onReact }: {
+function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingStar, reacting, onUnfollow, onOpen, onOpenAuthor, onReport, onToggleSave, onReact, onQuote }: {
   story: StoryDto; compact: boolean; showUnfollow: boolean; unfollowBusy: boolean;
   /** 내가 저장한 기록인가 — S15P21E201-1221. StoryDto엔 없는 칸이라 화면이 따로 들고 다닌다. */
   saved: boolean;
@@ -104,6 +105,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
   onUnfollow: () => void; onOpen: () => void; onOpenAuthor: () => void; onReport: () => void;
   onToggleSave: () => void;
   onReact: (reaction: 'LIKE' | 'DISLIKE') => void;
+  onQuote: () => void;
 }) {
   const { tx } = useI18n();
   const hasPhoto = (story.images?.length ?? 0) > 0;
@@ -179,7 +181,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
     {/* 좋아요·인용·저장 —(반응 카운트, kojh0124 님)·-1221(저장).
         반응 칸은 상세 화면과 같은 부품을 쓴다
     */}
-    <StoryReactionRow story={story} reacting={reacting} onReact={onReact} saved={saved} saving={savingStar} onToggleSave={onToggleSave} />
+    <StoryReactionRow story={story} reacting={reacting} onReact={onReact} saved={saved} saving={savingStar} onToggleSave={onToggleSave} onQuote={onQuote} />
   </View>;
 }
 
@@ -460,6 +462,7 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
 }) {
   const { tx } = useI18n();
   const following = scope === 'FOLLOWING';
+  const mine = scope === 'MINE';
   return <View style={[styles.emptyCard, compact && styles.emptyCardCompact]}>
     <Image
       source={require('../../assets/mascot/dongbaek-idle.png')}
@@ -469,11 +472,13 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
     />
     <View style={styles.emptyText}>
       <Text variant={compact ? 'title' : 'display'} weight="bold">
-        {following ? tx('아직 팔로우한 사람의 기록이 없어요', 'No records from people you follow yet')
+        {mine ? tx('아직 남긴 기록이 없어요', 'You have not posted yet')
+          : following ? tx('아직 팔로우한 사람의 기록이 없어요', 'No records from people you follow yet')
           : tx('부산 여행 기록을 모으고 있어요', 'Collecting Busan travel stories')}
       </Text>
       <Text color={color.text.body} style={styles.emptyDescription}>
-        {following ? tx('전체 피드에서 마음에 드는 여행자를 팔로우하면 여기에 모여요.', 'Follow travellers you like in the all feed and their stories gather here.')
+        {mine ? tx('여행 중 사진 한 장, 한 줄이면 돼요. 남긴 기록은 여기와 마이페이지에 모여요.', 'A photo and one line from the trip is enough. Your records gather here and on My page.')
+          : following ? tx('전체 피드에서 마음에 드는 여행자를 팔로우하면 여기에 모여요.', 'Follow travellers you like in the all feed and their stories gather here.')
           : tx('아직 올라온 기록이 없어요. 여행을 다녀왔다면 첫 이야기를 남겨 보세요 — 사진 3장까지.', 'No records yet. If you have travelled, share the first story — up to 3 photos.')}
       </Text>
       <View style={styles.emptyActions}>
@@ -487,7 +492,7 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
 
 export default function Feed() {
   const router = useRouter();
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const { tx } = useI18n();
   const { width } = useLayout();
   const queryClient = useQueryClient();
@@ -499,6 +504,9 @@ export default function Feed() {
   const compact = !isAtLeast(width, 'md');
 
   const [scope, setScope] = useState<FeedScope>('ALL');
+  // 인용(링크 복사) 뒤 한 줄 알림 — 복사는 화면에 아무 흔적이 없어서 말로 알려야 한다.
+  const [copyNotice, setCopyNotice] = useState('');
+  useEffect(() => { if (!copyNotice) return; const timer = setTimeout(() => setCopyNotice(''), 2600); return () => clearTimeout(timer); }, [copyNotice]);
   const [loadingMore, setLoadingMore] = useState(false);
   const [unfollowingId, setUnfollowingId] = useState<string | null>(null);
   // 폰에서 지도를 폈나. 넓은 화면은 늘 떠 있어 이 값을 안 본다.
@@ -531,7 +539,8 @@ export default function Feed() {
   // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다.
   const feedQuery = useQuery({
     queryKey: key,
-    queryFn: () => loadFeed({ scope, accessToken }),
+    // 「내 기록」은 서버 피드가 아니라 내 프로필의 기록 목록이다 — 피드 API 에 MINE 갈래가 없다.
+    queryFn: () => (scope === 'MINE' ? loadUserStories(user?.userId ?? '', accessToken) : loadFeed({ scope, accessToken })),
   });
   const result: FeedLoadResult = feedQuery.data ?? { state: 'success', items: [], nextCursor: null };
   const loading = feedQuery.isPending;
@@ -584,7 +593,7 @@ export default function Feed() {
   const loadMore = async () => {
     if (result.state !== 'success' || !result.nextCursor || loadingMore) return;
     setLoadingMore(true);
-    const next = await loadFeed({ scope, cursor: result.nextCursor, accessToken });
+    const next = scope === 'MINE' ? await loadUserStories(user?.userId ?? '', accessToken, result.nextCursor) : await loadFeed({ scope, cursor: result.nextCursor, accessToken });
     setLoadingMore(false);
     if (next.state !== 'success') return;
     const seenCount = result.items.length + next.items.length;
@@ -616,9 +625,17 @@ export default function Feed() {
     return true;
   };
 
+  /** 인용 — 링크를 복사하고 서버에 한 번 센다. 목록에서도 상세와 똑같이 된다. */
+  const quote = async (story: StoryDto) => {
+    await Clipboard.setStringAsync(storyShareUrl(story.id));
+    setCopyNotice(tx('링크를 복사했어요. 붙여넣어 공유하세요.', 'Link copied. Paste it to share.'));
+    const outcome = await recordStoryLinkCopy(story.id, accessToken);
+    if (outcome.state === 'success') replaceItems((current) => current.map((item) => (item.id === story.id ? outcome.story : item)));
+  };
+
   const scopeButton = (target: FeedScope, label: string) => {
     const selected = scope === target;
-    const disabled = target === 'FOLLOWING' && !signedIn;
+    const disabled = target !== 'ALL' && !signedIn;
     return <Pressable
       accessibilityRole="tab"
       accessibilityState={{ selected, disabled }}
@@ -656,6 +673,7 @@ export default function Feed() {
       <View accessibilityRole="tablist" style={compact ? styles.scopeChips : styles.scopeSegments}>
         {scopeButton('ALL', tx('전체', 'All'))}
         {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
+        {scopeButton('MINE', tx('내 기록', 'Mine'))}
       </View>
       {/* 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 (시안 5번).
           여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor 의
@@ -724,6 +742,7 @@ export default function Feed() {
           onToggleSave={() => void toggleSave(story)}
           reacting={reactingStoryId === story.id}
           onReact={(reaction) => void react(story, reaction)}
+          onQuote={() => void quote(story)}
         />)}</View>
       : null}
 
@@ -765,6 +784,9 @@ export default function Feed() {
     {/* 🔴 폭이 아니라 composeEntry 로 묻는다. 폭으로 물으면 글쓰기 입구가 두 개 뜬다 —
        맨 위 입력창은 600 부터, 이 단추는 1023 까지 떠서 그 사이가 겹쳤다. 입구를 고르는
        곳은 composeEntryFor 하나이므로, 그 답을 그대로 쓰면 겹칠 수가 없다. */}
+    {/* 인용(링크 복사) 알림 — 화면 어디를 보고 있든 보이게 탭바 바로 위에 띄운다. 2.6초 뒤 사라진다. */}
+    {copyNotice ? <View pointerEvents="none" accessibilityLiveRegion="polite" style={[styles.copyNoticeDock, { bottom: TAB_BAR_HEIGHT + tabBarBottomMargin(insets.bottom) + spacing[4] + (composeEntry === 'headerButton' ? 72 : 0) }]}><View style={styles.copyNotice}><Text variant="caption" weight="bold" color={color.text.onAction}>{copyNotice}</Text></View></View> : null}
+
     {composeEntry === 'headerButton'
       ? <Animated.View
           // 🔴 시트가 열리면 눌리지도 않아야 한다. 투명하기만 하면 지도를 누르려던
@@ -881,6 +903,8 @@ const styles = StyleSheet.create({
   scopeSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   scopeDisabled: { opacity: 0.5 },
 
+  copyNoticeDock: { position: 'absolute', left: 0, right: 0, alignItems: 'center', zIndex: 25 },
+  copyNotice: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.action.secondary, shadowColor: color.brand.navy, shadowOpacity: 0.18, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   loginNotice: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], alignItems: 'center', marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
 
   sadMascot: { width: 96, height: 96 },

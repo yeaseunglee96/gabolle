@@ -1,6 +1,6 @@
 // 환율 계산기 — S15P21E201-1137.
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -20,6 +20,7 @@ import {
 } from '@/field/exchangeRates';
 import { vendorNotReadyMessage } from '@/api/vendorReady';
 import { useI18n } from '@/i18n';
+import { CurrencyBadge, currencyDisplayName } from '@/field/CurrencyBadge';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { txf } from '@/i18n/format';
@@ -144,7 +145,7 @@ export default function Exchange() {
         <>
           <View style={[styles.card, wide && styles.cardWide]}>
             <View style={styles.row}>
-              <Text variant="caption" weight="bold" color={color.text.eyebrow}>{inCode}</Text>
+              <View style={styles.codeRow}><CurrencyBadge code={inCode} /><Text variant="caption" weight="bold" color={color.text.eyebrow}>{inCode}</Text></View>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={tx('바꾸는 방향 뒤집기', 'Swap direction')}
@@ -165,7 +166,7 @@ export default function Exchange() {
             />
 
             <View style={styles.resultBox}>
-              <Text variant="caption" weight="bold" color={color.text.eyebrow}>{outCode}</Text>
+              <View style={styles.codeRow}><CurrencyBadge code={outCode} /><Text variant="caption" weight="bold" color={color.text.eyebrow}>{outCode}</Text></View>
               <Text variant="display" weight="bold" style={styles.result}>{grouped(Math.round(converted), locale)}</Text>
             </View>
 
@@ -181,25 +182,30 @@ export default function Exchange() {
           <Text variant="caption" weight="bold" color={color.text.eyebrow} style={styles.pickerTitle}>
             {tx('통화 고르기', 'Choose a currency')}
           </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+          {/* 시안 5 Exchange — 국기 · 코드 · 이름(고른 언어) · 기준율을 한 줄에. 코드만 있는 칩은 처음 보는 사람이 한 번 더 생각한다. */}
+          <View accessibilityRole="radiogroup" style={styles.currencyList}>
             {rates.map((item) => {
               const selected = displayCode(item.currencyCode) === displayCode(rate.currencyCode);
+              const name = currencyDisplayName(item.currencyCode, locale, item.currencyName);
               return (
                 <Pressable
                   key={item.currencyCode}
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
-                  accessibilityLabel={`${displayCode(item.currencyCode)} ${item.currencyName}`}
+                  accessibilityLabel={`${displayCode(item.currencyCode)} ${name}`}
                   onPress={() => setCode(item.currencyCode)}
-                  style={({ pressed }) => [styles.chip, selected && styles.chipSelected, pressed && styles.pressed]}
+                  style={({ pressed }) => [styles.currencyRow, selected && styles.currencyRowSelected, pressed && styles.pressed]}
                 >
-                  <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.heading}>
-                    {displayCode(item.currencyCode)}
-                  </Text>
+                  <CurrencyBadge code={item.currencyCode} size="large" />
+                  <View style={styles.currencyCopy}>
+                    <Text variant="body" weight="bold">{displayCode(item.currencyCode)}</Text>
+                    <Text variant="caption" color={color.text.muted} numberOfLines={1}>{name}</Text>
+                  </View>
+                  <Text variant="body" weight="bold">₩{grouped(item.baseRate, locale)}</Text>
                 </Pressable>
               );
             })}
-          </ScrollView>
+          </View>
         </>
       ) : null}
     </Screen>
@@ -218,6 +224,11 @@ const styles = StyleSheet.create({
   blockedBody: { lineHeight: 22 },
   cta: { marginTop: spacing[2] },
   pickerTitle: { marginTop: spacing[6], marginBottom: spacing[2] },
+  codeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  currencyList: { gap: spacing[2] },
+  currencyRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 60, paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1.5, borderColor: color.surface.border, backgroundColor: color.surface.card },
+  currencyRowSelected: { borderColor: color.action.secondary, backgroundColor: color.surface.tint },
+  currencyCopy: { flex: 1, gap: 1 },
   chips: { gap: spacing[2], paddingVertical: spacing[1] },
   chip: { minHeight: 44, minWidth: 64, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
   chipSelected: { borderColor: color.brand.navy, backgroundColor: color.brand.navy },

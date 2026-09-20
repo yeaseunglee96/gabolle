@@ -95,6 +95,7 @@ export function StoryReactionRow({
   saved,
   saving = false,
   onToggleSave,
+  onQuote,
   children,
 }: {
   story: ReactableStory;
@@ -107,6 +108,11 @@ export function StoryReactionRow({
   saving?: boolean;
   /** 주면 저장 버튼이 생긴다. 안 주면 그 칸이 없다. */
   onToggleSave?: () => void;
+  /**
+   * 인용 = 이 기록의 링크를 복사해 남에게 보내는 것. 주면 인용 알약이 눌리고, 누르면 링크를 복사한다.
+   * 🔴 전에는 수만 보여 주는 칸이라 눌러도 아무 일이 없었다 — 사용자가 「고장」으로 읽었다(2026-09-21).
+   */
+  onQuote?: () => void;
   /** 같은 줄에 덧붙일 것. 스타일은 `storyReactionStyles.button` 을 쓴다. */
   children?: React.ReactNode;
 }) {
@@ -137,12 +143,20 @@ export function StoryReactionRow({
       {/* 🔴 수가 안 오면 칸 자체를 안 그린다. 0 을 박아 넣지 않는다 —
           0 은 「아무도 안 했다」이고 안 오는 것은 「모른다」다. 둘은 다르다. */}
       {typeof quotes === 'number' ? (
-        <View style={storyReactionStyles.button}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={tx('링크 복사해서 인용하기', 'Copy link to quote')}
+          accessibilityHint={onQuote ? undefined : tx('상세 화면에서 복사할 수 있어요', 'You can copy it on the detail screen')}
+          disabled={!onQuote}
+          hitSlop={storyReactionTouchSlop}
+          onPress={onQuote}
+          style={storyReactionStyles.button}
+        >
           <QuoteIcon tint={offTint} />
           <Text variant="util" weight="bold" color={offTint}>
             {tx(`인용 ${quotes}`, `${quotes} quotes`)}
           </Text>
-        </View>
+        </Pressable>
       ) : null}
 
       {onToggleSave ? (

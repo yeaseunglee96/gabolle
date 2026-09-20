@@ -3,7 +3,8 @@ import { singleFileFormData } from '@/api/multipart';
 import { txf } from '@/i18n/format';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
-export type FeedScope = 'ALL' | 'FOLLOWING';
+/** MINE 은 화면만의 갈래다 — 서버 피드에는 없고 내 프로필 기록 목록(loadUserStories)으로 채운다. */
+export type FeedScope = 'ALL' | 'FOLLOWING' | 'MINE';
 
 export const VISIBILITY_LABEL: Record<StoryVisibility, [string, string]> = {
   PUBLIC: ['전체 공개', 'Public'],

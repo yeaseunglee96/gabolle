@@ -581,7 +581,7 @@ export default function StoryDetail() {
           비워 뒀던 자리인데가 상세 응답에도 실어 주면서 채웠다.
       */}
       {story && !reported ? (
-        <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} saved={savedIds.has(story.id)} saving={saving} onToggleSave={() => void toggleSave()} />
+        <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} saved={savedIds.has(story.id)} saving={saving} onToggleSave={() => void toggleSave()} onQuote={() => void copyLink()} />
       ) : null}
 
       {/* 지표 줄 — S15P21E201-1213. 시안이 정한 자리가 댓글 바로 위다. */}
