@@ -1,15 +1,25 @@
+// 남의 프로필 — `/me` 와 «같은 부품, 다른 단추»다.
+//
+// 🔴 전에는 이 화면만 다르게 생겼다. 자기 프로필은 커버 사진 위에 이름이 얹히고 기록이
+//    격자로 깔리는데, 남의 프로필은 흰 카드에 이름과 숫자 셋이 서고 기록이 세로 목록이었다.
+//    같은 「프로필」인데 두 모양이면, 사용자는 둘이 다른 «종류»의 화면이라고 배운다.
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
-import { color, radius, spacing } from '@/design/tokens';
+import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { isAtLeast } from '@/layout/breakpoints';
+import { CoverButton, MyPageCover } from '@/me/MyPageCover';
+import { ProfileCard, ProfileCardButton } from '@/me/ProfileCard';
+import { RecordCard } from '@/me/RecordCard';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
-import { getUserProfile, loadUserStories, relativeStoryTime, setBlocked, setFollowing, type FeedLoadResult, type StoryDto, type UserProfileDto } from '@/social/stories';
+import { getUserProfile, loadUserStories, setBlocked, setFollowing, type FeedLoadResult, type UserProfileDto } from '@/social/stories';
 import { localizeMessage } from '@/i18n/messages';
 
 type ProfileState = { status: 'loading' } | { status: 'loaded'; profile: UserProfileDto } | { status: 'unavailable'; message: string };
@@ -19,6 +29,10 @@ export default function UserProfile() {
   const { accessToken, user } = useAuth();
   const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { width } = useWindowDimensions();
+  const wide = isAtLeast(width, 'lg');
+  // 남의 프로필은 화살표 없이 전부 펼친다(시안 3절) — 내 기록 줄과 같은 4열 폭을 쓴다.
+  const cardWidth = Math.max(180, Math.floor((width - desktopGutter * 2 - 3 * spacing[4]) / 4));
   const [state, setState] = useState<ProfileState>({ status: 'loading' });
   const [stories, setStories] = useState<FeedLoadResult>({ state: 'success', items: [], nextCursor: null });
   const [storiesLoading, setStoriesLoading] = useState(true);
@@ -72,10 +86,108 @@ export default function UserProfile() {
   };
 
   const items = stories.state === 'success' ? stories.items : [];
+  const profile = state.status === 'loaded' ? state.profile : null;
+  // 문자열로 맞춰 비교한다 — 두 응답의 userId 가 타입 선언과 다르게 오면(숫자 vs 문자열)
+  // !== 가 늘 참이 되어 본인 프로필에도 팔로우 단추가 뜬다.
+  const mine = Boolean(accessToken && profile && String(user?.userId ?? '') === String(profile.userId));
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace('/feed'));
+
+  const counts = profile ? [
+    { label: tx('기록', 'Records'), value: profile.storyCount },
+    { label: tx('팔로워', 'Followers'), value: profile.followerCount, onPress: () => router.push(`/user/${id}/followers`) },
+    { label: tx('팔로잉', 'Following'), value: profile.followingCount, onPress: () => router.push(`/user/${id}/following`) },
+  ] : [];
+
+  const followLabel = followBusy ? tx('처리 중…', 'Working…') : profile?.following ? tx('팔로잉', 'Following') : tx('팔로우', 'Follow');
+  const blockLabel = blockBusy ? tx('처리 중…', 'Working…') : profile?.blocked ? tx('차단 해제', 'Unblock') : tx('차단하기', 'Block');
+  const onBlockPress = () => (profile?.blocked ? void unblock() : setConfirmingBlock(true));
+  const canAct = Boolean(accessToken && profile && !profile.blockedByUser);
+
+  // 커버 오른쪽 단추. 내 프로필이면 편집 하나, 남이면 팔로우 + 차단 둘이다.
+  // 🔴 「팔로잉」으로 바뀌면 동백을 뺀다 — 이미 한 일은 「그다음에 할 일」이 아니다.
+  const coverActions = !profile ? null : mine ? (
+    <CoverButton label={tx('프로필 편집', 'Edit profile')} onPress={() => router.push('/me')} />
+  ) : canAct ? (
+    <>
+      <CoverButton label={followLabel} tone={profile.following ? 'light' : 'primary'} disabled={followBusy || Boolean(profile.blocked)} onPress={() => void toggleFollow()} />
+      <CoverButton label={blockLabel} disabled={blockBusy} onPress={onBlockPress} />
+    </>
+  ) : null;
+
+  const cardActions = !profile ? null : mine ? (
+    <ProfileCardButton label={tx('프로필 편집', 'Edit profile')} onPress={() => router.push('/me')} />
+  ) : canAct ? (
+    <>
+      <ProfileCardButton label={followLabel} tone={profile.following ? 'outline' : 'primary'} disabled={followBusy || Boolean(profile.blocked)} onPress={() => void toggleFollow()} />
+      <ProfileCardButton label={blockLabel} tone="outline" disabled={blockBusy} onPress={onBlockPress} />
+    </>
+  ) : null;
+
+  // 🔴 남의 프로필에는 「새 기록」 칸이 없다 — 남의 자리에 내 글을 쓰는 입구를 두지 않는다.
+  const recordsGrid = (
+    <View style={styles.grid}>
+      {storiesLoading ? <ActivityIndicator color={color.action.primary} /> : null}
+      {!storiesLoading && !items.length ? <Text color={color.text.body} style={styles.empty}>{tx('아직 공개된 기록이 없어요.', 'No public records yet.')}</Text> : null}
+      {items.map((story) => (
+        <RecordCard key={story.id} story={story} width={wide ? cardWidth : undefined} onPress={() => router.push(`/feed/${story.id}`)} tx={tx} />
+      ))}
+    </View>
+  );
+
+  // 차단당한 쪽이 보는 화면. 빈 화면도 404 도 아니다 — 없는 사람으로 만들면 실수로
+  // 눌렀을 때 상대가 계정이 사라졌다고 오해하고 되돌릴 길이 막힌다.
+  const blockedNotice = profile?.blockedByUser ? (
+    <View accessibilityRole="alert" style={styles.stateCard}>
+      <Text variant="title" weight="bold">{tx('차단되어 볼 수 없습니다', 'Blocked — you cannot view this profile')}</Text>
+    </View>
+  ) : null;
+
+  const dialog = (
+    <BlockUserDialog
+      visible={confirmingBlock}
+      displayName={profile?.displayName ?? ''}
+      onClose={() => setConfirmingBlock(false)}
+      onConfirm={confirmBlock}
+    />
+  );
+
+  // ── 넓은 화면 — /me 와 같은 전폭 커버 ────────────────────────────────────
+  // Screen 을 안 쓴다. 그 껍데기가 좌우 여백을 넣어 커버가 화면 끝까지 못 간다 — /me 와 같다.
+  if (wide && profile && !profile.blockedByUser) {
+    return (
+      <View style={styles.shell}>
+        <ScrollView contentContainerStyle={styles.wideContent}>
+          <MyPageCover
+            name={profile.displayName}
+            // 🔴 남의 이메일은 안 보여 준다. 그리고 서버의 프로필 응답에는 커버·아바타·
+            //    여행 횟수 칸이 «아직 없다» — null 을 주면 부품이 기본 사진을 깔고
+            //    「부산 여행 N번째」 줄은 안 그린다. 칸이 생기면 여기만 채우면 된다.
+            email={null}
+            tripCount={null}
+            avatarUri={null}
+            coverUri={null}
+            counts={counts}
+            eyebrow={(
+              <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={goBack}>
+                <Eyebrow>{`‹ ${tx('뒤로', 'Back')}`}</Eyebrow>
+              </Pressable>
+            )}
+            actions={coverActions}
+            tx={tx}
+          />
+          <View style={styles.wideBody}>
+            {blockNotice ? <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.body}>{blockNotice}</Text> : null}
+            {recordsGrid}
+          </View>
+        </ScrollView>
+        {dialog}
+      </View>
+    );
+  }
 
   return (
     <Screen scroll>
-      <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={goBack} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
         <Text variant="title" weight="bold">‹ {tx('뒤로', 'Back')}</Text>
       </Pressable>
 
@@ -99,73 +211,24 @@ export default function UserProfile() {
         </View>
       ) : null}
 
-      {state.status === 'loaded' ? (
-        <View style={styles.header}>
-          <Text variant="display" weight="bold">{state.profile.displayName}</Text>
-          {/* — 숫자만 있고 누를 곳이 없었다. 목록 화면이 생겼으니 잇는다. */}
-          <View style={styles.statRow}>
-            <View style={styles.stat}><Text variant="title" weight="bold">{state.profile.storyCount}</Text><Text variant="caption" color={color.text.muted}>{tx('기록', 'Records')}</Text></View>
-            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${id}/followers`)} style={styles.stat}><Text variant="title" weight="bold">{state.profile.followerCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로워', 'Followers')}</Text></Pressable>
-            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${id}/following`)} style={styles.stat}><Text variant="title" weight="bold">{state.profile.followingCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></Pressable>
-          </View>
-          {/* 문자열로 맞춰 비교한다 — 두 응답의 userId가 타입 선언과 다르게 오면(숫자 vs 문자열) !==가 늘 참이 되어 본인 프로필에도 팔로우 버튼이 뜬다. */}
-          {accessToken && String(user?.userId ?? '') === String(state.profile.userId) ? (
-            <Button label={tx('프로필 수정', 'Edit profile')} variant="tertiary" onPress={() => router.push('/me')} containerStyle={styles.followButton} />
-          ) : accessToken && !state.profile.blockedByUser ? (
-            <View style={styles.actionRow}>
-              <Button
-                label={followBusy ? tx('처리 중…', 'Working…') : state.profile.following ? tx('팔로잉', 'Following') : tx('팔로우', 'Follow')}
-                variant={state.profile.following ? 'tertiary' : 'primary'}
-                disabled={followBusy || state.profile.blocked}
-                onPress={() => void toggleFollow()}
-                containerStyle={styles.followButton}
-              />
-              {/* 차단·해제는 같은 자리에서 바뀐다. 차단은 확인창을 거치고, 해제는 되돌리는
-                  동작이라 바로 한다 — 실수로 눌러도 잃는 것이 없다.
-              */}
-              <Button
-                label={blockBusy ? tx('처리 중…', 'Working…') : state.profile.blocked ? tx('차단 해제', 'Unblock') : tx('차단하기', 'Block')}
-                variant="tertiary"
-                disabled={blockBusy}
-                onPress={() => (state.profile.blocked ? void unblock() : setConfirmingBlock(true))}
-                containerStyle={styles.followButton}
-              />
-            </View>
-          ) : null}
-
-          {blockNotice ? <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.body}>{blockNotice}</Text> : null}
-        </View>
+      {profile && !profile.blockedByUser ? (
+        <>
+          <ProfileCard
+            name={profile.displayName}
+            email={null}
+            avatarUri={null}
+            coverUri={null}
+            counts={counts}
+            actions={cardActions}
+            tx={tx}
+          />
+          {blockNotice ? <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.body} style={styles.notice}>{blockNotice}</Text> : null}
+          {recordsGrid}
+        </>
       ) : null}
 
-      {/* 차단당한 쪽이 보는 화면. 빈 화면도 404 도 아니다 — 없는 사람으로 만들면 실수로
-          눌렀을 때 상대가 계정이 사라졌다고 오해하고 되돌릴 길이 막힌다
-      */}
-      {state.status === 'loaded' && state.profile.blockedByUser ? (
-        <View accessibilityRole="alert" style={styles.stateCard}>
-          <Text variant="title" weight="bold">{tx('차단되어 볼 수 없습니다', 'Blocked — you cannot view this profile')}</Text>
-        </View>
-      ) : null}
-
-      {state.status === 'loaded' && !state.profile.blockedByUser ? (
-        <View style={styles.list}>
-          {storiesLoading ? <ActivityIndicator color={color.action.primary} /> : null}
-          {!storiesLoading && !items.length ? <Text color={color.text.body} style={styles.empty}>{tx('아직 공개된 기록이 없어요.', 'No public records yet.')}</Text> : null}
-          {items.map((story: StoryDto) => (
-            <Pressable key={story.id} accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
-              <Text variant="caption" color={color.text.muted}>{relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${story.region}` : ''}</Text>
-              <Text color={color.text.body} style={styles.body}>{story.body}</Text>
-              {story.images.length ? <View style={styles.images}>{story.images.slice(0, 3).map((image) => <Image key={image.url} source={{ uri: image.url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.image} />)}</View> : null}
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
-
-      <BlockUserDialog
-        visible={confirmingBlock}
-        displayName={state.status === 'loaded' ? state.profile.displayName : ''}
-        onClose={() => setConfirmingBlock(false)}
-        onConfirm={confirmBlock}
-      />
+      {blockedNotice}
+      {dialog}
     </Screen>
   );
 }
@@ -175,16 +238,14 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.72 },
   stateButton: { alignSelf: 'stretch' },
   stateCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
-  header: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
-  statRow: { flexDirection: 'row', gap: spacing[4] },
-  stat: { alignItems: 'flex-start' },
-  followButton: { alignSelf: 'flex-start', paddingHorizontal: spacing[4] },
-  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-  list: { gap: spacing[3], marginTop: spacing[4] },
+  notice: { marginTop: spacing[3] },
+
+  // 넓은 화면 — /me 와 같은 뼈대.
+  shell: { flex: 1, backgroundColor: color.canvas },
+  wideContent: { paddingBottom: 64 },
+  wideBody: { paddingHorizontal: desktopGutter, paddingTop: spacing[8] },
+
+  // 🔴 남의 프로필은 화살표 없이 전부 펼친다(시안 3절). 폰은 폭을 안 줘서 2열이 된다.
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4], marginTop: spacing[4] },
   empty: { textAlign: 'center', marginTop: spacing[4] },
-  card: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
-  cardPressed: { opacity: 0.85 },
-  body: { lineHeight: 22 },
-  images: { flexDirection: 'row', gap: spacing[2] },
-  image: { flex: 1, aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
 });

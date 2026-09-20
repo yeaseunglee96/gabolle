@@ -23,6 +23,7 @@ import { MyPageSheetBody } from '@/me/MyPageSheet';
 import { isPanelKey, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
 import { MyTripCard } from '@/home/HomeBlocks';
 import { HomeRow } from '@/home/HomeRow';
+import { RecordCard } from '@/me/RecordCard';
 import { ProfileCard, ProfileCardButton } from '@/me/ProfileCard';
 import { InfoRow } from '@/me/InfoRow';
 import { AppLanguageSetting } from '@/me/AppLanguageSetting';
@@ -33,37 +34,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useBehaviorConsent } from '@/personalization/behaviorConsent';
 import { usePlan } from '@/plan/PlanProvider';
 import { PREFERENCE_TOTAL } from '@/preferences/accountPreferences';
-
-/**
- * 기록 한 장 — 폰 「기록」 탭의 2열 격자.
- *
- * <p>사진이 없는 글은 회색 칸에 본문을 대신 넣는다. 빈 회색 네모를 두면 「사진을 못
- * 불러왔다」로 읽히는데, 실제로는 사진 없이 쓴 글이다.
- */
-function RecordCard({ story, onPress, tx, width }: {
-  story: StoryDto; onPress: () => void; tx: (ko: string, en: string) => string;
-  /** 넓은 화면의 기록 줄은 4열이라 폭을 밖에서 준다. 폰 격자는 안 주고 2열(48%)로 둔다. */
-  width?: number;
-}) {
-  const cover = story.images[0]?.url ?? null;
-  // 제목 자리는 장소 이름이 먼저다 — 피드 카드와 같은 규칙.
-  const title = story.place?.name ?? story.region ?? tx('기록', 'Record');
-  return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={[styles.recordCard, width ? { width } : null]}>
-      {cover ? (
-        <Image source={{ uri: cover }} resizeMode="cover" accessibilityLabel="" style={styles.recordCover} />
-      ) : (
-        <View style={[styles.recordCover, styles.recordCoverEmpty]}>
-          <Text weight="bold" numberOfLines={3} style={styles.recordCoverText}>{story.body}</Text>
-        </View>
-      )}
-      <View style={styles.recordMeta}>
-        <Text weight="bold" numberOfLines={1}>{title}</Text>
-        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{relativeStoryTime(story.createdAt, tx)}</Text>
-      </View>
-    </Pressable>
-  );
-}
 
 export default function Me() {
   const router = useRouter();
@@ -516,11 +486,6 @@ const styles = StyleSheet.create({
 
   // 🔴 스크롤 칸 안이라 flex 를 안 쓴다. 쓰면 카드가 세로로 눌린다.
   recordsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[3] },
-  recordCard: { width: '48%', borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
-  recordCover: { width: '100%', aspectRatio: 1 },
-  recordCoverEmpty: { alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: color.surface.soft },
-  recordCoverText: { textAlign: 'center' },
-  recordMeta: { padding: spacing[3], gap: 2 },
   recordNew: {
     width: '48%', aspectRatio: 0.78, alignItems: 'center', justifyContent: 'center', gap: spacing[2],
     borderRadius: radius.lg, borderWidth: 1, borderStyle: 'dashed', borderColor: color.surface.field,
