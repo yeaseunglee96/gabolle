@@ -13,7 +13,12 @@ const base = {
   avatarUri: null,
   coverUri: null,
   counts: [],
-  onEdit: () => {},
+  // 🔴 2026-09-21 — 커버가 「프로필 편집」을 스스로 그리던 것을 actions 로 바꿨다
+  //    (`/user/[id]` 는 그 자리에 팔로우·차단 둘이 선다). 이 시험이 보는 것은 여행 횟수
+  //    줄이라 단추는 빈 값으로 둔다 — 여기서 진짜 단추를 그리면 이 시험이 단추까지
+  //    지키는 것처럼 보이는데, 실제로는 아무것도 안 본다.
+  actions: null,
+  eyebrow: null,
   tx,
 };
 

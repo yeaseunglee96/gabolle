@@ -15,7 +15,7 @@ import { Toggle } from '@/components/Toggle';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
-import { MyPageCover } from '@/me/MyPageCover';
+import { CoverButton, MyPageCover } from '@/me/MyPageCover';
 import { MyPageModal } from '@/me/MyPageModal';
 import { MyPageSheetBody } from '@/me/MyPageSheet';
 import { isPanelKey, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
@@ -217,7 +217,13 @@ export default function Me() {
             { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => (user ? openPanel('followers') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=followers' } })) },
             { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => (user ? openPanel('following') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=following' } })) },
           ]}
-          onEdit={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
+          eyebrow={<Eyebrow>{tx('내 계정', 'Account')}</Eyebrow>}
+          actions={(
+            <CoverButton
+              label={tx('프로필 편집', 'Edit profile')}
+              onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
+            />
+          )}
           tx={tx}
         />
 
