@@ -86,9 +86,17 @@ function joinHangulChildren(children: React.ReactNode): React.ReactNode {
 
 // 🔴 웹의 세 속성은 react-native-web 스타일 표에 없는 것도 있어(text-wrap) 그 판에서는 조용히
 //    버려진다. 그래도 keep-all 만으로 낱말 중간 끊김은 사라진다 — 나머지는 되면 좋은 것이다.
-const WEB_LINE_BREAK = Platform.OS === 'web'
-  ? ({ wordBreak: 'keep-all', overflowWrap: 'anywhere', textWrap: 'pretty' } as unknown as RNTextProps['style'])
-  : null;
+const WEB_LINE_BREAK = { wordBreak: 'keep-all', overflowWrap: 'anywhere', textWrap: 'pretty' } as unknown as RNTextProps['style'];
+// 🔴 numberOfLines 가 있으면 text-wrap: pretty 를 빼야 한다 — S15P21E201-1372.
+//    최신 CSS 에서 white-space 는 text-wrap 을 품는 묶음 속성이라, react-native-web 이 한 줄 자르기로
+//    넣는 white-space: nowrap 을 뒤에 온 text-wrap: pretty 가 도로 풀어 버린다. 그래서 한 줄로
+//    잘라야 할 제목이 네 줄로 늘어졌다(2026-09-21 홈 카드 실측). 줄 수를 정한 글은 감싸기 힌트 없이 간다.
+const WEB_LINE_BREAK_CLAMPED = { wordBreak: 'keep-all', overflowWrap: 'anywhere' } as unknown as RNTextProps['style'];
+/** 웹에서만 감싸기 힌트를 준다. 줄 수가 정해진 글은 text-wrap 없이. */
+export function webLineBreakStyle(numberOfLines: number | undefined): RNTextProps['style'] {
+  if (Platform.OS !== 'web') return null;
+  return numberOfLines ? WEB_LINE_BREAK_CLAMPED : WEB_LINE_BREAK;
+}
 
 export function Text({ variant = 'body', color: colorOverride, weight = 'regular', style, children, ...rest }: TextProps) {
   const { size, lineHeight, letterSpacing } = SIZE[variant];
@@ -108,7 +116,7 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
           fontWeight: FONT_WEIGHT[weight],
           color: colorOverride ?? DEFAULT_COLOR[variant],
         },
-        WEB_LINE_BREAK,
+        webLineBreakStyle(rest.numberOfLines),
         style,
       ]}
     >

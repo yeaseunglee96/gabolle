@@ -86,7 +86,12 @@ export default function Festivals() {
 
     {state === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text variant="title" weight="bold">{tx('축제를 확인하고 있어요', 'Checking festivals')}</Text><Text color={color.text.body}>{tx('선택한 기간과 부산 지역을 기준으로 조회합니다.', 'Searching based on your selected period and the Busan area.')}</Text></View>}
     {state === 'error' && <View accessibilityRole="alert" style={styles.stateCard}><Text variant="title" weight="bold">{tx('불러오지 못했습니다', 'Could not load')}</Text><Text color={color.text.body}>{errorMessage}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
-    {state === 'ready' && sorted.length === 0 && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기간에 열리는 축제가 없습니다', 'No festivals run during this period')}</Text><Text color={color.text.body}>{tx('날짜를 바꿔 다시 조회해 보세요. 기간과 무관한 축제는 대신 보여드리지 않아요.', "Try different dates. We don't show festivals outside the period instead.")}</Text></View>}
+    {state === 'ready' && sorted.length === 0 && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기간에 열리는 축제가 없습니다', 'No festivals run during this period')}</Text><Text color={color.text.body}>{tx('날짜를 바꿔 다시 조회해 보세요. 기간과 무관한 축제는 대신 보여드리지 않아요.', "Try different dates. We don't show festivals outside the period instead.")}</Text>
+      {/* 빈 화면에서 나갈 길 — 기간 정보가 없는 축제도 로컬 탐색의 축제 갈래에는 있다(S15P21E201-1372). */}
+      <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/explore', params: { facet: 'FESTIVAL' } })} style={({ pressed }) => [styles.exploreLink, pressed && styles.pressed]}>
+        <Text weight="bold" color={color.text.accent}>{tx('부산 전체 축제 장소 둘러보기 →', 'Browse all festival places in Busan →')}</Text>
+      </Pressable>
+    </View>}
     {state === 'ready' && sorted.length > 0 && <View style={styles.grid}>{sorted.map((festival) => {
       // 사진이 그 축제를 찍은 것이 아닐 수 있다 — 대부분은 열리는 장소 사진이다.
       // 그대로 두면 「이 축제가 이렇게 생겼구나」로 읽힌다.
@@ -121,6 +126,7 @@ const styles = StyleSheet.create({
   dateField: { flex: 1, minWidth: 180, gap: spacing[1] }, input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.brand.ivory }, inputError: { borderColor: color.state.danger }, searchButton: { minWidth: 180, width: undefined },
   sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.action.secondary, backgroundColor: color.action.secondary },
   stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  exploreLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] }, card: { width: '100%', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card }, cardWide: { width: '48%' }, image: { width: '100%', height: 180 }, imageFallback: { height: 180, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint }, cardBody: { gap: spacing[2], padding: spacing[4] },
   cardTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   photoBadge: { position: 'absolute', top: spacing[2], left: spacing[2], paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(25,25,25,0.78)' },

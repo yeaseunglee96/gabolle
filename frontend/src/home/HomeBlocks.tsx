@@ -69,9 +69,15 @@ function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number })
   const { tx } = useI18n();
   const where = story.place?.name ?? story.region ?? '';
   const initial = story.author.displayName.slice(0, 1);
-  // 제목은 장소 이름이 먼저다. 장소가 없는 글은 「{작성자}의 기록」 — 본문을 제목 자리에
-  // 올리면 사진 없는 카드에서 같은 글이 커버와 제목에 두 번 나온다.
-  const heading = where || txf(tx, '%s의 기록', "%s's record", story.author.displayName);
+  const body = markdownToPlain(story.body).trim();
+  const hasImage = story.images.length > 0;
+  // 🔴 같은 글자를 두 번 그리지 않는다 — S15P21E201-1372. 예전에는 제목이 장소, 부제가
+  //    「2일 전 · 장소」라서 장소가 두 줄에 나란히 두 번 나왔다(2026-09-21 배포본 실측).
+  //    사진이 있으면 본문 첫 줄이 제목이고 장소는 부제에만 간다(시안 5 Home). 사진이 없으면
+  //    본문이 이미 커버에 크게 있으니 제목은 장소(없으면 「{작성자}의 기록」), 부제는 시간만.
+  const heading = hasImage && body ? body : where || txf(tx, '%s의 기록', "%s's record", story.author.displayName);
+  const when = relativeStoryTime(story.createdAt, tx);
+  const sub = where && heading !== where ? `${when} · ${where}` : when;
   const square = { width: cardWidth, height: cardWidth };
   return (
     <Pressable
@@ -85,13 +91,11 @@ function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number })
         // 사진이 없을 때 회색 빈 칸을 두지 않는다 — tint 바탕에 본문을 크게. 빈 회색은
         // 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
         : <View style={[styles.storyImage, styles.storyCoverEmpty, square]}>
-            <Text variant="title" weight="bold" color={color.text.heading} numberOfLines={4} style={styles.storyCoverEmptyText}>{markdownToPlain(story.body)}</Text>
+            <Text variant="title" weight="bold" color={color.text.heading} numberOfLines={4} style={styles.storyCoverEmptyText}>{body}</Text>
           </View>}
       <View style={styles.storyBody}>
         <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1}>{heading}</Text>
-        <Text variant="caption" color={color.text.body} numberOfLines={1}>
-          {where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}
-        </Text>
+        <Text variant="caption" color={color.text.body} numberOfLines={1}>{sub}</Text>
         <View style={styles.storyAuthor}>
           <View style={styles.storyAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{initial}</Text></View>
           <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>

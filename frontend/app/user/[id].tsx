@@ -83,7 +83,15 @@ export default function UserProfile() {
         <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('프로필을 불러오고 있어요', 'Loading profile')}</Text></View>
       ) : null}
 
-      {state.status === 'unavailable' ? (
+      {/* 🔴 손님에게 서버는 401 을 준다(2026-09-21 배포본 실측, S15P21E201-1372). 그것을 「인증 정보가 올바르지 않습니다」라고
+          옮겨 적으면 고장으로 읽힌다 — 고장이 아니라 문이 잠긴 것이니 문을 준다. 서버가 프로필을 익명에게 열면 이 갈래는 안 탄다. */}
+      {state.status === 'unavailable' && !accessToken ? (
+        <View style={styles.stateCard}>
+          <Text variant="title" weight="bold">{tx('로그인하면 프로필을 볼 수 있어요', 'Sign in to see this profile')}</Text>
+          <Text color={color.text.body}>{tx('기록은 누구나 볼 수 있지만, 작성자의 프로필과 팔로우는 로그인한 분에게만 열려요.', 'Anyone can read records, but profiles and following are for signed-in members.')}</Text>
+          <Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/user/${id}` } })} containerStyle={styles.stateButton} />
+        </View>
+      ) : state.status === 'unavailable' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('프로필을 불러오지 못했어요', "We couldn't load this profile")}</Text>
           <Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text>
@@ -165,6 +173,7 @@ export default function UserProfile() {
 const styles = StyleSheet.create({
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   pressed: { opacity: 0.72 },
+  stateButton: { alignSelf: 'stretch' },
   stateCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
   header: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   statRow: { flexDirection: 'row', gap: spacing[4] },

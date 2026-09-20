@@ -438,18 +438,33 @@ export default function ItineraryScreen() {
   const currentStop = dayStops.find((item) => item.id === currentStopId) ?? null;
   const nowClock = new Date().toTimeString().slice(0, 5);
   const nowDriftValue = drift(new Date().toISOString(), currentStop?.startsAt ?? null);
-  const nowDrift = nowDriftValue
-    ? txf(tx, '예정보다 %s분 %s', '%s min %s', nowDriftValue.minutes, nowDriftValue.early ? tx('빠름', 'early') : tx('늦음', 'late'))
+  // 「582분 빠름」은 읽는 사람이 나눗셈을 해야 한다(2026-09-21 실측, S15P21E201-1372) — 한 시간이 넘으면 시간·분으로.
+  const driftSpan = nowDriftValue
+    ? nowDriftValue.minutes >= 60
+      ? nowDriftValue.minutes % 60 === 0
+        ? txf(tx, '%s시간', '%s h', Math.floor(nowDriftValue.minutes / 60))
+        : txf(tx, '%s시간 %s분', '%s h %s min', Math.floor(nowDriftValue.minutes / 60), nowDriftValue.minutes % 60)
+      : txf(tx, '%s분', '%s min', nowDriftValue.minutes)
+    : null;
+  const nowDrift = nowDriftValue && driftSpan
+    ? txf(tx, '예정보다 %s %s', '%s %s', driftSpan, nowDriftValue.early ? tx('빠름', 'early') : tx('늦음', 'late'))
     : null;
   const nowTitle = progress.status === 'DONE'
     ? tx('오늘 일정을 다 돌았어요', 'You finished today')
     : progress.status === 'RUNNING' && currentStop
-      ? txf(tx, '%s(으)로 이동 중', 'Heading to %s', currentStop.title)
+      ? txf(tx, `%s${koreanToward(currentStop.title)} 이동 중`, 'Heading to %s', currentStop.title)
       : currentStop
         ? txf(tx, '다음은 %s', 'Next: %s', currentStop.title)
         : tx('오늘 갈 곳이 없어요', 'Nothing planned today');
-  // 🔴 없는 안내를 지어내지 않는다. 서버가 구간 안내를 안 주므로 설명 칸만 쓴다.
-  const nowDetail = currentStop?.description ?? null;
+  // 🔴 없는 안내를 지어내지 않는다. 서버가 구간 안내를 안 주므로 설명 칸이 있으면 그것을, 없으면
+  //    「4곳 중 1곳 다녀옴 · 다음 12:30」(시안 5 Itinerary)을 적는다 — 어디까지 왔는지는 지어내는 것이 아니라 세는 것이다.
+  const doneCount = dayStopIds.filter((stopId) => progress.outcomes[stopId]).length;
+  const nowProgressLine = dayStops.length && progress.status !== 'PLANNED'
+    ? txf(tx, '%s곳 중 %s곳 다녀옴', '%s of %s stops done', dayStops.length, doneCount)
+      + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '')
+    : null;
+  const nowDetail = currentStop?.description ?? nowProgressLine;
+  const nowProgressRatio = dayStops.length && progress.status !== 'PLANNED' ? doneCount / dayStops.length : null;
   // 넓은 화면에서만 2단으로 나눈다. 저장소 반응형 표가 「1024~ 사이드바 + 본문」이라
   // 그 경계를 그대로 쓴다 — 여기서 숫자를 새로 정하지 않는다(layout/breakpoints.ts).
   const { width } = useLayout();
@@ -722,7 +737,7 @@ export default function ItineraryScreen() {
             detail={nowDetail}
             clock={nowClock}
             driftText={nowDrift}
-            progress={null}
+            progress={nowProgressRatio}
             showManualArrival={needsManualArrival(progress.status, gpsUsable)}
             onStart={() => sendProgress(startRun(progress), () => startProgress(itineraryId, accessToken))}
             onPause={() => sendProgress(pauseRun(progress), () => pauseProgress(itineraryId, accessToken))}
@@ -929,6 +944,18 @@ export default function ItineraryScreen() {
     }}
   />
   <TabBar active="map" /></View>;
+}
+
+/**
+ * 「누리마루로」·「해운대 해수욕장으로」 — 받침이 있으면 「으로」, 없거나 ㄹ받침이면 「로」.
+ * 한글이 아닌 이름(영문 상호 등)은 「로」. 「(으)로」라고 쓰면 사람이 안 쓰는 말이 화면에 남는다.
+ */
+function koreanToward(name: string): string {
+  const last = name.trim().slice(-1);
+  const code = last.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return '로';
+  const final = (code - 0xac00) % 28;
+  return final === 0 || final === 8 ? '로' : '으로';
 }
 
 const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canvas },

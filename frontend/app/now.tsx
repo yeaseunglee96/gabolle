@@ -148,6 +148,14 @@ export default function Now() {
       </View>
 
       <Button label={tx('지금 갈 곳 찾기', 'Find a place now')} disabled={!canSearch || result.state === 'loading'} onPress={() => void search()} containerStyle={styles.searchButton} />
+      {/* 단추만 잠그면 고장으로 읽힌다(2026-09-21 실측, S15P21E201-1372) — 무엇이 빠졌는지 한 줄. */}
+      {!canSearch && result.state !== 'loading' ? (
+        <Text variant="caption" color={color.text.muted} style={styles.searchHint}>
+          {coords === null && manualLocation.trim().length === 0
+            ? tx('먼저 「현재 위치 사용」을 누르거나 출발 위치를 적어 주세요.', 'First tap "Use my location" or type where you are.')
+            : tx('남는 시간을 골라 주세요.', 'Pick how much time you have.')}
+        </Text>
+      ) : null}
 
       {result.state === 'loading' && (
         <View accessibilityLabel={localizeMessage(tx, result.message)} style={styles.results}>
@@ -200,6 +208,7 @@ const styles = StyleSheet.create({
   chip: { minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   chipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   searchButton: { marginTop: spacing[1], marginBottom: spacing[6] },
+  searchHint: { textAlign: 'center', marginTop: -spacing[1] },
   stateCard: { gap: spacing[2], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center' },
   notice: { marginBottom: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
   results: { gap: spacing[3] },
