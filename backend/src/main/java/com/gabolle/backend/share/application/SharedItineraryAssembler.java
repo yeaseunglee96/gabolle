@@ -71,18 +71,14 @@ public class SharedItineraryAssembler {
 		List<SharedItineraryResponse.Day> days = buildDays(trip, itemsByDay, placesByPlaceId);
 
 		return new SharedItineraryResponse(
-				buildTitle(trip),
+				// 🔴 예전에는 여기에 같은 글이 «한 벌 더» 있었다. 한쪽만 고쳐질 자리라 Trip 으로 모았다.
+				trip.displayTitle(),
 				trip.startDate().toString(),
 				trip.finishDate().toString(),
 				version,
 				days,
 				link.getExpiresAt().toString(),
 				SharedItineraryResponse.NOT_SHARED);
-	}
-
-	/** {@code ItineraryQueryService.buildTitle} 과 같은 규칙 — 여행 기간으로 지어낸 제목. */
-	private String buildTitle(Trip trip) {
-		return trip.startDate() + " ~ " + trip.finishDate() + " 여행 일정";
 	}
 
 	/** 여행 기간의 날짜 전부를 만든다. 🔴 항목이 0개인 날도 빈 items 로 넣는다. */

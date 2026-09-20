@@ -432,6 +432,37 @@ public class Trip {
         this.updatedAt = at;
     }
 
+    /**
+     * 화면에 내보일 이름 — S15P21E201-1348.
+     *
+     * <p>사용자가 붙인 이름이 있으면 그것, 없으면 <b>기간</b>이다.
+     *
+     * <h2>🔴 여기에 한국어를 섞지 않는다</h2>
+     *
+     * 예전에는 부르는 쪽 둘이 각자 {@code startDate + " ~ " + finishDate + " 여행 일정"}
+     * 을 만들었다. 그래서 <b>영어·일본어로 쓰는 사람의 여행 이름이 언제나 한국어</b>였다
+     * (2026-09-20 실기, 영어 화면에서 「2026-09-20 ~ 2026-09-22 여행 일정」). 이 앱을 쓰는
+     * 사람은 한글을 못 읽어서 쓰는데, 여행이 둘 이상이면 목록에서 어느 것이 무슨 여행인지
+     * 고를 수가 없다.
+     *
+     * <p>서버는 말이 안 섞인 값만 준다. 「여행 일정」 같은 말이 필요하면 <b>화면이</b>
+     * 자기 언어로 붙인다 — 여행 목록 화면({@code app/(tabs)/trips.tsx} 의 {@code dateLabel})
+     * 이 이미 그렇게 하고 있다.
+     *
+     * <h2>🔴 사용자가 붙인 이름을 버리지 않는다</h2>
+     *
+     * 예전 코드는 {@link #title()} 을 <b>아예 안 봤다.</b> 이름을 바꿔도 일정 화면과 공유
+     * 화면에는 지어낸 이름이 그대로 나왔다 — {@link #rename} 이 하는 일이 그 두 화면에서만
+     * 없던 일이 됐다.
+     */
+    public String displayTitle() {
+        String named = title;
+        if (named != null && !named.isBlank()) {
+            return named;
+        }
+        return startDate + " ~ " + finishDate;
+    }
+
     public String tripId()       { return tripId; }
     public String createdBy()    { return createdBy; }
     /** {@code null} 이면 아직 이름이 없다 — 화면이 날짜를 제목으로 쓴다. */
