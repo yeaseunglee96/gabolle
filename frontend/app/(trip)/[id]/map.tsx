@@ -1,4 +1,5 @@
 // 12 지도·동선 — 발표의 핵심 화면.
+import { txf } from '@/i18n/format';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AppState, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -277,7 +278,7 @@ export default function Map() {
         // 못 찍은 곳을 조용히 빼지 않는다 — 그러면 이 지도가 일정 전부라고 믿게 된다.
         <SampleNotice
           badge={tx('일부만 표시', 'Partial map')}
-          description={tx(`${real.missingCount}곳은 위치를 받지 못해 지도에 없어요. 일정에는 그대로 있어요.`, `${real.missingCount} stop(s) have no location yet, so they are missing from this map. They are still in your itinerary.`)}
+          description={txf(tx, '%s곳은 위치를 받지 못해 지도에 없어요. 일정에는 그대로 있어요.', '%s stop(s) have no location yet, so they are missing from this map. They are still in your itinerary.', real.missingCount)}
         />
       ) : null}
 

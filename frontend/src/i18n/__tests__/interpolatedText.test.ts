@@ -3,6 +3,12 @@ import { pickLanguage } from '@/i18n';
 import { TRANSLATIONS } from '@/i18n/translations';
 import type { LanguageCode } from '@/i18n/languages';
 
+// 표는 «원문 파일»로도 봐야 한다 — 같은 열쇠를 두 번 적으면 읽어 들인 객체에는
+// 하나만 남아서, 객체만 보면 중복을 영영 못 본다.
+declare const __dirname: string;
+const { readFileSync } = require('fs');
+const { join } = require('path');
+
 /**
  * 🔴 **이름·장소가 끼는 문구가 일본어·중국어에서 영어로 떨어지던 것** — S15P21E201-1352.
  *
@@ -73,6 +79,24 @@ describe('값이 끼는 문구 — 글자 자리(%s)', () => {
       }
     }
     expect(wrong).toEqual([]);
+  });
+
+  /**
+   * 🔴 같은 열쇠를 두 번 적으면 **뒤엣것이 조용히 이긴다.** 타입 검사는 안 잡고,
+   * 읽어 들인 객체에도 하나만 남아서 «객체만 보면» 영영 안 보인다.
+   * S15P21E201-1354 에서 실제로 「출발지에서 %d분」을 두 번 넣었다. 그래서 원문으로 센다.
+   */
+  it('🔴 표에 같은 열쇠가 두 번 있지 않다', () => {
+    const source: string = readFileSync(join(__dirname, '..', 'translations.ts'), 'utf8');
+    const keys = [...source.matchAll(/^ {2}'((?:[^'\\]|\\.)*)':\s*\{/gm)].map((m) => m[1]);
+    const seen = new Set<string>();
+    const duplicated: string[] = [];
+    for (const key of keys) {
+      if (seen.has(key)) duplicated.push(key);
+      seen.add(key);
+    }
+    expect(duplicated).toEqual([]);
+    expect(keys.length).toBeGreaterThan(1000);   // 정규식이 헛돌면 0개가 나온다
   });
 
   it('🔴 자리 지정(%1$s)은 쓰지 않는다 — fillValues 가 못 읽는다', () => {

@@ -1,4 +1,5 @@
 // 16 여행 준비·날씨 — Figma 16_여행 준비·날씨 실측 그대로.
+import { txf } from '@/i18n/format';
 import { useEffect, useState } from 'react';
 import { Image, Pressable, Share as NativeShare, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -85,7 +86,7 @@ function DialectFlashcards() {
                     <Text variant="body" color={color.text.body}>{phrase.en}</Text>
                   </View>
                   <Text variant="caption" color={color.text.muted}>{tx(phrase.situationKo, phrase.situationEn)}</Text>
-                  <Pressable accessibilityRole="button" accessibilityLabel={tx(`${phrase.dialect} 발음 듣기`, `Listen to ${phrase.dialect}`)} onPress={() => listen(phrase)} style={styles.listenButton}>
+                  <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 발음 듣기', 'Listen to %s', phrase.dialect)} onPress={() => listen(phrase)} style={styles.listenButton}>
                     <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id ? tx('재생 중', 'Playing') : tx('▶ 듣기', '▶ Listen')}</Text>
                   </Pressable>
                 </>

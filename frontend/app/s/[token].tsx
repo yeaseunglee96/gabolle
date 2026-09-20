@@ -3,6 +3,7 @@
 // 탭바 등)를 안 쓰는 단독 레이아웃으로 둔다. "내 조건으로 새 여행 만들기"는
 // 기존 plan 흐름(plan/basic → … → confirm)을 그대로 타되, PlanProvider 에 공유 표(token)를
 // 심어 두면 마지막 제출 지점(recommendationJob.ts)이 일반 생성 대신 복제(clone) API를 부른다.
+import { txf } from '@/i18n/format';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -99,12 +100,12 @@ export default function SharedItinerary() {
       <Text variant="eyebrow" weight="bold">{tx('공유된 여행 일정', 'Shared trip itinerary')}</Text>
       <Text variant="display" weight="bold">{data.title}</Text>
       <Text color={color.text.body}>{tx(`${data.startDate} ~ ${data.finishDate}`, `${data.startDate} – ${data.finishDate}`)}</Text>
-      <Text variant="caption" color={color.text.muted}>{tx(`이 링크는 ${new Date(data.expiresAt).toLocaleDateString(locale)}까지 볼 수 있어요.`, `This link is viewable until ${new Date(data.expiresAt).toLocaleDateString(locale)}.`)}</Text>
+      <Text variant="caption" color={color.text.muted}>{txf(tx, '이 링크는 %s까지 볼 수 있어요.', 'This link is viewable until %s.', new Date(data.expiresAt).toLocaleDateString(locale))}</Text>
     </View>
 
     <View style={styles.notice}>
       <Text variant="caption" weight="bold">{tx('공유되지 않는 정보', 'Not shared')}</Text>
-      <Text variant="caption" color={color.text.body}>{tx(`${notSharedLabels}는(은) 공유되지 않아요.`, `${notSharedLabels} are not shared.`)}</Text>
+      <Text variant="caption" color={color.text.body}>{txf(tx, '%s는(은) 공유되지 않아요.', '%s are not shared.', notSharedLabels)}</Text>
     </View>
 
     {data.days.length === 0 ? (

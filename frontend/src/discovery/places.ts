@@ -1,3 +1,4 @@
+import { txf } from '@/i18n/format';
 import { apiRequest } from '@/api/client';
 
 // openingHours·priceLevel — place_feature 의 OPENING_HOURS·PRICE_LEVEL 표식. 행이 있으면
@@ -45,7 +46,7 @@ export function photoLabels(
 ): { badge: string | null; credit: string | null } {
   return {
     badge: photo.photoSubject === 'VENUE' ? tx('행사장 사진', 'Venue photo') : null,
-    credit: photo.photoSource ? tx(`사진 제공: ${photo.photoSource}`, `Photo: ${photo.photoSource}`) : null,
+    credit: photo.photoSource ? txf(tx, '사진 제공: %s', 'Photo: %s', photo.photoSource) : null,
   };
 }
 
@@ -87,12 +88,14 @@ export function formatOpeningHoursValue(value: unknown, tx: (ko: string, en: str
   const byDay = (value as { byDay?: unknown }).byDay;
   if (byDay && typeof byDay === 'object') {
     const rows = WEEK.map((day) => ({ day, text: rangesText((byDay as Record<string, unknown>)[day.key]) }));
-    const known = rows.filter((row) => row.text !== null);
+    // 🔴 걸러 낸 뒤에는 text 가 반드시 있다. 그것을 «타입으로» 적어 둔다 — 그냥
+    //    filter 로는 타입이 안 좁혀져서, 값을 쓰는 자리마다 null 을 다시 달래야 한다.
+    const known = rows.filter((row): row is typeof rows[number] & { text: string } => row.text !== null);
     if (known.length) {
       // 일곱 요일이 같으면 「매일」 한 줄로 묶음.
       const sameEveryDay = known.length === WEEK.length && known.every((row) => row.text === known[0].text);
-      if (sameEveryDay) return tx(`매일 ${known[0].text}`, `Daily ${known[0].text}`);
-      return known.map((row) => tx(`${row.day.ko} ${row.text}`, `${row.day.en} ${row.text}`)).join(' · ');
+      if (sameEveryDay) return txf(tx, '매일 %s', 'Daily %s', known[0].text);
+      return known.map((row) => `${tx(row.day.ko, row.day.en)} ${row.text}`).join(' · ');
     }
   }
   const raw = (value as { raw?: unknown }).raw;
@@ -107,7 +110,7 @@ export function formatFeatureSlot(slot: FeatureSlot | undefined, tx: (ko: string
   if (!slot) return null;
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const text = extractDisplayText(slot.value, tx);
-  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
+  return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
 }
 
 // 로컬점수(LOCALITY_SCORE) 유무만 확인 — 값 칸 이름이 미정이라 숫자는 안 꺼내고 배지만 표시.
@@ -155,7 +158,7 @@ export function formatSoloFriendly(place: Place, tx: (ko: string, en: string) =>
   if (!slot) return null;
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const label = slot.value === true ? tx('혼밥하기 좋아요', 'Good for solo dining') : tx('혼밥은 어려울 수 있어요', 'May not suit solo diners');
-  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${label} (추정)`, `${label} (est.)`) : label;
+  return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', label) : label;
 }
 
 // 브레이크타임·라스트오더 — 값 모양이 미확정이라 예상 모양과 맞을 때만 합치고, 아니면 안전한
@@ -166,7 +169,7 @@ export function formatBreakTime(place: Place, tx: (ko: string, en: string) => st
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const value = slot.value as { start?: unknown; end?: unknown };
   const text = typeof value?.start === 'string' && typeof value?.end === 'string' ? `${value.start}–${value.end}` : JSON.stringify(slot.value);
-  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
+  return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
 }
 
 export function formatLastOrderTime(place: Place, tx: (ko: string, en: string) => string): string | null {
@@ -175,7 +178,7 @@ export function formatLastOrderTime(place: Place, tx: (ko: string, en: string) =
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const value = slot.value as { time?: unknown };
   const text = typeof value?.time === 'string' ? value.time : JSON.stringify(slot.value);
-  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
+  return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
 }
 
 // 계단 유무(STAIRS_PRESENT) — FLAG 피처. 「정보 없음 = 계단 없음」으로 읽지 않는다.
@@ -184,7 +187,7 @@ export function formatStairsPresent(place: Place, tx: (ko: string, en: string) =
   if (!slot) return null;
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const label = slot.value === true ? tx('계단 있음', 'Has stairs') : tx('계단 없음', 'No stairs');
-  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${label} (추정)`, `${label} (est.)`) : label;
+  return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', label) : label;
 }
 
 // 경사도(SLOPE_PERCENT) — 점수형 피처. 단위 없는 숫자는 뜻이 안 통하므로 % 를 붙인다.
@@ -205,7 +208,7 @@ export function formatSlopePercent(place: Place, tx: (ko: string, en: string) =>
   // JSON.stringify 금지 자리 — 서버 값이 숫자에서 객체로 바뀌면 화면에 그대로 찍힌다.
   const text = slopeText(slot.value);
   if (text === null) return tx('확인했지만 형식을 읽지 못했어요', "We checked, but couldn't read the format");
-  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
+  return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
 }
 
 // 숙박 체크인·체크아웃(CHECK_IN_OUT) — 숙박에는 OPENING_HOURS 대신 이 표식이 온다. 답하는
@@ -218,13 +221,13 @@ export function formatCheckInOut(place: Place, tx: (ko: string, en: string) => s
   const checkIn = typeof value?.checkIn === 'string' ? value.checkIn : null;
   const checkOut = typeof value?.checkOut === 'string' ? value.checkOut : null;
   const text = checkIn && checkOut
-    ? tx(`체크인 ${checkIn} · 체크아웃 ${checkOut}`, `Check-in ${checkIn} · Check-out ${checkOut}`)
+    ? txf(tx, '체크인 %s · 체크아웃 %s', 'Check-in %s · Check-out %s', checkIn, checkOut)
     : checkIn
-      ? tx(`체크인 ${checkIn}`, `Check-in ${checkIn}`)
+      ? txf(tx, '체크인 %s', 'Check-in %s', checkIn)
       : checkOut
-        ? tx(`체크아웃 ${checkOut}`, `Check-out ${checkOut}`)
+        ? txf(tx, '체크아웃 %s', 'Check-out %s', checkOut)
         : JSON.stringify(slot.value);
-  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
+  return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
 }
 
 // 장소 이름 한글·영문 병기 — 언어 설정과 무관. 영문 이름은 택시 기사에게 쓸모없고 한글만으로는

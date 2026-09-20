@@ -2,6 +2,7 @@
 // · 여행 카드의 제목 — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
 // · 장소 카드의 사진 — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
 // 채우는 작업이 머지되고 목록 API 에 실리면 그때 넣는다.
+import { txf } from '@/i18n/format';
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -69,12 +70,12 @@ function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number })
   const initial = story.author.displayName.slice(0, 1);
   // 제목은 장소 이름이 먼저다. 장소가 없는 글은 「{작성자}의 기록」 — 본문을 제목 자리에
   // 올리면 사진 없는 카드에서 같은 글이 커버와 제목에 두 번 나온다.
-  const heading = where || tx(`${story.author.displayName}의 기록`, `${story.author.displayName}'s record`);
+  const heading = where || txf(tx, '%s의 기록', "%s's record", story.author.displayName);
   const square = { width: cardWidth, height: cardWidth };
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={tx(`${heading} 기록 보기`, `Open record: ${heading}`)}
+      accessibilityLabel={txf(tx, '%s 기록 보기', 'Open record: %s', heading)}
       onPress={() => router.push(`/feed/${story.id}`)}
       style={({ pressed }) => [{ width: cardWidth }, pressed && styles.pressed]}
     >
@@ -162,7 +163,7 @@ function PlaceCard({
     <View style={{ width: cardWidth }}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={tx(`${place.nameKo} 상세 보기`, `View ${place.nameKo}`)}
+        accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', place.nameKo)}
         onPress={() => router.push(`/place/${place.placeId}`)}
         style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}
       >
@@ -185,8 +186,8 @@ function PlaceCard({
         accessibilityRole="button"
         accessibilityState={{ selected: liked }}
         accessibilityLabel={liked
-          ? tx(`${place.nameKo} 저장 해제`, `Unsave ${place.nameKo}`)
-          : tx(`${place.nameKo} 저장`, `Save ${place.nameKo}`)}
+          ? txf(tx, '%s 저장 해제', 'Unsave %s', place.nameKo)
+          : txf(tx, '%s 저장', 'Save %s', place.nameKo)}
         onPress={onToggleLike}
         style={styles.heartButton}
       >
