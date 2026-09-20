@@ -162,3 +162,17 @@ describe('이름 저장', () => {
     expect(result.state).toBe('unavailable');
   });
 });
+
+describe('자리표시 제목 — S15P21E201-1376', () => {
+  const { humanTripTitle, isPlaceholderTripTitle } = require('../tripNaming');
+  it('서버가 넣은 「2026-09-21 ~ 2026-09-23」은 이름이 아니다', () => {
+    expect(isPlaceholderTripTitle('2026-09-21 ~ 2026-09-23')).toBe(true);
+    expect(humanTripTitle('2026-09-21 ~ 2026-09-23')).toBeNull();
+    expect(humanTripTitle('  ')).toBeNull();
+    expect(humanTripTitle(null)).toBeNull();
+  });
+  it('사람이 붙인 이름은 그대로', () => {
+    expect(humanTripTitle('해운대의 맛기행')).toBe('해운대의 맛기행');
+    expect(humanTripTitle('2026 가을 부산')).toBe('2026 가을 부산');
+  });
+});

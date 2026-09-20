@@ -184,8 +184,23 @@ export async function wasTripNameAsked(tripId: string) {
   }
 }
 
+/**
+ * 서버가 이름 없는 일정에 넣어 주는 자리표시 제목 — 「2026-09-21 ~ 2026-09-23」(S15P21E201-1376).
+ * 사람이 붙인 이름이 아니라 날짜다. 제목 자리에 그대로 그리면 날짜가 두 번 보이고, 이름 바꾸기 칸에
+ * 미리 들어가 있어 「내가 이런 이름을 붙였나」가 된다. 이름 없음으로 다룬다.
+ */
+export function isPlaceholderTripTitle(title: string | null | undefined): boolean {
+  return /^[0-9]{4}-[0-9]{2}-[0-9]{2}\s*[~–-]\s*[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test((title ?? '').trim());
+}
+
+/** 사람이 붙인 이름만. 자리표시 제목과 빈 값은 null. */
+export function humanTripTitle(title: string | null | undefined): string | null {
+  const trimmed = (title ?? '').trim();
+  return trimmed && !isPlaceholderTripTitle(trimmed) ? trimmed : null;
+}
+
 /** 이름을 물어볼 자리인가. */
 export function shouldAskTripName(input: { title: string | null | undefined; alreadyAsked: boolean }) {
   if (input.alreadyAsked) return false;
-  return !(input.title ?? '').trim();
+  return humanTripTitle(input.title) === null;
 }

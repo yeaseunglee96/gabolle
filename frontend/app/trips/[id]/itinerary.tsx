@@ -57,6 +57,7 @@ import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { localizeMessage } from '@/i18n/messages';
 import { koreanToward } from '@/i18n/korean';
+import { humanTripTitle } from '@/trip/tripNaming';
 
 // 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고.
 
@@ -716,7 +717,7 @@ export default function ItineraryScreen() {
         {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
       </View>
       <View style={styles.heroTitleRow}>
-        <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{itinerary?.title ?? tx('여행 일정', 'Itinerary')}</Text>
+        <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{humanTripTitle(itinerary?.title) ?? tx('부산 여행', 'Busan trip')}</Text>
         {/* 「이름 바꾸기」 — 시안 ④. 페이지로 가지 않고 그 자리에서 겹쳐 연다. */}
         {itinerary?.tripId ? (
           <Pressable accessibilityRole="button" onPress={() => setNaming(true)} style={styles.renameButton}>
@@ -911,7 +912,7 @@ export default function ItineraryScreen() {
   {naming && itinerary?.tripId ? (
     <TripNameSheet
       tripId={itinerary.tripId}
-      currentTitle={itinerary.title ?? null}
+      currentTitle={humanTripTitle(itinerary.title)}
       dateLabel={heroSummary || null}
       accessToken={accessToken}
       onClose={() => setNaming(false)}
