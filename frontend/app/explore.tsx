@@ -19,6 +19,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { getPlacesByFacet, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
 // 이 값과 일치하는 항목만 골라 순서는 서버가 준 그대로 둔다. 화면 쪽에서 새로 만들지 않는다.
@@ -290,11 +291,11 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
     // 걸 잰다 — 배지에 숫자가 있어도 반경 안에는 없을 수 있다. "아예 없다"처럼 읽히지
     // 않도록 실제로 넓혀 본 반경을 밝힌다.
     const radiusKm = (result.effectiveRadiusM / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 });
-    return <View style={styles.branchBody}><Text color={color.text.body}>{tx(`${radiusKm}km 이내에는 이 갈래의 장소가 없어요. 부산 전체에는 있을 수 있어요.`, `No places in this category within ${radiusKm}km. There may be some elsewhere in Busan.`)}</Text></View>;
+    return <View style={styles.branchBody}><Text color={color.text.body}>{txf(tx, '%skm 이내에는 이 갈래의 장소가 없어요. 부산 전체에는 있을 수 있어요.', 'No places in this category within %skm. There may be some elsewhere in Busan.', radiusKm)}</Text></View>;
   }
   return (
     <View style={styles.branchBody}>
-      <Text variant="caption">{tx(`검색 범위: ${(result.effectiveRadiusM / 1000).toLocaleString()}km 이내`, `Search range: within ${(result.effectiveRadiusM / 1000).toLocaleString()} km`)}</Text>
+      <Text variant="caption">{txf(tx, '검색 범위: %skm 이내', 'Search range: within %s km', (result.effectiveRadiusM / 1000).toLocaleString())}</Text>
       {/* 내 위치를 못 쓴 채 부산 중심으로 찾았다는 사실을 밝힌다 — S15P21E201-982.
           조용히 대신 보여 주면 거리 숫자가 왜 이런지 설명이 안 된다. 권한을 다시 물을
           길도 여기 같이 둔다.
@@ -340,7 +341,7 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
   const { tx, language } = useI18n();
   const open = (placeId: string) => router.push(`/place/${placeId}`);
   const label = (item: PlaceSearchItem | import('@/discovery/localExplore').NearbyPlaceItem) =>
-    tx(`${item.nameKo} 상세 보기`, `View details for ${item.nameEn ?? item.nameKo}`);
+    txf(tx, '%s 상세 보기', 'View details for %s', localPlaceName(item, language));
 
   // 폰이든 데스크톱이든 같은 격자다. 열 수만 폭이 정한다 (시안 05·06).
   // 두 벌로 만들면 한쪽만 고쳐지고, 그 차이는 두 폭을 나란히 열어 봐야만 보인다.
@@ -356,7 +357,7 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
         <PlacePhoto item={item} style={styles.cardPhoto} />
         {/* 🔴 사진 출처는 꾸밈이 아니라 이용 조건이다. 사진을 그리면 반드시 함께 그리고,
             문구는 서버가 준 값을 쓴다 — 지어내지 않는다. */}
-        {item.photoSource ? <View style={styles.sourcePill}><Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx(`사진: ${item.photoSource}`, `Photo: ${item.photoSource}`)}</Text></View> : null}
+        {item.photoSource ? <View style={styles.sourcePill}><Text variant="caption" color={color.text.muted} numberOfLines={1}>{txf(tx, '사진: %s', 'Photo: %s', item.photoSource)}</Text></View> : null}
       </View>
       <View style={styles.cardBody}>
         <Text weight="bold" numberOfLines={1}>{localPlaceName(item, language)}</Text>

@@ -18,6 +18,7 @@ import { DEMO_PLACES, loadSavedPlaceIds, setSavedPlace } from '@/discovery/saved
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
+import { txf } from '@/i18n/format';
 
 // 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
 const PLACES = DEMO_PLACES;
@@ -150,7 +151,7 @@ export default function Place() {
                   */}
                   <PhotoSubjectBadge photoSubject={resolved.apiPlace.photoSubject} style={styles.subjectBadge} />
                   {resolved.apiPlace.photoSource ? (
-                    <Text testID="place-photo-credit" variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
+                    <Text testID="place-photo-credit" variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)}</Text>
                   ) : null}
                 </View>
               </ImageBackground>

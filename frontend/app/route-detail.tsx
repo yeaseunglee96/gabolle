@@ -18,6 +18,8 @@ import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { getRouteDirections, type RouteDirectionsResult, type TravelMode } from '@/map/routeDirections';
 import { listAvailableRouteMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
+import { txf } from '@/i18n/format';
+import { resolveTextLanguage } from '@/i18n/languages';
 
 const MODE_LABEL: Record<TravelMode, readonly [string, string]> = {
   CAR: ['자동차', 'Car'],
@@ -37,7 +39,7 @@ function parseText(value: string | string[] | undefined): string | undefined {
 }
 
 export default function RouteDetail() {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { accessToken } = useAuth();
@@ -159,7 +161,7 @@ export default function RouteDetail() {
             <View style={styles.actions}>
               {destPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} /> : null}
               {mapApps.map((app) => (
-                <Button key={app.key} variant="tertiary" label={tx(`${app.labelKo}에서 경로 열기`, `Open route in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.actionButton} />
+                <Button key={app.key} variant="tertiary" label={txf(tx, '%s에서 경로 열기', 'Open route in %s', resolveTextLanguage(language) === 'en' ? app.labelEn : app.labelKo)} onPress={() => void app.open()} containerStyle={styles.actionButton} />
               ))}
             </View>
           </View>

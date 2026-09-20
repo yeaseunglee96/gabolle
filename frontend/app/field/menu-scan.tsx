@@ -19,6 +19,7 @@ import { useI18n } from '@/i18n';
 import { LANGUAGE_OPTIONS, toBcp47, type LanguageCode } from '@/i18n/languages';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { txf } from '@/i18n/format';
 
 type Phase =
   | { state: 'idle' }
@@ -174,7 +175,7 @@ function ListenButtons({ korean, translated }: { korean: string; translated: str
     <Pressable
       key={key}
       accessibilityRole="button"
-      accessibilityLabel={tx(`${text} ${label}로 듣기`, `Hear ${text} in ${label}`)}
+      accessibilityLabel={txf(tx, '%s %s로 듣기', 'Hear %s in %s', text, label)}
       onPress={() => speakAloud(text, { language: bcp47 })}
       style={({ pressed }) => [styles.speak, pressed && styles.pressed]}
     >
@@ -211,7 +212,7 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
 
   return <View style={styles.lineBlock}>
     <View style={styles.line}>
-      {bundled && <Image source={bundled.image.asset} resizeMode="cover" accessibilityLabel={tx(`${bundled.key} 예시 사진`, `Example photo of ${bundled.key}`)} style={styles.dishThumb} />}
+      {bundled && <Image source={bundled.image.asset} resizeMode="cover" accessibilityLabel={txf(tx, '%s 예시 사진', 'Example photo of %s', bundled.key)} style={styles.dishThumb} />}
       <View style={styles.lineCopy}>
         <Text>{heading}</Text>
         {/* 같은 글자를 두 번 그리지 않는다 — 한국어를 골랐거나 옛 앱 빌드면 둘이 같다. */}
@@ -357,7 +358,7 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
       <Image
         source={{ uri: imageUri! }}
         resizeMode="cover"
-        accessibilityLabel={tx(`${name} 을(를) AI 가 그린 그림`, `An AI-drawn picture of ${name}`)}
+        accessibilityLabel={txf(tx, '%s 을(를) AI 가 그린 그림', 'An AI-drawn picture of %s', name)}
         style={styles.dishImage}
       />
       {/* 🔴 이 문구는 그림에 붙어 있어야 한다. 접어 두거나 작게 쓰면 안 붙인 것과 같다.
