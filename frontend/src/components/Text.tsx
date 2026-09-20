@@ -17,6 +17,7 @@
 //             넣어 낱말을 통째로 붙인다. 안드로이드에서만 하므로 시험(jest 는 iOS 로 돈다)과
 //             글자 비교에는 영향이 없다. textBreakStrategy="balanced" 는 여러 줄을 고르게 나눠
 //             외톨이 낱말을 줄인다
+import { useMemo } from 'react';
 import { Platform, Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
 import { color, fontFamilyStack, type as typeTokens } from '@/design/tokens';
@@ -91,6 +92,8 @@ const WEB_LINE_BREAK = Platform.OS === 'web'
 
 export function Text({ variant = 'body', color: colorOverride, weight = 'regular', style, children, ...rest }: TextProps) {
   const { size, lineHeight, letterSpacing } = SIZE[variant];
+  // 글자가 같으면 다시 안 붙인다 — 문자열 자식은 값으로 비교되므로 목록이 다시 그려져도 치환은 한 번이다(안드로이드만).
+  const joined = useMemo(() => (Platform.OS === 'android' ? joinHangulChildren(children) : children), [children]);
   return (
     <RNText
       lineBreakStrategyIOS="hangul-word"
@@ -109,7 +112,7 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
         style,
       ]}
     >
-      {Platform.OS === 'android' ? joinHangulChildren(children) : children}
+      {joined}
     </RNText>
   );
 }
