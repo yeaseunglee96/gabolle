@@ -2,13 +2,13 @@
 import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { PlanStartBar } from '@/home/PlanStartBar';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
-import type { StartBarValue } from '@/home/startBarValue';
+import { startBarEditSection, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
@@ -41,7 +41,7 @@ export default function Home() {
   const router = useRouter();
   const { tx, language } = useI18n();
   const { accessToken, user } = useAuth();
-  const { update: updatePlan } = usePlan();
+  const { draft: planDraft, update: updatePlan } = usePlan();
   // 여행 조건 모달. 로그인 후 홈 첫 진입에 한 번, 그리고
   // 「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
@@ -78,6 +78,10 @@ export default function Home() {
     });
     return () => { alive = false; };
   }, [accessToken, user?.userId]);
+
+  // 🔴 열 문항 화면이 「날짜 정하기」로 보낸 사람은 고칠 칸을 열어 둔 채로 받는다 — S15P21E201-1350.
+  //    접힌 바를 보여 주면 그 사람이 보기에는 아무 데도 안 간 것이다.
+  const editSection = startBarEditSection(useLocalSearchParams().edit);
 
   const applyBarAndGo = (value: StartBarValue) => {
     updatePlan({
@@ -160,7 +164,7 @@ export default function Home() {
           {/* 시안 p0 의 시작 바. 출발지·날짜·인원을 여기서 받아
               조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다.
           */}
-          <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} />
+          <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
 
  {/* 「현장 도구」 카드를 뺐다 (2026-09-18 지시). 화면(/field/translate)과
               챗봇의 진입점은 그대로 있다 — 이 카드만 안 그린다. */}

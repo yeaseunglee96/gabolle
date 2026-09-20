@@ -21,6 +21,43 @@ export const EMPTY_START_BAR: StartBarValue = {
   children: 0,
 };
 
+/** 시작 바에서 열 수 있는 칸. */
+export type StartBarSection = 'origin' | 'dates' | 'people' | null;
+
+/**
+ * 🔴 주소의 `?edit=` 를 열 칸으로 바꾼다 — S15P21E201-1350.
+ *
+ * <p>주소에서 온 값은 무엇이든 올 수 있다(사용자가 손으로 고칠 수도 있고, 배열로도 온다).
+ * 모르는 값이면 <b>아무 칸도 안 연다</b> — 예전처럼 접힌 바가 뜰 뿐이라 나빠지지 않는다.
+ */
+export function startBarEditSection(raw: string | string[] | undefined): StartBarSection {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return value === 'origin' || value === 'dates' || value === 'people' ? value : null;
+}
+
+/**
+ * 🔴 이미 답한 것을 시작 바에 다시 채운다 — S15P21E201-1350.
+ *
+ * <p>열 문항 화면에서 「날짜 정하기」를 누르면 홈으로 온다. 그때 시작 바가 빈 채로
+ * 뜨면 사람은 「내가 넣은 것이 날아갔나」로 읽고 처음부터 다시 넣는다. 그래서
+ * 가지고 있는 값을 그대로 옮겨 넣어 둔다.
+ *
+ * <p>칸 이름이 양쪽이 같아 그대로 옮기면 되지만, 그 «그대로» 가 진짜인지를 사람이
+ * 눈으로 확인하기 어렵다. 그래서 함수로 뺀다 — 여기서 한 칸이라도 빠지면 시험이 잡는다.
+ */
+export function startBarFromDraft(draft: StartBarValue): StartBarValue {
+  return {
+    origin: draft.origin,
+    originLat: draft.originLat,
+    originLng: draft.originLng,
+    startDate: draft.startDate,
+    endDate: draft.endDate,
+    // 인원은 0 이 될 수 없다. 빈 초안이면 시작 바의 기본값을 쓴다.
+    adults: draft.adults > 0 ? draft.adults : EMPTY_START_BAR.adults,
+    children: draft.children > 0 ? draft.children : 0,
+  };
+}
+
 const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 

@@ -158,7 +158,19 @@ export default function PlanConditions() {
   const datesMissing = !draft.startDate || !draft.endDate;
 
   /** 날짜를 정하는 자리 — 폰은 홈의 시작 줄, 넓은 화면은 첫 화면의 시작 줄이다. */
-  const goSetDates = () => router.push(wide ? '/' : '/home');
+  /**
+   * 🔴 「날짜 정하기」·「수정」이 그냥 홈으로 튕기던 것 — S15P21E201-1350.
+   *
+   * <p>예전에는 `router.push('/home')` 뿐이었다. 홈에 도착해도 시작 바는 접혀 있고,
+   * 고칠 칸도 안 열리고, 문항으로 돌아올 길도 없었다. 바로 아래 주석이 「막아 놓고 문을
+   * 안 준 상태였다」라고 적어 둔 그 문제인데, 문을 달고 보니 <b>아무것도 열려 있지 않은
+   * 방</b>으로 이어져 있었다. 2026-09-19 일본어(「編集」)·2026-09-20 영어(「Set dates」)
+   * 양쪽 실기에서 확인했다.
+   *
+   * <p>이제 열 칸을 함께 보낸다. 홈의 시작 바가 그 칸을 펴고 지금 값까지 채워서 뜬다.
+   * 「일정 물어보기」를 누르면 홈이 다시 `/plan` 으로 돌려보내므로 왕복이 닫힌다.
+   */
+  const goSetDates = () => router.push({ pathname: wide ? '/' : '/home', params: { edit: 'dates' } });
 
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
