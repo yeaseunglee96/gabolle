@@ -1,4 +1,5 @@
 import { txf } from '@/i18n/format';
+import { formatClock, formatDayHeading as formatLocaleDayHeading } from '@/i18n/datetime';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -72,9 +73,9 @@ function describeOpeningHoursIssues(itinerary: ItineraryDto, warnings: Itinerary
   return [...closedMessages, ...notCheckedMessages];
 }
 
-function formatTime(value: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value.slice(11, 16) || value : date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+// 🔴 'ko-KR' 이 박혀 있었다 — 어떤 언어를 골라도 한국식으로 나왔다 (S15P21E201-1355).
+function formatTime(value: string, locale: string) {
+  return formatClock(value, locale);
 }
 
 // 1000m 이상은 km 한 자리로 (시안 1절). 「1200m」보다 「1.2km」가 걷는 거리로 읽힌다.
@@ -83,20 +84,16 @@ function formatWalk(meters: number) {
 }
 
 // 「9월 19일 (금)」 — 시안 3.2. 날짜를 못 읽으면 지어내지 않고 「n일차」로만 적는다.
-function formatDayHeading(value: string, index: number, tx: (ko: string, en: string) => string) {
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return tx(`${index + 1}일차`, `Day ${index + 1}`);
-  const weekday = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
-  return tx(`${date.getMonth() + 1}월 ${date.getDate()}일 (${weekday})`, date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', weekday: 'short' }));
-}
-
-function formatDate(value: string, index: number) {
-  const date = new Date(`${value}T00:00:00`);
-  return Number.isNaN(date.getTime()) ? `DAY ${index + 1}` : `${date.getMonth() + 1}.${date.getDate()} · DAY ${index + 1}`;
+//
+// 🔴 한국어면 손으로 만들고 그 밖이면 «무조건 en-US» 였다 (S15P21E201-1355).
+//    일본어·중국어 사용자가 자기 언어로 고른 화면에서 「September 20 (Sat)」를 봤다.
+//    이제는 운영체제에 맡긴다 — ja 「9月20日(土)」 · zh 「9月20日周六」.
+function formatDayHeading(value: string, index: number, tx: (ko: string, en: string) => string, locale: string) {
+  return formatLocaleDayHeading(value, locale) ?? txf(tx, '%s일차', 'Day %s', index + 1);
 }
 
 // 지도 대신 노선도 — 디자인 확정안 B안(09-디자인-인계-일정).
-function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: string[]; tx: (ko: string, en: string) => string }) {
+function RouteStrip({ items, times, tx, locale }: { items: ItineraryItemDto[]; times: string[]; tx: (ko: string, en: string) => string; locale: string }) {
   if (!items.length) return null;
   return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
     {items.map((item, index) => {
@@ -118,7 +115,7 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
         <View style={styles.stop}>
           <View style={[styles.node, index === 0 && styles.nodeFirst]}><Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
           <Text variant="caption" weight="bold" numberOfLines={1} style={styles.stopName}>{item.title}</Text>
-          <Text variant="caption" color={color.text.muted}>{formatTime(times[index] ?? item.startsAt)}</Text>
+          <Text variant="caption" color={color.text.muted}>{formatTime(times[index] ?? item.startsAt, locale)}</Text>
         </View>
       </View>;
     })}
@@ -129,7 +126,7 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
 function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken, stepState }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null;
   /** 시안 ⑤ — 다녀옴 · 현재 · 다음 · 이후. 모르면 안 준다(진행을 안 켠 화면). */
   stepState?: 'done' | 'current' | 'next' | 'later' }) {
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const disabled = !canEdit || lockBusy || excludeBusy || dayBusy;
 
   // 다녀오셨나요 평가 — 방문 예정 시각이 지난 칸에만 띄운다.
@@ -222,7 +219,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           </Pressable>
           <View style={[styles.stopRight, wide && styles.stopRightWide]}>
             <View style={wide ? styles.stopRightStack : undefined}>
-              <Text variant={wide ? 'title' : 'body'} weight="bold" color={color.brand.navy}>{formatTime(displayTime)}</Text>
+              <Text variant={wide ? 'title' : 'body'} weight="bold" color={color.brand.navy}>{formatTime(displayTime, locale)}</Text>
               {wide && item.estimatedCostKrw != null ? <Text variant="caption" color={color.text.muted}>{item.estimatedCostKrw === 0 ? tx('무료', 'Free') : tx(`${item.estimatedCostKrw.toLocaleString()}원`, `${item.estimatedCostKrw.toLocaleString()} KRW`)}</Text> : null}
             </View>
             {lockControl}
@@ -231,8 +228,8 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
         {expanded ? <View style={styles.stopDetail}>
           {facts.length ? <View style={styles.metaRow}>{facts.map((fact) => <Text key={fact} variant="caption" color={color.text.muted}>{fact}</Text>)}</View> : null}
           {pace && !reorderMode ? <View style={styles.paceRow}>
-            {pace.visited ? <Text variant="caption" weight="bold" color={color.state.success}>{tx(`도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${pace.predictedDeparture ? ` · 출발 ${formatTime(pace.predictedDeparture)}` : ''}`, `Arrived ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${pace.predictedDeparture ? ` · Left ${formatTime(pace.predictedDeparture)}` : ''}`)}</Text>
-              : <Text variant="caption" weight="bold" color={pace.atRisk ? color.state.danger : color.text.muted}>{tx(`예상 도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${estimated ? ' (추정)' : ''}`, `Est. arrival ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${estimated ? ' (est.)' : ''}`)}{pace.atRisk ? ` · ${tx('하루를 넘길 위험', 'Risks running past the day')}` : ''}</Text>}
+            {pace.visited ? <Text variant="caption" weight="bold" color={color.state.success}>{tx(`도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--'}${pace.predictedDeparture ? ` · 출발 ${formatTime(pace.predictedDeparture, locale)}` : ''}`, `Arrived ${pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--'}${pace.predictedDeparture ? ` · Left ${formatTime(pace.predictedDeparture, locale)}` : ''}`)}</Text>
+              : <Text variant="caption" weight="bold" color={pace.atRisk ? color.state.danger : color.text.muted}>{tx(`예상 도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--'}${estimated ? ' (추정)' : ''}`, `Est. arrival ${pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--'}${estimated ? ' (est.)' : ''}`)}{pace.atRisk ? ` · ${tx('하루를 넘길 위험', 'Risks running past the day')}` : ''}</Text>}
             {(onRecordArrival || onRecordDeparture) ? <View style={styles.actualButtons}>
               {!pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
                 : !pace.predictedDeparture ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 출발 찍기', 'Mark departure at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
@@ -260,7 +257,7 @@ export default function ItineraryScreen() {
   //    들어온다(시안 ④). 내 여행에서 다시 들어오면 안 연다 — 열 때마다 물으면 건너뛸 수
   //    있다고 말해 놓고 안 놓아주는 것이다.
   const { id, day: dayParam, view: viewParam, name: nameParam } = useLocalSearchParams<{ id: string; day?: string; view?: string; name?: string }>();
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const itineraryId = id ?? '';
   const [result, setResult] = useState<ItineraryLoadResult>({ state: 'error', message: tx('일정 식별자가 없어요.', 'Missing itinerary identifier.') });
   const [loading, setLoading] = useState(Boolean(itineraryId));
@@ -800,7 +797,7 @@ export default function ItineraryScreen() {
           {itinerary.days.map((entry, dayIndex) => (
             <View key={`${entry.date}-${dayIndex}`}>
               <Pressable accessibilityRole="button" accessibilityLabel={tx(`${dayIndex + 1}일차만 보기`, `View only day ${dayIndex + 1}`)} onPress={() => { selectView('day'); selectDay(dayIndex); }} style={styles.dayLine}>
-                <Text variant="body" weight="bold">{formatDayHeading(entry.date, dayIndex, tx)}</Text>
+                <Text variant="body" weight="bold">{formatDayHeading(entry.date, dayIndex, tx, locale)}</Text>
                 <Text variant="caption" color={color.text.muted}>{tx(`${entry.items.length}곳`, `${entry.items.length} stops`)}</Text>
               </Pressable>
               {entry.items.length ? entry.items.map((item, index) => (
@@ -813,7 +810,7 @@ export default function ItineraryScreen() {
         <>
           {/* 날짜 줄 — 시안 3.2. 왼쪽에 「9월 19일 (금)」, 오른쪽에 그날 합계. */}
           <View style={styles.dayLine}>
-            <Text variant="body" weight="bold">{day ? formatDayHeading(day.date, selectedDay, tx) : tx(`${selectedDay + 1}일차`, `Day ${selectedDay + 1}`)}</Text>
+            <Text variant="body" weight="bold">{day ? formatDayHeading(day.date, selectedDay, tx, locale) : tx(`${selectedDay + 1}일차`, `Day ${selectedDay + 1}`)}</Text>
             {dayFacts ? <Text variant="caption" color={color.text.muted}>{dayFacts}</Text> : null}
           </View>
           {pace?.atRiskItemIds.length ? <View accessibilityRole="alert" style={styles.warningNotice}><Text variant="caption" weight="bold" color={color.state.danger}>{tx(`${pace.atRiskItemIds.length}곳이 하루를 넘길 위험이 있어요.${paceEstimated ? ' (기록이 적어 추정값이에요)' : ''}`, `${pace.atRiskItemIds.length} place(s) risk running past the day.${paceEstimated ? ' (estimated — few records yet)' : ''}`)}</Text></View> : null}
@@ -835,7 +832,7 @@ export default function ItineraryScreen() {
               순서를 바꾸는 중에는 숨긴다: 아직 저장 안 된 순서를 확정된 동선처럼 그리면
               무엇이 진짜인지 헷갈린다.
           */}
-          {!reorderMode && wide ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} /> : null}
+          {!reorderMode && wide ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} locale={locale} /> : null}
           {displayedItems.length ? <View style={wide ? styles.wideGrid : undefined}>
             <View style={wide ? styles.timelineColumn : undefined}>
               <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} stepState={dayStepStates[index]} />)}</View>
