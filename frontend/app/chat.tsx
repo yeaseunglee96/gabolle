@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native
 import { useRouter } from 'expo-router';
 
 import { understandAssistantMessage, type AssistantAction } from '@/assistant/intent';
+import { isNearBottom } from '@/assistant/chatScroll';
 import { askAssistant, type AssistantTurn } from '@/assistant/assistantApi';
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -52,6 +53,11 @@ export default function Chat() {
   // state 가 아직 안 바뀐 사이에 다음 send 가 같은 id를 다시 계산할 수 있다(state 파생값은
   // 렌더 지연을 겪는다). 카운터는 그 지연과 무관하게 그 자리에서 바로 늘어난다.
   const nextIdRef = useRef(1);
+  // 🔴 답이 와도 화면이 안 내려가 「일정에 적용」 단추가 화면 밖에 숨었다 — S15P21E201-1349.
+  //    바닥 근처에 있었을 때만 따라 내려간다. 위로 올려 지난 말을 읽는 사람을
+  //    말풍선마다 바닥으로 끌어내리지 않는다.
+  const listRef = useRef<ScrollView>(null);
+  const stickToEnd = useRef(true);
   // 서버가 저장하지 않는 대화라(무상태) 매 요청마다 화면이 최근 몇 턴을 함께 보낸다 — 서버
   // (AssistantChatService)가 개수·길이를 다시 한 번 다듬으니 여기서는 넉넉히 최근 6개만 추린다.
   const MAX_HISTORY_TURNS = 6;
@@ -71,6 +77,9 @@ export default function Chat() {
     const content = value.trim();
     if (!content || pending) return;
     setInput('');
+    // 🔴 내가 방금 보낸 것에 대한 답은 예외다. 위로 올려 둔 채 질문한 사람이
+    //    자기 답을 못 보면 아무 일도 안 일어난 것처럼 보인다.
+    stickToEnd.current = true;
     const history = recentHistory();
     const userId = nextIdRef.current++;
     const assistantId = nextIdRef.current++;
@@ -98,7 +107,15 @@ export default function Chat() {
     <View style={[styles.workspace, desktop && styles.workspaceDesktop]}>
       {desktop ? <View style={styles.sidebar}><Eyebrow>{tx('여행 도구', 'Travel tools')}</Eyebrow><Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중 필요한 기능을 바로 실행하세요', 'Run the features you need for your trip right away')}</Text><Text variant="body" color={color.text.onAction}>{tx('현장 문장은 크게 보거나 음성으로 듣고, 메뉴판 번역 도구도 바로 열 수 있어요.', 'View on-the-go phrases in large text or hear them aloud, and open the menu translation tool right away.')}</Text>{tools}</View> : null}
       <View style={[styles.chatPanel, desktop && styles.chatPanelDesktop]}>
-        <ScrollView style={styles.messages} contentContainerStyle={[styles.messageContent, desktop && styles.messageContentDesktop]} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          ref={listRef}
+          style={styles.messages}
+          contentContainerStyle={[styles.messageContent, desktop && styles.messageContentDesktop]}
+          keyboardShouldPersistTaps="handled"
+          scrollEventThrottle={16}
+          onScroll={(event) => { stickToEnd.current = isNearBottom(event.nativeEvent); }}
+          onContentSizeChange={() => { if (stickToEnd.current) listRef.current?.scrollToEnd({ animated: true }); }}
+        >
           <View style={[styles.bubble, desktop && styles.bubbleDesktop, styles.assistantBubble]}><Text color={color.text.heading}>{tx('안녕하세요! 부산 일정과 여행 중 필요한 말을 앱 기능으로 바로 도와드릴게요.', 'Hi! I can help with your Busan itinerary and useful phrases for your trip, right from the app.')}</Text></View>
           {/* 사용자 요청(2026-09-16): 이 화면은 자유롭게 대화하는 진짜 챗봇이 아니라, 은행 앱
               챗봇처럼 「기능을 찾아 바로 실행하는 검색 도구」다. 그래서 실제로 누르면 바로 실행되는
