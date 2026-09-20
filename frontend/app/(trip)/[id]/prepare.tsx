@@ -1,5 +1,6 @@
 // 16 여행 준비·날씨 — Figma 16_여행 준비·날씨 실측 그대로.
 import { txf } from '@/i18n/format';
+import { formatMonthDay } from '@/i18n/datetime';
 import { useEffect, useState } from 'react';
 import { Image, Pressable, Share as NativeShare, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -30,10 +31,10 @@ const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
   CLOUDY: ['흐림', 'Cloudy'],
 };
 
-function formatDepartureDate(value: string) {
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return null;
-  return { ko: `${date.getMonth() + 1}월 ${date.getDate()}일`, en: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) };
+// 🔴 한국어면 손으로, 그 밖이면 «무조건 en-US» 였다 (S15P21E201-1355).
+//    이제는 고른 언어에 맞는 꼴로 운영체제가 만든다.
+function formatDepartureDate(value: string, locale: string) {
+  return formatMonthDay(value, locale);
 }
 
 const PREP_ITEMS = [
@@ -177,7 +178,7 @@ export default function Prepare() {
 }
 
 function PrepareForTrip({ tripId }: { tripId: string }) {
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const router = useRouter();
   const { accessToken } = useAuth();
   const [firstDayDate, setFirstDayDate] = useState<string | null>(null);
@@ -240,14 +241,14 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
     return () => { cancelled = true; };
   }, [tripId, accessToken]);
 
-  const departure = firstDayDate ? formatDepartureDate(firstDayDate) : null;
+  const departure = firstDayDate ? formatDepartureDate(firstDayDate, locale) : null;
 
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
           <Eyebrow>
-            {departure ? tx(`여행 전 · ${departure.ko} 출발`, `Before the trip · Departing ${departure.en}`) : tx('여행 전', 'Before the trip')}
+            {departure ? txf(tx, '여행 전 · %s 출발', 'Before the trip · Departing %s', departure) : tx('여행 전', 'Before the trip')}
           </Eyebrow>
           <Text variant="display" weight="bold" style={styles.title}>
             {tx('부산 여행 준비', 'Getting ready for Busan')}
