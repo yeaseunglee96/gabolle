@@ -17,12 +17,11 @@ import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripMembershipRepository;
 
 /**
- * {@link TripMembershipRepository} 의 JPA 구현 — S15P21E201-299 · -320.
+ * {@link TripMembershipRepository} 의 JPA 구현.
  *
- * <p>🔴 {@link #add} 는 {@code INSERT ... ON CONFLICT (trip_id, user_id) DO NOTHING} 이다. JPA 의
- * {@code save} 로 넣고 예외를 잡는 방식은 쓰지 않는다 — 그 예외가 트랜잭션을 롤백 전용으로 만들어
- * 호출자가 "이미 참여" 를 성공으로 답하려 해도 커밋이 실패한다({@code JpaTripRepository} 의 멱등 키가
- * 같은 이유로 ON CONFLICT 를 쓴다). 0행이면 이미 있었다는 뜻이고 그것을 예외로 알린다.
+ * <p>{@link #add} 는 {@code ON CONFLICT DO NOTHING} 으로 넣는다. {@code save} 로 넣고 제약 위반
+ * 예외를 잡는 방식은 쓰지 않는다 — 그 예외가 트랜잭션을 롤백 전용으로 만들어, 호출자가 "이미
+ * 참여" 를 성공으로 답하려 해도 커밋이 실패한다. 0행이면 이미 있었다는 뜻이다.
  */
 @Repository
 @Profile({ "db", "dev" })
@@ -51,11 +50,10 @@ public class JpaTripMembershipRepository implements TripMembershipRepository {
 	}
 
 	/**
-	 * 🔴 {@code noRollbackFor} — 이 메서드는 호출자(TripInviteService, {@code @Transactional})의 트랜잭션에
-	 * 참여한다. 참여 중인 메서드가 RuntimeException 을 밖으로 내면 Spring 은 그 공용 트랜잭션을
-	 * <b>롤백 전용</b>으로 표시하고, 호출자가 예외를 잡아 "이미 참여" 로 200 을 답하려 해도 커밋 시점에
-	 * {@code UnexpectedRollbackException} 이 난다. 동시에 두 번 누른 경쟁에서만 드러나는 500 이다.
-	 * {@link AlreadyMemberException} 은 실패가 아니라 "이미 있다" 는 사실이라 롤백 사유에서 뺀다.
+	 * {@code noRollbackFor} 가 필요하다. 이 메서드는 호출자의 트랜잭션에 참여하므로, 여기서 나간
+	 * RuntimeException 은 그 공용 트랜잭션을 롤백 전용으로 만든다 — 호출자가 예외를 잡아 "이미
+	 * 참여" 로 200 을 답해도 커밋 시점에 {@code UnexpectedRollbackException} 이 난다.
+	 * {@link AlreadyMemberException} 은 실패가 아니라 사실이라 롤백 사유에서 뺀다.
 	 */
 	@Override
 	@Transactional(noRollbackFor = AlreadyMemberException.class)

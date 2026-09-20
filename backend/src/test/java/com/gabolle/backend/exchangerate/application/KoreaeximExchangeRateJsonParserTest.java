@@ -1,6 +1,6 @@
 package com.gabolle.backend.exchangerate.application;
 
-// 🔴 패키지 전용(package-private) 파서와 같은 패키지에 둔다.
+// 패키지 전용(package-private) 파서와 같은 패키지에 둔다.
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -14,7 +14,6 @@ import com.gabolle.backend.exchangerate.domain.ExchangeRate;
 
 import tools.jackson.databind.ObjectMapper;
 
-/** {@link KoreaeximExchangeRateJsonParser} 검증 — S15P21E201-1079. */
 class KoreaeximExchangeRateJsonParserTest {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
@@ -51,7 +50,7 @@ class KoreaeximExchangeRateJsonParserTest {
 	@DisplayName("🔴 응답이 빈 배열이면 「그날 값이 없다」로 알린다 — 다른 실패와 코드를 가른다")
 	void emptyArrayIsANoDataFailure() {
 		// 이 코드일 때만 ExchangeRateService 가 하루씩 뒤로 되감는다. 인증키 오류·한도 초과와
-		// 같은 코드를 쓰면 그것까지 되감아 벤더를 헛되이 여러 번 부른다 (S15P21E201-1300).
+		// 같은 코드를 쓰면 그것까지 되감아 벤더를 헛되이 여러 번 부른다.
 		assertThatThrownBy(() -> KoreaeximExchangeRateJsonParser.parse("[]", this.objectMapper))
 				.isInstanceOf(ExchangeRateVendorException.class)
 				.satisfies(exception -> assertThat(((ExchangeRateVendorException) exception).getCode())

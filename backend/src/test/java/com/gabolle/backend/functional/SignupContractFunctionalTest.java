@@ -13,21 +13,11 @@ import org.springframework.http.ResponseEntity;
 import com.gabolle.backend.functional.support.FunctionalJourneyTest;
 
 /**
- * 회원가입 본문이 실제 HTTP 에서 읽히는가 — S15P21E201-811.
+ * 회원가입 본문이 실제 HTTP 에서 읽히는가. {@code FunctionalJourneyTest.loginAsNewUser} 는 가입 본문을
+ * 객체로 보내 보내는 쪽 Jackson 이 만든 JSON 만 검증되는데, 실제 앱은 손으로 만든 JSON 을 보낸다.
  *
- * <h2>왜 이 검사가 따로 있나</h2>
- * {@code FunctionalJourneyTest.loginAsNewUser} 는 가입 본문을 <b>객체로</b> 보낸다. 그러면
- * 보내는 쪽 Jackson 이 만든 JSON 만 검증되고, <b>손으로 쓴 JSON 이 읽히는가</b> 는 안 재진다.
- * 실제 앱과 팀의 다른 도구는 손으로 만든 JSON 을 보낸다.
- *
- * <p>2026-09-10 운영에서 가입이 전부 {@code 400 INVALID_REQUEST} 로 실패했다. 응답의
- * {@code fields} 가 비어 있었는데, 그것은 검증에 걸린 것이 아니라 <b>본문을 아예 못 읽었다</b>는
- * 뜻이다(검증 실패면 어느 칸이 틀렸는지가 들어온다). 같은 시각 로그인은 같은 방식으로 보낸
- * 빈 본문에 칸 이름을 제대로 돌려줬다 — 즉 JSON 처리 자체는 살아 있었다.
- *
- * <h2>비어 있는 본문으로 재는 이유</h2>
- * {@code {}} 를 보내면 <b>읽기</b>와 <b>검증</b>이 갈린다. 읽히면 검증이 돌아 어느 칸이 비었는지
- * 알려 주고, 못 읽으면 그 목록이 빈 채로 온다. 유효한 본문으로 재면 둘을 구분할 수 없다.
+ * <p>빈 본문({@code {}})으로 재면 읽기와 검증이 갈린다 — 읽히면 어느 칸이 비었는지가 응답의
+ * {@code fields} 에 들어오고, 못 읽으면 그 목록이 빈 채로 온다. 유효한 본문으로는 둘을 구분할 수 없다.
  */
 class SignupContractFunctionalTest extends FunctionalJourneyTest {
 

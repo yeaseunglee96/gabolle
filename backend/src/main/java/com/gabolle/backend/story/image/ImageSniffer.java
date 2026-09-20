@@ -3,12 +3,9 @@ package com.gabolle.backend.story.image;
 import com.gabolle.backend.story.application.ImageUploadService;
 
 /**
- * 파일 형식을 매직 바이트(파일 맨 앞 몇 바이트가 형식마다 정해져 있는 값)로만 판단한다.
- *
- * <h2>🔴 파일 이름·클라이언트가 보낸 Content-Type 은 보지 않는다</h2>
- * 화면에서만 형식·크기를 막으면 서버를 직접 부르는 요청(Postman, 조작된 앱)은 그 검사를
- * 지나간다. {@code photo.jpg} 라는 이름이 붙었어도 내용이 실행 파일이면 그건 사진이 아니다.
- * 그래서 이 클래스는 이름과 헤더를 완전히 무시하고 바이트 내용만 본다.
+ * 파일 형식을 매직 바이트(파일 맨 앞 몇 바이트가 형식마다 정해져 있는 값)로만 판단한다. 파일
+ * 이름과 클라이언트가 보낸 Content-Type 은 일부러 보지 않는다 — 둘 다 보내는 쪽이 정하는 값이라
+ * {@code photo.jpg} 라는 이름으로 실행 파일을 올릴 수 있다.
  */
 public final class ImageSniffer {
 

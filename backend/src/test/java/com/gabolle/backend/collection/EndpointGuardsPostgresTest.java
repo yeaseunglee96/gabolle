@@ -33,26 +33,14 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 어젯밤 연 경로 셋의 방어선이 <b>실제로 막는가</b> — S15P21E201-1037 의 완료 기준.
+ * 마이그레이션에 적어 둔 제약이 진짜 PostgreSQL 위에서 실제로 막는지 본다. 컨트롤러를 홀로
+ * 세우는 시험으로는 상태 코드까지만 확인되고 제약은 한 번도 돌지 않는다.
  *
- * <h2>왜 진짜 DB 여야 하나</h2>
+ * <p>보는 것은 둘이다 — 같은 것을 두 번 넣어도 성공이고 행은 하나인가(멱등), 그리고 종류에
+ * 맞지 않는 행을 DB 가 거부하는가.
  *
- * 이 모듈들의 테스트는 지금까지 전부 컨트롤러를 홀로 세우고 서비스를 가짜로 끼운 것이었다.
- * 그 방식으로는 요청 모양과 상태 코드는 확인되지만, <b>마이그레이션에 적어 둔 제약이 정말
- * 막는지</b>는 한 번도 안 돌아간다. 체크 제약과 유일 제약에 공을 들여 놓고 그것이 도는지는
- * 배포에서 처음 아는 상태였다.
- *
- * <p>여기서 보는 것은 둘이다.
- *
- * <ol>
- * <li><b>멱등</b> — 같은 것을 두 번 넣어도 예외가 아니라 성공이고 행은 하나다. 그전에는
- *     「있는지 보고 없으면 넣는」 방식이라 두 요청 사이로 둘 다 들어가 하나가 500 이 됐다</li>
- * <li><b>제약</b> — 종류에 맞지 않는 행을 DB 가 실제로 거부한다</li>
- * </ol>
- *
- * <p>도커도 없고 {@code GABOLLE_TEST_DB_URL} 도 없으면 이 클래스는 <b>건너뜀</b>으로 표시된다
- * ({@link PostgresAvailableCondition}). 조용히 통과하지 않는다 — 그게 이 시험에서 가장
- * 위험한 오독이다.
+ * <p>도커도 {@code GABOLLE_TEST_DB_URL} 도 없으면 조용히 통과하지 않고 건너뜀으로 표시된다
+ * ({@link PostgresAvailableCondition}).
  */
 @SpringBootTest(classes = ReliabilitySliceApplication.class, properties = {
 		"spring.profiles.active=db",

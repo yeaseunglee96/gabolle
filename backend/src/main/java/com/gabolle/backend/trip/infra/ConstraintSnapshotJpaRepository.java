@@ -10,6 +10,6 @@ interface ConstraintSnapshotJpaRepository extends JpaRepository<ConstraintSnapsh
 
 	List<ConstraintSnapshotJpaEntity> findByTripId(UUID tripId);
 
-	/** S15P21E201-192 — 추천 Job 을 만들 때 constraintSnapshotId 를 채우는 데 쓴다. */
+	/** 추천 Job 을 만들 때 constraintSnapshotId 를 채우는 데 쓴다. */
 	Optional<ConstraintSnapshotJpaEntity> findTopByTripIdOrderByVersionDesc(UUID tripId);
 }

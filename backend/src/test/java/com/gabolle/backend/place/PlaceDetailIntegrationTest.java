@@ -20,10 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 장소 상세 — S15P21E201-476.
- *
- * <p>완료 기준 셋을 하나씩 확인한다. 그중 <b>"정보 없음과 해당 없음이 구분된다"</b> 가 이 티켓의
- * 핵심이라 네 상태를 각각 만들어 놓고 서로 다르게 나오는지 본다.
+ * 장소 상세. "정보 없음" 과 "해당 없음" 이 구분되는지가 핵심이라, 네 상태를 각각 만들어
+ * 놓고 서로 다르게 나오는지 본다.
  */
 class PlaceDetailIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -98,7 +96,6 @@ class PlaceDetailIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(quietness.evidenceStatus()).isEqualTo("ESTIMATED");
 		assertThat(quietness.value().get("score").asDouble()).isEqualTo(0.7);
 
-		// 셋이 서로 다른 상태로 나온다 — 이것이 "구분된다" 의 실제 의미다
 		assertThat(wheelchair.evidenceStatus())
 				.isNotEqualTo(shade.evidenceStatus())
 				.isNotEqualTo(quietness.evidenceStatus());
@@ -138,9 +135,8 @@ class PlaceDetailIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	/**
-	 * 어느 일정인지 안 물었으면 답이 없는 것이 정상이다. 🔴 여기서 {@code NOT_INCLUDED} 를
-	 * 돌려주면 화면이 "이 장소는 일정에 없다" 고 단정하게 되는데, 그것은 확인한 사실이 아니라
-	 * 물어보지 않은 것이다.
+	 * {@code NOT_INCLUDED} 를 돌려주면 화면이 "이 장소는 일정에 없다" 고 단정하는데, 그것은
+	 * 확인한 사실이 아니라 물어보지 않은 것이다.
 	 */
 	@Test
 	@DisplayName("일정을 지정하지 않으면 포함 여부는 false 가 아니라 알 수 없음이다")
@@ -158,9 +154,8 @@ class PlaceDetailIntegrationTest extends PlacePostgresIntegrationTest {
 
 	/**
 	 * 이 슬라이스({@code PlaceSliceApplication})는 {@code common}·{@code place} 만 스캔하므로
-	 * {@code ItineraryMembershipPort} 구현이 빈으로 없다. 그때도 조회는 성공하고 포함 여부만
-	 * "모른다" 로 나가는지를 여기서 지킨다 — 배선이 빠진 것을 {@code NOT_INCLUDED} 라는 사실로
-	 * 바꿔 내보내지 않는다.
+	 * {@code ItineraryMembershipPort} 구현이 빈으로 없다. 배선이 빠진 것을
+	 * {@code NOT_INCLUDED} 라는 사실로 바꿔 내보내지 않는다.
 	 */
 	@Test
 	@DisplayName("일정을 지정해도 이 슬라이스에는 판정할 구현이 없어 알 수 없음이다")

@@ -10,7 +10,7 @@ import com.gabolle.backend.share.domain.TripShareLink;
 
 public interface TripShareLinkRepository extends JpaRepository<TripShareLink, UUID> {
 
-	/** 비로그인 조회가 URL 의 표로 찾는다. {@code uq_trip_share_link_token} 이 하나임을 보장한다. */
+	/** 비로그인 조회가 URL 의 token 으로 찾는다. 유일 인덱스가 하나임을 보장한다. */
 	Optional<TripShareLink> findByToken(String token);
 
 	List<TripShareLink> findByTripIdOrderByCreatedAtDesc(UUID tripId);

@@ -48,16 +48,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
- * S15P21E201-682 — 완료 기준 "로그인 5회 연속 실패 시 로그에 남고" 를 <b>진짜 SecurityEventLogger</b>
- * (mock 이 아니다)로 확인한다.
- *
- * <h2>왜 진짜 DB(Testcontainers) 가 아니라 mock 리포지토리인가</h2>
- *
- * 트랜잭션이 되돌려져도 실패 횟수가 남는지는 이미 {@code LoginAttemptLimitIntegrationTest} 가 진짜
- * PostgreSQL 로 검증한다. 이 테스트의 관심사는 그것과 다르다 — <b>로깅이 올바른 시점에, 올바른
- * attempts 값으로 나가는가</b>다. 그 관심사는 "같은 자격 증명 엔티티가 findById 로 다시 읽힐 때마다
- * 상태가 이어지는가" 만 있으면 되고, mock 리포지토리가 항상 같은 엔티티 인스턴스를 돌려주는 것으로
- * 충분히 흉내 낼 수 있다.
+ * 로그인 연속 실패가 mock 이 아닌 진짜 {@link SecurityEventLogger} 로 남는지 본다. 관심사는 로깅이
+ * 올바른 시점에 올바른 attempts 값으로 나가는가이므로 리포지토리는 mock 이면 충분하다 — 트랜잭션이
+ * 되돌려져도 실패 횟수가 남는지는 {@code LoginAttemptLimitIntegrationTest} 가 진짜 DB 로 본다.
  */
 @ExtendWith(MockitoExtension.class)
 class LoginFailureSecurityLoggingTest {
@@ -69,14 +62,11 @@ class LoginFailureSecurityLoggingTest {
 	@Mock private AppUserRepository userRepository;
 	@Mock private UserConsentRepository consentRepository;
 	@Mock private LocalCredentialRepository credentialRepository;
-	// S15P21E201-742 — 이메일 중복 검사가 소셜 계정도 보게 되면서 생긴 의존성. 이 테스트는
-	// 로그인 실패 로깅만 재므로 기본 mock 으로 둔다(빈 목록을 돌려준다).
 	@Mock private AuthIdentityRepository identityRepository;
 	@Mock private AuthOneTimeTokenRepository oneTimeTokenRepository;
 	@Mock private PasswordEncoder passwordEncoder;
 	@Mock private AuthTokenService authTokenService;
 	@Mock private EmailSender emailSender;
-	// S15P21E201-317 — 가입 시 익명 여행 승계 의존성. 이 테스트는 로그인만 재므로 기본 mock 이면 된다.
 	@Mock private com.gabolle.backend.auth.service.AnonymousSessionService anonymousSessionService;
 	@Mock private com.gabolle.backend.trip.application.AnonymousTripClaimService anonymousTripClaimService;
 
@@ -89,9 +79,8 @@ class LoginFailureSecurityLoggingTest {
 	@BeforeEach
 	void setUp() {
 		this.logbackLogger = (Logger) LoggerFactory.getLogger(SecurityEventLogger.class);
-		// 🔴 수준을 명시한다. 전체 빌드에서 이 클래스만 앞선 Spring 테스트의 로그백 재설정에
-		//    걸려 아무것도 안 잡히는 일이 있었다 — 그러면 아래 확인들이 빈 목록을 훑고 조용히
-		//    통과한다. 원래 수준은 tearDown 에서 되돌린다
+		// 수준을 명시한다. 앞선 Spring 테스트가 로그백을 재설정하면 아무것도 안 잡혀,
+		// 아래 확인들이 빈 목록을 훑고 조용히 통과한다.
 		this.originalLevel = this.logbackLogger.getLevel();
 		this.logbackLogger.setLevel(Level.INFO);
 		this.appender = new ListAppender<>();
@@ -106,9 +95,8 @@ class LoginFailureSecurityLoggingTest {
 				Clock.systemUTC());
 		SecurityEventLogger securityEventLogger = new SecurityEventLogger(alertNotifier);
 
-		// 🔴 LocalAuthService 의 Clock 주입 생성자는 auth.service 패키지 전용(패키지 접근)이라
-		//    여기(common.security)서는 못 쓴다 — 공개 생성자를 쓴다. 이 테스트는 시각 자체를
-		//    검증하지 않으므로 Clock.systemUTC() 로도 충분하다.
+		// LocalAuthService 의 Clock 주입 생성자는 패키지 접근이라 여기서는 못 쓴다.
+		// 이 테스트는 시각 자체를 검증하지 않으므로 공개 생성자로 충분하다.
 		this.localAuthService = new LocalAuthService(this.userRepository, this.consentRepository,
 				this.credentialRepository, this.identityRepository, this.oneTimeTokenRepository, this.passwordEncoder,
 				new SessionTokenGenerator(), this.authTokenService, this.emailSender, authProperties,
@@ -126,10 +114,8 @@ class LoginFailureSecurityLoggingTest {
 	@DisplayName("🔴 완료 기준 — 로그인 5회 연속 실패가 로그에 남고, 다섯 번째 줄의 attempts 가 5다")
 	void fifthConsecutiveFailureLogsAttemptsFive() {
 		LocalCredential credential = activeVerifiedCredential();
-		// 🔴 credential 은 실제로 저장한 적이 없어 localCredentialId 가 아직 null 이다
-		//    (@GeneratedValue(strategy = UUID) 는 영속화 시점에 채워진다). findById 를 값으로
-		//    스텁하는 대신 any() 로 받아 항상 같은 인스턴스를 돌려준다 — 이 테스트의 관심사는
-		//    "다시 읽으면 상태가 이어지는가" 지 "어떤 ID로 읽는가" 가 아니다.
+		// credential 은 저장한 적이 없어 id 가 아직 null 이다. findById 를 any() 로 받아 항상 같은
+		// 인스턴스를 돌려줘야 "다시 읽으면 상태가 이어지는가" 를 잴 수 있다.
 		when(this.credentialRepository.findByEmail(EMAIL)).thenReturn(Optional.of(credential));
 		when(this.credentialRepository.findById(any())).thenReturn(Optional.of(credential));
 		when(this.passwordEncoder.matches(WRONG_PASSWORD, credential.getPasswordHash())).thenReturn(false);
@@ -148,10 +134,6 @@ class LoginFailureSecurityLoggingTest {
 	@DisplayName("🔴 완료 기준 — 잠기면 AUTH_ACCOUNT_LOCKED 가 남는다")
 	void lockingLogsAccountLockedEvent() {
 		LocalCredential credential = activeVerifiedCredential();
-		// 🔴 credential 은 실제로 저장한 적이 없어 localCredentialId 가 아직 null 이다
-		//    (@GeneratedValue(strategy = UUID) 는 영속화 시점에 채워진다). findById 를 값으로
-		//    스텁하는 대신 any() 로 받아 항상 같은 인스턴스를 돌려준다 — 이 테스트의 관심사는
-		//    "다시 읽으면 상태가 이어지는가" 지 "어떤 ID로 읽는가" 가 아니다.
 		when(this.credentialRepository.findByEmail(EMAIL)).thenReturn(Optional.of(credential));
 		when(this.credentialRepository.findById(any())).thenReturn(Optional.of(credential));
 		when(this.passwordEncoder.matches(WRONG_PASSWORD, credential.getPasswordHash())).thenReturn(false);
@@ -188,8 +170,7 @@ class LoginFailureSecurityLoggingTest {
 				.hasSize(2);
 		assertThat(lockedAttempts.get(0)).contains("lockedForSeconds=").contains("outcome=REJECTED");
 
-		// 🔴 잠긴 뒤의 시도는 실패 횟수를 더 올리지 않으므로 AUTH_LOGIN_FAILURE 는 다섯 줄에서
-		//    멈춰 있어야 한다. 두 사건이 같은 이름으로 섞이면 "몇 번 틀렸나" 를 못 센다.
+		// 잠긴 뒤의 시도는 실패 횟수를 더 올리지 않으므로 AUTH_LOGIN_FAILURE 는 다섯 줄에서 멈춘다.
 		List<String> failures = this.appender.list.stream().map(ILoggingEvent::getFormattedMessage)
 				.filter(message -> message.contains("event=AUTH_LOGIN_FAILURE")).toList();
 		assertThat(failures).hasSize(5);
@@ -199,10 +180,6 @@ class LoginFailureSecurityLoggingTest {
 	@DisplayName("네 번만 틀리면 아직 AUTH_ACCOUNT_LOCKED 가 없다")
 	void fourFailuresDoNotLogAccountLocked() {
 		LocalCredential credential = activeVerifiedCredential();
-		// 🔴 credential 은 실제로 저장한 적이 없어 localCredentialId 가 아직 null 이다
-		//    (@GeneratedValue(strategy = UUID) 는 영속화 시점에 채워진다). findById 를 값으로
-		//    스텁하는 대신 any() 로 받아 항상 같은 인스턴스를 돌려준다 — 이 테스트의 관심사는
-		//    "다시 읽으면 상태가 이어지는가" 지 "어떤 ID로 읽는가" 가 아니다.
 		when(this.credentialRepository.findByEmail(EMAIL)).thenReturn(Optional.of(credential));
 		when(this.credentialRepository.findById(any())).thenReturn(Optional.of(credential));
 		when(this.passwordEncoder.matches(WRONG_PASSWORD, credential.getPasswordHash())).thenReturn(false);
@@ -220,10 +197,6 @@ class LoginFailureSecurityLoggingTest {
 	@DisplayName("🔴 완료 기준 — 이메일 원문도 비밀번호도 로그에 없다")
 	void neitherEmailNorPasswordLeakIntoLogs() {
 		LocalCredential credential = activeVerifiedCredential();
-		// 🔴 credential 은 실제로 저장한 적이 없어 localCredentialId 가 아직 null 이다
-		//    (@GeneratedValue(strategy = UUID) 는 영속화 시점에 채워진다). findById 를 값으로
-		//    스텁하는 대신 any() 로 받아 항상 같은 인스턴스를 돌려준다 — 이 테스트의 관심사는
-		//    "다시 읽으면 상태가 이어지는가" 지 "어떤 ID로 읽는가" 가 아니다.
 		when(this.credentialRepository.findByEmail(EMAIL)).thenReturn(Optional.of(credential));
 		when(this.credentialRepository.findById(any())).thenReturn(Optional.of(credential));
 		when(this.passwordEncoder.matches(WRONG_PASSWORD, credential.getPasswordHash())).thenReturn(false);
@@ -253,7 +226,7 @@ class LoginFailureSecurityLoggingTest {
 		assertThat(messages).isNotEmpty();
 		assertThat(messages).anySatisfy(message -> assertThat(message)
 				.contains("event=AUTH_LOGIN_FAILURE")
-				// 🔴 실패 횟수를 지어내지 않는다 — 계정이 없으면 셀 행이 없다
+				// 실패 횟수를 지어내지 않는다 — 계정이 없으면 셀 행이 없다
 				.contains("accountExists=false")
 				.doesNotContain("attempts="));
 	}
@@ -267,8 +240,7 @@ class LoginFailureSecurityLoggingTest {
 				new AuthCommands.Login("nobody@example.com", WRONG_PASSWORD, "device-test")))
 				.isInstanceOf(AuthException.class);
 
-		// 🔴 먼저 무언가 잡혔는지 본다. 이 줄이 없으면 아무것도 안 잡혔을 때 아래 for 문이
-		//    한 번도 안 돌고 조용히 통과한다 — 그건 "개인정보가 없다" 가 아니라 "안 봤다" 다
+		// 이 줄이 없으면 아무것도 안 잡혔을 때 아래 for 문이 한 번도 안 돌고 조용히 통과한다.
 		assertThat(this.appender.list).isNotEmpty();
 		for (ILoggingEvent event : this.appender.list) {
 			assertThat(event.getFormattedMessage())
@@ -292,7 +264,7 @@ class LoginFailureSecurityLoggingTest {
 		when(this.passwordEncoder.matches(WRONG_PASSWORD, credential.getPasswordHash())).thenReturn(false);
 		AuthException wrongPassword = catchThrowableOfType(() -> login(WRONG_PASSWORD), AuthException.class);
 
-		// 🔴 코드·메시지·상태가 모두 같아야 한다. 로그만 갈라지고 응답은 갈라지지 않는다
+		// 코드·메시지·상태가 모두 같아야 한다 — 로그만 갈라지고 응답은 갈라지지 않는다.
 		assertThat(unknownAccount.getCode()).isEqualTo(wrongPassword.getCode());
 		assertThat(unknownAccount.getMessage()).isEqualTo(wrongPassword.getMessage());
 		assertThat(unknownAccount.getStatus()).isEqualTo(wrongPassword.getStatus());

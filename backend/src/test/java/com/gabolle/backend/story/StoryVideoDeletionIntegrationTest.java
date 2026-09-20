@@ -27,31 +27,16 @@ import com.gabolle.testslice.StorySliceApplication;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-1275 — 기록을 지우면 <b>동영상 파일과 썸네일 파일이 실제로 사라지는가.</b>
+ * 기록을 지우면 동영상 파일과 썸네일 파일이 실제로 사라지는지 본다. 행만 보면 파일이 저장소에
+ * 남아 있어도 초록이라, 저장 루트를 임시 폴더로 돌리고 진짜 파일을 만들어 둔 뒤 확인한다.
  *
- * <h2>🔴 왜 행이 아니라 파일을 보나</h2>
+ * <p>시드가 조용히 실패하면 지운 뒤에도 0건이라 초록이 되므로, 모든 시험이 먼저
+ * {@code exists} 를 단언하고 그다음에 지운다.
  *
- * 「지운다」고 적어 두고 실제로는 안 지워지는 것이 이 저장소가 반복해서 겪은 일이다. DB 행만
- * 보면 <b>파일이 저장소에 그대로 남아 있어도 초록</b>이다. 그래서 이 검사는 저장 루트를 임시
- * 폴더로 돌리고 <b>진짜 파일을 만들어 둔 뒤</b>, 지운 다음 <b>그 파일이 없는지</b>를 본다.
+ * <p>썸네일이 핵심이다 — {@code story_image} 에 없으므로 {@code story_video} 를 따로 걸지
+ * 않으면 영영 안 지워진다.
  *
- * <h2>🔴 지우기 전에 「넣었는가」를 먼저 센다</h2>
- *
- * 시드가 조용히 실패하면 <b>지운 뒤에도 0건이라 초록</b>이 된다. 탈퇴 삭제 검사가 같은 함정에
- * 빠진 적이 있어 <b>이 저장소의 규약</b>이 됐다. 그래서 모든 시험이 먼저 {@code exists} 를
- * 단언하고 그다음에 지운다.
- *
- * <h2>🔴 썸네일이 이 검사의 핵심이다</h2>
- *
- * 썸네일은 사진 창구로 올라와 {@code uploaded_image} 행이 되지만 <b>{@code story_image} 에는
- * 안 들어간다</b>. 기록 삭제는 {@code story_image} 를 걸어서 파일을 찾으므로, 썸네일은
- * <b>{@code story_video} 를 따로 걸지 않으면 영영 안 지워진다.</b> 기록에 안 붙은 업로드를 쓸어
- * 가는 배치도 이 저장소에 없다(2026-09-18 확인 — 0곳).
- *
- * <h2>DB 가 없으면 건너뛴다</h2>
- *
- * 🔴 {@code PostgresAvailableCondition} 이 붙으므로 도커가 꺼진 PC 에서는 건너뛴 채 초록이다.
- * <b>진짜 판정은 CI 다.</b>
+ * <p>DB 가 없으면 건너뛴 채 초록이다 — 진짜 판정은 CI 다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -115,7 +100,7 @@ class StoryVideoDeletionIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
+		// 표를 비우지 않는다. 내가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
 		this.jdbc.update("DELETE FROM story_video WHERE story_id = ?", this.storyId);
 		this.jdbc.update("DELETE FROM uploaded_video WHERE uploaded_video_id = ?", this.videoUploadId);
 		this.jdbc.update("DELETE FROM uploaded_image WHERE uploaded_image_id = ?", this.thumbnailUploadId);
@@ -191,7 +176,7 @@ class StoryVideoDeletionIntegrationTest {
 		insertStoryVideoWithoutThumbnail(storyWithoutThumb, videoOnlyUpload);
 		writeRealFile(videoOnlyKey);
 		try {
-			// 🔴 먼저 「넣었는가」.
+			// 먼저 「넣었는가」.
 			assertThat(fileOf(videoOnlyKey)).exists();
 
 			this.storyService.delete(storyWithoutThumb, this.author);
@@ -245,7 +230,7 @@ class StoryVideoDeletionIntegrationTest {
 				""", UUID.randomUUID(), this.storyId, this.videoUploadId, this.thumbnailUploadId);
 	}
 
-	/** 저장소에 <b>진짜 파일</b>을 만든다. 내용은 아무래도 좋다 — 있는가 없는가만 본다. */
+	/** 저장소에 진짜 파일을 만든다. 내용은 아무래도 좋다 — 있는가 없는가만 본다. */
 	private void writeRealFile(String key) {
 		try {
 			Path target = STORAGE_ROOT.resolve(key);

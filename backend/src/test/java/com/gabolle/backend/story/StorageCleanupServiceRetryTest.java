@@ -27,16 +27,13 @@ import com.gabolle.backend.story.domain.StorageCleanupEntry;
 import com.gabolle.backend.story.storage.StoragePort;
 import com.gabolle.testslice.StorySliceApplication;
 
-/**
- * 대기열에 쌓인 항목을 저장소가 다시 성공하면 {@link StorageCleanupService#retryPending} 이 비우는지
- * — S15P21E201-226·-426. 실패 경로({@code deleteOrEnqueue})는 {@link StorageCleanupServiceTest}.
- */
+/** 성공 경로만 본다. 실패 경로({@code deleteOrEnqueue})는 {@link StorageCleanupServiceTest}. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",
 		"spring.flyway.enabled=true"
 })
-// 🔴 classes= 로 앱을 명시하면 중첩 @TestConfiguration 이 자동으로 잡히지 않는다 — 명시적으로 끌어온다.
+// classes= 로 앱을 명시하면 중첩 @TestConfiguration 이 자동으로 잡히지 않아 직접 끌어온다.
 @Import(StorageCleanupServiceRetryTest.SucceedingStorageConfig.class)
 @ExtendWith(PostgresAvailableCondition.class)
 class StorageCleanupServiceRetryTest {

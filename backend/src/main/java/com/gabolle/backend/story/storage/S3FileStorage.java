@@ -25,31 +25,18 @@ import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
 
 /**
- * {@link StoragePort} 의 S3 호환 구현 — S15P21E201-367/-213.
+ * {@link StoragePort} 의 S3 호환 구현. MinIO 공식 SDK 를 쓰지만 MinIO 전용은 아니다 — 어떤 S3 호환
+ * 엔드포인트에도 그대로 붙는다.
  *
- * <p>-367 이 결정한 것: 새 업체에 가입하지 않고 personalization 파이프라인이 이미 쓰던 MinIO 를
- * 재사용한다({@code StorageProperties} 클래스 주석에 근거가 있다). 이 클래스는 MinIO 전용이 아니다 —
- * MinIO 공식 SDK 는 어떤 S3 호환 엔드포인트에도 그대로 붙는다.
+ * <p>{@link #put} 이 돌려주는 주소({@code publicBaseUrl + "/" + key})에 응답하는 것은 이 서비스가
+ * 아니라 저장소 밖에 있는 nginx 설정이다. 버킷 정책이 익명 {@code GetObject} 만 허용하고
+ * {@code ListBucket} 은 거부하므로 주소를 아는 사람만 그 파일을 받는다.
  *
- * <h2>🔴 공개 주소는 이 클래스가 아니라 nginx 가 만든다</h2>
+ * <p>자격은 이 버킷 전용 최소권한 계정이다. 루트 자격을 쓰면 이 서비스 하나가 새는 것으로 같은
+ * 서버의 다른 버킷까지 함께 샌다.
  *
- * {@link #put} 이 돌려주는 주소는 {@code publicBaseUrl + "/" + key} 다. 그 주소는 EC2 의 nginx가
- * {@code /photos/} 를 MinIO 의 S3 API 포트로 그대로 프록시해서 응답한다(리버스 프록시 설정은
- * 저장소 밖 — 호스트의 nginx 설정이다). 버킷 정책이 익명 {@code GetObject} 만 허용하고
- * {@code ListBucket} 은 거부하므로, 이 주소를 아는 사람만 그 파일을 받는다 — 버킷 안 목록을
- * 통째로 훑을 수는 없다(-367 완료 기준 2번).
- *
- * <h2>🔴 이 클래스가 쓰는 자격은 루트 자격이 아니다</h2>
- *
- * {@code gabolle-backend} 라는 이 버킷 전용 최소권한 계정을 따로 만들어 쓴다(MinIO
- * {@code admin policy}로 {@code gabolle-photos} 버킷에만 {@code PutObject}·{@code GetObject}·
- * {@code DeleteObject}·{@code ListBucket} 을 준다). 루트 자격(minioadmin)을 그대로 쓰면 이
- * 서비스 하나가 새면 MinIO 전체(personalization 파이프라인의 다른 버킷 포함)가 함께 샌다.
- *
- * <p>{@link LocalFileStorage} 와 같은 이유로 키를 검증한다 — S3 오브젝트 키는 파일 시스템 경로가
- * 아니라 순회(traversal) 위험은 없지만, 어차피 저장소 하나만 이 규칙을 지키면 되므로 두 구현이
- * 같은 키 모양을 강제하는 편이 호출자({@code ImageUploadService})입장에서 어느 구현이 켜져
- * 있어도 동작이 갈리지 않는다.
+ * <p>S3 오브젝트 키에는 경로 순회 위험이 없지만 {@link LocalFileStorage} 와 같은 규칙으로 키를
+ * 검증한다 — 호출자 입장에서 어느 구현이 켜져 있든 동작이 갈리지 않게 한다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -64,9 +51,8 @@ public class S3FileStorage implements StoragePort {
 
 	public S3FileStorage(StorageProperties properties) {
 		this.s3Properties = properties.getS3();
-		// 🔴 지역을 반드시 준다. 안 주면 SDK 가 객체를 넣기 전에 버킷 위치를 서버에 묻고,
-		//    그 호출에는 s3:GetBucketLocation 권한이 필요하다 — 운영 정책에 그것이 없어서
-		//    2026-09-17 새벽까지 사진이 한 장도 안 올라갔다. 근거는 StorageProperties.S3.region.
+		// 지역을 반드시 준다. 안 주면 SDK 가 객체를 넣기 전에 버킷 위치를 서버에 묻고, 그 호출에는
+		// 운영 정책에 없는 s3:GetBucketLocation 권한이 필요하다 — StorageProperties.S3.region 참고.
 		this.client = MinioClient.builder()
 				.endpoint(this.s3Properties.getEndpoint())
 				.region(this.s3Properties.getRegion())
@@ -93,11 +79,7 @@ public class S3FileStorage implements StoragePort {
 		return this.s3Properties.getPublicBaseUrl() + "/" + key;
 	}
 
-	/**
-	 * 🟢 <b>MinIO SDK 는 원래 스트림을 받는다.</b> 위 {@code put(byte[])} 은 우리가 만든
-	 * {@code byte[]} 를 {@link ByteArrayInputStream} 으로 <b>도로 감싸고</b> 있다 — {@code byte[]} 는
-	 * MinIO 가 요구한 것이 아니라 이 인터페이스가 강요한 것이다. 여기서는 감싸는 줄이 없어진다.
-	 */
+	/** MinIO SDK 는 원래 스트림을 받는다. 위 {@code put(byte[])} 과 달리 감싸는 단계가 없다. */
 	@Override
 	public String put(String key, String contentType, InputStream in, long size) {
 		validateKey(key);
@@ -121,9 +103,8 @@ public class S3FileStorage implements StoragePort {
 	public void delete(String key) {
 		validateKey(key);
 		try {
-			// 🔴 없는 키를 지우는 것도 성공이다(StoragePort 계약). S3 프로토콜 자체가 이미 그렇게
-			// 동작한다 — DeleteObject 는 대상이 없어도 204 를 준다. LocalFileStorage 처럼 별도로
-			// "없으면 건너뛴다" 분기가 필요 없다.
+			// 없는 키를 지우는 것도 성공이라는 계약은 DeleteObject 가 대상이 없어도 204 를 주므로
+			// 그대로 지켜진다 — 따로 분기하지 않는다.
 			this.client.removeObject(RemoveObjectArgs.builder()
 					.bucket(this.s3Properties.getBucket())
 					.object(key)
@@ -148,8 +129,8 @@ public class S3FileStorage implements StoragePort {
 			return Optional.of(new StoredObject(contentType, bytes));
 		}
 		catch (ErrorResponseException e) {
-			// 🔴 "없으면 빈 값" 은 StoragePort 계약이다. S3 는 없는 키를 예외(NoSuchKey)로
-			// 알리므로, 그 코드일 때만 빈 값으로 바꾸고 다른 오류는 그대로 StorageException 이다.
+			// S3 는 없는 키를 예외로 알리므로 그 코드일 때만 빈 값으로 바꾼다 — 「없으면 빈 값」은
+			// StoragePort 계약이고, 다른 오류는 그대로 StorageException 이어야 한다.
 			if ("NoSuchKey".equals(e.errorResponse().code())) {
 				return Optional.empty();
 			}

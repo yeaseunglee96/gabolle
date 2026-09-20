@@ -11,7 +11,7 @@ import com.gabolle.backend.place.domain.Place;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** {@link Place#assignSubwayExit} 검증 — S15P21E201-479. */
+/** {@link Place#assignSubwayExit} 검증. */
 class PlaceTest {
 
 	private Place newPlace() {

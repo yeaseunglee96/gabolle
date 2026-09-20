@@ -30,20 +30,12 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * 정확 좌표가 어디에도 남지 않는다 (S15P21E201-550).
+ * 정확 좌표가 어디에도 남지 않는다. 채점기를 정밀 좌표로 돌린 뒤 저장되는 것들을 훑어
+ * 좌표가 없는 것을 보고, 좌표를 담는 칸 자체가 없다는 것도 함께 본다 — 주기적으로 지우는
+ * 규칙은 언젠가 안 지켜지지만 없는 칸은 안 지켜질 수 없다.
  *
- * <p>🔴 <b>이 테스트가 -550 의 완료 기준 둘·셋을 대신한다.</b>
- *
- * <ul>
- * <li><i>"학습 레코드에는 후보 거리 피처가 있지만 원본 현재 좌표는 없다"</i> —
- *     채점기를 정밀 좌표로 돌린 뒤 저장되는 것들을 훑어 좌표가 없는 것을 본다</li>
- * <li><i>"정확 좌표 보존 기간을 자동 검사할 수 있다"</i> — 보존 기간이 <b>0</b> 이라서
- *     충족된다. 좌표를 담는 칸이 아예 없고, 그것을 여기서 검사한다. 지울 것을 주기적으로
- *     관리하는 규칙은 언젠가 안 지켜지지만, <b>없는 칸은 안 지켜질 수 없다</b></li>
- * </ul>
- *
- * <p>DB 를 쓰지 않는다 — 이 저장소의 Postgres 테스트는 Docker 가 없으면 실패가 아니라
- * <b>건너뜀</b>이라, 개인정보 검사를 그런 자리에 두지 않았다.
+ * DB 를 쓰지 않는다. 이 저장소의 Postgres 테스트는 Docker 가 없으면 실패가 아니라
+ * 건너뜀이라, 개인정보 검사를 그런 자리에 두지 않았다.
  */
 class RequestLocationPrivacyTest {
 
@@ -100,9 +92,8 @@ class RequestLocationPrivacyTest {
 	void 좌표_키는_막힌다() {
 		// 이 테스트가 없으면 "그물이 통과했다" 가 "그물이 아무것도 안 본다" 와 구별되지 않는다.
 		//
-		// 🔴 Map.of 는 순회 순서를 보장하지 않아 lat 과 lng 중 어느 쪽이 먼저 걸릴지 모른다.
-		//    그래서 키 이름 대신 "막혔다" 는 사실만 본다 — 처음에 lat 을 기대했다가 lng 이
-		//    먼저 걸려 이 테스트가 깨졌다.
+		// Map.of 는 순회 순서를 보장하지 않아 lat 과 lng 중 어느 쪽이 먼저 걸릴지 모른다.
+		// 그래서 키 이름 대신 막혔다는 사실만 본다.
 		assertThatThrownBy(() -> this.guard.verify(Map.of("lat", PRECISE_LAT), "feature_values"))
 				.hasMessageContaining("금지된 키 이름");
 		assertThatThrownBy(() -> this.guard.verify(Map.of("lng", PRECISE_LNG), "feature_values"))
@@ -120,10 +111,8 @@ class RequestLocationPrivacyTest {
 
 		assertThat(job.getOriginAreaCode()).isEqualTo("3518:12908");
 		assertThat(job.getOriginSource()).isEqualTo(LocationSource.GPS);
-		// 🔴 좌표를 담는 **필드**가 없다. 필드가 곧 DB 칸이라 이것이 맞는 검사다.
-		//
-		//    처음에는 메서드 이름을 훑었는데 applyLatencies 의 "lat" 에 걸려 오탐이 났다.
-		//    이 줄이 깨지는 날은 누가 좌표 칸을 만든 날이다.
+		// 좌표를 담는 필드가 없는지를 본다. 필드가 곧 DB 칸이라 이것이 맞는 검사다 —
+		// 메서드 이름을 훑으면 applyLatencies 의 "lat" 에 걸려 오탐이 난다.
 		List<String> coordinateFields = java.util.Arrays.stream(RecommendationJob.class.getDeclaredFields())
 				.map(java.lang.reflect.Field::getName)
 				.filter((name) -> List.of("lat", "lng", "latitude", "longitude", "originLat", "originLng",

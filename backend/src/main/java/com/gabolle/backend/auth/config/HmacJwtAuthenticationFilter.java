@@ -45,24 +45,13 @@ public class HmacJwtAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * 오류 디스패치에서도 돈다 — S15P21E201-790. 기본값은 <b>안 도는 것</b>이라 뒤집는다.
+	 * 오류 디스패치에서도 돈다. 기본값은 안 도는 것이라 뒤집는다.
 	 *
-	 * <p>{@code OncePerRequestFilter} 는 이름 그대로 요청 하나에 한 번만 돈다. 그런데 서버가
-	 * 4xx 를 정한 뒤 {@code /error} 로 다시 디스패치하는 것은 <b>같은 요청</b>이고, 기본
-	 * 구현({@code shouldNotFilterErrorDispatch()} 이 {@code true})은 그 두 번째 차례를
-	 * 건너뛴다. 건너뛰면 그 디스패치에는 신원이 없고, Security 는 빈 컨텍스트를 보고
-	 * {@code anyRequest().authenticated()} 로 거부한다 — <b>4xx 가 401 로 바뀌어 나간다.</b>
+	 * <p>서버가 4xx 를 정한 뒤 {@code /error} 로 다시 디스패치하는 것은 같은 요청인데, 기본값대로
+	 * 건너뛰면 그 차례에는 신원이 없어 {@code anyRequest().authenticated()} 가 거부한다 — 4xx 가
+	 * 401 로 바뀌어 나가고, 앱은 401 을 세션 만료로 읽어 사용자를 로그아웃시킨다.
 	 *
-	 * <p>그 응답이 나쁜 이유는 거짓말을 하기 때문이다. 로그인은 멀쩡한데 "로그인이 필요합니다"
-	 * 가 오고, 앱은 401 을 세션 만료로 읽어 <b>사용자를 로그아웃시킨다.</b> 요청 하나가
-	 * 잘못됐을 때 화면에서 튕겨 나가는 모양이 된다.
-	 *
-	 * <p>{@code InternalTokenAuthenticationFilter} 가 같은 함정을 먼저 만나 같은 방법으로
-	 * 뒤집어 뒀다. 그때 사람의 JWT 쪽은 함께 안 고쳐졌다 — 배치 토큰만 살아남고 사람의
-	 * 신원은 여전히 오류 디스패치에서 사라지고 있었다.
-	 *
-	 * <p>인증되지 않은 요청의 거동은 그대로다. 헤더가 없으면 이 필터는 아무 권한도 심지 않고,
-	 * 그 요청은 전과 같이 401 을 받는다.
+	 * <p>인증되지 않은 요청의 거동은 그대로다. 헤더가 없으면 아무 권한도 심지 않는다.
 	 */
 	@Override
 	protected boolean shouldNotFilterErrorDispatch() {
@@ -76,9 +65,8 @@ public class HmacJwtAuthenticationFilter extends OncePerRequestFilter {
 		if (authorization != null && authorization.startsWith("Bearer ")) {
 			AppUser user = verify(authorization.substring(7));
 			if (user != null) {
-				// 🔴 role 을 JWT 클레임이 아니라 여기서 매번 DB로 읽는다(S15P21E201-686) — 아래
-				//    ACTIVE 상태 확인도 어차피 매 요청 조회라 추가 비용이 없고, 발급된 토큰을
-				//    바꾸지 않고도 권한 회수가 다음 요청부터 즉시 반영된다.
+				// role 을 JWT 클레임이 아니라 매 요청 DB 에서 읽는다 — 발급된 토큰을 바꾸지 않고도
+				// 권한 회수가 다음 요청부터 즉시 반영된다. ACTIVE 확인이 어차피 매 요청 조회다.
 				List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 						user.getUserId().toString(), null, authorities);

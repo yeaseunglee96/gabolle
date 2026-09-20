@@ -15,10 +15,8 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.itinerary.presentation.ItineraryQueryController;
 
 /**
- * 여행 도우미의 실패를 명확한 상태코드로 번역한다 — S15P21E201-802.
- *
- * <p>{@code TranslateExceptionHandler} 와 같은 이유로 {@code assignableTypes} 를
- * {@link AssistantController} 하나에만 건다.
+ * 여행 도우미의 실패를 상태코드로 번역한다. assignableTypes 를 AssistantController 하나에만
+ * 걸어 남의 예외를 가로채지 않게 한다.
  */
 @RestControllerAdvice(assignableTypes = AssistantController.class)
 @Profile({ "db", "dev" })
@@ -31,7 +29,7 @@ public class AssistantExceptionHandler {
 				new ApiError("ASSISTANT_INVALID_REQUEST", exception.getMessage()), requestId()));
 	}
 
-	/** AI 업체를 부르지 못했다 — 절대 200 으로 위장하지 않는다. */
+	/** AI 업체를 부르지 못했다. */
 	@ExceptionHandler(AssistantVendorException.class)
 	public ResponseEntity<ApiResponse<Void>> handleVendorFailure(AssistantVendorException exception) {
 		return ResponseEntity.status(exception.getStatus()).body(ApiResponse.failure(
@@ -45,7 +43,7 @@ public class AssistantExceptionHandler {
 				new ApiError("ASSISTANT_RATE_LIMITED", exception.getMessage()), requestId()));
 	}
 
-	/** itineraryId 로 넘겼는데 그 일정이 없거나 요청자가 회원이 아니다 — S15P21E201-987. */
+	/** itineraryId 로 넘겼는데 그 일정이 없거나 요청자가 회원이 아니다. */
 	@ExceptionHandler(ItineraryQueryController.ItineraryNotFoundException.class)
 	public ResponseEntity<ApiResponse<Void>> handleItineraryNotFound(
 			ItineraryQueryController.ItineraryNotFoundException exception) {

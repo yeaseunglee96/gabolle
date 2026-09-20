@@ -9,24 +9,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 갈래를 연 기록 한 건 (S15P21E201-475).
+ * 갈래를 연 기록 한 건. 어느 갈래에 데이터를 채울지 정하는 근거로 쓴다.
  *
- * <p>여덟 갈래에 같은 힘을 들일 수 없다. 아무도 안 여는 갈래에 데이터를 채우는 동안 사람들이
- * 매번 여는 갈래가 비어 있을 수 있다. 기록이 없으면 그 판단을 감으로 하게 되고, 감으로 정한
- * 우선순위는 나중에 되짚을 수 없다.
+ * <p>익명이 아니라 가명이다 — 이름·이메일은 담지 않지만 {@code tripId} 로 여행에, 여행은 사람에게
+ * 이어진다. 여행 단위로 봐야 "한 사람이 여덟 번 연 것" 과 "여덟 사람이 한 번씩 연 것" 이 구분된다.
+ * {@code tripId} 가 비어 있는 기록은 여행에 속하지 않는 전역 탐색 화면에서 연 것으로, 그 구분을
+ * 못 하는 대신 사람에게 이어지지도 않는다.
  *
- * <h2>이 기록은 익명이 아니라 가명이다</h2>
- * 이름·이메일 같은 값은 담지 않지만 {@code tripId} 로 여행에 이어지고, 여행은 사람에게
- * 이어진다. 그 사실을 감추지 않는다. 여행 단위로 봐야 "한 사람이 여덟 번 연 것" 과 "여덟
- * 사람이 한 번씩 연 것" 이 구분되고, 그 구분이 없으면 집계가 우선순위 판단에 못 쓰인다.
- *
- * <p>S15P21E201-894 부터 {@code tripId} 가 비어 있을 수 있다 — 여행에 속하지 않는 전역 탐색
- * 화면에서 연 경우다. 그 기록은 위의 구분을 못 하는 대신 <b>사람에게 이어지지도 않는다.</b>
- * 전역 열람을 아예 안 세는 쪽이 더 나쁘다 — 집계의 목적이 어느 갈래가 쓰이는지 아는 것인데
- * 화면 하나를 통째로 빼면 그 답이 틀린다.
- *
- * <p>갈래는 코드 문자열로 담는다. 갈래가 늘거나 이름이 바뀌어도 옛 기록은 그때의 값으로
- * 남아야 한다 — 열거형으로 매핑하면 지워진 값을 되읽을 때 기동이 실패한다.
+ * <p>갈래는 코드 문자열로 담는다. 열거형으로 매핑하면 갈래가 지워졌을 때 옛 기록을 되읽다가
+ * 기동이 실패한다.
  */
 @Entity
 @Table(name = "place_facet_view")
@@ -39,7 +30,7 @@ public class PlaceFacetView {
 	@Column(name = "facet_key", nullable = false, length = 40)
 	private String facetKey;
 
-	/** 여행 밖(전역 탐색)에서 연 기록은 비어 있다 — S15P21E201-894. */
+	/** 여행 밖(전역 탐색)에서 연 기록은 비어 있다. */
 	@Column(name = "trip_id")
 	private UUID tripId;
 
@@ -57,14 +48,8 @@ public class PlaceFacetView {
 	}
 
 	/**
-	 * 여행 안에서 연 기록 한 건.
-	 *
-	 * <p>값 검사를 여기서 한다 — 빈 갈래 코드나 시각 없는 기록은 아무 질문에도 답하지 못하므로
-	 * 쌓아 둘 이유가 없다.
-	 *
-	 * <p>🔴 여행 없는 기록을 여기로 만들 수는 없다. 전역 탐색은 {@link #ofGlobal} 로 들어온다 —
-	 * 이 메서드가 {@code null} 을 받아 주면 <b>여행 번호를 실수로 빠뜨린 호출</b>과 전역 열람이
-	 * 같은 모양이 되고, 그때부터 집계에서 둘을 가를 수 없다.
+	 * 여행 안에서 연 기록 한 건. 여행 없는 기록은 여기로 만들 수 없고 {@link #ofGlobal} 로 들어온다 —
+	 * 여기서 {@code null} 을 받아 주면 여행 번호를 실수로 빠뜨린 호출과 전역 열람이 같은 모양이 된다.
 	 */
 	public static PlaceFacetView of(String facetKey, UUID tripId, OffsetDateTime viewedAt) {
 		if (tripId == null) {
@@ -73,7 +58,7 @@ public class PlaceFacetView {
 		return create(facetKey, tripId, viewedAt);
 	}
 
-	/** 여행에 안 묶인 전역 탐색에서 연 기록 한 건 — S15P21E201-894. */
+	/** 여행에 안 묶인 전역 탐색에서 연 기록 한 건. */
 	public static PlaceFacetView ofGlobal(String facetKey, OffsetDateTime viewedAt) {
 		return create(facetKey, null, viewedAt);
 	}

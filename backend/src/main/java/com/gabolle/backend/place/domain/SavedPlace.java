@@ -9,19 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 사용자가 저장한(하트) 장소 — S15P21E201-1013.
- *
- * <p>지금까지 기기에만 있었다. 기기를 바꾸면 사라졌다.
- *
- * <p>🔴 {@code RecommendationPlaceAction} 과 <b>다른 것이다</b> — 이름이 비슷해 합치기
- * 쉬운 자리라 여기 적어 둔다.
- * <ul>
- *   <li>{@code RecommendationPlaceAction} — <b>"이번 여행의 후보로"</b> 담아둔다/뺀다.
- *       여행에 매달려 있고 <b>동행자가 함께 본다</b></li>
- *   <li>{@code SavedPlace}(이 클래스) — <b>"이 장소가 마음에 든다"</b>. 여행과 무관한
- *       전역 목록이고 <b>그 사람만의 것</b>이다</li>
- * </ul>
- * 합치면 "다른 여행에서 담아둔 것이 홈 하트에 뜨는" 일이 생긴다.
+ * 사용자가 저장한(하트) 장소. 여행과 무관한 전역 목록이고 그 사람만의 것이다.
+ * {@code RecommendationPlaceAction}(이번 여행의 후보로 담아두는 것, 여행에 매달려 있고 동행자가
+ * 함께 본다)과 다르다 — 합치면 다른 여행에서 담아둔 것이 홈 하트에 뜬다.
  */
 @Entity
 @Table(name = "saved_place")

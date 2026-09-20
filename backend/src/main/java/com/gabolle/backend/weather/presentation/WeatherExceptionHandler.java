@@ -17,14 +17,10 @@ import com.gabolle.backend.weather.application.WeatherService;
 import com.gabolle.backend.weather.application.WeatherVendorException;
 
 /**
- * 기상청 단기예보 조회의 실패를 명확한 상태코드로 번역한다 — S15P21E201-366.
+ * 기상청 단기예보 조회의 실패를 상태코드로 번역한다. assignableTypes 로 WeatherController
+ * 에만 건다 — 범위를 넓히면 다른 컨트롤러의 같은 예외까지 이 오류 코드로 바뀐다.
  *
- * <p>🔴 {@code assignableTypes} 로 {@link WeatherController} 에만 건다 — 다른 컨트롤러의
- * 같은 예외 타입까지 여기서 잡으면 그쪽 오류 코드가 통째로 바뀐다({@code
- * TranslateExceptionHandler}·{@code RouteExceptionHandler} 와 같은 이유).
- *
- * <p>🔴 <b>기상청 호출 실패를 200 으로 숨기지 않는다.</b> {@link WeatherVendorException} 은
- * 502(Bad Gateway)로 내려간다 — 지어낸 값으로 대신 답하지 않는다는 이 티켓의 완료 기준이다.
+ * 기상청 호출 실패는 502 다. 200 으로 숨기거나 지어낸 값으로 대신 답하지 않는다.
  */
 @RestControllerAdvice(assignableTypes = WeatherController.class)
 @Profile({ "db", "dev" })
@@ -55,7 +51,7 @@ public class WeatherExceptionHandler {
 				requestId()));
 	}
 
-	/** 기상청을 부르지 못했다 — 절대 200 으로 위장하지 않는다. */
+	/** 기상청을 부르지 못했다. */
 	@ExceptionHandler(WeatherVendorException.class)
 	public ResponseEntity<ApiResponse<Void>> handleVendorFailure(WeatherVendorException exception) {
 		return ResponseEntity.status(exception.getStatus()).body(ApiResponse.failure(
@@ -63,19 +59,9 @@ public class WeatherExceptionHandler {
 	}
 
 	/**
-	 * 로그인하지 않은 사람이 아직 안 받아 둔 지역·회차를 물었다 — S15P21E201-993.
-	 *
-	 * <p>🔴 <b>404 다. 401·503 이 아니다.</b>
-	 *
-	 * <ul>
-	 * <li>401 이면 앱이 <b>출입증 만료</b>로 보고 다시 발급받아 재시도한다 — 몇 번을 받아도
-	 * 같은 답이라 고리가 된다({@code StoryFeedService} 가 같은 이유로 같은 판단을 했다)</li>
-	 * <li>503 이면 <b>서버가 아픈 것</b>처럼 보인다. 서버는 멀쩡하고, 그 지역을 안 받아 둔
-	 * 것뿐이다</li>
-	 * </ul>
-	 *
-	 * <p>"그 자리에 줄 것이 없다" 가 정확한 뜻이라 404 로 답한다. 화면은 이 코드를 보고 날씨
-	 * 줄을 감추면 된다.
+	 * 로그인하지 않은 사람이 아직 안 받아 둔 지역·회차를 물었다. 404 이지 401·503 이 아니다 —
+	 * 401 이면 앱이 출입증 만료로 보고 재발급·재시도를 되풀이하고, 503 이면 서버가 아픈
+	 * 것처럼 보인다. 화면은 이 코드를 보고 날씨 줄을 감추면 된다.
 	 */
 	@ExceptionHandler(WeatherService.ForecastNotPreparedException.class)
 	public ResponseEntity<ApiResponse<Void>> handleNotPrepared(WeatherService.ForecastNotPreparedException exception) {

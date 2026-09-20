@@ -20,55 +20,33 @@ import com.gabolle.backend.dish.repository.DishDescriptionRepository;
 import com.gabolle.backend.dish.repository.DishImageRepository;
 
 /**
- * 메뉴에서 읽은 음식 하나에 <b>설명과 그림</b>을 붙인다 — S15P21E201-1272.
+ * 메뉴에서 읽은 음식 하나에 설명과 그림을 붙인다.
  *
- * <h2>왜 메뉴판을 읽을 때 같이 안 주나</h2>
+ * <p>메뉴판을 읽을 때 같이 주지 않는다. 설명까지 한 번에 받으면 메뉴판 읽기 제한 8초를 넘고, 그림은
+ * 가장 빠른 설정으로도 앱이 끊는 12초 안에 못 들어온다. 그래서 음식 하나를 눌렀을 때 그 하나만
+ * 만들고, 설명은 그 자리에서 주되 그림은 만들기 시작만 한 뒤 화면이 조금 뒤에 다시 물어본다.
  *
- * 2026-09-18 에 잰 값이다.
- *
- * <ul>
- *   <li>설명까지 한 번에 받으면 <b>10.63초</b> — 메뉴판 읽기 제한 8초를 넘는다</li>
- *   <li>그림은 가장 빠른 설정으로도 <b>10.9초</b> — 앱이 끊는 12초 안에 못 들어온다</li>
- * </ul>
- *
- * 메뉴 한 장에는 줄이 열 개 넘게 나오는데, <b>사용자는 그중 한둘만 궁금하다.</b> 그래서
- * 음식 하나를 눌렀을 때 그 하나만 만든다. 설명은 그 자리에서 주고(1.3~1.9초), 그림은
- * 만들기 시작만 하고 화면이 조금 뒤에 다시 물어본다.
- *
- * <h2>🔴 이 클래스는 트랜잭션을 걸지 않는다</h2>
- *
- * 그림 자리를 <b>저장한 뒤에</b> 다른 스레드를 깨우는데, 이 메서드가 트랜잭션 안이면
- * 그 저장이 아직 커밋 전이라 <b>깨어난 스레드가 없는 행을 찾는다.</b> 한도를 세는
+ * <p>이 클래스는 트랜잭션을 걸지 않는다. 그림 자리를 저장한 뒤에 다른 스레드를 깨우는데, 트랜잭션
+ * 안이면 그 저장이 아직 커밋 전이라 깨어난 스레드가 없는 행을 찾는다. 한도를 세는
  * {@link DishImageRateLimiter} 는 자기 트랜잭션을 따로 갖는다.
  *
- * <h2>같은 음식을 두 번 만들지 않는다</h2>
- *
- * 두 사람이 같은 음식을 동시에 누르면 둘 다 「행이 없다」를 보고 둘 다 넣으려 한다.
- * 마지막 관문은 표의 {@code UNIQUE(name_key)} 다 — 진 쪽은 여기서 그것을 받아
- * <b>이긴 쪽의 행을 다시 읽는다.</b> 「먼저 확인」으로는 절대 못 막는 자리다.
+ * <p>같은 음식을 두 번 만들지 않게 하는 마지막 관문은 표의 {@code UNIQUE(name_key)} 다. 동시에
+ * 누르면 둘 다 «행이 없다»를 보므로 «먼저 확인»으로는 못 막는다 — 진 쪽이 이긴 쪽의 행을 다시 읽는다.
  */
 @Service
 @Profile({ "db", "dev" })
 public class DishService {
 
 	/**
-	 * 실패한 그림을 다시 만들어 보기까지 기다리는 시간.
-	 *
-	 * <p>바로 다시 만들면 중계가 잠깐 아픈 동안 누를 때마다 값이 나간다. 영영 안 만들면
-	 * 그날 한 번 아팠던 음식이 <b>영원히 그림 없는 음식</b>으로 남는다. 하루가 그 사이다.
+	 * 실패한 그림을 다시 만들어 보기까지 기다리는 시간. 바로 다시 만들면 중계가 잠깐 아픈 동안 누를
+	 * 때마다 값이 나가고, 영영 안 만들면 그 음식이 영원히 그림 없이 남는다.
 	 */
 	private static final Duration RETRY_FAILED_AFTER = Duration.ofDays(1);
 
 	/**
-	 * 이만큼 지나도 {@code PENDING} 인 행은 <b>버려진 것</b>으로 본다.
-	 *
-	 * <p>🔴 그림 만들기는 서버 안 다른 스레드에서 돈다. 그 스레드가 사라지는 길이 둘 있다 —
-	 * <b>배포·재시작</b>과 <b>줄이 꽉 차 거절당하는 것</b>이다. 둘 다 행을 {@code PENDING} 인
-	 * 채로 남긴다.
-	 *
-	 * <p>그걸 그대로 두면 표의 {@code UNIQUE(name_key)} 때문에 <b>그 음식은 영원히 굳는다</b> —
-	 * 다음 사람이 눌러도 「만드는 중」만 보고, 새로 만들 수도 없다. 그림 한 장이 10~15초이므로
-	 * 5분이면 «아직 만드는 중»과 «버려진 것»을 가르기에 넉넉하다.
+	 * 이만큼 지나도 {@code PENDING} 인 행은 버려진 것으로 본다. 배포·재시작이나 실행기 거절로
+	 * 만들던 스레드가 사라지면 행이 그대로 남고, {@code UNIQUE(name_key)} 때문에 그 음식은 영원히
+	 * 굳는다. 그림 한 장이 10~15초라 5분이면 «아직 만드는 중»과 «버려진 것»을 가르기에 넉넉하다.
 	 */
 	private static final Duration PENDING_IS_STALE_AFTER = Duration.ofMinutes(5);
 
@@ -110,8 +88,8 @@ public class DishService {
 			throw new IllegalArgumentException("음식 이름이 없습니다");
 		}
 		if (!this.describer.isConfigured()) {
-			// 🔴 «설정이 없어 못 물었다» 와 «모델이 모르는 음식이다» 는 완전히 다른 뜻이다.
-			//    조용히 빈 설명을 주면 둘이 같아진다.
+			// «설정이 없어 못 물었다»와 «모델이 모르는 음식이다»는 다른 뜻이다. 조용히
+			// 빈 설명을 주면 둘이 같아진다.
 			throw new DishUnavailableException("음식 설명이 아직 준비되지 않았습니다");
 		}
 
@@ -132,10 +110,8 @@ public class DishService {
 
 		GmsDishDescriber.Described described = this.describer.describe(name, languageKey);
 		if (described.languageRejected()) {
-			// 🔴 저장하지 않는다. 겉보기에는 빈 설명과 같지만 뜻이 다르다 — 「모델이 모르는
-			//    음식」은 저장해 두면 다음에 안 물어봐도 되지만, 이것은 저장하는 순간 그
-			//    음식·그 언어에 <b>잘못된 결과가 영원히 굳는다.</b> 다음 사람이 누르면
-			//    다시 물어보게 둔다.
+			// 저장하지 않는다. 겉보기에는 빈 설명과 같지만, 저장하면 그 음식·그 언어에
+			// 잘못된 결과가 그대로 굳는다.
 			return described;
 		}
 		try {
@@ -150,14 +126,7 @@ public class DishService {
 	}
 
 	/**
-	 * 🔴 그림 한도는 <b>그림만</b> 막는다 — S15P21E201-1294.
-	 *
-	 * <p>예전에는 한도 예외가 여기를 그대로 지나 요청 전체를 끝냈다. 그러면 <b>이미 받아
-	 * 둔 설명까지 버려진다.</b> 사용자 화면에서 음식 셋이 설명 자리에 한도 안내만 띄운 채
-	 * 있었다(2026-09-19 사용자 시험).
-	 *
-	 * <p>메뉴판 읽기 한도와 그림 한도를 <b>표까지 갈라 놓은 이유</b>가 「그림이 다른 것을
-	 * 막으면 안 된다」였는데, 같은 잘못을 이 API 안에서 저지르고 있었다.
+	 * 그림 한도는 그림만 막는다. 한도 예외가 요청 전체를 끝내면 이미 받아 둔 설명까지 버려진다.
 	 */
 	private ImageState imageStateOrRateLimited(UUID userId, String nameKey,
 			GmsDishDescriber.Described described) {
@@ -170,16 +139,13 @@ public class DishService {
 	}
 
 	/**
-	 * 그림이 어디까지 왔나 보고, 없으면 만들기 시작한다.
-	 *
-	 * <p>🔴 <b>한도는 실제로 만들기 시작할 때만 센다.</b> 저장해 둔 그림을 꺼내 주는 것은
-	 * 바깥을 안 부르므로 값이 안 나간다.
+	 * 그림이 어디까지 왔나 보고, 없으면 만들기 시작한다. 한도는 실제로 만들기 시작할 때만 센다 —
+	 * 저장해 둔 그림을 꺼내 주는 것은 바깥을 안 부른다.
 	 */
 	private ImageState imageStateFor(UUID userId, String nameKey, GmsDishDescriber.Described described) {
 		if (described.isEmpty() || described.imagePrompt().isBlank()) {
-			// 🔴 모르는 음식은 그리지 않는다. 묘사 없이 이름만 주고 그리게 하면 모델이
-			//    그럴듯한 <b>다른 음식</b>을 그린다 — 그것이 화면에서는 「이 음식이 이렇게
-			//    생겼다」로 읽힌다.
+			// 모르는 음식은 그리지 않는다. 묘사 없이 이름만 주면 모델이 그럴듯한 다른
+			// 음식을 그리는데, 화면에서는 «이 음식이 이렇게 생겼다»로 읽힌다.
 			return new ImageState(DishResponse.IMAGE_NONE, null);
 		}
 
@@ -212,22 +178,14 @@ public class DishService {
 					.orElse(new ImageState(DishResponse.IMAGE_FAILED, null));
 		}
 
-		// 🔴 저장이 커밋된 뒤에 깨운다. 이 클래스에 트랜잭션이 없는 이유가 이 한 줄이다.
+		// 저장이 커밋된 뒤에 깨운다. 이 클래스에 트랜잭션이 없는 이유가 이 한 줄이다.
 		return handOff(row, described);
 	}
 
 	/**
-	 * 그림 만들기를 다른 스레드에 맡긴다.
-	 *
-	 * <h2>🔴 못 맡겼으면 그 자리에서 실패로 적는다</h2>
-	 *
-	 * 실행기의 줄이 꽉 차면({@code dishImageExecutor} — 줄 20) 던져진다. 그때 <b>그냥
-	 * 올려보내면 행이 {@code PENDING} 인 채로 남는데</b>, 표의 {@code UNIQUE(name_key)}
-	 * 때문에 <b>그 음식은 영원히 굳는다</b> — 다음 사람이 눌러도 「만드는 중」만 보고,
-	 * 새로 만들 수도 없다.
-	 *
-	 * <p>사용자에게는 「그림을 못 만들었다」로 보인다. 그건 <b>맞는 말</b>이고, 하루 뒤면
-	 * {@link #RETRY_FAILED_AFTER} 가 다시 만들어 본다.
+	 * 그림 만들기를 다른 스레드에 맡긴다. 못 맡겼으면 그 자리에서 실패로 적는다 — 행을
+	 * {@code PENDING} 인 채로 남기면 {@code UNIQUE(name_key)} 때문에 그 음식이 영원히 굳는다.
+	 * 실패로 적어 두면 {@link #RETRY_FAILED_AFTER} 뒤에 다시 만들어 본다.
 	 */
 	private ImageState handOff(DishImage row, GmsDishDescriber.Described described) {
 		try {
@@ -236,8 +194,7 @@ public class DishService {
 		}
 		catch (RuntimeException exception) {
 			// 잡는 것을 TaskRejectedException 하나로 좁히지 않는다. 맡기지 못한 이유가
-			// 무엇이든 «행을 PENDING 으로 남기지 않는다» 가 지켜져야 하고, 좁게 잡으면
-			// 다음에 다른 예외가 생겼을 때 조용히 굳는 쪽으로 되돌아간다.
+			// 무엇이든 «행을 PENDING 으로 남기지 않는다»가 지켜져야 한다.
 			row.markFailed("그림 만들기를 맡기지 못했다: " + exception.getClass().getSimpleName(),
 					OffsetDateTime.now(this.clock));
 			this.images.save(row);
@@ -286,10 +243,8 @@ public class DishService {
 	}
 
 	/**
-	 * 만들어 둔 그림을 꺼낸다.
-	 *
-	 * <p>🔴 아직 안 된 것과 못 만든 것을 <b>같은 답으로 주지 않는다.</b> 앞은 화면이 다시
-	 * 물어볼 일이고 뒤는 그만 물어볼 일이다. 같으면 화면이 영원히 다시 묻는다.
+	 * 만들어 둔 그림을 꺼낸다. 아직 안 된 것과 못 만든 것을 같은 답으로 주지 않는다 — 앞은 화면이
+	 * 다시 물어볼 일이고 뒤는 그만 물어볼 일이다.
 	 */
 	public StoredImage image(UUID imageId) {
 		DishImage row = this.images.findById(imageId)
@@ -317,7 +272,7 @@ public class DishService {
 	public record StoredImage(byte[] bytes, String contentType) {
 	}
 
-	/** 설정이 없어 지금은 설명을 못 받는다. 🔴 「모델이 모르는 음식」이 아니다. */
+	/** 설정이 없어 지금은 설명을 못 받는다. «모델이 모르는 음식»이 아니다. */
 	public static class DishUnavailableException extends RuntimeException {
 
 		public DishUnavailableException(String message) {

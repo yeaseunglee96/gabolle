@@ -23,30 +23,7 @@ import com.gabolle.testslice.StorySliceApplication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * S15P21E201-1204 — 글을 열면 조회수가 <b>규칙대로</b> 오르는가.
- *
- * <h2>재는 것 — 완료 기준 그대로</h2>
- *
- * <ul>
- *   <li>같은 사람이 같은 글을 하루에 여러 번 열어도 <b>1만</b> 는다</li>
- *   <li>날이 바뀌면 <b>또 1</b> 늘어난다</li>
- *   <li><b>작성자 본인</b>이 열면 안 는다</li>
- *   <li><b>익명 세션</b>으로 열면 늘고, 같은 세션이 또 열면 안 는다</li>
- *   <li>회원도 익명 세션도 아니면 <b>안 는다</b></li>
- * </ul>
- *
- * <h2>🔴 날이 바뀌는 것을 시계로 재지 않는다</h2>
- *
- * 시계를 하루 앞으로 돌리는 대신 <b>이미 남은 낱개의 날짜를 어제로 되돌린다.</b> 결과가 같고
- * (오늘 것이 없는 상태가 된다) 시계 빈을 바꾸지 않아도 된다 — 시계를 바꾸면 그 컨텍스트가
- * 따로 캐시돼 앱이 한 번 더 뜬다.
- *
- * <h2>DB 가 없으면 건너뛴다</h2>
- *
- * 🔴 {@code PostgresAvailableCondition} 이 붙으므로 도커가 꺼진 PC 에서는 건너뛴 채 초록이다.
- * <b>진짜 판정은 CI 다.</b>
- */
+/** 조회수는 한 사람당 하루 한 번만 오른다. 세는 기준 시간대는 KST 다. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=validate",
@@ -87,7 +64,7 @@ class StoryViewCountIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
+		// 표를 비우지 않는다. 같은 DB 를 여러 검사가 함께 쓰므로 내가 만든 것만 지운다.
 		this.jdbc.update("DELETE FROM story_view WHERE story_id = ?", this.storyId);
 		this.jdbc.update("DELETE FROM story WHERE story_id = ?", this.storyId);
 		this.jdbc.update("DELETE FROM anonymous_session WHERE session_id = ?", this.anonymousSessionId);
@@ -111,7 +88,7 @@ class StoryViewCountIntegrationTest {
 		this.storyService.get(this.storyId, this.reader, null);
 		assertThat(viewCount()).isEqualTo(1);
 
-		// 시계를 돌리는 대신 남은 낱개를 어제 것으로 만든다 — 오늘 것이 없는 상태가 된다.
+		// 시계 빈을 바꾸면 컨텍스트가 따로 캐시되므로, 시계 대신 남은 낱개를 어제 것으로 만든다.
 		this.jdbc.update("UPDATE story_view SET viewed_on = viewed_on - 1 WHERE story_id = ?", this.storyId);
 
 		this.storyService.get(this.storyId, this.reader, null);
@@ -181,7 +158,6 @@ class StoryViewCountIntegrationTest {
 		return sessionId;
 	}
 
-	/** 오늘이 KST 기준 언제인지 — 낱개의 날짜가 그 값이어야 한다. */
 	private LocalDate todayInCountingZone() {
 		return LocalDate.now(COUNTING_ZONE);
 	}

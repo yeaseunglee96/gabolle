@@ -12,15 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * 정규화한 영업시간 판독 — S15P21E201-852.
- *
- * <p>줄 모양은 실제 정규화 출력(2026-09-11 실측)에서 옮겨 적었다 — {@code status} 네 가지와
- * 숙박의 {@code checkIn}·{@code checkOut} 이 실제로 그렇게 온다.
- *
- * <p>여기서 재는 것은 셋이다 — <b>시각이 없는 것을 넣지 않는가</b>, <b>숙박을 다른 갈래로
- * 보내는가</b>, <b>버린 것을 세어 올리는가</b>.
- */
+/** 줄 모양은 실제 정규화 출력에서 옮겨 적었다. */
 class OpeningHoursReaderTest {
 
 	@TempDir
@@ -91,7 +83,7 @@ class OpeningHoursReaderTest {
 				.contains("입장마감 16:00")
 				.contains("법정공휴일")
 				.contains("usetime");
-		// 🔴 값이 null 인 칸은 아예 넣지 않는다 — 넣으면 판정기가 칸이 있는 줄 알고 읽는다.
+		// 값이 null 인 칸은 아예 넣지 않는다 — 넣으면 판정기가 칸이 있는 줄 알고 읽는다.
 		assertThat(value).doesNotContain("\"seasonal\"");
 	}
 

@@ -16,11 +16,8 @@ import jakarta.persistence.Table;
 /**
  * 추천 요청 한 건에서 생성된 후보 하나. 분석 단위는 {@code (request_id, place_id)} 다.
  *
- * <p>🔴 Top-K 에 못 든 후보도 지우지 않는다. "왜 이것이 안 나왔는가" 는 "무엇이 나왔는가"
- * 만큼 중요하고, 탈락 이유는 그 순간에만 남길 수 있다.
- *
- * <p>JSONB(**PostgreSQL 이 JSON 을 파싱해 저장하는 타입. 문자열과 달리 안에 있는 키로
- * 조회·색인할 수 있다**) 컬럼은 문자열로 들고 다니되 저장 시 jsonb 로 넘어간다.
+ * Top-K 에 못 든 후보도 지우지 않는다 — 탈락 이유는 그 순간에만 남길 수 있다. JSONB 컬럼은
+ * 문자열로 들고 다니되 저장 시 jsonb 로 넘어간다.
  */
 @Entity
 @Table(name = "recommendation_candidate")
@@ -97,12 +94,9 @@ public class RecommendationCandidate {
 	private FallbackMode fallbackMode;
 
 	/**
-	 * 이 후보가 개인화 추천인가 Editor's Pick 인가 (S15P21E201-555).
-	 *
-	 * <p>🔴 {@link #fallbackMode} 와 다른 질문에 답한다 — 자세한 것은 {@link SourceMode}.
-	 * 여기에도(요청 행뿐 아니라 후보 행에도) 두는 이유는, 후보만 보고도 집계할 수 있어야
-	 * 하기 때문이다. 매번 recommendation_job 과 조인해야 하면 분석 질의마다 그 조인을
-	 * 잊을 기회가 생긴다.
+	 * 이 후보가 개인화 추천인가 Editor's Pick 인가({@link SourceMode}). 요청 행에도 있는
+	 * 값을 후보 행에 또 두는 것은 후보만 보고도 집계할 수 있게 하기 위해서다 — 매번
+	 * recommendation_job 과 조인해야 하면 분석 질의마다 그 조인을 잊을 기회가 생긴다.
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "source_mode", nullable = false, length = 20)
@@ -142,9 +136,8 @@ public class RecommendationCandidate {
 	}
 
 	/**
-	 * 🔴 DB CHECK 와 같은 것을 애플리케이션에서도 본다. 두 번 보는 이유는 다르다 —
-	 * DB 는 "절대 들어가지 못하게" 하고, 여기서는 "어느 코드 줄이 그랬는지" 를 알려준다.
-	 * DB 제약 위반은 스택이 JDBC 어딘가에서 끊겨 원인 코드를 못 가리킨다.
+	 * DB CHECK 와 같은 것을 애플리케이션에서도 본다. DB 제약 위반은 스택이 JDBC 안쪽에서
+	 * 끊겨 원인 코드를 못 가리키기 때문이다.
 	 */
 	private void validateInvariants() {
 		if (constraintVerdict == ConstraintVerdict.FAIL && returned) {
@@ -281,11 +274,7 @@ public class RecommendationCandidate {
 		private String[] warningCodes = new String[0];
 		private FallbackMode fallbackMode;
 
-		/**
-		 * 🔴 기본값이 {@link SourceMode#PERSONALIZED} 다. Pick 경로만 명시적으로 바꾼다 —
-		 * 그러지 않으면 Pick 이 개인화로 집계되고, 그쪽이 진짜 위험이다(장애율과 신규
-		 * 사용자 수가 한 칸에 섞인다).
-		 */
+		/** 기본값이 {@link SourceMode#PERSONALIZED} 이고, Pick 경로만 명시적으로 바꾼다. */
 		private SourceMode sourceMode = SourceMode.PERSONALIZED;
 
 		private OffsetDateTime createdAt;

@@ -11,11 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * {@code weather_forecast_cache} 표 매핑 — S15P21E201-366.
- *
- * <p>{@code cacheKey} 는 격자(nx,ny)+발표 회차(baseDate+baseTime)로 만든 문자열이다 — 번역
- * 캐시의 {@code sourceHash} 와 달리 원문을 감출 이유가 없어 해시가 아니라 평문 열쇠를 그대로
- * 쓴다. 담아 두는 것은 기상청 응답 원문(JSON)이다.
+ * weather_forecast_cache 표 매핑. cacheKey 는 격자(nx,ny)+발표 회차로 만든 평문 문자열이고
+ * 담는 값은 기상청 응답 원문(JSON)이다.
  */
 @Entity
 @Table(name = "weather_forecast_cache")

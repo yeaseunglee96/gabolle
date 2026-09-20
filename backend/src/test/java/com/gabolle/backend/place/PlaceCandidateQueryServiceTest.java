@@ -28,13 +28,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * S15P21E201-749 — {@code place_feature.value} 파싱 실패가 안전 판정을 뒤집지 않는지 본다.
- *
- * <p>고지혁 님이 2026-09-07 발견: {@code readValue} 가 파싱 실패를 조용히 {@code null} 로
- * 바꾸면, {@code BaselineCandidateScorer.bucketFor} 가 "행이 없음" 과 "행은 있는데 못 읽음" 을
- * 구분하지 못해 안전 제약(알레르기·식단·이동 접근성) 판정이 방향에 따라 뒤집힐 수 있다.
- * 여기서는 이 서비스 계층에서 그 행이 응답에 아예 안 실리는지만 본다 — 이후 판정은
- * {@code EditorialPickBaselineProviderTest} 등이 이미 "행이 없으면 UNVERIFIED" 를 검증한다.
+ * {@code place_feature.value} 파싱 실패를 조용히 {@code null} 로 바꾸면 "행이 없음" 과
+ * "행은 있는데 못 읽음" 이 구분되지 않아 안전 제약(알레르기·식단·이동 접근성) 판정이 뒤집힌다.
+ * 여기서는 그 행이 응답에 아예 안 실리는지만 본다.
  */
 class PlaceCandidateQueryServiceTest {
 
@@ -72,13 +68,7 @@ class PlaceCandidateQueryServiceTest {
 				PlaceEvidenceStatus.VERIFIED, "manual", "src-1", OffsetDateTime.now(), "v1", OffsetDateTime.now());
 	}
 
-	/**
-	 * S15P21E201-899 — 적재가 갈래를 비워 둔 장소는 어떤 요청에서도 후보가 아니다.
-	 *
-	 * <p>비운다는 것은 "앱의 여섯 낱말 중 이것을 가리키는 것이 없다" 는 뜻이다. 그런데 갈래
-	 * 검사가 {@code categories} 가 빈 요청에서 통째로 건너뛰어져, 취향을 건너뛴 사용자에게는
-	 * 오히려 전부 후보가 됐다 — 운영에서 호텔과 레지던스가 관광지 자리에 들어갔다.
-	 */
+	/** 갈래를 비워 둔다는 것은 "앱의 낱말 중 이것을 가리키는 것이 없다" 는 뜻이라 후보가 아니다. */
 	@Test
 	@DisplayName("갈래가 빈 장소는 갈래를 안 좁힌 요청에서도 후보에서 빠진다")
 	void blankCategoryPlaceIsAlwaysExcluded() {
@@ -105,7 +95,6 @@ class PlaceCandidateQueryServiceTest {
 		assertThat(this.service.findCandidates(request()).candidates()).isEmpty();
 	}
 
-	/** 갈래가 있는 장소는 그대로 나온다 — 이 수정이 정상 경로를 막지 않는다. */
 	@Test
 	@DisplayName("갈래가 있는 장소는 갈래를 안 좁혀도 그대로 후보다")
 	void categorizedPlaceStillPasses() {
@@ -135,8 +124,7 @@ class PlaceCandidateQueryServiceTest {
 		PlaceCandidateResponse response = this.service.findCandidates(request());
 
 		assertThat(response.candidates()).hasSize(1);
-		// 🔴 빈 목록이어야 한다 — value:null 인 행이 실리면 "행이 있는데 모른다" 와
-		// "행이 아예 없다" 를 호출자가 구분할 수 없다.
+		// value:null 인 행이 실리면 "행이 있는데 모른다" 와 "행이 아예 없다" 를 구분할 수 없다.
 		assertThat(response.candidates().get(0).features()).isEmpty();
 	}
 

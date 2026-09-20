@@ -4,18 +4,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * "이 장소는 여행 기간 중 어느 날 문을 여는가" 에 대한 대답 — S15P21E201-467.
- *
- * <h2>🔴 {@code scheduled} 와 빈 {@code openDates} 는 다른 사실이다</h2>
- * 두 칸으로 나눈 이유가 이것이다. 호출자는 세 가지 경우를 서로 다르게 다뤄야 한다.
- * <ul>
- *   <li>{@code scheduled=false} — 기간이라는 개념이 없는 장소다(식당·카페·해수욕장). 날짜
- *       검사를 걸 근거가 없으므로 <b>검사를 통째로 건너뛴다</b></li>
- *   <li>{@code scheduled=true}, {@code openDates} 가 빈 목록 — 회차는 있는데 이 여행 기간과
- *       하나도 겹치지 않는다. 이 여행에는 어느 날을 골라도 넣을 수 없다</li>
- *   <li>{@code scheduled=true}, {@code openDates} 에 날짜가 있음 — 그 날들만 넣을 수 있다</li>
- * </ul>
- * 뒤의 두 경우를 "빈 목록" 하나로 합치면 화면이 "다른 날을 고르면 되는가" 를 판정할 수 없다.
+ * "이 장소는 여행 기간 중 어느 날 문을 여는가" 에 대한 대답.
+ * {@code scheduled} 와 빈 {@code openDates} 는 다른 사실이라 칸을 둘로 나눴다. 호출자는 세
+ * 경우를 다르게 다뤄야 한다 — {@code scheduled=false} 면 기간이라는 개념이 없는 장소라
+ * 날짜 검사를 통째로 건너뛰고, {@code scheduled=true} 인데 {@code openDates} 가 비면 회차는
+ * 있는데 이 여행 기간과 하나도 안 겹쳐 어느 날을 골라도 못 넣고, 날짜가 있으면 그 날들만
+ * 넣을 수 있다. 뒤의 둘을 빈 목록 하나로 합치면 화면이 "다른 날을 고르면 되는가" 를 판정할
+ * 수 없다.
  *
  * @param scheduled 이 장소에 열리는 기간이 정해져 있는가
  * @param openDates 물어본 구간 안에서 실제로 문을 여는 날들. 오름차순이고 중복이 없다

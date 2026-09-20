@@ -33,10 +33,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class CandidateAssemblerTest {
 
 	/**
-	 * 🔴 S15P21E201-548 로 재정렬기가 생성자에 붙었다. 기존 기대값이 그대로인 이유는
-	 * {@code FakeRecommendationEngine} 의 후보에 다양성 키({@code category}·
-	 * {@code localityBucket})가 없어서다 — 키가 없는 후보는 서로 겹치지 않는 것으로 보므로 벌점이
-	 * 0 이고 순서가 점수 순 그대로다. 재정렬 자체는 {@code DiversityRerankTest} 가 본다.
+	 * 재정렬기가 붙어 있어도 순서가 점수 순 그대로인 것은 {@code FakeRecommendationEngine} 의
+	 * 후보에 다양성 키({@code category}·{@code localityBucket})가 없어서다 — 키가 없는 후보는
+	 * 서로 겹치지 않는 것으로 보므로 벌점이 0 이다. 재정렬 자체는 {@code DiversityRerankTest}
+	 * 가 본다.
 	 */
 	private final CandidateAssembler assembler = new CandidateAssembler(
 			new JsonPayloads(JsonMapper.builder().build()), new SensitivePayloadGuard(),
@@ -118,7 +118,7 @@ class CandidateAssemblerTest {
 		assertThat(warned.getWarningCodes())
 				.doesNotContain(RecommendationCodes.WARNING_UNKNOWN_CONSTRAINT_EXCLUDED);
 
-		// 🔴 어느 쪽도 판정이 바뀌지 않았다.
+		// 어느 쪽도 판정이 바뀌지 않았다.
 		assertThat(excluded.getConstraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
 		assertThat(warned.getConstraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
 	}

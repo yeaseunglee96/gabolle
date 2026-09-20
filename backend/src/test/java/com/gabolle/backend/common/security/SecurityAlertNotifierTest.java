@@ -19,11 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
- * S15P21E201-682 — 급증 판정(슬라이딩 윈도)·cooldown·웹훅 설정 없음/실패 시 동작을 본다.
- *
- * <p>🔴 실제 MatterMost 웹훅은 검증할 수 없다(팀에 아직 주소가 없다). 여기서는 JDK 내장
- * {@link HttpServer} 로 가짜 수신 서버를 띄우거나, 티켓이 지시한 대로 {@code http://localhost:1/hook}
- * 같은 명백히 닿지 않는 주소를 써서 "전송 시도" 까지만 검증한다.
+ * 급증 판정(슬라이딩 윈도)·cooldown·웹훅 설정 없음/실패 시 동작을 본다. 실제 MatterMost 웹훅 대신 JDK
+ * 내장 {@link HttpServer} 로 띄운 가짜 수신 서버와 닿지 않는 주소로 전송 시도까지만 검증한다.
  */
 class SecurityAlertNotifierTest {
 
@@ -91,7 +88,7 @@ class SecurityAlertNotifierTest {
 	void unreachableWebhookDoesNotThrow() {
 		SecurityAlertProperties properties = new SecurityAlertProperties();
 		properties.setThreshold(1);
-		// 🔴 실제 주소처럼 보이는 값을 만들지 않는다 — 명백히 가짜인 예약 포트를 쓴다.
+		// 실제 주소처럼 보이는 값을 만들지 않는다 — 명백히 가짜인 예약 포트를 쓴다.
 		properties.setWebhookUrl("http://localhost:1/hook");
 		SecurityAlertNotifier notifier = new SecurityAlertNotifier(properties, RestClient.builder(), Clock.systemUTC());
 

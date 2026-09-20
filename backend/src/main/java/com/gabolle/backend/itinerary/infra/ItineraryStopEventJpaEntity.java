@@ -9,11 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * {@code itinerary_stop_event} 표 매핑 — S15P21E201-1325.
- *
- * <p>🔴 이 표는 <b>쌓기만 한다.</b> 고치는 경로가 없어서 {@code updatable=false} 를 전부
- * 붙였다 — 나중에 누가 변경 감지로 값을 바꾸면 「그때 무슨 일이 있었나」의 기록이 조용히
- * 달라진다. 기록은 고치는 것이 아니라 하나 더 쌓는 것이다.
+ * {@code itinerary_stop_event} 표 매핑. 이 표는 쌓기만 하고 고치지 않는다 — 모든 칼럼에
+ * {@code updatable=false} 를 붙여 변경 감지로 기록이 바뀌는 길을 막는다.
  */
 @Entity
 @Table(name = "itinerary_stop_event")

@@ -5,10 +5,10 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
- * 컬렉션·저장한 장소·추천 판단을 <b>한 컨텍스트</b>에 올리는 슬라이스 — S15P21E201-1037.
+ * 컬렉션·저장한 장소·추천 판단을 한 컨텍스트에 올리는 슬라이스.
  *
  * <p>이 셋은 도메인이 다르지만 고쳐야 할 것이 같다 — 「같은 것을 두 번 넣으려 할 때
- * 500 이 아니라 성공을 준다」. 그 판정을 DB 가 하므로 <b>진짜 PostgreSQL 위에서</b>
+ * 500 이 아니라 성공을 준다」. 그 판정을 DB 가 하므로 진짜 PostgreSQL 위에서
  * 확인해야 하고, 그러려면 세 리포지토리가 한 컨텍스트에 있어야 한다.
  *
  * <p>슬라이스를 새로 만든 이유. {@link PlaceSliceApplication} 은 {@code place} 만 훑고,

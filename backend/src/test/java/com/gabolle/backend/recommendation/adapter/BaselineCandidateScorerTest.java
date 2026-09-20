@@ -29,16 +29,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * {@link BaselineCandidateScorer} 판정표 전부 — DB 없이 돈다 (S15P21E201-604).
- *
- * <p>{@link UserPlaceCodeMap} 은 읽기 전용 JPA 엔티티라 public 생성자가 없다. Mockito 로
- * 대역을 만들면 실제 DB 없이도 대조표 행을 흉내 낼 수 있다.
+ * {@link UserPlaceCodeMap} 은 읽기 전용 JPA 엔티티라 public 생성자가 없다. Mockito 대역으로
+ * DB 없이 대조표 행을 흉내 낸다.
  */
 class BaselineCandidateScorerTest {
 
 	private static final int RADIUS_M = 5000;
 
-	/** S15P21E201-943 배수. 기본값과 같은 값을 쓴다 — 검사가 설정과 따로 놀지 않게. */
+	/** 취향 벡터 배수. 기본값과 같은 값을 쓴다 — 검사가 설정과 따로 놀지 않게. */
 	private static final double TASTE_MULTIPLIER = 0.05;
 
 	private static final UUID TASTE_VECTOR_ID = UUID.randomUUID();
@@ -50,8 +48,8 @@ class BaselineCandidateScorerTest {
 			new BaselineEngineProperties.Weights(0.30, 0.20, 0.15, 0.15, 0.10, 0.10);
 
 	/**
-	 * 취향 다섯 차원의 비율 — 전부 기본값(1.0)이다. 비율이 같으면 가중평균은 단순평균과
-	 * 같은 값이라, 아래 기대값들은 S15P21E201-547 이전과 그대로다.
+	 * 취향 다섯 차원의 비율 — 전부 기본값(1.0)이다. 비율이 같으면 가중평균이 단순평균과
+	 * 같아서 아래 기대값들이 단순평균으로 계산된다.
 	 */
 	private static final PreferenceAlignmentWeights ALIGNMENT_WEIGHTS =
 			new PreferenceAlignmentWeights(null, null, null, null, null);
@@ -101,9 +99,8 @@ class BaselineCandidateScorerTest {
 
 		EngineCandidate result = score(candidate, null, List.of(peanutAllergy));
 
-		// 🔴 채점기가 점수를 지워서 후보를 빼지 않는다. 한 번 그렇게 만들었다가 되돌렸다 —
-		//    unknown-exclusion-threshold 를 NONE 으로 두는 것은 사고가 아니라 계획된 결정
-		//    경로(FR-REC-02 · S15P21E201-539)라서, 여기서 지우면 그 레버가 안 먹는다.
+		// 채점기가 점수를 지워서 후보를 빼지 않는다. unknown-exclusion-threshold 를 NONE 으로
+		// 두는 것이 정당한 설정이라, 여기서 점수를 지우면 그 설정이 안 먹는다.
 		assertThat(result.preRankScore()).isNotNull();
 		assertThat(result.unknownFacts()).anySatisfy(fact ->
 				assertThat(fact.get("severity")).isEqualTo("REQUIRED"));
@@ -211,9 +208,8 @@ class BaselineCandidateScorerTest {
 	@Test
 	@DisplayName("🔴 휠체어를 하드 제약으로 켜도 표식 없는 곳은 안 빠진다 — 이게 안 되면 추천이 0건이 된다")
 	void 휠체어_하드제약이어도_표식없는_곳은_안빠진다() {
-		// 🔴 이 검사가 이 티켓의 이유다. 운영 실측(2026-09-16)에서 접근성 표식이 붙은
-		//    장소는 2,683곳 중 102곳(4%)뿐이다. 미확인을 탈락으로 세면 96%가 사라지고
-		//    반경 조건까지 겹치면 결과가 0건이 된다 — 추천 실패 18건 중 8건이 그랬다.
+		// 접근성 표식이 붙은 장소는 운영 실측에서 4% 뿐이다. 미확인을 탈락으로 세면 96% 가
+		// 사라지고 반경 조건까지 겹치면 결과가 0건이 된다.
 		TripConstraint wheelchair = mobility("WHEELCHAIR", TripConstraint.Severity.HARD);
 		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
 
@@ -221,8 +217,8 @@ class BaselineCandidateScorerTest {
 
 		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
 		assertThat(result.violations()).isEmpty();
-		// 🔴 severity 를 REQUIRED 로 단 미확인 사실이 남으면 임계값 설정(기본 REQUIRED)이
-		//    그 후보를 뺀다. 그래서 그 자리가 비어 있어야 한다.
+		// severity 를 REQUIRED 로 단 미확인 사실이 남으면 임계값 설정(기본 REQUIRED)이 그
+		// 후보를 뺀다. 그래서 그 자리가 비어 있어야 한다.
 		assertThat(result.unknownFacts())
 				.noneSatisfy(fact -> assertThat(fact.get("fact")).isEqualTo("ACCESSIBILITY_UNVERIFIED"));
 		assertThat(result.preRankScore()).as("점수가 null 이면 후보에서 빠진다").isNotNull();
@@ -319,10 +315,8 @@ class BaselineCandidateScorerTest {
 	}
 
 	/**
-	 * 🔴 이 검사가 S15P21E201-943 의 이유다 — 벡터가 실제로 점수에 닿는가.
-	 *
-	 * <p>완료 기준에 「겹치는 것이 있으면 기여가 0 이 아니다」를 넣은 이유가 이것이다. 「벡터 없는
-	 * 계정은 점수가 같다」만 검사하면 <b>배관이 끊겨 기여가 영원히 0 이어도 통과한다.</b>
+	 * 벡터 없는 계정의 점수가 같다는 것만 검사하면, 배관이 끊겨 기여가 영원히 0 이어도
+	 * 통과한다. 그래서 겹치는 것이 있을 때 기여가 0 이 아닌지를 함께 본다.
 	 */
 	@Test
 	@DisplayName("🔴 벡터가 겹치면 덧점수가 실제로 붙는다 — 기여가 0 이 아니다")
@@ -340,10 +334,7 @@ class BaselineCandidateScorerTest {
 		assertThat(with.scoreComponents()).containsKey("tasteVectorContribution");
 	}
 
-	/**
-	 * 🔴 벡터가 없는 사람이 지금 대부분이다. 이 변경 전후로 그 사람들의 점수가 <b>완전히</b>
-	 * 같아야 한다 — 덧점수로 시작한 이유가 이것이다.
-	 */
+	/** 벡터가 없는 사람이 대부분이라, 그 사람들의 점수는 한 톨도 달라지면 안 된다. */
 	@Test
 	@DisplayName("🔴 벡터가 없으면 점수가 한 톨도 안 바뀐다")
 	void noVectorMeansNoChange() {
@@ -353,15 +344,11 @@ class BaselineCandidateScorerTest {
 		EngineCandidate legacy = score(cafe, null, List.of());
 
 		assertThat(empty.preRankScore()).isEqualTo(legacy.preRankScore());
-		// 🔴 「겹친 게 없다(0.0)」와 「잴 것이 없다(null)」를 구분한다.
+		// 겹친 게 없다(0.0)와 잴 것이 없다(null)를 구분한다.
 		assertThat(empty.featureValues()).containsEntry("tasteVectorOverlap", null);
 	}
 
-	/**
-	 * 🔴 개수만 세면 못 하는 일 — 싫어하는 갈래는 점수를 <b>내려야</b> 한다.
-	 *
-	 * <p>벡터를 쓰는 이유의 절반이 이것이다. 기존 태그 겹침은 맞은 개수라 언제나 0 이상이다.
-	 */
+	/** 태그 겹침은 맞은 개수라 언제나 0 이상이지만, 싫어하는 갈래는 점수를 내려야 한다. */
 	@Test
 	@DisplayName("🔴 음수 성분이면 점수가 내려간다 — 겹침 개수로는 못 하는 일")
 	void negativeWeightLowersScore() {
@@ -395,7 +382,7 @@ class BaselineCandidateScorerTest {
 		return score(candidate, snapshot, constraints, List.of());
 	}
 
-	/** 취향 벡터를 함께 넘기는 갈래 — S15P21E201-943. */
+	/** 취향 벡터를 함께 넘기는 갈래. */
 	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot snapshot,
 			List<TripConstraint> constraints, List<UserTasteWeight> tasteWeights) {
 		return this.scorer.score(candidate, snapshot, constraints, RADIUS_M, WEIGHTS, ALIGNMENT_WEIGHTS,

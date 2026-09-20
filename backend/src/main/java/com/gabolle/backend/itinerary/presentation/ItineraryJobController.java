@@ -24,24 +24,16 @@ import com.gabolle.backend.recommendation.presentation.dto.RecommendationJobResp
 import jakarta.validation.Valid;
 
 /**
- * 장소 제외(ITN-08)·재계산(ITN-09) — S15P21E201-249.
- *
- * <p>🔴 <b>이 경로도 계산을 기다리지 않는다.</b> {@code 202} 로 작업 번호만 즉시 돌려주고,
- * 실제 재계산은 감독자가 별도로 배선하는 Worker 가 뒤에서 이어간다 —
- * {@code RecommendationJobController} 가 일정 생성(REC-01)에서 하는 것과 같은 모양이다.
- * 이 컨트롤러가 보장하는 것은 <b>접수 전 검증</b>뿐이다 — 권한이 없거나 바탕 판이 낡았거나
- * 대상 항목이 없으면 Job 을 아예 만들지 않는다({@link ItineraryRecalculationService} 참고).
- *
- * <p>🔴 {@code @Profile({"db","dev"})}·{@code @ConditionalOnBean(RecommendationJobRunner.class)}
- * — {@code RecommendationJobController} 와 같은 이유다. {@link ItineraryRecalculationService}
- * 자체도 {@code TripQueryService} 가 없으면 안 만들어지므로, 그 러너가 없는 배포(추천 전용
- * 테스트 슬라이스)에서는 이 컨트롤러도 생기면 안 된다 — 생성자 주입이 실패해 컨텍스트
- * 전체가 못 뜬다.
- *
- * <p>🔴 예외 번역은 {@code ItineraryExceptionHandler} 를 재사용하지 않는다. 그 핸들러는
- * {@code assignableTypes = ItineraryEditController.class} 로 좁혀져 있어 이 컨트롤러의
- * 예외를 못 잡는다. 그 파일은 이번 작업의 손댈 수 있는 파일 목록 밖이라(감독자가 넓혀야
- * 한다면 그 몫이다) 대신 {@link ItineraryJobExceptionHandler} 를 새로 둔다.
+ * 장소 제외·재계산 Job 접수.
+ * 이 경로도 계산을 기다리지 않는다. {@code 202} 로 작업 번호만 즉시 돌려주고 실제 재계산은
+ * Worker 가 뒤에서 이어간다. 이 컨트롤러가 보장하는 것은 접수 전 검증뿐이다 — 권한이 없거나
+ * 바탕 판이 낡았거나 대상 항목이 없으면 Job 을 아예 만들지 않는다.
+ * {@code @Profile({"db","dev"})}·{@code @ConditionalOnBean(RecommendationJobRunner.class)} 인
+ * 이유는 러너가 없는 배포에서 이 컨트롤러가 생기면 생성자 주입이 실패해 컨텍스트 전체가 못
+ * 뜨기 때문이다.
+ * 예외 번역은 {@code ItineraryExceptionHandler} 를 재사용하지 않는다. 그 핸들러는
+ * {@code assignableTypes = ItineraryEditController.class} 로 좁혀져 있어 이 컨트롤러의 예외를
+ * 못 잡는다. 대신 {@link ItineraryJobExceptionHandler} 를 둔다.
  */
 @RestController
 @RequestMapping("/api/v1/itineraries/{itineraryId}")
@@ -56,10 +48,8 @@ public class ItineraryJobController {
 	}
 
 	/**
-	 * ITN-08 — 항목 하나를 빼고 그 날짜만 다시 계산하는 Job 을 접수한다.
-	 *
-	 * <p>뺄 항목은 URL 의 {@code itemId} 다 — 본문의 {@code fromItemId} 는 이 경로에서 안 쓴다
-	 * ({@link ItineraryEditJobRequest} javadoc 참고).
+	 * 항목 하나를 빼고 그 날짜만 다시 계산하는 Job 을 접수한다.
+	 * 뺄 항목은 URL 의 {@code itemId} 다 — 본문의 {@code fromItemId} 는 이 경로에서 안 쓴다.
 	 */
 	@PostMapping("/items/{itemId}/remove")
 	public ResponseEntity<ApiResponse<RecommendationJobResponse>> removeItem(
@@ -77,11 +67,10 @@ public class ItineraryJobController {
 	}
 
 	/**
-	 * ITN-09 — 하루를 다시 계산하는 Job 을 접수한다.
-	 *
-	 * <p>어느 날인지는 두 가지로 말할 수 있다 — {@code fromItemId}(그 항목이 속한 날, 그 항목부터 뒤만)
-	 * 또는 {@code dayIndex}(그 날 전체, 고정 항목만 남긴다). 둘 다 없으면 무엇을 다시 계산하라는
-	 * 것인지 알 수 없으므로 400 이다 — 없는 항목을 찾는 404 와 다르다.
+	 * 하루를 다시 계산하는 Job 을 접수한다.
+	 * 어느 날인지는 두 가지로 말할 수 있다 — {@code fromItemId}(그 항목이 속한 날, 그 항목부터
+	 * 뒤만) 또는 {@code dayIndex}(그 날 전체, 고정 항목만 남긴다). 둘 다 없으면 무엇을 다시
+	 * 계산하라는 것인지 알 수 없으므로 400 이다 — 없는 항목을 찾는 404 와 다르다.
 	 */
 	@PostMapping("/recalculate")
 	public ResponseEntity<ApiResponse<RecommendationJobResponse>> recalculate(
@@ -110,7 +99,7 @@ public class ItineraryJobController {
 		}
 	}
 
-	/** {@code RecommendationJobController} 가 REC-01 에서 202 를 만드는 방식 그대로다. */
+	/** {@code RecommendationJobController} 가 202 를 만드는 방식 그대로다. */
 	private static ResponseEntity<ApiResponse<RecommendationJobResponse>> accepted(RecommendationJob job) {
 		return ResponseEntity.status(HttpStatus.ACCEPTED)
 				.body(ApiResponse.success(RecommendationJobResponse.of(job), "req_" + UUID.randomUUID()));

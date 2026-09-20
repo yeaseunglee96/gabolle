@@ -38,24 +38,15 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 남은 하루 재계획 — S15P21E201-308. 실제 PostgreSQL 위에서 HTTP 로 본다.
+ * 남은 하루 재계획. 실제 PostgreSQL 위에서 HTTP 로 본다.
  *
- * <h2>한 시나리오로 완료 기준 전부를 본다</h2>
- * 0일차에 A(지나간 방문지, 실제로 30분 늦게 출발)·B(고정, 아직 안 감)·C(아직 안 감) 셋을
- * 두고, 1일차에는 손대면 안 되는 D 를 둔다. {@code factor} 가 이 티켓에서는 아직 배선되지
- * 않아({@link com.gabolle.backend.itinerary.application.ItineraryEditService#replanDay}
- * 주석 참고) 시각이 밀리는 것은 온전히 "A 가 실제로 늦게 출발했다" 는 사실 하나에서 온다 —
- * 계수를 곱하지 않아도 남은 방문지의 예상 시각은 실제 도착·출발을 따라 다시 매겨진다.
+ * <p>구간의 이동 시간을 A→B 15분, B→C 20분으로 넣어 두어 B·C 의 새 시각이 정확히 계산할
+ * 수 있는 값이 되게 한다 — cursor(10:30) + 15분 = B 도착(10:45), +60분(계획 머문 시간) =
+ * B 출발(11:45), +20분 = C 도착(12:05), +60분 = C 출발(13:05).
  *
- * <p>구간(leg)의 이동 시간을 A→B 15분, B→C 20분으로 넣어 둔다. 그래서 B·C 의 새 시각은
- * 정확히 계산할 수 있는 값이다 — cursor(10:30) + 15분 = B 도착(10:45), +60분(계획 머문
- * 시간) = B 출발(11:45), +20분 = C 도착(12:05), +60분 = C 출발(13:05). 이 값을 그대로
- * 단정한다.
- *
- * <p>날짜는 실행 시점의 {@code LocalDate.now()} 기준으로 며칠 뒤를 쓴다 — 고정 날짜를 쓰면
+ * <p>날짜는 {@code LocalDate.now()} 기준 며칠 뒤를 쓴다. 고정 날짜를 쓰면
  * {@link ItineraryDelayProjector} 의 시작점 판정({@code max(마지막 실제 출발, now)})이
- * 테스트를 도는 실제 시각에 따라 흔들릴 수 있다. 여행일을 항상 미래로 두면 "마지막 실제
- * 출발" 이 항상 "지금" 보다 커서 cursor 가 그 값으로 고정된다.
+ * 테스트를 도는 시각에 따라 흔들린다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",

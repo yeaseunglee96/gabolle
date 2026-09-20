@@ -17,12 +17,7 @@ import com.gabolle.backend.share.application.ShareLinkService;
 import com.gabolle.backend.share.domain.TripShareLink;
 import com.gabolle.backend.share.presentation.dto.ShareLinkResponse;
 
-/**
- * 읽기 전용 공유 주소 발급 — S15P21E201-330 (F-COL-03).
- *
- * <p>🔴 인증이 필요하고, 그중에서도 여행 OWNER 만 부를 수 있다({@link ShareLinkService#issue}
- * 의 javadoc 이 그 이유를 설명한다).
- */
+/** 읽기 전용 공유 주소 발급. 인증이 필요하고 그중에서도 여행 OWNER 만 부를 수 있다. */
 @RestController
 @RequestMapping("/api/v1/trips")
 @Profile({ "db", "dev" })

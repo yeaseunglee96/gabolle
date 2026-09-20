@@ -21,9 +21,7 @@ import org.springframework.core.io.support.ResourcePropertySource;
  *
  * <p>이 파일은 배포 프로필의 정본이다({@code SPRING_PROFILES_ACTIVE=dev}). 여기서
  * {@code ${VAR}} 하나가 안 풀리면 앱은 그 속성과 아무 상관 없는 이유로 기동에 실패하고,
- * 값 하나가 잘못 읽히면 그 값이 조용히 틀린 채로 운영에 나간다. 2026-09-03 에 운영
- * backend 가 세 번 기동에 실패했고, 2026-09-04 에 발신자 이름이 깨진 채 메일이
- * 나갔다. 둘 다 이 파일에서 비롯됐다.
+ * 값 하나가 잘못 읽히면 그 값이 조용히 틀린 채로 운영에 나간다.
  *
  * <p>주입되는 환경변수의 목록은 {@code backend/Jenkinsfile} 의 Deploy 단계가 정본이다.
  * 거기서 하나를 지우면 이 테스트가 먼저 깨진다.
@@ -37,9 +35,7 @@ class DevProfilePlaceholderTest {
 		env.put("GABOLLE_DB_USERNAME", "app_user");
 		env.put("GABOLLE_DB_PASSWORD", "test-password");
 		env.put("GABOLLE_JWT_SECRET", "0123456789abcdef0123456789abcdef");
-		// S15P21E201-604 — 추천 응답의 서비스 버전 / 배포 환경. Jenkinsfile Deploy
-		// 단계가 GIT_COMMIT 과 고정 문자열 "dev" 를 각각 넣는다 (그 값 자체가
-		// 아니라 "채워진다"는 사실만 이 테스트에 필요하다).
+		// 추천 응답의 서비스 버전과 배포 환경. 값 자체가 아니라 채워진다는 사실만 필요하다.
 		env.put("GABOLLE_SERVICE_VERSION", "0123456789abcdef0123456789abcdef01234567");
 		env.put("GABOLLE_DEPLOYMENT_ENVIRONMENT", "dev");
 		return env;
@@ -66,8 +62,8 @@ class DevProfilePlaceholderTest {
 	 * 발신자 이름이 메일함에서 깨져 나간 회귀를 막는다.
 	 *
 	 * <p>{@code .properties} 는 Java 규격상 ISO-8859-1 로 읽힌다. UTF-8 로 저장한 한글을
-	 * 그대로 넣으면 바이트가 잘못 해석되고, 2026-09-04 에 실제로 발신자 이름이 깨진 채
-	 * 메일이 나갔다. Spring 이 읽는 방식과 같게 읽어서 값을 대조한다.
+	 * 그대로 넣으면 바이트가 잘못 해석돼 발신자 이름이 깨진 채 메일이 나간다.
+	 * Spring 이 읽는 방식과 같게 읽어서 값을 대조한다.
 	 *
 	 * <p>기대값을 유니코드 이스케이프로 적는다 — 이 테스트 파일 자체의 인코딩에 기대지
 	 * 않기 위한 것이다.
@@ -87,10 +83,9 @@ class DevProfilePlaceholderTest {
 	/**
 	 * 같은 실수가 다른 속성에서 반복되는 것을 막는다.
 	 *
-	 * <p>파싱된 값이 아니라 <b>파일 바이트</b>를 본다. {@code Properties} 는 읽는 시점에
-	 * 유니코드 이스케이프를 실제 문자로 바꿔 주므로, 파싱한 뒤에는 올바르게 적은 한글과
-	 * 바이트가 잘못 해석된 한글을 구분할 수 없다 — 이 검사를 처음 파싱된 값으로
-	 * 만들었다가 그것을 알았다.
+	 * <p>파싱된 값이 아니라 파일 바이트를 본다. {@code Properties} 는 읽는 시점에 유니코드
+	 * 이스케이프를 실제 문자로 바꿔 주므로, 파싱한 뒤에는 올바르게 적은 한글과 바이트가
+	 * 잘못 해석된 한글을 구분할 수 없다.
 	 *
 	 * <p>주석은 읽을 때 무시되므로 검사에서 뺀다.
 	 */

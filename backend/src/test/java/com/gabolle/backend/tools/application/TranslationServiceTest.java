@@ -22,12 +22,8 @@ import com.gabolle.backend.tools.domain.TranslationRequest;
 import com.gabolle.backend.tools.domain.TranslationResult;
 
 /**
- * {@link TranslationService} 검증 — S15P21E201-343.
- *
- * <p>완료 기준 셋 중 둘을 여기서 잰다 — "같은 문장을 두 번 보내면 두 번째는 외부 호출이
- * 없다" 와 "업체 호출이 실패하면 응답에 실패가 담겨 온다"(여기서는 예외가 그대로 위로
- * 올라가는 것까지). 세 번째(로그에 원문이 안 남는다)는 {@code TranslationVendorAdapterTest}
- * 가 잰다 — 이 클래스는 로거 자체가 없다.
+ * 캐시 히트에서 업체를 안 부르는 것과, 업체 실패가 그대로 위로 올라가는 것을 잰다. 로그에 원문이 안
+ * 남는지는 {@code TranslationVendorAdapterTest} 가 잰다 — 이 클래스는 로거 자체가 없다.
  */
 class TranslationServiceTest {
 
@@ -68,7 +64,7 @@ class TranslationServiceTest {
 		assertThat(first.cached()).isFalse();
 		assertThat(second.cached()).isTrue();
 		assertThat(second.translatedText()).isEqualTo("hello");
-		// 🔴 이 값이 이 테스트의 핵심이다 — 두 번째 호출에서 벤더가 다시 불리면 실패한다.
+		// 두 번째 호출에서 벤더가 다시 불리면 실패한다.
 		assertThat(this.vendor.callCount).isEqualTo(1);
 	}
 

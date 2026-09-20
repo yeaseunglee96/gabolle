@@ -3,10 +3,8 @@ package com.gabolle.backend.place.service;
 import java.util.List;
 
 /**
- * 요청 자체가 계약과 다르다 — 400 으로 나간다.
- *
- * <p>🔴 {@code message} 에 사람이 읽는 한국어 문장을 넣는다. 프런트가 이 값을 그대로 화면에
- * 띄우기 때문이다. 메시지 키를 넣으면 사용자가 {@code error.place.query} 를 보게 된다.
+ * 요청 자체가 계약과 다르다 — 400 으로 나간다. {@code message} 에는 메시지 키가 아니라 사람이
+ * 읽는 한국어 문장을 넣는다. 프런트가 이 값을 그대로 화면에 띄운다.
  */
 public class PlaceRequestException extends RuntimeException {
 

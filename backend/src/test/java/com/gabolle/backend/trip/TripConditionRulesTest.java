@@ -13,10 +13,8 @@ import com.gabolle.backend.trip.domain.TripConditionRules;
 import com.gabolle.backend.trip.domain.TripConditionRules.Violation;
 
 /**
- * 여행 조건 규칙 — S15P21E201-440. DB 도 Spring 도 필요 없는 규칙이라 그것들 없이 잰다.
- *
- * <p>여기서 재는 것은 <b>판정</b>이고, 그 판정이 실제 요청에서 400 과 항목 이름으로 나가는지는
- * {@code TripConditionRevalidationFunctionalTest} 가 실제 HTTP 로 잰다.
+ * 판정만 잰다 — DB 도 Spring 도 필요 없는 규칙이라 그것들 없이 부른다. 그 판정이 요청에서 400 과
+ * 항목 이름으로 나가는지는 {@code TripConditionRevalidationFunctionalTest} 가 HTTP 로 잰다.
  */
 class TripConditionRulesTest {
 
@@ -89,9 +87,6 @@ class TripConditionRulesTest {
 	@Test
 	@DisplayName("출발지 좌표가 없으면 거부한다 — 앱이 좌표를 실어 보내기 시작했다(S15P21E201-791, !479)")
 	void missingOriginCoordinatesAreRejected() {
-		// 2026-09-10 - 좌표 없이도 통과하던 것을 뒤집었다. 켜 두었으면 배포된 앱이 여행을
-		// 하나도 못 만들었을 것이라 그 결함이 고쳐질 때까지 일부러 꺼 뒀었는데, 이제 앱이
-		// 좌표를 실어 보내므로 켠다. 근거는 TripConditionRules 머리말에 적어 뒀다.
 		assertThat(checkWith(START.plusDays(2), 2, 100_000, null, null, null))
 				.extracting(Violation::field).containsExactly("originLat");
 	}

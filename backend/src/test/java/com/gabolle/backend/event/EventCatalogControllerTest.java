@@ -13,11 +13,8 @@ import com.gabolle.backend.event.presentation.dto.EventCatalogEntry;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 이벤트 사전 조회 — S15P21E201-352 작업 내용 4번의 마지막 조각.
- *
- * <p>🔴 이 조회가 {@link EventType} 과 따로 노는 값을 낼 수 없게, "코드가 아는 것과
- * 응답이 항상 같다" 를 직접 대조한다. 하나씩 나열하지 않는다 — 나열하면 새 종류가
- * 추가될 때 이 테스트를 안 고쳐도 통과해서, 사전이 오래돼도 아무도 모른다.
+ * 이벤트 사전 조회. 기대값을 하나씩 나열하지 않고 {@link EventType} 과 직접 대조한다 —
+ * 나열하면 새 종류가 늘어도 이 테스트가 통과해서 사전이 오래된 것을 아무도 모른다.
  */
 class EventCatalogControllerTest {
 
@@ -53,8 +50,8 @@ class EventCatalogControllerTest {
 
     @Test
     void 저장_제외_방문은_클라이언트도_보낼_수_있다고_사전이_말한다() {
-        // 🔴 producer 만 보면 SERVER 라 "앱은 보낼 수 없다" 로 읽힌다. 실제로는 둘 다 받는다
-        //    (S15P21E201-735). 사전이 그 사실을 말하지 않으면 계측하는 쪽이 안 보낸다.
+        // producer 만 보면 SERVER 라 "앱은 보낼 수 없다" 로 읽히지만 실제로는 둘 다 받는다.
+        // 사전이 그 사실을 말하지 않으면 계측하는 쪽이 안 보낸다.
         for (EventType type : List.of(EventType.PLACE_LIKE, EventType.PLACE_DISLIKE, EventType.PLACE_VISIT)) {
             assertThat(EventCatalogEntry.from(type).acceptedProducers())
                     .as(type.name())

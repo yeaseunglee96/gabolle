@@ -12,22 +12,14 @@ import com.gabolle.backend.event.domain.EventType;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 두 신호 목록이 서로 어긋나지 않는지 본다 — S15P21E201-549.
+ * 두 신호 목록이 서로 어긋나지 않는지 본다.
  *
- * <h2>🔴 이 검사가 막는 것</h2>
+ * <p>{@link EventType} 에는 목록이 둘 있다 — 행동 관찰({@code isBehaviorSignal})은 개인화를
+ * 끈 사람에게 안 적을 것이고, 취향 신호({@code isTasteSignal})는 취향 벡터가 셀 것이다.
+ * 세는 쪽이 안 모으는 쪽의 부분집합이어야 한다. 뒤집히면 세기는 하는데 껐어도 모이는
+ * 종류가 생기고, 그건 어느 화면에도 오류로 나타나지 않는다.
  *
- * {@link EventType} 에는 목록이 둘 있다.
- * <ul>
- * <li><b>행동 관찰</b>({@code isBehaviorSignal}) — 개인화를 끈 사람에게 <b>안 적을</b> 것</li>
- * <li><b>취향 신호</b>({@code isTasteSignal}) — 취향 벡터가 <b>셀</b> 것</li>
- * </ul>
- *
- * 세는 것은 안 모으는 것의 <b>부분집합</b>이어야 한다. 뒤집히면 <b>"세기는 하는데 껐어도
- * 모이는"</b> 종류가 생기고, 그건 어느 화면에도 오류로 나타나지 않는다 — 배치는 초록이고
- * 스위치는 꺼져 있는데 값만 자란다.
- *
- * <p>목록이 둘로 나뉜 것 자체는 의도다. 세는 쪽은 아직 좁고, 안 모으는 쪽은 넓어야 한다.
- * 그래서 "같은가" 가 아니라 "포함하는가" 를 잰다.
+ * <p>둘이 다른 것은 의도다. 그래서 같은가가 아니라 포함하는가를 잰다.
  */
 class EventTypeSignalSetsTest {
 
@@ -65,12 +57,9 @@ class EventTypeSignalSetsTest {
 	}
 
 	/**
-	 * 🔴 이 검사가 2026-09-11 에 실제로 있었던 고장을 막는다.
-	 *
-	 * <p>{@code TasteVectorFoldService} 가 {@code "PLACE_LIKE"} 처럼 <b>대문자</b>로 적은 목록을
-	 * {@code event_outbox.event_type} 과 비교하고 있었다. 그 칸에 실제로 들어가는 값은
-	 * {@link EventType#wireName()} 이 만드는 소문자라 <b>한 건도 안 맞았다.</b> 계측이 아직
-	 * 없어 결과가 0 인 것과 구분이 안 돼서, 계측이 붙어도 아무도 몰랐을 것이다.
+	 * {@code TasteVectorFoldService} 가 대문자 목록을 {@code event_outbox.event_type} 과
+	 * 비교하던 고장을 막는다. 그 칸에 실제로 들어가는 값은 {@link EventType#wireName()} 이
+	 * 만드는 소문자라 한 건도 안 맞았고, 계측이 없어 결과가 0 인 것과 구분되지 않았다.
 	 */
 	@Test
 	@DisplayName("🔴 신호 목록의 문자열은 표에 실제로 들어가는 값과 같다 — 소문자다")

@@ -39,13 +39,6 @@ import com.gabolle.backend.review.presentation.PlaceReviewController;
 import com.gabolle.backend.review.presentation.ReviewExceptionHandler;
 import com.gabolle.backend.review.support.ReviewPostgresIntegrationTest;
 
-/**
- * 장소 리뷰 — S15P21E201-287 · -408.
- *
- * <p>완료 기준 대부분은 MockMvc 로 확인하고, 동시 쓰기 경쟁({@link
- * #concurrentWritesLeaveExactlyOneRow()})은 실제 스레드 둘로 붙여 UNIQUE 위반이 500 으로 새지
- * 않는지 확인한다.
- */
 class PlaceReviewIntegrationTest extends ReviewPostgresIntegrationTest {
 
 	@Autowired
@@ -82,7 +75,6 @@ class PlaceReviewIntegrationTest extends ReviewPostgresIntegrationTest {
 		return id;
 	}
 
-	/** 위치로 방문을 확인한 것으로 만든다 — {@code place_visit_verification} 에 행을 하나 둔다. */
 	private void markVisitVerified(UUID placeId, UUID userId) {
 		this.jdbcTemplate.update(
 				"INSERT INTO place_visit_verification (place_visit_verification_id, place_id, user_id, verified_at, distance_m) "
@@ -258,10 +250,6 @@ class PlaceReviewIntegrationTest extends ReviewPostgresIntegrationTest {
 				.andExpect(jsonPath("$.error.code").value("PLACE_NOT_FOUND"));
 	}
 
-	/**
-	 * 🔴 표에 좌표 칸이 없다 — 리뷰는 좌표 대신 {@code region} 문자열만 받는다. DTO 자체가
-	 * 좌표를 받지 않아 저장할 수도 없지만, 표에도 그 칸이 없다는 것을 직접 확인한다.
-	 */
 	@Test
 	@DisplayName("place_review 표에 좌표 칸이 없다")
 	void placeReviewTableHasNoCoordinateColumns() {
@@ -295,11 +283,7 @@ class PlaceReviewIntegrationTest extends ReviewPostgresIntegrationTest {
 						.content(reviewBody(1, null, null, null, "남의 평가", "해운대구")))
 				.andExpect(status().isOk());
 
-		// 같은 목록을 "나"의 시점으로 조회한다 — 전부 true 이거나 전부 false 인 응답 둘로는
-		// 배선이 실제로 사람마다 다른지 확인할 수 없다. 같은 응답 안에서 갈려야 진짜다.
-		//
-		// 🔴 목록 순서에 기대지 않는다. 정렬 규칙이 바뀌면 인덱스로 짚은 검사는 무엇이 틀렸는지
-		//    안 알려주고 그냥 빨개진다. 평가 본문으로 찾아 붙이고, 실패하면 응답 전체를 찍는다.
+		// 목록 순서에 기대지 않고 본문으로 찾아 짚는다 — 정렬 규칙이 바뀌어도 이 검사는 유효하다.
 		String json = this.mockMvc
 				.perform(get("/api/v1/places/{placeId}/reviews", placeId).principal(as(me)))
 				.andExpect(status().isOk())
@@ -330,11 +314,6 @@ class PlaceReviewIntegrationTest extends ReviewPostgresIntegrationTest {
 				.andExpect(jsonPath("$.data.mine").value(true));
 	}
 
-	/**
-	 * 🔴 익명을 지키는 회귀 검사 — S15P21E201-745. {@code mine} 한 칸만 실어 "누가 썼는지" 를
-	 * 알려주지 않는다는 설계를 이 테스트가 지킨다. 응답 JSON 문자열 안에 남의 사용자 번호가
-	 * 그대로 박혀 있으면 이 검사가 잡는다.
-	 */
 	@Test
 	@DisplayName("리뷰 목록 응답에 작성자 번호 문자열이 새지 않는다")
 	void listResponseDoesNotLeakAuthorId() throws Exception {
@@ -361,15 +340,7 @@ class PlaceReviewIntegrationTest extends ReviewPostgresIntegrationTest {
 		assertThat(json).doesNotContain(me.toString()).doesNotContain(someoneElse.toString());
 	}
 
-	/**
-	 * 🔴 선조회만으로는 막지 못하는 경쟁 — 같은 사람이 같은 장소에 거의 동시에 두 번 써도
-	 * 행이 하나여야 한다({@code UNIQUE (place_id, user_id)}). {@code PlaceReviewService.write}
-	 * 가 {@code REQUIRES_NEW} 로 삽입 시도를 독립 트랜잭션에 두어, 지는 쪽이 UNIQUE 위반을
-	 * 겪어도 그 트랜잭션만 깔끔히 롤백되고 이어서 다시쓰기로 넘어간다는 것을 확인한다.
-	 *
-	 * <p>서비스 계층을 직접 두 스레드로 부른다 — MockMvc/서블릿 계층을 거치면 스레드마다
-	 * 컨테이너를 새로 만들어야 해서 신호가 흐려진다.
-	 */
+	/** MockMvc 가 아니라 서비스를 직접 여러 스레드로 부른다 — 서블릿 계층을 거치면 신호가 흐려진다. */
 	@Test
 	@DisplayName("동시에 두 번 써도 행은 하나다 — UNIQUE 위반이 500 으로 새지 않는다")
 	void concurrentWritesLeaveExactlyOneRow() throws Exception {

@@ -17,13 +17,11 @@ import org.springframework.stereotype.Component;
 
 /**
  * 조사 대기열의 상호명에서 {@link DesiredFoodVocabulary}로 찾은 것을 {@code place_feature}에
- * 넣는다 — S15P21E201-448.
+ * 넣는다.
  *
- * <p>{@link ResearchQueueReader}가 이미 있는 대기열 파일을 그대로 다시 읽는다 — 새 산출물
- * 형식을 만들지 않는다. 이 대기열의 2,355곳은 이미 {@link SbizPlaceLoader}로 운영에
- * 실려 있으므로(S15P21E201-804), 이 실행기는 <b>장소를 새로 만들지 않고</b>
- * {@link PlaceFeatureLoader}로 사실만 덧붙인다 — {@link SbizPlaceLoader}가 "이미 있는
- * 장소는 건너뛴다" 는 규칙이라 재적재로는 새 표식이 못 붙기 때문이다.
+ * <p>대기열의 장소는 이미 {@link SbizPlaceLoader}로 실려 있으므로 장소를 새로 만들지 않고
+ * {@link PlaceFeatureLoader}로 사실만 덧붙인다 — {@link SbizPlaceLoader}는 이미 있는 장소를
+ * 건너뛰는 규칙이라 재적재로는 새 표식이 안 붙는다.
  *
  * <pre>
  * git show origin/bigData/dev:bigData/research/data/queue.ndjson &gt; /tmp/queue.ndjson

@@ -27,20 +27,14 @@ import com.gabolle.backend.user.domain.UserStatus;
 import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
- * 연결된 소셜 계정을 보여주고 뗀다 — S15P21E201-1317.
+ * 연결된 소셜 계정을 보여주고 뗀다.
  *
- * <h2>🔴 이 시험이 지키는 것</h2>
- * <b>마지막 로그인 수단을 떼면 그 사람은 다시 못 들어온다.</b> 되돌릴 방법이 없고, 겪은 사람만
- * 안다. 그래서 「뗄 수 있나」 판정을 여기서 못으로 박는다.
+ * <p>마지막 로그인 수단을 떼면 그 사람은 다시 못 들어오고 되돌릴 방법이 없다. 그래서
+ * 뗄 수 있나 판정을 여기서 못으로 박는다. 메일 인증을 안 끝낸 비밀번호가 함정이다 —
+ * {@code local_credential} 행은 있지만 그 비밀번호로는 로그인이 거부된다.
  *
- * <p>특히 <b>메일 인증을 안 끝낸 비밀번호</b>가 함정이다. {@code local_credential} 줄은 있으니
- * 「비밀번호가 있다」고 세기 쉬운데, 그 비밀번호로는 로그인이 거부된다. 그것을 다른 수단으로
- * 세면 마지막 소셜을 뗀 순간 계정이 잠긴다.
- *
- * <h2>🔴 왜 진짜 DB 인가</h2>
- * {@code (provider, provider_subject)} 유일 제약이 여기서만 진짜로 있다. 뗀 연결을 다시 붙이는
- * 길을 안 열어 두면 그 제약에 걸려 <b>한 번 뗀 소셜 계정은 영영 못 붙는다</b> — 가짜 저장소로는
- * 그 제약이 없어 초록이 나오고, 운영에서 처음 드러난다.
+ * <p>진짜 DB 가 필요한 이유는 {@code (provider, provider_subject)} 유일 제약이다. 뗀 연결을
+ * 다시 붙이는 길을 안 열어 두면 그 제약에 걸리는데, 가짜 저장소에는 제약이 없어 초록이 난다.
  */
 class LinkedIdentityIntegrationTest extends AuthPostgresIntegrationTest {
 
@@ -94,13 +88,13 @@ class LinkedIdentityIntegrationTest extends AuthPostgresIntegrationTest {
 				.isInstanceOfSatisfying(AuthException.class,
 						exception -> assertThat(exception.getCode()).isEqualTo("LAST_SIGN_IN_METHOD"));
 
-		// 🔴 거절했으면 아무것도 안 바뀌어야 한다 — 「막았는데 이미 떨어져 있었다」가 최악이다.
+		// 거절했으면 아무것도 안 바뀌어야 한다.
 		assertThat(this.linkedIdentityService.list(userId).items()).hasSize(1);
 	}
 
 	/**
-	 * 🔴 {@code local_credential} 줄이 있다는 것만으로 「다른 수단이 있다」고 세면, 메일 인증을 안
-	 * 끝낸 사람이 마지막 소셜을 떼고 <b>다시 못 들어온다.</b> 그 비밀번호로는 로그인이 거부된다.
+	 * {@code local_credential} 행이 있다는 것만으로 다른 수단이 있다고 세면, 메일 인증을 안
+	 * 끝낸 사람이 마지막 소셜을 떼고 다시 못 들어온다.
 	 */
 	@Test
 	@DisplayName("🔴 메일 인증을 안 끝낸 비밀번호는 로그인 수단으로 안 센다")
@@ -143,9 +137,8 @@ class LinkedIdentityIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	/**
-	 * 🔴 끊긴 연결은 누구의 것도 아니다. 줄은 남아 있으므로, 다시 붙이는 길을 안 열면
-	 * {@code (provider, provider_subject)} 유일 제약에 걸려 <b>영영 못 붙는다</b> — 그리고 그
-	 * 거절은 「이미 다른 계정에 연결돼 있어요」라고 말하는데 사실과도 다르다.
+	 * 끊긴 연결은 누구의 것도 아니다. 행은 남아 있으므로 다시 붙이는 길을 안 열면
+	 * {@code (provider, provider_subject)} 유일 제약에 걸려 다시 붙일 수 없다.
 	 */
 	@Test
 	@DisplayName("🔴 뗀 소셜 계정은 다시 붙일 수 있고, 다른 계정이 가져갈 수도 있다")

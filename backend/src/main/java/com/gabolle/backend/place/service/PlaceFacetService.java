@@ -26,32 +26,21 @@ import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 
 /**
- * 표식 기준 갈래 목록 (-473).
+ * 표식 기준 갈래 목록.
  *
- * <h2>🔴 갈래 목록을 자바에 두지 않는 이유</h2>
+ * <p>갈래 자체는 {@link UserPlaceCodeMapRepository} 가 유일한 정본이고 여기서 나열하지 않는다.
+ * 그래야 마이그레이션이 취향 차원을 더할 때 이 클래스를 안 고쳐도 응답에 나타난다.
  *
- * 완료 기준이 "장소에 표식을 새로 붙이면 코드를 고치지 않아도 그 장소가 나온다" 다. 갈래
- * 자체를 여기서 나열하면 그 순간 정본이 둘이 된다. 그래서 {@link UserPlaceCodeMapRepository}
- * 가 유일한 정본이고, 이 서비스는 그 결과를 읽어 건수를 붙이는 것만 한다 — 마이그레이션이
- * 취향 차원을 하나 더 넣으면 이 클래스는 한 글자도 안 바뀐 채로 응답에 그 차원이 나타난다.
+ * <p>취향({@code PREFERENCE})만 읽는다. 대조표의 제약({@code CONSTRAINT})은 후보를 걸러내는
+ * 하드 필터이지 사용자가 골라 둘러보는 목록이 아니다.
  *
- * <h2>🔴 취향(PREFERENCE)만 읽는 이유</h2>
- *
- * 대조표에는 제약(CONSTRAINT, 알레르기·식단·이동)도 있지만 그것은 후보를 걸러내는 하드
- * 필터이지 사용자가 "이 갈래로 둘러보고 싶다" 고 고르는 목록이 아니다. -473 이 보여 준 응답
- * 예시도 취향 쪽(CATEGORY → INTEREST_TAG)이다.
- *
- * <h2>🔴 질의가 둘뿐인 이유</h2>
- *
- * 갈래마다 건수를 따로 세면 취향 여덟 차원에 질의 여덟 번이 나가고, 아홉 번째 차원이 생기면
- * 아홉 번이 된다 — 완료 기준을 지키려고 만든 구조가 성능 함정을 새로 파는 셈이다. 그래서
- * 대조표를 한 번, 건수를 한 번, 합쳐서 두 번만 부른다.
+ * <p>질의는 대조표 한 번, 건수 한 번으로 둘뿐이다. 갈래마다 세면 차원 수만큼 질의가 나간다.
  */
 @Service
 @Profile({"db", "dev"})
 public class PlaceFacetService {
 
-	/** 탐색 아코디언 항목의 userInputCode. 취향 차원이 아니라는 뜻이다 (S15P21E201-904). */
+	/** 탐색 아코디언 항목의 userInputCode. 취향 차원이 아니라는 뜻이다. */
 	private static final String EXPLORE_INPUT_CODE = "EXPLORE";
 
 	private final UserPlaceCodeMapRepository codeMapRepository;
@@ -72,17 +61,13 @@ public class PlaceFacetService {
 				.map(UserPlaceCodeMap::getPlaceFeatureType)
 				.distinct()
 				.toList());
-		// 🔴 탐색 아코디언은 대조표에서 파생하지 않는다 (S15P21E201-904). 전에는 취향
-		//    CATEGORY 줄이 INTEREST_TAG 를 가리켜서 그 줄에 얹혀 나왔는데, 그 바람에 온보딩
-		//    여섯 낱말과 탐색 여덟 낱말이 한 서랍에 섞였다. 이제 CATEGORY 는 CATEGORY_TAG 를
-		//    가리키므로, 탐색 갈래는 자기 사전(InterestTagCode)에서 직접 만든다.
+		// 탐색 아코디언은 대조표에서 파생하지 않고 자기 사전(InterestTagCode)에서 직접 만든다.
 		if (!featureTypes.contains(InterestTagCode.FEATURE_TYPE)) {
 			featureTypes.add(InterestTagCode.FEATURE_TYPE);
 		}
 
-		// 🔴 여기서 evidenceStatus <> UNKNOWN 까지만 걸러진 행을 받는다. "확인된 부재"
-		// (VERIFIED + 값 false) 를 걸러내는 것은 toFacetItem 의 indicatesPresence() 몫이다 —
-		// PlaceFeatureRepository.findByFeatureTypeIn javadoc 참고.
+		// 여기서 오는 행은 evidenceStatus <> UNKNOWN 까지만 걸러져 있다. "확인된 부재"
+		// (VERIFIED + 값 false) 를 걸러내는 것은 indicatesPresence() 몫이다.
 		Map<String, List<PlaceFeature>> featuresByType = groupByFeatureType(
 				this.placeFeatureRepository.findByFeatureTypeIn(featureTypes));
 
@@ -110,26 +95,16 @@ public class PlaceFacetService {
 	}
 
 	/**
-	 * placeCount 계산 근거는 {@link PlaceFacetResponse.FacetItem} javadoc 에 적었다 — "featureKey 가
-	 * 없는 행의 건수 + 키별 건수의 합" 을 그대로 코드로 옮긴다. 건수를 셀 때 {@code placeId} 로
-	 * distinct 하는 이유는 DB 쪽 {@code COUNT(DISTINCT placeId)} 와 같은 뜻을 자바에서 재현하기
-	 * 위해서다.
+	 * placeCount 는 "featureKey 가 없는 행의 건수 + 키별 건수의 합" 이다 — 점수형처럼
+	 * {@code featureKey} 가 언제나 {@code null} 인 갈래는 앞 절반이 전부라, 빠뜨리면 자료가 몇
+	 * 행이든 합계가 0 이 된다. 건수를 {@code placeId} 로 distinct 하는 것은 DB 쪽
+	 * {@code COUNT(DISTINCT placeId)} 와 뜻을 맞추기 위해서다.
 	 *
-	 * <p>🔴 여기서 {@link PlaceFeature#indicatesPresence()} 가 거짓인 행(확인된 부재, 그리고 이미
-	 * 리포지토리 질의에서 빠진 UNKNOWN)은 건너뛴다. 이 필터가 없으면 "휠체어 접근이 안 되는 것으로
-	 * 확인된" 장소가 접근성 갈래 건수에 들어간다.
+	 * <p>{@link PlaceFeature#indicatesPresence()} 가 거짓인 행은 건너뛴다. 이 필터가 없으면
+	 * "휠체어 접근이 안 되는 것으로 확인된" 장소가 접근성 갈래 건수에 들어간다.
 	 *
-	 * <p>keys 를 만드는 규칙은 갈래마다 갈린다({@link #interestTagKeys}, {@link #plainKeys}) —
-	 * INTEREST_TAG(로컬 8갈래, -473)만 여덟 개를 항상 채워야 하고 다른 표식 종류는 지금처럼 데이터가
-	 * 있는 키만 준다. total 은 그 keys 의 건수 합에 {@link #keylessCount} 를 더해 구한다.
-	 *
-	 * <p>🔴 <b>정정 (2026-09-17, S15P21E201-1149)</b> — 여기 <i>"다른 갈래는 원래 있던 키만
-	 * 더해지므로 이전 합산과 같다"</i> 고 적혀 있었고, 그 문장이 틀렸다. {@code featureKey} 가
-	 * 언제나 {@code null} 인 갈래(점수형 다섯 — LOCALITY_SCORE · QUIETNESS_SCORE · SHADE_SCORE ·
-	 * SLOPE_PERCENT · TOURIST_RATIO)는 <b>"원래 있던 키" 가 하나도 없다.</b> {@link #plainKeys} 가
-	 * null 키 묶음을 버리므로 keys 가 비고, 그래서 <b>자료가 몇 행이든 합계가 0 이었다.</b>
-	 * 위 문단이 처음부터 적어 둔 계산 규칙("featureKey 가 없는 행의 건수 + 키별 건수의 합")이
-	 * 맞았고 구현이 그 앞 절반을 빠뜨린 것이라, 명세가 아니라 코드를 고쳤다.
+	 * <p>keys 규칙은 갈래마다 다르다 — {@link #interestTagKeys} 는 여덟 개를 항상 채우고
+	 * {@link #plainKeys} 는 자료가 있는 키만 준다.
 	 */
 	private FacetItem toFacetItem(UserPlaceCodeMap codeMap, List<PlaceFeature> features) {
 		Map<String, Set<UUID>> placeIdsByKey = placeIdsByKey(features);
@@ -143,9 +118,7 @@ public class PlaceFacetService {
 				total, keys);
 	}
 
-	/**
-	 * 장소 표식을 키별로 모은다. 확인된 부재(indicatesPresence 가 거짓)는 여기서 빠진다.
-	 */
+	/** 확인된 부재({@code indicatesPresence} 가 거짓)는 여기서 빠진다. */
 	private Map<String, Set<UUID>> placeIdsByKey(List<PlaceFeature> features) {
 		Map<String, Set<UUID>> placeIdsByKey = new LinkedHashMap<>();
 		for (PlaceFeature feature : features) {
@@ -159,12 +132,9 @@ public class PlaceFacetService {
 	}
 
 	/**
-	 * 탐색 아코디언 갈래 (S15P21E201-904).
-	 *
-	 * <p>🔴 이 항목은 <b>취향 차원이 아니다.</b> 그래서 대조표에 짝이 없고, userInputCode 로
-	 * {@code EXPLORE} 를 쓴다 — 취향 여덟 차원 중 하나를 빌려 쓰면 그 차원과 이 화면이 다시
-	 * 엮이고, 그게 이 티켓이 푼 문제였다. 앱은 이 값을 안 보고 {@code keys} 의 여덟 낱말만
-	 * 골라 쓴다.
+	 * 탐색 아코디언 갈래. 취향 차원이 아니라 대조표에 짝이 없고 userInputCode 로
+	 * {@code EXPLORE} 를 쓴다 — 취향 차원 하나를 빌려 쓰면 그 차원과 이 화면이 다시 엮인다.
+	 * 앱은 이 값을 안 보고 {@code keys} 만 쓴다.
 	 */
 	private FacetItem exploreFacetItem(List<PlaceFeature> features) {
 		Map<String, Set<UUID>> placeIdsByKey = placeIdsByKey(features);
@@ -175,10 +145,9 @@ public class PlaceFacetService {
 	}
 
 	/**
-	 * 로컬 8갈래(-473)의 keys. {@link InterestTagCode#displayOrder()} 순으로 여덟 개를 먼저 채우고
-	 * (데이터가 없으면 0건), 온톨로지가 아직 확정되지 않아({@code InterestTagCode} 클래스 주석) 이
-	 * 여덟 개 밖의 값이 이미 적재돼 있을 수 있으니 그런 값은 뒤에 그대로 붙인다 — 그러지 않으면
-	 * 기존에 쌓인 데이터가 조회에서 조용히 사라진다.
+	 * {@link InterestTagCode#displayOrder()} 순으로 여덟 개를 먼저 채우고(자료가 없으면 0건),
+	 * 그 밖의 값이 이미 적재돼 있으면 뒤에 붙인다 — 안 붙이면 쌓인 자료가 조회에서 조용히
+	 * 사라진다.
 	 */
 	private List<FacetKeyCount> interestTagKeys(Map<String, Set<UUID>> placeIdsByKey) {
 		List<FacetKeyCount> keys = new ArrayList<>();
@@ -202,22 +171,17 @@ public class PlaceFacetService {
 	}
 
 	/**
-	 * {@code featureKey} 가 없는 묶음의 크기 — S15P21E201-1149.
+	 * {@code featureKey} 가 없는 묶음의 크기. 점수형·참거짓형은 값 자체가 답이라 이 열쇠가 늘
+	 * {@code null} 이고, {@link #plainKeys} 가 그 묶음을 버린다.
 	 *
-	 * <p>점수형({@code SCORE_COMPARE})과 참거짓형 표식은 이 열쇠가 <b>언제나</b> {@code null} 이다.
-	 * 값 자체가 답이라 같은 종류 안에서 더 나눌 것이 없기 때문이다(태그형만 「바다」·「시장」처럼
-	 * 나뉜다). 그래서 그 갈래의 묶음은 null 키 하나뿐이고, {@link #plainKeys} 가 그것을 버린다.
-	 *
-	 * <p>🔴 <b>이 값을 {@code keys} 에 넣지 않는 것이 의도다.</b> 합계에만 더한다. keys 는 화면이
-	 * 하위 갈래로 그리는 목록이라, {@code featureKey} 가 null 인 항목이 섞이면 화면이 이름 없는
-	 * 칸을 그리려 든다. 「몇 곳인가」는 합계가 답하고, 「무엇으로 나뉘나」는 keys 가 답한다 —
-	 * 점수형은 뒤의 질문에 답이 없는 것이 정상이다.
+	 * <p>이 값을 {@code keys} 에 넣지 않고 합계에만 더하는 것이 의도다. keys 는 화면이 하위
+	 * 갈래로 그리는 목록이라 이름 없는 칸이 섞이면 안 된다.
 	 */
 	private static long keylessCount(Map<String, Set<UUID>> placeIdsByKey) {
 		return placeIdsByKey.getOrDefault(null, Set.of()).size();
 	}
 
-	/** 그 밖의 갈래는 지금처럼 데이터가 있는 키만, 이름 순으로 돌려준다. */
+	/** 그 밖의 갈래는 자료가 있는 키만, 이름 순으로 돌려준다. */
 	private List<FacetKeyCount> plainKeys(Map<String, Set<UUID>> placeIdsByKey) {
 		List<FacetKeyCount> keys = new ArrayList<>();
 		for (Map.Entry<String, Set<UUID>> entry : placeIdsByKey.entrySet()) {

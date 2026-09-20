@@ -1,7 +1,7 @@
 package com.gabolle.backend.route.adapter;
 
-// 🔴 이 검사는 어댑터와 **같은 패키지**에 둔다. 시간 제한 공장을 갈아 끼우는 생성자가
-//    패키지 안에서만 보이기 때문이다 — 그 자리를 테스트 때문에 public 으로 열지 않는다.
+// 이 검사는 어댑터와 **같은 패키지**에 둔다. 시간 제한 공장을 갈아 끼우는 생성자가
+// 패키지 안에서만 보이기 때문이다 — 그 자리를 테스트 때문에 public 으로 열지 않는다.
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -26,16 +26,10 @@ import com.gabolle.backend.route.domain.TravelMode;
 
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * {@link KakaoMobilityRouteAdapter} 검증 — S15P21E201-184.
- *
- * <p>{@code KakaoOAuthProviderClientTest} 와 같은 방식으로 {@code MockRestServiceServer} 를
- * 써서 바깥 호출을 흉내 낸다. 진짜 네트워크를 부르지 않는다.
- */
 class KakaoMobilityRouteAdapterTest {
 
-	// 2026-09-08 에 실제로 불러서 받은 응답을 줄인 것 — routes[0] 하나, section 하나,
-	// road 하나(점 두 개), guide 하나로 줄였다.
+	// 실제 카카오 응답을 줄인 것 — routes[0] 하나, section 하나, road 하나(점 두 개),
+	// guide 하나로 줄였다.
 	private static final String SUCCESS_RESPONSE = """
 			{
 			  "routes": [{
@@ -69,8 +63,8 @@ class KakaoMobilityRouteAdapterTest {
 	private KakaoMobilityRouteAdapter newAdapter(RestClient.Builder builder, String apiKey) {
 		RouteProperties properties = new RouteProperties();
 		properties.setKakaoRestApiKey(apiKey);
-		// 🔴 네 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
-		//    덮어쓰면 가짜 서버에 요청이 안 닿고 진짜 카카오를 부르러 나간다.
+		// 네 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
+		// 덮어쓰면 가짜 서버에 요청이 안 닿고 진짜 카카오를 부르러 나간다.
 		return new KakaoMobilityRouteAdapter(builder, new ObjectMapper(), properties, null);
 	}
 
@@ -90,7 +84,7 @@ class KakaoMobilityRouteAdapterTest {
 		assertThat(result).isPresent();
 		RouteLeg leg = result.get();
 		assertThat(leg.distanceM()).isEqualTo(11132);
-		// 🔴 2640초 → 44분. 이 어댑터에서 가장 틀리기 쉬운 자리라 값을 못 박는다.
+		// 2640초 → 44분. 이 어댑터에서 가장 틀리기 쉬운 자리라 값을 못 박는다.
 		assertThat(leg.durationMin()).isEqualTo(44);
 		assertThat(leg.taxiFareKrw()).isEqualTo(15700);
 		assertThat(leg.tollFareKrw()).isEqualTo(0);
@@ -118,7 +112,7 @@ class KakaoMobilityRouteAdapterTest {
 		RouteLeg leg = adapter.find(QUERY).orElseThrow();
 
 		double[] firstPoint = leg.path().get(0);
-		// 🔴 순서를 뒤집으면 경도(129대)와 위도(35대)가 바뀐다 — 이 검사가 그 실수를 잡는다.
+		// 순서를 뒤집으면 경도(129대)와 위도(35대)가 바뀐다 — 이 검사가 그 실수를 잡는다.
 		assertThat(firstPoint[0]).isBetween(129.0, 130.0);
 		assertThat(firstPoint[1]).isBetween(35.0, 36.0);
 	}
@@ -144,8 +138,8 @@ class KakaoMobilityRouteAdapterTest {
 
 		RouteLeg leg = adapter.find(QUERY).orElseThrow();
 
-		// 🔴 asInt() 는 없는 칸에 조용히 0 을 준다 — has() 로 먼저 확인하지 않으면
-		//    "통행료를 모른다" 가 "통행료가 없다" 로 둔갑한다.
+		// asInt() 는 없는 칸에 조용히 0 을 준다 — has() 로 먼저 확인하지 않으면
+		// "통행료를 모른다" 가 "통행료가 없다" 로 둔갑한다.
 		assertThat(leg.taxiFareKrw()).isNull();
 		assertThat(leg.tollFareKrw()).isNull();
 	}
@@ -167,8 +161,8 @@ class KakaoMobilityRouteAdapterTest {
 		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
 		KakaoMobilityRouteAdapter adapter = newAdapter(builder, "kakao-mobility-key");
 
-		// 🔴 카카오는 길을 못 찾아도 HTTP 200 을 준다 — 상태 코드만 보면 거리 0 짜리
-		//    가짜 경로가 그대로 나간다.
+		// 카카오는 길을 못 찾아도 HTTP 200 을 준다 — 상태 코드만 보면 거리 0 짜리
+		// 가짜 경로가 그대로 나간다.
 		server.expect(requestTo(Matchers.containsString("/v1/directions")))
 				.andRespond(withSuccess(failedResponse, MediaType.APPLICATION_JSON));
 
@@ -217,8 +211,8 @@ class KakaoMobilityRouteAdapterTest {
 		server.expect(requestTo(Matchers.containsString("/v1/directions")))
 				.andRespond(withServerError());
 
-		// 🔴 이게 추정으로 넘어가는 길을 지키는 검사다 — 여기서 예외가 새면 부르는 쪽이
-		//    무조건 잡아야 하는 코드가 되고, 그 순간 이 포트의 계약이 깨진다.
+		// 이게 추정으로 넘어가는 길을 지키는 검사다 — 여기서 예외가 새면 부르는 쪽이
+		// 무조건 잡아야 하는 코드가 되고, 그 순간 이 포트의 계약이 깨진다.
 		Optional<RouteLeg> result = adapter.find(QUERY);
 
 		assertThat(result).isEmpty();

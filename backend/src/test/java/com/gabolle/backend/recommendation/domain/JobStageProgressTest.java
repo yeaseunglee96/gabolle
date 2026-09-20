@@ -9,10 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 진행률이 오르는 규칙 — S15P21E201-193.
- *
- * <p>화면에 밀어 보낼 값이 여기서 정해진다. DB 도 Spring 도 필요 없는 규칙이라 그것들 없이
- * 잰다.
+ * 진행률이 오르는 규칙. 화면에 밀어 보낼 값이 여기서 정해지고, DB 도 Spring 도 필요 없다.
  */
 class JobStageProgressTest {
 
@@ -24,8 +21,8 @@ class JobStageProgressTest {
 	@Test
 	@DisplayName("파이프라인이 실제로 지나가는 순서대로 진행률이 오른다")
 	void percentRisesAlongThePipelineOrder() {
-		// 🔴 선언 순서가 아니라 RecommendationService.continueJob 이 지나가는 순서다.
-		//    후보 생성이 버전 확인보다 앞이다 — 그 반대로 매기면 진행률이 내려간다.
+		// 선언 순서가 아니라 continueJob 이 지나가는 순서다. 후보 생성이 버전 확인보다
+		// 앞이고, 반대로 매기면 진행률이 내려간다.
 		assertThat(JobStage.CREATED.percent())
 				.isLessThan(JobStage.CANDIDATE_GENERATION.percent());
 		assertThat(JobStage.CANDIDATE_GENERATION.percent())

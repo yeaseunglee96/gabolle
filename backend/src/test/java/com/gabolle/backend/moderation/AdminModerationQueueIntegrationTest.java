@@ -46,12 +46,9 @@ import com.gabolle.backend.story.storage.StoragePort;
 import com.gabolle.testslice.StorySliceApplication;
 
 /**
- * S15P21E201-267 완료 기준 — 검토 목록의 정렬·묶음, 삭제·기각 처리, 409, 관리자 인가.
- *
- * <p>관리자 경로에 ADMIN 이 아니면 거절되는지는 이 파일이 아니라
- * {@code AdminModerationAuthorizationIntegrationTest} 가 본다 — 이 파일은 실제 Spring Security
- * 필터 체인 없이 컨트롤러를 직접 물리는 표준 방식(standalone MockMvc)이라 경로 규칙 자체는
- * 검증하지 못한다(그 규칙은 {@code SecurityConfig} 에 있고 이번 작업의 수정 대상이 아니다).
+ * 검토 목록의 정렬·묶음과 삭제·기각 처리. 컨트롤러를 직접 무는 standalone MockMvc 라 Spring
+ * Security 필터를 거치지 않는다 — ADMIN 인가는
+ * {@code AdminModerationAuthorizationIntegrationTest} 가 본다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = { "spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none", "spring.flyway.enabled=true" })
@@ -136,11 +133,8 @@ class AdminModerationQueueIntegrationTest {
 				.standaloneSetup(this.storyController, this.userSocialController, this.storyReportController,
 						this.adminModerationController)
 				.setControllerAdvice(this.storyExceptionHandler, this.moderationExceptionHandler).build();
-		// 🔴 검토 큐 전체를 보는 검사라, 남아 있는 미처리 신고가 상한(DEFAULT_LIMIT=50)을
-		//    채우면 이 테스트가 넣은 기록이 목록 밖으로 밀려 "큐에 없다" 로 실패한다.
-		//    CI 는 매번 새 DB 라 안 드러나지만, 같은 DB 로 여러 번 돌리면 쌓여서 어느
-		//    순간부터 실패한다 — 2026-09-08 에 실제로 그렇게 겪었고, 그때 원인을
-		//    프레임워크 판올림으로 오해할 뻔했다. 이 검사의 전제를 여기서 명시한다.
+		// 검토 큐 전체를 보는 검사다. 남은 미처리 신고가 DEFAULT_LIMIT 을 채우면 이 테스트가 넣은
+		// 기록이 목록 밖으로 밀려 실패한다 — 같은 DB 로 두 번째 돌릴 때부터 드러난다.
 		this.jdbc.update("DELETE FROM story_report");
 
 		this.admin = StoryFixture.insertUser(this.jdbc, "운영자");
@@ -210,7 +204,6 @@ class AdminModerationQueueIntegrationTest {
 		List<String> reasons = new java.util.ArrayList<>();
 		item.get("reasons").forEach((n) -> reasons.add(n.asText()));
 		assertThat(reasons).containsExactlyInAnyOrder("PRIVACY", "SPAM");
-		// 신고자는 응답에 없다 — StoryReport 주석의 근거.
 		assertThat(item.has("reporterUserId")).isFalse();
 		assertThat(item.toString()).doesNotContain(this.reporter1.toString());
 		assertThat(item.toString()).doesNotContain(this.reporter2.toString());
@@ -261,8 +254,7 @@ class AdminModerationQueueIntegrationTest {
 				this.now.minus(Duration.ofHours(1)));
 		ModerationFixture.insertReport(this.jdbc, storyId, this.reporter1, "OFFENSIVE",
 				this.now.minus(Duration.ofMinutes(30)));
-		// markUnderReview() 는 신고 접수 경로에서만 불린다 — 시드는 SQL 로 직접 넣었으니 상태도
-		// 직접 UNDER_REVIEW 로 맞춘다(신고 접수 자체는 -254 테스트가 이미 본다).
+		// markUnderReview() 는 신고 접수 경로에서만 불린다. 시드를 SQL 로 넣었으니 상태도 직접 맞춘다.
 		this.jdbc.update("UPDATE story SET moderation_state = 'UNDER_REVIEW' WHERE story_id = ?", storyId);
 		assertThat(FeedProbe.containsStory(this.mockMvc, "/api/v1/stories", new Object[0],
 				StoryFixture.as(this.reporter1), "ALL", storyId)).as("기각 전에는 안 보인다").isFalse();

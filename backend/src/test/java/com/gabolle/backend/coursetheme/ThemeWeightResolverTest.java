@@ -12,11 +12,6 @@ import com.gabolle.backend.recommendation.config.BaselineEngineProperties.Weight
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * 테마 배수가 가중치를 어떻게 바꾸는가 — S15P21E201-106 · 452.
- *
- * <p>컨테이너 없이 돈다. 이 계산이 설정과 인자만 보기 때문이다.
- */
 class ThemeWeightResolverTest {
 
 	private static final Weights BASE = new Weights(0.30, 0.20, 0.15, 0.15, 0.10, 0.10);

@@ -19,26 +19,15 @@ import com.gabolle.backend.story.repository.UploadedImageRepository;
 import com.gabolle.backend.story.storage.StoragePort;
 
 /**
- * 사진 업로드 — API 명세 S15P21E201-216.
+ * 사진 업로드.
  *
- * <h2>검사 순서</h2>
- * <ol>
- *   <li>비었으면 {@link EmptyImageException}(400)</li>
- *   <li>3MB 를 넘으면 {@link ImageTooLargeException}(413) — 화면 검사를 지나온 요청도 여기서 막힌다</li>
- *   <li>{@link ImageSniffer#sniff} 로 진짜 형식을 확인한다 — 파일 이름·Content-Type 은 안 본다</li>
- *   <li>{@link ImageSanitizer#strip} 으로 촬영 위치 정보(EXIF GPS) 등 메타데이터를 뺀다</li>
- *   <li>정리하며 크기가 조금 바뀌므로 3MB 검사를 한 번 더 한다</li>
- *   <li>{@code story/yyyy/MM/<uuid>.<ext>} 키를 만들어({@link Clock} 기준 UTC) 저장소에 쓴다</li>
- *   <li>{@link UploadedImage} 를 저장한다 — {@code byteSize} 는 정리한 <b>뒤</b>의 크기다</li>
- * </ol>
+ * <p>형식은 {@link ImageSniffer#sniff} 가 내용을 보고 정한다 — 파일 이름과 Content-Type 은 안 본다.
+ * {@link ImageSanitizer#strip} 이 촬영 위치 정보(EXIF GPS) 등 메타데이터를 뺀 뒤 크기가 바뀌므로
+ * 상한 검사를 정리 전후로 두 번 한다. 저장하는 {@code byteSize} 는 정리한 뒤의 크기다.
  *
- * <h2>🔴 S15P21E201-945 — 이 메서드에 {@code @Transactional} 을 안 둔다</h2>
- * 저장소 쓰기({@code storagePort.put})는 네트워크 호출이다. 이 메서드 전체를 트랜잭션으로 묶으면
- * 그 호출이 끝날 때까지 DB 커넥션 하나를 놀리며 붙잡는다. {@link UploadedImageRepository#save}
- * 는 Spring Data 저장소 메서드라 그 자체로 자기 트랜잭션을 연다 — DB 삽입만 트랜잭션이 필요하고
- * 그 앞의 저장소 쓰기는 필요 없다. 삽입이 실패하면 이미 올라간 파일이 고아로 남으므로, 그 경우
- * 방금 쓴 키를 지워 보상한다(실패해도 삼킨다 — {@code StorageCleanupService.deleteOrEnqueue}
- * 만큼 정교한 재시도까지는 필요 없다, 애초에 DB 행이 없어 드물게만 생기는 경로다).
+ * <p>{@code @Transactional} 을 안 둔다. 저장소 쓰기는 네트워크 호출이라 전체를 묶으면 그동안 DB
+ * 커넥션 하나를 놀리며 붙잡는다. 저장소 메서드가 자기 트랜잭션을 여는 것으로 충분하다. 대신 DB 삽입이
+ * 실패하면 이미 올라간 파일이 고아로 남으므로 방금 쓴 키를 지워 보상한다(그 실패는 삼킨다).
  */
 @Service
 @Profile({ "db", "dev" })

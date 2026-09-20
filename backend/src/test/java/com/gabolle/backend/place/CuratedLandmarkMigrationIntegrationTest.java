@@ -23,26 +23,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * 부산 대표 명소를 넣는 마이그레이션이 실제로 도는지, 그리고 그 결과를 앱의 검색이 찾는지 본다.
  *
- * <h2>🔴 검사하기 전에 그 마이그레이션을 다시 돌린다</h2>
+ * <p>통합 시험들이 한 DB 를 같이 쓰고 그중 하나가 조건 없는 {@code DELETE FROM place} 를
+ * 돌리므로, 바탕을 남에게 맡기지 않고 검사 직전에 그 SQL 을 다시 돌린다. 두 번 돌려도
+ * 안전하다 — 마이그레이션이 {@code WHERE NOT EXISTS} 가드를 들고 있다.
  *
- * 처음 판은 "마이그레이션이 이미 심어 둔 행"을 그냥 읽었고, 그래서 <b>먼저 도는 시험이
- * 무엇이냐에 따라 결과가 바뀌었다</b> (2026-09-16, MR !982 의 CI 가 이것으로 빨개졌다).
- * 통합 시험들이 <b>한 DB 를 같이 쓰는데</b> {@code PlaceDataQualityServiceTest} 가 조건 없는
- * {@code DELETE FROM place} 를 돌린다 — 그게 먼저 돌면 네 곳이 지워진 뒤에 이 시험이 돈다.
- *
- * <p>그래서 바탕을 남에게 맡기지 않고 <b>검사 직전에 그 SQL 을 그 자리에서 다시 돌린다.</b>
- * 두 번 돌려도 안전하다 — 마이그레이션이 {@code WHERE NOT EXISTS} 가드를 들고 있다.
- *
- * <h2>🔴 "우리가 넣은 행"이 아니라 "이름이 한 벌 있는가"를 본다</h2>
- *
- * 마이그레이션의 약속은 <b>"네 곳이 정본으로 존재한다"</b> 이지 "반드시 우리가 넣는다"가
- * 아니다. 그 파일 머리말 그대로다 — <i>"같은 이름이 이후 다른 적재에서 먼저 들어온
- * 환경에서는 중복 장소를 만들지 않고 기존 정본을 존중한다."</i>
- *
- * <p>이 시험 DB 에서 실제로 그 상황이 난다. 다른 시험이 {@code 해운대해수욕장} 을 넣고
- * <b>자기 일정에서 그 행을 가리킨 채 남긴다.</b> 외래키가 걸려 있어 지울 수도 없다. 그때
- * 마이그레이션은 <b>일부러</b> 넣지 않는다. 그것을 실패로 세면 이 시험은 "남이 무엇을
- * 남겼는가"를 재는 셈이 된다.
+ * <p>마이그레이션의 약속은 "네 곳이 정본으로 존재한다" 이지 "반드시 우리가 넣는다" 가
+ * 아니다. 같은 이름이 이미 있으면 일부러 넣지 않으므로, 삽입 여부가 아니라 존재 여부를 본다.
  */
 class CuratedLandmarkMigrationIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -66,15 +52,10 @@ class CuratedLandmarkMigrationIntegrationTest extends PlacePostgresIntegrationTe
 	}
 
 	/**
-	 * 같은 이름을 <b>좌표 없이</b> 넣고 간 다른 시험의 흔적을 걷어낸다. 남아 있으면
-	 * 마이그레이션의 이름 가드가 삽입을 건너뛴다.
-	 *
-	 * <p>출처가 없는 행만 지운다 — 이 저장소의 어떤 적재도 {@code source_type} 을 비우지
-	 * 않는다(카카오·소상공인·관광공사 모두 채운다). 즉 비어 있으면 시험이 남긴 것이다.
-	 *
-	 * <p>🔴 <b>지우다 실패해도 넘어간다.</b> 남의 시험이 그 장소를 자기 일정에서 가리킨 채
-	 * 남기면 외래키가 삭제를 막는다. 그건 정상이고, 그때는 마이그레이션이 정본 존중 규칙대로
-	 * 넣지 않는다 — 아래 검사가 그 상태를 그대로 본다.
+	 * 같은 이름을 좌표 없이 넣고 간 다른 시험의 흔적을 걷어낸다. 남아 있으면 마이그레이션의
+	 * 이름 가드가 삽입을 건너뛴다. 어떤 적재도 {@code source_type} 을 비우지 않으므로
+	 * 비어 있는 행은 시험이 남긴 것이다. 남의 일정이 그 행을 가리키고 있으면 외래키가
+	 * 삭제를 막는데, 그건 정상이라 그대로 넘어간다.
 	 */
 	private void clearRemovableTestLeftovers() {
 		CORE_LANDMARKS.keySet().forEach(nameKo -> {
@@ -92,10 +73,7 @@ class CuratedLandmarkMigrationIntegrationTest extends PlacePostgresIntegrationTe
 	}
 
 	/**
-	 * 🔴 파일 이름에 번호를 박지 않는다. 마이그레이션 번호는 <b>머지 순서 때문에 바뀐다</b> —
-	 * 이 파일도 {@code V20260915150000} 에서 {@code V20260916210000} 으로 옮겨졌다(운영에 이미
-	 * 더 큰 번호가 적용돼 있어서, 그대로 두면 Flyway 가 순서 역행으로 거부해 서버가 안 뜬다).
-	 * 번호를 박아 두면 <b>번호를 옮기는 일 자체를 이 시험이 막는다.</b>
+	 * 마이그레이션 번호는 머지 순서 때문에 바뀌므로 파일 이름에 번호를 박지 않고 패턴으로 찾는다.
 	 */
 	private String curatedLandmarkMigrationSql() {
 		try {
@@ -110,14 +88,9 @@ class CuratedLandmarkMigrationIntegrationTest extends PlacePostgresIntegrationTe
 	}
 
 	/**
-	 * 🔴 <b>"한 벌만 있다" 는 이 DB 에서 셀 수 없다.</b> 처음에 그렇게 썼다가 CI 에서
-	 * 깨졌다 — {@code 해운대해수욕장} 이 <b>32벌</b> 나왔고, 전부 좌표도 출처도 없는
-	 * 행이었다. 일정 관련 통합 검사 여럿이 그 이름을 각자 넣고 <b>자기 일정에서 가리킨 채</b>
-	 * 남기기 때문이다(외래키가 걸려 지울 수도 없다).
-	 *
-	 * <p>그래서 세는 것을 그만두고 <b>있는지만</b> 본다. 중복을 안 만든다는 성질은
-	 * {@link #reapplyingTheMigrationDoesNotDuplicatePlaces} 가 <b>같은 DB 상태에서 전후를
-	 * 견줘</b> 확인한다 — 절대 개수가 아니라 변화량을 보므로 남이 무엇을 남겼든 흔들리지 않는다.
+	 * "한 벌만 있다" 는 이 DB 에서 셀 수 없다 — 다른 통합 검사들이 같은 이름을 각자 넣고
+	 * 남기기 때문이다. 그래서 있는지만 보고, 중복을 안 만든다는 성질은
+	 * {@link #reapplyingTheMigrationDoesNotDuplicatePlaces} 가 전후 변화량으로 확인한다.
 	 */
 	@Test
 	@DisplayName("부산 대표 명소 네 곳이 이름으로 찾아진다")

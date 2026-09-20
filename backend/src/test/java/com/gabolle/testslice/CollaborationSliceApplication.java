@@ -5,7 +5,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
- * S15P21E201-294 계열(동행자 초대·참여자·공유 주소·복제) 통합 테스트가 띄우는 애플리케이션.
+ * (동행자 초대·참여자·공유 주소·복제) 통합 테스트가 띄우는 애플리케이션.
  *
  * <p>{@link ItinerarySliceApplication} 에 공유({@code share})와 사용자({@code user})를 더한 것이다 —
  * 참여자 목록·최근 변경이 표시 이름을 {@code app_user} 에서 읽고, 복제가 추천 Job 을 접수하기

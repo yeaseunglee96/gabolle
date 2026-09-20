@@ -31,15 +31,11 @@ import com.gabolle.backend.user.repository.AppUserRepository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 개인정보 자동 정리 배치 — S15P21E201-357 · -166.
+ * 개인정보 자동 정리 배치.
  *
- * <h2>🔴 왜 진짜 DB 가 필요한가</h2>
- *
- * {@link PrivacyCleanupService#cleanup()} 이 지운다고 믿는 것 중 하나(auth_session 이 지워지면
- * auth_refresh_token 이 함께 지워진다)는 애플리케이션 코드가 아니라
- * {@code fk_auth_refresh_token_session ... ON DELETE CASCADE}(DB 제약)이 하는 일이다. Mockito
- * 로는 그 상호작용 자체가 존재하지 않는 것처럼 보인다 — 이 사실이 실제로 성립하는지는 진짜
- * PostgreSQL 에서만 확인된다.
+ * <p>{@link PrivacyCleanupService#cleanup()} 이 기대는 것 중 하나 — auth_session 이 지워지면
+ * auth_refresh_token 도 함께 지워진다 — 는 애플리케이션 코드가 아니라 DB 제약
+ * ({@code ON DELETE CASCADE})이 하는 일이라 진짜 PostgreSQL 에서만 확인된다.
  */
 class PrivacyCleanupIntegrationTest extends PrivacyPostgresIntegrationTest {
 
@@ -76,7 +72,7 @@ class PrivacyCleanupIntegrationTest extends PrivacyPostgresIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 이 테스트가 만든 것만 지운다 — AccountDeletionIntegrationTest 와 같은 규칙.
+		// 표를 비우지 않는다. 이 테스트가 만든 것만 지운다 — AccountDeletionIntegrationTest 와 같은 규칙.
 		this.jdbcTemplate.update("DELETE FROM privacy_cleanup_run");
 		this.jdbcTemplate.update("DELETE FROM event_outbox WHERE aggregate_id = ?", this.userId);
 		this.jdbcTemplate.update("DELETE FROM auth_refresh_token WHERE session_id IN "
@@ -109,13 +105,13 @@ class PrivacyCleanupIntegrationTest extends PrivacyPostgresIntegrationTest {
 		PrivacyCleanupResult result = this.cleanupService.cleanup();
 
 		assertThat(result.sessionsDeleted()).isGreaterThanOrEqualTo(1);
-		// 🔴 이 건수는 AuthRefreshToken 을 직접 지운 JPQL 문 하나가 지운 행 수다. tokenOnExpiredSession
+		// 이 건수는 AuthRefreshToken 을 직접 지운 JPQL 문 하나가 지운 행 수다. tokenOnExpiredSession
 		// 은 자기 자신은 안 만료됐고 위의 세션 삭제가 발생시킨 DB 레벨 CASCADE 로 사라지므로, 그 삭제는
 		// 이 카운트에 안 잡힌다(아래에서 행 자체가 사라졌는지로 따로 확인한다) — 그래서 여기서는
 		// expiredTokenOnActiveSession 하나만 보장한다.
 		assertThat(result.refreshTokensDeleted()).isGreaterThanOrEqualTo(1);
 
-		// 🔴 리포지토리의 findByTokenHash 는 @Lock(PESSIMISTIC_WRITE) 이라 트랜잭션 밖에서는 못
+		// 리포지토리의 findByTokenHash 는 @Lock(PESSIMISTIC_WRITE) 이라 트랜잭션 밖에서는 못
 		// 부른다. JdbcTemplate 으로 행 존재만 직접 확인한다.
 		assertThat(this.sessionRepository.findById(expiredSession.getSessionId())).isEmpty();
 		assertThat(countRefreshTokenByHash(tokenHashOnExpiredSession)).isZero();
@@ -158,20 +154,13 @@ class PrivacyCleanupIntegrationTest extends PrivacyPostgresIntegrationTest {
 	}
 
 	/**
-	 * 기준선의 경계 — S15P21E201-362.
+	 * 기준선의 경계.
 	 *
-	 * <h3>왜 열흘 차이로는 부족한가</h3>
-	 * 위 검사들은 만료를 열흘 전으로, 살아 있는 것을 열흘 뒤로 두고 잰다. 그러면 <b>기준선
-	 * 계산이 틀려도 통과한다</b> — 설정값을 아예 안 읽고 0일로 굳었어도, 단위를 시간으로
-	 * 잘못 썼어도, 부등호가 뒤집혀 있어도 그 두 값은 여전히 갈린다.
-	 *
-	 * <p>이 티켓의 전제가 <i>"배치가 돌기만 하고 아무것도 안 지우는 상태가 제일 위험하다"</i>
-	 * 인데, 그 반대편 위험도 같다 — <b>기준선이 너무 넓어 아직 지울 때가 아닌 것을 지우는
-	 * 것.</b> 개인정보 자리에서 덜 지운 것은 나중에 지울 수 있지만 더 지운 것은 되돌릴 수 없다.
+	 * <p>위 검사들은 열흘 차이로 재므로 기준선 계산이 틀려도 통과한다 — 설정값을 안 읽고
+	 * 0일로 굳었어도, 단위를 시간으로 잘못 썼어도, 부등호가 뒤집혀 있어도 갈린다.
 	 *
 	 * <p>그래서 경계 양쪽 한 시간씩을 잰다. 이 검사 설정의 유예는 1일이므로 25시간 전은
-	 * 지워지고 23시간 전은 남아야 한다. 이 두 줄이 함께 통과하는 것은 <b>설정된 값이 실제로
-	 * 쓰였다</b>는 뜻이기도 하다 — 0일이면 23시간짜리가 지워지고, 7일이면 25시간짜리가 남는다.
+	 * 지워지고 23시간 전은 남아야 한다. 둘이 함께 통과해야 설정된 값이 실제로 쓰인 것이다.
 	 */
 	@Test
 	@DisplayName("완료 기준 — 유예 기준선 바로 안쪽 세션은 남고 바로 밖은 지워진다")

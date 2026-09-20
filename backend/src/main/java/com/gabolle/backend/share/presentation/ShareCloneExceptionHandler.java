@@ -18,12 +18,9 @@ import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 
 /**
- * {@link ShareCloneController} 전용.
- *
- * <p>복제 본문은 여행 생성 본문과 같으므로 그쪽 오류 코드({@code TRIP_VALIDATION_FAILED} ·
- * {@code SENSITIVE_CONSTRAINT_NOT_SUPPORTED} · {@code IDEMPOTENCY_KEY_CONFLICT})를 그대로 쓴다 — 앱이 여행 생성
- * 화면에서 이미 처리하는 코드다. 공유 주소 쪽 오류 코드는 비로그인 조회({@code GET /api/v1/shares/{token}})와
- * 같은 이름을 쓴다.
+ * ShareCloneController 전용. 복제 본문이 여행 생성 본문과 같으므로 오류 코드도 그쪽 것을
+ * 그대로 쓴다 — 앱이 여행 생성 화면에서 이미 처리하는 코드다. 공유 주소 쪽 오류 코드는
+ * 비로그인 조회와 같은 이름을 쓴다.
  */
 @RestControllerAdvice(assignableTypes = ShareCloneController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)

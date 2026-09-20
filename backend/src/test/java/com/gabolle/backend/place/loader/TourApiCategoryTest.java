@@ -6,15 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 관광공사 분류 → 앱 낱말 — S15P21E201-854.
- *
- * <p>🔴 이 검사가 막는 것은 <b>앱이 모르는 낱말이 들어가는 것</b>이다.
- * {@code BaselineCandidateTranslator} 가 글자 그대로 비교하므로, 여기서 한 글자만 달라도 그
- * 갈래를 고른 사용자의 후보가 조용히 0 건이 된다 — 아무것도 빨개지지 않는 종류의 고장이다.
+ * 앱이 모르는 낱말이 들어가는 것을 막는다. 후보 필터가 글자 그대로 비교하므로 한 글자만
+ * 달라도 그 갈래를 고른 사용자의 후보가 조용히 0 건이 된다.
  */
 class TourApiCategoryTest {
 
-	/** 앱이 실제로 보내는 여섯. {@code SbizPlaceLoader} 주석에 적힌 목록 그대로다. */
+	/** 앱이 실제로 보내는 여섯. */
 	private static final String[] APP_WORDS = {
 			"SEA_BEACH", "CITY", "CAFE_HEALING", "CULTURE_TEMPLE", "FOOD", "NATURE_WALK" };
 
@@ -36,10 +33,10 @@ class TourApiCategoryTest {
 	@Test
 	@DisplayName("🔴 절영해안산책로·해운대 그린레일웨이만 SEA_BEACH 다 — 같은 소분류(A01010500)의 송도반도는 아니다 (S15P21E201-106)")
 	void coastalWalkContentIdsAreBeach() {
-		// 🔴 contentid 로 콕 집는다 — 셋 다 cat3=A01010500 이라 소분류로는 못 가른다.
-		assertThat(TourApiCategory.of("252561", "A01", "A01010500")).isEqualTo("SEA_BEACH"); // 절영해안산책로
-		assertThat(TourApiCategory.of("2822343", "A01", "A01010500")).isEqualTo("SEA_BEACH"); // 그린레일웨이
-		assertThat(TourApiCategory.of("2614725", "A01", "A01010500")).isEqualTo("NATURE_WALK"); // 송도반도 — 일부러 뺐다
+		// contentid 로 콕 집는다 — 셋 다 cat3=A01010500 이라 소분류로는 못 가른다.
+		assertThat(TourApiCategory.of("252561", "A01", "A01010500")).isEqualTo("SEA_BEACH");
+		assertThat(TourApiCategory.of("2822343", "A01", "A01010500")).isEqualTo("SEA_BEACH");
+		assertThat(TourApiCategory.of("2614725", "A01", "A01010500")).isEqualTo("NATURE_WALK"); // 일부러 뺐다
 	}
 
 	@Test

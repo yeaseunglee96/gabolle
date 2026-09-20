@@ -12,11 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * 무장애 수집본 판독 — S15P21E201-331.
- *
- * <p>줄 모양은 실제 수집본에서 옮겼다 — {@code raw} 가 문자열이고 접근성 칸은 상세 줄에만 있다.
- */
+/** 줄 모양은 실제 수집본에서 옮겼다 — {@code raw} 가 문자열이고 접근성 칸은 상세 줄에만 있다. */
 class BarrierFreeReaderTest {
 
 	@TempDir

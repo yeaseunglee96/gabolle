@@ -16,10 +16,9 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 지하철 출구 안내 산출물을 읽어 이미 있는 장소에 붙인다 — S15P21E201-479.
+ * 지하철 출구 안내 산출물을 읽어 이미 있는 장소에 붙인다.
  *
- * <p>{@link PlacePhotoLoaderRunner} 와 같은 모양이다. 프로퍼티를 안 주면 이 빈이 만들어지지도
- * 않아 평소 기동에 아무 영향이 없다.
+ * <p>프로퍼티를 안 주면 이 빈이 만들어지지도 않아 평소 기동에 아무 영향이 없다.
  *
  * <pre>
  * java -jar gabolle-backend.jar \
@@ -27,8 +26,8 @@ import tools.jackson.databind.ObjectMapper;
  *   --gabolle.place.loader.subway-exit=/data/subway-exit-busan.ndjson
  * </pre>
  *
- * <p>🔴 <b>장소 적재를 먼저 돌려야 한다.</b> 순서가 뒤집히면 <b>실패하지 않고</b> "붙일 장소
- * 없어 넘김" 숫자만 남는다.
+ * <p>장소 적재를 먼저 돌려야 한다. 순서가 뒤집히면 실패하지 않고 "붙일 장소 없어 넘김" 숫자만
+ * 남는다.
  */
 @Component
 @Profile({ "db", "dev" })

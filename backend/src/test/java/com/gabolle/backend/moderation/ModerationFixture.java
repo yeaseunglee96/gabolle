@@ -8,15 +8,15 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * 신고·검토 통합 테스트의 시드 SQL. 기록·사용자 시드는 {@code com.gabolle.backend.story.StoryFixture} 를
- * 그대로 쓴다 — 표 모양이 같은데 또 만들 이유가 없다.
+ * 신고·검토 통합 테스트의 시드 SQL. 기록·사용자 시드는
+ * {@code com.gabolle.backend.story.StoryFixture} 를 그대로 쓴다.
  */
 public final class ModerationFixture {
 
 	private ModerationFixture() {
 	}
 
-	/** 운영자로 승격한다. 가입 경로로는 못 만드는 값이라(S15P21E201-686) 시드에서 직접 올린다. */
+	/** 운영자로 승격한다. 가입 경로로는 만들 수 없는 값이라 시드에서 직접 올린다. */
 	public static void promoteToAdmin(JdbcTemplate jdbc, UUID userId) {
 		jdbc.update("UPDATE app_user SET role = 'ADMIN' WHERE user_id = ?", userId);
 	}

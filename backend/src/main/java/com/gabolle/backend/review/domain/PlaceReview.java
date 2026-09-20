@@ -9,20 +9,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 장소 하나에 대한 한 사람의 평가 — S15P21E201-287 · -408.
+ * 장소 하나에 대한 한 사람의 평가.
  *
- * <h2>🔴 인증하지 않은 사람의 평가도 저장한다</h2>
- * 위치 권한을 거부한 사람의 입을 막지 않는다(`-287` 목적). 막으면 위치 권한을 사실상
- * 강제하는 것이 된다. 대신 {@link #verified} 가 거짓이고 <b>로컬 점수 계산에서 뺀다.</b>
- * 화면에는 인증 여부를 함께 보여주므로 읽는 사람이 판단할 수 있다.
+ * 인증하지 않은 사람의 평가도 저장한다. 막으면 위치 권한을 사실상 강제하게 된다. 대신
+ * {@link #verified} 가 거짓이고 로컬 점수 계산에서 빠진다.
  *
- * <h2>🔴 좌표를 담지 않는다</h2>
- * 방문 확인에 쓴 위치는 저장하지 않고 {@link #region} 에 지역 단위 문자열만 남긴다("해운대구").
- * 정확한 좌표가 시각과 함께 쌓이면 <b>그 사람의 하루 동선이 복원된다</b>(`-408` 작업 내용).
+ * 좌표는 담지 않고 {@link #region} 에 지역 단위 문자열만 남긴다. 정확한 좌표가 시각과 함께
+ * 쌓이면 그 사람의 하루 동선이 복원된다.
  *
- * <h2>점수가 {@code null} 일 수 있는 이유</h2>
- * 네 항목을 다 매길 필요가 없다. 안 매긴 것을 {@code 0} 으로 두면 "최하점" 과 구분이 안 되고,
- * 평균을 낼 때 안 매긴 항목이 점수를 끌어내린다.
+ * 네 점수는 매기지 않으면 {@code null} 이다. 0 으로 두면 최하점과 구분이 안 되고 평균을
+ * 끌어내린다.
  */
 @Entity
 @Table(name = "place_review")
@@ -72,10 +68,7 @@ public class PlaceReview {
 	}
 
 	/**
-	 * 평가를 만든다.
-	 *
-	 * @param verified 위치로 방문이 확인됐는가. 🔴 이 값을 <b>요청에서 받지 않는다</b> —
-	 *        서버가 인증 기록을 조회해 정한다. 요청이 정하게 하면 아무나 인증된 평가를 쓴다
+	 * @param verified 요청에서 받지 않는다. 서버가 인증 기록을 조회해 정한 값만 넘겨야 한다
 	 */
 	public static PlaceReview write(UUID placeId, UUID userId, Scores scores, String body, boolean verified,
 			String region, Instant now) {
@@ -114,10 +107,8 @@ public class PlaceReview {
 	}
 
 	/**
-	 * 네 항목. 매기지 않은 것은 {@code null} 이다.
-	 *
-	 * <p>🔴 범위 검사를 여기서 한다. 표의 CHECK 도 같은 범위를 걸어 두었지만, DB 까지 가서
-	 * 실패하면 어느 항목이 잘못됐는지 응답에 담기 어렵다.
+	 * 매기지 않은 항목은 {@code null} 이다. 표의 CHECK 와 중복이지만 범위 검사를 여기서도 한다 —
+	 * DB 까지 가서 실패하면 어느 항목이 잘못됐는지 응답에 담기 어렵다.
 	 */
 	public record Scores(Short food, Short price, Short accessibility, Short onsite) {
 
@@ -139,7 +130,7 @@ public class PlaceReview {
 		}
 	}
 
-	/** 점수가 1~5 밖이다 — 400. */
+	/** 400 으로 나간다. */
 	public static class ScoreOutOfRangeException extends RuntimeException {
 
 		private final String field;
@@ -154,7 +145,7 @@ public class PlaceReview {
 		}
 	}
 
-	/** 점수도 글도 없다 — 400. */
+	/** 400 으로 나간다. */
 	public static class EmptyReviewException extends RuntimeException {
 
 		public EmptyReviewException() {

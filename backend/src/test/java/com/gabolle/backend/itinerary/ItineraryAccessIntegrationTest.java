@@ -35,12 +35,9 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 일정 접근 권한 판정 — S15P21E201-224.
- *
- * <h2>이 테스트가 지키는 것</h2>
- * {@code trip_member.role} 이 조회·편집에서 서로 다른 문턱으로 쓰이는가를 실제
- * PostgreSQL 위에서 확인한다. 특히 <b>비회원의 404 와 VIEWER 의 403 을 같은 것으로
- * 뭉뚱그리지 않는가</b> — 둘을 한 메서드에서 나란히 단정해 서로 다른 코드임을 지킨다
+ * 일정 접근 권한 판정. {@code trip_member.role} 이 조회·편집에서 서로 다른 문턱으로
+ * 쓰이는가를 실제 PostgreSQL 위에서 확인한다. 특히 비회원의 404 와 VIEWER 의 403 을
+ * 뭉뚱그리지 않는지를 한 메서드에서 나란히 단정한다
  * ({@link #viewerEditIsForbiddenButStrangerEditIsNotFound()}).
  *
  * <p>{@link ItineraryLockPersistenceIntegrationTest} 와 같은 방식 — standalone MockMvc 에
@@ -108,8 +105,8 @@ class ItineraryAccessIntegrationTest {
 		createUser(this.editorId, now);
 		createUser(this.viewerId, now);
 		createUser(this.strangerId, now);
-		// 🔴 비회원(strangerId)은 app_user 에는 있지만 trip_member 에는 없다 — "가입은
-		// 했지만 이 여행의 회원은 아니다" 를 재현한다.
+		// 비회원(strangerId)은 app_user 에는 있지만 trip_member 에는 없다 — 가입은 했지만
+		// 이 여행의 회원은 아닌 상태를 재현한다.
 
 		jdbcTemplate.update(
 				"INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, party_size, created_at, updated_at) "
@@ -224,9 +221,8 @@ class ItineraryAccessIntegrationTest {
 	}
 
 	/**
-	 * 🔴 이 테스트가 이 파일의 핵심이다 — VIEWER 의 편집 거부(403)와 비회원의 편집 거부(404)를
-	 * <b>한 메서드에서 나란히</b> 단정한다. 둘을 게을러서 같은 404 로 묶으면 이 단정이
-	 * 실패한다 — 그렇게 뭉뚱그리는 구현을 이 테스트가 막는다.
+	 * VIEWER 의 편집 거부(403)와 비회원의 편집 거부(404)를 한 메서드에서 나란히 단정한다.
+	 * 둘을 같은 404 로 묶는 구현을 이 단정이 막는다.
 	 */
 	@Test
 	@DisplayName("VIEWER 편집은 403, 비회원 편집은 404 — 서로 다른 코드다")

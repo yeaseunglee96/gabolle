@@ -27,11 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * 택시 목적지 카드의 HTTP 계약 — S15P21E201-217.
- *
- * <p>{@code AuthControllerHttpContractTest} 와 같은 방식(standalone MockMvc, 서비스는 mock)으로
- * DB 없이 라우팅·직렬화·예외 매핑만 확인한다. 문장 조립과 언어 판정 자체는
- * {@code TaxiCardServiceIntegrationTest} 가 진짜 DB 로 확인한다.
+ * 택시 목적지 카드의 HTTP 계약. standalone MockMvc 에 서비스는 mock 이라 라우팅·직렬화·예외
+ * 매핑만 본다 — 문장 조립과 언어 판정은 {@code TaxiCardServiceIntegrationTest} 가 진짜 DB 로 잰다.
  */
 class TaxiCardControllerTest {
 
@@ -61,9 +58,8 @@ class TaxiCardControllerTest {
 				.andExpect(jsonPath("$.data.driverSentence").value("이 주소로 가주세요, 부산 중구 남포동 12-3"))
 				.andReturn();
 
-		// 🔴 Spring 의 jsonPath().doesNotExist() 는 "키가 없다" 와 "키는 있는데 값이 null 이다" 를
-		// 구분하지 못한다(둘 다 통과로 본다) — 부수기 실험으로 확인했다. 그래서 원본 JSON 문자열에
-		// 그 키 이름 자체가 있는지까지 본다. 이것이 "키를 뺀다" 는 계약의 진짜 검증이다.
+		// jsonPath().doesNotExist() 는 "키가 없다" 와 "키는 있는데 값이 null 이다" 를 구분하지
+		// 못해 둘 다 통과시킨다. 그래서 원본 JSON 문자열에 키 이름이 있는지까지 본다.
 		String body = result.getResponse().getContentAsString();
 		assertThat(body).doesNotContain("addressEn");
 	}

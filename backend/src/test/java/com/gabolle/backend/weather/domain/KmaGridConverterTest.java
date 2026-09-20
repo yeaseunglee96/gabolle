@@ -6,11 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@link KmaGridConverter} 검증 — S15P21E201-366.
- *
- * <p>기상청이 공개 예시로 드는 격자값(서울시청 부근 (60,127), 부산시청 부근 (98,76))으로
- * 변환이 정확한지 검증한다 — 이 값은 기상청 단기예보 조회서비스 문서·공공데이터포털 자료가
- * 공통으로 드는 값이다.
+ * 기상청 문서·공공데이터포털 자료가 공통으로 드는 격자값(서울시청 부근 (60,127), 부산시청
+ * 부근 (98,76))으로 변환을 검증한다.
  */
 class KmaGridConverterTest {
 

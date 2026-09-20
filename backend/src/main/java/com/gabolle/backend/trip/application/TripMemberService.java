@@ -18,12 +18,10 @@ import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
- * 참여자 목록·역할 변경·제거 — S15P21E201-320(진미리 님 FE 블로커: 목록도 함께 이 서비스가 맡는다).
+ * 참여자 목록·역할 변경·제거.
  *
- * <p>역할 변경·제거는 소유자만 부를 수 있다. 그 판정을 {@link #requireOwner} 하나로 모아 두
- * 메서드가 같은 코드를 지나게 한다 — {@code TripInviteService.issue} 도 같은 모양의 판정을
- * 갖고 있지만 메시지가 달라({@code "초대할 수 있어요"} vs {@code "역할을 바꿀 수 있어요"})
- * 그대로 공유하지 않고 자기 서비스 안에 따로 둔다.
+ * <p>역할 변경·제거의 소유자 판정은 {@link #requireOwner} 하나로 모았다.
+ * {@code TripInviteService.issue} 가 같은 모양의 판정을 따로 갖는 것은 거부 메시지가 달라서다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -55,9 +53,8 @@ public class TripMemberService {
 		TripQueryService.View view = this.tripQueryService.get(tripId, requesterId);
 		List<TripMember> members = this.tripRepository.findMembers(tripId);
 
-		// 🔴 참여자마다 질의하지 않는다 — 한 번에 읽는다(티켓 완료 기준).
-		// S15P21E201-844 — 이름만 뽑던 것을 사용자 자체로 바꿨다. 프로필 사진 주소가 더해지면서
-		// 필요한 칸이 둘이 됐고, 칸마다 맵을 하나씩 만들면 다음 칸이 생길 때 또 늘어난다.
+		// 참여자마다 질의하지 않고 한 번에 읽는다. 칸 하나가 아니라 사용자 자체를 담는 것은
+		// 필요한 칸이 늘 때마다 맵이 하나씩 늘지 않게 하기 위해서다.
 		Map<UUID, AppUser> profiles = this.appUserRepository
 				.findAllById(members.stream().map(m -> UUID.fromString(m.userId())).toList())
 				.stream()
@@ -90,7 +87,7 @@ public class TripMemberService {
 				.orElseThrow(TripMemberNotFoundException::new);
 
 		TripMember.Role newRole = parseRole(newRoleRaw);
-		// 🔴 검증만 하고 버린다 — "소유자는 못 바꾼다"·"소유자로는 못 바꾼다" 두 규칙이 여기서 걸린다.
+		// 결과를 버리는 호출이다. "소유자는 못 바꾼다"·"소유자로는 못 바꾼다" 검증만 태운다.
 		target.withRole(newRole);
 
 		TripMember updated = this.membershipRepository.changeRole(tripId, targetUserId, newRole)
@@ -153,14 +150,12 @@ public class TripMemberService {
 				profile == null ? null : profile.getAvatarUrl());
 	}
 
-	/** 요청자가 그 여행의 소유자가 아니다. */
 	public static class TripMemberForbiddenException extends RuntimeException {
 		public TripMemberForbiddenException(String message) {
 			super(message);
 		}
 	}
 
-	/** 대상이 그 여행의 회원이 아니다. */
 	public static class TripMemberNotFoundException extends RuntimeException {
 		public TripMemberNotFoundException() {
 			super("그 여행의 참여자가 아닙니다.");

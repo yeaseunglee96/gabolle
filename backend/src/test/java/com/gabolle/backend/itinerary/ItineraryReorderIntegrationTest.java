@@ -38,7 +38,7 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 하루 안의 방문 순서 바꾸기 — S15P21E201-91. {@code POST .../days/{dayIndex}/reorder} 가
+ * 하루 안의 방문 순서 바꾸기. {@code POST .../days/{dayIndex}/reorder} 가
  * HTTP 를 받아서 저장까지 이어지는가만 본다.
  *
  * <p>규칙 자체(시각 자리 바꾸기 · 구간 버리기 · 고정 판정)는 {@link ItineraryReorderRevisionTest}
@@ -118,8 +118,8 @@ class ItineraryReorderIntegrationTest {
 		createUser(this.ownerId, now);
 		createUser(this.viewerId, now);
 		createUser(this.strangerId, now);
-		// 🔴 strangerId 는 app_user 에는 있지만 trip_member 에는 없다 — "가입은 했지만
-		// 이 여행의 회원은 아니다" 를 재현한다 (ItineraryAccessIntegrationTest 와 같은 방식).
+		// strangerId 는 app_user 에는 있지만 trip_member 에는 없다 — 가입은 했지만 이
+		// 여행의 회원은 아닌 상태를 재현한다.
 
 		this.jdbc.update(
 				"INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, party_size, created_at, updated_at) "
@@ -149,7 +149,7 @@ class ItineraryReorderIntegrationTest {
 				.andExpect(jsonPath("$.data.version").value(2))
 				.andExpect(jsonPath("$.data.operation").value("REORDER"));
 
-		// 🔴 핵심은 저장까지 갔는지다 — 응답만 보고 끝내지 않고 판을 다시 읽는다.
+		// 응답만 보고 끝내지 않고 판을 다시 읽는다 — 저장까지 갔는지가 핵심이다.
 		List<Map<String, Object>> items = itemsOf(2);
 		assertThat(items).extracting((row) -> row.get("item_key"))
 				.containsExactly(this.keyB.toString(), this.keyA.toString());

@@ -34,15 +34,11 @@ import com.gabolle.backend.recommendation.presentation.RecommendationJobExceptio
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 
 /**
- * 진행률 통로가 실제로 무엇을 흘려보내는가 — S15P21E201-193.
+ * 진행률 통로가 실제로 무엇을 흘려보내는가. 응답 본문을 본다 — 상태 코드만 보는 검사는
+ * 연결은 열렸는데 아무것도 안 나간 경우를 통과시킨다.
  *
- * <p>이 검사는 <b>응답 본문</b>을 본다. 상태 코드만 보는 검사는 "연결은 열렸는데 아무것도 안
- * 나갔다" 를 통과시킨다 — 화면에서는 진행률이 0에서 멈춘 것으로 보이고, 그게 이 기능이 실패하는
- * 가장 흔한 모양이다.
- *
- * <p>DB 없이 도는 슬라이스다({@code RecommendationResultAuthorizationTest} 와 같은 방식). 작업
- * 조회는 mock 이고, 진행률을 밀어 보내는 쪽은 진짜 객체를 쓴다 — 이 검사가 보려는 것이 바로 그
- * 경로다. 저장은 이 검사의 관심이 아니라 저장소만 mock 으로 세운다.
+ * DB 없이 도는 슬라이스다. 작업 조회와 저장소는 mock 이고, 진행률을 밀어 보내는 쪽은 이
+ * 검사가 보려는 경로라 진짜 객체를 쓴다.
  */
 class RecommendationJobProgressStreamTest {
 
@@ -95,12 +91,9 @@ class RecommendationJobProgressStreamTest {
 	}
 
 	/**
-	 * 컨테이너가 비동기 요청을 마무리하는 것을 흉내낸다.
-	 *
-	 * <p>🔴 {@code emitter.complete()} 자체는 뒷정리 콜백을 부르지 않는다. 그 콜백
-	 * ({@code onCompletion})은 <b>서블릿 컨테이너가 비동기 요청을 끝낼 때</b> 불린다. 운영에서는
-	 * 그것이 저절로 일어나지만 MockMvc 에서는 이렇게 한 번 태워 줘야 같은 일이 벌어진다.
-	 * 이 줄이 없으면 "연결이 목록에서 빠지는가" 를 이 층에서는 확인할 수 없다.
+	 * 컨테이너가 비동기 요청을 마무리하는 것을 흉내낸다. {@code emitter.complete()} 는
+	 * 뒷정리 콜백을 부르지 않는다 — {@code onCompletion} 은 서블릿 컨테이너가 비동기 요청을
+	 * 끝낼 때 불리므로, MockMvc 에서는 이렇게 한 번 태워 줘야 같은 일이 벌어진다.
 	 */
 	private void finishAsync(MvcResult result) throws Exception {
 		this.mockMvc.perform(asyncDispatch(result));
@@ -117,8 +110,8 @@ class RecommendationJobProgressStreamTest {
 		assertThat(body).contains("event:progress");
 		assertThat(body).contains("\"percent\":" + JobStage.RANKING.percent());
 		assertThat(body).contains("\"stage\":\"RANKING\"");
-		// 🔴 이 줄이 완료 기준 "끊긴 지점부터 이어진다" 를 잡는다. 다시 붙은 화면이 0을 받으면
-		//    사용자는 진행이 처음부터 다시 도는 것으로 본다.
+		// 끊긴 지점부터 이어지는지를 본다. 다시 붙은 화면이 0 을 받으면 사용자는 진행이
+		// 처음부터 다시 도는 것으로 본다.
 		assertThat(body).doesNotContain("\"percent\":0");
 	}
 
@@ -182,7 +175,7 @@ class RecommendationJobProgressStreamTest {
 		MvcResult result = subscribe(this.ownerId);
 
 		assertThat(result.getResponse().getContentAsString()).contains("event:completed");
-		// 🔴 등록 자체를 하지 않는다 — 다시 내보낼 것이 없는 작업을 기다리게 두지 않는다.
+		// 등록 자체를 하지 않는다 — 다시 내보낼 것이 없는 작업을 기다리게 두지 않는다.
 		assertThat(this.broker.streamCount(this.jobId)).isZero();
 	}
 
@@ -195,7 +188,7 @@ class RecommendationJobProgressStreamTest {
 						.principal(principal(UUID.randomUUID())))
 				.andExpect(status().isNotFound());
 
-		// 🔴 거절된 요청이 연결을 남기면 남의 작업 진행률이 그 연결로 흘러간다.
+		// 거절된 요청이 연결을 남기면 남의 작업 진행률이 그 연결로 흘러간다.
 		assertThat(this.broker.streamCount(this.jobId)).isZero();
 	}
 

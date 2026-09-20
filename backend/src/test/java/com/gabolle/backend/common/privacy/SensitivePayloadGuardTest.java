@@ -12,11 +12,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-/**
- * 일반 추천 로그에 개인정보가 섞이면 저장 전에 막힌다 — 인수인계 문서의 필수 테스트 13번.
- *
- * <p>도커 없이 도는 순수 단위 테스트다.
- */
+/** 일반 추천 로그에 개인정보가 섞이면 저장 전에 막힌다. */
 class SensitivePayloadGuardTest {
 
 	private final SensitivePayloadGuard guard = new SensitivePayloadGuard();

@@ -28,13 +28,9 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 여행 기간과 겹치는 축제 조회 — S15P21E201-465 완료 기준을 하나씩 확인한다.
- *
- * <p>겹침 판정은 {@code PlaceEventPeriodRepository.findOverlapping} 의 SQL 이 하고, 이 서비스는 그
- * 결과에 장소 정보만 붙인다. 그래서 여기서는 "SQL 이 걸러 준 결과를 서비스가 그대로 살리는가" 와
- * "경계값에서 SQL 자체가 맞게 거르는가" 를 함께 본다 — 후자를 자바로 다시 걸렀다면 이 테스트들은
- * 서비스가 걸러도 통과하므로, 진짜로 SQL 을 보고 있다는 것은 부수기 실험(README 아님, 작업 보고서
- * 참고)으로 확인한다.
+ * 여행 기간과 겹치는 축제 조회. 겹침 판정은 {@code PlaceEventPeriodRepository.findOverlapping}
+ * 의 SQL 이 하고 서비스는 장소 정보만 붙이므로, 경계값에서 SQL 이 맞게 거르는가와 그 결과를
+ * 서비스가 그대로 살리는가를 함께 본다.
  */
 @TestPropertySource(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 class FestivalIntegrationTest extends PlacePostgresIntegrationTest {
@@ -57,8 +53,7 @@ class FestivalIntegrationTest extends PlacePostgresIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// place_event_period 은 place 를 ON DELETE CASCADE 로 참조하므로(V20260907150000), 장소만
-		// 지우면 그 장소의 회차도 함께 지워진다 — 따로 지울 표가 없다.
+		// place_event_period 은 place 를 ON DELETE CASCADE 로 참조하므로 따로 지울 표가 없다.
 		this.fixture.cleanUp();
 	}
 
@@ -75,12 +70,7 @@ class FestivalIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(item.overlapDates()).containsExactly(LocalDate.of(2026, 9, 5));
 	}
 
-	/**
-	 * 🔴 부수기 실험(작업 보고서 참고)으로 찾은 빈 자리를 메운 테스트다. 위 테스트는 겹침 판정식의
-	 * {@code endDate >= :from} 쪽 경계만 건드리고, {@code startDate <= :to} 쪽 경계(축제 시작일이
-	 * 여행 종료일과 같은 날)는 아무 테스트도 지키지 않고 있었다 — 그 쪽을 {@code <} 로 바꿔도
-	 * 빨개지는 테스트가 하나도 없었다.
-	 */
+	/** 위 테스트가 {@code endDate >= :from} 쪽 경계를 보고, 이쪽이 {@code startDate <= :to} 쪽을 본다. */
 	@Test
 	@DisplayName("경계값 — 축제 시작일이 여행 종료일과 같은 날이면 겹친다")
 	void festivalStartingOnTripEndDayIsIncluded() {
@@ -222,8 +212,7 @@ class FestivalIntegrationTest extends PlacePostgresIntegrationTest {
 
 		FestivalItem item = itemFor(response, placeId);
 		assertThat(item.priceLevel()).isNull();
-		// 🔴 photoUrl 은 지금 채우는 경로가 없어 항상 null 이다 — PlaceFixture.insertPlace 도
-		// photo_url 칼럼을 안 채운다. "칸은 있고 값은 없다" 를 증명하는 테스트다.
+		// photoUrl 은 지금 채우는 경로가 없어 항상 null 이다.
 		assertThat(item.photoUrl()).isNull();
 	}
 
@@ -264,12 +253,7 @@ class FestivalIntegrationTest extends PlacePostgresIntegrationTest {
 				.orElseThrow(() -> new AssertionError("응답에 해당 장소가 없다: " + placeId));
 	}
 
-	/**
-	 * {@code PlaceFixture} 에는 회차를 넣는 메서드가 없어 여기서 직접 넣는다 — 회차는
-	 * place_event_period 한 표뿐이고 장소를 지우면 CASCADE 로 함께 지워지므로({@code
-	 * fk_place_event_period_place}), 별도 정리 로직 없이 {@code PlaceFixture.cleanUp()} 이
-	 * 장소를 지울 때 같이 지워진다.
-	 */
+	/** {@code PlaceFixture} 에는 회차를 넣는 메서드가 없어 여기서 직접 넣는다. */
 	private void insertEventPeriod(UUID placeId, String title, LocalDate startDate, LocalDate endDate) {
 		this.jdbcTemplate.update("""
 				INSERT INTO place_event_period (place_event_period_id, place_id, title, start_date, end_date,

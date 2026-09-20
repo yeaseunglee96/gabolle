@@ -28,13 +28,10 @@ import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
- * 기록(Story) 공동 작성 — 초대 발급·수락·참여자 관리·여행 동행자 편입 — S15P21E201-770.
+ * 기록 공동 작성 — 초대 발급·수락·참여자 관리·여행 동행자 편입.
  *
- * <p>이 서비스의 모양은 {@code TripInviteService}·{@code TripMemberService} 를 그대로 따른다.
- * 다른 점은 딱 하나 — 기록의 "볼 수 있는가/만든 사람인가" 판정은 여기서 다시 재지 않고
- * {@link StoryService#requireVisible}·{@link StoryVisibilityPolicy#isParticipant} 를 그대로
- * 빌려 쓴다는 것이다. 여행 쪽에 있는 {@code TripQueryService.get} 같은 판정 창구가 기록 쪽에서는
- * 이 둘이다.
+ * <p>"볼 수 있는가/만든 사람인가" 판정은 여기서 다시 재지 않고
+ * {@link StoryService#requireVisible}·{@link StoryVisibilityPolicy#isParticipant} 를 빌려 쓴다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -80,7 +77,7 @@ public class StoryCoauthorService {
 			throw new StoryService.StoryForbiddenException(storyId);
 		}
 
-		// 만료까지의 시간은 여행 초대(TripInvite.TTL = 7일)와 같게 맞춘다 — 값을 새로 짓지 않는다.
+		// 만료까지의 시간은 여행 초대(TripInvite.TTL)와 같게 맞춘다 — 값을 새로 짓지 않는다.
 		StoryInvite invite = new StoryInvite(UUID.randomUUID(), storyId, OpaqueTokens.generate(), requester, now,
 				now.plus(TripInvite.TTL));
 		this.inviteRepository.save(invite);
@@ -93,13 +90,8 @@ public class StoryCoauthorService {
 	/**
 	 * 표(token)로 함께 쓰는 사람이 된다.
 	 *
-	 * <p>이미 참여 중이면(공동 작성자든, 자기 링크를 누른 만든 사람이든) 실패가 아니라 성공이다
-	 * — {@code alreadyJoined=true}. 링크를 두 번 눌렀다고 사용자에게 오류를 보여줄 이유가 없다
-	 * ({@code TripInviteService} 의 같은 결정과 이유가 같다).
-	 *
-	 * <p>동시에 두 번 눌린 경쟁은 기본키 충돌로 걸러진다. {@code saveAndFlush} 로 그 자리에서
-	 * 충돌을 터뜨리고, 진 쪽도 "이미 참여" 성공으로 답한다 — {@code TripInviteService.acceptFresh}
-	 * 와 같은 처리다.
+	 * <p>이미 참여 중이면 실패가 아니라 {@code alreadyJoined=true} 성공이다. 동시에 두 번 눌린 경쟁은
+	 * {@code saveAndFlush} 가 그 자리에서 기본키 충돌을 터뜨려 걸러내고, 진 쪽도 성공으로 답한다.
 	 *
 	 * @throws StoryInviteNotFoundException 그런 표가 없다 — 404.
 	 * @throws StoryInviteExpiredException 발급 후 7일이 지났다 — 410. 참여자 행은 만들지 않는다.
@@ -113,9 +105,8 @@ public class StoryCoauthorService {
 			throw new StoryInviteExpiredException();
 		}
 
-		// 표를 가진 것 자체가 열쇠다. 여기서 열람 권한을 먼저 요구하면 나만 보기 기록에 초대받은
-		// 사람이 수락하기도 전에 404 를 받는데, "우리끼리 쓰는 기록에 사람을 부른다" 가 이 기능의
-		// 주 사용처라 그러면 기능이 통째로 막힌다. 여행 초대도 표가 곧 잠금이다.
+		// 표를 가진 것 자체가 열쇠다. 열람 권한을 먼저 요구하면 나만 보기 기록에 초대받은 사람이
+		// 수락하기도 전에 404 를 받는다.
 		Story story = this.storyService.requireActiveIgnoringVisibility(invite.getStoryId());
 
 		if (this.visibilityPolicy.isParticipant(story, requester)) {
@@ -128,14 +119,12 @@ public class StoryCoauthorService {
 			return new AcceptStoryInviteResponse(story.getStoryId().toString(), false, now.toString());
 		}
 		catch (DataIntegrityViolationException e) {
-			// 같은 표를 동시에 두 번 눌렀다 — (story_id, user_id) 기본키가 막은 경쟁이다.
 			return toAcceptResponse(story, requester, true);
 		}
 	}
 
 	private AcceptStoryInviteResponse toAcceptResponse(Story story, UUID requester, boolean alreadyJoined) {
-		// 만든 사람은 story_coauthor 행이 없다 — "만든 사람은 들어가지 않는다" 가 그 표의 뜻이다.
-		// 그래서 합류 시각이라는 것 자체가 없고, joinedAt 은 null 로 답한다.
+		// 만든 사람은 story_coauthor 행이 없어서 합류 시각이라는 것 자체가 없다 — joinedAt 은 null 이다.
 		if (story.isAuthor(requester)) {
 			return new AcceptStoryInviteResponse(story.getStoryId().toString(), alreadyJoined, null);
 		}
@@ -173,8 +162,7 @@ public class StoryCoauthorService {
 				.collect(Collectors.toMap(AppUser::getUserId, AppUser::getDisplayName));
 
 		List<StoryCoauthorsResponse.Coauthor> members = new ArrayList<>();
-		// 만든 사람의 joinedAt 은 기록이 만들어진 시각이다 — story_coauthor 행이 없어서
-		// 별도의 합류 시각을 갖지 않는다.
+		// 만든 사람의 joinedAt 자리에는 기록이 만들어진 시각을 넣는다.
 		members.add(new StoryCoauthorsResponse.Coauthor(story.getAuthorUserId().toString(),
 				displayNames.get(story.getAuthorUserId()), true, story.getCreatedAt().toString()));
 		for (StoryCoauthor coauthor : coauthors) {
@@ -212,10 +200,10 @@ public class StoryCoauthorService {
 		List<UUID> toAdd = new ArrayList<>();
 		for (UUID userId : userIds) {
 			if (userId.equals(requester)) {
-				continue; // 만든 사람 자신을 넣으려 하면 건너뛴다
+				continue;
 			}
 			if (this.coauthorRepository.existsByKey(new StoryCoauthor.Key(storyId, userId))) {
-				continue; // 이미 참여자다
+				continue;
 			}
 			if (this.tripMembershipRepository.findMember(tripId, userId.toString()).isEmpty()) {
 				throw new NotTripMemberException(userId);

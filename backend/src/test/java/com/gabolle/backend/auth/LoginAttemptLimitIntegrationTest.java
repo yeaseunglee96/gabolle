@@ -28,17 +28,15 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 로그인 연속 실패 차단 — S15P21E201-421.
+ * 로그인 연속 실패 차단.
  *
- * <h2>🔴 왜 진짜 DB 가 필요한가</h2>
+ * <p>핵심 위험은 로직이 아니라 트랜잭션이다. {@code LocalAuthService.login} 은
+ * {@code @Transactional} 이고 비밀번호가 틀리면 예외를 던지므로, 실패 횟수를 그 안에서 올리면
+ * 올린 것까지 되돌려져 영영 한도에 닿지 않는다. 응답은 401 로 정상이라 저장소를 흉내 낸
+ * 검사는 전부 통과한다.
  *
- * 이 기능의 핵심 위험은 로직이 아니라 <b>트랜잭션</b>이다. {@code LocalAuthService.login} 은
- * {@code @Transactional} 이고 비밀번호가 틀리면 예외를 던진다. 실패 횟수를 그 안에서 올리면
- * <b>올린 것까지 같이 되돌려져서 영영 5회에 닿지 않는다.</b> 그런데 응답은 401 로 정상이라
- * Mockito 로 리포지토리를 흉내 낸 테스트는 전부 통과한다.
- *
- * <p>그래서 여기서는 실패시킨 뒤 <b>DB 를 직접 읽어</b> 값이 남았는지 본다. 엔티티를 통해 읽으면
- * 같은 트랜잭션의 캐시를 볼 수 있어서 증거가 되지 않는다.
+ * <p>그래서 실패시킨 뒤 DB 를 직접 읽어 값이 남았는지 본다. 엔티티로 읽으면 같은 트랜잭션의
+ * 캐시를 볼 수 있어 증거가 되지 않는다.
  */
 class LoginAttemptLimitIntegrationTest extends AuthPostgresIntegrationTest {
 
@@ -84,8 +82,8 @@ class LoginAttemptLimitIntegrationTest extends AuthPostgresIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 내가 만든 사용자만 지운다 — local_credential 은 FK 가
-		//    ON DELETE CASCADE 라 사용자를 지우면 함께 사라진다.
+		// 표를 비우지 않고 내가 만든 사용자만 지운다. local_credential 은 ON DELETE CASCADE 라
+		// 사용자를 지우면 함께 사라진다.
 		this.jdbcTemplate.update("DELETE FROM auth_session WHERE user_id = ?", this.userId);
 		this.jdbcTemplate.update("DELETE FROM app_user WHERE user_id = ?", this.userId);
 	}
@@ -114,7 +112,7 @@ class LoginAttemptLimitIntegrationTest extends AuthPostgresIntegrationTest {
 			assertThatThrownBy(() -> login(WRONG_PASSWORD)).isInstanceOf(AuthException.class);
 		}
 
-		// 🔴 비밀번호가 맞아도 거부된다. 맞는지 알려 주는 것 자체가 공격자에게 정보다.
+		// 비밀번호가 맞아도 거부된다. 맞는지 알려 주는 것 자체가 공격자에게 정보다.
 		assertThatThrownBy(() -> login(PASSWORD))
 				.isInstanceOf(AuthException.class)
 				.extracting(exception -> ((AuthException) exception).getCode())
@@ -151,7 +149,7 @@ class LoginAttemptLimitIntegrationTest extends AuthPostgresIntegrationTest {
 		this.localAuthService.login(new AuthCommands.Login(this.email, password, "device-test"));
 	}
 
-	/** 🔴 엔티티가 아니라 DB 를 직접 읽는다. 엔티티로 읽으면 캐시를 보게 되어 증거가 되지 않는다. */
+	/** 엔티티가 아니라 DB 를 직접 읽는다. 엔티티로 읽으면 캐시를 보게 되어 증거가 되지 않는다. */
 	private Instant lockedUntilInDatabase() {
 		return this.jdbcTemplate.queryForObject(
 				"SELECT login_locked_until FROM local_credential WHERE email = ?", Instant.class, this.email);

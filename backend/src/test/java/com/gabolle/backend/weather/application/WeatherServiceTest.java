@@ -25,12 +25,6 @@ import com.gabolle.backend.weather.domain.WeatherQuery;
 
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * {@link WeatherService} 검증 — S15P21E201-366.
- *
- * <p>완료 기준 중 "지어낸 값이 코드 어디에도 없다" 를 가장 직접적으로 잰다 — 벤더가 실패하면
- * 예외가 그대로 위로 올라가고, 캐시에는 아무것도 안 남아야 한다.
- */
 class WeatherServiceTest {
 
 	// 2026-09-10 10:00 KST -- KmaBaseTimeCalculator 가 08:00 회차를 고르는 시각이다.
@@ -85,7 +79,7 @@ class WeatherServiceTest {
 		assertThat(first.cached()).isFalse();
 		assertThat(second.cached()).isTrue();
 		assertThat(second.forecast().minTemperature()).isEqualTo(25.0);
-		// 🔴 이 값이 이 테스트의 핵심이다 — 두 번째 호출에서 벤더가 다시 불리면 실패한다.
+		// 이 값이 이 테스트의 핵심이다 — 두 번째 호출에서 벤더가 다시 불리면 실패한다.
 		assertThat(this.vendor.callCount).isEqualTo(1);
 	}
 
@@ -109,7 +103,7 @@ class WeatherServiceTest {
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
-	// ── 밤 11시가 넘으면 오늘이 사라지던 것 (S15P21E201-1207) ─────────────────────────
+	// 밤 11시가 넘으면 오늘이 사라지던 것
 
 	/** 2026-09-18 23:30 KST. 23:10 이 지났으므로 이번 회차는 그날 23시다. */
 	private static final Instant NIGHT = Instant.parse("2026-09-18T14:30:00Z");
@@ -132,7 +126,7 @@ class WeatherServiceTest {
 		WeatherForecastResult result = night.getForecast(new WeatherQuery(35.1796, 129.0756, NIGHT_TODAY));
 
 		assertThat(result.forecast().maxTemperature()).as("20시 회차의 오늘 값이 안 나온다").isEqualTo(18.0);
-		// 🔴 새로 받는 것이 아니라 받아 둔 것을 쓰는 것이다. 이 줄이 그 차이를 잰다.
+		// 새로 받는 것이 아니라 받아 둔 것을 쓰는 것이다. 이 줄이 그 차이를 잰다.
 		assertThat(this.vendor.callCount).as("거슬러 가면서 기상청을 불렀다").isZero();
 		assertThat(result.cached()).isTrue();
 	}

@@ -17,22 +17,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * S15P21E201-1006 — 사진이 «무엇을 찍은 것인가» 를 옳게 정하는지.
+ * 여기 쓰는 줄은 실제 수집본에서 그대로 가져온 것이다. 지어낸 예로 검사하면 수집기가 실제로
+ * 내는 모양과 어긋나도 초록이 된다.
  *
- * <p>🔴 여기 쓰는 줄은 <b>실제 수집본에서 그대로 가져온 것</b>이다
- * ({@code bigData/data/staged/festival-photos-busan.ndjson}). 지어낸 예로 검사하면
- * «수집기가 실제로 내는 모양» 과 어긋나도 초록이 된다.
- *
- * <h2>🔴 {@link #nameMatchedButDifferentTitleIsVenue} 는 지금 수집본에는 없는 모양이다</h2>
- *
- * 2026-09-16 오전 수집본에서는 {@code matchedBy=name} 인 셋 중 <b>둘</b>이 행사장 사진이었다.
- * 같은 날 오후 수집기가 고쳐져 지금은 <b>그런 줄이 0 건</b>이다(34 줄 · 축제 사진 1 ·
- * 행사장 사진 33, 직접 세어 확인).
- *
- * <p><b>그래도 그 검사를 지우지 않는다.</b> 우리 판정이 수집기의 분류에 기대지 않는다는 것이
- * 그 검사의 요점이고, 수집기가 다시 틀렸을 때 이쪽에서 걸려야 한다 — 실제로 오늘 그렇게
- * 걸렸다. 낡은 것은 <b>그 모양이 지금도 파일에 있다</b> 는 사실뿐이라, 지우는 대신 여기에
- * 적어 둔다.
+ * <p>{@link #nameMatchedButDifferentTitleIsVenue} 가 쓰는 모양은 지금 수집본에 없다. 그래도
+ * 지우지 않는다 — 우리 판정이 수집기의 분류에 기대지 않는다는 것이 그 검사의 요점이고,
+ * 수집기가 다시 틀렸을 때 이쪽에서 걸려야 한다.
  */
 class PlacePhotoReaderTest {
 
@@ -45,15 +35,13 @@ class PlacePhotoReaderTest {
 		return new PlacePhotoReader(JsonMapper.builder().build()).read(file);
 	}
 
-	// ── 실제 수집본에서 가져온 세 줄 ──────────────────────────────────────────
-
-	/** 사진 제목이 축제 이름과 같다 — 실제로 그 축제를 찍은 사진. 34건 중 이것 하나뿐이다. */
+	/** 사진 제목이 축제 이름과 같다 — 실제로 그 축제를 찍은 사진. */
 	private static final String REAL_EVENT_PHOTO = """
 			{"contentid":"2757010","title":"부산불꽃축제","photoUrl":"https://tong.visitkorea.or.kr/a.jpg",\
 			"photoSource":"한국관광공사 관광사진갤러리","photographer":"IR 스튜디오","matchedBy":"name",\
 			"galTitle":"부산불꽃축제"}""";
 
-	/** 🔴 matchedBy 는 name 인데 사진은 해수욕장이다. 「광안리」가 양쪽에 있어서 붙은 것이다. */
+	/** matchedBy 는 name 인데 사진은 해수욕장이다. 「광안리」가 양쪽에 있어서 붙은 것이다. */
 	private static final String NAME_MATCHED_BUT_VENUE = """
 			{"contentid":"2786391","title":"광안리 M(Marvelous) 드론 라이트쇼",\
 			"photoUrl":"https://tong.visitkorea.or.kr/b.jpg","photoSource":"한국관광공사 관광사진갤러리",\
@@ -72,16 +60,8 @@ class PlacePhotoReaderTest {
 	}
 
 	/**
-	 * 🔴 이 검사가 이 작업의 핵심이다. 수집기가 붙인 {@code matchedBy=name} 을 그대로
-	 * 믿었다면 <b>「이 축제가 이렇게 생겼구나」로 읽히는 거짓 표시</b>가 나갔다.
-	 *
-	 * <p>원인은 수집기가 사진의 <b>키워드</b>를 제목처럼 읽은 것이었다 — 광안리해수욕장
-	 * 사진의 키워드에 「광안리 M 드론라이트쇼」가 들어 있었다. 키워드는 «이 사진이
-	 * 무엇이냐» 가 아니라 «무엇과 관련 있냐» 다. 바다 사진에 축제 태그가 붙은 것은 거기서
-	 * 그 행사가 열리기 때문이지 행사를 찍어서가 아니다.
-	 *
-	 * <p>수집기는 고쳐졌다(2026-09-16 오후). 이 검사는 <b>우리가 수집기를 안 믿는다</b> 는
-	 * 것을 지키기 위해 남는다 — 클래스 javadoc 참고.
+	 * 수집기의 {@code matchedBy=name} 을 그대로 믿으면 행사장 사진에 「축제 사진」이라는 거짓
+	 * 표시가 나간다. 사진의 키워드는 「이 사진이 무엇이냐」가 아니라 「무엇과 관련 있냐」다.
 	 */
 	@Test
 	@DisplayName("🔴 matchedBy 가 name 이어도 사진 제목이 다르면 행사장 사진이다")
@@ -107,8 +87,6 @@ class PlacePhotoReaderTest {
 		assertThat(read(noGalTitle)).singleElement()
 				.extracting(PlacePhotoRow::subject).isEqualTo(PhotoSubject.VENUE);
 	}
-
-	// ── 출처 표기 ────────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("출처에 촬영자를 함께 적는다 — 출처 표기 없이 남의 사진을 쓰지 않는다")
@@ -140,10 +118,6 @@ class PlacePhotoReaderTest {
 				.hasMessageContaining("photoSource");
 	}
 
-	/**
-	 * 🔴 조용히 건너뛰면 «사진 한 장이 빠진 것»과 «이 축제는 원래 사진이 없다»가 구분되지
-	 * 않는다. 줄이 깨졌으면 멈추고 사람이 본다.
-	 */
 	@Test
 	@DisplayName("🔴 사진 주소가 없는 줄은 조용히 건너뛰지 않고 멈춘다")
 	void missingPhotoUrlStops() {

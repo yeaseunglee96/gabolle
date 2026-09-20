@@ -12,19 +12,16 @@ import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 
 /**
- * 적재된 브레이크타임·라스트오더 행을 읽어 답하는 구현 — S15P21E201-94.
- *
- * <p>{@link PlaceFeatureOpeningHoursFilter} 와 같은 모양이다 — 판정은 {@link TimeFactValue} 가
- * 하고 여기는 행을 찾아오는 일만 한다.
+ * 적재된 브레이크타임·라스트오더 행을 읽어 답하는 구현. {@link PlaceFeatureOpeningHoursFilter} 와
+ * 같이 판정은 {@link TimeFactValue} 가 하고 여기는 행을 찾아오는 일만 한다.
  */
 @Component
 @Profile({ "db", "dev" })
 public class PlaceFeatureTimeFactFilter implements PlaceTimeFactFilterPort {
 
-	/** 브레이크타임 피처의 갈래. DB 의 {@code ck_place_feature_type} 이 이미 허용하고 있다. */
+	/** 피처 갈래 값. DB 의 {@code ck_place_feature_type} 이 허용하는 낱말과 같아야 한다. */
 	public static final String BREAK_TIME_FEATURE_TYPE = "BREAK_TIME";
 
-	/** 라스트오더 피처의 갈래. */
 	public static final String LAST_ORDER_TIME_FEATURE_TYPE = "LAST_ORDER_TIME";
 
 	private final PlaceFeatureRepository placeFeatureRepository;

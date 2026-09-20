@@ -16,23 +16,12 @@ import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.MapConfigurationPropertySource;
 
 /**
- * 🔴 취향 비중 다섯 칸이 <b>실제로 읽히는지</b> 못 박는다 — S15P21E201-1040.
+ * 취향 비중 다섯 칸이 실제로 읽히는지 못 박는다. 키 이름을 한 글자 틀리면 스프링이 그 줄을
+ * 무시하고 {@link PreferenceAlignmentWeights} 가 빈 값을 1.0 으로 채우는데, 비율이 전부
+ * 1.0 이면 가중평균이 단순평균과 같아 순위도 그대로라 알아챌 단서가 없다.
  *
- * <h2>이 파일이 막는 것</h2>
- *
- * 이 설정의 고장은 <b>조용하다.</b> 키 이름을 한 글자 틀리면 스프링이 그 줄을 그냥 무시하고,
- * {@link PreferenceAlignmentWeights} 의 압축 생성자가 빈 값을 <b>1.0 으로 채운다.</b> 그러면
- * 서버는 멀쩡히 뜨고, 추천도 나오고, 아무 오류도 안 나는데 <b>설문 계수만 빠진 채로 돈다.</b>
- *
- * <p>그리고 비율이 전부 1.0 이면 가중평균은 단순평균과 <b>같은 값</b>이다 — 즉 화면에서도
- * 순위가 그대로라 사람이 알아챌 단서가 없다. 2026-09-16 이전이 정확히 그 상태였다:
- * 다섯 키가 어느 properties 파일에도 없어서 설문 계수가 한 톨도 안 들어가 있었다.
- *
- * <h2>공허한 통과를 먼저 막는다</h2>
- *
- * 없는 것을 세는 검사는 <b>아무것도 못 읽었을 때도 초록</b>이 된다. 그래서 파일을 읽었는지
- * 먼저 단정하고({@link #theFileIsActuallyRead}), 그다음 바인딩 결과를 본다. 값 자체를 단정하지
- * 않고 "키가 있다" 만 보면, 키 이름이 틀렸을 때 그대로 통과한다 — 바인딩을 거쳐야 잡힌다.
+ * 없는 것을 세는 검사는 아무것도 못 읽었을 때도 초록이 되므로 파일을 읽었는지를 먼저
+ * 단정하고({@link #theFileIsActuallyRead}) 그다음 바인딩 결과를 본다.
  */
 class AlignmentWeightsAreBoundTest {
 
@@ -77,8 +66,7 @@ class AlignmentWeightsAreBoundTest {
 	void allFiveWeightsBindFromTheFile() {
 		PreferenceAlignmentWeights weights = bind();
 
-		// 🔴 값 자체를 단정한다. "키가 있다" 만 보면 이름이 틀렸을 때 기본값 1.0 으로
-		//    조용히 통과한다 — 이 시험이 막으려는 것이 정확히 그 상황이다.
+		// 값 자체를 단정한다. "키가 있다" 만 보면 이름이 틀렸을 때 기본값 1.0 으로 통과한다.
 		assertThat(weights.shadePreference()).isEqualTo(0.39);
 		assertThat(weights.locality()).isEqualTo(0.25);
 		assertThat(weights.slopePreference()).isEqualTo(0.21);

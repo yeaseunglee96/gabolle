@@ -4,9 +4,8 @@ import java.time.Instant;
 
 /**
  * 일정 구간 하나 — 항목과 항목 사이의 이동.
- *
- * <p>🔴 이 클래스도 {@link ItineraryItem} 과 같은 이유로 {@link ItineraryVersion} 에 매달린다
- * (판마다 복사). JPA·Spring 을 import 하지 않는다.
+ * {@link ItineraryItem} 과 같은 이유로 {@link ItineraryVersion} 에 매달린다(판마다 복사).
+ * JPA·Spring 을 import 하지 않는다.
  */
 public class ItineraryLeg {
 
@@ -16,10 +15,7 @@ public class ItineraryLeg {
     private final int dayIndex;
     private final int sequence;
 
-    /**
-     * 🔴 {@code null} 이면 그 날의 첫 구간 — 여행 출발지에서 출발한다. {@code Trip} 도메인의
-     * 주석 그대로 "출발지. 매일 여기서 일정이 시작된다."
-     */
+    /** {@code null} 이면 그 날의 첫 구간 — 여행 출발지에서 출발한다. */
     private final String fromPlaceId;
     private final String toPlaceId;
 
@@ -30,48 +26,40 @@ public class ItineraryLeg {
     private final Integer durationMin;
 
     /**
-     * 🔴 이동수단이 {@code WALK} 일 때만 채운다. 대중교통 구간에 직선거리를 넣으면
-     * "지하철로 이만큼 걸었다"처럼 읽혀서 틀린 답이 된다.
+     * 이동수단이 {@code WALK} 일 때만 채운다. 대중교통 구간에 직선거리를 넣으면 "지하철로 이만큼
+     * 걸었다" 처럼 읽혀서 틀린 답이 된다.
      */
     private final Integer walkingMeters;
 
-    /** 🔴 bigData 의 경사·계단 데이터가 채울 자리. 이번 판에서는 전부 {@code null}. */
+    /** 경사·계단 데이터가 채울 자리. 지금은 전부 {@code null}. */
     private final Integer ascentM;
     private final Integer stairSteps;
 
     /**
-     * 🔴 S15P21E201-179 — 위의 거리·시간을 얼마나 믿을 수 있는가.
-     *
-     * <p>{@code VERIFIED} 길찾기 실제 응답 · {@code ESTIMATED} 직선거리 어림값 ·
-     * {@code UNKNOWN} 좌표가 없어 못 쟀다. 이 기능 이전에 만들어진 판은 {@code null} 이다 —
-     * 그때 값이 무엇이었는지 알 수 없고, 모르는 것을 UNKNOWN 으로 적는 것도 하나의 주장이라
-     * 아예 비워 둔다.
-     *
-     * <p>참·거짓이 아닌 이유는 "어림잡았다" 와 "아무것도 못 쟀다" 가 화면에 서로 다르게
-     * 그려져야 하기 때문이다 — 앞은 "예상 25분", 뒤는 아무것도 안 띄운다.
+     * 위의 거리·시간을 얼마나 믿을 수 있는가 — {@code VERIFIED} 길찾기 실제 응답 ·
+     * {@code ESTIMATED} 직선거리 어림값 · {@code UNKNOWN} 은 좌표가 없어 못 쟀다. 이 칸이 생기기
+     * 전에 만들어진 판은 {@code null} 이다 — 그때 값이 무엇이었는지 알 수 없고, 모르는 것을
+     * UNKNOWN 으로 적는 것도 하나의 주장이라 아예 비워 둔다.
+     * 참·거짓이 아닌 이유는 "어림잡았다" 와 "아무것도 못 쟀다" 가 화면에 서로 다르게 그려져야
+     * 하기 때문이다 — 앞은 "예상 25분", 뒤는 아무것도 안 띄운다.
      */
     private final ItineraryItem.DataStatus dataStatus;
 
     /**
-     * 🔴 S15P21E201-1109 — 이 구간의 이동 요금(원).
-     *
-     * <p><b>{@code null} 은 "얼마인지 모른다" 이고 {@code 0} 은 "공짜다" 다.</b> 둘을 같게
-     * 다루면 요금 출처가 없는 이동수단이 화면에서 전부 「무료」가 된다.
-     *
-     * <p>지금 값이 있는 것은 <b>자동차 계열(택시·자가용·렌터카)뿐</b>이다 — 카카오모빌리티가
-     * 택시 요금과 통행료를 주기 때문이다. 도보에는 요금이라는 것이 없고, 대중교통은 업체가
-     * 주지 않는다. 대중교통 운임은 노선망이 들어오면 탄 노선·구간·환승 횟수로 계산한다
-     * (S15P21E201-1104).
-     *
-     * <p>🔴 <b>입장료와 합치지 않는다.</b> 요금은 구간의 성질이고 입장료는 장소의 성질이다.
-     * 합치면 입장료가 없는 지금 "교통비만 낸 합계" 가 "총비용" 으로 읽힌다.
+     * 이 구간의 이동 요금(원).
+     * {@code null} 은 "얼마인지 모른다" 이고 {@code 0} 은 "공짜다" 다. 둘을 같게 다루면 요금 출처가
+     * 없는 이동수단이 화면에서 전부 「무료」가 된다.
+     * 지금 값이 있는 것은 자동차 계열(택시·자가용·렌터카)뿐이다. 도보에는 요금이라는 것이 없고,
+     * 대중교통은 업체가 주지 않는다.
+     * 입장료와 합치지 않는다. 요금은 구간의 성질이고 입장료는 장소의 성질이라, 합치면 입장료가
+     * 없는 지금 "교통비만 낸 합계" 가 "총비용" 으로 읽힌다.
      */
     private final Integer fareKrw;
 
     private final Instant createdAt;
 
     /**
-     * S15P21E201-179 이전의 생성자를 그대로 남긴다 — 부르는 곳이 여럿이고, 그때 만들어진
+     * {@code dataStatus} 이전의 생성자를 그대로 남긴다 — 부르는 곳이 여럿이고, 그때 만들어진
      * 구간은 거리·시간의 출처를 알 수 없으므로 {@code dataStatus} 가 {@code null} 이다.
      */
     public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
@@ -83,10 +71,8 @@ public class ItineraryLeg {
     }
 
     /**
-     * 요금 없이 만든다 — S15P21E201-1109 이전의 생성자를 그대로 남긴다.
-     *
-     * <p>부르는 곳이 여럿이라 한 번에 안 고친다. 요금을 모르는 것이 기본값이고, 그것이
-     * 지금 대부분의 구간에서 맞는 값이다.
+     * 요금 없이 만든다 — 요금 칸 이전의 생성자를 그대로 남긴다. 부르는 곳이 여럿이라 한 번에
+     * 안 고친다. 요금을 모르는 것이 기본값이고, 그것이 지금 대부분의 구간에서 맞는 값이다.
      */
     public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
                         String fromPlaceId, String toPlaceId, String travelMode,
@@ -119,8 +105,8 @@ public class ItineraryLeg {
             throw new IllegalArgumentException("travelMode 는 필수다");
         }
         if (fareKrw != null && fareKrw < 0) {
-            // 🔴 음수 요금은 "할인" 이 아니라 자료가 어긋난 것이다. 조용히 통과시키면
-            //    하루 합계가 줄어들고, 사람은 그것을 실제 금액으로 읽는다.
+            // 음수 요금은 "할인" 이 아니라 자료가 어긋난 것이다. 조용히 통과시키면 하루 합계가
+            //    줄어들고, 사람은 그것을 실제 금액으로 읽는다.
             throw new IllegalArgumentException("fareKrw 는 0 이상이어야 한다: " + fareKrw);
         }
 

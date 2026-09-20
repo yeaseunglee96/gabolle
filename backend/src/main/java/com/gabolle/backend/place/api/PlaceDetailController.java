@@ -16,15 +16,14 @@ import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.place.service.PlaceDetailService;
 
 /**
- * 장소 상세 조회 (S15P21E201-476).
+ * 장소 상세 조회.
  *
- * <p>🔴 사용자를 <b>인증 principal</b> 에서 얻는다. 이 저장소의 {@code TripController} 와
- * {@code ItineraryEditController} 는 {@code X-User-Id} 요청 헤더를 쓰는데, 그러면 인증만 통과한
- * 사람이 남의 ID 를 주장할 수 있다. 새 컨트롤러는 그것을 따라 하지 않는다.
+ * <p>사용자를 인증 principal 에서 얻는다. {@code X-User-Id} 요청 헤더를 쓰면 인증만 통과한 사람이
+ * 남의 ID 를 주장할 수 있다.
  *
- * <p>목록 조회({@code GET /api/v1/places})는 다른 컨트롤러에 있다. 경로가
- * {@code /api/v1/places/facets} 같은 리터럴과 {@code /api/v1/places/{placeId}} 템플릿으로 갈리는데,
- * Spring 은 리터럴을 템플릿보다 먼저 맞추므로 두 컨트롤러가 공존해도 충돌하지 않는다.
+ * <p>목록 조회({@code GET /api/v1/places})는 다른 컨트롤러에 있다. Spring 이 리터럴
+ * ({@code /api/v1/places/facets})을 템플릿({@code /api/v1/places/{placeId}})보다 먼저 맞추므로 두
+ * 컨트롤러가 공존해도 충돌하지 않는다.
  */
 @RestController
 @RequestMapping("/api/v1/places")
@@ -38,18 +37,15 @@ public class PlaceDetailController {
 	}
 
 	/**
-	 * @param acceptLanguage {@code en} 으로 시작하면 영문 이름·주소를 우선한다 (S15P21E201-430,
-	 *        부분). 영문 값이 없으면 한국어로 되돌리고, 응답의 {@code resolvedLanguage} 가 어느
-	 *        언어로 답했는지 알린다 — 그러지 않으면 화면이 받은 값이 번역된 것인지 알 수 없다
-	 * @param itineraryId 어느 일정에 대해 포함 여부를 묻는가 (S15P21E201-476). 선택이다 — 안 주면
-	 *        응답의 {@code itineraryInclusion} 이 {@code UNAVAILABLE} 로 나가고 그것이 정상이다.
-	 *        <b>여행이 아니라 일정을 받는다.</b> 포함 여부는 그 일정의 최신 판 내용에서 나오는
-	 *        값이고, 여행에서 일정으로 가는 단계를 서버가 대신 밟으면 "그 여행에 일정이 여럿이면
-	 *        어느 것인가" 를 이 엔드포인트가 몰래 정하게 된다. 더 자세한 것은
-	 *        {@code ItineraryMembershipPort} 클래스 주석에 있다.
-	 *        <p>형식이 UUID 가 아니면 {@code PlaceExceptionHandler} 가 400 으로 답한다. 이것은
-	 *        "그 일정이 있는가" 와 무관한 <b>요청 형식</b> 오류라 존재 여부를 알려주지 않는다 —
-	 *        형식이 맞는데 볼 수 없는 일정은 200 에 {@code UNAVAILABLE} 이다
+	 * @param acceptLanguage {@code en} 으로 시작하면 영문 이름·주소를 우선한다. 영문 값이 없으면
+	 *        한국어로 되돌리고, 응답의 {@code resolvedLanguage} 가 어느 언어로 답했는지 알린다
+	 * @param itineraryId 어느 일정에 대해 포함 여부를 묻는가. 선택이다 — 안 주면 응답의
+	 *        {@code itineraryInclusion} 이 {@code UNAVAILABLE} 로 나가고 그것이 정상이다.
+	 *        여행이 아니라 일정을 받는다 — 여행에서 일정으로 가는 단계를 서버가 대신 밟으면 "그
+	 *        여행에 일정이 여럿이면 어느 것인가" 를 이 엔드포인트가 몰래 정하게 된다
+	 *        ({@code ItineraryMembershipPort} 클래스 주석).
+	 *        <p>형식이 UUID 가 아니면 {@code PlaceExceptionHandler} 가 400 으로 답한다. 형식이 맞는데
+	 *        볼 수 없는 일정은 200 에 {@code UNAVAILABLE} 이다
 	 */
 	@GetMapping("/{placeId}")
 	public ApiResponse<PlaceDetailResponse> get(@PathVariable UUID placeId,

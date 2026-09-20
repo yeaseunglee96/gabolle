@@ -29,11 +29,11 @@ import com.gabolle.backend.user.domain.UserStatus;
 import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
- * S15P21E201-689 · -690 — 소셜 인증 → 회원가입 / 기존 계정 연결이 실제 PostgreSQL 에서 도는지 본다.
+ * 소셜 인증 → 회원가입 / 기존 계정 연결이 실제 PostgreSQL 에서 도는지 본다.
  *
- * <p>provider 왕복(코드 교환)은 여기 범위가 아니다. 그 앞단은 {@code OAuthLoginService} 가 하고 provider 별 클라이언트
- * 테스트가 따로 있다. 이 테스트가 보는 것은 그 뒤 — 티켓이 표에 남는가, 한 번만 쓰이는가, 만료가 지켜지는가, 비밀번호를
- * 확인하고 신원을 붙이는가, 그리고 <b>계정이 언제 생기고 언제 안 생기는가</b>다.
+ * <p>provider 왕복(코드 교환)은 범위 밖이다. 여기서 보는 것은 그 뒤 — 티켓이 표에 남는가,
+ * 한 번만 쓰이는가, 만료가 지켜지는가, 비밀번호를 확인하고 신원을 붙이는가, 계정이 언제
+ * 생기고 언제 안 생기는가다.
  */
 class OAuthTwoStepSignupIntegrationTest extends AuthPostgresIntegrationTest {
 
@@ -82,7 +82,7 @@ class OAuthTwoStepSignupIntegrationTest extends AuthPostgresIntegrationTest {
 		assertThat(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, subject)).isEmpty();
 		assertThat(ticketRows("SIGNUP")).isEqualTo(1);
 
-		// 🔴 표에 원문이 없다 — 해시만 남는다.
+		// 표에 원문이 없다 — 해시만 남는다.
 		Integer rawInTable = jdbc.queryForObject(
 				"SELECT count(*) FROM oauth_signup_ticket WHERE ticket_hash = ?", Integer.class, signup.signupTicket());
 		assertThat(rawInTable).isZero();
@@ -190,8 +190,8 @@ class OAuthTwoStepSignupIntegrationTest extends AuthPostgresIntegrationTest {
 		// seedLocalAccount 가 소셜 쪽 이메일을 그 계정의 이메일로 맞춰 두었다 — 가려진 값은 그 이메일에서 나온다.
 		assertThat(required.maskedEmail()).isEqualTo(OAuthLoginResponse.mask(email));
 		assertThat(required.maskedEmail()).contains("***@").doesNotContain(email.substring(1, 10));
-		// 🔴 티켓이 실제로 표에 남아야 한다. 예전에 이 갈래를 409 예외로 던졌더니 트랜잭션이 되돌려져 이 행이 사라졌고,
-		//    클라이언트는 DB 에 없는 티켓을 받았다. 이 단정이 그것을 잡은 자리다.
+		// 티켓이 실제로 표에 남아야 한다. 이 갈래를 예외로 던지면 트랜잭션이 되돌려져 행이
+		// 사라지고, 클라이언트는 DB 에 없는 티켓을 받는다.
 		assertThat(ticketRows("LINK")).isEqualTo(1);
 		assertThat(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, subject)).isEmpty();
 
@@ -201,7 +201,7 @@ class OAuthTwoStepSignupIntegrationTest extends AuthPostgresIntegrationTest {
 				.hasFieldOrPropertyWithValue("code", "INVALID_CREDENTIALS");
 		assertThat(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, subject)).isEmpty();
 
-		// 🔴 틀린 비밀번호로 트랜잭션이 되돌려졌으니 티켓 소비도 취소됐다 — 같은 티켓으로 다시 시도할 수 있다.
+		// 틀린 비밀번호로 트랜잭션이 되돌려졌으니 티켓 소비도 취소됐다 — 같은 티켓으로 다시 시도할 수 있다.
 		OAuthAccountService.LoggedIn result = accountService.linkWithPassword(required.linkTicket(), "올바른비밀번호1!",
 				"device-1");
 
@@ -266,8 +266,8 @@ class OAuthTwoStepSignupIntegrationTest extends AuthPostgresIntegrationTest {
 	/**
 	 * 이메일·비밀번호로 가입한 계정 하나.
 	 *
-	 * <p>메일 인증 여부가 S15P21E201-923 부터 갈래를 가른다 — 인증을 끝낸 주소는 우리가 확인한 주소라 소셜이 바로
-	 * 붙고, 인증 전이면 예전처럼 비밀번호를 묻는다.
+	 * <p>메일 인증 여부가 갈래를 가른다 — 인증을 끝낸 주소는 우리가 확인한 주소라 소셜이
+	 * 바로 붙고, 인증 전이면 비밀번호를 묻는다.
 	 */
 	private AppUser seedLocalAccount(String rawPassword, boolean emailVerified) {
 		String localEmail = "local-" + UUID.randomUUID() + "@example.com";

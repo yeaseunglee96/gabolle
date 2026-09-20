@@ -15,13 +15,7 @@ import com.gabolle.backend.dish.application.DishImageShrinker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * 모델이 준 큰 그림을 보관할 크기로 줄이는가 — S15P21E201-1272.
- *
- * <p>모델이 주는 것은 1,358KB 짜리 1024 PNG 인데 화면에는 손바닥만 하게 뜬다. 그대로
- * 두면 <b>앱이 그 1MB 를 통신망으로 내려받는다</b> — 이 기능을 쓰는 자리가 여행지의 식당
- * 안이고, 데이터도 그 사람이 낸다.
- */
+/** 모델이 준 큰 그림을 보관할 크기로 줄이는가. */
 class DishImageShrinkerTest {
 
 	private static byte[] png(int width, int height, Color color, boolean withAlpha) throws Exception {
@@ -66,7 +60,7 @@ class DishImageShrinkerTest {
 		assertThat(image.getHeight()).isEqualTo(250);
 	}
 
-	/** 🔴 키우면 흐려지기만 하고 용량만 는다. 작은 원본은 그대로 둔다. */
+	/** 키우면 흐려지기만 하고 용량만 는다. */
 	@Test
 	@DisplayName("🔴 원본이 이미 작으면 키우지 않는다")
 	void aSmallImageIsNotEnlarged() throws Exception {
@@ -76,10 +70,7 @@ class DishImageShrinkerTest {
 		assertThat(image.getWidth()).isEqualTo(200);
 	}
 
-	/**
-	 * 🔴 JPEG 에는 투명이 없다. 투명한 PNG 를 그대로 JPEG 로 쓰면 투명했던 자리가
-	 * <b>검게</b> 나온다 — 음식 그림에 검은 얼룩이 생기는 것을 눈으로 보기 전에는 모른다.
-	 */
+	/** JPEG 에는 투명이 없어, 흰 바탕을 깔지 않으면 투명했던 자리가 검게 나온다. */
 	@Test
 	@DisplayName("🔴 투명한 그림은 흰 바탕에 깔린다 — 검게 나오지 않는다")
 	void transparencyBecomesWhiteNotBlack() throws Exception {

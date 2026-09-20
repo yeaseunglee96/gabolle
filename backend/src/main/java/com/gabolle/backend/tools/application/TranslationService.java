@@ -13,18 +13,10 @@ import com.gabolle.backend.tools.domain.TranslationRequest;
 import com.gabolle.backend.tools.domain.TranslationResult;
 
 /**
- * 문장 하나를 번역해 답한다 — S15P21E201-343.
+ * 문장 하나를 번역해 답한다. 업체 호출이 실패하면 {@link TranslationVendorException} 이 그대로 위로
+ * 올라간다 — 여기서 잡아 대체 문장으로 숨기지 않는다.
  *
- * <h2>순서</h2>
- * <ol>
- *   <li>캐시에 있으면(만료 전이면) 그것을 그대로 돌려준다 — 업체를 부르지 않는다</li>
- *   <li>없으면 업체를 부르고, 성공하면 담아 둔 뒤 돌려준다</li>
- *   <li>업체 호출이 실패하면 {@link TranslationVendorException} 이 그대로 위로 올라간다 —
- *       여기서 잡아 대체 문장으로 숨기지 않는다</li>
- * </ol>
- *
- * <p>🔴 <b>원문을 로그로 남기지 않는다.</b> 이 클래스는 로거를 아예 갖지 않는다 — 로그를 찍을
- * 자리가 없으면 실수로 원문을 찍을 자리도 없다.
+ * <p>로거를 일부러 갖지 않는다. 로그를 찍을 자리가 없으면 실수로 원문을 찍을 자리도 없다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -55,7 +47,7 @@ public class TranslationService {
 			return new TranslationResult(cached.get(), true, null);
 		}
 
-		// 🔴 실패하면 여기서 던진 TranslationVendorException 이 그대로 위로 올라간다.
+		// 실패하면 TranslationVendorException 이 그대로 위로 올라간다.
 		String translatedText = this.vendor.translate(request.sourceText(), request.direction());
 
 		Instant expiresAt = now.plus(this.properties.getCacheTtl());

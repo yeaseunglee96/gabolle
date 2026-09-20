@@ -14,19 +14,11 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.ResourcePropertySource;
 
 /**
- * 배포 프로필에서 카카오 키가 어디서 오는지 못 박는다 — S15P21E201-184.
+ * 배포 프로필에서 카카오 키가 어디서 오는지 못 박는다.
  *
- * <h2>🔴 왜 이 검사가 필요한가</h2>
- *
- * 길찾기와 장소 검색은 <b>로그인에 쓰는 것과 같은 카카오 REST API 키</b>를 쓴다. 카카오가
- * 앱 하나에 REST 키를 하나만 주기 때문이다. 그래서 새 자격증명을 만들지 않고
- * {@code GABOLLE_KAKAO_CLIENT_ID} 를 물려받게 해 두었는데, 그 물려받기가 <b>설정 파일의
- * 중첩 기본값 한 줄</b>에 걸려 있다.
- *
- * <p>그 한 줄이 조용히 깨지면 무슨 일이 나는지가 문제다 — 기동은 그대로 되고, 경로는
- * 계속 나오고, 다만 <b>전부 추정으로</b> 나온다. 아무도 안 죽으니 아무도 모른다.
- * {@code DevProfilePlaceholderTest} 는 "안 풀린 자리가 없다" 까지만 보므로 이 어긋남을
- * 못 잡는다. 그래서 값이 실제로 물려받아지는지를 여기서 본다.
+ * 길찾기와 장소 검색은 로그인에 쓰는 것과 같은 카카오 REST API 키를 쓴다 — 카카오가 앱 하나에
+ * REST 키를 하나만 주기 때문이다. 그 물려받기는 설정 파일의 중첩 기본값 한 줄에 걸려 있고,
+ * 그 줄이 조용히 깨져도 기동은 되고 경로도 계속 나온다. 다만 전부 추정으로 나온다.
  */
 class RouteKakaoKeyFallbackTest {
 

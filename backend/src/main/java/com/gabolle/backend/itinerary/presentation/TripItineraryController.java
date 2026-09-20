@@ -17,16 +17,12 @@ import com.gabolle.backend.itinerary.presentation.dto.TripItineraryResponse;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
- * {@code GET /api/v1/trips/{tripId}/itineraries} — 그 여행의 일정 목록 (S15P21E201-738).
- *
- * <p>경로는 여행 밑에 있지만 읽는 것은 일정이라 {@code itinerary} 패키지에 둔다 —
- * {@link TripActivityController} 와 같은 이유이고 같은 모양이다. {@code TripController}
- * ({@code /api/v1/trips}) 와 매핑이 겹치지 않는다. 그쪽은 목록({@code @GetMapping} 무인자)과
- * {@code /{tripId}} 만 받고, 여기는 {@code /{tripId}/itineraries} 다.
- *
- * <p>🔴 오류 번역은 {@link TripActivityExceptionHandler} 가 함께 맡는다. 없는 여행과 비회원을
- * 같은 404 로 답하는 규칙이 두 경로에서 같아야 하는데, 여기에 advice 를 따로 두면 한쪽만
- * 고쳐지는 날이 온다.
+ * {@code GET /api/v1/trips/{tripId}/itineraries} — 그 여행의 일정 목록.
+ * 경로는 여행 밑에 있지만 읽는 것은 일정이라 {@code itinerary} 패키지에 둔다.
+ * {@code TripController} 와 매핑이 겹치지 않는다 — 그쪽은 목록과 {@code /{tripId}} 만 받고
+ * 여기는 {@code /{tripId}/itineraries} 다.
+ * 오류 번역은 {@link TripActivityExceptionHandler} 가 함께 맡는다. 없는 여행과 비회원을 같은
+ * 404 로 답하는 규칙이 두 경로에서 같아야 하는데, 여기에 advice 를 따로 두면 한쪽만 고쳐진다.
  */
 @RestController
 @RequestMapping("/api/v1/trips/{tripId}")

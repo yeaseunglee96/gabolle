@@ -34,17 +34,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 🔴 <b>후보를 자르는 자리가 채점 <u>뒤</u>인가</b> — S15P21E201-724.
+ * 후보를 자르는 자리가 채점 뒤인가를 본다. {@code candidateLimit} 이 장소 조회로 그대로
+ * 넘어가면 그 조회는 점수를 모르므로 거리순으로 잘라, 상한이 "가까운 순 N곳만 채점 대상" 이
+ * 된다. 그러면 멀지만 취향에 맞는 장소는 점수를 매길 기회조차 없다.
  *
- * <p>고치기 전에는 {@code candidateLimit} 이 장소 조회로 그대로 넘어갔다. 그 조회는 점수를
- * 모르므로 <b>거리순</b>으로 잘랐고, 그래서 그 상한은 "채점 후 상위 200" 이 아니라 <b>"가까운 순
- * 200곳만 채점 대상"</b> 이라는 뜻이었다. 부산 반경 5km 안에는 음식점만 평균 9,422곳이 있어서
- * 실효 반경이 중앙값 <b>304m</b> 였다 — 그 밖의 장소는 아무리 취향에 맞아도 점수를 매길 기회조차
- * 없었다. 서로 다른 네 조건으로 재도 "후보 200 안에 든 정답" 비율이 0.26% 로 소수점까지 같았던
- * 것이 그 증거다 (S15P21E201-713 실측).
- *
- * <p>그래서 여기서 재는 것은 점수 계산이 아니라 <b>순서</b>다 — 조회에 무엇을 요구하는가,
- * 그리고 자르기가 채점 앞인가 뒤인가.
+ * 그래서 재는 것은 점수 계산이 아니라 순서다 — 조회에 무엇을 요구하는가, 자르기가 채점
+ * 앞인가 뒤인가.
  */
 class BaselineRecommendationEngineCandidateCutTest {
 
@@ -70,9 +65,8 @@ class BaselineRecommendationEngineCandidateCutTest {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	/**
-	 * 🔴 대역을 미리 만들어 둔다. {@code when(...)} 안에서 또 {@code when(...)} 을 부르면
-	 * Mockito 가 {@code UnfinishedStubbingException} 을 던진다 — 바깥 stub 이 아직 안 끝났는데
-	 * 안쪽이 끼어들기 때문이다.
+	 * 대역을 미리 만들어 둔다. {@code when(...)} 안에서 또 {@code when(...)} 을 부르면
+	 * Mockito 가 {@code UnfinishedStubbingException} 을 던진다.
 	 */
 	private final List<UserPlaceCodeMap> foodPreferenceCodeMap = List.of(codeMap("FOOD_PREFERENCE", "CUISINE_TAG"));
 
@@ -95,7 +89,7 @@ class BaselineRecommendationEngineCandidateCutTest {
 				new BaselineCandidateScorer(this.objectMapper), PROPERTIES,
 				new PreferenceAlignmentWeights(null, null, null, null, null),
 				this.codeMapRepository, this.seedPlaceRepository, Optional.empty(),
-				// 🔴 벡터 빈이 없는 자리 — 채점이 벡터 없던 때와 완전히 같아야 한다 (S15P21E201-943)
+				// 벡터 빈이 없는 자리 — 채점이 벡터 없던 때와 완전히 같아야 한다
 				emptyProvider(), emptyProvider());
 	}
 
@@ -112,7 +106,7 @@ class BaselineRecommendationEngineCandidateCutTest {
 	@DisplayName("🔴 장소 조회에는 남길 수(10)가 아니라 채점 대상 상한(20000)을 요구한다")
 	void 조회에는_채점대상_상한을_요구한다() {
 		// 후보 하나를 넣어 준다. 재는 것은 조회에 넘어간 상한이지 결과가 아닌데, 빈 응답은
-		// S15P21E201-827 이후 "고른 갈래에 맞는 곳이 없다" 는 예외가 되어 여기까지 못 온다.
+		// "고른 갈래에 맞는 곳이 없다" 는 예외가 되어 여기까지 못 온다.
 		when(this.queryService.findCandidates(any())).thenReturn(response(List.of(
 				new PlaceCandidateResponse.Candidate(new UUID(3L, 1L), "아무 곳", "FOOD", 35.15, 129.05, 100L,
 						List.of()))));
@@ -129,7 +123,7 @@ class BaselineRecommendationEngineCandidateCutTest {
 	@DisplayName("🔴 가장 먼 곳이라도 취향에 맞으면 남는다 — 거리로 먼저 자르면 이 장소는 채점조차 안 된다")
 	void 멀지만_취향에_맞는_곳이_살아남는다() {
 		// 500곳. 가까운 순으로 1,000m 부터 1m 씩 멀어진다.
-		// 🔴 정답은 **가장 먼** 한 곳이고, 그 한 곳만 사용자가 고른 음식 태그를 갖는다.
+		// 정답은 가장 먼 한 곳이고, 그 한 곳만 사용자가 고른 음식 태그를 갖는다.
 		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>();
 		for (int i = 0; i < 500; i++) {
 			pool.add(new PlaceCandidateResponse.Candidate(new UUID(0L, i), "후보" + i, "FOOD",

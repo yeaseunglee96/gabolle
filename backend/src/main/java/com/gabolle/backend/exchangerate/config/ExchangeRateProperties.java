@@ -5,16 +5,13 @@ import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 한국수출입은행 환율 조회 설정 — S15P21E201-1079.
- *
- * <p>🔴 <b>필드 기본값만으로 기동해야 한다.</b> 인증키가 비어 있으면 호출 자체가 명확한
- * 실패({@code ExchangeRateVendorException})로 올라갈 뿐, 기동이 실패하면 안 된다 —
- * {@code WeatherProperties}·{@code TransitProperties}가 같은 이유로 같은 규칙을 지킨다.
+ * 한국수출입은행 환율 조회 설정. 인증키가 비어 있어도 기동은 성공해야 한다 — 호출 시점에
+ * {@code ExchangeRateVendorException} 으로 실패한다.
  */
 @ConfigurationProperties(prefix = "gabolle.exchange-rate")
 public class ExchangeRateProperties {
 
-	/** 한국수출입은행이 발급하는 인증키(authkey). 비어 있으면 호출이 즉시 명확한 실패로 끝난다. */
+	/** 한국수출입은행이 발급하는 인증키(authkey). */
 	private String authKey = "";
 
 	private String baseUrl = "https://oapi.koreaexim.go.kr/site/program/financial/exchangeJSON";

@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 /**
- * S15P21E201-303 — {@code POST /api/v1/auth/anonymous} 의 HTTP 계약.
+ * {@code POST /api/v1/auth/anonymous} 의 HTTP 계약.
  *
  * <p>발급 로직 자체는 {@code AnonymousSessionServiceTest} 가 재고, 여기는 경로와 응답 바디에
  * 원본 출입증이 실제로 실려 나가는지만 본다.

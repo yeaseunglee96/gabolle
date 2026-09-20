@@ -20,10 +20,8 @@ import org.springframework.web.client.RestClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-682 — 로그 줄이 실제로 "구조화" 됐는지, 그리고 개인정보·비밀값이 새지 않는지 본다.
- *
- * <p>Logback 의 {@link ListAppender} 를 {@link SecurityEventLogger} 로거에 직접 붙여 실제로 나간 줄을
- * 잡는다 — 문자열을 임의로 만들어 비교하는 것이 아니라 <b>진짜 SLF4J 호출 결과</b>를 검사한다.
+ * 로그 줄이 구조화됐는지와 개인정보·비밀값이 새지 않는지 본다. {@link ListAppender} 를 로거에 직접
+ * 붙여 실제로 나간 줄을 검사한다.
  */
 class SecurityEventLoggerTest {
 

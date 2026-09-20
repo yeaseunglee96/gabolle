@@ -48,12 +48,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * S15P21E201-1272 — 음식 하나에 설명과 그림을 붙인다.
- *
- * <p>🔴 이 검사들이 지키는 것은 「기능이 도는가」가 아니라 <b>출처를 안 섞는가</b>이다.
- * 메뉴판 응답은 전부 <b>사진에 보이는 것</b>이고 이 응답은 전부 <b>모델이 아는 것</b>인데,
- * 화면에서는 나란히 붙는다. 섞이면 사용자는 모델이 지어낸 말을 <b>메뉴판에 적힌 것</b>으로
- * 읽는다.
+ * 이 검사들이 지키는 것은 «기능이 도는가»가 아니라 출처를 안 섞는가다. 메뉴판 응답은 사진에 보이는
+ * 것이고 이 응답은 모델이 아는 것인데 화면에서는 나란히 붙는다.
  */
 class DishControllerTest {
 
@@ -154,12 +150,10 @@ class DishControllerTest {
 				.principal(principal(this.userId)));
 	}
 
-	// ── 🔴 출처를 섞지 않는다 ────────────────────────────────────────────────
+	// ── 출처를 섞지 않는다 ──────────────────────────────────────────────────
 
 	/**
-	 * 🔴 이 검사가 이 기능의 핵심이다. 설명은 사진에서 읽은 것이 아니라 모델이 아는
-	 * 것인데, 화면에서는 메뉴판에서 읽은 이름·가격 바로 밑에 붙는다. 응답이 그 사실을
-	 * <b>값으로</b> 말하지 않으면 화면은 문구 하나로만 그것을 지키게 되고, 문구는 언젠가
+	 * 응답이 출처를 값으로 말하지 않으면 화면은 문구 하나로만 그것을 지키게 되고, 문구는 언젠가
 	 * 빠진다.
 	 */
 	@Test
@@ -176,9 +170,8 @@ class DishControllerTest {
 	}
 
 	/**
-	 * 🔴 {@code MenuScanResponse} 가 {@code safe}·{@code allergenFree} 칸을 아예 안 둔 것과
-	 * 같은 이유다. 칸이 있으면 언젠가 누군가 그린다. 이 응답은 메뉴판 응답 바로 옆에
-	 * 붙으므로, 여기에 그 칸이 생기면 사실상 저쪽에 생긴 것과 같다.
+	 * 칸이 있으면 언젠가 누군가 그린다. 이 응답은 메뉴판 응답 바로 옆에 붙으므로, 여기에 그 칸이
+	 * 생기면 사실상 저쪽에 생긴 것과 같다.
 	 */
 	@Test
 	@DisplayName("🔴 응답에 「안전·없음」을 담을 칸이 아예 없다")
@@ -194,8 +187,8 @@ class DishControllerTest {
 	// ── 모르는 음식은 그리지 않는다 ─────────────────────────────────────────
 
 	/**
-	 * 🔴 묘사 없이 이름만 주고 그리게 하면 모델은 <b>그럴듯한 다른 음식</b>을 그린다.
-	 * 그 그림이 화면에서는 「이 음식이 이렇게 생겼다」로 읽힌다 — 우리가 만든 오해다.
+	 * 묘사 없이 이름만 주고 그리게 하면 모델은 그럴듯한 다른 음식을 그리고, 화면에서는 «이 음식이
+	 * 이렇게 생겼다»로 읽힌다.
 	 */
 	@Test
 	@DisplayName("🔴 모델이 모르는 음식은 그림을 만들지 않는다")
@@ -231,7 +224,7 @@ class DishControllerTest {
 		verify(this.describer, times(1)).describe(any(), any());
 	}
 
-	/** 🔴 같은 음식을 두 번 그리지 않는다 — 그림이 이 기능에서 가장 비싸다. */
+	/** 같은 음식을 두 번 그리지 않는다 — 그림이 이 기능에서 가장 비싸다. */
 	@Test
 	@DisplayName("🔴 이미 만드는 중인 그림을 또 만들지 않는다")
 	void aDishIsPaintedOnlyOnce() throws Exception {
@@ -258,10 +251,7 @@ class DishControllerTest {
 
 	// ── 그림을 받아 가는 자리 ────────────────────────────────────────────────
 
-	/**
-	 * 🔴 <b>202 다. 404 로 답하지 않는다.</b> 404 면 화면은 「그림이 없는 음식」으로 보고
-	 * 그만 물어본다 — 10초만 더 기다리면 오는 그림을 영영 안 받는다.
-	 */
+	/** 404 면 화면은 «그림이 없는 음식»으로 보고 그만 물어본다. */
 	@Test
 	@DisplayName("🔴 아직 만드는 중이면 202 다 — 404 가 아니다")
 	void stillPaintingIsAccepted() throws Exception {
@@ -301,15 +291,11 @@ class DishControllerTest {
 				.andExpect(status().isNotFound());
 	}
 
-	// ── 🔴 행이 「만드는 중」으로 굳지 않는다 ────────────────────────────────
+	// ── 행이 「만드는 중」으로 굳지 않는다 ──────────────────────────────────
 
 	/**
-	 * 🔴 <b>이 검사가 막는 것은 「그림 한 장을 못 만드는 것」이 아니라 「그 음식이 영원히
-	 * 굳는 것」이다.</b>
-	 *
-	 * <p>실행기의 줄이 꽉 차면 맡기는 순간 던져진다. 그것을 그냥 올려보내면 행이
-	 * {@code PENDING} 인 채로 남고, 표의 {@code UNIQUE(name_key)} 때문에 <b>다음 사람이
-	 * 눌러도 새로 만들 수 없다.</b> 「만드는 중」만 영원히 본다.
+	 * 실행기의 줄이 꽉 차 던져진 것을 그냥 올려보내면 행이 {@code PENDING} 인 채로 남고,
+	 * {@code UNIQUE(name_key)} 때문에 다음 사람이 눌러도 새로 만들 수 없다.
 	 */
 	@Test
 	@DisplayName("🔴 실행기에 못 맡기면 그 자리에서 실패로 적는다 — PENDING 으로 안 남긴다")
@@ -323,14 +309,14 @@ class DishControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.imageStatus").value("FAILED"));
 
-		// 🔴 표에도 실패로 남아야 한다. 응답만 FAILED 고 행이 PENDING 이면 다음 사람이 굳는다.
+		// 표에도 실패로 남아야 한다. 응답만 FAILED 고 행이 PENDING 이면 다음 사람이 굳는다.
 		assertThat(this.images.findByNameKey("밀면")).isPresent()
 				.get().extracting(DishImage::getStatus).isEqualTo(DishImage.FAILED);
 	}
 
 	/**
-	 * 🔴 배포·재시작이 만들던 스레드를 가져간다. 그때 행은 {@code PENDING} 인 채로 남는데,
-	 * 그것을 그대로 두면 <b>그 음식은 영원히 굳는다.</b> 오래 멈춰 있으면 다시 맡긴다.
+	 * 배포·재시작이 만들던 스레드를 가져가면 행이 {@code PENDING} 인 채로 남는다. 오래 멈춰 있으면
+	 * 버려진 것으로 보고 다시 맡긴다.
 	 */
 	@Test
 	@DisplayName("🔴 오래 멈춰 있던 「만드는 중」은 버려진 것으로 보고 다시 만든다")
@@ -371,8 +357,8 @@ class DishControllerTest {
 	// ── 한도 ─────────────────────────────────────────────────────────────────
 
 	/**
-	 * 🔴 메뉴판 읽기 한도와 <b>다른 코드</b>로 나간다. 같은 코드를 쓰면 화면이 「오늘
-	 * 메뉴판을 다 썼어요」로 그리는데, 그건 거짓이다 — 읽기는 아직 남아 있다.
+	 * 메뉴판 읽기 한도와 다른 코드로 나간다. 같은 코드면 화면이 «오늘 메뉴판을 다 썼어요»로 그리는데
+	 * 읽기는 아직 남아 있다.
 	 */
 	@Test
 	@DisplayName("🔴 그림 한도를 넘어도 요청은 200 이다 — 설명을 살리려고 429 를 안 낸다")
@@ -385,14 +371,14 @@ class DishControllerTest {
 			ask(dish, "en").andExpect(status().isOk());
 		}
 
-		// 🔴 다섯째는 429 가 아니라 200 + RATE_LIMITED 다 — 설명은 살아 있어야 하므로
-		//    요청 자체를 실패로 만들지 않는다 (S15P21E201-1294).
+		// 다섯째는 429 가 아니라 200 + RATE_LIMITED 다 — 설명이 살아 있어야 하므로
+		// 요청 자체를 실패로 만들지 않는다.
 		ask("잡채밥", "en")
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.imageStatus").value("RATE_LIMITED"));
 	}
 
-	/** 🔴 저장해 둔 그림을 꺼내 쓰는 것은 바깥을 안 부르므로 한도를 안 깎는다. */
+	/** 저장해 둔 그림을 꺼내 쓰는 것은 바깥을 안 부르므로 한도를 안 깎는다. */
 	@Test
 	@DisplayName("🔴 이미 만든 그림을 다시 보는 것은 한도를 안 깎는다")
 	void reusingAnImageDoesNotSpendQuota() throws Exception {
@@ -406,16 +392,9 @@ class DishControllerTest {
 		verify(this.worker, times(1)).paint(any(), any());
 	}
 
-	// ── 🔴 그림 한도가 설명까지 막지 않는다 (S15P21E201-1294) ────────────────
+	// ── 그림 한도가 설명까지 막지 않는다 ────────────────────────────────────
 
-	/**
-	 * 🔴 사용자 시험에서 음식 셋이 설명 자리에 <b>한도 안내만</b> 띄운 채 있었다
-	 * (2026-09-19, 번체 중국어). 설명은 이미 받아 둔 뒤였는데 그림 차례의 예외가
-	 * 요청 전체를 끝내면서 함께 버려졌다.
-	 *
-	 * <p>메뉴판 읽기 한도와 그림 한도를 <b>표까지 갈라 놓은 이유</b>가 「그림이 다른 것을
-	 * 막으면 안 된다」였는데, 같은 잘못을 이 API 안에서 저지르고 있었다.
-	 */
+	/** 그림 차례의 예외가 요청 전체를 끝내면 이미 받아 둔 설명까지 함께 버려진다. */
 	@Test
 	@DisplayName("🔴 그림 한도에 걸려도 설명은 그대로 나간다")
 	void theImageQuotaDoesNotSwallowTheDescription() throws Exception {
@@ -431,13 +410,13 @@ class DishControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.description").value("A dish."))
 				.andExpect(jsonPath("$.data.imageStatus").value("RATE_LIMITED"))
-				// 붙일 그림이 없는데 「만들어진 그림」이라는 딱지만 남기지 않는다
+				// 붙일 그림이 없는데 «만들어진 그림»이라는 딱지만 남기지 않는다
 				.andExpect(jsonPath("$.data.imageSource").doesNotExist());
 	}
 
 	/**
-	 * 🔴 「지금은 못 만든다」와 「못 만들었다」는 <b>다음에 할 일이 다르다.</b> 앞은 잠시 뒤
-	 * 다시 누르면 되고 뒤는 아니다. 한 값으로 뭉개면 화면이 기다리면 될 것을 포기하게 만든다.
+	 * «지금은 못 만든다»와 «못 만들었다»는 다음에 할 일이 다르다. 한 값으로 뭉개면 화면이 기다리면
+	 * 될 것을 포기하게 만든다.
 	 */
 	@Test
 	@DisplayName("🔴 한도로 못 만든 것과 실패한 것을 다른 값으로 가른다")
@@ -446,12 +425,11 @@ class DishControllerTest {
 		assertThat(DishResponse.IMAGE_RATE_LIMITED).isNotEqualTo(DishResponse.IMAGE_NONE);
 	}
 
-	// ── 🔴 목표 언어로 못 받은 설명은 저장하지 않는다 (S15P21E201-1294) ──────
+	// ── 목표 언어로 못 받은 설명은 저장하지 않는다 ──────────────────────────
 
 	/**
-	 * 🔴 겉보기에는 빈 설명과 같지만 뜻이 다르다. 「모델이 모르는 음식」은 저장해 두면
-	 * 다음에 안 물어봐도 되지만, <b>언어가 틀려 버린 답</b>을 저장하면 그 음식·그 언어에
-	 * 잘못된 결과가 <b>영원히 굳는다</b> — 저장해 두고 다시 쓰는 구조라 더 나쁘다.
+	 * 겉보기에는 빈 설명과 같지만, 언어가 틀려 버린 답을 저장하면 그 음식·그 언어에 잘못된 결과가
+	 * 그대로 굳는다.
 	 */
 	@Test
 	@DisplayName("🔴 언어가 틀려 버린 설명은 저장하지 않는다 — 다음에 다시 물어본다")
@@ -466,7 +444,7 @@ class DishControllerTest {
 		verify(this.describer, times(2)).describe(any(), any());
 	}
 
-	/** 「모델이 모르는 음식」은 반대로 저장한다 — 다시 물어봐야 같은 답이다. */
+	/** «모델이 모르는 음식»은 반대로 저장한다 — 다시 물어봐야 같은 답이다. */
 	@Test
 	@DisplayName("모델이 모르는 음식은 저장해 둔다 — 다시 안 물어본다")
 	void anUnknownDishIsRemembered() throws Exception {
@@ -481,7 +459,7 @@ class DishControllerTest {
 
 	// ── 설정이 없을 때 ───────────────────────────────────────────────────────
 
-	/** 🔴 «설정이 없어 못 물었다» 와 «모델이 모르는 음식이다» 는 완전히 다른 뜻이다. */
+	/** «설정이 없어 못 물었다»와 «모델이 모르는 음식이다»는 다른 뜻이다. */
 	@Test
 	@DisplayName("🔴 설정이 없으면 503 이다 — 빈 설명으로 답하지 않는다")
 	void aMissingKeyIsNotAnEmptyDescription() throws Exception {

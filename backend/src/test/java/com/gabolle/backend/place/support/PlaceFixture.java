@@ -7,28 +7,16 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * 장소 테스트가 쓸 행을 넣고, <b>자기가 넣은 것만</b> 지운다.
+ * 장소 테스트가 쓸 행을 넣고, 자기가 넣은 것만 지운다. 쓰는 쪽은 세 가지를 지킨다 —
+ * 정리는 {@link #cleanUp()} 에 맡기고 표를 통째로 비우지 않는다(다른 통합 테스트가 같은 표에
+ * 행을 남기고 정리하지 않는다), 검색어는 {@link #prefix()}·{@link #token()} 을 붙여 만든다,
+ * 건수는 절대값이 아니라 증분으로 본다.
  *
- * <h2>🔴 왜 {@code deleteAll} 을 쓰지 않는가</h2>
- *
- * 이 저장소의 다른 통합 테스트는 {@code @BeforeEach} 에서 표를 비우는 관례를 쓴다. 장소에는 그대로
- * 쓸 수 없다. 같은 DB 에서 도는 {@code PlaceFeatureCodeMapTest}(S15P21E201-545)가 {@code place} 와
- * {@code place_feature} 에 행을 넣고 <b>정리하지 않기</b> 때문이다. 표를 비우면 그쪽 행이 사라지거나
- * 외래키 위반이 난다 — 그리고 그 실패는 내 테스트가 아니라 남의 테스트에서 나타난다.
- *
- * <p>그래서 세 가지를 지킨다. 넣은 행의 id 를 들고 있다가 그것만 지우고, 이름에 이 실행만의 표를
- * 붙여 검색 테스트가 남의 행에 안 걸리게 하고, 건수는 절대값이 아니라 증분으로 본다.
- *
- * <h2>🔴 왜 JPA 가 아니라 raw SQL 인가</h2>
- *
- * 엔티티를 거치면 자바 쪽 검증만 통과하고 끝난다. 여기서 확인하고 싶은 것은 <b>DB 제약 자체</b>다 —
- * 태그형은 키가 반드시 있고({@code ck_place_feature_key_shape}), UNKNOWN 은 값을 가질 수 없다
- * ({@code ck_place_feature_unknown_has_no_value}). 픽스처가 그 제약을 실제로 통과해야 테스트가
- * 진짜 스키마 위에서 도는 것이 된다.
- *
- * <p>운영 코드에서 raw SQL 을 금지한 것과 어긋나지 않는다. 그 금지는 {@code gabolle} schema 를
- * 못 찾는 함정 때문인데, 테스트 DataSource 에는 {@code default_schema} 가 없어 표가 {@code public}
- * 에 있다.
+ * <p>JPA 가 아니라 raw SQL 인 것은 DB 제약 자체를 통과시켜 보기 위해서다 — 태그형은 키가 반드시
+ * 있고({@code ck_place_feature_key_shape}), UNKNOWN 은 값을 가질 수 없다
+ * ({@code ck_place_feature_unknown_has_no_value}). 운영 코드의 raw SQL 금지는 {@code gabolle}
+ * schema 를 못 찾는 함정 때문인데, 테스트 DataSource 에는 {@code default_schema} 가 없어 표가
+ * {@code public} 에 있다.
  */
 public final class PlaceFixture {
 
@@ -72,9 +60,7 @@ public final class PlaceFixture {
 
 	/**
 	 * 태그형 피처. {@code featureKey} 가 반드시 있어야 한다 ({@code ck_place_feature_key_shape}).
-	 *
-	 * <p>{@code evidenceStatus} 가 {@code UNKNOWN} 이면 {@code value} 는 {@code null} 로 들어간다 —
-	 * DB CHECK 가 그것을 강제하고, 그 강제가 곧 "정보 없음" 과 "해당 없음" 을 가르는 근거다.
+	 * {@code evidenceStatus} 가 {@code UNKNOWN} 이면 {@code value} 는 {@code null} 로 들어간다.
 	 */
 	public UUID insertTagFeature(UUID placeId, String featureType, String featureKey,
 			String evidenceStatus, String valueJson) {

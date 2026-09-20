@@ -4,15 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 일정 진행 저장소 — S15P21E201-1325.
+ * 일정 진행 저장소. 도메인에는 인터페이스만 두고 JPA·Spring 을 import 하지 않는다.
  *
- * <p>{@link ItineraryItemActualRepository} 와 같은 이유로 <b>인터페이스만</b> 도메인에 두고
- * JPA·Spring 을 import 하지 않는다.
- *
- * <h2>왜 {@link ItineraryRepository} 에 더하지 않았나</h2>
- * 그 저장소가 다루는 것은 <b>판</b>이다. 진행 상태는 판 체인 밖에 있다 — 일정을 고쳐
- * 새 판이 생겨도 「지금 두 번째를 향하고 있다」는 그대로다. 저장 단위가 다르면 저장소도
- * 다르게 둔다.
+ * <p>{@link ItineraryRepository} 와 나눠 둔 이유는 저장 단위가 다르기 때문이다. 그쪽은
+ * 판을 다루고, 진행 상태는 판 체인 밖에 있다 — 일정을 고쳐 새 판이 생겨도 진행 상태는
+ * 그대로다.
  */
 public interface ItineraryRunRepository {
 
@@ -20,11 +16,9 @@ public interface ItineraryRunRepository {
 	Optional<ItineraryRun> find(String itineraryId);
 
 	/**
-	 * 덮어쓴다 — 없으면 만들고 있으면 바꾼다.
-	 *
-	 * <p>🔴 「찾아서 없으면 넣는다」로 하면 두 요청이 겹칠 때 기본키 위반이 나고, PostgreSQL
-	 * 은 문장 하나가 실패하면 그 트랜잭션 전체를 못 쓰게 만든다. 출발을 두 번 누르는 것은
-	 * 정상 경로라 반드시 겹친다.
+	 * 없으면 만들고 있으면 바꾼다. 「찾아서 없으면 넣는다」로 나눠 쓰지 않는다 — 출발을
+	 * 두 번 누르는 것이 정상 경로라 요청이 반드시 겹치고, 기본키 위반 한 번이면 PostgreSQL
+	 * 이 트랜잭션 전체를 못 쓰게 만든다.
 	 */
 	ItineraryRun upsert(ItineraryRun run);
 

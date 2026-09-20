@@ -19,19 +19,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 /**
- * 일정 진행 저장소 — S15P21E201-1325.
+ * 일정 진행 저장소.
  *
- * <h2>🔴 덮어쓰기를 {@code ON CONFLICT DO UPDATE} 한 문장으로 한다</h2>
- * {@link JpaItineraryItemActualRepository} 와 같은 이유다. 출발을 두 번 누르는 것은 예외가
- * 아니라 <b>정상 경로</b>고, 「찾아서 없으면 넣는다」로 쓰면 두 요청이 겹치는 순간 기본키
- * 위반이 난다. PostgreSQL 은 트랜잭션 안에서 문장 하나가 실패하면 그 트랜잭션 전체를 못
- * 쓰게 만들어서, 실패를 잡아 다시 시도하는 것이 같은 트랜잭션 안에서는 불가능하다.
- *
- * <p>그래서 <b>실패 자체가 안 나게</b> 만든다.
+ * <p>덮어쓰기를 {@code ON CONFLICT DO UPDATE} 한 문장으로 한다. 출발을 두 번 누르는 것이
+ * 정상 경로라 요청이 반드시 겹치고, PostgreSQL 은 트랜잭션 안에서 문장 하나가 실패하면
+ * 그 트랜잭션 전체를 못 쓰게 만들어 같은 트랜잭션 안에서 재시도할 수 없다.
  *
  * <p>{@code started_at} 은 {@code DO UPDATE} 에서 건드리지 않는다. 처음 출발한 시각은 한
- * 번만 정해지는 값이다 — 중지했다 다시 출발했다고 「언제 시작했나」가 바뀌면, 그 여행이
- * 몇 시에 시작했는지 아무도 못 답한다.
+ * 번만 정해지고, 다시 출발해도 바뀌지 않는다.
  */
 @Repository
 @Profile({ "db", "dev" })

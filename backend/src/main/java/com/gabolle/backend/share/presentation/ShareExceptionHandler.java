@@ -15,12 +15,9 @@ import com.gabolle.backend.share.application.ShareLinkService;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
- * {@link ShareLinkController}·{@link SharedItineraryController} 전용 오류 번역기 —
- * S15P21E201-330 · -332.
- *
- * <p>🔴 범위 없는 advice 가 남의 예외를 가로챈 사고가 있었다({@code ItineraryQueryExceptionHandler}
- * 의 javadoc 참고). 그래서 {@code assignableTypes} 로 이 두 컨트롤러만 좁히고, {@code @Order}
- * 로 다른 advice 보다 먼저 보게 한다.
+ * ShareLinkController·SharedItineraryController 전용 오류 번역기. assignableTypes 로 두
+ * 컨트롤러만 좁히고 @Order 로 다른 advice 보다 먼저 보게 한다 — 범위 없는 advice 는 남의
+ * 예외를 가로챈다.
  */
 @RestControllerAdvice(assignableTypes = { ShareLinkController.class, SharedItineraryController.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -47,7 +44,7 @@ public class ShareExceptionHandler {
 				.body(ApiResponse.failure(new ApiError("SHARE_LINK_NOT_FOUND", e.getMessage()), requestId()));
 	}
 
-	/** 조회 경로 — 표는 있으나 만료됐다. 404 가 아니라 410 — "있었는데 끝났다" 를 구분한다. */
+	/** 조회 경로 — 표는 있으나 만료됐다. 404 가 아니라 410 이다. */
 	@ExceptionHandler(ShareLinkService.ShareLinkExpiredException.class)
 	public ResponseEntity<ApiResponse<Void>> handleExpired(ShareLinkService.ShareLinkExpiredException e) {
 		return ResponseEntity.status(HttpStatus.GONE)

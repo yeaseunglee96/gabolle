@@ -11,19 +11,12 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-1291 — 대중교통 요금.
+ * 대중교통 요금.
  *
- * <h2>🔴 공식 환승표 네 줄을 그대로 재는 것이 이 파일의 뼈대다</h2>
- *
- * 요금표의 환승 절은 「도시철도↔일반버스」·「도시철도↔좌석버스」 네 줄뿐이다. 계산기는 그 네 줄을
- * 특수 사례로 옮겨 적지 않고 <b>규칙 하나</b>로 낸다 — <i>「지금까지 낸 것보다 비싸면 그 차액만」</i>.
- * 그 규칙이 맞다는 증거가 <b>네 줄이 전부 맞아떨어지는 것</b>이고, 아래 시험이 그것을 잰다.
- *
- * <p>맞아떨어지면 표에 <b>없는</b> 조합(버스↔버스)도 같은 규칙으로 답이 나온다 — 그것도 잰다.
- *
- * <h2>DB 를 안 띄운다</h2>
- *
- * 재는 것이 「여정 하나 → 숫자 하나」라 노선망을 손으로 만들어 답할 수 있다.
+ * 요금표의 환승 절은 「도시철도↔일반버스」·「도시철도↔좌석버스」 네 줄뿐이다. 계산기는 그 네
+ * 줄을 특수 사례로 옮겨 적지 않고 규칙 하나로 낸다 — 「지금까지 낸 것보다 비싸면 그 차액만」.
+ * 그 규칙이 맞다는 증거가 네 줄이 전부 맞아떨어지는 것이고, 맞아떨어지면 표에 없는
+ * 조합(버스↔버스)도 같은 규칙으로 답이 나온다.
  */
 class TransitFareCalculatorTest {
 
@@ -50,7 +43,7 @@ class TransitFareCalculatorTest {
 				subwayRoute("S-1호선"));
 	}
 
-	// ── 공식 환승표 네 줄 ────────────────────────────────────────────────────
+	// 공식 환승표 네 줄
 
 	@Test
 	@DisplayName("🔴 일반버스 → 도시철도 = 1,600 (공식표: 버스 1,550 + 철도추가 50)")
@@ -84,7 +77,7 @@ class TransitFareCalculatorTest {
 		assertThat(fare).isEqualTo(2100);
 	}
 
-	// ── 표에 없는 조합 — 같은 규칙으로 답이 나온다 ──────────────────────────
+	// 표에 없는 조합 — 같은 규칙으로 답이 나온다
 
 	@Test
 	@DisplayName("표에 없는 버스↔버스도 규칙이 답한다 — 마을 1,480 → 일반 1,550 은 차액 70 이라 총 1,550")
@@ -102,7 +95,7 @@ class TransitFareCalculatorTest {
 		assertThat(fare).isEqualTo(1550);
 	}
 
-	// ── 🔴 사장님이 물으신 두 경우 ──────────────────────────────────────────
+	// 환승이 끊기는 조건 — 걷기·30분·횟수
 
 	@Test
 	@DisplayName("🔴 도보 → 버스 → 환승 → 지하철 → 도보 : 걷기가 끼어도 환승이다 (1,600)")
@@ -143,7 +136,7 @@ class TransitFareCalculatorTest {
 		assertThat(fare).as("앞 세 번은 한 묶음(1,550), 네 번째 탑승이 새 묶음(1,550)").isEqualTo(3100);
 	}
 
-	// ── 모르는 것은 모른다고 한다 ───────────────────────────────────────────
+	// 모르는 것은 모른다고 한다
 
 	@Test
 	@DisplayName("🔴 요금을 모르는 노선이 끼면 전체가 null 이다 — 아는 것만 더하면 실제보다 싸다")
@@ -159,8 +152,8 @@ class TransitFareCalculatorTest {
 	void unknownIsNotZero() {
 		Integer fare = this.calculator.fareKrw(journey(ride("B-급행", 0, 10)), this.network);
 
-		// 🔴 isNull() 하나로 충분하다. isNotEqualTo(0) 은 null 에 대해 「null 이 아님」을 먼저
-		//    요구해서 뜻과 반대로 동작한다 — 재려는 것은 「0 으로 메우지 않았다」이고 그것이 곧 null 이다.
+		// isNull() 하나로 충분하다. isNotEqualTo(0) 은 null 에 대해 「null 이 아님」을 먼저
+		// 요구해서 뜻과 반대로 동작한다 — 재려는 것은 「0 으로 메우지 않았다」이고 그것이 곧 null 이다.
 		assertThat(fare).as("0 으로 메우면 화면이 「무료」로 그린다").isNull();
 	}
 
@@ -180,7 +173,7 @@ class TransitFareCalculatorTest {
 		assertThat(fare).isNull();
 	}
 
-	// ── 시드 ────────────────────────────────────────────────────────────────
+	// 시드
 
 	private static RaptorPlanner.Journey journey(RaptorPlanner.Ride... rides) {
 		List<RaptorPlanner.Ride> list = List.of(rides);

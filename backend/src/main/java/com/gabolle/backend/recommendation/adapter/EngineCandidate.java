@@ -11,20 +11,9 @@ import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 /**
  * 추천 엔진이 돌려준 후보 하나. 아직 순위는 없다 — 순위는 백엔드가 매기고 기록한다.
  *
- * <p>🔴 {@code placeId} 는 <b>내부 정본 장소 ID</b> 다. 카카오·네이버 지도 API 의 원본 응답을
- * 여기 담지 않는다. Candidate 에는 내부 place_id 와 허용된 출처 코드만 남는다.
- *
- * @param placeId 내부 정본 장소 ID
- * @param candidateSource 이 후보가 어디서 나왔는지 (허용된 출처 코드)
- * @param constraintVerdict 하드 제약 판정
- * @param violations 위반 코드와 근거
- * @param unknownFacts 확인하지 못한 사실
- * @param constraintConfidence 판정 신뢰도
- * @param featureValues 랭킹 시점 피처 스냅샷
- * @param scoreComponents 점수 구성 요소
- * @param preRankScore 재정렬 전 점수. 판정이 FAIL 이면 없을 수 있다
- * @param reasonCodes 추천 이유 코드
- * @param warningCodes 경고 코드
+ * {@code placeId} 는 내부 정본 장소 ID 다. 카카오·네이버 지도 API 의 원본 응답은 여기
+ * 담지 않고 내부 place_id 와 허용된 출처 코드만 남긴다. {@code preRankScore} 는 판정이
+ * FAIL 이면 없을 수 있다.
  */
 public record EngineCandidate(
 		UUID placeId,

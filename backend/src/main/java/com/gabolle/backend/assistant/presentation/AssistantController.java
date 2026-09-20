@@ -20,20 +20,14 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
 
 /**
- * 자연어 메시지 하나를 여행 도우미 답으로 바꾼다 — S15P21E201-802 (S15P21E201-628 계약).
+ * 자연어 메시지 하나를 여행 도우미 답으로 바꾼다. 업체 API 키를 화면에 두면 브라우저에
+ * 그대로 노출되므로 서버가 대신 부른다.
  *
- * <h2>왜 서버가 대신 부르는가</h2>
- * {@code TranslateController} 와 같은 이유다 — 업체 API 키를 화면에 두면 브라우저에 그대로
- * 노출된다.
+ * 인가는 로그인한 사람이면 된다 — 메시지는 부르는 쪽이 준 값이고 우리 자원이 아니다.
+ * 로그인을 요구하는 것은 우리 키로 남이 호출을 돌리는 것을 막기 위해서이고, 사용자 id 는
+ * 사용자별 요청 빈도 제한에도 쓰인다.
  *
- * <h2>🔴 인가는 "로그인한 사람이면 된다" 다</h2>
- * {@code TranslateController} 와 같은 이유 — 메시지는 부르는 쪽이 준 값이고 우리 자원이 아니다.
- * 로그인을 요구하는 것은 우리 업체 키로 남이 대신 호출을 돌리는 것(비용)을 막기 위해서다.
- * 사용자 id는 그 목적 그대로 사용자별 요청 빈도 제한({@code AssistantRateLimiter})에도 쓰인다.
- *
- * <h2>답변 언어</h2>
- * {@code Accept-Language} 헤더(이 앱의 모든 요청에 이미 실려 온다 — {@code api/client.ts})를
- * 그대로 벤더에 전달해 답변 언어를 맞춘다. 별도 필드를 새로 만들지 않는다.
+ * 답변 언어는 Accept-Language 헤더를 그대로 벤더에 전달해 맞춘다.
  */
 @RestController
 @RequestMapping("/api/v1/assistant")
@@ -46,11 +40,7 @@ public class AssistantController {
 		this.assistantChatService = assistantChatService;
 	}
 
-	/**
-	 * @throws IllegalArgumentException 메시지가 비었거나 너무 길다 — 400
-	 * @throws com.gabolle.backend.assistant.application.AssistantRateLimitExceededException 요청이 너무 잦다 — 429
-	 * @throws com.gabolle.backend.assistant.application.AssistantVendorException 업체 호출 실패 — 502
-	 */
+	/** 메시지가 비었거나 너무 길면 400, 요청이 너무 잦으면 429, 업체 호출이 실패하면 502 다. */
 	@PostMapping("/messages")
 	public ApiResponse<AssistantMessageResponseDto> messages(@RequestBody AssistantMessageRequestDto request,
 			Authentication authentication,

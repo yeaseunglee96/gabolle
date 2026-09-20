@@ -12,36 +12,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.story.domain.StoryView;
 
-/**
- * 조회 낱개 — S15P21E201-1204.
- */
+/** 조회 낱개. */
 public interface StoryViewRepository extends JpaRepository<StoryView, UUID> {
 
 	/**
-	 * 오늘 이 사람의 조회를 <b>한 번만</b> 남긴다.
-	 *
-	 * <h2>🔴 「오늘 것이 있나」를 먼저 읽지 않는다</h2>
-	 *
-	 * 읽고-없으면-넣는 모양은 <b>같은 사람이 두 기기에서 동시에 열면 둘 다 통과한다.</b> 둘 다
-	 * 읽는 시점에는 없기 때문이다. 그래서 넣어 보고 <b>돌아온 행 수로</b> 판정한다 —
-	 * {@code 1} 이면 오늘 처음이고, {@code 0} 이면 이미 셌다. 경주가 아예 생기지 않는다.
-	 *
-	 * <p>막는 것은 {@code S15P21E201-1201} 이 만든 조건부 유일 색인 둘이다
-	 * ({@code ux_story_view_member} · {@code ux_story_view_anonymous}).
-	 * {@code StoryReactionRepository.upsert} 와 {@code SavedPlaceRepository.insertIfAbsent} 가
-	 * 같은 방식을 먼저 썼다.
-	 *
-	 * <p>{@code ON CONFLICT} 에 대상을 안 적는다. 막는 색인이 <b>조건부</b>(부분 색인)라 대상을
-	 * 적으려면 그 조건까지 똑같이 옮겨 적어야 하고, 그러면 <b>색인 정의와 이 문장이 두 벌</b>이
-	 * 된다. 이 표에 걸린 제약은 그 둘과 기본키뿐이고 기본키는 새 UUID 라 부딪히지 않는다.
-	 *
-	 * <h2>🔴 {@code clearAutomatically} 를 쓰지 않는다 — 본보기와 다른 자리다</h2>
-	 *
-	 * {@code StoryReactionRepository.upsert} 는 {@code clearAutomatically = true} 를 쓴다.
-	 * 여기서 그러면 <b>부르는 쪽이 들고 있던 {@code Story} 가 떨어져 나간다.</b> 그 객체의
-	 * 누적 칸({@code viewCount})을 올려도 <b>저장이 안 되고, 오류도 안 난다.</b>
-	 *
-	 * <p>{@code flushAutomatically} 만 둔다 — 앞선 변경을 먼저 내보내되 컨텍스트는 비우지 않는다.
+	 * 오늘 이 사람의 조회를 한 번만 남긴다. 「오늘 것이 있나」를 먼저 읽으면 같은 사람의 동시 요청이
+	 * 둘 다 통과하므로, 넣어 보고 돌아온 행 수로 판정한다. 막는 것은 조건부 유일 색인
+	 * 둘({@code ux_story_view_member} · {@code ux_story_view_anonymous})이고, 조건까지 옮겨 적으면
+	 * 색인 정의와 두 벌이 되므로 {@code ON CONFLICT} 에 대상을 안 적는다.
+	 * {@code clearAutomatically} 는 쓰지 않는다 — 비우면 부르는 쪽이 들고 있던 {@code Story} 가
+	 * 떨어져 나가 {@code viewCount} 증가가 오류 없이 사라진다.
 	 *
 	 * @return 오늘 처음이면 1, 이미 셌으면 0
 	 */

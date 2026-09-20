@@ -15,10 +15,7 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * {@link SubwayExitLoader} 가 진짜 PostgreSQL 에서 이미 있는 장소에 지하철 출구를 붙이는지
- * 잰다 — S15P21E201-479.
- */
+/** 진짜 PostgreSQL 에서 돈다. */
 class SubwayExitLoaderTest extends PlacePostgresIntegrationTest {
 
 	private static final String DATASET = "staged-test-202609";
@@ -32,18 +29,15 @@ class SubwayExitLoaderTest extends PlacePostgresIntegrationTest {
 	@Autowired
 	private SubwayExitLoader subwayExitLoader;
 
-	// 🔴 다른 TourAPI 통합 테스트와 겹치지 않는 contentId 를 쓴다 — CI 실측(2026-09-16):
-	// PlaceFeatureLoaderIntegrationTest 가 "129156"을 이미 쓰고 있어서, 그 테스트가 남긴
-	// CATEGORY_TAG(source_type=TOURAPI) 행 때문에 이 클래스의 cleanUp 이 fk_place_feature_place
-	// 위반으로 실패했다.
+	// 다른 TourAPI 통합 테스트와 겹치지 않는 값이어야 한다. 겹치면 그쪽이 남긴 표식 행 때문에
+	// 이 클래스의 cleanUp 이 fk_place_feature_place 위반으로 실패한다.
 	private static final String CONTENT_ID = "5290001";
 
 	@BeforeEach
 	@AfterEach
 	void cleanUp() {
-		// 🔴 TourApiPlaceLoader.saveChunk 가 장소를 만들면서 CATEGORY_TAG 를
-		// source_type=TOURAPI 로 같이 넣는다 — place 를 지우기 전에 그것부터 지워야
-		// fk_place_feature_place 위반이 안 난다.
+		// TourApiPlaceLoader.saveChunk 가 장소를 만들면서 CATEGORY_TAG 를 같이 넣는다 —
+		// place 를 지우기 전에 그것부터 지워야 fk_place_feature_place 위반이 안 난다.
 		this.jdbcTemplate.update("DELETE FROM place_feature WHERE source_type = 'TOURAPI'");
 		this.jdbcTemplate.update("DELETE FROM place WHERE source_type = 'TOURAPI'");
 	}

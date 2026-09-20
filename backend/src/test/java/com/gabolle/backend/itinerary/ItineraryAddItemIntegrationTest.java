@@ -38,26 +38,21 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * S15P21E201-467 — 사용자가 고른 장소(축제)를 일정에 더한다.
+ * 사용자가 고른 장소(축제)를 일정에 더한다.
  *
- * <p>여기서 고정하는 계약이 다섯이다.
+ * <p>여기서 고정하는 계약은 이렇다.
  *
  * <ol>
- *   <li>더한 항목이 <b>그 날의 마지막 순번</b>으로 들어간다. 다른 날의 순번을 세지 않는다</li>
- *   <li>🔴 더한 항목은 <b>고정(locked)</b>돼 있다. 이 편집 뒤에 오는 재계산이 그 날을 다시
- *       채우면서 방금 사용자가 고른 장소를 빼면 "넣었는데 없어졌다" 가 된다</li>
- *   <li>시각을 <b>지어내지 않는다</b>. 시작·종료 시각이 비어 있고 {@code data_status} 가
- *       {@code UNKNOWN} 이다 — 이동 시간을 모르는 상태에서 만든 시각이 화면에 확정된 값처럼
- *       보이면 안 된다</li>
+ *   <li>더한 항목이 그 날의 마지막 순번으로 들어간다. 다른 날의 순번을 세지 않는다</li>
+ *   <li>더한 항목은 고정(locked)돼 있다 — 뒤따르는 재계산이 그 날을 다시 채우면서 방금
+ *       고른 장소를 빼면 안 된다</li>
+ *   <li>시각을 지어내지 않는다. 시작·종료 시각이 비어 있고 {@code data_status} 가
+ *       {@code UNKNOWN} 이다</li>
  *   <li>기존 항목의 {@code item_key} 가 판을 건너 그대로 살아남는다</li>
  *   <li>여행 기간을 벗어난 날은 400 이다. 표의 CHECK 는 이것을 막지 못한다</li>
+ *   <li>기간이 정해진 장소는 그 날 실제로 열리는지 보고, 같은 축제를 두 번 넣으면 두
+ *       번째가 거부된다. 기간 행이 없는 일반 장소에는 안 걸린다</li>
  * </ol>
- *
- * <p>2026-09-07 에 셋이 더 붙었다. 축제가 <b>그 날 실제로 열리는지</b> 서버가 보고, 열리지 않으면
- * 거부하는 방식이 두 가지로 갈리며(다른 날을 고르면 되는 경우와 이 여행에서는 안 되는 경우),
- * 같은 축제를 두 번 넣으면 두 번째가 거부된다. 세 검사는 모두 <b>기간이 정해진 장소</b>에만
- * 걸린다 — 기간 행이 없는 일반 장소는 예전처럼 아무 제약 없이 들어가고, 그것을 확인하는
- * 회귀 테스트가 아래에 있다.
  *
  * <p>여행은 2026-09-10 부터 09-12 까지 사흘이다. 1판에 첫날(dayIndex 0) 항목 둘이 있다.
  * {@code festival} 은 기본적으로 기간 행이 없는 장소이고, 기간이 필요한 시험은
@@ -165,7 +160,7 @@ class ItineraryAddItemIntegrationTest {
 		Map<String, Object> added = items.get(2);
 		assertThat(added.get("place_id")).isEqualTo(this.festival.toString());
 		assertThat(added.get("sequence")).isEqualTo(3);
-		// 🔴 이 두 줄이 이 테스트의 핵심이다 — 고정돼 있고 시각이 비어 있다
+		// 이 두 줄이 이 테스트의 핵심이다 — 고정돼 있고 시각이 비어 있다.
 		assertThat(added.get("locked")).isEqualTo(true);
 		assertThat(added.get("start_time")).isNull();
 		assertThat(added.get("end_time")).isNull();

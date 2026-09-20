@@ -12,11 +12,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 /**
- * 기록에 초대받아 함께 쓰게 된 사람 한 줄 — 만든 사람({@code story.author_user_id})은 여기 들어가지 않는다
- * (S15P21E201-770, {@code V20260909110000__story_coauthor_and_invite.sql}).
+ * 기록에 초대받아 함께 쓰게 된 사람 한 줄 — 만든 사람({@code story.author_user_id})은 여기 들어가지 않는다.
  *
  * <p>기본키가 (기록, 사람) 쌍이다. 같은 초대 링크를 두 번 눌러도 두 줄이 생길 수 없는 것은 코드가 아니라
- * 이 키가 보장한다 — {@link UserFollow} 와 같은 이유로 같은 모양을 썼다.
+ * 이 키가 보장한다.
  */
 @Entity
 @Table(name = "story_coauthor")

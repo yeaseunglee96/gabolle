@@ -25,16 +25,10 @@ import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 import com.gabolle.backend.place.repository.PlaceRepository;
 
 /**
- * 영업시간을 어느 장소에 붙이나 — S15P21E201-852.
+ * 영업시간 출력의 열쇠({@code contentid})와 장소 id 의 재료가 같은 값이라는 것을 못 박는다.
+ * 그것이 틀리면 적재는 성공하고 로그도 초록인데 붙은 행이 0개가 된다.
  *
- * <h2>🔴 이 검사가 지키는 주장</h2>
- * 이 티켓이 "잇는 단계 없이 지금 할 수 있다" 고 말하는 근거는 한 문장이다 —
- * <b>영업시간 출력의 열쇠({@code contentid})와 장소 id 의 재료가 같은 값이다.</b> 그 문장이
- * 틀리면 적재는 성공하고 로그도 초록인데 <b>붙은 행이 0개</b>가 된다. 그래서 계산을 여기서
- * 못 박는다.
- *
- * <p>DB 는 쓰지 않는다. 저장소를 흉내 내고 <b>어떤 id 로 찾았는지</b>와 <b>무엇을 저장하려
- * 했는지</b>만 본다 — 이 노트북에는 PostgreSQL 이 없어서 DB 를 쓰는 검사는 CI 에서 처음 돈다.
+ * <p>DB 는 쓰지 않는다. 저장소를 흉내 내고 어떤 id 로 찾았는지와 무엇을 저장하려 했는지만 본다.
  */
 class OpeningHoursLoaderTest {
 
@@ -73,9 +67,7 @@ class OpeningHoursLoaderTest {
 							.as("어느 관광공사 레코드에서 왔는지 행에 남아야 되짚을 수 있다")
 							.isEqualTo(CONTENT_ID);
 					assertThat(feature.getSourceVersion()).isEqualTo(DATASET);
-					// 🔴 공공기관이 공표한 값이지만 업소의 자기 보고를 모은 것이고 언제
-					//    확인됐는지 원천이 말해 주지 않는다. 잘못된 VERIFIED 는 사람을
-					//    닫힌 문 앞에 보낸다.
+					// 업소의 자기 보고를 모은 값이고 언제 확인됐는지 원천이 말해 주지 않는다.
 					assertThat(feature.getEvidenceStatus()).isEqualTo(PlaceEvidenceStatus.ESTIMATED);
 					// 태그형이 아니라 키가 없어야 한다 — ck_place_feature_key_shape 가 DB 에서 막는다.
 					assertThat(feature.getFeatureKey()).isNull();

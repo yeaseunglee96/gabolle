@@ -25,7 +25,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * 릴레이 — S15P21E201-354. 완료 기준 셋이 전부 <b>실패를 견디는 것</b>에 관한 것이다.
+ * 릴레이가 실패를 견디는가.
  */
 class OutboxRelayTest {
 
@@ -100,7 +100,7 @@ class OutboxRelayTest {
         this.relay.relayOnce();
 
         assertThat(this.publisher.sent).isEmpty();
-        // 🔴 발행 시각이 덮어써지지 않는다 — 덮어쓰면 "언제 보냈나" 가 흐려진다.
+        // 발행 시각이 덮어써지지 않는다 — 덮어쓰면 "언제 보냈나" 가 흐려진다.
         assertThat(event.getPublishedAt()).isEqualTo(OffsetDateTime.ofInstant(NOW.minusSeconds(60), ZoneOffset.UTC));
     }
 

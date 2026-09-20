@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * 축제 수집본을 읽어 회차를 적재한다 — S15P21E201-863.
+ * 축제 수집본을 읽어 회차를 적재한다.
  *
  * <pre>
  * java -jar gabolle-backend.jar \
@@ -23,14 +23,11 @@ import org.springframework.stereotype.Component;
  *   --gabolle.place.loader.festival=/load/tourapi-festival-busan.ndjson
  * </pre>
  *
- * <p>장소 적재를 먼저 돌려야 한다. 축제도 관광공사 수집본 안의 장소이므로 장소 적재가 끝났으면
- * 붙을 자리가 다 있다 — "장소가 없어 넘긴" 수가 0 이 정상이다. 그 수가 0 이 아니면 장소 적재를
- * 안 돌렸거나 수집분이 어긋난 것이다.
+ * <p>장소 적재를 먼저 돌려야 한다. 축제도 관광공사 수집본 안의 장소이므로 "장소가 없어 넘긴"
+ * 수가 0 이 정상이다.
  *
- * <p>🔴 {@code dataset-version} 을 요구하지 않는다. 접근성·영업시간 적재는 <b>장소에 붙는 표식</b>을
- * 만들고 그 표식 행에 어느 수집분에서 나왔는지 적는 칸이 있다. 이쪽이 만드는 것은 표식이 아니라
- * <b>회차 그 자체</b>이고 그 표에는 그 칸이 없다 — 없는 칸을 위해 인자를 요구하면 돌리는 사람이
- * 무엇을 적어야 할지 알 수 없다.
+ * <p>다른 적재와 달리 {@code dataset-version} 을 요구하지 않는다. 이쪽이 만드는 것은 표식이
+ * 아니라 회차 그 자체이고, 그 표에는 수집분을 적는 칸이 없다.
  */
 @Component
 @Profile({ "db", "dev" })

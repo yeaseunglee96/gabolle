@@ -14,23 +14,20 @@ import com.gabolle.backend.recommendation.adapter.BaselineEngineStartupValidator
 import com.gabolle.backend.recommendation.adapter.BaselineRecommendationEngine;
 
 /**
- * 추천 엔진 빈이 없는 컨텍스트 — S15P21E201-808.
+ * 추천 엔진 빈이 없는 컨텍스트.
  *
- * <h2>분리 이유</h2>
- * {@link RecommendationSliceApplication} 이 {@code place} 와 {@code trip.infra} 를 올리기
+ * <p>{@link RecommendationSliceApplication} 이 {@code place} 와 {@code trip.infra} 를 올리기
  * 시작하면서 그 슬라이스에는 {@code BaselineRecommendationEngine} 이 실제로 선다. 그래서
  * "엔진이 없는 배포" 를 재는 검사가 그 슬라이스에서는 성립하지 않는다.
  *
- * <h2>제외 목록이 명시적인 이유</h2>
- * 엔진 셋을 스캔에서 빼는 방식으로 그 상태를 만든다. {@code place} 를 안 올리는 것만으로는
+ * <p>제외 목록을 명시적으로 적는다. 엔진 셋을 스캔에서 빼는 방식으로 그 상태를 만든다. {@code place} 를 안 올리는 것만으로는
  * 안 된다 — 엔진에서 {@code @ConditionalOnBean} 을 걷어냈으므로 이제 그 빈들은 조건 없이
  * 만들어지려 하고, 의존 대상이 없으면 컨텍스트가 뜨지 못한다. 그것이 이 티켓이 바꾼 계약이다.
  * 추천 패키지를 {@code db} 로 올리는 배포는 {@code place} 도 함께 올려야 한다.
  *
  * <p>제외 대상을 클래스 이름으로 적어 두면 엔진 구성이 바뀔 때 컴파일이 먼저 알려 준다.
  *
- * <h2>{@code @SpringBootApplication} 을 안 쓴 이유</h2>
- * 그 애노테이션에는 제외 필터를 넘길 자리가 없다. 아래 셋이 그것을 풀어 쓴 것과 같다.
+ * <p>{@code @SpringBootApplication} 을 안 쓴 것은 그 애노테이션에는 제외 필터를 넘길 자리가 없다. 아래 셋이 그것을 풀어 쓴 것과 같다.
  */
 @SpringBootConfiguration
 @EnableAutoConfiguration
@@ -53,12 +50,9 @@ import com.gabolle.backend.recommendation.adapter.BaselineRecommendationEngine;
 @EntityScan(basePackages = {
 		"com.gabolle.backend.event.domain",
 		"com.gabolle.backend.recommendation.domain",
-		// 🔴 2026-09-11 (S15P21E201-549) — user 를 더했다. EventIngestService 가 행동 이벤트를
-		//    적기 전에 그 사람이 행동 개인화를 켜 뒀는지 보게 되면서 AppUserRepository 를
-		//    필수로 요구한다. 없으면 이 슬라이스의 컨텍스트가 아예 안 뜬다 — CI 가 잡았다.
-		//
-		//    🔴 이 파일은 scanBasePackages 가 아니라 @ComponentScan 을 쓴다. 슬라이스를 훑어
-		//    같은 문제를 찾을 때 그 차이 때문에 이 파일만 빠졌다 — 둘 다 보고 찾아야 한다.
+		// EventIngestService 가 행동 개인화 동의를 보므로 AppUserRepository 를 요구한다.
+		// 이 파일은 scanBasePackages 가 아니라 @ComponentScan 을 쓴다 — 슬라이스를 훑을 때
+		// 둘 다 봐야 이 파일이 안 빠진다.
 		"com.gabolle.backend.user.domain"
 })
 @EnableJpaRepositories(basePackages = {

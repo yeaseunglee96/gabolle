@@ -9,8 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * "같이 쓰자" 링크 한 장 — {@code token} 이 곧 열쇠다. 이것을 아는 사람이 초대받은 사람이다
- * (S15P21E201-770, {@code V20260909110000__story_coauthor_and_invite.sql}).
+ * "같이 쓰자" 링크 한 장 — {@code token} 이 곧 열쇠다. 이것을 아는 사람이 초대받은 사람이다.
  *
  * <p>표(token)의 유일성은 DB 의 {@code ux_story_invite_token} 이 보장한다 — 여기서는 값을 만들지도
  * 검사하지도 않는다. 만료 판정({@code expiresAt} 이 지금보다 앞인가)도 호출하는 쪽의 몫이라 이 엔티티는

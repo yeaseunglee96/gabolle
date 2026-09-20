@@ -18,11 +18,10 @@ import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 
 /**
- * 사람에게 닿는 주소를 고르는 규칙 — S15P21E201-794.
+ * 사람에게 닿는 주소를 고르는 규칙. DB 가 필요 없는 판정이라 저장소를 대역으로 둔다.
  *
- * <p>DB 가 필요 없는 판정이라 저장소를 대역으로 둔다. 이 규칙이 틀리면 두 가지가 일어난다 —
- * 알림이 아무에게도 안 가거나(주소를 못 찾는다), <b>남에게 간다</b>(옮겨간 주소로 보낸다).
- * 뒤쪽이 훨씬 나쁘고, 그것을 재는 것이 {@link #movedAwayKakaoAddressIsNotUsed()} 다.
+ * <p>규칙이 틀리면 알림이 아무에게도 안 가거나 남에게 간다. 뒤쪽을 재는 것이
+ * {@link #movedAwayKakaoAddressIsNotUsed()} 다.
  */
 class NotificationEmailResolverTest {
 
@@ -118,10 +117,8 @@ class NotificationEmailResolverTest {
 	}
 
 	/**
-	 * 🔴 이 헬퍼들을 {@code when(...)} 안에서 부르면 안 된다. Mockito 는 아직 끝나지 않은
-	 * 스터빙 안에서 다른 대역을 스터빙하는 것을 거부한다 — "you are stubbing the behaviour of
-	 * another mock inside before 'thenReturn' instruction is completed". 처음에 그렇게 썼다가
-	 * 여섯 검사가 한꺼번에 빨개졌다. 지역 변수로 먼저 만들고 그 변수를 넘긴다.
+	 * 이 헬퍼를 {@code when(...)} 안에서 부르면 안 된다. Mockito 는 끝나지 않은 스터빙 안에서
+	 * 다른 대역을 스터빙하는 것을 거부한다. 지역 변수로 먼저 만들고 그 변수를 넘긴다.
 	 */
 	private static LocalCredential credentialWith(String email) {
 		LocalCredential credential = mock(LocalCredential.class);

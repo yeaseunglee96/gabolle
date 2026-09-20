@@ -24,17 +24,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 이름·언어 수정 — S15P21E201-423.
+ * 이름·언어 수정.
  *
- * <p>엔티티를 불러와 고치고 변경 감지에 맡기는 구조라, 여기서는 리포지토리가 돌려준 엔티티가
- * 실제로 바뀌는지를 본다. 401 은 Spring Security 필터 계층이라 서비스 테스트로는 못 잰다 —
- * `SecurityConfig` 의 `anyRequest().authenticated()` 가 담당하고 permitAll 목록에
- * `/api/v1/auth/me` 가 없다는 것으로 확인했다.
+ * <p>엔티티를 불러와 고치고 변경 감지에 맡기는 구조라 저장소가 돌려준 엔티티가 실제로
+ * 바뀌는지를 본다. 401 은 Spring Security 필터 계층이라 서비스 검사로는 못 잰다.
  *
- * <p>🔴 커버 사진(S15P21E201-1297)은 <b>받아들이는 기준이 프로필 사진과 다르다.</b> 프로필은
- * 주소의 앞부분만 보고, 커버는 <b>올린 사람이 본인인지</b>까지 본다. 그래서 「남의 사진 주소를
- * 그대로 넣어 보는」 시험이 아래에 따로 있다 — 그 시험이 없으면 두 기준이 같아지는 날에도 아무도
- * 모른다.
+ * <p>커버 사진은 받아들이는 기준이 프로필 사진과 다르다 — 프로필은 주소의 앞부분만 보고
+ * 커버는 올린 사람이 본인인지까지 본다. 그래서 남의 사진 주소를 넣어 보는 검사가 아래에 있다.
  */
 class ProfileUpdateServiceTest {
 
@@ -168,7 +164,7 @@ class ProfileUpdateServiceTest {
 						(e) -> assertThat(e.getCode()).isEqualTo("AVATAR_URL_NOT_ALLOWED"));
 	}
 
-	// ── 커버 사진 — S15P21E201-1297 ─────────────────────────────────────────
+	// ── 커버 사진 ─────────────────────────────────────────
 
 	@Test
 	@DisplayName("내가 올린 사진을 커버로 저장하고 응답에 실어 보낸다")
@@ -187,7 +183,7 @@ class ProfileUpdateServiceTest {
 	void rejectsCoverUrlUploadedBySomeoneElse() {
 		UUID me = UUID.randomUUID();
 		UUID someoneElse = UUID.randomUUID();
-		// 🔴 우리 업로드 자리에서 나온 주소다 — 즉 프로필 사진이 쓰는 앞부분 검사는 통과한다.
+		// 우리 업로드 자리에서 나온 주소라 프로필 사진이 쓰는 앞부분 검사는 통과한다.
 		givenUpload(COVER_URL, someoneElse);
 
 		assertThatThrownBy(() -> this.service.update(me, new UpdateProfileRequest(null, null, null, COVER_URL)))

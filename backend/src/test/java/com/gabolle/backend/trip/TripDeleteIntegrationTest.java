@@ -33,15 +33,11 @@ import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.testslice.TripSliceApplication;
 
 /**
- * 여행 삭제 — S15P21E201-746.
+ * 누가 지울 수 있고 지운 뒤에 무엇이 닫히는가. 삭제는 행을 지우지 않고 {@code deleted_at} 을
+ * 찍는 방식이라, 그 칸 하나로 목록·조회가 전부 닫혀야 "지웠다" 가 참이 된다.
  *
- * <p>여기서 재는 것은 <b>누가 지울 수 있고, 지운 뒤에 무엇이 닫히는가</b> 다. 삭제는
- * 행을 지우지 않고 {@code deleted_at} 을 찍는 방식이라, "지웠다" 는 주장이 참이 되려면
- * 그 칸 하나로 목록·조회가 전부 닫혀야 한다. 그 연결이 이 테스트의 관심사다.
- *
- * <p>진짜 PostgreSQL 을 쓰는 이유는 {@link TripListIntegrationTest} 와 같다 — 목록에서
- * 지운 여행을 거르는 것이 질의 안에 들어 있어서 메모리 구현으로는 한 줄도 안 재게 된다.
- * 여기에 더해 행이 <b>실제로 남아 있는지</b>는 표를 직접 세어 봐야 알 수 있다.
+ * <p>진짜 PostgreSQL 을 쓴다 — 지운 여행을 거르는 것이 질의 안에 있어 메모리 구현으로는 한 줄도
+ * 안 재게 되고, 행이 실제로 남아 있는지는 표를 직접 세어 봐야 안다.
  */
 @SpringBootTest(classes = TripSliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -94,8 +90,7 @@ class TripDeleteIntegrationTest {
 		assertThatThrownBy(() -> queryService.get(tripId, ownerId))
 				.isInstanceOf(TripQueryService.TripNotFoundException.class);
 
-		// 🔴 동행자에게도 닫힌다. 소유자 화면에서만 사라지고 동행자는 계속 열 수 있으면
-		//    그건 삭제가 아니라 숨기기다.
+		// 동행자에게도 닫힌다 — 소유자 화면에서만 사라지면 그건 삭제가 아니라 숨기기다.
 		assertThat(queryService.list(companionId, 50)).isEmpty();
 		assertThatThrownBy(() -> queryService.get(tripId, companionId))
 				.isInstanceOf(TripQueryService.TripNotFoundException.class);
@@ -133,7 +128,7 @@ class TripDeleteIntegrationTest {
 		assertThatThrownBy(() -> deletionService.delete(tripId, companionId))
 				.isInstanceOf(TripDeletionService.TripDeleteForbiddenException.class);
 
-		// 거부로 끝나야 한다 — 예외를 던지고도 지워져 있으면 최악이다
+		// 거부로 끝나야 한다 — 예외를 던지고도 지워져 있으면 안 된다.
 		assertThat(queryService.get(tripId, ownerId).trip().isDeleted()).isFalse();
 	}
 
@@ -164,7 +159,7 @@ class TripDeleteIntegrationTest {
 		OffsetDateTime first = jdbcTemplate.queryForObject(
 				"SELECT deleted_at FROM trip WHERE trip_id = ?", OffsetDateTime.class, UUID.fromString(tripId));
 
-		// 응답이 끊긴 앱은 반드시 다시 누른다. 그때 오류가 나오면 사용자는 안 지워졌다고 믿는다.
+		// 응답이 끊긴 앱은 다시 누른다. 그때 오류가 나오면 사용자는 안 지워졌다고 믿는다.
 		deletionService.delete(tripId, ownerId);
 
 		OffsetDateTime second = jdbcTemplate.queryForObject(

@@ -5,7 +5,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
- * 메뉴판 한도 표를 진짜 PostgreSQL 위에서 보는 슬라이스 — S15P21E201-1038.
+ * 메뉴판 한도 표를 진짜 PostgreSQL 위에서 보는 슬라이스.
  *
  * <p>이 기능에서 표로 확인해야 하는 것은 「집계가 프로세스 밖에 남는가」다. 그건 메모리
  * 맵을 가짜로 끼워서는 확인할 수 없는 성질이라 진짜 DB 가 필요하다.

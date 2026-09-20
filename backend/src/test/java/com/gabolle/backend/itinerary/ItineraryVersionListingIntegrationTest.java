@@ -37,12 +37,10 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 판 목록 조회(ITN-02)가 실제 표에서 어떻게 읽히는가 — S15P21E201-284.
+ * 판 목록 조회가 실제 표에서 어떻게 읽히는가.
  *
- * <p>🔴 진짜 PostgreSQL 위에서 돈다 — {@code ItineraryLockPersistenceIntegrationTest} 와
- * 같은 판단이다. {@code reverted_from_version} 칸의 왕복(저장→읽기)과
- * {@code ck_itinerary_version_operation}(REVERT 를 더한 뒤) 저장은 인메모리 저장소로는
- * DB 제약 자체를 검증할 수 없다.
+ * <p>진짜 PostgreSQL 위에서 돈다. {@code reverted_from_version} 칸의 왕복과
+ * {@code ck_itinerary_version_operation} 저장은 인메모리 저장소로 검증할 수 없다.
  *
  * <p>판 3(REVERT)은 시드 SQL 이 아니라 {@link ItineraryRepository#appendVersion} 으로
  * 직접 넣는다 — 그래야 {@code INSERT_VERSION_ON_CONFLICT_DO_NOTHING} 의 새 파라미터(?16)와
@@ -107,7 +105,7 @@ class ItineraryVersionListingIntegrationTest {
 				"INSERT INTO trip_member (trip_member_id, trip_id, user_id, role, joined_at) VALUES (?, ?, ?, 'OWNER', ?)",
 				UUID.randomUUID(), tripId, this.ownerId, now);
 		jdbcTemplate.update(
-				// 🔴 latest_version 을 2 로 시작한다 — 판 3(REVERT)은 appendVersion 이 조건부
+				// latest_version 을 2 로 시작한다 — 판 3(REVERT)은 appendVersion 이 조건부
 				// UPDATE 로 옮긴다(baseVersion=2 에서만 움직인다).
 				"INSERT INTO itineraries (itinerary_id, trip_id, latest_version, created_at) VALUES (?, ?, 2, ?)",
 				this.itineraryId, tripId, now);
@@ -120,8 +118,8 @@ class ItineraryVersionListingIntegrationTest {
 						+ "created_by, request_id, created_at) VALUES (?, ?, 2, 1, 'LOCK_ITEM', ?, 'req_seed_2', ?)",
 				version2Id, this.itineraryId, this.ownerId, now);
 
-		// 🔴 판 3 은 시드 SQL 이 아니라 저장소를 통해 넣는다 — appendVersion 의 INSERT
-		// 매핑을 검증하는 자리다.
+		// 판 3 은 시드 SQL 이 아니라 저장소를 통해 넣는다 — appendVersion 의 INSERT 매핑을
+		// 검증하는 자리다.
 		ItineraryContent version1Content = this.itineraryRepository
 				.findContent(this.itineraryId.toString(), 1).orElseThrow();
 		ItineraryVersion version3 = new ItineraryVersion(UUID.randomUUID().toString(),
@@ -142,7 +140,7 @@ class ItineraryVersionListingIntegrationTest {
 	void ownerListsVersionsNewestFirst() throws Exception {
 		mockMvc.perform(get("/api/v1/itineraries/{id}/versions", this.itineraryId).principal(asOwner()))
 				.andExpect(status().isOk())
-				// 🔴 S15P21E201-1011 — 응답이 배열에서 봉투로 바뀌었다. 목록은 data.items 다.
+				// 목록은 배열이 아니라 봉투 안의 data.items 다.
 				.andExpect(jsonPath("$.data.items.length()").value(3))
 				.andExpect(jsonPath("$.data.count").value(3))
 				.andExpect(jsonPath("$.data.hasMore").value(false))
@@ -158,8 +156,8 @@ class ItineraryVersionListingIntegrationTest {
 	}
 
 	/**
-	 * 🔴 S15P21E201-1011 — 판은 일정을 고칠 때마다 쌓여 끝이 없다. 상한에 걸렸다는 사실이
-	 * 응답에 실려야 화면이 목록을 <b>조용히 자르지</b> 않는다.
+	 * 판은 일정을 고칠 때마다 쌓여 끝이 없다. 상한에 걸렸다는 사실이 응답에 실려야 화면이
+	 * 목록을 조용히 자르지 않는다.
 	 */
 	@Test
 	@DisplayName("🔴 size 로 자르면 hasMore 가 참이고, 다음 쪽은 이어지는 판을 준다")

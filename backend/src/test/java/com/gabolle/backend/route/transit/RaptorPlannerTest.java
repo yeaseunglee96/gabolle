@@ -12,15 +12,12 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.route.transit.TransitNetwork.Kind;
 
 /**
- * {@link RaptorPlanner} 검증 — S15P21E201-1104.
+ * {@link RaptorPlanner} 검증.
  *
- * <h2>🔴 왜 손으로 만든 작은 노선망으로 재나</h2>
+ * 정류장 넷짜리 노선망을 손으로 만들고 답을 미리 계산해 단정한다 — 진짜 부산 노선망으로는
+ * 나온 답이 맞는지 사람이 검산할 수 없고, 틀려도 그럴듯해 보인다.
  *
- * 진짜 부산 노선망으로는 <b>답이 맞는지 사람이 검산할 수 없다.</b> 1,000개 정류장에서 나온
- * "47분" 이 맞는지 틀린지 아무도 모르고, 틀려도 그럴듯해 보인다. 그래서 정류장 넷짜리
- * 노선망을 손으로 만들고 <b>답을 미리 계산해서</b> 단정한다.
- *
- * <p>여기서 쓰는 시각은 자정부터의 분이다. 600 = 10:00.
+ * 여기서 쓰는 시각은 자정부터의 분이다. 600 = 10:00.
  */
 class RaptorPlannerTest {
 
@@ -35,12 +32,8 @@ class RaptorPlannerTest {
 	private final RaptorPlanner planner = new RaptorPlanner(4);
 
 	/**
-	 * 가 → 나 → 다 로 가는 지하철과, 다 → 라 로 가는 버스.
-	 *
-	 * <pre>
-	 * 지하철 R1  가 600 ─▶ 나 602 ─▶ 다 604      (다음 차 630 ─▶ 632 ─▶ 634)
-	 * 버스   R2                     다 610 ─▶ 라 615   (다음 차 640 ─▶ 645)
-	 * </pre>
+	 * 가 → 나 → 다 로 가는 지하철 R1 과, 다 → 라 로 가는 버스 R2. 각각 하루 두 번 다닌다 —
+	 * R1 은 600·630 출발로 역마다 2분, R2 는 610·640 출발로 5분.
 	 */
 	private TransitNetwork twoLegNetwork() {
 		TransitNetwork.Route r1 = new TransitNetwork.Route("R1", "1호선", Kind.SUBWAY, List.of("A", "B", "C"), 30);
@@ -91,7 +84,7 @@ class RaptorPlannerTest {
 
 		assertThat(found).isPresent();
 		assertThat(found.get().arriveMinOfDay()).isEqualTo(604);
-		// 🔴 걸린 시간에 기다린 시간이 들어 있다. 이것을 빼면 "5시에 출발해 5시 4분에 도착" 이 된다.
+		// 걸린 시간에 기다린 시간이 들어 있다. 이것을 빼면 "5시에 출발해 5시 4분에 도착" 이 된다.
 		assertThat(found.get().durationMin()).isEqualTo(304);
 	}
 
@@ -134,7 +127,7 @@ class RaptorPlannerTest {
 		assertThat(found.get().arriveMinOfDay()).isEqualTo(615);
 		assertThat(found.get().rides()).extracting(RaptorPlanner.Ride::routeId)
 				.containsExactly("R1", null, "R2");
-		// 🔴 걷기는 "탄 횟수" 가 아니다. 탄 것이 둘이므로 환승은 하나다.
+		// 걷기는 "탄 횟수" 가 아니다. 탄 것이 둘이므로 환승은 하나다.
 		assertThat(found.get().transferCount()).isEqualTo(1);
 	}
 
@@ -177,8 +170,8 @@ class RaptorPlannerTest {
 				Map.of("C", 0));
 
 		assertThat(found).isPresent();
-		// 🔴 이 노선망은 하루에 두 번만 다닌다. 06:00~22:00 표본 대부분이 첫차를 기다리거나
-		//    막차를 놓치므로, 중앙값은 "많이 기다리는 경로" 다 — 그것이 사실이다.
+		// 이 노선망은 하루에 두 번만 다닌다. 06:00~22:00 표본 대부분이 첫차를 기다리거나
+		// 막차를 놓치므로, 중앙값은 "많이 기다리는 경로" 다 — 그것이 사실이다.
 		assertThat(found.get().durationMin()).isPositive();
 	}
 

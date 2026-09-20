@@ -19,41 +19,27 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 /**
- * 개인정보 자동 정리 배치(S15P21E201-357 · -166)가 실제로 지우는 곳.
- *
- * <h2>🔴 지우는 세 가지와, 지우지 않는 것</h2>
+ * 개인정보 자동 정리 배치가 실제로 지우는 곳. 지우는 것은 넷이다.
  *
  * <ol>
- * <li>만료된 지 {@code sessionGraceDays} 가 지난 {@code auth_session} — DB 의
- * {@code fk_auth_refresh_token_session ... ON DELETE CASCADE} 가 그 세션에 남아 있던
- * 리프레시 토큰도 함께 지운다({@code V20260902_1__create_auth_schema.sql}).</li>
- * <li>세션과 별개로 자기 자신이 만료된 지 유예 기간이 지난 {@code auth_refresh_token} — 로테이션으로
- * 이미 못 쓰게 된 옛 토큰처럼, 세션 자체는 아직 살아 있어도 토큰만 만료된 경우다.</li>
+ * <li>만료된 지 {@code sessionGraceDays} 가 지난 {@code auth_session}. 그 세션의 리프레시
+ * 토큰은 DB 의 {@code ON DELETE CASCADE} 가 함께 지운다.</li>
+ * <li>자기 자신이 만료된 지 유예 기간이 지난 {@code auth_refresh_token} — 세션은 살아 있는데
+ * 로테이션으로 못 쓰게 된 옛 토큰이다.</li>
  * <li>발행이 끝난({@code publishedAt IS NOT NULL}) 지 {@code eventRetentionDays} 가 지난
  * {@code event_outbox} 행.</li>
- * <li>🔴 <b>S15P21E201-1216</b> — {@code storyActivityRetentionDays} 가 지난 조회 낱개
- * ({@code story_view})와 링크 복사 낱개({@code story_link_copy}).</li>
+ * <li>{@code storyActivityRetentionDays} 가 지난 조회 낱개({@code story_view})와 링크 복사
+ * 낱개({@code story_link_copy}).</li>
  * </ol>
  *
- * <p>🔴 <b>{@code publishedAt IS NULL} 인 이벤트는 절대 지우지 않는다.</b>
- * {@code EventOutboxRepository.findByPublishedAtIsNullOrderBySeqAsc} 의 자체 주석이 말하듯
- * {@code publishStatus} 가 FAILED 여도 {@code publishedAt} 이 비어 있으면 릴레이가 다시
- * 보내야 하는 이벤트다 — 이 배치가 먼저 지우면 그 이벤트는 영영 나가지 않는다.
+ * <p>{@code publishedAt IS NULL} 인 이벤트는 지우지 않는다. {@code publishStatus} 가 FAILED 여도
+ * {@code publishedAt} 이 비어 있으면 릴레이가 다시 보내야 하는 이벤트다.
  *
- * <p>🔴 <b>조회·복사 낱개를 지우면서 누적 칸을 같이 내리지 않는다.</b> {@code story.view_count}
- * 와 {@code story.link_copy_count} 는 손대지 않는다 — 낱개는 「사람 × 글 × 하루 한 번」을 지키려고
- * 두는 것이고 누적은 누적이다. 같이 내리면 <b>어제까지의 조회가 사라진다.</b>
- * {@code V20260918010000} 이 건 {@code CHECK (view_count >= 0)} 이 정확히 이 실수를 막으려고
- * 있다 — 같이 내리면 조용히 음수가 되기 때문이다.
+ * <p>낱개를 지우면서 누적 칸({@code story.view_count}·{@code story.link_copy_count})은 손대지
+ * 않는다. 낱개는 「사람 × 글 × 하루 한 번」을 지키려고 두는 것이고 누적은 누적이다.
  *
- * <p>위치 정보는 이 배치가 다루지 않는다 — {@code PlaceVisitVerification}(S15P21E201-279)이
- * 애초에 좌표 칸 자체를 두지 않게 설계되어 있어 지울 좌표가 없다.
- *
- * <h2>세 삭제가 왜 JPQL 벌크 삭제인가</h2>
- *
- * {@link com.gabolle.backend.auth.service.AccountDeletionService} 와 같은 이유다 — 대상이
- * 몇만 건이 될 수 있는 정기 배치에서 엔티티를 하나씩 읽어 지우면(영속성 컨텍스트에 전부 올라가며)
- * 메모리와 시간이 행 수에 비례해 늘어난다. JPQL {@code DELETE} 는 SQL 한 줄로 끝난다.
+ * <p>삭제는 전부 JPQL 벌크 삭제다. 대상이 몇만 건이 될 수 있어 엔티티를 하나씩 읽어 지우면
+ * 메모리와 시간이 행 수에 비례해 늘어난다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -62,16 +48,14 @@ public class PrivacyCleanupService {
 	private static final Logger log = LoggerFactory.getLogger(PrivacyCleanupService.class);
 
 	/**
-	 * 조회·복사 낱개의 날짜 칸이 재고 있는 시간대 — S15P21E201-1216.
+	 * 조회·복사 낱개의 날짜 칸이 재고 있는 시간대.
 	 *
-	 * <p>🔴 {@code story_view.viewed_on} 과 {@code story_link_copy.copied_on} 은 <b>DATE</b> 이고,
-	 * 그 값을 채우는 {@code StoryService} 가 <b>한국 시각으로 계산해서</b> 넣는다. 지우는 쪽이
-	 * 서버 시간대(UTC)로 기준선을 잡으면 <b>쓰는 쪽과 읽는 쪽이 서로 다른 하루를 쓰게 된다</b> —
-	 * 한국 시각 오전 9시 전에는 기준선이 하루 어긋난다.
+	 * <p>{@code story_view.viewed_on} 과 {@code story_link_copy.copied_on} 은 DATE 이고 그
+	 * 값을 채우는 {@code StoryService} 가 한국 시각으로 계산해 넣는다. 서버 시간대(UTC)로
+	 * 기준선을 잡으면 한국 시각 오전 9시 전에는 기준선이 하루 어긋난다.
 	 *
-	 * <p>🔴 이 값은 {@code StoryService.COUNTING_ZONE} 과 <b>반드시 같아야 한다.</b> 이 저장소는
-	 * 시간대를 쓰는 클래스마다 따로 선언하는 관례를 쓰므로(상수를 공유하지 않는다) 한쪽을 바꾸면
-	 * 다른 쪽도 바꾼다.
+	 * <p>{@code StoryService.COUNTING_ZONE} 과 반드시 같아야 한다. 이 저장소는 시간대를
+	 * 클래스마다 따로 선언하므로 한쪽을 바꾸면 다른 쪽도 바꾼다.
 	 */
 	private static final ZoneId STORY_ACTIVITY_ZONE = ZoneId.of("Asia/Seoul");
 
@@ -90,7 +74,7 @@ public class PrivacyCleanupService {
 	/**
 	 * 세 카테고리를 순서대로 지우고 건수를 합쳐 돌려준다.
 	 *
-	 * <p>🔴 한 트랜잭션이다. {@link com.gabolle.backend.auth.service.AccountDeletionService} 와
+	 * <p> 한 트랜잭션이다. {@link com.gabolle.backend.auth.service.AccountDeletionService} 와
 	 * 같은 이유 — 세 삭제 중 하나가 실패했는데 앞의 것만 반영되면, 다음날 배치가 그 반쯤 지운
 	 * 상태를 기준으로 또 계산해야 하는 애매한 상태가 남는다.
 	 */
@@ -120,13 +104,13 @@ public class PrivacyCleanupService {
 				.setParameter("cutoff", eventCutoff.atOffset(ZoneOffset.UTC))
 				.executeUpdate();
 
-		// 🔴 S15P21E201-1216 — 낱개의 날짜 칸은 DATE 이고 한국 시각으로 채워진다. Instant 에서
-		// 며칠을 빼는 것이 아니라 한국 시각의 「오늘」에서 날짜로 뺀다. 이 기준선보다 **앞선**
-		// 날짜만 지운다 — 딱 90일 된 것은 남는다.
+		// 낱개의 날짜 칸은 DATE 이고 한국 시각으로 채워지므로, Instant 에서 며칠을 빼지 않고
+		// 한국 시각의 오늘에서 날짜로 뺀다. 이 기준선보다 앞선 날짜만 지운다 —
+		// 딱 보관 일수만큼 된 것은 남는다.
 		LocalDate storyActivityCutoff = LocalDate.ofInstant(now, STORY_ACTIVITY_ZONE)
 				.minusDays(this.properties.getStoryActivityRetentionDays());
 
-		// 🔴 누적 칸(story.view_count · story.link_copy_count)은 여기서 손대지 않는다.
+		// 누적 칸(story.view_count · story.link_copy_count)은 여기서 손대지 않는다.
 		// 지우는 것은 낱개뿐이다 — 이 클래스 머리말에 그 이유가 있다.
 		int storyViewsDeleted = this.entityManager
 				.createQuery("DELETE FROM StoryView v WHERE v.viewedOn < :cutoff")

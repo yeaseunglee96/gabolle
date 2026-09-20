@@ -9,14 +9,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 사용자가 만든 장소 묶음 — S15P21E201-1013.
+ * 사용자가 만든 장소 묶음.
  *
- * <p>지금까지 기기에만 있었다. 화면도 「이 기기에만 저장돼요. 앱을 지우면 사라져요」라고
- * 정직하게 말하고 있었다.
- *
- * <p>🔴 {@code SavedPlace}(하트)와 다르다. 하트는 <b>한 덩어리의 목록 하나</b>이고, 컬렉션은
- * 사용자가 <b>이름을 붙여 여러 개</b> 만든다. 그리고 컬렉션에는 <b>우리 목록에 없는 곳</b>도
- * 들어간다 — 그 차이가 {@link CollectionItem} 의 종류를 만든다.
+ * <p>{@code SavedPlace}(하트)와 다르다. 하트는 한 덩어리의 목록 하나이고, 컬렉션은 사용자가
+ * 이름을 붙여 여러 개 만든다. 컬렉션에는 우리 목록에 없는 곳도 들어가고, 그 차이가
+ * {@link CollectionItem} 의 종류를 만든다.
  */
 @Entity
 @Table(name = "collection")
@@ -81,12 +78,9 @@ public class Collection {
 	}
 
 	/**
-	 * 🔴 이름 없는 컬렉션을 만들 수 없다. 화면에서 사용자가 이름을 비우고 저장하면
-	 * «제목 없음» 이 아니라 <b>거절</b>이 맞다 — 목록에 이름 없는 줄이 쌓이면 사용자가
-	 * 자기 것을 못 고른다. DB 의 {@code ck_collection_name_not_blank} 와 같은 것을 여기서도 본다.
-	 *
-	 * <p>2026-09-16 (S15P21E201-1037) — 길이도 여기서 본다. 그전에는 비었는지만 보고
-	 * 넘겨서, 100자를 넘는 이름이 PostgreSQL 까지 가서 거부되고 500 으로 나갔다.
+	 * 이름 없는 컬렉션은 «제목 없음» 으로 채우지 않고 거절한다 — 목록에 이름 없는 줄이 쌓이면
+	 * 사용자가 자기 것을 못 고른다. DB 의 {@code ck_collection_name_not_blank} 와 같은 것을
+	 * 여기서도 본다. 길이도 여기서 본다 — 안 보면 DB 까지 가서 거부돼 500 이 된다.
 	 */
 	private static String requireName(String name) {
 		return TextFields.requiredLine(name, "컬렉션 이름", NAME_MAX_LENGTH);

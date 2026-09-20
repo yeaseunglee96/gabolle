@@ -16,14 +16,8 @@ import com.gabolle.backend.moderation.application.StoryReportService;
 import com.gabolle.backend.moderation.presentation.dto.StoryReportRequest;
 
 /**
- * 기록 신고 — S15P21E201-254.
- *
- * <pre>
- * POST /api/v1/stories/{storyId}/reports   신고 접수 (204, 이미 신고했어도 204)
- * </pre>
- *
- * <p>🔴 응답은 언제나 204 다. 신규 신고와 중복 신고를 구분해 답하지 않는다 — 그 근거는
- * {@link StoryReportService} 클래스 주석에 있다.
+ * 기록 신고 접수. 응답은 언제나 204 이고 신규 신고와 중복 신고를 구분해 답하지 않는다 — 근거는
+ * {@link StoryReportService} 주석에 있다.
  */
 @RestController
 @RequestMapping("/api/v1/stories/{storyId}/reports")

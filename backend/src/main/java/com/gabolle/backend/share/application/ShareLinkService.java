@@ -18,11 +18,10 @@ import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
 
 /**
- * 읽기 전용 공유 주소 발급·비로그인 조회 — S15P21E201-330 · -332 (F-COL-03).
+ * 읽기 전용 공유 주소 발급·비로그인 조회.
  *
- * <p>🔴 <b>왜 소유자만 발급할 수 있는가.</b> 공유 주소는 로그인 없이 아무나 연다. 만드는 것은
- * 곧 "이 여행을 공개한다" 는 결정이고, 그 결정은 여행 주인의 몫이다. 편집자(EDITOR)는 일정을
- * 고칠 수 있어도 공개 여부까지 정할 권한은 없다.
+ * 발급은 OWNER 만 한다. 공유 주소는 로그인 없이 아무나 열기 때문에 만드는 것이 곧 공개하는
+ * 결정이고, EDITOR 는 일정을 고칠 수 있어도 공개 여부를 정할 권한은 없다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -48,11 +47,8 @@ public class ShareLinkService {
 	}
 
 	/**
-	 * 공유 주소를 발급한다.
-	 *
-	 * @throws TripQueryService.TripNotFoundException 없는 여행이거나 요청자가 그 여행의 회원이
-	 *     아니다 — 존재 자체를 감춘다({@code TripQueryService.get} 이 그대로 던진다)
-	 * @throws ShareForbiddenException 회원이지만 OWNER 가 아니다
+	 * 공유 주소를 발급한다. 없는 여행과 회원이 아닌 경우를 구분하지 않고 같은 예외를 던져
+	 * 존재 자체를 감춘다. 회원이지만 OWNER 가 아니면 ShareForbiddenException.
 	 */
 	@Transactional
 	public TripShareLink issue(String tripId, String requesterUserId) {
@@ -66,16 +62,10 @@ public class ShareLinkService {
 	}
 
 	/**
-	 * 표로 공유 일정을 연다. 인증 없이 부른다.
+	 * 표로 공유 일정을 연다. 인증 없이 부르고 여행 회원 판정도 하지 않는다 — 링크를 아는
+	 * 사람이 보는 것이 이 기능의 목적이다.
 	 *
-	 * <p>🔴 조회와 열람 수 기록을 같은 트랜잭션에서 한다({@link TripShareLink#recordView} 의
-	 * javadoc 이 그 이유를 설명한다) — 완료 기준 "두 번 열면 조회 수가 2".
-	 *
-	 * <p>🔴 여행 회원 판정은 하지 않는다 — 링크를 아는 사람이 보는 것이 이 기능의 목적이다.
-	 *
-	 * @throws ShareLinkNotFoundException 없는 표
-	 * @throws ShareLinkExpiredException 표는 있으나 만료됐다 — 열람 수를 올리지 않는다
-	 * @throws SharedTripNotFoundException 원본 여행이 없거나 지워졌다
+	 * 조회와 열람 수 기록은 같은 트랜잭션이다. 만료된 표는 열람 수를 올리지 않는다.
 	 */
 	@Transactional
 	public SharedItineraryResponse open(String token) {
@@ -111,7 +101,7 @@ public class ShareLinkService {
 		}
 	}
 
-	/** 표는 있으나 만료됐다 — 404 가 아니라 410 이어야 "있었는데 끝났다" 를 화면이 구분한다. */
+	/** 표는 있으나 만료됐다. 404 가 아니라 410 이어야 화면이 "있었는데 끝났다" 를 구분한다. */
 	public static class ShareLinkExpiredException extends RuntimeException {
 		public ShareLinkExpiredException() {
 			super("공유 기간이 끝났어요.");

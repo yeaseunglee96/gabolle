@@ -37,9 +37,8 @@ public class GoogleOAuthProviderClient extends AbstractRestClientOAuthProvider {
 		TokenResponse tokens = exchangeTokens("https://oauth2.googleapis.com/token", clientId, clientSecret,
 				authorizationCode, redirectUri, codeVerifier, true, false);
 		GoogleIdTokenVerifier.VerifiedIdentity identity = idTokenVerifier.verify(tokens.idToken(), nonce);
-		// S15P21E201-741 — GoogleIdTokenVerifier.verify() 가 email_verified 클레임이
-		// true 가 아니면 이미 예외를 던지므로, 여기 도달한 이메일은 항상 검증된 것이다.
-		// "유효한 주소인가" 에 대응하는 별도 신호는 구글 ID 토큰에 없어 null(모름)로 둔다.
+		// verify() 가 email_verified 클레임이 true 가 아니면 예외를 던지므로 여기 도달한
+		// 이메일은 항상 검증된 것이다. "유효한 주소인가" 는 구글 ID 토큰에 신호가 없어 null 이다.
 		return new OAuthUserProfile(identity.subject(), identity.email(), identity.displayName(), identity.language(),
 				Boolean.TRUE, null);
 	}

@@ -9,10 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.gabolle.backend.trip.domain.TravelModes;
 
-/**
- * S15P21E201-664 — {@code TravelModes.fromTransportPreference} 가 화면의
- * {@code WALK/CAR/TRANSIT} 셋을 {@code trip.travel_modes} 값으로 바꾸는지 검증한다.
- */
+/** 화면의 {@code WALK/CAR/TRANSIT} 셋이 {@code trip.travel_modes} 값으로 바뀌는지 본다. */
 class TravelModesTest {
 
     @Test

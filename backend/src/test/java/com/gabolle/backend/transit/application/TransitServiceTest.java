@@ -16,12 +16,6 @@ import com.gabolle.backend.transit.domain.NearbyBusArrivalsResult;
 
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * {@link TransitService} 검증 — S15P21E201-988.
- *
- * <p>실제 Gemini 호출·구조화 출력 파싱은 어댑터 몫이라 여기서는 벤더를 스텁으로 대신한다
- * ({@code WeatherServiceTest}와 같은 방식).
- */
 class TransitServiceTest {
 
 	private static final String STOPS_JSON = """

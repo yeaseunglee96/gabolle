@@ -27,12 +27,11 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * {@code itineraries}·{@code itinerary_versions} 가 실제 PostgreSQL 위에서 도는지 —
- * S15P21E201-313.
+ * {@code itineraries}·{@code itinerary_versions} 가 실제 PostgreSQL 위에서 도는지.
  *
- * <p>🔴 <b>이 테스트가 증명하는 핵심</b>은 {@code UNIQUE (itinerary_id, version)} 위반이
- * 진짜 PostgreSQL 에서 {@link StaleItineraryVersionException}(409)으로 바뀌는가다.
- * H2 로는 이 계약을 진짜로 검증할 수 없다.
+ * <p>증명하는 핵심은 {@code UNIQUE (itinerary_id, version)} 위반이 진짜 PostgreSQL 에서
+ * {@link StaleItineraryVersionException}(409)으로 바뀌는가다. H2 로는 이 계약을 검증할 수
+ * 없다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -98,13 +97,12 @@ class ItineraryPersistenceIntegrationTest {
 	}
 
 	/**
-	 * 🔴 S15P21E201-662 — 판 번호는 비어 있는데 <b>포인터</b>가 그 사이 움직인 경우.
+	 * 판 번호는 비어 있는데 포인터가 그 사이 움직인 경우.
 	 *
 	 * <p>다른 세션이 최신 포인터를 3으로 옮겨 놓은 상태에서 baseVersion 1 로 2번 판을
 	 * 만들려 하면, {@code itinerary_versions} INSERT 는 통과한다(2번 판은 아직 없으니까).
-	 * 막는 것은 {@code UPDATE ... WHERE latest_version = 1} 이 0행을 반영하는 것뿐이다.
-	 * 그 조건을 빼면 이 테스트가 빨개진다 — 판 번호 UNIQUE 는 <b>번호</b>를 지키는 제약이지
-	 * <b>포인터</b>를 지키는 제약이 아니다.
+	 * 막는 것은 {@code UPDATE ... WHERE latest_version = 1} 이 0행을 반영하는 것뿐이다 —
+	 * 판 번호 UNIQUE 는 번호를 지키는 제약이지 포인터를 지키는 제약이 아니다.
 	 *
 	 * <p>그리고 되돌려지는지도 함께 본다. 실패한 편집이 2번 판 행을 남기면 "판은 있는데
 	 * 아무도 안 가리키는" 찌꺼기가 된다.
@@ -131,7 +129,7 @@ class ItineraryPersistenceIntegrationTest {
 		assertThrows(StaleItineraryVersionException.class,
 				() -> itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of(), List.of()));
 
-		// 🔴 진 쪽 시도로 포인터가 어긋나지 않는다 — 여전히 2다.
+		// 진 쪽 시도로 포인터가 어긋나지 않는다 — 여전히 2다.
 		assertThat(itineraryRepository.findById(itineraryId).orElseThrow().latestVersion()).isEqualTo(2);
 	}
 }

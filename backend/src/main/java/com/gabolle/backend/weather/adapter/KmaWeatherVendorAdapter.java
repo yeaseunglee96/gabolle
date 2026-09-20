@@ -20,20 +20,11 @@ import com.gabolle.backend.weather.config.WeatherProperties;
 import com.gabolle.backend.weather.domain.KmaBaseTime;
 
 /**
- * 기상청 단기예보 조회서비스({@code getVilageFcst}) 호출 — S15P21E201-366.
+ * 기상청 단기예보 조회서비스(getVilageFcst) 호출.
  *
- * <p>{@code RestClient.Builder} 는 {@code TranslationVendorAdapter}·{@code
- * KakaoMobilityRouteAdapter} 와 같은 방식으로 쓴다 — 주입받은 builder 에 시간 제한이 걸린
- * {@code SimpleClientHttpRequestFactory} 를 꽂는다. 생성자가 둘이라 {@code @Autowired} 로
- * 어느 것을 쓸지 명시한다(둘의 실측 참고 — Spring 7 에서 생성자가 둘이면 그것 없이는
- * 기동이 죽는다).
- *
- * <p>🔴 <b>서비스 키가 비어 있으면 호출을 시도하지 않고 즉시 명확한 실패</b>를 던진다.
- * {@code TranslationVendorAdapter} 와 같은 이유 — 미리 정해 둔 값을 돌려주며 성공한 척하는
- * 것은 이 티켓이 명시적으로 금지한 바로 그 버그다.
- *
- * <p>🔴 <b>좌표를 로그에 남기지 않는다.</b> {@code KakaoMobilityRouteAdapter} 와 같은 이유로
- * 실패 로그는 상태코드만 남긴다.
+ * 생성자가 둘이라 @Autowired 로 어느 것을 쓸지 명시한다 — 없으면 기동이 죽는다.
+ * 서비스 키가 비면 호출하지 않고 즉시 실패를 던진다. 미리 정해 둔 값으로 성공한 척하지 않는다.
+ * 실패 로그에 좌표를 남기지 않는다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -43,7 +34,7 @@ public class KmaWeatherVendorAdapter implements WeatherVendorPort {
 
 	static final String PROVIDER_NAME = "KMA_VILAGE_FCST";
 
-	/** 기상청이 한 번에 최대 넉넉히 줄 수 있는 행 수 — 하루 8개 항목 × 여러 날을 다 받기 위함. */
+	/** 한 번에 받는 행 수. 하루 8개 항목 × 여러 날을 한 번에 받으려면 이만큼 필요하다. */
 	private static final int NUM_OF_ROWS = 1000;
 
 	private final RestClient restClient;
@@ -85,11 +76,9 @@ public class KmaWeatherVendorAdapter implements WeatherVendorPort {
 					HttpStatus.BAD_GATEWAY);
 		}
 
-		// 🔴 인증키는 이미 URL 인코딩된 값으로 발급된다. UriComponentsBuilder 의 queryParam 으로
-		//    넣으면 다시 인코딩되어(이중 인코딩) 키가 깨진다 — 그래서 base URL 과 나머지
-		//    파라미터만 빌더로 만들고, 인증키는 문자열로 그대로 이어 붙인다.
-		// toUriString() 이 만드는 "?a=1&b=2" 앞의 물음표를 & 로 바꿔, authKey 뒤에 그대로
-		// 이어 붙일 수 있게 한다 — 물음표가 두 번 나오면 안 되기 때문이다.
+		// 인증키는 이미 URL 인코딩된 값으로 발급된다. queryParam 으로 넣으면 이중 인코딩되어
+		// 키가 깨지므로 나머지 인자만 빌더로 만들고 인증키는 문자열로 이어 붙인다.
+		// 그래서 toUriString() 이 붙인 앞의 물음표를 & 로 바꾼다.
 		String query = UriComponentsBuilder.newInstance()
 				.queryParam("numOfRows", NUM_OF_ROWS)
 				.queryParam("pageNo", 1)
@@ -102,15 +91,14 @@ public class KmaWeatherVendorAdapter implements WeatherVendorPort {
 				.toUriString()
 				.replaceFirst("^\\?", "&");
 
-		// 🔴 인증 인자 이름이 기상청 API 허브는 authKey 다 (공공데이터포털은 serviceKey 였다).
-		//    주소와 이 이름 둘만 다르고 나머지 인자·응답 모양은 같다 — S15P21E201-1065.
+		// 기상청 API 허브의 인증 인자 이름은 authKey 다 (공공데이터포털은 serviceKey 였다).
 		URI uri = URI.create(this.properties.getKmaBaseUrl() + "/getVilageFcst?authKey=" + serviceKey + query);
 
 		try {
 			return this.restClient.get().uri(uri).retrieve().body(String.class);
 		}
 		catch (RestClientException exception) {
-			// 🔴 좌표를 로그에 남기지 않는다 — 사용자가 어디에 있었는지가 로그에 쌓인다.
+			// 좌표를 로그에 남기지 않는다 — 사용자가 어디에 있었는지가 로그에 쌓인다.
 			log.warn("기상청 단기예보 호출 실패");
 			throw new WeatherVendorException("WEATHER_VENDOR_UNAVAILABLE", "기상청 호출에 실패했습니다.",
 					HttpStatus.BAD_GATEWAY, exception);

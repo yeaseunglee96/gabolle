@@ -8,13 +8,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 /**
- * Pick 안의 장소 한 칸과 <b>사람이 정한 순서</b> (S15P21E201-555).
+ * Pick 안의 장소 한 칸과 사람이 정한 순서.
  *
- * <p>🔴 <b>{@code pickRank} 를 추천 엔진이 다시 매기지 않는다.</b> Editor's Pick 은 "좋은 곳
- * 모음" 이 아니라 코스다 — 아침에 갈 곳과 저녁에 갈 곳이 바뀌면 다른 코스가 된다. 그래서
- * 이 값이 그대로 추천 결과의 {@code final_rank} 가 된다.
+ * <p>{@code pickRank} 를 추천 엔진이 다시 매기지 않는다. Editor's Pick 은 좋은 곳 모음이
+ * 아니라 코스라, 이 값이 그대로 추천 결과의 {@code final_rank} 가 된다.
  *
- * <p>🔴 {@link EditorialPick} 과 같은 이유로 읽기 전용이다.
+ * <p>{@link EditorialPick} 과 같은 이유로 읽기 전용이다.
  */
 @Entity
 @Table(name = "editorial_pick_place")

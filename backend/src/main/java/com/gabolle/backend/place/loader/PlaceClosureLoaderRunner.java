@@ -14,10 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * 폐업 여부를 적재한다 — S15P21E201-1341.
- *
- * <p>{@link OpeningHoursLoaderRunner} 와 같은 모양이다. 프로퍼티를 안 주면 이 빈이 만들어지지도
- * 않아 평소 기동에 아무 영향이 없다.
+ * 폐업 여부를 적재한다. 프로퍼티를 안 주면 이 빈이 만들어지지 않아 평소 기동에 영향이 없다.
  *
  * <pre>
  * java -jar gabolle-backend.jar \
@@ -25,17 +22,14 @@ import org.springframework.stereotype.Component;
  *   --gabolle.place.loader.closures=/data/place-link.ndjson
  * </pre>
  *
- * <p>파일 이름은 여기서 정한 것이 아니다 — {@code bigData/process/place-link.mjs} 가
+ * <p>입력 파일은 {@code bigData/process/place-link.mjs} 가
  * {@code data/staged/place-link.ndjson} 으로 쓴다.
  *
- * <h2>🔴 장소 적재를 먼저 돌려야 한다</h2>
- * 폐업은 장소에 붙는 값이라 장소 행이 없으면 붙을 자리가 없다. 순서가 뒤집혀도 <b>실패하지
- * 않는다</b> — 조용히 「장소없음」만 늘어난다. 그래서 그 수를 따로 찍고, 크면 경고한다.
+ * <p>장소 적재를 먼저 돌려야 한다. 순서가 뒤집혀도 실패하지 않고 「장소없음」만 조용히
+ * 늘어나므로, 그 수를 따로 찍고 비율이 크면 경고한다.
  *
- * <h2>🔴 수집분(dataset-version)을 안 받는다</h2>
- * 다른 적재기와 다른 점이다. 저 값들은 {@code place_feature} 행에 적혀 <b>어느 수집분에서 온
- * 값인지</b>를 남기는데, 폐업은 장소 자체의 칸 하나라 적을 자리가 없다. 있지도 않은 자리를
- * 요구하면 부르는 사람이 아무 값이나 넣게 되고, 그 값은 아무 뜻이 없다.
+ * <p>수집분(dataset-version)은 받지 않는다. 폐업은 장소 자체의 칸 하나라 어느 수집분에서 온
+ * 값인지를 적을 자리가 없다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -85,7 +79,7 @@ public class PlaceClosureLoaderRunner implements ApplicationRunner {
 					result.noPlace(), rows.size());
 		}
 		if (loaded.closedWithoutDate() > 0) {
-			// 🔴 상태만 「폐업」이고 날짜가 없는 줄이다. 원본이 바뀌면 여기가 커진다.
+			// 상태만 「폐업」이고 날짜가 없는 줄이다. 원본 규격이 바뀌면 여기가 커진다.
 			LOGGER.warn("「폐업」인데 날짜가 없어 버린 줄이 {}개다. 원본 규격이 바뀌었는지 확인하라",
 					loaded.closedWithoutDate());
 		}

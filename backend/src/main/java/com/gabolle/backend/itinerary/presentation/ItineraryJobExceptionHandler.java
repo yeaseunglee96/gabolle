@@ -18,19 +18,14 @@ import com.gabolle.backend.itinerary.domain.ItineraryRevision;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 
 /**
- * {@link ItineraryJobController} 전용 오류 번역기 — S15P21E201-249.
- *
- * <p>🔴 {@code ItineraryExceptionHandler} 를 재사용하지 않는 이유 — 그 클래스는
- * {@code @RestControllerAdvice(assignableTypes = ItineraryEditController.class)} 로 이미
- * {@code ItineraryEditController} 하나만 보게 좁혀져 있다({@code ItineraryQueryExceptionHandler}·
- * {@code PlaceExceptionHandler} 가 남긴 실측 — 범위 없는 advice 가 남의 예외를 가로챈 사고가
- * 있었다). 그 파일을 넓히면 이번 작업의 손댈 수 있는 파일 목록 밖을 건드리는 것이고,
- * {@code assignableTypes} 에 컨트롤러를 추가하는 것 자체가 "이 handler 는 이제 두
- * 컨트롤러를 함께 본다" 는 결합을 만든다 — 그래서 이 컨트롤러 전용으로 새로 둔다.
- *
- * <p>코드·메시지·{@code fields} 문자열 모양은 {@code ItineraryExceptionHandler} 와 그대로
- * 맞춘다 — 앱이 {@code error.fields} 를 {@code /^latestVersion=/} 로 훑어 최신 판 번호를
- * 뽑는 계약({@code frontend/src/plan/itinerary.ts})이 이 경로에도 똑같이 적용되기 때문이다.
+ * {@link ItineraryJobController} 전용 오류 번역기.
+ * {@code ItineraryExceptionHandler} 를 재사용하지 않는다. 그 클래스는
+ * {@code assignableTypes = ItineraryEditController.class} 로 이미 좁혀져 있고(범위 없는 advice
+ * 가 남의 예외를 가로챈 사고가 있었다), {@code assignableTypes} 에 컨트롤러를 추가하는 것
+ * 자체가 "이 handler 는 이제 두 컨트롤러를 함께 본다" 는 결합을 만든다.
+ * 코드·메시지·{@code fields} 문자열 모양은 {@code ItineraryExceptionHandler} 와 그대로 맞춘다 —
+ * 앱이 {@code error.fields} 를 {@code /^latestVersion=/} 로 훑어 최신 판 번호를 뽑는 계약이 이
+ * 경로에도 똑같이 적용된다.
  */
 @RestControllerAdvice(assignableTypes = ItineraryJobController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -70,7 +65,7 @@ public class ItineraryJobExceptionHandler {
 	}
 
 	/**
-	 * 🔴 없는 일정이거나, 있어도 요청자가 그 일정이 속한 여행의 회원이 아니다.
+	 * 없는 일정이거나, 있어도 요청자가 그 일정이 속한 여행의 회원이 아니다.
 	 * {@link ItineraryAccess#requireEditor} 가 이 예외를 던진다 — 존재를 감춘다.
 	 */
 	@ExceptionHandler(ItineraryQueryController.ItineraryNotFoundException.class)

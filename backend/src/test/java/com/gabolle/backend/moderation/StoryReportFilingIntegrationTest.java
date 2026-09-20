@@ -35,13 +35,7 @@ import com.gabolle.backend.moderation.presentation.ModerationExceptionHandler;
 import com.gabolle.backend.moderation.presentation.StoryReportController;
 import com.gabolle.testslice.StorySliceApplication;
 
-/**
- * S15P21E201-254 완료 기준 — 신고 접수, 즉시 비노출, 중복·자기 신고 처리.
- *
- * <p>🔴 이 파일에서 가장 중요한 테스트는 {@link #reportedStoryDisappearsFromAllFourSurfaces()} 다.
- * 신고 전에 <b>네 경로 전부에서 보였다는 것부터</b> 확인하고, 신고 뒤 전부에서 빠졌는지 본다 —
- * 원래 비어 있는 목록을 재는 것과 구분해야 하기 때문이다.
- */
+/** 신고 접수, 즉시 비노출, 중복·자기 신고 처리. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = { "spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none", "spring.flyway.enabled=true" })
 @ExtendWith(PostgresAvailableCondition.class)
@@ -79,13 +73,13 @@ class StoryReportFilingIntegrationTest {
 
 	private UUID author;
 
-	private UUID follower; // author 를 팔로우하는 사람 — 팔로잉 피드에서 본다
+	private UUID follower; // 팔로잉 피드를 이 사람으로 본다
 
 	private UUID reporter1;
 
 	private UUID reporter2;
 
-	private UUID stranger; // 아무 관계도 없는 조회자 — 전체 피드·프로필 피드·상세를 이 사람으로 본다
+	private UUID stranger; // 전체 피드·프로필 피드·상세를 이 사람으로 본다
 
 	private final Instant now = Instant.now();
 
@@ -142,8 +136,7 @@ class StoryReportFilingIntegrationTest {
 		UUID storyId = StoryFixture.insertStory(this.jdbc, this.author, "지워질 뻔한 기록", "PUBLIC",
 				this.now.minus(Duration.ofHours(1)));
 
-		// 신고 전 — 네 경로 전부에서 보인다. 이것을 먼저 확인하지 않으면 "원래 안 보였다" 와
-		// "신고로 안 보이게 됐다" 를 구분할 수 없다.
+		// 신고 전에 보였다는 것을 먼저 확인해야 "원래 안 보였다" 와 구분된다.
 		assertThat(visibleInFullFeed(storyId, this.stranger)).as("신고 전 전체 피드").isTrue();
 		assertThat(visibleInFollowingFeed(storyId, this.follower)).as("신고 전 팔로잉 피드").isTrue();
 		assertThat(visibleInProfileFeed(storyId, this.author, this.stranger)).as("신고 전 프로필 피드").isTrue();
@@ -151,7 +144,6 @@ class StoryReportFilingIntegrationTest {
 
 		report(storyId, this.reporter1, "PRIVACY");
 
-		// 신고 뒤 — 네 경로 전부에서 빠진다.
 		assertThat(visibleInFullFeed(storyId, this.stranger)).as("신고 뒤 전체 피드").isFalse();
 		assertThat(visibleInFollowingFeed(storyId, this.follower)).as("신고 뒤 팔로잉 피드").isFalse();
 		assertThat(visibleInProfileFeed(storyId, this.author, this.stranger)).as("신고 뒤 프로필 피드").isFalse();

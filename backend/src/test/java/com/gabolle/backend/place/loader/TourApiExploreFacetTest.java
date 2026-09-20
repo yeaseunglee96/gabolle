@@ -11,12 +11,8 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.place.domain.InterestTagCode;
 
 /**
- * 관광공사 분류 → 로컬 탐색 갈래 — S15P21E201-474.
- *
- * <p>이 판정이 틀리면 화면의 여덟 줄 중 하나가 조용히 비거나 엉뚱한 것으로 찬다. 응답은
- * 200 이고 아무것도 빨개지지 않는다.
- *
- * <p>코드값은 2026-09-11 수집본에서 실제로 본 것만 쓴다.
+ * 이 판정이 틀리면 화면의 여덟 줄 중 하나가 조용히 비거나 엉뚱한 것으로 찬다. 응답은 200 이고
+ * 아무것도 빨개지지 않는다. 쓰는 코드값은 실제 수집본에서 본 것뿐이다.
  */
 class TourApiExploreFacetTest {
 
@@ -77,10 +73,8 @@ class TourApiExploreFacetTest {
 	@Test
 	@DisplayName("탐색 갈래는 설문이 쓰는 낱말과 하나도 안 겹친다 — 표식을 더해도 추천 점수가 안 움직인다")
 	void exploreFacetsNeverCollideWithSurveyCodes() {
-		// 점수는 matched.size() / userCodes.size() 로 구한다(BaselineCandidateScorer.applyTagComponent).
-		// 분모가 사용자가 고른 낱말 수라, 장소에 표식이 늘어도 그중 하나가 사용자의 낱말과
-		// 같지 않으면 점수가 안 변한다. 그 "같지 않다" 를 여기서 못 박는다 — 티켓의
-		// 완료 기준이 "표식을 붙이기 전과 후에 추천 결과가 달라지지 않았다" 다.
+		// 태그 점수의 분모가 사용자가 고른 낱말 수라, 장소에 표식이 늘어도 그중 하나가
+		// 사용자의 낱말과 같지 않으면 점수가 안 변한다. 그 "같지 않다" 를 여기서 못 박는다.
 		List<String> surveyCodes = List.of(
 				"SEA_BEACH", "CITY", "CAFE_HEALING", "CULTURE_TEMPLE", "FOOD", "NATURE_WALK");
 

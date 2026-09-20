@@ -19,29 +19,13 @@ import com.gabolle.backend.route.presentation.RouteController;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 🔴 스프링이 이 패키지의 빈을 <b>실제로 만들 수 있는지</b> 확인한다 — S15P21E201-184.
+ * 스프링이 이 패키지의 빈을 실제로 만들 수 있는지 확인한다.
  *
- * <h2>왜 이 검사가 생겼나</h2>
- *
- * 2026-09-08 에 이 패키지 때문에 <b>운영이 두 번 내려갔다.</b> {@code KakaoMobilityRouteAdapter}
- * 에 테스트용 생성자를 하나 더 두었는데, 스프링은 {@code private} 이 아닌 생성자를 전부
- * 후보로 보므로 "생성자가 하나뿐" 판정이 깨져 기본(무인자) 생성자를 찾다가 <b>기동 자체가
- * 죽었다.</b> 고친 방법은 운영용 생성자에 {@code @Autowired} 를 붙이는 것이다.
- *
- * <h2>🔴 왜 기존 검사들이 하나도 못 잡았나 — 이게 진짜 교훈이다</h2>
- *
- * 이 패키지의 다른 검사 36개는 전부 초록이었고 CI 도 초록이었다. 그것들이 빈을
- * <b>손으로 {@code new} 해서</b> 만들기 때문이다. 손으로 만들면 생성자를 내가 고르므로,
- * <b>스프링이 어느 생성자를 고를지는 한 번도 확인되지 않는다.</b>
- *
- * <p>컨텍스트를 띄우는 검사가 저장소에 하나 있지만({@code RestClientBuilderContextTest})
- * 그것도 못 잡는다 — 기본 프로필이 {@code no-db} 이고 이 어댑터는
- * {@code @Profile({"db","dev"})} 라서 <b>그 컨텍스트에서는 만들어지지도 않는다.</b>
- *
- * <p>그래서 이 검사는 프로필을 {@code dev} 로 켜고 이 패키지를 실제로 스캔한다.
- * DB 는 안 쓴다 — 이 패키지에 표를 읽는 코드가 없어서 붙일 이유가 없고, DB 를 붙이면
- * 이 검사가 느려지고 DB 가 없는 곳에서 건너뛰어진다. <b>건너뛰는 안전장치는 없는 것과
- * 같다</b>는 것이 오늘의 교훈이기도 하다.
+ * 이 패키지의 다른 검사들은 빈을 손으로 {@code new} 해서 만들기 때문에, 스프링이 어느
+ * 생성자를 고를지는 한 번도 확인되지 않는다. 컨텍스트를 띄우는 다른 검사도 기본 프로필이
+ * {@code no-db} 라 {@code @Profile({"db","dev"})} 인 어댑터를 만들지 않는다. 그래서 여기서는
+ * 프로필을 {@code dev} 로 켜고 이 패키지를 실제로 스캔한다. DB 는 안 붙인다 — 이 패키지에
+ * 표를 읽는 코드가 없고, 붙이면 DB 가 없는 곳에서 건너뛰어진다.
  */
 class RouteBeanWiringTest {
 
@@ -61,8 +45,8 @@ class RouteBeanWiringTest {
 			context.scan("com.gabolle.backend.route");
 			context.refresh();
 
-			// 🔴 어댑터가 이 검사의 이유다. 나머지도 함께 본다 — 생성자가 하나뿐이라
-			//    지금은 안전하지만, 누군가 같은 이유로 하나를 더 만들면 그때 여기서 걸린다.
+			// 어댑터가 이 검사의 이유다. 나머지도 함께 본다 — 생성자가 하나뿐이라
+			// 지금은 안전하지만, 누군가 같은 이유로 하나를 더 만들면 그때 여기서 걸린다.
 			assertThat(context.getBean(KakaoMobilityRouteAdapter.class)).isNotNull();
 			assertThat(context.getBean(StraightLineRouteEstimator.class)).isNotNull();
 			assertThat(context.getBean(RouteCache.class)).isNotNull();

@@ -27,25 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * S15P21E201-1231 — 여행 조건 모달의 답이 <b>상태 넷</b>으로 오가는가.
+ * 여행 조건 모달의 답이 상태 넷으로 오가는지 실제 DB 로 잰다.
  *
- * <h2>재는 것 — 완료 기준 그대로</h2>
- *
- * <ul>
- *   <li>한 번도 저장 안 했으면 <b>비어 있다</b> — 부르는 쪽이 그것을 {@code status:null} 200 으로 낸다</li>
- *   <li><b>{@code SAVED}</b> 는 값이 따라온다</li>
- *   <li><b>{@code LATER}</b> · <b>{@code NEVER}</b> 는 값 없이 저장되고, 둘이 <b>서로 구분된다</b></li>
- *   <li>🔴 {@code SAVED} 였다가 {@code LATER} 로 바꾸면 <b>값이 지워진다</b></li>
- *   <li>🔴 값 없이 {@code SAVED} 는 <b>거부된다</b></li>
- *   <li>🔴 {@code LATER} 인데 값을 보내면 <b>거부가 아니라 값만 버린다</b></li>
- *   <li>사람당 <b>한 줄</b>이다 — 두 번 저장해도 줄이 안 는다</li>
- *   <li>🔴 DB 가 스스로 막는다 — 응용을 건너뛰고 넣어도 제약에 걸린다</li>
- * </ul>
- *
- * <h2>DB 가 없으면 건너뛴다</h2>
- *
- * 🔴 {@code PostgresAvailableCondition} 이 붙으므로 도커가 꺼진 PC 에서는 건너뛴 채 초록이다.
- * <b>진짜 판정은 CI 다.</b>
+ * <p>{@code PostgresAvailableCondition} 이 붙어 도커가 꺼진 PC 에서는 건너뛴 채 초록이다 —
+ * 진짜 판정은 CI 다.
  */
 @SpringBootTest(classes = TripSliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -77,7 +62,7 @@ class TravelConstraintIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
+		// 표를 비우지 않는다. 내가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
 		this.jdbc.update("DELETE FROM user_travel_constraint WHERE user_id = ?", this.userId);
 		this.jdbc.update("DELETE FROM event_outbox WHERE aggregate_id = ?", this.userId);
 		this.jdbc.update("DELETE FROM app_user WHERE user_id = ?", this.userId);

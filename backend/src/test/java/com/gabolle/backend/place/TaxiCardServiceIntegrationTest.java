@@ -19,11 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 택시 목적지 카드 — S15P21E201-217 (+ -430 부분).
- *
- * <p>한국어를 못 하는 여행자가 택시 기사에게 화면을 보여주면 목적지가 전달되는 화면에 쓴다.
- * 이 테스트는 실제 PostgreSQL 위에서 {@link TaxiCardService} 를 직접 부른다 — JSON 직렬화(키가
- * 빠지는지)는 {@code TaxiCardControllerTest} 가, 여기서는 문장 조립과 언어 판정을 확인한다.
+ * 실제 PostgreSQL 위에서 {@link TaxiCardService} 를 직접 부른다. JSON 직렬화는
+ * {@code TaxiCardControllerTest} 가 보고, 여기서는 문장 조립과 언어 판정을 확인한다.
  */
 class TaxiCardServiceIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -124,10 +121,8 @@ class TaxiCardServiceIntegrationTest extends PlacePostgresIntegrationTest {
 	@Test
 	@DisplayName("🔴 영문 주소가 있어야 en 이다 — 영문 이름만 있으면 ko 로 되돌린다")
 	void resolvedLanguageFollowsAddressNotName() {
-		// 영문 이름은 있고 영문 주소는 없다. 이 카드가 기사에게 보여주는 것은 주소이므로,
-		// 화면에 실제로 보일 영어가 하나도 없다 — 그때 "en" 이라고 답하면 응답이 거짓말을 한다.
-		// 🔴 장소 상세는 반대로 이름을 기준으로 삼는다. 응답마다 주된 값이 다르기 때문이고,
-		//    그 근거는 RequestLanguage 주석에 있다
+		// 이 카드가 기사에게 보여주는 것은 주소라서 언어 판정도 주소를 기준으로 한다.
+		// 장소 상세는 반대로 이름을 기준으로 삼는다 — 응답마다 주된 값이 다르기 때문이다.
 		UUID nameOnly = this.fixture.insertPlace("영문이름만", "EnglishName", "ATTRACTION", 35.0, 129.0);
 		assertThat(this.taxiCardService.get(nameOnly, "en").resolvedLanguage()).isEqualTo("ko");
 

@@ -12,15 +12,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * S15P21E201-1275 — 동영상 형식 판별.
+ * 동영상 형식 판별. 재는 것이 앞 12바이트를 어떻게 읽는가 하나라서 DB 없이 바이트 배열로 본다.
  *
- * <p>DB 를 안 띄운다. 재는 것이 <b>앞 12바이트를 어떻게 읽는가</b> 하나라서 바이트 배열로 답할 수 있다.
- *
- * <h2>🔴 {@code .mov} 가 막히는지가 이 파일의 핵심이다</h2>
- *
- * QuickTime 은 MP4 와 <b>같은 {@code ftyp} 구조</b>를 쓴다. 브랜드만 다르다. 그래서
- * <i>「{@code ftyp} 이 있으면 통과」</i> 로 짜면 <b>받지 않기로 한 형식이 그대로 들어온다</b> —
- * 그리고 그건 <b>파일이 저장소에 쌓인 뒤에야</b> 드러난다.
+ * <p>{@code .mov} 가 막히는지가 핵심이다 — QuickTime 은 MP4 와 같은 {@code ftyp} 구조를 쓰므로
+ * {@code ftyp} 만 보고 통과시키면 받지 않기로 한 형식이 들어온다.
  */
 class VideoSnifferTest {
 

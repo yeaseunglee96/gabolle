@@ -5,7 +5,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
- * S15P21E201-461 JPA 저장소 통합 테스트가 띄우는 애플리케이션 — <b>공통·여행만</b> 올린다.
+ * JPA 저장소 통합 테스트가 띄우는 애플리케이션 — 공통·여행만 올린다.
  *
  * <p>{@link RecommendationSliceApplication} 과 같은 이유로 패키지를 따로 둔다 —
  * {@code com.gabolle.backend} 안에 두면 본 애플리케이션의 컴포넌트 스캔에 걸려
@@ -14,11 +14,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication(scanBasePackages = {
 		"com.gabolle.backend.common",
 		"com.gabolle.backend.trip",
-		// 2026-09-07 — 참여자 목록(TripMemberService)이 표시 이름을 app_user 에서 읽는다.
+		// 참여자 목록(TripMemberService)이 표시 이름을 app_user 에서 읽는다.
 		"com.gabolle.backend.user",
-		// S15P21E201-709 — SpendProfileService가 EventIngestService를 물어서 필요해졌다.
+		// SpendProfileService가 EventIngestService를 물어서 필요해졌다.
 		"com.gabolle.backend.event",
-		// 2026-09-10 (S15P21E201-475) — 갈래 열람 기록 경로(TripFacetViewController)가
+		// 갈래 열람 기록 경로(TripFacetViewController)가
 		// place 쪽 기록 서비스를 부른다. 조건부 배선(@ConditionalOnBean)으로 슬라이스에서만
 		// 빠지게 하는 방법도 있었지만 그러면 운영에서도 조용히 빠질 수 있는 자리가 하나
 		// 늘어난다 — 운영 배선은 무조건 붙거나 기동이 실패하는 편이 낫다.
@@ -28,7 +28,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = {
 		"com.gabolle.backend.trip.infra", "com.gabolle.backend.user.domain", "com.gabolle.backend.event.domain",
 		"com.gabolle.backend.place.domain",
-		// S15P21E201-160 — RecommendationJobRepository(아래 @EnableJpaRepositories)가
+		// RecommendationJobRepository(아래 @EnableJpaRepositories)가
 		// 관리하는 엔티티(RecommendationJob)의 표 매핑도 여기 없으면 "관리 대상 아님"으로
 		// 빈 자체를 못 만든다.
 		"com.gabolle.backend.recommendation.domain"
@@ -36,7 +36,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.trip.infra", "com.gabolle.backend.user.repository",
 		"com.gabolle.backend.event.repository", "com.gabolle.backend.place.repository",
-		// S15P21E201-160 — AnalyticsQueryService(event.application)가 생성자로
+		// AnalyticsQueryService(event.application)가 생성자로
 		// RecommendationJobRepository 를 요구한다. event 를 스캔하는 순간 그 빈도 같이
 		// 요구된다(AuthSliceApplication 이 같은 이유로 먼저 겪었다).
 		"com.gabolle.backend.recommendation.repository"

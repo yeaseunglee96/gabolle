@@ -20,25 +20,21 @@ import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.service.PlaceNotFoundException;
 
 /**
- * 컬렉션 — S15P21E201-1013.
+ * 컬렉션.
  *
- * <p>🔴 <b>남의 것을 볼 길이 없다.</b> 경로에 남의 번호를 넣을 자리가 없고
- * ({@code /api/v1/me/collections}), 컬렉션을 찾을 때도 <b>언제나 주인과 함께</b> 찾는다.
- * 번호만으로 찾고 나서 주인을 따로 검사하면 그 검사를 한 자리에서 빠뜨리는 날이 온다.
+ * <p>경로에 남의 번호를 넣을 자리가 없고({@code /api/v1/me/collections}), 컬렉션을 찾을 때도
+ * 언제나 주인과 함께 찾는다. 번호만으로 찾고 나서 주인을 따로 검사하면 그 검사를 빠뜨릴 수
+ * 있다.
  *
- * <p>🔴 <b>없는 컬렉션과 남의 컬렉션을 같은 404 로 답한다.</b> 구분해 답하면 «있는데 너는
- * 못 본다» 가 응답 모양으로 새어 나간다 — 이 저장소가 여행·추천에서 쓰는 것과 같은 규칙이다.
+ * <p>없는 컬렉션과 남의 컬렉션을 같은 404 로 답한다. 구분하면 있다는 사실이 새어 나간다.
  */
 @Service
 @Profile({ "db", "dev" })
 public class CollectionService {
 
 	/**
-	 * 한 번에 돌려주는 컬렉션 최대 개수 — S15P21E201-1037.
-	 *
-	 * <p>상한을 두면 <b>알리는 칸을 함께</b> 둬야 한다({@code hasMore}). 상한만 두고 안
-	 * 알리면 목록이 조용히 잘리고, 사용자에게는 「내가 만든 목록이 없어졌다」로 보인다.
-	 * 같은 판단을 축제 목록과 일정 판 목록이 먼저 했다(S15P21E201-1011).
+	 * 한 번에 돌려주는 컬렉션 최대 개수. 상한에 걸려 잘렸다는 것은 {@code hasMore} 로 함께
+	 * 알린다 — 안 알리면 목록이 조용히 잘려 사용자에게는 없어진 것으로 보인다.
 	 */
 	public static final int MAX_COLLECTIONS = 100;
 
@@ -66,8 +62,7 @@ public class CollectionService {
 	/**
 	 * 내 컬렉션 전부와 그 안의 항목.
 	 *
-	 * <p>🔴 항목을 컬렉션마다 따로 묻지 않는다. 컬렉션이 열 개면 질의가 열한 번이 되고,
-	 * 그 수가 화면에서 보이는 목록 길이에 그대로 비례한다.
+	 * <p>항목을 컬렉션마다 따로 묻지 않는다 — 질의 수가 목록 길이에 비례한다.
 	 */
 	@Transactional(readOnly = true)
 	public Listing list(UUID userId) {
@@ -127,9 +122,8 @@ public class CollectionService {
 	/**
 	 * 우리가 아는 곳을 담는다.
 	 *
-	 * <p>🔴 이미 담긴 장소를 또 담아도 <b>성공</b>이고 두 번 들어가지 않는다. 화면에서
-	 * 연타할 수 있고 통신이 끊기면 앱이 재시도한다 — 그때 {@code uk_collection_item_place}
-	 * 에 걸려 실패하면 사용자는 «담기가 고장났다» 로 본다.
+	 * <p>이미 담긴 장소를 또 담아도 성공이고 두 번 들어가지 않는다. 화면에서 연타할 수 있고
+	 * 통신이 끊기면 앱이 재시도한다.
 	 *
 	 * @throws PlaceNotFoundException 없는 장소를 담으려 했다. 안 막으면 외래키 위반이
 	 *     그대로 올라와 500 이 나가고, 화면은 «서버 고장» 과 «그런 장소 없음» 을 구분 못 한다
@@ -152,7 +146,7 @@ public class CollectionService {
 						"방금 담은 장소를 도로 읽지 못했다: collectionId=" + collectionId + " placeId=" + placeId));
 	}
 
-	/** 사용자가 직접 적은 것을 담는다. 사진은 화면이 먼저 올리고 <b>그 주소</b>를 준다. */
+	/** 사용자가 직접 적은 것을 담는다. 사진은 화면이 먼저 올리고 그 주소를 준다. */
 	@Transactional
 	public CollectionItem addCustom(UUID userId, UUID collectionId, String name, String locality, Double lat,
 			Double lng, String photoUrl, String note) {
@@ -184,7 +178,7 @@ public class CollectionService {
 		return item;
 	}
 
-	/** 🔴 없는 것을 빼도 성공이다 — 이미 빠진 뒤에 재시도가 도착하는 일이 흔하다. */
+	/** 없는 것을 빼도 성공이다 — 이미 빠진 뒤에 재시도가 도착하는 일이 흔하다. */
 	@Transactional
 	public void removeItem(UUID userId, UUID collectionId, UUID itemId) {
 		Collection collection = mine(userId, collectionId);
@@ -219,7 +213,7 @@ public class CollectionService {
 	/**
 	 * 컬렉션과 그 안의 항목을 함께 들고 다니는 묶음.
 	 *
-	 * @param hasMore 항목이 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037)
+	 * @param hasMore 항목이 상한에 걸려 더 있는데 안 보냈다
 	 */
 	public record Loaded(Collection collection, List<CollectionItem> items, boolean hasMore) {
 	}
@@ -233,13 +227,11 @@ public class CollectionService {
 	}
 
 	/**
-	 * 넣은 직후 그 행을 도로 못 읽었다 — 일어나면 안 되는 일이다.
+	 * 넣은 직후 그 행을 도로 못 읽었다 — 우리 쪽 불변식이 깨진 것이다.
 	 *
-	 * <p>{@code IllegalArgumentException}·{@code IllegalStateException} 이 아닌 <b>따로 만든
-	 * 예외</b>인 이유는 하나다. 그 둘은 {@code CollectionExceptionHandler} 가 400 으로 내리는데,
-	 * 이것은 부르는 쪽이 잘못한 것이 아니라 <b>우리 쪽 불변식이 깨진 것</b>이다. 400 으로
-	 * 내리면 사용자는 자기 입력을 고치려 들고, 우리는 서버 오류 그래프에서 이 사고를 못 본다.
-	 * 아무 어드바이스도 안 잡으므로 500 으로 나간다.
+	 * <p>{@code IllegalArgumentException}·{@code IllegalStateException} 을 쓰지 않는 것은
+	 * {@code CollectionExceptionHandler} 가 그 둘을 400 으로 내리기 때문이다. 이 예외는 아무
+	 * 어드바이스도 잡지 않아 500 으로 나간다.
 	 */
 	public static class WriteReadBackFailedException extends RuntimeException {
 
@@ -248,7 +240,7 @@ public class CollectionService {
 		}
 	}
 
-	/** 없는 컬렉션이거나, 있어도 내 것이 아니다. <b>둘을 구분해 답하지 않는다.</b> */
+	/** 없는 컬렉션이거나, 있어도 내 것이 아니다. 둘을 구분해 답하지 않는다. */
 	public static class CollectionNotFoundException extends RuntimeException {
 
 		public CollectionNotFoundException(UUID collectionId) {

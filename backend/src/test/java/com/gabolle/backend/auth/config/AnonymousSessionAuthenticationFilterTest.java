@@ -20,9 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-/**
- * S15P21E201-303 — {@code X-Session-Token} 헤더로 익명 세션의 주인을 찾는 필터.
- */
+/** {@code X-Session-Token} 헤더로 익명 세션의 주인을 찾는 필터. */
 class AnonymousSessionAuthenticationFilterTest {
 
 	private final AnonymousSessionService anonymousSessionService = mock(AnonymousSessionService.class);

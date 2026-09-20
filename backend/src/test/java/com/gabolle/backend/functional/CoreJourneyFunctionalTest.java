@@ -30,27 +30,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 
 /**
- * 핵심 여정 — S15P21E201-780. 이 서비스의 돈이 되는 경로를 실제 HTTP로 이어 붙인다.
+ * 핵심 여정. 회원가입 → 로그인 → 여행 생성 → 추천 Job → 폴링 → 일정 편집 Job 제출까지, 앞 단계
+ * 응답을 그대로 다음 단계 요청에 넣어 한 테스트로 끝까지 돈다.
  *
- * <p>회원가입 → 로그인 → 여행 생성 → 추천 Job 생성 → 폴링으로 완료 확인 → 일정 편집 Job
- * 제출까지, 앞 단계 응답을 그대로 다음 단계 요청에 넣어 한 테스트로 끝까지 돈다. 각 단계는
- * 지금까지 슬라이스 테스트에서만 각자 검증됐고, 이어 붙이는 시나리오는 한 번도 자동으로
- * 돈 적이 없었다(-780 배경).
+ * <p>{@code service-version}·{@code deployment-environment} 를 여기서 채운다. 검사 환경에서는 둘 다
+ * 빈 문자열이고, {@code RecommendationService.resolveMissingVersions} 는 비어 있으면 후보가 몇
+ * 건이든 VERSION_UNRESOLVED 로 막는다 — 장소를 아무리 넉넉히 심어도 실패한다.
  *
- * <p>🔴 {@link FunctionalJourneyTest#pollUntil}은 5초 상한이다 — 추천 계산이 실제 외부
- * 호출 없이(테스트 DB엔 place 데이터가 없다) 돌아 그 안에 끝나는지는 처음 돌려보기 전엔
- * 몰랐다. 여기서 그대로 재사용해 본다 — 상한이 부족하면 이 클래스 안에서 늘린다.
- *
- * <p>🔴 실측(2026-09-10) — {@code gabolle.recommendation.service-version}·
- * {@code deployment-environment}는 검사 환경에서 기본값이 빈 문자열이다(운영은 Jenkins가
- * {@code -e}로 채운다, application-dev.properties 112~125행). {@code RecommendationService
- * .resolveMissingVersions}는 이 둘이 비어 있으면 후보가 몇 건이든 무관하게 VERSION_UNRESOLVED로
- * 막는다 — 장소를 아무리 넉넉히 심어도 이 값이 없으면 그대로 실패한다. 처음엔 이것을 "후보가
- * 부족하다"로 오인해 장소 수를 3→12→30으로 계속 늘렸지만 원인이 아니었다.
- * {@link RecommendationWithRealPlacesFunctionalTest}(S15P21E201-804)가 이미 같은 문제를
- * 겪고 {@code @TestPropertySource}로 이 클래스만 채우는 방식으로 풀어 둔 것을 그대로 따른다 —
- * 하네스({@link FunctionalJourneyTest})의 공통 프로퍼티에 더하지 않는 이유도 그쪽 클래스
- * 주석과 같다(여정마다 프로퍼티가 다르면 Spring이 컨텍스트를 새로 캐시한다).
+ * <p>공통 하네스가 아니라 이 클래스에만 붙인다. 여정마다 프로퍼티가 다르면 Spring 이 컨텍스트를 새로
+ * 캐시한다.
  */
 @TestPropertySource(properties = { "gabolle.recommendation.service-version=test-local",
 		"gabolle.recommendation.deployment-environment=test" })
@@ -65,16 +53,11 @@ class CoreJourneyFunctionalTest extends FunctionalJourneyTest {
 	private final List<UUID> seededPlaceIds = new ArrayList<>();
 
 	/**
-	 * 🔴 실측(2026-09-10) — 이 여정은 실제로 일정을 조립해 {@code itinerary_item}이 방금 심은
-	 * 장소를 참조한다(그것이 이 테스트가 확인하려는 것이다). {@link PlaceFixture#cleanUp}이
-	 * 그 참조를 모르고 {@code place}를 바로 지우려다 {@code fk_itinerary_item_place}에 걸려
-	 * 일부 행을 못 지우고 남기면, 그 남은 행이 {@link RecommendationWithRealPlacesFunctionalTest
-	 * #ensurePlaces}를 속인다 — "{@code place}가 이미 있으니 표본 200곳을 안 넣어도 된다"고
-	 * 잘못 판단해 그 검사가 실제로는 CI에서 실패했다(2026-09-10 실측, 파이프라인 188411).
-	 * 그래서 베스트에포트로 삼키지 않고, {@code place}를 지우기 전에 참조하는 세 표
-	 * (itinerary_item·itinerary_leg·itinerary_excluded_place)에서 먼저 행을 지운다 —
-	 * 이 트리를 통째로 지우는 cascade가 없어(itinerary_versions까지 손으로 타고 내려가야
-	 * 한다) 참조 쪽에서 바로 지우는 것이 더 안전하다.
+	 * {@code place} 를 지우기 전에 참조하는 세 표(itinerary_item·itinerary_leg·
+	 * itinerary_excluded_place)에서 먼저 행을 지운다. 이 여정은 실제로 일정을 조립해
+	 * {@code itinerary_item} 이 심은 장소를 참조하므로, 바로 지우면 외래 키에 걸려 일부 행이 남는다.
+	 * 남은 행은 {@link RecommendationWithRealPlacesFunctionalTest} 가 «표본이 이미 있다»고 잘못
+	 * 판단하게 만든다.
 	 */
 	@AfterEach
 	void cleanUpPlaces() {
@@ -100,11 +83,9 @@ class CoreJourneyFunctionalTest extends FunctionalJourneyTest {
 	void coreJourneyEndToEnd() {
 		AuthedClient client = loginAsNewUser("core-journey");
 
-		// 0) 후보 장소 시딩 — 🔴 실측(2026-09-10) — functionaltest 스키마엔 place 행이
-		//    하나도 없어서, 장소 없이 추천 Job을 돌리면 후보가 0건이라 dataset_version을
-		//    구할 수 없고 VERSION_UNRESOLVED로 실패한다(BaselineRecommendationEngine
-		//    javadoc — "unknown"을 지어내지 않는다는 설계). PlaceFixture(place 통합
-		//    테스트들이 쓰는 것과 같은 픽스처)로 여행 출발지 근처에 실제 후보를 넣는다.
+		// 0) 후보 장소 시딩 — functionaltest 스키마엔 place 행이 없어, 장소 없이 추천을
+		//    돌리면 후보가 0건이라 dataset_version 을 못 구하고 VERSION_UNRESOLVED 로
+		//    실패한다.
 		this.placeFixture = new PlaceFixture(this.jdbcTemplate);
 		double originLat = 35.1152;
 		double originLng = 129.0423;
@@ -115,22 +96,13 @@ class CoreJourneyFunctionalTest extends FunctionalJourneyTest {
 			this.seededPlaceIds.add(placeId);
 		}
 
-		// 1) 여행 생성 — TRIP-01.
-		//    🔴 실측(2026-09-10) — originLat/originLng는 DTO에는 @NotNull이 없지만
-		//    실제로는 필수다(TRIP_VALIDATION_FAILED: "출발지 좌표가 없다"). 부산역 좌표를 쓴다.
-		//    🔴 실측(2026-09-10) — "제약을 하나도 답하지 않았다" 오류는 preferences가
-		//    아니라 constraints(별도 constraint_snapshot 표, JpaTripRepository.
-		//    findLatestConstraintSnapshotId)가 비어 있을 때 난다. preferences만 채워서는
-		//    안 풀렸다 — constraints를 최소 하나 답해야 한다.
-		//    🔴 실측(2026-09-10) — CATEGORY 취향 답의 codes는 BaselineCandidateTranslator가
-		//    place.category와 글자 그대로 비교한다(대조표 매핑 여부와 무관하게 원문 코드를
-		//    그대로 쓴다). "SEA"로 줬더니 위에서 심은 place.category="CAFE"와 안 맞아 후보가
-		//    0건이 되고 dataset_version을 못 구해 VERSION_UNRESOLVED로 실패했다 — 심은 장소
-		//    category와 반드시 같은 문자열을 써야 한다.
-		//    🔴 2026-09-14 (S15P21E201-915) — 그 문자열을 "CAFE" 에서 "CAFE_HEALING" 으로 바꿨다.
-		//    앱의 어휘 여섯에 "CAFE" 는 없고, 이제 preference_answer 의 CATEGORY 에 사전 강제가
-		//    걸려 DB 가 거부한다. 🔴 심는 장소의 category 도 같이 바꿨다 — 둘은 짝이라 한쪽만
-		//    바꾸면 위에 적힌 그 실패(후보 0건 → VERSION_UNRESOLVED)가 그대로 재현된다.
+		// 1) 여행 생성.
+		//    originLat/originLng 는 DTO 에 @NotNull 이 없지만 실제로는 필수다.
+		//    "제약을 하나도 답하지 않았다" 오류는 preferences 가 아니라 constraints 가
+		//    비어 있을 때 나므로 constraints 를 최소 하나 답한다.
+		//    CATEGORY 답의 codes 는 place.category 와 글자 그대로 비교되므로 위에서 심는
+		//    장소의 category 와 같은 문자열이어야 한다 — 다르면 후보 0건이 되어
+		//    VERSION_UNRESOLVED 로 실패한다. 둘은 짝이라 한쪽만 바꾸면 안 된다.
 		LocalDate start = LocalDate.now().plusDays(7);
 		LocalDate finish = start.plusDays(1);
 		CreateTripRequest.PreferenceAnswerInput categoryAnswer = new CreateTripRequest.PreferenceAnswerInput(

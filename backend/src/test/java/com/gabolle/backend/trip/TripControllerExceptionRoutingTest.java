@@ -30,15 +30,8 @@ import com.gabolle.backend.trip.presentation.TripController;
 import com.gabolle.backend.trip.presentation.TripExceptionHandler;
 
 /**
- * 🔴 S15P21E201-294 — 진미리 님이 배포에서 재현한 "여행 생성 500" 을 추적한다.
- *
- * <p>실 계정으로 직접 재현해 보니 원인은 {@code ALLERGY} + {@code constraintKey="OTHER"}
- * 조합이었다. 도메인({@code TripConstraint})은 이 조합에서 {@code SensitiveConstraintNotSupportedException}
- * 을 던지고, {@code TripExceptionHandler} 가 그것을 400 으로 번역하는 핸들러를 <b>이미 갖고
- * 있다.</b> 그런데 배포에서는 500 이 났다 — 두 {@code @RestControllerAdvice} 가 동시에 등록된
- * 실제 앱에서만 드러나는 문제라는 뜻이라, {@link TripControllerGetTest}처럼
- * {@code TripExceptionHandler} 하나만 올리면 이 버그를 못 잡는다. 그래서 여기서는
- * {@code AuthExceptionHandler}(전역, {@code assignableTypes} 없음)도 같이 올린다.
+ * 전역 {@code AuthExceptionHandler} 까지 같이 올린다 — {@code TripExceptionHandler} 하나만 올리면
+ * 두 {@code @RestControllerAdvice} 사이의 라우팅이 어긋나 500 이 나가는 것을 못 잡는다.
  */
 class TripControllerExceptionRoutingTest {
 
@@ -54,8 +47,6 @@ class TripControllerExceptionRoutingTest {
 
 		TripController controller = new TripController(creationService, queryService,
 				new TripDeletionService(repository, clock));
-		// 🔴 실제 앱은 두 advice 가 함께 등록된다 — AuthExceptionHandler 는 전역이라 TripController
-		// 에서 난 예외도 본다. 이 둘을 같이 올려야 배포에서 난 것과 같은 라우팅이 재현된다.
 		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
 				.setControllerAdvice(new TripExceptionHandler(), new AuthExceptionHandler())
 				.build();
