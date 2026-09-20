@@ -15,10 +15,6 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { idleNowResult, requestNowRecommendations, type NowCandidate, type NowViewModel } from '@/plan/nowRecommendations';
 
-function isSampleCandidate(candidate: NowCandidate): boolean {
-  return 'isSample' in candidate;
-}
-
 const REMAINING_OPTIONS = [30, 60, 90, 120, 180] as const;
 
 type LocationState = 'idle' | 'detecting' | 'granted' | 'denied';
@@ -30,7 +26,6 @@ function CandidateCard({ candidate, onOpen }: { candidate: NowCandidate; onOpen:
     <View style={styles.card}>
       <View style={styles.cardTop}>
         <Text variant="title" weight="bold" style={styles.grow}>{candidate.name}</Text>
-        {isSampleCandidate(candidate) && <View style={styles.sampleChip}><Text variant="caption" weight="bold">{tx('샘플', 'Sample')}</Text></View>}
         <View style={styles.statusChip}><Text variant="caption" weight="bold">{STATUS_LABEL[candidate.dataStatus]}</Text></View>
       </View>
       <Text variant="body" color={color.text.body}>{tx(`이동 ${candidate.travelMinutes}분`, `${candidate.travelMinutes} min away`)}</Text>
@@ -211,7 +206,6 @@ const styles = StyleSheet.create({
   cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   grow: { flex: 1 },
   statusChip: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
-  sampleChip: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[1] },
   tag: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.sm, backgroundColor: color.surface.tint },
   detailLink: { minHeight: 44, justifyContent: 'center' },
