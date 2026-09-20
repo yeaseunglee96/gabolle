@@ -4,6 +4,7 @@ import {
   EMPTY_START_BAR,
   START_BAR_PRESETS,
   addDays,
+  askForPlanBlocker,
   canAskForPlan,
   dayCount,
   nightCount,
@@ -93,15 +94,19 @@ describe('한 줄 요약', () => {
 });
 
 describe('일정 물어보기를 누를 수 있나', () => {
-  it('출발지와 날짜와 인원이 다 있어야 한다', () => {
+  it('날짜와 인원이 있어야 한다 — 출발지는 선택이다 (S15P21E201-1376)', () => {
     expect(canAskForPlan(value())).toBe(false);
     expect(canAskForPlan(value({ origin: '부산역' }))).toBe(false);
+    expect(canAskForPlan(value({ startDate: '2026-09-20' }))).toBe(true);
     expect(canAskForPlan(value({ origin: '부산역', startDate: '2026-09-20' }))).toBe(true);
     expect(canAskForPlan(value({ origin: '부산역', startDate: '2026-09-20', adults: 0 }))).toBe(false);
   });
 
-  it('공백만 든 출발지는 없는 것으로 본다', () => {
-    expect(canAskForPlan(value({ origin: '   ', startDate: '2026-09-20' }))).toBe(false);
+  it('왜 못 누르는지를 말한다', () => {
+    const tx = (ko: string) => ko;
+    expect(askForPlanBlocker(value(), tx)).toBe('날짜를 골라 주세요');
+    expect(askForPlanBlocker(value({ startDate: '2026-09-20', adults: 0 }), tx)).toBe('인원을 정해 주세요');
+    expect(askForPlanBlocker(value({ startDate: '2026-09-20' }), tx)).toBeNull();
   });
 });
 
