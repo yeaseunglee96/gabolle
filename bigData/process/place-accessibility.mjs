@@ -61,7 +61,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
 import { log } from '../lib/log.mjs'
 
@@ -94,9 +94,11 @@ const safeName = (id) => String(id).replace(/[^\w.-]/g, '_')
  *   🔴 「주출입구(문)」과 「주출입문」은 여전히 안 걸린다 — 앞머리가 다르다.
  *      좁게 가기로 한 결정이 여기서 안 흔들린다.
  */
-function meetsRule(evalRaw) {
+export function meetsRule(evalRaw) {
   if (!evalRaw) return false
   return evalRaw
+    // 🔴 **쉼표로 먼저 쪼갠다.** 쉼표까지 지우고 보면 앞 항목의 끝과 뒤 항목의 앞이 붙어
+    //    없던 이름이 생긴다 — 「주출입구, 접근로 안내」 가 「주출입구접근로」 로 읽힌다.
     .split(',')
     .map((s) => s.trim().replace(/\s/g, ''))
     .some((it) => ACCESS_PREFIXES.some((p) => it.startsWith(p)))
@@ -176,4 +178,9 @@ async function main() {
   log('만들기 완료')
 }
 
-main().catch((e) => { console.error('치명:', e?.stack || e); process.exit(1) })
+// 🔴 시험이 규칙만 꺼내 쓸 수 있어야 해서 내보낸다. 그러면 import 만으로 본문이 돌면
+//    안 되므로, **직접 실행했을 때만** 돈다.
+const runDirectly = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
+if (runDirectly) {
+  main().catch((e) => { console.error('치명:', e?.stack || e); process.exit(1) })
+}
