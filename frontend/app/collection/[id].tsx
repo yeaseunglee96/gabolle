@@ -18,6 +18,7 @@ import { useI18n } from '@/i18n';
 import { useCollection } from '@/collection/CollectionProvider';
 import { COLLECTION_LIMITS } from '@/collection/collectionsApi';
 import { searchOrigins, type OriginCandidate } from '@/plan/origins';
+import { txf } from '@/i18n/format';
 
 // : "카카오맵 자동완성으로 위치 자동 입력" 리포트 — 새 지도 SDK를 또 불러오는
 // 대신, 이미 카카오 로컬 검색으로 동작 중인 이 엔드포인트를 그대로 쓴다(여행 만들기 출발지
@@ -178,7 +179,7 @@ export default function CollectionListDetail() {
       </Pressable>
       <TextInput accessibilityLabel={tx('장소 이름', 'Place name')} maxLength={COLLECTION_LIMITS.itemName} value={name} onChangeText={handleNameChange} placeholder={tx('장소 이름 (검색해서 골라도 돼요)', 'Place name (search and pick, or type your own)')} placeholderTextColor={color.text.muted} style={styles.input} />
       {searchResults.length > 0 && <View accessibilityRole="list" style={styles.suggestionList}>
-        {searchResults.map((item) => <Pressable key={item.externalId} accessibilityRole="button" accessibilityLabel={tx(`${item.name} 선택`, `Choose ${item.name}`)} onPress={() => selectSuggestion(item)} style={({ pressed }) => [styles.suggestionItem, pressed && styles.suggestionItemPressed]}>
+        {searchResults.map((item) => <Pressable key={item.externalId} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 선택', 'Choose %s', item.name)} onPress={() => selectSuggestion(item)} style={({ pressed }) => [styles.suggestionItem, pressed && styles.suggestionItemPressed]}>
           <Text variant="body" weight="bold">{item.name}</Text>
           <Text variant="caption" color={color.text.muted}>{item.address}</Text>
         </Pressable>)}
@@ -223,7 +224,7 @@ export default function CollectionListDetail() {
         <View style={styles.metaRow}>{place.category ? <Text variant="caption" color={color.text.muted}>{place.category}</Text> : null}{place.locality ? <Text variant="caption" color={color.text.muted}> · {place.locality}</Text> : null}{place.lat != null && place.lng != null ? <Text variant="caption" color={color.text.muted}> · 📍</Text> : null}</View>
         {place.note ? <Text variant="caption" color={color.text.body}>{place.note}</Text> : null}
       </View>
-      <Pressable accessibilityRole="button" accessibilityLabel={tx(`${place.name} 빼기`, `Remove ${place.name}`)} onPress={() => removePlaceFromList(list.id, place.id)} style={styles.removeButton}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('빼기', 'Remove')}</Text></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 빼기', 'Remove %s', place.name)} onPress={() => removePlaceFromList(list.id, place.id)} style={styles.removeButton}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('빼기', 'Remove')}</Text></Pressable>
     </View>)}</View>
   </Screen><TabBar active="map" /></View>;
 }

@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
+import { txf } from '@/i18n/format';
 
 /** 사진이 없는 계정도 빈 회색 판이 아니다 — 부산 기본 사진을 깐다. */
 const DEFAULT_COVER = require('../../assets/home/web-hero.png');
@@ -84,7 +85,7 @@ export function MyPageCover({
                 <Pressable
                   key={count.label}
                   accessibilityRole="button"
-                  accessibilityLabel={tx(`${count.label} 보기`, `View ${count.label}`)}
+                  accessibilityLabel={txf(tx, '%s 보기', 'View %s', count.label)}
                   disabled={!count.onPress}
                   onPress={count.onPress}
                   style={({ pressed }) => [styles.pill, pressed && styles.pressed]}

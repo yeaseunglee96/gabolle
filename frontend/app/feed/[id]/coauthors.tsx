@@ -17,6 +17,7 @@ import { useI18n } from '@/i18n';
 import { getStory, type StoryDto } from '@/social/stories';
 import { addStoryCoauthors, createStoryInvite, listStoryCoauthors, removeStoryCoauthor, type StoryCoauthor } from '@/social/storyCoauthors';
 import { listTripMembers, type TripMember } from '@/trip/collaboration';
+import { txf } from '@/i18n/format';
 
 type State =
   | { status: 'loading' }
@@ -102,7 +103,7 @@ export default function StoryCoauthors() {
             <Text weight="bold">{member.displayName ?? tx('(탈퇴한 사용자)', '(deleted user)')}{isMe ? tx(' · 나', ' · You') : ''}</Text>
             {member.isAuthor && <View style={styles.roleBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('만든 사람', 'Author')}</Text></View>}
           </View>
-          {canRemove && <Pressable accessibilityRole="button" accessibilityLabel={isMe ? tx('나가기', 'Leave') : tx(`${member.displayName ?? ''} 제거`, `Remove ${member.displayName ?? ''}`)} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void removeOne(member)} style={[styles.actionButtonDanger, busy && styles.actionDisabled]}>
+          {canRemove && <Pressable accessibilityRole="button" accessibilityLabel={isMe ? tx('나가기', 'Leave') : txf(tx, '%s 제거', 'Remove %s', member.displayName ?? '')} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void removeOne(member)} style={[styles.actionButtonDanger, busy && styles.actionDisabled]}>
             <Text variant="caption" weight="bold" color={color.state.danger}>{busy ? tx('처리 중…', 'Working…') : isMe ? tx('나가기', 'Leave') : tx('제거', 'Remove')}</Text>
           </Pressable>}
         </View>;

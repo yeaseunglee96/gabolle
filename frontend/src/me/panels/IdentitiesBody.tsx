@@ -16,6 +16,7 @@ import { SocialProviderIcon } from '@/components/SocialProviderIcon';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 
 // 구글·카카오 아이콘은 그 자체가 다색이라 흰 바탕에 보이지만, 애플·네이버 아이콘은
 // sign-in.tsx 의 브랜드색 버튼 위에 놓일 흰색 그림이라 이 화면의 흰 배경에서는 흰색 위에
@@ -143,7 +144,7 @@ export function IdentitiesBody() {
                 ) : (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={tx(`${provider.name} 계정 연결하기`, `Connect ${provider.name} account`)}
+                    accessibilityLabel={txf(tx, '%s 계정 연결하기', 'Connect %s account', provider.name)}
                     accessibilityState={{ disabled: working }}
                     disabled={working}
                     onPress={() => void connect(provider.id)}
