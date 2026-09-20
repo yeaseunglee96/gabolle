@@ -3,6 +3,7 @@
 // 🔴 **자리를 바꾸지 않는다.** 고른 카드를 맨 위로 올리거나 「선택한 코스」 칸을 따로
 //    만들지 않는다(인계 §10-3). 눌렀는데 목록이 움직이면 사람은 자기가 무엇을 눌렀는지
 //    다시 찾아야 하고, 옆의 안과 견주던 흐름이 끊긴다. 고르는 화면에서 그건 치명적이다.
+import { txf } from '@/i18n/format';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
@@ -51,7 +52,7 @@ export function CourseCard({
       <Pressable
         accessibilityRole="radio"
         accessibilityState={{ selected }}
-        accessibilityLabel={tx(`코스 ${courseLetter(index)} ${course.title}`, `Course ${courseLetter(index)} ${course.title}`)}
+        accessibilityLabel={txf(tx, '코스 %s %s', 'Course %s %s', courseLetter(index), course.title)}
         onPress={onSelect}
         style={styles.row}
       >
@@ -63,7 +64,7 @@ export function CourseCard({
           {cover ? <Image source={{ uri: cover }} resizeMode="cover" accessibilityLabel="" style={styles.coverPhoto} /> : null}
           <View style={[styles.badge, selected && styles.badgeOn]}>
             <Text variant="caption" weight="bold" color={color.text.onAction} numberOfLines={1}>
-              {selected ? tx('✓ 내 일정으로', '✓ My itinerary') : tx(`코스 ${courseLetter(index)}`, `Course ${courseLetter(index)}`)}
+              {selected ? tx('✓ 내 일정으로', '✓ My itinerary') : txf(tx, '코스 %s', 'Course %s', courseLetter(index))}
             </Text>
           </View>
           {/* 🔴 ☆ 저장은 고르기와 **다른 일**이다(인계 §7③) — 보관함에 담아 두는 것이지 이
@@ -83,7 +84,7 @@ export function CourseCard({
         <View style={styles.body}>
           <View style={styles.titleRow}>
             <Text variant="title" weight="bold" numberOfLines={1} style={styles.title}>
-              {course.title || tx(`코스 ${courseLetter(index)}`, `Course ${courseLetter(index)}`)}
+              {course.title || txf(tx, '코스 %s', 'Course %s', courseLetter(index))}
             </Text>
             <View style={[styles.status, course.status === 'CONFIRMED' ? styles.statusOk : styles.statusEst]}>
               <Text variant="caption" weight="bold" numberOfLines={1}>

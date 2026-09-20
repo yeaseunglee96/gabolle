@@ -1,3 +1,4 @@
+import { txf } from '@/i18n/format';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -63,7 +64,7 @@ function describeOpeningHoursIssues(itinerary: ItineraryDto, warnings: Itinerary
     .filter((warning) => warning.code === 'OPENING_HOURS_CLOSED')
     .map((warning) => {
       const title = itemsById.get(warning.itemId)?.title ?? tx('이 장소', 'this place');
-      return tx(`${title}은(는) 이 시각에 영업하지 않아요.`, `${title} is closed at this time.`);
+      return txf(tx, '%s은(는) 이 시각에 영업하지 않아요.', '%s is closed at this time.', title);
     });
   const notCheckedMessages = notChecked.map((entry) => entry.reason === 'NOT_COLLECTED'
     ? tx('일부 장소는 영업시간 정보가 없어 확인하지 못했어요.', "We couldn't check opening hours for some places — no data yet.")
@@ -100,7 +101,7 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
   return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
     {items.map((item, index) => {
       const travel = [
-        item.walkingMeters == null ? null : tx(`도보 ${formatWalk(item.walkingMeters)}`, `${formatWalk(item.walkingMeters)} walk`),
+        item.walkingMeters == null ? null : txf(tx, '도보 %s', '%s walk', formatWalk(item.walkingMeters)),
         formatTravelLabel(item, tx, index === 0),
       ].filter(Boolean).join(' · ');
       return <View key={item.id} style={styles.stripEntry}>
@@ -158,7 +159,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
 
   // 값이 없으면 칸을 만들지 않는다. 비용·도보는 서버에 자료가 없을 때가 있고, 그걸
   // 「미확인」이라고 적어 두면 빈 칸이 화면에서 제일 눈에 띈다.
-  const walkLabel = item.walkingMeters == null ? null : tx(`도보 ${formatWalk(item.walkingMeters)}`, `${formatWalk(item.walkingMeters)} walk`);
+  const walkLabel = item.walkingMeters == null ? null : txf(tx, '도보 %s', '%s walk', formatWalk(item.walkingMeters));
   const facts = [
     walkLabel,
     formatTravelLabel(item, tx, index === 0),
@@ -173,11 +174,11 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
     ? (item.locked
       ? <View style={styles.lockBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('고정됨', 'Locked')}</Text></View>
       : <View style={styles.moveButtons}>
-        <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 위로 이동`, `Move ${item.title} up`)} accessibilityState={{ disabled: !canMoveUp || moveBusy }} disabled={!canMoveUp || moveBusy} onPress={onMoveUp} style={[styles.moveButton, (!canMoveUp || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▲</Text></Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 아래로 이동`, `Move ${item.title} down`)} accessibilityState={{ disabled: !canMoveDown || moveBusy }} disabled={!canMoveDown || moveBusy} onPress={onMoveDown} style={[styles.moveButton, (!canMoveDown || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▼</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 위로 이동', 'Move %s up', item.title)} accessibilityState={{ disabled: !canMoveUp || moveBusy }} disabled={!canMoveUp || moveBusy} onPress={onMoveUp} style={[styles.moveButton, (!canMoveUp || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▲</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 아래로 이동', 'Move %s down', item.title)} accessibilityState={{ disabled: !canMoveDown || moveBusy }} disabled={!canMoveDown || moveBusy} onPress={onMoveDown} style={[styles.moveButton, (!canMoveDown || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▼</Text></Pressable>
       </View>)
     : canEdit
-      ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} ${item.locked ? '고정 해제' : '고정'}`, `${item.title} ${item.locked ? 'unlock' : 'lock'}`)} accessibilityState={{ selected: item.locked, busy: lockBusy, disabled }} disabled={disabled} onPress={onLock} style={[styles.lockTouch, disabled && styles.actionDisabled]}><Text variant="body">{lockBusy ? '…' : item.locked ? '🔒' : '🔓'}</Text></Pressable>
+      ? <Pressable accessibilityRole="button" accessibilityLabel={(item.locked ? txf(tx, '%s 고정 해제', 'Unlock %s', item.title) : txf(tx, '%s 고정', 'Lock %s', item.title))} accessibilityState={{ selected: item.locked, busy: lockBusy, disabled }} disabled={disabled} onPress={onLock} style={[styles.lockTouch, disabled && styles.actionDisabled]}><Text variant="body">{lockBusy ? '…' : item.locked ? '🔒' : '🔓'}</Text></Pressable>
       : item.locked ? <View style={styles.lockTouch}><Text variant="body">🔒</Text></View> : null;
 
   return <>
@@ -211,7 +212,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           {/* 펼치는 손잡이는 제목 덩이에만 둔다. 행 전체를 Pressable 로 감싸면 그 안의
               자물쇠가 「버튼 안의 버튼」이 되고, 웹에서는 그게 허용되지 않는다.
           */}
-          <Pressable accessibilityRole="button" accessibilityState={{ expanded }} accessibilityLabel={tx(`${item.title} ${expanded ? '접기' : '자세히'}`, `${item.title} ${expanded ? 'collapse' : 'details'}`)} onPress={onToggleExpand} style={styles.grow}>
+          <Pressable accessibilityRole="button" accessibilityState={{ expanded }} accessibilityLabel={(expanded ? txf(tx, '%s 접기', 'Collapse %s', item.title) : txf(tx, '%s 자세히', 'Details for %s', item.title))} onPress={onToggleExpand} style={styles.grow}>
             <View style={styles.titleLine}>
               <Text variant={wide ? 'title' : 'body'} weight="bold" style={styles.titleText}>{item.title}</Text>
               {item.dataStatus ? <View style={[styles.statusChip, STATUS_CHIP[item.dataStatus]]}><Text variant="caption" weight="bold" color={STATUS_COLOR[item.dataStatus]}>{STATUS_LABEL[item.dataStatus]}</Text></View> : null}
@@ -233,14 +234,14 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
             {pace.visited ? <Text variant="caption" weight="bold" color={color.state.success}>{tx(`도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${pace.predictedDeparture ? ` · 출발 ${formatTime(pace.predictedDeparture)}` : ''}`, `Arrived ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${pace.predictedDeparture ? ` · Left ${formatTime(pace.predictedDeparture)}` : ''}`)}</Text>
               : <Text variant="caption" weight="bold" color={pace.atRisk ? color.state.danger : color.text.muted}>{tx(`예상 도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${estimated ? ' (추정)' : ''}`, `Est. arrival ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${estimated ? ' (est.)' : ''}`)}{pace.atRisk ? ` · ${tx('하루를 넘길 위험', 'Risks running past the day')}` : ''}</Text>}
             {(onRecordArrival || onRecordDeparture) ? <View style={styles.actualButtons}>
-              {!pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 도착 찍기`, `Mark arrival at ${item.title}`)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
-                : !pace.predictedDeparture ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 출발 찍기`, `Mark departure at ${item.title}`)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
+              {!pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
+                : !pace.predictedDeparture ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 출발 찍기', 'Mark departure at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
             </View> : null}
           </View> : null}
-          {!reorderMode && canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 제외`, `Exclude ${item.title}`)} accessibilityState={{ busy: excludeBusy, disabled }} disabled={disabled} onPress={onExclude} style={[styles.excludeButton, disabled && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.state.danger}>{excludeBusy ? tx('처리 중', 'Processing') : tx('이 장소 제외', 'Remove this place')}</Text></Pressable> : null}
+          {!reorderMode && canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 제외', 'Exclude %s', item.title)} accessibilityState={{ busy: excludeBusy, disabled }} disabled={disabled} onPress={onExclude} style={[styles.excludeButton, disabled && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.state.danger}>{excludeBusy ? tx('처리 중', 'Processing') : tx('이 장소 제외', 'Remove this place')}</Text></Pressable> : null}
           {isPastVisit && !reorderMode ? (
             reviewStatus === 'reviewed' ? <View style={styles.reviewedBadge}><Text variant="caption" weight="bold" color={color.state.success}>{tx('평가함', 'Reviewed')}</Text></View>
-            : reviewStatus === 'can-review' ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 다녀오셨나요? 평가하기`, `Review your visit to ${item.title}`)} onPress={() => setReviewModalOpen(true)} style={styles.reviewButton}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('다녀오셨나요?', 'Did you visit?')}</Text></Pressable>
+            : reviewStatus === 'can-review' ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 다녀오셨나요? 평가하기', 'Review your visit to %s', item.title)} onPress={() => setReviewModalOpen(true)} style={styles.reviewButton}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('다녀오셨나요?', 'Did you visit?')}</Text></Pressable>
             : null
           ) : null}
         </View> : null}
@@ -444,9 +445,9 @@ export default function ItineraryScreen() {
   const nowTitle = progress.status === 'DONE'
     ? tx('오늘 일정을 다 돌았어요', 'You finished today')
     : progress.status === 'RUNNING' && currentStop
-      ? tx(`${currentStop.title}(으)로 이동 중`, `Heading to ${currentStop.title}`)
+      ? txf(tx, '%s(으)로 이동 중', 'Heading to %s', currentStop.title)
       : currentStop
-        ? tx(`다음은 ${currentStop.title}`, `Next: ${currentStop.title}`)
+        ? txf(tx, '다음은 %s', 'Next: %s', currentStop.title)
         : tx('오늘 갈 곳이 없어요', 'Nothing planned today');
   // 🔴 없는 안내를 지어내지 않는다. 서버가 구간 안내를 안 주므로 설명 칸만 쓴다.
   const nowDetail = currentStop?.description ?? null;
@@ -479,7 +480,7 @@ export default function ItineraryScreen() {
     return { krw: known.reduce((sum, item) => sum + (item.estimatedCostKrw as number), 0), known: known.length, total: displayedItems.length };
   }, [displayedItems]);
   const dayFacts = useMemo(() => [
-    dayWalkingMeters > 0 ? tx(`도보 ${formatWalk(dayWalkingMeters)}`, `${formatWalk(dayWalkingMeters)} on foot`) : null,
+    dayWalkingMeters > 0 ? txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters)) : null,
     dayCost.krw > 0
       ? dayCost.known === dayCost.total
         ? tx(`${dayCost.krw.toLocaleString()}원`, `${dayCost.krw.toLocaleString()} KRW`)
@@ -869,7 +870,7 @@ export default function ItineraryScreen() {
                 {dayWalkingMeters > 0 ? <View accessibilityLabel={tx(`정차별 도보 비중`, 'Walking share per stop')} style={styles.shareBar}>
                   {displayedItems.map((item) => item.walkingMeters ? <View key={item.id} style={[styles.shareSlice, { flex: item.walkingMeters }]} /> : null)}
                 </View> : null}
-                {dayWalkingMeters > 0 ? <Text variant="caption" color={color.text.body}>{tx(`도보 ${formatWalk(dayWalkingMeters)}`, `${formatWalk(dayWalkingMeters)} on foot`)}</Text> : null}
+                {dayWalkingMeters > 0 ? <Text variant="caption" color={color.text.body}>{txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters))}</Text> : null}
                 {dayTravelMinutes > 0
                   ? <Text variant="caption" color={color.text.body}>{tx(`이동 합계 ${dayTravelMinutes}분`, `${dayTravelMinutes}m travel in total`)}</Text>
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날짜는 구간 이동 시간이 아직 없어요.', 'No leg travel times for this day yet.')}</Text>}
