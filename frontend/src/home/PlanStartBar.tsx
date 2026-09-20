@@ -13,6 +13,7 @@ import {
   type StartBarSection,
   START_BAR_PRESETS,
   addDays,
+  askForPlanBlocker,
   canAskForPlan,
   dayCount,
   formatDateShort,
@@ -46,7 +47,7 @@ function monthCells(year: number, month: number): Array<string | null> {
   ];
 }
 
-function MonthGrid({
+export function MonthGrid({
   year, month, value, today, onPick, tx,
 }: {
   year: number; month: number; value: StartBarValue; today: string;
@@ -208,6 +209,7 @@ export function PlanStartBar({
   const todayKey = toDateKey(today);
   const summary = summarizeStartBar(value, tx);
   const ready = canAskForPlan(value);
+  const blocker = askForPlanBlocker(value, tx);
   const abortRef = useRef<AbortController | null>(null);
 
   // 출발지 검색 — 서버가 두 글자 미만을 거절하므로 나가기 전에 막는다.
@@ -490,7 +492,7 @@ export function PlanStartBar({
             style={[styles.cta, styles.sheetCta, !ready && styles.ctaOff]}
           >
             {/* 꺼져 있을 때 흰 글자를 두면 연회색 바탕에서 안 읽힌다. */}
-            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
+            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{blocker ?? tx('일정 물어보기', 'Ask for a plan')}</Text>
           </Pressable>
         </View>
       </Animated.View>
@@ -531,7 +533,7 @@ export function PlanStartBar({
             accessibilityRole="button"
             style={[styles.cta, !ready && styles.ctaOff]}
           >
-            <Text weight="bold" color={color.text.onAction}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
+            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{blocker ?? tx('일정 물어보기', 'Ask for a plan')}</Text>
           </Pressable>
         </View>
       ) : (
@@ -582,7 +584,7 @@ export function PlanStartBar({
           </ScrollView>
           {!wide ? (
             <Pressable onPress={submit} disabled={!ready} accessibilityRole="button" style={[styles.cta, styles.ctaWide, !ready && styles.ctaOff]}>
-              <Text weight="bold" color={color.text.onAction}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
+              <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{blocker ?? tx('일정 물어보기', 'Ask for a plan')}</Text>
             </Pressable>
           ) : null}
         </Animated.View>

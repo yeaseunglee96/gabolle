@@ -46,6 +46,12 @@ export default function Exchange() {
   const [state, setState] = useState<'loading' | 'ready' | 'blocked'>('loading');
   const [reason, setReason] = useState<ExchangeBlockedReason | null>(null);
   const [rates, setRates] = useState<ExchangeRate[]>([]);
+  // 🔴 서버는 스무 통화를 알파벳순으로 준다(AED·AUD·BHD…). 부산에 오는 사람이 실제로 쓰는 통화를 앞에 둔다 —
+  //    2026-09-21 실서버 실기. 뒤는 그대로 알파벳순. 이름이 없는 통화(CNH)는 코드가 두 번 보이지 않게 뺀다.
+  const orderedRates = useMemo(() => {
+    const rank = (item: ExchangeRate) => { const i = PINNED_CURRENCIES.indexOf(displayCode(item.currencyCode)); return i < 0 ? PINNED_CURRENCIES.length : i; };
+    return [...rates].sort((x, y) => rank(x) - rank(y) || displayCode(x.currencyCode).localeCompare(displayCode(y.currencyCode)));
+  }, [rates]);
   const [asOf, setAsOf] = useState('');
   const [code, setCode] = useState(() => defaultCurrencyFor(language));
   // "외화 → 원" 으로 시작한다. 이 화면에 오는 사람 대부분이 한국 가격표를 보고 있는 것이
@@ -184,7 +190,7 @@ export default function Exchange() {
           </Text>
           {/* 시안 5 Exchange — 국기 · 코드 · 이름(고른 언어) · 기준율을 한 줄에. 코드만 있는 칩은 처음 보는 사람이 한 번 더 생각한다. */}
           <View accessibilityRole="radiogroup" style={styles.currencyList}>
-            {rates.map((item) => {
+            {orderedRates.map((item) => {
               const selected = displayCode(item.currencyCode) === displayCode(rate.currencyCode);
               const name = currencyDisplayName(item.currencyCode, locale, item.currencyName);
               return (
@@ -199,7 +205,7 @@ export default function Exchange() {
                   <CurrencyBadge code={item.currencyCode} size="large" />
                   <View style={styles.currencyCopy}>
                     <Text variant="body" weight="bold">{displayCode(item.currencyCode)}</Text>
-                    <Text variant="caption" color={color.text.muted} numberOfLines={1}>{name}</Text>
+                    {name && name !== displayCode(item.currencyCode) ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{name}</Text> : null}
                   </View>
                   <Text variant="body" weight="bold">₩{grouped(item.baseRate, locale)}</Text>
                 </Pressable>
@@ -211,6 +217,9 @@ export default function Exchange() {
     </Screen>
   );
 }
+
+/** 앞에 둘 통화 — 국기가 있는 넷 + 홍콩·유로·파운드·싱가포르. */
+const PINNED_CURRENCIES = ['USD', 'JPY', 'CNY', 'TWD', 'HKD', 'EUR', 'GBP', 'SGD'];
 
 const styles = StyleSheet.create({
   subtitle: { marginTop: spacing[2], marginBottom: spacing[6] },

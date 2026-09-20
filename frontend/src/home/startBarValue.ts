@@ -154,7 +154,17 @@ export function startBarChips(value: StartBarValue, tx: StartBarTx): string[] {
 
 /** 「일정 물어보기」를 누를 수 있나 — 출발지와 날짜가 있어야 한다. */
 export function canAskForPlan(value: StartBarValue): boolean {
-  return Boolean(value.origin.trim()) && Boolean(value.startDate) && value.adults + value.children > 0;
+  // 🔴 출발지는 안 묻는다 — S15P21E201-1376. 서버(CreateTripRequest)는 originLat·originLng 를 선택으로
+  //    받고, 열 문항 화면도 출발지 없이 만들게 한다. 여기서만 요구하니 「일정 물어보기」가 이유 없이
+  //    잠겼다(2026-09-21 실기). 출발지가 있으면 첫 이동 시간이 붙고, 없으면 그 줄만 없다.
+  return Boolean(value.startDate) && value.adults + value.children > 0;
+}
+
+/** 왜 못 누르나 — 잠긴 단추 대신 이 말을 단추에 쓴다. 누를 수 있으면 null. */
+export function askForPlanBlocker(value: StartBarValue, tx: StartBarTx): string | null {
+  if (!value.startDate) return tx('날짜를 골라 주세요', 'Pick your dates');
+  if (value.adults + value.children <= 0) return tx('인원을 정해 주세요', 'Set the party size');
+  return null;
 }
 
 export type StartBarPreset = { id: string; ko: string; en: string; apply: (today: Date) => Partial<StartBarValue> };

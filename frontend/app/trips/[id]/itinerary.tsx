@@ -57,6 +57,7 @@ import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { localizeMessage } from '@/i18n/messages';
 import { koreanToward } from '@/i18n/korean';
+import { humanTripTitle } from '@/trip/tripNaming';
 
 // 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고.
 
@@ -716,7 +717,7 @@ export default function ItineraryScreen() {
         {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
       </View>
       <View style={styles.heroTitleRow}>
-        <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{itinerary?.title ?? tx('여행 일정', 'Itinerary')}</Text>
+        <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{humanTripTitle(itinerary?.title) ?? tx('부산 여행', 'Busan trip')}</Text>
         {/* 「이름 바꾸기」 — 시안 ④. 페이지로 가지 않고 그 자리에서 겹쳐 연다. */}
         {itinerary?.tripId ? (
           <Pressable accessibilityRole="button" onPress={() => setNaming(true)} style={styles.renameButton}>
@@ -775,6 +776,14 @@ export default function ItineraryScreen() {
         {itinerary.tripId ? <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/trips/[id]/recommendations', params: { id: itinerary.tripId as string } })} style={styles.heroAction}>
           <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('추천 다시 보기', 'See recommendations')}</Text>
         </Pressable> : null}
+        {/* 🔴 동행 초대·참여자·준비물 화면은 있었는데 «들어가는 문»이 없었다(2026-09-21 실서버 실기, S15P21E201-1376) —
+            (trip)/[id]/share·collaborate·prepare 로 가는 길이 앱 어디에도 없어 주소를 쳐야만 열렸다. 여행 번호는 서버가 준다. */}
+        {itinerary.tripId ? <Pressable accessibilityRole="button" onPress={() => router.push(`/${itinerary.tripId}/share`)} style={styles.heroAction}>
+          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('동행 초대', 'Invite')}</Text>
+        </Pressable> : null}
+        {itinerary.tripId ? <Pressable accessibilityRole="button" onPress={() => router.push(`/${itinerary.tripId}/prepare`)} style={styles.heroAction}>
+          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('날씨·준비물', 'Weather & packing')}</Text>
+        </Pressable> : null}
       </View> : null}
       {/* 일차 탭은 헤더에 붙어 있다 (시안 2.3 · 3.1) — 탭이 헤더에서 떨어져 있으면
           어느 날을 보고 있는지가 제목과 따로 놀아서, 스크롤을 내리면 둘 다 안 보인다.
@@ -799,6 +808,7 @@ export default function ItineraryScreen() {
         <View style={styles.stats}>{stats.map((stat) => <View key={stat.key} style={styles.stat}><Text variant="title" weight="bold">{stat.value}</Text><Text variant="caption" color={color.text.muted}>{stat.label}</Text></View>)}</View>
         {rhythm ? <Text variant="caption" color={color.text.body}>{tx(`하루 평균 ${rhythm.averageItemsPerDay}곳`, `${rhythm.averageItemsPerDay} places/day avg.`)}{rhythm.travelShare != null ? txf(tx, ' · 이동 비중 %s%', ' · %s% travel time', Math.round(rhythm.travelShare * 100)) : ''}{rhythm.plannedVsActual != null ? txf(tx, ' · 계획 대비 실제 %s배', ' · %sx planned pace', rhythm.plannedVsActual) : ''}</Text> : null}
         <View style={styles.menuActions}>
+          {itinerary?.tripId ? <Pressable accessibilityRole="button" onPress={() => { setMenuOpen(false); router.push(`/${itinerary.tripId}/collaborate`); }} style={styles.recalcButton}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('참여자·역할', 'Participants')}</Text></Pressable> : null}
           <Pressable accessibilityRole="button" onPress={() => { selectView(viewMode === 'all' ? 'day' : 'all'); setMenuOpen(false); }} style={styles.recalcButton}><Text variant="caption" weight="bold" color={color.brand.navy}>{viewMode === 'all' ? tx('날짜별 보기', 'By day') : tx('전체 일정 보기', 'All days')}</Text></Pressable>
           {canReorder && !reorderMode ? <Pressable testID="itinerary-reorder" accessibilityRole="button" accessibilityLabel={tx('일정 순서 변경', 'Reorder itinerary')} accessibilityState={{ disabled: excludingItemId !== null }} disabled={excludingItemId !== null} onPress={() => { startReorder(); setMenuOpen(false); }} style={[styles.recalcButton, excludingItemId !== null && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('순서 변경', 'Reorder')}</Text></Pressable> : null}
           {canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={tx('이 날짜 다시 계산', 'Recalculate this day')} accessibilityState={{ busy: dayActionBusy }} disabled={dayActionBusy || !day?.items.length || excludingItemId !== null} onPress={() => void recalculateDay()} style={[styles.recalcButton, (dayActionBusy || !day?.items.length || excludingItemId !== null) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{dayActionBusy ? tx('계산 중', 'Calculating') : tx('다시 계산', 'Recalculate')}</Text></Pressable> : null}
@@ -911,7 +921,7 @@ export default function ItineraryScreen() {
   {naming && itinerary?.tripId ? (
     <TripNameSheet
       tripId={itinerary.tripId}
-      currentTitle={itinerary.title ?? null}
+      currentTitle={humanTripTitle(itinerary.title)}
       dateLabel={heroSummary || null}
       accessToken={accessToken}
       onClose={() => setNaming(false)}

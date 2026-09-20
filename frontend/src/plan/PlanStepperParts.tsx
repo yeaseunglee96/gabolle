@@ -13,9 +13,11 @@ import { color, radius, spacing } from '@/design/tokens';
  *    것을 같은 색으로 두면 「어디까지 왔나」가 안 보이고, 그러면 점이 장식이 된다.
  */
 export function StepDots({
-  total, index, settled, onJump, label,
+  total, required = total, index, settled, onJump, label,
 }: {
   total: number;
+  /** 앞의 몇 개가 필수인가 — 그 뒤에 틈을 두고 작게 그린다. 「열 개」가 아니라 「셋 + 나머지」로 읽힌다(S15P21E201-1376). */
+  required?: number;
   index: number;
   settled: (i: number) => boolean;
   onJump: (i: number) => void;
@@ -26,6 +28,7 @@ export function StepDots({
       {Array.from({ length: total }, (_, i) => {
         const now = i === index;
         const done = !now && i < index && settled(i);
+        const optional = i >= required;
         return (
           <Pressable
             key={i}
@@ -33,7 +36,7 @@ export function StepDots({
             accessibilityState={{ selected: now }}
             accessibilityLabel={label(i)}
             onPress={() => onJump(i)}
-            style={[styles.dot, now && styles.dotNow, done && styles.dotDone]}
+            style={[styles.dot, optional && styles.dotOptional, i === required && styles.dotGap, now && styles.dotNow, done && styles.dotDone]}
           />
         );
       })}
@@ -100,8 +103,10 @@ export function AnsweredChip({ label, value, onPress }: { label: string; value: 
 
 const styles = StyleSheet.create({
   dots: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
-  dot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.surface.field },
-  dotNow: { width: 22, backgroundColor: color.action.secondary },
+  dot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.surface.field },
+  dotOptional: { width: 5, height: 5, opacity: 0.7 },
+  dotGap: { marginLeft: spacing[2] },
+  dotNow: { width: 22, height: 8, opacity: 1, backgroundColor: color.action.secondary },
   dotDone: { backgroundColor: color.state.success },
 
   option: {

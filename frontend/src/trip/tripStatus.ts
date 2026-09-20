@@ -18,6 +18,23 @@ export function tripStatusLabel(status: TripStatus, tx: Tx): string {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * 화면에 쓸 상태 — 날짜가 서버 상태를 이긴다(S15P21E201-1376).
+ * 🔴 서버 status 는 배치로 바뀌어 늦다. 실서버 실기(2026-09-21)에서 지난 9/18 여행이 READY 라
+ *    카드에 「예정 · 지난 여행」이 나란히 섰다. 일정이 없는 PLANNING 은 그대로 둔다 — 지나갔어도
+ *    「일정 준비 중」이 사실이다. 그 밖은 오늘을 기준으로 다녀옴·진행 중·예정으로 고른다.
+ */
+export function effectiveTripStatus(trip: Pick<TripSummaryDto, 'status' | 'startDate' | 'endDate'>, now: Date = new Date()): TripStatus {
+  if (trip.status === 'PLANNING' || trip.status === 'COMPLETED') return trip.status;
+  const start = dayStart(trip.startDate);
+  if (!start) return trip.status;
+  const end = dayStart(trip.endDate) ?? start;
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (today.getTime() > end.getTime()) return 'COMPLETED';
+  if (today.getTime() >= start.getTime()) return 'IN_PROGRESS';
+  return 'READY';
+}
+
 /** YYYY-MM-DD 를 그 날 0시(로컬)로. 못 읽으면 null. */
 function dayStart(key: string | null | undefined): Date | null {
   if (!key) return null;
