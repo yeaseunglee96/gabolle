@@ -50,7 +50,7 @@ export function GabolleMascot({ state = 'idle', style, delay = 0 }: { state?: Ga
 
   return (
     <Animated.View style={{ transform: [{ translateY: y }, { rotate: rotate.interpolate({ inputRange: [-1, 1], outputRange: ['-2deg', '2deg'] }) }] }}>
-      <Image accessibilityLabel={tx(`가볼래 ${state === 'idle' ? '대기 중' : state === 'open' ? '반갑게 인사하는 중' : state === 'sad' ? '속상해하는 중' : '답변을 준비하는 중'}`, `Gabolle ${state === 'idle' ? 'waiting' : state === 'open' ? 'greeting warmly' : state === 'sad' ? 'feeling sad' : 'preparing an answer'}`)} source={sources[state]} resizeMode="contain" style={style} />
+      <Image accessibilityLabel={state === 'idle' ? tx('가볼래 대기 중', 'Gabolle waiting') : state === 'open' ? tx('가볼래 반갑게 인사하는 중', 'Gabolle greeting warmly') : state === 'sad' ? tx('가볼래 속상해하는 중', 'Gabolle feeling sad') : tx('가볼래 답변을 준비하는 중', 'Gabolle preparing an answer')} source={sources[state]} resizeMode="contain" style={style} />
     </Animated.View>
   );
 }

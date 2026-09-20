@@ -16,6 +16,7 @@ import { useLayout } from '@/layout/useLayout';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SPECIAL_CHARACTER_PATTERN = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
@@ -105,7 +106,7 @@ export default function SignUp() {
           <View style={styles.resultMark}><Text variant="title" weight="bold" color={color.text.onAction}>✓</Text></View>
           <Text variant="display" weight="bold">{tx('이메일을 확인해 주세요', 'Please check your email')}</Text>
           <Text variant="body" style={styles.resultCopy}>
-            {tx(`${registration.email}로 인증 링크를 보냈어요. 링크를 눌러 인증을 마치면 로그인할 수 있습니다.`, `We sent a verification link to ${registration.email}. Click it to finish verifying and sign in.`)}
+            {txf(tx, '%s로 인증 링크를 보냈어요. 링크를 눌러 인증을 마치면 로그인할 수 있습니다.', 'We sent a verification link to %s. Click it to finish verifying and sign in.', registration.email)}
           </Text>
           {/* — 서버 열거값(PENDING_EMAIL_VERIFICATION)을 그대로 찍고 있었다. 읽는 사람에게는 오류 문구로 보인다. 바로 위에서 이미 "인증 링크를 보냈다" 고 말하므로 같은 사실을 상태값으로 한 번 더 적지 않는다. */}
           <Text variant="caption" color={color.text.muted}>{tx(`메일이 안 보이면 스팸함도 확인해 주세요. 링크는 30분 동안 쓸 수 있어요.`, `If you do not see it, check your spam folder. The link works for 30 minutes.`)}</Text>
@@ -131,7 +132,7 @@ export default function SignUp() {
 
           {kind === 'phone' && <View style={styles.questionProgress}>
             <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx(PANEL_LABELS[panelIndex][0], PANEL_LABELS[panelIndex][1])} {panelIndex + 1} / {PANEL_LABELS.length}</Text></View>
-            <View style={styles.questionDots}>{PANEL_LABELS.map(([labelKo, labelEn], index) => <Pressable key={labelKo} accessibilityRole="button" accessibilityLabel={tx(`${labelKo} 단계로 이동`, `Go to ${labelEn}`)} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, panelValid[index] && styles.questionDotAnswered]} />)}</View>
+            <View style={styles.questionDots}>{PANEL_LABELS.map(([labelKo, labelEn], index) => <Pressable key={labelKo} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 단계로 이동', 'Go to %s', tx(labelKo, labelEn))} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, panelValid[index] && styles.questionDotAnswered]} />)}</View>
           </View>}
 
           <Animated.View key={kind === 'phone' ? panelIndex : 'desktop'} entering={kind === 'phone' ? FadeInRight.duration(180).reduceMotion(ReduceMotion.System) : undefined} exiting={kind === 'phone' ? FadeOutLeft.duration(120).reduceMotion(ReduceMotion.System) : undefined} style={styles.form}>

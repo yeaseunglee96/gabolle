@@ -128,7 +128,7 @@ export default function RouteDetail() {
                     ) : null}
                   </View>
                   <View style={styles.summaryRow}>
-                    <Text color={color.text.body}>{tx(`${directions.durationMin}분 · ${(directions.distanceM / 1000).toFixed(1)}km`, `${directions.durationMin} min · ${(directions.distanceM / 1000).toFixed(1)}km`)}</Text>
+                    <Text color={color.text.body}>{txf(tx, '%s분 · %skm', '%s min · %skm', directions.durationMin, (directions.distanceM / 1000).toFixed(1))}</Text>
                   </View>
                   {directions.taxiFareKrw != null ? <Text color={color.text.body}>{tx(`택시 요금 약 ${directions.taxiFareKrw.toLocaleString()}원`, `Estimated taxi fare ${directions.taxiFareKrw.toLocaleString()} KRW`)}</Text> : null}
                   {directions.tollFareKrw != null ? <Text color={color.text.body}>{tx(`통행료 약 ${directions.tollFareKrw.toLocaleString()}원`, `Estimated toll ${directions.tollFareKrw.toLocaleString()} KRW`)}</Text> : null}

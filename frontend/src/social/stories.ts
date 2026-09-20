@@ -1,5 +1,6 @@
 import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL, APP_WEB_BASE_URL } from '@/api/client';
 import { singleFileFormData } from '@/api/multipart';
+import { txf } from '@/i18n/format';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 export type FeedScope = 'ALL' | 'FOLLOWING';
@@ -139,9 +140,9 @@ export function relativeStoryTime(iso: string, tx: (ko: string, en: string) => s
   if (minutes < 1) return tx('방금', 'just now');
   if (minutes < 60) return tx(`${minutes}분 전`, `${minutes}m ago`);
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return tx(`${hours}시간 전`, `${hours}h ago`);
+  if (hours < 24) return txf(tx, '%s시간 전', '%sh ago', hours);
   const days = Math.round(hours / 24);
-  if (days < 7) return tx(`${days}일 전`, `${days}d ago`);
+  if (days < 7) return txf(tx, '%s일 전', '%sd ago', days);
   return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
 }
 

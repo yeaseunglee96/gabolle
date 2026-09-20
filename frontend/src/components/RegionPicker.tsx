@@ -6,6 +6,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { regionLabelOf, searchRegions, type RegionCandidate } from '@/social/regionSearch';
+import { txf } from '@/i18n/format';
 
 type Props = {
   region: string;
@@ -75,7 +76,7 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
         <Pressable
           key={`${item.name}-${item.address}`}
           accessibilityRole="button"
-          accessibilityLabel={tx(`${item.name} 고르기`, `Choose ${item.name}`)}
+          accessibilityLabel={txf(tx, '%s 고르기', 'Choose %s', item.name)}
           onPress={() => choose(item)}
           style={styles.row}
         >

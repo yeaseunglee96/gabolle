@@ -4,6 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { MAX_PICK_BYTES, MAX_PICK_LABEL, MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL, measureBytes, resizeForUpload } from '@/social/imageResize';
 import { uploadStoryImage } from '@/social/stories';
+import { txf } from '@/i18n/format';
 
 /** 한 기록에 붙일 수 있는 사진 수. 서버 계약과 같은 값이다. */
 export const MAX_STORY_IMAGES = 3;
@@ -49,7 +50,7 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
         const size = (originalBytes / (1024 * 1024)).toFixed(1);
         patch(index, {
           uploading: false,
-          error: tx(`사진이 ${size}MB 라 너무 커요. 한 장은 ${MAX_PICK_LABEL}까지예요.`, `This photo is ${size}MB — each photo must be ${MAX_PICK_LABEL} or less.`),
+          error: txf(tx, '사진이 %sMB 라 너무 커요. 한 장은 %s까지예요.', 'This photo is %sMB — each photo must be %s or less.', size, MAX_PICK_LABEL),
         });
         return;
       }
@@ -81,8 +82,8 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
             // 옛 숫자가 남으면 사용자는 틀린 이유를 읽는다 — 이유를 안 보여 주는 것보다 나쁘다.
             // 여기 걸리는 것은 거의 언제나 줄이기가 실패한 경우다. 그때는 서버가 받을
             // 수 있는 크기인지가 문제라 고르기 상한(30MB)이 아니라 전송 상한으로 말한다.
-            ? tx(`사진을 줄이지 못했고 원본이 ${mb}MB 라 올릴 수 없어요. 줄이지 못한 사진은 ${MAX_UPLOAD_LABEL}까지만 올릴 수 있어요. (${resizeFailure})`, `Could not resize, and the original is ${mb}MB — un-resized photos must be ${MAX_UPLOAD_LABEL} or less. (${resizeFailure})`)
-            : tx(`줄여도 ${mb}MB 라 올릴 수 없어요. 한 장은 ${MAX_UPLOAD_LABEL}까지예요.`, `Still ${mb}MB after resizing — each photo must be ${MAX_UPLOAD_LABEL} or less.`),
+            ? txf(tx, '사진을 줄이지 못했고 원본이 %sMB 라 올릴 수 없어요. 줄이지 못한 사진은 %s까지만 올릴 수 있어요. (%s)', 'Could not resize, and the original is %sMB — un-resized photos must be %s or less. (%s)', mb, MAX_UPLOAD_LABEL, resizeFailure)
+            : txf(tx, '줄여도 %sMB 라 올릴 수 없어요. 한 장은 %s까지예요.', 'Still %sMB after resizing — each photo must be %s or less.', mb, MAX_UPLOAD_LABEL),
         });
         return;
       }
@@ -94,7 +95,7 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
     } catch (error) {
       patch(index, {
         uploading: false,
-        error: tx(`사진을 처리하지 못했어요. 다른 사진으로 해보거나, 3MB 이하로 줄여서 올려주세요. (${describeCause(error)})`, `Could not process the photo. Try another one, or resize it to 3MB or less. (${describeCause(error)})`),
+        error: txf(tx, '사진을 처리하지 못했어요. 다른 사진으로 해보거나, 3MB 이하로 줄여서 올려주세요. (%s)', 'Could not process the photo. Try another one, or resize it to 3MB or less. (%s)', describeCause(error)),
       });
     }
   };

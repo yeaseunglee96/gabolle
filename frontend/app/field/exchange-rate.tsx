@@ -171,10 +171,7 @@ export default function Exchange() {
 
             {/* 기준율과 매도율을 같이 적는다. 기준율만 보여주면 환전소에서 그 값이 안 나온다. */}
             <Text variant="caption" color={color.text.muted}>
-              {tx(
-                `매매기준율 ${grouped(rate.baseRate, locale)}원 · 살 때 ${grouped(rate.sellingRate, locale)}원`,
-                `Base ${grouped(rate.baseRate, locale)} KRW · You pay about ${grouped(rate.sellingRate, locale)} KRW`,
-              )}
+              {txf(tx, '매매기준율 %s원 · 살 때 %s원', 'Base %s KRW · You pay about %s KRW', grouped(rate.baseRate, locale), grouped(rate.sellingRate, locale))}
             </Text>
             <Text variant="caption" color={color.text.muted}>
               {txf(tx, '%s 고시 · 환전소 값은 조금 달라요', 'As of %s · exchange booths differ a little', asOf)}

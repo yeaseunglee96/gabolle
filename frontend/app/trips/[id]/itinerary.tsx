@@ -160,7 +160,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
   const facts = [
     walkLabel,
     formatTravelLabel(item, tx, index === 0),
-    item.estimatedCostKrw == null ? null : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : tx(`${item.estimatedCostKrw.toLocaleString()}원`, `${item.estimatedCostKrw.toLocaleString()} KRW`),
+    item.estimatedCostKrw == null ? null : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '%s KRW', item.estimatedCostKrw.toLocaleString()),
   ].filter((fact): fact is string => fact !== null);
 
   // 구간 라벨 — 이 값들은 이 방문지로 들어오는 구간이다(backend ItineraryQueryService
@@ -220,7 +220,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           <View style={[styles.stopRight, wide && styles.stopRightWide]}>
             <View style={wide ? styles.stopRightStack : undefined}>
               <Text variant={wide ? 'title' : 'body'} weight="bold" color={color.brand.navy}>{formatTime(displayTime, locale)}</Text>
-              {wide && item.estimatedCostKrw != null ? <Text variant="caption" color={color.text.muted}>{item.estimatedCostKrw === 0 ? tx('무료', 'Free') : tx(`${item.estimatedCostKrw.toLocaleString()}원`, `${item.estimatedCostKrw.toLocaleString()} KRW`)}</Text> : null}
+              {wide && item.estimatedCostKrw != null ? <Text variant="caption" color={color.text.muted}>{item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '%s KRW', item.estimatedCostKrw.toLocaleString())}</Text> : null}
             </View>
             {lockControl}
           </View>
@@ -229,7 +229,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           {facts.length ? <View style={styles.metaRow}>{facts.map((fact) => <Text key={fact} variant="caption" color={color.text.muted}>{fact}</Text>)}</View> : null}
           {pace && !reorderMode ? <View style={styles.paceRow}>
             {pace.visited ? <Text variant="caption" weight="bold" color={color.state.success}>{tx(`도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--'}${pace.predictedDeparture ? ` · 출발 ${formatTime(pace.predictedDeparture, locale)}` : ''}`, `Arrived ${pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--'}${pace.predictedDeparture ? ` · Left ${formatTime(pace.predictedDeparture, locale)}` : ''}`)}</Text>
-              : <Text variant="caption" weight="bold" color={pace.atRisk ? color.state.danger : color.text.muted}>{tx(`예상 도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--'}${estimated ? ' (추정)' : ''}`, `Est. arrival ${pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--'}${estimated ? ' (est.)' : ''}`)}{pace.atRisk ? ` · ${tx('하루를 넘길 위험', 'Risks running past the day')}` : ''}</Text>}
+              : <Text variant="caption" weight="bold" color={pace.atRisk ? color.state.danger : color.text.muted}>{txf(tx, '예상 도착 %s%s', 'Est. arrival %s%s', pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--', estimated ? tx(' (추정)', ' (est.)') : '')}{pace.atRisk ? ` · ${tx('하루를 넘길 위험', 'Risks running past the day')}` : ''}</Text>}
             {(onRecordArrival || onRecordDeparture) ? <View style={styles.actualButtons}>
               {!pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
                 : !pace.predictedDeparture ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 출발 찍기', 'Mark departure at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
@@ -436,8 +436,7 @@ export default function ItineraryScreen() {
   const nowClock = new Date().toTimeString().slice(0, 5);
   const nowDriftValue = drift(new Date().toISOString(), currentStop?.startsAt ?? null);
   const nowDrift = nowDriftValue
-    ? tx(`예정보다 ${nowDriftValue.minutes}분 ${nowDriftValue.early ? '빠름' : '늦음'}`,
-      `${nowDriftValue.minutes} min ${nowDriftValue.early ? 'early' : 'late'}`)
+    ? txf(tx, '예정보다 %s분 %s', '%s min %s', nowDriftValue.minutes, nowDriftValue.early ? tx('빠름', 'early') : tx('늦음', 'late'))
     : null;
   const nowTitle = progress.status === 'DONE'
     ? tx('오늘 일정을 다 돌았어요', 'You finished today')
@@ -480,8 +479,8 @@ export default function ItineraryScreen() {
     dayWalkingMeters > 0 ? txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters)) : null,
     dayCost.krw > 0
       ? dayCost.known === dayCost.total
-        ? tx(`${dayCost.krw.toLocaleString()}원`, `${dayCost.krw.toLocaleString()} KRW`)
-        : tx(`${dayCost.krw.toLocaleString()}원 (${dayCost.total}곳 중 ${dayCost.known}곳)`, `${dayCost.krw.toLocaleString()} KRW (${dayCost.known} of ${dayCost.total} places)`)
+        ? txf(tx, '%s원', '%s KRW', dayCost.krw.toLocaleString())
+        : txf(tx, '%s원 (%s곳 중 %s곳)', '%s KRW (%s places, %s priced)', dayCost.krw.toLocaleString(), dayCost.total, dayCost.known)
       : null,
   ].filter(Boolean).join(' · '), [dayWalkingMeters, dayCost, tx]);
   const canReorder = canEdit && (day?.items.filter((item) => !item.locked).length ?? 0) > 1;
@@ -672,9 +671,9 @@ export default function ItineraryScreen() {
     itinerary.days.length > 0 ? tx(`${itinerary.days.length}일`, `${itinerary.days.length} days`) : null,
     stopCount > 0 ? tx(`${stopCount}곳`, `${stopCount} stops`) : null,
     typeof itinerary.totalWalkingMeters === 'number' && itinerary.totalWalkingMeters > 0
-      ? tx(`도보 ${(itinerary.totalWalkingMeters / 1000).toFixed(1)}km`, `${(itinerary.totalWalkingMeters / 1000).toFixed(1)}km on foot`) : null,
+      ? txf(tx, '도보 %skm', '%skm on foot', (itinerary.totalWalkingMeters / 1000).toFixed(1)) : null,
     typeof itinerary.totalEstimatedCostKrw === 'number' && itinerary.totalEstimatedCostKrw > 0
-      ? tx(`약 ${Math.round(itinerary.totalEstimatedCostKrw / 10000 * 10) / 10}만원`, `about ${itinerary.totalEstimatedCostKrw.toLocaleString()} KRW`) : null,
+      ? txf(tx, '약 %s만원', 'about %s KRW', Math.round(itinerary.totalEstimatedCostKrw / 10000 * 10) / 10, itinerary.totalEstimatedCostKrw.toLocaleString()) : null,
   ].filter(Boolean).join(' · ') : '';
 
   // ── 네이비 헤더 (시안 design_handoff_itinerary 2·3절) ──────────────────────
@@ -775,7 +774,7 @@ export default function ItineraryScreen() {
     {!loading && itinerary ? <>
       {menuOpen ? <View style={styles.menuPanel}>
         <View style={styles.stats}>{stats.map((stat) => <View key={stat.key} style={styles.stat}><Text variant="title" weight="bold">{stat.value}</Text><Text variant="caption" color={color.text.muted}>{stat.label}</Text></View>)}</View>
-        {rhythm ? <Text variant="caption" color={color.text.body}>{tx(`하루 평균 ${rhythm.averageItemsPerDay}곳`, `${rhythm.averageItemsPerDay} places/day avg.`)}{rhythm.travelShare != null ? tx(` · 이동 비중 ${Math.round(rhythm.travelShare * 100)}%`, ` · ${Math.round(rhythm.travelShare * 100)}% travel time`) : ''}{rhythm.plannedVsActual != null ? tx(` · 계획 대비 실제 ${rhythm.plannedVsActual}배`, ` · ${rhythm.plannedVsActual}x planned pace`) : ''}</Text> : null}
+        {rhythm ? <Text variant="caption" color={color.text.body}>{tx(`하루 평균 ${rhythm.averageItemsPerDay}곳`, `${rhythm.averageItemsPerDay} places/day avg.`)}{rhythm.travelShare != null ? txf(tx, ' · 이동 비중 %s%', ' · %s% travel time', Math.round(rhythm.travelShare * 100)) : ''}{rhythm.plannedVsActual != null ? txf(tx, ' · 계획 대비 실제 %s배', ' · %sx planned pace', rhythm.plannedVsActual) : ''}</Text> : null}
         <View style={styles.menuActions}>
           <Pressable accessibilityRole="button" onPress={() => { selectView(viewMode === 'all' ? 'day' : 'all'); setMenuOpen(false); }} style={styles.recalcButton}><Text variant="caption" weight="bold" color={color.brand.navy}>{viewMode === 'all' ? tx('날짜별 보기', 'By day') : tx('전체 일정 보기', 'All days')}</Text></Pressable>
           {canReorder && !reorderMode ? <Pressable testID="itinerary-reorder" accessibilityRole="button" accessibilityLabel={tx('일정 순서 변경', 'Reorder itinerary')} accessibilityState={{ disabled: excludingItemId !== null }} disabled={excludingItemId !== null} onPress={() => { startReorder(); setMenuOpen(false); }} style={[styles.recalcButton, excludingItemId !== null && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('순서 변경', 'Reorder')}</Text></Pressable> : null}
@@ -813,7 +812,7 @@ export default function ItineraryScreen() {
             <Text variant="body" weight="bold">{day ? formatDayHeading(day.date, selectedDay, tx, locale) : tx(`${selectedDay + 1}일차`, `Day ${selectedDay + 1}`)}</Text>
             {dayFacts ? <Text variant="caption" color={color.text.muted}>{dayFacts}</Text> : null}
           </View>
-          {pace?.atRiskItemIds.length ? <View accessibilityRole="alert" style={styles.warningNotice}><Text variant="caption" weight="bold" color={color.state.danger}>{tx(`${pace.atRiskItemIds.length}곳이 하루를 넘길 위험이 있어요.${paceEstimated ? ' (기록이 적어 추정값이에요)' : ''}`, `${pace.atRiskItemIds.length} place(s) risk running past the day.${paceEstimated ? ' (estimated — few records yet)' : ''}`)}</Text></View> : null}
+          {pace?.atRiskItemIds.length ? <View accessibilityRole="alert" style={styles.warningNotice}><Text variant="caption" weight="bold" color={color.state.danger}>{txf(tx, '%s곳이 하루를 넘길 위험이 있어요.%s', '%s place(s) risk running past the day.%s', pace.atRiskItemIds.length, paceEstimated ? tx(' (기록이 적어 추정값이에요)', ' (estimated — few records yet)') : '')}</Text></View> : null}
           {replanConfirming ? <View accessibilityRole="alert" style={styles.actionNotice}>
             <Text variant="body" weight="bold">{tx('남은 방문지의 시각을 다시 매길까요?', 'Retime the remaining visits?')}</Text>
             <Text variant="caption" color={color.text.body}>{tx('지나간 방문지는 그대로 두고, 안 간 방문지의 시각만 지금 시각 기준으로 다시 매겨요.', "Past visits stay as they are — only the times of the visits you haven't made yet are recalculated from now.")}</Text>

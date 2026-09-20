@@ -10,7 +10,9 @@ import { loadTripItineraries, loadTrips, tripDisplayTitle, type TripItineraryRef
 import { useAuth } from '@/auth/AuthProvider';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { formatDayHeading } from '@/i18n/datetime';
 import { Text } from './Text';
+import { txf } from '@/i18n/format';
 
 type Step = 'loadingTrips' | 'pickTrip' | 'loadingItineraries' | 'pickItinerary' | 'pickDay' | 'submitting' | 'done' | 'error';
 
@@ -21,18 +23,19 @@ type AddPlaceToItineraryModalProps = {
 };
 
 // 여행 시작일 + n일 — 「9월 19일 (금)」. 시작일을 못 읽으면 지어내지 않고 「n일차」만 적는다.
-function dayLabel(startDate: string | null, dayIndex: number, tx: (ko: string, en: string) => string) {
+function dayLabel(startDate: string | null, dayIndex: number, tx: (ko: string, en: string) => string, locale: string) {
   const fallback = tx(`${dayIndex + 1}일차`, `Day ${dayIndex + 1}`);
   if (!startDate) return fallback;
   const date = new Date(`${startDate}T00:00:00`);
   if (Number.isNaN(date.getTime())) return fallback;
   date.setDate(date.getDate() + dayIndex);
-  const weekday = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
-  return tx(`${dayIndex + 1}일차 · ${date.getMonth() + 1}월 ${date.getDate()}일 (${weekday})`, `Day ${dayIndex + 1} · ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', weekday: 'short' })}`);
+  // 날짜 표기는 고른 언어에 맡긴다(9월 20일 (토) · September 20 (Sat) · 9月20日(土)) — S15P21E201-1355 와 같은 방식.
+  const heading = formatDayHeading(date.toISOString().slice(0, 10), locale) ?? `${date.getMonth() + 1}. ${date.getDate()}.`;
+  return txf(tx, '%s일차 · %s', 'Day %s · %s', dayIndex + 1, heading);
 }
 
 export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlaceToItineraryModalProps) {
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const { accessToken } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState<Step>('loadingTrips');
@@ -170,7 +173,7 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
               <Text variant="caption" color={color.text.body}>{tx('어느 날에 넣을까요?', 'Which day should this go on?')}</Text>
               {Array.from({ length: selectedTrip.dayCount }, (_, index) => index).map((dayIndex) => (
                 <Pressable key={dayIndex} accessibilityRole="button" onPress={() => void pickDay(dayIndex)} style={styles.optionRow}>
-                  <Text variant="body" weight="bold">{dayLabel(selectedTrip.startDate, dayIndex, tx)}</Text>
+                  <Text variant="body" weight="bold">{dayLabel(selectedTrip.startDate, dayIndex, tx, locale)}</Text>
                 </Pressable>
               ))}
             </ScrollView>

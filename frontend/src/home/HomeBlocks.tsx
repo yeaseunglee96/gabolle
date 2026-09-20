@@ -12,6 +12,7 @@ import { PlaceVisual } from '@/components/PlaceVisual';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { formatMonthDay } from '@/i18n/datetime';
 import { markdownToPlain } from '@/social/markdown';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
@@ -256,10 +257,10 @@ export function PlaceRow({
 
 // ── 내 여행 ───────────────────────────────────────────────────────────────────
 
-function formatDay(iso: string | null, tx: Tx) {
+function formatDay(iso: string | null, tx: Tx, locale: string) {
   if (!iso) return tx('날짜 미정', 'Dates TBD');
-  const [, month, day] = iso.split('-');
-  return tx(`${Number(month)}월 ${Number(day)}일`, `${month}/${day}`);
+  // 「9월 20일」 · 「Sep 20」 · 「9月20日」 — 고른 언어의 방식으로(S15P21E201-1355).
+  return formatMonthDay(iso, locale) ?? iso;
 }
 
 function statusLabel(trip: TripSummaryDto, tx: Tx) {
@@ -269,15 +270,15 @@ function statusLabel(trip: TripSummaryDto, tx: Tx) {
 }
 
 /** 카드에 적을 날짜 범위. 시작일이 없으면 부르는 쪽이 안 쓰게 되어 있다. */
-function dateRange(trip: TripSummaryDto, tx: Tx) {
+function dateRange(trip: TripSummaryDto, tx: Tx, locale: string) {
   return trip.startDate && trip.endDate
-    ? `${formatDay(trip.startDate, tx)} ~ ${formatDay(trip.endDate, tx)}`
-    : formatDay(trip.startDate, tx);
+    ? `${formatDay(trip.startDate, tx, locale)} ~ ${formatDay(trip.endDate, tx, locale)}`
+    : formatDay(trip.startDate, tx, locale);
 }
 
 export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | null; signedIn: boolean; loaded: boolean }) {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const { accessToken } = useAuth();
   const [opening, setOpening] = useState(false);
   const openTrip = async () => {
@@ -299,7 +300,7 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
               것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다.
           */}
           <Text variant="title" weight="bold">
-            {tripDisplayTitle(trip, dateRange(trip, tx))}
+            {tripDisplayTitle(trip, dateRange(trip, tx, locale))}
           </Text>
           {/* 이름을 제목에 올리면 날짜가 화면에서 사라진다 — 그러면 같은 이름의 여행
               둘을 날짜로 가릴 수 없다. 이름이 있을 때만 이 줄에 날짜를 같이 적는다.
@@ -307,7 +308,7 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
           */}
           <Text color={color.text.body}>
             {trip.title?.trim() && trip.startDate
-              ? tx(`${dateRange(trip, tx)} · ${trip.dayCount}일 · ${trip.partySize}명`, `${dateRange(trip, tx)} · ${trip.dayCount} days · ${trip.partySize} travelers`)
+              ? txf(tx, '%s · %s일 · %s명', '%s · %s days · %s travelers', dateRange(trip, tx, locale), trip.dayCount, trip.partySize)
               : tx(`${trip.dayCount}일 · ${trip.partySize}명`, `${trip.dayCount} days · ${trip.partySize} travelers`)}
           </Text>
           <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{opening ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>

@@ -17,6 +17,7 @@ import { getPlace, type Place as ApiPlace } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
 import { loadPlaceReviews, submitPlaceReview, verifyPlaceVisit, type PlaceReviewDto, type ThreeStepScore, type VisitVerificationStatus } from '@/review/placeReviews';
+import { txf } from '@/i18n/format';
 
 const CATEGORIES: Array<{ key: 'food' | 'price' | 'accessibility' | 'onsite'; labelKo: string; labelEn: string }> = [
   { key: 'food', labelKo: '음식', labelEn: 'Food' },
@@ -209,7 +210,7 @@ export default function PlaceReviews() {
       ) : null}
 
       <Text variant="title" weight="bold" style={styles.listTitle}>{tx('리뷰', 'Reviews')}</Text>
-      {averageScore != null ? <Text color={color.text.body} style={styles.average}>{tx(`인증된 평가 평균 ${averageScore.toFixed(1)}점`, `Average of verified reviews: ${averageScore.toFixed(1)}`)}</Text> : null}
+      {averageScore != null ? <Text color={color.text.body} style={styles.average}>{txf(tx, '인증된 평가 평균 %s점', 'Average of verified reviews: %s', averageScore.toFixed(1))}</Text> : null}
 
       {listState === 'loading' ? <View style={styles.notice}><ActivityIndicator color={color.action.primary} /></View> : null}
       {listState === 'error' ? <View style={styles.notice}><Text color={color.text.body}>{tx('리뷰를 불러오지 못했어요.', 'Could not load reviews.')}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReviews()} /></View> : null}

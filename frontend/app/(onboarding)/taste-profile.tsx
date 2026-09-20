@@ -24,6 +24,7 @@ import {
   type TasteKey,
   type TasteValue,
 } from '@/preferences/tasteProfile';
+import { txf } from '@/i18n/format';
 
 // 여행 만들기 취향 화면(app/(plan)/taste.tsx)의 advancePanel 과 같은 값이다. 고른 것이
 // 눈에 남을 만큼은 머물고, 기다린다는 느낌은 안 드는 길이다.
@@ -59,7 +60,7 @@ function Scale({ label, value, low, high, desktop, onChange }: { label: string; 
         <Pressable
           key={point}
           accessibilityRole="radio"
-          accessibilityLabel={tx(`${label} ${point}단계`, `${label} level ${point}`)}
+          accessibilityLabel={txf(tx, '%s %s단계', '%s level %s', label, point)}
           accessibilityState={{ selected: value === point }}
           onPress={() => onChange(point)}
           style={[styles.scalePoint, value === point && (desktop ? styles.scalePointSelectedDesktop : styles.scalePointSelected)]}
@@ -175,7 +176,7 @@ export default function TasteProfileScreen() {
         <Image source={require('../../assets/mascot/dongbaek-idle.png')} style={styles.mascot} resizeMode="contain" />
         <Text variant="display" weight="bold" style={styles.doneTitle}>
           {done > 0
-            ? tx(`취향 ${done}개를 기억했어요`, `Saved ${done} preference${done > 1 ? 's' : ''}`)
+            ? txf(tx, '취향 %s개를 기억했어요', done > 1 ? 'Saved %s preferences' : 'Saved %s preference', done)
             : tx('괜찮아요, 나중에 답해도 돼요', 'No problem — you can answer later')}
         </Text>
         <Text color={color.text.body} style={styles.doneTitle}>

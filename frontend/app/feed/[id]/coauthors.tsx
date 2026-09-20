@@ -60,7 +60,7 @@ export default function StoryCoauthors() {
     setInviting(false);
     if (result.state === 'success') {
       setInvite({ inviteUrl: result.inviteUrl, expiresAt: result.expiresAt });
-      await NativeShare.share({ title: tx('가볼래 기록 함께 쓰기', 'GABOLLE record co-writing'), message: tx(`이 기록을 함께 써요.\n${result.inviteUrl}`, `Write this record together.\n${result.inviteUrl}`), url: result.inviteUrl });
+      await NativeShare.share({ title: tx('가볼래 기록 함께 쓰기', 'GABOLLE record co-writing'), message: txf(tx, '이 기록을 함께 써요.\n%s', 'Write this record together.\n%s', result.inviteUrl), url: result.inviteUrl });
     } else {
       setActionError(result.message);
     }
@@ -113,7 +113,7 @@ export default function StoryCoauthors() {
 
       {isAuthor && <>
         <Button label={inviting ? tx('초대 링크 만드는 중…', 'Creating invite link…') : tx('초대 링크 만들기', 'Create invite link')} disabled={inviting} onPress={() => void makeInvite()} containerStyle={styles.actionRowButton} />
-        {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{tx(`만료: ${new Date(invite.expiresAt).toLocaleString(locale)}`, `Expires: ${new Date(invite.expiresAt).toLocaleString(locale)}`)}</Text></View>}
+        {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{txf(tx, '만료: %s', 'Expires: %s', new Date(invite.expiresAt).toLocaleString(locale))}</Text></View>}
         {state.story.tripId && <Button label={tx('여행 동행자 추가', 'Add a trip companion')} variant="tertiary" onPress={() => setPickerVisible(true)} containerStyle={styles.actionRowButton} />}
       </>}
     </>}

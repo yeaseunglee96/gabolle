@@ -241,7 +241,7 @@ export default function Map() {
     <Screen scroll wide>
       <View style={styles.headerRow}>
         <View>
-          <Text variant="caption">{tx(`${activeDay.key} · ${stops.length}곳`, `${activeDay.key} · ${stops.length} places`)}</Text>
+          <Text variant="caption">{txf(tx, '%s · %s곳', '%s · %s places', activeDay.key, stops.length)}</Text>
           <Text variant="display" weight="bold" style={styles.title}>{tx('여행 지도', 'Trip map')}</Text>
         </View>
         <View accessibilityRole="tablist" style={styles.dayToggle}>

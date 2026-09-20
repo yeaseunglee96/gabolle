@@ -27,6 +27,7 @@ import { useLayout } from '@/layout/useLayout';
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
+import { txf } from '@/i18n/format';
 
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
@@ -157,7 +158,7 @@ export default function Welcome() {
         {/* 시안 4 의 00a — 언어 카드 하나 · 흰 시작하기 · 로그인 한 줄. 예전 국기 다섯 줄은
             시트(WelcomeLanguageSheet)로 들어갔다. 고르는 것과 시작하는 것을 나눈 이유는 거기 적었다. */}
         <View style={styles.mobileActions}>
-          <Pressable testID="lang-picker" accessibilityRole="button" accessibilityLabel={tx(`언어 선택: ${current.endonym}`, `Language: ${current.endonym}`)} accessibilityHint={tx('눌러서 다른 언어를 고릅니다', 'Opens the language list')} onPress={() => setLanguageSheetOpen(true)} style={({ pressed }) => [styles.languageCard, pressed && styles.pressed]}>
+          <Pressable testID="lang-picker" accessibilityRole="button" accessibilityLabel={txf(tx, '언어 선택: %s', 'Language: %s', current.endonym)} accessibilityHint={tx('눌러서 다른 언어를 고릅니다', 'Opens the language list')} onPress={() => setLanguageSheetOpen(true)} style={({ pressed }) => [styles.languageCard, pressed && styles.pressed]}>
             <Image source={FLAG_IMAGES[current.code]} resizeMode="contain" style={styles.languageCardFlag} accessibilityIgnoresInvertColors />
             <View style={styles.languageCardCopy}>
               <Text variant="body" weight="bold" color={color.text.onAction}>{current.endonym}</Text>

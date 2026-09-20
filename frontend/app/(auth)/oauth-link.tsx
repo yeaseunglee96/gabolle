@@ -17,6 +17,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 
 // 기본값 /home — sign-in.tsx 의 resolveDestination 과 같은 이유(jaehyeon 님 제안).
 async function resolveDestination(returnTo?: string) {
@@ -84,7 +85,7 @@ export default function OAuthLink() {
       </View>
       <Text variant="display" weight="bold" style={styles.title}>{tx('이미 가입된 이메일이에요', 'This email is already registered')}</Text>
       <Text variant="body" color={color.text.body} style={styles.subtitle}>
-        {tx(`${params.maskedEmail ?? ''} 계정에 ${providerLabel} 로그인을 연결할게요. 비밀번호를 입력해 주세요.`, `We'll link ${providerLabel} sign-in to ${params.maskedEmail ?? ''}. Please enter your password.`)}
+        {txf(tx, '%s 계정에 %s 로그인을 연결할게요. 비밀번호를 입력해 주세요.', 'For the %s account, we\'ll link %s sign-in. Please enter your password.', params.maskedEmail ?? '', providerLabel)}
       </Text>
 
       <View style={styles.form}>

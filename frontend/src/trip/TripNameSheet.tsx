@@ -16,6 +16,7 @@ import {
   updateTripTitle,
   type TripNameSource,
 } from '@/trip/tripNaming';
+import { txf } from '@/i18n/format';
 
 /** 시안이 정한 상한. 서버는 60자까지 받지만 화면은 40자로 끊는다. */
 const DRAFT_MAX_LENGTH = 40;
@@ -88,7 +89,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
     <>
       <Text variant="title" weight="bold">{tx('이름을 지울까요?', 'Clear the name?')}</Text>
       <Text color={color.text.body}>
-        {tx(`「${currentTitle ?? ''}」이(가) 지워지고, 카드에는 다시 날짜가 보여요.`, `"${currentTitle ?? ''}" will be removed and the card will show the dates again.`)}
+        {txf(tx, '「%s」이(가) 지워지고, 카드에는 다시 날짜가 보여요.', '"%s" will be removed and the card will show the dates again.', currentTitle ?? '')}
       </Text>
       {/* 지운 뒤 카드를 미리 보여준다. 「날짜가 보여요」는 말이고, 이건 그 말의 증거다. */}
       <View style={styles.previewCard}>
@@ -148,7 +149,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
             <Pressable
               key={name}
               accessibilityRole="button"
-              accessibilityLabel={tx(`${name} 로 정하기`, `Use the name ${name}`)}
+              accessibilityLabel={txf(tx, '%s 로 정하기', 'Use the name %s', name)}
               disabled={busy}
               onPress={() => void commit(name)}
               style={({ pressed }) => [styles.suggestionRow, pressed && styles.suggestionPressed]}
