@@ -46,7 +46,7 @@ function monthCells(year: number, month: number): Array<string | null> {
   ];
 }
 
-function MonthGrid({
+export function MonthGrid({
   year, month, value, today, onPick, tx,
 }: {
   year: number; month: number; value: StartBarValue; today: string;
