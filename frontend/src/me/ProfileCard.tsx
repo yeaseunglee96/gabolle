@@ -9,6 +9,9 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { txf } from '@/i18n/format';
 
+/** 사진이 없는 계정도 빈 회색 판이 아니다 — 넓은 화면(MyPageCover)과 같은 부산 기본 사진. S15P21E201-1375 */
+const DEFAULT_COVER = require('../../assets/home/web-hero.png');
+
 export type ProfileCardCount = { label: string; value: number | null; onPress?: () => void };
 
 export type ProfileCardProps = {
@@ -27,9 +30,7 @@ export function ProfileCard({ name, email, avatarUri, coverUri, counts, onEdit, 
   return (
     <View style={styles.card}>
       <View style={styles.cover}>
-        {coverUri ? (
-          <Image source={{ uri: coverUri }} resizeMode="cover" style={styles.coverPhoto} accessibilityLabel={tx('배경 사진', 'Cover photo')} />
-        ) : null}
+        <Image source={coverUri ? { uri: coverUri } : DEFAULT_COVER} resizeMode="cover" style={styles.coverPhoto} accessibilityLabel={coverUri ? tx('배경 사진', 'Cover photo') : ''} />
       </View>
 
       <View style={styles.body}>
