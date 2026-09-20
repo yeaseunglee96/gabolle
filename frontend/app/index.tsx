@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
-import { MyTripCard, PlaceRow, StoryRow, WeatherLine } from '@/home/HomeBlocks';
+import { MyTripCard, PlaceRow, StoryRow } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
@@ -205,12 +205,15 @@ export default function Welcome() {
         <View style={styles.startBar}>
           <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
         </View>
- {/* 「처음 오셨나요? 사용법 보기」는 뺐다 (2026-09-18 사용자 지시).
-            시안 p0 에는 날씨 줄 오른쪽에 그 링크가 있지만, 첫 화면에서 안내부터 권하지 않기로 했다.
-            안내 화면(/help)은 그대로 있고 마이페이지에서 들어간다. */}
-        <View style={styles.headerMeta}>
-          <WeatherLine forecast={home.weather} />
-        </View>
+        {/* 🔴 이 자리에 있던 것 둘이 지금은 없다. 왜 없는지를 남긴다 —
+            안 적어 두면 다음 사람이 「빠뜨렸나」 하고 다시 넣는다.
+
+            · 「처음 오셨나요? 사용법 보기」 — 2026-09-18 사용자 지시로 뺐다. 시안 p0 에는
+              날씨 줄 오른쪽에 그 링크가 있지만, 첫 화면에서 안내부터 권하지 않기로 했다.
+              안내 화면(/help)은 그대로 있고 마이페이지에서 들어간다.
+            · 날씨 줄 — 2026-09-21 상단 바 오른쪽으로 옮겼다(S15P21E201-1369).
+              여기 가로줄이 시작 바와 첫 기록 줄 사이를 갈라놓고 있었다. TopNav 를 본다.
+        */}
       </View>
     </View>
 
@@ -304,7 +307,6 @@ const styles = StyleSheet.create({
   headerTitle: { textAlign: 'center' },
   startBar: { width: '100%', maxWidth: 900, alignItems: 'center' },
   headerSubtitle: { marginTop: spacing[2], marginBottom: spacing[6], textAlign: 'center' },
-  headerMeta: { marginTop: spacing[6], gap: spacing[3], alignItems: 'center' },
   // 메뉴가 이 상자를 기준으로 위에 뜬다(bottom: '100%'). 그래서 절대 위치를 단추가 아니라
   // 감싸는 상자가 가진다 — 단추가 가지면 메뉴가 붙을 기준이 없다.
   webAssistantAnchor: { position: 'absolute', right: spacing[8], bottom: spacing[8], zIndex: 20 },

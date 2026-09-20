@@ -74,9 +74,14 @@ export function HomeRow({
   const scroller = useRef<ScrollView>(null);
   const offset = useRef(0);
 
-  // 한 번에 보이는 폭의 80%씩 민다. 한 장씩 밀면 일곱 번 눌러야 하고, 한 화면을 통째로
-  // 밀면 방금 본 카드가 사라져 어디까지 봤는지 잃는다.
-  const step = (width - gutter * 2) * 0.8;
+  // 🔴 2026-09-21 — 카드 «한 장»씩 민다 (시안 design_handoff_home_startbar 3절).
+  //
+  // 전에는 보이는 폭의 80%씩 밀었다. 그때 적어 둔 이유는 *"한 장씩 밀면 일곱 번
+  // 눌러야 하고, 한 화면을 통째로 밀면 방금 본 카드가 사라져 어디까지 봤는지 잃는다"*
+  // 였다. 앞의 걱정은 맞았지만 뒤의 걱정이 더 컸다 — 80%도 여섯 장이 한꺼번에
+  // 지나가서, 화살표를 누른 사람이 «어디로 갔는지»를 눈으로 따라가지 못했다.
+  // 한 장씩이면 누른 만큼만 움직여서 눈이 따라간다. 여러 장을 보려면 여러 번 누른다.
+  const step = homeCardWidth(width) + spacing[3];
   const slide = (direction: 1 | -1) => {
     const next = Math.max(0, offset.current + direction * step);
     scroller.current?.scrollTo({ x: next, animated: true });

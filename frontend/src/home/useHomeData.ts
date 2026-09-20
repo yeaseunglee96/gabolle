@@ -75,6 +75,27 @@ export type HomeData = {
 
 
 /**
+ * 날씨만 따로 읽는다.
+ *
+ * <p>상단 바(TopNav)는 루트 레이아웃에서 그려져서 홈 화면이 값을 건네줄 수 없다.
+ * 그렇다고 상단 바가 홈 데이터를 통째로 읽으면 기록·축제·여행까지 같이 불려서
+ * 홈이 아닌 화면에서도 요청이 헛돈다.
+ *
+ * <p>질의 열쇠가 useHomeData 의 것과 «같다». 그래서 홈에서 둘 다 불려도 서버에는
+ * 한 번만 나간다 — 캐시가 같은 열쇠를 하나로 묶는다.
+ */
+export function useHomeWeather(enabled = true): DailyForecastDto | null {
+  const { accessToken } = useAuth();
+  const weatherQuery = useQuery({
+    // 날씨도 스토리와 같다 — 익명으로는 401 이다.
+    queryKey: ['home', 'weather', today()],
+    enabled: enabled && Boolean(accessToken),
+    queryFn: () => loadWeatherForecast(today(), accessToken),
+  });
+  return weatherQuery.data?.state === 'success' ? weatherQuery.data.forecast : null;
+}
+
+/**
  * @param enabled 데스크톱 홈에서만 켠다. 훅은 조건 없이 불러야 하는데(React 규칙) 폰 랜딩은
  * 이 값을 하나도 안 그리므로, 끄지 않으면 폰에서 볼 때마다 요청 다섯 개가 헛돈다.
  */
@@ -92,12 +113,7 @@ export function useHomeData(enabled = true): HomeData {
 
   const facetsQuery = useQuery({ queryKey: ['home', 'facets'], enabled, queryFn: () => getFacets() });
 
-  const weatherQuery = useQuery({
-    // 날씨도 스토리와 같다 — 익명으로는 401 이다.
-    queryKey: ['home', 'weather', today()],
-    enabled: enabled && signedIn,
-    queryFn: () => loadWeatherForecast(today(), accessToken),
-  });
+  const weather = useHomeWeather(enabled);
 
   /**
    * 갈래 줄이 쓸 조회 종류(`placeFeatureType`)는 서버가 정한다 — 코드에 박지 않는다.
@@ -136,7 +152,7 @@ export function useHomeData(enabled = true): HomeData {
     stories: storiesQuery.isPending
         ? null
         : storiesQuery.data?.state === 'success' ? pickHeroStories(storiesQuery.data.items) : [],
-    weather: weatherQuery.data?.state === 'success' ? weatherQuery.data.forecast : null,
+    weather,
     // 여기서도 null 은 「아직 불러오는 중」만 뜻한다. 실패는 빈 배열로 내려 「없어요」 자리로 보낸다.
     facetRows: HOME_FACET_ROWS.map((row) => ({
       facetKey: row.key,
