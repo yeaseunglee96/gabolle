@@ -1,5 +1,5 @@
 // 폰 홈. 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,6 +19,9 @@ import { color, radius, spacing } from '@/design/tokens';
 import { PlaceRow, StoryRow } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu } from '@/home/AssistantMenu';
+import { dismissChecklist, loadChecklist, takeHomeCoach, type ChecklistState } from '@/onboarding/firstRun';
+import { FirstTripChecklist } from '@/onboarding/FirstTripChecklist';
+import { HomeCoach, type CoachHole } from '@/onboarding/HomeCoach';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { resolveHomeTripDestination } from '@/home/tripNavigation';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -59,6 +62,38 @@ export default function Home() {
     if (hydrated && !hasEnteredApp) markEnteredApp();
   }, [hydrated, hasEnteredApp, markEnteredApp]);
 
+  // ── 신규 사용자 안내 — S15P21E201-1361. 앱 소개를 막 끝낸 사람에게만 (firstRun.ts) ──
+  const [coach, setCoach] = useState<{ visible: boolean; startBar: CoachHole | null; assistant: CoachHole | null }>({ visible: false, startBar: null, assistant: null });
+  const startBarRef = useRef<View>(null);
+  const assistantRef = useRef<View>(null);
+  const [checklist, setChecklist] = useState<ChecklistState | null>(null);
+  const [coachQueued, setCoachQueued] = useState(false);
+  // 여행 조건 모달이 뜰지 결정됐나 — 그 전에 코치를 띄우면 둘이 겹친다(실측: 모달 위에 막이 덮였다).
+  const [promptChecked, setPromptChecked] = useState(false);
+  useEffect(() => {
+    if (!hydrated || desktop) return;
+    let alive = true;
+    void loadChecklist().then((state) => { if (alive) setChecklist(state); });
+    void takeHomeCoach().then((show) => { if (alive && show) setCoachQueued(true); });
+    return () => { alive = false; };
+  }, [hydrated, desktop]);
+  useEffect(() => {
+    // 조건 모달이 닫힌 뒤에 — 모달이 안 뜨는 사람은 판정이 끝나는 즉시.
+    if (!coachQueued || !promptChecked || conditions.open) return;
+    let alive = true;
+    // 구멍 자리는 실제로 잰다 — 첫 그리기가 끝난 다음 프레임에.
+    const measure = (ref: React.RefObject<View | null>) => new Promise<CoachHole | null>((resolve) => {
+      const node = ref.current;
+      if (!node) { resolve(null); return; }
+      node.measureInWindow((x, y, width, height) => resolve(width > 0 && height > 0 ? { x, y, width, height, radius: radius.md } : null));
+    });
+    const timer = setTimeout(() => {
+      void Promise.all([measure(startBarRef), measure(assistantRef)]).then(([startBar, assistant]) => { if (alive) { setCoachQueued(false); setCoach({ visible: true, startBar, assistant }); } });
+    }, 350);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [coachQueued, promptChecked, conditions.open]);
+  const closeCoach = () => setCoach((current) => ({ ...current, visible: false }));
+
   const openHomeTrip = async (tripId: string) => {
     if (openingTrip) return;
     setOpeningTrip(true);
@@ -75,6 +110,7 @@ export default function Home() {
       if (!alive) return;
       setPromptState(state);
       if (shouldPromptOnHome(state)) setConditions({ open: true, reprompt: false, pending: null });
+      setPromptChecked(true);
     });
     return () => { alive = false; };
   }, [accessToken, user?.userId]);
@@ -158,13 +194,18 @@ export default function Home() {
           </View>
         </View>
 
+        {/* 동백이 첫 여행 체크리스트 — 온보딩을 거친 사람, 로그인한 뒤, 셋 다 하기 전까지. */}
+        {signedIn && checklist ? <FirstTripChecklist state={checklist} hasTrip={Boolean(home.trip)} onDismiss={() => { setChecklist({ ...checklist, dismissed: true }); void dismissChecklist(); }} /> : null}
+
         {/* ── 히어로 ── */}
         <View style={styles.hero}>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
           {/* 시안 p0 의 시작 바. 출발지·날짜·인원을 여기서 받아
               조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다.
           */}
-          <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
+          <View ref={startBarRef} collapsable={false}>
+            <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
+          </View>
 
  {/* 「현장 도구」 카드를 뺐다 (2026-09-18 지시). 화면(/field/translate)과
               챗봇의 진입점은 그대로 있다 — 이 카드만 안 그린다. */}
@@ -232,7 +273,7 @@ export default function Home() {
 
       {/* 판이 먼저다 — 메뉴와 단추보다 아래에 깔려야 그 둘은 그대로 눌린다. */}
       <AssistantBackdrop open={assistantOpen} onClose={() => setAssistantOpen(false)} />
-      <View style={styles.assistantAnchor}>
+      <View ref={assistantRef} collapsable={false} style={styles.assistantAnchor}>
         {/* 폰은 부제 없이 232 폭. 마스코트 위로 뜬다. */}
         <AssistantMenu compact open={assistantOpen} onClose={() => setAssistantOpen(false)} />
         <Pressable
@@ -247,6 +288,7 @@ export default function Home() {
       </View>
 
       <TabBar active="home" />
+      <HomeCoach visible={coach.visible} startBar={coach.startBar} assistant={coach.assistant} onClose={closeCoach} onStart={() => { closeCoach(); router.push('/plan'); }} />
     </View>
   );
 }

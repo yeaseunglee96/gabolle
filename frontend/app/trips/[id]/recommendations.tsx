@@ -186,7 +186,7 @@ export default function Recommendations() {
               <>
                 <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('코스 내용', 'What is in this course')}</Text>
                 <Text variant="title" weight="bold">{current.title}</Text>
-                <Text variant="caption" color={color.text.muted}>{courseFacts(current, ko)}</Text>
+                <Text variant="caption" color={color.text.muted}>{courseFacts(current, tx)}</Text>
                 {current.days.map((day) => (
                   <View key={day.day} style={styles.mapDay}>
                     <View style={styles.legendChip}>
@@ -267,10 +267,10 @@ export default function Recommendations() {
         <View style={styles.bottomBar}>
           <View style={styles.bottomCopy}>
             <Text weight="bold" numberOfLines={1}>
-              {courseCost(current, ko) ?? tx('비용 미정', 'Cost unknown')}
-              {courseCost(current, ko) ? tx(' 예상', ' est.') : ''}
+              {courseCost(current, tx) ?? tx('비용 미정', 'Cost unknown')}
+              {courseCost(current, tx) ? tx(' 예상', ' est.') : ''}
             </Text>
-            <Text variant="caption" color={color.text.muted} numberOfLines={1}>{courseFacts(current, ko)}</Text>
+            <Text variant="caption" color={color.text.muted} numberOfLines={1}>{courseFacts(current, tx)}</Text>
           </View>
           <Pressable accessibilityRole="button" onPress={() => void build(current)} style={({ pressed }) => [styles.bottomCta, pressed && styles.pressed]}>
             <Text weight="bold" color={color.text.onAction} numberOfLines={1}>{tx('이 코스로 일정 만들기', 'Build this itinerary')}</Text>

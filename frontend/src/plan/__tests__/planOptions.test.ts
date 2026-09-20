@@ -10,6 +10,10 @@ import {
 import { EMPTY_PLAN, type PlanDraft } from '@/plan/PlanProvider';
 import { PLAN_QUESTIONS } from '@/plan/planQuestions';
 
+// effectOf 는 이제 ko: boolean 이 아니라 번역 함수를 받는다.
+const KO = (ko: string, _en: string) => ko;
+const EN = (_ko: string, en: string) => en;
+
 const ALL = [
   ['여행 범위', AREA_OPTIONS],
   ['여행 카테고리', CATEGORY_OPTIONS],
@@ -51,26 +55,26 @@ describe('「이렇게 반영돼요」', () => {
    * 카드 높이가 튀고, 눌린 자리가 손가락 아래에서 움직인다.
    */
   it.each(['areas', 'cats', 'pace', 'moods', 'foods'] as const)('%s — 답이 없어도 문구가 있다', (key) => {
-    expect(effectOf(key, draft, true)).toBeTruthy();
-    expect(effectOf(key, draft, false)).toBeTruthy();
+    expect(effectOf(key, draft, KO)).toBeTruthy();
+    expect(effectOf(key, draft, EN)).toBeTruthy();
   });
 
   it('답하면 문구가 달라진다 — 같은 말을 되풀이하면 띠를 둘 이유가 없다', () => {
-    const before = effectOf('areas', draft, true);
-    const after = effectOf('areas', { ...draft, travelAreas: ['HAEUNDAE', 'GWANGALLI'] }, true);
+    const before = effectOf('areas', draft, KO);
+    const after = effectOf('areas', { ...draft, travelAreas: ['HAEUNDAE', 'GWANGALLI'] }, KO);
     expect(after).not.toBe(before);
     expect(after).toContain('2');
   });
 
   it('여행 기분은 고른 값마다 다르게 말한다', () => {
-    const relaxed = effectOf('pace', { ...draft, paceLevel: 'RELAXED' }, true);
-    const packed = effectOf('pace', { ...draft, paceLevel: 'PACKED' }, true);
+    const relaxed = effectOf('pace', { ...draft, paceLevel: 'RELAXED' }, KO);
+    const packed = effectOf('pace', { ...draft, paceLevel: 'PACKED' }, KO);
     expect(relaxed).not.toBe(packed);
   });
 
   /** 🔴 선택지가 없는 질문에는 띠를 안 붙인다(시안). 답이 곧 설명이라 한 줄을 더 얹을 이유가 없다. */
   it.each(['budget', 'move', 'scales', 'aids', 'must'] as const)('%s — 띠가 없다', (key) => {
-    expect(effectOf(key, draft, true)).toBeNull();
+    expect(effectOf(key, draft, KO)).toBeNull();
   });
 
   it('🔴 질문 열쇠를 빠뜨리지 않았다 — 열 개 전부 물어본다', () => {
@@ -78,7 +82,7 @@ describe('「이렇게 반영돼요」', () => {
     expect(keys).toHaveLength(10);
     for (const key of keys) {
       // 던져도 안 죽어야 한다. null 은 「띠 없음」이라 정상이다.
-      expect(() => effectOf(key, draft, true)).not.toThrow();
+      expect(() => effectOf(key, draft, KO)).not.toThrow();
     }
   });
 });

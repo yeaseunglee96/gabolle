@@ -15,6 +15,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { createStory, FEED_QUERY_PREFIX, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
+import { markChecklistStep } from '@/onboarding/firstRun';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 
 const BODY_MAX = 500;
@@ -100,6 +101,7 @@ export default function ComposeStory() {
     });
     setSubmitting(false);
     if (outcome.state === 'success') {
+      void markChecklistStep('story');
       await AsyncStorage.removeItem(DRAFT_KEY);
       // — 돌아가기 전에 피드 보관본을 버린다.
       await queryClient.invalidateQueries({ queryKey: FEED_QUERY_PREFIX });

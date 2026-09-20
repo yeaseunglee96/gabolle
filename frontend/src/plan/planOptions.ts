@@ -68,47 +68,33 @@ export const FOOD_SUBTITLES: Readonly<Record<string, readonly [ko: string, en: s
  * 🔴 선택지가 있는 질문 다섯에만 붙는다(시안). 예산·척도·보조·꼭 가고 싶은 곳은 답이 곧
  *    설명이라 한 줄을 더 얹을 이유가 없다.
  */
-export function effectOf(key: QuestionKey, draft: PlanDraft, ko: boolean): string | null {
+type Tx = (ko: string, en: string) => string;
+
+export function effectOf(key: QuestionKey, draft: PlanDraft, tx: Tx): string | null {
   switch (key) {
     case 'areas':
       return draft.travelAreas.length
-        ? ko
-          ? `${draft.travelAreas.length}개 지역 안에서만 장소를 골라요. 지역 사이 이동은 하루에 한 번 이하로 묶어요.`
-          : `We only pick places inside your ${draft.travelAreas.length} area(s), and cross-area moves stay at most once a day.`
-        : ko
-          ? '지역을 고르면 그 안에서만 장소를 골라요.'
-          : 'Pick areas and we only choose places inside them.';
+        ? tx(`${draft.travelAreas.length}개 지역 안에서만 장소를 골라요. 지역 사이 이동은 하루에 한 번 이하로 묶어요.`, `We only pick places inside your ${draft.travelAreas.length} area(s), and cross-area moves stay at most once a day.`)
+        : tx('지역을 고르면 그 안에서만 장소를 골라요.', 'Pick areas and we only choose places inside them.');
     case 'cats':
       return draft.preferences.length
-        ? ko
-          ? '고른 갈래가 하루 정차지의 약 70%를 차지해요. 나머지는 이동 동선에 맞춰 채워요.'
-          : 'Your picks fill about 70% of each day. The rest follows the route.'
-        : ko
-          ? '최대 셋. 고른 갈래가 정차지의 대부분을 차지해요.'
-          : 'Up to three. What you pick fills most of the stops.';
+        ? tx('고른 갈래가 하루 정차지의 약 70%를 차지해요. 나머지는 이동 동선에 맞춰 채워요.', 'Your picks fill about 70% of each day. The rest follows the route.')
+        : tx('최대 셋. 고른 갈래가 정차지의 대부분을 차지해요.', 'Up to three. What you pick fills most of the stops.');
     case 'pace':
       switch (draft.paceLevel) {
-        case 'RELAXED': return ko ? '하루 2–3곳, 한 곳에 1시간 반 이상 머물러요.' : '2–3 places a day, 90+ minutes at each.';
-        case 'BALANCED': return ko ? '하루 3–4곳, 점심·저녁 사이에 한 곳씩.' : '3–4 places a day, one between meals.';
-        case 'PACKED': return ko ? '하루 5곳 이상, 이동은 가까운 순으로 붙여요.' : '5+ places a day, hops ordered by distance.';
-        default: return ko ? '하루에 도는 장소 수와 머무는 시간이 정해져요.' : 'This sets how many places a day and how long you stay.';
+        case 'RELAXED': return tx('하루 2–3곳, 한 곳에 1시간 반 이상 머물러요.', '2–3 places a day, 90+ minutes at each.');
+        case 'BALANCED': return tx('하루 3–4곳, 점심·저녁 사이에 한 곳씩.', '3–4 places a day, one between meals.');
+        case 'PACKED': return tx('하루 5곳 이상, 이동은 가까운 순으로 붙여요.', '5+ places a day, hops ordered by distance.');
+        default: return tx('하루에 도는 장소 수와 머무는 시간이 정해져요.', 'This sets how many places a day and how long you stay.');
       }
     case 'moods':
       return draft.atmospheres.length
-        ? ko
-          ? '고른 분위기의 장소를 저녁·마무리 시간대에 우선 배치해요.'
-          : 'Places with your mood go into the evening slots first.'
-        : ko
-          ? '분위기는 시간대 배치(아침/저녁)에 반영돼요.'
-          : 'Mood decides which slot of the day a place goes into.';
+        ? tx('고른 분위기의 장소를 저녁·마무리 시간대에 우선 배치해요.', 'Places with your mood go into the evening slots first.')
+        : tx('분위기는 시간대 배치(아침/저녁)에 반영돼요.', 'Mood decides which slot of the day a place goes into.');
     case 'foods':
       return draft.foods.length
-        ? ko
-          ? '점심·저녁 자리는 고른 음식이 있는 곳 근처로 잡아요.'
-          : 'Lunch and dinner stops sit near the food you picked.'
-        : ko
-          ? '식사 시간대의 장소 선택에 반영돼요.'
-          : 'This decides where the meal stops go.';
+        ? tx('점심·저녁 자리는 고른 음식이 있는 곳 근처로 잡아요.', 'Lunch and dinner stops sit near the food you picked.')
+        : tx('식사 시간대의 장소 선택에 반영돼요.', 'This decides where the meal stops go.');
     default:
       return null;
   }

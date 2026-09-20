@@ -10,6 +10,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
+import { markOnboardingFinished } from '@/onboarding/firstRun';
 
 const INTRO_SEEN_KEY = '@gabolle/app-intro-seen';
 const logo = require('../assets/brand/gabolle-logo-hd.png');
@@ -44,6 +45,8 @@ export default function AppIntro() {
   const finish = async () => {
     await AsyncStorage.setItem(INTRO_SEEN_KEY, 'true');
     if (returnTo === '/help') { router.replace('/help'); return; }
+    // 여기를 지난 사람만 홈 코치마크·첫 여행 체크리스트를 본다 — 기존 회원은 이 화면을 다시 안 본다.
+    await markOnboardingFinished();
     router.replace({ pathname: '/age-gate', params: { language, mobility } });
   };
 

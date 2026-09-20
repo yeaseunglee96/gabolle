@@ -1,6 +1,9 @@
 // 여행 티켓(TRIP PASS)에 찍히는 값 — 화면이 아니라 여기서 만든다.
 
 import type { ItineraryDto } from '@/plan/itinerary';
+import { pickLanguage } from '@/i18n';
+import { txf } from '@/i18n/format';
+import type { LanguageCode } from '@/i18n/languages';
 
 export type TripPassField = { key: string; value: string };
 
@@ -46,8 +49,10 @@ function parseDate(value: string | null | undefined): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function formatDay(date: Date, ko: boolean): string {
-  const weekday = ko ? WEEKDAY_KO[date.getDay()] : WEEKDAY_EN[date.getDay()];
+type Tx = (ko: string, en: string) => string;
+
+function formatDay(date: Date, tx: Tx): string {
+  const weekday = tx(WEEKDAY_KO[date.getDay()], WEEKDAY_EN[date.getDay()]);
   return `${date.getMonth() + 1}.${date.getDate()}(${weekday})`;
 }
 
@@ -80,17 +85,17 @@ export function shortenOrigin(origin: string | null | undefined): string {
   return trimmed.length <= 8 ? trimmed : `${trimmed.slice(0, 7)}…`;
 }
 
-function formatWalking(meters: number | null | undefined, ko: boolean): string | null {
+function formatWalking(meters: number | null | undefined, tx: Tx): string | null {
   if (typeof meters !== 'number' || !Number.isFinite(meters) || meters <= 0) return null;
   if (meters < 1000) return `${Math.round(meters)}m`;
   const km = (meters / 1000).toFixed(1);
-  return ko ? `${km}km` : `${km} km`;
+  return tx(`${km}km`, `${km} km`);
 }
 
-function formatCost(krw: number | null | undefined, ko: boolean): string | null {
+function formatCost(krw: number | null | undefined, tx: Tx): string | null {
   if (typeof krw !== 'number' || !Number.isFinite(krw) || krw <= 0) return null;
   const man = Math.round(krw / 1000) / 10;
-  return ko ? `${man}만원` : `₩${krw.toLocaleString()}`;
+  return tx(`${man}만원`, `₩${krw.toLocaleString()}`);
 }
 
 export type TripPassInput = {
@@ -102,11 +107,11 @@ export type TripPassInput = {
   endDate: string | null;
   transport: string | null;
   ownerName: string | null;
-  language: 'ko' | 'en';
+  language: LanguageCode;
 };
 
 export function buildTripPass(input: TripPassInput): TripPassData {
-  const ko = input.language === 'ko';
+  const tx: Tx = (ko, en) => pickLanguage(input.language, { ko, en });
   const days = input.itinerary?.days ?? [];
   const allItems = days.flatMap((day) => day.items);
 
@@ -117,20 +122,20 @@ export function buildTripPass(input: TripPassInput): TripPassData {
 
   const dateRange = firstDate
     ? lastDate && lastDate.getTime() !== firstDate.getTime()
-      ? `${formatDay(firstDate, ko)} – ${formatDay(lastDate, ko)}`
-      : formatDay(firstDate, ko)
+      ? `${formatDay(firstDate, tx)} – ${formatDay(lastDate, tx)}`
+      : formatDay(firstDate, tx)
     : null;
 
   const fields: TripPassField[] = [];
   const visitCount = allItems.length;
-  if (visitCount > 0) fields.push({ key: ko ? '방문지' : 'Stops', value: ko ? `${visitCount}곳` : String(visitCount) });
-  if (days.length > 0) fields.push({ key: ko ? '일정' : 'Days', value: ko ? `${days.length}일` : `${days.length}d` });
+  if (visitCount > 0) fields.push({ key: tx('방문지', 'Stops'), value: tx(`${visitCount}곳`, String(visitCount)) });
+  if (days.length > 0) fields.push({ key: tx('일정', 'Days'), value: tx(`${days.length}일`, `${days.length}d`) });
 
-  const walking = formatWalking(input.itinerary?.totalWalkingMeters, ko);
-  if (walking) fields.push({ key: ko ? '걷는 거리' : 'Walking', value: walking });
+  const walking = formatWalking(input.itinerary?.totalWalkingMeters, tx);
+  if (walking) fields.push({ key: tx('걷는 거리', 'Walking'), value: walking });
 
-  const cost = formatCost(input.itinerary?.totalEstimatedCostKrw, ko);
-  if (cost) fields.push({ key: ko ? '예상 비용' : 'Est. cost', value: cost });
+  const cost = formatCost(input.itinerary?.totalEstimatedCostKrw, tx);
+  if (cost) fields.push({ key: tx('예상 비용', 'Est. cost'), value: cost });
 
   // 🔴 -1338 — 인원은 **일정이 말할 때만** 적는다.
   //
@@ -143,11 +148,11 @@ export function buildTripPass(input: TripPassInput): TripPassData {
   //    날짜가 이미 같은 규칙을 쓴다(위 「실제 일정이 있으면 그 날짜가 이긴다」).
   const partySize = input.itinerary?.partySize;
   if (typeof partySize === 'number' && Number.isFinite(partySize) && partySize > 0) {
-    fields.push({ key: ko ? '인원' : 'Travelers', value: ko ? `${partySize}명` : String(partySize) });
+    fields.push({ key: tx('인원', 'Travelers'), value: tx(`${partySize}명`, String(partySize)) });
   }
 
   const firstStopName = allItems[0]?.title?.trim();
-  if (firstStopName) fields.push({ key: ko ? '첫 일정' : 'First stop', value: firstStopName });
+  if (firstStopName) fields.push({ key: tx('첫 일정', 'First stop'), value: firstStopName });
 
   const modeKey = (input.transport ?? '').toUpperCase();
   const modeLabel = MODE_LABEL[modeKey];
@@ -155,21 +160,17 @@ export function buildTripPass(input: TripPassInput): TripPassData {
   return {
     code: tripPassCode(input.itinerary?.id),
     fromLabel: shortenOrigin(input.origin),
-    toLabel: ko ? '부산' : 'BUSAN',
+    toLabel: tx('부산', 'BUSAN'),
     startTime: formatTime(allItems[0]?.startsAt),
     endTime: formatTime(allItems.at(-1)?.startsAt),
     dateRange,
-    mode: modeLabel ? (ko ? modeLabel.ko : modeLabel.en) : null,
+    mode: modeLabel ? tx(modeLabel.ko, modeLabel.en) : null,
     owner: input.ownerName?.trim() || null,
     fields: fields.slice(0, 6),
     url: tripPassUrl(input.itinerary?.id, input.baseUrl),
     validText: dateRange
-      ? ko
-        ? `이 승차권은 ${dateRange} 여행에만 쓸 수 있어요`
-        : `Valid for ${dateRange}`
-      : ko
-        ? '가볼래 여행 승차권'
-        : 'GABOLLE trip pass',
+      ? txf(tx, '이 승차권은 %s 여행에만 쓸 수 있어요', 'Valid for %s', dateRange)
+      : tx('가볼래 여행 승차권', 'GABOLLE trip pass'),
   };
 }
 
@@ -178,12 +179,12 @@ export type TripPassDetail = { key: string; value: string };
 
 /** 시안 p4 의 여행표 오른쪽 칸 — 출발지 · 첫 일정 · 마지막 일정 · 이동 합계 · 예산. */
 export function buildTripPassDetails(input: TripPassInput): TripPassDetail[] {
-  const ko = input.language === 'ko';
+  const tx: Tx = (ko, en) => pickLanguage(input.language, { ko, en });
   const allItems = (input.itinerary?.days ?? []).flatMap((day) => day.items);
   const rows: TripPassDetail[] = [];
 
   const origin = input.origin?.trim();
-  if (origin) rows.push({ key: ko ? '출발지' : 'From', value: origin });
+  if (origin) rows.push({ key: tx('출발지', 'From'), value: origin });
 
   const stopLabel = (item: (typeof allItems)[number] | undefined) => {
     if (!item) return null;
@@ -193,22 +194,22 @@ export function buildTripPassDetails(input: TripPassInput): TripPassDetail[] {
     return time ? `${time} · ${title}` : title;
   };
   const first = stopLabel(allItems[0]);
-  if (first) rows.push({ key: ko ? '첫 일정' : 'First stop', value: first });
+  if (first) rows.push({ key: tx('첫 일정', 'First stop'), value: first });
   const last = allItems.length > 1 ? stopLabel(allItems[allItems.length - 1]) : null;
-  if (last) rows.push({ key: ko ? '마지막 일정' : 'Last stop', value: last });
+  if (last) rows.push({ key: tx('마지막 일정', 'Last stop'), value: last });
 
   // 값이 있는 구간만 더하고, 몇 구간을 셌는지 같이 적는다.
   const legs = allItems.filter((item) => typeof item.travelDurationMin === 'number' && item.travelDurationMin !== null);
   if (legs.length) {
     const minutes = legs.reduce((sum, item) => sum + (item.travelDurationMin ?? 0), 0);
     rows.push({
-      key: ko ? '이동 합계' : 'Travel total',
-      value: ko ? `${minutes}분 (${legs.length}구간)` : `${minutes} min (${legs.length} legs)`,
+      key: tx('이동 합계', 'Travel total'),
+      value: tx(`${minutes}분 (${legs.length}구간)`, `${minutes} min (${legs.length} legs)`),
     });
   }
 
-  const cost = formatCost(input.itinerary?.totalEstimatedCostKrw, ko);
-  if (cost) rows.push({ key: ko ? '예상 비용' : 'Est. cost', value: cost });
+  const cost = formatCost(input.itinerary?.totalEstimatedCostKrw, tx);
+  if (cost) rows.push({ key: tx('예상 비용', 'Est. cost'), value: cost });
 
   return rows;
 }

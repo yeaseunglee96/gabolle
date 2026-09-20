@@ -14,6 +14,7 @@ import { createCompanionInvite, type CompanionInvite, type CompanionRole } from 
 import { issueShareLink, type ShareLinkIssued } from '@/share/sharedItinerary';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
+import { markChecklistStep } from '@/onboarding/firstRun';
 
 const ROLES: { value: CompanionRole; titleKo: string; titleEn: string; descriptionKo: string; descriptionEn: string }[] = [
   { value: 'EDITOR', titleKo: '함께 편집', titleEn: 'Edit together', descriptionKo: '일정의 장소와 순서를 같이 바꿀 수 있어요.', descriptionEn: 'Can change places and order in the itinerary together.' },
@@ -40,6 +41,7 @@ export default function TripShare() {
     try {
       const created = await createCompanionInvite(id, role, accessToken);
       setInvite(created);
+      void markChecklistStep('invite');
       await NativeShare.share({ title: tx('가볼래 부산 여행 초대', 'GABOLLE Busan trip invite'), message: txf(tx, '부산 여행 일정에 초대할게요.\n%s', 'You\'re invited to a Busan trip itinerary.\n%s', created.inviteUrl), url: created.inviteUrl });
     } catch (cause) {
       setError(cause instanceof ApiClientError ? cause.message : tx('초대 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the invite link. Please try again shortly.'));

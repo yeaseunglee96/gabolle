@@ -15,6 +15,7 @@ import { openJobProgressStream, supportsJobProgressStream } from '@/plan/recomme
 import { loadRecommendationResult } from '@/plan/recommendations';
 import { loadItinerary, type ItineraryDto } from '@/plan/itinerary';
 import { TripPass } from '@/plan/TripPass';
+import { markChecklistStep } from '@/onboarding/firstRun';
 import { buildTripPass, buildTripPassDetails } from '@/plan/tripPassData';
 import { useI18n } from '@/i18n';
 
@@ -159,6 +160,7 @@ export default function Generating() {
   useEffect(() => {
     ticketReveal.stopAnimation();
     if (job.state !== 'completed') { setPrinted(false); ticketReveal.setValue(0); return; }
+    void markChecklistStep('trip');
     if (reduceMotion) { ticketReveal.setValue(1); setPrinted(true); return; }
     setPrinted(false);
     ticketReveal.setValue(0);
@@ -187,13 +189,13 @@ export default function Generating() {
     endDate: draft.endDate || null,
     transport: draft.transport || null,
     ownerName: user?.displayName ?? null,
-    language: language === 'en' ? 'en' : 'ko',
+    language,
   });
   const ticketReady = job.state === 'completed';
   const tripPassDetails = buildTripPassDetails({
     itinerary, origin: draft.origin || null, startDate: draft.startDate || null, endDate: draft.endDate || null,
     transport: draft.transport || null, ownerName: user?.displayName ?? null,
-    language: language === 'en' ? 'en' : 'ko',
+    language,
   });
   const printedHeight = ticketReveal.interpolate({ inputRange: [0, 1], outputRange: [0, 620] });
   return <Screen scroll wide style={styles.canvas}>
