@@ -7,6 +7,7 @@ import { subscribeApiAvailability } from '@/api/client';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { Text } from '@/components/Text';
+import { GabolleMascot } from '@/components/DongbaekMascot';
 import { TAB_BAR_HEIGHT } from '@/components/TabBar';
 
 /** 배너를 띄우기 전에 기다리는 시간 */
@@ -49,7 +50,8 @@ export function ApiAvailabilityBanner() {
       pointerEvents="none"
     >
       <View style={styles.banner}>
-        <View style={styles.dot} />
+        {/* 점 하나보다 우는 동백이가 「지금 뭔가 안 된다」를 한눈에 말한다. */}
+        <GabolleMascot state="sad" style={styles.mascot} />
         <View style={styles.copy}>
           <Text weight="bold" color={color.text.heading}>
             {tx('서버 연결을 확인하고 있어요', 'Checking the server connection')}
@@ -105,11 +107,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: color.state.dot,
-  },
+  mascot: { width: 40, height: 40 },
   copy: { flex: 1, gap: spacing[1] },
 });

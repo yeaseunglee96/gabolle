@@ -1,7 +1,7 @@
 // 여행 티켓(TRIP PASS) — 프린터에서 영수증이 출력되는 컴포넌트.
 // 시안: docs/design_handoff_plan_flow/TripPassCard.dc.html
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import qrcodeGenerator from 'qrcode-generator';
 
@@ -10,6 +10,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import type { TripPassData, TripPassDetail } from '@/plan/tripPassData';
 
 const RECEIPT_WIDTH = 286;
+const logo = require('../../assets/brand/gabolle-logo-hd.png');
+const stamp = require('../../assets/brand/busan-arrived-stamp.png');
 const PRINTER_WIDTH = 318;
 const PRINTER_HEIGHT = 52;
 /** 시안의 gbPrint 와 같은 길이. 프린터에서 종이가 다 나오는 데 걸리는 시간이다. */
@@ -231,9 +233,9 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
           >
           <View style={styles.sheet}>
             <View style={styles.rowBetween}>
-              <Text variant="body" weight="bold" style={styles.wordmark}>
-                GAB<Text variant="body" weight="bold" color={color.action.primary}>O</Text>LLE
-              </Text>
+              {/* 워드마크는 글자가 아니라 로고 그림이다 — O 자리에 동백이가 있는 진짜 로고와
+                  글자로 흉내 낸 「GAB O LLE」가 앱 안에서 두 벌로 보이면 안 된다. */}
+              <Image source={logo} resizeMode="contain" accessibilityLabel="GABOLLE" style={styles.wordmark} />
               {!!data.code && <Text variant="caption" weight="bold" color={color.text.body}>{data.code}</Text>}
             </View>
 
@@ -303,6 +305,9 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
           <TearLine />
 
           <View style={styles.stub}>
+            {/* 입국 도장 — 여행표가 「부산에 도착했다」는 표시. 팀이 고른 2b 안(BUSAN · 날짜 · GAB동백이LLE).
+                QR(가운데 96~120)과 겹치지 않도록 오른쪽 귀퉁이에 비스듬히 찍는다. 장식이라 낭독기에는 안 읽힌다. */}
+            <Image source={stamp} resizeMode="contain" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.stamp} />
             <Barcode seed={data.code} />
             <Text variant="caption" color={color.text.muted} style={styles.validText}>{data.validText}</Text>
             {!!data.url && (
@@ -453,7 +458,9 @@ const styles = StyleSheet.create({
   backGhost: { minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   backPressed: { opacity: 0.8 },
   sheet: { backgroundColor: color.surface.card, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 12, gap: spacing[3] },
-  wordmark: { letterSpacing: 0.5 },
+  wordmark: { width: 90, height: 30, marginLeft: -2 },
+  // 도장 — 스터브 오른쪽, QR 옆 빈 자리. 유효기간 글줄(바코드 바로 아래) 위에 얹히지 않게 그 밑에서 시작한다.
+  stamp: { position: 'absolute', right: 0, top: 104, width: 84, height: 84, transform: [{ rotate: '-12deg' }], opacity: 0.92, zIndex: 1, pointerEvents: 'none' },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   legRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
   legEnd: { flexShrink: 1 },
