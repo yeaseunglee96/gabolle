@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
+import { useVideoPlayer, VideoView } from 'expo-video';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { PlanStartBar } from '@/home/PlanStartBar';
 import { startBarEditSection, startBarFromDraft } from '@/home/startBarValue';
@@ -17,42 +20,27 @@ import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
-import { LANGUAGE_OPTIONS, needsTranslationNotice, type LanguageOption } from '@/i18n/languages';
+import { LANGUAGE_OPTIONS, needsTranslationNotice } from '@/i18n/languages';
+import { FLAG_IMAGES, WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
 
-const logo = require('../assets/brand/gabolle-logo-hd.png');
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
-// 국기는 유니코드 그림문자(🇰🇷)가 아니라 실제 이미지를 쓴다 — 윈도우 브라우저는
-// 국가 그림문자를 정책적으로 지원하지 않아 KR·US 같은 두 글자로 떨어진다.
-// 폰트로는 못 고치는 문제라 flagcdn.com 국기 그림을 내려받아 assets/flags 에 넣었다.
-const FLAG_IMAGES: Record<LanguageCode, ReturnType<typeof require>> = {
-  ko: require('../assets/flags/kr.png'),
-  en: require('../assets/flags/us.png'),
-  ja: require('../assets/flags/jp.png'),
-  'zh-Hans': require('../assets/flags/cn.png'),
-  'zh-Hant': require('../assets/flags/tw.png'),
-};
-// 언어 목록은 src/i18n/languages.ts 한 곳에 있다. 여기 다시 적으면
-// 언어를 늘릴 때 한쪽만 늘어난다.
+// 첫 화면의 배경 영상 — 바다를 끼고 달리는 부산 전차(assets/video/README.md 에 출처). 소리 없이
+// 돈다. 사진(welcomeImage)이 그 밑에 그대로 있어서 영상이 못 뜨거나 동작 줄이기가 켜져
+// 있으면 사진만 보인다 — 시안 4 의 00a.
+const welcomeVideo = require('../assets/video/busan-tram-portrait.mp4');
+// 국기 그림과 언어 목록은 WelcomeLanguageSheet 가 가진다 — 시트와 카드가 같은 그림을 쓴다.
 // 「특별한 기능」 카드 셋(AI 일정 만들기 · 실시간 경로 안내 · 함께 여행 설계)은 뺐다
 // 로그인해도 안 바뀌는 소개였고, 그 자리에 실제 데이터인 장소와 내 여행이
 // 들어왔다. 되살릴 일이 있으면 git 이력에 그대로 있다.
 
-// 부산 시간대별로 로고 밝기를 고르느라 기기의 로컬 타임존이 아니라 Asia/Seoul 시각을 쓴다
-// 그렇지 않으면 해외에서 접속한 여행자에게는 시간대가 어긋난 로고가 뜬다.
-function seoulHour(date = new Date()) {
-  return Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', hourCycle: 'h23', hour: 'numeric' }).format(date));
-}
-
-function shouldUseLightWelcomeLogo() {
-  const hour = seoulHour();
-  return hour < 7 || hour >= 17;
-}
+// 예전엔 부산 시각(Asia/Seoul)으로 낮·밤을 갈라 로고 밝기를 골랐다. 이제 배경이 영상이고
+// 그 위에 어둠막을 깔아 글자가 읽히게 하므로 로고는 언제나 흰색이다.
 
 export default function Welcome() {
   const router = useRouter();
@@ -85,6 +73,27 @@ export default function Welcome() {
     chooseLanguage(next);
     router.push({ pathname: isDesktop ? '/age-gate' : '/app-intro', params: { language: next, mobility } });
   };
+  const [languageSheetOpen, setLanguageSheetOpen] = useState(false);
+  // 동작 줄이기(OS 접근성 설정)가 켜져 있으면 영상을 안 돌린다 — 움직이는 배경이 곧 그 설정이 막으려는 것이다.
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => { if (alive) setReduceMotion(enabled); }).catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => { alive = false; sub.remove(); };
+  }, []);
+  const player = useVideoPlayer(welcomeVideo, (instance) => {
+    instance.loop = true;
+    instance.muted = true;
+  });
+  const showVideo = !isDesktop && !reduceMotion;
+  useEffect(() => {
+    if (!showVideo) { player.pause(); return; }
+    // 웹에서는 만든 직후의 play() 가 조용히 무시된다(아직 읽는 중). 준비되면 그때 다시 튼다.
+    player.play();
+    const sub = player.addListener('statusChange', ({ status }) => { if (status === 'readyToPlay') player.play(); });
+    return () => sub.remove();
+  }, [player, showVideo]);
   const startPlanning = () => router.push('/plan');
 
   useEffect(() => {
@@ -131,21 +140,38 @@ export default function Welcome() {
   if (!isDesktop) {
     if (!hydrated || !ready) return <View style={styles.mobileScreen} />;
     if (user || hasEnteredApp) return <Redirect href="/home" />;
-    const lightLogo = shouldUseLightWelcomeLogo();
+    const current = LANGUAGE_OPTIONS.find((item) => item.code === language) ?? LANGUAGE_OPTIONS[0];
     return <View style={styles.mobileScreen}>
+      {/* 사진이 먼저, 영상이 그 위 — 영상이 늦게 뜨거나 못 뜨면 사진이 그대로 보인다. */}
       <Image source={welcomeImage} resizeMode="cover" style={styles.mobileBackgroundImage} />
+      {showVideo ? <VideoView player={player} contentFit="cover" nativeControls={false} allowsPictureInPicture={false} style={styles.mobileBackgroundImage} /> : null}
+      {/* 어둠막 — 위는 옅게, 아래로 갈수록 짙게. 흰 글자와 단추가 어떤 장면에서도 읽히게 한다. */}
+      <LinearGradient pointerEvents="none" colors={['rgba(25,25,25,0.35)', 'rgba(25,25,25,0.15)', 'rgba(25,25,25,0.40)', 'rgba(25,25,25,0.92)']} locations={[0, 0.3, 0.6, 1]} style={styles.mobileBackgroundImage} />
       <StatusBar style="light" />
       <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={styles.mobileSafeArea}>
         <ScrollView style={styles.mobileSafeArea} contentContainerStyle={styles.mobileContent}>
-        <View style={styles.mobileBrand}><Pressable testID="start-gabolle" accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.text.onAction}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
-        {/* 사용자 요청(2026-09-17): 예전 흰 시트 목록이 화면을 너무 많이 차지했고, 이 화면은
-            로그인 화면이 아닌데 "비회원으로 둘러보기" 가 있는 것도 어색했다 — 그 선택지는
-            로그인 화면(sign-in.tsx)에 이미 있다. 국기 동그라미 다섯 줄로 압축하고, 배경 사진이
-            보이도록 남는 자리를 그대로 둔다. 누르면 바로 시작하는 것은 그대로다. */}
+        <View style={styles.mobileBrand}>
+          <Image source={nightLogo} resizeMode="contain" accessibilityLabel="GABOLLE" style={styles.mobileLogo} />
+          <Text variant="body" weight="medium" color={color.text.onAction} style={styles.mobileTagline}>{tx('현지인이 다니는 부산으로,\n취향과 이동 조건에 맞춰 떠나요.', 'Busan the way locals know it —\nplanned around your taste and how you get around.')}</Text>
+        </View>
+        {/* 시안 4 의 00a — 언어 카드 하나 · 흰 시작하기 · 로그인 한 줄. 예전 국기 다섯 줄은
+            시트(WelcomeLanguageSheet)로 들어갔다. 고르는 것과 시작하는 것을 나눈 이유는 거기 적었다. */}
         <View style={styles.mobileActions}>
-          <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageFlagRow}>
-            {LANGUAGE_OPTIONS.map((item) => <LanguageFlag key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}
-          </View>
+          <Pressable testID="lang-picker" accessibilityRole="button" accessibilityLabel={tx(`언어 선택: ${current.endonym}`, `Language: ${current.endonym}`)} accessibilityHint={tx('눌러서 다른 언어를 고릅니다', 'Opens the language list')} onPress={() => setLanguageSheetOpen(true)} style={({ pressed }) => [styles.languageCard, pressed && styles.pressed]}>
+            <Image source={FLAG_IMAGES[current.code]} resizeMode="contain" style={styles.languageCardFlag} accessibilityIgnoresInvertColors />
+            <View style={styles.languageCardCopy}>
+              <Text variant="body" weight="bold" color={color.text.onAction}>{current.endonym}</Text>
+              <Text variant="caption" color="rgba(255,255,255,0.75)">{tx('눌러서 바꾸기', 'Tap to change')}</Text>
+            </View>
+            <GlobeIcon />
+          </Pressable>
+          <Pressable testID="start-gabolle" accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.startButton, pressed && styles.pressed]}>
+            <Text variant="title" weight="bold" color={color.text.heading}>{tx('시작하기', 'Get started')}</Text>
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M9 5l7 7-7 7" stroke={color.text.heading} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" /></Svg>
+          </Pressable>
+          <Pressable accessibilityRole="link" onPress={() => router.push('/sign-in')} style={({ pressed }) => [styles.signInLink, pressed && styles.pressed]}>
+            <Text variant="util" weight="bold" color="rgba(255,255,255,0.9)">{tx('이미 계정이 있어요 · 로그인', 'Already have an account · Sign in')}</Text>
+          </Pressable>
           {/* 번역이 아직 없다는 사실을 숨기지 않는다. 다 된 척하면 고른 사람이 영어를 보고
               "왜 안 바뀌지" 로 읽는다. 미리 말하면 그건 선택이 된다.
           */}
@@ -153,6 +179,7 @@ export default function Welcome() {
         </View>
         </ScrollView>
       </SafeAreaView>
+      <WelcomeLanguageSheet visible={languageSheetOpen} language={language} onSelect={chooseLanguage} onClose={() => setLanguageSheetOpen(false)} onStart={() => { setLanguageSheetOpen(false); startOnboarding(language); }} />
     </View>;
   }
 
@@ -235,23 +262,14 @@ export default function Welcome() {
   </View>;
 }
 
-/**
- * 국기 그림 하나만 두지 않는다 — 실제 국기 이미지를 써도 56px 짜리 작은 동그라미에서는
- * 국기끼리 순간적으로 헷갈릴 수 있다(특히 처음 보는 사용자에게). 그래서 동그라미 아래에
- * 그 언어로 쓴 이름(endonym)을 작게 같이 적는다 — 그 한 줄이 정체를 한 번 더 말해준다.
- */
-function LanguageFlag({ item, selected, onPress }: { item: LanguageOption; selected: boolean; onPress: () => void }) {
-  // 언어 버튼은 code 로 찾는다. 라벨(한국어·日本語…)로 찾으면
-  // 고르려는 언어가 곧 찾을 이름이라 자동화가 닭과 달걀에 빠진다.
-  return <Pressable testID={`lang-${item.code}`} accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={item.englishName === item.endonym ? item.endonym : `${item.endonym} · ${item.englishName}`} onPress={onPress} style={styles.languageFlagItem}>
-    {({ pressed }) => <>
-      <View style={[styles.languageFlagCircle, selected && styles.languageFlagCircleSelected, pressed && styles.pressed]}>
-        <Image source={FLAG_IMAGES[item.code]} resizeMode="contain" style={styles.languageFlagImage} />
-        {selected ? <View style={styles.languageFlagCheck}><Text style={styles.languageFlagCheckMark}>✓</Text></View> : null}
-      </View>
-      <Text variant="caption" weight="bold" numberOfLines={1} color={color.text.onAction} style={styles.languageFlagLabel}>{item.endonym}</Text>
-    </>}
-  </Pressable>;
+/** 지구본 — 언어 카드 오른쪽. 「여기서 언어를 바꾼다」는 표식이다. */
+function GlobeIcon() {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={12} r={8.5} stroke={color.text.onAction} strokeWidth={1.9} />
+      <Path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17" stroke={color.text.onAction} strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
 }
 function NavItem({ label, onPress }: { label: string; onPress: () => void }) { return <Pressable accessibilityRole="link" onPress={onPress} style={styles.navItem}><Text variant="caption" weight="medium">{label}</Text></Pressable>; }
 
@@ -260,23 +278,18 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.78 }, logoLink: { borderRadius: radius.sm }, mobileScreen: { flex: 1, width: '100%', height: '100%', overflow: 'hidden', backgroundColor: color.brand.navy }, mobileBackgroundImage: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
   mobileSafeArea: { flex: 1 },
   mobileContent: { flexGrow: 1, justifyContent: 'space-between', gap: spacing[8], paddingHorizontal: spacing[6], paddingTop: spacing[8], paddingBottom: spacing[6] },
-  mobileBrand: { alignItems: 'center', gap: spacing[3], paddingVertical: spacing[8] },
-  mobileLogo: { width: 280, height: 70 },
-  mobileActions: { width: '100%', maxWidth: 480, alignSelf: 'center', gap: spacing[2] },
-  languageFlagRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] },
-  languageFlagItem: { flex: 1, alignItems: 'center', gap: spacing[1] },
-  // 뱃지는 항상 불투명한 흰 배경이다 — 사진 밝기가 자리마다 달라도 국기가 늘 또렷하다.
-  // 처음엔 동그라미 + resizeMode「cover」로 만들었더니 국기(3:2 비율, 미국만 1.9:1)의
-  // 좌우가 잘려 나갔다(실측 — 특히 미국 성조기 별밭이 잘림). 국기는 어느 나라든 전체 모양이
-  // 곧 그 나라를 가리키는 표식이라 일부가 잘리면 다른 나라 국기로 오인될 수 있다. 그래서
-  // 동그라미를 접고 국기 비율에 맞춘 둥근 네모 + resizeMode「contain」으로 바꿔
-  // 어떤 국기도 잘리지 않게 한다.
-  languageFlagCircle: { position: 'relative', width: 56, height: 40, borderRadius: radius.sm, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 2, borderColor: 'transparent' },
-  languageFlagCircleSelected: { borderColor: color.action.secondary },
-  languageFlagImage: { width: '86%', height: '86%' },
-  languageFlagCheck: { position: 'absolute', right: -2, bottom: -2, width: 20, height: 20, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.secondary, borderWidth: 2, borderColor: color.brand.navy },
-  languageFlagCheckMark: { fontSize: 11, fontWeight: '700', color: color.text.onAction },
-  languageFlagLabel: { textAlign: 'center' },
+  // 로고는 위에서 약 1/4 지점 — 시안 4 의 00a. 아래 남는 자리는 영상이 보이는 자리다.
+  mobileBrand: { alignItems: 'center', gap: spacing[4], paddingTop: 120, paddingBottom: spacing[8] },
+  mobileLogo: { width: 260, height: 86 },
+  mobileTagline: { textAlign: 'center', lineHeight: 26 },
+  mobileActions: { width: '100%', maxWidth: 480, alignSelf: 'center', gap: spacing[3] },
+  // 언어 카드 — 반투명 흰 판. 국기는 3:2 그대로(잘리면 다른 나라로 오인된다).
+  languageCard: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 54, paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)', backgroundColor: 'rgba(255,255,255,0.14)' },
+  languageCardFlag: { width: 30, height: 20, borderRadius: 4 },
+  languageCardCopy: { flex: 1, gap: 1 },
+  // 시작하기 — 흰 판에 검은 글자. 영상 위에서 가장 잘 읽히는 조합이고, 빨강 채움은 여기 안 쓴다.
+  startButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[2], minHeight: 56, borderRadius: radius.md, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.25, shadowRadius: 14, shadowOffset: { width: 0, height: 10 }, elevation: 6 },
+  signInLink: { alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] },
   languageNotice: { marginTop: spacing[1], textAlign: 'center', lineHeight: 18 },
   webScreen: { flex: 1, backgroundColor: color.canvas }, webContent: { minHeight: '100%' }, webHeader: { minHeight: 72, paddingHorizontal: 72, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: color.brand.ivory, borderBottomWidth: 1, borderBottomColor: color.surface.border }, webLogo: { width: 113, height: 28 }, webNav: { flexDirection: 'row', alignItems: 'center', gap: 44 }, navItem: { paddingVertical: spacing[3] }, accountActions: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   localeButton: { minWidth: 38, height: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft }, loginButton: { minWidth: 76, minHeight: 38, borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4] }, signupButton: { minWidth: 82, minHeight: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },

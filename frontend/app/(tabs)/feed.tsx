@@ -16,6 +16,7 @@ import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
 import { TabBar, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
 import { Text } from '@/components/Text';
+import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -699,6 +700,8 @@ export default function Feed() {
 
     {!loading && result.state !== 'success'
       ? <View style={styles.stateCard}>
+          {/* 연결이 끊기거나 못 불러왔을 때는 우는 동백이 — 빈 카드에 글자만 있으면 고장 화면으로 읽힌다. */}
+          <GabolleMascot state="sad" style={styles.sadMascot} />
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('피드 API를 기다리고 있어요', 'Waiting for the feed API') : tx('피드를 불러오지 못했어요', 'Could not load the feed')}</Text>
           <Text color={color.text.body}>{result.message}</Text>
           <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void feedQuery.refetch()} />
@@ -893,6 +896,7 @@ const styles = StyleSheet.create({
 
   loginNotice: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], alignItems: 'center', marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
 
+  sadMascot: { width: 96, height: 96 },
   stateCard: { minHeight: 240, marginTop: spacing[6], padding: spacing[6], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: spacing[3] },
 
   // 빈 상태 — 넓은 화면은 마스코트를 옆에, 폰은 위에.

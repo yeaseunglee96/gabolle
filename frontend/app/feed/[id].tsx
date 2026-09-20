@@ -12,6 +12,7 @@ import { Button } from '@/components/Button';
 import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
@@ -553,6 +554,7 @@ export default function StoryDetail() {
 
       {state.status === 'error' ? (
         <View style={styles.notice} accessibilityRole="alert">
+          <GabolleMascot state="sad" style={styles.sadMascot} />
           <Text variant="title" weight="bold">{tx('기록을 불러오지 못했어요', "We couldn't load this record")}</Text>
           <Text color={color.text.body}>{state.message}</Text>
           <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} containerStyle={styles.recoveryButton} />
@@ -581,6 +583,7 @@ export default function StoryDetail() {
 const styles = StyleSheet.create({
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   pressed: { opacity: 0.72 },
+  sadMascot: { width: 80, height: 80, alignSelf: 'center' },
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
