@@ -1,6 +1,6 @@
 // 마이페이지 진입 화면.
 import { useState } from 'react';
-import { BackHandler, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Animated, BackHandler, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -16,6 +16,8 @@ import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { CoverButton, MyPageCover } from '@/me/MyPageCover';
+import { ProfileCardButton } from '@/me/ProfileCard';
+import { loadUserStories, relativeStoryTime, type StoryDto } from '@/social/stories';
 import { MyPageModal } from '@/me/MyPageModal';
 import { MyPageSheetBody } from '@/me/MyPageSheet';
 import { isPanelKey, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
@@ -30,6 +32,33 @@ import { useQuery } from '@tanstack/react-query';
 import { useBehaviorConsent } from '@/personalization/behaviorConsent';
 import { usePlan } from '@/plan/PlanProvider';
 import { PREFERENCE_TOTAL } from '@/preferences/accountPreferences';
+
+/**
+ * 기록 한 장 — 폰 「기록」 탭의 2열 격자.
+ *
+ * <p>사진이 없는 글은 회색 칸에 본문을 대신 넣는다. 빈 회색 네모를 두면 「사진을 못
+ * 불러왔다」로 읽히는데, 실제로는 사진 없이 쓴 글이다.
+ */
+function RecordCard({ story, onPress, tx }: { story: StoryDto; onPress: () => void; tx: (ko: string, en: string) => string }) {
+  const cover = story.images[0]?.url ?? null;
+  // 제목 자리는 장소 이름이 먼저다 — 피드 카드와 같은 규칙.
+  const title = story.place?.name ?? story.region ?? tx('기록', 'Record');
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={styles.recordCard}>
+      {cover ? (
+        <Image source={{ uri: cover }} resizeMode="cover" accessibilityLabel="" style={styles.recordCover} />
+      ) : (
+        <View style={[styles.recordCover, styles.recordCoverEmpty]}>
+          <Text weight="bold" numberOfLines={3} style={styles.recordCoverText}>{story.body}</Text>
+        </View>
+      )}
+      <View style={styles.recordMeta}>
+        <Text weight="bold" numberOfLines={1}>{title}</Text>
+        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{relativeStoryTime(story.createdAt, tx)}</Text>
+      </View>
+    </Pressable>
+  );
+}
 
 export default function Me() {
   const router = useRouter();
@@ -114,19 +143,35 @@ export default function Me() {
   const name = user?.displayName || tx('여행자', 'Traveler');
   const none = tx('아직 없음 ›', 'None yet ›');
 
+  // 폰의 「기록 | 설정」 — 주소는 안 바뀐다. 내용만 갈아 끼운다.
+  const [meTab, setMeTab] = useState<'records' | 'settings'>('records');
+  const tabIn = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    // 탭을 눌렀는데 내용이 «즉시» 갈리면 바뀐 줄 모르고 지나간다. 같은 자리에 같은
+    // 크기의 흰 화면이 있기 때문이다 — 시작 바 칸 전환과 같은 이유다.
+    tabIn.setValue(0);
+    Animated.timing(tabIn, { toValue: 1, duration: 300, easing: Easing.bezier(0.22, 1, 0.36, 1), useNativeDriver: false }).start();
+  }, [meTab, tabIn]);
+
+  // 내 기록. 숫자(storyCount)만으로는 격자를 못 그린다 — 실제 글이 필요하다.
+  const myStoriesQuery = useQuery({
+    queryKey: ['me', 'stories', user?.userId ?? ''],
+    enabled: Boolean(user?.userId),
+    queryFn: () => loadUserStories(user?.userId ?? '', accessToken),
+  });
+  // 실패를 빈 배열로 바꾸지 않는다 — 「아직 기록이 없어요」와 「못 불러왔다」는 다른 말이다.
+  const myStories: StoryDto[] | null = myStoriesQuery.data?.state === 'success' ? myStoriesQuery.data.items : null;
+
   // 두 배치가 같은 카드를 쓴다. 두 벌로 만들면 한쪽만 고쳐지고, 그 차이는 두 폭을
   // 나란히 열어 봐야만 보인다.
   const accountGroup = <>
     <View style={styles.group}>
-      <InfoRow
-        first
-        label={tx('내 기록', 'My records')}
-        value={storyCount === null ? '›' : storyCount > 0 ? tx(`${storyCount}개 ›`, `${storyCount} ›`) : none}
-        onPress={() => openPanel('posts')}
-        disabled={!user}
-      />
+      {/* 🔴 「내 기록」 행은 여기 없다 — 폰은 「기록」 탭이, 넓은 화면은 커버 아래 기록 줄이
+          그 일을 한다. 같은 곳으로 가는 길을 둘 두면 어느 쪽이 진짜인지 헷갈리고,
+          한쪽만 고쳐졌을 때 서로 다른 것을 보여 준다. 되살리지 마라 — S15P21E201-1379. */}
       {/* 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" — S15P21E201-1221. */}
       <InfoRow
+        first
         label={tx('저장한 기록', 'Saved records')}
         value="›"
         onPress={() => openPanel('saved')}
@@ -282,15 +327,64 @@ export default function Me() {
         { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => (user ? openPanel('followers') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=followers' } })) },
         { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => (user ? openPanel('following') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=following' } })) },
       ]}
-      onEdit={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
+      actions={(
+        <ProfileCardButton
+          label={tx('프로필 편집', 'Edit profile')}
+          onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
+        />
+      )}
       tx={tx}
     />
 
-    <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('내 계정', 'Account')}</Text>
-    {accountGroup}
-    <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('앱', 'App')}</Text>
-    {appGroup}
-    {user ? <Button label={tx('로그아웃', 'Sign out')} variant="tertiary" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>}
+    {/* 「기록 | 설정」 — 주소를 안 바꾸고 내용만 갈아 끼운다. 설정을 보러 들어온 사람이
+        기록을 스크롤해 지나가지 않아도 되고, 기록을 보러 온 사람이 설정 목록을 안 본다. */}
+    <View style={styles.segment}>
+      {(['records', 'settings'] as const).map((key) => (
+        <Pressable
+          key={key}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: meTab === key }}
+          onPress={() => setMeTab(key)}
+          style={[styles.segmentItem, meTab === key && styles.segmentItemOn]}
+        >
+          <Text weight="bold" color={meTab === key ? color.text.onAction : color.text.body} numberOfLines={1}>
+            {key === 'settings'
+              ? tx('설정', 'Settings')
+              : storyCount === null ? tx('기록', 'Records') : tx(`기록 ${storyCount}`, `Records ${storyCount}`)}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+
+    <Animated.View style={{ opacity: tabIn, transform: [{ translateY: tabIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
+      {meTab === 'records' ? (
+        <View style={styles.recordsGrid}>
+          {(myStories ?? []).map((story) => (
+            <RecordCard key={story.id} story={story} onPress={() => router.push(`/feed/${story.id}`)} tx={tx} />
+          ))}
+          {/* 남의 프로필에는 이 칸이 없다 — 그건 /user/[id] 가 따로 그린다. */}
+          {user ? (
+            <Pressable accessibilityRole="button" onPress={() => router.push('/feed')} style={styles.recordNew}>
+              <View style={styles.recordNewIcon}><Text weight="bold" color={color.text.onAction}>✎</Text></View>
+              <Text weight="bold" numberOfLines={1}>{tx('새 기록 남기기', 'Write a record')}</Text>
+              <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx('사진 3장까지', 'Up to 3 photos')}</Text>
+            </Pressable>
+          ) : null}
+          {/* 못 불러온 것을 「없다」로 바꾸지 않는다. */}
+          {user && myStories === null && !myStoriesQuery.isPending ? (
+            <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text>
+          ) : null}
+        </View>
+      ) : (
+        <>
+          <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('내 계정', 'Account')}</Text>
+          {accountGroup}
+          <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('앱', 'App')}</Text>
+          {appGroup}
+          {user ? <Button label={tx('로그아웃', 'Sign out')} variant="tertiary" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>}
+        </>
+      )}
+    </Animated.View>
 
     <Modal visible={logoutAsk} transparent animationType="fade" onRequestClose={() => setLogoutAsk(false)}>
       <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
@@ -381,4 +475,22 @@ const styles = StyleSheet.create({
   modalCard: { width: '100%', maxWidth: 400, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   modalActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] },
   modalAction: { flex: 1 },
+
+  // ── 폰 「기록 | 설정」 ────────────────────────────────────────────────────
+  segment: { flexDirection: 'row', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft, marginTop: spacing[6] },
+  segmentItem: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
+  segmentItemOn: { backgroundColor: color.action.primary },
+
+  // 🔴 스크롤 칸 안이라 flex 를 안 쓴다. 쓰면 카드가 세로로 눌린다.
+  recordsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[3] },
+  recordCard: { width: '48%', borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
+  recordCover: { width: '100%', aspectRatio: 1 },
+  recordCoverEmpty: { alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: color.surface.soft },
+  recordCoverText: { textAlign: 'center' },
+  recordMeta: { padding: spacing[3], gap: 2 },
+  recordNew: {
+    width: '48%', aspectRatio: 0.78, alignItems: 'center', justifyContent: 'center', gap: spacing[2],
+    borderRadius: radius.lg, borderWidth: 1, borderStyle: 'dashed', borderColor: color.surface.field,
+  },
+  recordNewIcon: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.primary },
 });

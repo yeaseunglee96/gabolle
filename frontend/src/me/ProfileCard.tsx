@@ -3,6 +3,7 @@
 // 🔴 넓은 화면은 이 카드를 안 쓴다. 커버 사진이 화면 전폭으로 깔리고 그 위에 프로필이
 //    얹힌다(MyPageCover). 그래서 이 파일에 있던 넓은 화면 가지는 전부 죽은 코드였고
 //    걷어냈다 — 남겨 두면 다음 사람이 고치고서 「왜 안 바뀌지」를 한참 찾는다.
+import { type ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
@@ -21,11 +22,12 @@ export type ProfileCardProps = {
   avatarUri: string | null;
   coverUri: string | null;
   counts: ProfileCardCount[];
-  onEdit: () => void;
+  /** 커버 오른쪽 단추들. `/me` 는 「프로필 편집」, `/user/[id]` 는 「팔로우」+「차단하기」. */
+  actions: ReactNode;
   tx: (ko: string, en: string) => string;
 };
 
-export function ProfileCard({ name, email, avatarUri, coverUri, counts, onEdit, tx }: ProfileCardProps) {
+export function ProfileCard({ name, email, avatarUri, coverUri, counts, actions, tx }: ProfileCardProps) {
   const initial = name.trim().slice(0, 1) || '·';
   return (
     <View style={styles.card}>
@@ -40,9 +42,7 @@ export function ProfileCard({ name, email, avatarUri, coverUri, counts, onEdit, 
               ? <Image source={{ uri: avatarUri }} resizeMode="cover" style={styles.avatarPhoto} accessibilityLabel={tx('프로필 사진', 'Profile photo')} />
               : <Text variant="display" weight="bold" color={color.text.onAction}>{initial}</Text>}
           </View>
-          <Pressable accessibilityRole="button" onPress={onEdit} style={styles.editButton}>
-            <Text weight="bold" color={color.action.outline} numberOfLines={1}>{tx('프로필 편집', 'Edit profile')}</Text>
-          </Pressable>
+          <View style={styles.actions}>{actions}</View>
         </View>
 
         <Text variant="display" weight="bold" color={color.text.heading} numberOfLines={1}>{name}</Text>
@@ -74,28 +74,63 @@ export function ProfileCard({ name, email, avatarUri, coverUri, counts, onEdit, 
   );
 }
 
+/**
+ * 폰 프로필 카드용 단추 — 시안은 동백 채움이다.
+ *
+ * <p>🔴 이 화면에는 동백 채움이 둘이 된다(이 단추 + 활성 탭). tokens.ts 규칙 1
+ * 「채움은 화면당 하나」 위반이고, 사용자가 시안대로 가기로 정했다(2026-09-21).
+ * 되돌릴 때는 tone 을 'outline' 으로 바꾸면 된다 — 붉은 선 단추로 내려간다.
+ */
+export function ProfileCardButton({
+  label, onPress, tone = 'primary', disabled,
+}: {
+  label: string;
+  onPress: () => void;
+  tone?: 'primary' | 'outline';
+  disabled?: boolean;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [styles.actionButton, tone === 'primary' ? styles.actionPrimary : styles.actionOutline, (pressed || disabled) && styles.pressed]}
+    >
+      <Text weight="bold" color={tone === 'primary' ? color.text.onAction : color.action.outline} numberOfLines={1}>{label}</Text>
+    </Pressable>
+  );
+}
+
 /** 시안 02 의 값. 아바타가 걸쳐 앉을 만큼만 있으면 된다. */
 const COVER_HEIGHT = 120;
-const AVATAR = 88;
+const AVATAR = 80;
 
 const styles = StyleSheet.create({
   // 폰에도 테두리와 둥근 모서리를 준다(시안 02). 전에는 띠처럼 화면 폭을 꽉 채웠다.
   card: { borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, overflow: 'hidden' },
   cover: { height: COVER_HEIGHT, backgroundColor: color.surface.soft },
   coverPhoto: { width: '100%', height: '100%' },
-  body: { gap: spacing[2], paddingHorizontal: spacing[4], paddingBottom: spacing[4], marginTop: -44 },
-  topRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing[3] },
+  body: { gap: spacing[2], paddingHorizontal: spacing[4], paddingBottom: spacing[4], marginTop: -40 },
+  // 🔴 아바타 줄을 커버 «위»로 올린다. 안 올리면 커버의 overflow: hidden 이 겹친 부분을
+  //    잘라 먹어서, 아바타가 반달처럼 보인다.
+  topRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing[3], zIndex: 1 },
   avatar: {
     width: AVATAR, height: AVATAR, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center',
     backgroundColor: color.action.secondary, borderWidth: 4, borderColor: color.surface.card, overflow: 'hidden',
   },
   avatarPhoto: { width: '100%', height: '100%' },
-  editButton: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  actionButton: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full },
+  actionPrimary: { backgroundColor: color.action.primary },
+  actionOutline: { backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
 
-  counts: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] },
+  counts: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[2] },
+  // 시안 2b — 셋이 가로 한 줄에 서는 작은 알약. 전에는 화면 폭을 삼등분한 큰 상자라
+  // 아래 세그먼트와 무게가 비슷해서 어느 것이 탭인지 헷갈렸다.
   count: {
-    flex: 1, minHeight: 56, alignItems: 'center', justifyContent: 'center', gap: 2,
-    borderRadius: radius.md, backgroundColor: color.surface.soft,
+    flexDirection: 'row', alignItems: 'center', gap: spacing[2],
+    minHeight: 32, paddingHorizontal: spacing[3],
+    borderRadius: radius.full, backgroundColor: color.surface.tint,
   },
   pressed: { opacity: 0.72 },
 });
