@@ -1,4 +1,4 @@
-// 일정 편집이 돌려주는 경고 코드를 사람 말로 옮긴다 —.
+// 일정 편집이 돌려주는 경고 코드를 사람 말로 옮긴다 — S15P21E201-1150.
 
 type Translate = (ko: string, en: string) => string;
 

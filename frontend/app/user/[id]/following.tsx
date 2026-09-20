@@ -1,4 +1,4 @@
-// 팔로잉 목록 —.
+// 팔로잉 목록 — S15P21E201-1180.
 import { useLocalSearchParams } from 'expo-router';
 
 import { useI18n } from '@/i18n';

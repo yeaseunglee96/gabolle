@@ -1,4 +1,4 @@
-// 꼭 가고 싶은 장소가 여행 생성 요청에 실리는가 —.
+// 꼭 가고 싶은 장소가 여행 생성 요청에 실리는가 — S15P21E201-975.
 import { toCreateTripPayload } from '@/api/tripApi';
 import { EMPTY_PLAN, type MustVisitPlace } from '@/plan/PlanProvider';
 

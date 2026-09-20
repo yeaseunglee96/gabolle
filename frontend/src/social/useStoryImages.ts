@@ -24,7 +24,7 @@ export type PendingImage = {
 
 type Translate = (ko: string, en: string) => string;
 
-/** 무엇이 왜 막혔는지 화면까지 가져간다 —. */
+/** 무엇이 왜 막혔는지 화면까지 가져간다 — S15P21E201-1121. */
 function describeCause(error: unknown): string {
   if (error instanceof Error && error.message) return error.message.slice(0, 120);
   if (typeof error === 'string' && error) return error.slice(0, 120);

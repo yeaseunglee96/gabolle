@@ -1,4 +1,4 @@
-// 휠체어 접근이 확인 안 된 일정임을 알리는 창 —.
+// 휠체어 접근이 확인 안 된 일정임을 알리는 창 — S15P21E201-1160.
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';

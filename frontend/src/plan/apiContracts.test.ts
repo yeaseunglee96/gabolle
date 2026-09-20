@@ -1,6 +1,6 @@
 import { isItineraryDto, isRecommendationJobPollDto } from './apiContracts';
 
-/** 실제 백엔드가 보낸 응답 예시 —. */
+/** 실제 백엔드가 보낸 응답 예시 — S15P21E201-776. */
 const REAL_JOB_POLL_RESPONSE = {
   jobId: '02ae7ea5-0688-4d8c-a310-b42031ff47a2',
   status: 'SUCCEEDED',

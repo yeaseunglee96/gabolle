@@ -55,7 +55,7 @@ function fromDto(dto: AssistantMessageResponseDto): AssistantAction {
 
 export type AssistantTurn = { role: 'user' | 'assistant'; text: string };
 
-/** 자연어 메시지를 서버(Gemini 기반 AI 도우미)에 물어본다 —. */
+/** 자연어 메시지를 서버(Gemini 기반 AI 도우미)에 물어본다 — S15P21E201-802. */
 export async function askAssistant(
   message: string,
   accessToken: string,

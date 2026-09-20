@@ -27,7 +27,7 @@ export async function resolveDestination(returnTo?: string | null): Promise<stri
   return pending ?? '/home';
 }
 
-/** 「비회원으로 둘러보기」를 눌렀을 때 갈 곳 —. */
+/** 「비회원으로 둘러보기」를 눌렀을 때 갈 곳 — S15P21E201-1116. */
 export function guestDestination(returnTo?: string | null, gated?: string | null): string {
   if (gated === '1') return '/home';
   return isSafeReturnPath(returnTo) ? returnTo : '/home';

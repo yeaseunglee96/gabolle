@@ -1,4 +1,4 @@
-// 신고 검토(운영자) API —. 백엔드 계약은
+// 신고 검토(운영자) API — S15P21E201-599. 백엔드 계약은
 // backend/.../moderation/presentation/AdminModerationController.java 그대로다
 import { apiRequest, ApiClientError } from '@/api/client';
 

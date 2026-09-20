@@ -1,4 +1,4 @@
-// 「아직 열쇠가 없다」와 「서버가 죽었다」를 가른다 —.
+// 「아직 열쇠가 없다」와 「서버가 죽었다」를 가른다 — S15P21E201-1200.
 import { ApiClientError } from '../client';
 import { isVendorNotReady, vendorNotReadyMessage } from '../vendorReady';
 

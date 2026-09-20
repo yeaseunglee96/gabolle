@@ -1,4 +1,4 @@
-// 여행 조건(알레르기 · 식단 · 길 환경)을 실제로 저장한다 —.
+// 여행 조건(알레르기 · 식단 · 길 환경)을 실제로 저장한다 — S15P21E201-1245.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { apiRequest } from '@/api/client';

@@ -93,7 +93,7 @@ function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: bool
 
 function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingStar, reacting, onUnfollow, onOpen, onOpenAuthor, onReport, onToggleSave, onReact }: {
   story: StoryDto; compact: boolean; showUnfollow: boolean; unfollowBusy: boolean;
-  /** 내가 저장한 기록인가 —. StoryDto엔 없는 칸이라 화면이 따로 들고 다닌다. */
+  /** 내가 저장한 기록인가 — S15P21E201-1221. StoryDto엔 없는 칸이라 화면이 따로 들고 다닌다. */
   saved: boolean;
   savingStar: boolean;
   /** 좋아요·싫어요 버튼이 서버 응답을 기다리는 중인가 — 연타 방지. */
@@ -548,7 +548,7 @@ export default function Feed() {
   const loading = feedQuery.isPending;
   const items = result.state === 'success' ? result.items : [];
 
-  // 저장 여부 —. StoryDto엔 없는 칸이라 저장 id 집합을 따로 받아 대조한다.
+  // 저장 여부 — S15P21E201-1221. StoryDto엔 없는 칸이라 저장 id 집합을 따로 받아 대조한다.
   const savedIdsQuery = useQuery({
     queryKey: ['saved-story-ids', signedIn],
     queryFn: () => loadSavedStoryIds(accessToken),
@@ -571,7 +571,7 @@ export default function Feed() {
   };
 
   /**
-   * 좋아요·싫어요 토글 —. 같은 것을 다시 누르면 끄고(DELETE), 다른 것을
+   * 좋아요·싫어요 토글 — S15P21E201-1174. 같은 것을 다시 누르면 끄고(DELETE), 다른 것을
    * 누르면 바꾼다(PUT). 서버가 세는 수를 낙관적으로 미리 맞춰 그린다 — 매번 목록을 다시
    * 불러오면 스크롤 위치가 튄다.
    */

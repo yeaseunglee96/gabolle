@@ -1,6 +1,6 @@
 import { findLatestRecommendationJob } from './recommendations';
 
-// 추천 결과를 다시 열면 빈 화면이던 것을 고친다 —.
+// 추천 결과를 다시 열면 빈 화면이던 것을 고친다 — S15P21E201-1002.
 // 서버 경로는 GET /api/v1/trips/{tripId}/recommendation-jobs
 // 최신순 목록, 없는 여행은 404, 내 여행인데 추천이 없으면 빈 배열.
 function respondWith(payload: unknown, status = 200) {

@@ -1,4 +1,4 @@
-// 온보딩에서 지금 보이는 페이지만 접근성 트리에 남는가 —.
+// 온보딩에서 지금 보이는 페이지만 접근성 트리에 남는가 — S15P21E201-1191.
 import { fireEvent, render } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';

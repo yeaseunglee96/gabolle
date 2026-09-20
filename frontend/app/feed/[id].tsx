@@ -270,7 +270,7 @@ export default function StoryDetail() {
   };
 
   /**
-   * 우상단 ⋯ 메뉴 —. 사용자 요청으로 삭제·팔로우·신고·차단을 여기
+   * 우상단 ⋯ 메뉴 — S15P21E201-1244. 사용자 요청으로 삭제·팔로우·신고·차단을 여기
    * 하나로 몰아넣는다. 시안(FeedDetail.dc.html)의 "내 글=연필/남의 글=⋯" 구분은
    * 이번 결정으로 폐기하고 항상 ⋯ 하나로 통일한다.
    *
@@ -366,7 +366,7 @@ export default function StoryDetail() {
     });
   };
 
-  /** 좋아요·싫어요 —. 목록과 같은 규칙이다(같은 것을 다시 누르면 꺼진다). */
+  /** 좋아요·싫어요 — S15P21E201-1247. 목록과 같은 규칙이다(같은 것을 다시 누르면 꺼진다). */
   const react = async (reaction: Reaction) => {
     if (!story || reacting) return;
     if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } }); return; }
@@ -459,14 +459,14 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
-      {/* 좋아요·싫어요 —. 목록과 같은 부품을 쓴다. 칸 이름을 못 받아
+      {/* 좋아요·싫어요 — S15P21E201-1247. 목록과 같은 부품을 쓴다. 칸 이름을 못 받아
           비워 뒀던 자리인데가 상세 응답에도 실어 주면서 채웠다.
       */}
       {story && !reported ? (
         <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} />
       ) : null}
 
-      {/* 지표 줄 —. 시안이 정한 자리가 댓글 바로 위다. */}
+      {/* 지표 줄 — S15P21E201-1213. 시안이 정한 자리가 댓글 바로 위다. */}
       {story && !reported && metricLabels.length ? (
         <View style={styles.metrics}>
           <Text variant="caption" color={color.text.muted}>{metricLabels.join(' · ')}</Text>

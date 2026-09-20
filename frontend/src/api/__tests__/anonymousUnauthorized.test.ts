@@ -1,7 +1,7 @@
 import { apiRequest, ApiClientError, setRefreshHandler, setUnauthorizedHandler } from '../client';
 
 // 서버는 익명 출입증으로 못 쓰는 경로에 401 을 준다(AuthenticatedUsers.requireId).
-// 그것을 세션 만료로 읽으면 로그인한 적 없는 사람이 로그인 화면으로 튕긴다 —.
+// 그것을 세션 만료로 읽으면 로그인한 적 없는 사람이 로그인 화면으로 튕긴다 — S15P21E201-997.
 const unauthorizedBody = JSON.stringify({ data: null, error: { code: 'AUTHENTICATION_REQUIRED', message: '로그인이 필요합니다.' }, meta: { requestId: 'r1' } });
 
 function mockFetch() {

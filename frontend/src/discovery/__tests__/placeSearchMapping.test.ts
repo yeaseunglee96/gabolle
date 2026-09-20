@@ -1,4 +1,4 @@
-// 목록 응답을 화면 모양으로 옮길 때 칸을 흘리지 않는지 잰다 —.
+// 목록 응답을 화면 모양으로 옮길 때 칸을 흘리지 않는지 잰다 — S15P21E201-1195.
 
 import {
   PLACE_SEARCH_FIELDS_DROPPED_ON_PURPOSE,

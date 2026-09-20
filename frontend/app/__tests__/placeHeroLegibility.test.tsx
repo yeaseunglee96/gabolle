@@ -1,4 +1,4 @@
-// 사진 위 글자가 묻히지 않는가 —.
+// 사진 위 글자가 묻히지 않는가 — S15P21E201-1203.
 import { render } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 

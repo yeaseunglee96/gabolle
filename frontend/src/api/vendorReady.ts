@@ -1,6 +1,6 @@
 import { ApiClientError } from './client';
 
-/** 서버가 「이 기능은 아직 열쇠가 없다」 고 말했는가 —. */
+/** 서버가 「이 기능은 아직 열쇠가 없다」 고 말했는가 — S15P21E201-1200. */
 export function isVendorNotReady(error: unknown): boolean {
   return error instanceof ApiClientError && error.code.endsWith('_VENDOR_NOT_CONFIGURED');
 }

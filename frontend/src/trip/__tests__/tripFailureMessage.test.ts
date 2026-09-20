@@ -2,7 +2,7 @@ import { loadTrips } from '../trips';
 
 // 여행 ID 없이 열린 화면이 'demo-trip' 이라는 가짜 식별자를 보내면 서버가 그것을 UUID 로
 // 못 읽고 「Invalid UUID string: demo-trip」 같은 개발자용 문장을 냈다. 그 문장이 화면에
-// 그대로 나왔다 —.
+// 그대로 나왔다 — S15P21E201-1000.
 function respondWith(payload: unknown, status: number) {
   globalThis.fetch = jest.fn(async (input: RequestInfo | URL) => {
     if (String(input).includes('/auth/anonymous')) {

@@ -198,7 +198,7 @@ export default function LocalExplore() {
 // 열린 갈래 하나의 장소 목록 — GET /api/v1/places/nearby를 그 갈래를 열 때만
 // 부른다(화면 진입 시 8개를 한꺼번에 안 부르는 완료 기준). 한 갈래의 실패가 나머지 일곱 갈래를
 // 막지 않도록, 이 컴포넌트 안에서만 상태를 갖는다.
-/** 내 위치를 못 쓸 때의 기준점 —. 부산 시청이다. */
+/** 내 위치를 못 쓸 때의 기준점 — S15P21E201-982. 부산 시청이다. */
 const BUSAN_CENTER = { lat: 35.1796, lng: 129.0756 };
 
 /** 갈래를 고르는 자리 — 폭에 따라 세 모양, 한 자료** */
@@ -246,7 +246,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   const [allError, setAllError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // 위치를 모르면 부산 중심으로 찾는다 —.
+  // 위치를 모르면 부산 중심으로 찾는다 — S15P21E201-982.
   const center = scope === 'nearby' && coords ? { lat: coords.latitude, lng: coords.longitude } : BUSAN_CENTER;
   const usingFallback = !coords;
 
@@ -295,7 +295,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   return (
     <View style={styles.branchBody}>
       <Text variant="caption">{tx(`검색 범위: ${(result.effectiveRadiusM / 1000).toLocaleString()}km 이내`, `Search range: within ${(result.effectiveRadiusM / 1000).toLocaleString()} km`)}</Text>
-      {/* 내 위치를 못 쓴 채 부산 중심으로 찾았다는 사실을 밝힌다 —.
+      {/* 내 위치를 못 쓴 채 부산 중심으로 찾았다는 사실을 밝힌다 — S15P21E201-982.
           조용히 대신 보여 주면 거리 숫자가 왜 이런지 설명이 안 된다. 권한을 다시 물을
           길도 여기 같이 둔다.
       */}
@@ -318,7 +318,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
 /** 사진 자리 — 값이 있으면 사진, 없으면 핀 하나 */
 function PlacePhoto({ item, style }: { item: { photoUrl?: string | null; photoSubject?: PhotoSubject | null }; style: object }) {
   if (item.photoUrl) {
-    // 사진 위에 「무엇을 찍은 것인가」를 얹으려고 감싼다 —.
+    // 사진 위에 「무엇을 찍은 것인가」를 얹으려고 감싼다 — S15P21E201-1206.
     // 그 장소를 직접 찍은 사진에는 아무것도 안 나온다(판정은 photoLabels 한 곳에 있다).
     return (
       <View style={[style, styles.photoWrap]}>

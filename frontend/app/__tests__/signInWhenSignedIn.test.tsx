@@ -1,4 +1,4 @@
-// 로그인한 사람에게 로그인 화면을 보여주지 않는다 —.
+// 로그인한 사람에게 로그인 화면을 보여주지 않는다 — S15P21E201-1199.
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';

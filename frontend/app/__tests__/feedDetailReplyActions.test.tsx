@@ -1,4 +1,4 @@
-// 댓글 수정·삭제·신고 —.
+// 댓글 수정·삭제·신고 — S15P21E201-1239.
 import type { ReactElement } from 'react';
 import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react-native';
 
@@ -124,7 +124,7 @@ type ApiRequestCall = { path: string; options: Record<string, unknown> };
 const api = jest.requireMock('@/api/client') as { apiRequest: jest.Mock };
 const requests: ApiRequestCall[] = [];
 
-/** post 의 작성자가 남(mine: false)이라 화면이 팔로우 상태를 물어본다 —. */
+/** post 의 작성자가 남(mine: false)이라 화면이 팔로우 상태를 물어본다 — S15P21E201-1244. */
 function profile() {
   return { userId: AUTHOR_ID, displayName: '이예승', followerCount: 0, followingCount: 0, storyCount: 0, following: false };
 }

@@ -1,4 +1,4 @@
-// 글 지표(조회·인용) 문구 —.
+// 글 지표(조회·인용) 문구 — S15P21E201-1213.
 
 import { storyMetricLabels } from '../stories';
 

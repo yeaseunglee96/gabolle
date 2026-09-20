@@ -1,4 +1,4 @@
-// 피드 사진 자리 —.
+// 피드 사진 자리 — S15P21E201-1135.
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 

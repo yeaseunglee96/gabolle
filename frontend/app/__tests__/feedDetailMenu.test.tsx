@@ -1,4 +1,4 @@
-// 피드 상세 우상단 ⋯ 메뉴 —.
+// 피드 상세 우상단 ⋯ 메뉴 — S15P21E201-1244.
 import type { ReactElement } from 'react';
 import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react-native';
 

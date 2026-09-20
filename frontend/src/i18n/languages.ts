@@ -1,4 +1,4 @@
-// 이 앱이 아는 언어 다섯 —.
+// 이 앱이 아는 언어 다섯 — S15P21E201-1109.
 
 export const LANGUAGE_CODES = ['ko', 'en', 'ja', 'zh-Hans', 'zh-Hant'] as const;
 

@@ -1,4 +1,4 @@
-// 「지역」을 검색해서 고른다 —.
+// 「지역」을 검색해서 고른다 — S15P21E201-1145.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
