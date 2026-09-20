@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { PlanStartBar } from '@/home/PlanStartBar';
+import { startBarEditSection, startBarFromDraft } from '@/home/startBarValue';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
@@ -59,7 +60,9 @@ export default function Welcome() {
   const { language, mobility, setPreferences, hydrated, hasEnteredApp } = useOnboardingPreferences();
   const { tx } = useI18n();
   const { user, ready, accessToken } = useAuth();
-  const { update: updatePlan } = usePlan();
+  const { draft: planDraft, update: updatePlan } = usePlan();
+  // 🔴 열 문항 화면이 「날짜 정하기」로 보낸 사람은 고칠 칸을 열어 둔 채로 받는다 — S15P21E201-1350.
+  const editSection = startBarEditSection(useLocalSearchParams().edit);
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   const isDesktop = isAtLeast(width, 'lg');
@@ -176,7 +179,7 @@ export default function Welcome() {
         <Text variant="hero" weight="bold" color={color.text.heading} style={styles.headerTitle}>{tx('부산의 모든 여행, 가볼래?', 'Every side of Busan, yours to explore.')}</Text>
         <Text variant="body" color={color.text.muted} style={styles.headerSubtitle}>{tx('언제, 누구와, 어떻게 다닐지만 알려주세요. 일정은 가볼래가 짜요.', 'Just tell us when, with whom and how you travel — we build the itinerary.')}</Text>
         <View style={styles.startBar}>
-          <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} />
+          <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
         </View>
  {/* 「처음 오셨나요? 사용법 보기」는 뺐다 (2026-09-18 사용자 지시).
             시안 p0 에는 날씨 줄 오른쪽에 그 링크가 있지만, 첫 화면에서 안내부터 권하지 않기로 했다.

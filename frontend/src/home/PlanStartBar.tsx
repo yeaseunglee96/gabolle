@@ -10,6 +10,7 @@ import { resolveTextLanguage } from '@/i18n/languages';
 import { MAJOR_BUSAN_ORIGINS, searchOrigins, type OriginCandidate } from '@/plan/origins';
 import {
   EMPTY_START_BAR,
+  type StartBarSection,
   START_BAR_PRESETS,
   addDays,
   canAskForPlan,
@@ -21,7 +22,7 @@ import {
   type StartBarValue,
 } from '@/home/startBarValue';
 
-type Section = 'origin' | 'dates' | 'people' | null;
+type Section = StartBarSection;
 
 const WEEKDAY_HEADS_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_HEADS_EN = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -97,19 +98,28 @@ export type PlanStartBarProps = {
   onSubmit: (value: StartBarValue) => void;
   /** 오늘. 시험이 날짜에 안 흔들리게 밖에서 받는다. */
   today?: Date;
+  /**
+   * 🔴 처음부터 열어 둘 칸 — S15P21E201-1350.
+   *
+   * <p>열 문항 화면에서 「날짜 정하기」를 눌러 온 사람은 «날짜를 고치러» 온 것이다.
+   * 접힌 바를 보여 주고 한 번 더 누르게 하면, 그 사람이 보기에는 아무 데도 안 간 것이다.
+   */
+  initialSection?: Section;
+  /** 처음에 채워 둘 값. 안 주면 빈 바로 시작한다(홈에 처음 들어온 사람). */
+  initialValue?: StartBarValue;
 };
 
 /** 폰에서 한 줄에 들어가는 개수. 390 폭에서 실측한 값이다. */
 const PHONE_PRESET_COUNT = 3;
 
-export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }: PlanStartBarProps) {
+export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date(), initialSection = null, initialValue }: PlanStartBarProps) {
   const { tx, language } = useI18n();
   // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다.
   // 그 언어들은 uiTranslated: false 라 번역이 없으면 영어로 떨어지기로 정해져 있다
   // (resolveTextLanguage). 그 규칙을 그대로 쓴다 — S15P21E201-1296.
   const ko = resolveTextLanguage(language) === 'ko';
-  const [value, setValue] = useState<StartBarValue>(EMPTY_START_BAR);
-  const [section, setSection] = useState<Section>(null);
+  const [value, setValue] = useState<StartBarValue>(initialValue ?? EMPTY_START_BAR);
+  const [section, setSection] = useState<Section>(initialSection);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<OriginCandidate[]>([]);
   const [searching, setSearching] = useState(false);
