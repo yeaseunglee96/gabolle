@@ -25,6 +25,13 @@ import { txf } from '@/i18n/format';
 
 type Section = StartBarSection;
 
+/**
+ * 패널이 들어올 때 쓰는 가속 곡선 — 빨리 시작해 길게 멎는다.
+ * 기본 ease-out 보다 끝이 길어서 «내려앉는» 느낌이 난다. 닫힘에는 안 쓴다 —
+ * 닫는 것은 빨리 치워 주는 편이 낫다.
+ */
+const EASE_SOFT = Easing.bezier(0.22, 1, 0.36, 1);
+
 const WEEKDAY_HEADS_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_HEADS_EN = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -201,6 +208,8 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date(), 
   const highlightW = useRef(new Animated.Value(0)).current;
   const highlightO = useRef(new Animated.Value(0)).current;
   const panelIn = useRef(new Animated.Value(0)).current;
+  /** 칸이 바뀔 때마다 0 에서 다시 시작하는 값. 패널 «내용»만 다시 들어오게 한다. */
+  const swapIn = useRef(new Animated.Value(1)).current;
 
   const moveHighlight = (which: Section) => {
     const box = which ? segmentBox.current[which] : null;
@@ -223,10 +232,21 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date(), 
     moveHighlight(section);
     Animated.timing(panelIn, {
       toValue: section ? 1 : 0,
-      duration: reduceMotion ? 0 : section ? 240 : 160,
-      easing: section ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
+      duration: reduceMotion ? 0 : section ? 600 : 160,
+      easing: section ? EASE_SOFT : Easing.in(Easing.cubic),
       useNativeDriver: false,
     }).start();
+    // 칸을 바꾸면 내용이 «매번 다시» 들어온다. 즉시 교체하면 출발지에서 날짜로 넘어간 것이
+    // 바뀐 줄도 모르게 지나간다 — 같은 자리에 같은 크기의 흰 상자가 있기 때문이다.
+    if (section) {
+      swapIn.setValue(0);
+      Animated.timing(swapIn, {
+        toValue: 1,
+        duration: reduceMotion ? 0 : 450,
+        easing: EASE_SOFT,
+        useNativeDriver: false,
+      }).start();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section, reduceMotion]);
 
@@ -389,7 +409,7 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date(), 
             wide && styles.panelShellWide,
             {
               opacity: panelIn,
-              transform: [{ translateY: panelIn.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) }],
+              transform: [{ translateY: panelIn.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }) }],
             },
           ]}
         >
@@ -407,7 +427,14 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date(), 
               </Pressable>
             </View>
           ) : null}
-          <ScrollView style={styles.panelScroll} keyboardShouldPersistTaps="handled">{panel}</ScrollView>
+          <ScrollView style={styles.panelScroll} keyboardShouldPersistTaps="handled">
+            <Animated.View
+              key={section ?? 'none'}
+              style={{ opacity: swapIn, transform: [{ translateY: swapIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}
+            >
+              {panel}
+            </Animated.View>
+          </ScrollView>
           {!wide ? (
             <Pressable onPress={submit} disabled={!ready} accessibilityRole="button" style={[styles.cta, styles.ctaWide, !ready && styles.ctaOff]}>
               <Text weight="bold" color={color.text.onAction}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
@@ -459,7 +486,10 @@ const styles = StyleSheet.create({
   },
   panelShell: { marginTop: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   panelShellWide: { alignSelf: 'center', width: '100%', maxWidth: 860 },
-  panelScroll: { maxHeight: 420 },
+  // 🔴 높이를 묶지 않는다. 420 을 걸어 두면 두 달 달력이 넘쳐 스크롤이 생기고,
+  // 그 스크롤이 칸 전환의 위아래 움직임까지 삼켜서 애니메이션이 안 보였다.
+  // 내용 길이대로 늘어난다 — 모바일은 시트 자체가 스크롤한다.
+  panelScroll: {},
   panel: { gap: spacing[3] },
   phoneTabs: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginBottom: spacing[3] },
   phoneTab: { minHeight: 36, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
