@@ -20,7 +20,7 @@ import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
-import { LANGUAGE_OPTIONS, needsTranslationNotice } from '@/i18n/languages';
+import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { FLAG_IMAGES, WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
@@ -173,10 +173,6 @@ export default function Welcome() {
           <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.signInLink, pressed && styles.pressed]}>
             <Text variant="util" weight="bold" color="rgba(255,255,255,0.9)">{tx('이미 계정이 있어요 · 로그인', 'Already have an account · Sign in')}</Text>
           </Pressable>
-          {/* 번역이 아직 없다는 사실을 숨기지 않는다. 다 된 척하면 고른 사람이 영어를 보고
-              "왜 안 바뀌지" 로 읽는다. 미리 말하면 그건 선택이 된다.
-          */}
-          {needsTranslationNotice(language) ? <Text variant="caption" color="rgba(255,255,255,0.86)" style={styles.languageNotice}>Menus are in English for now. Place names and guides come in your language.</Text> : null}
         </View>
         </ScrollView>
       </SafeAreaView>
@@ -291,7 +287,6 @@ const styles = StyleSheet.create({
   // 시작하기 — 흰 판에 검은 글자. 영상 위에서 가장 잘 읽히는 조합이고, 빨강 채움은 여기 안 쓴다.
   startButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[2], minHeight: 56, borderRadius: radius.md, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.25, shadowRadius: 14, shadowOffset: { width: 0, height: 10 }, elevation: 6 },
   signInLink: { alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] },
-  languageNotice: { marginTop: spacing[1], textAlign: 'center', lineHeight: 18 },
   webScreen: { flex: 1, backgroundColor: color.canvas }, webContent: { minHeight: '100%' }, webHeader: { minHeight: 72, paddingHorizontal: 72, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: color.brand.ivory, borderBottomWidth: 1, borderBottomColor: color.surface.border }, webLogo: { width: 113, height: 28 }, webNav: { flexDirection: 'row', alignItems: 'center', gap: 44 }, navItem: { paddingVertical: spacing[3] }, accountActions: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   localeButton: { minWidth: 38, height: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft }, loginButton: { minWidth: 76, minHeight: 38, borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4] }, signupButton: { minWidth: 82, minHeight: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
   // 남는 공간이 없을 때는 아무 일도 안 한다 — 그래서 로그아웃 화면은 지금과 똑같다.

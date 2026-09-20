@@ -2,7 +2,6 @@
 import {
   LANGUAGE_CODES,
   LANGUAGE_OPTIONS,
-  needsTranslationNotice,
   parseLanguageCode,
   resolveTextLanguage,
   toBcp47,
@@ -42,16 +41,6 @@ describe('화면 문구를 어느 언어로 그리나', () => {
       expect(resolveTextLanguage(code)).not.toBe('ko');
     },
   );
-});
-
-describe('번역이 아직 없다는 사실을 숨기지 않는다', () => {
-  it.each(['ja', 'zh-Hans', 'zh-Hant'] as const)('%s 는 안내를 띄운다', (code) => {
-    expect(needsTranslationNotice(code)).toBe(true);
-  });
-
-  it.each(['ko', 'en'] as const)('%s 는 안내가 없다', (code) => {
-    expect(needsTranslationNotice(code)).toBe(false);
-  });
 });
 
 describe('기기·서버에 넘길 표기', () => {
