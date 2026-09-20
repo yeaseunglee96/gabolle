@@ -13,7 +13,12 @@ export type LanguageOption = {
   endonym: string;
   /** 그 언어를 모르는 사람이 읽을 수 있는 이름. */
   englishName: string;
-  /** 화면 문구가 이 언어로 번역돼 있나. 거짓이면 영어로 나온다. */
+  /**
+   * 화면 문구가 이 언어로 번역돼 있나.
+   * 🔴 2026-09-21 — 다섯 언어 전부 참이 됐다. 번역표(translations.ts)가 tx 원문 전부를 덮고(S15P21E201-1356·1359·1361)
+   *    일본어·번체로 22 화면을 돌며 잰 결과 화면 문구에 영어가 0줄이었다. 남은 영어는 서버 데이터뿐이다(S15P21E201-1363).
+   *    그래서 「메뉴는 아직 영어로 나와요」 안내를 걷어냈다 — 사실이 아닌 안내는 없는 것보다 나쁘다.
+   */
   uiTranslated: boolean;
 };
 
@@ -23,9 +28,9 @@ export type LanguageOption = {
 export const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
   { code: 'ko', endonym: '한국어', englishName: 'Korean', uiTranslated: true },
   { code: 'en', endonym: 'English', englishName: 'English', uiTranslated: true },
-  { code: 'ja', endonym: '日本語', englishName: 'Japanese', uiTranslated: false },
-  { code: 'zh-Hans', endonym: '简体中文', englishName: 'Chinese (Simplified)', uiTranslated: false },
-  { code: 'zh-Hant', endonym: '繁體中文', englishName: 'Chinese (Traditional)', uiTranslated: false },
+  { code: 'ja', endonym: '日本語', englishName: 'Japanese', uiTranslated: true },
+  { code: 'zh-Hans', endonym: '简体中文', englishName: 'Chinese (Simplified)', uiTranslated: true },
+  { code: 'zh-Hant', endonym: '繁體中文', englishName: 'Chinese (Traditional)', uiTranslated: true },
 ];
 
 /** 화면 문구를 어느 언어로 그릴 것인가. */
@@ -33,10 +38,6 @@ export function resolveTextLanguage(language: LanguageCode): TranslatedLanguage 
   return language === 'ko' ? 'ko' : 'en';
 }
 
-/** 그 언어의 화면 문구가 아직 번역되지 않았나 — 고르는 화면이 이 사실을 알린다. */
-export function needsTranslationNotice(language: LanguageCode): boolean {
-  return LANGUAGE_OPTIONS.find((option) => option.code === language)?.uiTranslated === false;
-}
 
 /** 기기·서버에 넘길 표기. */
 export function toBcp47(language: LanguageCode): string {
