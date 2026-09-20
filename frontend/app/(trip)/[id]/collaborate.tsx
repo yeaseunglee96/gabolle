@@ -14,6 +14,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { changeTripMemberRole, getTripActivity, listTripMembers, removeTripMember, type CompanionRole, type TripActivityEntry, type TripActivityOperation, type TripMember, type TripMembersView } from '@/trip/collaboration';
 import { relativeStoryTime } from '@/social/stories';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 
 const ROLE_LABEL: Record<TripMember['role'], [string, string]> = {
   OWNER: ['소유자', 'Owner'],
@@ -108,10 +109,10 @@ export default function TripCollaborate() {
             <View style={styles.roleBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx(...ROLE_LABEL[member.role])}</Text></View>
           </View>
           {isOwner && member.role !== 'OWNER' && <View style={styles.memberActions}>
-            <Pressable accessibilityRole="button" accessibilityLabel={tx(`${member.displayName ?? ''} 역할을 ${member.role === 'EDITOR' ? '열람자' : '편집자'}로 바꾸기`, `Change ${member.displayName ?? ''}'s role to ${member.role === 'EDITOR' ? 'viewer' : 'editor'}`)} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void changeRole(member, member.role === 'EDITOR' ? 'VIEWER' : 'EDITOR')} style={[styles.actionButton, busy && styles.actionDisabled]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 역할을 %s로 바꾸기', "Change %s's role to %s", member.displayName ?? '', member.role === 'EDITOR' ? tx('열람자', 'viewer') : tx('편집자', 'editor'))} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void changeRole(member, member.role === 'EDITOR' ? 'VIEWER' : 'EDITOR')} style={[styles.actionButton, busy && styles.actionDisabled]}>
               <Text variant="caption" weight="bold" color={color.brand.navy}>{tx(member.role === 'EDITOR' ? '열람자로 변경' : '편집자로 변경', member.role === 'EDITOR' ? 'Make viewer' : 'Make editor')}</Text>
             </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel={tx(`${member.displayName ?? ''} 참여자 제거`, `Remove ${member.displayName ?? ''}`)} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void remove(member)} style={[styles.actionButtonDanger, busy && styles.actionDisabled]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 참여자 제거', 'Remove %s', member.displayName ?? '')} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void remove(member)} style={[styles.actionButtonDanger, busy && styles.actionDisabled]}>
               <Text variant="caption" weight="bold" color={color.state.danger}>{busy ? tx('처리 중…', 'Working…') : tx('제거', 'Remove')}</Text>
             </Pressable>
           </View>}

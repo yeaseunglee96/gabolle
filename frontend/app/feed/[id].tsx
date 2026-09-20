@@ -17,6 +17,7 @@ import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, type Reaction } from '@/social/StoryReactionRow';
+import { txf } from '@/i18n/format';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
@@ -409,7 +410,7 @@ export default function StoryDetail() {
       {story && !reported ? (
         <View style={styles.card}>
           <View style={styles.headerRow}>
-            <Pressable accessibilityRole="link" accessibilityLabel={tx(`${story.author.displayName} 프로필 보기`, `View ${story.author.displayName}'s profile`)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.grow}>
+            <Pressable accessibilityRole="link" accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.grow}>
               <Text variant="title" weight="bold">{story.author.displayName}</Text>
               <Text variant="caption" color={color.text.muted}>
                 {relativeStoryTime(story.createdAt, tx)}

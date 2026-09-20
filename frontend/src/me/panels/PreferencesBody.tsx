@@ -1,6 +1,7 @@
 // 여행 취향 본문 — 화면과 마이페이지 패널이 같은 것을 쓴다.
 //
 // 제목과 설명은 껍데기가 그린다(myPanels 의 panelTitle). 여기서 또 그리면 두 번 나온다.
+import { txf } from '@/i18n/format';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -109,7 +110,7 @@ function Scale({ label, value, low, high, onChange }: { label: string; value: nu
         <Pressable
           key={point}
           accessibilityRole="radio"
-          accessibilityLabel={tx(`${label} ${point}단계`, `${label} level ${point}`)}
+          accessibilityLabel={txf(tx, '%s %s단계', '%s level %s', label, point)}
           accessibilityState={{ selected: value === point }}
           onPress={() => onChange(point)}
           style={[styles.scalePoint, value === point && styles.scalePointSelected]}
@@ -218,7 +219,7 @@ export function PreferencesBody() {
     // 세 질문은 한 꾸러미라 지울 때도 남은 것 전부를 다시 보낸다. 지운 것만 보내면
     // 나머지 둘이 같이 사라진다.
     void write({ ...saved, spend }, () => putSpendProfile(spend, accessToken),
-      tx(`${label} 답을 지웠어요. 다음 여행에서 다시 물어요.`, `Cleared ${label}. We will ask again on your next trip.`));
+      txf(tx, '%s 답을 지웠어요. 다음 여행에서 다시 물어요.', 'Cleared %s. We will ask again on your next trip.', label));
   };
 
   const setTaste = (key: TasteKey, value: TasteValue) => {
@@ -232,7 +233,7 @@ export function PreferencesBody() {
     // 지우기는 null 로 명시해서 보낸다. 키를 빼고 보내면 서버는 "안 보냈다" 로 읽어
     // 그대로 둔다 — 지운 것처럼 보이지만 안 지워진다.
     void write({ ...saved, taste }, () => putTasteProfile({ [key]: null }, accessToken),
-      tx(`${label} 답을 지웠어요. 다음 여행에서 다시 물어요.`, `Cleared ${label}. We will ask again on your next trip.`));
+      txf(tx, '%s 답을 지웠어요. 다음 여행에서 다시 물어요.', 'Cleared %s. We will ask again on your next trip.', label));
   };
 
   const clearAll = () => {

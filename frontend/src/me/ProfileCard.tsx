@@ -7,6 +7,7 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { txf } from '@/i18n/format';
 
 export type ProfileCardCount = { label: string; value: number | null; onPress?: () => void };
 
@@ -55,7 +56,7 @@ export function ProfileCard({ name, email, avatarUri, coverUri, counts, onEdit, 
             <Pressable
               key={count.label}
               accessibilityRole={count.onPress ? 'button' : undefined}
-              accessibilityLabel={count.onPress ? tx(`${count.label} 보기`, `View ${count.label}`) : undefined}
+              accessibilityLabel={count.onPress ? txf(tx, '%s 보기', 'View %s', count.label) : undefined}
               disabled={!count.onPress}
               onPress={count.onPress}
               style={({ pressed }) => [styles.count, pressed && styles.pressed]}

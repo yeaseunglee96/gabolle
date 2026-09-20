@@ -5,6 +5,7 @@ import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-nat
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 
 type BlockUserDialogProps = {
   visible: boolean;
@@ -37,7 +38,7 @@ export function BlockUserDialog({ visible, displayName, onClose, onConfirm }: Bl
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
       <View style={styles.backdrop}>
         <View accessibilityViewIsModal style={styles.card}>
-          <Text variant="title" weight="bold">{tx(`${displayName}님을 차단할까요?`, `Block ${displayName}?`)}</Text>
+          <Text variant="title" weight="bold">{txf(tx, '%s님을 차단할까요?', 'Block %s?', displayName)}</Text>
           <Text color={color.text.body}>{tx('이 사용자에게 내 글이 보이지 않아요.', "This user won't see your posts.")}</Text>
           <View style={styles.warning}>
             <Text variant="caption" weight="bold" color={color.state.danger}>

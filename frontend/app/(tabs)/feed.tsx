@@ -29,6 +29,7 @@ import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, sto
 import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 import { useStoryVideo } from '@/social/useStoryVideo';
+import { txf } from '@/i18n/format';
 
 // 열쇠는 src/social/stories.ts 로 옮겼다 — 글쓰기 화면도 같은 것을 써야 해서다
 // 이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
@@ -106,7 +107,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
   const hasPhoto = (story.images?.length ?? 0) > 0;
 
   // 제목은 장소 이름이다. 장소가 없으면 「OO의 기록」 — 비워 두지 않는다(시안 「자주 틀리는 것」 5번).
-  const title = story.place?.name ?? tx(`${story.author.displayName}의 기록`, `${story.author.displayName}'s record`);
+  const title = story.place?.name ?? txf(tx, '%s의 기록', "%s's record", story.author.displayName);
 
   return <View style={[styles.card, compact ? styles.cardCompact : styles.cardInGrid]}>
  {/* 이름과 ⋯ 를 사진 위에 얹지 않는다 (2026-09-18 실기기).
@@ -118,7 +119,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
       {/* 좌상단 작성자 알약 — 사진 위에 얹히므로 배경을 깔아 글자가 읽히게 한다. */}
       <Pressable
         accessibilityRole="link"
-        accessibilityLabel={tx(`${story.author.displayName} 프로필 보기`, `View ${story.author.displayName}'s profile`)}
+        accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)}
         onPress={onOpenAuthor}
         style={styles.authorPill}
       >
@@ -134,7 +135,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
         {showUnfollow
           ? <Pressable
               accessibilityRole="button"
-              accessibilityLabel={tx(`${story.author.displayName} 언팔로우`, `Unfollow ${story.author.displayName}`)}
+              accessibilityLabel={txf(tx, '%s 언팔로우', 'Unfollow %s', story.author.displayName)}
               accessibilityState={{ busy: unfollowBusy }}
               disabled={unfollowBusy}
               onPress={onUnfollow}
@@ -397,8 +398,8 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
         accessibilityRole="button"
         accessibilityState={{ selected: active }}
         accessibilityLabel={active
-          ? tx(`${stop.name} 기록 보기`, `Open the record at ${stop.name}`)
-          : tx(`${stop.name} 지도에서 보기`, `Show ${stop.name} on the map`)}
+          ? txf(tx, '%s 기록 보기', 'Open the record at %s', stop.name)
+          : txf(tx, '%s 지도에서 보기', 'Show %s on the map', stop.name)}
         onPress={() => (active ? onOpenStory(stop.id) : setSelected(stop.id))}
         style={[styles.pinLabel, active && styles.pinLabelActive]}
       >
