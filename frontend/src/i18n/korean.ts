@@ -15,3 +15,9 @@ export function koreanToward(name: string): '로' | '으로' {
   const final = finalConsonant(name);
   return final === null || final === 0 || final === 8 ? '로' : '으로';
 }
+
+/** 「범위를」·「예산을」 — 받침이 있으면 「을」. 한글이 아니면 「를」. */
+export function koreanObject(name: string): '을' | '를' {
+  const final = finalConsonant(name);
+  return final === null || final === 0 ? '를' : '을';
+}
