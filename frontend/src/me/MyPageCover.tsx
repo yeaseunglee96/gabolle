@@ -3,10 +3,10 @@
 // 🔴 사진 위에 글자를 그냥 얹지 않는다. 사진이 밝으면 흰 글자가 묻히고, 사진마다
 //    읽히다 안 읽히다 한다. 시안이 어두워지는 덧칠을 깔고 그 위에 올린다 —
 //    피드 카드에서 이름·⋯ 을 사진 위에 안 얹기로 한 것과 같은 판단이다.
+import { type ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { txf } from '@/i18n/format';
@@ -14,7 +14,35 @@ import { txf } from '@/i18n/format';
 /** 사진이 없는 계정도 빈 회색 판이 아니다 — 부산 기본 사진을 깐다. */
 const DEFAULT_COVER = require('../../assets/home/web-hero.png');
 
-export const MY_PAGE_COVER_HEIGHT = 360;
+export const MY_PAGE_COVER_HEIGHT = 420;
+
+/**
+ * 커버 위에 서는 단추 — 두 화면이 같은 모양을 쓴다.
+ *
+ * <p>`/me` 는 「프로필 편집」 하나, `/user/[id]` 는 「팔로우」+「차단하기」 둘이다.
+ * 모양을 각 화면에 두면 사진 위에서 읽히게 만드는 그림자·불투명도가 두 벌이 되고,
+ * 한쪽만 고쳐져 어느 날 한 화면에서만 안 읽힌다.
+ */
+export function CoverButton({
+  label, onPress, tone = 'light', disabled,
+}: {
+  label: string;
+  onPress: () => void;
+  /** `primary` 는 동백 채움 — 「팔로우」처럼 그 화면에서 그다음에 할 일 하나에만. */
+  tone?: 'light' | 'primary';
+  disabled?: boolean;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [styles.coverButton, tone === 'primary' && styles.coverButtonPrimary, (pressed || disabled) && styles.pressed]}
+    >
+      <Text weight="bold" color={tone === 'primary' ? color.text.onAction : color.brand.navy} numberOfLines={1}>{label}</Text>
+    </Pressable>
+  );
+}
 
 export type CoverCount = { label: string; value: number | null; onPress?: () => void };
 
@@ -25,7 +53,8 @@ export function MyPageCover({
   avatarUri,
   coverUri,
   counts,
-  onEdit,
+  actions,
+  eyebrow,
   tx,
 }: {
   name: string;
@@ -47,7 +76,15 @@ export function MyPageCover({
    */
   coverUri: string | null;
   counts: CoverCount[];
-  onEdit: () => void;
+  /**
+   * 커버 오른쪽 아래 단추들. `CoverButton` 으로 만든다.
+   *
+   * <p>부품이 「프로필 편집」을 스스로 그리지 않는 이유 — `/user/[id]` 는 그 자리에
+   * 「팔로우」와 「차단하기」 둘이 선다. 부품이 정하면 두 화면 중 하나는 반드시 억지가 된다.
+   */
+  actions: ReactNode;
+  /** 왼쪽 위 알약. `/me` 는 「내 계정」, `/user/[id]` 는 「‹ 뒤로」. */
+  eyebrow: ReactNode;
   tx: (ko: string, en: string) => string;
 }) {
   return (
@@ -60,9 +97,7 @@ export function MyPageCover({
         style={StyleSheet.absoluteFill}
       />
 
-      <View style={styles.badge}>
-        <Eyebrow>{tx('내 계정', 'Account')}</Eyebrow>
-      </View>
+      <View style={styles.badge}>{eyebrow}</View>
 
       <View style={styles.bottom}>
         <View style={styles.identity}>
@@ -102,9 +137,7 @@ export function MyPageCover({
           </View>
         </View>
 
-        <Pressable accessibilityRole="button" onPress={onEdit} style={({ pressed }) => [styles.edit, pressed && styles.pressed]}>
-          <Text weight="bold" color={color.brand.navy} numberOfLines={1}>{tx('프로필 편집', 'Edit profile')}</Text>
-        </Pressable>
+        <View style={styles.actions}>{actions}</View>
       </View>
     </View>
   );
@@ -120,9 +153,9 @@ const styles = StyleSheet.create({
   },
   identity: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing[6], flexShrink: 1, minWidth: 0 },
   avatar: {
-    width: 128, height: 128, borderRadius: radius.full, overflow: 'hidden',
+    width: 152, height: 152, borderRadius: radius.full, overflow: 'hidden',
     alignItems: 'center', justifyContent: 'center',
-    backgroundColor: color.action.secondary, borderWidth: 5, borderColor: color.brand.ivory,
+    backgroundColor: color.action.secondary, borderWidth: 4, borderColor: color.brand.ivory,
   },
   avatarPhoto: { width: '100%', height: '100%' },
   copy: { gap: spacing[2], flexShrink: 1, minWidth: 0 },
@@ -134,10 +167,12 @@ const styles = StyleSheet.create({
     minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.full,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)', backgroundColor: 'rgba(255,253,248,0.14)',
   },
-  edit: {
-    minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full,
+  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  coverButton: {
+    minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full,
     backgroundColor: color.brand.ivory,
     shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 5,
   },
+  coverButtonPrimary: { backgroundColor: color.action.primary },
   pressed: { opacity: 0.82 },
 });
