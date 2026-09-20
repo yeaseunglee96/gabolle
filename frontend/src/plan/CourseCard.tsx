@@ -47,6 +47,35 @@ export function CourseCard({
   const cover = course.days[0]?.stops.find((stop) => stop.photoUrl)?.photoUrl ?? null;
   const cost = courseCost(course, ko);
 
+  /**
+   * 🔴 표지에 «얹을» 것인가.
+   *
+   * <p>사진이 있을 때만 참이다. 사진이 없으면 표지 칸이 96px 로 좁아지는데, 얹은 것들은
+   * 그 폭에 맞춰 줄지 않는다 — 배지가 별표 밑을 지나고 본문 제목까지 덮는다.
+   */
+  const overlayOnCover = Boolean(cover);
+
+  const badgeAndSave = (
+    <>
+      <View style={[styles.badge, overlayOnCover ? styles.badgeOverlay : null, selected && styles.badgeOn]}>
+        <Text variant="caption" weight="bold" color={overlayOnCover || selected ? color.text.onAction : color.text.heading} numberOfLines={1}>
+          {selected ? tx('✓ 내 일정으로', '✓ My itinerary') : txf(tx, '코스 %s', 'Course %s', courseLetter(index))}
+        </Text>
+      </View>
+      {/* 🔴 ☆ 저장은 고르기와 **다른 일**이다(인계 §7③) — 보관함에 담아 두는 것이지 이
+          여행으로 정하는 것이 아니다. 사진이 있으면 모서리에, 없으면 배지 옆에 둔다. */}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ selected: saved }}
+        accessibilityLabel={saved ? tx('저장 취소', 'Unsave') : tx('이 코스 저장해 두기', 'Save this course')}
+        onPress={onToggleSave}
+        style={({ pressed }) => [styles.save, overlayOnCover ? styles.saveOverlay : null, pressed && styles.pressed]}
+      >
+        <Text variant="caption" weight="bold" color={saved ? color.action.secondary : color.text.muted}>{saved ? '★' : '☆'}</Text>
+      </Pressable>
+    </>
+  );
+
   return (
     <View style={[styles.card, selected && styles.cardOn]}>
       <Pressable
@@ -62,26 +91,16 @@ export function CourseCard({
             정작 읽어야 할 일차별 동선이 밀린다 — 없는 사진의 자리를 지켜 줄 이유가 없다. */}
         <View style={[styles.cover, cover ? null : styles.coverEmpty]}>
           {cover ? <Image source={{ uri: cover }} resizeMode="cover" accessibilityLabel="" style={styles.coverPhoto} /> : null}
-          <View style={[styles.badge, selected && styles.badgeOn]}>
-            <Text variant="caption" weight="bold" color={color.text.onAction} numberOfLines={1}>
-              {selected ? tx('✓ 내 일정으로', '✓ My itinerary') : txf(tx, '코스 %s', 'Course %s', courseLetter(index))}
-            </Text>
-          </View>
-          {/* 🔴 ☆ 저장은 고르기와 **다른 일**이다(인계 §7③) — 보관함에 담아 두는 것이지 이
-              여행으로 정하는 것이 아니다. 표지 모서리에 둔다.
-              본문 쪽에 두면 「확인됨」 배지를 덮어 글자가 반쪽만 보인다 — 실제로 그랬다. */}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ selected: saved }}
-            accessibilityLabel={saved ? tx('저장 취소', 'Unsave') : tx('이 코스 저장해 두기', 'Save this course')}
-            onPress={onToggleSave}
-            style={({ pressed }) => [styles.save, pressed && styles.pressed]}
-          >
-            <Text variant="caption" weight="bold" color={saved ? color.action.secondary : color.text.muted}>{saved ? '★' : '☆'}</Text>
-          </Pressable>
+          {/* 🔴 사진 위에 얹는 것은 **사진이 있을 때만**이다 — S15P21E201-1351.
+              사진이 없으면 이 칸은 96px 로 좁아지는데(coverEmpty), 얹은 것들은 그 폭을 모르고
+              그대로 그려져 서로 겹쳤다. 「✓ My itinerary」 배지가 ☆ 밑을 지나 본문까지 넘어가
+              제목을 덮었다(2026-09-20 실기, versionCode 23, 영어). 좁을 때는 본문 줄에 세운다. */}
+          {overlayOnCover ? badgeAndSave : null}
         </View>
 
         <View style={styles.body}>
+          {/* 사진이 없어 얹지 못한 것을 여기서 한 줄로 세운다. 겹칠 자리가 없다. */}
+          {overlayOnCover ? null : <View style={styles.markRow}>{badgeAndSave}</View>}
           <View style={styles.titleRow}>
             <Text variant="title" weight="bold" numberOfLines={1} style={styles.title}>
               {course.title || txf(tx, '코스 %s', 'Course %s', courseLetter(index))}
@@ -149,12 +168,16 @@ const styles = StyleSheet.create({
   cover: { width: 200, minHeight: 200, backgroundColor: color.surface.soft },
   coverEmpty: { width: 96, minHeight: 0 },
   coverPhoto: { width: '100%', height: '100%' },
+  // 세워 둘 때의 배지 — 흐름 안에 있으므로 겹칠 자리가 없다.
   badge: {
-    position: 'absolute', top: spacing[3], left: spacing[3],
+    flexShrink: 1, minWidth: 0,
     paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full,
-    backgroundColor: 'rgba(25,25,25,0.78)',
+    backgroundColor: color.surface.soft,
   },
+  // 사진 위에 얹을 때만 절대 위치가 된다.
+  badgeOverlay: { position: 'absolute', top: spacing[3], left: spacing[3], backgroundColor: 'rgba(25,25,25,0.78)' },
   badgeOn: { backgroundColor: color.brand.navy },
+  markRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
 
   body: { flex: 1, minWidth: 0, gap: spacing[2], paddingVertical: spacing[4], paddingRight: spacing[4] },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
@@ -168,15 +191,18 @@ const styles = StyleSheet.create({
   dayPill: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: color.surface.soft },
   dayLine: { flex: 1, minWidth: 0 },
 
-  bottom: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[1] },
-  costBlock: { flexDirection: 'row', alignItems: 'baseline', gap: spacing[1] },
+  // 🔴 flexWrap 이 없으면 긴 글자(「Build this itinerary →」)가 카드 밖으로 밀려 잘린다.
+  //    카드가 overflow: 'hidden' 이라 조용히 잘린다 — 실제로 오른쪽 끝이 잘려 있었다.
+  bottom: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[1] },
+  costBlock: { flexDirection: 'row', flexShrink: 1, minWidth: 0, alignItems: 'baseline', gap: spacing[1] },
   build: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy },
   pick: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.tint },
   pressed: { opacity: 0.82 },
 
   save: {
-    position: 'absolute', top: spacing[2], right: spacing[2],
+    flexShrink: 0,
     width: 32, height: 32, alignItems: 'center', justifyContent: 'center',
     borderRadius: radius.full, backgroundColor: color.surface.card,
   },
+  saveOverlay: { position: 'absolute', top: spacing[2], right: spacing[2] },
 });
