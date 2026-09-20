@@ -127,7 +127,8 @@ public class ItineraryQueryService {
 
 		return new ItineraryDetailResponse(
 				itineraryId,
-				buildTitle(trip),
+				// 이름은 Trip 이 정한다 — 사용자가 붙인 것이 있으면 그것, 없으면 기간(S15P21E201-1348).
+				trip.displayTitle(),
 				latestVersion,
 				days,
 				totalEstimatedCostKrw,
@@ -300,15 +301,6 @@ public class ItineraryQueryService {
 			return null;
 		}
 		return instant.atZone(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-	}
-
-	/**
-	 * 🔴 {@code itineraries} 표에 제목 칸이 없다. 여행 기간으로 지어낸 값이다 — 지어냈다는
-	 * 사실을 여기 남긴다. 나중에 사용자가 직접 붙인 제목 칸이 생기면 이 자리를 그것으로
-	 * 바꿔야 한다.
-	 */
-	private String buildTitle(Trip trip) {
-		return trip.startDate() + " ~ " + trip.finishDate() + " 여행 일정";
 	}
 
 	/**
