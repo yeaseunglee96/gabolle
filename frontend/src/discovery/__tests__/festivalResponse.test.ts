@@ -38,10 +38,24 @@ describe('축제 목록 응답 읽기', () => {
     await expect(getFestivals('2026-10-01', '2026-10-05')).resolves.toEqual([]);
   });
 
-  it('서버 호출이 실패했을 때만 견본으로 물러선다', async () => {
+  // 🔴 예전에는 이 자리에서 «견본으로 물러섰다» — 부산불꽃축제·광안리어방축제·BIFF 를
+  //    지어내서 돌려줬다. 이름과 주소는 실재하는데 날짜만 조회 기간을 나눠 만든 값이라,
+  //    12월로 조회하면 「부산불꽃축제 12/08~12/10」 같은 없는 일정이 그럴듯하게 나왔다.
+  //    여행 계획을 거기 맞추면 헛걸음한다 — S15P21E201-1346.
+  it('🔴 서버가 실패하면 «지어내지 않고» 실패를 올려보낸다', async () => {
     respondWith({ data: null, error: { code: 'INTERNAL_ERROR', message: '오류' }, meta: { requestId: 'r1' } }, 500);
-    const festivals = await getFestivals('2026-10-01', '2026-10-05');
-    expect(festivals.length).toBeGreaterThan(0);
-    expect(festivals.every((festival) => 'isSample' in festival)).toBe(true);
+    await expect(getFestivals('2026-10-01', '2026-10-05')).rejects.toBeDefined();
+  });
+
+  it('🔴 지어낸 축제 이름이 어디서도 안 나온다', async () => {
+    respondWith({ data: null, error: { code: 'INTERNAL_ERROR', message: '오류' }, meta: { requestId: 'r1' } }, 500);
+    const invented = ['부산불꽃축제', '광안리어방축제', '부산국제영화제(BIFF)'];
+    await getFestivals('2026-12-01', '2026-12-31').then(
+      (items) => {
+        // 여기 오면 안 된다. 왔다면 적어도 지어낸 이름은 없어야 한다.
+        for (const name of invented) expect(items.some((f) => f.nameKo === name)).toBe(false);
+      },
+      () => undefined,   // 던지는 것이 올바른 동작이다
+    );
   });
 });

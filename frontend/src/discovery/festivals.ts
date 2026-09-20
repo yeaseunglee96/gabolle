@@ -27,47 +27,20 @@ export function festivalDisplayTitle(festival: Festival) {
 
 type FestivalResponse = { items: Festival[]; count: number };
 
-export type SampleFestival = Festival & { isSample: true };
-
-function toIsoDate(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
-
-export function buildSampleFestivals(startDate: string, endDate: string): SampleFestival[] {
-  const start = new Date(`${startDate}T00:00:00`);
-  const end = new Date(`${endDate}T00:00:00`);
-  const spanDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86_400_000));
-  const NAMES: Array<[string, string, string]> = [
-    ['부산불꽃축제', 'Busan Fireworks Festival', '부산 해운대구 해운대해수욕장'],
-    ['광안리어방축제', 'Gwangalli Eobang Festival', '부산 수영구 광안리해수욕장'],
-    ['부산국제영화제(BIFF)', 'Busan International Film Festival', '부산 해운대구 영화의전당'],
-  ];
-  return NAMES.map(([nameKo, nameEn, address], index) => {
-    const offset = Math.round((spanDays / (NAMES.length + 1)) * (index + 1));
-    const festivalStart = new Date(start.getTime() + offset * 86_400_000);
-    const festivalEnd = new Date(festivalStart.getTime() + 2 * 86_400_000);
-    return {
-      placeId: `sample-festival-${index}`,
-      title: null,
-      nameKo,
-      nameEn,
-      address,
-      startDate: toIsoDate(festivalStart < end ? festivalStart : start),
-      endDate: toIsoDate(festivalEnd < end ? festivalEnd : end),
-      overlapDates: [],
-      photoUrl: null,
-      isSample: true,
-    };
-  });
-}
-
 export async function getFestivals(startDate: string, endDate: string, signal?: AbortSignal) {
   const query = new URLSearchParams({ startDate, endDate });
   try {
     const response = await apiRequest<FestivalResponse>(`/api/v1/festivals?${query.toString()}`, { signal });
     return Array.isArray(response.items) ? response.items : [];
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'AbortError') throw error;
-    return buildSampleFestivals(startDate, endDate);
+    // 🔴 오류를 삼키지 않는다 — S15P21E201-1346.
+    //    예전에는 여기서 부산불꽃축제·광안리어방축제·BIFF 를 «지어내서» 돌려줬다.
+    //    이름과 주소는 실재하는데 날짜만 조회 기간을 나눠 만든 값이라, 12월로 조회하면
+    //    「부산불꽃축제 12/08~12/10」 같은 «없는 일정»이 그럴듯하게 나왔다.
+    //    여행 계획을 거기 맞춘 사람은 헛걸음한다.
+    //
+    //    화면(app/festivals.tsx)에는 「불러오지 못했습니다 · 다시 시도」가 이미 있다.
+    //    오류를 삼키는 바람에 그 자리가 «한 번도 안 뜨는» 죽은 코드였다. 이제 산다.
+    throw error;
   }
 }
