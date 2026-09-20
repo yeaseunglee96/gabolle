@@ -56,6 +56,7 @@ import { ItineraryHint } from '@/onboarding/ItineraryHint';
 import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { localizeMessage } from '@/i18n/messages';
+import { koreanToward } from '@/i18n/korean';
 
 // 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고.
 
@@ -946,17 +947,6 @@ export default function ItineraryScreen() {
   <TabBar active="map" /></View>;
 }
 
-/**
- * 「누리마루로」·「해운대 해수욕장으로」 — 받침이 있으면 「으로」, 없거나 ㄹ받침이면 「로」.
- * 한글이 아닌 이름(영문 상호 등)은 「로」. 「(으)로」라고 쓰면 사람이 안 쓰는 말이 화면에 남는다.
- */
-function koreanToward(name: string): string {
-  const last = name.trim().slice(-1);
-  const code = last.charCodeAt(0);
-  if (code < 0xac00 || code > 0xd7a3) return '로';
-  const final = (code - 0xac00) % 28;
-  return final === 0 || final === 8 ? '로' : '으로';
-}
 
 const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canvas },
   // ── 네이비 헤더 (시안 design_handoff_itinerary 2·3절) ──────────────────────
