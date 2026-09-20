@@ -2,12 +2,16 @@
 import type { ReactElement } from 'react';
 import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react-native';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 
 jest.setTimeout(30000);
 
+// 상세가 저장 여부를 react-query 로 읽는다(S15P21E201-1358) — 목록과 같은 열쇠를 쓰려고. 공급자가 없으면 렌더가 죽는다.
 function render(ui: ReactElement) {
-  return rtlRender(<OnboardingPreferencesProvider>{ui}</OnboardingPreferencesProvider>);
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return rtlRender(<QueryClientProvider client={queryClient}><OnboardingPreferencesProvider>{ui}</OnboardingPreferencesProvider></QueryClientProvider>);
 }
 
 const mockBack = jest.fn();
@@ -170,7 +174,8 @@ describe('댓글 카드 — 수정·삭제·신고', () => {
     fireEvent.press(view.getByLabelText('댓글 수정'));
     const editField = view.getByDisplayValue('제 댓글이에요');
     fireEvent.changeText(editField, '고친 댓글');
-    fireEvent.press(view.getByText('저장'));
+    // 「저장」이 둘이다 — 기록 자체를 저장하는 알약(반응 줄, S15P21E201-1358)과 댓글 고침을 저장하는 단추. 댓글 쪽은 뒤에 온다.
+    fireEvent.press(view.getAllByText('저장').at(-1)!);
 
     await waitFor(() => expect(view.getByText('고친 댓글')).toBeTruthy());
     const patchCall = requests.find((r) => r.options.method === 'PATCH');

@@ -1,5 +1,6 @@
 // 기록 상세 — 피드 카드를 누르면 오는 화면.
 import { useCallback, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -16,7 +17,7 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
 
@@ -206,6 +207,17 @@ export default function StoryDetail() {
   const [replies, setReplies] = useState<StoryDto[] | null>(null);
   // — 반응 요청이 도는 중인가. 연타로 낙관적 수가 어긋나는 것을 막는다.
   const [reacting, setReacting] = useState(false);
+  // 저장 여부 — 목록(feed.tsx)과 같은 열쇠로 같은 집합을 본다. 여기서 저장하면 목록으로
+  // 돌아갔을 때도 켜져 있어야 하고, 목록에서 저장한 것이 여기서도 켜져 있어야 한다.
+  const queryClient = useQueryClient();
+  const signedIn = Boolean(accessToken);
+  const savedIdsQuery = useQuery({
+    queryKey: ['saved-story-ids', signedIn],
+    queryFn: () => loadSavedStoryIds(accessToken),
+    enabled: signedIn,
+  });
+  const savedIds = savedIdsQuery.data?.state === 'success' ? savedIdsQuery.data.ids : new Set<string>();
+  const [saving, setSaving] = useState(false);
   const [repliesError, setRepliesError] = useState('');
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
@@ -382,6 +394,22 @@ export default function StoryDetail() {
       : current));
   };
 
+  /** 저장 — 목록에 있고 상세에는 없던 버튼. 로그인 전이면 로그인으로 보내고 돌아온다. */
+  const toggleSave = async () => {
+    if (!story || saving) return;
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } }); return; }
+    const nextSaved = !savedIds.has(story.id);
+    setSaving(true);
+    const outcome = await setStorySaved(story.id, nextSaved, accessToken);
+    setSaving(false);
+    if (outcome.state !== 'success') return;
+    queryClient.setQueryData<{ state: 'success'; ids: Set<string> }>(['saved-story-ids', signedIn], (current) => {
+      const ids = new Set(current?.ids ?? []);
+      if (nextSaved) ids.add(story.id); else ids.delete(story.id);
+      return { state: 'success', ids };
+    });
+  };
+
   const updateReply = (updated: StoryDto) => {
     setReplies((current) => current?.map((reply) => (reply.id === updated.id ? updated : reply)) ?? current);
   };
@@ -461,11 +489,11 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
-      {/* 좋아요·싫어요 — S15P21E201-1247. 목록과 같은 부품을 쓴다. 칸 이름을 못 받아
+      {/* 좋아요·저장 — S15P21E201-1247. 목록과 같은 부품을 쓴다. 저장 버튼은 목록에만 있고 여기엔 없던 것을 채웠다. 칸 이름을 못 받아
           비워 뒀던 자리인데가 상세 응답에도 실어 주면서 채웠다.
       */}
       {story && !reported ? (
-        <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} />
+        <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} saved={savedIds.has(story.id)} saving={saving} onToggleSave={() => void toggleSave()} />
       ) : null}
 
       {/* 지표 줄 — S15P21E201-1213. 시안이 정한 자리가 댓글 바로 위다. */}

@@ -2,12 +2,16 @@
 import type { ReactElement } from 'react';
 import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react-native';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 
 jest.setTimeout(30000);
 
+// 상세가 저장 여부를 react-query 로 읽는다(S15P21E201-1358) — 목록과 같은 열쇠를 쓰려고. 공급자가 없으면 렌더가 죽는다.
 function render(ui: ReactElement) {
-  return rtlRender(<OnboardingPreferencesProvider>{ui}</OnboardingPreferencesProvider>);
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return rtlRender(<QueryClientProvider client={queryClient}><OnboardingPreferencesProvider>{ui}</OnboardingPreferencesProvider></QueryClientProvider>);
 }
 
 const mockBack = jest.fn();
