@@ -14,6 +14,7 @@ import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
 import { directionForLanguage, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
 import { canSearchDestination, destinationSubtitle, searchTaxiDestinations, type TaxiDestinationOutcome } from '@/field/taxiDestination';
+import { txf } from '@/i18n/format';
 
 // 입력칸 상한은 번역 모듈과 한 값을 쓴다 — 두 벌이 되면 화면은 받아 놓고 보낼 때 잘린다.
 // (서버 한도와는 다른 값이다. 왜 120 인지는 TRANSLATE_MAX_LENGTH 주석 참고.)
@@ -284,7 +285,7 @@ export default function Speak() {
                   <Pressable
                     key={item.placeId}
                     accessibilityRole="button"
-                    accessibilityLabel={tx(`${item.nameKo} 택시 카드 열기`, `Open taxi card for ${item.nameKo}`)}
+                    accessibilityLabel={txf(tx, '%s 택시 카드 열기', 'Open taxi card for %s', item.nameKo)}
                     onPress={() => router.push(`/taxi-card/${item.placeId}`)}
                     style={({ pressed }) => [styles.destinationItem, pressed && styles.pressed]}
                   >

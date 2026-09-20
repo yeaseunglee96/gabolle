@@ -9,6 +9,7 @@ import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import type { MustVisitPlace } from '@/plan/PlanProvider';
+import { txf } from '@/i18n/format';
 
 /** 최대 몇 곳까지 담나. 넘으면 추천이 「이 여행」이 아니라 「이 목록」이 된다. */
 export const MUST_VISIT_MAX = 5;
@@ -133,7 +134,7 @@ export function MustVisitSearch({
           {picked.map((place) => (
             <View key={place.placeId} style={styles.pickedChip}>
               <Text variant="caption" weight="bold" color={color.text.onAction} numberOfLines={1}>{ko ? place.nameKo : place.nameEn ?? place.nameKo}</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel={tx(`${place.nameKo} 빼기`, `Remove ${place.nameKo}`)} onPress={() => remove(place.placeId)} style={styles.pickedRemove}>
+              <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 빼기', 'Remove %s', place.nameKo)} onPress={() => remove(place.placeId)} style={styles.pickedRemove}>
                 <Text variant="caption" weight="bold" color={color.text.onAction}>✕</Text>
               </Pressable>
             </View>

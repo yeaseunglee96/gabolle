@@ -20,6 +20,7 @@ import { vendorNotReadyMessage } from '@/api/vendorReady';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { txf } from '@/i18n/format';
 
 /** 위치를 모를 때 기준으로 삼는 부산 중심 — explore.tsx 와 같은 자리. */
 const BUSAN_CENTER = { latitude: 35.1796, longitude: 129.0756 };
@@ -255,7 +256,7 @@ export default function Bus() {
           <Button label={tx('다시 불러오기', 'Refresh')} variant="tertiary" containerStyle={styles.refresh} onPress={() => void load(coords)} />
           {checkedAt ? (
             <Text variant="caption" color={color.text.muted} style={styles.checkedAt}>
-              {tx(`${timeOnly} 기준이에요`, `As of ${timeOnly}`)}
+              {txf(tx, '%s 기준이에요', 'As of %s', timeOnly)}
             </Text>
           ) : null}
         </>

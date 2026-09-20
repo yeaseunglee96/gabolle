@@ -22,6 +22,7 @@ import { vendorNotReadyMessage } from '@/api/vendorReady';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { txf } from '@/i18n/format';
 
 /** 숫자만 남긴다. 자리 구분 쉼표를 붙여 넣어도 산다. */
 function digitsOnly(value: string): string {
@@ -176,7 +177,7 @@ export default function Exchange() {
               )}
             </Text>
             <Text variant="caption" color={color.text.muted}>
-              {tx(`${asOf} 고시 · 환전소 값은 조금 달라요`, `As of ${asOf} · exchange booths differ a little`)}
+              {txf(tx, '%s 고시 · 환전소 값은 조금 달라요', 'As of %s · exchange booths differ a little', asOf)}
             </Text>
           </View>
 
