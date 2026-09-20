@@ -23,6 +23,8 @@ type WeatherForecastResponseDto = {
 
 export type WeatherLoadResult =
   | { state: 'success'; forecast: DailyForecastDto }
+  /** 기상청 단기예보는 발표 시점부터 사흘 남짓만 준다 — 그 밖의 날짜는 «실패»가 아니라 «아직»이다(S15P21E201-1376). */
+  | { state: 'out-of-range'; message: string }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
 
 // 이 앱은 부산 여행 전용이라 좌표를 부산시청 기준으로 고정한다. 일정 항목에는 아직
@@ -39,6 +41,8 @@ export async function loadWeatherForecast(date: string, accessToken: string | nu
     return { state: 'success', forecast: response.forecast };
   } catch (error) {
     if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '날씨 API가 아직 준비되지 않았어요.' };
+    // 서버 원문: 「date 가 이 발표 회차의 단기예보 범위를 벗어났습니다」(2026-09-21 실서버 실기, 출발 6일 전 여행).
+    if (error instanceof ApiClientError && error.status === 400 && error.code === 'WEATHER_INVALID_REQUEST' && /범위/.test(error.message)) return { state: 'out-of-range', message: error.message };
     if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) return { state: 'offline', message: error.message };
     if (error instanceof ApiClientError && error.status === 502) return { state: 'error', message: '기상청 응답을 받지 못했어요.' };
     return { state: 'error', message: error instanceof Error ? error.message : '예보를 가져오지 못했어요.' };
