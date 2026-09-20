@@ -26,7 +26,7 @@ import { usePlan, type PlanDraft } from '@/plan/PlanProvider';
 import { CONFLICT_LABEL_PAIR, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
 import { MustVisitSearch } from '@/plan/MustVisitSearch';
 import { PlanContextColumn } from '@/plan/PlanContextColumn';
-import { AnsweredChip, EffectBand, OptionCard, StepDots } from '@/plan/PlanStepperParts';
+import { EffectBand, OptionCard, StepDots } from '@/plan/PlanStepperParts';
 import {
   AREA_OPTIONS, ATMOSPHERE_OPTIONS, CATEGORY_OPTIONS, FOOD_SUBTITLES, PACE_OPTIONS, TRANSPORT_OPTIONS,
   effectOf, type PlanOption,
@@ -111,6 +111,9 @@ export function summaryOf(key: QuestionKey, draft: PlanDraft, tx: Tx, skipped: b
     default: return '';
   }
 }
+
+/** 앞 세 문항이 필수다(planQuestions.ts 의 skippable). 여기서 세어 두면 문항을 바꿔도 숫자가 따라온다. */
+const REQUIRED_COUNT = PLAN_QUESTIONS.filter((item) => !item.skippable).length;
 
 export default function PlanConditions() {
   const router = useRouter();
@@ -375,13 +378,21 @@ export default function PlanConditions() {
     const item = PLAN_QUESTIONS[i];
     return Boolean(state.skipped[item.key]) || item.answered(draft);
   };
+  // 🔴 「지나온 질문」만 센다 — 아직 안 본 질문에도 기본값이 들어 있어서(예산 10만원, 이동수단 대중교통)
+  //    그대로 세면 「답했다」고 거짓말하게 된다.
+  const settledCount = PLAN_QUESTIONS.filter((_, i) => i < index && settledAt(i)).length;
+  const readyToBuild = missing.length === 0 && !datesMissing;
+  const answeredAbove = PLAN_QUESTIONS.map((item, i) => ({ item, i, value: i < index && settledAt(i) ? summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko) : '' })).filter((row) => row.value);
 
   const questionColumn = (
     <View style={styles.questions}>
       <View style={styles.stepHead}>
         <View style={styles.stepCopy}>
+          {/* 「질문 n / 10」이 아니라 필수 셋과 선택 일곱으로 나눠 센다 — 열이 아니라 셋이 보이면 가볍다(S15P21E201-1371). */}
           <Text variant="caption" weight="bold" color={color.text.eyebrow}>
-            {tx(`질문 ${index + 1} / ${PLAN_QUESTIONS.length}`, `Question ${index + 1} / ${PLAN_QUESTIONS.length}`)}
+            {question.skippable
+              ? tx(`선택 ${index + 1 - REQUIRED_COUNT} / ${PLAN_QUESTIONS.length - REQUIRED_COUNT}`, `Optional ${index + 1 - REQUIRED_COUNT} / ${PLAN_QUESTIONS.length - REQUIRED_COUNT}`)
+              : tx(`필수 ${index + 1} / ${REQUIRED_COUNT}`, `Required ${index + 1} / ${REQUIRED_COUNT}`)}
           </Text>
           <Text variant="title" weight="bold">{tx('여행 조건 알려주기', 'Tell us about your trip')}</Text>
         </View>
@@ -394,15 +405,36 @@ export default function PlanConditions() {
         />
       </View>
       <View style={styles.track}>
-        <View style={[styles.fill, { width: `${Math.round((index / PLAN_QUESTIONS.length) * 100)}%` }]} />
+        <View style={[styles.fill, { width: `${Math.round((settledCount / PLAN_QUESTIONS.length) * 100)}%` }]} />
       </View>
+      <Text variant="caption" color={color.text.muted}>
+        {readyToBuild
+          ? txf(tx, '이제 만들 수 있어요 · 남은 %s개는 답할수록 일정이 좋아지는 질문이에요', 'You can build now · the remaining %s make the plan better', PLAN_QUESTIONS.length - settledCount)
+          : txf(tx, '필수 %s개만 답하면 만들 수 있어요 · 나머지는 건너뛰어도 돼요', 'Answer just the %s required ones to build · the rest can be skipped', REQUIRED_COUNT)}
+      </Text>
+
+      {/* 답한 질문은 위에 한 줄씩 접힌다(시안 5 · 03a) — 지나온 길이 보여야 남은 길이 짧아 보인다. 누르면 그 질문으로. */}
+      {answeredAbove.length ? (
+        <View style={styles.answeredList}>
+          {answeredAbove.map(({ item, i, value }) => (
+            <Pressable key={item.key} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 수정', 'Edit %s', tx(item.ko, item.en))} onPress={() => goTo(i)} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
+              <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+              <View style={styles.answeredBody}>
+                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx(item.ko, item.en)}</Text>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{value}</Text>
+              </View>
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
 
       {/* 🔴 key 에 질문 열쇠를 준다. 질문이 바뀌면 카드가 통째로 새로 마운트되어, 앞 질문의
           스크롤 위치와 입력 포커스가 따라오지 않는다. 안 주면 열 문항이 한 카드처럼 느껴진다. */}
       <View key={question.key} style={[styles.card, wide ? styles.cardWide : styles.cardPhone]}>
         <View style={styles.cardHead}>
           <View style={styles.cardCopy}>
-            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{index + 1} / {PLAN_QUESTIONS.length}</Text>
+            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{question.skippable ? tx('선택 · 건너뛰어도 돼요', 'Optional · skip if you like') : tx('필수', 'Required')}</Text>
             <Text variant="title" weight="bold">{tx(question.ko, question.en)}</Text>
             <Text color={color.text.muted}>{tx(question.hintKo, question.hintEn)}</Text>
           </View>
@@ -443,6 +475,14 @@ export default function PlanConditions() {
         </View>
       </View>
 
+      {/* 필수 셋을 답했고 마지막이 아니면 — 지금 만들 수 있다는 것을 단추로 보여 준다. 열 개를 다 답해야 하는 줄 알고 접는 사람을 줄인다. */}
+      {readyToBuild && !last ? (
+        <Pressable accessibilityRole="button" accessibilityState={{ busy: job?.state === 'submitting' }} disabled={job?.state === 'submitting'} onPress={() => { completeStep(PLAN_QUESTIONS.length); void submitPlan(); }} style={({ pressed }) => [styles.buildNow, pressed && styles.pressed]}>
+          <Text weight="bold" color={color.text.heading}>{job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('지금 이대로 만들기 →', 'Build with what I have →')}</Text>
+          <Text variant="caption" color={color.text.muted}>{tx('나머지 질문은 나중에 일정에서 고칠 수 있어요', 'You can fine-tune the rest on the itinerary later')}</Text>
+        </Pressable>
+      ) : null}
+
       {/* 🔴 날짜가 없으면 여기서 막는다. 서버가 어차피 거절하는데, 그 거절은 열 개를 다
           답한 뒤에 서버 말투로 온다. 🔴 <b>누르면 정하러 갈 수 있게</b> 한다 — 잠그기만 하고
           문을 안 주면 나갈 길이 없다. 날짜를 대신 지어 넣지는 않는다. */}
@@ -474,18 +514,22 @@ export default function PlanConditions() {
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, job.errorMessage)}</Text>
       ) : null}
 
-      {/* 답한 질문 — 누르면 그 질문으로 돌아간다. 요약이 없으면 안 그린다. */}
-      <View style={styles.answeredRow}>
-        {PLAN_QUESTIONS.map((item, i) => {
-          // 🔴 **지나온 질문만** 적는다. 아직 안 본 질문에도 기본값이 들어 있어서(예산 10만원,
-          //    이동수단 대중교통) 그대로 세면 「답했다」고 거짓말하게 된다. 사람은 그걸 보고
-          //    답한 줄 알고 넘어가고, 정작 자기가 안 고른 조건으로 일정을 받는다.
-          if (i >= index || !settledAt(i)) return null;
-          const value = summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko);
-          if (!value) return null;
-          return <AnsweredChip key={item.key} label={tx(item.ko, item.en)} value={value} onPress={() => goTo(i)} />;
-        })}
-      </View>
+      {/* 남은 질문을 흐리게 미리 보여 준다 — 무엇이 얼마나 남았는지 알면 열 개도 길지 않다. 누르면 건너뛰어 갈 수 있다(선택만). */}
+      {index < PLAN_QUESTIONS.length - 1 ? (
+        <View style={styles.upcoming}>
+          <Text variant="micro" weight="bold" color={color.text.eyebrow}>{tx('다음 질문', 'Coming up')}</Text>
+          {PLAN_QUESTIONS.slice(index + 1).map((item, offset) => {
+            const i = index + 1 + offset;
+            return (
+              <Pressable key={item.key} accessibilityRole="button" disabled={!item.skippable && !readyToBuild} onPress={() => goTo(i)} style={({ pressed }) => [styles.upcomingRow, pressed && styles.pressed]}>
+                <View style={styles.upcomingNo}><Text variant="micro" weight="bold" color={color.text.muted}>{i + 1}</Text></View>
+                <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.upcomingLabel}>{tx(item.ko, item.en)}</Text>
+                {item.skippable ? <Text variant="micro" color={color.text.muted}>{tx('선택', 'optional')}</Text> : <Text variant="micro" weight="bold" color={color.text.body}>{tx('필수', 'required')}</Text>}
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
     </View>
   );
 
@@ -592,7 +636,15 @@ const styles = StyleSheet.create({
   next: { flex: 1 },
   pressed: { opacity: 0.8 },
 
-  answeredRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[2] },
+  answeredList: { gap: spacing[1] },
+  answeredRowItem: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  answeredCheck: { width: 18, height: 18, borderRadius: radius.full, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' },
+  answeredBody: { flex: 1, paddingVertical: spacing[1] },
+  buildNow: { gap: 2, alignItems: 'center', paddingVertical: spacing[3], paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1.5, borderColor: color.action.secondary, backgroundColor: color.surface.card },
+  upcoming: { gap: 2, marginTop: spacing[2] },
+  upcomingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[2] },
+  upcomingNo: { width: 22, height: 22, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center' },
+  upcomingLabel: { flex: 1 },
   consent: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
 
   stack: { gap: spacing[3] },
