@@ -70,22 +70,39 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
 /** 본문 글자 상한. */
 const BODY_MAX = 500;
 
-/** 댓글 한 장 — 원글과 같은 StoryDto 를 받는다 */
-function ReplyCard({
+/** 들여쓰기를 멈추는 깊이. 더 깊은 답글도 그리기는 그린다 — 안으로 밀지 않을 뿐이다. */
+const MAX_INDENT_DEPTH = 2;
+
+/**
+ * 댓글 한 장 — 원글과 같은 StoryDto 를 받는다.
+ *
+ * 내보내는 이유는 시험이 이것만 떼어 그려 보기 위해서다. 화면 주소는 기본 내보내기
+ * (StoryDetail) 하나로 정해지므로 이름 있는 내보내기를 더해도 주소가 늘지 않는다.
+ */
+export function ReplyCard({
   reply,
   accessToken,
   onUpdated,
   onDeleted,
   onReport,
+  depth = 0,
 }: {
   reply: StoryDto;
   accessToken: string | null;
   onUpdated: (updated: StoryDto) => void;
   onDeleted: (id: string) => void;
   onReport: (id: string) => void;
+  /** 몇 단째 댓글인가 — 들여쓰기를 어디서 멈출지에만 쓴다. 0 이 원글에 직접 달린 댓글. */
+  depth?: number;
 }) {
   const { tx } = useI18n();
   const [editing, setEditing] = useState(false);
+  // null 은 「아직 안 불러왔다」이고 빈 배열은 「답글이 없다」다 — 원글 쪽 replies 와 같은 규칙.
+  // 실패를 빈 배열로 바꾸면 화면이 「답글이 없다」고 주장하게 된다.
+  const [children, setChildren] = useState<StoryDto[] | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [loadingChildren, setLoadingChildren] = useState(false);
+  const [childrenError, setChildrenError] = useState('');
   const [draft, setDraft] = useState(reply.body);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -114,6 +131,30 @@ function ReplyCard({
     // 실패를 조용히 삼키지 않는다 — 다시 확인 상태로 돌아가서 한 번 더 시도할 수 있게 둔다.
     if (outcome.state === 'success') onDeleted(reply.id);
   };
+
+  // 서버는 한 단씩만 준다 — 손자는 안 딸려 온다. 그래서 이 댓글의 id 로 같은 경로를 다시 부른다.
+  const loadChildren = useCallback(async () => {
+    setLoadingChildren(true);
+    const outcome = await getStoryReplies(reply.id, accessToken);
+    setLoadingChildren(false);
+    if (outcome.state === 'success') { setChildren(outcome.replies); setChildrenError(''); }
+    else { setChildren(null); setChildrenError(outcome.message); }
+  }, [reply.id, accessToken]);
+
+  // 접었다 다시 펴는 것은 요청을 또 보내지 않는다 — 이미 받은 것을 그대로 다시 보여준다.
+  const toggleChildren = () => {
+    if (expanded) { setExpanded(false); return; }
+    setExpanded(true);
+    if (children === null) void loadChildren();
+  };
+
+  // 답글의 수정·삭제는 이 카드가 들고 있는 목록만 고친다. 위로 올리면 원글의 댓글 목록에서
+  // 답글을 찾다가 없어서 조용히 무시된다.
+  const updateChild = (updated: StoryDto) => setChildren((current) => current?.map((item) => (item.id === updated.id ? updated : item)) ?? current);
+  const removeChild = (removedId: string) => setChildren((current) => current?.filter((item) => item.id !== removedId) ?? current);
+
+  // 서버가 세는 값이라 이쪽이 진짜다. 0 이면 단추 자체를 안 그린다 — 눌러도 빈 목록만 나온다.
+  const childCount = reply.replyCount ?? 0;
 
   return (
     <View style={styles.reply}>
@@ -175,6 +216,53 @@ function ReplyCard({
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('신고', 'Report')}</Text>
             </Pressable>
           )}
+        </View>
+      ) : null}
+
+      {!editing && childCount > 0 ? (
+        <View style={styles.replyThread}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ expanded }}
+            accessibilityLabel={expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개 보기`, `Show ${childCount} replies`)}
+            onPress={toggleChildren}
+            style={styles.replyTextAction}
+          >
+            <Text variant="caption" weight="bold" color={color.text.accent}>
+              {expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개`, `${childCount} replies`)}
+            </Text>
+          </Pressable>
+
+          {expanded ? (
+            childrenError ? (
+              <View accessibilityRole="alert" style={styles.replyNotice}>
+                <Text variant="caption" color={color.text.body}>{tx('답글을 불러오지 못했어요.', "We couldn't load the replies.")}</Text>
+                <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadChildren()} containerStyle={styles.recoveryButton} />
+              </View>
+            ) : loadingChildren || children === null ? (
+              <ActivityIndicator color={color.action.primary} />
+            ) : (
+              /* 폰 폭은 좁다. 계속 밀면 깊은 답글이 한 줄에 한 글자씩 떨어지므로 들여쓰기는 두 단에서 멈춘다. */
+              <View style={depth < MAX_INDENT_DEPTH ? styles.replyChildren : styles.replyThread}>
+                {children.map((child) => (
+                  <ReplyCard
+                    key={child.id}
+                    reply={child}
+                    accessToken={accessToken}
+                    onUpdated={updateChild}
+                    onDeleted={removeChild}
+                    onReport={onReport}
+                    depth={depth + 1}
+                  />
+                ))}
+                {children.length < childCount ? (
+                  <Text variant="caption" color={color.text.muted}>
+                    {tx(`답글 ${childCount}개 중 ${children.length}개를 보여드렸어요.`, `Showing ${children.length} of ${childCount} replies.`)}
+                  </Text>
+                ) : null}
+              </View>
+            )
+          ) : null}
         </View>
       ) : null}
     </View>
@@ -650,6 +738,8 @@ const styles = StyleSheet.create({
   replyEdit: { gap: spacing[2] },
   replyActions: { flexDirection: 'row', gap: spacing[1] },
   replyTextAction: { minHeight: 36, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
+  replyThread: { gap: spacing[2] },
+  replyChildren: { gap: spacing[2], marginLeft: spacing[3] },
   composer: { gap: spacing[2] },
   // textAlignVertical 은 안드로이드에서 여러 줄 입력이 가운데로 쏠리는 것을 막는다.
   composerInput: { minHeight: 88, padding: spacing[3], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },
