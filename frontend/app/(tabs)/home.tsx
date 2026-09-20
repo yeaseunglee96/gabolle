@@ -30,6 +30,9 @@ import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+import { WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
+import { LANGUAGE_OPTIONS } from '@/i18n/languages';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
@@ -52,7 +55,10 @@ export default function Home() {
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'lg');
-  const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
+  const { hydrated, hasEnteredApp, markEnteredApp, setLanguage } = useOnboardingPreferences();
+  // 시안 5 Home 의 「⊕ 한국어」 — 외국인이 홈에서 바로 언어를 바꾼다(S15P21E201-1372). 첫 화면의 언어 시트를 그대로 쓴다.
+  const [langOpen, setLangOpen] = useState(false);
+  const langLabel = LANGUAGE_OPTIONS.find((item) => item.code === language)?.endonym ?? '한국어';
   const home = useHomeData(!desktop);
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
   const saved = useSavedPlaces(accessToken, 'home-mobile');
@@ -178,6 +184,10 @@ export default function Home() {
         <View style={styles.header}>
           <BrandLogoLink href="/home" imageStyle={styles.logo} />
           <View style={styles.headerRight}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('앱 언어 바꾸기', 'Change app language')} onPress={() => setLangOpen(true)} style={({ pressed }) => [styles.langPill, pressed && styles.pressed]}>
+              <GlobeGlyph />
+              <Text variant="caption" weight="bold" color={color.text.heading}>{langLabel}</Text>
+            </Pressable>
             {signedIn ? (
               <>
                 {weather && (weather.maxTemperature !== null || weather.minTemperature !== null) ? (
@@ -206,6 +216,8 @@ export default function Home() {
             )}
           </View>
         </View>
+
+        <WelcomeLanguageSheet visible={langOpen} language={language} onSelect={setLanguage} onClose={() => setLangOpen(false)} onStart={() => setLangOpen(false)} />
 
         {/* 동백이 첫 여행 체크리스트 — 온보딩을 거친 사람, 로그인한 뒤, 셋 다 하기 전까지. */}
         {signedIn && checklist ? <FirstTripChecklist state={checklist} hasTrip={Boolean(home.trip)} onDismiss={() => { setChecklist({ ...checklist, dismissed: true }); void dismissChecklist(); }} /> : null}
@@ -330,6 +342,15 @@ export default function Home() {
 
 const CARD_WIDTH = 240;
 
+function GlobeGlyph() {
+  return (
+    <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={12} r={8.5} stroke={color.text.heading} strokeWidth={1.9} />
+      <Path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17" stroke={color.text.heading} strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
 const styles = StyleSheet.create({
   shell: { flex: 1, backgroundColor: color.canvas },
   screenContent: { paddingHorizontal: 0, paddingTop: 0 },
@@ -341,6 +362,7 @@ const styles = StyleSheet.create({
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], height: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
   bell: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   bellIcon: { width: 20, height: 20 },
+  langPill: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, paddingHorizontal: 12, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   loginPill: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
 
   hero: { gap: spacing[3], paddingHorizontal: spacing[6], paddingTop: spacing[6] },

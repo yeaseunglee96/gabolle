@@ -214,7 +214,9 @@ export default function PlaceReviews() {
       {averageScore != null ? <Text color={color.text.body} style={styles.average}>{txf(tx, '인증된 평가 평균 %s점', 'Average of verified reviews: %s', averageScore.toFixed(1))}</Text> : null}
 
       {listState === 'loading' ? <View style={styles.notice}><ActivityIndicator color={color.action.primary} /></View> : null}
-      {listState === 'error' ? <View style={styles.notice}><Text color={color.text.body}>{tx('리뷰를 불러오지 못했어요.', 'Could not load reviews.')}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReviews()} /></View> : null}
+      {/* 손님에게는 리뷰 조회도 401 이다(2026-09-21 실측, S15P21E201-1372) — 오류가 아니라 잠긴 문으로 보여 준다. */}
+      {listState === 'error' && !accessToken ? <View style={styles.notice}><Text color={color.text.body}>{tx('로그인하면 리뷰를 볼 수 있어요.', 'Sign in to read reviews.')}</Text><Button label={tx('로그인', 'Sign in')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/place-reviews/${id}` } })} containerStyle={styles.noticeButton} /></View> : null}
+      {listState === 'error' && accessToken ? <View style={styles.notice}><Text color={color.text.body}>{tx('리뷰를 불러오지 못했어요.', 'Could not load reviews.')}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReviews()} /></View> : null}
       {listState === 'ready' && reviews && reviews.length === 0 ? <View style={styles.notice}><Text color={color.text.body}>{tx('아직 리뷰가 없어요.', 'No reviews yet.')}</Text></View> : null}
       {listState === 'ready' && reviews && reviews.length > 0 ? (
         <View style={styles.reviewList}>
@@ -258,6 +260,7 @@ const styles = StyleSheet.create({
   submitButtonDisabled: { opacity: 0.5 },
   listTitle: { marginTop: spacing[6] },
   average: { marginTop: spacing[1] },
+  noticeButton: { alignSelf: 'stretch' },
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
   reviewList: { gap: spacing[3], marginTop: spacing[4] },
   reviewRow: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },

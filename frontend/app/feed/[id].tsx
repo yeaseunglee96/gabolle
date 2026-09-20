@@ -561,7 +561,8 @@ export default function StoryDetail() {
           <View style={styles.actionRow}>
             {!confirmingDelete && (
               <Pressable accessibilityRole="button" accessibilityLabel={tx('공동 작성자 보기', 'View co-authors')} onPress={() => router.push(`/feed/${story.id}/coauthors`)} style={styles.textAction}>
-                <Text variant="caption" weight="bold" color={color.text.accent}>{tx('공동 작성자', 'Co-authors')}</Text>
+                {/* 「›」 — 글자만 있으면 제목처럼 읽혀서 눌러 볼 생각을 안 한다(2026-09-21 실측, S15P21E201-1372). */}
+                <Text variant="caption" weight="bold" color={color.text.accent}>{tx('공동 작성자', 'Co-authors')} ›</Text>
               </Pressable>
             )}
             {confirmingDelete ? (

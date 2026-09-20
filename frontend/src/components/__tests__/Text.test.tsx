@@ -2,7 +2,7 @@
 import { Platform } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
 
-import { joinHangulSyllables, Text } from '../Text';
+import { joinHangulSyllables, Text, webLineBreakStyle } from '../Text';
 
 const WJ = String.fromCharCode(0x2060);
 
@@ -22,5 +22,20 @@ describe('한글 낱말 이음표', () => {
     expect(Platform.OS).not.toBe('android');
     render(<Text>다시 시도해 주세요.</Text>);
     expect(screen.getByText('다시 시도해 주세요.')).toBeTruthy();
+  });
+});
+
+describe('웹 감싸기 힌트 — S15P21E201-1372', () => {
+  it('🔴 줄 수를 정한 글에는 text-wrap: pretty 를 넣지 않는다 — 넣으면 nowrap 이 풀려 한 줄 자르기가 죽는다', () => {
+    const original = Platform.OS;
+    Object.defineProperty(Platform, 'OS', { value: 'web', configurable: true });
+    try {
+      expect(webLineBreakStyle(1)).not.toHaveProperty('textWrap');
+      expect(webLineBreakStyle(2)).toHaveProperty('wordBreak', 'keep-all');
+      expect(webLineBreakStyle(undefined)).toHaveProperty('textWrap', 'pretty');
+    } finally {
+      Object.defineProperty(Platform, 'OS', { value: original, configurable: true });
+    }
+    expect(webLineBreakStyle(undefined)).toBeNull();
   });
 });

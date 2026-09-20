@@ -1,5 +1,7 @@
 // 22 현장 도구·번역 — Figma 22_현장 도구·번역 실측 그대로.
+import { isValidElement, type ReactElement } from 'react';
 import { Image, Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
@@ -8,10 +10,24 @@ import { Text } from '@/components/Text';
 import { useI18n } from '@/i18n';
 
 const sunIcon = require('../../assets/icons/common/sun.png');
+// 「판」「말」「버」 글자 아이콘은 무엇인지 한 번 더 읽어야 했다(2026-09-21 실측, S15P21E201-1372) — 그림으로.
+const cameraIcon = require('../../assets/icons/common/camera.png');
+const speakerIcon = require('../../assets/icons/common/speaker.png');
+
+function BusIcon() {
+  return (
+    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+      <Rect x={4} y={3.5} width={16} height={15} rx={3} stroke={color.action.secondary} strokeWidth={1.9} />
+      <Path d="M4 10.5h16M7 18.5v2M17 18.5v2" stroke={color.action.secondary} strokeWidth={1.9} strokeLinecap="round" />
+      <Circle cx={8} cy={14.5} r={1.2} fill={color.action.secondary} />
+      <Circle cx={16} cy={14.5} r={1.2} fill={color.action.secondary} />
+    </Svg>
+  );
+}
 
 type Tool = {
   key: string;
-  icon: string | ImageSourcePropType;
+  icon: string | ImageSourcePropType | ReactElement;
   title: string;
   desc: string;
   onPress: () => void;
@@ -24,14 +40,14 @@ export default function Translate() {
   const tools: Tool[] = [
     {
       key: 'menu',
-      icon: '판',
+      icon: cameraIcon,
       title: tx('메뉴판 읽기', 'Read a menu'),
       desc: tx('찍으면 적힌 글자를 읽어 드려요. 알레르기 낱말도 같이 찾아요', 'Take a photo and we read the text, including allergy-related words'),
       onPress: () => router.push('/field/menu-scan'),
     },
     {
       key: 'phrase',
-      icon: '말',
+      icon: speakerIcon,
       title: tx('장소별 한국어', 'Korean phrases by situation'),
       desc: tx('택시·식당에서 바로 보여주는 문장', 'Sentences to show right away at taxis and restaurants'),
       onPress: () => router.push('/field/speak'),
@@ -49,7 +65,7 @@ export default function Translate() {
       // 백엔드(GET /api/v1/transit/nearby-bus-arrivals,가 있는데 프론트가
       // 없던 자리다. 정류소 앞에서 하는 판단은 "기다릴까, 택시 탈까" 하나라 현장 도구에 둔다.
       key: 'bus',
-      icon: '버',
+      icon: <BusIcon />,
       title: tx('주변 버스', 'Buses nearby'),
       desc: tx('몇 분 뒤에 오는지 보고 기다릴지 정하세요', 'See how long the wait is before you decide'),
       onPress: () => router.push('/field/transit'),
@@ -90,8 +106,10 @@ export default function Translate() {
                 <Text variant="title" weight="bold" color={color.action.secondary}>
                   {tool.icon}
                 </Text>
+              ) : isValidElement(tool.icon) ? (
+                tool.icon
               ) : (
-                <Image source={tool.icon} resizeMode="contain" style={styles.toolIconImage} />
+                <Image source={tool.icon as ImageSourcePropType} resizeMode="contain" style={styles.toolIconImage} />
               )}
             </View>
             <View style={styles.cardBody}>

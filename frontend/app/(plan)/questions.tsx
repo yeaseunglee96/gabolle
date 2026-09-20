@@ -410,7 +410,9 @@ export default function PlanConditions() {
       <Text variant="caption" color={color.text.muted}>
         {readyToBuild
           ? txf(tx, '이제 만들 수 있어요 · 남은 %s개는 답할수록 일정이 좋아지는 질문이에요', 'You can build now · the remaining %s make the plan better', PLAN_QUESTIONS.length - settledCount)
-          : txf(tx, '필수 %s개만 답하면 만들 수 있어요 · 나머지는 건너뛰어도 돼요', 'Answer just the %s required ones to build · the rest can be skipped', REQUIRED_COUNT)}
+          : missing.length === 0 && datesMissing
+            ? tx('필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요', 'Required questions done · just pick your dates to build')
+            : txf(tx, '필수 %s개만 답하면 만들 수 있어요 · 나머지는 건너뛰어도 돼요', 'Answer just the %s required ones to build · the rest can be skipped', REQUIRED_COUNT)}
       </Text>
 
       {/* 답한 질문은 위에 한 줄씩 접힌다(시안 5 · 03a) — 지나온 길이 보여야 남은 길이 짧아 보인다. 누르면 그 질문으로. */}
@@ -476,6 +478,14 @@ export default function PlanConditions() {
       </View>
 
       {/* 필수 셋을 답했고 마지막이 아니면 — 지금 만들 수 있다는 것을 단추로 보여 준다. 열 개를 다 답해야 하는 줄 알고 접는 사람을 줄인다. */}
+      {/* 🔴 필수 셋은 답했는데 날짜가 없으면 — 단추가 안 뜨는 이유를 말하고 정하러 보낸다(S15P21E201-1372).
+          위쪽 「여행 만들기」로 바로 들어온 손님이 정확히 이 상태다(2026-09-21 배포본 실측). 안 적으면 「왜 안 만들어지지」가 된다. */}
+      {missing.length === 0 && datesMissing && !last ? (
+        <Pressable accessibilityRole="button" onPress={goSetDates} style={({ pressed }) => [styles.buildNow, pressed && styles.pressed]}>
+          <Text weight="bold" color={color.text.heading}>{tx('날짜만 정하면 바로 만들 수 있어요 →', 'Pick your dates and build right away →')}</Text>
+          <Text variant="caption" color={color.text.muted}>{tx('필수 질문은 다 답했어요 · 눌러서 날짜 정하기', 'Required questions done · tap to set dates')}</Text>
+        </Pressable>
+      ) : null}
       {readyToBuild && !last ? (
         <Pressable accessibilityRole="button" accessibilityState={{ busy: job?.state === 'submitting' }} disabled={job?.state === 'submitting'} onPress={() => { completeStep(PLAN_QUESTIONS.length); void submitPlan(); }} style={({ pressed }) => [styles.buildNow, pressed && styles.pressed]}>
           <Text weight="bold" color={color.text.heading}>{job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('지금 이대로 만들기 →', 'Build with what I have →')}</Text>
