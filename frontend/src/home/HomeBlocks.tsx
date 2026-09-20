@@ -27,7 +27,7 @@ const heartIcon = require('../../assets/icons/home/heart.png');
 
 type Tx = (ko: string, en: string) => string;
 
-// ── 날씨 한 줄 (히어로 왼쪽 아래) ──────────────────────────────────────────────
+// ── 날씨 (상단 바 오른쪽, 「여행 만들기」 왼쪽) ───────────────────────────────
 
 function skyLabel(sky: DailyForecastDto['skyCondition'], tx: Tx) {
   if (sky === 'CLEAR') return tx('맑음', 'Clear');
@@ -36,28 +36,28 @@ function skyLabel(sky: DailyForecastDto['skyCondition'], tx: Tx) {
   return tx('날씨 정보 없음', 'No weather data');
 }
 
-/** 힌트 문구는 서버가 주지 않는다 — 받은 값으로 여기서 만든다(인계 문서도 클라이언트 매핑). */
-function weatherHint(forecast: DailyForecastDto, tx: Tx) {
-  const rain = forecast.precipitationProbability;
-  if (rain !== null && rain >= 60) return tx('우산을 챙기세요', 'Take an umbrella');
-  if (forecast.skyCondition === 'CLEAR') return tx('걷기 좋은 날이에요', 'A good day to walk');
-  if (forecast.skyCondition === 'CLOUDY') return tx('실내 코스도 하나 챙겨두세요', 'Keep an indoor stop in mind');
-  return '';
-}
-
-export function WeatherLine({ forecast }: { forecast: DailyForecastDto | null }) {
+/**
+ * 상단 바 오른쪽에 서는 날씨. 전에는 히어로 아래 한 줄(WeatherLine)이었다.
+ *
+ * <p>그 줄이 시작 바와 첫 기록 줄 사이를 가로로 갈라놓아서, 홈에 들어온 사람의 눈이
+ * 시작 바에서 한 번 끊겼다. 날씨는 «지금 부산이 어떤가»를 곁들이는 정보지 길을
+ * 막을 것이 아니라, 상단 바 구석으로 옮긴다.
+ *
+ * <p>🔴 힌트 문구(「걷기 좋은 날이에요」)는 같이 안 옮겼다 — 상단 바에 자리가 없다.
+ * 그 문구를 만들던 weatherHint 도 쓰는 곳이 없어져 걷어냈다. 되살릴 일이 생기면
+ * 이 커밋을 보면 된다.
+ */
+export function TopNavWeather({ forecast }: { forecast: DailyForecastDto | null }) {
   const { tx } = useI18n();
   if (!forecast) return null;
-  // 최고기온을 쓰고, 없으면 최저라도 보여준다. 둘 다 없으면 줄 자체를 안 그린다
+  // 최고기온을 쓰고, 없으면 최저라도 보여준다. 둘 다 없으면 아무것도 안 그린다 —
   // 「—도」 라고 적으면 값이 있는 것처럼 보인다.
   const temp = forecast.maxTemperature ?? forecast.minTemperature;
   if (temp === null) return null;
-  const hint = weatherHint(forecast, tx);
   return (
     <View style={styles.weatherRow}>
-      <Text variant="display" weight="bold">{`${Math.round(temp)}°`}</Text>
-      <Text color={color.text.body}>{`${skyLabel(forecast.skyCondition, tx)} · ${tx('부산 지금', 'Busan now')}`}</Text>
-      {hint ? <Text variant="caption" color={color.text.body} style={styles.weatherHint}>{hint}</Text> : null}
+      <Text variant="title" weight="bold">{`${Math.round(temp)}°`}</Text>
+      <Text variant="caption" color={color.text.body}>{`${skyLabel(forecast.skyCondition, tx)} · ${tx('부산 지금', 'Busan now')}`}</Text>
     </View>
   );
 }
@@ -331,8 +331,8 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
 const styles = StyleSheet.create({
   pressed: { opacity: 0.85 },
 
-  weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[6], paddingTop: spacing[6], borderTopWidth: 1, borderTopColor: color.surface.border },
-  weatherHint: { marginLeft: 'auto' },
+  // 상단 바 안이라 위쪽 구분선도 여백도 없다. 바가 이미 자기 높이를 가진다.
+  weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
 
   // 줄 배치에서는 카드 폭을 줄 부품(HomeRow)이 정해서 내려준다 — 여기서 상한을 두면
   // 한 줄에 몇 장이 보이는지가 두 곳에서 정해지고, 둘이 어긋나면 줄마다 장 수가 달라진다.

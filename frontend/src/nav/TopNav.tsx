@@ -5,6 +5,8 @@ import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { TopNavWeather } from '@/home/HomeBlocks';
+import { useHomeWeather } from '@/home/useHomeData';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_CODES, LANGUAGE_OPTIONS } from '@/i18n/languages';
@@ -60,6 +62,9 @@ export function TopNav() {
   const { accessToken, ready, user } = useAuth();
   const { mobility, setPreferences } = useOnboardingPreferences();
   const signedOut = ready && !accessToken;
+  // 날씨는 홈에서만 보인다. 훅은 조건 없이 불러야 해서(React 규칙) 여기서 부르고,
+  // 홈이 아니면 꺼 둔다 — 그러면 요청 자체가 안 나간다.
+  const weather = useHomeWeather(pathname === '/' || pathname === '/home');
   // 좁은 화면은 아래 탭 바가 같은 일을 한다. 둘 다 그리면 화면이 위아래로 잘린다.
   if (kind !== 'tablet' || isChromeless(pathname)) return null;
 
@@ -130,10 +135,16 @@ export function TopNav() {
         })}
       </View>
 
-      <Pressable accessibilityRole="link" accessibilityState={{ selected: planActive }} onPress={() => router.push('/plan')} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
-        <Text weight="bold" color={color.action.outline} style={styles.noUnderline}>{tx('여행 만들기', 'Plan a trip')}</Text>
-        {planActive ? <ActiveMarker /> : null}
-      </Pressable>
+      {/* 날씨는 CTA «왼쪽»에 붙는다. 날씨가 없으면 TopNavWeather 가 아무것도 안 그려서
+          자리가 저절로 접힌다 — 빈 칸을 남겨 두지 않는다. */}
+      <View style={styles.navRight}>
+        <TopNavWeather forecast={weather} />
+        <Pressable accessibilityRole="link" accessibilityState={{ selected: planActive }} onPress={() => router.push('/plan')} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
+          {/* 한 줄로 묶는다. 옆에 날씨가 서면서 좁아져 「여행 / 만들기」로 접혔다. */}
+          <Text weight="bold" color={color.action.outline} numberOfLines={1} style={styles.noUnderline}>{tx('여행 만들기', 'Plan a trip')}</Text>
+          {planActive ? <ActiveMarker /> : null}
+        </Pressable>
+      </View>
     </View>
   </SafeAreaView>;
 }
@@ -168,6 +179,9 @@ const styles = StyleSheet.create({
   // 바탕으로 말하면 「고른 것」이 되고, 이 배색에서 고른 것은 색이 아니라 굵기와 점으로 뜬다.
   capsule: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], padding: spacing[1] },
   capsuleItem: { height: CTA_HEIGHT, paddingHorizontal: spacing[4] + spacing[1], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
+
+  // 날씨와 CTA 를 한 덩어리로 묶는다. 2층이 space-between 이라 이 덩어리가 오른쪽 끝을 잡는다.
+  navRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[4] },
 
   cta: { height: CTA_HEIGHT, paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.action.outline, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   ctaPressed: { opacity: 0.88 },
