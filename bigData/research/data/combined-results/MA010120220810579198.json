@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220810579198",
+  "name": "청용각",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 57410,
+  "researchedAt": "2026-09-21T22:20:11.348Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민",
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "주택가 및 아파트 단지 상가에 위치한 전형적인 동네 중식당으로 관광객보다는 인근 주민 중심"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 동구 홍곡로 67(동남아파트 1층)에 등록된 실존 중식당이나 블로그/온라인 상세 리뷰나 가격 정보가 거의 없는 동네 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 수정1동 1011-51(홍곡로 67, 동남아파트 1층) 청용각 전화번호 051-468-0528 업종 중화요리",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "동남아파트 부산광역시 동구 홍곡로 67 주변 시설 청용각",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주거 단지 내 상가에 위치하여 주민들의 식사 및 접근 편의 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220810530621",
+  "name": "은혜해장국",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 37583,
+  "researchedAt": "2026-09-21T22:19:07.450Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(장림시장5길 48) 및 인근에 실제 운영 중인 은혜해장국의 방문 후기, 메뉴, 영업시간 등의 실체 정보를 웹에서 확인할 수 없음",
+  "notes": "부산광역시 사하구 장림시장5길 48 주소지에는 은혜해장국이 확인되지 않으며(해당 번지에는 미용업체 등이 등록됨), 인근 장림동/다대로 인허가 DB 외에 실제 소비자가 남긴 후기나 방문 기록이 존재하지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": []
+}

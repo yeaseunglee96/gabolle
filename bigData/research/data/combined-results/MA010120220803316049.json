@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220803316049",
+  "name": "해대이모횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 57476,
+  "researchedAt": "2026-09-21T22:21:45.963Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "현지인 맛집으로 손님이 많은 편이라 방문 전 예약을 권장함"
+  },
+  "descriptors": {
+    "audience": "대학생 및 현지 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 제철회",
+      "가자미회",
+      "봄도다리",
+      "전어"
+    ],
+    "yearsClaimed": 2020
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미제공 (방문 전 유선 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "한국해양대학교 학생 및 영도 인근 로컬 주민들이 주로 찾는 현지인 중심 맛집"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "직접 배를 타는 선주가 운영하여 신선한 자연산 제철 활어를 합리적인 가격에 제공하며, 해양대 삼거리에 위치하여 학생들을 배려하는 따뜻한 분위기의 로컬 횟집",
+  "price": {
+    "found": true,
+    "priceMenu": "봄도다리(중) 50,000원, 회무침 15,000원",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "선주가 직접 잡은 자연산 회를 전문으로 취급하여 신선도가 높으며, 계절에 따라 전어, 참가자미, 방어 등 다양한 제철 회를 즐길 수 있습니다. 회 외에도 매운탕, 회덮밥, 물회 등의 메뉴가 제공됩니다. 현지인 맛집으로 알려져 있어 손님이 많은 편이므로, 방문 전 예약하는 것이 권장됩니다.",
+      "url": "https://www.siksinhot.com/P/1601053"
+    },
+    {
+      "excerpt": "2020년 코로나19로 인해 학생들의 발길이 줄어든 상황에서 기존 가게를 '해대이모횟집'으로 상호를 변경하여 현재까지 운영하고 있습니다. 배 사장은 학생들이 부모님께 용돈을 받아 생활하는 점을 고려하여, 적게 주문하더라도 눈치를 주지 않으니 편하게 방문해 달라는 메시지를 전하기도 했습니다.",
+      "url": "https://www.kmoumedia.com/news/articleView.html?idxno=3782"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1601053",
+    "https://www.kmoumedia.com/news/articleView.html?idxno=3782",
+    "https://polle.com/p/2N4Xh0"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "선주가 직접 조업한 신선한 자연산 제철 활어를 합리적인 가격에 맛볼 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "학생들의 주머니 사정을 배려해 적게 시켜도 눈치 주지 않는 친절함과 푸근한 서비스",
+      "sources": [
+        1
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "인근 해양대생 및 동삼동 주민들이 꾸준히 찾는 검증된 동네 로컬 식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

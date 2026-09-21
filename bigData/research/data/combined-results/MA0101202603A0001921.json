@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202603A0001921",
+  "name": "잼",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 29759,
+  "researchedAt": "2026-09-21T22:20:59.137Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 별도 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 빵/디저트 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "사워도우",
+      "크루아상"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:00 - 20:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사직KCC스위첸 아파트 상가 내에 위치하여 주로 인근 주민 중심의 동네 베이커리로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 동래구 사직동 사직KCC스위첸 아파트 상가에 입점한 베이커리(제과점)로, 사워도우와 크루아상 등을 취급하는 동네 빵집입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 사직북로 64, 사직KCC스위첸 1단지 상가 4호. 사워도우를 비롯한 다양한 빵을 판매하는 베이커리 카페로, 인근 주민들에게 신상 빵집으로 알려져 있습니다. 크루아상 등의 메뉴가 현지의 맛을 잘 구현했다는 평을 받기도 했습니다. 영업시간: 09:00 - 20:00 (일요일 휴무). 주차는 인근 유료 또는 공영주차장을 이용해야 합니다.",
+      "url": "https://www.sori114.com"
+    },
+    {
+      "excerpt": "부산광역시 동래구 사직북로 64 상가1단지동 지하2층 4호 (사직동, 사직KCC스위첸). 업종: 베이커리/제과점. 인스타그램: @jam._service.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.sori114.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "현지의 맛을 살린 사워도우와 크루아상 등 베이커리 품질",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "아파트 상가 내 입점하여 인근 주민들이 일상적으로 찾는 동네 빵집",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

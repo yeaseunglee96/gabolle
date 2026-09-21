@@ -1,0 +1,57 @@
+{
+  "id": "MA010120220809750377",
+  "name": "홀리크랩",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49148,
+  "researchedAt": "2026-09-21T22:18:46.197Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "보일링크랩",
+      "해물찜"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "해당 주소(부산광역시 부산진구 동평로 77 3층)에 '홀리크랩해물찜 당감동점' 상호로 등록된 사업장 정보가 확인되나, 일반 홀 식당 매장 방문 후기보다는 스마트스토어 밀키트/통신판매 또는 배달 중심 형태로 운영된 것으로 보이며, 영업시간·메뉴판 가격·줄서기 등 세부 매장 정량 정보는 공개 웹상에서 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "홀리크랩해물찜 당감동점. 주소: 부산광역시 부산진구 동평로 77 3층. 전화번호: 051-894-1819. 웹사이트: https://smartstore.naver.com/holycrab_",
+      "url": "https://smartstore.naver.com/holycrab_"
+    }
+  ],
+  "sources": [
+    "https://smartstore.naver.com/holycrab_"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미국식 해물찜 요리인 보일링크랩 메뉴를 전문으로 취급함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

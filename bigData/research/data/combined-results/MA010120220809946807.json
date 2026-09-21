@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220809946807",
+  "name": "암소가",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 75789,
+  "researchedAt": "2026-09-21T22:19:47.085Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 가족 단위",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우구이",
+      "된장찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객 대상보다는 동네 주민 위주의 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산진구 당감동(동평로 48-2 / 동평로 44)에 등록된 고깃집 '암소가'입니다. 웹상에 상세 리뷰 및 영업 정보가 극히 적으며 현재 정상 영업 여부가 불확실합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 동평로 44 (당감동) 암소가 전화: 051-891-5337",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "당감동에서 소고기 맛집으로 알려져 있으며, 된장찌개 등 식사 메뉴에 대한 평이 있습니다. 동평로 48-2 / 동평로 44 일대 위치.",
+      "url": "https://polle.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://polle.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "당감동 일대에서 소고기 구이 및 된장찌개 등 식사를 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

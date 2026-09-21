@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220809943872",
+  "name": "툴스돈카츠",
+  "cat": "일식 카레/돈가스/덮밥",
+  "attempts": 1,
+  "geminiTokens": 56064,
+  "researchedAt": "2026-09-21T22:19:59.804Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈가스",
+      "일식 카레",
+      "덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 동구 망양로 686 (수정동 1011-851 1층)에 등록된 '툴스돈카츠 동구점'으로, 상호 및 사업자/가맹 등록 정보가 확인됩니다. 온라인 상세 방문 리뷰나 개별 가격표, 영업시간, 대기 정보는 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 망양로 686 (수정동 1011-851 1층), 전화번호: 051-466-3824, 툴스돈카츠 동구점",
+      "url": "https://www.114.co.kr"
+    },
+    {
+      "excerpt": "툴스돈카츠: 부산광역시 동구 망양로 686, 일식 (일식 카레, 돈가스, 덮밥 등), 온누리상품권 가맹점",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돈가스, 일식 카레, 덮밥 등을 동네에서 간편하게 즐기기 위한 일식 식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

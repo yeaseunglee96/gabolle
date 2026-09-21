@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220807391843",
+  "name": "왕가",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 45206,
+  "researchedAt": "2026-09-21T22:19:51.181Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "폐업 또는 상호 변경(동일 주소지에 중식당 수정궁 등 확인)으로 상세 방문 후기 및 영업 정보 미확인",
+  "notes": "부산광역시 동구 고관로 67-1 소재 '왕가'는 과거 식신 DB 및 구청 집행 내역 등에서 상호가 언급된 흔적이 있으나, 현재 해당 주소지에는 '수정궁' 등 타 상호가 자리하고 있으며 일반 후기, 영업시간, 가격, 방문 이유 등의 웹 정보를 확인할 수 없습니다. 규칙에 따라 허위 작성 없이 found: false로 기록합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com/P/357321"
+  ]
+}
