@@ -100,7 +100,7 @@ export default function SharedItinerary() {
     <View style={styles.heading}>
       <Text variant="eyebrow" weight="bold">{tx('공유된 여행 일정', 'Shared trip itinerary')}</Text>
       <Text variant="display" weight="bold">{data.title}</Text>
-      <Text color={color.text.body}>{tx(`${data.startDate} ~ ${data.finishDate}`, `${data.startDate} – ${data.finishDate}`)}</Text>
+      <Text color={color.text.body}>{txf(tx, '%s ~ %s', '%s – %s', data.startDate, data.finishDate)}</Text>
       <Text variant="caption" color={color.text.muted}>{txf(tx, '이 링크는 %s까지 볼 수 있어요.', 'This link is viewable until %s.', formatFullDate(data.expiresAt, locale))}</Text>
     </View>
 

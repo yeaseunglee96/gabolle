@@ -33,6 +33,13 @@ export const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
   { code: 'zh-Hant', endonym: '繁體中文', englishName: 'Chinese (Traditional)', uiTranslated: true },
 ];
 
+// 🔴 훅(useI18n)을 못 쓰는 자리 — 오류 경계(클래스 컴포넌트)·컨텍스트 밖의 throw — 를 위해 고른 언어를
+//    모듈 변수로도 둔다. 전에는 서버용 언어(ko|en)만 있어서 일본어·중국어 사용자에게 오류 화면이
+//    영어로 떴다(S15P21E201-1340). OnboardingPreferences 가 언어를 바꿀 때마다 같이 맞춘다.
+let currentLanguage: LanguageCode = 'ko';
+export function setCurrentLanguage(language: LanguageCode) { currentLanguage = language; }
+export function getCurrentLanguage(): LanguageCode { return currentLanguage; }
+
 /** 화면 문구를 어느 언어로 그릴 것인가. */
 export function resolveTextLanguage(language: LanguageCode): TranslatedLanguage {
   return language === 'ko' ? 'ko' : 'en';
