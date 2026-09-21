@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
+import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
@@ -209,6 +210,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		}
 		// 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다 — SeedBoost 참고.
 		candidates = SeedBoost.apply(candidates, seeds);
+		// 총예산에 맞춘다. 역시 점수만 움직이고 후보를 빼지 않는다 — BudgetFit 참고.
+		candidates = BudgetFit.apply(candidates, priceBandsOf(response), BudgetFit.targetBand(trip));
 		// 자르기는 채점을 마친 뒤다.
 		candidates = keepBestScoring(candidates, this.properties.candidateLimit());
 		long rankingMs = elapsedMs(rankingStart);
@@ -426,6 +429,30 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		}
 		LOGGER.warn("씨앗 장소를 자기 좌표로도 못 찾았다 — placeId={}", place.getPlaceId());
 		return Optional.empty();
+	}
+
+	/**
+	 * 후보마다의 가격대({@code PRICE_LEVEL}). 값이 {@code {"band":"MID","raw":"mid"}} 모양이라
+	 * {@code band} 만 꺼낸다.
+	 *
+	 * <p>가격대가 없는 곳은 표에 아예 넣지 않는다 — 「모른다」를 빈 문자열이나 기본 등급으로
+	 * 채우면 조사 안 된 곳이 특정 등급인 것처럼 점수를 받는다.
+	 */
+	private static Map<UUID, String> priceBandsOf(PlaceCandidateResponse response) {
+		Map<UUID, String> bandByPlace = new LinkedHashMap<>();
+		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
+			for (PlaceFeatureView feature : candidate.features()) {
+				if (!BudgetFit.FEATURE_TYPE.equals(feature.featureType()) || feature.value() == null) {
+					continue;
+				}
+				String band = feature.value().path("band").asText("");
+				if (!band.isBlank()) {
+					bandByPlace.put(candidate.placeId(), band);
+				}
+				break;
+			}
+		}
+		return bandByPlace;
 	}
 
 }
