@@ -25,6 +25,19 @@
  *   node research/price-queue.mjs --limit 200  이번 실행에서 최대 200곳까지
  *   node research/price-queue.mjs --status     몇 곳 끝났는지만 보고 안 돈다
  *   node research/price-queue.mjs --aggregate  끝난 결과를 data/staged/ 로 모은다
+ *
+ * 🔴 여럿이 나눠 돌릴 때 — --chunk N (2026-09-21, axmap 선점 단위)
+ *   node research/price-queue.mjs --chunk 14            14번째 50곳 청크만 (인덱스 650~699)
+ *   node research/price-queue.mjs --chunk 14 --status   그 청크만 몇 곳 끝났는지
+ *   node research/price-queue.mjs --chunk 14 --chunk-size 100   청크 크기를 바꾸고 싶을 때
+ *
+ *   2,000곳을 50곳씩 40개 청크로 자른 것 — 앞에서부터 순서대로 도는 대신, 청크 번호로
+ *   자기 몫을 정해서 남과 안 겹치게 한다. **파일이 실제로 있을 필요는 없다** — axmap 은
+ *   경로가 없어도 선점을 받아 준다(경고만 뜬다). 그래서 관례로 이렇게 선점한다:
+ *     axmap claim "research/data/combined-results/chunk-14" --task S15P21E201-1414 \
+ *                 --intent "가격조사 청크14 (650~699)" --ttl 30m
+ *   `axmap status` 로 지금 누가 몇 번을 잡고 있는지 본 뒤, 안 잡힌 번호로 시작한다.
+ *   청크 안에서도 isDone() 은 그대로 적용된다 — 이미 끝난 곳은 건너뛴다.
  */
 import { execFile } from "node:child_process";
 import fs from "node:fs";
@@ -44,6 +57,14 @@ const flag = (n) => argv.includes(n);
 const num = (n, d) => { const i = argv.indexOf(n); return i < 0 ? d : Number(argv[i + 1]); };
 const LIMIT = num("--limit", 60);
 const CONCURRENCY = num("--concurrency", 6);
+const CHUNK_SIZE = num("--chunk-size", 50);
+const CHUNK = num("--chunk", null); // 1부터. 안 주면 예전처럼 전체에서 순서대로 돈다
+
+function scopedTargets(all) {
+  if (CHUNK == null) return all;
+  const start = (CHUNK - 1) * CHUNK_SIZE;
+  return all.slice(start, start + CHUNK_SIZE);
+}
 
 fs.mkdirSync(RESULTS_DIR, { recursive: true });
 
@@ -220,18 +241,29 @@ if (!fs.existsSync(SCHEMA)) {
 const targets = loadTargets();
 console.log(`대상 파일: FOOD ${targets.length}곳 (selected-2000.ndjson 기준 — 문서의 "2,355곳"과 다름, 위 주석 참고)`);
 
+const scope = scopedTargets(targets);
+if (CHUNK != null) {
+  const start = (CHUNK - 1) * CHUNK_SIZE;
+  console.log(`청크 ${CHUNK} (크기 ${CHUNK_SIZE}) — 인덱스 ${start}~${start + scope.length - 1}, ${scope.length}곳`);
+  if (scope.length === 0) {
+    console.log("이 번호는 범위 밖이다 — 청크가 없다.");
+    process.exit(1);
+  }
+}
+
 if (flag("--status")) {
-  statusReport(targets);
+  statusReport(scope);
   process.exit(0);
 }
 if (flag("--aggregate")) {
-  aggregate(targets);
+  aggregate(targets); // 집계는 항상 전체 기준 — 청크와 무관하게 지금까지 모은 것을 하나로 낸다
   process.exit(0);
 }
 
-const { done: alreadyDone } = statusReport(targets);
+const { done: alreadyDone } = statusReport(scope);
 const doneIds = new Set(alreadyDone.map((t) => t.id));
-const remaining = targets.filter((t) => !doneIds.has(t.id)).slice(0, LIMIT);
+// 청크 모드에서는 청크 전체를 한 번에 시도한다 — --limit 은 청크가 없을 때만 쓴다
+const remaining = scope.filter((t) => !doneIds.has(t.id)).slice(0, CHUNK != null ? scope.length : LIMIT);
 console.log(`\n이번 실행: ${remaining.length}곳 (동시 ${CONCURRENCY}개)`);
 
 if (remaining.length === 0) {
