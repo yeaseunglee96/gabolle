@@ -215,6 +215,20 @@ export function tabBarBottomMargin(bottomInset: number) {
   return Math.max(spacing[2], bottomInset);
 }
 
+/**
+ * 탭바가 있는 화면에서 «하단 고정 줄»이 비워야 하는 높이.
+ *
+ * 🔴 탭바는 `position: absolute; bottom: 0` 이다. 그래서 흐름에 놓인 하단 줄은 탭바
+ *    «뒤»로 들어가고, 그 아래로 시스템 탐색줄이 또 있다. 둘을 안 비우면 단추가 완전히
+ *    가려져 누를 수 없다 — 빌드 29 실기에서 일정 화면의 「순서 수정」이 그랬고, 추천 코스의
+ *    하단 바는 `bottom: 96` 으로 어림해 두어 3단추 탐색줄 기기에서 아랫단이 덮였다.
+ *
+ * 숫자를 화면마다 적으면 이 계산이 또 어긋난다. 여기 한 벌만 둔다.
+ */
+export function bottomBarClearance(bottomInset: number) {
+  return TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset) + spacing[2];
+}
+
 const styles = StyleSheet.create({
   // 받침 — 화면 아래에 깔리되 자기는 아무것도 안 그린다. 알약을 가운데 세우는 일만 한다.
   dock: {
