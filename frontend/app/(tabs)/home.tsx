@@ -378,11 +378,16 @@ const styles = StyleSheet.create({
   header: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[6], paddingTop: spacing[4] },
   logo: { width: 143, height: 26 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  weatherChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], height: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
-  bell: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  // 🔴 flexShrink/minWidth 가 «장식이 아니다». 이 줄(headerRight)은 언어 알약·날씨 칩·종이
+  //    나란히 서는데, 한국어 날씨는 「구름 조금 21° / 28°」처럼 길어서 줄이 넘친다.
+  //    React Native 의 flex 자식은 기본값이 flexShrink:1 이라, 넘치면 «고정폭인 종이» 줄어든다 —
+  //    실기(SM-G973N, 1080px, versionCode 27)에서 종이 폭 4px 로 찌부러져 사실상 사라졌다.
+  //    줄어들 쪽은 글자가 든 날씨 칩이고, 종은 줄어들면 안 된다.
+  weatherChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], height: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft, flexShrink: 1, minWidth: 0 },
+  bell: { width: 44, height: 44, flexShrink: 0, alignItems: 'center', justifyContent: 'center' },
   bellDot: { position: 'absolute', top: 9, right: 9, width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.action.outline, borderWidth: 1.5, borderColor: color.canvas },
   bellIcon: { width: 20, height: 20 },
-  langPill: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, paddingHorizontal: 12, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
+  langPill: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, flexShrink: 0, paddingHorizontal: 12, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   loginPill: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
 
   hero: { gap: spacing[3], paddingHorizontal: spacing[6], paddingTop: spacing[6] },
