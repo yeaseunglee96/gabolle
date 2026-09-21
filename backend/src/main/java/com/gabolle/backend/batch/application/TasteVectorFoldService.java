@@ -68,6 +68,14 @@ public class TasteVectorFoldService {
 	 * 이벤트를 (차원, 코드) 성분에 귀속시키지 않는다. 그 단계가 생겨야 {@code INTERACTION}·
 	 * {@code BLENDED} 성분이 만들어진다.
 	 *
+	 * <p>🔴 <b>그 단계를 만들기 전에 차원을 먼저 맞춰야 한다.</b> 이 서비스는 설문 답의 차원 이름을
+	 * 그대로 옮겨 적는데, 실서버 설문이 {@code CATEGORY} 를 안 내서 {@code user_taste_weight} 에
+	 * {@code CATEGORY} 행이 0건이다 (있는 것은 {@code FOOD_PREFERENCE}·{@code LOCALITY}·
+	 * {@code QUIETNESS}·{@code TOURIST_PREFERENCE}). 그런데 점수 쪽에서 이 벡터를 읽는 유일한 항
+	 * ({@code BaselineCandidateScorer.applyTasteVectorComponent})이 {@code CATEGORY} 만 본다.
+	 * 그래서 행동을 접어 넣어도 그 성분이 {@code CATEGORY} 가 아니면 점수에 한 번도 안 닿는다 —
+	 * 오류 없이 조용히 0 이다. 그쪽 주석에 두 갈래를 적어 뒀다.
+	 *
 	 * <p>목록도 대소문자도 여기서 정하지 않고 {@link EventType} 에 맡긴다. 수집을 막는 목록과
 	 * 세는 목록이 같은 파일에 있어야 둘의 포함 관계를 검사가 지킬 수 있고, 손으로 적으면
 	 * 표에 실제로 들어가는 소문자와 어긋나도 아무 데서도 안 드러난다.
