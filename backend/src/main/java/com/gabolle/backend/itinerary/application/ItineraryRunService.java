@@ -281,7 +281,8 @@ public class ItineraryRunService {
 			Map<String, Stop> before = stopsByKey(itineraryId, keys);
 			Stop already = before.get(itemKey);
 			if (already != null && (already.arrivedAt() != null || already.skipped())) {
-				return view(itineraryId, tripId, keys);
+				// 아무것도 안 바꿨다. 방금 읽은 값이 곧 지금 값이다.
+				return viewOf(run, itineraryId, keys);
 			}
 			record(itineraryId, itemKey, type, now, arrivedAt, userId);
 			next = next.advance(settledIndexes(itineraryId, keys), keys.size(), now);
@@ -290,8 +291,11 @@ public class ItineraryRunService {
 			appendEvent(itineraryId, null, type, now, userId);
 		}
 
-		this.runs.upsert(next);
-		return view(itineraryId, tripId, keys);
+		// 🔴 저장한 뒤에 다시 읽지 않는다. 덮어쓰기가 원시 SQL 이라 같은 트랜잭션의 영속성
+		// 컨텍스트에 이미 올라온 엔티티가 안 바뀌고, 다시 읽으면 바꾸기 전 값이 나온다 —
+		// 「도착을 눌렀는데 아직 그 정차지를 향하는 중」이 된다. 실제 PostgreSQL 로 확인했다
+		// (ItineraryRunProgressIntegrationTest). 우리가 방금 만든 값이 가장 정확하다.
+		return viewOf(this.runs.upsert(next), itineraryId, keys);
 	}
 
 	private void record(String itineraryId, String itemKey, ItineraryStopEvent.Type type, Instant now,
