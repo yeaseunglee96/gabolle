@@ -3,6 +3,7 @@ import { formatClock, formatDayHeading as formatLocaleDayHeading } from '@/i18n/
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 import { NowCard } from '@/plan/NowCard';
 import {
@@ -19,7 +20,7 @@ import { Button } from '@/components/Button';
 import { PlaceReviewModal } from '@/components/PlaceReviewModal';
 import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
-import { TabBar } from '@/components/TabBar';
+import { TabBar, bottomBarClearance } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -483,6 +484,7 @@ export default function ItineraryScreen() {
   // 그 경계를 그대로 쓴다 — 여기서 숫자를 새로 정하지 않는다(layout/breakpoints.ts).
   const { width } = useLayout();
   const wide = isAtLeast(width, 'lg');
+  const insets = useSafeAreaInsets();
   // — 통계는 값이 있는 것만 만든다. 판정은 itinerarySummary.ts 에 있다.
   const stats = useMemo(() => (itinerary ? itineraryStats(itinerary, tx) : []), [itinerary, tx]);
   const canEdit = itinerary?.canEdit !== false;
@@ -952,7 +954,7 @@ export default function ItineraryScreen() {
       src/plan/itinerary.ts 에 확정 함수가 없고, 이 화면은 이미 「내 여행」에서 열리는
       저장된 일정이다. 누르면 아무 일도 안 나는 버튼은 없는 버튼보다 나쁘다.
   */}
-  {!wide && itinerary && canReorder && !reorderMode ? <View style={styles.bottomBar}>
+  {!wide && itinerary && canReorder && !reorderMode ? <View style={[styles.bottomBar, { paddingBottom: bottomBarClearance(insets.bottom) }]}>
     <Button testID="itinerary-reorder-button" label={tx('순서 수정', 'Reorder')} variant="tertiary" onPress={startReorder} />
   </View> : null}
   <ExcludeConfirmModal
@@ -1022,7 +1024,9 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   menuActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   reorderBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   // 하단 고정 줄 — 탭바 위에 형제로 놓는다. absolute 로 띄우면 목록 끝이 그만큼 가린다.
-  bottomBar: { paddingHorizontal: gutter, paddingBottom: spacing[2] },
+  // 🔴 아래 여백은 여기서 정하지 않는다 — bottomBarClearance 가 탭바와 안전영역을
+  //    함께 센다. 8px 만 두었더니 단추가 탭바와 탐색줄 뒤로 완전히 들어갔다(빌드 29).
+  bottomBar: { paddingHorizontal: gutter },
   // 정차별 도보 비중 (시안 2.5 · 3.4)
   shareBar: { flexDirection: 'row', gap: 2, height: 6, borderRadius: radius.full, overflow: 'hidden' },
   // 도보 비중 막대 — 누를 것이 아니라 읽을 값이다. 동백은 누를 것에만 쓴다.

@@ -9,11 +9,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
-import { TabBar } from '@/components/TabBar';
+import { TabBar, bottomBarClearance } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -36,6 +37,7 @@ export default function Recommendations() {
   const { accessToken } = useAuth();
   const { tx, language } = useI18n();
   const { kind } = useLayout();
+  const insets = useSafeAreaInsets();
   const wide = kind !== 'phone';
   const ko = resolveTextLanguage(language) === 'ko';
   const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
@@ -266,7 +268,7 @@ export default function Recommendations() {
 
       {/* 하단 고정 바 — 비용과 「이 코스로 일정 만들기」. 고른 안이 없으면 안 그린다. */}
       {current ? (
-        <View style={styles.bottomBar}>
+        <View style={[styles.bottomBar, { bottom: bottomBarClearance(insets.bottom) }]}>
           <View style={styles.bottomCopy}>
             <Text weight="bold" numberOfLines={1}>
               {courseCost(current, tx) ?? tx('비용 미정', 'Cost unknown')}
@@ -317,7 +319,9 @@ const styles = StyleSheet.create({
   phoneChips: { gap: spacing[2], paddingVertical: spacing[2] },
 
   bottomBar: {
-    position: 'absolute', left: spacing[4], right: spacing[4], bottom: 96,
+    // 🔴 bottom 은 여기서 정하지 않는다 — 96 은 탭바 높이와 안전영역을 어림한 숫자였고,
+    //    3단추 탐색줄처럼 안전영역이 큰 기기에서는 모자라 탭바가 이 바의 아랫단을 덮었다.
+    position: 'absolute', left: spacing[4], right: spacing[4],
     flexDirection: 'row', alignItems: 'center', gap: spacing[3],
     padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card,
     shadowColor: color.brand.navy, shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 8,
