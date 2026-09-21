@@ -125,6 +125,14 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
             content.textContent = pointLayer ? pointLayer.label : String(stop.number);
             Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(25,25,25,.18)' });
           }
+          // 🔴 고른 곳은 **커진다.** 테두리 색만 바꾸면 지도를 훑는 눈이 어느 것이
+          //    켜졌는지 못 찾는다 — 마커가 열 개 넘게 겹쳐 있을 때 특히 그렇다.
+          //    (시안 3절: 선택 마커 scale 1.25, 300ms)
+          Object.assign(content.style, {
+            transform: stop.id === selectedId ? 'scale(1.25)' : 'scale(1)',
+            transition: 'transform 300ms cubic-bezier(.34,1.3,.64,1)',
+            zIndex: stop.id === selectedId ? '2' : '1',
+          });
           content.onclick = () => onSelect(stop.id);
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
@@ -265,7 +273,22 @@ const styles = StyleSheet.create({
   fallback: { minHeight: 260, borderRadius: radius.lg, backgroundColor: color.surface.soft, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center', padding: spacing[6], gap: spacing[2] },
   description: { color: color.text.body, textAlign: 'center', maxWidth: 420 },
   // 고칠 사람이 읽는 한 줄. 여행자에게는 작고 흐리게 보인다.
-  estimateNote: { marginTop: spacing[2] },
+  /**
+   * 점선 안내문 — **지도 «위에» 얹는다.**
+   *
+   * 🔴 전에는 지도 아래에 흐름으로 붙어 있었다. 그래서 이 부품의 실제 높이가
+   *    `height` 보다 «안내문 한 줄만큼» 컸고, 남는 자리를 재서 높이를 주는 화면에서는
+   *    그만큼 넘쳐 아래 것을 덮었다 (2026-09-22 실기 — 추천 시트에서 정차지 목록과
+   *    겹쳤다). 얹으면 이 부품의 높이가 곧 `height` 라 그런 어긋남이 없다.
+   *
+   * 🔴 왼쪽이 아니라 **오른쪽 아래**다. 왼쪽 아래는 카카오 축척과 로고 자리다 —
+   *    가리면 지도 이용약관을 어긴다.
+   */
+  estimateNote: {
+    position: 'absolute', right: spacing[2], bottom: spacing[2], maxWidth: '92%',
+    paddingVertical: spacing[1], paddingHorizontal: spacing[2],
+    borderRadius: radius.md, backgroundColor: color.surface.card,
+  },
   tech: { color: color.text.muted, textAlign: 'center', maxWidth: 460 },
   backButton: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   routePreview: { flexDirection: 'row', alignItems: 'center', marginTop: spacing[3] },

@@ -26,7 +26,13 @@ export const TAB_BAR_HEIGHT = 64;
 export const TAB_BAR_SHEET_HEIGHT = 560;
 
 // 세로에서 알약이 갖는 상한. 시안의 폭이다.
-const BAR_MAX_WIDTH = 328;
+/**
+ * 접힌 막대와 자란 시트의 폭.
+ *
+ * 🔴 추천 화면의 «코스 바» 도 이 둘을 쓴다 — 그 바는 탭바를 «대신» 서고 같은 동작으로
+ *    자라므로, 폭이 다르면 같은 것으로 안 읽힌다. 숫자를 그쪽에 다시 적지 않는다.
+ */
+export const BAR_MAX_WIDTH = 328;
 // 🔴 가로에서는 이 상한을 쓰지 않는다. 폰을 가로로 돌리면 화면이 829dp 로 넓어지는데
 //    328 짜리 알약이 그대로 남아 «화면 한가운데 떠 있는 막대»로 보이고, 그 아래 글자를 덮는다
 //    (S15P21E201-1245 의 B-09 · 1475). 가로에서는 바닥에 걸친 «띠»가 되는 편이 맞다.
@@ -35,7 +41,7 @@ function barMaxWidth(layoutWidth: number, isLandscape: boolean): number {
   if (!isLandscape) return BAR_MAX_WIDTH;
   return Math.max(BAR_MAX_WIDTH, layoutWidth - spacing[4] * 2);
 }
-const SHEET_MAX_WIDTH = 361;
+export const SHEET_MAX_WIDTH = 361;
 
 /** 늘어나고 줄어드는 데 걸리는 시간. 시안의 .42s cubic-bezier(.34,1.3,.64,1). */
 const GROW_MS = 420;
