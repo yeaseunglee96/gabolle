@@ -54,7 +54,7 @@ describe('「이렇게 반영돼요」', () => {
    * 🔴 답하기 **전에도** 문구가 있어야 한다. 비워 두면 답하는 순간 띠가 나타나면서
    * 카드 높이가 튀고, 눌린 자리가 손가락 아래에서 움직인다.
    */
-  it.each(['areas', 'cats', 'pace', 'moods', 'foods'] as const)('%s — 답이 없어도 문구가 있다', (key) => {
+  it.each(['areas', 'cats', 'pace'] as const)('%s — 답이 없어도 문구가 있다', (key) => {
     expect(effectOf(key, draft, KO)).toBeTruthy();
     expect(effectOf(key, draft, EN)).toBeTruthy();
   });
@@ -73,13 +73,13 @@ describe('「이렇게 반영돼요」', () => {
   });
 
   /** 🔴 선택지가 없는 질문에는 띠를 안 붙인다(시안). 답이 곧 설명이라 한 줄을 더 얹을 이유가 없다. */
-  it.each(['budget', 'move', 'scales', 'aids', 'must'] as const)('%s — 띠가 없다', (key) => {
+  it.each(['budget', 'move', 'aids', 'must'] as const)('%s — 띠가 없다', (key) => {
     expect(effectOf(key, draft, KO)).toBeNull();
   });
 
-  it('🔴 질문 열쇠를 빠뜨리지 않았다 — 열 개 전부 물어본다', () => {
+  it('🔴 질문 열쇠를 빠뜨리지 않았다 — 일곱 개 전부 물어본다', () => {
     const keys = PLAN_QUESTIONS.map((question) => question.key);
-    expect(keys).toHaveLength(10);
+    expect(keys).toHaveLength(7);
     for (const key of keys) {
       // 던져도 안 죽어야 한다. null 은 「띠 없음」이라 정상이다.
       expect(() => effectOf(key, draft, KO)).not.toThrow();
