@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220810139276",
+  "name": "장날추어탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 51651,
+  "researchedAt": "2026-09-21T14:28:35.346Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "추어탕"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "용호골목시장 인근 주택가/골목상권에 위치하여 동네 주민들이 주로 찾는 소박한 식당"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 남구 용호동 동명로152번길 110(용호골목시장 인근)에 위치한 추어탕 전문 식당으로 확인되나, 온라인 리뷰 및 세부 영업 정보(영업시간, 가격, 좌석수 등)는 거의 등록되어 있지 않은 소규모 로컬 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "장날추어탕 주소: 부산광역시 남구 동명로152번길 110. 푸짐한 반찬과 함께 추어탕을 제공하는 식당으로 알려져 있습니다.",
+      "url": "https://cashfeed.co.kr"
+    }
+  ],
+  "sources": [
+    "https://cashfeed.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "푸짐한 반찬과 함께 나오는 소박한 추어탕",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

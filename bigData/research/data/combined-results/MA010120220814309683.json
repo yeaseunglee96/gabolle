@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220814309683",
+  "name": "아노",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47373,
+  "researchedAt": "2026-09-21T13:56:46.482Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 수영구 광안해변로 157) 및 광안리 일대에서 경양식 업종의 '아노' 식당 정보가 전혀 존재하지 않음",
+  "notes": "부산광역시 수영구 광안해변로 157(지번: 광안동 204-4) 주소 및 광안리 일대에서 경양식 업종의 '아노' 상호를 검색하였으나 실제 존재하는 매장 정보가 확인되지 않습니다. (해당 지번에는 과거 토로토로키친 등이 입점했던 기록만 확인됨)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

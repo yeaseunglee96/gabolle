@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220805454591",
+  "name": "주고",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 67583,
+  "researchedAt": "2026-09-21T14:02:21.775Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "수영구 무학로49번길 85 소재의 일식/주점 업체 '주고(JUGO, 인스타그램 @jugo_suyoung)'로 사업자/공공 데이터 및 인근 골목 상권 자료에서 존재가 확인되나, 방문 후기 및 구체적인 메뉴판, 영업시간, 대기 정보 등 상세 정량 정보는 웹상에 상세히 공개되어 있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'주고(Jugo)': 부산광역시 수영구 무학로49번길 85에 위치한 일식당입니다. 인스타그램 계정(@jugo_suyoung)을 통해 운영 소식 등을 공유하고 있으며, 인근의 다른 매장(리볼리 등)과 협업하기도 합니다. '무학로49번길': 부산광역시 수영구 광안동 광안종합시장 인근의 거리입니다. 이 지역에는 '주고' 외에도 럭키베이커리, 신도마켓 등 다양한 상점들이 위치해 있어 핫플레이스로 알려져 있습니다.",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안종합시장 인근 무학로49번길 상권에 위치한 일식당/주점으로 인근 로컬 숍들과 교류하며 운영됨",
+      "type": "운영·접근 편의"
+    }
+  ]
+}

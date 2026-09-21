@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202412A0064140",
+  "name": "더요트",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 38980,
+  "researchedAt": "2026-09-21T14:03:01.400Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객",
+    "parking": true,
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": true,
+    "text": "매일 09:00 ~ 23:00 (요트투어 운영 시간)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "식당이 아닌 요트 투어/대여 업체로 관광객 대상 운영"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "경양식 음식점이 아닌 수영만요트경기장의 요트 투어/대여 레포츠 업체임",
+  "notes": "해운대해변로 84에 위치한 '더요트'는 경양식 식당이 아니며 수영만요트경기장 본관 내에 위치한 요트 투어/대여 레포츠 업체입니다. 일반 음식점으로서의 메뉴 및 식사 영업 실체는 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "더요트(The Yacht)는 부산광역시 해운대구 해운대해변로 84, 수영만요트경기장 본관 1층 107호에 자리 잡고 있는 요트 투어 업체입니다. 퍼블릭 요트 투어(공동 승선) 및 단독 요트 대여 서비스를 제공합니다.",
+      "url": "https://theyacht.co.kr"
+    }
+  ],
+  "sources": [
+    "https://theyacht.co.kr"
+  ]
+}

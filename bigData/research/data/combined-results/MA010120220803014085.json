@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220803014085",
+  "name": "마실가게",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 55214,
+  "researchedAt": "2026-09-21T14:19:47.163Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "소규모 모임, 가족 식사",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생선구이",
+      "회정식",
+      "회무침",
+      "매운탕"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 09:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 중구 자갈치해안로 29-1에 위치한 생선구이 및 해물/회 전문점 마실가게 조사 결과입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "마실가게는 부산광역시 중구 자갈치해안로 29-1(남포동6가 8-3)에 위치한 한식당입니다. 주요 메뉴는 생선구이, 회무침, 회정식, 매운탕, 각종 해산물 등이며, 겉은 바삭하고 속은 촉촉한 생선구이가 인기 있습니다. 주문 시 매운탕이 기본으로 제공되며 1인 1메뉴 주문 시 공기밥 추가가 무료로 제공됩니다. 테이블 4~5개 정도의 아담한 규모로 소규모 모임이나 가족 식사에 적합합니다. 주차는 인근 공영주차장을 이용해야 합니다. 영업시간은 매일 09:00 ~ 22:00입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "겉은 바삭하고 속은 촉촉한 모둠 생선구이와 매운탕 기본 제공 구성의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "생선구이 주문 시 매운탕 기본 제공 및 1인 1메뉴 시 공기밥 무료 제공 혜택",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

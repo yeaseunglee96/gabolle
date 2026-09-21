@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202409A0200572",
+  "name": "스시나우",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 54245,
+  "researchedAt": "2026-09-21T14:05:16.524Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광안동(수영로575번길 11, 이린타워 105호)에 위치한 소규모 초밥/일식당으로 가성비와 친절한 응대 위주로 소개되어 있으나, 상세 메뉴판 및 영업시간 정보는 확인되지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스시나우 주소: 수영로575번길 11 (대한민국) 분류: 음식점, 일식당 및 일정식집, 초밥 특징: 가성비 좋은 초밥과 친절한 응대로 알려져 있습니다.",
+      "url": "https://maptons.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 수영구 수영로575번길 11, 105호 (광안동, 이린타워) 업종: 일식(초밥) 전문점",
+      "url": "https://dorojuso.kr"
+    }
+  ],
+  "sources": [
+    "https://maptons.com",
+    "https://dorojuso.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "가성비 좋은 초밥을 맛볼 수 있는 곳으로 알려짐",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "친절한 매장 응대로 편안하게 식사할 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

@@ -113,6 +113,17 @@ research/data/results/*
 # 🔴 quarantine-*/ 는 그대로 닫아 둔다. 2026-09-09 에 검색 없이 찍어낸 가짜
 #    결과라 값이 없다. 위 규칙이 results/ 만 열므로 자동으로 닫혀 있다.
 
+# combined-results/*.json — price-queue.mjs(S15P21E201-1414)의 체크포인트.
+# 위 results/ 와 같은 이유(웹은 내일 달라지고, 다시 돌면 토큰이 또 든다)로 연다.
+#
+# 🔴 이게 없으면 **여럿이 나눠 돌릴 수 없다.** isDone() 이 이 폴더의 파일 존재로
+#    판정하므로, 한 사람이 이미 한 곳을 다른 사람이 커밋 안 된 상태에서 또 돌리면
+#    토큰이 그대로 두 번 든다. 결과가 이 폴더에 있어야 `git pull` 만으로 남이 한
+#    데를 건너뛴다 (2026-09-21, S15P21E201-760 에서 겪은 것과 같은 모양).
+!research/data/combined-results/
+research/data/combined-results/*
+!research/data/combined-results/*.json
+
 # 예외 셋. data/raw/facility/pages/*.xml — 장애인편의시설 수집본 98쪽(39MB).
 # 위 둘과 같은 방식(`git add -f`)으로 넣었고 LFS 를 쓴다.
 #
@@ -139,3 +150,17 @@ research/data/results/*
 #
 # 🔴 OSM 을 다시 뽑을 때마다 커밋하지 않는다. 위 수집본들과 같은 이유다.
 !data/raw/pbf/poi.ndjson
+
+# 예외 여섯. data/staged/selected-2000.ndjson — 가격+narrative 조사 대상 2,328줄
+# (음식 2,000 + 비식품 328, 1.1MB, 2026-09-21). `process/select-2000.mjs` 의 출력이고
+# 위와 같은 방식(`git add -f`)으로 넣었다. LFS 는 안 쓴다.
+#
+# 🔴 이 파일이 없으면 **누구도 못 돕는다.** 조사(price-queue.mjs, S15P21E201-1414)는
+#    이 파일을 대상 명부로 읽는데, 이걸 다시 만들려면 로그인해서 받아야 하는 원본
+#    (data.go.kr 상가정보, 159,689행)이 또 필요하다. 팀에 그 계정을 가진 사람이
+#    한 명뿐이면 예외 셋(tourapi)·다섯(poi)과 같은 문제가 또 생긴다.
+#
+# 🔴 순위·소속(dong-floor·업종-floor·점수)까지 이 파일에 이미 확정돼 있다. 다시
+#    뽑으면 모델 입력 스냅샷이 조금만 달라져도 순서가 바뀌어 **다른 2,000곳**이 나올
+#    수 있다 — 그러면 이미 한 조사와 안 겹치는지 아무도 모르게 된다. 그래서 이
+#    파일 자체가 "대상 목록의 정본"이고, 대상이 바뀌지 않는 한 다시 커밋하지 않는다.

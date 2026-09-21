@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202406A0137263",
+  "name": "빠뎅오",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 93879,
+  "researchedAt": "2026-09-21T14:05:51.508Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼술객, 소규모 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오뎅",
+      "꼬치"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 서면(부전동)에 위치한 오뎅바(이자카야 형태의 일반음식점)로, 혼술하기 좋은 곳 및 오뎅·꼬치 안주류를 주력으로 운영되는 가게로 확인됩니다. 세부 영업시간, 대기열, 주차 여부 등의 상세 정량 정보는 온라인상 직접적 언급이 제한적입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "빠뎅오는 부산광역시 부산진구 부전동(서면)에 위치한 오뎅바로 서면역에서 도보 약 4분 거리에 위치해 있으며 오뎅 및 다양한 꼬치 메뉴를 주력으로 혼술하기 좋은 장소로 알려져 있습니다. 주소는 부산광역시 부산진구 중앙대로680번가길 80-14 입니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "빠뎅오 기업정보. 위치: 부산 부산진구 중앙대로680번가길 80-14 (부전동). 업종: 주점·음식점. 서면역 인근 오뎅바.",
+      "url": "https://www.jobkorea.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://www.jobkorea.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서면역 인근에서 오뎅과 꼬치를 안주 삼아 혼자 술을 마시거나 가볍게 즐기기 좋다",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

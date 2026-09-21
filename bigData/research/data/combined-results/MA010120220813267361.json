@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220813267361",
+  "name": "오복갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 62898,
+  "researchedAt": "2026-09-21T14:19:53.512Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 정보 없음 또는 폐업/비영업",
+  "notes": "부산 남구 유엔평화로9번길 13에 위치한 '오복갈비'에 대해 4차례 검색을 수행하였으나, 공공/사업자 주소 목록 외에 실제 영업/방문 후기, 메뉴, 가격, 영업시간 등 관련 정보를 찾을 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

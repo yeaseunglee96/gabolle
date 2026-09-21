@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220811425887",
+  "name": "숯부레",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 63539,
+  "researchedAt": "2026-09-21T14:30:03.864Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "저녁 시간대 야외 좌석은 인기가 많아 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "현지인 및 직장인, 친구 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "막창",
+      "양념막창",
+      "갈매기살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 - 23:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "골목 안 노포 야장 감성으로 단골손님과 현지인들이 주로 찾는 막창집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남구 문현동 골목에 위치한 숯불구이/막창 전문 노포로, 야외 야장 테이블과 가성비 막창으로 인기가 높음",
+  "price": {
+    "found": true,
+    "priceMenu": "막창 / 양념막창 / 갈매기살 각 9,500원, 소막창 15,000원",
+    "priceWon": 9500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "문현동 곱창골목에 위치한 노포 감성의 맛집으로, 야외 테이블(야장)에서 숯불에 고기를 구워 먹을 수 있어 인기가 많습니다. 잡내 없이 쫄깃하고 고소한 막창과 숯불 향이 밴 양념막창이 대표 메뉴로, 많은 단골손님을 보유한 현지인 맛집으로 알려져 있습니다. 막창: 9,500원, 양념막창: 9,500원, 갈매기살: 9,500원, 소막창: 15,000원. 매일 16:00~23:00 (연중무휴).",
+      "url": "https://www.facebook.com"
+    },
+    {
+      "excerpt": "골목길에 위치한 노포 감성의 식당으로, 야외 테이블에서 숯불구이를 즐길 수 있어 인기가 많습니다. 막창, 양념막창, 갈매기살, 소막창, LA갈비, 삼겹살, 껍데기 등이 있으며 저녁 시간대에는 웨이팅이 발생할 수 있습니다.",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com",
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "골목 노포 야장 분위기에서 숯불에 구워 먹는 막창·양념막창의 풍미와 식감",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1인분 9,500원 선의 부담 없는 가성비 구이 메뉴 구성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "동네 골목길 야외 테이블에서 즐기는 감성적인 노포 분위기로 현지인 단골 선호",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220806471209",
+  "name": "나우온",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65660,
+  "researchedAt": "2026-09-21T14:04:44.224Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "기장해안로 334 소재 나우온(경양식)에 대한 실제 영업 및 방문 정보 없음 (공공데이터 상호 등록 외 실영업 정보 부재)",
+  "notes": "부산 기장군 기장읍 기장해안로 334(또는 인근 336)의 '나우온'은 지자체 인허가 내역 외에 실제 방문 후기, 메뉴, 영업시간 등의 영업 정보가 웹상에 전혀 존재하지 않거나 일반 대상 영업을 하지 않는 곳으로 확인됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 기장군 기장해안로 334 주소와 관련하여 '나우온'이라는 명칭의 업체나 시설에 대한 정확한 정보는 확인되지 않습니다. 기장군 공공데이터 등에서 기장해안로 336 (연화리 299-4) 관련 상호 등록 외에 일반 상업 시설로서의 상세 영업 정보(메뉴, 운영 시간 등)는 확인되지 않습니다.",
+      "url": "https://www.gijang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.gijang.go.kr"
+  ],
+  "whyPeopleGo": []
+}

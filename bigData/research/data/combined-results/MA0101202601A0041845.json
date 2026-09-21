@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202601A0041845",
+  "name": "이비푸드",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60269,
+  "researchedAt": "2026-09-21T14:05:43.888Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 서면로 5-1에 '이비푸드(EBfood)'라는 상호로 음식 업종 개인사업자가 등록되어 있으나, 오프라인 일반 매장 영업 정보(메뉴판, 가격, 영업시간, 방문자 리뷰, 줄서기 등)는 웹상에 존재하지 않는 등록 사업체입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 이비푸드 (EBfood), 소재지: 부산광역시 부산진구 서면로 5-1, 업종: 음식, 기업 형태: 개인사업자 (빅밸류 데이터 기준)",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

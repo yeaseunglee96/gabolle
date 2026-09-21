@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810104676",
+  "name": "비스포레",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59673,
+  "researchedAt": "2026-09-21T13:56:53.915Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인 및 데이트 고객, 모임 손님",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "클래식 라자냐",
+      "토마토 한개 라자냐",
+      "갈릭 크림치즈 라자냐"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30~22:00 (브레이크타임 15:00~17:00, 연중무휴)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 직접적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영강변과 센텀 야경 전망을 즐길 수 있는 라자냐 전문 이탈리안 레스토랑",
+  "price": {
+    "found": false,
+    "priceMenu": "메뉴별 정확한 원화 가격 미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락수변로239번길 4 (3층). 수영강과 센텀시티, 마린시티의 야경을 감상할 수 있는 뷰 맛집으로 알려진 이탈리안 레스토랑입니다. 대표 메뉴: 클래식 라자냐 (옛 방식 그대로 5시간 이상 졸인 라구 소스에 자연산 치즈를 올린 메뉴) 기타 메뉴: 다양한 종류의 라자냐(핫 스파이스, 온니 치즈, 갈릭&크림치즈 등), 파스타, 리조또, 피자, 스테이크, 샐러드, 수프, 퀘사디아 등",
+      "url": "https://tripinfo.co.kr"
+    },
+    {
+      "excerpt": "부산 수영구에 위치한 비스포레(Bisfore)는 라자냐와 파스타로 유명한 이탈리안 레스토랑입니다. 대표적인 라자냐 메뉴로는 '토마토 한개 라자냐'와 '갈릭 크림치즈 라자냐'가 있습니다. 비스포레는 수영강변의 뷰와 함께 식사를 즐길 수 있는 곳으로 잘 알려져 있습니다.",
+      "url": "https://kroove.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tripinfo.co.kr",
+    "https://kroove.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수영강과 센텀시티, 마린시티의 야경을 감상할 수 있는 탁 트인 전망",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "5시간 이상 졸인 라구 소스와 자연산 치즈를 사용한 클래식 라자냐 등 특색 있는 수제 라자냐 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

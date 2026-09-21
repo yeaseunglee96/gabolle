@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811593695",
+  "name": "남풍횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 64044,
+  "researchedAt": "2026-09-21T14:05:16.310Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도의 대기 줄서기나 웨이팅 시스템에 대한 구체적 언급은 없으며 매장이 넓고 좌석이 많다는 평 위주입니다."
+  },
+  "descriptors": {
+    "audience": "가족 모임 및 단체 관광객, 연인",
+    "generations": 2,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "전복죽",
+      "해산물모둠",
+      "활어회 코스"
+    ],
+    "yearsClaimed": 1979
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 09:30 ~ 21:30 (라스트오더 20:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "기장 연화리 해녀촌 인근 관광객 및 오션뷰 나들이 방문객들이 즐겨 찾는 곳으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "1979년부터 2대째 운영 중인 연화리 해녀촌 인근 횟집으로, 진한 전복죽과 모둠 해산물 구성 및 바다 전망 테라스 좌석으로 유명합니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "전복죽 12,000원 (특 18,000원), 해산물모둠 30,000~40,000원대",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1979년부터 시작되어 45년 이상(2대째) 운영 중인 전통 있는 식당입니다. 전복죽: 진하고 고소한 맛으로 많은 방문객이 찾는 대표 메뉴입니다. 산낙지, 전복회, 소라, 멍게 등 신선한 해산물을 다양하게 즐길 수 있어 가성비가 좋다는 평가가 많습니다. 기장 바다가 보이는 탁 트인 오션뷰를 갖추고 있어 낮술이나 데이트 장소로 인기가 높습니다. 매장이 넓고 좌석이 많아 단체 회식이나 모임 장소로 적합하다는 리뷰가 다수입니다. 영업시간: 매일 09:30 ~ 21:30 (라스트 오더 20:30), 전용 주차장을 갖추고 있어 자차 이용 시 편리합니다.",
+      "url": "https://www.gijang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.gijang.go.kr",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1979년부터 이어져 온 2대째 전통의 노하우",
+      "sources": [
+        0
+      ],
+      "type": "대물림"
+    },
+    {
+      "note": "녹진하고 고소한 전복죽과 신선한 모둠 해산물의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "기장 앞바다가 한눈에 들어오는 오션뷰 테라스와 넓은 주차 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

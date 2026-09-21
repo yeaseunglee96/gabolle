@@ -1,0 +1,45 @@
+{
+  "id": "MA0101202409A0227456",
+  "name": "유안집",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 93064,
+  "researchedAt": "2026-09-21T14:24:28.106Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 동래구 충렬대로181번길 71에 '유안집'(경양식/서양식)으로 상호 등록된 내역은 확인되나, 실제 방문 후기나 메뉴, 가격, 영업시간, 대기 정보 등의 정량 정보는 웹상에 게시된 내용이 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 충렬대로181번길 71에 위치한 '유안집'은 서양식(경양식) 음식점으로 등록되어 있습니다. 다만, 해당 업체에 대한 상세 정보(전화번호 등)는 제한적이거나 업데이트가 필요할 수 있으므로, 방문 전 최신 운영 여부를 확인하시는 것을 권장합니다.",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": []
+}

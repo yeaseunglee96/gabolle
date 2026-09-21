@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202409A0146508",
+  "name": "본가어탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 64438,
+  "researchedAt": "2026-09-21T14:12:02.193Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "어탕",
+      "어탕국수",
+      "어탕수제비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 20:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "민물고기를 갈아 만든 진한 어탕으로 알려진 동네/현지인 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 해운대구 좌동순환로 43-1에 위치한 본가어탕 해운대점 정보 확인 완료. 식당 앞 공영주차장 이용 가능 및 어탕, 어탕국수, 어탕수제비 등의 메뉴를 운영함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 좌동에 위치한 '본가어탕 해운대점'. 위치: 부산광역시 해운대구 좌동순환로 43-1 (1층), 영업시간: 매일 10:00 ~ 20:30, 주요 메뉴: 어탕, 어탕국수, 어탕수제비 등, 식당 앞 공영주차장을 이용할 수 있습니다. 민물고기를 갈아 만든 진한 국물의 어탕으로 알려져 있으며, 현지인 맛집으로도 자주 언급되는 곳입니다.",
+      "url": "https://sparklingwld.com"
+    }
+  ],
+  "sources": [
+    "https://sparklingwld.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "민물고기를 갈아 푹 끓여낸 진하고 구수한 어탕 및 어탕국수·수제비 본연의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "지역 주민들이 식사 및 보양을 위해 꾸준히 찾는 동네 단골 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

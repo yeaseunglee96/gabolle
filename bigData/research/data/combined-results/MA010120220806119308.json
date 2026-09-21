@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220806119308",
+  "name": "스시하루",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 63061,
+  "researchedAt": "2026-09-21T14:01:50.950Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 예약제로 운영되어 줄서기 없이 18:00, 20:00 타임별로 정해진 인원만 방문"
+  },
+  "descriptors": {
+    "audience": "커플, 미식가, 기념일 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "디너 오마카세",
+      "스시 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00~20:00, 20:00~22:00 (예약제 2부제 운영)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 전용 여부에 대한 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "남천동 광안리 인근에 위치한 100% 사전 예약제 스시 오마카세 전문점입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "오마카세 코스 1인",
+    "priceWon": 80000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 남천바다로10번길 19 (1층). 광안리 해수욕장 근처에 위치한 예약제 오마카세 전문점. 100% 예약제로 운영되며, 보통 18:00~20:00와 20:00~22:00 두 타임으로 나뉘어 운영. 가격은 1인당 80,000원. 준영주차장 이용 가능(팀당 1대 1시간 30분 무료).",
+      "url": "https://catchtable.co.kr/sushiharu/"
+    },
+    {
+      "excerpt": "스시하루의 '하루'는 일본어로 '봄'을 의미하며, 예약제로 운영되는 오마카세 전문점입니다. 주로 저녁 시간대에 운영되며, 예약제로만 손님을 받는 경우가 많습니다. 1인당 8만 원대의 오마카세 코스를 제공.",
+      "url": "https://bizno.net/article/0516255195"
+    }
+  ],
+  "sources": [
+    "https://catchtable.co.kr/sushiharu/",
+    "https://bizno.net/article/0516255195"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제철 해산물로 구성된 합리적인 가격대의 고품질 디너 스시 오마카세 코스를 맛보기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 인근에서 100% 사전 예약제로 정해진 타임별 쾌적하고 프라이빗한 식사를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

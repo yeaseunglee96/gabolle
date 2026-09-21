@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220813017546",
+  "name": "대짱",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 49624,
+  "researchedAt": "2026-09-21T14:07:46.081Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 대학생 및 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생연어 사시미",
+      "모듬 사시미"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "경성대·부경대 인근 골목에 위치하여 주로 인근 대학생 및 로컬 주민들이 찾는 이자카야/일식집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 남구 대연동(수영로358번길 28, 서림탕 건물 1층) 경성대·부경대역 인근에 위치했던 일식 이자카야/사시미 전문점으로, 생연어 사시미 및 모듬 사시미 등을 취급하였으나 상세 영업 정보나 리뷰가 매우 희소하며 현재는 영업 정보가 최신화되어 있지 않거나 폐업 가능성이 있음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 남구 대연동(수영로358번길 28)에 위치한 '대짱'은 일식 회와 초밥, 덮밥 등을 전문으로 하는 이자카야입니다. 일본에서 요리를 배운 사장님이 운영하는 곳으로, 정갈한 일식 요리와 술을 즐기기 좋은 분위기로 알려져 있습니다. 모듬 사시미, 생연어 사시미 등의 회 메뉴와 다양한 튀김, 덮밥, 오마카세 코스 등을 제공합니다. 위치는 부산 남구 수영로358번길 28 (서림탕 1층)에 있으며, 경성대·부경대역에서 도보로 약 6분 거리에 있습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "부산 대연동에 위치한 '대짱'은 부경대 인근에서 일본식 요리를 선보였던 주점으로, 과거 생연어 사시미와 독창적인 구이 메뉴 등으로 알려진 곳입니다. 다만, 현재는 영업 정보가 최신화되어 있지 않거나 폐업했을 가능성이 높으므로 방문 전 확인이 필요합니다.",
+      "url": "https://daum.net"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일본에서 요리를 배운 주방장의 정갈한 모듬 사시미와 생연어 사시미 등 일식 안주를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

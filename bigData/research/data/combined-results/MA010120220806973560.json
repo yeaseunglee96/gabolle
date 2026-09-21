@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220806973560",
+  "name": "솔밭횟집꽃게탕",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 59258,
+  "researchedAt": "2026-09-21T14:21:56.869Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기열 관련 구체적 언급 없음. 방문 전 전화 확인 권장 정도만 언급됨."
+  },
+  "descriptors": {
+    "audience": "연인/가족",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "꽃게탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간이 일정치 않고 유동적이어서 방문 전 전화 확인 권장(현재는 해당 위치에 해운대해물칼국수로 업종 변경/폐업된 것으로 확인)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "임랑해수욕장 방문객 및 드라이브 코스로 주로 찾는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "이름은 횟집이지만 회는 하지 않고 꽃게탕 단일 메뉴 전문점으로 운영되었던 곳임. 현재는 같은 주소지에 다른 음식점(해운대해물칼국수)이 영업 중인 것으로 나타나 사실상 폐업/업종변경 상태임.",
+  "price": {
+    "found": true,
+    "priceMenu": "꽃게탕 소 30,000원, 중 45,000원, 대 55,000원, 특대 65,000원",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이름은 '횟집'이지만, 현재는 꽃게탕을 전문으로 하는 식당으로 알려져 있습니다. 임랑해수욕장 인근에 위치해 있어 바다 풍경을 즐기며 식사할 수 있는 곳으로 유명합니다. 꽃게탕 소: 30,000원, 중: 45,000원, 대: 55,000원, 특대: 65,000원. 영업시간이 유동적일 수 있으므로, 방문 전 반드시 전화로 영업 여부를 확인하고 가시는 것을 권장합니다.",
+      "url": "https://menupan.com"
+    },
+    {
+      "excerpt": "과거 '솔밭횟집(솔밭꽃게탕)'이 있던 자리(부산 기장군 장안읍 해맞이로 270)에는 현재 '해운대해물칼국수'가 영업 중입니다.",
+      "url": "https://tripinfo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://menupan.com",
+    "https://tripinfo.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "이름은 횟집이지만 칼칼하고 시원한 꽃게탕 단일 전문점으로 알려져 있고 임랑 바다 풍경을 보며 먹을 수 있어서 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

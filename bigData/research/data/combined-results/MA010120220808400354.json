@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220808400354",
+  "name": "숯놈꼬치구이",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 52568,
+  "researchedAt": "2026-09-21T14:26:09.177Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많은 곳이라 주말 등 피크 시간대에는 웨이팅이 발생할 수 있다는 후기가 확인됨"
+  },
+  "descriptors": {
+    "audience": "직장인, 친구 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "모둠꼬치구이",
+      "꼬치+탕 세트",
+      "명란구이",
+      "쯔꾸네"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 18:00 ~ 02:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 언급을 명시적으로 구분한 구체적 내용은 확인되지 않음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "부산 연제구 연산동(고분로13번길 72)에 위치한 수제 숯불 꼬치구이 전문 이자카야입니다. 세트 메뉴(꼬치+탕) 및 모둠꼬치가 인기 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 연제구 고분로13번길 72. 숯불 향이 살아있는 수제 꼬치구이 전문점입니다. 꼬치와 탕을 함께 즐길 수 있는 세트 메뉴가 인기 있습니다. 다양한 부위의 꼬치류를 맛볼 수 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산 연제구 고분로13번길 72. 영업시간: 매일 18:00 ~ 02:00. 다양한 종류의 수제 꼬치구이가 주력이며, 모둠꼬치 및 꼬치와 식사/탕을 함께 즐길 수 있는 세트 메뉴가 마련되어 있습니다. 별도의 주차 지원은 되지 않으며 주말 등에는 웨이팅이 발생할 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불 향이 배어있는 다양한 수제 꼬치구이와 탕/식사 세트의 맛 때문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주말 등 피크시간 웨이팅이 생길 정도로 인기가 많음",
+      "sources": [
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

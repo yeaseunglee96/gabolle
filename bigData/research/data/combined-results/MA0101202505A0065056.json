@@ -1,0 +1,30 @@
+{
+  "id": "MA0101202505A0065056",
+  "name": "피어",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 57252,
+  "researchedAt": "2026-09-21T14:26:08.477Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 정보 없음 (해당 주소지의 '피어'는 BAR/유흥주점 업종 등록 또는 사업장 명칭으로 파악되며 경양식 식당 정보 없음)",
+  "notes": "부산광역시 연제구 고분로13번길 5에 위치한 '피어'는 경양식 음식점이 아닌 BAR/주점 업종으로 확인되며, 일반 음식점/경양식 맛집으로서의 정보나 메뉴, 후기가 웹상에 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220811445712",
+  "name": "흑송",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 35202,
+  "researchedAt": "2026-09-21T14:03:46.871Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "대기 인원이 많아 현장 등록 또는 테이블링 앱으로 원격 줄서기를 이용함"
+  },
+  "descriptors": {
+    "audience": "관광객 및 가족·연인 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "우엉튀김우동",
+      "냉소바",
+      "후토마키",
+      "돈까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00 ~ 19:30 (라스트 오더 19:20, 브레이크 타임 15:00 ~ 16:00, 매주 월요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송정 해수욕장 앞 오션뷰와 호텔 주방장 출신 일식으로 알려져 관광객과 나들이객 방문이 잦음"
+  },
+  "menuDiversity": {
+    "dishCount": 14,
+    "found": true
+  },
+  "notes": "송정 해변 바다 전망과 튀김우동·소바·초밥·돈가스 메뉴를 갖춘 송정광어골로 일식 전문점",
+  "price": {
+    "found": true,
+    "priceMenu": "우엉튀김우동 7,500원 / 냉소바 7,500원 / 정통 후토마키(4pcs) 5,500원 / 돈까스 단품 7,500원",
+    "priceWon": 7500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "흑송 우동소바 송정본점: 부산 해운대 송정 해수욕장 인근에 위치한 스시·돈가스 전문점으로, 유명 호텔 출신 일식 주방장이 운영하는 곳입니다. 바다 풍경을 감상하며 식사를 할 수 있는 곳으로 잘 알려져 있습니다.",
+      "url": "https://korean.visitkorea.or.kr"
+    },
+    {
+      "excerpt": "대기 인원이 많을 경우 현장 등록 또는 '테이블링' 앱을 통해 대기를 확인하고 미리 접수하는 것을 추천합니다. 매장 맞은편 전용 주차장이 마련되어 있습니다.",
+      "url": "https://stand-time.com"
+    }
+  ],
+  "sources": [
+    "https://korean.visitkorea.or.kr",
+    "https://stand-time.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송정 바다 전망을 감상하며 식사할 수 있는 오션뷰 매장",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "유명 호텔 출신 일식 주방장의 튀김우동과 소바, 스시·돈까스 전문성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "웨이팅이 잦아 테이블링 원격 대기를 활용하는 인기 맛집",
+      "sources": [
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

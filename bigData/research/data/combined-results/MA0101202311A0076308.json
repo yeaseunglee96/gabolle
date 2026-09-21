@@ -1,0 +1,86 @@
+{
+  "id": "MA0101202311A0076308",
+  "name": "부라더연어",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 102850,
+  "researchedAt": "2026-09-21T14:15:00.834Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "친구 모임, 데이트, 혼술 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "연어회",
+      "연어머리구이",
+      "육회",
+      "그라브락스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:00 ~ 04:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 9,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산진구 부전로 119에 위치한 연어 전문 이자카야/술집으로 숙성 연어(그라브락스) 및 세트 메뉴 구성을 제공합니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "연어회(中) 33,000원, 1인 연어회 22,000원, 1인 육회 18,000원",
+    "priceWon": 33000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 서면에 위치한 연어 요리 전문점 '부라더연어'. 서면 지역에서 연어회, 연어머리구이, 육회, 그라브락스(숙성 연어) 등을 전문으로 하는 술집으로 알려져 있습니다. 아담한 매장 분위기로 조용하게 대화를 즐기기 좋다는 평이 있습니다. 영업시간: 매일 17:00 ~ 04:00",
+      "url": "https://www.youtube.com"
+    },
+    {
+      "excerpt": "주요 세트 메뉴: 연어·광어회 + 연어머리구이 + 육회 + 나가사끼짬뽕 + 명란구이 (4~5인분): 88,000원 / 단품: 연어회 (中): 33,000원, 1인 연어회: 22,000원, 1인 육회: 18,000원, 명란크림파스타: 12,000원, 연어머리구이: 12,000원 / 음식이 맛있고 서비스가 친절하다는 평이 많습니다. 인테리어가 깔끔하고 매장이 청결하며, 아늑한 분위기 덕분에 데이트나 혼술/혼밥을 즐기기에도 적합하다는 의견이 있습니다.",
+      "url": "https://www.siksinhot.com/P/1247076"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1247076",
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 연어회와 그라브락스(숙성 연어), 연어머리구이 등 전문적인 연어 요리 메뉴 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "연어회, 육회, 파스타, 짬뽕 등 다양한 안주 세트 구성과 합리적인 가격대",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "아담하고 아늑하며 청결한 매장 분위기로 대화나 데이트, 혼술하기에 적합",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

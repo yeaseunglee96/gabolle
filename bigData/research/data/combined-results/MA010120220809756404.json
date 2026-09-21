@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220809756404",
+  "name": "808웨스트도어",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 53211,
+  "researchedAt": "2026-09-21T14:18:57.481Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 모임, 와인 및 브런치 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "안심 스테이크",
+      "부르스게타",
+      "에그인헬",
+      "파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남구 문현동(전포대로77번길 22)에 위치한 양식당/비스트로로, 스테이크·파스타·부르스게타 등의 메뉴와 와인/맥주를 제공하며 주차 불가 및 노키즈존으로 운영됩니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "안심 스테이크 39,000원, 모짜렐라 치즈 샐러드 16,000원, 새우 샐러드 18,000원, 부르스게타 7,000원",
+    "priceWon": 39000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "808 웨스트도어 (808 Westdoor)는 부산광역시 남구 전포대로77번길 22에 위치한 양식당입니다. 주요 메뉴: 파스타, 스테이크, 리조또, 수제버거, 샌드위치, 부르스게타 등. 특징: 분위기 좋은 공간으로 알려져 있으며, 노키즈존으로 운영됩니다. 주차는 불가합니다. 예약이 가능합니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "안심 스테이크: 39,000원, 모짜렐라 치즈 샐러드: 16,000원, 새우 샐러드: 18,000원, 부르스게타 (아보카도/새우/넛츠 앤 크랜베리): 각 7,000원. 노키즈존으로 운영됩니다. 주차 불가합니다. 예약이 가능합니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "분위기: 주택을 개조한 아늑하고 감성적인 분위기로, 조명과 인테리어가 좋아 데이트나 모임에 적합하다는 평이 많습니다. 대표 메뉴: 에그인헬, 안심 스테이크, 파스타, 리조또 등이 시그니처 메뉴로 자주 언급됩니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감성적인 인테리어와 분위기 속에서 안심 스테이크와 파스타 등 양식 요리를 즐기기 좋음",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주택 개조 인테리어와 조명 등 분위기가 아늑하여 데이트 및 소모임 장소로 선호됨",
+      "sources": [
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

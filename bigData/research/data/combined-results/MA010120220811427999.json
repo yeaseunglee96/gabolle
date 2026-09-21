@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220811427999",
+  "name": "대감집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 78234,
+  "researchedAt": "2026-09-21T14:05:42.695Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주민, 고기 및 찌개 식사객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "대패삼겹살",
+      "돼지갈비",
+      "순두부찌개",
+      "오리불고기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 21:00 (명절 제외 연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "골목 안쪽에 위치한 동네 고기/한식당으로 주로 지역 주민 및 숨은 골목 맛집을 찾는 여행자들에게 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 수영구 광안동(수영로521번길 5-1)에 위치한 한식/돼지고기 전문 식당 '대감집'으로 대패삼겹살, 돼지갈비, 오리요리, 순두부찌개 등을 취급함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "店舗名: テガンチプ（韓国語表記：대감집） 所在地: 釜山広域市 水営区 広安洞 337-20（釜山広域市 水営区 水営路521番キル 5-1） 電話番号: 051-751-5256 営業時間: 12:00～21:00 定休日: 旧正月・旧盆以外は無休 テペサムギョプサル（薄切りサムギョプサル）、骨付きテジカルビ、スンドゥプチゲ、プルコギ、鴨肉料理（オリプルコギ・オリックッパ）など、様々なメニューが紹介されています。",
+      "url": "https://naganoblog.jp"
+    },
+    {
+      "excerpt": "상호명: 대감집 주소: 부산광역시 수영구 수영로521번길 5-1 (광안동 337-20) 전화번호: 051-751-5256",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://naganoblog.jp",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대패삼겹살과 뼈 붙은 돼지갈비, 순두부찌개 등 부담 없이 푸짐하게 즐길 수 있는 고기·식사 메뉴 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안동 골목 안쪽에 위치해 조용히 백반과 고기 구이를 편하게 맛볼 수 있는 점",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

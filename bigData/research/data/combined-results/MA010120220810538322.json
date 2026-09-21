@@ -1,0 +1,51 @@
+{
+  "id": "MA010120220810538322",
+  "name": "송하횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 70594,
+  "researchedAt": "2026-09-21T14:08:25.145Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "하모(갯장어)회",
+      "붕장어회"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "요청된 지번/도로명(송도해변로 163-1) 일대 송도해수욕장 부근(송도해변로 189/암남동)에 위치한 '송하횟집' 정보입니다. 과거 부산일보 보도 등을 통해 송도 일대 갯장어(하모) 전문점으로 알려졌으며, 물기를 꽉 짜서 담백하게 내는 회가 특징으로 소개된 바 있습니다. 영업시간, 메뉴판 가격 등 최신 정량 정보는 미확인 상태입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "송도해수욕장 일대에서 하모 요리로 입에 자주 오르내리는 곳 중 하나로, 붕장어회처럼 물기를 꽉 짜서 담백하게 내놓는 회가 일품이다.",
+      "url": "https://www.busan.com"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송도해수욕장 일대에서 물기를 꼭 짜서 담백하게 내놓는 갯장어(하모) 회 전문점으로 유명함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

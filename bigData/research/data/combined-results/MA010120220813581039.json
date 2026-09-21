@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220813581039",
+  "name": "명품포항물회",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 77730,
+  "researchedAt": "2026-09-21T14:12:10.321Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심시간과 저녁 8시경이 특히 붐비는 편입니다."
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인, 물회 애호가",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "참가자미 물회",
+      "우럭 물회",
+      "참가자미회",
+      "일반모듬",
+      "우럭통마리 매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 신도시 신도초등학교 뒤편에 위치한 동네 물회 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "해운대구 좌동순환로에 위치한 참가자미 및 우럭 물회 전문 횟집",
+  "price": {
+    "found": true,
+    "priceMenu": "참가자미 물회",
+    "priceWon": 18000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "명품포항물회 주소: 부산 해운대구 좌동순환로 41-1 1층 (지번: 좌동 1341-23) 연락처: 051-746-5055 영업시간: 매일 11:00 ~ 22:00 주요 메뉴: 참가자미 물회: 18,000원, 우럭 물회: 16,000원, 참가자미회(소): 60,000원, 일반모듬(소): 40,000원, 우럭통마리 매운탕: 20,000원 주요 정보: 해운대 신도시 신도초등학교 뒤쪽에 위치한 물회 맛집으로, 가자미를 주재료로 한 물회가 유명합니다. 점심시간과 저녁 8시경이 특히 붐비는 편입니다.",
+      "url": "https://osulgil.com"
+    }
+  ],
+  "sources": [
+    "https://osulgil.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참가자미와 우럭을 주재료로 한 시원하고 신선한 물회 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 신도시 신도초등학교 인근에서 식사하기 좋은 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

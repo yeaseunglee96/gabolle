@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202506A0021318",
+  "name": "악비",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 53875,
+  "researchedAt": "2026-09-21T14:05:50.087Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 신천대로62번길 69 주소지의 '악비'(경양식)는 과거 사업자 등록 이력 외에 실제 운영 정보, 메뉴, 후기, 영업시간 등 관련 상세 내용을 확인할 수 없어 미운영/폐업 또는 실체 정보 부족으로 판단됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

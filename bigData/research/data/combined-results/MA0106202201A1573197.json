@@ -1,0 +1,45 @@
+{
+  "id": "MA0106202201A1573197",
+  "name": "만스타",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 57832,
+  "researchedAt": "2026-09-21T13:58:01.254Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산광역시 해운대구 우동1로 6)의 '만스타'는 일반 소비자를 상대로 하는 일식 회/초밥 음식점이 아니며, 외식 프랜차이즈 브랜드 '카가와식당' 등을 운영/컨설팅하는 법인체((주)만스타)로 확인되어 실제 음식점으로서 존재하지 않습니다.",
+  "notes": "해당 주소(우동1로 6)에는 카가와식당(일본식 카레 전문점)이 입점해 있으며, '만스타'는 해당 브랜드의 운영 법인((주)만스타)으로 사업자/법인 명의로만 등록되어 있어 실제 방문 가능한 일식 회/초밥 식당은 아닙니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업체명: 만스타, 업종: 경영 컨설팅업 (신설법인 기준 일식 음식점업으로 등록된 이력 확인됨), 주소: 부산광역시 해운대구 우동1로 6 (우동)",
+      "url": "https://bizk.co.kr"
+    },
+    {
+      "excerpt": "주식회사 만스타((주)만스타)는 부산광역시 해운대구에 본점을 둔 기업으로, 일식 브랜드인 '카가와식당'의 운영사입니다.",
+      "url": "https://fcpartners.co.kr"
+    }
+  ],
+  "sources": [
+    "https://bizk.co.kr",
+    "https://fcpartners.co.kr"
+  ],
+  "whyPeopleGo": []
+}

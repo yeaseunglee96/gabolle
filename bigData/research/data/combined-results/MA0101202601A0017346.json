@@ -1,0 +1,38 @@
+{
+  "id": "MA0101202601A0017346",
+  "name": "뻐끔뻐끔",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 38850,
+  "researchedAt": "2026-09-21T14:05:25.054Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 수영구 수영로607번길 13)에서 '뻐끔뻐끔'(일식 회/초밥) 업소에 대한 실제 운영 정보, 방문 후기, 메뉴, 영업시간 등의 상세 웹 정보를 찾을 수 없습니다.",
+  "notes": "웹 검색 결과 해당 주소(광안시장 인근) 및 상호 관련 실재 음식점 정보 미확인",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

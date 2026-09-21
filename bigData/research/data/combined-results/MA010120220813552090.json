@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220813552090",
+  "name": "천운숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 70215,
+  "researchedAt": "2026-09-21T14:30:21.889Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "돼지양념갈비",
+      "영양솥밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~ 22:00 (영업 종료)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 남구 문현동(고동골로4번길 5)에 위치한 돼지고기 구이 전문점으로 달콤한 돼지양념갈비와 영양솥밥이 대표 메뉴이며 맞은편 공영주차장 지원 및 유아의자 구비 등 가족 단위 식사에 적합한 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가게 맞은편 공영 주차장을 1시간 무료로 이용할 수 있습니다. 유아의자가 준비되어 있고 가족 단위 방문객을 위한 세심한 배려가 있다는 후기가 있습니다. 대표메뉴는 돼지양념갈비, 영양솥밥 등입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "달콤한 양념돼지갈비와 영양솥밥, 냉면의 조화로운 식사 메뉴 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "유아의자 구비 및 맵기 조절 배려 등 가족 외식에 친화적인 응대",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "매장 맞은편 공영주차장 무료 지원으로 편리한 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811469893",
+  "name": "영변횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 45864,
+  "researchedAt": "2026-09-21T14:03:43.442Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 직장인, 관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "세꼬시(넙치)",
+      "도다리 세꼬시",
+      "모듬회"
+    ],
+    "yearsClaimed": 44
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송정해수욕장 관광객 및 오랜 단골들이 찾는 40여 년 전통의 세꼬시 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "요청된 주소인 '부산 해운대구 송정해변로 30' 부근 송정동에 위치하며, 실제 도로명 주소는 '부산 해운대구 송정강변로 15(송정동 297-17)'로 등록되어 운영 중인 40여 년 전통의 세꼬시 전문점입니다. 국내 세꼬시 관련 특허 및 상표 등록 이력이 있는 원조급 식당으로 알려져 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "세꼬시(넙치) 1인분",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "뼈와 함께 먹는 잘게 썬 세꼬시가 특히 유명한 생선회 전문점입니다. 철에 따라 도다리, 광어, 우럭, 돌돔, 농어 등 다양한 활어를 즐길 수 있으며, 회를 주문하면 상을 가득 채우는 다양한 반찬과 해산물이 함께 제공됩니다. 주소: 부산광역시 해운대구 송정강변로 15 (송정동), 영업시간: 11:00 ~ 21:00, 휴일: 연중무휴",
+      "url": "https://www.visitbusan.net/"
+    },
+    {
+      "excerpt": "44년 전통을 자랑하며, 뼈째 썰어 먹는 '세꼬시'가 특히 유명한 곳입니다. 광어, 도다리, 우럭, 돌돔, 농어 등 제철 활어를 사용하며, 세꼬시 전문으로 국내 최초 세꼬시 특허를 보유한 것으로 알려져 있습니다. 세꼬시(넙치) 1인분에 25,000원.",
+      "url": "https://www.menupan.com/restaurant/rest_detail.asp?id=12140"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net/",
+    "https://www.menupan.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "국내 최초 세꼬시 특허를 보유한 44년 전통의 원조 세꼬시 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "원조·최초"
+    },
+    {
+      "note": "뼈째 부드럽게 썬 제철 활어 세꼬시와 푸짐한 해산물 반찬 상차림의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

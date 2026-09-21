@@ -1,0 +1,89 @@
+{
+  "id": "MA0101202505A0039870",
+  "name": "삼공탄",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 46059,
+  "researchedAt": "2026-09-21T14:31:19.953Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 줄서기, 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 회식 객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "양념목갈비",
+      "옛날삼겹살",
+      "숯불 불고기",
+      "양곱창"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "확인 불가"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서동역 인근 돼지고기, 소고기, 양곱창을 함께 즐길 수 있는 동네 로컬 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 금정구 서부로 2, 2층에 위치한 숯불 직화구이 전문점으로, 30일 동안 구운 전용 숯을 사용하며 놀이방 시설과 주차를 지원함",
+  "price": {
+    "found": true,
+    "priceMenu": "불고기 막국수 세트",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 서부로 2, 2층 (서동 203-46) 30일 동안 구운 전용 숯을 사용하여 직화로 고기를 구워내는 숯불직화구이 전문점입니다. 돼지고기, 소고기, 양곱창 등을 한곳에서 즐길 수 있어 로컬 맛집으로 알려져 있습니다. 매장 내 넓은 홀과 아이들을 위한 놀이방이 마련되어 있어 가족 외식이나 단체 회식 장소로 적합합니다. 주차 지원이 가능합니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "숯불에 직접 구워내는 불향 가득한 숯불 불고기와 막국수가 주요 메뉴로 알려져 있습니다. 불고기와 막국수 세트 메뉴 8,000원. 시그니처 메뉴로 양갈비와 숯불 양곱창을 제공하고 있습니다.",
+      "url": "https://facebook.com"
+    },
+    {
+      "excerpt": "삼공탄 / 부산광역시 금정구 서동 / 대표메뉴: 양념목갈비(100g), 옛날삼겹살(100g)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://facebook.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "30일 동안 구운 전용 숯을 사용해 직화로 구워내는 고기와 숯불 불고기 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "넓은 홀과 아이들을 위한 놀이방 완비 및 주차 지원으로 가족 외식·회식에 용이함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "서동 지역 주민들이 돼지고기, 소고기, 양곱창을 함께 즐겨 찾는 동네 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

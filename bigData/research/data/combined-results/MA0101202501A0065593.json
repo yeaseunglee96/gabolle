@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202501A0065593",
+  "name": "솜",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 94323,
+  "researchedAt": "2026-09-21T14:10:00.175Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 기장군 일광읍 일광로 80에 '솜'이라는 상호의 양식/경양식 음식점이 사업자/인허가 데이터베이스 상 등재되어 있으나, 일반 방문 후기, 상세 메뉴, 가격, 영업시간, 줄서기/혼잡도 등의 실제 이용자 기반 상세 정보는 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 기장군 일광읍 일광로 80에 '솜'이라는 상호의 양식경양식 음식점이 위치한 것으로 확인됩니다.",
+      "url": "https://letsmuk.uk"
+    }
+  ],
+  "sources": [
+    "https://letsmuk.uk"
+  ],
+  "whyPeopleGo": []
+}

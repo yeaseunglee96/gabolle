@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220810789977",
+  "name": "정초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 55498,
+  "researchedAt": "2026-09-21T14:24:54.541Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 공무원",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥",
+      "롤",
+      "회 코스요리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산광역시청 인근 공무원 업무추진비 결제 등 인근 직장인/현지인 위주 이용"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 연제구 신촌로 5-4(연산동/시청 인근)에 위치한 일식당으로, 부산시청 공무원 업무추진비 결제 상위권 식당 등으로 언급되며 지역 직장인 모임 장소로 이용됨. 상세 메뉴판 및 영업시간은 온라인상 명시되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "연산동 지역에서 모임 장소로 자주 이용되는 일식당으로 알려져 있습니다. 2025년 기준 부산광역시청 공무원들이 업무추진비로 자주 결제한 식당 상위권(6위)에 오르기도 했습니다. 주로 초밥, 롤, 회 코스요리 등을 제공하는 전문점으로 소개됩니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "정초밥 위치: 부산광역시 연제구 신촌로 5-4",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산시청 인근 공무원 및 직장인들의 회식·모임 장소로 수요가 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

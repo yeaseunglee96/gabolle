@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220807106167",
+  "name": "요이푸드",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 84798,
+  "researchedAt": "2026-09-21T14:29:46.832Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "직장인, 혼술객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "요이 대뱃살",
+      "참다랑어 뱃살모둠",
+      "뱃살세트"
+    ],
+    "yearsClaimed": 2022
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 ~ 01:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "(주)요이푸드 본사 및 요이참치 부산 시청점(본점) 매장입니다. 냉동공장 직거래 및 전용 해동방식으로 뱃살 부위를 전문으로 다루고 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "참치회 뱃살 모듬 (1~2인)",
+    "priceWon": 39800
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "요이참치 부산 시청점 (1층 30평, 2층 15평 / 3인 운영), 주소 ㅣ 부산광역시 연제구 거제천로 121, COPYRIGHT(C)2022 (주)요이푸드/요이참치",
+      "url": "https://yoituna.com/info/company.php"
+    },
+    {
+      "excerpt": "요이참치의 특별한 해동방식으로 색다른 참치맛을 구현했습니다. 참치 냉동공장과 직거래로 품질은 높이고 가격은 낮췄습니다. 뱃살메뉴만 고집하여 최고의 품질의 뱃살을 제공합니다. 참치뿐 아니라 여러 사이드 메뉴로 모든 사람이 즐길 수 있는 요이참치입니다.",
+      "url": "https://yoituna.com/info/company.php"
+    },
+    {
+      "excerpt": "요이참치 부산 시청점 정보: 주소: 부산광역시 연제구 거제천로 121, 영업시간: 16:00 ~ 01:00",
+      "url": "https://yoituna.com/theme/basic/sub/shop_guide.php"
+    }
+  ],
+  "sources": [
+    "https://yoituna.com/info/company.php",
+    "https://yoituna.com/theme/basic/sub/shop_guide.php",
+    "https://yoituna.com/theme/basic/sub/menu.php"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참치 냉동공장과의 직거래를 통해 유통 마진을 줄여 뱃살 부위를 합리적인 가격에 즐길 수 있음",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "자체 특화 해동 방식 적용 및 뱃살 부위만을 선별하여 제공하는 뛰어난 회 퀄리티",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220810178841",
+  "name": "인생참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 68592,
+  "researchedAt": "2026-09-21T14:26:05.959Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 데이트, 기념일 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "참치회 코스(스페셜/로얄)",
+      "새우튀김"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 연제구 중앙대로1150번길 36에 위치한 참치 전문점으로, 1인 스페셜 및 로얄 참치 리필 코스 요리와 사이드 튀김/구이 메뉴를 제공함. 깔끔한 분위기와 친절한 서비스 평이 주를 이룸.",
+  "price": {
+    "found": true,
+    "priceMenu": "1인 스페셜: 33,000원 / 1인 로얄: 43,000원",
+    "priceWon": 33000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스페셜 코스 주문 시 참치, 생새우, 유부초밥, 구이, 새우튀김 등 다양한 구성의 요리를 순서대로 즐길 수 있으며 리필이 가능한 것으로 알려져 있습니다. 입에서 사르르 녹는 참치 식감과 바삭한 새우튀김, 시원한 국물 요리 등에 대한 긍정적인 후기가 있습니다. 깔끔한 매장 분위기와 세심한 서비스(부족한 밑반찬/김 추가 제공 등)로 가족 외식, 데이트, 기념일 등에 선호되는 곳입니다. 주차 가능, 예약 가능.",
+      "url": "https://www.siksinhot.com/P/1608678"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1608678"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "스페셜 코스 주문 시 리필 가능한 질 좋은 참치와 구이, 새우튀김 등 다양한 코스 구성의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부족한 밑반찬과 김 등을 세심하게 챙겨주는 친절한 매장 응대",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

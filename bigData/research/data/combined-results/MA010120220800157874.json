@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220800157874",
+  "name": "로옹",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59384,
+  "researchedAt": "2026-09-21T13:58:48.610Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "별도의 예약은 받지 않으며 방문 순서대로 입장하는 방식으로 운영된다고 함"
+  },
+  "descriptors": {
+    "audience": "연인/관광객/브런치 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "프렌치 어니언 스프",
+      "오렌지 케일 샐러드"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월, 수~금: 08:30 ~ 14:20 / 토~일: 08:30 ~ 14:50 (매주 화요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 바다 전망과 올데이 브런치를 찾는 여행객 및 현지 방문객들이 주로 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "요청된 주소(광안해변로 141)는 협진태양아파트/상가 인근(과거 광안해변로 145 위치)이며, 현재는 수영구 광안로48번길 7, 2층으로 이전하여 운영 중인 브런치 레스토랑 '로옹(RO:ONG)'입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해외에서 다양한 경험을 쌓은 두 요리사가 운영하는 올데이 브런치(All-Day Brunch) 레스토랑입니다. 재즈 음악과 광안리 바다 전망을 즐길 수 있는 공간입니다. 대표 메뉴: 프렌치 어니언 스프, 오렌지 케일 샐러드. 월, 수~금: 08:30 ~ 14:20, 토~일: 08:30 ~ 14:50, 정기 휴무: 매주 화요일. 별도의 예약은 받지 않으며, 방문 순서대로 입장하는 방식으로 운영됩니다. 주차장이 따로 마련되어 있지 않아 근처 유료 주차장을 이용해야 합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해외 경험을 갖춘 셰프들이 만드는 프렌치 어니언 스프 등 수준 높은 올데이 브런치와 바다 전망",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

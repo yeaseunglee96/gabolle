@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202411A0073546",
+  "name": "핑크타이거",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 85897,
+  "researchedAt": "2026-09-21T14:11:08.737Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 부산진구 전포대로256번길 20-6에 위치한 경양식/서양식 일반음식점으로 인허가 데이터베이스 등에 등재되어 있으나, 구체적인 메뉴 구성, 가격, 영업시간, 혼잡도 및 방문 후기는 웹상에 상세히 남아있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 전포대로256번길 20-6 ... 핑크타이거 ... 일반음식점 / 경양식",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,69 @@
+{
+  "id": "MA0101202512A0023887",
+  "name": "마르따",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59047,
+  "researchedAt": "2026-09-21T14:30:15.656Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "점심시간(12~13시)이나 저녁시간(18~20시)에 혼잡할 수 있어 피하거나 사전 확인이 권장됨"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 학생",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "경양식 돈까스",
+      "함박스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "정성스러운 손맛으로 인근 주민들에게 사랑받는 동네 경양식 식당으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 연제구 거제동(신촌로 48)에 위치한 경양식 돈까스 및 함박스테이크 식당. 전용 주차공간이 없어 대중교통 이용 권장. 동일 주소지에 조개구이 전문점(삼바리 부산시청점) 등이 함께 확인되므로 방문 전 영업 여부 확인 필요.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 신촌로 48 (거제동 41-43) ... 마르따: 해당 주소지에 위치한 서양식·경양식 맛집으로 알려져 있습니다. 학생 친화적이며 정성스러운 손맛으로 주민들에게 사랑받는 곳으로 소개되고 있습니다. ... 점심 시간(12~13시)이나 저녁 시간(18~20시)은 혼잡할 수 있으니 가급적 피하거나 미리 확인하시는 것이 좋습니다. 전용 주차 공간이 별도로 마련되어 있지 않으므로 대중교통 이용을 권장합니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정성스러운 손맛과 편안한 분위기로 인근 주민들의 지지를 받음",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "경양식 돈까스와 함박스테이크 등 서양식/경양식 메뉴를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

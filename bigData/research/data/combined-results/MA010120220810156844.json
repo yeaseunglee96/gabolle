@@ -1,0 +1,57 @@
+{
+  "id": "MA010120220810156844",
+  "name": "오뎅무라",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 59973,
+  "researchedAt": "2026-09-21T14:04:11.364Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 애주가",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "오뎅탕",
+      "모듬꼬치"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 재반로 94(재송동 1124-2)에 위치한 소주방·포장마차(이자카야/오뎅바) 형태로 등록된 매장입니다. 상세 영업시간 및 가격표, 혼잡도 관련 상세 방문기는 웹상에서 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 재송동(재반로 94)에 위치한 소주방·포장마차 형태의 음식점입니다. 오뎅무라 (부산 해운대구 재송동): 재송동에 위치한 오뎅바 맛집으로 소개되어 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 해운대구 재반로 94 (지번 주소: 부산광역시 해운대구 재송동 1124-2) 연락처: 051-784-8859 업종: 소주방, 포장마차",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "재송동 골목에서 가볍게 술 한잔 즐기기 좋은 오뎅바·포차 스타일 주점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

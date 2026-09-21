@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202507A0012797",
+  "name": "이조갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 52277,
+  "researchedAt": "2026-09-21T14:16:49.674Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 회식 객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비",
+      "삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 남구 수영로 185(대연동, 못골역 2번 출구 인근)에 위치한 고깃집으로 돼지갈비, 삼겹살, 소고기 및 식사류(된장찌개, 냉면 등)를 판매하며 단체 모임/회식이 가능한 규모의 한식당임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 수영로 185, 1층 (대연동 1758-16) 위치 정보: 지하철 2호선 못골역 2번 출구에서 약 150m 거리(도보 약 3분)에 위치해 있습니다. 영업시간: 매일 11:00 ~ 23:00 돼지갈비, 삼겹살, 소고기(한우) 등을 판매하는 한식당으로, 단체 수용이 가능한 규모로 알려져 있습니다. 주변에 못골주차장(수영로 189) 등 인근 주차 공간을 활용할 수 있습니다.",
+      "url": "https://facebook.com"
+    },
+    {
+      "excerpt": "부산 남구 수영로 185 (대연동) 못골역 2번 출구에서 약 150m 거리에 위치해 있습니다. 업종: 한식 (주요 메뉴: 돼지갈비, 삼겹살, 소고기/한우 등) 된장찌개, 물냉면 등의 식사 메뉴도 함께 제공하고 있습니다. 단체석(100명 수용 가능)을 갖추고 있어 회식이나 단체 모임 장소로도 언급됩니다.",
+      "url": "https://albamon.com"
+    }
+  ],
+  "sources": [
+    "https://facebook.com",
+    "https://albamon.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "못골역 인근에서 넓은 단체석을 갖추고 있어 모임이나 회식 장소로 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "돼지갈비와 삼겹살, 소고기 등 대중적인 고기 구이 메뉴를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
