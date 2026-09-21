@@ -26,6 +26,20 @@
  *
  * 원본이 바뀌면 이 눈금도 낡는다. 그때 이 검사가 **빨갛게 터지는 것이 목적이다.**
  *
+ * ── 🔴 2026-09-18 — 실패하면 숫자를 파일에 안 남긴다 (S15P21E201-1266) ─────
+ *
+ * 검사가 터졌을 때 화면에는 **"위 기대값을 쓰지 마십시오"** 가 같이 뜬다.
+ * 그런데 **그 말은 사라지고 파일은 남았다.** 쓰지 말라고 한 숫자만 살아남는다.
+ *
+ * 실제로 그렇게 커밋된 적이 있다 — 결과 파일이 실측 자리에 자리표시자 **9999**,
+ * 판정 **실패**인 채로 저장소에 들어가 있었다. 스크립트를 안 돌리고 그 파일만 연
+ * 사람은 **"검증이 실패했구나"** 로 읽거나 **낡은 숫자를 맞는 값으로 믿는다.**
+ * 둘 다 오류 없이 사람을 잘못된 결론으로 보낸다.
+ *
+ * 그래서 위의 **"틀린 기대값은 없는 기대값보다 나쁘다"** 를 파일에도 적용한다.
+ * 검증이 틀리면 파일에 **왜 숫자가 없는지만** 남는다. 실패 자체는 숨기지 않는다 —
+ * 화면·종료 코드·파일의 `calibration` 이 셋 다 말한다. **숫자만 안 남긴다.**
+ *
  * 실행
  *   node process/expected-feature-rows.mjs
  *   node process/expected-feature-rows.mjs --json   # 표 대신 JSON 만
@@ -146,7 +160,11 @@ function main() {
     tourApiPlaces: { collected: tour.all, loadedIntoDb: tour.inDb.size, excludedFood: tour.all - tour.inDb.size },
     sbizPlacesInDb: sbizInDb.size,
     calibration: { ...CALIBRATION, computed: sample.expected, ok: calibrated },
-    axes: rows,
+    // 🔴 통과했을 때만 숫자를 넣는다 (S15P21E201-1266). 머리말 참고 —
+    //    화면의 "쓰지 마십시오" 는 사라지고 파일은 남는다.
+    ...(calibrated
+      ? { axes: rows }
+      : { notUsable: '검증 표본이 안 맞아 기대값을 내지 않았다. 경사를 운영에서 다시 세어 CALIBRATION 을 갱신한 뒤 다시 돌리십시오.' }),
   }
 
   fs.mkdirSync(STAGED, { recursive: true })

@@ -3,7 +3,7 @@
  * bigData 파트 검증. 판정은 종료 코드다 (0 성공 / 그 외 실패).
  * 개수를 여기에 적지 않는다 — 늘릴 때마다 낡는다.
  */
-import { readFile, readdir, access, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { readFile, readdir, access, mkdtemp, rm, writeFile, mkdir, copyFile } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -187,6 +187,159 @@ await t('경사 기준선 보정 불변식', async () => {
   if (s.representativeStat?.startsWith('max'))
     throw new Error('대표값이 최댓값이다 — 잡음 표본 하나에 끌려간다')
   ok(`대표값 ${s.representativeStat.split(' ')[0]}`)
+})
+
+await t('기대값은 검증이 통과했을 때만 파일에 남는다 (S15P21E201-1266)', async () => {
+  // 🔴 검증 표본이 틀리면 화면에 "위 기대값을 쓰지 마십시오" 가 뜬다. 그런데 그 말은
+  //    사라지고 파일은 남는다. 실제로 판정 실패·실측 자리에 자리표시자 9999 가 박힌 채
+  //    저장소에 커밋돼 있었다. 스크립트를 안 돌리고 파일만 연 사람은 그것을 믿는다.
+  const dir = await mkdtemp(join(tmpdir(), 'bigdata-expected-'))
+  try {
+    // ① 일부러 검증이 틀어지는 가짜 자료를 깔고 진짜 스크립트를 돌린다
+    await mkdir(join(dir, 'process'), { recursive: true })
+    await mkdir(join(dir, 'data/raw/tourapi'), { recursive: true })
+    await mkdir(join(dir, 'data/staged'), { recursive: true })
+    await copyFile(join(ROOT, 'process/expected-feature-rows.mjs'), join(dir, 'process/expected-feature-rows.mjs'))
+
+    // 관광공사 수집본은 응답 봉투 안에 JSON 이 한 번 더 들어 있는 모양이다
+    const envelope = { response: { body: { items: { item: [{ contentid: 'T1', contenttypeid: '12' }] } } } }
+    await writeFile(
+      join(dir, 'data/raw/tourapi/tourapi-busan.ndjson'),
+      JSON.stringify({ raw: JSON.stringify(envelope) }) + '\n',
+    )
+    // 축 넷 × (관광공사·상가) 한 줄씩. 경사 합계가 2 라 검증 표본과 어긋난다 — 일부러다
+    for (const [name, field] of [
+      ['place-slope', 'slopePercent'], ['place-quietness', 'quietnessScore'],
+      ['place-locality', 'localityScore'], ['place-shade', 'shadeScore'],
+    ]) {
+      await writeFile(join(dir, 'data/staged/' + name + '.ndjson'), JSON.stringify({ contentid: 'T1', [field]: 1 }) + '\n')
+      await writeFile(join(dir, 'data/staged/' + name + '-sbiz.ndjson'), JSON.stringify({ sourceId: 'S1', [field]: 1 }) + '\n')
+    }
+
+    let code = 0
+    try { execFileSync(process.execPath, [join(dir, 'process/expected-feature-rows.mjs')], { stdio: 'pipe' }) }
+    catch (e) { code = e.status }
+    if (code !== 1) throw new Error('검증 표본이 틀렸는데 종료 코드가 ' + code + ' 다 — 1 이어야 한다')
+
+    const made = JSON.parse(await readFile(join(dir, 'data/staged/_expected-feature-rows.json'), 'utf8'))
+    if (made.calibration.ok !== false) throw new Error('판정이 파일에 실패로 안 적혔다')
+    if (made.axes) throw new Error('검증이 틀렸는데 기대값 숫자가 파일에 남았다 — 다음 사람이 그것을 믿는다')
+    if (!made.notUsable) throw new Error('왜 숫자가 없는지가 파일에 안 적혔다')
+    ok('검증 실패 — 종료 코드 1 · 파일에 숫자 없음 · 이유는 적힘')
+
+    // ② 저장소에 커밋된 파일도 판정과 숫자의 짝이 맞아야 한다
+    if (!await has('data/staged/_expected-feature-rows.json')) return ok('기대값 미계산 — 건너뜀')
+    const repo = JSON.parse(await readFile(join(ROOT, 'data/staged/_expected-feature-rows.json'), 'utf8'))
+    if (repo.calibration.ok && !repo.axes) throw new Error('검증은 통과했는데 기대값이 없다')
+    if (!repo.calibration.ok && repo.axes) throw new Error('저장소의 기대값 파일이 실패한 실행의 숫자를 갖고 있다')
+    ok('저장소 파일 — 판정 ' + (repo.calibration.ok ? '통과' : '실패') + ' · 숫자 ' + (repo.axes ? '있음' : '없음') + ' (짝이 맞는다)')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+await t('받은 쪽 세기는 키 없이 돈다 (S15P21E201-1264)', async () => {
+  // 🔴 --status 는 API 를 한 번도 안 부르는데 키 검사가 앞에 있어서, 키 없는 PC 에서는
+  //    "받아 둔 쪽이 멀쩡한가" 를 볼 수조차 없었다. 레인마다 폴더를 따로 펼치면서
+  //    실제로 걸렸다 — .env 는 저장소에 안 올리므로 clone 으로 안 따라온다.
+  //
+  // 🔴 여기서 지키는 것은 **둘**이다. 상태 보기가 키 없이 돌 것, 그리고 **그래도
+  //    실제 수집은 여전히 멈출 것.** 뒤엣것이 없으면 이 고침은 자물쇠를 푼 것이 된다.
+  const dir = await mkdtemp(join(tmpdir(), 'bigdata-facility-'))
+  try {
+    // .env 가 없는 저장소를 흉내낸다. 진짜 수집기를 그대로 복사해 오므로
+    // 이 검사는 사본이 아니라 **지금 이 순간의 수집기**를 돌린다.
+    await mkdir(join(dir, 'collect'), { recursive: true })
+    await mkdir(join(dir, 'lib'), { recursive: true })
+    await mkdir(join(dir, 'data/raw/facility/pages'), { recursive: true })
+    await copyFile(join(ROOT, 'collect/disabled-facility.mjs'), join(dir, 'collect/disabled-facility.mjs'))
+    await copyFile(join(ROOT, 'lib/log.mjs'), join(dir, 'lib/log.mjs'))
+
+    // 받은 척할 한 쪽. 행이 있어야 "받았다" 로 센다 (S15P21E201-1212)
+    await writeFile(
+      join(dir, 'data/raw/facility/pages/page-0001.xml'),
+      '<?xml version="1.0"?><facInfoList><totalCount>3000</totalCount>' +
+        '<servList><faclNm>시험용</faclNm></servList></facInfoList>',
+    )
+    const script = join(dir, 'collect/disabled-facility.mjs')
+
+    // ① 키가 없어도 받은 쪽 수를 낸다
+    const out = execFileSync(process.execPath, [script, '--status'], { encoding: 'utf8' })
+    if (!/받은 페이지 1개 \/ 전체 3개/.test(out)) throw new Error('--status 출력이 기대와 다르다:\n' + out)
+    if (!/남은 페이지 2개/.test(out)) throw new Error('남은 쪽을 안 세었다:\n' + out)
+    ok('키 없이 --status — 받은 1쪽 / 전체 3쪽, 남은 2쪽')
+
+    // ② 그래도 실제 수집은 멈춘다. 여기가 뚫리면 키 없이 호출을 시도하게 된다
+    let code = 0
+    try { execFileSync(process.execPath, [script], { stdio: 'pipe' }) }
+    catch (e) { code = e.status }
+    if (code !== 2) throw new Error('키 없이 수집이 종료 코드 ' + code + ' 로 끝났다 — 2 여야 한다')
+    ok('키 없이 수집 — 종료 코드 2 로 멈춘다')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+await t('쪽이 남았으면 마침 줄이 그렇게 말한다 (S15P21E201-1289)', async () => {
+  // 🔴 -1212 가 donePages() 의 반환을 집합에서 {done, broken} 으로 바꾸면서 마침 줄 쪽을
+  //    안 고쳤다. now.size 가 undefined 가 되고 남은 쪽이 NaN 이 되는데, NaN 은 거짓이라
+  //    if (left) 가 언제나 거짓이 된다 — 쪽이 남아도 "🟢 전량 받았습니다" 로 갔다.
+  //
+  // 🔴 화면의 undefined 보다 그 판정이 나쁘다. 하루 한도가 있는 수집에서 "다 받았다" 는
+  //    거짓말은 사람을 다음 단계로 보낸다.
+  //
+  // 오늘 몫을 0 으로 주면 호출을 한 번도 안 하고 곧장 마침 줄로 간다 — 하루 한도를
+  // 쓰지 않고 "쪽이 남았는데 몫이 떨어진" 상황을 그대로 만들 수 있다.
+  const dir = await mkdtemp(join(tmpdir(), 'bigdata-finish-'))
+  try {
+    await mkdir(join(dir, 'collect'), { recursive: true })
+    await mkdir(join(dir, 'lib'), { recursive: true })
+    await mkdir(join(dir, 'data/raw/facility/pages'), { recursive: true })
+    await copyFile(join(ROOT, 'collect/disabled-facility.mjs'), join(dir, 'collect/disabled-facility.mjs'))
+    await copyFile(join(ROOT, 'lib/log.mjs'), join(dir, 'lib/log.mjs'))
+    // 몫이 0 이라 호출을 안 하므로 이 값은 쓰이지 않는다. 키 검사만 지나가면 된다
+    await writeFile(join(dir, '.env'), 'DATA_GO_KR_KEY=not-used-budget-is-zero\n')
+    // 전체 3쪽 중 1쪽만 받은 상태
+    await writeFile(
+      join(dir, 'data/raw/facility/pages/page-0001.xml'),
+      '<?xml version="1.0"?><facInfoList><totalCount>3000</totalCount>' +
+        '<servList><faclNm>시험용</faclNm></servList></facInfoList>',
+    )
+
+    const out = execFileSync(
+      process.execPath,
+      [join(dir, 'collect/disabled-facility.mjs'), '--budget', '0'],
+      { encoding: 'utf8' },
+    )
+    if (/undefined/.test(out)) throw new Error('마침 줄에 undefined 가 찍혔다:\n' + out)
+    if (!/받은 페이지 1\/3/.test(out)) throw new Error('받은 쪽수를 제대로 안 찍었다:\n' + out)
+    if (!/남은 페이지 2개/.test(out)) throw new Error('남은 쪽을 안 알렸다:\n' + out)
+    if (/전량 받았습니다/.test(out)) throw new Error('쪽이 2개 남았는데 전량 받았다고 말한다:\n' + out)
+    ok('몫 소진 · 1/3 받음 — 남은 2개를 알리고, 전량이라 말하지 않는다')
+    // 🔴 반대쪽 극단. if (left) 는 0 이 아니기만 하면 참이라 음수도 통과한다 —
+    //    파일이 예상보다 많으면 "남은 페이지 -2개" 가 찍힌다.
+    //    전체 건수를 1,000(=1쪽)으로 낮추고 3장을 두면 left 가 -2 가 된다.
+    const page = (n, total) =>
+      writeFile(
+        join(dir, 'data/raw/facility/pages/page-000' + n + '.xml'),
+        '<?xml version="1.0"?><facInfoList><totalCount>' + total + '</totalCount>' +
+          '<servList><faclNm>시험용</faclNm></servList></facInfoList>',
+      )
+    await page(1, 1000)
+    await page(2, 1000)
+    await page(3, 1000)
+
+    const more = execFileSync(
+      process.execPath,
+      [join(dir, 'collect/disabled-facility.mjs'), '--budget', '0'],
+      { encoding: 'utf8' },
+    )
+    if (/남은 페이지 -/.test(more)) throw new Error('받은 것이 전체보다 많은데 남은 쪽을 음수로 말한다:\n' + more)
+    if (/undefined/.test(more)) throw new Error('마침 줄에 undefined 가 찍혔다:\n' + more)
+    ok('전체보다 많이 받았을 때 — 음수를 남은 쪽이라 말하지 않는다')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
 })
 
 console.log(failed ? `\n🔴 ${failed}건 실패` : '\n전부 통과')
