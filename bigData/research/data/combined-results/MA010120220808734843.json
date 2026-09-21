@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220808734843",
+  "name": "금수각",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 32476,
+  "researchedAt": "2026-09-21T22:09:51.413Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심시간 등 피크타임에는 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "현지인·택시기사",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "간짜장",
+      "탕수육",
+      "짬뽕"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 ~ 20:00 (매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 초량 현지인들과 택시 기사들 사이에서 유명한 로컬 노포 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 동구 초량 산복도로 인근에 위치한 30년 경력 화교 셰프의 노포 중식당으로, 불향 가득한 간짜장이 대표 메뉴임",
+  "price": {
+    "found": true,
+    "priceMenu": "간짜장 9,000원, 짜장면/짬뽕/볶음밥 9,000원, 잡채밥 10,000원, 탕수육(소) 28,000원",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 동구 초량로 119에 위치한 금수각은 현지인들과 택시 기사들 사이에서 잘 알려진 노포 중식당입니다. 불향이 가득한 간짜장이 특히 유명하며, 많은 방문객이 추천하는 메뉴입니다. 상당한 오르막길에 위치해 있으며, 별도의 전용 주차장이 없습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "30년 경력 화교 셰프가 운영하는 노포로, 간짜장이 대표 메뉴로 유명합니다. 간짜장 9,000원, 짜장면 / 짜장밥 / 짬뽕 / 볶음밥 / 짬뽕밥 각 9,000원, 잡채밥 10,000원, 삼선류 11,000원, 탕수육 (소) 28,000원. 영업시간 10:30 ~ 20:00 (매주 일요일 정기휴무). 점심시간에는 웨이팅이 있을 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "불향 가득하고 진한 노포 스타일의 간짜장으로 유명함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "초량 현지 주민 및 택시 기사들이 자주 찾는 로컬 중식 맛집임",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "30년 경력의 화교 셰프가 운영해 온 오랜 역사의 노포 중식당임",
+      "sources": [
+        1
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

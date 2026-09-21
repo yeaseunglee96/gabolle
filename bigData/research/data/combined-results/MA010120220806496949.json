@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220806496949",
+  "name": "러브잇",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 35702,
+  "researchedAt": "2026-09-21T22:15:53.929Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 동래구 시실로167번길 16(명장동)에 식품위생업소(제과점영업)로 등록된 '러브잇' 매장으로, 패스오더 및 지자체 인허가 DB에 등록되어 있으나 상세 후기나 영업시간, 가격표 등 온라인 세부 정보는 거의 확인되지 않는 동네 소규모 제과점입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 동래구 시실로167번길 16 (명장동). 식품위생업소(제과점영업) 등록.",
+      "url": "https://passorder.co.kr"
+    }
+  ],
+  "sources": [
+    "https://passorder.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네 골목 소규모 제과점으로 등록되어 있어 기본적인 빵·제과류 구매 목적으로 방문 추정",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

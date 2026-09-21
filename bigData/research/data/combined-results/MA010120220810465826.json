@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220810465826",
+  "name": "해인",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 76168,
+  "researchedAt": "2026-09-21T22:16:18.744Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산 서구 구덕로 328 주소지에 인허가 DB상 경양식 '해인'이 등재되어 있으나, 실제 운영 정보, 메뉴, 방문 후기 등이 전무하여 실체가 없는 가게(또는 폐업)로 확인됨.",
+  "notes": "검색 결과 해당 주소지에 인허가 데이터 외에 실제 운영되는 경양식 음식점으로서의 정보가 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220806335050",
+  "name": "청동숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 126643,
+  "researchedAt": "2026-09-21T22:17:35.618Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "안쪽으로 테이블 좌석이 넉넉하여 대기 줄 없이 착석 가능한 편임"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 지역 주민 단골 및 애주가 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지생갈비",
+      "돼지갈비(양념)"
+    ],
+    "yearsClaimed": 25
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 12시 ~ 오후 11시, 코로나19로 유동적"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "어릴 때부터 찾던 오랜 단골 중심의 영도 현지인 로컬 맛집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 영도구 태종로 347-1(청학동 청학성당 정류장 인근)에 위치한 숯불갈비 전문점으로, 일반적인 돼지양념갈비보다 신선한 돼지생갈비가 특화되어 유명한 로컬 맛집입니다. 전용 주차장을 갖추고 있으며 오랜 현지 단골층이 두텁습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "돼지생갈비 / 돼지갈비(양념)",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "영도에 유명한 갈빗집이 있다. 양념갈비보다는 생갈비를 잘하기로 유명한 곳, 청학동 청동숯불갈비 오늘 한번 가보자. 부산광역시 영도구 태종로 347-1 문의 : 051-417-6980 영업시간 : 오후 12시 ~ 오후 11시, 코로나19로 유동적",
+      "url": "https://kidm.tistory.com/201"
+    },
+    {
+      "excerpt": "건물 옆에 주차장이 있다. 우리는 술을 마실 거라서 차는 두고 왔다. ... 이 집은 직원들이 교육이 잘 됐는지 상당히 친절하고 사장님 역시 친절하다. ... 한 점 집어서 맛보니 맛이 괜찮다. 생갈비 본연의 맛이 느껴지면서 맛있다. ... 아주 예전에 이 집을 알게 되어 어릴 때부터 자주 갔던 기억이 난다. 이집 오랜 단골들은 이야기하더라. 예전만큼 못하다고. 그래도 어쩔? 맛있게 잘 먹었다. 여전하다.",
+      "url": "https://kidm.tistory.com/201"
+    }
+  ],
+  "sources": [
+    "https://kidm.tistory.com/201"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "양념갈비뿐만 아니라 담백하고 질 좋은 돼지생갈비의 차별화된 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "구관 시절부터 어릴 적부터 찾아온 오랜 로컬 단골들의 지속적인 지지",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "25년 전통을 이어오며 지역에서 오랜 역사를 가진 갈빗집",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

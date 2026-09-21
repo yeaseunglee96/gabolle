@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220812758548",
+  "name": "단빵마을",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 42543,
+  "researchedAt": "2026-09-21T22:16:16.944Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 서구 보수대로 236에 위치한 동네 빵집/카페 상호로 식신 등 기본 상권 DB에 등록되어 있으나, 구체적인 가격·영업시간·방문후기 등 정량 정보가 웹상에 거의 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 서구 보수대로 236 (지번: 동대신동3가 222-1) 단빵마을. 업종: 베이커리/제과점. 고소한 빵 향기가 가득한 카페.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

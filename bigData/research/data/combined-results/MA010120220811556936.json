@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220811556936",
+  "name": "잇팅푸드",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 44816,
+  "researchedAt": "2026-09-21T22:09:45.163Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 방문 후기나 정보 없음"
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동구 초량로 80-1 1층에 한식 일반음식점/상가로 등록되어 있으나, 방문 후기나 세부 영업 정보가 온라인상에 존재하지 않는 매장임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 초량로 80-1, 1층 (초량동 824-56 1층) 잇팅푸드(Eating Food)",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

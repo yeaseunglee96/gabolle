@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220810777396",
+  "name": "진선미오리불고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 43698,
+  "researchedAt": "2026-09-21T22:15:42.122Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리불고기",
+      "오리소금구이",
+      "오리백숙",
+      "추어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 영업 시작 (상세 마감시간 및 휴무일 미상세)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "명장동 인근 주민들의 가족 외식 및 회식/단체 모임 장소로 주로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "동래구 명서로 173(명장동)에 위치한 오리불고기 및 추어탕 전문 식당으로 확인됨.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "진선미오리불고기추어탕. 주소: 부산광역시 동래구 명서로 173 (명장동 321-8). 전화번호: 051-527-5292. 대표메뉴: 오리불고기, 오리소금구이, 오리백숙, 추어탕. 향이 좋은 오리불고기 전문점. 백숙 1시간 30분 전 예약 필수. 주차 가능, 가족 외식 및 모임 장소. 11:00 영업 시작.",
+      "url": "https://www.siksinhot.com/P/360216"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/360216"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "향이 좋은 오리불고기와 백숙, 추어탕을 편안하게 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주차가 가능하고 좌식/입식 공간이 마련되어 가족 외식 및 단체 모임에 적합함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

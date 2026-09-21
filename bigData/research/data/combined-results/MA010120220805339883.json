@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220805339883",
+  "name": "화돈가",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 48994,
+  "researchedAt": "2026-09-21T22:17:16.278Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 사업자 등록 이력(화돈가)만 일부 DB에 남아 있을 뿐, 실제 메뉴·가격·영업시간·방문 후기 등 영업 관련 실체 정보를 확인할 수 있는 웹 문서가 존재하지 않으며 현재 동일 주소에는 타 매장이 확인되어 폐업 또는 미운영 상태로 판단됩니다.",
+  "notes": "조사 대상 식당의 실질적인 영업 정보 및 리뷰가 없어 found: false로 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://siksinhot.com",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}
