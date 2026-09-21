@@ -5,7 +5,7 @@ import type { PlanDraft } from '@/plan/PlanProvider';
 
 export type QuestionKey =
   | 'areas' | 'budget' | 'move' | 'cats' | 'pace'
-  | 'moods' | 'scales' | 'foods' | 'aids' | 'must';
+  | 'aids' | 'must';
 
 export type PlanQuestion = {
   key: QuestionKey;
@@ -54,27 +54,6 @@ export const PLAN_QUESTIONS: PlanQuestion[] = [
     hintEn: 'How many places a day feels right.',
     skippable: true,
     answered: (draft) => Boolean(draft.paceLevel),
-  },
-  {
-    key: 'moods', ko: '좋아하는 분위기', en: 'Preferred mood',
-    hintKo: '여러 개 골라도 괜찮아요.',
-    hintEn: 'Pick as many as you like.',
-    skippable: true,
-    answered: (draft) => draft.atmospheres.length > 0,
-  },
-  {
-    key: 'scales', ko: '로컬성 · 조용함 · 관광지', en: 'Local, quiet, touristy',
-    hintKo: '셋 중 하나만 답해도 돼요.',
-    hintEn: 'Answering just one is fine.',
-    skippable: true,
-    answered: (draft) => draft.localityLevel !== null || draft.quietLevel !== null || draft.touristLevel !== null,
-  },
-  {
-    key: 'foods', ko: '음식 취향', en: 'Food preferences',
-    hintKo: '못 먹는 것은 앞에서 받은 조건으로 이미 걸러져요.',
-    hintEn: 'Anything you cannot eat is already filtered out.',
-    skippable: true,
-    answered: (draft) => draft.foods.length > 0,
   },
   {
     key: 'aids', ko: '이번 여행 이동 보조 · 짐', en: 'Mobility aids and luggage',
@@ -139,24 +118,7 @@ export function nextOpenIndex(_draft: PlanDraft, state: QuestionState): number {
   return Math.min(state.open + 1, PLAN_QUESTIONS.length);
 }
 
-/**
- * 열 질문을 세 장으로 — S15P21E201-1377.
- *
- * 🔴 한 질문 = 한 장이면 열 장을 넘겨야 한다. 시안 4·5 는 같은 성격의 질문을 한 장에 모은다.
- *    질문 수·선택지는 그대로고 «장»만 셋이다. 1장은 필수(일정을 만드는 데 꼭 필요한 것),
- *    2·3장은 선택 — 1장이 끝나면 어느 장에서든 만들 수 있다.
- */
-export type PlanPage = { key: 'basics' | 'taste' | 'detail'; ko: string; en: string; subKo: string; subEn: string; questions: PlanQuestion[] };
-
-const byKey = (keys: QuestionKey[]) => keys.map((key) => PLAN_QUESTIONS.find((item) => item.key === key) as PlanQuestion);
-
-export const PLAN_PAGES: PlanPage[] = [
-  { key: 'basics', ko: '기본', en: 'Basics', subKo: '이것만 있으면 일정이 나와요', subEn: 'Enough to build a plan', questions: byKey(['areas', 'budget', 'move']) },
-  { key: 'taste', ko: '취향', en: 'Taste', subKo: '답할수록 내 취향에 가까워져요', subEn: 'Each answer tunes the plan to you', questions: byKey(['cats', 'pace', 'moods', 'scales']) },
-  { key: 'detail', ko: '세부', en: 'Details', subKo: '음식·이동·꼭 갈 곳', subEn: 'Food, mobility, must-visits', questions: byKey(['foods', 'aids', 'must']) },
-];
-
-/** 이 장의 필수 질문 가운데 아직 안 답한 것. 없으면 「다음」으로 갈 수 있다. */
-export function pageMissing(page: PlanPage, draft: PlanDraft): PlanQuestion[] {
-  return page.questions.filter((question) => !question.skippable && !question.answered(draft));
-}
+// 🔴 «장»(page) 묶음은 걷어냈다 — S15P21E201-1425. 시안이 한 화면에 질문 하나씩
+//    보이는 스테퍼로 돌아갔다(필수 3 + 선택 4). 예전 3-장 모델(-1377)은 문항을 열 개까지
+//    한 장에 모으려던 것인데, 문항이 일곱으로 줄면서 장으로 묶을 이유가 사라졌다.
+//    진행은 위 settledCount / nextOpenIndex 가 질문 단위로 그대로 잰다.

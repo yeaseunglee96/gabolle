@@ -65,8 +65,8 @@ export const FOOD_SUBTITLES: Readonly<Record<string, readonly [ko: string, en: s
  * 🔴 「왜 묻는지」를 답한 직후에 보여 주려는 것이다. 답을 안 했을 때도 문구가 있어야 한다 —
  *    빈 자리를 두면 띠가 나타났다 사라지며 카드 높이가 튄다.
  *
- * 🔴 선택지가 있는 질문 다섯에만 붙는다(시안). 예산·척도·보조·꼭 가고 싶은 곳은 답이 곧
- *    설명이라 한 줄을 더 얹을 이유가 없다.
+ * 🔴 선택지가 있는 질문 셋(여행 범위·카테고리·기분)에만 붙는다(시안). 예산·보조·꼭 가고
+ *    싶은 곳은 답이 곧 설명이라 한 줄을 더 얹을 이유가 없다.
  */
 type Tx = (ko: string, en: string) => string;
 
@@ -87,14 +87,6 @@ export function effectOf(key: QuestionKey, draft: PlanDraft, tx: Tx): string | n
         case 'PACKED': return tx('하루 5곳 이상, 이동은 가까운 순으로 붙여요.', '5+ places a day, hops ordered by distance.');
         default: return tx('하루에 도는 장소 수와 머무는 시간이 정해져요.', 'This sets how many places a day and how long you stay.');
       }
-    case 'moods':
-      return draft.atmospheres.length
-        ? tx('고른 분위기의 장소를 저녁·마무리 시간대에 우선 배치해요.', 'Places with your mood go into the evening slots first.')
-        : tx('분위기는 시간대 배치(아침/저녁)에 반영돼요.', 'Mood decides which slot of the day a place goes into.');
-    case 'foods':
-      return draft.foods.length
-        ? tx('점심·저녁 자리는 고른 음식이 있는 곳 근처로 잡아요.', 'Lunch and dinner stops sit near the food you picked.')
-        : tx('식사 시간대의 장소 선택에 반영돼요.', 'This decides where the meal stops go.');
     default:
       return null;
   }
