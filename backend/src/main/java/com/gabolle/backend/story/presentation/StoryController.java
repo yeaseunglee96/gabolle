@@ -68,9 +68,9 @@ public class StoryController {
 			Authentication authentication) {
 		// 피드는 로그인 없이도 볼 수 있다. 익명이면 viewer 가 null 이 되고 StoryFeedService 가 공개 기록만 내보낸다.
 		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
-		StoryFeedResponse body = this.feedService.feed(viewer, scope, sort, cursor, limit);
-		return ResponseEntity.ok().header(FEED_APPLIED_HEADER, sort.name())
-				.body(ApiResponse.success(body, requestId()));
+		StoryFeedService.Feed feed = this.feedService.feed(viewer, scope, sort, cursor, limit);
+		return ResponseEntity.ok().header(FEED_APPLIED_HEADER, feed.applied().name())
+				.body(ApiResponse.success(feed.page(), requestId()));
 	}
 
 	@PostMapping
