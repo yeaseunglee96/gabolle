@@ -618,21 +618,38 @@ export default function ItineraryScreen() {
   //    원본 순서로 세면 초록 ✓ 가 엉뚱한 줄에 붙는다.
   const dayStepStates = stepStates(displayedItems.map((item) => item.id), progress);
   const dayTravelMinutes = useMemo(() => totalTravelMinutes(displayedItems), [displayedItems]);
-  // 값이 없는 칸을 0 으로 세지 않는다. 자료가 있는 칸만 더하므로 이 합계는 「적어도 이만큼」이다.
-  const dayWalkingMeters = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.walkingMeters ?? 0), 0), [displayedItems]);
+  // 🔴 도보도 비용과 같은 모양으로 센다 (S15P21E201-1466). 예전에는 `?? 0` 으로 더해서
+  //    **「모른다」가 「0미터」가 됐고**, 그 뒤 `> 0` 검사가 그것을 「표시하지 않음」으로 바꿨다.
+  //    그래서 대중교통 여행은 도보 표시가 통째로 사라졌다 — 오류도 안내도 없이.
+  //
+  //    서버는 규칙대로다. 이동수단이 WALK 일 때만 도보 거리를 채운다 — 지하철 구간에
+  //    직선거리를 넣으면 「지하철로 이만큼 걸었다」가 되어 틀린 답이 되기 때문이다.
+  //    운영 실측(2026-09-22): 구간 812개 중 대중교통이 796개(98%)다. 즉 **거의 모든
+  //    사용자가** 도보 표시를 못 보고 있었다.
+  const dayWalking = useMemo(() => {
+    const known = displayedItems.filter((item) => typeof item.walkingMeters === 'number');
+    return { meters: known.reduce((sum, item) => sum + (item.walkingMeters as number), 0), known: known.length, total: displayedItems.length };
+  }, [displayedItems]);
+  const dayWalkingMeters = dayWalking.meters;
   // 비용 합계는 아는 칸이 몇 개인지 같이 말한다.
   const dayCost = useMemo(() => {
     const known = displayedItems.filter((item) => typeof item.estimatedCostKrw === 'number');
     return { krw: known.reduce((sum, item) => sum + (item.estimatedCostKrw as number), 0), known: known.length, total: displayedItems.length };
   }, [displayedItems]);
   const dayFacts = useMemo(() => [
-    dayWalkingMeters > 0 ? txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters)) : null,
+    // 아는 칸이 하나도 없으면 숫자를 짓지 않고 **왜 없는지**를 적는다. 조용히 사라지면
+    // 사용자는 그 기능이 있는 줄도 모른다.
+    dayWalking.known === 0
+      ? (displayedItems.length ? tx('도보 거리 미집계', 'Walking distance not measured') : null)
+      : dayWalking.known === dayWalking.total
+        ? txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters))
+        : txf(tx, '도보 %s (%s곳 중 %s곳)', '%s on foot (%s places, %s measured)', formatWalk(dayWalkingMeters), dayWalking.total, dayWalking.known),
     dayCost.krw > 0
       ? dayCost.known === dayCost.total
         ? txf(tx, '%s원', '%s KRW', dayCost.krw.toLocaleString())
         : txf(tx, '%s원 (%s곳 중 %s곳)', '%s KRW (%s places, %s priced)', dayCost.krw.toLocaleString(), dayCost.total, dayCost.known)
       : null,
-  ].filter(Boolean).join(' · '), [dayWalkingMeters, dayCost, tx]);
+  ].filter(Boolean).join(' · '), [dayWalking, dayWalkingMeters, dayCost, displayedItems.length, tx]);
   const canReorder = canEdit && (day?.items.filter((item) => !item.locked).length ?? 0) > 1;
 
   // 지연 경고·314). 날짜를 바꾸면 그 날짜 것을 새로 받는다 — 표본이
@@ -876,8 +893,11 @@ export default function ItineraryScreen() {
   const heroSummary = itinerary ? [
     itinerary.days.length > 0 ? tx(`${itinerary.days.length}일`, `${itinerary.days.length} days`) : null,
     stopCount > 0 ? tx(`${stopCount}곳`, `${stopCount} stops`) : null,
+    // 🔴 여기도 「없음」과 「0」을 가른다. 대중교통 여행은 서버가 이 값을 안 채우므로
+    //    예전에는 이 칸이 조용히 빠졌다 (S15P21E201-1466).
     typeof itinerary.totalWalkingMeters === 'number' && itinerary.totalWalkingMeters > 0
-      ? txf(tx, '도보 %skm', '%skm on foot', (itinerary.totalWalkingMeters / 1000).toFixed(1)) : null,
+      ? txf(tx, '도보 %skm', '%skm on foot', (itinerary.totalWalkingMeters / 1000).toFixed(1))
+      : null,
     typeof itinerary.totalEstimatedCostKrw === 'number' && itinerary.totalEstimatedCostKrw > 0
       ? txf(tx, '약 %s만원', 'about %s KRW', Math.round(itinerary.totalEstimatedCostKrw / 10000 * 10) / 10, itinerary.totalEstimatedCostKrw.toLocaleString()) : null,
   ].filter(Boolean).join(' · ') : '';
@@ -1092,7 +1112,9 @@ export default function ItineraryScreen() {
                 {dayWalkingMeters > 0 ? <View accessibilityLabel={tx(`정차별 도보 비중`, 'Walking share per stop')} style={styles.shareBar}>
                   {displayedItems.map((item) => item.walkingMeters ? <View key={item.id} style={[styles.shareSlice, { flex: item.walkingMeters }]} /> : null)}
                 </View> : null}
-                {dayWalkingMeters > 0 ? <Text variant="caption" color={color.text.body}>{txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters))}</Text> : null}
+                {dayWalking.known > 0
+                  ? <Text variant="caption" color={color.text.body}>{txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters))}</Text>
+                  : <Text variant="caption" color={color.text.muted}>{tx('도보 거리 — 대중교통 구간은 재지 않아요', 'Walking distance — not measured on transit legs')}</Text>}
                 {dayTravelMinutes > 0
                   ? <Text variant="caption" color={color.text.body}>{tx(`이동 합계 ${dayTravelMinutes}분`, `${dayTravelMinutes}m travel in total`)}</Text>
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날짜는 구간 이동 시간이 아직 없어요.', 'No leg travel times for this day yet.')}</Text>}
