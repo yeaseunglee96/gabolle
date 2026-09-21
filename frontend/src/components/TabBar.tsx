@@ -240,14 +240,19 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    alignItems: 'center',
+    // 🔴 alignItems 를 «주지 않는다». 주면 자식의 가로 크기가 내용 기준이 되고, 그러면
+    //    Yoga 가 아래 bar 의 width:'100%' 를 못 풀어 auto 로 떨어뜨린다 — 알약이 탭 다섯의
+    //    «글자 폭»으로만 그려진다. 세로(1080px)에서는 그 값이 화면을 거의 채워 안 보였지만,
+    //    가로(2280px)에서는 38% 짜리 막대가 화면 한가운데 뜬 것처럼 보이고 내용을 덮는다
+    //    (S15P21E201-1475 · 1245 의 B-09). 기본값 stretch 가 제 일을 하게 둔다.
     // 🔴 화면 내용 위에 있어야 한다. 마이페이지가 시트를 열 때 어둠막(20)을 깔므로
     //    그보다 높아야 시트가 가려지지 않는다 — 안 주면 나중에 그린 것이 이긴다.
     zIndex: 30,
   },
   bar: {
-    alignSelf: 'center',
-    width: '100%',
+    // 🔴 폭을 백분율로 적지 않는다. dock 이 left:0·right:0 으로 폭이 정해져 있으므로
+    //    기본 stretch 로 그 폭을 그대로 받고, 좌우 여백만 준다. 백분율은 부모의 가로 크기가
+    //    «자동»이 되는 순간 조용히 auto 로 떨어진다 — 그 자리가 이 결함이었다.
     marginHorizontal: spacing[4],
     overflow: 'hidden',
     backgroundColor: color.surface.card,
