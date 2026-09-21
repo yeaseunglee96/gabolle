@@ -2,7 +2,7 @@
 // 헤더는 화면마다 다르게 만들 것이므로 기본은 꺼둔다.
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform, View } from 'react-native';
@@ -19,10 +19,21 @@ import { OnboardingPreferencesProvider, useOnboardingPreferences } from '@/onboa
 import { PlanProvider } from '@/plan/PlanProvider';
 import { TopNav } from '@/nav/TopNav';
 import { queryClient } from '@/api/queryClient';
+import { attachNotificationNavigation, installNotificationHandler } from '@/notifications/pushToken';
+
+// 앱이 앞에 떠 있을 때도 알림이 보이게 — 모듈이 처음 읽힐 때 한 번(S15P21E201-1429).
+installNotificationHandler();
 
 // 웹에서만 의미가 있다 — 스크린 리더가 어느 언어 발음 규칙을 쓸지, 브라우저가 어느
 // 언어의 맞춤법 검사·번역 제안을 띄울지가 이 값을 본다. 네이티브
 // (iOS/Android)에는 `<html>` 자체가 없어 손댈 대상이 없다.
+// 알림을 누르면 그 주소로(S15P21E201-1429). 서버가 data.href 에 앱 안 주소를 넣어 준다 — 없으면 그냥 앱이 열린다.
+function PushNotificationNavigation() {
+  const router = useRouter();
+  useEffect(() => attachNotificationNavigation((href) => router.push(href as never)), [router]);
+  return null;
+}
+
 function HtmlLangSync() {
   const { language } = useOnboardingPreferences();
   useEffect(() => {
@@ -56,6 +67,7 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
         <OnboardingPreferencesProvider>
           <HtmlLangSync />
+          <PushNotificationNavigation />
           <ApiAvailabilityBanner />
           <BuildInfoBadge />
           <AuthProvider>
