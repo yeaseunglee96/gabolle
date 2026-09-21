@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220813537872",
+  "name": "신호활어회초장",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 28954,
+  "researchedAt": "2026-09-21T22:00:58.223Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "예약 시 대기 시간을 줄일 수 있으며 회센터 초장집 특성상 제철에 붐빔"
+  },
+  "descriptors": {
+    "audience": "가족, 모임, 현지인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 활어회",
+      "매운탕",
+      "청게(가을)"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00 ~ 22:00 (매월 둘째, 넷째 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인들이 자주 찾는 활어회센터 초장집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 강서구 신호산단1로 54에 위치한 신호활어회센터 2층 초장집으로, 1층 활어센터에서 신선한 제철 회를 구입한 후 상차림비와 매운탕을 내고 이용하는 식당입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 강서구 신호산단1로 54, 연락처: 051-973-2988, 영업시간: 10:00 ~ 22:00, 휴무일: 매월 둘째, 넷째 월요일. 특징: 자연산 활어회와 매운탕 등을 제공하며, 포장 및 택배가 가능하고 단체 예약도 가능합니다.",
+      "url": "https://www.youtube.com"
+    },
+    {
+      "excerpt": "신호활어회센터는 일반적인 활어회센터 시스템으로 운영됩니다. 1층 횟집: 원하는 생선을 직접 골라 회를 뜹니다... 2층 초장집: 1층에서 구매한 회를 가지고 올라가 상차림비를 지불하고 식사하는 공간입니다. 매운탕 등을 추가로 주문할 수 있습니다... 현지인들이 자주 찾는 곳으로, 신선한 자연산 활어회를 비교적 합리적인 가격에 즐길 수 있어 만족도가 높습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 자연산 활어회와 제철 해산물(가을 청게 등), 칼칼한 매운탕을 즐기기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1층 수산시장에서 횟감을 골라 2층에서 합리적인 상차림 가격에 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "인근 주민 및 현지인들이 자주 찾는 회센터 초장집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

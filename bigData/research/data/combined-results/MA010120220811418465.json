@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220811418465",
+  "name": "사계절냉면",
+  "cat": "냉면/밀면",
+  "attempts": 1,
+  "geminiTokens": 28431,
+  "researchedAt": "2026-09-21T22:03:06.963Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "냉면",
+      "밀면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30 ~ 21:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 남구 우암동(우암로 216-3 / 우암로 230-1 일대)에 위치한 냉면/밀면 전문점으로, 소 사골 뼈와 8가지 한약재를 고아낸 육수를 특징으로 하는 동네 한식당입니다. 세부 메뉴판 가격 및 대기 정보는 확인되지 않습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "사계절냉면밀면 / 위치: 부산광역시 남구 우암로 230-1 (우암동 181-436) / 소 사골 뼈와 여덟 가지 한약재를 사용하여 오랜 시간 고운 육수를 사용하며, 독특한 맛과 향으로 숙취 해소에 탁월하다고 알려져 있습니다. 운영 시간: 매일 10:30 ~ 21:00, 연락처: 051-643-4269",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "사계절냉면 / 주소: 부산광역시 남구 우암로 216-3 (우암동 184-209) / 전화번호: 051-631-4269 / 업종: 한식(냉면/밀면)",
+      "url": "https://114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://114.co.kr",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "소 사골 뼈와 한약재를 고아낸 독특한 풍미의 육수와 해장 효과",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

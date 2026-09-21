@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220810651211",
+  "name": "왕갈비집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42316,
+  "researchedAt": "2026-09-21T21:59:45.682Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "왕갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 부산진구 복지로 42에 위치한 한식/숯불구이 전문점 '왕갈비집'(051-894-7558) 사업자 및 상가 등록 정보는 확인되나, 블로그 리뷰나 세부 메뉴판, 영업시간, 대기 정보 등 상세한 방문 후기 웹 데이터는 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 왕갈비집, 주소: 부산광역시 부산진구 복지로 42 (개금동), 전화번호: 051-894-7558, 업종: 음식점 (숯불구이 전문)",
+      "url": "https://bizno.net"
+    }
+  ],
+  "sources": [
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": []
+}

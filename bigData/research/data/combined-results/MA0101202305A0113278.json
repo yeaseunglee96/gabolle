@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202305A0113278",
+  "name": "아꾸",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 32231,
+  "researchedAt": "2026-09-21T22:03:05.105Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 남구 장고개로 62)에 '아꾸'라는 베이커리/도넛 매장 실체가 확인되지 않음 (상가 데이터상 휴게음식점으로 단순 등재되어 있으나 실제 영업/후기/메뉴 정보 전무)",
+  "notes": "부산광역시 남구 장고개로 62(우암동) 주소지의 '아꾸' 상호로 검색한 결과, 공공 상가 데이터베이스상 단순 '기타 휴게음식점'으로만 등재되어 있으며, 실제 소비자가 이용 가능한 빵/도넛 베이커리 매장으로서의 영업 정보, 후기, 메뉴, 가격, 영업시간 등의 실질적 정보가 전혀 존재하지 않는 매장입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

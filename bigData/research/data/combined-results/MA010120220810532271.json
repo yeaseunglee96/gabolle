@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220810532271",
+  "name": "하동상회",
+  "cat": "요리 주점",
+  "attempts": 1,
+  "geminiTokens": 30440,
+  "researchedAt": "2026-09-21T22:00:50.956Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 어르신 및 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "콩국수",
+      "불백",
+      "국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "점심 장사 중심 운영"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 어르신들이 즐겨 찾는 소박하고 정겨운 동네 식당으로 관광객보다는 동네 주민 위주"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "과거 슈퍼를 겸했으나 현재는 콩국수, 불백, 국수류 등을 파는 음식점으로 정류장 이름(하동상회)으로 쓰일 정도로 지역에서 잘 알려짐. 하동 출신 주인장이 직접 하동콩을 공수해 만드는 콩국수가 대표적임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "하동이 고향인 주인장이 직접 하동 콩을 공수해 콩국을 만드는 콩국수 맛집으로 알려져 있습니다. 콩국수 외에도 정식, 불백 등의 메뉴를 판매하며, 동네 어르신들이 즐겨 찾는 소박하고 정겨운 분위기의 식당입니다. 예전에는 슈퍼를 겸하기도 했으나 현재는 점심 장사를 중심으로 운영되고 있습니다. 버스정류장 이름이 '하동상회'일 정도로 지역 내에서 잘 알려진 곳이며, 경치가 좋은 곳으로 소개됩니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "하동 출신 사장님이 하동 콩으로 직접 만드는 진한 콩국수와 정식·불백의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "버스 정류장 명칭이 될 정도로 오래 자리 잡은 동네 사랑방 분위기와 주민들의 꾸준한 이용",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

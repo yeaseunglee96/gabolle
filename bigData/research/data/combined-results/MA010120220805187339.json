@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220805187339",
+  "name": "스시현",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 37886,
+  "researchedAt": "2026-09-21T21:59:27.702Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼밥, 인근 주민, 배달 이용객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "개금역 인근 지역 주민들의 배달 및 포장 위주 이용 언급"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 부산진구 복지로8번길 6 미르피아 1층에 위치한 초밥 전문점으로, 개금역 인근에서 포장 및 배달 위주로 이용되는 동네 초밥집으로 확인됨. 세부 메뉴판/정확한 영업시간 등은 검색 범위 내 미노출.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'스시현'은 개금동 지역에서 배달 및 포장 등으로 알려진 초밥집으로 확인됩니다. 개금역 인근에 위치하고 있어 접근성이 좋으며, 지역 주민들에게 초밥 배달 맛집 등으로 언급되곤 합니다.",
+      "url": "https://thinkbread.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 부산진구 복지로8번길 6 (개금동, 미르피아 101호) 스시현",
+      "url": "https://albamon.com"
+    }
+  ],
+  "sources": [
+    "https://thinkbread.co.kr",
+    "https://albamon.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "개금역 역세권에 위치하여 인근 주민들의 배달 및 포장 접근성이 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "깔끔한 맛과 가성비로 동네 초밥 배달 맛집으로 이용됨",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

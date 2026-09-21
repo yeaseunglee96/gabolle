@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811414595",
+  "name": "와우!",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 41640,
+  "researchedAt": "2026-09-21T22:02:37.265Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산 남구 우암로 184-1에 '와우!'라는 상호의 중국집은 존재하지 않음 (해당 주소지는 과거 영진반점 등이 위치했던 곳임)",
+  "notes": "해당 주소(부산광역시 남구 우암로 184-1)에는 '와우!'라는 상호의 중국집이 존재하지 않으며, 관련 웹 기록도 확인되지 않아 조사를 종료합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}
