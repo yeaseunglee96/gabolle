@@ -34,6 +34,73 @@ import { localizeMessage } from '@/i18n/messages';
 
 type Loaded = { state: 'loading' } | { state: 'ready'; result: TripCoursesResult };
 
+/** 접힌 줄의 높이. 제목 한 줄 + 요약 한 줄이라 내용과 무관하게 일정하다 (시안 2절). */
+const COLLAPSED_HEIGHT = 64;
+
+/** 정차지 카드 한 장과 그 사이 연결부의 폭 — 손잡이가 한 번에 옮길 거리를 이 둘로 센다. */
+const STRIP_CARD_WIDTH = 150;
+const STRIP_LINK_WIDTH = 44;
+
+/**
+ * 코스 한 자리 — 카드로 펼쳐져 있거나 한 줄로 접혀 있다. **둘 사이를 잇는다.**
+ *
+ * 🔴 왜 둘 다 띄워 두나. 접힐 때 «펼친 높이» 를 알아야 거기서부터 줄일 수 있는데, 그
+ *    높이는 카드를 실제로 그려 봐야만 안다. 접을 때 카드를 걷어내면 잴 것이 사라져서
+ *    높이가 툭 끊긴다. 그래서 카드는 늘 그려 두고 «보이지 않게» 만 한다.
+ *
+ * 🔴 안 보이는 쪽은 눌리지도, 읽히지도 않아야 한다. 투명도만 0으로 두면 손가락이 안
+ *    보이는 단추를 누르고 화면 읽기 프로그램은 둘 다 읽는다 — 탭바가 시트로 자랄 때
+ *    쓰는 것과 같은 처리다.
+ */
+function CourseSlot({ collapsed, card, row }: { collapsed: boolean; card: React.ReactNode; row: React.ReactNode }) {
+  const [cardHeight, setCardHeight] = useState(0);
+  const anim = useRef(new Animated.Value(collapsed ? 0 : 1)).current;
+  // 높이를 아직 못 쟀으면 애니메이션을 걸지 않는다 — 0에서 시작하면 첫 그림에서 접혔다
+  // 펴지는 것처럼 보인다.
+  const ready = cardHeight > 0;
+
+  useEffect(() => {
+    if (!ready) return;
+    Animated.timing(anim, {
+      toValue: collapsed ? 0 : 1,
+      duration: 420,
+      easing: Easing.bezier(0.34, 1.3, 0.64, 1),
+      // 높이를 바꾸므로 네이티브 드라이버를 못 쓴다.
+      useNativeDriver: false,
+    }).start();
+  }, [collapsed, ready, anim]);
+
+  const height = ready
+    ? anim.interpolate({ inputRange: [0, 1], outputRange: [COLLAPSED_HEIGHT, cardHeight] })
+    : undefined;
+
+  return (
+    <Animated.View style={[styles.slot, ready ? { height } : null]}>
+      <Animated.View
+        pointerEvents={collapsed ? 'none' : 'auto'}
+        accessibilityElementsHidden={collapsed}
+        importantForAccessibility={collapsed ? 'no-hide-descendants' : 'auto'}
+        style={{ opacity: anim }}
+        onLayout={(event) => {
+          const next = Math.round(event.nativeEvent.layout.height);
+          // 접히는 동안에는 재지 않는다 — 줄어드는 높이를 «펼친 높이» 로 기억해 버린다.
+          if (!collapsed && next > 0 && next !== cardHeight) setCardHeight(next);
+        }}
+      >
+        {card}
+      </Animated.View>
+      <Animated.View
+        pointerEvents={collapsed ? 'auto' : 'none'}
+        accessibilityElementsHidden={!collapsed}
+        importantForAccessibility={collapsed ? 'auto' : 'no-hide-descendants'}
+        style={[styles.slotRow, { opacity: anim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+      >
+        {row}
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
 export default function Recommendations() {
   const router = useRouter();
   const { accessToken } = useAuth();
@@ -58,6 +125,8 @@ export default function Recommendations() {
   /** 시트 안에서 지도가 쓸 수 있는 높이 — 넓은 화면과 같은 방식으로 «잰다». */
   const [sheetMapHeight, setSheetMapHeight] = useState(0);
   const stripRef = useRef<ScrollView>(null);
+  /** 스트립이 칸보다 넓은가(넘치는가) · 지금 얼마나 굴렀나 — 둘 다 재서 안다. */
+  const [strip, setStrip] = useState({ view: 0, content: 0, left: 0 });
   const [saved, setSaved] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
@@ -122,6 +191,13 @@ export default function Recommendations() {
   // 무엇을 보고 있는지 알 수 없다.
   useEffect(() => { setSheetOpen(false); setSheetDay(1); setSelectedStopId(''); }, [picked]);
 
+  // 🔴 일차나 코스가 바뀌면 스트립을 **처음으로** 되돌린다. 안 그러면 3일차를 보다가
+  //    1일차로 옮겼을 때 「없는 뒤쪽」을 보고 있게 된다 — 화면은 비었는데 스크롤만 가 있다.
+  useEffect(() => {
+    stripRef.current?.scrollTo({ x: 0, animated: false });
+    setStrip((prev) => ({ ...prev, left: 0 }));
+  }, [picked, sheetDay]);
+
   // 🔴 넓은 화면의 정차지 스트립은 «옆으로» 굴러가는데, 마우스 휠은 «아래로» 굴린다.
   //    그대로 두면 정차지가 많은 날에 뒤쪽 몇 곳을 볼 방법이 트랙패드밖에 없다.
   //    세로 휠을 가로 스크롤로 옮긴다.
@@ -138,6 +214,13 @@ export default function Recommendations() {
     node.addEventListener('wheel', onWheel, { passive: false });
     return () => node.removeEventListener('wheel', onWheel);
   }, [picked, sheetDay, wide]);
+
+  /** 한 번에 카드 두 장만큼 옮긴다 — 시안 3절. */
+  const nudgeStrip = (direction: 1 | -1) => {
+    const step = (STRIP_CARD_WIDTH + STRIP_LINK_WIDTH) * 2;
+    const next = Math.max(0, Math.min(strip.content - strip.view, strip.left + step * direction));
+    stripRef.current?.scrollTo({ x: next, animated: true });
+  };
 
   // 시트 지도는 «고른 하루»만 그린다. 정차지 id 는 `{일차}-{번째}`, 구간 id 는
   // `day-{일차}-leg-{번째}` 라 일차로 거를 수 있다 — 색은 원래 것을 그대로 쓴다.
@@ -201,30 +284,33 @@ export default function Recommendations() {
           // 🔴 고른 뒤에는 나머지를 «한 줄» 로 접는다 — 고른 뒤에 할 일은 그 안을 들여다보는
           //    것이지 다시 견주는 것이 아니다. 지우지는 않는다(다시 고를 길을 남긴다).
           //    아직 아무것도 안 골랐을 때는 셋 다 펼쳐 둔다 — 그때는 견주는 것이 할 일이다.
-          picked && courses.length > 1 && course.id !== picked ? (
-            <CourseRow
-              key={course.id}
-              course={course}
-              selected={false}
-              saved={Boolean(saved[course.id])}
-              onSelect={() => setPicked(course.id)}
-              onToggleSave={() => setSaved((prev) => ({ ...prev, [course.id]: !prev[course.id] }))}
-              tx={tx}
-            />
-          ) : (
-          <CourseCard
+          <CourseSlot
             key={course.id}
-            course={course}
-            index={index}
-            selected={course.id === picked}
-            saved={Boolean(saved[course.id])}
-            onSelect={() => setPicked(course.id)}
-            onToggleSave={() => setSaved((prev) => ({ ...prev, [course.id]: !prev[course.id] }))}
-            onBuild={() => void build(course)}
-            tx={tx}
-            ko={ko}
+            collapsed={Boolean(picked) && courses.length > 1 && course.id !== picked}
+            card={(
+              <CourseCard
+                course={course}
+                index={index}
+                selected={course.id === picked}
+                saved={Boolean(saved[course.id])}
+                onSelect={() => setPicked(course.id)}
+                onToggleSave={() => setSaved((prev) => ({ ...prev, [course.id]: !prev[course.id] }))}
+                onBuild={() => void build(course)}
+                tx={tx}
+                ko={ko}
+              />
+            )}
+            row={(
+              <CourseRow
+                course={course}
+                selected={false}
+                saved={Boolean(saved[course.id])}
+                onSelect={() => setPicked(course.id)}
+                onToggleSave={() => setSaved((prev) => ({ ...prev, [course.id]: !prev[course.id] }))}
+                tx={tx}
+              />
+            )}
           />
-          )
         ))
       )}
     </View>
@@ -232,6 +318,11 @@ export default function Recommendations() {
 
   if (wide) {
     const dayStops = current?.days.find((day) => day.day === sheetDay)?.stops ?? [];
+    // 🔴 4px 은 재는 오차를 넘기기 위한 여유다. 소수점 한 자리 때문에 「넘친다」고
+    //    판정하면 다 보이는 화면에 화살표가 뜬다.
+    const stripOverflows = strip.content > strip.view + 4;
+    const stripPages = stripOverflows && strip.view > 0 ? Math.ceil(strip.content / strip.view) : 0;
+    const stripPage = strip.view > 0 ? Math.round(strip.left / strip.view) : 0;
     return (
       <View style={[styles.shell, styles.shellWide]}>
         <ScrollView style={styles.listPane} contentContainerStyle={styles.listPaneInner}>{list}</ScrollView>
@@ -297,7 +388,18 @@ export default function Recommendations() {
           {/* 아래 스트립 — 고른 일차의 정차지를 **순서대로** 옆으로 세운다.
               지도의 번호와 같은 번호를 달아, 점을 누르든 카드를 누르든 같은 곳이 켜진다. */}
           {dayStops.length ? (
-            <ScrollView ref={stripRef} horizontal showsHorizontalScrollIndicator={false} style={styles.stripPane} contentContainerStyle={styles.strip}>
+            <View style={styles.stripWrap}>
+            <ScrollView
+              ref={stripRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              scrollEventThrottle={16}
+              onLayout={(event) => setStrip((prev) => ({ ...prev, view: Math.round(event.nativeEvent.layout.width) }))}
+              onContentSizeChange={(width) => setStrip((prev) => ({ ...prev, content: Math.round(width) }))}
+              onScroll={(event) => setStrip((prev) => ({ ...prev, left: Math.round(event.nativeEvent.contentOffset.x) }))}
+              style={styles.stripPane}
+              contentContainerStyle={styles.strip}
+            >
               {dayStops.map((stop, index) => {
                 const id = `${sheetDay}-${index + 1}`;
                 const on = id === selectedStopId;
@@ -339,6 +441,38 @@ export default function Recommendations() {
                 );
               })}
             </ScrollView>
+            {/* 🔴 **넘칠 때만** 손잡이와 점을 그린다. 다 보이는데 화살표를 두면 «더 있다» 는
+                거짓말이 된다 — 눌러도 아무 일이 안 일어나서 고장으로 읽힌다. */}
+            {stripOverflows ? (
+              <>
+                {strip.left > 4 ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={tx('앞쪽 정차지 보기', 'Earlier stops')}
+                    onPress={() => nudgeStrip(-1)}
+                    style={({ pressed }) => [styles.stripArrow, styles.stripArrowLeft, pressed && styles.pressed]}
+                  >
+                    <Text weight="bold" color={color.text.onAction}>‹</Text>
+                  </Pressable>
+                ) : null}
+                {strip.left < strip.content - strip.view - 4 ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={tx('뒤쪽 정차지 보기', 'Later stops')}
+                    onPress={() => nudgeStrip(1)}
+                    style={({ pressed }) => [styles.stripArrow, styles.stripArrowRight, pressed && styles.pressed]}
+                  >
+                    <Text weight="bold" color={color.text.onAction}>›</Text>
+                  </Pressable>
+                ) : null}
+                <View style={styles.stripDots}>
+                  {Array.from({ length: stripPages }, (unused, page) => (
+                    <View key={page} style={[styles.stripDot, page === stripPage && styles.stripDotOn]} />
+                  ))}
+                </View>
+              </>
+            ) : null}
+            </View>
           ) : null}
         </View>
       </View>
@@ -492,6 +626,10 @@ export default function Recommendations() {
 }
 
 const styles = StyleSheet.create({
+  // 한 자리 안에서 카드와 접힌 줄이 자리를 바꾼다. 넘치는 것은 잘라야 줄어드는 동안
+  // 카드가 아래 것을 덮지 않는다.
+  slot: { overflow: 'hidden' },
+  slotRow: { position: 'absolute', top: 0, left: 0, right: 0 },
   shell: { flex: 1, backgroundColor: color.canvas },
   // 🔴 넓은 화면만 가로 2단이다. 폰에서 가로로 두면 목록이 600 을 차지해 화면 밖으로 나간다.
   shellWide: { flexDirection: 'row' },
@@ -515,7 +653,20 @@ const styles = StyleSheet.create({
   },
   // 🔴 가로 스크롤은 그냥 두면 «남은 세로» 를 전부 먹는다. 그러면 카드 한 장이 화면
   //    절반 높이로 늘어나고 지도는 그만큼 눌린다. 자기 내용만큼만 차지하게 묶는다.
+  // 손잡이와 점이 스트립 «위에» 얹히는 자리. 스트립 자체는 자기 내용만큼만 차지한다.
+  stripWrap: { flexGrow: 0, flexShrink: 0 },
   stripPane: { flexGrow: 0, flexShrink: 0 },
+  stripArrow: {
+    position: 'absolute', top: '40%',
+    width: 36, height: 36, borderRadius: radius.full,
+    alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy,
+    shadowColor: color.brand.navy, shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 2 },
+  },
+  stripArrowLeft: { left: spacing[2] },
+  stripArrowRight: { right: spacing[2] },
+  stripDots: { flexDirection: 'row', alignSelf: 'center', gap: spacing[1], paddingBottom: spacing[2] },
+  stripDot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.surface.field },
+  stripDotOn: { width: 18, backgroundColor: color.brand.navy },
   strip: { gap: spacing[2], alignItems: 'flex-start', paddingHorizontal: spacing[4], paddingVertical: spacing[4] },
   stripCard: {
     width: 150, gap: spacing[1], padding: spacing[3],
