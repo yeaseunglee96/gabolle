@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220812257680",
+  "name": "우래국밥",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 64441,
+  "researchedAt": "2026-09-21T14:30:58.174Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "주민·시장 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지국밥",
+      "내장국밥",
+      "순대국밥",
+      "수육백반"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서동 시장 인근 골목에 위치하여 주로 동네 주민 및 시장 방문객이 찾는 로컬 식당 형태"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "상호는 '우래식당' 또는 '우래국밥'으로 등록되어 있으며, 부산 금정구 서부로 23-4 (서동) 서동시장 인근에서 돼지국밥, 내장국밥 등을 판매하는 소규모 국밥 전문 식당이다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 서부로 23-4 (서동 174-26). 깊은 맛의 국물과 부드러운 내장으로 알려져 있습니다. 돼지국밥, 내장국밥, 순대국밥, 수육백반 등의 메뉴를 판매합니다. 주차는 불가한 것으로 확인되니 방문 시 참고하시기 바랍니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "우래식당(우래국밥), 주소: 부산광역시 금정구 서부로 23-4 (서동 174-26), 전화번호 051-524-1241, 국밥 전문점",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "깊은 맛의 국물과 부드러운 내장 국밥의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "서동 골목 시장 인근에서 편하게 국밥 한 그릇을 즐길 수 있는 로컬 밥집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

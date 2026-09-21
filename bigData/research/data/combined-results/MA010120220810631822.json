@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220810631822",
+  "name": "신암회센타",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 69180,
+  "researchedAt": "2026-09-21T14:31:08.180Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 부산진구 신암로(범천동 1255-8)에 위치한 횟집 '신암회센타'의 기본 사업자/등록 정보(주소, 전화번호)는 확인되나, 방문자 리뷰 및 상세 영업/메뉴/가격 정보는 온라인상에 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "신암회센타 / 부산광역시 부산진구 범천동 1255-8번지 / 051-893-5382",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}
