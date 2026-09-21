@@ -53,10 +53,33 @@ public class OrToolsRouteOrderAdapter implements RouteOrderPort {
 	private static final Set<String> TRANSIT_MODES = Set.of("BUS", "SUBWAY");
 
 	/**
-	 * 풀이기에게 주는 생각할 시간. 참조 구현이 쓰던 값 그대로다.
-	 * 프로세스를 죽이는 시간보다 반드시 짧아야 한다 — 길면 답을 내는 중에 우리가 먼저 죽인다.
+	 * 풀이기에게 주는 생각할 시간.
+	 *
+	 * <p>🔴 <b>이 값이 곧 실행 시간이다.</b> 예산 중 남는 것을 돌려주지 않는다 —
+	 * {@code solver/route_optimizer.py} 의 탐색 설정에 멈출 조건이 시간 제한 하나뿐이고,
+	 * {@code GUIDED_LOCAL_SEARCH} 는 스스로 멈추지 않기 때문이다. 5000ms 를 주면 5015ms,
+	 * 20ms 를 주면 22ms 가 걸린다. 버그가 아니라 시킨 대로 하는 것이다.
+	 *
+	 * <p>🔴 <b>운영에서 실측했다 (2026-09-22, S15P21E201-1464).</b> 같은 문제를 예산만 바꿔
+	 * 풀려 경로 길이를 견줬다 — <b>250배 더 생각해도 답이 한 톨도 안 좋아진다.</b>
+	 *
+	 * <table>
+	 *   <tr><th>장소</th><th>5000ms</th><th>20ms</th><th>차이</th></tr>
+	 *   <tr><td>5곳</td><td>25,889m</td><td>25,889m</td><td>0.0%</td></tr>
+	 *   <tr><td>8곳</td><td>31,642m</td><td>31,642m</td><td>0.0%</td></tr>
+	 *   <tr><td>12곳</td><td>33,918m</td><td>33,918m</td><td>0.0%</td></tr>
+	 * </table>
+	 *
+	 * <p>첫 해법 전략({@code PARALLEL_CHEAPEST_INSERTION})이 이미 좋은 답을 내고, 우리 크기의
+	 * 문제는 그것이 사실상 최적이다. 그 뒤는 개선 없는 탐색을 반복하는 <b>순수한 대기</b>였다.
+	 *
+	 * <p>🔴 <b>답이 나오는 20ms 를 쓰지 않는 이유.</b> 그 측정은 제약이 느슨한 경우다 —
+	 * 장소가 더 많거나 영업시간·이동수단 제약이 빡빡하면 더 걸릴 수 있다. 300ms 는 지금보다
+	 * 5배 빠르면서 답이 나오는 시점에 15배 여유를 둔 값이다.
+	 *
+	 * <p>프로세스를 죽이는 시간보다 반드시 짧아야 한다 — 길면 답을 내는 중에 우리가 먼저 죽인다.
 	 */
-	private static final long SOLVER_BUDGET_MS = 1_500;
+	private static final long SOLVER_BUDGET_MS = 300;
 
 	/** 이보다 적으면 부르지 않는다. 출발점으로 돌아오는 한 바퀴라 두 곳 이하는 차례가 하나뿐이다. */
 	private static final int MIN_STOPS_TO_REORDER = 3;
