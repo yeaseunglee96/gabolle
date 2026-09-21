@@ -51,6 +51,11 @@ describe('bottom bars clear the floating tab bar', () => {
 
     const recommendations = read('app/trips/[id]/recommendations.tsx');
     expect(recommendations).toContain('bottom: bottomBarClearance(insets.bottom)');
+
+    // 🔴 바는 흐름 밖이라 목록의 마지막 카드를 덮는다. 높이를 «재서» 그만큼 비운다 —
+    //    숫자로 어림하면 글자 크기를 키운 기기에서 또 덮인다 (S15P21E201-1454).
+    expect(recommendations).toContain('setBarHeight(event.nativeEvent.layout.height)');
+    expect(recommendations).toContain('height: barHeight + spacing[2]');
     expect(recommendations).not.toContain('bottom: 96,');
   });
 });
