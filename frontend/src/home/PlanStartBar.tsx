@@ -47,13 +47,41 @@ function monthCells(year: number, month: number): Array<string | null> {
   ];
 }
 
+/** 한 주가 일곱 칸. */
+export const DAYS_IN_WEEK = 7;
+
+/**
+ * 🔴 <b>달력을 주 단위 줄로 묶는다 — S15P21E201-1434.</b>
+ *
+ * <p>전에는 칸을 한 줄에 쏟아 놓고 {@code flexWrap} 으로 접었다. 칸 폭이 {@code 100/7 %}
+ * (14.2857…%)인데 React Native(Yoga)는 칸마다 픽셀 격자에 맞춰 반올림하므로, 올림이 쌓여
+ * 일곱 칸 합이 부모 폭을 넘고 <b>마지막 칸이 다음 줄로 밀린다.</b> 요일 머리는 접히지 않아
+ * 그대로 일곱이 서서, 실기에서 21일(월)이 「목」 칸에 있었다. 웹은 CSS 백분율이라 재현되지
+ * 않는다 — 그래서 눈으로도 자동 검사로도 안 잡혔다.
+ *
+ * <p>줄바꿈에 기대지 않으면 이 문제가 생길 자리가 없다. 한 줄에 일곱 칸을 직접 넣고 칸은
+ * 줄 폭을 나눠 갖는다({@code flex: 1}).
+ *
+ * <p>마지막 주는 빈 칸으로 일곱을 채운다 — 안 채우면 남은 칸들이 늘어나 그 주만 칸이 넓어진다.
+ */
+export function monthWeeks(year: number, month: number): Array<Array<string | null>> {
+  const cells = monthCells(year, month);
+  const weeks: Array<Array<string | null>> = [];
+  for (let index = 0; index < cells.length; index += DAYS_IN_WEEK) {
+    const week = cells.slice(index, index + DAYS_IN_WEEK);
+    while (week.length < DAYS_IN_WEEK) week.push(null);
+    weeks.push(week);
+  }
+  return weeks;
+}
+
 export function MonthGrid({
   year, month, value, today, onPick, tx,
 }: {
   year: number; month: number; value: StartBarValue; today: string;
   onPick: (key: string) => void; tx: (ko: string, en: string) => string;
 }) {
-  const cells = useMemo(() => monthCells(year, month), [year, month]);
+  const weeks = useMemo(() => monthWeeks(year, month), [year, month]);
   const heads = WEEKDAY_HEADS_KO.map((head, index) => tx(head, WEEKDAY_HEADS_EN[index]));
   return (
     <View style={styles.month}>
@@ -66,7 +94,9 @@ export function MonthGrid({
         ))}
       </View>
       <View style={styles.grid}>
-        {cells.map((key, index) => {
+        {weeks.map((week, weekIndex) => (
+        <View key={`week-${weekIndex}`} style={styles.week}>
+        {week.map((key, index) => {
           if (!key) return <View key={`blank-${index}`} style={styles.cell} />;
           const past = key < today;
           const isStart = key === value.startDate;
@@ -94,6 +124,8 @@ export function MonthGrid({
             </Pressable>
           );
         })}
+        </View>
+        ))}
       </View>
     </View>
   );
@@ -670,9 +702,12 @@ const styles = StyleSheet.create({
   month: { flex: 1, gap: spacing[2] },
   monthTitle: { textAlign: 'center' },
   weekHead: { flexDirection: 'row' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  cell: { width: `${100 / 7}%`, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headCell: { width: `${100 / 7}%`, textAlign: 'center' },
+  grid: {},
+  // 🔴 한 줄에 일곱 칸을 직접 넣는다. flexWrap 으로 접으면 폭 반올림 때문에 일곱째 칸이
+  //    다음 줄로 밀려 날짜가 요일과 어긋난다(S15P21E201-1434).
+  week: { flexDirection: 'row' },
+  cell: { flex: 1, height: 40, alignItems: 'center', justifyContent: 'center' },
+  headCell: { flex: 1, textAlign: 'center' },
   cellBetween: { backgroundColor: color.surface.tint },
   cellPicked: { backgroundColor: color.brand.navy, borderRadius: radius.full },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },
