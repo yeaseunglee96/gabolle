@@ -65,8 +65,12 @@ class AccommodationQueryIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("숙소가 없으면 빈 목록이 나온다 - 지금 적재 자료에는 숙소가 없는 것이 사실이다")
+	@DisplayName("숙소를 안 넣었으면 빈 목록이 나온다 — 지어내서 채우지 않는다")
 	void emptyWhenNoAccommodationLoaded() {
+		// 🔴 2026-09-21 정정. 여기 「지금 적재 자료에는 숙소가 없는 것이 사실이다」라고 적혀
+		// 있었다. 그때는 맞았다 — 숙박 65곳의 갈래가 비어 있어 이 조회가 운영에서도 0건이었다.
+		// 지금은 적재가 LODGING 을 채우므로 그 문장은 더 이상 사실이 아니다. 이 시험이 보는 것은
+		// 「자료가 없다」가 아니라 「없으면 없다고 답한다」다.
 		PlacePageResponse page = this.placeSearchService.listByCategories(AccommodationCategories.CODES, 1);
 		assertThat(page.items()).noneMatch(item -> "LODGING".equalsIgnoreCase(item.category()));
 	}
