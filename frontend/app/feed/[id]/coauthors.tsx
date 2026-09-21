@@ -14,6 +14,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { formatDateTime } from '@/i18n/datetime';
 import { getStory, type StoryDto } from '@/social/stories';
 import { addStoryCoauthors, createStoryInvite, listStoryCoauthors, removeStoryCoauthor, type StoryCoauthor } from '@/social/storyCoauthors';
 import { listTripMembers, type TripMember } from '@/trip/collaboration';
@@ -114,7 +115,7 @@ export default function StoryCoauthors() {
 
       {isAuthor && <>
         <Button label={inviting ? tx('초대 링크 만드는 중…', 'Creating invite link…') : tx('초대 링크 만들기', 'Create invite link')} disabled={inviting} onPress={() => void makeInvite()} containerStyle={styles.actionRowButton} />
-        {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{txf(tx, '만료: %s', 'Expires: %s', new Date(invite.expiresAt).toLocaleString(locale))}</Text></View>}
+        {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{txf(tx, '만료: %s', 'Expires: %s', formatDateTime(invite.expiresAt, locale))}</Text></View>}
         {state.story.tripId && <Button label={tx('여행 동행자 추가', 'Add a trip companion')} variant="tertiary" onPress={() => setPickerVisible(true)} containerStyle={styles.actionRowButton} />}
       </>}
     </>}

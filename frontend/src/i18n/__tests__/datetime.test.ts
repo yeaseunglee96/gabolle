@@ -1,4 +1,4 @@
-import { formatClock, formatDayHeading, formatMonthDay, formatNumericDate } from '@/i18n/datetime';
+import { formatClock, formatDateTime, formatDayHeading, formatFullDate, formatMonthDay, formatNumericDate } from '@/i18n/datetime';
 import { toBcp47 } from '@/i18n/languages';
 
 /**
@@ -61,6 +61,16 @@ describe('날짜·시각을 고른 언어에 맞춘다', () => {
     expect(formatNumericDate(DATE, toBcp47('ko'))).toBeTruthy();
   });
 
+  /**
+   * 🔴 초대 링크·공유 일정 만료일이 겪던 것과 같은 자리 — S15P21E201-1399 후속.
+   * `formatDayHeading` 등과 달리 이 둘은 연도를 넣는다(만료일은 올해가 아닐 수 있다).
+   */
+  it('만료일·만료 시각도 연도까지 넣어 언어를 본다', () => {
+    expect(formatFullDate(DATE, toBcp47('ko'))).toContain('2026');
+    expect(formatFullDate(DATE, toBcp47('ja'))).not.toMatch(/Sep/);
+    expect(formatDateTime(TIME, toBcp47('ko'))).toContain('2026');
+  });
+
   describe('못 읽는 값에 지어내지 않는다', () => {
     it('날짜가 아니면 null 이다 — 부르는 쪽이 「n일차」로 대신한다', () => {
       expect(formatDayHeading('내일쯤', 'ko-KR')).toBeNull();
@@ -102,6 +112,8 @@ describe('날짜·시각을 고른 언어에 맞춘다', () => {
         expect(formatMonthDay(DATE, toBcp47('zh-Hant'))).toBe(DATE_OUT);
         expect(formatNumericDate(DATE, toBcp47('zh-Hant'))).toBe('9.20');
         expect(formatClock(TIME, toBcp47('zh-Hant'))).toBe('14:30');
+        expect(formatFullDate(DATE, toBcp47('zh-Hant'))).toBe('2026. 09. 20.');
+        expect(formatDateTime(TIME, toBcp47('zh-Hant'))).toBe('2026. 09. 20. 14:30');
       });
     });
 
