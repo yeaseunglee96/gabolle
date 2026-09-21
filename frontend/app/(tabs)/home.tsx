@@ -327,8 +327,9 @@ export default function Home() {
           onPress={() => setAssistantOpen((open) => !open)}
           style={({ pressed }) => [styles.assistantButton, pressed && styles.pressed]}
         >
-          {/* 위아래로 흔들리지 않는다 — 단추는 가만히 있어야 단추다(2026-09-21 지적). */}
-          <GabolleMascot state="idle" still style={styles.assistantMascot} />
+          {/* 위아래로 흔들리지 않는다 — 단추는 가만히 있어야 단추다(2026-09-21 지적).
+              눌러서 메뉴가 열린 동안은 >.< 표정 — 「눌렸다」를 얼굴로 말한다(S15P21E201-1430). */}
+          <GabolleMascot state={assistantOpen ? 'thinking' : 'idle'} still style={styles.assistantMascot} />
           {/* 시안 5 Home — 흰 원 위의 동백이, 오른쪽 위에 작은 「AI」 표. 원이 있어야 사진 위에서도 눌리는 것으로 보인다(S15P21E201-1381). */}
           <View style={styles.assistantBadge}><Text variant="micro" weight="bold" color={color.action.outline}>AI</Text></View>
         </Pressable>

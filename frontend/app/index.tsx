@@ -255,7 +255,8 @@ export default function Welcome() {
         {/* 부제는 메뉴에 실제로 있는 것을 적는다. 전에는 「일정 · 통역 · 여행 도움」이라고
             적어 두고 챗봇 한 곳으로만 갔다 — 셋을 약속하고 하나만 줬다. */}
         <View style={styles.webAssistantLabel}><Text variant="body" weight="bold">{tx('AI에게 물어보기', 'Ask AI')}</Text><Text variant="caption" color={color.text.muted}>{assistantSubtitle(tx)}</Text></View>
-        <GabolleMascot state="idle" style={styles.webAssistantMascot} />
+        {/* 메뉴가 열린 동안 >.< — 폰과 같은 규칙(S15P21E201-1430). 흔들리지 않는다. */}
+        <GabolleMascot state={assistantOpen ? 'thinking' : 'idle'} still style={styles.webAssistantMascot} />
       </Pressable>
     </View>
     <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
