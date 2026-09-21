@@ -38,6 +38,19 @@
  *                 --intent "가격조사 청크14 (650~699)" --ttl 30m
  *   `axmap status` 로 지금 누가 몇 번을 잡고 있는지 본 뒤, 안 잡힌 번호로 시작한다.
  *   청크 안에서도 isDone() 은 그대로 적용된다 — 이미 끝난 곳은 건너뛴다.
+ *
+ * 🔴 Gemini 5시간 할당량이 막혔을 때 — --model (2026-09-22)
+ *   node research/price-queue.mjs --chunk 9 --model claude-sonnet-4-6
+ *
+ *   Gemini(5시간 단위)와 Claude·GPT-OSS(주간 단위, agy `models` 목록 참고)는 **완전히
+ *   다른 할당량**이다. 하나가 막혀도 다른 쪽으로 계속 돌 수 있다. 단 gemini-3.8-flash-low
+ *   만 --effort 를 받는다 — 다른 모델에 그 옵션을 붙이면 "충돌한다" 며 그 자리에서
+ *   죽는다(이 코드가 모델 이름을 보고 알아서 뺀다). Sonnet 은 "생각하는" 모델이라
+ *   한 곳에 최대 177초까지 걸린 실측이 있어 타임아웃도 늘려 둔다.
+ *
+ *   agy 헤드리스로 gpt-oss-120b 를 부르면 이 저장소를 실측한 밤에는 서버 쪽
+ *   "capacity 없음"(503, 재시도 가능)으로 두 번 다 실패했다 — 모델 자체가 아니라
+ *   그 순간 서버 사정일 수 있으니, 막히면 다른 모델로 바꾸거나 나중에 다시 시도한다.
  */
 import { execFile } from "node:child_process";
 import fs from "node:fs";
@@ -55,10 +68,16 @@ const SCHEMA = path.join(HERE, "price-schema.json");
 const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
 const num = (n, d) => { const i = argv.indexOf(n); return i < 0 ? d : Number(argv[i + 1]); };
+const str = (n, d) => { const i = argv.indexOf(n); return i < 0 ? d : argv[i + 1]; };
 const LIMIT = num("--limit", 60);
 const CONCURRENCY = num("--concurrency", 6);
 const CHUNK_SIZE = num("--chunk-size", 50);
 const CHUNK = num("--chunk", null); // 1부터. 안 주면 예전처럼 전체에서 순서대로 돈다
+
+// 🔴 2026-09-22 — Gemini 5시간 할당량이 막힌 동안 다른 모델로 이어가려고 추가했다.
+// gemini-3.8-flash-low 만 --effort 를 받는다 — 다른 모델에 붙이면 "충돌한다" 며 죽는다.
+const MODEL = str("--model", "gemini-3.8-flash-low");
+const IS_GEMINI = MODEL.startsWith("gemini");
 
 function scopedTargets(all) {
   if (CHUNK == null) return all;
@@ -141,12 +160,18 @@ found:false 로 넘기고 다음으로 간다 — 완벽하게 채우는 것보�
 
 async function callAgy(t, timeoutMs) {
   const prompt = buildPrompt(t);
+  const args = ["--model", MODEL];
+  if (IS_GEMINI) {
+    // 🔴 effort low — 1부(narrative 조사) 실측에서 토큰 -22%·시간 -41%, 되찾음률은
+    // 거의 그대로였다(인수인계 문서 1.6절). Gemini 만 이 옵션을 받는다 — 다른 모델에
+    // 붙이면 "--model 과 충돌한다" 며 그 자리에서 죽는다(2026-09-22 실측).
+    args.push("--effort", "low");
+  }
+  args.push("--dangerously-skip-permissions", `-p=${prompt}`, "--json-schema", SCHEMA, "--output-format", "json");
   return new Promise((resolve) => {
     execFile(
       "agy",
-      // 🔴 effort low — 1부(narrative 조사) 실측에서 토큰 -22%·시간 -41%, 되찾음률은
-      // 거의 그대로였다(인수인계 문서 1.6절). 지금까지는 이 옵션을 빼먹고 돌리고 있었다.
-      ["--model", "gemini-3.8-flash-low", "--effort", "low", "--dangerously-skip-permissions", `-p=${prompt}`, "--json-schema", SCHEMA, "--output-format", "json"],
+      args,
       { maxBuffer: 16 << 20, timeout: timeoutMs },
       (err, stdout) => {
         if (err) return resolve({ ok: false, err: String(err.message || err).slice(0, 300) });
@@ -170,7 +195,10 @@ async function callAgy(t, timeoutMs) {
  * 넉넉히(220s) 주고 한 번만 시도한다.
  */
 async function runOne(t) {
-  const r = await callAgy(t, 220000);
+  // Gemini 는 220초, "생각하는" 모델(Sonnet 등)은 실측으로 한 곳에 177초까지 걸려
+  // 여유를 더 준다(280초) — 안 그러면 느린 모델이 끝나기도 전에 타임아웃으로
+  // found:null 처리돼 다음 실행에서 처음부터 다시 돈다.
+  const r = await callAgy(t, IS_GEMINI ? 220000 : 280000);
   const out = r.ok
     ? { id: t.id, name: t.name, cat: t.cat, attempts: 1, geminiTokens: r.geminiTokens,
         researchedAt: new Date().toISOString(), ...r.structured }
