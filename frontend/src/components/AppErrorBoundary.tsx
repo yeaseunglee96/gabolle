@@ -7,7 +7,7 @@ import { color, gutter, radius, spacing } from '@/design/tokens';
 import { Button } from './Button';
 import { Text } from './Text';
 
-// 에러 경계는 React가 클래스 컴포넌트로만 만들 수 있게 해서 useI18n() 훅을 못 쓴다.
+// 에러 경계는 React가 클래스 컴포넌트로만 만들 수 있게 해서 useI18n 훅을 못 쓴다.
 // setApiLanguage로 동기화되는 같은 모듈 변수를 읽어 번역한다(api/client.ts 참고).
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
@@ -43,7 +43,7 @@ export class AppErrorBoundary extends Component<Props, State> {
     return (
       <View style={styles.screen} accessibilityRole="alert">
         <View style={styles.mark} accessibilityElementsHidden>
-          <Text variant="display" weight="bold" color={color.brand.orange}>!</Text>
+          <Text variant="display" weight="bold" color={color.state.danger}>!</Text>
         </View>
         <Text variant="display" weight="bold" color={color.text.heading}>{tx('화면을 불러오지 못했어요', 'Could not load this screen')}</Text>
         <Text variant="body" color={color.text.body} style={styles.description}>
@@ -51,7 +51,7 @@ export class AppErrorBoundary extends Component<Props, State> {
         </Text>
         <View style={styles.actions}>
           <Button label={tx('다시 시도', 'Try again')} onPress={this.retry} />
-          <Button label={tx('홈으로 돌아가기', 'Back to home')} variant="ghost" onPress={this.goHome} />
+          <Button label={tx('홈으로 돌아가기', 'Back to home')} variant="tertiary" onPress={this.goHome} />
         </View>
         {__DEV__ ? (
           <View style={styles.debugBox}>

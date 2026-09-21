@@ -51,9 +51,9 @@ export default function AgeGate() {
       <View style={[styles.panel, kind === 'tablet' && styles.webPanel]}>
       {kind === 'tablet' && <View style={styles.webIntro}><Eyebrow>{tx('가볼래 · 부산', 'GABOLLE · Busan')}</Eyebrow><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>{tx('누구나 안심하고\n부산을 여행하도록', 'So anyone can travel\nBusan with confidence')}</Text><Text variant="body" color={color.text.onDarkMuted}>{tx('연령 확인은 안전한 서비스 이용을 위한 최소한의 절차예요. 생년월일은 수집하지 않습니다.', 'Age verification is a minimal step to keep the service safe. We do not collect your birth date.')}</Text><View style={styles.webTrust}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('✓ 생년월일 미수집', '✓ No birth date collected')}</Text><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('✓ 한 번만 확인', '✓ Verified only once')}</Text></View></View>}
       <View style={[styles.gateContent, kind === 'tablet' && styles.webGateContent]}>
-      <View style={styles.header}><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /><View style={styles.step}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('가입 전 확인', 'Before you continue')}</Text></View></View>
+      <View style={styles.header}><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /><View style={styles.step}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('가입 전 확인', 'Before you continue')}</Text></View></View>
       <View style={styles.body}>
-        <View style={styles.ageMark}><Text variant="title" weight="bold" color={color.brand.orange}>14+</Text></View>
+        <View style={styles.ageMark}><Text variant="title" weight="bold" color={color.action.secondary}>14+</Text></View>
         <Text variant="display" weight="bold" color={color.brand.navy}>
           {tx('만 14세 이상이신가요?', 'Are you 14 or older?')}
         </Text>
@@ -74,7 +74,7 @@ export default function AgeGate() {
           <Text variant="body">{tx('만 14세 이상이며, 위 내용을 확인했어요.', 'I am 14 or older and understand the information above.')}</Text>
         </Pressable>
 
-        <Button testID="age-gate-continue" label={tx('계속', 'Continue')} variant="accent" pill disabled={!checked} onPress={continueOnboarding} />
+        <Button testID="age-gate-continue" label={tx('계속', 'Continue')} variant="primary" pill disabled={!checked} onPress={continueOnboarding} />
       </View>
       </View>
       </View>
@@ -83,8 +83,8 @@ export default function AgeGate() {
 }
 
 const styles = StyleSheet.create({
-  canvas: { backgroundColor: color.brand.ivory },
-  webCanvas: { justifyContent: 'center', backgroundColor: '#f5eee8' },
+  canvas: { backgroundColor: color.canvas },
+  webCanvas: { justifyContent: 'center', backgroundColor: color.canvas },
   panel: { flex: 1 },
   webPanel: { minHeight: 600, maxHeight: 700, flexDirection: 'row', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.brand.ivory, shadowColor: color.brand.navy, shadowOpacity: 0.1, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 5 },
   gateContent: { flex: 1 },
@@ -93,14 +93,14 @@ const styles = StyleSheet.create({
   webIntroTitle: { fontSize: 28, lineHeight: 38 },
   webTrust: { marginTop: spacing[4], gap: spacing[2] },
   header: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  logo: { width: 100, height: 24 },
+  logo: { width: 132, height: 24 },
   step: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.tint },
   body: {
     flex: 1,
     justifyContent: 'center',
     gap: spacing[3],
   },
-  ageMark: { width: 64, height: 64, marginBottom: spacing[2], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint, borderWidth: 1, borderColor: '#f7cdbd' },
+  ageMark: { width: 64, height: 64, marginBottom: spacing[2], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint },
   description: {
     color: color.text.body,
   },
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     gap: spacing[3],
     paddingHorizontal: spacing[3],
     borderRadius: radius.md,
-    backgroundColor: color.surface.card,
+    backgroundColor: color.action.tertiary,
   },
   pressed: { opacity: 0.72, transform: [{ scale: 0.99 }] },
   checkbox: {
@@ -127,11 +127,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: color.brand.orange,
-    borderColor: color.brand.orange,
+    backgroundColor: color.action.secondary,
+    borderColor: color.action.secondary,
   },
-  // 🔴 continueButton 을 지웠다 (2026-09-17). 여기에 { minHeight: 54, borderRadius: full,
-  // backgroundColor: orange } 를 담아 containerStyle 로 넘겼는데, 그건 버튼이 아니라 **바깥
-  // 껍데기**에 붙어서 남색 버튼 뒤로 주황색이 삐져나왔다(실기기 리포트). 지금은 버튼이
-  // 직접 그 색과 모양을 갖는다 — `variant="accent" pill`.
 });

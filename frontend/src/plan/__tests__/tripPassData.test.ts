@@ -1,5 +1,5 @@
-// 🔴 이 시험이 지키는 것은 「티켓에 찍힌 숫자가 실제 일정의 것인가」다.
-//    티켓은 그럴듯하게 생겨서, 틀린 값이 찍혀도 사람이 눈으로는 못 잡는다.
+// 이 시험이 지키는 것은 「티켓에 찍힌 숫자가 실제 일정의 것인가」다.
+// 티켓은 그럴듯하게 생겨서, 틀린 값이 찍혀도 사람이 눈으로는 못 잡는다.
 import { buildTripPass, buildTripPassDetails, shortenOrigin, tripPassCode, tripPassUrl, type TripPassInput } from '@/plan/tripPassData';
 import type { ItineraryDto } from '@/plan/itinerary';
 
@@ -18,6 +18,7 @@ const itinerary = (over: Partial<ItineraryDto> = {}): ItineraryDto => ({
   ],
   totalEstimatedCostKrw: 78000,
   totalWalkingMeters: 3200,
+  partySize: 2,
   ...over,
 });
 
@@ -27,7 +28,6 @@ const input = (over: Partial<TripPassInput> = {}): TripPassInput => ({
   startDate: '2026-09-20',
   endDate: '2026-09-21',
   transport: 'TRANSIT',
-  travelers: 2,
   ownerName: '장효준',
   baseUrl: 'https://j15e201.p.ssafy.io',
   language: 'ko',
@@ -57,14 +57,40 @@ describe('여행 티켓에 찍히는 값', () => {
 
   it('🔴 모르는 칸은 0 이 아니라 아예 안 만든다', () => {
     const pass = buildTripPass(input({
-      itinerary: itinerary({ totalEstimatedCostKrw: null, totalWalkingMeters: null }),
-      travelers: null,
+      itinerary: itinerary({ totalEstimatedCostKrw: null, totalWalkingMeters: null, partySize: null }),
     }));
     const keys = pass.fields.map((f) => f.key);
     expect(keys).not.toContain('예상 비용');
     expect(keys).not.toContain('걷는 거리');
     expect(keys).not.toContain('인원');
     expect(pass.fields.every((f) => f.value !== '0' && f.value !== '-')).toBe(true);
+  });
+
+  // ── 인원 (-1338) ──────────────────────────────────────────────
+
+  it('🔴 인원은 일정이 말한 수를 쓴다', () => {
+    const pass = buildTripPass(input({ itinerary: itinerary({ partySize: 3 }) }));
+    expect(pass.fields).toContainEqual({ key: '인원', value: '3명' });
+  });
+
+  /**
+   * 🔴 예전에는 기기에 남은 초안에서 읽었다. 그 값은 기본이 1 이라 초안이 비면
+   * 「1명」이라고 단언했고, 성인 2명으로 만든 여행도 그렇게 나왔다 — 새로고침 한 번,
+   * 다른 기기면 전부 1명이었다(배포된 화면에서 실측).
+   */
+  it('🔴 서버가 인원을 안 주면 그 칸을 아예 안 그린다 — 「1명」이라고 지어내지 않는다', () => {
+    const pass = buildTripPass(input({ itinerary: itinerary({ partySize: undefined }) }));
+    expect(pass.fields.map((f) => f.key)).not.toContain('인원');
+  });
+
+  it('🔴 일정이 아직 없어도 인원을 지어내지 않는다', () => {
+    const pass = buildTripPass(input({ itinerary: null }));
+    expect(pass.fields.map((f) => f.key)).not.toContain('인원');
+  });
+
+  it.each([0, -1, Number.NaN])('말이 안 되는 인원(%s)은 안 그린다', (partySize) => {
+    const pass = buildTripPass(input({ itinerary: itinerary({ partySize }) }));
+    expect(pass.fields.map((f) => f.key)).not.toContain('인원');
   });
 
   it('🔴 걷는 거리 0 을 「0m」로 찍지 않는다 — 「안 걷는다」와 「모른다」는 다르다', () => {

@@ -1,9 +1,4 @@
-// S15P21E201-1168 — 재현 시나리오를 그대로 옮긴 회귀 시험.
-//
-// 1) 로그인 전, 온보딩 화면에서 일본어를 고른다 (preferences.language = 'ja').
-// 2) 로그인한다. 서버가 돌려주는 계정은 language: 'KO' (거의 모든 계정의 기본값)다.
-// 3) 로그인 뒤에도 화면 언어는 그대로 'ja' 여야 한다 — 계정의 KO/EN 값이 다섯 언어
-//    중 하나였던 화면 언어를 덮어써서는 안 된다. (고친 코드 전에는 여기서 'ko'로 되돌아갔다)
+// — 재현 시나리오를 그대로 옮긴 회귀 시험.
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { Pressable, Text } from 'react-native';
 import { AuthProvider, useAuth } from '../AuthProvider';

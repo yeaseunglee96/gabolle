@@ -1,4 +1,4 @@
-// 기념품샵 지도 — S15P21E201-121/-470(상세설계서 v2 P-19). 마지막 방문지를 기준 위치로
+// 기념품샵 지도 —/-470(상세설계서 v2 P-19). 마지막 방문지를 기준 위치로
 // 삼아 가까운 순서대로 기념품샵을 지도+목록으로 보여준다. "지금 여기서 가까운가"가
 // 중요하다는 게 이 화면의 이유라, 기기 GPS 가 아니라 여행 안에서 실제로 도착을 찍은
 // 마지막 장소를 기준으로 삼는다(getLastVisitedPlace, -470 코멘트 참고).
@@ -19,10 +19,11 @@ import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries } from '@/trip/trips';
+import { localizeMessage } from '@/i18n/messages';
 
 const SOUVENIR_FACET_KEY = 'SOUVENIR_SHOP';
 
-// 여행 식별자가 없으면 서버를 아예 안 부른다 (S15P21E201-1000).
+// 여행 식별자가 없으면 서버를 아예 안 부른다.
 export default function Souvenirs() {
   const { id } = useLocalSearchParams<{ id: string }>();
   return id ? <SouvenirsForTrip tripId={id} /> : <SelectTripFirst />;
@@ -41,7 +42,7 @@ function SouvenirsForTrip({ tripId }: { tripId: string }) {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    // S15P21E201-912: getLastVisitedPlace는 일정 식별자를 받는다 — 여기 tripId(여행
+    // : getLastVisitedPlace는 일정 식별자를 받는다 — 여기 tripId(여행
     // 식별자)를 그대로 넘기면 서버에 없는 자원을 찾아 항상 실패한다. 먼저 일정 목록을
     // 받아 그 첫 항목의 itineraryId로 바꿔 넘긴다(prepare.tsx와 같은 방식).
     void loadTripItineraries(tripId, accessToken).then(async (refsResult) => {
@@ -97,14 +98,14 @@ function SouvenirsForTrip({ tripId }: { tripId: string }) {
       {!loading && origin && (origin.state === 'unavailable' || origin.state === 'offline' || origin.state === 'error') ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('마지막 방문지를 확인하지 못했어요', "Couldn't check your last stop")}</Text>
-          <Text color={color.text.body}>{origin.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, origin.message)}</Text>
         </View>
       ) : null}
 
       {!loading && origin?.state === 'success' && result && result.state !== 'success' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('기념품샵을 불러오지 못했어요', 'Could not load souvenir shops')}</Text>
-          <Text color={color.text.body}>{result.message}</Text>
+          <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
         </View>
       ) : null}
 
@@ -117,7 +118,7 @@ function SouvenirsForTrip({ tripId }: { tripId: string }) {
           <RouteMap stops={stops} selectedId={selectedId} onSelect={setSelectedId} routes={[]} height={280} />
 
           {result.radiusExpanded ? (
-            <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
+            <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.state.info}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
           ) : null}
 
           <View style={styles.list}>
@@ -144,7 +145,7 @@ function SouvenirsForTrip({ tripId }: { tripId: string }) {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', marginBottom: spacing[3] },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
@@ -153,6 +154,6 @@ const styles = StyleSheet.create({
   expandedNotice: { marginTop: spacing[3], padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
   list: { marginTop: spacing[4], gap: spacing[2] },
   placeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
-  placeRowSelected: { borderColor: color.brand.orange },
+  placeRowSelected: { borderColor: color.action.secondary },
   grow: { flex: 1 },
 });

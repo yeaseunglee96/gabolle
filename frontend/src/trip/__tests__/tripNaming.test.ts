@@ -6,13 +6,7 @@ import {
   updateTripTitle,
 } from '../tripNaming';
 
-// 여행 이름 짓기 연결 층 (S15P21E201-1036).
-//
-// 🔴 이 시험이 지키는 것은 셋이다.
-//   ① 빈 후보는 실패가 아니다 — 모델이 못 지은 것은 사람을 다치게 하지 않으므로 서버가
-//      오류로 만들지 않는다. 화면도 오류로 그리면 안 된다
-//   ② 「이름 없음」과 「빈 이름」은 같은 것이다 — 공백만 있는 이름은 지우기다
-//   ③ 모델이 지은 이름과 틀로 만든 이름을 같게 다루지 않는다
+// 여행 이름 짓기 연결 층.
 
 type Call = { url: string; method: string; body: unknown };
 let calls: Call[] = [];
@@ -60,7 +54,7 @@ describe('이름 후보 받기', () => {
     expect(calls[0].url).toContain(`/api/v1/trips/${TRIP}/name-suggestions`);
   });
 
-  // 🔴 여기가 핵심이다. 빈 후보를 오류로 만들면 화면이 오류 화면을 그리게 되고,
+  // 여기가 핵심이다. 빈 후보를 오류로 만들면 화면이 오류 화면을 그리게 되고
   // 그건 「이름을 못 지었다」를 「무언가 고장났다」로 바꿔 말하는 것이다.
   it('후보가 하나도 없어도 실패가 아니다', async () => {
     mockServer(() => ok({ suggestions: [], source: 'TEMPLATE', discardedCount: 0 }));
@@ -101,7 +95,7 @@ describe('이름 검사 — 서버의 Trip.rename 과 같은 규칙', () => {
     expect(checkTripTitle('  해운대 이틀  ')).toEqual({ ok: true, title: '해운대 이틀' });
   });
 
-  // 🔴 「이름 없음」과 「빈 이름」은 같은 것이다. 서버에 지우기 전용 경로가 없는 이유다.
+  // 「이름 없음」과 「빈 이름」은 같은 것이다. 서버에 지우기 전용 경로가 없는 이유다.
   it('빈 문자열과 공백만 있는 이름은 둘 다 「이름 없음」이다', () => {
     expect(checkTripTitle('')).toEqual({ ok: true, title: null });
     expect(checkTripTitle('   ')).toEqual({ ok: true, title: null });
@@ -119,7 +113,7 @@ describe('이름 검사 — 서버의 Trip.rename 과 같은 규칙', () => {
     expect(checkTripTitle('가'.repeat(TRIP_TITLE_MAX_LENGTH + 1))).toMatchObject({ ok: false, reason: 'tooLong' });
   });
 
-  // 🔴 서버는 코드포인트로 센다. length 로 세면 이모지 하나가 2로 세어져, 60자를 안 넘은
+  // 서버는 코드포인트로 센다. length 로 세면 이모지 하나가 2로 세어져, 60자를 안 넘은
   // 이름이 거부당한 것처럼 보인다.
   it('이모지는 한 글자로 센다', () => {
     expect(checkTripTitle('🌊'.repeat(TRIP_TITLE_MAX_LENGTH)).ok).toBe(true);
@@ -142,7 +136,7 @@ describe('이름 저장', () => {
     expect(calls[0].body).toEqual({ title: '' });
   });
 
-  // 🔴 너무 긴 이름은 서버까지 안 간다. 사용자를 기다리게 할 이유가 없다.
+  // 너무 긴 이름은 서버까지 안 간다. 사용자를 기다리게 할 이유가 없다.
   it('60자를 넘으면 부르지도 않는다', async () => {
     mockServer(() => ok({}));
     const result = await updateTripTitle(TRIP, '가'.repeat(TRIP_TITLE_MAX_LENGTH + 1), 'token');
@@ -166,5 +160,19 @@ describe('이름 저장', () => {
     mockServer(() => fail(404, 'TRIP_NOT_FOUND', 'error.trip.notFound'));
     const result = await updateTripTitle(TRIP, '해운대 이틀', 'token');
     expect(result.state).toBe('unavailable');
+  });
+});
+
+describe('자리표시 제목 — S15P21E201-1376', () => {
+  const { humanTripTitle, isPlaceholderTripTitle } = require('../tripNaming');
+  it('서버가 넣은 「2026-09-21 ~ 2026-09-23」은 이름이 아니다', () => {
+    expect(isPlaceholderTripTitle('2026-09-21 ~ 2026-09-23')).toBe(true);
+    expect(humanTripTitle('2026-09-21 ~ 2026-09-23')).toBeNull();
+    expect(humanTripTitle('  ')).toBeNull();
+    expect(humanTripTitle(null)).toBeNull();
+  });
+  it('사람이 붙인 이름은 그대로', () => {
+    expect(humanTripTitle('해운대의 맛기행')).toBe('해운대의 맛기행');
+    expect(humanTripTitle('2026 가을 부산')).toBe('2026 가을 부산');
   });
 });

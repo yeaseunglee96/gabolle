@@ -34,15 +34,6 @@ const OWNED_BY_BUTTON = new Set(['backgroundColor', 'borderRadius', 'borderWidth
 
 // 🔴 아직 못 고친 자리. **늘리지 않는다 — 줄이는 목록이다.**
 //
-// 이 다섯은 S15P21E201-1233(시안 전면 반영)이 같은 파일을 잡고 있어서 그쪽에서 함께
-// 고친다. 고친 사람이 여기서 그 줄을 지운다. 목록이 비면 이 배열째 지운다.
-const NOT_YET_FIXED = new Set([
-  // 🔴 S15P21E201-1245(피드 카드 시안 반영)가 이 파일을 잡고 있다. 그쪽에서 함께 뺀다.
-  'app/(tabs)/feed.tsx:emptyPrimary',
-  'app/(tabs)/trips.tsx:emptyCta',
-  'app/trips/[id]/recommendations.tsx:cta',
-]);
-
 function listSourceFiles(dir) {
   const out = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -120,7 +111,6 @@ function findings(file, source) {
 }
 
 const problems = [];
-const staleExceptions = new Set(NOT_YET_FIXED);
 
 for (const directory of SCAN_DIRS) {
   for (const file of listSourceFiles(join(ROOT, directory))) {
@@ -129,7 +119,6 @@ for (const directory of SCAN_DIRS) {
     const shown = relative(ROOT, file).split('\\').join('/');
     for (const hit of findings(file, source)) {
       const key = `${shown}:${hit.name}`;
-      if (NOT_YET_FIXED.has(key)) { staleExceptions.delete(key); continue; }
       problems.push(`  ${shown}:${hit.line}  styles.${hit.name} 에 ${hit.offenders.join(' · ')}`);
     }
   }
@@ -144,10 +133,4 @@ if (problems.length > 0) {
   process.exit(1);
 }
 
-if (staleExceptions.size > 0) {
-  console.error('🟢 고쳐진 자리가 예외 목록에 남아 있습니다 — tools/check-button-container.mjs 에서 지우세요.\n');
-  console.error([...staleExceptions].map((key) => `  ${key}`).join('\n'));
-  process.exit(1);
-}
-
-console.log(`Button containerStyle 검사 통과 (아직 못 고친 자리 ${NOT_YET_FIXED.size}곳은 S15P21E201-1233 에서 함께 고칩니다)`);
+console.log('Button containerStyle 검사 통과 — 예외로 남겨 둔 자리가 하나도 없습니다.');

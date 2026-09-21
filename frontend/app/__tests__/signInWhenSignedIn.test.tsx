@@ -1,13 +1,4 @@
 // 로그인한 사람에게 로그인 화면을 보여주지 않는다 — S15P21E201-1199.
-//
-// 🔴 이 시험이 지키는 것은 **화면의 모양이 아니라 「누가 서 있는가」** 다.
-//    구글 로그인은 앱 안 브라우저가 `https://j15e201.p.ssafy.io/oauth/...` 에 착지하는데,
-//    그 주소가 app.json 의 App Link 와 글자 그대로 겹쳐서 안드로이드가 **앱을 한 번 더 연다.**
-//    그래서 `router.replace` 가 바꿔 놓는 것은 방금 쌓인 칸뿐이고, 로그인 화면은 그 아래
-//    그대로 남는다. 홈에서 뒤로 가기 한 번이면 로그인한 사람이 로그인 폼을 본다.
-//
-//    고침은 「아래 칸을 지운다」가 아니라 「이 화면이 스스로 비킨다」이다. 그러니 시험도
-//    스택 모양이 아니라 **비켰는가**를 본다 — 스택을 재는 시험은 라우터가 판을 올릴 때마다 낡는다.
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
@@ -30,8 +21,8 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ back: mockBack, replace: mockReplace, push: mockPush, canGoBack: mockCanGoBack, canDismiss: () => false, dismissAll: () => {} }),
   useLocalSearchParams: () => ({}),
   // 화면이 보이는 동안은 useEffect 와 같이 돌고, 언마운트할 때 cleanup 이 돌게 한다.
-  // 「돌아왔다」는 재마운트로 흉내 낼 수 없어(실제로도 재마운트되지 않는다),
-  // 아래에서 refocus() 으로 포커스를 손으로 돌려 준다.
+  // 「돌아왔다」는 재마운트로 흉내 낼 수 없어(실제로도 재마운트되지 않는다)
+  // 아래에서 refocus 으로 포커스를 손으로 돌려 준다.
   useFocusEffect: (cb: () => void | (() => void)) => {
     mockFocus.run = cb;
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -66,10 +57,6 @@ beforeEach(() => {
 });
 
 describe('로그인 화면 — 이미 로그인한 사람은 붙잡지 않는다', () => {
-  // 🔴 2026-09-18 정정 — 이 시험은 앞의 고침(router.back())을 못 박고 있었다.
-  //    그 방향이 틀렸다. back() 은 **더 뒤로** 간다 — 사람이 홈에서 뒤로 가기를 눌렀는데
-  //    홈이 아니라 그 앞 화면으로 떨어진다. 이 화면은 **앞으로**(홈으로) 비켜야 한다.
-  //    낡은 기대를 지우지 않고 왜 바뀌었는지와 함께 남긴다.
   it('🔴 로그인한 채로 이 화면에 오면 홈으로 비킨다 — 뒤로 가 아니라 앞으로다', async () => {
     mockAuth.user = { userId: 'u1', displayName: '이예승' };
     render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
@@ -93,12 +80,9 @@ describe('로그인 화면 — 이미 로그인한 사람은 붙잡지 않는다
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
-
-  // 🔴 2026-09-18 — 첫 고침이 실기기에서 안 먹었고, 그 이유가 정확히 이 자리다.
-  //
-  //    뒤로 가기로 돌아와도 이 화면은 **다시 만들어지지 않는다.** 쌓인 칸으로 살아 있다가
-  //    다시 보일 뿐이라, 「여기서 방금 로그인했다」는 표시가 그대로 남아 가드를 막았다.
-  //    그리는 순간이 아니라 **포커스가 돌아오는 순간**을 봐야 한다.
+  // 뒤로 가기로 돌아와도 이 화면은 다시 만들어지지 않는다. 쌓인 칸으로 살아 있다가
+  // 다시 보일 뿐이라, 「여기서 방금 로그인했다」는 표시가 그대로 남아 가드를 막았다.
+  // 그리는 순간이 아니라 포커스가 돌아오는 순간을 봐야 한다.
   it('🔴 이 화면에서 로그인한 뒤 뒤로 돌아오면 — 그때는 비킨다', async () => {
     const view = render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
     // 이 화면에서 로그인 절차를 시작한다.

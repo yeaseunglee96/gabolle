@@ -5,10 +5,6 @@ import type { PlanDraft } from '@/plan/PlanProvider';
 import type { RecommendationJobStreamSnapshot } from '@/plan/recommendationJobStream';
 
 export type RecommendationJobState = 'idle' | 'submitting' | 'accepted' | 'polling' | 'completed' | 'conflict' | 'consent-required' | 'failed' | 'cancelled' | 'unavailable';
-// 'consent-required'의 requiredConsent: S15P21E201-549(백엔드, 2026-09-11)가 새로 건 403 둘.
-// HEALTH_CONSENT_REQUIRED — 요청에 알레르기나 필수 식단 제약이 있는데 HEALTH_CONSTRAINTS
-// 동의가 없다. PRECISE_LOCATION_CONSENT_REQUIRED는 지금 이 화면(일정 생성)에서는 안 난다 —
-// 방문 인증 쪽 계약이라 여기 타입에는 안 넣는다(코드가 없는 경로를 지어내지 않는다).
 export type RecommendationJobSnapshot = { state: RecommendationJobState; jobId: string | null; progress: number | null; stage: string | null; canCancel: boolean; errorMessage: string | null; resultRef: string | null; requiredConsent?: 'HEALTH_CONSTRAINTS' };
 export type RecommendationJobAcceptedDto = { jobId: string };
 export type RecommendationJobPollDto = {
@@ -20,7 +16,7 @@ export type RecommendationJobPollDto = {
   pollAfterSeconds: number | null;
 };
 
-// S15P21E201-919: 백엔드 RecommendationCodes.java의 실패 코드를 사람이 읽는 말로 옮긴다 —
+// : 백엔드 RecommendationCodes.java의 실패 코드를 사람이 읽는 말로 옮긴다
 // 여기 없으면 "ENGINE_NO_CANDIDATES" 같은 원문이 그대로 화면에 나갔었다. 코드가 뜻하는
 // 실제 원인만 옮기고, 실패 단계(detail)는 로그용이라 사용자 문구에는 안 보여준다.
 const JOB_FAILURE_MESSAGE: Record<string, [string, string]> = {
@@ -43,7 +39,7 @@ export function adaptPolledJob(jobId: string, dto: RecommendationJobPollDto, pre
   const errorMessage = dto.failure ? (JOB_FAILURE_MESSAGE[dto.failure.code] ?? DEFAULT_JOB_FAILURE_MESSAGE)[isKo ? 0 : 1] : dto.status === 'EXPIRED' ? '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.' : null;
   return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null };
 }
-// S15P21E201-69 — SSE(GET /api/v1/jobs/{jobId}/progress)가 보내는 건 폴링과 모양이 다르다
+// — SSE(GET /api/v1/jobs/{jobId}/progress)가 보내는 건 폴링과 모양이 다르다
 // ({jobId, status, stage, percent, code} — 중첩된 progress 객체가 아니다). 판정 로직은
 // adaptPolledJob 하나만 있으면 되므로, 여기서는 모양만 그 입력(RecommendationJobPollDto)으로
 // 바꿔 그대로 넘긴다 — 상태 매핑·진행률 역행 방지·실패 문구를 두 번 쓰지 않는다.
@@ -68,9 +64,6 @@ function toFailure(error: unknown, jobId: string | null = null): RecommendationJ
   if (error instanceof ApiClientError && error.status === 409) return { state: 'conflict', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null };
   if (error instanceof ApiClientError && error.status === 403 && error.code === 'HEALTH_CONSENT_REQUIRED') return { state: 'consent-required', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null, requiredConsent: 'HEALTH_CONSTRAINTS' };
   return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: readableApiError(error, getApiLanguage() !== 'en'),
-    // 🔴 서버가 message 자리에 **키**를 넣는다(TripExceptionHandler). 그대로 찍으면
-    //    사용자에게 `error.trip.validation` 이 보인다 — 2026-09-18 실기기에서 실제로 그랬다.
-    //    readableApiError 가 fields(어느 칸이 왜 막혔나)를 먼저 쓰고, 없으면 문장으로 바꾼다.
     resultRef: null };
 }
 export function createRecommendationJobAdapter(accessToken: string | null): RecommendationJobAdapter { return {

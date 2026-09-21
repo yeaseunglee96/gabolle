@@ -1,72 +1,108 @@
-// 폰 홈 (S15P21E201-970). 디자인 인계 `design_handoff_home_phone` 의 **절충안(C)**.
-//
-// 데스크톱 홈(app/index.tsx)과 짝이다. 데이터는 같은 훅(useHomeData)에서 읽는다.
-//
-// 🔴 1차 시안(2a)은 **지금 있는 기능 다섯을 말없이 지웠다** — 현장 도구·로컬 탐색·알림 종·
-// 하트·챗봇. 그대로 만들면 현장 도구는 들어갈 길이 아예 없어진다(다른 진입점이 없고, 이 바는
-// "챗봇과 겹쳐 헷갈린다"는 사용자 리포트 때문에 일부러 이 자리로 옮긴 것이다). 그래서 2차를
-// 다시 받아 아래처럼 정했다.
-//
-//   현장 도구  남김 → 히어로 CTA 아래 2열 카드(통역 · 메뉴판 번역)
-//   로컬 탐색  옮김 → 「로컬 탐색」 칩 구역 + 「전체 →」 (바는 없앰). 2026-09-15 에 기록 피드
-//                     위로 올렸다 — 스크롤해야 보이는 자리라 사실상 숨어 있었다(-989)
-//   알림 종    남김 → 머리 오른쪽. 🔴 미읽음 조회 API 가 없어 **점은 안 찍는다**
-//   큐레이션   교체 → 실제 기록 카드 3장 (사진·문구가 코드에 박혀 있던 것을 대체)
-//   하트       옮김 → 「부산 둘러보기」 카드. 같은 **장소** 엔티티라 저장·행동 이벤트가 그대로 맞는다
-//   챗봇       남김 → 우하단 플로팅
-import { useEffect, useState } from 'react';
+// 폰 홈. 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
+import { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
-import { sendAppEvent } from '@/analytics/appEvents';
 import { PlanStartBar } from '@/home/PlanStartBar';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
-import type { StartBarValue } from '@/home/startBarValue';
+import { EMPTY_START_BAR, startBarEditSection, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
-import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
-import { PlaceVisual } from '@/components/PlaceVisual';
 import { Screen } from '@/components/Screen';
-import { TabBar } from '@/components/TabBar';
+import { TAB_BAR_HEIGHT, TabBar, tabBarBottomMargin } from '@/components/TabBar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { PlaceRow, StoryRow } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
+import { AssistantBackdrop, AssistantMenu } from '@/home/AssistantMenu';
+import { dismissChecklist, loadChecklist, takeHomeCoach, type ChecklistState } from '@/onboarding/firstRun';
+import { FirstTripChecklist } from '@/onboarding/FirstTripChecklist';
+import { HomeCoach, type CoachHole } from '@/onboarding/HomeCoach';
+import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { resolveHomeTripDestination } from '@/home/tripNavigation';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
-import { localFacetLabel } from '@/discovery/localExplore';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+import { WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
+import { LANGUAGE_OPTIONS } from '@/i18n/languages';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
 
+/**
+ * 폰의 카드 한 변. 한 화면에 두 장이 들어오고 세 번째가 살짝 보이는 크기다 —
+ * 다음 장이 안 보이면 옆으로 더 있다는 것을 모른다.
+ */
+const MOBILE_CARD = 160;
+
 export default function Home() {
   const router = useRouter();
   const { tx, language } = useI18n();
   const { accessToken, user } = useAuth();
-  const { update: updatePlan } = usePlan();
-  // 🔴 여행 조건 모달 (S15P21E201-1233). 로그인 후 홈 첫 진입에 한 번, 그리고
-  //    「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
+  const { draft: planDraft, update: updatePlan } = usePlan();
+  // 여행 조건 모달. 로그인 후 홈 첫 진입에 한 번, 그리고
+  // 「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'lg');
-  const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
+  const { hydrated, hasEnteredApp, markEnteredApp, setLanguage } = useOnboardingPreferences();
+  // 시안 5 Home 의 「⊕ 한국어」 — 외국인이 홈에서 바로 언어를 바꾼다(S15P21E201-1372). 첫 화면의 언어 시트를 그대로 쓴다.
+  const [langOpen, setLangOpen] = useState(false);
+  const langLabel = LANGUAGE_OPTIONS.find((item) => item.code === language)?.endonym ?? '한국어';
   const home = useHomeData(!desktop);
-  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
-  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
+  const saved = useSavedPlaces(accessToken, 'home-mobile');
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [openingTrip, setOpeningTrip] = useState(false);
+  // 동백이 단추는 탭바 윗변에서 12 위 — 안전영역이 있는 폰이든 없는 웹이든 탭바와의 간격이 같다.
+  const insets = useSafeAreaInsets();
+  const assistantBottom = tabBarBottomMargin(insets.bottom) + TAB_BAR_HEIGHT + spacing[3];
 
   useEffect(() => {
     if (hydrated && !hasEnteredApp) markEnteredApp();
   }, [hydrated, hasEnteredApp, markEnteredApp]);
+
+  // ── 신규 사용자 안내 — S15P21E201-1361. 앱 소개를 막 끝낸 사람에게만 (firstRun.ts) ──
+  const [coach, setCoach] = useState<{ visible: boolean; startBar: CoachHole | null; assistant: CoachHole | null }>({ visible: false, startBar: null, assistant: null });
+  const startBarRef = useRef<View>(null);
+  const assistantRef = useRef<View>(null);
+  const [checklist, setChecklist] = useState<ChecklistState | null>(null);
+  const [coachQueued, setCoachQueued] = useState(false);
+  // 여행 조건 모달이 뜰지 결정됐나 — 그 전에 코치를 띄우면 둘이 겹친다(실측: 모달 위에 막이 덮였다).
+  const [promptChecked, setPromptChecked] = useState(false);
+  useEffect(() => {
+    if (!hydrated || desktop) return;
+    let alive = true;
+    void loadChecklist().then((state) => { if (alive) setChecklist(state); });
+    void takeHomeCoach().then((show) => { if (alive && show) setCoachQueued(true); });
+    return () => { alive = false; };
+  }, [hydrated, desktop]);
+  useEffect(() => {
+    // 조건 모달이 닫힌 뒤에 — 모달이 안 뜨는 사람은 판정이 끝나는 즉시.
+    if (!coachQueued || !promptChecked || conditions.open) return;
+    let alive = true;
+    // 구멍 자리는 실제로 잰다 — 첫 그리기가 끝난 다음 프레임에.
+    const measure = (ref: React.RefObject<View | null>) => new Promise<CoachHole | null>((resolve) => {
+      const node = ref.current;
+      if (!node) { resolve(null); return; }
+      node.measureInWindow((x, y, width, height) => resolve(width > 0 && height > 0 ? { x, y, width, height, radius: radius.md } : null));
+    });
+    const timer = setTimeout(() => {
+      void Promise.all([measure(startBarRef), measure(assistantRef)]).then(([startBar, assistant]) => { if (alive) { setCoachQueued(false); setCoach({ visible: true, startBar, assistant }); } });
+    }, 350);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [coachQueued, promptChecked, conditions.open]);
+  const closeCoach = () => setCoach((current) => ({ ...current, visible: false }));
 
   const openHomeTrip = async (tripId: string) => {
     if (openingTrip) return;
@@ -76,42 +112,31 @@ export default function Home() {
     router.push(destination as never);
   };
 
-  // S15P21E201-1013 — 계정 것과 기기 것을 합쳐서 본다(로그인 안 했으면 기기 것만).
-  useEffect(() => {
-    void loadSavedPlaceIds(accessToken).then((ids) => setLikedIds(new Set(ids)));
-  }, [accessToken]);
-
-  // 하트는 계정에 남는다(로그인 안 했으면 기기에만). 저장할 때 분석용 신호도 함께 보낸다.
-  //
-  // 🔴 저장을 해제한 것은 "싫다"가 아니라 "취소"다. 추천 화면의 제외 버튼과 달리 이 하트에는
-  //    싫다는 뜻이 없어서 해제에는 아무 이벤트도 보내지 않는다 — 없는 뜻을 만들지 않는다.
-  // 🔴 전송을 setLikedIds 의 갱신 함수 안에서 하지 않는다. React 가 그 함수를 두 번 부를 수
-  //    있고, 그러면 하트 한 번에 이벤트가 두 건 적힌다.
-  const toggleLike = (placeId: string) => {
-    const saved = !likedIds.has(placeId);
-    const next = new Set(likedIds);
-    saved ? next.add(placeId) : next.delete(placeId);
-    setLikedIds(next);
-    setSaveFeedback(saved ? tx('장소를 저장했어요.', 'Saved this place.') : tx('저장을 해제했어요.', 'Unsaved this place on this device.'));
-    // 🔴 S15P21E201-1081 — 서버가 못 받았으면 뒤늦게라도 사실대로 고쳐 말한다.
-    //    하트는 즉시 반응해야 하므로 먼저 낙관적으로 그리고, 결과가 오면 문구만 바꾼다.
-    void setSavedPlace(placeId, saved, accessToken).then(({ sync }) => {
-      if (sync === 'failed') setSaveFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
-    });
-    if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: placeId, surface: 'home' } });
-  };
-
-  // 🔴 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다 (S15P21E201-1233).
-  //    조건 화면은 이 셋을 **다시 묻지 않는다** — 칩 줄로만 보여 준다.
+  // 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다.
+  // 조건 화면은 이 셋을 다시 묻지 않는다 — 칩 줄로만 보여 준다.
   useEffect(() => {
     let alive = true;
     void loadConditionsPrompt(user?.userId ?? null, accessToken).then(({ state }) => {
       if (!alive) return;
       setPromptState(state);
       if (shouldPromptOnHome(state)) setConditions({ open: true, reprompt: false, pending: null });
+      setPromptChecked(true);
     });
     return () => { alive = false; };
   }, [accessToken, user?.userId]);
+
+  // 🔴 열 문항 화면이 「날짜 정하기」로 보낸 사람은 고칠 칸을 열어 둔 채로 받는다 — S15P21E201-1350.
+  //    접힌 바를 보여 주면 그 사람이 보기에는 아무 데도 안 간 것이다.
+  const editSection = startBarEditSection(useLocalSearchParams().edit);
+
+  // 🔴 시작 바의 값을 홈이 들고 있다.
+  //
+  // <p>알약은 화면 «안»에 있고 시트는 화면 «전체»를 덮어야 해서 탭바의 형제로 올라간다.
+  // 한 부품이 두 자리에 동시에 있을 수 없으므로 둘로 나누고, 값은 홈이 들고 둘에게
+  // 같은 것을 준다 — 안 그러면 시트에서 고른 것이 알약 요약에 안 나타난다.
+  const [barValue, setBarValue] = useState<StartBarValue>(() => (editSection ? startBarFromDraft(planDraft) : EMPTY_START_BAR));
+  // 「날짜 정하기」로 들어온 사람은 시트가 «열린 채로» 받는다 — S15P21E201-1350 과 같은 이유다.
+  const [startBarSheet, setStartBarSheet] = useState(Boolean(editSection));
 
   const applyBarAndGo = (value: StartBarValue) => {
     updatePlan({
@@ -127,8 +152,8 @@ export default function Home() {
     router.push('/plan');
   };
 
-  // 🔴 「나중에」를 고른 사람에게는 여기서 한 번 더 묻는다. 건너뛰어도 일정은 만들 수 있다 —
-  //    막으면 조건을 안 적은 사람이 앱을 아예 못 쓴다.
+  // 「나중에」를 고른 사람에게는 여기서 한 번 더 묻는다. 건너뛰어도 일정은 만들 수 있다
+  // 막으면 조건을 안 적은 사람이 앱을 아예 못 쓴다.
   const startPlanFromBar = (value: StartBarValue) => {
     if (shouldPromptBeforePlan(promptState)) { setConditions({ open: true, reprompt: true, pending: value }); return; }
     applyBarAndGo(value);
@@ -139,11 +164,11 @@ export default function Home() {
     setConditions({ open: false, reprompt: false, pending: null });
     if (outcome !== 'DISMISSED') {
       const next = outcome === 'SAVED' ? 'SAVED' : outcome === 'NEVER' ? 'NEVER' : 'LATER';
-      // 🔴 값을 실제로 적는 것은 **모달**이다 (S15P21E201-1245). 여기서 상태만 따로
-      //    적던 것이 사고였다 — 「물어봤다」는 기록만 남고 답은 아무 데도 안 남았다.
+      // 값을 실제로 적는 것은 모달이다. 여기서 상태만 따로
+      // 적던 것이 사고였다 — 「물어봤다」는 기록만 남고 답은 아무 데도 안 남았다.
       setPromptState(next);
     }
-    // 🔴 건너뛰든 저장하든 **가려던 곳으로 간다.** 조건을 안 적었다고 길을 막지 않는다.
+    // 건너뛰든 저장하든 가려던 곳으로 간다. 조건을 안 적었다고 길을 막지 않는다.
     if (pending) applyBarAndGo(pending);
   };
 
@@ -159,6 +184,10 @@ export default function Home() {
         <View style={styles.header}>
           <BrandLogoLink href="/home" imageStyle={styles.logo} />
           <View style={styles.headerRight}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('앱 언어 바꾸기', 'Change app language')} onPress={() => setLangOpen(true)} style={({ pressed }) => [styles.langPill, pressed && styles.pressed]}>
+              <GlobeGlyph />
+              <Text variant="caption" weight="bold" color={color.text.heading}>{langLabel}</Text>
+            </Pressable>
             {signedIn ? (
               <>
                 {weather && (weather.maxTemperature !== null || weather.minTemperature !== null) ? (
@@ -173,8 +202,9 @@ export default function Home() {
                     </Text>
                   </View>
                 ) : null}
-                {/* 🔴 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
-                    읽을 것이 없는데도 있는 것처럼 보이고, 안 찍는 쪽이 거짓이 아니다. */}
+                {/* 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
+                    읽을 것이 없는데도 있는 것처럼 보이고, 안 찍는 쪽이 거짓이 아니다.
+                */}
                 <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
                   <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
                 </Pressable>
@@ -187,121 +217,50 @@ export default function Home() {
           </View>
         </View>
 
+        <WelcomeLanguageSheet visible={langOpen} language={language} onSelect={setLanguage} onClose={() => setLangOpen(false)} onStart={() => setLangOpen(false)} />
+
+        {/* 동백이 첫 여행 체크리스트 — 온보딩을 거친 사람, 로그인한 뒤, 셋 다 하기 전까지. */}
+        {signedIn && checklist ? <FirstTripChecklist state={checklist} hasTrip={Boolean(home.trip)} onDismiss={() => { setChecklist({ ...checklist, dismissed: true }); void dismissChecklist(); }} /> : null}
+
         {/* ── 히어로 ── */}
         <View style={styles.hero}>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
-          {/* 🔴 시안 p0 의 시작 바 (S15P21E201-1233). 출발지·날짜·인원을 여기서 받아
-              조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다. */}
-          <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} />
+          {/* 시안 p0 의 시작 바. 출발지·날짜·인원을 여기서 받아
+              조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다.
+          */}
+          <View ref={startBarRef} collapsable={false}>
+            <PlanStartBar
+              wide={false}
+              accessToken={accessToken}
+              onSubmit={startPlanFromBar}
+              value={barValue}
+              onChange={setBarValue}
+              onOpenSheet={() => setStartBarSheet(true)}
+            />
+          </View>
 
-          {/* 🔴 「현장 도구」 카드를 뺐다 (2026-09-18 지시). 화면(/field/translate)과
+ {/* 「현장 도구」 카드를 뺐다 (2026-09-18 지시). 화면(/field/translate)과
               챗봇의 진입점은 그대로 있다 — 이 카드만 안 그린다. */}
         </View>
 
-        {/* 🔴 순서: **피드가 먼저, 로컬 탐색이 그다음**이다 (2026-09-18 지시).
-            넓은 화면도 같은 순서다(HomeBlocks 의 HeroStories 가 기록 다음에 칩을 그린다). */}
-        {/* ── 지금 부산에서 남긴 기록 ── */}
-        <View style={styles.section}>
-          <View style={styles.sectionHead}>
-            <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
-            <Pressable accessibilityRole="link" onPress={() => router.push('/feed')}><Text weight="bold" color={color.brand.navy}>{tx('피드 전체 →', 'See all →')}</Text></Pressable>
-          </View>
+        {/* 순서: 피드가 먼저, 로컬 탐색이 그다음이다 (2026-09-18 지시).
+            시안 design_handoff_home_airbnb_rows — 제목을 display bold 로 키우고 「전체 →」
+            글자 링크를 화살표 원으로 바꿨다. 칩 줄과 「부산 둘러보기」는 없앴다.
+            데스크톱과 같은 줄 부품을 쓴다 — 두 화면이 어긋나면 나란히 놓고 봐야만 보인다. */}
+        <StoryRow stories={home.stories} width={width} cardWidth={MOBILE_CARD} gutter={spacing[6]} arrows={false} />
 
-          {/* 🔴 로그인 여부로 가리지 않는다 (S15P21E201-76, 진미리). 스토리 조회가 익명
-              출입증에 열렸다 — 2026-09-18 운영에서 실측(X-Session-Token 으로 200). */}
-          {home.stories === null ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
-              {[0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)}
-            </ScrollView>
-          ) : home.stories.length === 0 ? (
-            <Text variant="caption" style={styles.sectionNote}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} snapToAlignment="start" decelerationRate="fast" contentContainerStyle={styles.rail}>
-              {home.stories.map((story) => {
-                const where = story.place?.name ?? story.region ?? '';
-                return (
-                  <Pressable key={story.id} accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.storyCard, pressed && styles.pressed]}>
-                    {story.images.length
-                      ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.storyImage} />
-                      : <View style={[styles.storyImage, styles.storyCoverEmpty]}>
-                          <Text variant="title" weight="bold" color={color.text.heading} numberOfLines={4} style={styles.storyCoverEmptyText}>{markdownToPlain(story.body)}</Text>
-                        </View>}
-                    <View style={styles.storyBody}>
-                      <Text variant="caption" numberOfLines={1}>{where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}</Text>
-                      {/* 🔴 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 또 그리면 같은 글이 두 번
-                          나온다 — 피드 카드가 같은 이유로 생략하는 자리다. */}
-                      {story.images.length ? <Text numberOfLines={2} color={color.text.heading}>{markdownToPlain(story.body)}</Text> : null}
-                      {/* 작성자 프로필 사진은 계정에 없다 — 이름만 적는다. */}
-                      <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          )}
-        </View>
-
-        {/* ── 로컬 탐색 (옛 로컬 탐색 바 자리) ──
-            🔴 2026-09-15 에 기록 피드 **아래**에서 여기로 올렸다. 로컬 탐색으로 가는 길이 이
-            칩과 챗봇 둘뿐인데(하단 탭에도 데스크톱 상단 바에도 없다) 스크롤해야 보이는 자리에
-            있어서 사실상 숨어 있었다. 제목도 「갈래로 찾기」라 눌렀을 때 어디로 가는지 알 수
-            없었다 — 목적지 이름을 그대로 적는다. 탭·상단 바로 꺼내는 것은 내비게이션 구조를
-            건드리는 일이라 디자인 재작업 뒤로 미뤘다(S15P21E201-989). */}
-        {home.chips.length ? (
-          <View style={styles.section}>
-            <View style={styles.sectionHead}>
-              <Text variant="title" weight="bold">{tx('로컬 탐색', 'Explore locally')}</Text>
-              <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}><Text weight="bold" color={color.brand.navy}>{tx('전체 →', 'See all →')}</Text></Pressable>
-            </View>
-            {/* 칩 글자만으로는 무엇을 하는 곳인지 모른다 — 한 줄로 적어 둔다. */}
-            <Text variant="caption" style={styles.sectionSub}>{tx('축제·전통시장·야경처럼 갈래로 부산을 둘러봐요.', 'Browse Busan by festivals, markets, night views and more.')}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
-              {home.chips.map((chip) => (
-                <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
-                  <Text weight="medium" color={color.text.heading}>{localFacetLabel(chip, language)}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        ) : null}
-
-
-        {/* ── 부산 둘러보기 (하트가 여기로 옮겨 왔다) ── */}
-        {home.places.length ? (
-          <View style={styles.sectionPadded}>
-            {/* 🔴 「부산 대표 장소」였다가 2026-09-15 에 낮췄다. 고르는 방법이 부산 중심에서
-                가까운 순 넷이라 대표를 판정하는 자리가 없었다 — 제목만 대표를 약속하고 있었다. */}
-            <Text variant="title" weight="bold">{tx('부산 둘러보기', 'Browse Busan')}</Text>
-            <View style={styles.placeGrid}>
-              {home.places.map((place) => {
-                const liked = likedIds.has(place.placeId);
-                return (
-                  <View key={place.placeId} style={styles.placeCard}>
-                    <Pressable accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeThumbWrap, pressed && styles.pressed]}>
-                      <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} photoSubject={place.photoSubject} />
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityState={{ selected: liked }}
-                        accessibilityLabel={liked ? tx(`${place.nameKo} 저장 취소`, `Unsave ${place.nameKo}`) : tx(`${place.nameKo} 저장`, `Save ${place.nameKo}`)}
-                        onPress={() => (signedIn ? toggleLike(place.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/home' } }))}
-                        style={styles.heartButton}
-                      >
-                        {/* 색만으로 저장 여부를 나타내지 않는다(팀 UX 가이드라인 11번) —
-                            저장했을 때만 배경 원이 함께 나타난다. */}
-                        <View style={[styles.heartBackdrop, liked && styles.heartBackdropOn]}>
-                          <Image source={heartIcon} resizeMode="contain" style={[styles.heartIcon, liked ? styles.heartOn : styles.heartOff]} />
-                        </View>
-                      </Pressable>
-                    </Pressable>
-                    <Text weight="bold" numberOfLines={1}>{place.nameKo}</Text>
-                    {/* 갈래(`category`)는 「FOOD」 같은 코드로 와서 그대로 못 쓴다 — 주소를 쓴다. */}
-                    <Text variant="caption" numberOfLines={1}>{place.address ?? ''}</Text>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ) : null}
+        {home.facetRows.map((row) => (
+          <PlaceRow
+            key={row.facetKey}
+            row={row}
+            width={width}
+            cardWidth={MOBILE_CARD}
+            gutter={spacing[6]}
+            arrows={false}
+            likedIds={saved.likedIds}
+            onToggleLike={saved.toggle}
+          />
+        ))}
 
         {/* ── 내 여행 (로그인만) ── */}
         {signedIn ? (
@@ -335,49 +294,81 @@ export default function Home() {
           </View>
         ) : null}
 
-        {saveFeedback ? (
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('저장 안내 닫기', 'Dismiss save notice')} accessibilityLiveRegion="polite" onPress={() => setSaveFeedback(null)} style={styles.saveFeedback}>
-            <Text variant="caption" weight="bold" color={color.text.onAction}>{saveFeedback}</Text>
-            <Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Dismiss')}</Text>
-          </Pressable>
+        {/* 하트를 누른 결과를 한 줄로 알린다 — 서버에 못 보냈으면 그것도 사실대로. */}
+        {saved.feedback ? (
+          <View accessibilityLiveRegion="polite" style={styles.saveFeedback}>
+            <Text variant="caption" weight="bold" color={color.text.onAction}>{saved.feedback}</Text>
+          </View>
         ) : null}
         <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </Screen>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
-        onPress={() => router.push('/chat')}
-        style={({ pressed }) => [styles.assistantButton, pressed && styles.pressed]}
-      >
-        <GabolleMascot state="idle" style={styles.assistantMascot} />
-      </Pressable>
+      {/* 판이 먼저다 — 메뉴와 단추보다 아래에 깔려야 그 둘은 그대로 눌린다. */}
+      <AssistantBackdrop open={assistantOpen} onClose={() => setAssistantOpen(false)} />
+      <View ref={assistantRef} collapsable={false} style={[styles.assistantAnchor, { bottom: assistantBottom }]}>
+        {/* 폰은 부제 없이 232 폭. 마스코트 위로 뜬다. */}
+        <AssistantMenu compact open={assistantOpen} onClose={() => setAssistantOpen(false)} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: assistantOpen }}
+          accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
+          onPress={() => setAssistantOpen((open) => !open)}
+          style={({ pressed }) => [styles.assistantButton, pressed && styles.pressed]}
+        >
+          <GabolleMascot state="idle" style={styles.assistantMascot} />
+        </Pressable>
+      </View>
 
-      <TabBar active="home" />
+      {/* 🔴 시트는 탭바 «앞»에 그린다. 그래야 탭바(받침 zIndex 30)가 시트(25) 위로
+          미끄러져 내려가는 것이 보인다. 뒤에 그리면 탭바가 시트에 가려 그냥 사라진다. */}
+      {startBarSheet ? (
+        <PlanStartBar
+          sheet
+          wide={false}
+          accessToken={accessToken}
+          onSubmit={startPlanFromBar}
+          value={barValue}
+          onChange={setBarValue}
+          onClose={() => setStartBarSheet(false)}
+          initialSection={editSection}
+        />
+      ) : null}
+
+      <TabBar active="home" hidden={startBarSheet} />
+      <HomeCoach visible={coach.visible} startBar={coach.startBar} assistant={coach.assistant} onClose={closeCoach} onStart={() => { closeCoach(); router.push('/plan'); }} />
     </View>
   );
 }
 
 const CARD_WIDTH = 240;
 
+function GlobeGlyph() {
+  return (
+    <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={12} r={8.5} stroke={color.text.heading} strokeWidth={1.9} />
+      <Path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17" stroke={color.text.heading} strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
   screenContent: { paddingHorizontal: 0, paddingTop: 0 },
   pressed: { opacity: 0.75 },
 
   header: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[6], paddingTop: spacing[4] },
-  logo: { width: 110, height: 26 },
+  logo: { width: 143, height: 26 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], height: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
   bell: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   bellIcon: { width: 20, height: 20 },
+  langPill: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, paddingHorizontal: 12, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   loginPill: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
 
   hero: { gap: spacing[3], paddingHorizontal: spacing[6], paddingTop: spacing[6] },
   heroBadge: { alignSelf: 'flex-start', paddingHorizontal: spacing[3], paddingVertical: 6, borderRadius: radius.full, backgroundColor: color.surface.tint },
   heroTitle: { fontSize: 36, lineHeight: 42, letterSpacing: -0.3 },
-  primaryCta: { minHeight: 52, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange, marginTop: spacing[1] },
-
+  primaryCta: { minHeight: 52, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.action.primary, marginTop: spacing[1] },
 
   section: { gap: spacing[3], paddingTop: spacing[8] },
   sectionPadded: { gap: spacing[3], paddingTop: spacing[8], paddingHorizontal: spacing[6] },
@@ -389,12 +380,11 @@ const styles = StyleSheet.create({
   storyCard: { width: CARD_WIDTH, borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   storySkeleton: { height: 260, backgroundColor: color.surface.soft },
   storyImage: { width: '100%', aspectRatio: 4 / 3, backgroundColor: color.surface.soft },
-  // 🔴 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
-  //    빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
+  // 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
+  // 빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
   storyCoverEmpty: { alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: color.surface.tint },
   storyCoverEmptyText: { textAlign: 'center' },
   storyBody: { gap: spacing[1], paddingHorizontal: spacing[4], paddingTop: spacing[3], paddingBottom: spacing[4] },
-
 
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
 
@@ -405,7 +395,7 @@ const styles = StyleSheet.create({
   heartBackdrop: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   heartBackdropOn: { backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
   heartIcon: { width: 16, height: 16 },
-  heartOn: { tintColor: color.brand.orange },
+  heartOn: { tintColor: color.action.secondary },
   heartOff: { tintColor: color.text.muted },
 
   tripCard: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
@@ -417,9 +407,8 @@ const styles = StyleSheet.create({
 
   saveFeedback: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[6], marginHorizontal: spacing[6], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy },
 
-  // 마스코트 자체가 이미 원형 배지라 바깥에 흰 원을 또 두르지 않는다(이중 테두리로
-  // 시선만 끔) — 그 결정은 그대로 두되, 사용자 실사용 리포트(2026-09-16)로 "챗봇
-  // 아이콘이 너무 작다"는 지적을 받아 버튼·마스코트 크기 자체를 키운다.
-  assistantButton: { position: 'absolute', right: spacing[6], bottom: 100, width: 68, height: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
+  // 메뉴가 이 상자 위에 뜬다. 절대 위치를 단추가 아니라 감싸는 상자가 가진다.
+  assistantAnchor: { position: 'absolute', right: spacing[6], zIndex: 20 },
+  assistantButton: { width: 68, height: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   assistantMascot: { width: 60, height: 60 },
 });

@@ -1,15 +1,17 @@
-// 마이페이지 프로필 카드 — 커버 사진 위에 아바타가 걸쳐 앉는다 (S15P21E201-1237).
-// 시안: docs/design_handoff_mypage/MyPage.dc.html
+// 마이페이지 프로필 카드 — **폰 전용** (시안 02).
 //
-// 🔴 폰과 넓은 화면이 **같은 컴포넌트**다. 시안이 「넓어지는 것뿐」이라고 정했고,
-//    둘로 나누면 한쪽만 고치는 날이 온다.
-//
-// 🔴 **없는 값은 줄 자체를 안 그린다.** 한 줄 소개·거주지는 서버에 아직 칸이 없다.
-//    「미입력」이라고 적으면 **사용자가 적었는데 안 보이는 것처럼** 읽힌다.
+// 🔴 넓은 화면은 이 카드를 안 쓴다. 커버 사진이 화면 전폭으로 깔리고 그 위에 프로필이
+//    얹힌다(MyPageCover). 그래서 이 파일에 있던 넓은 화면 가지는 전부 죽은 코드였고
+//    걷어냈다 — 남겨 두면 다음 사람이 고치고서 「왜 안 바뀌지」를 한참 찾는다.
+import { type ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { txf } from '@/i18n/format';
+
+/** 사진이 없는 계정도 빈 회색 판이 아니다 — 넓은 화면(MyPageCover)과 같은 부산 기본 사진. S15P21E201-1375 */
+const DEFAULT_COVER = require('../../assets/home/web-hero.png');
 
 export type ProfileCardCount = { label: string; value: number | null; onPress?: () => void };
 
@@ -19,70 +21,51 @@ export type ProfileCardProps = {
   email: string | null;
   avatarUri: string | null;
   coverUri: string | null;
-  /** 한 줄 소개. 서버에 칸이 없으면 null 이고 줄을 안 그린다. */
-  bio: string | null;
-  /** 거주지. 위와 같다. */
-  homeCity: string | null;
   counts: ProfileCardCount[];
-  onEdit: () => void;
-  wide: boolean;
+  /** 커버 오른쪽 단추들. `/me` 는 「프로필 편집」, `/user/[id]` 는 「팔로우」+「차단하기」. */
+  actions: ReactNode;
   tx: (ko: string, en: string) => string;
 };
 
-export function ProfileCard({ name, email, avatarUri, coverUri, bio, homeCity, counts, onEdit, wide, tx }: ProfileCardProps) {
+export function ProfileCard({ name, email, avatarUri, coverUri, counts, actions, tx }: ProfileCardProps) {
   const initial = name.trim().slice(0, 1) || '·';
   return (
-    <View style={[styles.card, wide && styles.cardWide]}>
-      <View style={[styles.cover, wide && styles.coverWide, !coverUri && styles.coverEmpty]}>
-        {coverUri ? (
-          <Image source={{ uri: coverUri }} resizeMode="cover" style={styles.coverPhoto} accessibilityLabel={tx('배경 사진', 'Cover photo')} />
-        ) : null}
-        {/* 🔴 커버 아래를 흰색으로 녹이는 것은 **사진이 있을 때만** 한다.
-            사진은 사용자가 고르는 것이라 어떤 색이 올지 알 수 없어서, 안 녹이면 그 위에
-            얹힌 이름이 묻힌다. 반대로 사진이 없으면 녹일 것이 없다 — 그때도 녹이면
-            평평한 색 위에 **빈 흰 띠**가 생겨서 화면이 덜 만들어진 것처럼 보인다.
-            (2026-09-18 실제로 띄워서 찾았다.) */}
-        {coverUri ? <View style={styles.fade} /> : null}
-        <View style={styles.eyebrowBadge}>
-          <Text variant="caption" weight="bold">{tx('내 계정', 'Account')}</Text>
-        </View>
+    <View style={styles.card}>
+      <View style={styles.cover}>
+        <Image source={coverUri ? { uri: coverUri } : DEFAULT_COVER} resizeMode="cover" style={styles.coverPhoto} accessibilityLabel={coverUri ? tx('배경 사진', 'Cover photo') : ''} />
       </View>
 
-      <View style={[styles.body, wide && styles.bodyWide]}>
+      <View style={styles.body}>
         <View style={styles.topRow}>
-          <View style={[styles.avatar, wide && styles.avatarWide]}>
+          <View style={styles.avatar}>
             {avatarUri
               ? <Image source={{ uri: avatarUri }} resizeMode="cover" style={styles.avatarPhoto} accessibilityLabel={tx('프로필 사진', 'Profile photo')} />
               : <Text variant="display" weight="bold" color={color.text.onAction}>{initial}</Text>}
           </View>
-          <Pressable accessibilityRole="button" onPress={onEdit} style={styles.editButton}>
-            <Text weight="bold" color={color.text.onAction}>{tx('프로필 편집', 'Edit profile')}</Text>
-          </Pressable>
+          <View style={styles.actions}>{actions}</View>
         </View>
 
-        {/* 🔴 `hero` 는 **기본 글자색이 흰색**이다(tokens 의 defaults). 히어로 사진 위에
-            얹으라고 만든 변형이라 그렇다. 여기는 흰 바탕이라 색을 안 주면 **이름이 통째로
-            안 보인다** — 시험도 타입도 안 잡는다. 2026-09-18 에 띄워 보고 찾았다. */}
-        <Text variant={wide ? 'hero' : 'display'} weight="bold" color={color.text.heading} numberOfLines={1}>{name}</Text>
-        {bio ? <Text>{bio}</Text> : null}
-
+        <Text variant="display" weight="bold" color={color.text.heading} numberOfLines={1}>{name}</Text>
         <Text variant="caption" color={color.text.muted} numberOfLines={1}>
-          {[email, homeCity].filter(Boolean).join(' · ') || tx('로그인 없이 앱을 둘러보는 중이에요', 'Browsing without an account')}
+          {email || tx('로그인 없이 앱을 둘러보는 중이에요', 'Browsing without an account')}
         </Text>
 
+        {/* 🔴 숫자가 버튼이 된다(시안 02). 전에는 글자라 눌러도 되는지 안 보였다 —
+            눌리는 것은 눌리게 생겨야 한다. */}
         <View style={styles.counts}>
           {counts.map((count) => (
             <Pressable
               key={count.label}
               accessibilityRole={count.onPress ? 'button' : undefined}
+              accessibilityLabel={count.onPress ? txf(tx, '%s 보기', 'View %s', count.label) : undefined}
               disabled={!count.onPress}
               onPress={count.onPress}
-              style={styles.count}
+              style={({ pressed }) => [styles.count, pressed && styles.pressed]}
             >
-              {/* 🔴 아직 못 받은 수를 0 으로 그리지 않는다. 0 은 「없다」는 뜻이고
+              {/* 아직 못 받은 수를 0 으로 그리지 않는다. 0 은 「없다」는 뜻이고
                   못 받은 것은 「모른다」인데, 0 이 찍히면 사람은 앞의 뜻으로 읽는다. */}
-              <Text weight="bold">{count.value === null ? '–' : count.value}</Text>
-              <Text variant="caption" color={color.text.muted}>{count.label}</Text>
+              <Text variant="title" weight="bold" numberOfLines={1}>{count.value === null ? '–' : count.value}</Text>
+              <Text variant="caption" color={color.text.muted} numberOfLines={1}>{count.label}</Text>
             </Pressable>
           ))}
         </View>
@@ -91,33 +74,63 @@ export function ProfileCard({ name, email, avatarUri, coverUri, bio, homeCity, c
   );
 }
 
-const COVER_HEIGHT = 240;
-const COVER_HEIGHT_WIDE = 300;
-/** 사진이 없을 때는 낮게. 빈 색 띠를 300px 씩 둘 이유가 없다. */
-const COVER_HEIGHT_EMPTY = 168;
-const AVATAR = 88;
-const AVATAR_WIDE = 112;
+/**
+ * 폰 프로필 카드용 단추 — 시안은 동백 채움이다.
+ *
+ * <p>🔴 이 화면에는 동백 채움이 둘이 된다(이 단추 + 활성 탭). tokens.ts 규칙 1
+ * 「채움은 화면당 하나」 위반이고, 사용자가 시안대로 가기로 정했다(2026-09-21).
+ * 되돌릴 때는 tone 을 'outline' 으로 바꾸면 된다 — 붉은 선 단추로 내려간다.
+ */
+export function ProfileCardButton({
+  label, onPress, tone = 'primary', disabled,
+}: {
+  label: string;
+  onPress: () => void;
+  tone?: 'primary' | 'outline';
+  disabled?: boolean;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [styles.actionButton, tone === 'primary' ? styles.actionPrimary : styles.actionOutline, (pressed || disabled) && styles.pressed]}
+    >
+      <Text weight="bold" color={tone === 'primary' ? color.text.onAction : color.action.outline} numberOfLines={1}>{label}</Text>
+    </Pressable>
+  );
+}
+
+/** 시안 02 의 값. 아바타가 걸쳐 앉을 만큼만 있으면 된다. */
+const COVER_HEIGHT = 120;
+const AVATAR = 80;
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: color.surface.card, borderBottomWidth: 1, borderColor: color.surface.border, overflow: 'hidden' },
-  cardWide: { borderRadius: radius.lg, borderWidth: 1 },
+  // 폰에도 테두리와 둥근 모서리를 준다(시안 02). 전에는 띠처럼 화면 폭을 꽉 채웠다.
+  card: { borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, overflow: 'hidden' },
   cover: { height: COVER_HEIGHT, backgroundColor: color.surface.soft },
-  coverWide: { height: COVER_HEIGHT_WIDE },
-  coverEmpty: { height: COVER_HEIGHT_EMPTY },
   coverPhoto: { width: '100%', height: '100%' },
-  // 시안의 흰색 그라데이션을 RN 에서 흉내 낸다 — 아래 절반을 반투명 흰색으로 덮는다.
-  fade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '45%', backgroundColor: 'rgba(255,255,255,0.72)' },
-  eyebrowBadge: { position: 'absolute', top: spacing[4], left: spacing[4], paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(255,253,248,0.9)' },
-  body: { gap: spacing[2], paddingHorizontal: spacing[6], paddingBottom: spacing[6], marginTop: -56 },
-  bodyWide: { paddingHorizontal: spacing[8], marginTop: -72 },
-  topRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
+  body: { gap: spacing[2], paddingHorizontal: spacing[4], paddingBottom: spacing[4], marginTop: -40 },
+  // 🔴 아바타 줄을 커버 «위»로 올린다. 안 올리면 커버의 overflow: hidden 이 겹친 부분을
+  //    잘라 먹어서, 아바타가 반달처럼 보인다.
+  topRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing[3], zIndex: 1 },
   avatar: {
     width: AVATAR, height: AVATAR, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: color.brand.navy, borderWidth: 4, borderColor: color.surface.card, overflow: 'hidden',
+    backgroundColor: color.action.secondary, borderWidth: 4, borderColor: color.surface.card, overflow: 'hidden',
   },
-  avatarWide: { width: AVATAR_WIDE, height: AVATAR_WIDE, borderWidth: 5 },
   avatarPhoto: { width: '100%', height: '100%' },
-  editButton: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.navy },
-  counts: { flexDirection: 'row', gap: spacing[6], marginTop: spacing[2] },
-  count: { alignItems: 'center', minHeight: 44, justifyContent: 'center' },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  actionButton: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full },
+  actionPrimary: { backgroundColor: color.action.primary },
+  actionOutline: { backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
+
+  counts: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[2] },
+  // 시안 2b — 셋이 가로 한 줄에 서는 작은 알약. 전에는 화면 폭을 삼등분한 큰 상자라
+  // 아래 세그먼트와 무게가 비슷해서 어느 것이 탭인지 헷갈렸다.
+  count: {
+    flexDirection: 'row', alignItems: 'center', gap: spacing[2],
+    minHeight: 32, paddingHorizontal: spacing[3],
+    borderRadius: radius.full, backgroundColor: color.surface.tint,
+  },
+  pressed: { opacity: 0.72 },
 });

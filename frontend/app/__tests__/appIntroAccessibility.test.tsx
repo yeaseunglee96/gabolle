@@ -1,10 +1,4 @@
-// 온보딩에서 **지금 보이는 페이지만** 접근성 트리에 남는가 — S15P21E201-1191.
-//
-// 🔴 이 결함은 사람 눈으로는 안 보인다. 화면은 멀쩡하게 한 페이지만 그린다.
-//    달라지는 것은 화면 낭독기와 자동화가 보는 트리뿐이라, 시험이 유일한 방어선이다.
-//
-// 2026-09-17 아이폰 12 Pro 실기기 자동화(S15P21E201-250)에서 3페이지에 있는데 2페이지의
-// 「부산 둘러보기」가 눌려 캐러셀이 뒤로 밀렸다. 세 페이지가 동시에 트리에 있었기 때문이다.
+// 온보딩에서 지금 보이는 페이지만 접근성 트리에 남는가 — S15P21E201-1191.
 import { fireEvent, render } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
@@ -53,7 +47,7 @@ describe('온보딩 — 보이는 페이지만 읽힌다', () => {
   });
 
   it('주 버튼과 건너뛰기는 글자가 아니라 testID 로 찾을 수 있다', () => {
-    // 🔴 글자로 찾으면 English·日本語 로 바꾸는 순간 깨진다. 5개국어를 지원하는 앱이다.
+    // 글자로 찾으면 English·日本語 로 바꾸는 순간 깨진다. 5개국어를 지원하는 앱이다.
     const view = mount();
     expect(view.getByTestId('app-intro-primary')).toBeTruthy();
     expect(view.getByTestId('app-intro-skip')).toBeTruthy();

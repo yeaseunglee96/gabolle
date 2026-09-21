@@ -1,7 +1,7 @@
 import { adaptStreamedJob } from './recommendationJob';
 
 /**
- * S15P21E201-69 — SSE(`GET /api/v1/jobs/{jobId}/progress`)가 보내는 실제 모양
+ * — SSE(`GET /api/v1/jobs/{jobId}/progress`)가 보내는 실제 모양
  * ({@code JobProgressBroker.JobProgressSnapshot}: jobId·status·stage·percent·code, 중첩 없음)을
  * adaptPolledJob과 같은 판정(상태 매핑·진행률 역행 방지·실패 문구)으로 옮기는지 본다.
  */

@@ -14,6 +14,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import { changeTripMemberRole, getTripActivity, listTripMembers, removeTripMember, type CompanionRole, type TripActivityEntry, type TripActivityOperation, type TripMember, type TripMembersView } from '@/trip/collaboration';
 import { relativeStoryTime } from '@/social/stories';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 const ROLE_LABEL: Record<TripMember['role'], [string, string]> = {
   OWNER: ['소유자', 'Owner'],
@@ -21,7 +23,7 @@ const ROLE_LABEL: Record<TripMember['role'], [string, string]> = {
   VIEWER: ['열람자', 'Viewer'],
 };
 
-// S15P21E201-687 계약: 이 목록은 일정의 판(itinerary_versions)을 읽은 것이라 장소 이름은
+// 계약: 이 목록은 일정의 판(itinerary_versions)을 읽은 것이라 장소 이름은
 // 안 실려 온다(누가 무엇을 "바꿨는지"까지지 "무엇으로" 바꿨는지는 없다) — 지어내지 않는다.
 const OPERATION_LABEL: Record<TripActivityOperation, [string, string]> = {
   CREATE: ['일정을 만들었어요', 'created the itinerary'],
@@ -96,8 +98,8 @@ export default function TripCollaborate() {
     <View style={styles.heading}><Eyebrow>{tx('함께하는 여행', 'Trip together')}</Eyebrow><Text variant="display" weight="bold">{tx('참여자 관리', 'Manage participants')}</Text><Text color={color.text.body}>{tx('이 여행을 함께 보는 사람과 각자의 역할이에요.', "Everyone who can see this trip, and each person's role.")}</Text></View>
 
     {state.status === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text weight="bold">{tx('참여자를 불러오고 있어요.', 'Loading participants.')}</Text></View>}
-    {state.status === 'forbidden' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 여행의 참여자만 볼 수 있어요', 'Only participants of this trip can view this')}</Text><Text color={color.text.body}>{state.message}</Text></View>}
-    {state.status === 'error' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('참여자를 불러오지 못했어요', "Couldn't load participants")}</Text><Text color={color.text.body}>{state.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} /></View>}
+    {state.status === 'forbidden' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 여행의 참여자만 볼 수 있어요', 'Only participants of this trip can view this')}</Text><Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text></View>}
+    {state.status === 'error' && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('참여자를 불러오지 못했어요', "Couldn't load participants")}</Text><Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
 
     {state.status === 'ready' && <>
       <View style={styles.list}>{state.view.members.map((member) => {
@@ -108,10 +110,10 @@ export default function TripCollaborate() {
             <View style={styles.roleBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx(...ROLE_LABEL[member.role])}</Text></View>
           </View>
           {isOwner && member.role !== 'OWNER' && <View style={styles.memberActions}>
-            <Pressable accessibilityRole="button" accessibilityLabel={tx(`${member.displayName ?? ''} 역할을 ${member.role === 'EDITOR' ? '열람자' : '편집자'}로 바꾸기`, `Change ${member.displayName ?? ''}'s role to ${member.role === 'EDITOR' ? 'viewer' : 'editor'}`)} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void changeRole(member, member.role === 'EDITOR' ? 'VIEWER' : 'EDITOR')} style={[styles.actionButton, busy && styles.actionDisabled]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 역할을 %s로 바꾸기', "Change %s's role to %s", member.displayName ?? '', member.role === 'EDITOR' ? tx('열람자', 'viewer') : tx('편집자', 'editor'))} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void changeRole(member, member.role === 'EDITOR' ? 'VIEWER' : 'EDITOR')} style={[styles.actionButton, busy && styles.actionDisabled]}>
               <Text variant="caption" weight="bold" color={color.brand.navy}>{tx(member.role === 'EDITOR' ? '열람자로 변경' : '편집자로 변경', member.role === 'EDITOR' ? 'Make viewer' : 'Make editor')}</Text>
             </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel={tx(`${member.displayName ?? ''} 참여자 제거`, `Remove ${member.displayName ?? ''}`)} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void remove(member)} style={[styles.actionButtonDanger, busy && styles.actionDisabled]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 참여자 제거', 'Remove %s', member.displayName ?? '')} accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => void remove(member)} style={[styles.actionButtonDanger, busy && styles.actionDisabled]}>
               <Text variant="caption" weight="bold" color={color.state.danger}>{busy ? tx('처리 중…', 'Working…') : tx('제거', 'Remove')}</Text>
             </Pressable>
           </View>}
@@ -128,7 +130,7 @@ export default function TripCollaborate() {
         {activity.status === 'ready' && activity.entries.map((entry) => (
           <View key={`${entry.itineraryId}-${entry.version}`} style={styles.activityRow}>
             <Text variant="caption" color={color.text.body}>
-              {tx(`${entry.actorName ?? '(탈퇴한 사용자)'}${entry.isMe ? '(나)' : ''}님이 `, `${entry.actorName ?? '(deleted user)'}${entry.isMe ? ' (you)' : ''} `)}
+              {txf(tx, '%s%s님이 ', '%s%s ', entry.actorName ?? tx('(탈퇴한 사용자)', '(deleted user)'), entry.isMe ? tx('(나)', ' (you)') : '')}
               {tx(...OPERATION_LABEL[entry.operation])}
               {` · ${relativeStoryTime(entry.at, tx)}`}
             </Text>
@@ -142,7 +144,7 @@ export default function TripCollaborate() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory }, topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] }, logo: { width: 96, height: 28 }, spacer: { width: 44 },
+  screen: { backgroundColor: color.canvas }, topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] }, logo: { width: 154, height: 28 }, spacer: { width: 44 },
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[6] }, stateCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   list: { gap: spacing[3] }, memberCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   memberInfo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },

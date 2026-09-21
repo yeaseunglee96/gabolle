@@ -1,8 +1,8 @@
 import { formatFeatureSlot, missingValueLabel, type FeatureSlot } from '../places';
 
-// S15P21E201-1015 — 값이 없는 이유가 둘인데 한 문구로 뭉개고 있었다.
-// 🔴 「안 알아봤다」가 「없다」처럼 읽히면, 알레르기에서 사람이 다칠 수 있었던 것과 같은
-// 종류의 거짓말이 된다(S15P21E201-996). 셋이 화면에서 갈리는지 여기서 잠근다.
+// — 값이 없는 이유가 둘인데 한 문구로 뭉개고 있었다.
+// 「안 알아봤다」가 「없다」처럼 읽히면, 알레르기에서 사람이 다칠 수 있었던 것과 같은
+// 종류의 거짓말이 된다. 셋이 화면에서 갈리는지 여기서 잠근다.
 const tx = (ko: string) => ko;
 const slot = (evidenceStatus: FeatureSlot['evidenceStatus'], value: unknown = null): FeatureSlot => ({ value, evidenceStatus });
 

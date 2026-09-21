@@ -1,9 +1,5 @@
-// 온보딩 세 질문 — 오는 교통·숙소·식사 (S15P21E201-807, docs/COLDSTART-THREE-QUESTIONS.md).
+// 온보딩 세 질문 — 오는 교통·숙소·식사 (docs/COLDSTART-THREE-QUESTIONS.md).
 // 계정(USER) 첫 실행에서만 쓴다 — 여행(TRIP) 조건 입력 쪽 재사용은 별도 티켓 범위다.
-//
-// 🔴 이 화면의 답은 순위 필터가 아니라 가중치 배수로만 쓰인다(문서 1.3) — 그래서 여기서는
-// 후보를 줄이는 어떤 로직도 없다. 답을 서버에 그대로 저장하는 것이 전부다. 배수 크기는
-// 아직 안 정해져 1.0(변화 없음)이고, 그 크기를 정하는 것은 이 화면의 몫이 아니다(문서 5.2).
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -14,6 +10,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { enterApp } from '@/auth/enterApp';
 import { useI18n } from '@/i18n';
 import { getSpendProfile, MEAL_VARIES_CODE, putSpendProfile, SPEND_HEADER, SPEND_QUESTIONS, type SpendAnswers } from '@/onboarding/spendProfile';
 
@@ -33,13 +30,13 @@ export default function SpendProfileScreen() {
   // (로컬 플래그를 따로 두지 않는다, home.tsx 의 1회성 안내와 같은 원칙).
   useEffect(() => {
     if (!ready) return;
-    if (!accessToken) { router.replace('/home'); return; }
+    if (!accessToken) { enterApp(router, '/home'); return; }
     let active = true;
     setChecking(true);
     setCheckFailed(false);
     void getSpendProfile(accessToken).then((result) => {
       if (!active) return;
-      if (result.status !== 'UNKNOWN') { router.replace('/home'); return; }
+      if (result.status !== 'UNKNOWN') { enterApp(router, '/home'); return; }
       setChecking(false);
     }).catch(() => { if (active) { setChecking(false); setCheckFailed(true); } });
     return () => { active = false; };
@@ -69,13 +66,13 @@ export default function SpendProfileScreen() {
   };
 
   if (checking) {
-    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
+    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.action.primary} /></Screen>;
   }
   if (checkFailed) {
     return <Screen scroll style={styles.screen}><View style={styles.heading}>
       <Text accessibilityRole="alert">{tx('저장한 답변을 확인하지 못했어요. 이미 답한 설문을 다시 묻지 않도록 연결을 확인한 뒤 재시도해 주세요.', 'We could not check your saved answers. Please retry so we do not ask you to repeat a completed survey.')}</Text>
       <Button label={tx('다시 확인', 'Check again')} onPress={() => setCheckAttempt((value) => value + 1)} />
-      <Button variant="ghost" label={tx('홈으로', 'Go to home')} onPress={() => router.replace('/home')} />
+      <Button variant="tertiary" label={tx('홈으로', 'Go to home')} onPress={() => enterApp(router, '/home')} />
     </View></Screen>;
   }
 
@@ -96,7 +93,7 @@ export default function SpendProfileScreen() {
     {saveFailed && <View style={styles.options}>
       <Text accessibilityRole="alert">{tx('답변을 저장하지 못했어요. 이 화면에서는 선택한 답이 유지돼요. 다시 저장하거나, 저장하지 않고 나중에 답할 수 있어요.', 'Your answers could not be saved. Your selections are kept on this screen. Retry saving, or leave without saving and answer later.')}</Text>
       <Button label={tx('다시 저장', 'Retry saving')} disabled={submitting} onPress={() => void finish(answers)} />
-      <Button variant="ghost" label={tx('저장하지 않고 나중에', 'Leave without saving')} disabled={submitting} onPress={() => router.replace('/home')} />
+      <Button variant="tertiary" label={tx('저장하지 않고 나중에', 'Leave without saving')} disabled={submitting} onPress={() => enterApp(router, '/home')} />
     </View>}
 
     <Text variant="title" weight="bold" style={styles.question}>{tx(question.titleKo('USER'), question.titleEn('USER'))}</Text>
@@ -121,26 +118,26 @@ export default function SpendProfileScreen() {
 
     <View style={styles.footer}>
       {step > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 질문으로', 'Previous question')} disabled={submitting} onPress={() => setStep(step - 1)} style={styles.backLink}><Text weight="bold" color={color.brand.navy}>{tx('‹ 이전', '‹ Back')}</Text></Pressable>}
-      {submitting && <ActivityIndicator color={color.brand.orange} />}
+      {submitting && <ActivityIndicator color={color.action.primary} />}
     </View>
   </Screen>;
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
-  // 🔴 marginTop — Screen 의 기본 paddingTop(24) 만으로는 전역 언어 배지(우측 상단
-  //    절대좌표)를 못 피한다(home.tsx·app-intro.tsx 에서 실사용 리포트로 확인된 것과
-  //    같은 자리). "전체 건너뛰기" 가 배지와 겹치던 결함을 여기도 같은 값으로 고친다.
+  // marginTop — Screen 의 기본 paddingTop(24) 만으로는 전역 언어 배지(우측 상단
+  // 절대좌표)를 못 피한다(home.tsx·app-intro.tsx 에서 실사용 리포트로 확인된 것과
+  // 같은 자리). "전체 건너뛰기" 가 배지와 겹치던 결함을 여기도 같은 값으로 고친다.
   topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
-  logo: { width: 88, height: 24 },
+  logo: { width: 132, height: 24 },
   stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
   skipAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
   heading: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[6] },
   question: { marginTop: spacing[4], marginBottom: spacing[4] },
   options: { gap: spacing[3] },
   option: { minHeight: 64, gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
-  optionPressed: { borderColor: color.brand.orange, backgroundColor: color.surface.tint },
+  optionPressed: { borderColor: color.action.secondary, backgroundColor: color.surface.tint },
   optionDesc: { lineHeight: 18 },
   skipQuestion: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: spacing[1] },
   footer: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[6] },

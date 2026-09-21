@@ -1,17 +1,8 @@
 import { getApiLanguage } from '@/api/client';
 
-// S15P21E201-445 — 부산 음식 8종(밀면·돼지국밥·씨앗호떡·회/해산물·동래파전·복국·부산어묵·
+// — 부산 음식 8종(밀면·돼지국밥·씨앗호떡·회/해산물·동래파전·복국·부산어묵
 // 낙곱새)의 영문명·발음·원재료·맵기·가격대를 코드가 아니라 설정으로 둔다. 이 값을 고치면
 // 화면(태그·상세 카드 등)이 코드 변경 없이 그대로 따라간다.
-//
-// 🔴 `code` 는 frontend/src/plan/foodConflicts.ts 의 3단계(취향) 화면이 쓰는 코드와 겹치는
-// 자리(MILMYEON·PORK_SOUP·SEAFOOD)는 그대로 맞췄다 — 같은 음식을 가리키는 값이 두 파일에서
-// 다른 이름을 갖게 되는 것을 막기 위해서다. 나머지 5종은 이 티켓에서 처음 생기는 코드다.
-//
-// 🔴 `allergenCodes` 는 `frontend/app/(plan)/constraints.tsx` 의 `ALLERGIES` 8개(PEANUT ·
-// TREE_NUT · SHELLFISH_CRUSTACEAN · FISH · EGG · MILK_DAIRY · WHEAT · SOY)와 **정확히 같은
-// 코드만** 쓴다 — 다른 값을 넣으면 알레르기 대조가 조용히 안 걸린다. 돼지고기처럼 8대
-// 알레르기에 없는 재료는 `mainIngredientsKo`(사람이 읽는 원재료 이름)에만 적는다.
 export type AllergenCode =
 	| 'PEANUT'
 	| 'TREE_NUT'
@@ -139,7 +130,7 @@ export const busanFoodLabel = (code: string): string => {
 };
 
 /**
- * 원재료 이름(한글, 예: "돼지고기")으로 그 재료가 들어간 음식을 찾는다 — S15P21E201-445
+ * 원재료 이름(한글, 예: "돼지고기")으로 그 재료가 들어간 음식을 찾는다
  * 완료 기준("돼지고기"를 원재료로 가진 음식을 찾으면 돼지국밥이 나온다) 그대로다.
  */
 export function findBusanFoodsByIngredient(ingredientKo: string): readonly BusanFood[] {

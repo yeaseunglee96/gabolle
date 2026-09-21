@@ -1,8 +1,7 @@
-// 홈 시작 바가 다루는 값 — 화면이 아니라 여기서 만든다 (S15P21E201-1233).
+// 홈 시작 바가 다루는 값 — 화면이 아니라 여기서 만든다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
-//
-// 🔴 날짜 계산은 눈으로 검산이 안 된다. 「1박 2일」이 이틀인지 사흘인지, 월이 바뀔 때
-//    어떻게 되는지는 시험이 붙들어야 한다.
+
+import { txf } from '@/i18n/format';
 
 export type StartBarValue = {
   origin: string;
@@ -24,10 +23,46 @@ export const EMPTY_START_BAR: StartBarValue = {
   children: 0,
 };
 
+/** 시작 바에서 열 수 있는 칸. */
+export type StartBarSection = 'origin' | 'dates' | 'people' | null;
+
+/**
+ * 🔴 주소의 `?edit=` 를 열 칸으로 바꾼다 — S15P21E201-1350.
+ *
+ * <p>주소에서 온 값은 무엇이든 올 수 있다(사용자가 손으로 고칠 수도 있고, 배열로도 온다).
+ * 모르는 값이면 <b>아무 칸도 안 연다</b> — 예전처럼 접힌 바가 뜰 뿐이라 나빠지지 않는다.
+ */
+export function startBarEditSection(raw: string | string[] | undefined): StartBarSection {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return value === 'origin' || value === 'dates' || value === 'people' ? value : null;
+}
+
+/**
+ * 🔴 이미 답한 것을 시작 바에 다시 채운다 — S15P21E201-1350.
+ *
+ * <p>열 문항 화면에서 「날짜 정하기」를 누르면 홈으로 온다. 그때 시작 바가 빈 채로
+ * 뜨면 사람은 「내가 넣은 것이 날아갔나」로 읽고 처음부터 다시 넣는다. 그래서
+ * 가지고 있는 값을 그대로 옮겨 넣어 둔다.
+ *
+ * <p>칸 이름이 양쪽이 같아 그대로 옮기면 되지만, 그 «그대로» 가 진짜인지를 사람이
+ * 눈으로 확인하기 어렵다. 그래서 함수로 뺀다 — 여기서 한 칸이라도 빠지면 시험이 잡는다.
+ */
+export function startBarFromDraft(draft: StartBarValue): StartBarValue {
+  return {
+    origin: draft.origin,
+    originLat: draft.originLat,
+    originLng: draft.originLng,
+    startDate: draft.startDate,
+    endDate: draft.endDate,
+    // 인원은 0 이 될 수 없다. 빈 초안이면 시작 바의 기본값을 쓴다.
+    adults: draft.adults > 0 ? draft.adults : EMPTY_START_BAR.adults,
+    children: draft.children > 0 ? draft.children : 0,
+  };
+}
+
 const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-/** `2026-09-20` 로 만든다. `toISOString()` 은 UTC 라 한국에서 하루 밀린다. */
 export function toDateKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
@@ -60,29 +95,21 @@ export function nightCount(startKey: string, endKey: string): number {
   return days > 0 ? days - 1 : 0;
 }
 
-export function formatDateShort(key: string, ko: boolean): string {
+export type StartBarTx = (ko: string, en: string) => string;
+
+/** 「9.20(토)」 — 요일은 고른 언어로(번역표에 요일 일곱 개가 있다). */
+export function formatDateShort(key: string, tx: StartBarTx): string {
   const date = parseDateKey(key);
   if (!date) return '';
-  const weekday = ko ? WEEKDAY_KO[date.getDay()] : WEEKDAY_EN[date.getDay()];
+  const weekday = tx(WEEKDAY_KO[date.getDay()], WEEKDAY_EN[date.getDay()]);
   return `${date.getMonth() + 1}.${date.getDate()}(${weekday})`;
 }
 
-/**
- * 시작 바에 한 줄로 보여 줄 요약 — 「부산역 · 9.20(토) – 9.21(일) · 1박 · 성인 2」.
- *
- * 🔴 **채워진 것만 적는다.** 안 고른 칸을 「미정」 같은 말로 채우면, 사람은 그것을
- * 「내가 골랐는데 반영이 안 됐다」로 읽는다. 아무것도 없으면 빈 문자열이고
- * 화면이 그때만 안내 문구를 쓴다.
- */
-export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
-  // 🔴 인원만 있는 요약은 만들지 않는다 (2026-09-18, 폰 화면을 띄워서 찾았다).
-  //
-  //    인원에는 **기본값(성인 2)이 들어 있다.** 그래서 아무것도 안 고른 사람에게도
-  //    요약이 「성인 2」로 나왔고, 알약에 안내 문구 대신 그것이 찍혔다 —
-  //    **고른 적 없는 값이 고른 것처럼 보였다.**
-  //
-  //    사람이 실제로 고른 것은 출발지와 날짜다. 둘 다 없으면 **요약이 없는 것**이고,
-  //    그때는 화면이 「여행 계획 시작해 보세요」를 쓴다.
+/** 시작 바에 한 줄로 보여 줄 요약 — 「부산역 · 9.20(토) – 9.21(일) · 1박 · 성인 2」. */
+export function summarizeStartBar(value: StartBarValue, tx: StartBarTx): string {
+  // 인원에는 기본값(성인 2)이 들어 있다. 그래서 아무것도 안 고른 사람에게도
+  // 요약이 「성인 2」로 나왔고, 알약에 안내 문구 대신 그것이 찍혔다
+  // 고른 적 없는 값이 고른 것처럼 보였다.
   if (!value.origin.trim() && !value.startDate) return '';
 
   const parts: string[] = [];
@@ -90,51 +117,54 @@ export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
 
   if (value.startDate) {
     const range = value.endDate && value.endDate !== value.startDate
-      ? `${formatDateShort(value.startDate, ko)} – ${formatDateShort(value.endDate, ko)}`
-      : formatDateShort(value.startDate, ko);
+      ? `${formatDateShort(value.startDate, tx)} – ${formatDateShort(value.endDate, tx)}`
+      : formatDateShort(value.startDate, tx);
     parts.push(range);
     const nights = nightCount(value.startDate, value.endDate || value.startDate);
-    parts.push(nights > 0 ? (ko ? `${nights}박` : `${nights} nights`) : ko ? '당일치기' : 'Day trip');
+    parts.push(nights > 0 ? tx(`${nights}박`, `${nights} nights`) : tx('당일치기', 'Day trip'));
   }
 
   const people: string[] = [];
-  if (value.adults > 0) people.push(ko ? `성인 ${value.adults}` : `${value.adults} adults`);
-  if (value.children > 0) people.push(ko ? `어린이 ${value.children}` : `${value.children} children`);
+  if (value.adults > 0) people.push(tx(`성인 ${value.adults}`, `${value.adults} adults`));
+  if (value.children > 0) people.push(tx(`어린이 ${value.children}`, `${value.children} children`));
   if (people.length) parts.push(people.join(' · '));
 
   return parts.join(' · ');
 }
 
-/**
- * 「홈에서 받은 정보」를 **칩 세 개**로 쪼갠다 — 시안 p1 (S15P21E201-1245).
- *
- * 🔴 한 줄 문자열로 이어 붙이면 폰 390 에서 한 줄에 다 안 들어가 잘린다. 시안은 출발지 ·
- *    날짜 · 인원을 **따로 선 칩**으로 두어서, 좁으면 줄이 바뀌고 넓으면 한 줄로 선다.
- * 🔴 **없는 칸은 만들지 않는다.** 날짜를 안 고른 사람에게 빈 날짜 칩을 보여 주지 않는다.
- *    요약 문자열과 같은 규칙이다(summarizeStartBar 머리말).
- */
-export function startBarChips(value: StartBarValue, ko: boolean): string[] {
+/** 「홈에서 받은 정보」를 칩 세 개로 쪼갠다 — 시안 p1 */
+export function startBarChips(value: StartBarValue, tx: StartBarTx): string[] {
   if (!value.origin.trim() && !value.startDate) return [];
   const chips: string[] = [];
-  if (value.origin.trim()) chips.push(ko ? `${value.origin.trim()} 출발` : `From ${value.origin.trim()}`);
+  if (value.origin.trim()) chips.push(txf(tx, '%s 출발', 'From %s', value.origin.trim()));
   if (value.startDate) {
     const range = value.endDate && value.endDate !== value.startDate
-      ? `${formatDateShort(value.startDate, ko)} – ${formatDateShort(value.endDate, ko)}`
-      : formatDateShort(value.startDate, ko);
+      ? `${formatDateShort(value.startDate, tx)} – ${formatDateShort(value.endDate, tx)}`
+      : formatDateShort(value.startDate, tx);
     const nights = nightCount(value.startDate, value.endDate || value.startDate);
-    const stay = nights > 0 ? (ko ? `${nights}박` : `${nights} nights`) : ko ? '당일치기' : 'Day trip';
+    const stay = nights > 0 ? tx(`${nights}박`, `${nights} nights`) : tx('당일치기', 'Day trip');
     chips.push(`${range} · ${stay}`);
   }
   const people: string[] = [];
-  if (value.adults > 0) people.push(ko ? `성인 ${value.adults}` : `${value.adults} adults`);
-  if (value.children > 0) people.push(ko ? `어린이 ${value.children}` : `${value.children} children`);
+  if (value.adults > 0) people.push(tx(`성인 ${value.adults}`, `${value.adults} adults`));
+  if (value.children > 0) people.push(tx(`어린이 ${value.children}`, `${value.children} children`));
   if (people.length) chips.push(people.join(' · '));
   return chips;
 }
 
 /** 「일정 물어보기」를 누를 수 있나 — 출발지와 날짜가 있어야 한다. */
 export function canAskForPlan(value: StartBarValue): boolean {
-  return Boolean(value.origin.trim()) && Boolean(value.startDate) && value.adults + value.children > 0;
+  // 🔴 출발지는 안 묻는다 — S15P21E201-1376. 서버(CreateTripRequest)는 originLat·originLng 를 선택으로
+  //    받고, 열 문항 화면도 출발지 없이 만들게 한다. 여기서만 요구하니 「일정 물어보기」가 이유 없이
+  //    잠겼다(2026-09-21 실기). 출발지가 있으면 첫 이동 시간이 붙고, 없으면 그 줄만 없다.
+  return Boolean(value.startDate) && value.adults + value.children > 0;
+}
+
+/** 왜 못 누르나 — 잠긴 단추 대신 이 말을 단추에 쓴다. 누를 수 있으면 null. */
+export function askForPlanBlocker(value: StartBarValue, tx: StartBarTx): string | null {
+  if (!value.startDate) return tx('날짜를 골라 주세요', 'Pick your dates');
+  if (value.adults + value.children <= 0) return tx('인원을 정해 주세요', 'Set the party size');
+  return null;
 }
 
 export type StartBarPreset = { id: string; ko: string; en: string; apply: (today: Date) => Partial<StartBarValue> };
@@ -146,12 +176,7 @@ function nextSaturday(today: Date): Date {
   return date;
 }
 
-/**
- * 「바로 시작」 프리셋. 누르면 바가 채워진다.
- *
- * 🔴 오늘 날짜를 인자로 받는다 — 안에서 `new Date()` 를 부르면 시험이 날짜에 따라
- * 붙었다 떨어졌다 한다.
- */
+/** 「바로 시작」 프리셋. 누르면 바가 채워진다. */
 export const START_BAR_PRESETS: StartBarPreset[] = [
   {
     id: 'weekend-1n',

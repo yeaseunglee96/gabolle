@@ -1,17 +1,20 @@
-import { allergenNotice, emptyNotice, scanMenu, unreadNotice, type MenuScan } from '../menuScan';
+import { allergenNotice, emptyNotice, scanMenu, unreadNotice, type MenuLine, type MenuScan } from '../menuScan';
 
-// S15P21E201-329 — 이 화면은 사람이 먹는 것 앞에 선다.
-//
-// 🔴 2026-09-16 에 고친 결함(S15P21E201-996)이 여기서 다시 날 수 있는 자리다. 그때는
-// 아무도 조사하지 않은 알레르기를 화면이 「확인됨 · 등록된 유발 성분이 없습니다」로
-// 뒤집어 말했다. 이번에는 서버가 「이 낱말들이 보인다」고 말하는데 화면이 「이것뿐이다」로
-// 그리면 같은 사고다. 그 규칙을 사람이 아니라 이 시험이 지킨다.
+// — 이 화면은 사람이 먹는 것 앞에 선다.
 
 const tx = (ko: string) => ko;
 const txEn = (_ko: string, en: string) => en;
 
 function scan(partial: Partial<MenuScan> = {}): MenuScan {
   return { lines: [], unreadLineCount: 0, evidenceStatus: 'ESTIMATED', ...partial };
+}
+
+/**
+ * 시험용 한 줄. 서버가 칸을 늘려도 이 헬퍼 하나만 고치면 되게 둔다 —
+ * 줄을 손으로 만들어 두면 칸이 늘 때마다 시험 수십 곳이 함께 빨개진다.
+ */
+function line(partial: Partial<MenuLine> = {}): MenuLine {
+  return { text: '', name: '', price: '', translatedName: '', translatedText: '', allergenWords: [], ...partial };
 }
 
 /** 이 말들이 화면에 나오면 사람이 다칠 수 있다. */
@@ -26,8 +29,8 @@ function assertNeverSaysNone(text: string) {
 describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
   it('낱말을 찾았으면 그대로 나열하고, 직접 확인하라는 말이 반드시 붙는다', () => {
     const notice = allergenNotice(scan({ lines: [
-      { text: '새우튀김 12,000', translatedText: '새우튀김 12,000', allergenWords: ['새우'] },
-      { text: '우유푸딩 6,000', translatedText: '우유푸딩 6,000', allergenWords: ['우유'] },
+      line({ text: '새우튀김 12,000', translatedText: '새우튀김 12,000', allergenWords: ['새우'] }),
+      line({ text: '우유푸딩 6,000', translatedText: '우유푸딩 6,000', allergenWords: ['우유'] }),
     ] }), tx);
     expect(notice.words).toEqual(['새우', '우유']);
     expect(notice.caution).toContain('직원에게 확인');
@@ -35,7 +38,7 @@ describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
   });
 
   it('🔴 못 찾았을 때 「없다는 뜻이 아니에요」가 반드시 붙는다', () => {
-    const notice = allergenNotice(scan({ lines: [{ text: '김치찌개 9,000', translatedText: '김치찌개 9,000', allergenWords: [] }] }), tx);
+    const notice = allergenNotice(scan({ lines: [line({ text: '김치찌개 9,000', translatedText: '김치찌개 9,000', allergenWords: [] })] }), tx);
     expect(notice.words).toEqual([]);
     expect(notice.caution).toContain('없다는 뜻이 아니');
     expect(notice.caution).toContain('직원에게 확인');
@@ -43,7 +46,7 @@ describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
   });
 
   it('🔴 영어에서도 「없다」를 말하지 않고 확인을 요구한다', () => {
-    const notice = allergenNotice(scan({ lines: [{ text: 'Kimchi stew', translatedText: 'Kimchi stew', allergenWords: [] }] }), txEn);
+    const notice = allergenNotice(scan({ lines: [line({ text: 'Kimchi stew', translatedText: 'Kimchi stew', allergenWords: [] })] }), txEn);
     expect(notice.caution.toLowerCase()).toContain('does not mean');
     expect(notice.caution.toLowerCase()).toContain('check with the staff');
     assertNeverSaysNone(notice.headline + notice.caution);
@@ -51,8 +54,8 @@ describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
 
   it('같은 낱말이 여러 줄에 있어도 한 번만 나온다', () => {
     const notice = allergenNotice(scan({ lines: [
-      { text: '새우튀김', translatedText: '새우튀김', allergenWords: ['새우'] },
-      { text: '새우볶음밥', translatedText: '새우볶음밥', allergenWords: ['새우'] },
+      line({ text: '새우튀김', translatedText: '새우튀김', allergenWords: ['새우'] }),
+      line({ text: '새우볶음밥', translatedText: '새우볶음밥', allergenWords: ['새우'] }),
     ] }), tx);
     expect(notice.words).toEqual(['새우']);
   });
@@ -68,7 +71,7 @@ describe('못 읽은 줄은 숨기지 않는다', () => {
   });
 
   it('🔴 못 읽은 줄이 0이어도 알레르기 주의는 그대로 붙는다', () => {
-    const notice = allergenNotice(scan({ unreadLineCount: 0, lines: [{ text: '된장찌개', translatedText: '된장찌개', allergenWords: [] }] }), tx);
+    const notice = allergenNotice(scan({ unreadLineCount: 0, lines: [line({ text: '된장찌개', translatedText: '된장찌개', allergenWords: [] })] }), tx);
     expect(notice.caution).toContain('직원에게 확인');
   });
 });
@@ -79,15 +82,15 @@ describe('글자를 못 찾았을 때', () => {
   });
 
   it('글자가 있으면 이 안내는 안 나온다', () => {
-    expect(emptyNotice(scan({ lines: [{ text: '비빔밥', translatedText: '비빔밥', allergenWords: [] }] }), tx)).toBeNull();
+    expect(emptyNotice(scan({ lines: [line({ text: '비빔밥', translatedText: '비빔밥', allergenWords: [] })] }), tx)).toBeNull();
   });
 });
 
 // ── 서버가 준 것을 그대로 믿지 않는다 ────────────────────────────────────────
 
-// 🔴 S15P21E201-1187 — 사진은 보내기 전에 진짜 파일을 읽어 Blob 으로 바뀜다.
-//    여기서 재는 것은 서버가 준 것을 어떻게 다루는가라, 파일 읽기는 흔든다.
-//    그 자리 자체의 시험은 src/api/__tests__/multipart.test.ts 에 따로 있다.
+// — 사진은 보내기 전에 진짜 파일을 읽어 Blob 으로 바뀜다.
+// 여기서 재는 것은 서버가 준 것을 어떻게 다루는가라, 파일 읽기는 흔든다.
+// 그 자리 자체의 시험은 src/api/__tests__/multipart.test.ts 에 따로 있다.
 jest.mock('@/api/multipart', () => ({ singleFileFormData: jest.fn(async () => new FormData()) }));
 jest.mock('@/social/imageResize', () => ({
   MAX_UPLOAD_BYTES: 3 * 1024 * 1024,
@@ -124,10 +127,10 @@ describe('메뉴판 사진 보내기', () => {
     const result = await scanMenu('file:///menu.jpg', 'token', tx, 'ko');
     expect(result.state).toBe('success');
     if (result.state !== 'success') return;
-    // 🔴 서버가 translatedText 를 안 줬다 — 원문으로 물러선다(normalizeScan 의 물러섬).
-    expect(result.scan.lines[0]).toEqual({ text: '김밥', translatedText: '김밥', allergenWords: ['달걀'] });
+    // 서버가 translatedText 를 안 줬다 — 원문으로 물러선다(normalizeScan 의 물러섬).
+    expect(result.scan.lines[0]).toEqual(line({ text: '김밥', translatedText: '김밥', allergenWords: ['달걀'] }));
     expect(Object.keys(result.scan)).toEqual(['lines', 'unreadLineCount', 'evidenceStatus']);
-    // 🔴 서버가 VERIFIED 라고 해도 사진에서 읽은 값은 추정이다.
+    // 서버가 VERIFIED 라고 해도 사진에서 읽은 값은 추정이다.
     expect(result.scan.evidenceStatus).toBe('ESTIMATED');
   });
 
@@ -141,14 +144,14 @@ describe('메뉴판 사진 보내기', () => {
 
   it('🔴 S15P21E201-1236 — 서버가 번역한 문구를 그대로 싣는다', async () => {
     respondWith({ data: {
-      lines: [{ text: '돼지국밥', translatedText: 'Pork bone soup', allergenWords: [] }],
+      lines: [line({ text: '돼지국밥', translatedText: 'Pork bone soup', allergenWords: [] })],
       unreadLineCount: 0,
       evidenceStatus: 'ESTIMATED',
     }, error: null, meta: { requestId: 'r1' } });
     const result = await scanMenu('file:///menu.jpg', 'token', tx, 'en');
     expect(result.state).toBe('success');
     if (result.state !== 'success') return;
-    expect(result.scan.lines[0]).toEqual({ text: '돼지국밥', translatedText: 'Pork bone soup', allergenWords: [] });
+    expect(result.scan.lines[0]).toEqual(line({ text: '돼지국밥', translatedText: 'Pork bone soup', allergenWords: [] }));
   });
 
   it('로그인 안 했으면 서버를 아예 안 부른다', async () => {

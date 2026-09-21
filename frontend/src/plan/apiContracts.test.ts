@@ -1,14 +1,6 @@
 import { isItineraryDto, isRecommendationJobPollDto } from './apiContracts';
 
-/**
- * 실제 백엔드가 보낸 응답 예시 — S15P21E201-776.
- *
- * <p>여기 두 fixture는 지어낸 모양이 아니라 이 저장소의 백엔드 기능 테스트
- * (S15P21E201-780 `CoreJourneyFunctionalTest`)가 실제 HTTP로 부산역 좌표·MAX_WALKING_METERS
- * 제약으로 여행을 만들고 추천을 완료까지 돌려 실제로 받은 응답의 모양을 옮겨 적은 것이다.
- * 백엔드가 이 모양을 바꾸면(필드 이름이든 타입이든) 아래 테스트가 그 즉시 빨개져야 한다 —
- * 그것이 이 파일의 존재 이유다. apiContracts.ts 머리말의 "어느 쪽이 먼저 바뀌면" 표를 참고.
- */
+/** 실제 백엔드가 보낸 응답 예시 — S15P21E201-776. */
 const REAL_JOB_POLL_RESPONSE = {
   jobId: '02ae7ea5-0688-4d8c-a310-b42031ff47a2',
   status: 'SUCCEEDED',

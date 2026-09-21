@@ -1,8 +1,4 @@
 // 글(원글·댓글 공통) 본문 수정 — S15P21E201-1239.
-//
-// 🔴 여기서 재는 것은 「PATCH 가 body 만 보내는가」다. 댓글에는 visibility·publishAt
-// 을 고를 화면이 없다 — 실수로 그 칸을 채워 보내면 서버가 StoryForbiddenException 으로
-// 막긴 하지만(작성자만 바꿀 수 있다), 안 보내는 편이 「막힐 걸 알고 보낸다」보다 낫다.
 
 import { updateStory } from '../stories';
 

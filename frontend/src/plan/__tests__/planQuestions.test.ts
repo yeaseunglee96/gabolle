@@ -1,5 +1,5 @@
-// 🔴 이 시험이 지키는 것은 「답했는데 다음이 안 열린다」와 그 반대다.
-//    둘 다 화면을 봐도 원인이 안 보이고, 사용자는 그냥 나가 버린다.
+// 이 시험이 지키는 것은 「답했는데 다음이 안 열린다」와 그 반대다.
+// 둘 다 화면을 봐도 원인이 안 보이고, 사용자는 그냥 나가 버린다.
 import { EMPTY_PLAN, type PlanDraft } from '@/plan/PlanProvider';
 import {
   INITIAL_QUESTION_STATE,

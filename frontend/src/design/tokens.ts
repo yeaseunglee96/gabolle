@@ -1,121 +1,123 @@
 import { Platform } from 'react-native';
 
-// Figma 에서 실측한 디자인 토큰이다. 화면에서 색·숫자를 직접 하드코딩하지 않고
-// 반드시 이 파일을 거쳐서 쓴다 — 나중에 값이 바뀌어도 여기 한 곳만 고치면 되게 하기 위해서다.
+// Figma 실측 디자인 토큰. 색·숫자의 단일 출처 — 화면에서 직접 하드코딩 금지
 //
-// ─────────────────────────────────────────────────────────────────────────────
-// 🔴 색은 **빈도로 뽑으면 틀린다.** 한 번 크게 틀렸으니 그 이유를 남긴다.
+// 🔴 2026-09-19 (S15P21E201-1343) — **부산은행 톤**으로 값을 통째로 바꿨다. 이름은 하나도
+//    안 바꿨다. 화면 126개가 여기서만 색을 읽어 왔기 때문에(하드코딩 금지 규칙) 값만
+//    갈아 끼우면 전 화면이 따라온다 — 그 규칙을 지켜 온 것이 여기서 값을 했다.
 //
-// 처음에 색을 사용 횟수로만 세고 "어두운 남색이 많으니 다크 테마" 라고 읽었다.
-// 틀렸다. 그 남색들(#152238 · #14293d · #172e3b)은 배경이 아니라 **제목 글자색**이고,
-// 이 앱은 화면 23개가 전부 흰색 계열 배경인 **밝은 테마**다.
+// 🔴 **이 배색이 지키는 규칙 여섯.** 값을 고치기 전에 읽어라. 어기면 색은 새것인데
+//    화면은 옛것처럼 읽힌다.
 //
-// 그래서 다시 뽑을 때는 두 가지로 갈랐다.
-//   ① 칠해진 요소가 TEXT 인가 아닌가  → 글자색과 배경색을 섞지 않는다
-//   ② 요소의 폭이 얼마인가            → 전폭(336px+) 버튼과 작은 칩을 섞지 않는다
-//
-// 아래 주석의 "폭중앙" 은 그 색이 실제로 칠해진 요소들의 폭 중앙값이다.
-// 이름을 지을 때 이 숫자를 근거로 삼았다.
-// ─────────────────────────────────────────────────────────────────────────────
+//    1. 동백(action.primary) **채움은 화면당 하나** — 주 버튼. 둘째부터는 outline 이나
+//       secondary 다. 빨강이 둘이면 사람은 어느 쪽이 「그다음에 할 일」인지 못 고른다
+//    2. **선택 상태에 빨강을 쓰지 않는다** — 짙은 회색(action.secondary). 안 그러면
+//       「고른 것」과 「눌러야 할 것」이 같은 색이 된다
+//    3. **카드에 선·그림자를 두지 않는다.** 바탕(canvas)과 흰 카드의 차이로만 뜬다.
+//       예외는 둘뿐 — 하단 탭바 그림자, 진행 중 카드의 붉은 링
+//    4. **state.dangerBg 는 경고·제외 전용.** 선택이나 안내 배경으로 쓰지 않는다
+//    5. **text.eyebrow 는 회색이다.** 「● 진행 중」 같은 실시간 상태만 빨간 글자로 따로 준다
+//    6. **state.dot 과 action.primary 를 섞지 않는다.** 점은 글자가 없는 곳에만
 
 export const color = {
   brand: {
-    navy: '#0b1d3a',
-    orange: '#f26532',
-    ivory: '#fffdf8',
+    /** 검정 — 글자·아이콘 선·로고 워드마크. 채움에는 action.* 를 쓴다 */
+    navy: '#191919',
+    // 🔴 2026-09-19 — brand.orange 를 **지웠다.** 값은 여기 있었다: '#F26532' → '#D83A48'.
+    //    옛 배색에서 이 이름은 「아무 데나 쓰는 강조색」이었다. 새 값이 동백 빨강이 되면서
+    //    그 쓰임이 규칙 위반이 됐고(채움은 화면당 하나), 이름을 남겨 두면 다음 사람이
+    //    **옛 뜻으로 또 쓴다** — 그러면 화면은 멀쩡히 그려지고 규칙만 조용히 깨진다.
+    //    빨강이 필요하면 무엇을 뜻하는지 골라라: action.primary(주 버튼) · action.outline
+    //    (붉은 선) · state.dot(글자 없는 점) · state.danger(경고 글자).
+    /** 모달 카드 배경 — 흰색 */
+    ivory: '#FFFFFF',
   },
-  /** 화면 바탕은 웰컴·홈·계획 화면에 공통으로 보이는 따뜻한 아이보리로 통일한다. */
-  canvas: '#fffdf8',
+  /** 화면 바탕 — 카드는 이 차이로만 뜬다. 여기가 흰색이 되면 카드가 사라진다 */
+  canvas: '#F5F5F7',
 
   surface: {
-    /** 카드 바탕 (폭중앙 92px) */
-    card: '#ffffff',
-    /** 선택·강조 표면. 브랜드 오렌지를 옅게 풀어 파란 면색을 쓰지 않는다. */
-    tint: '#fff1e8',
-    /** 연한 칩·보조 배지에 쓰는 따뜻한 중립색. */
-    soft: '#f8f3eb',
-    /** 입력 필드·슬라이더 트랙과 경계에 쓰는 따뜻한 회색. */
-    field: '#e4ddd3',
-    /** 피그마의 아이보리 계열 보조 입력·칩 바탕을 한 값으로 통일한다. */
-    subtle: '#f6f5f2',
-    /** 브랜드 오렌지를 아주 옅게 쓰는 선택·안내 표면. */
-    warm: '#fff1e8',
-    /** 밝은 카드 사이의 중립 경계선. */
-    border: '#e8e4dd',
+    /** 카드 바탕 — 순백. 선도 그림자도 없다 */
+    card: '#FFFFFF',
+    /** 선택·안내 표면 — 연회색. 🔴 빨간 틴트가 아니다(그건 state.dangerBg, 경고 전용) */
+    tint: '#F0F0F3',
+    /** 비활성 · 작은 보조 알약 · 코드 블록 */
+    soft: '#E9E9EC',
+    /** 입력 선 · 미선택 칩 선 · 슬라이더 트랙 · 토글 꺼짐 */
+    field: '#DADCE2',
+    /** 정보 배지(무료·고정) · 활성 단계 행 */
+    subtle: '#F0F0F3',
+    /** = tint */
+    warm: '#F0F0F3',
+    /** 🔴 목록 행 사이 구분선. **카드 테두리에는 쓰지 않는다** */
+    border: '#EBEBEF',
   },
 
   action: {
-    /** 주 CTA는 피그마의 네이비 버튼 체계에 맞춘다. */
-    primary: '#0b1d3a',
-    /** 보조 행동과 작은 강조는 브랜드 오렌지로 통일한다. */
-    secondary: '#f26532',
-    brand: '#f26532',
-    /** 현장 기능의 전폭 CTA도 네이비로 통일한다. */
-    field: '#0b1d3a',
+    /** 주 CTA — 동백. 🔴 화면당 하나 */
+    primary: '#D83A48',
+    /** 보조 행동·선택 상태 — 짙은 회색 */
+    secondary: '#2B2B2E',
+    brand: '#D83A48',
+    /** 현장 기능 전폭 CTA — 짙은 회색. 동백이 아니다 */
+    field: '#2B2B2E',
+    /** 연회색 채움 — 「다음에 하기」류. 옛 ghost 자리 */
+    tertiary: '#E9E9EC',
+    /** 붉은 선 버튼 — 큰 면적이 부담스러울 때 채움 대신 */
+    outline: '#D83A48',
   },
 
   text: {
-    /** 제목. Figma 에 #152238·#14293d·#172e3b·#121f2e·#17313b 다섯 변종이 있는데
-     *  눈으로 구분이 안 되는 차이라 가장 많이 쓰인 값(42회)으로 통일한다 */
-    heading: '#152238',
-    /** 본문 설명 (폭중앙 250px) */
-    body: '#667882',
-    /** 보조·비활성 (폭중앙 90px) */
-    muted: '#64748b',
+    heading: '#191919',
+    body: '#444444',
+    muted: '#6F6F6F',
     /** 버튼·이미지 위 글자 */
-    onAction: '#ffffff',
-    /** 네이비 표면 위 보조 설명. */
-    onDarkMuted: '#eee8df',
-    /** 눈썹 문구·섹션 라벨은 브랜드 오렌지로 통일한다. */
-    eyebrow: '#f26532',
-    /** 수치·시각 강조도 브랜드 오렌지로 연결한다. */
-    accent: '#f26532',
+    onAction: '#FFFFFF',
+    /** 어두운 카드 위 보조 글자 */
+    onDarkMuted: '#DADADF',
+    /** 🔴 눈썹 — **회색이다.** 빨간 눈썹은 「● 진행 중」 같은 실시간 상태에만 직접 준다 */
+    eyebrow: '#6F6F6F',
+    /** 수치 강조 — 검정 굵게. 빨간 숫자는 경고만 */
+    accent: '#191919',
+    /** 비활성 탭 글자 */
+    inactiveTab: '#8B8B8B',
   },
 
   state: {
-    /** 경고·알림 점 (폭중앙 20px) */
-    danger: '#e85d5b',
-    /** 성공 배경 (폭중앙 48px) */
-    successBg: '#e7f8ef',
-    /** 완료 표시 글자·아이콘 (10 화면 "✓ 완료" 항목). successBg 는 배경 전용이라 글자색이 없었다 */
-    success: '#30a687',
-    /** "보통" 혼잡도 배지 배경 (11 화면 일정 요약). success/danger 둘 다 아닌 중간 상태라 추가했다 */
-    warningBg: '#fff3d7',
-    /** "보통" 배지 글자색 */
-    warning: '#a46700',
-    /** danger 배지 배경 (13 화면 "부산 로컬 음식" 태그, Figma 실측 #fff0ee).
-     *  success/warning 은 배경+글자 색이 한 쌍인데 danger 만 배경이 없어 짝을 맞춘다 */
-    dangerBg: '#fff0ee',
-    /** 별점 색 (18 방문 인증·만족도 화면 실측 #ffa11f). success/warning/danger 어느 색과도
-     *  가깝지 않은 금색이라 새로 추가한다 — 평점용으로만 쓴다. */
-    rating: '#ffa11f',
+    /** 경고·삭제 **글자**. 🔴 2026-09-19 에 #D83A48 에서 한 단계 짙게 내렸다 —
+     *  시안 값(#D83A48)을 연분홍 배경(state.dangerBg)에 얹으면 대비가 4.10 : 1 로
+     *  기준(작은 글자 4.5)에 못 미쳤다. 굵은 18.66px 이상이어야 3:1 로 완화되는데
+     *  그 배지는 13px 이다. 실측: 흰 바탕 6.49 · 연분홍 바탕 5.86 — 둘 다 통과한다.
+     *  (커밋 119613c8 메시지에는 흰 바탕이 6.86 으로 적혀 있다. 재지 않고 적은 숫자였고
+     *   다른 세션이 잡았다. 결정은 안 바뀐다 — 6.49 도 4.5 를 넉넉히 넘는다.)
+     *  🔴 알레르기 유발 물질 표시가 이 색을 쓴다. 안 보이면 사람이 다친다. */
+    danger: '#B02A38',
+    /** 🔴 글자 없는 점·도장 전용 — 알림 점 · 하단 탭 점 · 현재 위치 · 프린터 램프 */
+    dot: '#F25454',
+    /** 🔴 경고·제외 전용 배경. 선택이나 안내에 쓰지 않는다 */
+    dangerBg: '#FEF0F1',
+    success: '#2E9E5B',
+    successBg: '#E7F5EC',
+    warning: '#B06A00',
+    warningBg: '#FFF3DC',
+    /** 별점 — warning 과 통일 */
+    rating: '#B06A00',
+    /** 정보 파랑 — 링크성 안내 */
+    info: '#2C64B5',
+    infoBg: '#EAF2FC',
   },
 } as const;
 
-// Pretendard 한 벌로 통일한다(S15P21E201-640). 원래 디자인 규칙은 한글 Noto Sans KR·
-// 영문 Inter 두 벌이었는데, 관리할 폰트가 하나로 줄고 한글 앱에서 이미 널리 쓰이는
-// 무료(SIL OFL) 폰트라 이쪽을 골랐다 — frontend/assets/fonts 에 정적 3종(Regular·Medium·
-// Bold)을 넣고 app/_layout.tsx 에서 expo-font 로 로드한다.
-// RN 은 굵기별로 다른 파일을 다른 이름으로 등록해야 한다 — 커스텀 폰트에 fontWeight 숫자만
-// 주면 대부분 플랫폼에서 그냥 Regular 로 보인다. 그래서 굵기마다 별도 family 이름을 둔다.
-//
-// 🔴 이 이름 그대로 app/_layout.tsx 의 useFonts() 에 등록 키로 쓰인다 — 여기 값을
-// CSS 처럼 쉼표로 이어 붙이면 그 등록 자체가 깨진다. 화면에 실제로 칠할 값은
-// 아래 fontFamilyStack 이다.
+// Pretendard 한 벌(SIL OFL). RN 은 굵기별 파일을 별도 family 이름으로 등록해야 한다 —
+// fontWeight 숫자만 주면 대부분 플랫폼에서 Regular 로 보인다.
 export const fontFamily = {
   regular: 'Pretendard-Regular',
   medium: 'Pretendard-Medium',
   bold: 'Pretendard-Bold',
 } as const;
 
-// 🔴 5개 국어 지원(S15P21E201-1109) 이후 — Pretendard 는 한글·영문 글자만 그려 넣은
-// 정적 폰트라 중국어(간체·번체) 글자는 애초에 들어있지 않다. 네이티브(iOS/Android)는
-// OS가 알아서 시스템 CJK 폰트로 넘어가 문제가 없지만, 웹(react-native-web)은 `fontFamily`
-// 가 브라우저 CSS 로 그대로 나가므로 **쉼표로 이어진 대체 목록을 직접 적어야** 한다 —
-// 안 적으면 브라우저 기본 세리프체로 떨어지거나 자모가 깨져 보인다(실사용 리포트).
-// 네이티브에는 이 목록을 주지 않는다 — RN 네이티브는 등록된 폰트 하나만 이름으로
-// 받고, 쉼표로 이어 붙이면 그 글자 그대로를 폰트 이름으로 찾다가 못 찾아 깨진다.
-// 화면 스타일(Text.tsx 등)은 fontFamily 가 아니라 이 fontFamilyStack 을 쓴다.
+// 웹 전용 대체 폰트 목록. Pretendard 에 중국어 글자가 없어 웹(react-native-web)은 CSS 대체가
+// 필요하고, 네이티브는 OS 가 CJK 로 넘긴다 — 네이티브에 쉼표 목록을 주면 그 글자를 폰트
+// 이름으로 찾다가 깨진다. 화면은 fontFamily 가 아니라 fontFamilyStack 을 쓴다.
 const CJK_FALLBACK_WEB = ', "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans SC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", "Malgun Gothic", sans-serif';
 
 export const fontFamilyStack = Platform.select({
@@ -127,42 +129,35 @@ export const fontFamilyStack = Platform.select({
   default: fontFamily,
 }) as { regular: string; medium: string; bold: string };
 
-// 🔴 body 는 Figma 실측(10~13px)이 아니라 15px 이다. 실수로 되돌리지 않는다.
-//    이 앱의 차별점이 접근성(휠체어·알레르기)인데 본문이 11px 이면 그 자체로 모순이고,
-//    iOS 최소 권장이 11pt·Android 12sp 인데 그마저 *캡션* 기준이다.
+// body 15px — Figma 실측(10~13px)을 안 따른다. 접근성이 이 앱의 차별점인데 본문 11px 은
+// 그 자체로 모순이고, iOS 11pt·Android 12sp 는 캡션 기준이다.
 //
-// letterSpacing(자간, S15P21E201-641)은 Figma 실측 값이 아니다 — 실측할 자간 자체가
-// 디자인 파일에 없었다. 그래서 가독성 쪽으로 보수적으로만 정했다: 작은 글자(caption)는
-// 살짝 벌려 뭉쳐 보이지 않게 하고, 큰 글자(display·hero)는 살짝 좁혀 헤드라인이 늘어져
-// 보이지 않게 한다. body·title 은 그대로 0 — 이 앱은 접근성이 차별점이라, 본문 자간을
-// taste 로 좁히는 모험을 하지 않는다.
+// 🔴 2026-09-19 — 한 단계씩 올렸다(caption 11→13 · util 13→14 · display 22→26). **색만
+//    바뀐 것이 아니라 줄바꿈이 달라진다** — 좁은 화면에서 넘치는 자리가 생길 수 있다.
 export const type = {
-  caption: { size: 11, lineHeight: 14, letterSpacing: 0.1 },
-  // lineHeight 는 22 였다가 23으로 올렸다 — 22/15는 146.7%로 팀 UX 가이드라인 39번
-  // ("본문의 행간을 150% 이상이어야 읽기가 쉽습니다")에 못 미쳤다. 23/15 = 153.3%.
+  caption: { size: 13, lineHeight: 18, letterSpacing: 0 },
   body: { size: 15, lineHeight: 23, letterSpacing: 0 },
   title: { size: 18, lineHeight: 24, letterSpacing: 0 },
-  display: { size: 22, lineHeight: 28, letterSpacing: -0.15 },
-  /** 상단 바 1층(유틸 바)의 작은 글자 전용 — 시안 실측 13px (S15P21E201-1103).
-   *  caption(11)은 언어·로그인 같은 **누를 수 있는 글자**로 쓰기에 작고, body(15)는 유틸 바
-   *  높이 36 안에서 본문처럼 무겁다. 인계 문서가 「caption 을 쓰거나 13 을 추가」로 열어 둔
-   *  자리라 추가했다 — 화면에 숫자를 직접 쓰는 것은 파트 규칙이 금지한다. */
-  util: { size: 13, lineHeight: 18, letterSpacing: 0 },
-  /** 01 Welcome 히어로 브랜드 타이틀 전용(Figma 실측 34px). 다른 화면엔 이 크기가 없어서 추가했다. */
+  display: { size: 26, lineHeight: 34, letterSpacing: -0.2 },
+  /** 상단 유틸 바 전용 — caption 은 누르기에 작고 body 는 높이 36 에 무겁다 */
+  util: { size: 14, lineHeight: 20, letterSpacing: 0 },
+  /** Welcome 히어로 브랜드 타이틀 전용 34px */
   hero: { size: 34, lineHeight: 40, letterSpacing: -0.25 },
+  /** 눈썹 · 탭 라벨 · 배지 — caption 보다 작고 자간이 넓다 */
+  micro: { size: 12, lineHeight: 16, letterSpacing: 0.2 },
 } as const;
 
-// Figma 는 반경이 10종(18·14·34·5·16·13·15·12·20…)이고 14.75847053527832 같은 값도 있다.
-// 크기를 조정하며 붙여넣은 흔적이라 그대로 옮기지 않고 4종으로 모은다.
-// 34 는 화면 프레임 자체의 반경(기기 목업)이라 앱 안에서는 안 쓴다.
+// 반경. Figma 의 10종과 14.758… 같은 값은 크기 조정 흔적이고, 34 는 기기 목업 프레임
+// 반경이라 앱에서 안 쓴다. chip 은 높이 36 알약 전용이다.
 export const radius = {
   sm: 8,
   md: 14,
+  chip: 18,
   lg: 20,
   full: 999,
 } as const;
 
-// 4px 그리드. Figma 는 5·7·9·13·18·19px 이 섞여 있는데 시스템이 아니라 손으로 찍은 값이다.
+// 4px 그리드. Figma 의 5·7·9·13·18·19px 은 시스템이 아니라 손으로 찍은 값.
 export const spacing = {
   1: 4,
   2: 8,
@@ -172,8 +167,17 @@ export const spacing = {
   8: 32,
 } as const;
 
-/** 화면 좌우 여백. Figma 가 27px 인데 4px 그리드에 맞춰 24 로 쓴다 */
+/** 화면 좌우 여백 — 4px 그리드에 맞춘 24 */
 export const gutter = 24;
+
+/**
+ * 데스크톱 좌우 여백 — 상단 바(TopNav)와 같은 40.
+ *
+ * spacing 에 40 이 없어서 따로 둔다. 4px 그리드에는 맞지만 spacing 은 「요소 사이 간격」의
+ * 눈금이고 이것은 「화면 가장자리까지의 거리」다. 같은 표에 섞으면 요소 사이에도 40 이
+ * 쓰이기 시작한다. 그래서 gutter 와 나란히 둔다.
+ */
+export const desktopGutter = 40;
 
 export type TypeToken = keyof typeof type;
 export type RadiusToken = keyof typeof radius;

@@ -1,5 +1,3 @@
-// 🔴 여기서 정해지는 것은 「저장을 눌렀을 때 실제로 어디에 무엇이 남는가」다.
-//    2026-09-18 에 아무 데도 안 남았고, 화면·타입·시험 어느 것도 그것을 안 잡았다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {

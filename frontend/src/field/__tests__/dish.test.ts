@@ -1,0 +1,161 @@
+// 음식 설명·그림 — S15P21E201-1276.
+//
+// 🔴 이 시험들이 지키는 것은 「기능이 도는가」가 아니라 **두 가지를 안 섞는가**이다.
+//    (1) 모델이 아는 것과 사진에서 읽은 것
+//    (2) 「아직」과 「그만 물어봐」
+import { describeDish, loadDishImage } from '../dish';
+
+const tx = (ko: string) => ko;
+
+const originalFetch = globalThis.fetch;
+
+afterEach(() => {
+  globalThis.fetch = originalFetch;
+  jest.restoreAllMocks();
+});
+
+function respondWith(body: unknown, status = 200) {
+  globalThis.fetch = jest.fn().mockResolvedValue({
+    ok: status >= 200 && status < 300,
+    status,
+    headers: { get: () => 'application/json' },
+    json: async () => body,
+    text: async () => JSON.stringify(body),
+  }) as unknown as typeof fetch;
+}
+
+describe('설명을 받아 온다', () => {
+  it('로그인하지 않았으면 부르지 않는다', async () => {
+    globalThis.fetch = jest.fn() as unknown as typeof fetch;
+
+    const result = await describeDish('돼지국밥', null, tx, 'ko');
+
+    expect(result.state).toBe('error');
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it('서버가 준 설명을 그대로 낸다', async () => {
+    respondWith({ data: {
+      name: '돼지국밥', description: '부산의 돼지고기 국밥이에요.',
+      descriptionSource: 'MODEL_KNOWLEDGE', imageStatus: 'PENDING', imageId: 'abc',
+    } });
+
+    const result = await describeDish('돼지국밥', 'token', tx, 'ko');
+
+    expect(result.state).toBe('success');
+    if (result.state !== 'success') return;
+    expect(result.dish.description).toBe('부산의 돼지고기 국밥이에요.');
+    expect(result.dish.imageStatus).toBe('PENDING');
+  });
+
+  /**
+   * 🔴 모르는 값을 「만드는 중」으로 떨어뜨리면 화면이 **오지 않을 그림을 영원히**
+   * 기다린다. 모르면 「없다」로 떨어뜨리는 쪽이 안전하다.
+   */
+  it('🔴 모르는 imageStatus 는 NONE 으로 떨어진다 — PENDING 이 아니다', async () => {
+    respondWith({ data: {
+      name: '돼지국밥', description: '설명', descriptionSource: 'MODEL_KNOWLEDGE',
+      imageStatus: '어쩌구', imageId: 'abc',
+    } });
+
+    const result = await describeDish('돼지국밥', 'token', tx, 'ko');
+
+    expect(result.state).toBe('success');
+    if (result.state !== 'success') return;
+    expect(result.dish.imageStatus).toBe('NONE');
+  });
+
+  it('설명이 비어 와도 성공이다 — 「모델이 모르는 음식」은 실패가 아니다', async () => {
+    respondWith({ data: {
+      name: '어쩌구', description: '', descriptionSource: 'MODEL_KNOWLEDGE',
+      imageStatus: 'NONE', imageId: null,
+    } });
+
+    const result = await describeDish('어쩌구', 'token', tx, 'ko');
+
+    expect(result.state).toBe('success');
+    if (result.state !== 'success') return;
+    expect(result.dish.description).toBe('');
+    expect(result.dish.imageId).toBeNull();
+  });
+});
+
+describe('그림을 받아 온다', () => {
+  /**
+   * 🔴 `RATE_LIMITED` 는 **실패가 아니다.** 설명은 왔고, 조금 뒤에 다시 하면 그림도 된다.
+   *
+   * 이 값을 `normalizeDish` 가 모르면 `NONE` 으로 떨어뜨리고, 그러면 화면은 **왜 그림이
+   * 없는지 말하지 못한다** — 사용자는 「이 음식은 원래 그림이 없구나」로 읽는다.
+   * 화면 문구는 S15P21E201-1295 에서 들어갔지만, **그 문구가 뜨려면 이 값이 여기를
+   * 통과해야 한다.** 목록에 한 줄만 빠뜨려도 조용히 되돌아가는 자리라 검사로 박아 둔다.
+   */
+  it('🔴 RATE_LIMITED 를 그대로 들고 온다 — NONE 으로 뭉개지 않는다', async () => {
+    respondWith({ data: {
+      name: '돼지국밥', description: '설명은 왔다', descriptionSource: 'MODEL_KNOWLEDGE',
+      imageStatus: 'RATE_LIMITED', imageId: null,
+    } });
+
+    const result = await describeDish('돼지국밥', 'token', tx, 'ko');
+
+    expect(result.state).toBe('success');
+    if (result.state !== 'success') return;
+    expect(result.dish.imageStatus).toBe('RATE_LIMITED');
+    // 🔴 설명은 살아 있어야 한다. S15P21E201-1294 가 고친 것이 바로 그것이다.
+    expect(result.dish.description).toBe('설명은 왔다');
+  });
+
+  /**
+   * 🔴 이 시험이 이 모듈의 핵심이다. 202 는 「아직」이고 404 는 「그만 물어봐」다.
+   * 둘을 같게 다루면 화면이 영원히 다시 묻거나, 10초만 더 기다리면 올 그림을 영영
+   * 안 받는다.
+   */
+  it('🔴 202 는 「아직」이고 404 는 「그만」이다 — 같게 다루지 않는다', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({ ok: false, status: 202 }) as unknown as typeof fetch;
+    expect((await loadDishImage('id', 'token')).state).toBe('pending');
+
+    globalThis.fetch = jest.fn().mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
+    expect((await loadDishImage('id', 'token')).state).toBe('gone');
+  });
+
+  /**
+   * 통신이 한 번 끊긴 것과 그림이 없는 것은 다르다. 여기서 'gone' 으로 떨어뜨리면
+   * 지하철에서 한 번 끊긴 사람이 **다시는** 그림을 못 본다.
+   */
+  it('통신이 끊기면 「아직」으로 둔다 — 「없다」로 단정하지 않는다', async () => {
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('네트워크 끊김')) as unknown as typeof fetch;
+
+    expect((await loadDishImage('id', 'token')).state).toBe('pending');
+  });
+
+  /**
+   * 🔴 **그리는 쪽이 통신을 하면 안 된다 — S15P21E201-1335.**
+   *
+   * 예전에는 여기서 `http…/dishes/images/id` 를 그대로 내주고 `<Image>` 가 인증 헤더를
+   * 붙여 다시 받아 오게 했다. 안드로이드 실기에서 **그림 칸이 흰색으로만 떴다**
+   * (2026-09-19, 운영 빌드 versionCode 22) — 서버는 같은 주소·같은 토큰에 512×512
+   * JPEG 를 그대로 내주고 있었다. 그래서 받은 바이트를 주소 안에 담아 넘긴다.
+   */
+  it('🔴 다 됐으면 바이트가 담긴 주소를 낸다 — 다시 받아 오게 하지 않는다', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      blob: async () => ({ size: 3, type: 'image/jpeg' }),
+    }) as unknown as typeof fetch;
+    // React Native 의 FileReader 를 대신한다 — readAsDataURL 하나만 쓴다.
+    class FakeFileReader {
+      result: string | null = null;
+      error: unknown = null;
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      readAsDataURL() { this.result = 'data:image/jpeg;base64,/9j/4AAQ'; this.onload?.(); }
+    }
+    (globalThis as { FileReader?: unknown }).FileReader = FakeFileReader;
+
+    const result = await loadDishImage('id', 'token');
+
+    expect(result.state).toBe('ready');
+    if (result.state !== 'ready') return;
+    expect(result.uri.startsWith('http')).toBe(false);
+    expect(result.uri.startsWith('data:image/')).toBe(true);
+  });
+});

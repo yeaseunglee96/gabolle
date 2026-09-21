@@ -1,14 +1,4 @@
-// 팔로워·팔로잉·차단 목록의 공통 몸통 — S15P21E201-1180·-1181.
-//
-// 🔴 세 목록(팔로워·팔로잉·차단)이 줄 모양은 같고(아바타·이름) 오른쪽 버튼만 다르다
-// (팔로우/팔로잉 vs 차단 해제). 그래서 목록 자체는 하나로 두고 `renderAction`으로
-// 버튼만 갈아 끼운다 — 세 벌을 따로 만들면 스크롤·커서·빈 상태 처리가 세 번 갈라져서
-// 한쪽만 고치고 잊는 일이 생긴다.
-//
-// 🔴 몸통(RelationList)과 화면(RelationListScreen)을 가른다. `/user/[id]/followers`
-// 처럼 독립된 화면(자기 Screen·뒤로가기 필요)도 있고, `/me/blocked`처럼 MyPageShell
-// 안에 몸통만 얹는 자리도 있다 — Screen을 두 번 겹치면(MyPageShell도 안에서 Screen을
-// 쓴다) 세이프에어리어 여백이 두 번 잡히고 FlatList가 ScrollView 안에 중첩된다.
+// 팔로워·팔로잉·차단 목록의 공통 몸통 —·-1181.
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -20,6 +10,8 @@ import { useAuth } from '@/auth/AuthProvider';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { setFollowing, type RelationItem, type RelationListResult } from './stories';
+import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 type RelationListProps = {
   emptyMessage: string;
@@ -49,7 +41,7 @@ function FollowActionButton({ item, refresh }: { item: RelationItem; refresh: ()
   return (
     <Button
       compact
-      variant={item.following ? 'ghost' : 'primary'}
+      variant={item.following ? 'tertiary' : 'primary'}
       label={busy ? tx('처리 중…', 'Working…') : item.following ? tx('팔로잉', 'Following') : tx('팔로우', 'Follow')}
       disabled={busy}
       onPress={() => void toggle()}
@@ -73,10 +65,10 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
 
   useFocusEffect(useCallback(() => { void load(); }, [load]));
 
-  // 🔴 FlatList가 아니라 map()이다. 이 목록이 화면에 따라 이미 스크롤 중인 자리(Screen
+  // FlatList가 아니라 map이다. 이 목록이 화면에 따라 이미 스크롤 중인 자리(Screen
   // scroll, MyPageShell) 안에 얹히므로, FlatList를 또 넣으면 스크롤 가능한 것이 중첩된다
   // (경고 이전에, onEndReached가 부모가 스크롤할 때는 안 불려서 "더 읽기"가 조용히 죽는다).
-  // 한 페이지가 최대 50명이라 가상화 없이 map()으로도 무겁지 않다.
+  // 한 페이지가 최대 50명이라 가상화 없이 map으로도 무겁지 않다.
   const loadMore = async () => {
     if (state.status !== 'loaded' || !state.nextCursor || loadingMore) return;
     setLoadingMore(true);
@@ -89,12 +81,12 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
 
   return (
     <View style={styles.body}>
-      {state.status === 'loading' ? <View style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /></View> : null}
+      {state.status === 'loading' ? <View style={styles.stateCard}><ActivityIndicator color={color.action.primary} /></View> : null}
 
       {state.status === 'unavailable' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
-          <Text color={color.text.body}>{state.message}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} />
+          <Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text>
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
 
@@ -107,14 +99,23 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
           {state.items.map((item) => (
             <Pressable key={item.userId} accessibilityRole="button" onPress={() => router.push(`/user/${item.userId}`)} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
               <Avatar uri={item.avatarUrl} />
-              <Text weight="bold" style={styles.name} numberOfLines={1}>{item.displayName}</Text>
+              <View style={styles.name}>
+                <Text weight="bold" numberOfLines={1}>{item.displayName}</Text>
+                {/* 🔴 안 센 것(null)은 아예 안 그린다. 0 으로 그리면 화면이 「기록 0개」라고
+                    단언하게 되는데, 차단 목록처럼 세지 않은 자리에서는 사실이 아니다. */}
+                {item.storyCount === null ? null : (
+                  <Text variant="caption" color={color.text.muted}>
+                    {txf(tx, '기록 %s개', item.storyCount === 1 ? '%s record' : '%s records', item.storyCount)}
+                  </Text>
+                )}
+              </View>
               {renderAction ? renderAction(item, () => void load()) : <FollowActionButton item={item} refresh={() => void load()} />}
             </Pressable>
           ))}
           {state.nextCursor ? (
             loadingMore
-              ? <ActivityIndicator color={color.brand.orange} style={styles.footerSpinner} />
-              : <Button label={tx('더 보기', 'Load more')} variant="ghost" onPress={() => void loadMore()} />
+              ? <ActivityIndicator color={color.action.primary} style={styles.footerSpinner} />
+              : <Button label={tx('더 보기', 'Load more')} variant="tertiary" onPress={() => void loadMore()} />
           ) : null}
         </View>
       ) : null}
@@ -152,6 +153,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[3] },
   avatarImage: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.soft },
   avatarFallback: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.soft },
-  name: { flex: 1, minWidth: 0 },
+  name: { flex: 1, minWidth: 0, gap: 2 },
   footerSpinner: { marginVertical: spacing[4] },
 });

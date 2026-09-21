@@ -20,7 +20,9 @@ export function Toggle({ value, onValueChange, disabled }: ToggleProps) {
       style={({ pressed }) => [
         styles.track,
         {
-          backgroundColor: value ? color.brand.orange : '#ddd7cf',
+          // 🔴 꺼짐 색을 하드코딩('#ddd7cf')하고 있었다 — 토큰을 갈아 끼워도 이 스위치만
+          //    옛 배색으로 남았다 (S15P21E201-1343).
+          backgroundColor: value ? color.action.primary : color.surface.field,
           justifyContent: value ? 'flex-end' : 'flex-start',
         },
         disabled && styles.disabled,

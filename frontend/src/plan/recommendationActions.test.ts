@@ -1,7 +1,4 @@
-// 추천 목록의 담아두기·빼기가 남는가 — S15P21E201-975 · 1082.
-//
-// 그전에는 화면 상태만 바꿔서, 버튼을 눌러 "저장됨" 이 돼도 다시 들어오면 "저장" 이었다(-975).
-// 그다음에는 기기에만 남아서, **여행을 함께 짜는 사람이 서로의 판단을 못 봤다**(-1082).
+// 추천 목록의 담아두기·빼기가 남는가 —· 1082.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { loadRecommendationActions, saveRecommendationAction, type RecommendationActionScope } from '@/plan/recommendationActions';
@@ -85,7 +82,7 @@ describe('여행 번호를 모를 때 — 기기에만 적는다 (종전 동작)
   });
 });
 
-// S15P21E201-1082 — 백엔드(RecommendationActionController, -1013)는 있는데 프론트가
+// — 백엔드(RecommendationActionController, -1013)는 있는데 프론트가
 // 한 번도 부르지 않았다. 운영 실측 호출 건수 0건.
 describe('여행 번호를 알 때 — 서버에 적는다', () => {
   it('🔴 담아두기는 PUT {"action":"SAVED"} 를 한 번 보낸다', async () => {
@@ -126,7 +123,7 @@ describe('여행 번호를 알 때 — 서버에 적는다', () => {
     expect(await loadRecommendationActions(onServer('trip-1'))).toEqual({ 'place-a': 'saved' });
   });
 
-  // 🔴 서버 것으로 기기를 덮어 쓴다. 합치면, 다른 기기에서 **거둔** 판단이 되살아난다.
+  // 서버 것으로 기기를 덮어 쓴다. 합치면, 다른 기기에서 거둔 판단이 되살아난다.
   it('다른 기기에서 거둔 판단이 되살아나지 않는다', async () => {
     await saveRecommendationAction(onServer('trip-1'), 'place-a', 'saved');
     mockServer({ items: [] });

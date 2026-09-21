@@ -7,9 +7,6 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
-// 여행 식별자 없이 열린 화면이 쓰는 안내 (S15P21E201-1000). 예전에는 이럴 때 'demo-trip'
-// 이라는 가짜 식별자로 서버를 불렀고, 서버는 그것을 UUID 로 못 읽어 개발자용 오류를
-// 그대로 냈다 — 그 문장이 사용자 화면에 보였다. 부르지 않는 것이 고치는 방법이다.
 export function SelectTripFirst() {
   const router = useRouter();
   const { tx } = useI18n();

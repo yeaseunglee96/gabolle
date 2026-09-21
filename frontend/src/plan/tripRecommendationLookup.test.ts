@@ -1,7 +1,7 @@
 import { findLatestRecommendationJob } from './recommendations';
 
 // 추천 결과를 다시 열면 빈 화면이던 것을 고친다 — S15P21E201-1002.
-// 서버 경로는 GET /api/v1/trips/{tripId}/recommendation-jobs (S15P21E201-1001):
+// 서버 경로는 GET /api/v1/trips/{tripId}/recommendation-jobs
 // 최신순 목록, 없는 여행은 404, 내 여행인데 추천이 없으면 빈 배열.
 function respondWith(payload: unknown, status = 200) {
   globalThis.fetch = jest.fn(async (input: RequestInfo | URL) => {
@@ -41,9 +41,6 @@ describe('여행 ID 로 다시 볼 추천 고르기', () => {
     await expect(findLatestRecommendationJob('trip-1', 'token')).resolves.toEqual({ state: 'trip-not-found' });
   });
 
-  // 🔴 배포 전 서버는 이 주소에 405 를 낸다 — 같은 주소의 POST(추천 생성)가 예전부터 있어서
-  // "없는 주소"가 아니라 "있는 주소인데 GET 은 안 받는다"이기 때문이다 (백엔드 실측 2026-09-15).
-  // 이것을 「그 여행을 찾을 수 없어요」로 그리면 멀쩡한 여행을 없다고 말하게 된다.
   it('경로가 아직 배포 안 된 서버(405)는 「아직 없음」으로 다룬다', async () => {
     respondWith({ data: null, error: { code: 'METHOD_NOT_ALLOWED', message: 'Request method GET is not supported' }, meta: { requestId: 'r1' } }, 405);
     await expect(findLatestRecommendationJob('trip-1', 'token')).resolves.toEqual({ state: 'none' });

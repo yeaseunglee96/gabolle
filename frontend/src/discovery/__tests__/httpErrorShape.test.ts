@@ -1,11 +1,4 @@
-// S15P21E201-1081 — 「서버가 잠깐 못 받는다」와 「이 기능이 아직 없다」를 가르는 규칙을 고정한다.
-//
-// 2026-09-16 운영에서 배포 중 nginx 가 502(본문은 HTML)를 주는 몇십 초 동안, 로컬 탐색과
-// 갈래 조회가 "API가 아직 준비되지 않았어요" 를 띄웠다. 사용자는 그것을 **아직 만들지 않은
-// 기능**으로 읽고 나갔다. 두 화면이 INVALID_RESPONSE(=JSON 이 아니다)만 보고 갈랐기 때문이다.
-//
-// 그래서 여기서 재는 것은 문구가 아니라 **갈림길 그 자체**다 — 404·501 만 '아직 없다' 이고
-// 5xx 는 '잠시 후 다시' 다. 문구는 화면마다 다르지만 갈림길이 틀리면 전부 틀린다.
+// — 「서버가 잠깐 못 받는다」와 「이 기능이 아직 없다」를 가르는 규칙을 고정한다.
 import { ApiClientError, isServerError, subscribeApiAvailability } from '@/api/client';
 import { getFacets } from '../localExplore';
 import { getPlaceCategories } from '../placeCategories';
@@ -71,8 +64,6 @@ describe('404·501 은 종전대로 「아직 준비 안 됨」이다', () => {
 
 describe('서버 연결 배너', () => {
   it('🔴 5xx 를 받으면 「서버에 연결할 수 없어요」 배너가 켜진다', async () => {
-    // 예전에는 응답이 오기만 하면 무조건 "다시 연결됨" 으로 봤다. nginx 가 502 를 주는
-    // 동안에도 응답은 오므로, 앱은 서버가 멀쩡하다고 판단하고 배너를 끝내 안 띄웠다.
     const seen: boolean[] = [];
     const unsubscribe = subscribeApiAvailability((unavailable) => seen.push(unavailable));
     respondWithGatewayHtml(502);
@@ -100,8 +91,8 @@ describe('isServerError — 갈림길을 재는 함수 자체', () => {
     expect(isServerError(new ApiClientError('x', 'NOT_FOUND', status))).toBe(false);
   });
 
-  // 🔴 501 은 숫자로는 5xx 지만 이 저장소에서는 404 와 한 짝으로 "아직 안 만들었다" 다.
-  //    여기 들어가면 "잠시 후 다시" 라고 말하게 되는데, 기다려도 생기지 않으므로 거짓말이다.
+  // 501 은 숫자로는 5xx 지만 이 저장소에서는 404 와 한 짝으로 "아직 안 만들었다" 다.
+  // 여기 들어가면 "잠시 후 다시" 라고 말하게 되는데, 기다려도 생기지 않으므로 거짓말이다.
   it('HTTP 501 은 5xx 이지만 서버 쪽 실패로 세지 않는다', () => {
     expect(isServerError(new ApiClientError('x', 'NOT_IMPLEMENTED', 501))).toBe(false);
   });

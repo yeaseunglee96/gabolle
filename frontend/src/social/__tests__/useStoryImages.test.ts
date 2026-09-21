@@ -1,8 +1,4 @@
-// S15P21E201-1121 — 줄이기가 실패해도 사진은 올라가야 한다.
-//
-// 2026-09-16 iOS·안드로이드 실기기에서 사진 업로드가 100% 실패했는데, 서버 기록에는
-// 요청이 한 건도 없었다. 줄이기(resizeForUpload)가 던지면 업로드를 아예 안 했기 때문이다.
-// 아래 시험은 그 경로가 다시 막히면 빨개진다.
+// — 줄이기가 실패해도 사진은 올라가야 한다.
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 
 import { useStoryImages } from '../useStoryImages';
@@ -10,8 +6,8 @@ import { useStoryImages } from '../useStoryImages';
 jest.mock('expo-image-picker', () => ({
   launchImageLibraryAsync: jest.fn(),
 }));
-// 🔴 S15P21E201-1134 — 가짜 모듈에 상수를 빠뜨리면 undefined 가 되고, 크기 비교가
-// 언제나 거짓이 되어 **검사가 시험에서만 조용히 꺼진다.** 실제 값과 같이 적어 둔다.
+// — 가짜 모듈에 상수를 빠뜨리면 undefined 가 되고, 크기 비교가
+// 언제나 거짓이 되어 검사가 시험에서만 조용히 꺼진다. 실제 값과 같이 적어 둔다.
 jest.mock('../imageResize', () => ({
   MAX_PICK_BYTES: 30 * 1024 * 1024,
   MAX_UPLOAD_BYTES: 3 * 1024 * 1024,
@@ -112,10 +108,7 @@ describe('useStoryImages — 사진 한 장 올리기', () => {
   });
 });
 
-// S15P21E201-1134 — 고르기 상한과 전송 상한은 다른 것을 잰다.
-//
-// 전에는 하나(3MB)가 둘을 겸해서, 요즘 휴대폰 사진(5~15MB)이 **줄이기도 해 보기 전에**
-// 거절당했다. 고른 원본은 30MB 까지 받고, 실제로 서버에 가는 바이트만 3MB 로 잰다.
+// — 고르기 상한과 전송 상한은 다른 것을 잰다.
 describe('useStoryImages — 고르기 상한(30MB)과 전송 상한(3MB)', () => {
   it('🔴 25MB 원본을 골라도 거절하지 않는다 — 줄이면 서버 상한 안에 들어온다', async () => {
     pick({ uri: 'file:///big.jpg', fileName: 'big.jpg', mimeType: 'image/jpeg' });
@@ -160,5 +153,62 @@ describe('useStoryImages — 고르기 상한(30MB)과 전송 상한(3MB)', () =
 
     expect(result.current.images[0]?.error).toContain('3MB');
     expect(stories.uploadStoryImage).not.toHaveBeenCalled();
+  });
+});
+
+// 🔴 글 쓰다 나갔다 와도 **이미 올라간** 사진은 남아야 한다 (S15P21E201-1312).
+//
+//    올라간 사진은 로컬 주소가 아니라 서버가 준 주소를 갖고 있다. 그 주소는 새로고침해도
+//    다른 기기에서도 그대로 쓸 수 있는데, 전에는 안 올라간 사진과 같이 버리고 있었다.
+describe('useStoryImages — 올라간 사진 되살리기', () => {
+  it('주소만으로 되살리고, 되살린 것은 처음부터 올라간 상태다', () => {
+    const { result } = renderHook(() => useStoryImages('token', tx));
+
+    act(() => { result.current.restoreUploaded(['https://cdn.example/a.jpg', 'https://cdn.example/b.jpg']); });
+
+    expect(result.current.uploadedUrls).toEqual(['https://cdn.example/a.jpg', 'https://cdn.example/b.jpg']);
+    // 다시 올리지 않는다 — 올라가는 중으로 두면 글 보내기가 영영 안 열린다.
+    expect(result.current.anyUploading).toBe(false);
+    expect(result.current.images.every((image) => image.error === null)).toBe(true);
+  });
+
+  it('상한을 넘겨 되살리지 않는다', () => {
+    const { result } = renderHook(() => useStoryImages('token', tx));
+
+    act(() => { result.current.restoreUploaded(['1', '2', '3', '4', '5']); });
+
+    expect(result.current.images).toHaveLength(3);
+  });
+
+  it('🔴 이미 사진이 있으면 덮지 않는다 — 되살리기가 사용자가 방금 고른 것을 지우면 안 된다', async () => {
+    pick({ uri: 'file:///orig.jpg' });
+    resize.resizeForUpload.mockResolvedValue({ uri: 'file:///small.jpg', width: 1600, height: 900 });
+    const { result } = renderHook(() => useStoryImages('token', tx));
+    await act(async () => { await result.current.addImage(); });
+    await waitFor(() => expect(result.current.anyUploading).toBe(false));
+
+    act(() => { result.current.restoreUploaded(['https://cdn.example/old.jpg']); });
+
+    expect(result.current.uploadedUrls).toEqual(['https://cdn.example/1.jpg']);
+  });
+
+  it('🔴 되살린 사진은 재시도하지 않는다 — 원본이 이 기기에 없다', () => {
+    const { result } = renderHook(() => useStoryImages('token', tx));
+    act(() => { result.current.restoreUploaded(['https://cdn.example/a.jpg']); });
+
+    act(() => { result.current.retryImage(0); });
+
+    expect(stories.uploadStoryImage).not.toHaveBeenCalled();
+    expect(result.current.anyUploading).toBe(false);
+  });
+
+  it('🔴 사진이 안 바뀌면 주소 목록도 그대로다 — 이 값이 임시 저장의 조건이라 매번 바뀌면 그릴 때마다 저장한다', () => {
+    const { result, rerender } = renderHook(() => useStoryImages('token', tx));
+    act(() => { result.current.restoreUploaded(['https://cdn.example/a.jpg']); });
+    const first = result.current.uploadedUrls;
+
+    rerender({});
+
+    expect(result.current.uploadedUrls).toBe(first);
   });
 });

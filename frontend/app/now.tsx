@@ -14,10 +14,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { idleNowResult, requestNowRecommendations, type NowCandidate, type NowViewModel } from '@/plan/nowRecommendations';
-
-function isSampleCandidate(candidate: NowCandidate): boolean {
-  return 'isSample' in candidate;
-}
+import { localizeMessage } from '@/i18n/messages';
 
 const REMAINING_OPTIONS = [30, 60, 90, 120, 180] as const;
 
@@ -30,7 +27,6 @@ function CandidateCard({ candidate, onOpen }: { candidate: NowCandidate; onOpen:
     <View style={styles.card}>
       <View style={styles.cardTop}>
         <Text variant="title" weight="bold" style={styles.grow}>{candidate.name}</Text>
-        {isSampleCandidate(candidate) && <View style={styles.sampleChip}><Text variant="caption" weight="bold">{tx('샘플', 'Sample')}</Text></View>}
         <View style={styles.statusChip}><Text variant="caption" weight="bold">{STATUS_LABEL[candidate.dataStatus]}</Text></View>
       </View>
       <Text variant="body" color={color.text.body}>{tx(`이동 ${candidate.travelMinutes}분`, `${candidate.travelMinutes} min away`)}</Text>
@@ -39,7 +35,7 @@ function CandidateCard({ candidate, onOpen }: { candidate: NowCandidate; onOpen:
       </Text>
       {candidate.reasons.length > 0 && (
         <View style={styles.tags}>{candidate.reasons.map((reason, index) => (
-          <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.brand.orange}>#{reason}</Text></View>
+          <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.text.muted}>#{reason}</Text></View>
         ))}</View>
       )}
       <Pressable accessibilityRole="button" onPress={onOpen} style={styles.detailLink}>
@@ -152,9 +148,17 @@ export default function Now() {
       </View>
 
       <Button label={tx('지금 갈 곳 찾기', 'Find a place now')} disabled={!canSearch || result.state === 'loading'} onPress={() => void search()} containerStyle={styles.searchButton} />
+      {/* 단추만 잠그면 고장으로 읽힌다(2026-09-21 실측, S15P21E201-1372) — 무엇이 빠졌는지 한 줄. */}
+      {!canSearch && result.state !== 'loading' ? (
+        <Text variant="caption" color={color.text.muted} style={styles.searchHint}>
+          {coords === null && manualLocation.trim().length === 0
+            ? tx('먼저 「현재 위치 사용」을 누르거나 출발 위치를 적어 주세요.', 'First tap "Use my location" or type where you are.')
+            : tx('남는 시간을 골라 주세요.', 'Pick how much time you have.')}
+        </Text>
+      ) : null}
 
       {result.state === 'loading' && (
-        <View accessibilityLabel={result.message} style={styles.results}>
+        <View accessibilityLabel={localizeMessage(tx, result.message)} style={styles.results}>
           {[0, 1, 2].map((key) => (
             <View key={key} style={styles.card}>
               <View style={styles.cardTop}><Skeleton width="60%" height={18} /><Skeleton width={56} height={20} radius={radius.full} /></View>
@@ -167,17 +171,17 @@ export default function Now() {
       {(result.state === 'error' || result.state === 'offline') && (
         <View style={styles.stateCard}>
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('지금 갈 곳을 찾지 못했어요', 'Could not find a place to go now')}</Text>
-          <Text color={color.text.body}>{result.message}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void search()} />
+          <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void search()} />
         </View>
       )}
       {result.state === 'empty' && (
-        <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('갈 만한 곳을 찾지 못했어요', 'No suitable place found')}</Text><Text color={color.text.body}>{result.message}</Text></View>
+        <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('갈 만한 곳을 찾지 못했어요', 'No suitable place found')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text></View>
       )}
       {(result.state === 'success' || result.state === 'partial') && (
         <View style={styles.results}>
           {result.state === 'partial' && (
-            <View style={styles.notice}><Text accessibilityRole="alert" variant="caption" weight="bold">{result.message}</Text></View>
+            <View style={styles.notice}><Text accessibilityRole="alert" variant="caption" weight="bold">{localizeMessage(tx, result.message)}</Text></View>
           )}
           {result.candidates.map((candidate) => (
             <CandidateCard key={candidate.placeId} candidate={candidate} onOpen={() => router.push(`/place/${candidate.placeId}`)} />
@@ -204,6 +208,7 @@ const styles = StyleSheet.create({
   chip: { minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   chipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   searchButton: { marginTop: spacing[1], marginBottom: spacing[6] },
+  searchHint: { textAlign: 'center', marginTop: -spacing[1] },
   stateCard: { gap: spacing[2], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center' },
   notice: { marginBottom: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
   results: { gap: spacing[3] },
@@ -211,7 +216,6 @@ const styles = StyleSheet.create({
   cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   grow: { flex: 1 },
   statusChip: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
-  sampleChip: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[1] },
   tag: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.sm, backgroundColor: color.surface.tint },
   detailLink: { minHeight: 44, justifyContent: 'center' },

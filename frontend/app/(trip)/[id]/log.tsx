@@ -1,8 +1,4 @@
 // 19 여행 기록·회고 — Figma 19_여행 기록·회고 실측 그대로.
-//
-// 통계·타임라인은 전부 하드코딩 목업이다(실제 여행 데이터 모델 미착수).
-// 히어로 사진 자산이 없어 13 장소 상세·02 메인 홈과 같은 방식으로 브랜드 색 면 위에
-// 제목·날짜를 흰 글자로 얹는다.
 import { Share, StyleSheet, View } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
@@ -38,8 +34,9 @@ export default function Log() {
       <Eyebrow>
         {tx('여행 후 · 자동 회고', 'After the trip · Auto recap')}
       </Eyebrow>
-      {/* S15P21E201-1009 — 이 화면의 숫자와 시간표는 전부 지어낸 예시다. 표시가 없으면
-          사용자는 자기 여행이 이렇게 기록된 줄 안다. */}
+      {/* — 이 화면의 숫자와 시간표는 전부 지어낸 예시다. 표시가 없으면
+          사용자는 자기 여행이 이렇게 기록된 줄 안다.
+      */}
       <SampleNotice
         badge={tx('샘플', 'Sample')}
         description={tx('아래 숫자와 시간표는 화면을 보여주기 위한 예시예요. 실제 여행 기록이 아니에요.', 'The numbers and timeline below are placeholders — not your actual trip.')}

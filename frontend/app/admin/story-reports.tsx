@@ -29,7 +29,7 @@ function formatElapsed(seconds: number): string {
 
 // 백엔드가 오래된 신고 순으로 주지만(ModerationQueueService), 24시간 넘은 것을 "맨 위에
 // 고정"이라는 요구는 그 정렬만으로는 보장되지 않는다 — 신고가 몰리는 시점이 섞이면
-// 24시간 넘은 항목 사이에 안 넘은 항목이 끼어들 수 있다. 그래서 여기서 한 번 더 가른다:
+// 24시간 넘은 항목 사이에 안 넘은 항목이 끼어들 수 있다. 그래서 여기서 한 번 더 가른다
 // 각 그룹 안에서는 오래된 순을 그대로 유지한 채, 넘은 것을 앞으로 옮긴다(안정 정렬).
 function sortWithOverdueFirst(items: ModerationQueueItem[]): ModerationQueueItem[] {
   const overdue = items.filter((item) => item.elapsedSeconds >= OVERDUE_SECONDS);
@@ -74,7 +74,7 @@ export default function AdminStoryReports() {
       <View style={styles.titleRow}>
         <Text variant="display" weight="bold">신고 검토</Text>
         {state === 'ready' && items.length > 0 && (
-          <View style={styles.countBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>미처리 {items.length}건</Text></View>
+          <View style={styles.countBadge}><Text variant="caption" weight="bold" color={color.state.danger}>미처리 {items.length}건</Text></View>
         )}
       </View>
       <Text variant="caption" color={color.text.body} style={styles.subtitle}>
@@ -148,7 +148,7 @@ export default function AdminStoryReports() {
 
 const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
-  countBadge: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: 999, backgroundColor: color.state.danger },
+  countBadge: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: 999, backgroundColor: color.state.dangerBg },
   subtitle: { marginTop: spacing[1], marginBottom: spacing[4] },
   spinner: { marginTop: spacing[6] },
   retry: { marginTop: spacing[2] },

@@ -11,7 +11,7 @@ export type RecommendationCourseDto = {
   mobilityWarnings?: string[] | null; dataStatus: DataStatus; fallbackMode: FallbackMode;
   itineraryId?: string | null;
 };
-// 🔴 tripId 는 S15P21E201-1084 에서 늘어난 칸이다. 그 판이 아직 안 올라간 서버도 있으므로
+// tripId 는에서 늘어난 칸이다. 그 판이 아직 안 올라간 서버도 있으므로
 // 없을 수 있다 — 없으면 담아두기·빼기가 기기에만 남는다(recommendationActions.ts 머리말).
 export type RecommendationJobResultDto = { status: 'COMPLETED' | 'PARTIAL' | 'FAILED'; items?: RecommendationCourseDto[]; itineraryId?: string | null; fallbackMode?: FallbackMode; conflicts?: string[]; errorMessage?: string | null; placeCount?: number | null; estimatedTravelMinutes?: number | null; tripId?: string | null };
 
@@ -20,8 +20,8 @@ export type RecommendationViewModel = { state: RecommendationViewState; courses:
 
 const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
-// S15P21E201-910: 이 사전은 한때 BEACH_PREFERENCE 등 다섯 개였는데 백엔드 계약이 통째로
-// 갈아엎어진 뒤에도(BaselineCandidateScorer·RecommendationCodes, back/dev) 안 따라가서,
+// : 이 사전은 한때 BEACH_PREFERENCE 등 다섯 개였는데 백엔드 계약이 통째로
+// 갈아엎어진 뒤에도(BaselineCandidateScorer·RecommendationCodes, back/dev) 안 따라가서
 // 실제로 오는 코드와 하나도 안 겹쳐 모든 카드가 안전장치 문구만 중복 표시하고 있었다.
 // 지금 실제로 오는 코드로 교체한다.
 const REASON: Record<string, [string, string]> = {
@@ -70,8 +70,8 @@ export function adaptRecommendationResult(dto: RecommendationJobResultDto): Reco
 
 export const unavailableRecommendations = (): RecommendationViewModel => ({ state: 'unavailable', courses: [], conflicts: [], message: t('아직 생성된 추천이 없어요. 여행 조건을 확인하고 생성을 시작해 주세요.', "No recommendations have been created yet. Check your trip conditions and start generating."), itineraryId: null, placeCount: null, estimatedTravelMinutes: null, tripId: null });
 
-// S15P21E201-1002 — 여행 ID 로 그 여행의 추천 작업 목록을 받아, 다시 볼 수 있는 결과를 고른다
-// (서버 경로는 S15P21E201-1001). 하나가 아니라 목록으로 오는 이유는 맨 앞이 답이 아니기
+// — 여행 ID 로 그 여행의 추천 작업 목록을 받아, 다시 볼 수 있는 결과를 고른다
+// (서버 경로는. 하나가 아니라 목록으로 오는 이유는 맨 앞이 답이 아니기
 // 때문이다 — 가장 최근 작업이 실패했으면 그 앞의 성공한 추천을 써야 한다. 맨 앞만 집으면
 // 재시도가 한 번 실패했다는 이유로 멀쩡히 있던 추천을 잃는다.
 type TripRecommendationJobDto = {
@@ -104,18 +104,14 @@ export async function findLatestRecommendationJob(tripId: string, accessToken: s
     return { state: 'none' };
   } catch (error) {
     if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) return { state: 'offline', message: error.message };
-    // 🔴 404 는 빈 목록과 다르다. 빈 목록은 "내 여행인데 아직 안 만들었다" 라 생성으로 이어
+    // 404 는 빈 목록과 다르다. 빈 목록은 "내 여행인데 아직 안 만들었다" 라 생성으로 이어
     // 주면 되고, 404 는 "그런 여행이 없다(또는 남의 여행이다)" 라 생성을 권하면 안 된다.
     // 서버는 그 404 에 TRIP_NOT_FOUND 를 반드시 싣는다 — 코드가 그 값일 때만 그렇게 읽는다.
     if (error instanceof ApiClientError && error.status === 404 && error.code === 'TRIP_NOT_FOUND') return { state: 'trip-not-found' };
-    // 🔴 이 경로가 아직 배포되지 않은 서버는 405 를 낸다 (2026-09-15 백엔드 실측). 같은 주소의
-    // POST(추천 생성)는 예전부터 있어서 "없는 주소"(404)가 아니라 "있는 주소인데 GET 은 안
-    // 받는다"가 되기 때문이다. 그때 "그런 여행이 없다"고 말하면 멀쩡한 여행을 없다고 하는 것이다.
     if (error instanceof ApiClientError && (error.status === 405 || error.status === 404)) return { state: 'none' };
     return { state: 'error', message: t('추천 결과를 불러오지 못했어요.', 'Could not load the recommendation result.') };
   }
 }
-
 
 export async function loadRecommendationResult(jobId: string, accessToken: string | null): Promise<RecommendationViewModel> {
   try {

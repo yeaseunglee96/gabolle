@@ -1,15 +1,5 @@
-// 온보딩 ③ 취향 다섯 — 로컬성·조용함·관광지·음식·경사 (S15P21E201-960).
+// 온보딩 ③ 취향 다섯 — 로컬성·조용함·관광지·음식·경사.
 // 세 질문(spend-profile.tsx) 바로 다음 단계이고, 틀은 그 화면을 그대로 따른다.
-//
-// 🔴 전부 건너뛰어도 저장하지 않는다 — 그리고 그래도 갇히지 않는다.
-// 이 화면에 들어오는 길은 세 질문이 끝나는 자리 하나뿐이고(home.tsx 는 세 질문이
-// UNKNOWN 일 때만 온보딩으로 보낸다), 세 질문에 답한 뒤에는 그 길이 닫힌다. 그래서
-// "물어봤지만 안 답했다" 를 계정에 적어 둘 필요가 없다.
-//
-// 🔴 인계 문서는 "전부 건너뛰면 SKIPPED 로 보낸다" 고 적었는데 그러지 않았다. 서버의
-// 취향 경로는 SKIPPED 를 받으면 아무것도 하지 않는다(계정을 안 건드리는 것이 그 값의
-// 뜻이다). 보내면 저장한 것처럼 보이지만 실제로는 안 남는다 — 그 어긋남이 나중에
-// "왜 기록이 없지" 를 만든다. 대신 아무것도 안 보낸다.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -20,6 +10,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { enterApp } from '@/auth/enterApp';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { FOODS } from '@/plan/foodConflicts';
@@ -33,6 +24,7 @@ import {
   type TasteKey,
   type TasteValue,
 } from '@/preferences/tasteProfile';
+import { txf } from '@/i18n/format';
 
 // 여행 만들기 취향 화면(app/(plan)/taste.tsx)의 advancePanel 과 같은 값이다. 고른 것이
 // 눈에 남을 만큼은 머물고, 기다린다는 느낌은 안 드는 길이다.
@@ -53,7 +45,7 @@ function Dots({ step, settled }: { step: number; settled: Set<number> }) {
   </View>;
 }
 
-// 🔴 넓은 화면에서 고른 것을 주황으로 바꾼다. 폰에서는 남색이다 — 인계 문서가 정한 것이고,
+// 넓은 화면에서 고른 것을 주황으로 바꾼다. 폰에서는 남색이다 — 인계 문서가 정한 것이고
 // 까닭은 바탕이 다르기 때문이다. 폰은 아이보리 바탕 위에 바로 놓이고, 넓은 화면은 흰 카드
 // 안에 들어가서 남색이 너무 무겁다.
 function Scale({ label, value, low, high, desktop, onChange }: { label: string; value: number | undefined; low: string; high: string; desktop: boolean; onChange: (value: number) => void }) {
@@ -68,7 +60,7 @@ function Scale({ label, value, low, high, desktop, onChange }: { label: string; 
         <Pressable
           key={point}
           accessibilityRole="radio"
-          accessibilityLabel={tx(`${label} ${point}단계`, `${label} level ${point}`)}
+          accessibilityLabel={txf(tx, '%s %s단계', '%s level %s', label, point)}
           accessibilityState={{ selected: value === point }}
           onPress={() => onChange(point)}
           style={[styles.scalePoint, value === point && (desktop ? styles.scalePointSelectedDesktop : styles.scalePointSelected)]}
@@ -92,7 +84,7 @@ function FoodChips({ values, desktop, onChange }: { values: string[]; desktop: b
         onPress={() => onChange(selected ? values.filter((value) => value !== code) : [...values, code])}
         style={[styles.chip, selected && (desktop ? styles.chipSelectedDesktop : styles.chipSelected)]}
       >
-        <Text weight="bold" color={selected ? (desktop ? color.brand.orange : color.text.onAction) : color.text.heading}>{tx(labelKo, labelEn)}</Text>
+        <Text weight="bold" color={selected ? (desktop ? color.action.secondary : color.text.onAction) : color.text.heading}>{tx(labelKo, labelEn)}</Text>
       </Pressable>;
     })}
   </View>;
@@ -118,15 +110,15 @@ export default function TasteProfileScreen() {
   useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
 
   // 이미 답한 계정이면 다시 묻지 않는다 — 서버 상태가 유일한 기준이다(spend-profile 과
-  // 같은 원칙). 🔴 경로가 아직 없는 서버에서도 화면은 뜬다. 물어보고 저장이 안 되는 것이,
+  // 같은 원칙). 경로가 아직 없는 서버에서도 화면은 뜬다. 물어보고 저장이 안 되는 것이
   // 첫 실행에서 빨간 화면을 보는 것보다 낫다.
   useEffect(() => {
     if (!ready) return;
-    if (!accessToken) { router.replace('/home'); return; }
+    if (!accessToken) { enterApp(router, '/home'); return; }
     let active = true;
     void getTasteProfile(accessToken).then((saved) => {
       if (!active) return;
-      if (countTasteAnswers(saved) > 0) { router.replace('/home'); return; }
+      if (countTasteAnswers(saved) > 0) { enterApp(router, '/home'); return; }
       setChecking(false);
     }).catch(() => { if (active) setChecking(false); });
     return () => { active = false; };
@@ -162,7 +154,7 @@ export default function TasteProfileScreen() {
     advanceTimer.current = setTimeout(() => goNext(next, index), ADVANCE_MS);
   };
 
-  // 건너뛰기는 그 답을 **지운다**. 앞 단계로 돌아가 건너뛰면 아까 고른 값이 남아 있으면
+  // 건너뛰기는 그 답을 지운다. 앞 단계로 돌아가 건너뛰면 아까 고른 값이 남아 있으면
   // 안 된다 — 화면은 건너뛴 것으로 보이는데 저장은 되는 일이 생긴다.
   const skipQuestion = (key: TasteKey, index: number) => {
     const next = { ...answers };
@@ -175,7 +167,7 @@ export default function TasteProfileScreen() {
   };
 
   if (checking) {
-    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
+    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.action.primary} /></Screen>;
   }
 
   if (done !== null) {
@@ -184,14 +176,14 @@ export default function TasteProfileScreen() {
         <Image source={require('../../assets/mascot/dongbaek-idle.png')} style={styles.mascot} resizeMode="contain" />
         <Text variant="display" weight="bold" style={styles.doneTitle}>
           {done > 0
-            ? tx(`취향 ${done}개를 기억했어요`, `Saved ${done} preference${done > 1 ? 's' : ''}`)
+            ? txf(tx, '취향 %s개를 기억했어요', done > 1 ? 'Saved %s preferences' : 'Saved %s preference', done)
             : tx('괜찮아요, 나중에 답해도 돼요', 'No problem — you can answer later')}
         </Text>
         <Text color={color.text.body} style={styles.doneTitle}>
           {tx('여행을 만들 때 미리 채워 드려요. 마이페이지 › 여행 취향에서 언제든 바꿀 수 있어요.',
             'We will fill these in when you plan a trip. You can change them any time in My page › Travel preferences.')}
         </Text>
-        <Button label={tx('홈으로', 'Go home')} containerStyle={styles.doneCta} onPress={() => router.replace('/home')} />
+        <Button label={tx('홈으로', 'Go home')} containerStyle={styles.doneCta} onPress={() => enterApp(router, '/home')} />
       </View>
     </Screen>;
   }
@@ -229,7 +221,8 @@ export default function TasteProfileScreen() {
     <Dots step={step} settled={settled} />
 
     {/* 넓은 화면에서는 문항 한 덩어리를 카드에 담는다. 담지 않으면 1440 폭에서 글자 몇
-        줄이 허공에 떠 있는 것처럼 보인다 — 폭을 좁히는 것만으로는 안 된다. */}
+        줄이 허공에 떠 있는 것처럼 보인다 — 폭을 좁히는 것만으로는 안 된다.
+    */}
     <View style={wide ? styles.card : undefined}>
       {step === 0 && <View style={styles.heading}>
         <Text variant="display" weight="bold">{tx('여행 취향을 5개만 여쭤볼게요', 'Just 5 questions about your travel taste')}</Text>
@@ -275,7 +268,8 @@ export default function TasteProfileScreen() {
       </View>}
 
       {/* 넓은 화면에서는 「이전」과 「건너뛰기」가 카드 안 같은 줄에 있다. 폰에서는
-          건너뛰기가 문항 바로 아래(엄지가 닿는 자리), 이전은 맨 아래다. */}
+          건너뛰기가 문항 바로 아래(엄지가 닿는 자리), 이전은 맨 아래다.
+      */}
       {wide && <View style={styles.cardFooter}>{backLink}{skipLink}</View>}
     </View>
 
@@ -283,51 +277,51 @@ export default function TasteProfileScreen() {
 
     <View style={styles.footer}>
       {!wide && backLink}
-      {submitting && <ActivityIndicator color={color.brand.orange} />}
+      {submitting && <ActivityIndicator color={color.action.primary} />}
     </View>
     </View>
   </Screen>;
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
   // 넓은 화면에서 읽는 열. Screen 이 이미 720 으로 묶고 있지만 문항 하나를 읽기에는
   // 그것도 넓다 — 눈이 줄 끝에서 다음 줄 앞으로 돌아오는 거리가 멀어진다.
   column: { width: '100%', maxWidth: 560, alignSelf: 'center' },
   card: { marginTop: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[4], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border },
-  // 🔴 marginTop — Screen 의 기본 paddingTop 만으로는 전역 언어 배지(우측 상단 절대좌표)를
-  //    못 피한다. spend-profile 과 같은 값으로 맞춘다.
+  // marginTop — Screen 의 기본 paddingTop 만으로는 전역 언어 배지(우측 상단 절대좌표)를
+  // 못 피한다. spend-profile 과 같은 값으로 맞춘다.
   topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
-  logo: { width: 88, height: 24 },
+  logo: { width: 132, height: 24 },
   stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
   skipAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
   dots: { flexDirection: 'row', gap: 6, marginTop: spacing[3] },
   dot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
-  dotCurrent: { backgroundColor: color.brand.orange },
+  dotCurrent: { backgroundColor: color.action.secondary },
   // 답했거나 건너뛴 단계. 현재 단계와 구별되게 흐리다 — 같은 색이면 어디까지 왔는지 모른다.
-  dotSettled: { backgroundColor: color.brand.orange, opacity: 0.5 },
+  dotSettled: { backgroundColor: color.action.secondary, opacity: 0.5 },
   heading: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[6] },
   question: { marginTop: spacing[6], marginBottom: spacing[4] },
   scaleEnds: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing[2] },
   scaleTrack: { flexDirection: 'row', justifyContent: 'space-between', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   scaleTrackDesktop: { backgroundColor: color.surface.subtle },
   scalePoint: { width: 56, height: 56, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
-  scalePointSelected: { backgroundColor: color.brand.navy },
-  scalePointSelectedDesktop: { backgroundColor: color.brand.orange },
+  scalePointSelected: { backgroundColor: color.action.secondary },
+  scalePointSelectedDesktop: { backgroundColor: color.action.secondary },
   multi: { gap: spacing[4] },
   multiCta: { minHeight: 46 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
-  chipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  chipSelectedDesktop: { backgroundColor: color.surface.warm, borderColor: color.brand.orange },
+  chipSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
+  chipSelectedDesktop: { backgroundColor: color.surface.tint, borderColor: color.action.secondary },
   options: { gap: spacing[3] },
   // 넓은 화면에서는 두 카드를 한 줄에 나란히 — 세로로 쌓으면 카드 하나가 화면 폭을 다 먹는다.
   optionsDesktop: { flexDirection: 'row' },
   option: { minHeight: 64, gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   optionDesktop: { flex: 1, minHeight: 80, borderRadius: radius.md },
-  optionPressed: { borderColor: color.brand.orange, backgroundColor: color.surface.tint },
+  optionPressed: { borderColor: color.action.secondary, backgroundColor: color.surface.tint },
   optionDesc: { lineHeight: 18 },
   skipQuestion: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: spacing[4] },
   footer: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[4] },

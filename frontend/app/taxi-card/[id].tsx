@@ -1,4 +1,4 @@
-// S15P21E201-222 — 택시 목적지 카드. 사용자가 아니라 택시 기사가 보는 화면이라
+// — 택시 목적지 카드. 사용자가 아니라 택시 기사가 보는 화면이라
 // 평소 화면 규칙과 다르게 만든다: 어두운 차 안에서 팔 길이만큼 떨어져 읽어야 하므로
 // 화면 전체를 흰 배경 + 최소 28px(hero 토큰, 34px) 글자로 채운다.
 import { useEffect, useState } from 'react';
@@ -57,7 +57,7 @@ export default function TaxiCardScreen() {
 
       {state.status === 'loading' ? (
         <View style={styles.notice} accessibilityLiveRegion="polite">
-          <ActivityIndicator color={color.brand.orange} />
+          <ActivityIndicator color={color.action.primary} />
           <Text color={color.text.body}>{tx('택시 카드를 준비하고 있어요', 'Preparing the taxi card')}</Text>
         </View>
       ) : null}

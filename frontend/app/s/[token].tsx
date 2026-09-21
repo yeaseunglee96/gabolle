@@ -1,8 +1,9 @@
 // 공유된 일정을 로그인 없이 보는 화면(상세설계서 Part II P-32, /s/:token) — S15P21E201-335.
 // 이 서비스를 처음 보는 사람이 친구 링크로 들어오는 입구라, 여행 화면 껍데기(Screen 안의
-// 탭바 등)를 안 쓰는 단독 레이아웃으로 둔다. "내 조건으로 새 여행 만들기"(S15P21E201-340)는
+// 탭바 등)를 안 쓰는 단독 레이아웃으로 둔다. "내 조건으로 새 여행 만들기"는
 // 기존 plan 흐름(plan/basic → … → confirm)을 그대로 타되, PlanProvider 에 공유 표(token)를
 // 심어 두면 마지막 제출 지점(recommendationJob.ts)이 일반 생성 대신 복제(clone) API를 부른다.
+import { txf } from '@/i18n/format';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -84,7 +85,7 @@ export default function SharedItinerary() {
       <View accessibilityRole="alert" style={styles.card}>
         <Text variant="title" weight="bold">{tx('공유 일정을 찾을 수 없어요', 'This shared itinerary could not be found')}</Text>
         <Text color={color.text.body}>{status.state === 'error' ? status.message : tx('링크가 정확한지 확인해 주세요. 지워졌거나 잘못된 링크일 수 있어요.', 'Please check the link. It may be invalid, or the trip may have been deleted.')}</Text>
-        <Button label={tx('홈으로', 'Go home')} variant="ghost" onPress={() => router.replace('/home')} />
+        <Button label={tx('홈으로', 'Go home')} variant="tertiary" onPress={() => router.replace('/home')} />
       </View>
     </Screen>;
   }
@@ -99,19 +100,19 @@ export default function SharedItinerary() {
       <Text variant="eyebrow" weight="bold">{tx('공유된 여행 일정', 'Shared trip itinerary')}</Text>
       <Text variant="display" weight="bold">{data.title}</Text>
       <Text color={color.text.body}>{tx(`${data.startDate} ~ ${data.finishDate}`, `${data.startDate} – ${data.finishDate}`)}</Text>
-      <Text variant="caption" color={color.text.muted}>{tx(`이 링크는 ${new Date(data.expiresAt).toLocaleDateString(locale)}까지 볼 수 있어요.`, `This link is viewable until ${new Date(data.expiresAt).toLocaleDateString(locale)}.`)}</Text>
+      <Text variant="caption" color={color.text.muted}>{txf(tx, '이 링크는 %s까지 볼 수 있어요.', 'This link is viewable until %s.', new Date(data.expiresAt).toLocaleDateString(locale))}</Text>
     </View>
 
     <View style={styles.notice}>
       <Text variant="caption" weight="bold">{tx('공유되지 않는 정보', 'Not shared')}</Text>
-      <Text variant="caption" color={color.text.body}>{tx(`${notSharedLabels}는(은) 공유되지 않아요.`, `${notSharedLabels} are not shared.`)}</Text>
+      <Text variant="caption" color={color.text.body}>{txf(tx, '%s는(은) 공유되지 않아요.', '%s are not shared.', notSharedLabels)}</Text>
     </View>
 
     {data.days.length === 0 ? (
       <View style={styles.dayCard}><Text color={color.text.body}>{tx('아직 짜인 일정이 없어요.', 'No itinerary has been planned yet.')}</Text></View>
     ) : data.days.map((day, index) => (
       <View key={day.date} style={styles.dayCard}>
-        <Text variant="title" weight="bold" style={styles.dayTitle}>{tx(`${index + 1}일차 · ${day.date}`, `Day ${index + 1} · ${day.date}`)}</Text>
+        <Text variant="title" weight="bold" style={styles.dayTitle}>{txf(tx, '%s일차 · %s', 'Day %s · %s', index + 1, day.date)}</Text>
         {day.items.length === 0 ? (
           <Text variant="caption" color={color.text.muted}>{tx('이 날은 일정이 없어요.', 'Nothing planned for this day.')}</Text>
         ) : day.items.map((item) => (
@@ -132,13 +133,13 @@ export default function SharedItinerary() {
 
     <View style={styles.actions}>
       <Button label={tx('내 조건으로 새 여행 만들기', 'Create a new trip with my own conditions')} onPress={() => void startMyOwnTrip()} />
-      <Button label={copied ? tx('링크 복사됨 ✓', 'Link copied ✓') : tx('링크 복사', 'Copy link')} variant="ghost" onPress={() => void copyLink()} />
+      <Button label={copied ? tx('링크 복사됨 ✓', 'Link copied ✓') : tx('링크 복사', 'Copy link')} variant="tertiary" onPress={() => void copyLink()} />
     </View>
   </Screen>;
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.brand.ivory },
+  screen: { backgroundColor: color.canvas },
   center: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.ivory },
   card: { gap: spacing[3], width: '100%', maxWidth: 420, padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   heading: { gap: spacing[1], marginTop: spacing[6], marginBottom: spacing[4] },
