@@ -156,21 +156,8 @@ export default function Me() {
         onPress={() => openPanel('saved')}
         disabled={!user}
       />
-      {/* — 인스타그램처럼 팔로워·팔로잉을 눌러 목록으로 들어갈 수 있어야
-          한다는 사용자 리포트. 숫자만 있던 자리를 실제 목록 화면으로 잇는다.
-      */}
-      <InfoRow
-        label={tx('팔로워', 'Followers')}
-        value={followerCount === null ? '›' : tx(`${followerCount}명 ›`, `${followerCount} ›`)}
-        onPress={() => user && openPanel('followers')}
-        disabled={!user}
-      />
-      <InfoRow
-        label={tx('팔로잉', 'Following')}
-        value={followingCount === null ? '›' : tx(`${followingCount}명 ›`, `${followingCount} ›`)}
-        onPress={() => user && openPanel('following')}
-        disabled={!user}
-      />
+      {/* 🔴 「팔로워」「팔로잉」 행도 여기 없다 — 위 프로필 카드의 타일(기록·팔로워·팔로잉)이 같은 곳으로
+          간다(S15P21E201-1331). 같은 문이 둘이면 한쪽만 고쳐진다 — 「내 기록」과 같은 이유(1379). 되살리지 마라 — S15P21E201-1390. */}
       <InfoRow
         label={tx('여행 취향', 'Travel preferences')}
         value={answeredPreferences === null

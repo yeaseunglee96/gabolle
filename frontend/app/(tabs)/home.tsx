@@ -219,16 +219,17 @@ export default function Home() {
                 {/* 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
                     읽을 것이 없는데도 있는 것처럼 보이고, 안 찍는 쪽이 거짓이 아니다.
                 */}
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
-                  <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
-                  {bellDot ? <View style={styles.bellDot} /> : null}
-                </Pressable>
               </>
             ) : (
               <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
                 <Text weight="bold" color={color.brand.navy}>{tx('로그인', 'Sign in')}</Text>
               </Pressable>
             )}
+            {/* 종은 늘 그 자리에(시안 5 Home). 손님이 누르면 알림 화면이 로그인을 안내한다 — 자리가 비면 「알림이 없는 앱」으로 읽힌다(2026-09-21 지적). */}
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
+              <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
+              {bellDot ? <View style={styles.bellDot} /> : null}
+            </Pressable>
           </View>
         </View>
 
@@ -330,7 +331,8 @@ export default function Home() {
           onPress={() => setAssistantOpen((open) => !open)}
           style={({ pressed }) => [styles.assistantButton, pressed && styles.pressed]}
         >
-          <GabolleMascot state="idle" style={styles.assistantMascot} />
+          {/* 위아래로 흔들리지 않는다 — 단추는 가만히 있어야 단추다(2026-09-21 지적). */}
+          <GabolleMascot state="idle" still style={styles.assistantMascot} />
           {/* 시안 5 Home — 흰 원 위의 동백이, 오른쪽 위에 작은 「AI」 표. 원이 있어야 사진 위에서도 눌리는 것으로 보인다(S15P21E201-1381). */}
           <View style={styles.assistantBadge}><Text variant="micro" weight="bold" color={color.action.outline}>AI</Text></View>
         </Pressable>
