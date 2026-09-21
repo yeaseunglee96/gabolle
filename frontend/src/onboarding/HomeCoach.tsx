@@ -6,6 +6,7 @@
 //
 // 어두운 막에 두 구멍을 뚫는다(SVG 마스크). 구멍 자리는 홈이 실제로 잰 값(measureInWindow)이라
 // 화면 폭이 바뀌어도 맞다 — 좌표를 박아 두면 폴드 같은 기기에서 엉뚱한 곳을 가리킨다.
+import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Defs, Mask, Path, Rect } from 'react-native-svg';
 
@@ -29,6 +30,10 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
 }) {
   const { tx } = useI18n();
   const { width, height } = useWindowDimensions();
+  // 🔴 두 설명 덩이는 각각 absolute 라 서로의 자리를 모른다 — 작은 폰(1080×2280)에서는 시작 바 설명이 동백이 설명 위로
+  //    100px 쯤 겹쳐 글자가 두 겹으로 읽혔다(실기 빌드 27, S15P21E201-1403). 시작 바 설명의 높이를 재서, 동백이 설명 자리를
+  //    침범하면 동백이 설명을 시작 바 설명 «안의 한 줄»로 접는다. 화살표는 그대로 단추를 가리킨다.
+  const [startCopyHeight, setStartCopyHeight] = useState(0);
   if (!visible) return null;
   const holes = [startBar, assistant].filter((hole): hole is CoachHole => Boolean(hole));
   // 시작 바 설명은 바 아래에, 동백이 설명은 단추 왼쪽 위에 — 구멍을 가리지 않는 자리.
@@ -37,6 +42,9 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
   const ASSISTANT_COPY_GAP = 64;
   const assistantCopyBottom = assistant ? height - assistant.y + ASSISTANT_COPY_GAP : height * 0.2;
   const assistantCopyRight = assistant ? width - assistant.x - assistant.width : spacing[6];
+  const ASSISTANT_COPY_HEIGHT = 96;
+  const assistantCopyTop = height - assistantCopyBottom - ASSISTANT_COPY_HEIGHT;
+  const folded = startCopyHeight > 0 && startCopyTop + startCopyHeight + spacing[3] > assistantCopyTop;
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
@@ -64,7 +72,7 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
           ) : null}
         </Svg>
 
-        <View style={[styles.copy, { top: startCopyTop }]}>
+        <View style={[styles.copy, { top: startCopyTop }]} onLayout={(event) => setStartCopyHeight(Math.round(event.nativeEvent.layout.height))}>
           <Text variant="micro" weight="bold" color={RING} style={styles.eyebrow}>{tx('GABOLLE · 부산 전용 AI 여행 가이드', 'GABOLLE · AI travel guide just for Busan')}</Text>
           <Text variant="title" weight="bold" color={color.text.onAction} style={styles.center}>{tx('여기서 시작해요', 'Start right here')}</Text>
           <Text variant="body" color="rgba(255,255,255,0.85)" style={styles.center}>{tx('출발지·날짜·인원만 고르면 돼요. 나머지는 물어보는 만큼만 답하면 되고, 절반은 건너뛰어도 괜찮아요.', 'Just pick where you start, your dates and who is coming. Answer the rest only as much as you like — skipping half is fine.')}</Text>
@@ -76,13 +84,14 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
               <Text variant="util" weight="bold" color="rgba(255,255,255,0.85)">{tx('먼저 둘러볼게요', 'Let me look around first')}</Text>
             </Pressable>
           </View>
+          {folded ? <Text variant="util" color="rgba(255,255,255,0.85)" style={styles.center}>{tx('궁금한 건 오른쪽 아래 동백이에게 — 어느 언어로 물어도 답해요', 'Ask Dongbaek at the bottom right — in any language')}</Text> : null}
           <Text variant="caption" color="rgba(255,255,255,0.6)" style={styles.center}>{tx('이 안내는 한 번만 떠요 · 마이페이지 › 도움말에서 다시 볼 수 있어요', 'You see this once · replay it from My page › Help')}</Text>
         </View>
 
-        <View style={[styles.assistantCopy, { bottom: assistantCopyBottom, right: assistantCopyRight + spacing[2] }]}>
+        {folded ? null : <View style={[styles.assistantCopy, { bottom: assistantCopyBottom, right: assistantCopyRight + spacing[2] }]}>
           <Text variant="title" weight="bold" color={color.text.onAction} style={styles.right}>{tx('궁금한 건 동백이에게', 'Ask Dongbaek anything')}</Text>
           <Text variant="util" color="rgba(255,255,255,0.85)" style={styles.right}>{tx('화면 어디서든 오른쪽 아래. 어느 언어로 물어도 답하고, 메뉴판 번역·통역도 여기서 열려요.', 'Always at the bottom right. Ask in any language — menu translation and interpreting open from here too.')}</Text>
-        </View>
+        </View>}
       </View>
     </Modal>
   );

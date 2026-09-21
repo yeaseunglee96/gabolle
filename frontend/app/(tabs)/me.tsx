@@ -343,7 +343,7 @@ export default function Me() {
           <Text weight="bold" color={meTab === key ? color.text.onAction : color.text.body} numberOfLines={1}>
             {key === 'settings'
               ? tx('설정', 'Settings')
-              : storyCount === null ? tx('기록', 'Records') : tx(`기록 ${storyCount}`, `Records ${storyCount}`)}
+              : storyCount === null ? tx('기록', 'Records') : txf(tx, '기록 %s', 'Records %s', String(storyCount))}
           </Text>
         </Pressable>
       ))}

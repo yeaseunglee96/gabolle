@@ -39,6 +39,12 @@ const S2b = `<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http
 <text x="512" y="576" text-anchor="middle" font-family="Montserrat, Arial, sans-serif" font-weight="800" font-size="62" fill="${RED}" letter-spacing="12">12 · SEP · 2026</text>
 <text x="454" y="712" text-anchor="end" font-family="Montserrat, Arial, sans-serif" font-weight="800" font-size="76" fill="${RED}" letter-spacing="4">GAB</text><image href="${inkMascot}" x="456" y="626" width="112" height="112"></image><text x="570" y="712" text-anchor="start" font-family="Montserrat, Arial, sans-serif" font-weight="800" font-size="76" fill="${RED}" letter-spacing="4">LLE</text></svg>`;
 
+// 2b-nodate · 날짜 글줄 없는 판 — 날짜는 앱이 실제 여행 날짜로 그 자리에 찍는다(S15P21E201-1437). 이것이 assets/brand/busan-arrived-stamp.png 다.
+const S2bNoDate = `<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http://www.w3.org/2000/svg"><defs>${rough}</defs>
+<g filter="url(#rough)" ${G}><rect x="92" y="232" width="840" height="560" rx="54" stroke-width="20"></rect><rect x="126" y="266" width="772" height="492" rx="34" stroke-width="6"></rect><path d="M170 486 H854" stroke-width="6"></path><path d="M170 620 H854" stroke-width="6"></path></g>
+<text x="512" y="450" text-anchor="middle" font-family="Montserrat, Arial, sans-serif" font-weight="900" font-size="148" fill="${RED}" letter-spacing="12">BUSAN</text>
+<text x="454" y="712" text-anchor="end" font-family="Montserrat, Arial, sans-serif" font-weight="800" font-size="76" fill="${RED}" letter-spacing="4">GAB</text><image href="${inkMascot}" x="456" y="626" width="112" height="112"></image><text x="570" y="712" text-anchor="start" font-family="Montserrat, Arial, sans-serif" font-weight="800" font-size="76" fill="${RED}" letter-spacing="4">LLE</text></svg>`;
+
 // 3 · 둥근 도장 · 단순 — 가운데 BUSAN 가로 · 위 다리 · 아래 파도 · 바깥 점선 링 · 작은 GABOLLE
 const S3 = `<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http://www.w3.org/2000/svg"><defs>${rough}${arc('b3', 400, false)}</defs>
 <g filter="url(#rough)" ${G}><circle cx="512" cy="512" r="476" stroke-width="24"></circle><circle cx="512" cy="512" r="436" stroke-width="6" stroke-dasharray="4 16"></circle>
@@ -47,7 +53,7 @@ const S3 = `<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http:
 ${arcText('b3', 'GABOLLE · TRIP PASS · 2026', 46, 10, 800)}</svg>`;
 (async () => {
   const b = await chromium.launch(); const pg = await b.newPage({ viewport: { width: 1024, height: 1024 } });
-  for (const [n, svg] of [['stamp-busan-round', S1], ['stamp-busan-arrived', S2], ['stamp-busan-arrived-logo', S2b], ['stamp-busan-simple', S3]]) {
+  for (const [n, svg] of [['stamp-busan-round', S1], ['stamp-busan-arrived', S2], ['stamp-busan-arrived-logo', S2b], ['stamp-busan-arrived-logo-nodate', S2bNoDate], ['stamp-busan-simple', S3]]) {
     await pg.setContent(`${FONT}<body style="margin:0;background:transparent">${svg}</body>`); await pg.waitForTimeout(1300);
     await pg.screenshot({ path: path.join(__dirname, n + '.png'), omitBackground: true, clip: { x: 0, y: 0, width: 1024, height: 1024 } });
   }

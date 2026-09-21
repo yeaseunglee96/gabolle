@@ -118,7 +118,10 @@ export default function Welcome() {
       children: value.children,
       travelers: value.adults + value.children,
     });
-    router.push('/plan');
+    // 🔴 /plan 의 「출발지 수정」으로 왔으면(edit 매개변수) 그 /plan 이 아래에 쌓여 있다 — push 하면 /plan 이 둘이 되어
+    //    뒤로 가면 출발지 없던 옛 화면이 한 번 더 나온다(실기 빌드 28, S15P21E201-1439). 왔던 화면으로 돌아간다.
+    if (editSection && router.canGoBack()) router.back();
+    else router.push('/plan');
   };
 
   const startPlanFromBar = (value: StartBarValue) => {

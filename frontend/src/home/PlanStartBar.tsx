@@ -2,6 +2,7 @@
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, ActivityIndicator, Animated, BackHandler, Easing, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -215,6 +216,7 @@ export function PlanStartBar({
   sheet = false, value: controlledValue, onChange, onClose, onOpenSheet,
 }: PlanStartBarProps) {
   const { tx, language } = useI18n();
+  const insets = useSafeAreaInsets();
   // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다.
   // 그 언어들은 번역표에 없는 문구가 있으면 영어로 떨어지기로 정해져 있다
   // (resolveTextLanguage). 그 규칙을 그대로 쓴다 — S15P21E201-1296.
@@ -527,7 +529,8 @@ export function PlanStartBar({
           ))}
         </ScrollView>
 
-        <View style={styles.sheetFoot}>
+        {/* 🔴 시트는 화면 바닥까지 덮는다(absolute bottom:0) — 안드로이드 탐색줄만큼 띄우지 않으면 「일정 물어보기」가 반쯤 가린다(실기 빌드 28, S15P21E201-1438). */}
+        <View style={[styles.sheetFoot, { paddingBottom: spacing[6] + insets.bottom }]}>
           <Pressable
             onPress={() => { setValue(EMPTY_START_BAR); setSection('origin'); }}
             accessibilityRole="button"
