@@ -82,16 +82,28 @@ public class TripController {
      * 내 여행 목록. 내가 만든 것과 초대받은 것을 함께 준다 — 소유자만 주면 초대받은 사람은
      * 초대 링크를 다시 받는 것 말고 그 여행에 들어갈 길이 없다.
      *
-     * <p>일정은 함께 읽지 않는다. 줄마다 최신 일정을 붙이면 여행 모듈이 일정 표를 알게 된다 —
-     * 일정은 여행 하나를 열 때 {@code GET /api/v1/itineraries?tripId=...} 로 따로 묻는다.
+     * <p>일정 자체는 여기서 주지 않는다. 여행 하나를 열 때
+     * {@code GET /api/v1/itineraries?tripId=...} 로 따로 묻는다.
+     *
+     * <p>🔴 <b>표지만 예외다 (S15P21E201-1370).</b> 여기에는 오래 「일정은 함께 읽지
+     * 않는다 — 줄마다 최신 일정을 붙이면 여행 모듈이 일정 표를 알게 된다」고 적혀 있었다.
+     * 막으려던 것 둘 중 <b>하나는 지금도 유효하고 하나는 해결됐다.</b>
+     * <ul>
+     * <li><b>여행이 일정 표를 알게 되는 것</b> — 여전히 막는다. 그래서 여행은 일정 표를
+     *     모른 채 {@code TripCoverPort} 에 표지만 묻고, 그 표를 아는 구현은 일정 쪽에 있다</li>
+     * <li><b>줄마다 부르는 것</b> — 포트가 여행 목록을 통째로 받아 <b>질의 한 번</b>으로
+     *     답한다. 여행이 50개든 질의는 하나다</li>
+     * </ul>
+     * 표지를 줄마다 부르는 방식으로 되돌리는 변경은 옛 문장이 막으려던 바로 그것이다.
      */
     @GetMapping
     public ApiResponse<List<TripSummaryResponse>> list(Authentication authentication) {
         String requester = AuthenticatedUsers.requireId(authentication).toString();
 
-        List<TripSummaryResponse> trips = queryService.list(requester, TripQueryService.MAX_LIST_SIZE).stream()
-                .map(TripSummaryResponse::of)
-                .toList();
+        List<TripSummaryResponse> trips =
+                queryService.listWithCovers(requester, TripQueryService.MAX_LIST_SIZE).stream()
+                        .map((listing) -> TripSummaryResponse.of(listing.row(), listing.cover()))
+                        .toList();
 
         return ApiResponse.success(trips, "req_" + UUID.randomUUID());
     }
