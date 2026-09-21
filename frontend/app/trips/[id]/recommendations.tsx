@@ -9,6 +9,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -389,6 +390,7 @@ export default function Recommendations() {
               지도의 번호와 같은 번호를 달아, 점을 누르든 카드를 누르든 같은 곳이 켜진다. */}
           {dayStops.length ? (
             <View style={styles.stripWrap}>
+            <View style={styles.stripRow}>
             <ScrollView
               ref={stripRef}
               horizontal
@@ -445,6 +447,27 @@ export default function Recommendations() {
                 거짓말이 된다 — 눌러도 아무 일이 안 일어나서 고장으로 읽힌다. */}
             {stripOverflows ? (
               <>
+                {/* 🔴 **양끝을 흐린다.** 카드가 칸 경계에서 «잘린» 것처럼 끝나면 거기서
+                    끝인 줄 안다. 흐려 두면 뒤에 더 있다는 것이 말 없이 보인다.
+                    끝에 닿은 쪽은 흐리지 않는다 — 더 없는데 더 있다고 말하게 된다. */}
+                {strip.left > 4 ? (
+                  <LinearGradient
+                    pointerEvents="none"
+                    colors={[color.surface.soft, 'transparent']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={[styles.stripFade, styles.stripFadeLeft]}
+                  />
+                ) : null}
+                {strip.left < strip.content - strip.view - 4 ? (
+                  <LinearGradient
+                    pointerEvents="none"
+                    colors={['transparent', color.surface.soft]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={[styles.stripFade, styles.stripFadeRight]}
+                  />
+                ) : null}
                 {strip.left > 4 ? (
                   <Pressable
                     accessibilityRole="button"
@@ -465,12 +488,15 @@ export default function Recommendations() {
                     <Text weight="bold" color={color.text.onAction}>›</Text>
                   </Pressable>
                 ) : null}
-                <View style={styles.stripDots}>
-                  {Array.from({ length: stripPages }, (unused, page) => (
-                    <View key={page} style={[styles.stripDot, page === stripPage && styles.stripDotOn]} />
-                  ))}
-                </View>
               </>
+            ) : null}
+            </View>
+            {stripOverflows ? (
+              <View style={styles.stripDots}>
+                {Array.from({ length: stripPages }, (unused, page) => (
+                  <View key={page} style={[styles.stripDot, page === stripPage && styles.stripDotOn]} />
+                ))}
+              </View>
             ) : null}
             </View>
           ) : null}
@@ -655,6 +681,11 @@ const styles = StyleSheet.create({
   //    절반 높이로 늘어나고 지도는 그만큼 눌린다. 자기 내용만큼만 차지하게 묶는다.
   // 손잡이와 점이 스트립 «위에» 얹히는 자리. 스트립 자체는 자기 내용만큼만 차지한다.
   stripWrap: { flexGrow: 0, flexShrink: 0 },
+  // 카드가 굴러가는 줄. 페이드와 손잡이는 이 안에만 얹혀 아래 쪽 표시를 안 덮는다.
+  stripRow: { position: 'relative' },
+  stripFade: { position: 'absolute', top: 0, bottom: 0, width: 56 },
+  stripFadeLeft: { left: 0 },
+  stripFadeRight: { right: 0 },
   stripPane: { flexGrow: 0, flexShrink: 0 },
   stripArrow: {
     position: 'absolute', top: '40%',
