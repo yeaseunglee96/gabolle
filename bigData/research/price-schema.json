@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "properties": {
+    "found": { "type": "boolean" },
+    "priceWon": { "type": ["number", "null"], "description": "대표 메뉴 1개의 가격, 원 단위 숫자만. 모르면 null" },
+    "priceMenu": { "type": ["string", "null"], "description": "priceWon 이 어느 메뉴의 가격인지" },
+    "priceRangeLowWon": { "type": ["number", "null"], "description": "메뉴판에 가격대가 있으면 최저가" },
+    "priceRangeHighWon": { "type": ["number", "null"], "description": "메뉴판에 가격대가 있으면 최고가" },
+    "sources": { "type": "array", "items": { "type": "string" }, "description": "원문 주소만. 중계 주소 금지" },
+    "notFound": { "type": ["string", "null"] }
+  },
+  "required": ["found", "priceWon", "sources"]
+}
