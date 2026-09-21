@@ -67,10 +67,10 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
 
   await page.getByRole('button', { name: '일정 물어보기', exact: true }).click();
 
-  // 3) 여행 조건 한 페이지 — 질문 카드 하나에 답하면 다음이 열린다
-  //    (app/(plan)/questions.tsx, src/plan/planQuestions.ts). 순서: 여행 범위 ·
-  //    총예산 · 하루 여행 시간/이동수단(이 셋은 필수) → 카테고리 · 기분 · 분위기 ·
-  //    로컬성/조용함/관광지 · 음식 · 이동 보조 · 꼭 가고 싶은 곳(이 일곱은 건너뛸 수 있다).
+  // 3) 여행 조건 — 🔴 S15P21E201-1377 부터 세 장이다(app/(plan)/questions.tsx, src/plan/planQuestions.ts
+  //    의 PLAN_PAGES). 1장 기본(필수): 여행 범위 · 총예산 · 하루 여행 시간/이동수단이 한 장에 다 있다.
+  //    2장 취향 · 3장 세부는 선택이라 답 없이 넘어간다. 한 질문 = 한 장이던 때의 「다음」×3 ·
+  //    「건너뛰기」×6 은 이제 없다.
   await expect(page).toHaveURL(/\/plan(\?|$)/);
 
   // 여행 범위(필수) — 하나 이상 고른다.
@@ -78,28 +78,14 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   //    OptionCard) 접근성 이름이 「해운대해변 · 동백섬 · 해리단길」이 된다. exact 는
   //    영영 못 맞춘다 — 앞글자로 찾는다.
   await page.getByRole('checkbox', { name: /^해운대/ }).click();
-  await page.getByRole('button', { name: '다음', exact: true }).click();
-
-  // 총예산(필수) — "+10만"을 한 번만 눌러도 0보다 커져 답한 것으로 본다.
+  // 총예산(필수) — 같은 장에 있다. "+10만"을 한 번만 눌러도 0보다 커져 답한 것으로 본다.
   await page.getByRole('button', { name: '+10만', exact: true }).click();
-  await page.getByRole('button', { name: '다음', exact: true }).click();
-
-  // 하루 여행 시간 · 이동수단(필수) — 이동수단만 고르면 답한 것으로 본다
-  // (시작/종료 시각은 answered() 조건에 없다).
-  // 같은 이유 — 「대중교통」 뒤에 「지하철·버스 환승 최소」가 붙는다.
+  // 하루 여행 시간 · 이동수단(필수) — 같은 장. 이동수단만 고르면 답한 것으로 본다.
   await page.getByRole('checkbox', { name: /^대중교통/ }).click();
+  // 1장의 단추는 「취향도 알려주기 →」 — 필수를 다 답해야 켜진다.
+  await page.getByRole('button', { name: '취향도 알려주기 →', exact: true }).click();
+  // 2장(취향)은 선택 — 「다음」으로 넘어간다. 3장(세부)이 마지막이라 아래 제출 단추가 열린다.
   await page.getByRole('button', { name: '다음', exact: true }).click();
-
-  // 나머지 여섯(카테고리 · 기분 · 분위기 · 로컬성 등 · 음식 · 이동 보조)은 전부
-  // 건너뛸 수 있다 — "건너뛰기"로 통과한다.
-  for (let i = 0; i < 6; i += 1) {
-    await page.getByRole('button', { name: '건너뛰기', exact: true }).click();
-  }
-  // 🔴 여기 있던 "입력 완료" 클릭을 지웠다 — 그런 단추가 화면에 없다.
-  //    지금 이 화면의 아래 단추는 둘 중 하나다: 마지막 질문이 아니면 "다음",
-  //    마지막이면 "이 조건으로 일정 만들기"(questions.tsx의 last 분기).
-  //    질문 열 중 셋을 답하고 여섯을 건너뛰면 열째(꼭 가고 싶은 장소)에 서고,
-  //    그 질문은 "없음도 답"이라 곧바로 아래의 제출 단추가 열린다.
 
   // 4) 추천 요청 제출 — 알레르기·식단은 1.5단계에서 이미 답했으므로(hardUnknown이
   //    false다) 여행 조건 모달이 다시 뜨지 않고 바로 제출된다. 이 클릭이
