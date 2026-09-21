@@ -2,6 +2,8 @@ package com.gabolle.backend.notification.application;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -84,6 +86,40 @@ public class PushTokenService {
 	public void unregister(UUID userId, String token) {
 		String trimmedToken = require(token, "token");
 		this.repository.deleteByTokenAndUserId(trimmedToken, userId);
+	}
+
+	/**
+	 * 이 사람들에게 알림을 보낼 기기 목록 — S15P21E201-1391 (2/2).
+	 *
+	 * <p>알림을 켠 사람이 하나도 없으면 빈 목록이다. 흔한 일이고 고장이 아니다.
+	 */
+	@Transactional(readOnly = true)
+	public List<String> tokensOf(Collection<String> userIds) {
+		if (userIds == null || userIds.isEmpty()) {
+			return List.of();
+		}
+		List<UUID> ids = userIds.stream().filter((id) -> id != null && !id.isBlank())
+				.distinct().map(UUID::fromString).toList();
+		if (ids.isEmpty()) {
+			return List.of();
+		}
+		return this.repository.findAllByUserIdIn(ids).stream().map(PushTokenJpaEntity::token).toList();
+	}
+
+	/**
+	 * 이제 없는 기기를 표에서 지운다 — S15P21E201-1391 (2/2).
+	 *
+	 * <p>🔴 <b>여기에는 주인 확인이 없다.</b> {@link #unregister} 와 정반대인데, 이 값의 출처가
+	 * 사용자가 아니라 Expo 의 {@code DeviceNotRegistered} 대답이기 때문이다 — 앱을 지운 기기에
+	 * 주인이 누구였는지는 상관이 없다. 그래서 <b>부르는 쪽이 그 대답으로 온 토큰만</b> 넣어야 한다.
+	 * 다른 실패(예: 잠깐 몰려서 거절)로 부르면 멀쩡한 사람이 알림을 영영 못 받는다.
+	 */
+	@Transactional
+	public void forget(Collection<String> tokens) {
+		if (tokens == null || tokens.isEmpty()) {
+			return;
+		}
+		this.repository.deleteByTokenIn(tokens.stream().distinct().toList());
 	}
 
 	private static String require(String value, String name) {
