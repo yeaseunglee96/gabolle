@@ -41,8 +41,8 @@ describe('RouteMap 웹 — 칸 크기가 바뀌면', () => {
   beforeEach(() => { relayout.mockClear(); setBounds.mockClear(); });
 
   const stops = [
-    { id: 'a', number: 1, title: '해운대', latitude: 35.158, longitude: 129.160 },
-    { id: 'b', number: 2, title: '광안리', latitude: 35.153, longitude: 129.118 },
+    { id: 'a', number: 1, name: '해운대', latitude: 35.158, longitude: 129.160 },
+    { id: 'b', number: 2, name: '광안리', latitude: 35.153, longitude: 129.118 },
   ];
 
   it('height 가 바뀌면 relayout 하고 같은 범위를 다시 맞춘다', () => {
