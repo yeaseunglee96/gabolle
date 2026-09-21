@@ -1,6 +1,7 @@
 import { screenBottomPadding } from '../Screen';
 import { bottomBarClearance, tabBarBottomMargin } from '../TabBar';
 
+
 // tsconfig 가 node 타입을 안 들고 있어서 import 로 쓰면 타입 검사가 막힌다 —
 // 이 저장소의 다른 파일 검사 시험과 같은 방식이다(app/__tests__/homeHeaderBell.test.ts).
 declare const require: (id: string) => any;
@@ -63,3 +64,45 @@ describe('bottom bars clear the floating tab bar', () => {
     expect(recommendations).not.toContain('bottom: 96,');
   });
 });
+
+// ── 가로에서 탭바가 내용 위에 떠 보이던 것 (S15P21E201-1475) ─────────────────
+//
+// 🔴 2026-09-22 실기(SM-G973N 강제 가로 2280×1080 = 829dp×393dp, APK 29)와
+//    iPhone 16 Pro build 39 QA(S15P21E201-1245 의 B-09)에서 같이 나왔다. 알약이
+//    화면 한가운데 뜬 막대처럼 보이고 그 아래 글자를 덮었다.
+//
+// 🔴 원인은 «폭»이다. dock 에 alignItems:'center' 가 있으면 자식의 가로 크기가 내용
+//    기준이 되고, 그러면 Yoga 가 bar 의 width:'100%' 를 못 풀어 auto 로 떨어뜨린다 —
+//    알약이 탭 다섯의 글자 폭(약 800px)으로 고정된다. 세로에서는 그 값이 화면을 거의
+//    채워서 «안 보였을 뿐»이다.
+//
+// 이 시험은 그 두 속성이 돌아오지 않는지를 본다. 폭 계산 자체는 렌더러가 하는 일이라
+// jsdom 으로 못 재지만, 백분율과 자동 폭이 같이 있지 않으면 어긋날 자리가 없어진다.
+describe('the tab bar pill spans its dock', () => {
+  const source = read('src/components/TabBar.tsx');
+
+  it('dock 은 자식의 가로 크기를 내용 기준으로 만들지 않는다', () => {
+    const dock = block(source, '  dock: {');
+    expect(dock).not.toContain("alignItems: 'center'");
+    // 폭이 정해져 있어야 아래 bar 가 그 폭을 받는다.
+    expect(dock).toContain('left: 0');
+    expect(dock).toContain('right: 0');
+  });
+
+  it('bar 는 폭을 백분율로 적지 않는다 — 부모가 자동이 되면 조용히 auto 로 떨어진다', () => {
+    const bar = block(source, '  bar: {');
+    expect(bar).not.toContain("width: '100%'");
+    expect(bar).not.toContain("alignSelf: 'center'");
+    expect(bar).toContain('marginHorizontal: spacing[4]');
+  });
+});
+
+/** `키:` 로 시작하는 스타일 덩이 하나를 잘라 낸다 — 닫는 `},` 까지. */
+function block(source: string, startsWith: string): string {
+  const from = source.indexOf(startsWith);
+  expect(from).toBeGreaterThan(-1);
+  const to = source.indexOf(`
+  },`, from);
+  expect(to).toBeGreaterThan(from);
+  return source.slice(from, to);
+}
