@@ -16,7 +16,11 @@
  *
  * 사용
  *   node process/market-join.mjs
- *   node process/market-join.mjs --radius 500   반경을 바꿔 본다 (기본 300m)
+ *   node process/market-join.mjs --radius 500   반경을 바꿔 본다 (기본 150m)
+ *
+ * 🔴 반경 150m 는 실측으로 정했다. 300m 로 먼저 돌려 보니 음식점 53,716곳 중 38.4%(20,633곳)가
+ *    걸려 "시장 신호"가 아니라 "도심 신호"가 됐다 — 서면·부전 같은 대형 상권이 통째로 잡혔다.
+ *    150m 는 8,930곳(16.6%)으로 훨씬 시장 자체에 가깝다.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -38,7 +42,7 @@ const num = (name, dflt) => {
   if (!Number.isFinite(v)) throw new Error(`${name} 뒤에 숫자가 필요합니다`);
   return v;
 };
-const RADIUS_M = num("--radius", 300);
+const RADIUS_M = num("--radius", 150);
 
 /** 큰따옴표 안에 쉼표가 있어도 안 깨지는 최소 CSV 파서 (select-2000.mjs 와 같은 것) */
 function parseCsvLine(line) {
