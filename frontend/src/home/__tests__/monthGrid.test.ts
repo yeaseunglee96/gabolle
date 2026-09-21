@@ -12,12 +12,17 @@
 // 🔴 이 시험은 «한 줄에 일곱 칸이 들어 있는가»를 잰다. 폭 계산 자체는 렌더러가 하는 일이라
 //    jsdom 으로 못 재지만, 줄을 미리 일곱씩 묶어 두면 폭이 어떻든 어긋날 자리가 없어진다.
 //    그래서 묶는 규칙을 직접 잰다.
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
 import { DAYS_IN_WEEK, monthWeeks } from '@/home/PlanStartBar';
 
-const SOURCE = readFileSync(join(__dirname, '..', 'PlanStartBar.tsx'), 'utf8');
+// 이 저장소의 다른 파일 검사 시험과 같은 방식이다(app/__tests__/homeHeaderBell.test.ts) —
+// tsconfig 가 node 타입을 안 들고 있어서 import 로 쓰면 타입 검사가 막힌다.
+declare const require: (id: string) => any;
+declare const __dirname: string;
+
+const { readFileSync } = require('fs');
+const { join } = require('path');
+
+const SOURCE = readFileSync(join(__dirname, '..', 'PlanStartBar.tsx'), 'utf8') as string;
 
 /** 0=일 … 6=토 */
 function weekdayOf(dateKey: string): number {
