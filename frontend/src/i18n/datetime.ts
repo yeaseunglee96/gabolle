@@ -126,3 +126,29 @@ export function formatNumericDate(value: string, locale: string): string | null 
   return intlFormat(locale, { month: 'numeric', day: 'numeric' }, date)
     ?? `${date.getMonth() + 1}.${date.getDate()}`;
 }
+
+/**
+ * 「2026. 9. 20.」 · 「9/20/2026」 — 연도까지 넣는다. 만료일처럼 «올해가 아닐 수도
+ * 있는» 날짜에 쓴다(초대 링크·공유 일정 만료).
+ *
+ * 🔴 이 파일이 감싸기 전에는 화면 네 곳(초대 링크·공동 작성자 초대·공유 일정)이
+ * `new Date(...).toLocaleDateString(locale)` / `.toLocaleString(locale)` 를 직접
+ * 불렀다 — 머리말이 설명하는 조용한 치환에 그대로 노출돼 있었다(S15P21E201-1399
+ * 후속). 날짜만 쓰려면 이 함수를, 날짜+시각을 같이 쓰려면 {@link formatDateTime} 을 쓴다.
+ */
+export function formatFullDate(value: string, locale: string): string {
+  const date = parse(value);
+  if (!date) return value;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return intlFormat(locale, { year: 'numeric', month: 'numeric', day: 'numeric' }, date)
+    ?? `${date.getFullYear()}. ${pad(date.getMonth() + 1)}. ${pad(date.getDate())}.`;
+}
+
+/** 「2026. 9. 20. 14:30」 — 연도·시각을 다 보여준다. 만료 시각처럼 «날짜와 시각이 같이 중요한» 값에 쓴다. */
+export function formatDateTime(value: string, locale: string): string {
+  const date = parse(value);
+  if (!date) return value;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return intlFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }, date)
+    ?? `${date.getFullYear()}. ${pad(date.getMonth() + 1)}. ${pad(date.getDate())}. ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}

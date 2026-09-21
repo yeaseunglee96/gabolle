@@ -1,7 +1,7 @@
 // 홈의 여행 시작 바 — 출발지 · 날짜 · 인원을 홈에서 받는다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Animated, BackHandler, Easing, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -333,6 +333,22 @@ export function PlanStartBar({
     if (!sheet) return;
     Animated.timing(sheetIn, { toValue: 1, duration: reduceMotion ? 0 : 600, easing: EASE_SOFT, useNativeDriver: false }).start();
   }, [sheet, reduceMotion, sheetIn]);
+
+  // 🔴 이 시트는 RN `<Modal>` 이 아니라 그냥 View 라서 `onRequestClose` 가 없다 — 즉
+  // 안드로이드 하드웨어 뒤로가기를 이 시트가 알아서 삼켜 주지 않는다. 처리를 안 하면
+  // 뒤로가기가 시트를 그대로 통과해 밑에 있는 화면(또는 앱 자체)이 뒤로 간다 —
+  // app/(tabs)/me.tsx 의 패널이 겪었던 것과 같은 종류의 결함이다. 웹에는 하드웨어
+  // 뒤로가기가 없으니 ESC 가 그 자리를 대신한다(같은 파일의 선례를 그대로 따른다).
+  useEffect(() => {
+    if (!sheet || !onClose) return;
+    if (Platform.OS === 'web') {
+      const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => { onClose(); return true; });
+    return () => sub.remove();
+  }, [sheet, onClose]);
 
   const toggle = (which: Exclude<Section, null>) => setSection((prev) => (prev === which ? null : which));
 

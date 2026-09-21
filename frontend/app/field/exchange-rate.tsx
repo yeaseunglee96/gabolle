@@ -30,9 +30,25 @@ function digitsOnly(value: string): string {
   return value.replace(/[^\d]/g, '').slice(0, 12);
 }
 
-/** 자리 구분 쉼표. 표기는 고른 언어를 따른다 — 문구가 영어여도 숫자 읽는 법은 그 나라 방식이 맞다. */
+/**
+ * 자리 구분 쉼표. 표기는 고른 언어를 따른다 — 문구가 영어여도 숫자 읽는 법은 그 나라 방식이 맞다.
+ *
+ * 🔴 «자료가 없으면 조용히 딴 로케일로 갈아치운다»는 `Intl` 의 성질은 `Intl.NumberFormat`
+ *    에도 똑같이 있다(S15P21E201-1399 — 같은 판단이 `CurrencyBadge.tsx`·`i18n/datetime.ts`
+ *    에도 있다). 쓰기 전에 `supportedLocalesOf` 로 묻고, 자료가 없으면 로케일에 기대지
+ *    않는 자리 구분(쉼표)으로 내려간다 — 환전 화면에서 숫자가 잘못 보이면 실제 돈 액수를
+ *    오해하게 되므로, 여기서만은 «다른 나라 표기가 섞이는 것»조차 허용하지 않는다.
+ */
 function grouped(value: number, locale: string): string {
-  return value.toLocaleString(locale, { maximumFractionDigits: 0 });
+  const rounded = Math.round(value);
+  try {
+    if (Intl.NumberFormat.supportedLocalesOf([locale]).length) {
+      return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(rounded);
+    }
+  } catch {
+    // 아래 자리 구분으로 내려간다.
+  }
+  return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 export default function Exchange() {
