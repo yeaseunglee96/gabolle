@@ -151,7 +151,9 @@ const styles = StyleSheet.create({
   empty: { alignItems: 'center', gap: spacing[2], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   mascot: { width: 104, height: 104 },
   emptyCopy: { textAlign: 'center' },
-  emptyCta: { marginTop: spacing[2], minWidth: 220 },
+  // 🔴 minWidth 만 주면 껍데기 폭이 자동이라 안쪽 단추의 width:'100%' 가 안 풀린다
+  //    (마이페이지의 같은 단추가 왼쪽으로 쏠려 있었다). 폭을 확정한다.
+  emptyCta: { marginTop: spacing[2], alignSelf: 'center', width: '100%', maxWidth: 320 },
 
   list: { gap: spacing[3] },
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },

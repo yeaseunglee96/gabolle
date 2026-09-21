@@ -1,4 +1,5 @@
 // 마이페이지 진입 화면.
+import { loadProfileAvatar } from '@/me/profileAvatar';
 import { useState } from 'react';
 import { Animated, BackHandler, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useEffect, useRef } from 'react';
@@ -107,9 +108,13 @@ export default function Me() {
   const tripCount = tripsQuery.data?.state === 'success' ? tripsQuery.data.trips.length : null;
 
   useEffect(() => {
-    if (!user?.userId) { setAvatarUri(null); return; }
-    void AsyncStorage.getItem(`gabolle:profile-avatar:${user.userId}`).then(setAvatarUri);
-  }, [user?.userId]);
+    // 🔴 계정에 붙은 사진이 «먼저»다. 여기가 기기 저장소만 읽어서, 사진을 올려도
+    //    마이페이지는 끝까지 첫 글자 동그라미였다 — 편집 화면에서는 바뀌어 보이는데
+    //    나오면 그대로라 「저장이 안 됐나」로 읽혔다(팀원 실기 지적).
+    let active = true;
+    void loadProfileAvatar(user?.userId ?? null, user?.avatarUrl).then((next) => { if (active) setAvatarUri(next); });
+    return () => { active = false; };
+  }, [user?.userId, user?.avatarUrl]);
 
   const wide = isAtLeast(width, 'lg');
   // 시안 06 은 화면을 거의 다 채운다 — 아래 띄움과 위 틈을 뺀 나머지.
@@ -489,7 +494,10 @@ const styles = StyleSheet.create({
   recordsEmptyMascot: { width: 104, height: 104 },
   recordsEmptyCopy: { textAlign: 'center' },
   // 가운데 정렬 안에서는 단추 폭이 글자보다 줄어 잘린다 — 최소 폭을 준다.
-  recordsEmptyCta: { marginTop: spacing[1], alignSelf: 'center', minWidth: 220 },
+  // 🔴 minWidth 로는 껍데기 폭이 «자동»으로 남는다. 그러면 안쪽 단추의 width:'100%' 가
+  //    풀리지 않아 글자 폭으로 줄고 왼쪽에 붙는다 — 실기에서 껍데기는 251..829(가운데 540)인데
+  //    단추는 251..508(가운데 379)이었다(팀원 실기 지적). width 를 확정해 주면 풀린다.
+  recordsEmptyCta: { marginTop: spacing[1], alignSelf: 'center', width: '100%', maxWidth: 320 },
   recordNew: {
     width: '48%', aspectRatio: 0.78, alignItems: 'center', justifyContent: 'center', gap: spacing[2],
     borderRadius: radius.lg, borderWidth: 1, borderStyle: 'dashed', borderColor: color.surface.field,

@@ -2,6 +2,7 @@
 //
 // 제목과 설명은 껍데기가 그린다(myPanels 의 panelTitle). 여기서 또 그리면 두 번 나온다.
 // 「나」에 해당하는 것만 떼어 왔다 — 사진 · 닉네임 · 이메일 · 언어 · 회원 탈퇴.
+import { deviceAvatarKey, loadProfileAvatar } from '@/me/profileAvatar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -68,9 +69,9 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
   // 옛 사진을 보여준다 — 기기에만 있던 시절에 고른 사진이 갑자기 사라지면 사용자는 지워진
   // 줄 안다. 다음에 사진을 고르면 그때 계정으로 올라간다.
   useEffect(() => {
-    if (!profileOwner) { setAvatarUri(null); return; }
-    if (user?.avatarUrl) { setAvatarUri(user.avatarUrl); return; }
-    void AsyncStorage.getItem(`gabolle:profile-avatar:${profileOwner}`).then(setAvatarUri);
+    let active = true;
+    void loadProfileAvatar(profileOwner, user?.avatarUrl).then((next) => { if (active) setAvatarUri(next); });
+    return () => { active = false; };
   }, [profileOwner, user?.avatarUrl]);
 
   const trimmed = displayName.trim();
@@ -102,7 +103,7 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
         setFeedback({ danger: false, text: tx('프로필 사진을 계정에 저장했어요. 다른 기기에서도 보여요.', 'Saved to your account — it shows on your other devices too.') });
         return;
       }
-      await AsyncStorage.setItem(`gabolle:profile-avatar:${profileOwner}`, nextUri);
+      await AsyncStorage.setItem(deviceAvatarKey(profileOwner), nextUri);
       setFeedback({ danger: false, text: tx('프로필 사진을 이 기기에 저장했어요.', 'Your profile photo was saved on this device.') });
     } catch {
       setFeedback({ danger: true, text: tx('사진을 불러오지 못했어요. JPG, PNG 또는 WebP 파일을 선택해 주세요.', 'Could not load the photo. Choose a JPG, PNG, or WebP file.') });
@@ -114,7 +115,7 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
     if (!profileOwner) return;
     // 기기에 남은 옛 사진과 계정에 붙은 사진을 둘 다 뗀다 — 한쪽만 떼면 화면을 다시 열 때
     // 지운 사진이 되살아난다.
-    await AsyncStorage.removeItem(`gabolle:profile-avatar:${profileOwner}`);
+    await AsyncStorage.removeItem(deviceAvatarKey(profileOwner));
     setAvatarUri(null);
     if (accessToken && !visualPreview && user?.avatarUrl) {
       try {

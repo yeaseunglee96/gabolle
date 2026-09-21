@@ -43,7 +43,7 @@ const TOAST_MS = 3000;
 
 type Saved = AccountPreferences;
 
-/** 펼친 줄 하나. 세 질문과 취향 다섯이 같은 목록에 섞여 있어 어느 쪽인지 함께 들고 다닌다. */
+/** 펼친 줄 하나. 세 질문과 취향이 같은 목록에 섞여 있어 어느 쪽인지 함께 들고 다닌다. */
 type OpenRow = { group: 'spend'; key: SpendKey } | { group: 'taste'; key: TasteKey };
 
 function sameRow(a: OpenRow | null, b: OpenRow) {
@@ -314,7 +314,9 @@ export function PreferencesBody() {
     </View>
 
     <View style={wide ? styles.groupColumn : undefined}>
-    <Eyebrow>{tx('취향 다섯', 'Five travel tastes')}</Eyebrow>
+    {/* 🔴 「다섯」이라고 적고 넷만 그렸다 — 1423 이 관광지 문항을 뺐는데 이 줄이 남았다.
+        없는 다섯째를 찾느라 사람이 화면을 다시 훑었다(팀원 실기 지적). */}
+    <Eyebrow>{tx('취향', 'Travel tastes')}</Eyebrow>
     <View style={styles.group}>
       {TASTE_QUESTIONS.map((question) => {
         const row: OpenRow = { group: 'taste', key: question.key };
