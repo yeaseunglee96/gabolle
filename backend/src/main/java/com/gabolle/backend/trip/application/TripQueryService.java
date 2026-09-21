@@ -1,7 +1,10 @@
 package com.gabolle.backend.trip.application;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +13,7 @@ import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.application.port.TripCoverPort;
 
 /**
  * 여행 조회. {@link TripCreationService} 와 나눠 둔 것은 생성에만 있는 멱등 저장 규칙이
@@ -20,8 +24,26 @@ public class TripQueryService {
 
 	private final TripRepository repository;
 
+	private final TripCoverPort coverPort;
+
+	/** 표지 없이. 표지를 안 보는 부름과 시험이 쓰는 짧은 길이다. */
 	public TripQueryService(TripRepository repository) {
+		this(repository, TripCoverPort.NONE);
+	}
+
+	/**
+	 * 🔴 표지 포트를 {@link ObjectProvider} 로 받는다 — 구현이 {@code db}·{@code dev}
+	 * 프로파일에만 있어서, 직접 받으면 그 밖의 프로파일에서 문맥이 아예 안 뜬다.
+	 * {@code ItineraryDraftService} 가 {@code RouteOrderPort} 를 같은 이유로 같게 받는다.
+	 */
+	@Autowired
+	public TripQueryService(TripRepository repository, ObjectProvider<TripCoverPort> coverPort) {
+		this(repository, coverPort.getIfAvailable(() -> TripCoverPort.NONE));
+	}
+
+	private TripQueryService(TripRepository repository, TripCoverPort coverPort) {
 		this.repository = repository;
+		this.coverPort = coverPort;
 	}
 
 	/**
@@ -64,6 +86,35 @@ public class TripQueryService {
 	@Transactional(readOnly = true)
 	public List<TripRepository.MemberTrip> list(String requesterUserId, int limit) {
 		return this.repository.findTripsForMember(requesterUserId, Math.min(Math.max(limit, 0), MAX_LIST_SIZE));
+	}
+
+	/**
+	 * 내 여행 목록에 <b>표지</b>(대표 사진·첫 방문지 이름)를 얹어서 돌려준다.
+	 *
+	 * <p>🔴 <b>표지는 여행 수와 무관하게 질의 한 번이다.</b> 줄마다 일정 → 장소 → 사진을
+	 * 따로 부르면 여행 50개에 질의 150번이 나간다. {@link TripCoverPort} 가 목록을 통째로
+	 * 받는 모양인 이유가 그것이다 (S15P21E201-1370).
+	 *
+	 * <p>표지를 못 구한 여행도 <b>빠지지 않고 그대로 나온다</b> — 표지는 장식이라, 사진이
+	 * 없다고 여행이 목록에서 사라지면 그게 훨씬 큰 고장이다. 그런 줄의 {@code cover} 는
+	 * {@code null} 이다. 실서버에서는 이쪽이 오히려 다수다(2026-09-21 기준 59건 중 41건만
+	 * 첫 방문지가 정해져 있고, 사진까지 있는 것은 10건).
+	 */
+	@Transactional(readOnly = true)
+	public List<Listing> listWithCovers(String requesterUserId, int limit) {
+		List<TripRepository.MemberTrip> rows = list(requesterUserId, limit);
+		if (rows.isEmpty()) {
+			return List.of();
+		}
+
+		Map<String, TripCoverPort.Cover> covers =
+				this.coverPort.coversOf(rows.stream().map((row) -> row.trip().tripId()).toList());
+
+		return rows.stream().map((row) -> new Listing(row, covers.get(row.trip().tripId()))).toList();
+	}
+
+	/** 목록 한 줄과 그 줄의 표지. {@code cover} 는 표지를 못 구했을 때 {@code null} 이다. */
+	public record Listing(TripRepository.MemberTrip row, TripCoverPort.Cover cover) {
 	}
 
 	/**
