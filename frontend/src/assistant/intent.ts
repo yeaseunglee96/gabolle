@@ -18,7 +18,9 @@ export type AssistantNavigatePath =
   | '/explore'
   | '/field/translate'
   | '/field/transit'
-  | '/field/exchange-rate';
+  | '/field/exchange-rate'
+  // 앱 안에서만 쓰는 이동(서버 허용 목록 ALLOWED_NAVIGATE_HREFS 에는 없다 — 사투리는 앱이 직접 알아듣는다, S15P21E201-1422).
+  | '/field/dialect';
 
 /**
  * 🔴 서버는 경로 뒤에 쿼리를 붙여 보낸다 — '/plan/basic?days=2' 처럼.
@@ -54,6 +56,7 @@ export function understandAssistantMessage(raw: string): AssistantAction {
   // : 메뉴판 카메라 번역은 -907로 뺐다. "번역"이라고 해도 실제로 되는 것은
   // 상황별 한국어 문장뿐이라, 없는 기능을 약속하지 않고 그 사실을 그대로 말한다.
   if (includesAny(text.toLowerCase(), ['번역', '메뉴판', 'translate'])) return { kind: 'navigate', reply: t('메뉴판 사진 번역은 아직 준비 중이에요. 대신 상황별 한국어 문장은 바로 보여드릴 수 있어요.', "Menu photo translation isn't ready yet — but I can show you Korean phrases for your situation right away."), label: t('현장 도구 열기', 'Open on-the-go tools'), href: '/field/translate' };
+  if (includesAny(text, ['사투리', '부산말', '경상도', 'dialect'])) return { kind: 'navigate', reply: t('부산 사투리 한마디를 진짜 부산 억양으로 들려드릴게요.', "Here's a word of Busan dialect in a real Busan accent."), label: t('부산 사투리 듣기', 'Hear Busan dialect'), href: '/field/dialect' };
   if (includesAny(text, ['내 일정', '여행 목록', '만든 일정'])) return { kind: 'navigate', reply: t('저장한 여행 목록을 열어드릴게요.', "I'll open your saved trip list."), label: t('내 여행 보기', 'View my trips'), href: '/trips' };
   // : 갈래 개수는 GET /api/v1/places/facets 가 정한다 — 숫자를 박지 않는다.
   if (includesAny(text, ['로컬', '야시장', '둘러보'])) return { kind: 'navigate', reply: t('부산 로컬 스팟을 보여드릴게요.', "I'll show you local Busan spots."), label: t('로컬 탐색 열기', 'Open local exploring'), href: '/explore' };
