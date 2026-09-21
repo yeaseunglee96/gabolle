@@ -42,6 +42,7 @@ jest.mock('@/components/SocialProviderIcon', () => ({ SocialProviderIcon: () => 
 jest.mock('@/auth/oauth', () => ({ loginWithOAuth: jest.fn() }));
 jest.mock('@/auth/oauthNavigation', () => ({ navigateAfterOAuthComplete: jest.fn() }));
 jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ kind: 'phone', width: 390, height: 844, isLandscape: false }) }));
+jest.mock('@/components/ScenicVideo', () => ({ ScenicVideo: () => null }));
 jest.mock('react-native-safe-area-context', () => ({
   SafeAreaView: ({ children }: { children: unknown }) => children,
   useSafeAreaInsets: () => ({ top: 47, left: 0, right: 0, bottom: 34 }),
