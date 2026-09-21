@@ -6,15 +6,15 @@
 //
 // 🔴 필터(예산·이동 적게·휠체어)는 **없다**(인계 §7③). 조건은 ① 에서 이미 받았다. 여기서
 //    또 물으면 앞에서 답한 것이 반영되지 않았다는 뜻이 된다.
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
-import { TabBar, TAB_BAR_HEIGHT, TAB_BAR_SHEET_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
+import { TabBar, TAB_BAR_HEIGHT, TAB_BAR_SHEET_HEIGHT, BAR_MAX_WIDTH, SHEET_MAX_WIDTH, tabBarBottomMargin } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -28,6 +28,7 @@ import { useCourseRoutePaths } from '@/map/courseRoutePaths';
 import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
 import { loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
 import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
+import { timeToMinutes } from '@/plan/tripBasics';
 import { loadTrips } from '@/trip/trips';
 import { localizeMessage } from '@/i18n/messages';
 
@@ -54,6 +55,9 @@ export default function Recommendations() {
   const grow = useRef(new Animated.Value(0)).current;
   /** 넓은 화면에서 지도가 쓸 수 있는 높이 — 숫자로 적지 않고 «재서» 쓴다. */
   const [mapHeight, setMapHeight] = useState(0);
+  /** 시트 안에서 지도가 쓸 수 있는 높이 — 넓은 화면과 같은 방식으로 «잰다». */
+  const [sheetMapHeight, setSheetMapHeight] = useState(0);
+  const stripRef = useRef<ScrollView>(null);
   const [saved, setSaved] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
@@ -117,6 +121,23 @@ export default function Recommendations() {
   // 고른 코스가 바뀌면 시트는 닫고 1일차로 돌아간다. 열린 채로 내용만 갈리면
   // 무엇을 보고 있는지 알 수 없다.
   useEffect(() => { setSheetOpen(false); setSheetDay(1); setSelectedStopId(''); }, [picked]);
+
+  // 🔴 넓은 화면의 정차지 스트립은 «옆으로» 굴러가는데, 마우스 휠은 «아래로» 굴린다.
+  //    그대로 두면 정차지가 많은 날에 뒤쪽 몇 곳을 볼 방법이 트랙패드밖에 없다.
+  //    세로 휠을 가로 스크롤로 옮긴다.
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const node = (stripRef.current as unknown as { getScrollableNode?: () => HTMLElement } | null)?.getScrollableNode?.();
+    if (!node) return;
+    const onWheel = (event: WheelEvent) => {
+      // 가로로 굴리고 있으면 브라우저에 맡긴다 — 트랙패드는 두 방향을 같이 보낸다.
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+      node.scrollLeft += event.deltaY;
+      event.preventDefault();
+    };
+    node.addEventListener('wheel', onWheel, { passive: false });
+    return () => node.removeEventListener('wheel', onWheel);
+  }, [picked, sheetDay, wide]);
 
   // 시트 지도는 «고른 하루»만 그린다. 정차지 id 는 `{일차}-{번째}`, 구간 id 는
   // `day-{일차}-leg-{번째}` 라 일차로 거를 수 있다 — 색은 원래 것을 그대로 쓴다.
@@ -276,26 +297,45 @@ export default function Recommendations() {
           {/* 아래 스트립 — 고른 일차의 정차지를 **순서대로** 옆으로 세운다.
               지도의 번호와 같은 번호를 달아, 점을 누르든 카드를 누르든 같은 곳이 켜진다. */}
           {dayStops.length ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stripPane} contentContainerStyle={styles.strip}>
+            <ScrollView ref={stripRef} horizontal showsHorizontalScrollIndicator={false} style={styles.stripPane} contentContainerStyle={styles.strip}>
               {dayStops.map((stop, index) => {
                 const id = `${sheetDay}-${index + 1}`;
                 const on = id === selectedStopId;
+                // 🔴 두 곳 사이의 «이동 시간» 은 서버가 정차지마다 주지 않는다. 시각의
+                //    차로 구한다(시안도 그렇게 적었다). 한쪽이라도 시각을 모르면
+                //    **숫자를 짓지 않고** 점선만 긋는다 — 0분이라고 적으면 붙어 있는
+                //    곳으로 읽힌다.
+                const next = dayStops[index + 1];
+                const gap = stop.time && next?.time
+                  ? timeToMinutes(next.time) - timeToMinutes(stop.time)
+                  : Number.NaN;
                 return (
-                  <Pressable
-                    key={`${id}-${stop.name}`}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: on }}
-                    onPress={() => setSelectedStopId(on ? '' : id)}
-                    style={[styles.stripCard, on && styles.stripCardOn]}
-                  >
-                    <View style={styles.stripTop}>
-                      <View style={styles.stripNumber}>
-                        <Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}</Text>
+                  <Fragment key={`${id}-${stop.name}`}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: on }}
+                      onPress={() => setSelectedStopId(on ? '' : id)}
+                      style={[styles.stripCard, on && styles.stripCardOn]}
+                    >
+                      <View style={styles.stripTop}>
+                        <View style={styles.stripNumber}>
+                          <Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}</Text>
+                        </View>
+                        <Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>{stop.time ?? ''}</Text>
                       </View>
-                      <Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>{stop.time ?? ''}</Text>
-                    </View>
-                    <Text weight="bold" numberOfLines={1}>{stop.name}</Text>
-                  </Pressable>
+                      <Text weight="bold" numberOfLines={1}>{stop.name}</Text>
+                    </Pressable>
+                    {next ? (
+                      <View style={styles.stripLink}>
+                        {Number.isFinite(gap) && gap > 0 ? (
+                          <Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>
+                            {tx(`${gap}분`, `${gap} min`)}
+                          </Text>
+                        ) : null}
+                        <View style={styles.stripDash} />
+                      </View>
+                    ) : null}
+                  </Fragment>
                 );
               })}
             </ScrollView>
@@ -344,6 +384,9 @@ export default function Recommendations() {
           {
             bottom: tabBarBottomMargin(insets.bottom),
             height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, TAB_BAR_SHEET_HEIGHT] }),
+            // 🔴 폭도 같이 자란다. 접혔을 때까지 시트 폭을 쓰면 아래 막대만 혼자 넓어
+            //    탭바가 있던 자리와 어긋난다 — 같은 자리에 서는 것으로 안 읽힌다.
+            maxWidth: grow.interpolate({ inputRange: [0, 1], outputRange: [BAR_MAX_WIDTH, SHEET_MAX_WIDTH] }),
           },
         ]}
       >
@@ -415,15 +458,20 @@ export default function Recommendations() {
                   ))}
                 </ScrollView>
               ) : null}
-              {dayLayers.stops.length ? (
-                <RouteMap
-                  stops={dayLayers.stops}
-                  selectedId={selectedStopId}
-                  onSelect={setSelectedStopId}
-                  routes={dayLayers.routes}
-                  height={240}
-                />
-              ) : null}
+              {/* 🔴 지도 높이를 숫자로 적지 않는다. 정차지가 둘인 날과 여섯인 날은 아래
+                  목록 길이가 다른데, 240 으로 박아 두면 한쪽은 지도가 남고 한쪽은 목록이
+                  잘린다. 남는 자리를 «재서» 그만큼 쓴다 — 넓은 화면과 같은 방식이다. */}
+              <View style={styles.sheetMap} onLayout={(event) => setSheetMapHeight(event.nativeEvent.layout.height)}>
+                {sheetMapHeight > 0 && dayLayers.stops.length ? (
+                  <RouteMap
+                    stops={dayLayers.stops}
+                    selectedId={selectedStopId}
+                    onSelect={setSelectedStopId}
+                    routes={dayLayers.routes}
+                    height={sheetMapHeight}
+                  />
+                ) : null}
+              </View>
               <ScrollView style={styles.sheetStops} contentContainerStyle={styles.sheetStopsInner}>
                 {(current.days.find((day) => day.day === sheetDay)?.stops ?? []).map((stop, index) => (
                   <View key={`${sheetDay}-${index}-${stop.name}`} style={styles.mapStop}>
@@ -476,6 +524,12 @@ const styles = StyleSheet.create({
   },
   stripCardOn: { borderColor: color.action.outline },
   stripTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  // 카드와 카드 사이 — 위에 이동 시간, 아래 점선.
+  // 🔴 `alignSelf: 'center'` 가 있어야 카드 «높이의 가운데» 에 온다. 스트립이
+  //    `alignItems: 'flex-start'` 라(카드가 세로로 늘어나는 것을 막으려고) 이게 없으면
+  //    연결부가 카드 윗변에 붙어 두 카드를 잇는 것으로 안 보인다.
+  stripLink: { width: 44, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', gap: spacing[1] },
+  stripDash: { alignSelf: 'stretch', borderTopWidth: 2, borderStyle: 'dashed', borderColor: color.surface.field },
   stripNumber: {
     width: 22, height: 22, borderRadius: radius.full,
     alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy,
@@ -501,7 +555,7 @@ const styles = StyleSheet.create({
     //    3단추 탐색줄처럼 안전영역이 큰 기기에서는 모자라 탭바가 이 바의 아랫단을 덮었다.
     //    이제는 탭바를 치우고 이 바가 그 자리에 서므로, 탭바가 쓰던 계산을 그대로 쓴다.
     position: 'absolute', left: spacing[4], right: spacing[4],
-    alignSelf: 'center', maxWidth: 361, overflow: 'hidden',
+    alignSelf: 'center', overflow: 'hidden',
     borderRadius: radius.lg, backgroundColor: color.surface.card,
     shadowColor: color.brand.navy, shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 8,
     zIndex: 30,
@@ -514,7 +568,9 @@ const styles = StyleSheet.create({
   sheet: { padding: spacing[3], paddingBottom: spacing[4], gap: spacing[2] },
   handleHit: { height: 20, alignItems: 'center', justifyContent: 'center' },
   handle: { width: 36, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
-  sheetStops: { flex: 1 },
+  // 🔴 `minHeight: 0` 이 없으면 flex 자식이 내용만큼 부풀어 목록을 시트 밖으로 민다.
+  sheetMap: { flex: 1, minHeight: 0 },
+  sheetStops: { flexGrow: 0, flexShrink: 0, maxHeight: 132 },
   sheetStopsInner: { gap: spacing[2] },
   bottomCopy: { flex: 1, minWidth: 0 },
   barCta: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.action.primary },
