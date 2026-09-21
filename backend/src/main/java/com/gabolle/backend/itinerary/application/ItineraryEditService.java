@@ -14,9 +14,11 @@ import com.gabolle.backend.itinerary.application.port.PlaceEventSchedule;
 import com.gabolle.backend.itinerary.application.port.PlaceEventSchedulePort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryRevision;
+import com.gabolle.backend.itinerary.domain.ItineraryChangedByMember;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import java.time.Clock;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,10 +84,20 @@ public class ItineraryEditService {
      */
     private final ItineraryItemActualRepository actualRepository;
 
+    /**
+     * 「새 판이 붙었다」를 알리는 자리. 듣는 쪽은 동행자 폰에 알림을 띄우는
+     * {@code TripPushNotifier} 하나이고, 커밋이 끝난 뒤에만 받는다 (S15P21E201-1391).
+     *
+     * <p>이 서비스가 알림을 «직접» 부르지 않는 이유는 되돌아오는 화살표 때문이다 — 알림이
+     * 일정을 알면, 일정도 알림을 알게 된다. 사건을 내놓기만 하면 듣는 쪽이 늘어도 여기는 안 바뀐다.
+     */
+    private final ApplicationEventPublisher events;
+
     public ItineraryEditService(ItineraryRepository repository, PlaceEventSchedulePort eventSchedule,
                                 ItineraryLegPlanner legPlanner, TripRepository tripRepository,
                                 ItineraryOpeningHoursChecker openingHours, Clock clock,
-                                ItineraryItemActualRepository actualRepository) {
+                                ItineraryItemActualRepository actualRepository,
+                                ApplicationEventPublisher events) {
         this.repository = repository;
         this.eventSchedule = eventSchedule;
         this.legPlanner = legPlanner;
@@ -92,6 +105,7 @@ public class ItineraryEditService {
         this.openingHours = openingHours;
         this.clock = clock;
         this.actualRepository = actualRepository;
+        this.events = events;
     }
 
     /**
@@ -147,7 +161,7 @@ public class ItineraryEditService {
         // 저장과 포인터 이동은 둘 다 저장소가 한 트랜잭션 안에서 한다.
         // draft.exclusions() 는 바탕 판의 제외 목록을 그대로 물려받은 것이다 — 고정·해제가
         //    제외 목록을 지우지 않는다.
-        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+        return appendAndAnnounce(candidate, draft.items(), draft.legs(), draft.exclusions());
     }
 
     /**
@@ -203,7 +217,7 @@ public class ItineraryEditService {
                 new ItineraryVersion.Versions(null, null, null, null, null),
                 now);
 
-        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+        return appendAndAnnounce(candidate, draft.items(), draft.legs(), draft.exclusions());
     }
 
     /**
@@ -251,7 +265,7 @@ public class ItineraryEditService {
                 new ItineraryVersion.Versions(null, null, null, null, null),
                 now);
 
-        ItineraryVersion saved = repository.appendVersion(candidate, draft.items(), legs, draft.exclusions());
+        ItineraryVersion saved = appendAndAnnounce(candidate, draft.items(), legs, draft.exclusions());
 
         // 판정은 저장한 뒤에 한다. 위반이 있어도 순서 바꾸기는 성공해야 한다 — 경고가 순서를 막는 자리에 있으면 안 된다.
         return new ReorderOutcome(saved, this.openingHours.checkDay(draft.items(), dayIndex));
@@ -384,7 +398,7 @@ public class ItineraryEditService {
                 new ItineraryVersion.Versions(null, null, null, null, null),
                 now);
 
-        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+        return appendAndAnnounce(candidate, draft.items(), draft.legs(), draft.exclusions());
     }
 
     /**
@@ -394,6 +408,24 @@ public class ItineraryEditService {
      * 여행을 못 찾거나 방문지에 좌표가 없으면 구간 없이 넘어간다. 순서 바꾸기 자체는 성공해야
      * 하기 때문이다. 그때 구간의 거리·시간은 비고 그 사실이 {@code dataStatus} 에 남는다.
      */
+    /**
+     * 판을 붙이고, 붙은 뒤에 「바뀌었다」를 알린다 — S15P21E201-1391.
+     *
+     * <p>🔴 <b>저장이 «성공한 뒤» 에만 낸다.</b> {@code appendVersion} 은 남이 먼저 고쳤으면
+     * {@link StaleItineraryVersionException} 을 던진다. 그때는 여기까지 오지 않으므로, 실패한
+     * 편집으로 「수민님이 순서를 바꿨어요」가 나가는 일이 없다.
+     *
+     * <p>실제로 보내는 것은 커밋이 끝난 뒤다 — 듣는 쪽이 {@code AFTER_COMMIT} 이라
+     * 이 트랜잭션이 되돌려지면 알림도 함께 없던 일이 된다.
+     */
+    private ItineraryVersion appendAndAnnounce(ItineraryVersion candidate, List<ItineraryItem> items,
+                                               List<ItineraryLeg> legs, List<ItineraryExclusion> exclusions) {
+        ItineraryVersion saved = repository.appendVersion(candidate, items, legs, exclusions);
+        this.events.publishEvent(new ItineraryChangedByMember(
+                saved.itineraryId(), saved.version(), saved.operation(), saved.createdBy()));
+        return saved;
+    }
+
     private List<ItineraryLeg> withRebuiltDayLegs(Itinerary itinerary, ItineraryRevision.Draft draft,
                                                   int dayIndex, String newVersionId, Instant now) {
 
@@ -629,7 +661,7 @@ public class ItineraryEditService {
                 null,
                 List.of(),
                 target);
-        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+        return appendAndAnnounce(candidate, draft.items(), draft.legs(), draft.exclusions());
     }
 
     /** 최초 판 위에서 되돌리기를 눌렀다 — 되돌릴 편집이 없다. 422 로 답할 자리다. */

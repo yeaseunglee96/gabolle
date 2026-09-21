@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryRevision;
+import com.gabolle.backend.itinerary.domain.ItineraryChangedByMember;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.ItineraryWarningCodes;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
@@ -111,12 +113,19 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private final ObjectProvider<RouteOrderPort> routeOrder;
 
+    /**
+     * 「일정이 생겼다 · 바뀌었다」를 알리는 자리. 듣는 쪽은 동행자 폰에 알림을 띄우는
+     * {@code TripPushNotifier} 하나이고, 커밋이 끝난 뒤에만 받는다 (S15P21E201-1391).
+     */
+    private final ApplicationEventPublisher events;
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
             @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
             ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours,
-            PlaceTimeFactFilterPort timeFact, ObjectProvider<RouteOrderPort> routeOrder) {
+            PlaceTimeFactFilterPort timeFact, ObjectProvider<RouteOrderPort> routeOrder,
+            ApplicationEventPublisher events) {
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
@@ -127,6 +136,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.openingHours = openingHours;
         this.timeFact = timeFact;
         this.routeOrder = routeOrder;
+        this.events = events;
     }
 
     /**
@@ -658,6 +668,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.itineraryRepository.create(itinerary, firstVersion, items, legs);
         markTripReady(draft.tripId(), now);
 
+        // 🔴 «이 알림이 이 기능의 이유다.» 일정 만들기는 오래 걸려서 사람이 앱을 닫고 기다린다.
+        //    다 됐다는 것을 폰이 알려 주지 않으면, 사람은 몇 분마다 앱을 열어 확인하거나 잊는다.
+        //    그래서 CREATE 만은 «만든 본인에게도» 간다 (TripPushNotifier.onItineraryChanged).
+        this.events.publishEvent(new ItineraryChangedByMember(
+                itineraryId, 1, ItineraryVersion.Operation.CREATE, draft.userId()));
+
         return new ItineraryHandle(itineraryId, 1);
     }
 
@@ -962,6 +978,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             throw new ItineraryPublishConflictException(revision.itineraryId(), revision.baseVersion(),
                     ex.latestVersion());
         }
+        // 위 catch 로 빠지면 여기까지 오지 않는다 — 진 편집으로 알림이 나가지 않는다.
+        this.events.publishEvent(new ItineraryChangedByMember(
+                revision.itineraryId(), newVersion, revision.operation(), revision.userId()));
         return new ItineraryHandle(revision.itineraryId(), newVersion);
     }
 }

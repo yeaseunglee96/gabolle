@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import com.gabolle.backend.common.security.OpaqueTokens;
 import com.gabolle.backend.trip.domain.TripInvite;
 import com.gabolle.backend.trip.domain.TripInviteRepository;
 import com.gabolle.backend.trip.domain.TripMember;
+import com.gabolle.backend.trip.domain.TripMemberJoined;
 import com.gabolle.backend.trip.domain.TripMembershipRepository;
 import com.gabolle.backend.trip.presentation.dto.AcceptInviteResponse;
 import com.gabolle.backend.trip.presentation.dto.TripInviteResponse;
@@ -37,12 +39,19 @@ public class TripInviteService {
 
 	private final Clock clock;
 
+	/**
+	 * 「동행이 들어왔다」를 알리는 자리. 듣는 쪽은 원래 있던 사람들 폰에 알림을 띄우는
+	 * {@code TripPushNotifier} 하나이고, 커밋이 끝난 뒤에만 받는다 (S15P21E201-1391).
+	 */
+	private final ApplicationEventPublisher events;
+
 	public TripInviteService(TripInviteRepository inviteRepository, TripMembershipRepository membershipRepository,
-			TripQueryService tripQueryService, Clock clock) {
+			TripQueryService tripQueryService, Clock clock, ApplicationEventPublisher events) {
 		this.inviteRepository = inviteRepository;
 		this.membershipRepository = membershipRepository;
 		this.tripQueryService = tripQueryService;
 		this.clock = clock;
+		this.events = events;
 	}
 
 	/**
@@ -95,6 +104,10 @@ public class TripInviteService {
 				invite.role(), now, invite.tripInviteId(), invite.createdBy(), invite.createdAt());
 		try {
 			TripMember saved = this.membershipRepository.add(newMember);
+			// 🔴 «정말로 새로 들어왔을 때만» 낸다. 아래 catch 로 빠진 쪽과 accept() 의 「이미 참여 중」
+			//    갈래는 아무 일도 안 일어난 것이라 알리지 않는다 — 같은 표를 두 번 누른 사람 때문에
+			//    「동행이 합류했어요」가 두 번 뜨면, 동행자는 두 사람이 들어온 줄 안다.
+			this.events.publishEvent(new TripMemberJoined(invite.tripId(), requesterId, saved.role()));
 			return toAcceptResponse(invite.tripId(), saved, false);
 		}
 		catch (TripMembershipRepository.AlreadyMemberException e) {

@@ -6,11 +6,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.trip.domain.TripMember;
+import com.gabolle.backend.trip.domain.TripMemberRoleChanged;
 import com.gabolle.backend.trip.domain.TripMembershipRepository;
 import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.presentation.dto.TripMembersResponse;
@@ -36,12 +38,20 @@ public class TripMemberService {
 
 	private final AppUserRepository appUserRepository;
 
+	/**
+	 * 「자격이 바뀌었다」를 알리는 자리. 듣는 쪽은 당사자 폰에 알림을 띄우는
+	 * {@code TripPushNotifier} 하나이고, 커밋이 끝난 뒤에만 받는다 (S15P21E201-1391).
+	 */
+	private final ApplicationEventPublisher events;
+
 	public TripMemberService(TripRepository tripRepository, TripMembershipRepository membershipRepository,
-			TripQueryService tripQueryService, AppUserRepository appUserRepository) {
+			TripQueryService tripQueryService, AppUserRepository appUserRepository,
+			ApplicationEventPublisher events) {
 		this.tripRepository = tripRepository;
 		this.membershipRepository = membershipRepository;
 		this.tripQueryService = tripQueryService;
 		this.appUserRepository = appUserRepository;
+		this.events = events;
 	}
 
 	/**
@@ -92,6 +102,10 @@ public class TripMemberService {
 
 		TripMember updated = this.membershipRepository.changeRole(tripId, targetUserId, newRole)
 				.orElseThrow(TripMemberNotFoundException::new);
+
+		// 바뀐 뒤에만 알린다. 위의 orElseThrow 로 빠지면 아무 일도 안 일어난 것이고, 그때 알림이
+		// 나가면 「역할이 바뀌었어요」를 보고 들어온 사람이 아무것도 안 바뀐 화면을 본다.
+		this.events.publishEvent(new TripMemberRoleChanged(tripId, targetUserId, newRole, requesterId));
 
 		Map<UUID, AppUser> profile = this.appUserRepository.findById(UUID.fromString(targetUserId))
 				.map(user -> Map.of(user.getUserId(), user))

@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.beans.factory.ObjectProvider;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -80,6 +81,16 @@ class ItineraryDraftServiceTest {
 
 	private PlaceRepository placeRepository;
 
+	/**
+	 * 알림 사건을 버리는 자리 — S15P21E201-1391.
+	 *
+	 * <p>이 검사가 보는 것은 초안과 저장이지 알림이 아니다. 알림 자체는
+	 * {@code TripPushNotifierTest} 가 본다.
+	 */
+	private static ApplicationEventPublisher noEvents() {
+		return (event) -> { };
+	}
+
 	private ItineraryDraftService service;
 
 	@BeforeEach
@@ -96,7 +107,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder());
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -278,7 +289,7 @@ class ItineraryDraftServiceTest {
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN,
-				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder());
+				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -517,7 +528,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD",
 				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact,
-				noRouteOrder());
+				noRouteOrder(), noEvents());
 	}
 
 	@Test
@@ -670,7 +681,7 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", new ItineraryLegPlanner(this.placeRepository, provider),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder());
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
 	}
 
 	private List<ItineraryDraftCommand.PlannedPlace> plannedPlaces(int count) {
@@ -707,7 +718,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", new ItineraryLegPlanner(this.placeRepository, noTravelTime),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, provider);
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, provider, noEvents());
 	}
 
 	private static List<UUID> placeIdsOf(List<ItineraryDraftCommand.PlannedPlace> places) {

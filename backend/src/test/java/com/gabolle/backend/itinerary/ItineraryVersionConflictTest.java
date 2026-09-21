@@ -61,7 +61,9 @@ class ItineraryVersionConflictTest {
                 null, new InMemoryTripRepository(), null, Clock.systemUTC(),
                 // 실제 시각 저장소는 재계획만 읽는다. null 대신 빈 대역을 주어 나중에 이
                 // 자리를 쓰게 되더라도 NPE 가 아니라 기록 없는 일정이 되게 한다.
-                new FakeItineraryItemActualRepository());
+                new FakeItineraryItemActualRepository(),
+                // 알림은 이 검사의 관심이 아니다 — 사건을 버리는 자리를 준다 (S15P21E201-1391).
+                (event) -> { });
         repository.seed("itn_1", "trp_1", 5);
 
         String versionId = UUID.randomUUID().toString();
