@@ -1,4 +1,5 @@
 import { apiRequest } from '@/api/client';
+import type { LanguageCode } from '@/i18n/languages';
 import type { AssistantAction, AssistantNavigateHref, AssistantNavigatePath } from '@/assistant/intent';
 
 type AssistantMessageResponseDto = {
@@ -55,16 +56,26 @@ function fromDto(dto: AssistantMessageResponseDto): AssistantAction {
 
 export type AssistantTurn = { role: 'user' | 'assistant'; text: string };
 
+/** 동백이 호출의 Accept-Language — 고른 언어 그대로. 서버가 zh-Hans/zh-Hant 를 그 이름으로 받는다. */
+export function assistantAcceptLanguage(language: LanguageCode): string {
+  return language;
+}
+
 /** 자연어 메시지를 서버(Gemini 기반 AI 도우미)에 물어본다 — S15P21E201-802. */
 export async function askAssistant(
   message: string,
   accessToken: string,
   history: AssistantTurn[] = [],
+  language?: LanguageCode,
 ): Promise<AssistantAction> {
   const dto = await apiRequest<AssistantMessageResponseDto>('/api/v1/assistant/messages', {
     method: 'POST',
     accessToken,
     body: { message, history },
+    // 🔴 앱 전체의 Accept-Language 는 ko/en 뿐이다(서버 오류 문구가 그 둘뿐이라 OnboardingPreferences 가 ja·zh 를 en 으로
+    //    접는다). 그래서 일본어·중국어 사용자가 동백이 답을 영어로 받았다(S15P21E201-1427, 예승 1363 ③).
+    //    서버(AssistantChatService.normalizeLanguage)는 ja · zh-Hans · zh-Hant 를 알아듣고 그 말로 답하니, 이 호출에만 고른 언어를 그대로 싣는다.
+    headers: language ? { 'Accept-Language': assistantAcceptLanguage(language) } : undefined,
   });
   return fromDto(dto);
 }
