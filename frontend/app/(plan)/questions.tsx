@@ -36,7 +36,9 @@ import {
 import {
   INITIAL_QUESTION_STATE, PLAN_QUESTIONS, isSettled,
   type PlanQuestion, type QuestionKey, type QuestionState,
+  dayWindowIssue,
 } from '@/plan/planQuestions';
+import { maskTimeInput } from '@/plan/inputMasks';
 import { startBarChips } from '@/home/startBarValue';
 import { assistantPrefillPatch } from '@/plan/assistantPrefill';
 import { txf } from '@/i18n/format';
@@ -249,9 +251,11 @@ export default function PlanConditions() {
               {([['dayStartTime', '시작', 'Start'], ['dayEndTime', '종료', 'End']] as const).map(([field, k, e]) => (
                 <View key={field} style={styles.timeField}>
                   <Text variant="caption" color={color.text.muted}>{tx(k, e)}</Text>
+                  {/* 🔴 마스크를 안 꽂아서 「0800」이 그대로 서버까지 갔다. maskTimeInput 은
+                      진작 있었고 시험도 붙어 있었는데 화면 어디서도 안 썼다 (S15P21E201-1452). */}
                   <TextInput
                     value={draft[field]}
-                    onChangeText={(value) => update({ [field]: value } as Partial<PlanDraft>)}
+                    onChangeText={(value) => update({ [field]: maskTimeInput(value) } as Partial<PlanDraft>)}
                     keyboardType="number-pad"
                     maxLength={5}
                     placeholder={field === 'dayStartTime' ? '09:00' : '18:00'}
@@ -262,6 +266,17 @@ export default function PlanConditions() {
                 </View>
               ))}
             </View>
+            {/* 🔴 넘어가지 못하는 이유를 그 자리에서 말한다. 「다음」이 안 눌리는데 이유가
+                없으면 사람은 자기가 무엇을 잘못했는지 모른 채 앱을 떠난다. */}
+            {dayWindowIssue(draft) === 'FORMAT' ? (
+              <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
+                {tx('시각을 09:00 처럼 네 자리로 적어 주세요.', 'Enter the time as four digits, like 09:00.')}
+              </Text>
+            ) : dayWindowIssue(draft) === 'ORDER' ? (
+              <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
+                {tx('종료 시각은 시작 시각보다 늦어야 해요.', 'The end time must be later than the start time.')}
+              </Text>
+            ) : null}
             {optionGrid(TRANSPORT_OPTIONS, draft.transport ? [draft.transport] : [], (code) => update({ transport: code as PlanDraft['transport'] }))}
           </View>
         );
