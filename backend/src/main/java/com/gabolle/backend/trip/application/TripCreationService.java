@@ -94,6 +94,7 @@ public class TripCreationService {
         // 저장된 값과 "지금 파싱 규칙으로 다시 뽑은 값" 이 규칙이 바뀐 날 어긋난다.
         Optional<TimeWindows.TimeWindow> window = TimeWindows.parseRange(command.timeWindow());
         String[] travelModes = resolveTravelModes(command.preferences());
+        String pace = resolvePace(command.preferences());
 
         // 자차 이동이면 최대 환승 횟수는 뜻이 없다. 400 으로 거부하지 않고 조용히 무시하는 것은
         // 두 조건을 함께 고르는 것이 사용자 잘못이 아니라 화면이 상호배제를 안 걸었을 수 있어서다.
@@ -113,6 +114,7 @@ public class TripCreationService {
                 command.accommodationPlaceId(),
                 command.englishMenuRequired(), command.foreignCardRequired(), command.soloFriendlyPriority(),
                 maxTransitTransfers,
+                pace,
                 now);
 
         // scope 는 TRIP 고정이다 — 여기서 만드는 제약은 항상 이번 여행 전용이다.
@@ -145,8 +147,11 @@ public class TripCreationService {
         // 안 받아서, 두면 취향 한 줄 때문에 여행·멤버·제약까지 통째로 롤백된다. 값은 이미 위에서
         // travelModes 로 소비했고, 지문은 원본 command.preferences() 를 쓰므로 영향받지 않는다.
         // 대소문자를 안 가리는 것은 정규화를 거쳐 "TRANSPORT" 로 들어올 수 있어서다.
+        // "pace" 도 같은 이유로 뺀다 — 취향이 아니라 여행의 모양이라 CHECK 어휘에 없고,
+        // 값은 바로 위에서 trip.pace 로 소비했다.
         List<PreferenceSnapshot.PreferenceAnswer> storedPreferences = command.preferences().stream()
                 .filter(a -> !"transport".equalsIgnoreCase(a.dimension()))
+                .filter(a -> !"pace".equalsIgnoreCase(a.dimension()))
                 .toList();
 
         // 계정 기본 취향으로 이 여행이 답하지 않은 차원을 채운다. 규칙은 PreferenceDefaultsService
@@ -254,6 +259,21 @@ public class TripCreationService {
      * 답이 없거나 {@code SELECTED} 가 아니면 빈 배열이다. 답이 있는데 값을 이해하지 못하면 예외를
      * 던진다 — 조용히 넘기면 사용자가 고른 값이 말없이 버려진다.
      */
+    /**
+     * 「여행 기분」. 답이 없거나 {@code SELECTED} 가 아니면 {@code null} 이고, 그때 일정 생성은
+     * 지금까지처럼 설정 기본값으로 하루 곳 수를 정한다 — {@code null} 은 「보통」이 아니라 「모른다」다.
+     * 값을 이해하지 못하면 {@link Trip} 생성자가 예외를 던진다. 조용히 넘기면 사용자가 고른
+     * 값이 말없이 버려진다.
+     */
+    private String resolvePace(List<PreferenceSnapshot.PreferenceAnswer> preferences) {
+        return preferences.stream()
+                .filter(a -> "pace".equalsIgnoreCase(a.dimension()))
+                .findFirst()
+                .filter(a -> a.status() == PreferenceSnapshot.AnswerStatus.SELECTED)
+                .map(a -> unquoteJsonString(a.valueJson()))
+                .orElse(null);
+    }
+
     private String[] resolveTravelModes(List<PreferenceSnapshot.PreferenceAnswer> preferences) {
         return preferences.stream()
                 .filter(a -> "transport".equalsIgnoreCase(a.dimension()))

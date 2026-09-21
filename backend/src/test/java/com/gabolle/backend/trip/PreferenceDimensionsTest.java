@@ -70,4 +70,13 @@ class PreferenceDimensionsTest {
 		assertThat(PreferenceDimensions.isTransport(PreferenceDimensions.normalize("transport"))).isTrue();
 		assertThat(PreferenceDimensions.isTransport(PreferenceDimensions.normalize("category"))).isFalse();
 	}
+
+	@Test
+	@DisplayName("🔴 「여행 기분」을 받는다 — 안 받으면 프론트가 한 줄 넣는 순간 여행 생성이 400 으로 죽는다")
+	void paceIsAccepted() {
+		assertThat(PreferenceDimensions.normalize("pace")).isEqualTo("PACE");
+		assertThat(PreferenceDimensions.normalize("PACE")).isEqualTo("PACE");
+		assertThat(PreferenceDimensions.isPace("PACE")).isTrue();
+		assertThat(PreferenceDimensions.isPace("TRANSPORT")).isFalse();
+	}
 }

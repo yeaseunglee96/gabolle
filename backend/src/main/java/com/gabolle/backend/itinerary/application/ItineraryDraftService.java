@@ -62,6 +62,22 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     private final Clock clock;
 
+    /**
+     * 여행 기분이 정하는 하루 곳 수. 앱이 화면에 적어 둔 약속 그대로다
+     * ({@code planOptions.ts} 의 {@code PACE_OPTIONS}) — 「여유롭게 = 하루 2–3곳」,
+     * 「균형 있게 = 하루 3–4곳」, 「알차게 = 하루 5곳 이상」.
+     * <p>
+     * 범위의 <b>위쪽</b>을 고른 이유는, 이 수가 「최대」이고 후보가 모자라면 그보다 적게 들어가기
+     * 때문이다. 아래쪽을 고르면 「2–3곳」이라 적어 두고 언제나 2곳만 나온다.
+     * <p>
+     * 🔴 이 숫자들은 실측이 아니라 <b>화면이 이미 한 약속</b>이다. 화면 문구를 고치면 여기도
+     * 같이 고친다 — 두 곳이 어긋나면 사용자에게는 앱이 거짓말한 것이 된다.
+     */
+    private static final java.util.Map<String, Integer> ITEMS_PER_DAY_BY_PACE = java.util.Map.of(
+            "RELAXED", 3,
+            "BALANCED", 4,
+            "PACKED", 5);
+
     /** 하루에 배정할 최대 항목 수. 프리셋·설정이 없으면 4. */
     private final int maxItemsPerDay;
 
@@ -127,7 +143,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 .orElseThrow(() -> new IllegalStateException("여행을 찾을 수 없다: " + command.tripId()));
 
         int days = trip.days();
-        Distribution distribution = distributeByDay(command.places(), days, mealsPerDay(trip));
+        Distribution distribution = distributeByDay(command.places(), days, mealsPerDay(trip),
+                itemsPerDay(trip));
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
 
         // 구간을 만들 때 필요한, 날짜별 "그 날 다녀올 장소" 원본 순서.
@@ -238,7 +255,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 순위대로 날짜에 배분한다. 하루가 {@link #maxItemsPerDay} 를 채우면 다음 날로 넘기고,
+     * 순위대로 날짜에 배분한다. 하루가 {@code itemsPerDay} 를 채우면 다음 날로 넘기고,
      * 모든 날이 다 차면 남은 후보는 일정에 넣지 않는다.
      * 넘치는 것을 마지막 날에 쌓지 않는다 — 하루에 열 곳은 일정이 아니고, 그렇게 쌓인 날은
      * 이동 시간도 머무는 시간도 계산이 안 맞는다. 1일 여행이면 넘길 날이 아예 없어 후보가
@@ -250,7 +267,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 채운다 — 후보의 대부분이 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다.
      */
     private Distribution distributeByDay(
-            List<ItineraryDraftCommand.PlannedPlace> places, int days, int mealsPerDay) {
+            List<ItineraryDraftCommand.PlannedPlace> places, int days, int mealsPerDay, int itemsPerDay) {
 
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = new ArrayList<>(days);
         for (int i = 0; i < days; i++) {
@@ -265,14 +282,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // 그래서 비워 두고 말한다.
         int rejectedFood = 0;
         for (ItineraryDraftCommand.PlannedPlace place : places) {
-            if (!seat(byDay, foodPerDay, place, mealsPerDay) && isFood(place)) {
+            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay) && isFood(place)) {
                 rejectedFood++;
             }
         }
 
         // 자리는 남았는데 앉힐 것이 밥집밖에 없었던 경우에만 경고한다. 하루가 꽉 차서
         // 밥집이 밀린 것은 정상이고, 그건 빈 자리를 만들지 않는다.
-        boolean roomLeft = byDay.stream().anyMatch(day -> day.size() < this.maxItemsPerDay);
+        boolean roomLeft = byDay.stream().anyMatch(day -> day.size() < itemsPerDay);
         return new Distribution(byDay, roomLeft && rejectedFood > 0);
     }
 
@@ -298,6 +315,23 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 09:00~18:00 이면 점심(150분 겹침)과 저녁(60분 겹침)으로 2다. 아침은 30분만 겹쳐서 안 센다.
      * 활동 시간대를 안 정한 여행은 2를 준다 — 모름을 0으로 두면 밥집이 한 곳도 안 들어간다.
      */
+    /**
+     * 그 여행의 하루에 몇 곳을 넣을까 — 사용자가 고른 「여행 기분」이 정한다.
+     * <p>
+     * 안 고른 여행은 설정 기본값({@code gabolle.itinerary.max-items-per-day})을 그대로 쓴다.
+     * {@code null} 을 「보통」으로 바꾸지 않는다 — 안 고른 것과 「균형 있게」를 고른 것은 다른
+     * 사실이고, 기본값은 운영이 조정할 수 있는 손잡이라 임의로 4 에 묶으면 그 손잡이가 죽는다.
+     * <p>
+     * 모르는 값이 와도 기본값으로 떨어진다. {@link Trip} 생성자가 이미 아는 값만 통과시키므로
+     * 여기까지 오지 않지만, 저장된 옛 행이 어긋났을 때 일정 생성이 멈추지는 않아야 한다.
+     */
+    private int itemsPerDay(Trip trip) {
+        if (trip.pace() == null) {
+            return this.maxItemsPerDay;
+        }
+        return ITEMS_PER_DAY_BY_PACE.getOrDefault(trip.pace(), this.maxItemsPerDay);
+    }
+
     private int mealsPerDay(Trip trip) {
         LocalTime start = trip.timeWindowStart();
         LocalTime end = trip.timeWindowEnd();
@@ -323,11 +357,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      *     자리를 메울 때는 안 지킨다
      */
     private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay,
-            ItineraryDraftCommand.PlannedPlace place, int mealsPerDay) {
+            ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay) {
 
         boolean food = isFood(place);
         for (int day = 0; day < byDay.size(); day++) {
-            if (byDay.get(day).size() >= this.maxItemsPerDay) {
+            if (byDay.get(day).size() >= itemsPerDay) {
                 continue;
             }
             if (food && foodPerDay[day] >= mealsPerDay) {

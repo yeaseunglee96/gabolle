@@ -793,4 +793,43 @@ class ItineraryDraftServiceTest {
 		assertThat(seen).as("이동수단을 안 고른 여행은 WALK 로 떨어진다 — ItineraryLegPlanner 와 같은 규칙")
 				.containsExactly("WALK");
 	}
+
+	/** 「여행 기분」을 고른 여행. 나머지 조건은 {@link #tripOf} 와 같다. */
+	private Trip tripWithPace(String pace) {
+		return Trip.builder()
+				.tripId("itn_trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 10)).finishDate(LocalDate.of(2026, 9, 10))
+				.partySize(2).timezone("Asia/Seoul").pace(pace)
+				.createdAt(Instant.now())
+				.build();
+	}
+
+	private int placedCountFor(String pace, int candidates) {
+		Trip trip = tripWithPace(pace);
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+		return this.service.assemble(commandOf("itn_trip_1", plannedPlaces(candidates))).items().size();
+	}
+
+	@Test
+	@DisplayName("🔴 「여행 기분」이 하루 곳 수를 정한다 — 화면은 「하루 2–3곳」이라 약속하는데 서버는 전원 4곳이었다")
+	void paceDecidesHowManyPlacesPerDay() {
+		// 후보는 넉넉히 같은 수로 주고 고른 값만 바꾼다. 달라지는 것이 기분뿐이어야 뜻이 있다.
+		assertThat(placedCountFor("RELAXED", 8)).as("여유롭게 — 하루 2–3곳").isEqualTo(3);
+		assertThat(placedCountFor("BALANCED", 8)).as("균형 있게 — 하루 3–4곳").isEqualTo(4);
+		assertThat(placedCountFor("PACKED", 8)).as("알차게 — 하루 5곳 이상").isEqualTo(5);
+	}
+
+	@Test
+	@DisplayName("기분을 안 고른 여행은 지금까지처럼 설정 기본값을 쓴다 — null 은 「보통」이 아니라 「모른다」다")
+	void unsetPaceKeepsTheConfiguredDefault() {
+		assertThat(placedCountFor(null, 8))
+				.as("이 시험이 만든 서비스의 설정값은 4다")
+				.isEqualTo(4);
+	}
+
+	@Test
+	@DisplayName("후보가 모자라면 기분이 정한 수보다 적게 들어간다 — 없는 곳을 지어내지 않는다")
+	void fewerCandidatesThanThePaceAsksFor() {
+		assertThat(placedCountFor("PACKED", 2)).isEqualTo(2);
+	}
 }

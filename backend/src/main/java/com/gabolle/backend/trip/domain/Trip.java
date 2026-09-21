@@ -11,6 +11,12 @@ import java.util.Set;
  */
 public class Trip {
 
+    /**
+     * 아는 여행 기분. 앱의 {@code PACE_OPTIONS}(planOptions.ts)와 글자 그대로 같아야 한다 —
+     * 어긋나면 사용자가 고른 값이 400 으로 튕기거나 조용히 기본값이 된다.
+     */
+    public static final java.util.Set<String> PACES = java.util.Set.of("RELAXED", "BALANCED", "PACKED");
+
     private final String tripId;
     private final String createdBy;
 
@@ -32,6 +38,13 @@ public class Trip {
 
     /** 하루 활동 시간대. 예: {@code MORNING_TO_EVENING} */
     private final String timeWindow;
+
+    /**
+     * 여행 기분 — 하루에 몇 곳을 넣을지를 정한다. 안 고른 여행은 {@code null} 이고, 그때는
+     * 일정 생성이 지금까지처럼 설정 기본값을 쓴다. 취향이 아니라 <b>여행의 모양</b>이라
+     * {@code preference_answer} 가 아니라 여기 있다 — {@code travelModes} 와 같은 이유다.
+     */
+    private final String pace;
 
     /**
      * {@code timeWindow}(프리셋)과는 다른 칸이다. 프리셋 이름만으로는 몇 시부터 몇 시까지인지
@@ -119,10 +132,11 @@ public class Trip {
                 String accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
                 boolean soloFriendlyPriority, Integer maxTransitTransfers,
                 Instant createdAt) {
+        // 기분을 안 받는 예전 자리다. null 은 「안 골랐다」이고 일정 생성이 설정 기본값을 쓴다.
         this(tripId, createdBy, OwnerType.USER, startDate, finishDate, originLat, originLng, budgetKrw, partySize,
                 timeWindow, timezone, travelModes, timeWindowStart, timeWindowEnd,
                 accommodationPlaceId, englishMenuRequired, foreignCardRequired, soloFriendlyPriority,
-                maxTransitTransfers, createdAt);
+                maxTransitTransfers, null, createdAt);
     }
 
     /** 위 생성자들은 {@code OwnerType.USER} 로 고정해 여기에 위임한다. */
@@ -134,6 +148,7 @@ public class Trip {
                 String[] travelModes, LocalTime timeWindowStart, LocalTime timeWindowEnd,
                 String accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
                 boolean soloFriendlyPriority, Integer maxTransitTransfers,
+                String pace,
                 Instant createdAt) {
 
         if (startDate == null || finishDate == null) {
@@ -158,6 +173,10 @@ public class Trip {
         if (maxTransitTransfers != null && maxTransitTransfers < 0) {
             throw new IllegalArgumentException("최대 환승 횟수는 음수일 수 없다: " + maxTransitTransfers);
         }
+        if (pace != null && !PACES.contains(pace)) {
+            // 모르는 값을 조용히 null 로 바꾸지 않는다 — 사용자가 고른 것이 말없이 사라진다.
+            throw new IllegalArgumentException("모르는 여행 기분이다: " + pace + " (아는 것: " + PACES + ")");
+        }
 
         this.tripId = tripId;
         this.createdBy = createdBy;
@@ -177,6 +196,7 @@ public class Trip {
         this.foreignCardRequired = foreignCardRequired;
         this.soloFriendlyPriority = soloFriendlyPriority;
         this.maxTransitTransfers = maxTransitTransfers;
+        this.pace = pace;
         this.timezone = timezone != null ? timezone : "Asia/Seoul";
         this.status = Status.PLANNING;
         this.createdAt = createdAt;
@@ -218,6 +238,7 @@ public class Trip {
         private Integer budgetKrw;
         private int partySize;
         private String timeWindow;
+        private String pace;
         private LocalTime timeWindowStart;
         private LocalTime timeWindowEnd;
         private String[] travelModes;
@@ -246,6 +267,7 @@ public class Trip {
         public Builder budgetKrw(Integer budgetKrw) { this.budgetKrw = budgetKrw; return this; }
         public Builder partySize(int partySize) { this.partySize = partySize; return this; }
         public Builder timeWindow(String timeWindow) { this.timeWindow = timeWindow; return this; }
+        public Builder pace(String pace) { this.pace = pace; return this; }
         public Builder timeWindowStart(LocalTime timeWindowStart) { this.timeWindowStart = timeWindowStart; return this; }
         public Builder timeWindowEnd(LocalTime timeWindowEnd) { this.timeWindowEnd = timeWindowEnd; return this; }
         public Builder travelModes(String[] travelModes) { this.travelModes = travelModes; return this; }
@@ -270,7 +292,7 @@ public class Trip {
             Trip trip = new Trip(tripId, createdBy, ownerType, startDate, finishDate, originLat, originLng,
                     budgetKrw, partySize, timeWindow, timezone, travelModes, timeWindowStart, timeWindowEnd,
                     accommodationPlaceId, englishMenuRequired, foreignCardRequired, soloFriendlyPriority,
-                    maxTransitTransfers, createdAt);
+                    maxTransitTransfers, pace, createdAt);
             trip.title = title;
             if (status != null) {
                 trip.status = status;
@@ -402,6 +424,8 @@ public class Trip {
     public String timeWindow()   { return timeWindow; }
     public LocalTime timeWindowStart() { return timeWindowStart; }
     public LocalTime timeWindowEnd()   { return timeWindowEnd; }
+    /** 여행 기분. 안 고른 여행은 {@code null} 이다 — 「보통」이 아니라 「모른다」다. */
+    public String pace()         { return pace; }
     /** 방어적 복사본 — 밖에서 바꿔도 이 여행의 값은 안 바뀐다. */
     public String[] travelModes() { return travelModes.clone(); }
     public String accommodationPlaceId()     { return accommodationPlaceId; }

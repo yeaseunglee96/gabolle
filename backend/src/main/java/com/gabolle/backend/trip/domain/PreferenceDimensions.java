@@ -10,8 +10,9 @@ import java.util.Set;
  * 값을 두 번 통과시켜도 결과가 같다.
  *
  * <p>모르는 이름은 조용히 버리지 않고 예외로 던진다 — 버리면 사용자가 답한 취향이 사라졌는데
- * 아무도 모른다. {@code TRANSPORT} 는 CHECK 에 없는 값이지만 여기서 거절하지 않는다. 그 답은
- * {@code TripCreationService} 가 {@code trip.travel_modes} 로 옮기고 스냅샷 저장 목록에서 뺀다.
+ * 아무도 모른다. {@code TRANSPORT} 와 {@code PACE} 는 CHECK 에 없는 값이지만 여기서 거절하지 않는다.
+ * 둘 다 취향이 아니라 여행의 모양이라 {@code TripCreationService} 가 각각
+ * {@code trip.travel_modes}·{@code trip.pace} 로 옮기고 스냅샷 저장 목록에서 뺀다.
  */
 public final class PreferenceDimensions {
 
@@ -25,15 +26,19 @@ public final class PreferenceDimensions {
             "foodPreference", "FOOD_PREFERENCE",
             "transport", "TRANSPORT",
             "slopePreference", "SLOPE_PREFERENCE",
-            "shadePreference", "SHADE_PREFERENCE");
+            "shadePreference", "SHADE_PREFERENCE",
+            "pace", "PACE");
 
     /** 정규화 결과로 허용되는 값. CHECK 여덟 값 + {@code TRANSPORT}. */
     private static final Set<String> DB_VOCABULARY = Set.of(
             "CATEGORY", "ATMOSPHERE", "LOCALITY", "QUIETNESS",
             "TOURIST_PREFERENCE", "FOOD_PREFERENCE", "SLOPE_PREFERENCE", "SHADE_PREFERENCE",
-            "TRANSPORT");
+            "TRANSPORT", "PACE");
 
     public static final String TRANSPORT = "TRANSPORT";
+
+    /** 여행 기분. {@code TRANSPORT} 와 같이 CHECK 에 없는 값이고 {@code trip.pace} 로 옮겨진다. */
+    public static final String PACE = "PACE";
 
     private PreferenceDimensions() {
     }
@@ -61,6 +66,10 @@ public final class PreferenceDimensions {
 
     public static boolean isTransport(String normalized) {
         return TRANSPORT.equals(normalized);
+    }
+
+    public static boolean isPace(String normalized) {
+        return PACE.equals(normalized);
     }
 
     /**
