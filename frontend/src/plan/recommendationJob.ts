@@ -27,6 +27,28 @@ const JOB_FAILURE_MESSAGE: Record<string, [string, string]> = {
   ENGINE_NOT_CONFIGURED: ['추천 엔진에 일시적인 문제가 있어요. 잠시 후 다시 시도해 주세요.', 'The recommendation engine is temporarily unavailable. Please try again shortly.'],
   ITINERARY_VERSION_CONFLICT: ['다른 곳에서 먼저 일정이 바뀌었어요. 새로고침 후 다시 시도해 주세요.', 'The itinerary changed elsewhere first. Please refresh and try again.'],
 };
+/**
+ * 같은 실패 코드라도 «어느 단계에서» 멈췄는지에 따라 할 말이 다르다.
+ *
+ * 🔴 `CONSTRAINT_EVALUATION` 에서 멈춘 «맞는 일정 없음» 은 **꼭 지켜야 하는 조건**
+ *    (알레르기 · 식단 · 이동)이 후보를 전부 걷어낸 것이다. 그런데 화면은 「조건을
+ *    조정해 주세요」 라고만 말해서, 사용자는 **어느 조건인지 모른 채** 날짜나 예산을
+ *    넓혀 보고 또 실패한다 — 그 둘은 이 실패와 아무 상관이 없다.
+ *
+ * 🔴 「맞는 곳이 없다」 가 아니라 **「확인하지 못했다」** 라고 적는다. 운영 자료에
+ *    알레르기·식단 표식이 아직 0건이라(S15P21E201-1468), 서버는 «위험한 곳을 골라낸» 것이
+ *    아니라 «안전한 곳인지 확인할 수 없어» 전부 뺀 것이다. 둘은 다른 말이고, 앞의 말로
+ *    적으면 사용자는 부산에 자기가 먹을 것이 없다고 읽는다.
+ */
+const STAGE_FAILURE_MESSAGE: Record<string, Record<string, [string, string]>> = {
+  RECOMMENDATION_NO_FEASIBLE_RESULT: {
+    CONSTRAINT_EVALUATION: [
+      '알레르기 · 식단 · 이동처럼 «꼭 지켜야 하는» 조건에 맞는 곳을 확인하지 못했어요. 그 조건을 빼거나 줄이고 다시 만들어 주세요.',
+      "We could not verify places that meet your must-have conditions (allergies, diet, mobility). Try removing or easing those and building again.",
+    ],
+  },
+};
+
 const DEFAULT_JOB_FAILURE_MESSAGE = ['일정을 만드는 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.', 'Something went wrong while building your itinerary. Please try again shortly.'] as const;
 
 export const unavailableJob = (message = '일정 생성 서버가 아직 준비되지 않았어요. 입력한 조건은 그대로 유지됩니다.'): RecommendationJobSnapshot => ({ state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: message, resultRef: null });
@@ -36,7 +58,12 @@ export function adaptPolledJob(jobId: string, dto: RecommendationJobPollDto, pre
   const reported = Math.max(0, Math.min(100, dto.progress.percent));
   const progress = reported === null ? previous?.progress ?? null : Math.max(previous?.progress ?? 0, reported);
   const isKo = getApiLanguage() !== 'en';
-  const errorMessage = dto.failure ? (JOB_FAILURE_MESSAGE[dto.failure.code] ?? DEFAULT_JOB_FAILURE_MESSAGE)[isKo ? 0 : 1] : dto.status === 'EXPIRED' ? '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.' : null;
+  const failureMessage = dto.failure
+    ? (STAGE_FAILURE_MESSAGE[dto.failure.code]?.[dto.failure.detail ?? '']
+      ?? JOB_FAILURE_MESSAGE[dto.failure.code]
+      ?? DEFAULT_JOB_FAILURE_MESSAGE)[isKo ? 0 : 1]
+    : null;
+  const errorMessage = dto.failure ? failureMessage : dto.status === 'EXPIRED' ? '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.' : null;
   return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null };
 }
 // — SSE(GET /api/v1/jobs/{jobId}/progress)가 보내는 건 폴링과 모양이 다르다
