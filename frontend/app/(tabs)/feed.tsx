@@ -464,8 +464,9 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
   const following = scope === 'FOLLOWING';
   const mine = scope === 'MINE';
   return <View style={[styles.emptyCard, compact && styles.emptyCardCompact]}>
+    {/* 「없어요」에는 >.< 표정, 「모으고 있어요」에는 기본 표정(S15P21E201-1430). */}
     <Image
-      source={require('../../assets/mascot/dongbaek-idle.png')}
+      source={mine || following ? require('../../assets/mascot/dongbaek-thinking.png') : require('../../assets/mascot/dongbaek-idle.png')}
       resizeMode="contain"
       accessibilityLabel={tx('동백 마스코트', 'Dongbaek mascot')}
       style={[styles.mascot, compact && styles.mascotCompact]}

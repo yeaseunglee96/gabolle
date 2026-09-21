@@ -354,7 +354,7 @@ export default function Me() {
           예전엔 「새 기록 남기기」 타일 하나만 덩그러니 있어 빈 화면이 고장처럼 보였다. 못 불러온 것(null)은 비어 있는 것과 다르다. */}
       {meTab === 'records' && user && myStories !== null && myStories.length === 0 ? (
         <View style={styles.recordsEmpty}>
-          <GabolleMascot state="idle" still style={styles.recordsEmptyMascot} />
+          <GabolleMascot state="thinking" still style={styles.recordsEmptyMascot} />
           <Text variant="title" weight="bold">{tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>
           <Text color={color.text.body} style={styles.recordsEmptyCopy}>{tx('여행 중 찍은 사진 한 장이면 충분해요.\n기록은 피드에도 함께 보여요.', 'One photo from your trip is enough.\nYour records also show up in the feed.')}</Text>
           <Button label={tx('첫 기록 남기기', 'Write your first record')} variant="secondary" onPress={() => router.push('/feed/compose')} containerStyle={styles.recordsEmptyCta} />

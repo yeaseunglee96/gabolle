@@ -87,7 +87,7 @@ export function MyPostsBody() {
 
       {!loading && result.state === 'success' && shown.length === 0 ? (
         <View style={styles.empty}>
-          <GabolleMascot state="idle" still style={styles.mascot} />
+          <GabolleMascot state={items.length ? 'idle' : 'thinking'} still style={styles.mascot} />
           <Text variant="title" weight="bold">{items.length ? tx('이 조건에 맞는 기록이 없어요', 'No records match this filter') : tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>
           <Text style={styles.emptyCopy}>{items.length ? tx('다른 조건으로 보거나 새 기록을 남겨 보세요.', 'Try another filter or write a new record.') : tx('여행 중 찍은 사진 한 장이면 충분해요.\n기록은 피드에도 함께 보여요.', 'One photo from your trip is enough.\nYour records also show up in the feed.')}</Text>
           {items.length === 0 ? <Button label={tx('첫 기록 남기기', 'Write your first record')} variant="secondary" onPress={() => router.push('/feed/compose')} containerStyle={styles.emptyCta} /> : null}
