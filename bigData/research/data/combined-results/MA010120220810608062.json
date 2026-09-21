@@ -1,0 +1,55 @@
+{
+  "id": "MA010120220810608062",
+  "name": "만리장성반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 36756,
+  "researchedAt": "2026-09-21T22:34:35.834Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "범일동 증산공원 및 산복도로 인근 주택가에 위치하여 인근 주민들이 이용하는 동네 중국집으로 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 동구 범일동(증산로 153)에 위치한 중식당으로 사업자 및 상가 디렉토리에 등록되어 있으나, 온라인 상세 리뷰나 메뉴/영업시간 등 세부 정량 정보는 공개되어 있지 않은 전형적인 동네 골목 배달·동네 중식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "만리장성반점. 주소: 부산광역시 동구 증산로 153 (범일동 1338-28). 전화번호: 051-633-7609. 업종: 중식 음식점",
+      "url": "https://koreacharts.com"
+    },
+    {
+      "excerpt": "해당 업체는 범일동 증산공원 및 산복도로 인근에 위치한 중국음식점으로, 인근 주민들이 이용하는 동네 중국집으로 알려져 있습니다. 다만, 현재 온라인상에서 짜장면이나 짬뽕 맛에 대한 상세한 블로그 후기는 확인되지 않고 있습니다.",
+      "url": "https://bluesquare.app"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com",
+    "https://bluesquare.app",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "범일동 증산공원 및 산복도로 일대 인근 주민들이 식사 및 배달로 찾는 동네 중국집",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

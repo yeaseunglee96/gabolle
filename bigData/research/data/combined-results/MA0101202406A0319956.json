@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202406A0319956",
+  "name": "카페디닷디",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50066,
+  "researchedAt": "2026-09-21T22:36:23.059Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 줄서기에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "햄치즈페스토 파니니",
+      "디닷디 샌드위치"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:00~19:00 (라스트오더 18:40), 매주 일요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "레이카운티 및 쌍용더플래티넘거제아시아드 아파트 단지 인근에 위치하여 주민들이 자주 찾는 동네 브런치 카페"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 연제구 거제동 레이카운티 인근에 위치한 브런치 카페로, 파니니와 샌드위치가 대표 메뉴임.",
+  "price": {
+    "found": true,
+    "priceMenu": "햄치즈페스토 파니니",
+    "priceWon": 7900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 금용로11번길 17 (거제동 802-239) 레이카운티 및 쌍용더플래티넘거제아시아드 아파트 단지 인근에 위치하여 주민들이 자주 찾는 카페로 언급됩니다. 영업시간은 오전 9시부터 오후 7시까지이며, 매주 일요일은 정기휴무일입니다 (마지막 주문 18:40)",
+      "url": "https://www.fivepin.co.kr"
+    },
+    {
+      "excerpt": "햄치즈페스토 파니니: 7,900원, 디닷디 샌드위치: 8,900원, 아메리카노: 2,000원. 파니니, 샌드위치 등 브런치 메뉴로 잘 알려져 있습니다.",
+      "url": "https://www.passorder.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.fivepin.co.kr",
+    "https://www.passorder.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "파니니와 샌드위치 등 가성비 좋은 브런치 메뉴와 커피를 즐기기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "인근 아파트 단지 주민들이 일상적으로 편하게 이용할 수 있는 동네 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

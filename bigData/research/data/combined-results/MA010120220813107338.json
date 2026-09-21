@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220813107338",
+  "name": "장흥횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 43256,
+  "researchedAt": "2026-09-21T22:36:11.481Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 사상구 사상로269번길 8 (지번: 덕포동 428-23)에 '장흥회센타'(장흥횟집)로 등록된 일반음식점 정보(전화번호: 051-305-1588)는 확인되나, 방문 후기나 블로그 리뷰 등 상세 이용 정보 및 정량 데이터(영업시간, 가격, 메뉴, 혼잡도 등)는 웹상에 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 사상구 사상로269번길 8 (덕포동 428-23), 상호명: 장흥회센타, 전화번호: 051-305-1588, 사상농협 건너편, 덕포우체국 앞",
+      "url": "https://www.sasang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220808441106",
+  "name": "보배반점장림점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 33988,
+  "researchedAt": "2026-09-21T22:36:59.910Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "보배짬뽕",
+      "소고기짬뽕",
+      "탕수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "확인 불가"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광지 상권보다는 생활권 상권으로 추정되나 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 사하구 장림번영로 84에 보배반점 장림점이 등록되어 있으나, 구체적인 영업시간이나 주차 여부 등 상세 정보는 공식 웹이나 리뷰에서 충분히 확인되지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "여러 지도 및 정보 플랫폼에서 해당 주소(부산광역시 사하구 장림번영로 84)를 '보배반점 장림점'의 위치로 안내하고 있습니다. 장림역 1번 출구에서 도보로 약 5분 거리 내에 위치해 있어 접근성이 좋습니다. 깔끔하고 프라이빗한 느낌의 인테리어로 구성되어 있으며, 매장 내 셀프 바와 무료 커피 서비스 등을 제공합니다.",
+      "url": "https://bobaebanjum.co.kr/store/list"
+    }
+  ],
+  "sources": [
+    "https://bobaebanjum.co.kr/store/list"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "진한 불맛 짬뽕과 바삭한 탕수육, 셀프바 및 무료 커피 등 식사 편의 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "장림역 인근 접근성 및 깔끔한 매장 환경과 편의 서비스 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

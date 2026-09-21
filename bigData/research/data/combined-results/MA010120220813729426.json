@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220813729426",
+  "name": "손씨집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 48682,
+  "researchedAt": "2026-09-21T22:35:05.162Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "봄·가을 행락철이나 주말 모임 시 대기(웨이팅)가 발생할 수 있어 사전 전화 예약 권장"
+  },
+  "descriptors": {
+    "audience": "가족 단위 모임 및 등산객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "생오리양념불고기",
+      "청둥오리양념불고기",
+      "옻오리백숙",
+      "한방촌닭백숙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "별도 명시되어 있지 않아 전화 문의 필요(051-508-4477)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "범어사 인근 금정산 등산객 및 가족 모임 단위 현지 나들이객이 주로 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 11,
+    "found": true
+  },
+  "notes": "업종 구분상 돼지고기 구이/찜으로 등록되어 있으나 실제로는 오리불고기, 백숙, 닭요리 등을 전문으로 하는 범어사 상마마을 음식점임",
+  "price": {
+    "found": true,
+    "priceMenu": "생오리양념불고기(400g) 18,000원, 청둥오리양념불고기(400g) 20,000원, 옻오리백숙 55,000원",
+    "priceWon": 18000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "범어사 인근 산속에 위치하여 자연 속에서 식사를 즐길 수 있는 곳입니다. 야외 평상 좌석과 독립된 실내 방을 모두 갖추고 있어 가족 외식이나 모임 장소로 인기가 많습니다. 전용 주차장 보유, 예약 가능, 야외 좌석 완비. 대중교통 이용 시 90번 버스를 타고 '상마마을' 정류장에서 하차하여 방문할 수 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "청둥오리양념불고기(400g) 20,000원, 생오리양념불고기(400g) 18,000원, 옻오리백숙 55,000원, 한방촌닭백숙 45,000원, 오리양념찜 50,000원, 오골계백숙 50,000원, 오리훈제 50,000원, 옻닭 52,000원, 손두부 10,000원, 도토리묵 12,000원, 파전 12,000원. 영업시간은 전화 문의 필요(051-508-4477).",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "범어사 산자락 자연 속에서 야외 평상 및 독립된 방에서 즐기는 오리불고기와 백숙 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "자극적이지 않고 정갈하게 조리되어 나오는 오리불고기와 백숙의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

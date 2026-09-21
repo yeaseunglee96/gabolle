@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220813752038",
+  "name": "돈앤돈",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 31738,
+  "researchedAt": "2026-09-21T22:28:17.454Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족/동네 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "꽃삼겹"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "감만동 아파트 상가 내에 위치한 동네 주민 위주의 한식 고깃집으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 남구 감만동 감만국제아파트 상가 1층 106호에 위치한 삼겹살/돼지구이 전문점으로, 대표 메뉴는 꽃삼겹이며 남구 착한가격업소로 지정되어 있음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 돈앤돈, 주소: 부산광역시 남구 석포로 34, 상가동 106호 (감만동, 감만국제아파트), 주요메뉴: 꽃삼겹, 부산 남구 착한가격업소 리스트 등록",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "착한가격업소로 등록될 만큼 저렴하고 부담 없는 가격 경쟁력",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "대표 메뉴인 꽃삼겹 등 질 좋은 숙성 돼지고기 구이",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

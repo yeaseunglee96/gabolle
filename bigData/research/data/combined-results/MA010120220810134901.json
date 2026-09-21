@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220810134901",
+  "name": "불미골오리",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 30351,
+  "researchedAt": "2026-09-21T22:38:13.420Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식, 모임",
+    "generations": 2,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생오리 참숯구이",
+      "오리양념불고기"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:30 (매주 월요일 휴무, 평일 브레이크 타임 15:00 ~ 17:00, 주말 및 공휴일 브레이크 타임 없음)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 북구 화명동(용당로20번길 9)에 위치한 불미골오리로, 30년 내공과 2대째 이어오는 당일 작업 생오리 참숯구이 전문점입니다. 인근 유료 주차장 1시간 30분 무료 지원됩니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 화명동 2292-10번지 1층 (용당로20번길 9). 30년 내공의 2대째 이어오는 식당으로, 당일 작업한 생오리를 이용한 참숯 구이가 대표 메뉴입니다. 영업시간: 11:00 ~ 21:30 (매주 월요일 휴무), 평일 15:00 ~ 17:00 (주말 및 공휴일은 브레이크 타임 없음)",
+      "url": "https://www.facebook.com"
+    },
+    {
+      "excerpt": "부산 북구 화명동에 위치한 오리고기 전문점입니다. 주요 메뉴로 당일 작업한 생오리를 이용한 참숯구이 등이 있으며, 밑반찬이 정갈하고 잡내 없는 맛으로 알려져 있습니다. 식당 이용 시 유료 주차장 1시간 30분 무료 이용이 가능하여 차를 가지고 방문하기 편리합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "30년 내공과 2대째 이어오는 비법으로 운영됨",
+      "sources": [
+        0
+      ],
+      "type": "대물림"
+    },
+    {
+      "note": "당일 작업한 신선한 생오리를 참숯에 구워 잡내 없이 깔끔함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "식당 이용 시 주차장 1시간 30분 무료 지원으로 방문 편리",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

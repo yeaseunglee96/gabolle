@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220800809236",
+  "name": "부네치아횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 54262,
+  "researchedAt": "2026-09-21T22:34:18.183Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족/회식",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "회덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미공개 (매장 문의 권장)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 사하구 하신중앙로53번길 67-1에 위치한 횟집으로, 모듬회 및 회덮밥 등의 메뉴 정보와 주차 편의 정보가 확인됩니다. 구체적인 방문 후기 및 운영 시간은 웹상에 제한적으로 등록되어 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "모듬회 40,000원~60,000원, 회덮밥 10,000원",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사하구 하신중앙로53번길 67-1 (신평동). 대표 메뉴: 모듬회, 회덮밥. 연락처: 051-263-8540. 모듬회 40,000원 ~ 60,000원, 회덮밥 10,000원, 공기밥 1,000원, 소주/맥주 3,500원",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "도보 1분 거리에 부네치아 공영주차장이 있어 방문 시 편리합니다",
+      "url": "https://bluesquare.app"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://bluesquare.app",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "장림포구(부네치아) 인근에서 모듬회와 회덮밥 등 식사를 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

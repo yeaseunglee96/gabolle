@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202409A0202978",
+  "name": "미양식당",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 87625,
+  "researchedAt": "2026-09-21T22:36:19.883Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 커플",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "파스타",
+      "샐러드",
+      "피자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 11:00 - 20:00 (매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산광역시 사상구 강선로 35-2에 위치한 경양식/양식당으로 사상구청 지정 착한가격업소임.",
+  "price": {
+    "found": true,
+    "priceMenu": "파스타 8,000원, 샐러드 8,000원, 피자 10,000원",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업소명 : 미양식당\n저렴한 가격 비결 및 업소자랑거리\n깔끔하고 아늑한 분위기와 친절한 서비스로 편안한 식사를 즐길 수 있는 착한가격업소입니다.\n새주소 : 강선로 35-2, 1층(덕포동)\n연락처 : 070-8866-8533\n품목\n파스타 8,000\n샐러드 8,000\n피자 10,000",
+      "url": "https://www.sasang.go.kr/index.sasang?menuCd=DOM_000000109001002000"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr/index.sasang?menuCd=DOM_000000109001002000"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "사상구청 지정 착한가격업소로 파스타·피자 등을 저렴한 가격에 편안하고 친절하게 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}
