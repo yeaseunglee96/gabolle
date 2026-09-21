@@ -52,6 +52,8 @@ export default function Recommendations() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetDay, setSheetDay] = useState(1);
   const grow = useRef(new Animated.Value(0)).current;
+  /** 넓은 화면에서 지도가 쓸 수 있는 높이 — 숫자로 적지 않고 «재서» 쓴다. */
+  const [mapHeight, setMapHeight] = useState(0);
   const [saved, setSaved] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
@@ -208,77 +210,96 @@ export default function Recommendations() {
   );
 
   if (wide) {
+    const dayStops = current?.days.find((day) => day.day === sheetDay)?.stops ?? [];
     return (
       <View style={[styles.shell, styles.shellWide]}>
         <ScrollView style={styles.listPane} contentContainerStyle={styles.listPaneInner}>{list}</ScrollView>
-        {/* 오른쪽 전면 지도. 코스가 하나도 없을 때는 빈 판을 두지 않고 안내를 적는다. */}
+        {/* 오른쪽은 **지도가 주인**이다 — 시안 3절.
+            🔴 전에는 위에 «코스 칩», 아래에 «코스 내용» 글상자가 있고 지도는 가운데 640px 짜리
+               한 칸이었다. 코스는 이미 왼쪽 카드에서 고르고 내용도 거기 적혀 있으니, 같은 것을
+               오른쪽에 또 두면 화면의 절반이 «이미 읽은 것» 이 된다. 오른쪽은 왼쪽이 못 하는
+               것만 한다 — 어디를 어떤 순서로 가는지. */}
         <View style={styles.mapPane}>
-          <View style={styles.mapLegend}>
-            {courses.map((course, index) => (
-              <Pressable
-                key={course.id}
-                accessibilityRole="button"
-                accessibilityState={{ selected: course.id === picked }}
-                onPress={() => setPicked(course.id)}
-                style={[styles.legendChip, course.id === picked && styles.legendChipOn]}
-              >
-                <Text variant="caption" weight="bold" color={course.id === picked ? color.text.onAction : color.text.heading} numberOfLines={1}>
-                  {course.title || txf(tx, '코스 %s', 'Course %s', courseLetter(index))}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-          {/* 🔴 좌표가 하나라도 오면 **선으로** 그린다 (-1333). 하나도 없으면 아래처럼
-              **동선을 글로** 세운다 — 좌표 없이 선을 그으면 실제로 안 가는 길을 그리게 되고,
-              그건 빈 지도보다 나쁘다. 옛 서버에 붙은 앱이 그 상태다. */}
-          {mapLayers.stops.length ? (
-            <RouteMap
-              stops={mapLayers.stops}
-              selectedId={selectedStopId}
-              onSelect={setSelectedStopId}
-              routes={mapLayers.routes}
-              height={640}
-            />
-          ) : null}
-          <ScrollView style={styles.mapBody} contentContainerStyle={styles.mapBodyInner}>
-            {current ? (
-              <>
-                <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('코스 내용', 'What is in this course')}</Text>
-                <Text variant="title" weight="bold">{current.title}</Text>
-                <Text variant="caption" color={color.text.muted}>{courseFacts(current, tx)}</Text>
-                {current.days.map((day) => (
-                  <View key={day.day} style={styles.mapDay}>
-                    <View style={styles.legendChip}>
-                      <Text variant="caption" weight="bold">{tx(`${day.day}일차`, `Day ${day.day}`)}</Text>
-                    </View>
-                    {day.stops.map((stop, index) => (
-                      <View key={`${day.day}-${index}-${stop.name}`} style={styles.mapStop}>
-                        <Text variant="caption" weight="bold" color={color.text.muted} style={styles.mapTime}>{stop.time ?? ''}</Text>
-                        <View style={styles.mapStopCopy}>
-                          <Text weight="bold" numberOfLines={1}>{stop.name}</Text>
-                          {stop.note ? <Text variant="caption" color={color.text.muted} numberOfLines={2}>{stop.note}</Text> : null}
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                ))}
-                {current.rationale ? (
-                  <View style={styles.rationale}>
-                    <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 골랐어요', 'Why this course')}</Text>
-                    <Text variant="caption" color={color.text.body}>{current.rationale}</Text>
-                  </View>
-                ) : null}
-                {mapLayers.routes.length ? null : (
-                  <Text variant="caption" color={color.text.muted}>
-                    {tx('동선 지도는 준비 중이에요. 장소의 좌표가 들어오면 여기에 선으로 그려 드려요.',
-                      'The route map is on the way — we will draw it once the stops carry coordinates.')}
+          {/* 코스 칩이 아니라 **일차 칩**. 고른 코스가 없으면 고를 일차도 없다. */}
+          {current && current.days.length > 1 ? (
+            <View style={styles.mapLegend}>
+              {current.days.map((day) => (
+                <Pressable
+                  key={day.day}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: day.day === sheetDay }}
+                  onPress={() => { setSheetDay(day.day); setSelectedStopId(''); }}
+                  style={[styles.legendChip, day.day === sheetDay && styles.legendChipOn]}
+                >
+                  <Text variant="caption" weight="bold" color={day.day === sheetDay ? color.text.onAction : color.text.heading} numberOfLines={1}>
+                    {tx(`${day.day}일차`, `Day ${day.day}`)}
                   </Text>
-                )}
-              </>
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
+
+          {/* 🔴 지도 높이를 숫자로 적지 않는다. 남는 자리를 «재서» 그만큼 쓴다 — 640 으로
+              박아 두면 큰 화면에서는 아래가 남고 작은 화면에서는 스트립이 잘린다. */}
+          <View style={styles.mapArea} onLayout={(event) => setMapHeight(event.nativeEvent.layout.height)}>
+            {/* 🔴 좌표가 하나라도 오면 **선으로** 그린다 (-1333). 하나도 없으면 아래처럼
+                **동선을 글로** 세운다 — 좌표 없이 선을 그으면 실제로 안 가는 길을 그리게 되고,
+                그건 빈 지도보다 나쁘다. 옛 서버에 붙은 앱이 그 상태다. */}
+            {mapHeight > 0 && dayLayers.stops.length ? (
+              <RouteMap
+                stops={dayLayers.stops}
+                selectedId={selectedStopId}
+                onSelect={setSelectedStopId}
+                routes={dayLayers.routes}
+                height={mapHeight}
+              />
             ) : (
-              <Text variant="caption" color={color.text.muted}>{tx('코스를 고르면 내용이 여기에 보여요.', 'Pick a course to see what is in it.')}</Text>
+              <View style={styles.mapEmpty}>
+                <View style={styles.mapNote}>
+                  <Text variant="caption" color={color.text.muted}>
+                    {!current
+                      ? tx('코스를 고르면 내용이 여기에 보여요.', 'Pick a course to see what is in it.')
+                      : tx('동선 지도는 준비 중이에요. 장소의 좌표가 들어오면 여기에 선으로 그려 드려요.',
+                        'The route map is on the way — we will draw it once the stops carry coordinates.')}
+                  </Text>
+                </View>
+              </View>
             )}
-          </ScrollView>
+            {/* 오른쪽 위 요약 — 「장소 N곳 · 이동 M분」. 지도만 남기면 이 숫자를 볼 곳이 없다. */}
+            {current ? (
+              <View style={styles.mapSummary}>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{courseFacts(current, tx)}</Text>
+              </View>
+            ) : null}
+          </View>
+
+          {/* 아래 스트립 — 고른 일차의 정차지를 **순서대로** 옆으로 세운다.
+              지도의 번호와 같은 번호를 달아, 점을 누르든 카드를 누르든 같은 곳이 켜진다. */}
+          {dayStops.length ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stripPane} contentContainerStyle={styles.strip}>
+              {dayStops.map((stop, index) => {
+                const id = `${sheetDay}-${index + 1}`;
+                const on = id === selectedStopId;
+                return (
+                  <Pressable
+                    key={`${id}-${stop.name}`}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: on }}
+                    onPress={() => setSelectedStopId(on ? '' : id)}
+                    style={[styles.stripCard, on && styles.stripCardOn]}
+                  >
+                    <View style={styles.stripTop}>
+                      <View style={styles.stripNumber}>
+                        <Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}</Text>
+                      </View>
+                      <Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>{stop.time ?? ''}</Text>
+                    </View>
+                    <Text weight="bold" numberOfLines={1}>{stop.name}</Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          ) : null}
         </View>
       </View>
     );
@@ -434,13 +455,34 @@ const styles = StyleSheet.create({
   listPaneInner: { padding: spacing[6], gap: spacing[4] },
   mapPane: { flex: 1, minWidth: 0, backgroundColor: color.surface.soft },
   mapLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], padding: spacing[4] },
-  mapBody: { flex: 1 },
-  mapBodyInner: { gap: spacing[2], padding: spacing[6] },
-  mapDay: { gap: spacing[2], marginTop: spacing[3] },
+  // 🔴 `minHeight: 0` 이 없으면 flex 자식이 내용만큼 부풀어 스트립을 화면 밖으로 민다.
+  mapArea: { flex: 1, minHeight: 0 },
+  mapEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[6] },
+  mapNote: { paddingVertical: spacing[2], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  mapSummary: {
+    position: 'absolute', top: spacing[3], right: spacing[3],
+    paddingVertical: spacing[2], paddingHorizontal: spacing[3],
+    borderRadius: radius.md, backgroundColor: color.surface.card,
+    shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 },
+  },
+  // 🔴 가로 스크롤은 그냥 두면 «남은 세로» 를 전부 먹는다. 그러면 카드 한 장이 화면
+  //    절반 높이로 늘어나고 지도는 그만큼 눌린다. 자기 내용만큼만 차지하게 묶는다.
+  stripPane: { flexGrow: 0, flexShrink: 0 },
+  strip: { gap: spacing[2], alignItems: 'flex-start', paddingHorizontal: spacing[4], paddingVertical: spacing[4] },
+  stripCard: {
+    width: 150, gap: spacing[1], padding: spacing[3],
+    borderRadius: radius.md, borderWidth: 2, borderColor: color.surface.card,
+    backgroundColor: color.surface.card,
+  },
+  stripCardOn: { borderColor: color.action.outline },
+  stripTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  stripNumber: {
+    width: 22, height: 22, borderRadius: radius.full,
+    alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy,
+  },
   mapStop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3] },
   mapTime: { width: 44 },
   mapStopCopy: { flex: 1, minWidth: 0 },
-  rationale: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
 
   list: { gap: spacing[4] },
   head: { gap: spacing[1] },
