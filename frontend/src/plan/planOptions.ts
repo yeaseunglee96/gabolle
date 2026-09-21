@@ -30,6 +30,16 @@ export const CATEGORY_OPTIONS: readonly PlanOption[] = [
   ['NATURE_WALK', '자연 & 산책', 'Nature & walks', '이기대 · 태종대', 'Igidae · Taejongdae'],
 ] as const;
 
+/** 여행 취향 카드의 사진 — 글자만 있던 카드가 안 읽혔다(2026-09-21 실기, S15P21E201-1442). 온보딩용으로 그려 둔 그림(assets/taste)의 480px 축소판. */
+export const CATEGORY_IMAGES: Record<string, number> = {
+  SEA_BEACH: require('../../assets/taste/thumb/sea-beach.jpg'),
+  CITY: require('../../assets/taste/thumb/city.jpg'),
+  CAFE_HEALING: require('../../assets/taste/thumb/cafe.jpg'),
+  CULTURE_TEMPLE: require('../../assets/taste/thumb/culture.jpg'),
+  FOOD: require('../../assets/taste/thumb/food.jpg'),
+  NATURE_WALK: require('../../assets/taste/thumb/nature.jpg'),
+};
+
 export const ATMOSPHERE_OPTIONS: readonly PlanOption[] = [
   ['LIVELY', '활기찬', 'Lively', '시장 · 번화가 · 축제', 'Markets · downtown · festivals'],
   ['RELAXED', '여유로운', 'Relaxed', '해변 · 공원 · 산책', 'Beaches · parks · walks'],
