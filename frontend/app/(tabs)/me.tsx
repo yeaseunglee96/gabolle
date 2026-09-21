@@ -7,6 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
@@ -349,7 +350,16 @@ export default function Me() {
     </View>
 
     <Animated.View style={{ opacity: tabIn, transform: [{ translateY: tabIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
-      {meTab === 'records' ? (
+      {/* 🔴 비었을 때는 격자 대신 시안 4 의 02c — 동백이가 「아직 남긴 기록이 없어요」라고 말한다(S15P21E201-1418).
+          예전엔 「새 기록 남기기」 타일 하나만 덩그러니 있어 빈 화면이 고장처럼 보였다. 못 불러온 것(null)은 비어 있는 것과 다르다. */}
+      {meTab === 'records' && user && myStories !== null && myStories.length === 0 ? (
+        <View style={styles.recordsEmpty}>
+          <GabolleMascot state="idle" still style={styles.recordsEmptyMascot} />
+          <Text variant="title" weight="bold">{tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>
+          <Text color={color.text.body} style={styles.recordsEmptyCopy}>{tx('여행 중 찍은 사진 한 장이면 충분해요.\n기록은 피드에도 함께 보여요.', 'One photo from your trip is enough.\nYour records also show up in the feed.')}</Text>
+          <Button label={tx('첫 기록 남기기', 'Write your first record')} variant="secondary" onPress={() => router.push('/feed/compose')} containerStyle={styles.recordsEmptyCta} />
+        </View>
+      ) : meTab === 'records' ? (
         <View style={styles.recordsGrid}>
           {(myStories ?? []).map((story) => (
             <RecordCard key={story.id} story={story} onPress={() => router.push(`/feed/${story.id}`)} tx={tx} />
@@ -475,6 +485,11 @@ const styles = StyleSheet.create({
 
   // 🔴 스크롤 칸 안이라 flex 를 안 쓴다. 쓰면 카드가 세로로 눌린다.
   recordsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[3] },
+  recordsEmpty: { alignItems: 'center', gap: spacing[3], marginTop: spacing[3], paddingVertical: spacing[8], paddingHorizontal: spacing[4] },
+  recordsEmptyMascot: { width: 104, height: 104 },
+  recordsEmptyCopy: { textAlign: 'center' },
+  // 가운데 정렬 안에서는 단추 폭이 글자보다 줄어 잘린다 — 최소 폭을 준다.
+  recordsEmptyCta: { marginTop: spacing[1], alignSelf: 'center', minWidth: 220 },
   recordNew: {
     width: '48%', aspectRatio: 0.78, alignItems: 'center', justifyContent: 'center', gap: spacing[2],
     borderRadius: radius.lg, borderWidth: 1, borderStyle: 'dashed', borderColor: color.surface.field,
