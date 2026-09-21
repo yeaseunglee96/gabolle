@@ -1,8 +1,9 @@
 import { txf } from '@/i18n/format';
 import { formatClock, formatDayHeading as formatLocaleDayHeading } from '@/i18n/datetime';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 import { NowCard } from '@/plan/NowCard';
 import {
@@ -19,7 +20,7 @@ import { Button } from '@/components/Button';
 import { PlaceReviewModal } from '@/components/PlaceReviewModal';
 import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
-import { TabBar } from '@/components/TabBar';
+import { TabBar, bottomBarClearance } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -58,7 +59,9 @@ import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { localizeMessage } from '@/i18n/messages';
 import { koreanToward } from '@/i18n/korean';
 import { humanTripTitle } from '@/trip/tripNaming';
-import { categoryGlyph, loadPlacePhoto, type PlacePhoto } from '@/plan/placePhotos';
+import { categoryGlyph, loadPlacePhoto, loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
+import { summarizeItineraryBudget, type BudgetCategoryKey, type BudgetSummary } from '@/plan/itineraryBudget';
+import { loadTripBudget } from '@/trip/tripBudget';
 
 // 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고.
 
@@ -126,6 +129,117 @@ function RouteStrip({ items, times, tx, locale }: { items: ItineraryItemDto[]; t
       </View>;
     })}
   </ScrollView>;
+}
+
+// 예산 명세 — 시안 design_handoff_itinerary 7절 (S15P21E201-1432).
+//
+// 🔴 **이 카드는 지금 「미정」투성이로 뜨는 것이 정상이다.** 서버가 항목 비용을 하나도
+//    안 준다 — 장소 표에 가격 칸이 없어서다. 버그로 보고 고치러 가지 마라.
+//    그래도 카드를 그리는 이유는, **자리가 비어 있어야 값이 들어올 곳이 보이기** 때문이다
+//    (이 화면의 「수단 — 아직 없어요」 칸과 같은 이유).
+function BudgetCard({ summary }: { summary: BudgetSummary }) {
+  const { tx } = useI18n();
+
+  const LABEL: Record<BudgetCategoryKey, string> = {
+    FOOD: tx('식비', 'Food'),
+    CAFE: tx('카페', 'Cafés'),
+    ADMISSION: tx('입장·체험', 'Admission'),
+    TRANSIT: tx('교통 (추정)', 'Transit (est.)'),
+  };
+  const SLICE: Record<BudgetCategoryKey, object> = {
+    FOOD: styles.budgetSliceFood,
+    CAFE: styles.budgetSliceCafe,
+    ADMISSION: styles.budgetSliceAdmission,
+    TRANSIT: styles.budgetSliceTransit,
+  };
+
+  // 「10.2만원」 — 헤더 요약과 같은 자릿수 규칙. 영어는 만 단위가 없어 원 단위 그대로.
+  const manwon = (won: number) => tx(`${Math.round(won / 1000) / 10}만원`, `${won.toLocaleString()} KRW`);
+
+  // 🔴 **아는 비용이 하나라도 있는가.** 이 값이 카드 전체의 말투를 가른다 —
+  //    없으면 숫자도 막대도 안 그리고, 「예산에 맞아요」 같은 판정도 안 한다.
+  const priced = summary.known > 0;
+  const over = summary.remainingKrw != null && summary.remainingKrw < 0;
+  const comparable = priced && summary.budgetKrw != null && summary.budgetKrw > 0;
+  const usedRatio = comparable ? Math.min(1, summary.krw / (summary.budgetKrw as number)) : 0;
+  const maxDayKrw = summary.days.reduce((most, day) => Math.max(most, day.krw), 0);
+
+  return <View style={styles.budgetCard}>
+    <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('예산 대비', 'Against budget')}</Text>
+
+    <View style={styles.budgetHead}>
+      <View style={styles.budgetHeadLeft}>
+        {priced
+          ? <Text variant="display" weight="bold">{txf(tx, '%s원', '%s KRW', summary.krw.toLocaleString())}</Text>
+          : <Text variant="body" weight="bold" color={color.text.muted}>{tx('아직 계산할 수 없어요', "Can't add this up yet")}</Text>}
+        {summary.unpriced > 0 ? <Text variant="caption" color={color.text.muted}>{txf(tx, '%s곳 비용 미정', '%s place(s) unpriced', summary.unpriced)}</Text> : null}
+      </View>
+      {summary.budgetKrw != null ? <View style={styles.budgetHeadRight}>
+        <Text variant="caption" color={color.text.muted}>{txf(tx, '예산 %s원', 'Budget %s KRW', summary.budgetKrw.toLocaleString())}</Text>
+        {/* 🔴 아는 비용이 없을 때 「예산에 맞아요」라고 적지 않는다. 그건 맞는 상태가
+            아니라 **맞는지 모르는 상태**다. 12곳 중 0곳의 값으로 예산을 통과시키면,
+            사람은 통과한 줄 알고 그 예산으로 떠난다. */}
+        {priced
+          ? <Text variant="caption" weight="bold" color={over ? color.state.danger : color.state.success}>
+              {over
+                ? txf(tx, '예산을 %s 넘어요', '%s over budget', manwon(-(summary.remainingKrw as number)))
+                : txf(tx, '예산에 맞아요 · %s 남음', 'Within budget · %s left', manwon(summary.remainingKrw as number))}
+            </Text>
+          : <Text variant="caption" color={color.text.muted}>{tx('비교할 비용 자료가 아직 없어요', 'No cost data to compare yet')}</Text>}
+      </View> : null}
+    </View>
+
+    {/* 총액 대 예산. 비교할 것이 없으면 안 그린다 — 빈 막대는 「0을 썼다」로 읽힌다. */}
+    {comparable ? <View accessibilityLabel={tx('예산 사용량', 'Budget used')} style={styles.budgetTotalTrack}>
+      {/* 🔴 넘쳤을 때 state.danger 를 **채움으로 쓰지 않는다.** 배색 검사가 그것을 막고
+          있고(위험은 채우지 않는다), 이 자리는 글자가 없는 표시라 state.dot 자리다. */}
+      <View style={[styles.budgetTotalFill, over && styles.budgetTotalFillOver, { flex: usedRatio }]} />
+      <View style={{ flex: 1 - usedRatio }} />
+    </View> : null}
+
+    {/* 갈래 분해. 아는 값이 있을 때만 — 없으면 아래 목록이 「미정」으로 같은 말을 한다. */}
+    {priced && summary.krw > 0 ? <View accessibilityLabel={tx('갈래별 비중', 'Share by category')} style={styles.budgetSplit}>
+      {summary.categories.filter((entry) => entry.krw > 0).map((entry) => (
+        <View key={entry.key} style={[SLICE[entry.key], { flex: entry.krw }]} />
+      ))}
+    </View> : null}
+
+    <View style={styles.budgetRows}>
+      {summary.categories.map((entry) => <View key={entry.key} style={styles.budgetRow}>
+        <View style={SLICE[entry.key] ? [styles.budgetDot, SLICE[entry.key]] : styles.budgetDot} />
+        <Text variant="caption" style={styles.budgetRowLabel}>{LABEL[entry.key]}</Text>
+        <Text variant="caption" color={color.text.muted}>
+          {entry.key === 'TRANSIT'
+            ? tx('구간 거리 기준', 'By leg distance')
+            : txf(tx, '%s곳', '%s place(s)', entry.count)}
+        </Text>
+        {entry.known > 0
+          ? <Text variant="caption" weight="bold" style={styles.budgetRowValue}>{txf(tx, '%s원', '%s KRW', entry.krw.toLocaleString())}</Text>
+          : <Text variant="caption" color={color.text.muted} style={styles.budgetRowValue}>{tx('미정', 'Unpriced')}</Text>}
+      </View>)}
+    </View>
+
+    {/* 일차별. 하루짜리 여행에는 나눌 것이 없다. */}
+    {summary.days.length > 1 ? <View style={styles.budgetDays}>
+      <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('일차별', 'By day')}</Text>
+      {summary.days.map((day) => <View key={`${day.date}-${day.dayIndex}`} style={styles.budgetDayRow}>
+        <Text variant="caption" color={color.text.muted} style={styles.budgetDayLabel}>{tx(`${day.dayIndex + 1}일차`, `Day ${day.dayIndex + 1}`)}</Text>
+        <View style={styles.budgetDayTrack}>
+          {maxDayKrw > 0 ? <><View style={[styles.budgetDayFill, { flex: day.krw }]} /><View style={{ flex: maxDayKrw - day.krw }} /></> : null}
+        </View>
+        {day.known > 0
+          ? <Text variant="caption" weight="bold" style={styles.budgetDayValue}>{txf(tx, '%s원', '%s KRW', day.krw.toLocaleString())}</Text>
+          : <Text variant="caption" color={color.text.muted} style={styles.budgetDayValue}>{tx('미정', 'Unpriced')}</Text>}
+      </View>)}
+    </View> : null}
+
+    {/* 🔴 각주는 장식이 아니다. 「교통 22,000원」이 어디서 나온 값인지 안 적으면,
+        사람은 그것을 실제 요금표에서 받은 값으로 읽는다. */}
+    <Text variant="caption" color={color.text.muted}>
+      {tx('교통은 구간 거리로 추정한 값이에요 · 입장료·식비는 장소 자료 기준',
+        'Transit is estimated from leg distance · admission and food come from place data')}
+    </Text>
+  </View>;
 }
 
 // 정차 한 칸 — 시안 design_handoff_itinerary 2.5(넓은 화면) · 3.3(폰).
@@ -483,6 +597,7 @@ export default function ItineraryScreen() {
   // 그 경계를 그대로 쓴다 — 여기서 숫자를 새로 정하지 않는다(layout/breakpoints.ts).
   const { width } = useLayout();
   const wide = isAtLeast(width, 'lg');
+  const insets = useSafeAreaInsets();
   // — 통계는 값이 있는 것만 만든다. 판정은 itinerarySummary.ts 에 있다.
   const stats = useMemo(() => (itinerary ? itineraryStats(itinerary, tx) : []), [itinerary, tx]);
   const canEdit = itinerary?.canEdit !== false;
@@ -503,21 +618,38 @@ export default function ItineraryScreen() {
   //    원본 순서로 세면 초록 ✓ 가 엉뚱한 줄에 붙는다.
   const dayStepStates = stepStates(displayedItems.map((item) => item.id), progress);
   const dayTravelMinutes = useMemo(() => totalTravelMinutes(displayedItems), [displayedItems]);
-  // 값이 없는 칸을 0 으로 세지 않는다. 자료가 있는 칸만 더하므로 이 합계는 「적어도 이만큼」이다.
-  const dayWalkingMeters = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.walkingMeters ?? 0), 0), [displayedItems]);
+  // 🔴 도보도 비용과 같은 모양으로 센다 (S15P21E201-1466). 예전에는 `?? 0` 으로 더해서
+  //    **「모른다」가 「0미터」가 됐고**, 그 뒤 `> 0` 검사가 그것을 「표시하지 않음」으로 바꿨다.
+  //    그래서 대중교통 여행은 도보 표시가 통째로 사라졌다 — 오류도 안내도 없이.
+  //
+  //    서버는 규칙대로다. 이동수단이 WALK 일 때만 도보 거리를 채운다 — 지하철 구간에
+  //    직선거리를 넣으면 「지하철로 이만큼 걸었다」가 되어 틀린 답이 되기 때문이다.
+  //    운영 실측(2026-09-22): 구간 812개 중 대중교통이 796개(98%)다. 즉 **거의 모든
+  //    사용자가** 도보 표시를 못 보고 있었다.
+  const dayWalking = useMemo(() => {
+    const known = displayedItems.filter((item) => typeof item.walkingMeters === 'number');
+    return { meters: known.reduce((sum, item) => sum + (item.walkingMeters as number), 0), known: known.length, total: displayedItems.length };
+  }, [displayedItems]);
+  const dayWalkingMeters = dayWalking.meters;
   // 비용 합계는 아는 칸이 몇 개인지 같이 말한다.
   const dayCost = useMemo(() => {
     const known = displayedItems.filter((item) => typeof item.estimatedCostKrw === 'number');
     return { krw: known.reduce((sum, item) => sum + (item.estimatedCostKrw as number), 0), known: known.length, total: displayedItems.length };
   }, [displayedItems]);
   const dayFacts = useMemo(() => [
-    dayWalkingMeters > 0 ? txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters)) : null,
+    // 아는 칸이 하나도 없으면 숫자를 짓지 않고 **왜 없는지**를 적는다. 조용히 사라지면
+    // 사용자는 그 기능이 있는 줄도 모른다.
+    dayWalking.known === 0
+      ? (displayedItems.length ? tx('도보 거리 미집계', 'Walking distance not measured') : null)
+      : dayWalking.known === dayWalking.total
+        ? txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters))
+        : txf(tx, '도보 %s (%s곳 중 %s곳)', '%s on foot (%s places, %s measured)', formatWalk(dayWalkingMeters), dayWalking.total, dayWalking.known),
     dayCost.krw > 0
       ? dayCost.known === dayCost.total
         ? txf(tx, '%s원', '%s KRW', dayCost.krw.toLocaleString())
         : txf(tx, '%s원 (%s곳 중 %s곳)', '%s KRW (%s places, %s priced)', dayCost.krw.toLocaleString(), dayCost.total, dayCost.known)
       : null,
-  ].filter(Boolean).join(' · '), [dayWalkingMeters, dayCost, tx]);
+  ].filter(Boolean).join(' · '), [dayWalking, dayWalkingMeters, dayCost, displayedItems.length, tx]);
   const canReorder = canEdit && (day?.items.filter((item) => !item.locked).length ?? 0) > 1;
 
   // 지연 경고·314). 날짜를 바꾸면 그 날짜 것을 새로 받는다 — 표본이
@@ -698,6 +830,62 @@ export default function ItineraryScreen() {
     else setActionMessage(outcome.message);
   };
 
+  // ── 일차 탭 알약 (시안 1절) ──────────────────────────────────────────────
+  // 🔴 한 칸의 너비는 **폭을 재야 안다.** 일차 수가 둘이냐 다섯이냐에 따라 달라지고,
+  //    폴드 기기는 앱이 켜진 채로 폭이 바뀐다. 상수로 박으면 그때 알약이 어긋난다.
+  const [dayTrackWidth, setDayTrackWidth] = useState(0);
+  const dayCount = itinerary?.days.length ?? 0;
+  const daySlotWidth = dayCount > 0 && dayTrackWidth > 0 ? (dayTrackWidth - spacing[1] * 2) / dayCount : 0;
+  const dayPillX = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!daySlotWidth) return;
+    Animated.timing(dayPillX, {
+      toValue: selectedDay * daySlotWidth,
+      duration: 450,
+      easing: Easing.bezier(0.22, 1, 0.36, 1),
+      // 위치만 옮기므로 그리기를 기다리지 않고 바로 굴린다.
+      useNativeDriver: true,
+    }).start();
+  }, [selectedDay, daySlotWidth, dayPillX]);
+
+  // ── 예산 명세 (시안 7절) ─────────────────────────────────────────────────
+  // 🔴 예산은 **일정 응답에 없다.** 여행 상세를 한 번 더 부른다(src/trip/tripBudget.ts).
+  //    못 받으면 null 이고, 그러면 카드가 예산 줄을 아예 안 그린다 — 0 으로 안 떨어뜨린다.
+  const [budgetKrw, setBudgetKrw] = useState<number | null>(null);
+  useEffect(() => {
+    const budgetTripId = itinerary?.tripId;
+    if (!budgetTripId) { setBudgetKrw(null); return; }
+    let alive = true;
+    void loadTripBudget(budgetTripId, accessToken).then((next) => {
+      if (alive) setBudgetKrw(next.state === 'success' ? next.budgetKrw : null);
+    });
+    return () => { alive = false; };
+  }, [itinerary?.tripId, accessToken]);
+
+  // 장소 갈래 — 일정 항목에는 갈래 칸이 없어 장소 상세에서 받는다. 정차 사진이 이미
+  // 부르고 있는 그 호출이고 세션 동안 기억하므로, 같은 장소를 두 번 묻지 않는다.
+  const [placeCategories, setPlaceCategories] = useState<Record<string, string | null>>({});
+  const allPlaceIds = useMemo(
+    () => (itinerary ? itinerary.days.flatMap((entry) => entry.items.map((entryItem) => entryItem.placeId)) : []),
+    [itinerary],
+  );
+  useEffect(() => {
+    if (!allPlaceIds.length) { setPlaceCategories({}); return; }
+    let alive = true;
+    void loadPlacePhotos(allPlaceIds).then((photos) => {
+      if (!alive) return;
+      const next: Record<string, string | null> = {};
+      Object.entries(photos).forEach(([placeId, photo]) => { next[placeId] = photo.category; });
+      setPlaceCategories(next);
+    });
+    return () => { alive = false; };
+  }, [allPlaceIds]);
+
+  const budget = useMemo(
+    () => (itinerary ? summarizeItineraryBudget(itinerary, placeCategories, budgetKrw) : null),
+    [itinerary, placeCategories, budgetKrw],
+  );
+
   // 방문지 수 — 모든 날의 정차를 합친다.
   const stopCount = itinerary ? itinerary.days.reduce((sum, day) => sum + day.items.length, 0) : 0;
 
@@ -705,8 +893,11 @@ export default function ItineraryScreen() {
   const heroSummary = itinerary ? [
     itinerary.days.length > 0 ? tx(`${itinerary.days.length}일`, `${itinerary.days.length} days`) : null,
     stopCount > 0 ? tx(`${stopCount}곳`, `${stopCount} stops`) : null,
+    // 🔴 여기도 「없음」과 「0」을 가른다. 대중교통 여행은 서버가 이 값을 안 채우므로
+    //    예전에는 이 칸이 조용히 빠졌다 (S15P21E201-1466).
     typeof itinerary.totalWalkingMeters === 'number' && itinerary.totalWalkingMeters > 0
-      ? txf(tx, '도보 %skm', '%skm on foot', (itinerary.totalWalkingMeters / 1000).toFixed(1)) : null,
+      ? txf(tx, '도보 %skm', '%skm on foot', (itinerary.totalWalkingMeters / 1000).toFixed(1))
+      : null,
     typeof itinerary.totalEstimatedCostKrw === 'number' && itinerary.totalEstimatedCostKrw > 0
       ? txf(tx, '약 %s만원', 'about %s KRW', Math.round(itinerary.totalEstimatedCostKrw / 10000 * 10) / 10, itinerary.totalEstimatedCostKrw.toLocaleString()) : null,
   ].filter(Boolean).join(' · ') : '';
@@ -715,7 +906,7 @@ export default function ItineraryScreen() {
   return <View style={styles.shell}><Screen scroll wide withTabBar style={styles.canvas}>
     <View style={styles.hero}>
       <View style={styles.heroTop}>
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>‹</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.heroBack}><Text variant="title" color={color.brand.navy}>‹</Text></Pressable>
         {/* 「초안 v1 · 기본 추천」 배지를 뺐다. 우리가 아는 것을 그대로
             내보인 말이지 사용자가 알아야 할 것이 아니었다 — 「초안」은 이미 저장된 여행에
             대고 아직 안 끝났다고 말하고, 「v1」은 편집할 때마다 올라가 불안만 주고
@@ -726,10 +917,10 @@ export default function ItineraryScreen() {
         {/* ⋯ — 시안 3.1. 늘 놓을 자리가 없는 것(통계·전체 일정·다시 계산·되돌리기)을 여기 담는다.
             화면에 다 늘어놓으면 정작 하루의 동선이 아래로 밀려 한 칸도 안 보인다.
         */}
-        {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
+        {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.brand.navy}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
       </View>
       <View style={styles.heroTitleRow}>
-        <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{humanTripTitle(itinerary?.title) ?? tx('부산 여행', 'Busan trip')}</Text>
+        <Text variant="display" weight="bold" color={color.text.heading} style={styles.heroTitle}>{humanTripTitle(itinerary?.title) ?? tx('부산 여행', 'Busan trip')}</Text>
         {/* 「이름 바꾸기」 — 시안 ④. 페이지로 가지 않고 그 자리에서 겹쳐 연다. */}
         {itinerary?.tripId ? (
           <Pressable accessibilityRole="button" onPress={() => setNaming(true)} style={styles.renameButton}>
@@ -737,7 +928,7 @@ export default function ItineraryScreen() {
           </Pressable>
         ) : null}
       </View>
-      {heroSummary ? <Text color={color.text.onDarkMuted}>{heroSummary}</Text> : null}
+      {heroSummary ? <Text color={color.text.muted}>{heroSummary}</Text> : null}
 
       {/* 🔴 「지금」 카드 — 시안 ⑤. 일정표는 「오늘 무엇을 하나」를 말하지만 이 카드는
           「지금 무엇을 하고 있나」를 말한다. 길 안내를 보는 사람이 실제로 읽는 것은 뒤쪽이다.
@@ -766,7 +957,7 @@ export default function ItineraryScreen() {
           {/* 🔴 기기에만 남는 판에서는 그 사실을 적는다. 안 적으면 사용자는 어디서나
               이어지는 줄 안다. 서버에 남는 판에서는 적을 것이 없으므로 안 그린다. */}
           {deviceOnly ? (
-            <Text variant="caption" color={color.text.onDarkMuted}>
+            <Text variant="caption" color={color.text.muted}>
               {tx('진행 상태는 이 기기에만 저장돼요. 다른 기기에서는 아직 안 보여요.',
                 'Progress is saved on this device only — it does not show on your other devices yet.')}
             </Text>
@@ -778,33 +969,41 @@ export default function ItineraryScreen() {
       ) : null}
       {/* — 지도로 가는 문. 이 화면에는 지도로 가는 길이 아예 없었다.
           그래서 카카오 지도·경로선·3D 부산·그늘/휠체어 실측이 다 들어 있는 화면에 아무도
-          못 들어갔다(주소를 직접 쳐야만 보였다). 「추천 다시 보기」는 서버가 여행 번호를
+          못 들어갔다(주소를 직접 쳐야만 보였다). 동행 초대·날씨는 서버가 여행 번호를
           실어 주는 판에서만 그린다 — 위 tripId 주석 참고.
+
+          🔴 2026-09-21 (S15P21E201-1432) — 「추천 다시 보기」를 여기서 뺐다(시안 1절).
+          없앤 것이 아니라 **자리를 옮긴 것도 아니다** — 이 줄에서만 지웠다. 추천 화면으로
+          가는 길은 여행 만들기 흐름에 따로 있고, 여기 있던 것은 이미 짜인 일정을 보다가
+          「다시 고를까」로 새는 문이었다. 칩이 넷이면 폰에서 줄이 넘어가기도 했다.
       */}
       {itinerary ? <View style={styles.heroActions}>
         <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/[id]/map', params: { id } })} style={styles.heroAction}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('지도 보기', 'View map')}</Text>
+          <Text variant="caption" weight="bold" numberOfLines={1} color={color.brand.navy}>{tx('지도 보기', 'View map')}</Text>
         </Pressable>
-        {itinerary.tripId ? <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/trips/[id]/recommendations', params: { id: itinerary.tripId as string } })} style={styles.heroAction}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('추천 다시 보기', 'See recommendations')}</Text>
-        </Pressable> : null}
         {/* 🔴 동행 초대·참여자·준비물 화면은 있었는데 «들어가는 문»이 없었다(2026-09-21 실서버 실기, S15P21E201-1376) —
             (trip)/[id]/share·collaborate·prepare 로 가는 길이 앱 어디에도 없어 주소를 쳐야만 열렸다. 여행 번호는 서버가 준다. */}
         {itinerary.tripId ? <Pressable accessibilityRole="button" onPress={() => router.push(`/${itinerary.tripId}/share`)} style={styles.heroAction}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('동행 초대', 'Invite')}</Text>
+          <Text variant="caption" weight="bold" numberOfLines={1} color={color.brand.navy}>{tx('동행 초대', 'Invite')}</Text>
         </Pressable> : null}
         {itinerary.tripId ? <Pressable accessibilityRole="button" onPress={() => router.push(`/${itinerary.tripId}/prepare`)} style={styles.heroAction}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('출발일 날씨', 'Departure weather')}</Text>
+          <Text variant="caption" weight="bold" numberOfLines={1} color={color.brand.navy}>{tx('날씨', 'Weather')}</Text>
         </Pressable> : null}
       </View> : null}
       {/* 일차 탭은 헤더에 붙어 있다 (시안 2.3 · 3.1) — 탭이 헤더에서 떨어져 있으면
           어느 날을 보고 있는지가 제목과 따로 놀아서, 스크롤을 내리면 둘 다 안 보인다.
           하루짜리 여행에는 고를 것이 없으므로 안 그린다.
       */}
-      {itinerary && viewMode === 'day' && itinerary.days.length > 1 ? <View accessibilityRole="tablist" style={styles.heroTabs}>
-        {itinerary.days.map((entry, index) => <Pressable key={`hero-${entry.date}-${index}`} testID={`itinerary-day-${index + 1}`} accessibilityRole="tab" accessibilityLabel={tx(`${index + 1}일차`, `Day ${index + 1}`)} accessibilityState={{ selected: selectedDay === index }} onPress={() => selectDay(index)} style={[styles.heroTab, selectedDay === index && styles.heroTabActive]}>
-          <Text variant="caption" weight="bold" numberOfLines={1} color={selectedDay === index ? color.brand.navy : color.text.onDarkMuted}>{tx(`${index + 1}일차`, `Day ${index + 1}`)}</Text>
-        </Pressable>)}
+      {itinerary && viewMode === 'day' && itinerary.days.length > 1 ? <View style={styles.heroTabsWrap}>
+        <View accessibilityRole="tablist" style={styles.heroTabTrack} onLayout={(event) => setDayTrackWidth(event.nativeEvent.layout.width)}>
+          {/* 🔴 고른 칸을 **옮겨 그리지 않고 하나를 미끄러뜨린다.** 칸마다 배경을 켜고 끄면
+              날짜가 순간이동해서, 어느 쪽에서 어느 쪽으로 갔는지가 안 남는다.
+              폭을 재고 나서야 자리를 알 수 있으므로 onLayout 전에는 안 그린다. */}
+          {daySlotWidth > 0 ? <Animated.View style={[styles.heroTabPill, { width: daySlotWidth, transform: [{ translateX: dayPillX }] }]} /> : null}
+          {itinerary.days.map((entry, index) => <Pressable key={`hero-${entry.date}-${index}`} testID={`itinerary-day-${index + 1}`} accessibilityRole="tab" accessibilityLabel={tx(`${index + 1}일차`, `Day ${index + 1}`)} accessibilityState={{ selected: selectedDay === index }} onPress={() => selectDay(index)} style={styles.heroTab}>
+            <Text variant="caption" weight="bold" numberOfLines={1} color={selectedDay === index ? color.text.onAction : color.text.body}>{tx(`${index + 1}일차`, `Day ${index + 1}`)}</Text>
+          </Pressable>)}
+        </View>
       </View> : null}
     </View>
     {loading ? <View accessibilityLabel={tx('일정을 불러오고 있어요', 'Loading itinerary')} style={styles.route}>{[0, 1, 2].map((key) => (
@@ -906,12 +1105,16 @@ export default function ItineraryScreen() {
                   <Text variant="caption" color={color.text.muted}>{tx('아직 없어요', 'Not yet')}</Text>
                 </View>
               </View>
+              {/* 예산 명세 — 시안 7절. 데스크톱은 오른쪽 360 기둥, 폰은 노선 아래. */}
+              {budget ? <BudgetCard summary={budget} /> : null}
               <View style={styles.asideCard}>
                 <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx(`${selectedDay + 1}일차 이동 요약`, `Day ${selectedDay + 1} travel summary`)}</Text>
                 {dayWalkingMeters > 0 ? <View accessibilityLabel={tx(`정차별 도보 비중`, 'Walking share per stop')} style={styles.shareBar}>
                   {displayedItems.map((item) => item.walkingMeters ? <View key={item.id} style={[styles.shareSlice, { flex: item.walkingMeters }]} /> : null)}
                 </View> : null}
-                {dayWalkingMeters > 0 ? <Text variant="caption" color={color.text.body}>{txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters))}</Text> : null}
+                {dayWalking.known > 0
+                  ? <Text variant="caption" color={color.text.body}>{txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters))}</Text>
+                  : <Text variant="caption" color={color.text.muted}>{tx('도보 거리 — 대중교통 구간은 재지 않아요', 'Walking distance — not measured on transit legs')}</Text>}
                 {dayTravelMinutes > 0
                   ? <Text variant="caption" color={color.text.body}>{tx(`이동 합계 ${dayTravelMinutes}분`, `${dayTravelMinutes}m travel in total`)}</Text>
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날짜는 구간 이동 시간이 아직 없어요.', 'No leg travel times for this day yet.')}</Text>}
@@ -952,7 +1155,7 @@ export default function ItineraryScreen() {
       src/plan/itinerary.ts 에 확정 함수가 없고, 이 화면은 이미 「내 여행」에서 열리는
       저장된 일정이다. 누르면 아무 일도 안 나는 버튼은 없는 버튼보다 나쁘다.
   */}
-  {!wide && itinerary && canReorder && !reorderMode ? <View style={styles.bottomBar}>
+  {!wide && itinerary && canReorder && !reorderMode ? <View style={[styles.bottomBar, { paddingBottom: bottomBarClearance(insets.bottom) }]}>
     <Button testID="itinerary-reorder-button" label={tx('순서 수정', 'Reorder')} variant="tertiary" onPress={startReorder} />
   </View> : null}
   <ExcludeConfirmModal
@@ -974,7 +1177,12 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   // ── 네이비 헤더 (시안 design_handoff_itinerary 2·3절) ──────────────────────
   // Screen 이 좌우 gutter(24)와 위 spacing[6] 을 이미 넣으므로, 그만큼 음수 여백으로
   // 되밀어야 색이 띠처럼 화면 끝까지 간다. 안 그러면 네이비가 카드처럼 떠 보인다.
-  hero: { backgroundColor: color.brand.navy, marginHorizontal: -gutter, marginTop: -spacing[6], paddingHorizontal: gutter, paddingTop: spacing[3], gap: spacing[1] },
+  // 🔴 2026-09-21 (S15P21E201-1432) — 어두운 남색 띠를 걷어냈다. 이 화면에서 어두운
+  //    면은 「지금」 카드 **하나**다. 머리까지 어두우면 그 카드가 안 도드라지고, 「지금
+  //    무엇을 하고 있나」가 제목과 같은 무게로 읽힌다.
+  //    바탕이 canvas 와 같은 색이라 띠가 안 보이지만, 음수 여백은 그대로 둔다 —
+  //    「지금」 카드가 화면 끝까지 닿는 폭을 이 여백이 만든다.
+  hero: { backgroundColor: color.canvas, marginHorizontal: -gutter, marginTop: -spacing[6], paddingHorizontal: gutter, paddingTop: spacing[3], gap: spacing[1] },
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
   heroBack: { width: 44, height: 44, marginLeft: -spacing[3], alignItems: 'center', justifyContent: 'center' },
   heroBackSpacer: { width: 44, height: 44 },
@@ -982,15 +1190,39 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   heroTitle: { flex: 1, minWidth: 0, marginTop: spacing[2] },
   heroTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   nowWrap: { gap: spacing[2], marginTop: spacing[3] },
-  renameButton: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.card },
+  renameButton: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   // 탭은 헤더 바닥에 붙는다 — 위쪽만 둥글고 아래는 각져서 헤더와 한 덩이로 보인다.
   // 지도·추천으로 가는 문. 일차 탭과 같은 반투명 흰색이라 헤더와 한 덩이로
   // 보이고, 탭보다 위에 놓아 「어느 날을 보나」와 「어디로 가나」가 안 섞인다.
   heroActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[3], flexWrap: 'wrap' },
-  heroAction: { minHeight: 44, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.md, backgroundColor: 'rgba(255, 255, 255, 0.16)' },
-  heroTabs: { flexDirection: 'row', gap: spacing[1], marginTop: spacing[4] },
-  heroTab: { flex: 1, minHeight: 44, paddingHorizontal: spacing[2], borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md, backgroundColor: 'rgba(255, 255, 255, 0.10)', alignItems: 'center', justifyContent: 'center' },
-  heroTabActive: { backgroundColor: color.brand.ivory },
+  // 칩 — 밝은 바탕 위라 반투명 흰색이 안 보인다. 흰 알약에 얇은 선으로 세운다.
+  heroAction: { minHeight: 44, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  // 일차 탭 — 세그먼트 안에서 알약이 미끄러진다. 넓은 화면에서는 가운데 560 으로 묶는다.
+  heroTabsWrap: { marginTop: spacing[4], alignItems: 'center' },
+  heroTabTrack: { flexDirection: 'row', alignSelf: 'stretch', maxWidth: 560, width: '100%', marginHorizontal: 'auto', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  heroTab: { flex: 1, minHeight: 44, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
+  // 🔴 **이 빨강은 배색 규칙의 예외다. 회색으로 바꾸지 마라.**
+  //
+  // tokens.ts 맨 위의 규칙 둘과 정면으로 부딪힌다:
+  //   1 「동백 채움은 화면당 하나 — 주 버튼」
+  //   2 「선택 상태에 빨강을 쓰지 않는다 — 짙은 회색(action.secondary)」
+  // 일차 탭은 정확히 **선택 상태**이고, 폰에서는 실제로 빨강이 둘이다 — 이 알약과 하단
+  // 탭바 가운데 동그라미. 오늘 날짜 일정을 열면 「지금」 카드의 빨간 ▶ 출발까지 셋이 된다.
+  //
+  // 🔴 **배색 검사는 이것을 못 잡는다.** 검사기가 스스로 적어 둔 맹점이다 — 파일 단위로
+  //    세는데 탭바와 「지금」 카드는 다른 파일이라, 실제 화면에는 여럿인데 통과한다.
+  //    즉 「검사가 초록이니 괜찮다」는 여기서 근거가 못 된다.
+  //
+  // 그런데도 빨강인 이유: **시안이 그렇게 그렸고, 2026-09-21 에 사람이 그대로 가기로
+  // 정했다**(S15P21E201-1432). 화면을 직접 보고 내린 결정이다 — 규칙이 맞는 말이라는
+  // 것도 확인했지만, 시안이 팀 확정안이고 발표가 가깝다는 쪽을 골랐다.
+  // 근거: frontend/docs/design_handoff_itinerary/README-예산실시간재설계.md 1절
+  //       (「동백색(#D83A48) 알약이 좌우로 미끄러짐」).
+  //
+  // 🔴 순서 수정 조각(시안 5절)에서 하단 탭바 가운데가 동백 원이 될 때 **같은 문제가 한 번
+  //    더 나온다.** 그때도 혼자 회색으로 바꾸지 말고 사람에게 물어라. 조용히 바꾸면 시안과
+  //    어긋나고, 왜 어긋났는지는 아무 데도 안 남는다.
+  heroTabPill: { position: 'absolute', top: spacing[1], bottom: spacing[1], left: spacing[1], borderRadius: radius.full, backgroundColor: color.action.primary },
   // 방문지 제목 옆 상태 배지
   titleLine: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexWrap: 'wrap' },
   // ── 세로 노선도 (시안 3.3) ────────────────────────────────────────────────
@@ -1022,7 +1254,9 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   menuActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   reorderBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   // 하단 고정 줄 — 탭바 위에 형제로 놓는다. absolute 로 띄우면 목록 끝이 그만큼 가린다.
-  bottomBar: { paddingHorizontal: gutter, paddingBottom: spacing[2] },
+  // 🔴 아래 여백은 여기서 정하지 않는다 — bottomBarClearance 가 탭바와 안전영역을
+  //    함께 센다. 8px 만 두었더니 단추가 탭바와 탐색줄 뒤로 완전히 들어갔다(빌드 29).
+  bottomBar: { paddingHorizontal: gutter },
   // 정차별 도보 비중 (시안 2.5 · 3.4)
   shareBar: { flexDirection: 'row', gap: 2, height: 6, borderRadius: radius.full, overflow: 'hidden' },
   // 도보 비중 막대 — 누를 것이 아니라 읽을 값이다. 동백은 누를 것에만 쓴다.
@@ -1042,6 +1276,37 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   summaryRow: { flexDirection: 'row', gap: spacing[2], marginBottom: spacing[3] },
   summaryCell: { flex: 1, gap: 2, padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   asideCard: { gap: spacing[2], marginTop: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  // ── 예산 명세 카드 (시안 7절) ───────────────────────────────────────────
+  budgetCard: { gap: spacing[3], marginTop: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  budgetHead: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3], flexWrap: 'wrap' },
+  budgetHeadLeft: { flex: 1, minWidth: 120, gap: spacing[1] },
+  budgetHeadRight: { alignItems: 'flex-end', gap: spacing[1] },
+  // 총액 대 예산 — 시안의 10px 막대
+  budgetTotalTrack: { flexDirection: 'row', height: 10, borderRadius: radius.full, overflow: 'hidden', backgroundColor: color.surface.soft },
+  budgetTotalFill: { backgroundColor: color.action.secondary },
+  // 🔴 넘쳤을 때의 빨강. state.danger 는 **글자 색**이고 채움으로 쓰면 배색 검사가 막는다
+  //    (위험은 채우지 않는다). 이 막대는 글자가 없는 표시라 state.dot 자리다.
+  budgetTotalFillOver: { backgroundColor: color.state.dot },
+  // 갈래 분해 — 시안의 6px 막대
+  budgetSplit: { flexDirection: 'row', gap: 2, height: 6, borderRadius: radius.full, overflow: 'hidden' },
+  budgetSliceFood: { backgroundColor: color.action.secondary },
+  budgetSliceCafe: { backgroundColor: color.text.muted },
+  // 시안은 #A0A0A6 인데 토큰에 그 값이 없다. 가장 가까운 것이 비활성 탭 글자색(#8B8B8B)이라
+  // 그것을 쓴다 — 화면에 색을 직접 박지 않는 것이 이 저장소의 규칙이고, 그 규칙이 배색
+  // 전환을 값 한 벌 갈아 끼우기로 끝내 준 자리다.
+  budgetSliceAdmission: { backgroundColor: color.text.inactiveTab },
+  budgetSliceTransit: { backgroundColor: color.surface.field },
+  budgetRows: { gap: spacing[2] },
+  budgetRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  budgetDot: { width: 8, height: 8, borderRadius: radius.full },
+  budgetRowLabel: { flex: 1, minWidth: 0 },
+  budgetRowValue: { minWidth: 72, textAlign: 'right' },
+  budgetDays: { gap: spacing[2] },
+  budgetDayRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  budgetDayLabel: { width: 44 },
+  budgetDayTrack: { flex: 1, flexDirection: 'row', height: 6, borderRadius: radius.full, overflow: 'hidden', backgroundColor: color.surface.soft },
+  budgetDayFill: { backgroundColor: color.action.secondary },
+  budgetDayValue: { minWidth: 72, textAlign: 'right' },
   // 노선도 — 정차 노드와 구간. 정차가 많으면 가로로 스크롤한다.
   strip: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2], paddingVertical: spacing[3] },
   stripEntry: { flexDirection: 'row', alignItems: 'center' },

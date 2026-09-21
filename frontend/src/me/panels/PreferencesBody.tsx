@@ -43,7 +43,7 @@ const TOAST_MS = 3000;
 
 type Saved = AccountPreferences;
 
-/** 펼친 줄 하나. 세 질문과 취향 다섯이 같은 목록에 섞여 있어 어느 쪽인지 함께 들고 다닌다. */
+/** 펼친 줄 하나. 세 질문과 취향이 같은 목록에 섞여 있어 어느 쪽인지 함께 들고 다닌다. */
 type OpenRow = { group: 'spend'; key: SpendKey } | { group: 'taste'; key: TasteKey };
 
 function sameRow(a: OpenRow | null, b: OpenRow) {
@@ -314,7 +314,9 @@ export function PreferencesBody() {
     </View>
 
     <View style={wide ? styles.groupColumn : undefined}>
-    <Eyebrow>{tx('취향 다섯', 'Five travel tastes')}</Eyebrow>
+    {/* 🔴 「다섯」이라고 적고 넷만 그렸다 — 1423 이 관광지 문항을 뺐는데 이 줄이 남았다.
+        없는 다섯째를 찾느라 사람이 화면을 다시 훑었다(팀원 실기 지적). */}
+    <Eyebrow>{tx('취향', 'Travel tastes')}</Eyebrow>
     <View style={styles.group}>
       {TASTE_QUESTIONS.map((question) => {
         const row: OpenRow = { group: 'taste', key: question.key };
@@ -374,8 +376,11 @@ export function PreferencesBody() {
       <View style={styles.dangerCopy}>
         <Text variant="caption" weight="bold" color={color.state.danger}>{tx('기억 지우기', 'Forget everything')}</Text>
         <Text variant="caption" color={color.text.body}>
-          {tx('여덟 답을 모두 지워요. 다음 여행부터는 빈칸으로 시작해요.',
-            'Clears all eight answers. Your next trip starts blank.')}
+          {/* 🔴 「여덟」이라고 적혀 있었다. S15P21E201-1423 이 관광지 문항을 빼서 일곱인데
+              이 줄만 남았다(팀원 실기 지적). 새 숫자로 바꾸지 않는다 — 바꿔도 문항이 또
+              바뀌면 같은 자리에서 또 낡는다. 위 눈썹도 같은 이유로 숫자를 뺐다. */}
+          {tx('기억해 둔 답을 모두 지워요. 다음 여행부터는 빈칸으로 시작해요.',
+            'Clears every answer we remember. Your next trip starts blank.')}
         </Text>
       </View>
       {clearConfirm

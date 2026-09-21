@@ -6,6 +6,7 @@
 import { color } from '@/design/tokens';
 import type { MapRouteLayer } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
+import { legKey, type LegPath } from '@/map/courseRoutePaths';
 import type { TripCourse } from '@/plan/tripCourses';
 
 /**
@@ -22,7 +23,7 @@ export type CourseMap = { stops: MapStop[]; routes: MapRouteLayer[] };
 
 const EMPTY: CourseMap = { stops: [], routes: [] };
 
-export function courseMapLayers(course: TripCourse | null | undefined): CourseMap {
+export function courseMapLayers(course: TripCourse | null | undefined, legs?: Record<string, LegPath>): CourseMap {
   if (!course) return EMPTY;
   const stops: MapStop[] = [];
   const routes: MapRouteLayer[] = [];
@@ -45,15 +46,29 @@ export function courseMapLayers(course: TripCourse | null | undefined): CourseMa
     }
     if (dayStops.length === 0) return;
     stops.push(...dayStops);
-    routes.push({
-      id: `day-${day.day}`,
-      color: dayColor(dayIndex),
-      stops: dayStops,
-      // 🔴 **실제 길이 아니라 직선이다.** 서버가 구간 좌표를 안 주므로 점을 곧게 잇는다.
-      //    그 사실을 지도에 적게 한다 — 안 적으면 저 선을 걸어갈 수 있는 길로 읽는다.
-      estimated: true,
-    });
+
+    // 🔴 **하루를 선 하나로 긋지 않고 구간마다 나눈다.** 어떤 구간은 실제 길을 받고 어떤
+    //    구간은 못 받는데(대중교통은 경로를 주는 API 가 아직 없다), 하나로 이으면 그 둘을
+    //    같은 선으로 그리게 된다. 실제로 안 가는 길을 실선으로 그리는 것이 제일 나쁘다.
+    //
+    //    경로를 하나도 안 받았을 때도 결과는 예전과 같다 — 같은 색 점선이 이어질 뿐이다.
+    for (let i = 0; i + 1 < dayStops.length; i += 1) {
+      const leg = legs?.[legKey(day.day, i)];
+      routes.push({
+        id: `day-${day.day}-leg-${i}`,
+        color: dayColor(dayIndex),
+        stops: [dayStops[i], dayStops[i + 1]],
+        path: leg?.path,
+        // 🔴 모르면 추정 쪽으로 기운다. 실제 길인지 아닌지는 서버가 말해 준다.
+        estimated: leg ? leg.estimated : true,
+      });
+    }
+
+    // 정차가 하나뿐인 날은 그릴 구간이 없다. 점만 남는다.
   });
 
-  return routes.length ? { stops, routes } : EMPTY;
+  // 🔴 **점이 있으면 지도를 그린다.** 선 개수로 판정하면 정차가 하루 한 곳뿐인 코스가
+  //    지도를 통째로 잃는다 — 구간이 없을 뿐 그릴 점은 있다. 원래 지키려던 것은
+  //    「좌표가 하나도 없으면 빈 것」이고, 그건 점으로 재는 것이 맞다.
+  return stops.length ? { stops, routes } : EMPTY;
 }

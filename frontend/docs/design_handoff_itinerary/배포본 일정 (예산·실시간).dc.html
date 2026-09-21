@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;font-weight:400;src:url(assets/fonts/Pretendard-Regular.ttf)}
+@font-face{font-family:Pretendard;font-weight:500;src:url(assets/fonts/Pretendard-Medium.ttf)}
+@font-face{font-family:Pretendard;font-weight:700;src:url(assets/fonts/Pretendard-Bold.ttf)}
+body{margin:0;background:#E4E4E8;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#191919;-webkit-font-smoothing:antialiased}
+a{color:#191919;text-decoration:none}a:hover{color:#D83A48}
+*{box-sizing:border-box}
+button{font-family:inherit;cursor:pointer}
+@keyframes gbPulse{0%{transform:scale(1);opacity:.5}100%{transform:scale(2.4);opacity:0}}
+</style>
+</helmet>
+
+<section style="display:flex;gap:64px;align-items:flex-start;padding:56px 48px">
+
+<!-- ── 모바일 390 · app/trips/[id]/itinerary.tsx ── -->
+<div style="flex:none;display:flex;flex-direction:column;gap:12px">
+  <div style="font-size:12px;font-weight:700;color:#6F6F6F">배포본 · 모바일 390 — /trips/:id/itinerary · (가) 예산 명세 (나) 출발 → 실시간 위치 추적</div>
+  <div data-screen-label="배포본 모바일 일정" style="width:390px;height:844px;background:#F5F5F7;position:relative;overflow:hidden;border-radius:32px;box-shadow:0 8px 40px rgba(25,25,25,.14)">
+    <div style="height:844px;overflow:auto;scrollbar-width:none"><div style="display:flex;flex-direction:column;padding-bottom:140px">
+      <!-- hero -->
+      <div style="background:#F5F5F7;padding:12px 24px 0;display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <button style="width:44px;height:44px;margin-left:-12px;border:0;background:transparent;color:#191919;font-size:22px">‹</button>
+          <button style="width:44px;height:44px;border:0;background:transparent;color:#191919;font-size:20px;font-weight:700">⋯</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1;min-width:0;margin-top:8px;font-size:26px;line-height:34px;letter-spacing:-.2px;font-weight:700;color:#191919">{{ tripTitle }}</div>
+          <button onClick="{{ openNaming }}" style="min-height:32px;padding:0 12px;border:1px solid #EBEBEF;border-radius:999px;background:#fff;font-size:13px;font-weight:700;color:#191919;white-space:nowrap">이름 바꾸기</button>
+        </div>
+        <div style="font-size:15px;line-height:23px;color:#6F6F6F">{{ heroSummary }}</div>
+
+        <!-- NowCard -->
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:20px;background:{{ nowBg }};transition:background .4s">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:16px;height:16px;position:relative;display:flex;align-items:center;justify-content:center">{{ pulse }}<div style="width:8px;height:8px;border-radius:999px;background:#F25454;position:relative"></div></div>
+              <div style="font-size:13px;line-height:18px;font-weight:700;color:{{ nowLabelColor }}">{{ nowLabel }}</div>
+            </div>
+            <div style="font-size:13px;line-height:18px;color:#DADADF">{{ nowClock }}</div>
+          </div>
+          <div style="font-size:18px;line-height:24px;font-weight:700;color:#fff">{{ nowTitle }}</div>
+          <div style="font-size:15px;line-height:23px;color:#DADADF">{{ nowDetail }}</div>
+          <sc-if value="{{ hasProgress }}" hint-placeholder-val="{{ false }}"><div style="height:6px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden"><div style="height:6px;border-radius:999px;background:#F25454;width:{{ progressPct }};transition:width .3s linear"></div></div></sc-if>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px">
+            <sc-if value="{{ isRunning }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pause }}" style="min-height:40px;padding:0 16px;border:0;border-radius:14px;background:rgba(255,255,255,.16);font-size:13px;font-weight:700;color:#fff">⏸ 일정 중지</button>
+              <button onClick="{{ skip }}" style="min-height:40px;padding:0 16px;border:0;border-radius:14px;background:rgba(255,255,255,.16);font-size:13px;font-weight:700;color:#fff">{{ skipLabel }}</button>
+            </sc-if>
+            <sc-if value="{{ canStart }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ start }}" style="min-height:40px;padding:0 16px;border:0;border-radius:14px;background:#D83A48;font-size:13px;font-weight:700;color:#fff">{{ startLabel }}</button>
+            </sc-if>
+            <div style="flex:1;min-width:140px;text-align:right;font-size:13px;line-height:18px;color:#DADADF">{{ nowHint }}</div>
+          </div>
+        </div>
+
+        <!-- (나) 실시간 안내 — 달릴 때만 -->
+        <sc-if value="{{ isRunning }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:8px;border-radius:20px;overflow:hidden;background:#fff">
+          <div style="position:relative;height:168px;background:#E9E9EC;overflow:hidden">
+            <svg viewBox="0 0 342 168" width="342" height="168" style="position:absolute;inset:0"><path d="M24 132 C 80 120, 110 60, 170 70 S 260 110, 318 40" fill="none" stroke="#DADCE2" stroke-width="6" stroke-linecap="round"></path><path d="M24 132 C 80 120, 110 60, 170 70" fill="none" stroke="#2B2B2E" stroke-width="6" stroke-linecap="round" stroke-dasharray="{{ routeDash }}" stroke-dashoffset="{{ routeOffset }}" style="transition:stroke-dashoffset .3s linear"></path><circle cx="24" cy="132" r="7" fill="#2E9E5B"></circle><circle cx="170" cy="70" r="7" fill="#fff" stroke="#2B2B2E" stroke-width="3"></circle><circle cx="318" cy="40" r="7" fill="#fff" stroke="#DADCE2" stroke-width="3"></circle></svg>
+            <div style="position:absolute;left:{{ meX }};top:{{ meY }};width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:999px;background:#F25454;border:3px solid #fff;box-shadow:0 0 0 6px rgba(242,84,84,.25);transition:left .3s linear,top .3s linear"></div>
+            <div style="position:absolute;left:12px;top:12px;padding:4px 8px;border-radius:999px;background:#fff;font-size:12px;line-height:16px;font-weight:700">GPS ±12m</div>
+            <div style="position:absolute;right:12px;top:12px;padding:4px 8px;border-radius:999px;background:#191919;color:#fff;font-size:12px;line-height:16px;font-weight:700">{{ etaLabel }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;padding:4px 16px 12px">
+            <div style="display:flex;align-items:center;gap:12px;min-height:48px;border-bottom:1px solid #EBEBEF"><div style="width:32px;height:32px;border-radius:999px;background:#F0F0F3;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none">{{ guideIcon }}</div><div style="flex:1;min-width:0"><div style="font-size:15px;line-height:23px;font-weight:700">{{ guideMain }}</div><div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ guideSub }}</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px;min-height:48px"><div style="width:32px;height:32px;border-radius:999px;background:#F0F0F3;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none">{{ guide2Icon }}</div><div style="flex:1;min-width:0"><div style="font-size:15px;line-height:23px;font-weight:700">{{ guide2Main }}</div><div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ guide2Sub }}</div></div></div>
+          </div>
+        </div>
+        </sc-if>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+          <div style="min-height:44px;padding:0 12px;border-radius:14px;background:#fff;border:1px solid #EBEBEF;display:flex;align-items:center;font-size:13px;font-weight:700;color:#191919;white-space:nowrap;flex:none">지도 보기</div>
+          <div style="min-height:44px;padding:0 12px;border-radius:14px;background:#fff;border:1px solid #EBEBEF;display:flex;align-items:center;font-size:13px;font-weight:700;color:#191919;white-space:nowrap;flex:none">동행 초대</div>
+          <div style="min-height:44px;padding:0 12px;border-radius:14px;background:#fff;border:1px solid #EBEBEF;display:flex;align-items:center;font-size:13px;font-weight:700;color:#191919;white-space:nowrap;flex:none">날씨</div>
+        </div>
+        <sc-if value="{{ hasDayTabs }}" hint-placeholder-val="{{ true }}"><div style="display:flex;margin-top:16px;padding:4px;border-radius:999px;background:#E9E9EC;position:relative">
+          <div style="position:absolute;top:4px;bottom:4px;left:{{ pillLeft }};width:{{ pillWidth }};border-radius:999px;background:#D83A48;transition:left .45s cubic-bezier(.22,1,.36,1)"></div>
+          <sc-for list="{{ dayTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="flex:1;min-height:40px;border:0;border-radius:999px;background:transparent;color:{{ t.color }};font-size:13px;font-weight:700;position:relative;transition:color .3s">{{ t.label }}</button></sc-for>
+        </div></sc-if>
+      </div>
+
+      <div style="display:flex;flex-direction:column;padding:0 24px">
+        <!-- day line -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:16px">
+          <div style="font-size:15px;line-height:23px;font-weight:700">{{ dayHeading }}</div>
+          <div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ dayFacts }}</div>
+        </div>
+
+        <!-- route -->
+        <div style="display:flex;flex-direction:column;margin:12px 0 16px">
+          <!-- 0 · 출발지 (홈 시작 바에서 받은 값) -->
+          <div style="display:flex;gap:12px;align-items:center;min-height:44px">
+            <div style="width:32px;display:flex;justify-content:center"><div style="width:32px;height:32px;border-radius:999px;background:#fff;border:2px solid #191919;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#191919">0</div></div>
+            <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="display:flex;flex-direction:column"><div style="font-size:12px;line-height:16px;color:#6F6F6F">출발</div><div style="font-size:15px;line-height:23px;font-weight:700">부산역</div></div><div style="font-size:15px;line-height:23px;font-weight:700">{{ departClock }}</div></div>
+          </div>
+          <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column" draggable="{{ s.draggable }}" onDragStart="{{ s.dragStart }}" onDragOver="{{ s.dragOver }}" onDrop="{{ s.drop }}">
+            <sc-if value="{{ s.showLeg }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:12px;min-height:44px;align-items:stretch"><div style="width:32px;display:flex;flex-direction:column;align-items:center"><div style="width:3px;flex:1;border-radius:999px;background:#DADCE2"></div></div><div style="flex:1;display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:700;color:#191919">{{ s.leg }}</div></div></sc-if>
+            <div style="display:flex;gap:12px;align-items:stretch;cursor:{{ s.cursor }}">
+              <div style="width:32px;display:flex;flex-direction:column;align-items:center"><div style="width:32px;height:32px;border-radius:999px;background:{{ s.nodeBg }};border:{{ s.nodeBorder }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:{{ s.nodeColor }};flex:none;transition:background .3s,transform .3s">{{ s.nodeText }}</div><sc-if value="{{ s.notLast }}" hint-placeholder-val="{{ true }}"><div style="width:3px;flex:1;min-height:16px;border-radius:999px;background:#DADCE2"></div></sc-if></div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding:8px 12px 12px;margin-bottom:12px;border-radius:14px;background:#fff;box-shadow:{{ s.ring }}">
+                <div style="display:flex;align-items:flex-start;gap:8px">
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div style="font-size:15px;line-height:23px;font-weight:700">{{ s.title }}</div><div style="padding:2px 8px;border-radius:999px;background:{{ s.chipBg }};font-size:13px;line-height:18px;font-weight:700;color:{{ s.chipColor }}">{{ s.chip }}</div></div>
+                    <div style="font-size:13px;line-height:18px;color:#444">{{ s.desc }}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:4px"><div style="font-size:15px;line-height:23px;font-weight:700">{{ s.time }}</div><div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:15px">{{ s.lock }}</div></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;line-height:18px;color:#6F6F6F"><div>{{ s.leg }}</div><div style="font-weight:700;color:#191919">{{ s.cost }}</div></div>
+                <sc-if value="{{ s.arrived }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;line-height:18px;font-weight:700;color:{{ s.arrivedColor }}">{{ s.arrivedText }}</div></sc-if>
+              </div>
+            </div>
+          </div>
+          </sc-for>
+        </div>
+
+        <!-- (가) 예산 명세 -->
+        <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:20px;background:#fff;margin-bottom:16px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px">
+            <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">예산 대비</div><div style="font-size:26px;line-height:34px;letter-spacing:-.2px;font-weight:700">{{ totalWon }}</div></div>
+            <div style="text-align:right;display:flex;flex-direction:column;gap:2px"><div style="font-size:13px;line-height:18px;color:#6F6F6F">예산 {{ budgetWon }}</div><div style="font-size:13px;line-height:18px;font-weight:700;color:{{ verdictColor }}">{{ verdict }}</div></div>
+          </div>
+          <div style="position:relative;height:10px;border-radius:999px;background:#F0F0F3;overflow:hidden"><div style="height:10px;border-radius:999px;background:{{ barColor }};width:{{ barPct }};transition:width .4s"></div></div>
+          <div style="display:flex;gap:2px;height:6px;border-radius:999px;overflow:hidden">
+            <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4"><div style="flex:{{ c.flex }};background:{{ c.color }}"></div></sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:8px;min-height:36px;border-bottom:1px solid #EBEBEF"><div style="width:10px;height:10px;border-radius:3px;background:{{ c.color }};flex:none"></div><div style="flex:1;font-size:15px;line-height:23px">{{ c.label }}</div><div style="font-size:13px;color:#6F6F6F">{{ c.note }}</div><div style="min-width:72px;text-align:right;font-size:15px;font-weight:700">{{ c.won }}</div></div></sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">일차별</div>
+            <sc-for list="{{ perDay }}" as="d" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:8px;min-height:28px"><div style="width:44px;font-size:13px;color:#6F6F6F">{{ d.label }}</div><div style="flex:1;height:6px;border-radius:999px;background:#F0F0F3;overflow:hidden"><div style="height:6px;border-radius:999px;background:#2B2B2E;width:{{ d.pct }}"></div></div><div style="min-width:64px;text-align:right;font-size:13px;font-weight:700">{{ d.won }}</div></div></sc-for>
+          </div>
+          <div style="font-size:13px;line-height:18px;color:#6F6F6F">교통은 구간 거리로 추정한 값이에요 · 입장료·식비는 장소 자료 기준</div>
+        </div>
+      </div>
+    </div></div>
+    <!-- bottomBar + TabBar -->
+    <div style="position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 24px 24px;background:linear-gradient(rgba(245,245,247,0),#F5F5F7 40%)">
+      <div style="width:{{ barWidth }};height:{{ barHeight }};border-radius:20px;background:{{ tabBarBg }};box-shadow:0 -2px 14px rgba(25,25,25,.10);position:relative;overflow:hidden;transition:background .4s,height .42s cubic-bezier(.34,1.3,.64,1),width .42s cubic-bezier(.34,1.3,.64,1)">
+        <!-- 이름 바꾸기 시트 — 탭바가 자라서 모달을 대신한다(TripNameSheet · TabBar expanded) -->
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;padding:12px 12px 16px;opacity:{{ sheetOpacity }};transition:opacity .3s;pointer-events:{{ sheetEvents }}">
+          <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:18px;line-height:24px;font-weight:700">이름 바꾸기</div><button onClick="{{ closeNaming }}" aria-label="닫기" style="width:36px;height:36px;border:0;border-radius:999px;background:#F0F0F3;font-size:15px;font-weight:700;font-family:inherit">✕</button></div>
+          <div style="font-size:15px;line-height:23px;color:#444">비워 두고 저장하면 이름이 지워지고 카드에 날짜가 보여요.</div>
+          <input value="{{ titleDraft }}" onChange="{{ setTitleDraft }}" aria-label="여행 이름" style="min-height:48px;padding:0 12px;border-radius:14px;border:1px solid #DADCE2;font-size:15px;font-weight:700;color:#191919;width:100%;outline:none;font-family:inherit">
+          <div style="display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;background:#F0F0F3"><div style="font-size:13px;line-height:18px;color:#6F6F6F">카드에 이렇게</div><div style="font-size:18px;line-height:24px;font-weight:700">{{ titlePreview }}</div></div>
+          <div style="display:flex;gap:8px;margin-top:auto"><button onClick="{{ closeNaming }}" style="flex:1;min-height:48px;border:0;border-radius:14px;background:#E9E9EC;font-size:15px;font-weight:700;color:#191919;font-family:inherit">취소</button><button onClick="{{ saveNaming }}" style="flex:1;min-height:48px;border:0;border-radius:14px;background:#D83A48;font-size:15px;font-weight:700;color:#fff;font-family:inherit">{{ saveLabel }}</button></div>
+        </div>
+        <!-- 탭 층 — 수정 중에는 아래로 살짝 내려가며 사라진다 -->
+        <div style="position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;padding:0 8px;transform:{{ tabsTransform }};opacity:{{ tabsOpacity }};transition:transform .45s cubic-bezier(.22,1,.36,1),opacity .3s;pointer-events:{{ tabsEvents }}">
+          <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6F6F6F" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg><div style="font-size:12px;line-height:16px;letter-spacing:.2px;color:#8B8B8B">홈</div></div>
+          <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="20" height="20" viewBox="0 0 18 18" fill="none"><path d="M2.2 4.8A4 4 0 0 0 1.5 7.1c0 1.7 1.1 3 2.2 4.1l4.2 4a1.6 1.6 0 0 0 2.2 0l4.1-4c1.2-1.1 2.3-2.4 2.3-4.1a4 4 0 0 0-7.5-2.8A4 4 0 0 0 2.2 4.8Z" stroke="#6F6F6F" stroke-width="2" stroke-linecap="round"></path></svg><div style="font-size:12px;line-height:16px;letter-spacing:.2px;color:#8B8B8B">피드</div></div>
+          <!-- 가운데 「여행 만들기」 자리 — 일정 화면에서는 「순서 수정」이 된다(동백 원은 그대로, 아이콘만 ≡) -->
+          <button onClick="{{ toggleReorder }}" style="flex:1;min-height:53px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:inherit;padding:0"><div style="width:32px;height:32px;border-radius:16px;background:#D83A48;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h9"></path></svg></div><div style="font-size:12px;line-height:16px;letter-spacing:.2px;color:#8B8B8B">순서 수정</div></button>
+          <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#191919" stroke-width="2" stroke-linejoin="round"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4z"></path><path d="M8 2v16M16 6v16"></path></svg><div style="font-size:12px;line-height:16px;letter-spacing:.2px;font-weight:700">내 여행</div><div style="position:absolute;bottom:0;width:5px;height:5px;border-radius:999px;background:#F25454"></div></div>
+          <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6F6F6F" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><div style="font-size:12px;line-height:16px;letter-spacing:.2px;color:#8B8B8B">마이페이지</div></div>
+        </div>
+        <!-- 완료 층 — 같은 자리에서 올라온다 -->
+        <div style="position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;transform:{{ doneTransform }};opacity:{{ doneOpacity }};transition:transform .45s cubic-bezier(.22,1,.36,1),opacity .3s;pointer-events:{{ doneEvents }}">
+          <div style="flex:1;font-size:13px;line-height:18px;color:#DADADF;padding-left:8px">≡ 손잡이를 끌어 순서를 바꿔요</div>
+          <button onClick="{{ toggleReorder }}" style="min-height:44px;padding:0 20px;border:0;border-radius:14px;background:#D83A48;font-size:15px;font-weight:700;color:#fff;font-family:inherit;white-space:nowrap">수정 완료</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 데스크톱 1440 ── -->
+<div style="flex:none;display:flex;flex-direction:column;gap:12px">
+  <div style="font-size:12px;font-weight:700;color:#6F6F6F">배포본 · 데스크톱 1440 — /trips/:id/itinerary (wide) · 오른쪽 360 기둥에 예산 명세 + 실시간 안내</div>
+  <div data-screen-label="배포본 데스크톱 일정" style="width:1440px;background:#F5F5F7;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(25,25,25,.12)">
+    <!-- 이름 바꾸기 모달 (TripNameSheet · wide) -->
+    <sc-if value="{{ naming }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:40;background:rgba(25,25,25,.45);display:flex;align-items:center;justify-content:center;padding:24px" onClick="{{ closeNaming }}">
+      <div onClick="{{ stop }}" style="width:480px;display:flex;flex-direction:column;gap:12px;padding:24px;border-radius:20px;background:#fff;box-shadow:0 8px 40px rgba(25,25,25,.18)">
+        <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:18px;line-height:24px;font-weight:700">이름 바꾸기</div><button onClick="{{ closeNaming }}" aria-label="닫기" style="width:36px;height:36px;border:0;border-radius:999px;background:#F0F0F3;font-size:15px;font-weight:700">✕</button></div>
+        <div style="font-size:15px;line-height:23px;color:#444">비워 두고 저장하면 이름이 지워지고 카드에 날짜가 보여요.</div>
+        <input value="{{ titleDraft }}" onChange="{{ setTitleDraft }}" aria-label="여행 이름" style="min-height:48px;padding:0 12px;border-radius:14px;border:1px solid #DADCE2;font-size:15px;font-weight:700;color:#191919;width:100%;outline:none">
+        <div style="display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;background:#F0F0F3"><div style="font-size:13px;line-height:18px;color:#6F6F6F">카드에 이렇게</div><div style="font-size:18px;line-height:24px;font-weight:700">{{ titlePreview }}</div></div>
+        <div style="display:flex;gap:8px"><button onClick="{{ closeNaming }}" style="flex:1;min-height:48px;border:0;border-radius:14px;background:#E9E9EC;font-size:15px;font-weight:700;color:#191919">취소</button><button onClick="{{ saveNaming }}" style="flex:1;min-height:48px;border:0;border-radius:14px;background:#D83A48;font-size:15px;font-weight:700;color:#fff">{{ saveLabel }}</button></div>
+      </div>
+    </div>
+    </sc-if>
+    <div style="height:36px;background:#E9E9EC"></div>
+    <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #EBEBEF">
+      <img src="assets/gabolle-logo-hd.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain">
+      <div style="display:flex;align-items:center;gap:4px;padding:4px">
+        <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">홈</div>
+        <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">피드</div>
+        <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;position:relative;font-size:15px;font-weight:700;color:#191919">내 여행<div style="position:absolute;bottom:-10px;left:50%;margin-left:-2.5px;width:5px;height:5px;border-radius:999px;background:#F25454"></div></div>
+      </div>
+      <div style="height:40px;padding:0 16px;border-radius:14px;background:#fff;border:1px solid #D83A48;display:flex;align-items:center;font-size:15px;font-weight:700;color:#D83A48;white-space:nowrap">여행 만들기</div>
+    </div>
+
+    <!-- hero -->
+    <div style="background:#F5F5F7;padding:12px 40px 0;display:flex;flex-direction:column;gap:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <button style="width:44px;height:44px;margin-left:-12px;border:0;background:transparent;color:#191919;font-size:22px">‹</button>
+        <button style="width:44px;height:44px;border:0;background:transparent;color:#191919;font-size:20px;font-weight:700">⋯</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="margin-top:8px;font-size:26px;line-height:34px;letter-spacing:-.2px;font-weight:700;color:#191919">{{ tripTitle }}</div>
+        <button onClick="{{ openNaming }}" style="min-height:32px;padding:0 12px;border:1px solid #EBEBEF;border-radius:999px;background:#fff;font-size:13px;font-weight:700;color:#191919;white-space:nowrap">이름 바꾸기</button>
+      </div>
+      <div style="font-size:15px;line-height:23px;color:#6F6F6F">{{ heroSummary }}</div>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:20px;background:{{ nowBg }};transition:background .4s">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:16px;height:16px;position:relative;display:flex;align-items:center;justify-content:center">{{ pulse }}<div style="width:8px;height:8px;border-radius:999px;background:#F25454;position:relative"></div></div>
+            <div style="font-size:13px;line-height:18px;font-weight:700;color:{{ nowLabelColor }}">{{ nowLabel }}</div>
+          </div>
+          <div style="font-size:13px;line-height:18px;color:#DADADF">{{ nowClock }}</div>
+        </div>
+        <div style="font-size:18px;line-height:24px;font-weight:700;color:#fff">{{ nowTitle }}</div>
+        <div style="font-size:15px;line-height:23px;color:#DADADF">{{ nowDetail }}</div>
+        <!-- 데스크톱은 막대 대신 노선도가 진행을 말한다 — 카드 안에 합친다 -->
+        <sc-if value="{{ notReorder }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:flex-start;justify-content:center;gap:8px;padding:8px 0 4px;overflow:hidden">
+          <div style="width:112px;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:40px;height:40px;border-radius:999px;background:transparent;border:2px solid #DADADF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">0</div><div style="font-size:13px;line-height:18px;font-weight:700;color:#fff">부산역 출발</div><div style="font-size:13px;line-height:18px;color:#DADADF">{{ departClock }}</div></div>
+          <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 8px"><div style="width:72px;height:3px;border-radius:999px;background:{{ s.stripLine }}"></div><div style="font-size:13px;line-height:18px;font-weight:700;white-space:nowrap;color:#DADADF">{{ s.leg }}</div></div>
+            <div style="width:112px;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:40px;height:40px;border-radius:999px;background:{{ s.stripBg }};border:{{ s.stripBorder }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:{{ s.stripColor }}">{{ s.nodeText }}</div><div style="font-size:13px;line-height:18px;font-weight:700;text-align:center;max-width:112px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff">{{ s.title }}</div><div style="font-size:13px;line-height:18px;color:#DADADF">{{ s.time }}</div></div>
+          </div>
+          </sc-for>
+        </div>
+        </sc-if>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px">
+          <sc-if value="{{ isRunning }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ pause }}" style="min-height:40px;padding:0 16px;border:0;border-radius:14px;background:rgba(255,255,255,.16);font-size:13px;font-weight:700;color:#fff">⏸ 일정 중지</button>
+            <button onClick="{{ skip }}" style="min-height:40px;padding:0 16px;border:0;border-radius:14px;background:rgba(255,255,255,.16);font-size:13px;font-weight:700;color:#fff">{{ skipLabel }}</button>
+          </sc-if>
+          <sc-if value="{{ canStart }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ start }}" style="min-height:40px;padding:0 16px;border:0;border-radius:14px;background:#D83A48;font-size:13px;font-weight:700;color:#fff">{{ startLabel }}</button>
+          </sc-if>
+          <div style="flex:1;min-width:140px;text-align:right;font-size:13px;line-height:18px;color:#DADADF">{{ nowHint }}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+        <div style="min-height:44px;padding:0 12px;border-radius:14px;background:#fff;border:1px solid #EBEBEF;display:flex;align-items:center;font-size:13px;font-weight:700;color:#191919;white-space:nowrap;flex:none">지도 보기</div>
+        <div style="min-height:44px;padding:0 12px;border-radius:14px;background:#fff;border:1px solid #EBEBEF;display:flex;align-items:center;font-size:13px;font-weight:700;color:#191919;white-space:nowrap;flex:none">동행 초대</div>
+        <div style="min-height:44px;padding:0 12px;border-radius:14px;background:#fff;border:1px solid #EBEBEF;display:flex;align-items:center;font-size:13px;font-weight:700;color:#191919;white-space:nowrap;flex:none">날씨</div>
+      </div>
+      <sc-if value="{{ hasDayTabs }}" hint-placeholder-val="{{ true }}"><div style="display:flex;margin:16px auto 0;width:100%;max-width:560px;padding:4px;border-radius:999px;background:#E9E9EC;position:relative">
+        <div style="position:absolute;top:4px;bottom:4px;left:{{ pillLeft }};width:{{ pillWidth }};border-radius:999px;background:#D83A48;transition:left .45s cubic-bezier(.22,1,.36,1)"></div>
+        <sc-for list="{{ dayTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="flex:1;min-height:40px;border:0;border-radius:999px;background:transparent;color:{{ t.color }};font-size:13px;font-weight:700;position:relative;transition:color .3s">{{ t.label }}</button></sc-for>
+      </div></sc-if>
+    </div>
+
+    <div style="padding:0 40px 64px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:16px">
+        <div style="font-size:15px;line-height:23px;font-weight:700">{{ dayHeading }}</div>
+        <div style="display:flex;align-items:center;gap:12px"><div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ dayFacts }}</div><button onClick="{{ toggleReorder }}" style="min-height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ reorderOutline }};background:{{ reorderBgD }};font-size:13px;font-weight:700;color:{{ reorderColorD }};transition:background .2s;white-space:nowrap;flex:none">{{ reorderLabel }}</button></div>
+      </div>
+      <sc-if value="{{ isReorder }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px;border-radius:14px;background:#E9E9EC"><div style="width:32px;height:32px;border-radius:999px;background:#2B2B2E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none">≡</div><div style="flex:1;font-size:13px;line-height:18px;color:#444">손잡이를 끌어 순서를 바꿔요. 🔒 고정한 장소는 자리를 지켜요.</div></div></sc-if>
+
+      <div style="display:flex;align-items:flex-start;gap:24px">
+        <!-- timeline -->
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;margin-top:12px">
+          <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+          <div draggable="{{ s.draggable }}" onDragStart="{{ s.dragStart }}" onDragOver="{{ s.dragOver }}" onDrop="{{ s.drop }}" style="display:flex;gap:12px;align-items:stretch;padding:12px;border-radius:14px;background:{{ s.rowBg }};border-bottom:1px solid #EBEBEF;box-shadow:{{ s.ring }};cursor:{{ s.cursor }}">
+            <div style="width:40px;display:flex;justify-content:center"><div style="width:40px;height:40px;border-radius:999px;background:{{ s.nodeBg }};border:{{ s.nodeBorder }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:{{ s.nodeColor }}">{{ s.nodeText }}</div></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:flex-start;gap:8px">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;align-items:center;gap:8px"><div style="font-size:18px;line-height:24px;font-weight:700">{{ s.title }}</div><div style="padding:2px 8px;border-radius:999px;background:{{ s.chipBg }};font-size:13px;line-height:18px;font-weight:700;color:{{ s.chipColor }}">{{ s.chip }}</div></div>
+                  <div style="font-size:13px;line-height:18px;color:#444">{{ s.desc }}</div>
+                  <sc-if value="{{ s.arrived }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;line-height:18px;font-weight:700;color:{{ s.arrivedColor }}">{{ s.arrivedText }}</div></sc-if>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:4px"><div style="display:flex;flex-direction:column;align-items:flex-end"><div style="font-size:18px;line-height:24px;font-weight:700">{{ s.time }}</div><div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ s.cost }}</div></div><div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:15px">{{ s.lock }}</div></div>
+              </div>
+            </div>
+          </div>
+          </sc-for>
+        </div>
+
+        <!-- aside 360 -->
+        <div style="width:360px;flex:none;display:flex;flex-direction:column;gap:12px;margin-top:12px">
+          <div style="display:flex;gap:8px">
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;background:#fff;border:1px solid #EBEBEF"><div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">장소</div><div style="font-size:18px;line-height:24px;font-weight:700">{{ stopCount }}곳</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;background:#fff;border:1px solid #EBEBEF"><div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">이동 합계</div><div style="font-size:18px;line-height:24px;font-weight:700">{{ travelMin }}분</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;background:#fff;border:1px solid #EBEBEF"><div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">수단</div><div style="font-size:13px;line-height:18px;color:#6F6F6F;padding-top:3px">{{ modes }}</div></div>
+          </div>
+
+          <!-- (나) 실시간 안내 -->
+          <sc-if value="{{ isRunning }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:20px;overflow:hidden;background:#fff;border:1px solid #EBEBEF">
+            <div style="position:relative;height:180px;background:#E9E9EC;overflow:hidden">
+              <svg viewBox="0 0 342 168" width="358" height="176" preserveAspectRatio="none" style="position:absolute;inset:0"><path d="M24 132 C 80 120, 110 60, 170 70 S 260 110, 318 40" fill="none" stroke="#DADCE2" stroke-width="6" stroke-linecap="round"></path><path d="M24 132 C 80 120, 110 60, 170 70" fill="none" stroke="#2B2B2E" stroke-width="6" stroke-linecap="round" stroke-dasharray="{{ routeDash }}" stroke-dashoffset="{{ routeOffset }}" style="transition:stroke-dashoffset .3s linear"></path><circle cx="24" cy="132" r="7" fill="#2E9E5B"></circle><circle cx="170" cy="70" r="7" fill="#fff" stroke="#2B2B2E" stroke-width="3"></circle><circle cx="318" cy="40" r="7" fill="#fff" stroke="#DADCE2" stroke-width="3"></circle></svg>
+              <div style="position:absolute;left:{{ meX }};top:{{ meY }};width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:999px;background:#F25454;border:3px solid #fff;box-shadow:0 0 0 6px rgba(242,84,84,.25);transition:left .3s linear,top .3s linear"></div>
+              <div style="position:absolute;left:12px;top:12px;padding:4px 8px;border-radius:999px;background:#fff;font-size:12px;line-height:16px;font-weight:700">GPS ±12m</div>
+              <div style="position:absolute;right:12px;top:12px;padding:4px 8px;border-radius:999px;background:#191919;color:#fff;font-size:12px;line-height:16px;font-weight:700">{{ etaLabel }}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;padding:4px 16px 12px">
+              <div style="display:flex;align-items:center;gap:12px;min-height:48px;border-bottom:1px solid #EBEBEF"><div style="width:32px;height:32px;border-radius:999px;background:#F0F0F3;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none">{{ guideIcon }}</div><div style="flex:1;min-width:0"><div style="font-size:15px;line-height:23px;font-weight:700">{{ guideMain }}</div><div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ guideSub }}</div></div></div>
+              <div style="display:flex;align-items:center;gap:12px;min-height:48px"><div style="width:32px;height:32px;border-radius:999px;background:#F0F0F3;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none">{{ guide2Icon }}</div><div style="flex:1;min-width:0"><div style="font-size:15px;line-height:23px;font-weight:700">{{ guide2Main }}</div><div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ guide2Sub }}</div></div></div>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- (가) 예산 명세 -->
+          <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:20px;background:#fff;border:1px solid #EBEBEF">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px">
+              <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">예산 대비</div><div style="font-size:26px;line-height:34px;letter-spacing:-.2px;font-weight:700">{{ totalWon }}</div></div>
+              <div style="text-align:right;display:flex;flex-direction:column;gap:2px"><div style="font-size:13px;line-height:18px;color:#6F6F6F">예산 {{ budgetWon }}</div><div style="font-size:13px;line-height:18px;font-weight:700;color:{{ verdictColor }}">{{ verdict }}</div></div>
+            </div>
+            <div style="height:10px;border-radius:999px;background:#F0F0F3;overflow:hidden"><div style="height:10px;border-radius:999px;background:{{ barColor }};width:{{ barPct }};transition:width .4s"></div></div>
+            <div style="display:flex;gap:2px;height:6px;border-radius:999px;overflow:hidden">
+              <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4"><div style="flex:{{ c.flex }};background:{{ c.color }}"></div></sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:8px;min-height:36px;border-bottom:1px solid #EBEBEF"><div style="width:10px;height:10px;border-radius:3px;background:{{ c.color }};flex:none"></div><div style="flex:1;font-size:15px;line-height:23px">{{ c.label }}</div><div style="font-size:13px;color:#6F6F6F">{{ c.note }}</div><div style="min-width:72px;text-align:right;font-size:15px;font-weight:700">{{ c.won }}</div></div></sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">일차별</div>
+              <sc-for list="{{ perDay }}" as="d" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:8px;min-height:28px"><div style="width:44px;font-size:13px;color:#6F6F6F">{{ d.label }}</div><div style="flex:1;height:6px;border-radius:999px;background:#F0F0F3;overflow:hidden"><div style="height:6px;border-radius:999px;background:#2B2B2E;width:{{ d.pct }}"></div></div><div style="min-width:64px;text-align:right;font-size:13px;font-weight:700">{{ d.won }}</div></div></sc-for>
+            </div>
+            <div style="font-size:13px;line-height:18px;color:#6F6F6F">교통은 구간 거리로 추정한 값이에요 · 입장료·식비는 장소 자료 기준</div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:20px;background:#fff;border:1px solid #EBEBEF">
+            <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ dayNo }}일차 이동 요약</div>
+            <div style="display:flex;gap:2px;height:6px;border-radius:999px;overflow:hidden"><sc-for list="{{ walkShares }}" as="w" hint-placeholder-count="4"><div style="flex:{{ w }};background:#2B2B2E;border-radius:999px"></div></sc-for></div>
+            <div style="font-size:13px;line-height:18px;color:#444">도보 {{ walkKm }} · 이동 합계 {{ travelMin }}분</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;budgetKrw&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:300000,&quot;min&quot;:100000,&quot;max&quot;:500000,&quot;step&quot;:10000,&quot;unit&quot;:&quot;원&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;예산&quot;},&quot;dayTrip&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;여행&quot;}}">
+const DAYS = [
+  { date: '10월 3일 (토)', items: [
+    { id: 'a1', title: '해운대해수욕장', time: '10:00', cost: 0, leg: '버스 12분 · 도보 600m', walk: 600, min: 12, status: 'VERIFIED', desc: '백사장 산책 · 해운대역 3번 출구' },
+    { id: 'a2', title: '동백섬 산책로', time: '11:30', cost: 0, leg: '도보 1.2km', walk: 1200, min: 15, status: 'VERIFIED', desc: '누리마루 APEC 하우스 · 등대 전망' },
+    { id: 'a3', title: '해리단길 밀면 점심', time: '13:00', cost: 24000, leg: '도보 800m', walk: 800, min: 11, status: 'ESTIMATED', desc: '2인 · 여름 점심' },
+    { id: 'a4', title: '해리단길 카페', time: '14:30', cost: 14000, leg: '도보 200m', walk: 200, min: 3, status: 'VERIFIED', desc: '뷰 카페 · 쉼' },
+    { id: 'a5', title: '광안리 M 드론 라이트쇼', time: '19:00', cost: 0, leg: '지하철 18분', walk: 300, min: 18, status: 'VERIFIED', desc: '토요일 20:00 · 광안해변로 219' },
+  ] },
+  { date: '10월 4일 (일)', items: [
+    { id: 'b1', title: '감천문화마을', time: '10:30', cost: 0, leg: '버스 25분', walk: 400, min: 25, status: 'VERIFIED', desc: '어린왕자 포토존 · 골목 산책' },
+    { id: 'b2', title: '자갈치시장 점심', time: '12:30', cost: 60000, leg: '버스 15분 · 도보 300m', walk: 300, min: 15, status: 'ESTIMATED', desc: '2인 · 회 한 접시' },
+    { id: 'b3', title: '부산타워', time: '15:00', cost: 12000, leg: '도보 700m', walk: 700, min: 10, status: 'VERIFIED', desc: '용두산공원 · 전망대' },
+    { id: 'b4', title: '부평깡통시장 저녁', time: '18:00', cost: 30000, leg: '도보 500m', walk: 500, min: 7, status: 'ESTIMATED', desc: '야시장 · 어묵 · 씨앗호떡' },
+  ] },
+  { date: '10월 5일 (월)', items: [
+    { id: 'c1', title: '흰여울문화마을', time: '10:00', cost: 0, leg: '버스 20분', walk: 600, min: 20, status: 'VERIFIED', desc: '절영해안산책로' },
+    { id: 'c2', title: '전포카페거리', time: '13:00', cost: 16000, leg: '지하철 15분', walk: 500, min: 15, status: 'VERIFIED', desc: '카페 · 소품샵' },
+    { id: 'c3', title: '서면 돼지국밥', time: '17:30', cost: 20000, leg: '도보 400m', walk: 400, min: 6, status: 'VERIFIED', desc: '2인 · 부산역 가는 길' },
+  ] },
+];
+const ROADS = { a1: ['해운대해변로', '1003번 버스 · 해운대해수욕장 정류장'], a2: ['동백로', ''], a3: ['우동1로', ''], a4: ['해리단길', ''], a5: ['광안해변로', '지하철 2호선 · 광안역 방면'],
+  b1: ['감천2로', '1-1번 버스 · 감정초등학교 정류장'], b2: ['자갈치로', '1003번 버스 · 자갈치시장 정류장'], b3: ['용두산길', ''], b4: ['부평1길', ''],
+  c1: ['절영로', '82번 버스 · 흰여울문화마을 정류장'], c2: ['전포대로', '지하철 1호선 · 서면역 방면'], c3: ['서면로', ''] };
+const TRANSIT_KRW = 22000;
+const won = n => `${n.toLocaleString()}원`;
+// koreanToward — 받침 있으면 「으로」, 없거나 ㄹ 받침이면 「로」.
+const toward = s => { const c = s.charCodeAt(s.length - 1); if (c < 0xAC00 || c > 0xD7A3) return '로'; const j = (c - 0xAC00) % 28; return j === 0 || j === 8 ? '로' : '으로'; };
+// 폰 지도(342×168) 위 경로 — 출발 → 다음 정차. 진행률로 점을 옮긴다.
+const PATH = [[24,132],[52,126],[80,118],[105,95],[130,74],[150,68],[170,70]];
+const PATH_LEN = 190;
+
+const mins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const clock = m => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(Math.round(m) % 60).padStart(2, '0')}`;
+
+class Component extends DCLogic {
+  // phase: move(이동) → arrive(도착 순간) → stay(머무는 중) → 다음 move
+  state = { day: 0, status: 'PLANNED', phase: 'move', current: 0, outcomes: {}, progress: 0, hold: 0, reorder: false, order: null, title: '해운대 바다 산책', naming: false, titleDraft: '' };
+  componentWillUnmount() { clearInterval(this.timer); }
+  days() { return this.props.dayTrip ? DAYS.slice(0, 1) : DAYS; }
+  items() { const base = this.days()[this.state.day].items; const o = this.state.order; return o ? o.map(id => base.find(i => i.id === id)) : base; }
+  dwellOf(items, i) { const it = items[i], nx = items[i + 1]; return nx ? Math.max(20, mins(nx.time) - mins(it.time) - nx.min) : 60; }
+  tick = () => {
+    this.setState(s => {
+      const items = this.items(), step = 0.004 * Number(this.props.simSpeed ?? 3);
+      if (s.phase === 'move') {
+        const p = s.progress + step;
+        if (p < 1) return { progress: p };
+        return { progress: 1, phase: 'arrive', hold: 0, outcomes: { ...s.outcomes, [items[s.current].id]: 'ARRIVED' } };
+      }
+      if (s.phase === 'arrive') return s.hold < 6 ? { hold: s.hold + 1 } : { phase: 'stay', progress: 0 };
+      const p = s.progress + step * 1.5;
+      if (p < 1) return { progress: p };
+      const next = s.current + 1;
+      if (next >= items.length) { clearInterval(this.timer); return { progress: 1, status: 'DONE' }; }
+      return { current: next, phase: 'move', progress: 0 };
+    });
+  };
+  start = () => { clearInterval(this.timer); this.timer = setInterval(this.tick, 300); this.setState({ status: 'RUNNING' }); };
+  pause = () => { clearInterval(this.timer); this.setState({ status: 'PAUSED' }); };
+  skip = () => this.setState(s => {
+    const items = this.items(), outcomes = { ...s.outcomes, [items[s.current].id]: s.phase === 'move' ? 'SKIPPED' : 'ARRIVED' }, next = s.current + 1;
+    if (next >= items.length) { clearInterval(this.timer); return { outcomes, status: 'DONE', progress: 1 }; }
+    return { outcomes, current: next, phase: 'move', progress: 0 };
+  });
+  moveTo(dragId, overId) {
+    this.setState(s => {
+      const order = [...(s.order || this.items().map(i => i.id))];
+      const from = order.indexOf(dragId), to = order.indexOf(overId);
+      if (from < 0 || to < 0 || from === to) return null;
+      order.splice(from, 1); order.splice(to, 0, dragId);
+      return { order };
+    });
+  }
+  renderVals() {
+    const { day, status, phase, current, outcomes, progress, reorder } = this.state;
+    const items = this.items(), running = status === 'RUNNING', planned = status === 'PLANNED', done = status === 'DONE';
+    const cur = items[current], nxt = items[current + 1];
+    const moving = running && phase === 'move', arriving = running && phase === 'arrive', staying = running && phase === 'stay';
+    const dwell = this.dwellOf(items, current);
+    const doneCount = items.filter(i => outcomes[i.id]).length;
+    const budget = Number(this.props.budgetKrw ?? 300000);
+    const DAYSX = this.days();
+    const all = DAYSX.flatMap(d => d.items);
+    const food = all.filter(i => /점심|저녁|국밥/.test(i.title)).reduce((s, i) => s + i.cost, 0);
+    const cafe = all.filter(i => /카페/.test(i.title)).reduce((s, i) => s + i.cost, 0);
+    const entry = all.reduce((s, i) => s + i.cost, 0) - food - cafe;
+    const total = food + cafe + entry + TRANSIT_KRW;
+    const over = total > budget;
+    const cats = [['식비', food, '4끼', '#2B2B2E'], ['카페', cafe, '2곳', '#6F6F6F'], ['입장·체험', entry, '1곳', '#A0A0A6'], ['교통 (추정)', TRANSIT_KRW, '구간 거리 기준', '#DADCE2']].map(([label, v, note, color]) => ({ label, won: won(v), note, color, flex: Math.max(1, Math.round(v / 1000)) }));
+    const dayTotals = DAYSX.map(d => d.items.reduce((s, i) => s + i.cost, 0));
+    const maxDay = Math.max(...dayTotals);
+    const remainMan = Math.abs(budget - total) / 10000;
+    const stepOf = i => {
+      if (planned) return null;
+      if (i === current && !done) return 'current';
+      if (outcomes[items[i].id]) return 'done';
+      return i === current + 1 ? 'next' : 'later';
+    };
+    const stops = items.map((it, i) => {
+      const st = stepOf(i), locked = it.id === 'a2';
+      const node = reorder ? (locked ? { bg: '#E9E9EC', border: '0', color: '#6F6F6F', text: '🔒' } : { bg: '#2B2B2E', border: '0', color: '#fff', text: '≡' })
+        : st === 'done' ? { bg: '#2E9E5B', border: '0', color: '#fff', text: '✓' }
+        : st === 'current' ? { bg: '#F25454', border: '4px solid #F0F0F3', color: '#fff', text: '●' }
+        : st === 'later' ? { bg: '#fff', border: '2px solid #DADCE2', color: '#6F6F6F', text: String(i + 1) }
+        : { bg: !st && i === 0 ? '#2B2B2E' : '#191919', border: '0', color: '#fff', text: String(i + 1) };
+      const chip = it.status === 'VERIFIED' ? { t: '확인됨', bg: '#E7F5EC', c: '#2E9E5B' } : { t: '추정', bg: '#FFF3DC', c: '#B06A00' };
+      const oc = outcomes[it.id];
+      const here = st === 'current' && (staying || arriving);
+      return { title: it.title, time: it.time, desc: it.desc, leg: it.leg, cost: it.cost === 0 ? '무료' : won(it.cost),
+        nodeBg: node.bg, nodeBorder: node.border, nodeColor: node.color, nodeText: node.text,
+        chip: chip.t, chipBg: chip.bg, chipColor: chip.c, lock: locked ? '🔒' : '🔓', notLast: i < items.length - 1, showLeg: !reorder,
+        ring: st === 'current' ? '0 0 0 1.5px #D83A48' : 'none', rowBg: st === 'current' ? '#fff' : 'transparent',
+        arrived: Boolean(oc) || (st === 'current' && moving), arrivedColor: here || oc === 'ARRIVED' ? '#2E9E5B' : oc === 'SKIPPED' ? '#6F6F6F' : '#F25454',
+        arrivedText: here ? `지금 여기 · 도착 ${it.time} · 약 ${Math.round((1 - (staying ? progress : 0)) * dwell)}분 더 머물러요` : oc === 'SKIPPED' ? '건너뜀' : oc ? `도착 ${it.time} · GPS 자동 기록` : '● 이동 중 · GPS 추적',
+        // 어두운 카드 위 노선도 색 — 다녀옴 초록 · 현재 빨강 · 다음 흰 채움 · 이후 흰 테두리
+        stripBg: st === 'done' ? '#2E9E5B' : st === 'current' ? '#F25454' : st === 'later' || (!st && i > 0) ? 'transparent' : '#fff',
+        stripBorder: st === 'current' ? '4px solid rgba(255,255,255,.25)' : st === 'later' || (!st && i > 0) ? '2px solid #6F6F6F' : '0',
+        stripColor: st === 'done' || st === 'current' ? '#fff' : st === 'later' || (!st && i > 0) ? '#DADADF' : '#191919',
+        stripLine: st === 'done' || st === 'current' ? '#2E9E5B' : 'rgba(255,255,255,.25)',
+        draggable: reorder && !locked, cursor: reorder && !locked ? 'grab' : 'default',
+        dragStart: e => { this.dragId = it.id; e.dataTransfer.effectAllowed = 'move'; },
+        dragOver: e => { e.preventDefault(); if (this.dragId && this.dragId !== it.id && !locked) this.moveTo(this.dragId, it.id); },
+        drop: e => { e.preventDefault(); this.dragId = null; } };
+    });
+    const atNode = !moving, pos = atNode ? PATH[PATH.length - 1] : PATH[Math.min(PATH.length - 1, Math.floor(progress * (PATH.length - 1)))];
+    const remainM = Math.round((1 - progress) * (cur?.walk ?? 0)), remainMin = Math.max(1, Math.round((1 - progress) * (cur?.min ?? 0)));
+    const stayLeft = Math.max(1, Math.round((1 - progress) * dwell));
+    const simClock = !running ? '10:52' : moving ? clock(mins(cur.time) - remainMin) : arriving ? cur.time : clock(mins(cur.time) + progress * dwell);
+    const hasTransit = cur && /버스|지하철/.test(cur.leg);
+    const [road, transit] = cur ? ROADS[cur.id] : ['', ''];
+    return {
+      totalMan: (total / 10000).toFixed(1),
+      pulse: running && !arriving ? React.createElement('div', { style: { position: 'absolute', width: 8, height: 8, borderRadius: 999, background: '#F25454', animation: 'gbPulse 1.6s ease-out infinite' } }) : null,
+      nowBg: arriving ? '#2E9E5B' : '#191919', nowLabelColor: arriving ? '#fff' : '#F25454',
+      nowLabel: moving ? '지금 · 위치 추적 중' : arriving ? '도착 · GPS 자동 기록' : staying ? '지금 · 머무는 중' : '지금',
+      nowClock: running ? `${simClock} · 예정보다 4분 빠름` : '10:52',
+      nowTitle: done ? '오늘 일정을 다 돌았어요' : moving ? `${cur.title}${toward(cur.title)} 이동 중` : arriving ? `${cur.title} 도착!` : staying ? `${cur.title}에 있어요` : `다음은 ${cur.title}`,
+      nowDetail: done ? `${items.length}곳 중 ${doneCount}곳 다녀옴 · 기록은 내 기록에 남아요` : moving ? `${cur.leg} · 약 ${remainMin}분 남음 · ${remainM}m` : arriving ? `예정 ${cur.time} · ${nxt ? `다음 ${nxt.title} ${nxt.time}` : '오늘 마지막 정차예요'}` : staying ? `약 ${stayLeft}분 더 머물러요${nxt ? ` · ${clock(mins(cur.time) + dwell)} 출발 → ${nxt.title}` : ' · 오늘 마지막 정차예요'}` : planned ? `${items.length}곳 · 첫 정차 ${items[0].time}` : `${items.length}곳 중 ${doneCount}곳 다녀옴 · 다음 ${cur.time}`,
+      hasProgress: !planned, progressPct: `${Math.round(((doneCount + (moving ? progress : 0) - (staying || arriving ? 1 - (staying ? progress : 1) * 0 : 0)) / items.length) * 100)}%`,
+      isRunning: running, canStart: !running && !done, startLabel: planned ? '▶ 출발' : '▶ 다시 출발',
+      skipLabel: moving ? '건너뛰기' : '지금 출발',
+      start: this.start, pause: this.pause, skip: this.skip,
+      nowHint: moving ? '도착은 GPS로 자동 기록돼요' : arriving ? '도착 시각을 기록했어요' : staying ? '떠나면 다음 구간 안내가 시작돼요' : done ? '기록은 마이페이지 › 내 기록에 남아요' : '출발을 누르면 위치 추적이 시작돼요',
+      routeDash: PATH_LEN, routeOffset: atNode ? 0 : Math.round(PATH_LEN * (1 - progress)), meX: `${pos[0]}px`, meY: `${pos[1]}px`,
+      etaLabel: cur ? (moving ? `${cur.time} 도착 예정` : staying ? `${clock(mins(cur.time) + dwell)} 출발 예정` : '도착') : '',
+      guideIcon: moving ? '↑' : arriving ? '✓' : '⌂',
+      guideMain: moving ? (progress < 0.4 ? `${road} 따라 직진` : progress < 0.8 ? `200m 앞 ${cur.title} 방향 좌회전` : `${cur.title} 도착 ${remainM}m 앞`) : arriving ? '도착을 기록했어요' : `이곳에서 약 ${stayLeft}분`,
+      guideSub: moving ? `${remainM}m · 약 ${remainMin}분` : arriving ? `${cur.time} · GPS 자동` : nxt ? `${clock(mins(cur.time) + dwell)} 출발 → ${nxt.title}` : '오늘 마지막 정차',
+      guide2Icon: moving ? (hasTransit ? 'BUS' : '도보') : '다음',
+      guide2Main: moving ? (hasTransit ? transit : '도보 구간 · 대중교통 없음') : nxt ? `${nxt.title} ${nxt.time}` : '숙소로 · 부산역 방면',
+      guide2Sub: moving ? (hasTransit ? (/지하철/.test(cur.leg) ? '3분 후 도착 · 환승 없음' : '4분 후 도착 · 환승 없음') : `${cur.walk}m · ${road} · 평지`) : nxt ? `${nxt.leg} · 출발하면 안내가 시작돼요` : '오늘 다녀온 5곳이 내 기록에 남아요',
+      heroSummary: `${DAYSX.length === 1 ? '당일치기' : `${DAYSX.length}일`} · ${all.length}곳 · 도보 ${(all.reduce((s, i) => s + i.walk, 0) / 1000).toFixed(1)}km · 약 ${(total / 10000).toFixed(1)}만원`,
+      departClock: clock(mins(items[0].time) - items[0].min),
+      hasDayTabs: DAYSX.length > 1,
+      pillLeft: `calc(4px + ${day} * (100% - 8px) / ${DAYSX.length})`, pillWidth: `calc((100% - 8px) / ${DAYSX.length})`,
+      reorderOutline: reorder ? '#D83A48' : '#EBEBEF', reorderBgD: reorder ? '#D83A48' : '#fff', reorderColorD: reorder ? '#fff' : '#191919',
+      dayTabs: DAYSX.map((d, i) => ({ label: `${i + 1}일차`, bg: i === day ? '#191919' : 'transparent', color: i === day ? '#fff' : '#444',
+        onClick: () => { clearInterval(this.timer); this.setState({ day: i, status: 'PLANNED', phase: 'move', current: 0, outcomes: {}, progress: 0, reorder: false, order: null }); } })),
+      isReorder: reorder, notReorder: !reorder,
+      reorderLabel: reorder ? '수정 완료' : '순서 수정', reorderBg: reorder ? '#D83A48' : '#E9E9EC', reorderColor: reorder ? '#fff' : '#191919',
+      // 이름 바꾸기 — 데스크톱은 모달, 폰은 탭바가 시트로 자란다(328×64 → 361×340)
+      tripTitle: this.state.title, naming: this.state.naming, titleDraft: this.state.titleDraft,
+      titlePreview: this.state.titleDraft.trim() || '10.3(토) – 10.5(월) · 2박',
+      saveLabel: this.state.titleDraft.trim() ? '저장' : '지우고 저장',
+      openNaming: () => this.setState(s => ({ naming: true, titleDraft: s.title, reorder: false })),
+      closeNaming: () => this.setState({ naming: false }),
+      stop: e => e.stopPropagation(),
+      setTitleDraft: e => this.setState({ titleDraft: e.target.value }),
+      saveNaming: () => this.setState(s => ({ naming: false, title: s.titleDraft.trim() || '10.3(토) – 10.5(월) · 2박' })),
+      barWidth: this.state.naming ? '361px' : '328px', barHeight: this.state.naming ? '340px' : '64px',
+      sheetOpacity: this.state.naming ? 1 : 0, sheetEvents: this.state.naming ? 'auto' : 'none',
+      tabBarBg: reorder ? '#191919' : '#fff',
+      tabsTransform: reorder ? 'translateY(24px)' : 'none', tabsOpacity: reorder || this.state.naming ? 0 : 1, tabsEvents: reorder || this.state.naming ? 'none' : 'auto',
+      doneTransform: reorder ? 'none' : 'translateY(-24px)', doneOpacity: reorder ? 1 : 0, doneEvents: reorder ? 'auto' : 'none',
+      toggleReorder: () => this.setState(s => ({ reorder: !s.reorder, order: s.reorder ? s.order : this.items().map(i => i.id) })),
+      dayNo: day + 1, dayHeading: DAYSX[day].date,
+      dayFacts: `도보 ${(items.reduce((s, i) => s + i.walk, 0) / 1000).toFixed(1)}km · ${won(dayTotals[day])}`,
+      stops, stopCount: items.length, travelMin: items.reduce((s, i) => s + i.min, 0), modes: '도보·버스·지하철',
+      walkShares: items.map(i => i.walk), walkKm: `${(items.reduce((s, i) => s + i.walk, 0) / 1000).toFixed(1)}km`,
+      totalWon: won(total), budgetWon: won(budget),
+      verdict: over ? `예산을 ${remainMan.toFixed(1)}만원 넘어요` : `예산에 맞아요 · ${remainMan.toFixed(1)}만원 남음`, verdictColor: over ? '#B02A38' : '#2E9E5B',
+      barPct: `${Math.min(100, Math.round(total / budget * 100))}%`, barColor: over ? '#B02A38' : '#2B2B2E',
+      cats, perDay: dayTotals.map((v, i) => ({ label: `${i + 1}일차`, won: won(v), pct: `${Math.round(v / maxDay * 100)}%` })),
+    };
+  }
+}
+</script>
+</body>
+</html>
