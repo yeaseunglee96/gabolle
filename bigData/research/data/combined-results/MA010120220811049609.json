@@ -2,8 +2,68 @@
   "id": "MA010120220811049609",
   "name": "안단테",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 다대동로6번길 2 에 있는 '안단테'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:27:18.766Z"
+  "geminiTokens": 113652,
+  "researchedAt": "2026-09-21T14:29:19.739Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 인근 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돈가스",
+      "크림마레 파스타",
+      "케이크"
+    ],
+    "yearsClaimed": 2016
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간에 대한 명시적 언급 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "다대동 주택가 골목에서 가족 단위 및 인근 주민이 주로 찾는 동네 경양식 레스토랑"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "2016년 '돈파네'로 개업 후 '안단테'로 상호를 변경하여 운영한 곳으로, 호텔 및 뷔페 경력의 가족들이 돈가스, 파스타, 제과·디저트를 분담해 만든 경양식 식당입니다.",
+  "price": {
+    "found": false,
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'안단테'는 가족이 함께 운영하는 식당이다. 2016년 '돈파네'라는 이름으로 문을 연 후 리모델링을 거치며 '안단테'로 상호를 변경했다. 호텔 등에서 경력을 쌓은 가족들이 함께 운영하며 돈가스, 파스타, 케이크 등을 전문으로 했다. 특히 숙성 고기를 사용한 부드러운 식감의 돈가스와 세 가지 종류의 특제 소스, 직접 만든 식전 빵 등이 좋은 평가를 받았다. 부산시 사하구 다대동로6번길 2 (다대동).",
+      "url": "https://www.busan.com/view/busan/view.php?code=2019032719070335028"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com/view/busan/view.php?code=2019032719070335028"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숙성육으로 만들어 부드러운 식감의 돈가스와 호텔 조리 경력의 파스타 및 수제 디저트의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "호텔·뷔페 등에서 요리 경력을 쌓은 가족 구성원들이 전문적으로 분담 조리·운영",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
 }

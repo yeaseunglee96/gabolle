@@ -2,8 +2,84 @@
   "id": "MA010120220808440596",
   "name": "열돈이야기",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 선수촌로 74-13 에 있는 '열돈이야기'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:27:18.832Z"
+  "geminiTokens": 56879,
+  "researchedAt": "2026-09-21T14:29:26.195Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기열(줄서기)에 관한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 회식 객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "참숯 수제 양념 돼지갈비",
+      "생목살",
+      "삼겹살",
+      "껍데기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 17:00~24:00 (매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "주로 반여동 인근 주민 및 직장인 회식 등 현지 단골 중심 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 해운대구 반여동 선수촌로에 위치한 참숯 직화 수제 양념 돼지갈비 전문점으로, 단체룸과 전용 주차장을 갖춰 인근 주민들의 가족 외식 및 회식 장소로 주로 이용됨",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "참숯을 사용하여 굽는 수제 양념 돼지갈비 전문점으로 잘 알려져 있습니다. 단체 모임에 적합한 20명 안팎 수용 가능한 룸을 보유하고 있으며, 전용 주차장을 갖추고 있어 주차가 비교적 편리하다는 평이 많습니다. 영업시간: 화요일~일요일 17:00~24:00 (매주 월요일 휴무). 주요 메뉴: 수제 양념 돼지갈비, 생목살, 삼겹살, 껍데기. 된장찌개(매운맛/보통맛/순한맛 선택 가능), 달걀찜 등.",
+      "url": "https://www.siksinhot.com/P/1054611"
+    },
+    {
+      "excerpt": "참숯을 사용하여 구워내는 돼지갈비와 비법 소스가 강점으로 꼽히며, 가성비가 좋은 단골 고깃집으로 자주 언급됩니다. 단체룸을 갖추고 있어 회식 장소로도 추천되는 곳입니다. 반여동 내에서 보기 드물게 전용 주차장을 갖추고 있어 주차가 비교적 편리하다는 평이 많습니다. 주로 현지인들의 추천 맛집 리스트나 반여동 회식 장소 추천 콘텐츠에서 자주 확인할 수 있습니다.",
+      "url": "https://ndex.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1054611",
+    "https://ndex.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참숯 직화로 구워내는 비법 소스 기반의 수제 양념 돼지갈비 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전용 주차장 구비 및 20인 안팎 규모의 단체룸 완비로 가족 모임과 회식에 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "반여동 인근 주민들과 직장인들이 자주 찾는 단골 위주의 가성비 고깃집",
+      "sources": [
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
 }

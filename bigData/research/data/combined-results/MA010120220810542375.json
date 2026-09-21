@@ -2,8 +2,66 @@
   "id": "MA010120220810542375",
   "name": "동백초장",
   "cat": "횟집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 다대동로8번길 81 에 있는 '동백초장'(횟집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:27:18.742Z"
+  "geminiTokens": 69950,
+  "researchedAt": "2026-09-21T14:28:49.085Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 모임, 어르신 동반 손님, 현지 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "초장(상차림)",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "다대활어재래시장에서 횟감을 사서 이용하는 곳으로 현지인 및 가족 단위 방문객 위주로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "다대활어재래시장 인근의 초장집으로, 시장에서 사 온 활어/해산물을 인당 초장비를 내고 먹는 식당입니다. 매운탕 및 일부 탕류 조리가 가능합니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "초장비(1인) 5,000원, 매운탕 10,000원",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "다대활어재래시장에서 직접 구매한 활어나 해산물을 가게로 가져가면, 인당 초장비를 내고 회를 먹을 수 있는 방식입니다. 비용: 초장비 1인당 약 5,000원, 매운탕 약 10,000원. 지하철 다대포항역에서 도보로 약 3분 거리에 위치하여 접근성이 좋습니다. 회 본연의 맛에 집중하기 좋은 곳으로, 가족 단위나 모임 장소로도 현지인들에게 인기가 많습니다.",
+      "url": "https://www.siksinhot.com/P/322964"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/322964"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 다대활어재래시장에서 횟감을 저렴하게 떠와 상차림비만 내고 신선하게 즐길 수 있어 가성비가 좋음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "지하철 다대포항역 및 다대활어재래시장과 인접하여 활어를 사서 바로 먹기에 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

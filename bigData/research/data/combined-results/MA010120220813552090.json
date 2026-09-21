@@ -2,8 +2,72 @@
   "id": "MA010120220813552090",
   "name": "천운숯불갈비",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 남구 고동골로4번길 5 에 있는 '천운숯불갈비'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:27:18.877Z"
+  "geminiTokens": 70215,
+  "researchedAt": "2026-09-21T14:30:21.889Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "돼지양념갈비",
+      "영양솥밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~ 22:00 (영업 종료)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 남구 문현동(고동골로4번길 5)에 위치한 돼지고기 구이 전문점으로 달콤한 돼지양념갈비와 영양솥밥이 대표 메뉴이며 맞은편 공영주차장 지원 및 유아의자 구비 등 가족 단위 식사에 적합한 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가게 맞은편 공영 주차장을 1시간 무료로 이용할 수 있습니다. 유아의자가 준비되어 있고 가족 단위 방문객을 위한 세심한 배려가 있다는 후기가 있습니다. 대표메뉴는 돼지양념갈비, 영양솥밥 등입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "달콤한 양념돼지갈비와 영양솥밥, 냉면의 조화로운 식사 메뉴 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "유아의자 구비 및 맵기 조절 배려 등 가족 외식에 친화적인 응대",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "매장 맞은편 공영주차장 무료 지원으로 편리한 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

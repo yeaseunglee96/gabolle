@@ -2,8 +2,57 @@
   "id": "MA010120220810522237",
   "name": "오늘은돈까스먹는날",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 서구 남부민로10번길 20-3 에 있는 '오늘은돈까스먹는날'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. *",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:27:18.957Z"
+  "geminiTokens": 167812,
+  "researchedAt": "2026-09-21T14:30:47.529Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주변 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈까스(소)",
+      "치즈돈까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 08:30 ~ 20:30"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 서구 남부민동에 위치한 수제 돈까스 및 분식점으로 대표메뉴(돈까스, 치즈돈까스)와 영업시간이 확인되나 방문객 후기나 대기열 정보 등은 웹상에 상세히 노출되어 있지 않은 동네 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "바삭한 수제돈까스를 맛볼 수 있는 곳입니다. 대표메뉴: 돈까스(소), 치즈돈까스. 영업시간: 주중 08:30 ~ 20:30. 주소: 부산광역시 서구 남부민로10번길 20-3 (남부민동 673-2)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바삭하게 튀겨내는 수제 돈까스와 치즈돈까스를 간편하게 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

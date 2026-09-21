@@ -2,8 +2,48 @@
   "id": "MA010120220811470440",
   "name": "돈까스의나라",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 선수촌로 10 에 있는 '돈까스의나라'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:27:18.819Z"
+  "geminiTokens": 44387,
+  "researchedAt": "2026-09-21T14:29:22.035Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해운대구 반여동/선수촌로 인근 상가/사업체 데이터상 등록 이력(경양식/간이음식점)은 확인되나, 현재 폐업 상태로 추정되며 실제 소비자의 방문 리뷰, 메뉴판, 영업시간 등 상세 운영 정보를 확인할 수 없어 found: false로 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 반여동 선수촌로 인근에 위치했던 것으로 기록되어 있으며... 업종: 한식 일반 음식점업 또는 기타 간이 음식점업, 경양식 등으로 분류되었습니다.",
+      "url": "https://www.saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://www.infosori.com"
+  ],
+  "whyPeopleGo": []
 }

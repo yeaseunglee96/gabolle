@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202303A0074450",
+  "name": "임금님초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 75045,
+  "researchedAt": "2026-09-21T14:28:32.359Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 동네 주민, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "[성은] 모듬초밥",
+      "[홍연] 생 연어초밥",
+      "[백자] 대 광어초밥"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notes": "부산 수영구 망미로7번길 18-3에 위치한 일식 초밥 전문점으로 바 테이블과 좌식 공간을 갖추고 있으며 모듬초밥, 연어초밥, 광어초밥 등 다양한 단품/세트 초밥을 제공함.",
+  "price": {
+    "found": true,
+    "priceMenu": "[성은] 모듬초밥 12ps",
+    "priceWon": 18000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 망미로7번길 18-3 (1층). 일본 느낌의 초밥집으로 알려져 있으며, 바 테이블과 좌식 공간을 갖추고 있어 담백하고 정갈한 분위기의 식사가 가능한 곳으로 소개됩니다. 초밥 메뉴 (12ps 기준): [성은] 모듬초밥: 18,000원, [홍연] 생 연어초밥: 20,000원, [백자] 대 광어초밥: 20,000원, 광어/연어 반반 초밥: 20,000원.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정갈하고 일본풍 분위기의 공간에서 즐길 수 있는 모듬 및 생연어·광어 초밥",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

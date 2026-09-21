@@ -2,8 +2,75 @@
   "id": "MA010120220809619838",
   "name": "마린초밥",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 선수촌로 86-9 에 있는 '마린초밥'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:27:18.805Z"
+  "geminiTokens": 55670,
+  "researchedAt": "2026-09-21T14:29:21.089Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인, 참치/초밥 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "특미초밥",
+      "특선초밥",
+      "참치 모듬"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 17:00 – 02:00, 일요일 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "반여동 동네 골목 2층에 위치하여 외지 관광객보다는 인근 주민 및 직장인 위주의 로컬 초밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "서울 은행골 스타일의 밥알이 부드럽게 풀리는 초밥과 참치·사시미 모듬 등을 취급하는 동네 일식집",
+  "price": {
+    "found": true,
+    "priceMenu": "특미초밥 14,000원, 특선초밥 19,000원, 참치 모듬 2인 60,000원",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "마린초밥&참치 반여점. 위치: 부산 해운대구 선수촌로 86-9 2층(반여1동 우리은행 맞은편 골목, 청산곱창 앞 건물 2층). 전화번호: 051-532-1144. 영업시간: 월~토 17:00 – 02:00, 일요일 휴무. 서울 은행골 스타일의 부드러운 초밥을 표방하며 입안에서 잘 풀어지는 식감이 특징. 특미초밥 14,000원, 특선초밥 19,000원, 참치 모듬 2인 60,000원.",
+      "url": "https://heyyumi.ai"
+    },
+    {
+      "excerpt": "반여동 밥집 홀딱반한 마린초밥의 점심특선. 부산 해운대구 선수촌로 86-9 2층에 위치. 매장은 아담한 편이며 바 형태와 테이블석이 마련되어 있음.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "입안에서 부드럽게 풀리는 은행골 스타일의 초밥 밥알 식감과 숙성 참치 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "점심특선 및 초밥 세트의 부담 없는 가격 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
 }

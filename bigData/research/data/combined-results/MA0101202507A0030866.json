@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202507A0030866",
+  "name": "램블",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 34567,
+  "researchedAt": "2026-09-21T14:29:16.916Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "드라이브 및 브런치 방문객, 연인, 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "브런치 플레이트",
+      "알리오 올리오",
+      "과카몰리 샌드위치"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00~21:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "만덕고개 드라이브 코스로 방문하는 인근 주민/나들이객 위주"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 북구 만덕고개길에 위치한 대형 브런치 카페 겸 경양식 식당으로, 숲속 뷰와 루프탑, LP 감상 공간이 마련되어 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "숲속 뷰를 즐길 수 있는 대형 브런치 카페로, 1층 LP 음악 감상 공간부터 루프탑까지 건물 전체가 카페로 운영됩니다. 주차장이 넓어 드라이브 코스로도 인기가 많습니다. 운영 시간: 10:00~21:00 (연중무휴) 주요 메뉴: 브런치 플레이트, 알리오 올리오, 과카몰리 샌드위치 등",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "만덕고개 숲속 뷰 전망과 루프탑, LP 음악 감상 공간 및 넓은 주차 시설을 갖춰 드라이브 브런치 명소로 찾음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
