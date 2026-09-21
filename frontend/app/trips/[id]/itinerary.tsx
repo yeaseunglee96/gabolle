@@ -218,7 +218,8 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
         </View>
         {!isLast && !wide ? <View style={styles.railLine} /> : null}
       </View>
-      <View style={[styles.stopBody, pace?.atRisk && styles.stopBodyAtRisk]}>
+      {/* 🔴 위험은 세로줄이 아니라 말로 — 왼쪽 붉은 3px 줄은 뜻이 그 자리에 없어 「왜 빨간 줄이 있지」로 읽혔다(2026-09-21 실기, S15P21E201-1400). */}
+      <View style={styles.stopBody}>
         <View style={styles.stopHead}>
           <StopPhoto placeId={item.placeId} wide={wide} />
           {/* 펼치는 손잡이는 제목 덩이에만 둔다. 행 전체를 Pressable 로 감싸면 그 안의
@@ -228,6 +229,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
             <View style={styles.titleLine}>
               <Text variant={wide ? 'title' : 'body'} weight="bold" style={styles.titleText}>{item.title}</Text>
               {item.dataStatus ? <View style={[styles.statusChip, STATUS_CHIP[item.dataStatus]]}><Text variant="caption" weight="bold" color={STATUS_COLOR[item.dataStatus]}>{STATUS_LABEL[item.dataStatus]}</Text></View> : null}
+              {pace?.atRisk ? <View style={[styles.statusChip, styles.riskChip]}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('하루 넘길 위험', 'May run past the day')}</Text></View> : null}
             </View>
             {/* 서버가 늘 null 로 주는 칸이다. 있으면 그리고 없으면 줄을 만들지 않는다. */}
             {item.description ? <Text variant="caption" color={color.text.body} numberOfLines={expanded ? undefined : 1}>{item.description}</Text> : null}
@@ -1002,7 +1004,7 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   stopRow: { flexDirection: 'row', gap: spacing[3], alignItems: 'stretch' },
   stopRowWide: { borderBottomWidth: 1, borderBottomColor: color.surface.border, paddingVertical: spacing[3] },
   stopBody: { flex: 1, minWidth: 0, gap: spacing[2], paddingBottom: spacing[3] },
-  stopBodyAtRisk: { borderLeftWidth: 3, borderLeftColor: color.state.danger, paddingLeft: spacing[3] },
+  riskChip: { backgroundColor: color.state.dangerBg },
   stopHead: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
   stopPhoto: { width: 56, height: 56, borderRadius: radius.md, backgroundColor: color.surface.soft },
   stopPhotoWide: { width: 72, height: 72 },

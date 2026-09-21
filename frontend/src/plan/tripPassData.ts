@@ -5,7 +5,7 @@ import { pickLanguage } from '@/i18n';
 import { txf } from '@/i18n/format';
 import type { LanguageCode } from '@/i18n/languages';
 
-export type TripPassField = { key: string; value: string };
+export type TripPassField = { key: string; value: string; /** 온 칸을 쓴다 — 장소 이름처럼 3분의 1 칸에 안 들어가는 값. */ wide?: boolean };
 
 export type TripPassData = {
   /** 영수증 오른쪽 위 코드. 같은 일정이면 언제나 같은 값이 나온다. */
@@ -152,7 +152,7 @@ export function buildTripPass(input: TripPassInput): TripPassData {
   }
 
   const firstStopName = allItems[0]?.title?.trim();
-  if (firstStopName) fields.push({ key: tx('첫 일정', 'First stop'), value: firstStopName });
+  if (firstStopName) fields.push({ key: tx('첫 일정', 'First stop'), value: firstStopName, wide: true });
 
   const modeKey = (input.transport ?? '').toUpperCase();
   const modeLabel = MODE_LABEL[modeKey];
