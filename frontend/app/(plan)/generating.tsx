@@ -4,6 +4,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '@/auth/AuthProvider';
 import { AccessibilityUnverifiedModal } from '@/components/AccessibilityUnverifiedModal';
 import { Button } from '@/components/Button';
+import { Eyebrow } from '@/components/Eyebrow';
+import { GabolleMascot } from '@/components/DongbaekMascot';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
@@ -211,13 +213,53 @@ export default function Generating() {
   return <Screen scroll wide style={styles.canvas}>
     {kind === 'phone' && <View style={styles.mobileTop}><Pressable accessibilityRole="button" accessibilityLabel={tx('조건 확인으로 돌아가기', 'Back to trip review')} onPress={() => router.replace('/plan')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold" color={color.brand.ivory}>{tx('생성', 'Generate')}</Text></View></View>}
     <View style={[styles.layout, kind !== 'phone' && styles.layoutWide]}>
-      {!(kind === 'phone' && job.state === 'completed') && <View style={[styles.statusPanel, kind !== 'phone' && styles.statusWide]}>
+      {/* 🔴 폰 · 만드는 중/실패는 시안 5 의 03b 「동백이 대기 화면」이다(S15P21E201-1415). 전에는 검은 띠에
+          「AI가…」만 있고 동백이가 없었고, 만드는 중인데도 아래에 빈 승차권 프린터(출발 —)가 같이 보였다.
+          승차권은 완성됐을 때(03c)만 나온다. 넓은 화면은 아래의 띠 + 승차권 나란히 그대로. */}
+      {kind === 'phone' && job.state !== 'completed' ? (
+        <View style={styles.waitScreen}>
+          <Eyebrow>{failed ? tx('일정 생성 실패', 'Itinerary generation failed') : tx('AI 일정 생성', 'AI itinerary')}</Eyebrow>
+          <Text variant="display" weight="bold" style={styles.waitHeadline}>{failed ? tx('이번엔 일정을\n만들지 못했어요', "Couldn't build\nthis one") : tx('동백이가 당신만을 위한\n부산 여행을 만들고 있어요', 'Dongbaek is building\nyour own Busan trip')}</Text>
+          <Text variant="caption" color={color.text.body}>{failed ? job.errorMessage : delayed && isWorking ? tx('부산 동선을 조금 더 다듬고 있어요. 화면을 닫아도 작업은 계속됩니다.', 'We are refining your route through Busan. The job continues if you leave this screen.') : tx('현지 정보와 안전 조건, 이동 부담을 함께 확인하고 있어요.', 'We are checking local information, safety, and travel effort together.')}</Text>
+          <View style={styles.waitMascotBlock}>
+            <View style={styles.waitMascotCircle}>
+              <View style={styles.waitMascotRing} />
+              <GabolleMascot state={failed ? 'sad' : 'thinking'} still={failed} style={styles.waitMascot} />
+            </View>
+            <Text weight="bold">{failed ? tx('조건을 조금 넓혀서 다시 해 볼까요?', 'Shall we widen the conditions and try again?') : tx('잠시만요, 딱 맞는 동선을 찾고 있어요!', 'One moment — finding the route that fits you!')}</Text>
+          </View>
+          {!failed ? (
+            <View accessibilityLiveRegion="polite" style={styles.waitStages}>{STAGES.map((item, index) => { const done = index < currentStage; const active = index === currentStage && isWorking; return (
+              <View key={item.label} style={[styles.waitStage, active && styles.waitStageActive]}>
+                <View style={[styles.waitStageIcon, done && styles.stageDone, active && styles.waitStageIconActive]}>{done ? <Text variant="caption" weight="bold" color={color.text.onAction}>✓</Text> : <View style={[styles.waitStageDot, active && styles.waitStageDotActive]} />}</View>
+                <Text weight={done || active ? 'bold' : 'medium'} color={done || active ? color.text.heading : color.text.muted} style={styles.stageText}>{language === 'en' ? item.en : item.label}</Text>
+                <Text variant="caption" weight="bold" color={done ? color.state.success : active ? color.text.heading : color.text.muted}>{done ? tx('완료', 'Done') : active ? tx('진행 중', 'In progress') : tx('대기', 'Waiting')}</Text>
+              </View>); })}</View>
+          ) : null}
+          {job.progress !== null && !failed ? (
+            <View style={styles.waitProgress}>
+              <View style={styles.waitTrack}><View style={[styles.waitFill, { width: `${job.progress}%` }]} /></View>
+              <View style={styles.waitProgressRow}><Text variant="caption" weight="bold">{stageLabel(job.stage, tx) ?? tx('요청 접수', 'Request received')} · {job.progress}%</Text><Text variant="caption" color={color.text.muted}>{tx('완성되면 자동으로 넘어가요', 'Moves on by itself when done')}</Text></View>
+            </View>
+          ) : null}
+          <View style={styles.waitActions}>
+            {failed
+              ? <Button label={tx('조건 다시 확인하기', 'Review trip details')} variant="outline" onPress={() => router.replace('/plan')} />
+              : <>
+                  <Button label={tx('백그라운드에서 계속', 'Continue in background')} variant="secondary" onPress={() => router.replace('/home')} />
+                  {/* 홈에는 아직 「만드는 중」 알림 줄이 없다 — 있다고 말하지 않는다. 완성된 일정이 실제로 보이는 곳(내 여행)을 말한다. */}
+                  <Text variant="caption" color={color.text.muted} style={styles.waitNote}>{tx('화면을 닫아도 작업은 계속돼요 · 완성된 일정은 「내 여행」에서 볼 수 있어요', 'Leaving this screen keeps the job running · the finished trip shows up under My trips')}</Text>
+                </>}
+          </View>
+        </View>
+      ) : null}
+      {!(kind === 'phone' && job.state !== 'completed') && <View style={[styles.statusPanel, kind !== 'phone' && styles.statusWide]}>
         {/* 시안 p4 — 네이비는 위에 가로로 눕는 띠다. 왼쪽에 글, 오른쪽에 단계 넷을
             2열로 둔다. 전에는 왼쪽 44% 세로 칸이라 여행표가 옆으로 밀려 있었다.
         */}
         <View style={kind !== 'phone' ? styles.statusCopy : undefined}>
         <View style={styles.aiBadge}><View style={[styles.pulse, isWorking && styles.pulseActive]} /><Text variant="caption" weight="bold" color={color.text.onAction}>{job.state === 'completed' ? tx('AI 일정 완성', 'AI itinerary ready') : failed ? tx('일정 생성 실패', 'Itinerary generation failed') : tx('AI 일정 생성 중', 'Creating your itinerary')}</Text></View>
-        <Text variant="display" weight="bold" color={color.brand.ivory} style={styles.headline}>{job.state === 'completed' ? tx(kind === 'phone' ? '당신만의 부산 여행이\n완성됐어요' : '당신만의 부산 여행이 완성됐어요', kind === 'phone' ? 'Your Busan trip\nis ready' : 'Your Busan trip is ready') : failed ? tx('일정을 만들지\n못했어요', "We couldn't build\nyour itinerary") : tx('AI가 당신만을 위한\n부산 여행을 만들고 있어요', 'AI is building\nyour Busan trip')}</Text>
+        <Text variant="display" weight="bold" color={color.brand.ivory} style={styles.headline}>{job.state === 'completed' ? tx(kind === 'phone' ? '당신만의 부산 여행이\n완성됐어요' : '당신만의 부산 여행이 완성됐어요', kind === 'phone' ? 'Your Busan trip\nis ready' : 'Your Busan trip is ready') : failed ? tx('일정을 만들지\n못했어요', "We couldn't build\nyour itinerary") : tx('동백이가 당신만을 위한\n부산 여행을 만들고 있어요', 'Dongbaek is building\nyour Busan trip')}</Text>
         <Text color={color.text.onDarkMuted}>{failed ? job.errorMessage : delayed && isWorking ? tx('부산 동선을 조금 더 다듬고 있어요. 화면을 닫아도 작업은 계속됩니다.', 'We are refining your route through Busan. The job continues if you leave this screen.') : tx('현지 정보와 안전 조건, 이동 부담을 함께 확인하고 있어요.', 'We are checking local information, safety, and travel effort together.')}</Text>
         {/* 끝났으면 진행률을 치운다. 100% 로 멈춘 막대와 "처리 중" 이라는
             단계 이름은 완료된 뒤에는 정보가 아니라 거짓이다 — 위의 단계 목록이 이미 전부
@@ -228,7 +270,7 @@ export default function Generating() {
         </View>
         {!failed && <View accessibilityLiveRegion="polite" style={[styles.stageList, kind !== 'phone' && styles.stageListWide]}>{STAGES.map((item, index) => { const done = index < currentStage || job.state === 'completed'; const active = index === currentStage && isWorking; return <View key={item.label} style={[styles.stage, kind !== 'phone' && styles.stageItemWide, active && styles.stageActive]}><View style={[styles.stageIcon, done && styles.stageDone]}><Text variant="caption" weight="bold" color={done ? color.text.onAction : active ? color.action.primary : color.text.muted}>{done ? '✓' : '○'}</Text></View><Text weight={done || active ? 'bold' : 'regular'} color={done || active ? color.text.onAction : color.text.muted} style={styles.stageText}>{language === 'en' ? item.en : item.label}</Text><Text variant="caption" color={done ? color.state.success : active ? color.action.primary : color.text.muted}>{done ? tx('완료', 'Done') : active ? tx('진행 중', 'In progress') : tx('대기', 'Waiting')}</Text></View>; })}</View>}
       </View>}
-      <View style={styles.ticketArea}>
+      {kind === 'phone' && job.state !== 'completed' ? null : <View style={styles.ticketArea}>
         {/* 시안 TripPassCard 의 머리줄 — 왼쪽 뒤로가기 · 가운데 TRIP PASS · 오른쪽 승차권 번호. */}
         {kind !== 'phone' ? (
           <View style={styles.passHead}>
@@ -276,7 +318,7 @@ export default function Generating() {
         {/* 승차권 뒷면의 「일정 보기 →」가 문이다 — 같은 곳으로 가는 큰 단추를 아래 또 두지 않는다(2026-09-21 실기, S15P21E201-1381). */}
         {job.state === 'completed' && kind === 'phone' && <View style={styles.actions}><Text variant="caption" color={color.text.muted}>{tx('승차권을 눌러 뒤집으면 「일정 보기」가 있어요.', 'Tap the pass to flip it — “View itinerary” is on the back.')}</Text></View>}
         </View>
-      </View>
+      </View>}
     </View>
     <AccessibilityUnverifiedModal
       visible={accessibilityNotice !== null}
@@ -289,6 +331,26 @@ export default function Generating() {
 const styles = StyleSheet.create({ canvas: { backgroundColor: color.canvas, maxWidth: 1200 }, mobileTop: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] }, back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, logo: { width: 154, height: 28 }, stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy }, layout: { gap: spacing[4] }, layoutWide: { minHeight: 720 }, statusPanel: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy }, statusWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[8], paddingHorizontal: spacing[8], paddingVertical: spacing[6] }, aiBadge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, pulse: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: '#4a5568' }, pulseActive: { backgroundColor: color.state.dot }, headline: { lineHeight: 32 }, stageList: { gap: spacing[2] },
   stageItemWide: { width: '48%' },
   stageListWide: { width: 440, flexShrink: 0, flexDirection: 'row', flexWrap: 'wrap' },
+  // ── 03b 동백이 대기 화면(폰) ──
+  waitScreen: { gap: spacing[2], minHeight: 640 },
+  waitHeadline: { lineHeight: 34 },
+  waitMascotBlock: { alignItems: 'center', gap: spacing[3], paddingVertical: spacing[4] },
+  waitMascotCircle: { width: 176, height: 176, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.blush },
+  waitMascotRing: { position: 'absolute', top: 12, left: 12, right: 12, bottom: 12, borderRadius: radius.full, borderWidth: 1.5, borderStyle: 'dashed', borderColor: color.action.outline, opacity: 0.45 },
+  waitMascot: { width: 128, height: 128 },
+  waitStages: { gap: 2, padding: 6, borderRadius: radius.lg, backgroundColor: color.surface.card },
+  waitStage: { minHeight: 50, flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.md },
+  waitStageActive: { backgroundColor: color.surface.soft },
+  waitStageIcon: { width: 26, height: 26, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
+  waitStageIconActive: { backgroundColor: color.surface.card },
+  waitStageDot: { width: 10, height: 10, borderRadius: radius.full, borderWidth: 2, borderColor: color.surface.field },
+  waitStageDotActive: { borderColor: color.text.heading },
+  waitProgress: { gap: spacing[2], marginTop: spacing[3] },
+  waitTrack: { height: 6, borderRadius: radius.full, overflow: 'hidden', backgroundColor: color.surface.field },
+  waitFill: { height: 6, borderRadius: radius.full, backgroundColor: color.text.heading },
+  waitProgressRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: spacing[2] },
+  waitActions: { marginTop: 'auto', paddingTop: spacing[6], gap: spacing[2] },
+  waitNote: { textAlign: 'center' },
   statusCopy: { flex: 1, minWidth: 0, gap: spacing[2] }, stage: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.06)' }, stageActive: { borderWidth: 1, borderColor: 'rgba(216,58,72,0.45)', backgroundColor: 'rgba(216,58,72,0.08)' }, stageIcon: { width: 28, height: 28, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, stageDone: { backgroundColor: color.state.success }, stageText: { flex: 1 }, progressBlock: { gap: spacing[2] }, progressTrack: { height: 6, overflow: 'hidden', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, progressFill: { height: 6, borderRadius: radius.full, backgroundColor: color.state.dot }, // 🔴 시안 TripPassCard 는 **흰 카드 하나**다. 머리줄(‹ · TRIP PASS · 코드) 아래에
   // 티켓과 상세가 나란히 서고, 「다시 출력」이 카드 바닥 가운데에 온다.
   // 전에는 베이지 판 위에 티켓만 있고 상세가 따로 뜬 흰 카드였다.
