@@ -87,10 +87,10 @@ export function MyPostsBody() {
 
       {!loading && result.state === 'success' && shown.length === 0 ? (
         <View style={styles.empty}>
-          <GabolleMascot state="idle" style={styles.mascot} />
+          <GabolleMascot state="idle" still style={styles.mascot} />
           <Text variant="title" weight="bold">{items.length ? tx('이 조건에 맞는 기록이 없어요', 'No records match this filter') : tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>
-          <Text style={styles.emptyCopy}>{tx('다녀온 곳을 한 줄만 남겨도 다른 사람의 다음 여행이 돼요.', 'Even one line about a place you visited becomes someone else’s next trip.')}</Text>
-          {items.length === 0 ? <Button label={tx('피드에 첫 기록 남기기', 'Write your first record')} onPress={() => router.push('/feed/compose')} containerStyle={styles.emptyCta} /> : null}
+          <Text style={styles.emptyCopy}>{items.length ? tx('다른 조건으로 보거나 새 기록을 남겨 보세요.', 'Try another filter or write a new record.') : tx('여행 중 찍은 사진 한 장이면 충분해요.\n기록은 피드에도 함께 보여요.', 'One photo from your trip is enough.\nYour records also show up in the feed.')}</Text>
+          {items.length === 0 ? <Button label={tx('첫 기록 남기기', 'Write your first record')} variant="secondary" onPress={() => router.push('/feed/compose')} containerStyle={styles.emptyCta} /> : null}
         </View>
       ) : null}
 
@@ -149,9 +149,9 @@ const styles = StyleSheet.create({
   stateCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
 
   empty: { alignItems: 'center', gap: spacing[2], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
-  mascot: { width: 88, height: 88 },
+  mascot: { width: 104, height: 104 },
   emptyCopy: { textAlign: 'center' },
-  emptyCta: { marginTop: spacing[2] },
+  emptyCta: { marginTop: spacing[2], minWidth: 220 },
 
   list: { gap: spacing[3] },
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
