@@ -48,6 +48,8 @@ export default function Trips() {
   const [picker, setPicker] = useState<{ tripId: string; itineraries: TripItineraryRefDto[] } | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<TripSummaryDto | null>(null);
   const [removingTripId, setRemovingTripId] = useState<string | null>(null);
+  // 🔴 「여행 삭제」는 ⋯ 안에 있다 — 카드마다 붉은 글자로 서 있으면 실수로 누르기 쉬운 자리다(2026-09-21, S15P21E201-1393).
+  const [menuTripId, setMenuTripId] = useState<string | null>(null);
   // 이름을 바꾸거나 붙이려고 연 여행. null 이면 안 열려 있다.
   const [naming, setNaming] = useState<TripSummaryDto | null>(null);
 
@@ -152,15 +154,28 @@ export default function Trips() {
       </Pressable> : <View />}
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}
-        accessibilityState={{ busy: removingTripId === trip.tripId, disabled: removingTripId === trip.tripId }}
-        disabled={removingTripId === trip.tripId}
-        onPress={(event) => { event.stopPropagation(); setConfirmTarget(trip); }}
-        style={({ pressed }) => [styles.removeButton, pressed && styles.removeButtonPressed]}
+        accessibilityLabel={tx('더 보기', 'More')}
+        accessibilityState={{ expanded: menuTripId === trip.tripId }}
+        onPress={(event) => { event.stopPropagation(); setMenuTripId((open) => (open === trip.tripId ? null : trip.tripId)); }}
+        style={({ pressed }) => [styles.moreButton, pressed && styles.removeButtonPressed]}
       >
-        <Text variant="caption" weight="bold" color={color.state.danger}>{removingTripId === trip.tripId ? tx('처리 중…', 'Working…') : trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}</Text>
+        <Text variant="title" color={color.text.muted}>⋯</Text>
       </Pressable>
       </View>
+      {menuTripId === trip.tripId ? (
+        <View style={styles.cardMenu}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}
+            accessibilityState={{ busy: removingTripId === trip.tripId, disabled: removingTripId === trip.tripId }}
+            disabled={removingTripId === trip.tripId}
+            onPress={(event) => { event.stopPropagation(); setMenuTripId(null); setConfirmTarget(trip); }}
+            style={({ pressed }) => [styles.cardMenuItem, pressed && styles.removeButtonPressed]}
+          >
+            <Text variant="caption" weight="bold" color={color.state.danger}>{removingTripId === trip.tripId ? tx('처리 중…', 'Working…') : trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}</Text>
+          </Pressable>
+        </View>
+      ) : null}
     </View>)}</View> : null}
   </Screen><TabBar active="map" />
 
@@ -223,7 +238,7 @@ const styles = StyleSheet.create({
   statusPillLive: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] }, liveDot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.state.success },
   statusPillPending: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.dangerBg, borderWidth: 1, borderColor: color.state.danger },
   cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: spacing[2] },
-  removeButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, removeButtonPressed: { opacity: 0.6 },
+  removeButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, moreButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, cardMenu: { alignSelf: 'flex-end', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card }, cardMenuItem: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4] }, removeButtonPressed: { opacity: 0.6 },
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   modalCard: { width: '100%', maxWidth: 480, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   pickerList: { gap: spacing[2] }, pickerItem: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.soft },
