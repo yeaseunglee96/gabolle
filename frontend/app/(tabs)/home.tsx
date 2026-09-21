@@ -316,6 +316,8 @@ export default function Home() {
           style={({ pressed }) => [styles.assistantButton, pressed && styles.pressed]}
         >
           <GabolleMascot state="idle" style={styles.assistantMascot} />
+          {/* 시안 5 Home — 흰 원 위의 동백이, 오른쪽 위에 작은 「AI」 표. 원이 있어야 사진 위에서도 눌리는 것으로 보인다(S15P21E201-1381). */}
+          <View style={styles.assistantBadge}><Text variant="micro" weight="bold" color={color.action.outline}>AI</Text></View>
         </Pressable>
       </View>
 
@@ -409,6 +411,7 @@ const styles = StyleSheet.create({
 
   // 메뉴가 이 상자 위에 뜬다. 절대 위치를 단추가 아니라 감싸는 상자가 가진다.
   assistantAnchor: { position: 'absolute', right: spacing[6], zIndex: 20 },
-  assistantButton: { width: 68, height: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  assistantMascot: { width: 60, height: 60 },
+  assistantButton: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.14, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+  assistantBadge: { position: 'absolute', top: -2, right: -2, minWidth: 22, height: 18, paddingHorizontal: 5, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
+  assistantMascot: { width: 50, height: 50 },
 });

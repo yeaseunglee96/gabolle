@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.surface.tint,
+    backgroundColor: color.surface.blush,
   },
   toolIconImage: { width: 24, height: 24 },
   cardBody: {
