@@ -132,7 +132,7 @@ export function NotificationsBody() {
         <View style={styles.icon}><Image source={bellIcon} resizeMode="contain" style={styles.iconImage} /></View>
         <Text variant="title" weight="bold">{tx('아직 도착한 알림이 없어요', 'No notifications yet')}</Text>
         <Text variant="body" color={color.text.muted} style={styles.description}>{user ? tx('여행 일정이 만들어지거나 바뀌면 이곳에서 알려드려요.', "We'll let you know here when a trip is created or changed.") : tx('로그인하면 내 여행의 소식을 여기서 볼 수 있어요.', 'Sign in to see updates about your trips here.')}</Text>
-        {!user ? <Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/notifications' } })} containerStyle={styles.action} /> : null}
+        {!user ? <Button label={tx('로그인', 'Sign in')} variant="outline" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/notifications' } })} containerStyle={styles.action} /> : null}
         {feed.state === 'error' ? <Text variant="caption" color={color.state.danger}>{feed.message}</Text> : null}
         {permissionCard}
       </View>
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   rowBody: { flex: 1, minWidth: 0, gap: 2 },
   rowTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   rowTitleText: { flexShrink: 1 },
-  freshDot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.action.primary },
+  freshDot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.action.outline },
   footnote: { textAlign: 'center', marginTop: spacing[3] },
   permissionWrap: { alignItems: 'center', gap: spacing[3] },
   pressed: { opacity: 0.85 },
