@@ -25,7 +25,16 @@ export const TAB_BAR_HEIGHT = 64;
  */
 export const TAB_BAR_SHEET_HEIGHT = 560;
 
+// 세로에서 알약이 갖는 상한. 시안의 폭이다.
 const BAR_MAX_WIDTH = 328;
+// 🔴 가로에서는 이 상한을 쓰지 않는다. 폰을 가로로 돌리면 화면이 829dp 로 넓어지는데
+//    328 짜리 알약이 그대로 남아 «화면 한가운데 떠 있는 막대»로 보이고, 그 아래 글자를 덮는다
+//    (S15P21E201-1245 의 B-09 · 1475). 가로에서는 바닥에 걸친 «띠»가 되는 편이 맞다.
+//    가로를 포기하고 portrait 으로 잠그는 대신 이 길을 골랐다.
+function barMaxWidth(layoutWidth: number, isLandscape: boolean): number {
+  if (!isLandscape) return BAR_MAX_WIDTH;
+  return Math.max(BAR_MAX_WIDTH, layoutWidth - spacing[4] * 2);
+}
 const SHEET_MAX_WIDTH = 361;
 
 /** 늘어나고 줄어드는 데 걸리는 시간. 시안의 .42s cubic-bezier(.34,1.3,.64,1). */
@@ -88,7 +97,7 @@ export function TabBar({
 }) {
   const router = useRouter();
   const { tx } = useI18n();
-  const { kind } = useLayout();
+  const { kind, width: layoutWidth, isLandscape } = useLayout();
   const grow = useRef(new Animated.Value(0)).current;
   /** 0 이면 제자리, 1 이면 화면 아래로 내려가 사라진 상태. */
   const hide = useRef(new Animated.Value(0)).current;
@@ -148,8 +157,15 @@ export function TabBar({
       style={[
         styles.bar,
         {
+          width: Math.max(0, layoutWidth - spacing[4] * 2),
           height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, sheetHeight] }),
-          maxWidth: grow.interpolate({ inputRange: [0, 1], outputRange: [BAR_MAX_WIDTH, SHEET_MAX_WIDTH] }),
+          maxWidth: grow.interpolate({
+            inputRange: [0, 1],
+            outputRange: [
+              barMaxWidth(layoutWidth, isLandscape),
+              Math.max(SHEET_MAX_WIDTH, barMaxWidth(layoutWidth, isLandscape)),
+            ],
+          }),
         },
       ]}
     >
@@ -240,20 +256,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    // 🔴 alignItems 를 «주지 않는다». 주면 자식의 가로 크기가 내용 기준이 되고, 그러면
-    //    Yoga 가 아래 bar 의 width:'100%' 를 못 풀어 auto 로 떨어뜨린다 — 알약이 탭 다섯의
-    //    «글자 폭»으로만 그려진다. 세로(1080px)에서는 그 값이 화면을 거의 채워 안 보였지만,
-    //    가로(2280px)에서는 38% 짜리 막대가 화면 한가운데 뜬 것처럼 보이고 내용을 덮는다
-    //    (S15P21E201-1475 · 1245 의 B-09). 기본값 stretch 가 제 일을 하게 둔다.
+    // 알약은 «가운데»다. 폭이 상한(BAR_MAX_WIDTH)에 걸리므로 정렬을 빼면 왼쪽으로 쏠린다.
+    alignItems: 'center',
     // 🔴 화면 내용 위에 있어야 한다. 마이페이지가 시트를 열 때 어둠막(20)을 깔므로
     //    그보다 높아야 시트가 가려지지 않는다 — 안 주면 나중에 그린 것이 이긴다.
     zIndex: 30,
   },
   bar: {
-    // 🔴 폭을 백분율로 적지 않는다. dock 이 left:0·right:0 으로 폭이 정해져 있으므로
-    //    기본 stretch 로 그 폭을 그대로 받고, 좌우 여백만 준다. 백분율은 부모의 가로 크기가
-    //    «자동»이 되는 순간 조용히 auto 로 떨어진다 — 그 자리가 이 결함이었다.
-    marginHorizontal: spacing[4],
+    alignSelf: 'center',
+    // 🔴 폭은 화면에서 받아 «숫자»로 넣는다(아래 barWidth). 전에는 width:'100%' 였는데,
+    //    부모(dock)가 alignItems:'center' 라 자식의 가로 크기가 내용 기준이 되고 그러면
+    //    Yoga 가 그 백분율을 못 풀어 auto 로 떨어진다 — 상한에 가려 티가 안 났을 뿐이다.
     overflow: 'hidden',
     backgroundColor: color.surface.card,
     borderRadius: radius.lg,
