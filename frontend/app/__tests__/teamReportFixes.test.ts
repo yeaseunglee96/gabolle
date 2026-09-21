@@ -79,4 +79,10 @@ describe('취향 문항 수를 세어서 정한다', () => {
     expect(source).toContain("tx('취향', 'Travel tastes')");
     expect(source).not.toContain("tx('취향 다섯'");
   });
+
+  it('지우기 안내문도 개수를 안 적는다 — 「여덟 답」이 남아 있었다', () => {
+    const source = read('src/me/panels/PreferencesBody.tsx');
+    expect(source).toContain('기억해 둔 답을 모두 지워요');
+    expect(source).not.toContain('여덟 답을 모두 지워요');
+  });
 });

@@ -376,8 +376,11 @@ export function PreferencesBody() {
       <View style={styles.dangerCopy}>
         <Text variant="caption" weight="bold" color={color.state.danger}>{tx('기억 지우기', 'Forget everything')}</Text>
         <Text variant="caption" color={color.text.body}>
-          {tx('여덟 답을 모두 지워요. 다음 여행부터는 빈칸으로 시작해요.',
-            'Clears all eight answers. Your next trip starts blank.')}
+          {/* 🔴 「여덟」이라고 적혀 있었다. S15P21E201-1423 이 관광지 문항을 빼서 일곱인데
+              이 줄만 남았다(팀원 실기 지적). 새 숫자로 바꾸지 않는다 — 바꿔도 문항이 또
+              바뀌면 같은 자리에서 또 낡는다. 위 눈썹도 같은 이유로 숫자를 뺐다. */}
+          {tx('기억해 둔 답을 모두 지워요. 다음 여행부터는 빈칸으로 시작해요.',
+            'Clears every answer we remember. Your next trip starts blank.')}
         </Text>
       </View>
       {clearConfirm
