@@ -222,7 +222,12 @@ public class AccountDeletionService {
 			new OwnedRows("TripShareLink", "createdBy"),
 			// 이 칸은 @ManyToOne 이라 경로가 한 칸 더 들어간다. 지워도 안전한 이유는
 			// 가입/연결을 끝내기 전의 10분짜리 1회용 티켓이라서다.
-			new OwnedRows("OAuthSignupTicket", "existingUser.userId"));
+			new OwnedRows("OAuthSignupTicket", "existingUser.userId"),
+			// 🔴 기기 푸시 토큰 (S15P21E201-1391). 표에 ON DELETE CASCADE 를 걸어 두었지만
+			//    이 서비스는 app_user 행을 «지우지 않고 익명화» 하므로 그 규칙은 한 번도 안 돈다.
+			//    남기면 탈퇴한 사람의 폰으로 그 여행 알림이 계속 간다 — 동행자가 일정을 고칠
+			//    때마다, 계정이 없어진 뒤에도.
+			new OwnedRows("PushTokenJpaEntity", "userId"));
 
 	/**
 	 * 지울 표 하나 — 엔티티 이름과 그 사람을 가리키는 칸.

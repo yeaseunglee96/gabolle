@@ -752,6 +752,17 @@ class RouteAuthorizationRegistryTest {
 						+ "'아무나' 와 같은 말이 됐다 — 내부 운영 숫자는 서비스 규모의 단서다. "
 						+ "경로 앞자리가 실제 보호 장치다. AnalyticsControllerTest (-1010)");
 
+		// ── 알림
+		put(m, "PUT /api/v1/me/push-tokens", Policy.AUTHENTICATED_ONLY,
+				"이 기기로 알림을 받겠다고 등록한다(-1391). 우리 자원이지만 «남의 것을 가리킬 자리»가 "
+						+ "없다 — 주인은 경로가 아니라 출입증에서 온다. 🔴 익명 출입증에 매달면 로그아웃한 "
+						+ "뒤에도 그 기기로 알림이 가므로 로그인을 요구한다. PushTokenControllerTest");
+		put(m, "DELETE /api/v1/me/push-tokens/{}", Policy.OWNED,
+				"로그아웃할 때 이 기기를 뗀다(-1391). 🔴 경로의 {token} 은 사람이 아니라 기기지만 "
+						+ "OWNED 다 — 주인을 안 보면 아무나 남의 기기를 알림에서 떼어 낼 수 있다. 서비스가 "
+						+ "(token, user_id) 둘로 지운다. 없거나 남의 것이면 204 로 조용히 지나간다 — 「그 토큰이 "
+						+ "있다」를 알려 주지 않는다. PushTokenControllerTest");
+
 		// ── 도구
 		put(m, "POST /api/v1/tools/translate", Policy.AUTHENTICATED_ONLY,
 				"문장 하나를 번역 업체에 대신 물어보는 창구라 우리 자원이 아니라 주인이 없다. "
