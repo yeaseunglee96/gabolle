@@ -2,9 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GabolleMascot } from '@/components/DongbaekMascot';
+import { ScenicVideo } from '@/components/ScenicVideo';
 
 // 왼쪽 판 사진 — 검은 판에 글자 두 줄뿐이라 허전했다(2026-09-21 실기, S15P21E201-1381). 부산 사진 위에 동백이와 세 줄.
 const introPhoto = require('../../assets/home/web-hero.png');
+// 그 위에 첫 화면(00a)과 같은 바다 전차 영상(가로) — 웹 첫인상이 폰과 같은 톤이 된다(S15P21E201-1398). 사진은 영상이
+// 늦거나 못 뜨거나 동작 줄이기가 켜져 있을 때의 대체본으로 그 밑에 그대로 둔다.
+const introVideo = require('../../assets/video/busan-tram-landscape.mp4');
 import { useFocusEffect, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -88,6 +92,7 @@ export default function SignIn() {
   return <Screen scroll wide style={styles.screen}><View style={[styles.loginLayout, kind === 'tablet' && styles.loginLayoutWide]}>
       {kind === 'tablet' && <View style={styles.webIntro}>
         <Image source={introPhoto} resizeMode="cover" accessibilityLabel="" style={styles.webIntroPhoto} />
+        <ScenicVideo source={introVideo} style={styles.webIntroPhoto} />
         <LinearGradient colors={['rgba(25,25,25,0.15)', 'rgba(25,25,25,0.55)', 'rgba(25,25,25,0.88)']} locations={[0, 0.55, 1]} style={StyleSheet.absoluteFill} />
         <View style={styles.webIntroBody}>
           <GabolleMascot state="open" still style={styles.webIntroMascot} />
