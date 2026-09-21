@@ -133,10 +133,12 @@ export type TripPassProps = {
   onOpenItinerary?: () => void;
   /** 뒷면의 「지도에서 보기」. */
   onOpenMap?: () => void;
+  /** 뒷면 머리 사진 — 첫 정차지의 관광공사 사진(S15P21E201-1378). 없으면 안 그린다. */
+  coverUrl?: string | null;
   tx: (ko: string, en: string) => string;
 };
 
-export function TripPass({ data, wide = false, onReprint, details, onOpenItinerary, onOpenMap, tx }: TripPassProps) {
+export function TripPass({ data, wide = false, onReprint, details, onOpenItinerary, onOpenMap, coverUrl, tx }: TripPassProps) {
   // 종이는 프린터 뒤에서 내려온다. 시안의 gbPrint 와 같은 값이다.
   const [printed, setPrinted] = useState(false);
   const slide = useRef(new Animated.Value(0)).current;
@@ -358,6 +360,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
               {!!data.code && <Text variant="caption" weight="bold" color={color.text.muted}>{data.code}</Text>}
             </Pressable>
 
+            {coverUrl ? <Image source={{ uri: coverUrl }} resizeMode="cover" accessibilityLabel="" style={styles.backCover} /> : null}
             <Text variant="title" weight="bold" numberOfLines={1}>
               {[data.fromLabel, data.toLabel].filter(Boolean).join(' → ')}
             </Text>
@@ -444,6 +447,7 @@ const styles = StyleSheet.create({
     backfaceVisibility: 'hidden', transformOrigin: 'top center',
     shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 4,
   },
+  backCover: { width: '100%', height: 120, borderRadius: radius.md, backgroundColor: color.surface.soft },
   backHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 28 },
   backMark: { letterSpacing: 1.5 },
   backRow: {

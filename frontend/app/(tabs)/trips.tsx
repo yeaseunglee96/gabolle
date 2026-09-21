@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -12,6 +12,7 @@ import { Text } from '@/components/Text';
 import { formatDayHeading } from '@/i18n/datetime';
 import { effectiveTripStatus, tripStatusLabel, tripTimingLabel } from '@/trip/tripStatus';
 import { GabolleMascot } from '@/components/DongbaekMascot';
+import { loadTripCover } from '@/plan/tripCover';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { deleteTrip, loadTripItineraries, loadTrips, tripDisplayTitle, type TripItineraryRefDto, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
@@ -47,6 +48,8 @@ export default function Trips() {
   const [picker, setPicker] = useState<{ tripId: string; itineraries: TripItineraryRefDto[] } | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<TripSummaryDto | null>(null);
   const [removingTripId, setRemovingTripId] = useState<string | null>(null);
+  // 🔴 「여행 삭제」는 ⋯ 안에 있다 — 카드마다 붉은 글자로 서 있으면 실수로 누르기 쉬운 자리다(2026-09-21, S15P21E201-1393).
+  const [menuTripId, setMenuTripId] = useState<string | null>(null);
   // 이름을 바꾸거나 붙이려고 연 여행. null 이면 안 열려 있다.
   const [naming, setNaming] = useState<TripSummaryDto | null>(null);
 
@@ -123,6 +126,7 @@ export default function Trips() {
     {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
 
     {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.list}>{trips.map((trip) => <View key={trip.tripId} style={styles.card}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
+      <TripCover tripId={trip.tripId} accessToken={accessToken} />
       <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx, locale)}</Text>{trip.title?.trim() ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx, locale)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : <Text variant="title" color={color.text.muted}>›</Text>}</View>
       <View style={styles.meta}>
         {/* : 서버가 이미 주는 status를 화면이 안 읽어서, 일정 생성이 실패해도
@@ -150,15 +154,28 @@ export default function Trips() {
       </Pressable> : <View />}
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}
-        accessibilityState={{ busy: removingTripId === trip.tripId, disabled: removingTripId === trip.tripId }}
-        disabled={removingTripId === trip.tripId}
-        onPress={(event) => { event.stopPropagation(); setConfirmTarget(trip); }}
-        style={({ pressed }) => [styles.removeButton, pressed && styles.removeButtonPressed]}
+        accessibilityLabel={tx('더 보기', 'More')}
+        accessibilityState={{ expanded: menuTripId === trip.tripId }}
+        onPress={(event) => { event.stopPropagation(); setMenuTripId((open) => (open === trip.tripId ? null : trip.tripId)); }}
+        style={({ pressed }) => [styles.moreButton, pressed && styles.removeButtonPressed]}
       >
-        <Text variant="caption" weight="bold" color={color.state.danger}>{removingTripId === trip.tripId ? tx('처리 중…', 'Working…') : trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}</Text>
+        <Text variant="title" color={color.text.muted}>⋯</Text>
       </Pressable>
       </View>
+      {menuTripId === trip.tripId ? (
+        <View style={styles.cardMenu}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}
+            accessibilityState={{ busy: removingTripId === trip.tripId, disabled: removingTripId === trip.tripId }}
+            disabled={removingTripId === trip.tripId}
+            onPress={(event) => { event.stopPropagation(); setMenuTripId(null); setConfirmTarget(trip); }}
+            style={({ pressed }) => [styles.cardMenuItem, pressed && styles.removeButtonPressed]}
+          >
+            <Text variant="caption" weight="bold" color={color.state.danger}>{removingTripId === trip.tripId ? tx('처리 중…', 'Working…') : trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}</Text>
+          </Pressable>
+        </View>
+      ) : null}
     </View>)}</View> : null}
   </Screen><TabBar active="map" />
 
@@ -203,16 +220,25 @@ export default function Trips() {
   </View>;
 }
 
+/** 여행 카드 커버 — 첫 정차지 사진(시안 5 Trips). 없으면 자리를 만들지 않는다 — 빈 회색 판은 「못 불러왔다」로 읽힌다. */
+function TripCover({ tripId, accessToken }: { tripId: string; accessToken: string | null }) {
+  const [uri, setUri] = useState<string | null>(null);
+  useEffect(() => { let active = true; void loadTripCover(tripId, accessToken).then((next) => { if (active) setUri(next); }); return () => { active = false; }; }, [tripId, accessToken]);
+  if (!uri) return null;
+  return <Image source={{ uri }} resizeMode="cover" accessibilityLabel="" style={styles.cover} />;
+}
+
 const styles = StyleSheet.create({
   shell: { flex: 1, backgroundColor: color.canvas }, canvas: { backgroundColor: color.canvas },
   header: { marginTop: spacing[6], flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] }, headerCopy: { flex: 1, minWidth: 0 }, title: { marginTop: spacing[1], marginBottom: spacing[2] }, headerActions: { gap: spacing[2] }, newTrip: { width: 96, minHeight: 44, flexShrink: 0 },
   feedback: { minHeight: 48, marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] }, state: { minHeight: 220, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, sadMascot: { width: 96, height: 96 }, emptyMascot: { width: 110, height: 110 },
   empty: { minHeight: 320, marginTop: spacing[6], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, emptyMark: { width: 68, height: 68, borderRadius: radius.full, backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' }, emptyIcon: { width: 32, height: 32, tintColor: color.text.muted }, center: { maxWidth: 300, textAlign: 'center' }, emptyCta: { minWidth: 180, marginTop: spacing[2] },
+  cover: { width: '100%', height: 132, borderRadius: radius.md, backgroundColor: color.surface.soft },
   list: { marginTop: spacing[6], gap: spacing[3] }, cardBody: { gap: spacing[3] }, card: { padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, gap: spacing[3], shadowColor: color.brand.navy, shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] }, cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, cardCopy: { flex: 1, gap: spacing[1] }, meta: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, metaPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   statusPillLive: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] }, liveDot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.state.success },
   statusPillPending: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.dangerBg, borderWidth: 1, borderColor: color.state.danger },
   cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: spacing[2] },
-  removeButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, removeButtonPressed: { opacity: 0.6 },
+  removeButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, moreButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, cardMenu: { alignSelf: 'flex-end', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card }, cardMenuItem: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4] }, removeButtonPressed: { opacity: 0.6 },
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   modalCard: { width: '100%', maxWidth: 480, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   pickerList: { gap: spacing[2] }, pickerItem: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.soft },

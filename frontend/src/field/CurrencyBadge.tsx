@@ -9,12 +9,34 @@ import { Text } from '@/components/Text';
 import { color, radius } from '@/design/tokens';
 
 // require 는 번들러가 정적으로 읽어야 해서 표에 직접 적는다(WelcomeLanguageSheet 와 같은 이유).
+// 서버가 주는 통화 전부에 국기가 있다(S15P21E201-1395) — 「몇 개만 있는 것」은 사용자 눈에 덜 만든 것으로 읽힌다.
+// flagcdn.com 의 공개 국기 그림(w160). CNH(역외 위안)도 중국 국기.
 const FLAGS: Record<string, ReturnType<typeof require>> = {
   KRW: require('../../assets/flags/kr.png'),
   USD: require('../../assets/flags/us.png'),
   JPY: require('../../assets/flags/jp.png'),
   CNY: require('../../assets/flags/cn.png'),
+  CNH: require('../../assets/flags/cn.png'),
   TWD: require('../../assets/flags/tw.png'),
+  HKD: require('../../assets/flags/hk.png'),
+  SGD: require('../../assets/flags/sg.png'),
+  MYR: require('../../assets/flags/my.png'),
+  THB: require('../../assets/flags/th.png'),
+  IDR: require('../../assets/flags/id.png'),
+  BND: require('../../assets/flags/bn.png'),
+  AUD: require('../../assets/flags/au.png'),
+  NZD: require('../../assets/flags/nz.png'),
+  EUR: require('../../assets/flags/eu.png'),
+  GBP: require('../../assets/flags/gb.png'),
+  CHF: require('../../assets/flags/ch.png'),
+  DKK: require('../../assets/flags/dk.png'),
+  NOK: require('../../assets/flags/no.png'),
+  SEK: require('../../assets/flags/se.png'),
+  CAD: require('../../assets/flags/ca.png'),
+  AED: require('../../assets/flags/ae.png'),
+  SAR: require('../../assets/flags/sa.png'),
+  KWD: require('../../assets/flags/kw.png'),
+  BHD: require('../../assets/flags/bh.png'),
 };
 
 const SYMBOLS: Record<string, string> = { EUR: '€', GBP: '£', HKD: 'HK$', SGD: 'S$', AUD: 'A$', CAD: 'C$', THB: '฿', VND: '₫', PHP: '₱', IDR: 'Rp', MYR: 'RM' };

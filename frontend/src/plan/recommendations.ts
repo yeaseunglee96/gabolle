@@ -25,6 +25,7 @@ const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 // 실제로 오는 코드와 하나도 안 겹쳐 모든 카드가 안전장치 문구만 중복 표시하고 있었다.
 // 지금 실제로 오는 코드로 교체한다.
 const REASON: Record<string, [string, string]> = {
+  MUST_VISIT_PLACE: ['내가 꼭 가고 싶다고 적은 곳', 'A place you marked as must-visit'],
   NEAR_ORIGIN: ['출발지에서 가까움', 'Close to your starting point'],
   TAG_MATCH_INTEREST: ['관심 카테고리와 일치', 'Matches your interests'],
   TAG_MATCH_ATMOSPHERE: ['선호 분위기와 일치', 'Matches your preferred mood'],

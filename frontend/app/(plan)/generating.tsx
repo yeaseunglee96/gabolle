@@ -16,6 +16,7 @@ import { loadRecommendationResult } from '@/plan/recommendations';
 import { loadItinerary, type ItineraryDto } from '@/plan/itinerary';
 import { TripPass } from '@/plan/TripPass';
 import { markChecklistStep } from '@/onboarding/firstRun';
+import { loadPlacePhotos } from '@/plan/placePhotos';
 import { buildTripPass, buildTripPassDetails } from '@/plan/tripPassData';
 import { useI18n } from '@/i18n';
 
@@ -176,6 +177,15 @@ export default function Generating() {
   }, [job.state, reduceMotion, ticketReveal]);
   const duration = itinerary?.days.length || daysBetween(draft.startDate, draft.endDate); const areas = itinerary?.title || (draft.travelAreas.length ? draft.travelAreas.join(' · ') : tx('부산 맞춤 여행', 'Personalized Busan trip')); const failed = ['failed', 'conflict', 'cancelled', 'unavailable'].includes(job.state);
   const itineraryStops = itinerary?.days.flatMap((day) => day.items).slice(0, 3) ?? [];
+  // 승차권 뒷면 사진 — 첫 정차지 가운데 사진이 있는 곳(S15P21E201-1378). 식당·카페는 대개 없어서 앞의 여섯을 본다.
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const coverIds = (itinerary?.days.flatMap((day) => day.items).slice(0, 6) ?? []).map((item) => item.placeId).join(',');
+  useEffect(() => {
+    if (!coverIds) return undefined;
+    let active = true;
+    void loadPlacePhotos(coverIds.split(',')).then((photos) => { if (!active) return; const hit = coverIds.split(',').map((id) => photos[id]?.photoUrl).find(Boolean); setCoverUrl(hit ?? null); });
+    return () => { active = false; };
+  }, [coverIds]);
   const visitCount = itinerary?.days.reduce((sum, day) => sum + day.items.length, 0) ?? 0;
   const actualStartDate = itinerary?.days[0]?.date || draft.startDate;
   const actualEndDate = itinerary?.days.at(-1)?.date || draft.endDate;
@@ -246,7 +256,7 @@ export default function Generating() {
               tx={tx}
               details={ticketReady ? tripPassDetails : undefined}
               onOpenItinerary={ticketReady && job.jobId ? () => router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
-              onOpenMap={ticketReady && job.jobId ? () => router.push(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
+              coverUrl={coverUrl}
               onReprint={() => setReprint((n) => n + 1)}
               key={reprint}
             />
@@ -258,12 +268,13 @@ export default function Generating() {
             tx={tx}
             details={ticketReady ? tripPassDetails : undefined}
             onOpenItinerary={ticketReady && job.jobId ? () => router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
-            onOpenMap={ticketReady && job.jobId ? () => router.push(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
+            coverUrl={coverUrl}
             onReprint={() => setReprint((n) => n + 1)}
             key={reprint}
           />
         )}
-        {job.state === 'completed' && kind === 'phone' && <View style={styles.actions}><Button label={tx('일정 자세히 보기', 'View itinerary details')} onPress={() => job.jobId && router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId)}`)} disabled={!job.jobId} /><Text variant="caption" color={color.text.muted}>{tx('추천 후보를 확인한 뒤 완성된 일정으로 이동할 수 있어요.', 'Review the recommendations, then open your completed itinerary.')}</Text></View>}
+        {/* 승차권 뒷면의 「일정 보기 →」가 문이다 — 같은 곳으로 가는 큰 단추를 아래 또 두지 않는다(2026-09-21 실기, S15P21E201-1381). */}
+        {job.state === 'completed' && kind === 'phone' && <View style={styles.actions}><Text variant="caption" color={color.text.muted}>{tx('승차권을 눌러 뒤집으면 「일정 보기」가 있어요.', 'Tap the pass to flip it — “View itinerary” is on the back.')}</Text></View>}
         </View>
       </View>
     </View>

@@ -1,7 +1,7 @@
 import { txf } from '@/i18n/format';
 import { formatClock, formatDayHeading as formatLocaleDayHeading } from '@/i18n/datetime';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 import { NowCard } from '@/plan/NowCard';
@@ -58,6 +58,7 @@ import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { localizeMessage } from '@/i18n/messages';
 import { koreanToward } from '@/i18n/korean';
 import { humanTripTitle } from '@/trip/tripNaming';
+import { categoryGlyph, loadPlacePhoto, type PlacePhoto } from '@/plan/placePhotos';
 
 // 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고.
 
@@ -128,6 +129,14 @@ function RouteStrip({ items, times, tx, locale }: { items: ItineraryItemDto[]; t
 }
 
 // 정차 한 칸 — 시안 design_handoff_itinerary 2.5(넓은 화면) · 3.3(폰).
+function StopPhoto({ placeId, wide }: { placeId: string; wide: boolean }) {
+  // 🔴 정차지 사진 — S15P21E201-1378. 일정 항목에는 사진이 없어 장소 상세에서 받아 온다. 없으면 갈래 아이콘.
+  const [photo, setPhoto] = useState<PlacePhoto | null>(null);
+  useEffect(() => { let active = true; void loadPlacePhoto(placeId).then((next) => { if (active) setPhoto(next); }); return () => { active = false; }; }, [placeId]);
+  if (photo?.photoUrl) return <Image source={{ uri: photo.photoUrl }} resizeMode="cover" accessibilityLabel="" style={[styles.stopPhoto, wide && styles.stopPhotoWide]} />;
+  return <View style={[styles.stopPhoto, styles.stopPhotoEmpty, wide && styles.stopPhotoWide]}><Text variant={wide ? 'title' : 'body'}>{categoryGlyph(photo?.category)}</Text></View>;
+}
+
 function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken, stepState }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null;
   /** 시안 ⑤ — 다녀옴 · 현재 · 다음 · 이후. 모르면 안 준다(진행을 안 켠 화면). */
   stepState?: 'done' | 'current' | 'next' | 'later' }) {
@@ -211,6 +220,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
       </View>
       <View style={[styles.stopBody, pace?.atRisk && styles.stopBodyAtRisk]}>
         <View style={styles.stopHead}>
+          <StopPhoto placeId={item.placeId} wide={wide} />
           {/* 펼치는 손잡이는 제목 덩이에만 둔다. 행 전체를 Pressable 로 감싸면 그 안의
               자물쇠가 「버튼 안의 버튼」이 되고, 웹에서는 그게 허용되지 않는다.
           */}
@@ -994,6 +1004,9 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   stopBody: { flex: 1, minWidth: 0, gap: spacing[2], paddingBottom: spacing[3] },
   stopBodyAtRisk: { borderLeftWidth: 3, borderLeftColor: color.state.danger, paddingLeft: spacing[3] },
   stopHead: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
+  stopPhoto: { width: 56, height: 56, borderRadius: radius.md, backgroundColor: color.surface.soft },
+  stopPhotoWide: { width: 72, height: 72 },
+  stopPhotoEmpty: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint },
   stopRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
   stopRightWide: { alignItems: 'flex-start' },
   stopRightStack: { alignItems: 'flex-end' },

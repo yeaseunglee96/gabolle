@@ -1,10 +1,10 @@
 // 22 현장 도구·번역 — Figma 22_현장 도구·번역 실측 그대로.
 import { isValidElement, type ReactElement } from 'react';
 import { Image, Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
+import { BusIcon } from '@/field/BusIcon';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { useI18n } from '@/i18n';
@@ -13,17 +13,6 @@ const sunIcon = require('../../assets/icons/common/sun.png');
 // 「판」「말」「버」 글자 아이콘은 무엇인지 한 번 더 읽어야 했다(2026-09-21 실측, S15P21E201-1372) — 그림으로.
 const cameraIcon = require('../../assets/icons/common/camera.png');
 const speakerIcon = require('../../assets/icons/common/speaker.png');
-
-function BusIcon() {
-  return (
-    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-      <Rect x={4} y={3.5} width={16} height={15} rx={3} stroke={color.action.secondary} strokeWidth={1.9} />
-      <Path d="M4 10.5h16M7 18.5v2M17 18.5v2" stroke={color.action.secondary} strokeWidth={1.9} strokeLinecap="round" />
-      <Circle cx={8} cy={14.5} r={1.2} fill={color.action.secondary} />
-      <Circle cx={16} cy={14.5} r={1.2} fill={color.action.secondary} />
-    </Svg>
-  );
-}
 
 type Tool = {
   key: string;
@@ -152,7 +141,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.surface.tint,
+    backgroundColor: color.surface.blush,
   },
   toolIconImage: { width: 24, height: 24 },
   cardBody: {

@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   },
   segment: {
     flexDirection: 'row',
-    backgroundColor: color.surface.soft,
+    backgroundColor: color.surface.blush,
     borderRadius: radius.lg,
     padding: spacing[1],
     gap: spacing[1],

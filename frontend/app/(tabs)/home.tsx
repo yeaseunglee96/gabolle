@@ -1,5 +1,5 @@
 // 폰 홈. 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -31,6 +31,8 @@ import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
+import { hasUnseen, loadActivityFeed, loadSeenAt } from '@/notifications/activityFeed';
+import { useFocusEffect } from 'expo-router';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { relativeStoryTime } from '@/social/stories';
@@ -58,6 +60,18 @@ export default function Home() {
   const { hydrated, hasEnteredApp, markEnteredApp, setLanguage } = useOnboardingPreferences();
   // 시안 5 Home 의 「⊕ 한국어」 — 외국인이 홈에서 바로 언어를 바꾼다(S15P21E201-1372). 첫 화면의 언어 시트를 그대로 쓴다.
   const [langOpen, setLangOpen] = useState(false);
+  // 안 본 알림이 있으면 종에 점 — 여행 활동을 마지막으로 본 시각과 견준다(S15P21E201-1380). 화면에 돌아올 때마다 다시 본다.
+  const [bellDot, setBellDot] = useState(false);
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    if (!user) { setBellDot(false); return undefined; }
+    (async () => {
+      const [feed, seenAt] = await Promise.all([loadActivityFeed(accessToken, tx), loadSeenAt()]);
+      if (active && feed.state === 'success') setBellDot(hasUnseen(feed.items, seenAt));
+    })();
+    return () => { active = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.userId, accessToken]));
   const langLabel = LANGUAGE_OPTIONS.find((item) => item.code === language)?.endonym ?? '한국어';
   const home = useHomeData(!desktop);
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
@@ -205,15 +219,17 @@ export default function Home() {
                 {/* 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
                     읽을 것이 없는데도 있는 것처럼 보이고, 안 찍는 쪽이 거짓이 아니다.
                 */}
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
-                  <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
-                </Pressable>
               </>
             ) : (
               <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
                 <Text weight="bold" color={color.brand.navy}>{tx('로그인', 'Sign in')}</Text>
               </Pressable>
             )}
+            {/* 종은 늘 그 자리에(시안 5 Home). 손님이 누르면 알림 화면이 로그인을 안내한다 — 자리가 비면 「알림이 없는 앱」으로 읽힌다(2026-09-21 지적). */}
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
+              <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
+              {bellDot ? <View style={styles.bellDot} /> : null}
+            </Pressable>
           </View>
         </View>
 
@@ -315,7 +331,10 @@ export default function Home() {
           onPress={() => setAssistantOpen((open) => !open)}
           style={({ pressed }) => [styles.assistantButton, pressed && styles.pressed]}
         >
-          <GabolleMascot state="idle" style={styles.assistantMascot} />
+          {/* 위아래로 흔들리지 않는다 — 단추는 가만히 있어야 단추다(2026-09-21 지적). */}
+          <GabolleMascot state="idle" still style={styles.assistantMascot} />
+          {/* 시안 5 Home — 흰 원 위의 동백이, 오른쪽 위에 작은 「AI」 표. 원이 있어야 사진 위에서도 눌리는 것으로 보인다(S15P21E201-1381). */}
+          <View style={styles.assistantBadge}><Text variant="micro" weight="bold" color={color.action.outline}>AI</Text></View>
         </Pressable>
       </View>
 
@@ -361,6 +380,7 @@ const styles = StyleSheet.create({
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], height: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
   bell: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  bellDot: { position: 'absolute', top: 9, right: 9, width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.action.outline, borderWidth: 1.5, borderColor: color.canvas },
   bellIcon: { width: 20, height: 20 },
   langPill: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, paddingHorizontal: 12, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   loginPill: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
@@ -409,6 +429,7 @@ const styles = StyleSheet.create({
 
   // 메뉴가 이 상자 위에 뜬다. 절대 위치를 단추가 아니라 감싸는 상자가 가진다.
   assistantAnchor: { position: 'absolute', right: spacing[6], zIndex: 20 },
-  assistantButton: { width: 68, height: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  assistantMascot: { width: 60, height: 60 },
+  assistantButton: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.14, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+  assistantBadge: { position: 'absolute', top: -2, right: -2, minWidth: 22, height: 18, paddingHorizontal: 5, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
+  assistantMascot: { width: 50, height: 50 },
 });

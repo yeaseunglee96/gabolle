@@ -1,4 +1,4 @@
-import { koreanToward } from '../korean';
+import { koreanObject, koreanToward } from '../korean';
 
 describe('koreanToward — 「로」·「으로」', () => {
   it('받침 없음 → 로, 받침 있음 → 으로, ㄹ 받침 → 로', () => {
@@ -16,5 +16,13 @@ describe('koreanToward — 「로」·「으로」', () => {
     expect(koreanToward('국제시장 (본점)')).toBe('으로');
     expect(koreanToward('해운대  ')).toBe('로');
     expect(koreanToward('')).toBe('로');
+  });
+});
+
+describe('koreanObject — 「을」·「를」', () => {
+  it('받침 있음 → 을, 없음 → 를', () => {
+    expect(koreanObject('총예산')).toBe('을');
+    expect(koreanObject('여행 범위')).toBe('를');
+    expect(koreanObject('Budget')).toBe('를');
   });
 });

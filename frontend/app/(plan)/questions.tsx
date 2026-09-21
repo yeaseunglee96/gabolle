@@ -34,13 +34,14 @@ import {
   effectOf, type PlanOption,
 } from '@/plan/planOptions';
 import {
-  INITIAL_QUESTION_STATE, PLAN_QUESTIONS, canAdvance,
+  INITIAL_QUESTION_STATE, PLAN_PAGES, PLAN_QUESTIONS, pageMissing,
   type PlanQuestion, type QuestionKey, type QuestionState,
 } from '@/plan/planQuestions';
 import { startBarChips } from '@/home/startBarValue';
 import { assistantPrefillPatch } from '@/plan/assistantPrefill';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+import { koreanObject } from '@/i18n/korean';
 
 const BUDGET_STEPS = [10000, 30000, 50000, 100000] as const;
 const SCALES = [
@@ -114,9 +115,6 @@ export function summaryOf(key: QuestionKey, draft: PlanDraft, tx: Tx, skipped: b
   }
 }
 
-/** 앞 세 문항이 필수다(planQuestions.ts 의 skippable). 여기서 세어 두면 문항을 바꿔도 숫자가 따라온다. */
-const REQUIRED_COUNT = PLAN_QUESTIONS.filter((item) => !item.skippable).length;
-
 export default function PlanConditions() {
   const router = useRouter();
   const { tx, language } = useI18n();
@@ -152,9 +150,10 @@ export default function PlanConditions() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
 
-  const index = Math.min(state.open, PLAN_QUESTIONS.length - 1);
-  const question = PLAN_QUESTIONS[index];
-  const last = index === PLAN_QUESTIONS.length - 1;
+  // 🔴 자리는 «장»이다 — S15P21E201-1377. 예전 저장값(질문 번호 0~9)이 남아 있어도 장 수 안으로 잘린다.
+  const index = Math.min(state.open, PLAN_PAGES.length - 1);
+  const page = PLAN_PAGES[index];
+  const last = index === PLAN_PAGES.length - 1;
 
   // 미확인 필수 조건(알레르기·식단)이 남아 있나. 「모르면 안전하다고 치지 않는다」가 방침이다.
   const hardUnknown = draft.allergyStatus === 'UNKNOWN' || draft.dietStatus === 'UNKNOWN'
@@ -176,6 +175,11 @@ export default function PlanConditions() {
    * 알면서 보내지 않는다.
    */
   const datesMissing = !draft.startDate || !draft.endDate;
+  // 🔴 출발지가 없으면 서버가 일정을 안 만들어 준다 — S15P21E201-1342.
+  //    서버의 TripConditionRules 가 originLat 을 요구한다. 예전에는 이것을 여기서 안 봐서,
+  //    필수 질문을 다 답하고 「만들기」를 누른 «뒤에야» 막혔다. 그것도 서버 원문으로.
+  //    이 앱에서 출발지를 채우는 곳은 홈 시작 바 하나뿐이다(PlanStartBar).
+  const originMissing = draft.originLat === null || draft.originLng === null;
 
   /** 날짜를 정하는 자리 — 폰은 홈의 시작 줄, 넓은 화면은 첫 화면의 시작 줄이다. */
   /**
@@ -193,6 +197,20 @@ export default function PlanConditions() {
   // 🔴 예전에는 홈의 시작 줄로 보냈다(S15P21E201-1350). 돌아오면 문항이 1번부터라 열 개를 다 답한
   //    사람이 처음부터 다시 했다(2026-09-21 실기). 이제 이 화면 안의 달력 카드를 편다.
   const goSetDates = () => setDatesOpen(true);
+
+  /**
+   * 🔴 <b>출발지를 고르러 간다 — S15P21E201-1342.</b>
+   *
+   * <p>날짜처럼 이 화면 안에서 고르게 하는 것이 더 낫다. 그렇게 안 한 이유는 하나다 —
+   * 출발지 고르기는 <b>검색</b>이 붙어 있고(서버 질의·디바운스·추천 목록) 그 코드는
+   * {@code PlanStartBar} 안에 있다. 여기에 한 벌 더 만들면 같은 규칙이 두 곳에 생기고
+   * 한쪽만 고쳐지는 날이 온다.
+   *
+   * <p>대신 시작 바를 <b>출발지 칸이 열린 채로</b> 연다({@code ?edit=origin}). 지금까지 넣은
+   * 값도 함께 실려 간다. 「일정 물어보기」를 누르면 홈이 다시 {@code /plan} 으로 돌려보내므로
+   * 왕복이 닫힌다 — 그냥 홈으로 튕기던 옛 동작(-1350)과 다른 점이 그것이다.
+   */
+  const goPickOrigin = () => router.push({ pathname: wide ? '/' : '/home', params: { edit: 'origin' } });
 
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
@@ -238,9 +256,10 @@ export default function PlanConditions() {
     return picked;
   }, [draft.atmospheres, draft.localityLevel, draft.preferences, draft.quietLevel, draft.touristLevel, tx]);
 
-  const goTo = (next: number) => setState((prev) => ({ ...prev, open: Math.max(0, Math.min(PLAN_QUESTIONS.length - 1, next)), editing: null }));
-  const skip = (item: PlanQuestion) => {
-    setState((prev) => ({ ...prev, skipped: { ...prev.skipped, [item.key]: true } }));
+  const goTo = (next: number) => setState((prev) => ({ ...prev, open: Math.max(0, Math.min(PLAN_PAGES.length - 1, next)), editing: null }));
+  /** 선택 장을 통째로 건너뛴다 — 그 장의 질문을 「건너뜀」으로 적고 다음 장으로. */
+  const skipPage = () => {
+    setState((prev) => ({ ...prev, skipped: { ...prev.skipped, ...Object.fromEntries(page.questions.map((item) => [item.key, true])) } }));
     if (!last) goTo(index + 1);
   };
 
@@ -389,50 +408,60 @@ export default function PlanConditions() {
 
   if (!ready) return <Screen scroll><Text>{tx('불러오는 중이에요…', 'Loading…')}</Text></Screen>;
 
-  const effect = effectOf(question.key, draft, tx);
-  const settledAt = (i: number) => {
-    const item = PLAN_QUESTIONS[i];
-    return Boolean(state.skipped[item.key]) || item.answered(draft);
-  };
   // 🔴 「지나온 질문」만 센다 — 아직 안 본 질문에도 기본값이 들어 있어서(예산 10만원, 이동수단 대중교통)
   //    그대로 세면 「답했다」고 거짓말하게 된다.
-  const settledCount = PLAN_QUESTIONS.filter((_, i) => i < index && settledAt(i)).length;
-  const readyToBuild = missing.length === 0 && !datesMissing;
+  const pagesDone = PLAN_PAGES.slice(0, index).length;
+  const readyToBuild = missing.length === 0 && !datesMissing && !originMissing;
   const showDateCard = datesOpen ?? datesMissing;
   const dateLabel = dateRangeLabel({ startDate: draft.startDate, endDate: draft.endDate }, tx);
-  const answeredAbove = PLAN_QUESTIONS.map((item, i) => ({ item, i, value: i < index && settledAt(i) ? summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko) : '' })).filter((row) => row.value);
+  // 지나온 장의 답을 한 줄로 — 「기본 · 해운대 · 10만원 · 대중교통」. 누르면 그 장으로.
+  const answeredAbove = PLAN_PAGES.slice(0, index).map((item, i) => ({
+    item, i,
+    value: item.questions.map((question) => (question.answered(draft) && !state.skipped[question.key] ? summaryOf(question.key, draft, tx, false, ko) : '')).filter(Boolean).join(' · '),
+  }));
+  const pageBlocked = pageMissing(page, draft);
+  const pageCanAdvance = pageBlocked.length === 0;
+  const nextPages = PLAN_PAGES.slice(index + 1);
 
   const questionColumn = (
     <View style={styles.questions}>
       <View style={styles.stepHead}>
         <View style={styles.stepCopy}>
-          {/* 「질문 n / 10」이 아니라 필수 셋과 선택 일곱으로 나눠 센다 — 열이 아니라 셋이 보이면 가볍다(S15P21E201-1371). */}
           <Text variant="caption" weight="bold" color={color.text.eyebrow}>
-            {question.skippable
-              ? tx(`선택 ${index + 1 - REQUIRED_COUNT} / ${PLAN_QUESTIONS.length - REQUIRED_COUNT}`, `Optional ${index + 1 - REQUIRED_COUNT} / ${PLAN_QUESTIONS.length - REQUIRED_COUNT}`)
-              : tx(`필수 ${index + 1} / ${REQUIRED_COUNT}`, `Required ${index + 1} / ${REQUIRED_COUNT}`)}
+            {txf(tx, '%s / %s · %s', '%s / %s · %s', index + 1, PLAN_PAGES.length, tx(page.ko, page.en))}
           </Text>
-          <Text variant="title" weight="bold">{question.skippable ? tx('더 답하면 일정이 좋아져요', 'Answer more for a better plan') : txf(tx, '필수 질문은 %s개뿐이에요', 'Only %s required questions', REQUIRED_COUNT)}</Text>
+          <Text variant="title" weight="bold">{index === 0 ? tx('이것만 답하면 일정이 나와요', 'Answer these and your plan is ready') : tx(page.subKo, page.subEn)}</Text>
         </View>
         <StepDots
-          total={PLAN_QUESTIONS.length}
-          required={REQUIRED_COUNT}
+          total={PLAN_PAGES.length}
+          required={1}
           index={index}
-          settled={settledAt}
-          onJump={goTo}
-          label={(i) => tx(PLAN_QUESTIONS[i].ko, PLAN_QUESTIONS[i].en)}
+          settled={(i) => i < index}
+          onJump={(i) => { if (i <= index || pageCanAdvance) goTo(i); }}
+          label={(i) => tx(PLAN_PAGES[i].ko, PLAN_PAGES[i].en)}
         />
       </View>
       <View style={styles.track}>
-        <View style={[styles.fill, { width: `${Math.round((settledCount / PLAN_QUESTIONS.length) * 100)}%` }]} />
+        <View style={[styles.fill, { width: `${Math.round((pagesDone / PLAN_PAGES.length) * 100)}%` }]} />
       </View>
       <Text variant="caption" color={color.text.muted}>
-        {readyToBuild
-          ? txf(tx, '이제 만들 수 있어요 · 남은 %s개는 답할수록 일정이 좋아지는 질문이에요', 'You can build now · the remaining %s make the plan better', PLAN_QUESTIONS.length - settledCount)
-          : missing.length === 0 && datesMissing
-            ? tx('필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요', 'Required questions done · just pick your dates to build')
-            : txf(tx, '필수 %s개만 답하면 만들 수 있어요 · 나머지는 건너뛰어도 돼요', 'Answer just the %s required ones to build · the rest can be skipped', REQUIRED_COUNT)}
+        {index === 0
+          ? tx('1장만 채우면 만들 수 있어요 · 2·3장은 선택이에요', 'Page 1 is all you need · pages 2 and 3 are optional')
+          : readyToBuild
+            ? tx('이제 만들 수 있어요 · 이 장은 답할수록 일정이 취향에 가까워져요', 'You can build now · this page tunes the plan to your taste')
+            : originMissing
+              ? tx('필수 질문은 다 답했어요 · 출발지만 고르면 만들 수 있어요', 'Required questions done · just pick a starting point to build')
+              : tx('필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요', 'Required questions done · just pick your dates to build')}
       </Text>
+
+      {/* 🔴 출발지 — 없으면 여기서 짚어 준다(S15P21E201-1342). 예전에는 묻는 자리가
+          아예 없어서, 다 답하고 「만들기」를 누른 뒤에야 서버 원문으로 막혔다. */}
+      {originMissing ? (
+        <Pressable accessibilityRole="button" onPress={goPickOrigin} style={({ pressed }) => [styles.originAsk, pressed && styles.pressed]}>
+          <Text variant="body" weight="bold" color={color.text.heading}>{tx('어디에서 출발하세요?', 'Where are you starting from?')}</Text>
+          <Text variant="caption" color={color.text.muted}>{tx('출발지를 골라야 일정을 만들 수 있어요 · 눌러서 고르기', 'We need a starting point to build your trip · tap to choose')}</Text>
+        </Pressable>
+      ) : null}
 
       {/* 날짜 — 문항 화면 안에서 고른다(S15P21E201-1376). 없으면 펼친 카드, 있으면 ✓ 줄. */}
       {showDateCard ? (
@@ -443,8 +472,18 @@ export default function PlanConditions() {
           tx={tx}
         />
       ) : null}
-      {answeredAbove.length || (!showDateCard && dateLabel) ? (
+      {answeredAbove.length || (!showDateCard && dateLabel) || !originMissing ? (
         <View style={styles.answeredList}>
+          {!originMissing ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('출발지 수정', 'Edit starting point')} onPress={goPickOrigin} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
+              <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+              <View style={styles.answeredBody}>
+                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx('출발지', 'Starting point')}</Text>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{draft.origin || tx('고른 곳', 'Chosen')}</Text>
+              </View>
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
+            </Pressable>
+          ) : null}
           {!showDateCard && dateLabel ? (
             <Pressable accessibilityRole="button" accessibilityLabel={tx('여행 날짜 수정', 'Edit trip dates')} onPress={() => setDatesOpen(true)} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
               <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
@@ -459,8 +498,8 @@ export default function PlanConditions() {
             <Pressable key={item.key} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 수정', 'Edit %s', tx(item.ko, item.en))} onPress={() => goTo(i)} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
               <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
               <View style={styles.answeredBody}>
-                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx(item.ko, item.en)}</Text>
-                <Text variant="caption" weight="bold" numberOfLines={1}>{value}</Text>
+                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{txf(tx, '%s장 · %s', 'Page %s · %s', i + 1, tx(item.ko, item.en))}</Text>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{value || tx('건너뜀', 'Skipped')}</Text>
               </View>
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
             </Pressable>
@@ -468,36 +507,37 @@ export default function PlanConditions() {
         </View>
       ) : null}
 
-      {/* 🔴 key 에 질문 열쇠를 준다. 질문이 바뀌면 카드가 통째로 새로 마운트되어, 앞 질문의
-          스크롤 위치와 입력 포커스가 따라오지 않는다. 안 주면 열 문항이 한 카드처럼 느껴진다. */}
-      {/* 🔴 필수를 막 끝낸 자리(첫 선택 문항)에서는 갈림길을 카드 «위»에 크게 보여 준다 — S15P21E201-1376.
-          「10개」로 느껴진 이유는 필수가 끝났다는 신호 없이 4번이 이어져서다. 여기서 끝났다고 말한다. */}
-      {index === REQUIRED_COUNT && readyToBuild && !last ? (
+      {/* 🔴 1장을 막 끝낸 자리(2장 머리)에서는 갈림길을 카드 «위»에 크게 — S15P21E201-1376. */}
+      {index === 1 && readyToBuild ? (
         <View style={styles.forkCard}>
-          <Text variant="title" weight="bold" color={color.text.heading}>{txf(tx, '필수 %s개 끝! 지금 만들 수 있어요', 'The %s required ones are done — you can build now', REQUIRED_COUNT)}</Text>
-          <Text variant="caption" color={color.text.muted}>{txf(tx, '아래 %s개는 선택이에요. 답할수록 일정이 취향에 가까워지고, 언제든 「지금 이대로 만들기」를 눌러도 돼요.', 'The %s below are optional. Each answer tunes the plan closer to you — and you can build any time.', PLAN_QUESTIONS.length - REQUIRED_COUNT)}</Text>
+          <Text variant="title" weight="bold" color={color.text.heading}>{tx('필수는 끝! 지금 만들 수 있어요', 'Required part done — you can build now')}</Text>
+          <Text variant="caption" color={color.text.muted}>{tx('아래는 선택이에요. 답할수록 일정이 취향에 가까워지고, 언제든 「지금 이대로 만들기」를 눌러도 돼요.', 'Everything below is optional. Each answer tunes the plan closer to you — and you can build any time.')}</Text>
           <Pressable accessibilityRole="button" accessibilityState={{ busy: job?.state === 'submitting' }} disabled={job?.state === 'submitting'} onPress={() => { completeStep(PLAN_QUESTIONS.length); void submitPlan(); }} style={({ pressed }) => [styles.forkPrimary, pressed && styles.pressed]}>
             <Text weight="bold" color={color.action.primary}>{job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('지금 이대로 만들기 →', 'Build with what I have →')}</Text>
           </Pressable>
         </View>
       ) : null}
 
-      <View key={question.key} style={[styles.card, wide ? styles.cardWide : styles.cardPhone]}>
-        <View style={styles.cardHead}>
-          <View style={styles.cardCopy}>
-            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{question.skippable ? tx('선택 · 건너뛰어도 돼요', 'Optional · skip if you like') : tx('필수', 'Required')}</Text>
-            <Text variant="title" weight="bold">{tx(question.ko, question.en)}</Text>
-            <Text color={color.text.muted}>{tx(question.hintKo, question.hintEn)}</Text>
-          </View>
-          {question.skippable ? (
-            <Pressable accessibilityRole="button" onPress={() => skip(question)} style={styles.skip}>
-              <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('건너뛰기', 'Skip')}</Text>
-            </Pressable>
-          ) : null}
-        </View>
-
-        {body(question)}
-        {effect ? <EffectBand text={effect} tx={tx} /> : null}
+      {/* 🔴 한 장에 그 장의 질문을 모두 — S15P21E201-1377. key 에 장 열쇠를 줘서 장이 바뀌면 스크롤·포커스가 따라오지 않는다. */}
+      <View key={page.key} style={styles.pageStack}>
+        {page.questions.map((question, qi) => {
+          const effect = effectOf(question.key, draft, tx);
+          return (
+            <View key={question.key} style={[styles.card, wide ? styles.cardWide : styles.cardPhone]}>
+              <View style={styles.cardHead}>
+                <View style={styles.cardCopy}>
+                  <Text variant="caption" weight="bold" color={color.text.eyebrow}>
+                    {txf(tx, '%s · %s', '%s · %s', qi + 1, question.skippable ? tx('선택', 'Optional') : tx('필수', 'Required'))}
+                  </Text>
+                  <Text variant="title" weight="bold">{tx(question.ko, question.en)}</Text>
+                  <Text color={color.text.muted}>{tx(question.hintKo, question.hintEn)}</Text>
+                </View>
+              </View>
+              {body(question)}
+              {effect ? <EffectBand text={effect} tx={tx} /> : null}
+            </View>
+          );
+        })}
       </View>
 
       <View style={styles.navRow}>
@@ -515,45 +555,39 @@ export default function PlanConditions() {
             accessibilityState={{ busy: job?.state === 'submitting' }}
             label={last
               ? job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('이 조건으로 일정 만들기', 'Build my itinerary')
-              : tx('다음', 'Next')}
-            disabled={last ? missing.length > 0 || datesMissing || job?.state === 'submitting' : !canAdvance(question, draft) && !question.skippable}
+              : index === 0
+                ? pageCanAdvance ? tx('취향도 알려주기 →', 'Add my taste →') : txf(tx, `%s${koreanObject(pageBlocked[0]?.ko ?? '')} 골라 주세요`, 'Pick %s first', tx(pageBlocked[0]?.ko ?? '', pageBlocked[0]?.en ?? ''))
+                : tx('다음', 'Next')}
+            disabled={last ? missing.length > 0 || datesMissing || originMissing || job?.state === 'submitting' : !pageCanAdvance}
             onPress={() => {
-              completeStep(index + 1);
+              completeStep(page.questions.length * (index + 1));
               if (last) void submitPlan();
               else goTo(index + 1);
             }}
           />
         </View>
       </View>
+      {/* 선택 장은 통째로 건너뛸 수 있다 — 질문마다 건너뛰기를 누르게 하지 않는다. */}
+      {index > 0 && !last ? (
+        <Pressable accessibilityRole="button" onPress={skipPage} style={styles.skipPage}>
+          <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('이 장은 건너뛰기', 'Skip this page')}</Text>
+        </Pressable>
+      ) : null}
 
-      {/* 필수 셋을 답했고 마지막이 아니면 — 지금 만들 수 있다는 것을 단추로 보여 준다. 열 개를 다 답해야 하는 줄 알고 접는 사람을 줄인다. */}
-      {/* 🔴 필수 셋은 답했는데 날짜가 없으면 — 단추가 안 뜨는 이유를 말하고 정하러 보낸다(S15P21E201-1372).
-          위쪽 「여행 만들기」로 바로 들어온 손님이 정확히 이 상태다(2026-09-21 배포본 실측). 안 적으면 「왜 안 만들어지지」가 된다. */}
-      {missing.length === 0 && datesMissing && !last ? (
+      {/* 🔴 필수는 답했는데 날짜가 없으면 — 이유를 말하고 위 달력으로(S15P21E201-1372). */}
+      {missing.length === 0 && datesMissing ? (
         <Pressable accessibilityRole="button" onPress={goSetDates} style={({ pressed }) => [styles.buildNow, pressed && styles.pressed]}>
           <Text weight="bold" color={color.text.heading}>{tx('날짜만 정하면 바로 만들 수 있어요 ↑', 'Pick your dates above and build right away ↑')}</Text>
           <Text variant="caption" color={color.text.muted}>{tx('필수 질문은 다 답했어요 · 위 달력에서 날짜를 골라 주세요', 'Required questions done · pick the dates in the calendar above')}</Text>
         </Pressable>
       ) : null}
-      {readyToBuild && !last && index !== REQUIRED_COUNT ? (
+      {readyToBuild && !last && index !== 1 ? (
         <Pressable accessibilityRole="button" accessibilityState={{ busy: job?.state === 'submitting' }} disabled={job?.state === 'submitting'} onPress={() => { completeStep(PLAN_QUESTIONS.length); void submitPlan(); }} style={({ pressed }) => [styles.buildNow, pressed && styles.pressed]}>
           <Text weight="bold" color={color.text.heading}>{job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('지금 이대로 만들기 →', 'Build with what I have →')}</Text>
-          <Text variant="caption" color={color.text.muted}>{tx('나머지 질문은 나중에 일정에서 고칠 수 있어요', 'You can fine-tune the rest on the itinerary later')}</Text>
+          <Text variant="caption" color={color.text.muted}>{tx('나머지는 나중에 일정에서 고칠 수 있어요', 'You can fine-tune the rest on the itinerary later')}</Text>
         </Pressable>
       ) : null}
 
-      {/* 🔴 날짜가 없으면 여기서 막는다. 서버가 어차피 거절하는데, 그 거절은 열 개를 다
-          답한 뒤에 서버 말투로 온다. 🔴 <b>누르면 정하러 갈 수 있게</b> 한다 — 잠그기만 하고
-          문을 안 주면 나갈 길이 없다. 날짜를 대신 지어 넣지는 않는다. */}
-      {last && datesMissing ? (
-        <Pressable accessibilityRole="button" onPress={goSetDates}>
-          <Text accessibilityRole="alert" variant="caption" weight="bold" color={color.state.danger}>
-            {tx('날짜를 아직 안 정했어요 — 눌러서 정해 주세요.', 'No dates yet — tap to choose them.')}
-          </Text>
-        </Pressable>
-      ) : null}
-
-      {/* 🔴 무엇이 모자란지 적는다. 단추만 잠그면 사람은 고장인 줄 알고 새로고침한다. */}
       {last && missing.length ? (
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
           {txf(tx, '아직 안 답한 게 있어요: %s', 'Still missing: %s', missing.map((item) => tx(item.ko, item.en)).join(' · '))}
@@ -573,17 +607,17 @@ export default function PlanConditions() {
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, job.errorMessage)}</Text>
       ) : null}
 
-      {/* 남은 질문을 흐리게 미리 보여 준다 — 무엇이 얼마나 남았는지 알면 열 개도 길지 않다. 누르면 건너뛰어 갈 수 있다(선택만). */}
-      {index < PLAN_QUESTIONS.length - 1 ? (
+      {/* 남은 장을 흐리게 — 무엇이 얼마나 남았는지 알면 길지 않다. */}
+      {nextPages.length ? (
         <View style={styles.upcoming}>
-          <Text variant="micro" weight="bold" color={color.text.eyebrow}>{tx('다음 질문', 'Coming up')}</Text>
-          {PLAN_QUESTIONS.slice(index + 1).map((item, offset) => {
+          <Text variant="micro" weight="bold" color={color.text.eyebrow}>{tx('다음 장', 'Coming up')}</Text>
+          {nextPages.map((item, offset) => {
             const i = index + 1 + offset;
             return (
-              <Pressable key={item.key} accessibilityRole="button" disabled={!item.skippable && !readyToBuild} onPress={() => goTo(i)} style={({ pressed }) => [styles.upcomingRow, pressed && styles.pressed]}>
+              <Pressable key={item.key} accessibilityRole="button" disabled={!pageCanAdvance} onPress={() => goTo(i)} style={({ pressed }) => [styles.upcomingRow, pressed && styles.pressed]}>
                 <View style={styles.upcomingNo}><Text variant="micro" weight="bold" color={color.text.muted}>{i + 1}</Text></View>
-                <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.upcomingLabel}>{tx(item.ko, item.en)}</Text>
-                {item.skippable ? <Text variant="micro" color={color.text.muted}>{tx('선택', 'optional')}</Text> : <Text variant="micro" weight="bold" color={color.text.body}>{tx('필수', 'required')}</Text>}
+                <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.upcomingLabel}>{tx(item.ko, item.en)} · {item.questions.map((q) => tx(q.ko, q.en)).join(' · ')}</Text>
+                <Text variant="micro" color={color.text.muted}>{tx('선택', 'optional')}</Text>
               </Pressable>
             );
           })}
@@ -679,15 +713,17 @@ const styles = StyleSheet.create({
   fill: { height: 4, borderRadius: radius.full, backgroundColor: color.action.secondary },
 
   card: { gap: spacing[4], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  cardWide: { minHeight: 360 },
-  cardPhone: { minHeight: 300 },
+  cardWide: {},
+  cardPhone: { padding: spacing[4] },
+  pageStack: { gap: spacing[3] },
+  skipPage: { alignSelf: 'center', minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[3] },
   cardHead: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] },
   cardCopy: { flex: 1, minWidth: 0, gap: spacing[1] },
   skip: { minHeight: 32, justifyContent: 'center' },
 
   optionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   // 시안의 auto-fill minmax(150px,1fr) 을 RN 에서 흉내 낸다 — RN 에는 grid 가 없다.
-  optionCell: { flexGrow: 1, flexBasis: 150, minWidth: 150 },
+  optionCell: { flexGrow: 1, flexBasis: 140, minWidth: 140 },
 
   navRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   prev: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
@@ -695,6 +731,8 @@ const styles = StyleSheet.create({
   next: { flex: 1 },
   pressed: { opacity: 0.8 },
 
+  // 🔴 출발지를 묻는 자리. 날짜 카드와 같은 무게로 둔다 — 둘 다 없으면 못 만든다.
+  originAsk: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.action.primary, backgroundColor: color.surface.card },
   answeredList: { gap: spacing[1] },
   answeredRowItem: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   answeredCheck: { width: 18, height: 18, borderRadius: radius.full, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' },

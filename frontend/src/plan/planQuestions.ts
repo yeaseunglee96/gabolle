@@ -138,3 +138,25 @@ export function allSettled(draft: PlanDraft, state: QuestionState): boolean {
 export function nextOpenIndex(_draft: PlanDraft, state: QuestionState): number {
   return Math.min(state.open + 1, PLAN_QUESTIONS.length);
 }
+
+/**
+ * 열 질문을 세 장으로 — S15P21E201-1377.
+ *
+ * 🔴 한 질문 = 한 장이면 열 장을 넘겨야 한다. 시안 4·5 는 같은 성격의 질문을 한 장에 모은다.
+ *    질문 수·선택지는 그대로고 «장»만 셋이다. 1장은 필수(일정을 만드는 데 꼭 필요한 것),
+ *    2·3장은 선택 — 1장이 끝나면 어느 장에서든 만들 수 있다.
+ */
+export type PlanPage = { key: 'basics' | 'taste' | 'detail'; ko: string; en: string; subKo: string; subEn: string; questions: PlanQuestion[] };
+
+const byKey = (keys: QuestionKey[]) => keys.map((key) => PLAN_QUESTIONS.find((item) => item.key === key) as PlanQuestion);
+
+export const PLAN_PAGES: PlanPage[] = [
+  { key: 'basics', ko: '기본', en: 'Basics', subKo: '이것만 있으면 일정이 나와요', subEn: 'Enough to build a plan', questions: byKey(['areas', 'budget', 'move']) },
+  { key: 'taste', ko: '취향', en: 'Taste', subKo: '답할수록 내 취향에 가까워져요', subEn: 'Each answer tunes the plan to you', questions: byKey(['cats', 'pace', 'moods', 'scales']) },
+  { key: 'detail', ko: '세부', en: 'Details', subKo: '음식·이동·꼭 갈 곳', subEn: 'Food, mobility, must-visits', questions: byKey(['foods', 'aids', 'must']) },
+];
+
+/** 이 장의 필수 질문 가운데 아직 안 답한 것. 없으면 「다음」으로 갈 수 있다. */
+export function pageMissing(page: PlanPage, draft: PlanDraft): PlanQuestion[] {
+  return page.questions.filter((question) => !question.skippable && !question.answered(draft));
+}
