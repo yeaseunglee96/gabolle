@@ -16,6 +16,7 @@ import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
+import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
@@ -88,7 +89,7 @@ class BaselineRecommendationEngineCandidateCutTest {
 				new BaselineCandidateTranslator(PROPERTIES, this.codeMapRepository, this.objectMapper),
 				new BaselineCandidateScorer(this.objectMapper), PROPERTIES,
 				new PreferenceAlignmentWeights(null, null, null, null, null),
-				this.codeMapRepository, this.seedPlaceRepository, Optional.empty(),
+				this.codeMapRepository, this.seedPlaceRepository, mock(PlaceRepository.class), Optional.empty(),
 				// 벡터 빈이 없는 자리 — 채점이 벡터 없던 때와 완전히 같아야 한다
 				emptyProvider(), emptyProvider());
 	}

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.ObjectProvider;
 
+import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
@@ -109,7 +110,7 @@ class BaselineRecommendationEngineDatasetVersionTest {
 				new BaselineCandidateTranslator(properties, codeMapRepository, objectMapper),
 				new BaselineCandidateScorer(objectMapper), properties,
 				new PreferenceAlignmentWeights(null, null, null, null, null),
-				codeMapRepository, mock(TripSeedPlaceRepository.class), Optional.empty(),
+				codeMapRepository, mock(TripSeedPlaceRepository.class), mock(PlaceRepository.class), Optional.empty(),
 				emptyProvider(), emptyProvider());
 	}
 
