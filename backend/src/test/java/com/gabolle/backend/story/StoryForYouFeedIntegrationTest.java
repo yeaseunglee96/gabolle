@@ -156,6 +156,40 @@ class StoryForYouFeedIntegrationTest {
 				.andExpect(status().isBadRequest());
 	}
 
+	/**
+	 * 🔴 팔로우는 있는데 그 사람들의 기록이 없는 사용자. 1쪽은 대체(전체 인기순)로 채워지는데,
+	 * 2쪽이 팔로잉 경로로 새면 빈 목록이 오고 피드가 거기서 끊긴다 — 실제로 그랬다.
+	 *
+	 * <p>{@link #keepsTheSamePathWhilePaging} 은 팔로우가 «없는» 사용자로 보기 때문에 그 분기에
+	 * 들어가지 않아 이것을 못 잡았다.
+	 */
+	@Test
+	@DisplayName("🔴 팔로우는 있는데 그 사람들이 글이 없으면 — 2쪽도 대체 경로이고 목록이 안 끊긴다")
+	void followsButNothingToShowKeepsFallingBack() throws Exception {
+		UUID silent = StoryFixture.insertUser(this.jdbc, "글 없는 사람");
+		UUID lonelyFollower = StoryFixture.insertUser(this.jdbc, "글 없는 사람만 팔로우");
+		StoryFixture.insertFollow(this.jdbc, lonelyFollower, silent);
+
+		MvcResult first = this.mockMvc.perform(request(StoryFixture.as(lonelyFollower)).param("limit", "1"))
+				.andExpect(status().isOk())
+				.andExpect(header().string(StoryController.FEED_APPLIED_HEADER, "POPULAR"))
+				.andReturn();
+		JsonNode page = body(first);
+		assertThat(ids(page)).as("1쪽은 대체로 채워져야 한다").isNotEmpty();
+
+		JsonNode next = page.get("nextCursor");
+		if (next == null || next.isNull()) {
+			return; // 공개 기록이 한 건뿐이면 이어볼 것이 없다
+		}
+		MvcResult second = this.mockMvc.perform(request(StoryFixture.as(lonelyFollower))
+						.param("limit", "1").param("cursor", next.asText()))
+				.andExpect(status().isOk())
+				.andExpect(header().string(StoryController.FEED_APPLIED_HEADER, "POPULAR"))
+				.andReturn();
+
+		assertThat(ids(body(second))).as("2쪽이 팔로잉 경로로 새면 빈 목록이 온다").isNotEmpty();
+	}
+
 	@Test
 	@DisplayName("맞춤 커서로 이어봐도 대체 여부가 중간에 바뀌지 않는다")
 	void keepsTheSamePathWhilePaging() throws Exception {

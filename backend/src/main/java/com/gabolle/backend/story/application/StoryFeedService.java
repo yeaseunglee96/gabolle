@@ -139,10 +139,14 @@ public class StoryFeedService {
 	 * 기록이 39건 중 3건이다. 열에 아홉은 견줄 것이 없어서, 지금 넣으면 점수가 거의 모든 기록에서
 	 * 같은 값이 되고 «취향을 반영했다»는 말만 남는다. 기록에 장소가 붙는 비율이 오르면 그때 더한다.
 	 *
-	 * <h2>대체는 첫 쪽에서만 판단한다</h2>
+	 * <h2>두 길 중 어느 쪽인지는 쪽마다 같은 기준으로 정한다</h2>
 	 *
-	 * 이어보기 중에 대체로 갈아타면 앞 쪽과 다른 목록이 이어져 같은 기록을 두 번 보거나 건너뛴다.
-	 * 커서가 있으면 그 쪽이 무엇이었든 그대로 이어간다 — 두 길의 커서 모양이 같아서 가능하다.
+	 * 「이 사람의 팔로잉 피드에 하나라도 있는가」 하나만 본다. 커서를 보지 않으므로 1쪽과 2쪽이
+	 * 다른 길로 갈 수 없다.
+	 *
+	 * <p>처음에는 「첫 쪽에서만 대체를 판단한다」로 짰는데 그게 버그였다. 팔로우는 있고 그 사람들의
+	 * 기록이 없는 사용자는 1쪽이 대체(전체 인기순)로 채워지는데, 2쪽은 커서가 있다는 이유로 팔로잉
+	 * 경로로 가서 빈 목록이 됐다 — 피드가 2쪽에서 끊기고 머리도 뒤집혔다.
 	 *
 	 * <p>익명도 거절하지 않는다. 팔로우가 없는 사람일 뿐이라 대체 경로로 간다 —
 	 * {@link Scope#FOLLOWING} 이 400 을 내는 것과 다르다. 그쪽은 「팔로잉만 보여 달라」는 요청이고
@@ -153,18 +157,28 @@ public class StoryFeedService {
 		int size = clamp(limit);
 		FeedCursor from = decodeFor(Sort.POPULAR, cursor);
 
-		boolean personalizable = viewer != null && this.followRepository.countByKeyFollowerUserId(viewer) > 0;
-		if (personalizable) {
+		if (hasFollowingFeed(viewer, now)) {
 			List<Story> rows = this.storyRepository.findFollowingFeedPopular(viewer, now, from.publishAt(),
 					from.storyId(), from.likeCount(), size + 1);
-			// 첫 쪽이 비었을 때만 대체한다. 이어보기에서 빈 쪽은 「여기가 끝」이지 대체 신호가 아니다.
-			boolean firstPage = (cursor == null || cursor.isBlank());
-			if (!rows.isEmpty() || !firstPage) {
-				return new Feed(page(rows, size, viewer, now, Sort.POPULAR), Applied.FOR_YOU);
-			}
+			return new Feed(page(rows, size, viewer, now, Sort.POPULAR), Applied.FOR_YOU);
 		}
 		List<Story> fallback = popularRows(viewer, Scope.ALL, now, from, size + 1);
 		return new Feed(page(fallback, size, viewer, now, Sort.POPULAR), Applied.POPULAR);
+	}
+
+	/**
+	 * 이 사람의 팔로잉 피드에 내놓을 것이 하나라도 있는가. 커서와 무관하게 <b>맨 앞에서</b> 한 건만
+	 * 물어본다 — 쪽마다 같은 답이 나와야 1쪽과 2쪽이 같은 길로 간다.
+	 *
+	 * <p>팔로우 수를 세는 것만으로는 모자란다. 팔로우는 있는데 그 사람들이 아직 안 썼거나 전부
+	 * 비공개면 팔로잉 피드는 비어 있고, 그때도 대체로 가야 한다.
+	 */
+	private boolean hasFollowingFeed(UUID viewer, Instant now) {
+		if (viewer == null || this.followRepository.countByKeyFollowerUserId(viewer) == 0) {
+			return false;
+		}
+		return !this.storyRepository.findFollowingFeedPopular(viewer, now, FeedCursor.NONE.publishAt(),
+				FeedCursor.NONE.storyId(), Integer.MAX_VALUE, 1).isEmpty();
 	}
 
 	private List<Story> recentRows(UUID viewer, Scope scope, Instant now, FeedCursor from, int limit) {
