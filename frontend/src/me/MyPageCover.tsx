@@ -144,7 +144,8 @@ export function MyPageCover({
 }
 
 const styles = StyleSheet.create({
-  cover: { position: 'relative', width: '100%', height: MY_PAGE_COVER_HEIGHT, overflow: 'hidden', backgroundColor: color.surface.soft },
+  // zIndex: 0 — react-native-web 의 Image 는 그림을 z-index -1 로 그린다. 쌓임 문맥이 아니면 바탕 뒤로 가서 회색만 보인다(S15P21E201-1381, 로그인 판과 같은 버그).
+  cover: { position: 'relative', zIndex: 0, width: '100%', height: MY_PAGE_COVER_HEIGHT, overflow: 'hidden', backgroundColor: color.surface.soft },
   badge: { position: 'absolute', top: spacing[4], left: desktopGutter, paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(255,253,248,0.9)' },
 
   bottom: {

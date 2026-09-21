@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
   logo: { width: 154, height: 28 },
   spacer: { width: 44 },
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[4] },
-  privacyCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint, marginBottom: spacing[4] },
+  privacyCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.blush, marginBottom: spacing[4] },
   actions: { gap: spacing[2] },
   action: { width: '100%' },
   photo: { width: '100%', height: 220, borderRadius: radius.lg, backgroundColor: color.surface.card, marginBottom: spacing[4] },
