@@ -209,6 +209,8 @@ export function PlanStartBar({
   const todayKey = toDateKey(today);
   const summary = summarizeStartBar(value, tx);
   const ready = canAskForPlan(value);
+  // 🔴 단추 이름은 늘 「일정 물어보기」다 — 이름을 이유로 바꿨더니 e2e(core-journey)와 낭독기가 단추를 못 찾았다
+  //    (2026-09-21 승격 파이프라인 210801). 이유는 단추 안 둘째 줄로 적는다.
   const blocker = askForPlanBlocker(value, tx);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -492,7 +494,8 @@ export function PlanStartBar({
             style={[styles.cta, styles.sheetCta, !ready && styles.ctaOff]}
           >
             {/* 꺼져 있을 때 흰 글자를 두면 연회색 바탕에서 안 읽힌다. */}
-            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{blocker ?? tx('일정 물어보기', 'Ask for a plan')}</Text>
+            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
+            {blocker ? <Text variant="micro" color={color.text.muted}>{blocker}</Text> : null}
           </Pressable>
         </View>
       </Animated.View>
@@ -533,7 +536,8 @@ export function PlanStartBar({
             accessibilityRole="button"
             style={[styles.cta, !ready && styles.ctaOff]}
           >
-            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{blocker ?? tx('일정 물어보기', 'Ask for a plan')}</Text>
+            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
+            {blocker ? <Text variant="micro" color={color.text.muted}>{blocker}</Text> : null}
           </Pressable>
         </View>
       ) : (
@@ -584,7 +588,8 @@ export function PlanStartBar({
           </ScrollView>
           {!wide ? (
             <Pressable onPress={submit} disabled={!ready} accessibilityRole="button" style={[styles.cta, styles.ctaWide, !ready && styles.ctaOff]}>
-              <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{blocker ?? tx('일정 물어보기', 'Ask for a plan')}</Text>
+              <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
+            {blocker ? <Text variant="micro" color={color.text.muted}>{blocker}</Text> : null}
             </Pressable>
           ) : null}
         </Animated.View>
