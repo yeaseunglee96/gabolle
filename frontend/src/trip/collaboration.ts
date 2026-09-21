@@ -92,7 +92,7 @@ function membersActionFailure(error: unknown): Exclude<TripMemberActionResult, {
   return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
 }
 
-export type TripActivityOperation = 'CREATE' | 'REGENERATE' | 'REGENERATE_DAY' | 'REPLACE_ITEM' | 'REMOVE_ITEM' | 'LOCK_ITEM' | 'REORDER' | 'REVERT' | 'ADD_ITEM';
+export type TripActivityOperation = 'CREATE' | 'REGENERATE' | 'REGENERATE_DAY' | 'REPLAN_DAY' | 'REPLACE_ITEM' | 'REMOVE_ITEM' | 'LOCK_ITEM' | 'REORDER' | 'REVERT' | 'ADD_ITEM';
 export type TripActivityEntry = {
   itineraryId: string;
   version: number;
