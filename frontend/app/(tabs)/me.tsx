@@ -24,8 +24,7 @@ import { MyPageModal } from '@/me/MyPageModal';
 import { MyPageSheetBody } from '@/me/MyPageSheet';
 import { isPanelKey, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
 import { MyTripCard } from '@/home/HomeBlocks';
-import { HomeRow } from '@/home/HomeRow';
-import { RecordCard } from '@/me/RecordCard';
+import { RecordsBrowser } from '@/me/RecordsBrowser';
 import { ProfileCard, ProfileCardButton } from '@/me/ProfileCard';
 import { InfoRow } from '@/me/InfoRow';
 import { AppLanguageSetting } from '@/me/AppLanguageSetting';
@@ -40,7 +39,7 @@ import { PREFERENCE_TOTAL } from '@/preferences/accountPreferences';
 export default function Me() {
   const router = useRouter();
   const { user, signOut, accessToken } = useAuth();
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const plan = usePlan();
   const { width, height } = useWindowDimensions();
   const { answeredPreferences, storyCount, followerCount, followingCount } = useMyPageCounts();
@@ -246,29 +245,29 @@ export default function Me() {
           tx={tx}
         />
 
-        {/* 🔴 커버와 3열 사이에 기록 줄. 전에는 「내 기록 ›」 행이 이 일을 했는데,
-            그 행은 눌러서 모달을 열어야만 무엇이 있는지 보였다 — 자기 기록인데도
-            «몇 개 있는지»만 알고 «무엇을 썼는지»는 한 번 더 눌러야 했다. */}
-        <HomeRow
-          title={storyCount === null
-            ? txf(tx, '%s의 기록', "%s's records", name)
-            : txf(tx, '%s의 기록 %s개', "%s's records · %s", name, String(storyCount))}
-          onOpen={() => openPanel('posts')}
-          openLabel={tx('기록 전체 보기', 'See all records')}
-          width={width}
-          cardWidth={recordRowCardWidth}
-        >
-          {(myStories ?? []).map((story) => (
-            <RecordCard key={story.id} story={story} width={recordRowCardWidth} onPress={() => router.push(`/feed/${story.id}`)} tx={tx} />
-          ))}
-          {user ? (
-            <Pressable accessibilityRole="button" onPress={() => router.push('/feed')} style={[styles.recordNew, { width: recordRowCardWidth }]}>
-              <View style={styles.recordNewIcon}><Text weight="bold" color={color.text.onAction}>✎</Text></View>
-              <Text weight="bold" numberOfLines={1}>{tx('새 기록 남기기', 'Write a record')}</Text>
-              <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx('사진 3장까지', 'Up to 3 photos')}</Text>
-            </Pressable>
-          ) : null}
-        </HomeRow>
+        {/* 🔴 커버와 3열 사이에 내 기록. 전에는 한 줄(HomeRow)이었는데 «무엇을 썼는지»만 보이고
+            «언제 어디»는 못 찾았다 — 격자 | 달력 보기와 지역·#태그 칩으로 바꿨다(S15P21E201-1444).
+            폰의 「기록」 탭과 같은 부품이다. 관리(삭제·공개 범위)는 여전히 「내 기록」 시트다. */}
+        {user ? (
+          <View style={styles.wideRecords}>
+            <View style={styles.wideRecordsHead}>
+              <Text variant="title" weight="bold">{storyCount === null
+                ? txf(tx, '%s의 기록', "%s's records", name)
+                : txf(tx, '%s의 기록 %s개', "%s's records · %s", name, String(storyCount))}</Text>
+              <Pressable accessibilityRole="button" onPress={() => openPanel('posts')} hitSlop={8}><Text weight="bold" color={color.text.muted}>{tx('기록 관리', 'Manage records')} ›</Text></Pressable>
+            </View>
+            {myStories !== null && myStories.length === 0 ? (
+              <View style={styles.recordsEmpty}>
+                <GabolleMascot state="thinking" still style={styles.recordsEmptyMascot} />
+                <Text variant="title" weight="bold">{tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>
+                <Button label={tx('첫 기록 남기기', 'Write your first record')} variant="secondary" onPress={() => router.push('/feed/compose')} containerStyle={styles.recordsEmptyCta} />
+              </View>
+            ) : (
+              <RecordsBrowser stories={myStories ?? []} tx={tx} locale={locale} cardWidth={recordRowCardWidth} onOpen={(story) => router.push(`/feed/${story.id}`)} onCompose={() => router.push('/feed/compose')} />
+            )}
+            {myStories === null && !myStoriesQuery.isPending ? <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text> : null}
+          </View>
+        ) : null}
 
         <View style={styles.wideGrid}>
           <View style={styles.wideColumn}>
@@ -365,18 +364,8 @@ export default function Me() {
           <Button label={tx('첫 기록 남기기', 'Write your first record')} variant="secondary" onPress={() => router.push('/feed/compose')} containerStyle={styles.recordsEmptyCta} />
         </View>
       ) : meTab === 'records' ? (
-        <View style={styles.recordsGrid}>
-          {(myStories ?? []).map((story) => (
-            <RecordCard key={story.id} story={story} onPress={() => router.push(`/feed/${story.id}`)} tx={tx} />
-          ))}
-          {/* 남의 프로필에는 이 칸이 없다 — 그건 /user/[id] 가 따로 그린다. */}
-          {user ? (
-            <Pressable accessibilityRole="button" onPress={() => router.push('/feed')} style={styles.recordNew}>
-              <View style={styles.recordNewIcon}><Text weight="bold" color={color.text.onAction}>✎</Text></View>
-              <Text weight="bold" numberOfLines={1}>{tx('새 기록 남기기', 'Write a record')}</Text>
-              <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx('사진 3장까지', 'Up to 3 photos')}</Text>
-            </Pressable>
-          ) : null}
+        <View>
+          {user ? <RecordsBrowser stories={myStories ?? []} tx={tx} locale={locale} onOpen={(story) => router.push(`/feed/${story.id}`)} onCompose={() => router.push('/feed/compose')} /> : null}
           {/* 못 불러온 것을 「없다」로 바꾸지 않는다. */}
           {user && myStories === null && !myStoriesQuery.isPending ? (
             <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text>
@@ -489,18 +478,13 @@ const styles = StyleSheet.create({
   segmentItemOn: { backgroundColor: color.action.primary },
 
   // 🔴 스크롤 칸 안이라 flex 를 안 쓴다. 쓰면 카드가 세로로 눌린다.
-  recordsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[3] },
+  wideRecords: { gap: spacing[2], paddingHorizontal: desktopGutter },
+  wideRecordsHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
   recordsEmpty: { alignItems: 'center', gap: spacing[3], marginTop: spacing[3], paddingVertical: spacing[8], paddingHorizontal: spacing[4] },
   recordsEmptyMascot: { width: 104, height: 104 },
   recordsEmptyCopy: { textAlign: 'center' },
-  // 가운데 정렬 안에서는 단추 폭이 글자보다 줄어 잘린다 — 최소 폭을 준다.
   // 🔴 minWidth 로는 껍데기 폭이 «자동»으로 남는다. 그러면 안쪽 단추의 width:'100%' 가
   //    풀리지 않아 글자 폭으로 줄고 왼쪽에 붙는다 — 실기에서 껍데기는 251..829(가운데 540)인데
-  //    단추는 251..508(가운데 379)이었다(팀원 실기 지적). width 를 확정해 주면 풀린다.
+  //    단추는 251..508(가운데 379)이었다(S15P21E201-1456). width 를 확정해 주면 풀린다.
   recordsEmptyCta: { marginTop: spacing[1], alignSelf: 'center', width: '100%', maxWidth: 320 },
-  recordNew: {
-    width: '48%', aspectRatio: 0.78, alignItems: 'center', justifyContent: 'center', gap: spacing[2],
-    borderRadius: radius.lg, borderWidth: 1, borderStyle: 'dashed', borderColor: color.surface.field,
-  },
-  recordNewIcon: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.primary },
 });
