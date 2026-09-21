@@ -1,9 +1,10 @@
 import { extractTags, filterStories, groupByDay, latestMonth, monthCells, regionsOf, shiftMonth, tagsOf } from '../recordsBrowse';
 import type { StoryDto } from '@/social/stories';
 
+// 🔴 시각에 시간대(+09:00)를 안 붙인다 — 붙이면 CI(UTC)에서 날짜가 하루 앞으로 밀려 «기기 날짜»로 묶는 시험이 깨진다. 오프셋 없는 ISO 는 기기 시간대로 읽힌다.
 const story = (id: string, over: Partial<StoryDto> = {}): StoryDto => ({
   id, author: { id: 'u', displayName: '나' }, body: '', images: [], visibility: 'PUBLIC',
-  publishAt: '2026-09-20T10:00:00+09:00', createdAt: '2026-09-20T10:00:00+09:00', updatedAt: '2026-09-20T10:00:00+09:00',
+  publishAt: '2026-09-20T10:00:00', createdAt: '2026-09-20T10:00:00', updatedAt: '2026-09-20T10:00:00',
   mine: true, published: true, ...over,
 });
 
@@ -40,7 +41,7 @@ describe('filterStories · regionsOf · tagsOf', () => {
 
 describe('달력', () => {
   it('groupByDay 는 기기 날짜로 묶고 못 읽는 날짜는 뺀다', () => {
-    const groups = groupByDay([story('a'), story('b', { publishAt: '2026-09-21T01:00:00+09:00' }), story('x', { publishAt: 'nope', createdAt: 'nope' })]);
+    const groups = groupByDay([story('a'), story('b', { publishAt: '2026-09-21T01:00:00' }), story('x', { publishAt: 'nope', createdAt: 'nope' })]);
     expect([...groups.keys()].sort()).toEqual(['2026-09-20', '2026-09-21']);
     expect(groups.get('2026-09-20')?.map((s) => s.id)).toEqual(['a']);
   });
@@ -52,7 +53,7 @@ describe('달력', () => {
     expect(cells.filter((c) => c.inMonth)).toHaveLength(30);
   });
   it('latestMonth 는 가장 최근 기록의 달, 없으면 이번 달', () => {
-    expect(latestMonth([story('a'), story('b', { publishAt: '2026-07-01T00:00:00+09:00' })])).toEqual({ year: 2026, month0: 8 });
+    expect(latestMonth([story('a'), story('b', { publishAt: '2026-07-01T00:00:00' })])).toEqual({ year: 2026, month0: 8 });
     expect(latestMonth([], new Date(2026, 0, 15))).toEqual({ year: 2026, month0: 0 });
   });
   it('shiftMonth 는 해를 넘긴다', () => {
