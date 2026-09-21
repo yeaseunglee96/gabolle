@@ -17,6 +17,11 @@ CREATE TABLE push_token (
     updated_at    TIMESTAMPTZ NOT NULL,
 
     CONSTRAINT uk_push_token_token UNIQUE (token),
+    -- 🔴 CASCADE 는 여기서 «거의 안 도는» 규칙이다. 탈퇴는 app_user 행을 지우지 않고
+    --    익명화하므로(AccountDeletionService), 부모가 안 지워지니 이 규칙도 안 터진다.
+    --    실제로 지우는 것은 AccountDeletionService.USER_OWNED_ROWS 에 적은 한 줄이다.
+    --    그래도 거는 이유는 언젠가 진짜로 지우는 경로가 생겼을 때 여기가 마지막 방어선이라서다
+    --    — 남으면 «탈퇴한 사람의 폰으로 알림이 계속 간다».
     CONSTRAINT fk_push_token_user
         FOREIGN KEY (user_id) REFERENCES app_user (user_id) ON DELETE CASCADE,
     -- 앱이 보내는 두 값만 받는다. 모르는 값이 들어오면 보낼 때가 아니라 지금 막힌다.
