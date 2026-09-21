@@ -1,5 +1,13 @@
 import { expect, test } from '@playwright/test';
 
+/**
+ * 선택 질문을 넘길 때 「다음」을 눌러 보는 최대 횟수.
+ *
+ * 🔴 질문 수가 아니라 «무한 반복을 막는 상한» 이다. 실제 질문 수(PLAN_QUESTIONS)를 여기 적으면
+ * 질문이 늘 때마다 이 시험이 또 깨진다 — 그 결합을 끊으려고 넉넉한 수를 둔다.
+ */
+const PLAN_QUESTION_GUARD = 20;
+
 // 핵심 흐름 — 로그인 → 여행 조건 → 추천 요청. S15P21E201-775.
 //
 // 지금까지의 스모크(tools/smoke-check.mjs)는 "화면에 글자가 그려졌는가·콘솔에
@@ -67,25 +75,36 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
 
   await page.getByRole('button', { name: '일정 물어보기', exact: true }).click();
 
-  // 3) 여행 조건 — 🔴 S15P21E201-1377 부터 세 장이다(app/(plan)/questions.tsx, src/plan/planQuestions.ts
-  //    의 PLAN_PAGES). 1장 기본(필수): 여행 범위 · 총예산 · 하루 여행 시간/이동수단이 한 장에 다 있다.
-  //    2장 취향 · 3장 세부는 선택이라 답 없이 넘어간다. 한 질문 = 한 장이던 때의 「다음」×3 ·
-  //    「건너뛰기」×6 은 이제 없다.
+  // 3) 여행 조건 — 🔴 S15P21E201-1425 부터 «한 번에 한 질문» 이다
+  //    (app/(plan)/questions.tsx 가 PLAN_QUESTIONS[index] 하나만 그리고 이전/다음으로 넘긴다).
+  //    1377 의 「세 장」도, 그 전의 「한 질문 = 한 장」도 아니다.
   await expect(page).toHaveURL(/\/plan(\?|$)/);
 
   // 여행 범위(필수) — 하나 이상 고른다.
   // 🔴 정확일치로 찾지 않는다. 선택지 카드가 제목 아래에 부제를 같이 그리므로(-1320,
   //    OptionCard) 접근성 이름이 「해운대해변 · 동백섬 · 해리단길」이 된다. exact 는
   //    영영 못 맞춘다 — 앞글자로 찾는다.
+  const next = page.getByRole('button', { name: '다음', exact: true });
+  const build = page.getByRole('button', { name: '이 조건으로 일정 만들기', exact: true });
+
   await page.getByRole('checkbox', { name: /^해운대/ }).click();
-  // 총예산(필수) — 같은 장에 있다. "+10만"을 한 번만 눌러도 0보다 커져 답한 것으로 본다.
+  await next.click();
+  // 총예산(필수) — "+10만"을 한 번만 눌러도 0보다 커져 답한 것으로 본다.
   await page.getByRole('button', { name: '+10만', exact: true }).click();
-  // 하루 여행 시간 · 이동수단(필수) — 같은 장. 이동수단만 고르면 답한 것으로 본다.
+  await next.click();
+  // 하루 여행 시간 · 이동수단(필수) — 이동수단만 고르면 답한 것으로 본다.
   await page.getByRole('checkbox', { name: /^대중교통/ }).click();
-  // 1장의 단추는 「취향도 알려주기 →」 — 필수를 다 답해야 켜진다.
-  await page.getByRole('button', { name: '취향도 알려주기 →', exact: true }).click();
-  // 2장(취향)은 선택 — 「다음」으로 넘어간다. 3장(세부)이 마지막이라 아래 제출 단추가 열린다.
-  await page.getByRole('button', { name: '다음', exact: true }).click();
+
+  // 남은 질문은 전부 선택이라 답하지 않고 넘긴다.
+  // 🔴 몇 개인지 세지 않는다. 이 시험은 화면 구성이 바뀔 때마다 깨졌다
+  //    (1233 → 1257 → 1425). 「마지막 장에 닿을 때까지 다음을 누른다」로 두면 질문이
+  //    늘거나 줄어도 버틴다. 마지막 장에서는 그 자리 단추가 「이 조건으로 일정 만들기」로
+  //    바뀌므로 «다음이 사라지는 것» 자체가 멈추는 신호다.
+  for (let step = 0; step < PLAN_QUESTION_GUARD; step += 1) {
+    if (await build.isVisible()) break;
+    await next.click();
+  }
+  await expect(build).toBeVisible();
 
   // 4) 추천 요청 제출 — 알레르기·식단은 1.5단계에서 이미 답했으므로(hardUnknown이
   //    false다) 여행 조건 모달이 다시 뜨지 않고 바로 제출된다. 이 클릭이
