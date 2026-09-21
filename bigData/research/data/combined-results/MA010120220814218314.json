@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220814218314",
+  "name": "형제집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 48831,
+  "researchedAt": "2026-09-21T22:26:47.297Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 없음(폐업 또는 등록된 정보 부재)",
+  "notes": "부산광역시 금정구 공해1길 116에 위치한 '형제집'(돼지고기 구이/찜 업종)에 대해 웹 검색을 다각도로 진행하였으나, 해당 위치/상호의 실제 운영 음식점 정보 및 후기 등을 찾을 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

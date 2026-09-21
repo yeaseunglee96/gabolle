@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220810698660",
+  "name": "부산가든",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 30653,
+  "researchedAt": "2026-09-21T22:23:59.089Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "옻오리",
+      "오리백숙",
+      "유황오리한방백숙",
+      "유황오리주물럭",
+      "유황오리소금구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "사업자 등록 및 지자체 안심식당/식당 목록상 주소(부산 북구 만덕고개길 75)와 상호(부산가든)는 확인되나, 실제 메뉴는 돼지고기 구이보다는 유황오리 백숙 및 주물럭 전문점으로 등록되어 있으며 블로그 방문 리뷰나 세부 영업시간/가격 정보는 웹상에서 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 부산가든, 소재지: 부산광역시 북구 만덕고개길 75, 전화번호: 051-342-9916, 주요 메뉴: 옻오리, 오리백숙, 유황오리한방백숙, 유황오리주물럭, 유황오리소금구이 등.",
+      "url": "https://bife.kr"
+    }
+  ],
+  "sources": [
+    "https://bife.kr",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220806563177",
+  "name": "해담회초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 38542,
+  "researchedAt": "2026-09-21T22:25:25.544Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "회",
+      "초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 기장군 정관읍 달산리에 위치한 '해담회초밥' 상호의 음식점이 상가/부동산 인근 시설 정보에 등록되어 있으나, 방문 후기, 영업시간, 구체적인 가격대, 대기 정보 등 세부 내용은 웹상에서 추가 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'해담회초밥'은 부산광역시 기장군 정관읍 달산리 일대에 위치한 음식점입니다. 해당 지역의 여러 건물 및 상가 정보에서 인근 시설로 자주 언급되는 곳입니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

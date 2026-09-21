@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220813838154",
+  "name": "횟집에스시있다",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 44940,
+  "researchedAt": "2026-09-21T22:23:33.560Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡 관련 후기 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 북구 구포동 718-24(백양대로 1125-1) 소재 음식점(횟집/일식)으로 사업자 및 상가 정보에 등록되어 있으나, 방문 후기 및 세부 메뉴·영업 정보가 웹에 거의 남아있지 않습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "횟집에스시있다: 부산광역시 북구 구포동(백양대로 1125-1)에 소재한 개인사업자로 등록된 음식점입니다.",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "위치: 부산광역시 북구 구포동 718-24 (백양대로 1125-1 인근) 업종: 횟집 (일식)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,46 @@
+{
+  "id": "MA0101202502A0040607",
+  "name": "민정",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 34843,
+  "researchedAt": "2026-09-21T22:23:30.024Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 북구 백양대로 1199-11 소재 일반음식점(인허가 상호: 민정)으로 지자체 행정 DB상 등록은 확인되나, 일반 방문 리뷰, 메뉴, 영업시간, 혼잡도 등 상세 정량 정보는 웹상에서 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 백양대로 1199-11 (구포동) 소재지에 '민정'이라는 명칭의 일반음식점이 등록되어 있는 것이 확인됩니다. 전화번호: 051-333-2902",
+      "url": "https://www.bsbukgu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.bsbukgu.go.kr"
+  ],
+  "whyPeopleGo": []
+}

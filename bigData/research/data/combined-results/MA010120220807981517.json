@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220807981517",
+  "name": "기장옛날손칼국수",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 31257,
+  "researchedAt": "2026-09-21T22:26:24.199Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기에 관한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 공단 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "열무냉칼국수",
+      "손칼국수",
+      "만두"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "금사공단 입구 및 금사시장 인근 동네 주민·직장인들이 주로 찾는 로컬 분식 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "상호명은 등록 기준 '기장옛날손칼국수' 또는 간판/표기상 '기장옛날칼국수'(전화번호 051-522-3610)로 운영되는 곳으로, 금사공단 입구 탑마트 인근에 위치하며 열무냉칼국수와 손칼국수 등을 판매합니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "기장옛날칼국수 051-522-3610 부산광역시 금정구 금사로 58-9... 열무냉칼국수... 금사공단 입구 금사시장에서 서동 방향으로 나오는 일방통행로 끝자락에 위치해 있습니다. 가게 맞은편에 금사중 버스정류소가 있으며, 인근 50m 거리에 금사동 탑마트가 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "금사공단 및 금사시장 인근에서 시원한 열무냉칼국수와 칼국수, 만두를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "금사공단 입구 및 버스정류장 맞은편에 위치해 인근에서 접근하기 편함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

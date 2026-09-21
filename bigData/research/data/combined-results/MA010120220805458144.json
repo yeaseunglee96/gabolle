@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220805458144",
+  "name": "착한소",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42408,
+  "researchedAt": "2026-09-21T22:25:02.836Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족/직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "꽃갈비살",
+      "진갈비",
+      "양념갈비살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:30"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 사하구 괴정동(낙동대로249번길 46)에 등록된 소고기 숯불구이 전문점입니다. 꽃갈비살, 진갈비 등을 주 메뉴로 취급하며, 온라인상에는 기본 상호/주소/영업시간 등 포털·관광 안내 위주의 정보가 확인됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 사하구 낙동대로249번길 46 (괴정동), 업종: 식육(숯불구이) / 한식, 연락처: 051-206-6303, 영업시간: 매일 11:00 ~ 22:30, 주요 메뉴: 꽃갈비살, 진갈비, 꽃소갈비살, 양념갈비살 등",
+      "url": "https://heyyumi.ai"
+    },
+    {
+      "excerpt": "상호: 착한소 본점, 주소: 부산광역시 사하구 낙동대로249번길 46 (괴정동), 전화번호: 051-206-6303",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://www.114.co.kr",
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "꽃갈비살, 진갈비 등 소고기 숯불구이 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

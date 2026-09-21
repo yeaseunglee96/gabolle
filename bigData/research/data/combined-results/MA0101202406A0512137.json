@@ -1,0 +1,47 @@
+{
+  "id": "MA0101202406A0512137",
+  "name": "수성남로28",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 42818,
+  "researchedAt": "2026-09-21T22:23:58.255Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 동구 수성남로 28(수정동 608-10)에 경양식 업종으로 등록된 식당으로 카카오톡 채널 등에 '하늘길 아래 깊은 골목에 위치한 조용한 식당'으로 소개되어 있으나 세부 메뉴 가격, 영업시간, 줄서기 등 상세 정보는 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "하늘길 아래 깊은 골목에 위치한 조용한 식당",
+      "url": "https://pf.kakao.com"
+    }
+  ],
+  "sources": [
+    "https://pf.kakao.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "산복도로/골목길 안쪽에 자리 잡은 조용한 분위기의 식당",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

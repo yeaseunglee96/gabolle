@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202406A0431031",
+  "name": "베버리지",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 38704,
+  "researchedAt": "2026-09-21T22:25:13.824Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 배달/포장 이용객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돈까스",
+      "파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00~23:55"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "정관 신도시 오피스텔 상가에 위치한 동네 파스타·돈까스 식당으로, 현지인(인근 주민) 생활권 중심 식당임"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 기장군 정관읍 정관로 607(정관그리나 오피스텔 1층)에 위치한 '베버리지(정관 베버리지 파스타&돈까스)'는 돈까스와 파스타를 주력으로 하는 캐주얼 경양식/양식당입니다. 오피스텔 상가 내 주차 편의 및 늦은 시간(23:55)까지 영업·배달을 병행하여 인근 주민들이 식사 및 야식으로 주로 찾는 매장입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "베버리지 정관점 / 주소: 부산광역시 기장군 정관읍 정관로 607, 정관그리나 1층 105, 106, 107호 / 전화번호: 0507-1410-3026 / 주요 메뉴: 돈까스, 파스타 등 / 영업시간: 11:00~23:55",
+      "url": "https://www.facebook.com/"
+    },
+    {
+      "excerpt": "정관 베버리지 파스타&돈까스: 부산광역시 기장군 정관읍에 위치한 식당",
+      "url": "https://udanax.org/"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com/",
+    "https://udanax.org/",
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오피스텔 상가 내 위치해 접근이 편리하고 늦은 시간까지 돈까스와 파스타를 편하게 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "수제 돈까스와 파스타를 중심으로 한 대중적인 경양식·양식 메뉴 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

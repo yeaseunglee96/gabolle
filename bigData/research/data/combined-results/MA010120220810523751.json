@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220810523751",
+  "name": "등대집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 33221,
+  "researchedAt": "2026-09-21T22:26:01.062Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 서구 엄광산로107번길 22(서대신동3가 2-17) 소재 '등대집'은 한식/오리고기 등의 상호 등록 이력은 확인되나, 대중적인 방문 후기, 상세 메뉴 가격, 영업시간, 줄서기 현황 등 정량 정보 및 방문 이유가 웹상에 전혀 기록되어 있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "등대집: 부산광역시 서구 서대신동3가 2-17에 위치한 한식 음식점으로 등록된 기록이 있습니다",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": []
+}

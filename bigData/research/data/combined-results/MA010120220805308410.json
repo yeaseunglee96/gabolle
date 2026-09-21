@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220805308410",
+  "name": "홍참치생연어",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 44563,
+  "researchedAt": "2026-09-21T22:23:35.356Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "현지인 단골 및 직장인/주당",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "생연어사시미",
+      "참치회"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 03:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "덕천역 골목에 위치한 아담한 노포 감성 맛집으로 현지인 단골이 주를 이룸"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 북구 만덕대로16번길(덕천동/구포동) 일대에 위치한 참치 및 생연어 전문점으로, 신선한 회와 노포 감성의 가성비 안주로 현지인들에게 알려져 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "덕천역 인근 맛집 골목에 위치한 아담한 가게로, 신선한 참치와 연어회를 가성비 좋은 가격에 즐길 수 있어 현지인들에게 인기가 많은 곳입니다. 세월의 흔적이 느껴지는 노포 감성의 맛집으로 알려져 있습니다. 영업시간: 17:00 ~ 03:00",
+      "url": "https://kr.trip.com/travel-guide/foods/busan-150-restaurant/"
+    },
+    {
+      "excerpt": "가성비 좋은 참치집으로 알려져 있습니다. 대표 메뉴: 생연어사시미(대, 중)",
+      "url": "https://www.siksinhot.com/P/1018861"
+    }
+  ],
+  "sources": [
+    "https://kr.trip.com/travel-guide/foods/busan-150-restaurant/",
+    "https://www.siksinhot.com/P/1018861"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "세월의 흔적이 느껴지는 노포 분위기에서 신선한 참치와 생연어를 즐길 수 있는 현지인 단골 맛집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "참치와 연어 사시미를 부담 없는 가격에 맛볼 수 있는 가성비 일식 주점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

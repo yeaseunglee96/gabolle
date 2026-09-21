@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220811568790",
+  "name": "금정산장",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 45768,
+  "researchedAt": "2026-09-21T22:27:01.394Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 구체적인 웹 언급 없음"
+  },
+  "descriptors": {
+    "audience": "등산객, 모임 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "흑염소 불고기",
+      "오리 불고기",
+      "백숙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "금정산성 마을(금정구 남문로 28 / 금성동 1024-1)에 위치한 곳으로, 주로 등산객들이 찾는 흑염소 불고기, 오리 불고기, 백숙 등 보양식 위주의 음식점으로 등록/언급되어 있습니다. 세부 영업시간 및 메뉴판 가격 정보는 웹상 상세 내용이 제한적입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "금정산장은 부산광역시 금정구 남문로 28 (금성동 1024-1)에 위치한 음식점입니다. 이곳은 주로 흑염소 불고기, 오리 불고기, 백숙 등 보양식을 전문으로 하는 식당으로 알려져 있습니다. 금정산성 인근에 위치하고 있어 등산객들이나 방문객들이 자주 찾는 곳 중 하나입니다.",
+      "url": "https://dorojuso.com"
+    }
+  ],
+  "sources": [
+    "https://dorojuso.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "금정산성 등산 및 방문 시 흑염소·오리 불고기나 백숙 등 향토 보양식을 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202601A0015764",
+  "name": "금사정",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 49716,
+  "researchedAt": "2026-09-21T22:26:21.086Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "소머리곰탕",
+      "모둠수육",
+      "선지해장국",
+      "모둠곰탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~22:00 영업 종료"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "금사동 인근 주민 및 직장인이 찾는 동네 밥집·식당"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 금정구 금사로 58-7에 위치한 금사정은 백반/한정식 업종으로 등록되어 있으나 실제 주력 메뉴는 소머리곰탕, 선지해장국, 모둠수육 등 탕반 및 수육류입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "소머리곰탕 / 선지해장국",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 금정구 금사로 58-7 (금사동 84-32). 업종: 한국음식 > 설렁탕/곰탕/도가니탕. 주요 메뉴: 모둠수육 30,000원, 소머리곰탕 10,000원, 선지해장국 10,000원, 모둠곰탕 13,000원. 영업시간: ~22:00 영업 종료.",
+      "url": "https://www.siksinhot.com/P/1601633"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1601633"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "소머리곰탕, 선지해장국, 모둠수육 등 따뜻한 탕반 식사를 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "인근 공업지역 및 주택가에서 편하게 식사하기 좋은 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

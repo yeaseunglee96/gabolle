@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220802647030",
+  "name": "마호우가",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 36630,
+  "researchedAt": "2026-09-21T22:25:29.453Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "가게 규모가 크지 않아 대기가 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "연인·관광객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "에비텐붓카케",
+      "붓카케우동",
+      "돈카츠"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월요일 10:30 - 15:00 / 화요일 ~ 일요일 10:30 - 21:00 (라스트 오더 20:00) / 매주 목요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "흰여울문화마을 절영로 바다 조망 식당으로 방문객/관광객 선호"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "자가제면 우동, 소바 및 돈카츠·덮밥류를 판매하며 바다 조망이 가능한 일식당",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 영도구 절영로 231에 위치하고 있으며, 바다 조망이 가능한 우동 및 소바 전문점입니다. 주로 붓카케 우동 등이 인기 있는 곳으로 알려져 있습니다.",
+      "url": "https://trip.com"
+    },
+    {
+      "excerpt": "월요일: 10:30 - 15:00, 화요일 ~ 일요일: 10:30 - 21:00 (라스트 오더 20:00), 정기휴무: 매주 목요일. 자가제면을 사용하여 쫄깃한 식감의 면 요리를 선보입니다. 주요 메뉴: 우동, 소바, 돈카츠, 덮밥류 등. 추천 메뉴: '에비텐붓카케'(즉석에서 튀긴 바삭한 새우와 차가운 면을 소스에 비벼 먹는 우동)가 유명합니다. 가게 규모가 크지 않아 대기가 발생할 수 있으며, 키오스크를 통해 주문하는 방식입니다. 식사 공간에서 바다를 조망할 수 있는 것이 특징입니다.",
+      "url": "https://trip.com"
+    }
+  ],
+  "sources": [
+    "https://trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바다 조망과 함께 쫄깃한 자가제면 붓카케우동을 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
