@@ -399,7 +399,11 @@ const styles = StyleSheet.create({
   //    (웹만 지킨다. 네이티브는 이 속성이 없어 가운데 축으로 돈다 — 그래도 안 깨진다.)
   paper: { width: RECEIPT_WIDTH, backfaceVisibility: 'hidden', transformOrigin: 'top center' },
   faceHidden: { opacity: 0 },
-  flipHint: { alignItems: 'center', paddingVertical: spacing[2] },
+  // 🔴 이 줄도 «종이»다. 흰 바탕은 머리(sheet)·스터브(stub)가 각자 칠하는데 여기만
+  //    안 칠해서, 마지막 절취선 뒤의 「눌러서 여행표 상세 보기」가 페이지 바탕 위에 떠
+  //    «승차권 밖으로 튀어나간» 것처럼 보였다(실기 빌드 29, S15P21E201-1460).
+  //    stub 과 같은 marginTop: 4 로 절취선 틈도 위와 같게 둔다.
+  flipHint: { backgroundColor: color.surface.card, marginTop: 4, alignItems: 'center', paddingVertical: spacing[2] },
 
   // 뒷면 — 앞면과 **같은 자리**에 겹쳐 둔다. 크기가 다르면 뒤집는 동안 자리가 튄다.
   back: {
