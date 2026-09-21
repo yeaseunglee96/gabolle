@@ -1,5 +1,5 @@
 // 폰 홈. 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -31,6 +31,8 @@ import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
+import { hasUnseen, loadActivityFeed, loadSeenAt } from '@/notifications/activityFeed';
+import { useFocusEffect } from 'expo-router';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { relativeStoryTime } from '@/social/stories';
@@ -58,6 +60,18 @@ export default function Home() {
   const { hydrated, hasEnteredApp, markEnteredApp, setLanguage } = useOnboardingPreferences();
   // 시안 5 Home 의 「⊕ 한국어」 — 외국인이 홈에서 바로 언어를 바꾼다(S15P21E201-1372). 첫 화면의 언어 시트를 그대로 쓴다.
   const [langOpen, setLangOpen] = useState(false);
+  // 안 본 알림이 있으면 종에 점 — 여행 활동을 마지막으로 본 시각과 견준다(S15P21E201-1380). 화면에 돌아올 때마다 다시 본다.
+  const [bellDot, setBellDot] = useState(false);
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    if (!user) { setBellDot(false); return undefined; }
+    (async () => {
+      const [feed, seenAt] = await Promise.all([loadActivityFeed(accessToken, tx), loadSeenAt()]);
+      if (active && feed.state === 'success') setBellDot(hasUnseen(feed.items, seenAt));
+    })();
+    return () => { active = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.userId, accessToken]));
   const langLabel = LANGUAGE_OPTIONS.find((item) => item.code === language)?.endonym ?? '한국어';
   const home = useHomeData(!desktop);
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
@@ -207,6 +221,7 @@ export default function Home() {
                 */}
                 <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
                   <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
+                  {bellDot ? <View style={styles.bellDot} /> : null}
                 </Pressable>
               </>
             ) : (
@@ -363,6 +378,7 @@ const styles = StyleSheet.create({
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], height: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
   bell: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  bellDot: { position: 'absolute', top: 9, right: 9, width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.action.primary, borderWidth: 1.5, borderColor: color.canvas },
   bellIcon: { width: 20, height: 20 },
   langPill: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, paddingHorizontal: 12, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   loginPill: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
