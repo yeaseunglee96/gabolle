@@ -169,6 +169,8 @@ export default function Me() {
         disabled={!user}
       />
       <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities')} disabled={!user} />
+      {/* 백엔드(DELETE /me)도 흐름도 있는데 프로필 편집 맨 아래에만 있어 설정에서 안 보였다(2026-09-21 실기, S15P21E201-1401). */}
+      <InfoRow label={tx('회원 탈퇴', 'Delete account')} description={tx('여행, 기록, 취향이 모두 지워져요', 'Deletes your trips, records, and preferences')} value="›" onPress={() => openPanel('delete-account')} disabled={!user} />
     </View>
   </>;
 
