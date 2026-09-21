@@ -94,4 +94,45 @@ class TimeWindowsTest {
     void blankIsEmpty() {
         assertTrue(TimeWindows.parseRange("").isEmpty());
     }
+    @Test
+    @DisplayName("🔴 콜론만 빠진 시각(0800-1800)은 조용히 버려지지 않고 거부된다")
+    void digitsOnlyRangeIsRejectedNotSwallowed() {
+        assertThrows(TimeWindows.InvalidTimeWindowException.class,
+                () -> TimeWindows.parseRange("0800-1800"));
+    }
+
+    @Test
+    @DisplayName("🔴 세 자리여도(900-1800) 시각을 적으려던 것으로 본다")
+    void threeDigitRangeIsRejected() {
+        assertThrows(TimeWindows.InvalidTimeWindowException.class,
+                () -> TimeWindows.parseRange("900-1800"));
+    }
+
+    @Test
+    @DisplayName("하이픈 둘레에 공백이 있어도 같게 본다")
+    void spacesAroundHyphenStillRejected() {
+        assertThrows(TimeWindows.InvalidTimeWindowException.class,
+                () -> TimeWindows.parseRange("0800 - 1800"));
+    }
+
+    @Test
+    @DisplayName("🔴 글자로 된 프리셋은 여전히 그냥 통과한다 — 프리셋 목록은 열려 있다")
+    void letterPresetsStillPass() {
+        assertTrue(TimeWindows.parseRange("EARLY_BIRD").isEmpty());
+        assertTrue(TimeWindows.parseRange("NIGHT_OWL_2026").isEmpty());
+    }
+
+    @Test
+    @DisplayName("끝이 시작보다 이르면 거부된다 — 프론트만 믿지 않는다")
+    void reversedRangeIsRejected() {
+        assertThrows(TimeWindows.InvalidTimeWindowException.class,
+                () -> TimeWindows.parseRange("18:00-09:00"));
+    }
+
+    @Test
+    @DisplayName("시작과 끝이 같아도 거부된다 — 하루가 0분일 수는 없다")
+    void equalRangeIsRejected() {
+        assertThrows(TimeWindows.InvalidTimeWindowException.class,
+                () -> TimeWindows.parseRange("09:00-09:00"));
+    }
 }
