@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;font-weight:400;src:url(assets/fonts/Pretendard-Regular.ttf)}
+@font-face{font-family:Pretendard;font-weight:500;src:url(assets/fonts/Pretendard-Medium.ttf)}
+@font-face{font-family:Pretendard;font-weight:700;src:url(assets/fonts/Pretendard-Bold.ttf)}
+body{margin:0;background:#E4E4E8;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#191919;-webkit-font-smoothing:antialiased}
+a{color:#191919;text-decoration:none}a:hover{color:#D83A48}
+*{box-sizing:border-box}
+button{font-family:inherit;cursor:pointer;padding:0}
+</style>
+</helmet>
+
+<section style="display:flex;gap:24px;align-items:flex-start;padding:40px 16px;flex-wrap:wrap">
+
+<!-- ── 모바일 390 · recommendations.tsx (phone) + TabBar.tsx ── -->
+<div style="flex:none;display:flex;flex-direction:column;gap:12px">
+  <div style="font-size:12px;font-weight:700;color:#6F6F6F">배포본 · 모바일 390 — TabBar 대신 코스 바(328×64, 항상 표시 · 선택 전 안내 줄) · 「해당 코스 일정 보기」→ 361×560 시트로 자람(.42s) · 카드 접힘/펼침 .42s</div>
+  <div data-screen-label="배포본 모바일 추천 코스" style="width:390px;height:844px;background:#F5F5F7;position:relative;overflow:hidden;border-radius:32px;box-shadow:0 8px 40px rgba(25,25,25,.14)">
+    <div style="height:844px;overflow:auto;scrollbar-width:none"><div style="display:flex;flex-direction:column;gap:16px;padding:24px 24px 200px">
+      <div style="display:flex;align-items:center;justify-content:space-between;min-height:44px">
+        <button style="width:44px;height:44px;border:0;background:transparent;font-size:18px;line-height:24px;color:#191919">‹</button>
+        <div style="font-size:13px;line-height:18px;font-weight:700">추천 코스</div>
+        <div style="width:44px;height:44px"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">추천 코스 고르기</div>
+        <div style="font-size:34px;line-height:40px;letter-spacing:-.25px;font-weight:700">{{ heroTitle }}</div>
+        <sc-if value="{{ notFull }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;line-height:18px;color:#6F6F6F">지금은 만들어진 일정 하나만 보여 드려요. 세 가지 코스 비교는 준비 중이에요.</div></sc-if>
+      </div>
+      <sc-for list="{{ cardsM }}" as="k" hint-placeholder-count="1">
+        <div onClick="{{ k.select }}" style="position:relative;border-radius:20px;border:2px solid {{ k.border }};background:#fff;overflow:hidden;box-shadow:{{ k.shadow }};transition:border-color .3s,box-shadow .3s;cursor:pointer">
+          <!-- 접힌 카드 — 다른 코스가 선택된 뒤의 나머지. grid-template-rows 0fr↔1fr 로 높이를 .42s 애니메이션 -->
+          <div style="display:grid;grid-template-rows:{{ k.compactRows }};transition:grid-template-rows .42s cubic-bezier(.34,1.3,.64,1),opacity .3s;opacity:{{ k.compactOpacity }}"><div style="min-height:0;overflow:hidden">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 12px 12px 16px;min-height:64px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <div style="font-size:15px;line-height:23px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.title }}</div>
+                <div style="font-size:13px;line-height:18px;color:#6F6F6F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.compactLine }}</div>
+              </div>
+              <div style="flex:none;display:flex;align-items:center;gap:4px"><button onClick="{{ k.toggleSave }}" style="width:32px;height:32px;border:0;border-radius:999px;background:#fff;font-size:13px;font-weight:700;color:{{ k.starColor }}">{{ k.star }}</button><div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#6F6F6F">⌄</div></div>
+            </div>
+          </div></div>
+          <div style="display:grid;grid-template-rows:{{ k.fullRows }};transition:grid-template-rows .42s cubic-bezier(.34,1.3,.64,1),opacity .3s;opacity:{{ k.fullOpacity }}"><div style="min-height:0;overflow:hidden">
+          <div style="display:flex;flex-direction:column">
+            <sc-if value="{{ k.hasCover }}" hint-placeholder-val="{{ false }}">
+              <div style="position:relative;height:200px;display:grid;grid-template-columns:{{ k.gridCols }};grid-template-rows:1fr 1fr;gap:3px;background:#fff">
+                <div style="grid-row:1 / span 2;position:relative;background:#E9E9EC;overflow:hidden"><img src="{{ k.p1 }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div style="position:absolute;left:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(25,25,25,.72);color:#fff;font-size:12px;line-height:16px;font-weight:700">{{ k.p1n }}</div></div>
+                <sc-if value="{{ k.hasP2 }}" hint-placeholder-val="{{ false }}"><div style="grid-row:{{ k.p2Row }};position:relative;background:#E9E9EC;overflow:hidden"><img src="{{ k.p2 }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div style="position:absolute;left:8px;bottom:8px;max-width:{{ k.p2LabelMax }};padding:2px 8px;border-radius:999px;background:rgba(25,25,25,.72);color:#fff;font-size:12px;line-height:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.p2n }}</div><sc-if value="{{ k.moreOnP2 }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.92);font-size:12px;line-height:16px;font-weight:700">{{ k.more }}</div></sc-if></div></sc-if>
+                <sc-if value="{{ k.hasP3 }}" hint-placeholder-val="{{ false }}"><div style="position:relative;background:#E9E9EC;overflow:hidden"><img src="{{ k.p3 }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div style="position:absolute;left:8px;right:44px;bottom:8px;width:fit-content;max-width:calc(100% - 52px);padding:2px 8px;border-radius:999px;background:rgba(25,25,25,.72);color:#fff;font-size:12px;line-height:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.p3n }}</div><div style="position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.92);font-size:12px;line-height:16px;font-weight:700">{{ k.more }}</div></div></sc-if>
+                <sc-if value="{{ k.selected }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:999px;background:#191919;color:#fff;font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">✓ 내 일정으로</div></sc-if>
+                <button onClick="{{ k.toggleSave }}" style="position:absolute;top:8px;right:8px;width:32px;height:32px;border:0;border-radius:999px;background:#fff;font-size:13px;font-weight:700;color:{{ k.starColor }}">{{ k.star }}</button>
+              </div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:16px">
+              <sc-if value="{{ k.noCover }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <sc-if value="{{ k.selected }}" hint-placeholder-val="{{ false }}"><div style="padding:4px 12px;border-radius:999px;background:#191919;color:#fff;font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">✓ 내 일정으로</div></sc-if><div style="flex:1"></div>
+                  <button onClick="{{ k.toggleSave }}" style="width:32px;height:32px;border:0;border-radius:999px;background:#fff;font-size:13px;font-weight:700;color:{{ k.starColor }}">{{ k.star }}</button>
+                </div>
+              </sc-if>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="flex:1;min-width:0;font-size:18px;line-height:24px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.title }}</div>
+                <div style="flex:none;padding:2px 8px;border-radius:999px;background:{{ k.statusBg }};font-size:13px;line-height:18px;font-weight:700">{{ k.status }}</div>
+              </div>
+              <sc-if value="{{ k.hasTagline }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ k.tagline }}</div></sc-if>
+              <sc-for list="{{ k.days }}" as="d" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:8px"><div style="flex:none;padding:2px 8px;border-radius:999px;background:#E9E9EC;font-size:13px;line-height:18px;font-weight:700">{{ d.label }}</div><div style="flex:1;min-width:0;font-size:13px;line-height:18px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.line }}</div></div>
+              </sc-for>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:4px">
+                <sc-if value="{{ k.hasCost }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:baseline;gap:4px"><div style="font-size:18px;line-height:24px;font-weight:700">{{ k.cost }}</div><div style="font-size:13px;line-height:18px;color:#6F6F6F">예상</div></div></sc-if>
+                <sc-if value="{{ k.noCost }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;line-height:18px;color:#6F6F6F">비용 미정</div></sc-if>
+                <sc-if value="{{ k.selected }}" hint-placeholder-val="{{ true }}"><button style="min-height:44px;padding:0 16px;border:0;border-radius:999px;background:#191919;color:#fff;font-size:15px;font-weight:700">이 코스로 일정 만들기 →</button></sc-if>
+                <sc-if value="{{ k.unselected }}" hint-placeholder-val="{{ false }}"><button onClick="{{ k.select }}" style="min-height:44px;padding:0 16px;border:0;border-radius:999px;background:#F0F0F3;color:#2B2B2E;font-size:15px;font-weight:700">이 코스 선택</button></sc-if>
+              </div>
+            </div>
+          </div>
+          </div></div>
+        </div>
+      </sc-for>
+    </div></div>
+
+    <!-- 코스 바 — 이 페이지에서 TabBar 는 hidden. 그 자리(dock · 328×64 · radius 20 · 같은 그림자)에 코스 바가 선다. 「일정 보기」→ 361×560 시트로 자람(.42s). -->
+      <div style="position:absolute;left:0;right:0;bottom:{{ sheetBottom }};display:flex;justify-content:center;pointer-events:none;transition:bottom .42s cubic-bezier(.34,1.3,.64,1);z-index:2">
+        <div style="position:relative;width:{{ sheetW }};height:{{ sheetH }};overflow:hidden;border-radius:20px;background:#fff;box-shadow:0 -2px 14px rgba(25,25,25,.10);transition:width .42s cubic-bezier(.34,1.3,.64,1),height .42s cubic-bezier(.34,1.3,.64,1);pointer-events:auto">
+          <!-- 접힌 줄 (64 = TabBar 높이) -->
+          <div style="position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;gap:12px;padding:0 8px 0 16px;opacity:{{ rowOpacity }};transition:opacity .2s;pointer-events:{{ rowEvents }}">
+            <sc-if value="{{ noPick }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:1;min-width:0"><div style="font-size:15px;line-height:23px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">코스를 골라 주세요</div><div style="font-size:13px;line-height:18px;color:#6F6F6F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ courseCountLine }}</div></div>
+              <div style="flex:none;min-height:44px;padding:0 16px;display:flex;align-items:center;border-radius:999px;background:#F0F0F3;color:#9A9AA0;font-size:15px;font-weight:700;white-space:nowrap">일정 보기</div>
+            </sc-if>
+            <sc-if value="{{ hasPick }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;min-width:0"><div style="font-size:15px;line-height:23px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pickCostLine }}</div><div style="font-size:13px;line-height:18px;color:#6F6F6F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pickFacts }}</div></div>
+              <button onClick="{{ openSheet }}" style="flex:none;min-height:44px;padding:0 16px;border:0;border-radius:999px;background:#D83A48;color:#fff;font-size:15px;font-weight:700;white-space:nowrap">해당 코스 일정 보기</button>
+            </sc-if>
+          </div>
+          <!-- 시트 내용 (560) — 지도 모달 대신 -->
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;padding:12px 12px 16px;opacity:{{ sheetOpacity }};transition:opacity .42s;pointer-events:{{ sheetEvents }}">
+            <button onClick="{{ closeSheet }}" aria-label="시트 내리기" style="align-self:center;width:44px;height:20px;border:0;background:transparent;display:flex;align-items:center;justify-content:center"><div style="width:36px;height:4px;border-radius:999px;background:#DADCE2"></div></button>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <div style="font-size:18px;line-height:24px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pickTitle }}</div>
+              <div style="font-size:13px;line-height:18px;color:#6F6F6F;white-space:nowrap">{{ pickFacts }}</div>
+            </div>
+            <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none">
+              <sc-for list="{{ dayChips }}" as="c" hint-placeholder-count="3">
+                <button onClick="{{ c.onClick }}" style="flex:none;min-height:36px;padding:0 16px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.color }};font-size:13px;font-weight:700;white-space:nowrap;transition:background .3s,color .3s,border-color .3s">{{ c.label }}</button>
+              </sc-for>
+            </div>
+            <div style="position:relative;flex:1;min-height:0;border-radius:14px;overflow:hidden;background:#F4F1EA">
+              <svg viewBox="0 0 680 640" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+                <path d="M330 640 L360 540 Q420 470 480 430 Q560 380 600 300 Q640 240 680 220 V640 Z" fill="#CFE2F1"></path>
+                <path d="M0 640 L120 600 Q200 560 250 590 Q300 620 330 640 Z" fill="#CFE2F1"></path>
+                <g fill="none" stroke="#fff" stroke-width="7"><path d="M40 120 Q200 180 300 140 T560 60"></path><path d="M120 0 Q160 240 120 420 T160 640"></path><path d="M0 330 Q250 300 420 360 T680 300"></path></g>
+                <g fill="none" stroke="#F5C766" stroke-width="4"><path d="M40 120 Q200 180 300 140 T560 60"></path><path d="M0 330 Q250 300 420 360 T680 300"></path></g>
+                <g fill="#D8E6CF"><ellipse cx="90" cy="230" rx="60" ry="38"></ellipse><ellipse cx="560" cy="130" rx="42" ry="30"></ellipse><ellipse cx="240" cy="440" rx="50" ry="30"></ellipse></g>
+                <sc-for list="{{ routes }}" as="r" hint-placeholder-count="1">
+                  <path d="{{ r.d }}" fill="none" stroke="{{ r.color }}" stroke-width="7" stroke-opacity=".8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 10"></path>
+                </sc-for>
+              </svg>
+              <sc-for list="{{ markers }}" as="m" hint-placeholder-count="4">
+                <div style="position:absolute;left:{{ m.left }};top:{{ m.top }};width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:999px;background:#fff;border:2px solid #191919;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#191919;box-shadow:0 2px 6px rgba(25,25,25,.18)">{{ m.n }}</div>
+              </sc-for>
+              <div style="position:absolute;left:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.9);font-size:12px;line-height:16px;color:#6F6F6F">점선은 장소를 곧게 이은 선이에요</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <sc-for list="{{ dayStops }}" as="s" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;min-height:28px"><div style="width:44px;flex:none;font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ s.time }}</div><div style="flex:1;min-width:0;font-size:15px;line-height:23px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</div></div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- TabBar.tsx — 이 페이지에서는 hidden(translateY 110 · opacity 0 · pointer-events none). 코스 바가 그 자리를 대신한다 -->
+    <div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;padding-bottom:8px;transform:translateY({{ tabY }});opacity:{{ tabOpacity }};pointer-events:{{ tabEvents }};visibility:{{ tabVis }};transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .5s">
+      <div style="width:328px;height:64px;display:flex;align-items:center;padding:0 8px;border-radius:20px;background:#fff;box-shadow:0 -2px 14px rgba(25,25,25,.10)">
+        <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative"><div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center"><img src="assets/icons/home.png" alt="" style="width:20px;height:20px;opacity:.62"></div><div style="font-size:12px;line-height:16px;letter-spacing:.2px;color:#8B8B8B">홈</div></div>
+        <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative"><div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center"><img src="assets/icons/heart.png" alt="" style="width:20px;height:20px;opacity:.62"></div><div style="font-size:12px;line-height:16px;letter-spacing:.2px;color:#8B8B8B">피드</div></div>
+        <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative"><div style="width:32px;height:32px;border-radius:16px;background:#D83A48;display:flex;align-items:center;justify-content:center"><img src="assets/icons/plus.png" alt="" style="width:20px;height:20px;filter:brightness(0) invert(1)"></div><div style="font-size:12px;line-height:16px;letter-spacing:.2px;color:#8B8B8B">여행 만들기</div></div>
+        <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative"><div style="position:absolute;bottom:0;width:5px;height:5px;border-radius:999px;background:#F25454"></div><div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center"><img src="assets/icons/map.png" alt="" style="width:20px;height:20px"></div><div style="font-size:12px;line-height:16px;letter-spacing:.2px;font-weight:700;color:#191919">내 여행</div></div>
+        <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative"><div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center"><img src="assets/icons/user.png" alt="" style="width:20px;height:20px;opacity:.62"></div><div style="font-size:12px;line-height:16px;letter-spacing:.2px;color:#8B8B8B">마이페이지</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 데스크톱 1280 · TopNav.tsx(36+60) + wide 2단(목록 600 · 지도) ── -->
+<div style="flex:none;display:flex;flex-direction:column;gap:12px">
+  <div style="font-size:12px;font-weight:700;color:#6F6F6F">배포본 · 데스크톱 1280 — TopNav 그대로 · 왼쪽 목록 600 · 오른쪽 일차 칩(1일차·2일차·3일차) + 전면 RouteMap · 하단 정차지 스트립(2b)</div>
+  <div data-screen-label="배포본 데스크톱 추천 코스" style="width:1280px;height:1000px;background:#F5F5F7;display:flex;flex-direction:column;overflow:hidden;border-radius:20px;box-shadow:0 8px 40px rgba(25,25,25,.14)">
+    <!-- 1층 유틸 바 -->
+    <div style="height:36px;padding:0 40px;display:flex;align-items:center;justify-content:flex-end;gap:12px;background:#E9E9EC;flex:none">
+      <div style="display:flex;align-items:center"><div style="width:30px;height:36px;display:flex;align-items:center;justify-content:center"><img src="assets/flags/kr.png" alt="" style="width:20px;height:14px;border-radius:2px;object-fit:cover"></div></div>
+      <div style="display:flex;align-items:center"><div style="width:1px;height:14px;background:#DADCE2;margin-right:8px"></div><div style="width:30px;height:36px;display:flex;align-items:center;justify-content:center;opacity:.55"><img src="assets/flags/us.png" alt="" style="width:20px;height:14px;border-radius:2px;object-fit:cover"></div></div>
+      <div style="display:flex;align-items:center"><div style="width:1px;height:14px;background:#DADCE2;margin-right:8px"></div><div style="width:30px;height:36px;display:flex;align-items:center;justify-content:center;opacity:.55"><img src="assets/flags/jp.png" alt="" style="width:20px;height:14px;border-radius:2px;object-fit:cover"></div></div>
+      <div style="display:flex;align-items:center"><div style="width:1px;height:14px;background:#DADCE2;margin-right:8px"></div><div style="width:30px;height:36px;display:flex;align-items:center;justify-content:center;opacity:.55"><img src="assets/flags/cn.png" alt="" style="width:20px;height:14px;border-radius:2px;object-fit:cover"></div></div>
+      <div style="display:flex;align-items:center"><div style="width:1px;height:14px;background:#DADCE2;margin-right:8px"></div><div style="width:30px;height:36px;display:flex;align-items:center;justify-content:center;opacity:.55"><img src="assets/flags/tw.png" alt="" style="width:20px;height:14px;border-radius:2px;object-fit:cover"></div></div>
+      <div style="width:1px;height:14px;background:#DADCE2"></div>
+      <div style="height:36px;display:flex;align-items:center;padding:0 4px"><img src="assets/icons/bell.png" alt="" style="width:18px;height:18px"></div>
+      <div style="height:36px;display:flex;align-items:center;padding:0 4px;font-size:14px;line-height:20px;font-weight:700;color:#191919">HJ Jang</div>
+    </div>
+    <!-- 2층 주 내비 -->
+    <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #EBEBEF;flex:none">
+      <img src="assets/gabolle-logo-hd.png" alt="GABOLLE" style="width:154px;height:28px;object-fit:contain">
+      <div style="display:flex;align-items:center;gap:4px;padding:4px">
+        <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">홈</div>
+        <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">피드</div>
+        <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:700;color:#191919;position:relative">내 여행<div style="position:absolute;bottom:-10px;left:50%;margin-left:-2.5px;width:5px;height:5px;border-radius:999px;background:#F25454"></div></div>
+      </div>
+      <div style="height:40px;padding:0 16px;border-radius:14px;border:1px solid #D83A48;background:#fff;display:flex;align-items:center;font-size:15px;font-weight:700;color:#D83A48;white-space:nowrap">여행 만들기</div>
+    </div>
+
+    <div style="flex:1;min-height:0;display:flex">
+      <!-- listPane 600 -->
+      <div style="flex:none;width:600px;height:100%;overflow:auto;scrollbar-width:none;background:#F5F5F7"><div style="display:flex;flex-direction:column;gap:16px;padding:24px">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">추천 코스 고르기</div>
+          <div style="font-size:34px;line-height:40px;letter-spacing:-.25px;font-weight:700">{{ heroTitle }}</div>
+          <sc-if value="{{ notFull }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;line-height:18px;color:#6F6F6F">지금은 만들어진 일정 하나만 보여 드려요. 세 가지 코스 비교는 준비 중이에요.</div></sc-if>
+        </div>
+        <sc-for list="{{ cardsD }}" as="k" hint-placeholder-count="1">
+          <div onClick="{{ k.select }}" style="position:relative;border-radius:20px;border:2px solid {{ k.border }};background:#fff;overflow:hidden;box-shadow:{{ k.shadow }};transition:border-color .3s,box-shadow .3s;cursor:pointer">
+            <div style="display:flex;flex-direction:column">
+              <sc-if value="{{ k.hasCover }}" hint-placeholder-val="{{ false }}">
+                <div style="position:relative;height:200px;display:grid;grid-template-columns:{{ k.gridCols }};grid-template-rows:1fr 1fr;gap:3px;background:#fff">
+                  <div style="grid-row:1 / span 2;position:relative;background:#E9E9EC;overflow:hidden"><img src="{{ k.p1 }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div style="position:absolute;left:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(25,25,25,.72);color:#fff;font-size:12px;line-height:16px;font-weight:700">{{ k.p1n }}</div></div>
+                  <sc-if value="{{ k.hasP2 }}" hint-placeholder-val="{{ false }}"><div style="grid-row:{{ k.p2Row }};position:relative;background:#E9E9EC;overflow:hidden"><img src="{{ k.p2 }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div style="position:absolute;left:8px;bottom:8px;max-width:{{ k.p2LabelMax }};padding:2px 8px;border-radius:999px;background:rgba(25,25,25,.72);color:#fff;font-size:12px;line-height:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.p2n }}</div><sc-if value="{{ k.moreOnP2 }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.92);font-size:12px;line-height:16px;font-weight:700">{{ k.more }}</div></sc-if></div></sc-if>
+                  <sc-if value="{{ k.hasP3 }}" hint-placeholder-val="{{ false }}"><div style="position:relative;background:#E9E9EC;overflow:hidden"><img src="{{ k.p3 }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div style="position:absolute;left:8px;right:44px;bottom:8px;width:fit-content;max-width:calc(100% - 52px);padding:2px 8px;border-radius:999px;background:rgba(25,25,25,.72);color:#fff;font-size:12px;line-height:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.p3n }}</div><div style="position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.92);font-size:12px;line-height:16px;font-weight:700">{{ k.more }}</div></div></sc-if>
+                  <sc-if value="{{ k.selected }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:999px;background:#191919;color:#fff;font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">✓ 내 일정으로</div></sc-if>
+                  <button onClick="{{ k.toggleSave }}" style="position:absolute;top:8px;right:8px;width:32px;height:32px;border:0;border-radius:999px;background:#fff;font-size:13px;font-weight:700;color:{{ k.starColor }}">{{ k.star }}</button>
+                </div>
+              </sc-if>
+              <div style="display:flex;flex-direction:column;gap:8px;padding:16px">
+                <sc-if value="{{ k.noCover }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <sc-if value="{{ k.selected }}" hint-placeholder-val="{{ false }}"><div style="padding:4px 12px;border-radius:999px;background:#191919;color:#fff;font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">✓ 내 일정으로</div></sc-if><div style="flex:1"></div>
+                    <button onClick="{{ k.toggleSave }}" style="width:32px;height:32px;border:0;border-radius:999px;background:#fff;font-size:13px;font-weight:700;color:{{ k.starColor }}">{{ k.star }}</button>
+                  </div>
+                </sc-if>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="flex:1;min-width:0;font-size:18px;line-height:24px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.title }}</div>
+                  <div style="flex:none;padding:2px 8px;border-radius:999px;background:{{ k.statusBg }};font-size:13px;line-height:18px;font-weight:700">{{ k.status }}</div>
+                </div>
+                <sc-if value="{{ k.hasTagline }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ k.tagline }}</div></sc-if>
+                <sc-for list="{{ k.days }}" as="d" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:8px"><div style="flex:none;padding:2px 8px;border-radius:999px;background:#E9E9EC;font-size:13px;line-height:18px;font-weight:700">{{ d.label }}</div><div style="flex:1;min-width:0;font-size:13px;line-height:18px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.line }}</div></div>
+                </sc-for>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:4px">
+                  <sc-if value="{{ k.hasCost }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:baseline;gap:4px"><div style="font-size:18px;line-height:24px;font-weight:700">{{ k.cost }}</div><div style="font-size:13px;line-height:18px;color:#6F6F6F">예상</div></div></sc-if>
+                  <sc-if value="{{ k.noCost }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;line-height:18px;color:#6F6F6F">비용 미정</div></sc-if>
+                  <sc-if value="{{ k.selected }}" hint-placeholder-val="{{ true }}"><button style="min-height:44px;padding:0 16px;border:0;border-radius:999px;background:#191919;color:#fff;font-size:15px;font-weight:700">이 코스로 일정 만들기 →</button></sc-if>
+                  <sc-if value="{{ k.unselected }}" hint-placeholder-val="{{ false }}"><button onClick="{{ k.select }}" style="min-height:44px;padding:0 16px;border:0;border-radius:999px;background:#F0F0F3;color:#2B2B2E;font-size:15px;font-weight:700">이 코스 선택</button></sc-if>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div></div>
+
+      <!-- mapPane -->
+      <div style="flex:1;min-width:0;height:100%;display:flex;flex-direction:column;background:#E9E9EC">
+        <!-- 범례 → 일차 칩. 날짜 전체 알약 대신 1일차·2일차·3일차 — 고른 날의 동선만 그린다 -->
+        <div style="display:flex;align-items:center;gap:8px;padding:16px;flex:none">
+          <sc-for list="{{ dayChips }}" as="c" hint-placeholder-count="3">
+            <button onClick="{{ c.onClick }}" style="flex:none;white-space:nowrap;min-height:36px;padding:0 16px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.color }};font-size:13px;font-weight:700;transition:background .3s,color .3s,border-color .3s">{{ c.label }}</button>
+          </sc-for>
+          
+        </div>
+        <!-- RouteMap — 남은 높이 전부. 코스 내용 칸은 뺐다(카드에 이미 있다) -->
+        <div style="position:relative;flex:1;min-height:0;overflow:hidden;background:#F2EFE9">
+          <svg viewBox="0 0 680 640" width="680" height="640" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+            <path d="M0 0 H680 V640 H0 Z" fill="#F4F1EA"></path>
+            <path d="M330 640 L360 540 Q420 470 480 430 Q560 380 600 300 Q640 240 680 220 V640 Z" fill="#CFE2F1"></path>
+            <path d="M0 640 L120 600 Q200 560 250 590 Q300 620 330 640 Z" fill="#CFE2F1"></path>
+            <path d="M420 470 Q470 480 500 520 Q520 570 470 600 Q430 580 420 470 Z" fill="#E8E4D8"></path>
+            <g fill="none" stroke="#fff" stroke-width="7"><path d="M40 120 Q200 180 300 140 T560 60"></path><path d="M120 0 Q160 240 120 420 T160 640"></path><path d="M0 330 Q250 300 420 360 T680 300"></path><path d="M300 0 Q330 220 420 300"></path></g>
+            <g fill="none" stroke="#F5C766" stroke-width="4"><path d="M40 120 Q200 180 300 140 T560 60"></path><path d="M0 330 Q250 300 420 360 T680 300"></path></g>
+            <g fill="none" stroke="#fff" stroke-width="3"><path d="M120 0 Q160 240 120 420 T160 640"></path><path d="M300 0 Q330 220 420 300"></path><path d="M0 500 Q200 470 330 540"></path><path d="M500 0 Q520 150 640 200"></path></g>
+            <g fill="#D8E6CF"><ellipse cx="90" cy="230" rx="60" ry="38"></ellipse><ellipse cx="560" cy="130" rx="42" ry="30"></ellipse><ellipse cx="240" cy="440" rx="50" ry="30"></ellipse></g>
+            <g font-family="Pretendard,sans-serif" font-size="11" fill="#6F6F6F"><text x="60" y="80">부산진구</text><text x="230" y="250">동구</text><text x="80" y="360">서구</text><text x="360" y="200">수영구</text><text x="520" y="330">해운대구</text><text x="200" y="560">영도구</text><text x="470" y="90">기장군</text></g>
+            <g font-family="Pretendard,sans-serif" font-size="10" fill="#2C64B5"><text x="380" y="470">광안리</text><text x="600" y="255">해운대</text><text x="150" y="530">남포</text></g>
+            <sc-for list="{{ routes }}" as="r" hint-placeholder-count="3">
+              <path d="{{ r.d }}" fill="none" stroke="{{ r.color }}" stroke-width="5" stroke-opacity=".75" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8"></path>
+            </sc-for>
+          </svg>
+          <sc-for list="{{ markers }}" as="m" hint-placeholder-count="12">
+            <button onClick="{{ m.pick }}" style="position:absolute;left:{{ m.left }};top:{{ m.top }};width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:999px;background:{{ m.bg }};border:2px solid {{ m.ring }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:{{ m.color }};box-shadow:0 2px 6px rgba(25,25,25,.18);transform:scale({{ m.scale }});transition:transform .3s cubic-bezier(.34,1.3,.64,1),background .3s,border-color .3s;z-index:{{ m.z }}">{{ m.n }}</button>
+          </sc-for>
+          <!-- 2b · 하단 스트립 — 가로 스크롤(휠·드래그·‹ ›) · 카드 ↔ 마커 연동 · 넘치면 양끝 페이드 -->
+          <sc-if value="{{ noPick }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.94);font-size:13px;line-height:18px;color:#6F6F6F;box-shadow:0 2px 8px rgba(25,25,25,.08);white-space:nowrap">코스를 고르면 내용이 여기에 보여요.</div></sc-if>
+          <sc-if value="{{ hasPick }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;right:16px;top:16px;padding:8px 12px;border-radius:14px;background:rgba(255,255,255,.94);font-size:13px;line-height:18px;font-weight:700;box-shadow:0 2px 8px rgba(25,25,25,.08)">{{ dayMeta }}</div></sc-if>
+          <sc-if value="{{ hasPick }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;left:0;right:0;bottom:0;padding:24px 0 36px;background:linear-gradient(180deg,rgba(244,241,234,0),rgba(244,241,234,.9) 40%)">
+            <div style="position:relative">
+              <div ref="{{ stripRef }}" onScroll="{{ onStripScroll }}" onWheel="{{ onStripWheel }}" style="display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;padding:6px 16px;scroll-behavior:smooth;mask-image:{{ stripMask }};-webkit-mask-image:{{ stripMask }}">
+              <sc-for list="{{ dayStopsX }}" as="s" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center">
+                  <div onClick="{{ s.pick }}" style="width:150px;flex:none;display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:14px;background:#fff;border:2px solid {{ s.border }};box-shadow:{{ s.shadow }};cursor:pointer;transition:border-color .3s,box-shadow .3s,transform .3s;transform:translateY({{ s.lift }})">
+                    <div style="display:flex;align-items:center;gap:8px"><div style="width:22px;height:22px;border-radius:999px;background:{{ dayColor }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ s.n }}</div><div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ s.time }}</div></div>
+                    <div style="font-size:15px;line-height:23px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</div>
+                  </div>
+                  <sc-if value="{{ s.notLast }}" hint-placeholder-val="{{ true }}"><div style="width:44px;flex:none;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:11px;line-height:14px;font-weight:700;color:#6F6F6F;white-space:nowrap">{{ s.legShort }}</div><div style="width:100%;height:0;border-top:2px dashed #B9BBC2"></div></div></sc-if>
+                </div>
+              </sc-for>
+              </div>
+              <sc-if value="{{ canPrev }}" hint-placeholder-val="{{ false }}"><button onClick="{{ stripPrev }}" aria-label="이전 정차지" style="position:absolute;left:12px;top:50%;margin-top:-18px;width:36px;height:36px;border:0;border-radius:999px;background:#191919;color:#fff;font-size:18px;line-height:1;box-shadow:0 4px 12px rgba(25,25,25,.24)">‹</button></sc-if>
+              <sc-if value="{{ canNext }}" hint-placeholder-val="{{ false }}"><button onClick="{{ stripNext }}" aria-label="다음 정차지" style="position:absolute;right:12px;top:50%;margin-top:-18px;width:36px;height:36px;border:0;border-radius:999px;background:#191919;color:#fff;font-size:18px;line-height:1;box-shadow:0 4px 12px rgba(25,25,25,.24)">›</button></sc-if>
+            </div>
+            <sc-if value="{{ stripOverflow }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:center;gap:6px;margin-top:8px"><sc-for list="{{ stripDots }}" as="p" hint-placeholder-count="4"><div style="width:{{ p.w }};height:6px;border-radius:999px;background:{{ p.bg }};transition:width .3s,background .3s"></div></sc-for></div></sc-if>
+          </div>
+          </sc-if>
+          <div style="position:absolute;right:12px;bottom:10px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.9);font-size:12px;line-height:16px;color:#6F6F6F">점선은 실제 길이 아니라 장소를 곧게 이은 선이에요.</div>
+          <div style="position:absolute;left:12px;bottom:10px;display:flex;align-items:center;gap:8px"><div style="width:60px;height:8px;border-left:1px solid #191919;border-right:1px solid #191919;border-bottom:1px solid #191919"></div><div style="font-size:11px;color:#191919">1km</div><div style="font-size:13px;font-weight:700;color:#191919;letter-spacing:-.3px">kakao</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;threeCourses&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;description&quot;:&quot;켜짐 = 서버가 3안을 보낸 상태(칩·「이 코스 선택」·콜라주 표지). 꺼지면 배포본 현재(일정 하나, full=false 안내문)&quot;}}">
+class Component extends DCLogic {
+  state = { picked: null, saved: {}, dayIdx: 0, sheetOpen: false, selStop: -1, strip: { left: 0, max: 0, w: 0 } };
+  stripRef = React.createRef();
+  CARD = 150; LEG = 44; // 스트립 카드 폭 · 연결부 폭
+  componentDidMount() {
+    window.addEventListener('resize', this.measureStrip);
+    requestAnimationFrame(this.measureStrip);
+    if (window.ResizeObserver) { this.ro = new ResizeObserver(this.measureStrip); this.observeStrip(); }
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this.measureStrip); if (this.ro) this.ro.disconnect(); }
+  observeStrip() { const el = this.stripRef.current; if (this.ro && el && this.observed !== el) { if (this.observed) this.ro.unobserve(this.observed); this.ro.observe(el); if (el.firstElementChild) this.ro.observe(el.firstElementChild); this.observed = el; } }
+  componentDidUpdate() {
+    this.observeStrip();
+    const key = `${this.state.dayIdx}|${this.state.picked}`;
+    if (this.prevKey !== undefined && this.prevKey !== key) {
+      const el = this.stripRef.current;
+      if (el) el.scrollTo({ left: 0, behavior: 'instant' });
+    }
+    this.prevKey = key;
+    this.measureStrip();
+  }
+  measureStrip = () => {
+    const el = this.stripRef.current; if (!el) return;
+    const next = { left: el.scrollLeft, max: Math.max(0, el.scrollWidth - el.clientWidth), w: el.clientWidth };
+    const s = this.state.strip;
+    if (Math.abs(s.left - next.left) > 1 || Math.abs(s.max - next.max) > 1 || s.w !== next.w) this.setState({ strip: next });
+  };
+  scrollStripTo = (i) => {
+    const el = this.stripRef.current; if (!el) return;
+    const x = 16 + i * (this.CARD + this.LEG) + this.CARD / 2 - el.clientWidth / 2; // 카드를 가운데로
+    el.scrollTo({ left: Math.max(0, x), behavior: 'smooth' });
+  };
+  pickStop = (i) => { this.setState({ selStop: i }); this.scrollStripTo(i); };
+  DAY = ['#D83A48', '#2E9E5B', '#191919', '#6F6F6F'];
+  // 배포본 실측(2026-09-21 스크린샷) — 코스 계약 전이라 일정 하나가 코스로 변환돼 온다.
+  single = [{ id: 'it', title: '2026-09-22 ~ 2026-09-24', tagline: '', status: 'ESTIMATED', cover: null, cost: null, places: 12, moveMin: 544, walkKm: null, rationale: null,
+    days: [
+      { day: 1, stops: [{ t: '09:14', n: '쇼진', xy: [455, 300] }, { t: '11:36', n: '쥬가정효', xy: [412, 328] }, { t: '14:02', n: '매일이다르다', xy: [450, 360] }, { t: '16:40', n: '백구당', xy: [430, 392] }, { t: '18:10', n: '광안리 해수욕장', xy: [470, 420], photoUrl: 'assets/gwangalli.png' }, { t: '19:30', n: '민락 회센터', xy: [500, 380] }, { t: '21:00', n: '광안대교 야경', xy: [485, 445] }] },
+      { day: 2, stops: [{ t: '09:30', n: '제로베이스', xy: [150, 470] }, { t: '11:50', n: '무슈뱅상', xy: [178, 498] }, { t: '13:20', n: '충무동 새벽시장', xy: [140, 540] }, { t: '15:45', n: '카운트다운 부산', xy: [168, 572] }] },
+      { day: 3, stops: [{ t: '10:00', n: '동백섬횟집', xy: [590, 240], photoUrl: 'assets/dishes/eomuk.jpg' }, { t: '12:10', n: '니무스', xy: [614, 205] }, { t: '14:30', n: '해운대 관광특구', xy: [635, 232], photoUrl: 'assets/haeundae.png' }, { t: '17:00', n: '부산 자갈치시장', xy: [160, 560] }] },
+    ] }];
+  three = [
+    { id: 'a', title: '바다 따라 걷는 코스', tagline: '해운대 · 광안리 · 송정 — 걷는 시간이 많은 코스', status: 'CONFIRMED', cover: 'assets/haeundae.png', cost: 128000, places: 7, moveMin: 84, walkKm: 6.2, rationale: '바다 취향과 「조용한 곳」 답을 반영해 해변을 하루씩 나눴어요. 경사가 적어 이동 보조 조건에도 맞아요.',
+      days: [{ day: 1, stops: [{ t: '10:00', n: '해운대 해수욕장', xy: [600, 250] }, { t: '12:30', n: '해운대 시장 밀면', xy: [620, 215] }, { t: '15:00', n: '블루라인파크', xy: [655, 235] }] }, { day: 2, stops: [{ t: '10:30', n: '광안리 해수욕장', xy: [430, 390] }, { t: '13:00', n: '민락 회센터', xy: [470, 360] }, { t: '19:00', n: '광안대교 야경', xy: [455, 420] }] }] },
+    { id: 'b', title: '원도심 골목 코스', tagline: '감천 · 자갈치 · 보수동 — 걸음은 적고 볼 것은 많은 코스', status: 'CONFIRMED', cover: 'assets/gamcheon.png', cost: 96000, places: 8, moveMin: 52, walkKm: 3.9, rationale: '「현지 느낌」과 「경사 피하기」를 함께 답하셔서, 감천은 마을버스 상부 하차로 잡고 나머지는 평지 골목으로 묶었어요.',
+      days: [{ day: 1, stops: [{ t: '10:00', n: '감천문화마을', xy: [90, 520] }, { t: '13:00', n: '자갈치시장', xy: [160, 560], photoUrl: 'assets/dishes/eomuk.jpg' }, { t: '15:30', n: '보수동 책방골목', xy: [140, 500] }, { t: '17:30', n: '용두산공원', xy: [175, 530] }] }, { day: 2, stops: [{ t: '10:30', n: '흰여울문화마을', xy: [200, 600] }, { t: '13:00', n: '남포동 돼지국밥', xy: [165, 545] }, { t: '15:00', n: '부산근현대역사관', xy: [190, 505] }, { t: '17:00', n: '광복로', xy: [180, 525] }] }] },
+    { id: 'c', title: '맛과 카페 코스', tagline: '전포 · 서면 · 기장 — 식사 사이를 카페로 잇는 코스', status: 'ESTIMATED', cover: null, cost: 152000, places: 6, moveMin: 110, walkKm: 2.4, rationale: '음식 취향 답이 가장 뚜렷해서 하루 2끼를 기준으로 짰어요. 기장은 이동이 길어 예상치로 표시했어요.',
+      days: [{ day: 1, stops: [{ t: '11:00', n: '전포 카페거리', xy: [230, 190] }, { t: '13:00', n: '서면 밀면', xy: [200, 160] }, { t: '16:00', n: '부산시민공원', xy: [190, 110] }] }, { day: 2, stops: [{ t: '10:00', n: '기장 대변항', xy: [600, 60] }, { t: '12:30', n: '기장 곰장어', xy: [630, 95] }, { t: '15:00', n: '해동용궁사', xy: [660, 140] }] }] },
+  ];
+  renderVals() {
+    const full = this.props.threeCourses ?? true;
+    const courses = full ? this.three : this.single;
+    const { saved } = this.state;
+    const picked = courses.length === 1 ? courses[0].id : this.state.picked;
+    const letter = (i) => String.fromCharCode(65 + i);
+    const cost = (c) => c.cost === null ? null : `${(c.cost / 10000).toFixed(1)}만원`;
+    const facts = (c) => [c.places !== null && `장소 ${c.places}곳`, c.moveMin !== null && `이동 ${c.moveMin}분`, c.walkKm !== null && `${c.walkKm}km`].filter(Boolean).join(' · ');
+    const PH = { '해운대 해수욕장': 'assets/haeundae.png', '광안리 해수욕장': 'assets/gwangalli.png', '해운대 시장 밀면': 'assets/dishes/milmyeon.jpg', '민락 회센터': 'assets/dishes/eomuk.jpg', '감천문화마을': 'assets/gamcheon.png' };
+    const cards = courses.map((c, i) => {
+      const shots = c.days.flatMap((d) => d.stops).filter((s) => PH[s.n] || s.photoUrl).slice(0, 3);
+      const sel = c.id === picked, has = shots.length > 0, k = cost(c);
+      const src = (s) => s ? (s.photoUrl || PH[s.n]) : '';
+      return {
+        p1: src(shots[0]), p1n: shots[0] ? shots[0].n : '', p2: src(shots[1]), p2n: shots[1] ? shots[1].n : '', hasP2: shots.length > 1, p3: src(shots[2]), p3n: shots[2] ? shots[2].n : '', hasP3: shots.length > 2,
+        gridCols: shots.length > 1 ? '2fr 1fr' : '1fr', p2Row: shots.length > 2 ? 'auto' : '1 / span 2', moreOnP2: shots.length === 2 && (c.places || 0) > 2, p2LabelMax: shots.length === 2 && (c.places || 0) > 2 ? 'calc(100% - 52px)' : 'calc(100% - 16px)', more: `+${Math.max(0, (c.places || 0) - shots.length)}`,
+        select: () => this.setState({ picked: c.id }),
+        toggleSave: (e) => { e.stopPropagation(); this.setState((s) => ({ saved: { ...s.saved, [c.id]: !s.saved[c.id] } })); },
+        border: sel ? '#D83A48' : '#EBEBEF', shadow: sel ? '0 6px 16px rgba(216,58,72,.16)' : 'none',
+        hasCover: has, noCover: !has, cover: c.cover || '', coverW: has ? '200px' : '96px', coverH: has ? '200px' : '0',
+        badge: sel ? '✓ 내 일정으로' : `코스 ${letter(i)}`, badgeBg: sel ? '#191919' : 'rgba(25,25,25,.78)',
+        badgeBgFlow: sel ? '#191919' : '#E9E9EC', badgeColorFlow: sel ? '#fff' : '#191919',
+        star: saved[c.id] ? '★' : '☆', starColor: saved[c.id] ? '#2B2B2E' : '#6F6F6F',
+        title: c.title || `코스 ${letter(i)}`, tagline: c.tagline, hasTagline: !!c.tagline,
+        status: c.status === 'CONFIRMED' ? '확인됨' : '추정', statusBg: c.status === 'CONFIRMED' ? '#E7F5EC' : '#FFF3DC',
+        days: c.days.map((d) => ({ label: `${d.day}일차`, line: d.stops.map((s) => s.n).join(' → ') })),
+        cost: k || '', hasCost: !!k, noCost: !k, selected: sel, unselected: !sel,
+        compactM: courses.length > 1 && !!picked && !sel, fullM: !(courses.length > 1 && !!picked && !sel),
+        compactRows: courses.length > 1 && !!picked && !sel ? '1fr' : '0fr', compactOpacity: courses.length > 1 && !!picked && !sel ? 1 : 0,
+        fullRows: courses.length > 1 && !!picked && !sel ? '0fr' : '1fr', fullOpacity: courses.length > 1 && !!picked && !sel ? 0 : 1,
+        letter: `코스 ${letter(i)}`, compactLine: [k ? `${k} 예상` : '비용 미정', facts(c), c.status === 'CONFIRMED' ? '확인됨' : '추정'].filter(Boolean).join(' · '),
+      };
+    });
+    const chips = courses.map((c, i) => { const on = c.id === picked; return { label: c.title || `코스 ${letter(i)}`, onClick: () => this.setState({ picked: c.id }), bg: on ? '#191919' : '#fff', border: on ? '#191919' : '#EBEBEF', color: on ? '#fff' : '#191919' }; });
+    const cur = courses.find((c) => c.id === picked) || null;
+    const dayIdx = cur ? Math.min(this.state.dayIdx, cur.days.length - 1) : 0;
+    const day = cur ? cur.days[dayIdx] : null;
+    const routes = day ? [{ color: this.DAY[dayIdx % 4], d: 'M' + day.stops.map((s) => s.xy.join(' ')).join(' L ') }] : [];
+    const selStop = this.state.selStop;
+    const dc = this.DAY[dayIdx % 4];
+    const markers = day ? day.stops.map((s, i) => { const on = i === selStop; return { n: i + 1, x: s.xy[0], y: s.xy[1], left: `${(s.xy[0] / 680) * 100}%`, top: `${(s.xy[1] / 640) * 100}%`, pick: () => this.pickStop(i), bg: on ? dc : '#fff', ring: on ? dc : '#191919', color: on ? '#fff' : '#191919', scale: on ? 1.25 : 1, z: on ? 2 : 1 }; }) : [];
+    const dayChips = cur ? cur.days.map((d, i) => { const on = i === dayIdx; return { label: `${d.day}일차`, onClick: () => this.setState({ dayIdx: i, selStop: -1 }), bg: on ? '#191919' : '#fff', border: on ? '#191919' : '#EBEBEF', color: on ? '#fff' : '#191919' }; }) : [];
+    const dayStops = day ? day.stops.map((s, i) => ({ n: i + 1, time: s.t, name: s.n })) : [];
+    const mins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+    const legMin = (a, b) => Math.max(0, mins(b.t) - mins(a.t) - 90); // 체류 90분 가정 후 남는 시간을 이동으로 본다
+    const fmt = (m) => m >= 60 ? `${Math.floor(m / 60)}시간 ${m % 60}분` : `${m}분`;
+    const dayStopsX = day ? day.stops.map((s, i, arr) => { const nl = i < arr.length - 1; const lm = nl ? legMin(s, arr[i + 1]) : 0; const on = i === selStop; return { n: i + 1, time: s.t, name: s.n, notLast: nl, pad: nl ? '12px' : '0', leg: nl ? `이동 ${fmt(lm)}` : '', legShort: nl ? fmt(lm) : '', pick: () => this.pickStop(i), border: on ? dc : '#fff', shadow: on ? '0 8px 20px rgba(25,25,25,.16)' : '0 4px 16px rgba(25,25,25,.10)', lift: on ? '-4px' : '0' }; }) : [];
+    const st = this.state.strip;
+    const stripOverflow = st.max > 8;
+    const canPrev = stripOverflow && st.left > 8, canNext = stripOverflow && st.left < st.max - 8;
+    const stripMask = stripOverflow ? `linear-gradient(90deg, ${canPrev ? 'transparent 0, #000 56px' : '#000 0'}, ${canNext ? '#000 calc(100% - 56px), transparent 100%' : '#000 100%'})` : 'none';
+    const pages = stripOverflow ? Math.max(1, Math.ceil((st.max + st.w) / st.w)) : 1;
+    const page = stripOverflow ? Math.min(pages - 1, Math.round(st.left / Math.max(1, st.w))) : 0;
+    const stripDots = Array.from({ length: pages }, (_, i) => ({ w: i === page ? '18px' : '6px', bg: i === page ? '#191919' : '#B9BBC2' }));
+    const totalLeg = dayStopsX.reduce((a, s, i, arr) => a + (s.notLast ? legMin(day.stops[i], day.stops[i + 1]) : 0), 0);
+    const dayColor = this.DAY[dayIdx % 4];
+    const dayMeta = day ? `장소 ${day.stops.length}곳 · 이동 ${fmt(totalLeg)}` : '';
+    const daySpan = day ? `${day.stops[0].t} – ${day.stops[day.stops.length - 1].t}` : '';
+    markers.forEach((m, i) => { m.name = day.stops[i].n; m.time = day.stops[i].t; });
+    const open = this.state.sheetOpen;
+
+    const k = cur ? cost(cur) : null;
+    return {
+      dayStopsX, dayColor, dayMeta, daySpan,
+      stripRef: this.stripRef, onStripScroll: this.measureStrip, canPrev, canNext, stripMask, stripOverflow, stripDots,
+      onStripWheel: (e) => { const el = this.stripRef.current; if (el && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { el.scrollLeft += e.deltaY; } },
+      stripPrev: () => { const el = this.stripRef.current; if (el) el.scrollBy({ left: -(this.CARD + this.LEG) * 2, behavior: 'smooth' }); },
+      stripNext: () => { const el = this.stripRef.current; if (el) el.scrollBy({ left: (this.CARD + this.LEG) * 2, behavior: 'smooth' }); },
+      dayChips, dayStops, dayLabel: day ? `${day.day}일차` : '', dayFacts: day ? `${day.day}일차 · 장소 ${day.stops.length}곳` : '',
+      openSheet: () => this.setState({ sheetOpen: true }), closeSheet: () => this.setState({ sheetOpen: false }),
+      sheetW: open ? '361px' : '328px', sheetH: open ? '560px' : '64px', sheetBottom: '8px',
+      tabY: '110px', tabOpacity: 0, tabEvents: 'none', tabVis: 'hidden',
+      courseCountLine: `${courses.length}가지 중 하나를 고르면 일정이 열려요`,
+      rowOpacity: open ? 0 : 1, rowEvents: open ? 'none' : 'auto', sheetOpacity: open ? 1 : 0, sheetEvents: open ? 'auto' : 'none',
+      multi: courses.length > 1, notFull: !full, heroTitle: courses.length > 1 ? `${courses.length}가지 코스` : '추천 코스',
+      chips, cardsM: cards, cardsD: cards, hasPick: !!cur, noPick: !cur,
+      pickCostLine: k ? `${k} 예상` : '비용 미정', pickFacts: cur ? facts(cur) : '', pickTitle: cur ? cur.title : '',
+      pickRationale: cur ? cur.rationale || '' : '', hasRationale: !!(cur && cur.rationale),
+      pickDays: cur ? cur.days.map((d) => ({ label: `${d.day}일차`, stops: d.stops.map((s) => ({ time: s.t, name: s.n, note: s.o || '', hasNote: !!s.o })) })) : [],
+      routes, markers,
+    };
+  }
+}
+</script>
+</body>
+</html>

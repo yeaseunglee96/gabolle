@@ -46,6 +46,7 @@ export default function Recommendations() {
 
   const [loaded, setLoaded] = useState<Loaded>({ state: 'loading' });
   const [picked, setPicked] = useState<string | null>(null);
+  const [barHeight, setBarHeight] = useState(0);
   const [saved, setSaved] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
@@ -277,11 +278,17 @@ export default function Recommendations() {
           </ScrollView>
         ) : null}
         {list}
+        {/* 🔴 하단 바는 흐름 밖(absolute)이라 마지막 카드를 덮는다. 바의 높이를 «재서»
+            그만큼 비운다 — 숫자로 어림하면 글자 크기 설정이 큰 기기에서 또 덮인다. */}
+        {current ? <View style={{ height: barHeight + spacing[2] }} /> : null}
       </Screen>
 
       {/* 하단 고정 바 — 비용과 「이 코스로 일정 만들기」. 고른 안이 없으면 안 그린다. */}
       {current ? (
-        <View style={[styles.bottomBar, { bottom: bottomBarClearance(insets.bottom) }]}>
+        <View
+          onLayout={(event) => setBarHeight(event.nativeEvent.layout.height)}
+          style={[styles.bottomBar, { bottom: bottomBarClearance(insets.bottom) }]}
+        >
           <View style={styles.bottomCopy}>
             <Text weight="bold" numberOfLines={1}>
               {courseCost(current, tx) ?? tx('비용 미정', 'Cost unknown')}
