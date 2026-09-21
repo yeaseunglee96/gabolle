@@ -1,5 +1,8 @@
 package com.gabolle.backend.itinerary.presentation;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,14 +47,42 @@ public class ItineraryRunController {
 	public record ArriveRequest(String how) {
 	}
 
-	public record ProgressResponse(String status, int currentStopIndex, String startedAt, List<StopResponse> stops) {
+	public record ProgressResponse(String status, int currentStopIndex, String startedAt,
+			LastLocationResponse lastLocation, List<StopResponse> stops) {
 
 		public static ProgressResponse of(ItineraryRunService.View view) {
 			return new ProgressResponse(
 					view.run().status().name(),
 					view.run().currentStopIndex(),
 					view.run().startedAt() == null ? null : view.run().startedAt().toString(),
+					LastLocationResponse.of(view.run().lastLocation()),
 					view.stops().stream().map(StopResponse::of).toList());
+		}
+	}
+
+	/**
+	 * 마지막으로 받은 위치. 앱을 껐다 켰을 때 지도를 어디에 놓을지 이 값으로 정한다.
+	 * 아직 못 받았으면 {@code null} 이다 — 0,0 을 내보내지 않는다.
+	 */
+	public record LastLocationResponse(double lat, double lng, String at) {
+
+		static LastLocationResponse of(com.gabolle.backend.itinerary.domain.ItineraryRun.LastLocation location) {
+			return location == null ? null
+					: new LastLocationResponse(location.lat(), location.lng(),
+							location.at() == null ? null : location.at().toString());
+		}
+	}
+
+	/**
+	 * 기기가 모아 보낸 위치 묶음.
+	 *
+	 * <p>🔴 초당 폴링이 아니다. 기기가 10~30초에 한 점씩 모아 한 번에 보낸다 — 걷는 두 시간에
+	 * 초당 한 번이면 7,200번이 온다. 그래서 점마다 {@code recordedAt} 이 필요하고, 서버가 받은
+	 * 시각으로 대신할 수 없다.
+	 */
+	public record LocationBatchRequest(List<Point> points) {
+
+		public record Point(Double lat, Double lng, String recordedAt) {
 		}
 	}
 
@@ -97,6 +128,62 @@ public class ItineraryRunController {
 			Authentication authentication) {
 		String userId = AuthenticatedUsers.requireId(authentication).toString();
 		return ok(this.service.skip(itineraryId, userId, itemKey));
+	}
+
+	@PostMapping("/{itineraryId}/progress/location")
+	public ApiResponse<ProgressResponse> location(@PathVariable String itineraryId,
+			@RequestBody(required = false) LocationBatchRequest request, Authentication authentication) {
+
+		String userId = AuthenticatedUsers.requireId(authentication).toString();
+		return ok(this.service.recordLocations(itineraryId, userId, pointsOf(request)));
+	}
+
+	@PostMapping("/{itineraryId}/progress/complete")
+	public ApiResponse<ProgressResponse> complete(@PathVariable String itineraryId, Authentication authentication) {
+		String userId = AuthenticatedUsers.requireId(authentication).toString();
+		return ok(this.service.complete(itineraryId, userId));
+	}
+
+	/**
+	 * 묶음을 읽는다. 값이 빠진 점은 400 으로 거절한다 — 조용히 버리면 기기는 보냈다고 믿고
+	 * 궤적에는 구멍이 남는다.
+	 */
+	private static List<ItineraryRunService.LocationPoint> pointsOf(LocationBatchRequest request) {
+		if (request == null || request.points() == null) {
+			return List.of();
+		}
+		List<ItineraryRunService.LocationPoint> points = new ArrayList<>(request.points().size());
+		for (LocationBatchRequest.Point point : request.points()) {
+			if (point == null || point.lat() == null || point.lng() == null || point.recordedAt() == null) {
+				throw new InvalidLocationPointException("위치 한 점에는 lat·lng·recordedAt 이 모두 있어야 해요.");
+			}
+			try {
+				points.add(new ItineraryRunService.LocationPoint(point.lat(), point.lng(),
+						OffsetDateTime.parse(point.recordedAt()).toInstant()));
+			}
+			catch (DateTimeParseException badTime) {
+				throw new InvalidLocationPointException(
+						"recordedAt 은 ISO-8601 시각이어야 해요: " + point.recordedAt());
+			}
+			catch (IllegalArgumentException outOfRange) {
+				throw new InvalidLocationPointException(outOfRange.getMessage());
+			}
+		}
+		return points;
+	}
+
+	/** 위치 묶음에 값이 빠졌거나 범위를 벗어났다 — 400. */
+	public static class InvalidLocationPointException extends IllegalArgumentException {
+
+		public InvalidLocationPointException(String message) {
+			super(message);
+		}
+	}
+
+	@ExceptionHandler(InvalidLocationPointException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ApiResponse<Void> handleInvalidLocation(InvalidLocationPointException e) {
+		return ApiResponse.failure(new ApiError("INVALID_LOCATION_POINT", e.getMessage()), "req_" + UUID.randomUUID());
 	}
 
 	private static ApiResponse<ProgressResponse> ok(ItineraryRunService.View view) {

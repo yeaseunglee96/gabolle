@@ -27,4 +27,21 @@ public interface ItineraryRunRepository {
 
 	/** 그 일정에 쌓인 사건 전부. 시간 순이다. */
 	List<ItineraryStopEvent> findEvents(String itineraryId);
+
+	/**
+	 * 궤적을 쌓는다. 같은 점이 두 번 와도 한 번만 남는다 — 배치 업로드는 재시도가 정상
+	 * 경로라 겹치는 것이 예외가 아니다.
+	 *
+	 * @return 실제로 새로 들어간 점의 수. 보낸 수와 다르면 겹친 것이 있었다는 뜻이다
+	 */
+	int saveAllPings(List<ItineraryRunPing> pings);
+
+	/**
+	 * 그 사람의 궤적을 전부 지운다 — 탈퇴할 때 부른다.
+	 *
+	 * <p>🔴 FK 연쇄 삭제에 기대지 않고 따로 부르는 이유는, 위치 기록이 이 저장소에서 제일
+	 * 민감한 자료라 <b>지우는 자리가 코드에 보여야</b> 하기 때문이다. 연쇄 삭제는 스키마를
+	 * 열어 봐야만 알 수 있고, 그 사이에 표가 하나 끼면 조용히 안 지워진다.
+	 */
+	int deletePingsOfUser(String userId);
 }

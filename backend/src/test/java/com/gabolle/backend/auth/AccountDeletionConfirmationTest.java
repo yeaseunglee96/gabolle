@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.util.UUID;
@@ -50,9 +51,20 @@ class AccountDeletionConfirmationTest {
 
 	private final StorageCleanupService storageCleanupService = mock(StorageCleanupService.class);
 
+	/** 일정 쪽을 안 띄우는 슬라이스를 흉내 낸다 — 지울 궤적도 없는 판이다. */
+	private static org.springframework.beans.factory.ObjectProvider<
+			com.gabolle.backend.itinerary.domain.ItineraryRunRepository> noItineraryRuns() {
+		@SuppressWarnings("unchecked")
+		org.springframework.beans.factory.ObjectProvider<
+				com.gabolle.backend.itinerary.domain.ItineraryRunRepository> provider =
+						mock(org.springframework.beans.factory.ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(null);
+		return provider;
+	}
+
 	private final AccountDeletionService service = new AccountDeletionService(this.credentialRepository,
 			this.sessionRepository, this.identityRepository, this.consentRepository, this.userRepository,
-			this.passwordEncoder, Clock.systemUTC(), this.storageCleanupService);
+			this.passwordEncoder, Clock.systemUTC(), this.storageCleanupService, noItineraryRuns());
 
 	@ParameterizedTest(name = "확인 값이 \"{0}\" 이면 거절한다")
 	@NullSource
