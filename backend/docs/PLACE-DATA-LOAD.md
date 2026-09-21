@@ -337,6 +337,36 @@ docker run -d --network local-route-personalization_data_net --env-file /tmp/loa
 다양성은 이번엔 안 넣는다 — 아직 화면이 안 읽는 값이다(`PlaceFeatureNdjsonReader
 .readPriceNarrative` 주석 참고).
 
+> 🔴 **마이그레이션이 하나 필요하다 — 2026-09-22 (S15P21E201-1478).**
+> 1465 커밋은 *"place_feature 가 feature_type 에 CHECK 를 안 걸어서 새 종류를 자유롭게
+> 추가할 수 있다"* 고 적었는데 **사실이 아니었다.** `ck_place_feature_type` 이 걸려 있어
+> `MENU_PRICE_WON` · `WHY_VISIT` 이 막혔고, 돌리면 **한 줄도 안 들어가고 통째로
+> 되돌려졌다.** `V20260922080000__place_feature_price_narrative_types.sql` 이 그것을 푼다.
+>
+> **그 마이그레이션이 들어간 이미지로 돌려야 한다.** 적재 컨테이너는 앱을 통째로 띄우므로
+> 기동할 때 마이그레이션도 함께 적용한다 — 낡은 이미지로 돌리면 제약이 옛것이라 또 막힌다.
+
+### 🔴 적재 기록 — 언제 무엇을 얼마나 넣었나
+
+**이 표는 낡지 않는다.** 「지금 몇 곳인가」가 아니라 **「그날 무엇을 넣었나」**를 적기
+때문이다. 지우지 말고 **아래에 줄을 더한다.** 이게 없으면 다음 사람이 *"어디까지
+넣었지"* 를 DB 를 뒤져 다시 알아내야 한다.
+
+세는 법 — 적재기는 넣은 줄마다 `source_version` 을 찍는다.
+
+```sql
+SELECT source_version, feature_type, count(*)
+FROM place_feature WHERE source_type = 'RESEARCH_PRICE_NARRATIVE'
+GROUP BY 1, 2 ORDER BY 1, 2;
+```
+
+| 날짜 | `dataset-version` | 입력 줄 | `MENU_PRICE_WON` | `WHY_VISIT` | 결과 |
+|---|---|---|---|---|---|
+| 2026-09-22 07:21 | `price-narrative-20260922` | 522 | — | — | 🔴 **0행.** `ck_place_feature_type` 이 막았다 (S15P21E201-1478) |
+
+조사가 계속 도는 중이라 입력 줄은 돌릴 때마다 는다. 적재기는 `ON CONFLICT DO NOTHING`
+이라 **다시 돌려도 앞의 것이 두 배가 되지 않고 늘어난 뒤쪽만** 들어간다.
+
 ## 되돌리기
 
 전부 출처와 수집분이 찍힌다.
