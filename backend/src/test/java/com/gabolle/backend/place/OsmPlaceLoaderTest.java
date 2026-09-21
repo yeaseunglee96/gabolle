@@ -108,6 +108,20 @@ class OsmPlaceLoaderTest {
 	}
 
 	@Test
+	@DisplayName("🔴 한국어 이름만 있어도 넣는다 — 부산 여행 서비스가 한국어 이름을 버리면 거꾸로다")
+	void koreanOnlyNameIsStillAName(@TempDir Path dir) throws Exception {
+		Path file = dir.resolve("poi.ndjson");
+		Files.writeString(file, "{\"type\":\"node\",\"id\":7,\"lat\":35.1,\"lon\":129.0,\"tags\":"
+				+ "{\"name:ko\":\"스타벅스\",\"amenity\":\"cafe\"}}", StandardCharsets.UTF_8);
+
+		List<OsmPoiRow> taken = new ArrayList<>();
+		OsmPoiReader.Counts counts = OsmPoiReader.read(file, 10, taken::addAll);
+
+		assertThat(counts.noName()).isZero();
+		assertThat(taken).singleElement().extracting(OsmPoiRow::name).isEqualTo("스타벅스");
+	}
+
+	@Test
 	@DisplayName("주소는 있는 조각만 큰 단위부터 이어 붙인다")
 	void addressIsJoinedFromWhateverExists(@TempDir Path dir) throws Exception {
 		Path file = dir.resolve("poi.ndjson");

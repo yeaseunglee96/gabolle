@@ -52,7 +52,8 @@ public final class OsmPoiReader {
 	 * 읽은 줄의 내역.
 	 *
 	 * @param total 파일의 줄 수
-	 * @param noName 이름이 없어 버린 줄. 검색도 표시도 안 되는 장소라 넣지 않는다
+	 * @param noName 이름이 없어 버린 줄. 검색도 표시도 안 되는 장소라 넣지 않는다.
+	 *     {@code name} 과 {@code name:ko} 를 둘 다 본 뒤의 수다
 	 * @param noCategory 아는 갈래가 없어 버린 줄 — 은행·주유소·유치원 같은 것들
 	 * @param noCoordinates 좌표가 없어 버린 줄. {@code 0} 으로 채우지 않는다
 	 * @param taken 실제로 넘긴 줄
@@ -90,8 +91,8 @@ public final class OsmPoiReader {
 				JsonNode node = MAPPER.readTree(line);
 				Map<String, String> tags = tagsOf(node.get("tags"));
 
-				String name = tags.get("name");
-				if (name == null || name.isBlank()) {
+				String name = nameOf(tags);
+				if (name == null) {
 					noName++;
 					continue;
 				}
@@ -107,7 +108,7 @@ public final class OsmPoiReader {
 					continue;
 				}
 
-				chunk.add(new OsmPoiRow(node.path("id").asLong(), name.strip(), category, addressOf(tags),
+				chunk.add(new OsmPoiRow(node.path("id").asLong(), name, category, addressOf(tags),
 						lat.asDouble(), lon.asDouble()));
 				taken++;
 				if (chunk.size() >= chunkSize) {
@@ -123,6 +124,29 @@ public final class OsmPoiReader {
 			chunkConsumer.accept(List.copyOf(chunk));
 		}
 		return new Counts(total, noName, noCategory, noCoordinates, taken);
+	}
+
+	/**
+	 * 이 장소의 이름. {@code name} 을 먼저 보고, 없으면 {@code name:ko} 를 본다.
+	 *
+	 * <p>🔴 <b>한국어 이름만 있다고 버리지 않는다.</b> OSM 은 {@code name} 에 현지 표기를 넣는
+	 * 것이 관례지만 기여자에 따라 {@code name:ko} 에만 넣기도 한다. 부산 여행 서비스에서
+	 * 「한국어 이름만 있다」는 버릴 이유가 아니라 오히려 정상이다.
+	 *
+	 * <p>이 규칙이 없을 때 실제로 <b>여섯 곳</b>이 「이름 없음」으로 빠졌다(그중 갈래가 있어
+	 * 실제로 들어갈 수 있었던 곳은 다섯 — 숙소 2·카페 2·식당 1, 스타벅스와 버거킹이 거기 있었다).
+	 * 수는 작지만 방향이 거꾸로다.
+	 *
+	 * <p>{@code name:en} 은 안 본다. 영어 이름만 있는 곳을 한국어 화면에 영어로 띄우는 것은
+	 * 다른 결정이고, 지금 그런 곳이 있는지도 확인하지 않았다.
+	 */
+	private static String nameOf(Map<String, String> tags) {
+		String name = tags.get("name");
+		if (name != null && !name.isBlank()) {
+			return name.strip();
+		}
+		String korean = tags.get("name:ko");
+		return (korean == null || korean.isBlank()) ? null : korean.strip();
 	}
 
 	private static Map<String, String> tagsOf(JsonNode tags) {
