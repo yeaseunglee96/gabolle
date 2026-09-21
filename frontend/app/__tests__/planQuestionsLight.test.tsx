@@ -32,7 +32,13 @@ jest.mock('react-native-safe-area-context', () => ({
 import PlanConditions from '../(plan)/questions';
 
 /** 날짜는 있고(서버가 요구한다) 알레르기·식단은 답해 둔다 — 안 그러면 조건 창이 먼저 뜬다. */
-const BASE: PlanDraft = { ...EMPTY_PLAN, startDate: '2026-10-03', endDate: '2026-10-05', allergyStatus: 'NONE', allergyAnswered: true, dietStatus: 'NONE', dietAnswered: true };
+// 🔴 출발지도 필수다 — 없으면 서버가 일정을 안 만든다(S15P21E201-1342).
+//    예전에는 이 초안에 출발지가 없어도 「필수는 끝!」 갈림 카드가 떴는데,
+//    그때 눌러도 서버가 originLat 으로 거절했다. 이제 화면이 먼저 막으므로
+//    「다 채운 상태」를 나타내는 이 초안에도 출발지가 있어야 한다.
+const BASE: PlanDraft = { ...EMPTY_PLAN, startDate: '2026-10-03', endDate: '2026-10-05',
+  origin: '부산역', originLat: 35.1152, originLng: 129.0403,
+  allergyStatus: 'NONE', allergyAnswered: true, dietStatus: 'NONE', dietAnswered: true };
 
 const mount = () => render(<OnboardingPreferencesProvider><PlanConditions /></OnboardingPreferencesProvider>);
 
