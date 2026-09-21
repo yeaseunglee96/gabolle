@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.config.PlaceProperties;
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
 import com.gabolle.backend.place.api.PlaceFeatureView;
+import com.gabolle.backend.place.domain.AccommodationCategories;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.repository.PlaceFeatureRepository;
@@ -60,6 +62,15 @@ import tools.jackson.databind.ObjectMapper;
 public class PlaceCandidateQueryService {
 
 	private static final Logger log = LoggerFactory.getLogger(PlaceCandidateQueryService.class);
+
+	/**
+	 * 일반 후보에서 뺄 숙소 갈래. 조회 쪽 목록을 그대로 따라가므로 숙소 낱말이 늘면 여기도 같이
+	 * 는다 — 두 곳에 따로 적으면 새 낱말이 후보에 새는 것을 아무도 못 본다. 소문자로 두는 것은
+	 * {@code place.category} 비교가 대소문자를 안 가리기 때문이다.
+	 */
+	private static final Set<String> ACCOMMODATION_CATEGORIES = AccommodationCategories.CODES.stream()
+			.map(code -> code.toLowerCase(Locale.ROOT))
+			.collect(Collectors.toUnmodifiableSet());
 
 	private final PlaceRepository placeRepository;
 
@@ -123,16 +134,29 @@ public class PlaceCandidateQueryService {
 		}
 		// 갈래가 비어 있는 장소는 요청이 갈래를 좁혔는지와 무관하게 언제나 뺀다. 적재가 갈래를
 		// 비우는 것은 "앱의 여섯 낱말 중 이것을 가리키는 것이 없다" 는 뜻이라(TourApiCategory 가
-		// 레포츠·숙박을 그렇게 둔다) 어떤 취향으로도 안 골라져야 한다.
-		// 숙소 지정과 필수 방문지 지정은 PlaceRepository.findByCategoryIn 을 따로 쓰므로 그쪽은
-		// 이 제외에 영향받지 않는다.
+		// 레포츠를 그렇게 둔다) 어떤 취향으로도 안 골라져야 한다.
+		// 🔴 이 줄은 "가리킬 낱말이 없다" 와 "아직 분류 안 했다" 를 못 가른다. 2026-09-21 실측으로는
+		// 빈칸이 레포츠 29곳뿐이라 문제가 안 되지만, 앞으로 "모른다" 를 빈칸으로 남기는 적재기가
+		// 생기면 그 장소들이 여기서 조용히 사라진다. 그때는 빈칸 대신 모름을 값으로 남겨야 한다.
+		// 필수 방문지 지정은 PlaceRepository.findByCategoryIn 을 따로 쓰므로 이 제외에 영향받지 않는다.
 		applied.add("NON_EMPTY_CATEGORY");
+
+		// 🔴 숙소는 갈래가 채워져 있어도 일반 후보에서 뺀다 (S15P21E201-1383).
+		// 2026-09-21 에 숙박 65곳의 빈 갈래를 LODGING 으로 채웠다. 그전까지 숙소가 후보에 안
+		// 들어온 유일한 이유는 위의 "빈 갈래 제외" 였고, 값을 채우는 순간 그 방벽이 없어진다.
+		// 아래 categories 비교는 요청이 갈래를 좁혔을 때만 걸리므로, 안 좁힌 요청에서는 호텔이
+		// 관광지처럼 일정에 섞이게 된다. 숙소는 취향으로 고르는 갈래가 아니라 따로 지정하는
+		// 것이고, 그 길은 PlaceRepository.findByCategoryIn 으로 이미 따로 있다.
+		applied.add("NOT_ACCOMMODATION");
 
 		Map<UUID, Long> distances = new HashMap<>();
 		List<Place> withinRadius = new ArrayList<>();
 		for (Place place : scanned) {
 			String placeCategory = place.getCategory();
 			if (placeCategory == null || placeCategory.isBlank()) {
+				continue;
+			}
+			if (ACCOMMODATION_CATEGORIES.contains(placeCategory.toLowerCase(Locale.ROOT))) {
 				continue;
 			}
 			if (!categories.isEmpty() && !categories.contains(placeCategory.toLowerCase(Locale.ROOT))) {

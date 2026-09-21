@@ -176,6 +176,30 @@ public class Place {
 		return category;
 	}
 
+	/**
+	 * 갈래가 비어 있을 때만 채운다. 이미 값이 있으면 아무것도 안 하고 {@code false} 를 낸다.
+	 *
+	 * <p>{@link #attachPhoto} 와 같은 이유로 있다 — 장소 적재기는 이미 있는 장소를 건너뛰고
+	 * 고치지 않으므로, 적재 규칙이 나중에 바뀌어도 먼저 들어온 행은 영영 안 따라온다.
+	 * 2026-09-21 에 숙박 65곳이 정확히 그 상태였다 (S15P21E201-1383) — 갈래를 비우기로 한
+	 * 결정을 뒤집었는데 이미 들어와 있던 행은 그대로 비어 있었다.
+	 *
+	 * <p>🔴 <b>있는 값은 덮지 않는다.</b> 덮게 두면 적재를 다시 돌릴 때마다 손으로 고친 갈래가
+	 * 조용히 원래대로 돌아가고, 아무 기록도 안 남는다. 채우는 것은 「모름 → 앎」 한 방향뿐이다.
+	 *
+	 * @return 실제로 채웠으면 {@code true}. 부르는 쪽이 몇 곳을 채웠는지 세는 데 쓴다
+	 */
+	public boolean fillMissingCategory(String category) {
+		if (category == null || category.isBlank()) {
+			throw new IllegalArgumentException("빈 갈래로 채울 수 없다 — 모르면 이 메서드를 부르지 않는다");
+		}
+		if (this.category != null && !this.category.isBlank()) {
+			return false;
+		}
+		this.category = category;
+		return true;
+	}
+
 	public String getAddress() {
 		return address;
 	}
