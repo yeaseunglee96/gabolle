@@ -55,6 +55,29 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 
 	String BEFORE_CURSOR = " AND (s.publish_at, s.story_id) < (CAST(:cursorAt AS timestamptz), CAST(:cursorId AS uuid)) ";
 
+	/**
+	 * 인기순이 쓰는 좋아요 수. 누적 칸이 아니라 반응 표를 그때그때 센다 — {@code story_reaction} 의
+	 * PK 가 {@code (story_id, user_id)} 라 한 사람이 한 번만 세어지고, 그 PK 가 곧 이 상관 부질의의
+	 * 색인이다. 취소한 사람은 행이 남되 {@code reaction} 이 바뀌므로 여기서 빠진다.
+	 */
+	String LIKE_COUNT = "(SELECT count(*) FROM story_reaction r WHERE r.story_id = s.story_id"
+			+ " AND r.reaction = 'LIKE')";
+
+	/**
+	 * 인기순 정렬. 좋아요 수가 같을 때 최신순으로 내려가고 마지막에 식별자로 끊는다.
+	 *
+	 * <p>뒤의 두 열이 없으면 안 된다. 지금 실서버는 기록 39건에 반응 6건이라 대부분이 0 으로 동점인데,
+	 * 동점의 순서를 정하지 않으면 DB 가 주는 대로 나와 새로고침할 때마다 목록이 뒤바뀐다.
+	 */
+	String POPULAR_ORDER = " ORDER BY " + LIKE_COUNT + " DESC, s.publish_at DESC, s.story_id DESC LIMIT :limit";
+
+	/**
+	 * 인기순 커서. 정렬 열이 셋이므로 비교도 셋이다 — 좋아요 수가 커서보다 적거나, 같으면서
+	 * {@code (공개 시각, 식별자)} 가 뒤인 것.
+	 */
+	String BEFORE_POPULAR_CURSOR = " AND (" + LIKE_COUNT + " < :cursorLikes OR (" + LIKE_COUNT + " = :cursorLikes"
+			+ " AND (s.publish_at, s.story_id) < (CAST(:cursorAt AS timestamptz), CAST(:cursorId AS uuid)))) ";
+
 	/** 전체 피드 — 공개(PUBLIC) 기록, 그리고 내 기록은 범위와 무관하게. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
 			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR + BEFORE_CURSOR
@@ -72,6 +95,29 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			+ BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
 	List<Story> findPublicFeedForAnonymous(@Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
 			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
+
+	/** 전체 피드, 인기순. {@link #findPublicFeed} 와 조건은 같고 정렬과 커서만 다르다. */
+	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
+			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR
+			+ BEFORE_POPULAR_CURSOR + POPULAR_ORDER, nativeQuery = true)
+	List<Story> findPublicFeedPopular(@Param("me") UUID me, @Param("now") Instant now,
+			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId,
+			@Param("cursorLikes") int cursorLikes, @Param("limit") int limit);
+
+	/** 로그인하지 않은 사람의 전체 피드, 인기순. 조건을 따로 두는 이유는 {@link #findPublicFeedForAnonymous} 와 같다. */
+	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED + " AND s.visibility = 'PUBLIC'"
+			+ BEFORE_POPULAR_CURSOR + POPULAR_ORDER, nativeQuery = true)
+	List<Story> findPublicFeedForAnonymousPopular(@Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
+			@Param("cursorId") UUID cursorId, @Param("cursorLikes") int cursorLikes, @Param("limit") int limit);
+
+	/** 팔로잉 피드, 인기순. */
+	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
+			+ " AND s.visibility IN ('PUBLIC', 'FOLLOWERS')"
+			+ " AND s.author_user_id IN (SELECT f.followee_user_id FROM user_follow f WHERE f.follower_user_id = :me)"
+			+ NOT_BLOCKED_BY_AUTHOR + BEFORE_POPULAR_CURSOR + POPULAR_ORDER, nativeQuery = true)
+	List<Story> findFollowingFeedPopular(@Param("me") UUID me, @Param("now") Instant now,
+			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId,
+			@Param("cursorLikes") int cursorLikes, @Param("limit") int limit);
 
 	/** 팔로잉 피드 — 내가 팔로우한 사람의 PUBLIC·FOLLOWERS 기록. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
