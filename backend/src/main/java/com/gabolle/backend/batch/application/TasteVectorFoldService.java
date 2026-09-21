@@ -60,8 +60,13 @@ public class TasteVectorFoldService {
 	private static final String SCORE_CODE = "SCORE";
 
 	/**
-	 * 취향 신호로 세는 이벤트 종류. 지금은 이 중 어느 것도 계측되지 않아서 세어지는 값이
-	 * 0 이고, 벡터는 당분간 {@code evidence=SURVEY} 만으로 만들어진다 — 0 이 정상이다.
+	 * 취향 신호로 세는 이벤트 종류.
+	 *
+	 * <p>{@code PLACE_LIKE} 는 {@code SavedPlaceService} 가 실제로 내보내고 있다. 그래도 벡터는
+	 * 아직 {@code evidence=SURVEY} 만으로 만들어지는데, <b>세기만 하고 가중치로 바꾸는 단계가
+	 * 없기 때문</b>이다 — 이 서비스는 이벤트 개수를 {@code behavior_event_count} 에 적을 뿐,
+	 * 이벤트를 (차원, 코드) 성분에 귀속시키지 않는다. 그 단계가 생겨야 {@code INTERACTION}·
+	 * {@code BLENDED} 성분이 만들어진다.
 	 *
 	 * <p>목록도 대소문자도 여기서 정하지 않고 {@link EventType} 에 맡긴다. 수집을 막는 목록과
 	 * 세는 목록이 같은 파일에 있어야 둘의 포함 관계를 검사가 지킬 수 있고, 손으로 적으면
