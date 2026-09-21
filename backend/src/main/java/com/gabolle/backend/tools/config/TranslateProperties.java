@@ -36,6 +36,18 @@ public class TranslateProperties {
 	/** 같은 문장을 다시 번역하지 않고 답을 재사용하는 시간. */
 	private Duration cacheTtl = Duration.ofDays(7);
 
+	/**
+	 * 일괄 번역 한 번에 받는 문장 수. 캐시에 없는 문장은 하나씩 업체를 부르므로(읽기 제한 시간 5초),
+	 * 이 값이 곧 «최악의 경우 몇 번 기다리나» 다. 화면은 목록을 이 크기로 잘라 여러 번 부른다.
+	 */
+	private int batchMaxTexts = 20;
+
+	/**
+	 * 🔴 일괄 번역 한 번이 업체를 부르는 데 쓰는 시간 상한. 넘으면 남은 문장은 부르지 않고 SKIPPED 로
+	 * 돌려준다 — 화면이 다음에 다시 부른다. 앞단 nginx 의 제한(60초)보다 넉넉히 짧아야 504 로 통째 잃지 않는다.
+	 */
+	private Duration batchTimeBudget = Duration.ofSeconds(20);
+
 	public String getVendorApiKey() { return this.vendorApiKey; }
 	public void setVendorApiKey(String vendorApiKey) { this.vendorApiKey = vendorApiKey; }
 	public String getVendorBaseUrl() { return this.vendorBaseUrl; }
@@ -50,4 +62,8 @@ public class TranslateProperties {
 	public void setReadTimeout(Duration readTimeout) { this.readTimeout = readTimeout; }
 	public Duration getCacheTtl() { return this.cacheTtl; }
 	public void setCacheTtl(Duration cacheTtl) { this.cacheTtl = cacheTtl; }
+	public int getBatchMaxTexts() { return this.batchMaxTexts; }
+	public void setBatchMaxTexts(int batchMaxTexts) { this.batchMaxTexts = batchMaxTexts; }
+	public Duration getBatchTimeBudget() { return this.batchTimeBudget; }
+	public void setBatchTimeBudget(Duration batchTimeBudget) { this.batchTimeBudget = batchTimeBudget; }
 }
