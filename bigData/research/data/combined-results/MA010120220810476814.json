@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810476814",
+  "name": "동명갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 68935,
+  "researchedAt": "2026-09-21T14:28:19.601Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 단골손님 및 현지인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "냉동삼겹살",
+      "돼지갈비"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 동네 단골손님이 주로 찾는 현지인 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 부평동 족발골목 인근 골목에 위치한 노포 분위기의 고깃집으로 상호는 동명갈비이나 냉동삼겹살(냉삼)로 현지 단골들에게 알려져 있음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "족발골목 끄트머리 교차로 인근 골목 안에 위치한 식당입니다. 상호명은 갈비집이지만, 현지인들 사이에서는 냉동 삼겹살(냉삼) 맛집으로 잘 알려져 있습니다. 관광객보다는 동네 단골손님이 많은 현지인 맛집으로 소개되곤 합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "상호명은 갈비집이지만 현지 단골들이 즐겨 찾는 가성비 냉동삼겹살 맛집임",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "관광객보다 동네 단골들이 주로 찾는 숨은 로컬 식당 분위기",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

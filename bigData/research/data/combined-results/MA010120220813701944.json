@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220813701944",
+  "name": "양미가",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 78683,
+  "researchedAt": "2026-09-21T14:12:21.088Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "회식 및 단체 모임 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "양갈비",
+      "양떡국"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "22:00 영업 종료 (방문 전 유선 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "인허가상 경양식/식육취급 업종으로 등록되어 있으나 실제로는 1년 미만 호주산 어린 양고기를 취급하는 양고기·양갈비 전문점(문현동 814, 3층)입니다. 직원이 고기를 직접 구워주며 단체석과 룸을 갖추고 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "양갈비 전문점으로, 직접 고기를 구워주는 서비스를 제공하며 양고기 특유의 냄새를 잘 잡는 것으로 알려져 있습니다. 단체석이 마련되어 있어 모임이나 회식에 적합하며, 양갈비 주문 시 양떡국을 제공하는 것이 특징입니다. 지하철 문현역 1번 출구에서 100m 직진 후 횡단보도 건너편 건물에 위치해 있습니다.",
+      "url": "https://www.siksinhot.com/P/1013725"
+    },
+    {
+      "excerpt": "1년 미만의 호주산 어린 양(Lamb)을 사용하여 잡내가 적고 육질이 부드러운 것이 특징입니다. 직원이 고기를 직접 구워주며, 단체 모임을 위한 룸과 테이블이 마련되어 있습니다. 양갈비 등을 제공하며, 양갈비를 주문할 경우 남은 갈비뼈와 고기로 만든 양떡국이 제공되기도 합니다.",
+      "url": "https://www.siksinhot.com/P/365518"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1013725",
+    "https://www.siksinhot.com/P/365518"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1년 미만 호주산 어린 양고기를 사용해 잡내가 적고 부드러우며 직원이 직접 구워줌",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "룸과 단체석이 구비되어 있어 모임과 회식에 적합함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

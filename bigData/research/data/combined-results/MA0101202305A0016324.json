@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202305A0016324",
+  "name": "엠비스",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 42972,
+  "researchedAt": "2026-09-21T14:24:18.890Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소지(부산 동구 대영로243번길 78)의 '엠비스(AMBYS)'는 사업자등록 상 일반과세자 또는 가라오케/해외송금 관련 업소로 등록되어 있으나, 일반 소비자가 방문하는 베트남 음식점으로서의 실제 메뉴, 영업시간, 후기, 줄서기 등 식당 정보가 웹상에 전혀 존재하지 않거나 일반적인 식당이 아닙니다. 규칙에 따라 없는 가게/정보를 지어내지 않고 found: false 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

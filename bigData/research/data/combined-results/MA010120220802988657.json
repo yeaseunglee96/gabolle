@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220802988657",
+  "name": "라무야",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 74615,
+  "researchedAt": "2026-09-21T14:18:37.483Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 웨이팅에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "직장인 회식 및 양고기 모임",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "양갈비",
+      "라면",
+      "된장찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00부터 영업"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남구 문현동에 위치한 징기스칸 스타일 양고기/양갈비 전문점. 직접 구워주는 서비스와 콜키지 이용 편의가 있음.",
+  "price": {
+    "found": true,
+    "priceMenu": "양갈비 1인분(1대) 약 15,000원 선, 콜키지 병당 10,000원",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "양고기(양갈비) 전문점으로, 징기스칸 스타일의 구이 요리를 제공합니다. 사장님이 고기를 직접 구워주어 편하게 식사할 수 있는 곳으로 알려져 있습니다. 양갈비: 1인분(1대) 기준 약 15,000원 선으로 형성되어 있습니다. 사이드 메뉴: 라면과 된장찌개도 평이 좋습니다. 콜키지: 병당 1만 원의 비용으로 이용 가능하며, 와인을 마시기 좋은 환경(얼음 및 아이스버킷 제공)을 갖추고 있습니다.",
+      "url": "https://www.youtube.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 남구 전포대로91번길 17 (문현동 736-3) 1~2층, 연락처: 051-642-7871",
+      "url": "https://www.linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com",
+    "https://www.linktoplace.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "징기스칸 스타일의 양갈비 구이를 사장님이 직접 구워주어 편하게 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "병당 1만원 콜키지 비용에 얼음 및 아이스버킷을 지원하여 와인 모임하기 좋음",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

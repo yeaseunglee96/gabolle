@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812230752",
+  "name": "최大감",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 161089,
+  "researchedAt": "2026-09-21T14:22:23.283Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 동래구 안락로 60-2)에 '최大감' 식당 정보 및 영업 기록이 웹상에서 확인되지 않음",
+  "notes": "부산광역시 동래구 안락로 60-2 에 위치한 '최大감'에 대해 웹 검색을 진행했으나, 해당 주소지에 존재하는 실제 매장 정보, 리뷰, 정량 정보가 확인되지 않아 found: false 처리했습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

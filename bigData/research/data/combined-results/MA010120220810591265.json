@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220810591265",
+  "name": "한양돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 68028,
+  "researchedAt": "2026-09-21T14:22:22.710Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민, 혼밥족",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 왕돈까스",
+      "비빔칼국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00 (매주 일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동래구 안락동 지역 동네 주민들이 찾는 가성비 수제 왕돈까스집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "제주산 생고기를 사용하는 수제 왕돈까스와 비빔칼국수, 우동, 모밀 등을 취급하는 가성비 식당.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 동래구 안락로 40 (안락동) / 영업시간: 11:00 ~ 21:00 (매주 일요일 휴무) / 제주산 생고기를 사용하는 수제 왕돈까스 맛집으로 독특한 소스가 매력적인 큰 돈까스 외에도 비빔칼국수, 우동, 모밀 등 다양한 메뉴를 함께 판매하며 지역 내 가성비 맛집으로 자주 언급되는 곳입니다.",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제주산 생고기로 만든 푸짐한 크기의 수제 왕돈까스와 독특한 소스의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부담 없는 가격대로 든든하게 먹을 수 있는 동네 가성비 경양식 돈까스집",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

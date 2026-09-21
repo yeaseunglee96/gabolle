@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220808875947",
+  "name": "삼합불패",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 78311,
+  "researchedAt": "2026-09-21T14:20:14.945Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인 및 가족 단위 회식/외식 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "삼합한상",
+      "홍어삼합",
+      "오합한상",
+      "사합한상",
+      "삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:00 ~ 02:00 (라스트 오더 23:59)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 지역 주민 및 직장인 외식·회식 중심의 동네 식당으로 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": 11,
+    "found": true
+  },
+  "notes": "부산 남구 대연동(유엔평화로41번길 3)에 위치했던 삼합 전문점으로, 홍어삼합·오합·사합 등과 삼겹살/갈비/보쌈류를 판매하며 계란후라이 및 수제 보리누룽지 무한리필 서비스를 제공함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산 남구 유엔평화로41번길 3 (대연동). 영업시간: 매일 16:00 ~ 02:00 (라스트 오더 23:59). 홍어삼합, 사합한상, 삼합한상, 오합한상 등 다양한 삼합 요리를 전문으로 하는 한식당.",
+      "url": "https://redtable.global"
+    },
+    {
+      "excerpt": "대연역 인근 삼겹살과 삼합 맛집으로 화제인 '삼합불패'. 일반 가정집을 개조한 아늑한 분위기. 오합한상, 사합한상, 굴보쌈, 과메기, 매생이탕, 하동삼겹, 돼지갈비, 돼지갈비김치찜, LA갈비, 촌두부수육보쌈, 돈가스 등 다양한 메뉴를 제공하며 계란후라이와 수제 보리누룽지를 무한리필로 제공. 청결한 위생 관리와 매일 엄선한 질 좋은 고기를 사용하여 지역 주민들 사이에서 입소문. 사장님이 직접 만든 목공예 작품 등 아기자기한 볼거리.",
+      "url": "http://www.newsfinder.co.kr/news/articleView.html?idxno=77673"
+    }
+  ],
+  "sources": [
+    "https://redtable.global",
+    "http://www.newsfinder.co.kr/news/articleView.html?idxno=77673"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "홍어삼합, 사합, 오합 등 다채로운 삼합 요리와 질 좋은 삼겹살·갈비를 함께 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "계란후라이와 수제 보리누룽지 무한리필 제공 및 가정집을 개조한 편안한 분위기",
+      "sources": [
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

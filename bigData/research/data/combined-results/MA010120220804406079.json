@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220804406079",
+  "name": "런던앤셰프",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 69068,
+  "researchedAt": "2026-09-21T14:11:40.751Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기나 줄서기, 매장 혼잡에 대한 명확한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 단체 회식",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스테이크",
+      "파스타",
+      "피자"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30~21:00 (브레이크타임 15:00~17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 부산문화회관 공연 관람객 및 유엔기념공원 방문객, 공공기관 회식 장소로 주로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산문화회관 및 유엔기념공원 인근 대연동에 위치한 양식당(경양식/서양식)으로 스테이크, 파스타, 피자 등을 취급함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 남구 유엔평화로106번길 1(대연동 771-2) 2층에 위치해 있으며, 유엔기념공원 및 부산문화회관 인근의 양식 맛집으로 알려져 있습니다. 클래식하고 고즈넉한 분위기를 갖추고 있어 데이트 코스나 기념일 식사 장소로 자주 언급됩니다. 코스 요리나 파스타, 피자 등의 메뉴를 주로 제공하는 것으로 확인됩니다. 영업시간(주로 11:30~21:00, 브레이크 타임 15:00~17:00 등)",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산광역시 남구 유엔평화로106번길 1, 2층 (대연동 771-2). 유엔기념공원 맞은편 건물 2층에 위치해 있습니다. 스테이크, 피자, 파스타 등 다양한 양식 메뉴를 제공합니다. 부산문화회관과 가까워 공연 전후에 방문하기 좋은 위치로 알려져 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://www.konest.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "유엔기념공원 맞은편이자 부산문화회관과 가까워 공연 전후나 가족·연인 방문 시 접근성이 좋음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "클래식하고 고즈넉한 인테리어 분위기로 데이트 및 기념일 식사 장소로 선호됨",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

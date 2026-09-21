@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202411A0078286",
+  "name": "하우딥",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 91654,
+  "researchedAt": "2026-09-21T14:11:22.324Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 관한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "청년/데이트/브런치 고객층",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 부산진구 전포동(전포대로256번길 3 일대)에 위치한 경양식/브런치 식당으로 확인되었으나, 세부 메뉴판 가격 및 구체적 영업시간 관련 웹 정보는 제한적임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 전포동에 위치한 '하우딥(how deep?)'에 대한 정보입니다. 업종 및 특징: 전포동에서 브런치 맛집이자 경양식당으로 알려져 있는 곳입니다. 위치: 부산광역시 부산진구 전포동 193-6 일대에 위치하고 있습니다.",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전포동 골목 상권 내 브런치 및 경양식 식당/카페 방문 목적",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202512A0002722",
+  "name": "하카나",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 49574,
+  "researchedAt": "2026-09-21T14:16:21.229Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인, 혼밥/식사 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "클래식 로스카츠 정식",
+      "하카나 모둠카츠 정식",
+      "경양 로스카츠 정식",
+      "카레 로스카츠 정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~목 10:30~20:40"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "상호명 하카나(부산 남구 진남로 10 1층, 대연동). 회/초밥 업종으로 인허가 분류되었거나 등록되었으나 실제로는 로스카츠, 모둠카츠, 소바, 카레 등 돈카츠·일식 카츠류 전문점으로 확인됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 진남로 10, 1층. 하카나. 돈까스, 우동. 영업시간: 월~목 10:30~20:40. 연락처: 0502-5553-9144",
+      "url": "https://heyyumi.ai"
+    },
+    {
+      "excerpt": "하카나 - 부산, 남구, 대연동 | 맛집검색 식신. 메뉴: 클래식 로스카츠 정식, 하카나 모둠카츠 정식, 경양 로스카츠 정식, 카레 로스카츠 정식, 히야시 소바, 카레 한 컵 등",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "로스카츠, 모둠카츠, 카레카츠 등 다양한 구성의 정식 돈카츠 식사를 하기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

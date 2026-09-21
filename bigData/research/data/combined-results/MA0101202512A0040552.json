@@ -1,0 +1,52 @@
+{
+  "id": "MA0101202512A0040552",
+  "name": "불망",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 76034,
+  "researchedAt": "2026-09-21T14:22:13.248Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "-",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 동래구 안남로 75-2(안락동)에 상호 '불망(不忘)', 일식(회/초밥) 업종의 일반음식점 등록 이력은 확인되나 실제 방문 후기나 메뉴, 가격, 영업시간 등 상세 정보는 웹상에 존재하지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 불망 (不忘) 주소: 부산광역시 동래구 안남로 75-2 (안락동) 업종: 일식 (회/초밥 등) 해당 업체는 일반음식점으로 등록되어 있으나, 일부 정보 사이트에서는 전화번호 정보가 확인되지 않거나 제공되지 않고 있습니다.",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202508A0000084",
+  "name": "회뜰기세",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 90700,
+  "researchedAt": "2026-09-21T14:11:48.656Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 남구 유엔로 104-1(대연동 936-9) 소재 '회뜰기세' 사업체 정보는 확인되나 일반 리뷰나 상세 메뉴/영업시간 등 세부 웹 데이터가 극히 희박함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 대연동 936-9에 위치한 '회뜰기세'에 대한 정보입니다. 상호명: 회뜰기세, 위치: 부산광역시 남구 대연동 936-9",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

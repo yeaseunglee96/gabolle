@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202506A0035675",
+  "name": "머구리수산",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 62252,
+  "researchedAt": "2026-09-21T14:25:34.498Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "회식 및 모임 손님(주로 40대 이상 남성층 선호)",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "산오징어회",
+      "조개전골",
+      "모듬해산물"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 연제구 연산동(고분로13번길 67)에 위치한 해산물/회 전문점으로, 산오징어회와 푸짐한 조개전골, 알찬 기본 반찬(찌개다시) 구성으로 회식 및 모임 장소로 이용됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "머구리수산은 부산광역시 연제구 고분로13번길 67 (연산동 590-65)에 위치한 해산물 전문점이다. 주요 메뉴는 조개전골, 산오징어회, 통문어, 모듬해산물, 봄도다리 등이다. 기본 찬으로 떡볶이, 미나리초무침, 계란찜 등 다양한 구성이 제공되며, 단체 테이블과 룸 시설이 갖춰져 있어 회식이나 모임 장소로 이용하기 좋다. 드라이아이스 연출과 함께 나오는 산오징어회와 칼칼하고 시원한 국물의 조개전골이 대표적이다.",
+      "url": "https://www.siksinhot.com/P/1118919"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1118919"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "드라이아이스 연출의 신선한 산오징어회와 칼칼하고 시원한 조개전골 등 해산물 요리의 맛과 비주얼",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "떡볶이, 전, 계란찜, 미나리초무침 등 푸짐하고 알찬 기본 상차림(찌개다시) 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "단체석 및 개별 룸 구비로 연산동 일대 회식 및 모임 장소로 적합",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

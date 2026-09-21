@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220808906202",
+  "name": "델라고",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 41482,
+  "researchedAt": "2026-09-21T14:15:31.591Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "대학생, 연인, 가족",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스테이크 피자",
+      "모짜렐라 뽀모도로 파스타",
+      "알리오올리오"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산대학교 인근 대학가 상권에 위치하여 인근 학생 및 주민, 데이트족 중심의 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산대학교 정문 인근 금강로에 위치한 이탈리안 경양식/레스토랑으로 파스타, 피자, 스테이크, 리조또 및 세트 메뉴를 판매하며 모임 및 데이트 장소로 이용됨.",
+  "price": {
+    "found": true,
+    "priceMenu": "단품 파스타/피자 1만 원대 초중반, 세트 메뉴 약 59,000원~65,000원 선",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "빈티지한 인테리어와 넓은 공간을 갖추고 있어 데이트, 가족 외식, 단체 모임에 적합한 분위기입니다. 전통 이탈리아식 피자, 파스타, 리조또, 스테이크 등을 주요 메뉴로 판매합니다. 매일 11:00 ~ 22:00",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산 금정구 금강로 253-1 (장전동 419-18). 부산대 앞에서 파스타, 피자, 스테이크 등으로 오랫동안 유명한 레스토랑입니다. 재료의 품질과 맛에 대한 평이 좋으며, 데이트 코스나 가족 외식 장소로 인기가 많습니다.",
+      "url": "https://namu.wiki"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://namu.wiki"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "빈티지하고 아늑한 분위기와 넓은 공간 구성으로 부산대 인근 데이트 및 가족 외식, 모임 장소로 선호됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "스테이크 피자, 모짜렐라 뽀모도로 등 정통 이탈리안 파스타와 피자 메뉴의 완성도와 맛에 대한 만족도가 높음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

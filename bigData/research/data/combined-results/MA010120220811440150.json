@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220811440150",
+  "name": "마루",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 64690,
+  "researchedAt": "2026-09-21T14:10:36.678Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 심야 식사객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비",
+      "뼈구이",
+      "삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:00 ~ 04:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 해운대구 재반로 99(재송동 1083-19)에 위치한 고기구이/찜 전문점 마루. 심야 시간대(새벽 4시)까지 영업하는 동네 고깃집.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 재반로 99 (재송동 1083-19). 고기 요리(돼지갈비 등)를 전문으로 하는 음식점. 영업시간은 매일 17:00부터 04:00까지.",
+      "url": "https://www.albamon.com"
+    },
+    {
+      "excerpt": "부산 해운대구 재반로 99 마루 뼈구이 등 판매, 재송역 도보 약 7분 거리.",
+      "url": "https://www.dongnealba.com"
+    }
+  ],
+  "sources": [
+    "https://www.albamon.com",
+    "https://www.dongnealba.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "새벽 4시까지 심야 영업을 하여 늦은 시간에도 돼지고기 구이 및 뼈구이를 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

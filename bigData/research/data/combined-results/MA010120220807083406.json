@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220807083406",
+  "name": "철호국밥",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 46016,
+  "researchedAt": "2026-09-21T14:12:49.187Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼밥객 및 인근 주민",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "돼지국밥",
+      "순대국밥"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "문현동 인근 주민들이 자주 찾는 동네 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 남구 문현동(수영로 50)에 위치했던 국밥집으로, 잡내 없는 국물과 순대국밥 등이 특징이며 인근 주민들이 주로 방문한 기록이 확인됨. 최근에는 매장 영업보다는 밀키트 유통 이력 및 업종 변경 언급이 있음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "과거 부산광역시 남구 문현동(수영로 50 또는 48-1 인근) 등에서 운영되었던 돼지국밥집으로, 지역 주민들이 자주 찾던 식당으로 소개된 바 있습니다. 혼자 식사하기에도 무난한 분위기였으며, 돼지국밥과 함께 김치, 깍두기, 부추, 소면 등이 제공되는 구성이 특징이었습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "문현동 주민들이 즐겨 찾는 국밥집으로 알려져 있으며, 돼지 잡내가 적고 깔끔한 국물 맛이 특징입니다. 찹쌀순대가 들어간 순대국밥도 함께 판매하고 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돼지 잡내가 적고 깔끔한 국물 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "문현동 인근 지역 주민들이 일상적으로 즐겨 찾는 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

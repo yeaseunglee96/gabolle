@@ -1,0 +1,32 @@
+{
+  "id": "MA0101202412A0006752",
+  "name": "재송다찌",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 66561,
+  "researchedAt": "2026-09-21T14:10:27.430Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "상호 및 주소DB 외에 실제 식당 영업 정보, 방문기, 메뉴 정보가 웹상에 존재하지 않음",
+  "notes": "부산 해운대구 재송1로 43 소재의 '재송다찌'는 부동산/사업자 DB상에만 상호가 확인될 뿐, 실제 블로그/웹 방문기, 메뉴, 영업시간, 방문 이유 등 소비자가 작성한 웹 정보가 전무합니다. 인근 재송1로 39의 '도모다찌' 등과 혼동되었거나 폐업/미등록 상태일 가능성이 높습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

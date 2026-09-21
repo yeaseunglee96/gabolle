@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202511A0022942",
+  "name": "스투테라스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 36719,
+  "researchedAt": "2026-09-21T14:11:01.553Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말에는 웨이팅이 발생할 수 있는 핫플레이스로, 캐치테이블 원격 줄서기(Waitlist)를 지원함"
+  },
+  "descriptors": {
+    "audience": "브런치 및 카페/와인을 즐기는 모임, 데이트 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "모르타델라 부라타 샌드위치",
+      "바질페스토 파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 - 22:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 전포동에 위치한 브런치 카페/경양식 매장으로, 감각적인 인테리어와 넓은 공간에서 브런치, 파스타, 샌드위치, 커피, 와인 등을 판매함. 주차는 불가하며 캐치테이블 웨이팅을 지원함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 부산진구 서전로 61 1층. 영업시간: 매일 10:00 - 22:00. 주요 정보: 브런치, 커피, 와인, 맥주 등을 즐길 수 있는 공간입니다. 캐치테이블 기능: 원격 줄서기(Waitlist) 기능을 이용할 수 있습니다. 키즈 동반 및 반려동물 동반이 가능합니다.",
+      "url": "https://catchtable.co.kr/"
+    },
+    {
+      "excerpt": "주소: 부산 부산진구 서전로 61 1층, 영업시간: 매일 10:00 - 22:00, 특징: 감각적인 인테리어와 넓은 공간을 갖춘 브런치 카페로, 전포동에서 매우 인기가 많은 곳입니다. 주요 브런치 메뉴: 파스타, 리조또, 샌드위치 등이 있으며, 특히 '모르타델라 부라타 샌드위치'와 '바질페스토 파스타'가 인기 메뉴로 자주 언급됩니다. 주차는 불가능하며, 주말에는 웨이팅이 발생할 수 있는 핫플레이스입니다.",
+      "url": "https://navet.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://catchtable.co.kr/",
+    "https://navet.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감각적인 인테리어와 넓은 공간 분위기에서 브런치와 디저트, 커피·와인을 함께 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전포 카페거리에서 인기 있는 브런치 핫플레이스로 캐치테이블 줄서기가 지원되는 핫스폿임",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

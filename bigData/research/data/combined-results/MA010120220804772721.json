@@ -1,0 +1,95 @@
+{
+  "id": "MA010120220804772721",
+  "name": "대정",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 54662,
+  "researchedAt": "2026-09-21T14:28:12.088Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "저녁 피크타임 및 야외석(야장) 중심으로 웨이팅이 잦으며 본관·신관·별관으로 분산 수용됨"
+  },
+  "descriptors": {
+    "audience": "직장인 회식, 친구 모임, 관광객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "양념구이",
+      "소금구이",
+      "곱창전골"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 13:00 ~ 01:00 (또는 11:30 ~ 01:00, 지점 및 현장 사정에 따라 상이)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "남포동 부평양곱창골목 대표 노포로 오랜 현지인 단골뿐 아니라 외지인 및 외국인 관광객 필수 코스로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 중구 부평2길 18 소재지는 '대정양곱창 별관'으로 확인됨 (인근 본관, 신관 운영). 인허가상 식육(숯불구이) 등의 업태로 등록되어 있음.",
+  "price": {
+    "found": true,
+    "priceMenu": "소금구이/돌판양념/곱창전골 小 40,000원, 中 45,000원, 大 50,000원",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 부평2길 18 (부평동1가 30-23) 대정양곱창 별관",
+      "url": "https://www.konest.com/contents/gourmet_mise_detail.html?id=23393"
+    },
+    {
+      "excerpt": "양념구이와 전골 메뉴로 잘 알려져 있으며, 돌판에 조리해 제공하는 방식이 특징입니다. 많은 방문객이 찾는 남포동/부평동 지역의 유명 곱창 맛집 중 하나입니다. 영업시간: 매일 13:00 ~ 01:00",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "소금구이, 돌판양념, 곱창전골 小 40,000원, 中 45,000원, 大 50,000원 볶음밥 / 사리(우동, 당면) / 음료: 각 2,000원 대정양곱창은 본관, 신관, 별관을 운영할 정도로 인기가 많은 부산의 대표적인 양곱창 맛집입니다. 소금구이는 마늘 베이스의 양념이 가미되어 나오며, 곱창전골과 마무리 볶음밥이 특히 인기가 많습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "남포동 곱창 거리를 대표하는 가게 중 하나로, 오랫동안 현지인들에게 사랑받아 온 맛집입니다. 최근 부산을 찾는 외국인 관광객이 급증하면서, 현지인처럼 한국 문화를 체험하려는 관광객들에게도 SNS 등을 통해 '필수 방문 코스'로 알려져 있습니다. 워낙 유명한 '핫플'이라 저녁 시간대에는 웨이팅이 발생할 가능성이 높습니다. 전용 주차장이 없습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.konest.com/contents/gourmet_mise_detail.html?id=23393",
+    "https://polle.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돌판에 자글자글 끓여내는 특제 양념구이와 고소한 소금구이, 곱창전골 및 볶음밥의 맛 자체에 대한 선호도가 높음",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "남포동 부평동 곱창골목을 대표하는 오랜 유명 맛집으로 현지인 단골의 지속적인 지지를 받음",
+      "sources": [
+        2,
+        3
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "본관·신관·별관을 모두 운영할 만큼 저녁 시간과 야외 야장 좌석을 중심으로 대기 손님이 몰리는 인기 명소임",
+      "sources": [
+        2,
+        3
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

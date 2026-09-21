@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220810797915",
+  "name": "정참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 44770,
+  "researchedAt": "2026-09-21T14:25:31.916Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 관한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 회식, 데이트",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "참다랑어 코스",
+      "눈다랑어 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notes": "부산 연제구 연산동 경성빌딩 1층에 위치한 참치 전문점으로, 참다랑어/눈다랑어 코스 요리와 룸/다찌석을 갖추고 회식·외식 장소로 안내되고 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "눈다랑어 코스 기본 25,000원부터 참다랑어 VVIP 코스 100,000원까지",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 연제구 고분로13번길 43 (연산동, 경성빌딩 1층). 참다랑어와 눈다랑어 등 다양한 부위를 코스 요리로 제공하는 일식 참치 전문점입니다. 매장 내부는 깔끔한 일본풍 인테리어로 홀, 룸, 다찌석(바 테이블) 등이 마련되어 있어 가족 외식, 데이트, 회식 장소로 이용하기 좋습니다. 별도의 전용 주차 공간은 없으므로, 대중교통(연산역 등) 이용을 권장합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 연제구 고분로13번길 43. 참다랑어 코스 (VVIP 100,000원 / VIP 75,000원 / 진 55,000원), 눈다랑어 코스 (정 40,000원 / 선 35,000원 / 미 30,000원 / 기본 25,000원), 사이드: 새우튀김, 전복, 메로가마구이, 랍스타, 밍크고래 등",
+      "url": "https://www.emmaru.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.emmaru.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참다랑어와 눈다랑어 등 다양한 참치 부위 코스 요리를 룸과 다찌석 등 쾌적한 공간에서 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "홀, 개별 룸, 바 테이블(다찌석)이 갖춰져 있어 가족 외식이나 회식, 데이트에 적합한 공간 구성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

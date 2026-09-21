@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220813204332",
+  "name": "풍각고향육개장",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 99072,
+  "researchedAt": "2026-09-21T14:17:09.993Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도의 웨이팅이나 혼잡에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "육개장",
+      "비빔밥",
+      "한우수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30~20:00 (주말 및 공휴일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 인근 직장인 점심 밥집 및 동네 주민 위주의 현지인 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "착한가격업소로 지정되어 있으며, 육개장과 비빔밥, 한우수육 위주의 단촐한 메뉴 구성으로 가성비가 좋아 인근 직장인들이 자주 찾는 식당입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "육개장 / 비빔밥",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가성비 좋은 직장인 점심 맛집 풍각 육개장집이지만 육개장보다 비빔밥을 더 자주 먹는 것 같다 ㅎㅎ 메뉴는 단촐해서 고민 없이 비빔밥 또는 따뜻한 국물이 먹고 싶을 땐 육개장을 주문하면 된다. 나물도 풍성하고 계란 후라이도 올려줘 밥을 반만 비벼도 충분하다 쓱싹쓱싹 맛있게 비벼서 꾹꺽~ 비빔밥도 육개장도 기본은 해서 맛이 괜찮았다 가성비 좋은 직장인 밥집~ 인정 풍각 육개장 ☎ 051-632-9481 영업시간 10:30~20:00 (주말 및 공휴일 휴무)",
+      "url": "https://everydaylife-2021.tistory.com/12"
+    }
+  ],
+  "sources": [
+    "https://everydaylife-2021.tistory.com/12"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산시 착한가격업소 지정 식당으로 부담 없는 가격에 푸짐한 식사를 할 수 있는 가성비 맛집임",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "기본에 충실하고 깔끔한 육개장과 푸짐한 나물이 들어간 비빔밥을 맛볼 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "메뉴가 단촐하여 대기 고민 없이 빠르게 직장인 점심 식사를 해결하기 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

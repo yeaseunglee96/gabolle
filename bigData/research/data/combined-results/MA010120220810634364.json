@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220810634364",
+  "name": "아자금",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 45614,
+  "researchedAt": "2026-09-21T14:19:04.231Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "회",
+      "초밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산진구 범천동(지번: 범천동 845-63, 중앙번영로20번길 인근)에 상호 '아자금'으로 등록된 일식(회/초밥) 전문 식당 정보가 확인되나, 상세 방문 후기, 영업시간, 가격표, 대기 여부 등 세부 운영 정보는 웹상에 공개되어 있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "아자금 부산광역시 부산진구 범천동 845-63 일식 051-808-9443",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "아자금: 부산 부산진구 범천동에 위치한 일식(회/초밥) 전문점으로 확인됩니다. '아자금'의 주소는 중앙번영로20번길 36(1층)으로, 앞서 언급하신 38번지와 인접해 있습니다.",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정통 일식 및 회, 초밥 메뉴를 취급하는 동네 일식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

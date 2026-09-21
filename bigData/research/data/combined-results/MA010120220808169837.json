@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220808169837",
+  "name": "춘향전",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 50853,
+  "researchedAt": "2026-09-21T14:25:57.584Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 웹 언급 미확인"
+  },
+  "descriptors": {
+    "audience": "직장인 및 애주가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬전",
+      "전류",
+      "막걸리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 익일 01:00 (라스트 오더 00:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "사업자 인허가상 돼지고기 구이/찜 업종 등으로 분류되어 있으나, 실제 영업 형태는 전(부침개) 및 막걸리를 취급하는 민속주점 형태의 음식점임. 인근 번지(반송로 50-15 / 연산동 589-11)로 등록/운영 중임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 연제구 반송로 50-15 (연산동 589-11), 주요 메뉴: 각종 전(지짐이), 막걸리, 안주류 등, 영업 시간: 17:00 ~ 익일 01:00 (라스트 오더 00:30)",
+      "url": "https://www.konest.com"
+    }
+  ],
+  "sources": [
+    "https://www.konest.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전(지짐이) 요리와 막걸리를 저녁 늦게까지 곁들일 수 있는 술자리 안주 식당",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

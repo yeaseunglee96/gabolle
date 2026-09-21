@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202504A0007739",
+  "name": "미스타교자",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 116513,
+  "researchedAt": "2026-09-21T14:20:26.493Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "대학생, 직장인, 1인 혼술객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "명물야끼교자",
+      "명물야끼소바",
+      "마라교자",
+      "포테토사라다",
+      "차향(볶음밥)"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 6시(18:00) 오픈"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 남구 수영로 254(대연동)에 위치한 캐주얼 이자카야 '미스타교자 부산대연점'에 대한 조사 결과입니다. 전 메뉴가 1만 원을 넘지 않는 가성비 안주와 야끼교자 중심의 구성을 갖추고 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "명물야끼교자 / 전 메뉴 1만 원 이하 가성비 안주",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미스타교자 부산대연점에 대한 정보입니다. 주소: 부산광역시 남구 수영로 254 (대연동 330-15). 특징: 경성대·부경대역 및 대연역 인근에 위치한 이자카야로, 가성비가 뛰어난 안주 메뉴를 제공합니다. 대표 메뉴: 명물야끼교자, 명물야끼소바, 마라교자, 포테토사라다, 차향(볶음밥) 등. 분위기: 1인석이 마련되어 있어 혼밥이나 혼술을 즐기기에도 좋은 분위기입니다. 영업 정보: 영업시간은 오후 6시에 시작하며(변동 가능), 전 메뉴가 1만 원을 넘지 않는 합리적인 가격대를 형성하고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전 메뉴가 1만 원 이하로 매우 저렴하며 가성비 있게 야끼교자와 다양한 안주를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "시그니처인 야끼교자 및 야끼소바 등 특색 있는 일본식 교자·안주 메뉴를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1인 카운터석이 구비되어 있어 부담 없이 혼술 및 혼밥하기 좋은 환경을 갖춤",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

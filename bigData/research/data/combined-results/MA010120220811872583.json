@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220811872583",
+  "name": "디귿",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 55453,
+  "researchedAt": "2026-09-21T14:23:01.020Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "웹 검색 결과상 대기열이나 혼잡도에 대한 명확한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "소규모 모임 및 데이트 고객, 대학가 술자리 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "야키토리 코스",
+      "오스스메 5종"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 18:00~01:00 (라스트 오더 00:00, 매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객을 뚜렷하게 구분지어 언급한 서술은 확인되지 않음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "요청 프롬프트 상에는 '일식 회/초밥'으로 표기되었으나, 실제 해당 주소(부산 금정구 부산대학로50번길 43)에 위치한 '디귿'은 매일 새벽 직배송받는 닭을 비장탄에 구워내는 '야키토리(닭꼬치) 전문 이자카야'로 확인되었습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "야키토리 코스 29,000원, 오스스메 5종 16,000원",
+    "priceWon": 29000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "초성 'ㄷ'에 닭을 향한 진심을 담았다는 의미를 가지고 있으며, 매일 새벽 직배송받는 신선한 닭을 섬세하게 손질하여 고급 비장탄으로 구워내는 것이 특징입니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "화~일 18:00~01:00 (월요일 휴무) 라스트 오더: 00:00. 야키토리 코스: 29,000원, 오스스메 5종: 16,000원. 전용 주차장이 없습니다.",
+      "url": "https://busantaste.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://busantaste.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 당일 직배송 닭을 고급 비장탄으로 정성껏 구워내는 야키토리 본연의 맛과 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

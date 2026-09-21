@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220810763785",
+  "name": "다미초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 57964,
+  "researchedAt": "2026-09-21T14:20:59.059Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 직접적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임, 회식",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "점심특선",
+      "일식 코스요리",
+      "초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30~22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동래구 지역 축제 참여업소 등으로 등록되어 있으며 인근 주민 모임 및 연회에 주로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산광역시 동래구 금강로 122(온천동)에 위치한 다미초밥으로 전 좌석 룸 형태의 프라이빗한 일식/초밥 코스 전문점입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "점심특선 / 코스요리",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "초밥 및 일식 코스요리 전문점입니다. 전 좌석이 룸(Room) 형식으로 구성되어 있어 프라이빗한 식사가 가능하며, 단체석(연회석)도 완비되어 있습니다. 매일 11:30~22:00. 점심특선 30,000원, 코스요리 50,000원~60,000원.",
+      "url": "https://autoreserve.com/ko/restaurants/damichobab-dongnae"
+    },
+    {
+      "excerpt": "동래구 온천1동 210-56 (금강로 122) 다미초밥. 일식/생선회. 축제 참여 및 지역 편의 제공.",
+      "url": "https://www.dongnae.go.kr"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com/ko/restaurants/damichobab-dongnae",
+    "https://www.dongnae.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전 좌석 룸 구성 및 단체 연회석 완비로 프라이빗한 모임 및 외식에 적합함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202501A0000281",
+  "name": "오아시스코브",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58880,
+  "researchedAt": "2026-09-21T14:09:32.993Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "웨이팅이나 줄서기에 대한 직접적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족 및 연인, 드라이브 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "수비드 부채살 스테이크",
+      "오아시스 브런치 Plate",
+      "로제 쉬림프 파스타",
+      "명란 까르보나라"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 10:00 - 16:00, 주말 10:00 - 18:00 (매주 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 직접적인 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 기장군 일광 앞바다 오션뷰와 프라이빗 해변, 전용 주차장(30여 대)을 갖춘 경양식/브런치 카페로 수비드 부채살 스테이크 및 파스타/브런치 플레이트를 제공함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오아시스코브 (Oasis Cove) 주소: 부산광역시 기장군 일광읍 일광로 820 (지번: 문동리 3-1). 업종: 세계음식 > 브런치. 대표 메뉴: 매일 한정수량 수비드 부채살 스테이크, 오아시스 브런치 Plate, 로제 쉬림프 파스타, 명란 까르보나라, 딥 오아시스 크림라떼 등. 큰 통유리창을 통한 오션뷰 감상 가능. 바다 앞 테라스 및 프라이빗 해변 이용 가능. 브런치 메뉴 이용 시 프라이빗 룸 이용 가능. 아기의자 구비, 가족 동반 고객을 위한 편의 시설 제공.",
+      "url": "https://www.siksinhot.com/P/1657612461137211"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1657612461137211"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "통유리창 오션뷰와 프라이빗 해변 테라스를 갖추고 있어 전망이 뛰어나다.",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "수비드 부채살 스테이크와 다양한 브런치 및 파스타 메뉴를 즐길 수 있다.",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

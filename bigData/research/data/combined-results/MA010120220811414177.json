@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220811414177",
+  "name": "동산횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 65184,
+  "researchedAt": "2026-09-21T14:09:19.216Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기열 및 줄서기에 대한 직접적인 언급 없음 (전 좌석 룸 형태로 사전 예약 위주 방문)"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 단체 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 회 코스",
+      "물회",
+      "회덮밥",
+      "우럭탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "용호동 인근 가족 모임 및 현지 주민 식사 장소로 주로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "사장님이 직접 낚시/조업해 온 100% 자연산 활어를 제공하며, 전 좌석 룸 구조와 바다 조망을 갖춰 모임 장소로 자주 이용됨",
+  "price": {
+    "found": true,
+    "priceMenu": "자연산 회 코스 1인 35,000원 ~ 50,000원대",
+    "priceWon": 35000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "사장님이 매일 새벽 직접 배로 잡아오는 자연산 활어를 취급하는 것으로 알려져 있습니다. 전 좌석 룸 형태로 구성되어 있어 바다 조망(용호만, 광안대교 방향)과 함께 프라이빗한 식사가 가능합니다. 주차 공간이 마련되어 있으며, 유아용 의자 비치 및 단체석 이용이 가능합니다. 매일 11:00 ~ 22:00 (일요일 휴무)",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "100% 자연산 활어를 취급하며, 사장님이 직접 낚시해 온 신선한 횟감을 제공하는 것이 가장 큰 특징입니다. 메뉴: 자연산 회 코스(밑반찬, 탕, 전류, 물회, 모둠회, 생선튀김, 매운탕 등으로 구성), 물회, 회덮밥, 우럭탕, 장어탕 및 계절 메뉴 판매. 전 좌석이 룸 형태로 되어 있어 프라이빗한 식사가 가능하며, 큰 창을 통해 용호만과 광안대교 방향의 바다 전망을 즐길 수 있습니다.",
+      "url": "https://thefestival.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://thefestival.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "사장님이 직접 잡아오는 100% 신선한 자연산 활어회 제공",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전 좌석 프라이빗 룸 형태와 바다 조망 및 편리한 자체 주차 공간 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

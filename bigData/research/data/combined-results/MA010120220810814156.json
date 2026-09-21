@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220810814156",
+  "name": "우연식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 47379,
+  "researchedAt": "2026-09-21T14:26:27.287Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "돼지고기 구이",
+      "돼지고기 찜"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 연제구 세병로 21(연산동 585-60)에 상호 '우연식당'(업종: 돼지고기 구이/찜, 전화번호 051-868-3087)으로 사업체/상권 데이터베이스에 등록되어 있으나, 일반 블로그·SNS 후기나 방문 리뷰, 세부 메뉴판/영업시간/가격/혼잡도 정보는 웹상에 존재하지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "우연식당 / 주소: 부산광역시 연제구 연산4동 585-60 (부산광역시 연제구 세병로 21) / 업종: 돼지고기 구이/찜 / 전화번호: 051-868-3087",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "연산동 585-60 우연식당 한식(돼지고기 구이/찜 등)",
+      "url": "https://disco.re"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://disco.re"
+  ],
+  "whyPeopleGo": []
+}

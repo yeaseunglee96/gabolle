@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220810518409",
+  "name": "개림횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 43895,
+  "researchedAt": "2026-09-21T14:14:21.290Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "줄가자미(이시가리) 철이나 피크타임에는 예약 필수이며 예약 없이 방문 시 웨이팅이 있거나 자리가 없어 헛걸음할 수 있음"
+  },
+  "descriptors": {
+    "audience": "현지인 단골 및 자연산 회/줄가자미 매니아",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "줄가자미(이시가리)",
+      "참가자미회",
+      "물회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (어종 수급 및 업장 상황에 따라 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "자갈치·충무동 일대에서 자연산 잡어와 줄가자미를 가성비 있게 즐기려는 현지인 단골 중심의 로컬 횟집"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "부산 서구 충무대로282번길 15-1에 위치한 개림횟집은 참가자미 및 이시가리(줄가자미) 등 자연산 활어 전문 노포 횟집으로, 사전 예약이 권장되는 로컬 맛집입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "자연산 회(소) 40,000원 / 물회 10,000원 / 이시가리 100,000원~",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "자연산 가자미회와 이시가리(줄가자미)로 유명한 로컬 맛집입니다. 가성비 좋은 자연산 횟집으로 잘 알려져 있으며, 점심에는 물회나 회덮밥 등을 찾는 손님들도 많습니다. 이시가리(줄가자미)는 예약 필수로 꼽히며, 당일 수급 상황에 따라 메뉴 구성이 달라질 수 있으므로 방문 전 전화 문의가 권장됩니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "이시가리(줄가자미)와 같은 인기 메뉴를 드시려면 방문 전 예약이 사실상 필수입니다. 예약 없이 방문할 경우 자리가 없어 돌아가는 경우가 많으며, 특히 줄가자미 철에는 손님이 많아 자리가 없을 가능성이 높습니다. 식당 전용 주차장은 별도로 마련되어 있지 않은 것으로 보입니다.",
+      "url": "https://blog.naver.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://blog.naver.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "자연산 참가자미와 귀한 줄가자미(이시가리)를 시세 대비 가성비 좋고 신선하게 맛볼 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "자갈치·충무동 일대에서 자연산 회를 찾는 현지인들이 오랜 기간 찾는 로컬 노포 횟집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

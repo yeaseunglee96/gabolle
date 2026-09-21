@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202501A0019254",
+  "name": "쿠바오",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47993,
+  "researchedAt": "2026-09-21T14:19:23.408Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "일반",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 부산진구 골드테마길 3(범천동 골드시티상가 일대)에 '쿠바오'라는 상호로 서양식/경양식 일반음식점 인허가 정보가 확인되나, 방문 리뷰나 구체적인 메뉴/가격 정보는 웹상에 공개되어 있지 않습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "쿠바오 (부산광역시 부산진구 골드테마길 3) 음식점 (서양식/경양식)",
+      "url": "https://www.bigvalue.ai"
+    },
+    {
+      "excerpt": "쿠바오 위치: 부산광역시 부산진구 골드테마길 3 (범천동) 업종: 서양식/경양식",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://www.bigvalue.ai",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}
