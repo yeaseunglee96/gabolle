@@ -49,9 +49,15 @@ export function currencyKey(code: string): string {
 /**
  * 통화 이름을 고른 언어로 — 운영체제의 Intl 이 안다(USD → 「미국 달러」·「US Dollar」·「米ドル」·「美元」).
  * 서버가 준 한국어 이름은 Intl 이 없을 때의 대체다.
+ *
+ * 🔴 «없을 때»만으로는 모자라다 — S15P21E201-1399. Intl 은 자료가 없는 로케일에 던지지
+ *    않고 조용히 딴 로케일로 갈아치운다. 그러면 아래 catch 가 한 번도 안 걸린 채 번체를
+ *    고른 사람이 딴 언어 통화 이름을 본다. 그래서 쓰기 전에 supportedLocalesOf 로 묻고,
+ *    자료가 없으면 서버가 준 이름으로 내려간다. (같은 판단이 i18n/datetime.ts 에도 있다)
  */
 export function currencyDisplayName(code: string, locale: string, fallback: string): string {
   try {
+    if (!Intl.DisplayNames.supportedLocalesOf([locale]).length) return fallback;
     const names = new Intl.DisplayNames([locale], { type: 'currency' });
     return names.of(currencyKey(code)) ?? fallback;
   } catch {
