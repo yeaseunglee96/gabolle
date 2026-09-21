@@ -25,7 +25,7 @@ import { useLayout } from '@/layout/useLayout';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RouteMap } from '@/map/RouteMap';
-import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type FeedSort, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { applyReaction, nextReaction, StoryReactionRow } from '@/social/StoryReactionRow';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
@@ -504,6 +504,8 @@ export default function Feed() {
   const compact = !isAtLeast(width, 'md');
 
   const [scope, setScope] = useState<FeedScope>('ALL');
+  // 정렬 — 전체·팔로잉에서만 뜻이 있다. 추천(FOR_YOU)은 서버가 정한다(S15P21E201-1411).
+  const [sort, setSort] = useState<FeedSort>('RECENT');
   // 인용(링크 복사) 뒤 한 줄 알림 — 복사는 화면에 아무 흔적이 없어서 말로 알려야 한다.
   const [copyNotice, setCopyNotice] = useState('');
   useEffect(() => { if (!copyNotice) return; const timer = setTimeout(() => setCopyNotice(''), 2600); return () => clearTimeout(timer); }, [copyNotice]);
@@ -534,13 +536,13 @@ export default function Feed() {
   // — 글쓰기 입구는 여기서 고르지 않고 composeEntry 한 곳에서 받는다.
   // 조건을 화면 두 곳에 나눠 적었더니 그 사이 폭(600~1023)에 입구가 하나도 없었다.
   const composeEntry = composeEntryFor(width, signedIn);
-  const key = FEED_KEY(scope, signedIn);
+  const key = FEED_KEY(scope, signedIn, sort);
 
   // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다.
   const feedQuery = useQuery({
     queryKey: key,
     // 「내 기록」은 서버 피드가 아니라 내 프로필의 기록 목록이다 — 피드 API 에 MINE 갈래가 없다.
-    queryFn: () => (scope === 'MINE' ? loadUserStories(user?.userId ?? '', accessToken) : loadFeed({ scope, accessToken })),
+    queryFn: () => (scope === 'MINE' ? loadUserStories(user?.userId ?? '', accessToken) : loadFeed({ scope, sort, accessToken })),
   });
   const result: FeedLoadResult = feedQuery.data ?? { state: 'success', items: [], nextCursor: null };
   const loading = feedQuery.isPending;
@@ -593,13 +595,14 @@ export default function Feed() {
   const loadMore = async () => {
     if (result.state !== 'success' || !result.nextCursor || loadingMore) return;
     setLoadingMore(true);
-    const next = scope === 'MINE' ? await loadUserStories(user?.userId ?? '', accessToken, result.nextCursor) : await loadFeed({ scope, cursor: result.nextCursor, accessToken });
+    const next = scope === 'MINE' ? await loadUserStories(user?.userId ?? '', accessToken, result.nextCursor) : await loadFeed({ scope, sort, cursor: result.nextCursor, accessToken });
     setLoadingMore(false);
     if (next.state !== 'success') return;
     const seenCount = result.items.length + next.items.length;
     queryClient.setQueryData<FeedLoadResult>(key, (current) =>
       current && current.state === 'success'
-        ? { state: 'success', items: [...current.items, ...next.items], nextCursor: next.nextCursor }
+        // 커서가 무효라 첫 쪽부터 다시 받았으면 이어 붙이지 않고 갈아 끼운다 — 같은 기록이 두 번 보이지 않게.
+        ? { ...current, items: next.restarted ? next.items : [...current.items, ...next.items], nextCursor: next.nextCursor, applied: next.applied ?? current.applied }
         : current);
     // 더 보기까지 눌렀다는 것은 이 제품이 뭔지 이미 봤다는 뜻이다. 그때 권한다 — 막지는 않는다.
     if (shouldPromptSignIn({ signedIn, seenCount, lastPromptedAt })) {
@@ -635,7 +638,8 @@ export default function Feed() {
 
   const scopeButton = (target: FeedScope, label: string) => {
     const selected = scope === target;
-    const disabled = target !== 'ALL' && !signedIn;
+    // 추천(FOR_YOU)은 손님도 된다 — 팔로우가 없으면 서버가 인기순으로 대체하고 그렇다고 말한다. 팔로잉만 로그인이 필요하다.
+    const disabled = target === 'FOLLOWING' && !signedIn;
     return <Pressable
       accessibilityRole="tab"
       accessibilityState={{ selected, disabled }}
@@ -671,6 +675,7 @@ export default function Feed() {
     </View>
     <View style={styles.headerActions}>
       <View accessibilityRole="tablist" style={compact ? styles.scopeChips : styles.scopeSegments}>
+        {scopeButton('FOR_YOU', tx('추천', 'For you'))}
         {scopeButton('ALL', tx('전체', 'All'))}
         {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
         {/* 🔴 「내 기록」 칩은 없다(S15P21E201-1401) — 내 글은 마이페이지(기록 탭 · 프로필 카드 「기록 N」)가 보여 준다.
@@ -683,10 +688,31 @@ export default function Feed() {
     </View>
   </View>;
 
+  const applied = result.state === 'success' ? result.applied ?? null : null;
+  // 🔴 추천을 부탁했는데 서버가 인기순으로 대체했다 — 실서버 팔로우가 거의 없어 이것이 «기본 경로»다(백엔드 1368 실측).
+  //    말없이 인기순을 「추천」이라고 보여 주지 않는다. 머리가 없으면(옛 서버) 아무 말도 안 한다.
+  const fellBackToPopular = scope === 'FOR_YOU' && applied === 'POPULAR';
+  const sortToggle = scope === 'ALL' || scope === 'FOLLOWING' ? (
+    <View accessibilityRole="radiogroup" style={styles.sortRow}>
+      {([['RECENT', tx('최신순', 'Newest')], ['POPULAR', tx('인기순', 'Popular')]] as const).map(([value, label]) => (
+        <Pressable key={value} accessibilityRole="radio" accessibilityState={{ checked: sort === value }} onPress={() => setSort(value)} style={[styles.sortChip, sort === value && styles.sortChipOn]}>
+          <Text variant="caption" weight="bold" color={sort === value ? color.text.heading : color.text.muted}>{label}</Text>
+        </Pressable>
+      ))}
+    </View>
+  ) : null;
   const feedColumn = <View style={styles.feedColumn}>
     {header}
+    {sortToggle}
+    {fellBackToPopular ? (
+      <View accessibilityLiveRegion="polite" style={styles.fallbackNotice}>
+        <Text variant="caption" color={color.text.body}>{signedIn ? tx('아직 팔로우한 사람이 없어 인기순으로 보여드려요.', "You don't follow anyone yet, so here are the popular ones.") : tx('로그인하고 사람을 팔로우하면 그 사람들 기록이 먼저 와요. 지금은 인기순이에요.', 'Sign in and follow people to see their records first. For now, popular ones.')}</Text>
+        <Pressable accessibilityRole="button" onPress={() => setScope('ALL')}><Text variant="caption" weight="bold" color={color.state.info}>{tx('전체 보기 →', 'See all →')}</Text></Pressable>
+      </View>
+    ) : null}
 
-    {!signedIn
+    {/* 추천에서 인기순으로 떨어진 손님에게는 위 안내가 이미 로그인을 권한다 — 같은 말을 두 번 하지 않는다. */}
+    {!signedIn && !fellBackToPopular
       ? <View style={styles.loginNotice}>
           <Text variant="caption" color={color.text.body}>{tx('로그인하면 기록을 남기고 팔로잉 피드를 볼 수 있어요.', 'Sign in to write records and see your following feed.')}</Text>
           <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}><Text variant="caption" weight="bold" color={color.state.info}>{tx('로그인 →', 'Sign in →')}</Text></Pressable>
@@ -900,6 +926,10 @@ const styles = StyleSheet.create({
   scopeSegments: { flexDirection: 'row', gap: spacing[1], padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   scopeSegment: { minHeight: 36, paddingHorizontal: spacing[4], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   scopeChips: { flexDirection: 'row', gap: spacing[2] },
+  sortRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[1], marginTop: spacing[2] },
+  sortChip: { minHeight: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, justifyContent: 'center' },
+  sortChipOn: { backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
+  fallbackNotice: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   scopeChip: { minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center' },
   scopeSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   scopeDisabled: { opacity: 0.5 },

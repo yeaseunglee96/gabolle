@@ -4,7 +4,15 @@ import { txf } from '@/i18n/format';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 /** MINE 은 화면만의 갈래다 — 서버 피드에는 없고 내 프로필 기록 목록(loadUserStories)으로 채운다. */
-export type FeedScope = 'ALL' | 'FOLLOWING' | 'MINE';
+export type FeedScope = 'ALL' | 'FOLLOWING' | 'MINE' | 'FOR_YOU';
+/** 요청하는 정렬 — 서버(S15P21E201-1368)가 받는 두 가지. 기본은 최신순이라 RECENT 는 보내지 않는다. */
+export type FeedSort = 'RECENT' | 'POPULAR';
+/** 서버가 «실제로» 적용한 것 — 응답 머리 X-Feed-Applied. 추천(FOR_YOU)을 부탁해도 팔로우가 없으면 POPULAR 로 떨어진다. */
+export type FeedApplied = 'RECENT' | 'POPULAR' | 'FOR_YOU';
+export function parseFeedApplied(value: string | null | undefined): FeedApplied | null {
+  const v = (value ?? '').trim().toUpperCase();
+  return v === 'RECENT' || v === 'POPULAR' || v === 'FOR_YOU' ? v : null;
+}
 
 export const VISIBILITY_LABEL: Record<StoryVisibility, [string, string]> = {
   PUBLIC: ['전체 공개', 'Public'],
@@ -157,20 +165,32 @@ function failure(error: unknown): FeedFailure {
 
 /** 피드를 보관소(react-query)에서 찾는 열쇠 — S15P21E201-1124. */
 export const FEED_QUERY_PREFIX = ['feed'] as const;
-export const feedQueryKey = (scope: FeedScope, signedIn: boolean) =>
-  [...FEED_QUERY_PREFIX, scope, signedIn] as const;
-export type FeedLoadResult = { state: 'success'; items: StoryDto[]; nextCursor: string | null } | FeedFailure;
+// 🔴 정렬이 열쇠에 들어간다 — 갈래를 바꾸면 커서도 새로 시작해야 한다. 인기순 커서를 최신순에 보내면 400(FEED_CURSOR_INVALID).
+export const feedQueryKey = (scope: FeedScope, signedIn: boolean, sort: FeedSort = 'RECENT') =>
+  [...FEED_QUERY_PREFIX, scope, signedIn, sort] as const;
+export type FeedLoadResult = { state: 'success'; items: StoryDto[]; nextCursor: string | null; applied?: FeedApplied | null; restarted?: boolean } | FeedFailure;
 
-export async function loadFeed(input: { scope: FeedScope; cursor?: string | null; limit?: number; accessToken: string | null }): Promise<FeedLoadResult> {
+export async function loadFeed(input: { scope: FeedScope; sort?: FeedSort; cursor?: string | null; limit?: number; accessToken: string | null }): Promise<FeedLoadResult> {
   try {
     const params = new URLSearchParams({ scope: input.scope });
+    // 추천은 정렬이 아니라 갈래다 — 서버가 sort=FOR_YOU 를 400 으로 막는다. 추천에는 sort 를 안 보낸다.
+    if (input.sort === 'POPULAR' && input.scope !== 'FOR_YOU') params.set('sort', 'POPULAR');
     if (input.cursor) params.set('cursor', input.cursor);
     params.set('limit', String(input.limit ?? 20));
-    const dto = await apiRequest<{ items: StoryDto[]; nextCursor: string | null }>(`/api/v1/stories?${params.toString()}`, { accessToken: input.accessToken });
+    let applied: FeedApplied | null = null;
+    const dto = await apiRequest<{ items: StoryDto[]; nextCursor: string | null }>(`/api/v1/stories?${params.toString()}`, {
+      accessToken: input.accessToken,
+      onResponse: (response) => { applied = parseFeedApplied(response.headers.get('x-feed-applied')); },
+    });
     const items = dto.items.map(withDisplayImageUrls);
     cacheStories(items);
-    return { state: 'success', items, nextCursor: dto.nextCursor };
+    return { state: 'success', items, nextCursor: dto.nextCursor, applied };
   } catch (error) {
+    // 다른 갈래의 커서를 보냈다 — 조용히 첫 쪽으로 돌아가되, 돌아갔다고 말한다(부르는 쪽이 이어 붙이지 않고 갈아 끼우게).
+    if (error instanceof ApiClientError && error.code === 'FEED_CURSOR_INVALID' && input.cursor) {
+      const fresh = await loadFeed({ ...input, cursor: null });
+      return fresh.state === 'success' ? { ...fresh, restarted: true } : fresh;
+    }
     return failure(error);
   }
 }
