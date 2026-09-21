@@ -137,6 +137,45 @@ class TranslateControllerTest {
 				.andExpect(jsonPath("$.error.message").value(org.hamcrest.Matchers.containsString("KO_TO_ZH_HANT")));
 	}
 
+	@Test
+	@DisplayName("일괄 번역은 받은 순서대로 items 를 돌려준다")
+	void batchReturnsItemsInOrder() throws Exception {
+		this.mockMvc.perform(post("/api/v1/tools/translate/batch")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"direction\":\"KO_TO_JA\",\"texts\":[\"해운대\",\"광안리\"]}")
+						.principal(asUser()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items.length()").value(2))
+				.andExpect(jsonPath("$.data.items[0].status").value("TRANSLATED"))
+				.andExpect(jsonPath("$.data.items[1].translatedText").value("hello"));
+
+		assertThat(this.vendor.lastDirection).isEqualTo(TranslationDirection.KO_TO_JA);
+	}
+
+	@Test
+	@DisplayName("🔴 일괄 번역도 업체가 전부 실패하면 502 다 — 200 에 빈 번역을 담지 않는다")
+	void batchVendorFailureIs502() throws Exception {
+		this.vendor.shouldFail = true;
+
+		this.mockMvc.perform(post("/api/v1/tools/translate/batch")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"direction\":\"KO_TO_JA\",\"texts\":[\"해운대\"]}")
+						.principal(asUser()))
+				.andExpect(status().isBadGateway())
+				.andExpect(jsonPath("$.error.code").value("TRANSLATE_VENDOR_UNAVAILABLE"));
+	}
+
+	@Test
+	@DisplayName("일괄 번역에 빈 목록을 주면 400 이다")
+	void batchWithNoTextsIsRejected() throws Exception {
+		this.mockMvc.perform(post("/api/v1/tools/translate/batch")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"direction\":\"KO_TO_JA\",\"texts\":[]}")
+						.principal(asUser()))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error.code").value("TRANSLATE_INVALID_REQUEST"));
+	}
+
 	/** 여러 테스트가 함께 참조할 수 있게 필드로 둔다 — 요청마다 실패 여부를 바꿔야 한다. */
 	private static final class StubVendor implements TranslationVendorPort {
 

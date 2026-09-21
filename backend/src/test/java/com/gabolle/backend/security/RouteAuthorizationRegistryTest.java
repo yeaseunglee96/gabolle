@@ -757,6 +757,12 @@ class RouteAuthorizationRegistryTest {
 				"문장 하나를 번역 업체에 대신 물어보는 창구라 우리 자원이 아니라 주인이 없다. "
 						+ "인증을 요구하는 것은 route/directions 와 같은 이유 — 우리 업체 키로 남이 대신 "
 						+ "번역을 돌리는 것(비용)을 막기 위해서다. TranslateControllerTest");
+		put(m, "POST /api/v1/tools/translate/batch", Policy.AUTHENTICATED_ONLY,
+				"여러 문장을 한 번에 번역한다(-1363). 장소·축제·기록처럼 서버가 한국어로만 가진 글을 "
+						+ "일본어·중국어 화면에 보여 주려고 화면이 모아서 부른다. 위 단건 번역과 같은 이유로 "
+						+ "인증을 요구한다 — 우리 업체 키로 남이 대신 돌리는 비용. 🔴 익명 출입증으로 열지 "
+						+ "않은 것은 손님에게도 번역을 주면 캐시에 없는 문장마다 값이 나가기 때문이다. 손님에게 "
+						+ "열지는 비용 판단이라 따로 정한다. TranslateControllerTest");
 
 		// ── 날씨
 		put(m, "GET /api/v1/weather", Policy.AUTHENTICATED_ONLY,
