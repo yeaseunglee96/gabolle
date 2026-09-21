@@ -6,15 +6,15 @@
 //
 // 🔴 필터(예산·이동 적게·휠체어)는 **없다**(인계 §7③). 조건은 ① 에서 이미 받았다. 여기서
 //    또 물으면 앞에서 답한 것이 반영되지 않았다는 뜻이 된다.
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Easing, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
-import { TabBar, bottomBarClearance } from '@/components/TabBar';
+import { TabBar, TAB_BAR_HEIGHT, TAB_BAR_SHEET_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -22,7 +22,7 @@ import { txf } from '@/i18n/format';
 import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
-import { CourseCard, courseCost, courseFacts, courseLetter } from '@/plan/CourseCard';
+import { CourseCard, CourseRow, courseCost, courseFacts, courseLetter } from '@/plan/CourseCard';
 import { courseMapLayers } from '@/plan/courseMap';
 import { useCourseRoutePaths } from '@/map/courseRoutePaths';
 import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
@@ -46,7 +46,12 @@ export default function Recommendations() {
 
   const [loaded, setLoaded] = useState<Loaded>({ state: 'loading' });
   const [picked, setPicked] = useState<string | null>(null);
-  const [barHeight, setBarHeight] = useState(0);
+  // 🔴 코스 바는 «탭바 자리»에 서고, 눌러 «시트로 자란다». 탭바가 이미 그 동작을 갖고
+  //    있어(`expanded`) 같은 시간·같은 곡선을 쓴다 — 한 앱 안에서 자라는 속도가 두 가지면
+  //    같은 동작으로 안 읽힌다.
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetDay, setSheetDay] = useState(1);
+  const grow = useRef(new Animated.Value(0)).current;
   const [saved, setSaved] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
@@ -96,6 +101,27 @@ export default function Recommendations() {
   const legPaths = useCourseRoutePaths(courseDays, accessToken);
   const mapLayers = useMemo(() => courseMapLayers(current, legPaths), [current, legPaths]);
   const [selectedStopId, setSelectedStopId] = useState('');
+
+  useEffect(() => {
+    Animated.timing(grow, {
+      toValue: sheetOpen ? 1 : 0,
+      duration: 420,
+      easing: Easing.bezier(0.34, 1.3, 0.64, 1),
+      // 높이를 바꾸므로 네이티브 드라이버를 못 쓴다. 이 바는 화면에 하나뿐이라 괜찮다.
+      useNativeDriver: false,
+    }).start();
+  }, [sheetOpen, grow]);
+
+  // 고른 코스가 바뀌면 시트는 닫고 1일차로 돌아간다. 열린 채로 내용만 갈리면
+  // 무엇을 보고 있는지 알 수 없다.
+  useEffect(() => { setSheetOpen(false); setSheetDay(1); setSelectedStopId(''); }, [picked]);
+
+  // 시트 지도는 «고른 하루»만 그린다. 정차지 id 는 `{일차}-{번째}`, 구간 id 는
+  // `day-{일차}-leg-{번째}` 라 일차로 거를 수 있다 — 색은 원래 것을 그대로 쓴다.
+  const dayLayers = useMemo(() => ({
+    stops: mapLayers.stops.filter((stop) => stop.id.startsWith(`${sheetDay}-`)),
+    routes: mapLayers.routes.filter((route) => route.id.startsWith(`day-${sheetDay}-`)),
+  }), [mapLayers, sheetDay]);
 
   const build = async (course: TripCourse) => {
     // 🔴 「코스를 골랐다」는 이벤트를 안 보낸다. 서버가 받는 종류가 넷으로 정해져 있고,
@@ -149,6 +175,20 @@ export default function Recommendations() {
         </View>
       ) : (
         courses.map((course, index) => (
+          // 🔴 고른 뒤에는 나머지를 «한 줄» 로 접는다 — 고른 뒤에 할 일은 그 안을 들여다보는
+          //    것이지 다시 견주는 것이 아니다. 지우지는 않는다(다시 고를 길을 남긴다).
+          //    아직 아무것도 안 골랐을 때는 셋 다 펼쳐 둔다 — 그때는 견주는 것이 할 일이다.
+          picked && courses.length > 1 && course.id !== picked ? (
+            <CourseRow
+              key={course.id}
+              course={course}
+              selected={false}
+              saved={Boolean(saved[course.id])}
+              onSelect={() => setPicked(course.id)}
+              onToggleSave={() => setSaved((prev) => ({ ...prev, [course.id]: !prev[course.id] }))}
+              tx={tx}
+            />
+          ) : (
           <CourseCard
             key={course.id}
             course={course}
@@ -161,6 +201,7 @@ export default function Recommendations() {
             tx={tx}
             ko={ko}
           />
+          )
         ))
       )}
     </View>
@@ -260,48 +301,123 @@ export default function Recommendations() {
           <Text variant="caption" weight="bold">{tx('추천 코스', 'Courses')}</Text>
           <View style={styles.phoneBack} />
         </View>
-        {courses.length > 1 ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.phoneChips}>
-            {courses.map((course, index) => (
-              <Pressable
-                key={course.id}
-                accessibilityRole="button"
-                accessibilityState={{ selected: course.id === picked }}
-                onPress={() => setPicked(course.id)}
-                style={[styles.legendChip, course.id === picked && styles.legendChipOn]}
-              >
-                <Text variant="caption" weight="bold" color={course.id === picked ? color.text.onAction : color.text.heading} numberOfLines={1}>
-                  {course.title || txf(tx, '코스 %s', 'Course %s', courseLetter(index))}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        ) : null}
+        {/* 🔴 상단 코스 칩 줄은 없앴다 — 같은 고르기를 «칩»과 «카드» 두 곳에서 받으면
+            어느 쪽이 지금 고른 것인지 둘 다 봐야 안다. 고르기는 카드 한 곳에서만 받고,
+            고른 것이 무엇인지는 아래 코스 바가 늘 말해 준다. */}
         {list}
-        {/* 🔴 하단 바는 흐름 밖(absolute)이라 마지막 카드를 덮는다. 바의 높이를 «재서»
-            그만큼 비운다 — 숫자로 어림하면 글자 크기 설정이 큰 기기에서 또 덮인다. */}
-        {current ? <View style={{ height: barHeight + spacing[2] }} /> : null}
+        {/* 🔴 코스 바는 흐름 밖(absolute)이라 마지막 카드를 덮는다. 바는 «늘» 서 있으므로
+            («고르기 전»에도 안내를 적는다) 이 자리도 늘 비운다. 높이는 탭바와 같은 한 벌을
+            쓴다 — 코스 바가 탭바를 대신해 그 자리에 서기 때문이다. */}
+        <View style={{ height: TAB_BAR_HEIGHT + tabBarBottomMargin(insets.bottom) + spacing[2] }} />
       </Screen>
 
-      {/* 하단 고정 바 — 비용과 「이 코스로 일정 만들기」. 고른 안이 없으면 안 그린다. */}
-      {current ? (
-        <View
-          onLayout={(event) => setBarHeight(event.nativeEvent.layout.height)}
-          style={[styles.bottomBar, { bottom: bottomBarClearance(insets.bottom) }]}
+      {/* ── 코스 바 ───────────────────────────────────────────────────────────
+          🔴 **늘 서 있다.** 예전에는 고른 안이 없으면 안 그렸는데, 그러면 처음 온 사람은
+             아래가 비어 있어 «무엇을 해야 하는지» 를 화면 어디서도 못 듣는다. 고르기 전에도
+             자리를 지키고 「코스를 골라 주세요」 라고 적는다.
+          🔴 눌러서 **시트로 자란다.** 지도를 새 화면으로 띄우면 고른 코스가 시야에서 사라져
+             견주던 맥락이 끊긴다. 같은 자리에서 자라면 무엇을 보고 있는지 안 잃어버린다. */}
+      <Animated.View
+        style={[
+          styles.courseBar,
+          {
+            bottom: tabBarBottomMargin(insets.bottom),
+            height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, TAB_BAR_SHEET_HEIGHT] }),
+          },
+        ]}
+      >
+        {/* 접힌 줄 — 자라는 동안 투명해지고, 눌리지도 않아야 한다. */}
+        <Animated.View
+          pointerEvents={sheetOpen ? 'none' : 'auto'}
+          style={[styles.barRow, { opacity: grow.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
         >
           <View style={styles.bottomCopy}>
             <Text weight="bold" numberOfLines={1}>
-              {courseCost(current, tx) ?? tx('비용 미정', 'Cost unknown')}
-              {courseCost(current, tx) ? tx(' 예상', ' est.') : ''}
+              {current
+                ? `${courseCost(current, tx) ?? tx('비용 미정', 'Cost unknown')}${courseCost(current, tx) ? tx(' 예상', ' est.') : ''}`
+                : tx('코스를 골라 주세요', 'Pick a course')}
             </Text>
-            <Text variant="caption" color={color.text.muted} numberOfLines={1}>{courseFacts(current, tx)}</Text>
+            <Text variant="caption" color={color.text.muted} numberOfLines={1}>
+              {current
+                ? courseFacts(current, tx)
+                : tx(`${courses.length}가지 중 하나를 고르면 일정이 열려요`, `Pick one of ${courses.length} to open the itinerary`)}
+            </Text>
           </View>
-          <Pressable accessibilityRole="button" onPress={() => void build(current)} style={({ pressed }) => [styles.bottomCta, pressed && styles.pressed]}>
-            <Text weight="bold" color={color.text.onAction} numberOfLines={1}>{tx('이 코스로 일정 만들기', 'Build this itinerary')}</Text>
+          {current ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setSheetOpen(true)}
+              style={({ pressed }) => [styles.barCta, pressed && styles.pressed]}
+            >
+              <Text weight="bold" color={color.text.onAction} numberOfLines={1}>{tx('해당 코스 일정 보기', 'View this course')}</Text>
+            </Pressable>
+          ) : (
+            // 고를 것이 없는데 누를 수 있는 단추를 두면, 눌러 보고 아무 일도 안 일어나는
+            // 것으로 «고장» 을 배운다. 눌리지 않는 모양으로 둔다.
+            <View style={styles.barCtaOff}>
+              <Text weight="bold" color={color.text.muted} numberOfLines={1}>{tx('일정 보기', 'View')}</Text>
+            </View>
+          )}
+        </Animated.View>
+
+        {/* 자란 시트 — 고른 코스의 하루를 지도와 정차지로 본다. */}
+        <Animated.View
+          pointerEvents={sheetOpen ? 'auto' : 'none'}
+          style={[StyleSheet.absoluteFill, styles.sheet, { opacity: grow }]}
+        >
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={tx('일정 닫기', 'Close the itinerary')}
+            onPress={() => setSheetOpen(false)}
+            style={styles.handleHit}
+          >
+            <View style={styles.handle} />
           </Pressable>
-        </View>
-      ) : null}
-      <TabBar active="map" />
+          {current ? (
+            <>
+              <Text variant="title" weight="bold" numberOfLines={1}>{current.title}</Text>
+              <Text variant="caption" color={color.text.muted} numberOfLines={1}>{courseFacts(current, tx)}</Text>
+              {current.days.length > 1 ? (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.phoneChips}>
+                  {current.days.map((day) => (
+                    <Pressable
+                      key={day.day}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: day.day === sheetDay }}
+                      onPress={() => { setSheetDay(day.day); setSelectedStopId(''); }}
+                      style={[styles.legendChip, day.day === sheetDay && styles.legendChipOn]}
+                    >
+                      <Text variant="caption" weight="bold" color={day.day === sheetDay ? color.text.onAction : color.text.heading}>
+                        {tx(`${day.day}일차`, `Day ${day.day}`)}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              ) : null}
+              {dayLayers.stops.length ? (
+                <RouteMap
+                  stops={dayLayers.stops}
+                  selectedId={selectedStopId}
+                  onSelect={setSelectedStopId}
+                  routes={dayLayers.routes}
+                  height={240}
+                />
+              ) : null}
+              <ScrollView style={styles.sheetStops} contentContainerStyle={styles.sheetStopsInner}>
+                {(current.days.find((day) => day.day === sheetDay)?.stops ?? []).map((stop, index) => (
+                  <View key={`${sheetDay}-${index}-${stop.name}`} style={styles.mapStop}>
+                    <Text variant="caption" weight="bold" color={color.text.muted} style={styles.mapTime}>{stop.time ?? ''}</Text>
+                    <Text weight="bold" numberOfLines={1} style={styles.mapStopCopy}>{stop.name}</Text>
+                  </View>
+                ))}
+              </ScrollView>
+            </>
+          ) : null}
+        </Animated.View>
+      </Animated.View>
+      {/* 🔴 탭바는 치운다. 코스 바가 그 자리에 서기 때문이다 — 둘 다 두면 아래에
+          막대가 두 겹으로 쌓이고, 시트가 자랄 때 탭바가 그 위에 남는다. */}
+      <TabBar active="map" hidden />
     </View>
   );
 }
@@ -338,15 +454,28 @@ const styles = StyleSheet.create({
   phoneBack: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   phoneChips: { gap: spacing[2], paddingVertical: spacing[2] },
 
-  bottomBar: {
+  courseBar: {
     // 🔴 bottom 은 여기서 정하지 않는다 — 96 은 탭바 높이와 안전영역을 어림한 숫자였고,
     //    3단추 탐색줄처럼 안전영역이 큰 기기에서는 모자라 탭바가 이 바의 아랫단을 덮었다.
+    //    이제는 탭바를 치우고 이 바가 그 자리에 서므로, 탭바가 쓰던 계산을 그대로 쓴다.
     position: 'absolute', left: spacing[4], right: spacing[4],
-    flexDirection: 'row', alignItems: 'center', gap: spacing[3],
-    padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card,
+    alignSelf: 'center', maxWidth: 361, overflow: 'hidden',
+    borderRadius: radius.lg, backgroundColor: color.surface.card,
     shadowColor: color.brand.navy, shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 8,
+    zIndex: 30,
   },
+  barRow: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    flexDirection: 'row', alignItems: 'center', gap: spacing[3],
+    paddingLeft: spacing[4], paddingRight: spacing[2],
+  },
+  sheet: { padding: spacing[3], paddingBottom: spacing[4], gap: spacing[2] },
+  handleHit: { height: 20, alignItems: 'center', justifyContent: 'center' },
+  handle: { width: 36, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
+  sheetStops: { flex: 1 },
+  sheetStopsInner: { gap: spacing[2] },
   bottomCopy: { flex: 1, minWidth: 0 },
-  bottomCta: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy },
+  barCta: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.action.primary },
+  barCtaOff: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.tint },
   pressed: { opacity: 0.82 },
 });

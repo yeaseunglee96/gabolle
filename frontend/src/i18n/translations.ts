@@ -2590,6 +2590,14 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '도보 거리 미집계': { ja: '徒歩距離は未集計', zhHans: '步行距离未统计', zhHant: '步行距離未統計' },
   '도보 %s (%s곳 중 %s곳)': { ja: '徒歩 %s（%s件中 %s件）', zhHans: '步行 %s（%s处中 %s处）', zhHant: '步行 %s（%s處中 %s處）' },
   '도보 거리 — 대중교통 구간은 재지 않아요': { ja: '徒歩距離 — 公共交通の区間は計測しません', zhHans: '步行距离 — 公共交通路段不计入', zhHant: '步行距離 — 大眾運輸路段不計入' },
+
+  // ── 추천 코스 고르기 — 코스 바와 시트 (S15P21E201-1467) ──────────────────
+  '코스를 골라 주세요': { ja: 'コースを選んでください', zhHans: '请选择一个路线', zhHant: '請選擇一個路線' },
+  '%d가지 중 하나를 고르면 일정이 열려요': { ja: '%d件から1つ選ぶと旅程が開きます', zhHans: '从 %d 个方案中选一个即可打开行程', zhHant: '從 %d 個方案中選一個即可開啟行程' },
+  '해당 코스 일정 보기': { ja: 'このコースの旅程を見る', zhHans: '查看该路线的行程', zhHant: '查看該路線的行程' },
+  '일정 닫기': { ja: '旅程を閉じる', zhHans: '关闭行程', zhHant: '關閉行程' },
+  '%s 예상': { ja: '約 %s', zhHans: '预计 %s', zhHant: '預計 %s' },
+  '이 코스 펼치기': { ja: 'このコースを開く', zhHans: '展开该路线', zhHant: '展開該路線' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
