@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810507324",
+  "name": "산호옥횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 56976,
+  "researchedAt": "2026-09-21T14:08:40.006Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": null
+  },
+  "descriptors": {
+    "audience": "가족, 지인 모임, 관광객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생선회",
+      "해산물"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 여행 중 방문하기 좋은 바다 전망 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 서구 송도해변로 145에 위치한 횟집으로, 상세 메뉴판 및 가격, 영업시간 등 정량 정보는 공개 웹상에서 상세히 확인되지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "산호옥횟집은 부산광역시 서구 송도해변로 145(암남동)에 위치한 해산물 전문 횟집입니다. 송도해수욕장 인근에 위치하여 바다 풍경과 함께 신선한 회를 즐길 수 있는 곳으로 알려져 있습니다. 가족 식사나 지인 모임, 부산 여행 중 방문하기 좋은 정겨운 분위기의 식당입니다.",
+      "url": "https://bsseogu.go.kr"
+    },
+    {
+      "excerpt": "바다를 바라보며 식사를 즐길 수 있는 위치에 있으며, 회의 신선함과 정겨운 분위기 덕분에 가족 식사나 부산 여행 중 방문하기 좋은 곳으로 소개되고 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://bsseogu.go.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송도해수욕장 바다 풍경을 조망하며 신선한 회와 해산물을 즐기기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "송도 바닷가 인근에서 가족 식사나 모임에 적합한 정겨운 분위기를 갖추고 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

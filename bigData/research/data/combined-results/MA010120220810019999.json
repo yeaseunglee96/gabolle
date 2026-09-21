@@ -1,0 +1,88 @@
+{
+  "id": "MA010120220810019999",
+  "name": "스시시안",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 88642,
+  "researchedAt": "2026-09-21T14:08:31.832Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "좌석 수가 많지 않고 캐치테이블 등을 통해 사전 예약 후 방문하는 시스템 위주로 운영됨"
+  },
+  "descriptors": {
+    "audience": "연인, 미식가, 직장인",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "런치 오마카세",
+      "디너 오마카세",
+      "적초 샤리 스시"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 12:00 ~ 21:00 (브레이크타임 14:00 ~ 17:30, 라스트오더 20:00) / 매주 일요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "오마카세 코스(런치/디너) 및 오코노미(판초밥) 위주로 운영되며 붉은 식초(적초) 샤리를 사용하는 센텀시티 스시 전문점입니다. 상가 주차장 1시간 30분 무료 주차를 지원합니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "런치 오마카세 40,000원 / 디너 오마카세 55,000원",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 센텀1로 9(우동, 롯데갤러리움센텀 E동 2층 210호)에 위치한 '스시시안'... 센텀시티역 13번 출구에서 도보로 약 1분 거리에 있습니다. 건물(롯데갤러리움) 지하 주차장을 이용할 수 있으며, 1시간 30분 무료 주차 지원이 가능합니다. 붉은 식초(적초)를 사용한 샤리가 특징입니다. 월~토 12:00 ~ 21:00 (브레이크 타임 14:00~17:30, 라스트 오더 20:00)이며, 일요일은 정기 휴무입니다.",
+      "url": "https://busantaste.com"
+    },
+    {
+      "excerpt": "런치 오마카세: 40,000원, 디너 오마카세: 55,000원. 붉은 식초(적초)를 사용한 샤리(밥)가 특징인 곳으로, 가성비가 좋아 예약 후 방문하는 것을 추천합니다. 좌석 수가 많지 않으므로 방문 전 미리 확인하시는 것이 좋습니다.",
+      "url": "https://busantaste.com"
+    },
+    {
+      "excerpt": "과거 스시 오마카세로 운영되던 곳이나, 현재는 메뉴 개편을 통해 오마카세의 퀄리티를 유지하면서도 좀 더 편안하게 즐길 수 있는 판스시(오코노미) 형태로 운영되고 있습니다. 위치: 부산광역시 해운대구 센텀1로 9, 센텀롯데갤러리움 E동 상가 2층 210호",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://busantaste.com",
+    "https://tistory.com",
+    "https://app.catchtable.co.kr/ct/shop/sushisian"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "붉은 식초(적초)를 사용한 특색 있는 샤리와 높은 퀄리티의 스시 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "센텀 상권 내에서 합리적인 가격대로 즐길 수 있는 가성비 오마카세/판초밥 구성",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "센텀시티역 도보 1분 역세권 및 상가 주차 1시간 30분 무료 지원으로 방문 용이",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

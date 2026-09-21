@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811675797",
+  "name": "카페캐빈",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 92300,
+  "researchedAt": "2026-09-21T14:06:23.914Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기/줄서기 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 단체 행사, 데이트",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "텍사스 바베큐",
+      "파스타",
+      "피자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00 ~ 22:00 (매주 월요일 정기휴무, 라스트 오더 20:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영구 좌수영로101번길에 위치한 정원 및 테라스 공간을 갖춘 이탈리안 레스토랑 겸 브런치 카페로, 바비큐 코스 요리 및 대관(스몰웨딩, 돌잔치 등)으로도 이용됨.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 좌수영로101번길 22 1층 (망미동 209-8) 이탈리안 푸드를 중심으로 파스타, 피자, 필라프, 돈가스 등을 제공하며, 바비큐 코스 요리도 즐길 수 있는 레스토랑 겸 카페입니다. 실내외 공간이 넓고 깔끔하며 이국적인 정원 느낌이 있어 스몰 웨딩, 돌잔치, 단체 모임 등 대관 장소로도 인기가 많습니다. 주차가 가능한 것으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "호텔 셰프의 요리를 맛볼 수 있는 브런치 카페이자 이탈리안 레스토랑입니다. 도심 속 작은 정원과 야외 테라스 공간을 갖추고 있어 분위기가 좋기로 유명하며, 파스타, 피자, 필라프 등 다양한 식사 메뉴와 음료를 즐길 수 있습니다. 운영 시간: 10:00 ~ 22:00 (매주 월요일 정기휴무, 라스트 오더 20:00) 텍사스 바베큐 메뉴를 선보이기도 하며",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "도심 속 정원 및 야외 테라스 분위기에서 호텔 셰프 출신의 이탈리안 요리와 바비큐를 즐기거나 모임·행사 대관을 위해 방문함",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "정원 느낌의 넓은 공간과 주차 편의 덕분에 스몰웨딩, 돌잔치 등 단체 모임 및 대관에 적합함",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

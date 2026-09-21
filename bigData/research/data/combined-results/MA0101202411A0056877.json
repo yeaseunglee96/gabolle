@@ -1,0 +1,32 @@
+{
+  "id": "MA0101202411A0056877",
+  "name": "주인",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 57547,
+  "researchedAt": "2026-09-21T13:57:21.685Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안로61번길 10 주소에 '주인'이라는 경양식 음식점의 실제 영업, 방문 후기, 메뉴, 영업시간 정보가 웹상에서 확인되지 않아 미영업/미발견(found: false)으로 판정합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

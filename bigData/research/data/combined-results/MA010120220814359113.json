@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220814359113",
+  "name": "몽돌횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 74054,
+  "researchedAt": "2026-09-21T14:04:23.687Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기열 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "주민·인근 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생선회"
+    ],
+    "yearsClaimed": 2018
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "부산 해운대구 재송동(해운대로 159) 소재의 소규모 동네 횟집으로, 상가/사업체 등록 정보(2018년 설립) 외 온라인 상세 메뉴판 및 방문자 후기 노출이 극히 제한적임",
+  "price": {
+    "found": false,
+    "priceMenu": "확인 불가",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "몽돌횟집 주소: 부산광역시 해운대구 해운대로 159 (재송동 1096-5) 전화번호: 051-781-5474 업종: 생선회 판매 (횟집) 설립: 2018년 9월",
+      "url": "https://albamon.com"
+    },
+    {
+      "excerpt": "몽돌횟집 전화번호 051-781-5474 주소 부산광역시 해운대구 해운대로 159 (재송동 1096-5, 장고개)",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://albamon.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "재송동 인근 생활권에서 활어회 및 생선회를 소비하기 위해 찾는 동네 횟집",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

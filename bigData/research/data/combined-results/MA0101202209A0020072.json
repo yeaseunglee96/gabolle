@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202209A0020072",
+  "name": "왈츠",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 45304,
+  "researchedAt": "2026-09-21T13:56:47.910Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "음악·올드팝을 즐기는 성인 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안해변로 153(광안동 204-13) 3층에 위치한 업소로, 상가 인허가상 업종은 '경양식'으로 등록되어 있으나 실제로는 올드팝과 음악 공연을 선보이는 라이브 카페 형태로 운영된 곳입니다. 메뉴판 가격 정보는 확인되지 않아 일반 라이브 카페 수준(mid)으로 추정되며, 상세 영업시간 및 웨이팅 정보는 웹상에 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 광안해변로 153 (광안동 204-13), KFC 광안점 건물 3층. 광안리 해수욕장 인근에 위치한 라이브 카페로, 올드팝과 음악 공연 등을 즐길 수 있는 공간으로 소개되고 있습니다.",
+      "url": "https://facebook.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 광안동 204-13 (광안해변로 153) 상호명 왈츠, 업종: 경양식",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://facebook.com",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변가에서 라이브 음악 공연과 올드팝을 감상할 수 있는 공간이기 때문",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

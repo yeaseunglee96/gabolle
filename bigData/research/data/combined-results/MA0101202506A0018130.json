@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202506A0018130",
+  "name": "틸리",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58878,
+  "researchedAt": "2026-09-21T14:01:37.194Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "가게 정보 없음 (부산광역시 수영구 수영로488번길 26 주소지에는 마르갤러리 등이 확인되며 '틸리' 경양식점 정보 부재)",
+  "notes": "부산광역시 수영구 수영로488번길 26 주소지 및 인근 상권을 검색했으나 '틸리'(경양식)라는 상호의 음식점 정보가 확인되지 않습니다. 해당 주소지에는 '마르갤러리(재안빌딩 2층)' 등이 확인되며, 경양식 음식점은 등록되어 있지 않거나 이미 폐업/부재하는 상태로 판단됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

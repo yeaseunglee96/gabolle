@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220814007791",
+  "name": "소울",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58768,
+  "researchedAt": "2026-09-21T14:04:54.057Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 드라이브객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "바베큐",
+      "조개구이",
+      "커피"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 기장군 기장읍 공수해안길 61(시랑리 540-2)에 위치한 경양식/바비큐 레스토랑 및 카페 '소울'에 대한 웹 정보 조사 완료. 바닷가 전망 테라스 및 바베큐, 해산물 식음 공간으로 확인됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "바닷가 전망을 갖춘 오션뷰 카페 및 레스토랑으로, 야외 테라스 좌석과 라이브 무대, 커피 로스팅 머신 등을 갖추고 있다고 알려져 있습니다. 주요 메뉴: 돼지고기 및 소고기 바베큐(해산물 포함), 커피류 등",
+      "url": "https://www.siksinhot.com/P/350720"
+    },
+    {
+      "excerpt": "주소: 부산광역시 기장군 기장읍 공수해안길 61 (시랑리 540-2) / 연락처: 051-722-7071 / 특징: 바비큐와 조개구이 등 해산물을 함께 즐길 수 있는 곳으로 소개되곤 합니다.",
+      "url": "https://www.gijang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/350720",
+    "https://www.gijang.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기장 앞바다 오션뷰 야외 테라스에서 바비큐와 해산물, 커피를 함께 즐길 수 있는 분위기 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

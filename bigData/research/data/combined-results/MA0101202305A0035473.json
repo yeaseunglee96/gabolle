@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202305A0035473",
+  "name": "푸실",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 94343,
+  "researchedAt": "2026-09-21T14:02:15.649Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 사전 예약 후 방문이 권장됨"
+  },
+  "descriptors": {
+    "audience": "모임 및 데이트 고객, 반려동물 동반 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "트러플 화이트 라구 파스타",
+      "방아잎 봉골레 파스타",
+      "뇨끼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (라스트 오더 21:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 남천동(광남로 43)에 위치한 이탈리안 레스토랑으로, 직접 반죽한 생면 파스타와 플랜테리어 숲속 감성 인테리어로 데이트 및 모임 장소로 인기가 많음. 전용 주차장은 없으며 인근 수영구청 주차장을 주로 이용함.",
+  "price": {
+    "found": true,
+    "priceMenu": "트러플 화이트 라구 파스타(생면)",
+    "priceWon": 21000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'푸실'은 순우리말로 '풀이 우거진 곳'이라는 의미를 담고 있으며, 생화를 활용한 플랜테리어로 숲속 같은 분위기를 연출하는 공간입니다. 소스와 디저트 등을 수제로 만들며, 직접 반죽한 생면을 사용합니다. 개별 룸과 단체석이 마련되어 있어 모임이나 데이트 장소로 이용됩니다. 전용 주차장은 없으며, 인근 수영구청 주차장 등을 이용해야 합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "매일 11:00 ~ 22:00 라스트 오더 21:00. 대표 메뉴: 트러플 화이트 라구 파스타(생면), 방아잎 봉골레 파스타(생면), 명란 새우 크림 파스타(생면), 뇨끼, 스테이크 등",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "직접 반죽하여 조리하는 생면 파스타와 수제 소스 요리를 즐기기 위해",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "도심 속 풀이 우거진 숲속 느낌의 플랜테리어 인테리어와 모임/데이트에 좋은 분위기 때문에",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

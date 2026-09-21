@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811195703",
+  "name": "리오네",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 55525,
+  "researchedAt": "2026-09-21T14:01:09.408Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말 등 주요 시간대에는 대기 시간이 길어질 수 있어 예약 방문이 권장된다."
+  },
+  "descriptors": {
+    "audience": "데이트 커플, 가족 모임 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "알감자 뇨끼",
+      "성게알 어란 파스타",
+      "호박꽃 샐러드",
+      "오징어 먹물 리조또"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "점심: 12:00 ~ 15:00 (마지막 주문 14:00) / 저녁: 18:00 ~ 22:00 (매주 월요일 휴무, 매월 마지막 주 월·화요일 휴무 가능)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "감각적인 정원과 인테리어 분위기, 수준 높은 이탈리안 요리(특히 시그니처인 알감자 뇨끼)로 유명한 수영동 이탈리안 다이닝 레스토랑.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 구락로에 위치한 이탈리안 레스토랑으로, 건물 1, 2층을 모두 사용하며 작은 정원과 넓은 주차장을 갖추고 있습니다. 심플하고 따뜻한 감성이 돋보이는 인테리어와 넓은 좌석 간격으로 데이트나 가족 식사 장소로 인기가 많습니다. 샐러드, 파스타, 리조또 등 다양한 단품 메뉴와 가성비 좋은 세트 메뉴를 제공합니다. 특히 방문객들 사이에서는 호박꽃 샐러드, 오징어 먹물 리조또, 뇨끼, 성게알 어란 파스타 등이 자주 언급됩니다. 주말에는 대기 시간이 길어질 수 있어 예약 후 방문하는 것을 추천합니다.",
+      "url": "https://www.tripinfo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.tripinfo.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대표 메뉴인 알감자 뇨끼와 특색 있는 파스타 및 리조또 등 요리의 높은 맛과 퀄리티",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "정원이 있는 쾌적한 건물 구조와 따뜻한 감성의 인테리어로 데이트 및 가족 모임에 적합한 공간 분위기",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

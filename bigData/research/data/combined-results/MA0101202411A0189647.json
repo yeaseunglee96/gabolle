@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202411A0189647",
+  "name": "팔레트",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 132557,
+  "researchedAt": "2026-09-21T14:01:21.015Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 사전 예약제로 운영되어 현장 대기나 줄서기 없이 정해진 시간에 입장함"
+  },
+  "descriptors": {
+    "audience": "연인·미식가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "런치 코스",
+      "디너 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수요일 18:00~22:00, 목~일요일 12:00~22:00 (월, 화요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 현지 다이닝 씬의 대표적인 파인다이닝이자 미쉐린 1스타 명성으로 전국 단위 관광객 및 데이트 방문객이 즐겨 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 달맞이길 메르씨엘 빌딩 3층에 위치한 김재훈 셰프의 미쉐린 1스타 컨템퍼러리 파인다이닝 레스토랑. 프렌치 퀴진을 기반으로 한국적 제철 재료를 창의적으로 재해석한 코스 요리와 해운대 바다 전망을 즐길 수 있음.",
+  "price": {
+    "found": true,
+    "priceMenu": "런치 코스 125,000원 / 디너 코스 250,000원",
+    "priceWon": 125000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "프렌치 퀴진을 기반으로 자유롭게 구성에 변화를 준 현대적 요리를 선보이는 팔레트. 이곳의 감각적인 요리들은 김재훈 셰프가 경험한 요리 문화의 다양성이 바탕이 되었다. 고향 부산에서 당차게 팔레트를 오픈한 이후 요리적으로 다양한 도전과 레스토랑의 컨셉 변화를 시도한 결과, 그가 그린 팔레트의 발전적인 모습이 현재의 요리에 담겨져 있다. 다이닝만큼은 옛것을 고수하려는 부산의 다이닝 씬에서 다양한 시도를 하는 그의 요리가 어떠한 형태로 발전하게 될지 기대가 된다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/palate"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/palate"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미쉐린 1스타 김재훈 셰프의 프렌치 기반 창의적 컨템퍼러리 코스 요리와 달맞이길 오션뷰 다이닝 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

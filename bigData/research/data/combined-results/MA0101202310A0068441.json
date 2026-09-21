@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202310A0068441",
+  "name": "베이크딥",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 59968,
+  "researchedAt": "2026-09-21T14:06:14.722Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "디저트/구움과자 포장 고객",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "수제 마카롱",
+      "에그타르트",
+      "마들렌"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 수영구 구락로101번길 4 (망미동 180-23)에 위치한 제과점/디저트 매장으로 수제 마카롱, 에그타르트, 마들렌 등을 판매합니다. 상세 영업시간 및 구체적 가격표, 줄서기 정보는 온라인상 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 망미동에 위치한 '베이크딥(Bake Deep)'은 수제 마카롱, 에그타르트, 마들렌 등을 판매하는 디저트 맛집으로 알려져 있습니다. 당일 만든 달달한 마카롱과 구움과자류가 인기 있는 곳으로 소개되고 있습니다.",
+      "url": "https://www.trip.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 수영구 구락로101번길 4, 1층 (망미동 180-23) 업종: 제과점업 (빵/도넛) 사업체명: 베이크딥",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com",
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수제 마카롱과 에그타르트, 마들렌 등 수제 구움과자 디저트를 즐기기 위해 방문함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

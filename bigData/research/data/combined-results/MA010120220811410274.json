@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220811410274",
+  "name": "흥해참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 66155,
+  "researchedAt": "2026-09-21T14:02:13.996Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "참치 해체쇼가 열리는 날이나 다찌 좌석 등 사전 예약 후 방문이 권장됨"
+  },
+  "descriptors": {
+    "audience": "참치 애호가 및 모임·회식 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "생참치 코스",
+      "흥해 스페셜",
+      "참치 해체 부위"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:00 ~ 00:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "냉동 참치가 아닌 신선한 생참치 코스 및 참치 해체쇼를 직접 관람하며 부위별로 즐길 수 있는 광안동의 참치 전문점. 코스 메뉴로 참스페셜(49,000원), 치스페셜(65,000원), VIP(80,000원), 흥해스페셜(110,000원), 실장스페셜(130,000원), 대표조리장스페셜(150,000원) 등이 제공됨.",
+  "price": {
+    "found": true,
+    "priceMenu": "참 스페셜 49,000원 / 치 스페셜 65,000원 / V.I.P 80,000원 / 흥해 스페셜 110,000원 / 실장 스페셜 130,000원 / 대표조리장 스페셜 150,000원",
+    "priceWon": 49000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "생참치를 전문으로 하는 곳으로, 흥해 스페셜 코스를 비롯한 다양한 참치 코스 요리를 제공합니다. 주소: 부산광역시 수영구 감포로 95 (광안동 207-26), 영업시간: 매일 17:00 ~ 00:00, 전화번호: 051-754-3747",
+      "url": "https://redtable.global/ko/store/detail?id=17950"
+    },
+    {
+      "excerpt": "다찌(바 테이블) 좌석에 앉으면 눈앞에서 생참치가 해체되는 과정을 생생하게 관람할 수 있습니다. 일반적인 참치집에서 접하는 냉동 참치와는 차원이 다른 생참치의 신선함과 맛을 즐길 수 있다는 점이 큰 장점으로 꼽힙니다. 참치 해체쇼가 진행되는 날에는 평소보다 더 특별한 부위를 맛볼 수 있어 만족도가 높습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://redtable.global/ko/store/detail?id=17950",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일반 냉동 참치가 아닌 생참치를 사용하여 뛰어난 신선도와 맛을 경험할 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "다찌 좌석 등에서 눈앞에서 펼쳐지는 생참치 해체 퍼포먼스와 특수 부위 제공 경험",
+      "sources": [
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

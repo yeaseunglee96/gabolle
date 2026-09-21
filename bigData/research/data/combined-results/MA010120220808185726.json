@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220808185726",
+  "name": "소공간",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59748,
+  "researchedAt": "2026-09-21T13:58:22.141Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "사전 100% 예약제(캐치테이블)로 운영되어 줄서기나 대기 혼잡 없이 지정 시간에 식사 진행"
+  },
+  "descriptors": {
+    "audience": "기념일 데이트 모임 부모님 식사",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 1++ 스테이크",
+      "48시간 가마솥 곰탕 반상",
+      "코리안 컨템퍼러리 코스"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 21:30 (브레이크타임 15:00 ~ 18:00, 매주 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 관광지 중심 푸르지오시티 상가에 위치하며 미쉐린 가이드 선정 및 관광객/기념일 방문객 선호"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "사업자 인허가 상 경양식으로 분류되어 있으나, 실제로는 한우 1++(No.9)와 제철 식재료를 사용하는 미쉐린 가이드 선정 코리안 컨템퍼러리(한식 파인다이닝 코스) 레스토랑임.",
+  "price": {
+    "found": true,
+    "priceMenu": "런치 코스 약 92,000원~97,000원 / 디너 코스 약 182,000원",
+    "priceWon": 182000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'소공간'은 '작은 공간'이라는 의미와 '소(牛)를 위한 공간'이라는 중의적 의미를 담고 있는 식당입니다. 서양 요리를 경험했던 셰프가 한식으로 전향하여 정성스러운 요리를 선보이는 곳으로, 코리안 컨템퍼러리 요리를 선보입니다. 48시간 동안 끓인 곰탕과 솥밥 등이 대표적입니다.",
+      "url": "https://guide.michelin.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 해운대해변로298번길 47 4층. 영업시간 12:00 ~ 21:30, 브레이크타임 15:00 ~ 18:00, 매주 화요일 휴무. 캐치테이블 예약 필수, 한우 1++ No.9 스테이크 및 48시간 가마솥 곰탕 반상 한식 코스 다이닝. 주차 가능(협소).",
+      "url": "https://www.busantaste.com"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com",
+    "https://www.busantaste.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미쉐린 가이드에 등재된 수준 높은 코리안 컨템퍼러리 한식 코스 요리를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "투표·독자 선정"
+    },
+    {
+      "note": "1++ 한우 No.9 스테이크와 48시간 우려낸 가마솥 곰탕 반상 등 독창적이고 정성스러운 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

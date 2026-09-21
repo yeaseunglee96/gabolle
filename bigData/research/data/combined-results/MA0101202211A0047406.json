@@ -1,0 +1,79 @@
+{
+  "id": "MA0101202211A0047406",
+  "name": "이카",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 70726,
+  "researchedAt": "2026-09-21T13:58:30.561Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "예약 권장 매장이며 뒤타임 예약이 있을 시 이용시간이 2시간 30분으로 제한될 수 있음"
+  },
+  "descriptors": {
+    "audience": "데이트 및 프라이빗 모임·회식 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "활오징어회",
+      "모둠회",
+      "오징어튀김",
+      "참치마끼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 17:30~01:30 (매주 일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해운대 더세일링타워 1·2층에 위치한 활오징어회 및 일식 요리 전문 이자카야. 오징어회 주문 시 남은 부위를 튀김으로 제공하는 시그니처가 인기. 노키즈·노펫 존 운영 및 주차 지원 불가.",
+  "price": {
+    "found": true,
+    "priceMenu": "활오징어회(시가) / 콜키지 병당 30,000원",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 해운대로570번길 23(우동, 더세일링타워 1·2층)에 위치한 '이카'는 해운대에서 활오징어회와 다양한 일식 요리를 전문으로 하는 이자카야입니다. 활오징어회가 시그니처 메뉴로, 회로 즐긴 후 남은 부위를 튀김으로 제공하는 조합이 인기가 많습니다. 영업시간: 월~토 17:30~01:30 (매주 일요일 휴무)",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "일본식 활오징어 사시미가 대표 메뉴입니다. 오징어 회를 주문하면 남은 부위를 튀김으로 만들어주는 것이 특징입니다. 방문 전 예약(캐치테이블 또는 전화 예약)을 강력히 추천합니다. 뒷타임 예약이 있을 경우 이용 시간은 2시간 30분으로 제한될 수 있습니다. 매장 정책상 주차비 지원이 되지 않습니다. 노키즈(No-Kids) 및 노펫(No-Pet) 존으로 운영됩니다. 콜키지는 주종이나 도수에 관계없이 병당 3만 원입니다.",
+      "url": "https://app.catchtable.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://app.catchtable.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 활오징어회를 맛본 후 남은 부위를 튀겨주는 시그니처 일식 메뉴의 맛과 완성도",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1층 다찌 수족관 분위기와 2층 프라이빗 룸을 갖추어 데이트 및 모임하기 좋은 환경",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

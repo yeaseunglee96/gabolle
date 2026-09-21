@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202411A0046153",
+  "name": "보탄",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 60563,
+  "researchedAt": "2026-09-21T14:01:49.090Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "손님이 꾸준히 방문하여 빈 테이블이 금방 채워질 만큼 약간 붐비는 편임"
+  },
+  "descriptors": {
+    "audience": "연인/소모임/2차 술자리",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "모츠나베",
+      "참치 볏짚 타다끼",
+      "단새우 우니 참치 플레이트",
+      "고등어 봉초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 ~ 02:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "금련산역 인근 남천동 동네 골목 상권에 위치하여 2차 및 단골 중심 방문이 많은 이자카야"
+  },
+  "menuDiversity": {
+    "dishCount": 16,
+    "found": true
+  },
+  "notes": "남천동 골목에 위치한 일본식 이자카야로 참치 볏짚 타다끼, 모츠나베 등이 인기 메뉴임.",
+  "price": {
+    "found": true,
+    "priceMenu": "모츠나베 32,000원, 참치 볏짚 타다끼 28,000원, 단새우 우니 참치 플레이트 40,000원",
+    "priceWon": 32000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "금련산역에서 도보 5분 거리의 골목에 위치하고 있으며, 조용하기보다는 대화가 활발하게 오가는 분위기입니다. 손님이 꾸준히 방문하는 편이라 약간 붐빌 수 있습니다. 영업 시간: 18:00 ~ 02:00",
+      "url": "https://www.siksinhot.com/P/1601614"
+    },
+    {
+      "excerpt": "고등어 봉초밥과 모츠나베가 특히 인기가 많으며, 아늑한 분위기 덕분에 2차 술집으로 방문하기 좋은 곳입니다. 모츠나베 32,000원, 참치 볏짚 타다끼 28,000원",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1601614"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참치 볏짚 타다끼, 모츠나베 등 수준 높은 이자카야 일식 안주 메뉴가 인기 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

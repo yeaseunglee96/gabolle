@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811639907",
+  "name": "오프오",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50508,
+  "researchedAt": "2026-09-21T14:04:58.849Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말에는 방문객이 많아 실내외 좌석이 만석이 되기 쉬워 창가 좌석 선점 시 이른 방문이 권장됨"
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 친구",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "아메리카노",
+      "바닐라 라떼",
+      "크루아상",
+      "퀸아망",
+      "대파크림베이글"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 21:00 (라스트 오더 20:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "기장 해안가 드라이브 및 피라미드 게임 촬영지 명소로 관광객 및 나들이객이 많이 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "'경양식'으로 인허가 및 분류 등록되어 있으나 실제로는 베이커리와 음료를 주력으로 판매하는 대형 오션뷰 베이커리 카페로 운영 중입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "아메리카노 6,000원, 바닐라 라떼 7,000원",
+    "priceWon": 6000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 기장군 기장읍 기장해안로 860. 운영 시간: 매일 10:00 ~ 21:00 (라스트 오더 20:30). 기장 해안가에 위치한 대형 오션뷰 카페로, 드라마 《피라미드 게임》의 촬영지로도 잘 알려져 있습니다. 실내 통창을 통해 탁 트인 바다 전망을 즐길 수 있으며, 야외 테라스석도 마련되어 있습니다. 넓은 주차장이 완비되어 있으며, 야외에는 파라솔 테이블과 코타츠가 연결된 오두막 텐트형 테이블이 있어 캠핑 감성을 느낄 수 있습니다. 크루아상, 퀸아망 등 다양한 베이커리 메뉴를 제공합니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "주말에는 사람이 매우 많아 실내외를 막론하고 자리가 없는 경우가 많습니다. 주차 공간은 넓은 편이며, 주차 관리요원이 상주하여 안내를 도와주어 편리하게 이용할 수 있습니다. 1인 1음료 원칙이 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "탁 트인 기장 바다를 조망할 수 있는 통창 및 테라스 오션뷰와 오두막 캠핑 감성 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "크루아상, 퀸아망, 베이글 등 특색 있는 베이커리와 디저트 음료 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
