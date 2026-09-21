@@ -200,7 +200,7 @@ class TripCoverTest {
 	}
 
 	@Test
-	void 사진이_없는_장소는_이름만_준다() {
+	void 앞쪽_어디에도_사진이_없으면_이름만_준다() {
 		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
 		String tripId = tripWithFirstStop(now, "동백섬횟집", null, null);
 
@@ -209,6 +209,80 @@ class TripCoverTest {
 		assertThat(cover.stopNameKo()).isEqualTo("동백섬횟집");
 		assertThat(cover.imageUrl()).isNull();
 		assertThat(cover.stopNameEn()).isNull();
+	}
+
+	// ── 사진은 앞쪽을 훑어 찾는다 (S15P21E201-1436) ─────────────────────────
+
+	@Test
+	void 사진은_앞쪽_정차지를_훑어_찾고_이름은_첫_정차지_그대로다() {
+		// 🔴 첫 정차지는 식당·카페인 경우가 많고 그런 곳은 관광공사 사진이 없다. 실서버에서
+		//    첫 정차지가 정해진 여행 41건 중 사진이 있는 것은 10건뿐이었다(2026-09-21). 화면은 이미
+		//    앞 여섯 곳을 훑고 있었다 — 서버가 첫 곳만 보면 화면이 갈아탈 때 사진이 오히려 줄어든다.
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		String tripId = saveTrip(now);
+		String versionId = addVersion(addItinerary(tripId, 1, now), 1, now);
+		addItem(versionId, 1, 1, place("무슈뱅상", null, null), now);            // 첫 곳 — 사진 없음
+		addItem(versionId, 1, 2, place("제로베이스", null, null), now);
+		addItem(versionId, 1, 3, place("광안리해수욕장", null, "https://example.test/gwangalli.jpg"), now);
+		addItem(versionId, 1, 4, place("해운대해수욕장", null, "https://example.test/haeundae.jpg"), now);
+
+		TripCoverPort.Cover cover = this.coverPort.coversOf(List.of(tripId)).get(tripId);
+
+		assertThat(cover.imageUrl()).isEqualTo("https://example.test/gwangalli.jpg");
+		assertThat(cover.stopNameKo()).as("이름은 사진을 고른 곳이 아니라 «첫 정차지»다").isEqualTo("무슈뱅상");
+	}
+
+	@Test
+	void 너무_뒤쪽_사진은_쓰지_않는다() {
+		// 앞 여섯 곳까지만 본다 — 더 멀리 가면 「첫 방문지 근처」라기 어려운 곳의 사진이 표지가 된다.
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		String tripId = saveTrip(now);
+		String versionId = addVersion(addItinerary(tripId, 1, now), 1, now);
+		for (int sequence = 1; sequence <= 6; sequence += 1) {
+			addItem(versionId, 1, sequence, place("사진 없는 곳 " + sequence, null, null), now);
+		}
+		addItem(versionId, 2, 1, place("일곱째 곳", null, "https://example.test/too-far.jpg"), now);
+
+		TripCoverPort.Cover cover = this.coverPort.coversOf(List.of(tripId)).get(tripId);
+
+		assertThat(cover.imageUrl()).isNull();
+		assertThat(cover.stopNameKo()).isEqualTo("사진 없는 곳 1");
+	}
+
+	@Test
+	void 훑기는_첫_일정_안에서만_한다() {
+		// 🔴 나중에 만든 일정의 사진을 끌어오면 목록의 표지와 열어 본 화면이 어긋난다.
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		String tripId = saveTrip(now);
+
+		String older = addItinerary(tripId, 1, now.minusSeconds(3600));
+		addItem(addVersion(older, 1, now), 1, 1, place("먼저 만든 일정의 첫 집", null, null), now);
+
+		String newer = addItinerary(tripId, 1, now);
+		addItem(addVersion(newer, 1, now), 1, 1, place("나중 일정", null, "https://example.test/newer.jpg"), now);
+
+		TripCoverPort.Cover cover = this.coverPort.coversOf(List.of(tripId)).get(tripId);
+
+		assertThat(cover.stopNameKo()).isEqualTo("먼저 만든 일정의 첫 집");
+		assertThat(cover.imageUrl()).as("나중 일정의 사진을 끌어오면 안 된다").isNull();
+	}
+
+	@Test
+	void 앞쪽을_훑어도_질의는_한_번이다() {
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		List<String> trips = List.of(
+				tripWithFirstStop(now, "해운대해수욕장", null, "https://example.test/a.jpg"),
+				tripWithFirstStop(now, "광안리해수욕장", null, null),
+				tripWithFirstStop(now, "감천문화마을", null, "https://example.test/c.jpg"));
+
+		Statistics stats = statistics();
+		stats.clear();
+
+		this.coverPort.coversOf(trips);
+
+		assertThat(stats.getPrepareStatementCount())
+				.as("앞쪽을 훑느라 여행마다 따로 부르면 여기가 3 이상이 된다")
+				.isEqualTo(1);
 	}
 
 	@Test
