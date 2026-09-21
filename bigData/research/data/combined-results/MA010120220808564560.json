@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220808564560",
+  "name": "섬세한카츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 27472,
+  "researchedAt": "2026-09-21T22:07:53.360Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "동아대 부민캠퍼스 정문 앞 대학가 상권으로 학기 중 점심시간에 웨이팅이 발생함"
+  },
+  "descriptors": {
+    "audience": "대학생 및 인근 직장인/주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "로스카츠",
+      "히레카츠",
+      "특로스카츠",
+      "뚝배기돈까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (월~목 브레이크타임 15:30 ~ 17:00 / 토요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동아대 부민캠 학생들과 인근 부민동·대신동 주민들이 주로 찾는 로컬 상권 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "동아대학교 부민캠퍼스 정문 부근에 위치한 30시간 저온 숙성 프리미엄 일식 돈카츠 전문점",
+  "price": {
+    "found": true,
+    "priceMenu": "로스카츠 11,000원, 히레카츠 11,500원, 특로스카츠 12,000원, 판모밀 8,500원",
+    "priceWon": 11500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동아대학교 부민캠퍼스 정문 앞에 위치해 있어 학생들에게 인기가 많으며, 점심시간에는 웨이팅이 발생하기도 하는 맛집으로 알려져 있습니다. 11:00 ~ 22:00 브레이크 타임: 15:30 ~ 17:00 (월~목) 토요일 휴무",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "동아대학교 부민캠퍼스 근처에 위치한 숙성 돈카츠 맛집으로, 30시간 저온 숙성한 원육을 사용하여 부드러운 육질이 특징입니다. 별도의 전용 주차장은 없으며 인근 유료 주차장 이용 권장.",
+      "url": "https://lawschooltimes.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://lawschooltimes.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "30시간 저온 숙성한 원육으로 만들어 부드러운 식감과 육즙을 살린 돈카츠의 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "동아대 부민캠퍼스 정문 바로 앞에 위치하여 학생 및 교직원 방문 용이",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

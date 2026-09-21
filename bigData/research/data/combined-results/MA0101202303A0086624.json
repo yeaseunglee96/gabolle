@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202303A0086624",
+  "name": "타이월드",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 44497,
+  "researchedAt": "2026-09-21T22:05:42.778Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 부산진구 마철로 98 신가야벽산블루밍) 및 인근에 '타이월드' 베트남 음식점 관련 정보 미존재",
+  "notes": "부산광역시 부산진구 마철로 98(신가야벽산블루밍아파트 단지) 및 당감동 인근에 '타이월드'(베트남식 전문 음식점) 관련 실제 매장 정보, 영업 정보, 방문 후기가 존재하지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

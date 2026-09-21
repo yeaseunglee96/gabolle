@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220806401538",
+  "name": "뚜레쥬르대청로점",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 33922,
+  "researchedAt": "2026-09-21T22:06:35.661Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "식빵",
+      "베이커리/빵류",
+      "케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 중구 대청로 71(보수동/대청동 일대)에 위치한 프랜차이즈 베이커리 매장으로, 보수동 책방골목 및 대청로 인근에 위치하며 온누리상품권 가맹점으로 등록되어 있으나 개별 방문기나 상세 리뷰는 극히 제한적입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 중구 대청로 71 (보수동1가 144-4) ... 해당 매장은 '뚜레쥬르 대청로점'이라는 명칭으로 운영되고 있으며, 보수동 책방골목 인근에 위치해 있습니다. 온누리상품권 가맹점입니다.",
+      "url": "https://udanax.org"
+    },
+    {
+      "excerpt": "뚜레쥬르 대청로점 / 부산광역시 중구 대청로 71",
+      "url": "https://bsjunggu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://bsjunggu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "보수동 책방골목 및 대청로 인근에서 손쉽게 빵과 케이크를 구매할 수 있는 프랜차이즈 베이커리 매장으로 접근 편의성이 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202212A0050552",
+  "name": "해우수산",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 43134,
+  "researchedAt": "2026-09-21T22:08:08.175Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기, 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민 및 회 포장/배달 이용객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "문현안동네 성암사 맞은편에 위치한 동네 썰어파는 횟집으로 주로 지역 주민 및 관내 이용 위주"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남구 진남로 207 (지번 문현동 61-23) 1층에 위치한 '해우수산 썰어파는횟집'으로, 문현안동네 성암사 입구 맞은편에 위치함. 모듬회 등 신선한 회를 판매함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해우수산 썰어파는횟집. 전화번호: 051-635-8188. 도로명: 부산광역시 남구 진남로 207 1층, 지번: 부산광역시 남구 문현동 61-23. 문현안동네 성암사 입구 맞은편. 신선한 해산물 맛집이며 대표 메뉴는 모듬회입니다.",
+      "url": "https://www.siksinhot.com/P/1557022"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1557022"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네에서 신선한 활어회를 썰어 파는 포장·식사용 횟집으로 모듬회를 주로 찾음",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

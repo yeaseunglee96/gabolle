@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220807821243",
+  "name": "봉나베",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 31063,
+  "researchedAt": "2026-09-21T22:08:13.507Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 남구 문현동(고동골로78번길 24) 소재 상호로 사업자/상가 정보에 등록되어 있으나, 일반 블로그 후기나 방문 리뷰, 상세 메뉴판 및 가격 정보는 웹상에 공개되어 있지 않은 소규모 골목 식당/배달/지역 점포입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 봉나베, 도로명주소: 부산광역시 남구 고동골로78번길 24, 업종: 한식/백반/한정식",
+      "url": "https://zippoom.com"
+    },
+    {
+      "excerpt": "봉나베&샤브샤브 부산광역시 남구 문현동",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202307A0106730",
+  "name": "몽킨2",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 52523,
+  "researchedAt": "2026-09-21T22:08:13.409Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 남구 진남로 168 성지문현파크맨션 상가에 상호 '몽킨'(또는 '몽킨2')으로 베트남식 전문 업종 등록 정보가 확인되나, 방문자 리뷰나 메뉴판, 영업시간 등 상세 운영 정보가 웹상에 공개되어 있지 않은 소규모 영세 업소 또는 단순 사업자 등록 상태로 추정됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 진남로 168 (문현동, 성지문현파크맨션) 몽킨2 (베트남식 전문)",
+      "url": "https://disco.re"
+    }
+  ],
+  "sources": [
+    "https://disco.re"
+  ],
+  "whyPeopleGo": []
+}

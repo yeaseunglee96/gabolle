@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220810813838",
+  "name": "대화루",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 46272,
+  "researchedAt": "2026-09-21T22:05:41.111Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 동네 단골",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "간짜장"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "배산역 인근 골목에서 오래 영업해 온 동네 골목 중식당으로 인근 주민들이 주로 찾는 분위기"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 연제구 금련로 10(연산동 1811-221, 배산역 1번 출구 인근)에 실재하는 전통 동네 중국집으로, 노포 분위기 및 계란후라이가 올라간 간짜장 등이 특징으로 언급됩니다. 세부 영업시간 및 상세 가격표는 웹상에서 독립적으로 확인되지 않았습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 연제구 금련로 10 (연산동 1811-221). 지하철 3호선 배산역 1번 출구 인근 골목에 위치해 있습니다. 오랫동안 한 자리에서 영업해 온 노포 분위기의 중화요리 식당으로 알려져 있습니다. 간짜장에 계란후라이를 올려주는 등 옛날 방식의 중식 스타일을 유지하고 있어 정겨운 맛집으로 언급되곤 합니다. 전화번호: 051-863-6254",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "대화루. 주소: 부산광역시 연제구 금련로 10 (연산동). 업종: 중화요리. 대표전화 051-863-6254",
+      "url": "https://saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://saramin.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오랫동안 한 자리에서 옛날 방식(계란후라이 간짜장 등)을 유지해 온 정겨운 노포 중식당 분위기",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "배산역 인근 골목 주민들이 편하게 찾는 동네 밀착형 중식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

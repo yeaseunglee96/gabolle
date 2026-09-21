@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220810771477",
+  "name": "서가네불백",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 49575,
+  "researchedAt": "2026-09-21T22:07:22.830Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼밥 및 인근 주민/직장인 식사 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "고추장 불고기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 사직동 인근 주민 및 직장인 밥집으로 소비됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 사직역 인근(동래구 아시아드대로161번길 11 일대)에서 운영되었던 한식·불백 식당으로, 고추장 불고기와 함께 꽁치구이, 생선까스 등 셀프 반찬을 곁들인 백반 형태를 제공했던 기록이 확인됩니다. 현재는 메뉴 단출화 또는 상호 변경/폐업 가능성이 큽니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "과거 사직역 3번 출구 인근(금강만두 앞)에서 운영되던 식당으로, 고추장 불고기 등의 메뉴와 함께 꽁치구이, 생선까스, 두부전 등을 셀프 방식으로 제공하던 곳으로 알려져 있습니다. 블로그 및 관련 기록들에 따르면, 해당 식당은 메뉴를 단출하게 변경하거나 상호를 변경했다는 내용이 확인됩니다.",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "불백(고추장 불고기)과 함께 생선까스, 꽁치구이 등 셀프 반찬을 갖춘 든든한 백반 식사",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}
