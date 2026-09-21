@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, TextInput, View, type ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { understandAssistantMessage, type AssistantAction } from '@/assistant/intent';
@@ -12,6 +12,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
+import { BusIcon } from '@/field/BusIcon';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan } from '@/plan/PlanProvider';
@@ -23,18 +24,20 @@ const SUGGESTIONS = [
   { ko: '사진 부탁할 때 한국어 문장 알려줘', en: 'Show me the Korean phrase for asking someone to take a photo' },
   { ko: '부산 로컬 스팟 보여줘', en: 'Show me local Busan spots' },
 ] as const;
-// 은행 앱 챗봇처럼 "대화 없이 바로 실행" 목록을 넓혔다 — 사용자가 직접 요청한 방향
-// (자유 대화보다 우리 기능으로 바로 연결)이라 실제로 동작하는 화면만 올린다.
-// : "지금 갈 곳"·"부산 축제"는 -900으로 진입점을 뺀 화면이라 여기서도 뺐다
-// 홈에서는 숨겨 놓고 챗봇으로는 계속 안내하면 이 목록의 원칙이 깨진다.
-const QUICK_TOOLS = [
-  { labelKo: '일정 만들기', labelEn: 'Plan a trip', hintKo: '대화 조건 적용', hintEn: 'Applies chat conditions', href: '/plan' },
-  { labelKo: '현장 도구', labelEn: 'On-the-go tools', hintKo: '현장 말하기·날씨 준비물', hintEn: 'On-the-go phrases · weather prep', href: '/field/translate' },
-  { labelKo: '내 여행 보기', labelEn: 'View my trips', hintKo: '저장한 일정 열기', hintEn: 'Open your saved itineraries', href: '/trips' },
-  // : 갈래 개수는 GET /api/v1/places/facets 가 정한다(explore.tsx) — 여기서
-  // 숫자를 박으면 백엔드가 갈래를 늘리거나 줄일 때마다 다시 어긋난다. 숫자를 빼고 말한다.
-  { labelKo: '로컬 탐색', labelEn: 'Explore locally', hintKo: '축제·전통시장 등 다양한 카테고리', hintEn: 'Various local categories', href: '/explore' },
-] as const;
+// 은행 앱 챗봇처럼 "대화 없이 바로 실행" — 자유 대화보다 우리 기능으로 바로 연결한다(2026-09-16 지시).
+// 🔴 S15P21E201-1396 — 셋(현장 도구·내 여행 보기·로컬 탐색)이라 2열 격자에서 한 칸이 비어 균형이 안 맞았다.
+//    「내 여행 보기」「로컬 탐색」은 하단 탭에 이미 있어 여기서는 중복이고, 머리말 「여행 중 급할 때」와도
+//    안 맞는다. 급할 때 실제로 여는 넷 — 메뉴판 번역·통역·환율·주변 버스 — 을 그림과 함께 2×2 로 두고,
+//    날씨·준비물까지 다 있는 허브(/field/translate)는 아래 한 줄로 잇는다.
+const cameraIcon = require('../assets/icons/common/camera.png');
+const speakerIcon = require('../assets/icons/common/speaker.png');
+type QuickTool = { key: string; labelKo: string; labelEn: string; hintKo: string; hintEn: string; href: '/field/menu-scan' | '/field/speak' | '/field/exchange-rate' | '/field/transit'; icon: ImageSourcePropType | string | 'bus' };
+const QUICK_TOOLS: QuickTool[] = [
+  { key: 'menu', labelKo: '메뉴판 번역', labelEn: 'Menu translation', hintKo: '찍으면 읽어 드려요', hintEn: 'Snap it, we read it', href: '/field/menu-scan', icon: cameraIcon },
+  { key: 'speak', labelKo: '통역', labelEn: 'Interpreter', hintKo: '말하고 들려주기', hintEn: 'Speak and play aloud', href: '/field/speak', icon: speakerIcon },
+  { key: 'exchange', labelKo: '환율 계산', labelEn: 'Currency', hintKo: '가격표를 내 돈으로', hintEn: 'Convert a price tag', href: '/field/exchange-rate', icon: '₩' },
+  { key: 'bus', labelKo: '주변 버스', labelEn: 'Buses nearby', hintKo: '몇 분 뒤에 오는지', hintEn: 'Minutes until arrival', href: '/field/transit', icon: 'bus' },
+];
 
 export default function Chat() {
   const router = useRouter(); const { update } = usePlan();
@@ -96,14 +99,18 @@ export default function Chat() {
   }
   function applyPlan(id: number, action: Extract<AssistantAction, { kind: 'plan' }>) { update(action.patch); setMessages((current) => current.map((item) => item.id === id ? { ...item, applied: true } : item)); }
 
-  const visibleTools = QUICK_TOOLS.slice(1);
+  const toolIcon = (icon: QuickTool['icon']) => icon === 'bus' ? <BusIcon /> : typeof icon === 'string' ? <Text variant="title" weight="bold" color={color.action.secondary}>{icon}</Text> : <Image source={icon} resizeMode="contain" style={styles.toolIconImage} />;
   const tools = <View accessibilityLabel={tx('여행 도구 바로가기', 'Trip tool shortcuts')} style={[styles.toolSection, desktop && styles.toolSectionDesktop]}>
     {!desktop ? <View style={styles.sectionHeading}><Text variant="body" weight="bold">{tx('대화 없이 바로 실행', 'Run these without chatting')}</Text><Text variant="caption" color={color.text.body}>{tx('여행 중 급할 때 바로 열어보세요.', 'Open these right away when you need them on your trip.')}</Text></View> : null}
-    <View style={[styles.quickTools, desktop && styles.quickToolsDesktop]}>{visibleTools.map((tool) => <Pressable key={tool.href} accessibilityRole="button" accessibilityLabel={`${tx(tool.labelKo, tool.labelEn)}, ${tx(tool.hintKo, tool.hintEn)}`} onPress={() => router.push(tool.href)} style={({ pressed }) => [styles.quickTool, desktop && styles.quickToolDesktop, pressed && styles.quickToolPressed]}><Text variant="body" weight="bold">{tx(tool.labelKo, tool.labelEn)}</Text><Text variant="caption" color={color.text.body}>{tx(tool.hintKo, tool.hintEn)}</Text><Text variant="title" weight="bold" color={color.text.muted} style={styles.toolArrow}>›</Text></Pressable>)}</View>
+    <View style={[styles.quickTools, desktop && styles.quickToolsDesktop]}>{QUICK_TOOLS.map((tool) => <Pressable key={tool.key} accessibilityRole="button" accessibilityLabel={`${tx(tool.labelKo, tool.labelEn)}, ${tx(tool.hintKo, tool.hintEn)}`} onPress={() => router.push(tool.href)} style={({ pressed }) => [styles.quickTool, desktop && styles.quickToolDesktop, pressed && styles.quickToolPressed]}>
+      <View style={styles.toolIconBox}>{toolIcon(tool.icon)}</View>
+      <View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={1}>{tx(tool.labelKo, tool.labelEn)}</Text><Text variant="caption" color={color.text.body} numberOfLines={1}>{tx(tool.hintKo, tool.hintEn)}</Text></View>
+    </Pressable>)}</View>
+    <Pressable accessibilityRole="link" accessibilityLabel={tx('현장 도구 전부 보기', 'See all on-the-go tools')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.toolMore, pressed && styles.quickToolPressed]}><Text variant="caption" weight="bold" color={desktop ? color.text.onAction : color.action.secondary}>{tx('날씨·준비물까지 현장 도구 전부 보기 ›', 'See all on-the-go tools, weather & packing too ›')}</Text></Pressable>
   </View>;
 
   return <Screen wide style={[styles.screen, desktop && styles.desktopScreen]}>
-    <View style={[styles.header, desktop && styles.desktopHeader]}><View style={styles.identity}><GabolleMascot state="open" delay={180} style={desktop ? styles.desktopAvatar : styles.avatar} /><View><Text variant={desktop ? 'display' : 'title'} weight="bold">{tx('가볼래 AI', 'GABOLLE AI')}</Text><Text variant="caption" color={color.text.body}>{tx('앱 기능을 실행하는 부산 여행 도우미', 'A Busan travel assistant that runs app features for you')}</Text></View></View><Pressable accessibilityRole="button" accessibilityLabel={tx('채팅 닫기', 'Close chat')} onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.close}><Text variant="title">×</Text></Pressable></View>
+    <View style={[styles.header, desktop && styles.desktopHeader]}><View style={styles.identity}><GabolleMascot state="open" delay={180} style={desktop ? styles.desktopAvatar : styles.avatar} /><View style={styles.identityText}><Text variant={desktop ? 'display' : 'title'} weight="bold">{tx('가볼래 AI', 'GABOLLE AI')}</Text><Text variant="caption" color={color.text.body}>{tx('앱 기능을 실행하는 부산 여행 도우미', 'A Busan travel assistant that runs app features for you')}</Text></View></View><Pressable accessibilityRole="button" accessibilityLabel={tx('채팅 닫기', 'Close chat')} onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.close}><Text variant="title">×</Text></Pressable></View>
     <View style={[styles.workspace, desktop && styles.workspaceDesktop]}>
       {desktop ? <View style={styles.sidebar}><Eyebrow>{tx('여행 도구', 'Travel tools')}</Eyebrow><Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중 필요한 기능을 바로 실행하세요', 'Run the features you need for your trip right away')}</Text><Text variant="body" color={color.text.onAction}>{tx('현장 문장은 크게 보거나 음성으로 듣고, 메뉴판 번역 도구도 바로 열 수 있어요.', 'View on-the-go phrases in large text or hear them aloud, and open the menu translation tool right away.')}</Text>{tools}</View> : null}
       <View style={[styles.chatPanel, desktop && styles.chatPanelDesktop]}>
@@ -114,7 +121,7 @@ export default function Chat() {
           keyboardShouldPersistTaps="handled"
           scrollEventThrottle={16}
           onScroll={(event) => { stickToEnd.current = isNearBottom(event.nativeEvent); }}
-          onContentSizeChange={() => { if (stickToEnd.current) listRef.current?.scrollToEnd({ animated: true }); }}
+          onContentSizeChange={() => { if (stickToEnd.current && messages.length > 0) listRef.current?.scrollToEnd({ animated: true }); }}
         >
           <View style={[styles.bubble, desktop && styles.bubbleDesktop, styles.assistantBubble]}><Text color={color.text.heading}>{tx('안녕하세요! 부산 일정과 여행 중 필요한 말을 앱 기능으로 바로 도와드릴게요.', 'Hi! I can help with your Busan itinerary and useful phrases for your trip, right from the app.')}</Text></View>
           {/* 사용자 요청(2026-09-16): 이 화면은 자유롭게 대화하는 진짜 챗봇이 아니라, 은행 앱
@@ -140,10 +147,10 @@ export default function Chat() {
 }
 
 const styles = StyleSheet.create({
-  screen: { gap: spacing[3] }, desktopScreen: { paddingTop: spacing[4] }, header: { marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, desktopHeader: { minHeight: 64, paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.lg, backgroundColor: color.surface.card }, identity: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, avatar: { width: 44, height: 44 }, desktopAvatar: { width: 52, height: 52 }, close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
+  screen: { gap: spacing[3] }, desktopScreen: { paddingTop: spacing[4] }, header: { marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, desktopHeader: { minHeight: 64, paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.lg, backgroundColor: color.surface.card }, identity: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, identityText: { flex: 1, minWidth: 0 }, avatar: { width: 44, height: 44 }, desktopAvatar: { width: 52, height: 52 }, close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
   workspace: { flex: 1 }, workspaceDesktop: { flexDirection: 'row', gap: spacing[4], minHeight: 0 }, sidebar: { width: 290, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy }, chatPanel: { flex: 1, gap: spacing[3], minHeight: 0 }, chatPanelDesktop: { padding: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.lg, backgroundColor: color.surface.card },
   messages: { flex: 1 }, messageContent: { gap: spacing[3], paddingVertical: spacing[3] }, messageContentDesktop: { paddingHorizontal: spacing[2] }, bubble: { maxWidth: '88%', padding: spacing[3], borderRadius: radius.lg, gap: spacing[3] }, bubbleDesktop: { maxWidth: '72%' }, userBubble: { alignSelf: 'flex-end', backgroundColor: color.brand.navy, borderBottomRightRadius: radius.sm }, assistantBubble: { alignSelf: 'flex-start', backgroundColor: color.surface.blush, borderBottomLeftRadius: radius.sm }, actionCard: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   suggestionSection: { gap: spacing[2], marginTop: spacing[4] }, suggestions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, suggestion: { minHeight: 48, maxWidth: '100%', justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.action.secondary, borderRadius: radius.full, backgroundColor: color.surface.card },
-  toolSection: { marginTop: spacing[4], gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.blush }, toolSectionDesktop: { marginTop: spacing[3], padding: 0, backgroundColor: 'transparent' }, sectionHeading: { gap: spacing[1] }, quickTools: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, quickToolsDesktop: { flexDirection: 'column', flexWrap: 'nowrap' }, quickTool: { position: 'relative', width: '47%', minHeight: 72, justifyContent: 'center', gap: spacing[1], paddingLeft: spacing[3], paddingRight: spacing[6], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card }, quickToolDesktop: { width: '100%', minHeight: 76, paddingHorizontal: spacing[3] }, quickToolPressed: { opacity: 0.76, backgroundColor: color.state.warningBg }, toolArrow: { position: 'absolute', right: spacing[3] },
+  toolSection: { marginTop: spacing[4], gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.blush }, toolSectionDesktop: { marginTop: spacing[3], padding: 0, backgroundColor: 'transparent' }, sectionHeading: { gap: spacing[1] }, quickTools: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, quickToolsDesktop: { flexDirection: 'column', flexWrap: 'nowrap' }, quickTool: { width: '48%', flexGrow: 1, minHeight: 72, gap: spacing[2], padding: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card }, quickToolDesktop: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 64 }, quickToolPressed: { opacity: 0.76, backgroundColor: color.state.warningBg }, toolIconBox: { width: 40, height: 40, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.blush }, toolIconImage: { width: 22, height: 22 }, toolBody: { flex: 1, gap: 2, minWidth: 0 }, toolMore: { minHeight: 40, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: spacing[1] },
   composer: { flexDirection: 'row', alignItems: 'center', minHeight: 52, gap: spacing[2], paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, searchMark: { fontSize: 16 }, input: { flex: 1, minWidth: 0, minHeight: 44, paddingVertical: spacing[2], color: color.text.heading, fontSize: 16 }, clear: { minWidth: 28, minHeight: 44, alignItems: 'center', justifyContent: 'center' }, send: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.primary }, sendDisabled: { opacity: 0.4 }, disclaimer: { textAlign: 'center' },
 });
