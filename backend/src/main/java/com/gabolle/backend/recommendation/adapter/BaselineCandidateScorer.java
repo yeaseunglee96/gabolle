@@ -20,6 +20,7 @@ import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.TasteEvidence;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
@@ -459,6 +460,10 @@ public class BaselineCandidateScorer {
 	 * 접힌 취향 벡터가 {@code CATEGORY} 겹침에 더하는 덧점수. 기존 채점을 대체하지 않고 더하기만
 	 * 한다 — 아직 벡터가 없는 사람이 대부분이라, 대체하면 그 사람들의 취향 반영이 0 이 된다.
 	 *
+	 * <p><b>행동이 들어간 성분만 더한다</b>({@code INTERACTION}·{@code BLENDED}). 설문만으로 접힌
+	 * 성분은 {@link #applyTagComponent} 가 이미 같은 답으로 채점했으므로 여기서 또 더하면 두 번 세기다.
+	 * 그래서 행동이 하나도 안 접힌 동안 이 항은 0 이고, 행동이 섞이기 시작하면 그때부터 값이 생긴다.
+	 *
 	 * <p>{@link #applyTagComponent} 가 맞은 개수 ÷ 고른 개수인 것과 달리 여기서는 맞은 성분의
 	 * 가중치 합 ÷ 벡터의 CATEGORY 성분 개수를 쓴다. 전부 맞고 가중치가 1.0 이면 1.0 이라 같은
 	 * 축이고, 가중치가 음수면(싫어하는 갈래) 총점이 내려간다 — 개수만 세면 못 하는 일이다.
@@ -475,11 +480,18 @@ public class BaselineCandidateScorer {
 			List<String> reasonCodes) {
 
 		String featureType = featureTypeFor(preferenceCodeMap, "CATEGORY").orElse(null);
+		// 🔴 설문만으로 접힌 성분은 뺀다. 그 답은 applyTagComponent 의 CATEGORY 태그 겹침이 이미
+		//    채점했으므로, 여기서 또 더하면 같은 설문을 배수만큼 한 번 더 세는 것이 된다.
+		//    남는 것은 행동이 들어간 성분(INTERACTION·BLENDED)뿐이고, 그것이 이 항의 존재 이유다.
 		List<UserTasteWeight> categoryWeights = (tasteWeights == null) ? List.of()
-				: tasteWeights.stream().filter((w) -> w.getDimension() == TasteDimension.CATEGORY).toList();
+				: tasteWeights.stream()
+						.filter((w) -> w.getDimension() == TasteDimension.CATEGORY)
+						.filter((w) -> w.getEvidence() != TasteEvidence.SURVEY)
+						.toList();
 
 		if (featureType == null || categoryWeights.isEmpty()) {
 			// 값을 0.0 이 아니라 null 로 둔다 — "겹친 게 없다" 와 "잴 것이 없다" 는 다르다.
+			// 행동이 아직 하나도 안 접힌 동안에는 언제나 이 자리다.
 			featureValues.put("tasteVectorOverlap", null);
 			scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, null, null));
 			return 0.0;
@@ -504,8 +516,8 @@ public class BaselineCandidateScorer {
 		double ratio = sum / categoryWeights.size();
 
 		featureValues.put("tasteVectorOverlap", ratio);
-		// evidence 를 함께 남긴다. 지금은 전부 SURVEY 라 이 항이 설문을 두 번 세는 중이고,
-		// 그 사실을 되짚으려면 무엇을 근거로 더했는지가 행에 남아 있어야 한다.
+		// evidence 를 함께 남긴다. 무엇을 근거로 더했는지가 행에 있어야 「이 점수가 행동에서
+		// 왔는가 설문에서 왔는가」를 나중에 되짚을 수 있다.
 		scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, ratio,
 				Map.of("matched", matched, "componentCount", categoryWeights.size(),
 						"evidence", evidenceSummary(categoryWeights))));
