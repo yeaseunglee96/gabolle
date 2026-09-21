@@ -299,7 +299,7 @@ export function PlanStartBar({
       return `${formatDateShort(value.startDate, tx)}${value.endDate && value.endDate !== value.startDate ? ` – ${formatDateShort(value.endDate, tx)}` : ''} · ${tx(`${days}일`, `${days}d`)}`;
     }
     const total = value.adults + value.children;
-    return total > 0 ? tx(`성인 ${value.adults}${value.children ? ` · 어린이 ${value.children}` : ''}`, `${total} travelers`) : tx('인원 추가', 'Add travelers');
+    return total > 0 ? (value.children ? tx(`성인 ${value.adults} · 어린이 ${value.children}`, `${value.adults} adults · ${value.children} children`) : tx(`성인 ${value.adults}`, `${value.adults} adults`)) : tx('인원 추가', 'Add travelers');
   };
 
   // 두 가지가 움직인다.

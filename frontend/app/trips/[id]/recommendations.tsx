@@ -17,6 +17,7 @@ import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
 import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
@@ -165,7 +166,7 @@ export default function Recommendations() {
                 style={[styles.legendChip, course.id === picked && styles.legendChipOn]}
               >
                 <Text variant="caption" weight="bold" color={course.id === picked ? color.text.onAction : color.text.heading} numberOfLines={1}>
-                  {course.title || tx(`코스 ${courseLetter(index)}`, `Course ${courseLetter(index)}`)}
+                  {course.title || txf(tx, '코스 %s', 'Course %s', courseLetter(index))}
                 </Text>
               </Pressable>
             ))}
@@ -254,7 +255,7 @@ export default function Recommendations() {
                 style={[styles.legendChip, course.id === picked && styles.legendChipOn]}
               >
                 <Text variant="caption" weight="bold" color={course.id === picked ? color.text.onAction : color.text.heading} numberOfLines={1}>
-                  {course.title || tx(`코스 ${courseLetter(index)}`, `Course ${courseLetter(index)}`)}
+                  {course.title || txf(tx, '코스 %s', 'Course %s', courseLetter(index))}
                 </Text>
               </Pressable>
             ))}
