@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -12,7 +12,6 @@ import { Text } from '@/components/Text';
 import { formatDayHeading } from '@/i18n/datetime';
 import { effectiveTripStatus, tripStatusLabel, tripTimingLabel } from '@/trip/tripStatus';
 import { GabolleMascot } from '@/components/DongbaekMascot';
-import { loadTripCover } from '@/plan/tripCover';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { deleteTrip, loadTripItineraries, loadTrips, tripDisplayTitle, type TripItineraryRefDto, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
@@ -126,7 +125,7 @@ export default function Trips() {
     {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
 
     {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.list}>{trips.map((trip) => <View key={trip.tripId} style={styles.card}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
-      <TripCover tripId={trip.tripId} accessToken={accessToken} />
+      <TripCover uri={trip.coverImageUrl} />
       <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx, locale)}</Text>{trip.title?.trim() ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx, locale)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : <Text variant="title" color={color.text.muted}>›</Text>}</View>
       <View style={styles.meta}>
         {/* : 서버가 이미 주는 status를 화면이 안 읽어서, 일정 생성이 실패해도
@@ -220,10 +219,14 @@ export default function Trips() {
   </View>;
 }
 
-/** 여행 카드 커버 — 첫 정차지 사진(시안 5 Trips). 없으면 자리를 만들지 않는다 — 빈 회색 판은 「못 불러왔다」로 읽힌다. */
-function TripCover({ tripId, accessToken }: { tripId: string; accessToken: string | null }) {
-  const [uri, setUri] = useState<string | null>(null);
-  useEffect(() => { let active = true; void loadTripCover(tripId, accessToken).then((next) => { if (active) setUri(next); }); return () => { active = false; }; }, [tripId, accessToken]);
+/**
+ * 여행 카드 커버 — 없으면 자리를 만들지 않는다. 빈 회색 판은 「못 불러왔다」로 읽힌다.
+ *
+ * 🔴 사진 주소는 목록 응답이 그대로 준다(trip.coverImageUrl). 여기서 따로 부르지 않는다 —
+ * 전에는 카드마다 일정·장소를 세 번씩 불러서, 「내 여행」을 열 때 1초에 51건이 나가고 서버 앞단이
+ * 그중 59건을 503 으로 거절했다. 거절된 카드는 앱을 끌 때까지 사진이 없었다(S15P21E201-1435).
+ */
+function TripCover({ uri }: { uri: string | null }) {
   if (!uri) return null;
   return <Image source={{ uri }} resizeMode="cover" accessibilityLabel="" style={styles.cover} />;
 }
