@@ -86,6 +86,66 @@ function CoverPhoto({ photo, extra = 0, tx }: { photo: { url: string; name: stri
   );
 }
 
+/**
+ * 접힌 코스 한 줄 — **고르고 난 뒤의 나머지 안**.
+ *
+ * 🔴 왜 접나. 고른 뒤에도 카드 셋이 그대로 서 있으면, 화면의 대부분이 «이미 안 고른 것»
+ *    으로 채워진다. 고른 뒤에 할 일은 그 안을 들여다보는 것이지 다시 견주는 것이 아니다.
+ *    그래도 **지우지는 않는다** — 다시 고를 길이 없으면 뒤로 가기밖에 안 남는다.
+ *
+ * 🔴 한 줄에 무엇을 남기나. 비용과 요약(장소·이동·거리)과 확인 여부다. 견주기를 다시 하려면
+ *    그 셋이면 되고, 사진과 동선은 고른 뒤에 볼 것이다.
+ */
+export function CourseRow({
+  course, selected, saved, onSelect, onToggleSave, tx,
+}: {
+  course: TripCourse;
+  selected: boolean;
+  saved: boolean;
+  onSelect: () => void;
+  onToggleSave: () => void;
+  tx: (koText: string, enText: string) => string;
+}) {
+  const cost = courseCost(course, tx);
+  const line = [
+    cost ? txf(tx, '%s 예상', '%s est.', cost) : tx('비용 미정', 'Cost unknown'),
+    courseFacts(course, tx),
+    course.status === 'CONFIRMED' ? tx('확인됨', 'Verified') : tx('추정', 'Estimated'),
+  ].filter(Boolean).join(' · ');
+
+  return (
+    <View style={styles.row}>
+      <Pressable
+        accessibilityRole="radio"
+        accessibilityState={{ selected }}
+        onPress={onSelect}
+        style={({ pressed }) => [styles.rowTap, pressed && styles.pressed]}
+      >
+        <Text weight="bold" numberOfLines={1}>{course.title}</Text>
+        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{line}</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ selected: saved }}
+        accessibilityLabel={saved ? tx('저장 취소', 'Unsave') : tx('이 코스 저장해 두기', 'Save this course')}
+        onPress={onToggleSave}
+        style={({ pressed }) => [styles.rowIcon, pressed && styles.pressed]}
+      >
+        <Text variant="caption" weight="bold" color={saved ? color.action.secondary : color.text.muted}>{saved ? '★' : '☆'}</Text>
+      </Pressable>
+      {/* 펼치는 표시. 누르는 일은 위의 넓은 자리가 받는다 — 이건 «펼쳐진다» 는 것을 말한다. */}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={tx('이 코스 펼치기', 'Expand this course')}
+        onPress={onSelect}
+        style={({ pressed }) => [styles.rowIcon, pressed && styles.pressed]}
+      >
+        <Text variant="caption" weight="bold" color={color.text.muted}>⌄</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 export function CourseCard({
   course, index, selected, saved, onSelect, onToggleSave, onBuild, tx, ko,
 }: {
@@ -271,6 +331,15 @@ const styles = StyleSheet.create({
   badgeOverlay: { position: 'absolute', top: spacing[3], left: spacing[3], backgroundColor: 'rgba(25,25,25,0.78)' },
   badgeOn: { backgroundColor: color.brand.navy },
   markRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+
+  row: {
+    minHeight: 64, flexDirection: 'row', alignItems: 'center',
+    paddingLeft: spacing[4], paddingRight: spacing[3],
+    borderRadius: radius.lg, borderWidth: 2, borderColor: color.surface.border,
+    backgroundColor: color.surface.card,
+  },
+  rowTap: { flex: 1, minWidth: 0, paddingVertical: spacing[3] },
+  rowIcon: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
 
   body: { flex: 1, minWidth: 0, gap: spacing[2], padding: spacing[4] },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },

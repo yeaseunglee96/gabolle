@@ -49,13 +49,17 @@ describe('bottom bars clear the floating tab bar', () => {
     expect(itinerary).toContain('paddingBottom: bottomBarClearance(insets.bottom)');
     expect(itinerary).not.toContain('bottomBar: { paddingHorizontal: gutter, paddingBottom: spacing[2] }');
 
+    // 🔴 2026-09-22 (S15P21E201-1467) — 추천 화면의 탭바는 «치워지고»(hidden) 코스 바가
+    //    그 자리에 선다. 그래서 이 화면은 탭바 «뒤» 를 비우는 계산(bottomBarClearance)이
+    //    아니라, 탭바가 서던 바로 그 자리(tabBarBottomMargin)를 쓴다. 둘을 같이 쓰면
+    //    바가 한 칸 떠서 아래에 빈 띠가 남는다.
     const recommendations = read('app/trips/[id]/recommendations.tsx');
-    expect(recommendations).toContain('bottom: bottomBarClearance(insets.bottom)');
+    expect(recommendations).toContain('<TabBar active="map" hidden />');
+    expect(recommendations).toContain('bottom: tabBarBottomMargin(insets.bottom)');
 
-    // 🔴 바는 흐름 밖이라 목록의 마지막 카드를 덮는다. 높이를 «재서» 그만큼 비운다 —
-    //    숫자로 어림하면 글자 크기를 키운 기기에서 또 덮인다 (S15P21E201-1454).
-    expect(recommendations).toContain('setBarHeight(event.nativeEvent.layout.height)');
-    expect(recommendations).toContain('height: barHeight + spacing[2]');
+    // 코스 바는 흐름 밖이라 목록의 마지막 카드를 덮는다. 바가 서는 높이만큼 늘 비운다 —
+    //    바는 고르기 전에도 서 있으므로 이 자리도 «늘» 있어야 한다.
+    expect(recommendations).toContain('height: TAB_BAR_HEIGHT + tabBarBottomMargin(insets.bottom) + spacing[2]');
     expect(recommendations).not.toContain('bottom: 96,');
   });
 });
