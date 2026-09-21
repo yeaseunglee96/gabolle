@@ -12,6 +12,7 @@ const tx = (ko: string) => ko;
 
 const data: TripPassData = {
   code: 'GB-ABC123',
+  stampDate: '20 · SEP · 2026',
   fromLabel: '부산역',
   toLabel: '광안리',
   startTime: '09:30',

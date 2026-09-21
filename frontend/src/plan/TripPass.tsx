@@ -275,7 +275,11 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                   <QrCode value={data.url} size={wide ? 120 : 104} />
                 </Animated.View>
               )}
-              <Image source={stamp} resizeMode="contain" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.stamp, wide && styles.stampWide]} />
+              {/* 🔴 날짜는 그림에 안 박혀 있다 — 「12 · SEP · 2026」이 모든 여행에 찍히던 것(실기 빌드 28, S15P21E201-1437). 빈 칸에 출발일을 앱이 찍는다. */}
+              <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.stamp, wide && styles.stampWide]}>
+                <Image source={stamp} resizeMode="contain" style={styles.stampImage} />
+                {data.stampDate ? <Text weight="bold" color={color.action.outline} style={[styles.stampDate, wide && styles.stampDateWide]}>{data.stampDate}</Text> : null}
+              </View>
             </View>
             <Text variant="caption" color={color.text.muted} style={styles.validText}>{data.validText}</Text>
             {!!data.code && (
@@ -427,6 +431,10 @@ const styles = StyleSheet.create({
   // 도장 — 스터브 오른쪽, QR 옆 빈 자리. 유효기간 글줄(바코드 바로 아래) 위에 얹히지 않게 그 밑에서 시작한다.
   codeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[4] },
   stamp: { width: 112, height: 112, transform: [{ rotate: '-8deg' }], pointerEvents: 'none' },
+  stampImage: { width: '100%', height: '100%' },
+  // 그림의 빈 띠(1024 기준 y 486~620)에 맞춘 자리 — 112px 에서는 위 53px, 글자 7px.
+  stampDate: { position: 'absolute', left: 0, right: 0, top: 53, textAlign: 'center', fontSize: 7, lineHeight: 9, letterSpacing: 1 },
+  stampDateWide: { top: 61, fontSize: 8, lineHeight: 10 },
   stampWide: { width: 128, height: 128 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   legRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
