@@ -2,12 +2,80 @@
   "type": "object",
   "properties": {
     "found": { "type": "boolean" },
-    "priceWon": { "type": ["number", "null"], "description": "대표 메뉴 1개의 가격, 원 단위 숫자만. 모르면 null" },
-    "priceMenu": { "type": ["string", "null"], "description": "priceWon 이 어느 메뉴의 가격인지" },
-    "priceRangeLowWon": { "type": ["number", "null"], "description": "메뉴판에 가격대가 있으면 최저가" },
-    "priceRangeHighWon": { "type": ["number", "null"], "description": "메뉴판에 가격대가 있으면 최고가" },
+    "confidence": { "type": "string", "enum": ["high", "medium", "low", "none"] },
     "sources": { "type": "array", "items": { "type": "string" }, "description": "원문 주소만. 중계 주소 금지" },
-    "notFound": { "type": ["string", "null"] }
+    "sourceExcerpts": {
+      "type": "array",
+      "description": "각 출처에서 실제로 읽은 부분을 그대로(요약하지 말고) 옮겨 적는다. 재배포하지 않고 내부 분석용으로만 쓴다.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string" },
+          "excerpt": { "type": "string", "description": "그 페이지에서 이 가게에 대해 실제로 적힌 문장을 그대로. 최대 500자 정도" }
+        }
+      }
+    },
+    "whyPeopleGo": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "note": { "type": "string" },
+          "sources": { "type": "array", "items": { "type": "number" } }
+        }
+      }
+    },
+    "descriptors": {
+      "type": "object",
+      "properties": {
+        "yearsClaimed": { "type": ["number", "null"] },
+        "generations": { "type": ["number", "null"] },
+        "queueing": { "type": ["boolean", "null"] },
+        "parking": { "type": ["boolean", "null"] },
+        "audience": { "type": ["string", "null"] },
+        "signatureDishes": { "type": "array", "items": { "type": "string" } },
+        "priceBand": { "type": ["string", "null"], "enum": ["cheap", "mid", "high"] }
+      }
+    },
+    "price": {
+      "type": "object",
+      "properties": {
+        "found": { "type": "boolean" },
+        "priceWon": { "type": ["number", "null"] },
+        "priceMenu": { "type": ["string", "null"] }
+      }
+    },
+    "hours": {
+      "type": "object",
+      "properties": {
+        "found": { "type": "boolean" },
+        "text": { "type": ["string", "null"], "description": "영업시간을 웹에서 본 그대로" }
+      }
+    },
+    "crowding": {
+      "type": "object",
+      "properties": {
+        "found": { "type": "boolean" },
+        "note": { "type": ["string", "null"], "description": "줄서기·혼잡에 대해 글이 뭐라고 했는지 한 줄" }
+      }
+    },
+    "localVsTourist": {
+      "type": "object",
+      "properties": {
+        "found": { "type": "boolean" },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "menuDiversity": {
+      "type": "object",
+      "properties": {
+        "found": { "type": "boolean" },
+        "dishCount": { "type": ["number", "null"], "description": "메뉴판에서 실제로 셀 수 있었던 메뉴 가짓수" }
+      }
+    },
+    "notFound": { "type": ["string", "null"] },
+    "notes": { "type": "string" }
   },
-  "required": ["found", "priceWon", "sources"]
+  "required": ["found", "sources"]
 }
