@@ -63,6 +63,8 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   const hostRef = useRef<HTMLElement | null>(null);
   const mapRef = useRef<any>(null);
   const overlaysRef = useRef<any[]>([]);
+  // 마지막으로 맞춘 범위 — 칸 크기가 바뀌면 같은 범위를 새 크기에 다시 맞춘다.
+  const fitRef = useRef<(() => void) | null>(null);
   const [failure, setFailure] = useState<MapFailure | null>(null);
   const appKey = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
 
@@ -153,8 +155,8 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // : stop이 하나면 bounds 넓이가 0이라 setBounds가 지도를 최대 줌으로
         // 밀어붙인다 — 고정 34px 마커가 화면 대부분을 덮어 장소 이름을 가린다. 하나일 때는
         // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
-        if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); }
-        else map.setBounds(bounds, 60, 60, 60, 60);
+        const fit = () => { if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, 60, 60, 60, 60); };
+        fit(); fitRef.current = fit;
         setFailure(null);
       });
     };
@@ -195,6 +197,20 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
       script.removeEventListener('error', onError);
     };
   }, [appKey, currentLocation, onSelect, points, routes, selectedId, stops]);
+
+  // 🔴 칸 크기가 바뀌면 지도에 말해 줘야 한다 — S15P21E201-1417. 카카오 지도는 만들어질 때의 크기만 알고,
+  //    피드의 지도 시트는 열리면서 커진다. 안 말해 주면 처음 크기만큼(맨 위 한 줄)만 타일을 그리고
+  //    나머지는 회색 「kakaomap」 바탕이다. height 가 바뀔 때와, 그 밖의 이유로 칸이 늘어날 때(ResizeObserver) 둘 다.
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const host = hostRef.current;
+    const relayout = () => { const map = mapRef.current; if (!map) return; map.relayout(); fitRef.current?.(); };
+    relayout();
+    if (!host || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => relayout());
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, [height]);
 
   // 지도에 점선이 하나라도 있으면 그 뜻을 글로 적는다.
   // 점선이 무슨 뜻인지 모르는 사람에게는 실선과 다를 바가 없고, 그러면 점선을 두는
