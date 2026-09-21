@@ -259,7 +259,11 @@ async function ensureAnonymousSessionToken(): Promise<string | null> {
  * 앱이 먼저 끊으면 읽기가 성공해도 사용자는 못 받고, 값은 나가고 하루 한도도 깎인다.
  * 규칙은 context/decisions.md 의 DEC-LATENCY-001.
  */
-type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; accessToken?: string | null; skipUnauthorizedHandling?: boolean; timeoutMs?: number };
+type RequestOptions = Omit<RequestInit, 'body'> & {
+  body?: unknown; accessToken?: string | null; skipUnauthorizedHandling?: boolean; timeoutMs?: number;
+  /** 본문 말고 응답 머리도 봐야 할 때 — 피드가 «실제로 적용된 정렬»을 `X-Feed-Applied` 로 받는다(S15P21E201-1411). 성공·실패 가리지 않고 한 번 부른다. */
+  onResponse?: (response: Response) => void;
+};
 let unauthorizedHandler: (() => void) | null = null;
 export function setUnauthorizedHandler(handler: (() => void) | null) { unauthorizedHandler = handler; }
 
@@ -282,7 +286,7 @@ export function apiRequest<T>(path: string, options: RequestOptions = {}): Promi
 }
 
 async function performRequest<T>(path: string, options: RequestOptions, isRetry: boolean): Promise<T> {
-  const { body, accessToken, headers, skipUnauthorizedHandling, timeoutMs, ...requestOptions } = options;
+  const { body, accessToken, headers, skipUnauthorizedHandling, timeoutMs, onResponse, ...requestOptions } = options;
   const controller = new AbortController();
   let timedOut = false;
   const abortFromCaller = () => controller.abort();
@@ -330,6 +334,7 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
   // HTTP 오류여도 서버 자체에는 다시 연결된 상태다 — 5xx 는 빼고.
   const serverSideFailure = isServerErrorStatus(response.status);
   setApiUnavailable(serverSideFailure);
+  try { onResponse?.(response); } catch { /* 머리를 읽다 던져도 요청 자체는 살린다 */ }
 
   if (response.status === 401 && !skipUnauthorizedHandling) {
     if (!isRetry) {
