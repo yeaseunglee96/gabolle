@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220810611092",
+  "name": "장수숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 38952,
+  "researchedAt": "2026-09-21T21:57:57.387Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "양정동 주택/상가 인근 주민 중심의 동네 갈비 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 양정동(동평로405번길 8)에 위치한 20년 전통의 숯불갈비집으로, 참숯을 사용하여 사장님이 직접 구워주는 돼지갈비로 알려져 있음. 인근 태신주차장 이용 안내가 있음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 부산진구 동평로405번길 8 (양정동). 양정역 5번 출구에서 약 100m 거리에 위치, 주차는 인근 태신주차장 이용. 20년 전통의 갈비집으로 직접 구워주는 돼지갈비와 참숯 사용.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "백조아파트 인근에 자리한 식당으로, 돼지갈비를 주메뉴로 하며 사장님이 직접 고기를 구워주는 것으로 알려져 있습니다. 식사 메뉴로 공기밥과 된장찌개 등이 제공됩니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오랜 기간 운영해 온 양정동의 전통 숯불갈비집",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "참숯에 사장님이 직접 구워주는 돼지갈비 맛과 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202604A0041796",
+  "name": "소로식당",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 37021,
+  "researchedAt": "2026-09-21T21:58:08.869Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 매장 혼잡에 대한 명시적 언급을 웹에서 찾을 수 없음"
+  },
+  "descriptors": {
+    "audience": "일식 청어 요리 선호 고객 및 인근 주민·직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "들기름청어메밀국수",
+      "타래청어덮밥",
+      "청어초밥",
+      "아지후라이"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "영업 종료 21:00 (오픈 시간 등 상세 운영 시간은 매장 문의 요망)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 구체적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 9,
+    "found": true
+  },
+  "notes": "부산진구 양정동에 위치한 일식당으로 청어를 주재료로 한 들기름청어메밀국수, 타래청어덮밥, 청어초밥, 이소베마끼 등 특색 있는 일식 및 회/초밥 메뉴를 제공함.",
+  "price": {
+    "found": true,
+    "priceMenu": "회무침덮밥/타래청어덮밥/들기름청어메밀국수/회비빔국수 10,000원, 세트(+소로초밥) 13,000원, 이소베마끼 14,000원, 청어초밥(12P) 15,000원, 막썰은 청어회 24,000원",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 부산진구 동평로405번길 78 (양정동). 대표 메뉴: 회무침덮밥+소로초밥(set) 13,000원, 타래청어덮밥+소로초밥(set) 13,000원, 회비빔국수 10,000원, 들기름청어메밀국수 10,000원, 막썰은 청어회 24,000원, 이소베마끼(청어김밥) 14,000원, 청어초밥(12P) 15,000원, 아지후라이 16,000원. 영업 종료: 21:00. 전화번호: 070-5213-1525.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "청어를 주재료로 한 들기름청어메밀국수, 타래청어덮밥, 이소베마끼 등 특색 있는 일식 메뉴의 맛과 정갈함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1만 원~1만 3천 원 선의 부담 없는 식사 메뉴 및 초밥 세트 구성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

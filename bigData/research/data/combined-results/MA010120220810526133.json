@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220810526133",
+  "name": "닢툰",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 42792,
+  "researchedAt": "2026-09-21T21:57:28.651Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "해당 주소(부산광역시 사하구 원양로398번길 8)에는 '닢툰'(경양식)에 대한 실제 영업 또는 리뷰 정보가 존재하지 않습니다(동일 주소지 '카페 넵튠' 관련 표기 가능성 추정). 허위 정보를 생성하지 않기 위해 found: false로 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

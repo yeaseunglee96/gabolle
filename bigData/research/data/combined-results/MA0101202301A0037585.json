@@ -1,0 +1,45 @@
+{
+  "id": "MA0101202301A0037585",
+  "name": "수타생왕돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47934,
+  "researchedAt": "2026-09-21T21:56:35.149Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 연제구 거제천로 171 (거제동 15-45) 한일빌딩 1층에 '수타생왕돈까스' 상호의 사업자/장소 등록 기록은 확인되나, 방문 후기나 메뉴·영업시간 등 상세 정보가 전무하거나 폐업/단순 사업자 등록 상태로 추정되어 방문 이유 및 세부 정량 정보 확인 불가.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 거제천로 171(거제동 15-45)에 위치한 '수타생왕돈까스'에 대해 확인해 드립니다. 해당 정보에 따르면, 해당 주소지로 등록된 '수타생왕돈까스'라는 상호의 업체가 존재합니다. 다만, 별도의 리뷰나 상세한 운영 정보(영업시간, 메뉴 등)가 등록되어 있지 않은 것으로 보이니, 방문 전 영업 여부를 전화로 미리 확인해 보시는 것을 추천해 드립니다.",
+      "url": "https://linktoplace.com"
+    },
+    {
+      "excerpt": "부산광역시 연제구 거제천로 171 (거제동 15-45) 한일빌딩 1층, 수타생왕돈까스",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://linktoplace.com",
+    "https://zippoom.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

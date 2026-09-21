@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811603304",
+  "name": "마루미",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 49339,
+  "researchedAt": "2026-09-21T21:57:16.532Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 금정구 오시게로 46-2(부곡동 391-26) 소재의 일반음식점(인허가/관공서 등록 상호: 마루미)으로 지자체 인허가 내역상 등록은 확인되나, 방문자 후기, 메뉴 상세, 영업시간, 줄서기 등 상세 방문 데이터는 웹상에 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "마루미 (일반음식점) / 소재지: 부산광역시 금정구 오시게로 46-2 (부곡동 391-26) / 연락처: 051-583-0608",
+      "url": "https://www.geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

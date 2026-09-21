@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202310A0005008",
+  "name": "에트렌느사직",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 36361,
+  "researchedAt": "2026-09-21T21:56:36.236Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 모임, 지인 모임, 데이트",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "파스타",
+      "스테이크",
+      "라자냐"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~금 11:00 ~ 21:00, 토~일 11:30 ~ 21:30 (월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지하철 3호선 미남역 인근 주택가 골목에 위치해 지역민들이 주로 찾는 동네 모임·기념일 식사 장소로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 동래구 미남로 47-6에 위치한 양식/경양식 레스토랑 에트렌느(에트렌느사직)에 대한 웹 검색 조사 결과입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "에트렌느 사직(Etrenne Sajik)은 부산광역시 동래구 미남로 47-6(사직동)에 위치한 양식 레스토랑입니다. 파스타, 리조또, 스테이크, 라자냐 등을 판매하며 아늑하고 분위기가 좋아 기념일이나 가족 모임 장소로 자주 언급되는 곳입니다. 프랑스어로 연초나 연말에 주고받는 '선물'이라는 의미를 담고 있습니다. 지하철 3호선 미남역 근처에 위치해 있습니다.",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아늑하고 따뜻한 분위기로 가족 모임 및 기념일 식사 장소로 찾음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

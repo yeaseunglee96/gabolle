@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220810178857",
+  "name": "태동",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 28638,
+  "researchedAt": "2026-09-21T21:56:13.064Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 소규모 모임 고객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "탕수육",
+      "삼선짬뽕",
+      "어향가지 새우완자",
+      "유니짜장"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "영업 종료 22:00 (점심부터 운영)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 구분 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 17,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 동래구 사직동/미남로에 위치한 20년 경력 셰프의 깔끔한 중화요리 및 코스요리 전문점. 개별 룸 완비 및 시간대별 주차 지원.",
+  "price": {
+    "found": true,
+    "priceMenu": "유니짜장 7,000원 / 삼선짬뽕 10,000원 / 탕수육 23,000원",
+    "priceWon": 7000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 미남로 68 1층 (사직동). 중식 경력 20년의 셰프가 운영하는 깔끔한 중화요리 전문점으로, 일품요리부터 코스 요리까지 다양하게 즐길 수 있습니다. 5인석, 6인석 룸이 구비되어 있어 소규모 모임에도 적합합니다. 유니짜장 7,000원, 삼선짬뽕 10,000원, 탕수육 23,000원, 어향가지 23,000원, 영업 종료 22:00. 주차: 11:30~18:00 테이블당 1시간 무료(동신주차장 등), 18:00~마감 알라딘주차장 이용 가능.",
+      "url": "https://www.siksinhot.com/P/1551061"
+    },
+    {
+      "excerpt": "가게 이름을 딴 '태' 코스와 '동' 코스 등 코스 요리에 대한 만족도가 높으며, 룸에서 회전 테이블을 이용할 수 있어 모임에 적합하다는 평이 있습니다. 짜사이 등 기본 찬의 간이 적절하고 깔끔하다는 점도 언급되었습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1551061",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "20년 경력 셰프의 깔끔한 코스 요리와 중식 요리의 맛",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "개별 룸과 원형 회전 테이블 완비 및 주차 지원으로 모임·회식 편의성 우수",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

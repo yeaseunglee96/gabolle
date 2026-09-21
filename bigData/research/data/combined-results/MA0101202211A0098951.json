@@ -1,0 +1,83 @@
+{
+  "id": "MA0101202211A0098951",
+  "name": "스시오오키",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 35554,
+  "researchedAt": "2026-09-21T21:57:07.002Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "아담한 규모의 매장 특성상 대기가 발생할 수 있으며 현장 웨이팅(테이블링 등) 및 오픈런이 언급됨"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인, 초밥 애호가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "오오키초밥",
+      "특선초밥",
+      "후토마끼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00 (브레이크타임 14:20 ~ 17:00, 재료 소진 시 조기 마감)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "아파트 상가 및 인근 동네 주민 중심의 로컬 방문 및 포장/배달 이용 언급"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산진구 동평로 173(부암동 751 협성휴포레시티즌파크 상가 301동 113호)에 위치한 초밥 전문점 스시오오키로 확인됨. 일부 데이터베이스에는 전포동 매장과 함께 기록되어 있음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 부암동 751, 협성휴포레시티즌파크 301동 113호. 아담한 규모의 일식당으로, 신선한 재료를 사용한 오오키초밥, 특모듬초밥, 후토마끼 등의 메뉴를 제공합니다. 포장 및 배달 서비스도 운영하고 있어 편리하게 이용 가능합니다.",
+      "url": "https://autoreserve.com"
+    },
+    {
+      "excerpt": "영업시간: 11:00 ~ 21:00, 브레이크 타임: 14:20 ~ 17:00. 인기가 많아 대기(웨이팅)가 발생할 수 있으며, 재료 소진 시 조기 마감될 수 있습니다. 오픈 시간에 맞춰 방문하는 '오픈런'이 권장됩니다. 메뉴: 오오키초밥, 특선초밥, 후토마끼, 냉모밀 등이 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 네타와 알찬 구성의 오오키초밥, 후토마끼 등 초밥의 뛰어난 맛과 완성도",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "아담한 매장에서 제공하는 합리적인 가격대의 고품질 스시와 포장/배달 편의",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "인근 아파트 상가 주민들이 일상적으로 찾는 동네 단골 기반 로컬 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}
