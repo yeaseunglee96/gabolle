@@ -36,6 +36,16 @@ public class ItineraryRunJpaEntity {
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
 
+	/** 마지막으로 받은 위치. 둘 다 있거나 둘 다 없다 — 표의 CHECK 가 그것을 지킨다. */
+	@Column(name = "last_lat")
+	private Double lastLat;
+
+	@Column(name = "last_lng")
+	private Double lastLng;
+
+	@Column(name = "last_location_at")
+	private OffsetDateTime lastLocationAt;
+
 	protected ItineraryRunJpaEntity() {
 		// JPA 전용
 	}
@@ -62,5 +72,17 @@ public class ItineraryRunJpaEntity {
 
 	public OffsetDateTime updatedAt() {
 		return this.updatedAt;
+	}
+
+	public Double lastLat() {
+		return this.lastLat;
+	}
+
+	public Double lastLng() {
+		return this.lastLng;
+	}
+
+	public OffsetDateTime lastLocationAt() {
+		return this.lastLocationAt;
 	}
 }

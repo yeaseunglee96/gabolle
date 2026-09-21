@@ -34,6 +34,10 @@ class ItineraryRunSqlMatchesMigrationTest {
 	private static final Path MIGRATION = Path.of(
 			"src/main/resources/db/migration/V20260919100000__itinerary_run.sql");
 
+	/** 위치 칸 셋을 뒤에 붙인 판. 칸이 두 파일에 나뉘어 있으므로 둘 다 읽어야 한다. */
+	private static final Path MIGRATION_LOCATION = Path.of(
+			"src/main/resources/db/migration/V20260921120000__itinerary_run_location.sql");
+
 	private static final Path REPOSITORY = Path.of(
 			"src/main/java/com/gabolle/backend/itinerary/infra/JpaItineraryRunRepository.java");
 
@@ -44,8 +48,9 @@ class ItineraryRunSqlMatchesMigrationTest {
 		Set<String> insertColumns = insertColumns();
 
 		// 파서가 아무것도 못 찾았는데 초록이 되는 것을 막는다 — 빈 집합끼리는 항상 맞는다.
-		assertThat(tableColumns).hasSize(6);
-		assertThat(insertColumns).hasSize(6);
+		// 여섯은 처음 만들 때의 칸이고 셋은 나중에 붙인 위치 칸이다.
+		assertThat(tableColumns).hasSize(9);
+		assertThat(insertColumns).hasSize(9);
 
 		assertThat(tableColumns).containsAll(insertColumns);
 	}
@@ -74,6 +79,8 @@ class ItineraryRunSqlMatchesMigrationTest {
 
 		assertThat(doUpdate).doesNotContain("started_at");
 		assertThat(doUpdate).contains("status").contains("current_stop_index").contains("updated_at");
+		// 위치는 덮어쓴다 — 마지막으로 받은 값이 언제나 가장 최근이어야 한다.
+		assertThat(doUpdate).contains("last_lat").contains("last_lng").contains("last_location_at");
 	}
 
 	/** {@code UPSERT} 상수 안의 SQL 만. 주석은 안 들어온다. */
@@ -129,6 +136,24 @@ class ItineraryRunSqlMatchesMigrationTest {
 				columns.add(name.group(1));
 			}
 		}
+		columns.addAll(addedColumns(table));
+		return columns;
+	}
+
+	/**
+	 * 뒤에 붙인 판의 칸. {@code CREATE TABLE} 한 곳만 보면 안 된다 — {@code ALTER TABLE ADD
+	 * COLUMN} 으로 붙인 칸이 빠져서, 그 칸을 INSERT 에 적으면 검사가 「표에 없는 칸」이라고
+	 * 거꾸로 말한다.
+	 */
+	private static Set<String> addedColumns(String table) throws IOException {
+		Set<String> columns = new LinkedHashSet<>();
+		Matcher matcher = Pattern
+				.compile("ALTER TABLE " + table + "\s+ADD COLUMN\s+(?:IF NOT EXISTS\s+)?([a-z_]+)")
+				.matcher(read(MIGRATION_LOCATION));
+		while (matcher.find()) {
+			columns.add(matcher.group(1));
+		}
+		assertThat(columns).as("뒤에 붙인 칸을 하나도 못 읽었다").isNotEmpty();
 		return columns;
 	}
 

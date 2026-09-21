@@ -564,6 +564,12 @@ class RouteAuthorizationRegistryTest {
 				"도착 기록은 편집 권한자만 — 그 기록은 여행이 끝난 뒤에도 남는다. ItineraryRunService.arrive");
 		put(m, "POST /api/v1/itineraries/{}/progress/stops/{}/skip", Policy.OWNED,
 				"건너뛰기도 같다. 남의 일정에서 정차지를 빼는 것은 편집이다");
+		put(m, "POST /api/v1/itineraries/{}/progress/location", Policy.OWNED,
+				"🔴 위치를 올리는 것은 편집 권한자만 — 보기 전용으로 초대된 사람이 남의 여행 궤적에 "
+						+ "자기 위치를 섞어 넣을 수 있으면 안 된다. 위치 기록은 지우기 전까지 남는다. "
+						+ "ItineraryRunService.recordLocations");
+		put(m, "POST /api/v1/itineraries/{}/progress/complete", Policy.OWNED,
+				"완료도 편집이다. 남이 달리는 일정을 끝내 버릴 수 있으면 안 된다. ItineraryRunService.complete");
 
 		put(m, "PUT /api/v1/itineraries/{}/items/{}/actual", Policy.OWNED,
 				"그 여행의 편집자만 자기 일정의 방문 시각을 적는다 — 남의 여행은 존재를 감춘 404, VIEWER 는 403. ItineraryActualTimeIntegrationTest (-293)");
