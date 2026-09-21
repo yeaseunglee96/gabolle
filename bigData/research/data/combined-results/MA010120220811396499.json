@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220811396499",
+  "name": "태영청둥오리집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 34535,
+  "researchedAt": "2026-09-21T22:33:52.544Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "오리탕",
+      "오리불고기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "감만동 지역 동네 로컬 식당으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남구 감만동(석포로56번길 31)에 위치한 오리 요리 전문 식당으로, 착한가격업소 지정 이력 및 오리탕, 오리불고기 등을 취급하는 곳입니다. 온라인 상세 후기는 매우 적은 편입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "태영청둥오리 - 부산, 남구, 감만동 | 맛집검색 식신... 대표메뉴: 오리탕, 오리불고기(중) 부산의 깔끔한 저녁식사!",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 남구 석포로56번길 31 (감만동 30-39) 태영청둥오리 (전화 051-633-9734) 착한가격업소",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "과거 착한가격업소로 소개되는 등 부담 없는 가격대로 오리탕과 오리불고기 식사를 제공함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

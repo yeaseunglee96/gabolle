@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220809363567",
+  "name": "브라더",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 50621,
+  "researchedAt": "2026-09-21T22:36:44.570Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 없음 (폐업 또는 상호/주소 불일치)",
+  "notes": "부산광역시 사하구 다대로 365(장림현대타워아파트 상가 일대) 및 인근 장림동 지역에서 '브라더' 상호의 돼지고기 구이/찜 업종 정보가 웹상에서 검색되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

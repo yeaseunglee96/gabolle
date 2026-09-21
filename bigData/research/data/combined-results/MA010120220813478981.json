@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220813478981",
+  "name": "보경",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 57429,
+  "researchedAt": "2026-09-21T22:34:45.141Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 등록된 '보경' 음식점은 웹상에서 실제 방문 후기, 메뉴, 영업시간 등의 운영 정보를 확인할 수 없음",
+  "notes": "부산광역시 금정구 청룡예전로 42(청룡동 57-1) 소재의 '보경'(돼지고기 구이/찜)은 일반 행정 인허가 상호 외에 실제 방문 후기나 영업 관련 정보가 웹상에 존재하지 않아 조사가 불가능합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

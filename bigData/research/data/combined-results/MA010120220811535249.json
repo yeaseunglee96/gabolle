@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811535249",
+  "name": "언덕위의빵집",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 53398,
+  "researchedAt": "2026-09-21T22:35:24.226Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 상세 정보 부재 또는 폐업 추정",
+  "notes": "부산광역시 부산진구 복지로 61(개금동) 주소로 상호 등록 이력은 확인되나, 실제 방문 후기나 메뉴, 가격, 영업시간 등 운영 상세 내역이 웹상에 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,83 @@
+{
+  "id": "MA0106202301A2071660",
+  "name": "이아스트",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 43765,
+  "researchedAt": "2026-09-21T22:35:15.349Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "평소에는 비교적 여유로우나 주말이나 공휴일 방문객이 많을 때는 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "데이트 및 가족 나들이객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "수제바닐라라떼",
+      "애플유자차",
+      "브라우니 케이크",
+      "우유 크림빵"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 22:00 (마지막 주문 21:30) 연중무휴"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 금정산 및 범어사 인근 방문객, 나들이객, 데이트 코스로 찾는 손님 위주"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 금정구 하마2길 28-17에 위치한 '이아스트(주)'는 서양식 음식점업 및 카페로 등록된 법인 사업체이며, 실제 해당 주소지에서 대형 베이커리 숲속 카페인 '더팜471(THE FARM 471)'을 운영하고 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "기업명: 이아스트(주), 주요 사업: '더팜471' 카페 운영 및 서양식 음식점업, 식품제조가공 등, 위치: 부산광역시 금정구 하마2길 28-17 (청룡동)",
+      "url": "https://www.jobkorea.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 금정구 하마2길 28-17. 범어사 인근에 위치한 대형 카페로, 자연과 어우러진 모던한 인테리어가 특징입니다. 영업시간은 매일 10:00~22:00 (마지막 주문 21:30)이며 연중무휴로 운영됩니다. 대표 메뉴로는 애플 유자차, 브라우니 케이크, 우유 크림빵 등이 있습니다.",
+      "url": "https://ktriptips.com"
+    },
+    {
+      "excerpt": "도심을 벗어나 금정산의 숲 뷰를 즐길 수 있는 곳으로, 야외 테라스 공간도 잘 가꾸어져 있어 데이트나 가족 나들이 코스로 인기가 많습니다. 평소에는 비교적 여유로운 편이나, 주말이나 공휴일에는 웨이팅이 발생할 수 있습니다. 전용 주차장이 마련되어 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.jobkorea.co.kr",
+    "https://ktriptips.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "금정산 숲속 뷰와 갤러리 감성의 자연 힐링 공간, 야외 테라스 분위기",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "수제 바닐라라떼 및 직접 구운 베이커리·디저트 메뉴",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

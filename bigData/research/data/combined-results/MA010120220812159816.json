@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220812159816",
+  "name": "여백을채우다",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 102239,
+  "researchedAt": "2026-09-21T22:37:03.490Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 친구",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥",
+      "라멘"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화요일을 제외한 매일 오전 11시부터 오후 11시까지 (브레이크타임 15:00~17:00, 라스트오더 22:30, 매주 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 사하구 장림동 장평로 127 소재의 캐주얼 일식당 '여백을채우다 x 와다라멘 장림점' 조사 완료. 초밥과 라멘을 함께 취급하며, 상세 가격표 및 줄서기/혼잡에 대한 별도 언급은 확인되지 않아 해당 항목은 미발견 처리함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이곳은 장림2동 행정복지센터 옆에 위치한 캐주얼 일식당으로, 신선한 재료와 정성 가득한 음식으로 손님들을 맞이합니다. ... 주소: 부산 사하구 장평로 127 ... 주차정보: 주변에 주차 가능한 공간이 있습니다. ... 화요일을 제외한 매일 오전 11시부터 오후 11시까지 영업을 합니다. 다만, 매주 화요일은 정기 휴무입니다. 브레이크타임은 오후 3시부터 오후 5시까지이며, 라스트 오더는 오후 10시 30분까지입니다.",
+      "url": "https://primaryholic.tistory.com/entry/%EC%8B%A0%EC%9E%A5%EB%A6%BC%EC%97%AD-%EC%97%AC%EB%B0%B1%EC%9D%84%EC%B1%84%EC%9A%B0%EB%8B%A4-x-%EC%99%80%EB%8B%A4%EB%9D%BC%EB%A9%98-%EC%9E%A5%EB%A6%BC%EC%A0%90-%EA%B0%80%EB%B3%BC%EB%A7%8C%ED%95%9C%EA%B3%B3-%EC%86%8C%EA%B0%9C"
+    }
+  ],
+  "sources": [
+    "https://primaryholic.tistory.com/entry/%EC%8B%A0%EC%9E%A5%EB%A6%BC%EC%97%AD-%EC%97%AC%EB%B0%B1%EC%9D%84%EC%B1%84%EC%9A%B0%EB%8B%A4-x-%EC%99%80%EB%8B%A4%EB%9D%BC%EB%A9%98-%EC%9E%A5%EB%A6%BC%EC%A0%90-%EA%B0%80%EB%B3%BC%EB%A7%8C%ED%95%9C%EA%B3%B3-%EC%86%8C%EA%B0%9C"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 재료와 정성을 바탕으로 한 캐주얼 일식(초밥 및 라멘)을 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

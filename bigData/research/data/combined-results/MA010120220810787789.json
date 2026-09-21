@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220810787789",
+  "name": "참추어탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 44370,
+  "researchedAt": "2026-09-21T22:36:42.450Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "추어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:00 ~ 20:30"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 연제구 거제동(월드컵대로 227-1)에 소재한 추어탕 전문점으로 연제구 착한가격업소로 등록되어 있는 업소임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 월드컵대로 227-1 (거제동) / 참추어탕 / 051-507-1717 / 착한가격업소 / 영업시간 09:00 ~ 20:30 / 대표 메뉴 추어탕",
+      "url": "https://www.yeonje.go.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.yeonje.go.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "연제구 지정 착한가격업소로 부담 없는 가격에 추어탕 식사가 가능함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

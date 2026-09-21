@@ -1,0 +1,82 @@
+{
+  "id": "MA010120220810514680",
+  "name": "동경초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 32152,
+  "researchedAt": "2026-09-21T22:35:36.961Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "전 좌석이 개별 룸 구조로 운영되어 줄서기보다는 예약 위주로 조용하게 식사하는 환경임"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 비즈니스 접대, 단체 회식",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "동경특선 코스",
+      "점심특선 코스",
+      "모둠회",
+      "초밥"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 22:00 (브레이크타임 14:30 ~ 16:30 또는 17:00까지 점심 12:00~14:30, 저녁 17:00~22:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서대신동 로컬 주민들의 어르신 동반 가족 모임 및 접대 수요 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 서대신동에서 20년 이상 영업한 정통 일식당으로, 전 좌석 개별 룸 구조와 풍성한 구성의 코스 요리가 특징입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "동경특선 D코스 (최저 코스 기준)",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동경초밥은 부산 서대신동에 위치한 20년 이상의 전통을 가진 일식 전문점입니다. 신선한 회와 해산물을 활용한 초밥과 다양한 일식 코스 요리를 제공하며, 2층에는 룸이 마련되어 있어 중요한 모임이나 손님을 대접하기에 적합한 공간입니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "모든 좌석이 개별 룸으로 구성되어 있어 프라이빗한 식사가 가능합니다. 가족 모임이나 어른들을 모시고 방문하기에 적합한 공간입니다. 좌식처럼 보이지만 발을 아래로 내릴 수 있는 입식 구조로 되어 있어 편리하다는 평이 많습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "동경특선 A코스 100,000원, B코스 70,000원, C코스 50,000원, D코스 40,000원, 점심특선 A코스 50,000원. 영업시간 12:00 ~ 22:00 (점심 12:00~14:30, 저녁 17:00~22:00). 부산 서구 구덕로321번길 21.",
+      "url": "https://tel-co.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://tel-co.net",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "20년 넘게 한 자리에서 운영하며 신선한 회와 해산물 코스 요리를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "전 좌석 개별 룸 완비 및 발을 내릴 수 있는 편안한 입식 구조로 가족 모임 및 접대에 최적화됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

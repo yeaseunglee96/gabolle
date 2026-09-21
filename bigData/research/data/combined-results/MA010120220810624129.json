@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220810624129",
+  "name": "가스름제주생고기촌",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 40041,
+  "researchedAt": "2026-09-21T22:34:23.209Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인, 인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "제주생고기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "범일동 일대 인근 직장인과 주민들이 주로 찾는 동네 로컬 음식점으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동구 범일동(중앙대로 511)에 등록된 제주 생고기 전문 한식 고깃집이나, 웹상에 상세 방문 후기나 메뉴판, 영업시간 정보가 매우 드물게 등록되어 있는 로컬 점포임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가스름제주생고기촌 / 부산광역시 동구 중앙대로 511 (범일동) / 업종: 한식 음식점업",
+      "url": "https://www.saramin.co.kr"
+    },
+    {
+      "excerpt": "범일동 지역 내에서 식당가 및 편의시설이 밀집한 곳에 자리 잡고 있으며, 인근 주민들이나 직장인들이 자주 찾는 로컬 음식점으로 알려져 있습니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산 범일동 일대에서 제주 생고기 구이를 찾는 인근 직장인 및 주민들의 방문",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
