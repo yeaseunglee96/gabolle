@@ -7,6 +7,7 @@ import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshM
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { clearSavedTrips } from '@/trip/tripLibrary';
 import { restoreMobileAuth } from './restoreMobileAuth';
+import { registerPushToken, unregisterPushToken } from '@/notifications/pushToken';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
@@ -93,6 +94,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void restore();
     return () => { active = false; };
   }, []);
+  // 푸시 토큰 — 로그인한 사용자 한 명당 한 번(S15P21E201-1429). 권한이 없으면 조용히 건너뛰고, 권한을 나중에 켜면
+  //    설정 「알림」에서 돌아올 때 다시 시도한다. 실패는 로그인에 아무 영향이 없다.
+  const pushRegisteredFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!accessToken || !user?.userId || pushRegisteredFor.current === user.userId) return;
+    let alive = true;
+    void registerPushToken(accessToken).then((result) => { if (alive && result === 'registered') pushRegisteredFor.current = user.userId; });
+    return () => { alive = false; };
+  }, [accessToken, user?.userId]);
+
   const value = useMemo<AuthContextValue>(() => ({ accessToken, user, ready, clearSession,
     signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
     acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
@@ -100,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     deleteAccount: async (confirmation) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); await deleteMe(accessToken, confirmation); await clearSavedTrips(); preferences.reset(); clearSession(); router.replace('/'); },
     // 로그아웃해도 이 기기에 남는 것들을 정리한다 — 안 그러면 같은 기기에서 다음 사람이
     // 로그인했을 때 앞사람의 여행 목록·언어·이동 성향이 그대로 보인다.
-    signOut: async () => { try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
+    signOut: async () => { pushRegisteredFor.current = null; await unregisterPushToken(accessToken); try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
   }), [accessToken, preferences, ready, refreshToken, router, user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

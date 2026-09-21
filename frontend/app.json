@@ -80,7 +80,14 @@
           "microphonePermission": false
         }
       ],
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#D83A48",
+          "defaultChannel": "trip"
+        }
+      ],
       "expo-video",
       [
         "expo-audio",
