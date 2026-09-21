@@ -35,7 +35,16 @@ public class TripCoverAdapter implements TripCoverPort {
 	private static final Logger log = LoggerFactory.getLogger(TripCoverAdapter.class);
 
 	/**
-	 * 여행마다 «첫 일정의 첫 방문지» 한 줄.
+	 * 여행마다 표지 한 줄 — 첫 방문지의 <b>이름</b>과, 앞쪽 방문지 가운데 <b>사진이 있는 첫 곳</b>의 사진.
+	 *
+	 * <p>🔴 <b>이름과 사진이 다른 곳에서 올 수 있다 (S15P21E201-1436).</b> 처음에는 둘 다 «첫 방문지»
+	 * 에서 가져왔는데, 첫 방문지는 식당·카페인 경우가 많고 그런 곳은 관광공사 사진이 없다 — 2026-09-21
+	 * 실서버에서 첫 방문지가 정해진 여행 41건 중 사진이 있는 것은 10건뿐이었다. 그래서 사진은 앞
+	 * {@link #COVER_LOOKAHEAD_STOPS} 곳까지 훑어 처음 만나는 것을 쓴다. 화면이 이미 그렇게 하고 있었고
+	 * (frontend/src/plan/tripCover.ts), 규칙이 다르면 화면이 서버 값으로 갈아탈 때 사진이 오히려 줄어든다.
+	 *
+	 * <p>이름은 «첫 방문지» 그대로다 — {@code firstStopName} 이라는 이름이 뜻하는 것이 그것이고, 사진을
+	 * 고른 곳으로 바꾸면 「첫 방문지」를 묻는 쪽이 다른 답을 받는다.
 	 *
 	 * <p>🔴 <b>«첫 일정» 은 가장 먼저 만들어진 일정이다.</b> 지어낸 규칙이 아니라 여행 하나를
 	 * 열었을 때 나오는 그 일정이다 — {@code JpaItineraryRepository.findByTripId} 가
@@ -43,30 +52,60 @@ public class TripCoverAdapter implements TripCoverPort {
 	 * 화면의 첫 장소가 어긋난다. 실제로 일정을 셋 가진 여행이 2026-09-21 실서버에 하나 있다.
 	 *
 	 * <p>🔴 <b>정렬 꼬리의 {@code itinerary_id}·{@code itinerary_item_id} 는 장식이 아니다.</b>
-	 * {@code created_at} 이나 {@code (day_index, sequence)} 가 같은 줄이 둘 있으면 DISTINCT ON 이
-	 * 어느 줄을 고를지 정해지지 않고, 그러면 같은 여행의 표지가 새로고침마다 바뀐다.
+	 * {@code created_at} 이나 {@code (day_index, sequence)} 가 같은 줄이 둘 있으면 어느 줄이 뽑힐지
+	 * 정해지지 않고, 그러면 같은 여행의 표지가 새로고침마다 바뀐다.
 	 *
 	 * <p>판은 {@code latest_version} 을 따른다 — 일정을 편집하면 표지도 따라 바뀌는 것이 맞다.
+	 * 여행이 몇 개든 질의는 이 하나다.
 	 */
-	private static final String FIRST_STOP_OF_EACH_TRIP = """
-			SELECT first_stop.trip_id, place.photo_url, place.name_ko, place.name_en
-			FROM (
+	private static final String COVER_OF_EACH_TRIP = """
+			WITH first_itinerary AS (
 			    SELECT DISTINCT ON (itinerary.trip_id)
-			           itinerary.trip_id AS trip_id,
-			           item.place_id     AS place_id
+			           itinerary.trip_id       AS trip_id,
+			           itinerary.itinerary_id  AS itinerary_id,
+			           itinerary.latest_version AS latest_version
 			    FROM itineraries itinerary
+			    WHERE itinerary.trip_id IN (:tripIds)
+			    ORDER BY itinerary.trip_id, itinerary.created_at, itinerary.itinerary_id
+			), stops AS (
+			    SELECT first_itinerary.trip_id AS trip_id,
+			           item.place_id           AS place_id,
+			           ROW_NUMBER() OVER (
+			               PARTITION BY first_itinerary.trip_id
+			               ORDER BY item.day_index, item.sequence, item.itinerary_item_id
+			           ) AS stop_rank
+			    FROM first_itinerary
 			    JOIN itinerary_versions version
-			      ON version.itinerary_id = itinerary.itinerary_id
-			     AND version.version = itinerary.latest_version
+			      ON version.itinerary_id = first_itinerary.itinerary_id
+			     AND version.version = first_itinerary.latest_version
 			    JOIN itinerary_item item
 			      ON item.itinerary_version_id = version.itinerary_version_id
-			    WHERE itinerary.trip_id IN (:tripIds)
-			    ORDER BY itinerary.trip_id,
-			             itinerary.created_at, itinerary.itinerary_id,
-			             item.day_index, item.sequence, item.itinerary_item_id
-			) first_stop
-			JOIN place ON place.place_id = first_stop.place_id
+			), head AS (
+			    SELECT * FROM stops WHERE stop_rank <= :lookahead
+			)
+			SELECT head.trip_id,
+			       (SELECT photo.photo_url
+			          FROM head AS with_photo
+			          JOIN place AS photo ON photo.place_id = with_photo.place_id
+			         WHERE with_photo.trip_id = head.trip_id
+			           AND photo.photo_url IS NOT NULL
+			         ORDER BY with_photo.stop_rank
+			         LIMIT 1) AS photo_url,
+			       place.name_ko,
+			       place.name_en
+			FROM head
+			JOIN place ON place.place_id = head.place_id
+			WHERE head.stop_rank = 1
 			""";
+
+	/**
+	 * 사진을 찾을 때 앞에서 몇 곳까지 보는가.
+	 *
+	 * <p>여섯은 화면이 쓰던 수와 같게 맞춘 값이다(frontend/src/plan/tripCover.ts 의
+	 * {@code slice(0, 6)}). 늘리면 「첫 방문지 근처」라기엔 먼 곳의 사진이 표지가 되고, 줄이면
+	 * 사진 없는 카드가 늘어난다.
+	 */
+	static final int COVER_LOOKAHEAD_STOPS = 6;
 
 	private final EntityManager entityManager;
 
@@ -85,8 +124,9 @@ public class TripCoverAdapter implements TripCoverPort {
 
 		try {
 			@SuppressWarnings("unchecked")
-			List<Object[]> rows = this.entityManager.createNativeQuery(FIRST_STOP_OF_EACH_TRIP)
+			List<Object[]> rows = this.entityManager.createNativeQuery(COVER_OF_EACH_TRIP)
 					.setParameter("tripIds", ids)
+					.setParameter("lookahead", COVER_LOOKAHEAD_STOPS)
 					.getResultList();
 
 			Map<String, Cover> covers = new HashMap<>();
