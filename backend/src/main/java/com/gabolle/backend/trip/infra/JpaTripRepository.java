@@ -368,7 +368,7 @@ public class JpaTripRepository implements TripRepository {
 				t.travelModes(), t.timeWindowStart(), t.timeWindowEnd(),
 				t.accommodationPlaceId() == null ? null : UUID.fromString(t.accommodationPlaceId()),
 				t.englishMenuRequired(), t.foreignCardRequired(), t.soloFriendlyPriority(),
-				t.maxTransitTransfers(), t.title(), t.status(),
+				t.maxTransitTransfers(), t.pace(), t.title(), t.status(),
 				toOffset(t.createdAt()), toOffset(t.updatedAt()), toOffset(t.deletedAt()));
 	}
 
@@ -387,6 +387,7 @@ public class JpaTripRepository implements TripRepository {
 				.timeWindowStart(e.timeWindowStart())
 				.timeWindowEnd(e.timeWindowEnd())
 				.travelModes(e.travelModes())
+				.pace(e.pace())
 				.accommodationPlaceId(e.accommodationPlaceId() == null ? null : e.accommodationPlaceId().toString())
 				.englishMenuRequired(e.englishMenuRequired())
 				.foreignCardRequired(e.foreignCardRequired())

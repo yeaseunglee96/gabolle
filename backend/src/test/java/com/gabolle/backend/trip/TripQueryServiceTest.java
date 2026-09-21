@@ -48,7 +48,7 @@ class TripQueryServiceTest {
                 300000, 2,
                 "MORNING_TO_EVENING", "Asia/Seoul",
                 List.of(new PreferenceSnapshot.PreferenceAnswer(
-                        "pace", "RELAXED", PreferenceSnapshot.AnswerStatus.SELECTED)),
+                        "quietness", "3", PreferenceSnapshot.AnswerStatus.SELECTED)),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "MOBILITY", "MAX_WALKING_METERS", TripConstraint.Severity.HARD, "LTE", null, 5000.0,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
@@ -68,9 +68,9 @@ class TripQueryServiceTest {
         // 만든 사람은 trip_member 에 OWNER 로 들어간다(TripCreationService).
         assertEquals(TripMember.Role.OWNER, view.role());
 
-        var pace = view.snapshot().answers().stream()
-                .filter(a -> a.dimension().equals("pace")).findFirst().orElseThrow();
-        assertEquals("RELAXED", pace.valueJson());
+        var quietness = view.snapshot().answers().stream()
+                .filter(a -> a.dimension().equals("quietness")).findFirst().orElseThrow();
+        assertEquals("3", quietness.valueJson());
     }
 
     @Test
