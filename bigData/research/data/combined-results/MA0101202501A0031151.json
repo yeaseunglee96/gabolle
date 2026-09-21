@@ -2,8 +2,62 @@
   "id": "MA0101202501A0031151",
   "name": "휴케라",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 중구 광복로97번길 15-2 에 있는 '휴케라'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하",
   "attempts": 1,
-  "researchedAt": "2026-09-21T16:57:30.698Z"
+  "geminiTokens": 41448,
+  "researchedAt": "2026-09-21T21:52:41.627Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기줄에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "술자리, 식사",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "야키소바",
+      "닭다리살 야키소바"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~토 17:00 ~ 01:00 (라스트 오더 00:00) / 매주 일요일, 월요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 중구 광복로97번길 15-2에 위치한 일본식 심야식당 컨셉의 일식 주점으로, 닭다리살 야키소바 등 일식 안주류를 제공함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 중구 광복로97번길 15-2 1층 (동광동2가) 영업 시간: 화~토 17:00 ~ 01:00 (라스트 오더 00:00) 휴무일: 일요일, 월요일 특징: 일본식 심야식당 컨셉의 가게로, 닭다리살 야키소바 등의 메뉴가 있습니다.",
+      "url": "https://bizno.net/article/8863601362"
+    }
+  ],
+  "sources": [
+    "https://bizno.net/article/8863601362"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일본 심야식당 분위기에서 야키소바 등 일식 메뉴와 함께 술자리를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

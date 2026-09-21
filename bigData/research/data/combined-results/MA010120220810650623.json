@@ -2,8 +2,44 @@
   "id": "MA010120220810650623",
   "name": "해성식당",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 부산진구 냉정로253번길 10 에 있는 '해성식당'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다**",
   "attempts": 1,
-  "researchedAt": "2026-09-21T16:44:34.336Z"
+  "geminiTokens": 25388,
+  "researchedAt": "2026-09-21T21:49:50.953Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 냉정로253번길 15(가야동) 부근에 등록된 육류/고기 요리 식당으로 지번/상가 디렉토리상 존재는 확인되나, 방문 후기나 영업시간, 세부 메뉴판 등 웹상의 상세 정보는 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 냉정로253번길 15 (가야동 634) 해성식당 육류,고기요리",
+      "url": "https://pervsi.com"
+    },
+    {
+      "excerpt": "부산광역시 부산진구 가야2동 해성식당 전화번호: 051-892-3167",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
 }

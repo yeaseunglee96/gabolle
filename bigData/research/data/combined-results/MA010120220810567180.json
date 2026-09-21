@@ -2,8 +2,74 @@
   "id": "MA010120220810567180",
   "name": "나너돈까스",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 중구 초량중로 9 에 있는 '나너돈까스'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:51:01.423Z"
+  "geminiTokens": 45107,
+  "researchedAt": "2026-09-21T21:46:31.212Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 등심 돈까스",
+      "김치찌개",
+      "순두부"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "이른 아침 시간부터 영업(조식 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "영주시장 인근 주민 및 아침 식사를 찾는 동네 사람들이 주로 찾는 로컬 백반/돈까스 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 중구 초량중로 9(영주동) 소재 경양식/분식 식당으로, 분말이 아닌 직접 끓인 고소한 수제 스프와 수제 등심 돈까스 및 찌개류 백반을 함께 운영하며 아침 식사가 가능한 곳입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 초량중로 9 (영주동 13-18). 수제 등심 돈까스를 비롯해 김치찌개, 갈비탕, 육개장, 순두부 등 다양한 분식 및 백반류를 판매. 직접 끓인 스프가 제공되며 두툼한 수제 돈까스와 고소한 소스가 특징. 김치, 무생채, 버섯볶음 등의 반찬을 셀프바에서 이용할 수 있으며, 이른 시간부터 영업을 시작해 아침 식사(조식)가 가능한 곳.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "분말 스프를 사용하지 않고 직접 끓인 스프를 제공하는 것으로 잘 알려져 있습니다. 두유와 같이 고소한 맛이 특징. 아침 일찍부터 경양식 돈까스를 즐길 수 있는 곳으로, 돈까스 외에도 각종 분식류와 백반 메뉴를 함께 판매.",
+      "url": "https://polle.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://polle.com/",
+    "https://www.bsjunggu.go.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "시판 분말이 아닌 직접 정성스레 끓여낸 고소한 수제 스프와 두툼한 경양식 돈까스를 맛볼 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "이른 아침 시간부터 돈까스와 다양한 백반/찌개 메뉴로 아침 식사(조식)가 가능함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

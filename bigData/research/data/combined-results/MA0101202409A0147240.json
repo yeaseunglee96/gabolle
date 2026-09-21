@@ -2,8 +2,57 @@
   "id": "MA0101202409A0147240",
   "name": "애틱",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 연제구 중앙천로 33 에 있는 '애틱'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나를 못 찾아도 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T16:54:56.257Z"
+  "geminiTokens": 40968,
+  "researchedAt": "2026-09-21T21:52:04.509Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "펍/카페 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "에그타르트",
+      "칵테일"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 9,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "사업자 등록상 경양식 업종으로 등록되어 있으나, 실제 매장은 펍/카페 형태로 에그타르트, 크로플, 칵테일 등을 취급함. 줄서기, 영업시간 등 상세 정량 정보는 온라인 상 부족함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 중앙천로 33에 위치한 '애틱(ATTIC)'은 펍(Pub) 형태의 매장입니다. 업종: 나이트라이프 > 펍. 주요 메뉴: 에그타르트, 칵테일, 아메리카노, 시나몬 밀크티, 아이스크림 크로플, 위스키, 하몽 멜론, 구움과자 플래터, 햄&치즈 플래터 등. 지번 주소: 부산광역시 연제구 연산동 798-6",
+      "url": "https://www.siksinhot.com/P/1608678652390772"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1608678652390772"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "에그타르트, 크로플 및 주류(칵테일·위스키)와 플래터를 즐길 수 있는 펍/카페 공간",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

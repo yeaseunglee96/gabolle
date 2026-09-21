@@ -2,8 +2,59 @@
   "id": "MA0101202512A0030316",
   "name": "원호정",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 동구 중앙대로361번길 36 에 있는 '원호정'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하",
   "attempts": 1,
-  "researchedAt": "2026-09-21T17:04:25.386Z"
+  "geminiTokens": 75518,
+  "researchedAt": "2026-09-21T21:53:52.425Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인, 혼밥객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "등심카츠",
+      "치즈카츠",
+      "치즈모듬카츠",
+      "새우모듬카츠"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산광역시 동구 수정동(중앙대로361번길 36)에 위치한 곳으로, 일식 회/초밥보다는 등심카츠, 치즈카츠 등 돈카츠와 소바/우동을 전문으로 하는 식당입니다. 온라인 상의 상세 후기, 가격표, 영업시간, 대기 정보 등은 제한적입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 수정동(중앙대로361번길 36)에 위치한 원호정은 일식 돈카츠 전문점으로 분류되는 음식점입니다. 주요 정보는 다음과 같습니다: 주소: 부산광역시 동구 중앙대로361번길 36 (수정동 275-1). 주요 메뉴: 등심카츠, 치즈카츠, 치즈모듬카츠, 새우모듬카츠, 우동돈카츠세트, 냉소바 등",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수정동/부산진역 인근에서 등심카츠, 치즈카츠 등 일식 돈카츠 및 세트 메뉴로 식사하기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

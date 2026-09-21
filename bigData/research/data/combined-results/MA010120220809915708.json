@@ -2,8 +2,76 @@
   "id": "MA010120220809915708",
   "name": "라포",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 연제구 신금로 8 에 있는 '라포'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나를 못 찾아도 나머",
   "attempts": 1,
-  "researchedAt": "2026-09-21T17:02:16.118Z"
+  "geminiTokens": 60258,
+  "researchedAt": "2026-09-21T21:53:19.380Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 줄서기에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트 및 각종 모임 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "치즈 플래터",
+      "라포 샐러드",
+      "큐브 스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 23:59 (브레이크타임 15:00 ~ 17:00), 매주 일요일 휴무 또는 주말 18:00 오픈 등 변동 있음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 연제구 연동시장 인근(신금로 8)에 위치한 앤티크한 분위기의 양식/경양식 레스토랑 겸 와인 펍입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 신금로 8(연산동 345-7)에 위치한 '라포(Rapport/라포트)'는 파스타와 스테이크 등을 제공하는 레스토랑입니다. 앤틱한 인테리어를 갖춘 레스토랑으로, 식사와 함께 분위기를 즐길 수 있는 공간으로 알려져 있습니다. 코스 요리, 스테이크, 라포 샐러드 등이 있습니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "부산광역시 연제구 연산동에 위치한 '라포(Rapport)'에 관한 정보입니다. 앤틱한 인테리어와 아늑한 분위기를 갖춘 레스토랑으로, 와인과 함께 즐기기 좋은 메뉴들이 있습니다. 3층에는 루프탑 공간이 마련되어 있는 것으로 알려져 있습니다. 시그니처 메뉴: 치즈 플래터 (가성비가 좋다는 평가가 많습니다). 기타 메뉴: 라포 샐러드, 큐브 스테이크, 새우 베이컨 필라프, 상하이 파스타, 토마토 해산물 파스타 등. 평일: 11:30 ~ 23:00 주말/공휴일: 18:00 ~ 23:00 휴무: 매주 일요일. 주말 및 공휴일에는 와인 콜키지 무료 서비스 등을 제공하기도 했습니다.",
+      "url": "https://www.daum.net/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://www.daum.net/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "앤티크하고 아늑한 분위기에서 파스타, 스테이크 및 가성비 좋은 치즈 플래터와 와인을 즐길 수 있음",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "연동시장 인근 2~3층 및 루프탑 공간을 갖추어 데이트나 분위기 있는 모임에 적합함",
+      "sources": [
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

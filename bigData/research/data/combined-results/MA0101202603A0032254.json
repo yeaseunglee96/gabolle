@@ -2,8 +2,38 @@
   "id": "MA0101202603A0032254",
   "name": "슈가",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 재반로 235 에 있는 '슈가'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나를 못 찾아도",
   "attempts": 1,
-  "researchedAt": "2026-09-21T16:46:53.828Z"
+  "geminiTokens": 49076,
+  "researchedAt": "2026-09-21T21:50:17.569Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "음식점 정보 없음 (다트 펍 등록 이력 외 경양식/음식점 관련 후기 및 정보 부재)",
+  "notes": "부산광역시 해운대구 재반로 235에 위치한 '슈가'는 경양식/음식점 관련 방문 정보나 메뉴, 영업시간, 후기 등이 웹상에 확인되지 않습니다. (다트 기계 설치 매장 등록 이력만 확인됨)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 재반로 235에 위치한 '슈가(해운대)'는 다트 머신(VSS)이 설치되어 있고 피닉스 리그를 개최하는 다트 숍으로 알려져 있습니다.",
+      "url": "https://www.phoenixdarts.com"
+    }
+  ],
+  "sources": [
+    "https://www.phoenixdarts.com"
+  ]
 }

@@ -2,8 +2,65 @@
   "id": "MA010120220811472266",
   "name": "OPS",
   "cat": "빵/도넛",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 좌동순환로 237 에 있는 'OPS'(빵/도넛 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:51:01.578Z"
+  "geminiTokens": 51749,
+  "researchedAt": "2026-09-21T21:47:19.096Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "해당 지점의 줄서기·혼잡 관련 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "주민 및 빵 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "슈크림",
+      "학원전",
+      "명란바게트"
+    ],
+    "yearsClaimed": 1989
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대시장 관광 상권과 달리 신도시 주거/상가 상권(세실빌딩)에 위치한 지점"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 해운대구 좌동순환로 237 세실빌딩 1층에 입점한 옵스(OPS) 신도시점 조사 완료",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 좌동순환로 237 (좌동, 세실빌딩) 옵스 신도시점",
+      "url": "https://ops.co.kr"
+    },
+    {
+      "excerpt": "성인 주먹만 한 커다란 크기에 천연 바닐라 빈을 사용한 슈크림이 흘러넘칠 정도로 가득 차 있는 옵스의 가장 대표적인 인기 메뉴입니다. '학원 가기 전 엄마가 만들어준 카스텔라'라는 의미를 담고 있는 구움과자류의 빵 학원전, 명란 바게트, 애플파이, 치즈만주 등이 인기입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://ops.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바닐라빈이 가득 찬 대형 슈크림 및 학원전 등 시그니처 빵의 품질과 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

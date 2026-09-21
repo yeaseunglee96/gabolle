@@ -2,8 +2,58 @@
   "id": "MA010120220810777516",
   "name": "영돈까스",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 연제구 연동로7번길 7 에 있는 '영돈까스'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나를 못 찾",
   "attempts": 1,
-  "researchedAt": "2026-09-21T17:00:05.190Z"
+  "geminiTokens": 39883,
+  "researchedAt": "2026-09-21T21:53:19.619Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "생등심돈까스",
+      "치즈돈까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "연제구 연산동 골목 상권에 위치하여 관광객보다는 인근 주민/생활권 대상 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 연제구 연동로7번길 7(연산동 342-10) 소재의 경양식 돈까스 상호로, 생등심돈까스 및 치즈돈까스 등의 메뉴와 착한가격업소 리스트 등에서 상호가 확인되나 대중적인 방문 후기나 세부 운영시간은 상세히 공개되어 있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "영돈까스 / 부산광역시 연제구 연동로7번길 7 (부산광역시 연제구 연산동 342-10) / 대표 메뉴: 생등심돈까스, 치즈돈까스 / 연락처: 051-863-4318, 051-853-9293",
+      "url": "https://www.siksinhot.com/P/350361"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/350361",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "생등심돈까스와 치즈돈까스를 편하게 즐길 수 있는 동네 밥집/착한가격 경양식",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
 }

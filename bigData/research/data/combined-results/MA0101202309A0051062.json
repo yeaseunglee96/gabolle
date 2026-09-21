@@ -2,8 +2,64 @@
   "id": "MA0101202309A0051062",
   "name": "일다",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 금정구 수림로72번길 150-7 에 있는 '일다'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:48:34.370Z"
+  "geminiTokens": 63267,
+  "researchedAt": "2026-09-21T21:45:31.264Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡도 관련 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "모임, 기념일, 비즈니스 미팅 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스파게티",
+      "스테이크",
+      "피자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 금정구 구서동(구서동 413-51 / 수림로72번길 150-7 일대)에 위치한 양식 및 브런치 전문점 '일다 구서'에 대한 정보 조사 완료.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'일다 구서'는 부산광역시 금정구 구서동에 위치한 브런치 및 양식 전문점으로 현대적이면서도 클래식한 인테리어와 아늑한 분위기를 갖추고 있어 친구들과의 모임, 기념일, 비즈니스 미팅 등 특별한 날의 장소로 자주 이용됩니다. 스파게티, 스테이크, 피자 등 다양한 양식 요리를 제공하며 영업시간은 11:00 ~ 22:00 (매주 일요일 정기휴무)입니다.",
+      "url": "https://udanax.org/entry/%EC%9D%BC%EB%8B%A4-%EA%B5%AC%EC%84%9C-%EB%B6%80%EC%82%B0-%EA%B8%88%EC%A0%95%EA%B5%AC-%EC%96%91%EC%8B%9D-%EB%B8%8C%EB%9F%B0%EC%B9%98"
+    }
+  ],
+  "sources": [
+    "https://udanax.org/entry/%EC%9D%BC%EB%8B%A4-%EA%B5%AC%EC%84%9C-%EB%B6%80%EC%82%B0-%EA%B8%88%EC%A0%95%EA%B5%AC-%EC%96%91%EC%8B%9D-%EB%B8%8C%EB%9F%B0%EC%B9%98",
+    "https://www.siksinhot.com/P/1551609"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아늑하고 감성적인 인테리어 분위기에서 브런치와 양식(파스타, 스테이크, 피자)을 즐기며 모임이나 기념일을 보내기 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

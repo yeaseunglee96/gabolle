@@ -2,8 +2,50 @@
   "id": "MA0101202409A0216290",
   "name": "가이단",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 부산진구 동평로420번길 18 에 있는 '가이단'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:51:01.502Z"
+  "geminiTokens": 67165,
+  "researchedAt": "2026-09-21T21:46:48.801Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "일반",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 동평로420번길 18(양정동) 양정상가아파트 주소지에 '가이단' 상호가 등록되어 있으나, 온라인 후기나 방문 리뷰, 메뉴판, 가격 정보 등이 전무하여 사업자 등록 및 기본 DB 외 실방문 정보 파악이 어렵습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 양정동에 위치한 '가이단'은 라멘을 전문으로 하는 음식점(일식당)입니다. 위치: 부산광역시 부산진구 동평로420번길 18",
+      "url": "https://autoreserve.com/restaurants/11693188"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com/restaurants/11693188"
+  ],
+  "whyPeopleGo": []
 }

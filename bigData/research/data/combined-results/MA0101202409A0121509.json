@@ -2,8 +2,86 @@
   "id": "MA0101202409A0121509",
   "name": "세실곰탕",
   "cat": "국/탕/찌개류",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 좌동순환로 237 에 있는 '세실곰탕'(국/탕/찌개류 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:51:01.640Z"
+  "geminiTokens": 80581,
+  "researchedAt": "2026-09-21T21:47:46.700Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 대한 특별한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "지역 주민, 단골손님, 인근 병원/학교 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "곰탕",
+      "모듬곰탕",
+      "꼬리곰탕",
+      "도가니탕"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "07:00 ~ 21:00 (또는 08:00 ~ 21:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 좌동 신시가지 주거지/부흥고 맞은편에 위치하여 20여 년간 인근 주민들이 주로 찾는 로컬 곰탕집"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "무쇠솥/가마솥에 한우 사골을 오래 고아 첨가물 없이 깔끔하고 담백한 국물을 내는 해운대 좌동 20년 업력의 곰탕집",
+  "price": {
+    "found": false,
+    "priceMenu": "곰탕/모듬곰탕/수육",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "약 20여 년의 업력을 지닌 곳으로, 무쇠솥에 고아낸 은은하고 깊은 맛의 육수가 특징입니다. 첨가물을 사용하지 않아 자극적이지 않고 속이 편안한 곰탕을 제공하는 것으로 알려져 있습니다. 대표 메뉴: 곰탕, 모둠곰탕(소꼬리, 도가니, 양짓살 등 다양한 부위 구성), 꼬리곰탕, 도가니탕, 수육 등. 영업시간: 오전 7:00 ~ 오후 9:00. 건물 지하 주차장을 이용할 수 있습니다.",
+      "url": "https://www.youtube.com/watch?v=세실곰탕소개영상"
+    },
+    {
+      "excerpt": "가마솥에서 한우 사골을 오래 끓여낸 뽀얀 국물이 특징이며, 첨가물 없이 깔끔하고 담백한 맛으로 알려져 있습니다. 곰탕 외에도 모듬곰탕, 꼬리곰탕, 도가니탕, 수육백반 등 다양한 메뉴를 제공합니다. 건물 주차장을 이용할 수 있으며, 포장, 배달 및 전국 택배 서비스가 가능합니다.",
+      "url": "https://www.siksinhot.com/P/381156"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/381156",
+    "https://www.youtube.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "가마솥·무쇠솥에서 한우 사골을 첨가물 없이 푹 고아낸 자극적이지 않고 담백하며 깊은 국물 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "약 20여 년간 해운대 좌동 신시가지에서 꾸준히 영업해온 업력",
+      "sources": [
+        1
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "이른 아침 식사(오전 7~8시 오픈)가 가능하고 건물 주차 및 포장·배달 지원",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

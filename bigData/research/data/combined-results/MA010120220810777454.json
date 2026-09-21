@@ -2,8 +2,50 @@
   "id": "MA010120220810777454",
   "name": "내일또내일",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 동래구 충렬대로126번길 10 에 있는 '내일또내일'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:51:01.740Z"
+  "geminiTokens": 52181,
+  "researchedAt": "2026-09-21T21:48:13.891Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 동래구 온천동(충렬대로126번길 10)에 위치했던 경양식/양식 상호 '내일또내일'은 전화번호부 및 건축물 사업자 데이터베이스(전화: 051-503-5733)에만 과거 등록 기록이 남아 있으며, 실제 방문 후기나 세부 메뉴, 가격, 영업시간 등은 웹상에 존재하지 않아 현재 폐업 또는 미영업 상태로 추정됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 온천3동 1443-9에 위치한 '내일또내일'이라는 명칭의 양식 음식점이 업체 정보 목록에 등록되어 있습니다. 해당 업체의 전화번호는 051-503-5733으로 안내되어 있으나, 정보의 최신성이나 영업 여부는 미확인 상태로 표시되어 있습니다.",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "충렬대로126번길 10: 부산광역시 동래구 온천동에 위치한 도로명 주소입니다. 해당 주소에는 '세라치과기공소'가 등록되어 있으며, 과거 '내일또내일'이라는 상호의 음식점이 운영된 기록이 있습니다.",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
 }

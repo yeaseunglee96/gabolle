@@ -2,8 +2,58 @@
   "id": "MA010120220813239537",
   "name": "두이추어탕",
   "cat": "국/탕/찌개류",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 삼어로91번길 124 에 있는 '두이추어탕'(국/탕/찌개류 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T16:52:12.896Z"
+  "geminiTokens": 50710,
+  "researchedAt": "2026-09-21T21:51:16.748Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "추어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 삼어로91번길 124에 위치한 추어탕 전문 식당으로 확인되나, 상세 후기나 정량 정보는 웹상에 매우 제한적입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 삼어로91번길 124 1층에 위치한 '두이추어탕' 정보가 확인됩니다. 담백한 추어탕 맛집으로 소개되어 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "담백한 맛의 추어탕을 전문으로 하는 식당",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

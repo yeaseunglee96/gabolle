@@ -2,8 +2,72 @@
   "id": "MA010120220804472494",
   "name": "복천양식당쿠이",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 동래구 동래로134번가길 18 에 있는 '복천양식당쿠이'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T16:23:49.674Z"
+  "geminiTokens": 38895,
+  "researchedAt": "2026-09-21T21:45:57.803Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인 및 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "루꼴라 피자",
+      "한우 안심 스테이크 1++",
+      "마르게리타 피자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동래 복천동 주택가 골목 안쪽에 위치하여 조용하고 아늑한 분위기의 데이트 및 모임 장소로 주로 찾는 곳"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동래구 동래로134번가길 18(복천동 312-2)에 위치한 주택 개조 이탈리안 레스토랑 '쿠이(복천양식당쿠이)'에 대한 조사 결과입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "화학 조미료를 사용하지 않으며, 수제버터, 식전빵, 애피타이저(또는 스프), 커피/허브티, 디저트가 함께 제공되는 코스 형태의 식사를 즐길 수 있는 와인 레스토랑입니다. 대표메뉴: 루꼴라 피자, 한우 안심 스테이크 1++ 등. 부산광역시 동래구 동래로134번가길 18 (복천동 312-2)",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "가정집을 개조한 아늑하고 조용한 분위기의 레스토랑으로, 데이트나 기념일 모임 장소로 자주 언급됩니다. 별도의 전용 주차 공간은 마련되어 있지 않습니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화학조미료 없이 수제 버터, 식전빵, 스프, 디저트 코스를 제공하며 직접 만든 소스와 스톡을 사용하는 수제 이탈리안 요리",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주택을 개조한 아늑하고 조용한 분위기로 기념일이나 데이트 코스로 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

@@ -2,8 +2,50 @@
   "id": "MA010120220810635310",
   "name": "미옥정담",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 부산진구 엄광로 143 에 있는 '미옥정담'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하",
   "attempts": 1,
-  "researchedAt": "2026-09-21T16:44:25.141Z"
+  "geminiTokens": 28907,
+  "researchedAt": "2026-09-21T21:49:52.262Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 부산진구 엄광로 143(가야동) 상가 건물에 등록된 돼지고기 구이/찜 업종 음식점이나, 상세 후기나 정량 정보는 웹상에 공개되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'미옥정담'은 해당 건물(부산진구 엄광로 143) 내에 입점해 있는 음식점으로, 업종은 돼지고기 구이/찜으로 분류되어 있습니다.",
+      "url": "https://zippoom.com"
+    },
+    {
+      "excerpt": "'미옥정담'은 부산광역시 부산진구 가야동에 위치한 음식점입니다. 주로 육류 및 고기 요리를 취급하는 곳으로 알려져 있습니다.",
+      "url": "https://jobkorea.co.kr"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com",
+    "https://jobkorea.co.kr"
+  ],
+  "whyPeopleGo": []
 }

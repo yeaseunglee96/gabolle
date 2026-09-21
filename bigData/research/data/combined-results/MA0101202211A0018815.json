@@ -2,8 +2,51 @@
   "id": "MA0101202211A0018815",
   "name": "정통중국관",
   "cat": "중국집",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 금정구 서동중심로 14 에 있는 '정통중국관'(중국집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나를 못 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T16:49:40.501Z"
+  "geminiTokens": 60194,
+  "researchedAt": "2026-09-21T21:50:56.519Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 금정구 서동중심로 14(서동 218-1)에 상호가 등록되어 있는 것은 확인되나, 상세 후기나 메뉴/가격/영업시간 등 세부 웹 데이터는 확인되지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "금정구 소재: 부산광역시 금정구 서동중심로 14(서동 218-1)에 '정통중국관'이라는 상호의 식당이 등록되어 있습니다.",
+      "url": "https://search.daum.net"
+    }
+  ],
+  "sources": [
+    "https://search.daum.net"
+  ],
+  "whyPeopleGo": []
 }

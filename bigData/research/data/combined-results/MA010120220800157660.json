@@ -2,8 +2,62 @@
   "id": "MA010120220800157660",
   "name": "우이",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 중구 백산길 16-6 에 있는 '우이'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나를 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T16:59:45.288Z"
+  "geminiTokens": 55700,
+  "researchedAt": "2026-09-21T21:52:58.475Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "모임·비즈니스 접대 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 코스요리",
+      "육회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 중구 백산길 16-6(동광동3가 24-4)에 위치한 '우이'는 프라이빗 룸으로 구성된 한우 코스요리/구이 전문점으로 확인됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "우이 (W:2) - 중앙동 / 특징: 부산 중앙동에 위치한 한우 전문점으로, 프라이빗 룸을 운영하여 가족 모임, 상견례, 회식 등 특별한 날 방문하기 좋은 곳입니다. / 메뉴: 육회부터 다양한 한우 부위를 즐길 수 있는 한우 코스 요리(A, B, C 코스)가 준비되어 있습니다. / 주차: 넓은 주차장을 이용할 수 있습니다.",
+      "url": "https://www.114.co.kr"
+    },
+    {
+      "excerpt": "주소: 부산광역시 중구 백산길 16-6 (지번: 동광동3가 24-4) / 주요 시설: 우이 (한우 오마카세/한식 전문점) / 참고: 인근에 백산기념관과 부산영화체험박물관이 위치해 있습니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "프라이빗 룸 중심의 고급스러운 공간에서 모임 및 한우 코스 요리를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

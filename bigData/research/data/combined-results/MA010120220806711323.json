@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220806711323",
+  "name": "고엔",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 41980,
+  "researchedAt": "2026-09-21T21:54:39.250Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "전석 룸 형식 식당으로 모임 수요가 많아 주말 및 주요 모임 시 사전 예약 권장"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 상견례·회식 단체 모임 고객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "사시미 코스",
+      "회정식",
+      "고엔 스시",
+      "회덮밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 20:30 (휴일: 첫째 주 일요일)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사상역 인근 직장인 회식, 상견례, 가족 외식 등 지역 주민/로컬 모임 중심 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 9,
+    "found": true
+  },
+  "notes": "부산 사상구 광장로 88에 위치한 일식 전문점(구 동경회초밥). 전 좌석 개별 룸 형태로 구성되어 프라이빗한 모임 및 외식에 특화되어 있음.",
+  "price": {
+    "found": true,
+    "priceMenu": "일정식 30,000원, 특정식 40,000원, B코스 55,000원, A코스 70,000원, 고엔코스 100,000원",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "사상고엔(구 동경회초밥) 주소: 부산 사상구 광장로 88 (지번: 부산 사상구 괘법동 548-1) 업종: 일식-생선회 주요 메뉴: 회정식, 회덮밥, 물회, 회국수, 전복죽, 지리/탕류, 고엔스시, 우동, 메밀국수 등 영업시간: 11:00 ~ 20:30 (휴일: 첫째 주 일요일) 기타 정보: 주차 가능(50대, 무료), 예약 가능, 포장 가능",
+      "url": "https://www.menupan.com/restaurant/rest_detail.asp?id=141872"
+    },
+    {
+      "excerpt": "전 좌석이 룸 형식으로 되어 있어 상견례, 가족 외식, 단체 모임 및 회식 장소로 인기가 많습니다. 신선한 횟감을 사용한 사시미 코스 요리가 메인이며, 초밥, 회덮밥, 물회, 튀김, 생대구지리탕 등 다양한 정통 일식 메뉴를 제공합니다.",
+      "url": "https://www.siksinhot.com/P/364234"
+    }
+  ],
+  "sources": [
+    "https://www.menupan.com/restaurant/rest_detail.asp?id=141872",
+    "https://www.siksinhot.com/P/364234"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전 좌석 프라이빗 룸 구조로 가족 외식, 상견례, 단체 회식 등 모임하기에 적합함",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "사시미 코스부터 정식, 초밥, 덮밥까지 정갈하고 푸짐한 구성의 정통 일식 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

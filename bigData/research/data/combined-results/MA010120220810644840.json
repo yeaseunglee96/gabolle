@@ -2,8 +2,67 @@
   "id": "MA010120220810644840",
   "name": "백송식육식당",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 부산진구 성지곡로 29 에 있는 '백송식육식당'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:51:11.683Z"
+  "geminiTokens": 76079,
+  "researchedAt": "2026-09-21T21:46:12.243Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도에 대한 온라인 언급 미확인"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 모임 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우",
+      "돼지고기 숯불구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 부산진구 성지곡로 29에 위치한 '백송식육식당'(백송한우전문점 병행 등록)은 식육/숯불구이 업태의 식당으로 신선한 한우와 직접 재배한 채소를 제공하는 것으로 안내되어 있으나, 구체적인 가격 및 상세 영업시간 후기는 온라인상 확인되지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 백송식육식당, 주소: 부산광역시 부산진구 성지곡로 29 (초읍동), 업태: 식육(숯불구이), 전화번호: 051-805-6630",
+      "url": "https://infosori.com"
+    },
+    {
+      "excerpt": "부산광역시 부산진구 초읍동에 위치한 '백송한우전문점'은 신선한 한우와 직접 재배한 채소를 제공하는 식당으로 알려져 있습니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://infosori.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 한우와 직접 재배한 채소를 곁들인 숯불구이를 먹기 위해 방문",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

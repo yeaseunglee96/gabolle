@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220807801666",
+  "name": "돈모리",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 41971,
+  "researchedAt": "2026-09-21T21:54:36.488Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 단위",
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 금정구 구서동에 등록된 돼지갈비 전문 한식당입니다. 지자체 공공데이터 및 기본 포털 상호 데이터에는 확인되나 온라인 블로그 리뷰나 세부 영업정보(영업시간, 정확한 가격, 대기 현황 등)는 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 돈모리, 소재지: 부산광역시 금정구 금강로 593 (구서동), 전화번호: 051-583-9289, 주메뉴: 돼지갈비",
+      "url": "https://www.geumjeong.go.kr"
+    },
+    {
+      "excerpt": "주소: 부산광역시 금정구 금강로 593 (구서동 637-2), 업종: 한식, 전화번호: 051-583-9289 / 051-517-9922",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr",
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돼지갈비를 주메뉴로 가족 단위 식사가 가능한 한식 고깃집으로 등록됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
