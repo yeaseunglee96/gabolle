@@ -1,6 +1,7 @@
 package com.gabolle.backend.recommendation.adapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -8,6 +9,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -213,7 +215,9 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		// 총예산에 맞춘다. 역시 점수만 움직이고 후보를 빼지 않는다 — BudgetFit 참고.
 		candidates = BudgetFit.apply(candidates, priceBandsOf(response), BudgetFit.targetBand(trip));
 		// 자르기는 채점을 마친 뒤다.
-		candidates = keepBestScoring(candidates, this.properties.candidateLimit());
+		// 갈래를 안 골랐으면 뒤쪽을 여행마다 다르게 채운다 (S15P21E201-1463).
+		boolean noCategoryChosen = queryRequest.categoriesOrEmpty().isEmpty();
+		candidates = keepBestScoring(candidates, this.properties.candidateLimit(), noCategoryChosen, request.tripId());
 		long rankingMs = elapsedMs(rankingStart);
 
 		String datasetVersion = resolveDatasetVersion(response.datasetVersions());
@@ -228,24 +232,78 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	}
 
 	/**
+	 * 무작위로 채우는 자리가 상한에서 차지하는 몫. 위쪽 절반은 점수 순으로 그대로 지킨다.
+	 *
+	 * <p>🔴 <b>전부 섞으면 가장 잘 맞는 곳이 빠질 수 있다.</b> 카테고리를 안 골랐어도 음식·분위기
+	 * 같은 다른 취향은 골랐을 수 있고, 그 사람에게 1등을 떨어뜨리는 것은 다양성이 아니라 손해다.
+	 * 그래서 앞쪽은 고정하고 <b>뒤쪽만</b> 넓은 풀에서 골라 채운다.
+	 */
+	private static final double ANCHOR_SHARE = 0.5;
+
+	/**
+	 * 뒤쪽을 채울 때 들여다보는 풀의 크기 = {@code limit} 의 몇 배인가.
+	 *
+	 * <p>값 자체가 실험 대상이라 설정으로 빼지 않고 상수로 둔다 — {@code MOBILITY_WARNING_PENALTY}
+	 * 와 같은 이유다. 너무 크면 점수가 한참 낮은 곳까지 같은 확률로 올라오고, 1이면 섞을 것이 없다.
+	 */
+	private static final int VARIETY_POOL_FACTOR = 3;
+
+	/**
 	 * 점수 높은 순으로 {@code limit} 개만 남긴다. 자르는 자리가 채점 뒤여야 한다 —
 	 * {@code candidateLimit} 을 {@code PlaceCandidateQueryService} 로 넘기면 그쪽은 점수를
 	 * 모르므로 거리순으로 잘라, 상한이 "가까운 순 N곳만 채점 대상" 이 된다. 동점은
 	 * {@code placeId} 로 가른다 — 순서가 실행마다 달라지면 나중에 비교할 수 없다.
 	 * 점수가 낮으면 탈락 판정 후보도 지켜지지 않는 것은 알려진 한계다.
+	 *
+	 * <p>🔴 <b>갈래를 안 고른 사람에게는 뒤쪽을 여행마다 다르게 채운다</b> (S15P21E201-1463).
+	 * 이 엔진에는 무작위가 하나도 없어서, 조건이 비슷하면 <b>늘 같은 곳이 같은 순서로</b> 나왔다.
+	 * 갈래를 고른 사람은 그 뜻이 점수에 실리지만 안 고른 사람에게는 개성이 들어갈 자리가 없다.
+	 *
+	 * <p>🔴 <b>씨앗은 {@code tripId} 다. 그냥 난수가 아니다.</b> 이 저장소의 추천은 재현
+	 * 가능하게 만들어져 있고(엔진 버전 다섯을 들고 다니는 이유가 그것이다), 난수를 쓰면 같은
+	 * 여행을 다시 열 때마다 다른 곳이 나와 <b>문제가 생겨도 그 결과를 다시 만들어 볼 수 없다.</b>
+	 * 씨앗을 여행 번호로 고정하면 여행마다 다르면서 같은 여행은 늘 같다.
+	 *
+	 * <p>🔴 <b>들어온 뒤의 순서는 점수 순이다.</b> 무작위는 「어느 곳이 들어오나」에만 쓴다 —
+	 * {@code ItineraryDraftCommand.places} 의 계약이 「rank 오름차순」이고, 화면도 앞쪽을 더 잘
+	 * 맞는 곳으로 읽는다.
+	 *
+	 * @param varyTail 갈래를 안 골라서 뒤쪽을 섞어도 되는가. 골랐으면 {@code false} —
+	 *     「카페를 골랐는데 카페가 적네」가 생기면 안 된다
+	 * @param seed 섞기의 씨앗. 같은 값이면 같은 결과다
 	 */
-	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit) {
+	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit,
+			boolean varyTail, UUID seed) {
 		if (candidates.size() <= limit) {
 			return candidates;
 		}
 		List<EngineCandidate> sorted = new ArrayList<>(candidates);
-		sorted.sort(Comparator
+		sorted.sort(scoreOrder());
+		if (!varyTail) {
+			return new ArrayList<>(sorted.subList(0, limit));
+		}
+
+		int anchor = Math.max(1, (int) Math.round(limit * ANCHOR_SHARE));
+		int poolEnd = Math.min(sorted.size(), Math.max(limit, limit * VARIETY_POOL_FACTOR));
+		List<EngineCandidate> tail = new ArrayList<>(sorted.subList(anchor, poolEnd));
+		// 씨앗이 같으면 같은 순서가 나온다. 들어오는 목록도 점수 순으로 정해져 있어야 그렇다.
+		Collections.shuffle(tail, new Random(seed == null ? 0L : seed.getMostSignificantBits() ^ seed.getLeastSignificantBits()));
+
+		List<EngineCandidate> kept = new ArrayList<>(sorted.subList(0, anchor));
+		kept.addAll(tail.subList(0, Math.min(limit - anchor, tail.size())));
+		// 고르기는 섞어서 했어도 내보내는 순서는 점수 순이다.
+		kept.sort(scoreOrder());
+		return kept;
+	}
+
+	/** 점수 내림차순, 동점은 {@code placeId}. 두 곳에서 같은 순서를 써야 해서 따로 뺐다. */
+	private static Comparator<EngineCandidate> scoreOrder() {
+		return Comparator
 				// 점수가 없는 후보를 0 으로 치지 않는다 — 없는 것과 낮은 것은 다르다. 맨 뒤로
 				// 보내되 자리가 남으면 들어온다.
 				.comparing(EngineCandidate::preRankScore,
-						Comparator.nullsLast(Comparator.reverseOrder()))
-				.thenComparing(EngineCandidate::placeId));
-		return new ArrayList<>(sorted.subList(0, limit));
+						Comparator.nullsLast(Comparator.<Double>reverseOrder()))
+				.thenComparing(EngineCandidate::placeId);
 	}
 
 	private Trip loadTrip(UUID tripId) {
