@@ -30,7 +30,7 @@ import { EffectBand, OptionCard, StepDots } from '@/plan/PlanStepperParts';
 import { DateRangeCard, dateRangeLabel } from '@/plan/DateRangeCard';
 import { clearQuestionState, loadQuestionState, saveQuestionState } from '@/plan/questionState';
 import {
-  AREA_OPTIONS, CATEGORY_OPTIONS, PACE_OPTIONS, TRANSPORT_OPTIONS,
+  AREA_OPTIONS, CATEGORY_IMAGES, CATEGORY_OPTIONS, PACE_OPTIONS, TRANSPORT_OPTIONS,
   effectOf, type PlanOption,
 } from '@/plan/planOptions';
 import {
@@ -203,11 +203,12 @@ export default function PlanConditions() {
     return [...list, code];
   };
 
-  const optionGrid = (options: readonly PlanOption[], picked: string[], onPick: (code: string) => void, max?: number) => (
+  const optionGrid = (options: readonly PlanOption[], picked: string[], onPick: (code: string) => void, max?: number, images?: Record<string, number>) => (
     <View style={styles.optionGrid}>
       {options.map((option) => (
         <View key={option[0]} style={styles.optionCell}>
           <OptionCard
+            image={images?.[option[0]]}
             label={labelOf(option, tx)}
             sub={subOf(option, tx)}
             selected={picked.includes(option[0])}
@@ -265,7 +266,7 @@ export default function PlanConditions() {
           </View>
         );
       case 'cats':
-        return optionGrid(CATEGORY_OPTIONS, draft.preferences, (code) => update({ preferences: toggleIn(draft.preferences, code, 3) }), 3);
+        return optionGrid(CATEGORY_OPTIONS, draft.preferences, (code) => update({ preferences: toggleIn(draft.preferences, code, 3) }), 3, CATEGORY_IMAGES);
       case 'pace':
         return optionGrid(PACE_OPTIONS, draft.paceLevel ? [draft.paceLevel] : [], (code) => update({ paceLevel: code as PlanDraft['paceLevel'] }));
       case 'aids':

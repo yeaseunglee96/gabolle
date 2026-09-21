@@ -1,7 +1,7 @@
 // 조건 화면의 조각들 — 진행 점, 선택지 카드, 「이렇게 반영돼요」 띠, 답한 질문 칩.
 //
 // 화면 파일이 이미 크다. 눈에 보이는 부품을 떼어 두면 질문 본문 로직과 섞이지 않는다.
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -51,14 +51,42 @@ export function StepDots({
  *    일정이 나온 뒤에야 안다. 그때는 되돌리기 비싸다.
  */
 export function OptionCard({
-  label, sub, selected, disabled, onPress,
+  label, sub, selected, disabled, onPress, image,
 }: {
   label: string;
   sub: string;
   selected: boolean;
   disabled?: boolean;
   onPress: () => void;
+  /** 사진 카드 — 여행 취향(바다·도심·카페…)처럼 글자보다 그림이 빨리 읽히는 문항. 없으면 지금처럼 글자 카드. */
+  image?: ImageSourcePropType;
 }) {
+  if (image) {
+    // 🔴 사진 카드는 고른 것을 «색 채움»이 아니라 «테두리 + ✓»로 말한다 — 사진 위에 남색을 덮으면 사진이 죽는다(2026-09-21, 시안 4 Taste).
+    return (
+      <Pressable
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: selected, disabled }}
+        disabled={disabled}
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.photoOption,
+          selected && styles.photoOptionOn,
+          disabled && styles.optionOff,
+          pressed && !disabled && styles.optionPressed,
+        ]}
+      >
+        <View style={styles.photoWrap}>
+          <Image source={image} resizeMode="cover" accessibilityLabel="" style={styles.photo} />
+          {selected ? <View style={styles.photoCheck}><Text variant="caption" weight="bold" color={color.text.onAction}>✓</Text></View> : null}
+        </View>
+        <View style={styles.photoBody}>
+          <Text weight="bold" color={disabled ? color.text.muted : color.text.heading} numberOfLines={1}>{label}</Text>
+          {sub ? <Text variant="caption" color={color.text.muted} numberOfLines={2}>{sub}</Text> : null}
+        </View>
+      </Pressable>
+    );
+  }
   return (
     <Pressable
       accessibilityRole="checkbox"
@@ -114,6 +142,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.brand.ivory,
   },
   optionOn: { borderColor: color.brand.navy, backgroundColor: color.brand.navy },
+  photoOption: { borderRadius: radius.md, borderWidth: 1.5, borderColor: color.surface.border, backgroundColor: color.surface.card, overflow: 'hidden' },
+  photoOptionOn: { borderColor: color.action.outline },
+  // 🔴 zIndex: 0 — RN-web 의 Image 는 z-index -1 로 그려져 배경 있는 부모 뒤에 숨는다(로그인 판·마이페이지 커버와 같은 결함).
+  photoWrap: { height: 88, backgroundColor: color.surface.soft, zIndex: 0 },
+  photo: { width: '100%', height: '100%' },
+  photoCheck: { position: 'absolute', top: spacing[2], right: spacing[2], width: 24, height: 24, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.outline },
+  photoBody: { gap: 2, paddingHorizontal: spacing[3], paddingVertical: spacing[2] },
   optionOff: { opacity: 0.5 },
   optionPressed: { opacity: 0.82 },
 
