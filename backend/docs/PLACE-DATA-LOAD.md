@@ -308,6 +308,35 @@ exit
 야시장·기념품샵은 계속 0건이고 그것이 맞다 — 원천에 신호가 없어 일부러 비웠다
 (`S15P21E201-474` 코멘트).
 
+## 7. 가격+narrative 조사 (S15P21E201-1414, 2026-09-22 추가 — 진행 중)
+
+agy 헤드리스로 부산 음식점을 웹에서 조사해 가격과 "왜 가는지"를 모으는 작업
+(`bigData/research/price-queue.mjs`)이다. **위 절차와 다른 점 하나** — 대상 장소는
+전부 SBIZ 상가정보 출처라 이미 `place` 표에 있다. ①(장소 먼저)을 다시 안 밟아도 된다.
+
+🔴 **한 번에 다 넣는 파일이 아니다.** 조사가 계속 도는 중이라 `place-research-combined.ndjson`
+이 돌 때마다 자란다. 적재기는 이미 있는 사실을 건드리지 않으므로(`ON CONFLICT DO NOTHING`),
+**늘어난 뒤쪽만 새로 들어간다** — 다시 돌려도 앞서 넣은 것이 두 배가 되지 않는다.
+
+```bash
+git fetch origin bigData/dev
+git show origin/bigData/dev:bigData/data/staged/place-research-combined.ndjson \
+  > /tmp/load/price-narrative.ndjson
+scp -i $PEM /tmp/load/price-narrative.ndjson $HOST:/home/ubuntu/load/
+
+ssh -i $PEM $HOST
+docker run -d --network local-route-personalization_data_net --env-file /tmp/load.env \
+  -e GABOLLE_JWT_SECRET=loader-only-throwaway-value-0123456789abcdef \
+  -v /home/ubuntu/load:/load local-route-backend:candidate \
+  --gabolle.place.loader.price-narrative=/load/price-narrative.ndjson \
+  --gabolle.place.loader.dataset-version=price-narrative-<오늘날짜>
+```
+
+넣는 것 둘 — `MENU_PRICE_WON`(가격, 못 찾은 곳은 0원이 아니라 사실 자체를 안 낸다)과
+`WHY_VISIT`("왜 가는지" 이유 목록 + 근거 주소). 영업시간·혼잡도·현지인 비중·메뉴
+다양성은 이번엔 안 넣는다 — 아직 화면이 안 읽는 값이다(`PlaceFeatureNdjsonReader
+.readPriceNarrative` 주석 참고).
+
 ## 되돌리기
 
 전부 출처와 수집분이 찍힌다.
@@ -322,6 +351,15 @@ DELETE FROM place         WHERE source_type = 'TOURAPI' AND dataset_version = 't
 ### 유도값 되돌리기 (2026-09-17)
 
 조용함·로컬성은 **자기 이름의 출처**로 들어가서 한 줄로 지워진다.
+
+### 가격+narrative 되돌리기 (2026-09-22)
+
+```sql
+DELETE FROM place_feature WHERE source_type = 'RESEARCH_PRICE_NARRATIVE';
+```
+
+수집분(`dataset_version`)이 날마다 달라도 `source_type` 하나로 전부 걸린다 — 조사가
+계속 자라는 산출물이라, 날짜별로 나눠 지우면 그날 이후 걸 놓친다.
 
 ```sql
 DELETE FROM place_feature WHERE source_type = 'DERIVED_QUIETNESS';

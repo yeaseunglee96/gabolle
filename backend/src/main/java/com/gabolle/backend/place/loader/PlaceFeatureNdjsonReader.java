@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -136,6 +137,85 @@ public final class PlaceFeatureNdjsonReader {
 			}
 			out.add(new Fact(storeId, featureType, valueNode.toString(), namespace));
 			return true;
+		});
+	}
+
+	/**
+	 * agy 헤드리스 가격+narrative 통합 조사 산출물(price-queue.mjs, S15P21E201-1414)을 읽는다.
+	 * 한 줄은
+	 * {@code {"placeId":"MA0101…","price":{"found":true,"priceWon":8500,"priceMenu":"…"},
+	 * "whyPeopleGo":[{"type":"오랜 역사","note":"…"}],"sources":["https://…"]}} 같은 모양이고,
+	 * 한 줄에서 최대 둘까지 사실이 나온다 — 가격({@code MENU_PRICE_WON})과 "왜 가는지"
+	 * ({@code WHY_VISIT}).
+	 *
+	 * <p>가격은 {@code price.found} 가 참이고 {@code priceWon} 이 숫자일 때만 낸다. 몰라서 못
+	 * 찾은 곳을 0원으로 적지 않는다 — 이 저장소가 어디서든 지키는 규칙 그대로다.
+	 * "왜 가는지" 는 {@code whyPeopleGo} 가 비어 있지 않을 때만 내고, 근거 주소(sources)를
+	 * 같이 싣는다 — 나중에 사람이 원문을 다시 확인할 수 있게.
+	 *
+	 * <p>🔴 {@code descriptors.priceBand}(cheap/mid/high)는 여기서 안 옮긴다. 이미 있는
+	 * {@code PRICE_LEVEL}(사람이 손으로 찾은 LOW/MID/MID_HIGH/HIGH, {@link #readPriceBands})과
+	 * 낱말 목록이 달라서, 같은 종류에 섞으면 읽는 쪽이 두 값 목록을 다 알아야 한다.
+	 *
+	 * <p>🔴 영업시간·혼잡도·현지인 비중·메뉴 다양성은 이번엔 안 옮긴다. 아직 아무 화면도 이
+	 * 값을 읽지 않는다 — 먼저 가격·narrative 둘만 넣고, 나머지는 실제로 쓸 곳이 정해지면 그때
+	 * 새 종류로 연다.
+	 */
+	public static Counts readPriceNarrative(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
+		return read(file, chunkSize, chunkConsumer, (node, out) -> {
+			String storeId = text(node, "placeId");
+			if (storeId == null) {
+				return false;
+			}
+			boolean any = false;
+
+			JsonNode price = node.path("price");
+			JsonNode priceWon = price.path("priceWon");
+			if (price.path("found").asBoolean(false) && priceWon.isNumber()) {
+				ObjectNode value = MAPPER.createObjectNode();
+				value.put("priceWon", priceWon.asInt());
+				String menu = text(price, "priceMenu");
+				if (menu != null) {
+					value.put("menu", menu);
+				}
+				out.add(new Fact(storeId, "MENU_PRICE_WON", write(value)));
+				any = true;
+			}
+
+			JsonNode reasons = node.path("whyPeopleGo");
+			if (reasons.isArray() && !reasons.isEmpty()) {
+				ObjectNode value = MAPPER.createObjectNode();
+				ArrayNode reasonsOut = value.putArray("reasons");
+				for (JsonNode reason : reasons) {
+					String type = text(reason, "type");
+					String note = text(reason, "note");
+					if (type == null && note == null) {
+						continue;
+					}
+					ObjectNode reasonOut = reasonsOut.addObject();
+					if (type != null) {
+						reasonOut.put("type", type);
+					}
+					if (note != null) {
+						reasonOut.put("note", note);
+					}
+				}
+				if (!reasonsOut.isEmpty()) {
+					JsonNode sources = node.path("sources");
+					if (sources.isArray() && !sources.isEmpty()) {
+						ArrayNode sourcesOut = value.putArray("sources");
+						for (JsonNode source : sources) {
+							if (source.isTextual()) {
+								sourcesOut.add(source.asText());
+							}
+						}
+					}
+					out.add(new Fact(storeId, "WHY_VISIT", write(value)));
+					any = true;
+				}
+			}
+
+			return any;
 		});
 	}
 
