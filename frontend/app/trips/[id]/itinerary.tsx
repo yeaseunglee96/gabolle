@@ -1177,6 +1177,27 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   heroTabsWrap: { marginTop: spacing[4], alignItems: 'center' },
   heroTabTrack: { flexDirection: 'row', alignSelf: 'stretch', maxWidth: 560, width: '100%', marginHorizontal: 'auto', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   heroTab: { flex: 1, minHeight: 44, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
+  // 🔴 **이 빨강은 배색 규칙의 예외다. 회색으로 바꾸지 마라.**
+  //
+  // tokens.ts 맨 위의 규칙 둘과 정면으로 부딪힌다:
+  //   1 「동백 채움은 화면당 하나 — 주 버튼」
+  //   2 「선택 상태에 빨강을 쓰지 않는다 — 짙은 회색(action.secondary)」
+  // 일차 탭은 정확히 **선택 상태**이고, 폰에서는 실제로 빨강이 둘이다 — 이 알약과 하단
+  // 탭바 가운데 동그라미. 오늘 날짜 일정을 열면 「지금」 카드의 빨간 ▶ 출발까지 셋이 된다.
+  //
+  // 🔴 **배색 검사는 이것을 못 잡는다.** 검사기가 스스로 적어 둔 맹점이다 — 파일 단위로
+  //    세는데 탭바와 「지금」 카드는 다른 파일이라, 실제 화면에는 여럿인데 통과한다.
+  //    즉 「검사가 초록이니 괜찮다」는 여기서 근거가 못 된다.
+  //
+  // 그런데도 빨강인 이유: **시안이 그렇게 그렸고, 2026-09-21 에 사람이 그대로 가기로
+  // 정했다**(S15P21E201-1432). 화면을 직접 보고 내린 결정이다 — 규칙이 맞는 말이라는
+  // 것도 확인했지만, 시안이 팀 확정안이고 발표가 가깝다는 쪽을 골랐다.
+  // 근거: frontend/docs/design_handoff_itinerary/README-예산실시간재설계.md 1절
+  //       (「동백색(#D83A48) 알약이 좌우로 미끄러짐」).
+  //
+  // 🔴 순서 수정 조각(시안 5절)에서 하단 탭바 가운데가 동백 원이 될 때 **같은 문제가 한 번
+  //    더 나온다.** 그때도 혼자 회색으로 바꾸지 말고 사람에게 물어라. 조용히 바꾸면 시안과
+  //    어긋나고, 왜 어긋났는지는 아무 데도 안 남는다.
   heroTabPill: { position: 'absolute', top: spacing[1], bottom: spacing[1], left: spacing[1], borderRadius: radius.full, backgroundColor: color.action.primary },
   // 방문지 제목 옆 상태 배지
   titleLine: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexWrap: 'wrap' },
