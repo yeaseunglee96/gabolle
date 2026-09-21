@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220810511959",
+  "name": "썽그러횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 60291,
+  "researchedAt": "2026-09-21T23:03:14.401Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "식품위생업소(일반음식점) 인허가 대장 및 전화번호부 등에 등록된 부산 중구 망양로 372 소재 횟집이나, 블로그 후기나 방문 리뷰 등 소비자의 실제 이용 경험 및 세부 영업 정보(영업시간, 메뉴, 가격 등)가 온라인상에 거의 존재하지 않는 동네 소규모 업소입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 망양로 372 (영주동) ... 일반음식점 ... 썽그러횟집",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "부산 중구 영주2동 282-17 (망양로 372) 썽그러횟집 전화번호 051-442-4436",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": []
+}
