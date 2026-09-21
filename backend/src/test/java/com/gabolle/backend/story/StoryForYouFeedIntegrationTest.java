@@ -114,12 +114,11 @@ class StoryForYouFeedIntegrationTest {
 	@Test
 	@DisplayName("팔로우가 있으면 그 사람들의 기록을 낸다 — 머리는 FOR_YOU")
 	void servesFollowedAuthorsWhenPersonalizable() throws Exception {
-		MvcResult result = this.mockMvc.perform(request(StoryFixture.as(this.follower)))
+		this.mockMvc.perform(request(StoryFixture.as(this.follower)))
 				.andExpect(status().isOk())
-				.andExpect(header().string(StoryController.FEED_APPLIED_HEADER, "FOR_YOU"))
-				.andReturn();
+				.andExpect(header().string(StoryController.FEED_APPLIED_HEADER, "FOR_YOU"));
 
-		List<String> ids = ids(body(result));
+		List<String> ids = walk(StoryFixture.as(this.follower));
 		assertThat(ids).contains(this.followeeStory.toString());
 		assertThat(ids).doesNotContain(this.strangerStory.toString());
 	}
@@ -127,13 +126,12 @@ class StoryForYouFeedIntegrationTest {
 	@Test
 	@DisplayName("🔴 팔로우가 없으면 전체 인기순으로 대체하고, 머리가 그 사실을 말한다 — FOR_YOU 가 아니라 POPULAR")
 	void fallsBackAndSaysSo() throws Exception {
-		MvcResult result = this.mockMvc.perform(request(StoryFixture.as(this.loner)))
+		this.mockMvc.perform(request(StoryFixture.as(this.loner)))
 				.andExpect(status().isOk())
-				.andExpect(header().string(StoryController.FEED_APPLIED_HEADER, "POPULAR"))
-				.andReturn();
+				.andExpect(header().string(StoryController.FEED_APPLIED_HEADER, "POPULAR"));
 
 		// 빈 목록이 아니라 인기순이 나온다. 빈 목록이면 화면이 「팔로우할 사람을 찾으세요」만 띄운다.
-		assertThat(ids(body(result))).contains(this.strangerStory.toString());
+		assertThat(walk(StoryFixture.as(this.loner))).contains(this.strangerStory.toString());
 	}
 
 	@Test
@@ -186,6 +184,29 @@ class StoryForYouFeedIntegrationTest {
 
 	private JsonNode body(MvcResult result) throws Exception {
 		return this.json.readTree(result.getResponse().getContentAsString()).get("data");
+	}
+
+	/**
+	 * 쪽을 끝까지 걷어 id 를 모은다. 한 쪽만 보면 안 된다 — 같은 DB 를 다른 테스트도 쓰므로
+	 * 기록이 수백 건이라 이 테스트가 만든 것이 첫 쪽에 없을 수 있다.
+	 */
+	private List<String> walk(Authentication who) throws Exception {
+		List<String> out = new ArrayList<>();
+		String cursor = null;
+		int pages = 0;
+		do {
+			var req = request(who);
+			if (cursor != null) {
+				req = req.param("cursor", cursor);
+			}
+			MvcResult result = this.mockMvc.perform(req).andExpect(status().isOk()).andReturn();
+			JsonNode page = body(result);
+			out.addAll(ids(page));
+			JsonNode next = page.get("nextCursor");
+			cursor = (next == null || next.isNull()) ? null : next.asText();
+		}
+		while (cursor != null && ++pages < 200);
+		return out;
 	}
 
 	private void like(UUID storyId, UUID userId) {

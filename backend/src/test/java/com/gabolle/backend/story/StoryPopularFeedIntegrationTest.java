@@ -105,31 +105,25 @@ class StoryPopularFeedIntegrationTest {
 	@Test
 	@DisplayName("인기순은 좋아요 많은 순이다 — 최신순과 순서가 반대여도")
 	void ordersByLikeCount() throws Exception {
-		List<String> ids = ids(feed("POPULAR", null));
-
-		assertThat(ids).containsSubsequence(this.twoLikes.toString(), this.oneLike.toString());
+		assertThat(walkMine("POPULAR")).containsSubsequence(this.twoLikes.toString(), this.oneLike.toString());
 	}
 
 	@Test
 	@DisplayName("좋아요가 같으면 최신순으로 내려간다 — 동점의 순서를 DB 에 맡기지 않는다")
 	void breaksTiesByRecency() throws Exception {
-		List<String> ids = ids(feed("POPULAR", null));
-
-		assertThat(ids).containsSubsequence(this.newerZero.toString(), this.olderZero.toString());
+		assertThat(walkMine("POPULAR")).containsSubsequence(this.newerZero.toString(), this.olderZero.toString());
 	}
 
 	@Test
 	@DisplayName("같은 요청을 두 번 해도 순서가 같다")
 	void isStableAcrossCalls() throws Exception {
-		assertThat(ids(feed("POPULAR", null))).isEqualTo(ids(feed("POPULAR", null)));
+		assertThat(walkMine("POPULAR")).isEqualTo(walkMine("POPULAR"));
 	}
 
 	@Test
 	@DisplayName("기본값은 최신순이다 — sort 를 안 주면 지금 동작이 그대로다")
 	void defaultsToRecent() throws Exception {
-		List<String> ids = ids(feed(null, null));
-
-		assertThat(ids).containsSubsequence(this.newerZero.toString(), this.olderZero.toString(),
+		assertThat(walkMine(null)).containsSubsequence(this.newerZero.toString(), this.olderZero.toString(),
 				this.oneLike.toString(), this.twoLikes.toString());
 	}
 
@@ -148,22 +142,9 @@ class StoryPopularFeedIntegrationTest {
 	@Test
 	@DisplayName("인기순도 커서로 끊긴다 — 쪽을 넘겨도 겹치거나 건너뛰지 않는다")
 	void pagesWithoutGapsOrRepeats() throws Exception {
-		List<String> walked = new ArrayList<>();
-		String cursor = null;
-		for (int guard = 0; guard < 20; guard++) {
-			JsonNode page = feed("POPULAR", cursor, 1);
-			walked.addAll(ids(page));
-			JsonNode next = page.get("nextCursor");
-			if (next == null || next.isNull()) {
-				break;
-			}
-			cursor = next.asText();
-		}
+		List<String> seen = walkMine("POPULAR");
 
-		List<String> mine = List.of(this.twoLikes.toString(), this.oneLike.toString(),
-				this.newerZero.toString(), this.olderZero.toString());
-		List<String> seen = walked.stream().filter(mine::contains).toList();
-		assertThat(seen).doesNotHaveDuplicates().containsAll(mine);
+		assertThat(seen).doesNotHaveDuplicates().containsAll(mine());
 		assertThat(seen).containsSubsequence(this.twoLikes.toString(), this.oneLike.toString());
 	}
 
@@ -187,6 +168,36 @@ class StoryPopularFeedIntegrationTest {
 		this.jdbc.update("INSERT INTO story_reaction (story_id, user_id, reaction, created_at, updated_at,"
 				+ " reacted_at, like_recorded, dislike_recorded) VALUES (?, ?, 'LIKE', ?, ?, ?, true, false)",
 				storyId, userId, at, at, at);
+	}
+
+	/** 이 테스트가 만든 기록 넷. */
+	private List<String> mine() {
+		return List.of(this.twoLikes.toString(), this.oneLike.toString(),
+				this.newerZero.toString(), this.olderZero.toString());
+	}
+
+	/**
+	 * 쪽을 끝까지 걷어 이 테스트가 만든 기록만 «순서대로» 남긴다.
+	 *
+	 * <p>한 쪽만 보면 안 된다. 같은 DB 를 다른 테스트 클래스도 쓰므로 기록이 수백 건이고, 첫 쪽
+	 * 50개 안에 이 테스트의 것이 안 들어온다 — 그래서 처음에 이 검사가 CI 에서만 빨개졌다.
+	 */
+	private List<String> walkMine(String sort) throws Exception {
+		List<String> out = new ArrayList<>();
+		String cursor = null;
+		int pages = 0;
+		do {
+			JsonNode page = feed(sort, cursor, 50);
+			for (String id : ids(page)) {
+				if (mine().contains(id)) {
+					out.add(id);
+				}
+			}
+			JsonNode next = page.get("nextCursor");
+			cursor = (next == null || next.isNull()) ? null : next.asText();
+		}
+		while (cursor != null && ++pages < 200);
+		return out;
 	}
 
 	private JsonNode feed(String sort, String cursor) throws Exception {
