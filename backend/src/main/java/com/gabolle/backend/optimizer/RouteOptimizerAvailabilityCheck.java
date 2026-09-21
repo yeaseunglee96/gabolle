@@ -1,9 +1,6 @@
 package com.gabolle.backend.optimizer;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,22 +61,12 @@ public class RouteOptimizerAvailabilityCheck {
 	 * ortools 가 실제로 깔려 있는지 보려고 이 메서드를 그대로 부른다.
 	 */
 	TrialOutcome tryInvoke() throws IOException, InterruptedException {
-		ProcessBuilder builder = new ProcessBuilder(this.properties.getPythonExecutable(), this.properties.getScriptPath());
-		Process process = builder.start();
-		try (OutputStream stdin = process.getOutputStream()) {
-			stdin.write(TRIAL_PAYLOAD.getBytes(StandardCharsets.UTF_8));
+		// 부르는 방식은 실제 동선 계산과 같아야 한다 — RouteOptimizerProcess 한 벌만 쓴다.
+		RouteOptimizerProcess.Result result = new RouteOptimizerProcess(this.properties).run(TRIAL_PAYLOAD);
+		if (!result.ok()) {
+			return TrialOutcome.unavailable(result.detail());
 		}
-		boolean finished = process.waitFor(this.properties.getTimeoutSeconds(), TimeUnit.SECONDS);
-		if (!finished) {
-			process.destroyForcibly();
-			return TrialOutcome.unavailable("시간 초과(" + this.properties.getTimeoutSeconds() + "초)");
-		}
-		String stdout = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-		if (process.exitValue() != 0) {
-			String stderr = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
-			return TrialOutcome.unavailable("종료 코드 " + process.exitValue()
-					+ (stderr.isBlank() ? "" : " — " + stderr.strip()));
-		}
+		String stdout = result.stdout();
 		JsonNode node = this.objectMapper.readTree(stdout);
 		String status = node.path("status").asText("");
 		if (!"OPTIMAL".equals(status)) {

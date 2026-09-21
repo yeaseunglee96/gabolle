@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ import com.gabolle.backend.itinerary.application.ItineraryDraftService;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
+import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.application.port.TravelTimePort;
@@ -94,7 +96,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT);
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder());
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -276,7 +278,7 @@ class ItineraryDraftServiceTest {
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN,
-				ALWAYS_UNKNOWN_TIME_FACT);
+				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder());
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -514,7 +516,8 @@ class ItineraryDraftServiceTest {
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD",
-				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact);
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact,
+				noRouteOrder());
 	}
 
 	@Test
@@ -667,7 +670,7 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", new ItineraryLegPlanner(this.placeRepository, provider),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT);
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder());
 	}
 
 	private List<ItineraryDraftCommand.PlannedPlace> plannedPlaces(int count) {
@@ -681,5 +684,113 @@ class ItineraryDraftServiceTest {
 	private ItineraryDraftCommand commandOf(String tripId, List<ItineraryDraftCommand.PlannedPlace> places) {
 		return new ItineraryDraftCommand(UUID.randomUUID(), tripId, "usr_1", places,
 				"model-1", "feature-1", "ontology-1", "policy-1", "dataset-1");
+	}
+
+	/**
+	 * 동선 최적화가 붙어 있지 않은 판. 이 파일의 다른 시험들이 전부 이 상태이고, 그때 차례는
+	 * 순위 그대로다 — 최적화가 없어도 일정이 오늘처럼 나온다는 것을 그 시험들이 같이 지킨다.
+	 */
+	private static ObjectProvider<RouteOrderPort> noRouteOrder() {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<RouteOrderPort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(null);
+		return provider;
+	}
+
+	/** 동선 최적화가 정해진 답을 내는 판. 파이썬을 부르지 않는다 — 배선만 본다. */
+	private ItineraryDraftService serviceWithRouteOrder(RouteOrderPort routeOrder) {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<RouteOrderPort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(routeOrder);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		when(noTravelTime.getIfAvailable()).thenReturn(null);
+		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
+				4, 3, "FOOD", new ItineraryLegPlanner(this.placeRepository, noTravelTime),
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, provider);
+	}
+
+	private static List<UUID> placeIdsOf(List<ItineraryDraftCommand.PlannedPlace> places) {
+		return places.stream().map(ItineraryDraftCommand.PlannedPlace::placeId).collect(Collectors.toList());
+	}
+
+	private static List<UUID> placeIdsOfItems(ItineraryDraft draft) {
+		return draft.items().stream().map(ItineraryDraft.DraftItem::placeId).collect(Collectors.toList());
+	}
+
+	@Test
+	@DisplayName("동선 최적화가 낸 차례대로 일정에 앉는다 — 추천 순위 차례가 아니라")
+	void seatsInRouteOrderNotRankOrder() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(4);
+		List<UUID> rankOrder = placeIdsOf(places);
+		List<UUID> routeOrder = new ArrayList<>(rankOrder);
+		Collections.reverse(routeOrder);
+
+		ItineraryDraftService service = serviceWithRouteOrder(request -> routeOrder);
+
+		ItineraryDraft draft = service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(placeIdsOfItems(draft))
+				.as("최적화가 낸 차례가 그대로 일정의 차례가 되어야 한다")
+				.containsExactlyElementsOf(routeOrder);
+	}
+
+	@Test
+	@DisplayName("최적화가 답을 못 내면 순위 차례 그대로 간다 — 일정이 멈추지 않는다")
+	void keepsRankOrderWhenRouteOrderIsEmpty() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(4);
+		List<UUID> rankOrder = placeIdsOf(places);
+
+		ItineraryDraftService service = serviceWithRouteOrder(request -> List.of());
+
+		ItineraryDraft draft = service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(placeIdsOfItems(draft)).containsExactlyElementsOf(rankOrder);
+	}
+
+	@Test
+	@DisplayName("최적화가 받은 적 없는 장소를 돌려주면 통째로 버린다 — 한 톨이라도 어긋나면 순위 차례다")
+	void keepsRankOrderWhenRouteOrderReturnsUnknownPlace() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(4);
+		List<UUID> rankOrder = placeIdsOf(places);
+		// 수는 맞는데 마지막 하나가 우리가 준 적 없는 장소다.
+		List<UUID> broken = new ArrayList<>(rankOrder.subList(0, 3));
+		broken.add(UUID.randomUUID());
+
+		ItineraryDraftService service = serviceWithRouteOrder(request -> broken);
+
+		ItineraryDraft draft = service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(placeIdsOfItems(draft))
+				.as("차례만 바꾼다는 약속이 깨진 답은 쓰지 않는다")
+				.containsExactlyElementsOf(rankOrder);
+	}
+
+	@Test
+	@DisplayName("여행이 고른 이동수단이 최적화에 그대로 간다 — 차례를 정한 잣대와 구간을 잰 잣대가 같아야 한다")
+	void passesTripTravelModeToRouteOrder() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(3);
+		List<String> seen = new ArrayList<>();
+
+		ItineraryDraftService service = serviceWithRouteOrder(request -> {
+			seen.add(request.travelMode());
+			return List.of();
+		});
+		service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(seen).as("이동수단을 안 고른 여행은 WALK 로 떨어진다 — ItineraryLegPlanner 와 같은 규칙")
+				.containsExactly("WALK");
 	}
 }

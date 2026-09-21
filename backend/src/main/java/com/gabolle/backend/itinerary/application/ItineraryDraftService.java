@@ -9,15 +9,19 @@ import java.time.ZoneId;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
@@ -84,12 +88,19 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private final PlaceTimeFactFilterPort timeFact;
 
+    /**
+     * 하루의 차례를 거리로 다시 세우는 문. {@link ItineraryLegPlanner} 가 이동시간 문을 다루는
+     * 방식과 같게 {@link ObjectProvider} 로 받는다 — 최적화 어댑터가 없는 판(슬라이스 테스트,
+     * 프로필이 안 맞는 기동)에서도 일정 생성은 그대로 돌아야 한다. 없으면 순위 차례로 간다.
+     */
+    private final ObjectProvider<RouteOrderPort> routeOrder;
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
             @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
             ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours,
-            PlaceTimeFactFilterPort timeFact) {
+            PlaceTimeFactFilterPort timeFact, ObjectProvider<RouteOrderPort> routeOrder) {
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
@@ -99,6 +110,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.legPlanner = legPlanner;
         this.openingHours = openingHours;
         this.timeFact = timeFact;
+        this.routeOrder = routeOrder;
     }
 
     /**
@@ -125,6 +137,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         for (int dayIndex = 0; dayIndex < byDay.size(); dayIndex++) {
             List<ItineraryDraftCommand.PlannedPlace> dayPlaces = byDay.get(dayIndex);
             LocalDate visitDate = trip.startDate().plusDays(dayIndex);
+
+            // 자리에 앉히기 전에 차례를 거리로 다시 세운다. 앉히는 규칙(영업시간·밥 때)은 그대로
+            // 두고 훑는 차례만 바꾼다 — placeIntoSlots 은 목록을 앞에서부터 보므로, 목록의 차례가
+            // 곧 "같은 조건이면 이쪽 먼저" 가 된다.
+            dayPlaces = reorderByRoute(trip, dayPlaces);
 
             List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate);
             placedByDay.add(placedToday);
@@ -165,6 +182,59 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         return new ItineraryDraft(command.tripId(), command.userId(), command.requestId(),
                 command.modelVersion(), command.featureVersion(), command.ontologyVersion(),
                 command.policyVersion(), command.datasetVersion(), items, legs, draftWarnings);
+    }
+
+    /**
+     * 그 날의 장소를 <b>이동이 가장 적은 차례</b>로 다시 세운다.
+     * <p>
+     * 여기까지 오는 차례는 추천 <b>순위</b>다. 순위는 "얼마나 잘 맞는가" 이지 "어디에 있는가" 가
+     * 아니라서, 순위 그대로 훑으면 도시 반대편을 오갈 수 있다. 그것이 일정이 가게 나열처럼
+     * 보이는 이유였다 — 차례를 정하는 단계가 거리를 한 번도 안 봤다.
+     * <p>
+     * 🔴 <b>순위를 버리는 것이 아니다.</b> 바뀌는 것은 {@link #placeIntoSlots} 이 후보를 훑는
+     * 차례뿐이고, 영업시간·밥 때 판정은 그대로 남는다. 그리고 답이 없거나 받은 것과 한 톨이라도
+     * 어긋나면 <b>들어온 차례를 그대로 돌려준다</b> — 최적화가 없어도 일정은 오늘처럼 나온다.
+     */
+    private List<ItineraryDraftCommand.PlannedPlace> reorderByRoute(Trip trip,
+            List<ItineraryDraftCommand.PlannedPlace> dayPlaces) {
+
+        RouteOrderPort port = this.routeOrder.getIfAvailable();
+        if (port == null || dayPlaces.size() < 2) {
+            return dayPlaces;
+        }
+
+        List<UUID> placeIds = new ArrayList<>(dayPlaces.size());
+        for (ItineraryDraftCommand.PlannedPlace place : dayPlaces) {
+            placeIds.add(place.placeId());
+        }
+
+        // 여행이 고른 이동수단의 첫 값. ItineraryLegPlanner 와 같은 규칙이라야 차례를 정한
+        // 잣대와 구간을 잰 잣대가 같아진다.
+        String[] modes = trip.travelModes();
+        String travelMode = (modes == null || modes.length == 0) ? "WALK" : modes[0];
+
+        List<UUID> ordered = port.shortestOrder(new RouteOrderPort.RouteOrderRequest(
+                trip.originLat(), trip.originLng(), List.copyOf(placeIds), travelMode));
+        if (ordered == null || ordered.size() != dayPlaces.size()) {
+            return dayPlaces;
+        }
+
+        // 같은 장소가 두 번 들어와도 어긋나지 않게 꺼내 쓴다.
+        Map<UUID, List<ItineraryDraftCommand.PlannedPlace>> byId = new HashMap<>();
+        for (ItineraryDraftCommand.PlannedPlace place : dayPlaces) {
+            byId.computeIfAbsent(place.placeId(), key -> new ArrayList<>()).add(place);
+        }
+
+        List<ItineraryDraftCommand.PlannedPlace> reordered = new ArrayList<>(dayPlaces.size());
+        for (UUID placeId : ordered) {
+            List<ItineraryDraftCommand.PlannedPlace> waiting = byId.get(placeId);
+            if (waiting == null || waiting.isEmpty()) {
+                // 받은 적 없는 장소가 왔거나 같은 것이 너무 많이 왔다. 통째로 버린다.
+                return dayPlaces;
+            }
+            reordered.add(waiting.remove(waiting.size() - 1));
+        }
+        return reordered;
     }
 
     /**
