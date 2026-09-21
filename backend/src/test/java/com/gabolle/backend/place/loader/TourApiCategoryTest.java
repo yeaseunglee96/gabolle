@@ -55,10 +55,26 @@ class TourApiCategoryTest {
 	}
 
 	@Test
-	@DisplayName("🔴 레포츠는 비운다 — 억지로 넣으면 자연 산책에 실내 사격장이 섞인다")
-	void sportsHasNoAppWord() {
+	@DisplayName("🔴 레포츠 안의 걷기길만 NATURE_WALK 다 — 갈맷길·문탠로드가 대분류에 묶여 묻혀 있었다")
+	void onlyTheTrailSubcategoryBecomesNatureWalk() {
+		// 이 줄은 원래 isNull() 이었다 (「무장애숲길 — 걷는 길이지만 같은 대분류다」).
+		// 2026-09-21 에 레포츠 29곳을 소분류로 세어 보니 길 그 자체인 곳이 7곳이었다.
+		assertThat(TourApiCategory.of("129999", "A03", "A03022700")).isEqualTo("NATURE_WALK");
+		// 탐색 축이 같은 소분류를 이미 「산책」으로 가르고 있다. 두 축이 어긋나면 안 된다.
+		assertThat(TourApiExploreFacet.of("28", "A03", "A03022700")).contains("WALK");
+	}
+
+	@Test
+	@DisplayName("🔴 레포츠의 나머지는 여전히 비운다 — 억지로 넣으면 자연 산책에 실내 사격장이 섞인다")
+	void otherSportsStillHaveNoAppWord() {
+		// 실측한 소분류 그대로다 (2026-09-21, 레포츠 29곳). 걷기길 7곳을 뺀 22곳이 여기 든다.
 		assertThat(TourApiCategory.of("129999", "A03", "A03021600")).isNull(); // 실탄사격장
-		assertThat(TourApiCategory.of("129999", "A03", "A03022700")).isNull(); // 무장애숲길 — 걷는 길이지만 같은 대분류다
+		assertThat(TourApiCategory.of("129999", "A03", "A03021700")).isNull(); // 캠핑장 — 자는 곳이라 따로 정한다
+		assertThat(TourApiCategory.of("129999", "A03", "A03021300")).isNull(); // 아이스링크 — 실내
+		assertThat(TourApiCategory.of("129999", "A03", "A03050100")).isNull(); // 레이저태그 — 실내
+		assertThat(TourApiCategory.of("129999", "A03", "A03020700")).isNull(); // 골프장
+		assertThat(TourApiCategory.of("129999", "A03", "A03030100")).isNull(); // 서핑학교 — 하는 것이지 걷는 것이 아니다
+		assertThat(TourApiCategory.of("129999", "A03", null)).isNull();
 	}
 
 	@Test
@@ -104,7 +120,8 @@ class TourApiCategoryTest {
 		known.addAll(AccommodationCategories.CODES);
 
 		String[] cat1s = { "A01", "A02", "A03", "A04", "A05", "B02", "C01" };
-		String[] cat3s = { null, "A01011200", "A01010400", "A02010100", "A04010200", "A03021600" };
+		String[] cat3s = { null, "A01011200", "A01010400", "A02010100", "A04010200", "A03021600",
+				"A03022700", "A03021700" };
 		for (String cat1 : cat1s) {
 			for (String cat3 : cat3s) {
 				String produced = TourApiCategory.of("129999", cat1, cat3);
