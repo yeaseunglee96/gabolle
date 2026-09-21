@@ -299,4 +299,36 @@ class TranslationVendorAdapterTest {
 		assertThatThrownBy(() -> adapter.translate("안녕", TranslationDirection.KO_TO_EN))
 				.isInstanceOf(TranslationVendorException.class);
 	}
+
+	/**
+	 * 🔴 방향이 둘뿐이던 때의 지시문은 {@code KO_TO_EN 이면 「한국어에서 영어로」, 아니면 「영어에서 한국어로」} 였다.
+	 * 방향만 늘렸으면 일본어가 «영어에서» 로 지시됐다 — S15P21E201-1363. 모든 방향을 한 번씩 본다.
+	 */
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.CsvSource({
+			"KO_TO_EN,      한국어에서 영어로",
+			"EN_TO_KO,      영어에서 한국어로",
+			"JA_TO_KO,      일본어에서 한국어로",
+			"ZH_HANS_TO_KO, 간체 중국어에서 한국어로",
+			"ZH_HANT_TO_KO, 번체 중국어에서 한국어로",
+			"KO_TO_JA,      한국어에서 일본어로",
+			"KO_TO_ZH_HANS, 한국어에서 간체 중국어로",
+			"KO_TO_ZH_HANT, 한국어에서 번체 중국어로" })
+	@DisplayName("🔴 지시문의 언어가 방향과 맞는다 — 일본어가 「영어에서」로 지시되지 않는다")
+	void promptNamesTheRightLanguages(TranslationDirection direction, String expected) {
+		String message = TranslationVendorAdapter.userMessage("本文", direction);
+
+		assertThat(message).startsWith("다음 본문을 " + expected + " 번역해라.");
+		// 본문은 맨 뒤다 — 앞에 두면 본문 속 지시가 우리 문장을 삼킨 것처럼 보인다.
+		assertThat(message).endsWith("本文");
+	}
+
+	@Test
+	@DisplayName("원래 두 방향의 지시문은 한 글자도 안 바뀌었다 — 바뀌면 같은 문장의 번역이 달라져 캐시와 어긋난다")
+	void existingDirectionsKeepTheirExactPrompt() {
+		assertThat(TranslationVendorAdapter.userMessage("안녕", TranslationDirection.KO_TO_EN))
+				.isEqualTo("다음 본문을 한국어에서 영어로 번역해라.\n\n안녕");
+		assertThat(TranslationVendorAdapter.userMessage("hello", TranslationDirection.EN_TO_KO))
+				.isEqualTo("다음 본문을 영어에서 한국어로 번역해라.\n\nhello");
+	}
 }

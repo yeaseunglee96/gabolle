@@ -1,5 +1,6 @@
 package com.gabolle.backend.tools.presentation;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,6 +16,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -104,13 +107,46 @@ class TranslateControllerTest {
 				.andExpect(jsonPath("$.error.code").value("TRANSLATE_INVALID_REQUEST"));
 	}
 
+	/**
+	 * 🔴 앱은 이미 이 셋을 보낸다(frontend/src/field/translate.ts, S15P21E201-1361). 서버가 모르면 앱이 영어를
+	 * 거쳐 한 번 더 부르고 「영어를 거쳐 번역했어요」라고 알린다 — S15P21E201-1363 이 그 우회를 없앤다.
+	 */
+	@ParameterizedTest
+	@ValueSource(strings = { "JA_TO_KO", "ZH_HANS_TO_KO", "ZH_HANT_TO_KO" })
+	@DisplayName("🔴 앱이 보내는 일본어·중국어 방향을 받고, 그 방향 그대로 업체에 넘긴다")
+	void acceptsTheDirectionsTheAppSends(String direction) throws Exception {
+		this.mockMvc.perform(post("/api/v1/tools/translate")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"sourceText\":\"氷なしでお願いします\",\"direction\":\"" + direction + "\"}")
+						.principal(asUser()))
+				.andExpect(status().isOk());
+
+		// 받기만 하고 영어 방향으로 바꿔 부르면 겉으로는 똑같이 200 이다. 무엇이 넘어갔는지를 본다.
+		assertThat(this.vendor.lastDirection).isEqualTo(TranslationDirection.valueOf(direction));
+	}
+
+	@Test
+	@DisplayName("모르는 방향을 거절할 때 받을 수 있는 값을 전부 알려 준다 — 손으로 적은 목록이 낡지 않는다")
+	void rejectionListsEveryAcceptedDirection() throws Exception {
+		this.mockMvc.perform(post("/api/v1/tools/translate")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"sourceText\":\"안녕\",\"direction\":\"KO_TO_MARS\"}")
+						.principal(asUser()))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error.message").value(org.hamcrest.Matchers.containsString("JA_TO_KO")))
+				.andExpect(jsonPath("$.error.message").value(org.hamcrest.Matchers.containsString("KO_TO_ZH_HANT")));
+	}
+
 	/** 여러 테스트가 함께 참조할 수 있게 필드로 둔다 — 요청마다 실패 여부를 바꿔야 한다. */
 	private static final class StubVendor implements TranslationVendorPort {
 
 		boolean shouldFail = false;
 
+		TranslationDirection lastDirection;
+
 		@Override
 		public String translate(String sourceText, TranslationDirection direction) {
+			this.lastDirection = direction;
 			if (this.shouldFail) {
 				throw new TranslationVendorException("TRANSLATE_VENDOR_UNAVAILABLE", "번역 업체 호출에 실패했습니다.",
 						HttpStatus.BAD_GATEWAY);

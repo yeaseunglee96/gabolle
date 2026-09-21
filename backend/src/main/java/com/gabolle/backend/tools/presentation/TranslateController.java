@@ -1,7 +1,9 @@
 package com.gabolle.backend.tools.presentation;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
@@ -60,7 +62,9 @@ public class TranslateController {
 			return TranslationDirection.valueOf(raw.trim().toUpperCase(Locale.ROOT));
 		}
 		catch (IllegalArgumentException | NullPointerException exception) {
-			throw new IllegalArgumentException("direction 은 KO_TO_EN · EN_TO_KO 중 하나여야 합니다: " + raw);
+			// 받을 수 있는 값을 손으로 적지 않는다 — 방향이 늘 때마다 이 문구만 낡는다(S15P21E201-1363).
+			String accepted = Arrays.stream(TranslationDirection.values()).map(Enum::name).collect(Collectors.joining(" · "));
+			throw new IllegalArgumentException("direction 은 " + accepted + " 중 하나여야 합니다: " + raw);
 		}
 	}
 

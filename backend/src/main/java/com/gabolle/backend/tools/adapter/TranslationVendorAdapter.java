@@ -150,8 +150,14 @@ public class TranslationVendorAdapter implements TranslationVendorPort {
 		return trimmed + "/chat/completions";
 	}
 
-	private static String userMessage(String sourceText, TranslationDirection direction) {
-		String target = (direction == TranslationDirection.KO_TO_EN) ? "한국어에서 영어로" : "영어에서 한국어로";
+	/**
+	 * 번역 지시문. 언어 이름은 방향이 스스로 안다({@link TranslationDirection#source()}).
+	 *
+	 * <p>🔴 여기에 「이 방향이 아니면 나머지 전부」 같은 분기를 다시 만들지 않는다 — 방향이 둘뿐이던 때의
+	 * 삼항식이 바로 그것이었고, 방향을 늘리는 순간 일본어가 「영어에서 한국어로」로 지시될 뻔했다(S15P21E201-1363).
+	 */
+	static String userMessage(String sourceText, TranslationDirection direction) {
+		String target = direction.source().promptName() + "에서 " + direction.target().promptName() + "로";
 		// 본문을 맨 뒤에 둔다 — 앞에 두면 본문 속 지시가 뒤따르는 우리 문장을 삼킨 것처럼 보인다.
 		return "다음 본문을 " + target + " 번역해라.\n\n" + sourceText;
 	}
