@@ -119,10 +119,8 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
     timezone: 'Asia/Seoul',
     preferences: [
       preference('category', draft.preferenceAnswerStatus.category, draft.preferences),
-      preference('atmosphere', draft.preferenceAnswerStatus.atmosphere, draft.atmospheres),
       preference('locality', draft.preferenceAnswerStatus.locality, draft.localityLevel),
       preference('quietness', draft.preferenceAnswerStatus.quietness, draft.quietLevel),
-      preference('touristPreference', draft.preferenceAnswerStatus.touristPreference, draft.touristLevel),
       preference('foodPreference', draft.preferenceAnswerStatus.foodPreference, draft.foods),
       preference('transport', 'SELECTED', draft.transport),
       preference('slopePreference', draft.slopeConstraint === null ? 'UNKNOWN' : 'SELECTED', draft.slopeConstraint),
