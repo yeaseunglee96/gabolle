@@ -45,15 +45,24 @@ function loadTargets() {
     .map((r) => ({ id: r.id, name: r.name, road: r.roadAddr, cat: r.category?.name ?? "" }));
 }
 
+/**
+ * 🔴 "결과 파일이 있다" 와 "끝났다" 는 다르다. `found: null` 은 조사 자체가 실패한 것
+ * (타임아웃·스키마 파일이 없어졌다 같은 우리 쪽 사고 포함)이라 **다시 돈다.**
+ * `found: true/false` 만 진짜 완료다 — 이게 체크포인트의 판정 기준이다.
+ */
+function isDone(t) {
+  const f = path.join(RESULTS_DIR, `${t.id}.json`);
+  if (!fs.existsSync(f)) return false;
+  try { return JSON.parse(fs.readFileSync(f, "utf8")).found !== null; }
+  catch { return false; }
+}
+
 function statusReport(targets) {
-  const done = targets.filter((t) => fs.existsSync(path.join(RESULTS_DIR, `${t.id}.json`)));
-  const found = done.filter((t) => {
-    try { return JSON.parse(fs.readFileSync(path.join(RESULTS_DIR, `${t.id}.json`), "utf8")).found; }
-    catch { return false; }
-  });
+  const done = targets.filter(isDone);
+  const found = done.filter((t) => JSON.parse(fs.readFileSync(path.join(RESULTS_DIR, `${t.id}.json`), "utf8")).found);
   console.log(`대상 ${targets.length}곳 중 완료 ${done.length}곳 (${((done.length / targets.length) * 100).toFixed(1)}%)`);
   if (done.length) console.log(`완료분 중 적중 ${found.length}/${done.length} (${((found.length / done.length) * 100).toFixed(1)}%)`);
-  console.log(`남은 곳 ${targets.length - done.length}곳`);
+  console.log(`남은 곳 ${targets.length - done.length}곳 (오류로 재시도 대기 포함)`);
   return { done, targets };
 }
 
@@ -125,6 +134,13 @@ function aggregate(targets) {
   fs.mkdirSync(path.dirname(STAGED_OUT), { recursive: true });
   fs.writeFileSync(STAGED_OUT, lines.join("\n") + (lines.length ? "\n" : ""));
   console.log(`→ ${path.relative(ROOT, STAGED_OUT)} (${lines.length}줄)`);
+}
+
+// 🔴 실측으로 한 번 걸렸다 — 스키마 파일이 (다른 브랜치로 전환되며) 사라진 채로 282곳이
+// 조용히 다 실패했다. 시작하기 전에 확인하고, 없으면 그 자리에서 죽는다(fail fast).
+if (!fs.existsSync(SCHEMA)) {
+  console.error(`🔴 스키마 파일이 없다: ${SCHEMA}\n   (다른 브랜치로 체크아웃하면 이 파일이 사라질 수 있다 — 실제로 한 번 그랬다)`);
+  process.exit(1);
 }
 
 const targets = loadTargets();
