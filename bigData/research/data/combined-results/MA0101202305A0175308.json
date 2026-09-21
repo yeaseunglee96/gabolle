@@ -1,0 +1,82 @@
+{
+  "id": "MA0101202305A0175308",
+  "name": "텐카츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 37213,
+  "researchedAt": "2026-09-21T22:25:26.482Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼밥객, 인근 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "로스카츠",
+      "히레카츠",
+      "치즈카츠"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 20:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지역 상가 중심가에 위치한 식당으로 지역 주민 및 직장인/혼밥 수요 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 기장군 정관읍 사랑샘프라자에 위치한 숙성 돈카츠 전문점(로스카츠, 히레카츠, 치즈카츠, 냉모밀, 우동 등)",
+  "price": {
+    "found": true,
+    "priceMenu": "로스카츠(등심 200g)",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 기장군 정관읍 정관로 580 101호. 대표 메뉴: 숙성 돈카츠(로스카츠, 히레카츠, 치즈카츠 등)와 사이드 메뉴(냉모밀, 우동 등)를 판매합니다. 다찌 형태의 좌석이 마련되어 있어 혼밥하기에 좋으며, 건물 지하 주차장을 이용할 수 있습니다. 로스카츠(등심, 200g): 12,000원, 히레카츠(안심, 180g): 12,000원. 운영 시간: 11:30 ~ 20:00",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "고기 손질부터 반찬, 사이드 메뉴(우동, 모밀 등)까지 직접 정성을 들여 준비하는 것을 원칙으로 삼고 있습니다. 특히 우동과 모밀의 경우 야채를 듬뿍 넣어 육수를 내는 등 맛에 깊이를 더하는 데 신경을 쓰고 있는 것으로 보입니다.",
+      "url": "https://place.map.kakao.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://place.map.kakao.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고기 손질부터 육수까지 직접 준비하는 정성스러운 숙성 돈카츠를 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "로스카츠 200g 기준 12,000원으로 푸짐하고 합리적인 가격대를 형성함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "다찌 좌석이 마련되어 있어 1인 혼밥이 편하고 건물 지하 주차가 가능함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220806921391",
+  "name": "이서방도야지",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 69560,
+  "researchedAt": "2026-09-21T22:19:49.419Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지고기구이",
+      "수육정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 동구 고관로 33-2(수정동/초량 인근)에 실존하는 식당이나, 포털 및 SNS 상의 세부 방문기나 메뉴판 가격 정보 등 상세 데이터가 매우 제한적임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 고관로 33-2 (수정동) 1층 이서방도야지 전화번호 051-462-2335 한식 일반음식점",
+      "url": "https://www.114.co.kr"
+    },
+    {
+      "excerpt": "초량동 점심 맛집 등으로 소개되며, 수육과 같은 메뉴가 포함된 정식 등으로 알려져 있습니다. 동구 고관로 33-2 1층",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr",
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "초량 및 수정동 인근에서 수육정식 및 돼지고기 구이 등으로 점심 식사를 하러 방문함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

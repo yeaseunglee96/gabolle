@@ -1,0 +1,49 @@
+{
+  "id": "MA010120220810617184",
+  "name": "한조식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 50989,
+  "researchedAt": "2026-09-21T22:17:21.482Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 백양대로 232-6(개금동 356-8)에 상호 '한조식당' 사업자등록/상가 정보(전화번호 051-892-7291)는 확인되나, 일반 소비자 블로그나 후기, 메뉴/가격, 영업시간 등 상세 방문 정보는 웹상에 공개되어 있지 않은 동네 소규모 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 백양대로 232-6에 위치한 업체는 한조식당으로 확인됩니다. 해당 업체는 한식 음식점업을 운영하고 있습니다.",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "주소: 부산광역시 부산진구 개금3동 356-8, 전화번호: 051-892-7291 한조식당",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

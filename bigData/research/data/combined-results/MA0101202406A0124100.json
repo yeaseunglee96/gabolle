@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202406A0124100",
+  "name": "비스트로봉",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 43216,
+  "researchedAt": "2026-09-21T22:21:44.295Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "원테이블 프라이빗 다이닝 형태로 사전 예약제로 운영되어 대기줄보다는 예약 필수 형태임"
+  },
+  "descriptors": {
+    "audience": "프라이빗 다이닝·데이트·소규모 모임 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "빠에야",
+      "바스크 치즈케이크",
+      "스페인 코스 요리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 17:00 ~ 00:00, 토요일 12:00 ~ 00:00, 일요일 휴무"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 부산진구 연지동(동평로275번길 29)에 위치한 비스트로봉은 스페인 조리법 기반의 제철 코스 요리를 제공하는 원테이블 프라이빗 레스토랑입니다. 코스 구성과 가격은 변동될 수 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 동평로275번길 29 1층. 스페인 요리 전문점으로 빠에야, 바스크 치즈 케이크 등 정통 스페인 코스 요리를 선보이며 원테이블(One-table) 컨셉의 프라이빗 다이닝으로 운영. 영업시간 평일 17:00 ~ 00:00, 토요일 12:00 ~ 00:00, 일요일 휴무. 주차가 어려울 수 있어 대중교통 이용 권장.",
+      "url": "https://modan.kr"
+    },
+    {
+      "excerpt": "비스트로 봉: 스페인 조리법을 활용한 제철 요리 전문점",
+      "url": "https://siksinhot.com"
+    },
+    {
+      "excerpt": "비스트로봉 (연지동 46-22). 평일 17:00-00:00, 토요일 12:00-00:00, 일요일 정기휴무. 포장 및 예약 가능.",
+      "url": "https://bizw.kr"
+    }
+  ],
+  "sources": [
+    "https://modan.kr",
+    "https://siksinhot.com",
+    "https://bizw.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "스페인 조리법을 활용한 제철 코스 요리와 빠에야 등 원테이블 프라이빗 다이닝 경험",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

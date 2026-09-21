@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220810607552",
+  "name": "영빈관",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 42809,
+  "researchedAt": "2026-09-21T22:24:32.299Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 언급 없음 (홀이 협소하여 배달 주문 위주 매장)"
+  },
+  "descriptors": {
+    "audience": "인근 주민/배달 이용자",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "짬뽕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "수정동 및 좌천동 일대 주민 대상 배달 위주의 동네 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동구 수정동 망양로 주택가 골목에 위치한 소규모 동네 배달 위주 중식당입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 동구 망양로793번길 8 (수정동 580-28) 업종: 중식 (배달 전문) 홀이 협소하여 배달 주문을 주로 권장하며, 수정동 및 좌천동 지역으로 배달이 가능하다고 안내되어 있습니다.",
+      "url": "https://www.siksinhot.com/P/297298"
+    },
+    {
+      "excerpt": "부산광역시 동구 망양로793번길 8 (수정동 580-28) 전화번호 051-464-5860 업종 중국식",
+      "url": "https://www.koreacharts.com/address/2609010300105800028.html"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/297298",
+    "https://www.koreacharts.com/address/2609010300105800028.html"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수정동·좌천동 일대 배달 및 식사 접근 편의 위주로 이용하는 동네 중식당",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

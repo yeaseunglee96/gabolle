@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220813668858",
+  "name": "토로",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 38053,
+  "researchedAt": "2026-09-21T22:21:57.775Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "내부 테이블 수가 많지 않아 주말에는 예약 방문이 권장됨"
+  },
+  "descriptors": {
+    "audience": "연인 및 데이트 고객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "채끝 스테이크",
+      "안심 스테이크",
+      "만조 크림 파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 22:00 (마지막 주문 21:00, 평일 브레이크 타임 15:00 ~ 17:00, 주말 브레이크 타임 없음, 연중무휴)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 영도구 동삼동에 위치한 주택 개조형 이탈리안 경양식/레스토랑으로 에이징 스테이크와 파스타를 전문으로 함.",
+  "price": {
+    "found": true,
+    "priceMenu": "만조 파스타 19,000원, 안심 스테이크 약 47,000원",
+    "priceWon": 19000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주택을 개조하여 만든 아늑하고 이국적인 인테리어가 특징입니다. 식사 후 옥상으로 올라가면 영도 바다를 조망할 수 있는 포토존이 마련되어 있습니다. 내부 테이블 수가 많지 않아 주말 등에는 미리 전화로 예약하고 방문하시는 것을 추천합니다. 주차 시설이 구비되어 있으며 무료로 이용 가능합니다.",
+      "url": "https://www.tripinfo.co.kr"
+    },
+    {
+      "excerpt": "한 달 정도 에이징 과정을 거친 채끝 스테이크와 안심 스테이크가 유명합니다. 특히 채끝 스테이크는 철판에 제공되어 취향에 맞게 익혀 먹을 수 있습니다. 만조 토마토/크림 파스타(각 19,000원), 관자 제노베제(17,000원), 새우 로제 파스타(17,000원) 등 다양한 메뉴가 준비되어 있습니다.",
+      "url": "https://www.bizw.kr"
+    }
+  ],
+  "sources": [
+    "https://www.tripinfo.co.kr",
+    "https://www.bizw.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한 달간 에이징한 채끝·안심 스테이크와 직접 재배한 신선한 식재료의 파스타 요리 제공",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주택을 개조해 바다 조망 옥상 포토존을 갖춘 이국적이고 아늑한 데이트 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202604A0042709",
+  "name": "해정각",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 46708,
+  "researchedAt": "2026-09-21T22:26:15.835Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "사천짜장",
+      "볶음밥",
+      "미니탕수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 20:00 (매주 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서대신동 주택가(대신더샵 인근)에 위치한 동네 중식당으로 주로 인근 주민들이 방문하는 곳입니다."
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 서구 꽃마을로 40(서대신동3가)에 위치한 중식당으로, 사천짜장과 볶음밥, 미니탕수육 등이 대표 메뉴로 알려져 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 서구 꽃마을로 40 (서대신동3가) / 영업시간: 11:00 ~ 20:00 (화요일 휴무) / 주요 메뉴: 사천짜장, 볶음밥, 미니탕수육",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "사천짜장, 볶음밥, 미니탕수육 등 친숙한 중화요리 식사 목적",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "서대신동 대신더샵아파트 인근 생활권에서의 편리한 식사 및 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

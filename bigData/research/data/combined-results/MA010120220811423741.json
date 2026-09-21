@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220811423741",
+  "name": "동부산횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 41274,
+  "researchedAt": "2026-09-21T22:15:07.390Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "장어구이",
+      "물회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "연중무휴"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "반송큰시장 내에 위치하여 시장을 방문하는 지역 주민들이 일상적으로 찾는 로컬 횟집"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "반송큰시장 내에 위치한 동네 로컬 횟집으로, 모듬회·장어구이·물회 등을 취급하며 주민들이 주로 이용하는 곳입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 동부산횟집 / 위치: 부산광역시 해운대구 윗반송로51번길 59-31 (반송동, 반송큰시장 내) / 연락처: 051-542-5923 / 영업시간: 연중무휴 / 대표 메뉴: 모듬회, 장어구이, 물회",
+      "url": "https://busanweb.co.kr"
+    },
+    {
+      "excerpt": "주소: 부산광역시 해운대구 윗반송로51번길 64 (반송동) 1층 / 연락처: 051-542-2923 또는 051-542-5923 / 반송큰시장 내에서 오랫동안 영업해 온 횟집으로, 시장을 방문하는 지역 주민들이 즐겨 찾는 곳 중 하나입니다.",
+      "url": "https://travelitoday.com"
+    }
+  ],
+  "sources": [
+    "https://busanweb.co.kr",
+    "https://travelitoday.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "반송큰시장 인근 지역 주민들이 장보기 전후나 일상 식사로 회와 매운탕을 즐겨 찾는 생활 밀착형 횟집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

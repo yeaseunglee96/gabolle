@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202502A0107409",
+  "name": "고갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 45143,
+  "researchedAt": "2026-09-21T22:20:59.064Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주당·직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "고갈비",
+      "해물짬뽕탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "덕천동 동네 상권 술집으로 지역 주민 및 단골 손님 위주 방문"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "'고갈비(신고갈비)'는 원래 경성대 앞에서 유명했던 고갈비 술집으로 북구 덕천동(의성로122번길 66)으로 이전 운영했던 곳이나, 고등어 구이(고갈비)와 짬뽕탕 안주 전문 주점입니다. 현재는 폐업 또는 변동 가능성이 높습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "경성대 인근에서 오랫동안 운영하던 사장님이 덕천동으로 이전하여 오픈한 고등어 구이 전문점입니다. 짭짤한 밑간과 씹는 맛이 좋은 고등어 구이로 알려져 있습니다. 위치: 부산광역시 북구 의성로122번길 66 (덕천동 415-1) 인근으로, 당시 덕천 '700비어' 맞은편 건물에 위치해 있었습니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "경성대 시절부터 입소문 난 특유의 짭짤하고 고소한 고갈비(고등어구이) 안주 맛과 추억",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

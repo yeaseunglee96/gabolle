@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220810451705",
+  "name": "청동식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 30426,
+  "researchedAt": "2026-09-21T22:16:48.097Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도의 줄서기나 웨이팅 정보는 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족, 단체 회식, 현지 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지생갈비",
+      "돼지갈비",
+      "돼지 두루치기 정식"
+    ],
+    "yearsClaimed": 25
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 12:00 ~ 오후 23:00 (12:00 - 23:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "영도 현지인들에게 오랫동안 사랑받아온 동네 고깃집 맛집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 영도구 태종로 347-1 소재의 업소는 상호 등록/운영상 '청동숯불갈비'로 널리 알려져 있으며, 돼지고기 구이 전문점으로 운영 중임. 양념갈비보다 돼지생갈비가 유명함.",
+  "price": {
+    "found": true,
+    "priceMenu": "돼지생갈비 / 돼지갈비 1인분",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 태종로 347-1 (청학동). 25년 전통의 돼지갈비 및 돼지생갈비 전문점으로, 특히 양념갈비보다 생갈비가 유명한 맛집으로 알려져 있습니다. 문의: 051-417-6980",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "영도 현지인들에게 오랫동안 사랑받아온 돼지갈비 및 돼지생갈비 맛집으로 알려져 있습니다. 돼지갈비, 돼지생갈비 외에도 돼지 두루치기 정식 등을 제공하며, 고기 요리를 전문으로 합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "양념갈비보다 생갈비가 특히 신선하고 맛있는 고기 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오랜 기간 동안 영도 주민들의 외식 및 모임 장소로 사랑받음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "25년 전통을 내세우는 영도 노포 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220802585089",
+  "name": "가울",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 23131,
+  "researchedAt": "2026-09-21T22:18:41.389Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 하신중앙로 46 주소지 및 사하구 일대 베트남 음식점 검색 결과, '가울'이라는 상호의 식당 정보나 영업 흔적이 웹상에서 전혀 확인되지 않습니다. (해당 주소지는 병원 및 약국 건물 소재지로 확인됨)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

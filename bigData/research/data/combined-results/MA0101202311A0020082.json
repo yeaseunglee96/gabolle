@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202311A0020082",
+  "name": "산복도로바",
+  "cat": "피자",
+  "attempts": 1,
+  "geminiTokens": 32849,
+  "researchedAt": "2026-09-21T22:24:04.697Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 미확인",
+  "notes": "부산광역시 동구 망양로 791 주소지에는 '산복도로 호프'(수정동 소재 호프/주점) 상호만 등록되어 있을 뿐, '산복도로바'라는 피자 전문점 또는 관련 방문 후기/영업 정보는 웹상에 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bizno.net",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

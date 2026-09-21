@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220806972853",
+  "name": "초량온당",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 139739,
+  "researchedAt": "2026-09-21T22:20:34.763Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "오픈 시간 전부터 대기줄이 길게 생기며 현장 대기 또는 테이블링/캐치테이블 원격 줄서기(오픈런)가 필요함"
+  },
+  "descriptors": {
+    "audience": "디저트/빵 애호가(빵순이) 및 부산 여행객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "맘모스(맘모롱)",
+      "크럼블",
+      "황치즈 디저트",
+      "크림빵"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~토 12:00 ~ 19:00 (일, 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "빵순이들 사이에서 부산 여행 필수 빵지순례 코스로 손꼽히며 외지 관광객 및 현지 디저트 애호가 방문"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동구 초량중로 135에 위치한 유명 베이커리로, 맘모스빵(맘모롱)과 다양한 맛의 크럼블, 황치즈 디저트로 큰 인기를 끌고 있으며 오픈런과 웨이팅이 필수적인 빵지순례 명소임.",
+  "price": {
+    "found": true,
+    "priceMenu": "맘모스 6,700~7,700원, 크럼블 5,700~6,500원",
+    "priceWon": 6700
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 동구 초량중로 135, 1층 / 운영 시간: 화~토 12:00 ~ 19:00 / 휴무일: 일, 월요일 / 특징: 부산을 대표하는 '빵지순례' 명소로, 오픈 전부터 대기줄이 길게 생길 정도로 인기가 많습니다. 재료 본연의 맛을 살린 진한 풍미로 유명하며, 빵순이들 사이에서 부산 여행 필수 코스로 손꼽힙니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "오픈 시간부터 원하는 빵을 사기 위해 긴 줄이 생길 정도로 유명한 베이커리입니다. 부산에서도 보기 드문 색다른 조합과 레시피의 다양한 빵을 맛볼 수 있는 곳으로 알려져 있으며, 특히 황치즈를 활용한 빵이 가장 인기가 많습니다. 대표 메뉴: 맘모스(6,700~7,700원), 크럼블(5,700~6,500원)",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "색다른 재료 조합과 묵직하고 진한 황치즈, 크럼블, 맘모스빵의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오픈 전부터 줄을 서서 구매하는 전국적인 빵지순례 핫플레이스 수요",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

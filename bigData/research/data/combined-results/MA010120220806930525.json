@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220806930525",
+  "name": "이가네",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 41281,
+  "researchedAt": "2026-09-21T22:24:37.715Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소지(부산광역시 북구 백양대로1102번길 7, 구포동 983-5)에 사업체 등록 정보상 '이가네'(일반음식점)가 등록되어 있는 것은 확인되나, 일반 방문객 후기나 가격·영업시간·대표메뉴 등 세부 정보는 웹상에 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 백양대로1102번길 7에 위치한 '이가네'는 한식 일반 음식점업으로 등록된 업체입니다.",
+      "url": "https://www.saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr"
+  ],
+  "whyPeopleGo": []
+}

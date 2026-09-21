@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220804864851",
+  "name": "시싯골아구찜",
+  "cat": "해산물 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 85297,
+  "researchedAt": "2026-09-21T22:16:15.509Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생아구찜"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 동래구 명장동 지역 로컬 주민/회식 위주의 음식점으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "정식 등록 상호명은 '시싯골생아구찜'(부산광역시 동래구 명장동 시실로 169)으로 확인됩니다. 웹상에 상세 방문 후기나 영업시간, 가격표 등의 상세 데이터는 극히 제한적입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 명장동에 위치한 '시싯골생아구찜'에 대한 정보입니다. 명장동 지역에서 생아구찜을 전문으로 하는 식당으로, 지역 내 회식 장소나 맛집으로 알려져 있습니다. 대표 메뉴: 생아구찜(소) 등이 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동래구 명장동 일대에서 생아구를 사용한 찜 요리를 전문으로 취급함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "명장동 인근 지역 주민들의 식사 및 회식 장소로 활용됨",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

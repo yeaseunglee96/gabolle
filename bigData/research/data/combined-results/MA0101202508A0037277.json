@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202508A0037277",
+  "name": "태화담",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 57189,
+  "researchedAt": "2026-09-21T22:17:31.087Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 부산진구 개금본동로 81) 및 인근에 '태화담'이라는 상호의 빵/도넛 음식점 정보가 존재하지 않음",
+  "notes": "부산광역시 부산진구 개금본동로 81(개금동 435-5) 주소지 및 부산 지역 베이커리/디저트 매장으로 검색하였으나 '태화담'이라는 상호의 실제 영업 매장 정보는 확인되지 않습니다. (해당 주소지에는 카페 '굿플레이버', '디어프라임 부산점' 등이 확인됨)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

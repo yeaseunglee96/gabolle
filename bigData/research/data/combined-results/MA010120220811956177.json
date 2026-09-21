@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220811956177",
+  "name": "소중한아이",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 36431,
+  "researchedAt": "2026-09-21T22:17:01.860Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "비영리 사단법인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": "해당 주소의 '소중한아이'는 일반 음식점이 아닌 비영리 사단법인/사회적 기업으로 일반 식당 정보가 존재하지 않음",
+  "notes": "부산광역시 영도구 청학남로 29에 위치한 '(사)소중한아이'는 일반적인 일식 회/초밥 음식점이 아니라, 한부모 및 미혼모 가족 자립 지원과 일자리 제공을 목적으로 설립된 비영리 사단법인(사회적 기업)입니다. 일반 상업 식당으로서의 메뉴, 가격, 영업시간, 대기 정보 등은 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 청학남로 29에 위치한 '(사)소중한아이'는 일반적인 외식업체가 아니라 미혼모 및 한부모 가족의 자립 지원을 목적으로 설립된 비영리 사단법인입니다. 단체가 운영하는 자립 지원 사업이나 사회적 기업 활동의 일환으로 보입니다.",
+      "url": "https://www.saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,89 @@
+{
+  "id": "MA010120220812621286",
+  "name": "육림구공탄",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 35793,
+  "researchedAt": "2026-09-21T22:19:37.185Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "피크 시간대 손님이 몰려 대기 및 웨이팅이 발생할 수 있는 것으로 언급됨"
+  },
+  "descriptors": {
+    "audience": "가족, 친구, 연인 등 모임 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "삼겹살",
+      "돼지갈비",
+      "껍데기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 5시부터 밤 12시까지"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "당감동 현지 주민 및 로컬 방문객 위주로 알려진 고기 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 당감동에 위치한 돼지고기 구이 전문점으로 연탄(구공탄) 및 전용 그릴에서 구워주는 편의성과 삼겹살, 돼지갈비 등의 메뉴가 인기 요인임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 당감로64번길 14 1층 (당감동 319-5). 주요 메뉴: 돼지갈비 등 육류 및 고기 요리",
+      "url": "https://www.saramin.co.kr"
+    },
+    {
+      "excerpt": "영업시간: 오후 5시부터 밤 12시까지 운영하는 것으로 알려져 있습니다. 매장 내 원형 테이블이 구비되어 있으며, 전용 그릴에서 고기를 직접 구워주는 방식으로 운영되어 편안한 식사가 가능합니다. 한우와 국내산 돼지고기를 전문으로 하는 고기집입니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "당감동에서 현지 주민들에게 알려진 고기 전문점입니다. 한우와 국내산 돼지고기를 제공하며, 식당 내부 전용 그릴에서 고기를 직접 구워주는 방식이 특징입니다. 아기자기하고 따뜻한 분위기로 가족, 연인, 친구와 방문하기 좋은 곳으로 소개되고 있습니다.",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://tistory.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전용 그릴에서 고기를 직접 구워주어 편안하게 즐길 수 있는 서비스 편의성",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "두툼한 삼겹살 및 돼지갈비 등 대중적이고 충실한 돼지고기 구이의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "당감동 지역 인근 주민들이 모임 및 외식으로 자주 찾는 동네 고기집",
+      "sources": [
+        2
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

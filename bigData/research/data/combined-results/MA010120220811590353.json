@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220811590353",
+  "name": "판다",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 47836,
+  "researchedAt": "2026-09-21T22:15:38.779Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광객 언급 없음, 지역 상권 상가 등록 내역만 확인됨"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 동래구 시실로 139(명장동 524-1) 주소지에 과거 상호 '판다'(중국집/중식)로 사업체 등록 내역이 확인되나, 현재는 상세 블로그 후기, 메뉴판, 가격, 영업시간 등 방문 리뷰가 웹상에 거의 남아있지 않음(해당 번지에 손짜장일번지, 천하제일밀면 등 다른 점포가 운영된 이력 확인).",
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 시실로 139(명장동 524-1) 판다 일반음식점 중식 등록 정보",
+      "url": "http://cylooks.co.kr"
+    }
+  ],
+  "sources": [
+    "http://cylooks.co.kr",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

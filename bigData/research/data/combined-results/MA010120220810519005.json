@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220810519005",
+  "name": "어심식당",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 52247,
+  "researchedAt": "2026-09-21T22:22:20.553Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "과거 등록 이력 외에 영업 정보 및 리뷰가 없어 상세 정보를 찾을 수 없습니다.",
+  "notes": "부산광역시 사하구 낙동대로450번길 12 (당리동 305-2)에 과거 '어심식당' 혹은 '어심초밥'으로 등록된 전화번호(051-202-2244) 및 상호 기록만 남아 있으며, 방문 리뷰, 가격, 영업시간, 메뉴 등의 상세 정보를 확인할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "어심식당. 주소: 부산광역시 사하구 낙동대로450번길 12 (당리동 305-2). 전화번호: 051-202-2244. 업종: 일식 (회/초밥 전문)",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": []
+}

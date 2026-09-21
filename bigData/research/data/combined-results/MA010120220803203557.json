@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220803203557",
+  "name": "미스터참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 30275,
+  "researchedAt": "2026-09-21T22:20:43.875Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "가성비가 좋아 주말 저녁 등 피크 타임에는 만석이 되는 경우가 있다고 언급됨"
+  },
+  "descriptors": {
+    "audience": "친구, 모임, 데이트",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "참치 코스요리",
+      "참치회 무한리필"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:00 ~ 23:30 (17:00부터 영업 시작)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 북구 덕천동 번화가에 위치한 참치회 코스 및 무한리필 전문점으로 다찌석, 룸, 홀 좌석을 갖추고 있음",
+  "price": {
+    "found": true,
+    "priceMenu": "무한리필 코스 메뉴 (기본)",
+    "priceWon": 29000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 북구 만덕대로28번길 10 2층 (덕천동 401-20), 연락처: 051-337-1006. 무한리필 참치 전문점으로, 참치 코스요리와 함께 다양한 곁들임 요리(죽, 초밥, 메로구이, 오코노미야끼, 새우장, 튀김, 오뎅탕 등)가 제공됩니다. 다찌, 룸, 홀 등 다양한 좌석이 마련되어 있으며 포장 주문도 가능합니다. 17:00부터 영업 시작.",
+      "url": "https://www.siksinhot.com/P/1010729"
+    },
+    {
+      "excerpt": "가성비 좋은 무한리필 참치회 전문점으로 알려져 있습니다. 가장 저렴한 메뉴는 29,000원이었습니다. 주방장 앞 바(Bar) 좌석에 앉으면 회가 줄어들 때마다 바로 채워주는 서비스가 특징입니다. 가성비가 좋아 인기가 많으며, 주말 저녁 등 피크 타임에는 만석이 되는 경우가 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1010729",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "비교적 부담 없는 가격대로 참치회 무한리필 및 코스를 즐길 수 있어 가성비가 좋음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "다찌석, 프라이빗 룸, 홀 등 다양한 좌석 형태와 친절한 리필 서비스가 제공됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

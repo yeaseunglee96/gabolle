@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220806862061",
+  "name": "옥천",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 34831,
+  "researchedAt": "2026-09-21T22:14:20.279Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "바다 전망 창가 자리는 인기가 많아 주말이나 피크 시간대 대기가 발생하기도 함"
+  },
+  "descriptors": {
+    "audience": "관광객, 연인, 친구",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "성게김밥",
+      "낙지해물라면",
+      "해물모듬"
+    ],
+    "yearsClaimed": 15
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:00 (브레이크타임 15:00~16:00, 매주 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "영도 중리 해녀촌 및 태종대 인근 여행 코스로 관광객 방문 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 영도구 중리남로 2-21에 위치한 '옥천횟집'에 대한 조사 완료. 바다 전망과 특색 있는 성게김밥 및 해물라면으로 관광객들에게 널리 알려져 있음.",
+  "price": {
+    "found": true,
+    "priceMenu": "성게김밥 10,000원 / 낙지해물라면 8,000원선",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 중리남로 2-21에 위치한 옥천횟집은 바다를 바라보며 해산물 요리를 즐길 수 있는 곳으로 성게알이 올라간 성게김밥과 싱싱한 해산물이 들어간 해물라면이 가장 잘 알려진 대표 메뉴이다. 영업시간은 11:00 ~ 21:00(브레이크타임 15:00~16:00, 화요일 휴무)이다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "성게김밥: 비린내 없이 녹진하고 고소한 성게알이 들어간 것이 특징입니다. 낙지해물라면: 낙지, 새우, 홍합 등 신선한 해산물이 들어간 메뉴로, 성게김밥과 함께 즐기기 좋습니다. 인근 공영주차장 이용 가능.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "비린내 없이 녹진하고 고소한 성게알을 올린 성게김밥과 얼큰한 해물라면의 조합",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "영도 바다를 바로 내려다보며 식사할 수 있는 오션뷰 경치",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220812194563",
+  "name": "박리우",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 50574,
+  "researchedAt": "2026-09-21T22:19:06.818Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 상세 정보 없음",
+  "notes": "부산광역시 사하구 장림시장1길 23에 등록된 '박리우'(베트남 음식점)는 부동산/상권 DB의 단순 상호 표기 외에 실제 방문기, 메뉴 정보, 영업시간, 가격대 등 웹상의 후기나 상세 정보를 전혀 찾을 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

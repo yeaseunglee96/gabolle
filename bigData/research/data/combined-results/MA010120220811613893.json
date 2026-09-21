@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220811613893",
+  "name": "베스트필",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 64234,
+  "researchedAt": "2026-09-21T22:16:44.187Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "정보 없음"
+  },
+  "descriptors": {
+    "audience": "주민 및 인근 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "두부김치",
+      "해물땡초부추전",
+      "고등어구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 직접적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산광역시 금정구 기찰로 111(부곡동 59-7) 소재 일반음식점으로, 행정 등록 데이터상 '베스트필'(횟집/일반음식점/생맥주)로 등록되어 있으나 실제 매장/포털 상호로는 '어부사촌'(해물/한식 주점)으로 운영 및 안내되고 있습니다. 일반 방문자 후기나 줄서기, 구체적 영업시간 정보는 거의 확인되지 않습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "두부김치, 해물땡초부추전, 고등어구이 등 각 15,000원 선",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 기찰로 111 (부곡동 59-7)에 위치한 곳으로, 금정구청 자료 등에 따르면 이곳은 '일반음식점'으로 등록되어 있습니다. 해당 주소지와 관련하여 '베스트필'이라는 상호가 일반음식점으로 검색됩니다. 일부 검색 결과에서는 해당 주소지의 업체가 한식·횟집으로 소개되거나, 다른 이름(어부사촌 등)이 언급되기도 합니다.",
+      "url": "https://www.geumjeong.go.kr"
+    },
+    {
+      "excerpt": "'어부사촌'은 부산광역시 금정구 기찰로 111(부곡동 59-7)에 위치한 한식당입니다. 주요 메뉴로는 두부김치, 해물땡초부추전, 고등어구이 등이 있으며, 해물 및 생선 요리를 전문으로 하는 곳입니다. 1호선 장전역에서 도보로 약 10분 거리에 위치해 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네 편안한 분위기에서 가볍게 해물 전·구이 안주와 술자리를 즐기기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

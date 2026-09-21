@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220813552650",
+  "name": "야바이",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 45305,
+  "researchedAt": "2026-09-21T22:22:08.928Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소 및 인근 지역에서 일식집 '야바이' 정보 없음",
+  "notes": "부산광역시 사하구 승학로 19 및 인근 하단 지역을 대상으로 웹 조사를 진행하였으나, '야바이'라는 상호의 일식 회/초밥 음식점 정보를 찾을 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

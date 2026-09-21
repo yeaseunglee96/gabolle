@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220806414741",
+  "name": "성북고개식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 36149,
+  "researchedAt": "2026-09-21T22:24:24.155Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "추어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "주로 성북고개시장 인근 지역 주민들이 찾는 동네 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 동구 수정동 성북고개시장 인근에 위치한 작은 한식당으로, 대표 메뉴로 추어탕이 소개되어 있으나 세부 영업시간 및 메뉴판 전체 정보 등 상세 후기는 웹상에 제한적임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "성북고개시장에 위치하여 정겨운 분위기를 느낄 수 있는 곳입니다. 대표 메뉴: 추어탕",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 동구 망양로 853, 1층 (수정동) 전화번호: 051-467-9304 업종: 한식",
+      "url": "https://so.to"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://so.to"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "성북고개시장 인근에서 정겨운 분위기와 함께 추어탕 등 소박한 식사를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

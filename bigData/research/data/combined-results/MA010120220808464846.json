@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220808464846",
+  "name": "삼소통나무집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 95314,
+  "researchedAt": "2026-09-21T22:24:12.121Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "유황생오리 숯불구이",
+      "유황생오리 양념구이",
+      "오리탕",
+      "오리백숙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 북구 중리로 78(만덕동)에 위치한 곳으로, 오리고기(유황생오리 숯불구이, 양념구이, 오리탕 등)를 전문으로 취급하며 주차장과 개별 룸을 갖추고 있는 향토 음식점입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "오리 숯불구이/양념구이 35,000원~",
+    "priceWon": 35000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "삼소통나무집\n주소: 부산광역시 북구 중리로 78 (만덕동)\n대표 메뉴: 유황생오리 숯불구이, 오리 양념구이, 오리탕, 오리 백숙 등\n운영 시간: 11:30 ~ 22:00\n숲속에 위치한 통나무집 형태의 식당으로, 향토적인 분위기에서 식사할 수 있습니다. 주문 시 10여 가지 반찬과 함께 다 익혀진 오리 숯불 불고기가 제공됩니다. 백숙류는 조리 시간이 길어 방문 전 미리 예약하는 것을 권장합니다. 전용 주차장이 마련되어 있어 자차 이용이 편리합니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "삼소통나무집\n주소: 부산광역시 북구 만덕동 63-2 (중리로 78)\n전화번호: 051-333-4277\n주요 메뉴: 오리탕, 유황생오리 양념구이, 유황생오리 숯불구이, 오리훈제",
+      "url": "https://bife.kr"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://bife.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "향토적인 통나무집 숲속 분위기에서 구워져 나오는 오리 숯불구이와 백숙을 즐기기 위해",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "note": "넓은 전용 주차장과 개별 룸이 갖추어져 있어 가족 외식 및 모임에 편리해서",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "whyPeopleGo_type": "운영·접근 편의"
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220813823679",
+  "name": "해로",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 34245,
+  "researchedAt": "2026-09-21T22:25:53.275Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "소규모 좌석의 예약제 중심으로 운영되어 방문 전 예약 확인이 권장됨"
+  },
+  "descriptors": {
+    "audience": "흰여울문화마을 인근 방문객 및 소규모 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "소고기 쌀면",
+      "돈까스",
+      "쌀 냉면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00~24:00 (수요일 10:00~18:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "흰여울문화마을과 인접하여 여행객 방문 수요가 많은 편임"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "영도 흰여울문화마을 부근에 위치한 식당으로, 소고기 쌀면과 돈까스 등을 다루며 사전 예약 위주로 운영됩니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 남항새싹4길 1 (영선동4가 159-3)에 위치한 '해로'는 일식 기반의 식당입니다. 소고기 쌀면, 돈까스(등심, 통치즈), 쌀 냉면 등을 주메뉴로 하는 곳입니다. 흰여울문화마을과 가까워 여행객들이 많이 찾는 곳으로 알려져 있습니다. 예약제로 운영되며, 네이버 예약이나 전화 예약을 통해 방문할 수 있습니다. 테이블 수가 적은 예약제 식당이므로 방문 전 확인이 권장됩니다. 반려동물 동반이 가능하며, 주차 공간은 별도로 마련되어 있지 않아 인근 주차 상황을 확인해야 합니다. 운영 시간은 매일 10:00~24:00(수요일은 10:00~18:00) 등 정보에 따라 차이가 있을 수 있으므로 방문 전 최신 정보를 다시 확인하시는 것이 좋습니다.",
+      "url": "https://osulgil.com"
+    }
+  ],
+  "sources": [
+    "https://osulgil.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "흰여울문화마을 인근에서 특색 있는 소고기 쌀면과 수제 돈까스를 예약제로 조용히 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "흰여울문화마을 관광 동선 인접 및 사전 예약 방문 편의 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

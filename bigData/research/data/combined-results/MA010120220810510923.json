@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220810510923",
+  "name": "부산회초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 39303,
+  "researchedAt": "2026-09-21T22:24:59.186Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "일반 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "회",
+      "초밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 확인 불가"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 사하구 괴정동(사하로197번길 51 / 괴정동 852-1)에 위치한 일식당/횟집 상호 등록 및 기본 사업체 정보(전화번호 051-203-8816 등)는 확인되나, 상세 후기나 메뉴판, 영업시간 정보가 웹상에 거의 등록되어 있지 않은 소규모 동네 식당입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": "확인 불가",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산회초밥은 부산광역시 사하구 괴정동에 위치한 일식당입니다. 주소: 부산광역시 사하구 사하로197번길 51 (괴정동), 지번 주소: 부산광역시 사하구 괴정동 852-1, 전화번호: 051-203-8816",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220810620877",
+  "name": "덕혜원",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 27901,
+  "researchedAt": "2026-09-21T22:24:21.113Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "짬뽕",
+      "볶음밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인들이 찾는 숨은 동네 중식 노포 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "사용자 요청에는 '백반/한정식'으로 기재되어 있으나 실제 사업자/가게 정보상 부산 동구 망양로 799-1(수정동)에 위치한 '덕혜원'은 짜장면, 짬뽕, 볶음밥 등을 파는 동네 중화요리/중식 노포 음식점입니다. 주차는 인근 수성초등학교 공영주차장 이용이 안내되어 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 망양로 799-1에 위치한 덕혜원은 지역에서 잘 알려진 중식당(노포)입니다. 현지인들이 찾는 숨은 맛집이자 노포로 알려져 있습니다. 짜장면, 짬뽕, 볶음밥 등 기본적인 중식 메뉴를 제공하며 가성비가 좋은 것으로 평가받습니다. 인근의 수성초등학교 공영주차장을 이용하는 것이 편리합니다.",
+      "url": "https://www.youtube.com"
+    },
+    {
+      "excerpt": "부산광역시 동구 망양로 799-1 (수정동) 덕혜원 업종: 기타 간이 음식점업 (중화요리) 전화번호: 051-464-5555",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com",
+    "https://www.114.co.kr",
+    "https://www.saramin.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "지역 주민들이 찾는 가성비 좋은 동네 중식 노포 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "짜장면, 짬뽕 등 기본 중식 메뉴 중심의 부담 없는 식사",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

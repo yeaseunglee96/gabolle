@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220810771787",
+  "name": "쇠미산식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42988,
+  "researchedAt": "2026-09-21T22:21:12.826Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 동래구 쇠미로17번길 3 소재의 '쇠미산식당'은 웹상에 실제 방문 후기, 메뉴, 영업시간, 가격 등의 구체적인 정보가 전혀 검색되지 않아 조사가 불가능합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

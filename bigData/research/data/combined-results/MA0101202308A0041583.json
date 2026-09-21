@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202308A0041583",
+  "name": "화인식당",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 45726,
+  "researchedAt": "2026-09-21T22:24:25.222Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 북구 구포동(사상로 590, 구포동 1123-3)에 인허가 등록된 일반음식점(경양식 업종 분류)으로 확인되나, 실제 방문자 리뷰, 메뉴판, 영업시간, 줄서기 등 상세 정량 정보 및 이용 후기는 온라인상에 존재하지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "화인식당 / 일반음식점 / 부산광역시 북구 사상로 590 (구포동)",
+      "url": "https://www.bsbukgu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.bsbukgu.go.kr"
+  ],
+  "whyPeopleGo": []
+}

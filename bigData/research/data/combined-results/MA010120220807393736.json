@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220807393736",
+  "name": "마카러버",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 46589,
+  "researchedAt": "2026-09-21T22:16:37.394Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "디저트 및 선물/답례품 구매 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 마카롱",
+      "마카롱 케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~토요일 11:00~19:00 (월요일, 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 금정구 부곡온천천로 170(장전 서희스타힐스 상가 102호)에 위치한 수제 마카롱 및 디저트 전문점. 답례품 및 마카롱 케이크 주문 제작 가능.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "마카러버(macalover)는 부산광역시 금정구 부곡온천천로 170 (장전 서희스타힐스 401동 102호)에 위치한 수제 마카롱 전문점입니다. 수제 마카롱을 비롯한 디저트와 커피 등을 판매하며, 답례품이나 마카롱 케이크 주문 제작도 가능한 곳으로 알려져 있습니다. 운영 시간은 화~토요일 11:00~19:00이며, 월요일과 일요일은 정기 휴무입니다.",
+      "url": "https://geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://geumjeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수제 마카롱 및 디저트, 답례품·마카롱 케이크 주문 제작을 위해 방문",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

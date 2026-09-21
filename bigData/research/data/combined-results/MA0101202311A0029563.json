@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202311A0029563",
+  "name": "화르르생선",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 33903,
+  "researchedAt": "2026-09-21T22:16:58.106Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "단골손님, 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "철판 생선구이",
+      "삼치구이",
+      "가자미구이",
+      "고등어구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "단골손님을 위한 메뉴(메뉴에 없는 대구탕이나 백숙 등)를 내어주기도 하는 지역 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 영도구 태종로 323(지번: 청학동 223-22)에 위치한 생선구이/생선 전문 식당으로, 상호 '화르르철판생선구이'(또는 화르르생선)로 알려져 있으며 철판 생선구이 등을 제공합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "다양한 종류의 철판 생선구이를 판매하는 곳으로, 과거 MBC '생방송 오늘 저녁' 등 방송에 소개된 바 있습니다. 삼치, 가자미, 고등어 등을 철판에 구워내어 바로 먹을 수 있는 형태로 제공합니다. 생선구이 외에도 메뉴에 없는 대구탕이나 백숙 등을 판매하는 등 단골손님을 위한 메뉴도 있는 것으로 알려져 있습니다.",
+      "url": "https://www.busan.com"
+    },
+    {
+      "excerpt": "화르르철판생선구이. 부산광역시 영도구 태종로 323 (청학동 223-22)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "삼치, 가자미, 고등어 등을 철판에 즉석으로 구워내는 생선구이의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

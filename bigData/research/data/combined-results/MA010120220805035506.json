@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220805035506",
+  "name": "정서방네횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 39424,
+  "researchedAt": "2026-09-21T22:18:50.662Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 로컬 포장 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "생선회",
+      "회 포장"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 당감동 주민들이 찾는 가성비 로컬 회 포장/식사 가게로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 부산진구 당감동(동평로 인근)에 등록된 일반음식점(횟집)으로 가성비 회 포장 및 로컬 횟집으로 언급되나, 상세한 메뉴판이나 영업시간/대기열 관련 공개 웹 기록은 매우 제한적입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "당감동 지역에서 가성비 좋고 신선한 회를 제공하는 곳으로 알려져 있습니다. 과거 블로그 후기 등을 통해 회 포장 서비스나 고등어 초밥과 같은 메뉴가 언급된 바 있으나...",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "상호명: 정서방네 (정서방네횟집), 주소: 부산광역시 부산진구 당감동 358-2",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네 상권에서 신선한 회를 부담 없는 가격에 맛보고 포장해 갈 수 있는 가성비 로컬 횟집",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "당감동 인근 주민들이 회 포장 및 식사 목적으로 찾는 동네 가게",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

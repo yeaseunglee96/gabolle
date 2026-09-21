@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202501A0001104",
+  "name": "아워숲",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60471,
+  "researchedAt": "2026-09-21T22:25:31.739Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 대한 특별한 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "반려견 동반 가족 및 나들이객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "떡갈비 페스츄리 피자",
+      "들깨버섯파스타",
+      "쪽파 크림치즈 스콘 플래터"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 20:00 (라스트 오더 19:30, 브런치 18:00 마감)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인과 관광객에 대한 구체적 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 기장군 정관읍 병산리에 위치한 숲뷰 대형 브런치 카페로, 떡갈비 페스츄리 피자 및 들깨 파스타 등 한식 퓨전 브런치와 반려견 동반 공간으로 알려져 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 기장군 정관읍 병산2로 54-8. 병산리 산자락 위에 위치하여 초록빛 산뷰를 즐길 수 있는 대형 카페입니다. 실내 1층과 야외 공간에 반려동물 동반이 가능하며, 작은 반려견 운동장도 마련되어 있습니다. 떡갈비 페스츄리 피자, 쪽파 크림치즈 스콘 플래터, 들깨 파스타 등 한국적인 재료를 접목한 브런치 메뉴와 쌀가루로 만든 글루텐프리 디저트 등을 판매합니다. 영업시간: 매일 10:00 ~ 20:00 (라스트 오더 19:30). 전용 주차장이 넓게 마련되어 있어 편리하게 이용 가능합니다.",
+      "url": "https://www.siksinhot.com/P/1585885"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1585885"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "병산리 산자락의 자연 숲뷰를 즐기며 반려견과 함께 머물 수 있는 대형 브런치 카페 공간을 제공하기 때문",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "떡갈비 페스츄리 피자, 들깨 파스타 등 한식 재료를 가미한 이색 양식 브런치 메뉴를 선보이기 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

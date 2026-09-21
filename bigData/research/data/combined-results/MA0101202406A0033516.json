@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202406A0033516",
+  "name": "오성빵집",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 51015,
+  "researchedAt": "2026-09-21T22:26:19.427Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "소금빵",
+      "치아바타",
+      "바게트"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 주민들이 찾는 동네 베이커리로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 서구 꽃마을로 35 1층에 위치한 실존 빵집으로, 소금빵·치아바타·바게트 등의 베이커리 메뉴를 취급하며 인근 주민들이 방문하는 곳입니다. 세부 가격 및 영업시간 정보는 웹상에 상세히 노출되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오성빵집 주소: 부산광역시 서구 꽃마을로 35, 1층 (서대신동3가) 연락처: 0507-1379-5480 주요 메뉴: 소금빵, 치아바타, 바게트(명란바게트, 초코바게트 등). 다양한 빵 종류로 알려져 있으며, 인근 주민들이 찾는 베이커리입니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "소금빵, 치아바타, 명란/초코 바게트 등 특색 있는 베이커리 메뉴 구비",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "인근 주민들이 일상적으로 찾는 동네 베이커리",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}
