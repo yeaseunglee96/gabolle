@@ -175,6 +175,11 @@ export default function PlanConditions() {
    * 알면서 보내지 않는다.
    */
   const datesMissing = !draft.startDate || !draft.endDate;
+  // 🔴 출발지가 없으면 서버가 일정을 안 만들어 준다 — S15P21E201-1342.
+  //    서버의 TripConditionRules 가 originLat 을 요구한다. 예전에는 이것을 여기서 안 봐서,
+  //    필수 질문을 다 답하고 「만들기」를 누른 «뒤에야» 막혔다. 그것도 서버 원문으로.
+  //    이 앱에서 출발지를 채우는 곳은 홈 시작 바 하나뿐이다(PlanStartBar).
+  const originMissing = draft.originLat === null || draft.originLng === null;
 
   /** 날짜를 정하는 자리 — 폰은 홈의 시작 줄, 넓은 화면은 첫 화면의 시작 줄이다. */
   /**
@@ -192,6 +197,20 @@ export default function PlanConditions() {
   // 🔴 예전에는 홈의 시작 줄로 보냈다(S15P21E201-1350). 돌아오면 문항이 1번부터라 열 개를 다 답한
   //    사람이 처음부터 다시 했다(2026-09-21 실기). 이제 이 화면 안의 달력 카드를 편다.
   const goSetDates = () => setDatesOpen(true);
+
+  /**
+   * 🔴 <b>출발지를 고르러 간다 — S15P21E201-1342.</b>
+   *
+   * <p>날짜처럼 이 화면 안에서 고르게 하는 것이 더 낫다. 그렇게 안 한 이유는 하나다 —
+   * 출발지 고르기는 <b>검색</b>이 붙어 있고(서버 질의·디바운스·추천 목록) 그 코드는
+   * {@code PlanStartBar} 안에 있다. 여기에 한 벌 더 만들면 같은 규칙이 두 곳에 생기고
+   * 한쪽만 고쳐지는 날이 온다.
+   *
+   * <p>대신 시작 바를 <b>출발지 칸이 열린 채로</b> 연다({@code ?edit=origin}). 지금까지 넣은
+   * 값도 함께 실려 간다. 「일정 물어보기」를 누르면 홈이 다시 {@code /plan} 으로 돌려보내므로
+   * 왕복이 닫힌다 — 그냥 홈으로 튕기던 옛 동작(-1350)과 다른 점이 그것이다.
+   */
+  const goPickOrigin = () => router.push({ pathname: wide ? '/' : '/home', params: { edit: 'origin' } });
 
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
@@ -392,7 +411,7 @@ export default function PlanConditions() {
   // 🔴 「지나온 질문」만 센다 — 아직 안 본 질문에도 기본값이 들어 있어서(예산 10만원, 이동수단 대중교통)
   //    그대로 세면 「답했다」고 거짓말하게 된다.
   const pagesDone = PLAN_PAGES.slice(0, index).length;
-  const readyToBuild = missing.length === 0 && !datesMissing;
+  const readyToBuild = missing.length === 0 && !datesMissing && !originMissing;
   const showDateCard = datesOpen ?? datesMissing;
   const dateLabel = dateRangeLabel({ startDate: draft.startDate, endDate: draft.endDate }, tx);
   // 지나온 장의 답을 한 줄로 — 「기본 · 해운대 · 10만원 · 대중교통」. 누르면 그 장으로.
@@ -430,8 +449,19 @@ export default function PlanConditions() {
           ? tx('1장만 채우면 만들 수 있어요 · 2·3장은 선택이에요', 'Page 1 is all you need · pages 2 and 3 are optional')
           : readyToBuild
             ? tx('이제 만들 수 있어요 · 이 장은 답할수록 일정이 취향에 가까워져요', 'You can build now · this page tunes the plan to your taste')
-            : tx('필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요', 'Required questions done · just pick your dates to build')}
+            : originMissing
+              ? tx('필수 질문은 다 답했어요 · 출발지만 고르면 만들 수 있어요', 'Required questions done · just pick a starting point to build')
+              : tx('필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요', 'Required questions done · just pick your dates to build')}
       </Text>
+
+      {/* 🔴 출발지 — 없으면 여기서 짚어 준다(S15P21E201-1342). 예전에는 묻는 자리가
+          아예 없어서, 다 답하고 「만들기」를 누른 뒤에야 서버 원문으로 막혔다. */}
+      {originMissing ? (
+        <Pressable accessibilityRole="button" onPress={goPickOrigin} style={({ pressed }) => [styles.originAsk, pressed && styles.pressed]}>
+          <Text variant="body" weight="bold" color={color.text.heading}>{tx('어디에서 출발하세요?', 'Where are you starting from?')}</Text>
+          <Text variant="caption" color={color.text.muted}>{tx('출발지를 골라야 일정을 만들 수 있어요 · 눌러서 고르기', 'We need a starting point to build your trip · tap to choose')}</Text>
+        </Pressable>
+      ) : null}
 
       {/* 날짜 — 문항 화면 안에서 고른다(S15P21E201-1376). 없으면 펼친 카드, 있으면 ✓ 줄. */}
       {showDateCard ? (
@@ -442,8 +472,18 @@ export default function PlanConditions() {
           tx={tx}
         />
       ) : null}
-      {answeredAbove.length || (!showDateCard && dateLabel) ? (
+      {answeredAbove.length || (!showDateCard && dateLabel) || !originMissing ? (
         <View style={styles.answeredList}>
+          {!originMissing ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('출발지 수정', 'Edit starting point')} onPress={goPickOrigin} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
+              <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+              <View style={styles.answeredBody}>
+                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx('출발지', 'Starting point')}</Text>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{draft.origin || tx('고른 곳', 'Chosen')}</Text>
+              </View>
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
+            </Pressable>
+          ) : null}
           {!showDateCard && dateLabel ? (
             <Pressable accessibilityRole="button" accessibilityLabel={tx('여행 날짜 수정', 'Edit trip dates')} onPress={() => setDatesOpen(true)} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
               <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
@@ -518,7 +558,7 @@ export default function PlanConditions() {
               : index === 0
                 ? pageCanAdvance ? tx('취향도 알려주기 →', 'Add my taste →') : txf(tx, `%s${koreanObject(pageBlocked[0]?.ko ?? '')} 골라 주세요`, 'Pick %s first', tx(pageBlocked[0]?.ko ?? '', pageBlocked[0]?.en ?? ''))
                 : tx('다음', 'Next')}
-            disabled={last ? missing.length > 0 || datesMissing || job?.state === 'submitting' : !pageCanAdvance}
+            disabled={last ? missing.length > 0 || datesMissing || originMissing || job?.state === 'submitting' : !pageCanAdvance}
             onPress={() => {
               completeStep(page.questions.length * (index + 1));
               if (last) void submitPlan();
@@ -691,6 +731,8 @@ const styles = StyleSheet.create({
   next: { flex: 1 },
   pressed: { opacity: 0.8 },
 
+  // 🔴 출발지를 묻는 자리. 날짜 카드와 같은 무게로 둔다 — 둘 다 없으면 못 만든다.
+  originAsk: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.action.primary, backgroundColor: color.surface.card },
   answeredList: { gap: spacing[1] },
   answeredRowItem: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   answeredCheck: { width: 18, height: 18, borderRadius: radius.full, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' },
