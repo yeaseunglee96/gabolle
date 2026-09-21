@@ -36,13 +36,7 @@ import com.gabolle.backend.trip.presentation.TripCollaborationController;
 import com.gabolle.backend.trip.presentation.TripCollaborationExceptionHandler;
 import com.gabolle.testslice.CollaborationSliceApplication;
 
-/**
- * S15P21E201-320 — 참여자 목록·역할 변경·제거가 실제 PostgreSQL 위에서 동작하는지 본다.
- *
- * <p>진미리 님 FE 블로커였던 목록 조회를 포함해 셋을 함께 본다 — 소유자만 바꾸고 뺄 수 있는가,
- * 소유자 자신은 바뀌거나 빠지지 않는가, 목록이 OWNER 를 먼저 보여주고 표시 이름을 한 번에
- * 채우는가.
- */
+/** 참여자 목록·역할 변경·제거를 실제 PostgreSQL 위에서 본다. */
 @SpringBootTest(classes = CollaborationSliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",

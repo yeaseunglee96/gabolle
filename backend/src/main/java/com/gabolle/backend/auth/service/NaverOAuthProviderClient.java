@@ -48,8 +48,8 @@ public class NaverOAuthProviderClient extends AbstractRestClientOAuthProvider {
 		if (subject == null || subject.isBlank()) {
 			throw invalidResponse();
 		}
-		// S15P21E201-741 — 네이버 응답에는 이메일 검증 여부를 알려주는 필드가 없다.
-		// false 로 채우면 "확인했는데 아니다" 가 되어 버리므로 null(모름)로 남긴다.
+		// 네이버 응답에는 이메일 검증 여부 필드가 없다. false 로 채우면 "확인했는데 아니다" 가
+		// 되므로 null(모름)로 남긴다.
 		return new OAuthUserProfile(subject, response.path("email").asText(null), response.path("name").asText(null),
 				LanguageNormalizer.normalize(response.path("locale").asText("KO")), null, null);
 	}

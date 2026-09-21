@@ -15,15 +15,10 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 기상청 {@code getVilageFcst} 응답 원문(JSON)을 {@link KmaForecastItem} 목록으로 바꾼다 —
- * S15P21E201-366.
+ * 기상청 getVilageFcst 응답 원문(JSON)을 KmaForecastItem 목록으로 바꾼다. 캐시 히트든 방금
+ * 받은 응답이든 같은 경로를 탄다.
  *
- * <p>캐시 히트든 방금 받은 응답이든 같은 경로를 타야 하므로 {@code WeatherService} 가 두 경우
- * 모두 이 파서를 쓴다 — {@code WeatherVendorPort} 는 원문 그대로만 돌려준다.
- *
- * <p>🔴 기상청은 HTTP 200 이어도 {@code header.resultCode} 가 {@code "00"} 이 아니면 실패다
- * (예: 키가 안 맞으면 별도 코드로 응답한다) — {@code KakaoMobilityRouteAdapter} 가 카카오의
- * {@code result_code} 를 반드시 보는 것과 같은 이유로, 여기서도 반드시 확인한다.
+ * 기상청은 HTTP 200 이어도 header.resultCode 가 "00" 이 아니면 실패다 — 반드시 확인한다.
  */
 final class KmaForecastJsonParser {
 
@@ -34,7 +29,7 @@ final class KmaForecastJsonParser {
 	private KmaForecastJsonParser() {
 	}
 
-	/** @throws WeatherVendorException 응답을 못 읽었거나, resultCode 가 정상이 아니다 */
+	/** 응답을 못 읽었거나 resultCode 가 정상이 아니면 WeatherVendorException. */
 	static List<KmaForecastItem> parse(String rawJson, ObjectMapper objectMapper) {
 		JsonNode root;
 		try {

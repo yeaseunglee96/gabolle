@@ -14,11 +14,9 @@ interface ItineraryVersionJpaRepository extends JpaRepository<ItineraryVersionJp
 	Optional<ItineraryVersionJpaEntity> findByItineraryIdAndVersion(UUID itineraryId, int version);
 
 	/**
-	 * 🔴 S15P21E201-284 — 최신 판이 먼저. {@link JpaItineraryRepository#findVersions} 가 쓴다.
-	 *
-	 * <p>🔴 {@code Page} 로 받는다 (S15P21E201-1011). 판은 일정을 고칠 때마다 쌓이므로 끝이
-	 * 없다. {@code Page} 여야 "더 있는지" 를 정확히 알 수 있고, 그래야 화면이 목록을 조용히
-	 * 자르지 않는다.
+	 * 최신 판이 먼저. {@link JpaItineraryRepository#findVersions} 가 쓴다.
+	 * {@code Page} 로 받는다 — 판은 일정을 고칠 때마다 쌓여 끝이 없고, {@code Page} 여야 "더
+	 * 있는지" 를 정확히 알 수 있어 화면이 목록을 조용히 자르지 않는다.
 	 */
 	Page<ItineraryVersionJpaEntity> findByItineraryIdOrderByVersionDesc(UUID itineraryId, Pageable pageable);
 

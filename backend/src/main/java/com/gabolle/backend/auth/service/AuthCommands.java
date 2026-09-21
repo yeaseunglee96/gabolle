@@ -17,10 +17,8 @@ public final class AuthCommands {
 		}
 
 		/**
-		 * S15P21E201-317 — {@code sessionToken} 이 있으면 가입과 같은 트랜잭션에서 그 세션이
-		 * 만든 여행을 승계한다. {@code X-Session-Token} 헤더가 없던 예전 호출부(테스트 등)를
-		 * 깨지 않으려고 4-인자 위 생성자를 남기고, consents·behaviorPersonalizationEnabled 까지
-		 * 쓰던 호출부를 위해 이 6-인자 생성자도 남긴다.
+		 * {@code sessionToken} 이 있으면 가입과 같은 트랜잭션에서 그 세션이 만든 여행을 승계한다.
+		 * 짧은 생성자들은 그 토큰을 넘기지 않는 호출부를 위한 것이다.
 		 */
 		public Register(String email, String password, String displayName, String language,
 				boolean ageGateAccepted, String deviceId, Map<String, Boolean> consents,

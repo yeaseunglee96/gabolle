@@ -7,23 +7,18 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 3시간 간격 항목들을 하루 요약으로 묶는다 — S15P21E201-366.
+ * 3시간 간격 항목들을 하루 요약으로 묶는다.
  *
- * <p>기상청은 최저·최고기온({@code TMN}·{@code TMX})을 하루에 한 번씩만 주고, 그마저도 발표
- * 시점에 따라 안 줄 때가 있다(이미 지난 시간대라 뺐거나, 그날 몫이 아직 안 왔거나). 그런
- * 경우 같은 날짜의 {@code TMP}(그때그때 기온) 값들 중 최솟값·최댓값으로 대신한다 — 실제
- * 최저·최고와 정확히 같지는 않지만, 3시간 간격 기온의 최솟값·최댓값이므로 지어낸 값이 아니라
- * 같은 관측·예보 체계 안에서 다시 계산한 값이다.
+ * 기상청은 최저·최고기온(TMN·TMX)을 하루에 한 번만 주고 발표 시점에 따라 아예 안 주기도
+ * 한다. 그때는 같은 날짜 TMP 값들의 최솟값·최댓값으로 대신한다 — 실제 최저·최고와 정확히
+ * 같지는 않다.
  */
 public final class KmaForecastAggregator {
 
 	private KmaForecastAggregator() {
 	}
 
-	/**
-	 * @return 그 날짜의 항목이 하나도 없으면 빈 값 — 요청한 날짜가 이 발표 회차의 예보 범위
-	 *         밖에 있다는 뜻이다
-	 */
+	/** 그 날짜의 항목이 하나도 없으면 빈 값이다 — 이 발표 회차의 예보 범위 밖이라는 뜻이다. */
 	public static Optional<DailyForecast> aggregate(List<KmaForecastItem> items, LocalDate date) {
 		List<KmaForecastItem> ofDay = items.stream().filter(item -> item.fcstDate().equals(date)).toList();
 		if (ofDay.isEmpty()) {

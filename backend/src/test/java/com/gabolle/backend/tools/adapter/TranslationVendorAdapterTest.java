@@ -1,6 +1,6 @@
 package com.gabolle.backend.tools.adapter;
 
-// 🔴 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
+// 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,19 +35,14 @@ import com.gabolle.backend.tools.domain.TranslationDirection;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * {@link TranslationVendorAdapter} 검증 — S15P21E201-343, 업체를 GMS 로 옮김(S15P21E201-1235).
+ * {@code MockRestServiceServer} 로 잰다 — 진짜 네트워크를 부르지 않는다.
  *
- * <p>{@code KakaoMobilityRouteAdapterTest} 와 같은 방식으로 {@code MockRestServiceServer} 를
- * 쓴다. 진짜 네트워크를 부르지 않는다.
- *
- * <p>🔴 <b>업체가 바뀌었어도 붙드는 규칙은 그대로다.</b> 바뀐 것은 모의 응답의 <b>봉투
- * 모양</b>뿐이다 — 「실패를 성공으로 바꾸지 않는다」·「원문을 로그에 안 남긴다」·「빈 결과는
- * 실패다」는 앞선 판에서 그대로 옮겨 왔다. 시험을 새로 쓰면서 이 셋을 잃는 것이 가장 쉬운
- * 사고라, 일부러 같은 이름으로 남겼다.
+ * <p>업체를 바꿔도 붙드는 규칙 셋은 그대로 둔다 — 실패를 성공으로 바꾸지 않는다, 원문을 로그에 안
+ * 남긴다, 빈 결과는 실패다. 시험을 새로 쓰면서 이 셋을 잃는 것이 가장 쉬운 사고다.
  */
 class TranslationVendorAdapterTest {
 
-	// 🔴 이 문자열이 로그에 절대 나오면 안 된다 — 아래 no-log 검사가 정확히 이 값을 찾는다.
+	// 이 문자열이 로그에 절대 나오면 안 된다 — 아래 no-log 검사가 정확히 이 값을 찾는다.
 	private static final String SECRET_SOURCE_TEXT = "이 문장은 절대로 로그에 남으면 안 된다";
 
 	/** 설정에 적히는 주소. 뒤에 {@code /chat/completions} 가 붙어야 한다. */
@@ -75,7 +70,7 @@ class TranslationVendorAdapterTest {
 		TranslateProperties properties = new TranslateProperties();
 		properties.setVendorApiKey(apiKey);
 		properties.setVendorBaseUrl(baseUrl);
-		// 🔴 네 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
+		// 네 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
 		return new TranslationVendorAdapter(builder, new ObjectMapper(), properties, null);
 	}
 

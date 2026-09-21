@@ -18,13 +18,11 @@ import org.springframework.mail.MailSendException;
 import com.gabolle.backend.moderation.domain.StoryRemovedByModerator;
 
 /**
- * 삭제 알림을 듣는 쪽 — S15P21E201-794.
+ * 삭제 알림을 듣는 쪽. 발송이 실패해도 삭제 자체는 성공해야 한다
+ * ({@link #senderBlowingUpDoesNotEscape()}).
  *
- * <h2>🔴 여기서 제일 중요한 검사</h2>
- * {@link #senderBlowingUpDoesNotEscape()} 다. 이 자리에서 예외가 올라가면 무엇이 되돌아가는지가
- * 티켓의 완료 기준("발송이 실패해도 삭제 자체는 성공한다")이고, 그것을 재는 방법은 <b>일부러
- * 터지는 발송기를 물려 보는 것</b>이다. 커밋 뒤에 도는 자리라 실제로 롤백되지는 않지만, 예외가
- * 새어 나가면 트랜잭션 동기화 콜백을 타고 올라가 호출자에게 보이는 오류로 바뀔 수 있다.
+ * <p>커밋 뒤에 도는 자리라 실제로 롤백되지는 않지만, 예외가 새어 나가면 트랜잭션 동기화
+ * 콜백을 타고 올라가 호출자에게 보이는 오류가 된다.
  */
 class StoryRemovalNotifierTest {
 

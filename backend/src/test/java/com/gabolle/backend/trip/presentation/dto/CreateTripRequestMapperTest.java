@@ -12,8 +12,8 @@ import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-709 — {@code CreateTripRequest.spendProfile} 이 다른 여덟 차원과 같은
- * {@code PreferenceAnswer} 로 합쳐지는지 본다.
+ * {@code CreateTripRequest.spendProfile} 이 다른 여덟 차원과 같은 {@code PreferenceAnswer}
+ * 로 합쳐지는지 본다.
  */
 class CreateTripRequestMapperTest {
 
@@ -49,7 +49,6 @@ class CreateTripRequestMapperTest {
 					assertThat(a.valueJson()).isEqualTo("\"LUXURY\"");
 					assertThat(a.status()).isEqualTo(PreferenceSnapshot.AnswerStatus.SELECTED);
 				});
-		// 다른 차원도 그대로 남아 있다.
 		assertThat(command.preferences()).anySatisfy(a -> assertThat(a.dimension()).isEqualTo("CATEGORY"));
 	}
 

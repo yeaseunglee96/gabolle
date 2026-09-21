@@ -14,12 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * S15P21E201-352 회귀 수정 — 고지혁 님 실측.
- *
- * <p>Outbox 통합 전에는 {@code OutboxEvent} 생성자가 requestId 없는 이벤트를
- * 거부했다. 통합 뒤 그 검사가 <b>진짜 공용 입구인 이 커맨드에는</b> 없었다 —
- * {@code EventIngestService} 라는 한 호출자에만 있었고, {@code RecommendationRecorder}
- * 처럼 이 커맨드를 직접 만드는 다른 호출자는 보호받지 못했다. 여기서 그 자리를 채운다.
+ * {@link OutboxAppendCommand} 의 입력 검사. 이 커맨드가 공용 입구이므로 검사도 여기 있어야
+ * 한다 — 호출자 한 곳에만 두면 커맨드를 직접 만드는 다른 호출자가 보호받지 못한다.
  */
 class OutboxAppendCommandTest {
 

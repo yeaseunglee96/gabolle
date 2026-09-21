@@ -38,11 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * S15P21E201-1013 — 추천 후보의 담아두기·빼기.
- *
- * <p>DB 없이 도는 슬라이스다 — {@code RecommendationResultAuthorizationTest} 와 같은 방식.
- * 앞쪽은 <b>경로의 인가와 경계</b>를, 뒤쪽은 <b>덮어쓰기 규칙</b>을 본다(후자는 저장소를
- * mock 으로 세워 서비스만 직접 부른다 — 이 규칙이 이 작업에서 가장 틀리기 쉬운 자리다).
+ * DB 없이 도는 슬라이스다. 앞쪽은 경로의 인가와 경계를, 뒤쪽은 덮어쓰기 규칙을 본다 —
+ * 뒤쪽은 저장소를 mock 으로 세워 서비스만 직접 부른다.
  */
 class RecommendationActionAuthorizationTest {
 
@@ -79,10 +76,7 @@ class RecommendationActionAuthorizationTest {
 				.andExpect(jsonPath("$.error.code").value("TRIP_NOT_FOUND"));
 	}
 
-	/**
-	 * 🔴 「아직 아무것도 안 눌렀다」를 404 로 답하면 화면이 그것을 「없는 여행」과 구분할 수
-	 * 없다. 추천 목록(-1001)에서와 같은 규칙이다.
-	 */
+	/** 아직 아무것도 안 눌렀다를 404 로 답하면 화면이 없는 여행과 구분할 수 없다. */
 	@Test
 	@DisplayName("🔴 아직 아무것도 안 누른 내 여행은 빈 목록이다 — 404 가 아니다")
 	void emptyTripIsEmptyListNotNotFound() throws Exception {
@@ -114,10 +108,7 @@ class RecommendationActionAuthorizationTest {
 				.andExpect(jsonPath("$.data.decidedByUserId").value(this.ownerId.toString()));
 	}
 
-	/**
-	 * 🔴 판단은 여행의 것이라 동행자가 남긴 것도 그대로 온다. 이 검사가 없으면 나중에
-	 * 누군가 "내 것만 보여야 한다" 고 고쳐도 아무 검사도 빨개지지 않는다.
-	 */
+	/** 판단은 여행의 것이라 동행자가 남긴 것도 그대로 온다. */
 	@Test
 	@DisplayName("🔴 동행자가 남긴 판단도 목록에 함께 온다 — 초대로 들어온 사람들이 함께 본다")
 	void listIncludesWhatOtherMembersDecided() throws Exception {
@@ -135,8 +126,8 @@ class RecommendationActionAuthorizationTest {
 	}
 
 	/**
-	 * 🔴 판단 없는 요청을 조용히 받아 주면 "무엇으로 적혔는지" 를 부르는 쪽도 서버도 모르는
-	 * 행이 생긴다. 400 으로 막고, 서비스는 아예 부르지 않는다.
+	 * 판단 없는 요청을 받아 주면 무엇으로 적혔는지 아무도 모르는 행이 생긴다. 400 으로 막고
+	 * 서비스는 부르지 않는다.
 	 */
 	@Test
 	@DisplayName("🔴 action 이 없으면 400 이고 서비스를 부르지도 않는다")
@@ -169,23 +160,11 @@ class RecommendationActionAuthorizationTest {
 	// ── 덮어쓰기 규칙 (서비스를 직접 부른다) ──────────────────────────────────
 
 	/**
-	 * 🔴 이것이 이 작업에서 가장 틀리기 쉬운 자리다. 화면의 하트는 연타할 수 있고 통신이
-	 * 끊기면 앱이 재시도한다 — 같은 장소에 판단을 또 적을 때 <b>행이 하나 더 생기면</b>
-	 * {@code uk_recommendation_place_action} 에 걸려 저장이 실패하거나, 제약이 없었다면
-	 * 같은 장소가 담김이면서 동시에 빠진 상태가 된다.
-	 */
-	/**
-	 * 🔴 동행자가 이미 정해 둔 판단을 내가 바꾸는 경우다. 여기서 <b>새 행이 생기면</b>
+	 * 동행자가 이미 정해 둔 판단을 내가 바꾸는 경우다. 새 행이 생기면
 	 * {@code uk_recommendation_place_action}(여행+장소에 행 하나)에 걸려 저장이 실패한다.
-	 * 제약이 없었다면 같은 장소가 담김이면서 동시에 빠진 상태가 된다.
 	 *
-	 * <p>2026-09-16 (S15P21E201-1037) — 그 판정을 이제 <b>DB 가 한 문장으로</b> 한다.
-	 * 「찾아보고 없으면 넣는」 방식은 동행자 둘이 동시에 누르면 그 사이로 둘 다 들어가
-	 * 하나가 500 이 됐고, 이 자리는 동시에 눌리는 것이 예외가 아니라 정상이다.
-	 *
-	 * <p>그래서 여기서는 <b>서비스가 무엇을 시켰는지</b>만 본다. 「행이 하나로 유지되는가」는
-	 * 가짜 리포지토리로는 확인할 수 없는 성질이라 진짜 PostgreSQL 위에서 따로 본다 —
-	 * {@code EndpointGuardsPostgresTest}.
+	 * 여기서는 서비스가 무엇을 시켰는지만 본다. 행이 하나로 유지되는가는 가짜 리포지토리로
+	 * 확인할 수 없어 진짜 PostgreSQL 위에서 따로 본다 ({@code EndpointGuardsPostgresTest}).
 	 */
 	@Test
 	@DisplayName("판단을 적을 때 새로 만들지 않고 업서트 한 문장으로 맡긴다 — 정한 사람도 함께 넘긴다")
@@ -212,10 +191,8 @@ class RecommendationActionAuthorizationTest {
 	}
 
 	/**
-	 * 넣은 직후 그 행을 도로 못 읽는 것은 <b>우리 쪽 불변식이 깨진 것</b>이다.
-	 *
-	 * <p>이때 400 을 주면 사용자는 자기 입력을 고치려 들고 우리는 서버 오류 그래프에서
-	 * 이 사고를 못 본다. 그래서 어드바이스가 안 잡는 예외를 따로 둔다.
+	 * 넣은 직후 그 행을 도로 못 읽는 것은 서버 쪽 불변식이 깨진 것이다. 400 을 주면 사용자는
+	 * 자기 입력을 고치려 들고 서버 오류 그래프에서는 이 사고가 안 보인다.
 	 */
 	@Test
 	@DisplayName("적은 뒤 도로 못 읽으면 400 이 아니라 서버 오류로 올린다")

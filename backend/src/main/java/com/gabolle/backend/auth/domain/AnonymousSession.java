@@ -11,12 +11,8 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * 가입 안 한 사람의 출입증 — S15P21E201-303.
- *
- * <p>원본 문자열은 여기 없다. {@code tokenHash} 는 {@code SessionTokenGenerator.hash()} 가
- * 만든 되돌릴 수 없는 값이고, 발급 때 응답으로만 나간 원본과 이 표를 잇는 유일한 끈이다.
- * 그래서 이 표만 보고는 누구의 요청이 이 세션이었는지 재현할 수 없다 — 그것이 해시를
- * 저장하는 목적이다.
+ * 가입 안 한 사람의 출입증. 원본 문자열은 여기 없다 — {@code tokenHash} 는 되돌릴 수 없는 값이고,
+ * 발급 때 응답으로만 나간 원본과 이 표를 잇는 유일한 끈이다.
  */
 @Entity
 @Table(name = "anonymous_session",

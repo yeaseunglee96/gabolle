@@ -11,14 +11,8 @@ import tools.jackson.databind.ObjectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 출발지 검색이 부산만 보는가 — S15P21E201-979.
- *
- * <p>이 제한이 없던 동안 카카오에 전국을 물어봤다. "서면" 을 치면 부산 서면이 아니라 전남
- * 순천시 서면의 장소만 여덟 개가 나왔고 부산 결과는 한 건도 없었다. 지명에 "부산" 이
- * 들어가야만 제대로 나오는 검색이었다.
- *
- * <p>🔴 같은 꾸러미에 둔다 — {@code uriFor} 는 이 검사를 위해 연 자리이고, 바깥에 열어 둘
- * 이유가 없다.
+ * 출발지 검색이 부산만 보는가. 이 검사가 어댑터와 같은 꾸러미에 있는 것은 {@code uriFor} 가
+ * 이 검사를 위해 연 자리이기 때문이다 — 바깥에 열어 둘 이유가 없다.
  */
 class OriginSearchRegionTest {
 

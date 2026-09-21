@@ -2,12 +2,7 @@ package com.gabolle.backend.recommendation.adapter;
 
 import java.util.List;
 
-/**
- * 필수 버전 값을 못 구했다.
- *
- * <p>🔴 이때 기본값으로 때우지 않는 것이 이 예외의 존재 이유 전부다. 버전이 없는 추천 결과는
- * 나중에 "그때 무엇으로 계산했는가" 를 물을 수 없고, 그러면 그 데이터로 학습도 비교도 못 한다.
- */
+/** 필수 버전 값을 못 구했다. 기본값으로 때우지 않고 요청을 실패로 남기기 위한 예외다. */
 public class RecommendationVersionsMissingException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;

@@ -58,16 +58,11 @@ public class UserConsent {
 	}
 
 	/**
-	 * 같은 정책 판 안에서 결정을 바꾼다 — 2026-09-07 추가 (S15P21E201-735).
+	 * 같은 정책 판 안에서 결정을 바꾼다. 행을 새로 쌓지 않고 고쳐 쓴다 —
+	 * {@code (user_id, consent_type, policy_version)} 유일 제약 때문에 같은 판에 두 번째
+	 * 행을 넣으면 DB 가 거부한다.
 	 *
-	 * <p>🔴 <b>행을 새로 쌓지 않고 고쳐 쓴다.</b> 이 표에는 {@code (user_id, consent_type,
-	 * policy_version)} 유일 제약이 있어서, 같은 정책 판에 두 번째 행을 넣으면 DB 가 거부한다.
-	 * 즉 "판마다 최신 결정 하나" 가 이 표의 모양이다.
-	 *
-	 * <p>🔴 <b>그래서 켰다 껐다 한 이력은 안 남는다.</b> 남는 것은 지금 상태와 마지막으로
-	 * 정한 시각이다. 이력이 필요해지면 별도 표가 있어야 하고, 그건 이 티켓에서 지어내지
-	 * 않는다 — 유일 제약을 풀어 행을 쌓으면 "지금 값이 무엇인가" 를 읽는 쪽이 전부
-	 * 바뀌어야 한다.
+	 * <p>그래서 켰다 껐다 한 이력은 남지 않는다. 남는 것은 지금 상태와 마지막으로 정한 시각이다.
 	 */
 	public void redecide(ConsentStatus status, Instant decidedAt) {
 		this.status = status;

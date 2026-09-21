@@ -1,6 +1,6 @@
 package com.gabolle.backend.weather.adapter;
 
-// 🔴 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
+// 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,12 +25,6 @@ import com.gabolle.backend.weather.application.WeatherVendorException;
 import com.gabolle.backend.weather.config.WeatherProperties;
 import com.gabolle.backend.weather.domain.KmaBaseTime;
 
-/**
- * {@link KmaWeatherVendorAdapter} 검증 — S15P21E201-366.
- *
- * <p>{@code TranslationVendorAdapterTest}·{@code KakaoMobilityRouteAdapterTest} 와 같은
- * 방식으로 {@code MockRestServiceServer} 를 쓴다. 진짜 네트워크를 부르지 않는다.
- */
 class KmaWeatherVendorAdapterTest {
 
 	private static final KmaBaseTime BASE_TIME = new KmaBaseTime(LocalDate.of(2026, 9, 10), LocalTime.of(8, 0));
@@ -38,7 +32,7 @@ class KmaWeatherVendorAdapterTest {
 	private KmaWeatherVendorAdapter newAdapter(RestClient.Builder builder, String serviceKey) {
 		WeatherProperties properties = new WeatherProperties();
 		properties.setKmaServiceKey(serviceKey);
-		// 🔴 세 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
+		// 세 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
 		return new KmaWeatherVendorAdapter(builder, properties, null);
 	}
 
@@ -67,10 +61,9 @@ class KmaWeatherVendorAdapterTest {
 		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
 		KmaWeatherVendorAdapter adapter = newAdapter(builder, "test-auth-key");
 
-		// 🔴 이 시험이 없으면 인증 인자 이름이 되돌아가도 아무것도 안 빨개진다 — S15P21E201-1065.
-		//    기상청 API 허브는 authKey 를 받고 공공데이터포털은 serviceKey 를 받는데, 틀린
-		//    이름으로 부르면 컴파일도 되고 기동도 되고 호출만 조용히 거절당한다. 그 상태가
-		//    비로그인 홈 날씨를 통째로 비우고도 아무 오류를 안 냈다.
+		// 이 시험이 없으면 인증 인자 이름이 되돌아가도 아무것도 안 빨개진다. 기상청 API 허브는
+		// authKey 를 받고 공공데이터포털은 serviceKey 를 받는데, 틀린 이름으로 부르면 컴파일도
+		// 되고 기동도 되고 호출만 조용히 거절당한다.
 		server.expect(ExpectedCount.once(),
 						MockRestRequestMatchers.requestTo(org.hamcrest.Matchers.allOf(
 								org.hamcrest.Matchers.containsString("apihub.kma.go.kr"),

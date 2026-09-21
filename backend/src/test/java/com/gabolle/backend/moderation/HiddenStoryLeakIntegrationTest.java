@@ -37,21 +37,10 @@ import com.gabolle.backend.story.presentation.StoryExceptionHandler;
 import com.gabolle.testslice.StorySliceApplication;
 
 /**
- * 감춰진 기록에 딸린 것이 함께 감춰지는가 — S15P21E201-137.
+ * 감춰진 기록에 딸린 것이 함께 감춰지는가. 참여자 목록이 남에게 안 보여야 하고, 검토 중에는
+ * 작성자도 내용을 못 고쳐야 한다(고칠 수 있으면 운영자가 판단할 대상이 바뀐다).
  *
- * <p>신고를 받으면 기록이 즉시 사라진다는 것은 {@link StoryReportFilingIntegrationTest} 가
- * 이미 네 경로에서 확인한다. 이 파일이 보는 것은 <b>그 뒤에 남아 있던 두 구멍</b>이다.
- *
- * <ol>
- *   <li>감춰진 기록의 <b>참여자 목록</b>이 아무 로그인 사용자에게나 표시 이름째로 나갔다.
- *       "사라졌다" 는 말은 그 글에 딸린 것도 함께 사라졌다는 뜻이어야 한다
- *   <li>감춰진 기록을 <b>작성자가 계속 고칠 수 있었다.</b> 검토는 그 시점의 내용을 두고
- *       판단하는 일이라, 그 사이 내용이 바뀌면 판단의 대상이 사라진다
- * </ol>
- *
- * <p>🔴 함께 지키는 것이 하나 더 있다. <b>지우는 것은 여전히 되어야 한다.</b> 신고당한 글을
- * 스스로 내리는 길까지 막으면 사용자가 할 수 있는 일이 없어진다. 구멍을 막다가 이쪽을
- * 함께 막아 버리는 것이 이 수정에서 가장 하기 쉬운 실수라 검사로 못 박는다.
+ * 단 지우는 길은 열려 있어야 한다 — 그것까지 막으면 신고당한 사람이 할 수 있는 일이 없어진다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = { "spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none", "spring.flyway.enabled=true" })
@@ -97,10 +86,8 @@ class HiddenStoryLeakIntegrationTest {
 	private UUID storyId;
 
 	/**
-	 * 🔴 공개 시각을 <b>한 시간 전</b>으로 둔다. "지금" 으로 두면 서버가 볼 때 아직 공개 전으로
-	 * 읽히는 순간이 생겨, 신고 접수가 404 를 돌려주고 검사가 이따금 빨개진다(전체 스위트에서만
-	 * 재현됐다). 이 검사가 보려는 것은 감춤 규칙이지 공개 시각 경계가 아니라, 그 경계에서
-	 * 비켜세운다.
+	 * 공개 시각을 한 시간 전으로 둔다. "지금" 으로 두면 서버가 볼 때 아직 공개 전으로 읽히는 순간이
+	 * 생겨 신고 접수가 404 가 되고 검사가 이따금 빨개진다.
 	 */
 	private final Instant now = Instant.now().minusSeconds(3600);
 
@@ -154,7 +141,7 @@ class HiddenStoryLeakIntegrationTest {
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.error.code").value("STORY_UNDER_MODERATION"));
 
-		// 표에 실제로 안 들어갔는지 본다. 응답만 보면 저장된 뒤 오류가 난 경우를 못 가른다.
+		// 응답만 보면 저장된 뒤 오류가 난 경우를 못 가른다.
 		String body = this.jdbc.queryForObject("SELECT body FROM story WHERE story_id = ?", String.class,
 				this.storyId);
 		assertThat(body).isEqualTo("감춰질 기록");
@@ -190,8 +177,7 @@ class HiddenStoryLeakIntegrationTest {
 	@DisplayName("기각으로 되살아나면 다시 고칠 수 있다 — 막는 것은 검토 중인 동안뿐이다")
 	void editingWorksAgainAfterTheReportIsDismissed() throws Exception {
 		report();
-		// 운영자 경로를 거치지 않고 상태만 되돌린다. 기각 경로 자체는
-		// AdminModerationQueueIntegrationTest 가 본다 — 여기서 보는 것은 수정이 다시 열리는가다.
+		// 기각 경로 자체는 AdminModerationQueueIntegrationTest 가 본다. 여기서는 상태만 되돌린다.
 		this.jdbc.update("UPDATE story SET moderation_state = 'VISIBLE' WHERE story_id = ?", this.storyId);
 
 		this.mockMvc

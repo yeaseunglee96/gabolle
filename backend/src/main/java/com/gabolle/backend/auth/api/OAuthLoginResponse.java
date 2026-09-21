@@ -5,24 +5,21 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * {@code POST /api/v1/auth/oauth/{provider}} 와 {@code /oauth/signup} · {@code /oauth/link} 의 응답 —
- * S15P21E201-689 · -690.
+ * {@code POST /api/v1/auth/oauth/{provider}} 와 {@code /oauth/signup} · {@code /oauth/link} 의 응답.
  *
  * <p>{@link #status} 가 셋 중 하나다.
  * <ul>
- *   <li>{@code LOGGED_IN}(200·201) — 토큰 칸이 채워진다. 🔴 {@code accessToken}·{@code refreshToken}·
- *       {@code expiresIn}·{@code sessionId}·{@code user} 는 {@link AuthTokenResponse} 와 같은 이름·같은 자리라
- *       지금 배포된 앱이 {@code data.accessToken} 을 읽는 코드가 그대로 동작한다.</li>
- *   <li>{@code SIGNUP_REQUIRED}(200) — 처음 보는 소셜 계정. <b>계정을 만들지 않았다.</b> {@link #signupTicket} 과
+ *   <li>{@code LOGGED_IN}(200·201) — 토큰 칸이 채워진다. {@code accessToken}·{@code refreshToken}·
+ *       {@code expiresIn}·{@code sessionId}·{@code user} 는 {@link AuthTokenResponse} 와 같은 이름·같은
+ *       자리여야 한다 — 배포된 앱이 그 키를 읽는다.</li>
+ *   <li>{@code SIGNUP_REQUIRED}(200) — 처음 보는 소셜 계정. 계정을 만들지 않았다. {@link #signupTicket} 과
  *       {@link #prefill} 로 회원가입 화면을 채우고 완료하면 {@code POST /auth/oauth/signup} 을 부른다.</li>
- *   <li>{@code LINK_REQUIRED}(409) — 같은 이메일의 기존 계정이 있다. {@link #linkTicket} 과 비밀번호로
- *       {@code POST /auth/oauth/link} 를 부른다. 이 응답만 {@code data} 와 {@code error} 를 함께 싣는다 —
- *       옛 앱은 {@code error.code}({@code OAUTH_ACCOUNT_LINK_REQUIRED})만 보고 안내를 띄우고, 새 앱은
+ *   <li>{@code LINK_REQUIRED}(409) — 같은 이메일의 기존 계정이 있다. 이 응답만 {@code data} 와
+ *       {@code error} 를 함께 싣는다 — 옛 앱은 {@code error.code} 만 보고 안내를 띄우고, 새 앱은
  *       {@code data.linkTicket} 을 쓴다.</li>
  * </ul>
  *
- * <p>세 갈래를 한 record 로 둔 이유 — 화면은 {@code status} 하나만 보고 분기하면 된다. 갈래마다 record 를 따로
- * 두면 FE 가 응답 모양을 먼저 판별해야 하고, 그 판별 기준이 문서에만 남는다.
+ * <p>세 갈래가 한 record 인 것은 화면이 {@code status} 하나만 보고 분기하게 하려는 것이다.
  */
 public record OAuthLoginResponse(
 		String status,
@@ -70,11 +67,8 @@ public record OAuthLoginResponse(
 	/**
 	 * {@code traveler@example.com} → {@code t***@example.com}. 로컬 부분이 한 글자면 {@code *@...}.
 	 *
-	 * <p>🔴 가리는 이유 — 이 값은 "provider 가 준 이메일로 우리 표를 찔러 본 결과" 다. 그대로 돌려주면 아무나 남의
-	 * 이메일 가입 여부를 확인할 수 있다. 사용자에게는 "어느 계정에 붙는지" 를 알려 줄 만큼만 남긴다.
-	 *
-	 * <p>규칙 자체는 {@link EmailMasker} 로 옮겼다 — 기동 시점 관리자 지정(S15P21E201-225)이 오류
-	 * 메시지에 같은 방식으로 이메일을 가려 적어야 해서, 두 곳이 다른 폭으로 가리지 않게 한 곳에 뒀다.
+	 * <p>가려야 하는 이유는 이 값이 "provider 가 준 이메일로 우리 표를 찔러 본 결과" 라서다.
+	 * 그대로 돌려주면 아무나 남의 이메일 가입 여부를 확인할 수 있다.
 	 */
 	public static String mask(String email) {
 		return EmailMasker.mask(email);

@@ -3,14 +3,10 @@ package com.gabolle.backend.recommendation.application.port;
 /**
  * 계산은 끝났는데 그 사이 다른 사람이 판을 올렸다 — 결과를 버렸고 이전 판이 그대로 최신이다.
  *
- * <p>FR-ITN-09 — "완료 시 {@code latestVersion} 과 {@code baseVersion} 이 같을 때만 새 판을
- * 게시하고, 다르면 결과를 버리고 사용자에게 알린다." 이 예외가 그 "다르면" 이다.
- *
- * <p>🔴 일정 쪽 {@code StaleItineraryVersionException} 을 그대로 던지지 않고 포트 예외로 바꾸는
- * 이유는 {@link ItineraryRevisionDraft} 와 같다 — 추천 계층({@code RecommendationJobWorker})이
- * 일정 도메인 타입을 import 하지 않게 하려는 것이다. Worker 는 이것을 잡아 Job 을
- * {@code ITINERARY_VERSION_CONFLICT} 로 실패시키고 {@code retryable=true} 로 둔다. 재시도하면
- * 되는 실패라서다 — 사용자가 최신 일정을 불러와 다시 요청하면 된다.
+ * 일정 쪽 {@code StaleItineraryVersionException} 을 그대로 던지지 않고 포트 예외로 바꾸는 것은
+ * 추천 계층이 일정 도메인 타입을 import 하지 않게 하기 위해서다.
+ * {@code RecommendationJobWorker} 는 이것을 잡아 Job 을 {@code ITINERARY_VERSION_CONFLICT} 로
+ * 실패시키고 {@code retryable=true} 로 둔다 — 최신 일정을 불러와 다시 요청하면 되는 실패다.
  */
 public class ItineraryPublishConflictException extends RuntimeException {
 

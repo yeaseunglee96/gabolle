@@ -19,11 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * 갈래 열람 기록과 집계 — S15P21E201-475.
- *
- * <p>기록이 <b>부수적인 일</b>이라는 것이 이 기능의 핵심 성질이다. 그래서 이 검사는 "쌓이는가"
- * 만 보지 않고 <b>실패했을 때 화면이 멈추지 않는가</b>도 본다 — 후자가 사용자에게 훨씬 중요한
- * 약속이다.
+ * 갈래 열람 기록과 집계. 기록이 부수적인 일이라는 것이 이 기능의 핵심 성질이라, "쌓이는가" 만 보지
+ * 않고 실패했을 때 화면이 멈추지 않는가도 본다.
  */
 class FacetViewFunctionalTest extends FunctionalJourneyTest {
 
@@ -31,7 +28,7 @@ class FacetViewFunctionalTest extends FunctionalJourneyTest {
 
 	private static final String COUNTS = "/api/v1/admin/facet-views";
 
-	/** 여행에 안 묶인 전역 탐색이 쓰는 자리 — S15P21E201-894. */
+	/** 여행에 안 묶인 전역 탐색이 쓰는 자리. */
 	private static final String GLOBAL_FACET_VIEWS = "/api/v1/facet-views";
 
 	@Autowired
@@ -151,15 +148,11 @@ class FacetViewFunctionalTest extends FunctionalJourneyTest {
 	}
 
 	/**
-	 * 운영자로 승격한 계정으로 집계를 읽는다.
+	 * 운영자로 승격한 계정으로 집계를 읽는다. 승격을 API 로 열지 않은 것이 의도라 역할을 DB 에서
+	 * 직접 바꾼다.
 	 *
-	 * <p>역할을 DB 에서 직접 바꾼다. 승격 경로가 운영에 없는 것이 <b>의도</b>이기 때문이다 —
-	 * 그 티켓({@code S15P21E201-686})이 승격을 API 로 열지 않기로 정했다. 그래서 하네스가
-	 * 이메일 인증을 DB 로 끝내는 것과 같은 성격의 지름길을 여기서 쓴다.
-	 *
-	 * <p>다시 로그인하지 않아도 된다. 이 앱은 역할을 토큰이 아니라 <b>매 요청 DB 에서</b>
-	 * 읽는다({@code HmacJwtAuthenticationFilter}) — 그래서 행을 바꾸면 다음 요청부터 바로
-	 * 운영자다. 그 성질을 이 검사가 함께 확인하는 셈이다.
+	 * <p>다시 로그인하지 않아도 된다 — 이 앱은 역할을 토큰이 아니라 매 요청 DB 에서 읽으므로
+	 * ({@code HmacJwtAuthenticationFilter}) 행을 바꾸면 다음 요청부터 바로 운영자다.
 	 */
 	private ResponseEntity<String> adminCounts(AuthedClient authed, String emailPrefix) {
 		this.jdbcTemplate.update("UPDATE app_user SET role = 'ADMIN' WHERE user_id IN ("
@@ -198,7 +191,7 @@ class FacetViewFunctionalTest extends FunctionalJourneyTest {
 		assertThat(openGlobalFacet(authed, "SEA_BEACH").getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
 		assertThat(openGlobalFacet(authed, "SEA_BEACH").getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
 
-		// 🔴 표를 나누지 않았으므로 셋이 한 숫자로 합쳐진다. 나뉘어 있으면 이 단정이 2 에서 멈춘다.
+		// 표를 나누지 않았으므로 셋이 한 숫자로 합쳐진다. 나뉘어 있으면 이 단정이 2 에서 멈춘다.
 		assertThat(countsByFacet(authed, "facet-global").get("SEA_BEACH")).isGreaterThanOrEqualTo(3);
 	}
 

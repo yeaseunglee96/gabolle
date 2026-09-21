@@ -16,11 +16,8 @@ import org.hibernate.type.SqlTypes;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 
 /**
- * {@code preference_answer} 표 매핑 (V120000) — S15P21E201-461.
- *
- * <p>🔴 도메인 {@link PreferenceSnapshot.PreferenceAnswer} 는 record 라 자기 id 가 없다 —
- * 저장할 때마다 새로 UUID 를 만든다. 답 자체가 불변 스냅샷의 일부라 나중에
- * 이 id 로 다시 찾아올 일이 없다({@code preference_snapshot_id + dimension} 이면 충분).
+ * {@code preference_answer} 표 매핑. 도메인 {@link PreferenceSnapshot.PreferenceAnswer} 에는 id 가
+ * 없어 저장할 때마다 새 UUID 를 만든다 — 답은 불변 스냅샷의 일부라 이 id 로 다시 찾을 일이 없다.
  */
 @Entity
 @Table(name = "preference_answer")

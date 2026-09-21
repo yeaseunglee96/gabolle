@@ -15,10 +15,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * 정규화한 영업시간을 읽어 적재한다 — S15P21E201-852.
+ * 정규화한 영업시간을 읽어 적재한다.
  *
- * <p>{@link TourApiPlaceLoaderRunner} 와 같은 모양이다. 프로퍼티를 안 주면 이 빈이 만들어지지도
- * 않아 평소 기동에 아무 영향이 없다.
+ * <p>프로퍼티를 안 주면 이 빈이 만들어지지도 않아 평소 기동에 아무 영향이 없다.
  *
  * <pre>
  * java -jar gabolle-backend.jar \
@@ -27,13 +26,11 @@ import org.springframework.stereotype.Component;
  *   --gabolle.place.loader.dataset-version=tourapi-busan-20260911
  * </pre>
  *
- * <p>파일 이름은 여기서 정한 것이 아니다 — {@code bigData/process/opening-hours.mjs} 가
- * {@code data/staged/opening-hours.ndjson} 으로 쓴다. 그 스크립트의 출력이 데이터 파트와
- * 이 적재기 사이의 계약이라 이름도 그쪽이 정본이다.
+ * <p>파일 이름은 여기서 정한 것이 아니다. 정규화 스크립트의 출력이 데이터 파트와 이 적재기
+ * 사이의 계약이라 이름도 그쪽이 정본이다.
  *
- * <p>🔴 <b>장소 적재를 먼저 돌려야 한다</b>({@code --gabolle.place.loader.tourapi}). 영업시간은
- * 장소에 붙는 값이라 장소 행이 없으면 붙을 자리가 없다. 순서가 뒤집히면 실패하지 않고
- * <b>"붙일 장소가 없어 넘긴 328" 같은 숫자만 남는다</b> — 그래서 그 수를 로그에 따로 찍는다.
+ * <p>장소 적재를 먼저 돌려야 한다({@code --gabolle.place.loader.tourapi}). 순서가 뒤집히면
+ * 실패하지 않고 "붙일 장소가 없어 넘긴" 숫자만 남아, 그 수를 로그에 따로 찍는다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -85,8 +82,8 @@ public class OpeningHoursLoaderRunner implements ApplicationRunner {
 
 		LOGGER.info("영업시간 적재를 마쳤다 — {} · {} · {}ms", loaded.counts(), result, elapsedMs);
 		if (result.noPlace() > 0) {
-			// 🔴 실측에서는 음식 328곳이 여기 들어온다. 그보다 크게 나오면 장소 적재를 안
-			//    돌렸거나 수집분이 어긋난 것이다 — 로그를 나눠 그 구분이 되게 한다.
+			// 일부러 안 넣은 갈래의 몫보다 크게 나오면 장소 적재를 안 돌렸거나 수집분이 어긋난
+			// 것이다 — 로그를 나눠 그 구분이 되게 한다.
 			LOGGER.warn("붙일 장소가 없어 넘긴 줄이 {}개다. 음식 장소를 일부러 안 넣은 몫(실측 328)보다 "
 					+ "크면 장소 적재(--gabolle.place.loader.tourapi)를 먼저 돌렸는지 확인해야 한다",
 					result.noPlace());

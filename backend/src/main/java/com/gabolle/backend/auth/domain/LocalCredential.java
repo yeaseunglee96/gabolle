@@ -1,6 +1,7 @@
 package com.gabolle.backend.auth.domain;
 
 import com.gabolle.backend.user.domain.AppUser;
+import com.gabolle.backend.user.domain.UserStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -46,17 +47,15 @@ public class LocalCredential {
 	@Column(name = "updated_at", nullable = false)
 	private Instant updatedAt;
 
-	/**
-	 * 마지막 성공 이후 연속으로 틀린 횟수 (S15P21E201-421). 성공하면 0 으로 돌아간다.
-	 */
+	/** 마지막 성공 이후 연속으로 틀린 횟수. 성공하면 0 으로 돌아간다. */
 	@Column(name = "failed_login_attempts", nullable = false)
 	private int failedLoginAttempts;
 
 	/**
 	 * 이 시각까지는 비밀번호가 맞아도 거부한다. 잠겨 있지 않으면 {@code null} 이다.
 	 *
-	 * <p>🔴 영구 잠금은 만들지 않는다. 그러면 남의 이메일로 몇 번 틀리는 것만으로 그 사람 계정을
-	 * 영영 못 쓰게 만들 수 있다. 잠금은 항상 시간이 지나면 저절로 풀린다.
+	 * <p>영구 잠금은 만들지 않는다 — 남의 이메일로 몇 번 틀리는 것만으로 그 사람 계정을 영영 못
+	 * 쓰게 만들 수 있다. 잠금은 언제나 시간이 지나면 저절로 풀린다.
 	 */
 	@Column(name = "login_locked_until")
 	private Instant loginLockedUntil;
@@ -94,10 +93,21 @@ public class LocalCredential {
 	public void changePassword(String passwordHash, Instant changedAt) {
 		this.passwordHash = passwordHash;
 		this.passwordChangedAt = changedAt;
-		// 🔴 비밀번호를 바꿨으면 잠금도 푼다. 비밀번호를 잊어 여러 번 틀린 뒤 재설정한 사람이,
-		//    새 비밀번호를 알면서도 잠금이 풀릴 때까지 기다려야 하는 것은 말이 안 된다.
+		// 비밀번호를 바꿨으면 잠금도 푼다 — 재설정한 사람이 새 비밀번호를 알면서도 잠금이
+		// 풀릴 때까지 기다리게 되지 않도록.
 		this.failedLoginAttempts = 0;
 		this.loginLockedUntil = null;
+	}
+
+	/**
+	 * 이 비밀번호로 지금 로그인할 수 있나. 메일 인증을 안 끝냈으면 못 한다.
+	 *
+	 * <p>소셜 연결을 뗄 수 있는지도 이 판정이 가른다. 비밀번호 행이 있다는 것만으로 다른 로그인
+	 * 수단이 있다고 보면, 메일 인증을 안 끝낸 사람이 마지막 소셜 연결을 떼고 다시 못 들어온다.
+	 * 로그인과 이 판정은 같은 한 곳을 본다.
+	 */
+	public boolean canSignIn() {
+		return this.emailVerifiedAt != null && this.user.getStatus() != UserStatus.PENDING_EMAIL_VERIFICATION;
 	}
 
 	/** 지금 잠겨 있는가. */
@@ -108,9 +118,8 @@ public class LocalCredential {
 	/**
 	 * 로그인 실패를 한 번 센다. 정해진 횟수에 닿으면 잠근다.
 	 *
-	 * <p>🔴 잠글 때 횟수를 0 으로 되돌린다. 안 그러면 잠금이 풀린 직후 한 번만 더 틀려도 바로 다시
-	 * 잠긴다 — 진짜 주인이 비밀번호를 헷갈리는 상황에서 사실상 영구 잠금처럼 느껴진다. 되돌려도
-	 * 시도 횟수는 여전히 잠금 시간당 {@code threshold} 번으로 묶인다.
+	 * <p>잠글 때 횟수를 0 으로 되돌린다. 안 그러면 잠금이 풀린 직후 한 번만 더 틀려도 다시 잠겨
+	 * 사실상 영구 잠금이 된다. 되돌려도 시도 횟수는 잠금 시간당 {@code threshold} 번으로 묶인다.
 	 */
 	public void recordFailedLogin(Instant now, int threshold, Duration lockoutDuration) {
 		this.failedLoginAttempts++;

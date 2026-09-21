@@ -20,20 +20,13 @@ import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 
 /**
- * 여행 생성·조회의 오류를 HTTP 로 번역한다.
- *
- * <p>🔴 도메인은 HTTP 를 모른다. 그래야 같은 규칙을 배치나 다른 진입점에서도 쓴다.
- *
- * <p>개발계획서 4.2 — "하지 않는 일: 세밀한 예외 계층. enum 오류 코드만 지킨다."
- * 그래서 이 처리기는 얇다.
+ * 여행 생성·조회의 오류를 HTTP 로 번역한다. 도메인은 HTTP 를 모른다 — 그래야 같은 규칙을
+ * 배치나 다른 진입점에서도 쓴다.
  */
 @RestControllerAdvice(assignableTypes = TripController.class)
 public class TripExceptionHandler {
 
-    /**
-     * 🔴 티켓 완료 기준 — "필수 항목이 빠진 요청은 거부되고, <b>어느 항목이 빠졌는지</b>가
-     * 응답에 들어 있다." 그래서 필드 이름을 담는다. "잘못된 요청" 만 돌려주지 않는다.
-     */
+    /** 어느 항목이 빠졌는지를 응답에 담는다 — "잘못된 요청" 만 돌려주지 않는다. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException e) {
         List<String> fields = e.getBindingResult().getFieldErrors().stream()
@@ -46,11 +39,9 @@ public class TripExceptionHandler {
     }
 
     /**
-     * 여행 조건 재검증이 거부한 것 — S15P21E201-440.
-     *
-     * <p>🔴 이 처리기가 아래 {@link #handleIllegalArgument} 보다 먼저 잡힌다(Spring 은 예외
-     * 계층에서 가장 구체적인 타입을 고른다). 갈라 두는 이유는 <b>어긴 항목을 전부</b> 담기
-     * 위해서다 — 저쪽은 메시지 한 줄만 담으므로 화면이 어느 칸을 짚을지 알 수 없다.
+     * 여행 조건 재검증이 거부한 것. Spring 이 가장 구체적인 타입을 고르므로 아래
+     * {@link #handleIllegalArgument} 보다 먼저 잡힌다 — 갈라 둔 이유는 어긴 항목을 전부
+     * 담기 위해서다. 저쪽은 메시지 한 줄뿐이라 화면이 어느 칸을 짚을지 알 수 없다.
      */
     @ExceptionHandler(TripConditionRules.TripConditionRejectedException.class)
     public ResponseEntity<ApiResponse<Void>> handleTripConditionRejected(
@@ -71,11 +62,9 @@ public class TripExceptionHandler {
     }
 
     /**
-     * 🔴 S15P21E201-664 — timeWindow 가 {@code HH:mm-HH:mm} 범위 모양인데 값이 틀렸다.
-     *
-     * <p>{@link TimeWindows.InvalidTimeWindowException}은 {@link IllegalArgumentException}의
-     * 하위 타입이지만, Spring 은 예외 계층에서 <b>가장 구체적인 타입의 핸들러</b>를 고르므로
-     * 위 {@link #handleIllegalArgument}보다 이 핸들러가 먼저 잡힌다.
+     * timeWindow 가 {@code HH:mm-HH:mm} 모양인데 값이 틀렸다.
+     * {@link IllegalArgumentException} 의 하위 타입이라 위 {@link #handleIllegalArgument}
+     * 보다 먼저 잡힌다.
      */
     @ExceptionHandler(TimeWindows.InvalidTimeWindowException.class)
     public ResponseEntity<ApiResponse<Void>> handleInvalidTimeWindow(TimeWindows.InvalidTimeWindowException e) {
@@ -86,12 +75,7 @@ public class TripExceptionHandler {
                 requestId()));
     }
 
-    /**
-     * 🔴 S15P21E201-664 — transport 취향 값이 {@code WALK/CAR/TRANSIT} 셋 밖이다.
-     *
-     * <p>{@link TravelModes.UnsupportedTravelModeException}도 {@link IllegalArgumentException}의
-     * 하위 타입이라 같은 이유로 {@link #handleIllegalArgument}보다 먼저 잡힌다.
-     */
+    /** transport 취향 값이 {@code WALK/CAR/TRANSIT} 셋 밖이다. */
     @ExceptionHandler(TravelModes.UnsupportedTravelModeException.class)
     public ResponseEntity<ApiResponse<Void>> handleUnsupportedTravelMode(
             TravelModes.UnsupportedTravelModeException e) {
@@ -101,11 +85,7 @@ public class TripExceptionHandler {
                 requestId()));
     }
 
-    /**
-     * 🔴 민감 제약을 M1 에서 받으려 했을 때.
-     *
-     * <p>"나중에 처리" 로 넘기지 않는다. 평문으로 한 번 저장하면 그 데이터가 남는다.
-     */
+    /** 민감 제약은 받지 않고 거절한다 — 평문으로 한 번 저장하면 그 데이터가 남는다. */
     @ExceptionHandler(TripConstraint.SensitiveConstraintNotSupportedException.class)
     public ResponseEntity<ApiResponse<Void>> handleSensitive(
             TripConstraint.SensitiveConstraintNotSupportedException e) {
@@ -115,7 +95,7 @@ public class TripExceptionHandler {
                 requestId()));
     }
 
-    /** 🔴 API-09 — 같은 Idempotency-Key 를 다른 본문으로 재사용하면 409 다. */
+    /** 같은 Idempotency-Key 를 다른 본문으로 재사용하면 409 다. */
     @ExceptionHandler(TripRepository.IdempotencyKeyConflictException.class)
     public ResponseEntity<ApiResponse<Void>> handleIdempotencyConflict(
             TripRepository.IdempotencyKeyConflictException e) {
@@ -133,15 +113,11 @@ public class TripExceptionHandler {
     }
 
     /**
-     * 🔴 S15P21E201-746 — 회원이지만 소유자가 아니라서 여행을 지울 수 없다.
+     * 회원이지만 소유자가 아니라서 여행을 지울 수 없다. 404 가 아니라 403 이다 — 여기까지
+     * 오는 사람은 이미 그 여행을 보고 있는 동행자라 감출 것이 없다.
      *
-     * <p>비회원과 없는 여행은 위 {@link #handleNotFound} 가 404 로 답한다. 여기까지
-     * 오는 사람은 이미 그 여행을 보고 있는 동행자이므로 감출 것이 없다 — 오히려 404 로
-     * 답하면 방금 열어 본 여행이 없다는 말이 된다.
-     *
-     * <p>오류 코드는 {@code TripCollaborationExceptionHandler} 가 쓰는 것과 같은
-     * {@code TRIP_FORBIDDEN} 이다. 화면이 "소유자만 할 수 있는 일" 을 한 가지로 다루면
-     * 되게 하려는 것이고, 무엇이 막혔는지는 메시지가 말한다.
+     * <p>오류 코드는 {@code TripCollaborationExceptionHandler} 와 같은
+     * {@code TRIP_FORBIDDEN} 이다. 화면이 "소유자만 할 수 있는 일" 을 한 가지로 다루게 한다.
      */
     @ExceptionHandler(TripDeletionService.TripDeleteForbiddenException.class)
     public ResponseEntity<ApiResponse<Void>> handleDeleteForbidden(

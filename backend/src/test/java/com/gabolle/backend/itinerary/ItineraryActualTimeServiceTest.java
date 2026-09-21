@@ -40,20 +40,18 @@ import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripMember;
 
 /**
- * 방문지 실제 도착·출발 시각 — S15P21E201-293. 기록과 조회를 <b>이어서</b> 본다.
+ * 방문지 실제 도착·출발 시각. 기록과 조회를 이어서 본다.
  *
- * <p>Spring 컨텍스트도 DB 도 띄우지 않는다({@link ItineraryQueryServiceTest} 와 같은 판단).
- * 저장소는 {@link InMemoryItineraryRepository} 와
- * {@link FakeItineraryItemActualRepository}(표의 UNIQUE 를 흉내내는 대역)를 쓰고,
- * {@link ItineraryAccess} 는 <b>진짜</b> 객체다 — 권한 판정 자체가 이 테스트로 검증된다.
+ * <p>Spring 컨텍스트도 DB 도 띄우지 않는다. 저장소는 {@link InMemoryItineraryRepository} 와
+ * {@link FakeItineraryItemActualRepository} 를 쓰고, {@link ItineraryAccess} 는 진짜
+ * 객체다 — 권한 판정 자체가 이 테스트로 검증된다.
  *
- * <p>이 테스트가 <b>검증하지 못하는</b> 것: HTTP 상태 코드와 오류 코드, {@code INSERT ...
- * ON CONFLICT} SQL, TIMESTAMPTZ 왕복. 그쪽은 {@link ItineraryActualTimeIntegrationTest} 가
- * 실제 PostgreSQL 위에서 본다.
+ * <p>검증하지 못하는 것: HTTP 상태·오류 코드, {@code INSERT ... ON CONFLICT} SQL,
+ * TIMESTAMPTZ 왕복. 그쪽은 {@link ItineraryActualTimeIntegrationTest} 가 본다.
  */
 class ItineraryActualTimeServiceTest {
 
-	/** 여행 시작일. 오늘보다 <b>지난</b> 날짜여야 한다 — 완료 기준 5번이 그 상황이다. */
+	/** 여행 시작일. 오늘보다 지난 날짜여야 한다. */
 	private static final LocalDate PAST_DAY = LocalDate.of(2026, 9, 1);
 
 	/** 마지막 날. 기록이 없는 방문지를 여기 둔다. */
@@ -116,8 +114,6 @@ class ItineraryActualTimeServiceTest {
 		this.itineraryId = seedItineraryWithTwoItems();
 	}
 
-	// ── 완료 기준 1 ───────────────────────────────────────────────────────────
-
 	@Test
 	@DisplayName("도착 시각을 보내면 일정 조회 결과에 실제 도착 시각이 들어 있다")
 	void recordedArrivalAppearsInDetail() {
@@ -133,8 +129,6 @@ class ItineraryActualTimeServiceTest {
 		// 출발은 안 보냈으므로 비어 있다. 부분 갱신이 아니라 보낸 것이 전체 상태다.
 		assertThat(item.actualDepartedAt()).isNull();
 	}
-
-	// ── 완료 기준 2 ───────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("같은 방문지에 다시 보내면 마지막 값이 남는다 — 행이 늘지 않는다")
@@ -164,8 +158,6 @@ class ItineraryActualTimeServiceTest {
 
 		assertThat(visitedItem().actualDepartedAt()).isNull();
 	}
-
-	// ── 완료 기준 3 ───────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("기록이 없는 방문지는 계획 시각만 나오고 실제 시각 자리가 비어 있다")
@@ -221,8 +213,6 @@ class ItineraryActualTimeServiceTest {
 		assertThat(visitedItem().placeId()).isEqualTo(this.placeId.toString());
 	}
 
-	// ── 완료 기준 4 ───────────────────────────────────────────────────────────
-
 	@Test
 	@DisplayName("남의 여행 방문지에 기록을 보내면 거부된다 — 비회원은 404, VIEWER 는 403")
 	void strangerAndViewerAreRejected() {
@@ -239,8 +229,6 @@ class ItineraryActualTimeServiceTest {
 		// 둘 다 거부됐으니 기록은 하나도 남지 않았다.
 		assertThat(this.actualRepository.rowCount()).isZero();
 	}
-
-	// ── 완료 기준 5 ───────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("지나간 날짜의 방문지에도 뒤늦게 기록할 수 있다")
@@ -310,8 +298,8 @@ class ItineraryActualTimeServiceTest {
 	}
 
 	/**
-	 * 첫날에 방문지 하나, 마지막 날에 방문지 하나. 둘 다 계획 시각이 있다 — 완료 기준 3번이
-	 * "계획 시각만 나오고" 를 요구하므로 계획 시각이 없으면 그 확인이 성립하지 않는다.
+	 * 첫날에 방문지 하나, 마지막 날에 방문지 하나. 둘 다 계획 시각이 있다 — 계획 시각이
+	 * 없으면 「계획 시각만 나오고 실제 시각 자리가 빈다」는 확인이 성립하지 않는다.
 	 */
 	private String seedItineraryWithTwoItems() {
 		String id = "itn_" + UUID.randomUUID();

@@ -26,16 +26,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 🔴 <b>앱이 실제로 보내는 값이 점수에 반영되는가</b> — S15P21E201-635.
+ * 앱이 실제로 보내는 값이 점수에 반영되는가. 앱은 태그형을 맨 배열로, 점수형을 맨 정수
+ * 1~5 로도 보내는데 모양이 안 맞으면 오류 없이 조용히 0점이 된다.
  *
- * <p>{@code PreferenceJson} 은 태그형이 {@code {"codes":[...]}} 로, 점수형이
- * {@code {"score":0~1}} 로 온다고 가정하고 있었다. 앱은 <b>맨 배열</b>과 <b>맨 정수 1~5</b> 를
- * 보낸다. 둘 다 오류를 내지 않고 <b>조용히 0점</b>이 됐다 — 사용자는 취향을 골랐는데 점수에는
- * 아무것도 안 들어갔고 로그에도 안 남았다.
- *
- * <p>그래서 이 테스트는 {@code PreferenceJson}(package-private)을 직접 부르지 않고
- * <b>채점기를 통해</b> 잰다. 값이 파싱되는지가 아니라 <b>점수가 실제로 달라지는지</b>가
- * 이 결함의 내용이기 때문이다.
+ * 그래서 {@code PreferenceJson} 을 직접 부르지 않고 채점기를 통해 잰다 — 값이 파싱되는지가
+ * 아니라 점수가 실제로 달라지는지를 봐야 한다.
  */
 class PreferenceValueShapeAndScaleTest {
 
@@ -131,14 +126,13 @@ class PreferenceValueShapeAndScaleTest {
 		assertThat(component(bareDecimal, "preferenceAlignment")).isEqualTo(1.0);
 	}
 
-	// ── 낱말로 오는 답 — 경사 (S15P21E201-1188) ───────────────────────────────
+	// ── 낱말로 오는 답 — 경사 ───────────────────────────────
 
 	@Test
 	@DisplayName("🔴 「피하고 싶어요」는 평지를 가장 높게 친다 — 전에는 축이 통째로 빠졌다")
 	void 경사를_피하고_싶어요는_평지가_가장_높다() {
-		// 🔴 눈금 검산. 장소 경사만 0~100 이고 채점기가 100 으로 나눈다. 취향 쪽이 0~1 로
-		//    나와야 평지(0%)에서 정렬도가 정확히 1.0 이 된다 — 100 을 내놓았다면 clamp01 이
-		//    1.0 으로 뭉개서 여기가 0.0 으로 뒤집힌다. 그래서 이 값은 부등호가 아니라 등호다.
+		// 눈금 검산. 장소 경사만 0~100 이고 채점기가 100 으로 나눈다. 취향 쪽이 0~1 로
+		// 나와야 평지(0%)에서 정렬도가 정확히 1.0 이 된다 — 그래서 부등호가 아니라 등호다.
 		EngineCandidate flat = score(
 				candidate(List.of(value("SLOPE_PERCENT", "ESTIMATED", "0"))),
 				snapshot("SLOPE_PREFERENCE", "\"AVOID\""));
@@ -174,19 +168,13 @@ class PreferenceValueShapeAndScaleTest {
 		assertThat(component(result, "preferenceAlignment")).isNull();
 	}
 
-	// ── 낱말로 오는 답 — 그늘 (S15P21E201-1222) ───────────────────────────────
-	//
-	// 🔴 이 자리에는 「여기서 고치지 않는 것」이라는 이름으로 "PREFER" 가 **빠지는 것**을
-	//    못 박은 시험이 있었다. 앱에 그늘을 묻는 화면이 없고 SHADE_SCORE 의 방향이
-	//    어디에도 안 적혀 있다는 두 이유였는데, 둘 다 틀렸거나 풀렸다 —
-	//    화면은 constraints.tsx 에 이미 있었고, 방향은 산출물로 쟀다(상관 +0.82).
+	// ── 낱말로 오는 답 — 그늘 ───────────────────────────────
 
 	@Test
 	@DisplayName("🔴 「그늘길 우선」은 그늘이 많은 곳을 높게 친다 — 전에는 축이 통째로 빠졌다")
 	void 그늘길_우선은_그늘_많은_곳이_높다() {
-		// 🔴 눈금 검산. 경사와 달리 그늘은 장소 값도 취향 값도 **둘 다 0~1** 이라
-		//    100 으로 나누는 자리가 없다. 취향 1.0 · 장소 0.9 면 1 - |1.0 - 0.9| = 0.9 가
-		//    정확히 나와야 한다 — 어느 한쪽이 0~100 이었다면 clamp01 이 뭉개서 어긋난다.
+		// 눈금 검산. 경사와 달리 그늘은 장소 값도 취향 값도 둘 다 0~1 이라 100 으로 나누는
+		// 자리가 없다. 취향 1.0 · 장소 0.9 면 1 - |1.0 - 0.9| = 0.9 가 정확히 나와야 한다.
 		EngineCandidate shady = score(
 				candidate(List.of(value("SHADE_SCORE", "ESTIMATED", "0.9"))),
 				snapshot("SHADE_PREFERENCE", "\"PREFER\""));
@@ -194,9 +182,8 @@ class PreferenceValueShapeAndScaleTest {
 				candidate(List.of(value("SHADE_SCORE", "ESTIMATED", "0.1"))),
 				snapshot("SHADE_PREFERENCE", "\"PREFER\""));
 
-		// 🔴 허용오차를 두는 것은 눈금을 느슨하게 보려는 게 아니다. 1 - |1.0 - 0.1| 이
-		//    2진 소수에서 0.09999999999999998 로 떨어질 뿐이라, 자릿수를 재는 것이지
-		//    값을 재는 것이 아니다. 눈금이 100배 어긋나면 이 폭으로는 절대 안 지나간다.
+		// 허용오차는 2진 소수 오차만 흡수한다 — 1 - |1.0 - 0.1| 이 0.09999999999999998 로
+		// 떨어진다. 눈금이 100배 어긋나면 이 폭으로는 지나가지 못한다.
 		assertThat(component(shady, "preferenceAlignment")).isCloseTo(0.9, within(1e-9));
 		assertThat(component(sunny, "preferenceAlignment")).isCloseTo(0.1, within(1e-9));
 		assertThat(component(shady, "preferenceAlignment"))
@@ -211,8 +198,7 @@ class PreferenceValueShapeAndScaleTest {
 				candidate(List.of(value("SHADE_SCORE", "ESTIMATED", "0.9"))),
 				snapshot("SHADE_PREFERENCE", "\"NO_PREFERENCE\""));
 
-		// 🔴 0 으로 뒀다면 안 따진다고 답한 사람을 골라서 뙤약볕으로 보낸다. 그러면서
-		//    아무 오류도 안 난다 — 그게 이 축이 조용히 틀리는 방식이다.
+		// 0 으로 두면 안 따진다고 답한 사람을 골라서 뙤약볕으로 보내면서 아무 오류도 안 난다.
 		assertThat(component(result, "preferenceAlignment")).isNull();
 		assertThat(result.reasonCodes()).doesNotContain("PREF_ALIGNED_SHADE_PREFERENCE");
 	}

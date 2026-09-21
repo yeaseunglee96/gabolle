@@ -23,15 +23,8 @@ import com.gabolle.backend.recommendation.domain.JobStatus;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 
 /**
- * 지표 조회 — S15P21E201-160 작업 내용 5번.
- *
- * <p>🔴 <b>2026-09-15 갱신</b> — "무엇을 KPI 로 삼을 것인가" 를 이 티켓의 2026-09-03 코멘트가
- * 팀에 넘긴 채로 남겨 뒀었다. 팀이 이제 추천 요청의 성공률·처리 시간·실패 사유를 고르면서
- * {@link #recommendationJobHealth} 를 더했다. 그 전까지 이미 참이던 값 둘(이벤트 종류별
- * 건수·Outbox 적체)은 그대로 둔다.
- *
- * <p>{@code no-db} 프로필에는 이 빈이 없다 — {@link EventIngestService} 와 같은 규칙이다.
- * DB 없이 셀 수 있는 값이 아니라서, 있는 척하며 빈 값을 내는 대신 아예 없앤다.
+ * 지표 조회. {@code no-db} 프로필에는 이 빈이 없다 — DB 없이 셀 수 있는 값이 아니라서,
+ * 있는 척하며 빈 값을 내는 대신 아예 없앤다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -118,9 +111,8 @@ public class AnalyticsQueryService {
 	}
 
 	/**
-	 * 🔴 {@code receivedAt} 기준이다 — Outbox 가 실제로 받은 순간부터 얼마나 밀렸는가를 잰다.
-	 * {@code occurredAt} 을 쓰면 기기 시계가 늦게 보낸 오래된 이벤트가 "방금 밀리기 시작한 것"
-	 * 처럼 보일 수 있다.
+	 * {@code receivedAt} 기준이다 — {@code occurredAt} 을 쓰면 기기가 늦게 보낸 오래된 이벤트가
+	 * 방금 밀리기 시작한 것처럼 보인다.
 	 */
 	private Long oldestPendingAgeSeconds() {
 		List<EventOutbox> oldest = this.repository.findByPublishedAtIsNullOrderBySeqAsc(PageRequest.of(0, 1));

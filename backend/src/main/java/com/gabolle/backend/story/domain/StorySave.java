@@ -9,13 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 사용자가 저장한(북마크) 기록 — 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게".
- *
- * <p>{@code StoryReaction}(좋아요/싫어요)과 <b>다른 표다</b> — {@link ReactionType} 상단
- * 주석이 이 자리를 예고해 뒀다. 좋아요를 눌렀다가 저장하면 좋아요가 사라지는 것은 이상한
- * 동작이라, 한 글에 반응과 저장을 동시에 가질 수 있어야 한다.
- *
- * <p>{@code SavedPlace}와 같은 모양이다 — 여행과 무관한 전역 목록이고 그 사람만의 것이다.
+ * 사용자가 저장한(북마크) 기록. 좋아요·싫어요와 다른 표라 한 글에 반응과 저장을 동시에 가질 수 있다.
+ * {@code SavedPlace} 와 같은 모양으로, 여행과 무관한 전역 목록이고 그 사람만의 것이다.
  */
 @Entity
 @Table(name = "story_save")

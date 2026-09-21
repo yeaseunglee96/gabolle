@@ -11,11 +11,7 @@ import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 
 /**
- * 택시 목적지 카드 (S15P21E201-217).
- *
- * <p>한국어를 못 하는 여행자가 택시 기사에게 화면을 보여주면 목적지가 전달되는 화면에 쓴다. 조회
- * 하나(장소 1건, {@code findById})로 끝난다 — 좌표나 사용자 식별 없이 장소 아이디만으로 답이
- * 정해진다.
+ * 택시 목적지 카드 — 한국어를 못 하는 여행자가 기사에게 화면을 보여주는 용도다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -36,9 +32,8 @@ public class TaxiCardService {
 		Place place = this.placeRepository.findById(placeId)
 				.orElseThrow(() -> new PlaceNotFoundException(placeId));
 
-		// 🔴 기준이 영문 이름이 아니라 영문 **주소**다. 이 응답이 영어로 싣는 값은 주소이고,
-		// 영문 이름만 있고 주소가 없으면 화면에 보일 영어는 아무것도 없다 — 그때 "en" 이라고
-		// 답하면 응답이 거짓말을 한다 (RequestLanguage 주석 참고).
+		// 기준은 영문 이름이 아니라 영문 주소다. 이 응답이 영어로 싣는 값이 주소뿐이라,
+		// 이름만 있고 주소가 없는데 "en" 이라고 답하면 화면에 보일 영어가 없다.
 		String resolvedLanguage = RequestLanguage.resolve(acceptLanguageHeader, place.getAddressEn() != null);
 
 		return new TaxiCardResponse(
@@ -51,14 +46,10 @@ public class TaxiCardService {
 	}
 
 	/**
-	 * 기사에게 보여줄 한국어 한 문장을 서버가 조립한다.
+	 * 기사에게 보여줄 문장. 요청 언어와 무관하게 항상 한국어다 — 읽는 사람이 여행자가 아니라
+	 * 택시 기사다.
 	 *
-	 * <p>🔴 화면(앱)에서 조립하지 않는 이유 — 문구가 어색해서 고쳐야 할 때, 서버가 문장을 주면
-	 * 문구만 바꿔 서버를 다시 배포하면 되지만, 화면이 스스로 조립하면 앱을 다시 배포해야 하고
-	 * 배포된 앱은 스토어 심사 때문에 즉시 못 고친다.
-	 *
-	 * <p>🔴 이 문장은 항상 한국어다. 읽는 사람이 여행자가 아니라 한국어를 쓰는 택시 기사이기
-	 * 때문이다 — 언어에 따라 바꾸면 이 기능 자체가 무의미해진다.
+	 * <p>앱이 아니라 서버가 조립하는 이유는 문구를 고칠 때 스토어 심사를 기다리지 않기 위해서다.
 	 */
 	private String driverSentence(Place place) {
 		String address = place.getAddress();

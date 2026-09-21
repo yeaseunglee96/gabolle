@@ -11,6 +11,7 @@ import com.gabolle.backend.auth.service.AccountDeletionService;
 import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.service.CurrentUserService;
 import com.gabolle.backend.auth.service.ProfileUpdateService;
+import com.gabolle.backend.auth.service.LinkedIdentityService;
 import com.gabolle.backend.auth.service.LocalAuthService;
 import com.gabolle.backend.auth.service.OAuthAccountService;
 import com.gabolle.backend.auth.service.OAuthChallengeService;
@@ -37,7 +38,7 @@ class AuthControllerTest {
 				mock(WebAuthCookieService.class), currentUserService,
 				mock(ProfileUpdateService.class),
 				mock(AccountDeletionService.class), mock(OAuthAccountService.class),
-				mock(ConsentUpdateService.class));
+				mock(ConsentUpdateService.class), mock(LinkedIdentityService.class));
 	}
 
 	@Test
@@ -57,7 +58,7 @@ class AuthControllerTest {
 
 		assertThat(response.meta().requestId()).isEqualTo("request-123");
 		assertThat(response.data()).isEqualTo(new AuthUserResponse(userId, "traveler@example.com", "부산여행자",
-				"ko", UserStatus.ACTIVE, null));
+				"ko", UserStatus.ACTIVE, null, null));
 	}
 
 	@Test

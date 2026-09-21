@@ -22,14 +22,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 🔴 <b>수집분이 늘어도 일정이 만들어지는가</b> — S15P21E201-1165.
- *
- * <p>2026-09-16 에 {@code tourapi-curated-*} 셋이 들어가면서 수집분이 여섯이 됐고, 이어 붙인
- * {@code datasetVersion} 이 159자가 되어 <b>일정 생성이 100% 실패했다.</b> 그때 코드는 100자를
- * 넘으면 {@code ENGINE_DATASET_VERSION_AMBIGUOUS} 로 요청을 죽였다.
- *
- * <p>이 시험이 지키는 것은 하나다 — <b>자료를 더 넣는다고 앱이 멈추지 않는다.</b> 그러면서도
- * 조합이 다르면 값이 달라야 한다(그게 원래 예외가 지키려던 것이다).
+ * 수집분이 늘어도 일정이 만들어지는가. 이어 붙인 {@code datasetVersion} 이 칸 폭을 넘으면
+ * 예전에는 요청이 죽었다. 자료를 더 넣는다고 앱이 멈추지 않으면서도, 조합이 다르면 값은
+ * 달라야 한다.
  */
 class BaselineRecommendationEngineDatasetVersionTest {
 
@@ -101,9 +96,8 @@ class BaselineRecommendationEngineDatasetVersionTest {
 	}
 
 	/**
-	 * 이 시험이 보는 것은 {@code resolveDatasetVersion} 하나라, 협력자는 전부 목으로 채운다.
-	 * 목을 쓰는 것이 아니라 <b>안 쓰는 것을 분명히 하는 것</b>이 목적이다 — 이 메서드는 DB 도
-	 * 채점기도 안 본다.
+	 * 보는 것이 {@code resolveDatasetVersion} 하나라 협력자는 전부 목으로 채운다 — 이
+	 * 메서드는 DB 도 채점기도 안 본다.
 	 */
 	private static BaselineRecommendationEngine engine() {
 		BaselineEngineProperties properties = new BaselineEngineProperties(

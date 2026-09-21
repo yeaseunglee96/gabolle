@@ -46,18 +46,14 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * S15P21E201-249 — 제외·그날 재계산이 실제 PostgreSQL 에서 한 바퀴 도는지 본다.
- *
- * <p>추천 슬라이스가 아니라 <b>일정 슬라이스</b>에서 돈다 — 진짜 {@code ItineraryDraftService.revise/
- * publish} 와 진짜 {@code JpaItineraryRepository.appendVersion}(CAS) 이 붙어야 이 티켓의 요구사항
- * (FR-ITN-09 게시 조건, FR-REC-09 부분 반영 금지, 요구사항 3.2 "후보 0건이면 비운다")을 확인할 수
- * 있기 때문이다. 엔진만 가짜다 — 무엇을 추천했는지는 이 테스트의 관심이 아니고, 추천 결과를
- * 어느 자리에 어떻게 앉히는지가 관심이다.
- *
- * <p>Job 은 {@link RecommendationJobWorker#execute} 를 <b>직접 new 한 인스턴스로</b> 동기 호출한다.
- * 빈으로 받으면 {@code @Async} 프록시를 지나 다른 스레드로 가고, 테스트가 끝나기를 기다릴 방법이
- * 없다. 운영 경로에서 Worker 가 하는 일(RUNNING 표시 → continueJob → 예외별 FAILED 기록)은
- * 그대로 지난다.
+ * 제외·그날 재계산이 실제 PostgreSQL 에서 한 바퀴 도는지 본다.
+ * 추천 슬라이스가 아니라 일정 슬라이스에서 돈다 — 진짜 {@code ItineraryDraftService.revise/publish}
+ * 와 진짜 {@code JpaItineraryRepository.appendVersion}(CAS)이 붙어야 게시 조건과 부분 반영 금지,
+ * "후보 0건이면 비운다" 를 확인할 수 있다. 엔진만 가짜다 — 무엇을 추천했는지가 아니라 추천
+ * 결과를 어느 자리에 어떻게 앉히는지가 관심이다.
+ * Job 은 {@link RecommendationJobWorker#execute} 를 직접 new 한 인스턴스로 동기 호출한다.
+ * 빈으로 받으면 {@code @Async} 프록시를 지나 다른 스레드로 가고, 테스트가 끝나기를 기다릴
+ * 방법이 없다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -66,16 +62,15 @@ import com.gabolle.testslice.ItinerarySliceApplication;
 		"gabolle.recommendation.service-version=test-service-0.0.1",
 		"gabolle.recommendation.deployment-environment=test"
 })
-// 🔴 classes= 로 앱을 명시하면 중첩 @TestConfiguration 이 자동으로 잡히지 않는다 — 명시적으로 끌어온다.
+// classes= 로 앱을 명시하면 중첩 @TestConfiguration 이 자동으로 잡히지 않는다 — 명시적으로 끌어온다.
 @Import(ItineraryRecalculationIntegrationTest.FakeEngineOverride.class)
 @ExtendWith(PostgresAvailableCondition.class)
 class ItineraryRecalculationIntegrationTest {
 
 	/**
-	 * 🔴 일정 슬라이스에는 {@code BaselineRecommendationEngine} 이 진짜로 올라온다({@code place}
-	 * 패키지를 스캔하므로). 그 옆에 가짜를 {@code @Primary} 로 세우면 {@code RecommendationService}
-	 * 의 {@code ObjectProvider.getIfAvailable()} 이 가짜를 고른다 — 진짜 엔진은 여기 없는
-	 * {@code place_feature}·코드맵 데이터를 요구해서 이 테스트의 관심 밖 이유로 실패한다.
+	 * 일정 슬라이스에는 {@code BaselineRecommendationEngine} 이 진짜로 올라온다. 그 옆에 가짜를
+	 * {@code @Primary} 로 세우면 {@code ObjectProvider.getIfAvailable()} 이 가짜를 고른다 — 진짜
+	 * 엔진은 여기 없는 {@code place_feature}·코드맵 데이터를 요구해 관심 밖 이유로 실패한다.
 	 */
 	@TestConfiguration(proxyBeanMethods = false)
 	static class FakeEngineOverride {
@@ -130,8 +125,8 @@ class ItineraryRecalculationIntegrationTest {
 
 		this.userId = PersonalizationFixture.insertUser(this.jdbc);
 		this.tripId = UUID.randomUUID();
-		// 🔴 활동 시간대(09:00-18:00)를 준다 — 그래야 slotFor 가 시각을 배정하고 "고정 항목의 시각이
-		//    움직였다"(RECALC_TIMES_RESHUFFLED)를 확인할 수 있다.
+		// 활동 시간대(09:00-18:00)를 준다 — 그래야 시각이 배정되고 "고정 항목의 시각이 움직였다"
+		//    (RECALC_TIMES_RESHUFFLED)를 확인할 수 있다.
 		this.jdbc.update("""
 				INSERT INTO trip (trip_id, owner_user_id, version, start_date, end_date, party_size,
 				    travel_modes, time_window_start, time_window_end, created_at, updated_at)
@@ -204,8 +199,8 @@ class ItineraryRecalculationIntegrationTest {
 		RecommendationJob job = this.recommendationService.prepare(command);
 		this.jobRepository.save(job);
 		new RecommendationJobWorker(this.jobRepository, this.recommendationService, this.recorder, this.clock,
-				// 진행률 보고(S15P21E201-193). 이 검사는 진행률을 보지 않지만 워커가 요구하므로
-				// 진짜 객체를 준다 — 보는 연결이 하나도 없으면 알림은 그냥 버려진다.
+				// 이 검사는 진행률을 보지 않지만 워커가 요구하므로 진짜 객체를 준다 — 보는 연결이
+				// 하나도 없으면 알림은 그냥 버려진다.
 				new JobProgressReporter(this.jobRepository, new JobProgressBroker()))
 				.execute(job, command);
 		return this.jobRepository.findById(job.getJobId()).orElseThrow();
@@ -226,11 +221,10 @@ class ItineraryRecalculationIntegrationTest {
 	}
 
 	/**
-	 * 🔴 이 파일의 존재 이유. 엔진이 뺀 장소(A)를 <b>1순위로</b> 다시 내놓아도 새 판에 A 는 없어야 한다.
-	 *
-	 * <p>부수기: {@code ItineraryDraftService.revise} 에서 제외 목록을 {@code unavailable} 에 넣는
-	 * 반복문을 지우면 A 가 첫 빈자리에 앉아 여기서 빨개진다. {@code ItineraryRevision.copyExclusions}
-	 * 를 비우면 두 번째 재계산({@link #recalculateAgainStillHonoursEarlierExclusion})에서 빨개진다.
+	 * 이 파일의 존재 이유. 엔진이 뺀 장소(A)를 1순위로 다시 내놓아도 새 판에 A 는 없어야 한다.
+	 * 부수기: {@code ItineraryDraftService.revise} 에서 제외 목록을 {@code unavailable} 에 넣는
+	 * 반복문을 지우면 A 가 첫 빈자리에 앉는다. {@code ItineraryRevision.copyExclusions} 를 비우면
+	 * 두 번째 재계산 검사가 빨개진다.
 	 */
 	@Test
 	@DisplayName("🔴 항목을 빼면 새 판에서 그 장소가 사라지고, 엔진이 다시 내놓아도 돌아오지 않는다")
@@ -266,20 +260,16 @@ class ItineraryRecalculationIntegrationTest {
 		assertThat(v2.exclusions().get(0).reasonCode()).isEqualTo(ItineraryExclusion.REASON_USER_REMOVED);
 		assertThat(v2.exclusions().get(0).excludedBy()).isEqualTo(this.userId.toString());
 		assertThat(v2.exclusions().get(0).operationalReason()).isEqualTo("별로였다");
-		// 바탕 판은 그대로다 — 덮어쓰기 금지(FR-ITN-08).
+		// 바탕 판은 그대로다 — 덮어쓰기 금지.
 		assertThat(day(content(1), 0)).extracting(ItineraryItem::placeId)
 				.containsExactly(this.placeA.toString(), this.placeB.toString(), this.placeC.toString());
 	}
 
 	/**
-	 * 🔴 S15P21E201-1080 — 뺀 장소를 행동 신호로 남긴다.
-	 *
-	 * <p>이 이벤트가 없어서 취향 벡터에 행동이 한 건도 안 들어가고 있었다. {@code event_outbox}
-	 * 가 통째로 비어 있었고, 접기 배치는 늘 {@code rebuilt=0} 이었다.
-	 *
-	 * <p>🔴 <b>요청이 아니라 반영을 적는다.</b> 이 이벤트는 {@code removeItem} 이 Job 을 만들 때가
-	 * 아니라 제외가 실제로 새 판에 들어가는 <b>recorder 트랜잭션</b>에서 난다. 일정이 그대로인데
-	 * 「이 장소를 거부했다」가 남으면 랭커는 일어나지 않은 일을 배운다.
+	 * 뺀 장소를 행동 신호로 남긴다.
+	 * 요청이 아니라 반영을 적는다 — 이 이벤트는 Job 을 만들 때가 아니라 제외가 실제로 새 판에
+	 * 들어가는 recorder 트랜잭션에서 난다. 일정이 그대로인데 「이 장소를 거부했다」가 남으면
+	 * 랭커는 일어나지 않은 일을 배운다.
 	 */
 	@Test
 	@DisplayName("🔴 항목을 빼면 itinerary_remove 가 남는다 — 벡터가 셀 행동 신호")
@@ -291,8 +281,8 @@ class ItineraryRecalculationIntegrationTest {
 		RecommendationJob job = runSynchronously(removeCommand(1, this.keyA));
 		assertThat(job.getJobStatus()).isEqualTo(JobStatus.SUCCEEDED);
 
-		// 🔴 이 여행의 것만 센다. 표 전체를 세면 같은 종류를 쓰는 다른 검사가 생기는 순간
-		//    이 검사가 그 검사 때문에 빨개진다 — 원인이 여기 있는 것처럼 보이면서.
+		// 이 여행의 것만 센다. 표 전체를 세면 같은 종류를 쓰는 다른 검사가 생기는 순간 이 검사가
+		//    그 검사 때문에 빨개진다 — 원인이 여기 있는 것처럼 보이면서.
 		List<java.util.Map<String, Object>> rows = this.jdbc.queryForList(
 				"SELECT aggregate_type, aggregate_id, user_id, trip_id, payload::text AS payload "
 						+ "FROM event_outbox WHERE event_type = ? AND trip_id = ?",
@@ -307,14 +297,11 @@ class ItineraryRecalculationIntegrationTest {
 	}
 
 	/**
-	 * 🔴 개인화를 끈 사람은 안 남긴다 — S15P21E201-549 의 규칙이 이 경로에도 걸리는지.
-	 *
-	 * <p>이 경로는 {@code RecommendationRecorder} 를 지나 {@code OutboxService} 를 직접 부르므로
-	 * {@code EventIngestService} 안의 동의 검사를 <b>안 지난다.</b> 그래서 명령을 조립하는 자리에서
-	 * 따로 거른다. 우회로 자체를 막는 것은 S15P21E201-1096 이다.
-	 *
-	 * <p>🔴 이 검사가 {@code PersonalizationFixture} 의 기본값({@code EXPLICIT_ONLY})을 그대로
-	 * 쓰는 것이 중요하다 — 위 검사가 일부러 켠 것과 짝이다.
+	 * 개인화를 끈 사람은 안 남긴다.
+	 * 이 경로는 {@code RecommendationRecorder} 를 지나 {@code OutboxService} 를 직접 부르므로
+	 * {@code EventIngestService} 안의 동의 검사를 안 지난다. 그래서 명령을 조립하는 자리에서 거른다.
+	 * 이 검사가 {@code PersonalizationFixture} 의 기본값({@code EXPLICIT_ONLY})을 그대로 쓰는 것이
+	 * 중요하다 — 위 검사가 일부러 켠 것과 짝이다.
 	 */
 	@Test
 	@DisplayName("🔴 행동 개인화를 끈 사람은 항목을 빼도 itinerary_remove 가 안 남는다")
@@ -325,7 +312,7 @@ class ItineraryRecalculationIntegrationTest {
 		RecommendationJob job = runSynchronously(removeCommand(1, this.keyA));
 		assertThat(job.getJobStatus()).isEqualTo(JobStatus.SUCCEEDED);
 
-		// 🔴 일정은 정상으로 바뀌어야 한다. 「안 적는다」가 「동작을 막는다」가 되면 안 된다.
+		// 일정은 정상으로 바뀌어야 한다. 「안 적는다」가 「동작을 막는다」가 되면 안 된다.
 		assertThat(content(2).exclusions()).extracting(ItineraryExclusion::placeId)
 				.containsExactly(this.placeA.toString());
 
@@ -342,8 +329,8 @@ class ItineraryRecalculationIntegrationTest {
 	}
 
 	/**
-	 * 제외 목록은 판에 매달려 복사된다 — 별도 조회 없이 "몇 번을 재계산해도 다시 안 나온다" 가 성립한다.
-	 * 재계산은 고정 항목(B)만 남기고 나머지를 비운 뒤 채운다.
+	 * 제외 목록은 판에 매달려 복사된다 — 별도 조회 없이 "몇 번을 재계산해도 다시 안 나온다" 가
+	 * 성립한다. 재계산은 고정 항목(B)만 남기고 나머지를 비운 뒤 채운다.
 	 */
 	@Test
 	@DisplayName("🔴 두 번째 재계산도 앞서 뺀 장소를 다시 넣지 않고, 고정 항목만 남긴다")
@@ -371,11 +358,10 @@ class ItineraryRecalculationIntegrationTest {
 	}
 
 	/**
-	 * 🔴 FR-ITN-09 — 계산이 끝났을 때 최신 판이 바탕 판과 다르면 결과를 버린다. FR-REC-09 — 실패하면
-	 * 이전 판이 그대로 최신이고 부분 반영은 없다.
-	 *
-	 * <p>부수기: {@code JpaItineraryRepository.appendVersion} 의 포인터 조건부 UPDATE 에서
-	 * {@code AND latest_version = ?} 을 빼면 낡은 결과가 3판으로 게시돼 여기서 빨개진다.
+	 * 계산이 끝났을 때 최신 판이 바탕 판과 다르면 결과를 버린다. 실패하면 이전 판이 그대로
+	 * 최신이고 부분 반영은 없다.
+	 * 부수기: {@code JpaItineraryRepository.appendVersion} 의 포인터 조건부 UPDATE 에서
+	 * {@code AND latest_version = ?} 을 빼면 낡은 결과가 3판으로 게시된다.
 	 */
 	@Test
 	@DisplayName("🔴 계산 중 다른 편집이 판을 올렸으면 결과를 버리고 ITINERARY_VERSION_CONFLICT 로 실패한다")
@@ -394,8 +380,7 @@ class ItineraryRecalculationIntegrationTest {
 		this.jdbc.update("UPDATE itineraries SET latest_version = 2 WHERE itinerary_id = ?", this.itineraryId);
 
 		new RecommendationJobWorker(this.jobRepository, this.recommendationService, this.recorder, this.clock,
-				// 진행률 보고(S15P21E201-193). 이 검사는 진행률을 보지 않지만 워커가 요구하므로
-				// 진짜 객체를 준다 — 보는 연결이 하나도 없으면 알림은 그냥 버려진다.
+				// 이 검사는 진행률을 보지 않지만 워커가 요구하므로 진짜 객체를 준다.
 				new JobProgressReporter(this.jobRepository, new JobProgressBroker()))
 				.execute(job, command);
 
@@ -403,7 +388,7 @@ class ItineraryRecalculationIntegrationTest {
 		assertThat(saved.getJobStatus()).isEqualTo(JobStatus.FAILED);
 		assertThat(saved.getErrorCode()).isEqualTo(RecommendationCodes.ERROR_ITINERARY_VERSION_CONFLICT);
 		assertThat(saved.isRetryable()).isTrue();
-		// 3판은 없다. 항목도, 제외도, 후보도 남지 않았다 — 한 트랜잭션이 통째로 되돌려졐다.
+		// 3판은 없다. 항목도, 제외도, 후보도 남지 않았다 — 한 트랜잭션이 통째로 되돌려졌다.
 		assertThat(latestVersionInDatabase()).isEqualTo(2);
 		assertThat(this.itineraryRepository.findVersion(this.itineraryId.toString(), 3)).isEmpty();
 		Integer candidateRows = this.jdbc.queryForObject(
@@ -412,11 +397,10 @@ class ItineraryRecalculationIntegrationTest {
 	}
 
 	/**
-	 * 요구사항 3.2 — 대체 후보가 0건이면 조건을 완화하지 않고 그 자리를 비운다. 편집 Job 은 그래도
-	 * <b>성공</b>이다 — 빈 자리가 정답이다. 사실은 판 경고로 남는다.
-	 *
-	 * <p>부수기: {@code RecommendationService.continueJob} 의 {@code && !editJob} 을 빼면 Job 이
-	 * NO_FEASIBLE_RESULT 로 실패해 여기서 빨개진다.
+	 * 대체 후보가 0건이면 조건을 완화하지 않고 그 자리를 비운다. 편집 Job 은 그래도 성공이다 —
+	 * 빈 자리가 정답이고, 사실은 판 경고로 남는다.
+	 * 부수기: {@code RecommendationService.continueJob} 의 {@code && !editJob} 을 빼면 Job 이
+	 * NO_FEASIBLE_RESULT 로 실패한다.
 	 */
 	@Test
 	@DisplayName("후보가 0건이면 그 자리를 비운 채 성공하고 RECALC_NO_CANDIDATE 를 판에 남긴다")

@@ -6,10 +6,8 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 사진 주소 스킴 — S15P21E201-1185. DB 없이 돈다.
- *
- * <p>여기 쓰는 주소는 <b>운영 API 가 실제로 준 것</b>이다(2026-09-17 `GET /api/v1/places/nearby`).
- * 지어낸 예로 검사하면 원천이 실제로 주는 모양과 어긋나도 초록이 된다.
+ * 여기 쓰는 주소는 운영 API 가 실제로 준 것이다. 지어낸 예로 검사하면 원천이 실제로 주는 모양과
+ * 어긋나도 초록이 된다.
  */
 class PhotoUrlSchemeTest {
 
@@ -33,8 +31,7 @@ class PhotoUrlSchemeTest {
 	@Test
 	@DisplayName("🔴 모르는 호스트는 안 건드린다 — 지원 여부를 안 재 봤다")
 	void leavesUnverifiedHostsAlone() {
-		// 🔴 https 가 되는지 재 보지 않은 호스트를 바꾸면, 지금 보이는 사진까지 깨진다.
-		//    「안 보이는 것을 고치려다 보이는 것을 깨뜨리는」 쪽이 더 나쁘다.
+		// https 가 되는지 재 보지 않은 호스트를 바꾸면 지금 보이는 사진까지 깨진다.
 		String other = "http://example.or.kr/photo.jpg";
 
 		assertThat(PhotoUrlScheme.secure(other)).isEqualTo(other);

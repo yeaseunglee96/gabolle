@@ -16,15 +16,12 @@ import jakarta.persistence.Table;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 
 /**
- * {@code itinerary_versions} 표 매핑 — S15P21E201-313.
- *
- * <p>🔴 {@code request_id} 는 {@link UUID} 가 아니라 {@link String} 이다 —
- * V150000 마이그레이션 주석 그대로다. 사용자 편집은 진짜 추천 요청에서 나온 것이
- * 아니라 컨트롤러가 편집마다 {@code "req_edit_<uuid>"} 형태로 새로 만든다.
- *
- * <p>🔴 {@code uq_itinerary_version UNIQUE (itinerary_id, version)} 이 이 클래스가
- * 지키려는 전부다 — {@link JpaItineraryRepository#append} 가 그 위반을
- * {@code StaleItineraryVersionException} 으로 바꾼다.
+ * {@code itinerary_versions} 표 매핑.
+ * {@code request_id} 는 {@link UUID} 가 아니라 {@link String} 이다 — 사용자 편집은 진짜 추천
+ * 요청에서 나온 것이 아니라 컨트롤러가 편집마다 {@code "req_edit_<uuid>"} 형태로 새로 만든다.
+ * {@code uq_itinerary_version UNIQUE (itinerary_id, version)} 이 이 클래스가 지키려는 전부다 —
+ * {@link JpaItineraryRepository#append} 가 그 위반을 {@code StaleItineraryVersionException} 으로
+ * 바꾼다.
  */
 @Entity
 @Table(name = "itinerary_versions")
@@ -54,8 +51,7 @@ public class ItineraryVersionJpaEntity {
 	private String requestId;
 
 	/**
-	 * 🔴 S15P21E201-604 — 추천이 진짜 판을 만들었을 때만 채워진다(V20260905120000).
-	 * {@code requestId}(VARCHAR)와 다른 칸이다 — 여기 주석 참고.
+	 * 추천이 진짜 판을 만들었을 때만 채워진다. {@code requestId}(VARCHAR)와 다른 칸이다.
 	 */
 	@Column(name = "source_request_id", updatable = false)
 	private UUID sourceRequestId;
@@ -79,9 +75,7 @@ public class ItineraryVersionJpaEntity {
 	private OffsetDateTime createdAt;
 
 	/**
-	 * 🔴 S15P21E201-249 — 판 전체에 대한 경고 코드. {@code ItineraryItemJpaEntity
-	 * .reasonCodes}·{@code .warningCodes} 와 같은 방식({@code @JdbcTypeCode(SqlTypes.ARRAY)})
-	 * 으로 매핑한다. 항목이 아예 없는 시간대에 대한 경고는 항목 행에 적을 자리가 없어
+	 * 판 전체에 대한 경고 코드. 항목이 아예 없는 시간대에 대한 경고는 항목 행에 적을 자리가 없어
 	 * 판에 적는다.
 	 */
 	@JdbcTypeCode(SqlTypes.ARRAY)
@@ -89,8 +83,7 @@ public class ItineraryVersionJpaEntity {
 	private String[] warningCodes;
 
 	/**
-	 * 🔴 S15P21E201-284 — 되돌리기(operation=REVERT)가 내용을 복사해 온 옛 판.
-	 * REVERT 가 아니면 {@code null}(V20260906140000·{@code ck_itinerary_version_reverted_from}).
+	 * 되돌리기(operation=REVERT)가 내용을 복사해 온 옛 판. REVERT 가 아니면 {@code null}.
 	 */
 	@Column(name = "reverted_from_version", updatable = false)
 	private Integer revertedFromVersion;

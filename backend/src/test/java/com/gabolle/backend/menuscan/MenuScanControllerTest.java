@@ -47,11 +47,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * S15P21E201-1025 — 메뉴판 읽기.
- *
- * <p>🔴 이 검사들이 지키는 것은 기능이 아니라 <b>안전</b>이다. 티켓 {@code -86} 이
- * «메뉴판을 찍으면 알레르기 주의를 볼 수 있다» 인데, 모델이 못 읽은 것을 화면이
- * 「없음」으로 그리면 <b>사람이 다친다.</b> 2026-09-16 에 고친 {@code -996} 과 같은 종류다.
+ * 메뉴판 읽기. 이 검사들이 지키는 것은 기능이 아니라 안전이다 — 모델이 못 읽은 것을 화면이
+ * «없음»으로 그리면 사람이 다친다.
  */
 class MenuScanControllerTest {
 
@@ -67,9 +64,8 @@ class MenuScanControllerTest {
 		this.properties = new MenuScanProperties();
 		this.properties.setApiKey("test-key");
 
-		// 한도 집계가 표로 옮겨 갔다 (S15P21E201-1038). 여기서는 그 표를 메모리로 흉내 내
-		// 「같은 사람이 창 안에서 몇 번 불렀나」 만 실제로 센다 — 이 시험이 보는 것은 한도가
-		// 걸렸을 때 429 가 나가는가이지 표가 어떻게 생겼는가가 아니다.
+		// 한도 집계 표를 메모리로 흉내 내 «같은 사람이 창 안에서 몇 번 불렀나»만 센다 —
+		// 이 시험이 보는 것은 한도가 걸렸을 때 429 가 나가는가다.
 		MenuScanUsageRepository usage = inMemoryUsage();
 		MenuScanRateLimiter limiter = new MenuScanRateLimiter(this.properties, usage,
 				Clock.fixed(Instant.parse("2026-09-16T12:00:00Z"), ZoneOffset.UTC));
@@ -123,12 +119,67 @@ class MenuScanControllerTest {
 		return new MockMultipartFile("image", "menu.jpg", "image/jpeg", bytes);
 	}
 
-	// ── 🔴 「없다」를 말할 수 없다 ────────────────────────────────────────────
+	// ── 줄을 이름과 가격으로 나눈다 ────────────────────────────────────────
+
+	@Test
+	@DisplayName("음식 줄은 이름과 가격이 따로 나간다")
+	void foodLineCarriesNameAndPrice() throws Exception {
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("돼지국밥 9,000원", "돼지국밥", "9,000원", "Pork and rice soup",
+						"Pork and rice soup 9,000 won", List.of("돼지고기"))), 0));
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.lines[0].name").value("돼지국밥"))
+				.andExpect(jsonPath("$.data.lines[0].price").value("9,000원"))
+				// 번역된 이름이 따로 나간다. 없으면 화면이 가격을 세 번 그린다 —
+				// 원문 줄에 한 번, 번역된 줄에 한 번, 가격 칸에 한 번.
+				.andExpect(jsonPath("$.data.lines[0].translatedName").value("Pork and rice soup"))
+				.andExpect(jsonPath("$.data.lines[0].translatedText").value("Pork and rice soup 9,000 won"))
+				// 원문 줄은 그대로 남는다 — 옛 앱 빌드가 이것만 읽는다
+				.andExpect(jsonPath("$.data.lines[0].text").value("돼지국밥 9,000원"));
+	}
 
 	/**
-	 * 🔴 이 검사가 이 기능의 핵심이다. 응답 모양에 «안전하다» 를 담을 칸이 <b>존재하면</b>
-	 * 언젠가 누군가 그린다. 칸이 없으면 그릴 수가 없다.
+	 * 가격을 숫자로 바꾸면 화면이 통화를 자기가 붙여야 하고, 그 순간 우리가 바꾼 값이 맞다고
+	 * 주장하는 것이 된다. 적힌 그대로 넘기면 틀릴 자리가 없다.
 	 */
+	@Test
+	@DisplayName("🔴 가격은 적힌 그대로 나간다 — 숫자로 바꾸지 않는다")
+	void priceIsNotNormalised() throws Exception {
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("밀면 8,500원", "밀면", "8,500원", "Wheat noodles",
+						"밀면 8,500원", List.of())), 0));
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.lines[0].price").value("8,500원"));
+	}
+
+	/**
+	 * 가게 이름과 안내문은 음식이 아니다. 여기서 {@code name} 을 채우면 화면이 그것을 메뉴로 그리고
+	 * 그림까지 만든다.
+	 */
+	@Test
+	@DisplayName("🔴 음식이 아닌 줄은 이름과 가격이 빈 문자열이다 — null 이 아니다")
+	void nonFoodLineHasEmptyNameAndPrice() throws Exception {
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("※ 모든 메뉴에 공깃밥이 포함됩니다", "", "", "",
+						"※ All menus include a bowl of rice", List.of())), 0));
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				// 칸이 사라지면 화면은 «아직 안 왔나»와 «음식이 아니다»를 못 가른다
+				.andExpect(jsonPath("$.data.lines[0].name").value(""))
+				.andExpect(jsonPath("$.data.lines[0].price").value(""));
+	}
+
+	// ── 「없다」를 말할 수 없다 ──────────────────────────────────────────────
+
+	/** 응답 모양에 «안전하다»를 담을 칸이 있으면 언젠가 누군가 그린다. */
 	@Test
 	@DisplayName("🔴 응답에 「안전·없음」을 담을 칸이 아예 없다")
 	void responseHasNoSafetyClaimField() {
@@ -147,7 +198,8 @@ class MenuScanControllerTest {
 	@DisplayName("🔴 사진에서 읽은 값은 언제나 ESTIMATED 다 — VERIFIED 를 붙이지 않는다")
 	void alwaysEstimated() throws Exception {
 		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
-				List.of(new MenuScanResponse.Line("새우튀김", "새우튀김", List.of("새우"))), 0));
+				List.of(new MenuScanResponse.Line("새우튀김 12,000원", "새우튀김", "12,000원", "Fried shrimp",
+						"새우튀김 12,000원", List.of("새우"))), 0));
 
 		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
 						.principal(principal(this.userId)))
@@ -156,15 +208,12 @@ class MenuScanControllerTest {
 				.andExpect(jsonPath("$.data.lines[0].allergenWords[0]").value("새우"));
 	}
 
-	/**
-	 * 🔴 못 읽은 줄이 0 이어도 「전부 안전」이 아니다. 서버는 그 사실을 <b>주장하지 않고</b>
-	 * 읽은 것만 준다 — 판단은 화면이 문구로 한다.
-	 */
+	/** 못 읽은 줄이 0 이어도 «전부 안전»이 아니다. 서버는 읽은 것만 주고 주장하지 않는다. */
 	@Test
 	@DisplayName("🔴 알레르기 낱말을 못 찾아도 「없음」이라고 답하지 않는다")
 	void nothingFoundIsNotAClaimOfSafety() throws Exception {
 		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
-				List.of(new MenuScanResponse.Line("김밥", "김밥", List.of())), 0));
+				List.of(new MenuScanResponse.Line("김밥", "김밥", "", "Gimbap", "김밥", List.of())), 0));
 
 		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
 						.principal(principal(this.userId)))
@@ -175,7 +224,7 @@ class MenuScanControllerTest {
 				.andExpect(jsonPath("$.data.hasAllergen").doesNotExist());
 	}
 
-	// ── 🔴 실패를 빈 결과로 바꾸지 않는다 ────────────────────────────────────
+	// ── 실패를 빈 결과로 바꾸지 않는다 ──────────────────────────────────────
 
 	@Test
 	@DisplayName("🔴 설정이 없으면 빈 목록이 아니라 503 이다")
@@ -217,7 +266,7 @@ class MenuScanControllerTest {
 		verify(this.reader, never()).read(any(), any());
 	}
 
-	// ── 🔴 위치 정보를 지우고 보낸다 ─────────────────────────────────────────
+	// ── 위치 정보를 지우고 보낸다 ──────────────────────────────────────────
 
 	/** 촬영 정보가 들어가는 칸(EXIF)을 흉내 내 원본에 심는다. 눈에 띄는 표식을 넣어 뒤에서 찾는다. */
 	private static final String GPS_MARKER = "GPS-SECRET-DO-NOT-LEAK";
@@ -242,12 +291,10 @@ class MenuScanControllerTest {
 	}
 
 	/**
-	 * 🔴 개인정보 처리방침에 <b>「보내기 전에 촬영 위치 정보를 지운다」</b> 가 적혀 있다.
-	 * 원본 바이트가 그대로 모델에 가면 <b>방침이 거짓이 된다.</b>
+	 * 개인정보 처리방침에 «보내기 전에 촬영 위치 정보를 지운다»가 적혀 있다.
 	 *
-	 * <p>«바이트가 달라졌다» 로 재지 않는다 — 흰 사진은 다시 써도 바이트가 같아질 수 있어
-	 * 그 검사는 <b>통과해도 아무것도 증명하지 못한다.</b> 대신 원본에 표식을 심고
-	 * <b>그 표식이 사라졌는지</b> 를 본다.
+	 * <p>«바이트가 달라졌다»로 재지 않는다 — 흰 사진은 다시 써도 바이트가 같아질 수 있어 그 검사는
+	 * 통과해도 아무것도 증명하지 못한다. 대신 원본에 표식을 심고 그 표식이 사라졌는지를 본다.
 	 */
 	@Test
 	@DisplayName("🔴 사진에 딸려 온 촬영 정보는 모델에게 가지 않는다")

@@ -20,16 +20,11 @@ import com.gabolle.backend.place.loader.TruthSignalReader;
 import com.gabolle.backend.place.loader.TruthSignalRow;
 
 /**
- * 목록 근거 파일을 읽는 규칙 — S15P21E201-826.
+ * 목록 근거 파일을 읽는 규칙. 상주 표본 77줄은 실제 파일
+ * ({@code bigData/data/staged/truth-linked.ndjson})에서 다섯 목록을 전부 덮도록 뽑았다 —
+ * 목록마다 무게가 다르므로 어휘를 다 덮지 않으면 무게를 재는 검사가 성립하지 않는다.
  *
- * <h2>표본 77줄 상주</h2>
- * 실제 파일({@code bigData/data/staged/truth-linked.ndjson}, 417줄)에서 <b>다섯 목록을 전부
- * 덮도록</b> 뽑았다 — 공개글448 49 · 블루리본 20 · 블로그100 14 · 백년가게 14 · 택슐랭 13.
- * 목록 둘 이상에 오른 줄과 글 지목이 많은 줄도 함께 넣었다. 목록마다 무게가 다르므로
- * 어휘를 다 덮지 않으면 그 무게를 재는 검사가 성립하지 않는다.
- *
- * <p>이 저장소는 건너뛴 검사가 하나라도 있으면 CI 가 빨개지므로 조건부로 건너뛰지 않는다.
- * 전체 파일로 재고 싶으면 {@code GABOLLE_TRUTH_SIGNALS} 에 경로를 준다.
+ * <p>전체 파일로 재려면 {@code GABOLLE_TRUTH_SIGNALS} 에 경로를 준다.
  */
 class TruthSignalReaderTest {
 
@@ -62,8 +57,8 @@ class TruthSignalReaderTest {
 		TruthSignalReader.Counts[] counts = new TruthSignalReader.Counts[1];
 		List<TruthSignalRow> rows = readAll(sampleFile(), counts);
 
-		// 처음에는 sourceCount 만 봤고, 그 칸은 「공개글448」에만 붙어서 블루리본·택슐랭·
-		// 백년가게·블로그100 에만 오른 곳이 통째로 빠졌다. 표본 77줄 전부 목록이 있다.
+		// 표본 77줄 전부 오른 목록이 있다. sourceCount 칸은 「공개글448」에만 붙으므로
+		// 그 칸만 보면 다른 목록에만 오른 곳이 통째로 빠진다.
 		assertThat(counts[0].total()).isEqualTo(77);
 		assertThat(counts[0].usable()).isEqualTo(77);
 		assertThat(counts[0].skippedNoSignal()).isZero();
@@ -86,8 +81,7 @@ class TruthSignalReaderTest {
 		TruthSignalReader.Counts[] counts = new TruthSignalReader.Counts[1];
 		List<TruthSignalRow> rows = readAll(file, counts);
 
-		// 0 은 "안 유명하다" 는 관측이고 없는 것은 "안 세어 봤다" 는 무지다. 점수기는
-		// 값이 없으면 그 축을 빼고, 0 이면 0 을 곱한다 — 둘은 다른 결과를 낸다.
+		// 점수기는 값이 없으면 그 축을 빼고 0 이면 0 을 곱한다 — 둘은 다른 결과를 낸다.
 		assertThat(rows).isEmpty();
 		assertThat(counts[0].skippedNoSignal()).isEqualTo(2);
 	}
@@ -167,8 +161,7 @@ class TruthSignalReaderTest {
 		String path = System.getenv("GABOLLE_TRUTH_SIGNALS");
 		Path file = (path == null || path.isBlank()) ? null : Path.of(path);
 		if (file == null || !Files.isRegularFile(file)) {
-			// 전체 파일은 bigData 쪽 브랜치에 있어 대부분의 PC 와 CI 에는 없다. 없으면
-			// 표본으로 대신 재고, 이 검사가 조건부로 건너뛰지 않게 한다.
+			// 전체 파일은 대부분의 PC 와 CI 에 없다. 건너뛰지 않고 표본으로 대신 잰다.
 			file = sampleFile();
 		}
 		TruthSignalReader.Counts[] counts = new TruthSignalReader.Counts[1];

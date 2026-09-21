@@ -11,25 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 한 배치가 무엇을 했는지 — MLOps Phase 1.
+ * 한 배치가 무엇을 했는지. 성공·실패 두 칸으로 뭉치지 않고 갈래별로 센다 — {@code rebuilt} 가
+ * 날마다 사람 수만큼 나오면 접는 규칙이 흔들리는 것이고, {@code failed} 가 0 이 아니면 몇 명이
+ * 낡은 채로 남은 것인데 뭉치면 둘 다 안 보인다.
  *
- * <h2>🔴 갈래를 세어서 돌려준다. "성공 N 건" 이 아니다</h2>
- *
- * 부르는 쪽(Airflow)이 이 수를 보고 판단해야 하는 것이 둘 있다.
- *
- * <ul>
- * <li><b>{@code rebuilt} 가 날마다 사람 수만큼 나온다</b> — 접는 규칙이 무언가에 흔들리고
- * 있다는 뜻이다. 설문이 안 바뀌었으면 판은 안 늘어야 한다</li>
- * <li><b>{@code failed} 가 0 이 아니다</b> — 몇 명이 조용히 낡은 채로 남았다는 뜻이다.
- * "배치는 성공" 이라고만 적으면 이 사실이 사라진다</li>
- * </ul>
- *
- * 성공·실패 두 칸으로 뭉치면 둘 다 안 보인다.
- *
- * @param asOf 어느 시각까지를 본 배치인가. 재현할 때 이 값이 있어야 같은 배치를 다시 돌린다
- * @param actions 갈래별 건수
+ * @param asOf 어느 시각까지를 본 배치인가. 이 값이 있어야 같은 배치를 다시 돌린다
  * @param failedUserIds 실패한 사람. 다음 실행에서 다시 걸리므로 여기서 재시도하지 않는다
- * @param failures 실패 이유 (사람이 읽는 용도. 스택은 로그에 있다)
+ * @param failures 실패 이유. 스택은 로그에 있다
  */
 public record TasteVectorBatchReport(OffsetDateTime asOf, Map<TasteVectorFoldOutcome.Action, Integer> actions,
 		List<UUID> failedUserIds, List<String> failures) {
@@ -75,11 +63,8 @@ public record TasteVectorBatchReport(OffsetDateTime asOf, Map<TasteVectorFoldOut
 		}
 
 		/**
-		 * 한 사람의 실패를 적는다. 배치는 계속 간다.
-		 *
-		 * <p>🔴 스택 추적은 <b>로그에만</b> 남긴다. 응답에 실으면 내부 클래스 이름과 SQL 이
-		 * 그대로 나가는데, 이 API 는 기계가 부르는 것이라 아무도 그것을 읽지 않고
-		 * 그냥 Airflow 로그에 쌓인다.
+		 * 한 사람의 실패를 적는다. 배치는 계속 간다. 스택 추적은 로그에만 남긴다 — 응답에
+		 * 실으면 내부 클래스 이름과 SQL 이 그대로 나간다.
 		 */
 		void recordFailure(UUID userId, RuntimeException ex) {
 			log.error("취향 벡터 접기 실패 user={} asOf={}", userId, this.asOf, ex);

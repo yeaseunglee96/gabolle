@@ -18,42 +18,20 @@ import com.gabolle.backend.story.repository.StoryReactionRepository;
 import com.gabolle.backend.story.repository.StoryRepository;
 
 /**
- * 기록(글)에 좋아요·싫어요를 단다.
+ * 기록(글)에 좋아요·싫어요를 단다. 글에는 「나중에 보려고 저장」이 없고 화면의 하트가 곧 좋아요라
+ * 종류가 둘뿐이고 표도 하나다.
  *
- * <h2>🔴 하트는 좋아요의 다른 이름이다</h2>
+ * <p>볼 수 있는 글에만 단다. {@code findVisibleById} 는 지워졌거나 신고로 감춰진 글만 걸러 내고
+ * 공개 범위는 {@link StoryVisibilityPolicy} 가 본다. 둘을 함께 걸지 않으면 남의 나만 보기 글 번호를
+ * 아는 사람이 반응을 눌러 보고 200 이냐 404 냐로 그 글의 존재를 알아낼 수 있다. 그래서 볼 수 없을 때
+ * 「없다」와 같은 예외를 낸다 — 다르게 내면 그 차이 자체가 신호다.
  *
- * 장소 쪽은 감정({@code PLACE_LIKE}·{@code PLACE_DISLIKE})과 저장({@code saved_place} 하트)이
- * 따로지만, 글에는 「나중에 보려고 저장」이 없고 화면의 하트가 곧 좋아요다. 그래서 종류가
- * 둘뿐이고 표도 하나다.
+ * <p>자기 글에는 못 단다. 기준은 「만든 사람」이 아니라 「함께 쓰는 사람」이다 — 작성자만 막으면
+ * 둘이 서로를 초대해 놓고 서로의 글에 누르는 것과 구분이 안 된다.
  *
- * <h2>🔴 볼 수 있는 글에만 단다 — 여기가 이 클래스에서 제일 쉽게 새는 자리였다</h2>
- *
- * {@code findVisibleById} 는 <b>지워졌거나 신고로 감춰진 글</b>만 걸러 낸다. 공개 범위(나만
- * 보기·팔로워 전용)는 그 질의가 모른다 — 그 판정은 {@link StoryVisibilityPolicy} 가 한다.
- * 처음 쓸 때 그것을 빼먹었고, 그러면 <b>남의 나만 보기 글 번호를 아는 사람이 반응을 눌러 보고
- * 200 이냐 404 냐로 그 글의 존재를 알아낼 수 있다.</b> {@code StoryReportService} 가 막으려던
- * 것과 같은 샛길이다(S15P21E201-254). 그래서 볼 수 없으면 <b>「없다」와 같은 예외</b>를 낸다 —
- * 다르게 내면 그 차이 자체가 신호다.
- *
- * <h2>🔴 자기 글에는 못 단다 — 「만든 사람」이 아니라 「함께 쓰는 사람」이 기준이다</h2>
- *
- * 인기순이 붙는 순간 자기 글을 올리는 길이 되기 때문이다. 공동 작성자도 막는다 — 작성자만
- * 막으면 <b>둘이 서로를 초대해 놓고 서로의 글에 누르는 것</b>과 구분이 안 되는데, 그건 사실상
- * 같은 사람이 자기 글을 올리는 것이다. 화면에서 막는 것으로는 부족하다 — 막는 쪽이 화면뿐이면
- * 요청을 직접 만들어 보내는 것으로 지나간다.
- *
- * <h2>🔴 이벤트는 (글, 사람, 종류)당 하나다</h2>
- *
- * 「좋아요를 눌렀다」는 되풀이되는 사건이 아니라 <b>사실</b>이다 — 같은 사람이 같은 글을 두 번
- * 좋아한다는 것은 뜻이 없다. 그래서 상한이 하나다.
- *
- * <p>문이 둘이라 잠금도 둘이다. 앞의 것({@code upsert} 의 반환값)은 <b>같은 값 재전송</b>을
- * 막고, 뒤의 것({@code markLikeRecorded})은 <b>껐다 켰다</b>를 막는다. 앞의 것만 있던 때
- * 하트를 5번 껐다 켜면 {@code story_like} 가 5건 쌓였다 — 취소가 행을 지워서 다음 좋아요가
- * 언제나 「처음」이 됐기 때문이다. 그래서 지금은 취소해도 행이 남는다.
- *
- * <p>두 판정 모두 <b>DB 안에서 원자적으로</b> 일어난다 — {@code SavedPlaceService} 가
- * {@code insertIfAbsent} 의 반환값으로 같은 종류의 판단을 하는 것과 같다(S15P21E201-1037).
+ * <p>이벤트는 (글, 사람, 종류)당 하나다. 그래서 잠금이 둘이다 — {@code upsert} 의 반환값이 같은 값
+ * 재전송을 막고, {@code markLikeRecorded} 가 껐다 켰다를 막는다. 뒤의 것이 없으면 취소가 행을 지워서
+ * 다음 좋아요가 언제나 「처음」이 되고, 껐다 켠 횟수만큼 이벤트가 쌓인다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -85,10 +63,9 @@ public class StoryReactionService {
 	/**
 	 * 반응을 단다. 이미 같은 값이면 아무것도 안 바뀐다.
 	 *
-	 * @throws StoryService.StoryNotFoundException 없는 글이거나 볼 수 없는 글이다. 🔴 「없다」와 「못 본다」를
-	 *     같은 예외로 낸다 — 다르게 내면 그 차이가 「있는데 너는 못 본다」는 신호가 된다
+	 * @throws StoryService.StoryNotFoundException 없는 글이거나 볼 수 없는 글이다. 둘을 같은 예외로 낸다
 	 * @throws com.gabolle.backend.story.domain.UserBlock.BlockedByUserException 글쓴이가 나를 차단했다 —
-	 *     403. 한 글을 지목해 여는 경로라 조용히 빼지 않고 알린다({@code BlockService.requireNotBlockedBy})
+	 *     403. 한 글을 지목해 여는 경로라 조용히 빼지 않고 알린다
 	 * @throws OwnReactionNotAllowedException 내가 함께 쓰는 글이다
 	 */
 	@Transactional
@@ -96,17 +73,14 @@ public class StoryReactionService {
 		requireReactable(userId, storyId);
 
 		int changed = this.reactions.upsert(storyId, userId, reaction.name(), OffsetDateTime.now(this.clock));
-		// 🔴 안 바뀌었으면(0) 여기서 끝난다. 앱의 재시도는 사건이 아니다.
+		// 안 바뀌었으면(0) 여기서 끝난다. 앱의 재시도는 사건이 아니다.
 		if (changed != 1) {
 			return;
 		}
 
-		// 🔴 표가 바뀌었다고 이벤트를 남기는 것이 아니다. 「이 사람이 이 글에 이 종류를
-		//    처음 남기는가」를 한 번 더 묻는다 — 그 답을 DB 가 원자적으로 준다.
-		//
-		//    이 한 줄이 없으면 하트를 껐다 켰다 하는 것만으로 story_like 가 몇 건이든
-		//    쌓인다(실제로 5번에 5건이었다). 그 신호를 개인화가 행동 이력으로 읽으므로,
-		//    손가락질 몇 번으로 자기 이력을 임의로 부풀릴 수 있었다.
+		// 표가 바뀌었다고 이벤트를 남기는 것이 아니다. 「이 사람이 이 글에 이 종류를 처음
+		// 남기는가」를 DB 에 한 번 더 묻는다. 이것이 없으면 하트를 껐다 켜는 것만으로 이벤트가
+		// 쌓이고, 개인화가 그것을 행동 이력으로 읽는다.
 		int firstTime = (reaction == ReactionType.LIKE)
 				? this.reactions.markLikeRecorded(storyId, userId)
 				: this.reactions.markDislikeRecorded(storyId, userId);
@@ -118,22 +92,17 @@ public class StoryReactionService {
 	/**
 	 * 반응을 취소한다.
 	 *
-	 * <p>🔴 <b>안 눌렀던 것을 취소해도 성공이다.</b> 이미 취소된 뒤에 재시도가 도착하는 일이
-	 * 흔하고, 그때 404 를 내면 화면은 「취소됐는데 못 취소했다고 한다」를 그린다.
+	 * <p>안 눌렀던 것을 취소해도 성공이다. 이미 취소된 뒤에 재시도가 도착하는 일이 흔하고, 그때
+	 * 404 를 내면 화면은 「취소됐는데 못 취소했다고 한다」를 그린다.
 	 *
-	 * <p>🔴 <b>볼 수 있는지는 여기서 안 따진다.</b> 지우는 것은 <b>내가 남긴 내 행</b>을 지우는
-	 * 것이라, 글이 그 사이 나만 보기로 바뀌었거나 글쓴이가 나를 차단했어도 취소는 되어야 한다.
-	 * 여기서 막으면 <b>한 번 누른 사람이 영영 못 무르는</b> 상태가 만들어진다. 볼 수 없는 글의
-	 * 번호로 아무거나 불러 봐도 결과가 언제나 같으므로(성공) 존재가 새지도 않는다.
+	 * <p>볼 수 있는지는 여기서 안 따진다. 내가 남긴 내 행을 지우는 것이라, 글이 그 사이 나만 보기로
+	 * 바뀌었거나 글쓴이가 나를 차단했어도 취소는 되어야 한다. 결과가 언제나 성공이라 존재가 새지도 않는다.
 	 *
-	 * <p>🔴 <b>취소는 이벤트를 안 남긴다.</b> 「좋아요를 눌렀다」는 일어난 사건이고, 취소는
-	 * 그 사건을 되돌리는 것이 아니라 현재 상태를 바꾸는 것이다. 취소까지 행동 신호로 남기면
-	 * 눌렀다 취소한 사람이 안 누른 사람보다 신호가 많아진다. 현재 상태는 표가 들고 있다.
+	 * <p>취소는 이벤트를 안 남긴다. 취소까지 행동 신호로 남기면 눌렀다 취소한 사람이 안 누른 사람보다
+	 * 신호가 많아진다. 현재 상태는 표가 들고 있다.
 	 *
-	 * <p>🔴 <b>행을 지우지 않고 종류만 비운다.</b> 행이 사라지면 「이 사람이 이 글에 좋아요를
-	 * 남긴 적이 있다」는 사실도 함께 사라지고, 그러면 다시 누르는 것이 처음 누른 것과 구분되지
-	 * 않아 이벤트가 또 나간다 — 껐다 켰다를 반복하면 그만큼 쌓인다
-	 * ({@code StoryReactionRepository.markLikeRecorded}).
+	 * <p>행을 지우지 않고 종류만 비운다. 행이 사라지면 다시 누르는 것이 처음 누른 것과 구분되지 않아
+	 * 이벤트가 또 나간다.
 	 */
 	@Transactional
 	public void remove(UUID userId, UUID storyId) {
@@ -155,8 +124,8 @@ public class StoryReactionService {
 
 	private void record(UUID userId, UUID storyId, ReactionType reaction) {
 		EventType type = (reaction == ReactionType.LIKE) ? EventType.STORY_LIKE : EventType.STORY_DISLIKE;
-		// 🔴 개인화를 끈 사람은 여기서 안 걸러도 된다 — recordFromServer 안의
-		//    collectsBehaviorOf 가 이미 한다(S15P21E201-549). 두 곳에 두면 어긋난다.
+		// 개인화를 끈 사람은 여기서 안 걸러도 된다 — recordFromServer 안의 collectsBehaviorOf 가
+		// 이미 한다. 두 곳에 두면 어긋난다.
 		this.events.recordFromServer(UUID.randomUUID(), type, 1, userId, null, null,
 				Map.of("storyId", storyId.toString()));
 	}

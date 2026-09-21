@@ -26,15 +26,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * {@link BaselineCandidateTranslator} — 대조표 → 질의 조건 (S15P21E201-604).
- *
- * <p>스텁 code-map 으로 돈다. {@link UserPlaceCodeMapRepository} 는 인터페이스라 실제 DB 없이도
- * Mockito 로 흉내 낼 수 있다.
+ * {@link BaselineCandidateTranslator} — 대조표 → 질의 조건. 스텁 code-map 으로 돈다.
+ * {@link UserPlaceCodeMapRepository} 는 인터페이스라 실제 DB 없이 Mockito 로 흉내 낸다.
  */
 class BaselineCandidateTranslatorTest {
 
-	// 🔴 상한이 둘이다 (S15P21E201-724). 앞의 9000 이 채점 대상(장소 조회에 넘어가는 limit),
-	//    뒤의 150 은 채점을 마친 뒤 남길 수다. 이 변환기는 앞의 것만 쓴다.
+	// 상한이 둘이다. 앞의 9000 이 채점 대상(장소 조회에 넘어가는 limit), 뒤의 150 은 채점을
+	// 마친 뒤 남길 수다. 이 변환기는 앞의 것만 쓴다.
 	private static final BaselineEngineProperties PROPERTIES = new BaselineEngineProperties(
 			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", 4000, 9000, 150, null, null);
 
@@ -54,9 +52,8 @@ class BaselineCandidateTranslatorTest {
 		assertThat(request.center().lat()).isEqualTo(35.15);
 		assertThat(request.center().lng()).isEqualTo(129.05);
 		assertThat(request.radiusM()).isEqualTo(4000);
-		// 🔴 150(=candidateLimit) 이 아니라 9000(=candidateScanLimit) 이어야 한다.
-		//    장소 조회는 점수를 모르므로 limit 을 거리순으로 자른다 — 여기에 150 을 주면
-		//    채점기는 가까운 150곳만 보게 된다 (S15P21E201-724).
+		// 150(=candidateLimit) 이 아니라 9000(=candidateScanLimit) 이어야 한다. 장소 조회는
+		// 점수를 모르므로 limit 을 거리순으로 자르고, 150 을 주면 가까운 150곳만 채점된다.
 		assertThat(request.limit()).isEqualTo(9000);
 	}
 
@@ -132,9 +129,8 @@ class BaselineCandidateTranslatorTest {
 	}
 
 	/**
-	 * 🔴 S15P21E201-550 — 중심 좌표를 여행에서 읽는 대신 {@code RequestLocation} 으로
-	 * 받게 바뀌었다. 이 테스트들은 "요청이 위치를 안 준" 경우를 보므로 여행 출발지에서
-	 * 만든다 — 엔진이 실제로 하는 것과 같다.
+	 * 이 테스트들은 요청이 위치를 안 준 경우를 보므로 중심 좌표를 여행 출발지에서 만든다 —
+	 * 엔진이 실제로 하는 것과 같다.
 	 */
 	private static RequestLocation originOf(Trip trip) {
 		return RequestLocation.ofTripOrigin(trip.originLat(), trip.originLng(), trip.createdAt());

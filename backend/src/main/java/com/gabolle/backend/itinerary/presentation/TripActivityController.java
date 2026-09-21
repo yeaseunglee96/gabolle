@@ -18,10 +18,9 @@ import com.gabolle.backend.itinerary.presentation.dto.TripActivityResponse;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
- * {@code GET /api/v1/trips/{tripId}/activity} — 여행의 최근 변경 (2026-09-07, 협업 화면).
- *
- * <p>경로는 여행 밑에 있지만 읽는 것은 일정의 판이라 {@code itinerary} 패키지에 둔다.
- * {@code TripController}({@code /api/v1/trips}) 와 매핑이 겹치지 않는다 — 그쪽은 {@code /{tripId}} 만 받는다.
+ * {@code GET /api/v1/trips/{tripId}/activity} — 여행의 최근 변경.
+ * 경로는 여행 밑에 있지만 읽는 것은 일정의 판이라 {@code itinerary} 패키지에 둔다.
+ * {@code TripController} 와 매핑이 겹치지 않는다 — 그쪽은 {@code /{tripId}} 만 받는다.
  */
 @RestController
 @RequestMapping("/api/v1/trips/{tripId}")

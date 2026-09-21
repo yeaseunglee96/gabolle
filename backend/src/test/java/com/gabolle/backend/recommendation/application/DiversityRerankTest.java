@@ -25,13 +25,8 @@ import com.gabolle.backend.recommendation.support.FakeRecommendationEngine;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * 다양성 재정렬과 기여 축 (S15P21E201-548). 도커 없이 도는 단위 테스트다.
- *
- * <p>🔴 완료 기준 첫 줄이 <i>"한 지역·카테고리의 상위 결과 독점이 기준 이하로 내려간다"</i>
- * 인데, 그것을 <b>실제 데이터로는 아직 잴 수 없다</b>(이 저장소에 {@code place} 행이 없다).
- * 그래서 독점 상황을 여기서 만들어 놓고 재정렬이 그것을 실제로 깨는지 본다 — 장치가
- * 동작한다는 증거까지가 지금 낼 수 있는 것이고, 실데이터 분포는 데이터가 들어온 뒤의
- * 측정이다.
+ * 다양성 재정렬과 기여 축. 도커 없이 도는 단위 테스트다. 실데이터 분포로는 아직 잴 수 없어
+ * 독점 상황을 여기서 만들어 놓고 재정렬이 그것을 깨는지 본다.
  */
 class DiversityRerankTest {
 
@@ -59,10 +54,8 @@ class DiversityRerankTest {
 	@Test
 	@DisplayName("🔴 독점 지표가 재정렬 뒤에 내려간다 — before/after 가 함께 남는다")
 	void 독점_지표가_내려간다() {
-		// 🔴 점수를 가깝게 둔다. 벌점(기본 0.05+0.05)은 <b>점수 차가 그보다 작을 때만</b>
-		//    순서를 바꾼다 — 0.30 차이는 못 뒤집는다. 그리고 그것이 맞는 동작이다: 상위
-		//    후보들이 한 카테고리로 몰리는 것은 애초에 점수가 서로 비슷해서이고, 큰 차이를
-		//    다양성으로 뒤집으면 "덜 맞는 곳" 을 위로 올리는 셈이 된다.
+		// 점수를 가깝게 둔다. 벌점(기본 0.05+0.05)은 점수 차가 그보다 작을 때만 순서를
+		// 바꾼다 — 0.30 차이는 못 뒤집고, 그것이 맞는 동작이다.
 		List<EngineCandidate> candidates = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
 			candidates.add(candidate("CAFE", 35.15, 129.05, 0.90 - (i * 0.01)));
@@ -206,8 +199,7 @@ class DiversityRerankTest {
 			Map<String, Object> scoreComponents) {
 		Map<String, Object> features = new LinkedHashMap<>();
 		features.put("category", category);
-		// 🔴 좌표가 아니라 굵은 구역 번호다 — 채점기가 그렇게 넣는다(정밀 좌표는
-		//    feature_values 에 들어가지 않는다).
+		// 좌표가 아니라 굵은 구역 번호다 — 정밀 좌표는 feature_values 에 들어가지 않는다.
 		features.put("localityBucket", Math.round(lat * 100) + ":" + Math.round(lng * 100));
 		return new EngineCandidate(UUID.randomUUID(), "BASELINE_PLACE_QUERY", ConstraintVerdict.PASS,
 				List.of(), List.of(), null, features, scoreComponents, score, List.of(), List.of());

@@ -26,14 +26,9 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 장소 매핑이 실제 표와 맞는가 — S15P21E201-462·-473 의 토대.
- *
- * <p>🔴 이 클래스가 뜨는 것 자체가 검사의 절반이다. {@link PlacePostgresIntegrationTest} 가
- * {@code ddl-auto=validate} 로 돌기 때문에, 엔티티가 칼럼 하나라도 틀리면 컨텍스트가 아예 안 뜬다.
- * 배포에서 처음 드러나던 어긋남을 여기로 당겨 놓은 것이다.
- *
- * <p>나머지 절반은 <b>UNKNOWN 을 "있다" 로 세지 않는가</b> 다. 그것이 -473 의 완료 기준
- * "그 갈래의 표식이 없는 장소가 섞이지 않는다" 를 지탱한다.
+ * 장소 매핑이 실제 표와 맞는가. 이 클래스가 뜨는 것 자체가 검사의 절반이다 —
+ * {@link PlacePostgresIntegrationTest} 가 {@code ddl-auto=validate} 로 돌아서 엔티티가 칼럼 하나라도
+ * 틀리면 컨텍스트가 안 뜬다. 나머지 절반은 UNKNOWN 을 "있다" 로 세지 않는가다.
  */
 class PlaceMappingIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -58,7 +53,7 @@ class PlaceMappingIntegrationTest extends PlacePostgresIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. PlaceFeatureCodeMapTest(-545)가 같은 표에 행을 남기고 정리하지 않는다.
+		// 표를 통째로 비우지 않는다 — 다른 테스트가 같은 표에 행을 남긴다.
 		this.fixture.cleanUp();
 	}
 
@@ -110,7 +105,7 @@ class PlaceMappingIntegrationTest extends PlacePostgresIntegrationTest {
 		PlaceFeature unknown = features.stream()
 				.filter(f -> "SLOPE_PERCENT".equals(f.getFeatureType())).findFirst().orElseThrow();
 		assertThat(unknown.getEvidenceStatus()).isEqualTo(PlaceEvidenceStatus.UNKNOWN);
-		// 🔴 DB CHECK 가 강제하는 것 — 모른다에는 값이 없다.
+		// DB CHECK 가 강제한다 — UNKNOWN 에는 값이 없다.
 		assertThat(unknown.getValue()).isNull();
 		assertThat(unknown.indicatesPresence()).isFalse();
 	}
@@ -138,8 +133,7 @@ class PlaceMappingIntegrationTest extends PlacePostgresIntegrationTest {
 		UUID b = this.fixture.insertPlace("세는곳나", null, "ATTRACTION", 35.1, 129.0);
 		this.fixture.insertTagFeature(b, "CUISINE_TAG", "SEAFOOD", "UNKNOWN", null);
 
-		// 🔴 건수는 DB 가 아니라 자바에서 센다. JPQL 로는 JSONB 값을 못 봐서 "확인된 부재" 를
-		//    빼지 못하기 때문이다. 여기서는 그 규칙이 실제로 적용되는지를 본다.
+		// 건수는 DB 가 아니라 자바에서 센다 — JPQL 로는 JSONB 값을 못 봐서 "확인된 부재" 를 못 뺀다.
 		List<UUID> counted = this.placeFeatureRepository.findByFeatureTypeIn(List.of("CUISINE_TAG")).stream()
 				.filter(feature -> "SEAFOOD".equals(feature.getFeatureKey()))
 				.filter(PlaceFeature::indicatesPresence)
@@ -147,7 +141,7 @@ class PlaceMappingIntegrationTest extends PlacePostgresIntegrationTest {
 				.distinct()
 				.toList();
 
-		// 남이 남긴 행이 있을 수 있어 절대값이 아니라 포함 여부로 본다.
+		// 다른 테스트가 남긴 행이 있을 수 있어 절대값이 아니라 포함 여부로 본다.
 		assertThat(counted).contains(a).doesNotContain(b);
 		List<Place> having = this.placeRepository.findHavingFeature("CUISINE_TAG", "SEAFOOD", Limit.of(500));
 		assertThat(having).extracting(Place::getPlaceId).contains(a).doesNotContain(b);
@@ -159,13 +153,12 @@ class PlaceMappingIntegrationTest extends PlacePostgresIntegrationTest {
 		List<UserPlaceCodeMap> preferences =
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.PREFERENCE);
 
-		// -545 마이그레이션이 취향 여덟을 넣어 뒀다. 자바에는 그 목록이 없다.
+		// 마이그레이션이 취향 여덟을 넣어 뒀다. 자바에는 그 목록이 없다.
 		assertThat(preferences).extracting(UserPlaceCodeMap::getUserInputCode)
 				.contains("CATEGORY", "ATMOSPHERE", "LOCALITY", "QUIETNESS",
 						"TOURIST_PREFERENCE", "FOOD_PREFERENCE", "SLOPE_PREFERENCE", "SHADE_PREFERENCE");
-		// 🔴 CATEGORY 는 이제 CATEGORY_TAG 를 가리킨다 (S15P21E201-904). 전에는 INTEREST_TAG 를
-		//    가리켰고, 그래서 둘러보기 화면이 취향 CATEGORY 줄에 얹혀 나왔다 — 그 바람에 온보딩
-		//    여섯 낱말과 둘러보기 여덟 낱말이 한 서랍에 섞였다.
+		// CATEGORY 는 INTEREST_TAG 가 아니라 CATEGORY_TAG 를 가리킨다 — 온보딩 낱말과
+		// 둘러보기 낱말이 한 서랍에 섞이지 않게 하는 자리다.
 		assertThat(preferences).extracting(UserPlaceCodeMap::getPlaceFeatureType).contains("CATEGORY_TAG");
 	}
 

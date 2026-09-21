@@ -15,33 +15,22 @@ import com.gabolle.backend.functional.support.AuthedClient;
 import com.gabolle.backend.functional.support.FunctionalJourneyTest;
 
 /**
- * 잘못된 요청이 401 로 바뀌지 않는다 — S15P21E201-790.
+ * 잘못된 요청이 401 로 바뀌지 않는다. 서버가 4xx 를 정한 뒤 {@code /error} 로 다시 디스패치하는 것은
+ * 같은 요청인데, 인증 필터는 요청 하나에 한 번만 도는 것이 기본값이라 그 두 번째 차례에 신원이 없다.
+ * 그러면 원래의 4xx 가 401 로 바뀌어 나가고, 앱은 그것을 세션 만료로 읽어 사용자를 로그아웃시킨다.
  *
- * <h2>무엇이 잘못돼 있었나</h2>
- * 서버가 4xx 를 정한 뒤 {@code /error} 로 다시 디스패치하는 것은 <b>같은 요청</b>인데,
- * 인증 필터는 요청 하나에 한 번만 도는 것이 기본값이라 그 두 번째 차례를 건너뛰었다. 그러면
- * 그 디스패치에는 신원이 없고, 인가가 거부해 <b>원래의 4xx 가 401 로 바뀌어</b> 나갔다.
- *
- * <p>거짓말을 하는 응답이라 나쁘다. 로그인은 멀쩡한데 "로그인이 필요합니다" 가 오고, 앱은
- * 401 을 세션 만료로 읽어 사용자를 로그아웃시킨다. 요청 하나가 잘못됐을 때 화면에서 튕겨
- * 나가는 모양이 된다.
- *
- * <p>이 검사는 실제 HTTP 로 그 자리를 재현한다. MockMvc 로는 이 재디스패치가 일어나지 않아
- * 원리상 잡을 수 없다 — 이 결함이 오래 안 보인 이유이기도 하다.
+ * <p>MockMvc 로는 이 재디스패치가 일어나지 않아 원리상 잡을 수 없다.
  */
 class ErrorDispatchIdentityFunctionalTest extends FunctionalJourneyTest {
 
 	private static final String TRIPS = "/api/v1/trips";
 
 	/**
-	 * 읽을 수 없는 몸통.
+	 * 읽을 수 없는 몸통. 문자열을 그대로 넘기면 {@code Content-Type} 이 {@code text/plain} 이 되어
+	 * 서버가 415 로 거부하고, 그 거부가 {@code /error} 재디스패치에서 401 로 바뀌는 자리다.
 	 *
-	 * <p>문자열을 그대로 넘기면 요청의 {@code Content-Type} 이 {@code text/plain} 이 되고, 서버는
-	 * 그 요청을 415 로 거부한다. 그 거부가 {@code /error} 재디스패치를 거치면서 401 로 바뀌던 것이
-	 * 이 티켓의 결함이다.
-	 *
-	 * <p>검증을 415 로 못 박지 않는다 — 이 검사가 지키는 것은 <b>"인증 실패로 보이지 않는다"</b>
-	 * 이고, 서버가 나중에 400 으로 답하기로 해도 그 약속은 그대로다.
+	 * <p>검증을 415 로 못 박지 않는다 — 지키는 것은 "인증 실패로 보이지 않는다" 이고, 서버가 나중에
+	 * 400 으로 답하기로 해도 그 약속은 그대로다.
 	 */
 	private static final String UNREADABLE_BODY = "이건 JSON 이 아니다";
 

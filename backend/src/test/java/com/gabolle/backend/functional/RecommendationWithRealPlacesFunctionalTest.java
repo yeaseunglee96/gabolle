@@ -21,47 +21,26 @@ import com.gabolle.backend.place.loader.SbizPlaceLoader;
 import com.jayway.jsonpath.JsonPath;
 
 /**
- * 진짜 장소를 넣고 추천을 한 번 돌려 본다 — S15P21E201-804.
+ * 진짜 장소를 넣고 추천을 한 번 돌려 본다. 점수 계산도 일정 조립도 이동시간도 다 있지만, 표가 비면
+ * 후보가 0건이라 실제 결과가 안 나온다.
  *
- * <p>{@code place} 표가 비어 있는 동안 추천은 <b>매 요청 후보 0건</b>이었고, 그래서 점수 계산도
- * 일정 조립도 이동시간도 전부 만들어져 있는데 아무도 실제 결과를 본 적이 없다. 조사한 2,355곳을
- * 넣고 나서 <b>정말로 결과가 나오는가</b> 를 확인하는 것이 이 검사다.
- *
- * <h2>표본 200곳 자급</h2>
- * 표가 비어 있으면 이 검사가 직접 채운다. 실제 대기열에서 뜬 표본 200줄이
- * {@code src/test/resources/research/queue-sample.ndjson} 에 상주하고, 적재 경로는 운영과
- * 같은 것({@link SbizPlaceLoader#saveChunk})을 쓴다.
- *
- * <p>건너뛰지 않는 이유는 이 저장소의 규칙이다 — 검사가 하나라도 건너뛰면 CI 가 빨개진다.
- * 그리고 조건부로 건너뛰는 검사는 아무도 안 보게 된다.
- *
- * <p>전체 2,355곳으로 재고 싶으면 아래로 적재한 뒤 돌린다.
- *
- * <pre>
- * git show origin/bigData/dev:bigData/research/data/queue.ndjson &gt; /tmp/queue.ndjson
- * java -jar build/libs/gabolle-backend-*.jar --spring.profiles.active=dev  *   --gabolle.place.loader.research-queue=/tmp/queue.ndjson  *   --gabolle.place.loader.dataset-version=research-busan-2355-202609
- * </pre>
- *
+ * <p>표본이 없으면 이 검사가 직접 채운다. 표본 200줄이
+ * {@code src/test/resources/research/queue-sample.ndjson} 에 상주하고, 적재 경로는 운영과 같은
+ * {@link SbizPlaceLoader#saveChunk} 를 쓴다. 조건부로 건너뛰지 않는다 — 건너뛰는 검사는 아무도 안
+ * 보게 된다.
  */
-// 배포에서는 Jenkins 가 -e 로 넣어 주는 값이라 검사 환경에는 비어 있다. 비면 추천이
-// VERSION_UNRESOLVED 로 실패한다 — 재현할 수 없는 결과를 재현 가능한 척 남기지 않겠다는
-// 규칙이고 그것이 맞다. 그래서 하네스를 고치지 않고 이 검사에서만 채운다.
-//
-// 하네스의 프로퍼티를 늘리지 않는 이유는 그쪽 주석에 있다 — 여정마다 프로퍼티가 다르면
-// Spring 이 컨텍스트를 새로 캐시해 앱이 여러 번 뜬다. 여기서 더하는 둘은 이 클래스만
-// 쓰므로 컨텍스트가 하나 더 생기지만, 그 대가로 다른 기능 검사들의 컨텍스트를 안 건드린다.
+// service-version·deployment-environment 는 검사 환경에서 비어 있고, 비면 추천이
+// VERSION_UNRESOLVED 로 실패한다. 하네스의 공통 프로퍼티를 늘리면 여정마다 Spring 이
+// 컨텍스트를 새로 캐시하므로 이 검사에서만 채운다.
 @org.springframework.test.context.TestPropertySource(properties = {
 		"gabolle.recommendation.service-version=test-local",
 		"gabolle.recommendation.deployment-environment=test" })
 class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 
 	/**
-	 * 🔴 이 여정은 여행 조건에 알레르기(민감 제약)를 실어 보낸다 — S15P21E201-549 로
-	 * 건강·식이 동의가 없으면 여행 생성이 403 이다. 동의를 켜고 가입하는 것이 이 여정에서
-	 * 재려는 것(추천에 실제 장소가 담기는가)에 닿기 위한 전제다.
-	 *
-	 * <p>🔴 공용 헬퍼의 기본값을 바꾸지 않고 여기서만 켠다. 전부 켜 두면 동의를 안 받았을 때
-	 * 막히는지를 아무 여정도 안 재게 된다.
+	 * 이 여정은 여행 조건에 알레르기를 실어 보내므로 건강·식이 동의가 없으면 여행 생성이 403 이다.
+	 * 공용 헬퍼의 기본값을 바꾸지 않고 여기서만 켠다 — 전부 켜 두면 동의를 안 받았을 때 막히는지를
+	 * 아무 여정도 안 재게 된다.
 	 */
 	private static final java.util.Map<String, Boolean> HEALTH_CONSENT =
 			java.util.Map.of("HEALTH_CONSTRAINTS", true);
@@ -88,20 +67,10 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	/**
 	 * 표본이 아직 없으면 넣는다. 이미 있으면 그대로 쓴다 — 적재기는 같은 가게를 건너뛴다.
 	 *
-	 * <h2>🔴 "표가 비었나" 로 묻지 않는다</h2>
-	 *
-	 * 예전에는 {@code SELECT COUNT(*) FROM place} 가 0 일 때만 표본을 넣었다. 그런데
-	 * <b>장소를 심는 마이그레이션이 하나라도 생기면 그 수가 0 이 아니게 된다.</b> 그러면 이
-	 * 검사는 표본 200곳을 건너뛰고, 반경 5km 안에 후보가 없어 추천이
-	 * {@code ENGINE_NO_CANDIDATES} 로 실패한다 — 엔진이 고장난 것이 아니라 <b>먹일 것을 안
-	 * 넣은 것</b>인데, 실패 메시지는 엔진을 가리켜서 원인을 엉뚱한 데서 찾게 된다.
-	 *
-	 * <p>2026-09-16 에 실제로 그랬다. {@code V20260916210000__curated_core_busan_landmarks.sql}
-	 * 이 부산 대표 명소 <b>4곳</b>을 넣자 이 검사 두 건이 무너졌다(MR !982). 바다·자연 장소를
-	 * 넣는 뒤 마이그레이션도 같은 자리를 밟는다.
-	 *
-	 * <p>그래서 <b>이 검사가 넣은 표본이 있는지</b>를 묻는다. 그것이 원래 묻고 싶었던 것이고,
-	 * 남이 장소를 몇 곳 넣든 흔들리지 않는다.
+	 * <p>«표 전체가 비었나»가 아니라 «이 검사가 넣은 표본이 있나»로 묻는다. 장소를 심는
+	 * 마이그레이션이 하나라도 생기면 전체 수가 0 이 아니게 되고, 그러면 표본을 건너뛰어 반경 5km 안에
+	 * 후보가 없어 {@code ENGINE_NO_CANDIDATES} 로 실패한다 — 실패 메시지는 엔진을 가리키지만 원인은
+	 * 먹일 것을 안 넣은 것이다.
 	 */
 	private void ensurePlaces() {
 		if (samplePlaceCount() > 0) {
@@ -135,17 +104,10 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	}
 
 	/**
-	 * S15P21E201-804 에서 실제로 걸린 자리다. 장소를 넣고 추천을 돌렸더니 작업이
-	 * {@code ENGINE_NOT_CONFIGURED} 로 실패했다 — 진단해 보니 <b>엔진이 요구하는 리포지토리도
-	 * 후보 조회 서비스도 다 있는데 엔진 빈만 없었다.</b> 프로필도 {@code dev} 로 맞았다.
-	 *
-	 * <p>그리고 그 상황을 잡으라고 만들어 둔 {@code BaselineEngineStartupValidator} 도 같은
-	 * 조건({@code @ConditionalOnBean})을 쓰는 바람에 <b>함께 안 만들어졌다.</b> 감시하려던
-	 * 실패에 감시자가 함께 걸린 것이고, 그 파일 주석이 걱정한 상황이 그대로 일어났다.
-	 *
-	 * <p>이것이 운영에 나가면 앱은 정상으로 뜨고 로그도 안 남는데 <b>모든 추천이 조용히
-	 * 실패한다.</b> 그래서 기동 검사기에 기대지 않고 여기서 한 번 더 못 박는다 — 실제 HTTP 로
-	 * 도는 이 자리는 조건 평가 순서에 영향을 안 받는다.
+	 * 엔진 빈이 빠지면 앱은 정상으로 뜨고 로그도 안 남는데 모든 추천이 조용히 실패한다.
+	 * {@code BaselineEngineStartupValidator} 에 기대지 않는다 — 그쪽은 엔진과 같은
+	 * {@code @ConditionalOnBean} 조건을 써서 함께 빠진다. 실제 HTTP 로 도는 이 자리는 조건 평가
+	 * 순서에 영향을 안 받는다.
 	 */
 	@Test
 	@DisplayName("장소가 있는데 추천 엔진이 없으면 모든 추천이 조용히 실패한다")
@@ -219,16 +181,9 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 		ensurePlaces();
 		AuthedClient authed = loginAsNewUser("rec-empty-category", HEALTH_CONSENT);
 
-		// 🔴 "후보가 0곳" 을 <b>갈래</b>로 만들지 않는다. 예전에는 "적재된 장소는 전부
-		//    음식점이니 바다를 고르면 0곳" 이었는데, 그 전제는 바다 장소를 넣는
-		//    마이그레이션 하나로 무너진다 — 2026-09-16 에 실제로 그랬다(MR !984 가
-		//    바다·자연 18곳을 넣자 이 작업이 SUCCEEDED 로 끝나 이 검사가 빨개졌다).
-		//
-		//    그래서 <b>거리</b>로 만든다. 엔진의 후보 질의 반경은 5km 고정이고 넓히지
-		//    않으므로(BaselineEngineProperties.radiusM = 5000), 부산에서 멀리 떨어진
-		//    바다 한가운데를 출발지로 두면 <b>무엇을 적재하든</b> 후보가 0곳이다.
-		//    이 검사가 보려는 것은 "갈래가 비었나" 가 아니라 "후보가 없을 때 무슨 코드로
-		//    말하는가" 이므로, 0곳이 되는 이유는 아무래도 좋다.
+		// "후보가 0곳" 을 갈래가 아니라 거리로 만든다. 갈래로 만들면 그 갈래의 장소를
+		// 넣는 마이그레이션 하나로 전제가 무너진다. 엔진의 후보 질의 반경은 5km 고정이라
+		// 멀리 떨어진 바다 한가운데를 출발지로 두면 무엇을 적재하든 0곳이다.
 		String tripId = createTripFarFromAnyPlace(authed);
 		String jobId = requestRecommendation(authed, tripId);
 		String body = pollUntil(() -> authed.get("/api/v1/jobs/" + jobId, String.class), response -> {
@@ -255,10 +210,8 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	}
 
 	/**
-	 * 반경 5km 안에 장소가 하나도 없을 수밖에 없는 출발지로 여행을 만든다 — 남해 먼바다다.
-	 *
-	 * <p>이 좌표에 장소가 적재될 일은 없다. 바다 위라서다. 그래서 이 검사는 <b>앞으로
-	 * 무엇을 적재하든</b> 안 흔들린다.
+	 * 반경 5km 안에 장소가 하나도 없을 수밖에 없는 출발지로 여행을 만든다 — 남해 먼바다다. 이 좌표에
+	 * 장소가 적재될 일은 없어 앞으로 무엇을 적재하든 안 흔들린다.
 	 */
 	private String createTripFarFromAnyPlace(AuthedClient authed) {
 		return createTrip(authed, "SEA_BEACH", 34.60, 128.40);

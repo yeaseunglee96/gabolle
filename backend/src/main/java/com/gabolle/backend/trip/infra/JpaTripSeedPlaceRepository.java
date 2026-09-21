@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 
-/** {@link TripSeedPlaceRepository} 의 JPA 구현 — S15P21E201-338. */
 @Repository
 @Profile({ "db", "dev" })
 public class JpaTripSeedPlaceRepository implements TripSeedPlaceRepository {

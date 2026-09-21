@@ -9,8 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * 배치 테스트가 쓰는 밑자료.
  *
- * <p>🔴 시각을 인자로 받는다 — {@code now()} 를 쓰지 않는다. 이 배치의 검사는 대부분
- * "어느 구간을 봤나" 에 관한 것이라, 밑자료의 시각을 테스트가 정하지 못하면 검사할 수 없다.
+ * <p>시각을 인자로 받는다 — {@code now()} 를 쓰지 않는다. 이 배치의 검사는 대부분 어느
+ * 구간을 봤나에 관한 것이라, 밑자료의 시각을 테스트가 정하지 못하면 검사할 수 없다.
  */
 public final class TasteVectorFixtures {
 
@@ -41,7 +41,7 @@ public final class TasteVectorFixtures {
 	/**
 	 * 계정 기본 설문 한 판.
 	 *
-	 * <p>🔴 판 번호를 1 로 박지 않는다. 설문을 다시 내는 경우(판이 갈리는 검사)가 있고,
+	 * <p>판 번호를 1 로 박지 않는다. 설문을 다시 내는 검사가 있고,
 	 * {@code preference_snapshot} 은 {@code (user_id, version)} 이 겹치는 것을 허용하지 않는다.
 	 */
 	public UUID newUserScopeSnapshot(UUID userId, OffsetDateTime createdAt) {
@@ -59,18 +59,10 @@ public final class TasteVectorFixtures {
 	}
 
 	/**
-	 * 고른 태그형 답 — <b>앱이 실제로 보내는 모양</b>인 맨 배열이다. 예: {@code ["CAFE","MARKET"]}.
+	 * 고른 태그형 답 — 앱이 실제로 보내는 모양인 맨 배열이다. 예: {@code ["CAFE","MARKET"]}.
 	 *
-	 * <h2>🔴 2026-09-14 — 여기가 {@code {"codes":[...]}} 였다 (S15P21E201-787 후속)</h2>
-	 *
-	 * 앱은 맨 배열을 보내는데({@code PreferenceJson} 의 표, S15P21E201-635) 이 픽스처가 감싼
-	 * 모양을 심고 있었다. 그래서 접기가 태그형을 <b>한 줄도 못 읽는</b> 동안에도 이 파일의
-	 * 검사는 전부 초록이었다.
-	 *
-	 * <p>이 파일 아래 {@code tasteSignal} 의 주석이 <i>"픽스처가 버그와 같은 방향으로 틀려
-	 * 있으면 검사는 그 버그를 지켜 준다"</i> 라고 적어 둔 그 일이 <b>한 칸 옆에서 그대로 다시
-	 * 일어났다.</b> 감싼 모양은 지우지 않고 {@link #selectedCodesWrapped} 로 남긴다 — 그쪽도
-	 * 아직 받아야 하는 모양이라(이미 저장된 답이 있다) 둘 다 검사해야 한다.
+	 * <p>감싼 모양({@code {"codes":[...]}})은 {@link #selectedCodesWrapped} 로 남긴다 — 이미
+	 * 저장된 답이 있어 그쪽도 아직 받아야 한다.
 	 */
 	public void selectedCodes(UUID snapshotId, String dimension, String... codes) {
 		StringBuilder json = new StringBuilder("[");
@@ -92,11 +84,10 @@ public final class TasteVectorFixtures {
 	}
 
 	/**
-	 * 고른 점수형 답 — <b>앱이 실제로 보내는 모양</b>인 맨 정수 1~5 (화면의 5단계 슬라이더).
+	 * 고른 점수형 답 — 앱이 실제로 보내는 모양인 맨 정수 1~5(화면의 5단계 슬라이더).
 	 *
-	 * <p>🔴 {@code PreferenceJson} 이 {@code (raw-1)/4} 로 0~1 에 맞춘다. 그래서 1 은 0.0,
+	 * <p>{@code PreferenceJson} 이 {@code (raw-1)/4} 로 0~1 에 맞춘다. 그래서 1 은 0.0,
 	 * 3 은 0.5, 5 는 1.0 이고, 접기의 {@code toWeight} 를 지나면 각각 -1.0 · 0.0 · +1.0 이 된다.
-	 * 고치기 전에는 이 셋이 <b>전부 +1.0</b> 이었다.
 	 */
 	public void selectedLikert(UUID snapshotId, String dimension, int level) {
 		insertAnswer(snapshotId, dimension, Integer.toString(level), "SELECTED");
@@ -110,8 +101,8 @@ public final class TasteVectorFixtures {
 	/**
 	 * 건너뛴 답.
 	 *
-	 * <p>🔴 값을 실을 수 없다 — {@code ck_preference_answer_value_matches_status} 가 DB 에서
-	 * 막는다. 이 배치가 이 행을 성분으로 만들지 <b>않는지</b> 를 검사하는 데 쓴다.
+	 * <p>값을 실을 수 없다 — {@code ck_preference_answer_value_matches_status} 가 DB 에서
+	 * 막는다. 이 배치가 이 행을 성분으로 만들지 않는지를 검사하는 데 쓴다.
 	 */
 	public void skipped(UUID snapshotId, String dimension) {
 		insertAnswer(snapshotId, dimension, null, "SKIPPED");
@@ -126,20 +117,15 @@ public final class TasteVectorFixtures {
 	}
 
 	/**
-	 * 취향 신호 이벤트 하나.
-	 *
-	 * <p>🔴 {@code occurred_at} 과 {@code received_at} 을 <b>따로</b> 받는다. 이 배치가
-	 * 도착 시각으로 구간을 세는지(늦게 온 이벤트를 안 빠뜨리는지)를 검사해야 하고,
-	 * 둘이 같으면 그 검사가 불가능하다.
-	 */
-	/**
 	 * 취향 신호 이벤트 하나를 심는다.
 	 *
-	 * <p>🔴 2026-09-11 (S15P21E201-549) — 문자열이 아니라 {@link EventType} 을 받는다. 전에는
-	 * {@code "PLACE_LIKE"} 처럼 <b>대문자 문자열</b>을 심었는데, 애플리케이션이 실제로 적는 값은
-	 * {@link EventType#wireName()} 이 만드는 소문자다. 배치의 비교 목록도 같은 대문자라 검사는
-	 * 초록이었지만 <b>운영에서는 한 건도 안 맞았다.</b> 픽스처가 버그와 같은 방향으로 틀려 있으면
-	 * 검사는 그 버그를 지켜 준다 — 그래서 대소문자를 정하는 곳을 열거형 하나로 모은다.
+	 * <p>{@code occurred_at} 과 {@code received_at} 을 따로 받는다. 이 배치가 도착 시각으로
+	 * 구간을 세는지(늦게 온 이벤트를 안 빠뜨리는지)를 검사해야 하고, 둘이 같으면 그 검사가
+	 * 불가능하다.
+	 *
+	 * <p>종류는 문자열이 아니라 {@link EventType} 으로 받는다. 표에 실제로 들어가는 값은
+	 * {@link EventType#wireName()} 이 만드는 소문자이고, 픽스처가 대문자를 심으면 배치가
+	 * 한 건도 못 맞히는 동안에도 검사는 초록이 된다.
 	 */
 	public void tasteSignal(UUID userId, EventType eventType, OffsetDateTime occurredAt, OffsetDateTime receivedAt) {
 		this.jdbc.update("""

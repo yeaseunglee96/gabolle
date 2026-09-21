@@ -34,17 +34,9 @@ import com.gabolle.backend.place.service.FestivalQueryService;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * {@code GET /api/v1/festivals} 를 HTTP 로 검증한다 — S15P21E201-465.
- *
- * <p>겹침 판정과 장소 배치 조회는 {@code FestivalIntegrationTest} 가 실제 DB 로 이미 본다. 여기서는
- * 그 결과가 <b>JSON 으로 어떻게 나가는가</b> 만 본다 — 특히 {@code title}·{@code photoUrl}·
- * {@code priceLevel} 이 없을 때 칸 자체가 빠지는지는 실제 직렬화를 거쳐야 확인되므로 DB 없이 여기서
- * 본다. {@code TripControllerGetTest} 와 같은 모양으로 {@link MockMvcBuilders#standaloneSetup} 을
- * 쓰고, 리포지토리는 Mockito 로 흉내 낸다.
- *
- * <p>🔴 경로는 {@code /api/v1/festivals} 다 — 처음에는 {@code /api/v1/places/festivals} 로 만들었으나,
- * 감독자가 Jira 티켓 완료 기준과 프런트 계약을 확인하고 정정했다({@code FestivalController} javadoc
- * 참고). 자바 패키지는 여전히 {@code place} 다.
+ * {@code GET /api/v1/festivals} 의 JSON 모양만 본다 — 겹침 판정과 장소 배치 조회는
+ * {@code FestivalIntegrationTest} 가 실제 DB 로 본다. {@code title}·{@code photoUrl}·
+ * {@code priceLevel} 이 없을 때 칸 자체가 빠지는지는 실제 직렬화를 거쳐야 확인된다.
  */
 class FestivalControllerHttpTest {
 
@@ -56,19 +48,14 @@ class FestivalControllerHttpTest {
 
 	private MockMvc mockMvc;
 
-	/**
-	 * 회차 목록을 <b>더 없는 한 쪽</b>으로 감싼다 (S15P21E201-1011). 대부분의 검사는 쪽 나눔과
-	 * 무관해서 "이게 전부다" 인 쪽이면 충분하다 — 더 있는 경우는
-	 * {@link #reportsHasMoreWhenPageIsNotTheLast} 가 따로 본다.
-	 */
+	/** 회차 목록을 "더 없는 한 쪽" 으로 감싼다. 더 있는 경우는 {@link #reportsHasMoreWhenPageIsNotTheLast} 가 본다. */
 	private static Page<PlaceEventPeriod> pageOf(PlaceEventPeriod... periods) {
 		return new PageImpl<>(List.of(periods));
 	}
 
 	@BeforeEach
 	void setUp() {
-		// 대부분의 테스트는 입장료 유무와 무관하다 — 기본값은 "행 없음"(빈 목록)으로 두고, 그것을
-		// 확인하는 테스트만 따로 stub 한다.
+		// 기본값은 입장료 "행 없음" — 입장료를 보는 테스트만 따로 stub 한다.
 		when(this.placeFeatureRepository.findByPlaceIdIn(any())).thenReturn(List.of());
 
 		FestivalQueryService service = new FestivalQueryService(this.eventPeriodRepository, this.placeRepository,
@@ -83,9 +70,8 @@ class FestivalControllerHttpTest {
 	@DisplayName("🔴 회차 이름이 없으면 title 칸 자체가 응답에서 빠진다")
 	void missingTitleIsOmittedFromJson() throws Exception {
 		UUID placeId = UUID.randomUUID();
-		// 🔴 fakePlace(...) 를 thenReturn(...) 안에서 만들지 않는다 — fakePlace 자체가 mock 을
-		//    stubbing 하는데, 그 시점에 바깥 when(...) 이 아직 안 끝나 있어서 Mockito 가
-		//    UnfinishedStubbingException 을 던진다(OriginSearchFallbackTest 와 같은 함정).
+		// fakePlace(...) 는 그 자체로 stubbing 이라 thenReturn(...) 안에서 만들면
+		// Mockito 가 UnfinishedStubbingException 을 던진다.
 		PlaceEventPeriod period = fakePeriod(placeId, null, LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
 		Place place = fakePlace(placeId, "이름없는축제", null, "부산 어딘가", 35.1, 129.0, null);
 		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf(period));
@@ -161,7 +147,6 @@ class FestivalControllerHttpTest {
 		Place place = fakePlace(placeId, "입장료없는장소", null, "어딘가", 35.1, 129.0, null);
 		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf(period));
 		when(this.placeRepository.findAllById(any())).thenReturn(List.of(place));
-		// setUp() 의 기본 stub(빈 목록)을 그대로 쓴다 — 입장료 행이 없는 상태다.
 
 		this.mockMvc.perform(get("/api/v1/festivals")
 						.param("startDate", "2026-10-01")
@@ -232,10 +217,6 @@ class FestivalControllerHttpTest {
 				.andExpect(jsonPath("$.data.count").value(0));
 	}
 
-	/**
-	 * 🔴 S15P21E201-1011 — 상한에 걸렸다는 사실이 응답에 실린다. 이것이 없으면 목록이
-	 * <b>조용히 잘리고</b>, 사용자에게는 있던 축제가 사라진 것으로 보인다.
-	 */
 	@Test
 	@DisplayName("🔴 더 있는데 상한에 걸리면 hasMore 가 참이다 — 조용히 자르지 않는다")
 	void reportsHasMoreWhenPageIsNotTheLast() throws Exception {

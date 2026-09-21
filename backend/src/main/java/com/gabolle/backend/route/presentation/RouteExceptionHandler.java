@@ -13,14 +13,8 @@ import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
 
 /**
- * 경로 조회의 잘못된 요청을 400 으로 번역한다.
- *
- * <p>🔴 {@code assignableTypes} 로 {@link RouteController} 에만 건다 — 다른 컨트롤러의
- * {@code IllegalArgumentException} 까지 여기서 잡으면 그쪽 오류 코드가 통째로 바뀐다.
- *
- * <p>🔴 <b>어느 칸이 문제인지 응답에 담는다.</b> "잘못된 요청" 만 돌려주면 부르는 쪽이
- * 좌표를 잘못 넣었는지 이동수단을 잘못 넣었는지 알 수 없다 — 이 저장소의 다른 처리기들이
- * 같은 이유로 필드 이름을 싣는다.
+ * 경로 조회의 잘못된 요청을 400 으로 번역한다. assignableTypes 로 RouteController 에만
+ * 건다 — 범위를 넓히면 다른 컨트롤러의 IllegalArgumentException 까지 이 오류 코드로 바뀐다.
  */
 @RestControllerAdvice(assignableTypes = RouteController.class)
 public class RouteExceptionHandler {

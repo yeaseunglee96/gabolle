@@ -25,12 +25,7 @@ import com.gabolle.backend.exchangerate.application.ExchangeRateVendorPort;
 
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * {@code GET /api/v1/exchange-rates}의 HTTP 경계 — S15P21E201-1079.
- *
- * <p>{@code WeatherControllerTest}와 같은 방식으로 컨트롤러+예외 처리기만 세워 HTTP 계약을
- * 잰다.
- */
+/** {@code GET /api/v1/exchange-rates} 의 HTTP 경계. */
 class ExchangeRateControllerTest {
 
 	private static final String SAMPLE_JSON = """

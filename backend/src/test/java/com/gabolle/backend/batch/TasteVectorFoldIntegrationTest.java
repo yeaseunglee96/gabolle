@@ -28,20 +28,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * 설문·행동을 취향 벡터로 접는 배치 (MLOps Phase 1).
  *
- * <p>여기서 확인하는 것은 "숫자가 예쁘게 나오나" 가 아니다. <b>같은 구간을 두 번 봐도 같은
- * 결과인가</b>, 그리고 <b>안 물어본 것을 0 으로 적지 않는가</b> 다. 그 둘이 이 배치에서
- * 조용히 틀릴 수 있는 전부이고, DB 제약이 못 잡는 부분이다.
+ * <p>확인하는 것은 숫자가 예쁘게 나오나가 아니라 둘이다 — 같은 구간을 두 번 봐도 같은
+ * 결과인가, 그리고 안 물어본 것을 0 으로 적지 않는가. DB 제약이 못 잡는 부분이다.
  *
- * <h2>🔴 2026-09-14 — 픽스처의 취향 낱말을 진짜 어휘로 바꿨다 (S15P21E201-915)</h2>
- *
- * 원래 {@code CAFE}·{@code MARKET}·{@code MUSEUM} 을 쓰고 있었다. <b>앱에 없는 낱말들이다</b>
- * — 앱의 어휘는 여섯이다({@code SEA_BEACH}·{@code CITY}·{@code CAFE_HEALING}·
- * {@code CULTURE_TEMPLE}·{@code FOOD}·{@code NATURE_WALK}). 915 가 {@code preference_answer}
- * 의 {@code CATEGORY} 에 사전 강제를 걸었으므로 <b>지어낸 낱말로 되돌리면 DB 가 거부한다.</b>
- *
- * <p>🔴 <b>바꾼 것은 낱말뿐이고 개수는 그대로다.</b> 이 검사들이 단언하는 것은 낱말이 아니라
- * 성분의 <b>개수</b>와 <b>차원</b>이라, 개수를 유지해야 의도가 보존된다. 낱말을 하나 더 넣거나
- * 빼면 {@code weightCount()} 단언이 깨진다.
+ * <p>픽스처의 취향 낱말은 앱의 어휘 여섯({@code SEA_BEACH}·{@code CITY}·
+ * {@code CAFE_HEALING}·{@code CULTURE_TEMPLE}·{@code FOOD}·{@code NATURE_WALK}) 안에서만
+ * 고른다. {@code preference_answer} 의 {@code CATEGORY} 에 사전 강제가 걸려 있어 지어낸
+ * 낱말은 DB 가 거부한다. 단언하는 것은 낱말이 아니라 성분의 개수와 차원이므로, 낱말을
+ * 하나 더 넣거나 빼면 {@code weightCount()} 단언이 깨진다.
  */
 class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 
@@ -86,9 +80,8 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 		assertThat(outcome.action()).isEqualTo(TasteVectorFoldOutcome.Action.REBUILT);
 		assertThat(outcome.weightCount()).isEqualTo(2);
 
-		// 🔴 이것이 이 배치의 가장 중요한 약속이다. 건너뛴 차원에 0 이 들어가면
-		//    "안 좋아한다" 와 "안 물어봤다" 가 같은 값이 되고, 그때부터 추천은 물어본
-		//    적도 없이 그 차원을 근거로 후보를 뺀다. 되돌릴 수 없는 종류의 오류다.
+		// 건너뛴 차원에 0 이 들어가면 「안 좋아한다」와 「안 물어봤다」가 같은 값이 되고,
+		// 그때부터 추천은 물어본 적도 없이 그 차원을 근거로 후보를 뺀다.
 		assertThat(this.weights.findByIdTasteVectorId(outcome.tasteVectorId()))
 			.extracting(w -> w.getId().getDimension())
 			.containsOnly(TasteDimension.CATEGORY)
@@ -112,15 +105,14 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 			});
 	}
 
-	// ── 앱이 실제로 보내는 모양 (S15P21E201-787 후속) ─────────────────────────
+	// ── 앱이 실제로 보내는 모양 ─────────────────────────────────────────────
 
 	@Test
 	@DisplayName("5단계 슬라이더 1·3·5 가 무게 -1·0·+1 로 갈린다 — 예전에는 셋 다 +1 이었다")
 	void likertAnswersSpreadAcrossTheWholeWeightRange() {
-		// 🔴 이 검사가 이 티켓의 핵심이다. 고치기 전에는 toWeight(raw) 가 1~5 를 그대로 받아
-		//    1*2-1=1.0, 3*2-1=5.0→1.0, 5*2-1=9.0→1.0 으로 **전부 +1.0** 이 됐다. 즉 "전혀
-		//    아니다" 를 고른 사람과 "매우 그렇다" 를 고른 사람의 벡터가 완전히 같았고,
-		//    ck_user_taste_weight_range 는 1.0 을 정상으로 받으므로 아무 오류도 안 났다.
+		// 고치기 전에는 toWeight(raw) 가 1~5 를 그대로 받아 전부 +1.0 이 됐다. 「전혀 아니다」와
+		// 「매우 그렇다」의 벡터가 같았고, ck_user_taste_weight_range 는 1.0 을 정상으로 받아
+		// 아무 오류도 안 났다.
 		assertThat(foldSingleLikert("QUIETNESS", 1)).as("가장 낮게 답하면 싫음 쪽 끝").isEqualTo(-1.0);
 		assertThat(foldSingleLikert("QUIETNESS", 3)).as("가운데는 중립 0").isEqualTo(0.0);
 		assertThat(foldSingleLikert("QUIETNESS", 5)).as("가장 높게 답하면 좋음 쪽 끝").isEqualTo(1.0);
@@ -136,8 +128,8 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 
 		TasteVectorFoldOutcome outcome = this.foldService.fold(userId, DAY2);
 
-		// 🔴 고치기 전에는 path("codes") 가 배열 노드에서 비어 나와 여기가 0 이었다.
-		//    태그형 세 차원(CATEGORY·ATMOSPHERE·FOOD_PREFERENCE)이 통째로 안 접혔다.
+		// 고치기 전에는 path("codes") 가 배열 노드에서 비어 나와 태그형 세 차원
+		// (CATEGORY·ATMOSPHERE·FOOD_PREFERENCE)이 통째로 안 접혔다.
 		assertThat(this.weights.findByIdTasteVectorId(outcome.tasteVectorId()))
 			.extracting(w -> w.getId().getCode())
 			.containsExactlyInAnyOrder("CAFE_HEALING", "FOOD");
@@ -181,8 +173,8 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 		TasteVectorFoldOutcome second = this.foldService.fold(userId, DAY2);
 
 		assertThat(first.action()).isEqualTo(TasteVectorFoldOutcome.Action.REBUILT);
-		// 🔴 두 번째는 아무것도 안 한다. Airflow 의 재시도가 판을 하나 더 만들면
-		//    version 이 "몇 번 재시도했나" 를 세게 되고, 아무 뜻도 없어진다.
+		// 두 번째는 아무것도 안 한다. 재시도가 판을 하나 더 만들면 version 이 「몇 번
+		// 재시도했나」를 세게 되어 아무 뜻도 없어진다.
 		assertThat(second.action()).isEqualTo(TasteVectorFoldOutcome.Action.UNCHANGED);
 		assertThat(second.tasteVectorId()).isEqualTo(first.tasteVectorId());
 		assertThat(currentVersionCount(userId)).isEqualTo(1);
@@ -225,8 +217,8 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 		assertThat(outcome.version()).isEqualTo(2);
 		assertThat(outcome.weightCount()).isEqualTo(2);
 
-		// 🔴 조건부 UNIQUE 색인(uq_user_taste_vector_current)이 이것을 DB 에서 막는다.
-		//    옛 판을 내리기 전에 새 판을 넣으면 여기서 터진다 — 그 순서를 검사하는 줄이다.
+		// 조건부 UNIQUE 색인(uq_user_taste_vector_current)이 이것을 DB 에서 막는다. 옛 판을
+		// 내리기 전에 새 판을 넣으면 여기서 터진다 — 그 순서를 검사하는 줄이다.
 		assertThat(currentVersionCount(userId)).isEqualTo(1);
 		// 옛 판은 지워지지 않는다. 과거 추천을 설명하려면 남아 있어야 한다.
 		assertThat(totalVersionCount(userId)).isEqualTo(2);
@@ -240,9 +232,8 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE_HEALING");
 		this.foldService.fold(userId, DAY2);
 
-		// 🔴 8월 1일에 **일어난** 일이 8월 2일에 **도착했다** — 비행기 모드였다가 켠 경우다.
-		//    구간을 occurred_at 으로 세면 표시가 이미 8월 2일을 지나 있어 이 이벤트는
-		//    영원히 안 읽힌다. received_at 으로 세야 다음 구간에서 정확히 한 번 읽힌다.
+		// 8월 1일에 일어난 일이 8월 2일에 도착한 경우다. 구간을 occurred_at 으로 세면 표시가
+		// 이미 지나 있어 영원히 안 읽히고, received_at 으로 세야 다음 구간에서 한 번 읽힌다.
 		this.fixtures.tasteSignal(userId, EventType.PLACE_LIKE, DAY1.plusHours(3), DAY2.plusHours(5));
 
 		TasteVectorFoldOutcome outcome = this.foldService.fold(userId, DAY3);
@@ -266,8 +257,8 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 		this.foldService.fold(userId, DAY3);
 
 		UserTasteVector current = this.vectors.findByUserIdAndSupersededAtIsNull(userId).orElseThrow();
-		// 🔴 표시가 없으면 같은 이벤트가 구간마다 다시 세어진다. 그러면 행동 수가
-		//    날마다 불어나는데, 값이 있기는 하므로 아무 제약도 그것을 못 잡는다.
+		// 표시가 없으면 같은 이벤트가 구간마다 다시 세어져 행동 수가 날마다 불어나는데,
+		// 값이 있기는 하므로 아무 제약도 못 잡는다.
 		assertThat(current.getObservedEventCount()).isEqualTo(1);
 	}
 
@@ -279,8 +270,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 		TasteVectorFoldOutcome outcome = this.foldService.fold(userId, DAY2);
 
 		assertThat(outcome.action()).isEqualTo(TasteVectorFoldOutcome.Action.NOTHING_TO_FOLD);
-		// 🔴 성분이 없는 벡터는 "취향이 없는 사람" 처럼 보이는데 사실은 "아직 안 물어본
-		//    사람" 이다. 한 번 섞으면 되돌릴 수 없다.
+		// 성분이 없는 벡터는 「취향이 없는 사람」처럼 보이지만 사실은 「아직 안 물어본 사람」이다.
 		assertThat(this.vectors.findByUserIdAndSupersededAtIsNull(userId)).isEmpty();
 	}
 
@@ -309,9 +299,8 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 
 		List<UUID> stale = this.batchService.staleUsers(DAY2, 500).userIds();
 
-		// 🔴 잊어 달라고 한 사람의 취향을 배치가 다시 계산해 새 행으로 적으면,
-		//    탈퇴 처리가 지운 것을 배치가 되살리는 셈이다. 기능 결함이 아니라
-		//    개인정보 사고이고, 배치는 사람이 안 보는 시간에 도니 아무도 눈치채지 못한다.
+		// 잊어 달라고 한 사람의 취향을 배치가 다시 계산해 적으면 탈퇴 처리가 지운 것을
+		// 되살리는 셈이다. 배치는 사람이 안 보는 시간에 돈다.
 		assertThat(stale).doesNotContain(deleted);
 	}
 
@@ -341,9 +330,8 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 			this.fixtures.selectedCodes(this.fixtures.newUserScopeSnapshot(user, DAY1), "CATEGORY", "CAFE_HEALING");
 		}
 
-		// 🔴 둘만 달라고 하면 셋 중 둘이 온다. 그때 "둘 왔다" 만으로는 마침 둘이었는지
-		//    더 있는데 잘렸는지 알 수 없다 — 그 구분이 없으면 밀린 사람이 하루에
-		//    상한만큼씩만 빠지면서 배치는 날마다 초록이다.
+		// 둘만 달라고 하면 셋 중 둘이 온다. 「둘 왔다」만으로는 마침 둘이었는지 더 있는데
+		// 잘렸는지 알 수 없고, 그 구분이 없으면 밀린 사람이 계속 밀려도 배치는 초록이다.
 		TasteVectorBatchService.StalePage cut = this.batchService.staleUsers(DAY2, 2);
 
 		assertThat(cut.userIds()).hasSize(2);

@@ -20,20 +20,11 @@ import com.gabolle.backend.place.loader.ResearchQueueReader;
 import com.gabolle.backend.place.loader.SbizRow;
 
 /**
- * 진짜 대기열 줄로 판독기를 검증한다 — S15P21E201-804.
+ * 진짜 대기열 줄로 판독기를 검증한다. 실제 대기열에서 앞 200줄을 떠서
+ * {@code src/test/resources} 에 상주시켰다 — 이 저장소는 건너뛴 검사가 있으면 CI 가 빨개지므로
+ * 조건부로 건너뛰지 않는다.
  *
- * <p>{@code ResearchQueueLoaderIntegrationTest} 는 세 줄만 재므로 "전체가 우리가 생각한 모양인가"
- * 를 알 수 없다. 한 줄만 달라도 조용히 버려지고, 그러면 적재 뒤에 장소가 몇 곳 비는데 아무도
- * 눈치채지 못한다.
- *
- * <h2>표본 200줄 상주</h2>
- * 실제 대기열(2,355줄 · 547KB)에서 앞 200줄을 떠서 {@code src/test/resources} 에 두었다. 전체를
- * 넣기엔 크고, 형식이 우리 가정과 맞는지는 표본으로 충분하다. 이 저장소는 건너뛴 검사가 하나라도
- * 있으면 CI 가 빨개지므로({@code .gitlab-ci.yml} 의 건너뜀 검사) 조건부로 건너뛰지 않는다.
- *
- * <h2>전체 파일 검증</h2>
- * {@code GABOLLE_RESEARCH_QUEUE} 에 전체 파일 경로를 주면 2,355줄을 그대로 잰다. 표본이 통과해도
- * 전체에 이상한 줄이 있을 수 있어, 적재 전에 한 번 돌려 보는 자리로 남긴다.
+ * <p>{@code GABOLLE_RESEARCH_QUEUE} 에 전체 파일 경로를 주면 표본 대신 그것을 잰다.
  *
  * <pre>
  * git show origin/bigData/dev:bigData/research/data/queue.ndjson &gt; /tmp/queue.ndjson
@@ -75,8 +66,6 @@ class ResearchQueueRealFileTest {
         List<SbizRow> rows = readAll(sampleFile(), counts);
 
         assertThat(counts[0].total()).isEqualTo(SAMPLE_LINES);
-        // 버려진 줄이 하나라도 있으면 그만큼 장소가 안 들어가고, 그 사실은 적재 로그를
-        // 자세히 읽어야만 보인다.
         assertThat(counts[0].skippedBroken()).isZero();
         assertThat(counts[0].skippedNoCoordinate()).isZero();
         assertThat(rows).hasSize(SAMPLE_LINES);
@@ -90,7 +79,6 @@ class ResearchQueueRealFileTest {
         Set<String> seen = new HashSet<>();
         List<String> duplicated = rows.stream().map(SbizRow::storeId).filter(id -> !seen.add(id)).toList();
 
-        // 적재기는 같은 번호를 건너뛰므로 중복이 있으면 그 수만큼 장소가 덜 들어간다.
         assertThat(duplicated).isEmpty();
     }
 
@@ -107,8 +95,7 @@ class ResearchQueueRealFileTest {
     void theWholeFileIsUsableWhenProvided() {
         Path queue = wholeFile();
         if (queue == null) {
-            // 전체 파일은 bigData 쪽 브랜치에 있어 대부분의 PC 와 CI 에는 없다. 없으면
-            // 표본으로 대신 재고, 이 검사가 조건부로 건너뛰지 않게 한다.
+            // 전체 파일은 대부분의 PC 와 CI 에 없다. 건너뛰지 않고 표본으로 대신 잰다.
             queue = sampleFile();
         }
         ResearchQueueReader.Counts[] counts = new ResearchQueueReader.Counts[1];

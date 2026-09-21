@@ -18,21 +18,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 잘못된 운영자 설정이 <b>정말로 기동을 막는가</b> — S15P21E201-225 의 완료 기준.
+ * 잘못된 운영자 설정이 정말로 기동을 막는가.
  *
- * <h2>🔴 왜 이 파일이 따로 있나</h2>
+ * <p>{@link AdminRoleStartupSynchronizerIntegrationTest} 는 동기화 메서드를 직접 불러 결과를
+ * 본다. 그것만으로는 그 메서드가 기동 경로에 연결돼 있는지가 확인되지 않는다. 그래서 여기서는
+ * 애플리케이션을 실제로 띄운다 — 배포 설정에 없는 계정을 적으면 {@code SpringApplication.run}
+ * 자체가 실패해야 하고, 설정이 비어 있으면 아무 일 없이 떠야 한다.
  *
- * {@link AdminRoleStartupSynchronizerIntegrationTest} 는 동기화 메서드를 직접 불러 결과를 본다.
- * 그것만으로는 확인되지 않는 것이 하나 남는다 — <b>그 메서드가 기동 경로에 실제로 연결돼 있는가</b>다.
- * 아무도 부르지 않는 검사는 통과해도 아무것도 막지 못하고, 그 상태에서도 위 테스트는 전부 초록이다.
- *
- * <p>그래서 여기서는 애플리케이션을 <b>진짜로 띄운다.</b> 배포 설정에 없는 계정을 적어 두면
- * {@code SpringApplication.run} 자체가 실패해야 한다. 이 저장소는 기동 실패로 운영이 멈춘 적이
- * 있으므로(INC-DEPLOY-001) 반대 방향도 함께 본다 — 설정이 비어 있을 때는 아무 일 없이 떠야 한다.
- *
- * <p>{@code @SpringBootTest} 를 쓰지 않는다. 기동이 실패하는 것을 <b>기대</b>하는 시험이라
- * 컨텍스트 캐시에 실패한 컨텍스트를 남기게 되고, 그러면 뒤에 도는 테스트가 같은 실패를
- * 물려받는다. 여기서는 컨텍스트를 직접 띄우고 직접 닫는다.
+ * <p>{@code @SpringBootTest} 를 쓰지 않는다. 기동 실패를 기대하는 검사라 컨텍스트 캐시에
+ * 실패한 컨텍스트가 남아 뒤에 도는 검사가 같은 실패를 물려받는다. 여기서는 컨텍스트를 직접
+ * 띄우고 직접 닫는다.
  */
 @ExtendWith(PostgresAvailableCondition.class)
 class AdminRoleStartupBootTest {

@@ -25,25 +25,14 @@ import com.gabolle.backend.weather.domain.WeatherQuery;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 지역·날짜로 기상청 단기예보를 조회해 답한다 — S15P21E201-366.
+ * 지역·날짜로 기상청 단기예보를 조회해 답한다. 캐시 열쇠는 격자 + 발표 회차라, 같은
+ * 열쇠면 원문이 안 바뀐다.
  *
- * <h2>순서</h2>
- * <ol>
- *   <li>위경도를 기상청 격자로 바꾸고({@link KmaGridConverter}), 지금 조회해도 반영이 끝난
- *       가장 최근 발표 회차를 고른다({@link KmaBaseTimeCalculator})</li>
- *   <li>격자+회차 열쇠로 캐시에 있으면(만료 전이면) 그 원문을 그대로 쓴다 — 벤더를 다시
- *       부르지 않는다</li>
- *   <li>없으면 벤더를 부르고, 성공하면 원문을 담아 둔다</li>
- *   <li>원문(캐시 히트든 새로 받은 것이든)을 파싱해 요청한 날짜로 하루 요약을 만든다</li>
- * </ol>
+ * 벤더 호출이 실패하면 WeatherVendorException 이 그대로 위로 올라간다 — 여기서 잡아
+ * 지어낸 값으로 답하지 않는다.
  *
- * <p>🔴 <b>벤더 호출이 실패하면 {@link WeatherVendorException} 이 그대로 위로 올라간다.</b>
- * 여기서 잡아 지어낸 값으로 대신 답하지 않는다 — 이 티켓이 금지하는 바로 그 실수다.
- *
- * <p>{@code @Profile({"db","dev"})} 는 {@code TranslationService} 와 같은 이유다 — 이
- * 서비스가 요구하는 {@link WeatherVendorPort}·{@link WeatherForecastCacheRepository} 구현이
- * 이 두 프로필에서만 뜨므로, 서비스도 같이 묶지 않으면 프로필 없는 기본 컨텍스트 테스트
- * ({@code GabolleBackendApplicationTests})가 빈을 못 찾아 죽는다.
+ * @Profile 을 지우면 프로필 없는 기본 컨텍스트 테스트가 죽는다. 이 서비스가 요구하는
+ * WeatherVendorPort·WeatherForecastCacheRepository 구현이 db·dev 에서만 뜬다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -75,14 +64,9 @@ public class WeatherService {
 	}
 
 	/**
-	 * 캐시에 이미 있는 것만 답한다 — <b>기상청을 부르지 않는다</b> (S15P21E201-993).
-	 *
-	 * <p>🔴 로그인하지 않은 사람이 오는 길이다. 문턱을 없앤 대신 이 경계를 둔다 — 익명
-	 * 출입증은 누구나 발급받을 수 있어서, 이 길에서 벤더를 부르면 좌표를 바꿔가며 우리 키의
-	 * 호출 한도를 태울 수 있다. 미리 받아 두는 작업({@code WeatherPrefetchScheduler})이
-	 * 부산 격자를 채워 두므로, 부산 안이라면 이 길로도 값이 나온다.
-	 *
-	 * @throws ForecastNotPreparedException 아직 안 받아 둔 격자·회차다
+	 * 캐시에 이미 있는 것만 답한다 — 기상청을 부르지 않는다. 로그인하지 않은 사람이 오는
+	 * 길이라, 여기서 벤더를 부르면 좌표를 바꿔가며 우리 키의 호출 한도를 태울 수 있다.
+	 * 안 받아 둔 격자·회차면 ForecastNotPreparedException.
 	 */
 	public WeatherForecastResult getForecastFromCache(WeatherQuery query) {
 		return forecast(query, false);
@@ -90,8 +74,7 @@ public class WeatherService {
 
 	/**
 	 * 한 격자의 이번 발표 회차를 받아 캐시에 채운다. 이미 있으면 아무것도 안 한다.
-	 *
-	 * @return 실제로 기상청을 불러 새로 채웠으면 {@code true}
+	 * 실제로 기상청을 불러 새로 채웠을 때만 true.
 	 */
 	public boolean prefetch(KmaGridCoordinate grid) {
 		ZonedDateTime nowInSeoul = ZonedDateTime.now(this.clock).withZoneSameInstant(KST);
@@ -126,7 +109,7 @@ public class WeatherService {
 			throw new ForecastNotPreparedException(grid);
 		}
 		else {
-			// 🔴 실패하면 여기서 던진 WeatherVendorException 이 그대로 위로 올라간다.
+			// 실패하면 여기서 던진 WeatherVendorException 이 그대로 위로 올라간다.
 			rawJson = this.vendor.fetchForecastJson(grid.nx(), grid.ny(), baseTime);
 			Instant expiresAt = now.plus(this.properties.getCacheTtl());
 			this.cacheRepository.save(cacheKey, rawJson, now, expiresAt);
@@ -138,38 +121,21 @@ public class WeatherService {
 			return new WeatherForecastResult(grid, forecast.get(), cacheHit);
 		}
 
-		// 🔴 S15P21E201-1207 — 이번 회차에 그 날짜가 없다. 밤 23시 10분 이후의 「오늘」이 그렇다.
-		//    이미 받아 둔 이전 회차에 담겨 있으므로 거기까지 찾아본다.
+		// 이번 회차에 그 날짜가 없다. 밤 23시 10분 이후의 「오늘」이 그렇다 —
+		// 이미 받아 둔 이전 회차에 담겨 있으므로 거기까지 찾아본다.
 		return fromEarlierRound(grid, baseTime, query, now)
 				.orElseThrow(() -> new IllegalArgumentException(
 						"date 가 이 발표 회차의 단기예보 범위를 벗어났습니다: " + query.date()));
 	}
 
 	/**
-	 * 이전 발표 회차의 <b>캐시</b>에서 그 날짜를 찾는다 — S15P21E201-1207.
+	 * 이전 발표 회차의 캐시에서 그 날짜를 찾는다. 어느 회차에도 없으면 빈 값.
 	 *
-	 * <h2>왜 필요한가</h2>
+	 * 기상청 23시 발표는 오늘을 안 담고 다음 날부터라, 밤 23시 10분이 지나면 「오늘」이
+	 * 이번 회차에 없다. 20시 발표에는 있고 이미 받아 둔 상태다.
 	 *
-	 * 기상청 <b>23시 발표는 오늘을 안 담는다</b> — 다음 날부터다. 그래서 밤 23시 10분이 지나면
-	 * 「오늘 날씨」를 물었을 때 이번 회차에 없다. 그런데 <b>20시 발표에는 있고, 이미 받아 둔
-	 * 상태다</b>(미리 받아 두는 작업이 부산 격자를 채우고 캐시가 하루 산다).
-	 * <b>자료는 손에 있는데 안 보고 있었다.</b>
-	 *
-	 * <h2>🔴 새로 받지 않는다</h2>
-	 *
-	 * 캐시에 있는 것만 본다. <b>지어내는 것도 아니고 새로 받는 것도 아니다</b> — 같은 날 아까
-	 * 받아 둔 <b>진짜 예보</b>다. 여기서 업체를 부르면 로그인 없이 오는 길이 우리 키의 호출
-	 * 한도를 태울 수 있고, 그 경계는 {@link #getForecastFromCache} 가 이미 정해 뒀다.
-	 *
-	 * <h2>얼마나 거슬러 가나</h2>
-	 *
-	 * <b>하루치 회차</b>까지다. 캐시가 하루라 그보다 오래된 것은 어차피 없고, 있다 해도
-	 * 하루 전 예보로 오늘을 말하는 것은 그 자체로 틀린 일이다.
-	 *
-	 * <p>실제로는 <b>대개 한 걸음</b>이면 끝난다 — 23시 회차에서 못 찾으면 20시 회차에 있다.
-	 * 낮에는 이 메서드에 아예 안 들어온다.
-	 *
-	 * @return 찾았으면 그 예보, 어느 회차에도 없으면 빈 값
+	 * 캐시에 있는 것만 본다 — 새로 받지 않는다. 거슬러 가는 한계는 하루치 회차이고,
+	 * 캐시가 하루라 그보다 오래된 것은 어차피 없다.
 	 */
 	private Optional<WeatherForecastResult> fromEarlierRound(KmaGridCoordinate grid, KmaBaseTime baseTime,
 			WeatherQuery query, Instant now) {
@@ -183,7 +149,7 @@ public class WeatherService {
 			Optional<DailyForecast> found = KmaForecastAggregator
 					.aggregate(KmaForecastJsonParser.parse(json.get(), this.objectMapper), query.date());
 			if (found.isPresent()) {
-				// 캐시로만 답했으므로 cached 는 참이다 — 업체를 부르지 않았다는 뜻 그대로다.
+				// 캐시로만 답했으므로 cached 는 참이다.
 				return Optional.of(new WeatherForecastResult(grid, found.get(), true));
 			}
 		}
@@ -191,10 +157,8 @@ public class WeatherService {
 	}
 
 	/**
-	 * 미리 받아 둔 것이 없다 — S15P21E201-993.
-	 *
-	 * <p>부산 밖 좌표이거나, 미리 받아 두는 작업이 아직 그 회차를 못 채웠을 때다. 로그인한
-	 * 사람에게는 이 예외가 나지 않는다(그 길은 기상청을 부른다).
+	 * 미리 받아 둔 것이 없다. 부산 밖 좌표이거나 미리 받기가 아직 그 회차를 못 채웠을 때다.
+	 * 로그인한 사람에게는 나지 않는다 — 그 길은 기상청을 부른다.
 	 */
 	public static class ForecastNotPreparedException extends RuntimeException {
 

@@ -42,12 +42,11 @@ import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripRepository;
 
 /**
- * 추천이 순위 매긴 장소를 실제 일정(항목·구간)으로 조립하고 저장한다 — S15P21E201-604.
- *
- * <p>🔴 클래스에 {@code @Transactional} 을 달지 않는다. {@link #persist} 는
- * {@code RecommendationRecorder.recordWithItinerary} 의 트랜잭션 안에서 불려야 하고,
- * 여기서 새 트랜잭션을 열면(또는 프록시가 트랜잭션 없이 부르면) 일정 저장과 Job·후보
- * 저장이 나뉘어 "일정만 생기고 Job 은 실패로 남는" 상태가 생길 수 있다.
+ * 추천이 순위 매긴 장소를 실제 일정(항목·구간)으로 조립하고 저장한다.
+ * 클래스에 {@code @Transactional} 을 달지 않는다. {@link #persist} 는
+ * {@code RecommendationRecorder.recordWithItinerary} 의 트랜잭션 안에서 불려야 하고, 여기서
+ * 새 트랜잭션을 열면 일정 저장과 Job·후보 저장이 나뉘어 "일정만 생기고 Job 은 실패로 남는"
+ * 상태가 생길 수 있다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -59,7 +58,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     private final Clock clock;
 
-    /** 하루에 배정할 최대 항목 수. 프리셋·설정이 없으면 4 — 이 값 자체가 제품 결정은 아니다. */
+    /** 하루에 배정할 최대 항목 수. 프리셋·설정이 없으면 4. */
     private final int maxItemsPerDay;
 
     private final int maxFoodPerDay;
@@ -67,26 +66,21 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private final String foodCategory;
 
     /**
-     * 구간(leg) 계산 — S15P21E201-755 뽑아내기. 생성과 편집(순서 바꾸기) 두 경로가 같은 규칙을
-     * 써야 해서 {@link ItineraryLegPlanner} 로 뽑았다. 자세한 이유는 그 클래스 머리말에 있다.
+     * 구간(leg) 계산. 생성과 편집(순서 바꾸기) 두 경로가 같은 규칙을 써야 해서
+     * {@link ItineraryLegPlanner} 로 뽑았다.
      */
     private final ItineraryLegPlanner legPlanner;
 
     /**
-     * 그 시각에 문을 여는가 — S15P21E201-857.
-     *
-     * <p>후보를 고르는 단계가 아니라 <b>자리에 앉히는 단계</b>에서 묻는다. 후보 조회는 여행
-     * 전체에 한 번 부르고 시각 칸은 한 순간이라, 거기에 첫날 아침을 넣으면 화요일 오후에
-     * 방문할 곳까지 월요일 아침 기준으로 걸러진다. 항목마다 날짜와 시각이 다른 이 자리에서만
-     * 제대로 물을 수 있다.
+     * 그 시각에 문을 여는가. 후보를 고르는 단계가 아니라 자리에 앉히는 단계에서 묻는다 —
+     * 후보 조회는 여행 전체에 한 번 부르고 시각 칸은 한 순간이라, 거기에 첫날 아침을 넣으면
+     * 화요일 오후에 방문할 곳까지 월요일 아침 기준으로 걸러진다.
      */
     private final OpeningHoursFilterPort openingHours;
 
     /**
-     * 브레이크타임에 걸리는가 · 라스트오더를 지났는가 — S15P21E201-94.
-     *
-     * <p>{@link #openingHours} 와 같은 자리에서, 같은 이유로 묻는다 — 자리에 앉히는 단계에서
-     * 항목마다 다른 시각을 물어야 한다.
+     * 브레이크타임에 걸리는가 · 라스트오더를 지났는가.
+     * {@link #openingHours} 와 같은 자리에서 같은 이유로 묻는다 — 항목마다 다른 시각을 물어야 한다.
      */
     private final PlaceTimeFactFilterPort timeFact;
 
@@ -108,14 +102,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 🔴 순수 계산 + 읽기만 — DB 에 아무것도 쓰지 않는다. {@code RecommendationService
-     * .continueJob} 이 트랜잭션 밖에서 부른다.
+     * 순수 계산 + 읽기만 — DB 에 아무것도 쓰지 않는다. 부르는 쪽이 트랜잭션 밖에서 부른다.
      */
     @Override
     public ItineraryDraft assemble(ItineraryDraftCommand command) {
         if (command.places().isEmpty()) {
-            // 🔴 RecommendationService 가 returnedCount == 0 인 경우를 이미 NO_FEASIBLE_RESULT 로
-            //    걸러 준다 — 여기 오면 그 방어선이 뚫린 것이다.
+            // returnedCount == 0 은 부르는 쪽이 이미 NO_FEASIBLE_RESULT 로 걸러 준다 — 여기 오면 그 방어선이 뚫린 것이다.
             throw new IllegalStateException("일정으로 조립할 장소가 없다: requestId=" + command.requestId());
         }
 
@@ -146,14 +138,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         List<ItineraryDraft.DraftLeg> legs = this.legPlanner.buildLegs(trip, placeIdsByDay);
 
-        // 🔴 S15P21E201-1130 — 시각은 **구간을 만든 뒤에** 깐다.
-        //
-        //    순서가 정해져야 이동 시간을 알 수 있고, 이동 시간을 알아야 시각을 깔 수 있다.
-        //    전에는 순서를 정하면서 시각까지 같이 정했고(placeIntoSlots -> slotFor), 그
-        //    시점에는 구간이 아직 없어서 **이동 시간이 0인 것처럼 시각이 깔렸다.**
-        //    그래서 「예상 도착」이 장소를 옮길 때마다 밀렸다 — 하루 끝에 78분(실측).
-        //
-        //    placeIntoSlots 이 정한 **순서는 그대로 쓴다.** 여기서는 시각만 다시 깐다.
+        // 시각은 구간을 만든 뒤에 깐다. 순서가 정해져야 이동 시간을 알 수 있고, 이동 시간을
+        // 알아야 시각을 깔 수 있다. 순서를 정하면서 시각까지 같이 정하면 그 시점에는 구간이
+        // 없어서 이동 시간이 0인 것처럼 깔리고, 「예상 도착」이 장소를 옮길 때마다 밀린다.
+        // placeIntoSlots 이 정한 순서는 그대로 쓰고 여기서는 시각만 다시 깐다.
         List<ItineraryDraft.DraftItem> items = new ArrayList<>();
         for (int dayIndex = 0; dayIndex < placedByDay.size(); dayIndex++) {
             List<Placed> placedToday = placedByDay.get(dayIndex);
@@ -181,26 +169,15 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     /**
      * 순위대로 날짜에 배분한다. 하루가 {@link #maxItemsPerDay} 를 채우면 다음 날로 넘기고,
-     * 모든 날이 다 차면 <b>남은 후보는 일정에 넣지 않는다</b> — S15P21E201-902.
-     *
-     * <p>예전에는 더 넘길 날이 없으면 남은 것을 전부 마지막 날에 쌓았다. 그 자리 javadoc 은
-     * "실제로는 topK 가 이 상황을 사실상 막는다" 고 적어 두었는데 <b>그 가정이 틀렸다.</b>
-     * 추천은 기본 10곳을 내놓고 하루 상한은 4라서, 1일 여행이면 {@code days - 1 == 0} 이라
-     * 넘길 날이 아예 없어 10곳이 통째로 하루에 들어갔다(2026-09-13 실사용 확인).
-     *
-     * <p>넘치는 것을 마지막 날에 쌓는 것보다 안 넣는 것이 맞다. 하루에 열 곳은 일정이 아니고,
-     * 그렇게 쌓인 날은 이동 시간도 머무는 시간도 계산이 안 맞는다.
-     *
-     * <p><b>추천 결과를 줄이는 것이 아니다.</b> 순위표는 그대로 다 남아서 대체 장소 제시와
-     * 재계산이 쓴다({@code ItineraryRevisionCommand.rankedPool}). 여기서 정하는 것은
-     * "일정에 실제로 놓는 수" 뿐이다.
-     *
-     * <h2>하루에 밥집이 몇 곳인가 — S15P21E201-903</h2>
-     *
-     * 운영 후보의 89%가 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다. 그래서 첫
-     * 배분에서는 밥집을 하루 {@link #maxFoodPerDay} 곳까지만 앉히고 나머지 자리를 명소로
-     * 채운다. 명소가 모자라 자리가 남으면 미뤄 둔 밥집으로 메운다 — 끼니 상한 때문에 자리를
-     * 비워 두는 것보다 갈 곳이 있는 편이 낫다.
+     * 모든 날이 다 차면 남은 후보는 일정에 넣지 않는다.
+     * 넘치는 것을 마지막 날에 쌓지 않는다 — 하루에 열 곳은 일정이 아니고, 그렇게 쌓인 날은
+     * 이동 시간도 머무는 시간도 계산이 안 맞는다. 1일 여행이면 넘길 날이 아예 없어 후보가
+     * 통째로 하루에 들어간다.
+     * 추천 결과를 줄이는 것이 아니다. 순위표는 그대로 다 남아서 대체 장소 제시와 재계산이
+     * 쓴다({@code ItineraryRevisionCommand.rankedPool}). 여기서 정하는 것은 일정에 실제로
+     * 놓는 수뿐이다.
+     * 첫 배분에서는 밥집을 하루 {@link #maxFoodPerDay} 곳까지만 앉히고 나머지 자리를 명소로
+     * 채운다 — 후보의 대부분이 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다.
      */
     private Distribution distributeByDay(
             List<ItineraryDraftCommand.PlannedPlace> places, int days, int mealsPerDay) {
@@ -212,15 +189,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         int[] foodPerDay = new int[days];
 
-        // 🔴 미뤄 둔 밥집으로 빈 자리를 메우지 않는다 (S15P21E201-1129).
-        //
-        //    전에는 메웠다. 앉지 못한 밥집을 모아 뒀다가, 끼니 상한을 무시하고 남은 자리에
-        //    전부 밀어 넣었다. 이유는 "자리를 비워 두는 것보다 갈 곳이 있는 편이 낫다"
-        //    였는데, 그 결과가 3일 12곳이 전부 음식점인 일정이었다 — 바다로 분류된 장소가
-        //    16곳뿐이라 명소가 금방 떨어지고 나머지를 밥집이 메웠다.
-        //
-        //    메우면 데이터가 모자라다는 사실이 아무 데도 안 보인다. 사용자에게는 "이 앱은
-        //    밥집만 추천한다" 로 보이고 팀에게는 신호가 안 온다. 그래서 비워 두고 말한다.
+        // 미뤄 둔 밥집으로 빈 자리를 메우지 않는다. 끼니 상한을 무시하고 메우면 명소 데이터가
+        // 모자란 지역에서 하루가 통째로 음식점이 되고, 데이터가 모자라다는 사실이 아무 데도
+        // 안 보인다. 사용자에게는 "이 앱은 밥집만 추천한다" 로 보이고 팀에게는 신호가 안 온다.
+        // 그래서 비워 두고 말한다.
         int rejectedFood = 0;
         for (ItineraryDraftCommand.PlannedPlace place : places) {
             if (!seat(byDay, foodPerDay, place, mealsPerDay) && isFood(place)) {
@@ -239,10 +211,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     /**
      * 고정된 식사 시각대 — 이 시간에 사람은 밥을 먹는다.
-     *
-     * <p>🔴 <b>개수가 아니라 시각이 정하게 한다</b>(S15P21E201-1129). 전에는 "하루에 밥집
-     * 최대 3곳" 이라는 개수 상한이었는데, 그 값은 <b>하루가 몇 시간이든 똑같았다.</b>
-     * 09~18시 여행이든 07~22시 여행이든 3곳이다. 사람이 다니는 방식과 안 맞는다.
+     * 개수가 아니라 시각이 정하게 한다. "하루에 밥집 최대 3곳" 같은 개수 상한은 하루가 몇
+     * 시간이든 똑같아서, 09~18시 여행과 07~22시 여행이 같은 값을 받는다.
      */
     private static final LocalTime[][] MEAL_BANDS = {
             { LocalTime.of(7, 0), LocalTime.of(9, 30) },    // 아침
@@ -255,10 +225,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     /**
      * 그 여행의 하루에 끼니가 몇 번 들어가나 — 활동 시간대와 겹치는 식사 시간대의 수.
-     *
-     * <p>09:00~18:00 이면 점심(150분 겹침)과 저녁(60분 겹침)으로 <b>2</b>다. 아침은 30분만
-     * 겹쳐서 안 센다. 활동 시간대를 안 정한 여행은 점심·저녁이 있다고 보고 <b>2</b>를 준다 —
-     * 모름을 0으로 두면 밥집이 한 곳도 안 들어간다.
+     * 09:00~18:00 이면 점심(150분 겹침)과 저녁(60분 겹침)으로 2다. 아침은 30분만 겹쳐서 안 센다.
+     * 활동 시간대를 안 정한 여행은 2를 준다 — 모름을 0으로 두면 밥집이 한 곳도 안 들어간다.
      */
     private int mealsPerDay(Trip trip) {
         LocalTime start = trip.timeWindowStart();
@@ -274,7 +242,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 meals++;
             }
         }
-        // 🔴 설정 상한을 넘지 않는다. 그 값은 이제 "최대 이만큼" 이지 "언제나 이만큼" 이 아니다.
+        // 설정 상한을 넘지 않는다. 그 값은 "최대 이만큼" 이지 "언제나 이만큼" 이 아니다.
         return Math.min(meals, this.maxFoodPerDay);
     }
 
@@ -321,26 +289,16 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 그 날의 장소를 시간 칸에 앉힌다 — S15P21E201-857.
-     *
-     * <p>칸을 앞에서부터 채우면서, 그 시각에 <b>닫는다고 원천이 말한</b> 장소는 그 자리에
-     * 놓지 않고 다음 후보를 본다. 후보는 순위 순으로 훑으므로 걸리는 것이 없으면 순위가
-     * 그대로 유지된다.
-     *
-     * <h2>모른다를 닫힘처럼 다루지 않는다</h2>
-     * 영업시간이 들어간 장소는 관광공사 268곳뿐이다(S15P21E201-852). 모름을 닫힘으로 보면
-     * 아직 안 넣은 2,355곳이 일정에서 통째로 빠지고, 사용자에게는 그것이 "갈 데가 없다" 로
-     * 보인다. 그래서 모름은 앉힌다.
-     *
-     * <h2>바꿀 후보가 없으면 그대로 놓고 적는다</h2>
+     * 그 날의 장소를 시간 칸에 앉힌다.
+     * 칸을 앞에서부터 채우면서, 그 시각에 닫는다고 원천이 말한 장소는 그 자리에 놓지 않고 다음
+     * 후보를 본다. 후보는 순위 순으로 훑으므로 걸리는 것이 없으면 순위가 그대로 유지된다.
+     * 모름을 닫힘처럼 다루지 않는다 — 영업시간이 들어간 장소가 아직 일부뿐이라, 모름을 닫힘으로
+     * 보면 나머지가 일정에서 통째로 빠지고 사용자에게는 "갈 데가 없다" 로 보인다.
      * 남은 후보가 전부 그 시각에 닫혀 있으면 순위 그대로 앉히고 그 항목의 경고에
-     * {@code OPENING_HOURS_CLOSED} 를 더한다. 빈 자리를 남기지 않는 이유는 일정에 구멍이
-     * 생기면 사용자가 그날 무엇을 할지 알 수 없기 때문이고, 조용히 앉히지 않는 이유는
-     * 화면이 그것을 "확인했고 문제 없음" 으로 읽기 때문이다.
-     *
-     * <h2>시각이 없으면 아무것도 안 한다</h2>
-     * 여행이 활동 시간대를 안 정했으면 칸에 시각이 없고, 시각이 없으면 문이 열렸는지 물어볼
-     * 수가 없다. 그때는 순위 그대로 앉힌다.
+     * {@code OPENING_HOURS_CLOSED} 를 더한다. 빈 자리를 남기면 사용자가 그날 무엇을 할지 알 수
+     * 없고, 조용히 앉히면 화면이 그것을 "확인했고 문제 없음" 으로 읽는다.
+     * 여행이 활동 시간대를 안 정했으면 칸에 시각이 없다. 시각이 없으면 물어볼 수가 없으므로
+     * 순위 그대로 앉힌다.
      */
     private List<Placed> placeIntoSlots(Trip trip, List<ItineraryDraftCommand.PlannedPlace> dayPlaces,
                                         LocalDate visitDate) {
@@ -354,17 +312,16 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             OffsetDateTime at = (slot.start() == null) ? null
                     : visitDate.atTime(slot.start()).atZone(ZONE).toOffsetDateTime();
 
-            // 🔴 이 칸이 밥 먹는 시각인가 (S15P21E201-1129). 맞으면 밥집을, 아니면 밥집이
-            //    아닌 곳을 먼저 찾는다. 같은 조건이면 순위가 높은 쪽이 먼저다.
+            // 이 칸이 밥 먹는 시각이면 밥집을, 아니면 밥집이 아닌 곳을 먼저 찾는다.
+            // 같은 조건이면 순위가 높은 쪽이 먼저다.
             boolean wantFood = overlapsMealBand(slot);
 
             int chosen = -1;
             if (at != null) {
                 chosen = firstOpen(dayPlaces, used, at, wantFood);
                 if (chosen < 0) {
-                    // 원하는 종류가 없다. 종류를 포기하고 영업시간만 본다 — 자리를 비우는
-                    // 것보다는 낫다. 이 칸이 "밥 때인데 밥집이 없다" 는 사실은 이미
-                    // distributeByDay 가 SIGHT_SLOT_UNFILLED 로 말한다.
+                    // 원하는 종류가 없다. 종류를 포기하고 영업시간만 본다 — 자리를 비우는 것보다는 낫다.
+                    // "밥 때인데 밥집이 없다" 는 사실은 이미 distributeByDay 가 SIGHT_SLOT_UNFILLED 로 말한다.
                     chosen = firstOpen(dayPlaces, used, at, !wantFood);
                 }
             }
@@ -409,22 +366,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     /**
      * 이 칸이 밥 먹는 시각인가 — 식사 시각대와 {@link #MEAL_OVERLAP_MINUTES} 이상 겹치면.
-     *
-     * <p>🔴 <b>스치기만 한 것은 안 센다.</b> 운영에서 가장 흔한 09:00~18:00 · 하루 4곳이면
-     * 첫 칸이 09:00~11:15 인데, 이게 아침(~09:30)에 30분 걸린다. 겹치기만 하면 센다는
-     * 규칙이면 <b>오전 첫 자리가 밥집이 된다</b> — 아침 먹고 나온 사람에게 9시에 또 밥을
-     * 권하는 꼴이다. {@link #mealsPerDay} 도 같은 30분을 안 세므로, 같은 잣대를 써야 칸 수와
-     * 끼니 수가 맞는다. 그 여행의 칸은 이렇게 갈린다:
-     *
-     * <pre>
-     *   09:00~11:15  아침과 30분   → 명소
-     *   11:15~13:30  점심과 120분  → 밥집
-     *   13:30~15:45  점심과 30분   → 명소
-     *   15:45~18:00  저녁과 60분   → 밥집
-     * </pre>
-     *
-     * <p>칸 자체가 60분보다 짧으면 그 길이를 기준으로 삼는다 — 안 그러면 짧은 칸은 통째로
-     * 점심 안에 들어가 있어도 영영 밥 때가 아니게 된다.
+     * 스치기만 한 것은 안 센다. 09:00~18:00 · 하루 4곳이면 첫 칸 09:00~11:15 가 아침에 30분
+     * 걸리는데, 겹치기만 하면 센다는 규칙이면 오전 첫 자리가 밥집이 된다.
+     * {@link #mealsPerDay} 도 같은 30분을 안 세므로, 같은 잣대를 써야 칸 수와 끼니 수가 맞는다.
+     * 칸 자체가 60분보다 짧으면 그 길이를 기준으로 삼는다 — 안 그러면 짧은 칸은 통째로 점심
+     * 안에 들어가 있어도 영영 밥 때가 아니게 된다.
      */
     private static boolean overlapsMealBand(Slot slot) {
         if (slot.start() == null || slot.end() == null) {
@@ -443,9 +389,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     /**
      * 그 시각에 그 장소가 걸리는 것이 있는가 — 있으면 경고 코드, 없으면 {@code null}.
-     *
-     * <p>영업시간 · 브레이크타임 · 라스트오더 셋을 이 순서로 본다. 셋 다 "모른다" 를 "문제
-     * 없음" 으로 접지 않는다 — {@link OpeningHoursFilterPort.Answer#CLOSED} 일 때만 걸린다.
+     * 영업시간 · 브레이크타임 · 라스트오더 셋을 이 순서로 본다. 셋 다 "모른다" 를 "문제 없음" 으로
+     * 접지 않는다 — {@link OpeningHoursFilterPort.Answer#CLOSED} 일 때만 걸린다.
      */
     private String violationAt(UUID placeId, OffsetDateTime at) {
         if (this.openingHours.openAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
@@ -472,26 +417,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
 
     /**
-     * 하루의 활동 시간대를 그 날 항목 수로 균등하게 나눈다.
-     *
-     * <p>🔴 {@code ESTIMATED} 다. {@code VERIFIED} 가 아니다 — 이 시각은 장소의 영업시간이나
-     * 실제 이동 소요를 본 것이 아니라 사용자가 정한 활동 시간대를 항목 수로 나눈 것뿐이다.
-     * 확인한 사실과 추정을 같은 등급으로 적으면 화면이 둘을 구분해 보여줄 수 없다.
-     *
-     * <p>칸이 1분도 안 나올 만큼 항목이 많으면 시각을 배정하지 않는다. 시작과 끝이 같은
-     * 칸은 {@code ck_itinerary_item_time_order}(끝이 시작보다 뒤여야 한다)에 걸린다.
-     */
-    /**
-     * 그 날 i번째 장소에 <b>도착하기까지</b>의 이동 시간(분)을 순서대로 뽑는다 —
-     * S15P21E201-1130.
-     *
-     * <p>{@code ItineraryLegPlanner.buildLegs} 는 항목 하나에 구간 하나를 만든다.
-     * {@code sequence = i + 1} 인 구간은 "i번째 장소로 가는 길" 이고, 첫 구간의 출발점은
-     * 여행의 출발 좌표다. 그래서 첫 이동도 빼놓지 않는다 — 숙소에서 첫 장소까지 가는
-     * 시간을 0으로 두면 아침부터 이미 밀린다.
-     *
-     * <p>소요가 {@code null} 인 구간(이동 시간을 못 받은 구간)은 0으로 친다. 모르는 것을
-     * 지어내지 않는다는 뜻이고, 그 경우 결과는 <b>지금과 같아진다</b> — 나빠지지 않는다.
+     * 그 날 i번째 장소에 도착하기까지의 이동 시간(분)을 순서대로 뽑는다.
+     * {@code ItineraryLegPlanner.buildLegs} 는 항목 하나에 구간 하나를 만들고, {@code sequence = i + 1}
+     * 인 구간이 "i번째 장소로 가는 길" 이다. 첫 구간의 출발점은 여행의 출발 좌표라 첫 이동도
+     * 빼놓지 않는다 — 숙소에서 첫 장소까지를 0으로 두면 아침부터 이미 밀린다.
+     * 소요가 {@code null} 인 구간은 0으로 친다. 모르는 것을 지어내지 않는다.
      */
     private static List<Integer> travelMinutesFor(List<ItineraryDraft.DraftLeg> legs, int dayIndex, int countToday) {
         List<Integer> minutes = new ArrayList<>(countToday);
@@ -511,21 +441,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 하루의 시각표를 깐다 — <b>이동 시간을 빼고 남은 만큼만 머문다</b>. S15P21E201-1130.
-     *
-     * <pre>
-     *   머무는 시간 = (활동 시간대 - 그 날 이동 시간 합) / 그 날 항목 수
-     *   i번째 시작   = 앞 항목의 끝 + i번째로 가는 이동 시간
-     * </pre>
-     *
-     * <p>마지막 항목의 끝이 활동 시간대의 끝을 넘지 않는다 — 넘던 것이 이 티켓이다.
-     *
-     * <p>🔴 이동만으로 하루가 다 차면 시각을 아예 안 준다({@link Slot#unknown()}).
-     * 예전처럼 이동을 무시하고 나누면 <b>되지도 않는 일정을 그럴듯하게 그리는 것</b>이고,
-     * 그건 시각이 없는 것보다 나쁘다. 화면은 시각 없는 항목을 이미 다룰 줄 안다.
-     *
-     * <p>{@link #slotFor} 와 달리 하루치를 한 번에 낸다 — 앞 항목의 끝을 알아야 다음
-     * 시작을 정할 수 있어서, 항목 하나만 따로 계산할 수가 없다.
+     * 하루의 시각표를 깐다 — 이동 시간을 빼고 남은 만큼만 머문다.
+     * 머무는 시간은 (활동 시간대 - 그 날 이동 시간 합) / 그 날 항목 수이고, i번째 시작은
+     * 앞 항목의 끝에 i번째로 가는 이동 시간을 더한 값이다. 마지막 항목의 끝이 활동 시간대의
+     * 끝을 넘지 않는다.
+     * 이동만으로 하루가 다 차면 시각을 아예 안 준다({@link Slot#unknown()}). 이동을 무시하고
+     * 나누면 되지도 않는 일정을 그럴듯하게 그리는 것이고, 그건 시각이 없는 것보다 나쁘다.
+     * {@link #slotFor} 와 달리 하루치를 한 번에 낸다 — 앞 항목의 끝을 알아야 다음 시작을 정할
+     * 수 있어서 항목 하나만 따로 계산할 수가 없다.
      */
     private static List<Slot> layoutDay(Trip trip, int countToday, List<Integer> travelMinutes) {
         List<Slot> slots = new ArrayList<>(countToday);
@@ -564,10 +487,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         return slots;
     }
 
-    // 🔴 S15P21E201-1130 이후 이 함수의 뜻이 좁아졌다. 여기서 나온 시각은
-    //    **화면에 나가지 않는다** — 순서를 정할 때 "이 자리쯤에서 문이 열려 있나" 를
-    //    물어보기 위한 임시 눈금일 뿐이다. 실제로 항목에 박히는 시각은 구간을 만든 뒤
-    //    layoutDay 가 이동 시간까지 넣어 다시 깐다. 둘을 헷갈리면 78분이 다시 생긴다.
+    // 여기서 나온 시각은 화면에 나가지 않는다 — 순서를 정할 때 "이 자리쯤에서 문이 열려
+    // 있나" 를 물어보기 위한 임시 눈금일 뿐이다. 실제로 항목에 박히는 시각은 구간을 만든 뒤
+    // layoutDay 가 이동 시간까지 넣어 다시 깐다. 둘을 헷갈리면 이동 시간이 0인 시각표로 돌아간다.
+    // 어느 쪽이든 등급은 ESTIMATED 다 — 영업시간이나 실제 이동 소요를 본 값이 아니라
+    // 활동 시간대를 항목 수로 나눈 것뿐이라, VERIFIED 로 적으면 화면이 둘을 구분할 수 없다.
     private static Slot slotFor(Trip trip, int index, int countToday) {
         LocalTime windowStart = trip.timeWindowStart();
         LocalTime windowEnd = trip.timeWindowEnd();
@@ -585,10 +509,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 🔴 바깥 트랜잭션 안에서 불린다 — {@code RecommendationRecorder.recordWithItinerary}.
-     * 여기서 순서를 뒤집지 않는다: 일정(itineraries·itinerary_versions·항목·구간)을 먼저
-     * 만들어야, 그 뒤에 Job 에 {@code itinerary_id} 를 붙이는 것(attachItinerary)이
-     * 의미가 있다.
+     * 바깥 트랜잭션 안에서 불린다.
+     * 여기서 순서를 뒤집지 않는다 — 일정(itineraries·itinerary_versions·항목·구간)을 먼저 만들어야
+     * 그 뒤에 Job 에 {@code itinerary_id} 를 붙이는 것이 의미가 있다.
      */
     @Override
     public ItineraryHandle persist(ItineraryDraft draft) {
@@ -626,9 +549,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     draftLeg.dataStatus(), now));
         }
 
-        // 🔴 2026-09-06 (S15P21E201-662) — 판과 내용을 한 번에 넘긴다. 예전에는 create 로
-        //    판을 먼저 만들고 saveContent 로 내용을 나중에 넣었는데, 그 두 걸음 사이가
-        //    "판은 있는데 내용이 없는" 상태였다. 저장소 인터페이스에서 그 걸음을 없앴다.
+        // 판과 내용을 한 번에 넘긴다. 판을 먼저 만들고 내용을 나중에 넣으면 그 두 걸음 사이가
+        // "판은 있는데 내용이 없는" 상태다.
         this.itineraryRepository.create(itinerary, firstVersion, items, legs);
         markTripReady(draft.tripId(), now);
 
@@ -636,18 +558,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 일정이 생겼으니 여행을 READY 로 옮긴다 — S15P21E201-964.
-     *
-     * <p>2026-09-15 까지 {@link Trip#markReady} 는 <b>어디에서도 불리지 않았다.</b> 그래서
-     * 모든 여행이 PLANNING 에 머물렀고, 내 여행 목록은 일정이 여러 판 쌓인 여행까지
-     * "일정 준비 중" 으로 보여 줬다. 목록만 보고는 일정이 만들어졌는지 알 수 없었다.
-     *
-     * <p>🔴 PLANNING 일 때만 옮긴다. 여행 중(IN_PROGRESS)인 여행의 일정을 다시 만들 때
-     * 무조건 READY 로 쓰면 진행 단계가 뒤로 밀린다. 끝난 여행과 지워진 여행은
-     * {@code markReady} 가 예외를 던지므로 그 앞에서 거른다 — 여기서 터지면 일정 저장까지
-     * 함께 굴러떨어지고, 그러면 <b>상태 한 칸 때문에 일정 생성이 실패한다.</b>
-     *
-     * <p>바깥 트랜잭션 안이라(머리말 참고) 일정과 상태가 같이 반영되거나 같이 안 된다.
+     * 일정이 생겼으니 여행을 READY 로 옮긴다.
+     * PLANNING 일 때만 옮긴다 — 여행 중(IN_PROGRESS)인 여행의 일정을 다시 만들 때 무조건 READY 로
+     * 쓰면 진행 단계가 뒤로 밀린다. 끝난 여행과 지워진 여행은 {@code markReady} 가 예외를 던지므로
+     * 그 앞에서 거른다. 여기서 터지면 일정 저장까지 함께 굴러떨어져 상태 한 칸 때문에 일정 생성이
+     * 실패한다.
+     * 바깥 트랜잭션 안이라 일정과 상태가 같이 반영되거나 같이 안 된다.
      */
     private void markTripReady(String tripId, Instant now) {
         this.tripRepository.findById(tripId)
@@ -658,16 +574,13 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 });
     }
 
-    // ------------------------------------------------------------------
-    // S15P21E201-249 — 있는 판의 하루만 다시 채운다
-    // ------------------------------------------------------------------
+    // 있는 판의 하루만 다시 채운다
 
     /**
      * {@link #revise} 가 만들고 {@link #publish} 가 받는 초안. 추천 계층에는
-     * {@link ItineraryRevisionDraft} 라는 겉면만 보인다 — 안에 든 것은 전부 일정 도메인 타입이다.
-     *
-     * <p>{@code newVersionId} 를 여기서 미리 정하는 이유 — 항목·구간·제외 행의 부모 키가
-     * 그 값이라 초안을 만드는 시점에 이미 필요하다. 게시가 실패하면 그 id 는 그냥 버려진다.
+     * {@link ItineraryRevisionDraft} 라는 겉면만 보인다.
+     * {@code newVersionId} 를 여기서 미리 정하는 이유는 항목·구간·제외 행의 부모 키가 그 값이라
+     * 초안을 만드는 시점에 이미 필요해서다. 게시가 실패하면 그 id 는 그냥 버려진다.
      */
     record RevisionDraft(
             String itineraryId,
@@ -686,26 +599,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 🔴 순수 계산 + 읽기 — {@link #assemble} 과 같은 자리에서(트랜잭션 밖) 불린다.
-     *
-     * <h2>무엇을 보존하고 무엇을 채우나</h2>
-     * <ul>
-     *   <li><b>다른 날은 그대로 복사한다.</b> {@link ItineraryRevision#copyOf} 가 항목·구간·제외
-     *       목록을 {@code item_key} 를 유지한 채 새 판으로 옮긴다 — 고정 편집과 같은 복사 규칙이다</li>
-     *   <li><b>그 날의 고정 항목은 남긴다.</b> {@code ITEM_REMOVE} 는 지정한 항목 하나만 빼고 나머지를
-     *       전부 남긴다(고정 여부와 무관) — 사용자가 뺀 것은 그 하나다. {@code ITINERARY_RECALCULATE}
-     *       는 고정 항목만 남기고 나머지를 비운다. 기준 항목({@code itemKey})이 주어지면 그 항목보다
-     *       앞선 자리(이미 다녀온 곳)도 남긴다</li>
-     *   <li><b>빈 자리는 순위 풀에서 채운다.</b> 그 날 원래 있던 항목 수를 목표로 한다 — 하루의
-     *       크기를 재계산이 바꾸지 않는다. 원래 비어 있던 날만 {@link #maxItemsPerDay} 를 목표로 한다.
-     *       제외된 장소와 이 일정에 이미 있는 장소는 풀에서 뺀다</li>
-     *   <li><b>모자라면 비워 둔다.</b> 조건을 완화해 억지로 채우지 않는다(요구사항 3.2). 그 사실은 판
-     *       경고({@link ItineraryWarningCodes})로 남는다 — 항목 행이 없어 항목 경고에는 적을 곳이 없다</li>
-     * </ul>
-     *
-     * <h2>제외 목록은 판에 매달린다</h2>
-     * 바탕 판의 제외 목록을 복사한 위에 이번 제외를 더한다. 그래서 "재계산을 몇 번 해도 뺀 장소가
-     * 다시 안 나온다" 는 별도 조회 없이 복사 한 가지로 보장되고, 되돌리기가 제외까지 되돌린다.
+     * 순수 계산 + 읽기 — {@link #assemble} 과 같은 자리에서(트랜잭션 밖) 불린다.
+     * 다른 날은 {@link ItineraryRevision#copyOf} 가 {@code item_key} 를 유지한 채 그대로 복사한다.
+     * 그 날에서 무엇을 남기는지는 연산이 가른다 — {@code ITEM_REMOVE} 는 지정한 항목 하나만 빼고
+     * 나머지를 고정 여부와 무관하게 남기고, {@code ITINERARY_RECALCULATE} 는 고정 항목만 남긴다.
+     * 기준 항목({@code itemKey})이 주어지면 그 항목보다 앞선 자리(이미 다녀온 곳)도 남긴다.
+     * 빈 자리는 순위 풀에서 채우되 목표는 그 날 원래 있던 항목 수다 — 재계산이 하루의 크기를
+     * 바꾸지 않는다. 원래 비어 있던 날만 {@link #maxItemsPerDay} 를 목표로 한다. 제외된 장소와
+     * 이 일정에 이미 있는 장소는 풀에서 뺀다.
+     * 모자라면 조건을 완화해 억지로 채우지 않고 비워 둔다. 그 사실은 판 경고
+     * ({@link ItineraryWarningCodes})로 남는다 — 항목 행이 없어 항목 경고에는 적을 곳이 없다.
+     * 제외 목록은 바탕 판의 것을 복사한 위에 이번 제외를 더한다. 그래서 재계산을 몇 번 해도 뺀
+     * 장소가 다시 안 나오고, 되돌리기가 제외까지 되돌린다.
      *
      * @throws IllegalStateException 바탕 판의 내용이 없다, 여행을 못 찾았다, dayIndex 가 여행 밖이다
      * @throws ItineraryRevision.ItemNotFoundException 기준 항목이 그 날에 없다
@@ -786,7 +691,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         // 3. 제외 목록 — 바탕 판 것 + 이번에 뺀 것 + 요청이 따로 준 것. 한 판에 같은 장소는 한 번만
         //    (uq_itinerary_excluded). 뺀 항목의 장소가 요청의 newlyExcludedPlaceIds 에도 들어 있는 것이
-        //    보통이라(ItineraryRecalculationService 가 그렇게 채운다) 여기서 걸러야 한다.
+        //    보통이라 여기서 걸러야 한다.
         List<ItineraryExclusion> exclusions = new ArrayList<>(copied.exclusions());
         Set<String> excludedPlaceIds = new HashSet<>();
         for (ItineraryExclusion exclusion : exclusions) {
@@ -831,16 +736,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         }
 
         // 6. 그 날 항목을 다시 만든다 — 남긴 것 먼저(원래 순서), 그 뒤에 채운 것(순위 순서).
-        //    시각은 그 날 항목 수로 다시 나눈다(slotFor) — 고정 항목의 시각도 함께 움직인다.
+        //    시각은 그 날 항목 수로 다시 나눈다 — 고정 항목의 시각도 함께 움직인다.
         int countToday = kept.size() + fills.size();
         LocalDate visitDate = trip.startDate().plusDays(dayIndex);
 
-        // 🔴 S15P21E201-1130 — 여기도 시각을 구간보다 먼저 깔면 안 된다.
-        //
-        //    순서(남긴 것 → 채운 것)는 시각과 상관없이 이미 정해져 있다. 그래서 그 순서로
-        //    그 날 구간을 먼저 만들고, 이동 시간을 아는 상태에서 시각을 깐다. 아래 8단계가
-        //    구간을 어차피 전부 다시 만드는데, 그 결과를 시각보다 늦게 쓰면 재계산한 날은
-        //    이동 시간이 0인 시각표로 되돌아간다.
+        // 여기도 시각을 구간보다 먼저 깔면 안 된다. 순서(남긴 것 → 채운 것)는 시각과 상관없이
+        //    이미 정해져 있으므로 그 순서로 그 날 구간을 먼저 만들고, 이동 시간을 아는 상태에서
+        //    시각을 깐다. 아래 8단계가 구간을 어차피 전부 다시 만드는데 그 결과를 시각보다 늦게
+        //    쓰면 재계산한 날은 이동 시간이 0인 시각표로 되돌아간다.
         List<UUID> orderedToday = new ArrayList<>(countToday);
         for (ItineraryItem item : kept) {
             orderedToday.add(UUID.fromString(item.placeId()));
@@ -933,12 +836,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 🔴 바깥 트랜잭션 안 — {@code RecommendationRecorder.recordWithItineraryRevision}.
-     *
-     * <p>FR-ITN-09 의 CAS(**내가 읽은 뒤로 바뀐 게 없을 때만 쓴다**)는 저장소가 한다 —
-     * {@code appendVersion} 의 판 번호 UNIQUE 와 포인터 조건부 UPDATE. 여기서는 그 실패
-     * ({@link StaleItineraryVersionException})를 포트 예외로 바꿔 던질 뿐이다. 바깥 트랜잭션이
-     * 되돌려져 이전 판이 그대로 최신으로 남는다.
+     * 바깥 트랜잭션 안에서 불린다.
+     * CAS(내가 읽은 뒤로 바뀐 게 없을 때만 쓴다)는 저장소가 한다 — {@code appendVersion} 의 판
+     * 번호 UNIQUE 와 포인터 조건부 UPDATE. 여기서는 그 실패({@link StaleItineraryVersionException})를
+     * 포트 예외로 바꿔 던질 뿐이고, 바깥 트랜잭션이 되돌려져 이전 판이 그대로 최신으로 남는다.
      */
     @Override
     public ItineraryHandle publish(ItineraryRevisionDraft draft) {

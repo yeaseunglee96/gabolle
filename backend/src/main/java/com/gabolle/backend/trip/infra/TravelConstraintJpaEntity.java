@@ -16,15 +16,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * {@code user_travel_constraint} 표 매핑 — S15P21E201-1231.
+ * {@code user_travel_constraint} 표 매핑. 사람당 한 줄이라 {@code user_id} 가 곧 기본키다 —
+ * 따로 id 칸을 두면 같은 사람의 답이 둘 들어갈 자리가 생긴다.
  *
- * <p>🔴 <b>사람당 한 줄</b>이라 {@code user_id} 가 곧 기본키다. 따로 id 칸을 두면 「같은
- * 사람의 답이 둘」이 들어갈 자리가 생기고, 그때 어느 것이 최신인지를 응용이 판단해야 한다.
- * 판단할 일이 없게 만드는 쪽이 낫다.
- *
- * <p>{@code value} 는 {@link TravelConstraintStatus#SAVED} 일 때만 찬다 — DB 의
- * {@code ck_user_travel_constraint_value_matches_status} 가 그것을 강제하고, 이 클래스의
- * {@link #saved}·{@link #withoutValue} 두 만드는 자리가 같은 것을 먼저 막는다.
+ * <p>{@code value} 는 {@link TravelConstraintStatus#SAVED} 일 때만 찬다. DB 의
+ * {@code ck_user_travel_constraint_value_matches_status} 가 강제하고,
+ * {@link #saved}·{@link #withoutValue} 가 그보다 먼저 막는다.
  */
 @Entity
 @Table(name = "user_travel_constraint")
@@ -38,7 +35,7 @@ public class TravelConstraintJpaEntity {
 	@Column(name = "status", nullable = false, length = 10)
 	private TravelConstraintStatus status;
 
-	/** 🔴 칸으로 쪼개지 않는다 — 추천 엔진에 통째로 넘기는 값이다. */
+	/** 칸으로 쪼개지 않는다 — 추천 엔진에 통째로 넘기는 값이다. */
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "value")
 	private String valueJson;
@@ -83,16 +80,15 @@ public class TravelConstraintJpaEntity {
 		}
 		else {
 			requireNotSaved(status);
-			// 🔴 값을 반드시 지운다. 안 지우면 「나중에」인데 값이 남아 DB 제약에 걸리고,
-			//    걸리지 않더라도 그 값이 어디서 왔는지 아무도 설명할 수 없다.
+			// 값을 반드시 지운다. 안 지우면 SAVED 가 아닌데 값이 남아 DB 제약에 걸린다.
 			this.valueJson = null;
 		}
 		this.status = status;
 		this.updatedAt = now;
 	}
 
-	// 🔴 DB 의 CHECK 와 같은 것을 여기서 먼저 막는다. DB 까지 가면 트랜잭션이 통째로
-	//    되돌려지고 원인은 제약 이름만 남는다 — StoryView.create 가 같은 이유로 같은 모양이다.
+	// DB 의 CHECK 와 같은 것을 여기서 먼저 막는다. DB 까지 가면 트랜잭션이 통째로 되돌려지고
+	// 원인은 제약 이름만 남는다.
 	private static void requireValue(String valueJson) {
 		if (valueJson == null || valueJson.isBlank()) {
 			throw new IllegalArgumentException("「저장하고 시작」은 값이 있어야 한다");

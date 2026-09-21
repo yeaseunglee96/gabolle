@@ -34,10 +34,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * S15P21E201-192 — 도커 없이 도는 단위 테스트. 실제 저장소·엔진은 전부 mock 이다.
- *
- * <p>확인하는 것은 조립 순서다 — job 이 PENDING 으로 <b>저장된 뒤에</b> 비동기 실행이
- * 넘겨지는가, 그리고 제약 스냅샷이 없는 여행을 거부하는가.
+ * 도커 없이 도는 단위 테스트. 실제 저장소·엔진은 전부 mock 이다. 확인하는 것은 조립 순서다 —
+ * job 이 PENDING 으로 저장된 뒤에 비동기 실행이 넘겨지는가, 그리고 제약 스냅샷이 없는 여행을
+ * 거부하는가.
  */
 class RecommendationJobRunnerTest {
 
@@ -85,8 +84,7 @@ class RecommendationJobRunnerTest {
 		assertThat(result).isSameAs(preparedJob);
 		assertThat(result.getJobStatus()).isEqualTo(JobStatus.PENDING);
 
-		// 🔴 순서 검증 — save 가 execute 보다 먼저다. 거꾸로면 비동기 스레드가 아직 없는
-		//    행을 먼저 건드릴 수 있다(RecommendationJobRunner 클래스 javadoc 참고).
+		// save 가 execute 보다 먼저다. 거꾸로면 비동기 스레드가 아직 없는 행을 건드린다.
 		InOrder order = Mockito.inOrder(this.jobRepository, this.worker);
 		order.verify(this.jobRepository).save(preparedJob);
 		order.verify(this.worker).execute(any(), any());
@@ -147,7 +145,7 @@ class RecommendationJobRunnerTest {
 
 		assertThat(outcome.created()).isFalse();
 		assertThat(outcome.job()).isSameAs(preparedJob);
-		// 🔴 재시도로 확인된 기존 Job 은 다시 실행에 넘기지 않는다 — 이미 실행 중이거나 끝났다.
+		// 재시도로 확인된 기존 Job 은 다시 실행에 넘기지 않는다 — 이미 실행 중이거나 끝났다.
 		verify(this.worker, Mockito.never()).execute(any(), any());
 		verify(this.jobRepository, Mockito.never()).save(any());
 	}

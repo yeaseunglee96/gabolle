@@ -21,10 +21,9 @@ import com.gabolle.backend.review.presentation.dto.VisitVerificationRequest;
 import com.gabolle.backend.review.presentation.dto.VisitVerificationResponse;
 
 /**
- * 방문 인증 — S15P21E201-279.
+ * 방문 인증.
  *
- * <p>🔴 사용자를 <b>인증 principal</b> 에서 얻는다({@link AuthenticatedUsers#requireId}).
- * {@code X-User-Id} 헤더를 쓰지 않는다 — {@code PlaceDetailController} 의 같은 판단이다.
+ * 사용자는 인증 principal 에서만 얻는다. {@code X-User-Id} 헤더를 쓰지 않는다.
  */
 @RestController
 @RequestMapping("/api/v1/places/{placeId}/visit-verifications")
@@ -48,7 +47,6 @@ public class VisitVerificationController {
 		return ApiResponse.success(VisitVerificationResponse.from(outcome), resolveRequestId(requestId));
 	}
 
-	/** 클라이언트가 준 추적 아이디를 그대로 쓴다. */
 	private String resolveRequestId(String requestId) {
 		return requestId == null || requestId.isBlank() ? UUID.randomUUID().toString() : requestId;
 	}

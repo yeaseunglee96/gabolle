@@ -5,14 +5,14 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
- * S15P21E201-313 JPA 저장소 통합 테스트가 띄우는 애플리케이션 — <b>공통·일정만</b> 올린다.
+ * JPA 저장소 통합 테스트가 띄우는 애플리케이션 — 공통·일정만 올린다.
  *
  * <p>{@link TripSliceApplication} 과 같은 이유로 패키지를 따로 둔다 — {@code com.gabolle.backend}
  * 안에 두면 본 애플리케이션의 컴포넌트 스캔에 걸려 {@code no-db} 프로필에서도
  * {@code @EnableJpaRepositories} 가 켜진다.
  */
 /*
- * 🔴 2026-09-05 (S15P21E201-604) — trip · place 를 스캔 범위에 더했다.
+ * trip · place 를 스캔 범위에 더했다.
  *    itinerary/application/ItineraryDraftService 가 여행 기간·출발지(TripRepository)와
  *    장소 좌표(PlaceRepository)를 읽어야 일정 초안을 만들 수 있고, itinerary/application/
  *    ItineraryQueryService 가 "이 판을 만든 추천이 무엇이었나"(RecommendationJobRepository)를

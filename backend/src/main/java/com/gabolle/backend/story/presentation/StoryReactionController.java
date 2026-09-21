@@ -21,18 +21,8 @@ import jakarta.validation.Valid;
 /**
  * 기록(글)에 좋아요·싫어요를 단다.
  *
- * <pre>
- * PUT    /api/v1/stories/{storyId}/reaction   {"reaction":"LIKE"}
- * DELETE /api/v1/stories/{storyId}/reaction
- * </pre>
- *
- * <h2>🔴 둘 다 몇 번을 보내도 결과가 같다</h2>
- *
- * {@code PUT} 은 같은 값을 다시 보내도 같은 상태로 끝나고, {@code DELETE} 는 안 눌렀던 것을
- * 지워도 성공이다. 앱이 재시도해도 사용자에게 오류가 안 뜬다 — {@code saved_place} 의
- * 하트가 정한 규칙을 그대로 따른다(S15P21E201-1013 · -1037).
- *
- * <p>🔴 요청자는 언제나 인증에서 읽는다. 경로에 남의 번호를 넣을 자리가 없다.
+ * <p>둘 다 몇 번을 보내도 결과가 같다 — {@code PUT} 은 같은 값을 다시 보내도 같은 상태로 끝나고,
+ * {@code DELETE} 는 안 눌렀던 것을 지워도 성공이다.
  */
 @RestController
 @RequestMapping("/api/v1/stories/{storyId}/reaction")

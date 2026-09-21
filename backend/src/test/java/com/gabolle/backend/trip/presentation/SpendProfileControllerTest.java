@@ -24,10 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * S15P21E201-709 — {@code /api/v1/me/preferences/spend} 표현 계층.
- *
- * <p>🔴 대상이 요청 헤더가 아니라 인증 주체로만 정해지는지 확인한다 —
- * {@code RecommendationResultAuthorizationTest} 와 같은 방식.
+ * {@code /api/v1/me/preferences/spend} 표현 계층. 대상이 요청 헤더가 아니라 인증 주체로만
+ * 정해지는지 확인한다.
  */
 class SpendProfileControllerTest {
 

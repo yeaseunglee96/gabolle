@@ -41,11 +41,7 @@ import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * 추천 요청 한 건이 만든 것 전부가 request_id 하나로 되찾아지는가.
- *
- * <p>인수인계 문서의 필수 테스트 1·2·3·4·7·9·10·11 을 여기서 본다.
- */
+/** 추천 요청 한 건이 만든 것 전부가 request_id 하나로 되찾아지는가. */
 class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 
 	@Autowired
@@ -74,8 +70,7 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 		this.jobRepository.deleteAllInBatch();
 		this.outboxRepository.deleteAllInBatch();
 		this.engine.reset();
-		// 🔴 S15P21E201-554 가 외래키를 붙였으므로 요청이 가리키는 사용자·여행·스냅샷은
-		//    실제 행이어야 한다. 전에는 임의 UUID 였다.
+		// 외래키가 붙어 있어 요청이 가리키는 사용자·여행·스냅샷은 실제 행이어야 한다.
 		this.references = PersonalizationFixture.insert(this.jdbcTemplate);
 	}
 
@@ -214,7 +209,7 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 		RecommendationResult result = this.recommendationService.recommend(command(5));
 
 		assertThat(result.requestId()).isNotNull();
-		// 🔴 request_id 는 서버가 만들어 엔진까지 그대로 넘어간다. 클라이언트가 정하지 않는다.
+		// request_id 는 서버가 만들어 엔진까지 그대로 넘어간다. 클라이언트가 정하지 않는다.
 		assertThat(this.engine.lastRequest().requestId()).isEqualTo(result.requestId());
 
 		assertThat(this.jobRepository.findByRequestId(result.requestId())).isPresent();
@@ -225,9 +220,9 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 				.findByEventTypeOrderByOccurredAtAsc(RecommendationCodes.EVENT_RECOMMENDATION_REQUESTED);
 		assertThat(events).hasSize(1);
 		assertThat(events.get(0).getAggregateId()).isEqualTo(result.requestId());
-		// 🔴 request_id 는 payload 에 중복 저장하지 않는다. 추천 축(RECOMMENDATION_REQUEST)에서는
-		//    aggregate_id 가 정본이고(바로 위 assertion), 나머지 envelope 값은 전용 컴럼으로 간다.
-		//    같은 값을 payload 와 컴럼 둘에 두면 나중에 서로 달라지도 어느 짝이 맞는지 알 수 없다.
+		// request_id 는 payload 에 중복 저장하지 않는다. 추천 축에서는 aggregate_id 가
+		// 정본이고 나머지 envelope 값은 전용 컬럼으로 간다 — 같은 값을 둘에 두면 나중에
+		// 서로 달라졌을 때 어느 쪽이 맞는지 알 수 없다.
 		assertThat(events.get(0).getPayload()).doesNotContain("\"request_id\"");
 		assertThat(events.get(0).getUserId()).isEqualTo(this.references.userId());
 		assertThat(events.get(0).getTripId()).isEqualTo(this.references.tripId());
@@ -236,8 +231,8 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 		assertThat(events.get(0).getPayload())
 				.contains("model_version", "feature_version", "ontology_version", "policy_version");
 
-		// 🔴 occurred_at 은 요청 시각이다. 완료 시각을 넣으면 지연이 긴 요청일수록 발생 시각이
-		//    뒤로 밀려 시간대별 요청량 분석이 통째로 어긋난다.
+		// occurred_at 은 요청 시각이다. 완료 시각을 넣으면 지연이 긴 요청일수록 발생 시각이
+		// 뒤로 밀려 시간대별 요청량 분석이 어긋난다.
 		RecommendationJob job = this.jobRepository.findByRequestId(result.requestId()).orElseThrow();
 		assertThat(events.get(0).getOccurredAt()).isEqualTo(job.getCreatedAt());
 		assertThat(events.get(0).getOccurredAt()).isBeforeOrEqualTo(job.getCompletedAt());
@@ -263,7 +258,7 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 
 		RecommendationJob job = this.jobRepository.findAll().get(0);
 		assertThat(job.isTimeoutOccurred()).isTrue();
-		// 🔴 버전 칸은 비어 있다. 그게 이 이벤트가 존재하는 이유다.
+		// 버전 칸은 비어 있다. 그게 이 이벤트가 존재하는 이유다.
 		assertThat(job.getModelVersion()).isNull();
 	}
 
@@ -377,7 +372,7 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 		assertThat(job.getJobStatus()).isEqualTo(JobStatus.FAILED);
 		assertThat(job.getErrorCode()).isEqualTo(RecommendationCodes.ERROR_NO_FEASIBLE_RESULT);
 		assertThat(job.getGeneratedCandidateCount()).isEqualTo(2);
-		// 🔴 왜 빈손이었는지는 이 두 행에만 적혀 있다. 지우면 영영 못 묻는다.
+		// 왜 빈손이었는지는 이 두 행에만 적혀 있다. 지우면 영영 못 묻는다.
 		assertThat(this.candidateRepository.countByRequestId(job.getRequestId())).isEqualTo(2);
 		// 하드 제약을 슬쩍 풀어 결과를 채우지 않았다.
 		assertThat(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(job.getRequestId()))
@@ -397,7 +392,7 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 
 		RecommendationResult result = this.recommendationService.recommend(command(5));
 
-		// 🔴 대체 경로였다는 사실은 상태가 아니라 fallbackMode 가 나타낸다 (GB-API-001 5장).
+		// 대체 경로였다는 사실은 상태가 아니라 fallbackMode 가 나타낸다.
 		assertThat(result.jobStatus()).isEqualTo(JobStatus.SUCCEEDED);
 		assertThat(result.fallbackMode()).isEqualTo(FallbackMode.BASELINE);
 		assertThat(result.fallbackReason()).isEqualTo("MODEL_TIMEOUT");

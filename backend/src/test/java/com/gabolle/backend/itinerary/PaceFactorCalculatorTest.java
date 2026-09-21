@@ -18,13 +18,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryItemActual;
 
 /**
- * 개인 속도 계수 계산 규칙 — S15P21E201-304.
- *
- * <p>Spring 도 DB 도 안 띄운다. 이 계산은 순수 함수라 그 둘이 있어도 재는 것이 늘어나지
- * 않고, 대신 한 번 도는 데 몇 밀리초라 갈래를 촘촘히 재도 부담이 없다.
- *
- * <p>검사 이름은 티켓의 완료 기준 문장을 그대로 옮긴 것이 넷이고, 그 문장들이 조용히
- * 통과하지 못하도록 막는 것이 나머지다.
+ * 개인 속도 계수 계산 규칙. 계산이 순수 함수라 Spring 도 DB 도 안 띄운다.
  */
 class PaceFactorCalculatorTest {
 

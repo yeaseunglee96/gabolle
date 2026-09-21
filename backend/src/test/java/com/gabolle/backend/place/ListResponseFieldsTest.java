@@ -17,29 +17,11 @@ import com.gabolle.backend.place.domain.Place;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 목록 응답이 칸을 <b>실제로 싣는가</b> — 같은 병이 <b>세 번</b> 났다.
+ * 목록 응답에 칸을 더해 놓고 값을 안 옮기면 컴파일도 기존 검사도 통과하므로, 만드는
+ * 쪽({@code of}·{@code from})이 값을 끝까지 옮기는지 본다.
  *
- * <ul>
- *   <li>S15P21E201-1120 — 사진 주소·출처가 상세에만 있었다</li>
- *   <li>S15P21E201-1194 — 영문 주소가 상세에만 있었다. 목록은 이름만 두 언어였다</li>
- *   <li>S15P21E201-1205 — 「무엇을 찍은 사진인가」가 상세에만 있었다. 목록은 사진을 싣는데
- *       그것이 무엇을 찍은 것인지 말할 방법이 없었다</li>
- * </ul>
- *
- * <p>칸을 더해 놓고 값을 안 옮기면 화면은 여전히 그것을 못 그린다. 그 종류의 실수는 컴파일도
- * 통과하고 기존 검사도 통과한다 — 그래서 여기서 값이 끝까지 가는지를 본다.
- *
- * <p>🔴 이름이 한동안 {@code ListResponsePhotoFieldsTest} 였다. 사진에서 시작한 파일인데 주소도,
- * 「무엇을 찍은 사진인가」도 보게 되면서 <b>이름이 내용보다 좁아졌다.</b> 세 번째 주제가 들어올 때
- * 고쳤다 — 「나중에」로 미루면 다음 사람이 네 번째를 또 「사진」 파일에 넣는다.
- *
- * <p>🔴 이 파일이 재는 것은 <b>「칸이 있을 때 값이 실제로 옮겨지는가」</b>다.
- * <b>「상세에 있는 칸이 목록에 없는가」</b>는 다른 질문이고 {@code PlaceListDetailFieldGapTest} 가 잰다.
- * 목록에 칸을 더할 때 <b>「목록에도
- * 실었나」</b>를 사람이 기억하지 않아도 되게 하는 자리다.
- *
- * <p>DB 를 안 띄운다. 만드는 쪽({@code of}·{@code from})이 값을 옮기는지가 이 검사의 질문이고,
- * 그건 객체 하나로 답할 수 있다.
+ * <p>"상세에 있는 칸이 목록에 없는가" 는 다른 질문이고 {@code PlaceListDetailFieldGapTest}
+ * 가 잰다. 객체 하나로 답할 수 있어 DB 를 안 띄운다.
  */
 class ListResponseFieldsTest {
 
@@ -81,7 +63,7 @@ class ListResponseFieldsTest {
 
 		assertThat(item.photoUrl()).isEqualTo(PHOTO);
 		assertThat(item.photoSource()).isEqualTo(SOURCE);
-		// 🔴 지금 화면이 읽는 칸이다. 새 칸을 더하면서 이걸 건드리면 그 화면이 깨진다.
+		// 지금 화면이 읽는 칸이라 새 칸을 더하면서 건드리면 안 된다.
 		assertThat(item.hasPhoto()).isTrue();
 	}
 
@@ -99,8 +81,7 @@ class ListResponseFieldsTest {
 	@Test
 	@DisplayName("🔴 새 칸은 맨 뒤에 있다 — 앞자리를 밀면 이미 배포된 앱이 깨진다")
 	void newFieldsAreAppendedAtTheEnd() {
-		// 차례를 통째로 고정한다. 맨 뒤만 보면 가운데를 끼워 넣어도 안 걸리고, 앞만 보면
-		// 뒤에서 자리가 바뀌어도 안 걸린다.
+		// 맨 뒤만 보면 가운데를 끼워 넣어도 안 걸리므로 차례를 통째로 고정한다.
 		assertThat(componentNames(PlaceSummaryResponse.class)).containsExactly(
 				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "matchedField",
 				"photoUrl", "photoSource", "addressEn", "photoSubject");
@@ -145,11 +126,8 @@ class ListResponseFieldsTest {
 	}
 
 	/**
-	 * 영문 주소가 붙은 장소.
-	 *
-	 * <p>🔴 {@code Place} 에는 영문 칸을 채우는 <b>자바 통로가 없다</b> — 수집 파이프라인이 SQL 로만
-	 * 넣고 앱은 읽기만 한다(그래서 {@code imported(...)} 에도 setter 에도 없다). 그 칸 하나를
-	 * 재려고 DB 를 띄우는 것은 이 검사가 답하려는 질문에 비해 과하므로 여기서만 직접 심는다.
+	 * {@code Place} 에는 영문 칸을 채우는 자바 통로가 없어(수집 파이프라인이 SQL 로만 넣는다)
+	 * 리플렉션으로 직접 심는다.
 	 */
 	private static Place placeWithAddressEn(String addressEn) {
 		Place place = placeWithPhoto(PHOTO, SOURCE);

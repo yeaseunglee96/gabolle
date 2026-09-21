@@ -20,12 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * 하네스(S15P21E201-779)가 실제로 도는지 증명하는 예시 시나리오.
- *
- * <p>회원가입 → 이메일 인증(DB 직접) → 로그인 → 인증이 필요한 경로 호출까지 실제 소켓과 실제
- * {@code SecurityFilterChain}을 통과시킨다. MockMvc는 이 필터체인을 절대 안 통과하므로, 이
- * 테스트가 통과한다는 것 자체가 하네스의 핵심 가치(01절 — 실제 HTTP만 잡는 실패 유형)를
- * 증명한다.
+ * 하네스가 실제로 도는지 증명하는 예시 시나리오. 회원가입 → 이메일 인증(DB 직접) → 로그인 → 인증이
+ * 필요한 경로 호출까지 실제 소켓과 실제 {@code SecurityFilterChain} 을 통과시킨다.
  */
 class AuthedMeFunctionalTest extends FunctionalJourneyTest {
 
@@ -59,15 +55,11 @@ class AuthedMeFunctionalTest extends FunctionalJourneyTest {
 	}
 
 	/**
-	 * 이메일이 어디에도 없는 계정도 자기 정보를 읽을 수 있어야 한다 — S15P21E201-893.
+	 * 이메일이 어디에도 없는 계정도 자기 정보를 읽을 수 있어야 한다. 애플은 맨 처음 인증 때만 이메일을
+	 * 주므로, 로컬 비밀번호 계정도 provider 이메일도 없는 계정이 실제로 생긴다. 앱은 로그인 직후 이
+	 * 경로를 자동으로 부르기 때문에 여기서 실패하면 로그인이 성공해도 화면이 안 넘어간다.
 	 *
-	 * <p>애플은 그 사용자의 맨 처음 인증 때만 이메일을 주고, "이메일 숨기기" 를 고르거나 우리가 아직
-	 * 이메일을 요청하지 않던 시절에 가입한 계정은 로컬 비밀번호 계정도 provider 이메일도 없다. 그런
-	 * 계정에서 이 경로가 500 을 냈고, 앱은 로그인 직후 이 경로를 자동으로 부르기 때문에 애플 로그인이
-	 * 서버까지 성공하고도 화면이 넘어가지 않았다.
-	 *
-	 * <p>그 상태를 실제 애플 호출 없이 만든다 — 가입으로 생긴 비밀번호 계정을 지우고, 이메일을 주지
-	 * 않은 애플 연결만 남긴다. 판정에 쓰이는 조건(이메일 출처가 둘 다 빈다)은 운영에서 겪은 것과 같다.
+	 * <p>그 상태를 실제 애플 호출 없이 만든다 — 비밀번호 계정을 지우고 이메일 없는 애플 연결만 남긴다.
 	 */
 	@Test
 	void readsOwnProfileWhenNoEmailSourceRemains() {

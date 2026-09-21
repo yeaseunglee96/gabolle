@@ -1,6 +1,6 @@
 package com.gabolle.backend.exchangerate.adapter;
 
-// 🔴 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
+// 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -23,12 +23,6 @@ import org.springframework.web.client.RestClient;
 import com.gabolle.backend.exchangerate.application.ExchangeRateVendorException;
 import com.gabolle.backend.exchangerate.config.ExchangeRateProperties;
 
-/**
- * {@link KoreaeximExchangeRateVendorAdapter} 검증 — S15P21E201-1079.
- *
- * <p>{@code KmaWeatherVendorAdapterTest}와 같은 방식으로 {@code MockRestServiceServer}를
- * 쓴다. 진짜 네트워크를 부르지 않는다.
- */
 class KoreaeximExchangeRateVendorAdapterTest {
 
 	private static final LocalDate SEARCH_DATE = LocalDate.of(2026, 9, 16);
@@ -36,7 +30,7 @@ class KoreaeximExchangeRateVendorAdapterTest {
 	private KoreaeximExchangeRateVendorAdapter newAdapter(RestClient.Builder builder, String authKey) {
 		ExchangeRateProperties properties = new ExchangeRateProperties();
 		properties.setAuthKey(authKey);
-		// 🔴 세 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
+		// 세 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
 		return new KoreaeximExchangeRateVendorAdapter(builder, properties, null);
 	}
 

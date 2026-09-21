@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 이름 검색(S15P21E201-462) 완료 기준을 하나씩 확인한다.
+ * 이름 검색의 완료 기준을 하나씩 확인한다.
  */
 class PlaceSearchIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -42,7 +42,7 @@ class PlaceSearchIntegrationTest extends PlacePostgresIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다 — PlaceFeatureCodeMapTest 등 다른 통합 테스트가 같은 표에 행을 남긴다.
+		// 표를 통째로 비우지 않는다 — 다른 통합 테스트가 같은 표에 행을 남긴다.
 		this.fixture.cleanUp();
 	}
 
@@ -156,11 +156,8 @@ class PlaceSearchIntegrationTest extends PlacePostgresIntegrationTest {
 	@DisplayName("🔴 완료 기준 — 한 페이지보다 많은 행에서도 정확일치가 첫 페이지에 나오고, "
 			+ "어떤 항목도 두 페이지에 걸쳐 나오지 않으며, 전체 항목이 빠짐없이 나온다")
 	void exactMatchSurvivesPagingAcrossManyRowsWithoutDuplicates() {
-		// 🔴 예전 구현은 리포지토리에서 offset+limit+1 개만 먼저 잘라(정렬 없이) 받은 뒤 그
-		// 잘린 집합만 정렬했다 — searchByName 에 ORDER BY 가 없어 DB 반환 순서가 임의였으므로,
-		// 행이 딱 한 페이지 분량(예: 3개)이면 잘림 자체가 안 일어나 이 결함이 재현되지 않았다.
-		// 그래서 여기서는 한 페이지(limit)보다 뚜렷이 많고 MAX_RANKED(500) 보다는 훨씬 적은
-		// 행을 넣어 여러 페이지를 실제로 넘기면서 잰다.
+		// 행 수는 한 페이지(limit)보다 뚜렷이 많고 MAX_RANKED(500) 보다는 훨씬 적어야 한다.
+		// 한 페이지 분량이면 잘림이 안 일어나 정렬 결함이 재현되지 않는다.
 		String token = this.fixture.token();
 		String exactName = "정렬완료" + token;
 		UUID exactMatch = this.fixture.insertPlace(exactName, null, "ATTRACTION", 35.1, 129.0);
@@ -200,9 +197,8 @@ class PlaceSearchIntegrationTest extends PlacePostgresIntegrationTest {
 	@DisplayName("🔴 offset 이 상한(10,000)을 넘는 커서는 INVALID_CURSOR 로 거부된다 — "
 			+ "위조된 offset 으로 표 전체를 훑는 것을 막는다")
 	void offsetBeyondMaxIsRejected() {
-		// fingerprint 는 위조 방지가 아니라 조건 일치 확인용이라(SearchCursor 참고) 검색 조건만
-		// 알면 이렇게 유효한 fingerprint 로 임의의 offset 을 만들 수 있다 — 그래서 서비스가
-		// 별도로 상한을 둬야 한다.
+		// fingerprint 는 위조 방지가 아니라 조건 일치 확인용이라, 검색 조건만 알면 유효한
+		// fingerprint 로 임의의 offset 을 만들 수 있다 — 그래서 서비스가 별도로 상한을 둔다.
 		String query = this.fixture.prefix() + "오프셋상한" + this.fixture.token();
 		int limit = 20;
 		String fingerprint = SearchCursor.fingerprint(query, null, limit);

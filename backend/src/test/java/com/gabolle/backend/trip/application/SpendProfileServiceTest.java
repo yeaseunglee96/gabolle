@@ -31,11 +31,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
- * S15P21E201-709 — 계정 기본 SPEND_PROFILE 읽기·쓰기.
- *
- * <p>🔴 {@link SpendProfileService#put} 이 다른 차원의 답을 지우지 않는지가 이 테스트의
- * 핵심이다 — {@code PreferenceDefaultsService.replace} 를 그대로 썼다면(전체 교체) 이미
- * 저장된 다른 차원이 조용히 사라진다.
+ * 계정 기본 SPEND_PROFILE 읽기·쓰기. 핵심은 {@link SpendProfileService#put} 이 다른 차원의
+ * 답을 지우지 않는 것이다 — 전체 교체로 구현하면 이미 저장된 다른 차원이 조용히 사라진다.
  */
 class SpendProfileServiceTest {
 

@@ -21,12 +21,8 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 로컬 8갈래는 데이터가 없어도 항상 여덟 개다 — S15P21E201-473.
- *
- * <p>이 표 자체는 다른 통합 테스트({@code PlaceFacetIntegrationTest})가 자유 코드("SEA" 등)로
- * 이미 여러 번 채워 놓으므로, "keys 가 정확히 8개다" 가 아니라 <b>"여덟 개 코드가 항상 정해진
- * 순서로 들어 있고, 나머지는 그 뒤에 온다"</b> 를 확인한다. 그래야 다른 테스트가 남긴 자유 코드
- * 행이 있어도 이 테스트가 흔들리지 않는다.
+ * 로컬 8갈래는 데이터가 없어도 항상 여덟 개다. 다른 통합 테스트가 같은 표에 자유 코드 행을 남기므로
+ * "keys 가 정확히 8개" 가 아니라 "여덟 개가 정해진 순서로 앞에 온다" 로 확인한다.
  */
 class PlaceFacetInterestTagIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -103,7 +99,7 @@ class PlaceFacetInterestTagIntegrationTest extends PlacePostgresIntegrationTest 
 				.as("대조표에 INTEREST_TAG 말고 다른 갈래도 있어야 이 테스트가 의미가 있다")
 				.isTrue();
 
-		// 다른 갈래는 여덟 개 강제 규칙이 없다 — labelKo 를 억지로 채우지 않는다(모두 null).
+		// 다른 갈래는 여덟 개 강제 규칙이 없어 labelKo 가 모두 null 이다.
 		response.facets().stream()
 				.filter(item -> !InterestTagCode.FEATURE_TYPE.equals(item.placeFeatureType()))
 				.forEach(item -> assertThat(item.keys()).allSatisfy(key -> assertThat(key.labelKo()).isNull()));

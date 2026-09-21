@@ -25,10 +25,8 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 추천 후보 사전 필터 — S15P21E201-102.
- *
- * <p>완료 기준 셋 중 <b>"질의 개수가 장소 수에 비례하지 않는다"</b> 를 실제로 재는 것이 이
- * 클래스의 핵심이다. 응답만 보면 N+1 이 나도 정상으로 보이므로, Hibernate 통계로 문장 수를 센다.
+ * 추천 후보 사전 필터. 응답만 보면 N+1 이 나도 정상으로 보이므로 질의 수는 Hibernate
+ * 통계로 센다.
  */
 @TestPropertySource(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 class PlaceCandidateIntegrationTest extends PlacePostgresIntegrationTest {
@@ -192,6 +190,36 @@ class PlaceCandidateIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	// ── 도구 ──────────────────────────────────────────────────────────────────
+
+	// ── 문 닫은 가게 ──────────────────────────────────────────────────────────
+
+	/** 장소는 수집 시점에 영업 중이던 목록에서 들어오므로, 그 뒤에 닫은 곳이 표에 남는다. */
+	@Test
+	@DisplayName("🔴 티켓 완료 기준 — 문 닫은 가게는 후보에서 빠진다")
+	void closedPlacesAreNotCandidates() {
+		insertNearbyPlaces(2, "SEA");
+		UUID closed = this.fixture.insertPlace("문 닫은 집", null, "CAFE", CENTER_LAT, CENTER_LNG);
+		this.fixture.insertTagFeature(closed, "INTEREST_TAG", "SEA", "VERIFIED", "{\"present\": true}");
+		this.jdbcTemplate.update("UPDATE place SET closed_on = DATE '2026-03-31' WHERE place_id = ?", closed);
+
+		PlaceCandidateResponse response = this.candidateQueryService.findCandidates(request(200, 0));
+
+		assertThat(response.candidates()).extracting(PlaceCandidateResponse.Candidate::placeId)
+				.doesNotContain(closed);
+		assertThat(response.candidates()).hasSize(2);
+	}
+
+	/**
+	 * {@code closed_on} 이 비어 있는 것은 「영업 중」이 아니라 「모른다」다 — 인허가 자료와
+	 * 안 이어진 장소가 많다.
+	 */
+	@Test
+	@DisplayName("🔴 폐업일자를 모르는 곳은 그대로 후보다 — 「모른다」를 「닫았다」로 보지 않는다")
+	void unknownClosureStaysACandidate() {
+		insertNearbyPlaces(3, "SEA");
+
+		assertThat(this.candidateQueryService.findCandidates(request(200, 0)).candidates()).hasSize(3);
+	}
 
 	private PlaceCandidateRequest request(int radiusM, int minimumCount) {
 		return new PlaceCandidateRequest(

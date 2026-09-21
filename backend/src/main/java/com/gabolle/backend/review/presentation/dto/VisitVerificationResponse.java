@@ -3,13 +3,8 @@ package com.gabolle.backend.review.presentation.dto;
 import com.gabolle.backend.review.application.VisitVerificationService.VisitVerificationOutcome;
 
 /**
- * 방문 인증 응답.
- *
- * @param verified 인증됐는가
- * @param distanceM 판정에 쓴 거리(m). {@code status} 가 {@code LOW_ACCURACY} 면 거리를 재지
- *        않았으므로 {@code null} 이다 — "멀어서 거절" 과 "정확도가 나빠 재지도 않음" 을
- *        구분해야 한다
- * @param status {@code VERIFIED} · {@code TOO_FAR} · {@code LOW_ACCURACY}
+ * @param distanceM 판정에 쓴 거리(m). {@code LOW_ACCURACY} 면 거리를 재지 않았으므로
+ *        {@code null} 이다
  * @param message 화면에 그대로 보여줄 수 있는 한국어 문장
  */
 public record VisitVerificationResponse(boolean verified, Integer distanceM, String status, String message) {

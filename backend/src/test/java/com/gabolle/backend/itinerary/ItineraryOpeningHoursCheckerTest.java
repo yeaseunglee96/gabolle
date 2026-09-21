@@ -20,7 +20,7 @@ import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 
 /**
- * 일정 영업시간 판정 — S15P21E201-858.
+ * 일정 영업시간 판정.
  *
  * <p>DB 없이 돈다. 문(포트)을 흉내 내고 판정 결과만 본다 — 이 노트북에는 PostgreSQL 이 없어
  * 통합 검사가 CI 에서 처음 돌고, 여러 날을 합치는 규칙은 그때까지 기다릴 것이 아니다.
@@ -88,8 +88,8 @@ class ItineraryOpeningHoursCheckerTest {
 				item("no-time", 0, PLACE_OPEN, null),
 				item("unknown", 1, PLACE_UNKNOWN, "10:00")));
 
-		// 🔴 시각이 없는 항목은 세 검사(영업시간·브레이크타임·라스트오더) 모두를 못 하고,
-		// 장소를 모르는 항목은 영업시간 하나만 못 한다(이 테스트의 시간 사실 문은 AlwaysOpen).
+		// 시각이 없는 항목은 세 검사(영업시간·브레이크타임·라스트오더) 모두를 못 하고,
+		// 장소를 모르는 항목은 영업시간 하나만 못 한다.
 		assertThat(result.notChecked())
 				.extracting(ItineraryOpeningHoursChecker.NotChecked::check,
 						ItineraryOpeningHoursChecker.NotChecked::reason)
@@ -176,9 +176,8 @@ class ItineraryOpeningHoursCheckerTest {
 		answers.put(UUID.fromString(PLACE_OPEN), OpeningHoursFilterPort.Answer.OPEN);
 		answers.put(UUID.fromString(PLACE_CLOSED), OpeningHoursFilterPort.Answer.CLOSED);
 		answers.put(UUID.fromString(PLACE_UNKNOWN), OpeningHoursFilterPort.Answer.NOT_COLLECTED);
-		// 🔴 이 테스트들이 재는 것은 영업시간 판정이다. 브레이크타임·라스트오더 문은 이 파일의
-		// 다른 테스트가 따로 재므로, 여기서는 전부 OPEN(걸리는 것 없음)으로 고정해 영업시간
-		// 판정과 섞이지 않게 한다.
+		// 브레이크타임·라스트오더 문은 다른 테스트가 따로 재므로, 여기서는 전부 OPEN 으로
+		// 고정해 영업시간 판정과 섞이지 않게 한다.
 		return new ItineraryOpeningHoursChecker(new FixedAnswers(answers), new AlwaysOpenTimeFacts());
 	}
 

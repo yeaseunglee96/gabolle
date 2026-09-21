@@ -13,16 +13,11 @@ import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
 
 /**
- * {@link ItineraryQueryController} 전용 오류 번역기 — S15P21E201-604.
- *
- * <p>🔴 기존 {@code ItineraryExceptionHandler} 를 넓히지 않는다. {@code PlaceExceptionHandler}
- * 의 javadoc 이 남긴 실측대로, 범위 없는 advice 가 남의 예외를 가로챈 사고가 이미 있었다.
- * 그래서 {@code assignableTypes} 로 이 컨트롤러 하나만 좁히고, {@code @Order} 로 다른 advice
- * 보다 먼저 보게 한다 — 같은 이유({@code PlaceExceptionHandler} 참고)로 컨트롤러가 늘어도
- * 이 파일은 자기 컨트롤러만 본다.
- *
- * <p>{@code message} 는 한국어 문장이다 — 프론트가 {@code error.message} 를 그대로 화면에
- * 띄운다({@code PlaceExceptionHandler} 의 같은 실측).
+ * {@link ItineraryQueryController} 전용 오류 번역기.
+ * 기존 {@code ItineraryExceptionHandler} 를 넓히지 않는다. 범위 없는 advice 가 남의 예외를
+ * 가로챈 사고가 이미 있었다. {@code assignableTypes} 로 이 컨트롤러 하나만 좁히고
+ * {@code @Order} 로 다른 advice 보다 먼저 보게 한다.
+ * {@code message} 는 한국어 문장이다 — 프론트가 {@code error.message} 를 그대로 화면에 띄운다.
  */
 @RestControllerAdvice(assignableTypes = ItineraryQueryController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)

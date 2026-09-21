@@ -14,24 +14,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * S15P21E201-1047 — 장소 경사 산출물을 {@code place_feature} 사실로 옳게 옮기는지.
+ * 여기 쓰는 줄은 실제 산출물에서 그대로 가져온 것이다. 지어낸 예로 검사하면 정리 프로그램이
+ * 실제로 내는 모양과 어긋나도 초록이 된다.
  *
- * <p>🔴 여기 쓰는 줄은 <b>실제 산출물에서 그대로 가져온 것</b>이다
- * ({@code bigData/data/staged/place-slope.ndjson}, 2026-09-16 · 반경 200m). 지어낸 예로
- * 검사하면 «정리 프로그램이 실제로 내는 모양» 과 어긋나도 초록이 된다.
- *
- * <p>고른 두 줄은 대조군이다 — 감천문화마을(산복도로)과 마린시티(해안 매립지). 그 둘이
- * 16.4% 대 2.7% 로 갈리는 것이 이 값이 쓸모 있다는 근거다.
+ * <p>산복도로와 해안 매립지는 대조군이다 — 16.4% 대 2.7% 로 갈리는 것이 이 값이 쓸모 있다는
+ * 근거다.
  */
 class PlaceSlopeReaderTest {
 
-	/** 실제 산출물 — 감천문화마을(산복도로). */
+	/** 산복도로 쪽. */
 	private static final String GAMCHEON = """
 			{"contentid":"1997221","title":"부산 감천문화마을","featureType":"SLOPE_PERCENT",\
 			"evidenceStatus":"ESTIMATED","slopePercent":16.4,"segments":93,\
 			"walkLengthM":21842,"radiusM":200}""";
 
-	/** 실제 산출물 — 마린시티(해안 매립지). */
+	/** 해안 매립지 쪽. */
 	private static final String MARINE_CITY = """
 			{"contentid":"2617724","title":"마린시티","featureType":"SLOPE_PERCENT",\
 			"evidenceStatus":"ESTIMATED","slopePercent":2.7,"segments":24,\
@@ -56,8 +53,8 @@ class PlaceSlopeReaderTest {
 		assertThat(facts).hasSize(2);
 		assertThat(facts.get(0).storeId()).isEqualTo("1997221");
 		assertThat(facts.get(0).featureType()).isEqualTo("SLOPE_PERCENT");
-		// 🔴 채점기(BaselineCandidateScorer.extractPlaceScore)가 value.score 를 읽는다.
-		//    다른 이름에 담으면 값이 있는데도 "없음" 으로 읽히고 아무 오류도 안 난다.
+		// 채점기가 value.score 를 읽는다. 다른 이름에 담으면 값이 있는데도 "없음" 으로 읽히고
+		// 아무 오류도 안 난다.
 		assertThat(facts.get(0).value()).contains("\"score\":16.4");
 		assertThat(facts.get(1).value()).contains("\"score\":2.7");
 	}
@@ -67,8 +64,8 @@ class PlaceSlopeReaderTest {
 	void keepsProvenance() throws Exception {
 		List<PlaceFeatureNdjsonReader.Fact> facts = readAll(GAMCHEON);
 
-		// 🔴 반경을 바꾸면 값이 달라진다. 어느 반경으로 만든 행인지 모르면 옛 행과 새 행을
-		//    구분할 수 없다 — 그래서 값 옆에 같이 싣는다.
+		// 반경을 바꾸면 값이 달라진다. 어느 반경으로 만든 행인지 모르면 옛 행과 새 행을
+		// 구분할 수 없다.
 		assertThat(facts.get(0).value()).contains("\"radiusM\":200.0");
 		assertThat(facts.get(0).value()).contains("\"segments\":93.0");
 	}
@@ -88,9 +85,8 @@ class PlaceSlopeReaderTest {
 	@Test
 	@DisplayName("표본이 모자라 값이 안 난 장소는 애초에 줄이 없다 — 0% 로 오지 않는다")
 	void noRowMeansNoFact() throws Exception {
-		// 🔴 정리 프로그램이 «모른다» 를 «평지» 로 바꿔 말하지 않는다. 반경 안 보행로가
-		//    모자라면 그 장소는 파일에 아예 없다. 읽는 쪽도 그 약속에 기대므로, 값이 0 인
-		//    줄이 오는 것과 줄이 없는 것은 다르다는 것을 여기서 못 박는다.
+		// 정리 프로그램이 「모른다」를 「평지」로 바꿔 말하지 않는다. 표본이 모자라면 그 장소는
+		// 파일에 아예 없다 — 값이 0 인 줄이 오는 것과 줄이 없는 것은 다르다.
 		List<PlaceFeatureNdjsonReader.Fact> facts = readAll(GAMCHEON);
 
 		assertThat(facts).extracting(PlaceFeatureNdjsonReader.Fact::storeId).containsExactly("1997221");
@@ -99,7 +95,7 @@ class PlaceSlopeReaderTest {
 	@Test
 	@DisplayName("범위를 벗어난 경사는 조용히 버리지 않고 멈춘다")
 	void refusesOutOfRange() {
-		// 🔴 버리면 개수만 줄고 아무도 못 알아챈다. 산출물이 이상하면 그 자리에서 멈춘다.
+		// 버리면 개수만 줄고 아무도 못 알아챈다. 산출물이 이상하면 그 자리에서 멈춘다.
 		assertThatThrownBy(() -> readAll(
 				"{\"contentid\":\"1\",\"slopePercent\":140.0}"))
 			.isInstanceOf(IllegalArgumentException.class)
@@ -113,10 +109,8 @@ class PlaceSlopeReaderTest {
 	@Test
 	@DisplayName("🔴 열쇠 체계를 줄마다 들고 다닌다 — source_type 과 다른 것이다")
 	void factCarriesKeySource() throws Exception {
-		// 🔴 이 검사가 있는 이유. 처음 판은 place_feature.source_type 으로 장소 아이디를
-		//    만들었는데, 가격대는 source_type 이 RESEARCH_PRICEBAND(조사에서 왔다)이면서
-		//    열쇠는 상가업소번호다. 둘은 서로 독립이다 — 하나는 "값이 어디서 왔나",
-		//    하나는 "이 문자열을 무엇으로 읽나" 다. DB 통합 시험이 그것을 잡았다.
+		// 가격대는 source_type 이 RESEARCH_PRICEBAND 이면서 열쇠는 상가업소번호다. 둘은 서로
+		// 독립이다 — 하나는 "값이 어디서 왔나", 하나는 "이 문자열을 무엇으로 읽나" 다.
 		List<PlaceFeatureNdjsonReader.Fact> slopes = readAll(GAMCHEON);
 		assertThat(slopes.get(0).keySource()).isEqualTo(TourApiPlaceLoader.SOURCE_TYPE);
 
@@ -128,9 +122,8 @@ class PlaceSlopeReaderTest {
 	@Test
 	@DisplayName("장소 아이디는 관광공사 열쇠로 만든다 — 상가 열쇠로 만들면 딴 곳을 가리킨다")
 	void placeIdComesFromTourApiKey() {
-		// 🔴 이것이 이 작업에서 가장 조용한 사고 자리다. 두 원천은 같은 모양의 결정적
-		//    UUID 를 쓰는데 앞에 붙는 말만 다르다. 섞이면 있는 장소를 "없어서 못 넣음" 으로
-		//    세고 끝난다 — 예외도, 로그의 빨간 줄도 없다.
+		// 두 원천은 같은 모양의 결정적 UUID 를 쓰고 앞에 붙는 말만 다르다. 섞이면 있는 장소를
+		// "없어서 못 넣음" 으로 세고 끝난다 — 예외도 로그의 빨간 줄도 없다.
 		assertThat(TourApiPlaceLoader.placeIdOf("1997221"))
 			.isNotEqualTo(SbizPlaceLoader.placeIdOf("1997221"));
 

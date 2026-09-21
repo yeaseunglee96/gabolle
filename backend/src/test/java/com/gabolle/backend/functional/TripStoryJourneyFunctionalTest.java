@@ -29,23 +29,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * 여행에 달린 기록 조회 여정 — S15P21E201-829. 추억 지도({@code -248})가 부르는 경로다.
+ * 여행에 달린 기록 조회 여정. 추억 지도가 부르는 경로다.
  *
- * <h2>왜 실제 HTTP 인가</h2>
- * 이 경로는 <b>판정이 두 겹</b>이다 — 여행 참여자인지(여행 쪽 관문)와 그 기록을 볼 수 있는지
- * (기록 쪽 공개 범위). 두 겹 중 하나만 통과해도 응답이 나오는 실수는 서비스 단위 검사로는 잡히지
- * 않는다: 서비스만 부르면 인증 주체를 테스트가 직접 넣어 주기 때문에 "요청자가 누구로 정해지는가"
- * 자체가 검사 밖에 남는다. 진짜 소켓으로 나가면 {@code SecurityFilterChain} 과
- * {@code AuthenticatedUsers.requireId} 를 함께 지난다.
- *
- * <h2>재는 것</h2>
- * <ul>
- *   <li>그 여행에 달린 기록만 온다 — 다른 여행 것이 섞이지 않는다</li>
- *   <li>같은 여행의 참여자라도 남의 나만 보기 기록은 안 온다 ({@code -137} 로 막은 구멍)</li>
- *   <li>신고로 가려진 기록은 참여자에게도 안 온다</li>
- *   <li>그 여행의 회원이 아니면 존재를 감춘 404</li>
- *   <li>사진 마커를 찍을 좌표가 응답에 함께 온다 (진미리 님 요청, 2026-09-11)</li>
- * </ul>
+ * <p>실제 HTTP 로 재는 것은 판정이 두 겹이기 때문이다 — 여행 참여자인지와 그 기록을 볼 수 있는지.
+ * 서비스만 부르면 인증 주체를 테스트가 직접 넣어 주므로 «요청자가 누구로 정해지는가»가 검사 밖에
+ * 남는다. 진짜 소켓으로 나가면 {@code SecurityFilterChain} 과 {@code AuthenticatedUsers.requireId}
+ * 를 함께 지난다.
  */
 class TripStoryJourneyFunctionalTest extends FunctionalJourneyTest {
 
@@ -73,9 +62,9 @@ class TripStoryJourneyFunctionalTest extends FunctionalJourneyTest {
 				"Dongnae Halmae Pajeon", "1, Myeongnyun-ro, Dongnae-gu, Busan");
 
 		// 4) 기록 넷.
-		//    🔴 publishAt 을 과거로 명시한다 — 안 주면 기본값이 "여행 종료 다음 날 0시" 라
-		//       (StoryService.defaultPublishAt) 7일 뒤 여행에서는 전부 공개 전이 되고, 그러면
-		//       "남에게 안 보인다" 가 공개 시각 때문인지 공개 범위 때문인지 구분되지 않는다.
+		//    publishAt 을 과거로 명시한다 — 안 주면 기본값이 "여행 종료 다음 날 0시" 라
+		//    7일 뒤 여행에서는 전부 공개 전이 되고, 그러면 "남에게 안 보인다" 가 공개 시각
+		//    때문인지 공개 범위 때문인지 구분되지 않는다.
 		Instant published = Instant.now().minusSeconds(3600);
 		String ownerStory = createStory(owner, "첫째 날 파전", placeId, tripId, StoryVisibility.PUBLIC, published);
 		String memberStory = createStory(member, "동행자가 쓴 기록", null, tripId, StoryVisibility.PUBLIC, published);
@@ -101,13 +90,12 @@ class TripStoryJourneyFunctionalTest extends FunctionalJourneyTest {
 		assertThat(withPlace.place()).as("장소 칸이 비어 있다").isNotNull();
 		assertThat(withPlace.place().lat()).as("사진 마커를 찍을 위도가 안 온다").isEqualTo(35.16);
 		assertThat(withPlace.place().lng()).as("사진 마커를 찍을 경도가 안 온다").isEqualTo(129.16);
-		// S15P21E201-1189 — 3) 에서 넣은 주소와 영문이 그대로 돌아와야 한다. 진짜 소켓으로 나가므로
-		//    이 단언은 "칸을 더했다" 가 아니라 "JSON 으로 직렬화돼 화면까지 간다" 를 잰다.
+		// 3) 에서 넣은 주소와 영문이 그대로 돌아와야 한다. 진짜 소켓으로 나가므로 이 단언은
+		// "칸을 더했다" 가 아니라 "JSON 으로 직렬화돼 화면까지 간다" 를 잰다.
 		assertPlaceFields(withPlace, "목록");
 
-		// 🔴 상세에도 실려야 한다. 목록과 상세가 StoryResponse 하나를 같이 쓰므로 자동일 것이지만,
-		//    자동이라고 믿는 대신 잰다 — 상세에만 실으면 목록이 못 그리고, 목록에만 실으면 상세를
-		//    갔다 오며 값이 어긋난다. 그 질문을 사람이 매번 기억하지 않게 여기에 둔다.
+		// 상세에도 실려야 한다. 목록과 상세가 StoryResponse 하나를 같이 쓰므로 자동일 것이지만,
+		// 자동이라고 믿는 대신 잰다 — 한쪽에만 실으면 다른 쪽이 못 그리거나 값이 어긋난다.
 		assertPlaceFields(storyDetail(owner, ownerStory), "상세");
 
 		// 7) 쓴 순서대로 — 화면이 그대로 그릴 수 있어야 한다.

@@ -12,9 +12,8 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.trip.domain.TimeWindows;
 
 /**
- * S15P21E201-664 — {@code TimeWindows.parseRange} 가 세 경우를 구분하는지 검증한다:
- * 범위 모양이고 값도 맞다 / 범위 모양이 아니다(프리셋일 수 있다, 거절 안 함) /
- * 범위 모양인데 값이 틀렸다(예외).
+ * {@code parseRange} 는 셋을 가른다 — 값이 맞는 범위(해석) / 범위 모양이 아님(프리셋일 수
+ * 있으므로 거절하지 않고 빈 값) / 범위 모양인데 값이 틀림(예외).
  */
 class TimeWindowsTest {
 

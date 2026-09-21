@@ -17,12 +17,8 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 장소 상세에 더한 칸 — S15P21E201-476(영문 주소·사진·영업시간·예상비용 전용 칸) 및
- * S15P21E201-430(부분, 언어 선택).
- *
- * <p>🔴 기존 계약을 확인하는 {@code PlaceDetailIntegrationTest} 를 건드리지 않고 새 파일로 뒀다 —
- * 이번 작업의 "만질 파일" 목록이 새 테스트 파일 추가만 허용하고 기존 테스트 파일 수정은 포함하지
- * 않는다. 그 파일의 기존 다섯 테스트는 그대로 통과해야 한다.
+ * 장소 상세에 더한 칸 — 영문 주소·사진·영업시간·예상비용 전용 칸과 언어 선택. 기존 계약은
+ * {@code PlaceDetailIntegrationTest} 가 본다.
  */
 class PlaceDetailExtraFieldsIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -159,7 +155,7 @@ class PlaceDetailExtraFieldsIntegrationTest extends PlacePostgresIntegrationTest
 		PlaceDetailResponse detail = this.placeDetailService.get(placeId, null, "en");
 
 		assertThat(detail.resolvedLanguage()).isEqualTo("en");
-		// 🔴 기존 칸은 언어와 무관하게 그대로 둘 다 나간다 — 언어 선택은 더하는 것이지 바꾸는 것이 아니다
+		// 언어 선택은 더하는 것이지 바꾸는 것이 아니라 기존 칸은 둘 다 그대로 나간다.
 		assertThat(detail.nameKo()).isNotNull();
 		assertThat(detail.nameEn()).isNotNull();
 	}

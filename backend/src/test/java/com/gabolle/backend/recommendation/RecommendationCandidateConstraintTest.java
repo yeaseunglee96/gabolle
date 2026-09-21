@@ -21,11 +21,9 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 애플리케이션을 우회해도 DB 가 막는가.
- *
- * <p>인수인계 문서의 필수 테스트 3·5·14 를 여기서 본다. 일부러 JPA 가 아니라 원시 SQL 로
- * 넣는다 — 엔티티의 자바 검사를 건너뛰어야 <b>DB 제약 자체</b>를 확인할 수 있기 때문이다.
- * 자바 검사만 있으면 나중에 배치 작업이나 수동 SQL 이 그 옆으로 걸어 들어온다.
+ * 애플리케이션을 우회해도 DB 가 막는가. 일부러 JPA 가 아니라 원시 SQL 로 넣는다 — 엔티티의
+ * 자바 검사를 건너뛰어야 DB 제약 자체를 확인할 수 있고, 자바 검사만 있으면 배치 작업이나
+ * 수동 SQL 이 그 옆으로 걸어 들어온다.
  */
 class RecommendationCandidateConstraintTest extends PostgresIntegrationTest {
 
@@ -48,17 +46,15 @@ class RecommendationCandidateConstraintTest extends PostgresIntegrationTest {
 	void insertJob() {
 		this.jdbcTemplate.update("DELETE FROM recommendation_candidate");
 		this.jdbcTemplate.update("DELETE FROM recommendation_job");
-		// 🔴 S15P21E201-554 가 외래키를 붙였으므로 사용자·여행·스냅샷은 실제 행이어야 한다.
-		//    전에는 임의 UUID 였고, 아무것도 그것을 검사하지 않아 통과했다.
+		// 외래키가 붙어 있어 사용자·여행·스냅샷은 실제 행이어야 한다.
 		this.references = PersonalizationFixture.insert(this.jdbcTemplate);
 		this.requestId = UUID.randomUUID();
 		insertJob(this.requestId);
 	}
 
 	private void insertJob(UUID requestId) {
-		// 🔴 V20260905120000 이 ck_recommendation_job_result_present 를 붙였다 —
-		//    SUCCEEDED 인 ITINERARY_GENERATION Job 은 itinerary_id·itinerary_version 이
-		//    있어야 한다. 여기서 쓸 최소 일정 하나를 함께 만든다.
+		// ck_recommendation_job_result_present 때문에 SUCCEEDED 인 ITINERARY_GENERATION Job 은
+		// itinerary_id·itinerary_version 이 있어야 한다. 최소 일정 하나를 함께 만든다.
 		UUID itineraryId = insertItinerary(this.references.tripId(), this.references.userId());
 
 		this.jdbcTemplate.update("""
@@ -239,9 +235,9 @@ class RecommendationCandidateConstraintTest extends PostgresIntegrationTest {
 	}
 
 	/**
-	 * 2026-09-07 — {@code table_schema = current_schema()} 를 더했다. 테스트 DB 하나에 스키마를 여럿 두고
-	 * (JDBC {@code ?currentSchema=}) 격리하면 같은 표가 스키마마다 있어 1행 기대가 7행으로 깨졌다. 이 검사가
-	 * 보려는 것은 "지금 이 연결이 쓰는 스키마" 의 칸 타입이다.
+	 * {@code table_schema = current_schema()} 가 필요하다. 테스트 DB 하나에 스키마를 여럿 두고
+	 * (JDBC {@code ?currentSchema=}) 격리하면 같은 표가 스키마마다 있어 1행 기대가 깨진다 —
+	 * 보려는 것은 지금 이 연결이 쓰는 스키마의 칸 타입이다.
 	 */
 	@Test
 	@DisplayName("JSONB · UUID · VARCHAR[] 컬럼이 PostgreSQL 타입 그대로 살아 있다")

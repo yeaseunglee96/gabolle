@@ -21,8 +21,7 @@ public interface AuthSessionRepository extends JpaRepository<AuthSession, UUID> 
 	/**
 	 * 폐기된 것까지 포함한 그 사용자의 세션 전부.
 	 *
-	 * <p>계정 삭제(S15P21E201-425)가 쓴다. 폐기된 세션도 <b>행은 남아 있어</b> 지우지 않으면
-	 * 사용자를 가리키는 데이터가 남는다.
+	 * <p>계정 삭제가 쓴다. 폐기된 세션도 행은 남아 있어 지우지 않으면 사용자를 가리키는 데이터가 남는다.
 	 */
 	List<AuthSession> findAllByUserUserId(UUID userId);
 

@@ -26,10 +26,8 @@ import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 미리 만들어 둔 피드를 읽는 경로 (S15P21E201-632).
- *
- * <p>여기서 확인하는 것은 "무엇이 나오나" 가 아니라 <b>"읽기가 정말 읽기만 하나"</b> 다.
- * 순서를 다시 매기지 않고, 지난 세대를 안 보고, 없을 때와 빌 때를 가른다.
+ * 읽기가 정말 읽기만 하는지를 본다 — 순서를 다시 매기지 않고, 지난 세대를 안 보고,
+ * 없을 때와 빌 때를 가른다.
  */
 class FeedReadIntegrationTest extends FeedPostgresTest {
 
@@ -62,8 +60,6 @@ class FeedReadIntegrationTest extends FeedPostgresTest {
 
 		FeedPage page = this.feedQueryService.home(userId, null, null);
 
-		// 🔴 빈 목록만 주면 앱은 "아직 안 만들어졌다" 와 "조건에 맞는 게 없다" 를 구분할 수
-		//    없다. 앞은 기다리면 풀리고 뒤는 사람이 조건을 바꿔야 풀린다 — 안내가 달라야 한다.
 		assertThat(page.buildId()).isNull();
 		assertThat(page.items()).isEmpty();
 		assertThat(page.emptyReason()).isEqualTo(FeedPage.EmptyReason.NOT_BUILT_YET);
@@ -74,7 +70,7 @@ class FeedReadIntegrationTest extends FeedPostgresTest {
 	void 저장된_순서_그대로_읽는다() {
 		UUID userId = this.fixtures.newUser();
 
-		// 🔴 점수를 일부러 순서와 거꾸로 넣는다. 읽는 쪽이 점수로 정렬한다면 여기서 드러난다.
+		// 점수를 일부러 순서와 거꾸로 넣는다. 읽는 쪽이 점수로 정렬한다면 여기서 드러난다.
 		UUID buildId = readyHomeBuild(userId, 3, position -> 0.1 * position);
 
 		FeedPage page = this.feedQueryService.home(userId, null, null);
@@ -112,8 +108,6 @@ class FeedReadIntegrationTest extends FeedPostgresTest {
 
 		FeedPage page = this.feedQueryService.home(userId, 10_000, null);
 
-		// 🔴 저장은 싸도 내보내는 것은 안 싸다. 상한이 없으면 요청 하나가 미리 만들어 둔
-		//    이점을 통째로 없앤다.
 		assertThat(page.items()).hasSize(50);
 	}
 
@@ -123,7 +117,7 @@ class FeedReadIntegrationTest extends FeedPostgresTest {
 		UUID userId = this.fixtures.newUser();
 		UUID oldBuildId = readyHomeBuild(userId, 2, position -> 1.0);
 
-		// 새 세대로 갈아탄다 — 옛것을 내리고 새것을 올리는 순서다. 뒤집으면 DB 가 거부한다.
+		// 옛것을 내리고 새것을 올리는 순서다. 뒤집으면 DB 가 거부한다.
 		FeedBuild old = this.builds.findById(oldBuildId).orElseThrow();
 		old.supersede();
 		this.builds.saveAndFlush(old);
@@ -144,8 +138,6 @@ class FeedReadIntegrationTest extends FeedPostgresTest {
 
 		FeedPage page = this.feedQueryService.home(userId, null, null);
 
-		// 🔴 낡았다고 안 보여주지 않는다. 빈 화면을 본 사람은 앱이 고장 났다고 생각하고,
-		//    어제 추천이라도 본 사람은 앱을 쓴다. 대신 낡았다는 사실을 숨기지 않는다.
 		assertThat(page.buildId()).isEqualTo(buildId);
 		assertThat(page.items()).hasSize(2);
 		assertThat(page.stale()).isTrue();
@@ -175,7 +167,7 @@ class FeedReadIntegrationTest extends FeedPostgresTest {
 		assertThat(community.emptyReason()).isEqualTo(FeedPage.EmptyReason.NOT_BUILT_YET);
 	}
 
-	// ── 도우미 ────────────────────────────────────────────────────────────────
+	// 도우미
 
 	private interface ScoreOf {
 
@@ -188,10 +180,8 @@ class FeedReadIntegrationTest extends FeedPostgresTest {
 	}
 
 	/**
-	 * 홈 피드 한 세대를 READY 까지 만든다.
-	 *
-	 * <p>🔴 실제 만드는 코드가 밟을 순서를 그대로 밟는다 — 열고, 재료와 판을 박고, 줄을
-	 * 넣고, 마지막에 READY 로 올린다. 테스트가 지름길로 가면 그 순서가 지켜지는지 알 수 없다.
+	 * 홈 피드 한 세대를 READY 까지 만든다. 실제 만드는 코드가 밟을 순서를 그대로 밟는다 —
+	 * 열고, 재료와 판을 박고, 줄을 넣고, 마지막에 READY 로 올린다.
 	 */
 	private UUID readyHomeBuild(UUID userId, int entryCount, ScoreOf score, OffsetDateTime expiresAt) {
 		UUID constraintSnapshotId = this.fixtures.newConstraintSnapshot(userId);

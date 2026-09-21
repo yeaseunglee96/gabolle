@@ -17,32 +17,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 애플의 {@code response_mode=form_post} 착지 — S15P21E201-833.
- *
- * <h2>왜 실제 HTTP 인가</h2>
- * 이 경로가 하는 일 자체는 리다이렉트 한 줄이고, 그 줄은 어떤 단위 검사로도 통과시킬 수 있다.
- * 정작 틀리기 쉬운 셋은 <b>전부 필터체인 위에 있다.</b>
+ * 애플의 {@code response_mode=form_post} 착지. 이 경로가 하는 일은 리다이렉트 한 줄이지만 틀리기 쉬운
+ * 셋이 전부 필터체인 위에 있다.
  * <ul>
- *   <li><b>로그인 없이 열려 있는가</b> — 애플 서버가 부르므로 열려 있어야 한다. 허용 목록의
- *       {@code "/api/v1/auth/oauth/*"} 는 한 마디만 덮어 이 경로에 닿지 않는다. 2026-09-07 에
- *       같은 종류의 어긋남으로 소셜 로그인의 첫 요청이 401 이 났다(`-704`)</li>
- *   <li><b>폼 본문을 받는가</b> — 이 저장소의 나머지 인증 경로는 전부 JSON 이다</li>
- *   <li><b>리다이렉트가 실제로 나가는가</b>, 그리고 <b>어디로</b> 나가는가</li>
+ *   <li>로그인 없이 열려 있는가 — 애플 서버가 부르므로 열려 있어야 한다. 허용 목록의
+ *       {@code "/api/v1/auth/oauth/*"} 는 한 마디만 덮어 이 경로에 닿지 않는다</li>
+ *   <li>폼 본문을 받는가 — 이 저장소의 나머지 인증 경로는 전부 JSON 이다</li>
+ *   <li>리다이렉트가 실제로, 어디로 나가는가</li>
  * </ul>
  *
- * <h2>🔴 리다이렉트를 따라가지 않는 클라이언트를 직접 만든다</h2>
- * 처음에는 베이스 클래스의 {@code TestRestTemplate} 을 쓰고 "3xx 는 안 따라간다" 고 적어 뒀는데
- * <b>틀렸다.</b> CI 에서 이 검사가 빨개졌고, 응답 머리에 {@code Server: nginx}·CSP 가 실려 있었다 —
- * 즉 클라이언트가 302 를 따라가 <b>운영 도메인의 화면</b>을 받아 왔고, 그 200 을 보고 "리다이렉트가
- * 없다" 고 판정한 것이다. 테스트가 운영 서버로 나가는 것 자체도 이 검사가 재려던 것이 아니다.
+ * <p>리다이렉트를 따라가지 않는 클라이언트를 직접 만든다. 베이스 클래스의 {@code TestRestTemplate} 은
+ * 302 를 따라가 운영 도메인의 화면을 받아 오고, 그 200 을 보면 "리다이렉트가 없다" 로 잘못 판정된다.
+ * JDK {@code HttpClient} 는 스프링 컨텍스트를 안 건드리므로 "여정마다 다른 프로퍼티" 에도 해당하지 않는다.
  *
- * <p>그래서 JDK 의 {@code HttpClient} 를 {@code Redirect.NEVER} 로 직접 만들어 쓴다. 스프링
- * 컨텍스트를 건드리지 않으므로 베이스 클래스가 금지한 "여정마다 다른 프로퍼티" 에 해당하지 않는다.
- *
- * <h2>🔴 무엇을 재지 않는지</h2>
- * 애플이 실제로 이 주소에 POST 하는 것과, 그 뒤 코드 교환에서 서명된 토큰의 이메일이 계정에
- * 실리는 것은 <b>여기서 재지 않는다.</b> 애플 실계정과 개발자 콘솔의 Return URL 등록이 필요해
- * 자동 검사로 만들 수 없다. 그 둘은 사람이 한 번 눌러 확인해야 한다.
+ * <p>애플이 실제로 이 주소에 POST 하는 것과 그 뒤 코드 교환은 여기서 재지 않는다 — 애플 실계정과
+ * 개발자 콘솔 등록이 필요해 사람이 한 번 눌러 확인해야 한다.
  */
 class AppleFormPostJourneyFunctionalTest extends FunctionalJourneyTest {
 
@@ -120,8 +109,8 @@ class AppleFormPostJourneyFunctionalTest extends FunctionalJourneyTest {
 	}
 
 	/**
-	 * 🔴 {@code Authorization} 머리를 <b>일부러 안 붙인다.</b> 이 경로가 로그인 없이 열려 있는지가
-	 * 이 검사의 절반이다. 토큰을 붙이면 허용 목록에서 빠져 있어도 통과한다.
+	 * {@code Authorization} 머리를 일부러 안 붙인다. 붙이면 허용 목록에서 빠져 있어도 통과해서, 이
+	 * 경로가 로그인 없이 열려 있는지를 못 잰다.
 	 */
 	private HttpResponse<String> postForm(Map<String, String> form) throws IOException, InterruptedException {
 		StringJoiner body = new StringJoiner("&");

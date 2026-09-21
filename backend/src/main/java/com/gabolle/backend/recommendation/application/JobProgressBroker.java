@@ -15,27 +15,20 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.gabolle.backend.recommendation.domain.JobStatus;
 
 /**
- * 열려 있는 진행률 통로를 작업 번호별로 들고 있다 — S15P21E201-193.
+ * 열려 있는 진행률 통로를 작업 번호별로 들고 있다. SSE(Server-Sent Events — 서버가 연결을
+ * 열어 둔 채 한 방향으로 계속 밀어 보내는 방식) 연결 하나를 {@link SseEmitter} 하나가
+ * 나타낸다.
  *
- * <p>SSE(Server-Sent Events — 서버가 연결을 열어 둔 채 한 방향으로 계속 밀어 보내는 방식)의
- * 연결 하나를 {@link SseEmitter} 하나가 나타낸다. 이 클래스가 하는 일은 둘이다. 누가 어느
- * 작업을 보고 있는지 기억하고, 그 작업의 진행률만 그 사람들에게 보낸다.
+ * <p>보내는 자리에서 고르지 않고 자료 구조 자체를 작업 번호로 나눈다 — 고르는 코드는
+ * 언젠가 빠뜨리고, 그러면 남의 진행률이 섞여 나간다.
  *
- * <h2>왜 작업 번호로 나누는가</h2>
- * 완료 기준에 <i>"동시에 여러 사용자가 생성해도 각자 자기 작업의 진행률만 받는다"</i> 가 있다.
- * 통로를 하나로 두고 전부에게 보내면 남의 진행률이 섞여 들어간다. 그래서 보내는 자리에서
- * 고르지 않고 <b>자료 구조 자체를 작업 번호로 나눈다</b> — 고르는 코드는 언젠가 빠뜨린다.
+ * <p>누가 그 작업의 주인인지는 여기서 보지 않는다. 그 검사는 연결을 받아들일 때 표현
+ * 계층이 한다 — 여기까지 온 연결은 이미 통과한 것이라 두 번 묻지 않는다.
  *
- * <p>누가 그 작업의 주인인지는 여기서 보지 않는다. 그 검사는 연결을 <b>받아들일 때</b>
- * 표현 계층이 한다({@code RecommendationJobController}). 여기까지 온 연결은 이미 통과한
- * 것이라 두 번 묻지 않는다.
- *
- * <h2>알려진 한계 — 서버 한 대를 전제한다</h2>
- * 🔴 이 기억은 <b>이 프로세스의 메모리</b>에 있다. 서버를 여러 대로 늘리면 계산을 A 가 하고
- * 연결은 B 가 들고 있는 경우가 생기고, 그때 B 의 연결로는 아무것도 안 간다. 지금 배포가 한
- * 대라 그대로 두지만, 늘릴 때는 이 자리에 프로세스 사이를 잇는 것(예: Redis 발행/구독)이
- * 필요하다. 화면은 그때도 폴링(주기적으로 다시 묻기)으로 되돌아갈 수 있어야 한다 —
- * {@code GET /api/v1/jobs/{jobId}} 는 없애지 않는다.
+ * <p>알려진 한계: 이 기억은 이 프로세스의 메모리에 있어 서버 한 대를 전제한다. 여러 대로
+ * 늘리면 계산은 A 가 하고 연결은 B 가 들고 있는 경우가 생겨 B 의 연결로 아무것도 안 간다.
+ * 늘릴 때는 프로세스 사이를 잇는 것이 필요하고, 화면은 그때도 폴링으로 되돌아갈 수 있어야
+ * 한다 — {@code GET /api/v1/jobs/{jobId}} 는 없애지 않는다.
  */
 @Component
 public class JobProgressBroker {
@@ -43,12 +36,9 @@ public class JobProgressBroker {
 	private static final Logger log = LoggerFactory.getLogger(JobProgressBroker.class);
 
 	/**
-	 * 작업 하나가 동시에 가질 수 있는 연결 수의 상한.
-	 *
-	 * <p>🔴 화면이 재접속을 반복하다 이전 연결이 아직 정리되지 않으면 같은 작업에 연결이
-	 * 쌓인다. 상한이 없으면 그것만으로 서버의 스레드와 메모리가 마른다. 넘으면 <b>가장 오래된
-	 * 것을 닫는다</b> — 새 연결을 거절하면 방금 화면을 켠 사용자가 못 보게 되고, 그쪽이 더
-	 * 나쁘다.
+	 * 작업 하나가 동시에 가질 수 있는 연결 수의 상한. 재접속을 반복하다 이전 연결이 아직
+	 * 정리되지 않으면 연결이 쌓여 스레드와 메모리가 마른다. 넘으면 가장 오래된 것을 닫는다 —
+	 * 새 연결을 거절하면 방금 화면을 켠 사용자가 못 보게 된다.
 	 */
 	static final int MAX_STREAMS_PER_JOB = 4;
 
@@ -78,12 +68,10 @@ public class JobProgressBroker {
 	/**
 	 * 이 작업을 보고 있는 연결에 진행률을 밀어 보낸다.
 	 *
-	 * <p>🔴 <b>보내다 실패한 연결은 조용히 버린다.</b> 화면을 닫은 브라우저로 보내면 예외가
-	 * 나는데, 그것을 위로 던지면 <b>추천 계산 쪽이 실패한다.</b> 진행률을 못 보내는 것이
-	 * 추천을 못 만드는 이유가 되어서는 안 된다.
+	 * <p>보내다 실패한 연결은 조용히 버린다. 화면을 닫은 브라우저로 보내면 예외가 나는데,
+	 * 그것을 위로 던지면 추천 계산 쪽이 실패한다.
 	 *
-	 * <p>끝 상태(성공 · 실패)면 보낸 뒤 연결을 닫는다 — 완료 기준의 "완료 신호 뒤 연결이
-	 * 닫힌다" 다. 화면이 끝난 작업의 통로를 계속 붙들고 있을 이유가 없다.
+	 * <p>끝 상태(성공 · 실패)면 보낸 뒤 연결을 닫는다.
 	 */
 	public void publish(JobProgressSnapshot snapshot) {
 		Set<SseEmitter> streams = this.streamsByJob.get(snapshot.jobId());
@@ -96,9 +84,8 @@ public class JobProgressBroker {
 	}
 
 	/**
-	 * 연결 하나에 지금 상태를 보낸다. 접속 직후에도 이 메서드로 한 번 보낸다 — 그것이
-	 * "끊겼다 다시 붙으면 현재 진행률부터 이어서 보낸다" 를 만족시키는 자리다. 다시 붙은
-	 * 화면은 0%를 받지 않고 지금까지 올라간 값을 받는다.
+	 * 연결 하나에 지금 상태를 보낸다. 접속 직후에도 이 메서드로 한 번 보내므로, 끊겼다 다시
+	 * 붙은 화면은 0%가 아니라 지금까지 올라간 값을 받는다.
 	 */
 	public void send(JobProgressSnapshot snapshot, SseEmitter emitter) {
 		try {
@@ -123,8 +110,8 @@ public class JobProgressBroker {
 	private void remove(UUID jobId, SseEmitter emitter) {
 		this.streamsByJob.computeIfPresent(jobId, (key, streams) -> {
 			streams.remove(emitter);
-			// 🔴 빈 집합을 남기지 않는다. 작업은 계속 새로 생기므로 그대로 두면 이 지도가
-			//    작업 수만큼 자라기만 한다(진행률 하나 때문에 새는 메모리가 된다).
+			// 빈 집합을 남기지 않는다. 작업은 계속 새로 생기므로 그대로 두면 이 지도가
+			// 작업 수만큼 자라기만 한다.
 			return streams.isEmpty() ? null : streams;
 		});
 	}

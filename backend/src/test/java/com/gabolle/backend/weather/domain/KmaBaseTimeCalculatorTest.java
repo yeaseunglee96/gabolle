@@ -11,10 +11,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@link KmaBaseTimeCalculator} 검증 — S15P21E201-366.
- *
- * <p>하루 8회(02·05·08·11·14·17·20·23시) 발표, 발표 후 10분 지나야 반영이 끝난다는 규칙을
- * 여러 현재시각 케이스로 잰다.
+ * 하루 8회(02·05·08·11·14·17·20·23시) 발표, 발표 후 10분이 지나야 반영이 끝난다는 규칙을
+ * 여러 현재시각으로 잰다.
  */
 class KmaBaseTimeCalculatorTest {
 

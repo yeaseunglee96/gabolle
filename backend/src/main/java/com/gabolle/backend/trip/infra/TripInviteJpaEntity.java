@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 
 import com.gabolle.backend.trip.domain.TripMember;
 
-/** {@code trip_invite} 표 매핑 (V20260907040000) — S15P21E201-294. 모든 칸이 불변이다 — 초대는 고치지 않고 새로 만든다. */
+/** {@code trip_invite} 표 매핑. 모든 칸이 불변이다 — 초대는 고치지 않고 새로 만든다. */
 @Entity
 @Table(name = "trip_invite")
 public class TripInviteJpaEntity {

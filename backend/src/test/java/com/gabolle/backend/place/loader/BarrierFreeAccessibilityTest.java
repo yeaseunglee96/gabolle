@@ -5,14 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * 무장애 문장 → 접근성 표식 — S15P21E201-331.
- *
- * <p>이 판정이 느슨하면 휠체어를 쓰는 사람이 못 들어가는 곳을 추천받는다. 추천에서 하드
- * 필터로 쓰이는 값이라 틀린 표식이 취향 불일치가 아니라 <b>문 앞에서 돌아서는 일</b>이 된다.
- *
- * <p>문장은 2026-09-11 수집본에서 그대로 옮겼다.
- */
+/** 검사에 쓰는 문장은 실제 수집본에서 그대로 옮긴 것이다. */
 class BarrierFreeAccessibilityTest {
 
 	@Test
@@ -46,13 +39,6 @@ class BarrierFreeAccessibilityTest {
 		assertThat(BarrierFreeAccessibility.of("주출입구에 경사로 설치되어 있음", "", "")).isEmpty();
 	}
 
-	/**
-	 * 🔴 2026-09-17 — {@code route} 칸을 함께 읽기로 한 근거.
-	 *
-	 * <p>수집본 179건 실측: 그 문구가 {@code exit} 에 117건, {@code route} 에 93건 있고
-	 * 합집합이 127건이다. <b>route 로만 늘어나는 것이 10건</b> — 원천이 「출입구」와
-	 * 「거기까지 가는 길」을 나눠 적었을 뿐 같은 사실이다.
-	 */
 	@Test
 	@DisplayName("🔴 경로 칸에만 그 문구가 있어도 붙인다 — 원천이 나눠 적었을 뿐이다")
 	void routeAloneIsEnough() {
@@ -62,7 +48,6 @@ class BarrierFreeAccessibilityTest {
 				.containsExactly("WHEELCHAIR");
 	}
 
-	/** 둘 다 말해도 코드는 하나다 — 같은 사실을 두 번 세지 않는다. */
 	@Test
 	@DisplayName("출입구와 경로가 둘 다 말해도 코드는 하나다")
 	void bothColumnsStillOneCode() {
@@ -70,13 +55,6 @@ class BarrierFreeAccessibilityTest {
 				.containsExactly("WHEELCHAIR");
 	}
 
-	/**
-	 * 🔴 칸을 더 읽는 것과 문구를 넓히는 것은 다른 일이다.
-	 *
-	 * <p>실측에서 「휠체어」는 나오는데 그 문구가 없는 22건을 읽어 보니 반대 뜻이 섞여
-	 * 있었다 — <b>낮은 턱 있음</b>, 경사 경고문, 내부 테이블 이야기. 규칙을 넓히면
-	 * 이것들이 함께 들어온다.
-	 */
 	@Test
 	@DisplayName("🔴 경로 칸이라고 문구가 느슨해지지는 않는다")
 	void routeUsesTheSameStrictPhrase() {

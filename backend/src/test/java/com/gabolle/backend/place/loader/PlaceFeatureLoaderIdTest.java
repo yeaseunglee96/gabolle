@@ -6,15 +6,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@link PlaceFeatureLoader#placeIdOf}·{@link PlaceFeatureLoader#featureIdOf} 가 기존 두 적재기의
- * 공식과 글자 하나까지 같은 값을 내는지 잰다 — S15P21E201-453.
- *
- * <h2>🔴 이 검사가 막는 것</h2>
- *
- * {@code PlaceFeatureLoader} 를 SBIZ 전용에서 namespace 일반화로 바꾸면서 공식을 다시 적었다.
- * 한 글자라도 어긋나면 이미 {@link SbizPlaceLoader}·{@link TourApiPlaceLoader} 로 적재된 장소를
- * "없는 장소" 로 오판해서, 실제로는 있는 장소에 사실을 못 붙이면서도 예외 없이 조용히
- * {@code missingPlace} 로 세어진다.
+ * {@link PlaceFeatureLoader#placeIdOf}·{@link PlaceFeatureLoader#featureIdOf} 가 두 적재기의
+ * 공식과 글자 하나까지 같은 값을 내는지 잰다. 한 글자라도 어긋나면 이미 적재된 장소를 "없는
+ * 장소" 로 오판해, 예외 없이 조용히 {@code missingPlace} 로 세어진다.
  */
 class PlaceFeatureLoaderIdTest {
 

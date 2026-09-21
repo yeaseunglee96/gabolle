@@ -17,10 +17,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * 관광공사 수집본을 읽어 로컬 탐색 표식을 붙인다 — S15P21E201-474.
+ * 관광공사 수집본을 읽어 로컬 탐색 표식을 붙인다.
  *
- * <p>{@link TourApiPlaceLoaderRunner}·{@link OpeningHoursLoaderRunner} 와 같은 모양이다.
- * 프로퍼티를 안 주면 이 빈이 만들어지지도 않아 평소 기동에 영향이 없다.
+ * <p>프로퍼티를 안 주면 이 빈이 만들어지지도 않아 평소 기동에 영향이 없다.
  *
  * <pre>
  * java -jar gabolle-backend.jar \
@@ -29,11 +28,11 @@ import org.springframework.stereotype.Component;
  *   --gabolle.place.loader.dataset-version=tourapi-busan-20260911
  * </pre>
  *
- * <p>장소 적재를 먼저 돌려야 한다. 표식은 장소에 붙는 값이라 장소 행이 없으면 붙을 자리가
- * 없고, 순서가 뒤집히면 실패하지 않고 "붙일 장소가 없어 넘긴" 수만 남는다.
+ * <p>장소 적재를 먼저 돌려야 한다. 순서가 뒤집히면 실패하지 않고 "붙일 장소가 없어 넘긴"
+ * 수만 남는다.
  *
- * <p>입력 파일은 장소 적재와 같은 수집본이다. 판독기도 같은 것을 쓰므로 음식 328곳은 여기서도
- * 넘어간다 — 식당은 탐색 여덟 갈래 어디에도 안 든다.
+ * <p>입력 파일과 판독기가 장소 적재와 같으므로 식당은 여기서도 넘어간다 — 탐색 여덟 갈래
+ * 어디에도 안 든다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -84,8 +83,7 @@ public class ExploreFacetLoaderRunner implements ApplicationRunner {
 		long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000L;
 
 		LOGGER.info("로컬 탐색 표식 적재를 마쳤다 — {} · {} · {}ms", loaded.counts(), result, elapsedMs);
-		// 갈래별 수가 화면의 여덟 줄에 그대로 나타난다. 배포 뒤 이 줄만 보면 어느 갈래가
-		// 아직 비어 있는지 알 수 있다.
+		// 갈래별 수가 화면의 여덟 줄에 그대로 나타난다 — 어느 갈래가 비어 있는지는 이 줄로 본다.
 		LOGGER.info("갈래별 — {}", byFacet(rows));
 	}
 

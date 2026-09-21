@@ -31,12 +31,12 @@ import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.testslice.AuthSliceApplication;
 
 /**
- * S15P21E201-317 완료 기준 — "승계 도중 실패를 일으키면 계정도 만들어지지 않는다".
+ * 승계 도중 실패하면 계정도 만들어지지 않는다.
  *
  * <p>승계({@code AnonymousTripClaimService})가 항상 실패하는 구현을 {@code @Primary} 로 끼운다.
- * {@code LocalAuthService.register} 가 한 트랜잭션이라면, 그 실패는 이미 저장한 {@code app_user}·
- * {@code local_credential} 행까지 되돌려야 한다 — 트랜잭션을 안 묶었으면(승계를 별도 트랜잭션이나
- * 트랜잭션 밖에서 불렀으면) 계정만 남고 이 확인이 실패한다.
+ * {@code LocalAuthService.register} 가 한 트랜잭션이면 그 실패는 이미 저장한 {@code app_user}·
+ * {@code local_credential} 행까지 되돌린다. 승계를 별도 트랜잭션이나 트랜잭션 밖에서 부르면
+ * 계정만 남는다.
  */
 @SpringBootTest(classes = AuthSliceApplication.class, properties = {
 		"spring.profiles.active=db",

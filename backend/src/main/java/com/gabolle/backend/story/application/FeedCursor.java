@@ -6,14 +6,12 @@ import java.util.Base64;
 import java.util.UUID;
 
 /**
- * 피드 커서 — "마지막으로 본 기록의 (공개 시각, 식별자)". S15P21E201-233.
+ * 피드 커서 — "마지막으로 본 기록의 (공개 시각, 식별자)". 페이지 번호 대신 이것을 쓰는 이유는
+ * {@code StoryRepository} javadoc 에 있다. 앱에는 불투명한 문자열(base64url)이다 — 안의 모양을 앱이
+ * 알면 그것이 계약이 되어 서버가 바꿀 수 없다.
  *
- * <p>페이지 번호 대신 이것을 쓰는 이유는 {@code StoryRepository} javadoc 에 있다. 겉으로는 불투명한
- * 문자열(base64url)이라 앱은 받은 값을 그대로 다음 요청에 돌려주기만 한다 — 안의 모양을 앱이 알면
- * 그것이 계약이 되어 서버가 바꿀 수 없다.
- *
- * <p>🔴 시각은 {@link Instant#toString()}(나노초까지)으로 적는다. 밀리초로 줄이면 같은 밀리초에 올라온
- * 두 기록 사이에서 커서가 어긋나 하나를 건너뛴다. PostgreSQL 의 timestamptz 는 마이크로초까지 있다.
+ * <p>시각은 {@link Instant#toString()} 으로 나노초까지 적는다. 밀리초로 줄이면 같은 밀리초에 올라온
+ * 두 기록 사이에서 커서가 어긋나 하나를 건너뛴다 — timestamptz 는 마이크로초까지 있다.
  */
 public record FeedCursor(Instant publishAt, UUID storyId) {
 

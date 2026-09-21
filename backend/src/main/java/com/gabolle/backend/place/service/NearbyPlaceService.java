@@ -17,65 +17,31 @@ import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 
 /**
- * 근처 장소 거리순 조회 (S15P21E201-469).
+ * 근처 장소 거리순 조회.
  *
- * <p>🔴 API 응답 DTO({@link NearbyPlaceItem}·{@link NearbyPlaceResponse})를 이 서비스가 직접 만든다.
- * 보통은 서비스가 내부 결과 타입을 반환하고 controller 가 API DTO 로 옮기지만, 이 티켓은 만들 파일
- * 목록이 고정돼 있어 그 중간 타입을 더 둘 자리가 없다. 응답 모양이 단순해서 지금은 손해가 크지
- * 않지만, 나중에 이 서비스를 다른 API 가 재사용하게 되면 그때 내부 타입을 분리한다.
+ * <p>정렬은 거리만으로 한다. 인기 점수나 평점이 비교자에 들어오면 "근처순은 항상 거리순" 이라는
+ * 계약이 깨지고, 그 실수는 결과가 가끔 섞이는 애매한 증상으로만 드러난다. 거리가 같을 때만
+ * {@code placeId} 로 갈라 재현 가능하게 한다. 다른 정렬이 필요하면 이 서비스를 고치지 말고 새
+ * API 를 만든다.
  *
- * <h2>🔴 정렬은 거리만으로 한다</h2>
- *
- * 완료 기준이 "정렬에 거리 외의 값이 개입하지 않는다" 다. 인기 점수나 평점을 비교자에 넣는 순간
- * 그 기준이 깨지고, 그 실수는 "결과가 가끔 이상하게 섞인다" 는 애매한 증상으로만 드러나 나중에
- * 잡기 어렵다. 그래서 {@link #findNearby} 의 비교자는 {@code distanceM} 하나뿐이고, 거리가 같을
- * 때만 {@code placeId} 로 갈라 결과를 재현 가능하게 한다. 인기순 같은 다른 정렬이 필요해지면 이
- * 서비스를 고치지 말고 새 API 를 만든다 — 그래야 "근처순은 항상 거리순" 이라는 계약이 유지된다.
- *
- * <h2>반경 사다리 — 조용히 넓히지 않는다</h2>
- *
- * 경계상자로 후보를 좁힌 뒤 자바에서 실제 거리를 재는 이유는 {@link GeoDistance} 를 보라. 첫
+ * <p>경계상자로 후보를 좁힌 뒤 자바에서 실제 거리를 재는 이유는 {@link GeoDistance} 에 있다. 첫
  * 반경에서 {@link PlaceProperties#getNearbyMinimumCount()} 를 못 채우면 사다리의 다음 반경으로
- * 넓히는데, 그 사실을 숨기면 사용자는 "근처" 라고 믿는 결과가 실제로는 수 km 밖일 수 있다. 그래서
- * 넓혔을 때 {@code radiusExpanded}·{@code effectiveRadiusM}·{@code expansionSteps} 를 응답에
- * 그대로 싣는다.
+ * 넓히고, 넓힌 사실을 {@code radiusExpanded}·{@code effectiveRadiusM}·{@code expansionSteps} 로
+ * 응답에 싣는다 — 숨기면 사용자가 "근처" 라고 믿는 결과가 수 km 밖일 수 있다.
  *
- * <h2>🔴 purpose 판별을 설정으로 뺀 이유</h2>
+ * <p>좁히는 길이 둘이다. {@code facetKey} 는 {@link InterestTagCode} 의 여덟 갈래를
+ * {@code INTEREST_TAG} 표식으로 좁히고, 이쪽이 지금의 정본이다. {@code purpose} 는
+ * {@code gabolle.place.purposes} 설정으로 카테고리와 표식을 묶는 길이고 설정이 아직 비어 있다 —
+ * "점심 먹을 곳" 처럼 여러 갈래를 묶는 목적이 필요해질 때를 위해 남겨 뒀다. 둘을 함께 보내면
+ * 400 이다. 하나를 조용히 이기게 하면 요청자는 자기가 보낸 필터가 무시된 것을 모른다.
  *
- * "기념품샵" 을 {@code place.category} 로 볼지 {@code place_feature} 표식으로 볼지 아직 팀이
- * 정하지 않았다. 여기서 자바 코드로 하나를 못박으면 나중에 다른 쪽으로 정해질 때 배포를 다시
- * 해야 한다. {@link PlaceProperties} 로 빼 두면 그때는 설정값만 바뀐다.
+ * <p>{@code purpose} 는 선택값이다. 설정이 비어 있는 동안 필수로 두면 어떤 입력으로도 200 을 낼
+ * 수 없다. 없으면 목적 필터를 적용하지 않고 {@link NearbyPlaceResponse#purposeApplied()} 로
+ * 알린다. 보냈는데 설정에 없으면 {@code UNKNOWN_PURPOSE} 로 거부한다 — 오타를 "필터 없음" 으로
+ * 넘기지 않기 위해서다.
  *
- * <h2>🔴 갈래(facetKey)로 좁히는 길을 따로 뒀다</h2>
- *
- * {@code purpose} 는 {@code gabolle.place.purposes} 설정이 채워져야 동작하는데 그 설정이 아직
- * 비어 있다. 즉 "근처 기념품샵" 화면은 이 API 가 있어도 <b>기념품샵으로 좁힐 수 없었다.</b>
- * 그래서 {@link InterestTagCode} 의 여덟 갈래를 {@code facetKey} 로 직접 받는 길을 뒀다 —
- * {@code place_feature} 의 {@code INTEREST_TAG} 표식으로 좁힌다.
- *
- * <p>이것으로 위 "purpose 판별을 설정으로 뺀 이유" 가 미뤄 뒀던 질문에 답이 났다. "기념품샵" 을
- * {@code place.category} 로 볼지 표식으로 볼지 — <b>표식으로 본다.</b> 여덟 갈래가 화면의 아코디언
- * 계약이 되면서 표식 쪽이 정본이 됐다(-473). {@code purpose} 는 지우지 않고 남겨 둔다: 나중에
- * "점심 먹을 곳" 처럼 여러 갈래와 카테고리를 묶는 목적이 필요해지면 그 자리다.
- *
- * <p>🔴 {@code purpose} 와 {@code facetKey} 를 <b>함께 보내면 400 이다.</b> 하나를 조용히 이기게
- * 하면 요청자는 자기가 보낸 필터가 무시된 것을 모른다.
- *
- * <h2>호출자가 반경을 정하면 사다리를 두 칸으로 만든다</h2>
- *
- * {@code radiusMeters} 가 오면 설정 사다리를 무시하고 <b>그 반경과 그것의 두 배</b>, 두 칸만 쓴다.
- * 화면이 "1km 안" 이라고 말해 놓고 5km 결과를 보여줄 수는 없기 때문이다. 두 배까지 넓히는 것은
- * FE 요청이고, 넓혔다는 사실은 {@code radiusExpanded}·{@code effectiveRadiusM} 로 알린다.
- *
- * <h2>🔴 purpose 가 선택값인 이유</h2>
- *
- * {@link PlaceProperties#getPurposes()} 의 기본값은 빈 맵이고 {@code application*.properties} 에도
- * 아직 아무 목적이 없다. {@code purpose} 를 필수로 두면 무엇을 보내도 항상 {@link PlaceRequestException}
- * ({@code UNKNOWN_PURPOSE})이 나서, 목적이 하나라도 설정되기 전까지는 이 엔드포인트가 어떤 입력으로도
- * 200 을 낼 수 없었다. 그래서 {@code purpose} 가 없으면 목적 필터를 아예 적용하지 않고 반경 안
- * 장소를 거리순으로 돌려준다 — {@link NearbyPlaceResponse#purposeApplied()} 로 그 사실을 알린다.
- * {@code purpose} 를 <b>보냈는데</b> 설정에 없으면 그때는 지금처럼 {@code UNKNOWN_PURPOSE} 로
- * 거부한다 — 오타를 "필터 없음" 으로 조용히 넘기지 않기 위해서다.
+ * <p>{@code radiusMeters} 가 오면 설정 사다리를 무시하고 그 반경과 두 배, 두 칸만 쓴다. 화면이
+ * "1km 안" 이라고 말해 놓고 5km 결과를 보여줄 수는 없다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -109,8 +75,8 @@ public class NearbyPlaceService {
 					List.of("purpose", "facetKey"));
 		}
 
-		// 🔴 purpose 도 facetKey 도 없으면 spec 이 null 이고, 그 아래(scanRadius·fetchCandidates·
-		// applyCategoryFilter)는 전부 null 을 "필터 없음" 으로 다룬다.
+		// spec 이 null 이면 아래(scanRadius·fetchCandidates·applyCategoryFilter)가 전부 그것을
+		// "필터 없음" 으로 다룬다.
 		PurposeSpec spec = null;
 		if (purposeApplied) {
 			spec = resolvePurpose(purpose);
@@ -141,8 +107,7 @@ public class NearbyPlaceService {
 		}
 
 		List<NearbyPlaceItem> items = matches.stream()
-				// 🔴 거리, 그리고 거리가 같을 때만 placeId. 다른 칼럼은 절대 여기 들어오면 안 된다 —
-				// 완료 기준 "정렬에 거리 외의 값이 개입하지 않는다" 를 코드로 고정하는 자리.
+				// 거리, 그리고 거리가 같을 때만 placeId. 다른 칼럼은 여기 들어오면 안 된다.
 				.sorted(Comparator.comparingDouble(ScoredPlace::distanceM)
 						.thenComparing(scored -> scored.place().getPlaceId()))
 				.limit(limit)
@@ -158,9 +123,9 @@ public class NearbyPlaceService {
 		int scanLimit = this.properties.getNearbyMaxScanned();
 		List<Place> candidates = fetchCandidates(box, spec, scanLimit);
 
-		// 🔴 limit+1 로 받아서 "더 있었는가" 만 본다. 자른 나머지는 쿼리에 ORDER BY 가 없어
-		// 순서가 정해져 있지 않으므로, 조용히 자르는 대신 사실을 scanTruncated 로 알린다 —
-		// 그러지 않으면 반경 안의 진짜 최단거리 장소가 빠져도 아무도 모른다.
+		// limit+1 로 받아서 "더 있었는가" 만 본다. 질의에 ORDER BY 가 없어 잘리는 순서가 정해져
+		// 있지 않으므로, 잘렸다는 사실을 scanTruncated 로 알린다 — 그러지 않으면 반경 안의 진짜
+		// 최단거리 장소가 빠져도 아무도 모른다.
 		boolean truncated = candidates.size() > scanLimit;
 		List<Place> scanned = truncated ? candidates.subList(0, scanLimit) : candidates;
 
@@ -176,11 +141,8 @@ public class NearbyPlaceService {
 	}
 
 	/**
-	 * {@code featureType} 이 있으면 표식으로 좁히고, 없으면 경계상자만으로 후보를 가져온다.
-	 *
-	 * <p>🔴 {@code spec} 이 {@code null} 이면 목적이 안 온 것이다(purpose 는 선택값 — 클래스
-	 * javadoc "purpose 가 선택값인 이유" 참고) — 이때는 표식 필터를 걸 수 없으니 경계상자만으로
-	 * 가져온다.
+	 * {@code featureType} 이 있으면 표식으로 좁히고, 없거나 {@code spec} 이 {@code null} 이면
+	 * 경계상자만으로 가져온다.
 	 */
 	private List<Place> fetchCandidates(GeoDistance.BoundingBox box, PurposeSpec spec, int scanLimit) {
 		Limit limit = Limit.of(scanLimit + 1);
@@ -195,10 +157,7 @@ public class NearbyPlaceService {
 
 	/**
 	 * {@code categories} 가 있으면 한 번 더 거른다. {@code featureType} 으로 이미 좁힌 뒤라도
-	 * 똑같이 적용된다 — "둘 다 있으면 표식으로 조회한 뒤 카테고리로 한 번 더 거른다" 는 요구를
-	 * {@link #fetchCandidates} 와 이 메서드의 조합 하나로 만족시킨다.
-	 *
-	 * <p>{@code spec} 이 {@code null}(목적 없음)이어도 여기서 걸러지지 않는다 — 그대로 반환한다.
+	 * 똑같이 적용된다. {@code spec} 이 {@code null} 이면 그대로 반환한다.
 	 */
 	private List<Place> applyCategoryFilter(List<Place> places, PurposeSpec spec) {
 		List<String> categories = spec == null ? null : spec.categories();
@@ -212,14 +171,9 @@ public class NearbyPlaceService {
 	}
 
 	/**
-	 * 이 반경에서 멈출 것인가.
-	 *
-	 * <p>🔴 호출자가 반경을 정했을 때와 안 정했을 때 기준이 다르다. 안 정했으면 설정된 최소
-	 * 개수({@code nearbyMinimumCount})를 채울 때까지 넓힌다 — 목록을 보여주는 것이 목적이라
-	 * 한 건만 나오면 화면이 빈약하다. 정했으면 <b>하나라도 있으면 멈춘다</b> — "500m 안" 을
-	 * 요청한 화면은 그 안에 하나만 있어도 그 하나를 원하는 것이고, 개수를 채우려고 반경을
-	 * 넓히면 요청한 숫자를 서버가 무시하는 것이 된다. FE 와 합의한 동작도 "하나도 없으면
-	 * 두 배" 다.
+	 * 멈출 기준이 호출자가 반경을 정했는지에 따라 다르다. 안 정했으면 {@code nearbyMinimumCount}
+	 * 를 채울 때까지 넓히고, 정했으면 하나라도 있으면 멈춘다 — 개수를 채우려고 넓히면 요청한
+	 * 반경을 서버가 무시하는 것이 된다.
 	 */
 	private boolean enough(int found, Integer radiusMeters) {
 		if (radiusMeters != null) {
@@ -229,11 +183,8 @@ public class NearbyPlaceService {
 	}
 
 	/**
-	 * 호출자가 반경을 정했으면 <b>그 반경과 두 배</b>, 두 칸만 쓴다. 안 정했으면 설정 사다리다.
-	 *
-	 * <p>🔴 두 칸으로 끝내는 이유 — 설정 사다리(1km·2km·5km)를 그대로 쓰면 "500m 안" 을 요청한
-	 * 화면에 5km 결과가 갈 수 있다. 반경을 명시한 요청은 그 숫자를 존중해야 하고, 그래도 하나도
-	 * 없을 때 한 번만 넓혀 주는 것이 FE 와 합의한 동작이다.
+	 * 호출자가 반경을 정했으면 그 반경과 두 배, 두 칸만 쓴다. 안 정했으면 설정 사다리다.
+	 * 설정 사다리를 그대로 쓰면 "500m 안" 을 요청한 화면에 5km 결과가 갈 수 있다.
 	 */
 	private List<Integer> ladderFor(Integer radiusMeters) {
 		if (radiusMeters == null) {
@@ -244,11 +195,8 @@ public class NearbyPlaceService {
 	}
 
 	/**
-	 * 여덟 갈래 코드를 {@code INTEREST_TAG} 표식 필터로 바꾼다 (S15P21E201-473).
-	 *
-	 * <p>🔴 모르는 코드는 400 으로 거부한다 — 조용히 "필터 없음" 으로 넘기면 화면은 기념품샵을
-	 * 요청했는데 온갖 장소가 온 것을 오타 때문이라고 알 수 없다. {@code purpose} 오타를 거부하는
-	 * 것과 같은 판단이다.
+	 * 여덟 갈래 코드를 {@code INTEREST_TAG} 표식 필터로 바꾼다. 모르는 코드는 400 으로 거부한다 —
+	 * "필터 없음" 으로 넘기면 요청한 갈래가 아닌 온갖 장소가 온 이유를 화면이 알 수 없다.
 	 */
 	private PurposeSpec resolveFacetKey(String facetKey) {
 		InterestTagCode code = InterestTagCode.from(facetKey)
@@ -258,8 +206,8 @@ public class NearbyPlaceService {
 	}
 
 	private void validateRadius(int radiusMeters) {
-		// 🔴 상한을 두는 이유 — 반경이 커지면 경계상자가 넓어져 표를 통째로 훑는 질의가 된다.
-		//    20km 는 도시 하나를 덮는 크기라 "근처" 라는 말이 유지되는 상한이다.
+		// 반경이 커지면 경계상자가 넓어져 표를 통째로 훑는 질의가 된다. 20km 는 도시 하나를
+		// 덮는 크기라 "근처" 라는 말이 유지되는 상한이다.
 		if (radiusMeters < 100 || radiusMeters > 20000) {
 			throw new PlaceRequestException("INVALID_REQUEST", "반경은 100m에서 20000m 사이여야 합니다.",
 					List.of("radiusMeters"));
@@ -274,19 +222,12 @@ public class NearbyPlaceService {
 		return ladder.stream().sorted().toList();
 	}
 
-	/**
-	 * 🔴 {@link #findNearby} 가 {@code purpose} 가 비어 있지 않을 때만 이 메서드를 부른다 — 비어
-	 * 있으면 그 자체는 오류가 아니라 "필터 없음" 이다(클래스 javadoc "purpose 가 선택값인 이유").
-	 * 그래도 방어적으로 null·공백을 다시 확인한다. 여기 도달했다는 것은 값은 있는데 설정에 없다는
-	 * 뜻이라 {@code UNKNOWN_PURPOSE} 로 거부한다.
-	 */
+	/** 값이 있는데 설정에 없으면 {@code UNKNOWN_PURPOSE} 다. 비어 있으면 애초에 안 불린다. */
 	private PurposeSpec resolvePurpose(String purpose) {
 		if (purpose == null || purpose.isBlank()) {
 			throw new PlaceRequestException("UNKNOWN_PURPOSE", "지원하지 않는 목적입니다.", List.of("purpose"));
 		}
-		// 🔴 대문자로 맞춰 찾는다. "SOUVENIR" 든 "souvenir" 든 같은 목적을 가리켜야 프런트나
-		// 문서마다 대소문자가 갈려도 조용히 다른 결과(또는 다른 오류)가 나오지 않는다. 그래서
-		// 설정의 purposes 키는 대문자로 적는 것이 이 서비스와의 계약이다.
+		// 대문자로 맞춰 찾는다 — 설정의 purposes 키를 대문자로 적는 것이 이 서비스와의 계약이다.
 		PurposeSpec spec = this.properties.getPurposes().get(purpose.strip().toUpperCase(Locale.ROOT));
 		if (spec == null) {
 			throw new PlaceRequestException("UNKNOWN_PURPOSE", "지원하지 않는 목적입니다.", List.of("purpose"));

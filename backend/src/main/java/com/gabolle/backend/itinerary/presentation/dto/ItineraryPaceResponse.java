@@ -4,11 +4,10 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * 하루치 지연 경고 조회 응답 — S15P21E201-304 · -96.
- *
- * <p>{@code paceFactor} 가 {@code null} 이면 아직 속도 계수를 만들 만큼 방문 기록이 없다는
- * 뜻이다. 이때 1.0(계획대로) 을 대신 채우지 않는다 — 그러면 화면이 "정확히 계획대로 갑니다"라는
- * 틀린 안심을 그린다. 왜 못 정했는지는 {@link #notChecked()} 에 남는다.
+ * 하루치 지연 경고 조회 응답.
+ * {@code paceFactor} 가 {@code null} 이면 아직 속도 계수를 만들 만큼 방문 기록이 없다는 뜻이다.
+ * 이때 1.0(계획대로)을 대신 채우지 않는다 — 그러면 화면이 틀린 안심을 그린다. 왜 못 정했는지는
+ * {@link #notChecked()} 에 남는다.
  */
 public record ItineraryPaceResponse(
         String itineraryId,
@@ -19,7 +18,7 @@ public record ItineraryPaceResponse(
 
         /**
          * 계수를 만든 표본 수. 계수가 없을 때는 지금까지 모인 표본 수(0 이상)를 그대로 담는다 —
-         * "몇 개 중 몇 개가 모였는지"를 화면이 보여줄 수 있게 한다.
+         * "몇 개 중 몇 개가 모였는지" 를 화면이 보여줄 수 있게 한다.
          */
         int sampleCount,
 
@@ -43,16 +42,11 @@ public record ItineraryPaceResponse(
     /**
      * 방문지 하나의 예측.
      *
-     * @param itemId            항목의 열쇠. {@code ItineraryDelayProjector.Entry.itemKey()} 를
-     *                          그대로 옮긴 것이다 — {@code ItineraryEditResponse} 가
-     *                          {@code Violation.itemKey()} 를 {@code Warning.itemId} 로 내보내는
-     *                          것과 같은 이름 규칙이다
-     * @param visited           이미 다녀온 곳인가. 참이면 아래 시각들은 기록된 사실 그대로다
-     * @param predictedArrival  예상(또는 실제) 도착
-     * @param predictedDeparture 예상(또는 실제) 출발
-     * @param plannedArrival    원래 계획된 도착. 계획 시각이 없으면 {@code null}
-     * @param delayMinutes      계획보다 몇 분 늦나. 음수면 이르다. 계획 시각이 없으면 {@code null}
-     * @param atRisk            이 항목이 하루 끝을 넘길 위험이 있나
+     * @param itemId 항목의 열쇠. {@code ItineraryDelayProjector.Entry.itemKey()} 를 그대로 옮긴 것이다
+     * @param visited 이미 다녀온 곳인가. 참이면 아래 시각들은 기록된 사실 그대로다
+     * @param plannedArrival 원래 계획된 도착. 계획 시각이 없으면 {@code null}
+     * @param delayMinutes 계획보다 몇 분 늦나. 음수면 이르다. 계획 시각이 없으면 {@code null}
+     * @param atRisk 이 항목이 하루 끝을 넘길 위험이 있나
      */
     public record Item(
             String itemId,
@@ -64,10 +58,6 @@ public record ItineraryPaceResponse(
             boolean atRisk) {
     }
 
-    /**
-     * @param check  못 한 검사의 이름
-     * @param reason 왜 못 했나
-     */
     public record NotChecked(String check, String reason) {
     }
 }

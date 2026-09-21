@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.gabolle.backend.transit.domain.NearbyBusArrivalsResult;
 
-/** {@code GET /api/v1/transit/nearby-bus-arrivals} 응답 — S15P21E201-988. */
+/** {@code GET /api/v1/transit/nearby-bus-arrivals} 응답. */
 public record NearbyBusArrivalsResponseDto(List<StopDto> stops) {
 
 	public static NearbyBusArrivalsResponseDto from(NearbyBusArrivalsResult result) {

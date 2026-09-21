@@ -15,15 +15,11 @@ import com.gabolle.backend.event.domain.EventOutbox;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
 
 /**
- * 이벤트를 Outbox 에 적는 유일한 입구.
+ * 이벤트를 Outbox 에 적는 유일한 입구. 다른 도메인은 {@code EventOutboxRepository} 를 직접
+ * 부르지 않는다 — envelope 규칙·개인정보 검사·멱등이 여기 한 군데에만 있어야 한다.
  *
- * <p>🔴 다른 도메인은 {@code EventOutboxRepository} 를 직접 부르지 않는다. envelope 규칙
- * (**모든 이벤트가 공통으로 가져야 하는 머리 부분 — event_id · type · version · 시각**)과
- * 개인정보 검사와 멱등 처리가 여기 한 군데에만 있어야 하기 때문이다.
- *
- * <p>🔴 이 메서드는 <b>스스로 트랜잭션을 열지 않는다</b>({@code MANDATORY}). 부르는 쪽의
- * 업무 트랜잭션 안에서만 돌아야 Outbox 의 존재 이유 — 업무 저장과 이벤트 저장이 같이 남거나
- * 같이 롤백되는 것 — 이 성립한다. 트랜잭션 밖에서 부르면 그 자리에서 예외가 난다.
+ * <p>여기 메서드는 스스로 트랜잭션을 열지 않는다({@code MANDATORY}). 부르는 쪽의 업무
+ * 트랜잭션 안에서만 돌아야 업무 저장과 이벤트 저장이 같이 남거나 같이 롤백된다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -46,10 +42,8 @@ public class OutboxService {
 	}
 
 	/**
-	 * 적은 결과.
-	 *
-	 * @param event 적힌 행 (새로 적혔든 이미 있었든)
-	 * @param created 이번 호출이 새로 적었으면 {@code true}, 이미 있었으면 {@code false}
+	 * @param event 적힌 행 — 새로 적혔든 이미 있었든
+	 * @param created 이번 호출이 새로 적었으면 {@code true}
 	 */
 	public record AppendResult(EventOutbox event, boolean created) {
 	}
@@ -66,16 +60,12 @@ public class OutboxService {
 	}
 
 	/**
-	 * {@link #append} 와 같되 <b>새로 적혔는지까지</b> 알려준다.
+	 * {@link #append} 와 같되 새로 적혔는지까지 알려준다. 수집 API 가 계측 누락과 재전송을
+	 * 구분할 수 있어야 해서 있다.
 	 *
-	 * <p>수집 API(POST /api/v1/events)가 응답에 {@code duplicate} 를 담아야 해서 있다.
-	 * 재전송은 오류가 아니므로 둘 다 성공 응답이지만, 앱과 분석이 "받은 것이 새것인지"
-	 * 를 알 수 있어야 계측 누락과 재전송을 구분할 수 있다.
-	 *
-	 * <p>🔴 이 판정은 <b>같은 트랜잭션 안에서만 정확하다.</b> 서로 다른 트랜잭션 둘이 같은
-	 * {@code eventId} 로 동시에 들어오면 둘 다 {@code created = true} 를 볼 수 있고, 그중
-	 * 하나는 커밋할 때 PK 제약으로 실패한다. <b>행이 둘 생기지는 않는다</b> — 그것이
-	 * 이 설계가 지키는 것이고, 플래그의 정확도는 지키는 대상이 아니다.
+	 * <p>{@code created} 는 같은 트랜잭션 안에서만 정확하다. 다른 트랜잭션 둘이 같은
+	 * {@code eventId} 로 동시에 들어오면 둘 다 {@code true} 를 볼 수 있고 하나는 커밋할 때 PK
+	 * 제약으로 실패한다. 이 설계가 지키는 것은 행이 둘 생기지 않는 것이지 이 값의 정확도가 아니다.
 	 */
 	@Transactional(propagation = Propagation.MANDATORY)
 	public AppendResult appendReportingDuplicate(OutboxAppendCommand command) {

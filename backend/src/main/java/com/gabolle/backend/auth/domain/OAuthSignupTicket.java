@@ -19,19 +19,13 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 /**
- * 소셜 인증과 회원가입(또는 기존 계정 연결) 사이를 잇는 10분짜리 1회용 티켓 — S15P21E201-689 · -690.
+ * 소셜 인증과 회원가입(또는 기존 계정 연결) 사이를 잇는 10분짜리 1회용 티켓.
  *
- * <p>소셜 인증이 끝났는데 계정이 없으면 서버는 계정을 만들지 않고 이 티켓을 발급한다. 화면은 provider 가 준
- * 이메일·이름을 미리 채운 회원가입 화면을 보여주고, 사용자가 닉네임·14세 확인·동의를 끝내면 티켓과 함께
- * 보내 그때 계정이 생긴다. 같은 이메일의 로컬 계정이 이미 있으면 {@link Kind#LINK} 티켓이 나가고, 비밀번호를
- * 확인한 뒤 그 계정에 소셜 신원을 붙인다.
+ * <p>클라이언트가 받는 것은 원문 티켓(43글자 난수)이고 여기 남는 것은 SHA-256 해시다.
+ * provider 의 access token 은 저장하지 않는다 — 필요한 것은 누구인지와 미리 채울 값뿐이다.
  *
- * <p>🔴 클라이언트가 받는 것은 원문 티켓(43글자 난수)이고 여기 남는 것은 SHA-256 해시다 —
- * {@link AuthOneTimeToken} 과 같은 방식. provider 의 access token 은 저장하지 않는다. 필요한 것은
- * "누구인지"(provider·신원 번호)와 미리 채울 값뿐이다.
- *
- * <p>{@link AuthOneTimeToken} 을 재사용하지 않은 이유 — 그 표는 {@code local_credential} 에 NOT NULL 로
- * 매달려 있다. 소셜로 처음 온 사람에게는 아직 계정도 자격증명도 없다.
+ * <p>{@link AuthOneTimeToken} 을 재사용하지 않은 것은 그 표가 {@code local_credential} 에
+ * NOT NULL 로 매달려 있기 때문이다. 소셜로 처음 온 사람에게는 아직 자격증명이 없다.
  */
 @Entity
 @Table(name = "oauth_signup_ticket")

@@ -11,27 +11,16 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * 상가정보 CSV 를 <b>덩어리로</b> 읽는다 — S15P21E201-636.
+ * 상가정보 CSV 를 덩어리로 읽는다. 한 분기 파일이 수십 MB 라 통째로 들고 있으면 적재 한 번에
+ * 힙이 크게 뛴다 — 운영 서버에서 도는 일회성 작업이라 잠깐 느린 쪽이 낫다.
  *
- * <h2>🔴 왜 통째로 안 읽나</h2>
- *
- * 부산 한 분기 파일이 159,689행 · 82.8MB 다. 다 읽어 목록으로 들고 있으면 적재 한 번에 힙이
- * 수백 MB 씩 뛴다. 이 일은 운영 서버에서 도는 일회성 작업이라, 잠깐 느린 것보다 잠깐 메모리를
- * 크게 쓰는 것이 더 위험하다.
- *
- * <h2>🔴 칸 번호를 이름이 아니라 <b>번호</b>로 읽는 이유</h2>
- *
- * 상가정보 헤더의 칸 이름은 판마다 미묘하게 다르다(공백·괄호). S15P21E201-712·-713 이 실제
- * 파일을 읽어 칸 번호를 확인했고({@code eval/food-ranking/lib/sbiz.mjs} 의 {@code COL}),
- * <b>그 번호를 그대로 쓴다.</b> 다시 알아내지 않는다.
- *
- * <p>대신 <b>첫 줄이 우리가 아는 파일인지 확인한다</b> — 칸 수가 다르면 거기서 멈춘다. 번호로
- * 읽으면서 확인을 안 하면, 판이 바뀐 파일에서 상호명 자리에 업종이 들어간 채로 5만 행이 조용히
- * 적재된다.
+ * <p>칸을 이름이 아니라 번호로 읽는다. 헤더의 칸 이름이 판마다 공백·괄호까지 미묘하게 다르다.
+ * 대신 첫 줄의 칸 수로 아는 판인지 확인하고 다르면 멈춘다 — 확인 없이 번호로 읽으면 판이 바뀐
+ * 파일에서 상호명 자리에 업종이 들어간 채로 전부 조용히 적재된다.
  */
 public final class SbizCsvReader {
 
-	/** 칸 번호 — S15P21E201-712 가 실제 파일로 확인한 것 (0부터 센다). */
+	/** 칸 번호. 실제 파일로 확인한 것이고 0부터 센다. */
 	static final int COL_STORE_ID = 0;
 
 	static final int COL_NAME = 1;
@@ -43,8 +32,8 @@ public final class SbizCsvReader {
 	static final int COL_JUNG = 6;
 
 	/**
-	 * 상권업종<b>소</b>분류명 — S15P21E201-635 에서 쓰기 시작했다. 중분류(칸 6)는 앱에 없는
-	 * 낱말이라 채점이 한 건도 안 맞았다. {@link AppFoodVocabulary} 가 이 값을 앱 코드로 옮긴다.
+	 * 상권업종 소분류명. 중분류(칸 6)는 앱에 없는 낱말이라 채점이 한 건도 안 맞는다.
+	 * {@link AppFoodVocabulary} 가 이 값을 앱 코드로 옮긴다.
 	 */
 	static final int COL_SO = 8;
 
@@ -66,12 +55,8 @@ public final class SbizCsvReader {
 	}
 
 	/**
-	 * 파일을 읽어 {@code chunkSize} 개씩 넘긴다.
-	 *
-	 * <p>🔴 <b>거른 행은 세어서 돌려준다.</b> 5만 행을 넣었는데 얼마가 빠졌는지 모르면,
-	 * 나중에 "왜 그 가게가 없나" 에 답할 수 없다.
-	 *
-	 * @return 읽은 줄 · 음식이 아니어서 뺀 줄 · 좌표가 없어서 뺀 줄
+	 * 파일을 읽어 {@code chunkSize} 개씩 넘긴다. 거른 행은 세어서 돌려준다 — 얼마가 빠졌는지
+	 * 모르면 나중에 "왜 그 가게가 없나" 에 답할 수 없다.
 	 */
 	public static Counts readFoodRows(Path csv, int chunkSize, Consumer<List<SbizRow>> chunkConsumer) {
 		Counts counts = new Counts();
@@ -83,7 +68,7 @@ public final class SbizCsvReader {
 			}
 			int headerColumns = parseLine(header).size();
 			if (headerColumns < MIN_COLUMNS) {
-				// 🔴 조용히 진행하면 상호명 자리에 다른 값이 들어간 채로 5만 행이 적재된다.
+				// 조용히 진행하면 상호명 자리에 다른 값이 들어간 채로 전부 적재된다.
 				throw new IllegalArgumentException("상가정보 CSV 의 칸 수가 아는 판과 다르다 — 칸 "
 						+ headerColumns + "개, 최소 " + MIN_COLUMNS + "개가 필요하다: " + csv);
 			}
@@ -105,7 +90,7 @@ public final class SbizCsvReader {
 				Double lat = parseCoordinate(cols.get(COL_LAT));
 				Double lng = parseCoordinate(cols.get(COL_LNG));
 				if (lat == null || lng == null) {
-					// 🔴 좌표가 없으면 후보가 될 수 없다. 0,0 도 좌표가 아니라 "빈 칸" 이다.
+					// 좌표가 없으면 후보가 될 수 없다. 0,0 도 좌표가 아니라 "빈 칸" 이다.
 					counts.noCoordinate++;
 					continue;
 				}
@@ -148,10 +133,7 @@ public final class SbizCsvReader {
 		return value;
 	}
 
-	/**
-	 * 큰따옴표로 감싼 칸 안에 쉼표가 들어 있어도 안 깨지는 최소 CSV 파서.
-	 * S15P21E201-712 의 {@code parseCsvLine} 과 같은 규칙이다 — 상호명에 쉼표가 실제로 들어 있다.
-	 */
+	/** 큰따옴표로 감싼 칸 안에 쉼표가 들어 있어도 안 깨지는 최소 CSV 파서 — 상호명에 쉼표가 있다. */
 	static List<String> parseLine(String line) {
 		List<String> out = new ArrayList<>();
 		StringBuilder current = new StringBuilder();

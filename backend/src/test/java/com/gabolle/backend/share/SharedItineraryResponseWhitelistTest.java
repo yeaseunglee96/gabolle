@@ -14,12 +14,9 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.share.presentation.dto.SharedItineraryResponse;
 
 /**
- * S15P21E201-332 완료 기준 — "나중에 응답에 칸이 하나 늘어도 잡아내는 자동 검사가 있다".
- *
- * <p>공유 응답은 로그인 없이 아무나 여는 화면에 나간다. 그래서 이 record 와 안쪽 record 의 필드 이름
- * <b>전부</b>를 허용 목록과 대조한다 — 값이 비어 있는지가 아니라 <b>칸 자체가 없는지</b>를 본다. 누가 칸 하나를
- * 더하면 이 테스트가 빨개지고, 그 사람은 "이 값을 공개해도 되는가" 를 한 번은 생각하게 된다. 늘리는 것이
- * 맞다면 허용 목록도 함께 고친다 — 그 diff 가 리뷰에서 눈에 띈다.
+ * 공유 응답에 칸이 하나 늘어도 잡아낸다. 이 응답은 로그인 없이 열리므로 record 와 안쪽
+ * record 의 필드 이름 전부를 허용 목록과 대조한다 — 값이 비었는지가 아니라 칸 자체가 없는지를
+ * 본다. 칸을 늘리는 것이 맞다면 허용 목록도 함께 고친다.
  */
 class SharedItineraryResponseWhitelistTest {
 

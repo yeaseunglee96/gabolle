@@ -16,11 +16,8 @@ import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 
 /**
- * 테스트용 대역(fake). 실제 추천 엔진의 계약이 아직 없으므로 <b>구현을 지어내지 않고</b>
- * 테스트가 원하는 답을 그대로 돌려주는 대역만 둔다.
- *
- * <p>마지막으로 받은 {@link EngineRequest} 를 들고 있어서, 백엔드가 만든 request_id 가
- * 엔진까지 그대로 전달되는지도 확인할 수 있다.
+ * 테스트가 원하는 답을 그대로 돌려주는 엔진 대역. 마지막으로 받은 {@link EngineRequest} 를
+ * 들고 있어서 백엔드가 만든 request_id 가 엔진까지 그대로 가는지도 확인할 수 있다.
  */
 public class FakeRecommendationEngine implements RecommendationEnginePort {
 
@@ -84,7 +81,7 @@ public class FakeRecommendationEngine implements RecommendationEnginePort {
 				score, List.of("QUIET_PLACE"), List.of());
 	}
 
-	/** 하드 제약을 위반한 후보. 🔴 어떤 경로로도 노출되면 안 된다. */
+	/** 하드 제약을 위반한 후보. 어떤 경로로도 노출되면 안 된다. */
 	public static EngineCandidate failing(UUID placeId, String violationCode) {
 		return new EngineCandidate(placeId, "ONTOLOGY_SEED", ConstraintVerdict.FAIL,
 				List.of(Map.of("code", violationCode)), List.of(), 1.0,
@@ -101,14 +98,14 @@ public class FakeRecommendationEngine implements RecommendationEnginePort {
 	}
 
 	/**
-	 * 등급 <b>없이</b> 온 미확인 후보. 온톨로지가 아직 severity 를 안 실어 보낼 때의 모습이고,
+	 * 등급 없이 온 미확인 후보. 온톨로지가 아직 severity 를 안 실어 보낼 때의 모습이고,
 	 * 기본 설정에서는 가장 위험한 등급으로 간주된다.
 	 */
 	public static EngineCandidate unknownUnrated(UUID placeId, String unknownFactCode) {
 		return unknown(placeId, Map.of("fact", unknownFactCode));
 	}
 
-	/** 판정에 필요한 사실을 확인하지 못한 후보. 🔴 PASS 로 바뀌면 안 된다. */
+	/** 판정에 필요한 사실을 확인하지 못한 후보. PASS 로 바뀌면 안 된다. */
 	private static EngineCandidate unknown(UUID placeId, Map<String, Object> unknownFact) {
 		return new EngineCandidate(placeId, "ONTOLOGY_SEED", ConstraintVerdict.UNKNOWN, List.of(),
 				List.of(unknownFact), 0.3,

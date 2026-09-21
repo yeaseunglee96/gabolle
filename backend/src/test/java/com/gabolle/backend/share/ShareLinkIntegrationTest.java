@@ -45,12 +45,11 @@ import com.gabolle.backend.story.StoryFixture;
 import com.gabolle.testslice.CollaborationSliceApplication;
 
 /**
- * S15P21E201-330 · -332 — 읽기 전용 공유 주소 발급·비로그인 조회가 실제 PostgreSQL 에서
- * 동작하는지 본다.
+ * 읽기 전용 공유 주소 발급과 비로그인 조회가 실제 PostgreSQL 에서 동작하는지 본다.
  *
- * <p>발급(POST)은 소유자만 되고 편집자·외부인은 막혀야 한다. 조회(GET)는 인증 없이 열리고,
- * 만료·삭제된 원본·없는 표를 구분해 답해야 한다. 응답에 원본 계약(출발지·예산·인원·연락처)이
- * 새지 않는지가 이 티켓에서 가장 중요한 확인이라 문자열 대조로 직접 본다.
+ * <p>발급(POST)은 소유자만 되고 편집자·외부인은 막혀야 한다. 조회(GET)는 인증 없이 열리고
+ * 만료·삭제된 원본·없는 표를 구분해 답해야 한다. 응답에 출발지·예산·인원·연락처가 새지
+ * 않는지를 문자열 대조로 직접 본다.
  */
 @SpringBootTest(classes = CollaborationSliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -179,7 +178,7 @@ class ShareLinkIntegrationTest {
 				.andExpect(jsonPath("$.data.notShared.length()").value(4))
 				.andExpect(jsonPath("$.error").doesNotExist());
 
-		// 🔴 완료 기준 — 값이 null 인지가 아니라 그 키 자체가 응답에 없는지를 본다.
+		// 완료 기준 — 값이 null 인지가 아니라 그 키 자체가 응답에 없는지를 본다.
 		// 콜론까지 넣어 "JSON 키로 나타나는가" 를 본다 — notShared 값 자체가 "partySize" 라는
 		// 글자를 담고 있어(SharedItineraryResponse.NOT_SHARED), 콜론 없이 부분 문자열만 보면
 		// 그 고지문과 충돌해 오탐이 난다.
@@ -213,7 +212,7 @@ class ShareLinkIntegrationTest {
 	@Test
 	@DisplayName("만료된 표는 410 SHARE_LINK_EXPIRED 이고 view_count 가 오르지 않는다")
 	void expiredLinkReturnsGone() throws Exception {
-		// 🔴 ck_trip_share_link_expiry 가 "expires_at > created_at" 을 항상 요구한다 — 지금
+		// ck_trip_share_link_expiry 가 "expires_at > created_at" 을 항상 요구한다 — 지금
 		// 시각보다 만료가 앞서야 하는 이 시나리오도 그 제약을 지키며 만들어야 한다. 만든
 		// 시각도 만료 시각도 둘 다 지금보다 과거로 두면 "이미 만들어졌고 이미 끝난 표" 가 된다.
 		String token = issueToken(OffsetDateTime.now(ZoneOffset.UTC).minusDays(40), now().minus(10, ChronoUnit.DAYS));
@@ -338,7 +337,7 @@ class ShareLinkIntegrationTest {
 	}
 
 	/**
-	 * 🔴 {@code ck_trip_share_link_expiry} 가 {@code expires_at > created_at} 을 항상 요구한다.
+	 * {@code ck_trip_share_link_expiry} 가 {@code expires_at > created_at} 을 항상 요구한다.
 	 * 만료 시나리오를 심을 때도 이 제약을 지켜야 하므로 만든 시각을 따로 받는다.
 	 */
 	private String issueToken(OffsetDateTime createdAt, Instant expiresAt) {

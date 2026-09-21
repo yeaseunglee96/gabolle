@@ -18,25 +18,19 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
 /**
- * 애플이 준 {@code id_token} 을 검증한다 — S15P21E201-825.
+ * 애플이 준 {@code id_token} 을 검증한다. 공개키로 서명을 확인하고 발급자·대상·nonce 를 대조한다.
+ * {@link GoogleIdTokenVerifier} 와 골격은 같고 다음 넷이 다르다.
  *
- * <p>구글의 같은 자리({@link GoogleIdTokenVerifier})와 골격은 같다. 애플 공개키로 서명을 확인하고
- * 발급자·대상·nonce 를 대조한다. 다른 점 셋이 이 클래스의 존재 이유다.
+ * <p>애플에는 access token 으로 프로필을 받아오는 주소가 없어 이 토큰의 검증이 곧 로그인 판정이다.
  *
- * <p>1. <b>여기 말고 신원을 얻을 곳이 없다.</b> 카카오·네이버에는 access token 으로 프로필을 받아오는
- * 주소가 있지만 애플에는 없다. 그래서 이 토큰의 검증이 곧 로그인 판정이다.
+ * <p>이름은 최초 인증 응답에만 실려 오고 {@code id_token} 에는 없다 — 표시 이름은 없는 것으로 두고
+ * 가입 화면에서 받는다.
  *
- * <p>2. <b>이름을 안 준다.</b> 애플은 최초 인증 응답에만 이름을 실어 주고 {@code id_token} 에는 넣지
- * 않는다. 두 번째 로그인부터는 아예 오지 않으므로 표시 이름은 없는 것으로 두고 가입 화면에서 받는다.
+ * <p>{@code email_verified}·{@code is_private_email} 이 참/거짓으로 올 때도 문자열로 올 때도 있다.
+ * 한쪽만 읽으면 "애플이 확인해 준 주소" 가 조용히 "모름" 으로 떨어진다.
  *
- * <p>3. <b>참/거짓이 문자열로 온다.</b> {@code email_verified} 와 {@code is_private_email} 이
- * {@code true} 일 때도 있고 {@code "true"} 일 때도 있다. 한쪽만 읽으면 "애플이 확인해 준 주소" 가
- * 조용히 "모름" 으로 떨어진다.
- *
- * <p>🔴 구글과 달리 <b>이메일이 없어도 통과시킨다.</b> 애플은 사용자가 이메일 제공을 건너뛸 수 있게
- * 하고, 가려서 주면 {@code ...@privaterelay.appleid.com} 주소가 온다. 이메일 없이도 계정을 만들 수
- * 있는 것은 카카오에서 이미 겪은 자리라({@code auth_identity.provider_email} 이 NULL 허용) 새 규칙이
- * 아니다.
+ * <p>이메일이 없어도 통과시킨다. 사용자가 제공을 건너뛸 수 있고, 가려서 주면
+ * {@code ...@privaterelay.appleid.com} 주소가 온다.
  */
 @Component
 @Profile({"db", "dev"})
@@ -63,9 +57,8 @@ public class AppleIdTokenVerifier {
 		if (clientId != null && !clientId.isBlank()) {
 			this.allowedAudiences.add(clientId.trim());
 		}
-		// 🔴 웹과 앱의 대상(aud)이 서로 다르다. 웹 로그인은 Service ID 가, iOS 네이티브 로그인은
-		//    앱 번들 id 가 대상으로 찍힌다. 앱을 붙이는 시점에 여기에 번들 id 를 더해야 한다 —
-		//    안 더하면 "웹은 되는데 앱만 안 되는" 상태가 된다.
+		// 웹과 앱의 대상(aud)이 다르다 — 웹은 Service ID, iOS 네이티브는 앱 번들 id 가 찍힌다.
+		// 번들 id 를 안 더하면 "웹은 되는데 앱만 안 되는" 상태가 된다.
 		if (configuredAudiences != null && !configuredAudiences.isBlank()) {
 			this.allowedAudiences.addAll(Arrays.stream(configuredAudiences.split(","))
 					.map(String::trim).filter(value -> !value.isBlank()).collect(Collectors.toSet()));
@@ -106,10 +99,9 @@ public class AppleIdTokenVerifier {
 	}
 
 	/**
-	 * 참/거짓 클레임을 읽는다 — 없으면 {@code null}(모름)이다.
-	 *
-	 * <p>🔴 {@code false} 로 채우지 않는다. "애플이 아니라고 답했다" 와 "애플이 안 알려줬다" 는 다른
-	 * 사실이고, 이 구분은 {@code auth_identity} 에 그대로 저장된다(S15P21E201-741).
+	 * 참/거짓 클레임을 읽는다 — 없으면 {@code null}(모름)이다. {@code false} 로 채우면 안 된다.
+	 * "아니라고 답했다" 와 "안 알려줬다" 는 다른 사실이고, 이 구분이 {@code auth_identity} 에
+	 * 그대로 저장된다.
 	 */
 	private Boolean flag(Jwt jwt, String claimName) {
 		Object raw = jwt.getClaim(claimName);

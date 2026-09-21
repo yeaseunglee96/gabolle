@@ -8,10 +8,8 @@ import com.gabolle.backend.place.service.GeoDistance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 거리 계산과 경계상자 — DB 없이 돈다.
- *
- * <p>거리 정렬(S15P21E201-469)이 이 함수 하나에 걸려 있는데, 틀려도 결과가 그럴듯해 보인다.
- * 그래서 알려진 값으로 못 박는다.
+ * 거리 계산과 경계상자. 거리 정렬이 이 함수 하나에 걸려 있는데 틀려도 결과가 그럴듯해
+ * 보이므로 알려진 값으로 못 박는다. DB 없이 돈다.
  */
 class GeoDistanceTest {
 

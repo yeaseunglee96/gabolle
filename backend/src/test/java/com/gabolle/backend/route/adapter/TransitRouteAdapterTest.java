@@ -15,15 +15,17 @@ import com.gabolle.backend.route.domain.RouteQuery;
 import com.gabolle.backend.route.domain.TravelMode;
 import com.gabolle.backend.route.transit.TransitNetwork;
 import com.gabolle.backend.route.transit.TransitNetwork.Kind;
+import tools.jackson.databind.ObjectMapper;
+
+import com.gabolle.backend.route.transit.TransitFareCalculator;
+import com.gabolle.backend.route.transit.TransitFareTable;
 import com.gabolle.backend.route.transit.TransitNetworkPort;
 import com.gabolle.backend.route.transit.TransitProperties;
 
 /**
- * {@link TransitRouteAdapter} 검증 — S15P21E201-1104.
- *
- * <p>좌표는 실제 부산 값을 쓴다. 서면(35.1580, 129.0594) · 전포(35.1520, 129.0648) 정도로,
- * 두 역은 약 700m 떨어져 있다 — 걸어갈 만한 거리 기본값(800m) 안팎을 실제로 시험하려면
- * 지어낸 좌표로는 안 된다.
+ * {@link TransitRouteAdapter} 검증. 좌표는 실제 부산 값을 쓴다 — 서면(35.1580, 129.0594)과
+ * 전포(35.1520, 129.0648)는 약 700m 떨어져 있어, 걸어갈 만한 거리 기본값(800m) 안팎을 실제로
+ * 시험할 수 있다.
  */
 class TransitRouteAdapterTest {
 
@@ -61,7 +63,10 @@ class TransitRouteAdapterTest {
 
 	private TransitRouteAdapter adapter(TransitNetwork network) {
 		TransitNetworkPort port = () -> network;
-		return new TransitRouteAdapter(port, properties());
+		// 요금 계산기가 생성자에 있지만 이 파일이 재는 것은 경로다 — 요금은
+		// TransitFareCalculatorTest 가 따로 잰다.
+		return new TransitRouteAdapter(port, properties(),
+				new TransitFareCalculator(new TransitFareTable(new ObjectMapper())));
 	}
 
 	@Test
@@ -99,7 +104,7 @@ class TransitRouteAdapterTest {
 		RouteLeg leg = found.get();
 		assertThat(leg.mode()).isEqualTo(TravelMode.TRANSIT);
 		assertThat(leg.provider()).isEqualTo(TransitRouteAdapter.PROVIDER_TRANSIT_NETWORK);
-		// 🔴 시각표로 실제 차를 찾았으므로 추정이 아니다.
+		// 시각표로 실제 차를 찾았으므로 추정이 아니다.
 		assertThat(leg.estimated()).isFalse();
 		assertThat(leg.estimateReason()).isNull();
 		assertThat(leg.transferCount()).isZero();

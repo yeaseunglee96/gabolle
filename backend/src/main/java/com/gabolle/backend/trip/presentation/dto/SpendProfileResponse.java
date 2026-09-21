@@ -1,11 +1,10 @@
 package com.gabolle.backend.trip.presentation.dto;
 
 /**
- * {@code GET /api/v1/me/preferences/spend} 응답 — S15P21E201-709.
+ * {@code GET /api/v1/me/preferences/spend} 응답.
  *
- * <p>🔴 정보가 없으면 404 가 아니라 이 모양으로 200을 낸다({@link #unknown()}). "계정 기본값을
- * 한 번도 저장한 적 없다" 는 오류가 아니라 정상 상태다 — 404 로 답하면 화면이 그것을 오류로
- * 다뤄야 한다.
+ * <p>계정 기본값을 한 번도 저장한 적 없으면 404 가 아니라 {@link #unknown()} 으로 200 을 낸다 —
+ * 오류가 아니라 정상 상태다.
  *
  * @param status {@code SELECTED} · {@code SKIPPED} · {@code UNKNOWN}
  * @param value {@code status == "SELECTED"} 일 때만 채워진다

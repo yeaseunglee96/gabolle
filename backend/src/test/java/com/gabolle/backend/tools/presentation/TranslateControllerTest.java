@@ -30,10 +30,8 @@ import com.gabolle.backend.tools.domain.TranslationCacheRepository;
 import com.gabolle.backend.tools.domain.TranslationDirection;
 
 /**
- * {@code POST /api/v1/tools/translate} 의 HTTP 경계 — S15P21E201-343.
- *
- * <p>{@code RouteControllerTest} 와 같은 방식으로 컨트롤러+예외 처리기만 세워 HTTP 계약을
- * 잰다. 캐시 규칙 자체는 {@code TranslationServiceTest} 가 잰다.
+ * 컨트롤러와 예외 처리기만 세워 HTTP 계약을 잰다. 캐시 규칙 자체는 {@code TranslationServiceTest} 가
+ * 잰다.
  */
 class TranslateControllerTest {
 

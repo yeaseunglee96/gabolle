@@ -32,11 +32,11 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.CollaborationSliceApplication;
 
 /**
- * 협업 화면의 "최근 변경" (2026-09-07, 진미리 FE 블로커) — 판이 곧 이력이라는 것을 실제 PostgreSQL 에서 본다.
+ * 협업 화면의 "최근 변경" — 판이 곧 이력이라는 것을 실제 PostgreSQL 에서 본다.
  *
- * <p>판 셋을 서로 다른 사람이 서로 다른 시각에 만들어 심고, 최신이 먼저 오는지 · 사람 이름이 붙는지 ·
- * {@code isMe} 가 요청자에게만 참인지 · 열람자도 볼 수 있는지 · 비회원은 404 인지를 본다. 판 목록
- * (ITN-02)에 새로 붙은 {@code createdByName} 도 같은 시드로 확인한다.
+ * <p>판 셋을 서로 다른 사람이 서로 다른 시각에 만들어 심고, 최신이 먼저 오는지 · 사람 이름이
+ * 붙는지 · {@code isMe} 가 요청자에게만 참인지 · 열람자도 볼 수 있는지 · 비회원은 404 인지를
+ * 본다. 판 목록의 {@code createdByName} 도 같은 시드로 확인한다.
  */
 @SpringBootTest(classes = CollaborationSliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -163,7 +163,7 @@ class TripActivityIntegrationTest {
 	void versionListingCarriesNames() throws Exception {
 		this.mockMvc.perform(get("/api/v1/itineraries/{id}/versions", this.itineraryId).principal(as(this.viewer)))
 				.andExpect(status().isOk())
-				// 🔴 S15P21E201-1011 — 응답이 배열에서 봉투로 바뀌었다. 목록은 data.items 다.
+				// 목록은 배열이 아니라 봉투 안의 data.items 다.
 				.andExpect(jsonPath("$.data.items[0].version").value(3))
 				.andExpect(jsonPath("$.data.items[0].createdByName").value("소유자"))
 				.andExpect(jsonPath("$.data.items[1].createdByName").value("편집자"));

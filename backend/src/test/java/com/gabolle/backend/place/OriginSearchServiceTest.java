@@ -18,12 +18,8 @@ import com.gabolle.backend.place.service.OriginSearchService;
 import com.gabolle.backend.place.service.PlaceRequestException;
 
 /**
- * {@link OriginSearchService} 단위 테스트 (S15P21E201-434) — DB 없이 가짜 포트로 돈다.
- *
- * <h2>🔴 완료 기준 "한 글자 검색어는 외부 호출이 나가지 않는다"</h2>
- *
- * <p>호출 횟수를 세는 가짜 포트로 카카오 포트가 진짜 0 번 불렸는지 실측한다. 결과만 버려지는
- * 것으로는 이 기준을 지킨 것이 아니다 — 호출 자체가 없어야 한다.
+ * {@link OriginSearchService} 를 DB 없이 가짜 포트로 돌린다. 짧은 검색어는 결과를 버리는
+ * 것으로 부족하고 외부 호출 자체가 없어야 하므로, 호출 횟수를 세는 포트로 실측한다.
  */
 class OriginSearchServiceTest {
 
@@ -93,7 +89,7 @@ class OriginSearchServiceTest {
 		assertThat(response.items()).hasSizeLessThanOrEqualTo(2);
 	}
 
-	/** 호출 횟수를 세는 가짜 포트. Mockito 대신 손으로 만든다 — "몇 번 불렸는가" 를 확인하는 게 핵심이라 명시적인 편이 낫다. */
+	/** 호출 횟수를 세는 가짜 포트. */
 	private static final class CountingOriginSearchPort implements OriginSearchPort {
 
 		private List<OriginCandidate> candidates;

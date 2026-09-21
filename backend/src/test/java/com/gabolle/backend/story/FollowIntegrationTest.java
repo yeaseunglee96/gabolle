@@ -32,10 +32,7 @@ import com.gabolle.backend.story.presentation.StoryExceptionHandler;
 import com.gabolle.backend.story.presentation.UserSocialController;
 import com.gabolle.testslice.StorySliceApplication;
 
-/**
- * S15P21E201-242 · -126 — 팔로우가 멱등이고, 자기 팔로우는 거절되고, 해제하면 팔로잉 피드에서 사라진다.
- * 프로필은 보는 사람과의 관계에 따라 기록 수가 다르다.
- */
+/** 프로필의 기록 수와 목록 범위는 보는 사람과의 관계(본인·팔로워·제삼자)에 따라 달라진다. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",
@@ -87,9 +84,6 @@ class FollowIntegrationTest {
 				this.me, this.target);
 	}
 
-	/**
-	 * 🔴 티켓 완료 기준 — 같은 요청을 연달아 두 번 보내도 한 줄만 생긴다. 두 번째도 오류가 아니라 "이미 된 상태" 다.
-	 */
 	@Test
 	@DisplayName("🔴 팔로우를 두 번 눌러도 한 줄이고 두 번 다 200 following=true 다")
 	void followIsIdempotent() throws Exception {
@@ -108,7 +102,7 @@ class FollowIntegrationTest {
 				.andExpect(jsonPath("$.data.followerCount").value(1));
 
 		assertThat(followRows()).isEqualTo(1);
-		// 🔴 두 번째 요청이 기존 줄을 덮어쓰면(merge) 팔로우한 시각이 바뀐다 — "이미 된 상태로 답한다" 는 건드리지 않는 것이다.
+		// 두 번째 요청이 기존 줄을 덮어쓰면 팔로우한 시각이 바뀐다. 멱등은 건드리지 않는 것이다.
 		java.sql.Timestamp secondAt = this.jdbc.queryForObject(
 				"SELECT created_at FROM user_follow WHERE follower_user_id = ? AND followee_user_id = ?",
 				java.sql.Timestamp.class, this.me, this.target);
@@ -128,7 +122,6 @@ class FollowIntegrationTest {
 				.isZero();
 	}
 
-	/** 🔴 티켓 완료 기준 — 해제 후 팔로잉 피드에서 그 사람 기록이 사라진다. */
 	@Test
 	@DisplayName("🔴 해제하면 팔로잉 피드에서 그 사람 기록이 사라지고, 다시 해제해도 200 이다")
 	void unfollowRemovesFromFollowingFeed() throws Exception {

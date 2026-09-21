@@ -18,11 +18,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * 애플리케이션을 우회해도 {@code itinerary_item}·{@code itinerary_leg} 의 DB 제약이
- * 스스로 막는가 — S15P21E201-604.
+ * 스스로 막는가.
  *
- * <p>🔴 {@code recommendation.RecommendationCandidateConstraintTest} 를 본보기로, 원시
- * SQL 로 직접 넣는다. 자바 검증({@code ItineraryItem}·{@code ItineraryLeg} 생성자)을
- * 건너뛰어야 제약 자체가 도는지 알 수 있다.
+ * <p>원시 SQL 로 직접 넣는다. 자바 검증({@code ItineraryItem}·{@code ItineraryLeg}
+ * 생성자)을 건너뛰어야 제약 자체가 도는지 알 수 있다.
  */
 class ItineraryItemConstraintTest extends PostgresIntegrationTest {
 
@@ -127,8 +126,8 @@ class ItineraryItemConstraintTest extends PostgresIntegrationTest {
 	@DisplayName("같은 source_request_id 로 판을 두 번 만들면 DB 가 거부한다 — 같은 추천 요청은 판을 하나만 만든다")
 	void duplicateSourceRequestIdIsRejected() {
 		this.references = PersonalizationFixture.insert(this.jdbcTemplate);
-		// 🔴 여기서는 recommendation_job.request_id 가 FK 대상으로 실제로 있기만 하면 된다 —
-		//    ck_recommendation_job_result_present 를 건드리지 않게 FAILED 로 넣는다.
+		// recommendation_job.request_id 가 FK 대상으로 있기만 하면 된다 —
+		// ck_recommendation_job_result_present 를 건드리지 않게 FAILED 로 넣는다.
 		UUID requestId = insertFailedJob();
 
 		insertItineraryVersion(this.references.tripId(), this.references.userId(), requestId);

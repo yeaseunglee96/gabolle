@@ -11,10 +11,8 @@ import com.gabolle.backend.tripnaming.application.PlaceWordGuard;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 지어낸 장소 이름이 여행 제목에 박히는 것을 막는다 — S15P21E201-1025.
- *
- * <p>🔴 이 검사가 있어야 <b>모델이 실패해도 거짓말이 화면에 안 나온다.</b> 검사 없이
- * 붙이면 그냥 그럴듯한 소리를 믿는 것이다.
+ * 지어낸 장소 이름이 여행 제목에 박히는 것을 막는다. 이 검사가 있어야 모델이 실패해도
+ * 거짓말이 화면에 안 나온다.
  */
 class PlaceWordGuardTest {
 
@@ -27,9 +25,8 @@ class PlaceWordGuardTest {
 	class RejectsInventedPlaces {
 
 		/**
-		 * 🔴 조사가 붙어도 걸려야 한다. 처음에는 꼬리말을 <b>끝에서만</b> 찾았는데,
-		 * 「불국사」는 걸리고 「불국사<b>에서</b>」는 그냥 지나갔다 — 조사 한 글자가
-		 * 꼬리말을 가렸다. 시험이 그것을 잡았다.
+		 * 조사가 붙어도 걸려야 한다. 꼬리말을 끝에서만 찾으면 「불국사」는 걸리고
+		 * 「불국사에서」는 지나간다.
 		 */
 		@Test
 		@DisplayName("🔴 일정에 없는 절 이름은 조사가 붙어도 버린다")
@@ -44,7 +41,7 @@ class PlaceWordGuardTest {
 			assertThat(PlaceWordGuard.isTruthful("광안대교 야경 이틀", ITINERARY)).isFalse();
 		}
 
-		/** 🔴 꼬리말이 없어 위 규칙에 안 걸리는 종류다. 지역 이름은 따로 본다. */
+		/** 꼬리말이 없어 위 규칙에 안 걸리는 종류다. 지역 이름은 따로 본다. */
 		@Test
 		@DisplayName("다른 지역 이름이 들어오면 버린다")
 		void rejectsOtherRegion() {
@@ -64,8 +61,8 @@ class PlaceWordGuardTest {
 	class AcceptsHonestNames {
 
 		/**
-		 * 🔴 이것이 「일정에 있는 낱말만 써라」를 곧이곧대로 하지 않은 이유다. "에서"·"보낸"·
-		 * "이틀" 은 전부 장소 목록 밖이지만 <b>거짓이 아니다</b>.
+		 * 「일정에 있는 낱말만 써라」를 곧이곧대로 하지 않은 이유다. 조사와 보통 명사는 전부
+		 * 장소 목록 밖이지만 거짓이 아니다.
 		 */
 		@Test
 		@DisplayName("🔴 조사와 평범한 말이 붙어도 통과한다")
@@ -75,7 +72,7 @@ class PlaceWordGuardTest {
 			assertThat(PlaceWordGuard.isTruthful("자갈치시장 아침", ITINERARY)).isTrue();
 		}
 
-		/** 🔴 부산은 어느 여행에서도 참이다 — 이 서비스는 부산 여행만 다룬다. */
+		/** 부산은 어느 여행에서도 참이다 — 이 서비스는 부산 여행만 다룬다. */
 		@Test
 		@DisplayName("🔴 부산은 막지 않는다")
 		void busanIsAlwaysTrue() {
@@ -101,10 +98,9 @@ class PlaceWordGuardTest {
 	class WhichWayItErrs {
 
 		/**
-		 * 🔴 「사계절」은 장소가 아닌데 「절」로 끝나서 같이 걸린다. <b>그건 일부러 이렇게
-		 * 뒀다.</b> 후보 하나를 잃는 것은 다른 후보나 템플릿으로 물러서면 되지만, 지어낸
-		 * 장소를 한 번 통과시키는 것은 <b>거짓이 화면에 박히는 것</b>이다. 두 실수의 값이
-		 * 다르므로 싼 쪽으로 틀리게 만들었다.
+		 * 「사계절」은 장소가 아닌데 「절」로 끝나서 같이 걸린다. 일부러 이렇게 뒀다 —
+		 * 후보 하나를 잃는 것은 물러설 곳이 있지만, 지어낸 장소를 한 번 통과시키면 거짓이
+		 * 화면에 박힌다.
 		 */
 		@Test
 		@DisplayName("🔴 장소가 아닌 말도 같이 걸릴 수 있다 — 싼 쪽으로 틀리게 뒀다")
@@ -128,9 +124,8 @@ class PlaceWordGuardTest {
 		}
 
 		/**
-		 * 🔴 일정이 비어 있으면 <b>기댈 곳이 없다.</b> 그때 장소처럼 생긴 말은 전부 지어낸
-		 * 것이다. 일정이 빈 여행은 부르는 쪽이 아예 템플릿으로 물러서므로 여기까지 올 일이
-		 * 없지만, 와도 통과시키지 않는다.
+		 * 일정이 비어 있으면 기댈 곳이 없으므로 장소처럼 생긴 말은 전부 지어낸 것이다.
+		 * 부르는 쪽이 템플릿으로 물러서므로 여기까지 올 일은 없지만, 와도 통과시키지 않는다.
 		 */
 		@Test
 		@DisplayName("🔴 일정이 비어 있으면 장소처럼 생긴 말을 전부 버린다")

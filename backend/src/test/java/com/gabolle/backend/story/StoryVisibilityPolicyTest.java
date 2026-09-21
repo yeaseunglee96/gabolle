@@ -19,23 +19,14 @@ import com.gabolle.backend.story.domain.UserFollow;
 import com.gabolle.backend.story.repository.StoryCoauthorRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
 
-/**
- * {@link StoryVisibilityPolicy} 단위 테스트 — DB 없이 돈다.
- *
- * <p>🔴 이 판정은 예전에 {@code StoryService}와 {@code StoryReportService}가 각자 자기 파일 안에
- * 글자 그대로 같은 코드로 갖고 있던 것이다(S15P21E201-254 뽑아내기). 뽑아내는 과정에서 조건 하나라도
- * 놓쳤다면 여기 여섯 경우 중 하나가 먼저 깨진다 — 그래서 이 테스트가 "뽑아내기 전과 같은 입력에
- * 같은 답을 낸다" 는 증거다. 기존 {@code StoryCrudIntegrationTest}·모더레이션 통합 테스트가 API
- * 계층에서 같은 것을 다시 확인한다.
- */
+/** {@link StoryVisibilityPolicy} 단위 테스트. DB 없이 돈다. */
 class StoryVisibilityPolicyTest {
 
 	private static final Instant NOW = Instant.parse("2026-09-07T00:00:00Z");
 
 	private final UserFollowRepository userFollowRepository = mock(UserFollowRepository.class);
 
-	// S15P21E201-770 — isParticipant 가 이 저장소를 새로 쓴다. 여기서는 "공동 작성자가 아니다"
-	// 를 기본값으로 두어(모든 스텁이 false 를 돌려준다) 기존 여섯 경우의 입력·기대값을 그대로 둔다.
+	// 스텁의 기본값이 false 이므로 아래 경우들은 모두 "공동 작성자가 아니다" 로 판정된다.
 	private final StoryCoauthorRepository coauthorRepository = mock(StoryCoauthorRepository.class);
 
 	private final StoryVisibilityPolicy policy = new StoryVisibilityPolicy(this.userFollowRepository,
@@ -96,10 +87,7 @@ class StoryVisibilityPolicyTest {
 		assertThat(this.policy.canView(story, viewer, NOW)).isFalse();
 	}
 
-	// ── 로그인하지 않은 사람 (viewer == null) — S15P21E201-995 ──────────────────
-	//
-	// 🔴 아래 넷이 이 티켓의 안전 장치다. 피드(974)에 이어 상세도 익명에게 열었는데,
-	//    공개 글만 나가야 한다. FOLLOWERS 가 익명에게 새면 사고다.
+	// 아래 넷은 viewer 가 null 인 경우, 즉 로그인하지 않은 사람이다.
 
 	@Test
 	@DisplayName("로그인하지 않은 사람도 공개된 PUBLIC 기록은 본다")

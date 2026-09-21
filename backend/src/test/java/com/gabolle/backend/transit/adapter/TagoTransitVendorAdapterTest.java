@@ -1,6 +1,6 @@
 package com.gabolle.backend.transit.adapter;
 
-// 🔴 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
+// 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -22,18 +22,12 @@ import org.springframework.web.client.RestClient;
 import com.gabolle.backend.transit.application.TransitVendorException;
 import com.gabolle.backend.transit.config.TransitProperties;
 
-/**
- * {@link TagoTransitVendorAdapter} 검증 — S15P21E201-988.
- *
- * <p>{@code KmaWeatherVendorAdapterTest}와 같은 방식으로 {@code MockRestServiceServer}를
- * 쓴다. 진짜 네트워크를 부르지 않는다.
- */
 class TagoTransitVendorAdapterTest {
 
 	private TagoTransitVendorAdapter newAdapter(RestClient.Builder builder, String serviceKey) {
 		TransitProperties properties = new TransitProperties();
 		properties.setServiceKey(serviceKey);
-		// 🔴 세 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
+		// 세 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
 		return new TagoTransitVendorAdapter(builder, properties, null);
 	}
 
@@ -118,7 +112,7 @@ class TagoTransitVendorAdapterTest {
 		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
 		TagoTransitVendorAdapter adapter = newAdapter(builder, "not-registered-key");
 
-		// 공공데이터포털이 실제로 주는 모양 (실측 2026-09-18)
+		// 공공데이터포털이 실제로 주는 모양
 		String body = "{\"OpenAPI_ServiceResponse\":{\"cmmMsgHeader\":{"
 				+ "\"errMsg\":\"SERVICE_KEY_IS_NOT_REGISTERED_ERROR\",\"returnReasonCode\":\"30\"}}}";
 		server.expect(ExpectedCount.once(), MockRestRequestMatchers.anything())

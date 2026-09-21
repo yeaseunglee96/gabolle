@@ -36,14 +36,7 @@ import com.gabolle.backend.trip.presentation.TripCollaborationController;
 import com.gabolle.backend.trip.presentation.TripCollaborationExceptionHandler;
 import com.gabolle.testslice.CollaborationSliceApplication;
 
-/**
- * S15P21E201-294(발급) · -299(수락) — 동행자 초대가 실제 PostgreSQL 위에서 티켓 완료 기준대로
- * 동작하는지 본다.
- *
- * <p>보는 것은 셋이다 — 소유자만 발급할 수 있는가, 표(token)의 만료·재사용이 화면에 실패로
- * 보이지 않는가(410 은 만료, 두 번 누르면 200), 참여자 행에 초대 흔적(누가·어떤 역할로·언제)이
- * 그대로 남는가.
- */
+/** 동행자 초대의 발급과 수락을 실제 PostgreSQL 위에서 잰다. */
 @SpringBootTest(classes = CollaborationSliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",
@@ -230,8 +223,8 @@ class TripInviteIntegrationTest {
 	void expiredInviteIsRejected() throws Exception {
 		JsonNode invite = createInvite(this.owner, "EDITOR").get("data");
 		String token = invite.get("token").asText();
-		// 🔴 ck_trip_invite_expiry 는 expires_at > created_at 을 늘 요구한다. 이미 지난 표를
-		//    만들려면 created_at 도 함께 과거로 밀어야 한다 — expires_at 만 옮기면 이 제약에 걸린다.
+		// ck_trip_invite_expiry 가 expires_at > created_at 을 요구한다 — expires_at 만 과거로
+		// 옮기면 제약에 걸리므로 created_at 도 함께 민다.
 		this.jdbc.update("UPDATE trip_invite SET created_at = ?, expires_at = ? WHERE token = ?",
 				OffsetDateTime.now().minusDays(8), OffsetDateTime.now().minusDays(1), token);
 		UUID invitee = StoryFixture.insertUser(this.jdbc, "늦은 사람");

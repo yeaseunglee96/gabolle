@@ -10,38 +10,21 @@ import com.gabolle.backend.menuscan.config.MenuScanProperties;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 서버가 앱보다 먼저 포기하는가 — S15P21E201-1083.
+ * 서버가 앱보다 먼저 포기하는가. 이 규칙은 숫자 하나에 달려 있어 주석만으로는 안 지켜진다.
  *
- * <h2>왜 시험으로 두는가</h2>
- *
- * 이 규칙은 숫자 하나에 달려 있어서 주석만으로는 안 지켜진다. 「모델이 가끔 느리니 조금만
- * 올리자」는 판단은 그 자리에서는 늘 합리적으로 보이고, 올린 사람은 앱이 12초에 끊는다는
- * 것을 모른다. 그래서 규칙을 읽을거리가 아니라 <b>빨개지는 검사</b>로 둔다.
- *
- * <h2>안 지키면 무슨 일이 일어나나</h2>
- *
- * 서버가 앱보다 오래 기다리면 읽기가 성공해도 사용자는 그 결과를 못 받는다 — 앱이 이미
- * 끊었기 때문이다. 그 한 번에 세 가지가 함께 나간다.
- *
- * <ul>
- * <li>바깥 모델 호출값을 치른다</li>
- * <li>그 사람의 하루 한도가 한 번 깎인다 — 한도는 부르기 <b>전에</b> 세므로 되돌아오지 않는다</li>
- * <li>화면에는 실패로 보이니 다시 누른다. 세 번이면 셋이 날아간다</li>
- * </ul>
- *
- * 규칙 자체는 {@code context/decisions.md} 의 {@code DEC-LATENCY-001} 이 소유한다.
+ * <p>서버가 더 오래 기다리면 읽기가 성공해도 사용자는 결과를 못 받는다 — 호출값은 치렀고, 하루 한도도
+ * 한 번 깎였으며(한도는 부르기 전에 센다), 화면에는 실패로 보여 다시 누른다.
  */
 class MenuScanLatencyBudgetTest {
 
 	/**
-	 * 앱이 요청을 끊는 시간.
+	 * 앱이 메뉴판 요청을 끊는 시간. 이 경로만 앱 기본값(12초)보다 길다 — 음식 30개짜리 실제
+	 * 메뉴판이 12~13초 걸리고, 시간을 먹는 것이 써 내는 양이라 프롬프트를 줄여도 안 줄어든다.
 	 *
-	 * <p>출처는 {@code frontend/src/api/client.ts} 의 {@code API_TIMEOUT_MS} 이고 메뉴판
-	 * 경로는 그 값을 따로 안 늘린다({@code frontend/src/field/menuScan.ts} 가 기본
-	 * {@code apiRequest} 를 쓴다). 저쪽이 바뀌면 이 상수도 함께 바꾼다 — 자바에서 프런트
-	 * 설정을 읽을 방법이 없어 두 곳에 적히는 것은 감수한다.
+	 * <p>출처는 {@code frontend/src/field/menuScan.ts} 의 요청 시간 제한이다. 저쪽이 바뀌면 이 상수도
+	 * 함께 바꾼다 — 자바에서 프런트 설정을 읽을 방법이 없어 두 곳에 적히는 것은 감수한다.
 	 */
-	private static final Duration APP_REQUEST_TIMEOUT = Duration.ofSeconds(12);
+	private static final Duration APP_REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
 	@Test
 	@DisplayName("완료 기준 — 연결과 읽기를 합쳐도 앱이 기다리는 시간보다 짧다")

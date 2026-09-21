@@ -28,48 +28,31 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
 /**
- * 일정 저장소 — S15P21E201-313. {@code itineraries}·{@code itinerary_versions} 를
- * PostgreSQL 로 옮겼다.
- *
- * <p>🔴 <b>새 일정을 만드는 경로 — {@link #create}(S15P21E201-604).</b> V150000 마이그레이션이
- * "그 경로가 생기는 티켓이 최초 값을 명시적으로 넣어야 한다"고 남긴 자리다.
- * {@link #appendVersion} 은 <b>기존 일정에 판을 더하는 것</b>만 한다 — 둘의 책임이 갈린다.
- *
- * <h2>🔴 UNIQUE 위반을 409 로 바꾸는 자리 — 왜 예외를 안 쓰는가</h2>
- * PostgreSQL 은 한 트랜잭션 안에서 문장 하나가 실패하면 <b>그 트랜잭션 전체가
- * "aborted" 상태</b>가 된다 — 실패를 잡고 계속 진행해도 다음 문장은 전부
- * {@code current transaction is aborted} 로 죽는다. 호출자({@code ItineraryEditService})가
- * 이미 트랜잭션 안이므로(확인·저장·포인터 이동이 한 트랜잭션), 실패를 예외로 받으면
- * 그 뒤 {@code itineraries} 갱신도 함께 죽는다.
- *
- * <p>🔴 2026-09-04 — 처음엔 {@code PROPAGATION_NESTED}(SAVEPOINT)로 이 INSERT 만 감쌌는데,
- * CI 의 진짜 PostgreSQL 에서 {@code NestedTransactionNotSupportedException} 이 났다(로컬은
- * 도커가 없어 계속 "건너뜀"으로만 확인되고 있었다). Spring Boot 가 자동 설정하는
- * {@code PlatformTransactionManager} 빈이 감싸져 있어 {@code setNestedTransactionAllowed}
- * 가 실제 인스턴스에 반영되지 않았다.
- *
- * <p><b>그래서 실패 자체가 안 나게 만든다.</b> {@code INSERT ... ON CONFLICT (itinerary_id,
- * version) DO NOTHING} 은 충돌해도 SQL 오류를 내지 않는다 — 영향받은 행이 0이면 진 것이다.
- * 트랜잭션이 절대 aborted 상태가 되지 않으므로 SAVEPOINT 도, 트랜잭션 매니저의 특정
- * 구현에 기대는 것도 필요 없다.
+ * 일정 저장소 — {@code itineraries}·{@code itinerary_versions} 의 PostgreSQL 구현.
+ * {@link #create} 는 새 일정을 만들고 {@link #appendVersion} 은 기존 일정에 판을 더한다.
+ * UNIQUE 위반을 예외로 받지 않고 {@code INSERT ... ON CONFLICT DO NOTHING} 으로 처리한다.
+ * PostgreSQL 은 한 트랜잭션 안에서 문장 하나가 실패하면 그 트랜잭션 전체가 aborted 가 되어,
+ * 실패를 잡고 계속 진행해도 다음 문장이 전부 {@code current transaction is aborted} 로 죽는다.
+ * 호출자가 이미 트랜잭션 안(확인·저장·포인터 이동이 한 트랜잭션)이라 그 뒤 {@code itineraries}
+ * 갱신까지 함께 죽는다.
+ * SAVEPOINT({@code PROPAGATION_NESTED})도 쓰지 않는다 — 자동 설정된
+ * {@code PlatformTransactionManager} 빈이 감싸져 있어 {@code setNestedTransactionAllowed} 가
+ * 실제 인스턴스에 반영되지 않고 {@code NestedTransactionNotSupportedException} 이 난다.
+ * {@code ON CONFLICT DO NOTHING} 은 충돌해도 SQL 오류를 내지 않아(영향받은 행이 0이면 진 것이다)
+ * 트랜잭션이 절대 aborted 가 되지 않는다.
  */
 @Repository
 @Profile({ "db", "dev" })
 public class JpaItineraryRepository implements ItineraryRepository {
 
 	/**
-	 * 🔴 S15P21E201-249 — {@code warning_codes}(배열 칸) 을 원시 SQL 에 실을 때는
-	 * {@code CAST(?15 AS varchar[])} 에 <b>PostgreSQL 배열 리터럴 문자열</b>
-	 * (예: {@code "{A,B}"}, 비면 {@code "{}"})을 바인딩한다 — JDBC 드라이버가 {@code String[]}
-	 * 을 이 원시 SQL 파라미터 자리에 그대로 못 받아서다({@code ItineraryItemJpaEntity} 는
-	 * Hibernate 엔티티 매핑을 거치므로 {@code @JdbcTypeCode(SqlTypes.ARRAY)} 로 되지만,
-	 * 여기는 엔티티를 거치지 않는 원시 {@code INSERT} 다).
-	 *
-	 * <p>🔴 이스케이프를 하지 않는다 — {@link #toArrayLiteral} 이 붙이는 값은 전부
-	 * {@link ItineraryVersion.Operation}·경고 코드 같은 <b>코드 상수</b>뿐이고, 쉼표·중괄호·
-	 * 따옴표가 들어올 여지가 있는 사용자 자유 입력(예: {@code operationalReason})은 이
-	 * 칸에 들어오지 않는다. 그 전제가 깨지면(예: 나중에 사용자 문자열을 배열에 담게
-	 * 되면) 이 리터럴 조립도 다시 봐야 한다.
+	 * {@code warning_codes}(배열 칸)를 원시 SQL 에 실을 때는 {@code CAST(?15 AS varchar[])} 에
+	 * PostgreSQL 배열 리터럴 문자열(예: {@code "{A,B}"}, 비면 {@code "{}"})을 바인딩한다 —
+	 * JDBC 드라이버가 {@code String[]} 을 원시 SQL 파라미터 자리에 그대로 못 받는다. 엔티티 매핑을
+	 * 거치는 쪽은 {@code @JdbcTypeCode(SqlTypes.ARRAY)} 로 되지만 여기는 원시 {@code INSERT} 다.
+	 * 이스케이프를 하지 않는다 — {@link #toArrayLiteral} 이 붙이는 값은 전부 코드 상수뿐이고,
+	 * 쉼표·중괄호·따옴표가 들어올 여지가 있는 사용자 자유 입력은 이 칸에 들어오지 않는다.
+	 * 그 전제가 깨지면 이 리터럴 조립도 다시 봐야 한다.
 	 */
 	private static final String INSERT_VERSION_ON_CONFLICT_DO_NOTHING = """
 			INSERT INTO itinerary_versions
@@ -81,8 +64,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 			""";
 
 	/**
-	 * 🔴 최신 판 포인터를 <b>내가 본 값에서만</b> 옮긴다. 그 사이 누가 옮겼으면 0행이
-	 * 반영되고, 그건 409 다. {@link #appendVersion} javadoc 참고.
+	 * 최신 판 포인터를 내가 본 값에서만 옮긴다. 그 사이 누가 옮겼으면 0행이 반영되고, 그건 409 다.
 	 */
 	private static final String MOVE_POINTER_IF_UNCHANGED = """
 			UPDATE itineraries
@@ -125,29 +107,17 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	}
 
 	/**
-	 * 판 + 내용 + 포인터를 한 트랜잭션으로 —  S15P21E201-662.
-	 *
-	 * <p>순서를 뒤집지 않는다.
-	 * <ol>
-	 *   <li>{@code itinerary_versions} INSERT. 진 쪽은 여기서 끝난다</li>
-	 *   <li>항목·구간 INSERT. 이 판을 가리키는 외래키가 있으므로 판이 먼저여야 한다</li>
-	 *   <li>{@code itineraries.latest_version} 을 <b>조건부로</b> 옮긴다</li>
-	 * </ol>
-	 *
-	 * <h2>🔴 두 방어선이 서로 다른 것을 지킨다 — 둘 다 필요하다</h2>
-	 * <ul>
-	 *   <li>{@code INSERT ... ON CONFLICT (itinerary_id, version) DO NOTHING} 은
-	 *       <b>판 번호</b> 슬롯을 하나만 차지하게 한다</li>
-	 *   <li>{@code UPDATE ... WHERE latest_version = :base} 는 <b>포인터</b>가
-	 *       {@code baseVersion} 에서만 움직이게 한다</li>
-	 * </ul>
-	 * 예전에는 포인터를 "읽고 · 고치고 · 쓰기"(엔티티를 불러 값을 바꾸고 저장)로 옮겼다.
-	 * PostgreSQL 의 기본 격리 수준인 READ COMMITTED(**다른 트랜잭션이 커밋한 것만 보이는
-	 * 수준. 같은 값을 두 트랜잭션이 각자 읽는 것은 막지 않는다**)에서는 두 트랜잭션이 같은
-	 * {@code latest_version} 을 읽을 수 있다. 지금까지는 판 번호 UNIQUE 가 뒤에서 막아
-	 * 드러나지 않았지만, 재계산 작업(느린 비동기)과 고정(빠른 동기)이 섞이기 시작하면
-	 * 포인터만 어긋나는 경우가 생긴다. 조건을 WHERE 에 두면 그 판정을 DB 가 한다 —
-	 * 이것을 CAS(**Compare-And-Swap**, "내가 읽은 뒤로 바뀐 게 없을 때만 쓴다")라고 한다.
+	 * 판 + 내용 + 포인터를 한 트랜잭션으로 넣는다.
+	 * 순서를 뒤집지 않는다 — {@code itinerary_versions} INSERT(진 쪽은 여기서 끝난다), 항목·구간
+	 * INSERT(이 판을 가리키는 외래키가 있으므로 판이 먼저여야 한다), 그다음 조건부 포인터 이동.
+	 * 두 방어선이 서로 다른 것을 지키고 둘 다 필요하다. {@code ON CONFLICT (itinerary_id, version)
+	 * DO NOTHING} 은 판 번호 슬롯을 하나만 차지하게 하고, {@code UPDATE ... WHERE latest_version =
+	 * :base} 는 포인터가 {@code baseVersion} 에서만 움직이게 한다.
+	 * 포인터를 "읽고 · 고치고 · 쓰기" 로 옮기면 안 된다. PostgreSQL 의 기본 격리 수준인
+	 * READ COMMITTED(다른 트랜잭션이 커밋한 것만 보이는 수준. 같은 값을 두 트랜잭션이 각자 읽는
+	 * 것은 막지 않는다)에서는 두 트랜잭션이 같은 {@code latest_version} 을 읽을 수 있다. 조건을
+	 * WHERE 에 두면 그 판정을 DB 가 한다 — CAS(Compare-And-Swap, "내가 읽은 뒤로 바뀐 게 없을
+	 * 때만 쓴다")다.
 	 */
 	@Override
 	@Transactional
@@ -157,7 +127,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 		int inserted = insertVersion(version);
 
 		if (inserted == 0) {
-			// 🔴 충돌 — SQL 오류가 아니라 그냥 0행이 반영된 것이다. 트랜잭션은 멀쩡하다.
+			// 충돌 — SQL 오류가 아니라 그냥 0행이 반영된 것이다. 트랜잭션은 멀쩡하다.
 			throw staleFor(version);
 		}
 
@@ -179,16 +149,13 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	}
 
 	/**
-	 * 🔴 일정을 처음 만든다 — S15P21E201-604. {@link #appendVersion} 과 달리 이 itineraryId 는
-	 * 이번에 처음 등장하므로(호출자가 매번 새 UUID 를 만든다) 경쟁할 대상이 없다. 그래도
-	 * {@code itinerary_versions} INSERT 는 {@link #insertVersion} 을 그대로 재사용한다 —
-	 * 같은 추천 요청이 두 번 실행되는 경우( {@code uq_itinerary_version_source_request} )는
-	 * 이 경로에서도 여전히 가능하고, 그때는 이 메서드가 던지는 원시 제약 위반을 그대로
-	 * 위로 흘려보낸다. {@link #appendVersion} 처럼 409 로 바꿔 줄 "재시도하면 되는 흔한 경쟁"이
-	 * 아니라, 같은 작업이 중복 실행됐다는 이례적인 상황이기 때문이다.
-	 *
-	 * <p>포인터는 옮기지 않는다 — 첫 판은 {@code latestVersion = 1} 로 이미 그 값을 들고
-	 * 태어나기 때문이다.
+	 * 일정을 처음 만든다. 이 itineraryId 는 이번에 처음 등장하므로(호출자가 매번 새 UUID 를
+	 * 만든다) 경쟁할 대상이 없다. 그래도 {@code itinerary_versions} INSERT 는
+	 * {@link #insertVersion} 을 그대로 재사용한다 — 같은 추천 요청이 두 번 실행되는 경우
+	 * ({@code uq_itinerary_version_source_request})는 이 경로에서도 가능하고, 그때는 원시 제약
+	 * 위반을 그대로 위로 흘려보낸다. {@link #appendVersion} 처럼 409 로 바꿔 줄 흔한 경쟁이
+	 * 아니라 같은 작업이 중복 실행됐다는 이례적인 상황이기 때문이다.
+	 * 포인터는 옮기지 않는다 — 첫 판은 {@code latestVersion = 1} 로 이미 그 값을 들고 태어난다.
 	 */
 	@Override
 	@Transactional
@@ -204,7 +171,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 
 		insertVersion(firstVersion);
 
-		// 🔴 새로 만드는 일정은 아직 제외할 것이 없다 — 제외는 사용자가 편집으로만 만든다.
+		// 새로 만드는 일정은 아직 제외할 것이 없다 — 제외는 사용자가 편집으로만 만든다.
 		saveContent(UUID.fromString(firstVersion.itineraryVersionId()), items, legs, List.of());
 
 		return itinerary;
@@ -230,11 +197,9 @@ public class JpaItineraryRepository implements ItineraryRepository {
 
 	/**
 	 * 지금 실제로 최신인 판 번호를 담은 409 예외를 만든다.
-	 *
-	 * <p>🔴 엔티티가 아니라 원시 SQL 로 읽는다. 이 트랜잭션은 앞서
-	 * {@code findById} 로 {@link ItineraryJpaEntity} 를 이미 불러 뒀을 수 있고, 그
-	 * 사본은 영속성 컨텍스트(**한 트랜잭션 동안 불러온 엔티티를 들고 있는 1차 캐시**)에
-	 * 남아 있어 다른 트랜잭션이 옮긴 값을 반영하지 않는다. 낡은 번호를 응답에 실으면
+	 * 엔티티가 아니라 원시 SQL 로 읽는다. 이 트랜잭션은 앞서 {@link ItineraryJpaEntity} 를 이미
+	 * 불러 뒀을 수 있고, 그 사본은 영속성 컨텍스트(한 트랜잭션 동안 불러온 엔티티를 들고 있는
+	 * 1차 캐시)에 남아 다른 트랜잭션이 옮긴 값을 반영하지 않는다. 낡은 번호를 응답에 실으면
 	 * 화면이 그 번호로 다시 시도해서 또 409 를 받는다.
 	 */
 	private StaleItineraryVersionException staleFor(ItineraryVersion version) {
@@ -274,8 +239,8 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	}
 
 	/**
-	 * 🔴 S15P21E201-284 — 최신 판이 먼저(version DESC). {@code ix_itinerary_version_itinerary
-	 * (itinerary_id, version DESC)}(V20260903150000)가 이 정렬을 위해 있는 색인이다.
+	 * 최신 판이 먼저(version DESC). {@code ix_itinerary_version_itinerary (itinerary_id, version
+	 * DESC)} 가 이 정렬을 위해 있는 색인이다.
 	 */
 	@Override
 	public VersionPage findVersions(String itineraryId, int page, int size) {
@@ -305,9 +270,8 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	}
 
 	/**
-	 * {@code itinerary_versions} 한 행을 {@code ON CONFLICT (itinerary_id, version) DO
-	 * NOTHING} 으로 넣는다. {@link #appendVersion}·{@link #create} 가 공유한다 — 왜 예외를 안
-	 * 던지는 SQL 을 쓰는지는 클래스 javadoc 을 본다.
+	 * {@code itinerary_versions} 한 행을 {@code ON CONFLICT (itinerary_id, version) DO NOTHING} 으로
+	 * 넣는다. 왜 예외를 안 던지는 SQL 을 쓰는지는 클래스 javadoc 을 본다.
 	 *
 	 * @return 실제로 삽입된 행 수. 0이면 (itinerary_id, version) 이 이미 있었다는 뜻이다
 	 */
@@ -336,9 +300,8 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	}
 
 	/**
-	 * 🔴 PostgreSQL 배열 리터럴 문자열로 바꾼다 — {@code {A,B}}, 비어 있으면 {@code {}}.
-	 * 이스케이프를 하지 않는 이유는 {@link #INSERT_VERSION_ON_CONFLICT_DO_NOTHING} javadoc 을
-	 * 본다 — 여기 들어오는 값은 전부 경고 코드 상수라 쉼표·중괄호·따옴표가 들어올 수 없다.
+	 * PostgreSQL 배열 리터럴 문자열로 바꾼다 — {@code {A,B}}, 비어 있으면 {@code {}}.
+	 * 이스케이프를 하지 않는 이유는 {@link #INSERT_VERSION_ON_CONFLICT_DO_NOTHING} javadoc 에 있다.
 	 */
 	private static String toArrayLiteral(List<String> values) {
 		return "{" + String.join(",", values) + "}";

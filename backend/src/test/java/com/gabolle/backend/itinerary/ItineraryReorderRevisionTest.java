@@ -19,10 +19,10 @@ import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRevision;
 
 /**
- * 하루 안의 방문 순서 바꾸기 — S15P21E201-91 · -268.
+ * 하루 안의 방문 순서 바꾸기.
  *
- * <p>DB 를 안 쓴다. 여기서 재는 것이 <b>무엇이 어떻게 바뀌는가</b> 라는 규칙이고, 그 규칙은
- * 표와 아무 상관이 없기 때문이다. 저장까지 이어지는 것은 통합 검사가 따로 본다.
+ * <p>DB 를 안 쓴다. 여기서 재는 규칙이 표와 상관이 없기 때문이다. 저장까지 이어지는 것은
+ * 통합 검사가 따로 본다.
  */
 class ItineraryReorderRevisionTest {
 

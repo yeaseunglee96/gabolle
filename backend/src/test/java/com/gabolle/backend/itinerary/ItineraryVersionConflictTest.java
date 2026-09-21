@@ -29,14 +29,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 일정 판 번호와 409 충돌 — S15P21E201-313 · S15P21E201-154 · S15P21E201-662.
+ * 일정 판 번호와 409 충돌. 충돌을 설명하는 것이 아니라 실제로 재현한다.
  *
- * <p>🔴 M1 완료 조건 ② 가 <b>"409 충돌이 실제로 재현된다"</b> 다.
- * "만들었다" 와 "고장을 일부러 내서 보여준다" 는 다르고, 판정 회의가 요구하는 것은 후자다.
- *
- * <p>Spring 컨텍스트를 띄우지 않는다 — 도메인 규칙과 저장소 경쟁을 보는 것이고,
- * 컨텍스트를 띄우면 느리고 DB 설정에 얽힌다. 판 복사가 <b>실제 표</b>에 남는지는
- * {@link ItineraryLockPersistenceIntegrationTest} 가 진짜 PostgreSQL 로 본다.
+ * <p>Spring 컨텍스트를 띄우지 않는다 — 도메인 규칙과 저장소 경쟁을 보는 것이라 컨텍스트가
+ * 필요 없다. 판 복사가 실제 표에 남는지는 {@link ItineraryLockPersistenceIntegrationTest}
+ * 가 진짜 PostgreSQL 로 본다.
  */
 class ItineraryVersionConflictTest {
 
@@ -62,9 +59,8 @@ class ItineraryVersionConflictTest {
                 // 구간 계획기와 영업시간 검사기는 순서 바꾸기에서만 쓰인다. 이 검사는 고정만
                 // 부르고, 여행 저장소도 비어 있어 그 갈래에 닿지 않는다.
                 null, new InMemoryTripRepository(), null, Clock.systemUTC(),
-                // 실제 시각 저장소는 재계획(S15P21E201-308)만 읽는다. 여기서는 null 대신
-                // 빈 대역을 준다 — 나중에 다른 편집이 이 자리를 쓰게 되면 NPE 로 죽는 대신
-                // "기록이 없는 일정" 이라는 멀쩡한 상황으로 이어져야 한다.
+                // 실제 시각 저장소는 재계획만 읽는다. null 대신 빈 대역을 주어 나중에 이
+                // 자리를 쓰게 되더라도 NPE 가 아니라 기록 없는 일정이 되게 한다.
                 new FakeItineraryItemActualRepository());
         repository.seed("itn_1", "trp_1", 5);
 
@@ -96,10 +92,8 @@ class ItineraryVersionConflictTest {
     }
 
     /**
-     * 🔴 S15P21E201-662 — 이 단정이 없어서 편집이 일정을 지우고 있었다.
-     *
-     * <p>항목·구간의 부모가 판이라, 판을 더할 때 내용을 복사하지 않으면 새 판은 비어 있다.
-     * 조회는 최신 판을 읽으므로 사용자 눈에는 <b>일정이 통째로 사라진 것</b>으로 보인다.
+     * 판을 더할 때 내용을 복사하지 않으면 새 판이 비고, 조회는 최신 판을 읽으므로
+     * 사용자 눈에는 일정이 통째로 사라진 것으로 보인다.
      */
     @Test
     @DisplayName("🔴 편집으로 만든 새 판에 바탕 판의 항목이 그대로 있다")
@@ -115,10 +109,8 @@ class ItineraryVersionConflictTest {
     }
 
     /**
-     * 🔴 {@code itemKey} 를 물려주지 않으면 사용자가 방금 고정한 항목을 다음 요청에서 못 찾는다.
-     *
-     * <p>DB 의 {@code uq_itinerary_item_key} 는 <b>같은 판 안의</b> 중복만 막으므로
-     * 이 실수를 못 잡는다. 이 자리를 지키는 것은 이 테스트뿐이다.
+     * {@code itemKey} 를 물려주지 않으면 방금 고정한 항목을 다음 요청에서 못 찾는다.
+     * DB 의 {@code uq_itinerary_item_key} 는 같은 판 안의 중복만 막으므로 못 잡는다.
      */
     @Test
     @DisplayName("🔴 같은 itemKey 로 연속 두 번 편집할 수 있다 — 키가 판을 건너 살아남는다")
@@ -159,7 +151,7 @@ class ItineraryVersionConflictTest {
                 () -> service.setItemLocked("itn_1", OTHER_ITEM_KEY, true, 5, "usr_b"));
 
         assertEquals(5, e.attemptedBaseVersion());
-        // 🔴 최신 번호가 응답에 들어 있어야 한다. 없으면 화면이 무엇으로 갱신할지 모른다.
+        // 최신 번호가 응답에 들어 있어야 한다. 없으면 화면이 무엇으로 갱신할지 모른다.
         assertEquals(6, e.latestVersion());
     }
 
@@ -181,13 +173,9 @@ class ItineraryVersionConflictTest {
     }
 
     /**
-     * 🔴 이 테스트가 이 파일의 존재 이유다.
-     *
-     * <p>동행자 전원이 EDITOR 라서 두 사람이 <b>같은 순간에</b> 고치는 일이 실제로 생긴다.
-     * 응용 계층의 사전 확인만으로는 확인과 저장 사이에 다른 요청이 끼어들 수 있다(경쟁 조건).
-     *
-     * <p>스레드 8개가 모두 5번을 바탕으로 동시에 편집을 시도한다.
-     * <b>정확히 하나만 성공해야 한다.</b>
+     * 동행자 전원이 EDITOR 라서 두 사람이 같은 순간에 고치는 일이 실제로 생긴다. 응용
+     * 계층의 사전 확인만으로는 확인과 저장 사이에 다른 요청이 끼어든다. 스레드 8개가 모두
+     * 5번을 바탕으로 동시에 시도해도 정확히 하나만 성공해야 한다.
      */
     @Test
     @DisplayName("🔴 8개 요청이 동시에 들어와도 정확히 하나만 성공한다")
@@ -205,7 +193,7 @@ class ItineraryVersionConflictTest {
             for (int i = 0; i < threads; i++) {
                 final String user = "usr_" + i;
                 tasks.add(() -> {
-                    startTogether.await();          // 🔴 동시에 출발시킨다
+                    startTogether.await();          // 동시에 출발시킨다
                     try {
                         service.setItemLocked("itn_1", ITEM_KEY, true, 5, user);
                         succeeded.incrementAndGet();
@@ -228,11 +216,11 @@ class ItineraryVersionConflictTest {
             pool.shutdownNow();
         }
 
-        // 🔴 핵심 단정 — 하나만 통과했다
+        // 핵심 단정 — 하나만 통과했다
         assertEquals(1, succeeded.get(), "정확히 하나만 성공해야 한다");
         assertEquals(threads - 1, rejected.get(), "나머지는 전부 409 로 거절돼야 한다");
 
-        // 🔴 판이 건너뛰어지지 않았다. 6 만 있고 7 은 없다.
+        // 판이 건너뛰어지지 않았다. 6 만 있고 7 은 없다.
         assertEquals(6, repository.findById("itn_1").orElseThrow().latestVersion());
         assertTrue(repository.findVersion("itn_1", 6).isPresent(), "6번 판이 있어야 한다");
         assertTrue(repository.findVersion("itn_1", 7).isEmpty(),

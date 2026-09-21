@@ -14,17 +14,13 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 /**
- * 추천 Job 생성의 {@code Idempotency-Key} 처리 — S15P21E201-944.
+ * 추천 Job 생성의 {@code Idempotency-Key} 처리. {@code JpaTripRepository.saveWithIdempotency}
+ * 와 같은 모양이다.
  *
- * <p>{@code JpaTripRepository.saveWithIdempotency}와 정확히 같은 모양이다 — 같은 문제를
- * 이미 그 클래스가 풀어 뒀다. 키 확보(이 표에 행 하나 넣기)와 Job 저장을 <b>한
- * 트랜잭션</b>으로 묶는다. 나누면 "키는 확보됐는데 Job 은 아직 없는" 순간에 다른
- * 요청이 끼어들 수 있고, 그 순간의 동시 요청은 전부 Job 을 만들게 된다 — 그 레이스를
- * {@code TripCreationTest}가 이미 한 번 잡았다(같은 클래스 주석 참고).
- *
- * <p>🔴 {@code SAVEPOINT}(PROPAGATION_NESTED) 대신 {@code ON CONFLICT DO NOTHING}을
- * 쓰는 이유도 같다 — 이 환경의 트랜잭션 매니저에서 SAVEPOINT 가 실제로 안 먹히는 것을
- * {@code JpaItineraryRepository} 작업 중 CI 로 확인했다.
+ * 키 확보와 Job 저장을 한 트랜잭션으로 묶는다 — 나누면 키는 확보됐는데 Job 은 아직 없는
+ * 순간이 생기고, 그때 들어온 동시 요청이 전부 Job 을 만든다. {@code SAVEPOINT}
+ * (PROPAGATION_NESTED)가 아니라 {@code ON CONFLICT DO NOTHING} 인 것은 이 환경의 트랜잭션
+ * 매니저에서 SAVEPOINT 가 실제로 안 먹히기 때문이다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -47,8 +43,8 @@ public class RecommendationJobIdempotencyRepository {
 	 * 키를 확보하면 넘겨받은 {@code job}을 그대로 저장한다. 이미 같은 키가 있으면 그
 	 * 지문을 대조해, 같으면 기존 Job을, 다르면 예외를 던진다.
 	 *
-	 * @throws RecommendationJobIdempotencyConflictException 같은 키가 <b>다른 본문</b>으로
-	 *     이미 쓰였을 때
+	 * @throws RecommendationJobIdempotencyConflictException 같은 키가 다른 본문으로 이미
+	 *     쓰였을 때
 	 */
 	@Transactional
 	public Claimed saveWithIdempotency(UUID userId, String idempotencyKey, String fingerprint,

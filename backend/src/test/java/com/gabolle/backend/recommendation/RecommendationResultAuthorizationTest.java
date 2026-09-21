@@ -34,15 +34,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * S15P21E201-604 — 소유권 검증. 남의 {@code jobId} 를 알아도 진행 상황도 결과도 못 본다.
+ * 소유권 검증. 남의 {@code jobId} 를 알아도 진행 상황도 결과도 못 본다. 진행 상태와 결과
+ * 경로를 둘 다 본다 — 결과만 잠그면 진행 상태가 옆문으로 남는다.
  *
- * <p>🔴 {@code GET /api/v1/jobs/{id}}(진행 상태)와 {@code GET /api/v1/recommendation-jobs/{id}}
- * (결과) 둘 다 본다 — 결과 API 만 잠그면 진행 상태 API 가 옆문으로 남는다는 게 이 작업의
- * 지적이었다.
- *
- * <p>DB 없이 도는 슬라이스 테스트다 — {@link RecommendationJobRunner}·
- * {@link RecommendationResultQueryService} 를 mock 으로 세운다({@code RecommendationJobRunnerTest}
- * 와 같은 방식).
+ * DB 없이 도는 슬라이스 테스트다 — {@link RecommendationJobRunner}·
+ * {@link RecommendationResultQueryService} 를 mock 으로 세운다.
  */
 class RecommendationResultAuthorizationTest {
 
@@ -60,9 +56,8 @@ class RecommendationResultAuthorizationTest {
 
 		this.mockMvc = MockMvcBuilders
 				.standaloneSetup(
-						// 진행률 통로를 들고 있는 쪽(S15P21E201-193). 이 검사는 그 통로를
-						// 쓰지 않지만 컨트롤러가 요구하므로 진짜 객체를 그대로 준다 —
-						// 상태를 갖지 않아 mock 으로 대신할 이유가 없다.
+						// 진행률 통로. 이 검사는 쓰지 않지만 컨트롤러가 요구하고, 상태를
+						// 갖지 않아 mock 으로 대신할 이유가 없다.
 						new RecommendationJobController(this.runner, new JobProgressBroker()),
 						new RecommendationResultController(this.runner, this.resultQueryService))
 				.setControllerAdvice(new RecommendationJobExceptionHandler())
@@ -70,8 +65,8 @@ class RecommendationResultAuthorizationTest {
 	}
 
 	/**
-	 * 🔴 신원을 요청 헤더가 아니라 인증 주체로 준다. 컨트롤러가 헤더를 안 보기 때문이기도
-	 * 하고, 헤더로 신원을 주장할 수 있으면 이 검사 자체가 무의미하기 때문이기도 하다.
+	 * 신원을 요청 헤더가 아니라 인증 주체로 준다 — 헤더로 신원을 주장할 수 있으면 이 검사
+	 * 자체가 무의미하다.
 	 */
 	private static Authentication principal(UUID userId) {
 		return new UsernamePasswordAuthenticationToken(userId.toString(), null, List.of());
@@ -114,7 +109,7 @@ class RecommendationResultAuthorizationTest {
 				.andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.error.code").value("JOB_NOT_FOUND"));
 
-		// 🔴 소유권 검사가 서비스 호출보다 먼저다 — 남의 결과를 조립조차 하지 않는다.
+		// 소유권 검사가 서비스 호출보다 먼저다 — 남의 결과를 조립조차 하지 않는다.
 		verify(this.resultQueryService, never()).buildResult(any());
 	}
 
@@ -133,7 +128,7 @@ class RecommendationResultAuthorizationTest {
 				.andExpect(jsonPath("$.data.status").value("COMPLETED"));
 	}
 
-	// ── 여행 번호로 되찾기 (S15P21E201-1001) ──────────────────────────────────
+	// ── 여행 번호로 되찾기 ──────────────────────────────────
 
 	@Test
 	@DisplayName("🔴 여행별 목록 — 남의 여행은 404. 요청(POST)과 같은 관문을 지난다")
@@ -150,9 +145,8 @@ class RecommendationResultAuthorizationTest {
 	}
 
 	/**
-	 * 🔴 이 검사가 이 티켓의 핵심이다. 「아직 추천을 안 만들었다」를 404 로 답하면 화면이
-	 * 그것을 「없는 여행」과 구분할 수 없고, 사용자는 추천을 만들 수 있는 여행에서도
-	 * 오류 화면을 본다.
+	 * 아직 추천을 안 만들었다를 404 로 답하면 화면이 그것을 없는 여행과 구분할 수 없고,
+	 * 사용자는 추천을 만들 수 있는 여행에서도 오류 화면을 본다.
 	 */
 	@Test
 	@DisplayName("🔴 추천을 만든 적 없는 내 여행은 빈 목록이다 — 404 가 아니다")
@@ -168,9 +162,8 @@ class RecommendationResultAuthorizationTest {
 	}
 
 	/**
-	 * 순서를 정하는 것은 조회(DB)이고 컨트롤러는 그것을 <b>그대로</b> 내보낸다. 여기서
-	 * 재는 것은 컨트롤러가 순서를 뒤집거나 다시 정렬하지 않는다는 것이다 — 화면은 맨 앞을
-	 * 「가장 최근」으로 읽는다.
+	 * 순서를 정하는 것은 조회이고 컨트롤러는 그대로 내보낸다. 컨트롤러가 순서를 뒤집거나
+	 * 다시 정렬하지 않는지를 본다 — 화면은 맨 앞을 가장 최근으로 읽는다.
 	 */
 	@Test
 	@DisplayName("여행별 목록 — 주인이 조회하면 받은 순서(최신순) 그대로 나간다")
