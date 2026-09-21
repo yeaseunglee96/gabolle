@@ -794,7 +794,7 @@ export default function ItineraryScreen() {
           <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('동행 초대', 'Invite')}</Text>
         </Pressable> : null}
         {itinerary.tripId ? <Pressable accessibilityRole="button" onPress={() => router.push(`/${itinerary.tripId}/prepare`)} style={styles.heroAction}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('날씨·준비물', 'Weather & packing')}</Text>
+          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('출발일 날씨', 'Departure weather')}</Text>
         </Pressable> : null}
       </View> : null}
       {/* 일차 탭은 헤더에 붙어 있다 (시안 2.3 · 3.1) — 탭이 헤더에서 떨어져 있으면

@@ -13,6 +13,7 @@ const sunIcon = require('../../assets/icons/common/sun.png');
 // 「판」「말」「버」 글자 아이콘은 무엇인지 한 번 더 읽어야 했다(2026-09-21 실측, S15P21E201-1372) — 그림으로.
 const cameraIcon = require('../../assets/icons/common/camera.png');
 const speakerIcon = require('../../assets/icons/common/speaker.png');
+const dongbaekIcon = require('../../assets/mascot/dongbaek-open.png');
 
 type Tool = {
   key: string;
@@ -42,6 +43,13 @@ export default function Translate() {
       onPress: () => router.push('/field/speak'),
     },
     {
+      key: 'dialect',
+      icon: dongbaekIcon,
+      title: tx('부산 사투리 한마디', 'A word of Busan dialect'),
+      desc: tx('뜻을 보고 진짜 부산 억양으로 들어 보세요', 'See the meaning and hear a real Busan accent'),
+      onPress: () => router.push('/field/dialect'),
+    },
+    {
       // 백엔드(GET /api/v1/exchange-rates,가 있는데 프론트가 없던 자리다.
       // 외국인이 부산에서 가장 자주 하는 계산이라 현장 도구의 첫 줄 가까이에 둔다.
       key: 'exchange',
@@ -62,8 +70,8 @@ export default function Translate() {
     {
       key: 'weather',
       icon: sunIcon,
-      title: tx('내 여행 날씨·준비물', 'Weather & packing for my trip'),
-      desc: tx('여행을 고르면 출발일 예보와 준비물을 보여드려요', 'Choose a trip to see its departure forecast and packing tips'),
+      title: tx('내 여행 출발일 날씨', 'Departure weather for my trip'),
+      desc: tx('여행을 고르면 출발일 예보를 보여드려요', 'Choose a trip to see its departure forecast'),
       // 준비 화면은 여행 식별자가 꼭 필요하다. 고정된 demo-trip을 넘기면 실제 사용자에게
       // 항상 "일정을 못 불러왔어요"가 보이므로, 먼저 본인의 여행을 고르게 한다.
       onPress: () => router.push({ pathname: '/trips', params: { open: 'prepare' } }),

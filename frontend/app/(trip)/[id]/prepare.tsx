@@ -2,9 +2,8 @@
 import { txf } from '@/i18n/format';
 import { formatMonthDay } from '@/i18n/datetime';
 import { useEffect, useState } from 'react';
-import { Image, Pressable, Share as NativeShare, StyleSheet, View } from 'react-native';
+import { Image, Share as NativeShare, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { speakAloud, stopSpeaking } from '@/field/speakAloud';
 
 import { ApiClientError } from '@/api/client';
 import { color, radius, spacing } from '@/design/tokens';
@@ -12,10 +11,9 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
-import { SampleNotice } from '@/components/SampleNotice';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
-import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
+import { DialectFlashcards } from '@/discovery/DialectFlashcards';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { loadItinerary } from '@/plan/itinerary';
@@ -37,68 +35,8 @@ function formatDepartureDate(value: string, locale: string) {
   return formatMonthDay(value, locale);
 }
 
-const PREP_ITEMS = [
-  { icon: require('../../../assets/icons/common/umbrella.png'), nameKo: '접이식 우산', nameEn: 'Folding umbrella', descKo: '오후 비 예보', descEn: 'Rain forecast in the afternoon' },
-  { icon: require('../../../assets/icons/common/shoes.png'), nameKo: '미끄럼 적은 신발', nameEn: 'Non-slip shoes', descKo: '흰여울 경사 구간', descEn: 'Huinnyeoul has a slope section' },
-  { icon: require('../../../assets/icons/common/idcard.png'), nameKo: '해외카드·여권 사본', nameEn: 'Overseas card · passport copy', descKo: '현장 결제 대비', descEn: 'In case you need to pay on site' },
-];
-
-function DialectFlashcards() {
-  const { tx } = useI18n();
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [speakingId, setSpeakingId] = useState<string | null>(null);
-
-  function listen(phrase: (typeof DIALECT_PHRASES)[number]) {
-    try {
-      stopSpeaking();
-      setSpeakingId(phrase.id);
-      speakAloud(phrase.dialect, { language: 'ko-KR', rate: 0.9, onDone: () => setSpeakingId(null), onStopped: () => setSpeakingId(null), onError: () => setSpeakingId(null) });
-    } catch {
-      // 소리 기능이 없는 브라우저(Web Speech API 미지원 등)에서도 카드는 그대로 둔다.
-      setSpeakingId(null);
-    }
-  }
-
-  return (
-    <View style={styles.dialectSection}>
-      <Text variant="title" weight="bold" style={styles.prepTitle}>{tx('부산 사투리 한마디', 'A word of Busan dialect')}</Text>
-      <View style={styles.dialectList}>
-        {DIALECT_PHRASES.map((phrase) => {
-          const expanded = expandedId === phrase.id;
-          return (
-            <View key={phrase.id} style={[styles.dialectCard, expanded && styles.dialectCardExpanded]}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ expanded }}
-                onPress={() => setExpandedId(expanded ? null : phrase.id)}
-                style={styles.dialectCardHeader}
-              >
-                <Text variant={expanded ? 'display' : 'title'} weight="bold">{phrase.dialect}</Text>
-                {!expanded ? <Text variant="caption" color={color.text.muted}>{tx('눌러서 뜻 보기', 'Tap to see meaning')}</Text> : null}
-              </Pressable>
-              {expanded ? (
-                <>
-                  <View style={styles.dialectMeaningRow}>
-                    <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('표준어', 'Standard Korean')}</Text>
-                    <Text variant="body" color={color.text.body}>{phrase.standard}</Text>
-                  </View>
-                  <View style={styles.dialectMeaningRow}>
-                    <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('영문 뜻', 'English meaning')}</Text>
-                    <Text variant="body" color={color.text.body}>{phrase.en}</Text>
-                  </View>
-                  <Text variant="caption" color={color.text.muted}>{tx(phrase.situationKo, phrase.situationEn)}</Text>
-                  <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 발음 듣기', 'Listen to %s', phrase.dialect)} onPress={() => listen(phrase)} style={styles.listenButton}>
-                    <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id ? tx('재생 중', 'Playing') : tx('▶ 듣기', '▶ Listen')}</Text>
-                  </Pressable>
-                </>
-              ) : null}
-            </View>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
+// 🔴 「가볼래가 챙긴 준비물」은 뺐다(S15P21E201-1422) — 고정 샘플(우산·신발·카드 사본, 「오후 비 예보」)이라 진짜가 아니었고,
+//    같은 화면의 날씨(진짜)까지 가짜로 보이게 했다. 사투리 카드는 src/discovery/DialectFlashcards.tsx 로 갔고 여기서도 그대로 쓴다.
 
 // — 여행 종료일이 지나면 이 탭에 추억 지도 카드를 띄운다. 계획한 경로가
 // 아니라 실제로 쓴 기록(story)의 장소를 방문 순서(created_at)대로 이어 그린다 — 서버가
@@ -251,7 +189,7 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
             {departure ? txf(tx, '여행 전 · %s 출발', 'Before the trip · Departing %s', departure) : tx('여행 전', 'Before the trip')}
           </Eyebrow>
           <Text variant="display" weight="bold" style={styles.title}>
-            {tx('부산 여행 준비', 'Getting ready for Busan')}
+            {tx('출발일 날씨', 'Departure-day weather')}
           </Text>
         </View>
       </View>
@@ -298,33 +236,7 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
           0곳이라 눌러도 항상 빈 목록만 나온다. /{tripId}/souvenirs 라우트는 그대로 있다.
       */}
 
-      <View style={styles.prepCard}>
-        <Text variant="title" weight="bold" style={styles.prepTitle}>
-          {tx('가볼래가 챙긴 준비물', 'What GABOLLE packed for you')}
-        </Text>
-        {/* — 이 목록만 고정 목업이다. 같은 화면의 날씨는 실제 값이라
-            화면 전체에 표시를 달면 진짜인 것까지 가짜라고 말하게 된다.
-        */}
-        <SampleNotice
-          badge={tx('샘플', 'Sample')}
-          description={tx('준비물 목록은 아직 고정된 예시예요. 위의 날씨는 실제 예보예요.', 'This packing list is still a fixed example. The weather above is a real forecast.')}
-        />
-        {PREP_ITEMS.map((item) => (
-          <View key={item.nameKo} style={styles.prepRow}>
-            <Image source={item.icon} resizeMode="contain" style={styles.prepIcon} />
-            <View style={styles.prepBody}>
-              <Text variant="body" weight="bold">
-                {tx(item.nameKo, item.nameEn)}
-              </Text>
-            </View>
-            <Text variant="caption" style={styles.prepDesc}>
-              {tx(item.descKo, item.descEn)}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      <DialectFlashcards />
+      <View style={styles.dialectSection}><DialectFlashcards /></View>
     </Screen>
   );
 }
@@ -388,67 +300,10 @@ const styles = StyleSheet.create({
   weatherRain: {
     color: color.text.heading,
   },
-  prepCard: {
-    marginTop: spacing[4],
-    backgroundColor: color.surface.card,
-    borderRadius: radius.md,
-    padding: spacing[4],
-    gap: spacing[3],
-  },
   prepTitle: {
-    marginBottom: spacing[1],
-  },
-  prepRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[3],
-  },
-  prepBody: {
-    flex: 1,
-  },
-  prepIcon: {
-    width: 26,
-    height: 26,
-  },
-  prepDesc: {
-    color: color.text.body,
+    marginBottom: spacing[2],
   },
   dialectSection: {
     marginTop: spacing[4],
-  },
-  dialectList: {
-    gap: spacing[3],
-    marginTop: spacing[1],
-  },
-  dialectCard: {
-    minHeight: 84,
-    justifyContent: 'center',
-    gap: spacing[2],
-    padding: spacing[4],
-    borderRadius: radius.lg,
-    backgroundColor: color.surface.card,
-    borderWidth: 1,
-    borderColor: color.surface.field,
-  },
-  dialectCardHeader: {
-    gap: spacing[2],
-  },
-  dialectCardExpanded: {
-    borderColor: color.action.secondary,
-    borderWidth: 1.5,
-    backgroundColor: color.surface.tint,
-  },
-  dialectMeaningRow: {
-    gap: spacing[1],
-  },
-  listenButton: {
-    marginTop: spacing[1],
-    minHeight: 36,
-    paddingHorizontal: spacing[3],
-    borderRadius: radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: color.brand.navy,
   },
 });
