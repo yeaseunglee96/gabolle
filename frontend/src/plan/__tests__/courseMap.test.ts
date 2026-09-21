@@ -17,7 +17,7 @@ const course = (days: TripCourse['days']): TripCourse => ({
 });
 
 describe('코스를 지도에 올린다', () => {
-  it('하루가 선 하나가 된다', () => {
+  it('정차 둘이면 선 하나가 된다 — 구간 하나다', () => {
     const { stops, routes } = courseMapLayers(course([
       { day: 1, stops: [stop('해운대', 35.1587, 129.1604), stop('광안리', 35.1532, 129.1189)] },
     ]));
@@ -57,10 +57,51 @@ describe('코스를 지도에 올린다', () => {
   it('🔴 하루 안에서 번호가 다시 1부터다 — 목록의 「2일차 1」과 같은 숫자를 봐야 한다', () => {
     const { routes } = courseMapLayers(course([
       { day: 1, stops: [stop('가', 35.1, 129.1), stop('나', 35.2, 129.2)] },
-      { day: 2, stops: [stop('다', 35.3, 129.3)] },
+      { day: 2, stops: [stop('다', 35.3, 129.3), stop('라', 35.4, 129.4)] },
     ]));
 
+    // 이제 선은 **구간마다** 하나다 — 1일차 한 구간, 2일차 한 구간.
     expect(routes[1].stops[0].number).toBe(1);
+  });
+
+  it('🔴 정차가 하나뿐인 날도 지도를 잃지 않는다 — 그릴 구간이 없을 뿐 점은 있다', () => {
+    const { stops, routes } = courseMapLayers(course([
+      { day: 1, stops: [stop('혼자', 35.1, 129.1)] },
+    ]));
+
+    expect(stops.map((s) => s.name)).toEqual(['혼자']);
+    expect(routes).toEqual([]);
+  });
+
+  it('선을 구간마다 나눈다 — 한 구간은 실제 길, 다른 구간은 직선일 수 있기 때문이다', () => {
+    const { routes } = courseMapLayers(course([
+      { day: 1, stops: [stop('가', 35.1, 129.1), stop('나', 35.2, 129.2), stop('다', 35.3, 129.3)] },
+    ]));
+
+    expect(routes).toHaveLength(2);
+    expect(routes.map((r) => r.stops.map((s) => s.name))).toEqual([['가', '나'], ['나', '다']]);
+  });
+
+  it('🔴 실제 경로를 받은 구간만 실선이 된다 — 못 받은 구간은 점선으로 남는다', () => {
+    const { routes } = courseMapLayers(
+      course([{ day: 1, stops: [stop('가', 35.1, 129.1), stop('나', 35.2, 129.2), stop('다', 35.3, 129.3)] }]),
+      { '1-0': { path: [{ latitude: 35.1, longitude: 129.1 }, { latitude: 35.15, longitude: 129.15 }], estimated: false } },
+    );
+
+    expect(routes[0].estimated).toBe(false);
+    expect(routes[0].path).toHaveLength(2);
+    // 두 번째 구간은 경로를 못 받았다 — 실제 길인 척하지 않는다
+    expect(routes[1].estimated).toBe(true);
+    expect(routes[1].path).toBeUndefined();
+  });
+
+  it('🔴 서버가 「어림값」이라고 하면 경로가 있어도 점선이다', () => {
+    const { routes } = courseMapLayers(
+      course([{ day: 1, stops: [stop('가', 35.1, 129.1), stop('나', 35.2, 129.2)] }]),
+      { '1-0': { path: [{ latitude: 35.1, longitude: 129.1 }, { latitude: 35.2, longitude: 129.2 }], estimated: true } },
+    );
+
+    expect(routes[0].estimated).toBe(true);
   });
 
   it('🔴 선이 실제 길이 아니라는 것을 적는다 — 안 적으면 걸어갈 수 있는 길로 읽는다', () => {

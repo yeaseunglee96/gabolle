@@ -24,6 +24,7 @@ import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
 import { CourseCard, courseCost, courseFacts, courseLetter } from '@/plan/CourseCard';
 import { courseMapLayers } from '@/plan/courseMap';
+import { useCourseRoutePaths } from '@/map/courseRoutePaths';
 import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
 import { loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
 import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
@@ -80,7 +81,19 @@ export default function Recommendations() {
   const current = courses.find((course) => course.id === picked) ?? null;
   // 🔴 고른 코스가 바뀔 때만 다시 만든다. 매번 새 배열을 만들면 지도가 그때마다 다시
   //    그려지고, 실제로 그 자리에서 무한 재렌더가 났던 적이 있다(RouteMap 주석 참고).
-  const mapLayers = useMemo(() => courseMapLayers(current), [current]);
+  // 🔴 구간 경로를 먼저 받아 두고 지도에 넘긴다. 받는 동안에는 빈 값이라 지도가 **먼저
+  //    직선으로 그려지고**, 경로가 오는 대로 실선으로 바뀐다. 다 받을 때까지 지도를 비워
+  //    두지 않는다 — 빈 지도가 직선보다 낫지 않다.
+  const courseDays = useMemo(() => courseMapLayers(current).stops.length
+    ? (current?.days ?? []).map((day) => ({
+        day: day.day,
+        stops: day.stops
+          .filter((stop) => stop.lat !== null && stop.lng !== null)
+          .map((stop, index) => ({ id: `${day.day}-${index + 1}`, number: index + 1, name: stop.name, latitude: stop.lat as number, longitude: stop.lng as number })),
+      }))
+    : [], [current]);
+  const legPaths = useCourseRoutePaths(courseDays, accessToken);
+  const mapLayers = useMemo(() => courseMapLayers(current, legPaths), [current, legPaths]);
   const [selectedStopId, setSelectedStopId] = useState('');
 
   const build = async (course: TripCourse) => {
@@ -176,7 +189,7 @@ export default function Recommendations() {
           {/* 🔴 좌표가 하나라도 오면 **선으로** 그린다 (-1333). 하나도 없으면 아래처럼
               **동선을 글로** 세운다 — 좌표 없이 선을 그으면 실제로 안 가는 길을 그리게 되고,
               그건 빈 지도보다 나쁘다. 옛 서버에 붙은 앱이 그 상태다. */}
-          {mapLayers.routes.length ? (
+          {mapLayers.stops.length ? (
             <RouteMap
               stops={mapLayers.stops}
               selectedId={selectedStopId}
