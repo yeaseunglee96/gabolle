@@ -22,7 +22,7 @@ import { TermsBody } from '@/me/panels/TermsBody';
 
 export type MyPanelKey =
   | 'posts' | 'saved' | 'followers' | 'following' | 'preferences'
-  | 'identities' | 'profile' | 'notifications' | 'blocked' | 'help' | 'terms';
+  | 'identities' | 'profile' | 'delete-account' | 'notifications' | 'blocked' | 'help' | 'terms';
 
 type Translate = (ko: string, en: string) => string;
 
@@ -41,6 +41,8 @@ export function panelTitle(key: MyPanelKey, tx: Translate): { title: string; des
     case 'preferences': return { title: tx('여행 취향', 'Travel preferences'), description: tx('여행을 만들 때 이 답이 미리 채워져요. 여기서 고치면 다음 여행부터 바뀌어요. 이미 만든 여행은 그대로예요.', 'These are filled in when you plan a trip. Changes here apply from your next trip. Trips you already made stay as they are.') };
     case 'identities': return { title: tx('연결된 소셜 계정', 'Connected accounts'), description: tx('로그인에 쓰는 계정이에요.', 'Accounts you can sign in with.') };
     case 'profile': return { title: tx('프로필', 'Profile'), description: tx('피드와 기록에 보이는 이름과 사진이에요.', 'This is the name and photo people see on your posts.') };
+    // 설정에서 바로 들어오는 문 — 탈퇴 흐름은 프로필 패널 안에 있고, 여기서는 그 흐름을 열어 둔 채로 연다(S15P21E201-1401).
+    case 'delete-account': return { title: tx('회원 탈퇴', 'Delete account'), description: tx('여행, 기록, 취향이 모두 지워지고 되돌릴 수 없어요.', 'Your trips, records, and preferences are all deleted. This cannot be undone.') };
     case 'notifications': return { title: tx('알림', 'Notifications'), description: tx('나에게 온 소식이에요.', 'Updates for you.') };
     case 'blocked': return { title: tx('차단된 계정', 'Blocked accounts'), description: tx('차단한 사람에게는 내 글이 보이지 않아요.', "People you've blocked can't see your posts.") };
     case 'help': return { title: tx('도움말·문의', 'Help & support'), description: tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting') };
@@ -70,6 +72,7 @@ export function myPanelBody(key: MyPanelKey): ReactNode {
     case 'saved': return <SavedRecordsBody />;
     case 'preferences': return <PreferencesBody />;
     case 'profile': return <ProfileBody />;
+    case 'delete-account': return <ProfileBody startDeletion />;
   }
 }
 
@@ -80,5 +83,5 @@ export function isPanelKey(value: unknown): value is MyPanelKey {
 
 const PANEL_KEYS: readonly MyPanelKey[] = [
   'posts', 'saved', 'followers', 'following', 'preferences',
-  'identities', 'profile', 'notifications', 'blocked', 'help', 'terms',
+  'identities', 'profile', 'delete-account', 'notifications', 'blocked', 'help', 'terms',
 ];

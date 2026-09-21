@@ -17,7 +17,6 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
-import { useMyPageCounts } from '@/me/myPageCounts';
 import { usePlan } from '@/plan/PlanProvider';
 import { txf } from '@/i18n/format';
 
@@ -28,7 +27,7 @@ const DELETE_CONFIRMATION_PHRASE = 'DELETE';
 const DEFAULT_COVER = require('../../../assets/home/web-hero.png');
 const NAME_MAX = 30;
 
-export function ProfileBody() {
+export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean } = {}) {
   const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { user, accessToken, updateProfile, deleteAccount } = useAuth();
   const { tx } = useI18n();
@@ -37,10 +36,6 @@ export function ProfileBody() {
   const { width } = useWindowDimensions();
   const desktop = isAtLeast(width, 'lg');
 
-  // — 인스타그램식 기록·팔로워·팔로잉 숫자. 마이페이지가 이미 같은
-  // 프로필 질의를 하고 있어서(사이드 메뉴 숫자), 새로 부르지 않고 그 결과를 같이 쓴다
-  // react-query 캐시 열쇠가 같아 요청이 하나로 합쳐진다.
-  const { storyCount, followerCount, followingCount } = useMyPageCounts();
 
   async function shareProfile() {
     if (!user?.userId) return;
@@ -204,9 +199,13 @@ export function ProfileBody() {
     setDeleteError(null);
     setDeleteStep(1);
   }
+  // 설정 「회원 탈퇴」 행으로 들어온 사람 — 프로필 편집을 훑을 필요 없이 탈퇴 흐름을 바로 연다(S15P21E201-1401).
+  useEffect(() => { if (startDeletion && user) void openDeletion(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [startDeletion, user?.userId]);
   function closeDeletion() { if (!deleting) { setDeleteStep(0); setDeleteConfirmation(''); setDeleteError(null); } }
   // — 소셜로만 가입한 계정은 비밀번호가 없어 비밀번호로 본인 확인을 할 수 없다.
   // 그래서 사용자가 직접 친 확인 값(DELETE)만 받고, 서버와 같은 기준으로 버튼을 잠근다.
+  // 서버가 칸을 안 주면 「undefined개」가 아니라 「—」 — 숫자일 때만 개수를 말한다.
+  const countLabel = (n: number | undefined) => (typeof n === 'number' ? tx(`${n}개`, `${n} items`) : '—');
   const deleteConfirmed = deleteConfirmation === DELETE_CONFIRMATION_PHRASE;
   async function confirmDeletion() {
     if (!deleteConfirmed || deleting) return;
@@ -232,17 +231,11 @@ export function ProfileBody() {
 
   return (
     <>
+      {/* 🔴 기록·팔로워·팔로잉 타일과 「내 피드 보기」는 뺐다(2026-09-21 실기, S15P21E201-1401) — 마이페이지 프로필 카드가
+          같은 숫자·같은 문을 이미 갖고 있어 프로필 편집에 들어오면 한 번 더 보였다. 여기만 있는 「프로필 공유」는 남긴다. */}
       {user ? (
-        <View style={styles.statCard}>
-          <View style={styles.statRow}>
-            <View style={styles.stat}><Text variant="title" weight="bold">{storyCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('기록', 'Records')}</Text></View>
-            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${user.userId}/followers`)} style={styles.stat}><Text variant="title" weight="bold">{followerCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로워', 'Followers')}</Text></Pressable>
-            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${user.userId}/following`)} style={styles.stat}><Text variant="title" weight="bold">{followingCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></Pressable>
-          </View>
-          <View style={styles.statActions}>
-            <Button label={tx('내 피드 보기', 'View my posts')} variant="tertiary" compact onPress={() => router.push('/me?panel=posts')} />
-            <Button label={tx('프로필 공유', 'Share profile')} variant="tertiary" compact onPress={() => void shareProfile()} />
-          </View>
+        <View style={styles.shareRow}>
+          <Button label={tx('프로필 공유', 'Share profile')} variant="tertiary" compact onPress={() => void shareProfile()} />
         </View>
       ) : null}
 
@@ -345,9 +338,9 @@ export function ProfileBody() {
             <Text variant="caption" weight="bold" color={color.state.danger}>{tx('1 / 2 · 삭제 내용 확인', '1 / 2 · Review deletion')}</Text>
             <Text variant="display" weight="bold">{tx('삭제되는 내용을 확인해 주세요', 'Review what will be deleted')}</Text>
             <View style={styles.impactList}>
-              <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{deletionPreview ? tx(`${deletionPreview.ownedTripCount}개`, `${deletionPreview.ownedTripCount} items`) : '—'}</Text><Text style={styles.impactCopy}>{tx('내가 만든 여행이 삭제돼요.', 'Trips you created will be deleted.')}</Text></View>
-              <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{deletionPreview ? tx(`${deletionPreview.itineraryCount}개`, `${deletionPreview.itineraryCount} items`) : '—'}</Text><Text style={styles.impactCopy}>{tx('그 여행들의 일정이 삭제돼요.', "Those trips' itineraries will be deleted.")}</Text></View>
-              <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{deletionPreview ? tx(`${deletionPreview.recordCount}개`, `${deletionPreview.recordCount} items`) : '—'}</Text><Text style={styles.impactCopy}>{tx('작성한 여행 기록이 삭제돼요.', 'Travel records you wrote will be deleted.')}</Text></View>
+              <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{countLabel(deletionPreview?.ownedTripCount)}</Text><Text style={styles.impactCopy}>{tx('내가 만든 여행이 삭제돼요.', 'Trips you created will be deleted.')}</Text></View>
+              <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{countLabel(deletionPreview?.itineraryCount)}</Text><Text style={styles.impactCopy}>{tx('그 여행들의 일정이 삭제돼요.', "Those trips' itineraries will be deleted.")}</Text></View>
+              <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{countLabel(deletionPreview?.recordCount)}</Text><Text style={styles.impactCopy}>{tx('작성한 여행 기록이 삭제돼요.', 'Travel records you wrote will be deleted.')}</Text></View>
             </View>
             <Text accessibilityRole="alert" weight="bold" color={color.state.danger}>{tx('계정 삭제는 되돌릴 수 없습니다.', 'Account deletion cannot be undone.')}</Text>
             <View style={styles.modalActions}><Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={closeDeletion} containerStyle={styles.modalAction} /><Button variant="outline" label={tx('계속', 'Continue')} onPress={() => setDeleteStep(2)} containerStyle={styles.modalAction} /></View>
@@ -367,10 +360,7 @@ export function ProfileBody() {
 }
 
 const styles = StyleSheet.create({
-  statCard: { gap: spacing[3], marginBottom: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
-  statRow: { flexDirection: 'row', justifyContent: 'space-around' },
-  stat: { alignItems: 'center' },
-  statActions: { flexDirection: 'row', gap: spacing[2], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border },
+  shareRow: { alignItems: 'flex-end', marginBottom: spacing[3] },
   coverCard: { marginBottom: spacing[4], borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
   coverPreview: { height: 96, backgroundColor: color.surface.soft },
   coverPhoto: { width: '100%', height: '100%' },

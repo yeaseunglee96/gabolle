@@ -673,8 +673,8 @@ export default function Feed() {
       <View accessibilityRole="tablist" style={compact ? styles.scopeChips : styles.scopeSegments}>
         {scopeButton('ALL', tx('전체', 'All'))}
         {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
-        {/* 손님에게는 「내 기록」이 없다 — 눌러 봐야 로그인 안내뿐이라 칩 자체를 안 그린다(S15P21E201-1393). */}
-        {user ? scopeButton('MINE', tx('내 기록', 'Mine')) : null}
+        {/* 🔴 「내 기록」 칩은 없다(S15P21E201-1401) — 내 글은 마이페이지(기록 탭 · 프로필 카드 「기록 N」)가 보여 준다.
+            피드는 남의 것을 보는 곳이라 같은 문을 여기에도 두면 어느 쪽이 진짜인지 헷갈린다. MINE 갈래 자체는 남겨 둔다. */}
       </View>
       {/* 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 (시안 5번).
           여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor 의

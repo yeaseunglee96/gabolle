@@ -7,7 +7,7 @@
 // 🔴 넓은 화면은 두 기둥이다. 왼쪽은 **답하는 근거**(홈에서 받은 것 · 계정에 기억된 취향),
 //    오른쪽은 질문. 근거를 안 보여 주면 사람은 같은 것을 또 묻는 줄 알고 되돌아간다.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
@@ -641,10 +641,14 @@ export default function PlanConditions() {
           >
             <Text variant="title">‹</Text>
           </Pressable>
-          <View style={styles.phoneChips}>
+          {/* 🔴 칩은 줄을 바꾸지 않는다 — 셋(출발·날짜·인원)이 뒤로 가기와 「수정」 사이에서 두 줄로 깨져
+              「성인 1」이 따로 놀았다(2026-09-21 실기, S15P21E201-1401). 넘치면 가로로 밀어 본다. */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={styles.phoneChipsScroll} contentContainerStyle={styles.phoneChips}>
             {headerChips.map((chip) => (
               <View key={chip} style={styles.phoneGivenChip}><Text variant="caption" weight="bold" numberOfLines={1}>{chip}</Text></View>
             ))}
+          </ScrollView>
+          <View>
             {/* 🔴 -1337 — 예전에는 <b>받은 것이 있을 때만</b> 이 단추를 그렸다. 그래서
                 날짜가 없는 사람에게는 날짜를 정하러 갈 길이 화면에 아예 없었다 —
                 막아 놓고 문을 안 준 상태였다. 지금은 없을 때도 그리고, 말만 바꾼다. */}
@@ -702,10 +706,11 @@ const styles = StyleSheet.create({
 
   phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginBottom: spacing[3] },
   // 칩은 오른쪽으로 몰고, 자리가 모자라면 줄을 바꾼다 — 잘라 내면 어느 날짜인지 못 읽는다.
-  phoneChips: { flex: 1, minWidth: 0, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', gap: spacing[1] },
+  phoneChipsScroll: { flex: 1, minWidth: 0 },
+  phoneChips: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], paddingRight: spacing[1] },
   phoneBack: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing[3] },
   phoneGivenChip: { paddingHorizontal: spacing[3], paddingVertical: 6, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  phoneGivenEdit: { marginLeft: 'auto', minHeight: 32, justifyContent: 'center' },
+  phoneGivenEdit: { minHeight: 44, paddingLeft: spacing[2], justifyContent: 'center' },
 
   stepHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
   stepCopy: { flex: 1, minWidth: 0, gap: 2 },
