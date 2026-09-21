@@ -3,8 +3,9 @@
 // 🔴 **자리를 바꾸지 않는다.** 고른 카드를 맨 위로 올리거나 「선택한 코스」 칸을 따로
 //    만들지 않는다(인계 §10-3). 눌렀는데 목록이 움직이면 사람은 자기가 무엇을 눌렀는지
 //    다시 찾아야 하고, 옆의 안과 견주던 흐름이 끊긴다. 고르는 화면에서 그건 치명적이다.
+import { useEffect, useRef } from 'react';
 import { txf } from '@/i18n/format';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -162,6 +163,20 @@ export function CourseCard({
 }) {
   // 🔴 하루가 아니라 **여행 전체**에서 앞에서부터 최대 3장. 1일차에 사진이 없고
   //    2일차에 있는 코스가 흔하다 — 장소 사진이 354곳뿐이라 듬성듬성하다.
+  // 🔴 고른 카드의 테두리는 **300ms 에 걸쳐** 빨강이 된다(시안 1절). 툭 바뀌면 «다른 카드가
+  //    그려졌다» 로 읽히고, 이어지면 «내가 고른 것이 저기로 옮겨갔다» 로 읽힌다.
+  const pick = useRef(new Animated.Value(selected ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.timing(pick, {
+      toValue: selected ? 1 : 0,
+      duration: 300,
+      easing: Easing.out(Easing.quad),
+      // 색을 바꾸므로 네이티브 드라이버를 못 쓴다.
+      useNativeDriver: false,
+    }).start();
+  }, [selected, pick]);
+  const pickBorder = pick.interpolate({ inputRange: [0, 1], outputRange: [color.surface.border, color.action.outline] });
+
   const photos = course.days
     .flatMap((day) => day.stops)
     .filter((stop) => stop.photoUrl)
@@ -208,7 +223,7 @@ export function CourseCard({
   );
 
   return (
-    <View style={[styles.card, selected && styles.cardOn]}>
+    <Animated.View style={[styles.card, { borderColor: pickBorder }, selected && styles.cardOn]}>
       <Pressable
         accessibilityRole="radio"
         accessibilityState={{ selected }}
@@ -280,8 +295,7 @@ export function CourseCard({
           </View>
         </View>
       </Pressable>
-
-    </View>
+    </Animated.View>
   );
 }
 
@@ -294,7 +308,9 @@ const styles = StyleSheet.create({
   //    쓰지 않는다」와 부딪히지만, 여기서는 채움이 아니라 **선**이고 action.outline 이
   //    「큰 면적이 부담스러울 때 채움 대신 쓰는 붉은 선」으로 정의돼 있어 그 쓰임에 맞다.
   cardOn: {
-    borderColor: color.action.outline,
+    // 🔴 테두리 «색» 은 여기 없다 — 300ms 에 걸쳐 바뀌므로 그리는 자리에서 잇는다(시안 1절).
+    //    그림자는 잇지 않는다. 켜질 때 같이 나타나도 눈에 거슬리지 않고, 그림자를 잇는 것은
+    //    RN 에서 값이 아니라 그림 자체를 다시 그리는 일이라 비싸다.
     shadowColor: color.action.outline, shadowOpacity: 0.16, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 6,
   },
   // 위 표지 → 아래 본문. 예전에는 가로였다.

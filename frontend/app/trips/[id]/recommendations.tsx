@@ -24,7 +24,7 @@ import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
 import { CourseCard, CourseRow, courseCost, courseFacts, courseLetter } from '@/plan/CourseCard';
-import { courseMapLayers } from '@/plan/courseMap';
+import { courseMapLayers, dayColor } from '@/plan/courseMap';
 import { useCourseRoutePaths } from '@/map/courseRoutePaths';
 import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
 import { loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
@@ -125,6 +125,13 @@ export default function Recommendations() {
   const [mapHeight, setMapHeight] = useState(0);
   /** 시트 안에서 지도가 쓸 수 있는 높이 — 넓은 화면과 같은 방식으로 «잰다». */
   const [sheetMapHeight, setSheetMapHeight] = useState(0);
+  /** 고르기 전/후 두 벌을 바꿔 흐리는 값. 0이면 「골라 주세요」, 1이면 고른 코스. */
+  const pickFade = useRef(new Animated.Value(0)).current;
+  /**
+   * 흐려지는 «동안» 보여 줄 코스. 고르기를 물러도(다시 눌러 해제) 마지막 것을 붙들고
+   * 있어야 글자가 먼저 사라지고 칸만 남는 일이 없다.
+   */
+  const [shown, setShown] = useState<TripCourse | null>(null);
   const stripRef = useRef<ScrollView>(null);
   /** 스트립이 칸보다 넓은가(넘치는가) · 지금 얼마나 굴렀나 — 둘 다 재서 안다. */
   const [strip, setStrip] = useState({ view: 0, content: 0, left: 0 });
@@ -177,6 +184,16 @@ export default function Recommendations() {
   const legPaths = useCourseRoutePaths(courseDays, accessToken);
   const mapLayers = useMemo(() => courseMapLayers(current, legPaths), [current, legPaths]);
   const [selectedStopId, setSelectedStopId] = useState('');
+
+  useEffect(() => {
+    if (current) setShown(current);
+    Animated.timing(pickFade, {
+      toValue: current ? 1 : 0,
+      duration: 200,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: false,
+    }).start();
+  }, [current, pickFade]);
 
   useEffect(() => {
     Animated.timing(grow, {
@@ -324,6 +341,7 @@ export default function Recommendations() {
     const stripOverflows = strip.content > strip.view + 4;
     const stripPages = stripOverflows && strip.view > 0 ? Math.ceil(strip.content / strip.view) : 0;
     const stripPage = strip.view > 0 ? Math.round(strip.left / strip.view) : 0;
+    const stripDayIndex = Math.max(0, current?.days.findIndex((day) => day.day === sheetDay) ?? 0);
     return (
       <View style={[styles.shell, styles.shellWide]}>
         <ScrollView style={styles.listPane} contentContainerStyle={styles.listPaneInner}>{list}</ScrollView>
@@ -384,12 +402,22 @@ export default function Recommendations() {
                 <Text variant="caption" weight="bold" numberOfLines={1}>{courseFacts(current, tx)}</Text>
               </View>
             ) : null}
-          </View>
 
           {/* 아래 스트립 — 고른 일차의 정차지를 **순서대로** 옆으로 세운다.
-              지도의 번호와 같은 번호를 달아, 점을 누르든 카드를 누르든 같은 곳이 켜진다. */}
+              지도의 번호와 같은 번호를 달아, 점을 누르든 카드를 누르든 같은 곳이 켜진다.
+
+              🔴 지도 «아래»가 아니라 **위에 뜬다**(시안 3절 `absolute bottom`). 아래에
+                 두면 지도가 그만큼 짧아지는데, 이 화면에서 제일 큰 것은 지도여야 한다.
+                 대신 카드가 지도를 가리지 않게 **바탕을 아래로 갈수록 덮는 그라데이션**을
+                 깐다 — 위는 지도가 비쳐 보이고 아래는 카드가 또렷하다. */}
           {dayStops.length ? (
             <View style={styles.stripWrap}>
+              <LinearGradient
+                pointerEvents="none"
+                colors={['transparent', color.surface.soft]}
+                locations={[0, 0.4]}
+                style={styles.stripBackdrop}
+              />
             <View style={styles.stripRow}>
             <ScrollView
               ref={stripRef}
@@ -419,7 +447,10 @@ export default function Recommendations() {
                       accessibilityRole="button"
                       accessibilityState={{ selected: on }}
                       onPress={() => setSelectedStopId(on ? '' : id)}
-                      style={[styles.stripCard, on && styles.stripCardOn]}
+                      // 🔴 고른 카드의 테두리는 **그날의 색**이다 — 지도의 선·마커와 같은 색이라
+                    //    「이 카드가 저 점」이라는 것이 색 하나로 이어진다. 빨강을 쓰면 카드의
+                    //    선택(코스 고르기)과 같은 뜻으로 읽혀 둘이 헷갈린다.
+                    style={[styles.stripCard, on && { borderColor: dayColor(stripDayIndex) }]}
                     >
                       <View style={styles.stripTop}>
                         <View style={styles.stripNumber}>
@@ -500,6 +531,7 @@ export default function Recommendations() {
             ) : null}
             </View>
           ) : null}
+          </View>
         </View>
       </View>
     );
@@ -555,19 +587,42 @@ export default function Recommendations() {
           pointerEvents={sheetOpen ? 'none' : 'auto'}
           style={[styles.barRow, { opacity: grow.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
         >
-          <View style={styles.bottomCopy}>
-            <Text weight="bold" numberOfLines={1}>
-              {current
-                ? `${courseCost(current, tx) ?? tx('비용 미정', 'Cost unknown')}${courseCost(current, tx) ? tx(' 예상', ' est.') : ''}`
-                : tx('코스를 골라 주세요', 'Pick a course')}
-            </Text>
-            <Text variant="caption" color={color.text.muted} numberOfLines={1}>
-              {current
-                ? courseFacts(current, tx)
-                : tx(`${courses.length}가지 중 하나를 고르면 일정이 열려요`, `Pick one of ${courses.length} to open the itinerary`)}
-            </Text>
-          </View>
-          {current ? (
+          {/* 🔴 고르기 «전» 과 «후» 의 두 벌을 겹쳐 두고 **200ms 에 걸쳐 바꿔 흐린다**
+              (시안 2절). 글자만 갈아 끼우면 「코스를 골라 주세요」가 값으로 툭 바뀌어
+              앞의 말을 읽던 중에 사라진다. */}
+          <Animated.View
+            pointerEvents={current ? 'none' : 'auto'}
+            accessibilityElementsHidden={Boolean(current)}
+            importantForAccessibility={current ? 'no-hide-descendants' : 'auto'}
+            style={[styles.barLayer, { opacity: pickFade.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+          >
+            <View style={styles.bottomCopy}>
+              <Text weight="bold" numberOfLines={1}>{tx('코스를 골라 주세요', 'Pick a course')}</Text>
+              <Text variant="caption" color={color.text.muted} numberOfLines={1}>
+                {tx(`${courses.length}가지 중 하나를 고르면 일정이 열려요`, `Pick one of ${courses.length} to open the itinerary`)}
+              </Text>
+            </View>
+            {/* 고를 것이 없는데 누를 수 있는 단추를 두면, 눌러 보고 아무 일도 안 일어나는
+                것으로 «고장» 을 배운다. 눌리지 않는 모양으로 둔다. */}
+            <View style={styles.barCtaOff}>
+              <Text weight="bold" color={color.text.muted} numberOfLines={1}>{tx('일정 보기', 'View')}</Text>
+            </View>
+          </Animated.View>
+
+          <Animated.View
+            pointerEvents={current ? 'auto' : 'none'}
+            accessibilityElementsHidden={!current}
+            importantForAccessibility={current ? 'auto' : 'no-hide-descendants'}
+            style={[styles.barLayer, { opacity: pickFade }]}
+          >
+            <View style={styles.bottomCopy}>
+              <Text weight="bold" numberOfLines={1}>
+                {shown
+                  ? `${courseCost(shown, tx) ?? tx('비용 미정', 'Cost unknown')}${courseCost(shown, tx) ? tx(' 예상', ' est.') : ''}`
+                  : ''}
+              </Text>
+              <Text variant="caption" color={color.text.muted} numberOfLines={1}>{shown ? courseFacts(shown, tx) : ''}</Text>
+            </View>
             <Pressable
               accessibilityRole="button"
               onPress={() => setSheetOpen(true)}
@@ -575,13 +630,7 @@ export default function Recommendations() {
             >
               <Text weight="bold" color={color.text.onAction} numberOfLines={1}>{tx('해당 코스 일정 보기', 'View this course')}</Text>
             </Pressable>
-          ) : (
-            // 고를 것이 없는데 누를 수 있는 단추를 두면, 눌러 보고 아무 일도 안 일어나는
-            // 것으로 «고장» 을 배운다. 눌리지 않는 모양으로 둔다.
-            <View style={styles.barCtaOff}>
-              <Text weight="bold" color={color.text.muted} numberOfLines={1}>{tx('일정 보기', 'View')}</Text>
-            </View>
-          )}
+          </Animated.View>
         </Animated.View>
 
         {/* 자란 시트 — 고른 코스의 하루를 지도와 정차지로 본다. */}
@@ -680,7 +729,19 @@ const styles = StyleSheet.create({
   // 🔴 가로 스크롤은 그냥 두면 «남은 세로» 를 전부 먹는다. 그러면 카드 한 장이 화면
   //    절반 높이로 늘어나고 지도는 그만큼 눌린다. 자기 내용만큼만 차지하게 묶는다.
   // 손잡이와 점이 스트립 «위에» 얹히는 자리. 스트립 자체는 자기 내용만큼만 차지한다.
-  stripWrap: { flexGrow: 0, flexShrink: 0 },
+  stripWrap: {
+    // 지도 위에 뜬다. 왼쪽·오른쪽 끝까지 닿아야 페이드가 화면 가장자리까지 간다.
+    //
+    // 🔴 **바닥까지 내리지 않는다.** 시안은 `bottom: 0` 인데, 시안의 지도는 그림이고
+    //    진짜 카카오 지도는 **왼쪽 아래에 축척과 로고**를 그린다. 바닥까지 덮으면 그것이
+    //    가려지고, 그건 지도 이용약관을 어기는 것이다(실측: 로고 y=982 를 바탕이 덮었다).
+    //    그 한 줄만큼 띄워 둔다 — 카드는 그대로 지도 위에 뜨고 로고는 아래로 보인다.
+    position: 'absolute', left: 0, right: 0, bottom: spacing[6],
+    paddingTop: spacing[6],
+  },
+  // 🔴 시안의 크림색(#F4F1EA) 대신 **이 칸의 바탕색**을 쓴다. 뜻이 「지도가 바탕으로
+  //    스며든다」이므로, 색을 따로 박으면 바탕을 바꿀 때 이 한 줄만 낡는다.
+  stripBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   // 카드가 굴러가는 줄. 페이드와 손잡이는 이 안에만 얹혀 아래 쪽 표시를 안 덮는다.
   stripRow: { position: 'relative' },
   stripFade: { position: 'absolute', top: 0, bottom: 0, width: 56 },
@@ -704,7 +765,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.md, borderWidth: 2, borderColor: color.surface.card,
     backgroundColor: color.surface.card,
   },
-  stripCardOn: { borderColor: color.action.outline },
+  // 테두리 색은 «그날의 색» 이라 스타일에 못 적는다 — 그리는 자리에서 넣는다.
+  stripCardOn: {},
   stripTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   // 카드와 카드 사이 — 위에 이동 시간, 아래 점선.
   // 🔴 `alignSelf: 'center'` 가 있어야 카드 «높이의 가운데» 에 온다. 스트립이
@@ -739,15 +801,24 @@ const styles = StyleSheet.create({
     position: 'absolute', left: spacing[4], right: spacing[4],
     alignSelf: 'center', overflow: 'hidden',
     borderRadius: radius.lg, backgroundColor: color.surface.card,
-    shadowColor: color.brand.navy, shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 8,
+    // 🔴 그림자는 **위로** 향한다(offset -2). 이 막대는 화면 아래에 «떠» 있어서 빛을
+    //    위에서 받는다 — 아래로 드리우면 잘린 화면 밖으로 지고 떠 보이지 않는다.
+    //    값은 탭바의 것과 같다(시안: "TabBar 와 동일"). 코스 바가 탭바를 대신 서기 때문이다.
+    shadowColor: color.brand.navy, shadowOpacity: 0.10, shadowRadius: 14, shadowOffset: { width: 0, height: -2 }, elevation: 8,
     zIndex: 30,
+  },
+  // 겹쳐 두는 두 벌 — 같은 자리를 차지해야 바꿔 흐릴 때 글자가 안 움직인다.
+  barLayer: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    flexDirection: 'row', alignItems: 'center', gap: spacing[3],
+    paddingLeft: spacing[4], paddingRight: spacing[2],
   },
   barRow: {
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     flexDirection: 'row', alignItems: 'center', gap: spacing[3],
     paddingLeft: spacing[4], paddingRight: spacing[2],
   },
-  sheet: { padding: spacing[3], paddingBottom: spacing[4], gap: spacing[2] },
+  sheet: { padding: spacing[3], paddingBottom: spacing[4], gap: spacing[3] },
   handleHit: { height: 20, alignItems: 'center', justifyContent: 'center' },
   handle: { width: 36, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
   // 🔴 `minHeight: 0` 이 없으면 flex 자식이 내용만큼 부풀어 목록을 시트 밖으로 민다.
