@@ -10,6 +10,8 @@ import { useHomeWeather } from '@/home/useHomeData';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_CODES, LANGUAGE_OPTIONS } from '@/i18n/languages';
+
+const bellIcon = require('../../assets/icons/home/bell.png');
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { txf } from '@/i18n/format';
 
@@ -100,6 +102,10 @@ export function TopNav() {
         );
       })}
       <View style={styles.utilDivider} />
+      {/* 알림 종 — 폰 홈과 같은 자리(오른쪽 위). 넓은 화면에는 없어서 알림에 갈 길이 없었다(2026-09-21 지적, S15P21E201-1390). */}
+      <Pressable accessibilityRole="link" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={styles.utilBell}>
+        <Image source={bellIcon} resizeMode="contain" style={styles.utilBellIcon} />
+      </Pressable>
       {signedOut ? (
         <>
           <Pressable accessibilityRole="link" onPress={() => router.push('/sign-in')} style={styles.utilTouch}>
@@ -162,6 +168,8 @@ const styles = StyleSheet.create({
   utilBar: { height: UTIL_HEIGHT, paddingHorizontal: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: spacing[3], backgroundColor: color.surface.soft },
   utilItem: { flexDirection: 'row', alignItems: 'center' },
   utilTouch: { height: UTIL_HEIGHT, justifyContent: 'center', paddingHorizontal: spacing[1] },
+  utilBell: { height: UTIL_HEIGHT, width: 32, alignItems: 'center', justifyContent: 'center' },
+  utilBellIcon: { width: 18, height: 18 },
   utilName: { maxWidth: 160 },
   utilDivider: { width: 1, height: 14, backgroundColor: color.surface.field },
 

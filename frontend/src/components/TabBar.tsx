@@ -192,7 +192,7 @@ export function TabBar({
               if (tab.route) router.replace(tab.route);
             }}
           >
-            {selected && <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.activeMarker} />}
+            {/* 현재 탭 표시는 굵은 글자 + 진한 아이콘뿐이다. 글자 밑의 붉은 점은 글자를 가렸다(2026-09-21 지적, S15P21E201-1390). */}
             <View style={[styles.iconWrap, tab.key === 'schedule' && styles.createIconWrap]}><Image source={tab.icon} resizeMode="contain" style={[styles.icon, tab.key !== 'schedule' && (selected ? styles.iconSelected : styles.iconInactive)]} /></View>
             <Text variant="micro" weight={selected ? 'bold' : 'regular'} color={selected ? color.text.heading : color.text.inactiveTab}>
               {tx(tab.labelKo, tab.labelEn)}
@@ -259,7 +259,6 @@ const styles = StyleSheet.create({
   // 🔴 위의 막대에서 **아래의 점**으로 바뀌었다 (S15P21E201-1343). 빨강의 자리를 「채움」이
   //    아니라 「점·선·글자」로 옮기는 규칙을 따른다 — 탭은 글자가 이미 검정으로 굵어지므로
   //    표시는 점 하나면 된다.
-  activeMarker: { position: 'absolute', bottom: 0, width: 5, height: 5, borderRadius: 999, backgroundColor: color.state.dot },
   iconWrap: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   createIconWrap: { width: 32, height: 32, borderRadius: 16, backgroundColor: color.action.primary },
   icon: { width: 20, height: 20 },
