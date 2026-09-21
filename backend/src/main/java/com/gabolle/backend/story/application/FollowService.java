@@ -103,14 +103,17 @@ public class FollowService {
 	@Transactional(readOnly = true)
 	public UserProfileResponse profile(UUID viewer, UUID target) {
 		AppUser user = requireActiveUser(target);
-		boolean me = viewer.equals(target);
-		boolean blockedByUser = !me && this.userBlockRepository.isBlockedBy(target, viewer);
+		// 🔴 viewer 가 null 일 수 있다 — 로그인하지 않은 사람이 작성자 이름을 누른 경우다
+		//    (S15P21E201-1373). 그 사람과는 «관계가 없다» — 나도 아니고, 차단도 팔로우도 없다.
+		boolean me = viewer != null && viewer.equals(target);
+		boolean blockedByUser = viewer != null && !me && this.userBlockRepository.isBlockedBy(target, viewer);
 		if (blockedByUser) {
 			return new UserProfileResponse(target.toString(), user.getDisplayName(), 0L, 0L, 0L, false, false,
 					user.getAvatarUrl(), this.userBlockRepository.hasBlocked(viewer, target), true);
 		}
-		boolean following = !me && this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, target));
-		boolean blocked = !me && this.userBlockRepository.hasBlocked(viewer, target);
+		boolean following = viewer != null && !me
+				&& this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, target));
+		boolean blocked = viewer != null && !me && this.userBlockRepository.hasBlocked(viewer, target);
 		long stories = this.storyRepository.countAuthorStories(target, this.storyService.visibleScopesOf(target, viewer),
 				this.clock.instant());
 		return new UserProfileResponse(target.toString(), user.getDisplayName(),

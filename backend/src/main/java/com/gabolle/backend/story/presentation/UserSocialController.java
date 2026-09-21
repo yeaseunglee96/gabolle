@@ -73,9 +73,19 @@ public class UserSocialController {
 		return ApiResponse.success(this.blockService.unblock(me, userId), requestId());
 	}
 
+	/**
+	 * 🔴 <b>읽기는 로그인 없이 연다 — S15P21E201-1373.</b>
+	 *
+	 * <p>피드와 기록 상세는 이미 익명에게 열려 있는데(974·995) 작성자 이름을 누르면 401 이었다.
+	 * 「누가 썼는지 보려면 가입하라」는 것은 이 앱이 하려는 말이 아니다 — 여행 전에 둘러보는
+	 * 사람이 가장 먼저 하는 일이 그것이다. 2026-09-21 배포본 실측(jinmiri).
+	 *
+	 * <p>여는 것은 <b>읽기뿐</b>이다. 팔로우·차단은 아래 그대로 {@code requireId} 를 쓴다.
+	 * 관계가 없는 사람에게는 팔로우 여부도 차단 여부도 모두 거짓으로 나간다.
+	 */
 	@GetMapping("/profile")
 	public ApiResponse<UserProfileResponse> profile(@PathVariable UUID userId, Authentication authentication) {
-		UUID viewer = AuthenticatedUsers.requireId(authentication);
+		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
 		return ApiResponse.success(this.followService.profile(viewer, userId), requestId());
 	}
 
@@ -84,7 +94,9 @@ public class UserSocialController {
 			@RequestParam(value = "cursor", required = false) String cursor,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			Authentication authentication) {
-		UUID viewer = AuthenticatedUsers.requireId(authentication);
+		// 🔴 읽기라서 연다(S15P21E201-1373). 익명에게는 공개 기록만 나간다 —
+		//    StoryService.visibleScopesOf 가 viewer 가 없으면 «남»으로 판정한다.
+		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
 		return ApiResponse.success(this.feedService.authorFeed(viewer, userId, cursor, limit), requestId());
 	}
 

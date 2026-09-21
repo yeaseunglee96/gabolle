@@ -59,7 +59,10 @@ public class PlaceReviewController {
 	public ApiResponse<PlaceReviewListResponse> list(@PathVariable UUID placeId, Authentication authentication,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 
-		UUID userId = AuthenticatedUsers.requireId(authentication);
+		// 🔴 읽기는 로그인 없이 연다 — S15P21E201-1373. 장소 상세는 이미 익명에게
+		//    열려 있는데 그 안의 리뷰만 401 이었다. 쓰기(POST)는 아래 그대로 로그인이 필요하다.
+		//    viewer 가 없으면 «내가 쓴 리뷰» 표시가 전부 거짓으로 나간다(Objects.equals 가 그렇게 한다).
+		UUID userId = AuthenticatedUsers.optionalId(authentication).orElse(null);
 		PlaceReviewService.ListResult result = this.placeReviewService.list(placeId);
 		return ApiResponse.success(PlaceReviewListResponse.from(result, userId), resolveRequestId(requestId));
 	}
