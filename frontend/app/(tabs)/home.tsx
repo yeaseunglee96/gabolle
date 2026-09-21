@@ -30,11 +30,8 @@ import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
-import { WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
 import { hasUnseen, loadActivityFeed, loadSeenAt } from '@/notifications/activityFeed';
 import { useFocusEffect } from 'expo-router';
-import { LANGUAGE_OPTIONS } from '@/i18n/languages';
-import Svg, { Circle, Path } from 'react-native-svg';
 import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
@@ -46,9 +43,16 @@ const heartIcon = require('../../assets/icons/home/heart.png');
  */
 const MOBILE_CARD = 160;
 
+/** 「21° / 28°」 — 최저·최고가 다 있으면 둘, 하나뿐이면 그것만. */
+function weatherTemperatureText(weather: { minTemperature: number | null; maxTemperature: number | null }): string {
+  return weather.minTemperature !== null && weather.maxTemperature !== null
+    ? `${Math.round(weather.minTemperature)}° / ${Math.round(weather.maxTemperature)}°`
+    : `${Math.round((weather.maxTemperature ?? weather.minTemperature) as number)}°`;
+}
+
 export default function Home() {
   const router = useRouter();
-  const { tx, language } = useI18n();
+  const { tx } = useI18n();
   const { accessToken, user } = useAuth();
   const { draft: planDraft, update: updatePlan } = usePlan();
   // 여행 조건 모달. 로그인 후 홈 첫 진입에 한 번, 그리고
@@ -57,9 +61,8 @@ export default function Home() {
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'lg');
-  const { hydrated, hasEnteredApp, markEnteredApp, setLanguage } = useOnboardingPreferences();
+  const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
   // 시안 5 Home 의 「⊕ 한국어」 — 외국인이 홈에서 바로 언어를 바꾼다(S15P21E201-1372). 첫 화면의 언어 시트를 그대로 쓴다.
-  const [langOpen, setLangOpen] = useState(false);
   // 안 본 알림이 있으면 종에 점 — 여행 활동을 마지막으로 본 시각과 견준다(S15P21E201-1380). 화면에 돌아올 때마다 다시 본다.
   const [bellDot, setBellDot] = useState(false);
   useFocusEffect(useCallback(() => {
@@ -72,7 +75,6 @@ export default function Home() {
     return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.userId, accessToken]));
-  const langLabel = LANGUAGE_OPTIONS.find((item) => item.code === language)?.endonym ?? '한국어';
   const home = useHomeData(!desktop);
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
   const saved = useSavedPlaces(accessToken, 'home-mobile');
@@ -198,22 +200,17 @@ export default function Home() {
         <View style={styles.header}>
           <BrandLogoLink href="/home" imageStyle={styles.logo} />
           <View style={styles.headerRight}>
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('앱 언어 바꾸기', 'Change app language')} onPress={() => setLangOpen(true)} style={({ pressed }) => [styles.langPill, pressed && styles.pressed]}>
-              <GlobeGlyph />
-              <Text variant="caption" weight="bold" color={color.text.heading}>{langLabel}</Text>
-            </Pressable>
+            {/* 🔴 폰 머리에 언어 알약을 두지 않는다 — S15P21E201-1402 · 1408. 로고·언어·날씨·종 넷이 폰 폭
+                (360~411)에 안 들어가 종이 화면 밖으로 밀려났다. 시안 5 Home 도 로고·날씨·종 셋이다.
+                언어는 첫 화면과 마이페이지 설정 「앱 언어」(AppLanguageSetting)에서 바꾼다. */}
             {signedIn ? (
               <>
                 {weather && (weather.maxTemperature !== null || weather.minTemperature !== null) ? (
                   <View style={styles.weatherChip}>
-                    <Text variant="caption" weight="bold">
+                    <Text variant="caption" weight="bold" numberOfLines={1} style={styles.weatherWord}>
                       {weather.skyCondition === 'CLEAR' ? tx('맑음', 'Clear') : weather.skyCondition === 'CLOUDY' ? tx('흐림', 'Cloudy') : tx('구름 조금', 'Partly cloudy')}
                     </Text>
-                    <Text variant="caption">
-                      {weather.minTemperature !== null && weather.maxTemperature !== null
-                        ? `${Math.round(weather.minTemperature)}° / ${Math.round(weather.maxTemperature)}°`
-                        : `${Math.round((weather.maxTemperature ?? weather.minTemperature) as number)}°`}
-                    </Text>
+                    <Text variant="caption" numberOfLines={1} style={styles.weatherTemp}>{weatherTemperatureText(weather)}</Text>
                   </View>
                 ) : null}
                 {/* 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
@@ -233,7 +230,6 @@ export default function Home() {
           </View>
         </View>
 
-        <WelcomeLanguageSheet visible={langOpen} language={language} onSelect={setLanguage} onClose={() => setLangOpen(false)} onStart={() => setLangOpen(false)} />
 
         {/* 동백이 첫 여행 체크리스트 — 온보딩을 거친 사람, 로그인한 뒤, 셋 다 하기 전까지. */}
         {signedIn && checklist ? <FirstTripChecklist state={checklist} hasTrip={Boolean(home.trip)} onDismiss={() => { setChecklist({ ...checklist, dismissed: true }); void dismissChecklist(); }} /> : null}
@@ -361,15 +357,6 @@ export default function Home() {
 
 const CARD_WIDTH = 240;
 
-function GlobeGlyph() {
-  return (
-    <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-      <Circle cx={12} cy={12} r={8.5} stroke={color.text.heading} strokeWidth={1.9} />
-      <Path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17" stroke={color.text.heading} strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" />
-    </Svg>
-  );
-}
-
 const styles = StyleSheet.create({
   shell: { flex: 1, backgroundColor: color.canvas },
   screenContent: { paddingHorizontal: 0, paddingTop: 0 },
@@ -377,17 +364,20 @@ const styles = StyleSheet.create({
 
   header: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[6], paddingTop: spacing[4] },
   logo: { width: 143, height: 26 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  // 🔴 flexShrink/minWidth 가 «장식이 아니다». 이 줄(headerRight)은 언어 알약·날씨 칩·종이
-  //    나란히 서는데, 한국어 날씨는 「구름 조금 21° / 28°」처럼 길어서 줄이 넘친다.
-  //    React Native 의 flex 자식은 기본값이 flexShrink:1 이라, 넘치면 «고정폭인 종이» 줄어든다 —
-  //    실기(SM-G973N, 1080px, versionCode 27)에서 종이 폭 4px 로 찌부러져 사실상 사라졌다.
-  //    줄어들 쪽은 글자가 든 날씨 칩이고, 종은 줄어들면 안 된다.
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexShrink: 1, minWidth: 0, marginLeft: spacing[2] },
+  // 🔴 머리줄은 [로고][headerRight = 날씨 칩 · 종] 이다(손님이면 로그인 알약 · 종).
+  //    React Native(Yoga)와 react-native-web 은 flexShrink 기본값이 «0» 이다(CSS 의 1 과 다르다).
+  //    그래서 줄이 넘치면 아무것도 줄지 않고, 맨 끝의 종이 화면 오른쪽 «밖으로» 밀려난다 —
+  //    실기(SM-G973N, versionCode 27)에서 종의 경계가 [1076,154][1080,270], 화면에 걸친 4px 이었다.
+  //    그때는 언어 알약까지 넷이 서 있었다. 알약을 빼고(S15P21E201-1402 · 1408), 그래도 모자란 폭에
+  //    대비해 headerRight 가 로고 옆 남은 폭에 맞춰 줄고(flexShrink:1 + minWidth:0) 그 안에서 날씨 칩이
+  //    준다. 칩 안에서는 날씨 낱말이 말줄임되고 기온은 남는다. 종은 줄지 않는다(flexShrink:0).
   weatherChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], height: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft, flexShrink: 1, minWidth: 0 },
+  weatherWord: { flexShrink: 1, minWidth: 0 },
+  weatherTemp: { flexShrink: 0 },
   bell: { width: 44, height: 44, flexShrink: 0, alignItems: 'center', justifyContent: 'center' },
   bellDot: { position: 'absolute', top: 9, right: 9, width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.action.outline, borderWidth: 1.5, borderColor: color.canvas },
   bellIcon: { width: 20, height: 20 },
-  langPill: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, flexShrink: 0, paddingHorizontal: 12, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   loginPill: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
 
   hero: { gap: spacing[3], paddingHorizontal: spacing[6], paddingTop: spacing[6] },
