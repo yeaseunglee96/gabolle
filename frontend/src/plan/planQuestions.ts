@@ -2,6 +2,7 @@
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p1.
 
 import type { PlanDraft } from '@/plan/PlanProvider';
+import { timeToMinutes } from '@/plan/tripBasics';
 
 export type QuestionKey =
   | 'areas' | 'budget' | 'move' | 'cats' | 'pace'
@@ -18,6 +19,21 @@ export type PlanQuestion = {
   /** 이 질문에 답한 것으로 볼 조건. */
   answered: (draft: PlanDraft) => boolean;
 };
+
+/**
+ * 하루 시간대가 쓸 수 있는 값인가. 문제가 없으면 null.
+ *
+ * 🔴 **화면과 통과 조건이 이 함수 하나를 같이 쓴다.** 「넘어가도 되나」와 「무엇이
+ *    틀렸다고 적나」가 서로 다른 판정을 쓰면, 넘어가지는 않는데 이유는 안 뜨는 화면이 된다.
+ */
+export function dayWindowIssue(draft: Pick<PlanDraft, 'dayStartTime' | 'dayEndTime'>): 'FORMAT' | 'ORDER' | null {
+  const start = timeToMinutes(draft.dayStartTime);
+  const end = timeToMinutes(draft.dayEndTime);
+  if (Number.isNaN(start) || Number.isNaN(end)) return 'FORMAT';
+  // 끝이 시작보다 이르거나 같으면 하루가 안 된다. 서버는 이것을 안 막는다(1453).
+  if (end <= start) return 'ORDER';
+  return null;
+}
 
 export const PLAN_QUESTIONS: PlanQuestion[] = [
   {
@@ -39,7 +55,10 @@ export const PLAN_QUESTIONS: PlanQuestion[] = [
     hintKo: '몇 시부터 몇 시까지 다닐지, 무엇으로 이동할지 알려 주세요.',
     hintEn: 'When you want to be out, and how you will get around.',
     skippable: false,
-    answered: (draft) => Boolean(draft.transport),
+    // 🔴 여기가 `Boolean(draft.transport)` 뿐이었다 — **이동수단만 보고 시각은 안 봤다.**
+    //    그래서 「0800」처럼 못 읽는 값을 넣고도 다음으로 넘어갔고, 서버는 그것을 시간
+    //    범위가 아니라 프리셋 이름으로 오해해 **조용히 버렸다**(S15P21E201-1452·1453).
+    answered: (draft) => Boolean(draft.transport) && dayWindowIssue(draft) === null,
   },
   {
     key: 'cats', ko: '여행 카테고리', en: 'Trip categories',
