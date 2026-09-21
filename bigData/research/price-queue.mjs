@@ -109,7 +109,13 @@ function buildPrompt(t) {
 ## descriptors — 정확히 이 일곱 칸만
 
 yearsClaimed(숫자) · generations(숫자) · queueing(불리언) · parking(불리언) ·
-audience(문자) · signatureDishes(배열) · priceBand(cheap/mid/high)`;
+audience(문자) · signatureDishes(배열) · priceBand(cheap/mid/high)
+
+## 🔴 검색은 최대 3~4번 안에서 끝낸다
+
+찾다가 안 나오는 항목에 검색을 계속 쏟지 마라. 3~4번 검색해도 안 나오면 그 항목만
+found:false 로 넘기고 다음으로 간다 — 완벽하게 채우는 것보다 **적당히 찾고 빨리
+끝내는 게 낫다.**`;
 }
 
 async function callAgy(t, timeoutMs) {
@@ -117,7 +123,9 @@ async function callAgy(t, timeoutMs) {
   return new Promise((resolve) => {
     execFile(
       "agy",
-      ["--model", "gemini-3.8-flash-low", "--dangerously-skip-permissions", `-p=${prompt}`, "--json-schema", SCHEMA, "--output-format", "json"],
+      // 🔴 effort low — 1부(narrative 조사) 실측에서 토큰 -22%·시간 -41%, 되찾음률은
+      // 거의 그대로였다(인수인계 문서 1.6절). 지금까지는 이 옵션을 빼먹고 돌리고 있었다.
+      ["--model", "gemini-3.8-flash-low", "--effort", "low", "--dangerously-skip-permissions", `-p=${prompt}`, "--json-schema", SCHEMA, "--output-format", "json"],
       { maxBuffer: 16 << 20, timeout: timeoutMs },
       (err, stdout) => {
         if (err) return resolve({ ok: false, err: String(err.message || err).slice(0, 300) });
@@ -132,18 +140,21 @@ async function callAgy(t, timeoutMs) {
   });
 }
 
+/**
+ * 🔴 재시도를 이 함수 안에서 바로 하지 않는다 — 예전엔 타임아웃(150s) 나면 그 자리에서
+ * 180s 로 한 번 더 돌렸는데, agy 는 이어하기가 아니라 **처음부터 다시 검색**하므로
+ * 실패한 곳이 통째로 2배 비용을 문다(실측: 재시도로 살아난 9곳 평균 190k토큰, 전체
+ * 평균 135k토큰). 체크포인트가 이미 `found:null` 을 "안 끝난 것"으로 보고 **다음
+ * 실행에서 자동으로 다시 줍는다** — 그러니 여기서 즉시 재시도할 필요가 없다. 시간을
+ * 넉넉히(220s) 주고 한 번만 시도한다.
+ */
 async function runOne(t) {
-  let r = await callAgy(t, 150000);
-  let attempts = 1;
-  if (!r.ok) {
-    r = await callAgy(t, 180000); // 한 번 더 — 타임아웃·일시 오류 재시도
-    attempts = 2;
-  }
+  const r = await callAgy(t, 220000);
   const out = r.ok
-    ? { id: t.id, name: t.name, cat: t.cat, attempts, geminiTokens: r.geminiTokens,
+    ? { id: t.id, name: t.name, cat: t.cat, attempts: 1, geminiTokens: r.geminiTokens,
         researchedAt: new Date().toISOString(), ...r.structured }
-    : { id: t.id, name: t.name, cat: t.cat, found: null, error: r.err, attempts,
-        researchedAt: new Date().toISOString() }; // found:null = 조사 실패(못 찾음이 아니라 확인 못 함)
+    : { id: t.id, name: t.name, cat: t.cat, found: null, error: r.err, attempts: 1,
+        researchedAt: new Date().toISOString() }; // found:null = 조사 실패(못 찾음이 아니라 확인 못 함) — 다음 실행에서 재시도
   fs.writeFileSync(path.join(RESULTS_DIR, `${t.id}.json`), JSON.stringify(out, null, 2));
   return out;
 }
