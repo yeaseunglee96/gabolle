@@ -3,11 +3,15 @@ package com.gabolle.backend.place.loader;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,15 +36,23 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  *
  * <p>사진은 저작권 유형이 자유 이용인 것만 넣는다 — {@link #FREE_TO_USE_COPYRIGHT_TYPE} 참고.
  *
- * <p>갈래가 없는 장소도 넣는다. 갈래로는 안 나오지만 장소로는 존재해서 숙소 지정과 필수
- * 방문지 지정에 쓸 수 있다.
+ * <p>갈래가 없는 장소도 넣는다. 갈래로는 안 나오지만 장소로는 존재해서 필수 방문지 지정에
+ * 쓸 수 있다.
  *
  * <p>이미 있는 장소는 건너뛰고 고치지 않는다. 같은 파일을 두 번 돌려도 행이 두 배가 되지 않게
  * 하는 것이 여기서 지키는 전부고, 갱신은 별개의 결정이다.
+ *
+ * <p>🔴 예외가 하나 있다 — <b>비어 있는 갈래는 채운다</b> ({@link Place#fillMissingCategory}).
+ * 건너뛰기만 하면 적재 규칙이 바뀌어도 먼저 들어온 행은 영영 안 따라온다. 2026-09-21 에 숙박
+ * 65곳이 그랬다 (S15P21E201-1383) — 갈래를 비우기로 한 결정을 뒤집었는데, 자료를 다시 돌려도
+ * 「이미 있음」으로 건너뛰어 화면은 그대로 0곳이었다. 채우는 것은 「모름 → 앎」 한 방향뿐이고
+ * 이미 있는 값은 안 덮는다.
  */
 @Component
 @Profile({ "db", "dev" })
 public class TourApiPlaceLoader {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TourApiPlaceLoader.class);
 
 	/** 출처. {@code place.source_type} 과 {@code place_feature.source_type} 에 같이 들어간다. */
 	public static final String SOURCE_TYPE = "TOURAPI";
@@ -69,24 +81,40 @@ public class TourApiPlaceLoader {
 	}
 
 	/**
-	 * 한 덩어리를 넣고 실제로 넣은 장소 수를 돌려준다. {@code datasetVersion} 이 없으면 이
-	 * 장소로 만든 추천이 {@code VERSION_UNRESOLVED} 로 실패한다.
+	 * 한 덩어리를 넣고 <b>새로 넣은</b> 장소 수를 돌려준다. 이미 있던 장소의 빈 갈래를 채운 것은
+	 * 이 수에 안 들어간다 — 넣은 것과 고친 것을 한 숫자로 합치면 무엇이 일어났는지 알 수 없다.
+	 * 채운 수는 로그로 남긴다. {@code datasetVersion} 이 없으면 이 장소로 만든 추천이
+	 * {@code VERSION_UNRESOLVED} 로 실패한다.
 	 */
 	@Transactional
 	public int saveChunk(List<TourApiPlaceRow> rows, String datasetVersion, OffsetDateTime collectedAt) {
 		List<UUID> ids = rows.stream().map(row -> placeIdOf(row.contentId())).toList();
-		Set<UUID> existing = new HashSet<>();
-		this.placeRepository.findAllById(ids).forEach(place -> existing.add(place.getPlaceId()));
+		Map<UUID, Place> alreadyInDb = new HashMap<>();
+		this.placeRepository.findAllById(ids).forEach(place -> alreadyInDb.put(place.getPlaceId(), place));
 
 		List<Place> places = new ArrayList<>(rows.size());
 		List<PlaceFeature> features = new ArrayList<>(rows.size());
+		Set<UUID> seenInThisChunk = new HashSet<>();
+		int categoriesFilled = 0;
 		for (TourApiPlaceRow row : rows) {
 			UUID placeId = placeIdOf(row.contentId());
-			if (!existing.add(placeId)) {
-				// 이미 있거나(DB) 이 덩어리 안에서 중복된 contentid 다.
+			if (!seenInThisChunk.add(placeId)) {
+				// 이 덩어리 안에서 중복된 contentid 다.
 				continue;
 			}
 			String category = TourApiCategory.of(row.contentId(), row.cat1(), row.cat3());
+
+			Place inDb = alreadyInDb.get(placeId);
+			if (inDb != null) {
+				// 이미 있는 장소는 고치지 않는다. 딱 하나, 비어 있는 갈래만 채운다.
+				// 트랜잭션 안에서 읽은 엔티티라 값만 바꾸면 반영된다 — saveAll 이 따로 필요 없다.
+				if (category != null && inDb.fillMissingCategory(category)) {
+					categoriesFilled++;
+					features.add(feature(placeId, row.contentId(), "CATEGORY_TAG", category,
+							collectedAt, datasetVersion));
+				}
+				continue;
+			}
 			boolean freeToUsePhoto = row.firstImage() != null
 					&& FREE_TO_USE_COPYRIGHT_TYPE.equals(row.copyrightType());
 			places.add(Place.imported(placeId, cut(row.title(), NAME_MAX), category,
@@ -106,7 +134,11 @@ public class TourApiPlaceLoader {
 						collectedAt, datasetVersion));
 			}
 		}
-		if (places.isEmpty()) {
+		if (categoriesFilled > 0) {
+			// 새로 넣은 수와 따로 남긴다. 합쳐 놓으면 "몇 곳이 살아났나" 를 나중에 못 되짚는다.
+			LOGGER.info("이미 있던 장소 {}곳의 비어 있던 갈래를 채웠다", categoriesFilled);
+		}
+		if (places.isEmpty() && features.isEmpty()) {
 			return 0;
 		}
 		this.placeRepository.saveAll(places);
