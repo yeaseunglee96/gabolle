@@ -44,7 +44,7 @@ export default function Chat() {
   const router = useRouter(); const { update } = usePlan();
   const { accessToken } = useAuth();
   const { width } = useLayout();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const desktop = isAtLeast(width, 'md');
   const [input, setInput] = useState('');
   // 인사말은 언어 환경설정이 뒤늦게 준비돼도 반영돼야 해서 state 초깃값(마운트 시 한 번만 평가됨)에
@@ -91,7 +91,7 @@ export default function Chat() {
     setPending(true);
     try {
       const action = accessToken
-        ? await askAssistant(content, accessToken, history).catch(() => understandAssistantMessage(content))
+        ? await askAssistant(content, accessToken, history, language).catch(() => understandAssistantMessage(content))
         : understandAssistantMessage(content);
       setMessages((current) => [...current, { id: assistantId, role: 'assistant', text: action.reply, action }]);
     } finally {
