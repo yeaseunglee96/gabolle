@@ -154,18 +154,6 @@ export default function TasteProfileScreen() {
     advanceTimer.current = setTimeout(() => goNext(next, index), ADVANCE_MS);
   };
 
-  // 건너뛰기는 그 답을 지운다. 앞 단계로 돌아가 건너뛰면 아까 고른 값이 남아 있으면
-  // 안 된다 — 화면은 건너뛴 것으로 보이는데 저장은 되는 일이 생긴다.
-  const skipQuestion = (key: TasteKey, index: number) => {
-    const next = { ...answers };
-    delete next[key];
-    setAnswers(next);
-    // 음식은 고르는 중간 상태를 따로 들고 있다. 그것도 같이 비워야 한다 — 안 그러면
-    // 「이전」으로 돌아왔을 때 칩은 골라진 채인데 답은 지워진, 서로 안 맞는 화면이 된다.
-    if (key === 'foods') setFoodDraft([]);
-    goNext(next, index);
-  };
-
   if (checking) {
     return <Screen style={styles.centerScreen}><ActivityIndicator color={color.action.primary} /></Screen>;
   }
@@ -190,16 +178,6 @@ export default function TasteProfileScreen() {
 
   const question = TASTE_QUESTIONS[step];
 
-  const skipLink = <Pressable
-    accessibilityRole="button"
-    accessibilityLabel={tx(question.skip.ko, question.skip.en)}
-    disabled={submitting}
-    onPress={() => skipQuestion(question.key, step)}
-    style={styles.skipQuestion}
-  >
-    <Text weight="bold" color={color.text.muted}>{tx(question.skip.ko, question.skip.en)}</Text>
-  </Pressable>;
-
   const backLink = step > 0
     ? <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 질문으로', 'Previous question')} disabled={submitting} onPress={() => setStep(step - 1)} style={styles.backLink}>
         <Text weight="bold" color={color.brand.navy}>{tx('‹ 이전', '‹ Back')}</Text>
@@ -213,9 +191,7 @@ export default function TasteProfileScreen() {
       <View style={styles.stepPill}>
         <Text variant="caption" weight="bold" color={color.text.onAction}>{`${step + 1} / ${TASTE_QUESTIONS.length}`}</Text>
       </View>
-      <Pressable accessibilityRole="button" accessibilityLabel={tx('전체 건너뛰기', 'Skip all')} disabled={submitting} onPress={() => void finish(answers)} style={styles.skipAll}>
-        <Text variant="caption" weight="bold" color={color.text.muted}>{tx('전체 건너뛰기', 'Skip all')}</Text>
-      </Pressable>
+      <View style={styles.topBarSpacer} />
     </View>
 
     <Dots step={step} settled={settled} />
@@ -225,9 +201,9 @@ export default function TasteProfileScreen() {
     */}
     <View style={wide ? styles.card : undefined}>
       {step === 0 && <View style={styles.heading}>
-        <Text variant="display" weight="bold">{tx('여행 취향을 5개만 여쭤볼게요', 'Just 5 questions about your travel taste')}</Text>
-        <Text color={color.text.body}>{tx('보통 어떤 여행을 좋아하시는지 알면 추천 순서가 달라져요. 건너뛰셔도 돼요.',
-          'Knowing what you usually enjoy changes the order of our recommendations. Feel free to skip.')}</Text>
+        <Text variant="display" weight="bold">{tx('여행 취향을 4개만 여쭤볼게요', 'Just 4 questions about your travel taste')}</Text>
+        <Text color={color.text.body}>{tx('보통 어떤 여행을 좋아하시는지 알면 추천 순서가 달라져요. 마이페이지에서 언제든 바꿀 수 있어요.',
+          'Knowing what you usually enjoy changes the order of our recommendations. You can change these any time in My page.')}</Text>
       </View>}
 
       <Text variant="title" weight="bold" style={styles.question}>{tx(question.title.ko, question.title.en)}</Text>
@@ -270,10 +246,8 @@ export default function TasteProfileScreen() {
       {/* 넓은 화면에서는 「이전」과 「건너뛰기」가 카드 안 같은 줄에 있다. 폰에서는
           건너뛰기가 문항 바로 아래(엄지가 닿는 자리), 이전은 맨 아래다.
       */}
-      {wide && <View style={styles.cardFooter}>{backLink}{skipLink}</View>}
+      {wide && <View style={styles.cardFooter}>{backLink}<Text variant="caption" color={color.text.muted}>{`${step + 1} / ${TASTE_QUESTIONS.length}`}</Text></View>}
     </View>
-
-    {!wide && skipLink}
 
     <View style={styles.footer}>
       {!wide && backLink}
@@ -296,7 +270,7 @@ const styles = StyleSheet.create({
   topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
   logo: { width: 132, height: 24 },
   stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
-  skipAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
+  topBarSpacer: { width: 88 },
   dots: { flexDirection: 'row', gap: 6, marginTop: spacing[3] },
   dot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
   dotCurrent: { backgroundColor: color.action.secondary },
@@ -323,7 +297,6 @@ const styles = StyleSheet.create({
   optionDesktop: { flex: 1, minHeight: 80, borderRadius: radius.md },
   optionPressed: { borderColor: color.action.secondary, backgroundColor: color.surface.tint },
   optionDesc: { lineHeight: 18 },
-  skipQuestion: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: spacing[4] },
   footer: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[4] },
   backLink: { minHeight: 44, justifyContent: 'center' },
   doneBody: { alignItems: 'center', gap: spacing[3], marginTop: spacing[8] },

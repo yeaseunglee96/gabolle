@@ -30,8 +30,9 @@ const KEY_BY_DIMENSION: Record<string, TasteKey | undefined> = Object.fromEntrie
   Object.entries(DIMENSION).map(([key, dimension]) => [dimension, key as TasteKey]),
 );
 
-/** 화면에 나오는 순서. 온보딩 단계 번호가 이 순서다. */
-export const TASTE_KEYS: TasteKey[] = ['locality', 'quiet', 'tourist', 'foods', 'slope'];
+/** 화면에 나오는 순서. 온보딩 단계 번호가 이 순서다. 관광지(tourist)는 로컬성과 같은
+ * 축이라 문항에서 뺐다 — 관광지↔동네 취향은 로컬성 하나로 잰다(S15P21E201-1423). */
+export const TASTE_KEYS: TasteKey[] = ['locality', 'quiet', 'foods', 'slope'];
 
 // ── 문항 ────────────────────────────────────────────────────────────────────
 
@@ -56,12 +57,6 @@ export const TASTE_QUESTIONS: TasteQuestion[] = [
     title: { ko: '보통 조용한 곳을 얼마나 찾으세요?', en: 'How much do you usually seek out quiet places?' },
     low: { ko: '상관없음', en: 'No preference' },
     high: { ko: '매우 선호', en: 'Strongly prefer' },
-  },
-  {
-    key: 'tourist', kind: 'scale', skip: NOT_SURE,
-    title: { ko: '보통 숨은 곳과 대표 관광지 중 어느 쪽이세요?', en: 'Hidden gems or famous spots — which is usually you?' },
-    low: { ko: '숨은 곳', en: 'Hidden gems' },
-    high: { ko: '대표 관광지', en: 'Famous spots' },
   },
   {
     key: 'foods', kind: 'multi',
