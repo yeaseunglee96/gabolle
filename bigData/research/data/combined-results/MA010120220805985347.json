@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220805985347",
+  "name": "룸606",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 40869,
+  "researchedAt": "2026-09-21T22:00:21.230Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심 브런치 시간대(12시 전후)와 저녁 피크 타임에 대기가 발생하는 편이다."
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임, 브런치 고객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "베이컨 까르보나라",
+      "스테이크",
+      "에그 베네딕트",
+      "눈꽃 피자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30~21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "명지국제신도시 인근 주민들의 가족 외식, 브런치 및 프라이빗 단체 모임 중심 방문"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 명지국제신도시에 위치한 경양식/브런치 레스토랑으로 룸 좌석 구비 및 가족·단체 모임에 최적화된 공간을 제공함.",
+  "price": {
+    "found": true,
+    "priceMenu": "1인당 예상 예산 약 20,000원 대 (파스타, 브런치, 스테이크 등)",
+    "priceWon": 20000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "룸606 명지국제본점: 부산광역시 강서구 명지국제6로 316 1층. 브런치부터 디너까지 즐길 수 있는 곳으로, 대표 메뉴는 베이컨 까르보나라와 스테이크입니다. 공간이 넓고 별도의 룸 좌석이 마련되어 있어 가족 외식이나 단체 모임에 적합하다는 평가를 받습니다. 매일 10:30~21:00 운영합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "가게 뒷편에 주차장을 이용할 수 있습니다. 점심 브런치 시간대(12시 전후)와 저녁 피크 타임에는 대기가 잦은 편입니다. 원활한 이용을 위해 방문 전 전화로 확인하거나 예약을 하는 것을 추천합니다. 특히 아동 동반 시 미리 예약하면 관련 세팅(아기의자, 식판 등)을 준비해 줍니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "파스타(감바스 파스타, 투움바 파스타 등), 눈꽃 피자, 에그 베네딕트, 스테이크 등 다양한 양식 메뉴를 제공합니다. 1인당 약 20,000원 정도의 예산을 예상 가격으로 안내하고 있습니다.",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "프라이빗한 룸 좌석과 유아 편의시설을 갖추고 있어 가족 외식이나 단체 모임에 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "브런치부터 파스타, 스테이크까지 부담 없는 가격대에 즐길 수 있는 양식 구성",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

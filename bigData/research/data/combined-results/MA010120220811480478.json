@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220811480478",
+  "name": "오륙도식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 37968,
+  "researchedAt": "2026-09-21T21:52:24.519Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 해운대구 재반로 253)에 오륙도식당/오륙도횟집 관련 실제 영업 정보 및 후기가 존재하지 않음",
+  "notes": "부산광역시 해운대구 재반로 253(반여동 1609-4) 주소지에 과거 등록 이력 외에 웹상에 실제 영업 정보나 후기, 정량 데이터가 전혀 확인되지 않아 조사를 종료합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

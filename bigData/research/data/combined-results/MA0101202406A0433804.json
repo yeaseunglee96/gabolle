@@ -1,0 +1,83 @@
+{
+  "id": "MA0101202406A0433804",
+  "name": "삼환맛축산",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42447,
+  "researchedAt": "2026-09-21T21:55:11.267Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식, 단체 모임, 회식",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "숙성생삼겹",
+      "갈비살",
+      "된장찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 15:00 ~ 23:00, 주말 12:00 ~ 23:00 (라스트오더 22:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지역 주민들의 가족 외식 및 모임 장소로 주로 이용되는 로컬 맛집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "인허가 행정명 '삼환맛축산', 실제 운영 상호는 '삼환축산 구서점(구서직영점)'. 저렴한 100g 단위 고기 가격과 푸짐한 쌈채소 셀프바, 된장찌개로 인기가 높은 가성비 숯불구이 전문점.",
+  "price": {
+    "found": true,
+    "priceMenu": "숙성생삼겹 100g (첫 주문 기본 500g 이상)",
+    "priceWon": 4990
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산 금정구 금강로 590 / 영업시간: 평일: 15:00 ~ 23:00, 주말: 12:00 ~ 23:00, 라스트오더: 22:30. 가성비가 좋은 고기 맛집으로 알려져 있으며, 두툼한 삼겹살과 부드러운 갈비살 등이 주요 메뉴입니다. 셀프바가 마련되어 있어 채소 등을 무한리필로 이용할 수 있다는 점이 장점으로 언급됩니다. 접근성이 좋아 모임이나 회식 장소로도 많이 이용되는 곳입니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "삼환축산 구서직영점(부산광역시 금정구 금강로 590). 삼환축산은 가성비를 강조하는 고깃집으로 숙성생삼겹 100g당 4,990원 (보통 500g부터 주문 가능), 낙엽삼겹, 생목살, 제주오겹, 갈비살 등 다양한 부위를 판매. 된장찌개와 막국수가 사이드 메뉴로 인기가 높음.",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숙성 생삼겹 100g 4,990원대의 매우 저렴한 고기 가격과 쌈채소 셀프바의 가성비",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "두툼한 숙성 생삼겹 및 갈비살의 고기 품질과 식사류 된장찌개의 뛰어난 맛",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "넓은 매장과 편리한 접근성으로 가족 외식 및 모임·회식 장소로의 편의성",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

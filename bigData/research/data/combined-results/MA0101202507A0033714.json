@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202507A0033714",
+  "name": "꼬부기",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 102448,
+  "researchedAt": "2026-09-21T22:03:35.289Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "소비자 방문 후기 및 상세 운영 정보가 온라인에 전혀 존재하지 않는 상호/폐업 추정 업소",
+  "notes": "부산광역시 서구 충무대로 237에 위치한 '꼬부기'는 인허가/공공 상권 DB상 일반음식점(한식/백반)으로 등록된 이력 외에, 실제 운영 현황, 후기, 메뉴, 가격, 영업시간 등 소비자가 방문하여 남긴 정보나 상세 웹 문서가 전혀 확인되지 않습니다. 폐업했거나 온라인 활동/리뷰가 존재하지 않는 업소로 판단됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

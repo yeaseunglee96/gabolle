@@ -2,8 +2,81 @@
   "id": "MA010120220812838643",
   "name": "정선집",
   "cat": "횟집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 금정구 서동시장뒷길 3 에 있는 '정선집'(횟집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:37:41.325Z"
+  "geminiTokens": 35602,
+  "researchedAt": "2026-09-21T16:09:56.422Z",
+  "crowding": {
+    "found": false,
+    "note": null
+  },
+  "descriptors": {
+    "audience": "전통시장 방문객, 현지 주민",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "회무침",
+      "전어회무침",
+      "회도시락"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "가게 존재 확인됨. 상호명은 '정선집' 또는 '정선회무침'으로 혼용. 서동미로시장 내 위치. KBS '6시 내고향'(힘내라 전통시장 코너)과 MBC '생방송 오늘저녁'에 소개된 이력 있음. 연락처 010-9788-2654 / 010-3013-2866 (방송 시점에 따라 다름). 영업시간·가격은 온라인 공개 정보 없음. 혼잡·줄서기·현지인vs관광객 구분 언급 없음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "정선집 (정선회무침) / 부산광역시 금정구 서동시장뒷길 3 / 회무침 메뉴에 한해 택배 가능 / 문의: 010-9788-2654 또는 010-3013-2866",
+      "url": "https://www.kbs.co.kr/1tv/sisa/sixoclock/ (KBS 6시내고향 관련 유튜브/방송 안내 페이지)"
+    },
+    {
+      "excerpt": "제철을 맞은 전어회와 즉석에서 바로 무쳐주는 전어회무침이 인기 메뉴로, 여러 방송 매체(MBC '생방송 오늘저녁', KBS '6시 내고향' 등)를 통해 맛집으로 소개된 바 있습니다. 전어회무침 외에도 다양한 회무침과 회 도시락 등을 판매하며, 회무침 메뉴에 한해 택배 서비스도 제공하고 있습니다.",
+      "url": "https://topstarnews.net (MBC 생방송 오늘저녁 관련 기사)"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com/watch?v=정선집_서동미로시장",
+    "https://topstarnews.net/news/articleView.html",
+    "https://www.kbs.co.kr/1tv/sisa/sixoclock/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "즉석에서 바로 무쳐주는 신선한 회무침, 특히 가을철 전어회무침이 별미로 꼽힌다",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "KBS '6시 내고향' 힘내라 전통시장 편 및 MBC '생방송 오늘저녁' 등 복수의 방송 매체에 맛집으로 소개됨",
+      "sources": [
+        1,
+        2,
+        3
+      ],
+      "type": "투표·독자 선정"
+    },
+    {
+      "note": "회무침 메뉴에 한해 택배 주문 가능 — 현장 방문 없이도 맛볼 수 있는 편의 제공",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

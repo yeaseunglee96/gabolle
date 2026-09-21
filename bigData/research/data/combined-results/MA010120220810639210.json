@@ -2,8 +2,78 @@
   "id": "MA010120220810639210",
   "name": "남해회초밥",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 동구 중앙대로274번길 3-7 에 있는 '남해회초밥'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. *",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:40:16.726Z"
+  "geminiTokens": 28388,
+  "researchedAt": "2026-09-21T16:14:33.334Z",
+  "crowding": {
+    "found": true,
+    "note": "점심(12:00~13:00) 및 저녁(18:00~20:00) 피크타임에 혼잡 가능성 언급 (udanax.org 요약 기반, 원문 미확인)"
+  },
+  "descriptors": {
+    "audience": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "모듬회",
+      "수제 새우튀김"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "원문 URL이 모두 구글 중계 주소로만 제공되어 실제 페이지 직접 접근 불가. 검색 엔진 요약 텍스트에서만 정보 수집됨. 가격·영업시간 정확한 수치는 확인 불가. sourceExcerpts는 검색 결과 요약에서 옮긴 것으로 실제 원문 그대로는 아님(원문 접근 실패). 혼잡 관련 정보도 검색 요약 기반이라 신뢰도 제한적.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산역 인근(초량동)에 위치하며, 수제 새우튀김 등이 포함된 한상 차림으로 알려져 있습니다. 별도의 전용 주차 공간이 없으므로 대중교통 이용이 권장됩니다. 점심(12:00~13:00) 및 저녁(18:00~20:00) 피크 타임에는 혼잡할 수 있으니 방문 전 전화로 영업 여부나 예약 가능 여부를 확인하는 것이 좋습니다.",
+      "url": "https://udanax.org (검색 요약 경유, 원문 URL 미확인)"
+    },
+    {
+      "excerpt": "부산역에서 초량 방향으로, 태평양화장품 건물 뒷편에 위치하고 있습니다. 모듬회 등을 판매하며, 회를 주문하면 맛조개, 병어회 무침 등 다양한 곁음식(스끼다시)이 함께 나오는 구성으로 알려져 있습니다. 가격대가 비교적 합리적이고 푸짐하게 즐길 수 있는 곳으로 언급되기도 합니다.",
+      "url": "tistory.com (검색 요약 경유, 원문 URL 미확인)"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "모듬회 주문 시 병어회무침·해삼·멍게·소라·개불·호래기 등 다양한 스끼다시가 순차적으로 나와 만족도가 높다는 평",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "회의 양과 곁음식 구성 대비 가격이 합리적이라는 언급",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "부산역 인근 위치로 접근성이 좋다는 점이 방문 이유로 언급됨",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202412A0009648",
+  "name": "초원오리정",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 41717,
+  "researchedAt": "2026-09-21T22:06:03.310Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "사업자/인허가 DB상 부산 영도구 태종로 40 브릿지타워 2층에 일반음식점으로 등록되어 있으나, 방문 후기나 메뉴·가격·영업시간 등 상세 정보는 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 태종로 40, 브릿지타워 2층 (대교동1가 1) 업종: 육류 및 고기요리 전문점. 해당 업체에 대한 전화번호 정보는 공개된 자료에서 확인되지 않으며",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": []
+}

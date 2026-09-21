@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220810495071",
+  "name": "보수구이",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42715,
+  "researchedAt": "2026-09-21T22:06:58.720Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "중장년층, 보양식 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한방오리백숙",
+      "유황오리백숙"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 보수동 흑교로71번길에 위치한 오리 요리 전문점으로 16가지 한약재를 넣은 한방오리백숙이 대표 메뉴입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 중구 보수동 '보수구이'는 16가지 약재를 넣은 한방 오리 백숙이 가장 인기 있는 집이다. 보수동에 있어서 보수구이라는 상호를 썼는데, 보수적인 성향이냐는 오해도 가끔 받는단다. 보수동에서 20년째 영업하고 있다. 유황오리 백숙을 주문하자 버섯 간장조림을 비롯해 16가지의 밑반찬이 깔린다. 한방 오리 백숙은 1시간 전 예약 필수.",
+      "url": "https://www.busan.com/view/busan/view.php?code=20150813000018"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com/view/busan/view.php?code=20150813000018"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "16가지 한약재를 넣고 끓여낸 한방 유황오리 백숙과 정갈한 16가지 밑반찬",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "보수동에서 20년 넘게 꾸준히 자리를 지켜온 오리 요리 전문점",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

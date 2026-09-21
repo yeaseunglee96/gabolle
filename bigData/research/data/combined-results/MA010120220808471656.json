@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220808471656",
+  "name": "우돈애",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 44314,
+  "researchedAt": "2026-09-21T21:56:05.256Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "정보 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지양념우대갈비",
+      "돼지생우대갈비"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 16:00 ~ 24:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "30여 년 경력의 정육 노하우를 바탕으로 운영되며 가족 외식 장소 및 동네 고기집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 동래구 여고북로 112 (사직동) 소재의 숯불 고기 전문점으로 돼지양념우대갈비, 돼지생우대갈비가 대표 메뉴로 확인됨.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 여고북로 112 (사직동). 30여 년 경력의 정육 노하우를 바탕으로 운영되는 곳으로 알려져 있으며 가족 외식 장소로도 언급되는 동네 맛집. 주중 16:00 ~ 24:00. 대표 메뉴: 돼지양념우대갈비, 돼지생우대갈비. 숯불 고기와 쌈채소를 제공.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "30여 년 정육 노하우를 바탕으로 한 숯불 돼지 우대갈비(생/양념) 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

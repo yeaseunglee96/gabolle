@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220802919636",
+  "name": "엄마추어탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 36471,
+  "researchedAt": "2026-09-21T22:03:51.707Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "추어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 남구 우암로70번길 3(감만동, 감만시장상가)에 위치한 일반한식당 '엄마추어탕'의 사업자/상가 등록 정보는 확인되나, 온라인상에 구체적인 방문 후기, 가격, 영업시간, 혼잡도 등 상세 정량 정보는 공개되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 남구 감만동 77-19 (우암로70번길 3) 엄마추어탕 감만시장상가연립 일반한식당",
+      "url": "https://zippoom.com"
+    },
+    {
+      "excerpt": "엄마추어탕 일반한식 부산광역시 남구 우암로70번길 3 (감만동) 감만시장 106호",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

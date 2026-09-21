@@ -1,0 +1,50 @@
+{
+  "id": "MA010120220813639093",
+  "name": "벚꽃스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 34085,
+  "researchedAt": "2026-09-21T22:05:11.391Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 동매로 35-1(하단동)에 위치한 일식 회/초밥 상호 '벚꽃스시' 등록 정보는 확인되나, 상세 영업시간, 메뉴 구성, 가격, 줄서기 여부 등 세부 이용 정보는 웹상에 공개되어 있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사하구 동매로 35-1, 벚꽃스시 (일식/회/초밥)",
+      "url": "https://udanax.org"
+    },
+    {
+      "excerpt": "상호명: 벚꽃스시, 주소: 부산광역시 사하구 동매로 35-1 (하단동)",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

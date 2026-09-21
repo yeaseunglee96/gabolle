@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202311A0036304",
+  "name": "바다와향어",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 39319,
+  "researchedAt": "2026-09-21T21:57:32.507Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 활어",
+      "향어회",
+      "참가자미회",
+      "밀치회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "신선한 자연산 활어와 향어회를 전문으로 하는 횟집입니다. 얇게 썰어 쫄깃한 식감의 참가자미회와 밀치회 등이 인기 메뉴로 알려져 있으며, 정갈한 기본찬이 함께 제공됩니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 자연산 활어와 향어회, 참가자미회 등을 제공하는 전문 횟집",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

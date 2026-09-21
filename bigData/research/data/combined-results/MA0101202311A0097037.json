@@ -2,8 +2,58 @@
   "id": "MA0101202311A0097037",
   "name": "동원홈푸드한국쉘석유",
   "cat": "구내식당",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 남구 신선로 250 에 있는 '동원홈푸드한국쉘석유'(구내식당 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:51:01.656Z"
+  "geminiTokens": 51853,
+  "researchedAt": "2026-09-21T21:47:45.738Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "임직원",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "'동원홈푸드한국쉘석유'는 일반 대중을 상대로 영업하는 일반음식점이 아니며, 부산광역시 남구 신선로 250에 위치한 한국쉘석유 부산공장 사내에서 동원홈푸드가 위탁 운영하는 임직원 단체급식 구내식당입니다. 일반 소비자를 대상으로 한 메뉴판, 가격, 대중 영업시간, 관광객/현지인 후기 등은 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "한국쉘석유 부산공장(부산광역시 남구 신선로 250)의 직원식당 운영 업체는 동원홈푸드로 확인됩니다. 해당 식당의 주방보조 등 조리 관련 인력 채용 시 '동원홈푸드' 또는 위탁 관리 업체를 통해 구인 정보가 게시되기도 합니다.",
+      "url": "https://www.zighang.com"
+    },
+    {
+      "excerpt": "부산광역시 남구 신선로 250 (용당동 206-34) 한국쉘석유 내 단체급식/구내식당 사업장.",
+      "url": "https://www.zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://www.zighang.com",
+    "https://www.zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한국쉘석유 부산공장 내 근무자들의 급식 및 식사 해결을 위해 이용됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

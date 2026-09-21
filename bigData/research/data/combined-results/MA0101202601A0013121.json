@@ -2,8 +2,58 @@
   "id": "MA0101202601A0013121",
   "name": "키엔",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 동구 자성로133번길 6 에 있는 '키엔'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:51:01.922Z"
+  "geminiTokens": 57114,
+  "researchedAt": "2026-09-21T21:49:01.318Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "high",
+    "queueing": null,
+    "signatureDishes": [
+      "런치 오마카세코스",
+      "디너 오마카세코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 동구 범일동 진흥 마제스타워 범일 1층에 위치한 일식 오마카세 전문점. 식신 및 구인 정보 등에 런치 및 디너 오마카세 코스 위주로 등록되어 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 자성로133번길 6 진흥 마제스타워 범일 1층. 일식 (오마카세). 주요 메뉴: 런치 오마카세코스, 디너 오마카세코스.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.albamon.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "런치 및 디너 일식 오마카세 코스를 전문으로 제공하는 곳이기 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

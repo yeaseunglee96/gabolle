@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810632693",
+  "name": "철우식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 35659,
+  "researchedAt": "2026-09-21T22:02:38.915Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 가야대로 669(가야동 3-17 2층)에 상호명 '철우식당'(한식/경양식)으로 등록된 사업장 정보는 확인되나, 방문 후기, 상세 메뉴판, 가격대, 영업시간, 혼잡도 등에 대한 구체적인 웹 기록은 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "철우식당 / 부산광역시 부산진구 가야대로 669, 2층 (가야동) / 051-891-0170 / 한식",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

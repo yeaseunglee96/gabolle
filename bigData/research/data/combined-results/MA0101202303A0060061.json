@@ -1,0 +1,74 @@
+{
+  "id": "MA0101202303A0060061",
+  "name": "스시투어시민공원점",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 35109,
+  "researchedAt": "2026-09-21T21:57:02.324Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "식사 피크 시간대(점심/저녁)에는 회전초밥 이용 대기가 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "공원 방문객, 가족, 인근 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "광어초밥",
+      "연어초밥",
+      "농어뱃살초밥",
+      "소고기부채살초밥",
+      "간장새우초밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 시민공원 인근 방문객 및 인근 지역 주민들이 주로 이용하는 회전초밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 50,
+    "found": true
+  },
+  "notes": "스시투어 11호점으로 부산시민공원 맞은편 새싹로에 위치한 회전초밥 전문점. 레일 위 다양한 초밥 및 롤, 사이드 메뉴 제공.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스시투어 부산시민공원점 (11호점) 주소: 부산광역시 부산진구 새싹로 91, 1층 연락처: 051-806-5860 영업시간: 매일 11:00 ~ 21:30",
+      "url": "http://sushitour.co.kr"
+    },
+    {
+      "excerpt": "다양한 종류의 초밥을 제공하는 회전초밥 전문점입니다. 주요 메뉴로는 광어, 연어, 농어뱃살, 소고기부채살, 간장새우, 민물장어 초밥 및 각종 퓨전 롤과 군함 등이 있으며, 취향에 따라 사이드 메뉴와 디저트도 선택하실 수 있습니다.",
+      "url": "http://sushitour.co.kr"
+    }
+  ],
+  "sources": [
+    "http://sushitour.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 활어 및 다양한 종류의 초밥과 롤을 레일에서 바로 골라 즐길 수 있음",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산시민공원 바로 인근에 위치하여 나들이나 산책 전후 들르기 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

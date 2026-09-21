@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220807798032",
+  "name": "안스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 52371,
+  "researchedAt": "2026-09-21T22:05:11.736Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기에 대한 웹 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민, 직장인",
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사하구 하단동 지역 주민 중심의 로컬 식당"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 사하구 동매로5번길 2에 위치한 일식 초밥집으로 가성비 좋은 초밥으로 알려져 있으나, 웹상에 상세 메뉴판 및 영업시간 정보는 매우 제한적임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 사하구 맛집 ... 안스시 : 훌륭한 초밥 가성비 매력적",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "상호: 안스시, 주소: 부산광역시 사하구 동매로5번길 2 (하단동 898-20), 전화번호: 051-203-0154",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://linktoplace.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "합리적인 가격대에 즐길 수 있는 가성비 초밥",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

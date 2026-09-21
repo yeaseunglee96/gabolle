@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220806680507",
+  "name": "밤골뒷고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 46146,
+  "researchedAt": "2026-09-21T22:05:36.939Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 매장 혼잡도에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 애주가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "뒷고기",
+      "수구레 해장국",
+      "돼지껍데기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 ~ 23:00 (월~일, 매월 둘째·넷째 일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "망미역 인근 연산동 골목에 위치한 동네 고깃집으로 현지 주민 위주 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "연제구 연산3동(망미역 인근) 골목에 위치한 고깃집으로, 가성비 좋은 돼지 뒷고기와 껍데기, 특색 메뉴인 수구레 해장국(술국)을 함께 즐길 수 있는 동네 단골 중심의 식당.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "전화번호: 051-862-7892, 주소: 부산광역시 연제구 금련로6번길 7 (연산3동 1811-198), 운영시간: 16:00 ~ 23:00 (월~일), 휴무일: 매월 둘째, 넷째 일요일. 주요 메뉴: 뒷고기, 돼지껍데기, 생삼겹, 우삼겹, 수구레 해장국/술국 등. 부산 연제구 연산동(망미역 인근)에 위치해 있으며, 뒷고기와 수구레 요리로 알려져 있습니다.",
+      "url": "https://tshome.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tshome.co.kr",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "저렴한 가격에 쫄깃한 돼지 뒷고기와 특색 있는 수구레 해장국/술국을 함께 맛볼 수 있는 가성비 골목 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "망미역 인근 연산동 주택가 골목에서 편안하게 한잔하기 좋은 동네 사랑방",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

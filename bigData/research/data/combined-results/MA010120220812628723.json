@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220812628723",
+  "name": "올타미스터스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 42138,
+  "researchedAt": "2026-09-21T22:05:15.172Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인, 가족, 인근 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥 세트",
+      "런치 세트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:30 (브레이크타임 14:30 ~ 17:00 / 라스트오더 14:00, 21:00 / 매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "하단역 인근 및 동백전/소비쿠폰 가맹 매장으로 로컬 생활권 주민·직장인 중심 이용"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 사하구 하단역 인근 초밥 전문점으로 다양한 초밥 세트와 런치 세트를 제공하며 맞은편 명신주차장 이용 시 주차 지원 혜택이 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 사하구 낙동남로1390번길 10 (하단동 595-23), 전화번호: 051-205-2441, 하단역 2번 출구에서 도보 약 3분 거리에 위치해 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "영업시간: 11:30 ~ 21:30, 브레이크 타임: 14:30 ~ 17:00, 라스트 오더: 14:00, 21:00, 매주 월요일 휴무. 맞은편 '명신주차장' 이용 시 주차비(1,000원) 할인 혜택을 받을 수 있습니다. 다양한 초밥 세트 메뉴와 런치 메뉴를 제공하며, 직영점으로 운영되는 곳입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "하단역 2번 출구 도보 3분 거리의 역세권 및 전용/제휴 주차장(명신주차장) 지원으로 방문이 편리함",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "런치 세트와 초밥 세트 등 부담 없는 구성 제공",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

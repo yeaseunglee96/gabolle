@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220811583614",
+  "name": "왔다곰장어",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 48933,
+  "researchedAt": "2026-09-21T21:51:09.568Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "곰장어"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 금정구 서동로 166 소재의 '왔다곰장어'(051-526-3891)는 금정구청 식품위생업소 공공데이터 및 디렉토리에 등록되어 실존하는 일반음식점이나, 온라인 블로그·SNS 등에 상세 메뉴판, 가격, 방문 이유, 대기 여부 등의 후기 데이터가 존재하지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 왔다곰장어, 소재지도로명주소: 부산광역시 금정구 서동로 166 (서동), 전화번호: 051-526-3891, 업종: 한식",
+      "url": "https://www.geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

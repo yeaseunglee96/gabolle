@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220813428222",
+  "name": "쿠만쿠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 66697,
+  "researchedAt": "2026-09-21T21:52:05.869Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 영업 중인 식당 정보(메뉴, 가격, 영업시간, 후기 등) 부재",
+  "notes": "부산 해운대구 재반로256번길 27 소재의 '쿠만쿠'는 사업자 데이터베이스에 상호/주소 형태로만 존재하며, 실제 식당으로서의 영업 정보, 후기, 메뉴, 가격 등 실질적 정보가 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

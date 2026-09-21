@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220803264451",
+  "name": "송이왕아구찜",
+  "cat": "해산물 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 43821,
+  "researchedAt": "2026-09-21T22:00:45.662Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": null
+  },
+  "descriptors": {
+    "audience": "가족 외식, 인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "아구찜"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~22:00 (종료 시간 기준)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서구청 지정 착한가격업소 및 동네 주민·가족 외식 위주의 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 서구 초장동에 위치한 착한가격업소 지정 식당으로, 손맛과 가성비 중심의 가족 외식 장소로 알려져 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 서구 아미초장로 23에 위치한 송이왕아구찜에 대한 정보입니다. 손맛이 느껴지는 분위기의 맛집으로, 가족 외식 장소로 입소문이 난 곳입니다. '착한가격업소'로도 알려져 있습니다.",
+      "url": "https://udanax.org"
+    },
+    {
+      "excerpt": "부산광역시 서구 아미초장로 23 (초장동) 송이왕아구찜. 서구청에서 지정한 '착한가격업소'로 소개되어 있습니다. 전화번호: 051-243-0121",
+      "url": "https://www.bsseogu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://www.bsseogu.go.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "지자체(부산 서구청) 지정 착한가격업소로 높은 가성비 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "손맛이 느껴지는 푸근한 분위기와 가족 외식 장소로서의 선호",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220801439179",
+  "name": "지",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 41588,
+  "researchedAt": "2026-09-21T22:06:28.797Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 관한 언급을 확인할 수 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "등심 돈가스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미기재"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 직접적인 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "영도구 남항로 3(남항동1가 56-1)에 위치한 한식/식당 상호 '지(G)'로, 착한가격업소로 지정되어 등심 돈가스 등을 취급함",
+  "price": {
+    "found": false,
+    "priceMenu": "등심 돈가스",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 지 (G) 주소: 부산광역시 영도구 남항로 3 (남항동1가 56-1) 업종: 한식 주요 메뉴: 등심 돈가스 등 전화번호: 051-413-1136 기타: 부산 영도구의 '착한가격업소'로 등록된 곳",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "영도구 착한가격업소로 지정되어 저렴하고 부담 없는 식사 가능",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

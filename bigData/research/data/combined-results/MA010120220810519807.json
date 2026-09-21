@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220810519807",
+  "name": "양순식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 71391,
+  "researchedAt": "2026-09-21T22:03:45.780Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도에 관한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "새벽시장 상인 및 인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "정식",
+      "백반"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "충무동/해안새벽시장 인근 상인 및 현지 주민들이 주로 찾는 생활 밀착형 밥집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 서구 해안새벽시장길 76(남부민동)에 위치한 백반/한정식 식당입니다. 시장 상인과 현지 주민 위주의 정식 식당으로, 남부민1동 취약계층 반찬 지원 등 지역 사회 나눔 활동에도 참여하고 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "양순식당 부산광역시 서구 해안새벽시장길 76 (남부민동) 한식 일반음식점",
+      "url": "https://zippoom.com"
+    },
+    {
+      "excerpt": "충무동 새벽시장 인근에 위치하고 있어, 시장 상인들과 인근 주민들이 주로 찾는 식당으로 알려져 있습니다.",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com",
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "새벽시장 상인과 인근 주민들이 일상 식사를 위해 찾는 현지 생활형 백반집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

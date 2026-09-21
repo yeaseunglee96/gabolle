@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220810606698",
+  "name": "연제정",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 41640,
+  "researchedAt": "2026-09-21T21:56:28.338Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "직장인, 일반 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "석쇠불고기정식",
+      "돼지갈비정식",
+      "생삼겹정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 11:30 ~ 23:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 연제구 거제천로 169에 위치한 한정식/백반 식당으로 석쇠불고기정식, 돼지갈비정식 등을 제공함. 상세 블로그 후기나 인지도 높은 방문 기록은 드물며 기본 정보 위주로 확인됨.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "연제정은 부산광역시 연제구 거제동에 위치한 한정식 전문점입니다. 주소: 부산광역시 연제구 거제천로 169 (거제동 23-18). 전화번호: 051-865-6025. 대표 메뉴: 석쇠불고기정식, 돼지갈비정식. 영업시간: 월~토 11:30~23:00 (일요일 휴무). 가성비 좋은 한정식집으로 알려져 있으며, 대표 메뉴인 석쇠불고기정식 외에도 돼지갈비정식, 생삼겹정식 등 다양한 메뉴를 제공합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "석쇠불고기정식, 돼지갈비정식 등 가성비 위주의 한정식/정식 식사를 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

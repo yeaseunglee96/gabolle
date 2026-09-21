@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220813560254",
+  "name": "이태리광수",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 31802,
+  "researchedAt": "2026-09-21T22:07:56.066Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "대학생, 인근 방문객",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "깔조네",
+      "파스타",
+      "리조또"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "동아대학교 부민캠퍼스 및 임시수도기념관 인근 골목에 위치한 이탈리안 경양식 식당으로 파스타, 깔조네, 리조또 등을 판매함. 세부 영업시간이나 가격표는 온라인상 명확히 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이태리광수는 부산광역시 서구 부민동(동아대학교 부민캠퍼스 인근)에 위치한 이탈리안 레스토랑입니다. 위치: 부산광역시 서구 임시수도기념로 22-21 (부민동3가 28-3) 특징: 동아대학교 부민캠퍼스 근처에 있어 학생들에게 인기가 많으며, 파스타, 리조또, 필라프, 깔조네 등의 메뉴를 판매합니다. 특히 고구마 깔조네와 얼큰한 파스타류가 잘 알려져 있습니다.",
+      "url": "https://114.co.kr"
+    },
+    {
+      "excerpt": "주소: 부산광역시 서구 임시수도기념로 22-21 (부민동3가 28-3) 업종: 경양식, 파스타, 스테이크 등 서양식 음식점 참고: 임시수도기념관 근처에 위치해 있어 해당 지역 탐방 시 방문하는 식당으로 자주 언급되기도 합니다.",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://114.co.kr",
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동아대 부민캠퍼스 인근 학생 상권에서 고구마 깔조네와 파스타 등 이탈리안 경양식 메뉴를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

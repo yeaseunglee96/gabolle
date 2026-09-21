@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220813014497",
+  "name": "9공탄",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 51855,
+  "researchedAt": "2026-09-21T21:59:58.972Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(냉정로 210-1)에서 '9공탄' 매장 정보가 확인되지 않음(폐업 또는 정보 부재)",
+  "notes": "부산광역시 부산진구 냉정로 210-1 위치의 '9공탄'에 대한 상세 영업 정보(영업시간, 메뉴, 가격, 줄서기 등)를 확인할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

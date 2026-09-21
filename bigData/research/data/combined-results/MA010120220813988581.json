@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220813988581",
+  "name": "짜루면옥",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 35537,
+  "researchedAt": "2026-09-21T21:59:31.541Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민 및 병원 인근 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "칼국수",
+      "콩국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00~20:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산대병원 맞은편 지역 주민과 병원 이용객들이 주로 찾는 가성비 착한가격업소로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 서구 아미동 부산대병원 맞은편에 위치한 착한가격업소로, 칼국수 면으로 만든 짜장면과 칼국수 등 저렴한 면 요리를 판매하는 식당.",
+  "price": {
+    "found": true,
+    "priceMenu": "짜장면 / 칼국수",
+    "priceWon": 4000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "짜루면옥은 부산광역시 서구 까치고개로 210, 2층에 위치하고 있습니다. 부산대병원 응급실 건물 맞은편 2층에 위치하고 있습니다. 저렴한 가격으로 잘 알려진 '착한가격업소'입니다. 짜장면의 면을 칼국수 면으로 사용하는 것이 특징이며, 주문 즉시 소스를 볶아 제공하는 방식입니다. 공기밥을 무한으로 추가 제공하여 넉넉한 식사가 가능합니다. 영업시간은 보통 10:00~20:00이며, 전화번호는 051-255-2600입니다.",
+      "url": "https://www.bsseogu.go.kr"
+    },
+    {
+      "excerpt": "부산 아미동에서 저렴한 가격에 칼국수, 짜장면, 콩국수 등의 면 요리를 즐길 수 있는 식당입니다. 칼국수를 비롯한 면 요리들이 저렴한 가격대에 형성되어 있어 지역 주민들에게 가성비 맛집으로 유명합니다. 칼국수 3,000~4,000원 선 등. 혼밥하기에도 좋은 곳으로 언급되고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.bsseogu.go.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "착한가격업소로 지정될 만큼 짜장면, 칼국수 등 메뉴 가격이 매우 저렴하고 공기밥 무한 제공 등 푸짐한 가성비를 제공함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "짜장면에 일반 중화면 대신 칼국수 면을 사용하며 주문 즉시 소스를 볶아내는 독특한 칼짜장 스타일의 맛을 냄",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

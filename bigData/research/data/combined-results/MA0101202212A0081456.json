@@ -1,0 +1,46 @@
+{
+  "id": "MA0101202212A0081456",
+  "name": "라차타",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 56856,
+  "researchedAt": "2026-09-21T21:52:45.652Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 중구 광복로97번길 16(동광동2가)에 등록된 일반음식점(경양식/음식점) 상호이나, 사업자 및 구인 등록 정보 외에 상세 메뉴판, 가격, 영업시간, 줄서기/혼잡도, 방문 후기 등의 상세 정보가 웹상에 거의 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 동광동2가 라차타. 도로명주소 부산광역시 중구 광복로97번길 16 (1층)",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "위치: 부산광역시 중구 광복로97번길 16 (동광동2가) 남포역 도보 4분거리",
+      "url": "https://dongnealba.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://dongnealba.com"
+  ],
+  "whyPeopleGo": []
+}

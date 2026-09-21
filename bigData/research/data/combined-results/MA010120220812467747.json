@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220812467747",
+  "name": "소신",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 33676,
+  "researchedAt": "2026-09-21T22:06:12.736Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말에는 웨이팅이 발생할 정도로 인기가 많아 네이버나 전화 예약 권장"
+  },
+  "descriptors": {
+    "audience": "가족, 회식, 고기 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "한우 숙성 등심",
+      "한우 뭉티기",
+      "한우 갈비살"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 ~ 23:00 (라스트 오더 22:00, 매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 영도 남항동 현지인 추천 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "정식 상호명은 '태식이의 소신'으로 등록되어 있으며 1+ 등급 한우 암소 숙성 고기 및 당일 도축 뭉티기를 전문으로 함.",
+  "price": {
+    "found": true,
+    "priceMenu": "한우 숙성 등심/갈비살 1만원대(100g 기준, 보통 300g부터 주문)",
+    "priceWon": 19000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "한우 숙성 등심과 당일 도축 뭉티기 등을 판매하는 식당으로, 테이블에서 직원이 직접 초벌과 커팅을 도와주는 서비스를 제공합니다. 매주 일요일은 휴무이며, 네이버 또는 전화로 예약이 가능합니다. 위치: 부산광역시 영도구 남항로9번길 34-1 1층",
+      "url": "https://www.siksinhot.com/taste?upHpAreaId=21"
+    },
+    {
+      "excerpt": "1+ 등급 한우 암소 숙성 고기 전문점으로 만원대 가격으로 등심과 갈비살을 즐길 수 있어 가성비가 매우 뛰어난 곳으로 유명합니다. 당일 도축한 대구식 한우 뭉티기와 숙성 등심이 주력이며 주말에는 웨이팅이 발생합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/taste?upHpAreaId=21",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1+ 등급 한우 암소 숙성 등심과 갈비살을 합리적인 1만원대 가격에 즐길 수 있는 높은 가성비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "당일 도축한 신선한 대구식 뭉티기와 저온 숙성 한우의 뛰어난 고기 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원이 테이블에서 직접 초벌 및 커팅을 도와주는 편안한 구이 서비스 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

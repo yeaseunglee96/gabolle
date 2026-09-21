@@ -1,0 +1,83 @@
+{
+  "id": "MA0101202501A0068534",
+  "name": "도암돌판구이",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 44632,
+  "researchedAt": "2026-09-21T22:05:10.304Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기/혼잡에 대한 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "직장인, 가족, 친구 모임 등",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돌판구이 삼겹살",
+      "김치"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 사하구 하단동에 위치한 남도식 돌주물판 돼지고기 구이 전문점으로 야장 분위기와 직원이 구워주는 서비스, 김치 맛으로 알려져 있음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "하단 지역에서 야외 좌석(야장) 이용이 가능한 고깃집으로 알려져 있습니다. 직원들이 고기를 직접 구워주는 서비스를 제공하여 편리하게 식사를 즐길 수 있습니다. 쾌적한 실내 공간과 더불어 야외 좌석이 마련되어 있습니다. 고기 자체도 훌륭하지만, 특히 함께 제공되는 김치 맛에 대한 평이 좋습니다.",
+      "url": "https://www.siksinhot.com/P/1648043"
+    },
+    {
+      "excerpt": "영업시간: 매일 16:00 ~ 23:00. 돌주물판을 사용하여 고기를 굽는 남도식 돌판구이 전문점으로, 하단 지역에서 야외 좌석(야장) 분위기를 즐길 수 있는 고깃집으로 알려져 있습니다.",
+      "url": "https://pandarank.net"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1648043",
+    "https://pandarank.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돌주물판에 구워 먹는 고기와 곁들임 김치의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원이 고기를 직접 구워주어 식사가 편리함",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "하단 인근에서 야장(야외 좌석) 분위기를 즐길 수 있는 환경",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

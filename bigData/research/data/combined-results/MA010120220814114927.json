@@ -1,0 +1,55 @@
+{
+  "id": "MA010120220814114927",
+  "name": "가야성",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 33182,
+  "researchedAt": "2026-09-21T22:02:41.281Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민, 배달 주문 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객 대상의 유명 음식점이 아닌 가야동 일대 주민/생활권 대상의 동네 중식당/배달 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 부산진구 가야대로668번가길 4(가야동 6-17)에 위치한 '가야성'은 114 전화번호부 및 지역 상가 디렉토리에 등록된 소규모 동네 중국음식점(배달 위주)으로, 온라인 상세 후기/메뉴/영업시간은 공개되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가야성 전화번호: 051-892-4545 업종: 중국음식점 위치: 부산광역시 부산진구 부산광역시 부산진구 가야대로668번가길 4 (가야동 6-17)",
+      "url": "http://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "http://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "가야동 인근 생활권에서 일반적인 식사 및 배달 주문을 위해 찾는 동네 중식당",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

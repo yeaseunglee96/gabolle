@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202305A0179626",
+  "name": "토곡팡",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 59402,
+  "researchedAt": "2026-09-21T21:53:30.005Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "소금 크림 빵",
+      "감자 크로켓"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 연제구 연산동(토곡)에 위치한 베이커리로, 소금 크림 빵과 옛날 감자 크로켓이 대표 메뉴로 언급됩니다. 세부 영업시간, 대기 정보 등 정량 데이터는 온라인 출처가 제한적입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 연제구 연산동에 위치한 베이커리 '토곡팡'의 주소는 다음과 같습니다. 주소: 부산광역시 연제구 과정로225번길 14, 1층. 토곡팡은 연산동(토곡 지역)에서 영업 중인 베이커리 맛집으로 알려져 있습니다.",
+      "url": "https://matple.com"
+    },
+    {
+      "excerpt": "부산 망미동에 위치한 토곡팡은 맛있는 소금 크림빵으로 유명한 제과점입니다. 주요 메뉴: 소금 크림빵이 대표 메뉴이며, 옛날 스타일의 감자 크로켓 또한 방문객들에게 뛰어난 맛으로 강력히 추천받고 있습니다. 기타: 빵 외에도 다양한 커피와 음료를 함께 제공합니다.",
+      "url": "https://wanderlog.com/place/1498628/togog-pang"
+    }
+  ],
+  "sources": [
+    "https://matple.com",
+    "https://wanderlog.com/place/1498628/togog-pang"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "시그니처 메뉴인 소금 크림 빵과 감자 크로켓의 뛰어난 맛 때문",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

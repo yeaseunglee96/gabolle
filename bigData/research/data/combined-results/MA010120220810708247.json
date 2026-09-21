@@ -1,0 +1,57 @@
+{
+  "id": "MA010120220810708247",
+  "name": "초장나라횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 59502,
+  "researchedAt": "2026-09-21T22:00:12.405Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "갈미조개 샤브샤브 등을 찾는 식객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "갈미조개 샤브샤브"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 강서구 명지동(1532-14, 르노삼성대로 부근)에 등록되어 갈미조개 샤브샤브를 취급했던 곳으로 확인되나, 현재는 포털 및 후기 등에서 상세 영업 정보나 가격·영업시간 등이 확인되지 않는 미확인/폐업 추정 상태입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "초장나라횟집은 부산광역시 강서구 명지동(1532-14번지)에 위치했던 음식점으로, 과거 명지 지역의 특색 메뉴인 갈미조개 샤브샤브를 판매하던 곳으로 알려져 있습니다.",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "명지 지역 특색 메뉴인 갈미조개 샤브샤브를 맛보기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

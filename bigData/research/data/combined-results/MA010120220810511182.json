@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220810511182",
+  "name": "두레마을식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 45726,
+  "researchedAt": "2026-09-21T21:56:04.497Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "어르신 및 가족 단위, 로컬 미식가",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "양념한우등심",
+      "된장찌개"
+    ],
+    "yearsClaimed": 1980
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 21:30 (매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서대신동 오랜 노포로 로컬/현지인 추천 맛집으로 주로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 서대신동에서 1980년대부터 영업해 온 노포 고깃집으로, 주문 즉시 무쳐내는 직관적인 마늘 양념의 한우 등심 구이와 식사 후 제공되는 게 된장찌개가 유명함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1980년대에 문을 연 역사 깊은 식당으로, 파절임과 함께 곁들여 먹는 불고기와 식사 후 제공되는 된장찌개가 인기가 많습니다. 얇게 썰린 고기 덕분에 어르신들도 즐겨 찾는 곳입니다.",
+      "url": "https://busans.com"
+    },
+    {
+      "excerpt": "직관적인 양념을 입힌 한우 등심과 함께 게가 들어간 된장찌개, 갓 지은 밥, 숭늉 등이 제공됩니다. 숯불에 구워진 고기의 풍미가 특징으로 언급되고 있습니다.",
+      "url": "https://busans.com"
+    }
+  ],
+  "sources": [
+    "https://busans.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1980년대부터 이어져 온 서대신동의 오래된 노포 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "주문 즉시 버무려내는 마늘 양념 한우 등심 숯불구이와 게 된장찌개의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산 로컬 주민 및 미식가들이 찾는 숨은 현지인 추천 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

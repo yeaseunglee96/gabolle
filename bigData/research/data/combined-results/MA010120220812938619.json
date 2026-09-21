@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220812938619",
+  "name": "용꿈횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 28786,
+  "researchedAt": "2026-09-21T21:59:51.703Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 강서구 명지동 영강길15번길 일대에 전화번호부 및 식당 데이터(식신, 114 등)상 '용꿈횟집'(또는 용꿈포장센타)으로 등록되어 있는 업체는 실재하나, 웹상에 상세 이용 후기나 메뉴판, 가격, 방문 사유 등 세부적인 정보가 전무한 동네 영세 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "용꿈포장센타. 부산광역시 강서구 영강길15번길 8-8 (명지동 1361), 전화번호: 051-271-0344, 업종: 한식-음식점/횟집",
+      "url": "https://www.114.co.kr"
+    },
+    {
+      "excerpt": "부산 강서구 영강길15번길 부근 횟집/식당 리스트: 용꿈포장센타 등록 확인",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

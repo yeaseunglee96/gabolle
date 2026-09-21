@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220808149974",
+  "name": "1966노을",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 43143,
+  "researchedAt": "2026-09-21T21:55:33.608Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 강서구 가덕해안로 787-1(천성동) 상가 정보에 '1966노을'(경양식/호프)이 등록되어 있으나, 동일 주소지에는 '1966정원 천성항점'이 운영되고 있으며 '1966노을' 단독에 대한 방문 리뷰, 가격, 영업시간 등의 세부 웹 데이터는 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1966노을 부산광역시 강서구 가덕해안로 787-1 (천성동) 인근에 위치하고 있습니다. 업종: 경양식, 호프/통닭 등 음식점(퍼브)으로 분류됩니다.",
+      "url": "https://pervsi.com"
+    },
+    {
+      "excerpt": "부산광역시 강서구 천성동 지역에 위치한 '1966노을'과 관련하여 업종은 주로 호프/통닭 또는 경양식(서양식) 업종으로 분류되어 있습니다. 인근에 '카페아리', '1966정원', '해송회식당' 등 다수의 상가가 위치합니다.",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com",
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": []
+}

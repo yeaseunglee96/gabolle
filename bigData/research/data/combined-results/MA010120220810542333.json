@@ -2,8 +2,58 @@
   "id": "MA010120220810542333",
   "name": "영남관",
   "cat": "중국집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 부산진구 양지로 36 에 있는 '영남관'(중국집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:51:01.547Z"
+  "geminiTokens": 53090,
+  "researchedAt": "2026-09-21T21:47:01.717Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인, 학생",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "탕수육+짜장 세트",
+      "탕수육+우동 세트",
+      "탕수육+짬뽕 세트"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 부산진구 양정동(양지로 36)에 위치한 동네 중식 배달 및 식당으로, 탕수육과 식사 메뉴를 묶은 가성비 세트 위주로 운영되는 곳입니다. 세부 영업시간이나 줄서기 정보 등은 웹상에 상세히 기록되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가성비 좋은 영남관. 주요 메뉴: 탕수육 + 짜장 2 + 만두, 탕수육 + 짬뽕 2 + 만두, 탕수육 + 간짜장 2 + 만두, 탕수육 + 볶음밥 2 + 만두, 탕수육 + 우동 2 + 만두. 위치: 부산광역시 부산진구 양지로 36 (양정동 418-61)",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "영남관 / 전화번호: 051-864-7426, 051-864-7427 / 도로명 주소: 부산광역시 부산진구 양지로 36 / 지번 주소: 부산광역시 부산진구 양정동 418-61 / 업종: 중식",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "탕수육과 식사류를 묶은 세트 메뉴 위주의 저렴하고 푸짐한 동네 중식당",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
 }

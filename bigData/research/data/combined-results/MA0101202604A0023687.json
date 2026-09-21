@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202604A0023687",
+  "name": "목화네식당",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 51026,
+  "researchedAt": "2026-09-21T21:59:26.993Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 서구 구덕로165번길 21 일대의 '목화네식당'(일식 회/초밥) 검색 결과 없음",
+  "notes": "해당 주소 및 상호로 등록된 일식 회/초밥 식당 정보나 방문 기록, 웹 문서가 존재하지 않습니다. 규칙에 따라 허위 정보를 지어내지 않고 부존재(found: false) 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

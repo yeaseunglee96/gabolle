@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202411A0108212",
+  "name": "코리태리",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 53152,
+  "researchedAt": "2026-09-21T22:07:45.940Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 학생, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오징어 먹물 파스타",
+      "감자 뇨끼",
+      "채끝 스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산대학교병원 및 부민동 인근 현지 상권의 방문객 중심 양식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 서구 부민동3가(구덕로193번길 26) 지하 1층에 위치한 양식/이탈리안 파스타 전문점으로, 감자 뇨끼와 오징어 먹물 파스타, 채끝 스테이크 등이 대표 메뉴로 알려져 있습니다. 세부 영업시간 및 정확한 전체 메뉴판 가격표는 포털/공식 채널에 제한적으로 공개되어 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 서구 구덕로193번길 26, 지하 1층 (부민동3가), 코리태리(Korytaeri), 스파게티/파스타 전문 이탈리아 음식점",
+      "url": "https://www.matple.com"
+    },
+    {
+      "excerpt": "부산광역시 서구 구덕로193번길 26에 위치한 서양식 음식점 코리태리. 최근 뇨끼 맛집으로 언급되며 부산대학병원 인근 맛집으로 알려져 있음",
+      "url": "https://ndex.kr"
+    },
+    {
+      "excerpt": "부산광역시 서구 일반음식점 인허가 현황 목록: 상호명 코리태리, 소재지 부산광역시 서구 구덕로193번길 26",
+      "url": "https://www.bsseogu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.matple.com",
+    "https://ndex.kr",
+    "https://www.bsseogu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감자 뇨끼와 먹물 파스타, 스테이크 등 특색 있는 이탈리안 양식 메뉴를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

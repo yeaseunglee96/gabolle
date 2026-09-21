@@ -1,0 +1,56 @@
+{
+  "id": "MA0101202412A0037518",
+  "name": "보수동찹쌀꽈배기",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 31248,
+  "researchedAt": "2026-09-21T22:06:55.933Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "찹쌀꽈배기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 중구 중구로 61 지상 1층에 상호 등록된 기록은 확인되나 상세 메뉴판, 영업시간, 후기 등 정량 정보는 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "보수동 찹쌀꽈배기: 부산광역시 중구 중구로 61, 지상 1층 (보수동1가)",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "보수동 책방골목 인근 골목에서 들르기 쉬운 꽈배기 분식점",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

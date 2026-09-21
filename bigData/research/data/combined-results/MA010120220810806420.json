@@ -1,0 +1,50 @@
+{
+  "id": "MA010120220810806420",
+  "name": "만점식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 55745,
+  "researchedAt": "2026-09-21T22:01:17.009Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 동래구 수안동(명륜로98번길 18)에 소재한 한식/육류구이 식당('만점식당' 또는 '만점숯불갈비')으로 사업체 및 동래구청 행정 등록 정보는 확인되나, 방문자 후기나 블로그 리뷰, 세부 메뉴판 등 '사람들이 왜 가는지'에 대한 상세 방문 후기 콘텐츠는 웹상에 기록되어 있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "만점숯불갈비 주소 부산광역시 동래구 명륜로98번길 18 (수안동) 전화번호 051-558-2240 영업시간 12:00 ~ 22:00 분류 한식 육류,고기요리",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "만점식당 전화번호: 051-558-2240",
+      "url": "https://www.dongnae.go.kr"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://www.dongnae.go.kr"
+  ],
+  "whyPeopleGo": []
+}

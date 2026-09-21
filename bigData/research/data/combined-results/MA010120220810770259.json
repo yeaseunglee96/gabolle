@@ -2,8 +2,43 @@
   "id": "MA010120220810770259",
   "name": "영도장",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 동래구 금정마을로 66 에 있는 '영도장'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항",
   "attempts": 1,
-  "researchedAt": "2026-09-21T14:42:30.601Z"
+  "geminiTokens": 52645,
+  "researchedAt": "2026-09-21T16:15:11.489Z",
+  "crowding": {
+    "found": false,
+    "note": "줄서기·혼잡 관련 언급 없음"
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "가게 존재는 확인됨 (부산광역시 동래구 금정마을로 66, 온천동, 전화 051-554-4501). 한식사랑 포털(ilovekfood.com)과 인포소리(infosori.com)·퍼브시(pervsi.com) 등의 업소 DB에 이름·주소·분류만 등재되어 있음. 블로그 후기, 가격 정보, 영업시간, 메뉴 상세 등은 공개 웹상에서 확인되지 않음. \"한식\"으로 분류(일부 DB)되어 있으나 요청 업종인 '돼지고기 구이/찜'으로 분류된 DB도 병존. 이 가게에 대한 독립적인 방문 후기나 미디어 보도는 검색 범위 내에서 발견되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 동래구 금정마을로 66 (온천동) / 연락처: 051-554-4501 — 한식포털 한식사랑 업소 DB에 등재된 기본 정보",
+      "url": "https://ilovekfood.com"
+    },
+    {
+      "excerpt": "영도장 / 업종: 한식 / 위치: 부산광역시 동래구 온천동 — 인포소리 음식점 DB 등재 정보",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://ilovekfood.com/kfood/content/place_info.asp",
+    "https://infosori.com/sori/m.php?board=bbs&command=skin_insert&exe=read&search_text=%EC%98%81%EB%8F%84%EC%9E%A5"
+  ],
+  "whyPeopleGo": []
 }
