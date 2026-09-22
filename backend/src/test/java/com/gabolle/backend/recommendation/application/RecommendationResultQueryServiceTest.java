@@ -1,5 +1,6 @@
 package com.gabolle.backend.recommendation.application;
 
+import java.util.Map;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -54,7 +55,9 @@ class RecommendationResultQueryServiceTest {
 		this.placeRepository = mock(PlaceRepository.class);
 		this.itineraryRepository = mock(ItineraryRepository.class);
 		this.service = new RecommendationResultQueryService(this.candidateRepository, this.placeRepository,
-				this.itineraryRepository, new ObjectMapper());
+				this.itineraryRepository, new ObjectMapper(),
+				// 가격 자료가 없는 상태 — estimatedCostKrw 가 null 로 남는지 본다.
+				placeIds -> Map.of());
 
 		Place place = mock(Place.class);
 		when(place.getPlaceId()).thenReturn(this.placeId);
@@ -86,8 +89,8 @@ class RecommendationResultQueryServiceTest {
 	}
 
 	@Test
-	@DisplayName("🔴 imageUrl·estimatedCostKrw 는 항상 null — place 표에 그 칸이 없다")
-	void imageUrlAndCostAreAlwaysNull() {
+	@DisplayName("🔴 가격이 없는 곳은 estimatedCostKrw 가 null — 0 으로 채우지 않는다")
+	void costIsNullWhenPriceNotCollected() {
 		RecommendationCandidate candidate = returnedCandidateBuilder().build();
 		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
 				.thenReturn(List.of(candidate));
@@ -282,5 +285,34 @@ class RecommendationResultQueryServiceTest {
 				.thenReturn(List.of(returnedCandidateBuilder().build()));
 
 		assertThat(this.service.buildResult(succeededJob(FallbackMode.BASELINE)).tripId()).isNull();
+	}
+	@Test
+	@DisplayName("실린 가격이 있으면 estimatedCostKrw 로 나온다 (S15P21E201-1479)")
+	void costComesFromMenuPrice() {
+		RecommendationResultQueryService withPrice = new RecommendationResultQueryService(this.candidateRepository,
+				this.placeRepository, this.itineraryRepository, new ObjectMapper(),
+				placeIds -> Map.of(this.placeId, 17_000));
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = withPrice.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.items().get(0).estimatedCostKrw()).isEqualTo(17_000);
+	}
+
+	@Test
+	@DisplayName("🔴 다른 장소의 가격이 섞이지 않는다 — 열쇠가 맞을 때만 붙는다")
+	void costDoesNotLeakFromAnotherPlace() {
+		RecommendationResultQueryService withPrice = new RecommendationResultQueryService(this.candidateRepository,
+				this.placeRepository, this.itineraryRepository, new ObjectMapper(),
+				placeIds -> Map.of(UUID.randomUUID(), 99_000));
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = withPrice.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.items().get(0).estimatedCostKrw()).isNull();
 	}
 }
