@@ -54,14 +54,15 @@ class StoryForYouPathSelectionTest {
 	void keepsFallingBackOnLaterPages() {
 		when(this.follows.countByKeyFollowerUserId(VIEWER)).thenReturn(1L);
 		// 팔로잉 피드는 언제나 비어 있다
-		when(this.stories.findFollowingFeedPopular(any(), any(), any(), any(), anyInt(), anyInt()))
+		when(this.stories.findFollowingFeedPopular(any(), any(), any(), any(), anyInt(), any(), anyInt()))
 				.thenReturn(List.of());
 		// 전체 인기순에는 내놓을 것이 있다
-		when(this.stories.findPublicFeedPopular(any(), any(), any(), any(), anyInt(), anyInt()))
+		when(this.stories.findPublicFeedPopular(any(), any(), any(), any(), anyInt(), any(), anyInt()))
 				.thenReturn(List.of(mock(Story.class)));
 
 		StoryFeedService.Feed first = this.service.feed(VIEWER, StoryFeedService.Scope.FOR_YOU, null, null, 20);
-		String cursor = new FeedCursor(Instant.parse("2026-09-20T00:00:00Z"), UUID.randomUUID(), 3).encode();
+		String cursor = new FeedCursor(Instant.parse("2026-09-20T00:00:00Z"), UUID.randomUUID(), 3,
+				Instant.parse("2026-09-20T00:00:00Z")).encode();
 		StoryFeedService.Feed second = this.service.feed(VIEWER, StoryFeedService.Scope.FOR_YOU, null, cursor, 20);
 
 		assertThat(first.applied()).isEqualTo(StoryFeedService.Applied.POPULAR);
@@ -74,11 +75,12 @@ class StoryForYouPathSelectionTest {
 	@DisplayName("팔로우한 사람의 기록이 있으면 1쪽·2쪽 다 맞춤이다")
 	void keepsPersonalisedOnLaterPages() {
 		when(this.follows.countByKeyFollowerUserId(VIEWER)).thenReturn(1L);
-		when(this.stories.findFollowingFeedPopular(any(), any(), any(), any(), anyInt(), anyInt()))
+		when(this.stories.findFollowingFeedPopular(any(), any(), any(), any(), anyInt(), any(), anyInt()))
 				.thenReturn(List.of(mock(Story.class)));
 
 		StoryFeedService.Feed first = this.service.feed(VIEWER, StoryFeedService.Scope.FOR_YOU, null, null, 20);
-		String cursor = new FeedCursor(Instant.parse("2026-09-20T00:00:00Z"), UUID.randomUUID(), 3).encode();
+		String cursor = new FeedCursor(Instant.parse("2026-09-20T00:00:00Z"), UUID.randomUUID(), 3,
+				Instant.parse("2026-09-20T00:00:00Z")).encode();
 		StoryFeedService.Feed second = this.service.feed(VIEWER, StoryFeedService.Scope.FOR_YOU, null, cursor, 20);
 
 		assertThat(first.applied()).isEqualTo(StoryFeedService.Applied.FOR_YOU);
@@ -89,20 +91,20 @@ class StoryForYouPathSelectionTest {
 	@DisplayName("팔로우가 하나도 없으면 팔로잉 질의를 아예 안 한다")
 	void noFollowsSkipsTheFollowingQuery() {
 		when(this.follows.countByKeyFollowerUserId(VIEWER)).thenReturn(0L);
-		when(this.stories.findPublicFeedPopular(any(), any(), any(), any(), anyInt(), anyInt()))
+		when(this.stories.findPublicFeedPopular(any(), any(), any(), any(), anyInt(), any(), anyInt()))
 				.thenReturn(List.of());
 
 		StoryFeedService.Feed feed = this.service.feed(VIEWER, StoryFeedService.Scope.FOR_YOU, null, null, 20);
 
 		assertThat(feed.applied()).isEqualTo(StoryFeedService.Applied.POPULAR);
 		org.mockito.Mockito.verify(this.stories, org.mockito.Mockito.never())
-				.findFollowingFeedPopular(any(), any(), any(), any(), anyInt(), anyInt());
+				.findFollowingFeedPopular(any(), any(), any(), any(), anyInt(), any(), anyInt());
 	}
 
 	@Test
 	@DisplayName("익명은 대체로 간다 — 거절하지 않는다")
 	void anonymousFallsBack() {
-		when(this.stories.findPublicFeedForAnonymousPopular(any(), any(), any(), anyInt(), anyInt()))
+		when(this.stories.findPublicFeedForAnonymousPopular(any(), any(), any(), anyInt(), any(), anyInt()))
 				.thenReturn(List.of());
 
 		StoryFeedService.Feed feed = this.service.feed(null, StoryFeedService.Scope.FOR_YOU, null, null, 20);

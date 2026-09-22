@@ -135,4 +135,75 @@ public final class TasteVectorFixtures {
 				VALUES (?, ?, 1, 'trip', ?, ?, '{}'::jsonb, ?, ?, ?, 'SERVER')
 				""", UUID.randomUUID(), eventType.wireName(), userId, userId.toString(), occurredAt, receivedAt, userId);
 	}
+
+	// ── 행동 귀속(S15P21E201-1482)이 쓰는 것 ─────────────────────────────────
+
+	/** 표식을 붙일 장소 하나. */
+	public UUID newPlace(String category) {
+		UUID placeId = UUID.randomUUID();
+		this.jdbc.update("""
+				INSERT INTO place (place_id, name_ko, category, created_at)
+				VALUES (?, ?, ?, now())
+				""", placeId, "테스트장소" + placeId.toString().substring(0, 8), category);
+		return placeId;
+	}
+
+	/**
+	 * 장소에 태그형 표식 하나.
+	 *
+	 * <p>🔴 {@code featureKey} 는 지어낼 수 없다 — {@code fk_place_feature_code} 가
+	 * {@code place_feature_code} 조회표를 외래키로 강제한다. {@code CATEGORY_TAG} 로 쓸 수 있는
+	 * 것은 온보딩 갈래 여섯({@code SEA_BEACH}·{@code CITY}·{@code CAFE_HEALING}·
+	 * {@code CULTURE_TEMPLE}·{@code FOOD}·{@code NATURE_WALK})이다.
+	 *
+	 * @param evidenceStatus {@code VERIFIED}·{@code ESTIMATED} 만 「있다」로 세어진다
+	 *     ({@code FeaturePresence.indicatesPresence}). {@code UNKNOWN} 을 넣으면 귀속이 안 된다
+	 */
+	public void placeTag(UUID placeId, String featureType, String featureKey, String evidenceStatus) {
+		this.jdbc.update("""
+				INSERT INTO place_feature
+				  (place_feature_id, place_id, feature_type, feature_key, evidence_status, created_at)
+				VALUES (?, ?, ?, ?, ?, now())
+				""", UUID.randomUUID(), placeId, featureType, featureKey, evidenceStatus);
+	}
+
+	/** 장소가 <b>하나</b> 실린 취향 신호 — payload 의 {@code placeId}. */
+	public void tasteSignalForPlace(UUID userId, EventType eventType, UUID placeId, OffsetDateTime at) {
+		this.jdbc.update("""
+				INSERT INTO event_outbox
+				  (event_id, event_type, event_version, aggregate_type, aggregate_id, partition_key,
+				   payload, occurred_at, received_at, user_id, producer)
+				VALUES (?, ?, 1, 'user', ?, ?, CAST(? AS jsonb), ?, ?, ?, 'SERVER')
+				""", UUID.randomUUID(), eventType.wireName(), userId, userId.toString(),
+				"{\"placeId\": \"" + placeId + "\"}", at, at, userId);
+	}
+
+	/**
+	 * 일정에서 뺀 이벤트 — 장소가 <b>여럿</b>이고({@code place_ids}) 운영 사유가 붙을 수 있다.
+	 *
+	 * @param operationalReason {@code null} 이면 「안 물어봤다」라 취향 신호로 센다. 값이 있으면
+	 *     문 닫음·날씨 같은 운영 사유라 취향에서 뺀다
+	 */
+	public void itineraryRemove(UUID userId, UUID tripId, String operationalReason, OffsetDateTime at,
+			UUID... placeIds) {
+		StringBuilder ids = new StringBuilder("[");
+		for (int i = 0; i < placeIds.length; i++) {
+			ids.append(i == 0 ? "" : ",").append('"').append(placeIds[i]).append('"');
+		}
+		ids.append(']');
+		String reason = (operationalReason == null) ? "null" : "\"" + operationalReason + "\"";
+		this.jdbc.update("""
+				INSERT INTO event_outbox
+				  (event_id, event_type, event_version, aggregate_type, aggregate_id, partition_key,
+				   payload, occurred_at, received_at, user_id, trip_id, producer)
+				VALUES (?, ?, 1, 'trip', ?, ?, CAST(? AS jsonb), ?, ?, ?, ?, 'SERVER')
+				""", UUID.randomUUID(), EventType.ITINERARY_REMOVE.wireName(), tripId, userId.toString(),
+				"{\"place_ids\": " + ids + ", \"operational_reason\": " + reason + "}",
+				at, at, userId, tripId);
+	}
+
+	/** 행동 기반 개인화를 끈 사람. 행동이 성분이 되면 안 된다. */
+	public void turnBehaviorPersonalizationOff(UUID userId) {
+		this.jdbc.update("UPDATE app_user SET personalization_mode = 'EXPLICIT_ONLY' WHERE user_id = ?", userId);
+	}
 }

@@ -69,7 +69,7 @@ class ClickSimRankingHarness {
 
 	private final BaselineCandidateScorer scorer = new BaselineCandidateScorer(new ObjectMapper());
 
-	private final DiversityReranker reranker = new DiversityReranker(new DiversityProperties(null, null, null));
+	private final DiversityReranker reranker = new DiversityReranker(new DiversityProperties(null, null, null, null));
 
 	public static void main(String[] args) throws Exception {
 		new ClickSimRankingHarness().writeRankings();
