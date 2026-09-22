@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220808478300",
+  "name": "다촌",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 28097,
+  "researchedAt": "2026-09-21T22:23:31.126Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "외식/지역 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지고기 구이",
+      "돼지고기 찜"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 북구 만덕동의 동네 상점으로 지역 복지안전망(이웃연결 상점) 등 지역 생활권 기반 식당으로 확인됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 북구 덕천로364번길 2 (만덕동 891-8)에 등록된 한식/돼지고기 구이·찜 업소로, 온라인상 상세 메뉴판/가격/영업시간 정보는 매우 제한적입니다. 북구 만덕동 '이웃연결 상점' 등 지역 기반 활동 이력이 확인됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 덕천로364번길 2(만덕동 891-8)에 위치한 '다촌'은 돼지고기 구이 및 찜 등을 전문으로 하는 한식당입니다. 손맛이 느껴지는 분위기에서 정성스러운 음식을 제공하여, 특별한 날이나 외식 장소로 알려져 있습니다.",
+      "url": "https://udanax.org"
+    },
+    {
+      "excerpt": "부산 북구 만덕동 행정복지센터는 고독사 예방 및 복지사각지대 발굴을 위한 지역 복지안전망 '이웃연결 상점'으로 다촌 등을 지정하고 현판을 전달했다.",
+      "url": "https://www.kookje.co.kr"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://www.kookje.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정성스러운 손맛의 음식과 외식하기 편안한 동네 한식당 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "북구 만덕동 지역 밀착형 복지안전망(이웃연결 상점) 참여 등 동네 기반 영업",
+      "sources": [
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

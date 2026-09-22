@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220811589221",
+  "name": "국수락",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 47587,
+  "researchedAt": "2026-09-21T21:58:03.720Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반 주민/인근 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "국수"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 부산진구 중앙대로990번길(양정동) 일대에 상호 및 사업체 등록(한식/국수) 기록은 확인되나, 실제 방문 후기, 상세 메뉴판/가격, 영업시간, 줄서기 등 상세 정량 정보는 온라인상에서 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 중앙대로990번길 9 (양정동) 국수락",
+      "url": "https://www.infosori.com"
+    }
+  ],
+  "sources": [
+    "https://www.infosori.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "양정동 인근에서 국수/한식 식사를 위해 방문하는 동네 음식점 추정",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

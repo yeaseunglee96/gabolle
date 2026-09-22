@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220809873107",
+  "name": "지로의꿈",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 60358,
+  "researchedAt": "2026-09-21T14:28:38.289Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스시",
+      "사시미",
+      "돈가스"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "오륙도 SK뷰 아파트 상가 입점으로 인근 주민 위주의 소비 성향"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남구 오륙도로 85 오륙도SK뷰 아파트 상가 2동 209호에 위치한 일식당으로 등록되어 있으나, 온라인 후기 및 상세 영업 정보는 매우 제한적입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'지로의꿈'은 부산광역시 남구 오륙도로 85(용호동, 오륙도 에스케이뷰 아파트) 상가 2동 209호에 위치한 일식 전문점입니다. 스시, 돈가스, 사시미 등을 제공하는 업체로 알려져 있습니다.",
+      "url": "https://www.incruit.com"
+    },
+    {
+      "excerpt": "부산광역시 남구 용호동 오륙도 SK뷰 아파트 상가 2층에 위치한 일식당입니다. 일식 회 및 초밥(스시)을 전문으로 하는 곳으로 등록되어 있습니다. 아파트 단지 내 상가에 위치하여 지역 주민들이 이용하는 일식당입니다.",
+      "url": "https://www.zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://www.incruit.com",
+    "https://www.zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오륙도 SK뷰 아파트 상가 내 입점하여 인근 주민들이 방문하기 편리한 생활 밀착형 일식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

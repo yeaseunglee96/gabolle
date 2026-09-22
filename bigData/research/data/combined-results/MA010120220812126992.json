@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220812126992",
+  "name": "광식당",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 58909,
+  "researchedAt": "2026-09-21T22:34:17.315Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 관한 특별한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민, 정갈한 일식 식사를 찾는 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오늘의 생선초밥 12pcs 정식",
+      "연어초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토요일 11:00 ~ 14:00, 17:00 ~ 22:00 (일요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사하구 신평동 인근 주민 및 직장인 중심의 조용한 로컬 모던 일식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 사하구 하신번영로167번길 65에 위치한 모던 일식당으로 편백나무 함 숙성 연어와 화학조미료를 배제한 초밥/정식이 특징입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "아침마다 생선을 직접 손질하며, 연어는 편백나무 함 안에서 특별한 비법으로 숙성합니다. 모든 음식을 화학조미료 없이 직접 만드는 것으로 알려져 있습니다. 대표 메뉴로 '오늘의 생선초밥 12pcs 정식'이 유명합니다.",
+      "url": "http://www.etonghapnews.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 사하구 하신번영로167번길 65, 1층에 위치하고 있습니다. 영업시간: 월~토요일: 11:00 ~ 14:00, 17:00 ~ 22:00 일요일: 정기 휴무",
+      "url": "https://beautihost.com"
+    }
+  ],
+  "sources": [
+    "http://www.etonghapnews.co.kr",
+    "https://beautihost.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매일 직접 손질하는 신선한 생선과 편백나무 숙성 연어 등 화학조미료를 배제한 정갈한 일식 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "언론사 베스트 맛집 일식당 선정 및 조용하고 깔끔한 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "투표·독자 선정"
+    }
+  ]
+}

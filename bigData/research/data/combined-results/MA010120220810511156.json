@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220810511156",
+  "name": "만수각",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 48093,
+  "researchedAt": "2026-09-21T21:57:58.960Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게의 상세 이용 정보(후기, 가격, 영업시간 등) 부재 및 폐업 추정",
+  "notes": "부산광역시 사하구 원양로 일대(원양로 364-1, 368-1, 원양로356번길 1)에 '만수각'이라는 상호의 중식당 디렉토리성 기록(전화번호: 051-208-6257)은 일부 존재하나, 사하구 만수각 인허가 폐업 기록(2013년) 및 웹상 방문자 후기, 메뉴 가격, 영업시간 등 유효한 식당 정보가 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'만수각'은 부산 사하구 감천동 지역에 위치한 식당으로 확인되며, 기존에 알려진 다른 주소지(사하구 감천1동 39)와 관련하여 업체 정보가 비교되기도 합니다. / 만수각: 원양로356번길 1 전화번호: 051-208-6257",
+      "url": "https://sluurpy.com"
+    },
+    {
+      "excerpt": "부산광역시 사하구 감천동에 위치했던 '만수각'은 중국 음식점으로 알려져 있으나, 현재는 폐업한 상태입니다. 인허가 기록상 2013년 4월 2일 폐업 확인. 과거 주소: 부산광역시 사하구 감천로 142 (감천동)",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://sluurpy.com",
+    "https://nett.kr",
+    "https://udanax.org"
+  ]
+}

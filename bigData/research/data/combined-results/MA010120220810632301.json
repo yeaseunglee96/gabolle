@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220810632301",
+  "name": "진커피&도넛",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 31304,
+  "researchedAt": "2026-09-21T22:06:00.124Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "-",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 가야대로 707-2 (당감동)에 사업자/업체 데이터베이스상 상호 '진커피&도넛'(빵/도넛 업종)으로 등록된 사실은 확인되나, 실제 방문 후기, 상세 메뉴판 및 가격, 영업시간, 대기/혼잡도 등 방문객 관련 정보는 웹상에 존재하지 않거나 현재 정상 영업 여부가 불투명합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "진커피&도넛 / 부산광역시 부산진구 가야대로 707-2 (당감동) / 업종: 음식점(빵/도넛)",
+      "url": "https://bizno.net"
+    }
+  ],
+  "sources": [
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": []
+}

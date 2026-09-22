@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220813384895",
+  "name": "어장횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 30362,
+  "researchedAt": "2026-09-21T21:55:26.666Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 및 실제 운영 사실을 확인할 수 없음 (폐업 또는 실체 불명)",
+  "notes": "부산광역시 강서구 가덕해안로 1221(대항동 235번지 인근)에 등록되었던 '어장횟집'은 과거 상호 DB 외에 현재 운영 정보, 방문 후기, 메뉴, 영업시간 등의 실질적인 정보가 검색되지 않아 조사를 완료할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://nett.kr",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

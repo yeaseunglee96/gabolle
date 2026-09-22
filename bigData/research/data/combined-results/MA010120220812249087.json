@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220812249087",
+  "name": "하루스시물회",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 173725,
+  "researchedAt": "2026-09-21T14:18:59.229Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 남구 문현금융로 20-5(문현동 734-11) 소재지로 식품접객업 인허가 및 공공기관 업무추진비 집행 내역 등 행정 등록 정보는 확인되나, 방문자 리뷰·블로그·영업시간·메뉴판 등 일반 이용객 대상 웹 상세 정보는 부재함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 문현금융로 20-5 (문현동 734-11 외 1필지)에 위치한 '하루스시물회'에 대한 정보입니다. 이곳은 부산 남구 문현동 지역의 식품접객업소로 등록되어 있으며, 주변에는 다양한 상가 및 편의시설이 위치해 있습니다. 관련 공공 데이터 및 업무추진비 사용 내역 등에서 해당 상호명을 확인할 수 있습니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

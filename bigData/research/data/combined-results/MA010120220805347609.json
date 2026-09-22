@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220805347609",
+  "name": "씨와",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 44105,
+  "researchedAt": "2026-09-21T13:57:27.442Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 뚜렷한 언급 없음 (예약 가능 안내 위주)"
+  },
+  "descriptors": {
+    "audience": "관광객, 연인, 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스테이크 로제파스타",
+      "꿀대구 크림스테이크",
+      "부채살 스테이크",
+      "랍스터 요리"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 24:00 (매일)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객에 대한 명시적 비교/언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 해운대구 달맞이길62번길 55에 위치한 상호명 '씨와'(일명 미포씨와)에 대한 조사 결과입니다. 오션뷰 루프탑 레스토랑으로 파스타, 스테이크, 피자, 와인 등을 판매합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미포씨와 (Miposeawa): 해당 주소(달맞이길62번길 55) 6층에 위치한 레스토랑으로, 바다 전망(오션뷰)을 감상하며 식사와 와인 등을 즐길 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://www.polle.com/"
+    },
+    {
+      "excerpt": "위치: 부산광역시 해운대구 달맞이길62번길 55 (서울횟집 6층). 주요 메뉴: 스테이크 로제파스타, 꿀대구 크림스테이크, 랍스터 요리, 각종 파스타 및 피자 등. 특징: 바다를 바라볼 수 있는 훌륭한 전망을 갖추고 있으며, 와인과 함께 식사를 즐기기 좋은 곳으로 알려져 있습니다. 반려견 동반이 가능하며 예약 및 주차가 가능합니다.",
+      "url": "https://www.loyqu.com/"
+    },
+    {
+      "excerpt": "부산 해운대구 달맞이길62번길 55, 6층. 영업시간: 11:00 ~ 24:00 (매일). 주요 메뉴: 스테이크 로제파스타, 해산물 트러플/토마토 파스타, 부채살 스테이크, 랍스터 한마리 요리, 피자류",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.polle.com/",
+    "https://www.loyqu.com/",
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 미포 바다를 한눈에 내려다볼 수 있는 루프탑 오션뷰와 와인을 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202406A0414906",
+  "name": "고농소머리곰탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 62206,
+  "researchedAt": "2026-09-21T14:28:37.493Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인, 어르신 등 다양한 연령층",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "소머리곰탕",
+      "수육",
+      "도가니탕",
+      "육개장"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 용호동에 위치한 곰탕/수육 전문점으로, 수육 주문 시 인원수대로 기본 곰탕 국물이 제공되는 등의 푸짐함과 주차 편의(건너편 주차장 1시간 지원)를 갖춘 식당입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 용호로 245-1 (2층), 대표 메뉴: 소머리곰탕, 수육, 육개장, 도가니탕, 특징: 주차 가능, 포장 가능, 좌식 및 입식 테이블이 모두 마련되어 있으며, 좌식 테이블 쪽에는 온돌이 설치되어 있습니다. 수육 주문 시 인원수대로 기본 곰탕이 제공되기도 하여 방문객들에게 평이 좋습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "상호명: 고농소머리곰탕, 주소: 부산광역시 남구 용호로 245-1 (2층), 영업 시간: 매일 10:00 ~ 22:00, 주차 정보: 건너편 '착한소' 주차장 1시간 무료 이용 가능",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://siksinhot.com",
+    "https://visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수육 주문 시 인원수별 기본 곰탕 제공 등 푸짐하고 깔끔한 맛과 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "인근 전용 주차장 1시간 지원 및 포장 가능 등 이용 편의성",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

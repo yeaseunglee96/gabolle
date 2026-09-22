@@ -1,0 +1,83 @@
+{
+  "id": "MA0101202306A0102929",
+  "name": "아츠이",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 53144,
+  "researchedAt": "2026-09-21T14:02:17.767Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 명시적 언급 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "연인(데이트), 혼술객, 지역 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "철판요리 코스",
+      "안심 스테이크",
+      "크림가리비",
+      "사시미"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 17:30 - 01:00 / 주말 17:00 - 01:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "수영역 인근 광안동 골목 데이트 코스 및 혼술 술집으로 지역 거주민/방문객 위주로 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "조선호텔 출신 셰프가 운영하는 철판 이자카야로, 합리적인 가격대의 철판 코스 및 만원대 단품 안주(스테이크, 크림가리비, 사시미 등)를 제공함.",
+  "price": {
+    "found": true,
+    "priceMenu": "철판 코스 1인 36,000원 / 단품 요리 10,000원대~",
+    "priceWon": 36000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "아츠이 (철판이자카야) 위치: 부산광역시 수영구 수영로666번길 71 (광안동) 1층. 조선호텔 출신 셰프가 선보이는 철판요리 코스 및 단품 메뉴를 제공합니다. 불쇼, 크림가리비, 안심 스테이크, 사시미 등 다양한 메뉴가 있으며, 혼술하기에도 좋은 분위기로 알려져 있습니다. 영업시간: 평일 17:30 - 01:00 / 주말 17:00 - 01:00",
+      "url": "https://www.facebook.com"
+    },
+    {
+      "excerpt": "코스 요리: 1인 36,000원의 합리적인 가격으로 코스 요리를 즐길 수 있습니다. 단품 메뉴: 코스 외에도 만원대의 다양한 단품 철판요리를 제공하며, 크림가리비, 안심 스테이크, 일식 튀김, 신선한 사시미 등이 주요 메뉴입니다. 데이트 코스: 접근성이 좋고 분위기가 좋아 광안리 및 수영역 인근 데이트 코스로 인기가 많습니다.",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "조선호텔 출신 셰프의 완성도 높은 철판구이와 사시미 안주 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1인 3만 원대 철판 코스 및 1만 원대 단품 안주로 가성비 우수",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "수영역 인근 데이트 및 분위기 좋은 혼술 장소로 추천됨",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

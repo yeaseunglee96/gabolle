@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220805949299",
+  "name": "옥정식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 29907,
+  "researchedAt": "2026-09-21T22:17:04.050Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지고기구이",
+      "영양밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매주 월요일 정기 휴무 (상세 영업시간 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "신개금LG아파트 인근 주민들이 주로 찾는 동네 현지 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산진구 개금동 백양대로 305에 위치한 한식/돼지고기 구이 및 식사 전문 식당으로, 신개금 인근 주민들의 식사 및 고기 구이 수요가 있는 곳입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 백양대로 305 (개금동)에 위치한 옥정식당. 낮에는 식사(점심 특선 영양밥 등) 장소로, 저녁에는 생삼겹살, 목살, 돼지갈비 등 고기류를 즐길 수 있는 식당으로 알려져 있습니다. 현지인들이 많이 찾는 가성비 맛집으로 언급되며, 밑반찬과 한우 된장찌개 등에 대한 좋은 평가가 있습니다. 매주 월요일은 정기 휴무입니다.",
+      "url": "https://wanderboat.ai"
+    },
+    {
+      "excerpt": "옥정식당은 부산광역시 부산진구 개금동 백양대로 305에 위치한 음식점입니다. 돼지고기 구이 및 찜 등을 전문으로 하는 한식당으로 알려져 있습니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://wanderboat.ai",
+    "https://zippoom.com",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "점심 영양밥 및 저녁 생삼겹살·돼지갈비 등 가성비 있는 식사와 고기 메뉴를 찾는 수요",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "인근 주민 및 현지인들이 편하게 찾는 동네 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220807559092",
+  "name": "삥양무카타",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 30954,
+  "researchedAt": "2026-09-21T21:56:28.439Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 연제구 거제천로 171 소재의 '삥양무카타'에 대한 검색 결과가 존재하지 않습니다.",
+  "notes": "부산 연제구 거제천로 171 및 '삥양무카타' 상호로 검색을 진행하였으나 실제 식당 등록 정보 및 리뷰/웹 문서가 전혀 존재하지 않아 폐업 또는 등록되지 않은 가상 정보로 판단됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220803504679",
+  "name": "낙동횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 62186,
+  "researchedAt": "2026-09-21T22:23:32.046Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기·혼잡 정보 없음"
+  },
+  "descriptors": {
+    "audience": "일반 시장 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 확인 불가"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 북구 구포시장6길 14에 '어시장낙동횟집'(낙동회집)으로 등록/언급되어 있으나 상세 후기 및 정량 정보가 웹상에 부재함",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업체명: 어시장낙동횟집 (낙동회집), 주소: 부산광역시 북구 구포시장6길 12 또는 14 (지번: 구포동 592-10)",
+      "url": "https://www.bsbukgu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.bsbukgu.go.kr",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

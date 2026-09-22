@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810534558",
+  "name": "신필성참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 38412,
+  "researchedAt": "2026-09-21T22:33:58.318Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "null",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "참치회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 5시부터 영업 시작 (17:00 ~)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 사하구 사하로 202(괴정동 967-1)에 위치한 정통 참치회 전문점으로 식신 및 각종 사업체 디렉토리에 등록되어 있으나, 온라인 상세 리뷰나 메뉴판 가격 정보는 제한적임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "괴정동 지역에서 정통 참치회 전문점으로 알려져 있으며... 상호명: 신필성참치, 주소: 부산광역시 사하구 괴정동 967-1번지 (도로명 주소: 부산광역시 사하구 사하로 202 등), 연락처: 051-205-3883",
+      "url": "https://koreacharts.com"
+    },
+    {
+      "excerpt": "식신 등 맛집 서비스에서 괴정동의 정통 참치 전문점으로 소개된 바 있습니다. 영업시간: 오후 5시부터 영업을 시작하는 것으로 알려져 있습니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com",
+    "https://siksinhot.com",
+    "https://autoreserve.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "괴정동 일대에서 정통 참치회를 즐길 수 있는 참치 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

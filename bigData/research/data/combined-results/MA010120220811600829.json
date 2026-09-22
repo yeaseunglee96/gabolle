@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811600829",
+  "name": "본가국밥",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 36419,
+  "researchedAt": "2026-09-21T21:57:20.406Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "국밥"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 금정구 오시게로 34(부곡동 873-43)에 위치한 한식 국/탕/찌개류 일반음식점(전화번호: 051-582-4084)으로 기본 사업체 등록 정보는 확인되나, 상세 블로그 리뷰나 세부 메뉴 가격, 영업시간 등의 정량 정보는 온라인상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 본가국밥, 주소: 부산광역시 금정구 오시게로 34 (부곡동 873-43), 업종: 한식(국밥, 수육, 보쌈 등), 전화번호: 051-582-4084",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com",
+    "https://wheelbusan.or.kr"
+  ],
+  "whyPeopleGo": []
+}

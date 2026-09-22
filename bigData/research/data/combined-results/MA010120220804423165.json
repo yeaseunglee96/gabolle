@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220804423165",
+  "name": "엠슐랭",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 63886,
+  "researchedAt": "2026-09-21T21:45:31.045Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 실제 운영 중인 일반 음식점 정보 및 후기를 웹에서 찾을 수 없음",
+  "notes": "해당 주소(부산 동래구 동래로 137-2 / 복천동)로 '엠슐랭' 상호가 지역화폐(동백전/소비쿠폰) 가맹점 공공데이터 목록 등에 일부 등록된 흔적 외에는, 실제 방문 후기나 영업 시간, 메뉴, 가격 등 실질적인 매장 운영 및 식당 방문 정보를 웹에서 확인할 수 없습니다. (금정구 부곡동/부산대 인근에 위치한 양식당 '엠슐랭'과 혼동되거나 배달/사업자 등록 전용 또는 폐업 상태로 추정됩니다.)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 동래로 137-21 인근에서 '엠슐랭'이라는 상호와 관련하여 동백전 및 각종 지원금 사용처로 언급된 기록이 있습니다.",
+      "url": "https://114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://114.co.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202505A0036125",
+  "name": "창민드높",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 77574,
+  "researchedAt": "2026-09-21T13:56:46.916Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "점심(12~13시)과 저녁(18~20시) 피크 타임에는 혼잡할 수 있음"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "수영구 및 인근 주민들에게 알려져 있는 동네 경양식 음식점"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "2026년 초 신규 등록된 광안동 경양식 음식점으로, 온라인 상세 메뉴판 및 가격 정보는 제한적임. 주차 불가하며 피크타임 혼잡 언급 있음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'창민드높'은 부산광역시 수영구 광안동(수영구 수영로540번길 36)에 위치한 서양식·경양식 음식점입니다. 소상공인시장진흥공단 분류 기준 '서양식·경양식' 전문점으로 수영구 주민들 사이에서 정성스러운 손맛으로 알려져 있는 곳입니다. 주차 공간이 별도로 마련되어 있지 않아 대중교통 이용이 권장됩니다. 점심(12~13시)과 저녁(18~20시) 피크 타임에는 혼잡할 수 있습니다.",
+      "url": "https://udanax.org"
+    },
+    {
+      "excerpt": "사업자 정보상 2026년 초에 설립된 것으로 확인되며, 영업 상태는 영업 중으로 조회됩니다. 도로명주소: 부산광역시 수영구 수영로540번길 36 (광안동 169-36), 업종: 서양식 음식점업 (경양식)",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://pervsi.com",
+    "https://marketbz.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 주민들에게 정성스러운 손맛의 동네 경양식 음식점으로 인식됨",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

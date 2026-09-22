@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202307A0027096",
+  "name": "어번스키친",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 81500,
+  "researchedAt": "2026-09-21T14:19:24.752Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게의 실제 영업 상세 및 방문 후기 정보를 웹상에서 찾을 수 없음 (주소지 사업자 등록 흔적 외 상세 정보 부재)",
+  "notes": "부산진구 범천동(황령대로17번길)에 위치한 '어번스키친'은 주소지 관련 상호 등록 흔적 외에 구체적인 식당 메뉴판, 영업시간, 이용 후기 등이 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

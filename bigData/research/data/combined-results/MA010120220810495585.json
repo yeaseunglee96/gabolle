@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220810495585",
+  "name": "청림숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 44371,
+  "researchedAt": "2026-09-21T21:46:37.671Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "갈비",
+      "삼겹살"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 중구 초량중로5번길 5(영주동 53-8)에 등록된 '청림숯불갈비'(갈비/삼겹살 전문)로 확인되나, 개인 블로그 방문기나 상세 리뷰가 매우 드물어 가격 및 혼잡도/방문 이유 등은 온라인에 상세히 공개되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업체명: 청림숯불갈비, 전화번호: 051-465-2779, 주소: 부산광역시 중구 초량중로5번길 5 (영주동 53-8), 영업시간: 10:00 ~ 22:00, 업종: 한식 (갈비/삼겹살)",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": []
+}

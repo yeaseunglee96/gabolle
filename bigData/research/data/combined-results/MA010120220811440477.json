@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220811440477",
+  "name": "향돈",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 80072,
+  "researchedAt": "2026-09-21T14:29:05.339Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 망미로22번길 56-1(망미동 810-18)에 등록되었던 음식점 '향돈'은 기본 사업자/연락처 정보 외에 후기나 구체적인 영업/메뉴 정보가 거의 남아있지 않으며 현재 폐업 상태로 확인됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 망미로22번길 56-1 (지번 주소: 망미동 810-18), 전화번호: 051-758-9900, 051-752-7355. 현재 해당 업체는 폐업 상태로 등록되어 있습니다.",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://linktoplace.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

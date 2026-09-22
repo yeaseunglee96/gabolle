@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220810786480",
+  "name": "왔다돈데이",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 43206,
+  "researchedAt": "2026-09-21T21:48:50.674Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 후기 및 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 동래구 명안로85번길 7(명장동 132-3)에 사업자/업체 등록(육류, 고기요리 업종) 기록은 존재하나, 세부 메뉴, 가격, 영업시간, 방문자 리뷰 등의 상세 웹 데이터가 확인되지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 왔다돈데이, 소재지: 부산광역시 동래구 명안로85번길 7 (명장동 132-3), 업종: 음식점 (육류, 고기요리)",
+      "url": "https://bigvalue.ai"
+    },
+    {
+      "excerpt": "부산광역시 동래구 명안로85번길 7 일반음식점 육류, 고기요리 등록 정보",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai",
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": []
+}

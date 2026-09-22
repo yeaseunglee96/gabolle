@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810509468",
+  "name": "민경식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 55807,
+  "researchedAt": "2026-09-21T22:03:17.999Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도나 줄서기에 대한 웹 리뷰나 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "정식",
+      "물메기탕",
+      "우럭매운탕",
+      "홍어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인 (방문 전 전화 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 직접적 언급 없음 (공동어시장/남부민동 인근 소규모 백반·해물탕 식당)"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 서구 충무대로 207-16에 위치한 한식/탕 전문 식당으로 정식 및 매운탕류를 취급하나 후기나 방문 리뷰가 매우 드묾.",
+  "price": {
+    "found": true,
+    "priceMenu": "정식 10,000원, 물메기탕/우럭매운탕/홍어탕 각 17,000원, 라면 4,000원",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 서구 충무대로 207-16 1층. 주요 메뉴: 정식 (10,000원), 물메기탕, 우럭매운탕, 홍어탕 (각 17,000원), 라면 (4,000원). 전화번호: 010-3699-0985. 자갈치역에서 도보로 약 13분 거리에 위치하고 있습니다.",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정식 및 물메기탕, 우럭매운탕 등 탕류 중심의 식사를 하기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

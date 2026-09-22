@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202511A0037969",
+  "name": "경주해관",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50795,
+  "researchedAt": "2026-09-21T21:52:54.397Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 있어 웨이팅이 발생할 수 있으므로 방문 전 전화 확인이나 예약을 권장함"
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 혼술객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "비프스튜",
+      "안심카츠",
+      "나폴리탄 스파게티",
+      "와인"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "마감 시간: 02:00, 라스트오더: 01:00, 정기 휴무: 매달 둘째·넷째 주 일요일 및 월요일"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "중앙동·남포동 일대에서 혼술이나 조용한 모임을 즐기려는 현지 직장인 및 방문객 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 중구 대청로134번길 10에 위치한 경주해관은 빈티지 우드톤 인테리어 속에서 비프스튜, 안심카츠, 나폴리탄 스파게티 등 경양식 안주류와 와인을 즐길 수 있는 요리주점/와인바입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 중구 중앙동(대청로)에 위치한 '경주해관(鯨酒海關)'은 낮에는 캐주얼 카페로, 밤에는 분위기 있는 요리주점 및 와인바로 운영되는 공간입니다. 우드톤의 전통적인 인테리어와 빈티지한 분위기로 잘 알려져 있으며, 와인과 위스키를 비롯한 다양한 주류와 함께 비프스튜, 파스타 등의 안주를 판매합니다. 중앙동 일대에서 혼술이나 조용한 모임을 즐기기에 좋은 곳으로 입소문이 난 장소입니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "부산광역시 중구 대청로134번길 10에 위치한 경주해관. 마감 시간: 02:00, 마지막 주문(Last Order): 01:00, 정기 휴무: 매달 둘째, 넷째 주 일요일 및 월요일. 주요 메뉴: 안심카츠, 하이라이스, 나폴리탄 스파게티, 비프스튜, 마라떡볶이(1인분), 즉석떡볶이(1인분), 감자튀김 등. 와인(잔), 치즈 플레이트 등.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://tistory.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "빈티지하고 아늑한 우드톤 공간에서 와인과 함께 즐기는 비프스튜, 안심카츠 등 훌륭한 맛의 경양식 요리 안주",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

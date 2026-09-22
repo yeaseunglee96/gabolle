@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202503A0016274",
+  "name": "직진",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 67298,
+  "researchedAt": "2026-09-21T14:12:15.415Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산광역시 해운대구 대천로 56, 해운대한일아파트 단지 및 상가) 및 인근에 '직진'이라는 상호의 일식 회/초밥 음식점이 존재하지 않습니다.",
+  "notes": "부산 해운대구 대천로 56 및 해운대 일대에서 '직진' 상호의 일식당/횟집을 다각도로 검색하였으나, 해당 주소는 아파트 상가(분식점, 카페 등 입점)이며 음식점 '직진'에 대한 정보는 존재하지 않고 길 안내 단어만 확인되어 존재하지 않는 가게로 판정했습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

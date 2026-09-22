@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202303A0075677",
+  "name": "대동횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 44514,
+  "researchedAt": "2026-09-21T21:48:10.761Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 후기 및 실제 영업 정보 부재",
+  "notes": "해당 주소(부산광역시 동래구 충렬대로108번길 59) 및 지번(온천동 1452-36)의 '대동횟집'은 인허가/상가 디렉토리 외에 실제 방문 후기, 메뉴 가격, 영업시간 등 식당 운영 및 방문 이유를 파악할 수 있는 정보가 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대동횟집 주소: 부산광역시 동래구 온천동 1452-36 전화번호: 없음(미확인)",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

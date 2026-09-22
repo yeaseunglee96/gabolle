@@ -1,0 +1,59 @@
+{
+  "id": "MA010120220805447601",
+  "name": "토흐",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 67764,
+  "researchedAt": "2026-09-21T14:22:58.459Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "학생, 인근 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "델리돈까스",
+      "양파돈가스",
+      "오므라이스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산대학교 인근 장전동에 위치한 경양식/돈까스 전문점으로, 제주도 흑돼지 생등심을 사용하며 돈까스를 잘라 소스와 볶아낸 '델리돈까스'가 대표적이다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제주도 흑돼지 생등심을 사용하는 돈까스 전문점입니다. 대표 메뉴로는 돈까스를 잘라 소스와 볶아낸 '델리돈까스'가 있으며, 오므라이스와 파스타 등도 판매합니다. 내부는 차분한 브라운 톤에 식물을 배치한 인테리어로 꾸며져 있으며, 키오스크를 통한 셀프 주문 방식을 사용합니다.",
+      "url": "https://www.siksinhot.com/P/1066060"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1066060"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제주도 흑돼지 생등심을 사용하며 돈까스를 잘라 소스와 볶아낸 독특한 델리돈까스를 맛볼 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

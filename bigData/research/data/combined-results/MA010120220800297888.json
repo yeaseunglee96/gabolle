@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220800297888",
+  "name": "좌동수제왕돈가스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 55451,
+  "researchedAt": "2026-09-21T21:47:38.972Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 아파트 주민 및 상가 이용객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제왕돈가스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "해운대구 대천로103번길 61(좌동 1398) LG아파트 상가동 114호에 등록된 경양식 돈가스 전문점으로, 웹상에서는 주로 상가 사업자 등록 및 구인 정보 외에 상세 메뉴판/영업시간/리뷰 정보가 제한적으로 확인됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 대천로103번길 61 (좌동, 엘지아파트 상가동 114호) 좌동수제왕돈가스",
+      "url": "https://alba.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 좌동 1398 상가동 114호 좌동수제왕돈가스",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://alba.co.kr",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아파트 상가 내에서 옛날식 경양식 왕돈가스를 가볍게 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

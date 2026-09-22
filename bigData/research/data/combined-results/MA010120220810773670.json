@@ -1,0 +1,59 @@
+{
+  "id": "MA010120220810773670",
+  "name": "용소천",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 61661,
+  "researchedAt": "2026-09-21T14:21:35.464Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주민·애주가",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "향어회",
+      "메기매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "공식/포털 등록 상호는 '용소천향어회메기매운탕'(약칭 용소천)이며, 향어회와 메기매운탕 전문 노포 횟집입니다. 도로명 주소는 용호로1번길 10(용호1동 80-33)에 등록되어 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 용호로1번길 10 (지번 주소: 용호1동 80-33) 연락처: 051-628-9951 영업시간: 매일 11:30 ~ 23:00 향어회와 메기매운탕을 전문으로 하는 식당으로 알려져 있으나, 일부 후기에서는 메뉴 구성이나 운영 상황이 시기에 따라 달라질 수 있다는 점을 언급하고 있습니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://dinnerqueen.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "도심에서 흔치 않은 민물 향어회와 메기매운탕 전문점으로 오랜 단골들이 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

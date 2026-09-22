@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220811802938",
+  "name": "신박돼지",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 40885,
+  "researchedAt": "2026-09-21T21:55:05.521Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 금정구 두실로 13에 등록된 돼지고기 구이/찜 전문 음식점이나, 상세 후기나 메뉴/가격/영업시간 등 세부 영업 데이터는 웹상에서 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "신박돼지는 부산광역시 금정구 구서동(두실로 13)에 위치한 돼지고기 구이 및 찜 전문점입니다. 소재지: 부산광역시 금정구 두실로 13 (구서동 161-39), 업종: 음식 (돼지고기 구이/찜) 일반음식점으로 확인됩니다. 현재 온라인상의 상세한 블로그 후기나 구체적인 리뷰 정보는 부족한 상태입니다.",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai",
+    "https://disco.re",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

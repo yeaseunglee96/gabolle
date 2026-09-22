@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220813726640",
+  "name": "뚱돈",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 68468,
+  "researchedAt": "2026-09-21T14:21:24.361Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "삼겹살",
+      "된장찌개",
+      "김치찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월요일~토요일 14:00–22:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 남구 용호동 착한가격업소로 등록된 돼지고기 구이 및 찌개 식당. 삼겹살(400g 30,000원), 된장찌개(5,000원), 김치찌개(7,000원) 등의 가성비 메뉴를 판매함.",
+  "price": {
+    "found": true,
+    "priceMenu": "된장찌개 5,000원, 김치찌개 7,000원, 삼겹살 400g 30,000원",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 용호동에 위치한 '뚱돈'은 행정안전부 지정 '착한가격업소'로 등록되어 있으며, 대표적인 메뉴와 가격 정보는 다음과 같습니다. 위치: 부산광역시 남구 동명로131번길 28 (용호동), 주요 메뉴 및 가격: 된장찌개 5,000원",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 남구 동명로131번길 28 (용호동 370-1). 영업시간: 월~토: 14:00 – 22:00, 일요일: 휴무. 삼겹살: 400g 기준 30,000원, 된장찌개: 5,000원, 김치찌개: 7,000원. 전화번호: 070-4240-2017",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "행정안전부 착한가격업소 지정 매장으로 저렴한 찌개 식사와 가성비 있는 삼겹살 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "MA0101202603A0041876",
+  "name": "로즈bar",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 83774,
+  "researchedAt": "2026-09-21T21:48:24.033Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 동래구 미남로 77(온천동)에 상호 '로즈bar'의 사업장 소재지 정보는 확인되나, 일반 식당/경양식 맛집 후기나 메뉴·가격·영업시간·방문 목적 관련 정보는 웹상에 존재하지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "로즈bar 부산 동래구 미남로 77 (온천동) 1층",
+      "url": "https://www.albamon.com"
+    }
+  ],
+  "sources": [
+    "https://www.albamon.com"
+  ],
+  "whyPeopleGo": []
+}

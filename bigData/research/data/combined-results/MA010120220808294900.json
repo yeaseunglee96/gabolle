@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220808294900",
+  "name": "호호갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42103,
+  "researchedAt": "2026-09-21T21:53:12.275Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "쪽갈비",
+      "등갈비",
+      "된장찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광객/현지인 구분 언급 없음 (인근 주거지/동백전 가맹점 위주 확인)"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 연제구 고분로 108에 등록된 돼지고기 구이 전문점으로, 쪽갈비와 등갈비, 된장찌개 등을 취급하는 동네 일반 음식점으로 확인되나 상세 방문 후기 및 세부 정량 정보는 웹상에 매우 제한적임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 고분로 108 호호갈비 쪽갈비와 된장찌개 메뉴가 있는 음식점입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 연제구 지역화폐(동백전) 가맹점 목록: 상호명 호호갈비, 소재지 부산광역시 연제구 고분로 108",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "쪽갈비와 등갈비 구이 및 된장찌개를 즐기기 위한 식사 목적",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

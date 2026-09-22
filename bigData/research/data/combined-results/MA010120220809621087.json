@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220809621087",
+  "name": "씨푸드127",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 39166,
+  "researchedAt": "2026-09-21T14:17:42.874Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "입점 매장별로 점심시간 등에 웨이팅이 발생할 수 있으니 방문 전 확인이 권장된다는 언급이 있음"
+  },
+  "descriptors": {
+    "audience": "해산물/회 외식 및 단체 모임 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "활어회",
+      "회전초밥",
+      "물회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "'씨푸드127'은 부산 남구 대연동(못골로12번길 63)에 위치한 수산물/해산물 외식 복합 푸드센터 건물로, 1층 오륙도수산(활어 판매/포장), 2층 스시몽(회전초밥), 3층 어라물회(초장집/물회), 5~6층 일식당 등이 입점해 운영되는 곳입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "초장 상차림 1인 6,000원 (1층 오륙도수산에서 구매 후 3층 초장집 이용 시)",
+    "priceWon": 6000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 못골로12번길 63 (대연동). 1F: 오륙도수산 (활어 및 해산물 판매, 포장/배달), 2F: 스시몽 (회전초밥), 3F: 어라물회 (횟집/초장집, 물회 등 해산물 요리), 4F: 신토불이 (족발 및 보쌈), 5F·6F: 유메 (프리미엄 일식 레스토랑, 코스요리/오마카세 등). 1층 오륙도수산에서 횟감을 구매한 뒤 3층 초장집(어라물회)에서 상차림 비용을 내고 드실 수 있는 시스템 등이 마련되어 있습니다. 초장 상차림: 1층 오륙도수산에서 구매한 횟감을 3층 어라횟집(어라물회)에서 드실 경우, 1인당 6,000원의 상차림 비용이 발생합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "해당 건물 내 별도의 전용 주차 공간은 마련되어 있지 않은 것으로 확인됩니다. 방문 시 인근 공영주차장이나 대중교통(지하철, 버스 등)을 이용하시는 것을 권장합니다. 특정 맛집의 경우 점심시간 등에 웨이팅이 발생할 수 있으므로, 방문 전 해당 매장에 직접 전화하여 영업 여부와 현재 웨이팅 상황을 확인하시는 것이 가장 정확합니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "활어회 포장 구매 후 초장집 연계 이용, 회전초밥, 프리미엄 일식 코스까지 한 건물에서 다양하게 즐길 수 있는 수산물 외식 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

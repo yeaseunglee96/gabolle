@@ -1,0 +1,51 @@
+{
+  "id": "MA010120220803512994",
+  "name": "돈갓수제돈까스우암점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 43721,
+  "researchedAt": "2026-09-21T22:03:04.825Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "돈까스"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 남구 우암로 262(우암동 184-6)에 위치한 상호 및 POS 설치 이력이 확인되는 수제돈까스 매장이나, 배달 전문/소규모 매장 특성상 블로그 리뷰나 세부 방문기 및 정량적 상세 정보(영업시간, 상세 메뉴판, 대기 정보 등)는 웹상에 상세히 노출되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 우암로 262 (우암동) 돈갓 수제돈까스 우암점",
+      "url": "https://marketbz.com"
+    }
+  ],
+  "sources": [
+    "https://marketbz.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수제 돈까스 메뉴를 전문으로 취급하는 동네 돈까스 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

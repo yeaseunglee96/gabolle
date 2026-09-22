@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220811591255",
+  "name": "부곡회센타",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 28068,
+  "researchedAt": "2026-09-21T22:20:11.250Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 금정구 오시게로54번길 27(부곡동 387-3) 소재 일반음식점(일식/횟집) 인허가 및 디렉토리 데이터는 확인되나, 방문자 리뷰, 메뉴판 세부 내역, 영업시간 등 상세 온라인 정보는 부재함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업소명: 부곡회센타, 소재지: 부산광역시 금정구 오시게로54번길 27 (부곡동 387-3), 전화번호: 051-517-6905, 업종: 일반음식점(일식/수산물)",
+      "url": "https://www.geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

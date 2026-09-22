@@ -1,0 +1,88 @@
+{
+  "id": "MA010120220810603050",
+  "name": "배산정",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 32448,
+  "researchedAt": "2026-09-21T22:05:39.260Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 관한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "현지인 및 인근 주민, 단골손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "오리불고기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "집밥 스타일의 반찬과 오리불고기를 제공하는 현지인 맛집 및 단골 위주의 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 연제구 금련로 6에 위치한 배산정은 오리불고기와 집밥 스타일의 반찬을 제공하는 현지인·단골 중심의 한식당입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 금련로 6에 위치한 오리불고기 전문점으로, 현지인 맛집으로 소개되고 있습니다. 운영 시간은 11:30~21:00이며, 지하철역 및 버스정류장과 가까워 접근성이 좋고 집밥 스타일의 반찬과 푸짐한 오리불고기를 제공하는 가성비 맛집으로 언급됩니다. 내부를 갖추고 있으며, 신발을 벗고 들어가는 방식입니다.",
+      "url": "https://kr.trip.com/travel-guide/foods/busan-120067-restaurant/baesanjeong-100237937/"
+    },
+    {
+      "excerpt": "상호: 배산정, 주소: 부산광역시 연제구 금련로 6 (연산동 1811-214), 업종: 한식",
+      "url": "https://koreacharts.com/map/1811-214.html"
+    }
+  ],
+  "sources": [
+    "https://kr.trip.com/travel-guide/foods/busan-120067-restaurant/baesanjeong-100237937/",
+    "https://koreacharts.com/map/1811-214.html"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "집밥 스타일의 정갈한 반찬과 푸짐하고 가성비 좋은 오리불고기를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "인근 주민과 단골들이 주로 찾는 편안한 현지인 밥집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "지하철역 및 버스 정류장과 가까워 대중교통 접근성이 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "푸짐한 양과 부담 없는 가격대의 가성비 식당",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

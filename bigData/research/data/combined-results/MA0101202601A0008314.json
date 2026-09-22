@@ -1,0 +1,53 @@
+{
+  "id": "MA0101202601A0008314",
+  "name": "경미횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 96166,
+  "researchedAt": "2026-09-21T14:15:22.703Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "모듬회",
+      "자연산회"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 안쪽에 위치한 전형적인 로컬 식당/횟집 형태"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 남구 용호로 242-6 골목 내 위치한 횟집으로 모듬회와 자연산회를 취급하는 소규모 식당. 상세 영업시간 및 가격표는 웹상 미제공.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 용호로 242-6 (용호동), 전화번호 051-623-9269, 싱싱한 모듬회와 자연산 회 제공",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 모듬회와 자연산 회를 맛보기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

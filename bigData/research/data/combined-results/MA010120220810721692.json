@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220810721692",
+  "name": "르츠과자점",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 33300,
+  "researchedAt": "2026-09-21T22:24:47.831Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 웹 상의 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 아파트 주민 및 동네 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "구포동 유림노르웨이숲 아파트 상가에 위치하여 주로 인근 아파트 및 동네 주민들이 일상적으로 찾는 동네 빵집임"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 북구 낙동북로 737(구포동 유림노르웨이숲 아파트 상가)에 위치한 제과점. 약 20년간 동네 빵집 및 아파트 단지 인근 랜드마크 지점으로 주민들이 이용함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 구포동 유림노르웨이숲아파트 상가 내에 위치한 제과점(빵/도넛). 20년 이상의 업력을 가진 동네 제과점으로 인근 주민들이 이용함.",
+      "url": "https://ubell.net"
+    },
+    {
+      "excerpt": "구포동 유림노르웨이숲 아파트 상가 인근 동네 빵집 르츠과자점",
+      "url": "https://disco.re"
+    }
+  ],
+  "sources": [
+    "https://ubell.net",
+    "https://disco.re"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 아파트 단지 상가에서 20년 가까이 자리를 지킨 친숙한 동네 빵집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "유림노르웨이숲아파트 인근 주민들이 일상적으로 이용하는 생활 밀착형 제과점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

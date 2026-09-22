@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220810895081",
+  "name": "유로파크",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 52248,
+  "researchedAt": "2026-09-21T14:22:02.428Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 기장군 장안읍 구기길 19-9에 위치한 '(주)유로파크'는 횟집 음식점이 아니며, 해당 주소지에서 대형 카페 '보몽드(Beau Monde)'를 운영하는 법인 회사입니다. 해당 업종의 음식점으로 조회되지 않아 found: false 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "(주)유로파크 기업정보. 대표자: 기보석, 설립일: 2012년 11월 19일, 주소: 부산 기장군 장안읍 구기길 19-9, 업종: 커피 전문점. 주요 사업: 보몽드 카페 운영.",
+      "url": "https://www.jobplanet.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 기장군 장안읍 구기길 19-9에 위치한 곳은 '보몽드(Beau Monde)'라는 대형 디저트 카페입니다. 해당 카페인 '보몽드'를 운영하는 법인체의 사명이 '(주)유로파크'입니다.",
+      "url": "https://www.saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.jobplanet.co.kr",
+    "https://www.saramin.co.kr",
+    "https://www.nicebizinfo.com"
+  ],
+  "whyPeopleGo": []
+}

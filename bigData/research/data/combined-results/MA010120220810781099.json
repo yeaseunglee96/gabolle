@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220810781099",
+  "name": "아우미돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65786,
+  "researchedAt": "2026-09-21T22:15:55.106Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "일본식 돈까스"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 단골들이 점심/저녁 및 배달로 찾는 지역 밀착형 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 연제구 배산로 1(연산동 2132-37)에 위치한 '아우미돈까스(아우미 일식돈까스)'는 동네 단골 및 배달 위주로 소비되는 일본식 돈까스 전문점입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": "-",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 연제구 연산동에 위치한 '아우미 일식돈까스'에 대한 정보입니다. 해당 식당은 블로그 등에서 연산동 지역의 일본식 돈까스 맛집으로 소개된 바 있으며, 주로 점심이나 저녁 식사 메뉴로 인기가 있는 동네 단골집으로 언급됩니다. 배달을 통해 자주 이용하는 식당 중 하나로 소개되었습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "아우미돈까스 주소: 부산광역시 연제구 연산동 2132-37번지 연락처: 051-867-8443",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네 주민과 단골들이 식사 및 배달로 자주 찾는 일본식 돈까스 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

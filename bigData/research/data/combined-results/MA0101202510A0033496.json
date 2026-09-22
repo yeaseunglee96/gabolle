@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202510A0033496",
+  "name": "어비스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 40503,
+  "researchedAt": "2026-09-21T14:05:47.922Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 중앙대로680번가길 47(부전동 168-94) 소재 '어비스'는 사업자/업소 DB(siksinhot, bizno 등)에 상호명과 주소만 등록된 내역 외에 실제 운영 중인 경양식 식당으로서의 영업정보(메뉴, 가격, 영업시간, 방문 후기 등)가 웹상에 존재하지 않아 정상적인 음식점으로 확인할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 중앙대로680번가길 47 (부전동 168-94). 세계음식 > 카페/커피숍",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

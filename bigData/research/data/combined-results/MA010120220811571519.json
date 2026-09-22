@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220811571519",
+  "name": "성안집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 32165,
+  "researchedAt": "2026-09-21T22:26:49.200Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 웨이팅에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 산행 후 단체 모임객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "흑염소숯불구이",
+      "오리숯불구이",
+      "닭백숙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00 ~ 21:00 (라스트오더 20:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 중심인지에 대한 명시적 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "부산 금정산성 동문 인근(금성동 630-2)에 위치한 흑염소, 오리, 백숙 보양음식 전문점입니다. 대형 주차장과 족구장, 단체석을 갖추고 있어 산행 후 단체 모임이나 외식 장소로 이용됩니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "성안집은 부산광역시 금정구 동문로 45에 위치한 보양음식 전문점이다. 대표 메뉴는 흑염소숯불구이, 닭백숙이며 오리숯불구이, 오리백숙, 닭볶음탕, 파전, 도토리묵 등을 판매한다. 영업시간은 10:00~21:00(라스트오더 20:00)이다. 금정산성 동문 인근에 위치해 대형 주차장, 족구장, 노래방 시설을 갖추고 있어 단체 모임이나 산행 후 식사하기에 편리하다. 채소를 직접 재배하여 사용하기도 한다.",
+      "url": "https://www.tripinfo.co.kr"
+    },
+    {
+      "excerpt": "성안집: 부산광역시 금정구 금성동 630-2 (도로명: 부산광역시 금정구 동문로 45). 전화번호 051-517-0187. 한식, 오리/닭/흑염소 전문. 대형 주차장 및 단체석 완비.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.tripinfo.co.kr",
+    "https://www.siksinhot.com",
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "금정산성 동문 인근에서 산행 후 흑염소숯불구이와 닭/오리백숙 등 보양식을 단체 모임 및 가족 외식으로 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

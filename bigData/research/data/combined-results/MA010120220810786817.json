@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220810786817",
+  "name": "다오래",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 67502,
+  "researchedAt": "2026-09-21T14:26:17.100Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인, 인근 주민",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "돈가스",
+      "메밀",
+      "유부초밥",
+      "왕새우튀김"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "연산동 골목 상권에 위치하여 인근 주민 및 직장인 위주로 방문하는 동네 밥집·돈가스집"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 연제구 연산동 SK텔레콤 뒤편 골목(중앙대로1134번길)에 위치한 경양식/돈가스 전문점으로, 돈가스를 미리 썰어 스텐 철망 위에 올려 제공하는 점이 특징임. 메밀국수, 유부초밥, 왕새우튀김 등의 메뉴를 취급함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 연산동 SK텔레콤 뒤편 골목에 위치한 '다오래 돈가스'. 돈가스를 미리 잘라 철망 위에 올려 제공하며, 두 가지 소스와 정갈한 반찬, 그리고 메밀, 유부초밥, 왕새우튀김 등의 메뉴를 함께 판매.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돈가스가 미리 썰어져 철망 위에 제공되어 편하게 먹을 수 있고 메밀, 유부초밥 등 정갈한 분식·경양식 메뉴를 곁들일 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

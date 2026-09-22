@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220806366166",
+  "name": "황.돈",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 53996,
+  "researchedAt": "2026-09-21T14:31:21.411Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 주소지에 실제 운영 중인 음식점 정보를 확인할 수 없음",
+  "notes": "해당 주소(부산광역시 사하구 낙동남로1367번길 22 / 하단동 522-9)는 주거용 건물로 확인되며, 과거 도시가스 공사 내역 등에 상호 흔적이 일부 남아있으나 현재 운영되는 식당 관련 정보가 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "지번 주소: 부산광역시 사하구 하단동 522-9, 도로명 주소: 부산광역시 사하구 낙동남로1367번길 22. 대지 면적 128.90㎡, 연면적 143.86㎡ 지상 2층 규모 건물. 과거 '황돈'이라는 상호의 도시가스 시공 실적 확인.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

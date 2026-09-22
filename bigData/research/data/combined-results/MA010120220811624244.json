@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220811624244",
+  "name": "싱싱회해물",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 46400,
+  "researchedAt": "2026-09-21T22:08:38.375Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 구체적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 인근 주민 식사",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "회",
+      "해산물",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "확인 불가 (방문 전 전화 문의 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "남산동 주택가 및 상가 인근에 위치하여 인근 주민 및 가족 외식 위주의 현지 상권 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 금정구 남산동 482-21(금강로 639)에 위치한 소규모 동네 횟집/해산물 식당으로 기본 회, 해산물, 매운탕 등을 취급하며 상세 영업시간 및 가격표는 온라인상 상세 등록되어 있지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 금강로 639 (남산동 482-21)에 위치한 '싱싱회해물'은 횟집 겸 한식당입니다. 연락처: 051-516-9378. 전복회, 매운탕 등의 메뉴를 제공하며, 식사 및 포장 등이 가능한 곳으로 알려져 있습니다.",
+      "url": "https://linktoplace.com"
+    },
+    {
+      "excerpt": "회와 해산물을 전문으로 하는 곳으로, 지역 내에서 푸짐하고 싱싱한 회를 맛볼 수 있는 식당으로 알려져 있습니다. 식사 마무리로 얼큰한 매운탕이 인기가 있습니다. 매장이 아주 크지는 않으며 주차 공간이 다소 협소할 수 있으니 방문 시 참고하시기 바랍니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://linktoplace.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선하고 푸짐한 회·해산물과 얼큰한 매운탕 중심의 식사",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

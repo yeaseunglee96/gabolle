@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220808123205",
+  "name": "까망수육",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 31108,
+  "researchedAt": "2026-09-21T22:03:02.866Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수육",
+      "돼지고기 구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "아파트 단지 상가 내에 위치해 인근 주민들이 이용하는 동네 상권 식당으로 관광객 대상 정보는 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 남구 유엔로 1-1(우암동일신보라아파트 상가)에 위치한 돼지고기 구이/찜 일반음식점입니다. 사업자/상가 등록 정보는 존재하나 상세 메뉴판, 가격, 영업시간 및 온라인 후기가 등록되어 있지 않은 소규모 로컬 상가 점포입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 까망수육, 소재지: 부산광역시 남구 우암동 67 (동일아파트 내), 업종: 일반음식점 (돼지고기 구이/찜)",
+      "url": "https://www.114.co.kr"
+    },
+    {
+      "excerpt": "부산 남구 우암동 동일아파트(우암동일신보라아파트) 상가 내에 위치한 일반음식점입니다. 돼지고기 구이 및 찜을 주 메뉴로 다루는 곳으로 등록되어 있습니다. 현재 온라인상에서 상세 메뉴판이나 구체적인 가격 정보는 공개되어 있지 않습니다. 아파트 단지 내 상가에 위치해 있어 인근 주민들이 이용하는 곳으로 보이나, 포털 사이트 등에 구체적인 맛 평가나 상세 후기는 확인되지 않습니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아파트 단지 내 상가에 입점해 있어 인근 거주민들의 접근 및 이용이 용이함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

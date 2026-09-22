@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220803504369",
+  "name": "배산고기집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 114797,
+  "researchedAt": "2026-09-21T22:05:39.618Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "저녁시간이면 테이블 가득 손님이 앉아있어 북적임"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 가족 외식객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한돈 모듬한판",
+      "생삼겹",
+      "생목살",
+      "항정살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월, 수~금 15:00~21:30 / 토, 일 13:00~21:30 (매주 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 인근 동네 주민들이 주로 찾는 동네 고기집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "식당과 식육점을 함께 운영하는 식육식당으로, 쯔란·멜젓·알 젓갈 등 다양한 양념 소스와 질 좋은 돼지고기를 직접 구워 먹는 곳. 전용 주차장 없음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "영업시간 : 월, 수~금 15:00~21:30 / 토,일 13:00~21:30 정기휴무 : 화요일 주차장 : 없음 이 동네를 지나다닐 때 저녁시간이면 테이블 가득 손님이 앉아있어서 예전부터 궁금했는데 드디어 가봤어요! 위치는 큰 길가에 있어요 배산역 근처라서 그런지 이름이 배산고기집! 근처에 대패삼겹살집(삼겹파티)는 있는데 일반적인 소고기, 돼지고기를 파는 다른 가게가 없어서인지 동네분들 많이 가시는거 같아요 배산고기집은 식당과 식육점을 함께 하는 식육식당이랍니다",
+      "url": "https://yumyumworld.tistory.com/entry/%EC%97%B0%EC%82%B0%EB%8F%99-%EB%B0%B0%EC%82%B0%EC%97%AD-%EC%A3%BC%EB%B3%80-%EA%B3%A0%EA%B8%B0%EC%A7%91-%EB%B0%B0%EC%82%B0%EA%B3%A0%EA%B8%B0%EC%A7%91-%EC%A7%88-%EC%A2%8B%EC%9D%80-%EA%B3%A0%EA%B8%B0%EC%99%80-%EC%95%8C%EC%B0%AC-%EB%B0%98%EC%B0%AC"
+    },
+    {
+      "excerpt": "동네분들이 많이 가길래 당연히 싼가격때문일거라는 생각을 깨버린 고기집이였지만 고기맛이 좋아서 다들 가시나봐요! 다양한 양념장, 밑반찬 골고루 잘 나오고 고기도 맛있었던 부족한게 없는 고기집이었습니다",
+      "url": "https://yumyumworld.tistory.com/entry/%EC%97%B0%EC%82%B0%EB%8F%99-%EB%B0%B0%EC%82%B0%EC%97%AD-%EC%A3%BC%EB%B3%80-%EA%B3%A0%EA%B8%B0%EC%A7%91-%EB%B0%B0%EC%82%B0%EA%B3%A0%EA%B8%B0%EC%A7%91-%EC%A7%88-%EC%A2%8B%EC%9D%80-%EA%B3%A0%EA%B8%B0%EC%99%80-%EC%95%8C%EC%B0%AC-%EB%B0%98%EC%B0%AC"
+    }
+  ],
+  "sources": [
+    "https://yumyumworld.tistory.com/entry/%EC%97%B0%EC%82%B0%EB%8F%99-%EB%B0%B0%EC%82%B0%EC%97%AD-%EC%A3%BC%EB%B3%80-%EA%B3%A0%EA%B8%B0%EC%A7%91-%EB%B0%B0%EC%82%B0%EA%B3%A0%EA%B8%B0%EC%A7%91-%EC%A7%88-%EC%A2%8B%EC%9D%80-%EA%B3%A0%EA%B8%B0%EC%99%80-%EC%95%8C%EC%B0%AC-%EB%B0%98%EC%B0%AC"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "육질이 좋은 신선한 돼지고기와 다양한 특색 양념장·반찬 조합 때문에 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "배산역 인근 일반 소·돼지고기 전문점이 드물어 인근 주민들의 단골 방문이 많음",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

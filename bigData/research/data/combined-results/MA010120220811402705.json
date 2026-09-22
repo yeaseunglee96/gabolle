@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811402705",
+  "name": "제주흑돼지촌",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 34435,
+  "researchedAt": "2026-09-21T22:03:29.197Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산 남구 우암로 76-4에 위치한 '제주흑돼지촌'에 대해 검색을 진행했으나, 과거 전화번호부/상가 데이터베이스 수준의 파편적 기록 외에 실제 식당 방문 리뷰, 메뉴, 가격, 영업시간 등 식당 영업 정보를 확인할 수 있는 자료가 존재하지 않으며 현재 정상 영업 중인 가게로 확인되지 않습니다.",
+  "notes": "웹 검색 결과 해당 지번(감만동 77-17 / 우암로 76-4)에는 혜성식당 등 타 상호가 등록되어 있거나 과거 기록만 남아 있어 정보를 수집할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://zippoom.com",
+    "https://busan.com"
+  ],
+  "whyPeopleGo": []
+}

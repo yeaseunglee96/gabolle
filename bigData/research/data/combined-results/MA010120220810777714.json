@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810777714",
+  "name": "동조식당",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 44995,
+  "researchedAt": "2026-09-21T14:20:54.954Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "평일 저녁 방문 시 전화 예약이 권장되는 편이다."
+  },
+  "descriptors": {
+    "audience": "직장인/모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥",
+      "코스 요리",
+      "생선회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "과거 기록 기준 10:00~22:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "온천장 인근 로컬 주민 및 직장인들이 찾는 로컬 일식집으로 언급된다."
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "온천장 사거리(온천장로 81)에 위치한 일식당으로 상호 '동조초밥' 또는 '동조식당'으로 불립니다. 코스/세트 위주로 차완무시, 죽, 샐러드, 회, 초밥 등이 제공됩니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "비교적 저렴한 가격에 다양한 메뉴와 맛으로 입소문을 탄 곳으로 알려져 있습니다. 차완무시(일본식 계란찜), 죽, 샐러드 등의 구성과 함께 신선한 해산물 요리들을 제공합니다. 평일 저녁 방문 시 전화 예약이 권장되기도 했습니다. 허심청 인근 엔젤리너스 주차장을 이용할 경우 일정 시간(약 2시간) 무료 주차가 가능했다는 정보가 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "동조식당(동조초밥) 주소: 부산광역시 동래구 온천장로 81 (지번: 부산 동래구 온천1동 182-3), 전화번호: 051-558-0004, 업종: 일식(초밥/롤, 해산물 요리 전문)",
+      "url": "https://114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://114.co.kr",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "차완무시, 죽, 신선한 해산물과 초밥 코스를 비교적 합리적으로 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "온천장 인근에서 오랫동안 식사 및 모임 장소로 이용되어 온 로컬 일식집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

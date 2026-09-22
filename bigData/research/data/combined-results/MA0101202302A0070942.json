@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202302A0070942",
+  "name": "킨교",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 106169,
+  "researchedAt": "2026-09-21T14:02:33.474Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 수영구 연수로416번길 21에 등록된 '킨교'의 실제 일식 식당 관련 상세 정보(영업시간, 메뉴, 후기 등)를 웹상에서 찾을 수 없습니다.",
+  "notes": "해당 주소지(부산 수영구 연수로416번길 21)에 '킨교'라는 상호의 등록 흔적만 일부 존재할 뿐, 실제 식당 운영 정보, 메뉴, 가격, 방문 이유 등의 실질적인 정보가 웹상에 전혀 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

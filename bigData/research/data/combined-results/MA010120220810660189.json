@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220810660189",
+  "name": "밀양꼬리식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 106556,
+  "researchedAt": "2026-09-21T21:54:58.799Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "더운 여름날에는 자리가 없을 정도로 야외 테이블까지 꽉 메워진다고 언급됨"
+  },
+  "descriptors": {
+    "audience": "서민, 애주가",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지꼬리",
+      "돼지비계",
+      "돼지껍데기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "휴무: 매월 2, 4주 월요일 (상세 영업시간 미기재)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사상구에서 꽤나 유명한 노포 맛집으로 지역 주민과 단골들이 주로 찾는 곳으로 묘사됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "돼지꼬리구이와 돼지비계, 껍데기를 연탄불에 구워 먹는 사상의 가성비 노포 식당",
+  "price": {
+    "found": true,
+    "priceMenu": "돼지꼬리 한 접시 15,000원, 라면 3,000원",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "사상구에서는 꽤나 유명한 곳이기도 하고 해서 다녀왔어요. 예전 노포의 느낌은 사라져서 살짝 아쉽지만 새 건물이라 깔끔합니다. 노포 분위기는 사라져도 초벌 된 꼬리로 연탄불에 살짝 구워 먹는 맛은 일품입니다. 소주랑 잘 어울리는 돼지꼬리, 가격도 좋아서 서민음식으로 충분히 매력 있어요! 위치 주소 : 부산광역시 사상구 광장로 107 사상역 바로 옆에 위치해 있습니다. 휴무: 2,4주 월요일 휴무 야외테이블입니다. 요즘은 바람이 쌀살해 져서 야외에 드시기엔 조금 추울 수 있을듯하네요. 더운 여름날에는 자리가 없을 정도로 꽉 메워집니다. 밀양꼬리식당의 메뉴는 돼지비계, 꼬리, 껍데기 3종류입니다. 노가리도 있고 라면도 있습니다. 대표메뉴인 돼지꼬리와 껍데기 주문했어요. 한 접시 15000원의 가격으로 부담 없이 즐길 수 있는 서민음식 돼지꼬리~ 쫀득한 질감을 가지고 있으며 잡내 하나 없어서 편하게 드실 수 있어요.",
+      "url": "https://danhyeon.tistory.com/entry/%EC%82%AC%EC%83%81%EB%A7%9B%EC%A7%91-%EC%82%AC%EC%83%81-%EB%B0%80%EC%96%91-%EA%BC%AC%EB%A6%AC-%EC%8B%9D%EB%8B%B9-%EB%B0%A9%EB%AC%B8%EA%B8%B0"
+    }
+  ],
+  "sources": [
+    "https://danhyeon.tistory.com/entry/%EC%82%AC%EC%83%81%EB%A7%9B%EC%A7%91-%EC%82%AC%EC%83%81-%EB%B0%80%EC%96%91-%EA%BC%AC%EB%A6%AC-%EC%8B%9D%EB%8B%B9-%EB%B0%A9%EB%AC%B8%EA%B8%B0"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "잡내 없이 쫀득한 초벌 돼지꼬리와 비계를 연탄불에 구워 먹는 별미 안주 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "한 접시 15,000원의 부담 없는 저렴한 가격으로 즐길 수 있는 서민 술자리 안주",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "사상역 바로 옆에 인접해 대중교통 방문이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

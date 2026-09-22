@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220810785736",
+  "name": "태강식육식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 44348,
+  "researchedAt": "2026-09-21T22:15:17.660Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 연제구 배산로 3-2 / 연산동 2132-32)에 과거 상호 이력 또는 단순 상호 DB상 등록 기록만 존재하며, 실제 식당 운영 정보, 메뉴, 후기 등이 전무하고 현재 해당 위치에는 다른 업종(이용원 등)이 확인되어 실영업 음식점이 아님.",
+  "notes": "실영업 식당으로서의 정보가 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 연산동 2132-32 / 태강식육식당",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com",
+    "https://building0.com"
+  ],
+  "whyPeopleGo": []
+}

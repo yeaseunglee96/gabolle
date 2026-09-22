@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220808254325",
+  "name": "스시준",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 45665,
+  "researchedAt": "2026-09-21T22:06:32.894Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "현지인·인근 주민",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "초밥",
+      "사시미",
+      "메로구이"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "보수동 미소지음 아파트 상가에 위치하여 주로 인근 현지 주민 및 단골들이 찾는 로컬 초밥집으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 중구 흑교로 90-1(보수동1가 11-5 미소지음 아파트 102동 101호)에 위치한 일식당 스시준 조사 완료",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스시준. 도로명주소: 부산광역시 중구 흑교로 90-1 (보수동1가, 미소지음2차주상복합아파트) 102동 101호. 지번주소: 부산광역시 중구 보수동1가 11-5. 업종: 일식.",
+      "url": "https://www.bsjunggu.go.kr/"
+    },
+    {
+      "excerpt": "부산 중구 보수동 미소지음 아파트 상가에 위치한 스시준. 신선한 재료를 사용하여 직접 만드는 초밥으로 유명하며, 초밥과 사시미 2인 세트, 메로구이 등의 메뉴가 소개된 현지 맛집.",
+      "url": "https://www.youtube.com/"
+    }
+  ],
+  "sources": [
+    "https://www.bsjunggu.go.kr/",
+    "https://www.youtube.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 재료를 직접 손질하여 만드는 초밥 및 사시미 퀄리티를 위해 방문함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "보수동 아파트 상가 내에서 지역 주민들이 편하게 찾는 로컬 식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

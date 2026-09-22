@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220813154834",
+  "name": "스시석",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 75625,
+  "researchedAt": "2026-09-21T22:00:19.925Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "스시 애호가, 지역 주민",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥",
+      "오마카세"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 강서구 명지국제8로 287 오성빌딩 106호에 위치한 일식당/초밥 전문점(스시석). 도쿄 조리사 자격을 갖춘 셰프의 초밥/오마카세 식당으로 확인되나 상세 메뉴판/영업시간 등 세부 정량 정보는 온라인상 제한적임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스시석은 부산광역시 강서구 명지국제8로 287 (명지동), 오성빌딩 106호에 위치한 일식당으로 도쿄 조리사 자격을 갖춘 셰프가 운영하는 초밥/오마카세 전문점입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "도쿄 조리사 자격을 갖춘 셰프의 일식 초밥 및 오마카세를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

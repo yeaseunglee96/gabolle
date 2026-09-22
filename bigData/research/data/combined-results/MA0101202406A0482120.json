@@ -1,0 +1,47 @@
+{
+  "id": "MA0101202406A0482120",
+  "name": "명가물회",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 67718,
+  "researchedAt": "2026-09-21T14:09:03.016Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "물회"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 남구 분포로 66-15 3층 사업자/상호 디렉토리상 '명가물회'로 등록되어 있으나, 일반 블로그 리뷰나 방문기, 세부 메뉴판 및 영업시간 정보는 거의 존재하지 않거나 폐업/업종변경(동일 건물 삼계명가 등 입점) 가능성이 있음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 분포로 66-15 3층에 위치한 '명가물회'(횟집) 정보가 확인됩니다",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": []
+}

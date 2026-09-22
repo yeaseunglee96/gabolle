@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220809980186",
+  "name": "하루키",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 57980,
+  "researchedAt": "2026-09-21T14:18:45.045Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 주소지에 등록된 단순 상호 목록 외에 실제 영업 정보, 리뷰, 메뉴, 방문기 등의 실체가 확인되지 않음",
+  "notes": "부산 남구 전포대로67번길 25 소재 상호 '하루키'는 주소 데이터베이스 상 단순 등록(캐시워크 상호 목록 등) 외에 실제 방문 후기, 메뉴, 영업시간, 혼잡도, 사진, 블로그 리뷰 등의 실제 운영 정보가 전무하거나 폐업/상호 변경된 상태로 파악됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

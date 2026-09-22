@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220808346934",
+  "name": "알파반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 94529,
+  "researchedAt": "2026-09-21T14:01:48.013Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "배달 위주 이용 후기로 대기나 혼잡에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 1~2인 가구(배달 이용자)",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "탕수육",
+      "잡채밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 10시-오후7시50분(일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 주민이 집에서 배달 앱(배달의 민족)을 통해 시켜먹는 로컬 배달 중국집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 수영로 759 107호(알파오피스텔)에 위치한 중국집으로, 배달 앱(배달의 민족)을 통해 1인세트(탕수육+잡채밥 등) 배달 주문이 활발한 곳입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "1인세트 탕수육+잡채밥",
+    "priceWon": 18000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "알파반점 위치: 수영구 수영로 759 107호 영업시간: 오전 10시-오후7시50분(일요일 휴무) 전화번호: 050-35539-0971 아직 우리동네에서 중화요리 맛집을 찾지 못해 망설였는데 배달의 민족을 통해 리뷰 점수가 높은 곳으로 선택해 주문했어요 세트도 1인세트도 있고 2인세트도 있었지만 1인세트 탕수육+잡채밥을 주문했어요. 딸과 저는 먹는 양이 많지가 않거던요. 가격은 18000원, 배달료는 2000원입니다.",
+      "url": "https://lsmpkt.tistory.com/423"
+    }
+  ],
+  "sources": [
+    "https://lsmpkt.tistory.com/423"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "배달 앱 내 높은 평점과 리뷰를 보고 배달 주문함",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    },
+    {
+      "note": "1인 세트 및 2인 세트 등 배달 주문 편의성이 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811419947",
+  "name": "대연삼겹살",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42703,
+  "researchedAt": "2026-09-21T14:11:33.626Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산광역시 남구 유엔로 126 / 대연동 1013-6)에 등록된 일반음식점(갈비/삼겹살) 상호 및 공공기관 업무추진비 사용 내역 등 기본 사업체 정보는 확인되나, 방문자 리뷰·영업시간·메뉴판 가격 등 상세 정량 및 방문 이유에 관한 웹 데이터는 부재합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 유엔로 126 (대연동 1013-6) / 전화번호: 051-622-9364 / 업종: 한식 (갈비/삼겹살)",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": []
+}

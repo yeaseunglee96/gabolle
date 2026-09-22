@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220810548876",
+  "name": "미소옥",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 57453,
+  "researchedAt": "2026-09-21T22:22:22.466Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 구체적 기록 확인 불가"
+  },
+  "descriptors": {
+    "audience": "미식가·애주가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 안창살",
+      "제비초리",
+      "안거미",
+      "차돌박이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 확인 불가"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "국제신문 '몰래가는 맛집' 코너 등에 소개되며 아는 사람들만 조용히 찾아가던 현지 숨은 맛집으로 회자됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 사하구 낙동대로450번길 4(당리동 304-45)에 위치했던 곳으로, 안창살, 제비초리, 안거미 등 한우 특수부위를 주로 취급했던 숨은 고깃집입니다. 현재는 폐업했거나 최신 영업 정보가 갱신되지 않은 상태입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "[몰래가는 맛집] 하단동 한우특수부위 전문점 '미소옥' - 부부가 운영하며 제비초리, 안거미(토시살), 차돌박이, 안창살, 업진살 등 귀한 한우 특수부위를 합리적인 가격에 제공하여 미식가들 사이에서 입소문이 났던 곳이다.",
+      "url": "https://www.kookje.co.kr/news2011/asp/newsbody.asp?code=1700&key=20080111.22019195328"
+    },
+    {
+      "excerpt": "미소옥 / 부산광역시 사하구 낙동대로450번길 4 (당리동 304-45) / 안창살, 제비초리, 살치살, 안거미, 업진살, 차돌박이 등 한우 특수부위 전문",
+      "url": "https://blog.daum.net"
+    }
+  ],
+  "sources": [
+    "https://www.kookje.co.kr/news2011/asp/newsbody.asp?code=1700&key=20080111.22019195328",
+    "https://blog.daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제비초리, 안거미 등 귀한 한우 특수부위를 합리적인 가격에 맛볼 수 있었음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "언론의 '몰래가는 맛집' 등에 조명되며 아는 미식가들이 알음알음 찾아간 숨은 노포",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

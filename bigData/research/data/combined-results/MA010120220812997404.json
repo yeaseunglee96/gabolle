@@ -1,0 +1,55 @@
+{
+  "id": "MA010120220812997404",
+  "name": "빽돼지",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 64522,
+  "researchedAt": "2026-09-21T22:08:37.555Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지고기 구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 금정구 두실로/남산동 일대에 위치한 돼지고기 전문 식당으로 상호 및 위치 정보는 확인되나, 상세 영업시간, 가격표, 줄서기 여부 등 세부 정량 정보 및 구체적인 리뷰 내용은 웹상에서 추가 확인이 어렵습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'빽돼지'는 부산광역시 금정구 남산동, 지하철 1호선 두실역 인근 '두실로 먹자골목'에 위치한 고기 전문점입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두실로 먹자골목 및 두실역 인근에 위치하여 돼지고기를 즐기기 위한 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

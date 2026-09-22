@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220813172242",
+  "name": "교토",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 47400,
+  "researchedAt": "2026-09-21T14:25:03.250Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 해운대구 양운로80번길 16 유니스빌딩 2층)에 과거 '교토 이자카야' 등록 내역 외에 상세 정보가 없고 현재 타 매장이 입점해 있어 정상 영업 및 상세 방문 정보를 찾을 수 없음",
+  "notes": "부산 해운대구 양운로80번길 16 (유니스빌딩 2층) 주소지로 과거 '교토 이자카야' 구인 정보가 일부 확인되나, 현재 해당 건물에는 다른 매장(고깃리88번지 등)이 입점해 있으며 세부 영업시간, 가격, 방문 이유 등의 정보를 확인할 수 없어 폐업/정보 부재 상태로 판정함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "교토 이자카야: 부산 해운대구 양운로80번길 16 (좌동) 유니스 빌딩 2층에 위치한 업체로 확인됩니다",
+      "url": "https://www.albamon.com"
+    }
+  ],
+  "sources": [
+    "https://www.albamon.com"
+  ],
+  "whyPeopleGo": []
+}

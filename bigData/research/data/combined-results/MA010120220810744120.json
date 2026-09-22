@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220810744120",
+  "name": "홈앤푸드",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 58016,
+  "researchedAt": "2026-09-21T14:00:08.582Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 오프라인 음식점 영업 정보 및 후기 없음",
+  "notes": "사업자등록상 부산광역시 수영구 수영로606번길 69 주소지의 음식업 개인사업자로 등록된 이력은 확인되나, 실제 매장 운영 정보, 메뉴, 영업시간, 이용 후기 등 일반 소비자를 대상으로 한 음식점 영업 정보가 웹상에 존재하지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220808904358",
+  "name": "카페나타",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 32632,
+  "researchedAt": "2026-09-21T14:18:23.474Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "이국적 외국 요리 탐방객 및 현지 외국인 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "보르쉬",
+      "샤슬릭",
+      "만뜨이",
+      "골루브쯰"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:45 (목요일 휴무 / 일부 안내 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산역 차이나타운/텍사스거리 인근으로 현지 외국인 주민과 이국적 요리를 찾는 외지인/관광객이 주로 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산역 인근 상해거리(텍사스 스트리트) 2층에 위치한 러시아·중앙아시아 전통 음식점으로, 상호는 '카페'이나 실질적으로 샤슬릭, 보르쉬, 만뜨이 등 정통 식사 메뉴를 제공함. 아래층에 식료품점 임페리아 푸드가 있음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "카페 나타 (Cafe Nata)는 부산광역시 동구 초량동, 부산역 인근 상해거리에 위치한 러시아 요리 전문점입니다. 주소: 부산광역시 동구 대영로243번길 46, 2층. 이름은 '카페'이지만, 실제로는 러시아 및 중앙아시아 가정식을 판매하는 식당에 가깝습니다. 보르시(수프), 샤슬릭(꼬치 요리), 만티(러시아식 만두), 팬케이크 등 현지 식사 메뉴와 디저트를 제공합니다. 1층에는 러시아·중앙아시아 식료품점인 '임페리야 푸드'가 위치해 있어 함께 방문하는 경우가 많습니다. 영업시간: 11:00 ~ 21:45 (정기휴무: 매주 목요일).",
+      "url": "https://siksinhot.com"
+    },
+    {
+      "excerpt": "부산 초량동(부산역 인근 상해거리)에 위치한 러시아 식당 '카페 나타(Cafe Nata)'에 대한 정보입니다. 위치: 부산광역시 동구 대영로243번길 46, 2층 (초량동 567). 현지인 사장님이 운영하는 곳으로, 이국적인 러시아 가정식 분위기를 느낄 수 있습니다. 건물 2층에 위치해 있으며, 현지 식당의 특성상 식사 위주의 메뉴가 많습니다. 보르쉬, 샤슬릭, 만뜨이, 골루브쯰 등.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://polle.com",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "러시아 및 중앙아시아 본토 스타일의 전통 가정식 요리(보르쉬, 샤슬릭, 만뜨이 등)를 맛보기 위해 방문함",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

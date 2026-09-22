@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811585453",
+  "name": "서울녹각삼계탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 29715,
+  "researchedAt": "2026-09-21T22:26:27.536Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인, 어르신",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "삼계탕",
+      "전복삼계탕",
+      "카레삼계탕",
+      "한방옻삼계탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "24시간 영업으로 안내되기도 하나 업소 상황에 따라 변동 가능 (방문 전 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "금사동 지역 주민 및 어르신 나눔 행사 등 로컬 중심의 동네 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "금정구 반송로(금사동)에서 오랫동안 운영되어 온 삼계탕 전문점으로, 기본 삼계탕 외 전복, 카레, 한방옻삼계탕 등 다양한 삼계탕 메뉴를 취급함.",
+  "price": {
+    "found": true,
+    "priceMenu": "삼계탕 12,000원, 전복삼계탕 15,000원, 카레삼계탕 12,000원, 한방옻삼계탕 14,000원",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대표 메뉴인 삼계탕을 비롯해 전복삼계탕, 카레삼계탕, 한방옻삼계탕 등 다양한 메뉴가 있습니다. 오랜 기간 운영된 식당으로, 푹 끓여내어 살이 잘 분리되는 부드러운 삼계탕이 특징입니다. 기본 반찬으로 김치, 깍두기, 양파, 고추 등이 제공되며, 인삼주가 함께 나오는 것으로 알려져 있습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 금정구 반송로 412 (금사동 145-3) 전화번호: 051-527-9191",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "푹 고아내어 부드러운 육질의 삼계탕과 인삼주 등 알찬 구성의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "금사동 지역에서 오랫동안 자리를 지켜온 친숙한 동네 삼계탕 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

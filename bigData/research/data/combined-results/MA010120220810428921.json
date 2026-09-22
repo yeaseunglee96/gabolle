@@ -1,0 +1,51 @@
+{
+  "id": "MA010120220810428921",
+  "name": "황룡성",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 40826,
+  "researchedAt": "2026-09-21T22:17:08.429Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 영도구 태종로 325-1(청학동 221-6)에 위치한 중식당 '황룡성'은 사업체 상호·주소 등록 정보(전화번호: 051-413-0077)로 실제 존재가 확인되나, 방문자 리뷰, 가격표, 영업시간, 대기열, 세부 메뉴 구성 등 온라인 정보는 거의 부재한 동네 소규모 중식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "황룡성. 도로명 주소: 부산광역시 영도구 태종로 325-1, 지번 주소: 부산광역시 영도구 청학동 221-6. 업종: 중식. 전화번호: 051-413-0077.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 영도구 태종로 325-1 (청학동 221-6) 황룡성 중식 음식점.",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://pervsi.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

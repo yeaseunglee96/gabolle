@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220811429748",
+  "name": "이정식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 55679,
+  "researchedAt": "2026-09-21T21:47:23.275Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소는 군부대 부지(예비군훈련장/구 국군부산병원)로 실제 일반 식당 후기 및 영업 정보를 찾을 수 없음",
+  "notes": "부산광역시 해운대구 세실로 186(좌동)은 구 국군부산병원 및 현 부산 과학화 예비군훈련장 부지입니다. 해당 주소지에 위치한 일반 음식점 '이정식당'은 웹상에서 실제 방문 후기, 메뉴, 가격, 영업시간 등의 실존 정보를 전혀 찾을 수 없어 지어내지 않고 found: false로 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220810529482",
+  "name": "레게",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 36715,
+  "researchedAt": "2026-09-21T21:59:23.403Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 없음 (폐업 추정)",
+  "notes": "부산광역시 서구 구덕로165번길 16-8(아미동1가 18-5)에 위치한 '레게' 상호의 경양식 업소는 웹 검색 결과 관련 영업 정보나 후기가 확인되지 않습니다. 해당 주소지에는 한식당 '백련가' 등이 확인되며, '레게'는 폐업했거나 웹상에 정보가 남아있지 않은 것으로 보입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

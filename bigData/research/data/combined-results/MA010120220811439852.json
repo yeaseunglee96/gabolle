@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220811439852",
+  "name": "차경",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47284,
+  "researchedAt": "2026-09-21T14:00:47.078Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 직접적인 언급은 확인되지 않음 (예약제 코스 다이닝 중심 운영)"
+  },
+  "descriptors": {
+    "audience": "파인다이닝 및 코스 요리 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "디너 코스(한우 채끝 등심)",
+      "Chakyoung Course",
+      "Chef's Course",
+      "Dalmaji Course",
+      "Pasta Selection"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 및 휴무일 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객에 대한 뚜렷한 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 달맞이길에 위치한 조마리아 셰프의 제철 식재료 기반 양식/파인다이닝 레스토랑. 코스 메뉴 위주로 운영됨.",
+  "price": {
+    "found": true,
+    "priceMenu": "Pasta Selection 32,000원, Chakyoung Course 55,000원, Dalmaji Course 65,000원, Chef's Course 75,000원, 디너 코스 135,000원 (부가세 10% 별도 가능)",
+    "priceWon": 135000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'차경(借景)'은 주위의 아름다운 풍경을 정원 안으로 끌어들인다는 의미를 담고 있으며, 제철 식재료를 활용한 파인다이닝을 제공합니다. 조마리아 오너셰프가 운영하며, 지속 가능한 식재료 사용과 유기농 제철 채소 등을 중요하게 생각하는 곳입니다.",
+      "url": "https://www.wadiz.io/"
+    },
+    {
+      "excerpt": "디너 코스: 한우 채끝 등심 스테이크 메인 코스 (135,000원) / 런치 코스: Chakyoung Course (55,000원), Chef's Course (75,000원), Dalmaji Course (65,000원), Pasta Selection (32,000원)",
+      "url": "https://autoreserve.com/"
+    },
+    {
+      "excerpt": "부산 해운대구 달맞이길에 위치한 파인다이닝 레스토랑 '차경(借景)'의 조마리아 오너 셰프를 의미합니다. 조마리아 셰프는 현지 식재료를 활용한 요리를 선보이며, 히말라야 부탄 여성의 수술비를 마련하는 프로젝트를 기획하거나 매달 '달달장'이라는 마켓을 여는 등 지역사회 및 나눔 활동으로 잘 알려져 있습니다.",
+      "url": "https://www.busan.com/"
+    }
+  ],
+  "sources": [
+    "https://www.wadiz.io/",
+    "https://autoreserve.com/",
+    "https://www.busan.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제철 유기농 식재료를 활용한 정갈한 파인다이닝 코스 요리를 맛보기 위해",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "달맞이길 풍경을 정원처럼 빌려온 차경(借景)의 분위기와 나눔 활동을 실천하는 조마리아 셰프의 철학을 경험하기 위해",
+      "sources": [
+        1,
+        3
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220811598923",
+  "name": "부영궁중국관",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 49883,
+  "researchedAt": "2026-09-21T22:14:16.665Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "짬뽕",
+      "탕수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "매일 11:00 ~ 20:00 (출처별 지번 불일치 등으로 불확실)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객 대상이 아닌 동네 주민 위주의 로컬 배달·식사 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 금정구 무학송로 13에 위치한 로컬 중식당으로, 식신 등에서 '부산대 중식당의 정통', '옛날 맛 그대로'의 대중적인 중화요리점으로 등록되어 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부영궁중국관 - 부산대 중식당의 정통, 부산광역시 금정구 무학송로 13 (부곡동). 주요메뉴: 탕수육+짜장 2인, 탕수육+짬뽕 2인. 옛날 맛 그대로.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "옛날 맛 그대로의 대중적인 탕수육 세트와 기본 중식 메뉴를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

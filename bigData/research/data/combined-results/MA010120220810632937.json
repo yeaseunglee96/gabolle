@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220810632937",
+  "name": "일품정가",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 42191,
+  "researchedAt": "2026-09-21T22:06:06.201Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인, 인근 주민, 단체 모임",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "소갈비찜",
+      "갈비탕"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00~24:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 부암역 및 당감동 주민·직장인 모임 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 11,
+    "found": true
+  },
+  "notes": "부산 부산진구 당감동(가야대로703번길 25) 부암역 인근에 위치한 20년 전통 노하우의 한식 전문점으로 소갈비찜과 갈비탕 등이 대표 메뉴입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "20년 전통의 노하우로 운영되는 한식전문점 '일품정가'는 갈비 양념에 색소를 사용하지 않고 신선한 식재료와 질 좋은 고기를 사용한다. 깔끔한 인테리어와 아늑한 분위기를 갖추고 있으며 좌식 테이블과 단체석이 마련되어 있다. 주요 메뉴로는 특갈비탕, 갈비탕, 특선갈비찜, 소고기버섯전골, 육개장, 고등어구이정식, 된장+불고기정식, 생오리불고기, 생삼겹살, 돼지갈비 등이 있다.",
+      "url": "http://www.newsfinder.co.kr"
+    },
+    {
+      "excerpt": "대표 메뉴: 소갈비찜. 부산광역시 부산진구 가야대로703번길 25 (당감동). 부산 지하철 2호선 부암역 인근.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "매일 10:00~24:00. 부산 부산진구 한식/고기구이.",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "http://www.newsfinder.co.kr",
+    "https://www.siksinhot.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "20년 전통 노하우와 색소를 쓰지 않는 갈비 양념, 신선한 식재료",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "부암역 인근 단체석과 좌식 테이블을 갖춰 모임 및 외식 편의성 높음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

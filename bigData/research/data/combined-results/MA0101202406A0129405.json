@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202406A0129405",
+  "name": "토레스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 68698,
+  "researchedAt": "2026-09-21T14:17:37.625Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "팬스테이크",
+      "파스타",
+      "피자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 중구 광복로 44 (창선동1가 42-2) 4층에 위치했던 팬스테이크 및 이탈리안 양식 전문 레스토랑. 현재 영업시간, 가격 등 상세 정보는 웹상에 제한적으로 확인됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 광복로 44 (창선동1가 42-2) 4층. 남포동에 위치한 팬스테이크 전문 레스토랑. 스테이크, 파스타, 피자 등을 판매하는 양식당으로, 깔끔한 블랙톤 인테리어와 은은한 조명으로 데이트나 기념일 모임 장소로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "깔끔한 인테리어와 분위기 속에서 즐기는 팬스테이크와 양식 요리",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "블랙톤 인테리어와 은은한 조명으로 데이트 및 모임에 적합한 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

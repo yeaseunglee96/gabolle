@@ -1,0 +1,50 @@
+{
+  "id": "MA0101202307A0043968",
+  "name": "플리징포스트샵",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 63007,
+  "researchedAt": "2026-09-21T22:01:33.759Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 가야대로 649 (가야동 40-1, EK메디컬)에 등록된 '플리징포스트샵'은 공공 인허가/상가 데이터상 경양식 및 식품자동판매기영업 등으로 등재된 사업체이나, 실제 일반 식당으로서의 방문기, 메뉴, 후기, 영업시간 등 식당 운영 관련 정보는 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "플리징포스트샵은 부산광역시 부산진구 가야동(가야동 40-1, EK메디컬 빌딩 내)에 위치한 업체입니다. 공공데이터 및 상가 정보에 따르면 경양식 업종으로 분류되어 있으며, 식품자동판매기 영업 등으로 등록되어 있는 것으로 확인됩니다.",
+      "url": "https://zippoom.com"
+    },
+    {
+      "excerpt": "플리징포스트샵(Pleasing Post Shop)은 부산광역시 부산진구 가야동 40-1에 위치한 사업체로 확인됩니다. 공공 데이터 및 사업자 정보 등에 따르면, 해당 상호는 업종 분류상 경양식 또는 식품자동판매기영업 등으로 등록되어 있습니다.",
+      "url": "https://dbmon.kr"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com",
+    "https://dbmon.kr"
+  ],
+  "whyPeopleGo": []
+}

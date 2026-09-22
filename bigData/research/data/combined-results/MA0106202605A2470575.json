@@ -1,0 +1,72 @@
+{
+  "id": "MA0106202605A2470575",
+  "name": "톤톤야끼",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 91114,
+  "researchedAt": "2026-09-21T14:07:53.806Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼술/혼밥객, 대학생",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "히로시마 오코노미야키",
+      "야키소바",
+      "페퍼로니 오코노미야키"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 남구 용소로19번길 47(대연동, 경성대·부경대 인근)에 위치한 일본식 주점(이자카야)으로, 히로시마 스타일의 오코노미야키와 야키소바 등을 주메뉴로 운영하는 곳입니다. 공식 상호나 통칭으로 '톤톤' 또는 '톤톤야끼'로 알려져 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "톤톤 (또는 톤톤야끼): 히로시마 스타일 오코노미야키와 야키소바 등을 주메뉴로 하는 일본식 주점(이자카야)으로 소개되고 있습니다. 위스키 바 혹은 이자카야로 알려져 있으며, 혼밥과 혼술이 가능한 아담한 분위기의 매장으로 언급됩니다. ... 전화(051-622-4412 등)",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "부산 대연동(경성대·부경대 인근)에 위치한 '톤톤'은 히로시마식 오코노미야키를 전문으로 하는 이자카야입니다. 주요 메뉴: 히로시마 오코노미야키(순한맛/매운맛), 페퍼로니 오코노미야키 등. 일본식 술집 분위기로, 경성대·부경대 인근에서 가볍게 생맥주와 함께 2차로 방문하기에 무난한 곳으로 알려져 있습니다.",
+      "url": "https://www.youtube.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://www.youtube.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "히로시마 스타일 오코노미야키와 야키소바를 안주로 가볍게 생맥주나 술을 곁들이기 좋아서",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "아담한 일본식 주점 분위기로 경성대·부경대 상권에서 혼술이나 2차 술자리로 들르기 편해서",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

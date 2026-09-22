@@ -1,0 +1,49 @@
+{
+  "id": "MA010120220810350256",
+  "name": "제주흑돼지뒷고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 30255,
+  "researchedAt": "2026-09-21T22:36:43.916Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "뒷고기"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 연제구 월드컵대로 223 (거제동 1177-41)에 상호 '제주흑돼지뒷고기'(전화번호: 051-503-5958)로 등록된 돼지고기 구이 음식점임이 확인되나, 상세 방문 후기, 메뉴판 가격 및 영업시간 등 상세 운영 정보는 온라인에 공개되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제주흑돼지뒷고기 전화번호 051-503-5958 주소 부산광역시 연제구 거제동 1177-41 분류 한식 > 기타고기요리",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "연제구 거제동 일대에서 제주흑돼지 및 뒷고기 특수부위를 즐길 수 있는 동네 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

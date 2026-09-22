@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202511A0032877",
+  "name": "홍이보리밥",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 36669,
+  "researchedAt": "2026-09-21T22:26:44.105Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명확한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인, 기사식당 정식 선호층",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "보리밥 정식",
+      "생선구이 정식",
+      "불고기",
+      "코다리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 ~ 20:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "금사동 시장 인근 골목에 위치하여 주로 현지 주민 및 근처 직장인들이 찾는 밥집으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 금정구 금사동시장 인근에 위치한 한식 백반집으로, 보리밥 정식과 생선구이, 불고기, 코다리 등 푸짐한 밑반찬 구성의 가성비 백반으로 소개됨. 전용 주차장이 있으나 협소함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 홍이보리밥 / 위치: 부산광역시 금정구 금사동 84-19 (금사로 60) / 영업시간: 10:30 ~ 20:30 / 전화번호: 051-524-0045 / 특징: 보리밥 정식, 코다리, 불고기 등이 포함된 푸짐한 밑반찬과 정식을 제공하는 곳으로 유튜브 채널 '장똘뱅이' 등에서 맛집으로 소개된 바 있습니다. 전용 주차장이 있으나 공간이 다소 협소한 편입니다.",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "보리밥 정식에 생선구이, 불고기 등 다양한 반찬이 푸짐하게 나오는 가성비 백반",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "다양한 밑반찬과 정식 찬 구성의 만족도 높은 손맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

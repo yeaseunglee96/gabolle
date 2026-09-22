@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220811413569",
+  "name": "동산호횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 64996,
+  "researchedAt": "2026-09-21T14:09:22.482Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 웨이팅에 대한 명시적인 언급 없음 (사전 예약 권장 및 룸 구비)"
+  },
+  "descriptors": {
+    "audience": "가족 및 단체 모임, 회식객",
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 회 코스",
+      "회덮밥",
+      "물회",
+      "우럭탕"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (일요일 또는 월요일 휴무 언급)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "이기대/용호별빛공원 나들이객 및 매운탕을 찾는 현지 단골손님 중심 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 남구 분포로 66-30에 위치한 횟집으로 공식/포털 등록 상호는 '동산횟집'(동산호횟집으로 혼용)이며 직접 잡은 자연산 활어회와 전 좌석 프라이빗 오션뷰 룸이 특징임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "그날 잡은 활어를 손질해 제공하는 자연산 회 코스가 주요 메뉴입니다. 큰 창을 통해 용호만과 광안대교 방향의 바다 전망을 즐길 수 있으며, 전 좌석이 룸 형태로 구성되어 프라이빗한 식사가 가능합니다. 자체 주차 공간이 비교적 여유롭고... 영업시간: 매일 11:00 ~ 22:00",
+      "url": "https://www.siksinhot.com/P/380620"
+    },
+    {
+      "excerpt": "자연산 활어를 전문으로 취급하며, 주인이 직접 낚시해 온 신선한 횟감을 제공하는 것으로 알려져 있습니다. 전 좌석이 룸 형태(프라이빗 룸)로 구성되어 있으며, 용호만과 광안대교 방향의 바다 전망(뷰)을 즐길 수 있다는 점이 특징입니다.",
+      "url": "https://www.thefestival.co.kr/info/food/7769"
+    },
+    {
+      "excerpt": "회덮밥 주문 시 바삭한 전과 함께 매콤하고 진한 매운탕이 기본으로 제공되어 만족도가 높다는 평이 많습니다. 회덮밥에는 신선한 야채와 두툼하게 썰린 회가 푸짐하게 들어가는 것이 특징입니다. 매운탕은 메인 메뉴 못지않게 건더기가 푸짐하고 얼큰한 맛으로 유명하여, 이를 찾으러 방문하는 단골손님들이 있습니다. 이기대 인근에 위치하고 있어 나들이 전후에 방문하기 좋습니다.",
+      "url": "https://simong11.tistory.com/entry/부산-용호동-이기대-동산횟집-회덮밥-맛집"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/380620",
+    "https://www.thefestival.co.kr/info/food/7769",
+    "https://simong11.tistory.com/entry/부산-용호동-이기대-동산횟집-회덮밥-맛집"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "직접 낚은 신선한 자연산 활어회와 푸짐하고 얼큰한 매운탕 및 회덮밥의 뛰어난 맛",
+      "sources": [
+        1,
+        2,
+        3
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전 좌석 프라이빗 룸 구조와 용호만 및 광안대교 오션뷰, 자체 주차 공간 구비",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

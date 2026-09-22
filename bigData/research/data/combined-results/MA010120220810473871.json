@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220810473871",
+  "name": "어우량",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 40818,
+  "researchedAt": "2026-09-21T22:07:26.968Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "온라인 상 줄서기나 웨이팅 관련 언급 없음 (4인 테이블 약 5개의 아담한 규모)"
+  },
+  "descriptors": {
+    "audience": "직장인, 애주가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "참치",
+      "홍어",
+      "메구로(메로구이)",
+      "생선구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "미제공"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 영도구 봉래동에 위치한 소규모 생선회 및 생선구이 전문점으로, 참치/홍어/메구로(메로구이)/생선구이 등을 판매하며 테이블 5개 규모의 아담한 분위기임.",
+  "price": {
+    "found": true,
+    "priceMenu": "메구로(소) / 생선구이",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "생선구이와 생선회(쥐치, 줄돔 등)를 함께 즐길 수 있는 아담한 규모의 식당입니다. 특히 메로구이가 잘 알려져 있으며, 4인 테이블 5개 정도가 있는 아담하고 정겨운 분위기의 공간입니다. 대표 메뉴로는 참치 (소) 60,000원, 홍어 (소) 35,000원, 메로구이(메구로) (소) 30,000원, 생선구이 30,000원이 있습니다.",
+      "url": "https://www.siksinhot.com/P/1018318"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1018318"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "생선회와 함께 메구로(메로구이) 및 생선구이를 안주로 즐길 수 있는 아담하고 정겨운 동네 술자리 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

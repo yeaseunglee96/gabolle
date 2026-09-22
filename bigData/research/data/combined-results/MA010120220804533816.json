@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220804533816",
+  "name": "안나의정원",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 40265,
+  "researchedAt": "2026-09-21T22:08:28.554Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~토요일 11:30~15:00, 17:00~20:00 (월, 일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 금정구 금샘로 580 (남산동 960-12)에 위치한 경양식 일반음식점으로 등록되어 있으나, 후기나 메뉴 상세 정보가 웹상에 거의 공개되어 있지 않고 기본 관공서/업소 정보(영업시간 등)만 확인됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 남산동 960-12번지 안나의정원 / 영업 시간: 화~토요일 11:30~15:00, 17:00~20:00 (월, 일요일 휴무) / 문의: 051-512-1104",
+      "url": "https://www.geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

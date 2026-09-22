@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220808117653",
+  "name": "더마루",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 57193,
+  "researchedAt": "2026-09-21T14:10:32.343Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "불명",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 실체 및 방문 정보 부재 (인허가 대장상 단순 등록 외 실제 방문 정보·리뷰 전무)",
+  "notes": "부산광역시 해운대구 재반로 97 주소지에 인허가 공공데이터상 '더마루'가 등록된 내역은 있으나, 이용 후기나 메뉴, 영업시간 등 식당 운영 및 방문객 관련 정보가 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 재반로 97, 2층 (재송동) 더마루 한식 일반음식점",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": []
+}

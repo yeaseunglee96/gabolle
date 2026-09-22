@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202406A0025777",
+  "name": "마누엘",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 51908,
+  "researchedAt": "2026-09-21T14:01:16.397Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기 관련 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트, 카페 투어객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "커피",
+      "팬케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "망미단길 일대 골목 카페 투어 및 데이트 장소로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 수미로14번길 8에 등록된 '마누엘(마누엘커피)'은 경양식 음식점이라기보다는 커피와 팬케이크 등을 다루는 망미동/망미단길 골목 카페로 확인됩니다. 상세 영업시간 및 가격표는 포털 상세 페이지 외 공개 웹 문서에서 확인되지 않습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "마누엘커피 / 부산광역시 수영구 수미로14번길 8 (수영동)",
+      "url": "https://passorder.co.kr"
+    },
+    {
+      "excerpt": "망미동 일대에서 카페로 알려져 있으며 팬케이크와 커피 맛으로 잘 알려져 있고 '망미단길' 데이트 코스나 카페 투어 관련 장소로 소개",
+      "url": "https://maptons.com"
+    }
+  ],
+  "sources": [
+    "https://passorder.co.kr",
+    "https://maptons.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "골목 감성의 카페 분위기와 커피, 팬케이크 디저트를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

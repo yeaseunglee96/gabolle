@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202303A0024056",
+  "name": "모이소",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 57434,
+  "researchedAt": "2026-09-21T14:20:57.970Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족/친구/모임 외식객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우막썰어",
+      "로스구이",
+      "스지무침"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 남구 대연동 유엔평화로13번길 3에 위치한 고깃집 '모이소'에 대한 정보 조사. 주택을 개조한 깔끔한 인테리어의 구이 전문점으로 대표 메뉴는 한우막썰어, 로스구이, 기본 찬 스지무침 등이 확인되며 매장 앞 주차가 가능한 점 등이 언급됨. 세부 영업시간 및 메뉴별 정확한 가격표는 웹상에서 추가 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주택을 개조하여 운영하는 고깃집으로, 깔끔한 우드톤 인테리어와 조명을 갖추고 있습니다. 한우 구이(막썰어, 로스구이 등)를 주로 판매하며, 기본 찬으로 스지무침 등이 제공되는 것으로 알려져 있습니다. 인근에 대연동 맛집으로 알려진 '쌍둥이국밥' 등이 있으며, 지하철 및 버스 등 대중교통 접근성이 좋습니다. 주차는 매장 앞 등에 일부 가능합니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "부산 남구 유엔평화로13번길 3 (대연동 1738-15). 주택을 개조한 인테리어와 깔끔한 분위기로 알려져 있으며, 대표 메뉴로는 '한우막썰어' 등이 있습니다. 인근의 유명한 '쌍둥이국밥' 집 근처에 위치해 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주택을 개조한 아늑하고 깔끔한 우드톤 인테리어와 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "한우막썰어, 로스구이 및 기본 스지무침 등 특색 있는 육류 메뉴 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

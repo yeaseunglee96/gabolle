@@ -1,0 +1,55 @@
+{
+  "id": "MA0106202605A0114510",
+  "name": "열린밥집",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 44647,
+  "researchedAt": "2026-09-21T22:08:18.017Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "도시락",
+      "김밥"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 남구 문현동(고동골로 인근)에 등록된 일반음식점(한식/도시락/김밥)으로, 기본 상호 및 주소, 대표 메뉴 정보 외에 블로그 방문 후기, 세부 가격, 영업시간 등 상세 이용 데이터는 웹상에 기록되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "열린밥집은 부산광역시 남구 문현동에 위치한 음식점입니다. 주소: 부산광역시 남구 고동골로78번길 83 (문현동 102-3), 대표 메뉴: 도시락, 김밥, 업종: 한정식, 전화번호: 051-643-8548",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 주민·직장인을 위한 도시락 및 김밥 등 일상적인 간편 식사 공급",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "MA0106202605A1067644",
+  "name": "바다애",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 50010,
+  "researchedAt": "2026-09-21T14:24:51.255Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": ""
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 해운대구 좌동로 99-32) 및 해운대구 좌동 일대에서 '바다애'(일식 회/초밥) 상호의 음식점 기록이 확인되지 않음",
+  "notes": "부산광역시 해운대구 좌동로 99-32 주소지 및 인근 지역에서 일식 회/초밥 업종의 '바다애'라는 상호의 음식점 및 관련 웹 기록이 전혀 확인되지 않습니다. (해당 주소지에는 '강명수장인 진심족발', '자미당', '비어홀릭' 등이 입점해 있음)",
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

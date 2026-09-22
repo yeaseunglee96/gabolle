@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220808085654",
+  "name": "옥샘",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 49212,
+  "researchedAt": "2026-09-21T21:46:01.033Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "돼지숯불갈비"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 동래구 동래로136번길 9-3(복천동 278-3)에 과거 '옥샘' 또는 '옥샘돼지숯불갈비'로 등록된 한식 일반음식점(갈비/돼지고기) 이력이 확인되나, 현재는 폐업했거나 타 상호(혜성갈비 등)로 변경되어 블로그 리뷰, 영업시간, 가격, 줄서기 등 상세 방문 후기 정보가 웹상에 남아있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 동래로136번길 9-3(복천동 278-3) 지번 정보 및 동래세일대축제 참여업소 내역, 사업자 등록 정보에 '옥샘'(한식 일반음식점업) 및 '옥샘돼지숯불갈비' 명칭으로 확인됨.",
+      "url": "https://www.dongnae.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.dongnae.go.kr"
+  ],
+  "whyPeopleGo": []
+}

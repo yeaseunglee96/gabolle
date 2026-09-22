@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220812552262",
+  "name": "특수본",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 29748,
+  "researchedAt": "2026-09-21T22:35:45.190Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소 및 상호의 음식점 정보 없음",
+  "notes": "부산광역시 서구 구덕로295번길 38 및 부산 서구/대신동 일대 '특수본' 돼지고기 구이/찜 음식점을 검색했으나 일치하는 음식점 정보나 방문 후기, 웹 문서가 존재하지 않아 규칙에 따라 지어내지 않고 found: false로 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

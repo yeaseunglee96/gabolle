@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202603A0032254",
+  "name": "슈가",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49076,
+  "researchedAt": "2026-09-21T21:50:17.569Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "음식점 정보 없음 (다트 펍 등록 이력 외 경양식/음식점 관련 후기 및 정보 부재)",
+  "notes": "부산광역시 해운대구 재반로 235에 위치한 '슈가'는 경양식/음식점 관련 방문 정보나 메뉴, 영업시간, 후기 등이 웹상에 확인되지 않습니다. (다트 기계 설치 매장 등록 이력만 확인됨)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 재반로 235에 위치한 '슈가(해운대)'는 다트 머신(VSS)이 설치되어 있고 피닉스 리그를 개최하는 다트 숍으로 알려져 있습니다.",
+      "url": "https://www.phoenixdarts.com"
+    }
+  ],
+  "sources": [
+    "https://www.phoenixdarts.com"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202409A0214442",
+  "name": "밑투게더",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 66700,
+  "researchedAt": "2026-09-21T13:58:33.783Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로 145(남천동, 협진태양아파트 상가)에 위치한 일반음식점(경양식 인허가)으로 상호 및 주소 등록 정보는 확인되나, 웹상에 실제 방문자 리뷰, 메뉴판, 가격, 영업시간, 줄서기 등의 정량 및 정성 정보가 전혀 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "밑투게더 부산광역시 수영구 광안해변로 145, (남천동, 협진태양아파트) 일반음식점",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220811597330",
+  "name": "청록산장",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 40254,
+  "researchedAt": "2026-09-21T22:27:09.129Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 대한 특별한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임, 등산객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "토종흑염소불고기",
+      "오리숯불고기",
+      "오리백숙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 금정산성 마을에 위치한 보양식 전문점으로 흑염소 및 오리 숯불구이, 백숙 등을 판매하며 주차장과 단체 룸/시설을 갖추고 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "오리숯불고기 40,000원, 토종흑염소불고기 50,000원, 오리백숙 50,000원 등",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 동문로 72 (지번: 금정구 금성동 636) 청록산장. 토종흑염소불고기: 50,000원, 옻오리: 55,000원, 오리숯불고기: 40,000원, 오리주물럭: 45,000원, 한방오리백숙: 50,000원, 한방닭백숙 / 닭도리탕: 45,000원, 오리탕: 50,000원, 옻닭: 50,000원, 파전 / 도토리묵: 각 15,000원. 대형 주차장이 마련되어 있어 주차 공간이 넉넉한 편입니다. 개별룸, 단체 테이블, 족구장, 테라스 등이 완비되어 있어 가족 외식이나 모임 장소로 자주 언급됩니다.",
+      "url": "https://www.siksinhot.com/P/338981"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/338981"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "금정산성 마을의 대표 보양식인 토종흑염소불고기와 오리숯불고기, 백숙 요리를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "대형 주차장, 개별룸, 단체석, 족구장 등이 갖추어져 있어 가족 외식이나 단체 모임에 적합함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

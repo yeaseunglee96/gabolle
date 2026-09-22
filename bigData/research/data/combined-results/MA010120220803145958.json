@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220803145958",
+  "name": "수성수산",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 36136,
+  "researchedAt": "2026-09-21T22:00:51.643Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심시간에는 대기가 발생할 수 있어 식사 피크 시간보다 일찍 방문 권장됨"
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "물회",
+      "회비빔밥",
+      "대광어물회",
+      "도다리물회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월요일 11:00~15:00, 화~일요일 11:00~20:00 (브레이크타임 15:00~17:00, 라스트오더 19:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "신호동 지역에서 현지인들이 자주 찾는 로컬 물회 식당으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 강서구 신호동에 위치한 물회 및 회비빔밥 전문점으로, 대광어/도다리/한치 등 횟감을 선택해 먹을 수 있는 로컬 맛집입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 강서구 신호동에 위치한 수성수산(주소: 부산 강서구 신호산단1로18번길 27)... 대표 메뉴: 물회(대광어, 도다리, 한치 등 계절 메뉴 및 반반 선택 가능)와 회비빔밥이 유명합니다. 영업시간: 월요일: 11:00~15:00 화~일요일: 11:00~20:00 브레이크타임: 15:00~17:00 라스트오더: 19:00. 편의시설: 매장 옆 전용 주차장 또는 매장 앞 주차 공간이 마련되어 있습니다. 점심시간에는 대기가 발생할 수 있으므로 식사 피크 시간보다 조금 일찍 방문하는 것이 좋습니다. 신호동 지역에서 회 선택형 물회 맛집으로 잘 알려져 있으며, 현지인들이 자주 찾는 로컬 식당으로 소개되고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "취향에 따라 대광어, 도다리, 한치 등 회 어종을 선택하여 즐길 수 있는 시원한 물회와 회비빔밥 맛 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "신호동 일대 주민과 직장인들이 꾸준히 찾는 현지 로컬 식당이기 때문",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

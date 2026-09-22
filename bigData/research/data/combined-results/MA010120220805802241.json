@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220805802241",
+  "name": "멘츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 68045,
+  "researchedAt": "2026-09-21T14:15:53.908Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 연제구 고분로254번길 20 소재 '멘츠'는 요식업이 아닌 인력공급업체로 등록되어 있으며, 일식/초밥 식당 정보가 전혀 존재하지 않음",
+  "notes": "부산광역시 연제구 고분로254번길 20에 등록된 '멘츠'는 일식 회/초밥 등의 음식점이 아니라 공공데이터 상 인력공급업(임시/일용 인력 공급업) 사업체로 확인되며, 실제 요식업 운영 정보나 식당 관련 리뷰/메뉴 정보가 존재하지 않습니다. 없는 가게를 지어내지 않는 규칙에 따라 found: false로 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 고분로254번길 20 (연산동 483-37)에 위치한 '멘츠'는 공공데이터 포털 기준으로 임시/일용 인력 공급업체로 등록되어 있습니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

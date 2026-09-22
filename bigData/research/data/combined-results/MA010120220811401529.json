@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220811401529",
+  "name": "금강중국관",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 33053,
+  "researchedAt": "2026-09-21T22:04:01.191Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 대학생 및 인근 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "사천짜장",
+      "간짜장"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 인근 대학교(부경대 용당캠퍼스 후문 근처) 학생 및 동네 주민 대상 배달/식사 위주"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 남구 감만동(양지골로 110) 부경대 용당캠퍼스 인근에 위치한 중식당으로, 배달 및 간짜장/사천짜장 등을 파는 전형적인 동네 골목 중국집입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": "확인 불가",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 양지골로 110 (감만동, 2층) 국립부경대학교 용당캠퍼스 인근에 위치해 있으며, 주로 배달 위주의 영업을 하거나 학생들의 식사를 제공하는 곳으로 알려져 있습니다.",
+      "url": "https://bluesquare.app"
+    },
+    {
+      "excerpt": "대학교 후문 근처에서 배달 위주로 운영되는 중국집으로 소개하고 있으며 퇴근길에 방문하여 사천짜장과 간짜장을 주문해 식사를 즐겼다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://bluesquare.app",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부경대 용당캠퍼스 후문 인근에 위치하여 배달 및 간편한 중식 식사가 용이함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

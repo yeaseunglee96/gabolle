@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202308A0001806",
+  "name": "돈껍데기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 33031,
+  "researchedAt": "2026-09-21T21:57:40.131Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 없음 (부산 사하구 원양로 407-1 주소지 및 사하구 일대에 '돈껍데기' 음식점 미존재)",
+  "notes": "해당 주소지(부산광역시 사하구 원양로 407-1) 및 부산 사하구 일대에서 '돈껍데기'라는 상호의 돼지고기 구이/찜 음식점 실재 정보가 확인되지 않습니다. 해당 주소지에는 물류/운송업체((주)인천냉동운송공사 등) 및 인근 카페 정보만 등록되어 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

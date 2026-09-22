@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220805008737",
+  "name": "고추불고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 70540,
+  "researchedAt": "2026-09-21T22:14:54.564Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "고추장 불고기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해운대구 반송큰시장 내 위치한 고추불고기(051-545-2355)로 기본 등록 정보(상호, 주소, 전화번호, 주요 메뉴) 외에 블로그 리뷰, 영업시간, 가격대, 줄서기 등 상세 방문기 정보는 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 윗반송로51번길 73 (반송동)에 위치한 곳으로, 일부 맛집 정보 사이트에 '고추불고기'라는 상호로 등록되어 있습니다. 다만, 해당 상호로 영업 중인 식당에 대한 상세 정보(전화번호 등)가 부족하거나 정보가 제한적인 경우가 많으므로 방문 전 확인이 필요할 수 있습니다. 반송큰시장 안으로 이전한 것으로 알려져 있으며, '고추장 불고기'를 전문으로 하는 곳입니다. 전화번호: 051-545-2355",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "반송큰시장 내 위치한 전통 시장 식당으로 고추장 불고기를 판매함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

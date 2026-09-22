@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220813878435",
+  "name": "팽가네생선",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 51700,
+  "researchedAt": "2026-09-21T21:52:17.368Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "사업자 및 가맹점 등록 데이터(114, nett 등)에는 상호 및 주소(부산광역시 해운대구 재반로256번길 35, 반여동 1591-29)가 등록되어 있으나, 일반 블로그 리뷰나 방문 후기, 메뉴판, 영업시간 등 상세 방문 정보는 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 반여동 1591-29 (도로명 주소: 부산광역시 해운대구 재반로256번길 35), 음식점, 동백전, 고유가 지원금, 민생지원금 및 민생회복소비쿠폰 사용 가맹점",
+      "url": "https://www.114.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 재반로256번길 35 팽가네생선",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

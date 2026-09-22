@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220810767037",
+  "name": "일송횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 78542,
+  "researchedAt": "2026-09-21T14:22:29.938Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 주민 및 시장 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "전어회",
+      "참가자미물회",
+      "우럭구이",
+      "모듬회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 동래구 안락동 서원시장 골목 내에서 주민들이 주로 찾는 편안한 동네 횟집 분위기"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "동래구 안락동 서원시장 내에 자리 잡은 로컬 동네 횟집으로, 모듬회, 자연산회, 전어회, 참가자미물회, 생우럭구이 등을 취급하며 신발을 벗고 들어가는 오픈형 주방 형태의 푸근한 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "서원시장 내에 위치한 동네 횟집으로, 따뜻한 분위기의 식당으로 알려져 있습니다. 주요 메뉴로는 모듬회, 자연산회, 홍어, 생우럭구이, 산낙지 등이 있습니다. 참가자미물회나 생선구이 등으로도 방문객들의 후기가 있는 곳입니다.",
+      "url": "https://eathing.co.kr"
+    },
+    {
+      "excerpt": "서원시장에서 오랫동안 영업해 온 동네 분위기의 횟집으로, 전어회, 참가자미 물회, 우럭구이 등이 알려져 있습니다. 신발을 벗고 들어가는 구조이며, 오픈형 주방으로 운영되는 경우가 많습니다.",
+      "url": "https://eathing.co.kr"
+    },
+    {
+      "excerpt": "일송횟집 부산광역시 동래구 충렬대로359번길 46 (안락동 430-1) 전화번호: 051-523-9592",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://eathing.co.kr",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서원시장 골목에서 편안하게 계절 생선회와 우럭구이 등을 맛볼 수 있는 친근한 동네 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "전어회, 참가자미물회, 생우럭구이 등 신선한 활어회와 해산물 안주 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

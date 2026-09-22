@@ -1,0 +1,45 @@
+{
+  "id": "MA0101202406A0408584",
+  "name": "오뎅나와",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 36470,
+  "researchedAt": "2026-09-21T21:49:10.453Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 동구 조방로49번길 12-1(범일동 833-16, 전화: 051-466-4866)에 상호 '오뎅나와'로 등록된 사업체 정보는 확인되나, 방문자 후기, 상세 메뉴 및 가격, 영업시간, 줄서기 등 세부 정량 정보는 웹상에 공개되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 오뎅나와, 주소: 부산광역시 동구 조방로49번길 12-1 (범일동 833-16), 전화번호: 051-466-4866",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220809746452",
+  "name": "베이커지",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 39324,
+  "researchedAt": "2026-09-21T21:56:52.630Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "매장 정보 부재 또는 폐업 추정 (실제 소비자 리뷰 및 영업 정보 없음)",
+  "notes": "부산광역시 부산진구 신천대로220번길 65(부산서면동문굿모닝힐) 주소에 제과점 상호로 등록된 이력은 확인되나, 실제 운영 중인 매장 정보, 리뷰, 가격, 영업시간 등 방문자 관련 데이터를 확인할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 신천대로220번길 65 베이커지",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

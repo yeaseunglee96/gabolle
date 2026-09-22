@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202602A0026223",
+  "name": "리프LYFF",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 55982,
+  "researchedAt": "2026-09-21T14:31:12.029Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "미술관 관람객, 자연/비건 미식 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "연잎밥",
+      "식물성 파스타",
+      "리소토"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 11시부터 오후 6시까지"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산광역시 사하구 낙동남로 1191(부산현대미술관 옥상)에 입점한 레스토랑 '리프(LYFF) 부산'으로 확인됨. 영도의 비건 레스토랑 '아르프'가 운영을 맡아 100% 식물성 재료를 활용한 '잎 요리'를 선보임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산현대미술관 옥상에는 '리프(LYFF) 부산'이라는 레스토랑이 운영되고 있습니다. 을숙도의 자연 및 생태적 특징을 살린 '잎 요리'를 콘셉트로 하며, 100% 식물성 재료를 활용한 연잎밥, 파스타, 리소토 등의 메뉴를 제공합니다. 부산 영도의 비건 레스토랑 '아르프'가 운영을 맡고 있습니다. 약 274㎡(83평) 규모로 56석의 좌석이 마련되어 있으며, 오전 11시부터 오후 6시까지 운영됩니다.",
+      "url": "http://www.kookje.co.kr"
+    }
+  ],
+  "sources": [
+    "http://www.kookje.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "을숙도 자연과 어울리는 100% 식물성 '잎 요리' 비건 콘셉트와 낙동강 전망",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산현대미술관 옥상에 위치하여 미술관 관람과 함께 여유롭게 이용 가능한 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

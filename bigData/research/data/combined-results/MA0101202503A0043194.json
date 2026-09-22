@@ -1,0 +1,35 @@
+{
+  "id": "MA0101202503A0043194",
+  "name": "야미야",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 81974,
+  "researchedAt": "2026-09-21T21:47:31.565Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 및 후기 없음 (폐업 또는 부존재 추정)",
+  "notes": "부산광역시 해운대구 양운로 182(좌동 두산1차아파트) 주소지 및 인근 지역에서 해당 상호('야미야')의 일식 회/초밥 음식점 실존 정보나 후기를 확인할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com/place/1359451905571102"
+  ],
+  "whyPeopleGo": []
+}

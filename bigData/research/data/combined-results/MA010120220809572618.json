@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220809572618",
+  "name": "모닝베어",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 63479,
+  "researchedAt": "2026-09-21T14:04:30.956Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 원격 줄서기를 운영하며 주말 및 피크 타임 대기가 발생함"
+  },
+  "descriptors": {
+    "audience": "데이트 및 브런치 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "라자냐",
+      "모닝 베어 브랙퍼스트",
+      "굴라쉬"
+    ],
+    "yearsClaimed": 3
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:00 ~ 15:30 (라스트오더 15:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "공수마을 바다 전망과 셰프 브랜드로 인해 관광객 및 데이트 방문 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "기장 공수마을 앞 해안가에 위치한 브런치 식당 모닝베어 조사 완료",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 기장군 기장읍 공수해안길 17에 위치한 모닝베어(Morning Bear)는 브런치를 전문으로 하는 식당입니다. 영업시간: 매일 09:00 ~ 15:30 (마지막 주문 15:00). 특징: 브런치 메뉴가 유명하며, 특히 라자냐에 대한 평이 좋습니다. 전용 주차장은 없으나, 인근 공수항 해안가 주차 공간을 무료로 이용할 수 있습니다. 8세 이상부터 입장이 가능한 '키즈 프리(Kids-free) 존'으로 운영됩니다.",
+      "url": "https://catchtable.net"
+    },
+    {
+      "excerpt": "모닝베어는 예약 우선제로 운영되며, 캐치테이블 앱을 통해 원격 줄서기가 가능합니다. 주요 메뉴: 모닝 베어 브랙퍼스트, 누볼레, 굴라쉬, 부라타 치즈 & 토마토 샐러드, 아보카도 & 새우 타르틴 등",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "공수항(공수포구) 바로 앞에 위치해 있어 바다 전망을 즐길 수 있습니다. 통유리창을 통해 항구와 바다를 조망할 수 있는 감성적인 브런치 카페로, 데이트 코스로 인기가 높습니다. 화덕피자, 라자냐, 각종 브런치 플레이트, 파스타 등이 대표 메뉴입니다. 특히 광안리 유명 맛집 '요이쿠마'의 사장님이 운영하는 곳으로도 알려져 있습니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://catchtable.net",
+    "https://tistory.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "공수항 바다 전망과 함께 라자냐, 굴라쉬 등 수준 높은 브런치 메뉴를 즐기기 위해 찾음",
+      "sources": [
+        0,
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 유명 맛집 출신 셰프의 매장으로 인지도가 높고 캐치테이블 원격 줄서기가 활성화된 핫플레이스임",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

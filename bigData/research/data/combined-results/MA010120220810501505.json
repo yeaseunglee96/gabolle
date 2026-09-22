@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220810501505",
+  "name": "오겡끼주",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 56461,
+  "researchedAt": "2026-09-21T14:17:40.021Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 상호 및 주소로 등록된 음식점 정보를 찾을 수 없음",
+  "notes": "부산 중구 중구로40번길 20-2 소재의 '오겡끼주'를 검색하였으나 일치하는 업소 정보가 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220813775539",
+  "name": "잇쇼우안",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50352,
+  "researchedAt": "2026-09-21T14:23:07.651Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "대학생, 연인 데이트",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "큐브 스테이크",
+      "파스타",
+      "함박스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (브레이크타임 15:00 ~ 17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산대학교 인근 대학가 상권으로 대학생 및 인근 주민/데이트 고객 위주"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 금정구 장전동 부산대 인근에 위치한 가성비 스테이크/파스타 경양식 전문점.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산대 인근의 '잇쇼우안'은 가성비 좋은 스테이크와 파스타를 즐길 수 있는 곳으로 알려져 있습니다. 로맨틱한 분위기와 가성비로 데이트 코스로도 언급되는 곳입니다. 스테이크를 중심으로 다양한 양식 메뉴(파스타 등)를 제공합니다. 영업시간: 11:00 ~ 22:00, 브레이크 타임: 15:00 ~ 17:00, 주소: 부산 금정구 부산대학로50번길 40",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://geumjeong.go.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산대 상권에서 가성비 좋은 가격대로 스테이크와 파스타를 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

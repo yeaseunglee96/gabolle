@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220812461003",
+  "name": "대어스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 70536,
+  "researchedAt": "2026-09-21T14:28:33.664Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "바쁜 시간대에는 1인 식사가 어려울 수 있어 2인 이상 방문 또는 사전 확인 필요 언급"
+  },
+  "descriptors": {
+    "audience": "어르신, 가족 외식 및 복국/회 애호가",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "참복국",
+      "복국",
+      "회덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 11:30 ~ 오후 8:30 (오후 3~5시 브레이크 타임 있을 수 있음, 방문 전 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "용호동 동네 안쪽에 위치하여 주로 인근 주민 및 단골이 찾는 동네 생복 요리 전문 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "스시 상호이나 생복으로 끓여내는 복국과 회덮밥 및 함께 제공되는 해산물·생선구이 등 알찬 찬 구성으로 알려진 용호동 식당입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "참복국",
+    "priceWon": 20000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "복요리와 생선요리를 전문으로 하며, 특히 생복으로 만든 복국과 회덮밥이 인기 메뉴로 알려져 있습니다. 복국과 함께 밑반찬, 해산물, 생선구이, 튀김 등이 알차게 제공되어 가성비가 좋다는 평가가 많습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "참복국 20,000원. 매장 운영 사정상 1인 식사가 어려울 수 있으니 방문 전 전화로 확인하시거나 가급적 2인 이상 방문하시는 것을 권장합니다. 영업시간은 오전 11시 30분부터 오후 8시 30분까지이며, 브레이크 타임(오후 3시~5시)이 있을 수 있습니다. 인근에 공영주차장이 있습니다.",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "생복으로 끓여낸 맑고 시원한 복국과 회덮밥의 뛰어난 기본 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "복국 주문 시 밑반찬, 해산물, 생선구이, 튀김 등이 풍성하게 차려지는 구성 대비 가성비",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

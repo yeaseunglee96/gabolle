@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202308A0084014",
+  "name": "불란서와이너리",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 44588,
+  "researchedAt": "2026-09-21T21:50:44.230Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 데이트, 와인 애호가",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "한우 채끝 스테이크",
+      "꽃목살 스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 24:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "공장 건물을 리모델링해 이국적인 유럽 전통 와이너리 분위기를 연출한 와인 다이닝 매장으로, 한우 채끝 및 목살 스테이크 등과 와인을 함께 즐기는 공간입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동래의 공장 건물을 리모델링하여 프랑스나 이태리의 전통 와이너리 분위기를 재현한 인테리어로 유명합니다. 한우 채끝 스테이크, 꽃목살 스테이크 등이 대표 메뉴로 알려져 있습니다. 매장 앞에 약 10대 정도 주차가 가능합니다.",
+      "url": "https://www.siksinhot.com/P/1381395"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1381395"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "공장 건물을 리모델링하여 프랑스나 이태리의 전통 와이너리를 재현한 이국적인 분위기와 와인 및 스테이크 페어링",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

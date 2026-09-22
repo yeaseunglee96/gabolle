@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202406A0502395",
+  "name": "도토리돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 72350,
+  "researchedAt": "2026-09-21T14:30:41.590Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 대한 특별한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "혼밥객, 인근 직장인/주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~토 11:00 ~ 20:00 / 일 11:00 ~ 14:00 (매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "중앙역 인근 대청동 골목에 위치하여 주로 혼밥객 및 인근 주민/직장인들이 찾는 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "부산 중구 대청로 99에 위치한 경양식 및 일식 돈까스 전문점으로 치즈돈까스, 모둠돈까스 등을 판매하며 키오스크/테이블 오더 및 스프/밥 리필 서비스가 특징입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 대청로 99 (대청동2가) 1층. 경양식과 일식 돈까스를 함께 판매하며, 특히 치즈돈까스가 유명합니다. 매장은 아담한 편이며, 키오스크를 통한 주문 시스템을 갖추고 있습니다. 밥, 양송이스프, 장국, 샐러드 등을 리필할 수 있는 서비스가 제공되기도 합니다. 영업 시간: 화~토: 11:00 ~ 20:00, 일: 11:00 ~ 14:00, 월요일: 정기휴무",
+      "url": "https://www.siksinhot.com/P/1709405"
+    },
+    {
+      "excerpt": "경양식 및 일식 돈까스 전문점으로, 치즈돈까스, 모둠돈까스(등심+안심) 등의 메뉴가 있습니다. 테이블에 비치된 패드(테이블 오더)를 통해 직접 주문과 결제가 가능하여 혼밥하기에 편리한 환경으로 알려져 있습니다. 돈까스를 제외한 밥, 양송이스프, 장국, 샐러드, 소스, 반찬은 리필이 가능합니다. 화~토 11:00 ~ 20:00 / 일 11:00 ~ 14:00 (월요일 휴무)",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1709405",
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "치즈가 풍부한 경양식 치즈돈까스와 모둠돈까스의 맛과 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "테이블 오더 시스템과 창가 1인석 완비로 혼자 식사하기 편안한 환경 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "밥, 양송이스프, 장국, 샐러드 등 사이드 구성의 리필 제공 서비스",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

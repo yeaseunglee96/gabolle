@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202602A0031458",
+  "name": "코너커츠",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65159,
+  "researchedAt": "2026-09-21T14:01:06.037Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "네이버 예약 서비스를 지원하여 방문 전 예약이 가능함"
+  },
+  "descriptors": {
+    "audience": "데이트 및 모임 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "수제버거",
+      "스테이크",
+      "비프웰링턴",
+      "라자냐"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (브레이크 타임 15:00 ~ 17:00, 매주 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 달맞이길에 위치한 양식/수제버거 레스토랑으로 쉐프가 직접 번과 패티를 구워 만드는 수제버거와 스테이크, 비프웰링턴 등이 대표적임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "코너커츠(Corner cuts)는 부산 해운대구 달맞이길에 위치한 레스토랑입니다. 위치: 부산광역시 해운대구 달맞이길117번길 30, 1층. 주요 메뉴: 수제버거, 스테이크, 비프웰링턴, 라자냐 등 양식. 운영 시간: 오전 11시 ~ 오후 10시 (브레이크 타임 오후 3시~5시), 매주 화요일 휴무. 매장에서 직접 만든 번과 패티를 사용하는 수제버거 맛집으로 알려져 있으며, 낮에는 차분한 분위기, 밤에는 힙한 감성을 즐길 수 있는 공간으로 소개되고 있습니다. 네이버 예약을 통해 방문할 수 있습니다.",
+      "url": "https://infosori.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 달맞이길117번길 30(중동, EDLE 1층)에 위치한 코너커츠(Corner cuts). 수제버거와 스테이크 등을 전문으로 하는 양식 레스토랑으로, 요리학교 출신 쉐프가 직접 만드는 빵과 패티가 특징이며, 낮에는 차분한 분위기, 밤에는 힙한 감성을 느낄 수 있는 공간으로 소개되고 있습니다. 운영 시간: 11:00 ~ 22:00, 브레이크 타임: 15:00 ~ 17:00, 휴무일: 매주 화요일. 네이버 예약을 통해 편리하게 방문할 수 있습니다. 문의: 051-743-0144",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "쉐프가 직접 매장에서 구워 만드는 번과 패티의 수제버거 및 스테이크 등 수준 높은 양식 요리",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "낮의 차분함과 밤의 힙한 감성을 함께 즐길 수 있는 달맞이길 특유의 레스토랑 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

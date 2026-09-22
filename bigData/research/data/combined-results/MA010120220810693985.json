@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220810693985",
+  "name": "대항식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 54752,
+  "researchedAt": "2026-09-21T21:55:33.240Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 및 관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "물회",
+      "멍게비빔밥",
+      "대구탕",
+      "자연산 회"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~ 20:00 (영업 종료 대략 20:00, 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "바다 바로 앞에 위치하여 경치가 좋으며, 자연산 회, 물회, 대구탕 등의 해산물 요리를 전문으로 합니다. 점심 식사로 멍게비빔밥이나 멍게덮밥과 매운탕을 함께 즐기는 구성이 잘 알려져 있습니다. 매운탕은 맵지 않고 시원한 맛이 특징으로 평가받습니다. 실내는 규모가 있는 편이며 깔끔한 분위기로 소개됩니다. 영업 종료 시간은 대략 20:00로 안내되어 있으나, 운영 상황에 따라 변동될 수 있으므로 방문 전 확인이 필요합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바다 바로 앞 오션뷰 조망과 신선한 자연산 회·물회·멍게비빔밥을 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "대항마을 및 외양포 등 가덕도 해안 관광 동선에서 바다 전망과 식사를 함께 해결하기 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

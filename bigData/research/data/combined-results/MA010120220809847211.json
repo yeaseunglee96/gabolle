@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220809847211",
+  "name": "에데라",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 52659,
+  "researchedAt": "2026-09-21T14:30:15.172Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 데이트 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "통오징어 먹물 리조또",
+      "에데라표 크림 파스타",
+      "명란 오일 파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "남포동/광복동 골목에 위치했던 이탈리안 레스토랑으로 통오징어 먹물 리조또와 크림 파스타 등으로 유명했으나 현재는 폐업/운영 여부 불명 상태임. 주차장 없음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 광복중앙로34번길 12. 통오징어가 통으로 올라간 먹물 리조또와 반숙 프라이, 베이컨이 들어간 에데라표 크림 파스타가 인기 메뉴이다. 아기자기하고 심플한 인테리어로 데이트 코스로도 자주 언급된다. 예약 및 포장이 가능하며 주차장은 별도로 마련되어 있지 않다.",
+      "url": "https://www.siksinhot.com/P/837070"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/837070"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "통오징어가 통째로 올라간 먹물 리조또와 고소한 크림 파스타 등 특색 있는 양식 메뉴 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "아기자기하고 심플한 인테리어 분위기로 남포동 일대 데이트 코스로 적합하여 찾음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

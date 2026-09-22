@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220811412499",
+  "name": "신라삼계탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 41957,
+  "researchedAt": "2026-09-21T21:51:41.366Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "삼계탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 반여동 1089-7(삼어로133번길 16)에 과거 등록되었던 삼계탕 음식점(전화번호: 051-526-5588)으로, 과거 상호 및 사업체 등록 이력 외에 최신 리뷰나 방문객 후기, 상세 영업시간/메뉴 가격 등의 상세 정보는 온라인상에 거의 남아있지 않으며 폐업 또는 업종 변경(숯불왕갈비 등)된 것으로 추정됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "신라삼계탕 / 주소: 부산광역시 해운대구 삼어로133번길 16 (반여동 1089-7) / 전화번호: 051-526-5588 (2016년 기준 정보)",
+      "url": "https://koreacharts.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 삼어로133번길 16 (반여동 1089-7) 소재지에 과거 '신라삼계탕' 운영 이력 확인",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

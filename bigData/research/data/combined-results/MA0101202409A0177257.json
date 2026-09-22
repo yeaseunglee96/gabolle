@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202409A0177257",
+  "name": "소머리국밥집",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 41276,
+  "researchedAt": "2026-09-21T21:51:39.485Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "소머리국밥"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 반여동 삼어로133번길 31에 위치한 사업자 등록상 한식(국/탕/찌개류) 음식점 '소머리국밥집'의 등록 정보는 확인되나, 블로그 리뷰나 방문 후기 등 세부 정보(영업시간, 가격, 줄서기 등)는 웹상에 공개되어 있지 않은 소규모 동네 일반 음식점입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 소머리국밥집 / 주소: 부산광역시 해운대구 삼어로133번길 31 / 업종: 한식 (국/탕/찌개류)",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

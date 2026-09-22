@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220810521769",
+  "name": "선일선어횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 68263,
+  "researchedAt": "2026-09-21T14:13:52.021Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기줄이나 혼잡도에 관한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "어르신 및 숙성 선어회 애호가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "선어회 모둠",
+      "가오리애탕",
+      "병어회",
+      "서대회무침"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "정확한 영업시간 확인 불가 (방문 전 전화 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "단골 및 자갈치 인근 현지인들이 주로 찾는 숙성 선어회 노포로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 충무동(자갈치역 인근) 골목에 위치한 수족관 없는 선어회 전문 노포로, 당일 제철 생선(병어, 가자미, 삼치, 참치 등)으로 구성되는 모둠 선어회와 서대회무침, 식사 마무리로 제공되는 가오리애탕이 대표적임.",
+  "price": {
+    "found": true,
+    "priceMenu": "모둠 선어회 (대)",
+    "priceWon": 60000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "수족관이 없는 선어회 전문점으로 참치, 병어, 삼치, 가자미 등 제철 생선을 숙성시켜 내며 마무리로 나오는 얼큰한 가오리애탕이 별미다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "부산광역시 서구 충무대로281번길 5 (충무동1가)에 위치한 선어회 전문 노포 선일선어횟집. 남도풍의 밑반찬과 숙성 선어회가 특징.",
+      "url": "https://bizno.net"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수족관 없이 당일 수급된 제철 생선을 숙성해 내는 선어회와 가오리애탕의 특색 있는 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "자갈치 인근에서 단골과 주민들이 오랜 기간 찾는 숨은 선어회 노포",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

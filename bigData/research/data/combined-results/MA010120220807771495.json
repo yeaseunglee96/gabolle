@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220807771495",
+  "name": "신사동식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 54849,
+  "researchedAt": "2026-09-21T14:31:09.697Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산 금정구 서부로 27 / 서동 174-28)에 '신사동식당'(돼지고기 구이/일반음식점, 051-521-3982) 사업체 등록 및 공공데이터 정보는 존재하나, 블로그 리뷰나 세부 방문기 등 구체적인 방문 이유/영업시간/가격 정보는 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "신사동식당 부산광역시 금정구 서부로 27 (서동) 051-521-3982 일반음식점",
+      "url": "https://www.geumjeong.go.kr"
+    },
+    {
+      "excerpt": "신사동식당 소재지: 부산광역시 금정구 서동 (서부로 27), 전화번호: 051-521-3982, 업종: 육류 및 고기요리 전문점",
+      "url": "https://www.ilovekfood.com"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr",
+    "https://www.ilovekfood.com"
+  ],
+  "whyPeopleGo": []
+}

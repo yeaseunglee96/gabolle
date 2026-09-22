@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202406A0393886",
+  "name": "북앵커아테네학당",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 30084,
+  "researchedAt": "2026-09-21T22:06:33.532Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "온라인 상에 대기나 줄서기 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "독서 및 인문학/문화 향유 고객, 카페 이용객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "커피",
+      "디저트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "보통 낮 12시경 오픈 (요일별 상이할 수 있음)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객에 대한 명시적 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "공공데이터/인허가상 '경양식' 업종으로 등록되어 있으나, 실제로는 부산 보수동 책방골목 인근에서 라파엘로의 명화 '아테네 학당'을 모티브로 천장화와 동상, 대형 책장을 갖추고 운영되는 북카페/복합문화공간임. 식사 메뉴(돈까스 등)보다는 커피, 음료, 디저트를 취급함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "보수동 책방골목 인근의 대형 카페로, 건물 외관이 책이 겹쳐 있는 듯한 독특한 형태를 띠고 있습니다. 이름에서 알 수 있듯이 라파엘로의 명화 <아테네 학당>을 모티브로 하여 천장에 해당 그림이 장식되어 있으며, 아폴론 동상 등 고전적인 분위기를 자아내는 조형물들이 배치되어 있습니다. 카페 내부에는 대형 책장이 있어 책을 읽을 수 있으며, 독서 모임이나 인문학 관련 프로그램 등 다양한 문화 행사가 진행되기도 합니다.",
+      "url": "https://section.blog.naver.com"
+    },
+    {
+      "excerpt": "보수동 책방골목 근처의 북카페/커피숍으로, 인문학적인 분위기와 함께 라파엘로의 '아테네 학당'을 비롯한 유명 명화들로 장식된 인테리어가 특징입니다. 커피(아메리카노, 카페라떼, 돌체라떼 등)와 음료를 판매하는 카페로 등록되어 있습니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://section.blog.naver.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "보수동 책방골목에 어우러진 책과 라파엘로 '아테네 학당' 천장화, 동상 등 인문학적 감성의 독특한 복합문화공간 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

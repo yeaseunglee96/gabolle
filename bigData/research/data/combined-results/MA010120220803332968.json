@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220803332968",
+  "name": "갈매기먹짱",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 33962,
+  "researchedAt": "2026-09-21T21:50:50.553Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 인근 주민 술자리",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "마늘갈매기살",
+      "매운갈매기살",
+      "치즈·계란크러스트"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 ~ 24:00 (매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 주민들이 가족 외식이나 가벼운 술자리로 찾는 동네 고깃집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 동래구 명장로 152에 위치한 매장은 정식 상호 '갈매기먹짱 안락점'으로 운영 중이며, 저렴한 가격에 갈매기살과 함께 불판 테두리에 치즈/계란 크러스트를 구워 먹는 가성비 고깃집입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "갈매기살 1인분(120g)",
+    "priceWon": 5900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "갈매기살 1인분(120g) 5,900원. 영업시간은 16:00 ~ 24:00 매주 월요일 휴무. 불판 테두리에 치즈와 계란찜을 곁들여 먹을 수 있는 것이 특징.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산광역시 동래구 명장로 152 (안락동) 갈매기먹짱 안락점. 숯불 석쇠에 구워 먹는 방식이며 불판 가장자리에 계란과 치즈를 곁들여 먹는 조합이 인기. 기름기가 적고 쫄깃한 식감의 갈매기살을 합리적인 가격에 즐길 수 있어 술자리나 가족 외식 장소로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "갈매기살을 1인분 5천원대의 저렴하고 부담 없는 가격에 푸짐하게 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "불판 테두리에 치즈와 계란찜을 둘러 고기와 함께 곁들여 먹는 독특한 별미 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

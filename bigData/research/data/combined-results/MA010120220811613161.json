@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220811613161",
+  "name": "금정터",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 36685,
+  "researchedAt": "2026-09-21T22:26:27.972Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "-",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "금정구청 공공데이터(식품위생업소 인허가 명부 등)에 부산광역시 금정구 중군진로 3(금사동 144-20) 소재 일반음식점으로 등록된 사실은 확인되나, 온라인 방문 후기나 세부 메뉴, 영업시간, 가격, 혼잡도 등 상세 정량 정보는 확인되지 않는 소규모 동네 업소입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "금정터: 부산광역시 금정구 중군진로 3 (금사동 144-20)에 위치한 일반음식점의 상호명입니다. 금정구청의 식품위생업소 관련 자료 등에서 해당 주소지의 음식점으로 등록되어 있는 것을 확인할 수 있습니다.",
+      "url": "https://www.geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

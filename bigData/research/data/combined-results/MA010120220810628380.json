@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220810628380",
+  "name": "청운돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 25415,
+  "researchedAt": "2026-09-21T21:49:50.345Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 가야동(냉정로253번길 26 일대)에 위치했던 경양식/돈까스 음식점으로 확인되나, 현재는 폐업 상태로 구체적인 메뉴판, 영업시간, 대기열 및 방문 사유에 대한 상세 리뷰 기록이 남아있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 가야동에 위치했던 청운돈까스는 현재 폐업한 것으로 확인됩니다. 도로명주소: 부산광역시 부산진구 냉정로253번길 26 (가야동 149-2). 과거 동의대역 인근 등에서 경양식 돈까스 전문점으로 기록되어 있습니다.",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://pervsi.com",
+    "https://linktoplace.com"
+  ]
+}

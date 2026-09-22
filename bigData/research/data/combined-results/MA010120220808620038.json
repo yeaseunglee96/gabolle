@@ -1,0 +1,51 @@
+{
+  "id": "MA010120220808620038",
+  "name": "배돈",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 51087,
+  "researchedAt": "2026-09-21T21:46:20.545Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "백갈비",
+      "흑갈비"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산진구 성지곡로 27(초읍동 351-6)에 위치했던 '배돈 숯불돼지갈비' 상호 및 메뉴(백갈비, 흑갈비) 기록은 확인되나, 현재 영업 여부, 영업시간, 가격, 방문 후기 등의 상세 정보는 온라인상에 남아있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 배돈 숯불돼지갈비, 주소: 부산광역시 부산진구 성지곡로 27 (초읍동 351-6), 메뉴: 백갈비, 흑갈비 등의 돼지고기 요리를 주력으로 합니다.",
+      "url": "https://dododo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://dododo.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "백갈비와 흑갈비 등 숯불돼지갈비 전문 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220810658938",
+  "name": "고스락",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 43966,
+  "researchedAt": "2026-09-21T14:21:51.692Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지고기 구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 24:00 (웨이브온 별채 전환 기준, 과거 식당 운영 후 부지 변경)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 기장군 장안읍 해맞이로 286에 위치했던 방갈로 형태의 식당으로, 현재는 같은 부지가 '웨이브온 커피'의 프라이빗 별채(방갈로) 공간으로 개조되어 운영되고 있습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "문의하신 부산 기장군 장안읍 해맞이로 286에 위치한 곳은 현재 '웨이브온 커피(WAVEON COFFEE)'가 운영 중인 장소입니다. 과거에 '고스락'이라는 식당이 있었으나, 현재는 웨이브온 커피의 별채(방갈로) 등으로 활용되고 있습니다. 만약 과거 '고스락' 식당의 메뉴나 정보를 찾으시는 것이라면, 해당 상호는 현재 운영되고 있지 않으므로 방문 전 반드시 확인하시기 바랍니다.",
+      "url": "https://tripmate.co.kr"
+    },
+    {
+      "excerpt": "고스락: 부산 기장군 장안읍에 위치한 식당으로, 방갈로 형태의 공간에서 식사를 즐길 수 있는 곳으로 알려져 있습니다. 주로 돼지고기 구이, 국밥, 우동 등의 메뉴를 제공하며, 개별 방갈로가 있어 가족 단위나 오붓한 모임 장소로 많이 언급됩니다.",
+      "url": "https://daum.net"
+    }
+  ],
+  "sources": [
+    "https://tripmate.co.kr",
+    "https://daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바다 앞 프라이빗 개별 방갈로에서 오붓하게 식사 및 휴식을 즐길 수 있는 공간적 매력",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220810627937",
+  "name": "소정",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 40522,
+  "researchedAt": "2026-09-21T22:21:30.045Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "사업자 등록 정보 외에 실제 방문 후기, 메뉴, 영업시간 등의 상세 웹 정보가 없음",
+  "notes": "부산광역시 부산진구 동평로225번길 38(연지동)에 '소정' 상호의 일반음식점/한식 등록 기록만 확인되며, 일반 손님 대상 리뷰나 메뉴 정보가 웹상에 부재함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.saramin.co.kr"
+  ],
+  "whyPeopleGo": []
+}

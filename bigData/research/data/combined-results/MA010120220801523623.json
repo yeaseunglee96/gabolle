@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220801523623",
+  "name": "엡섬",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 69892,
+  "researchedAt": "2026-09-21T13:58:34.180Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "테이블 4개 정도로 매장 규모가 아담하여 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "데이트, 브런치 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "트러플 크림 뇨끼",
+      "라자냐",
+      "바질 오일 파스타",
+      "오늘의 비프스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 10:00 ~ 21:00 (브레이크타임 16:00~17:00, 라스트오더 20:00, 매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "해리단길에 위치한 유럽 감성의 아늑한 이탈리안 브런치/양식 전문점. 트러플 크림 뇨끼와 파스타류가 대표 메뉴임.",
+  "price": {
+    "found": true,
+    "priceMenu": "트러플 크림 뇨끼",
+    "priceWon": 17000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "유럽 감성의 아늑하고 따뜻한 분위기로 데이트 장소로 인기가 많습니다. 좌석은 테이블 4개 정도로 아담하며, 키친 앞 좌석도 마련되어 있습니다. 메뉴판이 그림으로 되어 있어 선택이 편리합니다. 해리단길에서 분위기가 매우 좋은 맛집으로 손꼽힙니다. 매장 규모가 작아 웨이팅이 발생할 수 있으며 양이 아주 많지는 않다는 의견이 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "해운대 해리단길에 위치한 엡섬(EPSOM KITCHEN)의 트러플 크림 뇨끼 가격은 17,000원입니다. 주소: 부산 해운대구 우동1로 23 1층",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://tistory.com",
+    "https://wikifoodie.co.kr",
+    "https://visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "트러플 뇨끼와 파스타 등 감성적인 이탈리안 양식 메뉴의 맛과 완성도",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "유럽 감성의 따뜻한 인테리어와 조명으로 데이트 및 브런치 즐기기 좋은 분위기",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

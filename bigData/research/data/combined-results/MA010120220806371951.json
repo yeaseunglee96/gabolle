@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220806371951",
+  "name": "바운티그릴",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 99590,
+  "researchedAt": "2026-09-21T14:11:09.382Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 등을 통해 30분 단위 사전 예약 후 방문을 권장하며 워크인은 입장이 제한될 수 있음"
+  },
+  "descriptors": {
+    "audience": "연인·가족·데이트객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "블랙앵거스 채끝 스테이크",
+      "골든포크 한돈 목살 스테이크",
+      "문어 아라비아따 파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 20:30 (브레이크타임 15:30 ~ 17:00, 매주 화·수 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "기장 일광 해안도로 드라이브 코스 및 오션뷰 명소로 방문객과 관광객이 주로 찾는 레스토랑"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "미슐랭 레스토랑 및 뉴욕 CIA 요리학교 출신 셰프의 스테이크 전문점으로, 전 좌석 오션뷰와 메인 스테이크 주문 시 사이드바(뷔페) 이용 시스템이 특징입니다. 초등학교 3학년 이하 노키즈존으로 운영된 바 있으며 최근 다른 형태(황토마루 협업 등)의 운영 변경 이력이 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "블랙앵거스 채끝 스테이크 39,800원 / 골든포크 한돈 목살 스테이크 29,800원 (사이드바 이용 포함)",
+    "priceWon": 34800
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 기장군 일광읍에 위치한 바운티그릴은 메인 스테이크 메뉴를 주문하면 사이드바(뷔페)를 무료로 이용할 수 있는 시스템입니다. 1인 1메뉴 주문이 필수이며 블랙앵거스 채끝 스테이크: 39,800원, 골든포크 한돈 목살 스테이크: 29,800원입니다. 캐치테이블을 통해 예약 가능하며 노키즈존(초등학교 3학년 이하)으로 운영됩니다.",
+      "url": "https://app.catchtable.co.kr/ct/shop/bountygrill"
+    },
+    {
+      "excerpt": "부산광역시 기장군 일광읍 문오성길 162-2에 위치한 바운티그릴(Bounty Grill). 전 좌석에서 바다를 조망할 수 있는 오션뷰 레스토랑으로 뉴욕 CIA 요리학교 출신 셰프가 운영하며, 영업시간은 11:00 ~ 20:30 (브레이크 타임 15:30 ~ 17:00, 화/수 휴무)입니다. 건물 내 주차 공간이 협소하여 주변 골목 주차를 이용해야 할 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://app.catchtable.co.kr/ct/shop/bountygrill",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전 좌석에서 기장 일광 바다를 한눈에 감상할 수 있는 오션뷰 다이닝 공간",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "뉴욕 CIA 요리학교 및 미슐랭 출신 셰프가 선보이는 채끝·목살 스테이크와 사이드바 시스템",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

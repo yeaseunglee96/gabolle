@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202411A0053157",
+  "name": "토토키친",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 81104,
+  "researchedAt": "2026-09-21T21:51:02.698Z",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가정식/혼밥/데이트",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 일본식 카레",
+      "돈까스 토핑 카레",
+      "치즈 돈까스 카레",
+      "수제 돈까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "금요일: 17:00–24:00, 토요일: 13:00–24:00, 일요일~목요일: 휴무 (변동 가능)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 온천천 카페거리 인근 주택가 골목에 위치한 일본 가정식 카레 및 돈카츠 전문점으로, 수제 카레 주문 시 밥 추가 무료 혜택 등을 제공함",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "토토키친은 부산광역시 동래구 온천천로453번길 17 (1층)에 위치한 일식당입니다. 대표 메뉴: 수제 일본식 카레, 돈까스 토핑 카레 등. 특징: 수제 카레 주문 시 밥 추가가 무료로 제공되는 것으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "토토키친 부산광역시 동래구 온천천로453번길 17 1층. 영업 시간: 금요일 17:00–24:00, 토요일 13:00–24:00. 주요 메뉴: 수제 일본식 카레(밥 추가 무료), 돈까스 토핑 카레, 치즈 돈까스 카레, 수제 돈까스, 가츠동, 야끼소바, 우동 등",
+      "url": "https://heyyumi.ai/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://heyyumi.ai/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정성스레 끓여낸 수제 일본식 카레와 돈까스 등 일본 가정식 요리를 맛보기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "수제 일본식 카레 주문 시 밥 추가 무료 제공 등 가성비와 넉넉한 인심 때문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

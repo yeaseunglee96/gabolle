@@ -1,0 +1,56 @@
+{
+  "id": "MA0101202406A0521891",
+  "name": "대성초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 55485,
+  "researchedAt": "2026-09-21T14:27:37.267Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인, 일반",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥",
+      "생선회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 중구 중앙동에 위치한 일식당으로 등록되어 있으며 외국어 메뉴판 지원 음식점 등으로 등재되어 있으나, 온라인상 상세 리뷰나 영업시간/메뉴별 가격 정보는 거의 확인되지 않는 소규모/일반 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대성초밥 / 일식 / 부산광역시 중구 충장대로5번길 8, 대성빌딩 101호 / 외국어 메뉴판 지원 음식점",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "중앙역 인근 오피스 상권에서 초밥 및 일식 식사를 할 수 있는 곳",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

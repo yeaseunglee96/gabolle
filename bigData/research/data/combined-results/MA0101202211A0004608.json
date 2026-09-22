@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202211A0004608",
+  "name": "봄스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 59910,
+  "researchedAt": "2026-09-21T21:45:30.925Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인 및 인근 주민",
+    "parking": true,
+    "priceBand": "mid",
+    "signatureDishes": [
+      "점심특선",
+      "모듬초밥",
+      "특선초밥",
+      "오마카세"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 22:00 (브레이크 타임: 15:00 ~ 17:00, 정기 휴무: 매주 일요일)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "구서역 인근 주택가 상권으로 인근 주민 및 직장인 점심/외식 수요 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 금정구 구서동에 위치한 일식 초밥 전문점으로, 점심특선과 모듬초밥, 특선초밥 및 오마카세를 취급함. 매장 내 주차 공간을 갖추고 있음.",
+  "price": {
+    "found": true,
+    "priceMenu": "점심특선 (9p) 13,000원, 모듬초밥 (11p) 18,000원, 특선초밥 (12p) 25,000원, 오마카세 45,000원",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 구서동에 위치한 봄스시의 영업시간 및 주차 정보: 영업시간: 11:30 ~ 22:00, 브레이크 타임: 15:00 ~ 17:00, 정기 휴무: 매주 일요일, 주차: 매장 내 넉넉한 주차 공간이 마련되어 있습니다. 대표 메뉴: 점심특선 (9p) 13,000원, 모듬초밥 (11p) 18,000원, 특선초밥 (12p) 25,000원, 오마카세 45,000원.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "점심특선부터 특선초밥 및 오마카세까지 신선한 스시 메뉴를 가성비 있게 제공함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "전용 주차 공간과 구서역 인근 접근성으로 식사 및 외식 모임이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

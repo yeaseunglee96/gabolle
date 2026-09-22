@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202307A0008013",
+  "name": "해도지초장",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 37360,
+  "researchedAt": "2026-09-21T22:00:46.291Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "신호활어회센터 방문객 및 인근 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "활어회 상차림",
+      "매운탕",
+      "회덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "신호활어회센터 2층에 위치하여 활어회센터 이용객 및 인근 주민 나들이 코스로 주로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 강서구 신호활어회센터 2층에 위치한 초장집(양념집)으로, 1층 회센터에서 구매한 회를 상차림비(양념)를 내고 매운탕, 횟밥 등과 함께 식사하는 용도로 방문함.",
+  "price": {
+    "found": true,
+    "priceMenu": "양념(1인) 5,000원, 매운탕(소) 5,000원 / (대) 10,000원, 횟밥 7,000원",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해도지초장 주소: 부산광역시 강서구 신호산단1로 70, 신호활어회센터 2층. 전화번호: 051-941-4928. 주요 메뉴: 매운탕 (소) 5,000원, 매운탕 (대) 10,000원, 횟밥 7,000원, 양념 (1인분) 5,000원. 신호활어회센터 내에 위치하고 있어 신선한 회와 함께 매운탕 등을 즐길 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신호활어회센터 1층에서 구매한 활어회를 2층에서 상차림 양념 및 매운탕과 함께 편하게 식사하기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

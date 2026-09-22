@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220804729700",
+  "name": "미식회",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 32086,
+  "researchedAt": "2026-09-21T21:50:52.274Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "금정구청 행정 공공자료상 부산광역시 금정구 서동로176번길 14-5에 위치한 일반음식점(횟집)으로 확인되나, 가격·영업시간·방문 후기 등 세부 소비자 정보는 웹상에 게시되지 않은 동네 골목 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미식회 부산광역시 금정구 서동로176번길 14-5 (서동) 일반음식점",
+      "url": "https://www.geumjeong.go.kr"
+    },
+    {
+      "excerpt": "미식회는 금정구 내 저소득 독거노인 대상 외식 지원 사업 참여 업소로 등재됨",
+      "url": "https://www.geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "지역사회 나눔 사업 참여 기록이 있는 서동 주택가 골목 로컬 횟집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202507A0037940",
+  "name": "태영수산",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 47528,
+  "researchedAt": "2026-09-21T22:01:10.472Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 언급을 웹에서 찾을 수 없음"
+  },
+  "descriptors": {
+    "audience": "일반 방문객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 강서구 신호일로 76(지번: 신호동 317-15, 112호)에 한식/수산물 취급 음식점으로 등록된 '태영수산'(전화번호: 051-972-1862)이 확인됩니다. 다만 일반 블로그/리뷰 등 방문 후기나 상세 메뉴·가격·영업시간 정보는 웹상에 상세히 공개되어 있지 않습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "태영수산 주소: 부산광역시 강서구 신호동 317-15 전화번호: 051-972-1862",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "부산광역시 강서구 신호동 317-15 (112호) 업종: 한식",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://udanax.org",
+    "https://findby.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신호동 상가 내 위치하여 인근 주민 및 인근 시설에서 수산물 이용 목적으로 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

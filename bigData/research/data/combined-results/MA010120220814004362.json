@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220814004362",
+  "name": "몽상가들",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 129230,
+  "researchedAt": "2026-09-21T14:29:05.175Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인 데이트, 친구 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "새우·바지락 감바스",
+      "바질&프로슈토 피자",
+      "몽상가들 플레이트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "연중무휴, 18:00 - 02:00 (라스트오더 01:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 직접적인 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 중구 광복로18번길 골목 안 파란 주택을 개조한 빈티지 와인바로, 영화 '몽상가들'을 모티브로 한 아늑한 분위기와 감성적인 소품·조명 덕분에 데이트 코스로 인기가 많음.",
+  "price": {
+    "found": true,
+    "priceMenu": "새우·바지락 감바스 17,000원, 바질&프로슈토 피자 25,000원, 잔와인 9,000원",
+    "priceWon": 17000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "몽상가들 부산 중구 광복로18번길 6-1 파란 집 º정보 주차장 없음 연중무휴, 18:00 - 02:00  (라스트오더 01:00) 왜 주소에 파란 집이라고 써두셨는지 알겠더라구요. 골목골목 찾아 들어가야 해서 찾기 어려웠는데 파란 집만 생각하고 가니 발견! 언뜻 보면 일반 가정집처럼 생겨서 그냥 지나칠 수 있으니 지도 잘 보며 '파란 집'만 찾으시면 돼요. 오래된 텔레비전과 빈티지한 소품들, 분위기가 술 안 마셔도 알코올에 취할 것 같은 느낌을 줘요. 데이트 100프로 성공할만한 곳이죠? 영화 '몽상가들(The dreamers)'를 모티브로 한 와인펍이라고 해요. 저희가 시킨 와인은 샹그리아, 로제 한잔(200ml, 9,000원)입니다. 그리고 뒤이어 나온 새우, 바지락 감바스(17,000원), 바질&프로슈토 피자(25,000원) 여기 분위기 맛집인 줄 알았는데 음식 맛집이었더라고요. 남포동에서 데이트하기 좋고 분위기 좋은 와인펍을 찾는다면 '몽상가들' 추천할게요!",
+      "url": "https://juujyu-travel.tistory.com/6"
+    }
+  ],
+  "sources": [
+    "https://juujyu-travel.tistory.com/6"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "영화 '몽상가들'을 모티브로 한 주택 개조 빈티지 인테리어와 데이트 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "감바스, 피자 등 와인과 곁들이기 좋은 맛있는 요리 안주",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

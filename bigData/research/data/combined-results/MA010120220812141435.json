@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220812141435",
+  "name": "새만덕식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 61904,
+  "researchedAt": "2026-09-21T22:24:07.795Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "웹상에 줄서기 및 혼잡도 관련 언급이 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 보양식 식사 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리불고기",
+      "한방오리백숙",
+      "삼계탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 구체적 후기 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 북구 만덕동(중리로 36)에 위치한 한식/보양식 식당으로, 오리불고기, 한방오리백숙, 삼계탕 등을 취급하며 인근에 '새만덕식당' 버스정류장이 위치해 있음. 세부 후기나 영업시간, 가격표는 웹상에서 상세히 확인되지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "새만덕식당은 부산광역시 북구 만덕동에 위치한 음식점입니다. 주소: 부산광역시 북구 중리로 36, 연락처: 051-331-3551. 주요 특징: 한방오리백숙, 오리불고기 등을 전문으로 하는 한식당으로 알려져 있습니다. 인근에 '새만덕식당' 정류소가 있어 대중교통 접근이 용이합니다.",
+      "url": "https://mandeok07.org"
+    },
+    {
+      "excerpt": "주로 오리불고기, 한방오리백숙, 삼계탕 등 보양식 메뉴를 제공하는 곳으로 알려져 있습니다.",
+      "url": "https://ndex.kr"
+    }
+  ],
+  "sources": [
+    "https://mandeok07.org",
+    "https://ndex.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오리불고기와 한방오리백숙 등 보양식을 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "인근에 동명의 버스정류소가 위치해 대중교통 이용 및 접근이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

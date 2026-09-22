@@ -58,6 +58,48 @@
  *    없는 것은 **받다 만 것이 아니라 로컬 상태가 깨진 것**이다. 멈추고 무엇을
  *    하라고 말한다 — 대개 `git lfs pull` 한 번이면 끝난다.
  *
+ * ── 🔴 2026-09-18 — 받은 쪽을 보는 데는 키가 필요 없다 (S15P21E201-1264) ───
+ *
+ * 위 검사를 **키 없는 PC 에서는 돌릴 수가 없었다.** `--status` 는 API 를 한 번도 안
+ * 부르는데 키 검사가 그보다 앞에 있어서, 첫 줄에서 종료 코드 2 로 멈췄다.
+ *
+ * 레인마다 작업 폴더를 따로 펼치면서 실제로 걸렸다. `.env` 는 일부러 저장소에 안
+ * 올리는 파일이라 **clone 으로는 안 따라온다.** 그래서 "받아 둔 98쪽이 진짜인가" 를
+ * 보려던 사람이 **정작 그것을 보는 자리에서** 막혔다.
+ *
+ * 🔴 **받은 자료를 보는 일과 새로 받는 일은 다른 일이다.** 키는 뒤엣것에만 필요하다.
+ *    **수집은 여전히 키 없이 안 돈다** — 검사 순서를 바꾼 것이지 느슨하게 한 것이
+ *    아니다. 그 두 가지를 `test/verify.mjs` 가 같이 지킨다.
+ *
+ * ── 🔴 2026-09-19 — 마침 줄이 언제나 "전량 받았다" 고 말했다 (S15P21E201-1289) ──
+ *
+ * 위 -1212 가 `donePages()` 의 반환을 **집합에서 `{done, broken}` 두 칸으로** 바꿨는데,
+ * 부르는 곳 둘 중 **마침 줄 쪽을 안 고쳤다.** 그래서 `now.size` 가 `undefined` 였다.
+ *
+ * 화면에 `받은 페이지 undefined/182` 가 찍히는 것은 눈에 띄지만, **진짜 문제는
+ * 그 아래 판정이다.**
+ *
+ *     left = 182 - undefined  →  NaN
+ *     if (left) …             →  NaN 은 거짓이다
+ *
+ * 🔴 그래서 **쪽이 남아 있어도 언제나 "🟢 전량 받았습니다" 로 갔다.**
+ *    "🔴 남은 페이지 N개. 내일 다시 돌리면 그 다음부터 갑니다" 는 **한 번도 안 나왔다.**
+ *    하루 한도가 있는 수집에서 "다 받았다" 는 거짓말은 비싸다 — 사람이 그 말을 믿고
+ *    다음 단계로 넘어간다.
+ *
+ * 🔴 **거짓 안심은 아무도 안 보게 만든다.** 이 결함의 방향이 그래서 나쁘다.
+ *    "덜 받았나" 라는 의심은 사람을 **다시 보게** 만들지만, "다 받았다" 는 그 자리에서
+ *    **확인을 끝낸다.** 마침 줄이 틀릴 거면 **의심하는 쪽으로** 틀려야 한다.
+ *    이 파일의 마침 줄을 다음에 만지는 사람이 알아야 할 것이 그것이다.
+ *
+ * 2026-09-19 새벽에는 **진짜로 전량이었기 때문에** 맞는 말이 나왔다. 그게 이 결함을
+ * 더 오래 숨겼을 것이다.
+ *
+ * 🔴 **반대쪽 극단도 같이 막는다.** `if (left)` 는 0 이 아니기만 하면 참이라, 파일이
+ *    예상보다 **많으면** `left` 가 음수가 되고 **"남은 페이지 -3개"** 가 찍힌다.
+ *    지금은 못 일어나지만 마지막 쪽 계산이 바뀌거나 남의 파일이 섞이면 생긴다.
+ *    같은 줄에서 같은 판정을 하는 것이라 따로 빼지 않는다 — 빼면 이 한 줄을 두 번 고친다.
+ *
  * 실행
  *   node collect/disabled-facility.mjs                # 남은 페이지를 오늘 몫(98)만큼
  *   node collect/disabled-facility.mjs --budget 30    # 30회만
@@ -133,16 +175,22 @@ async function donePages() {
 const totalOf = (xml) => Number((xml.match(/<totalCount>(\d+)</) ?? [])[1])
 
 async function main() {
-  if (!existsSync(ENV)) {
-    log(`🔴 .env 가 없습니다: ${ENV}`)
-    process.exitCode = EXIT.INPUT
-    return
-  }
-  const KEY = (await readFile(ENV, 'utf8')).match(/^DATA_GO_KR_KEY=(.*)$/m)?.[1]?.trim()
-  if (!KEY) {
-    log('🔴 .env 에 DATA_GO_KR_KEY 가 없습니다.')
-    process.exitCode = EXIT.INPUT
-    return
+  // 🔴 키는 **실제로 호출할 때만** 본다 (S15P21E201-1264). 머리말 참고.
+  //    검사를 뒤로 미루지 않고 여기서 건너뛰는 이유는, 진짜 수집이 키 없이 돌 때
+  //    **파일 100장을 다 읽고 나서** 멈추게 되기 때문이다. 실패는 첫 줄에서 말한다.
+  let KEY = null
+  if (!STATUS_ONLY) {
+    if (!existsSync(ENV)) {
+      log(`🔴 .env 가 없습니다: ${ENV}`)
+      process.exitCode = EXIT.INPUT
+      return
+    }
+    KEY = (await readFile(ENV, 'utf8')).match(/^DATA_GO_KR_KEY=(.*)$/m)?.[1]?.trim()
+    if (!KEY) {
+      log('🔴 .env 에 DATA_GO_KR_KEY 가 없습니다.')
+      process.exitCode = EXIT.INPUT
+      return
+    }
   }
 
   await mkdir(OUT_DIR, { recursive: true })
@@ -232,12 +280,15 @@ async function main() {
   }
   if (used >= BUDGET) stoppedBy = '오늘 몫 소진'
 
-  const now = await donePages()
+  // 🔴 donePages() 는 {done, broken} 을 준다. 집합으로 받으면 size 가 undefined 가 되고,
+  //    남은 쪽 계산이 NaN 이 되어 언제나 "전량 받았다" 로 간다 (S15P21E201-1289).
+  const { done: now } = await donePages()
   const lp = total ? Math.ceil(total / ROWS) : null
   const left = lp ? lp - now.size : null
   log('')
   log(`${stoppedBy} — 이번에 ${used}회 사용 · 받은 페이지 ${now.size}${lp ? `/${lp}` : ''}`)
-  if (left) log(`  🔴 남은 페이지 ${left}개. 내일 같은 명령을 다시 돌리면 그 다음부터 갑니다.`)
+  // 🔴 `> 0` 이다. 음수도 참이라 그냥 쓰면 "남은 페이지 -3개" 가 찍힌다 — 머리말 참고
+  if (left > 0) log(`  🔴 남은 페이지 ${left}개. 내일 같은 명령을 다시 돌리면 그 다음부터 갑니다.`)
   else log(`  🟢 전량 받았습니다. 다음은 부산만 거르는 단계입니다.`)
 }
 

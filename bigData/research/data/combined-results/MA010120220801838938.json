@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220801838938",
+  "name": "일봉초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 43719,
+  "researchedAt": "2026-09-21T22:05:08.896Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인/인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "특선스시",
+      "연어스시"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 사하구 하단동(낙동대로457번길 27 일봉빌딩 1층)에 등록된 초밥집으로 점심 특선스시, 연어스시 등을 취급하는 곳으로 확인되나 상세 방문 후기나 영업시간, 대기 정보는 웹상에 상세히 공개되어 있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "점심특선 초밥 맛집으로 알려져 있으며, 대표 메뉴로는 특선스시 10ps, 연어스시 10ps 등이 있습니다. 하단역 인근에 위치하여 접근성이 좋습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 사하구 낙동대로457번길 27 1층, 일봉빌딩 1층, 전화번호 051-205-4900",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "하단역 인근에서 점심 특선스시와 연어스시를 즐길 수 있는 초밥 전문점",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

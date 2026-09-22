@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220810651756",
+  "name": "함안상회",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 37956,
+  "researchedAt": "2026-09-21T22:35:31.696Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "음식점 정보 없음 (일반 소매 상회 또는 단순 지표 상호로만 확인됨)",
+  "notes": "부산광역시 부산진구 복지로 101(개금동 국민주택) 일대에 등록된 '함안상회'는 백반/한정식 식당으로 운영되는 실제 방문 후기나 메뉴 정보가 전혀 확인되지 않으며, 소규모 상점/상회 명칭으로만 남아있어 음식점 정보를 찾을 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,35 @@
+{
+  "id": "MA0101202211A0084306",
+  "name": "이야기",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 48926,
+  "researchedAt": "2026-09-21T21:45:39.051Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 '이야기'라는 사업자등록 이력 외에 실제 일반 음식점(회/초밥) 영업 정보나 방문 후기가 웹상에 존재하지 않음.",
+  "notes": "부산광역시 금정구 금강로 446 주소에 사업자등록(음식 업종) 이력은 일부 데이터베이스에 존재하나, 실제 일반 소비자 대상 영업 정보(메뉴, 가격, 영업시간, 후기, 줄서기 등)나 음식점으로서의 상세 웹 정보가 전혀 확인되지 않음. 폐업했거나 배달전문/단순 사업자 등록 등으로 추정됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

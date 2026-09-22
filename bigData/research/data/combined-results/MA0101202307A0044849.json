@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202307A0044849",
+  "name": "구구삼루프탑",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 48034,
+  "researchedAt": "2026-09-21T21:58:16.950Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 가족 외식, 단체 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "파스타",
+      "와인/주류"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "정확한 영업시간 확인 불가"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": false
+  },
+  "notes": "부산 부산진구 거제대로 70(국제식품 양정점 복합건물) 11층에 위치한 양식당 '993루프탑'(구구삼루프탑). 도심 루프탑 전망과 파스타, 주류 등을 즐길 수 있는 고급 양식당으로 운영/언급됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산 부산진구 거제대로 70, 국제식품 양정점 11층. 특징: 부산진구 양정에 위치한 복합건물 내의 고급 양식당 및 휴식 공간입니다. 파스타, 주류 등을 판매하며 도심 전망을 즐길 수 있는 루프탑 공간을 갖추고 있습니다.",
+      "url": "https://bluesquare.app"
+    }
+  ],
+  "sources": [
+    "https://bluesquare.app"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "도심 속 탁 트인 루프탑 전망에서 파스타와 주류를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

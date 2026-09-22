@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220811412923",
+  "name": "목기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 57625,
+  "researchedAt": "2026-09-21T14:12:33.450Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 남구 수영로 52(문현동 250-4 대암아파트 상가)에 위치한 식품접객업(돼지고기 구이/찜, 상호 '목기' 또는 '목기숯불갈비') 등록 사업체로 확인되나, 일반 소비자 대상의 블로그/방문기 등 온라인 후기 및 상세 영업 정보(영업시간, 메뉴판 가격, 줄서기 등)는 웹상에 공개되어 있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 수영로 52(문현동 250-4, 대암아파트 상가)에 위치한 '목기'라는 업소는 식품접객업(돼지고기 구이/찜 등)으로 등록된 음식점입니다.",
+      "url": "https://disco.re"
+    },
+    {
+      "excerpt": "부산광역시 남구 수영로 52, 대암아파트 상가 (문현동 250-4) 업종: 돼지고기 구이/찜",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://disco.re",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

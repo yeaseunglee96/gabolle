@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220808708125",
+  "name": "갈비명가창원집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 33384,
+  "researchedAt": "2026-09-21T22:20:23.009Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 관한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비",
+      "물밀면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 9시 영업 종료"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지역 주민들에게 가성비 맛집으로 언급되는 주택 개조 동네 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 금정구 부곡동 주택가에 위치한 돼지갈비 전문점으로, 사장님이 연탄불에 직접 초벌구이해 주는 돼지갈비와 후식 물밀면이 대표적이며 80년대 주택 개조 분위기를 띱니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 서부곡로11번길 52 (부곡동 327-20). 오후 9시에 영업이 종료됩니다. 사장님이 직접 초벌구이를 해서 내어주기 때문에 편리하게 구워 먹을 수 있습니다. 80년대 주택을 개조한 곳으로 좌식, 입식 테이블 및 야외 좌석이 마련되어 있어 캠핑 분위기를 즐길 수 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "가정집 분위기의 식당으로, 연탄불에 초벌구이한 돼지갈비가 대표 메뉴로 알려져 있습니다. 가성비 맛집으로 지역 주민들에게 자주 언급되는 곳입니다.",
+      "url": "https://www.daum.net"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "사장님이 직접 연탄불에 초벌구이해 주는 돼지갈비와 편안한 주택 개조 분위기",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "지역 주민들이 편하게 찾는 가성비 동네 고깃집",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

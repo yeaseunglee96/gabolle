@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220807209238",
+  "name": "포포",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 37220,
+  "researchedAt": "2026-09-21T22:21:58.266Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "태종대 관광객, 동네 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "쌀국수",
+      "돼지고기 덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "태종대 인근 방문객 및 인근 주민 대상 베트남 음식점"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 영도구 동삼동(태종로 809) 1층에 위치한 베트남 쌀국수 전문점(베트남쌀국수포포). 태종대 인근 식당으로 언급되며, 대표 메뉴로 진하고 깔끔한 육수의 쌀국수와 돼지고기 덮밥이 확인됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 영도구 태종로 809 1층(동삼동 999-4)에 위치한 베트남쌀국수포포. 태종대 인근에 위치한 쌀국수 맛집으로 진하고 깔끔한 국물이 특징이며, 사이드 메뉴로 돼지고기 덮밥도 인기가 많습니다. 테이블에 비치된 매콤한 소스와 달달한 소스를 기호에 맞게 곁들여 드실 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "진하고 깔끔한 육수의 쌀국수와 담백한 돼지고기 덮밥의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "태종대 관광지 인근에 위치하여 방문 접근 편의 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

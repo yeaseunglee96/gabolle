@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202209A0041551",
+  "name": "렛어텟",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 67227,
+  "researchedAt": "2026-09-21T14:16:55.867Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 메뉴는 조기 소진될 수 있어 당일 라인업과 재고 상황을 확인하고 방문하는 편임"
+  },
+  "descriptors": {
+    "audience": "디저트·빵지순례객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "생초코모찌",
+      "소금빵",
+      "휘낭시에",
+      "베이글 산도"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~토 11:30–18:30 (월, 화, 일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "빵지순례 필수 코스로 꼽히며 디저트 애호가들이 찾는 베이크샵으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 대연동 못골로 골목에 위치한 베이크샵으로, 생초코모찌와 소금빵, 휘낭시에 등의 디저트로 유명함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 못골로41번길 29 1층. 주요 메뉴: 소금빵(아몬드 크림, 바질 크림치즈 등), 생초코모찌, 휘낭시에, 치아바타, 베이글 산도 등 다양한 베이커리류. 영업 시간: 수~토 11:30–18:30 (월, 화, 일 휴무). 방문객들 사이에서 '두바이 초콜릿 맛집', '생초코모찌 1인자', '빵지순례 필수 코스' 등으로 알려져 있으며, 특히 소금빵과 다양한 산도 메뉴에 대한 만족도가 높습니다.",
+      "url": "https://www.heyyumi.ai/"
+    },
+    {
+      "excerpt": "부산광역시 남구 못골로41번길 29 (1층). 특징: 생초코모찌, 소금빵, 휘낭시에, 베이글 산도 등 다양한 디저트와 베이커리 메뉴로 알려진 곳입니다. 과거 부산진구 서전로(전포동) 등 다른 지역에 매장이 있었으나, 현재는 대연동 매장이 주요 영업 장소로 언급되고 있습니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.heyyumi.ai/",
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "생초코모찌, 소금빵, 휘낭시에 등 특색 있는 베이커리 디저트의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

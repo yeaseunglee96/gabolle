@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220806500042",
+  "name": "오야꼬",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 81229,
+  "researchedAt": "2026-09-21T14:30:40.485Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 줄 및 혼잡 관련 언급이 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "직장인, 혼밥 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "메밀세트",
+      "우동세트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "웹상에 정확한 영업시간 정보가 명시되어 있지 않음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객용 명소보다는 대청동 인근 주민/직장인의 혼밥 및 일상 식사용 착한가격업소 성격이 강함"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 중구 대청동4가에 위치한 일식 일반음식점으로, 행정안전부 및 부산 중구 지정 '착한가격업소'로서 메밀세트 및 우동세트 등의 가성비 메뉴를 판매함.",
+  "price": {
+    "found": true,
+    "priceMenu": "메밀세트, 우동세트",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오야꼬 / 주소: 부산광역시 중구 중구로 68(대청동4가) / 전화번호: 051-462-8989 / 착한가격업소 주요메뉴: 메밀세트 9,000원, 우동세트 9,000원",
+      "url": "https://www.bsjunggu.go.kr"
+    },
+    {
+      "excerpt": "부산 중구 착한가격업소 일식집 오야꼬. 대청동4가 위치, 메밀세트 9,000원 단품 메뉴 및 혼밥하기 좋은 곳",
+      "url": "https://m.daum.net"
+    }
+  ],
+  "sources": [
+    "https://www.bsjunggu.go.kr",
+    "https://m.daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산 중구 착한가격업소로 메밀/우동 세트를 합리적인 가격에 식사할 수 있음",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

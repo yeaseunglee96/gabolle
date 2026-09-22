@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220811590439",
+  "name": "몽크",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49587,
+  "researchedAt": "2026-09-21T14:15:37.864Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인디 밴드 팬, 대학생, 음악 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 1995
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산대 인근 인디 밴드와 로컬 음악 씬 중심의 라이브 클럽 공간"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산 금정구 금정로 90-1)의 '몽크'는 인허가상 일반음식점(경양식)으로 등록되어 있으나, 실제로는 1995년 개업한 부산의 대표적인 인디 록·메탈 라이브 공연장/클럽인 '무몽크(Moo-Monk)'로 운영되는 문화 공간입니다. 따라서 식사 메뉴(경양식 등)는 취급하지 않거나 확인되지 않으며, 공연 관람 및 주류/음료를 즐기기 위해 방문합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 금정로 90-1 무몽크 (Moo-Monk) 부산대 인근에 위치한 음악 클럽으로, 1995년부터 운영되어 왔습니다. 공연 대관 및 다양한 인디 공연이 열리는 공간입니다.",
+      "url": "https://indiego.co.kr/"
+    },
+    {
+      "excerpt": "부산대학로의 라이브 클럽 '무몽크(현 몽크)': 1999년부터 부산대학로에서 인디밴드들의 무대를 제공해 온 유서 깊은 라이브 클럽입니다. 부산대 졸업생인 허현웅 씨가 운영을 시작했으며, 과거 부산대학로 청년 문화의 중심지 역할을 했던 상징적인 공간으로 평가받습니다.",
+      "url": "https://weekly.pusan.ac.kr/"
+    }
+  ],
+  "sources": [
+    "https://indiego.co.kr/",
+    "https://weekly.pusan.ac.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1995년부터 부산대 앞 인디 록·메탈 밴드 공연 무대를 지켜온 유서 깊은 라이브 클럽 문화 공간",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

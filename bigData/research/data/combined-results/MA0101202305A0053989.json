@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202305A0053989",
+  "name": "해룸",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 61674,
+  "researchedAt": "2026-09-21T14:07:05.108Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "개별 룸과 단체 룸 위주의 프라이빗 매장으로 네이버 예약 및 캐치테이블 예약으로 주로 방문함"
+  },
+  "descriptors": {
+    "audience": "회식·모임·데이트",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "숙성회",
+      "대방어",
+      "카이센동",
+      "후토마끼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금 16:30 - 23:00 / 토·일 12:00 - 23:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "전포동 골목 안쪽에 위치한 프라이빗 룸 일식당으로 츠모토식 숙성법을 사용한 제철 숙성회 전문점. 캐치테이블 등에서 '제철회한상사랑도 (구. 해룸)'으로 상호가 변경된 이력이 확인됨.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 부산진구 서전로38번길 35-12 (전포동). 분위기: 개별 룸과 단체 룸을 갖추고 있어 프라이빗한 식사가 가능하며, 내부에 연못이 있는 고즈넉한 분위기의 일식당. 메뉴: 숙성회, 대방어(시즌 메뉴), 카이센동, 후토마끼 등을 판매하며, 특히 츠모토식 숙성법을 사용하고 직접 만든 캐비어를 곁들인 요리를 제공하는 것이 특징. 운영 정보: 월~금 16:30 - 23:00 / 토·일 12:00 - 23:00. 예약은 네이버 예약이나 캐치테이블을 통해 가능합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "제철회한상사랑도 (구. 해룸): 캐치테이블 내에서 '해룸'은 현재 '제철회한상사랑도'라는 이름으로 변경되어 운영 중인 것으로 확인됩니다.",
+      "url": "https://app.catchtable.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://app.catchtable.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "츠모토식 숙성법과 수제 캐비어를 곁들인 숙성회 및 카이센동 맛 자체에 대한 호평",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "매장 내 연못 인테리어와 프라이빗한 룸 구조를 갖춰 모임과 데이트에 적합한 공간 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

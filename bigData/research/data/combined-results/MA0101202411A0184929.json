@@ -1,0 +1,51 @@
+{
+  "id": "MA0101202411A0184929",
+  "name": "반토리",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 52116,
+  "researchedAt": "2026-09-21T14:28:16.734Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "-",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "일반 소비자 대상 음식점 상호가 아님 (도쿠도쿠 등을 운영하는 법인사업자명)",
+  "notes": "'반토리'(주식회사 반토리)는 부산광역시 중구 광복로 8-1에 등록된 법인사업자(업종: 일식 음식점업)이나, 일반 손님을 대상으로 '반토리'라는 간판으로 운영되는 회/초밥 식당이 아니라 이자카야 브랜드 '도쿠도쿠' 등을 운영하는 법인/운영사입니다. 따라서 해당 상호의 단독 매장 정보는 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주식회사 반토리는 부산광역시 중구 광복로 8-1(부평동2가)에 소재한 법인사업자입니다. 업종은 일식 음식점업으로 분류되어 있으며, 남포동 및 부평동 일대에서 이자카야 등의 매장을 운영하는 것으로 보입니다. 채용 정보 등을 통해 '도쿠도쿠'와 같은 브랜드와 관련이 있는 것으로 확인됩니다.",
+      "url": "https://bigvalue.ai"
+    },
+    {
+      "excerpt": "부산광역시 중구 광복로 8-1 (부평동2가 33-2)에 위치한 음식점은 '도쿠도쿠'입니다. 야키토리(꼬치구이) 등을 판매하는 이자카야입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

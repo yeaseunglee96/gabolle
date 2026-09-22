@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220800609518",
+  "name": "빵제이",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 34470,
+  "researchedAt": "2026-09-21T22:07:23.642Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 영도구 태종로 157-1(봉래동3가)에 위치한 제과점으로 상호 및 주소, 업종 정보는 확인되나, 방문자 리뷰나 블로그 후기, 영업시간, 가격대 등 상세 정량 정보 및 방문 동기 관련 구체적 웹 기록은 거의 확인되지 않는 동네 빵집입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 영도구에 위치한 '빵제이'는 매장에서 갓 구운 빵을 판매하는 제과점입니다. 선물용이나 케이크 주문 등 다양한 메뉴를 제공하고 있습니다. 위치: 부산광역시 영도구 태종로 157-1",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매장에서 직접 굽는 빵과 케이크 등 제과류 구매 목적",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

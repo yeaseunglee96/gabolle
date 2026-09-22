@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220808821681",
+  "name": "만두우",
+  "cat": "김밥/만두/분식",
+  "attempts": 1,
+  "geminiTokens": 71823,
+  "researchedAt": "2026-09-21T22:00:43.908Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "고기만두",
+      "김치만두"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "토성역 및 초장동 인근 생활상권에 위치하여 관광객 대상이 아닌 현지 주민 위주의 로컬 분식점 형태를 띰"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": false
+  },
+  "notes": "2024년 8월 부산 서구 구덕로 153(초장동 6-2) 1층에 인허가 등록된 분식/만두 점포로, 온라인 상세 후기 및 영업시간 정보는 매우 제한적임",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 만두우 토성점, 주소: 부산광역시 서구 구덕로 153, 1층 (초장동 6-2), 업종: 분식, 인허가일자: 2024년 8월",
+      "url": "https://www.findby.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.findby.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "토성역 부근에서 간단히 만두 및 분식류를 맛보고자 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

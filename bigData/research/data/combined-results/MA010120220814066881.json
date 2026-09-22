@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220814066881",
+  "name": "홍가참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 31635,
+  "researchedAt": "2026-09-21T22:01:07.595Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "참치회",
+      "초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 강서구 신호산단2로 43-10(신호동 219-1) 소재 상가 데이터베이스 및 전화번호부에 등록된 일식 참치회 전문점이나, 상세 후기나 최신 영업 정보가 매우 제한적입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "홍가참치 - 부산광역시 강서구 신호산단2로 43-10 (신호동 219-1) 일식 (참치회) 전화번호: 051-971-3782",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "부산광역시 강서구 신호산단2로 43-10 신호초등학교사거리 인근 홍가참치 일식/초밥",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신호산단 인근에서 참치회와 초밥을 즐길 수 있는 일식당",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220812421713",
+  "name": "힙포",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47512,
+  "researchedAt": "2026-09-21T14:27:49.365Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(해운대구 좌동순환로 275)에 '힙포'라는 경양식 음식점은 존재하지 않음 (애플돈까스 등 다른 매장만 존재)",
+  "notes": "부산광역시 해운대구 좌동순환로 275(해운대대우2차아파트 상가)에 위치한 경양식 업종의 '힙포'는 실존하지 않는 상호입니다. 해당 주소지의 돈까스/경양식 매장은 '애플돈까스'입니다. 규칙에 따라 없는 가게를 지어내지 않고 found: false로 제출합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

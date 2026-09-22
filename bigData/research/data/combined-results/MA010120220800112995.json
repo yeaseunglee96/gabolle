@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220800112995",
+  "name": "형제식육식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 43105,
+  "researchedAt": "2026-09-21T22:16:35.075Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 직장인, 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우모듬",
+      "점심특선",
+      "차돌박이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 23:00 (점심특선 11:30 ~ 14:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객 관련 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "경남 함안 출신 형제 중 동생이 부곡동에서 운영하는 한우 식육식당으로, 김해 도축장 직송 한우와 알찬 점심특선 구성으로 가성비와 맛을 인정받고 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "점심특선 24,000원, 한우모듬(100g) 19,000~20,000원대",
+    "priceWon": 24000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "경남 함안 출신의 형제가 각각 운영하는 곳으로, 두 사람 모두 과거 일식집 등에서 경험을 쌓은 뒤 독립하여 식당을 열었다. 두 식당 모두 저렴한 가격에 좋은 품질의 소고기를 제공하는 '가성비' 맛집으로 알려져 있으며, 정직한 음식을 표방한다. 직접 만든 누룽지, 선짓국, 된장 등이 별미로 소개된 바 있다.",
+      "url": "https://www.busan.com"
+    },
+    {
+      "excerpt": "점심특선 24,000원 (한우 200g(안심·갈비살) + 반상 + 식사(된장찌개 또는 누룽지 등 선택)), 부산광역시 금정구 부곡온천천로 116, 매장 옆 무인주차장 이용 시 6만 원 이상 식사할 경우 1시간 지원 안내",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 한우 소고기와 점심특선 및 식사 메뉴를 합리적인 가격에 즐길 수 있음",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "김해 도축장에서 공수한 질 좋은 한우와 직접 만든 누룽지, 선짓국, 된장찌개 등 기본 찬과 식사의 완성도",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

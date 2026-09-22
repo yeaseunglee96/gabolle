@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202504A0025440",
+  "name": "밤비노다이닝펍",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 44581,
+  "researchedAt": "2026-09-21T22:36:23.390Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기 관련 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "특별한 날 방문하는 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 연제구 거제동 쌍용더플래티넘거제아시아드 상가에 등록된 경양식/서양식 다이닝펍으로, 정성스러운 음식과 특별한 날 방문하기 좋은 분위기로 언급되나 세부 메뉴판 및 가격/영업시간 등 상세 정보는 웹상에 제한적임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 거제동 쌍용더플래티넘거제아시아드에 위치한 밤비노다이닝펍... 서양식 및 경양식 맛집... 특별한 날 방문하기 좋은 분위기와 정성스러운 음식으로 알려져 있는 곳입니다.",
+      "url": "https://udanax.org"
+    },
+    {
+      "excerpt": "밤비노다이닝펍 부산광역시 연제구 아시아드대로 7, 쌍용더플래티넘거제아시아드 133동 303호 (거제동) 일반음식점 경양식",
+      "url": "https://aaaplus.co.kr"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://aaaplus.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "특별한 날 찾기 좋은 분위기와 정성스러운 서양식·경양식 요리 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

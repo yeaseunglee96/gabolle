@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202301A0006390",
+  "name": "브런치앤디너테라비가덕점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 52886,
+  "researchedAt": "2026-09-21T21:55:28.982Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 시간이나 혼잡도에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 가족, 드라이브 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "바질 크림 파스타",
+      "토마토 파스타",
+      "에그 베네딕트",
+      "퀘사디아"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "웹 검색 결과 상시 운영 여부 변동 가능성으로 영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "가덕도 드라이브 코스 및 오션뷰 관광/데이트 명소로 주로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 가덕도 세계로가덕비전센터 1~2층에 위치한 오션뷰 브런치&디너 레스토랑으로, 100% 생바질 수제 특제 소스 파스타와 브런치 메뉴를 제공함. 수익금 공헌 및 군경/소방/선교사 무료 제공 정책도 특징적임.",
+  "price": {
+    "found": false,
+    "priceMenu": "미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산시 가덕도에 위치한 세계로가덕비전센터 내에 '테라비 가덕점'이 운영되고 있습니다. 오션뷰를 갖춘 레스토랑이며, 100% 생바질을 이용한 수제 특제 소스를 고집하며 건강한 브런치와 디너를 제공합니다. 파스타, 샐러드, 에그 베네딕트, 퀘사디아 등 다양한 브런치 및 양식 메뉴가 있습니다. 주차 시설이 잘 갖춰져 있습니다.",
+      "url": "https://view.asiae.co.kr"
+    }
+  ],
+  "sources": [
+    "https://view.asiae.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "100% 생바질을 사용한 수제 특제 소스 파스타 및 브런치 요리 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "바다 전망(오션뷰)을 감상할 수 있는 쾌적한 매장 공간과 드라이브 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
