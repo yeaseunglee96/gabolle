@@ -3,6 +3,7 @@ package com.gabolle.backend.event.application;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -40,13 +41,23 @@ import com.gabolle.backend.preference.application.TasteAttributionService;
  * 이 메서드가 둘을 묶는다 — 어디서 실패하든 둘 다 되돌아가고, 예외가 소비자로 올라가 카프카가
  * 다시 보낸다.
  *
- * <h2>{@code @Profile} 을 처음부터 단다</h2>
+ * <h2>🔴 소비자와 «같은 조건» 으로만 선다</h2>
  *
- * {@code JdbcTemplate} 은 데이터소스가 있을 때만 생긴다. {@code TasteAttributionService} 가
- * 이것을 안 달았다가 DB 없는 컨텍스트 여섯이 한꺼번에 죽었다(S15P21E201-1500).
+ * 이 빈을 부르는 곳은 {@code KafkaEventConsumer} 하나뿐이다. 그래서 그것과 <b>같은
+ * 조건</b>({@code consumer-enabled=true})일 때만 만든다.
+ *
+ * <p>처음엔 {@code @Profile({"db","dev"})} 만 달았다가 <b>탈퇴 시험 슬라이스 전체가 죽었다.</b>
+ * {@code db} 프로필로 도는 슬라이스가 여럿이고 그중 몇이 {@code event} 패키지를 훑는데, 거기엔
+ * 이 빈이 요구하는 {@code TasteAttributionService} 가 없다. 프로필은 「DB 가 있다」를 말할 뿐
+ * 「이 빈이 필요하다」를 말하지 않는다 — 문지기로 너무 넓었다. 같은 종류의 배선 실패가 이
+ * 갈래에서 세 번째였다.
+ *
+ * <p>프로필도 그대로 둔다. 소비자가 켜졌는데 DB 가 없는 것은 잘못된 설정이고, 그때는 조용히
+ * 빠지지 않고 기동이 실패하는 편이 낫다.
  */
 @Component
 @Profile({ "db", "dev" })
+@ConditionalOnProperty(prefix = "gabolle.event.kafka", name = "consumer-enabled", havingValue = "true")
 public class EventConsumptionService {
 
 	/**
