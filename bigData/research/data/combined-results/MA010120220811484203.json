@@ -2,8 +2,44 @@
   "id": "MA010120220811484203",
   "name": "떡/한과",
   "cat": "떡/한과",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 재반로 81-49 에 있는 '떡/한과'(떡/한과 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나를 ",
   "attempts": 1,
-  "researchedAt": "2026-09-22T07:04:56.598Z"
+  "geminiTokens": 30248,
+  "researchedAt": "2026-09-22T09:52:46.255Z",
+  "crowding": {
+    "found": false,
+    "note": "관련 언급 없음"
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "가게명: 제일떡방앗간. 주소: 부산광역시 해운대구 재반로 81-49 (재송동 1090-27). 연락처: 051-782-2731. 온누리상품권 가맹점. 블로그 리뷰나 SNS 후기가 전혀 존재하지 않으며, 온라인 상에 상세 정보(메뉴, 가격, 영업시간 등)가 공개되어 있지 않음. 동명의 구포 제일떡방앗간(북구)과 혼동 주의.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제일떡방앗간 / 부산광역시 해운대구 재반로 81-49 (재송동 1090-27) / 연락처: 051-782-2731 / 떡·한과 업종 / 온라인 등록 리뷰 없음",
+      "url": "https://www.linktoplace.com"
+    },
+    {
+      "excerpt": "제일떡방앗간 / 부산 해운대구 재반로 81-49 / 전화: 051-782-2731",
+      "url": "https://www.nett.kr"
+    }
+  ],
+  "sources": [
+    "https://www.linktoplace.com",
+    "https://www.nett.kr"
+  ],
+  "whyPeopleGo": []
 }

@@ -2,8 +2,47 @@
   "id": "MA010120220809771865",
   "name": "영천떡방",
   "cat": "떡/한과",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 수영구 수영로603번길 5-2 에 있는 '영천떡방'(떡/한과 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나",
   "attempts": 1,
-  "researchedAt": "2026-09-22T07:06:56.759Z"
+  "geminiTokens": 26749,
+  "researchedAt": "2026-09-22T09:53:35.651Z",
+  "crowding": {
+    "found": false,
+    "note": "온라인 상에서 혼잡·줄서기 언급 없음"
+  },
+  "descriptors": {
+    "audience": "예약 주문 고객",
+    "signatureDishes": [
+      "돌떡",
+      "백설기",
+      "답례떡",
+      "송편",
+      "제사떡"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "가게 실재 확인됨(전화번호 051-752-1513, 주소 부산 수영구 수영로603번길 5-2). 단, 블로그 리뷰·SNS 후기·영업시간·가격표 등이 온라인에 전혀 공개되어 있지 않아 대부분의 정량 항목을 found:false 처리함. tteokzip.com(떡사세요) 플랫폼 등록 정보만 확인 가능.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "영천떡방 / 부산광역시 수영구 광안동 / 전화번호: 051-752-1513 / 돌떡, 백설기, 답례떡, 제사 및 차례떡, 송편 등 다양한 떡을 예약 주문을 통해 제작. 떡 종류, 가격, 예약 가능 여부 등 구체적인 내용은 전화 문의 권장.",
+      "url": "https://tteokzip.com"
+    }
+  ],
+  "sources": [
+    "https://tteokzip.com"
+  ],
+  "whyPeopleGo": []
 }

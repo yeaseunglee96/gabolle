@@ -2,8 +2,49 @@
   "id": "MA010120220800897004",
   "name": "진미떡방앗간",
   "cat": "떡/한과",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 구남로29번길 20-22 에 있는 '진미떡방앗간'(떡/한과 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** ",
   "attempts": 1,
-  "researchedAt": "2026-09-22T07:05:25.010Z"
+  "geminiTokens": 49031,
+  "researchedAt": "2026-09-22T09:52:34.167Z",
+  "crowding": {
+    "found": false,
+    "note": "온라인 후기 자체가 없어 혼잡 여부 확인 불가"
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "가게의 존재(위치·업종 등록 정보)는 공공데이터·전화번호 DB 등에서 확인됨. 그러나 블로그 후기, 리뷰, 사진, 가격, 영업시간, 혼잡도, 메뉴 등 실질적 소비자 정보는 온라인에 거의 존재하지 않음. 온누리상품권 가맹점으로 등록된 사실만 추가로 확인. 3~4회 검색 소진 후 추가 정보 부재로 종료.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "진미떡방앗간 / 부산광역시 해운대구 구남로29번길 20-22 (중동) / 업종: 즉석판매제조가공업(떡/한과)",
+      "url": "https://www.114.co.kr/"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 중1동 1394-149 / 진미떡방앗간 / 즉석판매제조가공업",
+      "url": "https://zippoom.com/"
+    },
+    {
+      "excerpt": "진미떡방앗간 / 부산광역시 해운대구 구남로29번길 20-22 / 온누리상품권 가맹점",
+      "url": "https://so.to/"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr/",
+    "https://zippoom.com/",
+    "https://so.to/"
+  ],
+  "whyPeopleGo": []
 }
