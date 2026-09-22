@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202509A0034667",
+  "name": "드레",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 61515,
+  "researchedAt": "2026-09-22T10:31:11.011Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 수영구 광안해변로 269 주소 및 인근 지역에서 경양식 업종의 '드레' 음식점을 웹 검색으로 조사하였으나, 해당 상호의 식당 정보나 방문 후기, 메뉴 정보 등이 전혀 확인되지 않아 존재하지 않는 가게로 판단됩니다.",
+  "notes": "규칙에 따라 없는 가게를 지어내지 않고 found: false로 기록합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

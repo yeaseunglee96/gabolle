@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202409A0039358",
+  "name": "시쿠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 56054,
+  "researchedAt": "2026-09-22T10:29:47.350Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 캐치테이블 등을 통한 사전 예약 후 방문이 권장됨"
+  },
+  "descriptors": {
+    "audience": "연인·지인 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "제철 숙성 모듬회",
+      "고등어 봉초밥",
+      "금태 숯불구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 17:00 ~ 00:30 (매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근에서 숙성회와 사케 페어링을 즐기러 찾는 손님 위주"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "광안리 인근에 위치한 일식 다이닝/이자카야 '시쿠'로, 제철 숙성 사시미와 숯불 요리, 사케 페어링이 특징입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제철 숙성 사시미와 숯불 구이 요리를 기반으로 한 일식 다이닝 바입니다. 주요 메뉴: 사케 페어링 코스, 제철 숙성 모듬회, 고등어 봉초밥, 시메사바, 금태 숯불구이, 옥돔 사쿠사쿠(숯불구이)",
+      "url": "https://foodpeople.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 수영구 민락로27번길 17, 1층. 화~일 17:00 ~ 00:30 (매주 월요일 휴무). 캐치테이블을 통한 예약이 권장됩니다.",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://foodpeople.co.kr",
+    "https://heyyumi.ai",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숙성 모듬회와 숯불구이 등 수준 높은 제철 일식 요리와 사케 페어링의 완성도",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "예약 권장 및 다찌석 중심의 아늑하고 분위기 좋은 일식 다이닝 환경",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

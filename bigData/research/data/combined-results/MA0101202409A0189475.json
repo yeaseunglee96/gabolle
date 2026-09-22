@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202409A0189475",
+  "name": "마이콜",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 64837,
+  "researchedAt": "2026-09-22T10:33:38.849Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 '마이콜(mAIcohoI)'이라는 사업자 등록 내역은 검색되나 실제 방문 후기, 메뉴, 영업시간 등의 실제 영업 정보가 웹상에 전혀 존재하지 않습니다.",
+  "notes": "부산광역시 수영구 광안해변로294번길 36 인허가 및 상호 데이터베이스에 '마이콜(mAIcohoI)'이라는 이름으로 등록된 이력은 확인되나, 실제 운영 중인 블로그 후기나 방문 기록, 메뉴판, 영업시간 정보가 웹상에 존재하지 않습니다(동일 지번에는 '더 스모코' 등 타 매장이 확인됨).",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

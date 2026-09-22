@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220804284937",
+  "name": "마담에뽀끄",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 46715,
+  "researchedAt": "2026-09-22T10:32:12.865Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "테이블링을 통한 웨이팅이 발생하며 특히 창가 좌석 대기가 많음"
+  },
+  "descriptors": {
+    "audience": "연인 데이트 및 모임",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "스테이크 크림파스타",
+      "랍스터 파스타",
+      "라자냐"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 및 광안대교 야경 전망을 즐기기 위해 방문하는 관광객 및 데이트 방문객이 다수 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 광안리 해변로에 위치한 이탈리안 경양식 다이닝으로, 광안대교 오션뷰와 스테이크 크림파스타가 유명한 명소입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "스테이크 크림파스타",
+    "priceWon": 28000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 광안해변로 239, 2층. 영업시간: 매일 11:30 ~ 22:00. 광안리 해수욕장 앞 오션뷰 맛집으로 잘 알려져 있습니다. 파스타, 스테이크, 피자, 라자냐, 리조또 등 다양한 양식 메뉴를 제공하며 특히 '스테이크 크림파스타'가 베스트 메뉴로 꼽힙니다.",
+      "url": "https://ban-life.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 239, 광안샤인빌딩 2층. 광안리 해수욕장 바로 앞에 위치하여 광안대교를 조망할 수 있는 오션뷰 맛집. 테이블링을 통한 웨이팅 예약이 가능하며 주차는 인근 주차장 지원. 데이트 코스나 기념일 방문이 많음.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://ban-life.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해수욕장과 광안대교 전망이 한눈에 보이는 탁 트인 오션뷰 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "스테이크 크림파스타와 라자냐 등 특색 있는 양식 메뉴의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "테이블링 대기를 감수하고 창가 자리를 찾는 높은 인기와 수요",
+      "sources": [
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

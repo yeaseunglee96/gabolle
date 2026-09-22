@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202502A0033826",
+  "name": "해피멜트",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 63812,
+  "researchedAt": "2026-09-22T10:34:00.190Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기줄에 대한 명확한 언급 미확인"
+  },
+  "descriptors": {
+    "audience": "연인·친구·브런치족",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "로스트비프 스테이크",
+      "패티멜트",
+      "루벤 샌드위치"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안동 소재 미국식 감성의 브런치 및 수제 샌드위치 전문점으로 로스트비프 스테이크, 패티멜트, 루벤 샌드위치, 버팔로윙 등을 판매함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'해피멜트'는 부산광역시 수영구 광안동에 위치한 미국 감성의 브런치 및 샌드위치 맛집입니다. 이곳의 대표 메뉴는 로스트비프 스테이크, 패티멜트입니다. 그 외에도 루벤 샌드위치, 버팔로윙, 시저 샐러드 등 다양한 메뉴를 판매하고 있으며 하이볼이나 맥주와 같은 주류와 함께 미국식 브런치를 즐길 수 있는 공간으로 알려져 있습니다.",
+      "url": "https://www.trip.com/travel-guide/attraction/busan/happy-melt/"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com/travel-guide/attraction/busan/happy-melt/",
+    "https://www.siksinhot.com/P/1559868"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미국 감성의 분위기에서 로스트비프와 패티멜트 등 미국식 수제 샌드위치·브런치를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

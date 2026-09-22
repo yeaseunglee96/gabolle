@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202406A0037875",
+  "name": "골목연2호",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 78840,
+  "researchedAt": "2026-09-22T10:34:10.087Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산광역시 수영구 민락로34번길 39) 및 상호('골목연2호')로 검색 결과, 부동산 주변 시설 목록에 명칭만 일부 나타날 뿐 실제 운영 중인 일식 음식점으로서의 상세 정보(메뉴, 가격, 리뷰, 영업시간 등)가 웹상에 전혀 확인되지 않습니다.",
+  "notes": "검색 한도 내에서 웹 조사를 진행하였으나, 실제 영업 및 방문 리뷰 등의 정보를 찾을 수 없어 미발견(found: false) 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220810755997",
+  "name": "포동",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 47078,
+  "researchedAt": "2026-09-22T10:30:07.345Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 해운대구 달맞이길62번길 51에 위치한 횟집 '포동'(포동횟집)은 현재 폐업했거나 웹상에서 실제 영업 정보 및 리뷰를 확인할 수 없는 업소입니다.",
+  "notes": "해당 주소지(해운대구 달맞이길62번길 51) 및 인근 미포 일대를 대상으로 조사를 진행했으나, '포동' 횟집에 관한 유의미한 웹 문서, 블로그 리뷰, 정량 정보가 부재하여 조사를 종료합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

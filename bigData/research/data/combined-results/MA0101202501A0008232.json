@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202501A0008232",
+  "name": "스시마츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 60526,
+  "researchedAt": "2026-09-22T10:33:02.433Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "오마카세/코스 특성상 사전 예약 위주로 운영되며 만석 시 대기 가능성이 있음"
+  },
+  "descriptors": {
+    "audience": "연인, 미식가, 단체/가족 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "런치 스시 코스",
+      "디너 스시 코스",
+      "초밥 10피스",
+      "튀김 샐러드"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~21:00 영업 종료 (예약 및 운영 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 광남로 54(남천동 3-64) 1층에 위치한 스시/오마카세 전문점 '스시마츠'. 런치 및 디너 코스 형태로 초밥 10피스, 계란찜, 튀김 샐러드, 식사(우동/모밀), 디저트 샤베트 등을 제공함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "런치 스시 코스 45,000원 / 디너 코스 55,000원 내외",
+    "priceWon": 45000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로 54 1층. 런치 스시 코스: 계란찜, 샐러드, 튀김, 초밥 10피스, 식사(우동 또는 모밀), 디저트(유자 샤베트). 고품격 오마카세를 지향하며, 새우튀김과 튀김 샐러드 등의 식감이 좋은 것으로 알려져 있습니다. 영업시간: ~21:00 영업 종료. 예약, 포장, 단체 이용 가능.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "스시마츠 - 부산광역시 수영구 광남로 54, 1층. 런치 코스는 약 45,000원, 디너 코스는 약 55,000원대로 알려져 있습니다. 깔끔한 화이트와 우드 톤 인테리어의 초밥집으로, 런치 및 디너 코스(오마카세)를 제공합니다.",
+      "url": "https://app.catchtable.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://app.catchtable.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "합리적인 가격대의 런치·디너 오마카세 코스 구성과 깔끔한 가성비 스시 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "계란찜부터 초밥 10피스, 튀김 샐러드, 식사, 유자 샤베트까지 이어지는 만족스러운 코스 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
