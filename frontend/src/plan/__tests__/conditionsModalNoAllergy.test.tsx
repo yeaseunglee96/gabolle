@@ -8,6 +8,7 @@
 //    지우면 그 값은 영영 false 라 저장 단추가 영원히 안 눌린다 — 화면은 멀쩡해 보이고
 //    사람만 못 나간다. 지우는 변경에서 제일 나기 쉬운 사고다.
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
@@ -22,10 +23,14 @@ jest.mock('@/plan/travelConditions', () => ({
   saveTravelConditions: jest.fn(async () => ({ synced: true })),
 }));
 
+// 모달이 「이 조건을 판정할 장소 자료가 있나」를 서버에 묻게 되면서(S15P21E201-1044)
+// react-query 가 필요해졌다. 시험에서는 재시도를 끈다 — 끝점이 없는 자리라 매번 기다린다.
 const mount = () => render(
-  <OnboardingPreferencesProvider>
-    <PlanProvider><ConditionsPromptModal visible reprompt={false} onClose={() => {}} /></PlanProvider>
-  </OnboardingPreferencesProvider>,
+  <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+    <OnboardingPreferencesProvider>
+      <PlanProvider><ConditionsPromptModal visible reprompt={false} onClose={() => {}} /></PlanProvider>
+    </OnboardingPreferencesProvider>
+  </QueryClientProvider>,
 );
 
 describe('여행 조건 모달', () => {
