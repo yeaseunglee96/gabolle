@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.gabolle.backend.recommendation.application.BlockingConstraintAnalyzer;
 import com.gabolle.backend.recommendation.application.JobProgressBroker;
 import com.gabolle.backend.recommendation.application.JobProgressReporter;
 import com.gabolle.backend.recommendation.application.RecommendationJobRunner;
@@ -61,7 +62,10 @@ class RecommendationJobProgressStreamTest {
 		this.reporter = new JobProgressReporter(mock(RecommendationJobRepository.class), this.broker);
 
 		this.mockMvc = MockMvcBuilders
-				.standaloneSetup(new RecommendationJobController(this.runner, this.broker))
+				.standaloneSetup(new RecommendationJobController(this.runner, this.broker,
+						// 막은 조건 분석기. 이 검사는 진행률만 보므로 실패한 작업이 없고,
+						// 그래서 분석기가 하는 일도 없다.
+						mock(BlockingConstraintAnalyzer.class)))
 				.setControllerAdvice(new RecommendationJobExceptionHandler())
 				.build();
 	}
