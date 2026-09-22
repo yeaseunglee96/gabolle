@@ -693,6 +693,26 @@ backend:migration-order:
 #    `git fetch origin front/dev` 를 하면 결과가 FETCH_HEAD 에만 남고
 #    `origin/front/dev` 라는 이름으로는 안 생겨서 `git show` 가 못 찾는다
 #    (바로 위 backend:migration-order 가 같은 함정을 주석으로 적어 뒀다).
+jenkinsfile:contract:
+  stage: verify
+  # 🔴 2026-09-22 에 backend/Jenkinsfile 하나로 운영이 «두 번» 멈춰서 생긴 잡이다
+  #    (S15P21E201-561). 두 번 다 사람이 리뷰했고 두 번 다 아무도 못 봤다.
+  #
+  #      ① 셸 주석이 docker run 을 삼켰다 — 줄 끝 역슬래시가 다음 줄을 붙인 뒤 #(주석)을
+  #         만나면 그 뒤가 전부 주석이다. 이미지 이름까지 사라져 배포가 죽었는데,
+  #         그 직전 docker stop 은 성공했으므로 «컨테이너가 없는 채로» 남았다. API 전체 502, 약 2시간
+  #      ② 그것을 고치며 넣은 주석의 역슬래시가 Groovy 파싱을 깨뜨렸다 — sh ''' ... ''' 는
+  #         셸에게 가기 «전에» Groovy 문자열이고, Groovy 는 세 따옴표 안에서도 역슬래시를 이스케이프로 먹는다
+  #
+  #    이 파일은 GitLab CI 가 여태 한 번도 안 봤다. !1442 는 파이프라인이 전부 초록이었다.
+  script:
+    - node ci/jenkinsfile-contract.mjs backend/Jenkinsfile
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - 'backend/Jenkinsfile'
+        - 'ci/jenkinsfile-contract.mjs'
+
 assistant:href-contract:
   stage: verify
   variables:
