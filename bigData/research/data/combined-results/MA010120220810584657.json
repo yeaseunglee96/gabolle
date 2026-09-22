@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220810584657",
+  "name": "왕냄비동태찌게",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 45052,
+  "researchedAt": "2026-09-22T06:17:31.037Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "parking": true,
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "동태찌개"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "좌천동 매축지 마을 인근 골목의 소박한 동태찌개 밥집으로 현지인 위주로 방문하는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 동구 좌천동 매축지 마을 인근 성남로 45에 실존하는 동태찌개 식당이나 온라인 상의 상세 메뉴판, 가격표, 상세 영업시간 등의 블로그 후기 정보가 극히 드뭅니다. 인근 노상공영주차장이 위치해 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 성남로 45 (좌천동). 매축지 마을 인근에 위치한 노포 식당으로, 오랜 기간 동태찌개 메뉴로 알려져 있습니다. 현지인들이 자주 찾는 소박한 밥집 중 하나로 언급되곤 합니다. 성남로49번길 노상공영주차장 등 주차 시설이 있어 접근성이 나쁘지 않은 편입니다.",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매축지 마을 인근 노포 분위기에서 즐기는 소박한 동태찌개 전문 밥집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

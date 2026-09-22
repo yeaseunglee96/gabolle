@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220813707271",
+  "name": "포트루",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 83155,
+  "researchedAt": "2026-09-22T06:16:02.755Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "매장 정보 없음",
+  "notes": "부산광역시 영도구 남항로41번길 18-20 위치 및 '포트루'(빵/도넛) 상호명으로 웹 조사를 진행하였으나, 해당 상호 및 주소와 일치하는 등록 정보나 리뷰가 확인되지 않는 가게입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

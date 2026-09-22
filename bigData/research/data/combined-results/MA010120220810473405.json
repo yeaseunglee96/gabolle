@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810473405",
+  "name": "장모님기사식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 66344,
+  "researchedAt": "2026-09-22T06:15:16.949Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "웹상에서 줄서기나 혼잡도에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "기사 및 인근 주민, 단골손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "회비빔밥",
+      "회비빔밥+매운탕"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "웹상에서 확인되지 않음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "기사식당 특성상 외지 관광객보다는 택시기사 및 인근 주민·단골 위주의 현지 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 중구 영주동(동영로 85-1)에 위치한 기사식당으로, 일반적인 기사식당 백반과 달리 20년 전통의 '회비빔밥'과 '매운탕'을 전문으로 판매하며 직접 기른 야채를 사용하는 특색 있는 현지 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 영주동에 위치한 20년 전통의 회비빔밥 전문점 장모님기사식당. 대표메뉴: 회비빔밥, 회비빔밥+매운탕",
+      "url": "https://www.siksinhot.com/P/1012351"
+    },
+    {
+      "excerpt": "일반적인 기사식당과 달리 회비빔밥을 주메뉴로 판매하는 곳으로, 직접 기른 야채를 사용하여 정성스러운 음식을 제공하는 식당",
+      "url": "https://www.youtube.com/watch?v=sM3O8L3m9uY"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1012351",
+    "https://www.bsjunggu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기사식당에서 흔치 않게 20년 전통의 신선한 회비빔밥과 매운탕을 내어놓는 독특한 별미 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "기사님들과 현지 주민들이 주로 찾는 숨은 로컬 식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

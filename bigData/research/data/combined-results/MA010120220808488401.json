@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220808488401",
+  "name": "겸",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 61545,
+  "researchedAt": "2026-09-22T06:18:31.220Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 사하구 괴정로 222, 정우맨션)에서 실제 영업 정보 및 메뉴/후기 문헌을 확인할 수 없음",
+  "notes": "부산광역시 사하구 괴정로 222 주소 및 사하구 괴정 '겸'에 대해 웹 검색을 진행했으나, 해당 주소에서 실제 영업 중인 일식/초밥 전문점 '겸'에 대한 구체적인 매장 정보, 메뉴판, 원문 후기 등을 확인할 수 없어 found:false로 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://jusoga.com"
+  ],
+  "whyPeopleGo": []
+}

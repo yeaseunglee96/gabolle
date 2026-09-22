@@ -1,0 +1,49 @@
+{
+  "id": "MA0106202605A1970979",
+  "name": "엄마손맛해장국",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 69999,
+  "researchedAt": "2026-09-22T06:18:06.167Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "해장국"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 영도구 청학동(청학북로 17-1 / 지번 265-22)에 위치한 국/탕/찌개류 음식점으로 등록되어 있으나, 온라인상에 블로그 리뷰나 방문기, 가격표, 영업시간, 사진 등의 상세 정보가 게시되어 있지 않은 동네 로컬 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 청학북로 17-1 (청학동 265-22) 엄마손맛해장국, 업종: 국/탕/찌개류",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": []
+}

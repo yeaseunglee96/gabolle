@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811573233",
+  "name": "입구상회",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 51564,
+  "researchedAt": "2026-09-22T06:16:27.913Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 금정구 중앙대로 2415에 위치한 '입구상회'는 행정 구역 주소록 및 공공데이터 상에 일반 상회(소매/슈퍼 또는 기타 사업체) 명칭으로만 등록되어 있으며, 백반/한정식 등 실제 운영되는 음식점으로서의 블로그 리뷰, 메뉴, 방문기, 영업 정보가 웹상에 전혀 존재하지 않아 음식점으로 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

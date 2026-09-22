@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220810549534",
+  "name": "지중해식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 84567,
+  "researchedAt": "2026-09-22T06:19:08.911Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "일반 식사 손님",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 장평로443번길 49(괴정4동 568-15)에 '지중해식당'(전화: 051-204-3763, 업종: 한식/횟집)으로 등록된 실존 음식점이나, 온라인상에 방문 리뷰나 상세 메뉴/가격 정보가 존재하지 않는 소규모 일반 음식점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 지중해식당, 위치: 부산 사하구 장평로443번길 49 (괴정4동 568-15), 업종: 한식, 횟집, 전화번호: 051-204-3763",
+      "url": "https://114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://114.co.kr"
+  ],
+  "whyPeopleGo": []
+}

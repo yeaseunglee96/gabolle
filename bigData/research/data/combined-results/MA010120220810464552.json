@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220810464552",
+  "name": "정성카츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 62182,
+  "researchedAt": "2026-09-22T06:18:17.155Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "히말라야 소금 카츠",
+      "히레카츠 정식",
+      "특 로스카츠 정식"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 09:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 영도구 청학동(청학서로 8-2)에 위치한 돈가스 전문점으로, 배달 및 포장 위주 또는 캐주얼 매장 형태로 운영되고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "정성카츠 부산영도점. 부산광역시 영도구 청학서로 8-2 (청학동). 히말라야 소금 카츠가 특징으로 소개되고 있습니다. 부산항대교가 보이는 언덕 인근에 위치.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "영업시간: 매일 09:00 ~ 22:00. 위치 정보: 영도해돋이전망대 인근 청학1동 주차장에서 도보 1분 거리에 위치해 있습니다. 메뉴: 히레카츠 정식, 특 로스카츠 정식, 김치 치즈 나베, 경양식 왕돈까스 등.",
+      "url": "https://heyyumi.ai/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://heyyumi.ai/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "히말라야 핑크소금과 곁들이는 숙성 카츠류 및 다양한 돈카츠 정식을 편하게 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "배달 및 포장이 용이하고 전망대 인근에서 접근하기 편함",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
