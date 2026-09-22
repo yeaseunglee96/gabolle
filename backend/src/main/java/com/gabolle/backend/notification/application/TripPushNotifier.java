@@ -1,5 +1,6 @@
 package com.gabolle.backend.notification.application;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,6 +41,15 @@ import com.gabolle.backend.trip.domain.TripRepository;
  * <p>🟡 <b>한 자리만 앱과 다르다 — {@code REPLAN_DAY}.</b> 앱의 {@code noticeCopy} 에 그 갈래가
  * 없어서 「일정이 바뀌었어요」로 뭉개진다. 없는 것을 따라 하지 않고 여기서는 뜻대로
  * 「남은 일정을 다시 계획했어요」라고 쓴다. 앱에 그 줄을 더하는 것은 따로 적어 둔다.
+ *
+ * <p>🔴 <b>작성자가 없을 수 있다 — {@code Collections.singletonList} 여야 한다
+ * (S15P21E201-1484).</b> 판 이력의 작성자 칸은 탈퇴하면 비워지는 자리다
+ * ({@code ON DELETE SET NULL}). {@link ActorNames#resolve} 는 <b>그 {@code null} 을 스스로
+ * 걸러 주도록 만들어져 있으므로 값을 그대로 넘기면 된다.</b> 전에는 {@code null} 을 빈
+ * 문자열로 바꿔 넘겼는데, 빈 문자열은 「없음」이 아니라 「값」이라 걸러지지 않고
+ * {@code UUID.fromString("")} 까지 가서 터졌다. 그 예외를 아래의 {@code catch} 가 먹어
+ * <b>그 변경에 대한 알림이 한 통도 안 나갔다.</b> {@code List.of} 를 쓸 수 없는 것도 같은
+ * 이유다 — {@code null} 을 담으면 그 자리에서 던진다.
  *
  * <p>🟡 <b>알려진 한계 — 말이 한국어 하나다.</b> 앱은 사람마다 언어를 고르지만
  * ({@code tx(ko, en)}), 보내는 쪽에는 그 사람이 무슨 언어로 쓰는지가 없다. 기기 표
@@ -100,7 +110,7 @@ public class TripPushNotifier {
 
 			// CREATE 문구에는 「누가」가 없다. 그래서 만든 본인에게도 같은 한 통을 보낼 수 있다 —
 			// 다른 갈래는 위에서 본인을 이미 뺐으므로 이름이 늘 남의 이름이다.
-			String actorName = this.actorNames.resolve(List.of(event.actorUserId() == null ? "" : event.actorUserId()))
+			String actorName = this.actorNames.resolve(Collections.singletonList(event.actorUserId()))
 					.get(event.actorUserId());
 
 			String href = "/trips/" + event.itineraryId() + "/itinerary";
@@ -153,7 +163,7 @@ public class TripPushNotifier {
 				log.warn("알림을 보낼 여행이 없습니다. tripId={}", event.tripId());
 				return;
 			}
-			String actorName = this.actorNames.resolve(List.of(event.actorUserId() == null ? "" : event.actorUserId()))
+			String actorName = this.actorNames.resolve(Collections.singletonList(event.actorUserId()))
 					.get(event.actorUserId());
 
 			String title = (event.newRole() == TripMember.Role.EDITOR)
