@@ -9,6 +9,7 @@ import { Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { color, fontFamily } from '@/design/tokens';
+import { shouldWaitForFonts } from '@/design/fontGate';
 import { toHtmlLang } from '@/i18n/languages';
 import { AuthProvider } from '@/auth/AuthProvider';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
@@ -44,7 +45,7 @@ function HtmlLangSync() {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     [fontFamily.regular]: require('../assets/fonts/Pretendard-Regular.ttf'),
     [fontFamily.medium]: require('../assets/fonts/Pretendard-Medium.ttf'),
     [fontFamily.bold]: require('../assets/fonts/Pretendard-Bold.ttf'),
@@ -52,7 +53,18 @@ export default function RootLayout() {
 
   // 폰트가 아직이면 기기 기본 글꼴로 잠깐 그렸다가 바뀌는 깜빡임을 막으려고 화면을
   // 비워 둔다 — 로딩이 보통 수십 ms 라 스플래시 화면 붙이는 것보다 이쪽이 간단하다.
-  if (!fontsLoaded) return <View style={{ flex: 1, backgroundColor: color.canvas }} />;
+  //
+  // 🔴 «실패했을 때는 기다리지 않는다.» 예전에는 useFonts 의 오류를 안 받아서, 글꼴이
+  //    한 번 실패하면 fontsLoaded 가 영영 false 로 남고 이 빈 View 만 그렸다 — 화면은
+  //    한 판 색이고 접근성 트리에 요소가 0개인데 프로세스는 멀쩡히 살아 있어서, 밖에서
+  //    보면 그냥 「검은 화면」이다. 게다가 이 분기는 AppErrorBoundary «바깥»이라 오류
+  //    화면조차 못 띄운다 (S15P21E201-1510).
+  //
+  //    글꼴은 «있으면 예쁜 것»이지 앱이 뜨는 조건이 아니다. 실패하면 기기 기본 글꼴로
+  //    그냥 띄운다 — 글자 모양이 다른 앱이 아무것도 없는 앱보다 낫다.
+  if (shouldWaitForFonts(fontsLoaded, fontError)) {
+    return <View style={{ flex: 1, backgroundColor: color.canvas }} />;
+  }
 
   return (
     <AppErrorBoundary>
