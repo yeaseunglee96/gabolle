@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { RegionPicker } from '@/components/RegionPicker';
@@ -39,6 +39,9 @@ export default function ComposeStory() {
   const { accessToken } = useAuth();
   const queryClient = useQueryClient();
   const { tx } = useI18n();
+  // 여행 화면(참여자 탭)에서 「기록 남기기」로 왔으면 그 여행에 글이 달린다(S15P21E201-418). 없으면 지금까지처럼 여행 없는 글.
+  const { tripId: tripIdParam } = useLocalSearchParams<{ tripId?: string }>();
+  const tripId = typeof tripIdParam === 'string' && tripIdParam ? tripIdParam : undefined;
   const [body, setBody] = useState('');
   // — 쓴 것이 어떻게 보일지 미리 본다.
   const [preview, setPreview] = useState(false);
@@ -96,6 +99,7 @@ export default function ComposeStory() {
       // 우리 DB 장소를 골랐을 때만 실려 간다. 카카오 검색 결과에는 placeId 가 아예
       // 없으므로(regionSearch.ts) 저장하면 안 되는 것이 여기로 흘러들 수 없다.
       placeId,
+      tripId,
       visibility,
       publishAt: publishTiming === 'NOW' ? new Date().toISOString() : undefined,
       accessToken,
