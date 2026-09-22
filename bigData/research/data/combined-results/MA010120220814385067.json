@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220814385067",
+  "name": "이밸류",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59794,
+  "researchedAt": "2026-09-22T11:57:47.414Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 남구 용소로40번길 4-2 주소지에 법인/사업자 상호로 '(주)이밸류'(서양식 음식점업 등록)의 법인 등기/기업 내역은 존재하나, 실제 일반 대중을 상대로 영업 중인 일반 경양식/서양식 식당에 관한 방문 후기, 메뉴판, 영업시간, 사진 등 소비자 대상 식당 운영 정보가 웹상에 전혀 존재하지 않거나 현재 미영업/서류상 법인 형태로 보입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://gongsinara.com"
+  ],
+  "whyPeopleGo": []
+}

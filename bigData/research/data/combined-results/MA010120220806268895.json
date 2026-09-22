@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220806268895",
+  "name": "유메이",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 48460,
+  "researchedAt": "2026-09-22T11:58:18.907Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "상세 정보 및 방문기 없음",
+  "notes": "부산 수영구 수영로 727-8 주소지에 '유메이(Yumei)'라는 일식 업종 등록 흔적 외에 방문 리뷰, 메뉴, 영업시간, 사진 등의 상세 정보를 확인할 수 있는 웹 문서가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

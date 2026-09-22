@@ -1,0 +1,52 @@
+{
+  "id": "MA0101202603A0024973",
+  "name": "동백숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 61133,
+  "researchedAt": "2026-09-22T11:55:11.438Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식, 인근 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광남로 193에 위치한 동백숯불갈비에 대한 온라인 상세 리뷰 및 등록 정보는 매우 제한적이며, 합리적인 가격대의 돼지갈비 전문점으로 확인됩니다. 상세 영업시간 및 혼잡도 정보는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "합리적인 가격에 부담 없이 즐기는 돼지갈비 전문점",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

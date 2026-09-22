@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220808228939",
+  "name": "셔터",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50588,
+  "researchedAt": "2026-09-22T11:53:42.111Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게에 대한 실제 방문기 및 운영 정보를 웹상에서 찾을 수 없음",
+  "notes": "부산광역시 부산진구 전포대로210번길 45 주소지 및 전포 일대에서 '셔터'(경양식) 식당을 검색하였으나, 실제 방문 후기나 메뉴, 상세 운영 정보가 확인되지 않아 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

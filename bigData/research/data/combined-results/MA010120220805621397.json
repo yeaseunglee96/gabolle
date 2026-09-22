@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220805621397",
+  "name": "디오희",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 67244,
+  "researchedAt": "2026-09-22T11:54:32.952Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 매장 및 일반 소비자 대상 음식점 운영 정보 없음 (법인 등록 목록만 확인됨)",
+  "notes": "'디오희'(주식회사 디오희)는 부산 해운대구 해운대해변로357번길 10에 제과점업/음식류 판매업으로 등록된 법인 목록만 확인되며, 일반 소비자를 대상으로 한 실제 운영 매장/리뷰/메뉴/영업시간 등 음식점으로서의 실질 정보가 웹상에 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "디오희 / 부산광역시 해운대구 중동 해운대해변로357번길 10 / 제과점업 관련 회사 목록",
+      "url": "https://allthatcompany.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 해운대해변로357번길 10 (중동) 디오희 음식류 판매업",
+      "url": "https://hankyung.com"
+    }
+  ],
+  "sources": [
+    "https://allthatcompany.com",
+    "https://hankyung.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,62 @@
+{
+  "id": "MA0106202206A1919139",
+  "name": "꾼닭꾼덕",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 72493,
+  "researchedAt": "2026-09-22T11:53:39.125Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "모임/야식/치맥 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "꾼덕후라이드",
+      "꾼닭후라이드",
+      "로스트반반냉채"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 01:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 수영구 광안로61번길 50에 위치했던 닭·오리 전문점(치킨/오리후라이드 전문 브랜드 꾼닭꾼덕 광안직영점)으로 확인됨. 102팜즈그룹(102푸드) 산하 프랜차이즈 매장.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 민락동(광안리 해변 인근)에 '꾼닭꾼덕 광안직영점'이 잘 알려져 있습니다. 위치: 부산광역시 수영구 광안로61번길 50 (민락동 178-4), 영업시간: 17:00 ~ 01:00",
+      "url": "http://www.koondakduck.com"
+    }
+  ],
+  "sources": [
+    "http://www.koondakduck.com",
+    "http://geniusjw.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일반 닭고기 치킨뿐만 아니라 오리고기를 활용한 독특한 오리 후라이드 및 로스트 요리를 맛보기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

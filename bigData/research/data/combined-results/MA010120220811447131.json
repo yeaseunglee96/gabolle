@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220811447131",
+  "name": "홍옥당",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 66222,
+  "researchedAt": "2026-09-22T11:57:13.857Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "단팥빵 인기가 높아 구매를 위해 긴 줄이 늘어서기도 하며 매장이 아담해 만석인 경우가 많음"
+  },
+  "descriptors": {
+    "audience": "전연령, 빵지순례 관광객 및 동네 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "통단팥빵",
+      "밀크빙수",
+      "단팥죽"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "남천동 빵지순례 코스로 외지 관광객 방문이 많고 동네 주민들의 포장 수요도 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "남천동 협진태양아파트 상가에 위치한 팥 전문 디저트점으로 100% 국내산 팥을 직접 쑤어 만든 단팥빵과 팥빙수가 대표적임",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "통단팥빵 2,500원 / 호두단팥빵 2,800원 / 단팥죽 7,000원",
+    "priceWon": 2500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리해수욕장 앞 골목길에 위치한 아담한 팥 전문점으로, 국산 팥만을 사용하여 음식을 만듭니다. 단팥빵, 단팥죽, 팥빙수가 유명하며, 특히 단팥빵의 인기가 높아 구매를 위해 긴 줄이 늘어서기도 합니다. 대표 메뉴: 단팥빵, 단팥죽 주소: 부산광역시 수영구 남천동로108번길 49 운영 시간: 10:00 ~ 21:00",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "홍옥당은 100% 국내산 팥을 사용하여 전통 방식으로 팥소를 직접 만드는 팥 전문점입니다. 통단팥빵이 가장 유명하며, 호두단팥빵, 찹쌀단팥빵, 하얀앙금빵 등 다양한 종류의 앙금빵을 판매합니다. '빵천동'이라 불리는 남천동 빵지순례 코스 중 하나로 자주 언급되는 곳입니다. 전용 주차장은 없습니다.",
+      "url": "http://www.hongokdang.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "http://www.hongokdang.co.kr",
+    "http://www.busantaste.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "100% 국내산 팥을 직접 쑤어 과하게 달지 않고 깊은 전통 팥 본연의 맛을 구현함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산 남천동 일대 유명 빵집 투어인 '빵지순례'의 필수 경유지로 손꼽힘",
+      "sources": [
+        0,
+        1,
+        2
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

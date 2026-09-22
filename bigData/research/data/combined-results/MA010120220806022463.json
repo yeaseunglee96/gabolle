@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220806022463",
+  "name": "도희네",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 54673,
+  "researchedAt": "2026-09-22T11:57:44.145Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "1~2층 규모의 넓은 매장과 단체석이 완비되어 있으나 주말·성수기 오션뷰 창가석 위주로 혼잡함"
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 모임, 반려동물 동반 관광객",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모둠조개구이",
+      "장어구이",
+      "해물라면"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 05:00 (방문 전 전화 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "청사포 다릿돌 전망대 및 블루라인파크 인근에 위치해 청사포를 찾는 관광객 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "청사포 해변 도로에 위치하여 통창으로 바다를 바라보며 연탄불 조개구이 및 장어구이를 즐길 수 있는 식당. 전용 주차장 및 방갈로 애견 동반 가능.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "모둠조개구이 / 장어구이 (소/중/대)",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "통창 너머로 보이는 바다 뷰가 특징이며, 조개구이뿐만 아니라 장어구이, 활어회, 전복죽 등 다양한 해산물 메뉴를 제공합니다. 방갈로 애견 동반 가능, 2층 유모차 보관 공간 마련 등 편의 시설을 갖추고 있습니다. 도보 1분 거리에 청사포 다릿돌 전망대가 위치해 있습니다. 가게 전용 주차장을 이용할 수 있습니다. 매일 10:00~05:00.",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바다 전망(오션뷰)을 감상하며 연탄불에 조개구이와 장어구이를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "신선한 모둠조개구이와 붕장어구이, 치즈 조합의 조개구이 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

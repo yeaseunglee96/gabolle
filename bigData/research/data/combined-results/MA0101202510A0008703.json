@@ -1,0 +1,85 @@
+{
+  "id": "MA0101202510A0008703",
+  "name": "나가하마만게츠광안리점",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 59186,
+  "researchedAt": "2026-09-22T11:57:22.801Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "해운대 본점과 마찬가지로 인기가 많아 웨이팅이 발생하며 캐치테이블 원격 줄서기 이용이 권장됨"
+  },
+  "descriptors": {
+    "audience": "현지인 및 관광객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "나가하마 라멘",
+      "야끼라멘",
+      "교자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 - 20:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 본점 대비 현지인들의 방문 비중이 높은 편으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "라멘 전문점(나가하마 돈코츠 라멘, 야끼라멘, 교자 등)으로 상호 및 주소(부산 수영구 광안해변로295번길 4-5 1층) 확인 완료됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "나가하마 라멘",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'나가하마만게츠'는 부산 해운대 해리단길의 유명한 일본 라멘 전문점으로, 최근 광안리점도 운영을 시작했습니다. 주소: 부산 수영구 광안해변로295번길 4-5 1층. 영업 시간: 11:00 - 20:30. 후쿠오카의 유명 라멘 맛집의 한국 분점으로, 진하고 깊은 돈코츠 육수가 특징입니다. 해운대 본점과 마찬가지로 많은 인기를 끌고 있어 웨이팅이 발생할 수 있습니다. 캐치테이블을 통해 원격 웨이팅이 가능하므로 방문 전 미리 확인하시는 것을 적극 추천합니다. 광안리점은 본점보다 현지인들의 방문 비중이 높은 편으로 알려져 있습니다.",
+      "url": "https://www.youtube.com"
+    },
+    {
+      "excerpt": "나가하마 라멘 12,000원, 나가하마 라멘 교자 세트 19,000원, 야끼라멘, 차슈 추가, 아지타마고 추가 등. 테이블에 비치된 생마늘을 으깨 넣거나, 다대기(매운 소스)를 추가해 취향대로 맛을 조절해 드실 수 있습니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com",
+    "https://polle.com",
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "후쿠오카식 진하고 깊은 돈코츠 라멘 육수와 차슈, 교자 등 정통 라멘의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 본점에서 이어진 높은 인지도와 웨이팅 수요",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    },
+    {
+      "note": "본점 대비 현지인 방문 비중이 높은 분점 특성",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

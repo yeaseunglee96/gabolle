@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202604A0030287",
+  "name": "애니웨이",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 73192,
+  "researchedAt": "2026-09-22T11:55:05.687Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "음악 애호가, 주류 애호가",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "위스키",
+      "맥주"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 20:00 – 04:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "해당 주소(부산광역시 해운대구 구남로8번길 62, 2층)의 '애니웨이'는 백반/한정식이 아닌 진공관 앰프와 빈티지 스피커를 갖춘 아날로그 사운드 펍(LP바 & 위스키 바)입니다. (1층은 일본 라멘집 류센소 본점)",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "애니웨이 (Anyway): 빈티지 LP와 하이엔드 오디오(진공관 앰프 등)를 통해 아날로그 사운드를 즐길 수 있는 공간입니다. 음악과 함께 위스키, 맥주 등 다양한 주류를 곁들일 수 있는 '아날로그 사운드 펍'을 표방합니다. 영업시간: 매일 20:00 – 04:00. 위치: 부산광역시 해운대구 구남로8번길 62, 2층. 문의: 0507-1360-9707",
+      "url": "https://pubanyway.com"
+    }
+  ],
+  "sources": [
+    "https://pubanyway.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "진공관 앰프와 하이엔드 빈티지 오디오로 아날로그 사운드 및 음악을 감상하며 위스키/주류를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

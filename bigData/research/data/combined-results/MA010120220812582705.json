@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220812582705",
+  "name": "파인딩해피니스",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 59738,
+  "researchedAt": "2026-09-22T11:53:31.070Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주문제작 케이크/디저트 구매 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "주문제작 케이크",
+      "레터링 케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월, 화: 11:00 ~ 18:00 / 수, 목, 금, 토: 11:00 ~ 19:30 / 일: 13:00 ~ 19:30"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광남로 208-2에 위치한 레터링 및 주문제작 케이크 전문 디저트 샵입니다. 골목에 위치해 인근 주차장 이용이 권장됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 광남로 208-2 1층에 위치한 주문제작 케이크 맛집. 광안역 1번 출구에서 도보로 약 844m 거리에 있으며, 가게가 골목에 위치해 있어 주차는 근처 주차장 이용을 권장하고 있습니다.",
+      "url": "https://kyjground.com"
+    }
+  ],
+  "sources": [
+    "https://kyjground.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "귀여운 디자인의 레터링 및 주문제작 케이크를 맞추기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
