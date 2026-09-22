@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220810519124",
+  "name": "3초삼겹살",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 55710,
+  "researchedAt": "2026-09-22T06:22:04.667Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "저녁 시간대에는 손님이 많은 편이라 단체 방문 시 사전 예약을 권장함"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 직장인, 가족 단위",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "삼겹살",
+      "매운삼겹살",
+      "통삼겹김치찜"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "15:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "골목 안쪽에 위치한 동네 식당 분위기로 주로 현지 주민이나 인근 단체 손님이 주로 찾는 분위기"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "삽 모양 불판에서 3초 만에 빠르게 초벌해 내어 테이블에서 가볍게 더 구워 먹는 특색 있는 조리 방식의 동네 삼겹살 전문점.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "삼겹살 (1인분)",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명처럼 고기를 삽 모양의 불판에 올린 뒤 초벌하여 제공하며, 테이블에서는 조금만 더 익혀서 바로 먹을 수 있는 방식입니다. 국산 암돼지 삼겹살을 전문으로 하며, 식사 메뉴로 된장찌개와 밥이 준비되어 있습니다. 저녁 시간대에는 손님이 많은 편이라 단체 방문 시 예약을 추천합니다. 주차는 식당 맞은편 빌라 주차장을 이용할 수 있으나 공간이 협소하므로 사전에 사장님께 전화로 안내를 받는 것이 좋습니다. 동대신역 7번 출구에서 서부교회 방향으로 이동하여 골목 안쪽에서 찾을 수 있습니다. 영업시간: 15:00 ~ 23:00",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "삽자루 모양의 불판을 활용하여 초벌을 하는 방식 때문에 '3초삼겹살'이라는 이름이 붙은 것으로 알려져 있습니다. 동네 식당 분위기의 고깃집으로, 삼겹살과 매운 삼겹살, 통삼겹김치찜 등의 메뉴를 제공합니다. 주차 및 예약이 가능하며, 포장 서비스도 제공합니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "삽 형태의 특수 불판에서 순식간에 초벌구이되어 육즙이 보존되고 굽기 편한 삼겹살을 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
