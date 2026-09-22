@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * S15P21E201-835 — ZAP 이 잡은 페이로드가 실제로 무해해지는지 본다.
- */
 class HtmlOutputEncoderTest {
 
 	@Test

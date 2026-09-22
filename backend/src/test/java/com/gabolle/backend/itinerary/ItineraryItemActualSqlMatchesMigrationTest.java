@@ -16,18 +16,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 손으로 쓴 upsert SQL 의 칸 이름이 표 정의와 맞는지 본다 — S15P21E201-293.
- *
- * <h2>이 검사가 막는 것</h2>
+ * 손으로 쓴 upsert SQL 의 칸 이름이 표 정의와 맞는지 본다.
  * {@code JpaItineraryItemActualRepository} 의 {@code INSERT ... ON CONFLICT} 는 원시 SQL
- * 이라 <b>컴파일러가 칸 이름을 봐 주지 않는다.</b> 마이그레이션에서 칸 이름을 바꾸거나
- * UNIQUE 를 다른 칸으로 옮기면 그 어긋남은 실행할 때까지 드러나지 않고, 실행되는 자리는
- * 사용자가 방문 시각을 적는 순간이다.
+ * 이라 컴파일러가 칸 이름을 봐 주지 않고, 마이그레이션과 어긋나도 실행할 때까지 드러나지
+ * 않는다.
  *
- * <p>🔴 이 검사는 <b>DB 검증이 아니다.</b> SQL 이 실제로 도는지, TIMESTAMPTZ 왕복에서
- * 시간대가 유지되는지, {@code ON CONFLICT} 가 정말 덮어쓰는지는 실제 PostgreSQL 에서만
- * 확인된다({@link ItineraryActualTimeIntegrationTest}). 여기서 보는 것은 두 파일에 나뉘어
- * 적힌 <b>하나의 사실</b>(표의 모양)이 서로 어긋나지 않았는지 하나뿐이다.
+ * <p>DB 검증은 아니다. SQL 이 실제로 도는지·{@code ON CONFLICT} 가 정말 덮어쓰는지는
+ * {@link ItineraryActualTimeIntegrationTest} 가 본다.
  */
 class ItineraryItemActualSqlMatchesMigrationTest {
 

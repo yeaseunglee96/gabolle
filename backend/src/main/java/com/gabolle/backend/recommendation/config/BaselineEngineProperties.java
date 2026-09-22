@@ -3,28 +3,25 @@ package com.gabolle.backend.recommendation.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 규칙 기반 BASELINE 추천 엔진 설정 (S15P21E201-604).
+ * 규칙 기반 BASELINE 추천 엔진 설정.
  *
- * <p>🔴 버전 넷({@code modelVersion}·{@code featureVersion}·{@code ontologyVersion}·
- * {@code policyVersion})은 이 설정이 담아 두지만 {@code datasetVersion} 은 여기 없다.
- * {@code datasetVersion} 은 {@code PlaceCandidateResponse.datasetVersions()} 에서 가져온다
- * ({@link com.gabolle.backend.recommendation.adapter.BaselineRecommendationEngine} 참고) —
- * 장소 데이터가 실제로 어느 수집분에서 왔는지는 설정이 아니라 조회 결과가 말해 준다.
+ * <p>버전 넷은 이 설정이 담지만 {@code datasetVersion} 은 여기 없다. 그 값은
+ * {@code PlaceCandidateResponse.datasetVersions()} 에서 가져온다 — 장소 데이터가 실제로 어느
+ * 수집분에서 왔는지는 설정이 아니라 조회 결과가 말해 준다.
  *
- * @param modelVersion 규칙 버전. 다른 에이전트가 {@code application.properties} 에 값을 넣는다
+ * @param modelVersion 규칙 버전
  * @param featureVersion 피처 계산 버전
  * @param ontologyVersion 제약 어휘·규칙 버전
  * @param policyVersion 제약 정책 버전
  * @param radiusM 후보 질의 반경(m) 기본값
- * @param candidateScanLimit <b>채점 대상</b> 상한 — 장소 조회에서 받아 올 후보 수.
- *     기본값을 크게 둔 이유는 아래 {@code candidateLimit} 설명에 있다 (S15P21E201-724)
- * @param candidateLimit <b>채점을 마친 뒤</b> 남기는 후보 수.
- *     🔴 <b>2026-09-07 에 뜻이 바뀌었다.</b> 전에는 이 값이 장소 조회에 그대로 넘어가서
- *     "가까운 순 200곳만 채점 대상" 이라는 뜻이었다 — 그 밖의 장소는 아무리 좋아도 점수를
- *     매길 기회조차 없었고, 부산에서는 그 200곳이 중앙값 <b>304m</b> 안에서 끊겼다(반경은
- *     5km 인데). 지금은 반경 안 후보를 {@code candidateScanLimit} 까지 받아 <b>전부 채점한 뒤</b>
- *     점수 높은 순으로 이만큼만 남긴다. 저장되는 후보 행 수는 예전과 같고, <b>어느 200곳이
- *     남는가</b>만 달라진다
+ * @param candidateScanLimit 채점 대상 상한 — 장소 조회에서 받아 올 후보 수
+ * @param candidateLimit 채점을 마친 뒤 남기는 후보 수. 이 값을 장소 조회에 그대로 넘기면
+ *     "가까운 순 N곳만 채점 대상" 이 되어 반경 밖 취향이 맞는 장소가 점수를 받을 기회조차
+ *     잃는다. 그래서 {@code candidateScanLimit} 까지 받아 전부 채점한 뒤 여기서 자른다
+ * @param tasteVectorMultiplier 접힌 취향 벡터가 CATEGORY 겹침에 더하는 배수. 성분의 근거가
+ *     아직 전부 설문이라 값을 크게 잡으면 개인화가 세지는 것이 아니라 설문이 두 번 세어진다 —
+ *     성분의 {@code evidence} 가 {@code INTERACTION}·{@code BLENDED} 로 바뀌면 다시 본다.
+ *     0 이면 이 기능이 완전히 꺼진다(배포 없이 되돌리는 손잡이)
  * @param weights 점수 가중치
  */
 @ConfigurationProperties(prefix = "gabolle.recommendation.baseline")
@@ -58,8 +55,8 @@ public record BaselineEngineProperties(
 					"gabolle.recommendation.baseline.candidate-limit 은 1 이상이어야 한다");
 		}
 		if (candidateScanLimit < candidateLimit) {
-			// 🔴 채점 대상보다 남길 수가 많으면 "채점한 뒤에 자른다" 가 아무 일도 안 하는데,
-			//    설정만 보면 그렇게 안 보인다. 조용한 무효화보다 기동 실패가 낫다.
+			// 채점 대상보다 남길 수가 많으면 "채점한 뒤에 자른다" 가 아무 일도 안 하는데,
+			// 설정만 보면 그렇게 안 보인다. 조용한 무효화보다 기동 실패가 낫다.
 			throw new IllegalArgumentException(
 					"gabolle.recommendation.baseline.candidate-scan-limit(" + candidateScanLimit
 							+ ") 은 candidate-limit(" + candidateLimit + ") 이상이어야 한다");
@@ -67,27 +64,8 @@ public record BaselineEngineProperties(
 	}
 
 	/**
-	 * 접힌 취향 벡터가 CATEGORY 겹침에 더하는 배수 — S15P21E201-943.
-	 *
-	 * <h2>🔴 0.05 는 「영향이 작아서」가 아니라 「같은 근거를 두 번 세는 동안의 임시값」이다</h2>
-	 *
-	 * 2026-09-16 현재 {@code user_taste_weight} 의 성분은 <b>전부 {@code evidence=SURVEY}</b> 다.
-	 * 즉 지금 벡터는 설문 답을 다시 적어 둔 것이고, 채점기는 그 설문({@code PreferenceSnapshot})을
-	 * 이미 {@code weights.interest}(기본 0.20)로 읽고 있다. 그래서 이 항을 크게 잡으면
-	 * <b>개인화가 세진 것이 아니라 설문이 두 번 세어진다.</b>
-	 *
-	 * <h2>🔴 언제 올려도 되나</h2>
-	 *
-	 * 행동 근거가 쌓여 성분의 {@code evidence} 가 {@code INTERACTION}·{@code BLENDED} 로 바뀌면,
-	 * 그때부터 벡터는 설문이 말하지 않는 것을 말한다. <b>그 시점에 이 값을 다시 본다.</b>
-	 * 행동 이벤트({@code place_like}·{@code itinerary_remove})는 S15P21E201-1080 이 2026-09-16 에
-	 * 처음 남기기 시작했다.
-	 *
-	 * <p>0 으로 두면 이 기능이 완전히 꺼진다 — 벡터가 이상할 때 배포 없이 되돌리는 손잡이다.
-	 */
-	/**
 	 * 점수 가중치. 여섯 구성요소의 합이 1 이어야 한다는 강제는 두지 않는다 — 가중치 실험은
-	 * 데이터 담당이 값을 조정하며 진행하고, 코드가 합계를 강제하면 그 실험을 매번 막는다.
+	 * 값을 조정하며 진행하고, 코드가 합계를 강제하면 그 실험을 매번 막는다.
 	 */
 	public record Weights(
 			Double distance,
@@ -100,36 +78,12 @@ public record BaselineEngineProperties(
 		public Weights {
 			distance = defaultIfNull(distance, 0.30);
 			interest = defaultIfNull(interest, 0.20);
-			// 🔴 S15P21E201-1254 — 이 0.15 는 **지금 언제나 0 을 기여한다.** 일부러 그대로 둔다.
-			//
-			//    2026-09-18 운영 실측:
-			//      사람이 고른 분위기  35명 (RELAXED 17 · SENTIMENTAL 11 · ROMANTIC 4 · LIVELY 1 +겹침 2)
-			//      장소 쪽 ATMOSPHERE_TAG                        0행
-			//      추천 후보 7,688건 중 atmosphere 가 0보다 큰 것  0건
-			//
-			//    35명이 답했는데 짝지을 장소가 한 곳도 없다. 그래서 사장님이 여행지 추천
-			//    흐름에서 분위기 문항을 빼기로 정했다 —「리뷰가 많이 쌓였을 때 다시 하자」.
-			//
-			//    ── 🔴 그러니 이 숫자를 고치려 들지 마라. 길이 둘인데 둘 다 나쁘다 ──────
-			//
-			//    (1) 0.15 를 다른 조각에 나눠 주기 — **순위를 실제로 바꾸는 변경**이다.
-			//        지금 추천이 어떻게 달라지는지 아무도 안 본 상태이고, 분위기를 다시
-			//        켤 때 비중을 되돌리는 일이 또 생긴다.
-			//
-			//    (2) 🔴 조용함 점수로 채우기 — QUIETNESS_SCORE 가 2,681곳에 있어서
-			//        「조용하면 RELAXED」로 붙일 수 있다. **그런데 조용함은 이미 자기 축
-			//        (preferenceAlignment 안의 QUIETNESS)으로 점수에 들어간다.** 분위기까지
-			//        같은 재료로 채우면 조용함이 사실상 0.25 가 된다 — 같은 값을 두 번 세는
-			//        것이고, 그 사실은 어느 화면에도 안 나타난다.
-			//
-			//    ── 그대로 두는 것이 안전한 이유 ────────────────────────────────────
-			//
-			//    빠진 항은 **모든 후보에서 똑같이** 빠진다. 총점은 작아져도 순위는 안 바뀐다.
-			//    자리를 비워 두면 리뷰가 쌓여 분위기를 다시 켤 때 되돌릴 것이 없다.
-			//
-			//    🔴 서버에서 ATMOSPHERE 차원 자체는 안 지웠다. 이미 배포된 앱이 아직 보내고
-			//    (preference_answer 의 CHECK 에서 빼면 그 요청들이 거부된다), 쌓인 답 35건을
-			//    지울 이유도 없다 — 다시 켤 때 그대로 쓴다.
+			// 이 0.15 는 지금 언제나 0 을 기여한다. 장소 쪽 ATMOSPHERE_TAG 가 0행이라 짝지을
+			// 것이 없고, 그래서 분위기 문항을 추천 흐름에서 뺐다. 그래도 값을 고치지 않는다 —
+			// 다른 조각에 나눠 주면 순위가 실제로 바뀌고, 조용함 점수로 대신 채우면 조용함이
+			// preferenceAlignment 와 여기에 두 번 세어진다. 빠진 항은 모든 후보에서 똑같이
+			// 빠지므로 총점만 작아지고 순위는 안 바뀌며, 자리를 비워 두면 나중에 다시 켤 때
+			// 되돌릴 것이 없다. ATMOSPHERE 차원 자체도 안 지운다 — 배포된 앱이 아직 보낸다.
 			atmosphere = defaultIfNull(atmosphere, 0.15);
 			cuisine = defaultIfNull(cuisine, 0.15);
 			preferenceAlignment = defaultIfNull(preferenceAlignment, 0.10);

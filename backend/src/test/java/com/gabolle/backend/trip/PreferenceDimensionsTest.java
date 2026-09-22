@@ -11,10 +11,8 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.trip.domain.PreferenceDimensions;
 
 /**
- * 앱 이름 → DB 어휘 — S15P21E201-665.
- *
- * <p>왼쪽 아홉 개는 {@code frontend/src/api/tripApi.ts} 의 {@code preference('…')} 호출과
- * 글자 그대로 같아야 한다. 앱이 이름을 하나 더 보내기 시작하면 이 표가 먼저 빨개져야 한다.
+ * 앱 이름 → DB 어휘. 왼쪽 아홉 개는 {@code frontend/src/api/tripApi.ts} 의
+ * {@code preference('…')} 호출과 글자 그대로 같아야 한다.
  */
 class PreferenceDimensionsTest {
 
@@ -71,5 +69,14 @@ class PreferenceDimensionsTest {
 	void transportIsFlagged() {
 		assertThat(PreferenceDimensions.isTransport(PreferenceDimensions.normalize("transport"))).isTrue();
 		assertThat(PreferenceDimensions.isTransport(PreferenceDimensions.normalize("category"))).isFalse();
+	}
+
+	@Test
+	@DisplayName("🔴 「여행 기분」을 받는다 — 안 받으면 프론트가 한 줄 넣는 순간 여행 생성이 400 으로 죽는다")
+	void paceIsAccepted() {
+		assertThat(PreferenceDimensions.normalize("pace")).isEqualTo("PACE");
+		assertThat(PreferenceDimensions.normalize("PACE")).isEqualTo("PACE");
+		assertThat(PreferenceDimensions.isPace("PACE")).isTrue();
+		assertThat(PreferenceDimensions.isPace("TRANSPORT")).isFalse();
 	}
 }

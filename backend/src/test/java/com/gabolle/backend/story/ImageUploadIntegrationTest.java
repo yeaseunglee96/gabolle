@@ -45,10 +45,9 @@ import com.gabolle.backend.story.presentation.UploadExceptionHandler;
 import com.gabolle.testslice.StorySliceApplication;
 
 /**
- * 업로드 → 저장 → 서빙 전체 경로를 실제 PostgreSQL·실제 디스크 위에서 확인한다 — S15P21E201-216·-370.
- *
- * <p>{@code uploaded_image} 표에 사진 바이트를 담는 칸이 없다는 것을 {@code information_schema}
- * 로 직접 단정한다 — 응답만 보면 서버가 사진을 어딘가에 통째로 넣어도 통과하기 때문이다.
+ * 업로드 → 저장 → 서빙 전체 경로를 실제 PostgreSQL·실제 디스크 위에서 확인한다.
+ * 사진 바이트가 표에 들어가지 않는다는 것은 information_schema 로 직접 단정한다. 응답만 보면
+ * 서버가 사진을 통째로 넣어도 통과한다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -198,12 +197,7 @@ class ImageUploadIntegrationTest {
 				.andExpect(jsonPath("$.error.code").value("IMAGE_KEY_INVALID"));
 	}
 
-	/**
-	 * 🔴 표 전체가 아니라 이 테스트가 만든 사용자 몫만 센다 — Spring 이 테스트 컨텍스트를 캐싱해
-	 * 같은 클래스의 다른 테스트 메서드가 같은 실제 DB 에 남긴 행과 섞이지 않게 한다
-	 * ({@code ItineraryLockPersistenceIntegrationTest} 가 자기 {@code itineraryId} 로 좁히는 것과
-	 * 같은 이유).
-	 */
+	/** 표 전체가 아니라 이 테스트가 만든 사용자 몫만 센다. DB 가 테스트끼리 공유되므로 좁히지 않으면 남의 행이 섞인다. */
 	private int uploadedImageCountForUser() {
 		Integer count = this.jdbcTemplate.queryForObject(
 				"SELECT count(*) FROM uploaded_image WHERE uploader_user_id = ?", Integer.class, this.userId);
@@ -252,7 +246,6 @@ class ImageUploadIntegrationTest {
 		return false;
 	}
 
-	/** 응답 JSON 문자열에서 {@code "imageUrl":"..."} 값을 뽑는다 — 별도 JSON 라이브러리 파싱 없이 간단히. */
 	private String extractImageUrl(String json) {
 		String key = "\"imageUrl\":\"";
 		int start = json.indexOf(key);
@@ -264,7 +257,6 @@ class ImageUploadIntegrationTest {
 		return json.substring(start, end);
 	}
 
-	/** 테스트 안에서만 쓰는 상수 — {@code UploadedImage.MAX_BYTES} 와 값을 맞춘다. */
 	private static final class UploadedImageMaxBytesHolder {
 
 		static final int MAX_BYTES = com.gabolle.backend.story.domain.UploadedImage.MAX_BYTES;

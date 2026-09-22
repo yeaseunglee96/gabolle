@@ -16,19 +16,11 @@ import com.gabolle.backend.functional.support.FunctionalJourneyTest;
 import com.jayway.jsonpath.JsonPath;
 
 /**
- * 응답 본문의 <b>칸 이름과 타입</b>을 고정한다 — S15P21E201-789.
+ * 응답 본문의 칸 이름과 타입을 고정한다. 200 은 모양이 맞다는 뜻이 아니라, 상태 코드만 보는 검사는
+ * 배열이 객체로 바뀌어도 초록이다.
  *
- * <h2>왜 이 검사가 생겼나</h2>
- * 2026-09-08 에 "내 여행" 화면이 죽었다. 서버는 목록을 <b>배열</b>로 주는데 앱은 <b>객체</b>로
- * 읽었다({@code {trips: [...]}} 를 기대했다). 그런데 서버 쪽 검사는 전부 초록이었다 — 상태
- * 코드만 봤기 때문이다. <b>200 은 모양이 맞다는 뜻이 아니다.</b>
- *
- * <p>그래서 이 검사는 응답을 DTO 로 되읽지 않는다. DTO 로 읽으면 Jackson 이 모양을 맞춰 주므로
- * 이름이 바뀌었는지 타입이 바뀌었는지가 <b>가려진다.</b> 날것의 JSON 문자열을 그대로 보고
- * 이름과 타입을 확인한다.
- *
- * <p>실제 소켓과 실제 보안 필터를 지난다({@code FunctionalJourneyTest}) — 앱이 받는 것과 같은
- * 바이트를 본다는 뜻이다.
+ * <p>그래서 응답을 DTO 로 되읽지 않는다 — DTO 로 읽으면 Jackson 이 모양을 맞춰 줘서 이름이나 타입이
+ * 바뀐 것이 가려진다. 날것의 JSON 문자열을 그대로 본다.
  */
 class ResponseBodyContractFunctionalTest extends FunctionalJourneyTest {
 
@@ -36,18 +28,13 @@ class ResponseBodyContractFunctionalTest extends FunctionalJourneyTest {
 	private static final String TRIPS = "/api/v1/trips";
 
 	/**
-	 * 여행 하나를 만든다.
-	 *
-	 * <p>🔴 몸통을 문자열이 아니라 {@link Map} 으로 넘긴다. 문자열로 넘기면 요청의
-	 * {@code Content-Type} 이 {@code text/plain} 이 되고, 그러면 서버가 415 를 정한 뒤
-	 * {@code /error} 로 다시 디스패치하면서 <b>401 로 바뀌어</b> 나온다 — 인증은 멀쩡한데
-	 * "로그인이 필요합니다" 가 온다. {@code SecurityConfig} 주석이 같은 함정을 이미 적어 뒀다.
-	 * {@code Map} 으로 넘기면 Jackson 이 JSON 으로 쓰면서 헤더도 맞춰 준다.
+	 * 여행 하나를 만든다. 몸통을 문자열이 아니라 {@link Map} 으로 넘긴다 — 문자열이면
+	 * {@code Content-Type} 이 {@code text/plain} 이 되고, 서버가 415 를 정한 뒤 {@code /error} 로
+	 * 재디스패치하면서 401 로 바뀌어 나온다.
 	 */
 	private ResponseEntity<String> createTrip(AuthedClient authed) {
 		LocalDate start = LocalDate.now().plusDays(30);
-		// 🔴 출발지 좌표를 함께 보낸다 — S15P21E201-440 부터 서버가 좌표 없는 여행을 거부한다
-		//    (좌표가 없으면 일정 계산이 성립하지 않는다).
+		// 출발지 좌표를 함께 보낸다 — 좌표가 없으면 일정 계산이 성립하지 않아 서버가 거부한다.
 		Map<String, Object> body = Map.of(
 				"startDate", start.toString(),
 				"finishDate", start.plusDays(2).toString(),
@@ -70,7 +57,7 @@ class ResponseBodyContractFunctionalTest extends FunctionalJourneyTest {
 				.withFailMessage("목록의 data 는 배열이어야 합니다. 객체로 바뀌면 앱의 목록 화면이 죽습니다.")
 				.isInstanceOf(List.class);
 		assertThat((List<?>) data).isEmpty();
-		// 🔴 감싼 모양으로 되돌아가는 것도 계약 위반이다. 앱이 기대했다가 죽은 모양이 이것이다.
+		// 감싼 모양으로 되돌아가는 것도 계약 위반이다.
 		assertThat(response.getBody()).doesNotContain("\"trips\"");
 	}
 
@@ -92,10 +79,10 @@ class ResponseBodyContractFunctionalTest extends FunctionalJourneyTest {
 		assertThat(row).containsKeys("tripId", "startDate", "endDate", "dayCount", "partySize",
 				"status", "role", "createdAt", "updatedAt");
 		assertThat(row.get("tripId")).isInstanceOf(String.class);
-		// 🔴 날짜는 문자열이다. 숫자(epoch)로 바뀌면 앱의 날짜 표시가 조용히 깨진다.
+		// 날짜는 문자열이다. 숫자(epoch)로 바뀌면 앱의 날짜 표시가 조용히 깨진다.
 		assertThat(row.get("startDate")).isInstanceOf(String.class);
 		assertThat(row.get("endDate")).isInstanceOf(String.class);
-		// 🔴 개수는 숫자다. 문자열로 바뀌면 앱의 계산이 문자열 이어붙이기가 된다.
+		// 개수는 숫자다. 문자열로 바뀌면 앱의 계산이 문자열 이어붙이기가 된다.
 		assertThat(row.get("dayCount")).isInstanceOf(Integer.class);
 		assertThat(row.get("partySize")).isInstanceOf(Integer.class);
 		assertThat(row.get("status")).isInstanceOf(String.class);

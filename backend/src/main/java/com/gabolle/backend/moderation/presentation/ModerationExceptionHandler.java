@@ -19,14 +19,11 @@ import com.gabolle.backend.moderation.application.StoryReportService;
 import com.gabolle.backend.moderation.domain.StoryReport;
 
 /**
- * 신고·검토 컨트롤러의 오류 응답. 모양은 팀 공용 {@code ApiResponse.failure(ApiError(code, message, fields))} 다.
+ * 신고·검토 컨트롤러의 오류 응답. 모양은 팀 공용
+ * {@code ApiResponse.failure(ApiError(code, message, fields))} 다.
  *
- * <p>🔴 {@code @RestControllerAdvice(assignableTypes = …)} + {@code @Order(HIGHEST_PRECEDENCE)} 로
- * 대상 컨트롤러와 우선순위를 명시한다 — 이 저장소는 이것을 빠뜨려 없는 자원이 500 으로 나간 사고를
- * 네 번 겪었다({@code StoryExceptionHandler} 의 같은 주석 참고).
- *
- * <p>{@link StoryReportService.StoryNotFoundException} 과 {@link ModerationQueueService.StoryNotFoundException}
- * 은 서로 다른 클래스지만 같은 뜻(대상 기록이 없다)이라 한 메서드에서 함께 받는다.
+ * {@code assignableTypes} 와 {@code @Order(HIGHEST_PRECEDENCE)} 를 빠뜨리면 더 넓은 advice 가 먼저
+ * 잡아 없는 자원이 500 으로 나간다.
  */
 @RestControllerAdvice(assignableTypes = { StoryReportController.class, AdminModerationController.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -46,10 +43,9 @@ public class ModerationExceptionHandler {
 	}
 
 	/**
-	 * 이미 처리된 신고를 다시 처리하려 했다 — 409. {@link StoryReport.AlreadyResolvedException}(신고
-	 * 한 건 단위)과 {@link ModerationQueueService.NoPendingReportsException}(기록 단위 — 처리할
-	 * 미처리 신고가 이미 없다)을 같은 코드로 답한다. 화면 입장에서는 둘 다 "이 기록은 더 처리할
-	 * 것이 없다" 는 같은 사실이다.
+	 * 신고 한 건 단위({@link StoryReport.AlreadyResolvedException})와 기록 단위
+	 * ({@link ModerationQueueService.NoPendingReportsException})를 같은 코드로 답한다 — 화면에는 둘 다
+	 * "더 처리할 것이 없다" 는 같은 사실이다.
 	 */
 	@ExceptionHandler({ StoryReport.AlreadyResolvedException.class,
 			ModerationQueueService.NoPendingReportsException.class })
@@ -60,9 +56,8 @@ public class ModerationExceptionHandler {
 	}
 
 	/**
-	 * 🔴 {@code IllegalArgumentException} 을 여기 넣지 않는다 — {@code StoryExceptionHandler} 의 같은
-	 * 주석과 같은 이유다. Spring 이 예외의 원인 사슬까지 훑어 핸들러를 고르므로, 저장소 안쪽에서 난
-	 * IAE 가 400 으로 둔갑해 진짜 서버 결함을 감출 수 있다.
+	 * {@code IllegalArgumentException} 을 여기 더하지 않는다. Spring 이 예외의 원인 사슬까지 훑어
+	 * 핸들러를 고르므로, 저장소 안쪽에서 난 IAE 가 400 으로 둔갑해 서버 결함을 감춘다.
 	 */
 	@ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class })
 	public ResponseEntity<ApiResponse<Void>> handleBadInput(Exception e) {

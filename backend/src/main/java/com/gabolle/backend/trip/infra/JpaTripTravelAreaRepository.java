@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import com.gabolle.backend.trip.domain.TravelArea;
 import com.gabolle.backend.trip.domain.TripTravelAreaRepository;
 
-/** {@link TripTravelAreaRepository} 의 JPA 구현 — S15P21E201-980. */
 @Repository
 @Profile({ "db", "dev" })
 public class JpaTripTravelAreaRepository implements TripTravelAreaRepository {
@@ -44,8 +43,8 @@ public class JpaTripTravelAreaRepository implements TripTravelAreaRepository {
 	public List<TravelArea> findByTripId(String tripId) {
 		return this.jpaRepository.findByKeyTripIdOrderBySequenceAsc(UUID.fromString(tripId)).stream()
 				.map((row) -> TravelArea.of(row.key().areaCode()))
-				// 🔴 모르는 코드는 버린다. 표의 CHECK 가 막지만, 코드에서 지역을 지우는 날
-				//    이미 저장된 행이 남아 있을 수 있다 — 그때 추천이 죽으면 안 된다.
+				// 모르는 코드는 버린다. 코드에서 지역을 지워도 이미 저장된 행이 남아 있을 수
+				// 있고, 그때 추천이 죽으면 안 된다.
 				.filter(java.util.Optional::isPresent)
 				.map(java.util.Optional::get)
 				.toList();

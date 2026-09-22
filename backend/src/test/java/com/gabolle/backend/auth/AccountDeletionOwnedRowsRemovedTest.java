@@ -27,39 +27,18 @@ import com.gabolle.backend.user.repository.AppUserRepository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-1198 — {@code USER_OWNED_ROWS} 에 <b>지운다고 적어 둔 표가 실제로 지워지는가</b>.
+ * {@code AccountDeletionService.USER_OWNED_ROWS} 에 지운다고 적어 둔 표가 실제로 지워지는가.
  *
- * <h2>왜 필요한가</h2>
+ * <p>목록이 문자열이라 오타는 컴파일을 통과한다. 게다가 행이 안 지워져도 탈퇴는 성공으로
+ * 끝난다 — 계정 행을 익명화만 하므로 {@code ON DELETE CASCADE} 가 안 터지고 오류도 안 난다.
  *
- * S15P21E201-1157 이 <b>애플 심사 5.1.1(v)</b>(<i>「계정 삭제를 제공하면 이용자 자료가 실제로
- * 지워져야 한다」</i>) 때문에 표 열한 개를 삭제 목록에 넣었다. 그런데 <b>그 열한 개 중 어느 것도
- * 자료를 넣고 확인하는 검사가 없었다.</b>
+ * <p>지우기 전에 시드가 들어갔는지를 먼저 본다. 시드가 조용히 실패하면 지운 뒤에도 0건이라
+ * 검사가 거저 통과한다.
  *
- * <p>있던 것은 둘이다. {@code AccountDeletionOwnedRowsTest} 는 <b>이름과 칸 경로가 실재하는지</b>를
- * DB 없이 본다. {@code AccountDeletionIntegrationTest} 는 여행·기록·업로드 사진·취향 벡터를 본다 —
- * <b>다른 표들</b>이다.
+ * <p>{@code story_reaction}·{@code trip_invite}·{@code trip_share_link} 는 남의 글·남의 여행에
+ * 단다. 자기 것에 달면 글·여행이 지워지면서 딸려 없어져, 목록이 고장나도 통과한다.
  *
- * <p>🔴 목록이 <b>문자열</b>이라 위험이 거기 있다. S15P21E201-1157 이 스스로 적어 뒀다 —
- * <i>「오타는 컴파일을 통과하고 <b>탈퇴가 500 으로 죽는 순간에</b> 처음 드러난다」</i>. 그리고 더
- * 나쁜 경우가 있다: <b>행이 안 지워져도 탈퇴는 성공으로 끝난다.</b> 이 서비스는 계정 행을
- * 익명화만 하므로 {@code ON DELETE CASCADE} 가 한 번도 안 터지고, 오류도 안 난다.
- *
- * <h2>🔴 지우기 전에 「넣었는가」를 먼저 본다</h2>
- *
- * 시드가 조용히 실패하면 <b>지운 뒤 0건</b>이 나오고 이 검사는 <b>거저 통과한다.</b> 그래서
- * 탈퇴를 부르기 전에 열세 자리가 전부 1건 이상인지 확인한다. <b>통과하는 검사와 무언가를 막는
- * 검사는 다르다.</b>
- *
- * <h2>남의 것에 달아서 가른다</h2>
- *
- * {@code story_reaction}·{@code trip_invite}·{@code trip_share_link} 는 <b>남의 글·남의 여행</b>에
- * 단다. 자기 것에 달면 글·여행이 지워지면서 딸려 없어질 수 있고, 그러면 <b>목록이 고장나도 검사가
- * 통과한다</b> — 재려는 것은 「사람을 가리키는 칸으로 지워지는가」다.
- *
- * <h2>DB 가 없으면 건너뛴다</h2>
- *
- * {@code AuthPostgresIntegrationTest} 를 상속하므로 {@code PostgresAvailableCondition} 이 붙는다.
- * 🔴 도커가 꺼진 PC 에서는 건너뛴 채 초록이므로 <b>진짜 판정은 CI 다.</b>
+ * <p>Postgres 가 없으면 건너뛰므로 실제 판정은 CI 에서 난다.
  */
 class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 
@@ -70,8 +49,8 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 	/**
 	 * 탈퇴 뒤 이 사람을 가리키는 행이 하나도 없어야 하는 자리.
 	 *
-	 * <p>🔴 {@code user_follow}·{@code user_block} 은 사람을 가리키는 칸이 <b>둘</b>이라 두 줄씩이다.
-	 * 한쪽만 지우면 <b>「내가 없는데 나를 팔로우한 기록」</b>이 남는다 — S15P21E201-1157 의 당부다.
+	 * <p>{@code user_follow}·{@code user_block} 은 사람을 가리키는 칸이 둘이라 두 줄씩이다.
+	 * 한쪽만 지우면 없는 사람을 팔로우한 기록이 남는다.
 	 */
 	private record Owned(String table, String userColumn) {
 	}
@@ -82,6 +61,7 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 			new Owned("place_review", "user_id"),
 			new Owned("place_visit_verification", "user_id"),
 			new Owned("menu_scan_usage", "user_id"),
+			new Owned("dish_image_usage", "user_id"),
 			new Owned("user_follow", "follower_user_id"),
 			new Owned("user_follow", "followee_user_id"),
 			new Owned("user_block", "blocker_user_id"),
@@ -92,8 +72,10 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 			new Owned("trip_invite", "created_by"),
 			new Owned("trip_share_link", "created_by"),
 			new Owned("oauth_signup_ticket", "existing_user_id"),
-			// 🔴 S15P21E201-1231 — 알레르기·식단이 들어 있는 자리라 반드시 지워져야 한다.
-			new Owned("user_travel_constraint", "user_id"));
+			// 알레르기·식단이 들어 있는 자리라 반드시 지워져야 한다.
+			new Owned("user_travel_constraint", "user_id"),
+			// 🔴 기기 푸시 토큰. 남으면 탈퇴한 사람의 폰으로 알림이 계속 간다 (S15P21E201-1391).
+			new Owned("push_token", "user_id"));
 
 	@Autowired
 	private AccountDeletionService accountDeletionService;
@@ -136,7 +118,7 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 
 	@AfterEach
 	void tearDown() {
-		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
+		// 표를 비우지 않고 내가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
 		for (UUID user : new UUID[] { this.userId, this.otherUserId }) {
 			for (Owned owned : OWNED) {
 				this.jdbc.update("DELETE FROM " + owned.table() + " WHERE " + owned.userColumn() + " = ?", user);
@@ -153,9 +135,9 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 지운다고 적어 둔 열세 자리가 탈퇴 뒤 전부 0건이다 — 애플 심사 5.1.1(v)")
+	@DisplayName("🔴 지운다고 적어 둔 자리가 탈퇴 뒤 전부 0건이다 — 애플 심사 5.1.1(v)")
 	void everyOwnedRowIsActuallyGone() {
-		// 🔴 먼저 「넣었는가」. 시드가 조용히 실패하면 아래 검사가 거저 통과한다.
+		// 먼저 넣었는지 본다. 시드가 조용히 실패하면 아래 검사가 거저 통과한다.
 		List<String> notSeeded = new ArrayList<>();
 		for (Owned owned : OWNED) {
 			if (countFor(owned, this.userId) == 0) {
@@ -241,6 +223,8 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 				UUID.randomUUID(), this.placeId, user);
 		this.jdbc.update("INSERT INTO menu_scan_usage (menu_scan_usage_id, user_id, scanned_at) "
 				+ "VALUES (?, ?, now())", UUID.randomUUID(), user);
+		this.jdbc.update("INSERT INTO dish_image_usage (dish_image_usage_id, user_id, requested_at) "
+				+ "VALUES (?, ?, now())", UUID.randomUUID(), user);
 		this.jdbc.update("INSERT INTO story_reaction (story_id, user_id, reaction, created_at, updated_at) "
 				+ "VALUES (?, ?, 'LIKE', now(), now())", this.otherStoryId, user);
 		this.jdbc.update("INSERT INTO story_view "
@@ -249,8 +233,8 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 		this.jdbc.update("INSERT INTO story_link_copy "
 				+ "(story_link_copy_id, story_id, user_id, copied_on, created_at) "
 				+ "VALUES (?, ?, ?, current_date, now())", UUID.randomUUID(), this.otherStoryId, user);
-		// 🔴 SAVED 로 심는다 — 그래야 value 가 채워져서 ck_user_travel_constraint_value_matches_status
-		//    를 지난다. 값이 있는 상태로 지워지는지를 보는 것이 이 자리의 뜻이다(알레르기·식단).
+		// SAVED 로 심어야 value 가 채워져 ck_user_travel_constraint_value_matches_status 를 지난다.
+		// 값이 있는 상태로 지워지는지를 보는 자리다.
 		this.jdbc.update("INSERT INTO user_travel_constraint "
 				+ "(user_id, status, value, created_at, updated_at) "
 				+ "VALUES (?, 'SAVED', ?::jsonb, now(), now())", user, "{\"allergies\":[\"peanut\"]}");
@@ -276,6 +260,9 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 				+ "VALUES (?, ?, now())", user, this.otherUserId);
 		this.jdbc.update("INSERT INTO user_block (blocker_user_id, blocked_user_id, created_at) "
 				+ "VALUES (?, ?, now())", this.otherUserId, user);
+		this.jdbc.update("INSERT INTO push_token (push_token_id, user_id, token, platform, created_at, updated_at) "
+				+ "VALUES (?, ?, ?, 'android', now(), now())",
+				UUID.randomUUID(), user, "ExponentPushToken[" + shortId() + "]");
 	}
 
 	private UUID createUser(String address) {

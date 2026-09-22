@@ -35,11 +35,8 @@ import com.gabolle.backend.story.presentation.UserSocialController;
 import com.gabolle.testslice.StorySliceApplication;
 
 /**
- * 댓글 — S15P21E201-1183. <b>진짜 PostgreSQL</b> 이 있어야 하는 것만 여기서 본다.
- *
- * <p>DB 없이 판정할 수 있는 것(공개범위를 서버가 정한다, 세기가 0 아래로 안 간다, 손자를 안 센다)은
- * {@link StoryReplyTest} 가 이미 본다. 여기는 <b>같은 표에 두었기 때문에 생긴 위험</b>을 본다 —
- * 댓글이 피드에 새는가, 세기가 DB 를 오간 뒤에도 맞는가.
+ * 댓글 가운데 진짜 PostgreSQL 이 있어야 판정되는 것만 본다. 댓글을 원글과 같은 표에 두었기 때문에
+ * 생긴 위험 — 피드에 새는가, 세기가 DB 를 오간 뒤에도 맞는가. 나머지는 {@link StoryReplyTest} 가 본다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -129,13 +126,8 @@ class StoryReplyIntegrationTest {
 				.andExpect(status().isOk()).andReturn();
 		JsonNode items = this.json.readTree(result.getResponse().getContentAsString()).get("data").get("items");
 
-		// 🔴 개수로 재지 않는다. 이 표는 시험마다 비우지 않아서(StoryCrudIntegrationTest 의
-		//    tearDown 주석) 다른 시험이 남긴 글이 같은 피드에 함께 나온다. 처음에 hasSize(1)
-		//    로 썼다가 CI 에서 "1 을 기대했는데 20" 으로 깨졌다 — 도커가 없는 로컬에서는 이
-		//    시험이 건너뜀이라 안 보였다.
-		//
-		//    재야 하는 것은 개수가 아니라 불변식이다: 내 원글은 있고, 내 댓글은 없고,
-		//    피드의 어떤 항목도 부모를 갖지 않는다.
+		// 개수로 재지 않는다. 표를 시험마다 비우지 않아 다른 시험이 남긴 글이 같은 피드에 섞인다.
+		// 재는 것은 불변식이다: 내 원글은 있고, 내 댓글은 없고, 피드의 어떤 항목도 부모를 갖지 않는다.
 		assertThat(items).extracting(item -> item.get("id").asString())
 				.contains(storyId)
 				.doesNotContain(replyId);
@@ -167,7 +159,7 @@ class StoryReplyIntegrationTest {
 		String depth2 = reply(this.author, depth1, "답글").get("id").asString();
 		reply(this.commenter, depth2, "답답글");
 
-		// 원글의 목록에는 댓글 하나만. 손자는 안 딸려 온다 — 그 댓글의 id 로 다시 부른다.
+		// 목록은 바로 아래 한 단만 준다. 손자는 그 댓글의 id 로 다시 불러야 한다.
 		JsonNode first = replies(storyId, this.author);
 		assertThat(first).hasSize(1);
 		assertThat(first.get(0).get("id").asString()).isEqualTo(depth1);

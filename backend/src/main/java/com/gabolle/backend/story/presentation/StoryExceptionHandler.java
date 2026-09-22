@@ -29,14 +29,11 @@ import com.gabolle.backend.story.domain.UserBlock;
 import com.gabolle.backend.story.domain.UserFollow;
 
 /**
- * 기록·팔로우 컨트롤러의 오류 응답. 모양은 팀 공용 {@code ApiResponse.failure(ApiError(code, message, fields))} 다.
+ * 기록·팔로우 컨트롤러의 오류 응답.
  *
- * <p>🔴 404 와 403 을 가르는 규칙이 이 파일의 핵심이다. 못 보는 기록(없음·지움·나만 보기·팔로워 전용)은 전부
- * 404 {@code STORY_NOT_FOUND} 로 같은 응답을 낸다 — 응답이 다르면 어느 쪽인지 알 수 있고 그것이 곧 존재
- * 사실의 유출이다. 403 {@code STORY_FORBIDDEN} 은 <b>보이는</b> 기록을 남이 고치거나 지우려 할 때만 난다.
- *
- * <p>{@link StoryCoauthorController}(공동 작성 — S15P21E201-770)도 이 핸들러를 같이 쓴다. 오류 번역이
- * 하나뿐이면 두 컨트롤러가 같은 예외에 다른 응답을 낼 일이 없다.
+ * <p>못 보는 기록(없음·지움·나만 보기·팔로워 전용)은 전부 404 {@code STORY_NOT_FOUND} 로 같은 응답을 낸다 —
+ * 응답이 갈리면 그 차이가 곧 존재 사실의 유출이다. 403 {@code STORY_FORBIDDEN} 은 보이는 기록을 남이 고치거나
+ * 지우려 할 때만 낸다.
  */
 @RestControllerAdvice(
 		assignableTypes = { StoryController.class, UserSocialController.class, StoryCoauthorController.class,
@@ -57,12 +54,11 @@ public class StoryExceptionHandler {
 	}
 
 	/**
-	 * S15P21E201-137 — 검토로 감춰진 기록을 고치려 했다 — 409.
+	 * 검토로 감춰진 기록을 고치려 했다 — 409.
 	 *
-	 * <p>{@code STORY_FORBIDDEN}(403) 과 가르는 이유는 화면이 할 말이 다르기 때문이다. 앞의
-	 * 것은 "내 기록이 아니다" 이고 이것은 "내 기록이지만 지금은 못 고친다" 라, 같은 코드로
-	 * 답하면 사용자가 자기 글을 남의 글로 오해한다. 지우는 것은 여전히 되므로 그 안내도
-	 * 메시지에 함께 있다.
+	 * <p>403 과 가르는 이유는 화면이 할 말이 다르기 때문이다. 403 은 「내 기록이 아니다」이고 이것은
+	 * 「내 기록이지만 지금은 못 고친다」라, 같은 코드로 답하면 사용자가 자기 글을 남의 글로 오해한다.
+	 * 지우는 것은 여전히 된다.
 	 */
 	@ExceptionHandler(StoryService.StoryUnderModerationException.class)
 	public ResponseEntity<ApiResponse<Void>> handleUnderModeration(StoryService.StoryUnderModerationException e) {
@@ -78,8 +74,6 @@ public class StoryExceptionHandler {
 						requestId()));
 	}
 
-	// ── 공동 작성 — S15P21E201-770 ──────────────────────────────────────────
-
 	@ExceptionHandler(StoryCoauthorService.StoryInviteNotFoundException.class)
 	public ResponseEntity<ApiResponse<Void>> handleStoryInviteNotFound(
 			StoryCoauthorService.StoryInviteNotFoundException e) {
@@ -88,7 +82,7 @@ public class StoryExceptionHandler {
 						requestId()));
 	}
 
-	/** 🔴 만료는 404 가 아니라 410 이다 — 표는 있었지만 지금은 못 쓴다는 뜻을 그대로 전한다. */
+	/** 만료는 404 가 아니라 410 이다 — 표는 있었지만 지금은 못 쓴다는 뜻을 그대로 전한다. */
 	@ExceptionHandler(StoryCoauthorService.StoryInviteExpiredException.class)
 	public ResponseEntity<ApiResponse<Void>> handleStoryInviteExpired(
 			StoryCoauthorService.StoryInviteExpiredException e) {
@@ -112,13 +106,10 @@ public class StoryExceptionHandler {
 	}
 
 	/**
-	 * 🔴 내가 함께 쓰는 글에 반응하려 했다 — <b>409</b>.
+	 * 내가 함께 쓰는 글에 반응하려 했다 — 409.
 	 *
-	 * <p>403 {@code STORY_FORBIDDEN} 과 가르는 이유는 이 파일 맨 위의 규칙 그대로다 —
-	 * 403 은 「보이는 글을 남이 고치거나 지우려 할 때」다. 이것은 정반대로 <b>내 글이라서</b>
-	 * 막힌 것이라, 같은 코드로 답하면 화면이 「남의 글이라 안 된다」를 띄운다.
-	 *
-	 * <p>404 도 아니다. 글은 분명히 보이고 사용자도 그것을 보고 있다.
+	 * <p>403 은 보이는 글을 남이 고치거나 지우려 할 때다. 이것은 반대로 내 글이라서 막힌 것이라, 같은 코드로
+	 * 답하면 화면이 「남의 글이라 안 된다」를 띄운다. 글은 보이므로 404 도 아니다.
 	 */
 	@ExceptionHandler(StoryReactionService.OwnReactionNotAllowedException.class)
 	public ResponseEntity<ApiResponse<Void>> handleOwnReaction(StoryReactionService.OwnReactionNotAllowedException e) {
@@ -127,9 +118,9 @@ public class StoryExceptionHandler {
 	}
 
 	/**
-	 * 🔴 S15P21E201-974 — 로그인하지 않은 사람의 팔로잉 피드. <b>401 이 아니라 400</b>인
-	 * 이유는 {@code StoryFeedService.AnonymousFollowingFeedException} 에 적어 뒀다 —
-	 * 앱이 401 을 출입증 만료로 보고 다시 발급받아 재시도하기 때문이다.
+	 * 로그인하지 않은 사람의 팔로잉 피드. 401 이 아니라 400 인 이유는
+	 * {@code StoryFeedService.AnonymousFollowingFeedException} 에 적어 뒀다 — 앱이 401 을 출입증 만료로
+	 * 보고 다시 발급받아 재시도한다.
 	 */
 	@ExceptionHandler(StoryFeedService.AnonymousFollowingFeedException.class)
 	public ResponseEntity<ApiResponse<Void>> handleAnonymousFollowing(
@@ -159,12 +150,10 @@ public class StoryExceptionHandler {
 	}
 
 	/**
-	 * 나를 차단한 사람의 프로필·기록을 열었다 — S15P21E201-990.
+	 * 나를 차단한 사람의 프로필·기록을 열었다 — 404 가 아니라 403 이다.
 	 *
-	 * <p>🔴 <b>404 가 아니라 403 이다.</b> 팀이 「없는 사람인 척하지 않기로」 정했다. 화면이
-	 * 「차단되어 볼 수 없습니다」를 띄우려면 "없다" 와 "막혔다" 를 가를 수 있어야 한다. 이것은
-	 * 차단 사실을 상대에게 알린다는 뜻이기도 하다 — 혼란은 없애지만 다른 계정을 만들 동기를 준다.
-	 * 그 트레이드오프는 티켓에 결정 사항으로 남겼고, 바꾸려면 이 한 곳과 화면 문구만 고치면 된다.
+	 * <p>화면이 「차단되어 볼 수 없습니다」를 띄우려면 「없다」와 「막혔다」를 가를 수 있어야 한다. 대신 차단
+	 * 사실이 상대에게 드러난다 — 바꾸려면 이 한 곳과 화면 문구를 고친다.
 	 */
 	@ExceptionHandler(UserBlock.BlockedByUserException.class)
 	public ResponseEntity<ApiResponse<Void>> handleBlockedByUser(UserBlock.BlockedByUserException e) {
@@ -179,7 +168,6 @@ public class StoryExceptionHandler {
 						requestId()));
 	}
 
-	/** 남의 차단 목록을 물었다 — S15P21E201-1179. */
 	@ExceptionHandler(BlockService.BlockListForbiddenException.class)
 	public ResponseEntity<ApiResponse<Void>> handleBlockListForbidden(BlockService.BlockListForbiddenException e) {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -204,9 +192,8 @@ public class StoryExceptionHandler {
 	}
 
 	/**
-	 * 🔴 {@code IllegalArgumentException} 을 여기 넣지 않는다. Spring 은 예외의 <b>원인 사슬</b>까지 훑어 핸들러를
-	 * 고르므로, 저장소 안쪽에서 난 IAE(예: DB 값이 enum 에 없다)가 400 으로 둔갑해 진짜 서버 결함이 "요청이
-	 * 틀렸다" 로 보인다. 이 묶음을 만들다 실제로 그렇게 한 번 속았다. 요청 모양의 문제는 위 두 예외로 충분하다.
+	 * {@code IllegalArgumentException} 을 여기 넣지 않는다. 스프링은 예외의 원인 사슬까지 훑어 핸들러를 고르므로,
+	 * 저장소 안쪽에서 난 IAE(예: DB 값이 enum 에 없다)가 400 으로 둔갑해 진짜 서버 결함이 「요청이 틀렸다」로 보인다.
 	 */
 	@ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class })
 	public ResponseEntity<ApiResponse<Void>> handleBadInput(Exception e) {

@@ -22,8 +22,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * S15P21E201-945 — {@code upload} 는 {@code @Transactional} 없이 도므로, DB 저장 실패 시 이미
- * 올라간 파일이 고아로 남지 않도록 직접 보상 삭제를 하는지 확인한다.
+ * {@code upload} 는 {@code @Transactional} 없이 돈다. DB 저장이 실패하면 이미 올라간 파일을
+ * 직접 지워야 고아가 안 남는다.
  */
 class ImageUploadServiceTest {
 

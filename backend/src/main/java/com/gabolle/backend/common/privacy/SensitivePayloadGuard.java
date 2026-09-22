@@ -11,16 +11,10 @@ import org.springframework.stereotype.Component;
 
 /**
  * 일반 추천 로그(Job · Candidate · Outbox 의 JSONB)에 개인정보가 섞이는 것을 저장 직전에 막는다.
+ * 민감 제약은 값이 아니라 코드나 스냅샷 ID 로만 연결한다.
  *
- * <p>막는 것은 다음이다 — 실명, 이메일, 전화번호, 알레르기 자유 입력 원문, 연속 GPS 궤적,
- * 정확한 현재 위치 좌표, 광고 ID, 외부 지도 API 원본 응답.
- *
- * <p>민감 제약은 값이 아니라 <b>코드나 스냅샷 ID</b>로만 연결한다. 예를 들어 "땅콩 알레르기"
- * 라는 사용자 입력 원문 대신 제약 코드와 {@code constraint_snapshot_id} 만 남긴다.
- *
- * <p>🔴 이 검사는 완전하지 않다. 뻔한 키 이름과 뻔한 형식만 잡는다 — 예를 들어
- * {@code {"a": 35.1796}} 처럼 이름도 형식도 평범한 좌표 한 개는 못 잡는다. 그래서 이것은
- * 최후의 그물이지 설계 대체물이 아니다. 무엇을 담을지는 부르는 쪽이 여전히 정해야 한다.
+ * <p>뻔한 키 이름과 뻔한 형식만 잡으므로 완전하지 않다 — 이름도 형식도 평범한 좌표 한 개는
+ * 못 잡는다. 최후의 그물이지 설계 대체물이 아니다.
  */
 @Component
 public class SensitivePayloadGuard {
@@ -32,11 +26,8 @@ public class SensitivePayloadGuard {
 			"phone", "phone_number", "mobile", "tel", "telephone",
 			"address", "road_address", "jibun_address", "detail_address",
 			"lat", "lon", "lng", "latitude", "longitude", "location", "current_location",
-			// 🔴 2026-09-03 추가 (S15P21E201-546) — 위의 "lat" 은 완전일치라서 currentLat 을
-			//    못 잡고, 조각 목록의 "latitude" 도 currentlat 과 안 맞는다. 즉 API 명세가
-			//    실제로 쓰는 이름(REC-01 context.currentLat/currentLng)이 그대로 통과했다.
-			//    조각에 "lat" 을 넣는 것은 안 된다 — translate · latency · plate 가 걸린다.
-			//    그래서 실제로 쓰이는 이름만 완전일치로 더한다.
+			// 조각 목록에 "lat" 을 넣으면 translate · latency · plate 가 걸린다.
+			// 그래서 실제로 쓰이는 이름만 완전일치로 더한다.
 			"currentlat", "currentlng", "currentlon", "current_lat", "current_lng", "current_lon",
 			"originlat", "originlng", "origin_lat", "origin_lng",
 			"pickuplat", "pickuplng", "pickup_lat", "pickup_lng",
@@ -62,11 +53,7 @@ public class SensitivePayloadGuard {
 	/** 중첩이 이보다 깊으면 로그 페이로드로서 이미 잘못됐다. 무한 재귀도 함께 막는다. */
 	private static final int MAX_DEPTH = 12;
 
-	/**
-	 * @param root 검사할 JSON 트리 (Map · Collection · 스칼라)
-	 * @param rootPath 오류 메시지에 쓸 이름. 예: {@code feature_values}
-	 * @throws SensitiveDataInPayloadException 넣으면 안 되는 값이 하나라도 있을 때
-	 */
+	/** {@code rootPath} 는 오류 메시지에 쓸 이름이다. 예: {@code feature_values} */
 	public void verify(Object root, String rootPath) {
 		walk(root, rootPath, 0);
 	}
@@ -96,7 +83,7 @@ public class SensitivePayloadGuard {
 			return;
 		}
 		if (node.getClass().isArray()) {
-			// Array.get 을 쓰는 이유: double[] 같은 원시 타입 배열은 Object[] 로 캐스팅되지 않는다.
+			// double[] 같은 원시 타입 배열은 Object[] 로 캐스팅되지 않아 Array.get 을 쓴다.
 			int length = Array.getLength(node);
 			for (int i = 0; i < length; i++) {
 				walk(Array.get(node, i), path + "[" + i + "]", depth + 1);

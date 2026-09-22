@@ -2,6 +2,7 @@ package com.gabolle.backend.recommendation.adapter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
+import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
@@ -34,17 +36,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 🔴 <b>후보를 자르는 자리가 채점 <u>뒤</u>인가</b> — S15P21E201-724.
+ * 후보를 자르는 자리가 채점 뒤인가를 본다. {@code candidateLimit} 이 장소 조회로 그대로
+ * 넘어가면 그 조회는 점수를 모르므로 거리순으로 잘라, 상한이 "가까운 순 N곳만 채점 대상" 이
+ * 된다. 그러면 멀지만 취향에 맞는 장소는 점수를 매길 기회조차 없다.
  *
- * <p>고치기 전에는 {@code candidateLimit} 이 장소 조회로 그대로 넘어갔다. 그 조회는 점수를
- * 모르므로 <b>거리순</b>으로 잘랐고, 그래서 그 상한은 "채점 후 상위 200" 이 아니라 <b>"가까운 순
- * 200곳만 채점 대상"</b> 이라는 뜻이었다. 부산 반경 5km 안에는 음식점만 평균 9,422곳이 있어서
- * 실효 반경이 중앙값 <b>304m</b> 였다 — 그 밖의 장소는 아무리 취향에 맞아도 점수를 매길 기회조차
- * 없었다. 서로 다른 네 조건으로 재도 "후보 200 안에 든 정답" 비율이 0.26% 로 소수점까지 같았던
- * 것이 그 증거다 (S15P21E201-713 실측).
- *
- * <p>그래서 여기서 재는 것은 점수 계산이 아니라 <b>순서</b>다 — 조회에 무엇을 요구하는가,
- * 그리고 자르기가 채점 앞인가 뒤인가.
+ * 그래서 재는 것은 점수 계산이 아니라 순서다 — 조회에 무엇을 요구하는가, 자르기가 채점
+ * 앞인가 뒤인가.
  */
 class BaselineRecommendationEngineCandidateCutTest {
 
@@ -70,9 +67,8 @@ class BaselineRecommendationEngineCandidateCutTest {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	/**
-	 * 🔴 대역을 미리 만들어 둔다. {@code when(...)} 안에서 또 {@code when(...)} 을 부르면
-	 * Mockito 가 {@code UnfinishedStubbingException} 을 던진다 — 바깥 stub 이 아직 안 끝났는데
-	 * 안쪽이 끼어들기 때문이다.
+	 * 대역을 미리 만들어 둔다. {@code when(...)} 안에서 또 {@code when(...)} 을 부르면
+	 * Mockito 가 {@code UnfinishedStubbingException} 을 던진다.
 	 */
 	private final List<UserPlaceCodeMap> foodPreferenceCodeMap = List.of(codeMap("FOOD_PREFERENCE", "CUISINE_TAG"));
 
@@ -94,8 +90,8 @@ class BaselineRecommendationEngineCandidateCutTest {
 				new BaselineCandidateTranslator(PROPERTIES, this.codeMapRepository, this.objectMapper),
 				new BaselineCandidateScorer(this.objectMapper), PROPERTIES,
 				new PreferenceAlignmentWeights(null, null, null, null, null),
-				this.codeMapRepository, this.seedPlaceRepository, Optional.empty(),
-				// 🔴 벡터 빈이 없는 자리 — 채점이 벡터 없던 때와 완전히 같아야 한다 (S15P21E201-943)
+				this.codeMapRepository, this.seedPlaceRepository, mock(PlaceRepository.class), Optional.empty(),
+				// 벡터 빈이 없는 자리 — 채점이 벡터 없던 때와 완전히 같아야 한다
 				emptyProvider(), emptyProvider());
 	}
 
@@ -112,7 +108,7 @@ class BaselineRecommendationEngineCandidateCutTest {
 	@DisplayName("🔴 장소 조회에는 남길 수(10)가 아니라 채점 대상 상한(20000)을 요구한다")
 	void 조회에는_채점대상_상한을_요구한다() {
 		// 후보 하나를 넣어 준다. 재는 것은 조회에 넘어간 상한이지 결과가 아닌데, 빈 응답은
-		// S15P21E201-827 이후 "고른 갈래에 맞는 곳이 없다" 는 예외가 되어 여기까지 못 온다.
+		// "고른 갈래에 맞는 곳이 없다" 는 예외가 되어 여기까지 못 온다.
 		when(this.queryService.findCandidates(any())).thenReturn(response(List.of(
 				new PlaceCandidateResponse.Candidate(new UUID(3L, 1L), "아무 곳", "FOOD", 35.15, 129.05, 100L,
 						List.of()))));
@@ -129,7 +125,7 @@ class BaselineRecommendationEngineCandidateCutTest {
 	@DisplayName("🔴 가장 먼 곳이라도 취향에 맞으면 남는다 — 거리로 먼저 자르면 이 장소는 채점조차 안 된다")
 	void 멀지만_취향에_맞는_곳이_살아남는다() {
 		// 500곳. 가까운 순으로 1,000m 부터 1m 씩 멀어진다.
-		// 🔴 정답은 **가장 먼** 한 곳이고, 그 한 곳만 사용자가 고른 음식 태그를 갖는다.
+		// 정답은 가장 먼 한 곳이고, 그 한 곳만 사용자가 고른 음식 태그를 갖는다.
 		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>();
 		for (int i = 0; i < 500; i++) {
 			pool.add(new PlaceCandidateResponse.Candidate(new UUID(0L, i), "후보" + i, "FOOD",
@@ -204,5 +200,78 @@ class BaselineRecommendationEngineCandidateCutTest {
 				List.of(new PreferenceSnapshot.PreferenceAnswer(dimension, valueJson,
 						PreferenceSnapshot.AnswerStatus.SELECTED)),
 				PersonalizationScope.TRIP, List.of(), java.time.Instant.now());
+	}
+	// ── 갈래를 안 고른 사람에게 여행마다 다르게 (S15P21E201-1463) ──────────────
+
+	/** 같은 조건에서 tripId 만 바꿔 두 번 돌린다. */
+	private List<UUID> keptFor(String tripId, List<PlaceCandidateResponse.Candidate> pool) {
+		when(this.tripRepository.findById(tripId)).thenReturn(Optional.of(Trip.builder()
+				.tripId(tripId).createdBy(UUID.randomUUID().toString())
+				.startDate(LocalDate.of(2026, 10, 1)).finishDate(LocalDate.of(2026, 10, 3))
+				.originLat(35.15).originLng(129.05).partySize(2).timezone("Asia/Seoul")
+				.build()));
+		when(this.seedPlaceRepository.findByTripId(tripId)).thenReturn(List.of());
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+		EngineRequest req = new EngineRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.fromString(tripId), 1,
+				UUID.randomUUID(), null, null, null, 10);
+		return engine().generate(req).candidates().stream().map(EngineCandidate::placeId).toList();
+	}
+
+	private static List<PlaceCandidateResponse.Candidate> manyCandidates(int count) {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>();
+		for (int i = 0; i < count; i++) {
+			pool.add(new PlaceCandidateResponse.Candidate(new UUID(7L, i), "후보" + i, "FOOD",
+					35.15, 129.05, 100L + i, List.of()));
+		}
+		return pool;
+	}
+
+	@Test
+	@DisplayName("🔴 같은 여행은 두 번 돌려도 같은 곳이 나온다 — 난수를 쓰면 이게 깨진다")
+	void 같은_여행은_늘_같다() {
+		String tripId = new UUID(9L, 1L).toString();
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		assertThat(keptFor(tripId, pool)).isEqualTo(keptFor(tripId, pool));
+	}
+
+	@Test
+	@DisplayName("🔴 여행이 다르면 다른 곳이 나온다 — 갈래를 안 고른 사람에게도 개성이 생긴다")
+	void 여행마다_다르다() {
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		List<UUID> a = keptFor(new UUID(9L, 2L).toString(), pool);
+		List<UUID> b = keptFor(new UUID(9L, 3L).toString(), pool);
+
+		assertThat(a).isNotEqualTo(b);
+		assertThat(a).hasSize(KEEP);
+		assertThat(b).hasSize(KEEP);
+	}
+
+	@Test
+	@DisplayName("🔴 점수 맨 위쪽은 섞이지 않는다 — 가장 잘 맞는 곳을 다양성 때문에 잃지 않는다")
+	void 맨_위쪽은_지킨다() {
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		// 앞쪽 절반(반올림)은 어느 여행에서든 같아야 한다.
+		List<UUID> a = keptFor(new UUID(9L, 4L).toString(), pool);
+		List<UUID> b = keptFor(new UUID(9L, 5L).toString(), pool);
+		int anchor = Math.max(1, Math.round(KEEP * 0.5f));
+
+		assertThat(a.subList(0, anchor)).isEqualTo(b.subList(0, anchor));
+	}
+
+	@Test
+	@DisplayName("내보내는 순서는 점수 순이다 — 고르기만 섞고 순서는 안 섞는다")
+	void 순서는_점수_순이다() {
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		EngineRequest req = new EngineRequest(UUID.randomUUID(), UUID.randomUUID(),
+				UUID.fromString(TRIP_ID), 1, UUID.randomUUID(), null, null, null, 10);
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+		List<EngineCandidate> kept = engine().generate(req).candidates();
+
+		List<Double> scores = kept.stream().map(EngineCandidate::preRankScore).toList();
+		assertThat(scores).isSortedAccordingTo(Comparator.<Double>reverseOrder());
 	}
 }

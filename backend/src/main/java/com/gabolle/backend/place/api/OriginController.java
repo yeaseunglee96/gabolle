@@ -12,9 +12,9 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.place.service.OriginSearchService;
 
 /**
- * 출발지 검색 API (S15P21E201-434). {@code GET /api/v1/origins?query=서면역&limit=10}.
+ * 출발지 검색 API. {@code GET /api/v1/origins?query=서면역&limit=10}.
  *
- * <p>🔴 대체 목록이 {@code PlaceRepository} 를 쓰므로 {@code no-db} 프로필에서는 뜰 수 없다 —
+ * <p>대체 목록이 {@code PlaceRepository} 를 쓰므로 {@code no-db} 프로필에서는 뜰 수 없다 —
  * {@code OriginSearchService} 와 같은 프로필({@code db}, {@code dev})만 연다.
  */
 @RestController

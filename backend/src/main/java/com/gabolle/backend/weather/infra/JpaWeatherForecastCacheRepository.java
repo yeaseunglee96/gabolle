@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import com.gabolle.backend.weather.domain.WeatherForecastCacheRepository;
 
-/** {@link WeatherForecastCacheRepository} 의 JPA 구현 — S15P21E201-366. */
 @Repository
 @Profile({ "db", "dev" })
 public class JpaWeatherForecastCacheRepository implements WeatherForecastCacheRepository {

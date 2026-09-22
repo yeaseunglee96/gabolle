@@ -18,11 +18,8 @@ import jakarta.persistence.Table;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 
 /**
- * {@code itinerary_item} 표 매핑 — S15P21E201-604.
- *
- * <p>🔴 {@code reasonCodes}·{@code warningCodes} 는 {@code @JdbcTypeCode(SqlTypes.ARRAY)} 로
- * 매핑한다 — {@code recommendation.domain.RecommendationCandidate} 의 {@code reasonCodes} 와
- * 같은 방식이다.
+ * {@code itinerary_item} 표 매핑.
+ * {@code reasonCodes}·{@code warningCodes} 는 {@code @JdbcTypeCode(SqlTypes.ARRAY)} 로 매핑한다.
  */
 @Entity
 @Table(name = "itinerary_item")

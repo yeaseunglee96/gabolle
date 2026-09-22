@@ -21,20 +21,11 @@ import com.gabolle.backend.place.support.PlaceFixture;
 import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
 /**
- * 근처 조회를 갈래와 반경으로 좁히는 길 (S15P21E201-469 · -473).
+ * 근처 조회를 갈래({@link InterestTagCode})와 반경으로 좁히는 길. 갈래로 실제로 좁혀지는가,
+ * 모르는 갈래를 조용히 넘기지 않는가, 목적과 갈래를 함께 보내면 거부하는가, 호출자가 반경을
+ * 정했을 때 그 반경과 두 배까지만 찾는가를 고정한다.
  *
- * <h2>🔴 왜 이 테스트가 필요한가</h2>
- * 이 엔드포인트는 원래 {@code purpose} 로만 좁힐 수 있었고, 그 목적 목록
- * ({@code gabolle.place.purposes})이 <b>비어 있다.</b> 그래서 "근처 기념품샵" 화면은 API 가
- * 있어도 기념품샵으로 좁힐 수 없었다 — 설정을 채우기 전까지 구조적으로 불가능했다. 여덟 갈래
- * ({@link InterestTagCode})를 {@code facetKey} 로 직접 받는 길이 그 자리를 연다.
- *
- * <p>여기서 고정하는 계약이 넷이다. 갈래로 실제로 좁혀지는가, 모르는 갈래를 조용히 넘기지 않는가,
- * 목적과 갈래를 함께 보내면 거부하는가, 그리고 호출자가 반경을 정했을 때 <b>그 반경과 두 배까지만</b>
- * 찾는가.
- *
- * <p>{@code ZZT_} 접두사가 붙은 목적은 이 저장소의 다른 테스트가 쓰는 방식이다 — 실제 설정과
- * 겹치지 않는 이름이라는 표시다.
+ * <p>{@code ZZT_} 접두사는 실제 설정과 겹치지 않는 테스트 전용 이름이라는 표시다.
  */
 @TestPropertySource(properties = {
 		"gabolle.place.purposes[ZZT_ANY].categories[0]=ZZT_ANY_CATEGORY"

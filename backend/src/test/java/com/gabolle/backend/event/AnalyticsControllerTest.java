@@ -23,16 +23,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * S15P21E201-160 — {@code GET /api/v1/admin/analytics/kpis} 의 표현 계층.
+ * {@code GET /api/v1/admin/analytics/kpis} 의 표현 계층. DB 없이 돌고
+ * {@link AnalyticsQueryService} 는 mock 이다.
  *
- * <p>DB 없이 도는 슬라이스 테스트다 — {@link AnalyticsQueryService} 를 mock 으로 세운다
- * ({@code RecommendationResultAuthorizationTest} 와 같은 방식).
- *
- * <p>🔴 <b>이 검사는 운영자 잠금을 재지 않는다.</b> 여기는 {@code standaloneSetup} 이라
- * {@code SecurityConfig} 가 없고, 따라서 {@code /api/v1/admin/**} 규칙도 없다 — 이 파일이
- * 초록인 것은 "아무나 못 부른다" 의 근거가 <b>아니다</b>. 그 잠금은 경로 앞자리 하나가
- * 전부이고, 그것이 지켜지는지는 {@code RouteAuthorizationRegistryTest} 의
- * "운영자 경로가 모두 /api/v1/admin/ 아래에 있다" 가 잰다 (-1010).
+ * <p>운영자 잠금은 여기서 재지 않는다. {@code standaloneSetup} 이라 {@code SecurityConfig}
+ * 가 없어 {@code /api/v1/admin/**} 규칙이 적용되지 않는다 — 그 잠금은
+ * {@code RouteAuthorizationRegistryTest} 가 잰다.
  */
 class AnalyticsControllerTest {
 

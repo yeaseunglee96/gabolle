@@ -10,14 +10,9 @@ import tools.jackson.databind.ObjectMapper;
 
 /**
  * TAGO {@code getCrdntPrxmtSttnList}(좌표기반근접정류소목록조회) 응답 원문(JSON)을
- * {@link NearbyBusStop} 목록으로 바꾼다 — S15P21E201-988.
- *
- * <p>🔴 공공데이터포털은 HTTP 200이어도 {@code header.resultCode}가 {@code "00"}이 아니면
- * 실패다({@code KmaForecastJsonParser}와 같은 이유로 반드시 확인한다).
- *
- * <p>🔴 근처에 정류소가 하나도 없는 것은 <b>실패가 아니다</b> — {@code item}이 아예 없으면
- * 빈 목록을 돌려준다. 또한 공공데이터포털 XML→JSON 변환은 결과가 정확히 하나면 {@code item}을
- * 배열이 아니라 객체 하나로 준다 — 배열·단일 객체 둘 다 받는다.
+ * {@link NearbyBusStop} 목록으로 바꾼다.
+ * 공공데이터포털은 HTTP 200이어도 {@code header.resultCode}가 {@code "00"}이 아니면 실패다.
+ * 근처에 정류소가 하나도 없는 것은 실패가 아니라 빈 목록이다.
  */
 final class TagoNearbyStopsJsonParser {
 

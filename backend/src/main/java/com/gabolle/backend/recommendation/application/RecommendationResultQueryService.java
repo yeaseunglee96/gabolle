@@ -33,21 +33,18 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Job 하나가 만든 추천 결과를 읽는 자리 — S15P21E201-604.
- * {@code RecommendationResultController} 가 부른다.
+ * Job 하나가 만든 추천 결과를 읽는 자리. {@code RecommendationResultController} 가 부른다.
  *
- * <p>🔴 {@code @Profile({"db","dev"})} · {@code @ConditionalOnBean(RecommendationJobRunner.class)} —
- * {@code RecommendationJobController} 와 같은 이유다. {@code RecommendationSliceApplication}
- * (추천 도메인만 스캔)은 {@code place} 패키지를 스캔하지 않아 {@link PlaceRepository} 빈이
- * 없다. 조건 없이 이 빈을 만들면 그 슬라이스의 컨텍스트 로딩 자체가 깨진다 — 컨트롤러가
- * 없어도 서비스 빈은 컴포넌트 스캔에 걸리는 즉시 만들어지려 하기 때문이다.
+ * 프로필과 {@code @ConditionalOnBean} 을 단 것은 추천 도메인만 스캔하는 슬라이스에는
+ * {@link PlaceRepository} 빈이 없기 때문이다 — 조건 없이 두면 컨트롤러를 안 띄워도 이 빈이
+ * 만들어지려 해 그 컨텍스트 로딩이 깨진다.
  */
 @Service
 @Profile({ "db", "dev" })
 @ConditionalOnBean(RecommendationJobRunner.class)
 public class RecommendationResultQueryService {
 
-	/** 구간화 경계 — 티켓 본문이 준 값 그대로다. */
+	/** 혼잡도 구간화 경계. */
 	private static final double CROWD_LEVEL_LOW_MAX = 0.34;
 	private static final double CROWD_LEVEL_MEDIUM_MAX = 0.67;
 
@@ -87,12 +84,9 @@ public class RecommendationResultQueryService {
 		String itineraryId = (job.getItineraryId() != null) ? job.getItineraryId().toString() : null;
 
 		if (jobStatus != JobStatus.SUCCEEDED) {
-			// FAILED · EXPIRED · CANCELLED — 셋 다 "결과가 없다"는 같은 사실을 나타내므로
-			// 응답에서는 FAILED 하나로 뭉뚱그린다(GB-API-001 명세가 이 응답에 대해 EXPIRED·
-			// CANCELLED 를 따로 두지 않는다).
-			//
-			// 🔴 errorCode 는 markFailed 로만 채워진다 — EXPIRED·CANCELLED 는 그 경로를 타지
-			// 않아 늘 null 이다. 그래서 실제 JobStatus.FAILED 일 때만 errorMessage 를 채운다.
+			// FAILED · EXPIRED · CANCELLED 는 셋 다 "결과가 없다" 는 같은 사실이라 응답에서는
+			// FAILED 하나로 뭉뚱그린다. errorCode 는 markFailed 로만 채워져 EXPIRED·CANCELLED
+			// 에서는 늘 null 이므로, 실제 JobStatus.FAILED 일 때만 errorMessage 를 채운다.
 			String errorMessage = (jobStatus == JobStatus.FAILED) ? job.getErrorCode() : null;
 			return new RecommendationResultResponse(
 					"FAILED", List.of(), itineraryId, job.getFallbackMode(), List.of(), errorMessage,
@@ -145,18 +139,16 @@ public class RecommendationResultQueryService {
 	}
 
 	/**
-	 * 이 작업이 어느 여행의 것인가 — S15P21E201-1084.
-	 *
-	 * <p>여행에 매이지 않은 작업이면 {@code null} 이다. 빈 문자열이나 지어낸 값을 넣지 않는다 —
-	 * 앱이 그 값으로 주소를 만들기 때문에, 없는 것을 있는 것처럼 주면 앱이 없는 여행을 부른다.
+	 * 여행에 매이지 않은 작업이면 {@code null} 이다. 빈 문자열이나 지어낸 값을 넣지 않는다 —
+	 * 앱이 이 값으로 주소를 만들기 때문에 없는 여행을 부르게 된다.
 	 */
 	private String tripId(RecommendationJob job) {
 		return (job.getTripId() != null) ? job.getTripId().toString() : null;
 	}
 
 	/**
-	 * 최신 판의 구간(leg) {@code duration_min} 합. 일정이 없거나(itineraryId == null) 구간이
-	 * 하나도 값을 갖지 않으면 {@code null} — 클래스 상단 참고("적어도 이만큼").
+	 * 최신 판의 구간(leg) {@code duration_min} 합. 일정이 없거나 구간이 하나도 값을 갖지
+	 * 않으면 {@code null} 이고, 일부만 값이 있으면 그 값들의 합이라 "적어도 이만큼" 이다.
 	 */
 	private Integer estimatedTravelMinutes(String itineraryId) {
 		if (itineraryId == null) {
@@ -180,14 +172,10 @@ public class RecommendationResultQueryService {
 	}
 
 	/**
-	 * 🔴 {@code recommendation_candidate} 표에는 "이 항목의 데이터를 얼마나 믿을 수 있는가"를
-	 * 직접 나타내는 칸이 없다. 가장 가까운 기존 값은 {@link ConstraintVerdict} 다 — {@code PASS}
-	 * 는 하드 제약 판정에 필요한 사실을 전부 확인했다는 뜻이고, {@code UNKNOWN} 은 그 사실 중
-	 * 일부를 확인하지 못했다는 뜻이라 이 필드가 뜻하는 방향과 같다. 그래서 다시 계산하지 않고
-	 * 이미 있는 이 값을 그대로 옮긴다. {@code FAIL} 은 반환되는 후보에는 나타나지 않는다
-	 * ({@code RecommendationCandidate.validateInvariants} 가 보장) — 그래도 방어적으로
-	 * {@code UNKNOWN} 을 준다. {@code ESTIMATED} 로 갈 수 있는 기존 값은 없어서 이 메서드는
-	 * 그 값을 만들어내지 않는다.
+	 * 데이터 신뢰도를 직접 나타내는 칸이 없어 {@link ConstraintVerdict} 를 그대로 옮긴다 —
+	 * {@code PASS} 는 판정에 필요한 사실을 전부 확인했다는 뜻이고 {@code UNKNOWN} 은 일부를
+	 * 확인하지 못했다는 뜻이다. {@code FAIL} 은 반환되는 후보에 나타나지 않지만 방어적으로
+	 * {@code UNKNOWN} 을 준다. {@code ESTIMATED} 로 갈 수 있는 값은 없어 만들지 않는다.
 	 */
 	private static String mapDataStatus(ConstraintVerdict verdict) {
 		return switch (verdict) {

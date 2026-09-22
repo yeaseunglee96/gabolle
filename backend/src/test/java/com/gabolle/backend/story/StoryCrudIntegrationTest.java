@@ -41,17 +41,10 @@ import com.gabolle.backend.story.presentation.StoryExceptionHandler;
 import com.gabolle.backend.story.presentation.UserSocialController;
 import com.gabolle.testslice.StorySliceApplication;
 
-/**
- * S15P21E201-207 · -221 · -226 — 기록 작성·조회·수정·삭제가 실제 PostgreSQL 에서 약속을 지키는지 본다.
- *
- * <p>티켓의 완료 기준 그대로 — 저장 뒤 DB 에 좌표가 없고 지역만 있다, 공개 시점을 안 보내면 여행 종료
- * 이후 시각이 들어간다, 사진 칸에 주소 문자열이 들어 있고 사진 데이터가 아니다, 남의 기록 수정은 거절,
- * 나만 보기 기록을 남이 조회하면 404, 기록을 지운 뒤 사진 주소를 열면 사진이 없다.
- */
+/** 기록 작성·조회·수정·삭제를 실제 PostgreSQL 에서 본다. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
-		// 🔴 validate — 운영(application-dev.properties)이 validate 로 뜬다. 엔티티와 표가 어긋나면 운영 기동이
-		//    실패해 502 가 된다(INC-DEPLOY-001). 그 검사를 배포가 아니라 여기서 먼저 한다(DEC-TEST-001).
+		// 운영도 validate 로 뜬다. 엔티티와 표가 어긋나면 운영 기동이 실패하므로 그 검사를 여기서 먼저 한다.
 		"spring.jpa.hibernate.ddl-auto=validate",
 		"spring.flyway.enabled=true"
 })
@@ -194,12 +187,7 @@ class StoryCrudIntegrationTest {
 		assertThat(stories).isEqualTo(1);
 	}
 
-	/**
-	 * 🔴 티켓 완료 기준 — 나만 보기 기록의 주소로 남이 조회하면 <b>찾을 수 없음</b>이 돌아온다. 권한 없음(403)으로
-	 * 답하면 존재 사실을 알려 주는 셈이다. 공개 전 기록도 남에게는 없는 기록이다.
-	 *
-	 * <p>부수기: {@code StoryService.requireVisible} 에서 {@code canView} 검사를 빼면 여기서 200 이 나와 빨개진다.
-	 */
+	/** 403 이 아니라 404 인 것이 핵심이다. 403 으로 답하면 기록이 있다는 사실을 알려 주는 셈이다. */
 	@Test
 	@DisplayName("🔴 나만 보기·팔로워 전용·공개 전 기록은 남에게 404 이고, 작성자와 팔로워에게만 보인다")
 	void visibilityRulesOnGet() throws Exception {
@@ -257,10 +245,7 @@ class StoryCrudIntegrationTest {
 				.isEqualTo("고친 글");
 	}
 
-	/**
-	 * 🔴 티켓 완료 기준 — 기록을 지운 뒤 그 사진 주소를 열면 사진이 없다. 기록은 행이 남되 deleted_at 이 찍히고,
-	 * 피드와 상세 어디에서도 안 보인다.
-	 */
+	/** 기록 행은 남고 deleted_at 만 찍힌다. 지워지는 것은 저장소의 사진 파일 쪽이다. */
 	@Test
 	@DisplayName("🔴 지우면 204, 이후 404, 피드에서 사라지고, 저장소의 사진 파일도 함께 지워진다")
 	void deleteRemovesStoryAndStorageFiles() throws Exception {

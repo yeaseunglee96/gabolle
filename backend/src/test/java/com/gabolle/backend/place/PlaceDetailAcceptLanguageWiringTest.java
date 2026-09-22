@@ -23,21 +23,9 @@ import com.gabolle.backend.place.api.PlaceExceptionHandler;
 import com.gabolle.backend.place.service.PlaceDetailService;
 
 /**
- * {@code Accept-Language} 가 <b>HTTP 요청에서 서비스까지 실제로 전달되는지</b> 본다
- * (S15P21E201-430, 부분).
- *
- * <h2>🔴 왜 서비스 테스트만으로는 부족한가</h2>
- * 언어 선택 자체는 서비스 계층 테스트가 이미 잰다. 그런데 그 테스트들은 서비스를 <b>직접</b>
- * 부르기 때문에, 컨트롤러가 헤더를 안 받거나 받아서 안 넘기면 <b>전부 초록인 채로 기능이 죽어
- * 있다.</b> 실제로 이 묶음에서 그 상태로 한 바퀴 돌았다 — 서비스는 3인자 오버로드까지 준비돼
- * 있었는데 컨트롤러가 2인자로 부르고 있었다.
- *
- * <p>같은 종류를 오늘 한 번 더 겪었다. 소셜 가입 요청 본문의 필수 여부가 서비스 테스트로는
- * 전부 초록이었는데, HTTP 본문 경로를 지나지 않아 역직렬화 실패를 아무도 못 봤다
- * ({@code INC-AUTH-008}). <b>계약이 HTTP 층에 있으면 테스트도 HTTP 층을 지나야 한다.</b>
- *
- * <p>그래서 뒤에 붙은 {@code itineraryId} 질의 파라미터(S15P21E201-476)의 배선도 여기서 본다 —
- * 헤더든 질의 파라미터든 같은 종류의 배선이고, 같은 방식으로 조용히 끊긴다.
+ * {@code Accept-Language} 헤더와 {@code itineraryId} 질의 파라미터가 HTTP 요청에서 서비스까지
+ * 실제로 전달되는지 본다. 언어 선택과 포함 여부 판정 자체는 서비스 계층 테스트가 재지만,
+ * 그쪽은 서비스를 직접 부르므로 컨트롤러가 값을 안 받거나 받아서 안 넘겨도 전부 초록이다.
  */
 class PlaceDetailAcceptLanguageWiringTest {
 
@@ -76,12 +64,6 @@ class PlaceDetailAcceptLanguageWiringTest {
 		verify(this.placeDetailService).get(eq(this.placeId), any(), eq(null), eq(null));
 	}
 
-	/**
-	 * 위 두 테스트와 같은 이유로 HTTP 층을 지난다 (S15P21E201-476). 포함 여부 판정은 서비스·포트
-	 * 테스트가 이미 재지만, 컨트롤러가 질의 파라미터를 안 받거나 받아서 안 넘기면 그 테스트들이
-	 * 전부 초록인 채로 기능이 죽는다 — 그리고 그 죽음은 언제나 {@code UNAVAILABLE} 로 나가서
-	 * "아직 못 만든 것" 과 구분되지 않는다.
-	 */
 	@Test
 	@DisplayName("itineraryId 질의 파라미터가 서비스까지 그대로 전달된다")
 	void itineraryIdParameterReachesTheService() throws Exception {

@@ -11,11 +11,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 갈래 열람 기록이 두 갈래로 만들어진다 — S15P21E201-894.
- *
- * <p>DB 없이 도는 검사다. 전역 열람이 생기면서 {@code tripId} 가 비어 있을 수 있게 됐는데, 그
- * 완화가 <b>여행 번호를 실수로 빠뜨린 호출</b>까지 통과시키면 집계에서 둘을 가를 수 없다. 그
- * 경계를 재는 자리다.
+ * 갈래 열람 기록이 두 갈래로 만들어진다. 전역 열람은 {@code tripId} 가 비어도 되지만, 그 완화가
+ * 여행 번호를 실수로 빠뜨린 호출까지 통과시키면 집계에서 둘을 가를 수 없다 — 그 경계를 잰다.
  */
 class PlaceFacetViewTest {
 

@@ -19,38 +19,18 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * 정규화한 영업시간 파일을 읽는다 — S15P21E201-852.
+ * 정규화한 영업시간 파일을 읽는다. 한 줄이 장소 하나다 — 수집본은 한 줄이 응답 하나였다.
  *
- * <p>입력은 {@code bigData/process/opening-hours.mjs} 의 출력이고 한 줄이 <b>장소 하나</b>다
- * (수집본은 한 줄이 응답 하나였다 — 그쪽과 다르다).
+ * <p>정규화기가 내는 네 가지 {@code status} 를 갈래 둘로 접는다. {@code PARSED} 와
+ * {@code ALWAYS_OPEN} 은 {@code OPENING_HOURS}, {@code LODGING} 은 {@code CHECK_IN_OUT},
+ * {@code UNKNOWN}("점포별 상이" 처럼 원문에 시각이 없는 것)은 안 넣는다.
  *
- * <pre>
- * {"contentid":"129156","contentTypeId":12,"status":"ALWAYS_OPEN","byDay":null,
- *  "seasonal":null,"closedDays":[],"notes":[],"raw":{…}}
- * </pre>
+ * <p>모름에는 행을 만들지 않는다. DB 도 그것을 강제한다
+ * ({@code ck_place_feature_unknown_has_no_value}). 행이 없으면 판정기가 "수집 안 했다" 로 답해
+ * 화면에 "위반 없음" 이 아니라 "확인 못 했음" 이 올라간다 — 값 없는 행을 만들면 그 구분이 사라진다.
  *
- * <h2>네 가지 {@code status} 를 셋으로 접는다</h2>
- * <table border="1">
- * <caption>정규화기가 내는 상태와 이 판독기의 처리</caption>
- * <tr><th>status</th><th>뜻</th><th>넣나</th></tr>
- * <tr><td>{@code PARSED}</td><td>요일별 구간을 읽었다</td><td>🟢 {@code OPENING_HOURS}</td></tr>
- * <tr><td>{@code ALWAYS_OPEN}</td><td>"상시 개방"·"연중무휴"</td><td>🟢 {@code OPENING_HOURS}</td></tr>
- * <tr><td>{@code LODGING}</td><td>숙박 — 체크인·체크아웃</td><td>🟢 {@code CHECK_IN_OUT}</td></tr>
- * <tr><td>{@code UNKNOWN}</td><td>"점포별 상이"·"전화문의 요망" 처럼 원문에 시각이 없다</td>
- *     <td>🔴 <b>안 넣는다</b></td></tr>
- * </table>
- *
- * <h2>🔴 모름에는 행을 만들지 않는다</h2>
- * 이 저장소의 규칙이고 DB 도 강제한다({@code ck_place_feature_unknown_has_no_value}). 행이
- * 없으면 판정기가 "수집 안 했다" 로 답하고 화면에는 <b>위반 없음이 아니라 "확인 못 했음"</b> 이
- * 올라간다 — 그 구분을 지키는 것이 이 값의 요점이다. 값 없는 행을 만들어 두면 그 구분이 사라진다.
- *
- * <p>실측(2026-09-11)에서 {@code UNKNOWN} 은 33곳이었다. 시각을 지어내 채우면 33곳이 "확인했고
- * 문제 없음" 으로 바뀐다.
- *
- * <h2>숙박은 시각이 둘 다 없으면 넘긴다</h2>
- * {@code LODGING} 인데 체크인·체크아웃이 둘 다 비어 있으면 담을 값이 없다. 껍데기만 든 행을
- * 넣으면 판정기가 값이 있는 줄 알고 읽는다.
+ * <p>{@code LODGING} 인데 체크인·체크아웃이 둘 다 비어 있는 줄도 넘긴다. 껍데기만 든 행을 넣으면
+ * 판정기가 값이 있는 줄 알고 읽는다.
  */
 public final class OpeningHoursReader {
 
@@ -69,22 +49,13 @@ public final class OpeningHoursReader {
 	private OpeningHoursReader() {
 	}
 
-	/**
-	 * @param rows   넣을 것
-	 * @param counts 무엇을 몇 개 버렸나
-	 */
 	public record Loaded(List<OpeningHoursRow> rows, Counts counts) {
 	}
 
 	/**
-	 * 🔴 버린 것을 갈라 센다. 숫자 하나로 합치면 파일이 낡은 것인지 규칙이 틀린 것인지
-	 * 구분할 수 없다.
-	 *
-	 * @param totalLines       읽은 줄
-	 * @param skippedUnknown   원문에 시각이 없어 넘긴 것
-	 * @param skippedBroken    JSON 이 깨졌거나 식별자가 없어 넘긴 것
-	 * @param skippedDuplicate 같은 식별자가 두 번 나와 넘긴 것
-	 * @param byType           넣을 것을 갈래별로
+	 * 버린 것을 갈라 센다 — 숫자 하나로 합치면 파일이 낡은 것인지 규칙이 틀린 것인지 구분할 수
+	 * 없다. {@code skippedUnknown} 은 원문에 시각이 없어 넘긴 것, {@code skippedBroken} 은 JSON
+	 * 이 깨졌거나 식별자가 없는 것이다.
 	 */
 	public record Counts(int totalLines, int skippedUnknown, int skippedBroken,
 			int skippedDuplicate, Map<String, Integer> byType) {
@@ -120,8 +91,8 @@ public final class OpeningHoursReader {
 					node = MAPPER.readTree(line);
 				}
 				catch (RuntimeException ex) {
-					// 한 줄이 깨져도 나머지는 넣는다. 다만 세어 올린다 — 조용히 줄어들면
-					// 적재가 성공한 것으로 보인다.
+					// 한 줄이 깨져도 나머지는 넣되 세어 올린다 — 조용히 줄어들면 적재가 성공한
+					// 것으로 보인다.
 					skippedBroken++;
 					continue;
 				}
@@ -175,8 +146,8 @@ public final class OpeningHoursReader {
 
 		ObjectNode value = MAPPER.createObjectNode();
 		value.put("status", status);
-		// 🔴 정규화기가 낸 칸을 그대로 옮긴다. byDay 가 비어 있고 seasonal 만 온 4곳도 넣는다 —
-		//    오늘을 판정할 수는 없지만 값을 버리면 절기 경계가 정해진 뒤에 되찾을 수 없다.
+		// 정규화기가 낸 칸을 그대로 옮긴다. byDay 가 비고 seasonal 만 온 줄도 넣는다 — 오늘을
+		// 판정할 수는 없지만 값을 버리면 절기 경계가 정해진 뒤에 되찾을 수 없다.
 		for (String field : new String[] { "byDay", "seasonal", "closedDays", "notes", "raw" }) {
 			copyIfPresent(node, value, field);
 		}

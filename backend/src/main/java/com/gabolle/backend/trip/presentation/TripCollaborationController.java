@@ -27,11 +27,10 @@ import com.gabolle.backend.trip.presentation.dto.TripMembersResponse;
 import jakarta.validation.Valid;
 
 /**
- * 동행자 초대·수락·참여자 관리 — S15P21E201-294 · -299 · -320.
+ * 동행자 초대·수락·참여자 관리.
  *
- * <p>🔴 {@link TripController} 를 넓히지 않고 새로 둔다. 이 다섯 경로는 "협업" 이라는 기능
- * 하나로 묶이고, 오류 번역도 {@code TripExceptionHandler} 가 아니라
- * {@link TripCollaborationExceptionHandler} 를 따로 쓴다.
+ * <p>{@link TripController} 와 갈라 둔다. 오류 번역이 컨트롤러 종류에 묶여 있어서, 합치면
+ * 이 경로들이 {@code TripExceptionHandler} 의 번역표를 쓰게 된다.
  */
 @RestController
 @Profile({ "db", "dev" })

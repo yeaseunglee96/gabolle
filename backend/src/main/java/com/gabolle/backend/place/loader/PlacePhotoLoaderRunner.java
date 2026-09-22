@@ -16,10 +16,9 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 사진 수집본을 읽어 이미 있는 장소에 붙인다 — S15P21E201-1006.
+ * 사진 수집본을 읽어 이미 있는 장소에 붙인다.
  *
- * <p>{@link OpeningHoursLoaderRunner} 와 같은 모양이다. 프로퍼티를 안 주면 이 빈이 만들어지지도
- * 않아 평소 기동에 아무 영향이 없다.
+ * <p>프로퍼티를 안 주면 이 빈이 만들어지지도 않아 평소 기동에 아무 영향이 없다.
  *
  * <pre>
  * java -jar gabolle-backend.jar \
@@ -27,13 +26,11 @@ import tools.jackson.databind.ObjectMapper;
  *   --gabolle.place.loader.photos=/data/festival-photos-busan.ndjson
  * </pre>
  *
- * <p>파일 이름은 여기서 정한 것이 아니다 — 데이터 파트의 수집기가
- * {@code bigData/data/staged/festival-photos-busan.ndjson} 으로 쓴다. 그 출력이 두 파트
- * 사이의 계약이라 이름도 그쪽이 정본이다.
+ * <p>파일 이름은 여기서 정한 것이 아니다. 데이터 파트 수집기의 출력이 두 파트 사이의 계약이라
+ * 이름도 그쪽이 정본이다.
  *
- * <p>🔴 <b>장소 적재를 먼저 돌려야 한다.</b> 사진은 장소에 붙는 값이라 장소 행이 없으면 붙을
- * 자리가 없다. 순서가 뒤집히면 <b>실패하지 않고</b> "붙일 장소 없어 넘김 35" 같은 숫자만
- * 남는다 — 그래서 그 수를 로그에 따로 찍는다.
+ * <p>장소 적재를 먼저 돌려야 한다. 순서가 뒤집히면 실패하지 않고 "붙일 장소 없어 넘김" 숫자만
+ * 남아, 그 수를 로그에 따로 찍는다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -69,8 +66,7 @@ public class PlacePhotoLoaderRunner implements ApplicationRunner {
 
 		LOGGER.info("사진 적재 끝 — 읽은 줄 {} · {}", rows.size(), result);
 		if (result.noPlace() > 0) {
-			// 🔴 이 줄이 뜨면 대개 장소 적재를 안 돌린 것이다. 조용히 넘어가면 "이 축제는
-			//    원래 사진이 없다" 로 오해하게 된다.
+			// 조용히 넘어가면 "이 축제는 원래 사진이 없다" 로 오해하게 된다.
 			LOGGER.warn("붙일 장소가 없어 넘긴 줄이 {} 개다 — 장소 적재(--gabolle.place.loader.tourapi)를 "
 					+ "먼저 돌렸는지 확인한다", result.noPlace());
 		}

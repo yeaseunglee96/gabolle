@@ -17,12 +17,8 @@ import com.gabolle.backend.functional.support.FunctionalJourneyTest;
 import com.jayway.jsonpath.JsonPath;
 
 /**
- * 화면을 거치지 않고 오는 요청도 서버가 같은 조건을 본다 — S15P21E201-440.
- *
- * <p>완료 기준이 <i>"화면을 거치지 않고"</i> 로 시작한다. 그래서 이 검사는 서비스 함수를 부르지
- * 않고 <b>실제 HTTP</b> 로 보낸다 — 화면이 하는 검사를 우회한 요청과 같은 모양이다. 규칙 자체의
- * 판정은 {@code TripConditionRulesTest} 가 재고, 여기서는 그 판정이 <b>400 과 항목 이름</b>으로
- * 실제로 나가는지만 본다.
+ * 화면을 거치지 않고 오는 요청도 서버가 같은 조건을 보는지 실제 HTTP 로 확인한다. 규칙 자체의 판정은
+ * {@code TripConditionRulesTest} 가 재고, 여기서는 그 판정이 400 과 항목 이름으로 나가는지만 본다.
  */
 class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 
@@ -101,8 +97,7 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 
 		ResponseEntity<String> response = post(authed, body);
 
-		// 2026-09-10 - 앱이 좌표를 실어 보내기 시작해(S15P21E201-791, !479) 이제 없으면
-		// 거부한다. 근거는 TripConditionRules 머리말에 있다.
+		// 좌표가 없으면 거부한다. 근거는 TripConditionRules 머리말에 있다.
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 		assertThat(fieldsOf(response)).anySatisfy((line) -> assertThat(line).contains("originLat"));
 	}
@@ -121,12 +116,8 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 	}
 
 	/**
-	 * 여러 항목이 어긋나면 응답이 그 전부를 담는가.
-	 *
-	 * <p>조합에 {@code partySize} 를 넣지 않았다. 그 칸은 요청을 받아들이는 자리의 기본 검증
-	 * ({@code @Min(1)})이 <b>더 앞에서</b> 잡아서, 그 요청은 여행 조건 재검증까지 오지 않는다.
-	 * 그래서 그 칸을 함께 어긋나게 하면 응답에는 그 하나만 담긴다 — 재검증이 여러 개를 모으는지를
-	 * 그 조합으로는 볼 수 없다.
+	 * 여러 항목이 어긋나면 응답이 그 전부를 담는가. 조합에 {@code partySize} 를 넣지 않는다 — 그 칸은
+	 * 기본 검증({@code @Min(1)})이 더 앞에서 잡아 여행 조건 재검증까지 오지 않는다.
 	 */
 	@Test
 	@DisplayName("여러 항목이 어긋나면 응답이 그 전부를 담는다")
@@ -135,7 +126,7 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 		Map<String, Object> body = validBody();
 		body.put("finishDate", LocalDate.now().plusDays(29).toString());
 		body.put("budgetKrw", 15_500);
-		// 좌표 위반도 같은 목록에 함께 담기는지 본다 - 2026-09-10 에 켠 규칙이다.
+		// 좌표 위반도 같은 목록에 함께 담기는지 본다.
 		body.put("originLat", null);
 		body.put("originLng", null);
 

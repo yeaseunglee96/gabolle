@@ -9,18 +9,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * {@code itinerary_item_actual} 표 매핑 — S15P21E201-293.
- *
- * <p>🔴 이 엔티티는 <b>읽기 전용</b>이다. 쓰기는
- * {@link JpaItineraryItemActualRepository} 의 {@code INSERT ... ON CONFLICT DO UPDATE}
- * 가 담당한다 — 같은 방문지에 두 번 보내는 것이 정상 경로라서(멱등한 덮어쓰기) "찾아서
- * 없으면 넣고 있으면 고친다" 로 하면 두 요청이 겹칠 때 UNIQUE 위반이 나고, PostgreSQL 은
- * 문장 하나가 실패하면 그 트랜잭션 전체를 못 쓰게 만든다({@link JpaItineraryRepository}
- * 클래스 주석의 실측).
- *
- * <p>{@link ItineraryExclusionJpaEntity} 와 달리 {@code updatable=false} 를 붙이지 않는다.
- * 그 표는 판마다 새 행을 쓰는 스냅샷이지만 이 표는 <b>같은 행을 고치는</b> 것이 기능이기
- * 때문이다 — 다만 그 갱신을 Hibernate 의 변경 감지가 아니라 위 SQL 이 한다.
+ * {@code itinerary_item_actual} 표 매핑.
+ * 이 엔티티는 읽기 전용이다. 쓰기는 {@link JpaItineraryItemActualRepository} 의
+ * {@code INSERT ... ON CONFLICT DO UPDATE} 가 담당한다 — 같은 방문지에 두 번 보내는 것이 정상
+ * 경로라서 "찾아서 없으면 넣고 있으면 고친다" 로 하면 두 요청이 겹칠 때 UNIQUE 위반이 나고,
+ * PostgreSQL 은 문장 하나가 실패하면 그 트랜잭션 전체를 못 쓰게 만든다.
+ * {@link ItineraryExclusionJpaEntity} 와 달리 {@code updatable=false} 를 붙이지 않는다. 그
+ * 표는 판마다 새 행을 쓰는 스냅샷이지만 이 표는 같은 행을 고치는 것이 기능이다 — 다만 그
+ * 갱신을 Hibernate 의 변경 감지가 아니라 위 SQL 이 한다.
  */
 @Entity
 @Table(name = "itinerary_item_actual")

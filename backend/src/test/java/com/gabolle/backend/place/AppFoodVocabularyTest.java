@@ -8,11 +8,9 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.place.loader.AppFoodVocabulary;
 
 /**
- * 적재가 붙이는 낱말이 <b>앱이 실제로 보내는 낱말</b>인지 본다 — S15P21E201-635.
- *
- * <p>🔴 채점기({@code BaselineCandidateScorer})는 앱이 보낸 코드와 {@code feature_key} 를
- * {@code contains} 로 <b>글자 그대로</b> 비교한다. 그래서 이 테스트가 확인하는 것은
- * "분류가 그럴듯한가" 가 아니라 <b>"앱의 여섯 낱말 밖으로 나가지 않는가"</b> 다.
+ * 채점기({@code BaselineCandidateScorer})가 앱이 보낸 코드와 {@code feature_key} 를
+ * {@code contains} 로 글자 그대로 비교하므로, 적재가 붙이는 낱말이 앱의 어휘 밖으로
+ * 나가면 아무것도 안 맞는다.
  */
 class AppFoodVocabularyTest {
 
@@ -37,11 +35,11 @@ class AppFoodVocabularyTest {
 	@DisplayName("🔴 돼지국밥은 소분류가 아니라 상호명으로 가른다 — 537곳이 백반/한정식에 있다")
 	void 돼지국밥은_상호명으로_가른다() {
 		assertThat(AppFoodVocabulary.cuisineTags("백반/한정식", "소문난돼지국밥")).containsExactly("PORK_SOUP");
-		// 🔴 백반/한정식 자체로는 안 붙는다. 10,640곳 중 돼지국밥집은 537곳뿐이다.
+		// 백반/한정식 10,640곳 중 돼지국밥집은 537곳뿐이다.
 		assertThat(AppFoodVocabulary.cuisineTags("백반/한정식", "어느 한정식")).isEmpty();
-		// 🔴 국/탕/찌개류 1,520곳 중 돼지국밥집은 5곳이다. 통째로 붙이면 거의 다 오답이다.
+		// 국/탕/찌개류 1,520곳 중 돼지국밥집은 5곳이다. 통째로 붙이면 거의 다 오답이다.
 		assertThat(AppFoodVocabulary.cuisineTags("국/탕/찌개류", "어느 김치찌개")).isEmpty();
-		// 🔴 "국밥" 으로 넓히지 않는다 — 순대국밥·소고기국밥이 섞인다.
+		// "국밥" 으로 넓히지 않는다 — 순대국밥·소고기국밥이 섞인다.
 		assertThat(AppFoodVocabulary.cuisineTags("백반/한정식", "병천순대국밥")).isEmpty();
 	}
 
@@ -49,9 +47,8 @@ class AppFoodVocabularyTest {
 	@DisplayName("🔴 밀면은 냉면과 한 소분류에 묶여 있어 상호명으로 가른다")
 	void 밀면은_상호명으로_가른다() {
 		assertThat(AppFoodVocabulary.cuisineTags("냉면/밀면", "부경밀면")).containsExactly("MILMYEON");
-		// 소분류가 달라도 이름이 말하면 붙는다 — 밀면집 389곳 중 89곳이 이 소분류 바깥에 있다.
+		// 밀면집 389곳 중 89곳이 이 소분류 바깥에 있어 이름으로도 붙인다.
 		assertThat(AppFoodVocabulary.cuisineTags("국수/칼국수", "만수르가야밀면")).containsExactly("MILMYEON");
-		// 같은 소분류의 냉면집에는 안 붙는다.
 		assertThat(AppFoodVocabulary.cuisineTags("냉면/밀면", "어느 평양냉면")).isEmpty();
 	}
 
@@ -61,16 +58,16 @@ class AppFoodVocabularyTest {
 		assertThat(AppFoodVocabulary.cuisineTags("카페", "어느 커피")).containsExactly("CAFE_DESSERT");
 		assertThat(AppFoodVocabulary.cuisineTags("빵/도넛", "어느 베이커리")).containsExactly("CAFE_DESSERT");
 		assertThat(AppFoodVocabulary.cuisineTags("아이스크림/빙수", "어느 빙수")).containsExactly("CAFE_DESSERT");
-		// 🔴 앉아서 쉬는 곳이 아니라 사 가는 떡집이다. "카페·디저트" 와 같은 것이라고 단정 못 한다.
+		// 앉아서 쉬는 곳이 아니라 사 가는 떡집이다.
 		assertThat(AppFoodVocabulary.cuisineTags("떡/한과", "어느 떡집")).isEmpty();
-		// 🔴 디저트가 아니라 가벼운 한 끼다.
+		// 디저트가 아니라 가벼운 한 끼다.
 		assertThat(AppFoodVocabulary.cuisineTags("토스트/샌드위치/샐러드", "어느 샌드위치")).isEmpty();
 	}
 
 	@Test
 	@DisplayName("🔴 시장 먹거리와 채식은 이 자료로 못 가른다 — 비워 둔다")
 	void 못_가르는_둘은_비운다() {
-		// 업종에 "시장 안에 있나" 칸이 없다. 채식은 소분류에 아예 없고 이름에 적은 집이 4곳이다.
+		// 업종에 "시장 안에 있나" 칸이 없고, 채식은 소분류에 아예 없다.
 		for (String sub : new String[] { "백반/한정식", "김밥/만두/분식", "그 외 기타 간이 음식점", "구내식당" }) {
 			assertThat(AppFoodVocabulary.cuisineTags(sub, "어느 가게"))
 					.doesNotContain("MARKET", "VEGETARIAN");
@@ -88,7 +85,7 @@ class AppFoodVocabularyTest {
 				"일식 카레/돈가스/덮밥", "아이스크림/빙수", "일식 면 요리", "뷔페", "파스타/스테이크",
 				"기타 일식 음식점", "기타 한식 음식점", "무도 유흥 주점", "전/부침개", "기타 서양식 음식점",
 				"복 요리 전문", "기타 동남아식 전문", "패밀리레스토랑", "분류 안된 외국식 음식점",
-				// 판이 바뀌어 처음 보는 값이 와도 마찬가지다.
+				// 처음 보는 값과 null 도 같이 넣는다.
 				"처음 보는 소분류", "", null };
 		for (String sub : subs) {
 			assertThat(AppFoodVocabulary.cuisineTags(sub, "어느돼지국밥밀면가게"))
@@ -102,7 +99,7 @@ class AppFoodVocabularyTest {
 	void 관심_태그() {
 		assertThat(AppFoodVocabulary.categoryTags("카페")).containsExactly("FOOD", "CAFE_HEALING");
 		assertThat(AppFoodVocabulary.categoryTags("횟집")).containsExactly("FOOD");
-		// 🔴 빵집은 안 넣는다 — 앉을 자리가 있는지 자료에 없다.
+		// 빵집은 앉을 자리가 있는지 자료에 없어 안 넣는다.
 		assertThat(AppFoodVocabulary.categoryTags("빵/도넛")).containsExactly("FOOD");
 	}
 
@@ -120,7 +117,6 @@ class AppFoodVocabularyTest {
 	void 둘_다_붙을_수_있다() {
 		assertThat(AppFoodVocabulary.cuisineTags("냉면/밀면", "돼지국밥밀면집"))
 				.containsExactlyInAnyOrder("PORK_SOUP", "MILMYEON");
-		// 소분류와 상호명이 서로 다른 것을 가리켜도 둘 다 사실일 수 있다.
 		assertThat(AppFoodVocabulary.cuisineTags("횟집", "해운대돼지국밥회센터"))
 				.containsExactlyInAnyOrder("SEAFOOD", "PORK_SOUP");
 	}

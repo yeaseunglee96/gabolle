@@ -11,12 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * {@code translation_cache} 표 매핑(V20260909120000) — S15P21E201-343.
- *
- * <p>🔴 원문은 여기 없다. {@code sourceHash} 는 {@code TranslationHash.of()} 가 만든 되돌릴 수
- * 없는 값이고, 저장하는 것은 번역 결과({@code targetText})뿐이다 — "번역한 문장을 데이터베이스에
- * 남기지 않는다" 는 요구가 <b>원문</b>에 대한 것이지 번역 결과에 대한 것이 아니기 때문에,
- * 캐시 히트를 위해 결과는 남긴다.
+ * {@code translation_cache} 표 매핑. 원문은 여기 없다 — {@code sourceHash} 는 되돌릴 수 없는 값이고,
+ * 저장하는 것은 번역 결과뿐이다.
  */
 @Entity
 @Table(name = "translation_cache")

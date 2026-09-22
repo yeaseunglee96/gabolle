@@ -30,29 +30,17 @@ import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 
 /**
- * 공유 일정 복제 — S15P21E201-338 (F-COL-04).
+ * 공유 일정 복제. 복사가 아니다 — 원본에서 장소 구성만 가져와 씨앗(trip_seed_place)으로
+ * 남기고, 요청자의 인원·예산·기간으로 여행을 새로 만들어 일정 생성 Job 을 접수한다.
  *
- * <p>4인 예산·3일로 짜인 일정을 혼자 2일 가는 사람이 그대로 받으면 예산도 동선도 시간표도 안 맞는다.
- * 그래서 복사가 아니다 — 원본에서 <b>장소 구성만</b> 가져와 씨앗({@code trip_seed_place})으로 남기고,
- * 요청자의 인원·예산·기간으로 여행을 새로 만들어 기존 일정 생성 Job(REC-01)을 그대로 접수한다.
- * 추천 엔진이 씨앗을 앞세운다({@code recommendation.adapter.SeedBoost}).
+ * 지키는 것 셋:
+ * 원본은 읽기만 한다.
+ * 새 여행 + 씨앗은 한 트랜잭션이다 — 씨앗 없이 여행만 남으면 복제가 아니라 보통 여행이 된다.
+ * Job 접수는 그 트랜잭션이 커밋된 뒤에 한다(RecommendationJobRunner 의 요구).
+ * 만료된 공유 주소로는 복제하지 않는다(410). 원본이 지워졌으면 404.
  *
- * <h2>🔴 지키는 것 셋</h2>
- * <ul>
- *   <li>원본은 읽기만 한다. 원본 여행·일정·판 어디에도 쓰지 않는다.</li>
- *   <li>새 여행 + 씨앗은 한 트랜잭션이다. 씨앗 없이 여행만 남으면 그건 복제가 아니라 보통 여행이라,
- *       반쪽만 남는 상태를 두지 않는다. Job 접수는 그 트랜잭션이 <b>커밋된 뒤</b>에 한다 —
- *       {@link RecommendationJobRunner} 가 "저장이 커밋된 뒤 비동기 실행" 을 요구하기 때문이다.</li>
- *   <li>만료된 공유 주소로는 복제하지 않는다(410). 원본이 지워졌으면 404.</li>
- * </ul>
- *
- * <h2>알려진 한계 — 제약을 하나도 답하지 않은 요청</h2>
- * 여행 생성은 제약이 비어 있으면 {@code constraint_snapshot} 을 만들지 않고, 그런 여행에는
- * {@link RecommendationJobRunner#enqueue} 가 {@link IllegalStateException} 으로 추천을 거절한다(그 클래스
- * 상단이 알려진 한계로 적어 둔 것). 앱의 여행 생성 본문이 {@code "constraints": []} 를 보내는 경우가
- * 있어(TripCreateAppPayloadIntegrationTest), 여기서는 여행과 씨앗은 만들고 Job 만 접수하지 못한 것을
- * {@link #WARNING_NO_CONSTRAINTS} 로 응답에 남긴다. 여행을 안 만들어 버리면 사용자는 "복제가 안 된다" 만
- * 보고 이유를 모른다.
+ * 제약을 하나도 답하지 않은 요청은 여행과 씨앗만 만들고 Job 은 접수하지 못한다 —
+ * 그때 WARNING_NO_CONSTRAINTS 를 응답에 남긴다. 여행까지 안 만들면 사용자가 이유를 모른다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -94,9 +82,8 @@ public class ShareCloneService {
 	}
 
 	/**
-	 * @param command 요청자의 조건. {@code command.userId()} 가 새 여행의 소유자다
-	 * @param idempotencyKey 여행 생성과 같은 {@code Idempotency-Key}. 재시도면 기존 여행을 돌려주고 Job 은
-	 *     다시 접수하지 않는다
+	 * command.userId() 가 새 여행의 소유자다. idempotencyKey 재시도면 기존 여행을 돌려주고
+	 * Job 은 다시 접수하지 않는다.
 	 */
 	public Result clone(String token, TripCreationService.Command command, String idempotencyKey) {
 		Instant now = this.clock.instant();
@@ -116,7 +103,7 @@ public class ShareCloneService {
 			throw new SharedItineraryEmptyException(sourceTripId);
 		}
 
-		// 🔴 새 여행 + 씨앗을 한 트랜잭션으로. 멱등 재시도(created=false)면 씨앗은 이미 있다.
+		// 새 여행 + 씨앗을 한 트랜잭션으로. 멱등 재시도(created=false)면 씨앗은 이미 있다.
 		TripCreationService.Result result = this.transaction.execute(status -> {
 			TripCreationService.Result r = this.tripCreationService.create(command, idempotencyKey);
 			if (r.created()) {
@@ -140,7 +127,7 @@ public class ShareCloneService {
 				job = this.jobRunner.enqueue(result.trip().tripId(), command.userId(), null, null);
 			}
 			catch (IllegalStateException e) {
-				// 제약을 하나도 답하지 않은 요청 — 클래스 상단 "알려진 한계". 여행은 이미 커밋됐다.
+				// 제약을 하나도 답하지 않은 요청이다. 여행은 이미 커밋됐다.
 				warnings.add(WARNING_NO_CONSTRAINTS);
 			}
 		}

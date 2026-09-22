@@ -31,13 +31,9 @@ import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.testslice.TripSliceApplication;
 
 /**
- * 여행·멤버·취향 스냅샷·제약·멱등 키가 실제 PostgreSQL 에 저장·복원되는지 —
- * S15P21E201-461.
- *
- * 2026-09-04 — 고지혁 님이 운영에서 preference_answer=0 · constraint_answer=0 을
- * 실측해 찾은 유실을 고친 뒤 범위를 넓혔다. H2 가 아니라 진짜 PostgreSQL 을 쓰는
- * 이유는 TIMESTAMPTZ·UUID·JSONB·CHECK 제약이 PostgreSQL 에서만 진짜로 검증되기
- * 때문이다.
+ * 여행·멤버·취향 스냅샷·제약·멱등 키가 실제 PostgreSQL 에 저장·복원되는지 본다.
+ * H2 가 아닌 이유는 TIMESTAMPTZ·UUID·JSONB·CHECK 제약이 PostgreSQL 에서만 진짜로
+ * 검증되기 때문이다.
  */
 @SpringBootTest(classes = TripSliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -136,10 +132,8 @@ class TripPersistenceIntegrationTest {
 		Trip trip = newTrip(tripId, now);
 		TripMember owner = TripMember.owner(UUID.randomUUID().toString(), tripId, userId, now);
 
-		// 🔴 dimension 은 ck_preference_answer_dimension 이 허용하는 8종 중 하나여야
-		//    한다 — "pace" 는 그 목록에 없어 CHECK 위반으로 CI 에서 걸렸다(도커 없는
-		//    로컬에서는 이 테스트가 스킵돼 못 잡았다). value 도 valid JSON 이어야
-		//    한다 — JSONB 컬럼은 따옴표 없는 문자열을 안 받는다.
+		// dimension 은 ck_preference_answer_dimension 이 허용하는 8종 중 하나여야 하고,
+		// value 는 JSONB 라 따옴표를 포함한 valid JSON 이어야 한다.
 		PreferenceSnapshot snapshot = new PreferenceSnapshot(
 				UUID.randomUUID().toString(), tripId, 1,
 				List.of(new PreferenceSnapshot.PreferenceAnswer(

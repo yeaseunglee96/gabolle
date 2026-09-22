@@ -15,8 +15,8 @@ import com.gabolle.testslice.AuthSliceApplication;
  * <p>{@link TestDatabase} 와 {@link PostgresAvailableCondition} 은 추천 쪽이 만든 것을 그대로 읽어
  * 쓴다. 같은 일을 하는 도구를 도메인마다 복사하면 한쪽만 고쳐진다.
  *
- * <p>🔴 {@code GABOLLE_JWT_SECRET} 자리를 채워야 한다. {@code AuthStartupValidator} 가 32자 미만이거나
- * 기본값이면 기동을 <b>일부러</b> 막는다. 여기 넣는 값은 테스트 전용이고 아무 데도 안 나간다.
+ * <p>{@code GABOLLE_JWT_SECRET} 자리를 채워야 한다. {@code AuthStartupValidator} 가 32자 미만이거나
+ * 기본값이면 기동을 일부러 막는다. 여기 넣는 값은 테스트 전용이다.
  *
  * <p>{@code ddl-auto} 는 {@code validate} 다. 장소 슬라이스와 같은 이유로, 엔티티가 실제 표와 어긋난
  * 것을 배포가 아니라 여기서 잡는다.

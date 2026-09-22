@@ -6,14 +6,10 @@ import java.nio.charset.StandardCharsets;
 import com.gabolle.backend.story.application.ImageUploadService;
 
 /**
- * 촬영 위치 정보(EXIF GPS)를 포함한 메타데이터를 제거한다 — 픽셀은 건드리지 않는다(재인코딩 없음,
- * 화질 손실 없음).
- *
- * <p>세 형식 모두 "형식을 이루는 최소 단위(세그먼트·청크)를 순서대로 읽다가 메타데이터를 담는
- * 종류만 건너뛰고 나머지는 그대로 옮긴다" 는 같은 전략이다. 픽셀 데이터 자체를 디코딩하지
- * 않으므로 화질이 전혀 바뀌지 않는다 — 그 대신 구조가 깨진 입력(길이가 파일 끝을 넘는 등)은
- * 안전하게 끝까지 읽을 수 없으므로 {@link ImageUploadService.UnsupportedImageException} 으로
- * 거부한다.
+ * 촬영 위치 정보(EXIF GPS)를 포함한 메타데이터를 제거한다. 세 형식 모두 세그먼트·청크를 순서대로
+ * 읽다가 메타데이터를 담는 종류만 건너뛰고 나머지는 그대로 옮기므로, 픽셀을 디코딩하지 않아 화질이
+ * 바뀌지 않는다. 그 대신 구조가 깨진 입력(길이가 파일 끝을 넘는 등)은 끝까지 읽을 수 없으므로
+ * {@link ImageUploadService.UnsupportedImageException} 으로 거부한다.
  */
 public final class ImageSanitizer {
 
@@ -28,14 +24,9 @@ public final class ImageSanitizer {
 		};
 	}
 
-	// ══════════════════════════════════════════════════════════════════
-	// JPEG — 마커(세그먼트 표시) 단위로 읽는다.
-	// ══════════════════════════════════════════════════════════════════
-	//
-	// SOI(FFD8) 뒤로 "FF + 마커코드 + (있으면) 2바이트 길이 + 그 길이-2 만큼의 내용" 이
+	// JPEG — SOI(FFD8) 뒤로 "FF + 마커코드 + (있으면) 2바이트 길이 + 그 길이-2 만큼의 내용" 이
 	// 반복된다. APP1(EXIF·XMP)·APP2~APP13·COM(주석) 을 버리고 나머지는 그대로 옮긴다.
-	// SOS(엔트로피 데이터 시작)를 만나면 그 헤더까지만 검사하고, 그 뒤 나머지 바이트는
-	// 압축된 픽셀 데이터라 마커처럼 파싱하지 않고 그대로 붙인다.
+	// SOS 뒤는 압축된 픽셀 데이터라 마커처럼 파싱하지 않고 그대로 붙인다.
 
 	private static byte[] stripJpeg(byte[] in) {
 		if (in.length < 4 || (in[0] & 0xFF) != 0xFF || (in[1] & 0xFF) != 0xD8) {
@@ -99,9 +90,7 @@ public final class ImageSanitizer {
 		return out.toByteArray();
 	}
 
-	// ══════════════════════════════════════════════════════════════════
 	// PNG — 청크(길이+타입+데이터+CRC) 단위로 읽는다.
-	// ══════════════════════════════════════════════════════════════════
 
 	private static final byte[] PNG_SIGNATURE = { (byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A };
 
@@ -147,9 +136,7 @@ public final class ImageSanitizer {
 		return out.toByteArray();
 	}
 
-	// ══════════════════════════════════════════════════════════════════
 	// WebP — RIFF 컨테이너 청크(4바이트 fourCC + 4바이트 길이 + 데이터 + 홀수면 패딩 1바이트) 단위.
-	// ══════════════════════════════════════════════════════════════════
 
 	private static byte[] stripWebp(byte[] in) {
 		if (in.length < 12

@@ -22,12 +22,11 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * {@link SouvenirShopLoaderRunner}가 실제로 장소와 표식을 만드는지 잰다 — S15P21E201-471.
+ * {@link SouvenirShopLoaderRunner}가 실제로 장소와 표식을 만드는지 잰다.
  *
  * <p>러너 자체는 {@code gabolle.place.loader.souvenir-shops=true} 프로퍼티로만 켜지는
  * {@link org.springframework.boot.ApplicationRunner}라 단위 호출이 어렵다 — 그래서
- * {@link TourApiPlaceLoader}·{@link PlaceFeatureLoader}로 러너와 같은 순서를 그대로
- * 재현한다({@code PlaceFeatureLoaderIntegrationTest}의 관행과 같다).
+ * {@link TourApiPlaceLoader}·{@link PlaceFeatureLoader}로 러너와 같은 순서를 그대로 재현한다.
  */
 class SouvenirShopIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -46,9 +45,7 @@ class SouvenirShopIntegrationTest extends PlacePostgresIntegrationTest {
 	@BeforeEach
 	@AfterEach
 	void cleanUp() {
-		// 🔴 TourApiPlaceLoader.saveChunk 가 장소를 만들면서 CATEGORY_TAG 를
-		// source_type=TOURAPI 로 같이 넣는다 — place 를 지우기 전에 그것부터 지워야
-		// fk_place_feature_place 위반이 안 난다 (2026-09-16 CI 실측).
+		// 순서가 중요하다 — place_feature 를 먼저 지워야 fk_place_feature_place 위반이 안 난다.
 		this.jdbcTemplate.update("DELETE FROM place_feature WHERE source_type = 'TOURAPI'");
 		this.jdbcTemplate.update("DELETE FROM place_feature WHERE source_type = '" + SouvenirShopLoaderRunner.SOURCE_TYPE + "'");
 		this.jdbcTemplate.update("DELETE FROM place WHERE source_id = '" + CONTENT_ID + "'");
@@ -80,11 +77,8 @@ class SouvenirShopIntegrationTest extends PlacePostgresIntegrationTest {
 				""", SouvenirShopLoaderRunner.SOURCE_TYPE);
 		Set<String> keys = rows.stream().map(r -> r.get("feature_type") + ":" + r.get("feature_key"))
 				.collect(java.util.stream.Collectors.toSet());
-		// 🔴 INTEREST_TAG 다, CATEGORY_TAG 가 아니다. /explore 아코디언이 보는 서랍이
-		//    INTEREST_TAG 이고(TourApiExploreFacet javadoc), 운영에서도 탐색 여덟 갈래가
-		//    전부 그 타입으로 붙어 있다(2026-09-16 실측 — 축제 14 · 전통시장 33 · 액티비티 22 …).
-		//    CATEGORY_TAG 로 넣으면 place_feature_code 외래키에 걸려 아예 안 들어가고,
-		//    설령 사전에 낱말을 더해 넣더라도 탐색 화면은 그 행을 못 본다.
+		// CATEGORY_TAG 가 아니라 INTEREST_TAG 다 — /explore 아코디언이 보는 서랍이 그쪽이고,
+		// CATEGORY_TAG 로 넣으면 place_feature_code 외래키에 걸려 아예 안 들어간다.
 		assertThat(keys).containsExactlyInAnyOrder("INTEREST_TAG:SOUVENIR_SHOP", "SOUVENIR_ITEM_TAG:HANDMADE_CHOPSTICKS");
 	}
 }

@@ -26,16 +26,11 @@ import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.Trip;
 
 /**
- * 하루치 지연 경고 조회 — S15P21E201-304 · -96.
- *
- * <p>{@link PaceFactorService} 가 관리하는 속도 계수와 {@link ItineraryDelayProjector} 가 하는
- * "그래서 몇 시에 도착하나" 계산을 묶어서 화면이 바로 그릴 수 있는 모양으로 낸다. 계산 자체는
- * 두 클래스가 이미 하므로 이 서비스는 권한 확인과 두 클래스를 잇는 것, 그리고 응답을 만드는
- * 것만 한다.
- *
- * <p>조회할 때마다 {@link PaceFactorService#recompute} 를 다시 부른다. 방문 기록이 그 사이에
- * 늘었을 수 있고, 이 경로는 "지금 기준으로" 지연을 답해야 하기 때문이다 — 어제 계산해 둔
- * 계수를 그대로 읽으면 오늘 새로 적은 도착·출발 기록이 반영되지 않는다.
+ * 하루치 지연 경고 조회.
+ * {@link PaceFactorService} 의 속도 계수와 {@link ItineraryDelayProjector} 의 "그래서 몇 시에
+ * 도착하나" 계산을 묶어 화면이 바로 그릴 수 있는 모양으로 낸다.
+ * 조회할 때마다 {@link PaceFactorService#recompute} 를 다시 부른다. 이 경로는 "지금 기준으로"
+ * 지연을 답해야 하는데, 어제 계산해 둔 계수를 그대로 읽으면 오늘 새로 적은 기록이 반영되지 않는다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -99,8 +94,8 @@ public class ItineraryPaceService {
                 .toList();
 
         // 계수를 못 구했다는 사실을 빈 목록으로 답하지 않는다. 화면이 "확인했고 문제 없음" 과
-        // "볼 수 없었음" 을 구분해야 하기 때문이고, 이것은 영업시간 판정이 NOT_COLLECTED 를
-        // 남기는 것과 같은 이유다(ItineraryOpeningHoursChecker).
+        // "볼 수 없었음" 을 구분해야 하기 때문이고, 영업시간 판정이 NOT_COLLECTED 를 남기는 것과
+        // 같은 이유다.
         List<ItineraryPaceResponse.NotChecked> notChecked = factor == null
                 ? List.of(new ItineraryPaceResponse.NotChecked(ItineraryDelayProjector.CHECK,
                         ItineraryDelayProjector.REASON_NOT_ENOUGH_RECORDS))
@@ -119,8 +114,7 @@ public class ItineraryPaceService {
 
     /**
      * dayIndex 가 여행 기간 안에 있는가. {@code ItineraryEditController.requireDayInsideTrip} 과
-     * 같은 판정이되, 음수 dayIndex 도 함께 막는다 — 여행 시작일보다 앞선 날짜는 존재하지 않는
-     * 날이므로 "여행 마지막 날을 넘었다"만큼이나 벗어난 요청이다.
+     * 같은 판정이되 음수 dayIndex 도 함께 막는다 — 여행 시작일보다 앞선 날짜는 존재하지 않는 날이다.
      */
     private static void requireDayInsideTrip(Trip trip, int dayIndex) {
         if (dayIndex < 0) {

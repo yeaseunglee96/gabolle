@@ -10,24 +10,11 @@ import com.gabolle.backend.auth.config.AnonymousSessionAuthenticationFilter;
 import com.gabolle.backend.auth.service.AuthException;
 
 /**
- * 요청 컨트롤러가 "누가 요청했는가" 를 얻는 자리 — S15P21E201-610.
+ * 요청 컨트롤러가 "누가 요청했는가" 를 얻는 자리.
  *
- * <p>🔴 {@code @RequestHeader("X-User-Id")} 를 쓰지 않는다. {@code SecurityConfig} 가 이미
- * JWT 로 인증을 요구하는데, 그 뒤에 "누구인가" 를 헤더로 다시 받으면 <b>로그인한 사람이
- * 남의 ID 를 헤더에 실어 보내는 것만으로 그 사람 행세를 할 수 있다.</b> 인증(로그인 여부)은
- * 지켜지는데 인가(그 자원이 정말 이 사람 것인가)가 뚫린다 — API 명세서 2.1절이 금지하는
- * 바로 그 시나리오다.
- *
- * <p>대신 {@link Authentication#getName()}(JWT 의 {@code sub} 클레임 — 로그인 처리 과정에서
- * 서버가 검증해 채운 사용자 UUID 문자열)만 신뢰한다. {@code AuthController.authenticatedUserId}
- * 가 이미 하던 것을 여러 도메인이 재사용할 수 있게 여기로 뽑았다.
- *
- * <p>🔴 반환형은 {@code UUID} 다 — {@code place} 패키지(S15P21E201-462, 박재현)가
- * {@link #optionalId} 를 이미 이 모양으로 쓰고 있어 맞췄다.
- *
- * <p>{@link AuthException} 을 던진다 — {@code AuthExceptionHandler} 가 이미
- * {@code @RestControllerAdvice}(도메인 제한 없는 전역)라 어느 컨트롤러에서 던져도
- * 401 로 번역된다.
+ * <p>{@code @RequestHeader("X-User-Id")} 를 쓰지 않는다. 인증 뒤에 "누구인가" 를 헤더로 다시 받으면
+ * 로그인한 사람이 남의 ID 를 헤더에 실어 보내는 것만으로 그 사람 행세를 할 수 있다. 신뢰하는 것은
+ * {@link Authentication#getName()}(JWT 의 {@code sub} 클레임) 뿐이다.
  */
 public final class AuthenticatedUsers {
 
@@ -61,15 +48,9 @@ public final class AuthenticatedUsers {
 	}
 
 	/**
-	 * 익명 세션 id — S15P21E201-1204. 로그인 여부가 선택인 자리에서 <b>{@link #optionalId} 의 짝</b>이다.
-	 *
-	 * <p>🔴 {@code optionalId} 는 익명 요청에 <b>빈 값</b>을 준다. principal 이
-	 * {@code "anon:" + sessionId} 형식이라 {@code UUID.fromString} 이 실패하기 때문이다. 그래서
-	 * 「회원이면 누구고 아니면 어느 익명 세션인가」를 알아야 하는 자리는 <b>둘 다 불러야</b> 한다.
-	 *
-	 * <p>{@link #requireOwner} 와 다른 점은 <b>인증이 아예 없어도 예외를 안 던지는 것</b>이다.
-	 * 그쪽은 익명 세션이 자원의 <b>주인</b>이 되는 자리(여행 생성)라 401 이 맞고, 이쪽은 그냥
-	 * 「누가 읽었나」를 아는 자리다. 아무도 아니면 빈 값이고, 부르는 쪽이 그때 무엇을 할지 정한다.
+	 * 익명 세션 id. {@link #optionalId} 는 익명 요청에 빈 값을 주므로(principal 이
+	 * {@code "anon:" + sessionId} 형식이라 {@code UUID.fromString} 이 실패한다), 회원과 익명을 모두
+	 * 알아야 하는 자리는 둘 다 불러야 한다. 인증이 아예 없어도 예외를 던지지 않는다.
 	 */
 	public static Optional<UUID> optionalAnonymousSessionId(Authentication authentication) {
 		if (authentication == null || authentication.getName() == null) {
@@ -89,13 +70,11 @@ public final class AuthenticatedUsers {
 	}
 
 	/**
-	 * 🔴 S15P21E201-317 — <b>여행 생성처럼 익명 세션도 자원의 주인이 될 수 있는 자리 전용.</b>
-	 * 그 외의 모든 자리는 계속 {@link #requireId}를 쓴다 — 회원 전용 자원(내 여행 목록 등)까지
-	 * 여기로 바꾸면 익명 세션이 로그인 없이 회원 자원에 닿는 길이 열린다.
+	 * 여행 생성처럼 익명 세션도 자원의 주인이 될 수 있는 자리 전용. 그 외에는 {@link #requireId} 를 쓴다 —
+	 * 회원 전용 자원까지 여기로 바꾸면 익명 세션이 로그인 없이 회원 자원에 닿는 길이 열린다.
 	 *
-	 * <p>{@code principal} 이 {@code "anon:" + sessionId} 형식(익명 인증 필터가 채운 것,
-	 * {@link AnonymousSessionAuthenticationFilter#ANONYMOUS_PRINCIPAL_PREFIX})이면 익명 소유자를,
-	 * 아니면(회원 JWT) 회원 소유자를 돌려준다. 둘 다 아니면 401.
+	 * <p>{@code principal} 이 {@link AnonymousSessionAuthenticationFilter#ANONYMOUS_PRINCIPAL_PREFIX} 로
+	 * 시작하면 익명 소유자를, 아니면 회원 소유자를 돌려준다. 둘 다 아니면 401.
 	 */
 	public static Owner requireOwner(Authentication authentication) {
 		if (authentication == null || authentication.getName() == null) {

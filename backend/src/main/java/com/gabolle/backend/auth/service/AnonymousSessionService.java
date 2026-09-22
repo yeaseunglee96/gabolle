@@ -12,12 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 익명 출입증 발급·대조 — S15P21E201-303.
- *
- * <p>발급은 {@link SessionTokenGenerator#issue()} 로 원본 문자열을 만들고 응답으로만
- * 내보낸다. 서버에는 {@link SessionTokenGenerator#hash(String)} 이 만든 값만 남는다 —
- * 이미 refresh token · OAuth 가입 티켓 · 비밀번호 재설정 · OAuth 챌린지 네 곳이 같은 방식을
- * 쓰고 있고, 여기서도 새로 SecureRandom/MessageDigest 를 만들지 않는다.
+ * 익명 출입증 발급·대조. 원본 문자열은 응답으로만 나가고 서버에는
+ * {@link SessionTokenGenerator#hash(String)} 이 만든 값만 남는다 — 이 저장소의 다른 토큰들과
+ * 같은 방식이다.
  */
 @Service
 @Profile({"db", "dev"})

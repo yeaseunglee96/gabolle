@@ -20,16 +20,11 @@ import com.gabolle.backend.trip.domain.PreferenceSnapshot.PreferenceAnswer;
 import com.gabolle.backend.trip.infra.InMemoryTripRepository;
 
 /**
- * 계정 기본 취향이 여행 답과 겹칠 때의 규칙 (S15P21E201-547).
+ * 계정 기본 취향이 여행 답과 겹칠 때의 규칙. 핵심은 {@code SKIPPED} 와 {@code UNKNOWN} 을 다르게
+ * 다루는 것이고, {@code PreferenceDefaultsService} javadoc 의 표가 여기와 같은 것을 말해야 한다.
  *
- * <p>🔴 이 규칙의 핵심은 {@code SKIPPED} 와 {@code UNKNOWN} 을 <b>다르게</b> 다루는
- * 것이고, 그 차이는 코드를 읽어서는 맞는지 알 수 없다. 그래서 표의 네 줄을 그대로
- * 검사한다 — {@code PreferenceDefaultsService} javadoc 의 표가 이 테스트와 같은 것을
- * 말해야 한다.
- *
- * <p>🔴 DB 를 쓰지 않는다({@link InMemoryTripRepository}). 이 저장소의 Postgres 테스트는
- * Docker 가 없으면 <b>실패가 아니라 건너뜀</b>이라, 검사가 실제로 돌았는지를 알 수 없는
- * 자리에 이 규칙을 두지 않았다.
+ * <p>DB 대신 {@link InMemoryTripRepository} 를 쓴다 — Postgres 테스트는 Docker 가 없으면 실패가
+ * 아니라 건너뜀이라, 이 규칙을 그 자리에 두면 돌았는지를 알 수 없다.
  */
 class PreferenceDefaultsOverlayTest {
 
@@ -159,16 +154,9 @@ class PreferenceDefaultsOverlayTest {
 		assertThat(saved.tripId()).isNull();
 	}
 
-	// ── 여행 답을 계정으로 이어받기 (S15P21E201-639) ──────────────────────────
+	// ── 여행 답을 계정으로 이어받기 ──────────────────────────
 	//
-	// 🔴 아래 검사들이 지키는 것은 **갇히지 않는다** 이다.
-	//
-	//    처음에는 "계정에 비어 있을 때만 채운다" 로 만들었다. 명세 2.2 를 글자 그대로
-	//    지키는 쪽이었는데, 계정 기본값을 고치는 화면이 없어서(소비 성향 하나뿐) 사용자가
-	//    첫 답에 **영구히 갇혔다** — 화면의 값을 고쳐도 그 여행에만 적용되고 계정은 그대로라
-	//    다음 여행에 또 옛 값이 채워진다. 「고친_값이_계정에도_간다」 가 그 되돌림을 지킨다.
-	//
-	//    막는 것은 그대로 둔다 — 건너뛴 것과 안 물어본 것은 계정을 안 건드린다.
+	// 계정 기본값을 고치는 화면이 없으므로, 여행에서 고친 값이 계정까지 가야 첫 답에 갇히지 않는다.
 
 	@Test
 	@DisplayName("🔴 계정이 비어 있으면 여행에서 고른 답이 계정에 남는다 — 두 번째 여행부터 안 묻는 부분")
@@ -191,7 +179,6 @@ class PreferenceDefaultsOverlayTest {
 
 		assertThat(changed).containsExactly("QUIETNESS");
 		assertThat(this.service.find(USER)).get().satisfies((s) -> {
-			// 🔴 0.8 이 그대로라면 사용자는 고칠 방법이 없다. 고치는 화면도 없다.
 			assertThat(s.answers().get(0).valueJson()).isEqualTo("0.1");
 			assertThat(s.version()).isEqualTo(2);
 		});
@@ -262,11 +249,10 @@ class PreferenceDefaultsOverlayTest {
 		assertThat(merged.get(0).status()).isEqualTo(AnswerStatus.SELECTED);
 	}
 
-	// ── 온보딩·마이페이지가 직접 고치기 (S15P21E201-639) ──────────────────────
+	// ── 온보딩·마이페이지가 직접 고치기 ──────────────────────
 	//
-	// 🔴 carryOver 와 갈리는 자리는 UNKNOWN 하나다. 여행에서 온 UNKNOWN 은 "안 물어봤다"
-	//    라서 계정을 안 건드리고, 마이페이지에서 온 UNKNOWN 은 "잊어 달라" 라서 지운다.
-	//    같은 값이 두 곳에서 다른 뜻이므로, 뭉개지 않았는지를 검사로 못 박는다.
+	// carryOver 와 갈리는 자리는 UNKNOWN 하나다. 여행에서 온 UNKNOWN 은 "안 물어봤다" 라서
+	// 계정을 안 건드리고, 마이페이지에서 온 UNKNOWN 은 "잊어 달라" 라서 지운다.
 
 	@Test
 	@DisplayName("🔴 보낸 차원만 바뀌고 안 보낸 차원은 남는다 — 부분 갱신")
@@ -352,13 +338,10 @@ class PreferenceDefaultsOverlayTest {
 	@Test
 	@DisplayName("🔴 취향을 저장해도 소비 성향 답이 안 사라진다 — replace 는 전체 교체라 여기가 무너지기 쉽다")
 	void 소비성향은_안_지워진다() {
-		// /spend 가 먼저 저장해 둔 상태에서 시작한다.
 		this.service.replace(USER, List.of(selected("SPEND_PROFILE", "\"MID\"")));
 
 		this.service.putTaste(USER, List.of(selected("QUIETNESS", "0.8")));
 
-		// 🔴 putTaste 는 replace(전체 교체)로 저장한다. 바뀐 차원만 넘기면 나머지가 통째로
-		//    사라진다 — 사용자는 세 질문에 답한 적 없는 사람이 되고, 다시 물어볼 화면도 없다.
 		assertThat(this.service.find(USER)).get().satisfies((snapshot) ->
 				assertThat(snapshot.answers())
 						.extracting(PreferenceAnswer::dimension)
@@ -368,10 +351,8 @@ class PreferenceDefaultsOverlayTest {
 	@Test
 	@DisplayName("🔴 여행에서 이어받은 값과 마이페이지에서 고친 값이 서로 안 덮는다")
 	void 이어받기와_직접_고치기가_안_덮는다() {
-		// 여행을 만들면서 경사 답이 계정으로 따라 올라온다.
 		this.service.carryOver(USER, List.of(selected("SLOPE_PREFERENCE", "\"AVOID\"")));
 
-		// 그 뒤 마이페이지에서 다른 차원을 고친다.
 		this.service.putTaste(USER, List.of(selected("QUIETNESS", "0.8")));
 
 		assertThat(this.service.findTaste(USER))

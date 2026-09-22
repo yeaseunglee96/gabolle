@@ -31,14 +31,9 @@ import com.gabolle.backend.route.presentation.RouteController;
 import com.gabolle.backend.route.presentation.RouteExceptionHandler;
 
 /**
- * {@code GET /api/v1/routes/directions} 의 HTTP 경계 — S15P21E201-184.
- *
- * <p>규칙(무엇이 추정이 되는가)은 {@code RouteQueryServiceTest} 가 재고, 여기서는 <b>그
- * 사이</b>를 잰다 — 경로가 붙어 있는지, 응답 칸 이름이 프론트가 볼 그대로인지, 잘못된 요청이
- * 400 으로 번역되는지.
- *
- * <p>🔴 응답 칸 이름을 여기서 못 박는 것이 이 티켓의 완료 기준("프론트가 응답 모양만 보고
- * 화면을 만들 수 있다") 을 지키는 자리다. 칸 이름을 바꾸면 이 검사가 빨개진다.
+ * {@code GET /api/v1/routes/directions} 의 HTTP 경계 — 경로가 붙어 있는지, 응답 칸 이름이
+ * 프론트가 볼 그대로인지, 잘못된 요청이 400 으로 번역되는지를 잰다. 칸 이름을 바꾸면 여기가
+ * 빨개진다.
  */
 class RouteControllerTest {
 
@@ -77,7 +72,7 @@ class RouteControllerTest {
 				.andExpect(jsonPath("$.data.tollFareKrw").value(0))
 				.andExpect(jsonPath("$.data.estimated").value(false))
 				.andExpect(jsonPath("$.data.provider").value("KAKAO_MOBILITY"))
-				// 🔴 경로 좌표는 [경도, 위도] 순서다. 뒤집히면 지도에 엉뚱한 곳이 그려진다.
+				// 경로 좌표는 [경도, 위도] 순서다. 뒤집히면 지도에 엉뚱한 곳이 그려진다.
 				.andExpect(jsonPath("$.data.path[0][0]").value(129.1604))
 				.andExpect(jsonPath("$.data.path[0][1]").value(35.1587))
 				.andExpect(jsonPath("$.data.steps[0].guidance").value("송정 방면으로 우회전"));

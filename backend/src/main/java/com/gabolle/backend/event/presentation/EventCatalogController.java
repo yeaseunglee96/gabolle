@@ -13,24 +13,16 @@ import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.event.presentation.dto.EventCatalogEntry;
 
 /**
- * 이벤트 사전 조회 — S15P21E201-352 작업 내용 4번.
- *
- * <p>🔴 <b>{@code no-db} 프로필에도 있다.</b> {@link EventType} 은 열거값이라 DB 도
- * {@code OutboxService} 도 필요 없다. 수집 API({@link EventIngestController})는
- * DB 프로필에서만 뜨지만, "무슨 이벤트가 있는지" 를 알려주는 이 조회는 그 제약을 받지
- * 않는다 — FE·분석 쪽이 서버를 db 프로필로 안 띄운 환경에서도 사전을 확인할 수 있어야
- * {@code -542} 8.1 목록과 실제 코드가 어긋났는지를 아무 환경에서나 검증할 수 있다.
+ * 이벤트 사전 조회. 수집 API 와 달리 {@code no-db} 프로필에도 있다 — {@link EventType} 은
+ * 열거값이라 DB 가 필요 없고, 사전과 실제 코드가 어긋났는지를 아무 환경에서나 볼 수 있어야 한다.
  */
 @RestController
 @RequestMapping("/api/v1/events")
 public class EventCatalogController {
 
 	/**
-	 * 실제로 정의된 이벤트 종류 전부를 내보낸다.
-	 *
-	 * <p>🔴 M1 필수 여부로 거르지 않는다. 후속 마일스톤 이벤트까지 전부 보여줘야
-	 * "지금 코드가 아는 이벤트 종류의 전체 목록" 이라는 뜻이 선다 — 일부만 보여주면
-	 * 이 응답 자체가 새로운 불일치의 원인이 된다.
+	 * 정의된 이벤트 종류 전부. M1 필수 여부로 거르지 않는다 — 일부만 보여주면 이 응답 자체가
+	 * 새로운 불일치의 원인이 된다.
 	 */
 	@GetMapping("/catalog")
 	public ApiResponse<List<EventCatalogEntry>> catalog(

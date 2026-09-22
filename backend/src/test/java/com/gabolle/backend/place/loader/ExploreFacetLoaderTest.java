@@ -22,12 +22,7 @@ import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 import com.gabolle.backend.place.repository.PlaceRepository;
 
-/**
- * 로컬 탐색 표식 적재 — S15P21E201-474.
- *
- * <p>DB 를 쓰지 않는다. 저장소를 흉내 내고 어떤 행을 저장하려 했는지만 본다 — 이 노트북에
- * PostgreSQL 이 없어 DB 를 쓰는 검사는 CI 에서 처음 돈다.
- */
+/** DB 를 쓰지 않는다. 저장소를 흉내 내고 어떤 행을 저장하려 했는지만 본다. */
 class ExploreFacetLoaderTest {
 
 	private static final String CONTENT_ID = "129156";

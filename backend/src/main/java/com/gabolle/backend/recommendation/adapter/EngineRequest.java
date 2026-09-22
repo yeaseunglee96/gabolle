@@ -7,20 +7,10 @@ import com.gabolle.backend.recommendation.domain.RequestLocation;
 /**
  * 추천 엔진에 넘기는 입력.
  *
- * <p>🔴 {@code requestId} 는 <b>백엔드가 만들어서 넘긴다</b> — 엔진이 만들면 같은 요청을 두 번
- * 부를 때 키가 갈라져 후보와 노출이 이어지지 않는다.
- *
- * @param requestId 이 추천 요청의 정본 키
- * @param userId 사용자
- * @param tripId 여행. 여행 맥락 없는 추천이면 {@code null}
- * @param tripVersion 여행 조건의 불변 버전
- * @param preferenceSnapshotId S15P21E201-542 취향 스냅샷 ID
- * @param constraintSnapshotId S15P21E201-542 제약 스냅샷 ID
- * @param itineraryId 일정. 없으면 {@code null}
- * @param itineraryVersion 일정 버전
- * @param topK 응답에 담을 최대 개수. 후보 <b>생성</b> 개수를 제한하는 값이 아니다
- * @param location 🔴 S15P21E201-550 — 후보 조회의 중심으로 쓸 위치. <b>저장되지 않는다.</b>
- *     {@code null} 이면 엔진이 여행 출발지를 쓴다
+ * {@code requestId} 는 백엔드가 만들어서 넘긴다 — 엔진이 만들면 같은 요청을 두 번 부를 때
+ * 키가 갈라져 후보와 노출이 이어지지 않는다. {@code topK} 는 응답에 담을 최대 개수이고
+ * 후보 생성 개수를 제한하는 값이 아니다. {@code location} 은 후보 조회의 중심으로만 쓰고
+ * 저장하지 않으며, {@code null} 이면 엔진이 여행 출발지를 쓴다.
  */
 public record EngineRequest(
 		UUID requestId,
@@ -34,7 +24,6 @@ public record EngineRequest(
 		int topK,
 		RequestLocation location) {
 
-	/** 위치 없는 요청 — S15P21E201-550 이전의 모양 그대로다. */
 	public EngineRequest(UUID requestId, UUID userId, UUID tripId, Integer tripVersion,
 			UUID preferenceSnapshotId, UUID constraintSnapshotId, UUID itineraryId, Integer itineraryVersion,
 			int topK) {

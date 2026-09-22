@@ -1,9 +1,7 @@
 package com.gabolle.backend.editorial.domain;
 
 /**
- * 발행 상태 (S15P21E201-555).
- *
- * <p>🔴 값 이름이 {@code ck_editorial_pick_status} 와 같아야 한다 (V20260907150000).
+ * 발행 상태. 값 이름이 {@code ck_editorial_pick_status} 와 같아야 한다.
  */
 public enum EditorialPickStatus {
 
@@ -14,13 +12,13 @@ public enum EditorialPickStatus {
 	DRAFT,
 
 	/**
-	 * 지금 내보내는 판. 🔴 한 {@code pickKey} 에 하나뿐이다
+	 * 지금 내보내는 판. 한 {@code pickKey} 에 하나뿐이다
 	 * ({@code uq_editorial_pick_published} 부분 유니크 인덱스).
 	 */
 	PUBLISHED,
 
 	/**
-	 * 물러난 판. <b>지우지 않는다</b> — 이미 나간 추천 결과가 이 판을 가리키고 있고,
+	 * 물러난 판. 지우지 않는다 — 이미 나간 추천 결과가 이 판을 가리키고 있고,
 	 * 지우면 "그때 무엇을 보여줬나" 에 답할 수 없다.
 	 */
 	RETIRED

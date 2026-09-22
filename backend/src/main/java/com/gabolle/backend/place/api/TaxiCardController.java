@@ -13,16 +13,15 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.place.service.TaxiCardService;
 
 /**
- * 택시 목적지 카드 (S15P21E201-217).
+ * 택시 목적지 카드. 한국어를 못 하는 여행자가 택시 기사에게 화면을 보여주면 목적지가 전달되는
+ * 화면에 쓴다.
  *
- * <p>한국어를 못 하는 여행자가 택시 기사에게 화면을 보여주면 목적지가 전달되는 화면에 쓴다.
- *
- * <p>🔴 {@code X-User-Id} 를 받지 않는다. {@code NearbyPlaceController} 의 주석과 같은 이유다 —
- * 좌표와 장소만으로 답이 정해지는 조회라 로그인 여부가 결과에 관여하지 않는다.
+ * <p>{@code X-User-Id} 를 받지 않는다. 좌표와 장소만으로 답이 정해지는 조회라 로그인 여부가 결과에
+ * 관여하지 않는다.
  *
  * <p>없는 {@code placeId} 는 {@link com.gabolle.backend.place.service.PlaceNotFoundException} 이
- * 나가고, 같은 패키지를 보는 {@link PlaceExceptionHandler} 가 그것을 404 로 번역한다 — 이 컨트롤러가
- * 직접 처리하지 않는다.
+ * 나가고, 같은 패키지를 보는 {@link PlaceExceptionHandler} 가 404 로 번역한다 — 이 컨트롤러가 직접
+ * 처리하지 않는다.
  */
 @RestController
 @RequestMapping("/api/v1/places")

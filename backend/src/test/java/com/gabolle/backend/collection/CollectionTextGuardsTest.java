@@ -14,15 +14,11 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 긴 입력이 <b>DB 까지 가지 않고</b> 도메인에서 멈추는가 — S15P21E201-1037.
+ * 긴 입력이 DB 까지 가지 않고 도메인에서 멈추는지 본다. 열 폭을 넘는 값이 통과하면
+ * PostgreSQL 에서 거부돼 500 으로 나간다.
  *
- * <p>그전에는 이 엔티티들이 「비었는가」만 보고 「얼마나 긴가」를 안 봤다. 열 폭을 넘는 값은
- * 자바 검사를 전부 통과한 뒤 PostgreSQL 에서 거부되고, 그 예외를 잡는 어드바이스가 없어
- * <b>500</b> 으로 나갔다. 부르는 쪽은 자기 입력이 문제라는 것을 모른 채 재시도한다.
- *
- * <p>DB 가 없어도 도는 시험이다. 제약이 실제로 막는지는
- * {@link EndpointGuardsPostgresTest} 가 진짜 PostgreSQL 위에서 따로 본다 — 이 둘은
- * 같은 것을 두 층에서 보는 것이지 겹치는 것이 아니다.
+ * <p>DB 가 없어도 도는 시험이다. 제약이 실제로 막는지는 {@link EndpointGuardsPostgresTest}
+ * 가 진짜 PostgreSQL 위에서 따로 본다.
  */
 class CollectionTextGuardsTest {
 

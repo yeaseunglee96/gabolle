@@ -17,7 +17,7 @@ import com.gabolle.backend.story.storage.LocalFileStorage;
 import com.gabolle.backend.story.storage.StorageProperties;
 import com.gabolle.backend.story.storage.StoragePort;
 
-/** {@link LocalFileStorage} — M1 의 서버 디스크 구현. */
+/** {@link LocalFileStorage} — 서버 디스크에 직접 쓰는 저장소 구현. */
 class LocalFileStorageTest {
 
 	@TempDir

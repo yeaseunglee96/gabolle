@@ -37,18 +37,15 @@ import com.gabolle.testslice.ItinerarySliceApplication;
 import com.jayway.jsonpath.JsonPath;
 
 /**
- * 하루치 지연 경고 · 여행 리듬 조회 — S15P21E201-304 · -96 · -308. 실제 PostgreSQL 위에서
- * HTTP 로 본다.
+ * 하루치 지연 경고 · 여행 리듬 조회. 실제 PostgreSQL 위에서 HTTP 로 본다.
  *
- * <h2>왜 응답을 JsonPath 로만 읽는가</h2>
- * DTO 로 되읽으면 칸 이름·타입이 바뀌어도 테스트가 모르고 통과한다. 화면이 실제로 받는 것은
- * JSON 이므로 그 모양을 그대로 본다({@code com.jayway.jsonpath.JsonPath}).
+ * <p>응답은 DTO 로 되읽지 않고 JsonPath 로만 읽는다 — 되읽으면 칸 이름·타입이 바뀌어도
+ * 통과한다.
  *
- * <h2>날짜는 항상 미래로 둔다</h2>
+ * <p>날짜는 항상 미래로 둔다.
  * {@link com.gabolle.backend.itinerary.application.ItineraryDelayProjector} 의 시작점
- * 판정이 {@code max(마지막 실제 출발, now)} 라서, 방문일이 과거이면 "지금" 이 그 자리를
- * 차지해 테스트를 도는 실제 시각에 따라 예상 시각이 흔들린다. 여행일을 며칠 뒤로 두면
- * "마지막 실제 출발" 이 항상 "지금" 보다 커서 값이 고정된다.
+ * 판정이 {@code max(마지막 실제 출발, now)} 라, 방문일이 과거이면 테스트를 도는 시각에
+ * 따라 예상 시각이 흔들린다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -117,8 +114,6 @@ class ItineraryPaceIntegrationTest {
 		insertVersion(1, null, "CREATE");
 	}
 
-	// ── 완료 기준 1 ───────────────────────────────────────────────────────────
-
 	@Test
 	@DisplayName("완료 기준 — 기록 5건 이상이면 예상 도착 시각이 계획과 달라진다")
 	void fiveOrMoreRecordsChangePredictedArrival() throws Exception {
@@ -143,8 +138,6 @@ class ItineraryPaceIntegrationTest {
 				.isNotEqualTo(plannedArrival);
 	}
 
-	// ── 완료 기준 2 ───────────────────────────────────────────────────────────
-
 	@Test
 	@DisplayName("완료 기준 — 기록 2건에서는 계수가 적용되지 않고 추정 표시가 붙는다")
 	void twoRecordsAreNotEnoughForAFactor() throws Exception {
@@ -152,19 +145,15 @@ class ItineraryPaceIntegrationTest {
 
 		this.mockMvc.perform(get("/api/v1/itineraries/{id}/days/0/pace", this.itineraryId).principal(asOwner()))
 				.andExpect(status().isOk())
-				// 🔴 doesNotExist() 로 재지 않는다 — 이 응답은 paceFactor 칸을 항상 만들고
-				// 표본이 모자랄 때만 값을 null 로 채운다(ItineraryPaceResponse 는
-				// @JsonInclude(NON_NULL) 이 없다). doesNotExist() 는 "칸이 아예 없다" 를
-				// 보는 것이라 여기서는 항상 통과해 버려 아무것도 못 본 것이 된다
-				// (ItineraryActualTimeIntegrationTest 의 같은 실측 참고).
+				// doesNotExist() 로 재지 않는다 — 이 응답은 paceFactor 칸을 항상 만들고 표본이
+				// 모자랄 때만 값을 null 로 채운다. doesNotExist() 는 칸이 아예 없는 것을 보는
+				// 것이라 여기서는 항상 통과해 버린다.
 				.andExpect(jsonPath("$.data.paceFactor").value(nullValue()))
 				.andExpect(jsonPath("$.data.sampleCount").value(2))
 				.andExpect(jsonPath("$.data.minSamples").value(3))
 				.andExpect(jsonPath("$.data.notChecked[0].check").value("PACE_FACTOR"))
 				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NOT_ENOUGH_RECORDS"));
 	}
-
-	// ── 완료 기준 3 ───────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("완료 기준 — 지연 위험 항목이 응답에서 구분된다")
@@ -184,8 +173,6 @@ class ItineraryPaceIntegrationTest {
 		// atRiskItemIds 뿐 아니라 그 항목 자신의 atRisk 칸도 참이어야 한다.
 		assertThat(atRisk).as("하루 끝을 넘기는 항목은 자기 칸에도 위험 표시가 있어야 한다").isTrue();
 	}
-
-	// ── 완료 기준 4 ───────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("완료 기준 — 리듬 요약이 실제 일정 데이터와 맞는 숫자를 돌려준다")
@@ -233,7 +220,7 @@ class ItineraryPaceIntegrationTest {
 				.andExpect(jsonPath("$.data.travelShare").value(0.2));
 	}
 
-	// ── 계수를 저장하는 표에 대한 완료 기준 ───────────────────────────────────
+	// ── 계수를 저장하는 표 ────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("계수가 없어도 계수 표에 행이 안 생긴다")
@@ -267,7 +254,7 @@ class ItineraryPaceIntegrationTest {
 		assertThat(currentRows).isEqualTo(1);
 	}
 
-	// ── 행동 개인화 스위치 (S15P21E201-549 후속) ──────────────────────────────
+	// ── 행동 개인화 스위치 ──────────────────────────────
 
 	@Test
 	@DisplayName("행동 개인화를 끈 사람에게는 속도 계수를 만들지 않는다 — 표에도 행이 안 생긴다")
@@ -280,8 +267,8 @@ class ItineraryPaceIntegrationTest {
 
 		this.mockMvc.perform(get("/api/v1/itineraries/{id}/days/0/pace", this.itineraryId).principal(asOwner()))
 				.andExpect(status().isOk())
-				// 🔴 화면은 계속 나온다. 계수만 없다 — 표본이 모자랄 때와 같은 모양이라
-				//    부르는 쪽이 이미 다루는 경우다(twoRecordsAreNotEnoughForAFactor).
+				// 화면은 계속 나온다. 계수만 없다 — 표본이 모자랄 때와 같은 모양이라 부르는
+				// 쪽이 이미 다루는 경우다.
 				.andExpect(jsonPath("$.data.paceFactor").value(nullValue()));
 
 		Integer rows = this.jdbc.queryForObject("SELECT count(*) FROM user_pace_factor WHERE user_id = ?",
@@ -370,14 +357,9 @@ class ItineraryPaceIntegrationTest {
 	}
 
 	/**
-	 * 🔴 {@code BEHAVIOR_ENABLED} 로 심는다 (S15P21E201-549 후속).
-	 *
-	 * <p>속도 계수는 <b>행동으로 만드는 사람별 프로필</b>이라 개인화를 끈 사람에게는 만들지
-	 * 않는다({@code PaceFactorService.recompute}). 이 파일의 검사 대부분은 "계수가 나온다" 를
-	 * 재는 것이라 켠 계정이어야 한다.
-	 *
-	 * <p>예전에는 여기가 {@code EXPLICIT_ONLY} 였다. 그때는 아무도 그 값을 안 봤으니 통과했고,
-	 * 그래서 <b>끈 사람에게도 계수가 쌓이는 것</b>을 이 파일이 못 잡았다. 끈 쪽은 이제
+	 * {@code BEHAVIOR_ENABLED} 로 심는다. 속도 계수는 행동으로 만드는 사람별 프로필이라
+	 * 개인화를 끈 사람에게는 만들지 않고({@code PaceFactorService.recompute}), 이 파일의
+	 * 검사 대부분은 계수가 나오는 것을 재므로 켠 계정이어야 한다. 끈 쪽은
 	 * {@link #behaviorPersonalizationOffLeavesNoPaceFactor} 가 따로 잡는다.
 	 */
 	private void createUser(UUID userId, OffsetDateTime now) {

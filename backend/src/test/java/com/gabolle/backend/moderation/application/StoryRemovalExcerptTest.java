@@ -5,12 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * 알림에 싣는 본문 앞부분 — S15P21E201-794.
- *
- * <p>전문을 싣지 않는 이유는 목적이 "어느 기록인지 알아보게 하는 것" 이기 때문이다. 길게 실으면
- * 신고까지 받은 글이 메일 서버와 우편함에 한 벌 더 남는다.
- */
+/** 알림에 싣는 본문 앞부분. */
 class StoryRemovalExcerptTest {
 
 	@Test

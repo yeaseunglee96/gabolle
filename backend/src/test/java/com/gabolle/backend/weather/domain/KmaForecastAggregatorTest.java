@@ -10,7 +10,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** {@link KmaForecastAggregator} 검증 — S15P21E201-366. */
 class KmaForecastAggregatorTest {
 
 	private static final LocalDate DAY = LocalDate.of(2026, 9, 10);
@@ -29,7 +28,7 @@ class KmaForecastAggregatorTest {
 
 		assertThat(forecast.minTemperature()).isEqualTo(18.0);
 		assertThat(forecast.maxTemperature()).isEqualTo(27.0);
-		// 🔴 강수확률은 그 날의 최댓값을 쓴다
+		// 강수확률은 그 날의 최댓값을 쓴다
 		assertThat(forecast.precipitationProbability()).isEqualTo(60);
 		assertThat(forecast.skyCondition()).isEqualTo(SkyCondition.PARTLY_CLOUDY);
 	}

@@ -25,14 +25,9 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * DB 가 <b>직접</b> 막는 것들 (S15P21E201-632).
- *
- * <p>🔴 여기 있는 검사는 전부 "애플리케이션이 실수해도 막히는가" 를 본다. 같은 규칙을
- * 자바에도 적으면 두 곳이 생기고, 두 곳이 되는 순간 한쪽만 고쳐지는 날이 온다.
- * 그래서 판정은 DB 하나가 하고, 이 테스트는 그 DB 가 실제로 판정하는지를 확인한다.
- *
- * <p>이 검사들이 H2 에서는 하나도 안 돈다 — 조건부 UNIQUE 색인도 배열 함수도 없다.
- * 그래서 진짜 PostgreSQL 이 필요하고, 없으면 <b>건너뜀</b>으로 표시된다.
+ * DB 가 직접 막는 것들. 판정은 DB 하나가 하고 이 테스트는 그 DB 가 실제로 판정하는지를
+ * 확인한다. H2 에는 조건부 UNIQUE 색인도 배열 함수도 없어서 진짜 PostgreSQL 이 필요하고,
+ * 없으면 건너뜀으로 표시된다.
  */
 class FeedBuildConstraintIntegrationTest extends FeedPostgresTest {
 
@@ -63,8 +58,7 @@ class FeedBuildConstraintIntegrationTest extends FeedPostgresTest {
 
 		FeedBuild second = openBuild(userId, FeedSurface.HOME);
 
-		// 🔴 옛 세대를 안 내리고 새 세대를 올리려 한다. 이것이 막히지 않으면 사람마다
-		//    어느 세대를 볼지가 우연에 달리고, 그 버그는 재현이 거의 안 된다.
+		// 옛 세대를 안 내리고 새 세대를 올리려 한다.
 		assertThatThrownBy(() -> {
 			second.markReady(FeedFixtures.now(), FeedFixtures.now().plusHours(6), 0);
 			this.builds.saveAndFlush(second);
@@ -99,8 +93,6 @@ class FeedBuildConstraintIntegrationTest extends FeedPostgresTest {
 		UUID userId = this.fixtures.newUser();
 		UUID buildId = openBuild(userId, FeedSurface.HOME).getBuildId();
 
-		// 🔴 피드는 "왜 이게 떴는지" 가 가장 쉽게 사라지는 자리다 — 계산이 끝난 결과만
-		//    남기 때문이다. 빈 배열을 막으면 채우는 쪽이 이유를 만들 수밖에 없다.
 		assertThatThrownBy(() -> this.entries.saveAndFlush(UserFeedEntry.of(buildId, 0, FeedItemType.PLACE,
 				UUID.randomUUID(), 1.0, new String[0], FeedFixtures.payload("이유없음"), FeedFixtures.now())))
 			.isInstanceOf(DataIntegrityViolationException.class);
@@ -117,8 +109,7 @@ class FeedBuildConstraintIntegrationTest extends FeedPostgresTest {
 		build.recordVersions("m", "f", "o", "p", "d", "s");
 		this.builds.saveAndFlush(build);
 
-		// 🔴 홈은 장소를 추천하므로 알레르기·휠체어 같은 안전 판정이 걸린다.
-		//    무엇을 기준으로 걸렀는지 모르는 홈 피드를 내보내면, 걸러졌다고 믿을 근거가 없다.
+		// 홈은 장소를 추천하므로 알레르기·휠체어 같은 안전 판정이 걸린다.
 		assertThatThrownBy(() -> {
 			build.markReady(FeedFixtures.now(), FeedFixtures.now().plusHours(6), 0);
 			this.builds.saveAndFlush(build);
@@ -136,8 +127,7 @@ class FeedBuildConstraintIntegrationTest extends FeedPostgresTest {
 		build.recordVersions("m", "f", "o", "p", "d", "s");
 		this.builds.saveAndFlush(build);
 
-		// 🔴 만료 없는 피드를 허용하면 한 번 만든 뒤 영영 안 고쳐지는 사용자가 생기는데,
-		//    그 사람에게는 앱이 죽은 것처럼 보인다. null 은 "만료 없음" 이 아니라 "미정" 이다.
+		// null 은 "만료 없음" 이 아니라 "미정" 이다.
 		assertThatThrownBy(() -> {
 			build.markReady(FeedFixtures.now(), null, 0);
 			this.builds.saveAndFlush(build);
@@ -160,7 +150,7 @@ class FeedBuildConstraintIntegrationTest extends FeedPostgresTest {
 	void 행동을_봤으면_어디까지_봤는지_남는다() {
 		UUID userId = this.fixtures.newUser();
 
-		// 🔴 이어 붙일 기준점이 없는 벡터는 다음 계산에서 조용히 같은 행동을 두 번 센다.
+		// 이어 붙일 기준점이 없는 벡터는 다음 계산에서 같은 행동을 두 번 센다.
 		assertThatThrownBy(() -> this.tasteVectors.saveAndFlush(UserTasteVector.open(userId, 1, null, 42, null,
 				"vector-test", "onto-test", FeedFixtures.now())))
 			.isInstanceOf(DataIntegrityViolationException.class);
@@ -194,7 +184,7 @@ class FeedBuildConstraintIntegrationTest extends FeedPostgresTest {
 			.isEqualTo("ENGINE_TIMEOUT");
 	}
 
-	// ── 도우미 ────────────────────────────────────────────────────────────────
+	// 도우미
 
 	private FeedBuild openBuild(UUID userId, FeedSurface surface) {
 		FeedBuild build = FeedBuild.open(userId, surface, FeedFixtures.now());

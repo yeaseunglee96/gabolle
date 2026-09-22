@@ -15,10 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.gabolle.backend.place.domain.Place;
 
 /**
- * {@code PlaceDetailResponse} 의 직렬화 계약 — S15P21E201-476.
- *
- * <p>DB 도 MockMvc 도 없이 record 를 직접 만들어 Jackson 으로 찍어 본다. "값이 null 이다" 와
- * "JSON 에 그 키가 없다" 는 record 필드만 봐서는 구분되지 않는다 — 여기서 그 간극을 직접 메운다.
+ * {@code PlaceDetailResponse} 의 직렬화 계약. "값이 null 이다" 와 "JSON 에 그 키가 없다" 는
+ * record 필드만 봐서는 구분되지 않으므로 Jackson 으로 직접 찍어 본다.
  */
 class PlaceDetailResponseSerializationTest {
 
@@ -58,12 +56,8 @@ class PlaceDetailResponseSerializationTest {
 	}
 
 	/**
-	 * S15P21E201-1039 — 이 칸이 없으면 화면은 「이 장소를 찍은 사진」과 「이 장소가 들어
-	 * 있는 곳을 찍은 사진」을 구분할 방법이 없어, 주변 시설 사진을 이 장소 사진처럼 그린다.
-	 * 축제 응답에는 있고 여기에는 없던 것이 이 티켓이 고친 것이다.
-	 *
-	 * <p>값이 없을 때 키를 빼는 것도 함께 본다 — 「모르는 것을 아는 척하지 않는다」가
-	 * 화면 쪽 표시 함수의 전제이고, 빈 값이 키로 오면 그 전제가 깨진다.
+	 * 이 칸이 없으면 화면은 "이 장소를 찍은 사진" 과 "이 장소가 들어 있는 곳을 찍은 사진" 을
+	 * 구분할 방법이 없어 주변 시설 사진을 이 장소 사진처럼 그린다.
 	 */
 	@Test
 	@DisplayName("사진이 무엇을 찍은 것인지가 상세 응답에 실린다 — 축제에만 있던 칸")

@@ -26,18 +26,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 엔진 빈이 없는 배포에서도 애플리케이션이 뜨는가.
+ * 엔진 빈이 없는 배포에서도 애플리케이션이 뜨는가. 엔진이 기대는 패키지를 안 올리는 배포는
+ * 있을 수 있고, 그때 추천이 조용히 빈 결과로 끝나면 안 된다. 그 상태를 만드는 것이
+ * {@link RecommendationEngineAbsentSliceApplication} 이다.
  *
- * <p>전에는 이 저장소에 {@code RecommendationEnginePort} 구현이 아예 없었고, 그 결정의
- * 대가를 남의 도메인이 치렀다. 회원·여행 담당이 DB 를 쓰려고 {@code db} 프로필로 올리는
- * 순간 애플리케이션 전체가 못 떴다.
- *
- * <p>S15P21E201-808 이후로는 구현이 있다 — {@code BaselineRecommendationEngine} 이
- * {@code db}·{@code dev} 에서 선다. 그래도 이 검사는 남는다. 엔진이 기대는 패키지를 안
- * 올리는 배포는 여전히 있을 수 있고, 그때 추천이 조용히 빈 결과로 끝나면 안 되기
- * 때문이다. 그 상태를 만드는 것이 {@link RecommendationEngineAbsentSliceApplication} 이다.
- *
- * <p>확인하는 것은 둘이다 — 컨텍스트가 뜨는가, 그리고 추천을 부르면 기록된 실패가 되는가.
+ * 확인하는 것은 둘이다 — 컨텍스트가 뜨는가, 그리고 추천을 부르면 기록된 실패가 되는가.
  */
 @SpringBootTest(classes = RecommendationEngineAbsentSliceApplication.class, properties = {
 		// 인증이 도입한 프로필 방식에 맞춘다 — active 가 있으면 spring.profiles.default(no-db) 는 적용되지 않는다.
@@ -73,7 +66,7 @@ class RecommendationEngineMissingIntegrationTest {
 	@Test
 	@DisplayName("엔진이 없을 때 추천을 부르면 조용히 넘어가지 않고 ENGINE_NOT_CONFIGURED 로 기록된다")
 	void callingWithoutAnEngineFailsLoudlyAndIsRecorded() {
-		// 🔴 S15P21E201-554 가 외래키를 붙였다. 임의 UUID 로는 Job 이 저장되지 않는다.
+		// 외래키가 붙어 있어 임의 UUID 로는 Job 이 저장되지 않는다.
 		PersonalizationFixture.Ids references = PersonalizationFixture.insert(this.jdbcTemplate);
 		RecommendationCommand command = new RecommendationCommand(references.userId(),
 				JobType.ITINERARY_GENERATION, references.tripId(), references.tripVersion(),

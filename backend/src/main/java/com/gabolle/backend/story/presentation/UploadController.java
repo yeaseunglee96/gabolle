@@ -27,12 +27,10 @@ import com.gabolle.backend.story.presentation.dto.UploadResponse;
 import com.gabolle.backend.story.storage.StoragePort;
 
 /**
- * 사진 업로드·서빙 — S15P21E201-216·-370.
+ * 사진 업로드·서빙.
  *
- * <p>업로드({@code POST .../story-image})는 로그인이 필요하다 — 요청자는
- * {@link AuthenticatedUsers#requireId} 로 얻는다({@code X-User-Id} 헤더를 쓰지 않는다). 서빙
- * ({@code GET .../images/{*key}})은 사진이 화면에 바로 걸리는 자리라 인증을 요구하지 않는다 —
- * 감독자가 {@code SecurityConfig} 에서 이 경로를 열어 둔다.
+ * <p>업로드는 로그인이 필요하다. 서빙({@code GET .../images/{*key}})은 사진이 화면에 바로 걸리는 자리라
+ * 인증을 요구하지 않는다 — {@code SecurityConfig} 가 이 경로를 열어 둔다.
  */
 @RestController
 @Profile({ "db", "dev" })

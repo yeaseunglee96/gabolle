@@ -14,11 +14,10 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 신고·검토 통합 테스트가 "이 기록이 이 피드/상세에 보이는가" 를 물을 때 쓰는 도우미.
+ * 이 기록이 그 피드나 상세에 보이는가를 묻는 도우미.
  *
- * <p>🔴 커서를 끝까지 걸어 전부 모은 뒤에 포함 여부를 본다. 이 DB 는 다른 테스트 클래스와 스키마를
- * 함께 쓰므로, 첫 페이지(예: 50 개)만 보면 다른 테스트가 남긴 최신 기록들에 밀려 "신고 전인데도
- * 없다" 는 오탐이 날 수 있다({@code StoryFeedIntegrationTest.allIdsFiltered} 와 같은 이유).
+ * 커서를 끝까지 걸어야 한다 — 이 DB 는 다른 테스트 클래스와 스키마를 함께 쓰므로 첫 페이지만 보면
+ * 다른 테스트가 남긴 최신 기록에 밀려 안 보이는 것으로 오탐한다.
  */
 final class FeedProbe {
 

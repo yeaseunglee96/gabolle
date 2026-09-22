@@ -32,18 +32,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 
 /**
- * 공유 링크 여정 — S15P21E201-783. 생성 → 비로그인 공개 조회 → 복제까지 실제 HTTP로 잇는다.
+ * 공유 링크 여정. 생성 → 비로그인 공개 조회 → 복제까지 실제 HTTP 로 잇는다. 공유 링크 발급은 인증이
+ * 필요하고 공개 조회는 인증이 없어야 한다는 비대칭이 {@code SecurityConfig} 목록 하나에만 있어,
+ * 실제 HTTP 로 그 비대칭을 확인한다.
  *
- * <p>배경 — S15P21E201-330(공유 조회는 인증 없이 열림)이 만든 경로들이다. 공유 링크 발급은
- * 인증이 필요하고 공개 조회는 인증이 없어야 한다는 비대칭 규칙이 {@code SecurityConfig} 목록
- * 하나에만 있었다 — 실제 HTTP로 그 비대칭을 확인하는 테스트가 이 클래스 이전엔 없었다.
- *
- * <p>🔴 실측(2026-09-10) — 복제는 원본에 실제 일정(장소가 든 itinerary)이 있어야 한다.
- * 없으면 {@code SHARED_ITINERARY_EMPTY}(422)로 막는다. 그래서 {@link
- * CoreJourneyFunctionalTest}(S15P21E201-780)와 같은 순서로 장소를 심고 추천 Job을 완료까지
- * 돌린 뒤에야 공유 링크를 발급한다 — 그 클래스에서 실측해 둔 세 가지(원점 좌표 필수·
- * service-version/deployment-environment 공백 문제·CATEGORY 코드가 place.category와
- * 글자 그대로 비교되는 것)를 그대로 물려받는다.
+ * <p>복제는 원본에 장소가 든 일정이 있어야 하고 없으면 {@code SHARED_ITINERARY_EMPTY}(422)로
+ * 막힌다. 그래서 {@link CoreJourneyFunctionalTest} 와 같은 순서로 장소를 심고 추천 Job 을 완료까지
+ * 돌린 뒤에야 공유 링크를 발급한다.
  */
 @TestPropertySource(properties = { "gabolle.recommendation.service-version=test-local",
 		"gabolle.recommendation.deployment-environment=test" })
@@ -57,12 +52,9 @@ class ShareLinkJourneyFunctionalTest extends FunctionalJourneyTest {
 	private final List<UUID> seededPlaceIds = new ArrayList<>();
 
 	/**
-	 * {@link CoreJourneyFunctionalTest#cleanUpPlaces}와 같은 이유 — 그쪽 javadoc 참고.
-	 *
-	 * <p>🔴 실측(2026-09-10) — 이 여정은 그쪽과 달리 <b>복제</b>까지 한다. 복제가
-	 * {@code trip_seed_place}(원본에서 가져온 장소, {@code CloneTripResponse.seedPlaceCount}가
-	 * 이 표에서 나온다)에도 참조를 남기고, 그 표도 {@code place}에 cascade 없는 외래키를 걸어
-	 * 둬서 하나 더 먼저 지워야 한다.
+	 * {@link CoreJourneyFunctionalTest#cleanUpPlaces} 와 같은 이유. 이 여정은 복제까지 하는데,
+	 * 복제가 {@code trip_seed_place} 에도 참조를 남기고 그 표도 {@code place} 에 cascade 없는
+	 * 외래키를 걸어 둬서 하나 더 먼저 지워야 한다.
 	 */
 	@AfterEach
 	void cleanUpPlaces() {
@@ -90,7 +82,7 @@ class ShareLinkJourneyFunctionalTest extends FunctionalJourneyTest {
 	void shareLinkJourneyEndToEnd() {
 		AuthedClient owner = loginAsNewUser("share-owner");
 
-		// 0) 후보 장소 시딩 — CoreJourneyFunctionalTest(S15P21E201-780)와 같은 이유.
+		// 0) 후보 장소 시딩 — CoreJourneyFunctionalTest 와 같은 이유.
 		this.placeFixture = new PlaceFixture(this.jdbcTemplate);
 		double originLat = 35.1152;
 		double originLng = 129.0423;
@@ -137,8 +129,8 @@ class ShareLinkJourneyFunctionalTest extends FunctionalJourneyTest {
 		String token = linkResponse.getBody().data().token();
 		assertThat(token).isNotBlank();
 
-		// 4) 비로그인 공개 조회 — 🔴 여기서 401이 나면 -330이 다시 깨진 것이다. Authorization
-		//    헤더를 아예 안 실은 요청을 만들려고 AuthedClient가 아니라 공유 빈(rest)을 직접 쓴다.
+		// 4) 비로그인 공개 조회 — Authorization 헤더를 아예 안 실은 요청을 만들려고
+		//    AuthedClient 가 아니라 공유 빈(rest)을 직접 쓴다.
 		ResponseEntity<ApiResponse<SharedItineraryResponse>> shareResponse = this.rest.exchange(
 				"/api/v1/shares/" + token, HttpMethod.GET, HttpEntity.EMPTY,
 				new ParameterizedTypeReference<ApiResponse<SharedItineraryResponse>>() {
@@ -174,11 +166,9 @@ class ShareLinkJourneyFunctionalTest extends FunctionalJourneyTest {
 		assertThat(cloneBody.sourceTripId()).isEqualTo(sourceTripId);
 		assertThat(cloneBody.seedPlaceCount()).as("원본에서 가져온 장소가 0곳이다").isGreaterThan(0);
 
-		// 7) 🔴 실측(2026-09-10) — 복제 Job은 비동기라, 여기서 끝까지 기다리지 않으면 테스트가
-		//    먼저 끝나고 @AfterEach의 place 정리가 먼저 돌 수 있다. 그러면 정리가 지운 뒤에
-		//    Job이 새 itinerary_item 행을 써서 외래키가 걸린다(경합, 처음 이 테스트를 돌렸을 때
-		//    실제로 이렇게 죽었다). 끝까지 기다리는 것은 경합을 없앨 뿐 아니라 복제 Job 자체가
-		//    성공하는지도 확인해 준다.
+		// 7) 복제 Job 은 비동기라 끝까지 기다리지 않으면 @AfterEach 의 place 정리가 먼저
+		//    돌고, 그 뒤에 Job 이 새 itinerary_item 행을 써서 외래키가 걸린다. 기다리는
+		//    것은 그 경합을 없앨 뿐 아니라 복제 Job 자체의 성공도 확인해 준다.
 		if (cloneBody.jobId() != null) {
 			RecommendationJobResponse finishedCloneJob = pollJobUntilTerminal(cloner, cloneBody.jobId());
 			assertThat(finishedCloneJob.status()).as("복제 Job이 실패로 끝났다 — failure=%s", finishedCloneJob.failure())

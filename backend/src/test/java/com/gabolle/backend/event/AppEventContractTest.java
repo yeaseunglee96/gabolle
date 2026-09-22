@@ -37,26 +37,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * 앱이 <b>실제로 보내는 본문 그대로</b> 서버가 받는가 — S15P21E201-735.
+ * 앱이 실제로 보내는 본문 그대로 서버가 받는가.
  *
- * <h2>🔴 이 테스트가 있는 이유</h2>
- * MR !326(S15P21E201-717·-718)이 앱에 행동 기록 전송을 넣었는데 <b>서버가 그 요청을 하나도
- * 안 받았다.</b> 막은 것은 버그가 아니라 계약이었다.
+ * <p>본문을 손으로 다시 쓰지 않는다. 아래 본문은 {@code frontend/src/analytics/appEvents.ts}
+ * 가 만드는 모양 그대로고, 앱이 안 보내는 키({@code tripId}·{@code requestId}·{@code userId})는
+ * {@code JSON.stringify} 가 지우므로 여기서도 키 자체가 없다. 값을 {@code null} 로 넣으면
+ * 앱이 보내는 것과 다른 요청이 된다.
  *
- * <ol>
- * <li>{@code requestId} 가 모든 이벤트에 필수인데 그 값을 앱에 주는 응답이 없었다</li>
- * <li>{@code place_like}·{@code place_dislike}·{@code place_visit} 가 서버 전용이었다</li>
- * <li>여행 축 이벤트는 {@code tripId} 없이 안 적히는데 홈·장소 상세는 여행 밖 화면이다</li>
- * </ol>
- *
- * <p>🔴 <b>본문을 손으로 다시 쓰지 않는다.</b> 아래 본문은 {@code frontend/src/analytics/appEvents.ts}
- * 가 만드는 모양 그대로다 — 앱이 안 보내는 키({@code tripId}·{@code requestId}·{@code userId})는
- * {@code JSON.stringify} 가 지우므로 여기서도 <b>키 자체가 없다.</b> 값을 {@code null} 로 넣으면
- * 그건 앱이 보내는 것과 다른 요청이고, 그런 테스트는 초록이어도 아무것도 증명하지 않는다.
- *
- * <p>🔴 <b>HTTP 층을 지난다.</b> 서비스를 직접 부르면 Bean Validation 과 컨트롤러의 신원 판정을
- * 건너뛴다 — 이 저장소가 같은 함정으로 이미 여러 번 헛돌았다({@code EventSubjectAuthorizationTest}
- * 의 주석 참고). {@link OutboxService} 만 가짜로 두고 그 아래로 무엇이 갔는지를 확인한다.
+ * <p>HTTP 층을 지난다. 서비스를 직접 부르면 Bean Validation 과 컨트롤러의 신원 판정을
+ * 건너뛴다. {@link OutboxService} 만 가짜로 두고 그 아래로 무엇이 갔는지를 확인한다.
  */
 class AppEventContractTest {
 
@@ -75,9 +64,8 @@ class AppEventContractTest {
 		given(this.outboxService.appendReportingDuplicate(any()))
 				.willReturn(new OutboxService.AppendResult(mock(EventOutbox.class), true));
 
-		// 🔴 이 계약 검사는 <b>앱이 보내는 본문의 모양</b>을 잰다. 행동 기반 개인화가 켜져
-		//    있는 사람으로 고정해 두지 않으면, 본문이 맞는데도 수집 차단(S15P21E201-549)에
-		//    걸려 202 만 보고 통과해 버린다 — 모양이 깨져도 초록인 검사가 된다.
+		// 이 검사는 앱이 보내는 본문의 모양을 잰다. 행동 기반 개인화가 켜져 있는 사람으로
+		// 고정하지 않으면 본문이 깨져도 수집 차단에 걸려 202 만 보고 통과한다.
 		AppUserRepository users = mock(AppUserRepository.class);
 		given(users.findPersonalizationMode(any())).willReturn(Optional.of(PersonalizationMode.BEHAVIOR_ENABLED));
 
@@ -114,6 +102,11 @@ class AppEventContractTest {
 		assertThat(command.tripId()).isNull();
 		assertThat(command.producer()).isEqualTo(Producer.CLIENT);
 		assertThat(command.payload()).containsEntry("surface", "home");
+		// 🔴 앱은 place_id 로 보냈는데 placeId 로 적힌다. payload 에서 장소를 꺼내는 자리
+		//    (recommendation_exposure 뷰)가 그 이름으로만 찾기 때문이다 — S15P21E201-1481.
+		assertThat(command.payload())
+				.containsEntry("placeId", "seomyeon-1")
+				.doesNotContainKey("place_id");
 	}
 
 	@Test
@@ -129,7 +122,25 @@ class AppEventContractTest {
 						""".formatted(UUID.randomUUID())))
 				.andExpect(status().isAccepted());
 
-		assertThat(captureCommand().payload()).containsEntry("surface", "place_detail");
+		assertThat(captureCommand().payload())
+				.containsEntry("surface", "place_detail")
+				.containsEntry("placeId", "haeundae-1")
+				.doesNotContainKey("place_id");
+	}
+
+	@Test
+	@DisplayName("🔴 place_id 와 placeId 를 함께 보내면 400 이다 — 어느 쪽이 맞는지 서버가 못 정한다")
+	void conflictingPlaceKeysAreRejected() throws Exception {
+		this.mockMvc.perform(post("/api/v1/events")
+				.contentType(MediaType.APPLICATION_JSON)
+				.principal(asMe())
+				.content("""
+						{"eventId":"%s","eventType":"place_like","eventVersion":1,
+						 "occurredAt":"2026-09-07T09:00:00.000+09:00",
+						 "payload":{"place_id":"haeundae-1","placeId":"nampo-1","surface":"home"}}
+						""".formatted(UUID.randomUUID())))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error.code").value("EVENT_REJECTED"));
 	}
 
 	@Test
@@ -226,7 +237,7 @@ class AppEventContractTest {
 						{"eventId":"%s","eventType":"recommendation_impression","eventVersion":1,
 						 "occurredAt":"2026-09-07T09:00:00.000+09:00","payload":{}}
 						""".formatted(UUID.randomUUID())))
-				// 🔴 400 이어야 한다. 500 이면 앱은 "내가 잘못 보냈다" 와 "서버가 죽었다" 를 못 가른다
+				// 400 이어야 한다. 500 이면 앱은 자기 잘못과 서버 장애를 못 가른다.
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.error.code").value("EVENT_REJECTED"));
 	}

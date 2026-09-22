@@ -19,26 +19,13 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * 축제 수집본을 읽는다 — S15P21E201-863.
+ * 축제 수집본을 읽는다. 한 줄이 축제 하나다.
  *
- * <p>입력은 {@code bigData/collect/tourapi-festival.mjs} 의 출력이고 한 줄이 축제 하나다.
+ * <p>기간 칸은 빈 문자열로 오는 일이 있다. 그때 오늘 날짜나 전년도 기간으로 채우지 않고
+ * 넘긴다 — 날짜를 지어내면 사람이 안 열리는 축제를 보러 간다. 종료일이 시작일보다 빠른 줄도
+ * 같은 이유로 넘긴다. 어느 쪽이 틀렸는지 여기서 알 수 없다.
  *
- * <pre>
- * {"contentid":"3576410","title":"광복로 겨울빛 트리축제",
- *  "eventstartdate":"20251205","eventenddate":"20260222"}
- * </pre>
- *
- * <h2>🔴 기간을 모르는 축제는 넘긴다</h2>
- * 관광공사 축제 조회는 기간을 함께 주지만 <b>빈 문자열로 오는 칸이 있다.</b> 그때 오늘 날짜나
- * 전년도 기간 같은 것으로 채우지 않는다 — 날짜를 지어내면 <b>사람이 안 열리는 축제를 보러
- * 간다.</b> 안 나오는 것보다 나쁘다.
- *
- * <p>같은 이유로 종료일이 시작일보다 빠른 줄도 넘긴다. 그런 기간은 어느 쪽이 틀렸는지 여기서
- * 알 수 없고, 추측해서 뒤집으면 틀린 채로 화면에 뜬다.
- *
- * <h2>버린 것을 갈라 센다</h2>
- * 숫자 하나로 합치면 수집본이 낡은 것인지 읽는 규칙이 틀린 것인지 구분할 수 없다.
- * {@link OpeningHoursReader} 가 같은 이유로 같은 모양을 먼저 썼다.
+ * <p>버린 것을 갈라 세는 것은 수집본이 낡은 것인지 읽는 규칙이 틀린 것인지 가리기 위해서다.
  */
 public final class FestivalPeriodReader {
 
@@ -50,18 +37,12 @@ public final class FestivalPeriodReader {
 	private FestivalPeriodReader() {
 	}
 
-	/**
-	 * @param rows   넣을 것
-	 * @param counts 무엇을 몇 개 버렸나
-	 */
 	public record Loaded(List<FestivalPeriodRow> rows, Counts counts) {
 	}
 
 	/**
-	 * @param totalLines       읽은 줄
-	 * @param skippedNoPeriod  기간 칸이 비어 있어 넘긴 것
-	 * @param skippedBroken    JSON 이 깨졌거나 식별자·날짜 모양이 틀려 넘긴 것
-	 * @param skippedDuplicate 같은 축제·같은 기간이 두 번 나와 넘긴 것
+	 * {@code skippedBroken} 은 JSON 이 깨졌거나 식별자·날짜 모양이 틀린 것,
+	 * {@code skippedDuplicate} 는 같은 축제·같은 기간이 두 번 나온 것이다.
 	 */
 	public record Counts(int totalLines, int skippedNoPeriod, int skippedBroken, int skippedDuplicate) {
 

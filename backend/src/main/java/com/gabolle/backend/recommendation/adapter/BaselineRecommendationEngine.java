@@ -1,11 +1,15 @@
 package com.gabolle.backend.recommendation.adapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.Map;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -17,8 +21,11 @@ import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
+import com.gabolle.backend.place.api.PlaceFeatureView;
+import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
+import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
@@ -35,35 +42,17 @@ import com.gabolle.backend.trip.domain.TravelArea;
 import com.gabolle.backend.trip.domain.TripTravelAreaRepository;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 
 /**
- * 규칙 기반 BASELINE 추천 엔진 (S15P21E201-604).
+ * 규칙 기반 BASELINE 추천 엔진. 학습 모델·온톨로지 서버가 아직 없는 동안 이 엔진이
+ * {@link RecommendationEnginePort} 자리를 채운다 ({@link FallbackMode#BASELINE}).
  *
- * <p>{@link RecommendationEnginePort} 의 운영 구현체가 없어서 모든 일정 생성 요청이
- * {@code ENGINE_NOT_CONFIGURED} 로 실패하던 것을 해소한다. 학습 모델·온톨로지 서버가
- * 아직 없는 동안 이 규칙 기반 엔진이 그 자리를 채운다 — {@link FallbackMode#BASELINE}.
- *
- * <h2>배선 — 조건이 아니라 스캔 목록</h2>
- * 이 엔진은 {@code place} 패키지의 빈들을 필요로 한다. 그것을 {@code @ConditionalOnBean} 으로
- * 다루던 것을 S15P21E201-808 에서 걷어냈다. 아래 애노테이션 위 주석에 이유가 있다.
- *
- * <p>배선이 빠지면 {@link DevProfileApplicationContextTest} 가 잡는다. 기동 검사기가 아니라
- * 그쪽에 둔 이유도 같다 — 검사기가 엔진과 같은 조건을 쓰면 엔진이 빠질 때 검사기도 함께
- * 빠져서, 감시하려던 실패에 감시자가 걸린다.
+ * {@code place} 패키지의 빈을 {@code @ConditionalOnBean} 으로 다루지 않는다. 그 애노테이션은
+ * 자동 설정용이라 직접 스캔하는 {@code @Component} 에서는 평가 시점이 스캔 순서에 달려
+ * 조용히 빠진다. 배선은 조건이 아니라 슬라이스의 스캔 목록으로 정한다.
  */
-// S15P21E201-808 — @ConditionalOnBean 을 걷어냈다.
-//
-// 리포지토리에 조건을 걸면 스캔 순서 문제를 피한다고 적어 뒀었는데, 실측해 보니 그렇지
-// 않았다. dev 프로필 전체 앱에서도 이 빈이 안 만들어졌고, 그래서 이 엔진은 어떤 컨텍스트
-// 에서도 붙은 적이 없다. 장소 표가 비어 있어 추천이 어차피 후보 0건이었기 때문에 그 사실이
-// 드러나지 않았을 뿐이다.
-//
-// @ConditionalOnBean 은 자동 설정에서 쓰라고 만든 것이고, 사용자가 직접 스캔하는
-// @Component 에서는 평가 시점이 스캔 순서에 달려 있다. 조건을 어디에 거느냐로는 그 문제를
-// 못 피한다. 그래서 조건 자체를 없애고, 이 엔진이 필요로 하는 place 패키지를 안 올리던
-// 슬라이스(RecommendationSliceApplication)에 그것을 더했다. 배선을 조건이 아니라 스캔
-// 목록으로 정하면 "무엇이 올라오는가" 가 파일에 적혀 있어 읽는 사람이 확인할 수 있다.
 @Component
 @Profile({ "db", "dev" })
 public class BaselineRecommendationEngine implements RecommendationEnginePort {
@@ -80,37 +69,39 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 
 	private final BaselineEngineProperties properties;
 
-	/** S15P21E201-547 — 취향 다섯 차원이 {@code weights.preferenceAlignment} 를 나누는 비율. */
+	/** 취향 다섯 차원이 {@code weights.preferenceAlignment} 를 나누는 비율. */
 	private final PreferenceAlignmentWeights alignmentWeights;
 
 	private final UserPlaceCodeMapRepository codeMapRepository;
 
 	/**
-	 * 범위 안 후보가 이보다 적으면 출발지 기준으로 채운다 — S15P21E201-980.
-	 *
-	 * <p>하루에 네 곳씩 최대 이레를 배정하므로 스물여덟이 상한이고, 그 두 배쯤은 있어야
-	 * 갈래를 섞어 고를 수 있다. 정확한 근거가 있는 값은 아니고 운영을 보고 조정할 값이다.
+	 * 범위 안 후보가 이보다 적으면 출발지 기준으로 채운다. 하루에 네 곳씩 최대 이레면 스물여덟이
+	 * 상한이고 그 두 배쯤은 있어야 갈래를 섞어 고를 수 있다. 운영을 보고 조정할 값이다.
 	 */
 	private static final int MIN_AREA_CANDIDATES = 60;
 
-	/** S15P21E201-338 — 복제 씨앗. 보통 여행은 비어 있어 아무 일도 하지 않는다({@link SeedBoost}). */
+	/** 빠진 씨앗을 자기 좌표로 찾을 때의 반경. 요청이 허용하는 가장 작은 값이다. */
+	private static final int SEED_LOOKUP_RADIUS_M = 100;
+
+	/** 같은 자리에 여러 장소가 겹쳐 있어도 자기 자신이 섞여 나오도록 한 줌만 받는다. */
+	private static final int SEED_LOOKUP_LIMIT = 20;
+
+	/** 반경 밖 씨앗을 끼워 넣었다는 표시. 응답의 appliedFilters 에 남는다. */
+	private static final String SEED_INJECTED_FILTER = "SEED_PLACE_INJECTED";
+
+	/** 씨앗 — 사용자가 적은 「꼭 가고 싶은 장소」와 공유 일정 복제. 보통 여행은 비어 있다({@link SeedBoost}). */
 	private final TripSeedPlaceRepository seedPlaceRepository;
 
-	/** S15P21E201-980 — 여행 범위. 안 고른 여행은 비어 있어 예전과 똑같이 돈다. */
+	/** 후보 풀 밖에 있는 씨앗의 좌표를 찾을 때만 쓴다 ({@link #includeMissingSeeds}). */
+	private final PlaceRepository placeRepository;
+
+	/** 여행 범위. 안 고른 여행은 비어 있어 범위가 없던 때와 똑같이 돈다. */
 	private final Optional<TripTravelAreaRepository> travelAreas;
 
 	/**
-	 * 접힌 취향 벡터를 읽는 통로 — S15P21E201-943.
-	 *
-	 * <h2>🔴 {@code ObjectProvider} 인 이유 — 2026-09-16 실측</h2>
-	 *
-	 * 이 클래스를 띄우는 시험 슬라이스가 <b>아홉</b>인데 그중 {@code preference} 패키지를
-	 * 스캔하는 것은 사실상 없다. 그냥 받으면 그 여덟이 전부 컨텍스트 로딩에서 죽는다 —
-	 * 같은 실수를 오늘 {@code SavedPlaceService} 에서 한 번 했고(장소 검사 145건이 한꺼번에
-	 * 빨개졌다), 그때 배운 것을 여기서는 먼저 확인했다.
-	 *
-	 * <p>없으면 <b>빈 목록</b>으로 본다 — 벡터가 없는 사람과 같은 취급이라 채점이 지금과
-	 * 완전히 같아진다. 이 항은 덧점수라서 빠져도 기존 점수가 안 흔들린다.
+	 * 접힌 취향 벡터를 읽는 통로. 이 클래스를 띄우는 시험 슬라이스 대부분이 {@code preference}
+	 * 패키지를 스캔하지 않아 그냥 받으면 컨텍스트 로딩에서 죽는다. 없으면 빈 목록으로 보고 —
+	 * 벡터가 없는 사람과 같은 취급이라 채점이 지금과 완전히 같다.
 	 */
 	private final ObjectProvider<UserTasteVectorRepository> tasteVectors;
 
@@ -120,7 +111,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 			PlaceCandidateQueryService placeCandidateQueryService, BaselineCandidateTranslator translator,
 			BaselineCandidateScorer scorer, BaselineEngineProperties properties,
 			PreferenceAlignmentWeights alignmentWeights, UserPlaceCodeMapRepository codeMapRepository,
-			TripSeedPlaceRepository seedPlaceRepository,
+			TripSeedPlaceRepository seedPlaceRepository, PlaceRepository placeRepository,
 			Optional<TripTravelAreaRepository> travelAreas,
 			ObjectProvider<UserTasteVectorRepository> tasteVectors,
 			ObjectProvider<UserTasteWeightRepository> tasteWeightRepository) {
@@ -132,20 +123,15 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		this.alignmentWeights = alignmentWeights;
 		this.codeMapRepository = codeMapRepository;
 		this.seedPlaceRepository = seedPlaceRepository;
+		this.placeRepository = placeRepository;
 		this.travelAreas = travelAreas;
 		this.tasteVectors = tasteVectors;
 		this.tasteWeightRepository = tasteWeightRepository;
 	}
 
 	/**
-	 * 이 사용자의 <b>현재 판</b> 성분들. 없으면 빈 목록이다 — S15P21E201-943.
-	 *
-	 * <p>질의는 둘이다: 현재 판 하나를 찾고({@code superseded_at IS NULL}), 그 판의 성분을 읽는다.
-	 * <b>후보 수와 무관하게 요청당 두 번</b>이다.
-	 *
-	 * <p>🔴 빈 목록을 돌려주는 경우가 셋이고 <b>셋 다 정상</b>이다 — 빈으로 못 올라온 슬라이스,
-	 * 아직 접힌 적 없는 사용자(지금 대부분), 사용자를 모르는 요청. 셋 다 이 항이 0 이 되고
-	 * 채점은 벡터가 없던 때와 완전히 같다.
+	 * 이 사용자의 현재 판 성분들. 빈 목록은 정상이다 — 빈으로 못 올라온 슬라이스, 아직 접힌
+	 * 적 없는 사용자, 사용자를 모르는 요청이 모두 여기로 온다.
 	 */
 	private List<UserTasteWeight> currentTasteWeights(UUID userId) {
 		UserTasteVectorRepository vectors = this.tasteVectors.getIfAvailable();
@@ -162,23 +148,18 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	public EngineCandidateBatch generate(EngineRequest request) {
 		Trip trip = loadTrip(request.tripId());
 
-		// 🔴 S15P21E201-550 — 요청이 준 현재 위치가 있으면 그것이 중심이고, 없으면 여행
-		//    출발지를 쓴다. 둘 다 없을 때만 실패다.
-		//
-		//    수기 입력(MANUAL)은 여기서 GPS 와 **똑같이** 다뤄진다 — 작업 내용이 "위치 거부
-		//    시 수기 입력을 1급 fallback 으로 제공한다" 라고 못 박았고, 거리 계산에 들어가는
-		//    값은 어느 쪽이든 좌표 하나다.
+		// 요청이 준 현재 위치가 있으면 그것이 중심이고, 없으면 여행 출발지를 쓴다. 수기 입력
+		// (MANUAL)은 GPS 와 똑같이 다뤄진다 — 거리 계산에 들어가는 값은 어느 쪽이든 좌표 하나다.
 		RequestLocation location = (request.location() != null) ? request.location()
 				: RequestLocation.ofTripOrigin(trip.originLat(), trip.originLng(), trip.createdAt());
 		if (location == null) {
-			// 🔴 부산 시청 같은 중심 좌표를 지어내지 않는다 — 결과가 왜 이상한지 아무도 못
-			// 찾게 된다. 좌표가 없으면 여기서 실패로 남긴다.
+			// 중심 좌표를 지어내지 않는다 — 결과가 왜 이상한지 아무도 못 찾게 된다.
 			throw new RecommendationEngineException("ENGINE_ORIGIN_MISSING",
 					"요청에 현재 위치가 없고 여행에도 출발지 좌표가 없다: tripId=" + request.tripId());
 		}
 
-		// 🔴 findLatestSnapshot·findConstraints 를 쓰지 않는다 — 추천 Job 이 기록해 둔 "그 판"
-		// 을 읽어야 한다. 실행이 비동기라 그 사이 사용자가 취향·제약을 다시 답했을 수 있다.
+		// findLatestSnapshot·findConstraints 를 쓰지 않는다 — 추천 Job 이 기록해 둔 그 판을
+		// 읽어야 한다. 실행이 비동기라 그 사이 사용자가 취향·제약을 다시 답했을 수 있다.
 		PreferenceSnapshot preferenceSnapshot = (request.preferenceSnapshotId() == null) ? null
 				: this.tripRepository.findSnapshotById(request.preferenceSnapshotId().toString()).orElse(null);
 		List<TripConstraint> constraints = (request.constraintSnapshotId() == null) ? List.of()
@@ -188,6 +169,9 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		PlaceCandidateRequest queryRequest =
 				this.translator.translate(location, trip, preferenceSnapshot, constraints);
 		PlaceCandidateResponse response = findCandidatesWithinTravelAreas(trip.tripId(), queryRequest);
+		// 사용자가 적은 「꼭 가고 싶은 장소」가 반경 밖이면 여기까지 안 들어온다. 끼워 넣는다.
+		List<TripSeedPlace> seeds = this.seedPlaceRepository.findByTripId(trip.tripId());
+		response = includeMissingSeeds(response, seeds);
 		long candidateGenerationMs = elapsedMs(candidateGenerationStart);
 
 		// 대조표는 배치당 한 번만 읽는다 — 후보마다 다시 읽으면 질의 수가 후보 수에 비례한다.
@@ -196,20 +180,13 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		List<UserPlaceCodeMap> constraintCodeMap =
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT);
 
-		// 🔴 S15P21E201-943 — 취향 벡터는 요청당 한 번만 읽는다. 후보마다 읽으면 질의 개수가
-		//    후보 수에 비례하는데, 이 클래스가 대조표를 배치당 한 번만 읽는 이유와 같다.
-		//    벡터가 없는 사람은 빈 목록이고, 그러면 채점이 지금과 완전히 같다.
+		// 취향 벡터도 대조표와 같은 이유로 요청당 한 번만 읽는다.
 		List<UserTasteWeight> tasteWeights = currentTasteWeights(request.userId());
 
-		// 🔴 S15P21E201-827 — 후보가 0곳이면 여기서 멈춘다.
-		//
-		//    이 검사가 없으면 아래 resolveDatasetVersion 이 빈 목록을 받아 null 을 내고,
-		//    요청은 VERSION_UNRESOLVED 로 끝난다. 그것은 원인이 아니라 결과다 — 후보가
-		//    없어서 수집분 이름을 못 정한 것인데, 그 코드만 보면 배포 설정이 잘못된 것처럼
-		//    읽힌다. 2026-09-10 배포에서 실제로 그랬다(바다만 고른 요청).
-		//
-		//    무엇을 찾다가 비었는지 함께 남긴다. 갈래를 좁혀서 빈 것과 반경 안에 아무것도
-		//    없어서 빈 것은 사람이 할 일이 다르다.
+		// 후보가 0곳이면 여기서 멈춘다. 이 검사가 없으면 아래 resolveDatasetVersion 이 빈
+		// 목록을 받아 null 을 내고 요청이 VERSION_UNRESOLVED 로 끝나는데, 그것은 원인이 아니라
+		// 결과라서 배포 설정이 잘못된 것처럼 읽힌다. 무엇을 찾다가 비었는지도 함께 남긴다 —
+		// 갈래를 좁혀서 빈 것과 반경 안에 아무것도 없어서 빈 것은 사람이 할 일이 다르다.
 		if (response.candidates().isEmpty()) {
 			String asked = queryRequest.categoriesOrEmpty().isEmpty() ? "갈래를 안 좁혔다"
 					: "고른 갈래=" + String.join(",", queryRequest.categoriesOrEmpty());
@@ -219,9 +196,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		}
 
 		if (response.scanTruncated()) {
-			// 🔴 조용히 넘기지 않는다. 잘렸다는 것은 "반경 안인데 채점조차 안 된 장소가 있다" 는
-			//    뜻이고, 그 사실이 안 남으면 나중에 결과가 이상해도 원인을 못 찾는다.
-			//    gabolle.place.candidate-max-scanned 를 올려야 한다는 신호다.
+			// 잘렸다는 것은 반경 안인데 채점조차 안 된 장소가 있다는 뜻이다. 조용히 넘기면
+			// 나중에 결과가 이상해도 원인을 못 찾는다.
 			LOGGER.warn("후보 조회가 상한에 걸려 잘렸다 — tripId={} 반경={}m 받은 후보={}곳. "
 					+ "gabolle.place.candidate-max-scanned 를 올려야 반경 안 장소가 전부 채점된다",
 					request.tripId(), this.properties.radiusM(), response.candidates().size());
@@ -234,10 +210,14 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 					this.properties.weights(), this.alignmentWeights, preferenceCodeMap, constraintCodeMap,
 					tasteWeights, this.properties.tasteVectorMultiplier()));
 		}
-		// 🔴 S15P21E201-338 — 복제 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다(SeedBoost 참고).
-		candidates = SeedBoost.apply(candidates, this.seedPlaceRepository.findByTripId(trip.tripId()));
-		// 🔴 S15P21E201-724 — 자르기는 여기서, 채점을 마친 뒤에 한다.
-		candidates = keepBestScoring(candidates, this.properties.candidateLimit());
+		// 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다 — SeedBoost 참고.
+		candidates = SeedBoost.apply(candidates, seeds);
+		// 총예산에 맞춘다. 역시 점수만 움직이고 후보를 빼지 않는다 — BudgetFit 참고.
+		candidates = BudgetFit.apply(candidates, priceBandsOf(response), BudgetFit.targetBand(trip));
+		// 자르기는 채점을 마친 뒤다.
+		// 갈래를 안 골랐으면 뒤쪽을 여행마다 다르게 채운다 (S15P21E201-1463).
+		boolean noCategoryChosen = queryRequest.categoriesOrEmpty().isEmpty();
+		candidates = keepBestScoring(candidates, this.properties.candidateLimit(), noCategoryChosen, request.tripId());
 		long rankingMs = elapsedMs(rankingStart);
 
 		String datasetVersion = resolveDatasetVersion(response.datasetVersions());
@@ -246,51 +226,84 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				this.properties.ontologyVersion(), this.properties.policyVersion(), datasetVersion);
 		EngineLatencies latencies = new EngineLatencies(candidateGenerationMs, null, null, rankingMs, null);
 
-		// 🔴 실제로 쓴 출발지를 함께 돌려준다 — 그 선택을 아는 것은 엔진뿐이다.
+		// 실제로 쓴 출발지를 함께 돌려준다 — 그 선택을 아는 것은 엔진뿐이다.
 		return new EngineCandidateBatch(candidates, versions, latencies, FallbackMode.BASELINE,
 				"NO_MODEL_ENGINE", location);
 	}
 
 	/**
-	 * 점수 높은 순으로 {@code limit} 개만 남긴다 — S15P21E201-724.
+	 * 무작위로 채우는 자리가 상한에서 차지하는 몫. 위쪽 절반은 점수 순으로 그대로 지킨다.
 	 *
-	 * <h2>🔴 왜 자르는 자리를 옮겼나</h2>
-	 *
-	 * 전에는 {@code candidateLimit} 이 {@code PlaceCandidateQueryService} 로 그대로 넘어갔다.
-	 * 그 서비스는 점수를 모르므로 <b>거리순</b>으로 자르고, 그래서 그 상한은 "채점 후 상위 200"
-	 * 이 아니라 <b>"가까운 순 200곳만 채점 대상"</b> 이었다. 부산 반경 5km 안에는 음식점만 평균
-	 * 9,422곳이 있어서 실효 반경이 중앙값 <b>304m</b> 였다 — 그 밖의 장소는 아무리 취향에 맞아도
-	 * 점수를 매길 기회조차 없었고, 그래서 서로 다른 네 조건으로 재도 "후보 200 안에 든 정답"
-	 * 비율이 0.26% 로 소수점까지 같았다(S15P21E201-713 실측).
-	 *
-	 * <h2>🔴 저장되는 후보 수는 안 는다</h2>
-	 *
-	 * {@code CandidateAssembler} 는 엔진이 돌려준 것을 <b>전부</b> 행으로 남긴다. 그래서 여기서
-	 * 자르지 않으면 요청 하나에 수천 행이 쌓인다. 자르는 수를 예전과 같은 {@code candidateLimit}
-	 * 으로 둔 이유가 그것이다 — 바뀐 것은 <b>어느 200곳이 남는가</b>뿐이다.
-	 *
-	 * <h2>🔴 잘린 후보의 행은 남지 않는다</h2>
-	 *
-	 * 그건 예전과 같다. 예전에는 "가까운 200곳" 밖이 통째로 사라졌고 지금은 "점수 상위 200곳"
-	 * 밖이 사라진다. 다만 <b>탈락 판정을 받은 후보(FAIL·미확인)는 점수가 낮아도 여기서 우선
-	 * 지켜지지 않는다</b> — 그것까지 남기려면 저장 행 수 자체를 늘려야 하고, 그건 이 티켓의
-	 * 범위가 아니다. 알려진 한계로 적어 둔다.
-	 *
-	 * <p>동점은 {@code placeId} 로 가른다 — 순서가 실행마다 달라지면 나중에 비교가 불가능해진다
-	 * ({@code CandidateAssembler} 가 같은 이유로 같은 규칙을 쓴다).
+	 * <p>🔴 <b>전부 섞으면 가장 잘 맞는 곳이 빠질 수 있다.</b> 카테고리를 안 골랐어도 음식·분위기
+	 * 같은 다른 취향은 골랐을 수 있고, 그 사람에게 1등을 떨어뜨리는 것은 다양성이 아니라 손해다.
+	 * 그래서 앞쪽은 고정하고 <b>뒤쪽만</b> 넓은 풀에서 골라 채운다.
 	 */
-	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit) {
+	private static final double ANCHOR_SHARE = 0.5;
+
+	/**
+	 * 뒤쪽을 채울 때 들여다보는 풀의 크기 = {@code limit} 의 몇 배인가.
+	 *
+	 * <p>값 자체가 실험 대상이라 설정으로 빼지 않고 상수로 둔다 — {@code MOBILITY_WARNING_PENALTY}
+	 * 와 같은 이유다. 너무 크면 점수가 한참 낮은 곳까지 같은 확률로 올라오고, 1이면 섞을 것이 없다.
+	 */
+	private static final int VARIETY_POOL_FACTOR = 3;
+
+	/**
+	 * 점수 높은 순으로 {@code limit} 개만 남긴다. 자르는 자리가 채점 뒤여야 한다 —
+	 * {@code candidateLimit} 을 {@code PlaceCandidateQueryService} 로 넘기면 그쪽은 점수를
+	 * 모르므로 거리순으로 잘라, 상한이 "가까운 순 N곳만 채점 대상" 이 된다. 동점은
+	 * {@code placeId} 로 가른다 — 순서가 실행마다 달라지면 나중에 비교할 수 없다.
+	 * 점수가 낮으면 탈락 판정 후보도 지켜지지 않는 것은 알려진 한계다.
+	 *
+	 * <p>🔴 <b>갈래를 안 고른 사람에게는 뒤쪽을 여행마다 다르게 채운다</b> (S15P21E201-1463).
+	 * 이 엔진에는 무작위가 하나도 없어서, 조건이 비슷하면 <b>늘 같은 곳이 같은 순서로</b> 나왔다.
+	 * 갈래를 고른 사람은 그 뜻이 점수에 실리지만 안 고른 사람에게는 개성이 들어갈 자리가 없다.
+	 *
+	 * <p>🔴 <b>씨앗은 {@code tripId} 다. 그냥 난수가 아니다.</b> 이 저장소의 추천은 재현
+	 * 가능하게 만들어져 있고(엔진 버전 다섯을 들고 다니는 이유가 그것이다), 난수를 쓰면 같은
+	 * 여행을 다시 열 때마다 다른 곳이 나와 <b>문제가 생겨도 그 결과를 다시 만들어 볼 수 없다.</b>
+	 * 씨앗을 여행 번호로 고정하면 여행마다 다르면서 같은 여행은 늘 같다.
+	 *
+	 * <p>🔴 <b>들어온 뒤의 순서는 점수 순이다.</b> 무작위는 「어느 곳이 들어오나」에만 쓴다 —
+	 * {@code ItineraryDraftCommand.places} 의 계약이 「rank 오름차순」이고, 화면도 앞쪽을 더 잘
+	 * 맞는 곳으로 읽는다.
+	 *
+	 * @param varyTail 갈래를 안 골라서 뒤쪽을 섞어도 되는가. 골랐으면 {@code false} —
+	 *     「카페를 골랐는데 카페가 적네」가 생기면 안 된다
+	 * @param seed 섞기의 씨앗. 같은 값이면 같은 결과다
+	 */
+	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit,
+			boolean varyTail, UUID seed) {
 		if (candidates.size() <= limit) {
 			return candidates;
 		}
 		List<EngineCandidate> sorted = new ArrayList<>(candidates);
-		sorted.sort(Comparator
-				// 🔴 점수가 없는 후보를 0 으로 치지 않는다 — 없는 것과 낮은 것은 다르다.
-				//    맨 뒤로 보내되 버리지는 않는다(자리가 남으면 들어온다).
+		sorted.sort(scoreOrder());
+		if (!varyTail) {
+			return new ArrayList<>(sorted.subList(0, limit));
+		}
+
+		int anchor = Math.max(1, (int) Math.round(limit * ANCHOR_SHARE));
+		int poolEnd = Math.min(sorted.size(), Math.max(limit, limit * VARIETY_POOL_FACTOR));
+		List<EngineCandidate> tail = new ArrayList<>(sorted.subList(anchor, poolEnd));
+		// 씨앗이 같으면 같은 순서가 나온다. 들어오는 목록도 점수 순으로 정해져 있어야 그렇다.
+		Collections.shuffle(tail, new Random(seed == null ? 0L : seed.getMostSignificantBits() ^ seed.getLeastSignificantBits()));
+
+		List<EngineCandidate> kept = new ArrayList<>(sorted.subList(0, anchor));
+		kept.addAll(tail.subList(0, Math.min(limit - anchor, tail.size())));
+		// 고르기는 섞어서 했어도 내보내는 순서는 점수 순이다.
+		kept.sort(scoreOrder());
+		return kept;
+	}
+
+	/** 점수 내림차순, 동점은 {@code placeId}. 두 곳에서 같은 순서를 써야 해서 따로 뺐다. */
+	private static Comparator<EngineCandidate> scoreOrder() {
+		return Comparator
+				// 점수가 없는 후보를 0 으로 치지 않는다 — 없는 것과 낮은 것은 다르다. 맨 뒤로
+				// 보내되 자리가 남으면 들어온다.
 				.comparing(EngineCandidate::preRankScore,
-						Comparator.nullsLast(Comparator.reverseOrder()))
-				.thenComparing(EngineCandidate::placeId));
-		return new ArrayList<>(sorted.subList(0, limit));
+						Comparator.nullsLast(Comparator.<Double>reverseOrder()))
+				.thenComparing(EngineCandidate::placeId);
 	}
 
 	private Trip loadTrip(UUID tripId) {
@@ -303,17 +316,10 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	}
 
 	/**
-	 * {@code datasetVersion} 은 설정이 아니라 {@code PlaceCandidateResponse.datasetVersions()}
-	 * 에서 가져온다 — 실제로 이번에 조회된 장소들이 어느 수집분에서 왔는지가 정본이다.
-	 *
-	 * <p>🔴 비어 있으면 {@code null} 을 그대로 돌려준다. {@code RecommendationService} 가
-	 * {@code VERSION_UNRESOLVED} 로 이 요청을 실패시키고 {@code dataset_version} 이라고
-	 * 이름까지 남긴다 — {@code "unknown"} 을 넣으면 재현할 수 없는 결과가 재현 가능한
-	 * 척하게 된다.
+	 * {@code datasetVersion} 은 설정이 아니라 실제로 조회된 장소들이 어느 수집분에서 왔는지로
+	 * 정한다. 비어 있으면 {@code null} 을 그대로 돌려주고 {@code RecommendationService} 가
+	 * {@code VERSION_UNRESOLVED} 로 요청을 실패시킨다.
 	 */
-	// 🔴 package-private 이다 — 같은 꾸러미의 시험이 직접 부른다(S15P21E201-1165).
-	//    이 한 메서드가 "일정을 만들 수 있나" 를 통째로 좌우한 적이 있어서, 바깥 배선을
-	//    다 세우지 않고도 규칙만 따로 겨눌 수 있어야 한다.
 	String resolveDatasetVersion(List<String> datasetVersions) {
 		if (datasetVersions == null || datasetVersions.isEmpty()) {
 			return null;
@@ -333,30 +339,9 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	private static final String DATASET_VERSION_DIGEST_PREFIX = "sha256:";
 
 	/**
-	 * 이어 붙인 값이 칸보다 길면 <b>지문</b>으로 줄여서 적는다 — S15P21E201-1165.
-	 *
-	 * <h2>왜 예외를 던지다가 지문으로 바꿨나</h2>
-	 * 예전에는 100자를 넘으면 {@code ENGINE_DATASET_VERSION_AMBIGUOUS} 로 요청을 실패시켰다.
-	 * 조용히 자르지 않겠다는 뜻이었고 <b>그 판단은 옳았다</b> — 잘린 값은 다른 수집분 조합과
-	 * 겹쳐 보인다.
-	 *
-	 * <p>그런데 2026-09-16 에 {@code tourapi-curated-*} 셋이 들어가면서 수집분이 여섯이 되어
-	 * 159자가 됐고, <b>그때부터 일정 생성이 100% 실패했다</b>(2026-09-17 실기기·운영 로그로
-	 * 확인). 자료를 더 넣을수록 확실해지는 실패라 되돌아갈 방향이 아니다.
-	 *
-	 * <p>지문은 자르는 것이 아니다. 길이가 영원히 묶이면서도 <b>조합이 다르면 값도 다르다</b> —
-	 * 원래 주석이 막으려던 "겹쳐 보이는 것" 을 그대로 막는다.
-	 *
-	 * <h2>🔴 잃는 것과, 그것이 괜찮은 이유</h2>
-	 * 값만 보고 어느 수집분들이었는지 읽을 수 없게 된다. 그래도 정보가 사라지지는 않는다 —
-	 * 그 일정에 들어간 장소들의 {@code place.dataset_version} 으로 언제든 되짚을 수 있다.
-	 * 이 칸이 실제로 해야 하는 일은 <b>"이 조합을 다른 조합과 구분하는 안정된 이름"</b> 하나다.
-	 *
-	 * <p>그리고 짧을 때는 예전 그대로 사람이 읽는 값이 들어간다. 지문은 <b>넘칠 때만</b> 쓴다 —
+	 * 이어 붙인 값이 칸보다 길면 지문으로 줄여서 적는다. 자르면 다른 수집분 조합과 겹쳐
+	 * 보이지만 지문은 조합이 다르면 값도 다르다. 짧을 때는 사람이 읽는 값이 그대로 들어가므로
 	 * 이미 쌓인 값들의 뜻이 바뀌지 않는다.
-	 *
-	 * <p>넘쳤다는 사실과 원문은 로그에 남긴다. 조용히 바뀌면 나중에 "이 값은 왜 지문이지" 를
-	 * 아무도 못 되짚는다.
 	 */
 	private String digestOf(String joined) {
 		String hex;
@@ -386,20 +371,10 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	}
 
 	/**
-	 * 고른 여행 범위 안에서 후보를 고른다 — S15P21E201-980.
-	 *
-	 * <p>범위를 안 골랐으면 지금까지와 똑같다 — 출발지 하나를 중심으로 한 번 훑는다.
-	 *
-	 * <p>골랐으면 <b>지역마다 한 번씩</b> 훑어 합친다. 중심 하나에 반경을 키우는 방법은 쓸 수
-	 * 없다 — 해운대와 남포동을 같이 고르면 그 둘을 다 덮는 원이 부산 전체가 되어, 범위를
-	 * 골랐다는 말이 아무 뜻이 없어진다.
-	 *
-	 * <p>🔴 모자라면 출발지 기준 조회를 더해 채운다. 조건이 후보를 0곳으로 만들어 일정 생성이
-	 * 통째로 실패하는 일이 이미 있었다(큰 짐 조건). 범위 때문에 같은 일이 나면 안 된다 —
-	 * 범위는 "여기 위주로" 이지 "여기가 아니면 여행을 만들지 마라" 가 아니다.
-	 *
-	 * <p>점수 계산은 안 건드린다. 거리는 여전히 출발지 기준이고, 이 자리는 <b>무엇을 채점할
-	 * 것인가</b>만 정한다 — 가중치는 S15P21E201-106·452 의 범위다.
+	 * 고른 여행 범위 안에서 후보를 고른다. 범위를 안 골랐으면 출발지 하나를 중심으로 한 번
+	 * 훑고, 골랐으면 지역마다 한 번씩 훑어 합친다 — 중심 하나에 반경을 키우면 떨어진 두 곳을
+	 * 덮는 원이 도시 전체가 되어 범위를 골랐다는 말이 뜻을 잃는다. 모자라면 출발지 기준
+	 * 조회로 채운다. 거리는 여전히 출발지 기준이고 이 자리는 무엇을 채점할 것인가만 정한다.
 	 */
 	private PlaceCandidateResponse findCandidatesWithinTravelAreas(String tripId, PlaceCandidateRequest base) {
 		List<TravelArea> areas = this.travelAreas.map((repository) -> repository.findByTripId(tripId))
@@ -423,8 +398,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 
 		PlaceCandidateResponse fromAreas = this.placeCandidateQueryService.findCandidates(base);
 		if (merged.size() < MIN_AREA_CANDIDATES) {
-			// 🔴 범위 안이 비었다. 출발지 기준 후보로 채우고 그 사실을 남긴다 — 조용히 채우면
-			//    "해운대를 골랐는데 왜 서면이 나오냐" 를 아무도 설명할 수 없다.
+			// 범위 안이 비었다. 출발지 기준 후보로 채우고 그 사실을 appliedFilters 에 남긴다 —
+			// 조용히 채우면 "해운대를 골랐는데 왜 서면이 나오냐" 를 설명할 수 없다.
 			for (PlaceCandidateResponse.Candidate candidate : fromAreas.candidates()) {
 				merged.putIfAbsent(candidate.placeId().toString(), candidate);
 			}
@@ -435,6 +410,107 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		return new PlaceCandidateResponse(candidates, candidates.size(), fromAreas.minimumRequired(),
 				candidates.size() < fromAreas.minimumRequired(), appliedFilters, fromAreas.notApplied(),
 				fromAreas.scanTruncated(), fromAreas.datasetVersions());
+	}
+
+	/**
+	 * 후보 풀에 없는 씨앗을 풀에 끼워 넣는다.
+	 *
+	 * <p><b>왜 필요한가.</b> 후보는 출발지·여행 범위를 중심으로 한 반경
+	 * ({@code gabolle.recommendation.baseline.radius-m}, 기본 5,000m) 안에서만 뽑는다. 부산은
+	 * 동서로 30km 가 넘어서, 서면에서 출발하는 여행에 해운대를 「꼭 가고 싶은 장소」로 적으면
+	 * 그 장소는 후보에 들어오지도 못하고 {@link SeedBoost} 도 볼 수 없다. 사용자가 이름을 직접
+	 * 적어 넣은 유일한 답이 조용히 사라지는 자리였다.
+	 *
+	 * <p><b>어떻게.</b> 빠진 장소를 <b>그 장소 자신을 중심으로</b> 다시 조회한다. 원래 조회의
+	 * 갈래·표식 조건은 걸지 않는다 — 이름을 적어 넣은 곳을 갈래로 거를 이유가 없고, 제약 판정은
+	 * 뒤에서 채점기와 {@code CandidateAssembler} 가 그대로 한다(알레르기 같은 하드 필터에
+	 * 걸리는 곳은 지금처럼 빠진다). 여기서 하는 일은 <b>판정할 기회를 주는 것</b>뿐이다.
+	 *
+	 * <p>좌표를 모르는 장소는 넣지 않는다 — 거리 점수를 매길 수 없고, 0 을 넣으면 "출발지에
+	 * 붙어 있다" 는 다른 주장이 된다.
+	 */
+	private PlaceCandidateResponse includeMissingSeeds(PlaceCandidateResponse response, List<TripSeedPlace> seeds) {
+		if (seeds.isEmpty()) {
+			return response;
+		}
+		Set<UUID> inPool = new LinkedHashSet<>();
+		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
+			inPool.add(candidate.placeId());
+		}
+		List<UUID> missing = new ArrayList<>();
+		for (TripSeedPlace seed : seeds) {
+			UUID placeId = UUID.fromString(seed.placeId());
+			if (!inPool.contains(placeId)) {
+				missing.add(placeId);
+			}
+		}
+		if (missing.isEmpty()) {
+			return response;
+		}
+
+		List<PlaceCandidateResponse.Candidate> added = new ArrayList<>();
+		for (Place place : this.placeRepository.findByPlaceIdIn(missing)) {
+			if (!place.hasCoordinates()) {
+				LOGGER.warn("씨앗 장소에 좌표가 없어 후보에 못 넣었다 — placeId={}", place.getPlaceId());
+				continue;
+			}
+			findSelf(place).ifPresent(added::add);
+		}
+		if (added.isEmpty()) {
+			return response;
+		}
+
+		List<PlaceCandidateResponse.Candidate> merged = new ArrayList<>(response.candidates());
+		merged.addAll(added);
+		List<String> appliedFilters = new ArrayList<>(response.appliedFilters());
+		// 조용히 넣지 않는다. 뒤에서 "반경 밖 장소가 왜 여기 있냐" 를 설명할 수 있어야 한다.
+		appliedFilters.add(SEED_INJECTED_FILTER);
+		return new PlaceCandidateResponse(merged, merged.size(), response.minimumRequired(),
+				merged.size() < response.minimumRequired(), appliedFilters, response.notApplied(),
+				response.scanTruncated(), response.datasetVersions());
+	}
+
+	/**
+	 * 장소 하나를 자기 좌표를 중심으로 다시 조회해서 후보 모양으로 받아 온다.
+	 * 직접 만들지 않고 조회를 거치는 이유는, 채점기가 보는 표식 값들이 이 조회에서 채워지기
+	 * 때문이다 — 손으로 만들면 표식이 빈 후보가 되어 취향 점수가 통째로 0 이 된다.
+	 */
+	private Optional<PlaceCandidateResponse.Candidate> findSelf(Place place) {
+		PlaceCandidateRequest self = new PlaceCandidateRequest(
+				new PlaceCandidateRequest.Center(place.getLat(), place.getLng()), SEED_LOOKUP_RADIUS_M,
+				null, null, null, null, null, SEED_LOOKUP_LIMIT);
+		for (PlaceCandidateResponse.Candidate candidate : this.placeCandidateQueryService.findCandidates(self)
+				.candidates()) {
+			if (candidate.placeId().equals(place.getPlaceId())) {
+				return Optional.of(candidate);
+			}
+		}
+		LOGGER.warn("씨앗 장소를 자기 좌표로도 못 찾았다 — placeId={}", place.getPlaceId());
+		return Optional.empty();
+	}
+
+	/**
+	 * 후보마다의 가격대({@code PRICE_LEVEL}). 값이 {@code {"band":"MID","raw":"mid"}} 모양이라
+	 * {@code band} 만 꺼낸다.
+	 *
+	 * <p>가격대가 없는 곳은 표에 아예 넣지 않는다 — 「모른다」를 빈 문자열이나 기본 등급으로
+	 * 채우면 조사 안 된 곳이 특정 등급인 것처럼 점수를 받는다.
+	 */
+	private static Map<UUID, String> priceBandsOf(PlaceCandidateResponse response) {
+		Map<UUID, String> bandByPlace = new LinkedHashMap<>();
+		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
+			for (PlaceFeatureView feature : candidate.features()) {
+				if (!BudgetFit.FEATURE_TYPE.equals(feature.featureType()) || feature.value() == null) {
+					continue;
+				}
+				String band = feature.value().path("band").asText("");
+				if (!band.isBlank()) {
+					bandByPlace.put(candidate.placeId(), band);
+				}
+				break;
+			}
+		}
+		return bandByPlace;
 	}
 
 }

@@ -15,13 +15,8 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.transit.application.TransitVendorException;
 
 /**
- * 대중교통 조회의 실패를 명확한 상태코드로 번역한다 — S15P21E201-988.
- *
- * <p>🔴 {@code assignableTypes}로 {@link TransitController}에만 건다 — {@code
- * WeatherExceptionHandler}와 같은 이유로 다른 컨트롤러의 같은 예외 타입까지 가로채지 않는다.
- *
- * <p>🔴 <b>TAGO 호출 실패를 200으로 숨기지 않는다.</b> {@link TransitVendorException}은
- * 502(Bad Gateway)로 내려간다.
+ * 대중교통 조회 실패를 상태코드로 번역한다. {@code assignableTypes}로 {@link TransitController}
+ * 에만 걸어 다른 컨트롤러의 같은 예외 타입까지 가로채지 않는다. 벤더 호출 실패는 502로 내려간다.
  */
 @RestControllerAdvice(assignableTypes = TransitController.class)
 @Profile({ "db", "dev" })
@@ -45,7 +40,6 @@ public class TransitExceptionHandler {
 				requestId()));
 	}
 
-	/** TAGO를 부르지 못했다 — 절대 200으로 위장하지 않는다. */
 	@ExceptionHandler(TransitVendorException.class)
 	public ResponseEntity<ApiResponse<Void>> handleVendorFailure(TransitVendorException exception) {
 		return ResponseEntity.status(exception.getStatus()).body(ApiResponse.failure(

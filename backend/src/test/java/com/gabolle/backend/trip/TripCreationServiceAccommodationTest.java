@@ -25,12 +25,6 @@ import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.infra.InMemoryTripRepository;
 
-/**
- * S15P21E201-456 — 숙소·영어메뉴/해외카드/혼밥우선 선호·최대환승횟수 저장.
- *
- * <p>완료 기준 "저장한 조건을 다시 읽으면 고른 값이 그대로 있다"와, 자차(PRIVATE_CAR)
- * 이동이면 최대 환승 횟수를 무시하는 규칙을 검증한다.
- */
 class TripCreationServiceAccommodationTest {
 
 	private static final Instant NOW = Instant.parse("2026-09-09T00:00:00Z");
@@ -93,8 +87,8 @@ class TripCreationServiceAccommodationTest {
 	@Test
 	@DisplayName("자차(PRIVATE_CAR) 이동이면 최대 환승 횟수를 무시한다 - 자차에는 환승 개념이 없다")
 	void ignoresMaxTransitTransfersWhenPrivateCar() {
-		// 🔴 "transport" 취향 답은 화면 값(WALK/CAR/TRANSIT)이고, TravelModes 가 그것을
-		// travel_modes 코드(PRIVATE_CAR 등)로 바꾼다 — CAR 를 보내면 PRIVATE_CAR 가 된다.
+		// "transport" 답은 화면 값(WALK/CAR/TRANSIT)이고 TravelModes 가 travel_modes 코드로
+		// 바꾼다 — CAR 를 보내면 PRIVATE_CAR 가 된다.
 		var result = service.create(
 				command(null, false, false, false, 3, new String[] { "CAR" }), "key_3");
 

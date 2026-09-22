@@ -39,11 +39,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * S15P21E201-1013 — 컬렉션.
- *
- * <p>DB 없이 도는 슬라이스다. 저장소만 mock 으로 세우고 <b>서비스는 진짜를 쓴다</b> —
- * 이 작업에서 틀리기 쉬운 것이 <b>주인 검사</b>와 <b>두 종류 처리</b>라, 그 판단을 하는
- * 서비스를 가짜로 바꾸면 검사가 아무것도 안 재게 된다.
+ * 컬렉션. DB 없이 도는 슬라이스이고 저장소만 mock 으로 세운다 — 주인 검사와 두 종류 처리를
+ * 재야 하므로 서비스는 진짜를 쓴다.
  */
 class CollectionControllerTest {
 
@@ -82,10 +79,7 @@ class CollectionControllerTest {
 
 	// ── 주인 검사 ────────────────────────────────────────────────────────────
 
-	/**
-	 * 🔴 남의 컬렉션과 없는 컬렉션을 <b>같은 404</b> 로 답한다. 구분해 답하면 그 번호의
-	 * 컬렉션이 존재한다는 사실이 응답 모양으로 새어 나간다.
-	 */
+	/** 남의 컬렉션과 없는 컬렉션을 같은 404 로 답한다. 구분하면 있다는 사실이 새어 나간다. */
 	@Test
 	@DisplayName("🔴 남의 컬렉션은 없는 것과 같은 404 다")
 	void othersCollectionIsNotFound() throws Exception {
@@ -139,10 +133,7 @@ class CollectionControllerTest {
 				anyInt(), any());
 	}
 
-	/**
-	 * 🔴 지금 화면이 담는 유일한 방식이다. 이것을 못 받으면 <b>지금 되는 기능을 뺏는 것</b>이
-	 * 된다 — 우리 목록에 없는 동네 가게를 담을 길이 사라진다.
-	 */
+	/** 우리 목록에 없는 동네 가게를 담는 유일한 길이다. */
 	@Test
 	@DisplayName("🔴 직접 적은 것도 담긴다 — 우리 목록에 없는 곳")
 	void addCustomItem() throws Exception {
@@ -187,8 +178,8 @@ class CollectionControllerTest {
 	}
 
 	/**
-	 * 🔴 화면에서 연타할 수 있고 통신이 끊기면 앱이 재시도한다. 두 번째에
-	 * {@code uk_collection_item_place} 에 걸려 실패하면 사용자는 «담기가 고장났다» 로 본다.
+	 * 화면에서 연타할 수 있고 통신이 끊기면 앱이 재시도한다. 두 번째가
+	 * {@code uk_collection_item_place} 에 걸려 실패하면 안 된다.
 	 */
 	@Test
 	@DisplayName("🔴 이미 담긴 장소를 또 담아도 성공이고 두 번 들어가지 않는다")
@@ -215,10 +206,7 @@ class CollectionControllerTest {
 
 	// ── 도메인 규칙 ──────────────────────────────────────────────────────────
 
-	/**
-	 * 🔴 장소 항목의 이름·좌표·사진은 <b>장소 표의 것</b>이다. 여기서 고치게 두면 같은 값이
-	 * 두 곳에 생겨 장소 이름이 바뀌었을 때 한쪽만 낡는다.
-	 */
+	/** 장소 항목의 이름·좌표·사진은 장소 표의 것이다. 여기서 고치면 값이 두 곳에 생긴다. */
 	@Test
 	@DisplayName("🔴 장소 항목의 이름은 컬렉션에서 못 고친다")
 	void placeItemNameIsNotEditableHere() {

@@ -6,11 +6,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.trip.domain.TripMember;
+import com.gabolle.backend.trip.domain.TripMemberRoleChanged;
 import com.gabolle.backend.trip.domain.TripMembershipRepository;
 import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.presentation.dto.TripMembersResponse;
@@ -18,12 +20,10 @@ import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
- * 참여자 목록·역할 변경·제거 — S15P21E201-320(진미리 님 FE 블로커: 목록도 함께 이 서비스가 맡는다).
+ * 참여자 목록·역할 변경·제거.
  *
- * <p>역할 변경·제거는 소유자만 부를 수 있다. 그 판정을 {@link #requireOwner} 하나로 모아 두
- * 메서드가 같은 코드를 지나게 한다 — {@code TripInviteService.issue} 도 같은 모양의 판정을
- * 갖고 있지만 메시지가 달라({@code "초대할 수 있어요"} vs {@code "역할을 바꿀 수 있어요"})
- * 그대로 공유하지 않고 자기 서비스 안에 따로 둔다.
+ * <p>역할 변경·제거의 소유자 판정은 {@link #requireOwner} 하나로 모았다.
+ * {@code TripInviteService.issue} 가 같은 모양의 판정을 따로 갖는 것은 거부 메시지가 달라서다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -38,12 +38,20 @@ public class TripMemberService {
 
 	private final AppUserRepository appUserRepository;
 
+	/**
+	 * 「자격이 바뀌었다」를 알리는 자리. 듣는 쪽은 당사자 폰에 알림을 띄우는
+	 * {@code TripPushNotifier} 하나이고, 커밋이 끝난 뒤에만 받는다 (S15P21E201-1391).
+	 */
+	private final ApplicationEventPublisher events;
+
 	public TripMemberService(TripRepository tripRepository, TripMembershipRepository membershipRepository,
-			TripQueryService tripQueryService, AppUserRepository appUserRepository) {
+			TripQueryService tripQueryService, AppUserRepository appUserRepository,
+			ApplicationEventPublisher events) {
 		this.tripRepository = tripRepository;
 		this.membershipRepository = membershipRepository;
 		this.tripQueryService = tripQueryService;
 		this.appUserRepository = appUserRepository;
+		this.events = events;
 	}
 
 	/**
@@ -55,9 +63,8 @@ public class TripMemberService {
 		TripQueryService.View view = this.tripQueryService.get(tripId, requesterId);
 		List<TripMember> members = this.tripRepository.findMembers(tripId);
 
-		// 🔴 참여자마다 질의하지 않는다 — 한 번에 읽는다(티켓 완료 기준).
-		// S15P21E201-844 — 이름만 뽑던 것을 사용자 자체로 바꿨다. 프로필 사진 주소가 더해지면서
-		// 필요한 칸이 둘이 됐고, 칸마다 맵을 하나씩 만들면 다음 칸이 생길 때 또 늘어난다.
+		// 참여자마다 질의하지 않고 한 번에 읽는다. 칸 하나가 아니라 사용자 자체를 담는 것은
+		// 필요한 칸이 늘 때마다 맵이 하나씩 늘지 않게 하기 위해서다.
 		Map<UUID, AppUser> profiles = this.appUserRepository
 				.findAllById(members.stream().map(m -> UUID.fromString(m.userId())).toList())
 				.stream()
@@ -90,11 +97,15 @@ public class TripMemberService {
 				.orElseThrow(TripMemberNotFoundException::new);
 
 		TripMember.Role newRole = parseRole(newRoleRaw);
-		// 🔴 검증만 하고 버린다 — "소유자는 못 바꾼다"·"소유자로는 못 바꾼다" 두 규칙이 여기서 걸린다.
+		// 결과를 버리는 호출이다. "소유자는 못 바꾼다"·"소유자로는 못 바꾼다" 검증만 태운다.
 		target.withRole(newRole);
 
 		TripMember updated = this.membershipRepository.changeRole(tripId, targetUserId, newRole)
 				.orElseThrow(TripMemberNotFoundException::new);
+
+		// 바뀐 뒤에만 알린다. 위의 orElseThrow 로 빠지면 아무 일도 안 일어난 것이고, 그때 알림이
+		// 나가면 「역할이 바뀌었어요」를 보고 들어온 사람이 아무것도 안 바뀐 화면을 본다.
+		this.events.publishEvent(new TripMemberRoleChanged(tripId, targetUserId, newRole, requesterId));
 
 		Map<UUID, AppUser> profile = this.appUserRepository.findById(UUID.fromString(targetUserId))
 				.map(user -> Map.of(user.getUserId(), user))
@@ -153,14 +164,12 @@ public class TripMemberService {
 				profile == null ? null : profile.getAvatarUrl());
 	}
 
-	/** 요청자가 그 여행의 소유자가 아니다. */
 	public static class TripMemberForbiddenException extends RuntimeException {
 		public TripMemberForbiddenException(String message) {
 			super(message);
 		}
 	}
 
-	/** 대상이 그 여행의 회원이 아니다. */
 	public static class TripMemberNotFoundException extends RuntimeException {
 		public TripMemberNotFoundException() {
 			super("그 여행의 참여자가 아닙니다.");

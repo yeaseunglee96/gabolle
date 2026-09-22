@@ -37,11 +37,9 @@ import com.gabolle.backend.share.presentation.ShareCloneExceptionHandler;
 import com.gabolle.testslice.CollaborationSliceApplication;
 
 /**
- * S15P21E201-338 — 공유 일정 복제가 실제 PostgreSQL 에서 "장소만 가져오고 조건은 내 것" 으로 동작하는지 본다.
- *
- * <p>티켓 완료 기준 넷 — 새 여행이 하나 생기고 소유자가 요청자다 · 새 일정의 인원·예산·기간이 내가 넣은 값이다 ·
- * 복제 후에도 원본이 그대로다 · 만료된 공유 주소로는 복제가 거절된다. 여기에 씨앗이 원본 순서대로 남는지와,
- * 제약 없는 요청이 여행은 만들고 Job 만 못 접수한 것을 경고로 알리는지(알려진 한계)를 더한다.
+ * 공유 일정 복제가 실제 PostgreSQL 에서 「장소만 가져오고 조건은 내 것」 으로 동작하는지 본다.
+ * 새 여행의 소유자가 요청자인가, 인원·예산·기간이 내가 넣은 값인가, 원본이 그대로인가,
+ * 만료된 공유 주소가 거절되는가, 씨앗이 원본 순서대로 남는가를 함께 확인한다.
  */
 @SpringBootTest(classes = CollaborationSliceApplication.class, properties = {
 		"spring.profiles.active=db",

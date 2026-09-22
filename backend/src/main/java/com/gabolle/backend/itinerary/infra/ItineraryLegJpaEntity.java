@@ -13,11 +13,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * {@code itinerary_leg} 표 매핑 — S15P21E201-604.
- *
- * <p>🔴 {@code travelMode} 는 자바에서 열거값으로 검증하지 않는다. DB
- * {@code ck_itinerary_leg_mode}(trip.travel_modes 의 아홉 개 목록과 같다)가 저장 시점에
- * 막는다 — 두 곳에서 같은 목록을 자바 enum 으로 또 들고 있으면 한쪽만 바뀌는 날 조용히
+ * {@code itinerary_leg} 표 매핑.
+ * {@code travelMode} 는 자바에서 열거값으로 검증하지 않는다. DB {@code ck_itinerary_leg_mode}
+ * 가 저장 시점에 막는다 — 같은 목록을 자바 enum 으로 또 들고 있으면 한쪽만 바뀌는 날 조용히
  * 갈라진다.
  */
 @Entity
@@ -61,16 +59,14 @@ public class ItineraryLegJpaEntity {
 	@Column(name = "stair_steps", updatable = false)
 	private Integer stairSteps;
 
-	/** S15P21E201-179 — 위의 거리·시간이 실제 응답인지 어림값인지. 옛 행은 NULL 이다. */
+	/** 위의 거리·시간이 실제 응답인지 어림값인지. 이 칸이 생기기 전 행은 NULL 이다. */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "data_status", length = 20, updatable = false)
 	private ItineraryItem.DataStatus dataStatus;
 
 	/**
-	 * 🔴 S15P21E201-1109 — 이 구간의 이동 요금(원).
-	 *
-	 * <p>{@code null} 은 "얼마인지 모른다" 이고 {@code 0} 은 "공짜다" 다. DB 쪽에도 같은
-	 * 뜻으로 적혀 있다({@code ck_itinerary_leg_fare_krw} 가 음수를 막는다).
+	 * 이 구간의 이동 요금(원). {@code null} 은 "얼마인지 모른다" 이고 {@code 0} 은 "공짜다" 다.
+	 * DB 쪽 {@code ck_itinerary_leg_fare_krw} 가 음수를 막는다.
 	 */
 	@Column(name = "fare_krw", updatable = false)
 	private Integer fareKrw;

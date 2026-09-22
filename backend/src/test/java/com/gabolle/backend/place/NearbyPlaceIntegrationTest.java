@@ -22,24 +22,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 근처 장소 거리순 조회(S15P21E201-469) 완료 기준 셋을 각각 테스트 하나로 잰다.
+ * 근처 장소 거리순 조회의 반경 사다리와 정렬만 본다 — 표식(feature) 경로는
+ * {@code PlaceMappingIntegrationTest} 가 잰다. 목적 설정은 실제 properties 를 건드리지 않도록
+ * {@link TestPropertySource} 로 채운다.
  *
- * <p>{@code PlaceProperties.purposes} 는 {@code application*.properties} 를 고치지 않기로 한
- * 경계 때문에 여기서 {@link TestPropertySource} 로 채운다. 테스트 전용 목적 코드
- * {@code ZZT_SOUVENIR} 를 {@code category = "ZZT_SOUVENIR_SHOP"} 로 매핑해 둔다 — 표식(feature)
- * 경로는 {@code PlaceRepository.findWithinBoundingBoxHavingFeature} 자체가 이미
- * {@code PlaceMappingIntegrationTest} 에서 검증하므로, 여기서는 반경 사다리와 정렬 로직만 본다.
- *
- * <p>🔴 표를 비우지 않는다 — {@code PlaceFeatureCodeMapTest} 가 같은 표에 행을 남기고 정리하지
- * 않는다. {@link #tearDown()} 에서 {@code fixture.cleanUp()} 만 부른다.
+ * <p>다른 테스트가 같은 표에 행을 남기고 정리하지 않으므로 표를 통째로 비우지 않고
+ * {@code fixture.cleanUp()} 만 부른다.
  */
 @TestPropertySource(properties = {
 		"gabolle.place.purposes[ZZT_SOUVENIR].categories[0]=ZZT_SOUVENIR_SHOP"
 })
 class NearbyPlaceIntegrationTest extends PlacePostgresIntegrationTest {
 
-	/** {@link com.gabolle.backend.place.service.GeoDistance} 의 지구 반지름과 같은 값 — 북쪽으로
-	 * 옮긴 좌표의 실제 거리가 의도한 미터 수와 정확히 맞아떨어지게 하기 위해서다. */
+	/** {@link com.gabolle.backend.place.service.GeoDistance} 의 지구 반지름과 같은 값이어야
+	 * 북쪽으로 옮긴 좌표의 실제 거리가 의도한 미터 수와 맞는다. */
 	private static final double EARTH_RADIUS_METERS = 6_371_008.8;
 
 	private static final double ORIGIN_LAT = 35.0;
@@ -111,11 +107,7 @@ class NearbyPlaceIntegrationTest extends PlacePostgresIntegrationTest {
 	@Test
 	@DisplayName("🔴 결과 순서는 DB 삽입 순서와 무관하게 거리순이다")
 	void sortIsIndependentOfInsertionOrder() {
-		// 🔴 예전 테스트("인기 점수를 거리 순서와 반대로 넣어도...")는 이 경로의 PurposeSpec 에
-		// featureType 이 없어(카테고리로만 목적을 판별) 서비스가 place_feature 를 아예 읽지 않고,
-		// 응답 DTO 에도 점수 칼럼이 없어서 비교자가 그 값을 참조할 통로가 없었다 — 즉 무엇을
-		// 넣든 실패할 수 없는 테스트였다. 대신 여기서는 실제로 관찰 가능한 것, 즉 "삽입 순서가
-		// 결과 순서에 새지 않는가" 를 잰다 — 거리와 반대 순서로 넣고 결과가 거리순인지 본다.
+		// 거리와 반대 순서로 넣는다.
 		UUID far = insertAt("삽입역순멀리", 900);
 		UUID mid = insertAt("삽입역순중간", 500);
 		UUID near = insertAt("삽입역순가까이", 100);
@@ -129,8 +121,7 @@ class NearbyPlaceIntegrationTest extends PlacePostgresIntegrationTest {
 	@Test
 	@DisplayName("완료 기준 — purpose 없이 호출해도 반경 안 장소가 거리순으로 나오고 카테고리로 걸러지지 않는다")
 	void worksWithoutPurposeAndAppliesNoCategoryFilter() {
-		// 🔴 purposes 설정이 비어 있는 상태(application*.properties 를 안 고치기로 한 이 티켓의
-		// 경계)에서 purpose 가 필수였다면 이 호출 자체가 항상 UNKNOWN_PURPOSE 로 막혔다.
+		// purpose 가 필수였다면 설정이 빈 상태에서 이 호출은 늘 UNKNOWN_PURPOSE 로 막힌다.
 		UUID matchingCategory = insertAt("목적없음A", 100);
 		UUID otherCategory = insertAt("목적없음B", 300, "ZZT_다른카테고리");
 

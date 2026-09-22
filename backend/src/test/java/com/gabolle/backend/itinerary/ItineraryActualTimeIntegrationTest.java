@@ -37,19 +37,12 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 방문지 실제 도착·출발 시각 — S15P21E201-293. 실제 PostgreSQL 위에서 HTTP 로 본다.
+ * 방문지 실제 도착·출발 시각. 실제 PostgreSQL 위에서 HTTP 로 본다.
  *
- * <h2>이 테스트가 지키는 것</h2>
- * 티켓의 완료 기준 다섯을 그대로 옮긴다 — 기록이 조회에 보이는가, 다시 보내면 마지막 값이
- * 남는가, 기록이 없는 방문지의 실제 시각 자리가 <b>비어 있는가</b>, 남의 여행이 거부되는가,
- * 지나간 날짜에도 적을 수 있는가.
- *
- * <p>🔴 "비어 있다" 를 {@code doesNotExist()} 로 재지 않는다. 그것은 <b>칸이 없는 것</b>과
- * <b>칸이 있고 값이 null 인 것</b>을 구분하지 못해서, 응답에 칸을 아예 안 만들어도 초록이
- * 된다 — 화면은 그 둘을 "아직 안 갔다" 와 "이 서버는 이 기능을 모른다" 로 다르게 읽는다.
- * 그래서 {@code value(nullValue())} 로 값이 null 임을 확인하고, 같은 항목의 다른 칸이
- * 채워져 있음도 함께 단정해 응답 자체가 빈 것이 아님을 보인다
- * ({@link #itemWithoutRecordHasEmptyActualSlots()}).
+ * <p>"비어 있다" 를 {@code doesNotExist()} 로 재지 않는다. 그러면 칸이 없는 것과 칸이 있고
+ * 값이 null 인 것을 구분하지 못해 응답에 칸을 아예 안 만들어도 초록이 된다. 대신
+ * {@code value(nullValue())} 로 값이 null 임을 확인하고, 같은 항목의 다른 칸이 채워져
+ * 있음도 함께 단정한다.
  *
  * <p>{@link ItineraryAccessIntegrationTest} 와 같은 방식 — standalone MockMvc 에 컨트롤러
  * 빈만 올리고 서비스·저장소는 컨텍스트가 주입한 진짜 구현을 쓴다. 인증 필터 체인만 안 태우고
@@ -120,8 +113,7 @@ class ItineraryActualTimeIntegrationTest {
 		createUser(this.viewerId, now);
 		createUser(this.strangerId, now);
 
-		// 여행 기간을 지나간 날짜로 잡는다 — 완료 기준 5번("지나간 날짜의 방문지에도 뒤늦게
-		// 기록할 수 있다")이 이 상황이다.
+		// 여행 기간을 지나간 날짜로 잡는다 — 지나간 날짜의 방문지에도 뒤늦게 기록할 수
 		jdbcTemplate.update(
 				"INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, party_size, created_at, updated_at) "
 						+ "VALUES (?, ?, '2026-09-01', '2026-09-10', 1, ?, ?)",
@@ -160,7 +152,7 @@ class ItineraryActualTimeIntegrationTest {
 				UUID.randomUUID(), tripId, userId, role, now);
 	}
 
-	/** 계획 시각을 함께 넣는다 — 완료 기준 3번이 "계획 시각만 나오고" 를 요구한다. */
+	/** 계획 시각을 함께 넣는다 — 기록이 없을 때 계획 시각만 나오는지를 보려면 필요하다. */
 	private void insertItem(UUID versionId, UUID itemKey, int dayIndex, String visitDate, UUID placeId,
 			OffsetDateTime now) {
 		jdbcTemplate.update(
@@ -199,8 +191,6 @@ class ItineraryActualTimeIntegrationTest {
 		return json.append("}").toString();
 	}
 
-	// ── 완료 기준 1 ───────────────────────────────────────────────────────────
-
 	@Test
 	@DisplayName("도착 시각을 보내면 일정 조회 결과에 실제 도착 시각이 들어 있다")
 	void recordedArrivalIsVisibleInItineraryDetail() throws Exception {
@@ -225,8 +215,6 @@ class ItineraryActualTimeIntegrationTest {
 		// 기록은 판을 만들지 않는다 — 판이 하나 더 생겼다면 편집 경로와 섞인 것이다.
 		assertThat(versionRowCount()).isEqualTo(1);
 	}
-
-	// ── 완료 기준 2 ───────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("같은 방문지에 다시 보내면 마지막 값이 남는다 — 행이 늘지 않는다")
@@ -282,8 +270,6 @@ class ItineraryActualTimeIntegrationTest {
 		assertThat(row.get("departed_at")).isNull();
 	}
 
-	// ── 완료 기준 3 ───────────────────────────────────────────────────────────
-
 	@Test
 	@DisplayName("기록이 없는 방문지는 계획 시각만 나오고 실제 시각 자리가 비어 있다")
 	void itemWithoutRecordHasEmptyActualSlots() throws Exception {
@@ -317,8 +303,6 @@ class ItineraryActualTimeIntegrationTest {
 		assertThat(actualRowCount()).isEqualTo(1);
 	}
 
-	// ── 완료 기준 4 ───────────────────────────────────────────────────────────
-
 	@Test
 	@DisplayName("남의 여행 방문지에 기록을 보내면 거부된다 — 비회원은 404, VIEWER 는 403")
 	void strangerGetsNotFoundAndViewerGetsForbidden() throws Exception {
@@ -343,8 +327,6 @@ class ItineraryActualTimeIntegrationTest {
 		// 둘 다 거부됐으니 기록이 하나도 안 남았다 — 거부가 응답에만 있고 저장은 됐다면 이 줄이 잡는다.
 		assertThat(actualRowCount()).isZero();
 	}
-
-	// ── 완료 기준 5 ───────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("지나간 날짜의 방문지에도 뒤늦게 기록할 수 있다")

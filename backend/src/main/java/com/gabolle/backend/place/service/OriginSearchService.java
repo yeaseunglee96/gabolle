@@ -14,21 +14,14 @@ import com.gabolle.backend.place.adapter.OriginSearchProperties;
 import com.gabolle.backend.place.api.OriginSearchResponse;
 
 /**
- * 출발지 검색의 핵심 로직 (S15P21E201-434). 카카오 로컬 검색과 {@code place} 표 대체 목록을 가른다.
+ * 출발지 검색 — 카카오 로컬 검색과 {@code place} 표 대체 목록을 가른다.
  *
- * <h2>🔴 길이 검사가 어댑터 호출보다 먼저다</h2>
+ * <p>길이 검사가 어댑터 호출보다 먼저여야 한다. 한 글자 검색어는 외부 호출이 아예 나가지 않는
+ * 것이 계약이라, 먼저 부르고 응답만 걸러내면 지킨 것이 아니다.
  *
- * <p>다듬은 질의어 길이가 2 미만이면 카카오 포트를 부르기 전에 예외를 던진다. 완료 기준
- * "한 글자 검색어는 외부 호출이 나가지 않는다" 는 결과가 아니라 <b>순서</b>다 — 먼저 부르고
- * 응답만 걸러내면 이 기준을 지킨 것이 아니다. {@code OriginSearchServiceTest} 가 호출 횟수 0 을
- * 실측한다.
- *
- * <h2>키가 없거나 호출이 실패해도 오류가 아니다</h2>
- *
- * <p>둘 다 200 으로 대체 목록을 준다. 응답에 {@code degraded=true} 와 이유
- * ({@link DegradedReason})를 실어서, 호출한 쪽이 "카카오가 잠깐 아픈 것" 과 "설정을 안 한 것" 을
- * 구분할 수 있게 한다. 대체 목록 조회 자체가 실패해도(예: DB 문제) 여기서 예외를 삼키고 빈 목록을
- * 준다 — 대체 경로가 원본 경로보다 더 잘 죽으면 안 된다.
+ * <p>키가 없거나 호출이 실패해도 오류가 아니다 — 둘 다 200 으로 대체 목록을 주고
+ * {@code degraded=true} 와 이유({@link DegradedReason})를 실어 호출한 쪽이 구분하게 한다.
+ * 대체 목록 조회까지 실패하면 빈 목록을 준다. 대체 경로가 원본보다 더 잘 죽으면 안 된다.
  */
 @Service
 @Profile({"db", "dev"})
@@ -38,9 +31,8 @@ public class OriginSearchService {
 
 	private static final int DEFAULT_LIMIT = 10;
 
-	/** 응답의 {@code degradedReason} 자리에 그대로 실리는 이유. */
+	/** 응답의 {@code degradedReason} 자리에 이름 그대로 실린다. */
 	public enum DegradedReason {
-		/** 설정에 카카오 키가 없다. */
 		PROVIDER_KEY_MISSING,
 		/** 호출이 실패했거나 시간을 넘겼다. */
 		PROVIDER_UNAVAILABLE,
@@ -63,9 +55,8 @@ public class OriginSearchService {
 	}
 
 	/**
-	 * 출발지 후보를 찾는다. {@code rawQuery} 를 다듬은 길이가 2 미만이면
-	 * {@link PlaceRequestException}({@code QUERY_TOO_SHORT})을 던진다 — 이 시점 이후로만
-	 * 카카오 포트를 부른다.
+	 * {@code rawQuery} 를 다듬은 길이가 2 미만이면 {@link PlaceRequestException}
+	 * ({@code QUERY_TOO_SHORT})을 던진다 — 그 뒤에야 카카오 포트를 부른다.
 	 */
 	public OriginSearchResponse search(String rawQuery, int rawLimit) {
 		String query = rawQuery == null ? "" : rawQuery.strip();

@@ -5,11 +5,9 @@ import java.util.List;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 
 /**
- * 판 목록 조회 응답 하나 — S15P21E201-284, API 명세 ITN-02.
- *
- * <p>되돌리기 화면이 "어느 판으로 돌아갈지" 고르는 목록에 쓴다. 판의 전체 내용(항목·구간)
- * 은 싣지 않는다 — 목록은 어느 판이 있었는지만 보여주면 된다({@link ItineraryDetailResponse}
- * 가 내용을 담당한다).
+ * 판 목록 조회 응답 하나.
+ * 되돌리기 화면이 "어느 판으로 돌아갈지" 고르는 목록에 쓴다. 판의 전체 내용(항목·구간)은
+ * 싣지 않는다 — 목록은 어느 판이 있었는지만 보여주면 된다.
  */
 public record ItineraryVersionSummaryResponse(
 		int version,
@@ -25,8 +23,8 @@ public record ItineraryVersionSummaryResponse(
 		/** 되돌리기(operation=REVERT)가 내용을 복사해 온 옛 판. REVERT 가 아니면 {@code null}. */
 		Integer revertedFromVersion,
 		/**
-		 * 🔴 2026-09-07 — 맨 뒤에 더한 칸. {@code createdBy} 는 사용자 UUID 라 화면이 "누가" 를 그릴 수
-		 * 없었다(진미리 FE 블로커). {@code app_user.display_name}. 사용자 행이 없으면(탈퇴) {@code null}.
+		 * {@code app_user.display_name}. 사용자 행이 없으면(탈퇴) {@code null}. 맨 뒤에 더한 칸이다 —
+		 * {@code createdBy} 는 사용자 UUID 라 화면이 "누가" 를 그릴 수 없었다.
 		 */
 		String createdByName) {
 

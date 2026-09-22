@@ -21,12 +21,6 @@ import com.gabolle.backend.route.domain.RouteLeg;
 import com.gabolle.backend.route.domain.RouteQuery;
 import com.gabolle.backend.route.domain.TravelMode;
 
-/**
- * 경로 조회의 갈래 — S15P21E201-184 · -189 · -196.
- *
- * <p>🔴 이 서비스가 지키는 약속은 <b>"어떤 경우에도 답을 준다"</b> 다. 그래서 여기서 재는
- * 것은 대부분 "실패했을 때 무엇이 오는가" 다.
- */
 class RouteQueryServiceTest {
 
 	private static final RouteQuery CAR_QUERY =

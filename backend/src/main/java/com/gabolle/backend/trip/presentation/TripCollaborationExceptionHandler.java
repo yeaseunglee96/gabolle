@@ -16,22 +16,17 @@ import com.gabolle.backend.trip.application.TripMemberService;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
- * 동행자 초대·참여자 관리의 오류를 HTTP 로 번역한다 — S15P21E201-294 · -299 · -320.
+ * 동행자 초대·참여자 관리의 오류를 HTTP 로 번역한다.
  *
- * <p>🔴 {@link TripExceptionHandler} 를 넓히지 않는다. 그 처리기는 여행 생성·조회 전용이고
- * {@code assignableTypes = TripController.class} 로 범위가 좁혀져 있어 이 컨트롤러의 예외는
- * 어차피 거기서 안 잡힌다 — 그래서 이 컨트롤러 전용 처리기를 새로 둔다.
+ * <p>{@link TripExceptionHandler} 는 {@code assignableTypes = TripController.class} 라 이
+ * 컨트롤러의 예외를 안 잡는다. 그래서 전용 처리기를 따로 둔다.
  */
-// 갈래 열람 기록 경로(S15P21E201-475)도 이 번역기를 쓴다. 그 경로가 여행 회원 판정에
-// 같은 예외(TripQueryService.TripNotFoundException)를 쓰므로, 번역을 새로 만들면 같은
-// 잘못에 다른 응답이 나간다.
+// TripFacetViewController 도 여행 회원 판정에 같은 TripNotFoundException 을 쓰므로 이
+// 번역기를 함께 쓴다. 따로 만들면 같은 잘못에 다른 응답이 나간다.
 @RestControllerAdvice(assignableTypes = { TripCollaborationController.class, TripFacetViewController.class })
 public class TripCollaborationExceptionHandler {
 
-	/**
-	 * 🔴 티켓 완료 기준 — "어느 항목이 빠졌는지" 가 응답에 들어 있다. {@code TripExceptionHandler}
-	 * 와 같은 번역이다.
-	 */
+	/** 어느 항목이 빠졌는지를 응답에 담는다 — "잘못된 요청" 만 돌려주지 않는다. */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException e) {
 		List<String> fields = e.getBindingResult().getFieldErrors().stream()
@@ -91,9 +86,8 @@ public class TripCollaborationExceptionHandler {
 	}
 
 	/**
-	 * 🔴 {@code role} 문자열 파싱 실패와 {@code TripMember.withRole}(대상이 OWNER 이거나 새
-	 * 역할이 OWNER)이 던지는 것 둘 다 여기로 온다 — 둘 다 "역할 값이 유효하지 않다" 는 같은
-	 * 종류의 오류라 코드를 하나로 합친다.
+	 * {@code role} 문자열 파싱 실패와 {@code TripMember.withRole}(대상이 OWNER 이거나 새 역할이
+	 * OWNER)이 던지는 것 둘 다 여기로 온다 — 같은 종류라 오류 코드를 하나로 합친다.
 	 */
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException e) {

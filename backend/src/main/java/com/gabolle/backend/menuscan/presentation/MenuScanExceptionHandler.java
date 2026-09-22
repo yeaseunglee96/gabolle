@@ -14,16 +14,12 @@ import com.gabolle.backend.menuscan.application.MenuScanRateLimiter;
 import com.gabolle.backend.menuscan.application.MenuScanService;
 
 /**
- * 메뉴판 읽기의 실패를 HTTP 로 번역한다 — S15P21E201-1025.
+ * 메뉴판 읽기의 실패를 HTTP 로 번역한다.
  *
- * <h2>🔴 어떤 실패도 «빈 결과» 로 바꾸지 않는다</h2>
+ * <p>어떤 실패도 빈 결과로 바꾸지 않는다. 이 API 에서 빈 결과는 «알레르기 낱말이 없구나»로 읽힌다.
  *
- * 이 API 에서 빈 결과는 사용자에게 <b>「알레르기 낱말이 없구나」</b> 로 읽힌다. 그래서
- * 여기 있는 모든 자리가 <b>실패를 실패로</b> 답한다. 다른 API 라면 «조용히 넘어가도 되는»
- * 것들도 여기서는 안 된다 — 사람이 다칠 수 있는 자리다.
- *
- * <p>{@code message} 는 번역 키가 아니라 <b>사람이 읽는 문장</b>이다. 프론트가 이 값을
- * 그대로 화면에 띄우는 것이 이 저장소에서 이미 실측됐다.
+ * <p>{@code message} 는 번역 키가 아니라 사람이 읽는 문장이다 — 프론트가 이 값을 그대로 화면에
+ * 띄운다.
  */
 @RestControllerAdvice(assignableTypes = MenuScanController.class)
 public class MenuScanExceptionHandler {
@@ -36,9 +32,7 @@ public class MenuScanExceptionHandler {
 	}
 
 	/**
-	 * 설정이 없어 지금은 못 읽는다.
-	 *
-	 * <p>🔴 <b>503 이다.</b> 200 + 빈 목록으로 답하면 «읽었는데 못 찾았다» 와 구분되지 않는다.
+	 * 설정이 없어 지금은 못 읽는다. 200 + 빈 목록으로 답하면 «읽었는데 못 찾았다»와 구분되지 않는다.
 	 */
 	@ExceptionHandler(MenuScanService.MenuScanUnavailableException.class)
 	public ResponseEntity<ApiResponse<Void>> handleUnavailable(MenuScanService.MenuScanUnavailableException e) {
@@ -48,11 +42,8 @@ public class MenuScanExceptionHandler {
 	}
 
 	/**
-	 * 모델 쪽이 어긋났다. 역시 빈 결과로 바꾸지 않는다.
-	 *
-	 * <p>사용자에게 가는 문구는 갈래와 무관하게 같다 — 사진을 다시 찍는 것 말고 할 수 있는
-	 * 일이 없기 때문이다. 대신 <b>오류 코드는 가른다.</b> 운영에서 무엇이 막혔는지 알려면
-	 * 지금까지는 서버 로그를 열어야 했는데, 로그에 닿을 수 없는 사람이 대부분이다.
+	 * 모델 쪽이 어긋났다. 역시 빈 결과로 바꾸지 않는다. 사용자에게 가는 문구는 갈래와 무관하게
+	 * 같지만 오류 코드는 가른다 — 로그에 닿을 수 없는 사람도 무엇이 막혔는지 알아야 한다.
 	 */
 	@ExceptionHandler(GmsMenuReader.MenuReadFailedException.class)
 	public ResponseEntity<ApiResponse<Void>> handleReadFailed(GmsMenuReader.MenuReadFailedException e) {

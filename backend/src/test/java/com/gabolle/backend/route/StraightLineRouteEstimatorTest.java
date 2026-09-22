@@ -11,13 +11,6 @@ import com.gabolle.backend.route.domain.RouteLeg;
 import com.gabolle.backend.route.domain.RouteQuery;
 import com.gabolle.backend.route.domain.TravelMode;
 
-/**
- * 직선거리 추정 — S15P21E201-189.
- *
- * <p>여기서 재는 것은 <b>숫자의 정확도가 아니라 정직함</b>이다. 추정값이 실제와 얼마나
- * 가까운지는 아무도 재지 않았고 이 테스트도 재지 않는다. 대신 "추정이라고 밝히는가",
- * "모르는 것을 지어내지 않는가" 를 못 박는다.
- */
 class StraightLineRouteEstimatorTest {
 
 	/** 해운대해수욕장 → 서면 부근. 직선으로 약 8km 다. */

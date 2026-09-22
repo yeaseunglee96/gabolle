@@ -10,9 +10,7 @@ import tools.jackson.databind.ObjectMapper;
 
 /**
  * TAGO {@code getSttnAcctoArvlPrearngeInfoList}(버스도착정보) 응답 원문(JSON)을
- * {@link BusArrival} 목록으로 바꾼다 — S15P21E201-988.
- *
- * <p>그 정류소에 곧 올 버스가 하나도 없는 것은 실패가 아니다 — {@code item}이 없으면 빈 목록.
+ * {@link BusArrival} 목록으로 바꾼다. 곧 올 버스가 하나도 없는 것은 실패가 아니라 빈 목록이다.
  */
 final class TagoArrivalsJsonParser {
 

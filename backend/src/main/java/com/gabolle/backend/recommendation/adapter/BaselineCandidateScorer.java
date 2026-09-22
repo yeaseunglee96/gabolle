@@ -20,6 +20,7 @@ import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.TasteEvidence;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
@@ -32,18 +33,14 @@ import com.gabolle.backend.trip.domain.TripConstraint;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * {@link PlaceCandidateResponse.Candidate} 하나를 {@link EngineCandidate} 하나로 만든다
- * (S15P21E201-604 — 이 작업의 핵심).
+ * {@link PlaceCandidateResponse.Candidate} 하나를 {@link EngineCandidate} 하나로 만든다.
  *
- * <p>🔴 이 클래스는 <b>DB 를 모른다</b>. 사용자 입력 코드 ↔ 장소 표식 유형 대조는
- * {@code UserPlaceCodeMapRepository} 가 대신 읽어서 {@link UserPlaceCodeMap} 목록으로
- * 넘겨준다({@link BaselineRecommendationEngine} 이 배치당 한 번만 읽는다) — 후보마다
- * 다시 질의하면 "질의 개수가 후보 수에 비례하면 안 된다" 는 원칙을 어기게 된다. 그래서
- * 이 클래스는 순수 함수에 가깝고, {@code BaselineCandidateScorerTest} 가 DB 없이 돈다.
+ * <p>이 클래스는 DB 를 모른다. 사용자 입력 코드 ↔ 장소 표식 유형 대조는
+ * {@link BaselineRecommendationEngine} 이 배치당 한 번 읽어 {@link UserPlaceCodeMap} 목록으로
+ * 넘긴다 — 후보마다 다시 질의하면 질의 개수가 후보 수에 비례하게 된다.
  *
- * <p>🔴 <b>severity 를 지어내지 않는다.</b> {@link #severityOf(TripConstraint)} 가 유일한
- * 통로다 — {@code HARD} 는 항상 {@code REQUIRED}, {@code SOFT} 는 항상 {@code PREFERRED}.
- * 알레르기는 DB CHECK 가 항상 HARD 를 강제하므로 자동으로 REQUIRED 가 된다.
+ * <p>severity 는 {@link #severityOf(TripConstraint)} 가 유일한 통로다 — {@code HARD} 는 항상
+ * {@code REQUIRED}, {@code SOFT} 는 항상 {@code PREFERRED}.
  */
 @Component
 public class BaselineCandidateScorer {
@@ -52,18 +49,14 @@ public class BaselineCandidateScorer {
 	static final String CANDIDATE_SOURCE = "BASELINE_PLACE_QUERY";
 
 	/**
-	 * 🔴 이동 경고(계단·보행 상한 초과) 하나당 깎는 점수. 판정표는 "점수 감점" 이라고만
-	 * 적었지 정확한 폭은 정하지 않았다 — 데이터가 쌓이면 조정될 값이라 설정으로 빼지 않고
-	 * 상수로 뒀다(값 자체가 실험 대상이면 그때 설정으로 옮긴다).
+	 * 이동 경고(계단·보행 상한 초과) 하나당 깎는 점수. 판정표가 폭을 정하지 않았고 데이터가
+	 * 쌓이면 조정될 값이라 설정이 아니라 상수로 뒀다.
 	 */
 	private static final double MOBILITY_WARNING_PENALTY = 0.05;
 
 	/**
-	 * 접근성을 <b>안 재 봤다</b>는 경고.
-	 *
-	 * <p>🔴 값은 {@link RecommendationCodes#WARNING_ACCESSIBILITY_UNVERIFIED} 하나뿐이다
-	 * (S15P21E201-1158). 여기서 문자열을 다시 적지 않는다 — 세는 쪽({@code ItineraryQueryService})이
-	 * 다른 갈래에 있어서, 두 벌이 되면 한쪽만 고쳐지는 날 <b>경고가 조용히 0건이 된다.</b>
+	 * 접근성을 안 재 봤다는 경고. 문자열을 여기서 다시 적지 않는다 — 세는 쪽이 다른 갈래에
+	 * 있어서 두 벌이 되면 한쪽만 고쳐지는 날 경고가 조용히 0건이 된다.
 	 */
 	static final String ACCESSIBILITY_UNVERIFIED_WARNING = RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED;
 
@@ -75,9 +68,8 @@ public class BaselineCandidateScorer {
 
 	/**
 	 * @param alignmentWeights 점수형 취향 다섯 차원이 {@code weights.preferenceAlignment} 를
-	 *     나누는 비율 (S15P21E201-547). 🔴 빈으로 주입받지 않고 <b>인수로 받는다</b> —
-	 *     {@code weights} 를 인수로 받는 것과 같은 이유다. 한 요청 안에서 설정이 다른 두 벌로
-	 *     같은 후보를 채점해 견주는 것(S15P21E201-560 벤치마크)이 생성자 주입이면 불가능하다
+	 *     나누는 비율. 빈 주입이 아니라 인수인 이유는, 한 요청 안에서 설정이 다른 두 벌로 같은
+	 *     후보를 채점해 견주는 벤치마크가 생성자 주입이면 불가능하기 때문이다
 	 * @param preferenceCodeMap {@code user_place_code_map} 의 {@code PREFERENCE} 행 전부
 	 * @param constraintCodeMap {@code user_place_code_map} 의 {@code CONSTRAINT} 행 전부.
 	 *     {@code MOBILITY} 는 {@code ACCESSIBILITY_TAG}(HARD_FILTER)·{@code STAIRS_PRESENT}
@@ -112,30 +104,24 @@ public class BaselineCandidateScorer {
 
 		double total = 0.0;
 
-		// ── 다양성 재정렬이 쓸 값 (S15P21E201-548) ────────────────────────────
+		// 다양성 재정렬이 쓸 값. 점수에 쓰지 않고 "같은 종류인가 · 같은 동네인가" 판단에만
+		// 쓰인다. 여기 남기는 이유는 CandidateAssembler 가 후보 객체만 보고 그 판단을 할 수
+		// 있어야 하기 때문이다 — 장소 표를 다시 읽으면 질의 수가 후보 수에 비례한다.
 		//
-		// 점수에 쓰지 않는다. "같은 종류인가 · 같은 동네인가" 를 판단하는 데만 쓰이고
-		// (DiversityKeys), 그 판단은 순서만 바꾸고 점수는 건드리지 않는다. 여기 남기는
-		// 이유는 CandidateAssembler 가 후보 객체만 보고 그 판단을 할 수 있어야 하기
-		// 때문이다 — 장소 표를 다시 읽으면 질의 수가 후보 수에 비례하게 된다.
-		//
-		// 🔴 <b>좌표를 그대로 남기지 않는다.</b> lat·lng 를 넣었다가 SensitivePayloadGuard
-		//    가 거부했고, 그 거부가 맞았다 — feature_values 는 일반 추천 로그이고 거기에는
-		//    정밀 좌표를 남기지 않는다는 것이 이 저장소의 규칙이다(그 클래스 javadoc).
-		//
-		//    그래서 <b>이름만 바꿔 통과시키지 않고</b> 값 자체를 굵게 만든다. 소수점을 두
-		//    자리에서 자른 정수 쌍이라 부산 위도에서 대략 1km 칸이고, 되돌려도 그 칸보다
-		//    정밀한 위치가 나오지 않는다. 재정렬에 필요한 것은 "같은 칸인가" 하나뿐이므로
-		//    잃는 것이 없다. 그 그물의 javadoc 이 "최후의 그물이지 설계 대체물이 아니다 —
-		//    무엇을 담을지는 부르는 쪽이 정해야 한다" 고 적은 그 결정이 이것이다.
+		// 좌표를 그대로 남기지 않는다. feature_values 는 일반 추천 로그라 정밀 좌표를 남기지
+		// 않는다. localityBucket 은 소수점 두 자리에서 자른 정수 쌍이라 부산 위도에서 대략
+		// 1km 칸이고, 되돌려도 그 칸보다 정밀한 위치가 나오지 않는다.
 		featureValues.put("category", candidate.category());
 		featureValues.put("localityBucket", CoarseArea.of(candidate.lat(), candidate.lng()));
+		// 카테고리만으로는 돼지국밥집과 칼국수집이 둘 다 FOOD 라 재정렬이 둘을 구분하지 못한다.
+		// 그래서 한 칸 더 가는 축을 같이 남긴다 (S15P21E201-1450).
+		featureValues.put("cuisine", cuisineTagsOf(candidate, preferenceCodeMap));
 
 		// ── 거리 — 항상 잴 수 있다 ────────────────────────────────────────────
 		double distanceComponent = clamp01(1.0 - (candidate.distanceM() / (double) radiusM));
 		featureValues.put("distanceM", candidate.distanceM());
-		// 🔴 S15P21E201-550 — 장기 분석은 띠로 센다. 미터만 남기면 질의마다 경계를 다시
-		//    정하게 되어 같은 지표가 사람마다 다른 숫자가 된다(DistanceBucket javadoc).
+		// 장기 분석은 띠로 센다. 미터만 남기면 질의마다 경계를 다시 정하게 되어 같은 지표가
+		// 사람마다 다른 숫자가 된다.
 		featureValues.put("distanceBucket", DistanceBucket.of(candidate.distanceM()));
 		scoreComponents.put("distance", componentDetail(weights.distance(), distanceComponent, null));
 		reasonCodes.add("NEAR_ORIGIN");
@@ -152,17 +138,15 @@ public class BaselineCandidateScorer {
 				weights.cuisine(), "cuisine", "TAG_MATCH_CUISINE", "cuisineTagOverlap",
 				featureValues, scoreComponents, reasonCodes);
 
-		// ── 접힌 취향 벡터의 덧점수 (S15P21E201-943) ────────────────────────
+		// ── 접힌 취향 벡터의 덧점수 ──────────────────────────────────────────
 		total += applyTasteVectorComponent(candidate, preferenceCodeMap, tasteWeights, tasteVectorMultiplier,
 				featureValues, scoreComponents, reasonCodes);
 
 		// ── 점수형 선호 다섯 — LOCALITY·QUIETNESS·TOURIST_PREFERENCE·SHADE_PREFERENCE·SLOPE_PREFERENCE
 		//
-		// 🔴 이 다섯은 weights.preferenceAlignment(기본 0.10) 하나를 나눠 쓴다. 나누는 방식이
-		//    단순 평균이었다가 가중 평균으로 바뀌었다(S15P21E201-547) — 단순 평균이면 다섯이
-		//    서로를 희석해서, 사용자가 가장 강하게 답한 축조차 총점에 0.10 ÷ 5 = 0.02 밖에
-		//    기여하지 못했다. 거리(0.30)가 그것을 덮는다. 비율과 계산은 모두
-		//    PreferenceAlignmentWeights 에 있다.
+		// 이 다섯은 weights.preferenceAlignment(기본 0.10) 하나를 나눠 쓴다. 단순 평균이 아니라
+		// 가중 평균이다 — 단순 평균이면 가장 강하게 답한 축조차 총점에 0.10 ÷ 5 = 0.02 밖에
+		// 기여하지 못해 거리(0.30)에 덮인다. 비율과 계산은 PreferenceAlignmentWeights 에 있다.
 		Map<String, Double> alignments = new LinkedHashMap<>();
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "LOCALITY", "localityScore",
 				false, featureValues, alignments, reasonCodes);
@@ -172,16 +156,14 @@ public class BaselineCandidateScorer {
 				"touristRatio", false, featureValues, alignments, reasonCodes);
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "SHADE_PREFERENCE", "shadeScore",
 				false, featureValues, alignments, reasonCodes);
-		// 🔴 SLOPE_PERCENT 는 0~100 퍼센트다. 선호값은 0~1 스케일이라고 가정한다(위 PreferenceJson
-		// 참고) — 그래서 비교 전에 100 으로 나눠 같은 축으로 맞춘다.
+		// SLOPE_PERCENT 는 0~100 퍼센트이고 선호값은 0~1 스케일이다 — 비교 전에 100 으로 나눠
+		// 같은 축으로 맞춘다.
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "SLOPE_PREFERENCE", "slopePercent",
 				true, featureValues, alignments, reasonCodes);
 
 		Double alignmentAverage = alignmentWeights.weightedAverage(alignments);
-		// 🔴 dimensions 옆에 dimensionWeights 를 같이 남긴다. 정렬도만 남기면 "이 장소가 왜 이
-		//    순위인가" 를 되짚을 때 어느 축이 얼마나 셌는지를 알 수 없다 — 설정을 바꿔 실험하는
-		//    쪽에서는 그 두 값이 함께 있어야 결과를 읽는다. S15P21E201-548(추천 이유 코드)이
-		//    읽을 자리이기도 하다.
+		// dimensions 옆에 dimensionWeights 를 같이 남긴다. 정렬도만 남기면 "이 장소가 왜 이
+		// 순위인가" 를 되짚을 때 어느 축이 얼마나 셌는지를 알 수 없다.
 		scoreComponents.put("preferenceAlignment", componentDetail(weights.preferenceAlignment(), alignmentAverage,
 				Map.of("dimensions", alignments, "dimensionWeights", alignmentWeights.weightsUsed(alignments))));
 		if (alignmentAverage != null) {
@@ -199,10 +181,8 @@ public class BaselineCandidateScorer {
 
 		// ── 혼잡도 — 점수에는 안 쓰고 값만 남긴다 ────────────────────────────
 		//
-		// 🔴 순위를 매기는 데 쓰지 않는 값을 굳이 기록하는 이유. 결과 조회 API 가
-		//    이 값을 읽어 "붐빔 정도" 를 화면에 내보낸다. 여기서 안 남기면 그 칸은
-		//    영원히 비어 있고, 데이터가 실제로 있는데도 없는 것처럼 보인다.
-		//    없으면 null 이고, 그 null 은 "안 붐빈다" 가 아니라 "모른다" 로 나간다.
+		// 결과 조회 API 가 이 값을 읽어 붐빔 정도를 화면에 내보낸다. 여기서 안 남기면 그 칸이
+		// 영원히 빈다. 없으면 null 이고, 그 null 은 "안 붐빈다" 가 아니라 "모른다" 다.
 		featureValues.put("CROWDING_SCORE", extractPlaceScore(candidate, "CROWDING_SCORE"));
 
 		// ── 이동 경고 — FAIL 은 아니지만 감점한다 ────────────────────────────
@@ -212,26 +192,16 @@ public class BaselineCandidateScorer {
 		if (warnings.contains("WALKING_OVER_LIMIT")) {
 			total -= MOBILITY_WARNING_PENALTY;
 		}
-		// S15P21E201-540 — 접근성 미확인도 같은 폭으로 깎는다. 빼지는 않고 뒤로 민다.
+		// 접근성 미확인도 같은 폭으로 깎는다. 빼지는 않고 뒤로 민다.
 		if (warnings.contains(ACCESSIBILITY_UNVERIFIED_WARNING)) {
 			total -= MOBILITY_WARNING_PENALTY;
 		}
 		total = Math.max(0.0, total);
 
-		// 🔴 미확인 제약을 제외할지 말지는 여기서 정하지 않는다.
-		//
-		// 한 번 여기서 정하게 만들었다가 되돌렸다(2026-09-05). REQUIRED 등급 미확인 사실이
-		// 있으면 preRankScore 를 null 로 둬서, 설정과 무관하게 그 후보가 결과에서 빠지게
-		// 했었다. "설정 한 줄로 안전이 무너지면 안 된다" 는 생각이었는데 전제가 틀렸다 —
-		// gabolle.recommendation.unknown-exclusion-threshold 를 NONE 으로 바꾸는 것은
-		// 사고가 아니라 **계획된 결정 경로**다. application.properties 주석이 그렇게 적어
-		// 뒀고(FR-REC-02 는 "제외하지 않고 경고" 를 요구한다), S15P21E201-539 의 완료
-		// 기준도 "확인 안 된 항목이 제외가 아니라 경고로 나온다" 이다. 여기서 점수를 지우면
-		// 그 레버가 동작하지 않으면서 동작하는 것처럼 보인다.
-		//
-		// 그래서 채점기는 사실만 보고한다 — 무엇이 미확인이고 등급이 무엇인지를
-		// unknownFacts 에 남기고, 제외 여부는 그 값을 아는 CandidateAssembler 가 설정
-		// 임계값과 견줘 정한다. 기본값이 REQUIRED 라 지금 동작은 바뀌지 않는다.
+		// 미확인 제약을 제외할지는 여기서 정하지 않는다. 채점기는 사실만 보고하고 — 무엇이
+		// 미확인이고 등급이 무엇인지를 unknownFacts 에 남긴다 — 제외 여부는 CandidateAssembler
+		// 가 unknown-exclusion-threshold 설정과 견줘 정한다. 여기서 점수를 null 로 지우면 그
+		// 설정이 동작하지 않으면서 동작하는 것처럼 보인다.
 		Double preRankScore = Double.valueOf(total);
 
 		return new EngineCandidate(candidate.placeId(), CANDIDATE_SOURCE, verdict, violations, unknownFacts,
@@ -239,24 +209,17 @@ public class BaselineCandidateScorer {
 	}
 
 	/**
-	 * <b>제약 판정만</b> 하고 점수는 매기지 않는다 (S15P21E201-555).
+	 * 제약 판정만 하고 점수는 매기지 않는다. Editor's Pick 기준선이 쓴다 — 순서를 사람이
+	 * 정했으므로 필요한 것은 이 장소가 제약을 어기는가 하나다.
 	 *
-	 * <p>Editor's Pick 기준선이 쓴다. Pick 은 순서를 사람이 정했으므로 점수가 필요 없고,
-	 * 필요한 것은 <b>이 장소가 이 사용자의 제약을 어기는가</b> 하나다.
-	 *
-	 * <p>🔴 <b>왜 {@link #score} 를 부르지 않는가.</b> 점수를 함께 계산하면 거리 성분을
-	 * 위해 {@code distanceM} 이 필요하고, Pick 에는 출발지 기준 거리라는 것이 없다. 거기에
-	 * 0 을 넣으면 "출발지에 붙어 있다" 는 뜻이 되고, 그 값이 {@code feature_values} 에
-	 * 그대로 기록돼 나중에 거리 분포를 재는 질의를 오염시킨다. 안 쓰는 값을 지어내지 않기
-	 * 위해 판정만 떼어 부른다.
-	 *
-	 * <p>🔴 판정 자체는 {@link #evaluateConstraints} 를 그대로 쓴다 — 같은 것을 두 번
-	 * 구현하면 한쪽만 고쳐지는 날이 오고, 그 한쪽이 알레르기 필터다.
+	 * <p>{@link #score} 를 부르지 않는 이유는 거리 성분 때문이다. Pick 에는 출발지 기준 거리가
+	 * 없는데 {@code distanceM} 에 0 을 넣으면 "출발지에 붙어 있다" 가 되고, 그 값이
+	 * {@code feature_values} 에 남아 거리 분포 질의를 오염시킨다.
 	 *
 	 * @param reasonCodes 이 후보에 붙일 이유 코드 (Pick 이면 {@code EDITORIAL_PICK})
 	 * @param extraWarnings 부르는 쪽이 이미 아는 경고. 판정으로 나온 경고와 합쳐진다
 	 * @return {@code preRankScore}·{@code featureValues}·{@code scoreComponents} 가 비어 있는
-	 *     후보. 비어 있는 것이 사실이다 — 우리는 점수를 매기지 않았다
+	 *     후보. 비어 있는 것이 사실이다 — 점수를 매기지 않았다
 	 */
 	public EngineCandidate evaluateWithoutScoring(PlaceCandidateResponse.Candidate candidate,
 			List<TripConstraint> constraints, List<UserPlaceCodeMap> constraintCodeMap, String candidateSource,
@@ -296,7 +259,7 @@ public class BaselineCandidateScorer {
 			return;
 		}
 		for (TripConstraint constraint : constraints) {
-			// 🔴 SELECTED 가 아니면(NONE=없다고 답함, UNKNOWN=안 물어봄) 대조할 값 자체가 없다.
+			// SELECTED 가 아니면(NONE=없다고 답함, UNKNOWN=안 물어봄) 대조할 값 자체가 없다.
 			if (constraint.answerStatus() != TripConstraint.AnswerStatus.SELECTED) {
 				continue;
 			}
@@ -320,10 +283,9 @@ public class BaselineCandidateScorer {
 
 		String featureType = hardFilterFeatureType(constraintCodeMap, "ALLERGY").orElse(null);
 		if (featureType == null) {
-			// 🔴 여기서 그냥 return 하면 안 된다. 대조표에 줄이 없는 것은 "판정할 필요가 없다" 가
-			//    아니라 "판정할 수 없다" 이고, 안전 제약에서 그 둘을 같게 다루면 땅콩이 들었는지
-			//    아무도 모르는 식당이 통과한다. 모른다는 사실을 그대로 남긴다 — 제약 자신의
-			//    severity 가 REQUIRED 라 아래에서 preRankScore 가 null 이 되고 후보에서 빠진다.
+			// 그냥 return 하면 안 된다. 대조표에 줄이 없는 것은 "판정할 필요가 없다" 가 아니라
+			// "판정할 수 없다" 이고, 안전 제약에서 둘을 같게 다루면 땅콩이 들었는지 아무도
+			// 모르는 식당이 통과한다. 모른다는 사실을 그대로 남긴다.
 			unknownFacts.add(Map.of("fact", "ALLERGEN_MAPPING_MISSING", "featureKey",
 					constraint.constraintKey(), "severity", severityOf(constraint)));
 			return;
@@ -345,8 +307,7 @@ public class BaselineCandidateScorer {
 
 		String featureType = hardFilterFeatureType(constraintCodeMap, "DIET").orElse(null);
 		if (featureType == null) {
-			// 🔴 알레르기와 같은 이유로 조용히 넘어가지 않는다. 필수(REQUIRED) 식단이면
-			//    severityOf 가 REQUIRED 를 주고 그 후보는 결과에서 빠진다.
+			// 알레르기와 같은 이유로 조용히 넘어가지 않는다.
 			unknownFacts.add(Map.of("fact", "DIET_MAPPING_MISSING", "featureKey",
 					constraint.constraintKey(), "severity", severityOf(constraint)));
 			return;
@@ -375,56 +336,15 @@ public class BaselineCandidateScorer {
 	/**
 	 * 이동 제약(휠체어·유아차·무거운 짐·계단 회피·보행 상한)을 본다.
 	 *
-	 * <h2>🔴 S15P21E201-540 — "안 재 봤다" 를 탈락으로 세지 않는다</h2>
+	 * <p>접근성 표식은 셋을 가른다. PRESENT(재 봤고 갈 수 있다)는 통과, ABSENT(재 봤고 못
+	 * 간다)는 탈락, UNVERIFIED(안 재 봤다)는 경고 + 감점이다. 안 재 봤다를 탈락과 같게 다루면
+	 * 표식이 붙은 장소가 전체의 4% 뿐이라 휠체어 조건만 켜도 후보가 0건이 된다.
 	 *
-	 * 예전에는 접근성 표식이 <b>없는</b> 장소를 {@code unknownFacts} 에 REQUIRED 등급으로
-	 * 넣었고, 기본 설정({@code gabolle.recommendation.unknown-exclusion-threshold=REQUIRED})이
-	 * 그 후보를 결과에서 뺐다. 표식이 있는 것과 없는 것을 <b>같게 다룬 것</b>이다.
+	 * <p>{@code unknown-exclusion-threshold} 를 {@code NONE} 으로 내려 푸는 방법은 쓰지 않는다 —
+	 * 그 다이얼은 눈금이 하나뿐이라 알레르기 미확인까지 같이 풀린다.
 	 *
-	 * <p>그 전제가 데이터와 맞지 않는다. 2026-09-16 운영 실측으로 접근성 표식이 붙은 장소는
-	 * 전체 2,683곳 중 <b>102곳(4%)</b>이다. 그래서 휠체어 조건을 켜면 96%가 사라지고, 반경
-	 * 조건까지 겹치면 <b>후보가 0건</b>이 된다. 실제로 그날까지 쌓인 추천 실패 18건 중
-	 * <b>8건</b>이 전부 이 자리({@code CONSTRAINT_EVALUATION} 단계)에서 죽었다.
-	 *
-	 * <p>그래서 둘을 가른다.
-	 *
-	 * <table border="1">
-	 * <caption>접근성 표식에 따른 판정</caption>
-	 * <tr><th>표식</th><th>뜻</th><th>판정</th></tr>
-	 * <tr><td>PRESENT</td><td>재 봤고 갈 수 있다</td><td>통과</td></tr>
-	 * <tr><td>ABSENT</td><td><b>재 봤고 못 간다</b></td><td>여전히 탈락 — 데이터가 없는 게 아니라 있는 것이다</td></tr>
-	 * <tr><td>UNVERIFIED</td><td>안 재 봤다</td><td><b>경고 + 감점.</b> 빼지 않고 뒤로 민다</td></tr>
-	 * </table>
-	 *
-	 * <p>이것은 같은 함수 위쪽의 {@code STAIRS_PRESENT} · {@code WALKING_OVER_LIMIT} 이 이미
-	 * 하고 있는 처리와 같다 — 이 자리만 다르게 돼 있었다.
-	 *
-	 * <h2>전역 설정을 내리지 않은 이유</h2>
-	 *
-	 * {@code unknown-exclusion-threshold} 를 {@code NONE} 으로 두면 이 문제는 풀리지만
-	 * <b>알레르기 미확인까지 같이 풀린다.</b> 그 enum 의 주석이 왜 안 되는지 적어 뒀다 —
-	 * 사용자가 식당에 전화해 땅콩기름을 쓰는지 확인할 수는 없다. 다이얼은 눈금이 하나뿐이라
-	 * 안전 제약과 편의 제약을 못 가른다. 그래서 다이얼이 아니라 이 자리를 고친다.
-	 *
-	 * <h2>화면이 알아야 하는 것</h2>
-	 *
-	 * 감점된 후보에는 {@link #ACCESSIBILITY_UNVERIFIED_WARNING} 이 붙어 응답까지 간다.
-	 * 「휠체어로 갈 수 있음」은 지킬 수 없는 약속이므로(경사가 완만해도 입구에 계단 세 칸이면
-	 * 못 간다) 화면은 <b>잰 것을 그대로</b> 말해야 한다 — 이 경고가 그 재료다.
-	 *
-	 * <p>🔴 <b>정정 (2026-09-17, S15P21E201-1158) — 위 줄의 "응답까지 간다" 는 절반만 참이었다.</b>
-	 *
-	 * <ul>
-	 * <li><b>추천 결과</b>({@code GET /api/v1/recommendation-jobs/{jobId}})로는 <b>가고 있었다.</b>
-	 * {@code RecommendationResultQueryService.mobilityWarnings} 의 {@code code.startsWith("ACCESS")}
-	 * 에 걸려 항목마다 {@code mobilityWarnings} 로, 그리고 최상위 {@code conflicts} 로 나간다.</li>
-	 * <li><b>일정 상세</b>({@code ItineraryDetailResponse})로는 <b>안 갔다.</b> 값이
-	 * {@code itinerary_item.warning_codes} 에 저장까지 되는데 응답 DTO 에 담는 칸이 없었다.
-	 * 「화면이 알아야 하는 것」이라고 적어 두고 마지막 한 칸이 안 이어져 있었다.</li>
-	 * </ul>
-	 *
-	 * <p>이 티켓이 뒤쪽을 이었다. 옛 문장을 지우지 않는 이유는, 그 문장을 믿고 <b>「이미 나간다」로
-	 * 읽은 사람이 실제로 있었기 때문</b>이다 — 무엇이 가고 무엇이 안 갔는지를 함께 남긴다.
+	 * <p>감점된 후보에는 {@link #ACCESSIBILITY_UNVERIFIED_WARNING} 이 붙어 응답까지 간다.
+	 * 「휠체어로 갈 수 있음」은 지킬 수 없는 약속이므로 화면은 잰 것을 그대로 말해야 한다.
 	 */
 	private void evaluateMobility(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
 			List<UserPlaceCodeMap> constraintCodeMap, List<Map<String, Object>> violations,
@@ -435,14 +355,13 @@ public class BaselineCandidateScorer {
 		if ("STAIRS_AVOIDANCE".equals(key)) {
 			String featureType = flagCompareFeatureType(constraintCodeMap, "MOBILITY").orElse(null);
 			if (featureType != null && bucketFor(candidate, featureType, null) == PresenceBucket.PRESENT) {
-				// 🔴 FAIL 이 아니다 — 경고 + 감점만 한다(판정표).
+				// FAIL 이 아니다 — 경고 + 감점만 한다.
 				warnings.add("STAIRS_PRESENT");
 			}
 			return;
 		}
 		if ("MAX_WALKING_METERS".equals(key)) {
 			if (constraint.threshold() != null && candidate.distanceM() > constraint.threshold()) {
-				// 🔴 FAIL 이 아니다 — 경고 + 감점만 한다.
 				warnings.add("WALKING_OVER_LIMIT");
 			}
 			return;
@@ -456,11 +375,8 @@ public class BaselineCandidateScorer {
 			return;
 		}
 		switch (bucketFor(candidate, featureType, key)) {
-			// 🔴 방향이 알레르기와 반대다 — 여기는 "없다고 확인됨" 이 FAIL 이다.
-			//    재 보고 안 된다고 나온 곳은 그대로 뺀다. 그건 데이터가 없는 게 아니라 있는 것이다.
+			// 방향이 알레르기와 반대다 — 여기는 "없다고 확인됨" 이 FAIL 이다.
 			case ABSENT -> violations.add(Map.of("code", "ACCESS_VERIFIED_UNAVAILABLE", "featureKey", key));
-			// 🔴 S15P21E201-540 — "안 재 봤다" 는 FAIL 이 아니다. 경고 + 감점이다.
-			//    같은 함수 위쪽의 STAIRS_PRESENT · WALKING_OVER_LIMIT 과 같은 처리다.
 			case UNVERIFIED -> warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
 			case PRESENT -> {
 				// 검증된 접근 가능 — 통과 기여.
@@ -468,7 +384,7 @@ public class BaselineCandidateScorer {
 		}
 	}
 
-	/** 🔴 severity 를 지어내지 않는 유일한 통로. HARD → REQUIRED, SOFT → PREFERRED. */
+	/** severity 를 정하는 유일한 통로. HARD → REQUIRED, SOFT → PREFERRED. */
 	private static String severityOf(TripConstraint constraint) {
 		return constraint.severity() == TripConstraint.Severity.HARD ? "REQUIRED" : "PREFERRED";
 	}
@@ -529,6 +445,35 @@ public class BaselineCandidateScorer {
 				.findFirst();
 	}
 
+	/**
+	 * 이 장소의 음식 종류 표식 — 다양성 재정렬이 「같은 음식이 거듭되나」를 보는 축이다.
+	 *
+	 * <p>🔴 <b>점수에는 안 쓴다.</b> 음식 취향이 맞는 정도는
+	 * {@code applyTagComponent(FOOD_PREFERENCE, weights.cuisine())} 이 이미 매기고, 여기서 또
+	 * 더하면 같은 사실을 두 번 세는 것이 된다. 이 값은 <b>순서를 고르게 만드는 데만</b> 쓰인다 —
+	 * {@code localityBucket} 을 남기는 이유와 같다.
+	 *
+	 * <p>표식 이름을 하드코딩하지 않고 대조표에서 {@code FOOD_PREFERENCE} 의 짝을 읽는다.
+	 * 다른 태그 항들과 같은 규칙이다 — 대조표가 바뀌면 이 검색도 따라가야 한다.
+	 */
+	private List<String> cuisineTagsOf(PlaceCandidateResponse.Candidate candidate,
+			List<UserPlaceCodeMap> preferenceCodeMap) {
+
+		String featureType = featureTypeFor(preferenceCodeMap, "FOOD_PREFERENCE").orElse(null);
+		if (featureType == null) {
+			return List.of();
+		}
+		List<String> tags = new ArrayList<>();
+		for (PlaceFeatureView feature : candidate.features()) {
+			if (featureType.equals(feature.featureType()) && feature.featureKey() != null
+					&& FeaturePresence.indicatesPresence(feature.evidenceStatus(), rawValue(feature))
+					&& !tags.contains(feature.featureKey())) {
+				tags.add(feature.featureKey());
+			}
+		}
+		return tags;
+	}
+
 	private Optional<String> featureTypeFor(List<UserPlaceCodeMap> rows, String preferenceCode) {
 		if (rows == null) {
 			return Optional.empty();
@@ -544,34 +489,49 @@ public class BaselineCandidateScorer {
 	// ══════════════════════════════════════════════════════════════════════
 
 	/**
-	 * 접힌 취향 벡터가 {@code CATEGORY} 겹침에 더하는 덧점수 — S15P21E201-943.
+	 * 접힌 취향 벡터가 {@code CATEGORY} 겹침에 더하는 덧점수. 기존 채점을 대체하지 않고 더하기만
+	 * 한다 — 아직 벡터가 없는 사람이 대부분이라, 대체하면 그 사람들의 취향 반영이 0 이 된다.
 	 *
-	 * <h2>🔴 기존 채점을 바꾸지 않는다. 더하기만 한다</h2>
+	 * <p><b>행동이 들어간 성분만 더한다</b>({@code INTERACTION}·{@code BLENDED}). 설문만으로 접힌
+	 * 성분은 {@link #applyTagComponent} 가 이미 같은 답으로 채점하므로, 여기서 또 더하면 두 번 세기가
+	 * 된다. 이 거름은 그 일이 <b>생기지 않게 미리 걸어 둔 자물쇠</b>이지 지금 일어나는 일을 고친 것이
+	 * 아니다 — 아래를 보라.
 	 *
-	 * {@code PreferenceSnapshot} 기반 채점은 이미 돌고 있고 발표가 그것으로 돈다. 벡터를
-	 * <b>대신</b> 쓰게 바꾸면 ① 아직 벡터가 없는 사람(지금 대부분)이 갑자기 취향 반영 0 이 되거나
-	 * ② 접기 배치의 결함이 그대로 추천을 망가뜨린다. <b>있으면 더하고 없으면 지금과 완전히 같다</b>
-	 * 로 두면 위험이 한쪽으로만 간다.
+	 * <h2>이 항은 «설문만 있던 동안» 언제나 0 이었다</h2>
 	 *
-	 * <h2>겹침 비율을 그대로 흉내 낸다 — 다만 가중치로 잰다</h2>
+	 * 실서버 {@code user_taste_weight} 에 <b>{@code CATEGORY} 행이 0건</b>이었다 (2026-09-21 실측).
+	 * 있는 것은 {@code FOOD_PREFERENCE} 21 · {@code LOCALITY} 12 · {@code QUIETNESS} 12 ·
+	 * {@code TOURIST_PREFERENCE} 12 이고 전부 {@code SURVEY} 였다. 계정 설문이 {@code CATEGORY}
+	 * 차원을 안 싣기 때문인데, 그것은 설문의 결함이 아니라 결정이다 —
+	 * {@code PreferenceDefaultsService.CARRY_OVER} 가 <i>「CATEGORY·ATMOSPHERE 는 사람의 성향이
+	 * 아니라 그 여행의 성격이라」</i> 일부러 뺀다.
 	 *
-	 * {@link #applyTagComponent} 는 <b>맞은 개수 ÷ 고른 개수</b>다. 여기서는 <b>맞은 성분의
-	 * 가중치 합 ÷ 벡터의 CATEGORY 성분 개수</b>를 쓴다. 두 가지가 따라온다.
-	 * <ul>
-	 * <li>전부 맞고 가중치가 1.0 이면 1.0 — 기존 비율과 같은 축이다</li>
-	 * <li>가중치가 <b>음수</b>면(싫어하는 갈래) 총점이 <b>내려간다.</b> 개수만 세면 못 하는 일이고,
-	 *     벡터를 쓰는 이유의 절반이 이것이다</li>
-	 * </ul>
+	 * <h2>🔴 정정 (2026-09-22) — 여기 적혀 있던 「둘 중 하나를 정해야 한다」가 틀렸다</h2>
 	 *
-	 * <h2>🔴 지금 이 항이 맞출 수 있는 낱말은 사실상 하나다</h2>
+	 * 옛 주석은 {@code CATEGORY} 성분을 얻으려면 <i>「설문 문항을 건드려야 해서 범위가 크다」</i>
+	 * 고 적었다. <b>설문을 건드릴 필요가 없었다.</b> 셋째 길이 있다 —
+	 * {@link com.gabolle.backend.batch.application.BehaviorTasteFolder} 가 좋아요·제외 이벤트의
+	 * 장소에서 {@code place_feature.CATEGORY_TAG} 를 읽고 대조표({@code user_place_code_map})를
+	 * 지나 {@code CATEGORY} 성분을 만든다 (S15P21E201-1482). 설문은 그대로 두고 장소 쪽 표식에서
+	 * 차원이 나온다.
 	 *
-	 * 온보딩 취향 여섯 중 장소에 실제로 붙는 것은 {@code FOOD}(모든 장소 — 그래서 변별력이 없다)와
-	 * {@code CAFE_HEALING} 둘뿐이다. 나머지 넷({@code CITY}·{@code CULTURE_TEMPLE}·
-	 * {@code NATURE_WALK}·{@code SEA_BEACH})은 붙는 장소가 없다 — S15P21E201-1108.
-	 * 이 항의 효과가 작아 보인다면 배수가 아니라 <b>그쪽</b>을 먼저 본다.
+	 * <p>그래서 아래 거름 두 줄은 이제 <b>실제로 걸리는 조건</b>이다. 설문 성분은 걸러지고
+	 * ({@code applyTagComponent} 가 이미 채점했으므로) 행동 성분만 남는다 — 그것이 이 항의
+	 * 존재 이유이고, 이제 그 성분이 실제로 존재한다.
+	 *
+	 * <p>다른 차원({@code FOOD_PREFERENCE}·{@code LOCALITY}·{@code QUIETNESS})은 <b>여전히 안
+	 * 읽는다.</b> 그 셋은 설문 경로가 이미 채점하므로 여기서 또 더하면 <b>그때 비로소 진짜 두 번
+	 * 세기</b>가 된다. 읽고 싶으면 그 경로와의 관계를 먼저 정해야 한다.
+	 *
+	 * <p>{@link #applyTagComponent} 가 맞은 개수 ÷ 고른 개수인 것과 달리 여기서는 맞은 성분의
+	 * 가중치 합 ÷ 벡터의 CATEGORY 성분 개수를 쓴다. 전부 맞고 가중치가 1.0 이면 1.0 이라 같은
+	 * 축이고, 가중치가 음수면(싫어하는 갈래) 총점이 내려간다 — 개수만 세면 못 하는 일이다.
+	 *
+	 * <p>온보딩 취향 여섯 중 장소에 실제로 붙는 것은 {@code FOOD}(모든 장소라 변별력이 없다)와
+	 * {@code CAFE_HEALING} 둘뿐이다. 효과가 작아 보이면 배수가 아니라 그쪽을 먼저 본다.
 	 *
 	 * @param tasteWeights 이 사용자의 현재 판 성분 전부. 요청당 한 번 읽어서 넘어온다 —
-	 *     후보마다 다시 읽으면 "질의 개수가 후보 수에 비례하면 안 된다" 를 어긴다
+	 *     후보마다 다시 읽으면 질의 개수가 후보 수에 비례한다
 	 */
 	private double applyTasteVectorComponent(PlaceCandidateResponse.Candidate candidate,
 			List<UserPlaceCodeMap> preferenceCodeMap, List<UserTasteWeight> tasteWeights,
@@ -579,12 +539,18 @@ public class BaselineCandidateScorer {
 			List<String> reasonCodes) {
 
 		String featureType = featureTypeFor(preferenceCodeMap, "CATEGORY").orElse(null);
+		// 🔴 설문만으로 접힌 성분은 뺀다. 그 답은 applyTagComponent 의 CATEGORY 태그 겹침이 이미
+		//    채점했으므로, 여기서 또 더하면 같은 설문을 배수만큼 한 번 더 세는 것이 된다.
+		//    남는 것은 행동이 들어간 성분(INTERACTION·BLENDED)뿐이고, 그것이 이 항의 존재 이유다.
 		List<UserTasteWeight> categoryWeights = (tasteWeights == null) ? List.of()
-				: tasteWeights.stream().filter((w) -> w.getDimension() == TasteDimension.CATEGORY).toList();
+				: tasteWeights.stream()
+						.filter((w) -> w.getDimension() == TasteDimension.CATEGORY)
+						.filter((w) -> w.getEvidence() != TasteEvidence.SURVEY)
+						.toList();
 
 		if (featureType == null || categoryWeights.isEmpty()) {
-			// 🔴 벡터가 없는 사람이 지금 대부분이다. 그때는 이 항이 아예 없었던 것과 같아야 한다 —
-			//    값을 0.0 으로 적지 않고 null 로 둔다("겹친 게 없다" 와 "잴 것이 없다" 는 다르다).
+			// 값을 0.0 이 아니라 null 로 둔다 — "겹친 게 없다" 와 "잴 것이 없다" 는 다르다.
+			// 행동이 아직 하나도 안 접힌 동안에는 언제나 이 자리다.
 			featureValues.put("tasteVectorOverlap", null);
 			scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, null, null));
 			return 0.0;
@@ -609,8 +575,8 @@ public class BaselineCandidateScorer {
 		double ratio = sum / categoryWeights.size();
 
 		featureValues.put("tasteVectorOverlap", ratio);
-		// 🔴 evidence 를 함께 남긴다. 지금은 전부 SURVEY 라 이 항이 설문을 두 번 세는 중인데,
-		//    그 사실을 나중에 되짚으려면 무엇을 근거로 더했는지가 행에 남아 있어야 한다.
+		// evidence 를 함께 남긴다. 무엇을 근거로 더했는지가 행에 있어야 「이 점수가 행동에서
+		// 왔는가 설문에서 왔는가」를 나중에 되짚을 수 있다.
 		scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, ratio,
 				Map.of("matched", matched, "componentCount", categoryWeights.size(),
 						"evidence", evidenceSummary(categoryWeights))));
@@ -634,8 +600,8 @@ public class BaselineCandidateScorer {
 			double weight, String componentKey, String reasonCode, String featureValueKey,
 			Map<String, Object> featureValues, Map<String, Object> scoreComponents, List<String> reasonCodes) {
 
-		// 🔴 검색할 장소 표식 유형도 대조표에서 읽은 featureType 을 그대로 쓴다 — 별도로
-		// 문자열을 하드코딩하면 대조표가 바뀌어도 이 검색은 안 따라간다.
+		// 검색할 장소 표식 유형도 대조표에서 읽은 featureType 을 그대로 쓴다 — 문자열을
+		// 하드코딩하면 대조표가 바뀌어도 이 검색은 안 따라간다.
 		String featureType = featureTypeFor(preferenceCodeMap, preferenceCode).orElse(null);
 		List<String> userCodes = (featureType == null) ? List.of()
 				: PreferenceJson.codesFor(preferenceSnapshot, preferenceCode, this.objectMapper);

@@ -18,11 +18,10 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 기계용 문이 언제 열리고 언제 안 열리는가 — S15P21E201-772.
+ * 기계용 문이 언제 열리고 언제 안 열리는가.
  *
- * <p>🔴 이 필터는 <b>권한을 심기만</b> 한다. 막는 것은 {@code SecurityConfig} 의
- * {@code requestMatchers("/internal/**").hasRole("INTERNAL")} 이다. 그래서 여기서 보는 것은
- * "{@code ROLE_INTERNAL} 이 심겼는가" 하나이고, 안 심겼으면 그 다음은 Security 가 거부한다.
+ * <p>이 필터는 권한을 심기만 한다. 막는 것은 {@code SecurityConfig} 의
+ * {@code requestMatchers("/internal/**").hasRole("INTERNAL")} 이다.
  *
  * <p>DB 도 스프링 컨텍스트도 필요 없다 — 도커가 없는 PC 에서도 이 검사는 돈다.
  */
@@ -32,8 +31,8 @@ class InternalTokenAuthenticationFilterTest {
 
 	@AfterEach
 	void clearContext() {
-		// 🔴 SecurityContextHolder 는 스레드에 붙어 있다. 안 지우면 앞 테스트가 심은 권한이
-		//    다음 테스트로 새어 나가고, 그러면 "안 심겼어야 하는데 심겼다" 를 못 잡는다.
+		// SecurityContextHolder 는 스레드에 붙어 있다. 안 지우면 앞 테스트가 심은 권한이
+		// 다음 테스트로 새어 나간다.
 		SecurityContextHolder.clearContext();
 	}
 
@@ -77,9 +76,8 @@ class InternalTokenAuthenticationFilterTest {
 	@Test
 	@DisplayName("🔴 서버에 토큰을 설정 안 했으면 문이 잠긴다 — 빈 헤더로도 안 열린다")
 	void unconfiguredTokenKeepsTheDoorShut() throws Exception {
-		// 🔴 이것이 이 파일에서 가장 중요한 검사다. "설정을 깜빡했으니 통과" 로 만들면
-		//    그 사고는 아무 소리도 내지 않는다 — 배치가 멈추는 것은 시끄럽고, 문이
-		//    열려 있는 것은 조용하다. 빈 문자열끼리 같다고 판정해 열리는 것도 막는다.
+		// "설정을 깜빡했으니 통과" 로 만들면 그 사고는 아무 소리도 내지 않는다.
+		// 빈 문자열끼리 같다고 판정해 열리는 것도 막는다.
 		assertThat(runWith(filterWithToken(""), "")).isNull();
 		assertThat(runWith(filterWithToken(""), null)).isNull();
 		assertThat(runWith(filterWithToken("   "), "")).isNull();

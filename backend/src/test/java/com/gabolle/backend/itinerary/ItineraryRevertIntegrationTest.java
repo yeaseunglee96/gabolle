@@ -37,13 +37,14 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * S15P21E201-284 — 되돌리기가 실제 PostgreSQL 에서 판 체인으로 동작하는지 본다.
+ * 되돌리기가 실제 PostgreSQL 에서 판 체인으로 동작하는지 본다.
  *
- * <p>별도 스냅샷 표가 없다. "편집 직전 상태" 는 바탕 판에 그대로 남아 있고 되돌리기는 그 판을 새 판으로
- * 복사한다. 그래서 이 테스트가 보는 것은 셋이다 — 돌아온 내용이 그 판과 항목별로 같은가(`item_key` 까지),
- * 중간 판이 그대로 남아 있는가(덮어쓰기 금지), 되돌린 뒤에도 편집·되돌리기가 계속 이어지는가.
+ * <p>별도 스냅샷 표가 없다. 편집 직전 상태는 바탕 판에 그대로 남아 있고 되돌리기는 그 판을
+ * 새 판으로 복사한다. 그래서 보는 것은 셋이다 — 돌아온 내용이 그 판과 항목별로 같은가
+ * ({@code item_key} 까지), 중간 판이 그대로 남아 있는가, 되돌린 뒤에도 편집·되돌리기가
+ * 이어지는가.
  *
- * <p>제외·순서변경 판은 SQL 로 직접 심는다 — 그 편집들의 경로가 아니라 <b>되돌리기</b>가 대상이라서다.
+ * <p>제외·순서변경 판은 SQL 로 직접 심는다. 여기서 재는 것은 그 편집들이 아니라 되돌리기다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -204,10 +205,9 @@ class ItineraryRevertIntegrationTest {
 	// ---- 테스트 ----
 
 	/**
-	 * 🔴 티켓 완료 기준 1 — 제외한 뒤 되돌리면 그 장소가 원래 자리·원래 시각으로 돌아온다. 제외 목록도 풀린다.
-	 *
-	 * <p>부수기: {@code ItineraryEditService.revert} 가 {@code target} 대신 {@code baseVersion} 의 내용을
-	 * 복사하면(= 최신 판을 그대로 베끼면) A 가 안 돌아와 여기서 빨개진다.
+	 * 제외한 뒤 되돌리면 그 장소가 원래 자리·원래 시각으로 돌아오고 제외 목록도 풀린다.
+	 * {@code ItineraryEditService.revert} 가 {@code target} 대신 {@code baseVersion} 의
+	 * 내용을 복사하면 여기서 빨개진다.
 	 */
 	@Test
 	@DisplayName("🔴 장소를 뺀 뒤 되돌리면 그 장소가 같은 itemKey·자리·시각으로 돌아오고 제외가 풀린다")
@@ -237,7 +237,6 @@ class ItineraryRevertIntegrationTest {
 		assertThat(versionRow(3)).containsEntry("reverted_from_version", 1).containsEntry("base_version", 2);
 	}
 
-	/** 티켓 완료 기준 2 — 순서를 바꾼 뒤 되돌리면 바꾸기 전 순서가 복원된다. */
 	@Test
 	@DisplayName("순서를 바꾼 뒤 되돌리면 이전 순서로 돌아온다")
 	void revertAfterReorderRestoresOrder() throws Exception {
@@ -250,9 +249,8 @@ class ItineraryRevertIntegrationTest {
 	}
 
 	/**
-	 * 🔴 티켓 완료 기준 3 — 편집한 적 없는 일정에서는 "되돌릴 것이 없다" 는 응답이 온다. 오류로 죽지 않는다.
-	 *
-	 * <p>부수기: {@code latest.baseVersion() == null} 검사를 빼면 NPE 가 500 으로 나가 여기서 빨개진다.
+	 * 편집한 적 없는 일정에서는 되돌릴 것이 없다는 응답이 온다. {@code latest.baseVersion()}
+	 * null 검사를 빼면 NPE 가 500 으로 나가 여기서 빨개진다.
 	 */
 	@Test
 	@DisplayName("🔴 편집한 적 없는 일정은 422 ITINERARY_NOTHING_TO_REVERT 이고 판이 늘지 않는다")
@@ -267,8 +265,8 @@ class ItineraryRevertIntegrationTest {
 	}
 
 	/**
-	 * 🔴 티켓 완료 기준 4 — 되돌린 뒤 다시 편집해도 계속 동작한다. 그리고 되돌리기를 한 번 더 누르면
-	 * 되돌리기 직전(= 다시 실행)으로 간다 — 되돌리기 판도 판이라서다.
+	 * 되돌린 뒤 다시 편집해도 계속 동작한다. 되돌리기를 한 번 더 누르면 되돌리기 직전
+	 * (= 다시 실행)으로 간다 — 되돌리기 판도 판이기 때문이다.
 	 */
 	@Test
 	@DisplayName("🔴 되돌린 뒤 고정·되돌리기가 이어진다 — 되돌리기의 되돌리기는 다시 실행이다")

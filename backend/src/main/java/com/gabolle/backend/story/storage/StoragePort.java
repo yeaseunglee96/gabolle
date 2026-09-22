@@ -1,17 +1,17 @@
 package com.gabolle.backend.story.storage;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 
 /**
  * 사진 파일이 실제로 놓이는 곳 — 이 인터페이스 뒤에 있다.
  *
- * <p>S15P21E201-174 는 "S3 호환 오브젝트 스토리지, 무엇을 쓸지는 아직 정하지 않았다" 고 적었다.
- * 그래서 코드는 저장소가 무엇인지 모르게 만든다. M1 에서는 서버의 디스크에 두는 구현
- * ({@code LocalFileStorage})을 쓰고, 버킷이 정해지면 같은 인터페이스의 구현 하나를 더 만들어 설정으로
- * 바꾼다. 도메인 코드({@code StoryService}·{@code ImageUploadService})는 그 변경을 모른다.
+ * <p>어느 저장소를 쓰는지는 설정으로 고른다 — 서버 디스크({@code LocalFileStorage})든 S3 호환
+ * 오브젝트 스토리지든 도메인 코드는 그 차이를 모른다.
  *
- * <p>🔴 이 인터페이스는 <b>바이트</b>만 다룬다. 형식 검사(JPEG·PNG·WebP 인가)와 촬영 위치 정보 제거는
- * 저장하기 전에 {@code ImageSanitizer} 가 끝낸다 — 저장소는 받은 것을 그대로 둔다.
+ * <p>이 인터페이스는 바이트만 다룬다. 형식 검사와 촬영 위치 정보 제거는 저장하기 전에
+ * {@code ImageSanitizer} 가 끝낸다.
  */
 public interface StoragePort {
 
@@ -25,6 +25,25 @@ public interface StoragePort {
 	 * @throws StorageException 저장소에 쓸 수 없다
 	 */
 	String put(String key, String contentType, byte[] bytes);
+
+	/**
+	 * 같은 일을 스트림으로 한다 — 파일이 힙에 통째로 올라가지 않는다. 동영상이 이 길을 쓴다.
+	 * 사진은 {@code ImageSanitizer} 가 파일 전체를 메모리에 올려야 해서 바이트 배열 쪽이 맞다.
+	 *
+	 * <p>기본 구현은 읽어서 {@link #put(String, String, byte[])} 로 넘기므로 동작이 같다. 진짜로
+	 * 흘려보내는 것은 실제 구현들이 재정의한다.
+	 *
+	 * @param size 보낼 바이트 수. S3 호환 저장소가 미리 알아야 한다 — 모르면 SDK 가 내부에서
+	 * 버퍼를 잡아 결국 메모리를 쓴다
+	 */
+	default String put(String key, String contentType, InputStream in, long size) {
+		try {
+			return put(key, contentType, in.readAllBytes());
+		}
+		catch (IOException e) {
+			throw new StorageException("스트림을 끝까지 읽지 못했다: " + key, e);
+		}
+	}
 
 	/**
 	 * 지운다. 없는 키를 지우는 것은 성공이다 — 두 번 지워도 같은 결과여야 뒷정리 작업이 재시도할 수 있다.

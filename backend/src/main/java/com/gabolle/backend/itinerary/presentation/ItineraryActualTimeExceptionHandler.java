@@ -18,17 +18,12 @@ import com.gabolle.backend.itinerary.domain.ItineraryItemActual;
 import com.gabolle.backend.itinerary.domain.ItineraryRevision;
 
 /**
- * {@link ItineraryActualTimeController} 전용 오류 번역기 — S15P21E201-293.
- *
- * <p>🔴 {@code assignableTypes} 로 이 컨트롤러 하나만 본다. 범위 없는 advice 가 남의 예외를
- * 가로챈 사고가 이미 있었고({@code ItineraryQueryExceptionHandler}·
- * {@code PlaceExceptionHandler} 의 같은 실측), {@code @Order} 가 없으면 승자가 컴포넌트 스캔
- * 순서로 정해진다.
- *
- * <p>거부 응답의 코드는 편집 경로({@link ItineraryExceptionHandler})와 <b>같은 이름</b>을
- * 쓴다. 같은 상황에 다른 코드를 주면 앱이 경로마다 다른 분기를 만들어야 한다.
- *
- * <p>{@code fields} 는 {@code "이름=값"} 문자열이다 — 그 형식이 앱과의 계약인 이유는
+ * {@link ItineraryActualTimeController} 전용 오류 번역기.
+ * {@code assignableTypes} 로 이 컨트롤러 하나만 본다. 범위 없는 advice 가 남의 예외를 가로챈
+ * 사고가 이미 있었고, {@code @Order} 가 없으면 승자가 컴포넌트 스캔 순서로 정해진다.
+ * 거부 응답의 코드는 편집 경로({@link ItineraryExceptionHandler})와 같은 이름을 쓴다. 같은
+ * 상황에 다른 코드를 주면 앱이 경로마다 다른 분기를 만들어야 한다.
+ * {@code fields} 는 {@code "이름=값"} 문자열이다 — 그 형식이 앱과의 계약인 이유는
  * {@link ItineraryExceptionHandler} 클래스 주석에 있다.
  */
 @RestControllerAdvice(assignableTypes = ItineraryActualTimeController.class)
@@ -44,9 +39,8 @@ public class ItineraryActualTimeExceptionHandler {
 	}
 
 	/**
-	 * 회원이지만 VIEWER 라 이 일정에 기록을 남길 수 없다 — 403. 비회원의 404 와 다른 코드다
-	 * (존재를 감출 이유가 없는 사람에게 404 를 주면 화면이 "방금 보던 일정이 사라졌다" 로
-	 * 잘못 해석한다).
+	 * 회원이지만 VIEWER 라 이 일정에 기록을 남길 수 없다 — 403. 비회원의 404 와 다른 코드다 —
+	 * 존재를 감출 이유가 없는 사람에게 404 를 주면 화면이 "방금 보던 일정이 사라졌다" 로 읽는다.
 	 */
 	@ExceptionHandler(ItineraryAccess.ItineraryForbiddenException.class)
 	public ResponseEntity<ApiResponse<Void>> handleForbidden(ItineraryAccess.ItineraryForbiddenException e) {

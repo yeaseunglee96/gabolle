@@ -10,9 +10,6 @@ import com.gabolle.backend.review.domain.PlaceReview;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * S15P21E201-835 — 리뷰 본문도 story.body 와 같은 자유 입력이라 같은 처리를 받는가.
- */
 class PlaceReviewResponseTest {
 
 	@Test

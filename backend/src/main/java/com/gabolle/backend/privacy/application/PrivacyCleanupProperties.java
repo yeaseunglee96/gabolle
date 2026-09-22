@@ -6,20 +6,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * 개인정보 자동 정리 배치(S15P21E201-357 · -166)가 쓰는 설정.
+ * 개인정보 자동 정리 배치가 쓰는 설정.
  *
- * <h2>🔴 보관 기간 기본값은 확정된 정책이 아니라 잠정값이다</h2>
- *
- * 설계서 F-SYS-07 이 보관 기간의 정확한 숫자를 정하고 있을 가능성이 있지만, 이 구현 시점에는
- * {@code .docx} 원본만 있고 텍스트로 옮겨진 것이 없어 이 자리에서 그 숫자를 확인하지 못했다.
- * 아래 값은 업계에서 흔히 쓰는 보수적인 기본값이다 — {@code eventRetentionDays=90} 은 분기
- * 단위 리포트가 지난 분기 데이터를 다시 볼 수 있게 하는 최소한의 기간이고,
- * {@code sessionGraceDays=7} 은 세션이 만료된 뒤에도 부정 사용 조사(예: 탈취된 리프레시
- * 토큰 재사용 시도)가 그 흔적을 볼 수 있는 짧은 유예다. F-SYS-07 의 실제 값이 확인되면 이
- * 기본값을 바꾸는 것으로 끝난다 — 코드 구조는 바뀌지 않는다.
- *
- * <p>{@link com.gabolle.backend.common.security.SecurityAlertProperties} 와 같은 이유로 이
- * 클래스에 직접 {@code @Component} 를 붙인다.
+ * <p>TODO 보관 기간 기본값은 잠정값이다. {@code eventRetentionDays=90} 은 분기 단위 리포트가
+ * 지난 분기를 다시 볼 수 있는 최소 기간, {@code sessionGraceDays=7} 은 세션 만료 뒤에도 부정
+ * 사용 조사가 흔적을 볼 수 있는 유예로 잡은 것이다. 설계서의 확정 값이 확인되면 이 기본값만
+ * 바꾸면 된다.
  */
 @Component
 @ConfigurationProperties(prefix = "gabolle.privacy.cleanup")
@@ -48,19 +40,10 @@ public class PrivacyCleanupProperties {
 	private int eventRetentionDays = 90;
 
 	/**
-	 * 조회 낱개({@code story_view})와 링크 복사 낱개({@code story_link_copy})를 며칠 보관하는가 —
-	 * S15P21E201-1216.
+	 * 조회 낱개({@code story_view})와 링크 복사 낱개({@code story_link_copy})를 며칠 보관하는가.
 	 *
-	 * <h2>🔴 이 90 은 잠정값이 아니라 정해진 것이다</h2>
-	 *
-	 * 위의 {@link #eventRetentionDays} 와 달리 이 숫자는 <b>표를 만들 때 이미 정해졌다</b> —
-	 * {@code story_view} 표 주석·{@code StoryView} 도메인 주석·{@code V20260918010000}
-	 * 마이그레이션 주석 셋이 모두 「90일만 보관한다」고 적고 있다. 값을 바꾸려면 그 셋도 함께
-	 * 고쳐야 한다. 한 곳만 고치면 문서가 코드와 다른 말을 하게 된다.
-	 *
-	 * <p>낱개가 있는 이유는 「사람 × 글 × 하루 한 번」을 지키기 위해서다. 그것만 보면 <b>어제
-	 * 것만 있어도 된다.</b> 90일은 그보다 훨씬 넉넉하고, 그 이상은 사람이 무엇을 언제 읽었는지가
-	 * 필요 이상으로 오래 남는 것이다.
+	 * <p>이 90 은 잠정값이 아니다. {@code StoryView} 도메인 주석과 {@code V20260918010000}
+	 * 마이그레이션도 같은 값을 적고 있어, 바꾸려면 그쪽도 함께 고쳐야 한다.
 	 */
 	private int storyActivityRetentionDays = 90;
 

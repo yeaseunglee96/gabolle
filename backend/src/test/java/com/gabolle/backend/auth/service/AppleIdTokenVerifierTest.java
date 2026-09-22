@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 /**
- * 애플 {@code id_token} 검증 — S15P21E201-825.
+ * 애플 {@code id_token} 검증.
  *
  * <p>애플에는 사용자 정보 조회 주소가 없어 이 토큰이 신원의 유일한 출처다. 그래서 통과 조건과 거절
  * 조건을 여기서 못 박는다.
@@ -58,8 +58,8 @@ class AppleIdTokenVerifierTest {
 
 	@Test
 	void readsFlagsThatArriveAsStrings() {
-		// 🔴 애플은 같은 클레임을 참/거짓으로도, 문자열로도 보낸다. 한쪽만 읽으면
-		//    "애플이 확인해 준 주소" 가 조용히 "모름" 이 된다.
+		// 애플은 같은 클레임을 참/거짓으로도 문자열로도 보낸다. 한쪽만 읽으면 애플이
+		// 확인해 준 주소가 조용히 모름이 된다.
 		AppleIdTokenVerifier verifier = verifier(jwt(Map.of("aud", List.of(CLIENT_ID), "nonce", NONCE,
 				"email", "hidden@privaterelay.appleid.com", "email_verified", "true", "is_private_email", "true")));
 

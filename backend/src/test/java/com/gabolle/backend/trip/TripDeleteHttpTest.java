@@ -27,15 +27,10 @@ import com.gabolle.backend.trip.presentation.TripController;
 import com.gabolle.backend.trip.presentation.TripExceptionHandler;
 
 /**
- * {@code DELETE /api/v1/trips/{tripId}} 의 HTTP 경계 — S15P21E201-746.
+ * {@code DELETE /api/v1/trips/{tripId}} 의 HTTP 경계만 잰다 — 경로와 메서드가 붙어 있는지,
+ * 서비스가 던진 것이 어떤 상태 코드로 바뀌는지. 규칙 자체는 {@link TripDeleteIntegrationTest} 가 잰다.
  *
- * <p>규칙 자체(소유자만 지운다, 지운 뒤에 무엇이 닫히나)는 {@link TripDeleteIntegrationTest}
- * 가 진짜 PostgreSQL 로 잰다. 여기서 재는 것은 <b>그 사이</b>다 — 경로와 메서드가 실제로
- * 붙어 있는지, 서비스가 던진 것이 어떤 상태 코드로 바뀌는지. 규칙이 맞아도 이 사이에서
- * 끊기면 앱에는 아무것도 안 된다.
- *
- * <p>🔴 그래서 서비스는 <b>일부러 가짜</b>다. 여기서 진짜 서비스를 쓰면 이 테스트가
- * 규칙을 다시 재게 되고, 규칙이 바뀔 때마다 두 파일이 함께 빨개진다 — 그러면 어느 층이
+ * <p>서비스는 일부러 가짜다. 진짜를 쓰면 규칙이 바뀔 때마다 두 파일이 함께 빨개져 어느 층이
  * 깨졌는지 알 수 없다.
  */
 class TripDeleteHttpTest {
@@ -71,8 +66,8 @@ class TripDeleteHttpTest {
 					}
 				});
 
-		// 🔴 요청 본문이나 쿼리 파라미터가 아니라 인증 principal 로 사용자를 정한다.
-		//    누가 지우는지를 클라이언트가 정하게 하면 아무나 남의 이름으로 지울 수 있다.
+		// 요청 본문이나 쿼리 파라미터가 아니라 인증 principal 로 사용자를 정한다 — 누가 지우는지를
+		// 클라이언트가 정하게 하면 아무나 남의 이름으로 지울 수 있다.
 		verify(this.deletionService).delete(eq(tripId), eq(userId));
 	}
 

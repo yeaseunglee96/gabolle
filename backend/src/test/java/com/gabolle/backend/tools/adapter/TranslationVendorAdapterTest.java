@@ -1,6 +1,6 @@
 package com.gabolle.backend.tools.adapter;
 
-// 🔴 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
+// 어댑터와 같은 패키지에 둔다 — 시간 제한 공장을 갈아 끼우는 생성자가 패키지 안에서만 보인다.
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,19 +35,14 @@ import com.gabolle.backend.tools.domain.TranslationDirection;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * {@link TranslationVendorAdapter} 검증 — S15P21E201-343, 업체를 GMS 로 옮김(S15P21E201-1235).
+ * {@code MockRestServiceServer} 로 잰다 — 진짜 네트워크를 부르지 않는다.
  *
- * <p>{@code KakaoMobilityRouteAdapterTest} 와 같은 방식으로 {@code MockRestServiceServer} 를
- * 쓴다. 진짜 네트워크를 부르지 않는다.
- *
- * <p>🔴 <b>업체가 바뀌었어도 붙드는 규칙은 그대로다.</b> 바뀐 것은 모의 응답의 <b>봉투
- * 모양</b>뿐이다 — 「실패를 성공으로 바꾸지 않는다」·「원문을 로그에 안 남긴다」·「빈 결과는
- * 실패다」는 앞선 판에서 그대로 옮겨 왔다. 시험을 새로 쓰면서 이 셋을 잃는 것이 가장 쉬운
- * 사고라, 일부러 같은 이름으로 남겼다.
+ * <p>업체를 바꿔도 붙드는 규칙 셋은 그대로 둔다 — 실패를 성공으로 바꾸지 않는다, 원문을 로그에 안
+ * 남긴다, 빈 결과는 실패다. 시험을 새로 쓰면서 이 셋을 잃는 것이 가장 쉬운 사고다.
  */
 class TranslationVendorAdapterTest {
 
-	// 🔴 이 문자열이 로그에 절대 나오면 안 된다 — 아래 no-log 검사가 정확히 이 값을 찾는다.
+	// 이 문자열이 로그에 절대 나오면 안 된다 — 아래 no-log 검사가 정확히 이 값을 찾는다.
 	private static final String SECRET_SOURCE_TEXT = "이 문장은 절대로 로그에 남으면 안 된다";
 
 	/** 설정에 적히는 주소. 뒤에 {@code /chat/completions} 가 붙어야 한다. */
@@ -75,7 +70,7 @@ class TranslationVendorAdapterTest {
 		TranslateProperties properties = new TranslateProperties();
 		properties.setVendorApiKey(apiKey);
 		properties.setVendorBaseUrl(baseUrl);
-		// 🔴 네 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
+		// 네 번째 인자가 null 이다 — builder 에 꽂힌 가짜 요청 공장을 덮어쓰지 않는다.
 		return new TranslationVendorAdapter(builder, new ObjectMapper(), properties, null);
 	}
 
@@ -303,5 +298,37 @@ class TranslationVendorAdapterTest {
 
 		assertThatThrownBy(() -> adapter.translate("안녕", TranslationDirection.KO_TO_EN))
 				.isInstanceOf(TranslationVendorException.class);
+	}
+
+	/**
+	 * 🔴 방향이 둘뿐이던 때의 지시문은 {@code KO_TO_EN 이면 「한국어에서 영어로」, 아니면 「영어에서 한국어로」} 였다.
+	 * 방향만 늘렸으면 일본어가 «영어에서» 로 지시됐다 — S15P21E201-1363. 모든 방향을 한 번씩 본다.
+	 */
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.CsvSource({
+			"KO_TO_EN,      한국어에서 영어로",
+			"EN_TO_KO,      영어에서 한국어로",
+			"JA_TO_KO,      일본어에서 한국어로",
+			"ZH_HANS_TO_KO, 간체 중국어에서 한국어로",
+			"ZH_HANT_TO_KO, 번체 중국어에서 한국어로",
+			"KO_TO_JA,      한국어에서 일본어로",
+			"KO_TO_ZH_HANS, 한국어에서 간체 중국어로",
+			"KO_TO_ZH_HANT, 한국어에서 번체 중국어로" })
+	@DisplayName("🔴 지시문의 언어가 방향과 맞는다 — 일본어가 「영어에서」로 지시되지 않는다")
+	void promptNamesTheRightLanguages(TranslationDirection direction, String expected) {
+		String message = TranslationVendorAdapter.userMessage("本文", direction);
+
+		assertThat(message).startsWith("다음 본문을 " + expected + " 번역해라.");
+		// 본문은 맨 뒤다 — 앞에 두면 본문 속 지시가 우리 문장을 삼킨 것처럼 보인다.
+		assertThat(message).endsWith("本文");
+	}
+
+	@Test
+	@DisplayName("원래 두 방향의 지시문은 한 글자도 안 바뀌었다 — 바뀌면 같은 문장의 번역이 달라져 캐시와 어긋난다")
+	void existingDirectionsKeepTheirExactPrompt() {
+		assertThat(TranslationVendorAdapter.userMessage("안녕", TranslationDirection.KO_TO_EN))
+				.isEqualTo("다음 본문을 한국어에서 영어로 번역해라.\n\n안녕");
+		assertThat(TranslationVendorAdapter.userMessage("hello", TranslationDirection.EN_TO_KO))
+				.isEqualTo("다음 본문을 영어에서 한국어로 번역해라.\n\nhello");
 	}
 }

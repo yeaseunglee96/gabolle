@@ -7,10 +7,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gabolle.backend.place.domain.Place;
 
 /**
- * 목록 조회 한 줄 — 이름 검색(-462)과 갈래 필터 목록(-473)이 같이 쓴다.
+ * 목록 조회 한 줄 — 이름 검색과 갈래 필터 목록이 같이 쓴다.
  *
- * @param matchedField 이름 검색에서 어느 이름 칸이 걸렸는가. 갈래 필터 목록에는 "어느 이름이
- *     걸렸는가" 라는 개념 자체가 없어 {@code null} 이다.
+ * <p>{@code matchedField} 는 갈래 필터 목록에서 {@code null} 이다 — 그쪽에는 "어느 이름이
+ * 걸렸는가" 라는 개념이 없다. {@code null} 인 칸은 키 자체가 빠진다.
  */
 public record PlaceSummaryResponse(
 		UUID placeId,
@@ -22,55 +22,25 @@ public record PlaceSummaryResponse(
 		Double lng,
 		MatchedField matchedField,
 
-		/**
-		 * 🔴 S15P21E201-1120 — 맨 뒤에 더한 칸이다. 대표 사진 주소.
-		 *
-		 * <p>홈 「부산 둘러보기」 카드와 탐색 목록이 사진을 못 그리던 이유가 이 칸이 없어서다.
-		 * 사진이 없어서가 아니다 — 운영에 사진이 붙은 장소가 72곳 있는데(2026-09-16 실측,
-		 * 문화·사찰 42 · 도심 16 · 자연 9 · 바다 1) 목록 응답이 그 주소를 안 실었다.
-		 *
-		 * <p>값이 없으면 키 자체가 빠진다. 앱은 모르는 키를 무시하므로 맨 뒤에 더하는 것은
-		 * 지금 화면을 깨지 않는다.
-		 */
 		@JsonInclude(JsonInclude.Include.NON_NULL) String photoUrl,
 		/**
-		 * 🔴 {@code photoUrl} 과 <b>반드시 짝이다.</b> {@code Place.photoUrl} 의 주석이
-		 * "photoUrl 이 있으면 이것도 있어야 한다" 고 못박아 뒀다 — 관광공사 공공누리 사진이라
-		 * <b>출처 표기 없이 내보내면 라이선스 문제</b>가 된다. 사진만 주고 이 칸을 빼면 화면이
-		 * 표기할 방법이 없어진다.
+		 * {@code photoUrl} 과 반드시 짝이다. 관광공사 공공누리 사진이라 출처 표기 없이 내보내면
+		 * 라이선스 문제가 된다 — 사진만 주고 이 칸을 빼면 화면이 표기할 방법이 없다.
 		 */
 		@JsonInclude(JsonInclude.Include.NON_NULL) String photoSource,
 
 		/**
-		 * 🔴 S15P21E201-1194 — 맨 뒤에 더한 칸이다. 영문 주소.
-		 *
-		 * <p>이 목록은 이름을 {@code nameKo}·{@code nameEn} <b>두 언어로</b> 싣는데 주소는 한글
-		 * 하나만 실었다. 그래서 영어 화면이 <b>영어 이름 바로 밑에 한글 주소</b>를 그렸다 —
-		 * 탐색 목록과 숙소 검색이 그 자리다. 숙소 검색은 주소가 <b>없을 때의 안내문만 영어로
-		 * 번역</b>돼 있어서 <b>없으면 영어, 있으면 한글</b>이었다. 어느 쪽 설계로도 설명이 안 된다.
-		 *
-		 * <p>새 결정이 아니다. {@code PlaceDetailResponse} 가 이미 정해 둔 것을 목록이 안 지키고
-		 * 있던 것이다 — <i>「언어 선택은 칸을 더하는 것이지 기존 칸을 바꾸는 것이 아니다」</i>.
-		 *
-		 * <p>값이 없으면 키 자체가 빠진다({@code photoUrl}·{@code photoSource} 와 같은 규칙).
-		 * 새 조회는 없다 — 아래 팩토리가 이미 {@code Place} 를 통째로 받는다.
+		 * 영문 주소. 이름을 {@code nameKo}·{@code nameEn} 두 언어로 싣는데 주소가 하나뿐이면
+		 * 영어 화면이 영어 이름 밑에 한글 주소를 그리게 된다. 언어 선택은 칸을 더하는 것이지
+		 * 기존 칸을 바꾸는 것이 아니다.
 		 */
 		@JsonInclude(JsonInclude.Include.NON_NULL) String addressEn,
 
 		/**
-		 * 🔴 S15P21E201-1205 — 맨 뒤에 더한 칸이다. <b>그 사진이 무엇을 찍은 것인가.</b>
-		 *
-		 * <p>{@code SELF} = 이 장소를 직접 찍은 사진, {@code VENUE} = 이 장소가 <b>들어 있는 곳</b>을
-		 * 찍은 사진. 이 목록은 사진을 싣는데({@code photoUrl}) <b>그것이 무엇을 찍은 것인지 말할
-		 * 방법이 없었다</b> — 상세 응답에만 있던 칸이다.
-		 *
-		 * <p>🔴 왜 그것이 문제인지는 실측이 있다(S15P21E201-1039 · -1021):
-		 * <b>부산 축제 사진 35건 중 축제를 실제로 찍은 것은 1건.</b> 나머지는 그 축제가 열리는
-		 * 건물이나 주변 시설이다. 이 칸이 없으면 화면은 둘을 구분할 방법이 없어
-		 * <b>주변 시설 사진을 이 장소 사진처럼</b> 그린다.
-		 *
-		 * <p>값이 없으면 키 자체가 빠진다 — {@code photoUrl}·{@code photoSource} 와 같은 규칙이다.
-		 * 화면은 {@code VENUE} 일 때만 뱃지를 띄우고 {@code SELF} 에는 안 띄운다.
+		 * 그 사진이 무엇을 찍은 것인가. {@code SELF} 는 이 장소를 직접 찍은 것, {@code VENUE} 는
+		 * 이 장소가 들어 있는 곳을 찍은 것이다. 부산 축제 사진 35건 중 축제 자체를 찍은 것은
+		 * 1건뿐이라, 이 칸이 없으면 화면이 주변 시설 사진을 이 장소 사진처럼 그린다.
+		 * 화면은 {@code VENUE} 일 때만 뱃지를 띄운다.
 		 */
 		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject) {
 
@@ -89,9 +59,8 @@ public record PlaceSummaryResponse(
 	}
 
 	/**
-	 * 이름 검색에서 어느 이름 칸이 걸렸는가. 🔴 이 값 목록은 자바가 정본이다 — {@code place_feature}
-	 * 의 {@code featureType} 과 달리 사용자 입력이나 마이그레이션으로 늘어나는 값이 아니라
-	 * "한국어냐 영어냐" 라는 이 서비스만의 고정된 두 갈래라서, 여기서는 enum 이 맞다.
+	 * 이름 검색에서 어느 이름 칸이 걸렸는가. 이 값 목록은 자바가 정본이다 — 마이그레이션으로
+	 * 늘어나는 값이 아니라 이 서비스만의 고정된 두 갈래다.
 	 */
 	public enum MatchedField {
 		NAME_KO,

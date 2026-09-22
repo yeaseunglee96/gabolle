@@ -27,12 +27,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 조회 API 가 내보내는 <b>모양</b>만 본다 (S15P21E201-632).
- *
- * <p>🔴 Spring 컨텍스트를 안 띄운다. 여기서 확인할 것은 DB 계약도 인증 설정도 아니라
- * "저장된 값이 앱이 쓸 수 있는 모양으로 나가는가" 하나다. 컨텍스트를 띄우면 그 하나를
- * 보려고 보안 설정과 DB 까지 딸려 오고, 그러면 이 테스트가 <b>남의 미완성 코드 때문에</b>
- * 빨개진다. DB 계약은 {@code FeedBuildConstraintIntegrationTest} 가 따로 본다.
+ * 조회 API 가 내보내는 모양만 본다. Spring 컨텍스트를 안 띄우는 것은, 띄우면 보안 설정과
+ * DB 까지 딸려 와 남의 미완성 코드 때문에 빨개지기 때문이다. DB 계약은
+ * {@code FeedBuildConstraintIntegrationTest} 가 따로 본다.
  */
 class FeedControllerTest {
 
@@ -57,8 +54,6 @@ class FeedControllerTest {
 
 		ApiResponse<FeedPageResponse> response = this.controller.home(this.authentication, null, null);
 
-		// 🔴 이게 문자열로 나가면 앱은 JSON 을 두 번 파싱해야 한다. 그 실수는 응답을 눈으로
-		//    볼 때까지 아무도 모르고, 앱 쪽에서 "왜 문자열이지" 로 시간을 태우게 된다.
 		var payload = response.data().items().get(0).payload();
 		assertThat(payload.isObject()).isTrue();
 		assertThat(payload.get("name").asString()).isEqualTo("광안리");
@@ -95,8 +90,6 @@ class FeedControllerTest {
 	@Test
 	@DisplayName("로그인하지 않았으면 피드를 주지 않는다")
 	void 로그인_없이는_안_준다() {
-		// 🔴 헤더로 "나는 누구다" 를 받지 않는다(S15P21E201-610). 그걸 믿으면 로그인한
-		//    사람이 남의 ID 를 실어 보내는 것만으로 남의 피드를 볼 수 있다.
 		assertThatThrownBy(() -> this.controller.home(null, null, null)).isInstanceOf(AuthException.class);
 	}
 }

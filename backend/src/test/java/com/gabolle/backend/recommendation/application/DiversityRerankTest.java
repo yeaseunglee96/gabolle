@@ -25,13 +25,8 @@ import com.gabolle.backend.recommendation.support.FakeRecommendationEngine;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * 다양성 재정렬과 기여 축 (S15P21E201-548). 도커 없이 도는 단위 테스트다.
- *
- * <p>🔴 완료 기준 첫 줄이 <i>"한 지역·카테고리의 상위 결과 독점이 기준 이하로 내려간다"</i>
- * 인데, 그것을 <b>실제 데이터로는 아직 잴 수 없다</b>(이 저장소에 {@code place} 행이 없다).
- * 그래서 독점 상황을 여기서 만들어 놓고 재정렬이 그것을 실제로 깨는지 본다 — 장치가
- * 동작한다는 증거까지가 지금 낼 수 있는 것이고, 실데이터 분포는 데이터가 들어온 뒤의
- * 측정이다.
+ * 다양성 재정렬과 기여 축. 도커 없이 도는 단위 테스트다. 실데이터 분포로는 아직 잴 수 없어
+ * 독점 상황을 여기서 만들어 놓고 재정렬이 그것을 깨는지 본다.
  */
 class DiversityRerankTest {
 
@@ -59,10 +54,8 @@ class DiversityRerankTest {
 	@Test
 	@DisplayName("🔴 독점 지표가 재정렬 뒤에 내려간다 — before/after 가 함께 남는다")
 	void 독점_지표가_내려간다() {
-		// 🔴 점수를 가깝게 둔다. 벌점(기본 0.05+0.05)은 <b>점수 차가 그보다 작을 때만</b>
-		//    순서를 바꾼다 — 0.30 차이는 못 뒤집는다. 그리고 그것이 맞는 동작이다: 상위
-		//    후보들이 한 카테고리로 몰리는 것은 애초에 점수가 서로 비슷해서이고, 큰 차이를
-		//    다양성으로 뒤집으면 "덜 맞는 곳" 을 위로 올리는 셈이 된다.
+		// 점수를 가깝게 둔다. 벌점(기본 0.05+0.05)은 점수 차가 그보다 작을 때만 순서를
+		// 바꾼다 — 0.30 차이는 못 뒤집고, 그것이 맞는 동작이다.
 		List<EngineCandidate> candidates = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
 			candidates.add(candidate("CAFE", 35.15, 129.05, 0.90 - (i * 0.01)));
@@ -131,7 +124,7 @@ class DiversityRerankTest {
 		EngineCandidate c = candidate("PARK", 35.40, 129.30, 0.10);
 
 		CandidateAssembly assembly = assemble(List.of(a, b, c), 3,
-				new DiversityProperties(false, null, null));
+				new DiversityProperties(false, null, null, null));
 
 		assertThat(assembly.returnedItems()).extracting(RecommendedPlace::placeId)
 				.containsExactly(a.placeId(), b.placeId(), c.placeId());
@@ -183,10 +176,61 @@ class DiversityRerankTest {
 		assertThat(row(assembly, cut.placeId()).getScoreComponents()).doesNotContain("reasonRanking");
 	}
 
+	@Test
+	@DisplayName("🔴 같은 음식이 상위를 독점하지 않는다 — 돼지국밥 넷 사이로 다른 음식이 올라온다")
+	void 같은_음식이_독점하지_않는다() {
+		// S15P21E201-1450 실측: 「맛집」을 고르면 7곳 중 6곳이 돼지국밥이었다. 카테고리는
+		// 전부 FOOD 라 그 축으로는 서로 안 갈리고, 갈리는 것은 음식 표식뿐이다.
+		List<EngineCandidate> candidates = List.of(
+				food(35.10, 129.01, 0.90, "PORK_SOUP"),
+				food(35.11, 129.02, 0.90, "PORK_SOUP"),
+				food(35.12, 129.03, 0.90, "PORK_SOUP"),
+				food(35.13, 129.04, 0.90, "PORK_SOUP"),
+				food(35.14, 129.05, 0.85, "SEAFOOD"));
+
+		CandidateAssembly assembly = assemble(candidates, 5, enabled());
+
+		assertThat(cuisinesOf(assembly, candidates))
+				.as("점수가 낮은 회집이 돼지국밥 사이로 올라와야 한다 — 안 올라오면 축이 안 걸린 것이다")
+				.containsSubsequence("PORK_SOUP", "SEAFOOD", "PORK_SOUP");
+	}
+
+	@Test
+	@DisplayName("🔴 음식 표식이 없는 가게끼리는 이 축으로 안 깎인다 — 한식집과 중식집이 서로를 밀면 안 된다")
+	void 표식_없는_가게끼리는_안_깎인다() {
+		// 지금 어휘는 넷뿐이라(회·카페/디저트·돼지국밥·밀면) 한식 일반에는 표식이 안 붙는다.
+		// 빈 것을 한 덩어리로 묶으면 서로 다른 음식이 「같은 음식」으로 깎인다.
+		EngineCandidate hansik = food(35.10, 129.01, 0.90);
+		EngineCandidate jungsik = food(35.20, 129.11, 0.80);
+		EngineCandidate park = candidate("PARK", 35.40, 129.30, 0.72);
+
+		CandidateAssembly assembly = assemble(List.of(hansik, jungsik, park), 3, enabled());
+
+		// 표식을 묶었다면 둘째 음식점이 0.80 - 0.05(갈래) - 0.10(음식) = 0.65 로 공원(0.72)
+		// 밑으로 내려간다. 안 묶으므로 0.75 로 공원보다 위에 남는다.
+		assertThat(assembly.returnedItems().stream().map(RecommendedPlace::placeId).toList())
+				.containsExactly(hansik.placeId(), jungsik.placeId(), park.placeId());
+	}
+
+	@Test
+	@DisplayName("표식이 둘인 가게는 둘 다 세어진다 — 하나만 세면 남은 하나로 같은 음식이 다시 올라온다")
+	void 표식이_둘이면_둘_다_센다() {
+		EngineCandidate cafe = food(35.10, 129.01, 0.90, "CAFE_DESSERT");
+		EngineCandidate both = food(35.20, 129.11, 0.85, "CAFE_DESSERT", "PORK_SOUP");
+		EngineCandidate pork = food(35.30, 129.21, 0.80, "PORK_SOUP");
+
+		CandidateAssembly assembly = assemble(List.of(cafe, both, pork), 3, enabled());
+
+		// 카페를 먼저 뽑은 뒤: both 는 CAFE_DESSERT 가 겹쳐 0.85-0.05-0.10 = 0.70,
+		// pork 는 겹치는 표식이 없어 0.80-0.05 = 0.75 다. 점수가 낮은 pork 가 먼저 온다.
+		assertThat(assembly.returnedItems().stream().map(RecommendedPlace::placeId).toList())
+				.containsExactly(cafe.placeId(), pork.placeId(), both.placeId());
+	}
+
 	// ── 도우미 ────────────────────────────────────────────────────────────
 
 	private static DiversityProperties enabled() {
-		return new DiversityProperties(true, null, null);
+		return new DiversityProperties(true, null, null, null);
 	}
 
 	private CandidateAssembly assemble(List<EngineCandidate> candidates, int topK,
@@ -202,12 +246,26 @@ class DiversityRerankTest {
 		return scored(category, lat, lng, score, Map.of("base", detail(1.0, score)));
 	}
 
+	/**
+	 * 음식점 하나. 갈래는 언제나 {@code FOOD} 다 — 그것이 이 축이 필요한 이유이기도 하다.
+	 *
+	 * @param cuisines 음식 표식. 안 주면 표식 없는 가게다(지금 어휘로 못 가르는 대부분이 그렇다)
+	 */
+	private static EngineCandidate food(double lat, double lng, double score, String... cuisines) {
+		Map<String, Object> features = new LinkedHashMap<>();
+		features.put("category", "FOOD");
+		features.put("localityBucket", Math.round(lat * 100) + ":" + Math.round(lng * 100));
+		features.put("cuisine", List.of(cuisines));
+		return new EngineCandidate(UUID.randomUUID(), "BASELINE_PLACE_QUERY", ConstraintVerdict.PASS,
+				List.of(), List.of(), null, features, Map.of("base", detail(1.0, score)), score,
+				List.of(), List.of());
+	}
+
 	private static EngineCandidate scored(String category, double lat, double lng, double score,
 			Map<String, Object> scoreComponents) {
 		Map<String, Object> features = new LinkedHashMap<>();
 		features.put("category", category);
-		// 🔴 좌표가 아니라 굵은 구역 번호다 — 채점기가 그렇게 넣는다(정밀 좌표는
-		//    feature_values 에 들어가지 않는다).
+		// 좌표가 아니라 굵은 구역 번호다 — 정밀 좌표는 feature_values 에 들어가지 않는다.
 		features.put("localityBucket", Math.round(lat * 100) + ":" + Math.round(lng * 100));
 		return new EngineCandidate(UUID.randomUUID(), "BASELINE_PLACE_QUERY", ConstraintVerdict.PASS,
 				List.of(), List.of(), null, features, scoreComponents, score, List.of(), List.of());
@@ -225,6 +283,22 @@ class DiversityRerankTest {
 				.filter((candidate) -> candidate.getPlaceId().equals(placeId))
 				.findFirst()
 				.orElseThrow();
+	}
+
+	/** 반환된 차례대로 음식 표식을 늘어놓는다. 표식이 없는 가게는 {@code "-"} 다. */
+	@SuppressWarnings("unchecked")
+	private List<String> cuisinesOf(CandidateAssembly assembly, List<EngineCandidate> pool) {
+		List<String> cuisines = new ArrayList<>();
+		for (RecommendedPlace item : assembly.returnedItems()) {
+			pool.stream()
+					.filter((c) -> c.placeId().equals(item.placeId()))
+					.findFirst()
+					.ifPresent((c) -> {
+						List<String> tags = (List<String>) c.featureValues().get("cuisine");
+						cuisines.add((tags == null || tags.isEmpty()) ? "-" : tags.get(0));
+					});
+		}
+		return cuisines;
 	}
 
 	private List<String> categoriesOf(CandidateAssembly assembly, List<EngineCandidate> pool) {

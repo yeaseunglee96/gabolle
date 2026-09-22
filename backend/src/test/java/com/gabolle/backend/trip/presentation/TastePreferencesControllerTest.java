@@ -26,11 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * S15P21E201-639 — {@code /api/v1/me/preferences/taste} 표현 계층.
- *
- * <p>🔴 대상이 요청 본문이나 헤더가 아니라 <b>인증 주체로만</b> 정해지는지 확인한다.
- * {@code SpendProfileControllerTest} 와 같은 방식이고, 그래서
- * {@code RouteAuthorizationRegistryTest} 에 {@code OWNED} 로 등록되어 있다.
+ * {@code /api/v1/me/preferences/taste} 표현 계층. 대상이 요청 본문이나 헤더가 아니라 인증
+ * 주체로만 정해지는지 확인한다.
  */
 class TastePreferencesControllerTest {
 
@@ -89,7 +86,6 @@ class TastePreferencesControllerTest {
 								"""))
 				.andExpect(status().isOk());
 
-		// 서비스에 넘어간 사용자 id 가 인증 주체와 같아야 한다.
 		then(this.service).should().putTaste(eq(USER_ID.toString()), any());
 	}
 
@@ -115,9 +111,6 @@ class TastePreferencesControllerTest {
 	@Test
 	@DisplayName("🔴 못 두는 차원을 보내면 500 이 아니라 400 이다 — 「서버 고장」과 「보낸 것이 잘못됐다」는 정반대다")
 	void 거절은_400이다() throws Exception {
-		// 🔴 이 시험이 없어서 구멍이 초록 불 아래에 있었다. 컨트롤러와 서비스 javadoc 은
-		//    "400 으로 거절한다" 고 적었지만 그 경로를 맡는 advice 가 없어 500 이 났다.
-		//    주석은 실행되지 않는다 — 응답 코드를 확인하는 것은 이 줄뿐이다.
 		given(this.service.putTaste(eq(USER_ID.toString()), any()))
 				.willThrow(new IllegalArgumentException("계정 기본값으로 둘 수 없는 차원입니다: CATEGORY"));
 
@@ -143,7 +136,6 @@ class TastePreferencesControllerTest {
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.error.code").value("TASTE_PREFERENCES_REJECTED"));
 
-		// 값이 잘못됐으면 저장까지 가지 않는다.
 		then(this.service).should(org.mockito.Mockito.never()).putTaste(any(), any());
 	}
 }

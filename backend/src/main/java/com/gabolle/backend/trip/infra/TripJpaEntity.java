@@ -18,19 +18,13 @@ import jakarta.persistence.Table;
 import com.gabolle.backend.trip.domain.Trip;
 
 /**
- * {@code trip} 표 매핑 — S15P21E201-461.
+ * {@code trip} 표 매핑. 도메인 {@link Trip} 은 JPA 를 모르고, 변환은 {@link JpaTripRepository}
+ * 가 여기서만 한다.
  *
- * <p>🔴 {@link Trip}(도메인) 은 JPA 를 모른다. 이 클래스가 그 경계를 대신 진다 —
- * {@link JpaTripRepository} 가 여기서만 변환한다.
- *
- * <p>🔴 {@code version}·{@code origin_source}·{@code origin_area_code} 컬럼은 여기서
- * <b>일부러</b> 매핑하지 않는다. 도메인 {@link Trip} 에 아직 그 값이 없고, 지어낸 값을
- * 넣으면 그 결정을 여기서 대신 내리는 셈이 된다(V120000 마이그레이션과 같은 원칙).
- * 매핑하지 않으면 INSERT 문에 그 칸이 아예 안 실리고, DB 의 DEFAULT(1)가 대신 채운다.
- *
- * <p>🔴 {@code travel_modes}·{@code time_window_start}·{@code time_window_end} 는
- * S15P21E201-604 가 매핑을 더했다 — 추천 엔진이 읽어야 한다. {@code time_window}(프리셋)와
- * {@code time_window_preset} 은 여전히 건드리지 않는다(같은 사실을 말하는 칸 정리는 별도 티켓).
+ * <p>{@code version}·{@code origin_source}·{@code origin_area_code} 는 일부러 매핑하지 않는다 —
+ * 도메인에 그 값이 없어서 여기서 지어내면 결정을 대신 내리는 셈이다. 안 매핑하면 INSERT 에
+ * 칸이 안 실리고 DB 의 DEFAULT 가 채운다. 이 칸들이 매핑 안 된 상태이므로, 이 엔티티를 통째로
+ * 덮어쓰는 저장은 하지 않는다.
  */
 @Entity
 @Table(name = "trip")
@@ -41,10 +35,8 @@ public class TripJpaEntity {
 	private UUID tripId;
 
 	/**
-	 * 🔴 S15P21E201-317 — {@code updatable = false} 다. 소유자는 여행 생성 이후 바뀌지 않는다는
-	 * 뜻이었는데, 딱 하나(익명 세션 승계) 예외가 생겼다. 그 예외는 이 엔티티를 고쳐 저장하는
-	 * 경로가 아니라 {@link JpaTripRepository#claimAnonymousTrips} 의 네이티브 SQL 로만 이뤄진다 —
-	 * 그래서 이 플래그는 그대로 둔다("보통은 안 바뀐다"는 사실은 여전히 참이다).
+	 * {@code updatable = false} — 소유자는 생성 이후 안 바뀐다. 예외는 익명 세션 승계 하나뿐이고,
+	 * 그건 {@link JpaTripRepository#claimAnonymousTrips} 의 네이티브 SQL 로만 이뤄진다.
 	 */
 	@Column(name = "owner_user_id", nullable = false, updatable = false)
 	private UUID ownerUserId;
@@ -71,7 +63,7 @@ public class TripJpaEntity {
 	@Column(name = "party_size")
 	private Integer partySize;
 
-	/** 하루 활동 시간대 프리셋. 예: {@code MORNING_TO_EVENING} — V160000 이 추가한 칸. */
+	/** 하루 활동 시간대 프리셋. 예: {@code MORNING_TO_EVENING}. */
 	@Column(name = "time_window")
 	private String timeWindow;
 
@@ -86,7 +78,7 @@ public class TripJpaEntity {
 	@Column(name = "travel_modes")
 	private String[] travelModes;
 
-	/** 매일 여기서 시작하고 여기로 돌아온다 (S15P21E201-456). {@code place} FK. */
+	/** 매일 여기서 시작하고 여기로 돌아온다. {@code place} FK. */
 	@Column(name = "accommodation_place_id")
 	private UUID accommodationPlaceId;
 
@@ -103,13 +95,16 @@ public class TripJpaEntity {
 	@Column(name = "max_transit_transfers")
 	private Integer maxTransitTransfers;
 
+	/** 여행 기분. 안 고른 여행은 {@code null} 이다 — 「보통」이 아니라 「모른다」다. */
+	@Column(name = "pace", length = 16)
+	private String pace;
+
 	@Column(name = "timezone", nullable = false)
 	private String timezone;
 
 	/**
-	 * 사용자가 붙인 이름 — S15P21E201-1023. {@code null} 이면 아직 이름이 없다.
-	 *
-	 * <p>길이 60 은 마이그레이션 {@code V20260915140000__trip_title.sql} 과 같은 값이다.
+	 * 사용자가 붙인 이름. {@code null} 이면 아직 이름이 없다. 길이 60 은 마이그레이션
+	 * {@code V20260915140000__trip_title.sql} 과 같은 값이어야 한다.
 	 */
 	@Column(name = "title", length = 60)
 	private String title;
@@ -136,7 +131,7 @@ public class TripJpaEntity {
 			String timeWindow, String timezone, String[] travelModes,
 			LocalTime timeWindowStart, LocalTime timeWindowEnd,
 			UUID accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
-			boolean soloFriendlyPriority, Integer maxTransitTransfers, String title, Trip.Status status,
+			boolean soloFriendlyPriority, Integer maxTransitTransfers, String pace, String title, Trip.Status status,
 			OffsetDateTime createdAt, OffsetDateTime updatedAt, OffsetDateTime deletedAt) {
 		this.tripId = tripId;
 		this.ownerUserId = ownerUserId;
@@ -156,6 +151,7 @@ public class TripJpaEntity {
 		this.foreignCardRequired = foreignCardRequired;
 		this.soloFriendlyPriority = soloFriendlyPriority;
 		this.maxTransitTransfers = maxTransitTransfers;
+		this.pace = pace;
 		this.timezone = timezone;
 		this.title = title;
 		this.status = status;
@@ -165,35 +161,24 @@ public class TripJpaEntity {
 	}
 
 	/**
-	 * 지운 시각을 찍는다 — S15P21E201-746. {@code status} 는 건드리지 않는다(도메인
-	 * {@link Trip#markDeleted} 와 같은 이유 — 지워지기 전에 어느 단계였는지가 남아야 한다).
+	 * 지운 시각을 찍는다. {@code status} 는 건드리지 않는다 — 지워지기 전에 어느 단계였는지가
+	 * 남아야 한다.
 	 *
-	 * <p>🔴 값을 여기서 만들지 않고 <b>인자로 받는다.</b> 이 클래스가 지금 시각을 읽으면
-	 * 도메인이 정한 시각과 미세하게 어긋나고, 그러면 응답에 실린 시각과 표에 남은 시각이
-	 * 다른 값이 된다.
+	 * <p>시각을 여기서 읽지 않고 인자로 받는다. 직접 읽으면 도메인이 정한 시각과 어긋나서
+	 * 응답에 실린 시각과 표에 남은 시각이 달라진다.
 	 */
 	void markDeleted(OffsetDateTime deletedAt, OffsetDateTime updatedAt) {
 		this.deletedAt = deletedAt;
 		this.updatedAt = updatedAt;
 	}
 
-	/**
-	 * 상태 칸을 옮긴다 — S15P21E201-964. 어느 상태로 갈 수 있는지는 도메인
-	 * ({@link Trip#markReady}) 이 이미 판정했고 여기서는 옮겨 적기만 한다.
-	 *
-	 * <p>{@link #markDeleted} 와 같이 시각을 인자로 받는다 — 같은 이유다.
-	 */
+	/** 어느 상태로 갈 수 있는지는 도메인({@link Trip#markReady})이 판정했고 여기서는 옮겨 적기만 한다. */
 	void changeStatus(Trip.Status status, OffsetDateTime updatedAt) {
 		this.status = status;
 		this.updatedAt = updatedAt;
 	}
 
-	/**
-	 * 이름 칸만 옮겨 적는다 — S15P21E201-1023. 길이·제어문자 규칙은 도메인
-	 * ({@link Trip#rename}) 이 이미 판정했다.
-	 *
-	 * <p>{@link #changeStatus} 와 같이 시각을 인자로 받는다 — 같은 이유다.
-	 */
+	/** 길이·제어문자 규칙은 도메인({@link Trip#rename})이 판정했고 여기서는 옮겨 적기만 한다. */
 	void changeTitle(String title, OffsetDateTime updatedAt) {
 		this.title = title;
 		this.updatedAt = updatedAt;
@@ -218,6 +203,7 @@ public class TripJpaEntity {
 	boolean foreignCardRequired() { return foreignCardRequired; }
 	boolean soloFriendlyPriority() { return soloFriendlyPriority; }
 	Integer maxTransitTransfers() { return maxTransitTransfers; }
+	String pace() { return pace; }
 	String timezone() { return timezone; }
 	Trip.Status status() { return status; }
 	OffsetDateTime createdAt() { return createdAt; }

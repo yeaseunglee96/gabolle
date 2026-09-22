@@ -18,14 +18,8 @@ import com.gabolle.backend.transit.domain.NearbyBusArrivalsResult;
 import com.gabolle.backend.transit.presentation.dto.NearbyBusArrivalsResponseDto;
 
 /**
- * 좌표 근처의 버스 정류소·실시간 도착정보를 답한다 — S15P21E201-988.
- *
- * <h2>🔴 인가는 "로그인한 사람이면 된다" 다</h2>
- * {@code WeatherController}와 같은 이유 — 좌표는 부르는 쪽이 준 값이고 우리 자원이 아니다.
- * 로그인을 요구하는 것은 우리 TAGO 키로 남이 대신 호출을 돌리는 것(호출 한도 소진)을 막기
- * 위해서다.
- *
- * <p>{@code @Profile({"db","dev"})}는 {@code weather} 패키지와 같은 이유다.
+ * 좌표 근처의 버스 정류소·실시간 도착정보를 답한다. 로그인만 요구하고 사용자별 구분은 없다 —
+ * 우리 TAGO 키로 남이 대신 호출을 돌려 한도를 소진하는 것을 막기 위해서다.
  */
 @RestController
 @RequestMapping("/api/v1/transit")

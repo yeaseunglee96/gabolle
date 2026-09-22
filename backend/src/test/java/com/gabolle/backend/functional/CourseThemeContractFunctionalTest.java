@@ -15,20 +15,14 @@ import com.gabolle.backend.functional.support.FunctionalJourneyTest;
 import com.jayway.jsonpath.JsonPath;
 
 /**
- * 코스 테마 목록이 실제 서버에서 무엇을 내보내는가 — S15P21E201-450.
- *
- * <p>이 목록은 화면이 그대로 그리는 값이라 <b>칸 이름과 타입</b>이 계약이다. 그래서 응답을
- * DTO 로 되읽지 않고 날것의 JSON 을 본다({@code ResponseBodyContractFunctionalTest} 와 같은
- * 이유 — 어제 목록 화면이 죽은 것이 그 자리였다).
+ * 코스 테마 목록이 실제 서버에서 무엇을 내보내는가. 화면이 그대로 그리는 값이라 칸 이름과 타입이
+ * 계약이고, 그래서 응답을 DTO 로 되읽지 않고 날것의 JSON 을 본다.
  */
 class CourseThemeContractFunctionalTest extends FunctionalJourneyTest {
 
 	private static final String THEMES = "/api/v1/course-categories";
 
-	/**
-	 * 티켓이 이름을 적어 둔 여섯. 나머지 넷은 "외 4종" 으로만 적혀 있어 설정 파일에 제안으로
-	 * 넣었고, 여기서는 그 넷의 이름을 고정하지 않는다 — 확정되면 이 목록에 더한다.
-	 */
+	/** 이름이 확정된 여섯만 고정한다. 나머지는 확정되면 이 목록에 더한다. */
 	private static final List<String> NAMED_IN_THE_TICKET = List.of(
 			"ZERO_WON", "BEST_BANG", "SPLURGE", "OLD_TOWN", "NATURE_FIX", "PICTURE_PERFECT");
 

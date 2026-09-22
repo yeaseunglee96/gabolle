@@ -9,12 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * {@code itinerary_excluded_place} 표 매핑 — S15P21E201-249.
- *
- * <p>🔴 모든 칸이 {@code updatable=false} 다. {@link ItineraryItemJpaEntity}·
- * {@link ItineraryLegJpaEntity} 와 같은 이유 — 판은 덮어쓰지 않는 스냅샷이라 이 행도
- * 한 번 쓰면 다시 고치지 않는다. 편집은 새 판에 새 행을 만드는 것이지 이 행을 갱신하는
- * 것이 아니다.
+ * {@code itinerary_excluded_place} 표 매핑.
+ * 모든 칸이 {@code updatable=false} 다. 판은 덮어쓰지 않는 스냅샷이라 이 행도 한 번 쓰면 다시
+ * 고치지 않는다 — 편집은 새 판에 새 행을 만드는 것이지 이 행을 갱신하는 것이 아니다.
  */
 @Entity
 @Table(name = "itinerary_excluded_place")

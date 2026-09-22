@@ -14,9 +14,8 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.trip.domain.Trip;
 
 /**
- * 2026-09-03 버그 수정 — {@code Status.DELETED} 가 DB CHECK(trip.status, S15P21E201-554)
- * 와 어긋났다. DB 는 삭제를 {@code deleted_at} 하나로만 말하기로 했는데, 도메인은
- * {@code status=DELETED} 로도 같은 뜻을 담고 있었다 — 그 상태로 저장하면 CHECK 위반이었다.
+ * 삭제는 {@code deleted_at} 하나로만 말한다. {@code status} 에 {@code DELETED} 를 두면
+ * DB CHECK(trip.status) 위반이라 저장 자체가 안 된다.
  */
 class TripTest {
 

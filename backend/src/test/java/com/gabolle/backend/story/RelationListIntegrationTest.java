@@ -30,14 +30,7 @@ import com.gabolle.backend.story.presentation.StoryExceptionHandler;
 import com.gabolle.backend.story.presentation.UserSocialController;
 import com.gabolle.testslice.StorySliceApplication;
 
-/**
- * 팔로워·팔로잉·차단 목록 — S15P21E201-1179.
- *
- * <p>커서·문턱 값 자체는 {@code FollowIntegrationTest}·{@code StoryRepository} 가 이미 확인했다.
- * 여기서는 이 세 목록에만 있는 것만 본다 — (1) 최근 맺은 순으로 오는가, (2) 「한 개 더 읽기」로
- * 다음 페이지가 있는가, (3) 차단 목록은 남이 못 보는가, (4) 그 사람이 나를 차단했으면 팔로워·팔로잉
- * 목록도 403 인가(기록과 같은 규칙).
- */
+/** 팔로워·팔로잉·차단 목록. 커서 동작 자체는 다른 테스트가 보므로 여기서는 세 목록에만 있는 규칙을 본다. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",
@@ -128,7 +121,6 @@ class RelationListIntegrationTest {
 				.andExpect(jsonPath("$.data.items[1].displayName").value("A"));
 	}
 
-	/** S15P21E201-1179 계약 — 목록의 following은 목록 주인이 아니라 <b>보는 사람</b> 기준이다. */
 	@Test
 	@DisplayName("🔴 계약 — 팔로워 목록의 following은 목록 주인이 아니라 보는 사람 기준이다")
 	void followingFlagReflectsViewerNotListOwner() throws Exception {
@@ -145,7 +137,6 @@ class RelationListIntegrationTest {
 				.andExpect(jsonPath("$.data.items[?(@.displayName=='C')].following").value(false));
 	}
 
-	/** 차단은 팔로우를 양쪽 다 끊으므로(BlockService.block), 차단 목록의 following은 언제나 false다. */
 	@Test
 	@DisplayName("차단 목록의 following은 언제나 false다 — 차단하면 팔로우가 함께 끊긴다")
 	void blockListFollowingIsAlwaysFalse() throws Exception {
@@ -198,5 +189,73 @@ class RelationListIntegrationTest {
 		this.mockMvc.perform(get("/api/v1/users/{id}/followers", this.me).principal(StoryFixture.as(this.me)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.items.length()").value(0));
+	}
+
+	// ── 줄마다 기록 수 ──────────────────────────────────────────────────────
+
+	/** 세는 범위가 사람마다 다르다 — 목록의 숫자는 그 사람 프로필의 숫자와 같아야 한다. */
+	@Test
+	@DisplayName("🔴 티켓 완료 기준 — 줄마다 기록 수가 오고, 세는 범위는 보는 사람과의 관계를 따른다")
+	void storyCountFollowsWhatTheViewerCanSee() throws Exception {
+		Instant published = Instant.now().minus(1, ChronoUnit.HOURS);
+		StoryFixture.insertFollow(this.jdbc, this.a, this.me);
+		StoryFixture.insertFollow(this.jdbc, this.b, this.me);
+		StoryFixture.insertFollow(this.jdbc, this.c, this.me);
+		// 나는 팔로워 중 B 만 맞팔한다 — 그래서 B 의 「팔로워 공개」 글만 나에게 보인다.
+		StoryFixture.insertFollow(this.jdbc, this.me, this.b);
+
+		StoryFixture.insertStory(this.jdbc, this.a, "A 공개", "PUBLIC", published);
+		StoryFixture.insertStory(this.jdbc, this.a, "A 팔로워공개", "FOLLOWERS", published);
+		StoryFixture.insertStory(this.jdbc, this.b, "B 공개", "PUBLIC", published);
+		StoryFixture.insertStory(this.jdbc, this.b, "B 팔로워공개", "FOLLOWERS", published);
+		StoryFixture.insertStory(this.jdbc, this.b, "B 비공개", "PRIVATE", published);
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/followers", this.me).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				// 안 맞팔한 A — 전체 공개만 보인다.
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='A')].storyCount").value(1))
+				// 맞팔한 B — 팔로워 공개까지 보인다. 비공개는 누구에게도 안 보인다.
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='B')].storyCount").value(2))
+				// 한 글도 안 쓴 C 는 세는 질의 결과에 안 나온다. 「모른다」가 아니라 0 이다.
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='C')].storyCount").value(0));
+	}
+
+	/** 남의 팔로워 목록에 내가 들어 있으면 그 줄은 내 비공개 기록까지 세야 한다. */
+	@Test
+	@DisplayName("🔴 목록에 나 자신이 있으면 그 줄은 내 비공개 기록까지 센다")
+	void ownRowCountsPrivateStories() throws Exception {
+		Instant published = Instant.now().minus(1, ChronoUnit.HOURS);
+		StoryFixture.insertFollow(this.jdbc, this.me, this.a);
+		StoryFixture.insertStory(this.jdbc, this.me, "내 공개", "PUBLIC", published);
+		StoryFixture.insertStory(this.jdbc, this.me, "내 비공개", "PRIVATE", published);
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/followers", this.a).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='나')].storyCount").value(2));
+	}
+
+	/** {@code null} 은 0 이 아니다. 차단 목록은 이 숫자를 안 그리므로 세지 않는다. */
+	@Test
+	@DisplayName("🔴 차단 목록은 기록 수를 안 센다 — 0 이 아니라 null 이다")
+	void blockListDoesNotCountStories() throws Exception {
+		StoryFixture.insertStory(this.jdbc, this.a, "A 공개", "PUBLIC", Instant.now().minus(1, ChronoUnit.HOURS));
+		StoryFixture.insertBlock(this.jdbc, this.me, this.a);
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/blocks", this.me).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[0].storyCount").doesNotExist());
+	}
+
+	/** 아직 공개 시각이 안 된 예약 글은 아무에게도 안 보인다 — 세는 쪽도 같은 규칙을 쓴다. */
+	@Test
+	@DisplayName("🔴 예약된 글은 아직 안 센다 — 프로필의 숫자와 같은 규칙이다")
+	void scheduledStoriesAreNotCountedYet() throws Exception {
+		StoryFixture.insertFollow(this.jdbc, this.a, this.me);
+		StoryFixture.insertStory(this.jdbc, this.a, "A 공개", "PUBLIC", Instant.now().minus(1, ChronoUnit.HOURS));
+		StoryFixture.insertStory(this.jdbc, this.a, "A 예약", "PUBLIC", Instant.now().plus(3, ChronoUnit.HOURS));
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/followers", this.me).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='A')].storyCount").value(1));
 	}
 }

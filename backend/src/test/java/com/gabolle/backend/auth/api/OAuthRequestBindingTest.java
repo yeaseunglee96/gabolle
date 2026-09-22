@@ -24,6 +24,7 @@ import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
 import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.service.CurrentUserService;
+import com.gabolle.backend.auth.service.LinkedIdentityService;
 import com.gabolle.backend.auth.service.LocalAuthService;
 import com.gabolle.backend.auth.service.OAuthAccountService;
 import com.gabolle.backend.auth.service.OAuthChallengeService;
@@ -35,18 +36,16 @@ import com.gabolle.backend.common.security.GlobalAuthExceptionHandler;
 import com.gabolle.backend.common.security.SecurityEventLogger;
 
 /**
- * S15P21E201-689 · -690 — 앱이 보내는 <b>최소 본문</b>이 실제로 읽히는지 본다.
+ * 앱이 보내는 최소 본문이 실제로 읽히는지 본다.
  *
- * <h2>🔴 왜 이 테스트가 필요한가</h2>
- * record 로 요청 본문을 받으면 JSON 에 없는 키는 생성자에 {@code null} 로 들어간다. 그 자리가 <b>원시형</b>
- * ({@code boolean})이면 Jackson 이 거기서 실패한다 — {@code JSON parse error: Cannot map null into type boolean}.
- * 그러면 응답이 "티켓이 잘못됐다"(400 {@code OAUTH_TICKET_INVALID})가 아니라 "요청 형식이 올바르지 않습니다"
- * (400 {@code INVALID_REQUEST}, {@code fields} 비어 있음)로 나가고, 화면은 무엇이 문제인지 알 수 없다.
+ * <p>record 로 요청 본문을 받으면 JSON 에 없는 키는 생성자에 {@code null} 로 들어가고, 그
+ * 자리가 원시형 {@code boolean} 이면 Jackson 이 거기서 실패한다. 그러면 응답이
+ * {@code OAUTH_TICKET_INVALID} 가 아니라 {@code INVALID_REQUEST} 로 나가 화면이 무엇이
+ * 문제인지 알 수 없다.
  *
- * <p>2026-09-07 에 배포에서 실제로 그랬다. 2단계 흐름에서 앱은 인증 요청에 동의·14세 확인을 싣지 않으므로
- * {@code behaviorPersonalizationEnabled} 도 함께 빠지는 것이 자연스럽고, 그 자리가 원시형이면 본문 자체를
- * 못 읽는다. 그래서 그 칸을 {@code Boolean} 으로 바꿨다. 이 테스트가 그 계약을 고정한다 — 다시 원시형으로
- * 되돌리면 빨개진다.
+ * <p>2단계 흐름에서 앱은 인증 요청에 동의·14세 확인을 싣지 않으므로
+ * {@code behaviorPersonalizationEnabled} 도 함께 빠진다. 그 칸을 다시 원시형으로 되돌리면
+ * 이 검사가 빨개진다.
  */
 class OAuthRequestBindingTest {
 
@@ -60,11 +59,10 @@ class OAuthRequestBindingTest {
 				mock(AuthTokenService.class), mock(OAuthLoginService.class), mock(OAuthChallengeService.class),
 				mock(WebAuthCookieService.class), mock(CurrentUserService.class), mock(ProfileUpdateService.class),
 				mock(AccountDeletionService.class), this.accountService,
-				mock(ConsentUpdateService.class));
+				mock(ConsentUpdateService.class), mock(LinkedIdentityService.class));
 		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
 		validator.afterPropertiesSet();
-		// S15P21E201-682 — GlobalAuthExceptionHandler 가 SecurityEventLogger 를 필요로 하게 됐다.
-		// 이 테스트는 요청 바인딩만 보므로 mock 으로 채운다.
+		// 여기서 보는 것은 요청 바인딩이라 SecurityEventLogger 는 mock 으로 채운다.
 		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
 				.setValidator(validator)
 				.setControllerAdvice(new AuthExceptionHandler(), new GlobalAuthExceptionHandler(mock(SecurityEventLogger.class)))
@@ -85,7 +83,7 @@ class OAuthRequestBindingTest {
 						 "consents":{"TERMS_OF_SERVICE":true,"PRIVACY_POLICY":true}}
 						"""))
 				.andExpect(status().isBadRequest())
-				// 🔴 INVALID_REQUEST 가 아니라 이것이어야 한다 — 본문이 읽혔다는 뜻이다.
+				// INVALID_REQUEST 가 아니라 이것이어야 본문이 읽혔다는 뜻이다.
 				.andExpect(jsonPath("$.error.code").value("OAUTH_TICKET_INVALID"));
 	}
 

@@ -35,20 +35,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * S15P21E201-604 — 완성된 일정표 조회. 항목이 0개인 날을 감추지 않는가, 도보 거리가 없는
- * 것을 0으로 지어내지 않는가, {@code item_key} 를 PK 대신 쓰는가를 본다.
+ * 완성된 일정표 조회. 항목이 0개인 날을 감추지 않는가, 도보 거리가 없는 것을 0 으로
+ * 지어내지 않는가, {@code item_key} 를 PK 대신 쓰는가를 본다.
  *
- * <p>🔴 Spring 컨텍스트를 띄우지 않는다 — {@link ItineraryDraftServiceTest} 와 같은 판단.
- * {@link ItineraryRepository} 는 {@link InMemoryItineraryRepository} 를 실제로 쓰고,
+ * <p>Spring 컨텍스트를 띄우지 않는다. {@link ItineraryRepository} 는
+ * {@link InMemoryItineraryRepository} 를 실제로 쓰고,
  * {@link TripQueryService}·{@link PlaceRepository}·{@link RecommendationJobRepository} 만
  * Mockito 로 대신한다.
  *
- * <p>🔴 S15P21E201-224 — {@link ItineraryAccess} 는 <b>진짜</b> 객체를 쓴다(Mockito 로
- * 대신하지 않는다). 실제 {@link InMemoryItineraryRepository} + 가짜 {@link TripQueryService}
- * 로 조립하면 "일정을 찾고 → 그 일정의 여행 회원인지 본다" 는 판정 로직 자체가 이 테스트로
- * 검증된다. {@code stubTripMembership} 이 여전히 {@code tripId} 기준으로 {@code
- * tripQueryService.get} 을 스텁하는 이유다 — {@code itineraryId} 는 테스트마다 새로 만들어져
- * 미리 알 수 없지만 {@code tripId} 는 고정값이다.
+ * <p>{@link ItineraryAccess} 는 진짜 객체다 — 「일정을 찾고 그 일정의 여행 회원인지 본다」는
+ * 판정 자체가 이 테스트로 검증된다. {@code stubTripMembership} 이 {@code tripId} 기준으로
+ * 스텁하는 것은 {@code itineraryId} 가 테스트마다 새로 만들어져 미리 알 수 없기 때문이다.
  */
 class ItineraryQueryServiceTest {
 
@@ -58,6 +55,8 @@ class ItineraryQueryServiceTest {
 	private PlaceRepository placeRepository;
 	private RecommendationJobRepository recommendationJobRepository;
 	private ItineraryQueryService service;
+	/** 항목이 가리키는 장소. 좌표 시험이 이 흉내를 바꿔 쓴다. */
+	private Place place;
 
 	private final String tripId = "trip_1";
 	private final String requesterId = "usr_a";
@@ -70,17 +69,18 @@ class ItineraryQueryServiceTest {
 		this.itineraryAccess = new ItineraryAccess(this.itineraryRepository, this.tripQueryService);
 		this.placeRepository = mock(PlaceRepository.class);
 		this.recommendationJobRepository = mock(RecommendationJobRepository.class);
-		// S15P21E201-293 — 실제 도착·출발 시각 저장소. 이 테스트들은 기록이 하나도 없는
-		// 상태를 보므로 빈 대역이면 충분하다(기록이 있을 때의 응답은
-		// ItineraryActualTimeServiceTest 가 본다).
+		// 실제 도착·출발 시각 저장소. 이 테스트들은 기록이 하나도 없는 상태를 보므로 빈
+		// 대역이면 충분하다 — 기록이 있을 때는 ItineraryActualTimeServiceTest 가 본다.
 		this.service = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
 				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
 				new FakeItineraryItemActualRepository());
 
-		Place place = mock(Place.class);
-		when(place.getPlaceId()).thenReturn(this.placeId);
-		when(place.getNameKo()).thenReturn("해운대 해수욕장");
-		when(this.placeRepository.findByPlaceIdIn(any())).thenReturn(List.of(place));
+		this.place = mock(Place.class);
+		when(this.place.getPlaceId()).thenReturn(this.placeId);
+		when(this.place.getNameKo()).thenReturn("해운대 해수욕장");
+		when(this.place.getLat()).thenReturn(35.1587);
+		when(this.place.getLng()).thenReturn(129.1604);
+		when(this.placeRepository.findByPlaceIdIn(any())).thenReturn(List.of(this.place));
 	}
 
 	private Trip threeDayTrip() {
@@ -90,7 +90,7 @@ class ItineraryQueryServiceTest {
 	}
 
 	private void stubTripMembership(Trip trip) {
-		// 🔴 S15P21E201-224 — 이 테스트들은 role 자체를 검사하지 않으므로 기본값으로 OWNER 를 준다.
+		// 이 테스트들은 role 자체를 검사하지 않으므로 기본값으로 OWNER 를 준다.
 		stubTripMembership(trip, TripMember.Role.OWNER);
 	}
 
@@ -209,7 +209,7 @@ class ItineraryQueryServiceTest {
 		String unverified = RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED;
 		String itineraryId = seedItinerary(1, List.of(
 				itemOf("k1", 0, day, 1, LocalTime.of(10, 0), LocalTime.of(11, 0), List.of(unverified)),
-				// 🔴 경고가 둘 붙은 곳도 '한 곳'이다. 건수가 아니라 곳을 센다.
+				// 경고가 둘 붙은 곳도 '한 곳'이다. 건수가 아니라 곳을 센다.
 				itemOf("k2", 0, day, 2, LocalTime.of(12, 0), LocalTime.of(13, 0),
 						List.of("WALKING_OVER_LIMIT", unverified)),
 				// 접근성과 무관한 경고만 붙은 곳은 안 센다.
@@ -257,6 +257,59 @@ class ItineraryQueryServiceTest {
 				.isInstanceOf(ItineraryQueryController.ItineraryNotFoundException.class);
 	}
 
+	/** 여행표의 「인원」이 초안 기본값 1 에 가려 언제나 1명으로 나오던 자리를 채운다. */
+	@Test
+	@DisplayName("🔴 티켓 완료 기준 — 일정 응답이 여행 인원을 싣는다")
+	void detailCarriesPartySize() {
+		// 일부러 1 이 아닌 수로 만든다. 1 로 두면 「값을 옮겼나」와 「1 을 박아 넣었나」가
+		// 구분이 안 된다.
+		Trip trip = new Trip(this.tripId, this.requesterId, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12),
+				null, null, null, 3, null, "Asia/Seoul", Instant.now());
+		stubTripMembership(trip);
+		String itineraryId = seedItinerary(1, List.of());
+
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).partySize()).isEqualTo(3);
+	}
+
+	// ── 방문지 좌표 ─────────────────────────────────────────────────────────
+
+	/** 좌표가 없으면 코스 화면이 동선을 글로만 세운다. */
+	@Test
+	@DisplayName("🔴 티켓 완료 기준 — 방문지에 좌표가 실린다")
+	void itemCarriesCoordinates() {
+		Trip trip = threeDayTrip();
+		stubTripMembership(trip);
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, LocalTime.of(9, 30), LocalTime.of(11, 0))));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(day -> day.items().stream()).findFirst().orElseThrow();
+
+		assertThat(item.lat()).isEqualTo(35.1587);
+		assertThat(item.lng()).isEqualTo(129.1604);
+	}
+
+	/**
+	 * 모르면 {@code null} 이지 {@code 0} 이 아니다. 위도 0·경도 0 은 기니만 한가운데라,
+	 * 0 으로 채우면 「없다」가 지도 위의 점으로 바뀐다.
+	 */
+	@Test
+	@DisplayName("🔴 좌표를 모르는 장소는 null 이다 — 0 으로 채우면 지도에 기니만이 찍힌다")
+	void unknownCoordinatesStayNull() {
+		when(this.place.getLat()).thenReturn(null);
+		when(this.place.getLng()).thenReturn(null);
+		Trip trip = threeDayTrip();
+		stubTripMembership(trip);
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, LocalTime.of(9, 30), LocalTime.of(11, 0))));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(day -> day.items().stream()).findFirst().orElseThrow();
+
+		assertThat(item.lat()).isNull();
+		assertThat(item.lng()).isNull();
+	}
+
 	private String seedItinerary(int version, List<ItineraryItem> items) {
 		String itineraryId = "itn_" + UUID.randomUUID();
 		Itinerary itinerary = new Itinerary(itineraryId, this.tripId, version);
@@ -271,7 +324,7 @@ class ItineraryQueryServiceTest {
 		return itemOf(itemKey, dayIndex, visitDate, sequence, startTime, endTime, List.of());
 	}
 
-	/** 경고가 붙은 항목 — S15P21E201-1158. */
+	/** 경고가 붙은 항목. */
 	private ItineraryItem itemOf(String itemKey, int dayIndex, LocalDate visitDate, int sequence,
 			LocalTime startTime, LocalTime endTime, List<String> warningCodes) {
 		return new ItineraryItem(UUID.randomUUID().toString(), "version-placeholder", itemKey, dayIndex, visitDate,

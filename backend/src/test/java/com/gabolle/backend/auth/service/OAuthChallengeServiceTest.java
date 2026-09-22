@@ -54,8 +54,8 @@ class OAuthChallengeServiceTest {
 		properties = new AuthProperties();
 		properties.getOauthAllowedRedirectUris().add(REDIRECT_URI);
 		properties.getOauthAllowedRedirectUris().add(KAKAO_REDIRECT_URI);
-		// 🔴 수준을 명시하고 원래대로 되돌린다. 전체 빌드에서 앞선 Spring 테스트가 로그백을
-		//    재설정하면 아래 로깅 확인이 빈 목록을 훑고 조용히 통과한다.
+		// 수준을 명시하고 원래대로 되돌린다. 앞선 Spring 검사가 로그백을 재설정하면
+		// 아래 로깅 확인이 빈 목록을 훑고 조용히 통과한다.
 		logbackLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(SecurityEventLogger.class);
 		originalLevel = logbackLogger.getLevel();
 		logbackLogger.setLevel(Level.INFO);
@@ -77,8 +77,8 @@ class OAuthChallengeServiceTest {
 
 	@Test
 	void rejectedRedirectUriIsRecordedAsASecurityEvent() {
-		// 🔴 S15P21E201-682 후속 — 이 거부는 400 이라 상태 코드만 보는 로깅에는 안 잡혔다.
-		//    통과하면 우리가 발급한 표가 남의 주소로 가므로 오타가 아니라 대개 공격이다.
+		// 이 거부는 400 이라 상태 코드만 보는 로깅에는 안 잡힌다. 통과하면 우리가 발급한
+		// 표가 남의 주소로 가므로 오타가 아니라 대개 공격이다.
 		assertThatThrownBy(() -> service.issue(AuthProvider.GOOGLE,
 				"https://evil.example.com/steal?token=abc123", codeChallenge("verifier-" + "x".repeat(40)),
 				"S256", "device-1"))

@@ -33,13 +33,10 @@ import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.testslice.TripSliceApplication;
 
 /**
- * S15P21E201-664 — {@code TripCreationService.create} 가 하루 활동 시간대·이동수단을
- * 실제로 {@code trip} 표(time_window_start · time_window_end · travel_modes)에
- * 저장하는지 진짜 PostgreSQL 로 검증한다.
- *
- * <p>{@link TripPersistenceIntegrationTest} 와 같은 이유로 H2 가 아니라 진짜
- * PostgreSQL 을 쓴다 — 배열 컬럼(travel_modes)과 CHECK 제약이 PostgreSQL 에서만
- * 진짜로 검증되기 때문이다.
+ * {@code TripCreationService.create} 가 하루 활동 시간대·이동수단을 {@code trip} 표의
+ * time_window_start · time_window_end · travel_modes 에 실제로 저장하는지 본다.
+ * H2 가 아닌 이유는 배열 컬럼(travel_modes)과 CHECK 제약이 PostgreSQL 에서만 진짜로
+ * 검증되기 때문이다.
  */
 @SpringBootTest(classes = TripSliceApplication.class, properties = {
 		"spring.profiles.active=db",

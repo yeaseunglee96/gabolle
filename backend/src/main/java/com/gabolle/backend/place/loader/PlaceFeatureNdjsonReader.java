@@ -13,56 +13,30 @@ import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * bigData 가 이미 만들어 둔 가격대 산출물을 {@code place_feature} 행으로 옮긴다.
+ * bigData 가 만들어 둔 산출물을 {@code place_feature} 행으로 옮긴다.
  *
- * <h2>🔴 값은 이미 있었고, 잇는 코드만 없었다</h2>
+ * <p>이름으로 짝을 맞추지 않는다. 산출물이 장소 고유 번호를 들고 있고 장소 아이디가 그 번호에서
+ * 계산되므로, 짝은 정확히 하나이거나 아예 없다.
  *
- * {@code place_feature} 는 19종을 담을 수 있는데 채워지는 것이 둘뿐이었다(관심·음식,
- * {@link SbizPlaceLoader}). 나머지 17종이 0행이라 채점기가 어떤 장소든 최대 0.30점밖에 못 냈다.
- * 그런데 <b>조사된 가격대 967곳은 이미 파일로 만들어져 저장소에 커밋돼 있다</b>
- * ({@code bigData/dev} 의 {@code data/staged/place-priceband.ndjson}).
- * 없던 것은 값이 아니라 옮기는 코드다.
+ * <p>{@code value} 가 JSONB 라 아무 모양이나 들어간다. 그래서 값의 모양을 정하는 자리가 여기고,
+ * 모르는 낱말이 오면 멈춘다 — 조용히 버리면 개수만 줄고 아무도 못 알아챈다.
  *
- * <h2>🔴 유명세는 여기서 다루지 않는다 (S15P21E201-861)</h2>
+ * <p>{@link Fact} 가 {@code keySource} 를 들고 다니므로 여기서 내는 사실은 어느 출처의 장소에도
+ * 붙을 수 있다.
  *
- * 이 파일의 앞선 판은 가격대와 유명세를 함께 다뤘다. 그 사이 <b>유명세는
- * S15P21E201-826 이 다른 방식으로 먼저 넣었다</b>({@code PopularityScoreLoader} ·
- * {@code ListRarity} · {@code TruthSignalReader}). 같은 값을 넣는 경로가 둘이 되면
- * 나중에 어느 쪽이 진짜인지 아무도 모르므로, <b>여기서는 뺐다.</b>
- *
- * <h2>🟢 이름으로 맞추지 않는다 — 산출물이 상가업소번호를 들고 있다</h2>
- *
- * 이 작업에서 가장 위험한 것은 이름 매칭이다("명륜진사갈비" 가 부산에 몇 곳인지 생각해 보라).
- * 그 위험이 여기엔 <b>없다.</b> 산출물의 열쇠가 <b>상가업소번호</b>(상가정보의 가게 고유 번호,
- * {@code MA0101…})이고, 장소 아이디는 그 번호에서 계산된다
- * ({@link SbizPlaceLoader#placeIdOf}). 짝은 정확히 하나이거나 아예 없다.
- *
- * <h2>🔴 읽는 쪽이 값의 모양을 정하는 자리다</h2>
- *
- * {@code value} 는 JSONB 라 아무 모양이나 들어간다. 그래서 <b>모르는 낱말이 오면 멈춘다.</b>
- * 조용히 버리면 개수만 줄고 아무도 못 알아챈다 — {@code priceband-normalize.mjs} 가 같은 이유로
- * 같은 선택을 했다.
- *
- * <h2>🔴 SBIZ 전용이 아니다 (S15P21E201-453·1047)</h2>
- *
- * {@link #readPriceBands} 는 상가업소번호(SBIZ)만 다루던 시절 이름 그대로 남아 있지만,
- * {@link Fact} 에 {@code keySource} 가 생기면서 이 읽개가 내는 사실은 어느 출처의 장소에도 붙을 수
- * 있다. {@link #readVisitorFacts} 가 TourAPI 출처 장소(관광공사 contentid)에 혼밥 안심·
- * 브레이크타임·라스트오더를 붙이는 것, {@link #readPlaceSlopes} 가 같은 장소에 경사를 붙이는 것이
- * 그 사례다.
+ * <p>유명세는 여기서 다루지 않는다. {@code PopularityScoreLoader} 가 다른 방식으로 넣으므로,
+ * 경로가 둘이면 어느 쪽이 진짜인지 알 수 없다.
  */
 public final class PlaceFeatureNdjsonReader {
 
 	/** 가격대 등급 — {@code priceband-normalize.mjs} 가 낱말 열하나를 접어 만든 넷. */
 	static final Set<String> PRICE_BANDS = Set.of("LOW", "MID", "MID_HIGH", "HIGH");
 
-	/**
-	 * {@link #readVisitorFacts} 가 받는 종류 — S15P21E201-453·479. 셋 다 참거짓형·값형이라
-	 * {@code featureKey} 가 없다({@code V20260909020000__place_feature_solo_friendly_and_time_facts.sql}).
-	 */
+	/** {@link #readVisitorFacts} 가 받는 종류. 셋 다 참거짓형·값형이라 {@code featureKey} 가 없다. */
 	static final Set<String> VISITOR_FEATURE_TYPES = Set.of("SOLO_FRIENDLY", "BREAK_TIME", "LAST_ORDER_TIME");
 
 	/** 지금 이 적재기가 장소를 찾을 수 있는 출처. 새 출처가 생기면 여기부터 늘린다. */
@@ -74,50 +48,27 @@ public final class PlaceFeatureNdjsonReader {
 	}
 
 	/**
-	 * 장소 하나에 붙일 사실 하나.
-	 *
-	 * @param storeId 장소를 찾는 열쇠. 무엇으로 읽어야 하는지는 {@code keySource} 가 말한다
-	 * @param featureType {@code PRICE_LEVEL} · {@code SLOPE_PERCENT} · {@code SOLO_FRIENDLY} ·
-	 *     {@code DESIRED_FOOD_TAG} 처럼 무엇에 대한 사실인가
-	 * @param value {@code place_feature.value} 에 그대로 들어갈 JSON 문자열
-	 * @param keySource 🔴 <b>열쇠가 어느 체계인가</b> — {@link SbizPlaceLoader#SOURCE_TYPE}(상가업소번호)
-	 *     이거나 {@link TourApiPlaceLoader#SOURCE_TYPE}({@code contentid})다 (S15P21E201-1047)
-	 * @param featureKey 태그형만 값이 있다 — {@code DESIRED_FOOD_TAG}·{@code SOUVENIR_ITEM_TAG} 등
-	 *     (S15P21E201-453·448). 참거짓형·값형은 {@code null}
+	 * 장소 하나에 붙일 사실 하나. {@code keySource} 는 {@code storeId} 를 무엇으로 읽어야 하는지를
+	 * 말하고({@link SbizPlaceLoader#SOURCE_TYPE} 또는 {@link TourApiPlaceLoader#SOURCE_TYPE}),
+	 * {@code place_feature.source_type} 과는 다른 것이다 — 하나는 "값이 어디서 왔나", 하나는
+	 * "이 문자열을 무엇으로 읽나" 라 서로 독립이다. 그래서 파일을 파싱한 쪽이 정한다.
+	 * {@code featureKey} 는 태그형만 값이 있고 참거짓형·값형은 {@code null} 이다.
 	 */
 	public record Fact(String storeId, String featureType, String value, String keySource, String featureKey) {
 
-		/**
-		 * 🔴 열쇠 체계는 {@code place_feature.source_type} 과 <b>다른 것이다.</b>(S15P21E201-1047)
-		 *
-		 * <p>처음에 이 둘을 같은 것으로 보고 {@code source_type} 으로 장소 아이디를 만들려다
-		 * DB 통합 시험에 걸렸다. 가격대는 {@code source_type} 이 {@code RESEARCH_PRICEBAND}
-		 * (조사에서 왔다)인데 <b>열쇠는 상가업소번호</b>다. 둘은 서로 독립이다 —
-		 * 하나는 "값이 어디서 왔나", 하나는 "이 문자열을 무엇으로 읽나" 다.
-		 *
-		 * <p>그래서 읽는 쪽이 정한다. 파일을 파싱한 쪽이 그 열쇠가 무엇인지 안다.
-		 *
-		 * <p>이 생성자는 열쇠·태그키를 안 적은 기존 호출자를 위한 것이다 — 상가업소번호로 본다.
-		 */
+		/** 열쇠를 안 적은 호출자를 위한 것 — 상가업소번호로 본다. */
 		public Fact(String storeId, String featureType, String value) {
 			this(storeId, featureType, value, SbizPlaceLoader.SOURCE_TYPE, null);
 		}
 
-		/** 🔴 태그키를 안 적은 호출자를 위한 것이다(S15P21E201-1047 이 만든 4-인자 자리). */
 		public Fact(String storeId, String featureType, String value, String keySource) {
 			this(storeId, featureType, value, keySource, null);
 		}
 	}
 
 	/**
-	 * 읽은 줄 수와 버린 줄 수.
-	 *
-	 * <p>🔴 버린 줄을 세어서 돌려주는 이유는 {@link SbizCsvReader} 와 같다 — 몇이 빠졌는지 모르면
-	 * 나중에 "왜 그 가게에 값이 없나" 에 답할 수 없다.
-	 *
-	 * @param total 빈 줄을 뺀 전체 줄 수
-	 * @param skippedNoValue 열쇠나 값이 없어서 뺀 줄
-	 * @param usable 실제로 사실이 된 줄
+	 * 버린 줄을 세어서 돌려준다 — 몇이 빠졌는지 모르면 나중에 "왜 그 가게에 값이 없나" 에 답할
+	 * 수 없다. {@code total} 은 빈 줄을 뺀 전체다.
 	 */
 	public record Counts(int total, int skippedNoValue, int usable) {
 
@@ -128,16 +79,11 @@ public final class PlaceFeatureNdjsonReader {
 	}
 
 	/**
-	 * 가격대 산출물({@code data/staged/place-priceband.ndjson})을 읽는다.
+	 * 가격대 산출물을 읽는다. 한 줄은 {@code {"placeId":"MA0101…","raw":"mid","band":"MID"}} 다.
 	 *
-	 * <p>한 줄은 {@code {"placeId":"MA0101…","raw":"mid","band":"MID"}} 다.
-	 *
-	 * <h2>🔴 등급을 숫자로 바꾸지 않는다</h2>
-	 *
-	 * {@code MID_HIGH} 를 1~4 중 어디에 둘지는 아무도 안 정했고, 정리 프로그램이 <b>일부러 안 정하고
-	 * 남겨 두었다</b>. 여기서 숫자를 붙이면 그 결정을 대신 내리는 셈이고, 한 번 들어간 숫자는
-	 * 계약처럼 굳는다. 그래서 등급 낱말과 원문 낱말을 그대로 싣는다 —
-	 * {@code {"band":"MID","raw":"mid"}}. 접는 것은 쓰는 쪽에서 나중에도 할 수 있지만 펴는 것은 못 한다.
+	 * <p>등급을 숫자로 바꾸지 않는다. {@code MID_HIGH} 를 1~4 중 어디에 둘지는 아직 아무도 안
+	 * 정했고, 한 번 들어간 숫자는 계약처럼 굳는다. 접는 것은 쓰는 쪽에서 나중에도 할 수 있지만
+	 * 펴는 것은 못 한다.
 	 */
 	public static Counts readPriceBands(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
 		return read(file, chunkSize, chunkConsumer, (node, out) -> {
@@ -147,7 +93,7 @@ public final class PlaceFeatureNdjsonReader {
 				return false;
 			}
 			if (!PRICE_BANDS.contains(band)) {
-				// 🔴 모르는 등급을 조용히 버리면 개수만 줄고 아무도 못 알아챈다.
+				// 모르는 등급을 조용히 버리면 개수만 줄고 아무도 못 알아챈다.
 				throw new IllegalArgumentException("가격대 산출물에 모르는 등급이 있다: " + band
 						+ " (아는 것: " + PRICE_BANDS + ")");
 			}
@@ -155,7 +101,7 @@ public final class PlaceFeatureNdjsonReader {
 			value.put("band", band);
 			String raw = text(node, "raw");
 			if (raw != null) {
-				// 조사원이 실제로 쓴 낱말. 접은 것이 틀렸다는 것을 나중에 알아도 되돌릴 수 있게 남긴다.
+				// 조사원이 실제로 쓴 낱말. 접은 것이 틀렸다는 것을 알아도 되돌릴 수 있게 남긴다.
 				value.put("raw", raw);
 			}
 			out.add(new Fact(storeId, "PRICE_LEVEL", write(value)));
@@ -164,17 +110,13 @@ public final class PlaceFeatureNdjsonReader {
 	}
 
 	/**
-	 * 혼밥 안심·브레이크타임·라스트오더 산출물을 읽는다 — S15P21E201-453·479.
+	 * 혼밥 안심·브레이크타임·라스트오더 산출물을 읽는다. 한 줄은
+	 * {@code {"namespace":"TOURAPI","storeId":"129156","featureType":"SOLO_FRIENDLY","value":true}}
+	 * 다. {@code value} 는 참거짓형이면 JSON 리터럴, 시각형이면
+	 * {@code {"start":"15:00","end":"17:00"}} 같은 객체이고 어느 모양이든 그대로 옮긴다.
 	 *
-	 * <p>한 줄은 {@code {"namespace":"TOURAPI","storeId":"129156","featureType":"SOLO_FRIENDLY","value":true}}
-	 * 다. {@code value} 는 참거짓형이면 JSON 리터럴 {@code true}/{@code false}, 시각형이면
-	 * {@code {"start":"15:00","end":"17:00"}}(BREAK_TIME) · {@code {"time":"21:30"}}(LAST_ORDER_TIME)
-	 * 같은 객체다 — 어느 모양이든 그대로 옮긴다({@code place_feature.value} 가 JSONB 라 모양을
-	 * 여기서 정하지 않는다, 클래스 문서 "읽는 쪽이 값의 모양을 정하는 자리" 참고).
-	 *
-	 * <p>🔴 {@code namespace}·{@code featureType} 이 모르는 값이면 멈춘다 — {@link #readPriceBands} 와
-	 * 같은 이유다. 특히 {@code namespace} 오타는 조용히 두면 엉뚱한 장소 아이디를 계산해 "장소가
-	 * 없어 못 넣음" 으로 세어지고, 그 오타를 알아챌 방법이 없다.
+	 * <p>{@code namespace} 오타를 조용히 두면 엉뚱한 장소 아이디를 계산해 "장소가 없어 못 넣음"
+	 * 으로 세어지고 알아챌 방법이 없다. 그래서 모르는 값이면 멈춘다.
 	 */
 	public static Counts readVisitorFacts(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
 		return read(file, chunkSize, chunkConsumer, (node, out) -> {
@@ -199,32 +141,97 @@ public final class PlaceFeatureNdjsonReader {
 	}
 
 	/**
-	 * 장소 경사 산출물({@code data/staged/place-slope.ndjson})을 읽는다 — S15P21E201-1047.
+	 * agy 헤드리스 가격+narrative 통합 조사 산출물(price-queue.mjs, S15P21E201-1414)을 읽는다.
+	 * 한 줄은
+	 * {@code {"placeId":"MA0101…","price":{"found":true,"priceWon":8500,"priceMenu":"…"},
+	 * "whyPeopleGo":[{"type":"오랜 역사","note":"…"}],"sources":["https://…"]}} 같은 모양이고,
+	 * 한 줄에서 최대 둘까지 사실이 나온다 — 가격({@code MENU_PRICE_WON})과 "왜 가는지"
+	 * ({@code WHY_VISIT}).
 	 *
-	 * <p>한 줄은 이렇다.
-	 * {@code {"contentid":"126508","featureType":"SLOPE_PERCENT","slopePercent":16.4,
-	 * "segments":37,"walkLengthM":4820,"radiusM":200}}
+	 * <p>가격은 {@code price.found} 가 참이고 {@code priceWon} 이 숫자일 때만 낸다. 몰라서 못
+	 * 찾은 곳을 0원으로 적지 않는다 — 이 저장소가 어디서든 지키는 규칙 그대로다.
+	 * "왜 가는지" 는 {@code whyPeopleGo} 가 비어 있지 않을 때만 내고, 근거 주소(sources)를
+	 * 같이 싣는다 — 나중에 사람이 원문을 다시 확인할 수 있게.
 	 *
-	 * <h2>🔴 값 모양은 채점기가 정한다</h2>
+	 * <p>🔴 {@code descriptors.priceBand}(cheap/mid/high)는 여기서 안 옮긴다. 이미 있는
+	 * {@code PRICE_LEVEL}(사람이 손으로 찾은 LOW/MID/MID_HIGH/HIGH, {@link #readPriceBands})과
+	 * 낱말 목록이 달라서, 같은 종류에 섞으면 읽는 쪽이 두 값 목록을 다 알아야 한다.
 	 *
-	 * 점수형 피처는 {@code value} 가 숫자이거나 {@code {"score": …}} 여야 읽힌다
-	 * ({@code BaselineCandidateScorer.extractPlaceScore}). 그래서 {@code score} 에 담는다.
-	 * 옆에 붙는 {@code radiusM}·{@code segments}·{@code walkLengthM} 은 채점기가 안 읽지만
-	 * <b>이 값이 어떻게 나왔는지</b>를 행 안에 남긴다 — 나중에 반경을 바꿨을 때 어느 행이
-	 * 옛 반경으로 만들어졌는지 알 수 있어야 한다.
+	 * <p>🔴 영업시간·혼잡도·현지인 비중·메뉴 다양성은 이번엔 안 옮긴다. 아직 아무 화면도 이
+	 * 값을 읽지 않는다 — 먼저 가격·narrative 둘만 넣고, 나머지는 실제로 쓸 곳이 정해지면 그때
+	 * 새 종류로 연다.
+	 */
+	public static Counts readPriceNarrative(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
+		return read(file, chunkSize, chunkConsumer, (node, out) -> {
+			String storeId = text(node, "placeId");
+			if (storeId == null) {
+				return false;
+			}
+			boolean any = false;
+
+			JsonNode price = node.path("price");
+			JsonNode priceWon = price.path("priceWon");
+			if (price.path("found").asBoolean(false) && priceWon.isNumber()) {
+				ObjectNode value = MAPPER.createObjectNode();
+				value.put("priceWon", priceWon.asInt());
+				String menu = text(price, "priceMenu");
+				if (menu != null) {
+					value.put("menu", menu);
+				}
+				out.add(new Fact(storeId, "MENU_PRICE_WON", write(value)));
+				any = true;
+			}
+
+			JsonNode reasons = node.path("whyPeopleGo");
+			if (reasons.isArray() && !reasons.isEmpty()) {
+				ObjectNode value = MAPPER.createObjectNode();
+				ArrayNode reasonsOut = value.putArray("reasons");
+				for (JsonNode reason : reasons) {
+					String type = text(reason, "type");
+					String note = text(reason, "note");
+					if (type == null && note == null) {
+						continue;
+					}
+					ObjectNode reasonOut = reasonsOut.addObject();
+					if (type != null) {
+						reasonOut.put("type", type);
+					}
+					if (note != null) {
+						reasonOut.put("note", note);
+					}
+				}
+				if (!reasonsOut.isEmpty()) {
+					JsonNode sources = node.path("sources");
+					if (sources.isArray() && !sources.isEmpty()) {
+						ArrayNode sourcesOut = value.putArray("sources");
+						for (JsonNode source : sources) {
+							if (source.isTextual()) {
+								sourcesOut.add(source.asText());
+							}
+						}
+					}
+					out.add(new Fact(storeId, "WHY_VISIT", write(value)));
+					any = true;
+				}
+			}
+
+			return any;
+		});
+	}
+
+	/**
+	 * 장소 경사 산출물을 읽는다. 한 줄은
+	 * {@code {"contentid":"126508","slopePercent":16.4,"segments":37,"radiusM":200}} 같은 모양이다.
 	 *
-	 * <h2>🔴 이 값은 추정이다</h2>
+	 * <p>점수형 피처는 {@code value} 가 숫자이거나 {@code {"score": …}} 여야 채점기가 읽으므로
+	 * {@code score} 에 담는다. 옆에 붙는 칸들은 채점기가 안 읽지만, 나중에 반경을 바꿨을 때 어느
+	 * 행이 옛 기준으로 만들어졌는지 알 수 있게 남긴다.
 	 *
-	 * 실측이 아니라 주변 길에서 유도한 값이다({@code bigData/docs/PLACE-SLOPE.md}).
-	 * {@link PlaceFeatureLoader} 가 {@code evidence_status} 를 {@code ESTIMATED} 로 넣는다.
-	 * 🔴 경사는 DB 가 추정을 막는 네 종({@code ALLERGEN_TAG}·{@code DIETARY_SUPPORT_TAG}·
-	 * {@code ACCESSIBILITY_TAG}·{@code STAIRS_PRESENT})에 <b>들어 있지 않다</b> — 그래서
-	 * 저장할 수 있다. 계단을 여기에 섞어 넣으면 안 되는 이유이기도 하다.
+	 * <p>이 값은 실측이 아니라 주변 길에서 유도한 추정이다. 경사는 DB 가 추정을 막는 네 종에
+	 * 들어 있지 않아 저장할 수 있다 — 계단을 여기에 섞어 넣으면 안 되는 이유이기도 하다.
 	 *
-	 * <h2>🔴 범위를 벗어난 값은 버리지 않고 멈춘다</h2>
-	 *
-	 * 경사는 0~100 퍼센트다. 벗어난 값이 오면 산출물이 이상한 것이고, 조용히 버리면
-	 * 개수만 줄고 아무도 못 알아챈다.
+	 * <p>0~100 퍼센트를 벗어난 값은 버리지 않고 멈춘다. 조용히 버리면 개수만 줄고 아무도 못
+	 * 알아챈다.
 	 */
 	public static Counts readPlaceSlopes(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
 		return read(file, chunkSize, chunkConsumer, (node, out) -> {
@@ -243,48 +250,33 @@ public final class PlaceFeatureNdjsonReader {
 			copyNumber(node, payload, "radiusM");
 			copyNumber(node, payload, "segments");
 			copyNumber(node, payload, "walkLengthM");
-			// 🔴 열쇠가 contentid 다. 안 적으면 상가업소번호로 읽혀 한 곳도 못 찾고,
-			//    그때 예외는 안 나고 "장소가 없어 못 넣음" 으로만 세어진다.
+			// 열쇠가 contentid 다. 안 적으면 상가업소번호로 읽혀 한 곳도 못 찾고, 예외 없이
+			// "장소가 없어 못 넣음" 으로만 세어진다.
 			out.add(new Fact(contentId, "SLOPE_PERCENT", write(payload), TourApiPlaceLoader.SOURCE_TYPE));
 			return true;
 		});
 	}
 
 	/**
-	 * 0~100 눈금의 점수형 산출물을 읽는다 — S15P21E201-1167.
-	 *
-	 * <p>조용함({@code place-quietness.ndjson} · {@code -sbiz})과 로컬성({@code place-locality.ndjson} ·
-	 * {@code -sbiz})이 같은 모양이라 한 함수가 둘을 다 읽는다. 값 칸 이름만 다르다.
+	 * 0~100 눈금의 점수형 산출물을 읽는다. 조용함·로컬성·그늘이 같은 모양이라 한 함수가 다 읽고
+	 * 값 칸 이름({@code valueField})과 표식 종류({@code featureType})만 다르다.
 	 *
 	 * <pre>
-	 * {"contentid":"129156","featureType":"QUIETNESS_SCORE","quietnessScore":90,"noiseP90":0.1,"radiusM":200}
-	 * {"sourceType":"SBIZ","sourceId":"MA01…","featureType":"LOCALITY_SCORE","localityScore":66.2,"shops":160}
+	 * {"contentid":"129156","quietnessScore":90,"noiseP90":0.1,"radiusM":200}
+	 * {"sourceType":"SBIZ","sourceId":"MA01…","localityScore":66.2,"shops":160}
 	 * </pre>
 	 *
-	 * <h2>🔴 열쇠 모양 둘을 다 읽는다</h2>
+	 * <p>열쇠 모양 둘을 다 읽는다 — {@code contentid} 가 있으면 관광공사,
+	 * {@code sourceType}+{@code sourceId} 가 있으면 그 출처다. 한쪽만 읽으면 나머지 절반을
+	 * 마이그레이션으로 따로 넣어야 한다.
 	 *
-	 * {@code contentid} 가 있으면 관광공사, {@code sourceType}+{@code sourceId} 가 있으면 그 출처다.
-	 * <b>경사({@link #readPlaceSlopes})는 관광공사만 읽어서 상가 절반(2,355곳)을 마이그레이션으로
-	 * 따로 넣어야 했다.</b> 같은 일을 반복하지 않는다.
+	 * <p>100 으로 나눠 저장한다. 산출물은 사람이 읽기 좋게 0~100 인데 채점기는 이 축들을 0~1 로
+	 * 알고, 그대로 넣으면 {@code 1 - |장소값 - 선호값|} 이 음수가 되어 축이 전부 0 으로 뭉개진다.
+	 * 산출물이 아니라 여기서 맞추는 것은 0~100 이 이미 문서에 적힌 사람이 읽는 값이어서다.
 	 *
-	 * <h2>🔴 100 으로 나눠 저장한다 — 채점기 눈금이 0~1 이다</h2>
-	 *
-	 * 산출물은 사람이 읽기 좋게 0~100 인데, 채점기는 이 축들을 <b>0~1 로 안다</b>
-	 * ({@code BaselineCandidateScorer} 가 {@code SLOPE_PERCENT} 하나만 100 으로 나눈다).
-	 * 그대로 넣으면 {@code 1 - |장소값 - 선호값|} 이 음수가 되고 {@code clamp01} 이
-	 * <b>전부 0 으로 뭉갠다</b> — {@code PreferenceJson} 클래스 주석이 그 사고를 기록해 두었다.
-	 * 산출물을 고치지 않고 <b>여기서</b> 맞추는 이유는, 0~100 이 이미 머지돼 문서에 적혀 있고
-	 * 사람이 읽는 값이기 때문이다.
-	 *
-	 * <h2>🔴 나눈 값을 검산한다 — 두 번 나누는 사고를 막는다</h2>
-	 *
-	 * 조용함 산출물은 {@code quietnessScore = (1 - noiseP90) × 100} 이 성립한다. 그 관계를 여기서
-	 * 확인한다. 나중에 산출물이 0~1 로 바뀌면 이 함수가 <b>또 100 으로 나눠</b> 0.009 같은 값이
-	 * 되는데, 그 값은 범위 검사를 통과하고 축을 다시 전부 0 으로 만든다 — 조용히 지나가는 대신
-	 * 여기서 멈춘다. {@code noiseP90} 이 없는 산출물(로컬성)은 이 검산을 건너뛴다.
-	 *
-	 * @param valueField 값이 든 칸 이름 — {@code quietnessScore} · {@code localityScore}
-	 * @param featureType 저장할 표식 종류 — {@code QUIETNESS_SCORE} · {@code LOCALITY_SCORE}
+	 * <p>{@code noiseP90} 이 있으면 {@code 점수 = 1 - noiseP90} 으로 검산한다. 산출물이 나중에
+	 * 0~1 로 바뀌면 여기서 또 나눠 0.009 같은 값이 되는데, 그 값은 범위 검사를 통과하고 축을 다시
+	 * 0 으로 만든다. {@code noiseP90} 이 없는 산출물은 이 검산을 건너뛴다.
 	 */
 	public static Counts readPlaceScores(Path file, String valueField, String featureType, int chunkSize,
 			Consumer<List<Fact>> chunkConsumer) {
@@ -303,8 +295,8 @@ public final class PlaceFeatureNdjsonReader {
 				if (storeId == null || keySource == null) {
 					return false;
 				}
-				// 🔴 오타를 조용히 두면 엉뚱한 장소 아이디를 계산해 "장소가 없어 못 넣음" 으로만
-				//    세어진다. readVisitorFacts 가 같은 이유로 같은 검사를 한다.
+				// 오타를 조용히 두면 엉뚱한 장소 아이디를 계산해 "장소가 없어 못 넣음" 으로만
+				// 세어진다.
 				if (!NAMESPACES.contains(keySource)) {
 					throw new IllegalArgumentException(
 							"모르는 sourceType 이다: " + keySource + " (아는 것: " + NAMESPACES + ")");
@@ -336,15 +328,13 @@ public final class PlaceFeatureNdjsonReader {
 
 			ObjectNode payload = MAPPER.createObjectNode();
 			payload.put("score", score);
-			// 이 값이 어떻게 나왔는지를 행 안에 남긴다 — 나중에 반경을 바꿨을 때 어느 행이 옛
-			// 기준으로 만들어졌는지 알 수 있어야 한다. 채점기는 score 만 읽는다.
+			// 채점기는 score 만 읽는다. 나머지는 이 값이 어떻게 나왔는지를 행 안에 남기는 것이다.
 			copyNumber(node, payload, "radiusM");
 			copyNumber(node, payload, "noiseP90");
 			copyNumber(node, payload, "roads");
 			copyNumber(node, payload, "roadLengthM");
 			copyNumber(node, payload, "shops");
-			// 그늘 — S15P21E201-1184. 🔴 treeDensity 는 검산용이 아니다(shadeScore 와 일정한
-			// 비율이 아니다). 어떻게 나온 값인지를 남기려고 옮길 뿐이다.
+			// treeDensity 는 검산용이 아니다 — shadeScore 와 일정한 비율이 아니다.
 			copyNumber(node, payload, "treeDensity");
 			copyNumber(node, payload, "sections");
 			copyNumber(node, payload, "plantedM");
@@ -353,47 +343,28 @@ public final class PlaceFeatureNdjsonReader {
 		});
 	}
 
-	/**
-	 * 검산 허용 오차. 산출물이 정수로 반올림돼 있어({@code quietnessScore:35} · {@code noiseP90:0.65})
-	 * 0.01 보다 작은 차이는 반올림에서 온다.
-	 */
+	/** 검산 허용 오차. 산출물이 정수로 반올림돼 있어 이보다 작은 차이는 반올림에서 온다. */
 	private static final double SCORE_CROSS_CHECK_TOLERANCE = 0.01;
 
 	/**
-	 * 이 줄 수를 넘는 파일에서만 눈금을 판정한다 — 아래 {@link #requirePercentScale} 참고.
-	 *
-	 * <p>줄이 몇 개뿐이면 0~100 눈금이어도 값이 우연히 전부 1 이하일 수 있다. 실제 산출물은
-	 * 363줄이 가장 작다.
+	 * 이 줄 수를 넘는 파일에서만 눈금을 판정한다. 줄이 몇 개뿐이면 0~100 눈금이어도 값이 우연히
+	 * 전부 1 이하일 수 있다.
 	 */
 	private static final int SCALE_CHECK_MIN_ROWS = 50;
 
 	/**
-	 * 🔴 <b>이미 0~1 로 바뀐 산출물을 또 나누려는 것</b>을 한 줄도 넣기 전에 잡는다 —
-	 * S15P21E201-1184.
+	 * 이미 0~1 로 바뀐 산출물을 또 나누려는 것을 한 줄도 넣기 전에 잡는다.
 	 *
-	 * <h2>왜 한 줄로는 못 가리나</h2>
+	 * <p>한 줄만 보면 {@code 0.5} 가 0~100 의 작은 값인지 0~1 의 큰 값인지 가를 수 없어, 범위
+	 * 검사로는 이 사고를 못 막는다 — 두 번 나눈 {@code 0.009} 는 그 검사를 통과하고 채점기에서
+	 * 축을 통째로 0 으로 만든다. 파일 전체를 보면 갈린다. 수백 줄짜리 0~100 산출물에서 모든
+	 * 값이 1 이하일 수는 사실상 없다.
 	 *
-	 * {@code 0.5} 한 줄만 보면 0~100 눈금의 작은 값인지 0~1 눈금의 큰 값인지 <b>가를 수 없다.</b>
-	 * 그래서 범위 검사({@code 0 이상 100 이하})는 이 사고를 못 막는다 — 두 번 나눈 값
-	 * {@code 0.009} 는 그 검사를 통과하고, 채점기에서 축을 통째로 0 으로 만든다.
+	 * <p>읽기 전에 하는 것은 저장이 덩어리마다 일어나기 때문이다. 다 읽고 던지면 앞쪽 덩어리는
+	 * 이미 들어간 뒤라 「일부만 이상한 값」이 남는다. 한 번 더 훑는 값이 그것보다 싸다.
 	 *
-	 * <h2>파일 전체를 보면 갈린다</h2>
-	 *
-	 * 수백 줄짜리 0~100 산출물에서 <b>모든 값이 1 이하일 수는 사실상 없다.</b> 실측으로도 네
-	 * 산출물 전부 최댓값이 99 를 넘는다(그늘 99.8·99.9, 로컬 100·99.9).
-	 *
-	 * <h2>🔴 왜 읽기 <b>전</b>인가</h2>
-	 *
-	 * 다 읽고 나서 던지면 앞쪽 덩어리는 <b>이미 DB 에 들어간 뒤</b>다 — 저장이 덩어리마다
-	 * 일어나기 때문이다. 그러면 잘못된 눈금의 행이 남고, 그 상태는 「일부만 이상한 값」이라
-	 * 알아채기가 더 어렵다. 한 번 더 훑는 값이 그것보다 싸다(가장 큰 파일이 2,400줄이다).
-	 *
-	 * <h2>조용함은 이 검사가 없어도 된다 — 그래도 함께 건다</h2>
-	 *
-	 * 조용함에는 {@code noiseP90} 이라는 짝이 있어 줄마다 검산할 수 있다. 그늘과 로컬에는
-	 * <b>그런 짝이 없다</b>({@code treeDensity} 는 {@code shadeScore} 와 일정한 비율이 아니다 —
-	 * 실측 527·687·784배). 축마다 다르게 두지 않는 이유는, 나중에 짝이 있는 축이 하나 더
-	 * 생겼을 때 <b>어느 축에 무슨 검사가 걸려 있는지</b>를 다시 세지 않으려는 것이다.
+	 * <p>{@code noiseP90} 으로 줄마다 검산할 수 있는 축에도 이 검사를 함께 건다 — 축마다 다르게
+	 * 두면 어느 축에 무슨 검사가 걸려 있는지를 매번 다시 세야 한다.
 	 */
 	private static void requirePercentScale(Path file, String valueField, String featureType) {
 		double max = Double.NEGATIVE_INFINITY;

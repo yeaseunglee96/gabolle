@@ -23,13 +23,7 @@ import com.gabolle.backend.story.presentation.dto.StoryInviteResponse;
 
 import jakarta.validation.Valid;
 
-/**
- * 기록(Story) 공동 작성 — 초대 발급·수락·참여자 관리·여행 동행자 편입. S15P21E201-770.
- *
- * <p>{@link StoryController} 를 넓히지 않고 새로 둔다 — 여행 쪽의 {@code TripCollaborationController}
- * 가 {@code TripController} 를 넓히지 않는 것과 같은 이유다. 이 다섯 경로는 "공동 작성" 이라는 기능
- * 하나로 묶이고, 오류 번역은 {@link StoryExceptionHandler} 에 더한다(따로 만들지 않는다).
- */
+/** 기록 공동 작성 — 초대 발급·수락·참여자 관리. 오류 번역은 {@link StoryExceptionHandler} 가 함께 맡는다. */
 @RestController
 @Profile({ "db", "dev" })
 public class StoryCoauthorController {

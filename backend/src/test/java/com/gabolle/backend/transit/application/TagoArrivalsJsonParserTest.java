@@ -11,7 +11,6 @@ import com.gabolle.backend.transit.domain.BusArrival;
 
 import tools.jackson.databind.ObjectMapper;
 
-/** {@link TagoArrivalsJsonParser} 검증 — S15P21E201-988. */
 class TagoArrivalsJsonParserTest {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();

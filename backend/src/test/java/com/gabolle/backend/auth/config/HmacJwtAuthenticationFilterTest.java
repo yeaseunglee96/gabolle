@@ -28,8 +28,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * S15P21E201-686 — role 이 요청마다 새로 읽혀서 SecurityContext 의 authority 로
- * 매핑되는지 검증한다 (JWT 자체에는 role 클레임이 없다 — 필터 머리말 참고).
+ * role 이 요청마다 새로 읽혀 SecurityContext 의 authority 로 매핑되는지 본다.
+ * JWT 자체에는 role 클레임이 없다.
  */
 class HmacJwtAuthenticationFilterTest {
 
@@ -109,7 +109,7 @@ class HmacJwtAuthenticationFilterTest {
 		return user;
 	}
 
-	/** role 은 가입으로 못 얻는 값이라(S15P21E201-686 AppUser.register 주석) 테스트에서만 리플렉션으로 올린다. */
+	/** role 은 가입으로 얻을 수 없는 값이라 검사에서만 리플렉션으로 올린다. */
 	private AppUser promote(AppUser user, UserRole role) throws Exception {
 		setField(user, "role", role);
 		return user;

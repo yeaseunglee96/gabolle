@@ -41,12 +41,7 @@ import com.gabolle.backend.story.presentation.StoryExceptionHandler;
 import com.gabolle.backend.story.presentation.UserSocialController;
 import com.gabolle.testslice.StorySliceApplication;
 
-/**
- * S15P21E201-233 · -123 — 피드가 실제 PostgreSQL 에서 커서로 끊기고, 범위와 공개 시각을 지키는지 본다.
- *
- * <p>티켓의 완료 기준 그대로다 — 계속 받아 와도 같은 기록이 두 번 나오지 않고 건너뛰는 것도 없다(받는
- * 중간에 새 기록이 올라와도), 공개 시각이 안 된 기록은 없다, 팔로잉 범위는 팔로우한 사람의 것만이다.
- */
+/** 피드가 실제 PostgreSQL 에서 커서로 끊기고, 공개 범위와 공개 시각을 지키는지 본다. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",
@@ -110,11 +105,8 @@ class StoryFeedIntegrationTest {
 	}
 
 	/**
-	 * 익명 출입증만 든 사람 — {@code AnonymousSessionAuthenticationFilter} 가 심는 모양 그대로다
-	 * (principal 이 {@code "anon:<세션id>"} 문자열, 권한은 {@code ROLE_ANONYMOUS}).
-	 *
-	 * <p>🔴 <b>UUID 가 아닌 principal</b> 이라는 점이 핵심이다. 이것 때문에
-	 * {@code AuthenticatedUsers.requireId} 가 401 을 던지고 있었다 — S15P21E201-974.
+	 * 익명 출입증만 든 사람. {@code AnonymousSessionAuthenticationFilter} 가 심는 모양 그대로다.
+	 * principal 이 UUID 가 아닌 문자열이라는 점이 핵심이다.
 	 */
 	private static Authentication anonymous() {
 		return new UsernamePasswordAuthenticationToken("anon:" + UUID.randomUUID(), null,
@@ -137,9 +129,8 @@ class StoryFeedIntegrationTest {
 	}
 
 	/**
-	 * 🔴 같은 DB 를 다른 테스트 클래스(CRUD·팔로우)도 쓰고, 그들이 남긴 공개 기록이 전체 피드에 함께 나온다.
-	 * 그래서 전체 피드 단정은 "내가 이 테스트에서 만든 것들끼리의 순서" 로 한다 — 페이지를 끝까지 걷어 모은 뒤
-	 * 관심 있는 id 만 남긴다.
+	 * 같은 DB 를 다른 테스트 클래스도 쓰므로 전체 피드 단정은 이 테스트가 만든 것들끼리의 순서로 한다.
+	 * 페이지를 끝까지 걷어 모은 뒤 관심 있는 id 만 남긴다.
 	 */
 	private List<JsonNode> allItemsFiltered(String scope, Set<String> interesting) throws Exception {
 		List<JsonNode> out = new ArrayList<>();
@@ -251,13 +242,7 @@ class StoryFeedIntegrationTest {
 		assertThat(ids(page)).containsExactly(followedFollowers.toString(), followedPublic.toString());
 	}
 
-	/**
-	 * 🔴 이 파일의 존재 이유. 같은 시각에 올라온 기록이 여럿 있고, 받는 중간에 새 기록이 올라와도
-	 * 같은 기록이 두 번 나오지 않고 건너뛰는 것도 없어야 한다.
-	 *
-	 * <p>부수기: {@code StoryRepository} 의 커서 조건에서 {@code story_id} 를 빼면(시각만 비교) 같은 시각 묶음이
-	 * 페이지 경계에서 통째로 건너뛰거나 다시 나와 여기서 빨개진다.
-	 */
+	/** 커서 조건이 시각만 비교하고 story_id 를 빼면 같은 시각 묶음이 페이지 경계에서 통째로 빠지거나 겹친다. */
 	@Test
 	@DisplayName("🔴 같은 시각 기록이 많고 중간에 새 글이 끼어도 커서 페이지는 빠짐도 중복도 없다")
 	void cursorPagesAreExactEvenWithTiesAndInsertsMidway() throws Exception {

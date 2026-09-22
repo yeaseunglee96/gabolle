@@ -5,6 +5,7 @@ import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.user.support.ConsentGuards;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,20 +35,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** 여행 생성 - S15P21E201-461 TRIP-01. 티켓의 완료 기준을 그대로 검증한다. */
 class TripCreationTest {
 
     private static final Instant NOW = Instant.parse("2026-09-03T00:00:00Z");
 
     /**
-     * 🔴 민감 제약을 저장하는 검사만 이 값을 쓴다 — S15P21E201-549.
-     *
-     * <p>다른 검사들이 쓰는 {@code "usr_1"} 은 UUID 가 아니다. 건강 동의 검사는 사용자를
-     * UUID 로 찾는데, 형식이 아니면 <b>동의를 확인할 수 없으므로 막는 쪽</b>이라 그 값으로는
-     * 403 이 난다. 운영에서는 {@code TripController} 가 인증 주체({@code UUID})를 문자열로
-     * 바꿔 넘기므로 언제나 UUID 다 — {@code "usr_1"} 이 검사 전용 값이었을 뿐이다.
-     *
-     * <p>민감 제약을 안 쓰는 검사는 가드를 지나지 않으므로 그대로 {@code "usr_1"} 을 쓴다.
+     * 민감 제약을 저장하는 검사만 이 값을 쓴다. 건강 동의 검사는 사용자를 UUID 로 찾고, 형식이
+     * 아니면 동의를 확인할 수 없으므로 막는 쪽이라 다른 검사가 쓰는 {@code "usr_1"} 로는 403 이
+     * 난다. 가드를 지나지 않는 검사는 그대로 {@code "usr_1"} 을 쓴다.
      */
     private static final String CONSENTING_USER = UUID.randomUUID().toString();
 
@@ -62,6 +57,36 @@ class TripCreationTest {
                 new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty(), Optional.empty());
     }
 
+    /** 「여행 기분」까지 답한 요청. 나머지는 {@link #command()} 와 같다. */
+    private TripCreationService.Command commandWithPace(String pace) {
+        var base = command();
+        var preferences = new java.util.ArrayList<>(base.preferences());
+        preferences.add(new PreferenceSnapshot.PreferenceAnswer(
+                "pace", "\"" + pace + "\"", PreferenceSnapshot.AnswerStatus.SELECTED));
+        return new TripCreationService.Command(
+                base.userId(), base.startDate(), base.finishDate(), base.originLat(), base.originLng(),
+                base.budgetKrw(), base.partySize(), base.timeWindow(), base.timezone(),
+                preferences, base.constraints());
+    }
+
+    @Test
+    @DisplayName("🔴 「여행 기분」은 trip 에 실리고 취향 스냅샷에는 안 들어간다 — preference_answer 의 CHECK 가 그 이름을 안 받는다")
+    void paceGoesToTripNotToThePreferenceSnapshot() {
+        var result = service.create(commandWithPace("RELAXED"), null);
+
+        assertEquals("RELAXED", result.trip().pace(), "일정 생성이 읽는 자리");
+
+        var snapshot = repository.findLatestSnapshot(result.trip().tripId()).orElseThrow();
+        assertTrue(snapshot.answers().stream().noneMatch(a -> a.dimension().equalsIgnoreCase("pace")),
+                "여기에 두면 취향 한 줄 때문에 여행·멤버·제약까지 통째로 롤백된다 — transport 와 같은 이유다");
+    }
+
+    @Test
+    @DisplayName("기분을 안 답한 여행은 null 이다 — 「보통」으로 채우지 않는다")
+    void unansweredPaceStaysNull() {
+        assertNull(service.create(command(), null).trip().pace());
+    }
+
     private TripCreationService.Command command() {
         return new TripCreationService.Command(
                 "usr_1",
@@ -71,7 +96,7 @@ class TripCreationTest {
                 "MORNING_TO_EVENING", "Asia/Seoul",
                 List.of(
                         new PreferenceSnapshot.PreferenceAnswer(
-                                "pace", "RELAXED", PreferenceSnapshot.AnswerStatus.SELECTED),
+                                "quietness", "3", PreferenceSnapshot.AnswerStatus.SELECTED),
                         new PreferenceSnapshot.PreferenceAnswer(
                                 "theme", "NATURE", PreferenceSnapshot.AnswerStatus.SELECTED)),
                 List.of(new TripCreationService.Command.ConstraintInput(
@@ -118,10 +143,14 @@ class TripCreationTest {
         assertFalse(snapshot.snapshotId().isBlank(), "로그와 이벤트가 가리키는 값");
         assertEquals(PersonalizationScope.TRIP, snapshot.scope(), "TRIP-01 이 만드는 스냅샷은 항상 이번 여행 전용이다");
 
-        var pace = snapshot.answers().stream()
-                .filter(a -> a.dimension().equals("pace")).findFirst().orElseThrow();
-        assertEquals("RELAXED", pace.valueJson());
-        assertEquals(PreferenceSnapshot.AnswerStatus.SELECTED, pace.status());
+        // 🔴 예시로 "pace" 를 쓰던 자리다. 그 이름은 이제 취향이 아니라 여행의 모양(trip.pace)이라
+        //    스냅샷에 안 들어간다. 여기서 재려는 것은 "보낸 답이 그대로 굳는가" 이므로
+        //    preference_answer.dimension 의 CHECK 가 실제로 받는 어휘를 쓴다 — 가짜 저장소는
+        //    그 CHECK 를 안 걸어서, 어휘 밖 이름을 쓰면 여기서는 통과하고 운영에서만 터진다.
+        var quietness = snapshot.answers().stream()
+                .filter(a -> a.dimension().equals("quietness")).findFirst().orElseThrow();
+        assertEquals("3", quietness.valueJson());
+        assertEquals(PreferenceSnapshot.AnswerStatus.SELECTED, quietness.status());
         assertEquals(1, snapshot.constraintIds().size(), "그때의 제약도 함께 굳는다");
 
         assertThrows(UnsupportedOperationException.class,
@@ -129,14 +158,12 @@ class TripCreationTest {
                         "x", "y", PreferenceSnapshot.AnswerStatus.SELECTED)));
     }
 
-    // 2026-09-03 - SELECTED/SKIPPED/UNKNOWN 구분 (고지혁 님 실측)
-
     @Test
     @DisplayName("건너뛴 취향과 안 물어본 취향이 값 없이 저장되고 서로 구분된다")
     void skippedAndUnknownPreferencesAreDistinctWithoutValues() {
         var withSkipAndUnknown = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                35.1587, 129.1604, null, 1, null, null, // 출발지 좌표 - 이 검사가 재는 것은 취향 상태 구분이지 좌표가 아니다
+                35.1587, 129.1604, null, 1, null, null, // 출발지 좌표 — 이 검사가 재는 것은 좌표가 아니다
                 List.of(
                         new PreferenceSnapshot.PreferenceAnswer("theme", null, PreferenceSnapshot.AnswerStatus.SKIPPED),
                         new PreferenceSnapshot.PreferenceAnswer("locality", null, PreferenceSnapshot.AnswerStatus.UNKNOWN)),
@@ -171,7 +198,7 @@ class TripCreationTest {
     void constraintNoneAndUnknownAreDistinctWithoutValues() {
         var withNoneAndUnknown = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 제약 상태 구분이지 좌표가 아니다
+                35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(
                         new TripCreationService.Command.ConstraintInput("DIET", "HALAL", TripConstraint.Severity.SOFT,
                                 null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
@@ -215,8 +242,6 @@ class TripCreationTest {
                         null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
                         TripConstraint.AnswerStatus.NONE, PersonalizationScope.TRIP, null));
     }
-
-    // 기존 완료 기준
 
     @Test
     @DisplayName("같은 Idempotency-Key 로 두 번 보내도 여행이 하나만 만들어진다")
@@ -312,7 +337,7 @@ class TripCreationTest {
     void sensitiveFreeTextConstraintIsRejected() {
         var withAllergy = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 민감 제약 거부이지 좌표가 아니다
+                35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "ALLERGY", "OTHER", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.NONE, null)));
@@ -321,15 +346,11 @@ class TripCreationTest {
                 () -> service.create(withAllergy, null));
     }
 
-    // 건강·식이 동의 (S15P21E201-549)
+    // 건강·식이 동의
 
     /**
-     * 🔴 이 검사가 없을 때 무엇이 통과했나.
-     *
-     * <p>{@code ConsentType.HEALTH_CONSTRAINTS} 는 열거형과 응답 DTO 에만 있었고 아무도 안
-     * 봤다. 동의를 한 번도 안 한 사람의 알레르기가 그대로 표에 들어갔다. 자유 입력 거부는
-     * 평문 보관을 막는 것이지 <b>동의 없는 수집</b>을 막는 것이 아니다 — 코드로 된 값은
-     * 그 거부를 지나간다.
+     * 자유 입력 거부는 평문 보관을 막는 것이지 동의 없는 수집을 막는 것이 아니다 — 코드로 된
+     * 알레르기는 그 거부를 지나가므로 동의 가드가 따로 필요하다.
      */
     @Test
     @DisplayName("🔴 건강 동의가 없으면 알레르기가 저장되지 않는다 - 여행도 안 만들어진다")
@@ -363,9 +384,8 @@ class TripCreationTest {
     }
 
     /**
-     * 🔴 {@code DIET} 는 {@code dietRequirement} 가 민감 여부를 가른다 — 종류 이름만으로는
-     * 안 갈린다. 그 판정을 {@code TripConstraint.isSensitive} 에 맡기고 있다는 것을 여기서
-     * 확인한다. 목록을 여기 다시 적으면 두 벌이 되고, 한쪽만 늘어나는 날 조용히 새어 나간다.
+     * {@code DIET} 는 종류 이름이 아니라 {@code dietRequirement} 가 민감 여부를 가른다. 그 판정은
+     * {@code TripConstraint.isSensitive} 에 맡긴다 — 목록을 여기 다시 적으면 두 벌이 된다.
      */
     @Test
     @DisplayName("DIET+PREFERRED 는 건강 동의 없이도 저장된다 - 민감한 것은 REQUIRED 뿐이다")
@@ -392,7 +412,7 @@ class TripCreationTest {
     void codedAllergyConstraintIsAllowed() {
         var withAllergy = new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 코드로 된 알레르기 저장이지 좌표가 아니다
+                35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "ALLERGY", "PEANUT", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
@@ -407,7 +427,7 @@ class TripCreationTest {
     void requiredDietConstraintIsRejected() {
         var withRequiredDiet = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 DIET+REQUIRED 자유 입력 거부이지 좌표가 아니다
+                35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "OTHER", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.NONE,
@@ -422,7 +442,7 @@ class TripCreationTest {
     void codedRequiredDietConstraintIsAllowed() {
         var withHalal = new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 코드로 된 DIET+REQUIRED 저장이지 좌표가 아니다
+                35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "HALAL", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,
@@ -438,7 +458,7 @@ class TripCreationTest {
     void preferredDietConstraintIsAllowed() {
         var withPreferredDiet = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 DIET+PREFERRED 저장이지 좌표가 아니다
+                35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "VEGETARIAN", TripConstraint.Severity.SOFT, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,

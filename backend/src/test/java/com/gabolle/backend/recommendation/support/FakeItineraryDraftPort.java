@@ -16,19 +16,13 @@ import com.gabolle.backend.recommendation.application.port.ItineraryRevisionComm
 import com.gabolle.backend.recommendation.application.port.ItineraryRevisionDraft;
 
 /**
- * 테스트용 대역(fake) — S15P21E201-604.
+ * 일정 포트의 테스트용 대역. {@code RecommendationSliceApplication} 이 {@code itinerary}
+ * 패키지를 스캔하지 않아 진짜 구현이 없고, 대역이 없으면 {@code ITINERARY_GENERATION} 성공
+ * 경로가 {@code ERROR_ITINERARY_PORT_NOT_CONFIGURED} 로 실패한다.
  *
- * <p>🔴 {@code RecommendationSliceApplication} 은 {@code itinerary} 패키지를 스캔하지
- * 않는다(그 패키지에 다른 슬라이스와 겹치지 않는 이유가 {@code RecommendationSliceApplication}
- * 주석에 있다). 그런데 {@code RecommendationService} 는 {@code ITINERARY_GENERATION} 이고
- * 반환할 후보가 있으면 {@code ItineraryDraftPort} 가 <b>반드시</b> 있어야 성공한다 — 없으면
- * {@code ERROR_ITINERARY_PORT_NOT_CONFIGURED} 로 실패한다({@code RecommendationEnginePort}
- * 가 없을 때와 같은 판단). 이 대역이 없으면 {@code RecommendationLoggingIntegrationTest} 의
- * 성공 경로 테스트들이 전부 그 실패로 빨개진다.
- *
- * <p>{@link #persist} 는 원시 SQL 로 최소한의 실제 행을 넣는다 — 이 판(V20260905120000)이
- * {@code recommendation_job.itinerary_id} 에 FK 를 걸어서, 가짜 UUID 를 그냥 붙이면 그
- * FK 위반으로 저장 자체가 실패한다.
+ * {@link #persist} 는 원시 SQL 로 최소한의 실제 행을 넣는다 —
+ * {@code recommendation_job.itinerary_id} 에 FK 가 걸려 있어 가짜 UUID 를 붙이면 저장 자체가
+ * 실패한다.
  */
 public class FakeItineraryDraftPort implements ItineraryDraftPort {
 
@@ -36,6 +30,20 @@ public class FakeItineraryDraftPort implements ItineraryDraftPort {
 
 	public FakeItineraryDraftPort(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	/**
+	 * 필요한 자리 수. 진짜 구현은 여행의 날 수 × 기분을 보지만 이 대역은 여행을 안 읽는다 —
+	 * 추천 쪽 테스트가 보는 것은 「설정 기본값보다 크면 그쪽을 쓴다」 하나뿐이고, 날 수 계산
+	 * 자체는 {@code ItineraryDraftServiceTest}(일정 슬라이스)가 본다.
+	 *
+	 * <p>1 을 준다 — 설정 기본값보다 작아서 지금까지의 동작을 안 바꾼다. 이 대역이 큰 값을
+	 * 주면 추천 로깅 테스트들이 갑자기 후보를 더 많이 요구하게 되고, 그건 이 대역이 재려던
+	 * 것과 무관한 변화다.
+	 */
+	@Override
+	public int placesNeeded(String tripId) {
+		return 1;
 	}
 
 	@Override
@@ -74,10 +82,8 @@ public class FakeItineraryDraftPort implements ItineraryDraftPort {
 	}
 
 	/**
-	 * 🔴 S15P21E201-249 — 추천 슬라이스 테스트는 편집 Job 을 돌리지 않는다. 하루 재계산의 진짜
-	 * 구현은 일정 슬라이스({@code ItineraryRecalculationIntegrationTest})에서 검증한다. 여기서
-	 * 조용히 빈 초안을 돌려주면 그 슬라이스에서 "성공한 것처럼" 보이는 거짓 초록이 생기므로
-	 * 시끄럽게 실패한다.
+	 * 하루 재계산의 진짜 구현은 일정 슬라이스에서 검증한다. 여기서 조용히 빈 초안을 돌려주면
+	 * 성공한 것처럼 보이는 거짓 초록이 생기므로 시끄럽게 실패한다.
 	 */
 	@Override
 	public ItineraryRevisionDraft revise(ItineraryRevisionCommand command) {

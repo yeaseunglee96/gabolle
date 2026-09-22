@@ -23,10 +23,9 @@ import com.gabolle.backend.review.presentation.dto.PlaceReviewRequest;
 import com.gabolle.backend.review.presentation.dto.PlaceReviewResponse;
 
 /**
- * 장소 리뷰 — S15P21E201-287 · -408.
+ * 장소 리뷰.
  *
- * <p>🔴 사용자를 <b>인증 principal</b> 에서 얻는다({@link AuthenticatedUsers#requireId}) — 요청
- * 본문에 인증 여부나 사용자 아이디를 실어 보내지 않는다.
+ * 사용자는 인증 principal 에서만 얻는다 — 요청 본문에 인증 여부나 사용자 아이디를 싣지 않는다.
  */
 @RestController
 @RequestMapping("/api/v1/places/{placeId}/reviews")
@@ -46,22 +45,24 @@ public class PlaceReviewController {
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 
 		UUID userId = AuthenticatedUsers.requireId(authentication);
-		// 🔴 범위 검사는 이 record 의 컴팩트 생성자에서 일어난다 — PlaceReviewRequest javadoc 참고.
+		// 점수 범위 검사는 이 record 의 컴팩트 생성자에서 일어난다.
 		PlaceReview.Scores scores = new PlaceReview.Scores(request.foodScore(), request.priceScore(),
 				request.accessibilityScore(), request.onsiteScore());
 		PlaceReview saved = this.placeReviewService.write(placeId, userId, scores, request.body(), request.region());
-		// 🔴 방금 쓴 사람이 곧 작성자라 true 가 나올 것이지만, 손으로 true 를 박지 않고 목록과
-		// 같은 판정 함수(PlaceReviewResponse.from)를 통과시킨다 — 쓰기와 목록이 다른 규칙을
-		// 쓰면 언젠가 갈라진다.
+		// 작성자 여부를 손으로 true 로 박지 않고 목록과 같은 판정을 통과시킨다 — 쓰기와 목록이
+		// 다른 규칙을 쓰면 언젠가 갈라진다.
 		return ApiResponse.success(PlaceReviewResponse.from(saved, userId), resolveRequestId(requestId));
 	}
 
-	/** 🔴 인증 여부와 무관하게 전부 보여준다 — 목록에서 걸러지는 것은 로컬 점수 계산뿐이다. */
+	/** 방문 인증 여부와 무관하게 전부 보여준다. 인증으로 걸러지는 것은 평균 계산뿐이다. */
 	@GetMapping
 	public ApiResponse<PlaceReviewListResponse> list(@PathVariable UUID placeId, Authentication authentication,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 
-		UUID userId = AuthenticatedUsers.requireId(authentication);
+		// 🔴 읽기는 로그인 없이 연다 — S15P21E201-1373. 장소 상세는 이미 익명에게
+		//    열려 있는데 그 안의 리뷰만 401 이었다. 쓰기(POST)는 아래 그대로 로그인이 필요하다.
+		//    viewer 가 없으면 «내가 쓴 리뷰» 표시가 전부 거짓으로 나간다(Objects.equals 가 그렇게 한다).
+		UUID userId = AuthenticatedUsers.optionalId(authentication).orElse(null);
 		PlaceReviewService.ListResult result = this.placeReviewService.list(placeId);
 		return ApiResponse.success(PlaceReviewListResponse.from(result, userId), resolveRequestId(requestId));
 	}

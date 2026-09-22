@@ -9,19 +9,11 @@ import java.util.Set;
 import com.gabolle.backend.recommendation.adapter.EngineCandidate;
 
 /**
- * 결과 하나가 얼마나 고른가 (S15P21E201-548).
+ * 결과 하나가 얼마나 고른가. 같은 계산을 재정렬 전 목록과 후 목록에 각각 돌린다.
  *
- * <p>완료 기준 <i>"재정렬 전후 성능·다양성 지표가 함께 남는다"</i> 를 위해 <b>같은 계산을
- * 재정렬 전 목록과 후 목록에 각각</b> 돌린다. 하나만 남기면 "좋아졌다" 를 주장할 근거가
- * 없다.
- *
- * <p>🔴 {@code topCategoryShare} 가 완료 기준 첫 줄(<i>"한 지역·카테고리의 상위 결과
- * 독점이 기준 이하로 내려간다"</i>)이 말하는 그 값이다 — 상위 결과에서 가장 많은
- * 카테고리가 차지하는 비율. 1.0 이면 전부 같은 카테고리다.
- *
- * <p>🔴 키를 못 구한 후보는 <b>분모에서도 빠진다</b>. 넣으면 표식이 비어 있는 만큼
- * 다양성이 좋아 보이고(서로 다른 것으로 세어지므로), 데이터가 없는 것이 성과로 읽힌다.
- * 그래서 {@code countedFor...} 를 함께 남겨 몇 건으로 잰 값인지 알 수 있게 한다.
+ * {@code topCategoryShare} 는 상위 결과에서 가장 많은 카테고리가 차지하는 비율이고
+ * 1.0 이면 전부 같은 카테고리다. 키를 못 구한 후보는 분모에서도 빠진다 — 넣으면 표식이
+ * 비어 있는 만큼 다양성이 좋아 보인다. 몇 건으로 잰 값인지는 {@code countedFor...} 에 남는다.
  */
 final class DiversityMetrics {
 
@@ -31,6 +23,7 @@ final class DiversityMetrics {
 	static Map<String, Object> of(List<EngineCandidate> items) {
 		Map<String, Integer> categoryCounts = new LinkedHashMap<>();
 		Map<String, Integer> localityCounts = new LinkedHashMap<>();
+		Map<String, Integer> cuisineCounts = new LinkedHashMap<>();
 		for (EngineCandidate candidate : items) {
 			String category = DiversityKeys.categoryOf(candidate);
 			if (category != null) {
@@ -40,12 +33,18 @@ final class DiversityMetrics {
 			if (locality != null) {
 				localityCounts.merge(locality, 1, Integer::sum);
 			}
+			// 🔴 표식이 둘인 가게는 둘 다 세어진다. 그래서 countedForCuisine 이 size 를 넘을 수
+			//    있다 — 다른 두 축과 달리 이 축은 「장소 수」가 아니라 「표식 수」다.
+			for (String cuisine : DiversityKeys.cuisinesOf(candidate)) {
+				cuisineCounts.merge(cuisine, 1, Integer::sum);
+			}
 		}
 
 		Map<String, Object> metrics = new LinkedHashMap<>();
 		metrics.put("size", items.size());
 		put(metrics, "category", categoryCounts);
 		put(metrics, "locality", localityCounts);
+		put(metrics, "cuisine", cuisineCounts);
 		return metrics;
 	}
 
@@ -54,8 +53,8 @@ final class DiversityMetrics {
 		metrics.put("countedFor" + capitalize(prefix), counted);
 		metrics.put(prefix + "Distinct", counts.size());
 		if (counted == 0) {
-			// 🔴 0 이 아니라 null 이다. "다양성이 0" 과 "잴 수 없었다" 는 다른 사실이고,
-			//    0 을 넣으면 표식이 비어 있는 요청이 최악의 다양성으로 집계된다.
+			// 0 이 아니라 null 이다. "다양성이 0" 과 "잴 수 없었다" 는 다른 사실이고,
+			// 0 을 넣으면 표식이 비어 있는 요청이 최악의 다양성으로 집계된다.
 			metrics.put(prefix + "Diversity", null);
 			metrics.put("top" + capitalize(prefix) + "Share", null);
 			return;

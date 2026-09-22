@@ -13,12 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 댓글의 규칙 — S15P21E201-1183. <b>DB 없이</b> 도는 시험이다.
- *
- * <p>🔴 이 파일이 따로 있는 이유. 같은 폴더의 다른 시험들은 전부 진짜 PostgreSQL 을 요구해서
- * 도커가 없는 곳에서는 <b>실패가 아니라 건너뜀</b>이 된다. 댓글의 규칙 중 상당수는 DB 없이
- * 판정할 수 있는 것이라(값이 무엇으로 정해지는가, 세기가 어떻게 움직이는가) 그것만 여기 모은다.
- * 피드에서 걸러지는가·목록이 무엇을 주는가는 DB 가 있어야 하므로 통합 시험이 맡는다.
+ * 댓글 규칙 가운데 DB 없이 판정되는 것만 모은다. 같은 폴더의 통합 시험은 PostgreSQL 이 없으면
+ * 실패가 아니라 건너뜀이 되므로, 도커 없이도 도는 자리가 따로 필요하다.
  */
 class StoryReplyTest {
 
@@ -36,11 +32,10 @@ class StoryReplyTest {
 
 		Story reply = Story.reply(UUID.randomUUID(), UUID.randomUUID(), parent.getStoryId(), "댓글", this.now);
 
-		// 🔴 부모가 FOLLOWERS 여도 댓글 행은 PUBLIC 이다. 그 칸은 NOT NULL 이라 자리를 채운
-		//    것이고, 실제로 보이는가는 부모가 정한다. 이 값을 「댓글도 공개범위를 고를 수
-		//    있다」로 읽으면 안 된다.
+		// 부모가 FOLLOWERS 여도 댓글 행은 PUBLIC 이다. NOT NULL 인 칸을 채운 것일 뿐이고,
+		// 실제로 보이는가는 부모가 정한다.
 		assertThat(reply.getVisibility()).isEqualTo(StoryVisibility.PUBLIC);
-		// 예약 댓글은 말이 안 된다 — 만든 시각과 같다.
+		// 예약 댓글은 없다 — 공개 시각이 만든 시각과 같다.
 		assertThat(reply.getPublishAt()).isEqualTo(this.now);
 		assertThat(reply.isPublishedAt(this.now)).isTrue();
 	}
@@ -77,8 +72,7 @@ class StoryReplyTest {
 		Story parent = post();
 		assertThat(parent.getReplyCount()).isZero();
 
-		// 안 달린 상태에서 지우는 경로가 생겨도 음수가 안 된다. DB 에도 같은 제약이 있지만
-		// (ck_story_reply_count) 여기서 먼저 막아야 어느 자리에서 그랬는지가 남는다.
+		// DB 에도 같은 제약(ck_story_reply_count)이 있지만, 여기서 먼저 막아야 어느 자리인지가 남는다.
 		parent.removeReply();
 		assertThat(parent.getReplyCount()).isZero();
 
@@ -91,7 +85,6 @@ class StoryReplyTest {
 	@Test
 	@DisplayName("🔴 댓글의 댓글 — 깊이 제한이 없고, 세기는 각자 「바로 아래」만 센다")
 	void nestedRepliesEachCountOnlyTheirDirectChildren() {
-		// 원글 ← 댓글 ← 답글 ← 답답글. 깊이를 막는 것이 아무 데도 없다.
 		Story post = post();
 		Story depth1 = Story.reply(UUID.randomUUID(), UUID.randomUUID(), post.getStoryId(), "댓글", this.now);
 		Story depth2 = Story.reply(UUID.randomUUID(), UUID.randomUUID(), depth1.getStoryId(), "답글", this.now);
@@ -101,11 +94,7 @@ class StoryReplyTest {
 		depth1.addReply();
 		depth2.addReply();
 
-		// 🔴 원글의 세기가 3 이 아니라 1 이다. 손자·증손자는 안 센다.
-		//
-		//    손자까지 세면 depth3 을 지울 때 depth2 → depth1 → post 를 거슬러 올라가며
-		//    전부 내려야 한다. 깊이가 깊어질수록 느리고, 중간에 하나만 어긋나면 되찾을
-		//    방법이 없다. 「바로 아래만」이면 고치는 자리가 언제나 한 칸이다.
+		// 세기는 바로 아래만 센다. 손자까지 세면 하나 지울 때마다 조상 전부를 거슬러 내려야 한다.
 		assertThat(post.getReplyCount()).isEqualTo(1);
 		assertThat(depth1.getReplyCount()).isEqualTo(1);
 		assertThat(depth2.getReplyCount()).isEqualTo(1);
@@ -127,10 +116,10 @@ class StoryReplyTest {
 		parent.removeReply();
 
 		assertThat(reply.isDeleted()).isTrue();
-		// 자식은 그대로다. 지워진 댓글을 계속 가리키고, 화면이 그 자리를 「삭제된 댓글」로 그린다.
+		// 자식은 지워진 댓글을 계속 가리킨다. 화면이 그 자리를 삭제된 댓글로 그린다.
 		assertThat(child.isDeleted()).isFalse();
 		assertThat(child.getParentStoryId()).isEqualTo(reply.getStoryId());
-		// 지워진 댓글의 세기도 그대로다 — 자식이 사라진 것이 아니기 때문이다.
+		// 자식이 사라진 것이 아니므로 지워진 댓글의 세기도 그대로다.
 		assertThat(reply.getReplyCount()).isEqualTo(1);
 		assertThat(parent.getReplyCount()).isZero();
 	}

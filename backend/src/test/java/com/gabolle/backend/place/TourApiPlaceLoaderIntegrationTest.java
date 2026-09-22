@@ -18,11 +18,9 @@ import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 관광공사 사진의 저작권 유형(cpyrhtDivCd) 필터링 — S15P21E201-146.
- *
- * <p>사진 있는 546곳 중 86%(468곳)가 {@code Type3}(제3자 저작물 — 재사용 전 저작권자의 별도
- * 허락이 필요)다. {@code Type1}(공공누리 제1유형 — 출처 표시하면 자유 이용)만 {@code place.photo_url}
- * 에 들어가야 한다 — 나머지는 여기서 재는 것이 전부다.
+ * 관광공사 사진의 저작권 유형(cpyrhtDivCd) 필터링. {@code Type1}(공공누리 제1유형 — 출처를
+ * 표시하면 자유 이용)만 {@code place.photo_url} 에 들어가고, {@code Type3}(제3자 저작물 —
+ * 재사용 전 저작권자의 별도 허락이 필요)는 비운다.
  */
 class TourApiPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
@@ -51,19 +49,13 @@ class TourApiPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
 		Map<String, Map<String, Object>> byId = placesById();
 
-		// 🔴 S15P21E201-1185 — 넣은 것은 http 인데 저장된 것은 https 다. 일부러 그렇다.
-		//
-		//    원천이 같은 호스트를 http 로도 https 로도 주는데, 평문 http 는 앱에서 한 장도
-		//    안 보인다(안드로이드 API 28+ · iOS ATS · 웹 혼합 콘텐츠 차단). 적재기가
-		//    PhotoUrlScheme 으로 아는 호스트만 https 로 바꾼다.
-		//
-		//    이 줄은 전에 http 를 그대로 기대했고, 그래서 CI 가 이 변경을 잡았다 —
-		//    「원천이 준 문자열을 그대로 넣는다」가 이 시험이 지키던 계약이었기 때문이다.
-		//    그 계약을 의도적으로 바꿨으므로 기대값도 함께 바꾼다.
+		// 넣은 것은 http 인데 기대값이 https 인 것은 일부러다 — 평문 http 사진은 앱에서
+		// 한 장도 안 보여서(안드로이드 API 28+ · iOS ATS · 웹 혼합 콘텐츠 차단)
+		// 적재기가 PhotoUrlScheme 으로 아는 호스트만 https 로 바꾼다.
 		assertThat(byId.get("1").get("photo_url")).isEqualTo("https://tong.visitkorea.or.kr/free.jpg");
 		assertThat(byId.get("1").get("photo_source")).isEqualTo("한국관광공사 공공누리 제1유형");
 
-		// 🔴 Type3 는 사진 주소가 있어도 넣지 않는다 — 재사용 전 저작권자 허락이 필요하다.
+		// Type3 는 사진 주소가 있어도 넣지 않는다.
 		assertThat(byId.get("2").get("photo_url")).isNull();
 		assertThat(byId.get("2").get("photo_source")).isNull();
 

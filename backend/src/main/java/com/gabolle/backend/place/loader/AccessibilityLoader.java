@@ -17,28 +17,15 @@ import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 import com.gabolle.backend.place.repository.PlaceRepository;
 
 /**
- * 접근성 표식을 이미 적재된 장소에 붙인다 — S15P21E201-331.
+ * 접근성 표식을 이미 적재된 장소에 붙인다.
  *
- * <h2>증거 등급이 VERIFIED 다 — 다른 적재와 다르다</h2>
- * 관광공사 장소·갈래·영업시간 적재는 전부 {@code ESTIMATED} 를 쓴다. 여기만 {@code VERIFIED}
- * 인 이유가 둘이다.
+ * <p>증거 등급이 {@code VERIFIED} 다 — 다른 적재는 전부 {@code ESTIMATED} 를 쓴다. DB 가 이
+ * 갈래에만 {@code ESTIMATED} 를 거부하고({@code ck_place_feature_safety_never_estimated}),
+ * 값도 분류 코드를 옮긴 것이 아니라 원천이 "휠체어 접근 가능" 이라고 쓴 문장을 읽은 것이다.
+ * 그래서 {@link BarrierFreeAccessibility} 의 판정을 좁게 잡았다.
  *
- * <p>첫째, DB 가 {@code ESTIMATED} 를 아예 거부한다
- * ({@code ck_place_feature_safety_never_estimated}). 접근성에 추측값을 저장하는 길을 막아 둔
- * 자리다.
- *
- * <p>둘째, 그 제약이 요구하는 수준을 실제로 만족한다. 이 값은 분류 코드를 옮긴 것이 아니라
- * <b>무장애 편의시설을 조사해 만든 자료에서 원천이 "휠체어 접근 가능" 이라고 쓴 문장</b>을
- * 읽은 것이다. 추측한 것이 아니라 원천이 확인해 적은 것이다.
- *
- * <p>그래서 {@link BarrierFreeAccessibility} 의 판정을 좁게 잡았다. 등급이 {@code VERIFIED}
- * 라는 것은 <b>이 표식을 본 사람이 더 확인하지 않는다</b>는 뜻이고, 그 무게를 감당할 문장만
- * 통과시킨다.
- *
- * <h2>없다는 말은 안 적는다</h2>
- * 접근성을 말하지 않은 장소에는 행을 만들지 않는다. 행이 없는 것은 "접근 불가" 가 아니라
- * "모른다" 다. 그 둘을 섞으면 휠체어 조건을 건 사용자에게 <b>확인도 안 해 본 곳이 불가로</b>
- * 나간다.
+ * <p>접근성을 말하지 않은 장소에는 행을 만들지 않는다. 행이 없는 것은 "접근 불가" 가 아니라
+ * "모른다" 다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -100,11 +87,7 @@ public class AccessibilityLoader {
 		return new Result(features.size(), noPlace, alreadyThere);
 	}
 
-	/**
-	 * @param inserted     새로 붙인 표식
-	 * @param noPlace      붙일 장소가 없어 넘긴 줄. 장소 적재를 먼저 안 돌린 경우다
-	 * @param alreadyThere 이미 있어 넘긴 표식
-	 */
+	/** {@code noPlace} 는 붙일 장소가 없어 넘긴 줄이다 — 장소 적재를 먼저 안 돌리면 여기가 쌓인다. */
 	public record Result(int inserted, int noPlace, int alreadyThere) {
 
 		public Result plus(Result other) {

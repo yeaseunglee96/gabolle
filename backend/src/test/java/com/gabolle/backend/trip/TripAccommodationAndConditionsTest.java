@@ -13,9 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.gabolle.backend.trip.domain.Trip;
 
-/**
- * {@link Trip} 도메인 — 숙소·영어메뉴/해외카드/혼밥우선 선호·최대환승횟수 칸 (S15P21E201-456).
- */
+/** {@link Trip} 의 숙소·영어메뉴·해외카드·혼밥우선·최대환승 다섯 칸. */
 class TripAccommodationAndConditionsTest {
 
 	private static final Instant NOW = Instant.parse("2026-09-09T00:00:00Z");

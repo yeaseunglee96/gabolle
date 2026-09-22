@@ -15,10 +15,10 @@ import com.gabolle.backend.auth.repository.OAuthSignupTicketRepository;
 import com.gabolle.backend.user.domain.AppUser;
 
 /**
- * 소셜 가입·연결 티켓의 발급과 소비 — S15P21E201-689 · -690.
+ * 소셜 가입·연결 티켓의 발급과 소비.
  *
- * <p>원문 티켓은 여기서 한 번 만들어 호출자에게 돌려주고 끝이다. 표에는 해시만 남는다. 소비는 행 잠금 아래에서
- * "쓸 수 있는가(안 썼고 안 만료됐는가)" 를 보고 그 자리에서 {@code consumed_at} 을 찍는다.
+ * <p>원문 티켓은 한 번 만들어 호출자에게 돌려주고 끝이다. 표에는 해시만 남는다. 소비는 행 잠금
+ * 아래에서 "안 썼고 안 만료됐는가" 를 보고 그 자리에서 {@code consumed_at} 을 찍는다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -66,8 +66,8 @@ public class OAuthSignupTicketService {
 	/**
 	 * 티켓을 찾아 잠그고, 쓸 수 있으면 소비 표시를 찍어 돌려준다.
 	 *
-	 * <p>🔴 없는 티켓·만료·이미 씀·종류 불일치를 <b>같은 응답</b>으로 답한다. 티켓은 비밀값이라 "있는데 만료됐다"
-	 * 를 구분해 알려 주면 추측 시도에 정보를 준다. 화면은 어느 경우든 소셜 로그인을 다시 시작하면 된다.
+	 * <p>없는 티켓·만료·이미 씀·종류 불일치는 모두 같은 응답이어야 한다. 티켓은 비밀값이라
+	 * "있는데 만료됐다" 를 구분해 알려 주면 추측 시도에 정보를 준다.
 	 *
 	 * @throws AuthException {@code OAUTH_TICKET_INVALID}(400)
 	 */

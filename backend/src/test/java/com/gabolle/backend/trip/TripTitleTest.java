@@ -37,13 +37,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * 여행에 이름을 붙인다 — S15P21E201-1023.
- *
- * <p>고치려는 것: 여행 카드의 제목 자리가 <b>날짜뿐</b>이라 같은 날짜로 두 번 계획하면
- * 두 카드가 글자 하나 다르지 않았다. 「다시 짜 보기」가 기본 동작인 서비스에서 그건 드문
- * 일이 아니다.
- */
 class TripTitleTest {
 
 	private static final Instant NOW = Instant.parse("2026-09-16T03:00:00Z");
@@ -74,10 +67,7 @@ class TripTitleTest {
 			assertThat(trip.updatedAt()).isEqualTo(NOW);
 		}
 
-		/**
-		 * 🔴 「빈 이름」과 「이름 없음」을 가르지 않는다. 화면에서 구분할 수 없는 같은
-		 * 것이라, 둘을 두면 화면이 두 가지를 다 검사해야 하고 언젠가 한쪽을 빠뜨린다.
-		 */
+		/** 「빈 이름」과 「이름 없음」을 가르지 않는다 — 화면에서 구분할 수 없는 같은 것이다. */
 		@Test
 		@DisplayName("빈 이름을 보내는 것이 곧 이름을 지우는 것이다")
 		void blankClearsTheName() {
@@ -89,11 +79,7 @@ class TripTitleTest {
 			assertThat(trip.title()).isNull();
 		}
 
-		/**
-		 * 🔴 이름은 <b>한 줄</b>이다. 줄바꿈이 들어가면 카드가 두 줄로 밀려 목록 전체가
-		 * 어긋난다. 나중에 이 자리에 모델이 지어낸 이름이 들어오므로(-1025) 칸 자체가
-		 * 안 받는 편이 확실하다.
-		 */
+		/** 이름은 한 줄이다. 줄바꿈이 들어가면 카드가 두 줄로 밀려 목록 전체가 어긋난다. */
 		@Test
 		@DisplayName("🔴 줄바꿈과 제어문자는 거부한다")
 		void rejectsControlCharacters() {
@@ -115,8 +101,8 @@ class TripTitleTest {
 		}
 
 		/**
-		 * 🔴 이모지 하나는 자바에서 두 칸을 차지하지만 DB {@code varchar(60)} 은 한 글자로
-		 * 센다. 자바 길이로 재면 <b>DB 가 받아 줄 이름을 서버가 먼저 거부한다.</b>
+		 * 이모지 하나는 자바에서 두 칸을 차지하지만 DB {@code varchar(60)} 은 한 글자로 센다.
+		 * 자바 길이로 재면 DB 가 받아 줄 이름을 서버가 먼저 거부한다.
 		 */
 		@Test
 		@DisplayName("🔴 이모지는 한 글자로 센다 — DB 가 세는 방식과 맞춘다")
@@ -176,10 +162,7 @@ class TripTitleTest {
 			assertThat(trip.title()).isEqualTo("둘이 가는 부산");
 		}
 
-		/**
-		 * 🔴 보기만 하는 동행자가 이름을 바꾸면, <b>만든 사람의 목록에서 자기 여행이 다른
-		 * 이름으로 보인다.</b> 초대 발급이 이미 같은 선을 긋고 있다.
-		 */
+		/** 보기만 하는 동행자가 바꾸면 만든 사람의 목록에서 자기 여행이 다른 이름으로 보인다. */
 		@Test
 		@DisplayName("🔴 보기 전용 동행자는 바꿀 수 없고, 저장까지 가지 않는다")
 		void viewerCannotRename() {
@@ -194,9 +177,8 @@ class TripTitleTest {
 		}
 
 		/**
-		 * 🔴 참여자가 아닌 사람에게는 <b>존재를 감춘 404</b> 가 간다. 그 판정은
-		 * {@code TripQueryService} 한 곳에만 있고 이 서비스는 그것을 그대로 통과시킨다 —
-		 * 여기서 다시 판정하면 같은 규칙이 두 곳에 생기고 언젠가 한쪽만 바뀐다.
+		 * 존재를 감추는 404 판정은 {@code TripQueryService} 한 곳에만 있고 이 서비스는 그것을
+		 * 그대로 통과시킨다. 여기서 다시 판정하면 같은 규칙이 두 곳에 생긴다.
 		 */
 		@Test
 		@DisplayName("🔴 참여자가 아니면 여행의 존재부터 감춘다")
@@ -252,7 +234,6 @@ class TripTitleTest {
 					.andExpect(jsonPath("$.data.tripId").value(TRIP_ID));
 		}
 
-		/** 🔴 이름이 지워진 것은 {@code null} 이다. 날짜 문자열을 서버가 대신 채우지 않는다. */
 		@Test
 		@DisplayName("🔴 이름을 지우면 null 이 간다 — 서버가 날짜로 대신 채우지 않는다")
 		void clearedTitleIsNull() throws Exception {

@@ -12,12 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * S15P21E201-303 — 진짜 PostgreSQL 위에서 익명 출입증의 완료 기준 넷을 잰다.
+ * 진짜 PostgreSQL 위에서 익명 출입증을 잰다.
  *
- * <h2>🔴 왜 진짜 DB 가 필요한가</h2>
- * 이 기능의 요점이 "표에 원본이 없다" 는 것이다. 가짜 저장소(Mockito)로는 표 자체가 없으니
- * 이 확인이 항상 통과한 것처럼 보인다 — 실제로 {@code anonymous_session} 표의 한 행을 SQL로
- * 직접 읽어야 "해시만 있고 원본이 없다" 를 증명한다.
+ * <p>요점은 표에 원본이 없다는 것이다. 가짜 저장소로는 표 자체가 없어 항상 통과한 것처럼
+ * 보이므로, {@code anonymous_session} 의 행을 SQL 로 직접 읽어 해시만 있는지 확인한다.
  */
 class AnonymousSessionIntegrationTest extends AuthPostgresIntegrationTest {
 

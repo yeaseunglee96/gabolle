@@ -3,19 +3,10 @@ package com.gabolle.backend.optimizer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 경로 최적화(하루 동선 순서를 정하는 OR-Tools 프로그램) 실행 설정 — S15P21E201-161.
- *
- * <p>이 프로그램은 자바가 아니라 파이썬이다({@code backend/solver/route_optimizer.py}).
- * 서버는 그 파일을 서브프로세스로 불러 표준입력에 JSON 을 주고 표준출력에서 JSON을
- * 받는다({@link RouteOptimizerAvailabilityCheck}).
- *
- * <p>🔴 필드 기본값을 직접 넣어 둔다 — {@code StorageProperties} 와 같은 이유다. 설정이 아예
- * 없는 슬라이스 테스트에서도 바인딩이 실패하지 않는다.
- *
- * <pre>
- * gabolle.route-optimizer.python-executable=${GABOLLE_ROUTE_OPTIMIZER_PYTHON:python3}
- * gabolle.route-optimizer.script-path=${GABOLLE_ROUTE_OPTIMIZER_SCRIPT:solver/route_optimizer.py}
- * </pre>
+ * 경로 최적화(하루 동선 순서를 정하는 OR-Tools 프로그램) 실행 설정.
+ * 이 프로그램은 자바가 아니라 파이썬이다({@code backend/solver/route_optimizer.py}) — 서버가
+ * 서브프로세스로 불러 표준입력에 JSON 을 주고 표준출력에서 JSON 을 받는다.
+ * 설정이 아예 없는 슬라이스 테스트에서도 바인딩이 실패하지 않도록 필드 기본값을 직접 넣는다.
  */
 @ConfigurationProperties("gabolle.route-optimizer")
 public class RouteOptimizerProperties {

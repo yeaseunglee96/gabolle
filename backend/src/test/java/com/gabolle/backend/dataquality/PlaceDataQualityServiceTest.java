@@ -16,12 +16,11 @@ import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 세 조회가 정상 fixture 는 통과시키고 오염 fixture 는 잡는가 — S15P21E201-278 · -315 · -328.
+ * 세 조회가 정상 fixture 는 통과시키고 오염 fixture 는 잡는가.
  *
- * <p>완료 기준 그대로다 — 일부러 문제 있는 값을 하나 넣고 돌리면 그 행이 결과에 잡히는지,
- * 정상값만 있으면 결과가 0건인지를 본다. {@link EventQualityGateTest} 와 같은 이유로 이
- * 테스트가 <b>기준선을 다시 재는 방법의 예시</b>이기도 하다 — {@code backend/docs
- * /PLACE-DATA-QUALITY.md} 가 이 클래스를 가리킨다.
+ * <p>일부러 문제 있는 값을 하나 넣고 돌리면 그 행이 결과에 잡히는지, 정상값만 있으면
+ * 결과가 0건인지를 본다. {@code backend/docs/PLACE-DATA-QUALITY.md} 가 기준선을 다시
+ * 재는 방법으로 이 클래스를 가리킨다.
  */
 @Import(PlaceDataQualityService.class)
 class PlaceDataQualityServiceTest extends PostgresIntegrationTest {
@@ -50,16 +49,13 @@ class PlaceDataQualityServiceTest extends PostgresIntegrationTest {
 	}
 
 	/**
-	 * 🔴 ALLERGEN_TAG · CATEGORY_TAG 는 태그형이라 {@code ck_place_feature_key_shape} 가
-	 * {@code feature_key NOT NULL} 을 요구한다(V20260913210000) — 이 테스트가 쓰는 두 종류가
-	 * 전부 태그형이라 항상 채운다.
+	 * ALLERGEN_TAG · CATEGORY_TAG 는 태그형이라 {@code ck_place_feature_key_shape} 가
+	 * {@code feature_key NOT NULL} 을 요구한다 — 이 테스트가 쓰는 두 종류가 전부 태그형이라
+	 * 항상 채운다.
 	 *
-	 * <p>🔴 키는 {@code "FOOD"} 다 — 임의 문자열이 아니다. {@code CATEGORY_TAG} 는
-	 * {@code fk_place_feature_code} 가 {@code place_feature_code} 사전에 있는 키만 강제한다
-	 * (V20260913210000). {@code "TEST_KEY"} 처럼 사전에 없는 값을 넣으면 그 갈래에서는 외래키
-	 * 위반으로 INSERT 자체가 실패한다 — {@code ALLERGEN_TAG} 는 그 사전 강제 대상이 아니라서
-	 * 임의 문자열도 통과하지만, 같은 키를 두 갈래에 함께 쓰려면 둘 다 통과하는 값이어야 한다.
-	 * {@code FOOD} 는 온보딩 여섯 갈래에 실제로 있는 값이다.
+	 * <p>키는 임의 문자열이 아니라 {@code "FOOD"} 다. {@code CATEGORY_TAG} 는
+	 * {@code fk_place_feature_code} 가 {@code place_feature_code} 사전에 있는 키만 받으므로,
+	 * 두 갈래에 같은 키를 쓰려면 사전에 실제로 있는 값이어야 한다.
 	 */
 	private void insertFeature(UUID placeId, String featureType, String evidenceStatus, String sourceType,
 			boolean hasValue) {
@@ -71,7 +67,7 @@ class PlaceDataQualityServiceTest extends PostgresIntegrationTest {
 				evidenceStatus, sourceType, java.time.OffsetDateTime.now(this.clock));
 	}
 
-	// ── S15P21E201-278 ───────────────────────────────────────────────────────
+	// ── 채움 개수 ───────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("칼럼별 채움 개수/전체 개수를 정확히 센다")
@@ -101,7 +97,7 @@ class PlaceDataQualityServiceTest extends PostgresIntegrationTest {
 		assertThat(report.featureTypeFilled().get("ALLERGEN_TAG").filled()).isZero();
 	}
 
-	// ── S15P21E201-315 ───────────────────────────────────────────────────────
+	// ── 영문 이름 ───────────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("정상 fixture — 영문 이름에 한글이 없고 비어 있지 않으면 통과한다")
@@ -134,7 +130,7 @@ class PlaceDataQualityServiceTest extends PostgresIntegrationTest {
 		assertThat(issues.get(0).kind()).isEqualTo(PlaceDataQualityService.TranslationIssue.Kind.EMPTY);
 	}
 
-	// ── S15P21E201-328 ───────────────────────────────────────────────────────
+	// ── 안전 정보 출처 ─────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("정상 fixture — 값이 있는 안전 정보에 출처가 있으면 통과한다")

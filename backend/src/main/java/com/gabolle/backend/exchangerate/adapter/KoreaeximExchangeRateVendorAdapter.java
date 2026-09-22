@@ -21,16 +21,9 @@ import com.gabolle.backend.exchangerate.application.ExchangeRateVendorPort;
 import com.gabolle.backend.exchangerate.config.ExchangeRateProperties;
 
 /**
- * 한국수출입은행 환율 정보(AP01) API 호출 — S15P21E201-1079.
- *
- * <p>{@code RestClient.Builder}는 {@code KmaWeatherVendorAdapter}와 같은 방식으로 쓴다.
- *
- * <p>🔴 <b>인증키가 비어 있으면 호출을 시도하지 않고 즉시 명확한 실패</b>를 던진다 —
- * {@code TranslationVendorAdapter}·{@code KmaWeatherVendorAdapter}와 같은 이유.
- *
- * <p>🔴 도메인이 2025-06-25에 {@code www.koreaexim.go.kr}에서 {@code
- * oapi.koreaexim.go.kr}로 바뀌었고, 옛 도메인은 2026-04-30에 없어졌다 — 그래서 새 도메인을
- * 기본값으로 쓴다(실제로 호출해 확인함, {@code ExchangeRateProperties} 참고).
+ * 한국수출입은행 환율 정보(AP01) API 호출. 인증키가 비어 있으면 호출을 시도하지 않고 즉시
+ * 명확한 실패를 던진다.
+ * 도메인은 {@code oapi.koreaexim.go.kr} 이다 — 옛 {@code www.koreaexim.go.kr} 은 없어졌다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -81,8 +74,8 @@ public class KoreaeximExchangeRateVendorAdapter implements ExchangeRateVendorPor
 					HttpStatus.BAD_GATEWAY);
 		}
 
-		// 🔴 공공기관 인증키는 이미 URL 인코딩된 값으로 발급되는 경우가 있다 —
-		//    KmaWeatherVendorAdapter 와 같은 이유로 키는 문자열로 그대로 이어 붙인다.
+		// 공공기관 인증키는 이미 URL 인코딩된 값으로 발급되는 경우가 있어, 키는 문자열로 그대로
+		// 이어 붙인다.
 		String query = UriComponentsBuilder.newInstance()
 				.queryParam("searchdate", searchDate.format(SEARCH_DATE_FORMAT))
 				.queryParam("data", "AP01")

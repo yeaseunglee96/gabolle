@@ -30,13 +30,7 @@ import com.gabolle.backend.story.presentation.StorySaveController;
 import com.gabolle.backend.story.presentation.StorySaveExceptionHandler;
 import com.gabolle.testslice.StorySliceApplication;
 
-/**
- * 기록(글) 저장(북마크) — 진짜 PostgreSQL 위에서.
- *
- * <p>{@code StoryReactionIntegrationTest}와 같은 이유로 목이 아니라 진짜 DB를 쓴다 — 한
- * 사람이 한 글을 두 번 저장할 수 없다는 것(UNIQUE 제약)을 DB가 판정하는지 보는 것이 이 시험의
- * 핵심이다.
- */
+/** 기록 저장(북마크). 한 사람이 한 글을 두 번 저장할 수 없다는 것을 DB 의 UNIQUE 제약이 판정한다. */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",

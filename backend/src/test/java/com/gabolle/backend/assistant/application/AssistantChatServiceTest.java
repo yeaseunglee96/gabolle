@@ -28,15 +28,12 @@ import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
- * {@link AssistantChatService} 검증 — S15P21E201-802.
+ * {@link AssistantChatService} 검증. 재는 것은 메시지 검증·요청 빈도 제한·히스토리 다듬기·벤더 실패를
+ * 숨기지 않고 올리는가다. 실제 Gemini 호출과 구조화 출력 파싱은 어댑터 몫이라 벤더를 스텁으로
+ * 대신한다.
  *
- * <p>{@code TranslationServiceTest} 와 같은 자리다 — 캐시가 없어 규칙이 더 단순하다. 이
- * 클래스가 재는 것은 "메시지 검증"·"요청 빈도 제한"·"히스토리 다듬기"·"벤더 실패를 숨기지
- * 않고 그대로 올린다" 다. 실제 Gemini 호출·구조화 출력 파싱은 어댑터 몫이라 여기서는 벤더를
- * 스텁으로 대신한다.
- *
- * <p>S15P21E201-987 — 일정 참조 관련 동작(동의 확인·컨텍스트 조회)은
- * {@link ConsentGuard}·{@link AssistantTripContextBuilder} 를 mock 으로 세워 확인한다.
+ * <p>일정 참조(동의 확인·컨텍스트 조회)는 {@link ConsentGuard}·{@link AssistantTripContextBuilder} 를
+ * mock 으로 세워 확인한다.
  */
 class AssistantChatServiceTest {
 
@@ -176,7 +173,7 @@ class AssistantChatServiceTest {
 				.containsExactly("3", "4");
 	}
 
-	// ── 일정 참조 (S15P21E201-987) ──────────────────────────────────────
+	// ── 일정 참조 ───────────────────────────────────────────────────────
 
 	@Test
 	@DisplayName("itineraryId 가 없으면 동의를 확인하지도, 일정을 조회하지도 않는다")
@@ -226,7 +223,7 @@ class AssistantChatServiceTest {
 				throw new AssistantVendorException("ASSISTANT_VENDOR_UNAVAILABLE", "실패", HttpStatus.BAD_GATEWAY);
 			}
 			return new AssistantReply(AssistantActionKind.NAVIGATE, "새 여행 만들기로 안내할게요.", null, null, "여행 만들기",
-					"/plan/basic");
+					"/plan");
 		}
 
 		@Override

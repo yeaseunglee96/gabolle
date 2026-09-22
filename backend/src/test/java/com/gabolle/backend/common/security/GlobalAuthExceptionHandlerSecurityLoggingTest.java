@@ -16,11 +16,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
- * S15P21E201-682 — {@link GlobalAuthExceptionHandler} 가 401/403 을 {@link SecurityEventLogger} 로
- * 올바르게 넘기는지, 그리고 로그인 전용 코드는 <b>중복 로깅하지 않는지</b> 를 본다.
- *
- * <p>실제 로그 줄의 형식은 {@link SecurityEventLoggerTest} 가 검증한다. 여기서는 라우팅(어느 상태·
- * 코드가 어느 이벤트로 가는지, 무엇을 건너뛰는지)만 mock 으로 확인한다.
+ * 어느 상태·코드가 어느 이벤트로 가는지와 무엇을 건너뛰는지만 mock 으로 본다. 실제 로그 줄의 형식은
+ * {@link SecurityEventLoggerTest} 가 검증한다.
  */
 class GlobalAuthExceptionHandlerSecurityLoggingTest {
 

@@ -19,15 +19,11 @@ import com.gabolle.backend.itinerary.presentation.dto.ItineraryRhythmResponse;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
- * 지연 경고 · 여행 리듬 조회 — S15P21E201-96 · -304 · -308.
- *
- * <p>둘 다 보기 전용이라 {@code ItineraryAccess.requireMember} 로 권한을 확인한다 — 일정을
- * 볼 수 있는 사람이면 VIEWER 도 이 두 경로를 볼 수 있다. 실제 판정은
- * {@link ItineraryPaceService} · {@link ItineraryRhythmService} 안에서 한다.
- *
- * <p>{@code @Profile({"db","dev"})} · {@code @ConditionalOnBean(TripQueryService.class)} —
- * {@link ItineraryQueryController} 와 같은 이유다. 일정 도메인만 스캔하는 테스트 컨텍스트는
- * {@code trip} 패키지를 스캔하지 않아 {@link TripQueryService} 빈이 없다.
+ * 지연 경고 · 여행 리듬 조회.
+ * 둘 다 보기 전용이라 {@code ItineraryAccess.requireMember} 로 권한을 확인한다 — 일정을 볼 수
+ * 있는 사람이면 VIEWER 도 이 두 경로를 볼 수 있다.
+ * {@code @Profile({"db","dev"})} · {@code @ConditionalOnBean(TripQueryService.class)} 인 이유는
+ * {@link ItineraryQueryController} 와 같다.
  */
 @RestController
 @RequestMapping("/api/v1/itineraries")
@@ -45,11 +41,9 @@ public class ItineraryPaceController {
     }
 
     /**
-     * 하루치 지연 경고 — S15P21E201-304 · -96.
-     *
-     * <p>경로를 {@code value} 로 준다. {@code path} 로 쓰면 인가 정책 검사
-     * ({@code RouteAuthorizationRegistryTest})가 경로를 빈 값으로 읽어 "정책 없는 경로"로 걸린다
-     * ({@code RecommendationJobController} 의 같은 주석 참고).
+     * 하루치 지연 경고.
+     * 경로를 {@code value} 로 준다. {@code path} 로 쓰면 인가 정책 검사가 경로를 빈 값으로 읽어
+     * "정책 없는 경로" 로 걸린다.
      */
     @GetMapping(value = "/{itineraryId}/days/{dayIndex}/pace")
     public ApiResponse<ItineraryPaceResponse> pace(@PathVariable String itineraryId, @PathVariable int dayIndex,
@@ -60,7 +54,7 @@ public class ItineraryPaceController {
         return ApiResponse.success(response, "req_" + UUID.randomUUID());
     }
 
-    /** 여행 전체의 리듬 요약 — S15P21E201-308. */
+    /** 여행 전체의 리듬 요약. */
     @GetMapping(value = "/{itineraryId}/rhythm")
     public ApiResponse<ItineraryRhythmResponse> rhythm(@PathVariable String itineraryId,
             Authentication authentication) {
