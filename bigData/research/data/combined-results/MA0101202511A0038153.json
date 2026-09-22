@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202511A0038153",
+  "name": "엘제이팩토리",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 72816,
+  "researchedAt": "2026-09-22T12:07:11.547Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "인허가 등록 정보 외에 실제 운영 정보나 방문 리뷰가 존재하지 않음",
+  "notes": "부산 해운대구 좌동순환로468번길 41의 '엘제이팩토리'는 사업자 인허가 DB상 일반음식점(경양식)으로 등록된 것 외에 실제 매장 운영 내역, 메뉴판, 방문 리뷰, 사진 등이 웹상에 존재하지 않는 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220811404975",
+  "name": "더행복한횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 58033,
+  "researchedAt": "2026-09-22T12:08:59.602Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가족, 단체, 관광객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "생선회 코스"
+    ],
+    "yearsClaimed": 1996
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 대 관광객 구체적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 민락수변로 29 인근 바다마루 상가 일대에 위치하며, 광안대교 및 오션뷰 전망과 드론쇼 관람 장소로 알려져 있습니다. 과거 '행복한횟집' 또는 '부산횟집' 등 동일 건물/주소 상호와의 혼용 확인 필요.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 민락수변공원 인근 바다마루 상가 내에 위치하고 있으며, 전 좌석에서 광안대교와 광안리 오션뷰를 감상할 수 있는 것이 특징입니다. 회 코스요리 전문점으로, 죽, 다양한 회, 튀김, 생선조림, 매운탕, 후식 과일 등이 차례로 제공됩니다. 1996년부터 운영되어 온 식당으로, 단체석(룸 5개 포함)을 완비하고 있습니다. 건물 내 지하 주차장을 이용할 수 있어 접근성이 편리합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전 좌석 광안대교 오션뷰 및 광안리 드론쇼 관람 명소",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "1996년부터 이어져 온 회 코스요리 및 룸/단체석 완비",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202603A0029908",
+  "name": "라스트콜",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 91893,
+  "researchedAt": "2026-09-22T12:07:43.660Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "위스키",
+      "칵테일"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "인허가 업종상 경양식으로 등록되어 있으나, 실제로는 수영역 인근 위스키 및 칵테일을 취급하는 바(Bar) 형태의 주점으로 확인됨. 온라인 상의 상세 후기나 메뉴판 정보가 극히 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 수영로702번길 21 라스트콜(Last Call). 위스키와 칵테일을 전문으로 하며, 수영역 인근에 위치하고 있습니다. 다양한 위스키와 음식을 즐길 수 있는 공간으로 소개되고 있습니다.",
+      "url": "https://www.siksinhot.com/search?keywords=수영로702번길%2021"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/search?keywords=수영로702번길%2021"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수영역 인근에서 위스키와 칵테일을 즐길 수 있는 바 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

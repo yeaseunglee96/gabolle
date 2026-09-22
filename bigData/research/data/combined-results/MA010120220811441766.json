@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811441766",
+  "name": "전망대오륙도횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 57813,
+  "researchedAt": "2026-09-22T12:06:05.751Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "창가석 등 좋은 뷰 자리는 인기가 많아 주말이나 피크 타임 혼잡 대비 사전 예약을 권장함"
+  },
+  "descriptors": {
+    "audience": "가족, 단체, 관광객",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모둠회 코스",
+      "해산물 모둠",
+      "매운탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 24:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교와 바다를 한눈에 볼 수 있는 통창 뷰로 인해 부산 여행객 및 관광객 방문 선호도가 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "민락회타운 9층에 위치한 횟집으로 광안대교 오션뷰 창가석과 코스 요리가 유명합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "코스 요리 1인 기준",
+    "priceWon": 35000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "민락회타운 9층에 위치하여 광안대교와 광안리 해수욕장을 한눈에 조망할 수 있는 '뷰 맛집'으로 알려져 있습니다. 창가 좌석은 인기가 많아 사전 예약을 추천합니다. 코스 요리: 전복죽, 기본 찬, 해산물 모둠(해삼, 멍게, 소라, 산낙지 등), 모둠회, 가리비 치즈구이, 튀김, 매운탕 등으로 구성됩니다. 코스 기준 1인당 약 3~6만 원대로 형성되어 있습니다. 매일 11:30 ~ 24:00. 민락회타운 건물 주차장을 이용할 경우 약 2시간 주차 할인 혜택을 받을 수 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교와 광안리 바다가 한눈에 내려다보이는 9층 오션뷰 전망",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "전복죽부터 모둠회, 해산물 모둠, 튀김, 매운탕으로 이어지는 풍성한 회 코스 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

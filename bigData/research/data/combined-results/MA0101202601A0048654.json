@@ -1,0 +1,56 @@
+{
+  "id": "MA0101202601A0048654",
+  "name": "함양가",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 60719,
+  "researchedAt": "2026-09-22T12:08:36.779Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 지자체 공무원 업무추진비 집행내역 및 현지 일반 음식점으로 등록되어 있어 관광객용 식당보다는 인근 직장인/주민 위주의 한식당 성격입니다."
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광남로94번길 8(광안동 202-3)에 인허가 등록된 한식 일반음식점(백반/한정식)입니다. 일반 블로그 후기나 사진, 상세 메뉴판은 웹상에 공개되어 있지 않으나 지자체 업무추진비 결제 내역 및 사업체 데이터베이스에 등록되어 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 광남로94번길 8 (광안동 202-3), 업종: 한식(백반/한정식) 일반 음식점업",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 공무원 업무추진비 집행 등 관공서 및 현지 직장인의 일상 식사 이용",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

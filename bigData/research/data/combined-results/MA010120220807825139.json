@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220807825139",
+  "name": "밀레니엄횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 45992,
+  "researchedAt": "2026-09-22T12:08:44.710Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 직접적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "관광객, 모임 및 회식 단체 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "활어회",
+      "모듬회",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 23:00 (연중무휴, 업장에 따라 24:00 또는 02:00까지 운영)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 및 바다 전망을 즐기려는 관광객 방문 비중이 높으며 인근 방문객이 회센터 연계로 찾는 형태"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "밀레니엄회센터 건물 5층에 위치하며 1층 활어마트에서 횟감을 구매한 뒤 상차림(초장집) 형태로 이용하거나 코스/모듬회 주문이 가능하며, 광안대교 및 바다 전망이 핵심 특징임",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "초장값(상차림비) 1인 약 7,000원, 모듬/제철 활어회 약 80,000원선",
+    "priceWon": 80000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 수변공원 인근에 위치하며 광안대교와 바다 전망을 볼 수 있는 곳입니다. 주로 활어회, 모듬회 등을 제공하며, 1층 활어마트에서 회를 구매한 뒤 5층 초장집에서 식사하는 시스템으로도 이용 가능합니다. 건물 맞은편에 민락수변공원 공영주차장이 있어 차량 방문 시 접근성이 좋습니다.",
+      "url": "https://korean.visitkorea.or.kr"
+    },
+    {
+      "excerpt": "영업시간: 11:00 ~ 23:00, 휴무일: 연중무휴, 주소: 부산광역시 수영구 민락수변로 103, 전화번호: 051-755-0005",
+      "url": "https://korean.visitkorea.or.kr"
+    }
+  ],
+  "sources": [
+    "https://korean.visitkorea.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교와 수변공원 바다 전망을 조망하며 회를 즐길 수 있는 탁 트인 뷰",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "1층 활어마트에서 고른 신선한 활어회를 바로 위층 초장집에서 맛볼 수 있는 편리한 회센터 시스템",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

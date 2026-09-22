@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220814285871",
+  "name": "포항생아구",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 56987,
+  "researchedAt": "2026-09-22T12:06:16.487Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임, 식사 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "아구찜",
+      "아구탕",
+      "아구수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00 (정기휴무: 매주 수요일)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "재송동 인근 주민들과 직장인들이 점심특선 아구지리 식사나 모임으로 찾는 동네 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "매장 입구 수족관의 살아있는 생아구를 조리하여 신선도가 높으며, 아구찜/아구탕/아구수육의 정갈한 구성과 점심특선 1인 아구지리가 인기 있는 집.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "아구찜/아구탕 소 50,000원, 아구수육 소 60,000원",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "메뉴는 생아구를 사용하여 심플하게 구성되어 있습니다. 아구찜 / 아구탕: 소 50,000원 / 중 60,000원 / 대 70,000원, 아구수육: 소 60,000원 / 중 80,000원 / 대 100,000원. 점심특선으로 아구탕(아구지리)을 1인분씩 주문하여 든든하게 식사할 수 있습니다. 매장 입구 수족관에서 살아있는 아귀를 직접 확인할 수 있어 냉동이 아닌 생아구임을 강조하는 곳입니다. 건물 바로 옆 전용 주차장 이용 가능 (무료).",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 재반로 29 1층. 운영 시간: 11:00 ~ 21:00 (정기휴무 매주 수요일). 생아구를 사용하여 아구찜과 아구지리(아구탕)가 유명하며 내부가 깔끔하고 기본 밑반찬이 정갈합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수족관에 살아있는 생아구를 직접 잡아 신선하고 탱글탱글한 육질을 맛볼 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "점심특선으로 1인분씩 아구지리(아구탕) 식사가 가능해 합리적임",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "건물 전용 무료 주차장이 완비되어 있어 접근 및 이용이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
