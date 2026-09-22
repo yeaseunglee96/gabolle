@@ -37,8 +37,18 @@ const argv = process.argv.slice(2);
 const str = (n, d) => { const i = argv.indexOf(n); return i < 0 ? d : argv[i + 1]; };
 const MODEL = str("--model", null); // 안 주면 price-queue.mjs 기본값(gemini) 그대로
 
+/**
+ * 🔴 Windows 에서 shell:true 로 배열 인자를 넘기면 Node 가 공백으로 그냥 이어붙인다
+ * (따옴표를 알아서 안 씌운다 — 실측: `--intent "가격조사 청크17 (자동배정)"` 이
+ * 셋으로 쪼개져 axmap 이 뒤 둘을 엉뚱한 선점 경로로 먹었다). 공백·괄호가 있으면
+ * 여기서 직접 따옴표를 씌운다.
+ */
+function shQuote(a) {
+  return process.platform === "win32" && /[\s()]/.test(a) ? `"${String(a).replace(/"/g, '\\"')}"` : a;
+}
 function sh(cmd, args, opts = {}) {
-  return spawnSync(cmd, args, { encoding: "utf8", shell: process.platform === "win32", ...opts });
+  const qargs = process.platform === "win32" ? args.map(shQuote) : args;
+  return spawnSync(cmd, qargs, { encoding: "utf8", shell: process.platform === "win32", ...opts });
 }
 
 function loadTargetIds() {
