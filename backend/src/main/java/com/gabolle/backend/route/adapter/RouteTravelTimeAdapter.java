@@ -1,5 +1,6 @@
 package com.gabolle.backend.route.adapter;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -57,7 +58,28 @@ public class RouteTravelTimeAdapter implements TravelTimePort {
 
 		return new TravelTime(leg.distanceM(), leg.durationMin(),
 				leg.estimated() ? ItineraryItem.DataStatus.ESTIMATED : ItineraryItem.DataStatus.VERIFIED,
-				fareOf(leg));
+				fareOf(leg), pathOf(leg));
+	}
+
+	/**
+	 * 이 구간이 지나는 길의 좌표 목록.
+	 *
+	 * <p>🔴 <b>어림잡은 구간의 선형은 버린다.</b> 직선거리로 어림잡을 때
+	 * {@code StraightLineRouteEstimator} 는 출발·도착 두 점을 그대로 {@code path} 에 넣는데,
+	 * 그것은 「어느 길로 가는지」가 아니라 <b>두 점을 이은 직선</b>이다. 그대로 저장하면 실제로
+	 * 잰 길과 한 칸에 섞여, 화면이 직선을 실선으로 그리게 된다 — 고치려던 그림이 바로 그것이다
+	 * (S15P21E201-1251·1234 — 「실제 길은 실선, 추정은 점선」).
+	 *
+	 * <p>점이 둘 미만이면 선이 아니라 점이므로 역시 비운다.
+	 *
+	 * @return 실제 길찾기 응답에서 온 좌표 목록. 없거나 어림값이면 {@code null}
+	 */
+	private static List<double[]> pathOf(RouteLeg leg) {
+		if (leg.estimated()) {
+			return null;
+		}
+		List<double[]> path = leg.path();
+		return (path == null || path.size() < 2) ? null : path;
 	}
 
 	/**

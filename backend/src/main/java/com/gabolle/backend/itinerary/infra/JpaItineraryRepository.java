@@ -3,6 +3,7 @@ package com.gabolle.backend.itinerary.infra;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +28,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
 /**
  * 일정 저장소 — {@code itineraries}·{@code itinerary_versions} 의 PostgreSQL 구현.
  * {@link #create} 는 새 일정을 만들고 {@link #appendVersion} 은 기존 일정에 판을 더한다.
@@ -44,6 +49,12 @@ import jakarta.persistence.Query;
 @Repository
 @Profile({ "db", "dev" })
 public class JpaItineraryRepository implements ItineraryRepository {
+
+	/**
+	 * 구간 선형({@code itinerary_leg.path}) JSON 을 읽을 때만 쓴다. 이 클래스의 매핑 메서드가
+	 * 전부 {@code static} 이라 주입받지 않고 상수로 둔다 — 읽기 전용이고 상태가 없어 안전하다.
+	 */
+	private static final ObjectMapper PATH_MAPPER = new ObjectMapper();
 
 	/**
 	 * {@code warning_codes}(배열 칸)를 원시 SQL 에 실을 때는 {@code CAST(?15 AS varchar[])} 에
@@ -411,6 +422,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				e.stairSteps(),
 				e.dataStatus(),
 				e.fareKrw(),
+				decodePath(e.path()),
 				toInstant(e.createdAt()));
 	}
 
@@ -430,7 +442,65 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				leg.stairSteps(),
 				leg.dataStatus(),
 				leg.fareKrw(),
+				encodePath(leg.path()),
 				toOffset(leg.createdAt()));
+	}
+
+	/**
+	 * 선형을 {@code [[경도,위도], …]} JSON 으로 적는다. 없으면 {@code null} — 빈 배열을 적지
+	 * 않는다(도메인 {@code ItineraryLeg.normalizePath} 와 DB {@code ck_itinerary_leg_path} 가
+	 * 같은 것을 막는다).
+	 *
+	 * <p>손으로 이어 붙이는 이유는 이 값이 숫자 쌍의 배열뿐이라서다 — 문자열이 섞일 수 없어
+	 * 이스케이프할 것이 없고, 매퍼를 들이면 이 클래스의 매핑 메서드가 전부 static 인 결을
+	 * 깨야 한다.
+	 */
+	private static String encodePath(List<double[]> path) {
+		if (path == null || path.size() < 2) {
+			return null;
+		}
+		StringBuilder json = new StringBuilder(path.size() * 24).append('[');
+		for (int i = 0; i < path.size(); i++) {
+			double[] point = path.get(i);
+			if (point == null || point.length < 2) {
+				// 좌표 하나가 깨졌으면 선 전체를 버린다. 그 점만 빼면 길이 슬쩍 달라진 채로
+				// 「실제로 잰 길」이라고 주장하게 된다.
+				return null;
+			}
+			if (i > 0) {
+				json.append(',');
+			}
+			json.append('[').append(point[0]).append(',').append(point[1]).append(']');
+		}
+		return json.append(']').toString();
+	}
+
+	/**
+	 * 값이 깨져 있으면 그 구간만 선형 없이 두고 일정 전체를 실패시키지 않는다 — 선형은
+	 * 지도에 선을 그리는 데만 쓰이고, 없으면 예전처럼 안 그릴 뿐이다.
+	 */
+	private static List<double[]> decodePath(String json) {
+		if (json == null || json.isBlank()) {
+			return null;
+		}
+		try {
+			JsonNode root = PATH_MAPPER.readTree(json);
+			if (!root.isArray() || root.size() < 2) {
+				return null;
+			}
+			List<double[]> path = new ArrayList<>(root.size());
+			for (JsonNode point : root) {
+				if (!point.isArray() || point.size() < 2
+						|| !point.get(0).isNumber() || !point.get(1).isNumber()) {
+					return null;
+				}
+				path.add(new double[] { point.get(0).doubleValue(), point.get(1).doubleValue() });
+			}
+			return path;
+		}
+		catch (JacksonException malformed) {
+			return null;
+		}
 	}
 
 	private static OffsetDateTime toOffset(Instant instant) {

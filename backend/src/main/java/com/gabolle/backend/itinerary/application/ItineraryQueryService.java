@@ -245,6 +245,9 @@ public class ItineraryQueryService {
 		// 요금도 같은 incoming 에 묶인다. 들어오는 구간이 아니면 남의 요금이므로 비운다 —
 		// 모르는 것을 0 으로 채우지 않는다.
 		Integer travelFareKrw = incoming ? incomingLeg.fareKrw() : null;
+		// 선형도 같은 incoming 에 묶인다. 없으면 null 이고, 그때 출발·도착 두 점을 이어
+		// 만들어 주지 않는다 — 그 직선을 화면이 「실제로 잰 길」로 그리게 된다.
+		List<double[]> travelPath = incoming ? incomingLeg.path() : null;
 
 		return new ItineraryDetailResponse.Item(
 				item.itemKey(),
@@ -261,6 +264,7 @@ public class ItineraryQueryService {
 				travelDurationMin,
 				travelDataStatus,
 				travelFareKrw,
+				travelPath,
 				// ItineraryItem 이 생성자에서 빈 목록으로 정규화하므로 여기서 다시 감싸지 않는다.
 				item.warningCodes(),
 				// 모르면 null 이고 0 으로 채우지 않는다 — 위도 0·경도 0 은 기니만 한가운데라
