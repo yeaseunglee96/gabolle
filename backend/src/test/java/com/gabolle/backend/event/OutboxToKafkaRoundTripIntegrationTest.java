@@ -17,10 +17,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.kafka.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import com.gabolle.backend.event.application.OutboxAppendCommand;
 import com.gabolle.backend.event.application.OutboxRelayService;
@@ -32,8 +28,10 @@ import com.gabolle.backend.event.domain.Producer;
 import com.gabolle.backend.event.infra.KafkaEventPublisher;
 import com.gabolle.backend.event.repository.EventConsumptionRepository;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
+import com.gabolle.backend.recommendation.support.KafkaAvailableCondition;
 import com.gabolle.backend.recommendation.support.PostgresAvailableCondition;
 import com.gabolle.backend.recommendation.support.TestDatabase;
+import com.gabolle.backend.recommendation.support.TestKafka;
 import com.gabolle.testslice.RecommendationSliceApplication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,27 +68,15 @@ import static org.awaitility.Awaitility.await;
 		// 스케줄러는 끈다. relayOnce() 를 손으로 부른다.
 		"gabolle.event.outbox-relay.enabled=false"
 })
-@ExtendWith(PostgresAvailableCondition.class)
-@Testcontainers
+@ExtendWith({ PostgresAvailableCondition.class, KafkaAvailableCondition.class })
 class OutboxToKafkaRoundTripIntegrationTest {
-
-	/**
-	 * compose 에 적은 것과 <b>같은 이미지</b>다 — 시험과 운영이 다른 판을 쓰면 시험의 뜻이 준다.
-	 *
-	 * <p>🔴 3.9.0 을 쓰면 안 된다. Testcontainers 1.21.3 이 그 판을 띄울 때
-	 * {@code advertised.listeners} 에 {@code 0.0.0.0} 을 넣는데, 카프카가 기동 전에 그것을
-	 * 거부한다({@code cannot use the nonroutable meta-address}). 컨테이너가 종료 코드 1 로
-	 * 죽고 시험은 {@code initializationError} 로만 보여서 원인이 안 드러난다.
-	 */
-	@Container
-	static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("apache/kafka:3.8.0"));
 
 	private static final Duration PATIENCE = Duration.ofSeconds(30);
 
 	@DynamicPropertySource
 	static void properties(DynamicPropertyRegistry registry) {
 		TestDatabase.registerDatasource(registry);
-		registry.add("spring.kafka.bootstrap-servers", KAFKA::getBootstrapServers);
+		TestKafka.registerBootstrapServers(registry);
 	}
 
 	@Autowired
