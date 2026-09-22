@@ -7,7 +7,7 @@ import { courseMapLayers, dayColor } from '@/plan/courseMap';
 import type { TripCourse } from '@/plan/tripCourses';
 
 const stop = (name: string, lat: number | null, lng: number | null) => ({
-  placeId: null, name, time: null, note: null, photoUrl: null, lat, lng,
+  placeId: null, name, time: null, note: null, photoUrl: null, photoSource: null, lat, lng,
 });
 
 const course = (days: TripCourse['days']): TripCourse => ({
