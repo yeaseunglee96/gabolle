@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220805312023",
+  "name": "도트도트",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 70642,
+  "researchedAt": "2026-09-22T11:33:29.812Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 운영 매장 정보 및 방문자 리뷰 없음 (사업자 등록 DB 외 실체 미확인)",
+  "notes": "부산 수영구 수영로636번길 85(광안동 107-6 부덕그린아파트)에 상가 사업자 DB 등록 내역(업종: 빵/도넛) 외에 실제 운영 중인 매장 정보, 블로그 후기, 메뉴 및 영업시간 정보가 웹상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

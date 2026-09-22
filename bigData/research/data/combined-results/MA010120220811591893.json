@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220811591893",
+  "name": "일광수산횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 37145,
+  "researchedAt": "2026-09-22T11:38:28.784Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 모임, 비즈니스 및 회식 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 회 코스",
+      "활참복 전골",
+      "복국",
+      "복수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "횟집 (2층~5층): 11:00 ~ 22:00 (브레이크타임 14:00 ~ 16:00) / 복국집 (1층): 09:00 ~ 21:00 (브레이크타임 14:00 ~ 16:00), 연중무휴"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 11,
+    "found": true
+  },
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대부분의 좌석이 개별 룸으로 구성되어 있어 가족 모임이나 격식 있는 비즈니스 모임 등에 자주 이용됩니다. 자연산 회 코스, 이시가리회, 복요리 등 다양한 해산물 요리를 제공합니다. 1층은 복요리 전문, 2층 이상은 횟집으로 운영되는 형태입니다. 전용 주차장이 마련되어 있으며, 주차 요금은 무료입니다.",
+      "url": "https://www.tripinfo.co.kr"
+    },
+    {
+      "excerpt": "전 좌석이 프라이빗한 룸으로 구성되어 있어 가족 모임이나 회식 장소로 선호됩니다. 전용 주차장을 갖추고 있으며 발레파킹 서비스를 제공하기도 합니다. 1층은 복요리 전문, 2층은 횟집으로 운영되는 형태입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.tripinfo.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전 좌석이 프라이빗한 개별 룸으로 마련되어 가족 및 격식 있는 비즈니스 모임에 적합함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "자연산 회 코스와 신선한 복요리를 전문적으로 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220812820918",
+  "name": "기승전골",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 38123,
+  "researchedAt": "2026-09-22T11:33:28.080Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "기승전골",
+      "순대전골",
+      "대창전골"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:00 ~ 24:00 (월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "광안리 직영점으로 운영되었던 매장으로 소고기, 순대, 대창 전골 및 추가 사리/볶음밥을 판매함. 현재 해당 주소지 매장의 지속 영업 여부는 변동되었거나 폐업 가능성이 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "소고기, 순대, 대창을 한 번에 즐길 수 있는 곱창전골 맛집으로 잘 알려져 있습니다. 주요 메뉴: 기승전골(소고기 + 순대 + 대창), 순대전골(순대 + 대창), 대창전골(대창). 사리 추가(당면 등)가 가능하며, 식사 후 볶음밥 등도 인기 있는 메뉴입니다. 영업 시간: 매일 17:00 ~ 24:00 (월요일 휴무)",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "소고기, 순대, 대창이 푸짐하게 들어간 곱창전골 맛 자체에 대한 호평",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

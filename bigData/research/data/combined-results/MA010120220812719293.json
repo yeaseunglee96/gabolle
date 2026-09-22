@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220812719293",
+  "name": "뱃님",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 81930,
+  "researchedAt": "2026-09-22T11:35:20.523Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 수영구 수영로522번길 53)의 '뱃님'은 과거 행정 등록 이력만 확인되며 현재 폐업 상태(해당 자리에는 브런치 카페 피즈클럽 운영 중)입니다.",
+  "notes": "해당 주소지(수영로522번길 53)에 등록되었던 '뱃님'은 폐업 상태이며 현재 다른 매장(피즈클럽)이 운영 중입니다. 과거 남천동의 '뱃님아구찜' 역시 다른 주소지(남천바다로 20)이며 현재 유효한 매장 정보를 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

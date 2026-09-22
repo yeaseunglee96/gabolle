@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220811390473",
+  "name": "대어횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 115836,
+  "researchedAt": "2026-09-22T11:37:37.265Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 혼잡도에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "지인 모임 및 회식",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생선회 코스",
+      "상차림",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 중심인지에 대한 명시적 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 민락회타운(민락수변로 1) 8층에 위치한 대어횟집으로, 1층 활어시장에서 횟감을 구매해 상차림비(인당 5,000~6,000원선)를 내고 이용하거나 횟집 자체 생선회 코스 요리를 주문해 이용할 수 있는 매장임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "상차림비 1인 5,000~6,000원 및 회 코스 요리",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 민락수변로 1, 민락회타운 8층 대어횟집. 영업시간 11:00 ~ 23:00. 회를 직접 사 올 경우 1인당 상차림비(2인 이상 주문 시 5천 원, 1인 6천 원)가 발생하며, 코스 요리가 구성상 더 나을 수 있다. 지인 대접이나 모임 등 특별한 자리에서 예약 후 방문. 전화번호 051-758-2860.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://visitbusan.net",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 민락회타운 8층에서 즐기는 회 코스 요리 및 초장집 상차림 이용 편의",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202509A0025348",
+  "name": "누아르윅",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 55399,
+  "researchedAt": "2026-09-22T11:35:15.547Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 남구 용소로14번길 20(대연동 화랑빌딩)에 사업자/인허가 상호 '누아르윅'(경양식)으로 등록된 사실은 확인되나, 실제 온라인 방문 후기, 블로그 리뷰, 세부 메뉴 및 영업 정보는 존재하지 않거나 비공개/미영업 상태로 파악됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "누아르윅의 소재지는 부산광역시 남구 용소로14번길 20 (대연동, 화랑빌딩)입니다. 업종은 음식점으로 등록되어 있습니다.",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai",
+    "https://disco.re",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

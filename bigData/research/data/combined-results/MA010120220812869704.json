@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220812869704",
+  "name": "365일",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50253,
+  "researchedAt": "2026-09-22T11:38:52.522Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산광역시 수영구 황령대로481번길 74)에 경양식 업종의 '365일' 음식점이 존재하지 않으며 주류판매점 '365일.확고한취향'만 등록되어 있음",
+  "notes": "부산광역시 수영구 황령대로481번길 74 주소지를 검색한 결과, 경양식 음식점 '365일' 관련 정보(메뉴, 후기, 영업 정보 등)는 존재하지 않으며 주류판매점 상호('365일.확고한취향')만 확인되어 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}
