@@ -48,9 +48,18 @@ import com.gabolle.backend.preference.domain.TasteDimension;
  * 귀속은 <b>누적</b>이어야 한다. 어제 누른 좋아요가 오늘 구간에 없다고 성분이 사라지면 벡터가
  * 날마다 깜빡인다.
  *
- * <p>대신 실질적인 창은 <b>이벤트 보관 기간</b>이다 — {@code PrivacyCleanupService} 가 발행이
- * 끝난 이벤트를 {@code eventRetentionDays}(기본 90일) 뒤에 지우므로, 그때 그 신호가 벡터에서도
- * 빠진다. 감쇠를 따로 안 넣는 것은 그 때문이고, 이 결합을 모르면 「왜 옛날 취향이 사라지지」가 된다.
+ * <h2>🔴 지금 창은 «없다» — 90일이 아니다 (2026-09-22 정정)</h2>
+ *
+ * 여기 「실질적인 창은 이벤트 보관 기간(90일)」이라고 적혀 있었다. <b>거짓이었다.</b>
+ * {@code PrivacyCleanupService} 는 {@code publishedAt IS NOT NULL} 인 이벤트만 지우는데,
+ * {@code OutboxRelayService.relayOnce()} 를 부르는 곳이 운영 코드에 <b>한 군데도 없었다</b> —
+ * 그래서 {@code published_at} 이 늘 {@code NULL} 이었고 <b>아무것도 지워진 적이 없다</b>
+ * (S15P21E201-561 이 스케줄러를 만들었지만 기본값은 꺼짐이다).
+ *
+ * <p>즉 지금 이 귀속은 <b>사용자의 전 이력</b>을 본다. 3개월 전 하트와 어제 하트가 같은 무게다.
+ * 릴레이를 켜는 날 비로소 90일 창이 생긴다 — 그때 취향이 서서히 옅어지기 시작하므로,
+ * <b>켜는 것과 「왜 옛날 취향이 사라지지」는 같은 사건이다.</b> 감쇠를 따로 안 넣은 것은
+ * 그 결합을 먼저 정해야 하기 때문이다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -89,9 +98,32 @@ public class BehaviorTasteFolder {
 			"place_dislike", -1.0,
 			"itinerary_remove", -0.5);
 
-	/** payload 에 장소가 <b>하나</b> 실리는 이벤트 — {@code placeId}. */
-	private static final List<String> SINGLE_PLACE_EVENTS =
-			List.of("place_like", "place_visit", "place_view", "place_dislike");
+	/**
+	 * payload 에 장소가 하나 실리고, <b>같은 장소를 두 번 세면 안 되는</b> 이벤트.
+	 *
+	 * <h2>🔴 하트 한 번이 이벤트 두 건이다</h2>
+	 *
+	 * 앱이 하트를 켜면 <b>두 경로가 각자 적는다</b> — 저장 API 가 서버에서
+	 * ({@code SavedPlaceService.recordLike}), 앱이 분석 이벤트로 한 번 더. {@code eventId} 가
+	 * 달라 Outbox 멱등도 안 걸린다. 그래서 한 번 누른 하트가 「두 번 관측」이 되어
+	 * {@link #MIN_SUPPORT} 가드가 무력화된다 (S15P21E201-1485).
+	 *
+	 * <p>그런데 이 {@code DISTINCT} 는 그 중복을 덮는 반창고가 <b>아니다.</b> 하트는 켜짐/꺼짐
+	 * 이라 애초에 「두 번 켠 상태」가 없다 — {@code SavedPlaceService} 주석이 같은 말을 한다.
+	 * 같은 장소를 두 번 좋아할 수는 없으므로 한 번으로 세는 것이 <b>옳은 의미</b>이고,
+	 * 앱 쪽 중복을 걷어내도 이 조건은 그대로 있어야 한다 — 옛 앱 판이 한참 계속 보낸다.
+	 *
+	 * <p>{@code place_dislike} 도 같다. 의견은 상태이지 반복하는 행동이 아니다.
+	 */
+	private static final List<String> ONCE_PER_PLACE_EVENTS = List.of("place_like", "place_dislike");
+
+	/**
+	 * payload 에 장소가 하나 실리고, <b>반복이 뜻을 가지는</b> 이벤트.
+	 *
+	 * <p>같은 장소를 두 번 본 것은 한 번 본 것과 다르고, 두 번 간 것은 한 번 간 것과 다르다.
+	 * 여기에 {@code DISTINCT} 를 걸면 그 차이가 사라진다.
+	 */
+	private static final List<String> REPEATABLE_PLACE_EVENTS = List.of("place_view", "place_visit");
 
 	/** payload 에 장소가 <b>여럿</b> 실리는 이벤트 — {@code place_ids} 배열. */
 	private static final List<String> MANY_PLACE_EVENTS = List.of("itinerary_remove");
@@ -124,8 +156,19 @@ public class BehaviorTasteFolder {
 	 */
 	private static final String ATTRIBUTION_SQL = """
 			WITH signal AS (
-			    SELECT e.event_type                          AS event_type,
+			    -- 하트·싫어요 — 같은 장소는 한 번만. 이유는 ONCE_PER_PLACE_EVENTS 에 있다.
+			    SELECT DISTINCT
+			           e.event_type                          AS event_type,
 			           CAST(e.payload ->> 'placeId' AS uuid) AS place_id
+			      FROM event_outbox e
+			     WHERE e.user_id = ?
+			       AND e.received_at <= ?
+			       AND e.event_type = ANY (string_to_array(?, ','))
+			       AND e.payload ->> 'placeId' ~ ?
+			    UNION ALL
+			    -- 보기·방문 — 반복이 뜻을 가지므로 그대로 센다.
+			    SELECT e.event_type,
+			           CAST(e.payload ->> 'placeId' AS uuid)
 			      FROM event_outbox e
 			     WHERE e.user_id = ?
 			       AND e.received_at <= ?
@@ -195,7 +238,8 @@ public class BehaviorTasteFolder {
 			}
 			running.computeIfAbsent(new Key(dimension, code), (k) -> new Running())
 					.add(contribution * observations, observations);
-		}, userId, asOf, String.join(",", SINGLE_PLACE_EVENTS), UUID_SHAPE,
+		}, userId, asOf, String.join(",", ONCE_PER_PLACE_EVENTS), UUID_SHAPE,
+				userId, asOf, String.join(",", REPEATABLE_PLACE_EVENTS), UUID_SHAPE,
 				userId, asOf, String.join(",", MANY_PLACE_EVENTS), UUID_SHAPE);
 
 		List<Attribution> result = new ArrayList<>();

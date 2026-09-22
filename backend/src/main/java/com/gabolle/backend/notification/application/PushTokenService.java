@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.notification.infra.PushTokenJpaEntity;
@@ -92,8 +93,12 @@ public class PushTokenService {
 	 * 이 사람들에게 알림을 보낼 기기 목록 — S15P21E201-1391 (2/2).
 	 *
 	 * <p>알림을 켠 사람이 하나도 없으면 빈 목록이다. 흔한 일이고 고장이 아니다.
+	 *
+	 * <p>{@code REQUIRES_NEW} 인 이유는 {@link #forget} 과 같다 — {@code AFTER_COMMIT} 에서
+	 * 불린다. 읽기라 잘못돼도 값이 사라지지는 않지만, 끝난 트랜잭션에 얹혀 읽는 것은
+	 * 「돌긴 도는데 왜 되는지 아무도 설명 못 하는」 자리가 된다. 둘을 같은 모양으로 둔다.
 	 */
-	@Transactional(readOnly = true)
+	@Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
 	public List<String> tokensOf(Collection<String> userIds) {
 		if (userIds == null || userIds.isEmpty()) {
 			return List.of();
@@ -113,8 +118,19 @@ public class PushTokenService {
 	 * 사용자가 아니라 Expo 의 {@code DeviceNotRegistered} 대답이기 때문이다 — 앱을 지운 기기에
 	 * 주인이 누구였는지는 상관이 없다. 그래서 <b>부르는 쪽이 그 대답으로 온 토큰만</b> 넣어야 한다.
 	 * 다른 실패(예: 잠깐 몰려서 거절)로 부르면 멀쩡한 사람이 알림을 영영 못 받는다.
+	 *
+	 * <p>🔴 <b>{@code REQUIRES_NEW} 여야 한다 — S15P21E201-1484.</b> 이것을 부르는 곳은
+	 * {@link TripPushNotifier} 의 {@code AFTER_COMMIT} 리스너다. 거기서는 바깥 트랜잭션이
+	 * <b>이미 커밋을 끝냈지만 아직 정리되지 않은 상태</b>로 매달려 있어서, 기본 전파
+	 * ({@code REQUIRED} — 「도는 것이 있으면 합류한다」)로 들어가면 그 끝난 트랜잭션에
+	 * 합류한다. DELETE 는 실행되고 예외도 안 나는데 <b>다시 커밋될 일이 없어서 행이 그대로
+	 * 남는다.</b> 조용히 아무 일도 안 일어나므로 스스로는 드러나지 않는다 — 죽은 기기로
+	 * 헛발송이 영영 계속된다.
+	 *
+	 * <p>이 저장소가 이미 아는 함정이다. {@code LoginAttemptGuard} 와
+	 * {@code PlaceFacetViewWriter} 가 정확히 같은 이유로 같은 전파를 쓴다.
 	 */
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void forget(Collection<String> tokens) {
 		if (tokens == null || tokens.isEmpty()) {
 			return;
