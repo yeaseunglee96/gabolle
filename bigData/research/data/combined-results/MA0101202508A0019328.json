@@ -1,0 +1,88 @@
+{
+  "id": "MA0101202508A0019328",
+  "name": "웅장상회광안리점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 78602,
+  "researchedAt": "2026-09-22T10:43:05.749Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 관광객, 혼밥객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "클래식 치즈버거 세트",
+      "바베큐버거",
+      "스파이시 치즈 버거"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "광안해변점 전용 영업시간 미기재 (해운대 본점 기준 매일 11:00 ~ 03:00 운영 언급만 확인됨)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 인근 바다 전망 좌석 및 부산 해운대/광안리 대표 수제버거 맛집으로 방문객/관광객에게 주로 소비됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안해변로 145에 위치한 수제버거(경양식/양식) 전문점으로 육즙 가득한 패티와 오션뷰 좌석을 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "클래식 치즈버거 세트 (기본)",
+    "priceWon": 14900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "웅장상회 광안해변점은 부산광역시 수영구 광안해변로 145, 4동 1층 103호에 위치한 수제버거 맛집으로 클래식 치즈버거, 바베큐버거, 스파이시 치즈 버거 등 육즙이 살아있는 수제버거를 판매하며, 바다를 바라볼 수 있는 좌석이 마련되어 있습니다. 포장 및 배달이 가능하며 키오스크를 통한 주문을 지원합니다.",
+      "url": "https://www.siksinhot.com/P/1979450"
+    },
+    {
+      "excerpt": "[신메뉴] 띺 수제버거 세트 (기본) 13,900원, 클래식 치즈버거 세트 (기본) 14,900원, 클래식 치즈버거 세트 (더블 패티) 17,900원, 클래식 치즈버거 세트 (트리플 패티) 20,900원",
+      "url": "https://www.siksinhot.com/P/1979450"
+    },
+    {
+      "excerpt": "웅장상회는 부산 해운대와 광안리 등에서 인기를 얻고 있는 수제버거 전문점입니다. 2025년에는 '한국의 소비자대상' 수제버거 부문 대상을 수상하기도 했습니다.",
+      "url": "https://www.donga.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1979450",
+    "https://www.donga.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "육즙 가득한 패티와 바베큐/치즈버거 등 수제버거 본연의 뛰어난 풍미",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해변 바다를 감상하며 수제버거를 즐길 수 있는 오션뷰 매장 환경",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "한국의 소비자대상 수제버거 부문 수상 및 브랜드 인지도",
+      "sources": [
+        1
+      ],
+      "type": "투표·독자 선정"
+    }
+  ]
+}

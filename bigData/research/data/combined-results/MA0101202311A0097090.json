@@ -1,0 +1,46 @@
+{
+  "id": "MA0101202311A0097090",
+  "name": "광안갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 51508,
+  "researchedAt": "2026-09-22T10:44:08.332Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": ""
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 주소지(광안해변로255번길 20-5)에는 현재 고기 다이닝 '소랑' 등이 입점해 있으며 '광안갈비'에 대한 방문기, 메뉴, 영업 정보 등 실질적인 음식점 정보를 찾을 수 없음 (폐업 또는 미영업)",
+  "notes": "해당 주소지에는 '소랑'(2층), '그린파치'(1층)가 확인되며 '광안갈비' 관련 실영업 식당 상세 정보(메뉴, 가격, 영업시간, 리뷰 등)는 웹상에서 확인되지 않아 found: false 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

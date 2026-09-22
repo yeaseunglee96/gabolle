@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220807655470",
+  "name": "머스트루",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49452,
+  "researchedAt": "2026-09-22T10:43:57.506Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "테이스팅 코스 특성상 사전 예약 필수제로 운영되어 현장 대기보다는 예약 방문이 중심임"
+  },
+  "descriptors": {
+    "audience": "미식가 및 데이트/기념일 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "런치 테이스팅 코스",
+      "디너 테이스팅 코스"
+    ],
+    "yearsClaimed": 5
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수·금·토: 12:00~15:00, 18:00~21:30 / 목: 12:00~15:30, 18:00~21:30 / 일: 10:00~15:00, 18:00~21:30 (월·화 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 토박이 정재용 셰프의 창의적인 로컬 퀴진으로 현지 미식가와 부산을 찾는 미식 관광객 모두에게 주목받고 미쉐린 가이드 부산에 선정됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 해운대 달맞이길 인근(좌동순환로433번길 29)에 위치한 정재용 셰프의 유러피안 베이스 컨템포러리 다이닝으로, 런치 및 디너 코스 위주로 운영됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "런치 테이스팅 코스 / 디너 테이스팅 코스",
+    "priceWon": 70000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 토박이 정재용 셰프가 운영하는 공간으로, 유러피안 베이스에 한국적인 재료를 활용한 창의적인 요리를 선보입니다. 바 테이블과 일반 테이블로 구성된 아늑하고 프라이빗한 분위기이며, 바 좌석에서는 셰프의 조리 과정을 직접 볼 수 있습니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "부산 토박이 셰프가 운영하는 유러피안 기반의 모던 다이닝 레스토랑입니다. 한국적인 재료를 활용한 창의적인 코스 요리를 선보이며, 프라이빗하고 아늑한 분위기에서 식사를 즐길 수 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한국 식재료를 창의적으로 재해석한 유러피안 기반 파인다이닝 코스 요리의 뛰어난 완성도와 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산 선정 및 프라이빗한 바 테이블에서 셰프의 조리를 즐길 수 있는 미식 경험",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

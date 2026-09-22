@@ -1,0 +1,74 @@
+{
+  "id": "MA0101202505A0019178",
+  "name": "이안IAan",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65184,
+  "researchedAt": "2026-09-22T10:46:08.509Z",
+  "crowding": {
+    "found": true,
+    "note": "예약제로 운영되어 웨이팅 줄을 서기보다는 캐치테이블 등을 통한 사전 예약 필수"
+  },
+  "descriptors": {
+    "audience": "미식가 및 데이트/기념일 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "제철 식재료와 발효장을 접목한 코리안 컨템퍼러리 코스 요리"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~일 12:30~22:00 (월, 화 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "미쉐린 가이드 선정 이후 전국의 미식가 및 관광객, 로컬 파인다이닝 애호가들이 두루 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "해운대 달맞이길에 위치한 '이안(IAan)'은 2026 미쉐린 가이드 부산에서 '오프닝 오브 더 이어'를 수상한 코리안 컨템퍼러리 파인다이닝 레스토랑입니다. 런치 및 디너 단일 테이스팅 코스(예약제)로 운영됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "런치 코스 약 75,000원 / 디너 코스 약 120,000원",
+    "priceWon": 75000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미쉐린 가이드 서울 & 부산 2026 에디션에서 신규 선정 레스토랑으로 소개되었으며, 해당 에디션에서 처음 신설된 '오프닝 오브 더 이어(Opening of the Year Award)'를 수상했다. '일관성'을 핵심 가치로 삼으며, 요리와 공간, 서비스가 하나의 정체성으로 유기적으로 연결된 다이닝 경험을 제공한다.",
+      "url": "https://guide.michelin.com"
+    },
+    {
+      "excerpt": "프렌치 테크닉을 기반으로 한국의 식재료와 발효 기법을 조화롭게 풀어내는 코리안 컨템퍼러리 파인다이닝 레스토랑. 젊은 셰프가 운영하는 곳으로 소스의 밸런스가 뛰어나고 재료 본연의 맛을 잘 살린다.",
+      "url": "https://visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com",
+    "https://visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "프렌치 기법과 한국 발효 장 및 제철 식재료가 어우러진 수준 높은 컨템퍼러리 코스 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산 '오프닝 오브 더 이어' 수상에 따른 높은 주목도와 상징성",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

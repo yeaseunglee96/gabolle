@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220813397157",
+  "name": "타이드솔루션스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60398,
+  "researchedAt": "2026-09-22T10:43:00.916Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "일반 음식점이 아닌 경영컨설팅 및 카페/외식 브랜드 운영 법인(주식회사 타이드솔루션스)으로 확인됨",
+  "notes": "'타이드솔루션스'는 해당 주소(부산광역시 해운대구 달맞이길62번길 53 보림마리나센타 2층)에 소재한 법인 기업체((주)타이드솔루션스)이며, 일반 손님이 방문하는 경양식 식당/음식점이 아닙니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주식회사 타이드솔루션스 | 대표 강민우 | 부산광역시 해운대구 달맞이길62번길 53, 2층 | 사업자등록번호 : 258-81-01053 | 통신판매업신고번호 : 2020-부산해운대-0988",
+      "url": "https://hitide.co.kr"
+    },
+    {
+      "excerpt": "(주)타이드솔루션스 기업개요: 업종 경영 컨설팅업, 설립일 2018년 2월 27일, 주요사업 타이드커피로스터스, 로쿠미, 타이드홈 운영 등.",
+      "url": "https://saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://hitide.co.kr",
+    "https://saramin.co.kr"
+  ],
+  "whyPeopleGo": []
+}

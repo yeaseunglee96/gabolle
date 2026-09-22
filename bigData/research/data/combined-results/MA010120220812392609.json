@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220812392609",
+  "name": "광안다이닝",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 86659,
+  "researchedAt": "2026-09-22T10:44:43.693Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "공간이 크지 않아 사전 예약 후 방문이 권장되는 매장임"
+  },
+  "descriptors": {
+    "audience": "연인 및 특별한 기념일 모임",
+    "generations": null,
+    "parking": null,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "와인 다이닝 코스",
+      "와인 페어링 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "22:00 영업 종료"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안해변로 299(민락씨랜드 2층)에 위치한 한우 오마카세 및 와인 페어링 다이닝 매장으로 확인되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "와인 다이닝 코스 120,000원 / 와인 (3 Glass) 페어링 코스 180,000원 / 와인 (4 Glass) 페어링 코스 190,000원",
+    "priceWon": 120000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 299(민락동, 민락씨랜드활어센타)에 위치한 '광안다이닝'. 한우 오마카세와 와인 페어링을 전문으로 하는 곳으로, 유명 셰프와 소믈리에가 상주하고 있습니다. 부산의 프리미엄 와인 아울렛과 프라이빗 한우 오마카세를 한곳에서 즐길 수 있는 매장으로 알려져 있습니다. 와인 다이닝 코스: 120,000원, 와인 (3 Glass) 페어링 코스: 180,000원, 와인 (4 Glass) 페어링 코스: 190,000원. 주류 주문이 필수인 곳이며 공간이 크지 않아 사전 예약 후 방문이 권장됩니다. 22:00 영업 종료.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "유명 셰프와 소믈리에가 선보이는 프라이빗 한우 오마카세와 와인 페어링 코스를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

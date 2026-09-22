@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202305A0165353",
+  "name": "꼬띠",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 83646,
+  "researchedAt": "2026-09-22T10:43:39.967Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 와인/브런치 모임객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "라구 파스타",
+      "오픈 샌드위치",
+      "모닝세트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 10:00 - 21:00 (Last Order 19:50, 모닝세트 10:00 ~ 12:00) / 일요일 휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 좌동순환로 498 2층에 위치한 브런치 & 와인 바(경양식/양식) 꼬띠(KOTI)로, 감각적인 인테리어와 와인 콜키지(1병 프리 등), 라구 파스타 및 브런치 메뉴 등을 즐길 수 있는 공간입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 좌동순환로 498, 2층 / 깔끔하고 예쁜 살구색 톤의 인테리어 / 콜키지(콜프): 와인 1병은 가능, 이후부터는 병당 2만 원 / 모닝세트 운영 시간: 10:00 ~ 12:00",
+      "url": "https://mapjjal.tistory.com"
+    },
+    {
+      "excerpt": "위치: 부산광역시 해운대구 좌동순환로 498, 2층 / 영업시간: 월~토 10:00 - 21:00 (Last Order 19:50) / 일요일 휴무 / 와인 콜키지 서비스 제공, 반려동물 및 키즈 동반 가능",
+      "url": "https://catchtable.net"
+    }
+  ],
+  "sources": [
+    "https://mapjjal.tistory.com",
+    "https://catchtable.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감각적이고 깔끔한 살구색 톤 인테리어와 와인 콜키지(1병 프리 등)가 가능한 브런치 바 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "라구 파스타, 오픈 샌드위치, 모닝세트 등 와인과 곁들이기 좋은 브런치 양식 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
