@@ -1,6 +1,7 @@
 package com.gabolle.backend.story;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,6 +11,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,6 +35,8 @@ import tools.jackson.databind.ObjectMapper;
 
 import com.gabolle.backend.recommendation.support.PostgresAvailableCondition;
 import com.gabolle.backend.recommendation.support.TestDatabase;
+import com.gabolle.backend.story.application.FeedCursor;
+import com.gabolle.backend.story.application.StoryFeedService;
 import com.gabolle.backend.story.presentation.StoryController;
 import com.gabolle.backend.story.presentation.StoryExceptionHandler;
 import com.gabolle.testslice.StorySliceApplication;
@@ -84,6 +88,12 @@ class StoryPopularFeedIntegrationTest {
 	private UUID newerZero;
 	private UUID olderZero;
 
+	/**
+	 * 좋아요 셋을 받았지만 «사흘 전»에 받았다. 창(최근 24시간) 밖이라 인기순에서는 0 으로 센다 —
+	 * 창이 안 걸리면 이 글이 맨 위에 선다.
+	 */
+	private UUID staleLikes;
+
 	@BeforeEach
 	void setUp() {
 		this.mockMvc = MockMvcBuilders.standaloneSetup(this.storyController)
@@ -96,10 +106,17 @@ class StoryPopularFeedIntegrationTest {
 		this.oneLike = story("좋아요 하나", this.now.minus(Duration.ofHours(3)));
 		this.olderZero = story("좋아요 없음 - 예전", this.now.minus(Duration.ofHours(2)));
 		this.newerZero = story("좋아요 없음 - 최근", this.now.minus(Duration.ofHours(1)));
+		this.staleLikes = story("옛 좋아요 셋", this.now.minus(Duration.ofHours(5)));
 
 		like(this.twoLikes, StoryFixture.insertUser(this.jdbc, "손님1"));
 		like(this.twoLikes, StoryFixture.insertUser(this.jdbc, "손님2"));
 		like(this.oneLike, StoryFixture.insertUser(this.jdbc, "손님3"));
+
+		// 창 밖. 수로만 보면 twoLikes 보다 많지만 인기순에서는 한 건도 안 세어져야 한다.
+		Instant threeDaysAgo = this.now.minus(Duration.ofDays(3));
+		like(this.staleLikes, StoryFixture.insertUser(this.jdbc, "손님4"), threeDaysAgo);
+		like(this.staleLikes, StoryFixture.insertUser(this.jdbc, "손님5"), threeDaysAgo);
+		like(this.staleLikes, StoryFixture.insertUser(this.jdbc, "손님6"), threeDaysAgo);
 	}
 
 	@Test
@@ -149,6 +166,37 @@ class StoryPopularFeedIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 24시간 밖의 좋아요는 안 센다 — 어제의 인기가 오늘의 순위를 붙잡으면 「실시간」이 아니다")
+	void ignoresLikesOlderThanTheWindow() throws Exception {
+		List<String> order = walkMine("POPULAR");
+
+		assertThat(order)
+				.as("사흘 전에 좋아요 셋을 받은 글이 한 시간 전 좋아요 하나를 받은 글보다 위면 창이 안 걸린 것이다")
+				.containsSubsequence(this.twoLikes.toString(), this.oneLike.toString(), this.staleLikes.toString());
+		assertThat(order)
+				.as("창 밖으로 밀린 글은 0 점이라 다른 0 점들과 함께 공개 시각 순으로 내려간다")
+				.containsSubsequence(this.newerZero.toString(), this.olderZero.toString(),
+						this.staleLikes.toString());
+	}
+
+	@Test
+	@DisplayName("🔴 창 기준 시각은 첫 쪽에서 한 번 정해져 쪽을 넘겨도 그대로다 — 쪽마다 다시 잡으면 경계의 글이 겹친다")
+	void theWindowIsFixedOnTheFirstPageAndTravelsWithTheCursor() throws Exception {
+		String firstCursor = feed("POPULAR", null, 1).get("nextCursor").asText();
+		Instant window = FeedCursor.decode(firstCursor).windowStart();
+
+		assertThat(window).as("인기순 커서에 창 기준 시각이 실려야 한다").isNotNull();
+		assertThat(window).isCloseTo(Instant.now().minus(StoryFeedService.POPULAR_WINDOW),
+				within(5, ChronoUnit.MINUTES));
+
+		String secondCursor = feed("POPULAR", firstCursor, 1).get("nextCursor").asText();
+
+		assertThat(FeedCursor.decode(secondCursor).windowStart())
+				.as("2쪽이 창을 새로 잡으면 창이 밀려 경계의 글이 겹치거나 건너뛰어진다")
+				.isEqualTo(window);
+	}
+
+	@Test
 	@DisplayName("최신순 커서를 인기순에 보내면 400 이다 — 조용히 첫 쪽으로 되돌리지 않는다")
 	void rejectsCursorFromTheOtherSort() throws Exception {
 		JsonNode recentPage = feed(null, null, 1);
@@ -164,16 +212,24 @@ class StoryPopularFeedIntegrationTest {
 	}
 
 	private void like(UUID storyId, UUID userId) {
-		OffsetDateTime at = OffsetDateTime.now(ZoneOffset.UTC);
-		this.jdbc.update("INSERT INTO story_reaction (story_id, user_id, reaction, created_at, updated_at,"
-				+ " reacted_at, like_recorded, dislike_recorded) VALUES (?, ?, 'LIKE', ?, ?, ?, true, false)",
-				storyId, userId, at, at, at);
+		like(storyId, userId, Instant.now());
 	}
 
-	/** 이 테스트가 만든 기록 넷. */
+	/**
+	 * @param at 좋아요를 «받은» 시각. 인기순이 창으로 자르는 열이 {@code created_at} 이라,
+	 *     창 밖의 좋아요를 만들려면 이 값을 과거로 줘야 한다
+	 */
+	private void like(UUID storyId, UUID userId, Instant at) {
+		OffsetDateTime when = at.atOffset(ZoneOffset.UTC);
+		this.jdbc.update("INSERT INTO story_reaction (story_id, user_id, reaction, created_at, updated_at,"
+				+ " reacted_at, like_recorded, dislike_recorded) VALUES (?, ?, 'LIKE', ?, ?, ?, true, false)",
+				storyId, userId, when, when, when);
+	}
+
+	/** 이 테스트가 만든 기록 다섯. */
 	private List<String> mine() {
 		return List.of(this.twoLikes.toString(), this.oneLike.toString(),
-				this.newerZero.toString(), this.olderZero.toString());
+				this.newerZero.toString(), this.olderZero.toString(), this.staleLikes.toString());
 	}
 
 	/**
