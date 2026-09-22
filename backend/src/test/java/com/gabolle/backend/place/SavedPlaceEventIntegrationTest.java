@@ -101,6 +101,45 @@ class SavedPlaceEventIntegrationTest {
 		assertThat(events).as("두 번째 누름이 신호를 하나 더 만들면 손가락 빠른 사람의 취향이 세진다").isEqualTo(1);
 	}
 
+	/**
+	 * 🔴 이 자리가 비어 있었다 (S15P21E201-1506). 하트를 꺼도 아무 이벤트가 안 남아서, 끈
+	 * 하트가 90일이 지나 이벤트 행이 지워질 때까지 취향에 그대로 남았다.
+	 */
+	@Test
+	@DisplayName("🔴 하트를 끄면 place_like_removed 가 남는다 — 안 남기면 끈 하트가 취향에 계속 있다")
+	void turningTheHeartOffWritesPlaceLikeRemoved() {
+		this.savedPlaces.save(this.userId, this.placeId);
+		this.savedPlaces.remove(this.userId, this.placeId);
+
+		List<Map<String, Object>> rows = this.jdbc.queryForList(
+				"SELECT aggregate_type, aggregate_id, producer, payload::text AS payload "
+						+ "FROM event_outbox WHERE event_type = ? AND user_id = ?",
+				"place_like_removed", this.userId);
+
+		assertThat(rows).as("껐는데 이벤트가 없으면 취향이 그 하트를 영영 들고 있다").hasSize(1);
+		assertThat(rows.get(0).get("aggregate_type")).isEqualTo("user");
+		assertThat(rows.get(0).get("aggregate_id")).hasToString(this.userId.toString());
+		assertThat(rows.get(0).get("producer")).hasToString("SERVER");
+		assertThat((String) rows.get(0).get("payload")).contains(this.placeId.toString());
+	}
+
+	/**
+	 * 🔴 끄기는 멱등이라 안 켜져 있던 것을 꺼도 성공이다. 그때까지 신호가 되면 두 번 누르기와
+	 * 네트워크 재시도가 그대로 취향으로 적힌다 — 하트 켤 때 {@code insertIfAbsent} 의 반환값을
+	 * 보는 것과 같은 이유로, 끌 때는 <b>지워진 행 수</b>를 본다.
+	 */
+	@Test
+	@DisplayName("🔴 안 켜져 있던 것을 꺼도 이벤트는 안 남는다 — 지운 행이 없으면 끈 것이 아니다")
+	void removingSomethingNeverLikedWritesNoEvent() {
+		this.savedPlaces.remove(this.userId, this.placeId);
+
+		Integer events = this.jdbc.queryForObject(
+				"SELECT count(*) FROM event_outbox WHERE event_type = ? AND user_id = ?",
+				Integer.class, "place_like_removed", this.userId);
+
+		assertThat(events).as("끄지 않은 것을 껐다고 적으면 재시도가 취향이 된다").isZero();
+	}
+
 	@Test
 	@DisplayName("🔴 개인화를 끈 사람은 이벤트가 안 남지만 하트는 저장된다")
 	void optedOutUserSavesWithoutEvent() {
