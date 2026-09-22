@@ -83,6 +83,18 @@ export default function Place() {
     return () => { active = false; controller.abort(); };
   }, [id, demoPlace, retryCount]);
 
+  // 🔴 「이 장소를 봤다」 — place_view (S15P21E201-638). 서버 취향 귀속의 마지막 조각(1482, 기여값 +0.1).
+  //    화면당 «한 번만» 보낸다 — 재렌더·뒤로가기·재시도로 두 번 나가면 「두 번 본 것」이 되어 가중치가 부푼다.
+  //    «로딩이 끝난 뒤에만» — not-found 인 장소를 봤다고 적지 않는다. demoPlace 는 place_like 와 같은 이유로 뺀다.
+  //    requestId 는 이번 범위가 아니다(랭킹 평가용 — 취향 귀속에는 필요 없다, 별도 티켓).
+  const viewed = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!id || demoPlace || remote.status !== 'loaded') return;
+    if (viewed.current.has(id)) return;
+    viewed.current.add(id);
+    sendAppEvent({ type: 'place_view', accessToken, payload: { placeId: id, surface: 'place_detail' } });
+  }, [id, demoPlace, remote.status, accessToken]);
+
   // — 계정에 저장된 것과 기기 것을 합쳐서 본다.
   useEffect(() => {
     if (!id || !resolved) return;
@@ -103,7 +115,7 @@ export default function Place() {
       setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
     }
     // 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
-    if (nextSaved && !demoPlace) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'place_detail' } });
+    if (nextSaved && !demoPlace) sendAppEvent({ type: 'place_like', accessToken, payload: { placeId: id, surface: 'place_detail' } });
   };
 
   const notFound = !demoPlace && remote.status === 'not-found';
