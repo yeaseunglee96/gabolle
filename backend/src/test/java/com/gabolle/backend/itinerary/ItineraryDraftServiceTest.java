@@ -843,4 +843,44 @@ class ItineraryDraftServiceTest {
 	void fewerCandidatesThanThePaceAsksFor() {
 		assertThat(placedCountFor("PACKED", 2)).isEqualTo(2);
 	}
+
+	// ── 필요한 자리 수 (S15P21E201-1450) ──────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 필요한 자리 수는 날 수 × 하루 곳 수다 — 응답 개수(기본 10)로 어림해 3일 여행이 두 자리 모자랐다")
+	void placesNeededCountsEverySeat() {
+		Trip threeDays = Trip.builder()
+				.tripId("itn_trip_3d").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 10)).finishDate(LocalDate.of(2026, 9, 12))
+				.partySize(2).timezone("Asia/Seoul")
+				.createdAt(Instant.now())
+				.build();
+		when(this.tripRepository.findById("itn_trip_3d")).thenReturn(Optional.of(threeDays));
+
+		// 기분을 안 골랐으니 하루 4곳(이 시험이 만든 서비스의 설정값) × 3일.
+		assertThat(this.service.placesNeeded("itn_trip_3d"))
+				.as("추천이 10개만 주면 이 여행은 두 자리를 못 채운다")
+				.isEqualTo(12);
+	}
+
+	@Test
+	@DisplayName("기분이 하루 곳 수를 정하므로 필요한 자리 수도 따라 바뀐다 — 규칙을 한 벌로 둔 값어치")
+	void placesNeededFollowsThePace() {
+		assertThat(placesNeededFor("RELAXED")).as("여유롭게 — 하루 3곳 × 1일").isEqualTo(3);
+		assertThat(placesNeededFor("BALANCED")).as("균형 있게 — 하루 4곳 × 1일").isEqualTo(4);
+		assertThat(placesNeededFor("PACKED")).as("알차게 — 하루 5곳 × 1일").isEqualTo(5);
+	}
+
+	@Test
+	@DisplayName("여행을 못 찾으면 1 이다 — 이 값 때문에 추천이 실패하면 안 된다")
+	void placesNeededFallsBackToOneForAnUnknownTrip() {
+		when(this.tripRepository.findById("itn_trip_none")).thenReturn(Optional.empty());
+
+		assertThat(this.service.placesNeeded("itn_trip_none")).isEqualTo(1);
+	}
+
+	private int placesNeededFor(String pace) {
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(tripWithPace(pace)));
+		return this.service.placesNeeded("itn_trip_1");
+	}
 }

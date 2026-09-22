@@ -149,7 +149,7 @@ public class RecommendationService {
 		OffsetDateTime createdAt = job.getCreatedAt();
 		long startedNanos = System.nanoTime();
 
-		int topK = (command.topK() == null) ? this.properties.defaultTopK() : command.topK();
+		int topK = (command.topK() == null) ? defaultTopKFor(job) : command.topK();
 
 		RecommendationEnginePort engine = this.enginePort.getIfAvailable();
 		if (engine == null) {
@@ -428,6 +428,34 @@ public class RecommendationService {
 				job.getFallbackReason(), job.getSourceMode(), job.getModelVersion(), job.getFeatureVersion(),
 				job.getOntologyVersion(), job.getPolicyVersion(), job.getDatasetVersion(),
 				job.getServiceVersion(), job.getDeploymentEnvironment());
+	}
+
+	/**
+	 * 요청이 개수를 안 줬을 때 몇 개를 낼까 — 설정 기본값과 <b>일정이 필요한 수</b> 중 큰 쪽.
+	 *
+	 * <h2>🔴 왜 설정값 하나로는 안 되나</h2>
+	 *
+	 * {@code topK} 는 이름 그대로 「응답에 담을 개수」인데, 그 목록이 그대로 일정을 채우는 데도
+	 * 쓰인다({@link #buildDraftCommand}). 설정 기본값은 여행이 며칠인지 모르는 상수라
+	 * <b>3일 × 하루 4곳 = 12자리에 후보 10개</b>가 되고, 거기서 밥집 상한에 걸려 몇 곳이 밀리면
+	 * 하루가 2~3곳으로 줄어든다. 실측이 그랬다 — 3일 여행에 7곳 (S15P21E201-1450).
+	 *
+	 * <p>필요한 수를 여기서 계산하지 않고 일정 쪽에 묻는다. 하루 몇 곳인지는 여행의 기분이
+	 * 정하고 그 규칙은 {@code ItineraryDraftService} 에 있다 — 두 벌이 되면 한쪽만 바뀐다.
+	 *
+	 * <p>요청이 {@code topK} 를 <b>준</b> 경우에는 손대지 않는다. 화면이 「다섯 개만」이라고
+	 * 물었으면 그건 화면의 결정이다.
+	 *
+	 * <p>문이 안 붙은 배포에서는 설정 기본값 그대로다. 그 배포는 일정을 만들지 않으므로
+	 * 채울 자리도 없다.
+	 */
+	private int defaultTopKFor(RecommendationJob job) {
+		int configured = this.properties.defaultTopK();
+		ItineraryDraftPort port = this.itineraryDraftPort.getIfAvailable();
+		if (port == null || job.getTripId() == null) {
+			return configured;
+		}
+		return Math.max(configured, port.placesNeeded(job.getTripId().toString()));
 	}
 
 	/**

@@ -32,6 +32,20 @@ public class FakeItineraryDraftPort implements ItineraryDraftPort {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	/**
+	 * 필요한 자리 수. 진짜 구현은 여행의 날 수 × 기분을 보지만 이 대역은 여행을 안 읽는다 —
+	 * 추천 쪽 테스트가 보는 것은 「설정 기본값보다 크면 그쪽을 쓴다」 하나뿐이고, 날 수 계산
+	 * 자체는 {@code ItineraryDraftServiceTest}(일정 슬라이스)가 본다.
+	 *
+	 * <p>1 을 준다 — 설정 기본값보다 작아서 지금까지의 동작을 안 바꾼다. 이 대역이 큰 값을
+	 * 주면 추천 로깅 테스트들이 갑자기 후보를 더 많이 요구하게 되고, 그건 이 대역이 재려던
+	 * 것과 무관한 변화다.
+	 */
+	@Override
+	public int placesNeeded(String tripId) {
+		return 1;
+	}
+
 	@Override
 	public ItineraryDraft assemble(ItineraryDraftCommand command) {
 		// 실제 여행 기간·출발지 계산은 ItineraryDraftServiceTest(itinerary 슬라이스)가 본다.

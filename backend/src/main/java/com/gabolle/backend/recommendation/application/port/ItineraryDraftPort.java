@@ -13,6 +13,22 @@ public interface ItineraryDraftPort {
     /** 새 일정을 처음부터 흩뿌린다. */
     ItineraryDraft assemble(ItineraryDraftCommand command);
 
+    /**
+     * 이 여행의 일정을 다 채우려면 장소가 몇 곳 필요한가 — 날 수 × 하루 항목 수.
+     *
+     * <p>🔴 <b>추천이 이것을 직접 계산하면 안 된다.</b> 하루 몇 곳인지는 여행의 「기분(pace)」이
+     * 정하고 그 규칙은 구현({@code ItineraryDraftService.itemsPerDay})에 있다. 추천 쪽에 같은
+     * 규칙을 한 벌 더 두면 한쪽만 바뀌고, 그 어긋남은 「일정이 왜 짧지」로만 나타난다.
+     *
+     * <p>왜 필요한가: 응답에 담을 개수({@code topK}, 기본 10)를 일정을 채우는 개수로도 쓰고
+     * 있었다. 3일 × 하루 4곳 = 12자리인데 후보가 10개라, 밥집 상한에 걸려 몇 곳이 빠지면
+     * 하루가 2~3곳으로 줄었다 (S15P21E201-1450 — 실측 3일 7곳).
+     *
+     * @return 1 이상. 여행을 못 찾으면 {@code IllegalStateException} 대신 1 을 준다 —
+     *     이 값 때문에 추천이 실패하면 안 되고, 없는 여행은 뒤의 {@code assemble} 이 알린다
+     */
+    int placesNeeded(String tripId);
+
     /** 새 일정과 그 첫 판을 만든다. 바깥 트랜잭션 안. */
     ItineraryHandle persist(ItineraryDraft draft);
 
