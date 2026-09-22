@@ -9,7 +9,18 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
-/** {@link UserTasteWeight} 의 복합 키 — (판, 차원, 코드). */
+/**
+ * {@link UserTasteWeight} 의 복합 키 — (판, 차원, 코드, 근거).
+ *
+ * <p>🔴 <b>근거가 키에 있는 이유</b> (S15P21E201-1499). 예전에는 (판, 차원, 코드) 셋뿐이라
+ * 한 성분에 줄이 하나였고, 설문 몫과 행동 몫이 같은 성분을 가리키면 {@code BLENDED} 한 줄로
+ * 합쳐졌다. 그러면 <b>그 줄에서 행동 몫이 얼마였는지가 사라진다.</b> 배치는 접을 때마다 전
+ * 이력을 다시 계산하므로 상관없었지만, 이벤트 하나만 들고 오는 소비자는 그 상태에서
+ * 「얼마를 더할지」를 계산할 수 없다.
+ *
+ * <p>그래서 <b>나눠서 적고, 합치는 것은 읽는 쪽에서</b> 한다
+ * ({@link TasteWeightComponent#merge(java.util.List)}).
+ */
 @Embeddable
 public class UserTasteWeightId implements Serializable {
 
@@ -29,13 +40,19 @@ public class UserTasteWeightId implements Serializable {
 	@Column(name = "code", nullable = false, length = 50, updatable = false)
 	private String code;
 
+	/** 이 숫자가 어디서 나왔는가. 같은 성분이라도 출처가 다르면 다른 줄이다. */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "evidence", nullable = false, length = 20, updatable = false)
+	private TasteEvidence evidence;
+
 	protected UserTasteWeightId() {
 	}
 
-	public UserTasteWeightId(UUID tasteVectorId, TasteDimension dimension, String code) {
+	public UserTasteWeightId(UUID tasteVectorId, TasteDimension dimension, String code, TasteEvidence evidence) {
 		this.tasteVectorId = tasteVectorId;
 		this.dimension = dimension;
 		this.code = code;
+		this.evidence = evidence;
 	}
 
 	public UUID getTasteVectorId() {
@@ -50,6 +67,10 @@ public class UserTasteWeightId implements Serializable {
 		return this.code;
 	}
 
+	public TasteEvidence getEvidence() {
+		return this.evidence;
+	}
+
 	@Override
 	public boolean equals(Object other) {
 		if (this == other) {
@@ -59,11 +80,11 @@ public class UserTasteWeightId implements Serializable {
 			return false;
 		}
 		return Objects.equals(this.tasteVectorId, that.tasteVectorId) && this.dimension == that.dimension
-				&& Objects.equals(this.code, that.code);
+				&& Objects.equals(this.code, that.code) && this.evidence == that.evidence;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.tasteVectorId, this.dimension, this.code);
+		return Objects.hash(this.tasteVectorId, this.dimension, this.code, this.evidence);
 	}
 }
