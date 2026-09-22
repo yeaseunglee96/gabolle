@@ -49,7 +49,7 @@ export function useSavedPlaces(accessToken: string | null, surface: string): Sav
           ));
         }
       });
-      if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: placeId, surface } });
+      if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { placeId, surface } });
 
       return next;
     });
