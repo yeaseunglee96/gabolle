@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810649667",
+  "name": "수림관",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 53724,
+  "researchedAt": "2026-09-21T22:19:36.007Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 당감동(당감로 일대)에 위치한 중국집 '수림관'에 대한 상호/업종(중국음식점) 등록 기록 외에, 방문 후기, 메뉴 가격, 영업시간, 줄서기 등 상세 정량 정보 및 사람들이 찾는 이유에 관한 웹 문서/리뷰는 존재하지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 당감동에 위치한 '수림관'은 중국 음식점입니다. 업종: 중국식 음식점 (중국집)",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": []
+}

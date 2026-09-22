@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220807022030",
+  "name": "안코우",
+  "cat": "카페",
+  "attempts": 1,
+  "geminiTokens": 33341,
+  "researchedAt": "2026-09-21T22:25:54.098Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "샌드위치",
+      "파니니"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "흰여울문화마을 인근 절영로에 위치하여 관광객 방문 동선에 위치함"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 영도구 절영로 193(영선동4가)에 위치한 카페/브런치 매장으로 샌드위치, 파니니 등 브런치 메뉴를 취급함",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 안코우 (Ankō), 업종: 브런치 카페 (샌드위치 등 판매), 주소: 부산광역시 영도구 절영로 193 (영선동4가), 흰여울문화마을 인근에 위치해 있으며, 샌드위치와 파니니 등 다양한 브런치 메뉴를 제공하는 곳",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "흰여울문화마을 인근에서 샌드위치·파니니 등 브런치를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

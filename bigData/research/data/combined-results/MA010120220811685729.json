@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220811685729",
+  "name": "이치에",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 69298,
+  "researchedAt": "2026-09-21T14:16:08.188Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "1인 셰프 예약제로 운영되며 약 8석 규모의 카운터석으로 구성되어 사전 예약 필수"
+  },
+  "descriptors": {
+    "audience": "연인, 소규모 모임, 기념일 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스시 오마카세"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "예약제 운영 (매주 일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 연제구 연산동 소재의 1인 셰프 카운터 오마카세 전문점(정식 상호: 스시이치에). 전석 예약제 운영.",
+  "price": {
+    "found": true,
+    "priceMenu": "오마카세 코스",
+    "priceWon": 65000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "셰프가 엄선한 신선한 제철 재료로 제공되는 스시 오마카세 전문점입니다. 약 8명 정도 수용 가능한 바 테이블(다찌) 형식으로 운영되며, 셰프의 조리 과정을 직접 보며 식사할 수 있습니다. 정성스러운 서비스와 조용한 분위기로 데이트나 기념일 방문지로 언급되기도 합니다. 1인 셰프 운영 및 정성어린 서비스를 위해 예약제로 운영되므로 방문 전 확인이 필요합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "가격: 오마카세 1인 기준 65,000원(최신 정보 기준). 예약제로 운영되며, 셰프의 당일 코스 구성에 따라 서비스가 제공됩니다. 매주 일요일은 휴무일. 문의: 010-9330-2426",
+      "url": "https://penhoo.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://penhoo.com",
+    "https://app.catchtable.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1인 셰프가 제철 식재료로 선보이는 정성스러운 카운터 스시 오마카세 코스",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "8석 규모의 조용하고 집중도 높은 다찌 좌석에서 즐기는 1인 셰프의 전담 서비스",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220806862622",
+  "name": "일이공과자점",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 53723,
+  "researchedAt": "2026-09-21T22:06:42.039Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "답례품 및 수제간식 포장 주문 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "감태오란다",
+      "오리지날오란다"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 영도구 태종로 58에 위치한 오란다 중심의 수제 디저트 과자점으로, 쌀조청을 활용한 감태오란다 및 답례품 간식 위주로 운영되는 곳입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 대교동1가에 위치한 일이공과자점은 수제 오란다 전문점으로, 대표 메뉴인 감태오란다와 오리지날 오란다로 잘 알려져 있습니다. 기업 간식, 회의 다과, 답례품 등으로도 인기가 많은 곳입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "쌀조청과 유기농 설탕 등을 사용하여 수제로 만드는 오란다가 대표 메뉴이며, 다양한 맛(뿌링클, 돼지바 등)의 이색 오란다를 선보이기도 합니다. 온라인 스마트스토어 등을 통해 전국 택배 주문이 가능하며, 오프라인 매장 또한 부산 영도구에 위치하고 있습니다.",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "쌀조청과 유기농 설탕으로 만든 감태오란다 등 특색 있는 수제 오란다 디저트 맛 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "기업 간식, 회의 다과, 행사 답례품 등으로 선물·주문하기 적합하여 방문·이용함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

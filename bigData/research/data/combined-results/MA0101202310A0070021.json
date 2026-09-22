@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202310A0070021",
+  "name": "고관양식당",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 31242,
+  "researchedAt": "2026-09-21T21:53:43.822Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 동구 고관로 86에 일반음식점(경양식/서양식)으로 사업체 등록되어 있고 장애인 편의시설 정보(무장애부산관광) 등에 등재되어 있으나, 방문 후기나 블로그 리뷰, 상세 메뉴 및 가격 정보는 웹상에 확인되지 않습니다. (인근의 유명 함박스테이크 전문점 '고관함박'과 혼동 주의)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "고관양식당 / 전화번호: 051-462-8484 / 주소: 부산광역시 동구 고관로 86 / 위치: 부산진역 5번 출구에서 344m / 전체 테이블 9개 중 입식 테이블 9개",
+      "url": "https://wheelbusan.or.kr"
+    }
+  ],
+  "sources": [
+    "https://wheelbusan.or.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202406A0417596",
+  "name": "헷츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 33682,
+  "researchedAt": "2026-09-21T14:05:15.984Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "평일에도 식사 시간대에는 웨이팅이 발생할 수 있으며 한정 수량인 상로스카츠는 조기 품절되기도 함"
+  },
+  "descriptors": {
+    "audience": "혼밥객 및 1~2인 소수 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "로스카츠 정식",
+      "히레카츠 정식",
+      "상로스카츠 정식"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:10 ~ 21:00 (브레이크타임 15:30 ~ 17:00, 라스트오더 14:30 / 20:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "요청된 업종은 '일식 회/초밥'으로 표기되어 있었으나, 실제 해당 주소(부산 수영구 수영로575번길 10 광안부백자연애아파트 1층 103호)의 매장 '헷츠(HETZ)'는 프리미엄 숙성 돈카츠(일식 카츠류) 전문점입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "로스카츠/히레카츠 정식 기준 약 13,000원~16,000원대",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "헷츠(HETZ)는 부산광역시 수영구 수영로575번길 10(광안동, 광안부백자연애아파트 1층 103호)에 위치한 프리미엄 돈카츠 전문점입니다. 바(Bar) 형태의 좌석으로 구성된 소규모 매장이며, 고기 원육의 퀄리티와 정교한 레스팅 과정을 통해 육즙을 살린 돈카츠가 특징입니다. 대표 메뉴: YBD 및 제주 흑돼지를 사용한 로스카츠(등심), 히레카츠(안심), 상로스카츠 등이 있습니다.",
+      "url": "https://abalonestarmoon.com"
+    },
+    {
+      "excerpt": "운영시간: 매일 11:10 ~ 21:00 (브레이크 타임: 15:30 ~ 17:00, 라스트 오더: 14:30, 20:00). 상로스카츠 정식: 한정 수량 메뉴로, 팀당 주문 제한이 있을 수 있습니다. 인기가 많아 조기 품절되는 경우가 잦으니 참고하세요. 평일에도 식사 시간대에는 웨이팅이 발생할 수 있는 인기 맛집입니다.",
+      "url": "https://youtubeplace.co.kr"
+    }
+  ],
+  "sources": [
+    "https://abalonestarmoon.com",
+    "https://youtubeplace.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "YBD·제주 흑돼지 원육을 레스팅해 육즙과 부드러운 식감을 극대화한 프리미엄 돈카츠의 뛰어난 완성도",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "한정 수량 상로스카츠 및 인기 메뉴를 맛보기 위해 식사 시간대 웨이팅을 감수하고 찾는 수요",
+      "sources": [
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

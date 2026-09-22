@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220800295482",
+  "name": "오다가다",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 57974,
+  "researchedAt": "2026-09-21T22:09:50.615Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도에 대한 별도 언급 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "주민, 여행객, 1인 식사객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥 세트",
+      "튀김",
+      "우동"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 20:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "산복도로 주택가 주민들을 위한 밥집이자 방문 여행객이 찾는 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동구 망양로 산복도로변에 위치한 가성비 초밥/일식 식당으로 주민과 산복도로 여행객이 주로 방문함",
+  "price": {
+    "found": true,
+    "priceMenu": "만원 한상 차림 (초밥 14p 등)",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "산복도로 카페나 주택가 사이에 위치하여 정겹고 편안한 분위기의 식당입니다. 주민들을 위한 밥집이자, 산복도로를 방문한 여행객이 부담 없이 깔끔하게 한 끼 식사를 해결하기 좋은 곳으로 알려져 있습니다. 초밥 세트 메뉴를 비롯해 튀김, 우동 등을 함께 즐길 수 있어 1인 식사나 가벼운 외식에 적합합니다. 주소: 부산광역시 동구 망양로 589-2 (초량동) 운영 시간: 매일 11:00 ~ 20:00",
+      "url": "https://redtable.global"
+    },
+    {
+      "excerpt": "만원 한상 차림 등으로 알려진 가성비 일식당이며, 산복도로 인근에 위치하고 있습니다. 대표 메뉴: 초밥(14p), 튀김 등",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://redtable.global",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "산복도로 주택가에서 부담 없이 즐길 수 있는 만원 한상 초밥 등 우수한 가성비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "지역 주민 식사 및 산복도로를 찾는 방문객의 편안한 한 끼 식사처",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

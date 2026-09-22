@@ -1,0 +1,50 @@
+{
+  "id": "MA010120220814150399",
+  "name": "대원식품",
+  "cat": "구내식당",
+  "attempts": 1,
+  "geminiTokens": 32674,
+  "researchedAt": "2026-09-21T22:34:11.260Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직원/근로자",
+    "priceBand": "cheap",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사하구 하신번영로 69에 소재한 대원식품은 대한제강 신평공장 내부에서 운영되는 구내식당/급식(뷔페) 업종 업체로, 일반 대중음식점이 아닌 사업장 내부 구내식당이어서 방문 후기나 일반 메뉴판, 영업시간, 대기열 등의 정보가 공개되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대원식품: 부산광역시 사하구 하신번영로 69 (신평동), 대한제강 신평공장 내부에 입점해 있는 구내식당의 상호명으로 확인됩니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대한제강 신평공장 내 입점한 구내식당으로, 공장 근무 직원 및 관계자 식사 공급 목적",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

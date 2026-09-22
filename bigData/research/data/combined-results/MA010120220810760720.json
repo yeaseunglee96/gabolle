@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220810760720",
+  "name": "해도",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 57195,
+  "researchedAt": "2026-09-21T14:21:00.843Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 동래구 온천장로 89 위치에 '해도'라는 일식당 정보가 일치하지 않거나 현재 존재하지 않음 (인근 온천동 212-14의 '해도초밥'과 상호 및 주소 불일치/폐업 가능성)",
+  "notes": "요청된 주소인 '부산광역시 동래구 온천장로 89'에는 '해도'라는 독립 상호의 일식당이 확인되지 않으며(카페 파스쿠찌, 학원 등이 입점), 인근 온천장 지역의 '해도초밥'(금강공원로20번길 3)과 주소가 상이하여 없는 가게로 판단하고 found: false 처리했습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 온천동에 위치한 '해도초밥'의 주소는 부산광역시 동래구 금강공원로20번길 3 (지번 주소: 온천동 212-14)입니다. 문의하신 '온천장로 89'와는 주소가 다르니 방문 시 참고하시기 바랍니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220810515610",
+  "name": "오대양",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 52251,
+  "researchedAt": "2026-09-21T14:12:48.280Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "장어구이"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 서구 자갈치로 14-12(충무동1가)에 등록된 '오대양'(오대양장어구이) 식당입니다. 기본 상가/가맹점 데이터에는 등록되어 있으나, 구체적인 방문 후기, 가격, 영업시간, 줄서기 등 상세 정량 정보는 온라인에 존재하지 않는 작은 점포입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 서구 충무동(자갈치시장 내)에 위치한 오대양장어구이... 전화번호: 051-253-6423, 주소: 부산광역시 서구 자갈치로 14-12 (충무동1가)",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

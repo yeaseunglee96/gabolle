@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220811593864",
+  "name": "대밭집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 83568,
+  "researchedAt": "2026-09-21T22:35:02.832Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "등산객, 지역 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "닭백숙",
+      "오리고기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "금정산을 찾는 등산객들과 지역 주민들이 주로 찾는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 금정구 청룡동 상마마을(범어사 인근)에 위치한 곳으로, 금정산 등산로 들머리/하산 지점에 있어 등산객 및 지역 주민들의 산행 전후 백숙 및 오리고기 식사 장소로 주로 방문함. 상세 영업시간 및 가격표는 웹상 미공개.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대밭집: 상마마을에 위치한 음식점으로, 금정산을 찾는 등산객들이나 지역 주민들이 자주 찾는 곳입니다. 주로 닭백숙, 오리고기 등 전통 음식을 판매하며, 산행 코스의 기점이나 하산 지점으로 언급되기도 합니다.",
+      "url": "https://www.chosun.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 금정구 상마1길 38 (청룡동 519-1), 업종: 한국 음식 (닭구이, 찜, 탕 등 오리 및 닭 요리 전문점)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.chosun.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "금정산(범어사·상마마을) 등산 코스 기점/하산 지점에 위치하여 등산객과 주민들의 식사 장소로 이용됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

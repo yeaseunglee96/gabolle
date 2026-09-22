@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220811594663",
+  "name": "201과자점",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 30388,
+  "researchedAt": "2026-09-21T21:57:29.645Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 매장 혼잡에 대한 명시적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "타르트",
+      "소금빵",
+      "두바이 쫀득 쿠키"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "공개된 정확한 영업시간 확인 불가"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "온천장역 인근 동네 빵집으로 현지 주민들의 간식 및 가성비 베이커리로 주로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 금정구 부곡동 온천장역 인근의 제과점으로 상호 '201과자점'(또는 '201베이커리')으로 운영되며 가성비 빵 및 트렌디 디저트(두바이 초코 소금빵 등)로 소비자들이 방문함.",
+  "price": {
+    "found": true,
+    "priceMenu": "두바이 쫀득 쿠키",
+    "priceWon": 5500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가성비가 좋은 빵집으로 알려져 있으며, 대표 메뉴로는 타르트와 소금빵 등이 있습니다. 온천장역 출구 근처에 위치해 있으며 커피와 함께 다양한 빵 메뉴를 제공합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "두바이 쫀득 쿠키 (두쫀쿠): 개당 5,500원, 두바이 초코 소금빵: 6,800원. 온천장역 4번 출구 인근.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "타르트, 소금빵 등 다양한 제과류를 합리적인 가격에 즐길 수 있는 가성비 베이커리임",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "온천장역 인근 도보 접근성이 좋고 최근 트렌디 디저트 메뉴를 발 빠르게 취급함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

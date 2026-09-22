@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220806931534",
+  "name": "아트스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 42203,
+  "researchedAt": "2026-09-21T22:21:27.730Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기/줄서기 여부에 대한 명시적 언급 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "직장인 및 혼밥 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "아트 초밥",
+      "광어초밥",
+      "오늘의 추천 초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "21:30 영업 종료"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 주민·직장인 혼밥 식사 장소로 주로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산진구 연지동 동평로 233-1 1층에 위치한 초밥 전문점. 전 좌석 다찌석의 아담한 매장 구조로 숙성 활어를 두툼하게 얹은 스시가 대표적임.",
+  "price": {
+    "found": true,
+    "priceMenu": "아트 초밥 (10p)",
+    "priceWon": 17800
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 부산진구 동평로 233-1 1층 (연지동 196-14). 숙성 활어를 사용하여 밥보다 두툼하게 썰어낸 회가 특징이며, 쫄깃한 식감으로 든든한 식사가 가능합니다. 매장 구조: 전 좌석이 다찌석으로 구성된 작은 홀이며, 오마카세 느낌이 나는 조용하고 깔끔한 분위기에서 식사할 수 있습니다. 주요 메뉴: 아트초밥 세트, 광어초밥 세트, 점심특선 등이 있으며, 우동, 모밀, 튀김 등을 곁들여 즐기는 손님이 많습니다. 영업시간: 21:30 영업 종료. 아트 초밥 (10p): 17,800원, 오늘의 추천 초밥 (10p): 19,800원.",
+      "url": "https://www.siksinhot.com/P/1601004"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1601004"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숙성 활어를 두툼하게 썰어 올려 쫄깃한 식감과 푸짐함을 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전 좌석 다찌석 형태의 조용하고 깔끔한 분위기로 혼밥 및 간편 식사에 용이함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

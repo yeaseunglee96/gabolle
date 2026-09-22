@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202406A0174172",
+  "name": "돌체경양식",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59694,
+  "researchedAt": "2026-09-21T14:21:49.291Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 웹 언급 없음"
+  },
+  "descriptors": {
+    "audience": "주민·인근 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "옛날돈가스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 기장군 장안읍 길천길 51-2에 실재하는 경양식 음식점이나, 웹상에는 군청 업소록 및 식신 기본 등록정보 외 상세 방문기나 영업 정보가 매우 적음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "돌체경양식 기장군 장안읍 길천길 51-2 051-727-5001 경양식",
+      "url": "https://www.gijang.go.kr"
+    },
+    {
+      "excerpt": "돌체경양식 / 부산광역시 기장군 장안읍 길천길 51-2 (길천리 188-18) / 대표메뉴: 옛날돈가스",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.gijang.go.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "옛날 스타일의 경양식 돈가스를 판매함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

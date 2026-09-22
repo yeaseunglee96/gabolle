@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220811415744",
+  "name": "장산횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 72995,
+  "researchedAt": "2026-09-21T21:50:25.853Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민, 가족 외식",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 반여동 주택가 골목에 위치한 동네 횟집으로 주로 인근 주민들이 방문하는 곳입니다."
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 반여동 주택가 골목(재반로211번길 19)에 위치한 횟집으로, 상세 영업시간 및 혼잡도 관련 온라인 리뷰가 극히 드문 동네 골목 상권 식당입니다. 모듬회, 우럭, 광어, 밀치 등의 활어회 메뉴를 취급하는 것으로 확인됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 해운대구 재반로211번길 19 (반여동 1291-855), 전화번호: 051-525-2268, 위치 설명: 반여2, 3동 파출소에서 부산은행 방면으로 이동하다가, 부산은행 직전 골목에서 왼쪽으로 꺾어 한 블록 정도 들어오면 위치해 있습니다.",
+      "url": "https://siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주택가 골목에서 편안하게 즐길 수 있는 동네 활어회 전문점",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

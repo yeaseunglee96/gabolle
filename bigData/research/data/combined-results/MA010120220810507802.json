@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220810507802",
+  "name": "태성식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 46084,
+  "researchedAt": "2026-09-21T14:08:52.568Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 웨이팅에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "모임, 가족, 보양식 식사 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "하모회",
+      "하모샤브샤브"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "-"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "-"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 서구 송도해변로 149(암남동)의 정식 인허가 상호는 '태성식당'이며, 실제 영업 간판 및 대중에게는 '태성하모횟집'으로 알려져 있습니다. 여름철 보양식인 하모(갯장어) 회와 샤브샤브를 바다 전망과 함께 제공합니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "송도해수욕장 바로 앞에 위치하여 바다 전망을 즐길 수 있으며, 룸 시설을 갖추고 있습니다. 여름철 보양식으로 유명한 하모회(갯장어회)와 하모 샤브샤브가 주력 메뉴입니다. 하모회는 맛이 좋은 것으로 알려져 있으나, 일반적인 횟집에 비해 가격대가 다소 높다는 후기가 있습니다.",
+      "url": "https://waang.kr"
+    },
+    {
+      "excerpt": "상호명: 태성식당 (태성하모횟집), 주소: 부산광역시 서구 송도해변로 149 (암남동), 업종: 생선회 전문 / 한식",
+      "url": "https://bsseogu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://waang.kr",
+    "https://bsseogu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송도 바다 전망과 함께 여름철 대표 보양식인 하모(갯장어) 회 및 샤브샤브를 즐길 수 있는 전문점이기 때문입니다.",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

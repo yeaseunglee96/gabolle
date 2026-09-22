@@ -1,0 +1,50 @@
+{
+  "id": "MA010120220811621653",
+  "name": "코다하우스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60204,
+  "researchedAt": "2026-09-21T14:15:30.413Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 금정구 금강로 204-1(장전동 629-17) 소재 '코다하우스'는 지자체 일반음식점(서양식 음식점업) 인허가 등록 데이터상 확인되나, 방문 후기나 메뉴, 가격, 영업시간 등 상세 영업 정보는 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "코다하우스 / 부산광역시 금정구 금강로 204-1 (장전동) / 부산광역시 금정구 장전동 629-17 / 일반음식점 / 070-7622-9218",
+      "url": "https://www.geumjeong.go.kr"
+    },
+    {
+      "excerpt": "코다하우스 / 업종: 서양식 음식점업 / 주소: 부산광역시 금정구 금강로 204-1 (장전동 629-17)",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr",
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": []
+}

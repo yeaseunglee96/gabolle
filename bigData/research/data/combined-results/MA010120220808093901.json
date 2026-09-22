@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220808093901",
+  "name": "승승괘법점",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 59984,
+  "researchedAt": "2026-09-21T22:36:08.347Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 회식",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "승승실속세트메뉴",
+      "대패삼겹살"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 사상구 사상로 276-1 소재의 '승승(괘법점)'(일부 식당 DB '승승삼겹 괘법점') 매장입니다. 저렴하고 합리적인 가격의 대패삼겹살 및 실속 세트 중심 가성비 고깃집 브랜드 지점입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업소명: 승승(괘법점) / 소재지: 부산광역시 사상구 사상로 276-1 / 업종: 일반음식점",
+      "url": "https://www.sasang.go.kr"
+    },
+    {
+      "excerpt": "매장명: 승승삼겹 괘법점 / 주소: 부산광역시 사상구 사상로 276-1 / 가성비와 합리적인 가격으로 알려져 있으며, 대표 메뉴로는 승승실속세트메뉴 등이 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "저렴하고 합리적인 가격에 실속 있는 대패삼겹살 및 세트 구성을 즐길 수 있는 가성비 전문점",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

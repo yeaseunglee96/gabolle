@@ -1,0 +1,55 @@
+{
+  "id": "MA010120220809904820",
+  "name": "비건뮤지엄21",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 36453,
+  "researchedAt": "2026-09-21T22:38:09.411Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "비건·채식 선호 고객",
+    "signatureDishes": [
+      "비건 파스타",
+      "피자",
+      "샐러드",
+      "템페 요리"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 20:30 (매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 화명동(용당로20번길 6)에 위치했던 100% 비건 푸드 전문 식당/브런치 카페(달선빵 비건베이커리 연계)로 확인됨. 단, 가격대나 줄서기, 메뉴 총 개수 등의 상세 정보는 온라인상 확인이 제한적임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 북구 용당로20번길 6 (화명동) 1층. 100% 비건 푸드를 판매하는 곳으로, 비건 파스타, 피자, 샐러드 등 다양한 비건 메뉴를 제공하는 브런치 카페 형태의 식당입니다. 콩을 발효한 템페 등을 활용한 건강식 메뉴로 알려져 있습니다. 매일 11:00 ~ 20:30 영업하며, 매주 월요일은 휴무입니다. 이곳은 '달선빵'이라는 비건 베이커리와도 연관되어 운영되기도 했습니다.",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com",
+    "https://www.jobkorea.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "100% 식물성 재료 및 발효 템페 등을 활용한 비건 브런치와 베이커리 메뉴를 즐기기 위해",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

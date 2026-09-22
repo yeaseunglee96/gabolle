@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220810765941",
+  "name": "서울왕돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 48937,
+  "researchedAt": "2026-09-21T21:56:39.468Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심 피크시간에는 대기 줄이 길며 번호표 없이 선착순으로 대기함"
+  },
+  "descriptors": {
+    "audience": "직장인, 학생, 가족 단위 로컬 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "돈까스",
+      "치즈돈까스",
+      "생선까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "홀 식사 11:00 ~ 15:00 (월~금 포장/배달 16:30 ~ 20:00, 매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산교대 인근 주민과 직장인들이 주로 찾는 로컬 경양식 돈까스 맛집"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "소스 부먹/찍먹 선택이 가능하며 테이블에 비치된 특제 매운 소스를 곁들여 먹는 옛날식 경양식 왕돈까스로 유명한 교대역 인근 노포 맛집.",
+  "price": {
+    "found": true,
+    "priceMenu": "돈까스",
+    "priceWon": 10500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "옛날 방식의 경양식 돈까스 전문점으로, 넓게 펴 튀긴 고기에 새콤달콤한 소스를 곁들여 먹는 스타일입니다. 소스 듬뿍 돈까스, 소스 따로 돈까스, 치즈돈까스, 생선까스, 돈까스(대) 곱배기 등이 있습니다. 테이블에 비치된 매운 소스를 추가하여 조절해 먹는 것이 별미로 알려져 있습니다. 홀 식사: 11:00 ~ 15:00, 정기 휴무: 일요일. 전용 주차 공간이 협소하거나 없어 인근 유료 주차장을 이용해야 합니다.",
+      "url": "https://busantaste.com/"
+    },
+    {
+      "excerpt": "부드러운 경양식 스타일의 돈까스로, 남녀노소 불문하고 많은 사랑을 받는 동네 맛집입니다. 점심시간 등에는 대기 줄이 생길 정도로 인기가 많습니다. 영업시간 11:00 ~ 15:00 (매주 일요일 휴무). 별도의 번호표 없이 선착순으로 줄을 서서 대기하는 방식입니다.",
+      "url": "https://www.siksinhot.com/P/382029"
+    }
+  ],
+  "sources": [
+    "https://busantaste.com/",
+    "https://www.siksinhot.com/P/382029"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "달콤새콤한 기본 소스와 테이블에 비치된 특제 매운 소스를 곁들여 먹는 옛날식 경양식 왕돈까스의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부담 없는 가격대에 푸짐한 양의 돈까스와 스프, 밥을 제공하는 뛰어난 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "점심시간마다 번호표 없이 선착순 줄서기를 감수할 정도로 인근 주민과 직장인에게 꾸준히 사랑받는 집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

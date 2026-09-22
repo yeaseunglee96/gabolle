@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220807365031",
+  "name": "토이케이크",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 48763,
+  "researchedAt": "2026-09-21T22:24:01.169Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "기념일·이벤트 케이크 주문 고객",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "레터링 케이크",
+      "입체 동물 케이크",
+      "2단 케이크"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 북구 덕천로 380에 위치한 레터링 케이크 전문점으로, 입체 동물 케이크 및 2단 케이크 등 기념일 주문제작 케이크를 판매하며 무인 픽업 매장으로도 운영됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "토이케이크. 무인픽업가능매장입니다",
+      "url": "http://pf.kakao.com/_xnlxcDb"
+    },
+    {
+      "excerpt": "부드러운 레터링 케이크를 전문으로 하는 곳으로, 입체 동물 케이크와 2단 케이크가 대표 메뉴로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "http://pf.kakao.com/_xnlxcDb",
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "입체 동물 케이크와 2단 케이크 등 맞춤형 레터링 케이크를 주문 제작할 수 있고 무인 픽업이 가능함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

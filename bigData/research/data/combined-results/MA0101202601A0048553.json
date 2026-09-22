@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202601A0048553",
+  "name": "스콘티",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 37135,
+  "researchedAt": "2026-09-21T22:34:35.068Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "오후 2시 이전에도 디저트류가 일찍 소진되는 경우가 많아 서둘러 방문해야 함"
+  },
+  "descriptors": {
+    "audience": "디저트/스콘 마니아, 카페 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "플레인 스콘",
+      "에그 스콘",
+      "두바이 버터떡"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동구 중앙대로 535에 위치한 스콘 및 두바이 버터떡 전문 베이커리 카페",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'스콘티(Scontie)'는 스콘과 '두바이 버터떡'으로 유명한 베이커리 카페입니다. 플레인 스콘과 에그 스콘이 대표 메뉴로, 겉은 바삭하고 속은 촉촉한 식감과 은은한 버터 풍미로 인기가 높습니다. 최근에는 두바이 버터떡으로 큰 화제를 모으고 있습니다. 디저트류는 일찍 소진되는 경우가 많아(오후 2시 이전에도 동나는 경우가 있음) 가급적 서둘러 방문하시는 것을 추천합니다. 건물 옆 주차장을 이용할 수 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "겉바속촉 식감과 버터 풍미의 스콘 및 화제의 두바이 버터떡 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오후 이른 시간에도 조기 품절될 정도로 높은 디저트 수요",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

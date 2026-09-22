@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220808676946",
+  "name": "노티스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 53218,
+  "researchedAt": "2026-09-21T14:26:42.318Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기 관련 특이사항 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트, 관광객, 문화/전시 관람객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "커피",
+      "휘낭시에"
+    ],
+    "yearsClaimed": 1950
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 23:00 (라스트 오더 22:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산항 오션뷰 및 근대 창고 재생 공간으로 관광객과 데이트 방문객이 즐겨 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "업종 분류상 경양식/일반음식점으로 등록되어 있을 수 있으나 실제 현장은 1950년대 쌀창고를 리모델링한 복합문화공간 및 카페·베이커리로 운영되고 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "음료류 약 7,000원대",
+    "priceWon": 7000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1950년에 지어진 쌀 창고를 리모델링한 복합문화공간 노티스(NOTICE)는 부산항을 마주보고 있는 3층 규모의 공간입니다. 1층은 문화행사 및 대관 공간, 2층과 3층은 카페와 루프탑으로 운영됩니다.",
+      "url": "https://www.busandabom.net"
+    },
+    {
+      "excerpt": "영업시간: 매일 11:00 - 23:00 (22:00 라스트오더). 주차: 건물 뒤편 노티스 전용 마당 주차장 이용 가능. 1950년대 쌀창고의 목조 구조와 붉은 벽돌을 살린 공간에서 부산항 뷰를 감상할 수 있습니다.",
+      "url": "https://ontrip.kr"
+    }
+  ],
+  "sources": [
+    "https://www.busandabom.net",
+    "https://ontrip.kr",
+    "https://danbinews.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1950년대 쌀 창고를 리모델링한 근대 재생 건축물과 부산항 파노라마 뷰 감상",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

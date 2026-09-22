@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202406A0461889",
+  "name": "보카타",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49229,
+  "researchedAt": "2026-09-21T22:23:38.603Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼밥, 독서, 1:1 대화 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "에그마요 샌드위치",
+      "소불고기 샌드위치",
+      "수비드닭가슴살 샐러드"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "매장 상황에 따라 변동 가능 (별도 명시 없음)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notes": "부산 북구 구포동 구포역 인근에 위치한 샌드위치 및 푸짐한 샐러드 전문 카페.",
+  "price": {
+    "found": true,
+    "priceMenu": "에그마요 샌드위치 4,500원 / 소불고기 샐러드 10,500원 / 아메리카노 3,000원",
+    "priceWon": 4500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "야채가 넉넉하고 계란이 도톰하게 들어가 내용물이 알차며, 한쪽만 먹어도 포만감이 느껴질 정도로 실하다는 평가가 있습니다. '한대접 샐러드'라는 표현이 있을 정도로 양이 푸짐하며, 다양한 재료(양상추, 토마토, 병아리콩, 옥수수콘, 삶은 계란 등)로 구성되어 있습니다. 2층 좌석이 마련된 아늑하고 깔끔한 분위기의 매장으로, 구포역 근처에서 책을 읽거나 일대일 만남을 갖기에 적합한 곳으로 알려져 있습니다. 주차가 가능하며 예약 및 포장/배달이 가능한 매장입니다.",
+      "url": "https://www.siksinhot.com/P/1608678"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1608678"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "속재료가 알차고 양이 푸짐한 샌드위치와 샐러드",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1·2층 규모의 아늑하고 조용한 분위기 및 구포역 인근 접근 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

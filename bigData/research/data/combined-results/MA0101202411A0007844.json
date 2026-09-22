@@ -1,0 +1,75 @@
+{
+  "id": "MA0101202411A0007844",
+  "name": "몫몫",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 54690,
+  "researchedAt": "2026-09-21T14:24:19.885Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "피크 타임(점심 12~13시, 저녁 18~20시)에 혼잡할 수 있으며 라스트오더는 21:00임"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "관서식 스키야키",
+      "샤브샤브"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "라스트오더 21:00 (점심 12~13시, 저녁 18~20시 피크타임 혼잡)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동래 지역에서 가족 외식 및 모임 장소로 자주 찾는 직영 매장으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 동래구 충렬대로 215에 위치한 관서식 스키야키 및 프리미엄 샤브샤브 직영 전문점입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 명륜동에 위치한 '몫몫 스키야키&샤브샤브'에 대한 정보입니다. 매장 정보: 주소: 부산광역시 동래구 충렬대로 215 (명륜동 433-14) 1층. 특징: 스키야키와 샤브샤브를 전문으로 하는 곳으로, 가족 외식 장소로 인기가 많습니다. 해당 매장은 라스트오더가 21:00이며, 피크 타임(점심 12~13시, 저녁 18~20시)에는 혼잡할 수 있습니다. 주차 안내: 건물 지하 주차장 이용 가능하며, 메가마트 동래점 주차 2시간 지원이 제공됩니다.",
+      "url": "https://udanax.org"
+    },
+    {
+      "excerpt": "부산 동래구 명륜동에 위치한 '몫몫 동래직영점'은 스키야키와 샤브샤브를 전문으로 하는 고급스러운 분위기의 맛집입니다. 스키야키와 샤브샤브(버섯 샤브샤브, 마라 훠궈 등)를 주력으로 하며, 식사 후에는 각 메뉴에 어울리는 마무리 요리(오야꼬동, 트러플 리조또, 마라 리조또 등)가 제공됩니다. 깔끔하고 고급스러운 인테리어 덕분에 동래 지역에서 가족 외식 장소로 자주 언급되는 곳입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "관서식 스키야키와 정갈한 샤브샤브, 후식 리조또/오야꼬동까지 이어지는 코스 구성과 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "고급스럽고 깔끔한 인테리어로 가족 외식 및 단체 모임에 적합한 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

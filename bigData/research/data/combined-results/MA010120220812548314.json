@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812548314",
+  "name": "구츠구츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 48268,
+  "researchedAt": "2026-09-21T21:53:36.675Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산광역시 동구 수정로 23) 및 부산 지역 내에서 '구츠구츠'(일식 회/초밥) 음식점 정보를 찾을 수 없습니다.",
+  "notes": "부산 동구 수정로 23 및 인근 지역 웹 검색 결과 '구츠구츠' 음식점은 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

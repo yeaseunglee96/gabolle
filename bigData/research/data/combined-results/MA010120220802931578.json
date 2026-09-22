@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220802931578",
+  "name": "빅오",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58795,
+  "researchedAt": "2026-09-21T21:45:47.275Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "1인 셰프 매장 특성상 혼잡 시 대기가 발생할 수 있어 예약 방문을 추천함"
+  },
+  "descriptors": {
+    "audience": "연인 및 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "수제 생면 파스타",
+      "알리오올리오",
+      "바질페스토 새우크림소스 파스타",
+      "한우 투뿔 스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 22:00 (화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 동래구 복천동 소재 수제 생면 파스타 전문 이탈리안 레스토랑으로 1인 셰프가 화학조미료 없이 코스 형태(스프, 식전빵, 메인, 후식)로 음식을 제공하는 곳입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "쉐프가 직접 운영하는 수제 생면 파스타를 맛볼 수 있습니다. 정기 휴일은 화요일입니다. 조용하고 아늑한 분위기로 데이트나 가족 외식, 친구 모임 장소로 추천되는 곳입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "수제 생면 파스타를 전문으로 하는 이탈리안 레스토랑으로, 화학조미료를 사용하지 않는 것이 특징입니다. 모든 메뉴가 스프 - 부르스케타(식전빵) - 메인요리 - 후식 순으로 제공되는 코스식 서빙 방식입니다. 1인 셰프 운영 매장 특성상 바쁠 때는 대기가 있을 수 있으니 미리 예약하시는 것을 추천합니다.",
+      "url": "https://beautihost.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://beautihost.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화학조미료를 쓰지 않고 셰프가 직접 뽑아내는 정성스러운 수제 생면 파스타의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "스프부터 후식까지 코스식 구성과 아늑하고 프라이빗한 모임·데이트 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202601A0039717",
+  "name": "재풍호",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 45502,
+  "researchedAt": "2026-09-21T14:21:36.061Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "로컬 주민, 회/해산물 애호가",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 회",
+      "장어구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "용호동 지역 로컬 주민/현지인이 주로 찾는 자연산 회 전문 횟집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "과거 이기대 섶자리 회센터 등지에서 영업 후 용호동 주택가 상가(동명로131번길 47)로 이전하여 영업 중인 자연산 활어회 및 장어 전문점. 온라인상 상세 영업시간/메뉴판 가격 정보는 제한적임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 남구 용호동에 위치한 '재풍호'는 자연산 회를 전문으로 하는 로컬 횟집으로 알려져 있습니다. 주소: 부산광역시 남구 동명로131번길 47, 1층 (용호동 78-37) 업종: 횟집 특징: 현지인들이 찾는 자연산 회 전문점으로 언급되고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 남구 용호동에 위치한 자연산 회 및 장어구이 전문점입니다. 과거 이기대 섶자리 회센터에서 영업했으나 현재는 이전하여 운영 중이며, 지역 내 로컬 맛집으로 알려져 있습니다. 전화번호: 051-625-1827",
+      "url": "https://www.busan.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.busan.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "현지인들이 주로 찾는 자연산 활어회 전문 로컬 횟집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "자연산 활어회와 바다장어구이 등 신선한 해산물 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

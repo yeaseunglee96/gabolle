@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202502A0025310",
+  "name": "포스터바",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 54603,
+  "researchedAt": "2026-09-21T14:07:18.077Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡 관련 정보 없음"
+  },
+  "descriptors": {
+    "audience": "힙한 분위기를 즐기려는 2030 및 혼술객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "그릴드 토마토 & 브라타 치즈",
+      "리코타 치즈와 망고",
+      "칵테일"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 ~ 02:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "전포 카페거리 상권 방문객 및 인근 주민 혼술/모임 장소로 언급"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "전포동 전포대로223번길 20 C동 106~108호에 위치한 펍/바. 야장 감성과 조명 인테리어, 치즈류 안주 및 주류가 특색.",
+  "price": {
+    "found": true,
+    "priceMenu": "그릴드 토마토 & 브라타 치즈",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 전포동에 위치한 '포스터바(Poster Bar)'... 노상(야장) 감성을 즐길 수 있는 힙한 분위기의 술집으로 잘 알려져 있습니다. 붉은색과 주황빛 조명이 어우러진 아늑하고 차분한 인테리어가 특징입니다. 위스키, 칵테일, 와인, 맥주 등 다양한 주류를 갖추고 있어 선택의 폭이 넓습니다. 전포 카페거리 일대에서 혼술하기 좋은 장소로도 자주 언급되며, 낮술을 즐기기에도 좋은 공간으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "영업시간: 18:00 ~ 02:00 연중무휴... 위치: 부산광역시 부산진구 전포대로223번길 20 (C동 106, 107, 108호)... 노상(야장) 테이블을 갖추고 있어 힙하고 감성적인 분위기... 그릴드 토마토 & 브라타 치즈(16,000원), 리코타 치즈와 망고 등이 언급된 바 있습니다. 상주견이 있어 반려동물 동반 가능 여부 등은 매장에 직접 확인하시는 것을 추천합니다.",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "노상 야장 테이블과 붉은 조명이 주는 힙하고 아늑한 분위기를 즐기러 감",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "위스키, 칵테일, 와인 등 다양한 주류와 브라타 치즈 등 안주를 맛보러 감",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

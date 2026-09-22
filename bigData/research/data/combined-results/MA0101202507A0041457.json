@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202507A0041457",
+  "name": "이구백갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 40022,
+  "researchedAt": "2026-09-21T22:16:41.139Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "삼겹살",
+      "깍뚝목살",
+      "양념목갈비",
+      "한우꽃등심"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 금정구 부곡동(중앙대로 1705)에 음식점 등록 이력이 확인되나, 현재 상세 운영 정보나 방문 리뷰·이용 후기가 거의 남아있지 않은 상태입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 중앙대로 1705(부곡동 225-23)에 위치한 이구백갈비에 대한 정보입니다. 업종: 한국음식 > 삼겹살/돼지구이. 주요 메뉴: 삼겹살, 깍뚝목살, 양념목갈비, 뼈삼겹, 닭갈비, 한우꽃등심 등. 참고 사항: 현재 해당 매장에 대한 정보가 등록되어 있으나, 이용 시 영업 여부를 미리 확인하시는 것을 권장합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "삼겹살, 목살, 갈비 등 다양한 육류 구이 메뉴를 취급함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220813729495",
+  "name": "숨터",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58712,
+  "researchedAt": "2026-09-21T14:29:18.144Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인 및 드라이브 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돈까스",
+      "파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 22:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 시내 야경 조망 명소 및 만덕고개 드라이브·데이트 코스로 주로 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 북구 만덕고개에 위치하여 부산 시내 전망과 야경을 내려다보며 돈까스, 파스타 등의 경양식 식사와 카페 음료를 함께 즐길 수 있는 곳이다. 매장 앞/옆에 전용 주차 공간을 갖추고 있다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "만덕산 높은 곳에 위치하여 부산 시내가 한눈에 내려다보이는 뛰어난 야경과 전망을 자랑합니다. 데이트 코스나 드라이브 코스로 자주 추천되는 장소입니다. 카페 음료뿐만 아니라 돈까스, 파스타와 같은 식사류도 함께 판매하고 있습니다. 양이 푸짐하다는 이용 후기가 많습니다. 매장 앞과 옆에 주차가 가능하며, 오픈형 주방을 갖추고 있습니다. 영업시간은 매일 10:00 ~ 22:30입니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "만덕고개길 131에 위치한 식당 '숨터'는 돈까스와 파스타를 주메뉴로 하는 곳입니다. 경치가 좋고 야경을 즐기기 좋은 레스토랑으로 알려져 있습니다. 매장 앞과 옆에 주차가 가능합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://bsbukgu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "만덕고개 높은 곳에서 부산 시내 전경과 야경을 감상하며 데이트나 드라이브를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "푸짐한 양의 경양식 돈까스와 파스타를 편안한 분위기에서 식사할 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

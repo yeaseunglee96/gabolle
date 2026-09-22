@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220812913053",
+  "name": "각방",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 45337,
+  "researchedAt": "2026-09-21T14:14:28.046Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "혼밥하기 좋은 아담한 분위기의 매장으로 점심/저녁 피크 시간대 방문 후기가 많음"
+  },
+  "descriptors": {
+    "audience": "혼밥족, 인근 직장인 및 청년층",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "연어덮밥",
+      "닭꼬치덮밥",
+      "장어덮밥",
+      "소고기덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 20:00 (또는 20:20), 브레이크 타임 14:30 ~ 17:00, 라스트 오더 19:45"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서면 번화가 골목에서 인근 학생, 직장인 혼밥 식사 및 덮밥 맛집으로 주로 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 서면 전포 인근 골목에 위치한 일식 덮밥 전문점으로 연어덮밥과 닭꼬치덮밥 등이 대표적임",
+  "price": {
+    "found": true,
+    "priceMenu": "연어덮밥: 11,000원, 닭꼬치덮밥: 9,500원, 소고기덮밥: 9,300원, 매운삼겹덮밥: 9,300원, 장어덮밥: 15,800원",
+    "priceWon": 11000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가게 이름처럼 혼밥하기 좋은 아늑한 분위기를 갖추고 있습니다. 주차장은 따로 없으며, 인근 민영 주차장 이용이 추천됩니다. 키오스크를 통해 편리하게 주문할 수 있습니다.",
+      "url": "https://trvlogue.com"
+    },
+    {
+      "excerpt": "부산광역시 부산진구 동천로107번길 12-5. 연어덮밥 11,000원, 닭꼬치덮밥 9,500원, 소고기덮밥 9,300원, 매운 삼겹 덮밥 9,300원, 장어덮밥 15,800원. 영업시간 11:30 ~ 20:20 (브레이크 타임 14:30 ~ 17:00)",
+      "url": "https://forourtour.com"
+    }
+  ],
+  "sources": [
+    "https://trvlogue.com",
+    "https://forourtour.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 연어덮밥과 직화 불향이 나는 닭꼬치덮밥의 뛰어난 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "서면 번화가에서 1만 원 안팎으로 정갈하게 한 끼를 해결할 수 있는 덮밥 가성비",
+      "sources": [
+        2
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "다찌석과 키오스크가 마련되어 있어 서면에서 부담 없이 혼밥하기 좋은 식당 환경",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202310A0049553",
+  "name": "서동화로",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 43478,
+  "researchedAt": "2026-09-21T21:51:12.110Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 금정구 서동중심로 58 (서동 200-1)에 등록된 육류/고기 요리 업체이나, 상세 메뉴판, 가격, 영업시간 및 방문자 후기 등의 세부 정보는 웹상에 확인되지 않음. 인근 서2동 공영주차장 이용 안내 확인.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 서동 200-1 (도로명 주소: 부산광역시 금정구 서동중심로 인근) 업종: 육류 및 고기 요리 전문점. 주변 정보: 서2동 공영주차장 바로 인근(도보 1분 거리)에 위치해 있어 차량 이용 시 주차가 편리합니다. 또한 부산 지하철 4호선 서동역에서 도보로 이동 가능한 거리에 있습니다.",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "부산광역시 금정구 서동중심로 58에 위치한 업체는 '서동화로'입니다. 해당 업체는 육류 및 고기요리를 전문으로 하는 음식점으로 등록되어 있습니다.",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서2동 공영주차장 및 서동역 인근으로 차량 및 대중교통 접근 편의가 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

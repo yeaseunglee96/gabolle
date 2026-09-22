@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220811128686",
+  "name": "완도횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 48445,
+  "researchedAt": "2026-09-21T14:03:43.693Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기 대기에 관한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "현지인, 가족, 어르신, 여행객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 11:00 ~ 오후 9:30 (매월 마지막 주 화요일 휴무 언급 있음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송정 지역에서 오랜 시간 현지인들과 여행객들에게 투박하지만 신선하고 정갈한 식사를 제공하는 횟집으로 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해운대구 송정강변로 35(송정동 187)에 위치한 횟집으로, 모듬회 인당 주문 구성과 정갈한 밑반찬 및 매운탕을 제공함.",
+  "price": {
+    "found": true,
+    "priceMenu": "모듬회 (인당 주문 방식)",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 송정강변로 35 (송정동 187). 송정해수욕장에서 도보 약 5분 거리에 위치해 있습니다. 직접 만든 반찬과 정성스러운 식사 메뉴로 알려진 곳입니다. 모둠회와 함께 매운탕, 고구마, 식혜 등 정갈한 후식까지 제공되는 구성으로 후기가 많습니다. 오랜 시간 현지인들과 여행객들에게 투박하지만 맛있는 횟집으로 소개되어 왔습니다. 운영 시간은 오전 11시부터 오후 9시 30분까지로 알려져 있으나...",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "송정 지역에서 오래 운영되어 온 현지인 맛집으로 알려져 있으며, 화려하지는 않지만 정갈한 밑반찬과 투박하면서도 신선한 회를 제공하는 곳입니다. 대표 메뉴는 모듬회이며, 1인당 가격(예: 30,000원/인) 단위로 주문하는 방식이 확인된 바 있습니다. 매월 마지막 주 화요일은 휴무라는 정보가 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "매장명: 완도횟집, 주소: 부산광역시 해운대구 송정강변로 35 (지번: 부산광역시 해운대구 송정동 187), 전화번호: 051-703-8989",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송정 지역에서 오랜 기간 운영되며 투박하지만 신선한 모듬회와 정갈한 직접 만든 반찬, 매운탕을 내어주는 현지인 횟집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "화려함보다는 신선한 회와 정갈한 손맛 밑반찬 등 음식 맛 자체에 대한 만족도가 높음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

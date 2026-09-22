@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220809896096",
+  "name": "강적들",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 40234,
+  "researchedAt": "2026-09-21T21:57:56.331Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산진구 동평로405번길 64)의 '강적들'에 대한 실제 운영 정보, 메뉴, 후기, 영업시간 등이 웹상에서 확인되지 않음 (기업/주소 등록 단편 정보 외 음식점 정보 없음)",
+  "notes": "과거 기업정보 사이트에 '숯불닭갈비구이 전문점' 및 주소 등록 이력만 단편적으로 존재하며, 실제 식당 방문기나 메뉴판, 영업시간 등 조사 대상 상세 정보가 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.incruit.com"
+  ],
+  "whyPeopleGo": []
+}

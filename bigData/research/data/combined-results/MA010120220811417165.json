@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811417165",
+  "name": "부일반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 30973,
+  "researchedAt": "2026-09-21T22:28:18.867Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적인 기록 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 인근 배달 주문 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "짬뽕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월/수/목/금 11:30 ~ 20:30 (화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 주민 대상 배달 및 지역 사회 봉사 활동을 진행하는 전형적인 동네 현지인 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 남구 감만동(석포로56번길 3)에 위치한 일반 동네 중식당으로, 배달 및 불맛 나는 옛날 스타일 중식을 제공하며 지역 내 어르신 점심 대접 등 봉사 참여 이력이 확인됨.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "남구 감만동에서 영업 중인 중식당으로, 옛날 방식의 맛과 불맛을 살린 요리를 제공하는 곳으로 알려져 있습니다. 배달 등으로 잘 알려진 중식당으로, '옛날 맛 그대로'의 불맛 나는 요리를 제공하는 곳으로 소개되고 있습니다. 짜장면과 짬뽕 등을 주 메뉴로 하는 동네 중국집입니다.",
+      "url": "https://udanax.org"
+    },
+    {
+      "excerpt": "영업시간: 월/수/목/금 11:30 ~ 20:30 (화요일 휴무)",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://heyyumi.ai",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "불맛을 살린 옛날 스타일 중식의 맛을 유지하고 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "감만동 일대 동네 주민들의 오랜 생활밀착형 배달 및 방문 식당임",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

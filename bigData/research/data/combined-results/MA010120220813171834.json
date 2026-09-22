@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220813171834",
+  "name": "오리가",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 40799,
+  "researchedAt": "2026-09-21T21:54:50.900Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 정보는 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "해물순두부"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (매월 첫째, 셋째 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지자체 착한가격업소로 등록된 동네 밥집/식당 형태로 인근 직장인 및 주민 이용 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산광역시 사상구 괘법동 광장로37번길 73에 위치한 업소로, 사상구청 지정 착한가격업소에 등재되어 해물순두부(9,000원) 등을 제공함. 다년간의 음식점 운영 경험과 푸짐하고 깔끔한 음식, 친절한 서비스가 특징으로 소개됨.",
+  "price": {
+    "found": true,
+    "priceMenu": "해물순두부",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 광장로37번길 73 (괘법동) / 연락처: 051-313-8889 / 영업시간: 11:00 ~ 22:00 / 휴무일: 매월 첫째, 셋째 월요일 / 특이사항: 사상구청 지정 착한가격업소로 등록되어 있으며, 주요 메뉴로 해물순두부(9,000원) 등이 안내되어 있음. 다년간의 음식점 운영 경험을 바탕으로 깔끔하고 푸짐한 음식, 친절한 서비스로 소개됨.",
+      "url": "https://www.sasang.go.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "지자체 공인 착한가격업소로 합리적인 가격대에 식사를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "정갈하고 푸짐한 음식과 친절한 서비스로 인근 이용객들이 찾음",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

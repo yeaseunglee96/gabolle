@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220811429483",
+  "name": "비엔에프",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 74562,
+  "researchedAt": "2026-09-21T14:11:31.779Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 영업 중인 식당 정보 및 리뷰 없음 (사업자 등록상 서양식 음식점업 이력만 존재)",
+  "notes": "부산광역시 남구 유엔로 77-1 (대연동 1181-29)에 사업자 인허가/기업 DB상 서양식 음식점업(경양식) '비엔에프'로 등록된 이력은 확인되나, 실제 일반 소비자를 대상으로 영업하는 식당으로서의 후기, 메뉴, 가격, 영업시간 등 실질적인 음식점 정보 및 방문 이유가 존재하지 않거나 폐업/유령 사업자 등록으로 확인됩니다. (동일 주소지에 설비/CCTV 업체 등록 확인됨)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "비엔에프 (서양식 음식점업): 부산 남구 대연동 1181-29에 위치한 것으로 등록된 중소기업입니다. 부산광역시 남구 유엔로 77-1 주소지를 확인한 결과, 문의하신 '경양식', '돈까스', '식당'과 관련된 업체 정보는 검색되지 않습니다. 해당 주소지에는 SK가스보일러 남구점, 시큐앤티(CQ&T) 등이 위치함.",
+      "url": "https://www.saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr"
+  ],
+  "whyPeopleGo": []
+}

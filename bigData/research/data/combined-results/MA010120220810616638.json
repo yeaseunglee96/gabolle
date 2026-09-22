@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810616638",
+  "name": "가빈",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 81848,
+  "researchedAt": "2026-09-21T21:46:10.466Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 '가빈' 식당 없음",
+  "notes": "제시된 주소인 '부산광역시 부산진구 성지곡로 43'에는 '가빈'이라는 상호의 돼지고기 구이/찜 음식점이 존재하지 않습니다. 해당 주소지는 주거 및 공방/어린이집 등이 위치한 곳입니다. (참고로 초읍동 성지곡로 336-1 번지에 '가빈생고기'라는 숯불구이집이 존재하나, 요청된 주소와 일치하지 않으므로 규칙에 따라 found: false로 처리합니다.)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "검색하신 '부산진구 성지곡로 43' 주소와 '가빈'이라는 명칭이 결합된 공식적인 업체 정보나 시설은 확인되지 않습니다.",
+      "url": "https://busanjin.go.kr"
+    }
+  ],
+  "sources": [
+    "https://busanjin.go.kr"
+  ]
+}

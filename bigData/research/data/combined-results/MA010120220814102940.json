@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220814102940",
+  "name": "골드파파",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 51991,
+  "researchedAt": "2026-09-21T14:14:56.657Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민, 외국인, 미군 부대 관계자",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "필리치즈 스테이크 샌드위치",
+      "클래식 버거",
+      "치폴레 치즈 버거"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:00 ~ 20:00 (브레이크 타임: 15:00 ~ 17:00, 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산성모병원 인근 주민 및 외국인, 미군 관계자들이 찾는 로컬 맛집"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 남구 용호로 268-3에 위치한 정통 미국식 수제버거 및 필리치즈 스테이크 전문점. 맞은편 늘빛교회 주차장 이용 가능.",
+  "price": {
+    "found": false,
+    "priceMenu": "감자튀김 포함 세트/단품 구성",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "정통 미국식 수제버거 스타일로, 두툼한 패티와 러프한 필리치즈 스테이크 샌드위치가 인기 메뉴로 알려져 있습니다. 인근 미군 부대 관계자들도 자주 찾는 곳으로 유명하며, 현지인들과 외국인들이 많이 방문하는 지역 맛집입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 남구 용호로 268-3 (용호동 558-47) 1, 2층. 정통 미국식 수제버거를 전문으로 하는 곳으로, 햄버거 메뉴에는 감자튀김이 포함되어 제공되며, 필리치즈 스테이크 샌드위치 등의 메뉴도 인기가 있습니다. 오전 9시 ~ 오후 8시 (일요일 정기 휴무), 브레이크 타임: 오후 3시 ~ 오후 5시. 주차: 맞은편 늘빛교회 주차장을 이용할 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두툼한 패티와 러프한 미국 본토 스타일의 수제버거 및 필리치즈 스테이크의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산성모병원 인근 주민과 미군 관계자 등 외국인이 즐겨 찾는 로컬 수제버거집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

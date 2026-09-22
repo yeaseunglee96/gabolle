@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220811430159",
+  "name": "꿀맛",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 44848,
+  "researchedAt": "2026-09-21T14:29:03.459Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민/직장인 (저녁 술자리 손님)",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "고르곤졸라피자",
+      "새우크림 파스타",
+      "해물볶음우동",
+      "핫윙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 ~ 01:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "반여동 주거지/상권 내 위치한 저녁 호프·요리주점으로 주로 현지 동네 주민 대상 상권임"
+  },
+  "menuDiversity": {
+    "dishCount": 11,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "경양식/서양식 안주류(파스타, 피자, 튀김류 등) 및 주류를 판매하는 반여동 소재 호프/요리주점입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 선수촌로 62, 2층 (반여동) 업종: 호프, 요리주점 및 서양식 음식점 주요 메뉴: 아이스황도, 감자튀김, 핫윙, 버팔로윙/봉, 고르곤졸라피자, 각종 파스타(새우크림, 상하이, 치즈오븐), 해물볶음우동, 먹태, 노가리 등 영업시간: 월요일부터 토요일까지 18:00 ~ 01:00이며, 일요일은 휴무",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "피자, 파스타, 볶음우동 등 양식 요리 안주와 함께 가볍게 술자리를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220813719675",
+  "name": "식당호",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 46445,
+  "researchedAt": "2026-09-21T14:04:08.653Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주민·직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "참치 사시미",
+      "연어 사시미",
+      "소고기 편백찜"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "재송동 동네 상권 중심의 로컬 일식당/주점으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "부산 해운대구 재송동 재반로 98에 위치한 일식당으로 참치/연어 사시미 및 편백찜 등을 주로 다루는 매장으로 확인됨. 세부 영업시간 및 대기 정보는 온라인상 미제공됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 재반로 98 (재송동) 식당호는 참치와 연어 사시미, 소고기 편백찜 및 나베 등을 주메뉴로 하며, 다양한 주류를 곁들일 수 있는 일식 전문점으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "사업장명: 식당 호, 소재지전체주소: 부산광역시 해운대구 재송동 1109-12 (재반로 98), 일반음식점",
+      "url": "https://bizno.net"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참치·연어 사시미와 편백찜 세트를 합리적인 가성비로 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "신선한 회와 편백찜 나베 등 깔끔한 일식 안주 메뉴 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

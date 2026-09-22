@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810542363",
+  "name": "혜림초장집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 38090,
+  "researchedAt": "2026-09-21T14:28:38.849Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "현지 주민, 회 포장/활어 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "상차림",
+      "초장양념",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "다대포 인근 활어/회센터에서 회를 구매한 후 상차림 비용을 내고 이용하는 지역 초장집 형태"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 사하구 다대동로8번길 69(다대1동 850-10)에 위치한 초장집 업소로 등록 및 언급되어 있으나, 온라인 상세 리뷰 및 메뉴판 가격, 영업시간 등 세부 정보는 극히 제한적입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 혜림초장집, 주소: 부산광역시 사하구 다대동로8번길 69 (구 다대1동 850-10), 전화번호: 051-263-9889, 다대포 해변가 근처에서 직접 회를 선택한 후 이용할 수 있는 초장집",
+      "url": "https://www.menupan.com"
+    },
+    {
+      "excerpt": "기업명: 혜림초장집, 주소: 부산 사하구 다대동로8번길 69, 업종: 한식 음식점업, 전화번호: 051-263-9889",
+      "url": "https://www.saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.menupan.com",
+    "https://www.saramin.co.kr",
+    "https://www.nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다대포 인근에서 구매한 회를 가져와 상차림 비용을 내고 초장 양념 및 탕과 함께 즐기기 위해 방문함",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

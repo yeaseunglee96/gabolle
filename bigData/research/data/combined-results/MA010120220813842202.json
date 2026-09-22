@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220813842202",
+  "name": "가야공원집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 46616,
+  "researchedAt": "2026-09-21T22:02:42.393Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주차장이 붐빌 수 있어 일찍 방문하거나 단체 예약이 권장됨"
+  },
+  "descriptors": {
+    "audience": "가족/모임/단체",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리불고기",
+      "오리백숙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "인허가 상호는 '(주)가야공원집'(부산진구 가야공원로 83-16, 식육/숯불구이)이며, 실제 일반 대중 및 웹상에서는 '공원집'(가야공원로 83-12 일대)으로 널리 알려진 가야공원 계곡 오리고기 전문점입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가야공원집은 부산광역시 부산진구 가야동에 위치한 오리고기 전문점입니다. 대표 메뉴: 오리불고기, 오리백숙, 닭백숙, 옻닭, 생오리구이, 오리훈제 등. 영업 시간: 매일 10:00 ~ 22:00. 식당 인근에 계곡물이 흐르고 있어 야외 테이블에서 시원한 분위기를 즐기며 식사할 수 있는 곳으로 잘 알려져 있습니다. 전용 주차장이 마련되어 있으며, 식사 시간대에는 주차장이 혼잡할 수 있으므로 가급적 일찍 방문하거나 단체의 경우 미리 예약하는 것이 권장됩니다.",
+      "url": "https://blogsailing.com"
+    },
+    {
+      "excerpt": "부산광역시 부산진구 가야공원로 83-16 식육(숯불구이) (주)가야공원집",
+      "url": "https://mattour.com"
+    }
+  ],
+  "sources": [
+    "https://mattour.com",
+    "https://blogsailing.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "계곡 옆 야외 테이블에서 자연 경관을 즐기며 식사할 수 있는 분위기",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "가야공원 오리고기 마을의 대표적인 오리불고기 및 백숙 전문점",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

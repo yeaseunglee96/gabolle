@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220812273340",
+  "name": "키아누",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 98072,
+  "researchedAt": "2026-09-21T14:16:03.112Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소 및 상호로 등록된 음식점 정보 없음",
+  "notes": "부산광역시 연제구 고분로191번길 7 및 연산동 일대 경양식점 '키아누'를 다각도로 웹 검색(최대 4회)하였으나, 일치하거나 관련된 식당 정보를 전혀 찾을 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

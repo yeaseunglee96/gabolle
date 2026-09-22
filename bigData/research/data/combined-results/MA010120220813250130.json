@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220813250130",
+  "name": "기사식당소풍",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 62750,
+  "researchedAt": "2026-09-21T21:48:07.732Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "화물차 운전기사 및 인근 화물휴게소 이용객",
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "정식"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광지가 아닌 부산 신선대부두 인근 용당 화물차 휴게소(내트럭하우스) 내에 입점해 있어 화물차 기사 및 현지 근로자들이 주로 이용하는 식당입니다."
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 남구 신선로 261(용당동, 부산 용당 화물차 휴게소/내트럭하우스)에 입점해 있는 기사식당으로 정식 메뉴를 취급하는 일반 음식점입니다. 상세 영업시간 및 세부 가격표는 웹상에 공개되어 있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 남구 신선로 261 (용당동), 대표 메뉴: 정식, 인근에 신선대부두 등이 있으며, 기사식당으로서 정식 위주의 식사를 제공하는 곳으로 알려져 있습니다. 부산 용당 화물차 휴게소 내에 위치하고 있습니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://nett.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선대부두 및 용당 화물차 휴게소에 위치하여 화물차 기사 및 부두 근로자들의 접근 편의와 식사 해결을 위해 방문함.",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

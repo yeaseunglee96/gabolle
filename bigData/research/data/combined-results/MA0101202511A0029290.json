@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202511A0029290",
+  "name": "쿠노이치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 73512,
+  "researchedAt": "2026-09-21T14:30:25.896Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "가게 내부가 넓고 한적하거나 2차 술집으로 여유롭게 찾는 편으로 줄서기나 웨이팅 언급은 적음"
+  },
+  "descriptors": {
+    "audience": "직장인, 친구 모임, 데이트 객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모츠나베",
+      "미야자키 치킨난방",
+      "모단야끼",
+      "센다이 규탄"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:30 ~ 01:00 / 02:00 (매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 남포동 골목 안쪽에 위치하여 일본 현지 분위기를 즐기려는 현지 직장인 및 2차 술자리 단골 방문 언급이 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "후쿠오카 출신 일본인 사장님이 운영하여 일본 현지 선술집 느낌을 그대로 살린 이자카야입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "오키나와 타코스 18,000원, 냉두부 6,000원 등",
+    "priceWon": 18000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "후쿠오카 출신 일본인 사장님이 운영하는 현지 느낌의 이자카야입니다. 미소 베이스 모츠나베가 대표적이며 미야자키 치킨난방, 모단야끼, 센다이 규탄 등 다양한 일식 안주를 제공합니다. 전용 주차장은 따로 마련되어 있지 않습니다.",
+      "url": "https://www.siksinhot.com/P/322964"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "후쿠오카 출신 일본인 사장님이 직접 요리하는 현지식 안주와 술집 분위기를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "다양한 일식 이자카야 요리와 사케, 하이볼 등 선택 폭이 넓어 2차 모임 장소로 적합함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

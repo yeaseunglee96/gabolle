@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810465745",
+  "name": "남포물회",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 79843,
+  "researchedAt": "2026-09-21T14:19:58.905Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "현지인 및 자갈치시장 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "아까무스(눈볼대)물회",
+      "광어물회",
+      "도다리물회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 - 22:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "자갈치시장 인근에서 현지인들에게 오랫동안 알려진 물회 전문점으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 자갈치시장 인근 신동아 수산물 종합시장 맞은편 골목에 위치한 물회 전문점으로, 일반적인 살얼음 육수 스타일이 아닌 아까무스(눈볼대) 등의 생선회에 양념장과 설탕/식초를 직접 비벼 먹는 독특한 스타일의 물회와 생선구이 등을 판매함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 중구 자갈치로 36 (남포동6가 6-7). 지하철 1호선 자갈치역 10번 출구 인근. 신동아시장 맞은편 경원주차장을 이용할 수 있으며, 대표 메뉴인 아까무스(붉은볼락/눈뽈대) 물회와 광어 물회가 유명합니다. 기존의 살얼음 육수 스타일과 달리, 양념장을 직접 넣어 비벼 먹거나 얼음을 곁들여 먹는 스타일의 물회를 선보입니다. 현지인들에게 오랫동안 알려진 물회 전문점으로 언급됩니다.",
+      "url": "https://localview.co.kr"
+    },
+    {
+      "excerpt": "위치: 부산광역시 중구 자갈치로 36 (남포동6가 6-7, 진양장여관 1층). 영업시간: 매일 11:00 - 22:00 (연중무휴). 메뉴: 아까무스(눈볼대)물회, 도다리물회, 광어물회, 한치물회, 전복물회, 회덮밥, 생선구이 및 조림 등. 신동아시장 맞은편 경원주차장 이용 가능.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://localview.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "눈볼대(아까무스) 등 다양한 어종을 활용해 육수 없이 양념장과 비벼 먹는 독특한 물회 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "자갈치시장 인근에서 현지인들에게 오랫동안 알려진 물회 전문점",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

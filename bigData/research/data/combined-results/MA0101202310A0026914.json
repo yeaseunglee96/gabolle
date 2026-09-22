@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202310A0026914",
+  "name": "금원",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 46202,
+  "researchedAt": "2026-09-21T21:46:35.315Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 실제 운영 중이거나 방문 가능한 중국집 '금원' 정보를 찾을 수 없음",
+  "notes": "해당 주소지(부산광역시 중구 대영로 225-1, 영주동)에 '금원'이라는 상호의 중국집(중식당)이 실제 운영되거나 방문 후기가 있는 업소로 확인되지 않습니다. 동일 주소 건물에는 '할매복국' 및 '한림철학관' 등이 입점해 있으며, 과거 인허가/사업자 등록 내역 외에 실제 중식당 관련 메뉴, 영업시간, 방문기 등의 실체 정보를 찾을 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.bigvalue.ai",
+    "https://polle.com"
+  ]
+}

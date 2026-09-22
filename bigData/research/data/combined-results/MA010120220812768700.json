@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220812768700",
+  "name": "오!삼겹",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 38019,
+  "researchedAt": "2026-09-21T22:01:17.843Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기열에 대한 웹상의 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민, 인근 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "대패삼겹살",
+      "삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "13:00 ~ 21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "수안역 인근 주민과 골목 상권을 중심으로 이용되는 동네 고깃집으로 관광객 대상 정보는 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "결식아동을 후원하는 선한 영향력 가게로 등록된 동래 수안동 골목의 대패삼겹살/돼지고기 구이 전문점. 세부 메뉴판 및 가격표는 온라인에 공개되어 있지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 명륜로112번길 27, 1층 오삼겹 / 영업시간: 13:00 ~ 21:00 / 선한 영향력 제공 서비스: 결식아동 및 동반 3인에게 대패삼겹살, 음료, 밥을 제공",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "오!삼겹 / 부산광역시 동래구 명륜로112번길 27 (수안동 510-3) 1층 / 업종: 한식, 돼지고기 구이/찜 / 부산 지하철 4호선 수안역 도보 3분",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://zippoom.com",
+    "https://alba.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부담 없는 대패삼겹살 구이와 결식아동을 후원하는 선한 영향력 가게로서의 따뜻한 나눔 실천",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "수안역 도보 3분 거리 골목에 위치하여 접근하기 편한 동네 고깃집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

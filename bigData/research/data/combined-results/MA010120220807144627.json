@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220807144627",
+  "name": "라나",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 87103,
+  "researchedAt": "2026-09-21T14:27:57.664Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기·혼잡 정보 없음"
+  },
+  "descriptors": {
+    "audience": "건강/글루텐프리 베이커리 선호 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "달콤통에그",
+      "베이직클럽"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산광역시 해운대구 청사포로 27 경남선경아파트 상가동 104호에 등록된 '라나베이커리'로 확인됨. 글루텐프리/건강 디저트 베이커리로 분류됨.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "라나베이커리: '청사포로 27' 주소지(상가동 104호)에 '라나베이커리'라는 명칭이 등록되어 있는 것으로 확인됩니다. 건강 디저트 지도 등에서 글루텐 프리나 비건 관련 베이커리로 언급되고 있습니다. 대표 메뉴: 달콤통에그, 베이직클럽 등",
+      "url": "https://www.siksinhot.com/P/357997"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/357997",
+    "https://dessertzip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "글루텐프리 및 건강 디저트/베이커리 메뉴를 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

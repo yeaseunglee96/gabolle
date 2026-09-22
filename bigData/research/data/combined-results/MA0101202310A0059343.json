@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202310A0059343",
+  "name": "동래스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 50005,
+  "researchedAt": "2026-09-21T21:45:55.523Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트 및 일반 식사 고객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (브레이크 타임 15:00 ~ 17:00, 매주 일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 동래구 복천동 동래로136번길 25에 위치한 초밥 전문점. 자체 주차장과 다찌/테이블석을 갖추고 있어 깔끔한 분위기와 가성비로 데이트 및 식사 목적으로 언급되나 구체적인 메뉴판 및 상세 리뷰는 제한적임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 동래구 동래로136번길 25, 1층. 영업시간: 11:00 ~ 22:00 (브레이크 타임 15:00 ~ 17:00), 정기휴무: 매주 일요일. 테이블석과 다찌석이 마련되어 있으며, 자체 주차장이 있어 차량 이용이 편리합니다. 가성비가 좋고 분위기가 깔끔해 데이트 코스로도 언급되는 곳입니다.",
+      "url": "https://www.trip.com"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "깔끔한 분위기와 주차 편의성, 가성비를 갖추어 데이트 및 식사 장소로 찾음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "자체 주차장 완비 및 테이블석·다찌석 구성 등 방문 편의성 우수",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

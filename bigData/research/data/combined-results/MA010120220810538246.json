@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220810538246",
+  "name": "멍기집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 41603,
+  "researchedAt": "2026-09-21T14:08:19.809Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 운영 정보 및 후기 부재 (상호명 단순 등록 수준)",
+  "notes": "부산광역시 서구 송도해변로 147 소재 '멍기집'은 상호 DB 외에 실제 영업 여부, 메뉴, 후기, 방문 이유 등의 실질 정보를 확인할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://koreacharts.com/search?q=%EB%A9%8D%EA%B8%B0%EC%A7%91"
+  ],
+  "whyPeopleGo": []
+}

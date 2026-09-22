@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220810673917",
+  "name": "모닝브레드",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 60086,
+  "researchedAt": "2026-09-21T22:05:44.825Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 연제구 연수로226번길 7 (연산동 1811-195)에 위치한 소규모 동네 제과점으로 기본 상호 및 주소 등록 정보 외에 온라인상 상세 메뉴, 가격, 영업시간, 이용 후기 등의 데이터가 확인되지 않는 일반 소상공인 점포임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 연제구 연수로226번길 7 (지번: 연산동 1811-195) 전화번호: 051-868-8930 업종: 베이커리/제과점",
+      "url": "https://www.siksinhot.com/P/359257"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/359257"
+  ],
+  "whyPeopleGo": []
+}

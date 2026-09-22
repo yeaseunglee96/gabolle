@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220810632869",
+  "name": "돈가야",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 55789,
+  "researchedAt": "2026-09-21T21:49:54.633Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 가야공원로 55에 등록된 육류/고기요리 업종의 '돈가야'는 상호와 주소, 전화번호(051-893-2160) 등 기본 사업체 정보 외에 방문 후기나 메뉴판, 영업시간, 혼잡도 등의 세부 정량 정보가 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "돈가야 / 주소: 부산광역시 부산진구 가야공원로 55 (가야동) / 전화번호: 051-893-2160 / 업종: 육류 및 고기요리",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

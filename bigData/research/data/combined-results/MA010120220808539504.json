@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220808539504",
+  "name": "마레",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 61997,
+  "researchedAt": "2026-09-21T14:09:56.458Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트, 가족 외식",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 안심 스테이크",
+      "명란 알리오올리오",
+      "매콤 새우크림 스파게티"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00 (브레이크 타임 15:00~16:30, 라스트 오더 20:00, 수요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 기장군 일광읍 일광로 350에 위치한 오션뷰 경양식/이탈리안 레스토랑 마레. 단품 주문 시 식전 음료, 샐러드, 식전 빵(또는 빠네 스프), 디저트가 함께 제공되는 코스 구성으로 데이트 및 가족 외식 명소로 알려져 있음.",
+  "price": {
+    "found": true,
+    "priceMenu": "스파게티류 27,000원, 스테이크 47,000원, 한우 1++ 스테이크 73,000원",
+    "priceWon": 27000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "지중해풍 건물과 엔틱한 인테리어가 어우러진 이탈리안 레스토랑으로, 오션뷰와 야외 테라스가 있어 데이트나 기념일에 인기가 많습니다. 마레는 단품 주문 시 식전 음료, 샐러드, 식전 빵(또는 빠네 스프), 메인 요리, 디저트까지 포함된 코스 구성으로 제공되는 것이 특징입니다. 한우 1++ 스테이크 73,000원, 스테이크 47,000원, 스파게티류 27,000원. 전용 주차장 완비, 유아 의자 구비(YES 키즈존), 예약 가능. 운영 시간: 11:00 ~ 21:00 (브레이크 타임 15:00~16:30 / 라스트 오더 20:00). 약 20년 동안 운영되어 온 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/P/386047"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/386047"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바다가 한눈에 들어오는 지중해풍 오션뷰와 테라스, 식전빵·샐러드·후식이 포함된 경양식 코스 구성 때문에 찾음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

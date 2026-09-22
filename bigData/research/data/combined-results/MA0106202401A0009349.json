@@ -1,0 +1,60 @@
+{
+  "id": "MA0106202401A0009349",
+  "name": "맥도날드부산영도DT점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 29967,
+  "researchedAt": "2026-09-21T22:07:39.261Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼밥객 및 가족 단위 방문객, 차량 이용 드라이브스루 고객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "빅맥",
+      "상하이 버거",
+      "맥너겟"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "24시간 영업 (매장 상황에 따라 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 영도구의 유일한 맥도날드 매장으로, 봉래동 교차로/부산대교 인근 교통 요지에 위치해 지역 주민 및 차량 이동 고객의 접근성이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "영도구 봉래동에 위치한 맥도날드 드라이브 스루(DT) 매장으로 24시간 운영과 차량 이동 편의성이 높음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "맥도날드 부산영도DT점. 주소: 부산광역시 영도구 태종로 150 (봉래동3가). 드라이브 스루(DT) 매장. 부산대교 진입로 인근 교통의 요지에 위치해 있습니다. 영도구의 유일한 맥도날드 매장.",
+      "url": "https://www.mcdonalds.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.mcdonalds.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "영도 내 유일한 맥도날드 지점이자 24시간 드라이브스루(DT) 매장으로 편리한 차량 이용 및 야간 이용 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

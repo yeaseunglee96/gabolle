@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220810519829",
+  "name": "즐거운섬",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 42968,
+  "researchedAt": "2026-09-21T22:19:08.938Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 부존재 (부산광역시 사하구 장림동 하신중앙로22번길 38 소재 '즐거운섬' 횟집 검색되지 않음)",
+  "notes": "해당 주소(부산 사하구 하신중앙로22번길 38, 장림동 송원빌딩) 및 부산 전역에서 '즐거운섬' 횟집에 관한 정보가 확인되지 않아 부존재/폐업으로 판단됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

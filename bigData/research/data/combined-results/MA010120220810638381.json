@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220810638381",
+  "name": "천백돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 87120,
+  "researchedAt": "2026-09-21T16:11:17.222Z",
+  "crowding": {
+    "found": true,
+    "note": "가게 규모가 협소하여 식사 시간대에는 웨이팅이 발생할 수 있다"
+  },
+  "descriptors": {
+    "audience": "현지인 중심",
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "옛날돈까스",
+      "쫄면",
+      "돌솥비빔밥"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 10:30 ~ 오후 6:00 (라스트오더 오후 5시), 매주 일요일 휴무, 재료 소진 시 조기 마감"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지역 내 노포 느낌의 현지인 맛집으로 통한다"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "검색 4회 실시. tistory 블로그들이 구글 리다이렉트 URL로만 제공되어 원문 페이지 직접 접근 불가. siksinhot.com의 해당 ID(637783)는 대구 다른 식당을 가리키고 있어 원문 확보 실패. 모든 정보는 구글 검색엔진의 AI 요약(grounding)에서 수집한 것이며, 원문 텍스트를 직접 확인하지 못했으므로 sourceExcerpts는 비워둠. 가게 실존 및 주소(부산광역시 동구 초량상로 124-1)는 다수 결과에서 일관되게 확인됨. 전화번호: 051-464-5919. 현금 결제 시 메뉴당 500원 할인. 돈까스 곱빼기 주문 시 한 장 추가 제공.",
+  "price": {
+    "found": true,
+    "priceMenu": "돈까스류 8,000원~12,000원대, 현금 결제 시 메뉴당 500원 할인",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://tistory.com",
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "30년 이상 전통의 노포 경양식집으로, 추억의 옛날 돈까스를 맛볼 수 있어 방문",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "바삭한 튀김옷·진한 브라운 소스의 옛날식 돈까스와 쫄면 조합이 독특하게 맛있다는 평",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "8,000~12,000원대 합리적 가격에 현금 할인·돈까스 곱빼기 서비스 등 인심이 좋아 찾음",
+      "sources": [
+        1,
+        2,
+        3
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "초량 지역 주민들이 오래 애용하는 동네 노포 맛집으로 알려져 있음",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

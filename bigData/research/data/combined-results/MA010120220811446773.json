@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811446773",
+  "name": "문스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 65051,
+  "researchedAt": "2026-09-21T14:12:15.257Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "예약 우선제로 운영되어 방문 전 사전 예약이 필수/권장됨"
+  },
+  "descriptors": {
+    "audience": "연인 및 가족 외식, 미식가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "오마카세 코스",
+      "스시",
+      "사시미"
+    ],
+    "yearsClaimed": 18
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 11:30~15:00, 17:30~22:00 / 주말 11:30~15:00, 17:00~22:00 (라스트오더: 13:45, 20:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 3대 스시로 꼽히며 지역 주민 외식 및 부산 여행객 모두 즐겨 찾는 대표 스시야로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "SBS 생활의 달인 '초밥의 달인' 박해문 셰프가 운영하는 해운대 좌동의 대표적인 프리미엄 스시 오마카세 전문점입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "오마카세 시(時) 코스",
+    "priceWon": 150000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "SBS '생활의 달인'에서 초밥의 달인으로 소개된 박해문 셰프가 운영하여 유명해진 곳입니다. 18년 경력의 박해문 셰프가 호텔 수준의 재료 사용과 냄비밥으로 지은 특별한 샤리(초밥용 밥), 그리고 각 생선의 풍미를 극대화하는 특제 양념 비법 등을 선보인 바 있습니다. 오마카세 시(時) 코스의 가격은 1인당 150,000원으로 알려져 있습니다.",
+      "url": "https://www.busan.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 해운대구 좌동순환로 43. 운영 시간: 평일 11:30~15:00 / 17:30~22:00 (라스트오더: 13:45, 20:30), 주말: 11:30~15:00 / 17:00~22:00 (라스트오더: 13:45, 20:30). TV 프로그램을 통해 소개된 유명 셰프가 운영하는 일식 전문점.",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://www.busan.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "생활의 달인에 초밥 달인으로 출연한 박해문 셰프의 수준 높은 스시 오마카세 코스 요리를 즐기기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산 대표 스시야로서 정갈한 룸과 바 좌석을 갖추고 있어 기념일, 가족 모임, 미식 여행 코스로 각광받음",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

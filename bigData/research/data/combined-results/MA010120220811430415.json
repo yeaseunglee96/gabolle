@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220811430415",
+  "name": "더포",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 75584,
+  "researchedAt": "2026-09-21T22:07:13.366Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도의 대기줄이나 웨이팅에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 연인(데이트), 모임 단위 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "월남쌈",
+      "차돌 쌀국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 22:00 (평일 브레이크 타임 16:00 ~ 17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사직야구장 및 종합운동장 인근 지역 주민들의 외식 및 모임 장소로 주로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": "개업 연수(yearsClaimed) 및 대물림(generations) 관련 정보 없음",
+  "notes": "부산 사직동 효림빌딩 1층에 위치한 베트남 음식 전문점으로 월남쌈과 차돌 쌀국수 세트가 대표적이며 깔끔한 분위기와 주차 편의성으로 방문함",
+  "price": {
+    "found": true,
+    "priceMenu": "2인 B세트(월남쌈 M + 차돌 쌀국수) 기준 약 31,000원",
+    "priceWon": 31000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 아시아드대로 113 (사직동 104-6)에 위치한 더포는 쌀국수와 월남쌈 등을 전문으로 하는 베트남 음식점이다.",
+      "url": "https://linktoplace.com"
+    },
+    {
+      "excerpt": "영업 시간: 매일 11:30 ~ 22:00 (브레이크 타임: 평일 16:00 ~ 17:00). 건물 벽면 표지판을 따라 주차 가능. 2인 B세트(월남쌈 M + 차돌 쌀국수) 31,000원. 월남쌈과 쌀국수의 조합이 담백하고 깔끔하여 입맛이 없을 때 방문하기 좋다. 깔끔하고 차분한 인테리어로 데이트나 모임 장소로 적합하다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://linktoplace.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "사골과 약재를 우려낸 육수의 쌀국수와 푸짐하고 신선한 월남쌈의 깔끔하고 담백한 맛 때문에 방문함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "사직역과 종합운동장역 인근 대로변에 위치하고 전용 주차 공간이 있어 방문이 편리함",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

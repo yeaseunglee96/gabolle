@@ -1,0 +1,69 @@
+{
+  "id": "MA0101202209A0035543",
+  "name": "오르601",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 44631,
+  "researchedAt": "2026-09-21T22:08:33.925Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 양식/돈까스 선호 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "수제치즈돈까스",
+      "철판 눈꽃치즈 돈까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 11:00 - 21:00 (매주 화요일, 일요일 정기휴무, 마감 20분 전 라스트오더)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 직접적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 금정구 남산동 주택가 상가에 위치한 수제 돈까스 및 파스타 전문 경양식당. 치즈돈까스와 철판 눈꽃치즈돈까스 등이 대표 메뉴로 확인됨.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 남산로37번길 1층. 영업시간 11:00 ~ 21:00 (매주 화요일, 일요일 정기휴무, 마감 20분 전 라스트 오더). 돈까스와 파스타를 전문으로 하는 식당.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산 금정구 남산동 오르601. 수제치즈돈까스(2조각) + 새우, 철판 눈꽃치즈 돈까스(돈까스+새우튀김)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두툼하고 바삭한 수제 치즈돈까스 및 철판 눈꽃치즈돈까스 등 특색 있는 돈까스 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

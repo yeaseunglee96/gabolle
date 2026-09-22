@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202212A0011501",
+  "name": "홍신방",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 57543,
+  "researchedAt": "2026-09-21T21:47:51.864Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "짬뽕",
+      "쟁반짜장",
+      "차돌짬뽕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 남구 용당동 인근 주민들이 주로 이용하는 동네 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 남구 신선로 313-1(용당동)에 등록된 일반 동네 중식당으로, 쟁반짜장과 차돌짬뽕 등이 메뉴로 소개되어 있으나 상세 후기나 영업시간, 줄서기 등 정량 정보는 웹상에 확인되지 않음. 동일 주소지에 치킨집 등 타 업종이 공존하거나 폐업/영업 변경 가능성 있음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 신선로 313-1 (용당동 180-4), 연락처: 051-621-4367, 업종: 중화요리 전문점 (중식), 특징: 쟁반짜장과 차돌짬뽕 등이 대표 메뉴로 알려진 동네 중식당입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "홍신방 / 부산광역시 남구 용당동 180-4 (신선로 313-1) / 일반음식점 중식",
+      "url": "https://www.koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.koreacharts.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "용당동 주택가 및 도로변에서 간편하게 식사나 배달을 이용하는 동네 중식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

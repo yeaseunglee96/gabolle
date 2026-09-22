@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202406A0008860",
+  "name": "바로국수",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 34708,
+  "researchedAt": "2026-09-21T22:37:00.435Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "손수제비",
+      "잔치국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "식신 및 지역 업소록 등에서 주소(부산 사하구 장평로 126)와 대표 메뉴(손수제비, 잔치국수)가 확인되는 동네 국수 전문점이나 세부 후기 및 영업시간 정보는 매우 희소함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 사하구 장평로 126 (지번: 장림동 599-4) 업종: 한국음식 > 칼국수/수제비/국수 대표메뉴: 손수제비, 잔치국수",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네에서 간편하게 즐기는 손수제비와 잔치국수 전문 국숫집",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

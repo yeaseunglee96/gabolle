@@ -1,0 +1,45 @@
+{
+  "id": "MA0101202505A0019802",
+  "name": "스케치",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 94646,
+  "researchedAt": "2026-09-21T14:24:30.935Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 미존재 또는 경양식 식당 정보 없음",
+  "notes": "부산광역시 동래구 충렬대로179번길 27-8 위치에 '스케치'라는 경양식 음식점은 실존하는 방문 후기, 메뉴, 영업 정보가 확인되지 않으며, 해당 주소지는 과거 '한술당' 주점으로 운영되었던 곳입니다. 따라서 실존하는 경양식 가게 정보를 찾을 수 없어 found: false로 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 충렬대로179번길 27-8 (명륜동) 주소지에 위치한 업소와 관련 정보는 다음과 같습니다. 한술당: 해당 주소지에서 운영되었던 한식 퓨전 주점입니다. 스케치(sketch): 일부 비즈니스 정보 사이트에서 해당 주소로 등록된 상호명이 확인되나, '동래 스케치 경양식'이라는 명칭으로 별도의 유명한 경양식집 정보는 명확히 확인되지 않습니다.",
+      "url": "https://siksinhot.com"
+    },
+    {
+      "excerpt": "검색 결과, 부산 지역에서 '스케치'라는 상호를 가진 경양식/돈까스/함박스테이크 전문 식당은 확인되지 않습니다.",
+      "url": "https://geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

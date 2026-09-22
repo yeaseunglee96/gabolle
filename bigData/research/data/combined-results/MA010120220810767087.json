@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810767087",
+  "name": "제주흙돼지",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 44760,
+  "researchedAt": "2026-09-21T22:01:33.059Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "직장인/인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "제주산 돼지고기 구이",
+      "제육볶음",
+      "순두부찌개",
+      "된장정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동래경찰서 맞은편 인근 직장인과 동네 주민들이 찾는 로컬 음식점/밥집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "동래경찰서 맞은편 골목에 위치한 제주산 돼지고기 구이 및 점심 정식 식당. 온라인 세부 리뷰나 상세 가격표는 드물며 주로 인근 상권 디렉토리 및 로컬 식당으로 등록되어 있음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 명륜로63번길 8 (수안동) 제주흙돼지, 동래경찰서 맞은편에 위치한 로컬 맛집으로 질 좋은 제주산 돼지고기를 다양한 부위로 즐길 수 있으며 점심시간에는 제육볶음, 순두부찌개, 된장정식 등 식사 메뉴를 제공함.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동래경찰서 맞은편 로컬 상권에서 제주산 돼지고기 구이와 합리적인 점심 식사 메뉴를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

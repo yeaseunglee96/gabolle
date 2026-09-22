@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220811397375",
+  "name": "신선관",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 68858,
+  "researchedAt": "2026-09-21T21:48:04.693Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 구체적인 웹 후기나 기록 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "짬뽕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미기재"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 남구 신선로 309(용당동 172-4)에 위치한 중식당(중국집)으로 확인됩니다. 다만 일반 로컬/배달 위주 동네 음식점으로 온라인 상에 구체적인 메뉴별 가격, 영업시간, 웨이팅 후기 등 상세한 정량 정보는 공개되어 있지 않습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호: 신선관, 업종: 중식, 주소: 부산광역시 남구 신선로 309 (용당동 172-4), 전화번호: 051-626-4833",
+      "url": "https://114.co.kr"
+    },
+    {
+      "excerpt": "신선관 - 부산광역시 남구 신선로 309 (용당동 172-4) 중화요리 전화번호 051-624-1323",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://114.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 주민 및 근로자들의 일상적인 식사 및 배달 이용",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

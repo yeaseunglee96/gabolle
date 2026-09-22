@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202604A0014636",
+  "name": "계단집",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 83477,
+  "researchedAt": "2026-09-21T21:52:48.651Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산광역시 중구 동광길 23)에 경양식 업종의 '계단집'이라는 식당은 존재하지 않습니다.",
+  "notes": "부산광역시 중구 동광길 23(동광동5가 48-7) 위치에 경양식 업종의 '계단집'은 실존하지 않는 매장으로 확인되었습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

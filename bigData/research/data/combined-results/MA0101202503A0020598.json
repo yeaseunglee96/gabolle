@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202503A0020598",
+  "name": "유옥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 58391,
+  "researchedAt": "2026-09-21T14:03:42.879Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말에는 웨이팅이 발생할 수 있어 캐치테이블 등을 통한 예약 권장 언급"
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 반려견 동반 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "점보 우나쥬 한 상",
+      "사바 오차즈케 한 상",
+      "토리동 한 상"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:00 (브레이크타임 15:00 ~ 17:00, 매주 수요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 송정강변로 47에 위치한 일식 장어덮밥(우나쥬) 전문점으로 일본 현지 감성의 한상차림과 깔끔한 분위기로 방문하는 곳입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "장어덮밥(우나쥬) 한 상",
+    "priceWon": 28500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 송정에 위치한 일식당 '유옥'. 대표 메뉴: 오사카식 스타일을 재해석한 장어덮밥(우나쥬)이 유명하며, 연어덮밥, 토리동 등 다양한 덮밥 메뉴를 판매합니다. 영업 시간: 매일 11:00 ~ 21:00 (브레이크 타임 15:00~17:00), 휴무일: 매주 수요일. 매장 전용 주차장 구비, 아기 의자 제공, 반려견 동반 가능. 주말에는 웨이팅이 발생할 수 있어 캐치테이블 등을 통한 예약을 추천합니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "양념된 밥 위에 달큰한 계란말이와 크고 통통한 장어 반 마리가 올라가는 것이 특징인 장어덮밥(28,500원). 만원대 단품 메뉴 및 9,000원 어린이 메뉴 구비, 송정 해수욕장 근처의 일본 감성 장어집으로 단짠단짠한 양념 맛과 실한 장어 크기가 특징.",
+      "url": "https://facebook.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오사카식 스타일을 재해석한 단짠 양념의 두툼한 장어덮밥(우나쥬) 및 정갈한 일식 한상차림",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "일본 현지 감성의 차분하고 단정한 인테리어 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

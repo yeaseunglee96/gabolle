@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220810523197",
+  "name": "민속죽",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 62871,
+  "researchedAt": "2026-09-21T21:59:25.345Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "환자 및 인근 주민, 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "보양전복죽",
+      "소고기야채죽",
+      "동지팥죽",
+      "호박죽"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금: 08:00 - 19:30, 토: 08:00 - 18:00, 일요일: 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 별도 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 16,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 서구 아미동(까치고개로)에 위치한 죽 전문점으로, 전복죽, 야채죽, 팥죽, 호박죽, 미음 등 전통 및 영양 죽 메뉴를 판매함.",
+  "price": {
+    "found": true,
+    "priceMenu": "보양전복죽 13,000원, 소고기야채죽 9,000원, 야채버섯죽/호박죽 8,000원, 흰죽 6,000원 등",
+    "priceWon": 6000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 서구 까치고개로 202-2 (아미동2가 67-54), 전화번호: 051-242-0221, 영업시간: 월~금: 08:00 – 19:30, 토: 08:00 – 18:00, 일요일: 휴무, 주요 메뉴: 보양전복죽 13,000원, 소고기야채죽/새우버섯죽/굴버섯죽/동지팥죽 9,000원, 야채버섯죽/호박죽 8,000원, 흰죽/미음죽 6,000원 등",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다양한 영양죽과 전통죽, 미음 메뉴를 합리적인 가격대에 제공함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

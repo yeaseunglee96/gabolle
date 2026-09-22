@@ -1,0 +1,51 @@
+{
+  "id": "MA010120220810813007",
+  "name": "본돈까스의집",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49428,
+  "researchedAt": "2026-09-21T21:53:11.899Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주변 직장인 및 인근 주민",
+    "signatureDishes": [
+      "돈까스"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "연제구 연산동 골목 상권 내 위치하여 인근 주민 및 직장인이 주로 찾는 동네 식당 형태"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 연제구 연산동(과정로 291)에 위치한 옛날 스타일 경양식 돈까스집으로 등재되어 있으나, 블로그 리뷰나 상세 메뉴판/영업시간 등 상세 정보는 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "본돈까스의집 - 부산광역시 연제구 과정로 291 (연산동 368-1). 옛날 감성의 돈까스 맛을 제공하는 경양식 전문점. 연락처: 051-868-5747",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "추억의 옛날 경양식 감성의 돈까스를 맛보기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

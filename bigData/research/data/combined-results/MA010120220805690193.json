@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220805690193",
+  "name": "돈갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 46456,
+  "researchedAt": "2026-09-21T22:17:19.430Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 부산진구 백양대로 319 (개금동)에 위치한 상호 '돈갈비'(전화번호: 051-897-6111)는 지역 상호 디렉토리 목록에는 등록되어 있으나, 방문 후기, 상세 메뉴판, 가격대, 영업시간, 혼잡도 등 상세 정량 정보 및 방문 동기(whyPeopleGo)에 대한 웹 문서가 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "돈갈비 / 부산광역시 부산진구 백양대로 319 (개금동) / 051-897-6111",
+      "url": "https://cybo.com"
+    }
+  ],
+  "sources": [
+    "https://cybo.com"
+  ],
+  "whyPeopleGo": []
+}

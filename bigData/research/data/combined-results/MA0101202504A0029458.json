@@ -1,0 +1,31 @@
+{
+  "id": "MA0101202504A0029458",
+  "name": "92막삼",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 41650,
+  "researchedAt": "2026-09-21T21:52:31.667Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 방문 정보 및 상세 운영 데이터 없음 (인허가/상호 DB 외 실제 후기, 메뉴, 영업 정보 부재)",
+  "notes": "부산광역시 해운대구 재반로 252에 등록되었던 '92막삼'은 사업자 인허가/상호 데이터베이스 외에 실제 방문 후기, 메뉴, 가격, 영업시간, 사람들이 찾는 이유 등 식당 운영 및 방문 실태에 대한 유의미한 웹 정보가 확인되지 않습니다. 해당 주소지는 현재 통신사 대리점(LG U+ 반여3동 전통시장점) 등 타 사업장으로 확인됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA0106202605A1983332",
+  "name": "히포",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 58180,
+  "researchedAt": "2026-09-21T14:00:25.570Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "문어구이 & 당근퓨레",
+      "기린 생맥주"
+    ]
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 수영구 무학로33번길 43)는 유효한 도로명 주소로 확인되지 않으며, 해당 위치의 '히포'(일식 회/초밥) 가게 실체를 확인할 수 없음",
+  "notes": "제시된 주소('부산광역시 수영구 무학로33번길 43')는 실제 도로명 주소 체계 및 지도 데이터에서 유효한 주소로 확인되지 않으며, 해당 주소지에 위치한 '히포'(일식 회/초밥) 음식점의 실체 및 상세 영업 정보(영업시간, 가격, 방문 이유 등)를 확인할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

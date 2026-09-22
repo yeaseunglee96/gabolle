@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220811419642",
+  "name": "텐.씨.씨",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 45841,
+  "researchedAt": "2026-09-21T13:57:03.514Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "광안리 야경/광안대교 뷰를 찾는 손님",
+    "queueing": false,
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구청 일반음식점 인허가 자료상 부산 수영구 광안해변로 197 시티나인빌딩 9층에 '텐.씨.씨'라는 상호(경양식/일반음식점)로 등록되어 있으며, 웹상에서는 '텐씨씨(전망좋은집)' 및 광안대교 전망 바(Bar) 형태로 언급된 기록이 확인됩니다. 다만 가격, 세부 메뉴, 영업시간, 혼잡도 등 상세 정량 정보는 공개 웹상에 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업소명: 텐.씨.씨, 업종: 일반음식점, 소재지: 부산광역시 수영구 광안해변로 197 (광안동), 전화번호: 051-757-5800",
+      "url": "https://www.suyeong.go.kr"
+    },
+    {
+      "excerpt": "텐씨씨(전망좋은집) / 전화번호: 051-757-5800 / 주소: 부산광역시 수영구 광안해변로 197 (광안동) 시티나인빌딩 9층",
+      "url": "https://www.infosori.com"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr",
+    "https://www.infosori.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변과 광안대교 조망이 가능한 고층(9층) 공간",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

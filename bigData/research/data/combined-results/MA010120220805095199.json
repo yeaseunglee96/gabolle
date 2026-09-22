@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220805095199",
+  "name": "킹콩스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 81989,
+  "researchedAt": "2026-09-21T14:01:51.644Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장 내 좌석이 협소하여 혼밥이나 가벼운 식사, 포장 및 배달 주문 수요가 많은 편이다."
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인 혼밥족, 포장 배달 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬초밥",
+      "특선초밥",
+      "세트초밥(초밥+우동/모밀)"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30~20:30 (브레이크 타임 15:00~17:00, 라스트 오더 19:50) / 매주 화요일 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 인근 주민이나 직장인 중심의 동네 가성비 초밥집, 혼밥/포장/배달 위주로 이용되는 곳으로 언급된다."
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 구락로 골목에 위치한 초밥 전문점으로, 2023 부산의 맛 선정 및 가성비 좋은 세트메뉴와 모둠초밥으로 인근 주민들에게 평가받는 곳이다.",
+  "price": {
+    "found": true,
+    "priceMenu": "세트초밥(8p+우동/모밀) 9,900원 / 모듬초밥 13,000원 / 특선초밥 20,000원",
+    "priceWon": 9900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "킹콩스시 주소: 부산광역시 수영구 구락로 8-4 (수영동). 가성비가 좋은 동네 초밥집으로 알려져 있으며, 모둠초밥과 세트 메뉴(초밥+우동/모밀 구성)가 인기 있습니다. 혼밥이나 가벼운 식사, 포장/배달 수요가 많은 곳입니다. 영업시간: 11:30~20:30 (브레이크 타임 15:00~17:00, 라스트 오더 19:50) / 매주 화요일 휴무. 문의: 051-751-5036",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "부산 수영구 구락로 8-4에 위치한 킹콩스시의 주요 메뉴 및 가격: 모듬초밥 13,000원, 세트초밥 (초밥 8p + 우동/모밀) 9,900원, 모듬초밥세트 16,500원, 특선초밥 20,000원, 연어초밥 14,000원, 광어초밥 16,000원. 2023 부산의 맛 선정.",
+      "url": "https://busantaste.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://busantaste.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "만원 미만의 초밥+우동/모밀 세트와 부담 없는 가격대의 모듬초밥으로 가성비가 뛰어남",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "1인 혼밥이나 가벼운 식사, 포장/배달 이용 편의성이 좋음",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

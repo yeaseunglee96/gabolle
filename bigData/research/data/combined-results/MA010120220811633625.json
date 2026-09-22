@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220811633625",
+  "name": "영풍개발",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 73612,
+  "researchedAt": "2026-09-21T14:14:58.104Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 단체 관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 숯불구이",
+      "한우모듬",
+      "특수부위"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:30 (명절 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "오륙도와 백운포 바다 경관을 조망할 수 있는 외식 명소로 가족 단위 및 관광객 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 남구 백운포로 14에 등록된 법인 '영풍개발(주)'는 외식업장 '오륙도 가원'(한우 숯불구이 및 카페)을 운영했던 법인 주체입니다. 현재는 폐업/영업종료된 것으로 확인됩니다.",
+  "price": {
+    "found": false,
+    "priceMenu": "한우 숯불구이류",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 백운포로 14에 위치한 주요 시설은 '오륙도 가원'입니다. 건축 외관과 넓은 잔디 정원, 인공 연못을 갖춘 곳으로 부산다운건축상을 수상하기도 했습니다. 바다와 산이 보이는 경관으로 유명하며, 한우 숯불구이 전문 식당과 베이커리 카페를 함께 운영하고 있습니다. 운영 주체는 영풍개발(주)입니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "건축상을 받은 아름다운 외관과 잘 가꾸어진 넓은 잔디정원이 인상적인 한우 숯불구이 전문 식당입니다. 고급스러운 분위기와 서비스로 잘 알려져 있으며, 백운포 바다와 오륙도를 조망할 수 있는 곳에 위치해 있습니다. 대표 메뉴: 특수부위, 한우모음. 영업시간: 11:30 ~ 21:30 (명절 휴무)",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산다운건축상을 수상한 수려한 건물 외관과 넓은 잔디정원, 오륙도 바다 전망의 수려한 경관",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "고급스러운 분위기에서 즐기는 한우 숯불구이 전문 식당",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

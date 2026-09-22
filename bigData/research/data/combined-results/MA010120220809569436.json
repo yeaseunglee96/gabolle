@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220809569436",
+  "name": "수스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 32810,
+  "researchedAt": "2026-09-21T22:24:58.628Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬초밥",
+      "사시미 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 12시 오픈"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 사하구 괴정동 괴정역 인근에 위치한 초밥 및 사시미 전문 일식당. 모듬초밥(미니 우동, 튀김 포함 코스 형태)과 2인 사시미 코스 등을 취급함.",
+  "price": {
+    "found": true,
+    "priceMenu": "모듬초밥",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "점심시간에 방문했을 때 문이 닫혀 있어 저녁에 방문했으며, 확인 결과 영업은 오후 12시에 시작한다고 합니다. 모듬초밥(14,000원)을 주문했으며, 기본 찬으로 미니 우동과 국물이 제공됩니다. 초밥을 다 먹어갈 때쯤 튀김이 나오는 구성입니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산광역시 사하구 괴정동 (낙동대로249번길 33-15 또는 낙동대로233번길 인근 등으로 확인됨) 괴정역 인근 일식 초밥 전문점",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "초밥 주문 시 미니 우동과 튀김이 함께 제공되는 알찬 구성과 코스 요리를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220807067686",
+  "name": "한류풍",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42651,
+  "researchedAt": "2026-09-21T22:33:50.471Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 미존재",
+  "notes": "부산광역시 사하구 사하로198번길 42(괴정동 435-10) 및 부산 사하구 일대에서 '한류풍'(돼지고기 구이/찜) 관련 식당 및 영업 정보가 전혀 확인되지 않습니다. 해당 주소지는 온누리상품권 가맹점 목록상 건어물점(남해건어물) 등으로 나타나며, 식당 정보가 존재하지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

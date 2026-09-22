@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202411A0184997",
+  "name": "행복한느림보",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 44124,
+  "researchedAt": "2026-09-21T14:07:07.374Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "빵/디저트 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "느림보 식빵",
+      "명란 바게트",
+      "소금빵",
+      "까눌레"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 8시부터 재료 소진 시까지 (휴무일은 공식 인스타그램을 통해 공지)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "대한민국 제과제빵 명장인 이흥용 명장이 선보인 베이커리 브랜드 매장으로, 부산 수영구 망미동(좌수영로)에 위치. 베이커리동과 파티셰리동 2개 건물로 분리되어 빵 및 디저트, 음료를 판매함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "베이커리동(빵 포장)과 파티셰리동(디저트 및 음료 카페)으로 공간이 나뉘어 있는 것이 특징입니다. 유산균 발효로 만든 '느림보 식빵'을 비롯해 까눌레, 에그플랑 등 다양한 제과 메뉴를 선보이고 있습니다. 코스트코 부산점 인근에 위치해 있어 접근성이 좋습니다. 이흥용 명장의 다른 브랜드인 '이흥용과자점', '칠암사계', '금정사계' 등과 함께 부산 지역에서 유명한 베이커리 브랜드 중 하나로 알려져 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "이흥용 명장의 노하우가 담긴 다양한 빵과 디저트를 선보이며, 특히 장시간 저온 숙성한 '느림보 식빵'과 소금빵 등이 인기 메뉴로 알려져 있습니다. 영업시간: 오전 8시부터 재료 소진 시까지 운영하며, 휴무일은 공식 인스타그램을 통해 확인 가능합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://siksinhot.com",
+    "https://jobkorea.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대한민국 제과제빵 명장 이흥용이 운영하는 곳으로 저온 숙성 발효 식빵과 명란 바게트 등 수준 높은 빵을 맛보기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220802882128",
+  "name": "짬뽕애",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 44922,
+  "researchedAt": "2026-09-21T21:52:34.485Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민, 직장인",
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짬뽕"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 10:00 ~ 21:00 (라스트 오더 20:00) / 월 10:00 ~ 19:00 (라스트 오더 18:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "배달을 하지 않고 동네 주민들이 찾는 로컬 숨은 짬뽕집으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "해운대구 재반로 골목에 위치한 중식당으로, 배달을 일절 하지 않고 홀 영업 위주로 운영되는 동네 숨은 짬뽕 전문점입니다. 반찬으로 제공되는 김치 및 섞박지가 별미로 언급됩니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "배달도 안 하는 동네 숨은 귀한 짬뽕집 (feat. 김치,섞박지 미쳤음) 주소: 부산 해운대구 재반로256번길 29-30 1층 영업시간: 화~일: 10:00 ~ 21:00 (라스트 오더 20:00), 월: 10:00 ~ 19:00 (라스트 오더 18:00) 기타 정보: 배달은 하지 않으며, 전용 주차장은 없습니다",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "배달을 하지 않고 홀 조리 중심으로 제공되는 짬뽕 맛과 곁들여 먹는 김치·섞박지의 매력",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "외부 관광객보다는 인근 주민들이 주로 찾는 동네 숨은 로컬 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

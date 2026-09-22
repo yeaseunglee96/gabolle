@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220810624171",
+  "name": "안창팽나무집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 49226,
+  "researchedAt": "2026-09-21T14:31:12.081Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에는 노인요양시설(애림요양원/애림실버웰)이 위치해 있으며, 실제 운영 중인 음식점 '안창팽나무집'의 메뉴/가격/후기/영업시간 등의 정보가 존재하지 않습니다.",
+  "notes": "부산광역시 부산진구 안창로10번길 72-25 주소지에는 현재 노인요양시설(애림요양원/애림실버웰)이 들어서 있으며, '안창팽나무집'과 관련된 실제 음식점 운영 정보(메뉴, 가격, 영업시간, 방문 후기 등)는 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

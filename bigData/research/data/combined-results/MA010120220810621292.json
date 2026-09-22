@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220810621292",
+  "name": "동민식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 73863,
+  "researchedAt": "2026-09-21T21:47:01.593Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 범양로 122에 위치한 동민식당(업종: 육류/고기요리)은 기본 사업체 등록 정보만 확인되며, 상세 방문 후기, 가격표, 영업시간 등 세부 정량 데이터는 웹상에서 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동민식당 주소: 부산광역시 부산진구 범양로 122 업종: 음식점 (개인사업자) / 육류, 고기요리",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202501A0074853",
+  "name": "오색섬떡공방",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 84281,
+  "researchedAt": "2026-09-21T14:29:12.506Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "답례떡, 행사 떡을 찾는 주문 고객",
+    "generations": 1,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "설기",
+      "퓨전 떡",
+      "답례떡"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 망미동 비콘그라운드에 위치한 답례떡 및 수제 떡 전문 공방으로 예약/주문 위주로 운영되는 곳입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 망미번영로 63(비콘그라운드 H동 203호)에 위치한 오색섬떡공방. 기본 설기부터 퓨전 스타일의 떡까지 다양한 메뉴를 선보이는 떡 공방입니다. 남녀노소 누구나 즐길 수 있는 친숙한 떡을 만드는 것을 목표로 하고 있습니다. 매장 방문 및 포장/픽업이 가능합니다. 떡은 당일 섭취를 권장하므로 행사 당일 픽업을 추천하고 있으며, 인스타그램 등을 통해 소통하고 있습니다.",
+      "url": "https://themosttimes.co.kr/news/article.html?no=2025022836485472"
+    }
+  ],
+  "sources": [
+    "https://themosttimes.co.kr/news/article.html?no=2025022836485472"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "결혼, 돌, 각종 행사용 답례떡 및 현대적 감각의 퓨전 수제 떡을 맞춤 주문·픽업하기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

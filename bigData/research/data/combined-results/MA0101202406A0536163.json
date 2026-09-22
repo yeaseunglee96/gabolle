@@ -1,0 +1,32 @@
+{
+  "id": "MA0101202406A0536163",
+  "name": "시움",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50625,
+  "researchedAt": "2026-09-21T14:10:51.840Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 전포대로256번길 34 주소 및 전포동 '시움' 경양식 식당에 대해 웹 검색을 다방면으로 진행했으나 일치하거나 유효한 식당 정보를 확인할 수 없어 미발견(found: false) 처리함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

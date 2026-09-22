@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202501A0071435",
+  "name": "도너텍사스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 77125,
+  "researchedAt": "2026-09-21T14:18:14.973Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "이국적인 현지 음식을 찾는 방문객 및 인근 외국인 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "도네르 케밥",
+      "우즈베키스탄식 도네르"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화요일~일요일 11:00~21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "초량 상해거리(텍사스거리)에 위치해 현지 거주 외국인과 특색 있는 음식을 찾는 방문객이 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산역 인근 초량 텍사스거리(상해거리)에 위치하여 우즈베키스탄 출신 사장님이 만드는 정통 우즈벡식 도네르(케밥)를 판매하는 음식점입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 대영로243번길 51, 1층 (지번: 동구 초량동 581). 부산 초량 상해거리(텍사스거리) 인근에 위치한 우즈베키스탄식 도네르(케밥) 전문점으로, 식사와 포장이 모두 가능합니다. 영업시간은 화요일부터 일요일까지 11:00~21:00입니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산 동구 초량동 상해거리에 위치한 '도너텍사스(DonerTexas)'는 우즈베키스탄 출신 사장님이 직접 만드는 우즈베키스탄식 도네르(도너 케밥)를 맛볼 수 있는 음식점입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "우즈베키스탄 출신 사장님이 직접 조리하는 정통 우즈벡식 도네르(케밥)를 맛보기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산역 인근 초량 텍사스거리 내에 위치하여 식사 및 테이크아웃 접근성이 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

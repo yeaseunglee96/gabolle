@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220809855438",
+  "name": "태브",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 51459,
+  "researchedAt": "2026-09-21T22:16:04.976Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 서구 보수대로 248-2 주소지 및 부산 경양식 관련 키워드로 검색했으나 '태브'라는 상호의 경양식 업소는 확인되지 않음",
+  "notes": "해당 주소지에는 '키코덴'(오뎅/꼬치) 등이 위치해 있으며, '태브' 경양식 음식점은 실존 정보가 없어 규칙에 따라 found: false 처리함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

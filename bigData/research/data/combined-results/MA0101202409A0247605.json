@@ -1,0 +1,75 @@
+{
+  "id": "MA0101202409A0247605",
+  "name": "모닝하우스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 39239,
+  "researchedAt": "2026-09-21T21:56:04.386Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 혼잡에 대한 직접적인 언급은 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 학부모, 브런치 모임 고객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "그릴베지 샌드위치",
+      "프렌치토스트",
+      "유자그린티에이드"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 08:00 ~ 15:00 (라스트오더 14:30), 일요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "아이 등원 후 방문하기 좋은 곳으로 언급되는 전형적인 동네 현지인 위주 브런치 카페"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "공식 인허가 상 경양식 업종으로 분류되어 있으나 실제로는 샌드위치, 프렌치토스트, 파스타, 스프, 김밥류 등을 취급하는 사직동 브런치 카페로 운영 중임.",
+  "price": {
+    "found": true,
+    "priceMenu": "프렌치토스트 9,000원 / 그릴베지 샌드위치 12,000원 / 유자그린티에이드 6,000원",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 동래구 미남로 47-7 / 월~토 08:00 ~ 15:00 (라스트오더 14:30) / 매주 일요일 정기휴무 / 매장 앞 2대 정도 가능 / 이른 아침부터 영업을 시작하여 아이들 등원 후 방문하기 좋은 곳으로 알려져 있습니다. 샌드위치, 샐러드, 스프, 파스타 등의 브런치 메뉴와 함께 카레, 묵은지 참치롤, 주먹밥 등 식사 메뉴도 준비되어 있으며, 아기 의자가 구비되어 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산광역시 동래구 미남로 47-7 (사직동 134-20) / 영업 시간: 08:00 ~ 16:00 (라스트오더 15:30) / 주요 메뉴: 그릴베지 샌드위치 12,000원, 프렌치토스트 9,000원, 유자그린티에이드 6,000원",
+      "url": "https://trip.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아침 일찍 문을 열어 아이 등원 후 여유로운 브런치를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "정성 들인 샌드위치와 토스트 등 깔끔한 브런치 식사 메뉴를 제공함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

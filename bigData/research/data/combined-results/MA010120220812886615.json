@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220812886615",
+  "name": "녹원집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 49728,
+  "researchedAt": "2026-09-21T14:29:41.724Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "온라인상 대기/혼잡 언급 없음"
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리 요리",
+      "돼지고기 구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 북구 만덕동 오리마을 인근(구만덕로80번길 24)에 위치한 한식/오리·고기 요리 전문점으로 확인되었습니다. 온라인상 상세 영업시간 및 가격표는 미공개 상태입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "녹원집은 부산광역시 북구 만덕동에 위치한 한식당입니다. 주소: 부산광역시 북구 구만덕로80번길 24 (만덕동) 특징: 만덕동 오리마을의 원조격으로 알려져 있는 식당이며, 주차, 예약, 포장, 신용카드 결제가 가능합니다.",
+      "url": "https://www.bsbukgu.go.kr"
+    },
+    {
+      "excerpt": "업체명: 녹원집, 소재지: 부산광역시 북구 구만덕로80번길 24 (만덕동), 전화번호: 051-332-4553",
+      "url": "https://www.ilovekfood.com"
+    }
+  ],
+  "sources": [
+    "https://www.bsbukgu.go.kr",
+    "https://www.ilovekfood.com",
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "만덕동 오리마을 일대에서 오랜 역사를 가진 전통 오리 및 육류 구이 식당으로 알려짐",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220810511289",
+  "name": "뭉탱이",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 66179,
+  "researchedAt": "2026-09-21T22:34:40.910Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족/회식/동네주민",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "제주 생오겹살",
+      "제주 생목살",
+      "항정살",
+      "가브리살"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 사하구 신평동(하신번영로167번길 2)에 위치한 제주 생고기 전문점 '뭉탱이(신평점)'로 제주 생오겹살, 생목살, 항정살, 가브리살, 양념돼지갈비, 껍데기 등을 판매함. 알찬 기본 상차림(갈치젓갈, 고사리 등)과 푸짐한 김치찌개 등이 특징.",
+  "price": {
+    "found": false,
+    "priceMenu": "미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "뭉탱이 신평점. 위치: 부산광역시 사하구 하신번영로167번길 2 1층 (신평동 607-9). 제주 생오겹살, 목살, 항정살, 가브리살 등 다양한 제주산 돼지고기를 맛볼 수 있는 곳으로, 항정살의 탱글아삭한 식감 등이 특징으로 알려져 있습니다. 갈치젓갈, 고사리, 깻잎장아찌 등 알찬 기본 반찬이 제공되며, 후식으로 나오는 김치찌개와 된장찌개 등도 양이 푸짐하여 인기가 많습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제주산 생오겹살, 목살과 특유의 탱글아삭한 식감의 항정살 등 고기 질과 맛 자체",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

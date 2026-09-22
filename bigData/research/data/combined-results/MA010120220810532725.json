@@ -1,0 +1,57 @@
+{
+  "id": "MA010120220810532725",
+  "name": "배불러生돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 52061,
+  "researchedAt": "2026-09-21T14:30:32.213Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민, 인근 직장인/주민",
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈까스",
+      "돈까스 정식",
+      "함박스테이크"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "남부민동 등대시장 골목 인근 동네 밥집/배달 중심 식당으로 현지 주민들의 식사 위주 후기가 확인됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "부산 서구 남부민로 7 등대시장 인근에 위치한 경양식 돈까스 식당으로, 가성비와 넉넉한 양(정식 등), 포장/배달 위주의 동네 밥집 특성을 보임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 서구 남부민동에 위치한 '배불러생돈까스'는 가성비가 좋은 밥집으로 알려져 있습니다. 남부민동 등대시장 골목 인근에 위치해 있으며 돈까스 외에도 볶음밥, 오므라이스, 면류 등 다양한 메뉴를 판매하며, 가격대가 저렴하여 가성비 식당으로 방문객들의 후기가 있습니다. 돈까스 정식 주문 시 돈까스와 함박스테이크가 함께 제공되기도 합니다. 매장 식사뿐만 아니라 포장 및 배달도 가능합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돈까스 정식 등 저렴한 가격에 푸짐하게 먹을 수 있는 가성비 중심 동네 밥집",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

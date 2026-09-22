@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202503A0063605",
+  "name": "범산야타이",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 85519,
+  "researchedAt": "2026-09-21T14:19:14.995Z",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼술, 데이트, 소규모 모임",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "범산식 접시 오뎅",
+      "온모밀",
+      "오코노미야끼"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "새벽 02:00 영업 종료 (런치 운영)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "문현동 골목 맛집, 인근 직장인 및 주민 방문 위주"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남구 문현동 문현금융로 골목에 위치한 일본식 포차(야타이)/이자카야로, 접시 오뎅과 온모밀, 튀김류 등을 제공하며 점심 식사와 저녁 심야 주점으로 운영됨.",
+  "price": {
+    "found": true,
+    "priceMenu": "범산식 접시 오뎅 19,000원, 온모밀 9,000원~13,000원, 냉모밀 7,000원, 카레 덮밥 6,500원",
+    "priceWon": 19000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 문현금융로 5-1 1층. 대표 메뉴: 범산식 접시 오뎅 (19,000원), 온모밀 (야채튀김): 9,000원, 온모밀 (고등어): 13,000원, 냉모밀: 7,000원, 카레 덮밥 (플레인): 6,500원. 새벽 02:00 영업 종료. 일본 현지 분위기를 느낄 수 있는 곳으로 조용하고 깔끔한 데이트 장소. 오코노미야끼, 고등어구이, 범산하이볼. 사장님이 매우 친절.",
+      "url": "https://feletown.com/1319"
+    },
+    {
+      "excerpt": "야장 분위기의 술집으로 알려져 있으며, 튀김류를 비롯한 다양한 안주를 제공합니다. 혼술, 데이트, 단체 모임 등에 적합한 장소로 언급됩니다. 문현동 골목 맛집.",
+      "url": "https://restaurantguru.com"
+    }
+  ],
+  "sources": [
+    "https://feletown.com/1319",
+    "https://restaurantguru.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일본 현지 야타이 감성의 포차 분위기와 특색 있는 접시 오뎅·모밀 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "새벽 2시까지 심야 영업 및 점심 런치 메뉴 제공으로 방문 편의성이 높음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

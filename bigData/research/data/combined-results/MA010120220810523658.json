@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220810523658",
+  "name": "감천횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 33243,
+  "researchedAt": "2026-09-21T22:33:52.496Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민/시장 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "괴정시장 골목에 위치한 동네 횟집으로 주로 인근 주민들이 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 사하구 괴정동 괴정골목시장 인근에 위치한 작은 동네 횟집으로, 상호 등록 및 가성비 모듬회 위주의 식당으로 확인되나 상세 영업시간, 가격표 및 줄서기 등의 세부 정보는 웹상에 상세히 노출되어 있지 않음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사하구 괴정동 괴정시장 인근에 위치한 감천횟집에 대한 정보입니다. 위치: 부산광역시 사하구 사하로198번길 57. 특징: 괴정시장 인근에 위치한 횟집으로, 모듬회 등 가성비가 좋은 횟집으로 알려져 있습니다.",
+      "url": "https://daum.net"
+    }
+  ],
+  "sources": [
+    "https://daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "괴정시장 인근에서 부담 없이 모듬회를 즐길 수 있는 시장 골목 가성비 횟집",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

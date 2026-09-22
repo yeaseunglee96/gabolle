@@ -1,0 +1,86 @@
+{
+  "id": "MA010120220803082067",
+  "name": "스브로",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 70622,
+  "researchedAt": "2026-09-21T14:00:11.874Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 시간대인 밤 10시 이후 등 심야 시간대에 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "심야 혼술 및 회식 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "라멘",
+      "차슈 수육",
+      "튀김류"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토요일 18:00 ~ 04:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 수영구 무학로 30에 위치한 스브로(수영역본점)는 새벽 4시까지 영업하는 일식 라멘 및 안주 포차 스타일의 심야 식당입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 스브로 수영역본점. 위치: 부산광역시 수영구 무학로 30 (광안동, 한아름빌라 1층). 일본식 라멘을 비롯해 차슈 수육, 튀김류 등 다양한 퓨전 안주를 판매하는 심야 포차 스타일의 식당입니다. 새벽 늦은 시간까지 운영(주로 18:00 ~ 04:00, 일요일 휴무)하여 심야 식사나 술자리 장소로 알려져 있습니다. 라멘과 함께 차슈 수육 등이 인기 메뉴로 꼽히며, 친절한 서비스와 가성비 좋은 안주로 후기가 좋은 편입니다.",
+      "url": "https://pandarank.net"
+    },
+    {
+      "excerpt": "스브로(수영역본점) 위치: 부산광역시 수영구 무학로 30. 일식 및 퓨전 요리 전문점으로, 주로 라멘, 차슈 수육, 튀김류 등 다양한 안주를 판매하는 심야 식당. 운영 시간: 월~토요일 18:00 ~ 04:00 (일요일 휴무). 인기 시간대(밤 10시 이후 등)에는 웨이팅이 있을 수 있으니 참고하시기 바랍니다.",
+      "url": "https://cheble.net"
+    }
+  ],
+  "sources": [
+    "https://pandarank.net",
+    "https://cheble.net",
+    "https://udanax.org",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "새벽 4시까지 운영되어 늦은 밤 심야 식사 및 술자리로 방문하기 좋음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "일본식 라멘과 차슈 수육, 튀김 등 맛있는 일식 안주 메뉴를 제공함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부담 없는 가격대의 가성비 좋은 안주와 친절한 서비스 만족도가 높음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

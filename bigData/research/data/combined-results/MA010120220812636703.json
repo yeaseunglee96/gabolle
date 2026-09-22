@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220812636703",
+  "name": "남궁식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 31655,
+  "researchedAt": "2026-09-21T14:30:09.965Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "현지인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "장어구이",
+      "꼼장어",
+      "장어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송도 인근 연탄불 장어구이로 현지인들이 주로 찾던 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": "대상 주소(부산광역시 서구 등대로 109)에는 '남궁식당'이라는 횟집 상호가 존재하지 않으며, 동일 주소지에 '남궁장어구이'가 과거 존재했으나 현재는 최신 영업 정보를 찾을 수 없습니다.",
+  "notes": "'남궁식당'은 미확인(found: false) 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

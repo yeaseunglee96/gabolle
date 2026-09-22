@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220803915687",
+  "name": "우리돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 77167,
+  "researchedAt": "2026-09-21T14:05:17.346Z",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "경양식 돈까스"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "광안역 4번 출구 인근(부산 수영구 장대골로7번길 27, 광안동 744-3 금성빌라 1층)에 위치했던 경양식 돈까스 전문점으로, 푸짐한 양의 경양식 돈까스와 매운 소스 곁들임 등이 언급되는 식당입니다. 상세한 영업시간 및 대기 정보는 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 장대골로7번길 27 (광안동 744-3) 금성빌라 1층 우리돈까스",
+      "url": "https://siksinhot.com/P/1018698"
+    },
+    {
+      "excerpt": "기본 경양식 돈가스의 경우 양이 푸짐하고 소스가 단짠의 조화를 이루는 것이 특징으로 언급되고 있습니다. 필요에 따라 매운 소스를 곁들여 단맛을 중화하며 즐길 수 있다는 평이 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com/P/1018698",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "푸짐한 양과 단짠 소스에 매운 소스를 곁들여 즐길 수 있는 옛날 경양식 돈까스 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

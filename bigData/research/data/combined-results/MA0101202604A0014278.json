@@ -1,0 +1,32 @@
+{
+  "id": "MA0101202604A0014278",
+  "name": "완부",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 68142,
+  "researchedAt": "2026-09-21T14:06:10.011Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 좌수영로210번길 24 및 수영구 망미동 일대에서 '완부' 상호의 음식점(일식 회/초밥) 정보가 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

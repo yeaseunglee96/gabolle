@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202512A0030316",
+  "name": "원호정",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 75518,
+  "researchedAt": "2026-09-21T21:53:52.425Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인, 혼밥객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "등심카츠",
+      "치즈카츠",
+      "치즈모듬카츠",
+      "새우모듬카츠"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산광역시 동구 수정동(중앙대로361번길 36)에 위치한 곳으로, 일식 회/초밥보다는 등심카츠, 치즈카츠 등 돈카츠와 소바/우동을 전문으로 하는 식당입니다. 온라인 상의 상세 후기, 가격표, 영업시간, 대기 정보 등은 제한적입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 수정동(중앙대로361번길 36)에 위치한 원호정은 일식 돈카츠 전문점으로 분류되는 음식점입니다. 주요 정보는 다음과 같습니다: 주소: 부산광역시 동구 중앙대로361번길 36 (수정동 275-1). 주요 메뉴: 등심카츠, 치즈카츠, 치즈모듬카츠, 새우모듬카츠, 우동돈카츠세트, 냉소바 등",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수정동/부산진역 인근에서 등심카츠, 치즈카츠 등 일식 돈카츠 및 세트 메뉴로 식사하기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

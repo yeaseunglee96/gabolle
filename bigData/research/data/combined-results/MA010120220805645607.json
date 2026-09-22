@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220805645607",
+  "name": "87식당",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 71324,
+  "researchedAt": "2026-09-21T14:12:55.052Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼밥객, 배달·포장 이용객, 인근 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈코츠라멘",
+      "매운 해장라멘",
+      "한우대창라멘",
+      "차슈덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 10:00 ~ 익일 00:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산광역시 남구 지게골로 6(문현동)에 위치한 일식/라멘 전문점으로, 돈코츠라멘, 해장라멘, 대창라멘, 차슈덮밥 등 다양한 식사 및 안주 메뉴를 취급하며 배달과 홀 영업을 병행하고 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "매콤칼칼 매운 해장라멘",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 지게골로 6 (문현동 859-2). 업종: 세계음식 > 라멘 전문점. 주요 메뉴: 돈코츠라멘, 미소라멘, 해장라멘, 대창라멘 등 다양한 라멘류, 대창 전골, 야끼소바(해물/소고기), 오꼬노미야끼, 차슈 덮밥, 소불고기 덮밥, 돈카츠 등의 사이드 메뉴, 냉짬뽕(계절 메뉴) 등. 배달 위주로 운영되는 아담한 규모의 식당으로 알려져 있으며",
+      "url": "https://www.siksinhot.com/P/1608670876405703"
+    },
+    {
+      "excerpt": "문현동 곱창골목 인근에 위치한 라멘 및 덮밥 전문점입니다. 배달 위주로 운영되나 홀에서도 식사가 가능합니다. 대표 메뉴: 돈코츠라멘, 냉짬뽕(계절 메뉴), 차슈 마제소바, 한우대창라멘, 차슈 덮밥 등 다양한 일식 메뉴를 제공합니다. 영업시간: 오전 10시부터 익일 00시까지 운영합니다.",
+      "url": "https://www.facebook.com"
+    },
+    {
+      "excerpt": "부산광역시 남구 지게골로 6 87식당. (곁들임) 차슈덮밥: 7,000원, [곁들임] 카라아게밥: 7,000원, (베스트) 매콤칼칼 매운 해장라멘: 10,000원",
+      "url": "https://xn--hy1bj0eiyta.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1608670876405703",
+    "https://www.facebook.com",
+    "https://xn--hy1bj0eiyta.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돈코츠라멘, 매운 해장라멘, 대창라멘 등 깊고 칼칼한 라멘 국물과 다양한 토핑의 맛을 즐기기 위해 방문 및 배달 주문함.",
+      "sources": [
+        0,
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오전 10시부터 자정까지 긴 시간 동안 식사 및 야식 배달·포장이 가능하여 편리하게 이용함.",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

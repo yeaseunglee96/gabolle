@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202601A0013121",
+  "name": "키엔",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 57114,
+  "researchedAt": "2026-09-21T21:49:01.318Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "high",
+    "queueing": null,
+    "signatureDishes": [
+      "런치 오마카세코스",
+      "디너 오마카세코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 동구 범일동 진흥 마제스타워 범일 1층에 위치한 일식 오마카세 전문점. 식신 및 구인 정보 등에 런치 및 디너 오마카세 코스 위주로 등록되어 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 자성로133번길 6 진흥 마제스타워 범일 1층. 일식 (오마카세). 주요 메뉴: 런치 오마카세코스, 디너 오마카세코스.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.albamon.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "런치 및 디너 일식 오마카세 코스를 전문으로 제공하는 곳이기 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

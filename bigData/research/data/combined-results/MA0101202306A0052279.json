@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202306A0052279",
+  "name": "부자돼지",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 51488,
+  "researchedAt": "2026-09-21T22:15:27.957Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 연제구 연산동 2132-17에 위치한 돼지고기 전문 음식점으로 상호 등록 및 복지 활동 이력은 확인되나, 방문 후기 및 메뉴·영업시간 등 세부 영업 정보는 웹상에 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 연산동 2132-17 부자돼지 (고기요리)",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,82 @@
+{
+  "id": "MA010120220811394250",
+  "name": "돼지촌",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 45733,
+  "researchedAt": "2026-09-21T21:50:33.774Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 회식, 모임, 50대 남성",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "숯불 돼지갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 22:00 (수요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지역 주민들이 자주 찾는 맛집 및 직장인/가족 모임 장소로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 반여동(재반로 216-1)에 위치한 돼지갈비 전문점으로 가성비와 푸짐한 밑반찬(쌈 채소, 계란찜 등)으로 지역 주민 및 모임 고객이 주로 찾는 곳입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "숯불에 구워 먹는 돼지갈비가 대표 메뉴로 알려져 있습니다. 매장 규모가 넓어 단체 예약이 가능하며, 지역 주민들이 자주 찾는 맛집으로 소개됩니다. 밑반찬 구성이 다양하며 쌈 채소 등을 푸짐하게 제공하는 것으로 언급됩니다. 영업시간: 11:30 ~ 22:00 (수요일 휴무), 가게 앞 공용주차장을 이용할 수 있으나 주차비는 별도로 발생합니다.",
+      "url": "https://www.siksinhot.com/P/358189"
+    },
+    {
+      "excerpt": "대표 메뉴: 숯불 돼지갈비. 물냉면, 된장찌개, 공깃밥 등과 함께 즐기기 좋습니다. 밑반찬 구성이 좋기로 알려져 있으며, 쌈 채소를 푸짐하게 제공합니다. 그 외 도토리묵, 계란찜 등이 나옵니다. 가성비가 좋고 저렴한 편이며, 가족 외식, 회식, 모임, 직장인 식사 장소로 자주 이용됩니다. 좌식 테이블이 있으며 편안한 분위기입니다. 50대 남성들에게 특히 인기가 많습니다.",
+      "url": "https://www.siksinhot.com/P/358189"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/358189"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불에 구워 먹는 달짝지근한 돼지갈비와 쌈 채소, 계란찜 등 푸짐한 밑반찬 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "가격대가 비교적 저렴하고 양과 구성 대비 가성비가 뛰어남",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "동네 주민 및 인근 직장인들이 가족 외식이나 모임·회식 장소로 편하게 찾는 곳",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220808038455",
+  "name": "그집고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 46754,
+  "researchedAt": "2026-09-21T22:02:39.934Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 부산진구 가야대로 670(새마을금고 건물)에 '그집고기' 식당 정보 부재",
+  "notes": "부산광역시 부산진구 가야대로 670 및 인근 주소로 검색했으나, 해당 주소지는 가야1동 새마을금고 본점 빌딩이며 '그집고기'라는 상호의 돼지고기 구이/찜 음식점에 대한 실제 운영 정보나 웹 문헌이 확인되지 않아 found: false로 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

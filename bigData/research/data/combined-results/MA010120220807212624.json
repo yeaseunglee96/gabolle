@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220807212624",
+  "name": "교토밥상",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 71024,
+  "researchedAt": "2026-09-21T14:15:52.047Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "피크 타임 대기 가능성이 있으나 특정 웨이팅 체계나 대기 시간에 대한 직접 언급 없음"
+  },
+  "descriptors": {
+    "audience": "대학생 및 데이트 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "규카츠 정식",
+      "사케동",
+      "스테이키동"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:10 ~ 21:00 (브레이크타임 15:00~17:00, 라스트오더 20:20)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산대 인근에 위치하여 부산대 학생 및 인근 지역 주민 위주 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산대 정문 부근에 위치한 규카츠 전문 일본 가정식 식당으로, 개인 미니 화로에 취향껏 구워 먹는 규카츠 정식이 대표적입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "규카츠 정식",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 금정구 금강로 270, 2층 (부산대 정문 근처). 주요 메뉴: 일본식 규카츠 정식을 비롯해 사케동(연어덮밥), 스테이키동, 아보카도 키마카레 등 다양한 일본 가정식 요리를 제공합니다. 일본 감성의 인테리어로 꾸며져 있으며, 규카츠를 주문하면 개인 화로가 함께 제공되어 취향에 맞게 익혀 먹을 수 있는 것이 특징입니다. 영업시간: 매일 11:10 ~ 21:00 (브레이크타임 15:00~17:00, 라스트오더 20:20)",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "교토밥상은 일본식 규카츠를 전문으로 하는 식당입니다. 주요 메뉴: 규카츠 정식: 16,000원, 더블 규카츠 정식: 30,000원 ~ 32,000원, 규소 세트 (1인): 22,000원 (규카츠 정식 + 미니 메밀소바), 밥상 세트 (2인): 32,000원. 규카츠를 주문하면 미니 화로가 제공되어 취향에 맞게 직접 구워 먹을 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "개인 미니 화로에 직접 구워 먹는 부드러운 규카츠와 정갈한 일본 가정식 차림",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

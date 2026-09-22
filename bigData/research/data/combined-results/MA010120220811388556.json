@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811388556",
+  "name": "동일참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 68220,
+  "researchedAt": "2026-09-21T14:16:43.965Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "회식, 모임, 애주가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "동일투나",
+      "실장골드",
+      "뱃살모듬"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 15:00 ~ 24:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "대연동 주민 및 인근 직장인들이 주로 찾는 동네 참치 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 남구 대연동(대연역 인근)에 위치한 참치 코스 및 단품 전문점 동일참치 대연점으로, 코스 리필 및 사이드 메뉴(초밥, 튀김 등)가 함께 제공됨.",
+  "price": {
+    "found": true,
+    "priceMenu": "동일투나(1인) 43,000원, 실장골드(1인) 60,000원, 프리미엄(1인) 100,000원, 뱃살모듬 접시(소) 55,000원",
+    "priceWon": 43000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 진남로 7-3 1층 (대연역 인근 도보 약 5분 거리)... 영업시간: 월~토 15:00 ~ 24:00 (일요일 휴무)... 주요 메뉴: 동일투나(1인): 43,000원, 실장골드(1인): 60,000원, 프리미엄(1인): 100,000원, 뱃살모듬 접시(소/중/대): 55,000원 / 85,000원 / 105,000원",
+      "url": "https://heyyumi.ai"
+    },
+    {
+      "excerpt": "참치 코스 요리를 제공하며, 리필 메뉴와 초밥, 튀김 등의 사이드 메뉴를 즐길 수 있는 곳으로 알려져 있습니다. 일본풍 인테리어로 꾸며져 있으며, 대연역 인근 도보 5분 거리에 동일참치 대연점이 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참치회 리필 코스와 초밥, 튀김 등 알찬 곁들임 요리를 즐길 수 있어서",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "다양한 코스 구성과 리필 제공 대비 합리적인 코스 단가",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220805401974",
+  "name": "오히츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 29748,
+  "researchedAt": "2026-09-21T22:25:58.461Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "점심특선 A",
+      "점심특선 B",
+      "점심특선 C",
+      "오히츠초밥",
+      "특선초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 서구 꽃마을로 48(대신더샵 상가)에 위치한 일식 초밥 전문점으로, 1만 원대 점심특선 등 합리적인 가격대의 초밥을 제공합니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "점심특선 A 10,000원, 점심특선 B 13,000원, 점심특선 C 15,000원",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 서구 꽃마을로 48, 대신더샵 301동 104, 105호 오히츠 일식 초밥 전문. 메뉴: 점심특선 A 10,000원, 점심특선 B 13,000원, 점심특선 C 15,000원, 오히츠초밥, 특선초밥 등. 전화번호: 051-242-2002.",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대신더샵 아파트 상가에서 1만 원대부터 시작하는 가성비 점심특선 및 일식 초밥 메뉴를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

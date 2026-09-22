@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202603A0000746",
+  "name": "오또맨",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 76765,
+  "researchedAt": "2026-09-21T13:57:38.490Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도나 줄서기에 대한 웹상의 언급 없음"
+  },
+  "descriptors": {
+    "audience": "캐주얼 다이닝 모임 및 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "화덕피자",
+      "버거",
+      "파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 AM ~ 10:00 PM (Break Time 15:00 ~ 17:00 / Last Order 21:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "2026년 상반기 신규 오픈한 캐주얼 이탈리안 다이닝(화덕피자, 버거, 파스타 등)으로 주차가 가능하며 상세 메뉴판 가격 및 후기 정보는 아직 제한적임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오또맨(Ottomen)은 부산광역시 해운대구 달맞이길 16-16, 2층(팔레드시즈 맞은편)에 위치한 캐주얼 다이닝 레스토랑입니다. 주요 메뉴는 화덕피자, 버거, 파스타 등입니다. '오또(Otto)'는 이탈리아어로 숫자 8을 의미하며, 풍요와 행운, 무한한 관계를 상징합니다.",
+      "url": "https://www.facebook.com"
+    },
+    {
+      "excerpt": "위치: 부산 해운대구 달맞이길 16-16, 2층 / 영업시간: 런치 11:30 AM ~ 3:00 PM, 브레이크타임 3:00 PM ~ 5:00 PM, 디너 5:00 PM ~ 10:00 PM (라스트 오더 9:00 PM) / 주차 가능",
+      "url": "https://www.albamon.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com",
+    "https://www.albamon.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화덕피자, 버거, 파스타 등 캐주얼 이탈리안 음식을 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "달맞이길·해운대 해변 인근 위치 및 주차 지원으로 모임 및 식사 접근이 편리함",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

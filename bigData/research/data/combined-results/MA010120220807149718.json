@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220807149718",
+  "name": "곤파치",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 40445,
+  "researchedAt": "2026-09-21T14:26:35.925Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 줄서기, 혼잡도 관련 언급을 확인할 수 없음"
+  },
+  "descriptors": {
+    "audience": "모임 및 회식 객, 안주와 술을 즐기는 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오늘의 한상(오마카세)",
+      "사시미(대방어/연어)",
+      "돈까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 연제구 쌍미천로155번길 29에 위치했던 해산물 이자카야/횟집 '곤파치'로, 현재 동일 주소지에는 '꽃대장' 등 다른 업종의 음식점이 들어서 있어 폐업 혹은 이전된 것으로 추정됨. 과거 운영 당시 '오늘의 한상(오마카세)' 코스(1인 35,000원) 및 신선한 제철 사시미와 돈까스 등으로 인기를 끌었음.",
+  "price": {
+    "found": true,
+    "priceMenu": "오늘의 한상 오마카세 1인 35,000원",
+    "priceWon": 35000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "메뉴 및 가격: '오늘의 한상' 오마카세가 1인 35,000원에 제공됩니다. 특징: 참다랑어 뱃살, 돈까스, 가리비찜 등이 포함된 구성으로, 특히 돈까스 맛집으로도 언급되었습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "특징 및 분위기: 연산역에서 도보로 약 7분 거리에 위치하며, 해산물을 전문으로 하는 이자카야입니다. 가게 내부에 수조가 있어 신선한 횟감을 확인할 수 있으며, 넓은 공간을 갖추고 있어 단체 모임이나 2차 장소로도 자주 언급됩니다. 사시미: 대방어, 연어 등 신선한 회 메뉴가 인기 있으며, 횟감은 당일 소진 시 마감하는 방식으로 운영되기도 합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참다랑어 뱃살, 대방어, 연어 등 신선한 회와 가리비찜, 돈까스까지 나오는 알찬 구성의 맛있는 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1인 35,000원에 사시미와 다양한 안주가 코스 형태로 푸짐하게 제공되는 가성비 한상 차림",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

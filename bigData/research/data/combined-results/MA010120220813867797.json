@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220813867797",
+  "name": "뒷고기한판떼기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 33469,
+  "researchedAt": "2026-09-21T22:21:54.308Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도의 대기나 줄서기 정보는 언급되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족, 모임, 현지 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "뒷고기 한판",
+      "치즈폭탄볶음밥",
+      "미나리삼겹살 한판"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "유동적인 경우가 많아 사전 문의 권장 (정확한 고정 영업시간 미기재)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "영도구 동삼동 지역 주민 및 현지인들이 자주 찾는 고깃집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 영도구 태종로 750 봉조빌딩 4층에 위치한 뒷고기 전문점으로, 뒷고기 한판과 치즈폭탄볶음밥이 대표 메뉴이며 직원이 직접 고기를 구워주고 셀프 라면 서비스 등으로 가성비와 서비스 만족도가 높은 편임. 전용 주차 공간은 없음.",
+  "price": {
+    "found": true,
+    "priceMenu": "뒷고기 한판 30,000원, 미나리삼겹살 한판 40,000원, 우삼겹 한판 35,000원, 뼈없는 돼지갈비 한판 23,000원, 치즈폭탄볶음밥 6,500원",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 태종로 750 (동삼동 725-3) 봉조빌딩 4층. 뒷고기 한판 30,000원, 미나리삼겹살 한판 40,000원, 우삼겹 한판 35,000원, 뼈없는 돼지갈비 한판 23,000원, 치즈폭탄볶음밥 6,500원. 직원이 고기를 직접 구워주며 파채와 김치, 마늘 등을 함께 굽는 방식. 인스타그램 해시태그 이벤트 참여 시 라면 무제한 제공. 전용 주차 공간 없음.",
+      "url": "https://www.siksinhot.com/P/1012543"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1012543"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "뒷고기 한판 등 푸짐한 양 대비 저렴한 가격대와 라면 무제한 서비스 등 높은 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "직원이 고기를 직접 구워주며 불판에 파채와 김치를 함께 구워주는 편리하고 친절한 접객 서비스",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "영도 동삼동 지역 주민들이 가족 외식 및 모임 장소로 자주 찾는 뒷고기 전문점",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

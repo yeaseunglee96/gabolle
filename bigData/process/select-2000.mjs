@@ -173,6 +173,53 @@ async function loadSbiz() {
   return { food, lodging, leisure };
 }
 
+// ── TourAPI 비식품 후보 ──────────────────────────────────────────────────────
+// 🔴 음식 선정(점수 모델·불변식)은 위에서 전혀 안 건드린다. 모델이 음식 전용 신호로
+// 맞춰져 있어 비식품에 그대로 못 쓴다 — 그래서 별도 규칙으로 뒤에 덧붙이기만 한다.
+const TOURAPI_RAW = path.join(ROOT, "data/raw/tourapi/tourapi-busan.ndjson");
+const TOURAPI_LABEL = { 12: "관광지", 14: "문화시설", 15: "행사공연축제", 28: "레포츠", 32: "숙박", 38: "쇼핑" };
+/**
+ * 「부산광역시 해운대구 …」에서 구·군만 뽑는다. TourAPI 가 행정동은 안 주므로 hdong 은 모르는 채로 둔다.
+ * 🔴 `\b`(단어 경계) 는 한글에서 안 먹는다 — JS 정규식의 `\w` 는 영문·숫자만 쳐서 한글 뒤에서는
+ * 경계로 안 잡힌다. 그래서 공백으로 토큰을 나눠 「구·군으로 끝나는 토큰」을 직접 찾는다.
+ */
+function guFromAddr(addr) {
+  const tok = String(addr ?? "").split(/\s+/).find((s) => /(구|군)$/.test(s));
+  return tok ?? null;
+}
+async function loadTourapiNonFood() {
+  if (!fs.existsSync(TOURAPI_RAW)) {
+    console.log(`  ⚠ ${TOURAPI_RAW} 이 없어 비식품 후보를 못 붙입니다`);
+    return [];
+  }
+  const rl = readline.createInterface({
+    input: fs.createReadStream(TOURAPI_RAW, { encoding: "utf8" }),
+    crlfDelay: Infinity,
+  });
+  const byId = new Map(); // contentid → item. 한 줄 = 장소 하나가 아니라 API 응답 봉투 하나다
+  let dup = 0;
+  let badCoord = 0;
+  for await (const line of rl) {
+    if (!line.trim()) continue;
+    const env = JSON.parse(line);
+    if (env.stage !== "list") continue; // detail 은 같은 곳의 상세 설명이라 건너뛴다 (숙박 66줄=목록1+상세65 문제)
+    if (env.contentTypeId === 39) continue; // 음식은 상가 CSV 가 이미 맡는다 — 여기서 안 섞는다
+    const raw = JSON.parse(env.raw);
+    let items = raw?.response?.body?.items?.item;
+    if (!items) continue;
+    if (!Array.isArray(items)) items = [items];
+    for (const it of items) {
+      const lat = Number(it.mapy); // 🔴 Number('') 는 0 이다 — isFinite 로 거르지 않으면 "너무 멀다"로 조용히 버려진다
+      const lon = Number(it.mapx);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat === 0 || lon === 0) { badCoord++; continue; }
+      if (byId.has(it.contentid)) dup++; // 같은 id 가 두 번째 나오면 로그로 남기고 뒤엣것으로 덮는다
+      byId.set(it.contentid, { ...it, lat, lon, contentTypeId: env.contentTypeId });
+    }
+  }
+  console.log(`  TourAPI 비식품 — 중복 id ${dup}건 덮음 · 좌표 없음 ${badCoord}건 뺌`);
+  return [...byId.values()];
+}
+
 // ── 격자 색인 ────────────────────────────────────────────────────────────────
 const R = 6371000;
 function haversine(aLat, aLon, bLat, bLon) {
@@ -610,8 +657,43 @@ const lines = selected.map(({ row: r, rule, rankInGroup }) => {
     permit: p ? { state: p.state, openedOn: p.openedOn, category: p.category } : null,
   });
 });
-fs.writeFileSync(OUT, lines.join("\n") + "\n");
-console.log(`\n→ ${path.relative(ROOT, OUT)} (${selected.length}줄)`);
+console.log("\nTourAPI 비식품 후보를 읽습니다 …");
+const tourapiItems = await loadTourapiNonFood();
+const tourapiLines = tourapiItems.map((it) =>
+  JSON.stringify({
+    id: `tourapi-${it.contentid}`,
+    name: it.title,
+    branch: null,
+    roadAddr: it.addr1 || null,
+    gu: guFromAddr(it.addr1),
+    hdong: null, // TourAPI 는 행정동을 안 준다 — 모르는 것을 지어내지 않는다
+    bdong: null,
+    category: {
+      code: `TOURAPI-${it.contentTypeId}`,
+      name: TOURAPI_LABEL[it.contentTypeId] ?? String(it.contentTypeId),
+      mid: null,
+    },
+    lon: it.lon,
+    lat: it.lat,
+    pick: {
+      rule: "tourapi-nonfood",
+      why: "TourAPI 비식품 갈래 — 음식 쏠림을 줄이려 덧붙인 후보 (점수 모델 밖)",
+      rankInGroup: null,
+      globalRank: null,
+      score: null,
+    },
+    permit: null,
+  }),
+);
+const tourapiByCat = countBy(tourapiItems, (it) => TOURAPI_LABEL[it.contentTypeId] ?? it.contentTypeId);
+console.log(`TourAPI 비식품 후보 — 갈래별 수 (고유 contentid 기준)`);
+for (const [k, v] of [...tourapiByCat.entries()].sort((a, b) => b[1] - a[1])) console.log(`  ${k} ${v}`);
+
+const allLines = [...lines, ...tourapiLines];
+fs.writeFileSync(OUT, allLines.join("\n") + "\n");
+console.log(
+  `\n→ ${path.relative(ROOT, OUT)} (식품 ${selected.length}곳 + 비식품 ${tourapiLines.length}곳 = ${allLines.length}줄)`,
+);
 
 if (problems.length) {
   console.error("\n🔴 불변식이 깨졌습니다 — 이 목록을 쓰면 안 됩니다");

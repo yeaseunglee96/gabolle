@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220814033367",
+  "name": "달빛초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 56342,
+  "researchedAt": "2026-09-21T21:48:33.452Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동래구 명안로 83에 '달빛초밥'이라는 상호의 일식(회/초밥) 등록 정보는 확인되나, 일반 소비자 후기, 영업시간, 가격, 방문 이유 등의 상세 정보는 웹상에 존재하지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "달빛초밥 주소: 부산광역시 동래구 명안로 83 (명장동) 전화번호: 010-4415-9011 업종: 일식 (회/초밥)",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

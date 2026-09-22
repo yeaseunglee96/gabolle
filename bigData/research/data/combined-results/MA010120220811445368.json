@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220811445368",
+  "name": "구이원",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 46667,
+  "researchedAt": "2026-09-21T14:20:14.773Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 관한 명확한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "회식 및 단체 모임, 친구, 연인",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생삼겹살",
+      "고추장삼겹살",
+      "항정살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "웹 검색 결과 명확한 영업시간 텍스트 미제공 (방문 전 유선 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 전용 언급 없음 (인근 대연동/경성대 상권 손님 중심)"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "경성대 인근에서 대연동 사거리 골목(유엔평화로10번길 7)으로 이전해 영업했던 고깃집으로, 꼬치 회전식 특수 숯불 구이판을 사용해 직원이 직접 구워주는 방식이 특징인 곳입니다. 현재는 과거 리뷰 위주로 확인됩니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 유엔평화로10번길 7 (대연동). 독특한 형태의 불판에 숯불을 넣고, 고기를 쇠막대에 꽂아 빙글빙글 돌려가며 굽는 방식이 특징. 직원이 직접 구워주는 시스템이며 인근 유료 주차장 이용 시 1시간 무료 지원. 생삼겹살, 고추장 삼겹살, 볶음밥 등이 대표 메뉴.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "특수 회전 구이판을 이용해 직원이 직접 숯불에 구워주는 편리함과 기름기 빠진 고기 맛",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "생삼겹살 및 양념 고추장삼겹살과 식사 후 볶음밥의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

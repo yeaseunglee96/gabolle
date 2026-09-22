@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220806977767",
+  "name": "포션",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65397,
+  "researchedAt": "2026-09-21T13:58:14.765Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡도 관련 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트 및 브런치·펍 모임 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "라구파스타",
+      "프렌치토스트",
+      "잠봉샌드위치"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "브런치 11:00 ~ 02:00 (라스트오더 01:00), 펍&바 17:00 ~ 02:00 (라스트오더 01:00), 매주 수요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 별도 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 해운대 해리단길에 위치한 브런치 카페 겸 펍&바로, 구 '카페 플럼피' 운영자가 오픈한 매장이다. 낮에는 브런치, 저녁에는 펍 및 바(다트 구비)로 운영된다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 우동1로20번길 7, 2층. 구 '카페 플럼피' 사장님이 새롭게 오픈한 브런치 카페이자 펍·바. 영업시간 브런치 11:00 ~ 02:00 (라스트오더 01:00), 펍&바&다트 17:00 ~ 02:00 (라스트오더 01:00), 정기휴무 수요일. 인테리어와 소품 배치가 감각적이고 힙한 분위기, 오픈형 주방 구조 바 테이블. 라구파스타. 주차는 해리단길 입구 주차장 이용.",
+      "url": "https://simba-note.tistory.com/"
+    },
+    {
+      "excerpt": "위치: 부산광역시 해운대구 우동1로20번길 7, 2층. 해리단길에 위치한 힙한 분위기의 브런치 카페이자 펍&바. 주택을 개조한 감성적인 인테리어, 테라스 좌석, 프렌치 토스트, 잠봉 샌드위치, 토마토 라구 파스타. 매주 수요일 정기휴무.",
+      "url": "https://tistory.com/"
+    }
+  ],
+  "sources": [
+    "https://simba-note.tistory.com/",
+    "https://tistory.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감각적인 인테리어와 주택 개조 감성, 낮에는 브런치와 저녁에는 펍·바를 겸하는 힙한 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대역 도보권 및 해리단길 접근성과 테라스·다트 시설 등 즐길거리 구비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

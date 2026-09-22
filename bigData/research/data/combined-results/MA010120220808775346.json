@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220808775346",
+  "name": "찐추어탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 34287,
+  "researchedAt": "2026-09-21T21:57:38.803Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "추어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사하구 감천로 171-1(감천동) 소재 상호 '찐추어탕'은 지역 상권 및 주소 DB에 한식/해장국 업소로 등록되어 있으나, 방문 후기 및 가격, 영업시간 등 상세 정보는 웹상에 공개되어 있지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 찐추어탕, 주소: 부산광역시 사하구 감천로 171-1 (감천동), 업종: 해장국, 감자탕 등",
+      "url": "https://pervsi.com"
+    },
+    {
+      "excerpt": "부산광역시 사하구 감천동 일대 (감천사거리, 부산할인마트 인근) 한식(해장국/감자탕 분류) 찐추어탕",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com",
+    "https://zippoom.com",
+    "https://zaritalk.com"
+  ],
+  "whyPeopleGo": []
+}

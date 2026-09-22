@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220812094492",
+  "name": "다거도횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 67832,
+  "researchedAt": "2026-09-21T14:13:01.015Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 줄서기 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 혼밥",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "장어탕",
+      "회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 서구 자갈치로 4에 위치한 일반 횟집으로, 포털 및 식신 등 맛집 디렉토리에 장어탕 및 회 전문점으로 등록되어 있으나 상세 방문기나 가격표 등의 세부 웹 데이터는 제한적임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "다거도횟집 / 부산 서구 충무동1가 / 장어탕으로 담백한 정성! / 대표메뉴: 회, 장어탕",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "다거도횟집 / 도로명주소: 부산광역시 서구 자갈치로 4 (충무동1가) / 업종: 한식, 횟집 / 전화번호: 051-254-5566",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "장어탕과 담백한 회 요리를 맛보기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

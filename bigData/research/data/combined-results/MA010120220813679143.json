@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220813679143",
+  "name": "안동네",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42641,
+  "researchedAt": "2026-09-21T21:50:27.490Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 동래구 연안로52번길 67에 사업자/업체명 '안동네'(업태: 식육(숯불구이), 전화번호 051-528-8482)로 등록된 식당 정보는 확인되나, 일반 소비자 블로그, 방문 후기, 상세 메뉴판/가격, 영업시간 등 세부 정량 정보 및 사람들이 찾는 이유에 대한 기록은 웹상에 공개되어 있지 않아 정량 항목 대부분을 미확인(found: false) 처리함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업체명: 안동네, 업태: 식육(숯불구이), 주소: 부산광역시 동래구 연안로52번길 67 (안락동), 전화번호: 051-528-8482",
+      "url": "https://infosori.com"
+    },
+    {
+      "excerpt": "기타: 사업자 정보상 '안동네'라는 상호도 해당 주소지(부산광역시 동래구 연안로52번길 67)로 등록되어 있습니다",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://infosori.com",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

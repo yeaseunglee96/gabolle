@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202409A0187034",
+  "name": "온더테이블",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 63261,
+  "researchedAt": "2026-09-21T14:08:12.966Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "피크타임에는 예약을 권장하며 네이버 예약 등을 통해 방문하는 편이다."
+  },
+  "descriptors": {
+    "audience": "가족 및 연인(데이트/모임)",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "나폴리 화덕피자",
+      "생면 파스타"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30~21:00 (브레이크타임 15:00부터)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객에 대한 명시적 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": false
+  },
+  "notes": "부산 해운대구 APEC로 21 브리티지센텀(트래블로지 스위츠 부산 센텀 2층)에 위치한 나폴리식 정통 화덕피자 및 생면 파스타 전문 레스토랑. 건물 내 주차 가능.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 APEC로 21(우동, 브리티지센텀 2층 203·204호)에 위치한 '온더테이블'은 나폴리 정통 화덕피자와 생면 파스타 등을 전문으로 하는 이탈리안 레스토랑입니다. 센텀시티역 11번 출구에서 도보 약 3~4분 거리이며, 벡스코(BEXCO) 제2전시장 맞은편에 위치해 있습니다. 해당 건물(브리티지센텀) 내 주차장을 이용할 수 있습니다. 영업시간은 매일 11:30~21:00입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 해운대구 APEC로 21, 트래블로지 스위트 부산 센텀 호텔 2층 (벡스코 제2전시장 맞은편). 특징: 나폴리 정통 방식의 화덕피자와 생면 파스타, 이탈리안 샐러드 등을 전문으로 하는 레스토랑입니다. 피크타임에는 예약을 하고 방문하는 것이 좋습니다.",
+      "url": "https://todaybest.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://todaybest.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "나폴리 정통 방식의 화덕피자와 직접 뽑는 생면 파스타를 맛볼 수 있다.",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

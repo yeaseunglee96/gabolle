@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220803173868",
+  "name": "유화",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 59981,
+  "researchedAt": "2026-09-21T14:25:01.869Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 예약제로 운영되며 캐치테이블 예약 오픈 시 마감이 빠른 편임"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 혼밥",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스시 오마카세"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "13:00 ~ 21:30 (브레이크타임 15:00 ~ 18:00, 수요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "기존 '호야스시'에서 상호를 변경/이전 오픈한 해운대 장산역 인근 스시 오마카세 전문점. 단일 오마카세 코스로 운영되며 가성비가 뛰어남.",
+  "price": {
+    "found": true,
+    "priceMenu": "스시 오마카세",
+    "priceWon": 60000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스시 오마카세를 전문으로 하는 곳으로, 이전 상호명은 '호야스시'였습니다. 캐주얼하게 즐길 수 있는 가성비 오마카세 맛집으로 알려져 있으며, 예약제로 운영됩니다. 캐치테이블 등을 통해 예약을 받으며, 인기가 많아 예약이 다소 어려운 편입니다. 건물 내 주차장이 별도로 마련되어 있지 않아 인근 유료 주차장을 이용해야 합니다.",
+      "url": "https://www.siksinhot.com/P/1601662"
+    },
+    {
+      "excerpt": "메뉴: 스시 오마카세. 가격: 런치/디너 동일 60,000원. 영업시간: 13:00 ~ 21:30. 휴무일: 매주 수요일. 캐치테이블을 통해 예약 가능하며, 전용 주차장이 없어 대중교통 이용이나 인근 유료 주차장 이용을 권장합니다. 콜키지 비용은 병당 10,000원입니다.",
+      "url": "https://catchtable.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1601662",
+    "https://catchtable.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "합리적인 가격대(인당 6만 원 선)로 수준 높은 코스를 즐길 수 있는 가성비 오마카세",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "호야스시 시절부터 이어져 온 안정적인 맛과 퀄리티의 스시 오마카세 코스",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

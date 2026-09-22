@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202303A0027537",
+  "name": "잡어",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 66153,
+  "researchedAt": "2026-09-21T21:48:31.116Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 동래구 충렬대로108번길 53)에 '잡어'라는 상호의 실제 운영 중인 횟집 정보 및 후기를 찾을 수 없음",
+  "notes": "부산광역시 동래구 충렬대로108번길 53에 위치한 상호명 '잡어'(횟집)에 대해 웹 검색을 진행했으나, 해당 주소지는 주택 및 인근 다른 상호(대동수산횟집 등)만 확인될 뿐 '잡어'라는 단독 상호의 횟집에 대한 실제 후기, 메뉴, 영업시간 등의 유의미한 정보가 없어 not found 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

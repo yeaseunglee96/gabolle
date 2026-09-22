@@ -1,0 +1,55 @@
+{
+  "id": "MA010120220808340094",
+  "name": "길목숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 38204,
+  "researchedAt": "2026-09-21T22:20:14.886Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 모임, 직장인",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비",
+      "삼겹살"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산광역시 금정구 오시게로66번길 1(부곡동) 온천장역 인근에 위치한 길목숯불갈비는 돼지갈비, 삼겹살 등의 구이류를 취급하는 동네 고깃집입니다. 세부적인 영업시간 및 대기 정보는 등록된 공개 웹페이지가 부족하여 확인되지 않았습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "길목숯불갈비: 부산광역시 금정구 오시게로66번길 1 (부곡동). 합리적인 가격의 고기 메뉴를 제공하며 온천장역 인근 부곡동 지역에서 가족 모임이나 식사를 위해 방문하기 좋은 고깃집으로 소개됨.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "온천장역 인근 부곡동에서 돼지갈비·삼겹살 구이를 부담 없이 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

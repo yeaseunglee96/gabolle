@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220808709557",
+  "name": "바다마을",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 50125,
+  "researchedAt": "2026-09-21T21:56:55.453Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 부산진구 신천대로220번길 92)의 '바다마을' 횟집에 대한 방문 후기, 메뉴, 영업시간 등 상세 영업 정보가 웹상에 존재하지 않음",
+  "notes": "신천대로220번길 일대 상호 등록 흔적 외에 실제 방문 후기나 메뉴/가격 정보가 웹에 존재하지 않아 조사를 완료할 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

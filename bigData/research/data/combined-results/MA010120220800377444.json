@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220800377444",
+  "name": "모리돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 38697,
+  "researchedAt": "2026-09-21T22:06:59.902Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 혼잡 관련 특별한 줄서기 언급 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인 혼밥객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모리돈까스(안심)",
+      "등심돈까스",
+      "냉모밀정식"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 8시 30분 마감 (20:30 영업 종료)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사직역 인근 주민과 직장인이 주로 찾는 동네 숨은 맛집/밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notes": "부산 동래구 사직동(아시아드대로 165-1) 사직역 인근에 위치한 캐주얼 돈까스 전문점 조사 결과입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "모리돈까스(안심) 9,500원 / 등심돈까스 9,000원 / 냉모밀정식 11,500원",
+    "priceWon": 9500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동래구 아시아드대로 165-1 (사직동 70-19). 사직역 바로 앞에 위치하여 접근성이 좋으며, 혼밥하기 좋은 아늑하고 아담한 매장으로 알려져 있습니다. 주요 메뉴로는 안심까스, 등심까스, 치즈까스를 비롯해 냉모밀 정식, 우동 정식 등 다양한 세트 메뉴가 있습니다. 돈까스는 '겉바속촉'의 식감으로, 면 요리는 탱글탱글한 식감으로 평가받는 사직동의 숨은 맛집으로 언급됩니다.",
+      "url": "https://www.siksinhot.com/P/1601662"
+    },
+    {
+      "excerpt": "돈까스정식(12,000원), 냉모밀정식(11,500원), 우동정식(10,500원), 모리돈까스(안심) 9,500원, 등심돈까스 9,000원, 왕돈까스 12,000원. 20:30에 영업 종료.",
+      "url": "https://www.siksinhot.com/P/1601662"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1601662"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "사직역 바로 앞 역세권으로 접근성이 좋고 아늑하여 혼밥하기 편함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "겉바속촉 식감의 안심·등심 돈까스와 탱글한 냉모밀·우동 정식의 조화로운 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

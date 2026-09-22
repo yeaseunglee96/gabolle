@@ -1,0 +1,74 @@
+{
+  "id": "MA0101202311A0056577",
+  "name": "스시카메",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 61794,
+  "researchedAt": "2026-09-21T22:18:46.211Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기/줄서기 정보 미확인"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 데이트",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬초밥",
+      "특선초밥",
+      "시그니처초밥",
+      "한판 오마카세 초밥",
+      "카메코스"
+    ],
+    "yearsClaimed": 25
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:20 ~ 22:00 (브레이크 타임 14:30/14:40 ~ 17:00/17:30, 일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "25년 경력 오너 셰프가 운영하는 초밥/코스요리 일식당으로 2023년 12월 현 위치(동평로 77 2층)로 이전 오픈함. 3만 원 이상 이용 시 인근 통일주차장 1시간 무료 지원.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스시카메 당감동본점... 25년 경력의 오너 셰프가 운영하는 곳으로, '초밥 한 점의 행복'을 슬로건으로 내세우고 있습니다. 합리적인 가격의 코스 요리와 다양한 초밥 메뉴를 제공하며, 다찌석과 테이블석, 테라스 자리 등을 갖추고 있어 가족 외식이나 데이트 장소로 인기가 많습니다. 3만 원 이상 이용 시 통일주차장 1시간 무료 주차를 지원하며, 예약이 가능합니다. 모듬초밥, 특선초밥, 시그니처 초밥, 한판 오마카세 초밥, 연어초밥, 냉모밀 등",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "25년 경력 오너 셰프가 선보이는 완성도 높은 초밥과 숙성회 코스 요리",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "합리적인 가격대의 코스 요리와 다채로운 초밥 메뉴 구성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202306A0082711",
+  "name": "요이참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 58256,
+  "researchedAt": "2026-09-21T14:30:04.466Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 모임, 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "참치 뱃살",
+      "참치회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 ~ 01:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 시청 인근 직장인 및 인근 주민 대상 모임/데이트 장소로 주로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 연제구 거제천로 121에 위치한 요이참치 시청본점. 참치 냉동공장과의 직거래를 통해 참치 뱃살 부위를 합리적인 가격에 제공하는 참치회 전문점.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "참치 뱃살 전문점으로, 참치 냉동공장과의 직거래를 통해 합리적인 가격에 품질 좋은 참치를 제공하는 것으로 알려져 있습니다. ... 위치: 부산광역시 연제구 거제천로 121. 영업시간: 16:00 ~ 01:00",
+      "url": "https://yoituna.com"
+    },
+    {
+      "excerpt": "상호명: 요이참치 시청본점. 주소: 부산광역시 연제구 거제천로 121 (1층). 데이트나 모임 장소로 언급되는 곳입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://yoituna.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참치 냉동공장 직거래를 통한 양질의 참치 뱃살 부위 가성비 공급",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "신선한 참치 뱃살 전문 회 취급",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

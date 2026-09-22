@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220811420469",
+  "name": "이흥용베이커리",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 49029,
+  "researchedAt": "2026-09-21T14:30:02.649Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "부산 빵지순례 코스로 유명하며 빵 나오는 시간에 손님이 몰림"
+  },
+  "descriptors": {
+    "audience": "전연령, 빵지순례 관광객 및 동네 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "자갈치 명란 바게트",
+      "소금빵",
+      "검정 고무신",
+      "바질 크로칸트"
+    ],
+    "yearsClaimed": 1995
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 08:30 ~ 21:00 (식신 포털 기준 08:30 ~ 22:00 표기 혼재)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "1995년 문현동 1호점으로 출발한 동네 명물 빵집이자 전국 빵지순례 명소로 현지인과 관광객 모두 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 30,
+    "found": true
+  },
+  "notes": "대한민국 제과제빵 명장 이흥용 대표가 1995년 창업한 본점(문현직영점). 대표작인 자갈치 명란 바게트와 소금빵, 검정고무신 등 식사빵과 제과류가 다양함. 전용 주차장 없음.",
+  "price": {
+    "found": true,
+    "priceMenu": "자갈치 명란 바게트 3,500원",
+    "priceWon": 3500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1995년에 창업한 이흥용과자점의 1호점이자 출발점입니다. 부산 최초 제과제빵 명장으로 선정된 이흥용 대표가 운영하며, '자갈치 명란 바게트'와 같은 대표 메뉴를 비롯해 다양한 빵을 선보이고 있습니다. 매일 08:30 ~ 21:00 전용 주차장이 마련되어 있지 않으므로 방문 시 참고하시기 바랍니다.",
+      "url": "https://www.busantaste.com"
+    },
+    {
+      "excerpt": "1995년에 문을 연 이후 지금까지 재료를 아끼지 않는 빵으로 꾸준히 사랑받고 있습니다. 바삭한 바게트 속에 명란 크림을 넣은 메뉴로, 비린내를 잡고 감칠맛을 살려 특허까지 받은 이흥용과자점의 대표작입니다. 오징어 먹물로 만든 치아바타 빵 사이에 직접 쑨 팥 앙금과 우유 버터를 채워 넣은 인기 메뉴입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.busantaste.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산 최초 대한민국 제과제빵 명장이 개발한 특허 받은 자갈치 명란 바게트와 완성도 높은 식사빵의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1995년 문현동 골목 1호점에서 출발해 현재까지 이어져 온 오랜 제과 명가의 역사",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "전국 빵 애호가들이 찾는 부산 대표 빵지순례 필수 코스로서 높은 인지도와 방문 수요",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

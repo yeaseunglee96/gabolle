@@ -1,0 +1,48 @@
+{
+  "id": "MA0101202409A0020400",
+  "name": "쭈야네",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 66771,
+  "researchedAt": "2026-09-21T21:46:38.191Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 중구 중구로 190(영주동) 소재 '쭈야네'(한식 백반/한정식) 상호의 사업체 정보 및 지역 상가 등록 정보는 확인되나, 일반 방문 후기나 세부 정량 정보(가격, 영업시간, 대표메뉴, 대기시간 등)는 웹상에 공개된 상세 리뷰가 없어 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 중구로 190(영주동)에 위치한 '쭈야네'에 대한 정보입니다. 업종: 한식 (백반/한정식). 특징: 정성스러운 손맛으로 지역 주민들에게 사랑받는 맛집으로 알려져 있으며, 포장 및 배달 문의가 가능합니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정성스러운 손맛과 백반/한식 식사를 찾는 지역 주민의 수요",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202511A0010071",
+  "name": "이퀄",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 54069,
+  "researchedAt": "2026-09-21T14:10:35.956Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "브런치/파스타 식사객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "라구 파스타",
+      "잡채 파스타",
+      "버섯수프",
+      "샌드위치",
+      "쌀국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금: 08:00 ~ 17:00 / 토: 09:00 ~ 17:00 / 일요일: 휴무"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 재송동 소재 브런치/파스타 음식점 '이퀄' 조사 완료",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 해운대로89번길 12, 1층 일부호. 월~금: 08:00 ~ 17:00, 토: 09:00 ~ 17:00, 일요일: 휴무. 브런치와 파스타 메뉴로 호평받는 곳입니다. 주요 메뉴로는 버섯수프, 샌드위치, 라구 파스타, 잡채 파스타, 쌀국수(pho) 등이 있으며, 음료와 에스프레소, 디저트류도 만족도가 높은 것으로 알려져 있습니다.",
+      "url": "https://lunchpick.net"
+    }
+  ],
+  "sources": [
+    "https://lunchpick.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "라구·잡채 파스타와 버섯수프, 샌드위치 등 브런치 및 식사 메뉴의 맛이 훌륭해서",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

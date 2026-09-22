@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202303A0026135",
+  "name": "본고갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 29134,
+  "researchedAt": "2026-09-21T22:21:31.415Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "고등어구이(고갈비)",
+      "고등어 묵은지조림"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 08:00 오픈 (아침 식사 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 인근 주민과 직장인들이 식사 및 아침 식사를 위해 찾는 지역 로컬 밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": false
+  },
+  "notes": "상호에 '갈비'가 들어가나 돼지고기 구이/찜 업종이 아닌 부산식 고등어구이(고갈비) 및 조림 전문 한식당입니다. 연지래미안빌딩 2층에 본점/사무소가 소재해 있습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산식 고등어구이(고갈비)와 고등어 묵은지 등을 전문으로 하는 한식당입니다. 부산식 고등어구이는 별도의 염장이나 양념 없이 싱싱한 고등어를 손질해 소금을 뿌려 구운 뒤 간장에 찍어 먹는 방식입니다. 아침 식사(오전 8시부터)가 가능한 매장이며, 깔끔한 셀프 코너와 정갈한 상차림으로 알려져 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "상호: (주)본고갈비, 주소: 부산광역시 부산진구 성지로 42, 2층 (연지동, 연지래미안빌딩)",
+      "url": "https://saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://saramin.co.kr",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기름기를 뺀 담백한 부산식 생고등어구이(고갈비)와 정갈한 상차림",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오전 8시부터 아침 식사가 가능하고 1인 식사 및 셀프 코너 이용이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

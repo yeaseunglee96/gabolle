@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220810192812",
+  "name": "이씨할매초장집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 78833,
+  "researchedAt": "2026-09-21T13:57:51.711Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "미포/달맞이길 방문 관광객 및 회 포장 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "초장 상차림",
+      "매운탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 중동 1017-3(달맞이길62번길 46 인근 미포)에 등록되어 있는 초장집(횟집 업종)으로 상차림 형태의 식당이나, 최근 온라인 상세 리뷰, 영업시간, 메뉴판 및 가격표에 대한 상세 정보는 거의 남아있지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이씨할매초장집은 부산광역시 해운대구 중동 1017-3(1, 2층)에 위치했던 음식점입니다. 횟집 등에서 구입한 횟감을 가져와 상차림 비용을 내고 먹을 수 있는 형태의 초장집으로 알려져 있습니다.",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주변 횟집 등에서 횟감을 구매해 상차림 비용을 지불하고 먹는 미포 초장집 형태의 식당",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

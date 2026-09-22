@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220808067000",
+  "name": "쌍수인",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 39967,
+  "researchedAt": "2026-09-21T21:48:24.085Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼술, 인근 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "조용한 주택가 골목에 위치한 동네 이자카야/선술집으로 주로 인근 주민 중심의 방문 형태를 띰"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동래구 온천동(사직북로 일대) 주택가 골목에 위치한 일본 감성의 이자카야로 등록되어 있으나, 상세 메뉴판, 가격표, 영업시간 등 구체적인 세부 정보는 웹상에 공개된 데이터가 매우 제한적임.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "조용한 주택가에 위치하여 일본 감성을 느낄 수 있는 인테리어와 다양한 안주를 제공하는 곳으로, 혼자서도 편안하게 즐길 수 있는 분위기의 식당입니다",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "조용한 주택가에서 편안하게 혼술이나 다양한 안주를 즐길 수 있는 일본 감성의 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202512A0035876",
+  "name": "광해횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 79159,
+  "researchedAt": "2026-09-21T22:07:44.292Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "알 수 없음",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 영도구 봉래동3가(태종로113번길 29)에 상호가 등록되어 모듬회 등을 취급하는 동네 횟집으로 확인되나, 방문 후기나 영업시간, 대기 정보 등 구체적인 이용 상세 기록이 거의 남아있지 않은 상태입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 태종로113번길 29 (지번 주소: 봉래동3가 9-1)에 위치한 광해횟집... 업종: 회/횟집",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 주민들이 생선회를 즐기기 위해 찾는 동네 횟집",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

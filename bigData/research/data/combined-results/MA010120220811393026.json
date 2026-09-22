@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220811393026",
+  "name": "안강식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 42668,
+  "researchedAt": "2026-09-21T14:09:27.389Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도나 웨이팅에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 동네 주민 단체 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "솥뚜껑 삼겹살",
+      "한우 차돌박이"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 11:30~21:30 (또는 22:00), 월요일 17:00~21:30 (브레이크 타임 15:00~17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "용호중학교 인근 동네 주민들이 찾는 30년 전통의 로컬 고깃집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "용호중학교 후문 앞에 위치한 솥뚜껑 삼겹살 전문점으로, 30년 이상 영업하며 미나리/김치/고사리를 솥뚜껑에 함께 구워먹는 로컬 식당임.",
+  "price": {
+    "found": true,
+    "priceMenu": "솥뚜껑 삼겹살 11,000원, 한우 차돌박이 15,000원",
+    "priceWon": 11000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "30년 이상의 전통을 가진 용호동의 오래된 로컬 맛집으로 뜨겁게 달군 솥뚜껑 위에 고기(삼겹살, 차돌박이)와 김치, 고사리, 콩나물 등을 함께 구워 먹는 방식이 특징입니다. 고기를 먹은 후 식사로 밀면을 곁들이는 조합이 인기가 많습니다. 부산시로부터 착한가격업소로 선정된 바 있습니다.",
+      "url": "https://busans.com"
+    },
+    {
+      "excerpt": "용호동 지역에서 솥뚜껑 삼겹살과 미나리 구이로 잘 알려진 로컬 맛집입니다. 용호중학교 후문 앞에 위치해 있습니다. 1층 외에도 단체 손님을 수용할 수 있는 큰 방(2층)이 마련되어 있어 모임 장소로도 활용됩니다. 화~일 11:30~21:30, 월요일 17:00~21:30 운영.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://busans.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "뜨겁게 달군 대형 솥뚜껑에 삼겹살과 미나리, 김치, 고사리를 함께 푸짐하게 구워 먹는 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "용호동에서 30년 이상 자리를 지켜온 정겨운 동네 로컬 노포 분위기",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "착한가격업소로 지정될 만큼 부담 없는 가격대와 2층 단체석 구비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

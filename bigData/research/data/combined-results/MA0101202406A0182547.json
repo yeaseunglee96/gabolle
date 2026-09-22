@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202406A0182547",
+  "name": "감행",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 80757,
+  "researchedAt": "2026-09-21T14:07:51.087Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소에 일식 회/초밥 전문점으로 운영되는 '감행'에 대한 정보를 찾을 수 없습니다. (사업자/구인 이력상 족발전문점/주점으로만 확인되며 세부 리뷰나 운영 정보 없음)",
+  "notes": "해당 주소(부산 남구 용소로13번길 83)에 위치한 '감행'은 일식 회/초밥 업종이 아닌 족발 전문점/주점으로 구인 정보 등에 등록되어 있으나, 방문 후기, 메뉴, 영업시간 등의 구체적인 정보가 웹상에 확인되지 않아 일식 회/초밥 음식점으로서 찾을 수 없음 처리함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

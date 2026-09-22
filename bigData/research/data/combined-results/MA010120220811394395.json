@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220811394395",
+  "name": "언양봉계숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 36516,
+  "researchedAt": "2026-09-21T21:50:16.537Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비",
+      "숯불구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 반여동(재반로 186) 소재 식당으로 1999년 11월 인허가 등록된 한식/돼지고기 구이 일반음식점입니다. 온라인상의 이용 후기나 상세 메뉴판/영업시간 등 세부 정량 정보는 공개된 웹 문서가 극히 드물어 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 언양봉계숯불갈비, 대표자명: 장성철, 주소: 부산광역시 해운대구 재반로 186 (반여동), 업종: 한식 일반 음식점업, 전화번호: 051-782-3662, 설립일: 1999-11-00",
+      "url": "https://bizno.net/article/6170745328"
+    }
+  ],
+  "sources": [
+    "https://bizno.net/article/6170745328"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네에서 오랜 기간 자리를 지키며 숯불갈비 및 한식 구이를 즐기기 위해 방문하는 지역 음식점",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

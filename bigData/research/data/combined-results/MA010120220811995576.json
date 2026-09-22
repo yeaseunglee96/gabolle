@@ -1,0 +1,49 @@
+{
+  "id": "MA010120220811995576",
+  "name": "한옥김치찜",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 36603,
+  "researchedAt": "2026-09-21T22:00:26.181Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [
+      "한옥 김치찜",
+      "한옥 진한 육개장"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산광역시 서구 초장동(해돋이로220번길 1 / 구주소 초장동 40-372)에 등록된 '한옥김치찜(창대주방)' 업체 정보 및 대표 메뉴(한옥 김치찜, 한옥 진한 육개장)는 디렉토리에 등록되어 있으나, 방문 후기나 영업시간, 가격, 방문 사유 등 상세 정보는 확인되지 않음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 한옥김치찜 (창대주방), 주소: 부산광역시 서구 초장동 40-372, 대표 메뉴: 한옥 김치찜, 한옥 진한 육개장, 문의: 051-246-0462",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

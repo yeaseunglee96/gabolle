@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202512A0028900",
+  "name": "파베",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 38996,
+  "researchedAt": "2026-09-21T22:08:12.710Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 남구 고동골로 86-38 소재 '파베'는 사업자/상가 DB 외에 실제 소비자를 대상으로 운영되는 빵/도넛/음식점 관련 방문 후기, 메뉴, 영업 정보가 존재하지 않습니다.",
+  "notes": "해당 주소지는 네일숍 및 학원 등이 위치해 있으며, '파베'에 관한 소비자 방문기나 메뉴/가격 등의 실질적 정보가 전혀 검색되지 않아 실영업 음식점으로 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bizno.net",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

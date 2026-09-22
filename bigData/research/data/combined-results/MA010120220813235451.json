@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220813235451",
+  "name": "라쿠다",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 68865,
+  "researchedAt": "2026-09-21T14:07:34.838Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "대학생 및 인근 주민, 1인 혼밥객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈코츠라멘",
+      "매운 돈코츠라멘",
+      "마제소바",
+      "대창라멘"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일: 11:00 ~ 21:00, 주말: 12:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "경성대·부경대 인근 학생들과 인근 주민들이 주로 찾는 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "행정/인허가 및 공공데이터상 업종은 '일식 회/초밥'으로 분류되어 있으나, 실제 매장은 일본식 라멘(돈코츠라멘, 마제소바 등) 전문점으로 운영되는 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 남구 용소로19번길 68, 1층 101호 (대연동 43-64). 경성대·부경대역 인근. 주요 메뉴는 돈코츠라멘, 매운 돈코츠라멘, 마제소바, 대창라멘 등 일본식 라멘을 전문으로 하는 식당입니다. 혼밥하기 좋은 분위기로 알려져 있으며, 깔끔한 인테리어와 친절한 서비스로 인근 학생들과 주민들에게 인기가 있는 곳입니다. 평일: 11:00 ~ 21:00, 주말: 12:00 ~ 22:00.",
+      "url": "https://www.newspeople.co.kr"
+    },
+    {
+      "excerpt": "라쿠다. 부산광역시 남구 용소로19번길 68 1층 101호. 전화번호 0507-1369-8683. 주요 메뉴 돈코츠라멘, 매운 돈코츠라멘 등.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.newspeople.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돈코츠라멘, 마제소바 등 라멘 메뉴의 맛과 혼밥하기 편한 아늑하고 깔끔한 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "경성대·부경대역 인근 도보 거리로 대학생과 주민들의 접근성이 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

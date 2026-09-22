@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220810530441",
+  "name": "쿠시로",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 61003,
+  "researchedAt": "2026-09-21T14:31:18.162Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "퇴근길 직장인, 주민, 가볍게 술 한잔 하려는 손님",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "일본식 닭튀김(가라아게)",
+      "해물스프"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사하구 하단동(하신번영로312번길 15 인근)에 위치했던 일본식 선술집/이자카야로, 카레향이 감도는 일본식 닭튀김(가라아게)과 해물스프 등의 안주류로 알려진 곳입니다. 영업시간, 대기열, 정밀 메뉴판 가격 등의 세부 정보는 온라인상 확인되지 않으며 현재는 폐업 가능성이 높습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "하단에 위치한 일본식 선술집 쿠시로. 치킨의 튀김옷에서 카레향이 은은하게 나며 곁들여 나오는 소스가 맛있는 일본식 닭튀김(가라아게)과 해물스프 등이 인기 메뉴이다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "은은한 카레향의 바삭한 일본식 닭튀김(가라아게)과 소스, 해물스프 안주가 맛있어서 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220804660476",
+  "name": "교통부횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 116362,
+  "researchedAt": "2026-09-21T22:34:50.984Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "폐업 또는 상세 운영 정보 미확인",
+  "notes": "부산 동구 범곡북로 5에 위치한 '교통부횟집'은 상호 및 주소지 등록 정보 외에 실제 방문 후기, 메뉴, 영업시간 등의 상세 정보가 웹상에 존재하지 않으며 현재 운영 여부가 불명확하거나 폐업 상태인 것으로 보입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 동구 범곡북로 5 (범일동 1308-3), 참고 사항: 현재 해당 매장의 운영 여부가 명확히 확인되지 않고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ]
+}

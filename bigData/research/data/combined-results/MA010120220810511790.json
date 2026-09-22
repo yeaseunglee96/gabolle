@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220810511790",
+  "name": "푸른횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 44954,
+  "researchedAt": "2026-09-21T22:19:09.578Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반 주민",
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "생선회"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 장림로184번길 18 소재 푸른횟집에 대한 상호 및 위치 정보는 확인되나, 온라인상 상세 메뉴판, 가격, 영업시간, 방문자 리뷰 등의 세부 정보가 거의 없는 동네 영세 식당입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사하구 장림로184번길 18 장림동 지역 내에 위치한 횟집으로, 상세한 메뉴판이나 영업시간 등은 온라인상에서 직접적으로 상세히 공개된 내용이 부족합니다.",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

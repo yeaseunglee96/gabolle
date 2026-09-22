@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220813152832",
+  "name": "한미초장횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 70096,
+  "researchedAt": "2026-09-21T14:28:44.145Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "회센터/어시장 방문객, 인근 주민",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "초장(상차림)",
+      "활어회"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사하구 다대동 355-37(다대동로8번길 83 일대)에 위치한 초장집(양념 및 상차림 전문 횟집)으로 사업체 등록 및 전화번호(051-265-9981)가 확인되나, 블로그 리뷰나 세부 영업 정보(영업시간, 구체적 메뉴판 가격 등)는 웹상에 상세히 공개되어 있지 않은 소규모 로컬 초장집입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "한미초장횟집 주소: 부산광역시 사하구 다대동 355-37 전화번호: 051-265-9981 업종: 회/횟집",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다대포 어시장/회센터 인근에서 회를 가져와 상차림(초장·양념)을 이용해 식사하기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

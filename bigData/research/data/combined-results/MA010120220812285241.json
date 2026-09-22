@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220812285241",
+  "name": "에이치엠푸드",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 56273,
+  "researchedAt": "2026-09-21T22:15:50.595Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "일반 음식점 형태의 이용 정보 및 방문 후기 미존재 (육류 소매/법인 사업자 등록만 확인됨)",
+  "notes": "부산광역시 동래구 반송로 299의 '(주)에이치엠푸드'는 사업자등록 상 육류 소매업 법인사업자로 확인되며, 손님이 방문하여 돼지고기 구이/찜을 소비하는 일반 음식점으로서의 메뉴판, 영업시간, 방문 후기 등의 식당 정보는 존재하지 않습니다. (해당 번지에는 '고혼' 등 별도 고기집이 영업 중)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "(주)에이치엠푸드 소재지: 부산광역시 동래구 반송로 299 (명장동) 업종: 육류 소매업",
+      "url": "https://mmll2.co.kr"
+    }
+  ],
+  "sources": [
+    "https://mmll2.co.kr"
+  ],
+  "whyPeopleGo": []
+}

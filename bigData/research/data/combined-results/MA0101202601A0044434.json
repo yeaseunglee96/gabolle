@@ -1,0 +1,35 @@
+{
+  "id": "MA0101202601A0044434",
+  "name": "케이컴퍼니",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 48795,
+  "researchedAt": "2026-09-21T14:27:42.803Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 경양식 업종의 '케이컴퍼니' 식당 정보가 존재하지 않음",
+  "notes": "부산광역시 해운대구 세실로 7(해운대상록아파트)에 위치한 '케이컴퍼니'(경양식 업종)를 검색하였으나, 실제 영업 중이거나 알려진 경양식 음식점이 확인되지 않아 found: false로 처리합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://dorojuso.kr"
+  ],
+  "whyPeopleGo": []
+}

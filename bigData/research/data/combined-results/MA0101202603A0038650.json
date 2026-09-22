@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202603A0038650",
+  "name": "냠냠쪽쪽",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 35863,
+  "researchedAt": "2026-09-21T22:33:51.962Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "주민, 인근 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "쪽갈비",
+      "숯불소금구이",
+      "숯불양념구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 시작"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남구 감만동 석포로 23-1에 위치한 쪽갈비(숯불소금구이, 숯불양념구이) 전문 구이점입니다. 상세 후기 및 가격 정보는 웹상에 제한적입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 석포로 23-1 (지번 주소: 감만동 17-5) 업종: 한국 음식 (삼겹살/돼지구이 전문) 주요 메뉴: 쪽갈비(등갈비), 숯불소금구이, 숯불양념구이 등",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불에 구워내는 소금/양념 쪽갈비 구이를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

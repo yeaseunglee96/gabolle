@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220810531204",
+  "name": "금화초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 43734,
+  "researchedAt": "2026-09-21T21:55:49.757Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡에 관한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "직장인 및 가족 모임, 프라이빗 모임 고객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "회 코스 요리",
+      "특초밥",
+      "회덮밥",
+      "참치뱃살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미기재"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 관한 구체적인 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 서구 대신로 11(서대신동3가)에 위치한 초밥 및 생선회 전문점으로, 다다미방 형태의 개별 룸과 전용 주차장을 갖추고 회 코스, 특초밥, 탕류 등을 취급함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 서구 대신로 11 (서대신동3가 598-4), 주요 메뉴: 회 코스 요리, 특초밥, 회덮밥, 점심특선 코스, 생대구탕, 복탕, 알탕 등. 특징: 테이블석과 다다미방 좌식 좌석이 있으며, 개별 룸 구성이 가능해 프라이빗한 모임에 적합합니다. 가게 옆 전용 주차장을 갖추고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "개별 룸과 다다미방을 갖추어 프라이빗한 모임과 식사를 편안하게 즐기기 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "회 코스 요리와 특초밥, 계절 탕류 등 다양한 일식 식사 메뉴를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

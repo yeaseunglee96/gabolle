@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220811668646",
+  "name": "우츠쿠둑2",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65845,
+  "researchedAt": "2026-09-21T14:18:32.529Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "외국인 노동자 및 현지인, 이국적인 음식을 찾는 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "샤슬릭(양고기 케밥)",
+      "보르쉬",
+      "마스타파",
+      "지즈-비즈"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월요일, 수~일요일 11:00 ~ 23:00 / 화요일 10:00 ~ 22:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산역 차이나타운/텍사스 스트리트 인근으로 실제 외국인 및 중앙아시아 현지인 손님이 많이 찾는 이국적인 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산역 차이나타운/외국인거리(초량동)에 위치한 우즈베키스탄 요리 전문점으로, 대표 메뉴인 양고기 샤슬릭과 보르쉬, 마스타파 등을 비교적 저렴한 가격에 맛볼 수 있는 현지 분위기 식당입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "샤슬릭(양꼬치) 5,000원, 마스타파 8,000원, 보르쉬 8,000원, 지즈-비즈 12,000원",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 대영로243번길 50에 위치한 곳은 우즈베키스탄 요리 전문점인 '우츠쿠둑2(Ucheukuduk2)'입니다. 부산역 인근에 위치한 우즈베키스탄 및 러시아 음식 전문점으로, 양꼬치와 보르쉬(전통 스프) 등이 주요 메뉴로 알려져 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "현지 분위기가 물씬 풍기는 우즈베키스탄 및 러시아 음식점입니다. 실제 외국인 손님이 많아 이색적인 경험을 할 수 있는 곳으로 알려져 있습니다. 많은 후기에서 가장 추천하는 메뉴로 양고기 케밥(양꼬치)을 꼽습니다. 일반적인 작은 꼬치와 달리 고기가 두툼하고 양이 푸짐하여 만족도가 높다는 평이 많습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두툼하고 푸짐한 정통 우즈베키스탄 양고기 케밥(샤슬릭)과 보르쉬 등 현지 고유의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산역 차이나타운/러시아거리 내에서 외국인과 현지인들이 주로 이용하는 이색적인 분위기",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

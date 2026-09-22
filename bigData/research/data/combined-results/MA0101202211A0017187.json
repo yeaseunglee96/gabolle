@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202211A0017187",
+  "name": "공물소",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 70734,
+  "researchedAt": "2026-09-21T14:29:08.006Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "실제 운영 또는 리뷰/매장 정보를 확인할 수 있는 유효 웹 문서 부재",
+  "notes": "부산광역시 수영구 망미배산로10번길 20-1에 위치한 '공물소'(빵/도넛)에 대해 실제 웹 검색을 진행하였으나, 일반 방문객 리뷰, 영업시간, 가격, 메뉴 등 실제 운영을 확인할 수 있는 상세 정보가 웹상에 존재하지 않아 조사가 불가능합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

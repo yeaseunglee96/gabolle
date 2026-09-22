@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220810573737",
+  "name": "토연정두리해장국",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 34506,
+  "researchedAt": "2026-09-21T21:56:05.875Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "로컬 주민 및 직장인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "선지해장국",
+      "갈비탕",
+      "갈비전골",
+      "한우곱창전골"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서대신동 인근 주민들이 주로 찾는 동네 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 서구 시약로 54에 위치한 식당으로, 온라인 포털 및 상가 정보에 토연정/두리해장국 또는 '토연정두리해장국'으로 등록되어 있습니다. 선지해장국과 갈비탕, 전골류를 판매하며 가게 앞 주차 공간이 마련되어 있습니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "한우곱창전골/갈비전골 약 40,000원 선",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "선지해장국, 갈비탕, 갈비전골, 곱창전골 등을 판매하는 로컬 맛집입니다. 자극적이지 않고 맑으면서도 깊은 국물 맛이 특징으로 알려져 있습니다. 매장이 넓고 쾌적하며 테이블 간격이 여유로운 편입니다. 반찬을 추가로 가져다 먹을 수 있는 셀프 바가 있으며, 가게 앞 주차 공간이 마련되어 있습니다.",
+      "url": "https://www.siksinhot.com/P/350550"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/350550"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "자극적이지 않고 맑으면서도 깊은 국물 맛의 선지해장국과 갈비탕, 전골류 메뉴",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "가게 앞 주차 공간과 넓고 쾌적한 매장, 셀프 바 구비",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

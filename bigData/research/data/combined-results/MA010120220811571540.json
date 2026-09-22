@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220811571540",
+  "name": "대성집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 31614,
+  "researchedAt": "2026-09-21T22:26:43.946Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "염소불고기",
+      "오리불고기",
+      "닭백숙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 금정구 금성동(공해4길 83 / 지번 금성동 790) 금정산성 먹거리 마을에 위치한 곳으로, 인허가 및 상호상 '대성집' 또는 '대성농원'으로 등록되어 염소불고기, 오리, 닭백숙 등을 취급하는 향토 음식점입니다. 상세 블로그 후기나 정밀 영업시간 등의 최신 정보는 매우 제한적입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "염소(2인분) 70,000원, 오리 40,000원, 닭 40,000원, 옻닭 50,000원",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 공해4길 83 (금성동 790), 업종: 한식 (육류, 고기 요리 등)",
+      "url": "https://placeview.co.kr"
+    },
+    {
+      "excerpt": "상호명: 대성농원, 주소: 부산광역시 금정구 금성동 790, 전화번호: 051-517-0120, 주요 메뉴 및 가격: 염소(2인분): 70,000원, 오리: 40,000원, 닭: 40,000원, 옻닭: 50,000원",
+      "url": "https://bife.kr"
+    }
+  ],
+  "sources": [
+    "https://placeview.co.kr",
+    "https://bife.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "금정산성 먹거리 마을에서 흑염소 숯불구이와 오리, 닭백숙 등 전통 보양식을 즐기기 위해 방문함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

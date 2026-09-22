@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220812858864",
+  "name": "반핀",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 55141,
+  "researchedAt": "2026-09-21T14:11:19.046Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "식사 시간 오픈런을 하지 않으면 긴 대기가 발생하며 테이블링/캐치테이블 원격 줄서기가 필수적이다."
+  },
+  "descriptors": {
+    "audience": "젊은 층 및 연인·데이트 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "가지튀김",
+      "차슈덮밥",
+      "마파두부와 볶음밥 세트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:00 (브레이크타임 16:00 ~ 17:00 / 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "사용자 요청에는 베트남식으로 기재되어 있으나 실제로는 대만식 요리(퓨전 중식/타이완) 전문점으로 운영되는 매장입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "차슈덮밥, 마파두부와 볶음밥 세트, 칠리 가지튀김, 타이완 라멘 등",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대만 음식을 베이스로 한 캐주얼한 메뉴를 선보이는 식당으로, 젊은 층에게 인기가 높습니다. 비장탄 숯불을 사용한 덮밥이 대표 메뉴이며, 식사나 맥주와 잘 어울리는 간단한 요리 메뉴도 준비되어 있습니다. 차슈덮밥과 마파두부가 대표적인 인기 메뉴입니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "부산 부산진구 동천로108번길 9. 영업시간 11:30 ~ 21:00 (브레이크 타임: 16:00 ~ 17:00), 화요일 정기 휴무. 맛집으로 유명하여 식사 시간에는 대기가 발생할 수 있습니다. 테이블링 또는 캐치테이블 원격 줄서기를 추천합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "비장탄 숯불 차슈덮밥과 마파두부, 바삭한 칠리 가지튀김 등 특색 있는 대만식 퓨전 요리의 독보적인 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오픈런과 원격 줄서기(테이블링)를 해야 할 정도로 서면·전포 일대에서 꾸준히 대기가 몰리는 핫플레이스",
+      "sources": [
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808833194",
+  "name": "참치통",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 50308,
+  "researchedAt": "2026-09-21T22:21:05.307Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 동래구 사직북로 41 소재의 '참치통' 매장은 웹 검색 결과 존재하지 않거나 폐업된 것으로 확인됩니다.",
+  "notes": "부산 동래구 사직북로 41 주소지 및 사직동 일대에 '참치통'이라는 매장은 확인되지 않습니다. (부산 내 '참치통' 상호는 연제구 연산동의 '참치통 토곡직영점'만 확인됨)",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

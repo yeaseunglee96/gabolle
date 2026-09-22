@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811436594",
+  "name": "420",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 69669,
+  "researchedAt": "2026-09-21T14:00:53.366Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 해운대구 달맞이길65번길 12-12, 달맞이경동메르빌)에서 '420'이라는 상호의 경양식 음식점 실체 및 운영 정보를 찾을 수 없습니다.",
+  "notes": "주소지는 아파트 단지(달맞이경동메르빌)이며 과거 '사이공420' 등의 폐업/등록 흔적 외에 '420' 경양식에 대한 실제 운영 정보, 메뉴, 방문기, 정량 정보가 확인되지 않습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

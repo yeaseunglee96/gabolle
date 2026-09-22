@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220813769505",
+  "name": "스시무라",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 103054,
+  "researchedAt": "2026-09-21T21:59:50.468Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "입구에 편안한 소파가 있어 대기하기 편하며, 매장 내부에는 약 20여 개의 테이블과 단체석이 마련되어 있음"
+  },
+  "descriptors": {
+    "audience": "병원 내원객 및 인근 직장인·가족 단위 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥",
+      "돈까스",
+      "사누끼우동",
+      "자루소바"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00~20:10 (라스트오더: 14:30, 19:40 / 브레이크타임 15:00~17:00 / 매달 1번째 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객 대상보다는 부산대학교병원 내원 환자·보호자 및 인근 현지 이용객 위주"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 서구 구덕로185번길 22-21(토성역 2번 출구 부근, 부산대병원 장례식장 옆 제2공영주차장 골목) 1층에 위치한 일식당으로 초밥, 돈까스, 사누끼우동, 냉메밀소바 등을 판매함.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "토성동 스시무라 위치 : 부산 서구 구덕로185번길 22-21 1층 (토성역 2번출구 부산대학병원 장례식장옆 제2 공영주차장골목길 1층) 운영시간 : 11:00~20:10 (라스트오더 : 14:30, 19:40 브레이크타임 15:00~17:00) 휴무일 : 매달 1번째 일요일 정기휴무 전화 : 051-248-9997",
+      "url": "https://lemontree333.tistory.com/entry/%ED%86%A0%EC%84%B1%EB%8F%99-%EB%B6%80%EC%82%B0%EB%8C%80%ED%95%99%EA%B5%90%EB%B3%91%EC%9B%90%EB%A7%9B%EC%A7%91-%EC%8A%A4%EC%8B%9C%EB%AC%B4%EB%9D%BC%EC%B4%88%EB%B0%A5%EB%8F%88%EA%B9%8C%EC%8A%A4%EC%9A%B0%EB%8F%99%EB%83%89%EB%A9%94%EB%B0%80%EC%86%8C%EB%B0%94"
+    },
+    {
+      "excerpt": "부산대학교병원 근처 맛집을 찾아보니 거의 돼지국밥집이80%였어요. 그중 유일한 일식당인 스시무라가 눈에 딱 띄었답니다. 후기들을 다 찾아보니 초밥, 돈까스, 우동, 소바 모두다 맛있었다는 평들이 자자했어요.",
+      "url": "https://lemontree333.tistory.com/entry/%ED%86%A0%EC%84%B1%EB%8F%99-%EB%B6%80%EC%82%B0%EB%8C%80%ED%95%99%EA%B5%90%EB%B3%91%EC%9B%90%EB%A7%9B%EC%A7%91-%EC%8A%A4%EC%8B%9C%EB%AC%B4%EB%9D%BC%EC%B4%88%EB%B0%A5%EB%8F%88%EA%B9%8C%EC%8A%A4%EC%9A%B0%EB%8F%99%EB%83%89%EB%A9%94%EB%B0%80%EC%86%8C%EB%B0%94"
+    },
+    {
+      "excerpt": "스시무라를 들어가보니 홀이 넓었어요. 입구에 편안한 소파가 있어서 웨이팅을 하기도 편할 듯 하네요. 테이블 수가 20개정도 되었던 것 같아요. 정확한 갯수는 아니라 어림짐작이랍니다. 단체석도 구비되어있었답니다.",
+      "url": "https://lemontree333.tistory.com/entry/%ED%86%A0%EC%84%B1%EB%8F%99-%EB%B6%80%EC%82%B0%EB%8C%80%ED%95%99%EA%B5%90%EB%B3%91%EC%9B%90%EB%A7%9B%EC%A7%91-%EC%8A%A4%EC%8B%9C%EB%AC%B4%EB%9D%BC%EC%B4%88%EB%B0%A5%EB%8F%88%EA%B9%8C%EC%8A%A4%EC%9A%B0%EB%8F%99%EB%83%89%EB%A9%94%EB%B0%80%EC%86%8C%EB%B0%94"
+    }
+  ],
+  "sources": [
+    "https://lemontree333.tistory.com/entry/%ED%86%A0%EC%84%B1%EB%8F%99-%EB%B6%80%EC%82%B0%EB%8C%80%ED%95%99%EA%B5%90%EB%B3%91%EC%9B%90%EB%A7%9B%EC%A7%91-%EC%8A%A4%EC%8B%9C%EB%AC%B4%EB%9D%BC%EC%B4%88%EB%B0%A5%EB%8F%88%EA%B9%8C%EC%8A%A4%EC%9A%B0%EB%8F%99%EB%83%89%EB%A9%94%EB%B0%80%EC%86%8C%EB%B0%94"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "국밥집 위주의 부산대병원 인근 골목 상권에서 깔끔하게 초밥, 돈까스, 우동, 소바를 즐길 수 있는 일식당",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "초밥, 수제 쯔유 자루소바, 사누끼우동 등 전반적인 일식 메뉴 구성과 맛에 대한 호평",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220805607490",
+  "name": "야망정아구야",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 80820,
+  "researchedAt": "2026-09-21T14:28:27.366Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "상호가 상가/사업자 디렉토리에만 단순 명기되어 있을 뿐, 실제 영업 후기나 상세 식당 정보(메뉴, 가격, 영업시간, 방문 이유 등)가 웹상에 전혀 확인되지 않음",
+  "notes": "부산광역시 사하구 다송로84번길 138의 '야망정아구야'를 조사하였으나, 상호 및 업종(횟집) 등록 외에 실제 후기, 메뉴, 가격, 영업시간 등 방문 정보가 전혀 존재하지 않거나 폐업/변경되어 실질 정보를 찾을 수 없습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

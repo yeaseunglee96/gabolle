@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220806990019",
+  "name": "돈나와라",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 59612,
+  "researchedAt": "2026-09-21T21:47:04.231Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "일반 식사/모임 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "뒷통구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 5시 영업 시작, 일요일 휴무 (방문 전 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 양정역 인근 골목에 위치한 돼지고기 식육(숯불구이) 식당으로, 대표 메뉴로 뒷통구이를 취급함. 소규모 매장(입식 테이블 8개) 구조임.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 돈나와라, 주소: 부산광역시 부산진구 동평로406번길 16, 위치: 양정역 1번 출구에서 286m, 주메뉴: 뒷통구이, 일요일 휴무, 테이블 수 8개(전체 입식), 오후 5시부터 영업 시작(전화 확인 권장)",
+      "url": "https://www.wheelbusan.or.kr"
+    }
+  ],
+  "sources": [
+    "https://www.wheelbusan.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "양정역 인근에서 뒷통구이 숯불구이를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

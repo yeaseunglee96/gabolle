@@ -1,0 +1,43 @@
+{
+  "id": "MA0101202505A0018154",
+  "name": "오봉도",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 74515,
+  "researchedAt": "2026-09-21T14:04:23.636Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "-",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 해운대구 해운대로 185-5)에 '오봉도(주)' 관련 법인 등록 정보 외에 실제 운영 중인 음식점으로서의 방문 후기, 메뉴판, 영업시간 등 일반 소비자 대상 정보가 확인되지 않음",
+  "notes": "부산 해운대구 해운대로 185-5의 '오봉도'는 법인 등록 내역 외에 일반 식당으로서의 실질 영업 정보가 존재하지 않아 found: false로 판정하였습니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.bigvalue.ai",
+    "https://udanax.org",
+    "https://ttatennis.co.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202601A0047805",
+  "name": "다온돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 115443,
+  "researchedAt": "2026-09-21T14:17:51.082Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민, 남포동 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "옛날수제돈까스",
+      "치즈돈까스",
+      "17곡쌀칼국수"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~ 20:00 종료"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 중구 광복로55번길 14-1(창선동1가) 소재 경양식/돈까스 음식점으로 확인되며, 옛날수제돈까스(10,000원) 및 칼국수 등을 취급하는 가성비 식당으로 등록되어 있음. 동일 필지에 '시실리돈까스' 등 변경 또는 인접 이력이 확인됨.",
+  "price": {
+    "found": true,
+    "priceMenu": "옛날수제돈까스",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 창선동1가(광복로55번길 14-1)에 위치한 다온돈까스... 대표 메뉴 옛날수제돈까스: 10,000원, 17곡쌀칼국수 (단품): 8,000원, 냉모밀국수 (여름메뉴): 8,000원, 치즈 돈까스. 20:00에 영업이 종료되는 것으로 확인됩니다. 남포동 인근에서 가성비 있는 식당으로 언급되는 곳 중 하나입니다.",
+      "url": "https://www.siksinhot.com/P/358826"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/358826"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "남포동 골목에서 옛날수제돈까스와 칼국수를 부담 없는 가격에 맛볼 수 있는 가성비 식당",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

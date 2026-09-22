@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220811569190",
+  "name": "우정갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 38034,
+  "researchedAt": "2026-09-21T21:55:00.286Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 대한 특별한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "한우갈비",
+      "양념갈비",
+      "생갈비살",
+      "생등심",
+      "떡갈비 정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:30 (명절 당일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 관한 구체적인 문구 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 금정구 구서동 금샘로에 위치한 한우 갈비 전문점으로 전용 주차장 및 룸을 완비하여 가족 외식이나 모임 장소로 주로 이용됩니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "우정갈비. 주소: 부산광역시 금정구 금샘로 353 (구서동). 대표메뉴: 한우갈비. 기타메뉴: 양념갈비, 생갈비살, 생등심 외. 영업시간: 11:30 ~ 21:30. 휴무일: 명절 당일. 주차 가능, 룸 완비. 간이 세지 않고 부드러운 양념갈비로 유명하며, 점심 특선 메뉴도 제공됩니다.",
+      "url": "https://tripinfo.co.kr"
+    },
+    {
+      "excerpt": "숯불에 구워 먹는 갈비의 풍미를 느낄 수 있는 곳으로, 가족 외식이나 특별한 날 방문하기 좋은 식당으로 알려져 있습니다. 깔끔한 반찬 구성과 고기 맛에 대해 긍정적인 평이 있으며, 부모님을 모시고 가기 좋은 곳으로 추천됩니다. 점심 특선 등으로 제공되는 떡갈비 정식과 영양 돌솥밥 등이 인기가 많습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tripinfo.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "간이 세지 않고 부드러운 한우 숯불갈비의 맛과 정갈한 반찬 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전용 주차 공간과 개별 룸을 갖추어 가족 외식이나 부모님 동반 모임에 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220808184701",
+  "name": "꽃순이네",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 56214,
+  "researchedAt": "2026-09-21T14:21:25.017Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 웹 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "동네 주민, 인근 직장인/가족",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "냉동삼겹살",
+      "냉꽃삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광객 대상 홍보보다 골목 상권의 동네 고깃집으로 확인됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 남구 동명로 129(용호동 406-11)에 소재한 동네 삼겹살 식당으로, 냉동삼겹살 및 냉꽃삼겹살 등 가성비 고기 메뉴를 취급하는 것으로 등록되어 있으나 상세 리뷰나 정량 정보(영업시간, 상세 가격표 등)는 제한적입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "꽃순이네는 부산광역시 남구 용호동에 위치한 음식점으로, 도로명 주소로는 부산광역시 남구 동명로 129, 지번 주소로는 부산광역시 남구 용호동 406-11로 등록되어 있습니다. 가성비 냉동 삼겹살 등을 판매하는 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "가성비 좋은 냉동삼겹살과 냉꽃삼겹살을 편하게 즐길 수 있는 동네 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

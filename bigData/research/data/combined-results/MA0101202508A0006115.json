@@ -1,0 +1,69 @@
+{
+  "id": "MA0101202508A0006115",
+  "name": "블랙캣",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 25903,
+  "researchedAt": "2026-09-21T14:18:06.056Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 대기열 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "부산역 인근 러시아·외국인 거주자 및 이색 외국음식 탐방객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "사할린식 블랙 만두",
+      "마가단산 저염 청어",
+      "양꼬치"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산역 텍사스거리 내 현지 거주 러시아·중앙아시아인 및 이색 음식 찾는 방문객 대상"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 동구 중앙대로179번길 12(초량동)에 위치한 러시아·중앙아시아 음식 전문점입니다. 사할린식 블랙 만두, 마가단산 저염 청어, 양꼬치 등을 취급하며 모임 공간(최대 40인)을 제공합니다. 공식 영업시간 및 세부 가격표는 웹상에 공개되어 있지 않습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 초량 차이나타운(텍사스 거리) 인근에 위치해 있으며, 러시아 현지의 맛을 살린 다양한 요리를 선보입니다. 사할린식 블랙 만두, 마가단산 저염 청어 등 러시아 전통 요리를 포함한 다양한 메뉴를 제공하며, 지속적으로 새로운 특별 메뉴를 개발하고 있습니다. 아늑한 실내 분위기를 갖추고 있어 모임이나 단체 식사(최대 40명 수용 가능) 장소로도 알려져 있습니다.",
+      "url": "https://www.facebook.com"
+    },
+    {
+      "excerpt": "부산광역시 동구 중앙대로179번길 12(부산역 1번 출구 근처)에 위치한 블랙캣(BLACK CAT)... 우즈베키스탄 및 러시아 요리 전문점으로 알려져 있습니다. 양꼬치, 보드카 등을 판매하며 현지 분위기를 느낄 수 있는 식당으로 소개된 바 있습니다.",
+      "url": "https://sziaeletem.hu"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com",
+    "https://sziaeletem.hu"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산역 텍사스거리에서 정통 사할린식 만두와 러시아 전통 요리를 맛볼 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

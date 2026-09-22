@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220811398384",
+  "name": "이가횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 66391,
+  "researchedAt": "2026-09-21T14:21:46.259Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기열에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족/지역주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "회",
+      "매운탕",
+      "회덮밥"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 11:30 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 평가 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 남구 용호동(용호로42번길 21)에 위치한 횟집으로, 20년 전통의 회와 매운탕을 제공하는 동네 횟집입니다. 상세 메뉴판 및 가격 정보는 웹상에 구체적으로 등록되어 있지 않습니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "20년 전통의 회와 매운탕이 맛있는 횟집. 주중 11:30 ~ 22:00. 전화번호 051-611-8848. 부산광역시 남구 용호로42번길 21.",
+      "url": "https://www.siksinhot.com/P/352220"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/352220"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "20년 전통의 회와 매운탕을 맛볼 수 있는 곳",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "회와 매운탕의 맛 자체로 알려진 곳",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

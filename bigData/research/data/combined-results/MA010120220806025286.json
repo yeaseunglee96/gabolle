@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220806025286",
+  "name": "모리하루",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 62224,
+  "researchedAt": "2026-09-21T14:16:28.694Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "사누끼 우동",
+      "자루우동",
+      "붓카케우동"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 확인 불가"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "대연동 못골시장 인근 로컬 상권 사누끼 우동/일식집으로 현지 생활권 중심"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "사업자 등록상 일식/초밥 회 업종으로 기재되어 있으나, 실제 영업 정보상 대연동 못골시장 인근의 사누끼 우동(자가제면 생면) 및 소바, 돈가츠 등을 다루던 일식 전문점으로 파악됨. 현재는 폐업 또는 영업 변동 가능성 있음.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 대연동(못골시장 인근)에 위치한 '모리하루'에 대한 정보입니다. 업종: 사누끼 우동 전문점 (자가제면 생면 사용). 주소: 부산광역시 남구 수영로219번길 25 (대연동). 자가제면을 통해 쫄깃하고 탄력 있는 면발의 사누끼 우동을 제공합니다. 자루우동, 붓카케우동, 텐자루우동, 가케우동 등 다양한 우동 메뉴와 함께 돈가츠, 덮밥류 등을 판매합니다. 못골시장 주차장 입구 인근에 위치해 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "모리하루는 부산광역시 남구 대연동에 위치한 사누끼 우동 전문점입니다. 직접 만든 생면을 사용하여 우동과 소바 등을 제공하는 우동 맛집으로 알려져 있습니다. 과거 '생생정보통' 등 TV 프로그램에도 소개된 바 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "직접 뽑는 자가제면 생면을 사용한 쫄깃한 사누끼 우동과 붓카케·자루우동 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

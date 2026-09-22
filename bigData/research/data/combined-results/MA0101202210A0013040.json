@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202210A0013040",
+  "name": "광진갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 63275,
+  "researchedAt": "2026-09-21T21:46:19.564Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "갈비"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 새싹로265번길 15(초읍동 279-1)에 등록된 '광진갈비'(전화번호 051-806-4886, 한식/육류) 상호 및 주소 레코드는 확인되나, 온라인상에 실제 방문 후기, 상세 메뉴판, 영업시간, 줄서기 등 세부 운영 정보가 거의 존재하지 않거나 폐업/업종변경 가능성이 높음.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광진갈비 전화번호: 051-806-4886 주소: 부산광역시 부산진구 초읍동 279-1번지",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

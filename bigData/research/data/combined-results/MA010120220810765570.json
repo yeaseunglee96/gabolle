@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810765570",
+  "name": "동현횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 54424,
+  "researchedAt": "2026-09-21T22:20:37.567Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 모임 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "제철 회",
+      "도다리",
+      "방어"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "온라인상 영업시간 미기재"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 인근 부곡동 주민 중심의 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 금정구 부곡로 78(부곡동 동현맨션 1층) 소재. 온라인 메뉴판·가격표·영업시간은 공개되어 있지 않으나 로컬 가성비 횟집으로 확인됨. 포털 데이터상 폐업/영업 여부 변동 가능성이 있어 방문 전 유선 확인 요망.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 부곡로 78 (동현맨션). 편안하고 정감 있는 로컬 횟집으로 가성비가 좋고 합리적이라는 평이 있으며, 개별 룸과 좌식 테이블이 마련되어 있습니다. 예약이 가능하며 가족 외식, 모임 및 술자리 장소로 언급됩니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "오랜 기간 한 자리에서 운영해 온 동네 횟집으로, 방어, 도다리 등 제철 회를 가성비 좋게 즐길 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://www.daum.net"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부담 없는 가격대에 제철 회를 즐길 수 있는 가성비 좋은 동네 횟집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "부곡동 인근 동네 주민들이 가족 외식 및 모임 장소로 찾는 로컬 횟집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220811423809",
+  "name": "초량상회",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 68060,
+  "researchedAt": "2026-09-21T14:19:54.853Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 아침 식사 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생선구이",
+      "정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "07:30 ~ 21:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "자갈치시장 인근 여행자들의 아침 식사 및 방문 후기로 주로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "자갈치시장(부산 중구 자갈치로 30 / 남포동6가 10)에 위치한 초량상회로, 이른 시간 아침 식사와 생선구이 정식을 제공하는 점포로 확인됨.",
+  "price": {
+    "found": true,
+    "priceMenu": "정식 1인 기준 약 20,000원 선",
+    "priceWon": 20000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 초량상회, 위치: 부산광역시 중구 남포동6가 10 (자갈치역 10번 출구에서 약 168m 거리), 영업시간: 07:30 ~ 21:30, 자갈치 시장 인근에 위치한 식당으로, 친절한 서비스와 맛있는 정식으로 알려져 있습니다. 방문객 후기에 따르면 아침 식사를 하기에 좋으며, 푸짐한 양과 맛있는 생선구이 등이 특징입니다. 가격대는 약 20,000원 수준으로 언급되었습니다.",
+      "url": "https://kr.trip.com"
+    }
+  ],
+  "sources": [
+    "https://kr.trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "이른 아침 식사가 가능하며 생선구이 정식을 제공함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "친절한 서비스와 푸짐한 식사 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

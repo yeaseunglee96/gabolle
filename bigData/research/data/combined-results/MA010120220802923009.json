@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220802923009",
+  "name": "하얀등대이모야",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 58240,
+  "researchedAt": "2026-09-21T14:30:31.696Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 줄서기 관련 정보 미확인"
+  },
+  "descriptors": {
+    "audience": "일반 식사객 및 로컬 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "장어구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미기재"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 구체적 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 서구 남부민동 충무대로 바닷가 인근에 위치한 식당으로, 싱싱한 장어구이를 전문으로 판매하는 곳입니다.",
+  "price": {
+    "found": true,
+    "priceMenu": "장어구이",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "하얀등대이모야는 부산광역시 서구 충무대로 166-20(남부민동 694-2)에 위치해 있으며, 싱싱한 장어구이를 맛볼 수 있는 곳입니다. 장어구이 1인분 15,000원. 전화번호 051-256-6068.",
+      "url": "https://www.siksinhot.com/P/360773"
+    },
+    {
+      "excerpt": "하얀등대이모야 / 업태: 한식 / 소재지: 부산광역시 서구 남부민동 694-2 (충무대로 166-20) / 전화번호: 051-256-6068",
+      "url": "https://www.nett.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/360773",
+    "https://www.nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바닷가 근처에서 싱싱한 장어구이를 즐기기 위해 방문함.",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202406A0144499",
+  "name": "깜봉",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47394,
+  "researchedAt": "2026-09-21T14:26:38.486Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 줄서기에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼자 방문하는 손님, 커피 및 위스키 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "에스프레소",
+      "바질 토마토 에이드",
+      "위스키",
+      "하이볼",
+      "테린느"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~토 12:00~22:30 / 일 12:00~19:00 (월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 특정 언급 없음 (부산역 인근 카페/바로 소개)"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "행정 인허가상 경양식/일반음식점으로 등록되어 있을 수 있으나 실제 영업 형태는 에스프레소, 커피, 디저트(테린느), 위스키, 하이볼을 다루는 카페 겸 바(Bar)로 운영되는 곳입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 충장대로5번길 69 (중앙동4가)에 위치한 깜봉(CAMBON)은 위스키와 커피의 조화가 특징이며, 분위기 좋은 공간으로 평가받습니다. 혼자 커피를 마시거나 술을 즐기기에도 좋은 곳으로 알려져 있습니다. 매장 분위기는 널찍하고 까만 인테리어가 특징적이며 에스프레소 메뉴, 바질 토마토 에이드, 테린느, 위스키 등을 판매합니다. 영업시간: 화~토 12:00~22:30 / 일 12:00~19:00 (월요일 휴무)",
+      "url": "https://siksinhot.com"
+    },
+    {
+      "excerpt": "부산 중구 충장대로5번길 69 1층 깜봉. 위스키와 커피를 함께 즐길 수 있는 공간. 부산역 2번 출구 도보 약 5분 거리.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감각적인 블랙 톤 인테리어 속에서 에스프레소 커피와 위스키·하이볼을 함께 즐길 수 있는 특색 있는 카페 겸 바 분위기 때문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

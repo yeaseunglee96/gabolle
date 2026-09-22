@@ -1,0 +1,31 @@
+{
+  "id": "MA0101202503A0036027",
+  "name": "진진",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 49045,
+  "researchedAt": "2026-09-21T14:29:42.237Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소 및 연제구 일대에서 일식 회/초밥 '진진'에 대한 정보가 검색되지 않음",
+  "notes": "부산광역시 연제구 월드컵대로187번길 81 주소지 및 연제구 연산동 일대에서 일식/회/초밥 업종의 '진진' 상호 매장 정보 및 방문 후기가 확인되지 않아 found: false로 처리함.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

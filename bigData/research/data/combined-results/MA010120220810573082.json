@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810573082",
+  "name": "몬베튼",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 30366,
+  "researchedAt": "2026-09-21T14:07:06.931Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블을 통해 예약 및 대기를 진행하며, 주말 등 인기 시간대에는 웨이팅이 발생함"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 반려견 동반 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "빅브레키",
+      "몬베튼 버거",
+      "쵸리죠 크림파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (브레이크타임 16:00 ~ 17:00, 라스트오더 21:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 전포 카페거리에 위치한 유럽 감성의 브런치 카페 겸 펍으로, 반려견 동반 및 전용 메뉴 제공, 빅브레키 플래터와 수제버거 등이 유명함. 전용 주차 공간은 없음.",
+  "price": {
+    "found": true,
+    "priceMenu": "빅브레키 (2인 기준)",
+    "priceWon": 23000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "빅브레키는 몬베튼의 대표적인 시그니처 메뉴로, 2인 기준(23,000원)으로 제공됩니다. 이 메뉴는 잘 구워진 빵과 에그 스크램블, 소세지, 베이컨, 아보카도, 샐러드, 수제 요거트, 바나나 등이 푸짐하게 구성된 브런치 플래터입니다.",
+      "url": "https://ban-life.com"
+    },
+    {
+      "excerpt": "매일 11:00 ~ 22:00 (브레이크 타임 16:00 ~ 17:00). 캐치테이블을 통해 예약 및 대기를 진행합니다. 회전율이 아주 빠른 편은 아니며, 주말 등 인기 시간대에는 대기가 발생할 수 있으니 방문 전 캐치테이블 앱을 확인하는 것을 권장합니다. 매장 자체 주차장은 따로 마련되어 있지 않습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://ban-life.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "푸짐한 구성의 시그니처 브런치 플래터 '빅브레키'와 수제버거 등 브런치 요리 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "유럽풍 감성의 테라스 인테리어와 실내외 반려견 동반 및 멍푸치노 등 펫 친화 환경",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

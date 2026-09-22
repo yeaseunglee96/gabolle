@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220810535455",
+  "name": "동성식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 132207,
+  "researchedAt": "2026-09-21T14:13:07.680Z",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 대한 특별한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "노포 감성을 찾는 현지인 및 여행객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "꼼장어 소금구이",
+      "꼼장어 양념구이",
+      "바다장어 구이",
+      "장어탕"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (라스트오더 21:15, 매달 2, 4번째 목요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "30년 전통의 노포로 현지인 단골이 많으며 자갈치시장 특유의 포장마차 노포 감성을 찾는 여행객들도 함께 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "행정/인허가상 상호는 '동성식당'이며, 실제 영업 간판 및 매장 상호는 '동성장어구이'(동성장어)로 운영되는 30년 업력의 꼼장어/장어구이 전문 노포입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": "꼼장어 소금구이/양념구이, 바다장어구이, 장어탕",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동성식당 / 부산광역시 서구 자갈치로 12-1 (충무동1가) / 한식 (일반음식점) / 전화번호 051-243-0156",
+      "url": "https://www.bsseogu.go.kr"
+    },
+    {
+      "excerpt": "동성장어구이는 부산 자갈치시장 및 충무동 해안시장 인근에서 오랫동안 운영되어 온 노포 맛집으로, 현지인들에게도 인기가 많은 꼼장어 및 장어구이 전문점입니다. 30년 이상의 업력을 가진 노포 분위기의 식당으로 숯불에 구워내는 꼼장어 구이가 대표적입니다. 운영 시간: 매일 11:00 ~ 22:00 (라스트오더 21:15) 정기 휴무: 매달 2, 4번째 목요일",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.bsseogu.go.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "30년 전통의 노포에서 숯불에 구워내는 잡내 없고 쫄깃한 꼼장어구이와 서비스 장어탕 제공",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "30년 이상 자갈치/충무동 골목을 지켜온 전통 노포와 포장마차 특유의 분위기",
+      "sources": [
+        1
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "충무동 골목에서 현지 단골들이 꾸준히 찾는 검증된 로컬 장어구이집",
+      "sources": [
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

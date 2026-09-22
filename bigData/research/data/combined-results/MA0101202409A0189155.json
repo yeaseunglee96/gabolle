@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202409A0189155",
+  "name": "제주흑돈까스장림점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 38846,
+  "researchedAt": "2026-09-21T22:36:48.178Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 직장인, 연인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "경양식돈까스",
+      "매운경양식돈까스",
+      "통치즈돈까스",
+      "양파돈까스",
+      "모듬경양식",
+      "속시원한살얼음냉모밀"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 11:00 ~ 20:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 사하구 장림동에 위치한 경양식 돈까스 전문점으로 기본 경양식 돈까스 및 치즈돈까스, 양파돈까스, 모듬, 냉모밀 등의 메뉴를 운영함.",
+  "price": {
+    "found": true,
+    "priceMenu": "경양식돈까스",
+    "priceWon": 11000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 사하구 다대로 274, 영업시간: 월~토 11:00 ~ 20:00 (일요일 휴무), 주요 메뉴: 경양식돈까스 (11,000원), 매운경양식돈까스 (12,000원), 통치즈돈까스 (13,000원), 양파돈까스 (14,000원), 모듬경양식 (14,000원), 속시원한살얼음냉모밀 (7,500원)",
+      "url": "https://heyyumi.ai"
+    },
+    {
+      "excerpt": "블로그 및 이용자 후기들에서는 '경양식 돈까스의 정석' 같은 맛이라는 평이 있으며, 특히 새우튀김이나 또띠아와 함께 즐기는 조합이 별미로 언급되기도 합니다. 매장 식사뿐만 아니라 배달을 통해서도 가성비 좋게 즐길 수 있는 맛집으로 알려져 있습니다.",
+      "url": "https://ndex.kr"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://ndex.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정석적인 경양식 돈까스 맛과 다양한 토핑·조합 메뉴를 즐길 수 있음",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "매장 식사 및 배달로 부담 없이 즐길 수 있는 가성비 경양식 메뉴",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

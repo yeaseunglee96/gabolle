@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220811425658",
+  "name": "공짜루",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 46082,
+  "researchedAt": "2026-09-21T22:28:17.646Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "폐업 또는 실존 영업 정보 없음",
+  "notes": "부산광역시 남구 석포로 30(감만동 15-37)에 과거 상호 등록된 기록(2009년경 행정처분 및 부동산/상호 DB)만 존재하며, 방문 후기·메뉴·영업시간 등 실제 영업 관련 정보가 없어 현재 폐업 상태로 판단됨.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "공짜루 | 부산 남구 감만동 15-37 (석포로 30) | 중식당",
+      "url": "https://www.udanax.org"
+    },
+    {
+      "excerpt": "식품위생법 위반 업소 현황: 공짜루 (부산광역시 남구 감만동 15-37)",
+      "url": "https://www.korea.kr"
+    }
+  ],
+  "sources": [
+    "https://www.udanax.org",
+    "https://www.korea.kr"
+  ],
+  "whyPeopleGo": []
+}

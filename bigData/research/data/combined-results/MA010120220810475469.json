@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220810475469",
+  "name": "꼬모도",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50388,
+  "researchedAt": "2026-09-21T14:17:47.819Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기열/줄서기에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "고르곤졸라피자",
+      "꼬모도 루꼴라피자",
+      "리코타청포도피자",
+      "파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:30 (라스트 오더 21:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 지지에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남포동 광복로 메인거리에 위치한 가성비 좋은 이탈리안 화덕피자·파스타 전문점. 매장이 넓고 테이블 간격이 여유로워 가족 외식 및 모임에 적합함.",
+  "price": {
+    "found": true,
+    "priceMenu": "파스타(토마토/까르보나라 등) 12,500원~, 고르곤졸라피자 17,500원, 루꼴라피자 19,500원",
+    "priceWon": 12500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "남포동 광복로 메인 거리에 위치해 있어 접근성이 좋습니다. 화덕피자, 파스타, 필라프, 리조또 등을 판매하며 가성비가 좋은 맛집으로 알려져 있습니다. 매장이 넓어 가족 외식이나 모임 등에 적합하며, 테이블 오더 주문이 가능합니다. 인근 ABC마트 주차장 1시간 지원 등의 혜택이 제공되기도 합니다.",
+      "url": "https://www.siksinhot.com/P/1014878"
+    },
+    {
+      "excerpt": "매일 11:00 ~ 21:30 (라스트 오더 21:00). 세련된 인테리어의 화덕피자 전문점으로, 파스타, 리조또, 스테이크 등 다양한 이탈리아 음식을 제공합니다. 유아 의자가 구비되어 있으며, 넓은 매장과 테이블 간격으로 가족 외식이나 모임에 적합합니다. 매장 뒷편 ABC마트 주차장 이용 시 1시간 무료 지원이 가능합니다.",
+      "url": "https://www.siksinhot.com/P/1014878"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1014878"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화덕피자와 파스타를 부담 없는 가격대에 즐길 수 있는 가성비 이탈리안 식당",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "광복로 중심가에 위치하고 매장이 넓으며 주차 지원(ABC마트 주차장)이 제공되어 방문이 편리함",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810512838",
+  "name": "서대죽",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 36030,
+  "researchedAt": "2026-09-21T22:35:40.138Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 서구 구덕로295번길 19 및 인근 서대시장 일대를 웹에서 검색한 결과, '서대죽'이라는 상호의 음식점 또는 횟집은 실존하지 않거나 확인되지 않는 상호입니다. (해당 번지에는 창녕상회, 싱싱횟집 등이 확인됨) 규칙에 따라 없는 가게를 지어내지 않고 found: false로 보고합니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

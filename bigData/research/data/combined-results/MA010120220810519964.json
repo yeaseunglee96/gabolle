@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220810519964",
+  "name": "청솔",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 54225,
+  "researchedAt": "2026-09-21T22:26:04.258Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식, 단체 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리백숙",
+      "닭백숙"
+    ],
+    "yearsClaimed": 1990
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 서구 엄광산로 106-7에 등록된 '청솔(청솔집)'은 1990년부터 운영된 오리/닭 요리 및 백숙 전문점입니다. 상세 메뉴판 및 가격, 영업시간 등은 온라인 상세 정보가 제한적입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 서구 엄광산로 일대에 위치한 청솔집은 1990년부터 운영되어 온 오리 요리 전문점입니다. 한방 재료(황칠나무, 옻, 은계나무 등)를 사용한 오리 및 닭 백숙을 전문으로 하며, 가족 모임이나 단체 회식에 적합한 넓은 좌석과 개별 룸을 갖추고 있습니다. 주차장이 완비되어 있어 편리하게 이용할 수 있으며, 입식 좌석이 마련되어 있습니다.",
+      "url": "https://www.siksinhot.com/P/354784"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/354784"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한방 재료를 사용한 오리 및 닭 백숙 요리와 모임하기 좋은 룸 및 주차 공간 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

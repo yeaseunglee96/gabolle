@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220810735965",
+  "name": "어부횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 46820,
+  "researchedAt": "2026-09-21T21:55:34.258Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "회/수산물 식객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 강서구 가덕해안로 693-4 (천성동 1367-1)에 등록된 사업체(전화번호: 051-972-7797)이나 온라인상 블로그 후기나 방문 리뷰, 영업시간, 상세 메뉴 가격 등의 데이터가 웹상에 게시되어 있지 않은 소규모 일반 등록 식당입니다.",
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 강서구 천성동에 위치한 어부횟집 전화번호: 051-972-7797 주소: 부산광역시 강서구 가덕해안로 693-4 (천성동 1367-1)",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "상호명: 어부횟집, 주소: 부산광역시 강서구 가덕해안로 693-4",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

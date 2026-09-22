@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202309A0069302",
+  "name": "구구이",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 39276,
+  "researchedAt": "2026-09-21T22:20:37.450Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "술 모임, 인근 상권 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스키야끼",
+      "연어사시미"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "14:00~02:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 북구 덕천동에 등록된 일반음식점(경양식/양식 주점) '구구이(992)'로 확인되었습니다. 스키야키, 연어사시미 등을 다루는 선술집/음식점 형태입니다.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 덕천1길 42-1 (덕천동) 양식 업소 '구구이'",
+      "url": "https://www.bsbukgu.go.kr"
+    },
+    {
+      "excerpt": "구구이(992)는 이자카야 형태의 식당으로 스키야키, 연어 사시미, 통삼겹카츠, 얼큰 해장 파스타 등을 제공하며 영업시간은 14:00~02:00, 덕천역에서 도보 약 3~5분 거리이다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.bsbukgu.go.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "스키야키, 연어사시미 등 다양한 안주 요리와 편안하게 분리된 좌석 공간",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "덕천역 도보 5분 이내로 늦은 시간까지 운영되는 모임 편의성",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

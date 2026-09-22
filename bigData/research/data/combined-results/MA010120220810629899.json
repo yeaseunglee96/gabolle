@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810629899",
+  "name": "태양참숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 24085,
+  "researchedAt": "2026-09-21T16:08:54.040Z",
+  "crowding": {
+    "found": false,
+    "note": "관련 언급 없음"
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "가게 존재(주소: 부산광역시 부산진구 신암로 82, 업종: 돼지고기 구이/찜)는 사업자 정보 데이터베이스에서 확인되나, 블로그·리뷰·메뉴판 등 실질적인 콘텐츠가 온라인에 전혀 노출되어 있지 않음. 4회 검색(주소 직접 검색, 메뉴/영업시간 검색, 후기 검색, 블로그 검색) 모두 사업자 등록 정보만 반환. 가게 자체는 존재하나 온라인 존재감이 사실상 없는 업소.",
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "태양참숯불갈비 / 주소: 부산광역시 부산진구 신암로 82 (중계 URL 경유, 원문 접근 불가)",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}
