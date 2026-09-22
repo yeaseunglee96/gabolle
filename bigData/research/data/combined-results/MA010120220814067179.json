@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220814067179",
+  "name": "으뜸푸드",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 47366,
+  "researchedAt": "2026-09-22T12:11:34.233Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 실제 운영 중인 일반 음식점(리뷰/방문기/메뉴 정보가 있는 식당)으로서의 '으뜸푸드' 정보가 웹상에 존재하지 않음",
+  "notes": "부산광역시 수영구 수영로 481 소재의 '으뜸푸드'는 사업자 인허가/주소지 DB 외에 실제 소비자가 방문하는 일반 식당(블로그, 리뷰, 메뉴판, 방문기 등) 정보가 확인되지 않습니다. 인근 수영로 485에 한식 관련 사업자 및 '으뜸한식뷔페'가 존재하나 일치하지 않으며, 소비자가 찾는 식당으로서의 실체가 확인되지 않아 found:false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

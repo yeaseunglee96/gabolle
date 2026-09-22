@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220806493498",
+  "name": "안목에프비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 53172,
+  "researchedAt": "2026-09-22T12:14:19.720Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 웨이팅이 잦아 캐치테이블 및 네이버 예약 활용을 권장함"
+  },
+  "descriptors": {
+    "audience": "데이트 및 가족·모임 외식객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "안목살",
+      "특삼겹"
+    ],
+    "yearsClaimed": 2
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금 12:00 ~ 15:00 / 16:30 ~ 23:30, 토~일 12:00 ~ 15:00 / 16:30 ~ 24:00 (브레이크타임 15:00 ~ 16:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객 방문 비율에 대한 구체적 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "'안목에프비'는 부산 수영구 광남로 156에 위치한 숙성 돼지고기 전문점 '광안목'을 운영하는 운영 법인체입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "안목살 (1인분)",
+    "priceWon": 14500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로 156, 1층. 168시간 드라이에이징한 목살과 삼겹살을 아사도 훈연 그릴로 초벌한 뒤, 직원이 직접 구워주는 그릴링 서비스를 제공합니다. 광안신호주차타워 이용 시 시간당 1,000원 지원이 가능합니다.",
+      "url": "https://www.siksinhot.com/P/1664188"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1664188",
+    "https://www.saramin.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "168시간 드라이에이징 및 아사도 그릴 초벌 훈연과 전담 그릴링 서비스로 뛰어난 고기 맛 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직접 고기를 구워주는 서비스 및 인근 주차타워 주차비 지원 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

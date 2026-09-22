@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220804837879",
+  "name": "스시선수",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 118008,
+  "researchedAt": "2026-09-22T12:11:31.172Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 앱을 통해 예약제로 운영되며 현장 줄서기 대신 사전 타임별 예약 방문 시스템임"
+  },
+  "descriptors": {
+    "audience": "초밥 마니아 및 기념일 데이트 고객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "디너 오마카세",
+      "스시 오마카세"
+    ],
+    "yearsClaimed": 12
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "점심 1부 11:30 / 2부 13:30, 저녁 1부 17:30 / 2부 19:30 (매주 수요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 중동 인근 주민들과 미식가들이 꾸준히 찾는 로컬 오마카세 초밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "특급 호텔(파라다이스 호텔 사카에) 출신의 김철수 셰프가 운영하는 곳으로, '김철수 스시선수'라는 상호로 100% 예약제 단일 오마카세를 운영 중입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "스시 오마카세 1인",
+    "priceWon": 55000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 김철수 스시선수는 파라다이스호텔 사카에 출신 셰프가 운영하는 곳으로, 현재는 오마카세 단일 메뉴 예약제(캐치테이블 앱 이용)로 1인 55,000원에 운영되고 있습니다. 점심 1부 11:30 / 2부 13:30, 저녁 1부 17:30 / 2부 19:30으로 진행됩니다. 매주 수요일은 정기 휴무입니다.",
+      "url": "https://app.catchtable.co.kr/ct/shop/sushiseonsoo"
+    },
+    {
+      "excerpt": "'스시선수'는 초밥을 쥐는 선수라는 의미와 '마음을 담아 직접 만든다'는 뜻의 '선수(善手)'를 중의적으로 표현한 것으로, 파라다이스호텔 사카에 출신 선후배인 김철수 사장(해운대)과 이원학 사장(서면)이 각각 이름을 걸고 운영합니다. 매일 아침 시장에서 신선한 재료를 직접 구매해 손질합니다.",
+      "url": "https://www.busan.com/view/busan/view.php?code=20141030000030"
+    }
+  ],
+  "sources": [
+    "https://app.catchtable.co.kr/ct/shop/sushiseonsoo",
+    "https://www.busan.com/view/busan/view.php?code=20141030000030"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "파라다이스 호텔 '사카에' 출신 셰프가 선보이는 높은 수준의 정통 초밥과 오마카세 코스",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "5만 원대 가격에 특급호텔 출신 셰프의 오마카세를 즐길 수 있는 뛰어난 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

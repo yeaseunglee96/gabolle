@@ -1,0 +1,52 @@
+{
+  "id": "MA0101202307A0064901",
+  "name": "오대패",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 66593,
+  "researchedAt": "2026-09-22T12:13:04.258Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 인근 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "대패삼겹살",
+      "점심특선"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "웹상에 블로그나 상세 방문기 등 구체적인 텍스트 기록이 매우 적으나, 해운대구 중동/좌동 인근의 대패삼겹살 전문점으로 가성비 점심특선(대패삼겹살, 된장찌개, 밥 구성) 등을 판매하는 곳으로 확인됨. 세부 정량 정보(영업시간, 주차, 혼잡도 등)는 출처 부재로 확인 불가.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대패삼겹살과 된장찌개, 밥으로 구성된 가성비 점심특선 및 저렴한 고기 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

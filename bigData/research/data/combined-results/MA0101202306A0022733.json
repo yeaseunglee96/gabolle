@@ -1,0 +1,79 @@
+{
+  "id": "MA0101202306A0022733",
+  "name": "아오바",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 76063,
+  "researchedAt": "2026-09-22T12:13:50.581Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "오마카세/코스 특성상 사전 예약 위주 운영으로 줄서기보다는 예약 필수 안내가 주를 이룸"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 데이트, 비즈니스 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "스시 오마카세 코스",
+      "아오바 스페셜",
+      "모둠 숙성회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 22:00 (브레이크 타임 15:00 ~ 17:00 / 라스트 오더 21:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "마린시티 카이저빌 상가 2층에 위치한 고급 일식 오마카세 전문점. 프라이빗 룸과 다찌석을 갖추고 코스 요리를 제공함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 해운대구 마린시티3로 39, 2층 204호. 영업시간: 11:30 ~ 22:00 (브레이크 타임 15:00 ~ 17:00 / 라스트 오더 21:30). 스시 오마카세 코스를 제공하며 바 테이블(다찌석)과 프라이빗한 개별 룸을 갖추고 있어 데이트, 가족 외식, 비즈니스 모임 등에 적합합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "아오바는 마린시티에 위치한 고급 일식 오마카세 전문점입니다. 정갈하고 고급스러운 인테리어로, 바(Bar) 좌석과 프라이빗한 룸 좌석이 마련되어 있습니다. 카이저빌 상가 주차장이 협소하여, 맞은편 '우신골든메르시아' 주차장을 이용 시 2시간 무료 혜택을 받을 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정갈한 인테리어의 프라이빗 룸과 바 좌석에서 고급 일식 오마카세 코스를 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "개별 룸 완비 및 인근 주차 지원으로 모임 및 접대 이용 편의성 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

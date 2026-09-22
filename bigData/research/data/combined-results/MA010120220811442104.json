@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811442104",
+  "name": "아저씨대구탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 40788,
+  "researchedAt": "2026-09-22T12:10:35.286Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말 피크 타임에는 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "아침 식사 및 해장 손님, 부모님 동반 가족 및 현지인·관광객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "대구탕",
+      "대구뽈찜",
+      "멍게젓갈"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 07:00 ~ 21:00 (정기휴무: 매달 둘째, 넷째 주 월요일)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "아침 식사나 해장을 하러 오는 현지인들과 관광객이 모두 많이 찾는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "해운대 달맞이길 미포 인근에 위치한 대구탕/대구뽈찜 전문점으로, 이른 아침 7시부터 영업하여 아침 식사와 해장 명소로 알려져 있음. 기본 반찬인 멍게젓갈과 구운 김의 궁합이 별미로 평가받음. 주차 공간이 협소함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "대구탕",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이른 아침부터 영업을 시작하여 아침 식사나 해장 장소로 인기가 많습니다. 맑고 시원한 국물의 대구탕과 매콤달콤한 대구뽈찜이 대표 메뉴이며, 밑반찬으로 나오는 멍게젓갈과 김이 별미로 유명합니다. 주차 공간이 협소할 수 있어 대중교통 이용이나 근처 유료 주차장 이용을 권장합니다. 매달 둘째, 넷째 주 월요일 휴무. 대구탕 13,000원, 대구뽈찜 35,000원 ~ 50,000원. 주말 피크 타임에는 웨이팅이 발생할 수 있으니 참고하시기 바랍니다.",
+      "url": "https://moodybeard.com"
+    }
+  ],
+  "sources": [
+    "https://moodybeard.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "맑고 시원한 대구탕 국물과 매콤한 대구뽈찜 맛, 멍게젓갈과 김의 별미 조합 때문에 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오전 7시 이른 아침부터 영업하여 아침 식사 및 해장 식사 편의가 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "현지인 로컬 맛집으로 알려져 아침 식사 및 해장 목적으로 현지인과 여행객이 즐겨 찾음",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

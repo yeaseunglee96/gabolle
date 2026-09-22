@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220805894673",
+  "name": "유정",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 68641,
+  "researchedAt": "2026-09-22T12:14:09.249Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 세부 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 가족, 단체",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "장어구이",
+      "양념곰장어",
+      "장어탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 직접적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로 287에 공식 인허가 일반음식점 상호 '유정'(유정장어구이)으로 등록되어 있으며, 장어구이 및 양념곰장어 등을 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "장어구이",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해당 주소지에는 '유정'이라는 상호의 일반음식점이 등록되어 있습니다. 과거 블로그 등에서는 '유정장어구이'라는 이름으로 곰장어 등을 판매하는 곳으로 소개된 바 있으나, 현재 관공서 데이터상에는 단순히 '유정'으로 기재되어 있습니다. 상호: 유정, 주소: 부산광역시 수영구 광안해변로 287, 1층 (민락동), 전화번호: 051-753-3698. 주요 메뉴: 장어구이, 양념곰장어, 장어탕 등. 해당 업소는 광안리 해수욕장 및 민락동 횟집거리 인근에 위치하고 있어 접근성이 좋으며, 장어구이와 곰장어 요리 전문점으로 알려져 있습니다.",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변 및 민락동 횟집거리 인근 위치 편의와 장어구이·곰장어 전문점 수요",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

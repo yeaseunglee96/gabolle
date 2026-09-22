@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202409A0189426",
+  "name": "우화가든",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 75501,
+  "researchedAt": "2026-09-22T12:12:56.127Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "회식, 모임, 와인/고기 애호가",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": null,
+    "signatureDishes": [
+      "한우",
+      "숙성 한우"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안로61번가길 17 (민락동 717-15)에 위치한 '우화가든'은 정원이 있는 인테리어에서 셰프가 직접 구워주는 숙성 한우와 에비스 생맥주, 와인을 함께 즐길 수 있는 한우 전문점으로 확인되었습니다. 영업시간, 대기 정보 및 구체적인 메뉴판 가격표는 검색 한도 내에서 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "질 좋은 숙성 한우를 셰프가 직접 구워주는 서비스를 제공합니다. 에비스 생맥주와 직접 공수한 와인을 한우와 함께 즐길 수 있는 곳으로 소개됩니다. '정원'이 있는 특별한 인테리어와 함께 화학 조미료를 사용하지 않는 것을 원칙으로 합니다. 주차장이 마련되어 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "셰프가 직접 구워주는 질 좋은 숙성 한우와 정원이 있는 인테리어, 에비스 생맥주 및 와인 페어링",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주차장이 구비되어 있고 셰프가 직접 고기를 구워주는 그릴링 서비스 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

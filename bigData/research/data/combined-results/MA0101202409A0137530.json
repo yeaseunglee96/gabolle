@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202409A0137530",
+  "name": "백산숯불가든",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 77317,
+  "researchedAt": "2026-09-22T12:11:14.513Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기/줄서기 및 혼잡도에 대한 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "회식 및 단체 모임, 가족 외식객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한돈 특목살",
+      "돼지고기 숯불구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:00 ~ 03:00 (02:00 라스트오더)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 수영역 인근 감포로 92 1층에 위치한 한돈 숯불구이 전문점으로, 기장젓갈 등 특색 있는 곁들임 반찬과 늦은 새벽까지 운영하는 점이 특징입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 감포로 92 1층, 지하철 수영역 5번 출구에서 도보 약 350m 거리에 위치한 백산숯불가든(수영본점)은 숯불에 구워 먹는 신선한 한돈을 맛볼 수 있는 가성비 고기집으로 알려져 있습니다. 매일 16:00 ~ 03:00 (02:00 라스트오더) 운영하며, 5만원 이상 이용 시 지정 주차장(수영 월드컵주차장, 대림주차장) 1시간 무료 이용이 가능합니다. 기장젓갈, 와사비 등 곁들임 반찬이 제공됩니다.",
+      "url": "https://suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 한돈을 숯불에 구워 즐길 수 있으며 기장젓갈 등 특색 있는 곁들임 반찬 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "새벽 3시까지 늦은 시간까지 운영하며 인근 주차 지원 및 수영역 인근 접근성 확보",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220804868717",
+  "name": "만땅",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 77226,
+  "researchedAt": "2026-09-22T12:14:31.362Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "퇴근길 직장인, 술자리 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우육회",
+      "연어사시미",
+      "모듬꼬치",
+      "나가사키 짬뽕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 17:30 ~ 01:30 (매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "수영역 인근 먹자골목 상권에 위치한 동네 선술집/이자카야"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 감포로 99 1층에 위치했던 이자카야/선술집으로, 한우육회 및 연어사시미, 모듬꼬치류를 취급했습니다. 현재는 폐업 또는 타 업종으로 전환되었을 가능성이 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 감포로 99 1층. 1등급 한우 육회와 연어 사시미, 꼬치류 등으로 유명한 선술집. 영업시간: 화~일 17:30 ~ 01:30 (매주 월요일 정기휴무), 문의: 051-710-0014",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1등급 한우 육회와 생연어 사시미, 모듬꼬치 등 다양한 이자카야 안주와 술을 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

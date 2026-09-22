@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202406A0071557",
+  "name": "세이하",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 93933,
+  "researchedAt": "2026-09-22T12:10:55.021Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "회식, 데이트 등",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "연어 모듬회",
+      "활어 모듬회",
+      "오징어회",
+      "연어대가리구이"
+    ]
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": "가게 상세 웹페이지 및 실제 블로그 방문 후기를 확인할 수 없음",
+  "notes": "부산 부산진구 전포대로 230-1에 위치한 '세이하'는 식신 등 메타 검색에 상호와 단편 메뉴 흔적이 일부 노출되나, 실제 방문 후기, 정확한 운영 페이지, 사진, 영업시간 등의 구체적인 매장 정보가 부재하여 실존하거나 현재 정상 운영 중인 식당으로 확인되지 않아 found: false로 처리하였습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": []
+}

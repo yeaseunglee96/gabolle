@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202504A0040395",
+  "name": "국밥백서",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 42232,
+  "researchedAt": "2026-09-22T12:12:10.238Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "남녀노소 / 직장인 / 1인 식사객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "얼큰돼지국밥",
+      "얼큰순대국밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 수영구 수영로 506(광안더샵 상가) 주소지에 등록된 프랜차이즈/배달·식당형 국밥 브랜드로 파악되나, 해당 지점 단독의 상세 이용 후기나 개별 영업시간, 대기 정보 등은 웹상에 상세히 노출되어 있지 않고 체인 일반 메뉴(얼큰돼지국밥 등) 중심의 정보만 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "국밥백서는 다양한 종류의 국밥을 전문으로 하며, 지점별로 차이가 있을 수 있으나 일반적으로 다음과 같은 메뉴가 있습니다. 대표 메뉴: 얼큰돼지국밥, 얼큰순대국밥, 기타 메뉴: 얼큰살코기국밥, 얼큰모둠국밥, 돼지국밥, 육개장칼국수 등",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://infosori.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "얼큰돼지국밥·순대국밥 등 대중적인 국밥 메뉴를 부담 없이 즐기기 위해 방문 및 주문함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

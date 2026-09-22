@@ -1,0 +1,43 @@
+{
+  "id": "MA0101202406A0017711",
+  "name": "달맞이샌드",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 83959,
+  "researchedAt": "2026-09-22T12:14:49.971Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "실제 오프라인 매장 및 방문자 후기 정보 없음",
+  "notes": "부산광역시 해운대구 달맞이길 56 소재의 '달맞이샌드'(빵/도넛)는 사업자 등록 정보 외에 실제 방문 후기, 메뉴, 영업시간 등의 오프라인 매장 정보를 찾을 수 없어 found:false로 처리했습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bz-lounge.com"
+  ],
+  "whyPeopleGo": []
+}
