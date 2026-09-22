@@ -41,7 +41,14 @@ public record RecommendationResultResponse(
 			/** 항상 {@code null} — {@code place} 표에 이미지 칸이 없다. */
 			String imageUrl,
 			List<String> reasonCodes,
-			/** 항상 {@code null} — 비용 데이터가 없다. {@code 0} 을 넣으면 "공짜" 로 읽힌다. */
+			/**
+			 * 대표 메뉴 한 가지의 값(원). 조사된 곳만 숫자이고 <b>나머지는 {@code null}</b> 이다
+			 * — {@code 0} 을 넣지 않는다. 0 은 "모름" 이 아니라 <b>"공짜"</b> 로 읽힌다.
+			 *
+			 * <p>🔴 2026-09-22 이전에는 <b>항상 {@code null}</b> 이었다. 그때는 비용 자료가 정말
+			 * 없었고, 이제는 {@code MENU_PRICE_WON} 이 실려 있다(S15P21E201-1479). 값이 있는 곳이
+			 * 아직 일부라 <b>「비었으니 무료」로 읽으면 안 된다</b>는 것은 그대로다.
+			 */
 			Integer estimatedCostKrw,
 			/** {@code LOW} · {@code MEDIUM} · {@code HIGH}. 근거가 없으면 {@code null}. */
 			String crowdLevel,
