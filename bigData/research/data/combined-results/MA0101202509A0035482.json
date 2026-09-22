@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202509A0035482",
+  "name": "빠흐PAR",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 91092,
+  "researchedAt": "2026-09-22T11:30:27.282Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "친구·연인·개인 브런치 방문객",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "빠흐 라떼",
+      "애플 고르곤졸라 바게트",
+      "브런치 플레이트"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 8시 오픈 (10시 이전 방문 시 브런치 및 음료 세트 할인)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 대상 여부에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대 달맞이길에 위치한 카페 겸 브런치 매장으로, 바닐라 타르트를 커피로 재해석한 빠흐 라떼와 브런치 플레이트, 애플 고르곤졸라 바게트 등의 메뉴를 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "브런치 플레이트, 바게트, 음료 세트 등 (오전 10시 이전 방문 시 세트 할인 제공)",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대 달맞이길의 조용한 분위기 속에서 커피와 브런치를 즐길 수 있는 아늑한 카페입니다. 벽돌 외관의 따뜻하고 모던한 인테리어가 특징이며, 차분한 분위기에서 여유를 즐기기 좋습니다. 바닐라 타르트를 커피로 재해석한 '빠흐 라떼'가 유명하며, 바닐라빈의 깊은 풍미를 느낄 수 있습니다. 사워도우, 꽁떼치즈, 모르타델라, 무화과잼 등으로 구성된 '브런치 플레이트'와 루꼴라와 햄이 들어간 '애플 고르곤졸라 바게트' 등이 인기 메뉴입니다. 오전 8시에 오픈하여 달맞이길의 고요한 아침을 즐기기에 좋습니다. 매장 인근 갓길 주차가 가능합니다.",
+      "url": "https://pandarank.net"
+    }
+  ],
+  "sources": [
+    "https://pandarank.net",
+    "https://www.siksinhot.com/P/1709405"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바닐라 타르트를 커피로 재해석한 시그니처 빠흐 라떼와 풍성한 브런치 플레이트 등 특색 있는 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "벽돌 외관과 모던하고 아늑한 인테리어, 조용하고 차분한 달맞이길 아침 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

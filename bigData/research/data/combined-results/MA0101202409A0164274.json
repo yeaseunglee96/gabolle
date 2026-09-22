@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202409A0164274",
+  "name": "금손1983",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 78782,
+  "researchedAt": "2026-09-22T11:30:33.874Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "성시경의 먹을텐데 및 방송 소개 후 인기가 많아 캐치테이블 등을 통한 사전 예약 필수 및 웨이팅 발생"
+  },
+  "descriptors": {
+    "audience": "데이트 및 소규모 모임, 미식가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "맡김차림(오마카세)",
+      "닭 특수부위 야키토리",
+      "중식 코스 요리"
+    ],
+    "yearsClaimed": 1983
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월, 수~토 11:00 ~ 22:00 (브레이크타임 14:30 ~ 17:00), 일 12:00 ~ 22:00 (브레이크타임 14:30 ~ 17:00), 매주 화요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 현지인(이대호 선수 단골) 맛집으로 알려졌으나 방송 방영 후 외지 관광객 유입 증가"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안동에 위치한 곳으로 기존에는 야키토리/닭 특수부위 오마카세로 성시경의 먹을텐데(이대호 편) 등에 소개되어 유명세를 탔으며, 최근 중식 다이닝/코스 형태로 리뉴얼되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "중식 코스(오마카세) / 금손 맡김차림",
+    "priceWon": 39000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "금손1983은 부산광역시 수영구 광안동에 위치한 식당입니다. 성시경의 '먹을텐데'에 이대호와 함께 출연하여 소개된 바 있습니다. 주소: 부산광역시 수영구 수영로680번길 54, 1층. 영업시간: 월, 수~토: 11:00 ~ 22:00 (브레이크 타임: 14:30 ~ 17:00), 일: 12:00 ~ 22:00, 정기 휴무: 매주 화요일.",
+      "url": "https://www.youtube.com/watch?v=sung-sikyung-eat-geumson1983"
+    },
+    {
+      "excerpt": "컨셉 변화: 과거에는 닭 특수부위 야키토리 맡김차림(오마카세)으로 유명했으나, 최근에는 중화요리 다이닝 바(중식 오마카세) 형태로 리뉴얼되어 운영되고 있습니다. 방송 출연: 이대호 선수의 단골집으로 알려져 있으며, 유튜브 '성시경의 먹을텐데' 등에 소개되어 인기가 많습니다. 중식 코스 요리 1인 기준 약 3만 9천 원대, 과거 금손 맡김차림 2만 9천 원. 예약: 예약제로 운영되는 경우가 많으니 캐치테이블 확인 권장.",
+      "url": "https://blog.naver.com/search.naver?query=%EA%B8%88%EC%86%901983"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com/watch?v=sung-sikyung-eat-geumson1983",
+    "https://blog.naver.com/search.naver?query=%EA%B8%88%EC%86%901983"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "성시경의 먹을텐데에서 야구선수 이대호의 단골 식당으로 방영되어 높은 화제성과 인기를 얻음",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    },
+    {
+      "note": "닭 특수부위 구이 및 중식 다이닝 오마카세 등 독창적이고 수준 높은 맡김차림 코스를 제공함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

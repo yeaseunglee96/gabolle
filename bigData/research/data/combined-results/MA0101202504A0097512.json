@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202504A0097512",
+  "name": "옹드",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 56498,
+  "researchedAt": "2026-09-22T11:27:56.955Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "디저트/구움과자 애호가",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "바닐라 플랑",
+      "프랑스식 에그타르트",
+      "얼그레이 까눌레",
+      "고메버터 휘낭시에",
+      "바닐라우유 쿠키슈"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 18:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "부산 해운대구 좌동순환로 443에 위치한 프랑스식 구움과자 및 디저트 베이커리 '옹드(Onde)'입니다. 바닐라 플랑, 까눌레, 휘낭시에, 타르트 등을 전문으로 취급합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 좌동순환로 443 102호 (중동 1516-2). 업종: 베이커리/제과점. 대표 메뉴: 플랑(바닐라, 말차, 티라미수, 초코, 피스타치오), 바닐라우유 쿠키슈, 휘낭시에, 까눌레, 두바이 쫀득쿠키 등. 특징: 타르트, 플랑, 구움과자 등 다양한 디저트를 판매합니다. 보냉 및 아이스팩 포장이 가능합니다. 도보 1분 거리에 공영주차장을 이용할 수 있습니다. 전화번호: 0507-1389-8062",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "프랑스식 에그타르트와 디저트류를 판매하는 곳으로, '촉촉하고 부드러운' 맛으로 알려져 있습니다. 위치: 부산 해운대구 좌동순환로 443 102호. 영업 시간: 12:00 - 18:00 (일요일 휴무)",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "프랑스식 에그타르트, 바닐라 플랑, 겉바속촉 까눌레 등 완성도 높은 구움과자 디저트를 맛보기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

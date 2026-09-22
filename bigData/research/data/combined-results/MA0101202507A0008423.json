@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202507A0008423",
+  "name": "혼술바민지영",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 70385,
+  "researchedAt": "2026-09-22T11:27:08.127Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼술객, 1인 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 민락동(민락본동로11번길 78-7)에 위치한 혼술 전문 바입니다. 혼술맵 및 상가 정보 등에서 혼자서도 편안하게 즐길 수 있는 공간으로 확인되며 상세 메뉴판 및 가격, 영업시간 등 세부 정량 정보는 미확인되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "혼술바 민지영은 부산광역시 수영구 민락동에 위치한 혼술 전문 바입니다. 주소: 부산광역시 수영구 민락본동로11번길 78-7 (1층). 광안리 인근에 위치해 있으며, 혼자 방문하거나 여럿이 방문해도 편안하게 즐길 수 있는 분위기의 공간으로 알려져 있습니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://honsulmap.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "혼자서도 편안하게 술을 즐길 수 있는 혼술 특화 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

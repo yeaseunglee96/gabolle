@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202310A0067992",
+  "name": "파파횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 40945,
+  "researchedAt": "2026-09-22T11:31:18.922Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "테라스석과 창가 좌석은 바다 전망과 노을/야경으로 인기가 많아 사전 예약 권장"
+  },
+  "descriptors": {
+    "audience": "데이트, 가족 모임, 단체 회식",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모둠회 코스",
+      "랍스터 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 02:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "미포 유람선 선착장 앞 해운대 바다 및 야경 전망으로 관광객과 데이트 방문객이 주로 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "해운대 미포항 삼환씨랜드 2층에 위치하여 바다 전망과 모둠회 코스요리로 알려진 횟집.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "기본 모둠회 코스 1인 약 55,000원, 랍스터 포함 코스 약 100,000원",
+    "priceWon": 55000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 달맞이길62번길 38(미포 유람선 선착장 앞, 씨랜드 2층)에 위치한 파파횟집. 테라스석에서 바다와 야경을 조망할 수 있어 인기가 많으며, 넓은 홀과 단체 룸이 있어 가족 모임이나 데이트 장소로 적합합니다. 기본 코스: 1인 약 55,000원대부터 시작, 랍스터 포함 코스: 10만 원 안팎",
+      "url": "https://pandarank.net"
+    },
+    {
+      "excerpt": "위치: 부산광역시 해운대구 달맞이길62번길 38 (중동), 삼환미포씨랜드 2층. 영업시간: 매일 12:00 ~ 02:00. 테라스석에서 해운대 바다와 야경을 감상할 수 있어 데이트나 가족 외식 장소로 인기가 많습니다. 주차: 건물 지하주차장을 이용할 수 있으며 주차 지원이 가능합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://pandarank.net",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미포항 앞 오션뷰 테라스석에서 탁 트인 바다와 야경을 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "모둠회와 해산물, 랍스터 등 알찬 구성의 코스 요리를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

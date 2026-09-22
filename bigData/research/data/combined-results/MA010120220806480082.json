@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220806480082",
+  "name": "다루동",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 36948,
+  "researchedAt": "2026-09-22T11:30:41.980Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "해산물·사케를 즐기는 현지인 및 여행객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "랍스터 코스",
+      "킹크랩 요리",
+      "대게 요리",
+      "꽃새우·닭새우 회",
+      "랍스터 해물전복라면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 24:00 (라스트오더 23:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인은 물론 외국인 관광객들에게도 인기가 많다는 후기가 확인됨"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해운대 전통시장 내 위치한 해산물/이자카야 전문점으로 사케 소믈리에 사장님이 운영하며 랍스터 코스(꼬리회, 스시밥, 찜, 치즈퐁듀, 라면탕) 및 갑각류 요리가 주력 메뉴임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "랍스터 코스 / 킹크랩·대게 시가 및 세트 코스",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 구남로41번길 17, 1층. 사케 소믈리에 사장님이 운영하는 아늑한 이자카야 스타일의 해산물 전문점으로 랍스터 코스(꼬리회, 스시밥, 찜, 치즈퐁듀, 라면탕 구성), 킹크랩, 대게 요리, 각종 새우회(꽃새우, 닭새우, 도하새우) 등이 유명합니다. 작지만 편안한 분위기로, 현지인은 물론 외국인 관광객들에게도 인기가 많습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "랍스터 1마리로 꼬리회, 초밥, 찜, 치즈퐁듀, 라면탕까지 이어지는 알찬 코스 구성과 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 전통시장 안쪽에 위치해 식사와 술자리를 겸하기 좋은 아늑한 이자카야 분위기 및 수제 유자사케 등 이색 주류 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

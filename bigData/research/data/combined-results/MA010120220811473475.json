@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220811473475",
+  "name": "빨간산오징어",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 37207,
+  "researchedAt": "2026-09-22T11:31:41.785Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 줄이나 혼잡도에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "현지인 및 관광객, 연예인 단골",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "산오징어회",
+      "산오징어+활어회 세트",
+      "모듬회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:00 ~ 06:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "당일 산지 직송 산오징어를 제공하여 현지인과 관광객 모두 즐겨 찾으며 연예인 단골도 많다고 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 해운대 해운대로570번길 25-1에 위치한 산오징어 전문 횟집으로, 당일 공수한 신선한 산오징어를 얇게 채 썰어 부위별로 내놓는 것으로 유명함. 새벽 6시까지 심야 영업.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "산오징어 싯가 / 산오징어회+생선회 세트 50,000~80,000원 선",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 해운대로570번길 25-1. 영업시간: 매일 17:00 ~ 익일 06:00 (연중무휴). 당일 산지 직송한 신선한 오징어를 사용하는 산오징어 전문점입니다. 주문 즉시 얇게 포를 떠서 채 썬 오징어회가 특징이며, 부위별로 제공됩니다. 연예인들이 즐겨 찾는 곳으로 알려져 있으며, 현지인들에게도 인기가 많은 맛집입니다. 새벽까지 운영하여 늦은 시간에도 방문이 가능합니다.",
+      "url": "https://www.fntoday.co.kr"
+    },
+    {
+      "excerpt": "산오징어 가격은 싯가로 운영됩니다. 산오징어회와 생선회 세트는 보통 5만원에서 8만원 사이의 가격대를 형성하고 있습니다. 주요 메뉴로는 산오징어회 외에도 산꼼장어, 모듬회, 산낙지, 통문어숙회, 생우럭구이, 생선구이 등이 준비되어 있습니다. 후식 메뉴로는 알밥, 누룽지, 해물낙지라면 등이 있습니다.",
+      "url": "https://www.anewsa.com"
+    }
+  ],
+  "sources": [
+    "https://www.fntoday.co.kr",
+    "https://www.anewsa.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "당일 산지 직송한 신선한 산오징어를 주문 즉시 얇게 채 썰어 부위별로 제공하는 뛰어난 회 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "매일 익일 새벽 6시까지 연중무휴로 심야 영업하여 늦은 시간에도 방문하기 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "연예인들과 인근 현지인들이 자주 찾는 해운대 로컬 산오징어 맛집으로 인정받음",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

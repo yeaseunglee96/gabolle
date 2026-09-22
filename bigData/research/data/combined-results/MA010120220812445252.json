@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220812445252",
+  "name": "조새호",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 53988,
+  "researchedAt": "2026-09-22T11:30:50.041Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "광안대교가 한눈에 보이는 창가 자리는 인기가 많아 웨이팅이 발생할 수 있다."
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 여행객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "3단 조개구이",
+      "4단 조개구이",
+      "독도생새우"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 새벽 04:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 바로 앞 광안대교 오션뷰와 드론쇼 관람 목적의 여행객 및 방문객 비중이 높다."
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "광안리 해변가 2층에 위치하여 광안대교 뷰를 정면으로 바라보며 조개구이와 독도새우를 즐길 수 있는 대표적인 뷰 맛집. 인근 광안타워 등 유료주차장 1시간 지원 가능.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "3단 조개구이 + 독도생새우 세트",
+    "priceWon": 130000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "조새호는 부산광역시 수영구 광안해변로 199(광안동 196-9)에 위치한 조개구이 및 해산물 요리 전문점입니다. 광안리 해수욕장 바로 앞에 위치하여 광안대교를 조망할 수 있는 '오션뷰' 맛집으로 잘 알려져 있습니다. 위치: 부산광역시 수영구 광안해변로 199 (2층), 영업시간: 매일 12:00 ~ 04:00, 주요 메뉴: 3단·4단 조개구이, 독도생새우, 랍스터, 모듬회 등. 주차: 인근 유료 주차장(광안타워 등) 이용 시 1시간 무료 쿠폰을 제공. 창가 좌석은 광안대교 뷰를 즐길 수 있어 인기가 많으며, 방문 시 웨이팅이 발생할 수 있습니다.",
+      "url": "https://www.siksinhot.com/P/1449830"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1449830"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해수욕장 바로 앞 2층에서 광안대교 오션뷰를 정면으로 보며 식사할 수 있어서",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "비주얼이 화려한 3단·4단 조개구이와 독도생새우 등 다양한 해산물 세트를 즐길 수 있어서",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
