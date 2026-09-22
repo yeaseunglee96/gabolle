@@ -20,4 +20,17 @@ import { Slot } from 'expo-router';
 // 하나뿐이다. 각 탭 화면은 이미 비회원을 스스로 다룬다 — me.tsx 는 로그인 단추를
 // 보여주고 `enabled: Boolean(accessToken)` 으로 API 를 안 부르며, feed.tsx 는
 // `signedIn = Boolean(accessToken)` 으로 가른다. 문이 할 일이 없었다.
+// 탭 전환에 iOS 기본 밀기(slide_from_right)가 붙는 것을 끄려고 2026-09-22 에 이 자리를
+// `<Stack screenOptions={{ animation: 'none' }} />` 으로 바꿔 봤다가 **되돌렸다.**
+//
+// 🔴 되돌린 이유를 정확히 적는다 — 그 변경이 무엇을 깨뜨렸는지는 **확인하지 못했다.**
+// 바꾼 채로 실기기(Release)에 올렸더니 앱이 검은 화면만 띄웠는데(접근성 트리 el=0,
+// 프로세스는 살아 있음), **`Slot` 으로 되돌려 다시 빌드해도 검은 화면은 그대로였다.**
+// 즉 검은 화면의 원인은 이 파일이 아니라 로컬 Release 빌드 쪽에 따로 있다(원인 미상).
+//
+// 그래도 `Slot` 으로 남겨 둔다: 이 저장소의 다른 그룹((plan) 등)이 전부 `Slot` 이라
+// 선례를 따르는 편이 안전하고, 검증되지 않은 구조 변경을 남길 이유가 없다.
+//
+// 탭 애니메이션을 정말 끄려면 각 탭 화면에서 `<Stack.Screen options={{ animation: 'none' }} />`
+// 로 거는 쪽이 더 좁고 안전하다 — **아직 실기기에서 확인하지 못했다.**
 export default function TabsLayout() { return <Slot />; }

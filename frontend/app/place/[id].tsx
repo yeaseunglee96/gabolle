@@ -168,8 +168,16 @@ export default function Place() {
                       여태 축제 화면만 말하고 여기는 아무 말도 안 했다.
                   */}
                   <PhotoSubjectBadge photoSubject={resolved.apiPlace.photoSubject} style={styles.subjectBadge} />
+                  {/* 🔴 accessibilityLabel 을 반드시 함께 준다 (2026-09-22, build 41 실기기).
+
+                      iOS 에서는 testID 가 accessibility identifier 로 나가는데, 라벨이 없으면
+                      **그 식별자가 읽을 글자로 새어 나온다.** 접근성 트리에 실제 출처 문구와
+                      별도로 `place-photo-credit` 이라는 항목이 하나 더 잡혔고(실측),
+                      VoiceOver 는 그것을 영어 알파벳 그대로 읽는다. 화면에는 안 보인다.
+
+                      라벨을 주면 식별자는 자동화용으로만 남고 소리로는 안 나간다. */}
                   {resolved.apiPlace.photoSource ? (
-                    <Text testID="place-photo-credit" variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)}</Text>
+                    <Text testID="place-photo-credit" accessibilityLabel={txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)} variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)}</Text>
                   ) : null}
                 </View>
               </ImageBackground>
