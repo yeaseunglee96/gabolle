@@ -77,7 +77,7 @@ export default function Home() {
   }, [user?.userId, accessToken]));
   const home = useHomeData(!desktop);
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
-  const saved = useSavedPlaces(accessToken, 'home-mobile');
+  const saved = useSavedPlaces(accessToken);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [openingTrip, setOpeningTrip] = useState(false);
   // 동백이 단추는 탭바 윗변에서 12 위 — 안전영역이 있는 폰이든 없는 웹이든 탭바와의 간격이 같다.
