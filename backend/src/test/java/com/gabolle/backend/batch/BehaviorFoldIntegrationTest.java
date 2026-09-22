@@ -102,6 +102,42 @@ class BehaviorFoldIntegrationTest extends BatchPostgresTest {
 	}
 
 	@Test
+	@DisplayName("🔴 같은 장소의 하트가 두 건 들어와도 한 번으로 센다 — 앱과 저장 API 가 각자 적는다")
+	void oneHeartCountsOnceEvenWhenRecordedTwice() {
+		UUID user = this.fixtures.newUser();
+		UUID cafe = taggedPlace(CAFE);
+
+		// 사용자 조작은 «한 번»이다. 저장 API 가 서버에서 한 건, 앱이 분석 이벤트로 한 건.
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafe, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafe, DAY1);
+
+		this.foldService.fold(user, DAY2);
+
+		assertThat(components(user))
+				.as("두 건으로 세면 support=2 가 되어 「한 번 누른 것을 확신처럼 다루지 않는다」가 무너진다")
+				.isEmpty();
+	}
+
+	@Test
+	@DisplayName("보는 것은 반복이 뜻을 가진다 — 같은 장소를 두 번 보면 두 번 센다")
+	void viewsOfTheSamePlaceRepeat() {
+		UUID user = this.fixtures.newUser();
+		UUID cafe = taggedPlace(CAFE);
+
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_VIEW, cafe, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_VIEW, cafe, DAY1);
+
+		this.foldService.fold(user, DAY2);
+
+		UserTasteWeight component = onlyComponent(user);
+		assertThat(component.getSupport())
+				.as("하트와 달리 조회는 접으면 「두 번 봤다」와 「한 번 봤다」가 같아진다")
+				.isEqualTo(2);
+		// raw = 0.2 (0.1 × 2), K = 3 → 0.2/3.2
+		assertThat(component.getWeight()).isEqualTo(0.0625);
+	}
+
+	@Test
 	@DisplayName("한 번 누른 것은 성분이 안 된다 — 뒷받침이 모자라면 확신처럼 다루지 않는다")
 	void aSingleObservationIsNotEnough() {
 		UUID user = this.fixtures.newUser();
