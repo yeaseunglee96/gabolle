@@ -1141,4 +1141,140 @@ class ItineraryDraftServiceTest {
 		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(tripWithPace(pace)));
 		return this.service.placesNeeded("itn_trip_1");
 	}
+
+	// ── 긴 여행에서 날이 갈리나 (인수인계 §7 「7일 여행이 실제로 어떻게 나오나」) ────────
+
+	/**
+	 * 부산의 실제 권역 일곱. 서로 떨어진 곳을 골랐다 — 부산에 7일치 «다른 동네»가 실제로
+	 * 있는지부터가 질문이라, 지어낸 좌표가 아니라 실제 위치를 쓴다.
+	 */
+	private static final double[][] BUSAN_DISTRICTS = {
+			{ 35.1587, 129.1604 }, // 해운대
+			{ 35.0903, 129.0579 }, // 영도
+			{ 35.1579, 129.0594 }, // 서면
+			{ 35.1532, 129.1186 }, // 광안리
+			{ 35.0966, 129.0306 }, // 남포동·자갈치
+			{ 35.2445, 129.2222 }, // 기장
+			{ 35.1784, 129.1996 }, // 송정
+	};
+
+	/** 권역 하나 안에서 조금씩 흩뜨린다 — 같은 동네라도 같은 점은 아니다. */
+	private static double[] near(double[] district, int nth) {
+		return new double[] { district[0] + (nth * 0.004), district[1] + (nth * 0.004) };
+	}
+
+	/**
+	 * 🔴 인수인계 문서가 「확인 못 했다」로 남긴 것을 확인한다.
+	 *
+	 * <p>문서는 <i>「날 중심 잡기가 7일에선 흔들린다 — 2~3일에는 맞지만 7일이면 부산 안에서
+	 * 억지로 벌어진다」</i> 고 적었고, 그 근거로 숙소를 날 중심으로 쓰자는 결정(§6-4)이
+	 * 걸려 있다. 그런데 <b>운영에 7일짜리 일정이 한 번도 만들어진 적이 없다</b> —
+	 * 2026-09-22 실측으로 가장 긴 것이 5일이고, 7일 여행 한 건은 엔진에 닿기도 전에
+	 * (VERSION_RESOLUTION, 후보 0곳) 실패했다. 그래서 운영 자료로는 확인할 수가 없다.
+	 *
+	 * <p>여기서 대신 확인한다. 날 중심은 {@code seedDayAnchors} 가 <b>이미 잡힌 중심에서
+	 * 가장 먼 후보</b>를 차례로 고르는 방식이라(farthest-point sampling), 날이 늘수록
+	 * 고를 수 있는 «먼 곳»이 줄어 바깥쪽 외톨이를 집게 된다 — 그것이 문서가 걱정한 「억지로
+	 * 벌어진다」의 기계적 정체다.
+	 *
+	 * <p>보는 것은 2일 시험과 <b>같은 성질 하나</b>다: 하루 안의 두 곳이 8km 넘게 떨어지지
+	 * 않는가. 어느 날에 어느 권역이 가는지는 안 본다 — 그건 순위가 정한다.
+	 */
+	@Test
+	@DisplayName("🔴 7일도 하루는 한 권역이다 — 권역이 일곱이면 억지로 벌어지지 않는다")
+	void sevenDayTripKeepsEachDayInOneRegion() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 22), LocalDate.of(2026, 9, 28));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 하루 4곳 × 7일 = 28자리. 권역마다 딱 4곳씩 준다 — 한쪽이 모자라면 코드가 어떻게
+		// 해도 섞일 수밖에 없고, 그때 보이는 것은 배정이 아니라 후보 부족이다.
+		List<String> categories = new ArrayList<>();
+		List<double[]> coordinates = new ArrayList<>();
+		for (double[] district : BUSAN_DISTRICTS) {
+			for (int nth = 0; nth < 4; nth++) {
+				categories.add(nth == 0 ? "FOOD" : "CITY");
+				coordinates.add(near(district, nth));
+			}
+		}
+
+		ItineraryDraft draft = this.service.assemble(
+				commandOf("trip_1", plannedPlacesAt(categories, coordinates)));
+
+		Map<Integer, List<double[]>> byDay = new HashMap<>();
+		for (ItineraryDraft.DraftItem item : draft.items()) {
+			byDay.computeIfAbsent(item.dayIndex(), key -> new ArrayList<>())
+					.add(coordinateOf(item.placeId()));
+		}
+
+		assertThat(byDay).as("7일이면 7일치가 나와야 한다").hasSize(7);
+		for (Map.Entry<Integer, List<double[]>> day : byDay.entrySet()) {
+			for (double[] a : day.getValue()) {
+				for (double[] b : day.getValue()) {
+					assertThat(kmBetween(a, b))
+							.as("%d일차 안의 두 곳이 8km 넘게 떨어졌다 — 긴 여행에서 날이 안 갈린다",
+									day.getKey())
+							.isLessThan(8.0);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 🔴 앞 시험의 <b>반대쪽</b>. 권역이 날 수만큼 없을 때 무슨 일이 나는가.
+	 *
+	 * <p>앞 시험은 부산에 <b>일곱 권역이 실제로 있을 때</b>를 봤고 잘 갈렸다. 그런데 인수인계
+	 * 문서가 걱정한 것은 그쪽이 아니라 <i>「부산 안에서 억지로 벌어진다」</i> 쪽이다 — 좋은
+	 * 후보가 두세 동네에 몰려 있는데 이레를 채워야 하는 경우다. 운영 자료를 봐도 후보는 고르게
+	 * 퍼져 있지 않다.
+	 *
+	 * <p>그때 코드는 <b>억지로 섞지 않고 말한다.</b> {@code regionMixed} 가 하루 안에 먼 곳이
+	 * 섞인 것을 보면 {@code DAY_REGION_MIXED} 경고를 남긴다. 순위를 버리면서까지 지역을
+	 * 맞추지 않는 것이 이 코드의 결정이고({@code regionMixed} 주석), 이 시험은 <b>그 결정이
+	 * 긴 여행에서도 유지되는지</b>를 지킨다.
+	 *
+	 * <p>즉 여기서 보는 것은 「섞이지 않는다」가 아니라 <b>「섞였으면 반드시 말한다」</b>이다.
+	 * 조용히 섞이는 것이 유일하게 나쁜 결과다 — 화면이 그것을 그대로 좋은 일정으로 그린다.
+	 */
+	@Test
+	@DisplayName("🔴 권역이 모자라면 조용히 섞지 않고 «말한다» — DAY_REGION_MIXED")
+	void longTripWithTooFewRegionsWarnsInsteadOfMixingSilently() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 22), LocalDate.of(2026, 9, 28));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 28자리인데 권역은 셋뿐이다 — 이레를 채우려면 한 권역을 여러 날에 쪼개야 한다.
+		List<String> categories = new ArrayList<>();
+		List<double[]> coordinates = new ArrayList<>();
+		for (int nth = 0; nth < 28; nth++) {
+			categories.add(nth % 4 == 0 ? "FOOD" : "CITY");
+			coordinates.add(near(BUSAN_DISTRICTS[nth % 3], nth / 3));
+		}
+
+		ItineraryDraft draft = this.service.assemble(
+				commandOf("trip_1", plannedPlacesAt(categories, coordinates)));
+
+		Map<Integer, List<double[]>> byDay = new HashMap<>();
+		for (ItineraryDraft.DraftItem item : draft.items()) {
+			byDay.computeIfAbsent(item.dayIndex(), key -> new ArrayList<>())
+					.add(coordinateOf(item.placeId()));
+		}
+
+		boolean mixed = false;
+		for (List<double[]> day : byDay.values()) {
+			for (double[] a : day) {
+				for (double[] b : day) {
+					if (kmBetween(a, b) >= 8.0) {
+						mixed = true;
+					}
+				}
+			}
+		}
+
+		// 🔴 조건부로 두지 않는다. 권역 셋에 이레를 채우면 «반드시» 섞이고, 그것이 이 시험의
+		//    전제다. if 로 감싸 두면 나중에 배정이 바뀌어 안 섞이게 됐을 때 이 시험이 아무것도
+		//    안 보면서 초록으로 남는다 — 그때는 전제가 바뀐 것이니 시험이 그것을 알려야 한다.
+		assertThat(mixed).as("권역 셋에 7일을 채웠는데 안 섞였다 — 이 시험의 전제가 바뀌었다").isTrue();
+		assertThat(draft.warningCodes())
+				.as("하루가 여러 권역에 걸쳤는데 경고가 없다 — 화면이 그냥 좋은 일정으로 그린다")
+				.contains(ItineraryWarningCodes.DAY_REGION_MIXED);
+	}
 }
