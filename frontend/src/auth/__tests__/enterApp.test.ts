@@ -1,6 +1,3 @@
-// 🔴 이 시험이 지키는 것은 「로그인한 뒤 홈에서 뒤로 가기를 누르면 로그인 화면이
-//    다시 나온다」다. 같은 결함을 두 번 고치고 두 번 다시 났다 (S15P21E201-1199).
-//    앞의 두 번은 「보인 다음에 치우는」 방법이라 눈에 한 번 번쩍였다.
 import { enterApp, type StackRouter } from '@/auth/enterApp';
 
 function spyRouter(over: Partial<StackRouter> = {}) {

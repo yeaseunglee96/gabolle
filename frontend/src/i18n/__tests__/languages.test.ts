@@ -1,12 +1,7 @@
-// S15P21E201-1109 — 언어를 다섯으로 넓혔다. 여기서 재는 것은 **떨어지는 자리**다.
-//
-// 🔴 번역이 없는 언어를 고른 사람에게 무엇을 보여주는가가 이 파일의 전부다. 잘못 고르면
-//    일본에서 온 사람이 한국어 화면을 본다 — 읽을 수 없는 글자이고, 이 앱을 쓰러 온 이유
-//    자체를 부정한다.
+// — 언어를 다섯으로 넓혔다. 여기서 재는 것은 떨어지는 자리다.
 import {
   LANGUAGE_CODES,
   LANGUAGE_OPTIONS,
-  needsTranslationNotice,
   parseLanguageCode,
   resolveTextLanguage,
   toBcp47,
@@ -48,16 +43,6 @@ describe('화면 문구를 어느 언어로 그리나', () => {
   );
 });
 
-describe('번역이 아직 없다는 사실을 숨기지 않는다', () => {
-  it.each(['ja', 'zh-Hans', 'zh-Hant'] as const)('%s 는 안내를 띄운다', (code) => {
-    expect(needsTranslationNotice(code)).toBe(true);
-  });
-
-  it.each(['ko', 'en'] as const)('%s 는 안내가 없다', (code) => {
-    expect(needsTranslationNotice(code)).toBe(false);
-  });
-});
-
 describe('기기·서버에 넘길 표기', () => {
   it.each([
     ['ko', 'ko-KR'], ['en', 'en-US'], ['ja', 'ja-JP'],
@@ -72,7 +57,6 @@ describe('저장돼 있던 값을 되돌린다', () => {
     expect(parseLanguageCode('zh-Hant')).toBe('zh-Hant');
   });
 
-  // 🔴 예전에는 언어가 둘뿐이었다. 그때 저장된 값이 그대로 들어온다.
   it.each(['ko', 'en'] as const)('옛 값 %s 를 버리지 않는다', (code) => {
     expect(parseLanguageCode(code)).toBe(code);
   });

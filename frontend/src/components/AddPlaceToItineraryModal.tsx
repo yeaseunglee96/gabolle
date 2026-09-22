@@ -1,10 +1,6 @@
-// 장소를 내 여행 일정에 더한다 (S15P21E201-467). 축제 화면이 처음 연다 — 서버 쪽 주석대로
+// 장소를 내 여행 일정에 더한다. 축제 화면이 처음 연다 — 서버 쪽 주석대로
 // "축제가 그 날 열리는가" 검사는 그 장소가 실제로 기간이 있는 행사일 때만 걸리고, 보통 장소는
 // 그냥 더해진다.
-//
-// 🔴 더하기 자체는 시각을 안 채운다(addItineraryItem 주석). 그래서 성공하면 이어서
-// recalculateItineraryDay 를 부른다 — 실패해도 더한 장소는 남고 시각만 비어 있을 뿐이라
-// 그 실패로 전체를 실패 취급하지 않는다.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -14,7 +10,9 @@ import { loadTripItineraries, loadTrips, tripDisplayTitle, type TripItineraryRef
 import { useAuth } from '@/auth/AuthProvider';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { formatDayHeading } from '@/i18n/datetime';
 import { Text } from './Text';
+import { txf } from '@/i18n/format';
 
 type Step = 'loadingTrips' | 'pickTrip' | 'loadingItineraries' | 'pickItinerary' | 'pickDay' | 'submitting' | 'done' | 'error';
 
@@ -25,18 +23,19 @@ type AddPlaceToItineraryModalProps = {
 };
 
 // 여행 시작일 + n일 — 「9월 19일 (금)」. 시작일을 못 읽으면 지어내지 않고 「n일차」만 적는다.
-function dayLabel(startDate: string | null, dayIndex: number, tx: (ko: string, en: string) => string) {
+function dayLabel(startDate: string | null, dayIndex: number, tx: (ko: string, en: string) => string, locale: string) {
   const fallback = tx(`${dayIndex + 1}일차`, `Day ${dayIndex + 1}`);
   if (!startDate) return fallback;
   const date = new Date(`${startDate}T00:00:00`);
   if (Number.isNaN(date.getTime())) return fallback;
   date.setDate(date.getDate() + dayIndex);
-  const weekday = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
-  return tx(`${dayIndex + 1}일차 · ${date.getMonth() + 1}월 ${date.getDate()}일 (${weekday})`, `Day ${dayIndex + 1} · ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', weekday: 'short' })}`);
+  // 날짜 표기는 고른 언어에 맡긴다(9월 20일 (토) · September 20 (Sat) · 9月20日(土)) — S15P21E201-1355 와 같은 방식.
+  const heading = formatDayHeading(date.toISOString().slice(0, 10), locale) ?? `${date.getMonth() + 1}. ${date.getDate()}.`;
+  return txf(tx, '%s일차 · %s', 'Day %s · %s', dayIndex + 1, heading);
 }
 
 export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlaceToItineraryModalProps) {
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const { accessToken } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState<Step>('loadingTrips');
@@ -45,7 +44,7 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
   const [itineraries, setItineraries] = useState<TripItineraryRefDto[]>([]);
   const [selectedItinerary, setSelectedItinerary] = useState<TripItineraryRefDto | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  // 닫은 뒤(또는 다시 연 뒤) 도착하는 응답이 그새 초기화된 상태를 덮어쓰지 않도록 막는다 —
+  // 닫은 뒤(또는 다시 연 뒤) 도착하는 응답이 그새 초기화된 상태를 덮어쓰지 않도록 막는다
   // 여닫는 동안 요청이 몇 번 겹칠 수 있는데, 그때마다 "지금 이 요청이 아직 유효한가" 를
   // 이 번호 하나로 판단한다.
   const requestIdRef = useRef(0);
@@ -135,7 +134,7 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
           </View>
 
           {step === 'loadingTrips' || step === 'loadingItineraries' || step === 'submitting' ? (
-            <View style={styles.centerState}><ActivityIndicator color={color.brand.orange} /></View>
+            <View style={styles.centerState}><ActivityIndicator color={color.action.primary} /></View>
           ) : null}
 
           {step === 'pickTrip' && trips.length === 0 ? (
@@ -174,7 +173,7 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
               <Text variant="caption" color={color.text.body}>{tx('어느 날에 넣을까요?', 'Which day should this go on?')}</Text>
               {Array.from({ length: selectedTrip.dayCount }, (_, index) => index).map((dayIndex) => (
                 <Pressable key={dayIndex} accessibilityRole="button" onPress={() => void pickDay(dayIndex)} style={styles.optionRow}>
-                  <Text variant="body" weight="bold">{dayLabel(selectedTrip.startDate, dayIndex, tx)}</Text>
+                  <Text variant="body" weight="bold">{dayLabel(selectedTrip.startDate, dayIndex, tx, locale)}</Text>
                 </Pressable>
               ))}
             </ScrollView>
@@ -205,13 +204,13 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   card: { width: '100%', maxWidth: 420, maxHeight: '80%', gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  closeButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card },
+  closeButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.action.tertiary },
   pressed: { opacity: 0.72 },
   centerState: { gap: spacing[3], alignItems: 'center', paddingVertical: spacing[4] },
   list: { gap: spacing[2] },
   optionRow: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[4], marginTop: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
-  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.orange },
+  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.action.primary },
 });

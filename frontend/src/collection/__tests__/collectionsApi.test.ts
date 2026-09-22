@@ -1,11 +1,6 @@
 import { COLLECTION_LIMITS, loadCollections, mergeCollections, serverToDevice, uploadBlockReason, type DeviceCollections, type ServerCollection } from '../collectionsApi';
 
-// 부슐랭을 서버로 옮긴다 (S15P21E201-1071).
-//
-// 🔴 이 시험이 지키는 것은 하나다 — **기기에 쌓인 것을 버리지 않는다.**
-//
-// 하트(S15P21E201-1013)가 이미 같은 문제를 겪었다. 기기 것을 버리면 사용자는 리스트가
-// 지워진 줄 안다 — 아무도 지운 적 없는데도. 그리고 그건 아무 오류도 안 내고 일어난다.
+// 부슐랭을 서버로 옮긴다.
 
 const place = (id: string, name: string) => ({ id, name, category: null, locality: null, photoUri: null, note: null, addedAt: '2026-09-16T00:00:00Z', lat: null, lng: null });
 const list = (id: string, name: string, placeIds: string[]) => ({ id, name, description: null, placeIds, createdAt: '2026-09-16T00:00:00Z' });
@@ -50,7 +45,7 @@ describe('서버 자료를 기기 모양으로 옮긴다', () => {
     expect(converted.lists[0].placeIds).toEqual(['p1', 'p2']);
   });
 
-  // 🔴 장소 id 가 없는 항목도 버리지 않는다. 서버가 준 항목 id 를 열쇠로 쓴다.
+  // 장소 id 가 없는 항목도 버리지 않는다. 서버가 준 항목 id 를 열쇠로 쓴다.
   it('장소 id 가 없는 항목도 버리지 않는다', () => {
     const raw = serverList('s1', '메모만', [{ placeId: 'x', name: '이름만 있는 것', position: 0 }]);
     raw.items[0].placeId = null;
@@ -96,7 +91,7 @@ describe('불러오기', () => {
     expect(result.data.lists).toHaveLength(2);
   });
 
-  // 🔴 여기가 핵심이다. 서버가 안 되면 빈 화면이 아니라 기기 것을 보여준다.
+  // 여기가 핵심이다. 서버가 안 되면 빈 화면이 아니라 기기 것을 보여준다.
   it('서버를 못 물어봐도 기기 것이 사라지지 않는다', async () => {
     mockServer(() => new Response(JSON.stringify({ data: null, error: { code: 'BOOM', message: '서버 오류' }, meta: { requestId: 'r' } }), { status: 500, headers: { 'content-type': 'application/json' } }));
     const result = await loadCollections(device, 'token');
@@ -124,8 +119,8 @@ describe('불러오기', () => {
     const result = await loadCollections(device, 'token');
     expect(result.state).toBe('success');
     expect(created).toHaveLength(1);
-    // 🔴 2 다 — 리스트 하나(기기에만 있던 것)와 장소 하나(p2, 이미 서버에 있는 리스트에
-    //    기기에서 담은 것). p2 는 S15P21E201-1133 전에는 영영 안 올라갔다.
+    // 2 다 — 리스트 하나(기기에만 있던 것)와 장소 하나(p2, 이미 서버에 있는 리스트에
+    // 기기에서 담은 것). p2 는전에는 영영 안 올라갔다.
     expect(result.state === 'success' && result.uploaded).toBe(2);
   });
 
@@ -139,11 +134,11 @@ describe('불러오기', () => {
     });
     const result = await loadCollections(device, 'token');
     expect(result.state).toBe('success');
-    // 리스트 만들기는 실패했고(500), 기존 리스트에 담은 장소 p2 는 올라갔다 —
-    // 둘은 서로 다른 요청이라 하나가 실패해도 다른 하나는 간다 (S15P21E201-1133).
+    // 리스트 만들기는 실패했고(500), 기존 리스트에 담은 장소 p2 는 올라갔다
+    // 둘은 서로 다른 요청이라 하나가 실패해도 다른 하나는 간다.
     expect(result.state === 'success' && result.uploaded).toBe(1);
-    // 🔴 못 올린 리스트는 화면에서 안 사라진다. 올린 뒤 서버 것을 다시 받아오더라도
-    //    이것만은 얹어서 남긴다 — 「기기에 쌓인 것을 버리지 않는다」.
+    // 못 올린 리스트는 화면에서 안 사라진다. 올린 뒤 서버 것을 다시 받아오더라도
+    // 이것만은 얹어서 남긴다 — 「기기에 쌓인 것을 버리지 않는다」.
     expect(result.data.lists.map((l) => l.name)).toContain('기기에만 있는 리스트');
   });
 });
@@ -197,11 +192,7 @@ describe('서버가 받아 줄 수 없는 리스트', () => {
   });
 });
 
-// S15P21E201-1117 — 손으로 추가한 장소가 서버로 안 올라가던 것.
-//
-// 🔴 기기가 만드는 장소 id 는 `${Date.now().toString(36)}-${random}` 이라 절대 UUID 가
-//    아니다. 그것을 kind: PLACE 의 placeId 로 보내면 서버가 값을 읽는 단계에서 400 을
-//    내고, 바깥의 catch 가 그것을 삼켜서 장소가 조용히 사라진다.
+// — 손으로 추가한 장소가 서버로 안 올라가던 것.
 import { buildItemRequest, isServerId } from '../collectionsApi';
 
 describe('isServerId — 서버가 아는 장소인가', () => {
@@ -211,7 +202,7 @@ describe('isServerId — 서버가 아는 장소인가', () => {
   });
 
   it('기기가 만든 id 를 서버 것으로 오해하지 않는다', () => {
-    // CollectionProvider 의 uid() 가 실제로 만드는 모양이다.
+    // CollectionProvider 의 uid 가 실제로 만드는 모양이다.
     expect(isServerId('mfjk2x-a7b3c1')).toBe(false);
     expect(isServerId('p1')).toBe(false);
     expect(isServerId('')).toBe(false);
@@ -246,12 +237,7 @@ describe('buildItemRequest — 담을 것을 서버 말로 옮긴다', () => {
   });
 });
 
-// S15P21E201-1133 — 이미 서버에 있는 리스트에 담은 장소가 서버로 안 올라가던 것.
-//
-// 🔴 이 시험이 지키는 것은 둘이다.
-//    (1) 기존 리스트에 담은 장소도 올라간다
-//    (2) 올린 뒤 다시 받아와 **서버 열쇠로 이름표를 바꾼다** — 안 바꾸면 다음 실행에서
-//        같은 장소를 또 「기기에만 있다」로 보고 올려서 앱을 켤 때마다 불어난다
+// — 이미 서버에 있는 리스트에 담은 장소가 서버로 안 올라가던 것.
 import { restoreUnuploaded } from '../collectionsApi';
 
 describe('loadCollections — 기존 리스트에 담은 장소 올리기 (S15P21E201-1133)', () => {
@@ -295,7 +281,7 @@ describe('loadCollections — 기존 리스트에 담은 장소 올리기 (S15P2
 
     if (result.state !== 'success') throw new Error('성공이어야 한다');
     const ids = result.data.lists[0].placeIds;
-    // 🔴 기기가 만든 uid 는 사라지고 서버가 준 itemId 가 자리를 잡는다
+    // 기기가 만든 uid 는 사라지고 서버가 준 itemId 가 자리를 잡는다
     expect(ids).toContain('srv-1-item-9');
     expect(ids).not.toContain('mfjk2x-a7b3c1');
     expect(result.uploaded).toBe(1);
@@ -379,12 +365,7 @@ describe('restoreUnuploaded — 못 올린 것을 서버 것 위에 얹는다', 
   });
 });
 
-// S15P21E201-1148 — 지운 것이 되살아나던 것.
-//
-// 🔴 이 시험이 지키는 것은 셋이다.
-//    (1) 보류해 둔 지우기를 서버로 보낸다
-//    (2) 못 보낸 것은 버리지 않는다 — 다음에 다시 보낸다
-//    (3) 못 보낸 동안에도 화면에는 다시 안 나타난다
+// — 지운 것이 되살아나던 것.
 import { samePendingDelete, type PendingDelete } from '../collectionsApi';
 
 describe('지우기를 서버로 보낸다 (S15P21E201-1148)', () => {
@@ -481,12 +462,7 @@ describe('samePendingDelete — 같은 것을 두 번 적지 않으려고', () =
   });
 });
 
-// S15P21E201-1153 — 이름·설명을 고쳐도 서버에 안 가던 것.
-//
-// 🔴 이 시험이 지키는 것은 셋이다.
-//    (1) 고친 이름을 PATCH 로 보낸다
-//    (2) 못 보낸 동안에도 화면에는 새 이름이 보인다
-//    (3) 🔴 이름을 바꿔도 같은 리스트로 알아본다 — 못 알아보면 서버에 하나 더 만들어진다
+// — 이름·설명을 고쳐도 서버에 안 가던 것.
 import { type PendingRename } from '../collectionsApi';
 
 describe('이름 고치기를 서버로 보낸다 (S15P21E201-1153)', () => {
@@ -524,10 +500,6 @@ describe('이름 고치기를 서버로 보낸다 (S15P21E201-1153)', () => {
   });
 
   it('🔴 보낸 뒤 다시 받아온다 — 안 그러면 화면이 한 판 뒤처진다', async () => {
-    // 2026-09-17 실기기(vc15)에서 그대로 재현된 자리다. 이름을 고치고 앱을 껐다 켜면
-    // 옛 이름이 나오고, 한 번 더 껐다 켜야 새 이름이 나왔다. 서버에는 처음부터
-    // 들어가 있었고 화면만 뒤처진 것이다.
-    //
     // 원인은 순서였다 — 목록을 먼저 받고(옛 이름), 그 뒤에 PATCH 를 보내고, 합칠 때는
     // 먼저 받아 둔 옛 이름을 쓴다. 보낸 것이 있으면 다시 받아와야 한다.
     let gets = 0;

@@ -1,13 +1,4 @@
 // 케밥(⋯) 버튼을 눌러서 여는 작은 메뉴 — S15P21E201-1244.
-//
-// 🔴 버튼 바로 아래에 정확히 붙이지 않는다. 이 화면(피드 상세)은 스크롤이 되는데,
-// RN 에서 스크롤 중에도 버튼의 화면 위치를 계속 재는 것(measureInWindow)은 이
-// 저장소에 아직 한 번도 쓴 적 없는 방식이라 새 위험을 늘린다. 대신 화면 우상단
-// 고정 자리에 연다 — 케밥이 있는 자리(카드 맨 위)와 화면을 막 열었을 때 보이는
-// 자리가 같아서 어색하지 않다.
-//
-// 🔴 기존 ReportModal·BlockUserDialog 는 배경(backdrop)을 눌러도 안 닫힌다 — 이 메뉴는
-// 「드롭다운」이라 바깥을 누르면 닫히는 것이 자연스러워 여기서 새로 넣는다.
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

@@ -1,20 +1,19 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { getApiLanguage, setApiLanguage } from '@/api/client';
-// 🔴 언어 정의는 src/i18n/languages.ts 한 곳에 있다 (S15P21E201-1109). 여기 두면 화면 문구
-//    번역 규칙과 떨어져서, 언어를 늘릴 때 한쪽만 늘어난다. 쓰던 이름은 그대로 내보낸다.
-import { LANGUAGE_CODES, parseLanguageCode, resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
+import { setApiLanguage } from '@/api/client';
+// 언어 정의는 src/i18n/languages.ts 한 곳에 있다. 여기 두면 화면 문구
+// 번역 규칙과 떨어져서, 언어를 늘릴 때 한쪽만 늘어난다. 쓰던 이름은 그대로 내보낸다.
+import { getCurrentLanguage, LANGUAGE_CODES, parseLanguageCode, resolveTextLanguage, setCurrentLanguage, type LanguageCode } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
 
 export { LANGUAGE_CODES };
 export type { LanguageCode };
 
 // 이 컨텍스트 밖에서 부르면 언어 정보를 이 컨텍스트에서 얻을 수 없다 — 그래서 이 에러 메시지 자체는
 // setApiLanguage로 동기화되는 모듈 변수(기본값 'ko')를 대신 읽는다.
-const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
-
+const tx = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 export const MOBILITY_CODES = ['none', 'wheelchair', 'stroller', 'slow'] as const;
-
 
 export type MobilityCode = (typeof MOBILITY_CODES)[number];
 
@@ -62,7 +61,7 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
         if (stored.hasEnteredApp === true) setHasEnteredApp(true);
         if (changedBeforeHydration.current) return;
         if (typeof stored.language === 'string') {
-          // 🔴 언어가 둘뿐이던 시절의 값도 그대로 산다 — parseLanguageCode 가 받아 준다.
+          // 언어가 둘뿐이던 시절의 값도 그대로 산다 — parseLanguageCode 가 받아 준다.
           setLanguage(parseLanguageCode(stored.language));
         }
         if (typeof stored.mobility === 'string' && MOBILITY_CODES.some((code) => code === stored.mobility)) {
@@ -81,9 +80,10 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
 
   useEffect(() => {
     if (!hydrated) return;
-    // 🔴 서버에 넘기는 Accept-Language 는 **번역이 있는 언어**다. 일본어를 넘기면 서버가
-    //    일본어 오류 문구를 줄 것처럼 보이지만 지금 서버에는 그 문구가 없다.
+    // 서버에 넘기는 Accept-Language 는 번역이 있는 언어다. 일본어를 넘기면 서버가
+    // 일본어 오류 문구를 줄 것처럼 보이지만 지금 서버에는 그 문구가 없다.
     setApiLanguage(resolveTextLanguage(language));
+    setCurrentLanguage(language);
     void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ language, mobility, hasEnteredApp })).catch(() => {});
   }, [hydrated, language, mobility, hasEnteredApp]);
 
@@ -91,15 +91,17 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
     () => ({ language, mobility, hydrated, hasEnteredApp, markEnteredApp: () => setHasEnteredApp(true), setLanguage: (nextLanguage) => {
       if (!hydrated) changedBeforeHydration.current = true;
       setApiLanguage(resolveTextLanguage(nextLanguage));
+      setCurrentLanguage(nextLanguage);
       setLanguage(nextLanguage);
     }, setPreferences: (nextLanguage, nextMobility) => {
       if (!hydrated) changedBeforeHydration.current = true;
       setApiLanguage(resolveTextLanguage(nextLanguage));
+      setCurrentLanguage(nextLanguage);
       setLanguage(nextLanguage);
       setMobility(nextMobility);
     },
     // 로그아웃·계정 삭제 때 부른다 — 같은 기기에서 다음 사람이 로그인하면 이 값들이
-    // 그 사람 것처럼 보인다(S15P21E201-740). 개인 설정만 초기화하고 앱 이용 이력은 유지한다.
+    // 그 사람 것처럼 보인다. 개인 설정만 초기화하고 앱 이용 이력은 유지한다.
     reset: () => {
       setApiLanguage('ko');
       setLanguage('ko');

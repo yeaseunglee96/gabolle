@@ -1,8 +1,8 @@
 import { getUserProfile, setBlocked } from '../stories';
 
-// 차단 — S15P21E201-991(화면) / -990(서버).
-// 🔴 차단은 「내가 이 사람을 안 본다」가 아니라 「이 사람에게 내 것을 안 보여준다」다.
-// 그래서 blocked(내가 차단했다)와 blockedByUser(이 사람이 나를 차단했다)는 서로 다른 값이고,
+// 차단 —(화면) / -990(서버).
+// 차단은 「내가 이 사람을 안 본다」가 아니라 「이 사람에게 내 것을 안 보여준다」다.
+// 그래서 blocked(내가 차단했다)와 blockedByUser(이 사람이 나를 차단했다)는 서로 다른 값이고
 // 화면이 갈리는 지점도 다르다.
 type Call = { url: string; method: string };
 let calls: Call[] = [];

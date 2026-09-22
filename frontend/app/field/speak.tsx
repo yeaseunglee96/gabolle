@@ -1,10 +1,4 @@
 // 17 현장 말하기·택시 카드 — Figma 17_현장 말하기·택시 카드 실측 그대로.
-//
-// "말하기" 탭은 더 이상 문장 하나만 보여주지 않는다 — 장소 카드 모달(PlacePhraseModal)과
-// 같은 PlacePhraseBrowser 를 써서 관광지·식당카페·택시·숙소 문장을 전부 보여준다.
-// 홈·챗봇·현장 도구 어디서 들어와도 같은 경험이 되도록 맞춘 것(구조 정리, UX 통합).
-// 번역 업체 계약과 무관하게 기기 TTS·클립보드·지도 링크로 완결할 수 있는 택시 카드는
-// 그대로 Expo 네이티브 API로 동작시킨다.
 import { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -17,9 +11,11 @@ import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PlacePhraseBrowser } from '@/components/PlacePhraseBrowser';
 import { useI18n } from '@/i18n';
+import { toBcp47 } from '@/i18n/languages';
 import { useAuth } from '@/auth/AuthProvider';
 import { directionForLanguage, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
 import { canSearchDestination, destinationSubtitle, searchTaxiDestinations, type TaxiDestinationOutcome } from '@/field/taxiDestination';
+import { txf } from '@/i18n/format';
 
 // 입력칸 상한은 번역 모듈과 한 값을 쓴다 — 두 벌이 되면 화면은 받아 놓고 보낼 때 잘린다.
 // (서버 한도와는 다른 값이다. 왜 120 인지는 TRANSLATE_MAX_LENGTH 주석 참고.)
@@ -37,18 +33,6 @@ export default function Speak() {
   const { tab: initialTab } = useLocalSearchParams<{ tab?: string }>();
   const [tab, setTab] = useState<Tab>(initialTab === 'taxi' ? 'taxi' : 'speak');
   // 목록에 없는 문장을 직접 입력해 들려주는 기능.
-  //
-  // 🔴 2026-09-16 정정 (S15P21E201-1088). 여기 있던 "번역은 안 한다. 입력한 한국어 그대로
-  //    읽어 줄 뿐이다" 는 **도구가 목적과 정반대로 서 있던 것**이었다. 이 화면은 한국어를
-  //    못 하는 사람이 현장에서 쓰라고 만든 것인데, 영어 화면에서도 "한국어로 입력하세요"
-  //    라고 적혀 있었다. 한국어를 모르니까 이 화면에 온 사람에게 한국어를 요구한 것이다.
-  //    (사용자 지적)
-  //
-  //    맞는 방향은 **내 말로 쓰고 한국어로 들려주는 것**이다. 서버에 번역 경로가 이미
-  //    있으므로(POST /api/v1/tools/translate, S15P21E201-343) 그것을 부른다.
-  //
-  // 🔴 한국어 화면에서는 번역하지 않는다. 한국어로 써서 한국어로 말하면 되므로 부를 것이
-  //    없다 — 번역을 거치면 느려지기만 한다(directionForLanguage 가 null 을 준다).
   const direction = directionForLanguage(language);
   const [customPhrase, setCustomPhrase] = useState('');
   const [customSpeaking, setCustomSpeaking] = useState(false);
@@ -58,13 +42,7 @@ export default function Speak() {
   const [resultCopied, setResultCopied] = useState(false);
   const customPlayToken = useRef(0);
 
-  // 택시 목적지 고르기 (S15P21E201-1141).
-  //
-  // 🔴 글자를 칠 때마다 서버를 때리지 않는다. 마지막 타자 뒤 잠깐을 기다렸다가 한 번만 쏜다 —
-  //    「해운대해수욕장」을 그대로 치면 그렇지 않을 때 여덟 번이 나간다.
-  //
-  // 🔴 늦게 온 답이 먼저 온 답을 덮지 않게 이전 요청을 취소한다. 안 그러면 「해운」의 결과가
-  //    「해운대」의 결과를 밀어내, 사용자가 방금 친 것과 다른 목록을 보게 된다.
+  // 택시 목적지 고르기.
   const [destinationQuery, setDestinationQuery] = useState('');
   const [destination, setDestination] = useState<TaxiDestinationOutcome>({ state: 'idle' });
   const [destinationSearching, setDestinationSearching] = useState(false);
@@ -93,7 +71,7 @@ export default function Speak() {
     return tx('번역하지 못했어요. 입력한 그대로 읽어드릴게요.', "We couldn't translate that. We'll read out what you typed, as it is.");
   }
 
-  /** 기기 음성으로 읽는다. 🔴 언어를 문장에 맞춰 준다 — 영어를 한국어 음성으로 읽으면 못 알아듣는다. */
+  /** 기기 음성으로 읽는다. 언어를 문장에 맞춰 준다 — 영어를 한국어 음성으로 읽으면 못 알아듣는다. */
   function speakAloud(text: string, speechLanguage: string) {
     const token = ++customPlayToken.current;
     const finish = () => { if (customPlayToken.current === token) setCustomSpeaking(false); };
@@ -122,15 +100,16 @@ export default function Speak() {
     setTranslating(false);
     if (outcome.state === 'translated') {
       setSpokenText(outcome.text);
-      setTranslateNotice(null);
+      // 고른 언어 방향을 서버가 아직 몰라 영어 방향으로 번역했으면 그 사실을 한 줄 남긴다 — 결과가 어색해도 이유를 안다.
+      setTranslateNotice(outcome.viaEnglish ? tx('이 언어의 직접 번역은 준비 중이라 영어를 거쳐 번역했어요.', 'Direct translation for this language is on the way — this one went through English.') : null);
       speakAloud(outcome.text, speechLanguageFor(direction));
       return;
     }
     // 번역이 안 되면 막다른 길로 두지 않는다 — 왜 안 되는지 말하고, 원문이라도 읽어 준다.
-    // 🔴 이때는 원문의 언어로 읽는다. 영어 문장을 한국어 음성으로 읽으면 아무 쓸모가 없다.
+    // 이때는 원문의 언어로 읽는다. 영어 문장을 한국어 음성으로 읽으면 아무 쓸모가 없다.
     setSpokenText(null);
     setTranslateNotice(blockedNotice(outcome.reason));
-    speakAloud(text, language === 'en' ? 'en-US' : 'ko-KR');
+    speakAloud(text, toBcp47(language));
   }
 
   async function copySpokenText() {
@@ -141,7 +120,7 @@ export default function Speak() {
 
   return (
     <Screen scroll>
-      {/* 🔴 여기에도 흰여울문화마을이 박혀 있었다 — 어디에 있든 그렇게 적혔다 (S15P21E201-1141). */}
+      {/* 여기에도 흰여울문화마을이 박혀 있었다 — 어디에 있든 그렇게 적혔다. */}
       <Eyebrow>{tx('여행 중', 'On your trip')}</Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>
         {tx('현장에서 바로 쓰기', 'Use it right now')}
@@ -204,8 +183,9 @@ export default function Speak() {
               </Pressable>
             </View>
 
-            {/* 🔴 한국어를 화면에도 보여 준다 (S15P21E201-1088). 현장에서는 소리보다 화면을
-                내미는 것이 잘 통한다 — 시끄럽거나, 상대가 못 알아들었을 때 다시 말할 필요가 없다. */}
+            {/* 한국어를 화면에도 보여 준다. 현장에서는 소리보다 화면을
+                내미는 것이 잘 통한다 — 시끄럽거나, 상대가 못 알아들었을 때 다시 말할 필요가 없다.
+            */}
             {spokenText ? (
               <View accessibilityLiveRegion="polite" style={styles.translatedBox}>
                 <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('읽어드린 문장', 'Shown to them, in Korean')}</Text>
@@ -238,15 +218,8 @@ export default function Speak() {
           <PlacePhraseBrowser onOpenTaxiCard={() => setTab('taxi')} />
         </View>
       ) : (
-        // 🔴 여기는 예전에 흰여울문화마을 주소가 박혀 있던 자리다 (S15P21E201-1141).
-        //    어디로 가든 같은 카드가 나와서, 다른 곳에 가려는 사람에게는 **틀린 주소를
-        //    자신 있게 보여주는 화면**이었다. 그 카드를 기사에게 보여주면 진짜로 다른 데로 간다.
-        //
-        // 🔴 「길찾기 앱으로 열기」(카카오맵·Google·Apple) 줄도 같이 걷어냈다. 우리 앱에서
-        //    하던 일을 남의 앱에서 끝내게 만드는 자리였다 (사용자 보고 11번).
-        //
-        // 🔴 화면에 질문을 하나만 둔다 — 「어디로 가세요?」. 고르면 이미 있는 진짜 택시 카드
-        //    (`/taxi-card/[id]`)로 보낸다. 새로 만들지 않고 길만 냈다.
+        // 「길찾기 앱으로 열기」(카카오맵·Google·Apple) 줄도 같이 걷어냈다. 우리 앱에서
+        // 하던 일을 남의 앱에서 끝내게 만드는 자리였다 (사용자 보고 11번).
         <View style={styles.taxiPane}>
           <Text variant="body" weight="bold">{tx('어디로 가세요?', 'Where are you going?')}</Text>
           <Text variant="caption" color={color.text.body}>
@@ -264,8 +237,9 @@ export default function Speak() {
               autoCorrect={false}
               style={styles.searchInput}
             />
-            {/* 🔴 지우기 버튼은 필수다 — 한 글자씩 지우게 두면 다시 검색하려는 사람이 지친다.
-                검색 필드 오른쪽에 「검색」 버튼은 두지 않는다. 치는 대로 찾아 준다. */}
+            {/* 지우기 버튼은 필수다 — 한 글자씩 지우게 두면 다시 검색하려는 사람이 지친다.
+                검색 필드 오른쪽에 「검색」 버튼은 두지 않는다. 치는 대로 찾아 준다.
+            */}
             {destinationQuery.length > 0 ? (
               <Pressable
                 accessibilityRole="button"
@@ -278,8 +252,9 @@ export default function Speak() {
             ) : null}
           </View>
 
-          {/* 🔴 두 글자가 될 때까지는 「결과 없음」을 띄우지 않는다. 아직 다 치지도 않은
-              사람에게 없다고 말하면 고장으로 읽힌다. */}
+          {/* 두 글자가 될 때까지는 「결과 없음」을 띄우지 않는다. 아직 다 치지도 않은
+              사람에게 없다고 말하면 고장으로 읽힌다.
+          */}
           {destination.state === 'idle' && destinationQuery.trim().length > 0 ? (
             <Text variant="caption" color={color.text.muted}>
               {tx('두 글자 이상 입력해 주세요', 'Type at least two characters')}
@@ -312,7 +287,7 @@ export default function Speak() {
                   <Pressable
                     key={item.placeId}
                     accessibilityRole="button"
-                    accessibilityLabel={tx(`${item.nameKo} 택시 카드 열기`, `Open taxi card for ${item.nameKo}`)}
+                    accessibilityLabel={txf(tx, '%s 택시 카드 열기', 'Open taxi card for %s', item.nameKo)}
                     onPress={() => router.push(`/taxi-card/${item.placeId}`)}
                     style={({ pressed }) => [styles.destinationItem, pressed && styles.pressed]}
                   >
@@ -340,7 +315,7 @@ const styles = StyleSheet.create({
   },
   segment: {
     flexDirection: 'row',
-    backgroundColor: color.surface.soft,
+    backgroundColor: color.surface.blush,
     borderRadius: radius.lg,
     padding: spacing[1],
     gap: spacing[1],

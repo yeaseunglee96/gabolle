@@ -1,8 +1,5 @@
 import { apiRequest } from '@/api/client';
 
-// 계약: backend/src/main/java/com/gabolle/backend/place/api/OriginController.java (S15P21E201-434).
-// GET /api/v1/origins?query=&limit= — Jira 설명의 `/api/v1/locations/search` 는 실제 구현과
-// 다르다. 코드를 직접 읽고 맞췄다(2026-09-09).
 export type OriginCandidate = {
   name: string;
   address: string;
@@ -23,7 +20,7 @@ export type OriginSearchResult =
   | { state: 'success'; items: OriginCandidate[]; degraded: boolean }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
 
-// 서버가 두 글자 미만이면 QUERY_TOO_SHORT 로 거절한다(외부 호출 전에 막는 것이 완료 기준이다) —
+// 서버가 두 글자 미만이면 QUERY_TOO_SHORT 로 거절한다(외부 호출 전에 막는 것이 완료 기준이다)
 // 그 호출 자체를 안 나가게 화면에서 먼저 거른다.
 export async function searchOrigins(query: string, accessToken: string | null, signal?: AbortSignal): Promise<OriginSearchResult> {
   try {

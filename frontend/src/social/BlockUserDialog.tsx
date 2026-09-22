@@ -1,16 +1,12 @@
-// 사용자 차단 확인창 — S15P21E201-991 (애플 심사 지침 1.2, 학대 사용자 차단).
-//
-// 🔴 문구는 티켓에 확정된 것을 그대로 쓴다. 특히 경고 줄을 빼지 않는다 — 팔로우가 함께
-// 끊기고 차단을 풀어도 안 돌아온다는 것을 누르기 전에 말하지 않으면 "왜 팔로우가
-// 사라졌냐" 가 문의로 들어온다.
-//
-// 🔴 확인 없이 바로 차단하지 않는다. 피드 ⋯ 메뉴와 프로필 둘 다 실수로 누르기 쉬운 자리다.
+// 사용자 차단 확인창 —(애플 심사 지침 1.2, 학대 사용자 차단).
 import { useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 type BlockUserDialogProps = {
   visible: boolean;
@@ -43,7 +39,7 @@ export function BlockUserDialog({ visible, displayName, onClose, onConfirm }: Bl
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
       <View style={styles.backdrop}>
         <View accessibilityViewIsModal style={styles.card}>
-          <Text variant="title" weight="bold">{tx(`${displayName}님을 차단할까요?`, `Block ${displayName}?`)}</Text>
+          <Text variant="title" weight="bold">{txf(tx, '%s님을 차단할까요?', 'Block %s?', displayName)}</Text>
           <Text color={color.text.body}>{tx('이 사용자에게 내 글이 보이지 않아요.', "This user won't see your posts.")}</Text>
           <View style={styles.warning}>
             <Text variant="caption" weight="bold" color={color.state.danger}>
@@ -51,14 +47,14 @@ export function BlockUserDialog({ visible, displayName, onClose, onConfirm }: Bl
             </Text>
           </View>
 
-          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{error}</Text> : null}
+          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
 
           <View style={styles.buttonRow}>
             <Pressable accessibilityRole="button" disabled={submitting} onPress={close} style={[styles.button, styles.cancelButton]}>
               <Text variant="body" weight="bold">{tx('취소', 'Cancel')}</Text>
             </Pressable>
             <Pressable accessibilityRole="button" accessibilityState={{ disabled: submitting }} disabled={submitting} onPress={() => void confirm()} style={[styles.button, styles.confirmButton, submitting && styles.disabled]}>
-              {submitting ? <ActivityIndicator color={color.text.onAction} /> : <Text variant="body" weight="bold" color={color.text.onAction}>{tx('차단하기', 'Block')}</Text>}
+              {submitting ? <ActivityIndicator color={color.state.danger} /> : <Text variant="body" weight="bold" color={color.state.danger}>{tx('차단하기', 'Block')}</Text>}
             </Pressable>
           </View>
         </View>
@@ -68,12 +64,13 @@ export function BlockUserDialog({ visible, displayName, onClose, onConfirm }: Bl
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   card: { width: '100%', maxWidth: 420, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   warning: { padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   buttonRow: { flexDirection: 'row', gap: spacing[2] },
   button: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   cancelButton: { backgroundColor: color.surface.card },
-  confirmButton: { backgroundColor: color.state.danger },
+  // 위험은 채우지 않는다 — 연분홍 배경 + 빨간 글자. 주 버튼과 같은 무게로 보이면 안 된다.
+  confirmButton: { backgroundColor: color.state.dangerBg },
   disabled: { opacity: 0.5 },
 });

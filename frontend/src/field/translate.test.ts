@@ -1,5 +1,5 @@
-// S15P21E201-1091 — 현장 말하기가 한국어를 못 하는 사람에게 한국어를 입력하라고 했다.
-// 방향을 뒤집는 것이 이 티켓이고, 여기서 재는 것은 **방향과 안 될 때의 태도** 둘이다.
+// — 현장 말하기가 한국어를 못 하는 사람에게 한국어를 입력하라고 했다.
+// 방향을 뒤집는 것이 이 티켓이고, 여기서 재는 것은 방향과 안 될 때의 태도 둘이다.
 import { directionForLanguage, speechLanguageFor, translateText } from '@/field/translate';
 
 type Call = { url: string; method: string; body: unknown };
@@ -30,6 +30,13 @@ describe('방향 — 이 화면은 한국어를 못 하는 사람을 위한 것�
 
   it('한국어 화면이면 번역할 것이 없다 — 부르지 않는다', () => {
     expect(directionForLanguage('ko')).toBeNull();
+  });
+
+  it('일본어·중국어 화면은 그 언어 방향으로 — 「영어로 적어라」고 하지 않는다 (S15P21E201-1361)', () => {
+    expect(directionForLanguage('ja')).toBe('JA_TO_KO');
+    expect(directionForLanguage('zh-Hans')).toBe('ZH_HANS_TO_KO');
+    expect(directionForLanguage('zh-Hant')).toBe('ZH_HANT_TO_KO');
+    expect(speechLanguageFor('JA_TO_KO')).toBe('ko-KR');
   });
 
   it('🔴 EN_TO_KO 로 번역한 문장은 한국어 음성으로 읽는다', () => {

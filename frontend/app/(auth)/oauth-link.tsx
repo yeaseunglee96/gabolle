@@ -1,7 +1,7 @@
 // 소셜 인증에 쓴 이메일로 이미 이메일 가입 계정이 있을 때(LINK_REQUIRED) 비밀번호로 그
-// 계정에 소셜을 붙이는 화면. sign-in.tsx 의 social() 이 409 OAUTH_ACCOUNT_LINK_REQUIRED 를
-// 받으면 여기로 보낸다. 비밀번호가 틀려도 같은 티켓으로 재시도할 수 있다(서버 의도) —
-// S15P21E201-586, jaehyeon 님 !288 계약.
+// 계정에 소셜을 붙이는 화면. sign-in.tsx 의 social 이 409 OAUTH_ACCOUNT_LINK_REQUIRED 를
+// 받으면 여기로 보낸다. 비밀번호가 틀려도 같은 티켓으로 재시도할 수 있다(서버 의도)
+// , jaehyeon 님 !288 계약.
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -17,6 +17,8 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 // 기본값 /home — sign-in.tsx 의 resolveDestination 과 같은 이유(jaehyeon 님 제안).
 async function resolveDestination(returnTo?: string) {
@@ -84,7 +86,7 @@ export default function OAuthLink() {
       </View>
       <Text variant="display" weight="bold" style={styles.title}>{tx('이미 가입된 이메일이에요', 'This email is already registered')}</Text>
       <Text variant="body" color={color.text.body} style={styles.subtitle}>
-        {tx(`${params.maskedEmail ?? ''} 계정에 ${providerLabel} 로그인을 연결할게요. 비밀번호를 입력해 주세요.`, `We'll link ${providerLabel} sign-in to ${params.maskedEmail ?? ''}. Please enter your password.`)}
+        {txf(tx, '%s 계정에 %s 로그인을 연결할게요. 비밀번호를 입력해 주세요.', 'For the %s account, we\'ll link %s sign-in. Please enter your password.', params.maskedEmail ?? '', providerLabel)}
       </Text>
 
       <View style={styles.form}>
@@ -98,7 +100,7 @@ export default function OAuthLink() {
           </View>
         </View>
 
-        {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{error}</Text></Card>}
+        {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text></Card>}
         <Button label={submitting ? tx('연결 중…', 'Linking…') : tx('연결하고 로그인', 'Link and sign in')} disabled={!canSubmit} onPress={() => void submit()} />
         <Pressable accessibilityRole="link" style={styles.forgot} onPress={() => router.push('/forgot-password')}>
           <Text variant="caption" color={color.action.primary}>{tx('비밀번호를 잊으셨나요?', 'Forgot your password?')}</Text>
@@ -110,7 +112,7 @@ export default function OAuthLink() {
 
 const styles = StyleSheet.create({
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
-  logo: { width: 112, height: 32 },
+  logo: { width: 176, height: 32 },
   backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   title: { marginTop: spacing[3] },
   subtitle: { marginTop: spacing[1], marginBottom: spacing[6] },

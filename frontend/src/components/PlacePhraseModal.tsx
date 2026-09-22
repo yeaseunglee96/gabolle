@@ -1,4 +1,4 @@
-// 장소 카드에서 여는 한국어 말하기 모달 — 4개 탭(관광지·식당카페·택시·숙소), S15P21E201-389.
+// 장소 카드에서 여는 한국어 말하기 모달 — 4개 탭(관광지·식당카페·택시·숙소),.
 // 탭+목록 자체는 PlacePhraseBrowser 로 옮겨 app/field/speak.tsx(현장 도구에서 여는
 // 전체 화면)와 공유한다 — 두 화면이 서로 다른 문장을 보여주던 것을 하나로 합쳤다.
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
@@ -38,7 +38,7 @@ export function PlacePhraseModal({ visible, onClose, category }: PlacePhraseModa
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   card: { width: '100%', maxWidth: 480, maxHeight: '85%', gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   close: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card },

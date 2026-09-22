@@ -32,21 +32,7 @@ export class ApiClientError extends Error {
   }
 }
 
-/**
- * 요청이 **서버에 닿지도 못했을 때** 던진다.
- *
- * 🔴 {@link cause} 를 반드시 채운다 (S15P21E201-1187).
- *
- * 예전에는 `fetch` 가 던진 것을 `catch {}` 로 통째로 버리고 이 사람 말만 남겼다.
- * 그래서 2026-09-17 안드로이드 실기기에서 사진 업로드가 100% 실패했을 때,
- * 화면에는 「서버에 연결할 수 없어요」만 뜨고 **왜인지는 아무 데도 안 남았다.**
- * 서버 기록에도 요청이 없어서(네트워크까지 가지 못했으므로) 양쪽 어디를 봐도
- * 단서가 없었다 — 릴리스 빌드라 앱 로그도 못 본다.
- *
- * 사람에게 보여 줄 말은 그대로 두고, **원인 문자열을 따로 들고 다닌다.**
- * 부르는 쪽이 그것을 뒤에 붙여 보여 줄지는 각자 정한다. 사진 업로드처럼
- * 「왜 안 되는지」가 곧 제보 내용이 되는 자리는 붙여 준다.
- */
+/** 요청이 서버에 닿지도 못했을 때 던진다. */
 export class ApiUnavailableError extends ApiClientError {
   constructor(
     message = apiLanguage === 'en'
@@ -67,24 +53,10 @@ export function describeThrown(error: unknown): string | null {
   return null;
 }
 
-// 🔴 S15P21E201-1081 — 「서버가 잠깐 못 받는다」와 「이 기능이 아직 없다」를 가르는 자리.
-//
-// 배포할 때마다 백엔드가 잠깐 끊기고 그동안 nginx 가 502·503·504 를 준다. 그 응답의 본문은
-// JSON 이 아니라 HTML 이라, 예전에는 전부 INVALID_RESPONSE 로 떨어졌다. 그것을 보고 화면들이
-// "이 API 는 아직 준비되지 않았어요" 라고 말했고, 사용자는 **아직 만들지 않은 기능**으로 읽고
-// 나갔다. 실제로는 몇십 초 뒤면 되는 것이었다.
-//
-// 그래서 상태 코드로 가른다 — 404·501 만 "아직 없다" 이고, 5xx 는 "잠시 후 다시" 다.
-// 같은 저장소의 routeDirections.ts·itinerary.ts 가 이미 쓰던 방식이다.
+// — 「서버가 잠깐 못 받는다」와 「이 기능이 아직 없다」를 가르는 자리.
 export const SERVER_ERROR_CODE = 'SERVER_ERROR';
 
-/**
- * 5xx 인가 — 서버가 이번 요청을 처리하지 못한 것이지, 그 기능이 없는 것이 아니다.
- *
- * 🔴 **501 은 뺀다.** 숫자로는 5xx 지만 이 저장소에서 501(Not Implemented)은 404 와 한 짝으로
- * "아직 안 만들었다" 를 뜻한다(routeDirections.ts·itinerary.ts 가 `404 || 501` 로 함께 본다).
- * 여기 넣으면 "잠시 후 다시" 라고 말하게 되는데, 기다려도 생기지 않는 것이라 거짓말이 된다.
- */
+/** 5xx 인가 — 서버가 이번 요청을 처리하지 못한 것이지, 그 기능이 없는 것이 아니다. */
 export function isServerErrorStatus(status: number): boolean {
   return status >= 500 && status <= 599 && status !== 501;
 }
@@ -100,14 +72,94 @@ function serverErrorMessage(status: number): string {
     : `서버가 잠시 응답하지 못했어요. 잠시 후 다시 시도해 주세요. (HTTP ${status})`;
 }
 
+/**
+ * 호출자가 스스로 끊은 요청. 화면을 떠났거나 다음 검색어가 앞 요청을 대신한 것이라,
+ * 사람에게 보여 줄 오류가 아니다 — 대개 그냥 무시하면 된다.
+ */
+export const REQUEST_CANCELLED_CODE = 'REQUEST_CANCELLED';
+
 type ApiAvailabilityListener = (unavailable: boolean) => void;
 const availabilityListeners = new Set<ApiAvailabilityListener>();
 let apiUnavailable = false;
+
+/**
+ * 🔴 끊겼다고 판단한 뒤 스스로 되묻는 간격. 붙을 때까지 늘려 가며 물어본다 —
+ * 서버가 배포로 잠깐 죽은 것이면 첫 번째나 두 번째에 붙고, 오래 죽어 있으면
+ * 30초마다 한 번씩만 두드린다.
+ */
+export const RECOVERY_PROBE_DELAYS_MS = [3000, 5000, 10000, 20000, 30000];
+
+/**
+ * 살아 있는지 되물을 때 부르는 경로. **응답 내용은 안 본다** — 서버가 5xx 가 아닌
+ * 무엇이든 돌려주면(401 이어도) API 까지 길이 뚫린 것이다.
+ */
+const RECOVERY_PROBE_PATH = '/api/v1/places/facets';
+
+/** 되묻기가 너무 오래 매달려 있지 않게 하는 시간. 어차피 다음 차례가 또 온다. */
+const RECOVERY_PROBE_TIMEOUT_MS = 5000;
+
+let recoveryTimer: ReturnType<typeof setTimeout> | null = null;
+let recoveryAttempt = 0;
+
+function stopRecoveryProbe() {
+  if (recoveryTimer) { clearTimeout(recoveryTimer); recoveryTimer = null; }
+  recoveryAttempt = 0;
+}
+
+/**
+ * 🔴 배너는 "연결되면 자동으로 사라집니다" 라고 약속한다. 그 약속을 지키는 것이 이 함수다.
+ *
+ * 예전에는 되묻는 코드가 아예 없어서, 다시 붙었다는 사실을 **다른 요청이 우연히 성공할 때만**
+ * 알 수 있었다. 그런데 요청을 하나도 안 하는 화면이 여럿이다(현장 도구·장소별 한국어 등).
+ * 그런 화면에 머무는 동안에는 서버가 멀쩡해져도 배너가 영영 남았다 (S15P21E201-1281).
+ */
+function scheduleRecoveryProbe() {
+  if (recoveryTimer) return;
+  const delay = RECOVERY_PROBE_DELAYS_MS[Math.min(recoveryAttempt, RECOVERY_PROBE_DELAYS_MS.length - 1)];
+  recoveryAttempt += 1;
+  recoveryTimer = setTimeout(() => {
+    recoveryTimer = null;
+    void probeApiReachable().then((reachable) => {
+      if (!apiUnavailable) return;           // 그새 다른 요청이 성공해 이미 꺼졌다
+      if (reachable) setApiUnavailable(false);
+      else scheduleRecoveryProbe();
+    });
+  }, delay);
+  // 되묻기가 기다리는 중이라고 해서 프로세스가 안 끝나면 안 된다 — 시험이 안 끝난다.
+  // 폰에는 unref 가 없으므로 있을 때만 부른다.
+  (recoveryTimer as { unref?: () => void }).unref?.();
+}
+
+async function probeApiReachable(): Promise<boolean> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), RECOVERY_PROBE_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${API_BASE_URL}${RECOVERY_PROBE_PATH}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    // 401·404 도 "서버가 대답했다" 는 뜻이다. 5xx 만 아직 죽은 것으로 본다.
+    return !isServerErrorStatus(response.status);
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 function setApiUnavailable(next: boolean) {
   if (apiUnavailable === next) return;
   apiUnavailable = next;
   availabilityListeners.forEach((listener) => listener(next));
+  if (next) scheduleRecoveryProbe();
+  else stopRecoveryProbe();
+}
+
+/** 시험에서 타이머를 남기지 않기 위한 손잡이. 화면 코드는 부를 일이 없다. */
+export function __resetApiAvailabilityForTests() {
+  stopRecoveryProbe();
+  apiUnavailable = false;
 }
 
 export function subscribeApiAvailability(listener: ApiAvailabilityListener) {
@@ -118,8 +170,8 @@ export function subscribeApiAvailability(listener: ApiAvailabilityListener) {
   };
 }
 
-// 익명 출입증(S15P21E201-303 이 발급하는 X-Session-Token) — 가입 안 한 사람의 요청도
-// 같은 세션으로 묶이도록 여기서 한 번만 발급받아 모든 요청에 자동으로 붙인다(S15P21E201-311).
+// 익명 출입증이 발급하는 X-Session-Token) — 가입 안 한 사람의 요청도
+// 같은 세션으로 묶이도록 여기서 한 번만 발급받아 모든 요청에 자동으로 붙인다.
 const ANONYMOUS_SESSION_STORAGE_KEY = 'gabolle.anonymous-session-token';
 let anonymousSessionToken: string | null = null;
 let anonymousSessionPromise: Promise<string | null> | null = null;
@@ -148,9 +200,9 @@ async function writeStoredAnonymousSessionToken(token: string): Promise<void> {
 }
 
 async function requestAnonymousSessionToken(): Promise<string | null> {
-  // 이 fetch 에 타임아웃이 없으면 응답이 안 오는 동안 영영 안 끝나고, ensureAnonymousSessionToken()의
+  // 이 fetch 에 타임아웃이 없으면 응답이 안 오는 동안 영영 안 끝나고, ensureAnonymousSessionToken의
   // anonymousSessionPromise 도 settle 되지 않아 그대로 남는다 — 이후 모든 API 요청이 이 프라미스를
-  // 그대로 돌려받아 앱 전체가 멈춘다(S15P21E201-929). performRequest() 의 타임아웃은 이 fetch 뒤에
+  // 그대로 돌려받아 앱 전체가 멈춘다. performRequest 의 타임아웃은 이 fetch 뒤에
   // 시작하므로 여기를 보호하지 못한다.
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
@@ -196,7 +248,22 @@ async function ensureAnonymousSessionToken(): Promise<string | null> {
   return anonymousSessionPromise;
 }
 
-type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; accessToken?: string | null; skipUnauthorizedHandling?: boolean };
+/**
+ * `timeoutMs` — 이 요청에만 쓰는 제한. 안 주면 앱 기본값(12초).
+ *
+ * 🔴 아무 데나 쓰라고 만든 것이 아니다. 늘리면 그만큼 사용자가 빈 화면을 본다.
+ * 지금 쓰는 곳은 메뉴판 읽기 하나뿐이고, 그 근거는 `src/field/menuScan.ts` 에 있다 —
+ * 실제 메뉴판이 11~13초가 걸려서 12초로는 못 읽는다(S15P21E201-1315).
+ *
+ * 🔴 늘릴 때는 **서버 쪽과 함께** 늘린다. 서버가 앱보다 먼저 포기해야 한다 —
+ * 앱이 먼저 끊으면 읽기가 성공해도 사용자는 못 받고, 값은 나가고 하루 한도도 깎인다.
+ * 규칙은 context/decisions.md 의 DEC-LATENCY-001.
+ */
+type RequestOptions = Omit<RequestInit, 'body'> & {
+  body?: unknown; accessToken?: string | null; skipUnauthorizedHandling?: boolean; timeoutMs?: number;
+  /** 본문 말고 응답 머리도 봐야 할 때 — 피드가 «실제로 적용된 정렬»을 `X-Feed-Applied` 로 받는다(S15P21E201-1411). 성공·실패 가리지 않고 한 번 부른다. */
+  onResponse?: (response: Response) => void;
+};
 let unauthorizedHandler: (() => void) | null = null;
 export function setUnauthorizedHandler(handler: (() => void) | null) { unauthorizedHandler = handler; }
 
@@ -219,13 +286,15 @@ export function apiRequest<T>(path: string, options: RequestOptions = {}): Promi
 }
 
 async function performRequest<T>(path: string, options: RequestOptions, isRetry: boolean): Promise<T> {
-  const { body, accessToken, headers, skipUnauthorizedHandling, ...requestOptions } = options;
+  const { body, accessToken, headers, skipUnauthorizedHandling, timeoutMs, onResponse, ...requestOptions } = options;
   const controller = new AbortController();
   let timedOut = false;
   const abortFromCaller = () => controller.abort();
   if (requestOptions.signal?.aborted) controller.abort();
   else requestOptions.signal?.addEventListener('abort', abortFromCaller, { once: true });
-  const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, API_TIMEOUT_MS);
+  // 🔴 timeoutMs 를 requestOptions 에서 빼낸 이유 — 안 빼면 fetch 의 옵션으로 흘러든다.
+  const timeout = setTimeout(() => { timedOut = true; controller.abort(); },
+    timeoutMs && timeoutMs > 0 ? timeoutMs : API_TIMEOUT_MS);
   const sessionToken = await ensureAnonymousSessionToken();
   let response: Response;
   try {
@@ -247,28 +316,32 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
     });
   } catch (error) {
     if (timedOut) throw new ApiClientError('서버 응답이 늦어 요청을 마쳤어요. 잠시 후 다시 시도해 주세요.', 'REQUEST_TIMEOUT', 0);
+    // 🔴 호출자가 끊은 것은 서버가 죽은 것이 아니다 (S15P21E201-1281).
+    // 화면을 떠날 때 cleanup 이 요청을 끊고(app/place/[id].tsx 등 아홉 곳), 출발지
+    // 검색창은 글자를 칠 때마다 앞 요청을 끊는다. 그것까지 끊김으로 세면 평범하게
+    // 쓰는 것만으로 "서버 연결을 확인하고 있어요" 가 떴다.
+    if (requestOptions.signal?.aborted) {
+      throw new ApiClientError('요청을 취소했어요.', REQUEST_CANCELLED_CODE, 0);
+    }
     setApiUnavailable(true);
-    // 🔴 원인을 버리지 않는다 (S15P21E201-1187). 자세한 이유는 ApiUnavailableError 참고.
+    // 원인을 버리지 않는다. 자세한 이유는 ApiUnavailableError 참고.
     throw new ApiUnavailableError(undefined, describeThrown(error));
   } finally {
     clearTimeout(timeout);
     requestOptions.signal?.removeEventListener('abort', abortFromCaller);
   }
 
-  // HTTP 오류여도 서버 자체에는 다시 연결된 상태다 — 🔴 5xx 는 빼고(S15P21E201-1081).
-  //
-  // 예전에는 응답이 오기만 하면 무조건 setApiUnavailable(false) 였다. 그런데 배포 중에
-  // nginx 가 502 를 주는 동안에도 "응답은 온" 것이라, 앱은 서버가 멀쩡하다고 판단했고
-  // "서버에 연결할 수 없어요" 배너가 끝내 안 떴다. 사용자는 화면마다 다른 말을 들었다.
+  // HTTP 오류여도 서버 자체에는 다시 연결된 상태다 — 5xx 는 빼고.
   const serverSideFailure = isServerErrorStatus(response.status);
   setApiUnavailable(serverSideFailure);
+  try { onResponse?.(response); } catch { /* 머리를 읽다 던져도 요청 자체는 살린다 */ }
 
   if (response.status === 401 && !skipUnauthorizedHandling) {
     if (!isRetry) {
       const refreshedToken = await refreshAccessToken();
       if (refreshedToken) return performRequest<T>(path, { ...options, accessToken: refreshedToken }, true);
     }
-    // S15P21E201-997 — 회원 토큰 없이 부른 요청의 401 은 "세션이 끊겼다"가 아니라 "이 경로는
+    // — 회원 토큰 없이 부른 요청의 401 은 "세션이 끊겼다"가 아니라 "이 경로는
     // 로그인이 필요하다"는 뜻이다. 서버가 익명 출입증에 401 을 주는 자리가 여럿인데, 그것을
     // 전부 세션 만료로 읽어 로그인 화면으로 튕기면 로그인한 적 없는 사람이 화면을 보기도 전에
     // 쫓겨난다. 튕기는 것은 회원 토큰을 들고 갔는데도 거절당했을 때(=갱신까지 실패)뿐이다.
@@ -279,8 +352,8 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
   const isJson = (response.headers.get('content-type') ?? '').includes('application/json');
   if (response.ok && !isJson) return undefined as T;
   if (!isJson) {
-    // 🔴 5xx 의 HTML 본문(nginx 의 502 안내 쪽)을 "예상하지 못한 응답" 으로 부르지 않는다.
-    //    그 이름이 화면에서 "아직 만들지 않은 기능" 으로 번역되는 것이 이 버그였다.
+    // 5xx 의 HTML 본문(nginx 의 502 안내 쪽)을 "예상하지 못한 응답" 으로 부르지 않는다.
+    // 그 이름이 화면에서 "아직 만들지 않은 기능" 으로 번역되는 것이 이 버그였다.
     if (serverSideFailure) {
       throw new ApiClientError(serverErrorMessage(response.status), SERVER_ERROR_CODE, response.status);
     }
@@ -289,12 +362,7 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
 
   const envelope = (await response.json()) as ApiEnvelope<T>;
   if (!response.ok || envelope.error || envelope.data === null) {
-    // 🔴 S15P21E201-1200 — 「이 기능은 열쇠가 없다」는 5xx 는 **서버가 죽은 것이 아니다.**
-    //
-    // 위에서 5xx 를 보고 이미 「서버에 연결할 수 없어요」 배너를 켜 놓았다. 그 판단은
-    // 본문을 읽기 전이라 상태 숫자밖에 모른다. 본문을 읽고 나서야 이 둘이 갈린다 —
-    // 바깥 업체 열쇠가 안 꽂힌 것과, 서버가 진짜로 안 돌아가는 것.
-    // 앞에 걸린 배너를 여기서 내린다. 같은 순간 다른 API 는 전부 200 이다.
+    // — 「이 기능은 열쇠가 없다」는 5xx 는 서버가 죽은 것이 아니다.
     if ((envelope.error?.code ?? '').endsWith('_VENDOR_NOT_CONFIGURED')) setApiUnavailable(false);
     throw new ApiClientError(
       envelope.error?.message ?? '요청을 처리하지 못했어요.',

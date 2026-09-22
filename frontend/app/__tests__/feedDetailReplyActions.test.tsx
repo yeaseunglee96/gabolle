@@ -1,32 +1,17 @@
 // 댓글 수정·삭제·신고 — S15P21E201-1239.
-//
-// 🔴 사용자 신고: "피드에 댓글을 썼는데 댓글 수정하거나 지우기, 신고 버튼이 없네".
-//    서버는 이미 열려 있었다(PATCH/DELETE /stories/{id}, POST /stories/{id}/reports —
-//    댓글도 같은 story 표라 그대로 된다) — 없던 것은 화면뿐이었다. 이 시험은 그 화면이
-//    맞는 요청을 맞는 대상(댓글 id)으로 보내는지, 그리고 원글 신고와 달리 화면 전체를
-//    지우지 않고 그 댓글 한 장만 빼는지를 잰다.
-//
-// 🔴 2026-09-18 — globalThis.fetch 를 직접 흉내 내던 첫 버전이 CI(파이프라인 #205432·
-// #205529)에서만 두 번 죽었다(로컬에서는 매번 통과). @/api/client 의 apiRequest 자체를
-// 목으로 바꿔서 익명 출입증 발급·JSON 파싱 같은 그물 전체를 건너뛰는 더 가벼운 방식
-// (src/field/__tests__/menuScanResize.test.ts 등)으로 바꾸는 과정에서 실은 목이
-// setApiLanguage·getApiLanguage 를 빠뜨려 렌더 자체가 깨지는 별개의 버그가 있었다 —
-// 그건 고쳤다(로컬 4.5초, 안정적으로 통과).
-//
-// 🔴 그런데 파이프라인 #205628 에서 세 번째로 죽었다 — 이번엔 이 파일 하나가 47초나
-// 걸렸다(로컬 4.5초의 10배). 목은 이제 정상이니 이건 코드 버그가 아니라 **이 CI
-// 러너가 이 순간 유난히 느렸다**는 뜻이다(이 저장소에 이미 기록된 CI OOM·공유 러너
-// 지연 문제와 같은 종류). 코드로 못 고치는 것을 코드로 고치려 하지 않는다 — 이
-// 파일만 시간 상한을 넉넉히 둔다.
 import type { ReactElement } from 'react';
 import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react-native';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 
 jest.setTimeout(30000);
 
+// 상세가 저장 여부를 react-query 로 읽는다(S15P21E201-1358) — 목록과 같은 열쇠를 쓰려고. 공급자가 없으면 렌더가 죽는다.
 function render(ui: ReactElement) {
-  return rtlRender(<OnboardingPreferencesProvider>{ui}</OnboardingPreferencesProvider>);
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return rtlRender(<QueryClientProvider client={queryClient}><OnboardingPreferencesProvider>{ui}</OnboardingPreferencesProvider></QueryClientProvider>);
 }
 
 const mockBack = jest.fn();
@@ -51,7 +36,7 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 47, left: 0, right: 0, bottom: 34 }),
 }));
 
-// 🔴 이 화면 트리에는 OnboardingPreferencesProvider 가 들어 있고, 그 안에서
+// 이 화면 트리에는 OnboardingPreferencesProvider 가 들어 있고, 그 안에서
 // setApiLanguage/getApiLanguage 를 실제로 부른다(언어 설정을 서버 요청에 실어 보내는
 // 자리다). 모듈 전체를 목으로 바꾸면서 이 둘을 빠뜨리면 "함수가 아닙니다"로 렌더
 // 자체가 죽는다 — 실제로 그렇게 죽어서 다음 시험까지 "unmount된 트리" 오류로 번졌다.
@@ -143,7 +128,7 @@ type ApiRequestCall = { path: string; options: Record<string, unknown> };
 const api = jest.requireMock('@/api/client') as { apiRequest: jest.Mock };
 const requests: ApiRequestCall[] = [];
 
-/** post() 의 작성자가 남(mine: false)이라 화면이 팔로우 상태를 물어본다 — S15P21E201-1244. */
+/** post 의 작성자가 남(mine: false)이라 화면이 팔로우 상태를 물어본다 — S15P21E201-1244. */
 function profile() {
   return { userId: AUTHOR_ID, displayName: '이예승', followerCount: 0, followingCount: 0, storyCount: 0, following: false };
 }
@@ -189,7 +174,8 @@ describe('댓글 카드 — 수정·삭제·신고', () => {
     fireEvent.press(view.getByLabelText('댓글 수정'));
     const editField = view.getByDisplayValue('제 댓글이에요');
     fireEvent.changeText(editField, '고친 댓글');
-    fireEvent.press(view.getByText('저장'));
+    // 「저장」이 둘이다 — 기록 자체를 저장하는 알약(반응 줄, S15P21E201-1358)과 댓글 고침을 저장하는 단추. 댓글 쪽은 뒤에 온다.
+    fireEvent.press(view.getAllByText('저장').at(-1)!);
 
     await waitFor(() => expect(view.getByText('고친 댓글')).toBeTruthy());
     const patchCall = requests.find((r) => r.options.method === 'PATCH');
@@ -219,7 +205,8 @@ describe('댓글 카드 — 수정·삭제·신고', () => {
     fireEvent.press(view.getByText('스팸'));
     fireEvent.press(view.getByText('신고 접수'));
 
-    await waitFor(() => expect(view.queryByText('남의 댓글이에요')).toBeNull(), { timeout: 5000 });
+    // CI 러너가 느릴 때 5초를 넘긴 적이 있다(2026-09-20 파이프라인 210291). 판정이 아니라 기다림이라 넉넉히 둔다.
+    await waitFor(() => expect(view.queryByText('남의 댓글이에요')).toBeNull(), { timeout: 15000 });
     const reportCall = requests.find((r) => r.path.includes('/reports'));
     expect(reportCall?.path).toBe(`/api/v1/stories/${OTHER_REPLY_ID}/reports`);
     // 원글 신고와 다르다 — "신고가 접수됐어요" 전체 화면 안내로 안 바뀐다. 원글 본문은 그대로 있다.

@@ -1,11 +1,6 @@
-// 경로 상세·내비 화면 — S15P21E201-65/-208(상세설계서 v2 P-15). 좁은 폭(360px)부터 쌓는다:
+// 경로 상세·내비 화면 —/-208(상세설계서 v2 P-15). 좁은 폭(360px)부터 쌓는다
 // 제목 → 지도 → 요약 → 단계별 안내 → 액션 버튼. 1024px 이상에서는 왼쪽 안내 + 오른쪽 지도
 // 2열로 바뀐다(작업 내용 4번, breakpoint.md = 1023).
-//
-// 좌표 두 개만 있으면 되는 화면이라 여행·일정에 매달지 않는다 — 백엔드 RouteController의
-// 같은 판단을 그대로 따른다. 대중교통 단계별 안내(역 이름·출구 번호·버스 번호)는 아직 못
-// 만든다 — 그 데이터를 줄 업체가 아직 없다(S15P21E201-753 대기, RouteQueryService 클래스
-// 주석 참고). steps 가 비어 있으면(TRANSIT 추정) 지어내지 않고 그 사실을 그대로 보여준다.
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -23,6 +18,9 @@ import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { getRouteDirections, type RouteDirectionsResult, type TravelMode } from '@/map/routeDirections';
 import { listAvailableRouteMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
+import { txf } from '@/i18n/format';
+import { resolveTextLanguage } from '@/i18n/languages';
+import { localizeMessage } from '@/i18n/messages';
 
 const MODE_LABEL: Record<TravelMode, readonly [string, string]> = {
   CAR: ['자동차', 'Car'],
@@ -42,7 +40,7 @@ function parseText(value: string | string[] | undefined): string | undefined {
 }
 
 export default function RouteDetail() {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { accessToken } = useAuth();
@@ -55,22 +53,7 @@ export default function RouteDetail() {
   const originName = parseText(params.originName) ?? tx('출발지', 'Origin');
   const destName = parseText(params.destName) ?? tx('도착지', 'Destination');
   const destPlaceId = parseText(params.destPlaceId);
-  // 🔴 S15P21E201-1115 — 기본값이 대중교통이면 **언제나 직선 어림값**이 나온다.
-  //
-  // 노선망(버스·지하철 정류장과 노선을 담은 데이터)이 아직 없어서, 대중교통을 물으면
-  // 서버가 탐색을 못 하고 두 점을 자로 이어 시간을 추측한다. 이 화면에는 방식을 고르는
-  // 자리가 없으므로 **기본값이 곧 모두가 보는 값**이다.
-  //
-  // 2026-09-16 운영 실측 (제로베이스 → 카페오뜨, 일정에 실제로 들어 있는 두 곳):
-  //
-  //   자동차   estimated=false · 실제 도로 995m · 5분 · 안내 5단계
-  //   대중교통 estimated=true  · 직선  777m · 3분 · 안내 0단계
-  //   도보     estimated=true  · 직선  777m · 12분 · 안내 0단계
-  //
-  // 자동차만 진짜 값을 준다. 카카오모빌리티 열쇠는 이미 운영에 있다. 주소로 mode 를
-  // 넘기면 예전처럼 대중교통도 볼 수 있고, 어림값일 때 「예상」 배지가 붙는 것도 그대로다.
-  //
-  // 노선망이 들어오면 이 기본값을 다시 대중교통으로 되돌린다 — 그때는 거짓말이 아니다.
+  // — 기본값이 대중교통이면 언제나 직선 어림값이 나온다.
   const requestedMode: TravelMode = (parseText(params.mode) as TravelMode | undefined) ?? 'CAR';
 
   const [result, setResult] = useState<RouteDirectionsResult | null>(null);
@@ -118,14 +101,14 @@ export default function RouteDetail() {
 
       <View style={styles.heading}>
         <Eyebrow>{tx('이동 경로', 'Route')}</Eyebrow>
-        <Text variant="display" weight="bold">{tx(`${originName} → ${destName}`, `${originName} → ${destName}`)}</Text>
+        <Text variant="display" weight="bold">{txf(tx, '%s → %s', '%s → %s', originName, destName)}</Text>
       </View>
 
       {!hasCoords ? (
         <Card style={styles.stateCard}><Text variant="title" weight="bold">{tx('경로 정보가 없어요', 'No route information')}</Text><Text color={color.text.body}>{tx('출발지와 도착지 좌표를 확인할 수 없어요.', "We couldn't find the origin and destination coordinates.")}</Text></Card>
       ) : (
         <View style={twoColumn ? styles.columns : undefined}>
-          {!twoColumn ? <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={[{ id: 'route', color: color.brand.orange, stops }]} height={260} /> : null}
+          {!twoColumn ? <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={[{ id: 'route', color: color.text.heading, stops }]} height={260} /> : null}
 
           <View style={twoColumn ? styles.infoColumn : styles.infoStack}>
             {loading ? (
@@ -133,7 +116,7 @@ export default function RouteDetail() {
             ) : null}
 
             {!loading && result && result.state !== 'success' ? (
-              <Card style={styles.stateCard} accessibilityRole="alert"><Text variant="title" weight="bold">{tx('경로를 불러오지 못했어요', 'Could not load the route')}</Text><Text color={color.text.body}>{result.message}</Text></Card>
+              <Card style={styles.stateCard} accessibilityRole="alert"><Text variant="title" weight="bold">{tx('경로를 불러오지 못했어요', 'Could not load the route')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text></Card>
             ) : null}
 
             {directions ? (
@@ -142,11 +125,11 @@ export default function RouteDetail() {
                   <View style={styles.summaryHeader}>
                     <Text variant="title" weight="bold">{tx(...MODE_LABEL[directions.mode])}</Text>
                     {directions.estimated ? (
-                      <View style={styles.estimatedBadge}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('예상', 'Estimated')}</Text></View>
+                      <View style={styles.estimatedBadge}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('예상', 'Estimated')}</Text></View>
                     ) : null}
                   </View>
                   <View style={styles.summaryRow}>
-                    <Text color={color.text.body}>{tx(`${directions.durationMin}분 · ${(directions.distanceM / 1000).toFixed(1)}km`, `${directions.durationMin} min · ${(directions.distanceM / 1000).toFixed(1)}km`)}</Text>
+                    <Text color={color.text.body}>{txf(tx, '%s분 · %skm', '%s min · %skm', directions.durationMin, (directions.distanceM / 1000).toFixed(1))}</Text>
                   </View>
                   {directions.taxiFareKrw != null ? <Text color={color.text.body}>{tx(`택시 요금 약 ${directions.taxiFareKrw.toLocaleString()}원`, `Estimated taxi fare ${directions.taxiFareKrw.toLocaleString()} KRW`)}</Text> : null}
                   {directions.tollFareKrw != null ? <Text color={color.text.body}>{tx(`통행료 약 ${directions.tollFareKrw.toLocaleString()}원`, `Estimated toll ${directions.tollFareKrw.toLocaleString()} KRW`)}</Text> : null}
@@ -179,14 +162,14 @@ export default function RouteDetail() {
             <View style={styles.actions}>
               {destPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} /> : null}
               {mapApps.map((app) => (
-                <Button key={app.key} variant="ghost" label={tx(`${app.labelKo}에서 경로 열기`, `Open route in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.actionButton} />
+                <Button key={app.key} variant="tertiary" label={txf(tx, '%s에서 경로 열기', 'Open route in %s', resolveTextLanguage(language) === 'en' ? app.labelEn : app.labelKo)} onPress={() => void app.open()} containerStyle={styles.actionButton} />
               ))}
             </View>
           </View>
 
           {twoColumn ? (
             <View style={styles.mapColumn}>
-              <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={[{ id: 'route', color: color.brand.orange, stops }]} height={480} />
+              <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={[{ id: 'route', color: color.text.heading, stops }]} height={480} />
             </View>
           ) : null}
         </View>
@@ -213,7 +196,7 @@ const styles = StyleSheet.create({
   stepsTitle: { marginBottom: spacing[1] },
   stepList: { gap: spacing[3] }, mapAppsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[1] }, mapAppButton: { minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
-  stepMarker: { width: 26, height: 26, borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' },
+  stepMarker: { width: 26, height: 26, borderRadius: radius.full, backgroundColor: color.action.secondary, alignItems: 'center', justifyContent: 'center' },
   grow: { flex: 1 },
   actions: { gap: spacing[2] },
   actionButton: { alignSelf: 'stretch' },

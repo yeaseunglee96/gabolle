@@ -11,7 +11,7 @@ describe('buildProtectedReturnTo', () => {
   });
 });
 
-// S15P21E201-1116 — 비회원 둘러보기가 보호 화면으로 되돌아가 무한 왕복하던 것.
+// — 비회원 둘러보기가 보호 화면으로 되돌아가 무한 왕복하던 것.
 import { guestDestination } from '../pendingReturnTo';
 
 describe('guestDestination — 「비회원으로 둘러보기」가 갈 곳', () => {

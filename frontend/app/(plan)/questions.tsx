@@ -1,23 +1,16 @@
-// 여행 조건 한 페이지 — 질문 카드 하나에 답하면 다음이 열린다 (S15P21E201-1233).
-// 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p1.
+// 여행 조건 — **한 번에 하나씩** 묻는다 (시안 ①, 인계 §1 · S15P21E201-1425).
 //
-// 🔴 전에는 조건 입력이 취향 화면 · 제약조건 화면으로 흩어져 있었고, 한 화면에 카드가
-//    여럿 있어서 **어디까지 했는지가 안 보였다.** 한 번에 하나만 묻는다.
+// 🔴 필수 3 + 선택 4 = 일곱 질문. 로컬성·조용함·음식은 온보딩 취향이 draft 로 이식되므로
+//    (PlanProvider prefill) 여기서 다시 묻지 않는다. 예전 「좋아하는 분위기·척도·음식 취향」
+//    세 질문과 3-장 묶음(-1377)은 걷어냈다.
 //
-// 🔴 **출발지·날짜·인원은 다시 묻지 않는다.** 홈의 시작 바에서 받았다. 위의 칩 줄로만
-//    보여 주고, 고치려면 그 화면으로 돌아간다.
-//
-// 🔴 2026-09-18 (S15P21E201-1245) — 마지막 단추가 **확인 화면(/plan/confirm)으로 보내던 것을
-//    여기서 바로 만드는 것으로 바꿨다.** 시안에 확인 화면이 없다. 시안의 흐름은
-//    홈 → /plan → /plan/generating → 추천 요약 → 일정 이고, 사이에 확인 단계가 없다.
-//
-//    확인 화면이 하던 일 둘을 여기로 가져온다:
-//      · 일정 생성 요청 보내기
-//      · 알레르기·식단을 쓰려면 필요한 동의(HEALTH_CONSTRAINTS)를 받고 다시 보내기
-//    미확인 조건이 남아 있으면 조건 모달을 띄운다 — 옛 확인 화면의 빨간 줄이 하던 몫이다.
-import { useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+// 🔴 넓은 화면은 두 기둥이다. 왼쪽 280 레일 = 「이번 여행」 카드 + 일곱 줄 체크리스트,
+//    오른쪽 760 = 눈썹·진행 막대·질문 카드 하나·이전/다음. 레일이 「어디까지 왔나」를
+//    대신하므로 오른쪽엔 답한 목록·다음 질문·상태 문구를 안 그린다.
+//    폰은 기존 구조(위 칩 줄 · StepDots · 상태 문구 · 답한 행 · 질문 카드 · 다음 질문)를 유지한다.
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -29,117 +22,62 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan, type PlanDraft } from '@/plan/PlanProvider';
-import { CONFLICT_LABEL_PAIR, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
+import { MustVisitSearch } from '@/plan/MustVisitSearch';
+import { EffectBand, OptionCard, StepDots } from '@/plan/PlanStepperParts';
+import { DateRangeCard, dateRangeLabel } from '@/plan/DateRangeCard';
+import { clearQuestionState, loadQuestionState, saveQuestionState } from '@/plan/questionState';
 import {
-  INITIAL_QUESTION_STATE,
-  PLAN_QUESTIONS,
-  allSettled,
-  canAdvance,
-  isSettled,
-  nextOpenIndex,
-  remainingCount,
-  settledCount,
-  type PlanQuestion,
-  type QuestionKey,
-  type QuestionState,
+  AREA_OPTIONS, CATEGORY_IMAGES, CATEGORY_OPTIONS, PACE_OPTIONS, TRANSPORT_OPTIONS,
+  effectOf, type PlanOption,
+} from '@/plan/planOptions';
+import {
+  INITIAL_QUESTION_STATE, PLAN_QUESTIONS, isSettled,
+  type PlanQuestion, type QuestionKey, type QuestionState,
+  dayWindowIssue,
 } from '@/plan/planQuestions';
+import { maskTimeInput } from '@/plan/inputMasks';
 import { startBarChips } from '@/home/startBarValue';
+import { assistantPrefillPatch } from '@/plan/assistantPrefill';
+import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
-const AREAS = [
-  ['HAEUNDAE', '해운대', 'Haeundae'], ['GWANGALLI', '광안리', 'Gwangalli'], ['NAMPO', '남포동', 'Nampo-dong'],
-  ['SEOMYEON', '서면', 'Seomyeon'], ['YEONGDO', '영도', 'Yeongdo'], ['SONGJEONG', '송정', 'Songjeong'],
-] as const;
-
-const CATEGORIES = [
-  ['SEA_BEACH', '바다 & 해변', 'Sea & Beach'], ['CITY', '도심 탐험', 'City'], ['CAFE_HEALING', '카페 & 힐링', 'Cafe'],
-  ['CULTURE_TEMPLE', '문화 & 사찰', 'Culture'], ['FOOD', '맛집 & 먹거리', 'Food'], ['NATURE_WALK', '자연 & 산책', 'Nature'],
-] as const;
-
-const ATMOSPHERES = [['LIVELY', '활기찬', 'Lively'], ['RELAXED', '여유로운', 'Relaxed'], ['SENTIMENTAL', '감성적인', 'Sentimental'], ['ROMANTIC', '낭만적인', 'Romantic']] as const;
-const PACES = [['RELAXED', '여유롭게', 'Relaxed'], ['BALANCED', '균형 있게', 'Balanced'], ['PACKED', '알차게', 'Packed']] as const;
-// 🔴 택시는 넣지 않는다. 초안의 이동수단 칸이 셋만 받는다 — 화면에만 넣으면
-//    고른 값이 조용히 버려진다.
-const TRANSPORTS = [['TRANSIT', '대중교통', 'Transit'], ['CAR', '자동차', 'Car'], ['WALK', '도보 위주', 'Mostly walking']] as const;
 const BUDGET_STEPS = [10000, 30000, 50000, 100000] as const;
-const SCALES = [
-  { key: 'localityLevel' as const, ko: '로컬 느낌', en: 'Local feel', lowKo: '관광지', lowEn: 'Touristy', highKo: '동네', highEn: 'Neighborhood' },
-  { key: 'quietLevel' as const, ko: '조용함', en: 'Quietness', lowKo: '북적임', lowEn: 'Busy', highKo: '조용함', highEn: 'Quiet' },
-  { key: 'touristLevel' as const, ko: '관광지 비중', en: 'Tourist spots', lowKo: '적게', lowEn: 'Fewer', highKo: '많이', highEn: 'More' },
-];
 
-function Chip({ label, selected, disabled, onPress }: { label: string; selected: boolean; disabled?: boolean; onPress: () => void }) {
-  return (
-    <Pressable
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked: selected, disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      style={[styles.chip, selected && styles.chipOn, disabled && styles.chipOff]}
-    >
-      <Text weight="bold" color={disabled ? color.text.muted : selected ? color.text.onAction : color.text.heading}>{label}</Text>
-    </Pressable>
-  );
-}
+type Tx = (ko: string, en: string) => string;
+function labelOf(option: PlanOption, tx: Tx) { return tx(option[1], option[2]); }
+function subOf(option: PlanOption, tx: Tx) { return tx(option[3], option[4]); }
 
-function Scale({ value, onChange, lowLabel, highLabel }: { value: number | null; onChange: (next: number) => void; lowLabel: string; highLabel: string }) {
-  return (
-    <View style={styles.scaleBlock}>
-      <View style={styles.scaleRow}>
-        {[1, 2, 3, 4, 5].map((level) => (
-          <Pressable
-            key={level}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: value === level }}
-            accessibilityLabel={String(level)}
-            onPress={() => onChange(level)}
-            style={[styles.scaleDot, value === level && styles.scaleDotOn]}
-          >
-            <Text variant="caption" weight="bold" color={value === level ? color.text.onAction : color.text.heading}>{level}</Text>
-          </Pressable>
-        ))}
-      </View>
-      <View style={styles.scaleEnds}>
-        <Text variant="caption" color={color.text.muted}>{lowLabel}</Text>
-        <Text variant="caption" color={color.text.muted}>{highLabel}</Text>
-      </View>
-    </View>
-  );
-}
-
-/** 답한 내용을 한 줄로. 🔴 안 고른 칸은 적지 않는다 — 「미정」이 답처럼 보인다. */
-function summaryOf(key: QuestionKey, draft: PlanDraft, ko: boolean, skipped: boolean): string {
-  if (skipped) return ko ? '건너뜀' : 'Skipped';
-  const labels = (list: readonly (readonly [string, string, string])[], picked: string[]) =>
-    list.filter(([code]) => picked.includes(code)).map(([, k, e]) => (ko ? k : e)).join(' · ');
+/** 답한 내용을 한 줄로. 안 고른 칸은 적지 않는다 — 「미정」이 답처럼 보인다. */
+export function summaryOf(key: QuestionKey, draft: PlanDraft, tx: Tx, skipped: boolean, koNames = true): string {
+  if (skipped) return tx('건너뜀', 'Skipped');
+  const labels = (list: readonly PlanOption[], picked: string[]) =>
+    list.filter(([code]) => picked.includes(code)).map((option) => labelOf(option, tx)).join(' · ');
   switch (key) {
-    case 'areas': return labels(AREAS, draft.travelAreas);
-    case 'budget': return draft.budgetKrw ? (ko ? `${(draft.budgetKrw / 10000).toLocaleString()}만원` : `₩${draft.budgetKrw.toLocaleString()}`) : '';
+    case 'areas': return labels(AREA_OPTIONS, draft.travelAreas);
+    case 'budget': return draft.budgetKrw ? tx(`${(draft.budgetKrw / 10000).toLocaleString()}만원`, `₩${draft.budgetKrw.toLocaleString()}`) : '';
     case 'move': {
-      const transport = TRANSPORTS.find(([code]) => code === draft.transport);
+      const transport = TRANSPORT_OPTIONS.find(([code]) => code === draft.transport);
       const hours = draft.dayStartTime && draft.dayEndTime ? `${draft.dayStartTime}–${draft.dayEndTime}` : '';
-      return [hours, transport ? (ko ? transport[1] : transport[2]) : ''].filter(Boolean).join(' · ');
+      return [hours, transport ? labelOf(transport, tx) : ''].filter(Boolean).join(' · ');
     }
-    case 'cats': return labels(CATEGORIES, draft.preferences);
+    case 'cats': return labels(CATEGORY_OPTIONS, draft.preferences);
     case 'pace': {
-      const pace = PACES.find(([code]) => code === draft.paceLevel);
-      return pace ? (ko ? pace[1] : pace[2]) : '';
+      const pace = PACE_OPTIONS.find(([code]) => code === draft.paceLevel);
+      return pace ? labelOf(pace, tx) : '';
     }
-    case 'moods': return labels(ATMOSPHERES, draft.atmospheres);
-    case 'scales': return SCALES.filter((scale) => draft[scale.key] !== null)
-      .map((scale) => `${ko ? scale.ko : scale.en} ${draft[scale.key]}`).join(' · ');
-    case 'foods': return labels(FOODS, draft.foods);
     case 'aids': {
       const parts: string[] = [];
-      if (draft.wheelchair) parts.push(ko ? '휠체어' : 'Wheelchair');
-      if (draft.stroller) parts.push(ko ? '유아차' : 'Stroller');
-      if (draft.luggage) parts.push(ko ? '큰 짐' : 'Large luggage');
-      return parts.length ? parts.join(' · ') : ko ? '해당 없음' : 'None';
+      if (draft.wheelchair) parts.push(tx('휠체어', 'Wheelchair'));
+      if (draft.stroller) parts.push(tx('유아차', 'Stroller'));
+      if (draft.luggage) parts.push(tx('큰 짐', 'Large luggage'));
+      return parts.length ? parts.join(' · ') : tx('해당 없음', 'None');
     }
     case 'must': return draft.mustVisitPlaces.length
-      ? draft.mustVisitPlaces.map((place) => (ko ? place.nameKo : place.nameEn ?? place.nameKo)).join(' · ')
-      : ko ? '없음' : 'None';
+      ? draft.mustVisitPlaces.map((place) => (koNames ? place.nameKo : place.nameEn ?? place.nameKo)).join(' · ')
+      : tx('없음', 'None');
     default: return '';
   }
 }
@@ -148,44 +86,91 @@ export default function PlanConditions() {
   const router = useRouter();
   const { tx, language } = useI18n();
   const { kind } = useLayout();
+  const wide = kind !== 'phone';
   const { draft, ready, update, completeStep } = usePlan();
   const { user, accessToken } = useAuth();
   const [job, setJob] = useState<RecommendationJobSnapshot | null>(null);
   const [conditionsOpen, setConditionsOpen] = useState(false);
-  const ko = language !== 'en';
+  // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다 — S15P21E201-1296.
+  const ko = resolveTextLanguage(language) === 'ko';
   const [state, setState] = useState<QuestionState>(INITIAL_QUESTION_STATE);
-  // 🔴 자동 스크롤은 아직 안 넣었다. 화면 껍데기(Screen)가 스크롤 손잡이를 밖으로
-  //    안 내주는데, 그걸 고치는 것은 모든 화면에 걸리는 변경이라 이 티켓의 범위 밖이다.
-  //    답한 카드가 64px 짜리 한 줄로 접히므로 새 카드는 대체로 같은 자리에 온다.
-  //    카드의 y 는 재 두었다 — 손잡이가 생기면 그대로 쓴다.
-  const cardTops = useRef<Record<number, number>>({});
+  // 🔴 자리를 기기에서 잇는다 — S15P21E201-1376. 날짜를 정하러 나갔다 오거나 로그인하고
+  //    돌아와도 1번으로 안 돌아간다. 다 읽기 전에는 저장하지 않는다(빈 자리로 덮어쓴다).
+  const [stateRestored, setStateRestored] = useState(false);
+  useEffect(() => {
+    let active = true;
+    // 읽는 사이에 사람이 벌써 눌렀으면(빠른 손) 그 손을 이긴다 — 저장된 자리로 덮어쓰지 않는다.
+    loadQuestionState().then((saved) => { if (!active) return; setState((prev) => (prev === INITIAL_QUESTION_STATE ? saved : prev)); setStateRestored(true); });
+    return () => { active = false; };
+  }, []);
+  useEffect(() => { if (stateRestored) void saveQuestionState(state); }, [state, stateRestored]);
+  // 날짜 카드 — 날짜가 없으면 펼쳐진 채로 시작하고, 고르면 접힌다. 머리의 「수정」이 다시 편다.
+  const [datesOpen, setDatesOpen] = useState<boolean | null>(null);
 
-  const done = settledCount(draft, state);
-  const left = remainingCount(draft, state);
-  const finished = allSettled(draft, state);
+  const searchParams = useLocalSearchParams<{ days?: string; people?: string }>();
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (!ready || prefilled.current) return;
+    prefilled.current = true;
+    const patch = assistantPrefillPatch(searchParams, draft);
+    if (Object.keys(patch).length) update(patch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
 
-  // 🔴 미확인 필수 조건(알레르기·식단)이 남아 있나. 옛 확인 화면이 재던 것과 같은 식이다 —
-  //    「모르면 안전하다고 치지 않는다」가 이 앱의 방침이라, 비운 채로 만들지 않는다.
+  // 🔴 자리는 «질문»이다 — 시안이 3-장 묶음을 버리고 질문 하나씩 보이는 스테퍼로 돌아갔다(-1425).
+  //    예전 저장값(장 번호 0~2, 옛 질문 번호 0~9)이 남아 있어도 질문 수 안으로 잘린다.
+  const index = Math.min(state.open, PLAN_QUESTIONS.length - 1);
+  const q = PLAN_QUESTIONS[index];
+  const last = index === PLAN_QUESTIONS.length - 1;
+  // 앞의 몇 개가 필수인가 — 눈썹·진행 막대·상태 문구가 「셋 + 나머지」로 읽히게 한다.
+  const requiredCount = PLAN_QUESTIONS.filter((item) => !item.skippable).length;
+
+  const settledAt = (i: number) => isSettled(PLAN_QUESTIONS[i], draft, state);
+  // 🔴 지금보다 앞에서 실제로 지나온 것만 센다 — 아직 안 본 질문의 기본값을 세면 「남은 0개」 거짓말이 된다.
+  const settledSoFar = PLAN_QUESTIONS.filter((_, i) => i < index && settledAt(i)).length;
+
+  // 🔴 못 건너뛰는 질문 가운데 아직 안 답한 것. 마지막 단추를 잠그는 근거이자 무엇이 모자란지 말해 주는 근거다.
+  const missing = PLAN_QUESTIONS.filter((item) => !item.skippable && !item.answered(draft));
+  const requiredReady = missing.length === 0;
+
+  // 미확인 필수 조건(알레르기·식단)이 남아 있나. 「모르면 안전하다고 치지 않는다」가 방침이다.
   const hardUnknown = draft.allergyStatus === 'UNKNOWN' || draft.dietStatus === 'UNKNOWN'
     || (draft.allergyStatus === 'VALUES' && !draft.allergies.length)
     || (draft.dietStatus === 'VALUES' && !draft.dietTypes.length);
 
+  /**
+   * 🔴 -1337 — 날짜는 여기서 묻지 않는데 <b>서버는 반드시 요구한다.</b> 위쪽 「여행 만들기」로
+   * 들어오면 날짜가 비어 있다. 옆 레일(넓은 화면)·위 칩 줄(폰)이 「날짜를 아직 안 정했어요」라고
+   * 적고 있으니, 알면서 보내지 않는다.
+   */
+  const datesMissing = !draft.startDate || !draft.endDate;
+  // 🔴 출발지가 없으면 서버가 일정을 안 만들어 준다 — S15P21E201-1342. 이 앱에서 출발지를 채우는
+  //    곳은 홈 시작 바 하나뿐이다(PlanStartBar).
+  const originMissing = draft.originLat === null || draft.originLng === null;
+  // 서버가 실제로 만들 수 있는 조건 — 필수 질문 + 날짜 + 출발지. 마지막 단추가 이걸 본다.
+  const readyToBuild = missing.length === 0 && !datesMissing && !originMissing;
+
+  // 🔴 예전에는 홈의 시작 줄로 보냈다(S15P21E201-1350). 돌아오면 문항이 1번부터라 열 개를 다 답한
+  //    사람이 처음부터 다시 했다. 이제 이 화면 안의 달력 카드를 편다.
+  const goSetDates = () => setDatesOpen(true);
+  // 🔴 출발지 고르기는 검색이 붙어 있어(PlanStartBar) 여기 한 벌 더 만들지 않는다 — 시작 바를
+  //    출발지 칸이 열린 채로 연다. 「일정 물어보기」를 누르면 홈이 다시 /plan 으로 돌려보낸다.
+  const goPickOrigin = () => router.push({ pathname: wide ? '/' : '/home', params: { edit: 'origin' } });
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
-  const submitPlan = async () => {
-    // 미확인이 남았으면 **막지 않고 그 자리에서 묻는다.** 막기만 하면 물어볼 데가 없어
-    // 영영 못 만드는 상태가 된다 — 오늘 오전에 실제로 그랬다.
-    if (hardUnknown) { setConditionsOpen(true); return; }
+  /**
+   * @param afterConditions 조건 창에서 막 돌아온 길인가. 🔴 참이면 조건을 <b>다시 묻지 않는다.</b>
+   *     안 그러면 저장 → 창 열림 → 저장 → 창 열림이 되어 영영 못 나간다.
+   */
+  const submitPlan = async (afterConditions = false) => {
+    if (hardUnknown && !afterConditions) { setConditionsOpen(true); return; }
     if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan' } }); return; }
     setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
     const next = await createRecommendationJobAdapter(accessToken).submit(draft);
     setJob(next);
-    if (next.jobId) goGenerating(next.jobId);
+    if (next.jobId) { void clearQuestionState(); goGenerating(next.jobId); }
   };
 
-  // S15P21E201-549(백엔드) — 알레르기·필수 식단이 든 요청은 HEALTH_CONSTRAINTS 동의 없이 403 이다.
-  // 동의를 켜고 **같은 조건으로 곧바로 다시** 보낸다. 방금 다 답한 사람에게 단추를 한 번 더
-  // 누르게 하지 않는다. 옛 확인 화면에 있던 코드를 그대로 옮긴 것이다.
   const grantHealthConsentAndRetry = async () => {
     if (!accessToken) return;
     try {
@@ -198,23 +183,21 @@ export default function PlanConditions() {
       setJob({ state: 'failed', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: cause instanceof ApiClientError ? cause.message : tx('동의 처리에 실패했어요. 잠시 후 다시 시도해 주세요.', 'Could not save your consent. Please try again shortly.'), resultRef: null });
     }
   };
-  // 시안 p1 — 「홈에서 받은 정보」는 **칩 세 개**(출발지 · 날짜 · 인원)다. 한 줄 문자열로
-  // 이어 붙이면 폰 390 에서 잘린다.
+
   const headerChips = useMemo(() => startBarChips({
     origin: draft.origin, originLat: draft.originLat, originLng: draft.originLng,
     startDate: draft.startDate, endDate: draft.endDate,
     adults: draft.adults, children: draft.children,
-  }, ko), [draft.adults, draft.children, draft.endDate, draft.origin, draft.originLat, draft.originLng, draft.startDate, ko]);
+  }, tx), [draft.adults, draft.children, draft.endDate, draft.origin, draft.originLat, draft.originLng, draft.startDate, tx]);
 
-  const goNext = (index: number) => {
-    const next = nextOpenIndex(draft, { ...state, open: index });
-    setState((prev) => ({ ...prev, open: next, editing: null }));
+  const goTo = (next: number) => setState((prev) => ({ ...prev, open: Math.max(0, Math.min(PLAN_QUESTIONS.length - 1, next)), editing: null }));
+  /** 지금 질문을 「건너뜀」으로 적고 다음으로. 선택 질문의 카드 머리에 있는 단추가 부른다. */
+  const skipCurrent = () => {
+    setState((prev) => ({ ...prev, skipped: { ...prev.skipped, [q.key]: true } }));
+    if (!last) goTo(index + 1);
   };
-
-  const skip = (question: PlanQuestion, index: number) => {
-    setState((prev) => ({ ...prev, skipped: { ...prev.skipped, [question.key]: true } }));
-    goNext(index);
-  };
+  /** 그 질문으로 갈 수 있나 — 선택이거나, 필수를 다 채웠거나, 이미 지나온 자리면. */
+  const jumpable = (i: number) => PLAN_QUESTIONS[i].skippable || requiredReady || i <= index;
 
   const toggleIn = (list: string[], code: string, max?: number) => {
     if (list.includes(code)) return list.filter((item) => item !== code);
@@ -222,27 +205,41 @@ export default function PlanConditions() {
     return [...list, code];
   };
 
-  const body = (question: PlanQuestion) => {
-    switch (question.key) {
+  const optionGrid = (options: readonly PlanOption[], picked: string[], onPick: (code: string) => void, max?: number, images?: Record<string, number>) => (
+    <View style={styles.optionGrid}>
+      {options.map((option) => (
+        <View key={option[0]} style={styles.optionCell}>
+          <OptionCard
+            image={images?.[option[0]]}
+            label={labelOf(option, tx)}
+            sub={subOf(option, tx)}
+            selected={picked.includes(option[0])}
+            disabled={Boolean(max) && picked.length >= (max as number) && !picked.includes(option[0])}
+            onPress={() => onPick(option[0])}
+          />
+        </View>
+      ))}
+    </View>
+  );
+
+  const body = (item: PlanQuestion) => {
+    switch (item.key) {
       case 'areas':
-        return <View style={styles.chips}>{AREAS.map(([code, k, e]) => (
-          <Chip key={code} label={ko ? k : e} selected={draft.travelAreas.includes(code)}
-            onPress={() => update({ travelAreas: toggleIn(draft.travelAreas, code) })} />
-        ))}</View>;
+        return optionGrid(AREA_OPTIONS, draft.travelAreas, (code) => update({ travelAreas: toggleIn(draft.travelAreas, code) }));
       case 'budget':
         return (
           <View style={styles.stack}>
-            <Text variant="display" weight="bold">
-              {ko ? `${((draft.budgetKrw ?? 0) / 10000).toLocaleString()}만원` : `₩${(draft.budgetKrw ?? 0).toLocaleString()}`}
+            <Text variant="hero" weight="bold" color={color.text.heading}>
+              {tx(`${((draft.budgetKrw ?? 0) / 10000).toLocaleString()}만원`, `₩${(draft.budgetKrw ?? 0).toLocaleString()}`)}
             </Text>
             <View style={styles.chips}>
               {BUDGET_STEPS.map((step) => (
                 <Pressable key={step} accessibilityRole="button" onPress={() => update({ budgetKrw: (draft.budgetKrw ?? 0) + step })} style={styles.chip}>
-                  <Text weight="bold">+{ko ? `${step / 10000}만` : `${step / 1000}k`}</Text>
+                  <Text weight="bold">+{tx(`${step / 10000}만`, `${step / 1000}k`)}</Text>
                 </Pressable>
               ))}
               <Pressable accessibilityRole="button" onPress={() => update({ budgetKrw: 0 })} style={styles.chip}>
-                <Text weight="bold" color={color.brand.orange}>{tx('전체 지우기', 'Clear')}</Text>
+                <Text weight="bold" color={color.action.secondary}>{tx('전체 지우기', 'Clear')}</Text>
               </Pressable>
             </View>
           </View>
@@ -253,64 +250,40 @@ export default function PlanConditions() {
             <View style={styles.timeRow}>
               {([['dayStartTime', '시작', 'Start'], ['dayEndTime', '종료', 'End']] as const).map(([field, k, e]) => (
                 <View key={field} style={styles.timeField}>
-                  <Text variant="caption" color={color.text.muted}>{ko ? k : e}</Text>
+                  <Text variant="caption" color={color.text.muted}>{tx(k, e)}</Text>
+                  {/* 🔴 마스크를 안 꽂아서 「0800」이 그대로 서버까지 갔다. maskTimeInput 은
+                      진작 있었고 시험도 붙어 있었는데 화면 어디서도 안 썼다 (S15P21E201-1452). */}
                   <TextInput
                     value={draft[field]}
-                    onChangeText={(value) => update({ [field]: value } as Partial<PlanDraft>)}
+                    onChangeText={(value) => update({ [field]: maskTimeInput(value) } as Partial<PlanDraft>)}
                     keyboardType="number-pad"
                     maxLength={5}
                     placeholder={field === 'dayStartTime' ? '09:00' : '18:00'}
                     placeholderTextColor={color.text.muted}
-                    accessibilityLabel={ko ? k : e}
+                    accessibilityLabel={tx(k, e)}
                     style={styles.input}
                   />
                 </View>
               ))}
             </View>
-            <View style={styles.chips}>{TRANSPORTS.map(([code, k, e]) => (
-              <Chip key={code} label={ko ? k : e} selected={draft.transport === code} onPress={() => update({ transport: code })} />
-            ))}</View>
+            {/* 🔴 넘어가지 못하는 이유를 그 자리에서 말한다. 「다음」이 안 눌리는데 이유가
+                없으면 사람은 자기가 무엇을 잘못했는지 모른 채 앱을 떠난다. */}
+            {dayWindowIssue(draft) === 'FORMAT' ? (
+              <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
+                {tx('시각을 09:00 처럼 네 자리로 적어 주세요.', 'Enter the time as four digits, like 09:00.')}
+              </Text>
+            ) : dayWindowIssue(draft) === 'ORDER' ? (
+              <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
+                {tx('종료 시각은 시작 시각보다 늦어야 해요.', 'The end time must be later than the start time.')}
+              </Text>
+            ) : null}
+            {optionGrid(TRANSPORT_OPTIONS, draft.transport ? [draft.transport] : [], (code) => update({ transport: code as PlanDraft['transport'] }))}
           </View>
         );
       case 'cats':
-        return <View style={styles.chips}>{CATEGORIES.map(([code, k, e]) => (
-          <Chip key={code} label={ko ? k : e} selected={draft.preferences.includes(code)}
-            onPress={() => update({ preferences: toggleIn(draft.preferences, code, 3) })} />
-        ))}</View>;
+        return optionGrid(CATEGORY_OPTIONS, draft.preferences, (code) => update({ preferences: toggleIn(draft.preferences, code, 3) }), 3, CATEGORY_IMAGES);
       case 'pace':
-        return <View style={styles.chips}>{PACES.map(([code, k, e]) => (
-          <Chip key={code} label={ko ? k : e} selected={draft.paceLevel === code} onPress={() => update({ paceLevel: code })} />
-        ))}</View>;
-      case 'moods':
-        return <View style={styles.chips}>{ATMOSPHERES.map(([code, k, e]) => (
-          <Chip key={code} label={ko ? k : e} selected={draft.atmospheres.includes(code)}
-            onPress={() => update({ atmospheres: toggleIn(draft.atmospheres, code) })} />
-        ))}</View>;
-      case 'scales':
-        return <View style={styles.stack}>{SCALES.map((scale) => (
-          <View key={scale.key} style={styles.stack}>
-            <Text weight="bold">{ko ? scale.ko : scale.en}</Text>
-            <Scale
-              value={draft[scale.key]}
-              onChange={(level) => update({ [scale.key]: level } as Partial<PlanDraft>)}
-              lowLabel={ko ? scale.lowKo : scale.lowEn}
-              highLabel={ko ? scale.highKo : scale.highEn}
-            />
-          </View>
-        ))}</View>;
-      case 'foods':
-        return <View style={styles.chips}>{FOODS.map(([code, k, e]) => {
-          // 🔴 알레르기·식단과 부딪히는 음식은 고를 수 없게 하고 **왜인지 같이 적는다.**
-          //    그냥 흐리게만 두면 사람은 「고장났나」로 읽는다.
-          const conflict = conflictingFoodCode(code, draft.allergies, draft.dietTypes);
-          return (
-            <View key={code} style={styles.foodWrap}>
-              <Chip label={ko ? k : e} selected={draft.foods.includes(code)} disabled={conflict !== null}
-                onPress={() => update({ foods: toggleIn(draft.foods, code) })} />
-              {conflict ? <Text variant="caption" color={color.text.muted}>{tx(...CONFLICT_LABEL_PAIR[conflict.code])}</Text> : null}
-            </View>
-          );
-        })}</View>;
+        return optionGrid(PACE_OPTIONS, draft.paceLevel ? [draft.paceLevel] : [], (code) => update({ paceLevel: code as PlanDraft['paceLevel'] }));
       case 'aids':
         return <View style={styles.stack}>{([
           ['wheelchair', '휠체어를 써요', 'I use a wheelchair'],
@@ -318,28 +291,30 @@ export default function PlanConditions() {
           ['luggage', '큰 짐이 있어요', 'I have large luggage'],
         ] as const).map(([field, k, e]) => (
           <View key={field} style={styles.binaryRow}>
-            <Text style={styles.binaryLabel}>{ko ? k : e}</Text>
+            <Text style={styles.binaryLabel}>{tx(k, e)}</Text>
             <View style={styles.chips}>
-              <Chip label={tx('예', 'Yes')} selected={draft[field] === true} onPress={() => update({ [field]: true } as Partial<PlanDraft>)} />
-              <Chip label={tx('아니요', 'No')} selected={draft[field] === false} onPress={() => update({ [field]: false } as Partial<PlanDraft>)} />
+              {([[true, '예', 'Yes'], [false, '아니요', 'No']] as const).map(([value, yk, ye]) => (
+                <Pressable
+                  key={String(value)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: draft[field] === value }}
+                  onPress={() => update({ [field]: value } as Partial<PlanDraft>)}
+                  style={[styles.chip, draft[field] === value && styles.chipOn]}
+                >
+                  <Text weight="bold" color={draft[field] === value ? color.text.onAction : color.text.heading}>{tx(yk, ye)}</Text>
+                </Pressable>
+              ))}
             </View>
           </View>
         ))}</View>;
       case 'must':
         return (
-          <View style={styles.stack}>
-            {draft.mustVisitPlaces.length ? (
-              <View style={styles.chips}>{draft.mustVisitPlaces.map((place) => (
-                <Chip key={place.placeId} label={ko ? place.nameKo : place.nameEn ?? place.nameKo} selected
-                  onPress={() => update({ mustVisitPlaces: draft.mustVisitPlaces.filter((item) => item.placeId !== place.placeId) })} />
-              ))}</View>
-            ) : null}
-            {/* 🔴 여기서는 장소를 새로 찾지 않는다. 검색은 기존 화면에 있고, 두 벌을 두면
-                한쪽만 고치는 날이 온다. 지금은 고른 것을 보여 주고 빼는 것까지만 한다. */}
-            <Text variant="caption" color={color.text.muted}>
-              {tx('꼭 가고 싶은 곳이 있으면 여행을 만든 뒤 일정 화면에서 더할 수 있어요.', 'You can add must-visit places from the itinerary screen after your trip is created.')}
-            </Text>
-          </View>
+          <MustVisitSearch
+            picked={draft.mustVisitPlaces}
+            onChange={(next) => update({ mustVisitPlaces: next })}
+            tx={tx}
+            ko={ko}
+          />
         );
       default:
         return null;
@@ -348,171 +323,392 @@ export default function PlanConditions() {
 
   if (!ready) return <Screen scroll><Text>{tx('불러오는 중이에요…', 'Loading…')}</Text></Screen>;
 
-  return (
-    
-      <Screen scroll wide={kind !== 'phone'} style={styles.canvas}>
-        {/* 🔴 폰에는 뒤로 가기와 현재 걸음을 위에 둔다 — 시안 p1 모바일. 넓은 화면에는
-            위 내비가 있어서 이 줄이 없다(시안도 그렇다). */}
-        {kind === 'phone' ? (
-          <View style={styles.phoneTop}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={tx('뒤로 가기', 'Go back')}
-              onPress={() => (router.canGoBack() ? router.back() : router.replace('/home'))}
-              style={styles.phoneBack}
-            >
-              <Text variant="title">‹</Text>
-            </Pressable>
-            <Text variant="caption" color={color.text.muted}>{tx(`${Math.min(state.open + 1, PLAN_QUESTIONS.length)} / ${PLAN_QUESTIONS.length}`, `${Math.min(state.open + 1, PLAN_QUESTIONS.length)} / ${PLAN_QUESTIONS.length}`)}</Text>
-          </View>
-        ) : null}
+  const stepEyebrow = q.skippable
+    ? txf(tx, '선택 %s / %s', 'Optional %s / %s', index + 1 - requiredCount, PLAN_QUESTIONS.length - requiredCount)
+    : txf(tx, '필수 %s / %s', 'Required %s / %s', index + 1, requiredCount);
+  const stepTitle = q.skippable
+    ? tx('더 답하면 일정이 좋아져요', 'A few more and the plan gets better')
+    : txf(tx, '필수 질문은 %s개뿐이에요', 'Just %s required questions', requiredCount);
+  const fillPct = Math.round((settledSoFar / PLAN_QUESTIONS.length) * 100);
+  const dateLabel = dateRangeLabel({ startDate: draft.startDate, endDate: draft.endDate }, tx);
+  const showDateCard = datesOpen ?? datesMissing;
+  const effect = effectOf(q.key, draft, tx);
+  // 선택 질문은 언제나 「다음」이 열린다(누르면 넘어가고, 「건너뛰기」가 따로 표로 남긴다).
+  const canNext = q.answered(draft) || q.skippable;
+  const statusLine = requiredReady
+    ? readyToBuild
+      ? txf(tx, '이제 만들 수 있어요 · 남은 %s개는 답할수록 일정이 좋아지는 질문이에요', 'You can build now · the remaining %s tune the plan to you', PLAN_QUESTIONS.length - settledSoFar)
+      : originMissing
+        ? tx('필수 질문은 다 답했어요 · 출발지만 고르면 만들 수 있어요', 'Required questions done · just pick a starting point to build')
+        : tx('필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요', 'Required questions done · just pick your dates to build')
+    : txf(tx, '필수 %s개만 답하면 만들 수 있어요 · 나머지는 건너뛰어도 돼요', 'Answer the %s required questions to build · the rest are optional', requiredCount);
 
-        <View style={styles.header}>
-          <Text variant="display" weight="bold">{tx('여행 조건 알려주기', 'Tell us about your trip')}</Text>
-          <Text color={color.text.muted}>{kind === 'phone' ? tx('하나씩만 답해 주세요.', 'One question at a time.') : tx('하나씩만 답해 주세요. 답한 만큼 다음 질문이 열려요.', 'One at a time — the next question opens as you answer.')}</Text>
+  // ── 어디서나 쓰는 조각들 ──────────────────────────────────────────────────
+
+  // 🔴 출발지 — 없으면 여기서 짚어 준다(S15P21E201-1342). 다 답하고 「만들기」를 누른 뒤에야
+  //    서버 원문으로 막히던 것을 앞으로 당긴다.
+  const originAsk = originMissing ? (
+    <Pressable accessibilityRole="button" onPress={goPickOrigin} style={({ pressed }) => [styles.originAsk, pressed && styles.pressed]}>
+      <Text variant="body" weight="bold" color={color.text.heading}>{tx('어디에서 출발하세요?', 'Where are you starting from?')}</Text>
+      <Text variant="caption" color={color.text.muted}>{tx('출발지를 골라야 일정을 만들 수 있어요 · 눌러서 고르기', 'We need a starting point to build your trip · tap to choose')}</Text>
+    </Pressable>
+  ) : null;
+
+  // 날짜 — 문항 화면 안에서 고른다(S15P21E201-1376). 없으면 펼친 카드로.
+  const dateCardEl = showDateCard ? (
+    <DateRangeCard
+      value={{ startDate: draft.startDate, endDate: draft.endDate }}
+      onChange={(next) => update({ startDate: next.startDate, endDate: next.endDate })}
+      onDone={() => setDatesOpen(false)}
+      tx={tx}
+    />
+  ) : null;
+
+  const questionCard = (
+    <View key={q.key} style={[styles.card, wide ? styles.cardWide : styles.cardPhone]}>
+      <View style={styles.cardHead}>
+        <View style={styles.cardCopy}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>
+            {q.skippable ? tx('선택 · 건너뛰어도 돼요', 'Optional · you can skip') : tx('필수', 'Required')}
+          </Text>
+          <Text variant="title" weight="bold">{tx(q.ko, q.en)}</Text>
+          <Text color={color.text.muted}>{tx(q.hintKo, q.hintEn)}</Text>
         </View>
-
-        {headerChips.length ? (
-          <View style={styles.given}>
-            <View style={styles.givenRow}>
-              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('홈에서 받은 정보', 'From the home screen')}</Text>
-              {headerChips.map((chip) => (
-                <View key={chip} style={styles.givenChip}><Text variant="caption" weight="bold">{chip}</Text></View>
-              ))}
-              {/* 🔴 「수정」은 **홈으로** 간다. 전에는 `/plan` 이라 지금 보고 있는 이 화면을
-                  다시 열었고, 눌러도 아무 일이 안 났다 — 이 값들을 고치는 자리는 홈의 시작 바다. */}
-              <Pressable accessibilityRole="button" onPress={() => router.push(kind === 'phone' ? '/home' : '/')} style={styles.givenEdit}>
-                <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('수정', 'Edit')}</Text>
-              </Pressable>
-            </View>
-          </View>
+        {q.skippable ? (
+          <Pressable accessibilityRole="button" onPress={skipCurrent} style={styles.skip}>
+            <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('건너뛰기', 'Skip')}</Text>
+          </Pressable>
         ) : null}
+      </View>
+      {body(q)}
+      {effect ? <EffectBand text={effect} tx={tx} /> : null}
+    </View>
+  );
 
-        <View style={styles.progressRow}>
-          <Text variant="caption" color={color.text.muted}>{tx(`질문 ${Math.min(state.open + 1, PLAN_QUESTIONS.length)} / ${PLAN_QUESTIONS.length}`, `Question ${Math.min(state.open + 1, PLAN_QUESTIONS.length)} / ${PLAN_QUESTIONS.length}`)}</Text>
-          <Text variant="caption" color={color.text.muted}>{tx(`남은 질문 ${left}개`, `${left} left`)}</Text>
+  const navRow = (
+    <View style={styles.navRow}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ disabled: index === 0 }}
+        disabled={index === 0}
+        onPress={() => goTo(index - 1)}
+        style={({ pressed }) => [styles.prev, index === 0 && styles.prevOff, pressed && styles.pressed]}
+      >
+        <Text weight="bold" color={index === 0 ? color.text.muted : color.text.heading}>{tx('이전', 'Back')}</Text>
+      </Pressable>
+      <View style={styles.next}>
+        <Button
+          accessibilityState={{ busy: job?.state === 'submitting' }}
+          label={last
+            ? job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('이 조건으로 일정 만들기', 'Build my itinerary')
+            : tx('다음', 'Next')}
+          disabled={last ? missing.length > 0 || datesMissing || originMissing || job?.state === 'submitting' : !canNext}
+          onPress={() => {
+            completeStep(index + 1);
+            if (last) { if (readyToBuild) void submitPlan(); }
+            else goTo(index + 1);
+          }}
+        />
+      </View>
+    </View>
+  );
+
+  // 마지막 자리에서 왜 못 만드는지 — 잠근 이유를 반드시 말한다. 잠그기만 하면 고장인 줄 안다.
+  const submitAlerts = (
+    <>
+      {last && missing.length ? (
+        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
+          {txf(tx, '아직 안 답한 게 있어요: %s', 'Still missing: %s', missing.map((item) => tx(item.ko, item.en)).join(' · '))}
+        </Text>
+      ) : null}
+      {last && requiredReady && originMissing ? (
+        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('출발지를 골라야 만들 수 있어요 · 위에서 골라 주세요', 'Pick a starting point above to build')}</Text>
+      ) : null}
+      {last && requiredReady && !originMissing && datesMissing ? (
+        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('날짜를 정해야 만들 수 있어요 · 위에서 골라 주세요', 'Pick your dates above to build')}</Text>
+      ) : null}
+      {last && hardUnknown ? (
+        <Text variant="caption" color={color.state.danger}>{tx('알레르기·식단을 아직 안 알려주셨어요. 눌러서 알려주세요.', 'We still need your allergy and diet answers — tap to add them.')}</Text>
+      ) : null}
+      {job?.state === 'consent-required' && job.requiredConsent === 'HEALTH_CONSTRAINTS' ? (
+        <View style={styles.consent}>
+          <Text accessibilityRole="alert" variant="caption" weight="bold">{tx('알레르기·식단 정보 사용에 동의가 필요해요', 'We need your consent to use allergy/diet info')}</Text>
+          <Text variant="caption" color={color.text.body}>{tx('입력하신 조건으로 안전한 곳만 고르려면 이 정보를 써야 해요.', 'We need this information to pick places that are safe for you.')}</Text>
+          <Button label={tx('동의하고 계속', 'Agree and continue')} variant="tertiary" onPress={() => void grantHealthConsentAndRetry()} />
         </View>
-        <View style={styles.track}><View style={[styles.fill, { width: `${(done / PLAN_QUESTIONS.length) * 100}%` }]} /></View>
+      ) : null}
+      {job?.errorMessage && job.state !== 'consent-required' ? (
+        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, job.errorMessage)}</Text>
+      ) : null}
+    </>
+  );
 
-        {PLAN_QUESTIONS.map((question, index) => {
-          const open = state.editing === question.key || (state.editing === null && index === state.open);
-          const past = index < state.open || (state.editing !== null && state.editing !== question.key && index <= state.open);
-          if (!open && !past) return null;
-          const skipped = Boolean(state.skipped[question.key]);
-
-          if (!open) {
-            return (
-              <View key={question.key} style={styles.doneRow} onLayout={(event) => { cardTops.current[index] = event.nativeEvent.layout.y; }}>
-                <View style={[styles.tick, isSettled(question, draft, state) && styles.tickOn]}>
-                  <Text variant="caption" weight="bold" color={isSettled(question, draft, state) ? color.text.onAction : color.text.muted}>✓</Text>
-                </View>
-                <View style={styles.doneCopy}>
-                  <Text variant="caption" color={color.text.muted}>{ko ? question.ko : question.en}</Text>
-                  <Text weight="bold" numberOfLines={1}>{summaryOf(question.key, draft, ko, skipped) || tx('안 고름', 'Not chosen')}</Text>
-                </View>
-                <Pressable accessibilityRole="button" onPress={() => setState((prev) => ({ ...prev, editing: question.key }))}>
-                  <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('수정', 'Edit')}</Text>
-                </Pressable>
-              </View>
-            );
-          }
-
+  // ── 넓은 화면 왼쪽 레일 — 「이번 여행」 카드 + 일곱 줄 체크리스트 ─────────────
+  const rail = (
+    <View style={styles.rail}>
+      <View style={styles.tripCard}>
+        <View style={styles.tripCardHead}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이번 여행', 'This trip')}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('이번 여행 수정', 'Edit this trip')} onPress={() => router.push('/')}>
+            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('수정', 'Edit')}</Text>
+          </Pressable>
+        </View>
+        <Text weight="bold" numberOfLines={1}>{headerChips[0] ?? tx('날짜를 아직 안 정했어요', 'No dates yet')}</Text>
+        {headerChips.slice(1).length ? (
+          <Text variant="caption" color={color.text.muted} numberOfLines={1}>{headerChips.slice(1).join(' · ')}</Text>
+        ) : null}
+      </View>
+      <View style={styles.checklist}>
+        {PLAN_QUESTIONS.map((item, i) => {
+          const now = i === index;
+          const done = i < index && settledAt(i);
+          const value = done
+            ? summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko)
+            : item.skippable ? tx('선택', 'Optional') : tx('필수', 'Required');
           return (
-            <View key={question.key} style={styles.card} onLayout={(event) => { cardTops.current[index] = event.nativeEvent.layout.y; }}>
-              <View style={styles.cardHead}>
-                <View style={styles.cardCopy}>
-                  <Text variant="caption" weight="bold" color={color.brand.orange}>{index + 1} / {PLAN_QUESTIONS.length}</Text>
-                  <Text variant="title" weight="bold">{ko ? question.ko : question.en}</Text>
-                  <Text variant="caption" color={color.text.muted}>{ko ? question.hintKo : question.hintEn}</Text>
-                </View>
-                {question.skippable ? (
-                  <Pressable accessibilityRole="button" onPress={() => skip(question, index)}>
-                    <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('건너뛰기', 'Skip')}</Text>
-                  </Pressable>
-                ) : null}
+            <Pressable
+              key={item.key}
+              accessibilityRole="button"
+              accessibilityState={{ selected: now, disabled: !jumpable(i) }}
+              disabled={!jumpable(i)}
+              onPress={() => goTo(i)}
+              style={[styles.checkRow, now && styles.checkRowNow]}
+            >
+              <View style={[styles.checkDot, now && styles.checkDotNow, done && styles.checkDotDone]}>
+                <Text variant="micro" weight="bold" color={now || done ? color.text.onAction : color.text.muted}>{done ? '✓' : String(i + 1)}</Text>
               </View>
-
-              {body(question)}
-
-              <Button
-                label={index === PLAN_QUESTIONS.length - 1 ? tx('입력 완료', 'Done') : tx('다음', 'Next')}
-                disabled={!canAdvance(question, draft)}
-                onPress={() => {
-                  completeStep(index + 1);
-                  if (state.editing) setState((prev) => ({ ...prev, editing: null }));
-                  else goNext(index);
-                }}
-              />
-            </View>
+              <View style={styles.checkBody}>
+                <Text variant="caption" weight={now ? 'bold' : 'medium'} color={now ? color.text.heading : color.text.body} numberOfLines={1}>{tx(item.ko, item.en)}</Text>
+                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{value}</Text>
+              </View>
+            </Pressable>
           );
         })}
+      </View>
+    </View>
+  );
 
-        {finished ? (
-          <View style={styles.finish}>
-            <Text variant="title" weight="bold">{tx('다 됐어요. 이 조건으로 일정을 만들까요?', 'All set — shall we build your itinerary?')}</Text>
-            {hardUnknown ? (
-              <Text variant="caption" color={color.state.danger}>{tx('알레르기·식단을 아직 안 알려주셨어요. 눌러서 알려주세요.', 'We still need your allergy and diet answers — tap to add them.')}</Text>
-            ) : null}
-            {job?.state === 'consent-required' && job.requiredConsent === 'HEALTH_CONSTRAINTS' ? (
-              <View style={styles.consent}>
-                <Text accessibilityRole="alert" variant="caption" weight="bold">{tx('알레르기·식단 정보 사용에 동의가 필요해요', 'We need your consent to use allergy/diet info')}</Text>
-                <Text variant="caption" color={color.text.body}>{tx('입력하신 조건으로 안전한 곳만 고르려면 이 정보를 써야 해요.', 'We need this information to pick places that are safe for you.')}</Text>
-                <Button label={tx('동의하고 계속', 'Agree and continue')} variant="ghost" onPress={() => void grantHealthConsentAndRetry()} />
+  // ── 넓은 화면 오른쪽 기둥 — 눈썹·진행 막대·질문 카드·이전/다음 ─────────────
+  const desktopColumn = (
+    <View style={styles.questions}>
+      <View style={styles.stepCopy}>
+        <Text variant="caption" weight="bold" color={color.text.eyebrow}>{stepEyebrow}</Text>
+        <Text variant="title" weight="bold">{stepTitle}</Text>
+      </View>
+      <View style={styles.track}><View style={[styles.fill, { width: `${fillPct}%` }]} /></View>
+      {originAsk}
+      {dateCardEl}
+      {questionCard}
+      {navRow}
+      {submitAlerts}
+    </View>
+  );
+
+  // ── 폰 — 위 칩 줄 · StepDots · 상태 문구 · 답한 행 · 질문 카드 · 다음 질문 ──
+  const answeredQuestions = PLAN_QUESTIONS.map((item, i) => ({ item, i })).filter(({ i }) => i < index && settledAt(i));
+  const upcomingList = PLAN_QUESTIONS.slice(index + 1);
+  const mobileColumn = (
+    <View style={styles.questions}>
+      <View style={styles.stepHead}>
+        <View style={styles.stepCopy}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{stepEyebrow}</Text>
+          <Text variant="title" weight="bold">{stepTitle}</Text>
+        </View>
+        <StepDots
+          total={PLAN_QUESTIONS.length}
+          required={requiredCount}
+          index={index}
+          settled={settledAt}
+          onJump={(i) => { if (jumpable(i)) goTo(i); }}
+          label={(i) => tx(PLAN_QUESTIONS[i].ko, PLAN_QUESTIONS[i].en)}
+        />
+      </View>
+      <View style={styles.track}><View style={[styles.fill, { width: `${fillPct}%` }]} /></View>
+      <Text variant="caption" color={color.text.muted}>{statusLine}</Text>
+
+      {originAsk}
+      {dateCardEl}
+
+      {answeredQuestions.length || (!originMissing) || (!showDateCard && dateLabel) ? (
+        <View style={styles.answeredList}>
+          {!originMissing ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('출발지 수정', 'Edit starting point')} onPress={goPickOrigin} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
+              <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+              <View style={styles.answeredBody}>
+                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx('출발지', 'Starting point')}</Text>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{draft.origin || tx('고른 곳', 'Chosen')}</Text>
               </View>
-            ) : null}
-            {job?.errorMessage && job.state !== 'consent-required' ? (
-              <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{job.errorMessage}</Text>
-            ) : null}
-            <Button
-              accessibilityState={{ busy: job?.state === 'submitting' }}
-              label={job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('이 조건으로 일정 만들기', 'Build my itinerary')}
-              onPress={() => void submitPlan()}
-            />
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
+            </Pressable>
+          ) : null}
+          {!showDateCard && dateLabel ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('여행 날짜 수정', 'Edit trip dates')} onPress={() => setDatesOpen(true)} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
+              <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+              <View style={styles.answeredBody}>
+                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx('여행 날짜', 'Trip dates')}</Text>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{dateLabel}</Text>
+              </View>
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
+            </Pressable>
+          ) : null}
+          {answeredQuestions.map(({ item, i }) => (
+            <Pressable key={item.key} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 수정', 'Edit %s', tx(item.ko, item.en))} onPress={() => goTo(i)} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
+              <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+              <View style={styles.answeredBody}>
+                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx(item.ko, item.en)}</Text>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko) || tx('건너뜀', 'Skipped')}</Text>
+              </View>
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+
+      {questionCard}
+      {navRow}
+      {submitAlerts}
+
+      {upcomingList.length ? (
+        <View style={styles.upcoming}>
+          <Text variant="micro" weight="bold" color={color.text.eyebrow}>{tx('다음 질문', 'Coming up')}</Text>
+          {upcomingList.map((item, offset) => {
+            const i = index + 1 + offset;
+            return (
+              <Pressable key={item.key} accessibilityRole="button" disabled={!jumpable(i)} onPress={() => goTo(i)} style={({ pressed }) => [styles.upcomingRow, pressed && styles.pressed]}>
+                <View style={styles.upcomingNo}><Text variant="micro" weight="bold" color={color.text.muted}>{i + 1}</Text></View>
+                <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.upcomingLabel}>{tx(item.ko, item.en)}</Text>
+                <Text variant="micro" weight={item.skippable ? 'regular' : 'bold'} color={item.skippable ? color.text.muted : color.text.body}>{item.skippable ? tx('선택', 'optional') : tx('필수', 'required')}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
+    </View>
+  );
+
+  return (
+    <Screen scroll wide={wide} style={styles.canvas}>
+      {/* 🔴 폰은 위 줄 하나에 뒤로 가기와 홈에서 받은 칩(출발·날짜·인원)을 같이 둔다(시안 01b).
+          걸음 수는 바로 아래 눈썹이 이미 말하므로 여기 또 적지 않는다. 넓은 화면은 왼쪽 레일이 대신한다. */}
+      {wide ? null : (
+        <View style={styles.phoneTop}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={tx('뒤로 가기', 'Go back')}
+            onPress={() => (router.canGoBack() ? router.back() : router.replace('/home'))}
+            style={styles.phoneBack}
+          >
+            <Text variant="title">‹</Text>
+          </Pressable>
+          {/* 🔴 칩은 줄을 바꾸지 않는다 — 셋(출발·날짜·인원)이 두 줄로 깨져 「성인 1」이 따로 놀았다
+              (2026-09-21 실기, S15P21E201-1401). 넘치면 가로로 밀어 본다. */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={styles.phoneChipsScroll} contentContainerStyle={styles.phoneChips}>
+            {headerChips.map((chip) => (
+              <View key={chip} style={styles.phoneGivenChip}><Text variant="caption" weight="bold" numberOfLines={1}>{chip}</Text></View>
+            ))}
+          </ScrollView>
+          <View>
+            {/* 🔴 -1337 — 받은 것이 없을 때도 그린다. 없으면 「날짜 정하기」로 말만 바꾼다. */}
+            <Pressable accessibilityRole="button" onPress={goSetDates} style={styles.phoneGivenEdit}>
+              <Text variant="caption" weight="bold" color={color.action.secondary}>
+                {headerChips.length ? tx('수정', 'Edit') : tx('날짜 정하기', 'Set dates')}
+              </Text>
+            </Pressable>
           </View>
-        ) : null}
-        <ConditionsPromptModal visible={conditionsOpen} reprompt onClose={() => setConditionsOpen(false)} />
-      </Screen>
-    
+        </View>
+      )}
+
+      {wide ? (
+        <View style={styles.split}>
+          {rail}
+          {desktopColumn}
+        </View>
+      ) : (
+        mobileColumn
+      )}
+
+      {/*
+        🔴 -1334 — 닫힐 때 무엇을 골랐는지를 반드시 본다. ✕ 로 닫은 것(DISMISSED)만 그 자리에
+        남고, 건너뛰든 저장하든 가려던 곳으로 간다 — 홈 화면이 이미 같은 규칙을 쓴다.
+      */}
+      <ConditionsPromptModal
+        visible={conditionsOpen}
+        reprompt
+        onClose={(outcome) => {
+          setConditionsOpen(false);
+          if (outcome !== 'DISMISSED') void submitPlan(true);
+        }}
+      />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  consent: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
-  // 🔴 시안의 본문 폭은 1200 이다 (PlanFlow.dc.html). Screen 의 wide 는 1440 이라 240px 넓다 (S15P21E201-1245).
-  canvas: { maxWidth: 1200 },
-  header: { gap: spacing[2], marginTop: spacing[6] },
-  phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  canvas: { backgroundColor: color.canvas },
+  // 시안: justify-content:center · gap 32. 레일(280)과 카드(760)를 가운데로 모은다.
+  split: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: spacing[8], marginTop: spacing[6] },
+  questions: { flex: 1, minWidth: 0, maxWidth: 760, gap: spacing[3] },
+
+  // 왼쪽 레일 — 스크롤해도 붙어 있다(position: sticky 는 웹에서만 먹지만 RN 웹이 대상이다).
+  rail: { width: 280, flexShrink: 0, gap: spacing[3], position: 'sticky' as unknown as 'relative', top: spacing[6] },
+  tripCard: { gap: spacing[1], paddingVertical: spacing[3], paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
+  tripCardHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  checklist: { gap: 2, padding: spacing[2], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingVertical: spacing[1], paddingHorizontal: spacing[2], borderRadius: radius.md },
+  checkRowNow: { backgroundColor: color.surface.tint },
+  checkDot: { width: 24, height: 24, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
+  checkDotNow: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  checkDotDone: { backgroundColor: color.state.success, borderColor: color.state.success },
+  checkBody: { flex: 1, minWidth: 0 },
+
+  phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginBottom: spacing[3] },
+  phoneChipsScroll: { flex: 1, minWidth: 0 },
+  phoneChips: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], paddingRight: spacing[1] },
   phoneBack: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing[3] },
-  given: { gap: spacing[1], marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
-  // 시안 p1 — 칩이 한 줄로 서고, 좁으면 줄이 바뀐다. 「수정」은 항상 끝에 붙는다.
-  givenRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2] },
-  givenChip: { paddingHorizontal: spacing[3], paddingVertical: 6, borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
-  givenEdit: { marginLeft: 'auto', minHeight: 32, justifyContent: 'center' },
-  progressRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing[4] },
-  track: { height: 4, marginTop: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.field, overflow: 'hidden' },
-  fill: { height: 4, borderRadius: radius.full, backgroundColor: color.brand.orange },
-  card: { gap: spacing[4], marginTop: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  phoneGivenChip: { paddingHorizontal: spacing[3], paddingVertical: 6, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
+  phoneGivenEdit: { minHeight: 44, paddingLeft: spacing[2], justifyContent: 'center' },
+
+  stepHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
+  stepCopy: { flex: 1, minWidth: 0, gap: 2 },
+  track: { height: 4, borderRadius: radius.full, backgroundColor: color.surface.field, overflow: 'hidden' },
+  fill: { height: 4, borderRadius: radius.full, backgroundColor: color.action.secondary },
+
+  card: { gap: spacing[4], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
+  cardWide: {},
+  cardPhone: { padding: spacing[4] },
   cardHead: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] },
-  cardCopy: { flex: 1, gap: spacing[1] },
-  doneRow: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.soft },
-  doneCopy: { flex: 1 },
-  tick: { width: 28, height: 28, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.field },
-  tickOn: { backgroundColor: color.state.success },
+  cardCopy: { flex: 1, minWidth: 0, gap: spacing[1] },
+  skip: { minHeight: 32, justifyContent: 'center' },
+
+  optionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  // 시안의 auto-fill minmax(150px,1fr) 을 RN 에서 흉내 낸다 — RN 에는 grid 가 없다.
+  optionCell: { flexGrow: 1, flexBasis: 140, minWidth: 140 },
+
+  navRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  prev: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
+  prevOff: { opacity: 0.5 },
+  next: { flex: 1 },
+  pressed: { opacity: 0.8 },
+
+  // 🔴 출발지를 묻는 자리. 날짜 카드와 같은 무게로 둔다 — 둘 다 없으면 못 만든다.
+  originAsk: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.action.primary, backgroundColor: color.surface.card },
+  answeredList: { gap: spacing[1] },
+  answeredRowItem: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  answeredCheck: { width: 18, height: 18, borderRadius: radius.full, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' },
+  answeredBody: { flex: 1, paddingVertical: spacing[1] },
+  upcoming: { gap: 2, marginTop: spacing[2] },
+  upcomingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[2] },
+  upcomingNo: { width: 22, height: 22, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center' },
+  upcomingLabel: { flex: 1 },
+  consent: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
+
   stack: { gap: spacing[3] },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   chip: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.ivory, borderWidth: 1, borderColor: color.surface.border },
   chipOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  chipOff: { backgroundColor: color.surface.subtle, borderColor: color.surface.border },
-  foodWrap: { gap: 2 },
   timeRow: { flexDirection: 'row', gap: spacing[3] },
   timeField: { flex: 1, gap: spacing[1] },
   input: { minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, color: color.text.heading },
-  scaleBlock: { gap: spacing[1] },
-  scaleRow: { flexDirection: 'row', gap: spacing[2] },
-  scaleDot: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border },
-  scaleDotOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  scaleEnds: { flexDirection: 'row', justifyContent: 'space-between' },
   binaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
   binaryLabel: { flex: 1 },
-  finish: { gap: spacing[3], marginTop: spacing[6], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.warm },
 });

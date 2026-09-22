@@ -8,6 +8,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { ThreeStepScore } from '@/review/placeReviews';
 import { Text } from './Text';
+import { localizeMessage } from '@/i18n/messages';
 
 const CATEGORIES: Array<{ key: 'food' | 'price' | 'accessibility' | 'onsite'; labelKo: string; labelEn: string }> = [
   { key: 'food', labelKo: '음식', labelEn: 'Food' },
@@ -98,7 +99,7 @@ export function PlaceReviewModal({ visible, placeTitle, onClose, onSubmit }: Pla
             />
           </ScrollView>
 
-          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{error}</Text> : null}
+          {error ? <Text accessibilityRole="alert" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
 
           <Pressable accessibilityRole="button" accessibilityState={{ disabled: !hasAnyScore || submitting }} disabled={!hasAnyScore || submitting} onPress={() => void submit()} style={[styles.submitButton, (!hasAnyScore || submitting) && styles.submitButtonDisabled]}>
             {submitting ? <ActivityIndicator color={color.text.onAction} /> : <Text variant="body" weight="bold" color={color.text.onAction}>{tx('평가 제출', 'Submit review')}</Text>}
@@ -110,19 +111,19 @@ export function PlaceReviewModal({ visible, placeTitle, onClose, onSubmit }: Pla
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   card: { width: '100%', maxWidth: 420, maxHeight: '86%', gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   header: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[2] },
   grow: { flex: 1, gap: spacing[1] },
-  closeButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card },
+  closeButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.action.tertiary },
   pressed: { opacity: 0.72 },
   body: { flexGrow: 0 },
   bodyContent: { gap: spacing[3], paddingBottom: spacing[2] },
   categoryRow: { gap: spacing[2] },
   stepRow: { flexDirection: 'row', gap: spacing[2] },
   stepOption: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
-  stepOptionSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  stepOptionSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   bodyInput: { minHeight: 72, padding: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },
-  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange },
+  submitButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.action.primary },
   submitButtonDisabled: { opacity: 0.5 },
 });

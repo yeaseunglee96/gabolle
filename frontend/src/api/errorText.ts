@@ -1,28 +1,53 @@
-// 서버 오류를 **사람이 읽는 문장**으로 바꾼다 — S15P21E201-1245 (2026-09-18).
-//
-// 🔴 실기기에서 「`error.trip.validation`」이 화면에 그대로 찍혔다. 조건을 다 채웠는데
-//    일정이 안 만들어졌고, 무엇이 문제인지 알 길이 없었다.
-//
-//    원인은 **서버가 message 자리에 메시지 키를 넣는 것**이다. 백엔드도 알고 적어 뒀다
-//    (`PlaceExceptionHandler` 의 주석: *「TripExceptionHandler 는 message 자리에
-//    "error.trip.validation" 같은 키를 넣고, auth 쪽은 한국어 문장을 넣는다. 둘이 갈려 있다.
-//    프런트는 error.message 를 그대로 화면에 띄운다」*). place·auth 는 문장을 넣고
-//    trip 은 키를 넣는다.
-//
-// 🔴 **서버를 고칠 때까지 기다리지 않는다.** 키가 보이는 것은 화면의 잘못이기도 하다 —
-//    받은 것을 검사 없이 그대로 찍고 있었다.
-//
-// 🔴 **어느 칸이 막혔는지는 이미 오고 있었다.** `ApiError` 의 `fields` 에
-//    「칸이름: 사유」 줄이 담겨 오는데(TripExceptionHandler 셋 다 채운다) 화면이 버리고
-//    있었다. 그게 사용자에게 가장 쓸모 있는 정보라 **그것을 먼저 보여준다.**
+// 실기기에서 「`error.trip.validation`」이 화면에 그대로 찍혔다. 조건을 다 채웠는데
+// 일정이 안 만들어졌고, 무엇이 문제인지 알 길이 없었다.
 import { ApiClientError } from '@/api/client';
 
-/** 「error.trip.validation」처럼 **문장이 아니라 키**인가. */
+/** 「error.trip.validation」처럼 문장이 아니라 키인가. */
 export function looksLikeMessageKey(message: string): boolean {
   const text = message.trim();
   if (!text || /\s/.test(text)) return false;
   // 점으로 이어진 영문 토큰 둘 이상 — error.trip.validation · trip.notFound
   return /^[a-z][a-z0-9]*(\.[a-zA-Z][a-zA-Z0-9]*)+$/.test(text);
+}
+
+/**
+ * 🔴 서버가 짚은 «칸 이름»을 우리 문장으로 바꾸는 자리 — S15P21E201-1342.
+ *
+ * 서버는 칸마다 `"originLat: 출발지 좌표가 없다. 목록에서 출발지를 골라 주세요"` 꼴로 준다
+ * (백엔드 `TripExceptionHandler`: `f.getField() + ": " + f.getDefaultMessage()`).
+ * 그것을 그대로 이어 붙이면 화면에 이렇게 뜬다 — 2026-09-21 실기.
+ *
+ *   서버가 이 칸을 받지 못했어요 — originLat: 출발지 좌표가 없다.
+ *   목록에서 출발지를 골라 주세요 (TRIP_VALIDATION_FAILED)
+ *
+ * 한 줄에 세 가지가 섞여 있다: 우리 머리말, 서버 원문, 내부 칸 이름과 오류 코드.
+ * `originLat` 과 `TRIP_VALIDATION_FAILED` 는 **사람에게 할 말이 아니다.** 그리고 서버 원문은
+ * 우리가 언어를 못 고른다 — 일본어로 쓰는 사람에게도 한국어로 나간다.
+ *
+ * 아는 칸이면 우리 문장 하나만 낸다. 모르는 칸은 예전처럼 둔다 — 문장을 못 지어낸 채
+ * 단서까지 지우면 무엇이 잘못됐는지 아무도 모르게 된다.
+ */
+const BY_FIELD: Record<string, [string, string]> = {
+  // 출발지는 홈 시작 바에서만 고를 수 있다. 어디서 고치는지까지 말해 준다.
+  originLat: [
+    '출발지를 아직 안 골랐어요. 홈에서 출발지를 고르면 일정을 만들 수 있어요.',
+    'No starting point yet. Pick one on the home screen and we can build your trip.',
+  ],
+  originLng: [
+    '출발지를 아직 안 골랐어요. 홈에서 출발지를 고르면 일정을 만들 수 있어요.',
+    'No starting point yet. Pick one on the home screen and we can build your trip.',
+  ],
+  startDate: ['가는 날을 아직 안 정했어요.', 'You have not picked a departure date yet.'],
+  finishDate: ['오는 날을 아직 안 정했어요.', 'You have not picked a return date yet.'],
+  partySize: ['인원을 확인해 주세요.', 'Please check the number of travellers.'],
+};
+
+/** `"originLat: 출발지 좌표가 없다…"` 에서 칸 이름만 뗀다. 구분자가 없으면 칸 이름이 없는 것이다. */
+function fieldNameOf(entry: string): string | null {
+  const at = entry.indexOf(':');
+  if (at <= 0) return null;
+  const name = entry.slice(0, at).trim();
+  return /^[A-Za-z][A-Za-z0-9_.]*$/.test(name) ? name : null;
 }
 
 const BY_CODE: Record<string, [string, string]> = {
@@ -35,17 +60,7 @@ const BY_CODE: Record<string, [string, string]> = {
   NETWORK_ERROR: ['서버에 닿지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not reach the server. Please try again shortly.'],
 };
 
-/**
- * 화면에 쓸 문장 하나를 만든다.
- *
- * 순서가 중요하다.
- *  1. **어느 칸이 막혔는지**(`fields`)가 있으면 그것을 쓴다 — 가장 쓸모 있다
- *  2. 서버 문장이 **진짜 문장**이면 그대로 쓴다 (auth·place 는 한국어 문장을 준다)
- *  3. 키이거나 비었으면 **코드로 고른 문장**, 그것도 모르면 일반 문구
- *
- * 🔴 **코드는 문장 뒤에 괄호로 남긴다.** 지우면 사람이 로그에서 되찾을 방법이 없어진다.
- *    앞에는 뜻을 적고 기호는 뒤에 둔다 — 이 저장소의 규칙이다.
- */
+/** 화면에 쓸 문장 하나를 만든다. */
 export function readableApiError(error: unknown, ko: boolean): string {
   const generic = ko ? '요청을 처리하지 못했어요.' : 'We could not complete that request.';
   if (!(error instanceof ApiClientError)) {
@@ -56,6 +71,19 @@ export function readableApiError(error: unknown, ko: boolean): string {
 
   const fields = error.fields.filter((line) => line.trim().length > 0);
   if (fields.length) {
+    // 🔴 아는 칸이면 우리 문장만 낸다 — 칸 이름도 오류 코드도 사람에게 할 말이 아니다.
+    const known: string[] = [];
+    let unknown = false;
+    for (const entry of fields) {
+      const name = fieldNameOf(entry);
+      const sentence = name ? BY_FIELD[name] : undefined;
+      if (!sentence) { unknown = true; continue; }
+      const line = ko ? sentence[0] : sentence[1];
+      // 같은 말을 두 번 하지 않는다 — originLat 과 originLng 은 한 가지 문제다.
+      if (!known.includes(line)) known.push(line);
+    }
+    if (known.length && !unknown) return known.join(' ');
+    // 모르는 칸이 섞여 있으면 예전처럼 둔다. 단서까지 지우면 아무도 원인을 못 찾는다.
     const head = ko ? '서버가 이 칸을 받지 못했어요' : 'The server rejected these fields';
     return `${head} — ${fields.join(' · ')} (${error.code})`;
   }

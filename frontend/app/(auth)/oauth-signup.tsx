@@ -1,8 +1,8 @@
 // 소셜 인증은 끝났지만 처음 보는 계정이라(SIGNUP_REQUIRED) 가입을 마무리하는 화면.
-// sign-in.tsx 의 social() 이 signupTicket 과 provider 가 준 정보(prefill)를 params 로 넘겨준다.
+// sign-in.tsx 의 social 이 signupTicket 과 provider 가 준 정보(prefill)를 params 로 넘겨준다.
 // 티켓은 10분짜리라 이 화면에서 값을 채우는 동안 만료될 수 있고, 만료·재사용된 티켓은
 // 종류를 가리지 않고 전부 OAUTH_TICKET_INVALID 로 온다(서버 쪽 의도) — 그때는 소셜 로그인을
-// 처음부터 다시 밟게 한다. S15P21E201-586, jaehyeon 님 !288 계약.
+// 처음부터 다시 밟게 한다., jaehyeon 님 !288 계약.
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,6 +19,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+import { localizeMessage } from '@/i18n/messages';
 
 // 기본값 /home — sign-in.tsx 의 resolveDestination 과 같은 이유(jaehyeon 님 제안).
 async function resolveDestination(returnTo?: string) {
@@ -127,7 +128,7 @@ export default function OAuthSignup() {
           <CheckRow checked={privacyAccepted} label={tx('개인정보 처리방침에 동의합니다. (필수)', 'I agree to the Privacy Policy. (required)')} onPress={() => setPrivacyAccepted((value) => !value)} />
         </View>
 
-        {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{error}</Text></Card>}
+        {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text></Card>}
         <Button label={submitting ? tx('가입 중…', 'Signing up…') : tx('가입 완료', 'Finish signing up')} disabled={!canSubmit} onPress={() => void submit()} />
       </View>
     </Screen>
@@ -145,7 +146,7 @@ function CheckRow({ checked, label, onPress }: { checked: boolean; label: string
 
 const styles = StyleSheet.create({
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
-  logo: { width: 112, height: 32 },
+  logo: { width: 176, height: 32 },
   backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   title: { marginTop: spacing[3] },
   subtitle: { marginTop: spacing[1], marginBottom: spacing[6] },
@@ -154,11 +155,11 @@ const styles = StyleSheet.create({
   input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4] },
   languageRow: { flexDirection: 'row', gap: spacing[2] },
   language: { flex: 1, alignItems: 'center', padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  languageSelected: { backgroundColor: color.action.primary, borderColor: color.action.primary },
+  languageSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   agreements: { gap: spacing[3], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   checkLabel: { flex: 1 },
   checkbox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1.5, borderColor: color.surface.field },
-  checkboxChecked: { backgroundColor: color.action.primary, borderColor: color.action.primary },
+  checkboxChecked: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   expiredBody: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing[3], padding: spacing[6] },
 });

@@ -1,13 +1,4 @@
-// 여행 이름 바꾸기 · 붙이기 · 지우기 (S15P21E201-1036). 시안 `design_handoff_trip_name_flow`.
-//
-// 🔴 이 화면이 생긴 이유가 「앱이 못 지키던 약속」이다. 이름을 저장하면 마지막 화면이
-// 「이름은 여행 카드에서 언제든 바꾸거나 지울 수 있어요」라고 말하는데, 그 자리가 없었다.
-// 서버에는 있었다(빈 값을 보내면 지워진다). 화면만 없었다.
-//
-// 🔴 지우기를 숨기지 않는다. 이름은 붙이는 것만큼 **지우는 것도 정상 동작**이다 —
-// 지우면 카드가 날짜로 돌아가고, 그건 서버와의 계약이다.
-//
-// phone 은 하단 시트, 넓은 화면은 가운데 모달이다. 내용은 같다.
+// 여행 이름 바꾸기 · 붙이기 · 지우기. 시안 `design_handoff_trip_name_flow`.
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -25,6 +16,8 @@ import {
   updateTripTitle,
   type TripNameSource,
 } from '@/trip/tripNaming';
+import { txf } from '@/i18n/format';
+import { localizeMessage } from '@/i18n/messages';
 
 /** 시안이 정한 상한. 서버는 60자까지 받지만 화면은 40자로 끊는다. */
 const DRAFT_MAX_LENGTH = 40;
@@ -97,16 +90,16 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
     <>
       <Text variant="title" weight="bold">{tx('이름을 지울까요?', 'Clear the name?')}</Text>
       <Text color={color.text.body}>
-        {tx(`「${currentTitle ?? ''}」이(가) 지워지고, 카드에는 다시 날짜가 보여요.`, `"${currentTitle ?? ''}" will be removed and the card will show the dates again.`)}
+        {txf(tx, '「%s」이(가) 지워지고, 카드에는 다시 날짜가 보여요.', '"%s" will be removed and the card will show the dates again.', currentTitle ?? '')}
       </Text>
-      {/* 🔴 지운 뒤 카드를 미리 보여준다. 「날짜가 보여요」는 말이고, 이건 그 말의 증거다. */}
+      {/* 지운 뒤 카드를 미리 보여준다. 「날짜가 보여요」는 말이고, 이건 그 말의 증거다. */}
       <View style={styles.previewCard}>
         <Text variant="caption" color={color.text.muted}>{tx('지운 뒤 카드', 'After clearing')}</Text>
         <Text variant="title" weight="bold">{dateLabel ?? tx('날짜 미확인', 'Date unknown')}</Text>
       </View>
-      {error ? <Text variant="caption" color={color.state.danger}>{error}</Text> : null}
+      {error ? <Text variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
       <View style={styles.buttonRow}>
-        <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={busy} onPress={() => setConfirmClear(false)} containerStyle={styles.rowButton} />
+        <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={busy} onPress={() => setConfirmClear(false)} containerStyle={styles.rowButton} />
         <Pressable
           accessibilityRole="button"
           accessibilityState={{ busy, disabled: busy }}
@@ -114,7 +107,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
           onPress={() => void commit('')}
           style={[styles.dangerButton, busy && styles.disabled]}
         >
-          {busy ? <ActivityIndicator color={color.text.onAction} size={16} /> : <Text weight="bold" color={color.text.onAction}>{tx('지우기', 'Clear')}</Text>}
+          {busy ? <ActivityIndicator color={color.state.danger} size={16} /> : <Text weight="bold" color={color.state.danger}>{tx('지우기', 'Clear')}</Text>}
         </Pressable>
       </View>
     </>
@@ -157,7 +150,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
             <Pressable
               key={name}
               accessibilityRole="button"
-              accessibilityLabel={tx(`${name} 로 정하기`, `Use the name ${name}`)}
+              accessibilityLabel={txf(tx, '%s 로 정하기', 'Use the name %s', name)}
               disabled={busy}
               onPress={() => void commit(name)}
               style={({ pressed }) => [styles.suggestionRow, pressed && styles.suggestionPressed]}
@@ -192,10 +185,10 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
         </Text>
       </View>
 
-      {error ? <Text variant="caption" color={color.state.danger}>{error}</Text> : null}
+      {error ? <Text variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text> : null}
 
       <View style={styles.buttonRow}>
-        <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={busy} onPress={onClose} containerStyle={styles.rowButton} />
+        <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={busy} onPress={onClose} containerStyle={styles.rowButton} />
         <Button
           label={willClear
             ? (mode === 'edit' ? tx('지우고 저장', 'Clear and save') : tx('날짜로 둘게요', 'Keep the dates'))
@@ -206,11 +199,11 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
         />
       </View>
 
-      {/* 🔴 이름이 있을 때만 나온다. 없는 이름을 지우라고 권하지 않는다. */}
+      {/* 이름이 있을 때만 나온다. 없는 이름을 지우라고 권하지 않는다. */}
       {mode === 'edit' ? (
         <Button
           label={tx('이름 지우기', 'Clear the name')}
-          variant="ghost"
+          variant="tertiary"
           disabled={busy}
           onPress={() => { setError(''); setConfirmClear(true); }}
           containerStyle={styles.clearButton}
@@ -238,7 +231,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, backgroundColor: 'rgba(25,25,25,0.62)' },
   backdropPhone: { justifyContent: 'flex-end' },
   backdropWide: { alignItems: 'center', justifyContent: 'center', padding: spacing[4] },
   sheet: {
@@ -275,7 +268,7 @@ const styles = StyleSheet.create({
   rowButton: { flex: 1 },
   clearButton: { width: '100%' },
   dangerButton: {
-    flex: 1, minHeight: 48, borderRadius: radius.md, backgroundColor: color.state.danger,
+    flex: 1, minHeight: 48, borderRadius: radius.md, backgroundColor: color.state.dangerBg,
     alignItems: 'center', justifyContent: 'center',
   },
   disabled: { opacity: 0.4 },

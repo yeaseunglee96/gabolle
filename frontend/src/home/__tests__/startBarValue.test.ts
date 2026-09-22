@@ -1,9 +1,10 @@
-// 🔴 날짜 계산은 눈으로 검산이 안 된다. 「1박 2일」이 이틀인지 사흘인지, 월이 바뀔 때
-//    어떻게 되는지가 여기서 정해진다.
+// 날짜 계산은 눈으로 검산이 안 된다. 「1박 2일」이 이틀인지 사흘인지, 월이 바뀔 때
+// 어떻게 되는지가 여기서 정해진다.
 import {
   EMPTY_START_BAR,
   START_BAR_PRESETS,
   addDays,
+  askForPlanBlocker,
   canAskForPlan,
   dayCount,
   nightCount,
@@ -12,6 +13,10 @@ import {
   toDateKey,
   type StartBarValue,
 } from '@/home/startBarValue';
+
+// 예전엔 ko: boolean 을 넘겼다. 이제 번역 함수를 받는다 — 시험은 한국어·영어를 그대로 고른다.
+const KO = (ko: string, _en: string) => ko;
+const EN = (_ko: string, en: string) => en;
 
 const value = (over: Partial<StartBarValue> = {}): StartBarValue => ({ ...EMPTY_START_BAR, ...over });
 
@@ -52,57 +57,60 @@ describe('날짜 세기', () => {
 
 describe('한 줄 요약', () => {
   it('채워진 것만 적는다', () => {
-    expect(summarizeStartBar(value({ origin: '부산역' }), true)).toBe('부산역 · 성인 2');
+    expect(summarizeStartBar(value({ origin: '부산역' }), KO)).toBe('부산역 · 성인 2');
   });
 
   it('🔴 아무것도 안 골랐으면 빈 문자열 — 「미정」으로 채우지 않는다', () => {
-    expect(summarizeStartBar(value({ adults: 0 }), true)).toBe('');
+    expect(summarizeStartBar(value({ adults: 0 }), KO)).toBe('');
   });
 
   it('🔴 인원만으로는 요약을 만들지 않는다 — 인원에는 기본값(성인 2)이 들어 있다', () => {
-    // 아무것도 안 고른 초기 상태. 전에는 여기서 「성인 2」가 나와,
+    // 아무것도 안 고른 초기 상태. 전에는 여기서 「성인 2」가 나와
     // 알약에 안내 문구 대신 고른 적 없는 값이 찍혔다.
-    expect(summarizeStartBar(value(), true)).toBe('');
-    expect(summarizeStartBar(value({ adults: 4, children: 2 }), true)).toBe('');
+    expect(summarizeStartBar(value(), KO)).toBe('');
+    expect(summarizeStartBar(value({ adults: 4, children: 2 }), KO)).toBe('');
   });
 
   it('출발지나 날짜가 하나라도 있으면 그때 인원도 같이 적는다', () => {
-    expect(summarizeStartBar(value({ origin: '부산역' }), true)).toContain('성인 2');
-    expect(summarizeStartBar(value({ startDate: '2026-09-20' }), true)).toContain('성인 2');
+    expect(summarizeStartBar(value({ origin: '부산역' }), KO)).toContain('성인 2');
+    expect(summarizeStartBar(value({ startDate: '2026-09-20' }), KO)).toContain('성인 2');
   });
 
   it('날짜와 박수와 인원을 한 줄로 붙인다', () => {
-    expect(summarizeStartBar(value({ origin: '부산역', startDate: '2026-09-20', endDate: '2026-09-21', adults: 2 }), true))
+    expect(summarizeStartBar(value({ origin: '부산역', startDate: '2026-09-20', endDate: '2026-09-21', adults: 2 }), KO))
       .toBe('부산역 · 9.20(일) – 9.21(월) · 1박 · 성인 2');
   });
 
   it('당일치기는 「0박」이 아니라 「당일치기」다', () => {
-    expect(summarizeStartBar(value({ startDate: '2026-09-20', endDate: '2026-09-20' }), true))
+    expect(summarizeStartBar(value({ startDate: '2026-09-20', endDate: '2026-09-20' }), KO))
       .toContain('당일치기');
   });
 
   it('어린이가 0명이면 그 칸을 안 적는다', () => {
-    // 🔴 출발지를 같이 준다 — 인원만으로는 요약이 아예 안 만들어진다(위 시험 참고).
-    expect(summarizeStartBar(value({ origin: '부산역', adults: 2, children: 0 }), true)).not.toContain('어린이');
-    expect(summarizeStartBar(value({ origin: '부산역', adults: 2, children: 1 }), true)).toContain('어린이 1');
+    // 출발지를 같이 준다 — 인원만으로는 요약이 아예 안 만들어진다(위 시험 참고).
+    expect(summarizeStartBar(value({ origin: '부산역', adults: 2, children: 0 }), KO)).not.toContain('어린이');
+    expect(summarizeStartBar(value({ origin: '부산역', adults: 2, children: 1 }), KO)).toContain('어린이 1');
   });
 });
 
 describe('일정 물어보기를 누를 수 있나', () => {
-  it('출발지와 날짜와 인원이 다 있어야 한다', () => {
+  it('날짜와 인원이 있어야 한다 — 출발지는 선택이다 (S15P21E201-1376)', () => {
     expect(canAskForPlan(value())).toBe(false);
     expect(canAskForPlan(value({ origin: '부산역' }))).toBe(false);
+    expect(canAskForPlan(value({ startDate: '2026-09-20' }))).toBe(true);
     expect(canAskForPlan(value({ origin: '부산역', startDate: '2026-09-20' }))).toBe(true);
     expect(canAskForPlan(value({ origin: '부산역', startDate: '2026-09-20', adults: 0 }))).toBe(false);
   });
 
-  it('공백만 든 출발지는 없는 것으로 본다', () => {
-    expect(canAskForPlan(value({ origin: '   ', startDate: '2026-09-20' }))).toBe(false);
+  it('왜 못 누르는지를 말한다', () => {
+    const tx = (ko: string) => ko;
+    expect(askForPlanBlocker(value(), tx)).toBe('날짜를 골라 주세요');
+    expect(askForPlanBlocker(value({ startDate: '2026-09-20', adults: 0 }), tx)).toBe('인원을 정해 주세요');
+    expect(askForPlanBlocker(value({ startDate: '2026-09-20' }), tx)).toBeNull();
   });
 });
 
 describe('바로 시작 프리셋', () => {
-  // 2026-09-16 은 수요일이다. 다음 토요일은 9월 19일.
   const wednesday = new Date(2026, 8, 16);
 
   it('「이번 주말 1박 2일」은 토요일에서 시작한다', () => {
@@ -131,24 +139,24 @@ describe('바로 시작 프리셋', () => {
 
 describe('홈에서 받은 정보 칩', () => {
   it('출발지 · 날짜 · 인원을 따로 준다 — 한 줄로 이어 붙이지 않는다', () => {
-    expect(startBarChips(value({ origin: '부산역', startDate: '2026-09-20', endDate: '2026-09-21', adults: 2 }), true))
+    expect(startBarChips(value({ origin: '부산역', startDate: '2026-09-20', endDate: '2026-09-21', adults: 2 }), KO))
       .toEqual(['부산역 출발', '9.20(일) – 9.21(월) · 1박', '성인 2']);
   });
 
   it('🔴 없는 칸은 칩을 안 만든다 — 빈 날짜 칩을 보여 주지 않는다', () => {
-    expect(startBarChips(value({ origin: '부산역', adults: 2 }), true)).toEqual(['부산역 출발', '성인 2']);
+    expect(startBarChips(value({ origin: '부산역', adults: 2 }), KO)).toEqual(['부산역 출발', '성인 2']);
   });
 
   it('🔴 아무것도 안 골랐으면 칩이 없다 — 인원 기본값만으로 만들지 않는다', () => {
-    expect(startBarChips(value(), true)).toEqual([]);
+    expect(startBarChips(value(), KO)).toEqual([]);
   });
 
   it('당일치기는 「0박」이 아니다', () => {
-    expect(startBarChips(value({ origin: '부산역', startDate: '2026-09-20', endDate: '2026-09-20' }), true)[1])
+    expect(startBarChips(value({ origin: '부산역', startDate: '2026-09-20', endDate: '2026-09-20' }), KO)[1])
       .toContain('당일치기');
   });
 
   it('어린이가 있으면 인원 칩 하나에 같이 적는다', () => {
-    expect(startBarChips(value({ origin: '부산역', adults: 2, children: 1 }), true).at(-1)).toBe('성인 2 · 어린이 1');
+    expect(startBarChips(value({ origin: '부산역', adults: 2, children: 1 }), KO).at(-1)).toBe('성인 2 · 어린이 1');
   });
 });

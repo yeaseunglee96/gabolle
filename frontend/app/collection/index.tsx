@@ -1,9 +1,5 @@
 // 부슐랭 홈 — 내가 만든 리스트와 최근 담은 장소를 한눈에 본다.
 // SNS(피드·코스)와 무관한 개인 아카이브다.
-//
-// 🔴 정정 (2026-09-16, S15P21E201-1071) — "전부 기기에만 저장된다" 는 이제 사실이 아니다.
-// 로그인하면 계정에 저장된다. 안 했으면 여전히 기기에만 남는다. 아래 안내 문구가 그 둘을
-// 갈라서 말한다 — 화면이 저장되는 곳을 틀리게 말하면 사용자가 잃을 것을 잃는다.
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -24,7 +20,7 @@ export default function CollectionHome() {
   const router = useRouter();
   const { tx } = useI18n();
   const { ready, syncedToServer, syncState, retrySync, lists, places, totalPlaceCount, recentPlaces, createList } = useCollection();
-  // 🔴 넓은 화면은 별도 화면이 아니라 같은 화면이 넓어지는 것이다. 격자 칸 수만 달라진다.
+  // 넓은 화면은 별도 화면이 아니라 같은 화면이 넓어지는 것이다. 격자 칸 수만 달라진다.
   const { kind } = useLayout();
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
@@ -55,7 +51,7 @@ export default function CollectionHome() {
       ) : (
         <View style={styles.noticeRow}>
           <Text variant="caption" color={color.text.onDarkMuted} style={styles.noticeCopy}>{tx('이 기기에만 저장돼요. 로그인하면 계정에 저장돼요.', 'Saved only on this device — sign in to keep it on your account.')}</Text>
-          {/* 🔴 문구가 곧 행동이 되게 한다. 다만 강요하지 않는다 — 로그인 안 해도 부슐랭은 그대로 쓴다. */}
+          {/* 문구가 곧 행동이 되게 한다. 다만 강요하지 않는다 — 로그인 안 해도 부슐랭은 그대로 쓴다. */}
           <Pressable accessibilityRole="button" accessibilityLabel={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/collection' } })} style={({ pressed }) => [styles.signInPill, pressed && styles.pressed]}>
             <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('로그인', 'Sign in')}</Text>
           </Pressable>
@@ -63,13 +59,13 @@ export default function CollectionHome() {
       )}
     </View>
 
-    <View style={styles.sectionHeading}><Text variant="title" weight="bold">{tx('내 리스트', 'My lists')}</Text><Button label={tx('+ 새 리스트', '+ New list')} variant="ghost" onPress={() => setCreating(true)} containerStyle={styles.newListButton} /></View>
+    <View style={styles.sectionHeading}><Text variant="title" weight="bold">{tx('내 리스트', 'My lists')}</Text><Button label={tx('+ 새 리스트', '+ New list')} variant="tertiary" onPress={() => setCreating(true)} containerStyle={styles.newListButton} /></View>
 
     {creating ? <Card style={styles.createCard}>
       <Text variant="caption" weight="bold" color={color.text.muted}>{tx('리스트 이름', 'List name')}</Text>
       <TextInput accessibilityLabel={tx('리스트 이름', 'List name')} maxLength={COLLECTION_LIMITS.name} value={newName} onChangeText={setNewName} placeholder={tx('예: 다시 가고 싶은 카페', 'e.g. Cafés to revisit')} placeholderTextColor={color.text.muted} autoFocus style={styles.input} />
       <View style={styles.createActions}>
-        <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => { setCreating(false); setNewName(''); }} containerStyle={styles.createActionButton} />
+        <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => { setCreating(false); setNewName(''); }} containerStyle={styles.createActionButton} />
         <Button label={tx('만들기', 'Create')} disabled={!newName.trim()} onPress={submitCreate} containerStyle={styles.createActionButton} />
       </View>
     </Card> : null}
@@ -78,8 +74,9 @@ export default function CollectionHome() {
 
     {syncState === 'unreachable' ? (
       <View style={styles.syncWarn}>
-        {/* 🔴 기기 것을 그대로 그린다. 「못 불러왔어요」로 화면을 덮지 않는다 —
-            덮으면 리스트가 사라진 것처럼 보이는데 그건 사실이 아니다. */}
+        {/* 기기 것을 그대로 그린다. 「못 불러왔어요」로 화면을 덮지 않는다
+            덮으면 리스트가 사라진 것처럼 보이는데 그건 사실이 아니다.
+        */}
         <Text variant="caption" color={color.text.body} style={styles.noticeCopy}>{tx('지금은 계정과 못 맞췄어요. 이 기기에 있는 것을 보여드려요.', "We couldn't sync with your account — showing what is on this device.")}</Text>
         <Pressable accessibilityRole="button" accessibilityLabel={tx('다시 시도', 'Try again')} onPress={retrySync} style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}>
           <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('다시 시도', 'Try again')}</Text>
@@ -99,7 +96,8 @@ export default function CollectionHome() {
           <Text variant="caption" color={color.text.muted}>{tx(`${listPlaces.length}곳`, `${listPlaces.length} places`)}</Text>
           {/* 이 리스트는 서버가 받아 줄 수 없는 값이라 계정에 못 올라간다. 위 머리말이
               「내 계정에 저장돼요」라고 말하고 있으므로, 예외인 리스트는 그 자리에서
-              말해 준다 — 안 그러면 다른 기기에서 없는 이유를 알 길이 없다. */}
+              말해 준다 — 안 그러면 다른 기기에서 없는 이유를 알 길이 없다.
+          */}
           {uploadBlockReason(list) ? <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('이 기기에만 있어요 — 이름을 줄이면 계정에 올라가요', 'On this device only — shorten the name to sync it')}</Text> : null}
         </Pressable>;
       })}
@@ -114,7 +112,7 @@ export default function CollectionHome() {
 }
 
 const styles = StyleSheet.create({
-  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  shell: { flex: 1, backgroundColor: color.canvas },
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   hero: { gap: spacing[2], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy },
   heroTitle: { marginTop: spacing[1] },

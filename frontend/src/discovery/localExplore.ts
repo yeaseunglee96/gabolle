@@ -1,14 +1,10 @@
-// 🔴 언어 다섯을 다 받는다 (S15P21E201-1109). 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 언어 다섯을 다 받는다. 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
 // 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
-// 떨어뜨리는 일은 **여기 한 자리**에서 한다.
+// 떨어뜨리는 일은 여기 한 자리에서 한다.
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import type { PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
 
-// jaehyeon 님 계약(2026-09-08 axmap): GET /api/v1/places/facets.
-// 여덟 갈래(축제·야시장·전통시장·액티비티·산책·자연·야경·기념품샵)는 서버 코드에 고정돼 있고
-// 서버가 항상 전부 돌려준다(건수 0인 갈래도 옴). 🔴 목록을 화면에 박지 않는다 — 갈래가 늘거나
-// 이름이 바뀌어도 앱을 다시 배포하지 않게 하려는 것이 서버가 labelKo까지 함께 주는 이유다.
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string; labelEn?: string | null };
 // 서버 목록과 순서는 그대로 유지한다. 이 사전은 영문 표기가 없는 기존 응답의 번역만 맡는다.
 const ENGLISH_FACET_LABELS: Record<string, string> = {
@@ -28,12 +24,7 @@ export type FacetsDto = { facets: FacetGroup[]; generatedAt: string };
 
 type FacetsFailure = { state: 'unavailable' | 'offline' | 'error'; message: string };
 
-// 🔴 S15P21E201-1081 — "아직 준비되지 않았어요" 는 404·501 일 때만 말한다.
-//
-// 예전에는 INVALID_RESPONSE 를 그 갈래로 보냈다. 그런데 배포 중 nginx 가 주는 502·503·504 는
-// 본문이 JSON 이 아니라 전부 INVALID_RESPONSE 로 떨어졌고, 그래서 **몇십 초 뒤면 되는 것**을
-// 화면이 "이 기능은 아직 없다" 고 말했다. 사용자는 그 말을 믿고 나갔다(2026-09-16 운영 실측).
-// routeDirections.ts·itinerary.ts 가 이미 상태 코드로 가르고 있었고, 그 방식이 맞다.
+// — "아직 준비되지 않았어요" 는 404·501 일 때만 말한다.
 function toFailure(error: unknown): FacetsFailure {
   if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
   if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '로컬 탐색 API가 아직 준비되지 않았어요.' };
@@ -60,7 +51,7 @@ export function flattenLocalFacets(result: FacetsLoadResult, knownKeys: Readonly
   return (local.length ? local : flat).filter((entry) => entry.placeCount > 0 && entry.labelKo);
 }
 
-// 근처 장소 조회 — NearbyPlaceController#nearby(S15P21E201-469)와 필드 단위로 맞춘 실제 계약.
+// 근처 장소 조회 — NearbyPlaceController#nearby와 필드 단위로 맞춘 실제 계약.
 // facetKey 를 주면 여덟 갈래 표식으로 좁힌다(purpose 는 gabolle.place.purposes 설정이 아직
 // 비어 있어 이 화면에서는 안 쓴다 — 컨트롤러 javadoc 참고).
 export type NearbyPlaceItem = {
@@ -73,12 +64,12 @@ export type NearbyPlaceItem = {
   lat: number;
   lng: number;
   distanceM: number;
-  // S15P21E201-1125 — 목록 응답에 사진이 실려 온다(백엔드 MR !992). 값이 없으면 칸 자체가
-  // 안 오므로 optional 이다. 🔴 photoUrl 을 쓰면 photoSource 도 반드시 같이 그린다 —
+  // — 목록 응답에 사진이 실려 온다(백엔드 MR !992). 값이 없으면 칸 자체가
+  // 안 오므로 optional 이다. photoUrl 을 쓰면 photoSource 도 반드시 같이 그린다
   // 관광공사 공공누리라 출처 표기가 이용 조건이다.
   photoUrl?: string | null;
   photoSource?: string | null;
-  // S15P21E201-1206 — 이 사진이 **그 장소를 찍은 것인지, 그 장소가 든 건물을 찍은 것인지**.
+  // — 이 사진이 그 장소를 찍은 것인지, 그 장소가 든 건물을 찍은 것인지.
   // 값이 없으면 칸 자체가 안 온다. 없으면 화면은 아무 말도 안 한다(모르는 것을 아는 척 안 한다).
   photoSubject?: PhotoSubject | null;
 };

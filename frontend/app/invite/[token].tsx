@@ -13,6 +13,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { acceptTripInvite } from '@/trip/collaboration';
 import { loadTripItineraries } from '@/trip/trips';
+import { localizeMessage } from '@/i18n/messages';
 
 type Status = { state: 'checking' } | { state: 'expired' } | { state: 'error'; message: string };
 
@@ -82,7 +83,7 @@ export default function AcceptInvite() {
     {status.state === 'error' && (
       <View accessibilityRole="alert" style={styles.card}>
         <Text variant="title" weight="bold">{tx('초대를 처리하지 못했어요', "Couldn't process this invite")}</Text>
-        <Text color={color.text.body}>{status.message}</Text>
+        <Text color={color.text.body}>{localizeMessage(tx, status.message)}</Text>
         <Button label={tx('홈으로', 'Go home')} onPress={() => router.replace('/home')} />
       </View>
     )}
@@ -90,6 +91,6 @@ export default function AcceptInvite() {
 }
 
 const styles = StyleSheet.create({
-  screen: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.ivory },
+  screen: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.canvas },
   card: { gap: spacing[3], width: '100%', maxWidth: 420, padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
 });

@@ -1,6 +1,6 @@
 import { hasFoodSafetyConfirmed, needsFoodSafetyCheck, type Place, type PlaceFeature } from '../places';
 
-// 실측(S15P21E201-996): 장소 「국수락」의 응답이 ALLERGEN_TAG 를 이 모양으로 준다 —
+// 실측: 장소 「국수락」의 응답이 ALLERGEN_TAG 를 이 모양으로 준다
 // 행은 있지만 아무도 조사하지 않았다는 뜻이다. 행의 존재만 세면 "확인됨"으로 뒤집힌다.
 const notCollected = (featureType: string): PlaceFeature => ({ featureType, evidenceStatus: 'NOT_COLLECTED', value: null });
 const verified = (featureType: string): PlaceFeature => ({ featureType, evidenceStatus: 'VERIFIED', value: false });

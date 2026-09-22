@@ -3,31 +3,23 @@ import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
 import { getApiLanguage, setRefreshHandler, setUnauthorizedHandler } from '@/api/client';
-import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage } from './authApi';
+import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage, type UpdateMeInput } from './authApi';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { clearSavedTrips } from '@/trip/tripLibrary';
 import { restoreMobileAuth } from './restoreMobileAuth';
+import { registerPushToken, unregisterPushToken } from '@/notifications/pushToken';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
 const REFRESH_TOKEN_KEY = 'gabolle.refresh-token';
-type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; updateProfile: (input: { displayName?: string; language?: SignupLanguage; avatarUrl?: string | null }) => Promise<void>; deleteAccount: (confirmation: string) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
+type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; updateProfile: (input: UpdateMeInput) => Promise<void>; deleteAccount: (confirmation: string) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
 const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const preferences = useOnboardingPreferences();
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshTokenState] = useState<string | null>(null);
-  // 🔴 S15P21E201-1118 — 갱신표를 ref 로도 들고 있는다.
-  //
-  //    아래 setRefreshHandler 에 넘기는 함수는 만들어진 그 순간의 refreshToken 을
-  //    가둔다(closure). 상태는 화면을 다시 그린 뒤에야 바뀌고, 그 함수를 다시 등록하는
-  //    것도 그 다음이다. 그래서 로그인·가입 직후 아주 짧은 동안, 이미 새 표를 받았는데도
-  //    등록되어 있는 함수는 "표가 없다"(null) 고 답한다. 그 답은 곧 401 로 취급돼
-  //    setUnauthorizedHandler 가 세션을 지우고 로그인 화면으로 보낸다 — 서버는 아무
-  //    말도 하지 않았는데 스스로 끊긴다(2026-09-16 iOS 실기기에서 가입 직후 1회 관측).
-  //
-  //    ref 는 다시 그리기를 기다리지 않는다. 상태는 화면이 쓰고, ref 는 이 함수가 쓴다.
+  // — 갱신표를 ref 로도 들고 있는다.
   const refreshTokenRef = useRef<string | null>(null);
   const setRefreshToken = (value: string | null) => { refreshTokenRef.current = value; setRefreshTokenState(value); };
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -38,18 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     if (Platform.OS !== 'web') void SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
   };
-  // 🔴 S15P21E201-1168 — 여기서 계정 언어로 화면 언어를 되돌리지 않는다.
-  //
-  //    이 계정 칸(currentUser.language)은 KO·EN 둘뿐이다(SignupLanguage). 화면 언어는
-  //    다섯이다(ko·en·ja·zh-Hans·zh-Hant, S15P21E201-1109). 예전엔 로그인·토큰 갱신·
-  //    앱 재시작마다 이 값으로 preferences.language 를 덮어썼는데, 계정 대부분이 기본값
-  //    KO 라 일본어·중국어를 고른 사람이 로그인하는 순간(또는 온보딩 화면을 넘기다 갱신이
-  //    한 번 도는 순간) 한국어로 되돌아갔다 — 신고된 그 증상이다.
-  //
-  //    방향은 반대여야 맞다: 화면 언어가 바뀌면 그것을 계정에 올린다. 로그인 중에 사용자가
-  //    직접 언어를 바꾸는 경우는 src/me/AppLanguageSetting.tsx 가 이미 이렇게 한다
-  //    (updateProfile 로 먼저 서버에 쓰고 그다음 화면 상태를 바꾼다). 여기 applyUser 는
-  //    로그인 응답을 반영하는 자리이지, 계정 값을 화면에 되먹이는 자리가 아니다.
+  // — 여기서 계정 언어로 화면 언어를 되돌리지 않는다.
   const applyUser = (currentUser: AuthUser) => {
     setUser(currentUser);
   };
@@ -113,14 +94,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void restore();
     return () => { active = false; };
   }, []);
+  // 푸시 토큰 — 로그인한 사용자 한 명당 한 번(S15P21E201-1429). 권한이 없으면 조용히 건너뛰고, 권한을 나중에 켜면
+  //    설정 「알림」에서 돌아올 때 다시 시도한다. 실패는 로그인에 아무 영향이 없다.
+  const pushRegisteredFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!accessToken || !user?.userId || pushRegisteredFor.current === user.userId) return;
+    let alive = true;
+    void registerPushToken(accessToken).then((result) => { if (alive && result === 'registered') pushRegisteredFor.current = user.userId; });
+    return () => { alive = false; };
+  }, [accessToken, user?.userId]);
+
   const value = useMemo<AuthContextValue>(() => ({ accessToken, user, ready, clearSession,
     signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
     acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
     updateProfile: async (input) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); const currentUser = await updateMe(accessToken, input); applyUser(currentUser); },
     deleteAccount: async (confirmation) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); await deleteMe(accessToken, confirmation); await clearSavedTrips(); preferences.reset(); clearSession(); router.replace('/'); },
     // 로그아웃해도 이 기기에 남는 것들을 정리한다 — 안 그러면 같은 기기에서 다음 사람이
-    // 로그인했을 때 앞사람의 여행 목록·언어·이동 성향이 그대로 보인다(S15P21E201-740).
-    signOut: async () => { try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
+    // 로그인했을 때 앞사람의 여행 목록·언어·이동 성향이 그대로 보인다.
+    signOut: async () => { pushRegisteredFor.current = null; await unregisterPushToken(accessToken); try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
   }), [accessToken, preferences, ready, refreshToken, router, user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -1,18 +1,4 @@
-// 계정에 기억되는 취향 다섯 — 온보딩 ③ 과 마이페이지 「여행 취향」이 함께 쓴다 (S15P21E201-960).
-//
-// 🔴 값의 모양을 이 파일 한 곳에만 둔다. 화면 둘이 각자 만들면 한쪽만 고쳐지고, 그 종류의
-// 어긋남은 오류를 내지 않는다 — 사용자는 분명히 골랐는데 추천에 반영되지 않고 로그에도
-// 아무것도 안 남는다. 이 저장소가 실제로 겪은 일이다(S15P21E201-635·-915).
-//
-// 🔴 값은 여행 만들기 취향 화면(app/(plan)/taste.tsx → src/api/tripApi.ts)이 보내는 것과
-// 글자 그대로 같아야 한다. 같은 답이 두 경로로 들어와 한 칸에 쌓이기 때문이다.
-//
-//   눈금 셋   맨 정수 1~5        예: 3
-//   음식      맨 배열            예: ["MILMYEON","SEAFOOD"]
-//   경사      맨 낱말            예: "AVOID"
-//
-// 서버가 그 모양을 잘못 짐작해 취향이 통째로 0점이 됐던 적이 있다 — 까닭과, 눈금을 0~1 로
-// 맞춘 이유는 백엔드 PreferenceJson 클래스 주석에 있다.
+// 계정에 기억되는 취향 다섯 — 온보딩 ③ 과 마이페이지 「여행 취향」이 함께 쓴다.
 import { apiRequest } from '@/api/client';
 import { FOODS } from '@/plan/foodConflicts';
 
@@ -20,7 +6,7 @@ export type TasteKey = 'locality' | 'quiet' | 'tourist' | 'foods' | 'slope';
 
 export type SlopeAnswer = 'AVOID' | 'ALLOW';
 
-/** 답한 것만 담는다. 🔴 키가 없는 것과 값이 비어 있는 것은 다른 뜻이다 — 앞엣것만 "답 안 함" 이다. */
+/** 답한 것만 담는다. 키가 없는 것과 값이 비어 있는 것은 다른 뜻이다 — 앞엣것만 "답 안 함" 이다. */
 export type TasteAnswers = {
   locality?: number;
   quiet?: number;
@@ -31,12 +17,7 @@ export type TasteAnswers = {
 
 export type TasteValue = number | string[] | SlopeAnswer;
 
-/**
- * 화면의 이름 → 서버가 쓰는 어휘.
- *
- * 🔴 대문자 어휘로 보낸다. 서버는 앱의 camelCase(`locality`)도 받아 주지만 **돌려줄 때는
- * 언제나 대문자**라, camelCase 로 보내면 보낼 때와 받을 때 표가 두 벌 필요해진다.
- */
+/** 화면의 이름 → 서버가 쓰는 어휘. */
 const DIMENSION: Record<TasteKey, string> = {
   locality: 'LOCALITY',
   quiet: 'QUIETNESS',
@@ -49,13 +30,11 @@ const KEY_BY_DIMENSION: Record<string, TasteKey | undefined> = Object.fromEntrie
   Object.entries(DIMENSION).map(([key, dimension]) => [dimension, key as TasteKey]),
 );
 
-/** 화면에 나오는 순서. 온보딩 단계 번호가 이 순서다. */
-export const TASTE_KEYS: TasteKey[] = ['locality', 'quiet', 'tourist', 'foods', 'slope'];
+/** 화면에 나오는 순서. 온보딩 단계 번호가 이 순서다. 관광지(tourist)는 로컬성과 같은
+ * 축이라 문항에서 뺐다 — 관광지↔동네 취향은 로컬성 하나로 잰다(S15P21E201-1423). */
+export const TASTE_KEYS: TasteKey[] = ['locality', 'quiet', 'foods', 'slope'];
 
 // ── 문항 ────────────────────────────────────────────────────────────────────
-//
-// 문장은 「보통 어투」다 — 계정에 기억되는 답이라 "이번 여행" 이 아니라 평소를 묻는다.
-// 세 질문(spendProfile.ts)의 SPEND_HEADER.USER 와 같은 결이다.
 
 export type Bilingual = { ko: string; en: string };
 
@@ -78,12 +57,6 @@ export const TASTE_QUESTIONS: TasteQuestion[] = [
     title: { ko: '보통 조용한 곳을 얼마나 찾으세요?', en: 'How much do you usually seek out quiet places?' },
     low: { ko: '상관없음', en: 'No preference' },
     high: { ko: '매우 선호', en: 'Strongly prefer' },
-  },
-  {
-    key: 'tourist', kind: 'scale', skip: NOT_SURE,
-    title: { ko: '보통 숨은 곳과 대표 관광지 중 어느 쪽이세요?', en: 'Hidden gems or famous spots — which is usually you?' },
-    low: { ko: '숨은 곳', en: 'Hidden gems' },
-    high: { ko: '대표 관광지', en: 'Famous spots' },
   },
   {
     key: 'foods', kind: 'multi',
@@ -113,11 +86,7 @@ export const TASTE_LABELS: Record<TasteKey, Bilingual> = {
   slope: { ko: '가파른 경사 피하기', en: 'Avoiding slopes' },
 };
 
-/**
- * 지금 답이 무엇인지 한 줄로. 답이 없으면 `null`.
- *
- * 눈금은 숫자만 보여 주면 4 가 어느 쪽인지 알 수 없어서 끝 라벨을 붙인다 — 「4 / 5 · 현지인 공간」.
- */
+/** 지금 답이 무엇인지 한 줄로. 답이 없으면 `null`. */
 export function describeTasteAnswer(key: TasteKey, answers: TasteAnswers): Bilingual | null {
   const question = TASTE_QUESTIONS.find((item) => item.key === key);
   if (!question) return null;
@@ -155,7 +124,7 @@ type TasteAnswerDto = { dimension: string; status: string; value: string | null 
 const FOOD_CODES = new Set<string>(FOODS.map((food) => food[0]));
 
 /**
- * 서버가 준 값 하나를 화면이 쓰는 값으로. 🔴 모르는 모양이면 **그 칸만 버린다** — 화면을
+ * 서버가 준 값 하나를 화면이 쓰는 값으로. 모르는 모양이면 그 칸만 버린다 — 화면을
  * 죽이지 않는다. 한 칸이 이상하다고 나머지 넷까지 못 보여 주면 고칠 방법이 사라진다.
  */
 function parseValue(key: TasteKey, raw: string): TasteValue | undefined {
@@ -176,13 +145,7 @@ function parseValue(key: TasteKey, raw: string): TasteValue | undefined {
   return typeof parsed === 'number' && Number.isInteger(parsed) && parsed >= 1 && parsed <= 5 ? parsed : undefined;
 }
 
-/**
- * `GET /api/v1/me/preferences/taste`
- *
- * 🔴 한 번도 저장한 적 없으면 404 가 아니라 **빈 목록으로 200** 이 온다 — "아직 취향이 없다"
- * 는 오류가 아니라 정상 상태이고, 404 로 답하면 첫 실행인 사람에게 빨간 화면이 뜬다.
- * 세 질문 경로가 같은 까닭으로 `status:UNKNOWN` 을 낸다.
- */
+/** `GET /api/v1/me/preferences/taste` */
 export async function getTasteProfile(accessToken: string | null): Promise<TasteAnswers> {
   const dto = await apiRequest<{ answers: TasteAnswerDto[] }>('/api/v1/me/preferences/taste', { accessToken });
   const answers: TasteAnswers = {};
@@ -196,18 +159,10 @@ export async function getTasteProfile(accessToken: string | null): Promise<Taste
   return answers;
 }
 
-/** 바꿀 것만 담는다. `null` 은 **지우기**, 키를 안 넣으면 **그대로 둔다**. */
+/** 바꿀 것만 담는다. `null` 은 지우기, 키를 안 넣으면 그대로 둔다. */
 export type TasteChanges = Partial<Record<TasteKey, TasteValue | null>>;
 
-/**
- * `PUT /api/v1/me/preferences/taste`
- *
- * 🔴 **보낸 차원만 바뀐다.** 안 보낸 차원은 서버에 그대로 남는다. 그래서 마이페이지에서 한
- * 줄만 고칠 때 나머지 넷을 같이 보낼 필요가 없다.
- *
- * 🔴 지우기는 `null` 로 **명시해서** 보낸다(서버에는 `UNKNOWN` 으로 간다). "지웠다" 와 "안
- * 보냈다" 를 구분할 방법이 이것뿐이고, 그 둘은 사용자에게 정반대다.
- */
+/** `PUT /api/v1/me/preferences/taste` */
 export function putTasteProfile(changes: TasteChanges, accessToken: string | null) {
   const answers = Object.entries(changes).map(([key, value]) => ({
     dimension: DIMENSION[key as TasteKey],

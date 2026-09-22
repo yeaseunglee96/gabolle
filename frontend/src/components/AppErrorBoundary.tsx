@@ -2,14 +2,16 @@ import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { router } from 'expo-router';
 import { Platform, StyleSheet, View } from 'react-native';
 
-import { getApiLanguage } from '@/api/client';
+import { pickLanguage } from '@/i18n/pick';
+import { getCurrentLanguage } from '@/i18n/languages';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { Button } from './Button';
 import { Text } from './Text';
 
-// 에러 경계는 React가 클래스 컴포넌트로만 만들 수 있게 해서 useI18n() 훅을 못 쓴다.
-// setApiLanguage로 동기화되는 같은 모듈 변수를 읽어 번역한다(api/client.ts 참고).
-const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+// 에러 경계는 React가 클래스 컴포넌트로만 만들 수 있게 해서 useI18n 훅을 못 쓴다.
+// 고른 언어를 모듈 변수(i18n/languages.ts 의 getCurrentLanguage)에서 읽어 다섯 언어로 번역한다 —
+// 전에는 서버용 언어(ko|en)를 읽어서 일본어·중국어 사용자에게 이 화면만 영어로 떴다(S15P21E201-1340).
+const tx = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 type Props = { children: ReactNode };
 type State = { error: Error | null };
@@ -43,7 +45,7 @@ export class AppErrorBoundary extends Component<Props, State> {
     return (
       <View style={styles.screen} accessibilityRole="alert">
         <View style={styles.mark} accessibilityElementsHidden>
-          <Text variant="display" weight="bold" color={color.brand.orange}>!</Text>
+          <Text variant="display" weight="bold" color={color.state.danger}>!</Text>
         </View>
         <Text variant="display" weight="bold" color={color.text.heading}>{tx('화면을 불러오지 못했어요', 'Could not load this screen')}</Text>
         <Text variant="body" color={color.text.body} style={styles.description}>
@@ -51,7 +53,7 @@ export class AppErrorBoundary extends Component<Props, State> {
         </Text>
         <View style={styles.actions}>
           <Button label={tx('다시 시도', 'Try again')} onPress={this.retry} />
-          <Button label={tx('홈으로 돌아가기', 'Back to home')} variant="ghost" onPress={this.goHome} />
+          <Button label={tx('홈으로 돌아가기', 'Back to home')} variant="tertiary" onPress={this.goHome} />
         </View>
         {__DEV__ ? (
           <View style={styles.debugBox}>

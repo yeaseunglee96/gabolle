@@ -2,14 +2,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { OAuthProvider } from './authApi';
 
-// S15P21E201-830 — 웹에서는 소셜 로그인 팝업(window.open)이 모바일 브라우저의 팝업
+// — 웹에서는 소셜 로그인 팝업(window.open)이 모바일 브라우저의 팝업
 // 차단에 막힌다. 그래서 웹에서는 새 창 대신 현재 페이지를 그대로 제공자 인증 화면으로
 // 넘긴다(oauth.ts). code_verifier·state·nonce는 원래 창의 메모리에만 있었는데
 // 페이지를 통째로 넘기면 사라지므로, 넘어가기 전에 여기 잠깐 저장하고 돌아와서
 // (oauth/[provider]/callback.tsx) 한 번 꺼내 쓴 뒤 지운다 — pendingReturnTo.ts와 같은 모양이다.
 const STORAGE_KEY = '@gabolle/pending-oauth';
 
-// S15P21E201-832 — 같은 왕복(제공자 인증 → 착지 화면)을 로그인과 "이미 로그인한 계정에
+// — 같은 왕복(제공자 인증 → 착지 화면)을 로그인과 "이미 로그인한 계정에
 // 소셜 연결하기" 둘 다에 쓴다. 착지 화면이 completeOAuth(로그인)를 부를지 linkOAuthAccount
 // (연결)를 부를지는 이 칸으로 가른다 — 없으면 로그인으로 본다(기존 저장값과 호환).
 export type PendingOAuthIntent = 'login' | 'link';

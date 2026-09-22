@@ -1,5 +1,5 @@
 // 기록 공동 작성 초대 링크를 열었을 때 보이는 화면 — S15P21E201-845. 여행 초대
-// (app/invite/[token].tsx, S15P21E201-302)와 같은 모양이다: 아무것도 물어보지 않고 들어오자마자
+// (app/invite/[token].tsx,와 같은 모양이다: 아무것도 물어보지 않고 들어오자마자
 // 수락 처리를 부른 뒤 그 기록으로 보낸다.
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -12,6 +12,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { acceptStoryInvite } from '@/social/storyCoauthors';
+import { localizeMessage } from '@/i18n/messages';
 
 type Status = { state: 'checking' } | { state: 'expired' } | { state: 'not-found' } | { state: 'error'; message: string };
 
@@ -68,7 +69,7 @@ export default function AcceptStoryInvite() {
     {status.state === 'error' && (
       <View accessibilityRole="alert" style={styles.card}>
         <Text variant="title" weight="bold">{tx('초대를 처리하지 못했어요', "Couldn't process this invite")}</Text>
-        <Text color={color.text.body}>{status.message}</Text>
+        <Text color={color.text.body}>{localizeMessage(tx, status.message)}</Text>
         <Button label={tx('홈으로', 'Go home')} onPress={() => router.replace('/home')} />
       </View>
     )}
@@ -76,6 +77,6 @@ export default function AcceptStoryInvite() {
 }
 
 const styles = StyleSheet.create({
-  screen: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.ivory },
+  screen: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.canvas },
   card: { gap: spacing[3], width: '100%', maxWidth: 420, padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
 });

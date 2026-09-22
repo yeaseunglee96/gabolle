@@ -1,5 +1,3 @@
-// 🔴 이 시험이 막는 것은 「서버가 준 것을 검사 없이 화면에 찍는 것」이다.
-//    2026-09-18 실기기에서 `error.trip.validation` 이 그대로 보였다.
 import { ApiClientError } from '@/api/client';
 import { looksLikeMessageKey, readableApiError } from '@/api/errorText';
 

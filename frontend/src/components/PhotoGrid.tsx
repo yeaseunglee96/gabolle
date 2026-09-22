@@ -1,10 +1,4 @@
 // 피드 사진 자리 — S15P21E201-1135.
-//
-// 작성 미리보기·목록 카드·글 상세 **셋이 이 부품 하나를 쓴다.** 같은 사진이 화면마다
-// 다르게 놓이면 사용자는 올린 것과 보이는 것이 다르다고 느낀다.
-//
-// 배치를 정하는 일은 여기 없다 — `@/social/photoGrid` 의 순수 함수가 한다.
-// 여기는 정해진 배치를 그리기만 한다.
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
@@ -35,19 +29,7 @@ const SINGLE_MIN_RATIO = 0.6;
 const SINGLE_MAX_RATIO = 1.91;
 const SINGLE_FALLBACK_RATIO = 4 / 3;
 
-/**
- * 🔴 사진 블록의 **절대 최대 높이** (S15P21E201-1169).
- *
- * 위의 비율 제한만으로는 넓은 화면에서 안 통한다. 비율은 **폭에 비례**하기 때문이다 —
- * 세로 사진이 0.6 으로 묶여도, 카드가 1,200px 로 넓어지면 높이가 **2,000px** 이 된다.
- * 사용자가 올린 실제 화면이 그랬다: 사진 한 장이 화면을 다 덮고 본문·좋아요·「자세히
- * 보기」가 전부 스크롤 밖으로 밀렸다.
- *
- * 폰(390)에서는 0.6 비율이 높이 650 이라 원래 문제가 없었다. **그래서 폰만 보면 안 보인다.**
- *
- * 이 값을 넘으면 `overflow: hidden` 이 위아래를 자른다 — 사진이 줄어드는 게 아니라
- * 가운데가 남는다(트위터·인스타와 같은 방식).
- */
+/** 사진 블록의 절대 최대 높이** */
 const MAX_BLOCK_HEIGHT = 520;
 
 /** 배치별 전체 블록의 가로세로. 세로 사진이 들어가는 배치는 조금 더 높다. */
@@ -64,7 +46,7 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export function PhotoGrid({ photos, renderOverlay, onPressPhoto, accessibilityLabel, style, compact }: Props) {
-  // 크기를 모르는 사진은 여기서 재 본다. 🔴 못 재도 그리기를 멈추지 않는다 —
+  // 크기를 모르는 사진은 여기서 재 본다. 못 재도 그리기를 멈추지 않는다
   // 배치가 기본값으로 갈 뿐이고, 사진은 그대로 보인다.
   const [measured, setMeasured] = useState<Record<string, { width: number; height: number }>>({});
   const unmeasured = photos.filter((p) => typeof p.width !== 'number' || typeof p.height !== 'number').map((p) => p.uri);

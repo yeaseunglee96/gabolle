@@ -1,7 +1,7 @@
 import { formatTravelLabel, itineraryStats, totalTravelMinutes } from './itinerarySummary';
 import type { ItineraryDto, ItineraryItemDto } from './itinerary';
 
-// S15P21E201-1014 — 완료 기준 둘을 여기서 잰다.
+// — 완료 기준 둘을 여기서 잰다.
 // ① 「지연」이라는 말이 안 나온다 — 이동 시간으로 바뀌었다
 // ② 값이 없는 「미확인」 칸이 없다
 const tx = (ko: string) => ko;
@@ -26,9 +26,6 @@ describe('이동 시간 문구', () => {
     expect(formatTravelLabel(item({ travelDurationMin: 12, travelDataStatus: 'ESTIMATED' }), tx)).toBe('이동 12분 (어림)');
   });
 
-  // 🔴 S15P21E201-1119 — 이 시험의 이름이 「그날 첫 방문지」라고 적혀 있었다. 그 전제가
-  // 틀렸다. 서버는 첫 방문지에도 구간을 준다 — 출발지에서 오는 구간이고, 하루 중 제일
-  // 길다(운영 실측 38분·40분). 값이 없는 경우를 재는 시험이 맞으므로 이름만 고친다.
   it('구간을 못 쟀으면 아무 말도 만들지 않는다', () => {
     expect(formatTravelLabel(item({ travelDurationMin: null }), tx)).toBeNull();
     expect(formatTravelLabel(item(), tx)).toBeNull();

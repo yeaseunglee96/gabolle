@@ -1,11 +1,5 @@
 // 로그인 유도 — S15P21E201-1012. 피드를 로그인 없이 볼 수 있게 열었으니(-974), 얼마쯤
 // 보고 나면 가입을 권한다. 인스타그램이 하는 방식이다.
-//
-// 🔴 처음부터 막지 않는다. 막으면 제품이 뭔지 보기도 전에 떠난다. 그래서 이것은 길을
-// 막는 창이 아니라 권하는 창이고, 닫으면 그대로 계속 볼 수 있다.
-//
-// 🔴 「로그인하세요」만 쓰지 않는다. 무엇을 할 수 있게 되는지를 적는다 — 이유를 안 주면
-// 닫기만 누른다.
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
@@ -36,7 +30,7 @@ export function SignInPromptModal({ visible, onClose, onSignIn }: SignInPromptMo
           <View style={styles.gainList}>
             {gains.map(([ko, en]) => (
               <View key={ko} style={styles.gainRow}>
-                <Text variant="body" weight="bold" color={color.brand.orange}>·</Text>
+                <Text variant="body" weight="bold" color={color.text.muted}>·</Text>
                 <Text color={color.text.body} style={styles.gainText}>{tx(ko, en)}</Text>
               </View>
             ))}
@@ -58,13 +52,13 @@ export function SignInPromptModal({ visible, onClose, onSignIn }: SignInPromptMo
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
+  backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   card: { width: '100%', maxWidth: 420, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   gainList: { gap: spacing[2] },
   gainRow: { flexDirection: 'row', gap: spacing[2] },
   gainText: { flex: 1 },
   buttonRow: { flexDirection: 'row', gap: spacing[2] },
   button: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  ghostButton: { backgroundColor: color.surface.card },
-  primaryButton: { backgroundColor: color.brand.orange },
+  ghostButton: { backgroundColor: color.action.tertiary },
+  primaryButton: { backgroundColor: color.action.primary },
 });

@@ -1,16 +1,10 @@
 // 기록에 붙이는 사진 — 고르고, 줄이고, 올리기까지 한 곳에 모은다.
-//
-// S15P21E201-958 2단계에서 compose.tsx 밖으로 뺐다. 피드 화면의 인라인 글쓰기가
-// 같은 일을 해야 하는데, 🔴 복사해 두면 3MB 판정이나 리사이즈 규칙을 고칠 때
-// 한쪽만 고치게 된다. 이 저장소가 여러 번 겪은 고장이라 처음부터 한 벌로 둔다.
-//
-// 담는 것은 "아직 못 올린 사진의 상태" 다. 올라간 주소(imageUrl)는 글을 보낼 때
-// createStory 의 imageUrls 로 들어간다.
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 
 import { MAX_PICK_BYTES, MAX_PICK_LABEL, MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL, measureBytes, resizeForUpload } from '@/social/imageResize';
 import { uploadStoryImage } from '@/social/stories';
+import { txf } from '@/i18n/format';
 
 /** 한 기록에 붙일 수 있는 사진 수. 서버 계약과 같은 값이다. */
 export const MAX_STORY_IMAGES = 3;
@@ -18,7 +12,7 @@ export const MAX_STORY_IMAGES = 3;
 export type PendingImage = {
   /** 화면에 미리 보여줄 주소. 줄이기가 끝나면 줄인 것으로 바뀐다. */
   localUri: string;
-  /** 🔴 재시도가 원본부터 다시 타도록 남겨 둔다 — 줄인 것을 또 줄이지 않게. */
+  /** 재시도가 원본부터 다시 타도록 남겨 둔다 — 줄인 것을 또 줄이지 않게. */
   originalUri: string;
   /** 고를 때 받은 원래 파일 이름·형식. 줄이기가 실패해 원본을 그대로 보낼 때 쓴다. */
   originalFileName: string | null;
@@ -31,14 +25,7 @@ export type PendingImage = {
 
 type Translate = (ko: string, en: string) => string;
 
-/**
- * 무엇이 왜 막혔는지 화면까지 가져간다 — S15P21E201-1121.
- *
- * <p>🔴 예전에는 catch 가 error 를 통째로 버리고 「사진을 처리하지 못했어요」만 남겼다.
- * 릴리스 빌드에는 JS 콘솔이 없어서 기기 로그에도 아무것도 안 남는다. 그래서 실기기에서
- * 100% 실패하는데도 어느 단계가 깨졌는지 아무도 알 수 없었다(2026-09-16 iOS·안드로이드
- * 양쪽에서 재현). 사람에게 보여 줄 말 뒤에 기술적인 한 줄을 붙여 둔다.
- */
+/** 무엇이 왜 막혔는지 화면까지 가져간다 — S15P21E201-1121. */
 function describeCause(error: unknown): string {
   if (error instanceof Error && error.message) return error.message.slice(0, 120);
   if (typeof error === 'string' && error) return error.slice(0, 120);
@@ -52,35 +39,18 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
     setImages((prev) => prev.map((image, position) => (position === index ? { ...image, ...next } : image)));
 
   // 원본을 그대로 올리지 않는다 — 다시 인코딩해서 가장 긴 변을 1600px로 줄이고 그
-  // 과정에서 촬영 위치 정보(EXIF)도 함께 뗀다(S15P21E201-204). 재시도도 이 함수를
+  // 과정에서 촬영 위치 정보(EXIF)도 함께 뗀다. 재시도도 이 함수를
   // 다시 타서, 실패했던 것을 원본 그대로 올려버리는 일이 없게 한다.
   const processAndUpload = async (index: number, image: Pick<PendingImage, 'originalUri' | 'originalFileName' | 'originalMimeType'>) => {
     const { originalUri } = image;
     try {
-      // 🔴 S15P21E201-1121 — 줄이기가 실패해도 여기서 끝내지 않는다.
-      //
-      //    예전에는 resizeForUpload 가 던지면 곧장 catch 로 떨어져 업로드 자체를
-      //    안 했다. 2026-09-16 iOS·안드로이드 실기기에서 사진 업로드가 100% 실패했고,
-      //    서버 기록에는 요청이 한 건도 남지 않았다 — 네트워크까지 가지도 못한 것이다.
-      //
-      //    줄이기는 두 가지를 한다: (1) 가장 긴 변을 1600px로 줄여 전송량을 아끼고
-      //    (2) 다시 인코딩하면서 촬영 위치 정보(EXIF)를 뗀다(S15P21E201-204).
-      //    그런데 (2)는 서버가 이미 자기 몫으로 한다 — ImageUploadService 가
-      //    ImageSanitizer.strip 으로 EXIF 를 지우고 저장한다. 즉 줄이기는 편의이지
-      //    개인정보 약속의 근거가 아니다. 그래서 실패하면 원본으로 넘겨도 약속은
-      //    그대로 지켜진다. 상한을 넘으면 아래 3MB 검사와 서버의 413 이 받아 준다.
-      //
-      //    원본이라도 올라가는 것이, 아무것도 안 올라가는 것보다 낫다.
-      // 🔴 S15P21E201-1134 — 줄이기 **전에** 원본이 다룰 수 있는 크기인지 본다.
-      //    줄이는 작업은 사진을 통째로 메모리에 올리므로, 40MB 짜리를 그냥 넣으면
-      //    앱이 조용히 죽는다. 여기서 막는 것은 서버 상한과 무관한 **기기 보호**다.
-      //    못 재면(null) 막지 않는다 — 재기는 거들 뿐이다.
+      // — 줄이기가 실패해도 여기서 끝내지 않는다.
       const originalBytes = await measureBytes(originalUri);
       if (originalBytes !== null && originalBytes > MAX_PICK_BYTES) {
         const size = (originalBytes / (1024 * 1024)).toFixed(1);
         patch(index, {
           uploading: false,
-          error: tx(`사진이 ${size}MB 라 너무 커요. 한 장은 ${MAX_PICK_LABEL}까지예요.`, `This photo is ${size}MB — each photo must be ${MAX_PICK_LABEL} or less.`),
+          error: txf(tx, '사진이 %sMB 라 너무 커요. 한 장은 %s까지예요.', 'This photo is %sMB — each photo must be %s or less.', size, MAX_PICK_LABEL),
         });
         return;
       }
@@ -99,8 +69,8 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
         resizeFailure = describeCause(error);
       }
 
-      // 상한을 넘으면 보내지 않는다 — 올라가기를 기다린 끝에 실패를 보는 대신,
-      // 여기서 실제 크기와 함께 이유를 말한다 (S15P21E201-955).
+      // 상한을 넘으면 보내지 않는다 — 올라가기를 기다린 끝에 실패를 보는 대신
+      // 여기서 실제 크기와 함께 이유를 말한다.
       // 못 재면(null) 막지 않는다. 판정은 서버가 하고 413 처리가 받아 준다.
       const bytes = await measureBytes(uploadUri);
       if (bytes !== null && bytes > MAX_UPLOAD_BYTES) {
@@ -108,12 +78,12 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
         patch(index, {
           uploading: false,
           error: resizeFailure
-            // 🔴 숫자를 문구에 박지 않는다 (S15P21E201-1134). 상한을 바꿨는데 문구에
+            // 숫자를 문구에 박지 않는다. 상한을 바꿨는데 문구에
             // 옛 숫자가 남으면 사용자는 틀린 이유를 읽는다 — 이유를 안 보여 주는 것보다 나쁘다.
-            // 여기 걸리는 것은 거의 언제나 **줄이기가 실패한 경우**다. 그때는 서버가 받을
+            // 여기 걸리는 것은 거의 언제나 줄이기가 실패한 경우다. 그때는 서버가 받을
             // 수 있는 크기인지가 문제라 고르기 상한(30MB)이 아니라 전송 상한으로 말한다.
-            ? tx(`사진을 줄이지 못했고 원본이 ${mb}MB 라 올릴 수 없어요. 줄이지 못한 사진은 ${MAX_UPLOAD_LABEL}까지만 올릴 수 있어요. (${resizeFailure})`, `Could not resize, and the original is ${mb}MB — un-resized photos must be ${MAX_UPLOAD_LABEL} or less. (${resizeFailure})`)
-            : tx(`줄여도 ${mb}MB 라 올릴 수 없어요. 한 장은 ${MAX_UPLOAD_LABEL}까지예요.`, `Still ${mb}MB after resizing — each photo must be ${MAX_UPLOAD_LABEL} or less.`),
+            ? txf(tx, '사진을 줄이지 못했고 원본이 %sMB 라 올릴 수 없어요. 줄이지 못한 사진은 %s까지만 올릴 수 있어요. (%s)', 'Could not resize, and the original is %sMB — un-resized photos must be %s or less. (%s)', mb, MAX_UPLOAD_LABEL, resizeFailure)
+            : txf(tx, '줄여도 %sMB 라 올릴 수 없어요. 한 장은 %s까지예요.', 'Still %sMB after resizing — each photo must be %s or less.', mb, MAX_UPLOAD_LABEL),
         });
         return;
       }
@@ -125,7 +95,7 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
     } catch (error) {
       patch(index, {
         uploading: false,
-        error: tx(`사진을 처리하지 못했어요. 다른 사진으로 해보거나, 3MB 이하로 줄여서 올려주세요. (${describeCause(error)})`, `Could not process the photo. Try another one, or resize it to 3MB or less. (${describeCause(error)})`),
+        error: txf(tx, '사진을 처리하지 못했어요. 다른 사진으로 해보거나, 3MB 이하로 줄여서 올려주세요. (%s)', 'Could not process the photo. Try another one, or resize it to 3MB or less. (%s)', describeCause(error)),
       });
     }
   };
@@ -151,7 +121,8 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
 
   const retryImage = (index: number) => {
     const image = images[index];
-    if (!image || image.uploading) return;
+    // 되살린 사진은 원본이 이 기기에 없다 — 다시 올릴 것이 없으므로 아무것도 안 한다.
+    if (!image || image.uploading || !image.originalUri) return;
     patch(index, { uploading: true, error: null });
     void processAndUpload(index, image);
   };
@@ -160,16 +131,52 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
 
   const clearImages = () => setImages([]);
 
+  /**
+   * 이미 올라간 사진을 주소만으로 되살린다 (S15P21E201-1312).
+   *
+   * 🔴 되살리는 것은 **서버 주소를 받은 사진뿐**이다. 그 주소는 새로고침해도 다른 기기에서도
+   * 그대로 쓸 수 있다 — 글을 보낼 때 실려 가는 것이 바로 이 값이다. 올라가는 중이거나
+   * 실패한 사진은 주소가 없어서 되살릴 것이 없다.
+   *
+   * 원본 주소 칸은 비워 둔다. 되살린 사진은 **다시 올릴 일이 없어서** 재시도가 필요 없고,
+   * 가짜 값을 넣어 두면 나중에 누가 그것으로 재시도를 걸었을 때 없는 파일을 읽는다.
+   */
+  const restoreUploaded = (urls: string[]) =>
+    setImages((prev) => {
+      if (prev.length > 0) return prev;
+      return urls.slice(0, MAX_STORY_IMAGES).map((url) => ({
+        localUri: url,
+        originalUri: '',
+        originalFileName: null,
+        originalMimeType: null,
+        imageUrl: url,
+        uploading: false,
+        error: null,
+      }));
+    });
+
+  const uploadedUrls = useMemo(
+    () => images.filter((image) => image.imageUrl).map((image) => image.imageUrl as string),
+    [images],
+  );
+
   return {
     images,
     addImage,
     retryImage,
     removeImage,
     clearImages,
+    restoreUploaded,
     /** 하나라도 올라가는 중이면 글을 보내지 않는다 — 주소가 아직 없어서 빠진다. */
     anyUploading: images.some((image) => image.uploading),
-    /** 실제로 올라간 것만. 실패한 사진은 글에 안 붙는다. */
-    uploadedUrls: images.filter((image) => image.imageUrl).map((image) => image.imageUrl as string),
+    /**
+     * 실제로 올라간 것만. 실패한 사진은 글에 안 붙는다.
+     *
+     * 🔴 목록을 그때그때 새로 만들지 않는다. 부르는 쪽이 이 값을 **useEffect 의 조건**으로
+     * 쓰는데(임시 저장), 매번 새 배열이면 조건이 늘 바뀐 것으로 보여 **화면이 그려질 때마다
+     * 저장한다.** 사진이 바뀔 때만 새로 만든다.
+     */
+    uploadedUrls,
     canAddMore: images.length < MAX_STORY_IMAGES,
   };
 }
