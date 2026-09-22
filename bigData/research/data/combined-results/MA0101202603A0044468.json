@@ -1,0 +1,50 @@
+{
+  "id": "MA0101202603A0044468",
+  "name": "타코로",
+  "cat": "기타 서양식 음식점",
+  "attempts": 1,
+  "geminiTokens": 144278,
+  "researchedAt": "2026-09-22T06:59:34.240Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민",
+    "queueing": false,
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 해운대구 재반로 98 1층에 등록된 사업체(타코로) 정보는 확인되나, 방문자 리뷰나 가격, 운영시간 등의 상세 정보는 웹상에 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 재반로 98, 1층 (재송동 1125-1) 타코로, 기타 일반음식점",
+      "url": "https://bizno.net"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 재반로 98 타코로 전화번호: 051-717-3777 업종: 기타 일반음식점",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://bizno.net",
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": []
+}

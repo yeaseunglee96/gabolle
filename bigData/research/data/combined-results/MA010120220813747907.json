@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220813747907",
+  "name": "덮덮밥",
+  "cat": "기타 한식 음식점",
+  "attempts": 1,
+  "geminiTokens": 65471,
+  "researchedAt": "2026-09-22T06:57:43.737Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 매장 혼잡에 대한 직접적인 블로그/방문 후기 언급 없음 (배달 전문 형태)"
+  },
+  "descriptors": {
+    "audience": "1인가구 및 인근 대학생/주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "항정살 덮밥",
+      "갈비 덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객 관련 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 남구 대연동 부경대/경성대 인근 C&CTOWN에 등록된 덮밥 프랜차이즈 배달 전문 매장으로 추정되며, 방문 후기나 독립 웹페이지가 적음",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 용소로64번길 71 (지번 주소: 대연동 639-11)에 위치한 '덮덮밥'은 공공데이터 포털 등에 등록된 기타 한식 음식점입니다. 해당 주소지는 'C&CTOWN'이라는 건물로 확인됩니다.",
+      "url": "https://disco.re"
+    }
+  ],
+  "sources": [
+    "https://disco.re",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "간편하고 부담 없이 즐기는 덮밥 배달·포장 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

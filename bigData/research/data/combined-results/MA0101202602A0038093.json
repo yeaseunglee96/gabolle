@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202602A0038093",
+  "name": "오프레",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 64616,
+  "researchedAt": "2026-09-22T07:01:46.797Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 1인 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "잠봉뵈르",
+      "고수 바게트",
+      "베이컨크림우동"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "정보 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안동에 위치한 1인 셰프 브런치/양식 매장(오프레).",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'곁에'라는 뜻을 가진 프랑스어 이름처럼 편안한 분위기를 지향하는 1인 셰프 운영 레스토랑입니다. 잠봉뵈르, 후무스, 바게트 샌드위치 등 유럽식 브런치 메뉴를 주로 선보이고 있습니다. 직접 반죽하고 조리하는 건강한 재료 중심의 요리를 제공하며, 식사 후에도 몸이 가벼운 메뉴를 지향합니다.",
+      "url": "https://www.facebook.com"
+    },
+    {
+      "excerpt": "잠봉뵈르, 고수 바게트, 우동 메뉴 등을 제공하는 식당",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://saramin.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "직접 반죽하고 조리하는 잠봉뵈르 등 유럽식 브런치 메뉴와 편안한 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

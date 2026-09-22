@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220814018205",
+  "name": "타파스토끼",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 57907,
+  "researchedAt": "2026-09-22T07:01:06.560Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 직접적인 언급을 찾을 수 없음"
+  },
+  "descriptors": {
+    "audience": "지인 및 연인과의 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "문어 요리",
+      "감바스",
+      "파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화요일~목요일 18:00~24:00, 금요일~토요일 18:00~25:00, 일요일·월요일 휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광남로 196-2에 위치했던 스페인 요리(타파스) 및 와인바 '타파스토끼'에 대한 조사 결과입니다. 미국 샌프란시스코 운영 경험의 셰프가 운영했던 독창적 타파스/와인바로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "타파스토끼(TAPAS TOKKI) 위치: 부산광역시 수영구 광남로 196-2 1층 (민락동). 스페인 요리(타파스)를 전문으로 하는 레스토랑입니다. 오너 셰프가 운영하며, 분위기 좋은 술집으로 알려져 있습니다. 주요 메뉴: 문어 요리, 감바스, 파스타, 께사디야 등 다양한 타파스 메뉴를 제공합니다. 영업시간: 일반적으로 화요일~목요일은 18:00~24:00, 금요일~토요일은 18:00~25:00에 운영하며, 일요일과 월요일은 휴무일인 경우가 많으니 방문 전 확인을 권장합니다.",
+      "url": "https://www.suyeong.go.kr"
+    },
+    {
+      "excerpt": "미국 샌프란시스코에서 운영하던 경험을 가진 오너 셰프가 운영하는 레스토랑으로 알려져 있습니다. 지중해식 문어 구이, 똠양 소스 닭튀김 등 독창적인 메뉴를 선보이는 곳으로 광안리 내에서 술집 및 맛집으로 자주 언급됩니다. 서핑과 음악, 요리를 즐기는 셰프의 라이프스타일이 반영된 공간으로 소개되기도 합니다.",
+      "url": "https://www.jejumoj.com"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr",
+    "https://www.jejumoj.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미국 샌프란시스코 경험의 오너 셰프가 선보이는 지중해식 문어구이 등 독창적인 타파스 요리와 감각적인 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

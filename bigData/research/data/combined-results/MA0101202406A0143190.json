@@ -1,0 +1,83 @@
+{
+  "id": "MA0101202406A0143190",
+  "name": "타코사이코",
+  "cat": "기타 서양식 음식점",
+  "attempts": 1,
+  "geminiTokens": 67764,
+  "researchedAt": "2026-09-22T06:58:53.560Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "친구·연인·혼술객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "타코야끼",
+      "살얼음 맥주",
+      "타맥세트"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "14:00~"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 및 세흥시장 인근에 위치하여 현지 주민 및 광안리를 찾는 방문객들이 가볍게 즐기는 곳으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남천바다로 16(세흥시장 1층)에 위치한 타코야끼 및 맥주 전문 주점 타코사이코 광안리본점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "타코야끼 8알 5,000원 / 12알 7,000원 / 20알 세트 12,900원",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "살얼음 맥주와 타코를 함께 즐길 수 있는 술집으로, 일본풍 인테리어와 합리적인 가격대의 안주(타코, 치즈스틱 등) 및 주류(맥주, 하이볼 등)를 제공합니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "위치: 부산광역시 수영구 남천바다로 16, 세흥시장 1층 6호, 15호. 타코야끼 8알 5,000원, 12알 7,000원, 20알 세트 12,900원. 타맥세트, 먹맥세트, 감치맥세트 등 다양한 안주 구성.",
+      "url": "https://heyyumi.ai"
+    },
+    {
+      "excerpt": "일본의 전통적인 맛을 재현한 다양한 타코야키 메뉴를 제공하며, 광안리 해변 근처에 위치해 있습니다. 남천역 주변 맥주 전문점 카테고리 등에서 소개되고 있으며, 운영 시간은 14:00부터 시작됩니다.",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://heyyumi.ai",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "타코야끼와 시원한 살얼음 생맥주·하이볼을 가성비 좋게 가볍게 즐기기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "일본 현지 느낌의 분위기에서 다양한 타코야끼 세트 안주를 맛보기 위해 방문",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

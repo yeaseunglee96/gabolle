@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220808280661",
+  "name": "가야뷔페",
+  "cat": "뷔페",
+  "attempts": 1,
+  "geminiTokens": 64621,
+  "researchedAt": "2026-09-22T06:57:14.174Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "사업자 등록 데이터상 상호와 주소는 확인되나, 실제 운영 중인 대중 식당으로서의 상세 정보(메뉴, 가격, 영업시간, 방문자 리뷰 등)가 웹상에 전혀 존재하지 않습니다.",
+  "notes": "부산광역시 부산진구 서전로9번길 12 소재의 '가야뷔페'는 사업자/인허가 등록 정보 외에 실제 방문 후기나 영업시간, 메뉴, 사진 등의 세부 정보를 확인할 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

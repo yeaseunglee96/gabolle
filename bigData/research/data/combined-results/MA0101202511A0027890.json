@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202511A0027890",
+  "name": "하모",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 57646,
+  "researchedAt": "2026-09-22T07:01:03.945Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "정보 없음"
+  },
+  "descriptors": {
+    "audience": "주류/바 이용 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "20:00~03:00 (매주 월, 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "정보 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "'부산광역시 수영구 민락로14번길 33 2층'에 위치한 '하모'는 일반 경양식/돈까스 식당이 아니라 테라스가 있는 주점/바(Bar) 형태의 매장으로 운영되고 있습니다. 영업시간은 20:00~03:00 (월, 화 휴무)입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 민락로14번길 33, 2층에 위치한 곳으로, 영업시간은 20:00~03:00이며 매주 월, 화요일은 정기휴무입니다. 부산 테라스 있는 느좋바(느낌 좋은 바)",
+      "url": "https://facebook.com"
+    }
+  ],
+  "sources": [
+    "https://facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "야외 테라스 분위기를 즐기며 늦은 시간까지 한잔하기 좋은 감성 바",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

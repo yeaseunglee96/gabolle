@@ -1,0 +1,89 @@
+{
+  "id": "MA0106202505A0937644",
+  "name": "씨제이푸드빌빕스부산",
+  "cat": "패밀리레스토랑",
+  "attempts": 1,
+  "geminiTokens": 56005,
+  "researchedAt": "2026-09-22T06:59:52.359Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "통신사 할인 기간이나 주말에는 대기가 조기 마감될 정도로 혼잡하여 사전 예약 권장"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 모임 단체 고객",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "샐러드바",
+      "스테이크",
+      "와인/맥주 무제한"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30 ~ 22:00 (평일 런치 11:30 ~ 16:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객에 대한 명시적 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "과거 서면에서 20여 년간 운영되다 폐점 후 4년 만인 2025년 4월 서면 푸르지오시티시그니처 3층에 약 300석 규모로 재오픈한 매장임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "평일 런치 샐러드바",
+    "priceWon": 39700
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "CJ푸드빌이 운영하는 빕스가 약 4년 만에 부산 서면 상권에 매장을 다시 열었다. 빕스는 29일 부산 부산진구 중앙대로 654 서면 푸르지오시티시그니처 3층에 '부산서면점'을 새로 오픈했다고 밝혔다. 서면 젊음의 거리 인근에 위치하며 300석 규모의 넓은 공간과 주차 시설을 갖췄다. 특히 단체 고객을 위한 전용 룸 공간을 대폭 늘렸다.",
+      "url": "https://www.businesspost.co.kr/"
+    },
+    {
+      "excerpt": "매일 10:30 ~ 22:00. 평일 런치 타임은 11시 30분부터 16시까지이며, 샐러드바 성인 기준 평일 런치는 39,700원에 이용 가능합니다. 건물 지하 주차장 이용 시 2시간 무료 주차가 지원됩니다.",
+      "url": "https://tistory.com/"
+    },
+    {
+      "excerpt": "통신사 할인(SKT 등) 이벤트 기간에는 평일에도 대기가 빨리 마감되는 등 혼잡할 수 있어 가급적 사전 예약을 하고 방문하시는 것을 추천합니다.",
+      "url": "https://tistory.com/"
+    }
+  ],
+  "sources": [
+    "https://www.businesspost.co.kr/",
+    "https://tistory.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다양한 샐러드바 메뉴와 무제한 와인/생맥주 페어링을 즐기기 위해",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "300석 규모의 대형 매장과 전용 룸, 무료 주차 시설을 갖춰 모임 장소로 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "통신사 할인 프로모션 혜택을 이용해 가성비 있게 이용하기 위해",
+      "sources": [
+        2
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202306A0098896",
+  "name": "에오스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 67872,
+  "researchedAt": "2026-09-22T07:01:28.096Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 상호의 일반음식점 인허가 등록은 확인되나 소비자 리뷰, 메뉴, 영업 정보 등 실제 운영 관련 세부 데이터가 전혀 존재하지 않음",
+  "notes": "부산 수영구 광안해변로 348에 일반음식점으로 등록된 '에오스' 사업체가 존재하지만, 블로그/SNS/포털 등에 실제 경양식 식당 운영 후기, 메뉴, 가격, 영업시간 등 관련 정보가 전혀 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.suyeong.go.kr",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

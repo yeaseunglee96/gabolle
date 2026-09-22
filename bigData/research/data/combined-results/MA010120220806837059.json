@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220806837059",
+  "name": "화목뷔페",
+  "cat": "뷔페",
+  "attempts": 1,
+  "geminiTokens": 53094,
+  "researchedAt": "2026-09-22T06:57:12.015Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명확한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민, 단체 모임객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "한식 뷔페",
+      "볶음밥",
+      "국수",
+      "찌개"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 11:30 ~ 13:30 (주말 및 국경일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "주로 인근 직장인이나 동창회·시민단체 등 단체 모임 및 지역 주민들이 이용함"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영역 13번 출구 화목오피스텔 14층에 위치한 한식 뷔페로, 점심시간 단기 운영(11:30~13:30) 및 대관 행사/모임 장소로 이용됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "한식 뷔페",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 수영로 668(광안동) 화목오피스텔 14층 화목뷔페. 지하철 2호선 수영역 13번 출구 바로 앞 건물로, 점심시간(11:30~13:30)에 8,000원에 신선한 야채, 반찬, 찌개, 볶음밥, 국수 등 다양한 한식 메뉴를 제공하는 점심 뷔페 및 모임 대관 장소. 주말 및 국경일 휴무. 주차는 근처 사설 주차장 이용 권장.",
+      "url": "https://www.kookje.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.kookje.co.kr",
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "8,000원에 한식 반찬과 찌개 등을 즐길 수 있는 높은 점심 가성비",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "수영역 13번 출구 바로 앞 오피스텔 14층에 위치해 단체 모임 및 행사에 용이함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
