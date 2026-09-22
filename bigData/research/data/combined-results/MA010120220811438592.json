@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220811438592",
+  "name": "국수네",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 54800,
+  "researchedAt": "2026-09-22T06:51:11.218Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 혼잡에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 병원 방문객 및 동네 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "비빔국수",
+      "국수"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "확인 불가"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "한서병원 옆 골목에 위치하여 인근 주민 및 병원 방문객이 찾는 동네 소규모 분식점"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "수영구 광안동 한서병원 인근 골목에 위치한 아담한 규모의 국수 전문점으로, 매콤달콤한 빨간 양념의 비빔국수가 대표 메뉴로 소개된 식당입니다. 현재는 폐업/이전 가능성이 높습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "국수/비빔국수 (저렴한 분식 가격대)",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 광안동 맛집 국수네, 빨간 양념맛이 좋은 매콤한 국수. 부산광역시 수영구 수영로611번길 7 (광안동) 한서병원 옆에 위치한 아담한 규모의 국수 전문점.",
+      "url": "https://steemit.com/tasteem/@tastebusan/tasteem-00b8e7"
+    }
+  ],
+  "sources": [
+    "https://steemit.com/tasteem/@tastebusan/tasteem-00b8e7"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "빨간 양념의 매콤하고 입맛 돋우는 비빔국수 맛과 진한 육수",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부담 없는 가격대의 동네 국수/분식",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

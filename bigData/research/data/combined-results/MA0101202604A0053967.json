@@ -1,0 +1,35 @@
+{
+  "id": "MA0101202604A0053967",
+  "name": "동백사라다",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 71652,
+  "researchedAt": "2026-09-22T10:38:01.823Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 해운대구 구남로41번길 33) 및 인근에서 '동백사라다'라는 음식점의 실제 방문 리뷰, 메뉴, 영업 정보가 확인되지 않습니다.",
+  "notes": "신규 인허가 DB에 상호 등록 흔적은 있으나, 블로그/웹 리뷰 등 실제 운영 및 소비자가 방문 가능한 식당으로서의 정보(메뉴, 가격, 영업시간 등)가 확인되지 않아 found: false로 기록합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://dbmon.kr"
+  ]
+}

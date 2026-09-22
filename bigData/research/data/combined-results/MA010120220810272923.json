@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810272923",
+  "name": "송정면가",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 79153,
+  "researchedAt": "2026-09-22T06:51:22.153Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "식사 피크 시간에는 웨이팅이 발생하기도 하나 매장이 넓어 회전율이 있는 편임"
+  },
+  "descriptors": {
+    "audience": "가족 및 단체 관광객, 여행객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "밀면",
+      "해물칼국수",
+      "한방수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:00 (마지막 주문 20:00, 브레이크타임 없음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송정해수욕장 인근에 위치해 있어 송정을 찾은 여행객과 관광객 방문 빈도가 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 송정광어골로 48(송정동)에 위치한 밀면/칼국수 전문점. 전용 대형 주차장과 넓은 좌석을 완비하여 단체 및 관광객 접근 편의성이 뛰어납니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "밀면",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "송정면가(부산광역시 해운대구 송정광어골로 48, 송정동 438-9). 영업시간 매일 11:00 ~ 21:00, 마지막 주문 20:00. 브레이크 타임 없음. 건물 뒤편에 넓은 주차장이 완비되어 있어 주차가 편리하다. 주메뉴는 밀면, 해물칼국수, 한방수육 등이다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "송정해수욕장과 가까워 여행객들이 자주 찾는 맛집으로 알려져 있습니다. 깔끔하고 넓은 실내 공간을 갖추고 있어 단체 방문도 가능합니다. 밀면 온육수가 셀프바에 준비되어 있습니다. 식사 시간에는 웨이팅이 발생하기도 합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "자극적이지 않고 은은한 약재 향의 깔끔한 육수와 양념장을 따로 부어 먹는 밀면의 독특한 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "송정해수욕장 인근에 건물 뒤편 넓은 전용 주차장 완비 및 단체 방문 편리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

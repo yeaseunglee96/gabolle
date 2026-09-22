@@ -1,0 +1,51 @@
+{
+  "id": "MA0101202510A0020475",
+  "name": "골목돼지",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 59269,
+  "researchedAt": "2026-09-22T06:24:43.462Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "돼지생막창"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사상구 백양대로 730(덕포동) 소재 일반음식점으로 확인되었으며 대표 메뉴로 돼지생막창 등이 등재되어 있으나, 블로그 방문 후기나 영업시간, 가격대 등 세부 정량 정보는 공개 웹상에 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 골목돼지, 소재지: 부산광역시 사상구 백양대로 730 (덕포동), 업종: 일반음식점 (한식, 고기요리), 돼지생막창 전문",
+      "url": "http://www.newspeople.co.kr"
+    }
+  ],
+  "sources": [
+    "http://www.newspeople.co.kr",
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돼지생막창 전문점으로 등록되어 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

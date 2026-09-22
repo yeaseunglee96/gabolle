@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220806771829",
+  "name": "솔로",
+  "cat": "카페",
+  "attempts": 1,
+  "geminiTokens": 52349,
+  "researchedAt": "2026-09-22T06:54:10.777Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산 수영구 광남로 88 태민빌딩 2층에 인허가/입점 이력(상호: 솔로)만 확인될 뿐, 실제 영업 중인 카페 정보(후기, 메뉴, 영업시간 등)가 웹상에 전혀 존재하지 않음 (폐업 또는 실영업 미확인)",
+  "notes": "인허가/부동산 대장 상 태민빌딩 2층에 '솔로'가 등록된 기록만 존재하며, 일반 방문객 대상의 실제 카페 영업 정보나 블로그/리뷰가 존재하지 않아 found: false로 판정합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로 88 (태민빌딩) 2층에 위치한 '솔로'는 카페로 등록되어 있습니다",
+      "url": "https://disco.re"
+    }
+  ],
+  "sources": [
+    "https://disco.re"
+  ],
+  "whyPeopleGo": []
+}

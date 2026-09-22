@@ -2,8 +2,77 @@
   "id": "MA010120220812498570",
   "name": "산들밥상",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 강서구 명지오션시티8로 26-7 에 있는 '산들밥상'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성.",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:01:34.604Z"
+  "geminiTokens": 82764,
+  "researchedAt": "2026-09-22T06:15:02.077Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "가격 대비 퀄리티가 괜찮아 식사 시간대 손님이 많다는 방문 후기 언급 확인됨"
+  },
+  "descriptors": {
+    "audience": "인근 주민·가족",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돌솥밥",
+      "두루치기",
+      "고등어구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "명지오션시티 주민 및 나들이 방문객들이 찾는 동네 한식 밥집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": "영업시간 및 전용 주차장 유무 상세 정보는 온라인상 미확인",
+  "notes": "부산 강서구 명지오션시티(명지동)에 위치한 한식 식당으로 돌솥밥과 두루치기, 고등어구이 정식 등을 가성비 있게 제공하는 동네 밥집. 온라인상 상세 영업시간 및 주차 공간 정보는 명확히 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "돌솥밥/두루치기/생선구이 정식 등",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가격이 저렴하고 가격 대비 퀄리티가 좋아 손님이 많다는 평을 남겼습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "명지 실내 동물원 방문 후 식사를 위해 '산들밥상'에 들렀던 후기가 있습니다. 두루치기와 고등어 구이를 주문했으며, 음식 준비가 빨랐다는 점 등을 언급하였습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "저렴한 가격 대비 만족스러운 퀄리티의 돌솥밥과 두루치기, 생선구이 백반 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "돌솥밥과 정갈한 밑반찬, 두루치기와 생선구이 등 든든한 한식 상차림",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

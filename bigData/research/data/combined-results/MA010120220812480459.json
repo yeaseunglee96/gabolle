@@ -2,8 +2,33 @@
   "id": "MA010120220812480459",
   "name": "낫개스시",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 다송로 71 에 있는 '낫개스시'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:50:27.944Z"
+  "geminiTokens": 59605,
+  "researchedAt": "2026-09-22T05:58:58.311Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 사하구 다송로 71에 '낫개스시'라는 상호의 단독 매장은 존재하지 않음 (해당 주소는 '미스터스시 다대낫개점' 등이 위치)",
+  "notes": "제시된 상호 '낫개스시'는 부산광역시 사하구 다송로 71(세인트마린)에 실존하지 않는 상호입니다. 해당 주소에는 '미스터스시 다대낫개점'이 위치해 있어 '다대낫개 스시' 키워드와 혼동된 것으로 파악되며, '없는 가게를 지어내지 마라'는 원칙에 따라 found: false 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
 }

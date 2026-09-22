@@ -2,8 +2,75 @@
   "id": "MA010120220810633625",
   "name": "미락",
   "cat": "횟집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 부산진구 당감서로 90 에 있는 '미락'(횟집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:45:45.264Z"
+  "geminiTokens": 68428,
+  "researchedAt": "2026-09-22T05:58:20.373Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 줄서기 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 모임 객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "미코스",
+      "점심특선",
+      "모듬초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "상세 영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 부산진구 당감서로 90(부암동 505-1)에 위치한 횟집/일식당 '미락(미락일식)'으로, 룸 형태 좌석 및 점심특선/코스 요리가 중심임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "점심특선 25,000원, 미 코스 40,000원, 락 코스 50,000원, 스페셜 코스 60,000원, 모듬 초밥 17,000원",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "프라이빗 룸과 룸 형식의 좌석이 마련되어 있어 가족 외식, 개별 식사 모임, 단체 회식 등을 하기에 적합한 조용한 분위기의 식당입니다. 점심 특선 코스(에피타이저, 사시미, 초밥, 튀김, 야끼우동, 알밥, 미역국 등)가 잘 구성되어 있으며, 두툼한 숙성회와 불향 가득한 야끼우동 등이 후기에서 좋은 평가를 받습니다.",
+      "url": "https://www.siksinhot.com/P/1025556"
+    },
+    {
+      "excerpt": "코스 요리: 미코스(40,000원), 락코스(50,000원), 스페셜 코스(60,000원), 초밥: 스페셜 초밥(22,000원), 모듬 초밥(17,000원), 점심특선(25,000원). 주차 가능, 예약 가능, 포장 및 배달 가능",
+      "url": "https://polle.com/p/2aHhTz"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1025556",
+    "https://polle.com/p/2aHhTz"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두툼한 숙성회와 야끼우동 등 코스 구성이 충실함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "프라이빗 룸 좌석이 구비되어 조용한 모임이나 외식에 적합함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

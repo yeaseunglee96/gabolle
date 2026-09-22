@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220807006823",
+  "name": "잇시",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 56435,
+  "researchedAt": "2026-09-22T07:06:56.234Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(좌동순환로 436)에는 법인 '주식회사 잇시' 사업자 등록만 존재하며, 실제 영업 중인 경양식 식당/음식점으로서의 후기나 영업 정보는 존재하지 않음",
+  "notes": "부산광역시 해운대구 좌동순환로 436 주소지의 '잇시'는 실제 일반 소비자를 대상으로 영업하는 경양식 음식점/식당이 아니며, 법인사업자(주식회사 잇시) 주소지 등록 정보 외에 실제 운영 중인 음식점 후기, 메뉴, 영업 정보가 존재하지 않는 곳으로 확인되어 found: false 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://marketbz.com",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

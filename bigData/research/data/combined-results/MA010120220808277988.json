@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220808277988",
+  "name": "고동운식당",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 97049,
+  "researchedAt": "2026-09-22T10:43:57.365Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "재료 소진이 빠르고 1인 셰프 조리 특성상 대기보다는 사전 예약 후 방문이 권장됨"
+  },
+  "descriptors": {
+    "audience": "연인·소규모 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "카페산테",
+      "라자냐",
+      "안심 스테이크",
+      "오리콩피 코스"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 9,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해운대 달맞이길 주택가에 위치한 1인 셰프 이탈리안 레스토랑(경양식/양식)으로 생면 파스타, 라자냐, 코스 요리가 유명하며 예약 중심 운영됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "라자냐 25,000원 / 카페산테 33,000원 / 코스 75,000~85,000원",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이탈리아 가정식 스타일의 생면 파스타 맛집으로 잘 알려져 있습니다. 셰프가 주문 즉시 정성껏 요리하는 곳으로, 방문 시 예약을 권장합니다. 재료 소진이 빠른 편이며, 음식 준비에 시간이 다소 소요될 수 있어 여유를 가지고 방문하는 것이 좋습니다. 까페산떼(관자 요리), 라자냐, 해산물 파스타, 안심 스테이크, 오리 콩피 코스 등 다양한 이탈리안 메뉴를 제공합니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "달맞이길 메인 도로보다는 조금 더 위쪽 언덕, 한적한 주택가 부근에 자리 잡고 있습니다. 1인 셰프가 운영하는 이탈리아 가정식 전문점으로, 방문 전 예약이 적극 권장됩니다. 코스 메뉴(런치 안심 스테이크 코스 75,000원, 디너 오리콩피 코스 80,000원 등)와 단품 메뉴(라자냐 25,000원, 카페산테 33,000원 등)를 제공합니다.",
+      "url": "https://dowha100.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://dowha100.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "생면 파스타, 직접 빚는 라자냐, 관자요리 등 재료 본연의 맛을 살린 1인 셰프 이탈리아 가정식 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

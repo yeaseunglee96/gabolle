@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202209A0013516",
+  "name": "해림한식뷔페",
+  "cat": "뷔페",
+  "attempts": 1,
+  "geminiTokens": 57921,
+  "researchedAt": "2026-09-22T06:57:17.202Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기열에 대한 특별한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "관광객 및 인근 주민, 직장인 혼밥족",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "한식 뷔페",
+      "셀프 라면"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 05:30~18:30 / 일 05:30~14:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 인근 숙박객, 일출 보러 온 여행객 조식 및 혼밥 이용객에게 인기"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 해운대구 해운대해변로221번길 수암빌딩 A동 2층에 위치한 가성비 한식뷔페로, 새벽 5시 30분부터 아침 식사가 가능한 점이 큰 강점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "한식뷔페 1인",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해림한식뷔페 — 새벽 05:30 오픈, 8천 원으로 든든한 집밥. 자율배식 형태로 운영되며 매일 바뀌는 집밥 스타일의 반찬을 무한리필로 즐길 수 있고 셀프 라면 코너가 마련되어 있다. 월~토 05:30~18:30, 일 05:30~14:30.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1인 8,000원에 즐길 수 있는 가성비 무한리필 한식 뷔페",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "새벽 5시 30분부터 영업하여 아침 식사와 조식이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

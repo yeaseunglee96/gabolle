@@ -1,0 +1,47 @@
+{
+  "id": "MA0101202303A0077965",
+  "name": "골목심",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 74102,
+  "researchedAt": "2026-09-22T07:02:01.723Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지의 골목심은 사업자 등록 정보 외에 실제 방문 후기 및 메뉴 정보가 확인되지 않으며 플랫폼상 폐점으로 나타납니다.",
+  "notes": "부산광역시 수영구 민락로34번길 33에 위치했던 '골목심'(일식 회/초밥 업종)은 사업자 등록 이력 외에 실제 블로그 방문기, 메뉴, 가격, 영업시간 등 상세 웹 정보가 존재하지 않거나 폐점 처리되어 조사가 불가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락로34번길 33(민락동)에 등록되었던 일식 음식점입니다. 지도 서비스 등에서는 '폐점' 상태로 표시되기도 하므로...",
+      "url": "https://bizno.net"
+    }
+  ],
+  "sources": [
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": []
+}

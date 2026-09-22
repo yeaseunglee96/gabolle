@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202509A0041738",
+  "name": "신촌반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 102608,
+  "researchedAt": "2026-09-22T06:48:46.545Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 관한 정보 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "간짜장",
+      "짬뽕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 14:00 (방문 전 전화 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 주민들이 주로 이용하는 소박한 골목 중식당으로 지역 기반 생활권 음식점"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 강서구 대저1동 주택가에 위치한 중식당으로 착한가격업소로 지정된 가성비 중심의 식당입니다. 점심 시간대(11:00~14:00) 중심으로 영업합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 강서구 대저로221번다길 43-1 (대저1동) / 전화번호: 051-973-0489 / 특징: 정부와 지방자치단체가 선정한 '착한가격업소'로 알려져 있으며, 간짜장, 짬뽕 등의 메뉴를 제공합니다. 영업시간은 주로 오전 11시부터 오후 2시 사이로 운영되는 경우가 많으니, 방문 전 전화로 확인하시는 것을 권장합니다. 동네 주민들이 이용하는 소박한 분위기의 식당으로 알려져 있습니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "지자체 지정 착한가격업소로 저렴한 가격대와 높은 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "화려한 관광 맛집이 아닌 인근 주민들이 점심 식사를 위해 찾는 지역 생활형 중식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

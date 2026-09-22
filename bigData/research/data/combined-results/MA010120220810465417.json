@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220810465417",
+  "name": "가나",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 65835,
+  "researchedAt": "2026-09-22T06:41:13.250Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 영도구 웃서발로 6-1 소재의 중국집 '가나' 관련 식당 정보 및 리뷰를 웹에서 찾을 수 없음.",
+  "notes": "웹 검색 결과 해당 주소지 및 상호의 중국집에 대한 정보가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

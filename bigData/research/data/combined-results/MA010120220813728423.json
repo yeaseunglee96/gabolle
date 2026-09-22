@@ -2,8 +2,68 @@
   "id": "MA010120220813728423",
   "name": "숲",
   "cat": "카페",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 동구 범일로 41 에 있는 '숲'(카페 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:13:00.492Z"
+  "geminiTokens": 58619,
+  "researchedAt": "2026-09-22T06:17:38.044Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "오피스·상가 입주민 및 직장인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "아메리카노",
+      "카페라떼",
+      "바닐라라떼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "오션브릿지 상가 내에 위치하여 인근 직장인 및 입주민 생활권 카페로 주로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 동구 범일로 41 오션브릿지 상가 내 입점한 소규모 동네/오피스 카페('숲 카페')로 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "아메리카노 2,500원, 카페라떼 3,500원 등",
+    "priceWon": 2500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "숲 카페. 부산광역시 동구 범일로 41 (범일동, 오션브릿지). 주요 메뉴 및 가격: 아메리카노 2,500원, 에스프레소 3,000원, 카푸치노 3,500원, 카페라떼 3,500원, 카라멜마끼아또 3,800원, 바닐라라떼 3,800원. 스탬프 10개 적립 시 2,500원 할인 쿠폰 제공.",
+      "url": "https://passorder.co.kr"
+    }
+  ],
+  "sources": [
+    "https://passorder.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오션브릿지 상가 내에 위치해 직장인 및 입주민들이 합리적인 가격에 커피와 음료를 빠르고 편리하게 이용할 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "아메리카노 2,500원 등 부담 없는 가격대와 스탬프 쿠폰 혜택 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
 }

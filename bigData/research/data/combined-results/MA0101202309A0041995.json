@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202309A0041995",
+  "name": "태희돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 107200,
+  "researchedAt": "2026-09-22T06:24:34.008Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈까스",
+      "치킨까스"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "사상구청 인허가 대장 및 식신 포털에 일반음식점(분식/경양식)으로 등록된 가게이나, 방문 후기나 블로그 리뷰 등 상세 이용 정보가 웹상에 거의 없는 동네 소규모 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "태희돈까스분식 부산광역시 사상구 사상로342번길 9 (덕포동) 일반음식점",
+      "url": "https://www.sasang.go.kr"
+    },
+    {
+      "excerpt": "태희돈까스분식 / 대표메뉴: 돈까스, 치킨까스",
+      "url": "https://www.siksinhot.com/P/1557008"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr",
+    "https://www.siksinhot.com/P/1557008"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "국내산 생고기로 만든 돈까스·치킨까스를 파는 동네 분식·경양식 식당",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

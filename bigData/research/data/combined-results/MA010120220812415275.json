@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220812415275",
+  "name": "조은상회",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 56720,
+  "researchedAt": "2026-09-22T10:43:11.834Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말 등 혼잡한 시간에는 대기 시간이 길어질 수 있어 전화로 미리 주문 후 픽업하는 방식이 권장됨"
+  },
+  "descriptors": {
+    "audience": "가족/친구/관광객/포장객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "활어회 (광어, 우럭, 밀치 등)"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 10:00~21:00 / 주말 10:00~22:00 (민락어민활어직판장 기준, 점포별 소폭 차이 있음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인과 관광객 모두 싱싱한 활어 포장 및 인근 수변공원/숙소/초장집 이용 목적으로 즐겨 찾는 곳"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 민락어민활어직판장 내 2호로 입점해 있는 활어회 포장 전문 점포 '조은상회'로, 1번 출입구 인근에 위치하며 친절함과 신선한 활어로 후기가 많은 곳임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "당일 싯가 (kg 단위 및 예산 맞춤 구성)",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 광안해변로312번길 60, 민락어민활어직판장 내 (2호 점포). 직판장 1번 출입구를 이용하면 찾기 쉽습니다. 블로그 등 온라인에서 친절한 서비스로 평이 좋아 인기가 많은 곳입니다. 당일 가장 맛이 좋은 어종을 추천받아 구매할 수 있습니다.",
+      "url": "https://siksinhot.com"
+    },
+    {
+      "excerpt": "어민들이 직접 운영하는 매장들이 모여 있어 신선한 활어를 비교적 합리적인 가격에 구매할 수 있는 곳으로 알려져 있습니다. 평일 10:00~21:00, 주말 10:00~22:00. 직판장 바로 앞에 유료 주차장이 마련되어 있으며, 방문 점포에서 주차권을 챙기면 주차 할인을 받을 수 있습니다. 주말 등 혼잡한 시간에는 전화로 미리 주문한 뒤 픽업하는 방식이 대기 시간을 줄일 수 있어 편리하다는 후기가 많습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "친절한 서비스와 당일 가장 신선하고 맛 좋은 제철 어종을 추천해 줌",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "수조에서 직접 고른 활어를 합리적인 가격에 즉시 손질 및 포장해 감",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

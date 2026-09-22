@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220813751394",
+  "name": "순대정",
+  "cat": "그 외 기타 간이 음식점",
+  "attempts": 1,
+  "geminiTokens": 72543,
+  "researchedAt": "2026-09-22T06:57:40.669Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 남구 용소로64번길 81에 등록된 간이음식점(순대정)으로 확인되나, 방문자 후기, 메뉴 및 가격표, 영업시간 등 상세 방문 정보는 웹상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 용소로64번길 81 ... 업종: 음식점 (기타 간이 음식점) ... 아직 등록된 리뷰가 없습니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://114.co.kr",
+    "https://udanax.org",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202509A0025854",
+  "name": "안동전집",
+  "cat": "전/부침개",
+  "attempts": 1,
+  "geminiTokens": 82380,
+  "researchedAt": "2026-09-22T09:49:51.304Z",
+  "crowding": {
+    "found": false,
+    "note": "검색 결과 없음"
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "총 6회 검색(한글 정확 상호+주소, 상호+지역+업종+후기, 정확 상호 따옴표, 상호+인근키워드, 상호+상세주소+메뉴가격영업시간, 상호+지역+블로그)을 실시했으나, 어떤 쿼리에서도 '부산광역시 기장군 일광읍 일광로 68 안동전집'에 대한 실제 리뷰 페이지, 블로그 포스트, 또는 직접 언급하는 콘텐츠를 발견하지 못했습니다. 식신(siksinhot.com) URL이 검색 결과에 언급됐으나 해당 페이지(P/1452789)는 실제로는 경기도 양주시 소재 다른 식당(낭만어장)으로 연결됐으며, 안동전집과 무관한 페이지였습니다. 이 가게는 온라인 리뷰·블로그 노출이 거의 없는 소규모 동네 식당으로 추정됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

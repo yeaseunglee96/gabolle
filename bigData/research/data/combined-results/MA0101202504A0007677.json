@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202504A0007677",
+  "name": "백탄",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 201386,
+  "researchedAt": "2026-09-22T07:05:27.429Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 워크인 시 자리가 없을 수 있어 캐치테이블 사전 예약을 권장함"
+  },
+  "descriptors": {
+    "audience": "연인, 모임, 미식가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "백 코스",
+      "탄 코스",
+      "야키토리(닭꼬치)"
+    ],
+    "yearsClaimed": 3
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:30 ~ 23:30 (월요일 휴무, 라스트오더 23:30 또는 01:00 마감 안내 혼재)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리·민락동 골목에 위치하여 현지인 미식가 및 데이트/모임객뿐 아니라 부산 여행객에게도 닭 오마카세 맛집으로 인기"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "업종은 요청에 기재된 '일식 회/초밥'이 아니라 매일 생닭을 직접 발골하여 당일 소진하는 '일식 야키토리(닭꼬치/닭 오마카세)' 전문점입니다. 정식 상호명은 '야키토리 백탄'입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "백 코스 35,000원 / 탄 코스 19,000원",
+    "priceWon": 35000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매일 아침 들어오는 생닭을 직접 발골하여 당일 생산, 당일 판매하는 원칙을 가진 야키토리 전문점입니다. 코스 요리 주문 후 단품을 추가하는 방식으로 운영됩니다. 백코스: 35,000원, 탄코스: 19,000원, 운영 시간: 17:30 ~ 23:30 (월요일 휴무)",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "부산 수영구 민락로13번길 21(2층)에 위치한 야키토리 전문점. 매일 아침 생닭을 직접 발골하여 사용하는 신선한 야키토리를 제공하며 백 코스와 탄 코스를 먼저 주문한 후 단품을 추가하는 방식으로 운영. 캐치테이블 예약 권장.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "당일 직접 발골한 신선한 생닭을 숯불에 구워내는 수준 높은 야키토리 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1인 1~3만 원대의 탄/백 코스로 구성된 합리적인 가격의 닭 오마카세 코스",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220804891059",
+  "name": "박가네곰탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 63879,
+  "researchedAt": "2026-09-22T06:49:08.385Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "곰탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 강서구 가락대로 1370(봉림동 25-8)에 상호 '박가네곰탕'으로 사업자 및 상가 등록된 이력은 확인되나, 방문 후기, 블로그 리뷰, 메뉴판, 영업시간, 사진 등의 상세 이용 정보가 웹상에 존재하지 않음",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://nett.kr",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

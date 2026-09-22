@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220806803391",
+  "name": "평길식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 61233,
+  "researchedAt": "2026-09-22T06:24:44.293Z",
+  "confidence": "high",
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "검색 결과 해당 주소(부산광역시 사하구 감천항로 517)에는 (주)평길해양, (주)평길그린워터 등의 기업체가 위치해 있으며, '평길식당'이라는 상호의 음식점에 대한 대중 방문기, 리뷰, 메뉴 정보 등 웹상 실제 영업 정보가 존재하지 않습니다.",
+  "notes": "부산 사하구 감천항로 517 일대 검색 결과 평길해양 등 기업체가 소재해 있으며, 일반 음식점 '평길식당'에 대한 웹 문서 및 방문 리뷰가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.kjebi.com",
+    "https://www.kiwta.or.kr"
+  ],
+  "whyPeopleGo": []
+}

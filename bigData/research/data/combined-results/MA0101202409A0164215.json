@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202409A0164215",
+  "name": "덮밥제작소식구",
+  "cat": "기타 한식 음식점",
+  "attempts": 1,
+  "geminiTokens": 76476,
+  "researchedAt": "2026-09-22T06:57:39.091Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 줄서기 관련 언급 없음 (배달·소규모 음식점으로 추정)"
+  },
+  "descriptors": {
+    "audience": "혼밥, 인근 주민, 직장인",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "대패삼겹덮밥",
+      "김치두루치기 백반 도시락",
+      "된장찌개 백반 도시락"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 대연동에 위치한 백반 및 덮밥류 전문 식당으로, 대패삼겹덮밥, 김치두루치기덮밥, 제육덮밥, 된장찌개 백반 도시락 등을 주로 취급함. 줄서기나 상세 영업시간 등 방문 후기는 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "메뉴별 개별 가격 미제시",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 유엔평화로9번길 33, 1층. 주요 메뉴: 대패삼겹덮밥, 김치두루치기덮밥, 제육덮밥, 각종 백반 도시락(된장찌개, 김치두루치기 등), 스팸마요덮밥, 참치마요덮밥 등",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "덮밥제작소(식구) - 부산광역시 남구 유엔평화로9번길 33 (대연동)",
+      "url": "https://www.nett.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://www.nett.kr/",
+    "https://linktoplace.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다양한 덮밥 및 찌개류 백반 도시락 메뉴를 간편하게 즐기기 위함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

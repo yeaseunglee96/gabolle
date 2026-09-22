@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220811401136",
+  "name": "오륙도19호",
+  "cat": "요리 주점",
+  "attempts": 1,
+  "geminiTokens": 51182,
+  "researchedAt": "2026-09-22T06:58:08.861Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 피크 시간대에는 대기가 발생할 수 있어 사전 전화 예약이 권장됨"
+  },
+  "descriptors": {
+    "audience": "관광객 및 데이트 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "랍스터 코스",
+      "랍스터 회",
+      "해산물 모둠",
+      "해물라면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:30 ~ 익일 05:00 (변동 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 해운대 포장마차촌 시절부터 관광객 및 데이트 방문객에게 널리 알려진 곳"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "기존 부산 해운대 포장마차촌(해운대해변로 236 부근) 철거 이후 삼환미포씨랜드 1층(해운대구 달맞이길62번길 38) 실내 매장으로 이전하여 운영 중입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "2인 랍스터 코스 세트",
+    "priceWon": 160000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "랍스터 회, 찜, 버터구이를 메인으로 하며, 산낙지, 전복, 멍게, 해삼, 뿔소라, 개불 등 신선한 해산물 모둠이 함께 제공됩니다. 마지막은 해물라면으로 마무리하는 경우가 많습니다. 2인 랍스터 세트가 대략 10만 원 후반에서 20만 원대 사이로 언급되고 있습니다. 주말이나 피크 시간대에는 대기가 있을 수 있어 전화 예약을 권장합니다. 건물 지하 주차장을 지원합니다. 과거 해운대 포장마차촌에서 운영되다 현재는 미포씨랜드 건물 내로 이전하여 운영 중입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "랍스터 회, 찜, 버터구이와 신선한 모둠 해산물 및 해물라면으로 이어지는 푸짐한 해산물 코스 요리 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

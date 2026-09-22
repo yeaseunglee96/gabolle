@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220812487918",
+  "name": "산해루",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 114640,
+  "researchedAt": "2026-09-22T06:50:54.652Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡에 관한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼밥 및 인근 주민 식사객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "간짜장",
+      "짜장면",
+      "탕수육 세트"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 8시 종료 (방문 전 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안동 골목에 위치한 소박한 노포 중식당으로, 주로 인근 주민 및 현지인들이 찾는 동네 밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안동(수영로510번길 24) 골목에 위치한 동네 노포 중식당으로 간짜장과 가성비 세트 메뉴가 호평을 받는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "간짜장 8,000원, 짜장면 7,000원, 짬뽕 8,000원, 탕수육(소) 22,000원",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 수영로510번길 24 (광안동 186-19) 노포 분위기의 아늑하고 정다운 매장으로 알려져 있습니다. 주요 메뉴로는 아삭한 양파와 구수한 춘장 맛이 특징인 간짜장이 호평을 받으며, 탕수육 세트 등 가성비 좋은 메뉴 구성으로 인기가 있습니다. 기본 서비스로 보리차와 요구르트를 제공하기도 합니다. 짜장면 7,000원 / 짬뽕 8,000원 / 간짜장 8,000원 / 탕수육(소) 22,000원. 영업시간은 오후 8시에 종료되는 것으로 안내되어 있으나, 방문 전 전화로 확인하시는 것을 권장합니다.",
+      "url": "https://www.siksinhot.com/P/364673"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/364673",
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아삭한 양파와 구수한 춘장 맛의 간짜장이 인기 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "짜장면, 간짜장 및 세트 메뉴 등의 부담 없는 가격과 구성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "소박하고 아늑한 동네 노포의 정겨운 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220810792561",
+  "name": "서가앤쿡",
+  "cat": "패밀리레스토랑",
+  "attempts": 1,
+  "geminiTokens": 75458,
+  "researchedAt": "2026-09-22T06:59:41.444Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인·가족·모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "목살 스테이크 샐러드",
+      "목살 한상"
+    ],
+    "yearsClaimed": 2006
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 22:00 (브레이크타임 15:30 ~ 17:00, 주말은 브레이크타임 없음, 라스트오더 20:30)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 25,
+    "found": true
+  },
+  "notes": "부산 연제구 반송로 8 2층에 위치한 패밀리레스토랑 서가앤쿡 부산연산점 조사 결과입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "목살 한상 2인 세트",
+    "priceWon": 39900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 연제구 반송로 8, 2층, 전화번호: 051-868-4422, 영업시간: 11:30 ~ 22:00, 브레이크 타임: 15:30 ~ 17:00 (주말은 브레이크 타임 없음), 라스트 오더: 20:30",
+      "url": "https://www.seogaandcook.com"
+    },
+    {
+      "excerpt": "목살 한상은 서가앤쿡의 대표적인 2인용 메뉴로 목살 스테이크 샐러드와 파스타, 필라프 또는 리조또 중 하나를 선택할 수 있으며 감자튀김, 마늘빵 등이 기본 구성으로 제공된다.",
+      "url": "https://www.seogaandcook.com"
+    }
+  ],
+  "sources": [
+    "https://www.seogaandcook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "목살 스테이크와 파스타/필라프를 한 번에 푸짐하게 맛볼 수 있는 한상 세트의 높은 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "연산역 인근 중심 상권에 위치하여 가족·연인·친구 모임 식사 장소로 적합한 운영 환경",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

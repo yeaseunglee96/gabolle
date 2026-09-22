@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220811397900",
+  "name": "현가네콩나물해장국",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 67163,
+  "researchedAt": "2026-09-22T06:49:23.619Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 관한 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "관광객 및 현지 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "콩나물해장국",
+      "뼈다귀해장국"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "06:00 ~ 20:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 인근 위치로 현지인과 관광객들이 아침 해장 등으로 찾는 담백한 해장국집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로 243에 위치한 아침 일찍 여는 콩나물해장국 전문점.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "현지인과 관광객들이 찾는 담백한 해장국집으로 알려져 있으며, 유튜브 등에서도 광안리 인근의 가성비 좋은 해장국집으로 소개된 바 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 수영구 광안해변로 243 (민락동) 연락처: 051-757-3389 영업시간: 06:00 ~ 20:00 (연중무휴) 주요 메뉴: 콩나물해장국, 뼈다귀해장국 등",
+      "url": "https://www.hanchao.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.hanchao.com",
+    "https://www.badaon.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변 인근에서 아침 일찍(06:00부터) 부담 없는 가격대로 편하게 해장할 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "담백하고 가성비 좋은 해장국 식사가 가능함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

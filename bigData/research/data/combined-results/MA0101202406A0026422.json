@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202406A0026422",
+  "name": "루카",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 90982,
+  "researchedAt": "2026-09-22T07:01:00.370Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡 관련 언급 미발견"
+  },
+  "descriptors": {
+    "audience": "데이트, 가족 모임, 반려견 동반 고객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "백명란 알리오 올리오",
+      "루카 알리오 올리오",
+      "씨푸드 크림 파스타",
+      "스콜리오 리조또"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 21:00 (브레이크타임 16:00 ~ 17:00, 라스트오더 20:00, 매주 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "신청 업종은 경양식으로 되어 있으나 실제로는 주택을 개조한 유러피언 이탈리안 파스타/리조또 전문 레스토랑입니다. 주차 및 반려동물 동반이 가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 수영로510번길 25 1층 (광안동). 주택을 개조하여 만든 식당으로, 모던한 톤에 우드 감성을 더한 따뜻하고 고급스러운 인테리어가 특징입니다. 테라스와 야외석이 마련되어 있으며, 아늑한 분위기 덕분에 데이트 장소로 자주 언급됩니다. 주요 메뉴: 백명란 알리오 올리오, 루카 알리오 올리오, 씨푸드 크림 파스타, 스콜리오 리조또 등. 영업시간: 12:00 ~ 21:00 (브레이크타임 16:00~17:00, 라스트오더 20:00), 매주 화요일 휴무. 주차 가능, 반려동물 동반 가능.",
+      "url": "https://www.ban-life.com"
+    }
+  ],
+  "sources": [
+    "https://www.ban-life.com",
+    "https://www.siksinhot.com/P/1647413",
+    "https://kr.trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주택 개조 인테리어와 테라스 공간 등 아늑하고 분위기 좋은 데이트 환경 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "백명란 알리오 올리오, 씨푸드 파스타 및 리조또 등 이탈리안 메뉴의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

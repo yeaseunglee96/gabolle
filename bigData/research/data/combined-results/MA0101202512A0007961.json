@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202512A0007961",
+  "name": "유기체",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 52537,
+  "researchedAt": "2026-09-22T07:07:47.295Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 민락로33번길 16(민락동 165-5)에 경양식(서양식 음식점업) 업종으로 인허가 상호 '유기체'가 등록되어 있으나, 실제 블로그 리뷰나 일반 식당 영업 정보, 방문 후기 및 메뉴/가격/영업시간 등 상세 정보는 확인되지 않습니다. 현재 해당 위치 지하/동일 건물은 인디 공연장 및 예술 복합문화공간('유기체') 또는 타 업종(숙성횟집 첨벙 등)으로 사용되고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락로33번길 16 (지번 주소: 부산광역시 수영구 민락동 165-5)에 위치한 '유기체'는 경양식(서양식 음식점업) 업종으로 등록되어 있습니다.",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202212A0065170",
+  "name": "애뜨비스트로",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 72682,
+  "researchedAt": "2026-09-22T10:29:48.832Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장이 아담하고 인기가 많아 방문 전 예약이나 좌석 확인을 권장함"
+  },
+  "descriptors": {
+    "audience": "데이트, 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "고사리 들깨 크림 파스타",
+      "대게장 현미 리조또",
+      "육회 파스타",
+      "갓김치 들기름 파스타"
+    ],
+    "yearsClaimed": 3
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 11:30 ~ 21:00 (브레이크타임 15:00 ~ 17:00), 매주 일요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해리단길 3층에 위치한 한식 퓨전 양식 비스트로로, 고사리 들깨 크림 파스타와 대게장 현미 리조또 등 독창적인 퓨전 파스타/리조또 메뉴를 선보임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "변동/미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 해리단길에 위치한 한식과 양식 퓨전 레스토랑입니다. 한식 재료를 활용한 독창적인 퓨전 양식 메뉴로 알려져 있습니다. 대표 메뉴로는 '고사리 들깨 크림 파스타', '대게장 현미 리조또' 등이 인기 있습니다. 매장이 아담하고 인기가 많아 방문 전 예약이나 좌석 확인을 권장합니다. 주차는 인근 공영주차장을 이용하는 것이 권장됩니다.",
+      "url": "https://trip.com"
+    },
+    {
+      "excerpt": "부산 해운대 해리단길에 위치한 애뜨비스트로(Add Bistro)는 한식과 양식을 접목한 퓨전 요리를 선보이는 곳으로, 특히 '고사리 들깨 크림 파스타'가 시그니처 메뉴 중 하나로 유명합니다. 고사리와 들깨, 크림의 조화가 독특하면서도 고소하여 많은 방문객이 찾는 메뉴입니다. 그 외에도 대게장 현미 리조또, 육회 파스타, 갓김치 들기름 파스타 등 한식 재료를 활용한 다양한 퓨전 파스타와 요리를 맛볼 수 있는 곳입니다.",
+      "url": "https://wanderlog.com"
+    }
+  ],
+  "sources": [
+    "https://trip.com",
+    "https://wanderlog.com",
+    "https://lemon8-app.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한식 식재료(고사리, 들깨, 대게장 등)를 접목한 독창적인 퓨전 양식 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

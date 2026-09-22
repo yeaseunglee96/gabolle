@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220806921624",
+  "name": "월드",
+  "cat": "무도 유흥 주점",
+  "attempts": 1,
+  "geminiTokens": 90576,
+  "researchedAt": "2026-09-22T06:58:34.804Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 서구 자갈치로 6(충무동1가 12-121)에 위치한 유흥주점 '월드'는 공공데이터 및 업계 인허가 데이터베이스 상에 등록된 업소(전화번호 051-242-8001)로 확인되나, 일반 대중을 위한 블로그/리뷰, 상세 메뉴, 가격, 영업시간 등의 상세 이용 정보는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 서구 자갈치로 6(충무동1가 12-121)에 위치한 '월드'는 공공데이터 및 업계 정보에 등록된 유흥주점(무도 유흥 주점)으로 확인됩니다. 주소: 부산광역시 서구 자갈치로 6 (충무동1가), 업종: 유흥주점 (음식업으로 분류), 전화번호: 051-242-8001",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com",
+    "https://nett.kr",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

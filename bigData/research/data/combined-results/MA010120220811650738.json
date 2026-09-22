@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220811650738",
+  "name": "원조할매추어탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 96138,
+  "researchedAt": "2026-09-22T06:50:02.754Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인, 어르신",
+    "generations": 3,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "경상도식 추어탕",
+      "미꾸라지 튀김",
+      "고등어조림"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 07:00 ~ 19:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 강서구 식만동 및 인근 김해 불암동 생활권 주민들과 방문객들이 찾는 현지 추어탕 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 강서구 식만로 252에 위치한 3대 전통의 추어탕 전문점. 추어탕뿐만 아니라 함께 제공되는 고등어조림에 대한 만족도가 높음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "추어탕",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 강서구 식만로 252 (식만동 153-22)에 위치한 원조할매추어탕. 3대째 맛을 이어오고 있는 추어탕 전문점으로 경상도식 추어탕과 미꾸라지 튀김이 대표 메뉴이며 고등어조림이 함께 언급됨. 영업시간은 매일 07:00 ~ 19:00.",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "3대째 이어져 오는 깊은 맛의 경상도식 추어탕과 별미인 고등어조림 반찬",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "3대째 맛을 이어오고 있는 오랜 역사의 추어탕 전문점",
+      "sources": [
+        0
+      ],
+      "type": "대물림"
+    }
+  ]
+}

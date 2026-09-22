@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202508A0024956",
+  "name": "하토바",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 82518,
+  "researchedAt": "2026-09-22T10:33:04.591Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트, 술자리, 소규모 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오늘의 스시",
+      "고등어 봉초밥",
+      "하토바 2인 사시미"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 수영구 민락로14번길 5 1층에 위치한 '스시사카바 하토바'로, 광안리 메인 거리에서 벗어난 골목에 위치한 일식 스시 이자카야입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "오늘의 스시 (8pcs) 21,000원, 고등어 봉초밥 (한판 8pcs) 28,000원, 하토바 2인 사시미 39,000원",
+    "priceWon": 21000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 메인 거리에서 살짝 벗어난 골목에 위치하여 조용하고 아늑한 분위기를 갖추고 있으며, 다찌 좌석과 오픈 주방이 있어 데이트나 술자리에 적합합니다. QR 코드를 통한 비대면 주문 방식을 사용합니다. 오늘의 스시 (8pcs): 21,000원, 고등어 봉초밥 (한판, 8pcs, 수량한정): 28,000원, 후토마끼 (반줄, 6pcs): 21,000원, 하토바 2인 사시미: 39,000원, 카츠산도: 16,000원. 메뉴: '오늘의 스시'의 쫀득한 식감, 비린 맛 없이 부드러운 '고등어 봉초밥', 진한 국물 맛의 '스키야키' 등이 좋은 평가를 받고 있습니다. 친절한 사장님이 메뉴를 설명해 주거나 서비스를 제공하는 등의 긍정적인 서비스 경험이 언급되었습니다.",
+      "url": "https://www.siksinhot.com/P/1603502"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1603502"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "쫀득한 식감의 당일 스시와 비린 맛 없는 한정 수량 고등어봉초밥 등 일식 안주의 뛰어난 퀄리티",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "조용하고 아늑한 골목 안쪽 다찌 좌석 분위기와 친절한 접객 서비스",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

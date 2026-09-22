@@ -1,0 +1,58 @@
+{
+  "id": "MA0106202605A1973845",
+  "name": "빨간마라탕",
+  "cat": "마라탕/훠궈",
+  "attempts": 1,
+  "geminiTokens": 80391,
+  "researchedAt": "2026-09-22T10:28:10.585Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "마라탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 남구 용호동(동명로 161)에 위치한 마라탕/훠궈 업종 음식점으로 확인되었습니다. 동백전 가맹 등록 및 사업자 등록 정보 외에 별도의 상세 블로그 리뷰나 메뉴판, 영업시간 정보는 웹상에 상세히 노출되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "빨간마라탕은 부산광역시 남구 동명로 161 (용호동)에 위치한 중식(마라탕/훠궈) 전문점입니다. 주소: 부산광역시 남구 동명로 161 (용호동). 업종: 음식점 (중식, 마라탕/훠궈). 동백전, 고유가 지원금, 민생지원금, 민생회복소비쿠폰 등 결제가 가능한 가맹점으로 등록되어 있습니다.",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네 생활권 상권 내 편의 및 지역화폐 사용 매장",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

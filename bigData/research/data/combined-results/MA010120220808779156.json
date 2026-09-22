@@ -2,8 +2,46 @@
   "id": "MA010120220808779156",
   "name": "프랜드",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 백양대로 372-11 에 있는 '프랜드'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:50:27.638Z"
+  "geminiTokens": 61225,
+  "researchedAt": "2026-09-22T05:58:58.016Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 사상구 백양대로 372-11에 인허가 등록된 일반음식점(경양식) '프랜드'는 구청 인허가/공공데이터상에 존재하나, 블로그 리뷰나 방문 후기, 상세 메뉴 및 영업시간 정보 등 웹상의 이용자 기록이 확인되지 않습니다. 동일 주소지에 '문어도리' 등의 다른 상호 등록 이력도 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 프랜드, 소재지: 부산광역시 사상구 백양대로 372-11 (주례동), 전화번호: 051-817-4168, 업종: 일반음식점",
+      "url": "https://www.sasang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": []
 }

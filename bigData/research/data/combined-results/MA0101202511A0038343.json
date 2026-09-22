@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202511A0038343",
+  "name": "테츠아지",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 61850,
+  "researchedAt": "2026-09-22T10:30:57.453Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산 수영구 광남로 188 주소지 및 '테츠아지' 상호로 검색하였으나 상세 정보를 찾을 수 없음",
+  "notes": "부산 수영구 광남로 188 주소 및 민락동 일대 상호 '테츠아지'로 웹 검색을 진행하였으나, 상가/사업자 디렉토리 외에 실제 방문 후기, 블로그 리뷰, 메뉴 및 영업시간 등 신뢰할 수 있는 상세 정보를 확인할 수 없었습니다. 폐업했거나 정보가 존재하지 않는 가게로 판단됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

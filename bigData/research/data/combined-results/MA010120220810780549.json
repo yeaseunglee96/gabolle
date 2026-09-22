@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220810780549",
+  "name": "유림반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 46595,
+  "researchedAt": "2026-09-22T06:39:57.009Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 아파트 주민 및 동네 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "탕수육+짜장 세트",
+      "탕수육+짬뽕 세트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광지 식당이 아닌 아파트 상가 인근의 동네 배달/방문 위주 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 연제구 거제동(유림아시아드 단지 상가 추정)에 등록된 일반 동네 중식당으로 블로그 상세 후기나 상세 영업정보는 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "정겨운 향수의 중국집으로 알려져 있으며, 주요 메뉴로는 탕수육과 짜장 또는 짬뽕, 만두로 구성된 2인 세트 메뉴가 있습니다. 주소: 부산광역시 연제구 해맞이로 23 (거제동 714-144)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아파트 상가 인근 동네 주민들이 정겨운 탕수육 세트 메뉴를 즐겨 찾는 동네 중국집",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

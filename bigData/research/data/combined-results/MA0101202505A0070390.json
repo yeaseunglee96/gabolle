@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202505A0070390",
+  "name": "프레스케차",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 74895,
+  "researchedAt": "2026-09-22T07:04:26.691Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "연인·친구·1인 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "트러플 머쉬룸 샌드위치",
+      "피스타치오 모르타델라",
+      "기장 다시마버터 잠봉뵈르"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 영업 종료(상세 영업시간 사전 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notes": "부산 수영구 광안동에 위치한 포카치아 기반 이탈리안 샌드위치 전문점. 기장 다시마버터 잠봉뵈르, 피스타치오 모르타델라, 트러플 머쉬룸 샌드위치 등 특색 있는 수제 포카치아 샌드위치를 판매함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "치킨 클럽 샌드위치 8,000원 / 기장 다시마버터 잠봉뵈르 10,800원 / 트러플 머쉬룸 샌드위치 12,000원 / 시나몬 베이컨 15,000원",
+    "priceWon": 11000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "프레스케차(Freschezza)는 부산광역시 수영구 남천바다로21번길 69, 1층에 위치한 이탈리안 스타일 포카치아 샌드위치 전문점입니다. 포카치아 빵을 베이스로 한 다양한 샌드위치를 판매하며, 매장 내 다찌석에서 식사가 가능하고 포장도 가능합니다. 주요 메뉴로는 트러플 머쉬룸 샌드위치, 포르케타 칠리 샌드위치, 피스타치오 모르타델라 샌드위치, 기장다시마 잠봉뵈르 등이 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "포카치아 빵을 직접 구워 만드는 특색 있는 이탈리안 스타일 수제 샌드위치와 스프 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

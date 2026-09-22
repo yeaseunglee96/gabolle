@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220810215225",
+  "name": "돈갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 45391,
+  "researchedAt": "2026-09-22T06:40:37.501Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "양념돼지갈비",
+      "생삼겹살"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 북구청 착한가격업소로 등록된 동네 주민 대상 고깃집"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 북구 의성로109번길 34-2(덕천동)에 위치한 고깃집 '돈갈비'로 북구청 착한가격업소로 등록되어 있음. 푸짐한 양념갈비로 입소문 난 가성비 고깃집.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명 돈갈비, 주소 부산광역시 북구 의성로109번길 34-2 (덕천동), 부산 북구청 지정 착한가격업소, 푸짐한 양념갈비로 입소문, 영업시간 16:00 ~ 23:00, 숯불 향이 나는 그릴에서 구워낸 양념 갈비가 대표 메뉴이며 백김치나 파무침과 함께 곁들여 먹는 것이 좋습니다.",
+      "url": "https://www.bsbukgu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.bsbukgu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "북구청 지정 착한가격업소로 저렴하고 푸짐한 숯불 양념돼지갈비를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "숯불 향 가득한 그릴에 구워 백김치, 파무침과 곁들여 먹는 양념갈비의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "id": "MA0101202406A0292305",
+  "name": "돈반",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60778,
+  "researchedAt": "2026-09-22T07:00:14.497Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 극심한 웨이팅에 대한 명시적 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "혼밥객, 관광객, 인근 직장인",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "경양식 돈까스",
+      "치즈 돈까스",
+      "한우 함박스테이크"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 20:00 (매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 인근 위치로 관광객 방문 및 1인석 구비로 인근 거주자/혼밥객 방문이 고루 나타남"
+  },
+  "menuDiversity": {
+    "dishCount": 11,
+    "found": true
+  },
+  "notes": "부산 수영구 광안로 35에 위치한 경양식 돈까스 전문점으로 기본 메뉴 주문 시 양송이스프, 모닝빵, 샐러드가 곁들여 나옵니다. 전용 주차장은 없으며(점심시간 단속 유예만 가능), 혼밥 바 좌석과 키오스크가 구비되어 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "경양식 돈까스",
+    "priceWon": 10500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 해수욕장으로 내려가는 길 중간에 위치하여 접근성이 좋습니다. 우드톤의 차분한 인테리어로 혼밥석(바 테이블)과 4인석이 마련되어 있습니다. 대표 메뉴로 경양식 돈까스, 치즈 돈까스, 한우 함박스테이크 등이 있으며, 세트 메뉴 주문 시 샐러드, 양송이 스프, 모닝빵 등이 함께 제공됩니다.",
+      "url": "https://siksinhot.com"
+    },
+    {
+      "excerpt": "영업시간: 11:00 ~ 20:00 (매주 월요일 정기휴무). 키오스크를 통해 주문 및 결제가 이루어지며, 점심시간(12시~14시)에는 주차 단속이 유예될 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "양송이스프와 모닝빵이 함께 제공되는 클래식하고 정갈한 경양식 돈까스 및 함박의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해수욕장으로 향하는 길목에 위치하며 혼밥석(바 테이블)과 키오스크 주문으로 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "1만 원대 초반의 합리적인 가격에 스프, 빵 등이 기본 차림으로 제공되는 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

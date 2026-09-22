@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220811442886",
+  "name": "남포삼계탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 56639,
+  "researchedAt": "2026-09-22T06:47:42.708Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "해운대 인근 주민 및 보양식을 찾는 직장인/방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "삼계탕",
+      "녹두삼계탕",
+      "전복삼계탕",
+      "옻삼계탕",
+      "전기구이 통닭"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 중동2로10번길 8(중동 1371-5, 해운대구청 인근)에 등록된 남포삼계탕 해운대점 정보입니다. 식신 등의 디렉토리에 기본 메뉴와 연락처, 주차 정보가 등록되어 있으나, 최근 상세 블로그 리뷰나 영업시간 정보는 매우 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 중동 1371-5 (도로명: 중동2로10번길 8). 주요 메뉴: 삼계탕, 녹두삼계탕, 전복삼계탕, 옻삼계탕, 전기구이 통닭 등. 해운대구청 인근에 위치해 있으며, 기본 삼계탕 외에 다양한 보양식 메뉴를 제공합니다. 포장 및 예약이 가능하며 가게 앞에 주차가 일부 가능한 것으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기본 삼계탕을 비롯해 녹두·전복 등 다양한 보양식 닭요리를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대구청 인근 위치 및 가게 앞 주차·포장 가능 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

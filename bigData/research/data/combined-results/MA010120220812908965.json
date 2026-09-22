@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220812908965",
+  "name": "우리들횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 86433,
+  "researchedAt": "2026-09-22T10:33:17.541Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "단체/모임/방문객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "상차림",
+      "매운탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로312번길 60(민락어민활어직판장 내)에 등록되어 있는 초장집/횟집 형태의 업소로, 1층에서 회를 구입하거나 상차림(초장) 및 매운탕 등의 메뉴를 취급하는 곳으로 확인됨. 상세 후기나 영업시간, 줄서기 등 세부 정보는 웹상에 제한적으로 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 광안해변로312번길 60 (민락어민활어직판장 내). 민락어민활어직판장은 1층에서 활어 등을 구입하고 2층에서 식사(초장집 이용)를 하는 구조로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/p/1457073501687712"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/p/1457073501687712"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "민락어민활어직판장 2층에서 1층 구입 활어와 함께 상차림 및 매운탕을 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

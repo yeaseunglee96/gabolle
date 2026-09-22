@@ -2,8 +2,58 @@
   "id": "MA010120220811609679",
   "name": "포도밭집",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 금정구 상현로79번길 13 에 있는 '포도밭집'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:10:22.679Z"
+  "geminiTokens": 75262,
+  "researchedAt": "2026-09-22T06:16:43.865Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식, 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리불고기",
+      "오리백숙"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "회동수원지 인근 선동 상현마을 가든 식당가에 위치하여 주로 인근 주민 및 나들이객/모임 방문객이 찾는 곳"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 금정구 선동 355(상현로79번길 13)에 실존하는 식당으로, 사업자 등록/업종 구분에 '돼지고기 구이/찜'으로 분류되어 있으나 회동수원지 상현마을 가든형 식당의 특성상 실제 주력 메뉴는 오리불고기 및 백숙 위주입니다. 세부 영업시간이나 상세 블로그 리뷰 텍스트는 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 상현로79번길 13 (선동 355), 연락처: 051-518-1876. 이 지역(상현로79번길) 일대는 회동수원지 인근으로, 포도밭집을 비롯하여 여러 한식당과 카페가 모여 있는 곳입니다.",
+      "url": "https://www.siksinhot.com/search?keywords=선동%20포도밭집"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/search?keywords=선동%20포도밭집"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "회동수원지 상현마을 나들이 겸 오리 요리(불고기, 백숙)를 즐기기 위한 외식·모임 목적",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

@@ -2,8 +2,54 @@
   "id": "MA010120220806939753",
   "name": "부산조선식당",
   "cat": "구내식당",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 영도구 해양로15번길 1 에 있는 '부산조선식당'(구내식당 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:15:27.697Z"
+  "geminiTokens": 58668,
+  "researchedAt": "2026-09-22T06:17:57.958Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "조선소 근로자 및 임직원",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 영도구 해양로15번길 1에 위치한 '부산조선식당'은 일반 대중식당이 아닌 부산조선(선진조선 관련 시설) 사업장 내에서 근로자·임직원 급식을 위해 운영되는 사내 구내식당입니다. 일반 소비자 대상의 블로그 리뷰, 메뉴판, 영업시간, 사진 등의 정보는 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "\"부산조선식당\"은 부산광역시 영도구 해양로15번길 1(청학동)에 위치한 구내식당을 의미합니다. 이곳은 일반적인 대중 음식점이 아니라 해당 주소지에 위치한 부산조선(선진조선 등 관련 시설) 내의 구내식당으로 운영되고 있습니다.",
+      "url": "https://www.saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산조선소 내 임직원 및 근로자 식사를 위한 사내 구내식당으로 운영됨",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

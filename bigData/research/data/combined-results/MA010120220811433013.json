@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220811433013",
+  "name": "남원추어탕이백집",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 53240,
+  "researchedAt": "2026-09-22T06:40:01.520Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인(부산교육청 등) 및 지역 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "추어탕",
+      "추어튀김",
+      "수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산교육청 바로 뒷편에 위치하여 인근 직장인과 지역 주민들이 주로 찾는 현지 식당으로 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "살아있는 미꾸라지를 사용하며, 추어탕 주문 시 수육이 서비스로 제공되는 가성비 좋은 거제동 골목 식당",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "추어탕 9,000원, 해물된장 9,000원, 추어튀김 10,000원 (2022년 말 기준)",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 연제구 해맞이로31번길 62-7 (거제동) 부산교육청 바로 뒷편에 위치해 있으며 입구에 살아있는 미꾸라지를 볼 수 있고 추어탕 주문 시 수육이 서비스로 제공된다. 메뉴는 추어탕(9,000원), 해물된장(9,000원), 포크밸리 삼겹(10,000원), 추어부추전(10,000원), 추어튀김(10,000원), 수육 대(25,000원)/중(15,000원) 등이 있다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "추어탕 주문 시 수육이 서비스로 곁들여 나오며 신선한 미꾸라지를 사용하는 가성비 좋은 맛집",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "살아있는 미꾸라지로 끓여내는 깔끔하고 깊은 국물의 추어탕 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

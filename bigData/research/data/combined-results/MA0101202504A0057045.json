@@ -1,0 +1,69 @@
+{
+  "id": "MA0101202504A0057045",
+  "name": "박가밀면",
+  "cat": "냉면/밀면",
+  "attempts": 1,
+  "geminiTokens": 105159,
+  "researchedAt": "2026-09-22T06:54:04.115Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "물밀면",
+      "비빔밀면",
+      "물비빔",
+      "석쇠불고기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "재송동 주택가 골목 상권에 위치한 동네 밀면집"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 해운대구 재송동 재반로63번길 29 2층에 등록된 밀면 전문점으로, 주문 즉시 면을 뽑는 밀면과 석쇠불고기 등을 취급함. 세부 영업시간이나 웨이팅 정보는 웹상에 상세 기록이 적음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 재반로63번길 29 (재송동 380-17) 2층. 주요 메뉴: 물밀면, 비빔밀면, 물비빔, 석쇠불고기, 만두, 소머리전골, 소머리수육, 소머리곰탕 등. 주문 즉시 면을 뽑아 쫄깃한 식감을 제공하며, 깔끔한 육수와 자극적이지 않은 양념장이 특징입니다. 밀면과 석쇠불고기를 함께 곁들여 먹는 조합이 추천됩니다. 전 메뉴 포장이 가능하며 친절한 서비스로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://bizno.net/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주문 즉시 뽑아내는 쫄깃한 생면과 깔끔한 육수 및 양념장의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "밀면과 함께 곁들여 먹기 좋은 석쇠불고기 세트 구성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

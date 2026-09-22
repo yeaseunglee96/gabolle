@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220810733653",
+  "name": "청하반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 42781,
+  "researchedAt": "2026-09-22T06:48:00.995Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡/줄서기 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "주민 배달/인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "아파트 단지 상가 내 입점하여 인근 주민 배달 위주로 운영되는 동네 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "모라주공 영구임대아파트 상가(가동 209호)에 위치한 소규모 옛날식 동네 배달 전문 중식당으로, 온라인 상세 리뷰 및 메뉴판/사진 정보가 매우 제한적임",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 모라로192번길 24 (모라주공영구임대아파트 상가 가동 209호)에 위치한 중국집입니다. 옛날 맛 그대로를 표방하며, 해당 지역(모라주공아파트 인근)에서 배달 등을 통해 이용하는 중국 음식점으로 소개되고 있습니다.",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아파트 단지 상가에 위치해 옛날식 중화요리를 간편하게 배달 주문해 먹을 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202603A0007424",
+  "name": "페이머스베니광안리점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49973,
+  "researchedAt": "2026-09-22T10:40:15.305Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 브런치 및 반려동물 동반 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "더 페이머스 베니",
+      "아사이볼",
+      "아보카도 토스트",
+      "에그 인 헬"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 08:00 – 18:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 인근에 위치하며 매장 내 짐 보관 서비스를 제공하여 여행객·관광객의 접근 및 이용이 편리함"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 수영구 민락본동로11번길 64에 위치한 호주식 브런치 카페 페이머스베니(Famous Benny) 광안리점으로, 반려동물 동반 가능하며 아침 일찍 오픈하여 여유로운 브런치를 즐길 수 있는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스페셜티 커피와 다양한 호주식 브런치 메뉴를 제공하는 라이프스타일 카페로, 감각적인 인테리어와 편안한 분위기 덕분에 데이트나 모임 장소로 인기가 많습니다. 대표 메뉴는 더 페이머스 베니, 아사이볼, 아보카도 토스트, 에그 인 헬 등이며 반려동물 동반이 가능하고 매장 내 짐 보관 서비스를 제공합니다. 영업시간은 매일 08:00 - 18:00 입니다.",
+      "url": "https://movementlab.kr"
+    }
+  ],
+  "sources": [
+    "https://movementlab.kr",
+    "https://lifeistravel.io"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "호주식 브런치 메뉴와 스페셜티 커피를 감각적인 공간에서 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "아침 8시 조기 오픈 및 반려동물 동반 가능, 여행객을 위한 짐 보관 서비스 등 이용 편의성 제공",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

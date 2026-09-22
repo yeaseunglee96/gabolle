@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202507A0005002",
+  "name": "하마그리고이발관",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 72889,
+  "researchedAt": "2026-09-22T10:40:22.350Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼술족, 1인 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "하이볼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안해변로307번길 20에 위치한 '하마 그리고 이발관'은 혼술족을 위한 아지트형 바로, 독특한 하이볼(약 13,000원대)과 외부 음식 반입 세팅, 사주 서비스 등을 운영하는 특색 있는 공간으로 소개됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "하이볼",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 광안리 뒤편에 위치한 혼술족을 위한 비밀 아지트로, 타인의 시선에서 해방되어 시간을 보낼 수 있는 공간입니다. 외부 음식 반입이 가능하며, 독특한 하이볼 메뉴(13,000원대)와 귀납적 사주 서비스 등을 제공합니다. 고독 지수 4.5점으로 평가받는 혼술 명소입니다.",
+      "url": "https://loneat.kr"
+    }
+  ],
+  "sources": [
+    "https://loneat.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "타인의 시선에서 벗어나 편안하게 시간을 보낼 수 있는 아지트 분위기와 외부 음식 반입 및 특색 있는 하이볼 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

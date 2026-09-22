@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220807121531",
+  "name": "돈이소",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 64782,
+  "researchedAt": "2026-09-22T06:25:18.032Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 북구 시랑로 129에 위치한 육류/고기요리 일반음식점(전화번호: 051-333-3305, 북구청/114 등록)으로 확인되나, 방문자 리뷰, 블로그 후기, 메뉴 및 가격표, 영업시간 등 세부 정보는 웹상에 게시된 적이 거의 없는 로컬 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 북구 시랑로 129 (구포동) / 업종: 한식, 육류/고기요리 / 전화번호: 051-333-3305",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr",
+    "https://www.bsbukgu.go.kr"
+  ],
+  "whyPeopleGo": []
+}

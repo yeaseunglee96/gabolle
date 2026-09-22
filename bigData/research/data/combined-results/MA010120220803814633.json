@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220803814633",
+  "name": "수영빈대떡",
+  "cat": "전/부침개",
+  "attempts": 1,
+  "geminiTokens": 27956,
+  "researchedAt": "2026-09-22T09:46:28.870Z",
+  "crowding": {
+    "found": false,
+    "note": ""
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "가게의 존재(주소·전화번호)는 업체 디렉터리(nett.kr, 114.co.kr)에서 확인됨. 그러나 블로그 리뷰·메뉴판·사진·영업시간 등 실질적인 방문 정보를 담은 페이지는 4회 검색(네이버 블로그, 일반 맛집 검색, 주소 포함 검색 등)에서 전혀 발견되지 않았음. 온라인 노출이 매우 적은 동네 소규모 가게로 추정됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "수영빈대떡 | 부산광역시 수영구 망미번영로38번길 65, 1층 (광안동) | 전화: 051-753-5155",
+      "url": "https://www.nett.kr/"
+    },
+    {
+      "excerpt": "수영빈대떡 | 부산광역시 수영구 망미번영로38번길 65 | 동백전 및 각종 민생지원금 사용 가능 가맹점",
+      "url": "https://www.114.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.nett.kr/",
+    "https://www.114.co.kr/"
+  ],
+  "whyPeopleGo": []
+}

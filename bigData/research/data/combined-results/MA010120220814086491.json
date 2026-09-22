@@ -2,8 +2,72 @@
   "id": "MA010120220814086491",
   "name": "덮스&스시",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 옥천로75번안길 5 에 있는 '덮스&스시'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:10:32.010Z"
+  "geminiTokens": 52083,
+  "researchedAt": "2026-09-22T06:16:57.110Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 별도 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족/관광객/현지인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬초밥",
+      "회덮밥",
+      "연어덮밥",
+      "가츠동"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00 (매주 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "감천문화마을 인근 관광객 및 주민 방문, 다국어 메뉴판 구비 식당 소개"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "감천문화마을 인근 일식 초밥 및 덮밥 전문점으로 모듬초밥, 회덮밥, 가츠동 등을 판매하며 다국어 메뉴판을 지원함",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 사하구 옥천로75번길 11, 2층 (감천동) 대표 메뉴: 모듬초밥, 회덮밥, 참치연어초밥, 가츠동, 연어덮밥 등 특징: 감천문화마을 인근의 음식점, 외국어 메뉴판 지원 음식점, 영업시간: 11:00 ~ 21:00 (매주 화요일 휴무)",
+      "url": "https://visitbusan.net"
+    },
+    {
+      "excerpt": "덮스&스시(덮스앤스시) 업종: 일식 (회/초밥) 주소: 부산광역시 사하구 옥천로75번안길 5 (감천동) 문의 전화: 051-913-7773",
+      "url": "https://www.zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://visitbusan.net",
+    "https://www.zippoom.com",
+    "https://www.saha.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감천문화마을 인근에서 모듬초밥, 회덮밥, 돈부리 등을 부담 없이 즐길 수 있는 일식당",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

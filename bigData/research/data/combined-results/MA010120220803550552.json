@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220803550552",
+  "name": "프루터리포레스트",
+  "cat": "피자",
+  "attempts": 1,
+  "geminiTokens": 57016,
+  "researchedAt": "2026-09-22T06:50:03.044Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 반려견 동반 손님",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "콜드프레스 주스",
+      "프루츠 베이비 카스테라",
+      "프루츠 요거트볼"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일: 10:00 – 18:00, 주말 및 공휴일: 10:00 – 20:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "피자 업종으로 문의되었으나 실제로는 제철 생과일 기반 콜드프레스 주스, 과일 디저트, 브런치를 판매하는 숲속 힐링 카페입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "아메리카노",
+    "priceWon": 6000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "달맞이길 끝자락, 송정옛길 입구 근처에 위치해 있어 차로 이동하는 것이 편리하며, 약 20대 정도 주차가 가능한 넓은 주차장을 보유하고 있습니다. 매일 아침 제철 과일로 짜는 콜드프레스 주스가 대표적이며, 프루츠 베이비 카스테라, 프루츠 요거볼, 브런치 플레이트 등 과일을 활용한 건강하고 아기자기한 디저트와 식사 메뉴를 판매합니다. 반려견 동반이 가능한 카페로, 정원과 테라스 공간 등을 이용할 수 있습니다.",
+      "url": "https://fruiterie.co.kr"
+    },
+    {
+      "excerpt": "달맞이고개 끝자락 숲속에 위치한 과일 카페입니다. 신선한 과일을 활용한 콜드프레스 주스와 프루츠 디저트가 대표 메뉴입니다. 반려견 동반이 가능하며, 실내 공간 외에 캠핑 느낌을 주는 루프탑이 마련되어 있습니다.",
+      "url": "https://tripinfo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://fruiterie.co.kr",
+    "https://tripinfo.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "달맞이고개 끝자락 숲속 정원과 루프탑을 갖추고 반려견 동반 및 주차가 편리한 힐링 휴식 공간",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "매일 아침 제철 생과일로 착즙하는 콜드프레스 주스와 시그니처 과일 디저트의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -2,8 +2,71 @@
   "id": "MA010120220810521788",
   "name": "대길수산",
   "cat": "횟집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 다송로72번길 35 에 있는 '대길수산'(횟집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:48:54.260Z"
+  "geminiTokens": 44863,
+  "researchedAt": "2026-09-22T05:58:49.974Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인 회식, 포차 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "바다장어구이",
+      "꼼장어구이",
+      "생선회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 11:00 ~ 오후 11:30 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "다대포 낫개역 및 두송중학교 인근 상권에 위치하여 인근 주민들이 주로 찾는 포차 분위기의 횟집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 사하구 다대동 소재 대길수산(대길수산포차)으로 바다장어구이, 꼼장어구이, 생선회/아나고회를 주메뉴로 운영하며 야외 테라스 좌석과 주차공간을 갖춤.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 사하구 다송로72번길 35. 바다장어구이, 꼼장어구이, 우럭 등 다양한 활어를 취급하며 수족관이 갖춰져 있습니다. 입구에 테라스 좌석이 마련되어 있어 날씨가 좋을 때 야외 분위기를 즐기기 좋습니다. 가게 옆에 약 5대 정도 주차 가능한 공간이 마련되어 있습니다. 영업시간: 오전 11:00 ~ 오후 11:30 (연중무휴).",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바다장어구이와 꼼장어구이 등 신선한 활어 해산물 요리를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "매장 앞 테라스 좌석과 넓은 내부 공간에서 야외 포차 분위기를 즐기기 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

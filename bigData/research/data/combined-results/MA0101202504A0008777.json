@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202504A0008777",
+  "name": "삼원면옥",
+  "cat": "냉면/밀면",
+  "attempts": 1,
+  "geminiTokens": 56861,
+  "researchedAt": "2026-09-22T06:53:54.510Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "물총조개칼국수",
+      "밀면",
+      "수제만두",
+      "보쌈"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "08:00 ~ 21:00 (라스트 오더 20:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 블루라인파크 송정역 및 송정해수욕장 방문 관광객 및 가족 단위 손님이 주로 찾는 위치"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "해운대 블루라인파크 송정매표소 및 구 송정역 바로 앞에 위치한 30년 전통의 칼국수·밀면 전문점",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "30년 이상 이어진 물총(동죽) 조개 칼국수 전문점입니다. 칼국수 외에도 밀면, 보쌈, 수제 만두 등 다양한 메뉴를 판매하여 가족 단위 방문객에게 인기가 많습니다. (구)송정역 및 해운대 블루라인파크 송정 매표소 바로 앞에 위치해 있어 접근성이 좋습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 송정중앙로36번길 72에 위치한 삼원면옥은 송정해수욕장 및 해운대 블루라인파크 송정역 인근에 있는 칼국수와 밀면 전문점입니다. 아기의자 구비, 테라스석 보유, 단체 예약 및 포장이 가능하며 인근 블루라인파크 공영주차장 등을 이용할 수 있습니다.",
+      "url": "https://www.wheelbusan.or.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.wheelbusan.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "30년 전통의 물총조개칼국수와 시원한 밀면, 보쌈 등 특색 있는 메뉴 구성",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "블루라인파크 해변열차 송정역 및 송정해수욕장 바로 앞이라 방문 편의성 높음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

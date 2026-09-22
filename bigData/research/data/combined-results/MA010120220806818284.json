@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220806818284",
+  "name": "연스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 56548,
+  "researchedAt": "2026-09-22T06:25:21.032Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "웹상 방문 후기 부재로 대기 및 혼잡 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "혼술 및 인근 주민 식사",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "연스시A",
+      "연스시B",
+      "연어혼술세트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~23:00 영업 종료"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 관한 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 북구 구포동 주택가 골목에 위치한 소규모 초밥 전문점으로, 포장 및 배달과 혼술/식사 위주 매장 정보가 확인됩니다. 블로그 상세 리뷰나 대기 줄에 관한 후기는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "연스시A(10ps)",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 시랑로131번길 5 (구포동 1232-30)에 위치한 연스시 정보입니다. 전화번호: 0507-1421-9244. 영업시간: ~23:00 영업 종료. 주요 메뉴: 연스시A(10ps): 12,000원, 연스시B(12ps): 13,000원, 연스시C(17ps): 18,000원, 직화소고기 11ps: 16,000원, 연어혼술세트: 29,000원. 기타: 1인 세트, 사시미, 우동, 냉모밀, 각종 초밥류 등. 특징: 예약 가능, 포장 및 배달 가능, 조용하고 아늑한 분위기, 개별룸 및 단체 테이블 구비.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1만 원대 초밥 세트 및 혼술 세트 등 부담 없는 가격대와 포장·배달 이용 편의성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

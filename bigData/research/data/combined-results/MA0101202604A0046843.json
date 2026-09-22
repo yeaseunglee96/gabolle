@@ -2,8 +2,62 @@
   "id": "MA0101202604A0046843",
   "name": "배수지횟집",
   "cat": "횟집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 영도구 봉래길 113 에 있는 '배수지횟집'(횟집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:43:09.862Z"
+  "geminiTokens": 68742,
+  "researchedAt": "2026-09-22T05:57:25.615Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 줄서기에 대한 정보 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 상가 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "회덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 영도구 봉래동5가 봉산상가 내에 위치한 일반 횟집으로, 포털 및 맛집 DB에 상호, 위치, 대표 메뉴(모듬회, 회덮밥) 외에 세부 방문 후기나 영업시간, 가격표 정보는 등록되어 있지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 영도구 봉래길 113 (봉래동5가, 봉산상가) 배수지횟집. 신선한 모듬회와 회덮밥 등을 제공하는 곳",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 모듬회와 회덮밥 등 식사 및 안주류 이용",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

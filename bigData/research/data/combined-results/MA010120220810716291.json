@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220810716291",
+  "name": "고촌",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 57686,
+  "researchedAt": "2026-09-22T06:25:42.924Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": true,
+    "text": "평일 및 휴일 11:00~20:00 (아동급식카드 가맹점 안내 기준)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "부산광역시 북구 시랑로 145 위치에 '고촌농원'이라는 상호의 사업자/급식카드 가맹 등록 기록(승우빌라 지하 1층) 외에 일반 소비자가 방문하는 돼지고기 구이/찜 식당 '고촌'으로서의 방문기, 메뉴판, 리뷰, 상세 정보가 웹상에 존재하지 않음",
+  "notes": "해당 주소(부산광역시 북구 시랑로 145 승우빌라) 지하 1층에 '고촌농원'으로 등록된 사업체(아동급식카드 가맹 등록 이력 등)가 검색되나, 일반적인 외식 식당으로서의 후기나 소개 정보, 블로그 리뷰 등은 전무합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 시랑로 145 (구포동, 승우빌라 지하 1층) 고촌농원 051-337-5348 운영 시간 평일 및 휴일 11:00~20:00",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

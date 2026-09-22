@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220810532686",
+  "name": "오가정",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 93114,
+  "researchedAt": "2026-09-22T06:45:43.083Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "점심시간에는 인근 동네 주민과 직장인들로 붐비는 편이나 웨이팅이 극심한 수준은 아님"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 인근 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "오리고기",
+      "두루치기",
+      "수육백반",
+      "김치찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 11:30 ~ 22:00 (방문 전 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "'오고 가는 정'이라는 상호명답게 관광객 대상이 아닌 동네 주민과 인근 직장인들이 자주 찾는 전형적인 골목 로컬 밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 사하구 신평동 골목(신평골목시장 인근)에 위치한 한식/돼지고기·오리고기 전문 식당으로, 전용 주차장은 없으며 좌식 위주의 전형적인 동네 골목 식당임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사하구 다대로144번길 73-8 (신평동 111-556). 업종: 한식 전문점 (오리고기, 두루치기, 정식 등). 특징: '오고 가는 정'이라는 뜻을 담고 있으며, 동네 주민들이 자주 찾는 로컬 맛집으로 알려져 있습니다. 오리고기 외에도 수육백반, 김치찌개, 된장찌개 등 다양한 식사 메뉴를 제공하며 가성비가 좋다는 평가가 많습니다. 점심시간에는 인근 주민과 직장인들로 붐비는 경우가 많습니다. 영업시간: 주중 11:30 ~ 22:00. 별도의 전용 주차장이 없어 신평골목시장 입구 등의 유료 주차장을 이용해야 합니다. 좌식 테이블로 구성되어 있습니다.",
+      "url": "https://www.siksinhot.com/P/1077673"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1077673",
+    "https://bizno.net/article/6031070546"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 주민과 직장인들이 찌개, 백반, 두루치기, 오리고기를 가성비 좋게 즐길 수 있는 동네 단골 밥집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "오리고기와 두루치기, 백반 등 부담 없이 든든한 식사 메뉴와 좋은 가성비 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

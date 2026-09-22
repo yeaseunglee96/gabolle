@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202502A0009672",
+  "name": "히봉",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 82734,
+  "researchedAt": "2026-09-22T06:49:13.802Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기열 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 혼밥족",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "소고기 쌀국수",
+      "빨간 쌀국수",
+      "스지 쌀국수",
+      "히봉분짜",
+      "껌승",
+      "수제 짜조"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 16:00/17:00경 (화요일 정기 휴무, 재료 소진 시 마감)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길 방문객 및 쌀국수 애호가 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "5성급 호텔 출신 오너 셰프가 한우 사골, 설도, 스지를 7시간 이상 우려내어 끓이는 쌀국수 전문점",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "소고기 쌀국수 등 단품류",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "5성급 호텔 주방에서 10년 넘게 근무한 사장님이 운영하는 곳으로, 한우 사골과 한우 설도, 한우 스지를 사용하여 매일 7시간 이상 직접 육수를 끓여냅니다. 베트남 현지 스타일과 한국식 갈비탕의 중간 지점을 지향하는 깊은 맛이 특징이며, 수제 짜조 등 정성스러운 메뉴를 선보입니다. 매주 화요일은 정기 휴무입니다. 별도의 전용 주차장이 없으므로 인근 부산기계공고 공영주차장 등 유료 주차장 이용이 필요합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "5성급 호텔 10년 경력 셰프가 한우 사골·설도·스지를 7시간 이상 끓여 만든 육수의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

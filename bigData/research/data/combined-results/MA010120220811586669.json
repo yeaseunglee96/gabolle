@@ -2,8 +2,76 @@
   "id": "MA010120220811586669",
   "name": "대봉루",
   "cat": "중국집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 금정구 체육공원로 617 에 있는 '대봉루'(중국집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:08:31.047Z"
+  "geminiTokens": 70985,
+  "researchedAt": "2026-09-22T06:16:41.812Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "평일 저녁에도 손님이 꽤 있는 편이나 별도의 대기열 언급은 없음"
+  },
+  "descriptors": {
+    "audience": "가족 및 인근 직장인, 나들이객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짬뽕",
+      "왕짬뽕",
+      "짜장면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 8시경 마감 (라스트 오더 오후 7시 전후)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 홍법사/스포원 나들이객 및 인근 직장인들이 주로 찾는 편"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 금정구 두구동 스포원파크 및 홍법사 인근에 위치한 중식당으로, 진한 국물의 짬뽕과 낙지가 통째로 들어간 왕짬뽕, 짜장면 등이 주요 메뉴입니다. 매장 앞에 약 3대 주차 가능한 전용 주차 공간이 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매장 앞 전용 주차 공간(약 3대 가능)이 있으며, 공간이 부족할 경우 인근 갓길 주차를 이용하는 경우가 많습니다. 짬뽕 국물이 진하고 맛있기로 유명하며, 낙지가 통째로 들어간 왕짬뽕, 사골 육수를 사용한 물냉면 등 다양한 중화 요리를 제공합니다. 홍법사에서 차로 약 2분 거리에 위치해 있어 나들이객이 자주 찾으며... 보통 오후 8시경 마감하며, 라스트 오더는 오후 7시 전후인 경우가 많으니...",
+      "url": "https://www.bil.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 금정구 체육공원로 617(두구동 226-6)에 위치한 대봉루는 중화요리 전문점입니다. 주요 메뉴: 짜장면, 짬뽕 등이 대표 메뉴이며, 특히 해산물이 듬뿍 들어간 시원한 짬뽕으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.bil.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "진하고 시원한 국물의 해물 짬뽕 및 낙지 왕짬뽕 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "홍법사 및 체육공원 인근에 위치해 나들이객이나 직장인이 편하게 식사하기 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

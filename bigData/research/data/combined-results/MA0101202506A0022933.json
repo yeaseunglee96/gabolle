@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202506A0022933",
+  "name": "젤라또부",
+  "cat": "아이스크림/빙수",
+  "attempts": 1,
+  "geminiTokens": 69959,
+  "researchedAt": "2026-09-22T06:58:41.795Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 해리단길 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "젤라또"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해리단길 골목 상권에 위치하여 여행객 및 방문객 코스로 주로 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해운대 해리단길(우동1로 37)에 위치한 수제 젤라또 전문점으로 확인되나, 상세 영업시간 및 세부 메뉴별 가격표는 온라인 공개 정보가 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 우동1로 37에 위치한 '젤라또부(Gelato Boo)'는 해리단길에 자리 잡고 있는 젤라또 전문점입니다. 해리단길의 인기 디저트 가게 중 하나로, 건강한 천연 재료를 사용한 다양한 젤라또를 판매하고 있습니다.",
+      "url": "https://cartogiraffe.com"
+    },
+    {
+      "excerpt": "해리단길에 위치한 젤라또부(GelatoBoo)는 젤라또 전문점으로 알려져 있으나, 현재 온라인상에서 상세한 메뉴판이나 확정된 영업시간 정보를 직접적으로 제공하고 있지 않습니다. 해당 매장은 여행객들 사이에서 해리단길 디저트 맛집 중 한 곳으로 언급되고 있습니다.",
+      "url": "https://addagio.io"
+    }
+  ],
+  "sources": [
+    "https://cartogiraffe.com",
+    "https://addagio.io"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "건강한 천연 재료를 사용해 만드는 해리단길 수제 젤라또 디저트",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

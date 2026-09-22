@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220810533771",
+  "name": "대일식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 67496,
+  "researchedAt": "2026-09-22T06:25:12.519Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 감천항로405번길 49에 위치한 한식/일반음식점 상호로 상호 등록 내역이 확인되나, 조선소 및 공업단지 밀집 구역의 소규모 식당으로 온라인 블로그 리뷰, 메뉴판, 영업시간 등 상세 이용 후기 및 정량 정보는 공개되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대일식당: 부산광역시 사하구 감천항로405번길 49에 위치한 한식당입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

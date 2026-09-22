@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220805070126",
+  "name": "토리킨",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 50025,
+  "researchedAt": "2026-09-22T10:44:22.502Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡/줄서기 관련 명시적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "혼밥객, 라멘 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "토리킨 (토리파이탄 쇼유)",
+      "시로 토리킨 (토리파이탄 시오)",
+      "아부라소바"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 11:30 - 19:00 (라스트오더 18:30), 일요일 11:30 - 15:00 (라스트오더 14:30), 월요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 비율에 대한 구체적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "해운대역 부근에 위치한 닭 육수(토리파이탄) 전문 일본식 라멘점으로, 다찌석 위주로 구성되어 혼밥에 적합한 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "토리킨 (토리파이탄 쇼유)",
+    "priceWon": 11000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 구남로18번길 24 1층. 닭 육수를 베이스로 한 맑은 국물 라멘과 아부라소바를 판매합니다. 특히 진한 닭 육수와 에스프레소 크레마처럼 뽀얀 거품이 특징인 '토리파이탄' 라멘으로 잘 알려져 있습니다. 다찌(바) 테이블이 메인인 구조로, 1인 1라멘 운영을 하고 있어 혼밥을 즐기기에 적합한 환경입니다.",
+      "url": "https://www.siksinhot.com/P/1557002"
+    },
+    {
+      "excerpt": "평일 11:30 - 19:00 (라스트오더 18:30), 일요일 11:30 - 15:00 (라스트오더 14:30), 월요일 휴무. 토리킨 11,000원, 시로 토리킨 11,000원, 아카 토리킨 11,000원, 아부라소바 10,000원.",
+      "url": "https://lusoft.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1557002",
+    "https://lusoft.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "진한 닭 육수 베이스의 뽀얀 거품이 특징인 토리파이탄 및 아부라소바 전문 라멘 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대역 도보 5분 거리 접근성 및 바 테이블 위주의 쾌적한 1인 혼밥 환경",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

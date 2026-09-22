@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220811431585",
+  "name": "진미족발",
+  "cat": "족발/보쌈",
+  "attempts": 1,
+  "geminiTokens": 33037,
+  "researchedAt": "2026-09-22T06:57:25.367Z",
+  "crowding": {
+    "found": false,
+    "note": ""
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "가게 존재는 확인됨(부산광역시 해운대구 송정중앙로 12, 전화 051-704-6898). 그러나 블로그·리뷰·SNS 등에서 이 가게에 대한 실질적인 방문 후기, 메뉴판, 가격, 영업시간, 사진 정보를 찾을 수 없었음. 4회 검색 실시. 온라인 노출이 매우 낮은 로컬 소규모 업소로 보임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 송정중앙로 12 (송정동) / 전화번호: 051-704-6898 / 업종: 족발·보쌈",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

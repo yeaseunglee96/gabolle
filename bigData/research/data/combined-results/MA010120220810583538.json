@@ -1,0 +1,55 @@
+{
+  "id": "MA010120220810583538",
+  "name": "청와대숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 41952,
+  "researchedAt": "2026-09-22T06:26:40.101Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "돼지갈비",
+      "숯불갈비"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "주변 주민 및 인근 상권 중심의 로컬 식당"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 동구 좌천동(정공단로 15-2)에 위치한 숯불갈비/돼지고기 구이 전문점으로 인허가 및 상권 디렉토리 상 확인되나, 블로그 방문 후기나 메뉴판 사진 등 상세 온라인 후기가 전무한 동네 로컬 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 정공단로 15-2 (좌천동 517-1) 좌천역 인근에 위치한 고기 요리 전문점",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "좌천역 인근 동네 주민들이 찾는 숯불갈비/고기구이 식당",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

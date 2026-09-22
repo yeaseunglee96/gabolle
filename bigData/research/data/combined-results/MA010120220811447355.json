@@ -1,0 +1,86 @@
+{
+  "id": "MA010120220811447355",
+  "name": "갈매기3호",
+  "cat": "요리 주점",
+  "attempts": 1,
+  "geminiTokens": 81367,
+  "researchedAt": "2026-09-22T06:58:10.725Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 단위 및 관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "랍스터 코스",
+      "전복",
+      "돌멍게",
+      "뿔소라"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객 및 가족 단위 방문객 언급 확인"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "과거 해운대 바다마을 포장마차촌(해운대해변로 236 일대)에 위치했으나 포장마차촌 철거 이후 해운대 미포 씨랜드 건물 1층으로 이전하여 영업 중인 랍스터 포차.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "랍스터 코스 (가격 변동/시가)",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "기존 해운대 포장마차촌의 감성을 이어받아 현재는 해운대 미포 씨랜드 건물 1층으로 이전하여 운영 중입니다. 건물 내에 위치하여 쾌적한 환경에서 식사가 가능하며, 주차 공간이 마련되어 있어 가족 단위나 관광객의 방문이 편리합니다. 신선한 랍스터와 전복, 소라, 돌멍게 등 다양한 해산물 요리를 제공합니다.",
+      "url": "https://www.yeominnews.com/news/articleView.html?idxno=24823"
+    },
+    {
+      "excerpt": "랍스터 회가 쫀득하고 탱글탱글하여 식감이 매우 좋다는 평가가 많습니다. 랍스터 외에도 전복, 낙지, 뿔소라, 개불, 해삼, 멍게 등 다양한 해산물이 코스로 제공되어 만족도가 높습니다. 사장님(이모님)이 매우 친절하며, 포장마차 특유의 따뜻한 인심을 느낄 수 있다는 후기가 이어지고 있습니다.",
+      "url": "https://www.facebook.com/"
+    }
+  ],
+  "sources": [
+    "https://www.yeominnews.com/news/articleView.html?idxno=24823",
+    "https://www.facebook.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선하고 쫀득한 식감의 랍스터 회와 다채로운 해산물 코스 요리를 제공함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "포장마차 시절의 정겨운 감성과 사장님의 따뜻하고 친절한 서비스 인심이 좋음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "건물 내 이전 및 주차 시설 구비로 가족 및 관광객의 쾌적한 방문이 가능함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

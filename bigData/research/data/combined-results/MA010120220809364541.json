@@ -2,8 +2,35 @@
   "id": "MA010120220809364541",
   "name": "화명",
   "cat": "빵/도넛",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 북구 화명대로 119 에 있는 '화명'(빵/도넛 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:18:40.407Z"
+  "geminiTokens": 36425,
+  "researchedAt": "2026-09-22T06:19:25.516Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산 북구 화명대로 119(삼한힐파크 아파트 단지) 주소지 내 '화명' 상호의 제과/도넛 전문 매장을 웹상에서 검색하였으나 실존하는 일반 영업점 정보가 확인되지 않음.",
+  "notes": "해당 주소지는 아파트 단지(삼한힐파크)이며, 상가 내 빵/도넛 업종으로 운영 중인 '화명'이라는 소매 매장 정보가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://dorojuso.kr"
+  ],
+  "whyPeopleGo": []
 }

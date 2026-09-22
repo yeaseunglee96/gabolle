@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220812950876",
+  "name": "덤보비에이치",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65043,
+  "researchedAt": "2026-09-22T10:33:21.290Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명확한 언급 미확인"
+  },
+  "descriptors": {
+    "audience": "연인, 데이트 고객, 친구",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "화덕피자",
+      "볼로네제 피자",
+      "크러플크림뽈로",
+      "까르보나라"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 21:30 (브레이크타임 15:00 ~ 17:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해운대 해리단길에 위치했던 화덕피자 및 파스타 전문점으로 상호명 '덤보(DUMBO)' 혹은 법인/사업자 등록명 '덤보비에이치'로 알려져 있으며, 현재 해당 위치에는 다른 식당(솔솥 등)이 입점해 있어 폐업 또는 이전된 상태로 추정됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 우동1로20번길 27-10 1층, 화덕피자와 파스타를 전문으로 하는 곳으로 볼로네제 피자, 크러플크림뽈로, 까르보나라 등을 판매하며 영업시간은 매일 11:30 ~ 21:30 (브레이크 타임 15:00 ~ 17:00). 전용 주차장은 별도로 없음.",
+      "url": "https://kr.trip.com/travel-guide/foods/busan-120063-restaurant/"
+    }
+  ],
+  "sources": [
+    "https://kr.trip.com/travel-guide/foods/busan-120063-restaurant/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해리단길 분위기 좋은 공간에서 즐기는 화덕피자와 파스타",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

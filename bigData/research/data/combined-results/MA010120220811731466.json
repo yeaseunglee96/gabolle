@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220811731466",
+  "name": "동백아가씨",
+  "cat": "치킨",
+  "attempts": 1,
+  "geminiTokens": 57488,
+  "researchedAt": "2026-09-22T06:59:11.603Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "치킨 업종의 '동백아가씨'는 해당 주소에 존재하지 않음 (해당 주소지의 동백아가씨는 제과점업/케이크 제작 업체임)",
+  "notes": "부산광역시 해운대구 우동1로 37(아림비치맨션 상가 4호)에 등록된 '동백아가씨'는 플라워케이크, 마들렌 등을 취급하는 제과점업(베이커리)이며, 치킨/통닭 업종의 음식점이 아닙니다. 따라서 요청하신 치킨 업종 가게는 존재하지 않아 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://gongsinara.com",
+    "https://disco.re"
+  ]
+}

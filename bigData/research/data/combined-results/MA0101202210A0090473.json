@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202210A0090473",
+  "name": "살몬브라더스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 77296,
+  "researchedAt": "2026-09-22T07:09:58.148Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "데이트나 저녁 식사 코스로 인기가 많아 캐치테이블 등을 통한 예약 후 방문을 권장하는 편임"
+  },
+  "descriptors": {
+    "audience": "연인 데이트, 친구 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "대왕연어 초밥",
+      "연어 사시미",
+      "연어·육회 세트"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "14:00 ~ 24:00 (브레이크 타임 16:00 ~ 17:00 / 라스트 오더 23:00, 화요일 정기 휴무) / 주말 12:00 ~ 01:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 인근으로 여행객 및 현지 주민들이 주로 데이트나 모임으로 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안로 49 2층에 위치한 연어 요리 전문점으로 신선한 숙성 연어 및 육회 메뉴가 중심임",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "대왕연어 초밥 (6pcs) 16,000원, 연어 사시미 (200g) 20,000원, 연어/육회 반반 (300g) 35,000원",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안로 49, 2층에 위치한 '살몬브라더스 본점'은 생연어 사시미, 육회, 광어 모둠 세트, 대왕연어 초밥, 연어 치즈 롤, 파스타류 등을 제공하며 깔끔하고 아늑한 인테리어로 데이트나 저녁 식사 장소로 인기가 많습니다. 영업시간은 14:00 ~ 24:00(브레이크 타임 16:00 ~ 17:00 / 라스트 오더 23:00, 화요일 정기휴무)입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "연어가 입에서 사르르 녹는다, 연어가 두툼하고 신선하다는 평이 많으며, 특히 연어 초밥의 크기가 매우 커서 잘라 먹어야 할 정도라는 후기가 있습니다. 일반 김 대신 감태가 함께 나오는 구성이 만족스럽다는 의견이 있습니다. 대왕연어 초밥 16,000원, 연어 사시미 20,000원, 연어/육회 반반 35,000원. 주차는 인근 광안신호주차타워 이용.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://polle.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두툼하고 신선한 숙성 생연어와 대왕연어 초밥, 육회 구성의 맛이 뛰어남",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해수욕장 및 광안역 인근에 위치하며 깔끔한 분위기로 데이트 장소로 적합함",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

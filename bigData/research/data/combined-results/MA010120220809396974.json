@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220809396974",
+  "name": "홍불닭갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 53430,
+  "researchedAt": "2026-09-22T06:23:45.028Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "닭갈비"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사상구 낙동대로 720(엄궁동 162-1)에 등록된 '홍불닭갈비' 상호의 닭갈비/불닭 음식점은 사업자등록 및 매운 음식 디렉토리(맵부심) 등에 상호와 주소가 등록되어 있으나, 방문자 후기, 영업시간, 상세 메뉴 가격표 등의 정량 정보 및 이용 후기는 온라인상에 거의 남아있지 않거나 폐업/변경되었을 가능성이 높습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "홍불닭갈비, 부산광역시 사상구 낙동대로 720 (엄궁동) 매운 음식점 분류 (Lv.4)",
+      "url": "https://mapbusim.com"
+    },
+    {
+      "excerpt": "홍불닭갈비 부산광역시 사상구 낙동대로 720 (엄궁동 162-1) 업종: 닭갈비",
+      "url": "https://ckw.kr"
+    }
+  ],
+  "sources": [
+    "https://mapbusim.com",
+    "https://ckw.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매운 불닭/닭갈비를 찾는 수요로 등록된 매운맛 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

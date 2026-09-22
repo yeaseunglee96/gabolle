@@ -2,8 +2,43 @@
   "id": "MA010120220810549534",
   "name": "지중해식당",
   "cat": "횟집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 장평로443번길 49 에 있는 '지중해식당'(횟집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:17:42.080Z"
+  "geminiTokens": 84567,
+  "researchedAt": "2026-09-22T06:19:08.911Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "일반 식사 손님",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 장평로443번길 49(괴정4동 568-15)에 '지중해식당'(전화: 051-204-3763, 업종: 한식/횟집)으로 등록된 실존 음식점이나, 온라인상에 방문 리뷰나 상세 메뉴/가격 정보가 존재하지 않는 소규모 일반 음식점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 지중해식당, 위치: 부산 사하구 장평로443번길 49 (괴정4동 568-15), 업종: 한식, 횟집, 전화번호: 051-204-3763",
+      "url": "https://114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://114.co.kr"
+  ],
+  "whyPeopleGo": []
 }

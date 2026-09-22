@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220809703645",
+  "name": "금토가든",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 49237,
+  "researchedAt": "2026-09-22T10:38:57.225Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 웨이팅에 대한 명확한 웹 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "친구, 모임, 연인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "통삼겹살",
+      "껍데기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:00 ~ 새벽 02:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안리 인근에 위치한 고깃집으로, 통삼겹살과 껍데기를 주 메뉴로 하며 직원이 직접 구워주는 서비스를 제공함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 광남로120번길 8 (광안동) 운영 시간: 매일 16:00 ~ 새벽 02:00 통삼겹살과 껍데기 등을 판매하며, 직원분이 고기를 직접 구워주는 서비스를 제공하는 것으로 알려져 있습니다",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "직원이 고기를 직접 알맞게 구워주는 서비스 편의성 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

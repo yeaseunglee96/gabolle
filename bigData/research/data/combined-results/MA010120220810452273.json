@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220810452273",
+  "name": "포청천",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 83988,
+  "researchedAt": "2026-09-22T06:50:04.712Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 배달 이용객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짬뽕",
+      "탕수육",
+      "짜장면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 주민 대상 직접 배달 및 식사를 위주로 하는 동네 로컬 중국집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "영도구 신선동 산복도로 부근(하나길 652)에 위치한 동네 배달 전문 중식당으로 행정안전부/지자체 지정 착한가격업소로 등록되어 있음",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "포청천 / 부산광역시 영도구 하나길 652 (신선동1가) / 전화번호: 051-418-8211 / 로컬 분위기의 옛날 중국집으로, 짬뽕과 쫀득한 식감의 탕수육 등이 주요 메뉴로 알려져 있습니다. 직접 배달을 운영하는 배달 전문 중국집이기도 합니다. 행정안전부와 지방자치단체가 지정한 '착한가격업소'로 알려져 있으며",
+      "url": "https://siksinhot.com/P/1010776"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com/P/1010776"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "착한가격업소로 지정되어 가격이 저렴하고 부담 없이 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "꽃게, 새우, 오징어가 들어간 짬뽕과 쫀득한 탕수육 등 친숙한 옛날 중국집 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "자체 배달을 운영하여 동네 주민들이 편리하게 식사 가능",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

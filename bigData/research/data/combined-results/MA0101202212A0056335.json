@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202212A0056335",
+  "name": "파티넥스트도어",
+  "cat": "무도 유흥 주점",
+  "attempts": 1,
+  "geminiTokens": 65517,
+  "researchedAt": "2026-09-22T06:58:33.074Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "입구 컷이 거의 없고 흥겨운 힙합 클럽/펍 분위기로 주말 및 야간에 20대 중심 혼잡"
+  },
+  "descriptors": {
+    "audience": "20대 MZ세대 및 외국인 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "외국인 방문객이 많은 편이며 서면 밤문화를 찾는 20대 층이 주로 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 서면에 위치한 힙합 기반의 라운지 펍/클럽으로 무도 유흥 주점 형태로 운영됨. 주차 불가, 실내 흡연 관련 언급이 많음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 부산진구 중앙대로680번가길 34 (부전동), 지하 1층. 힙합 라운지 클럽으로, 20대 MZ 세대들에게 인기가 많습니다. 입구에서부터 음악 소리가 크고 흥겨운 분위기가 특징입니다. 별도의 주차 공간은 없습니다. 입구 컷이 거의 없고 외국인 방문객이 많은 편이며, 비교적 자유롭게 즐길 수 있는 펍/클럽 형태의 장소로 언급되기도 합니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산 서면에 위치한 '파티넥스트도어(PartyNextDoor)'는 힙합 음악을 중심으로 운영되는 라운지 펍(또는 클럽)입니다. 부산광역시 부산진구 중앙대로680번가길 34. 힙합 기반의 음악을 즐길 수 있는 라운지 펍으로, 다트 게임 등이 가능합니다.",
+      "url": "https://facebook.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "힙합 음악 기반의 자유로운 펍/클럽 분위기와 다트 게임 등을 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

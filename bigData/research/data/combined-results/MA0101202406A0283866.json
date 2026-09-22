@@ -2,8 +2,62 @@
   "id": "MA0101202406A0283866",
   "name": "서영횟집",
   "cat": "횟집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 새벽로168번길 21-14 에 있는 '서영횟집'(횟집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:57:57.825Z"
+  "geminiTokens": 56732,
+  "researchedAt": "2026-09-22T06:00:41.904Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기에 대한 웹 후기 정보 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생선회"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 영업 시작 (상세 마감 및 휴무는 매장 유선 문의 필요)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 온라인 후기 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 사상구 감전동 골목(새벽로168번길 21-14)에 위치한 소규모 횟집으로, 온누리상품권 가맹점 등록 이력이 확인되나 온라인 블로그 리뷰나 세부 메뉴 가격 정보는 거의 존재하지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "정보 없음",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 사상구 새벽로168번길 21-14 (감전동 121-12) 업종: 음식점 (한식, 횟집) 온누리상품권 가맹점 10:30에 영업을 시작 주차 공간이 별도로 마련되어 있지 않으므로 대중교통 이용 권장",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감전동 새벽로 인근에서 온누리상품권 사용이 가능한 동네 골목 횟집 식당",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

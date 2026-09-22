@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202603A0034131",
+  "name": "젤라또부",
+  "cat": "아이스크림/빙수",
+  "attempts": 1,
+  "geminiTokens": 65621,
+  "researchedAt": "2026-09-22T06:58:31.607Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 디저트 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 젤라또"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길 디저트 코스로 여행객/관광객 방문 언급"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(구남로 24)에서 '젤라또부'에 대한 구체적인 영업 정보, 메뉴판, 가격, 영업시간 등의 실제 매장 이용 정보를 확인할 수 없음.",
+  "notes": "'부산 해운대구 구남로 24' 소재의 '젤라또부'에 대해 웹 검색을 수행하였으나, 해당 주소의 실제 영업 매장 정보(메뉴, 가격, 영업시간 등)가 불분명하거나 개점 정보 외 실질적인 소비자 후기가 확인되지 않아 found: false 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "\"젤라또부(GelatoBoo)\"는 부산 해운대구 해리단길에 위치한 젤라또 전문점입니다. 특징: 건강한 천연 재료를 사용하여 만드는 수제 젤라또로 알려져 있으며, 해리단길의 디저트 맛집으로 자주 언급되는 곳입니다.",
+      "url": "https://addagio.io"
+    }
+  ],
+  "sources": [
+    "https://addagio.io"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "천연 재료를 사용한 수제 젤라또 디저트",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

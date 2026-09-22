@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220812086135",
+  "name": "신앤박",
+  "cat": "피자",
+  "attempts": 1,
+  "geminiTokens": 50153,
+  "researchedAt": "2026-09-22T06:49:46.877Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 해운대구 해운대로570번길 51)에는 맥도날드 해운대DT점 및 도시락류 제조업체인 '(주)신앤박' 법인이 등록되어 있을 뿐, '신앤박'이라는 상호의 일반 피자 음식점/식당은 존재하지 않습니다.",
+  "notes": "조사 대상인 '신앤박'(피자 업종, 부산 해운대구 해운대로570번길 51)을 검색한 결과, 해당 주소지는 맥도날드 해운대DT점 및 기업체 (주)신앤박(도시락류 제조업)으로 확인되며 실제 방문 가능한 피자 전문 식당 정보나 소비자 리뷰/영업 정보는 존재하지 않아 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://namu.wiki"
+  ],
+  "whyPeopleGo": []
+}

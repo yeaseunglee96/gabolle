@@ -2,8 +2,37 @@
   "id": "MA010120220812192635",
   "name": "송우",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 강서구 명지오션시티8로 2 에 있는 '송우'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:01:38.724Z"
+  "geminiTokens": 113776,
+  "researchedAt": "2026-09-22T06:15:26.954Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "우대갈비",
+      "매콤 소 갈비찜"
+    ]
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "웹상에 상호 및 주소 등록 내역 외에 실제 방문기/운영 정보가 확인되지 않거나 폐업 상태임",
+  "notes": "부산광역시 강서구 명지오션시티8로 2 '송우'는 상세한 방문 리뷰, 영업시간, 가격 등의 실제 운영 정보가 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
 }

@@ -1,0 +1,66 @@
+{
+  "id": "MA0106202605A0044474",
+  "name": "엑스트라마일",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 79535,
+  "researchedAt": "2026-09-22T07:00:31.464Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트, 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "핫 허니 페퍼로니 피자",
+      "로메스코 야채구이",
+      "피넛버터 파스타"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 - 21:00 (20:00 라스트오더)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 수영구 광안동(수영로554번가길 11)에 위치한 피자 및 양식 레스토랑으로, 전포동 프리윌피자 팀의 매장입니다. 48시간 숙성 도우 피자와 특색 있는 메뉴로 인기를 끌고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 수영로554번가길 11 1층. 48시간 숙성 도우를 사용한 피자와 파스타 등을 판매합니다. 특히 '핫 허니 페퍼로니' 피자나 트러플 오일이 들어간 메뉴 등이 인기 메뉴로 소개되곤 합니다. 매일 11:00 - 21:00 (20:00 라스트오더)",
+      "url": "https://todaybest.kr"
+    },
+    {
+      "excerpt": "전포동의 프리윌피자, 피클스, 어퍼이스트를 운영하는 팀의 4번째 매장입니다. 로메스코 소스를 곁들인 야채구이 등이 독특한 메뉴로 알려져 있습니다.",
+      "url": "https://foodbus.co.kr"
+    }
+  ],
+  "sources": [
+    "https://todaybest.kr",
+    "https://foodbus.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "48시간 숙성 도우를 활용한 특색 있는 피자와 독창적인 양식 메뉴 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -2,8 +2,64 @@
   "id": "MA010120220810728383",
   "name": "그집국수",
   "cat": "국수/칼국수",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 강서구 낙동남로 748 에 있는 '그집국수'(국수/칼국수 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:52:58.703Z"
+  "geminiTokens": 91590,
+  "researchedAt": "2026-09-22T06:00:00.554Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 언급을 온라인 후기에서 확인할 수 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "국수",
+      "콩국수"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "온라인상에 등록된 영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 온라인 방문기 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 강서구 녹산동(낙동남로 748)에 위치한 면요리/한식 음식점으로 확인되나, 온라인상 상세 블로그 방문 후기나 영업시간, 가격표 정보는 매우 희소함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "국수",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 강서구 낙동남로 748, 1층 (녹산동). 업종: 면요리/한식. 유튜버 '장똘뱅이' 등 맛집 관련 채널에서 언급된 바 있습니다. 식신 등 맛집 정보 사이트에서는 '진한 국수와 콩국수'가 대표적인 특징으로 소개된 바 있습니다.",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://yjinai.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "진한 국물 맛의 국수와 콩국수를 판매하는 동네 면요리 전문점으로 알려짐",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

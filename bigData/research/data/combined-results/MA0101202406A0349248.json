@@ -1,0 +1,75 @@
+{
+  "id": "MA0101202406A0349248",
+  "name": "동경밥상",
+  "cat": "일식 카레/돈가스/덮밥",
+  "attempts": 1,
+  "geminiTokens": 119898,
+  "researchedAt": "2026-09-22T06:52:39.350Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 식사 피크 시간에는 현장 웨이팅이 발생하며 오픈런 및 대기 등록이 필요하다."
+  },
+  "descriptors": {
+    "audience": "가족 및 정갈한 일식 식사를 원하는 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "우나쥬",
+      "히츠마부시",
+      "우나돈"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:00 (브레이크타임 15:00 ~ 17:30, 라스트오더 20:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 인근으로 부산을 찾는 관광객과 정통 장어덮밥을 찾는 미식가/현지인 모두 많이 방문한다."
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "미쉐린 가이드 빕 구르망에 선정된 나고야식/동경식 정통 민물장어덮밥 전문점. 숯불에 구워내는 히츠마부시와 도쿄식 우나쥬가 대표 메뉴이다. 소주는 미판매하며 인근 부산집 주차장 1시간 지원 가능.",
+  "photoUrls": [
+    "https://prod-pics.guide.michelin.com/api/public/content/48fc3bc0a2134e51a10a54cc93160e72.jpeg",
+    "https://prod-pics.guide.michelin.com/api/public/content/839751bb41774d0388758fbf475a231c.jpeg",
+    "https://prod-pics.guide.michelin.com/api/public/content/feedc51d7451476da2a2ed6035c020c6.jpeg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "우나쥬(43,000원), 히츠마부시(39,000원), 우나돈(28,000원)",
+    "priceWon": 39000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산의 정취가 돋보이는 광안리 해수욕장의 익숙한 거리 분위기에서 벗어나 레스토랑의 정문에 이르면 사뭇 차분하고 정적인 분위기가 감돈다. 일본의 대표적인 장어 덮밥인 우나쥬와 히츠마부시를 선보이는 동경 밥상의 모습이다. 김태우 셰프의 손을 거친 동경 밥상의 음식에서 이 요리의 정통성을 표현하고자 하는 그의 노력이 엿보인다. 두툼하게 씹히는 우나기는 본연의 풍미가 도드라지고 감칠맛 나는 소스와 잘 어우러진다. 무엇보다 최근 도정을 원칙으로 하는 윤기 나는 쌀밥과의 조화가 입맛을 당긴다. 정통성 있는 레시피를 존중하며 디테일하게 자신만의 맛을 더해가는 모습이 요리에 대한 신뢰로 이어진다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-area/busan/restaurant/tokyo-babsang"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-area/busan/restaurant/tokyo-babsang"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "도쿄 아카사카 전통 조리 방식과 숯불 구이로 완성한 수준 높은 민물장어덮밥 본연의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 빕 구르망에 선정되어 공인된 장어덮밥 전문점이라는 신뢰감",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

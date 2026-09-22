@@ -2,8 +2,63 @@
   "id": "MA010120220810368247",
   "name": "순대마을",
   "cat": "국/탕/찌개류",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 서구 구덕로296번길 34 에 있는 '순대마을'(국/탕/찌개류 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:40:40.443Z"
+  "geminiTokens": 90850,
+  "researchedAt": "2026-09-22T05:57:05.002Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "주당·직장인·인근 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "순곱버섯전골",
+      "순대버섯전골"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 서구 구덕로296번길 34(혹은 인근 36)에 위치한 순대마을 대신점(곱창전골 및 순대버섯전골 전문점)입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "순곱버섯전골",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "곱창전골 전문점으로, 얼큰한 국물 요리로 알려져 있습니다. 인근 술집 골목 내에 위치해 있으며, 체인점으로 운영되는 식당입니다. 주요 메뉴: 순곱버섯전골 등이 있으며, 기본 반찬으로 편육과 오이, 김치, 생와사비 등이 제공되는 것이 특징입니다.",
+      "url": "https://siksinhot.com/P/1330960"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com/P/1330960"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "얼큰하고 진한 국물의 순곱버섯전골과 기본 찬으로 나오는 편육 안주를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

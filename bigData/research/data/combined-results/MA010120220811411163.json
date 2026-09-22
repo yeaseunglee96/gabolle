@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220811411163",
+  "name": "대복떡방앗간",
+  "cat": "떡/한과",
+  "attempts": 1,
+  "geminiTokens": 28951,
+  "researchedAt": "2026-09-22T09:52:36.570Z",
+  "crowding": {
+    "found": false,
+    "note": "줄서기·혼잡 관련 언급 없음"
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "가게의 존재는 전화번호부 및 사업체 디렉토리(114.co.kr, nett.kr)에서 확인됨. 주소: 부산광역시 수영구 민락로34번길 25 (민락동 163-18), 전화: 051-761-0898. 그러나 블로그·리뷰·SNS 등 이용자 생성 콘텐츠는 4회 검색에서 전혀 발견되지 않음. 정량 정보(가격, 영업시간, 혼잡도, 메뉴 다양성 등) 모두 온라인상 공개 데이터 없음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대복떡방앗간 / 부산광역시 수영구 민락로34번길 25 (민락동 163-18) / 업종: 방앗간/정미소 / 전화: 051-761-0898 / 온라인상에 별도로 등록된 이용자 리뷰나 평점은 확인되지 않습니다.",
+      "url": "https://www.114.co.kr"
+    },
+    {
+      "excerpt": "대복떡집 / 부산 수영구 민락로34번길 25 민락동 163-18 / 전화번호: 051-761-0898",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202409A0040172",
+  "name": "젤라또조이",
+  "cat": "아이스크림/빙수",
+  "attempts": 1,
+  "geminiTokens": 73229,
+  "researchedAt": "2026-09-22T06:58:44.808Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장 내부 테이블이 약 8개 정도로 협소하지 않으며 포장 및 산책용 테이크아웃 이용객이 많음"
+  },
+  "descriptors": {
+    "audience": "바다 산책객 및 디저트 애호가",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "이천쌀 젤라또",
+      "이태리 피스타치오",
+      "제주 한라봉 소르베"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 09:00 - 01:00 (라스트오더 00:50)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 바다 및 미포 블루라인파크 인근에 위치해 산책객과 관광객 방문이 잦음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "해운대 달맞이길/미포 입구 인근에 위치한 이탈리아 정통 젤라또 전문점으로 새벽 1시까지 심야 영업을 하는 것이 특징임",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "젤라또 한 컵 (2가지 맛)",
+    "priceWon": 5500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산 해운대구 달맞이길62번길 17 1층, 영업시간: 매일 09:00 - 01:00 (라스트오더 00:50), 주차는 불가하며 젤라또 한 컵 (2가지 맛) 5,500원, 포장 3가지 맛 16,000원, 4가지 맛 22,000원입니다. 일반 아이스크림과 다른 쫀득한 식감이 특징이며 대표 메뉴는 이천쌀 젤라또입니다. 매장 내부에 약 8개 정도의 테이블이 있습니다.",
+      "url": "https://teddylini.tistory.com/"
+    }
+  ],
+  "sources": [
+    "https://teddylini.tistory.com/",
+    "https://heyyumi.ai/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일반 아이스크림과 구별되는 쫀득한 식감과 이천쌀, 피스타치오 등 정통 원재료 본연의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 미포 바닷가 산책로 인근 위치 및 새벽 1시까지 운영하는 긴 영업시간",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

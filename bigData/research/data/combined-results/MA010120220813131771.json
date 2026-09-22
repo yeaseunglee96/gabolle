@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220813131771",
+  "name": "오타루",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 52414,
+  "researchedAt": "2026-09-22T06:26:07.709Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사상구 사상로 71 소재의 '오타루' 음식점을 웹 검색(주소 검색, 사상 오타루 일식/초밥 검색 등)을 통해 조사하였으나, 해당 주소지에 실존하거나 관련 리뷰 및 웹 문서가 존재하는 음식점을 확인할 수 없어 found: false로 처리하였습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

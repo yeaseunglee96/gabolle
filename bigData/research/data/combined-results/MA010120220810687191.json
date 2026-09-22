@@ -2,8 +2,72 @@
   "id": "MA010120220810687191",
   "name": "다다삼계탕",
   "cat": "국/탕/찌개류",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 북구 와석장터로 5 에 있는 '다다삼계탕'(국/탕/찌개류 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:48:03.204Z"
+  "geminiTokens": 52902,
+  "researchedAt": "2026-09-22T05:58:36.823Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 주민, 가족 단위, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한방삼계탕",
+      "한방 전복 삼계탕",
+      "옻삼계탕"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:00 (또는 11:00 ~ 21:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "체인점이 아닌 화명동 지역 로컬 맛집으로, 동네 주민들이 주로 찾는 곳으로 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "체인점이 아니며 신촌약수와 약 20가지 한약재를 넣고 푹 고아낸 한방삼계탕 및 전복/옻삼계탕을 판매하는 화명동 로컬 식당입니다. 식사 후 호박식혜를 제공하는 특징이 있습니다. 정확한 단일 메뉴 가격은 웹상에 명시되어 있지 않아 price 항목은 found:false 처리했습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "신촌약수와 20가지 한약재를 넣어 푹 고아낸 삼계탕을 전문으로 하며, 한방삼계탕과 옻삼계탕 등의 메뉴가 있습니다. 영업시간 11:00 - 21:30. 전용 주차장은 없으나, 인근 대로변 및 골목길 주차를 이용할 수 있습니다. 화명1치안센터 바로 옆 블럭에 위치해 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "체인점이 아닌 화명동 지역 로컬 맛집으로 알려져 있습니다. 대표 메뉴로는 한방 삼계탕, 한방 전복 삼계탕 등이 있으며 식사 후 호박식혜를 제공하는 것으로 유명합니다. 화명역(지하철 2호선) 2번 출구에서 도보 약 3분 거리에 위치해 접근성이 좋습니다.",
+      "url": "https://st-news.co.kr"
+    }
+  ],
+  "sources": [
+    "https://st-news.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신촌약수와 20가지 한약재를 넣어 푹 고아낸 건강한 한방 국물 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "화명동 주민들이 오랫동안 찾는 편안한 동네 로컬 삼계탕 전문점",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
 }

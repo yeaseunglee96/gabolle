@@ -2,8 +2,35 @@
   "id": "MA010120220808488401",
   "name": "겸",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 괴정로 222 에 있는 '겸'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:16:05.627Z"
+  "geminiTokens": 61545,
+  "researchedAt": "2026-09-22T06:18:31.220Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 사하구 괴정로 222, 정우맨션)에서 실제 영업 정보 및 메뉴/후기 문헌을 확인할 수 없음",
+  "notes": "부산광역시 사하구 괴정로 222 주소 및 사하구 괴정 '겸'에 대해 웹 검색을 진행했으나, 해당 주소에서 실제 영업 중인 일식/초밥 전문점 '겸'에 대한 구체적인 매장 정보, 메뉴판, 원문 후기 등을 확인할 수 없어 found:false로 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://jusoga.com"
+  ],
+  "whyPeopleGo": []
 }

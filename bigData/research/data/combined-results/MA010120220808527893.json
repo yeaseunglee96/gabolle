@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220808527893",
+  "name": "송송덮밥",
+  "cat": "기타 한식 음식점",
+  "attempts": 1,
+  "geminiTokens": 66487,
+  "researchedAt": "2026-09-22T06:57:40.898Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "목살구이 덮밥",
+      "낙지볶음 덮밥",
+      "연어 덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동백역 인근 주민과 직장인들이 간단하고 깔끔하게 한 끼 식사를 위해 찾는 동네 밥집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 해운대구 해운대로483번길 3(우동)에 위치한 덮밥 전문점으로, 목살구이 덮밥과 낙지볶음 덮밥, 연어덮밥 등을 정갈하고 깔끔한 가정식 스타일로 제공하는 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "목살구이 덮밥 (기본)",
+    "priceWon": 7000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "정갈한 일본 가정식 스타일의 덮밥을 제공하는 곳으로 알려져 있습니다. 대표 메뉴로는 연어 덮밥, 연어 회비빔밥, 낙지볶음 덮밥, 목살구이 덮밥 등이 언급된 바 있습니다.",
+      "url": "https://www.siksinhot.com/P/1004149"
+    },
+    {
+      "excerpt": "목살구이 덮밥 외에도 낙지볶음 덮밥 등이 주요 메뉴로 언급되었습니다. 목살구이 덮밥(곱빼기) 가격은 9,000원(기본 7,000원 + 추가 2,000원)으로 기재되어 있습니다. 식당 분위기가 깔끔하고 가정적인 느낌이라는 평이 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1004149",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "목살구이 덮밥, 낙지볶음 덮밥 등 깔끔하고 정갈한 한 그릇 가정식 덮밥 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부담 없는 가격대(7,000원 선)로 든든하게 먹을 수 있는 한 끼",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

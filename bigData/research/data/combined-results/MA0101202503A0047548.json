@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202503A0047548",
+  "name": "앙리17",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 57866,
+  "researchedAt": "2026-09-22T07:04:24.693Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "조용하고 차분한 분위기로 혼술이나 대화하기 좋은 바로 언급되며 웨이팅은 심하지 않음"
+  },
+  "descriptors": {
+    "audience": "데이트/혼술객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "위스키",
+      "정통 하이볼",
+      "칵테일",
+      "스페니쉬 하몽 햄 플래터"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 19:00 ~ 03:00 (월요일 20:00 ~ 03:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "민락동 골목에 위치하여 단골 및 조용한 바를 찾는 방문객/혼술족이 주로 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "공공데이터/인허가상 업종은 일반음식점(경양식 등)으로 등록되어 있으나, 실제 운영 형태는 싱글몰트 위스키 및 칵테일을 전문으로 판매하는 클래식 몰트 바(Bar)입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "위스키/정통 하이볼 16,000원부터",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "앙리17 (henry17) - 부산광역시 수영구 민락로27번길 17, 2층. 싱글몰트 위스키와 칵테일을 전문으로 하는 클래식 바입니다. 조용하고 세련된 분위기로 데이트, 소개팅, 혹은 혼술하기 좋은 곳으로 알려져 있습니다. 대표 메뉴: 위스키(1만 6천 원부터), 정통 하이볼(1만 6천 원부터). 스페니쉬 하몽, 모둠 치즈, 낙지젓갈 크림치즈 등 다양한 안주 메뉴를 제공합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 민락로27번길 17, 앙리17 (일반음식점)",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전문적인 싱글몰트 위스키와 칵테일을 수준 높게 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "조용하고 차분한 클래식 바 분위기로 혼술 및 대화에 적합함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

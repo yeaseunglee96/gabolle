@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220810706702",
+  "name": "대성상회",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 61665,
+  "researchedAt": "2026-09-22T06:24:13.982Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 상호 등록 기록(한정식/식재료 유통 등) 외에 실제 횟집으로 영업 중인 정황이나 블로그/방문자 리뷰 등 상세 정보가 존재하지 않음",
+  "notes": "부산 사상구 사상로 376(덕포동 368-15) 소재의 '대성상회'는 포털 DB상 상호(051-303-4849)만 등록되어 있으며, 실제 횟집 관련 메뉴, 가격, 영업시간, 사진, 방문 후기 등의 정보가 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

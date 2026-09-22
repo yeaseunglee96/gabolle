@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220813004286",
+  "name": "매초",
+  "cat": "요리 주점",
+  "attempts": 1,
+  "geminiTokens": 92955,
+  "researchedAt": "2026-09-22T06:58:25.907Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼술객·소규모 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "명란땡초 감자전",
+      "오꼬노미야끼",
+      "삼겹 미소구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:30 시작"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 관한 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 중동에 위치한 1인석 및 바 형태의 아늑한 요리주점으로 혼술 손님들에게 인기가 많은 가게입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 중동2로 28에 위치한 '매초'는 아기자기하고 편안한 분위기의 혼술·일식 술집입니다. 적은 인원으로 조용히 혼술이나 혼밥을 즐기기에 좋은 '혼술의 성지'로 알려져 있으며, 친구 집에 온 듯한 아늑한 분위기를 제공합니다. 대표 메뉴는 명란땡초 감자전, 오꼬노미야끼, 삼겹 미소구이, 카프레제, 먹태구이 등이며 오후 6시 30분에 영업을 시작합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "혼술이나 혼밥을 편안하고 아늑하게 즐기기 좋은 1인 친화적 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "명란땡초 감자전, 오꼬노미야끼 등 특색 있는 요리 안주 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

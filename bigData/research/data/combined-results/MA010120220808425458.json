@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220808425458",
+  "name": "제로베이스",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 63362,
+  "researchedAt": "2026-09-22T10:36:42.131Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 예약제로 운영되어 현장 줄서기는 없으며 사전 예약 필수임"
+  },
+  "descriptors": {
+    "audience": "연인/미식가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "제철 식재료 오마카세 코스",
+      "사시미"
+    ],
+    "yearsClaimed": 2022
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00~20:00 / 20:30~22:30 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "미쉐린 가이드 선정 이후 미식가 및 타지 방문객들의 예약 방문이 이어짐"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "남포동 유노우 출신 유병찬 셰프가 운영하는 일식 오마카세 다이닝. 미쉐린 가이드 부산에 등재되어 제철 해산물과 독창적인 일식 코스를 선보임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "디너 코스",
+    "priceWon": 130000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제로 베이스는 셰프가 전통 일식을 재해석한 요리를 선보이는 곳입니다. 그날 수급되는 신선한 해산물에 따라 메뉴가 달라지며, 셰프가 일식의 경계를 넓히며 자신만의 요리 세계를 펼쳐 보이는 공간입니다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/zero-base"
+    },
+    {
+      "excerpt": "유병찬 셰프가 운영하는 곳으로, 셰프의 새로운 해석이 가미된 정갈한 일식 요리와 오마카세 코스를 선보이는 레스토랑입니다. 제철 식재료를 사용하며, 방문할 때마다 변화가 있는 코스 구성이 특징입니다.",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/zero-base",
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전통 일식을 현대적으로 재해석한 창의적인 제철 해산물 오마카세 코스 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산 선정 레스토랑으로서의 공인된 미식 퀄리티",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

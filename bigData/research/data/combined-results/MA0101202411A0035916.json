@@ -1,0 +1,87 @@
+{
+  "id": "MA0101202411A0035916",
+  "name": "테파스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 225818,
+  "researchedAt": "2026-09-22T07:02:12.941Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "대기공간이 마련되어 있으며 주말 등 혼잡 시 대기가 발생할 수 있어 예약 권장"
+  },
+  "descriptors": {
+    "audience": "데이트 및 소모임",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "봄바",
+      "비프 칙",
+      "꿀 대구"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 ~ 22:00 (브레이크타임: 15:30 ~ 17:30, 라스트 오더: 21:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안동 골목에 위치한 스페인 타파스/유럽식 요리 및 와인 전문점(현재 기준 폐업 정보 일부 있음). 본문 요약 및 블로그 상세 리뷰 바탕으로 작성됨.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/cdgwjd/btsQonqiUuX/AAAAAAAAAAAAAAAAAAAAAMupUVmPheVCEFuGmTo6lLoSn4eNW9yvtxypOI-s8lhs/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=LH3f21DNewnDcdb3PagSothN09o%3D",
+    "https://blog.kakaocdn.net/dna/KrPN9/btsQpwUnPut/AAAAAAAAAAAAAAAAAAAAAMQZlsFXW7AbBxW7-QHFCSeQkYbs3ZKXIYdjROUJI34p/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=1L%2FwX4as6tH%2B55TE43mDOVWRRPU%3D",
+    "https://blog.kakaocdn.net/dna/bxsOzW/btsQoaYRp4l/AAAAAAAAAAAAAAAAAAAAAN9wvBWSnIpOTAYv0zHM8lQNuE-YljlGLTzY5fQGRCoo/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=3BQIUmeADCIfdlepJ7V0pXmnM28%3D",
+    "https://blog.kakaocdn.net/dna/LYYpM/btsQmujFJ2W/AAAAAAAAAAAAAAAAAAAAABCCqAYs2CUl5qmQtjg_qeQswCzUXy4BWcEXUEf1DpK0/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=d1y23fgzL2YdBPrbgPmg3k1%2F4Pc%3D",
+    "https://blog.kakaocdn.net/dna/NH2TP/btsQpwNBtSz/AAAAAAAAAAAAAAAAAAAAAG1a-X5hjmBP6K314slt90AXQo2E5nOFzvv17U3JBQpi/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=KYQJV%2BnKvdfp2WeaoPP5mn%2Bt6Yw%3D",
+    "https://blog.kakaocdn.net/dna/pLgs1/btsQoN93hVP/AAAAAAAAAAAAAAAAAAAAAL0JuH2YqzN5AQRAejJqyg6fuUugWsxNal33-rNgX7iY/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=TKB3HsQ75pVKinHNv0JTjuHcaeQ%3D",
+    "https://blog.kakaocdn.net/dna/btbQe5/btsQo7UODXV/AAAAAAAAAAAAAAAAAAAAAAuSkrmaCxPOOHYlPRWudX00nrDt48wOGzvqlmHmMqdR/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=c86ySqN1jsZDs8Dy26Qy2aS8Y%2Bw%3D",
+    "https://blog.kakaocdn.net/dna/lM1jK/btsQmYkBbde/AAAAAAAAAAAAAAAAAAAAANCOVZr-Yus3oX9jjb3x8x7pw0GCHv8ohrM94EmgXboG/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=zram9tSYGWQG8GvfSYFAUmmNv%2FM%3D",
+    "https://blog.kakaocdn.net/dna/cCwpcf/btsQmD13HWe/AAAAAAAAAAAAAAAAAAAAAAAJjXWRPTTAussQtYXK4_cqIGSad-dXYWtWqx7XYDJe/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=1M05BBZ9JI6qo6EBcq32gqRpBN8%3D",
+    "https://blog.kakaocdn.net/dna/dQHRdf/btsQoB2YuF5/AAAAAAAAAAAAAAAAAAAAAEfL5lChLTb6nb-OZc4rupKG9sQh8cUCwbkzTLvI0Mt0/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=Jzf8L9F7Mi5iQwDfzZkytAHUvtg%3D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "타파스(봄바, 크로켓 등) / 라시온(비프 칙, 꿀 대구 등)",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 골목길에 숨어 있는 유럽 분위기 가득한 공간, 테파스. 타파스부터 라시온, 와인까지 두루 즐기면서 여유로운 식사를 할 수 있는 곳이야, 봄바, 비프 칙, 꿀 대구는 꼭 먹어봐야 할 메뉴였고, 분위기까지 완벽해서 데이트나 모임으로 딱 좋았어. 🕒 영업정보 상호명: 테파스(TEPAS) 영업시간: 10:30 ~ 22:00 브레이크타임: 15:30 ~ 17:30 라스트 오더: 21:30 특징: 콜키지, 단체 모임, 포장, 예약, 와이파이, 대기공간 있음 주차: 전용 주차장은 없고, 근처 산호주차장 이용 가능(기본 1,500원 / 30분마다 1,500원 추가) 주소: 부산 수영구 수영로 510번 길 20, 2층 전화번호: 0507-1344-5048",
+      "url": "https://oyouna.tistory.com/147"
+    },
+    {
+      "excerpt": "2층 올라가면 분위기가 확 달라져. 따뜻한 조명에 LP판, 영화 포스터, 화분 같은 소품들이 곳곳에 있어서 유럽식 작은 바 같은 느낌이야. 창가 쪽 소파 자리는 햇살이 쫙 들어와서 진짜 포근했어. 혼자 와도 괜찮고, 둘이나 여럿이 와도 편하게 앉을 수 있는 구조라서 좋더라. 메뉴는 크게 세 가지로 나눠져 있어. 타파스: 봄바, 크로켓, 비프 타르타르, 새우 세비체 같은 가벼운 접시(3천 원~8천 원대) 라시온: 비프 칙, 꿀 대구, 아로즈 네그로 같은 조금 더 메인 느낌(2만 원대~3만 원대) 디저트: 플란 하나 있는데, 은근 존재감 있는 마무리용 메뉴야. 술은 맥주, 칵테일, 와인까지 다양해서 고르기 재밌더라. 테파스는 음식, 분위기, 술까지 다 만족스러웠어. 특히 여러 접시를 조금씩 시켜서 나노 먹는 재미가 있어서 시간 가는 줄 모르고 먹었네. 분위기는 잔잔하고 음악도 은은해서 대화 나누기도 편했고, 플레이팅도 예뻐서 눈까지 즐거웠어. 광안리에서 분위기 있는 한 끼랑 와인 한 잔 하고 싶을 때, 테파스 딱 좋아. 데이트 코스로도 괜찮고, 친구랑 모임 자리로도 손색없어.",
+      "url": "https://oyouna.tistory.com/147"
+    }
+  ],
+  "sources": [
+    "https://oyouna.tistory.com/147"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "유럽 감성의 아늑한 인테리어와 분위기로 데이트나 대화하기 좋은 모임 장소로 선호됨.",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "봄바, 비프 칙, 꿀 대구 등 특색 있는 스페인식 타파스 및 라시온 요리의 완성도와 와인 페어링 맛이 훌륭함.",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

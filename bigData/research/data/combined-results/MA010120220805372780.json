@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220805372780",
+  "name": "그집한우",
+  "cat": "소고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 83412,
+  "researchedAt": "2026-09-22T06:57:11.219Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 관한 특별한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 모임",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 등심",
+      "갈비살",
+      "차돌된장찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 13:00 - 22:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해운대 중동에 위치한 정량 판매 식육식당 형태의 한우 전문점으로, 합리적인 가격대의 등심·갈비살과 차돌된장찌개가 대표적임",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구에 위치한 '그집한우'는 한우 등심과 갈비살을 정량으로 판매하는 식육식당입니다. 붉은 빛깔의 고기와 우드 인테리어가 특징이며, 고기가 부드럽고 육향과 숯불향을 잘 느낄 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/P/1018903"
+    },
+    {
+      "excerpt": "식육식당 형태: 직접 도축 및 분해 과정을 거쳐 비교적 합리적인 가격에 1+등급 이상의 한우를 제공하는 것으로 알려져 있습니다. 주요 메뉴: 갈비살, 등심, 안거미, 차돌박이, 육회 등이 있으며, 식사 메뉴로는 차돌박이 된장찌개가 좋은 평가를 받습니다. 영업 시간: 매일 13:00 - 22:00",
+      "url": "https://openfood.kr/place/14106306"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1018903",
+    "https://openfood.kr/place/14106306"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정량 판매 식육식당 형태로 부드러운 육질과 숯불 향, 가성비 좋은 1+등급 이상 한우 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "사장님이 직접 고기를 손질/구워주며 친절한 서비스 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "고기뿐만 아니라 차돌박이 된장찌개 등 식사 메뉴의 높은 완성도",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202602A0028785",
+  "name": "버거랩",
+  "cat": "버거",
+  "attempts": 1,
+  "geminiTokens": 60943,
+  "researchedAt": "2026-09-22T06:54:21.446Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 해운대구 우동1로 111 및 해운대 일대에서 '버거랩' 상호의 매장이 확인되지 않음",
+  "notes": "해당 주소 및 해운대 일대에서 '버거랩'이라는 상호의 버거 매장은 웹상에서 검색되지 않습니다. (해리단길에는 유사 상호인 '버거샵' 등이 위치해 있습니다.)",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

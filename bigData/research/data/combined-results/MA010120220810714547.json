@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220810714547",
+  "name": "우리국밥집",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 59882,
+  "researchedAt": "2026-09-22T06:41:35.786Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사상구 사상로531번길 19-1(모라동)에 위치한 '우리국밥집'(일반음식점)의 인허가 및 기본 정보는 확인되나, 웹상에 방문 후기나 블로그 리뷰, 메뉴판, 영업시간, 혼잡도 등의 상세 정보가 등록되어 있지 않은 소규모 동네 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 사상로531번길 19, 우리국밥집, 전화번호 051-302-6475, 업종 일반음식점(한식)",
+      "url": "https://www.sasang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": []
+}

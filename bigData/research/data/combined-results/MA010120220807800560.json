@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220807800560",
+  "name": "문카츠야",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 132631,
+  "researchedAt": "2026-09-22T06:46:19.193Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장이 넓고 테이블 간격이 여유로우며 키오스크로 주문하는 구조로, 별도 대기나 혼잡에 대한 언급은 없음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 학생",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "치즈돈까스",
+      "판모밀",
+      "왕돈까스"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 ~ 20:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "대저중·고등학교 도로변에 위치하여 인근 사무실 지인 및 학생들을 타깃으로 방문하는 동네 현지인 위주의 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 강서구 대저동에 위치한 돈가스·모밀 전문점 '문카츠야'에 대한 실제 블로그 방문기 기반 조사 결과입니다.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/etbbA4/btsIAZw63Vo/AAAAAAAAAAAAAAAAAAAAAFCTNtCNeLPbo86NmQHmJiVcyq6BoWq8GnfyB2hGIKPN/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=DP%2B18WEyt2fRUZlksTdsCLQrKDU%3D",
+    "https://blog.kakaocdn.net/dna/bJcqAH/btsIzxImHZc/AAAAAAAAAAAAAAAAAAAAAKkJVeUWVS52EFTxfChXjfWWn2yIJIC6vOH0anBP0gZE/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=jiHraYZXlpi1kDnHHjHYp6Y9SQg%3D",
+    "https://blog.kakaocdn.net/dna/nR2u8/btsIBe8x9l2/AAAAAAAAAAAAAAAAAAAAADOyxAKGC8PWsRGJnHLjW9cyOheBYcmU4QlmAwSMkGOG/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=%2BBIU6AYlKnKyQUuTyV6tKZLILkQ%3D",
+    "https://blog.kakaocdn.net/dna/b7Kn3A/btsIAQNK1xd/AAAAAAAAAAAAAAAAAAAAAM7kA6GC-Ya4QUdY3nR8kkJIRQTnvhOMlU1VcuFxu86X/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=C9WBcoVSKSUbTBnS52%2Fu2A7QL4g%3D",
+    "https://blog.kakaocdn.net/dna/cNAEGO/btsIBJNNFeE/AAAAAAAAAAAAAAAAAAAAALjZ_a01i_QeVyM9frnkr62ucuXYknsHSwPYx4849VP4/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=aAL6vexXPh8%2F2EQgGbUx%2BIf9%2Bvs%3D",
+    "https://blog.kakaocdn.net/dna/5XLFz/btsIBLEQkJh/AAAAAAAAAAAAAAAAAAAAAIrzfRVSDvC2Z4IALjDfcMT6S4pWtmsPlPta8_sJ-6jR/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=11KRDIYNhFTlHMw0jqtqH87FymU%3D",
+    "https://blog.kakaocdn.net/dna/bKLSTP/btsIBhjUYN4/AAAAAAAAAAAAAAAAAAAAAI0fIL0bcfJhHIFQTTlyZ49a1HQLj3tPWwq9uNM8vhkd/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=Rpr1mkYRMHr%2B2R8Idr9J%2BD%2Bmyzc%3D"
+  ],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "금요일 오후 사무실에 지인들과 함께 저녁을 먹으러 고고 !! 돈까스 러버인 친구놈이 돈까스를 외치며, 봐 둔 가게가 있다고 하여 차에 몸을 실었다. 강서구 대저동 돈까스 가게 문카츠야 !! 1. 가게상호 : 문카츠야 2. 위 치 : 부산 강서구 공항로811번가길 43 3. 영업시간 : 10:30 ~ 20:00 4. 특 징 : 넓직하고 테이블 간격 좋은 매장",
+      "url": "https://yongsoo17.tistory.com/entry/%EA%B0%95%EC%84%9C%EA%B5%AC-%EB%8F%88%EA%B9%8C%EC%8A%A4-%EB%AA%A8%EB%B0%80-%EB%AC%B8%EC%B9%B4%EC%B8%A0%EC%95%BC-%EC%B9%98%EC%A6%88%EB%8F%88%EA%B9%8C%EC%8A%A4-%EC%99%95%EB%8F%88%EA%B9%8C%EC%8A%A4-%ED%8C%90%EB%AA%A8%EB%B0%80"
+    },
+    {
+      "excerpt": "대저중,고등학교 도로변에 위치하고 있으면, 돈까스와 모밀을 전문으로 하는 매장이다. 넓직하게 자리 잡은 테이블 !! 이 특징이며, 테이블 간격이 넓어서 아주 좋았다. 매장 실내 인테리어는 솔직히 그냥 백반이나, 국밥집 처럼 아무것도 없어 허전하다. ㅋㅋ 그래도 벽면에 나름 포인트를 준 부분은 귀엽게 봐줄 만 하다.",
+      "url": "https://yongsoo17.tistory.com/entry/%EA%B0%95%EC%84%9C%EA%B5%AC-%EB%8F%88%EA%B9%8C%EC%8A%A4-%EB%AA%A8%EB%B0%80-%EB%AC%B8%EC%B9%B4%EC%B8%A0%EC%95%BC-%EC%B9%98%EC%A6%88%EB%8F%88%EA%B9%8C%EC%8A%A4-%EC%99%95%EB%8F%88%EA%B9%8C%EC%8A%A4-%ED%8C%90%EB%AA%A8%EB%B0%80"
+    },
+    {
+      "excerpt": "판모밀은 언 뜻 보기에는 양이 적어 보이지만 푸짐하였으며, 맛도 훌륭했다. 모밀 육수가 조금 더 차가웠으면 하는 바램은 있었지만, 메밀에 묻어나오는 육수가 짜지도 않고 메밀의 향과 맛을 적당히 살려주는 정도라 아주 좋았다. 치즈돈까스와 왕돈까스 !! 치즈 보이시나요? 치즈돈까스가 맛이 없으면 돈까스 집이라 할 수 없겠죠? 치즈의 부드러움은 조금 부족한 모양새 였으나, 치즈의 풍미는 충분 하였으며, 고기와 치즈의 비율도 적당한 듯 하였어요. ㅎㅎ 왕돈까스는 맛을 보지 못했지만, 소스가 많은게 장점인 듯 ㅋㅋ 돈가스 좋아하는 친구가 아무말 없이 다 먹었다는건 맛이 있다는 거겠죠....ㅋㅋ",
+      "url": "https://yongsoo17.tistory.com/entry/%EA%B0%95%EC%84%9C%EA%B5%AC-%EB%8F%88%EA%B9%8C%EC%8A%A4-%EB%AA%A8%EB%B0%80-%EB%AC%B8%EC%B9%B4%EC%B8%A0%EC%95%BC-%EC%B9%98%EC%A6%88%EB%8F%88%EA%B9%8C%EC%8A%A4-%EC%99%95%EB%8F%88%EA%B9%8C%EC%8A%A4-%ED%8C%90%EB%AA%A8%EB%B0%80"
+    }
+  ],
+  "sources": [
+    "https://yongsoo17.tistory.com/entry/%EA%B0%95%EC%84%9C%EA%B5%AC-%EB%8F%88%EA%B9%8C%EC%8A%A4-%EB%AA%A8%EB%B0%80-%EB%AC%B8%EC%B9%B4%EC%B8%A0%EC%95%BC-%EC%B9%98%EC%A6%88%EB%8F%88%EA%B9%8C%EC%8A%A4-%EC%99%95%EB%8F%88%EA%B9%8C%EC%8A%A4-%ED%8C%90%EB%AA%A8%EB%B0%80"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "치즈 풍미가 좋은 치즈돈까스와 자극적이지 않고 푸짐한 판모밀 등 돈가스·모밀 본연의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "매장이 넓고 테이블 간격이 여유로워 편하게 식사할 수 있는 환경",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

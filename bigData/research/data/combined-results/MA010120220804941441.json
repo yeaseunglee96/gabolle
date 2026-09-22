@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220804941441",
+  "name": "유투",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 43187,
+  "researchedAt": "2026-09-22T06:49:37.224Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(해운대해변로 295, 대림비치아파트)에서 백반/한정식 식당 '유투'를 찾을 수 없음 (과거 동명의 칵테일 바 U2 외 식당 정보 부재)",
+  "notes": "부산광역시 해운대구 해운대해변로 295에 위치한 백반/한정식 업종의 '유투' 음식점은 웹상에서 존재하지 않거나 정보가 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://dorojuso.kr",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202406A0240939",
+  "name": "리안",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 62540,
+  "researchedAt": "2026-09-22T10:36:46.972Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안로61번길 29에 위치한 일식 회/초밥 업종 '리안'에 대해 웹 검색을 수행했으나, 상호 등록 및 인근 브런치 카페(리안광) 등과의 혼동 외에 실제 해당 일식 음식점으로서의 상세 운영 정보, 후기, 메뉴, 영업시간, 사진 등의 실질적인 정보가 확인되지 않아 found: false 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

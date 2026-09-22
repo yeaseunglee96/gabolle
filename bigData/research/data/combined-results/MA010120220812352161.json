@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220812352161",
+  "name": "혜자네",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 48717,
+  "researchedAt": "2026-09-22T06:51:08.657Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "해운대 전통시장 내 관광객과 방문객이 많아 저녁 시간대 혼잡함"
+  },
+  "descriptors": {
+    "audience": "관광객 및 현지인",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "산곰장어(소금/양념)",
+      "골라먹자 세트",
+      "조개구이",
+      "막창구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금, 일: 15:00 ~ 01:00 / 토: 15:00 ~ 02:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 전통시장 내 위치하여 관광객 방문 비율이 높고 현지인도 찾는 곳으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "사업자 등록 또는 일부 포털 업종상 돼지고기 구이/찜(혜자네막창집)으로 분류되기도 하나, 실제 주력은 해운대시장 내 산곰장어·조개구이·세트메뉴 전문점(혜자네 산곰장어 본점)입니다. 전용 주차 공간은 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "골라먹자 세트(소)",
+    "priceWon": 70000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 구남로41번길 18에 위치한 혜자네 산곰장어 본점. 해운대 전통시장 내 위치하여 접근성이 좋으며, 매일 신선한 곰장어를 공급받아 요리하고 고객이 원하는 메뉴 2가지를 선택하여 즐길 수 있는 골라먹자 세트가 가성비 좋아 인기입니다. 전용 주차장은 없습니다.",
+      "url": "https://mom-mom.net"
+    },
+    {
+      "excerpt": "영업 시간: 월~금, 일: 15:00 ~ 01:00, 토: 15:00 ~ 02:00. 주요 메뉴: 산곰장어, 조개구이, 막창구이 등.",
+      "url": "https://mom-mom.net"
+    }
+  ],
+  "sources": [
+    "https://mom-mom.net",
+    "https://maptons.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "산곰장어와 조개구이 등 원하는 메뉴 2종을 묶어 즐길 수 있는 세트 구성의 가성비가 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "해운대 구남로 전통시장 골목 중심부에 위치하여 여행객 동선에서 접근이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220810683791",
+  "name": "유니돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58446,
+  "researchedAt": "2026-09-22T06:25:30.892Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈까스",
+      "제육덮밥",
+      "비빔밥+미니우동",
+      "쫄면+새우튀김"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 북구 구포동(시랑로131번길 6) 소재의 경양식 및 분식 식당. 포털 및 맛집 사이트에 기본 등록되어 있으나 상세 방문 후기나 영업시간, 대기 정보는 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "북구청 인근에 위치한 음식점으로, 식신에서는 '특별한 돈가스의 맛'을 제공하는 맛집으로 소개하고 있습니다. 대표 메뉴: 돈까스, 제육덮밥, 비빔밥+미니우동, 쫄면+새우튀김 등",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 북구 시랑로131번길 6 (구포동 1235-8) 전화번호 051-332-0006 돈까스, 회, 일식 등을 전문으로 하는 음식점",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://linktoplace.com",
+    "https://www.bsbukgu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돈가스를 비롯해 제육덮밥, 쫄면 등 다양한 분식·식사 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

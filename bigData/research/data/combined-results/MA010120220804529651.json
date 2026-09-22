@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220804529651",
+  "name": "안쵸비",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 46354,
+  "researchedAt": "2026-09-22T07:10:00.760Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "1인 셰프 식당 특성상 내부가 넓지 않아 대기가 발생할 수 있으며 테이블링 예약이 권장됨"
+  },
+  "descriptors": {
+    "audience": "친구/데이트/연인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "포르치니 트러플 크림 리조또",
+      "새우 루꼴라 파스타",
+      "오일 파스타"
+    ],
+    "yearsClaimed": 5
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 12:00 - 21:00 (브레이크타임 15:30 - 17:30, 매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근 현지인 맛집 및 부산 여행객들이 즐겨 찾는 파스타 양식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "부산 민락동 골목에 위치한 1인 셰프 이탈리안 파스타/리조또 양식당 안쵸비(Anchovy) 조사 완료. 전용 주차 공간은 없으며 인근 유료주차장 이용 필요.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "파스타/리조또류 1만 원대 중후반",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 민락본동로 19번길 40, 1층. 1인 셰프가 운영하는 양식당으로 재료를 아낌없이 사용하는 것으로 알려져 있습니다. 대표 메뉴로는 포르치니 트러플 크림 리조또, 새우 루꼴라 파스타 등이 인기가 많습니다. 내부가 넓지 않아 테이블링을 통한 예약 후 방문하는 것이 권장되며 별도의 주차 지원은 없습니다.",
+      "url": "https://suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "트러플 크림 리조또, 루꼴라 파스타 등 재료를 아끼지 않은 완성도 높은 이탈리안 요리의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1인 셰프 운영 공간 특유의 차분하고 아늑한 분위기와 감성적인 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

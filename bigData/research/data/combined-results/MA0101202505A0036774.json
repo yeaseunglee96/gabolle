@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202505A0036774",
+  "name": "난앤커리",
+  "cat": "기타 동남아식 전문",
+  "attempts": 1,
+  "geminiTokens": 63500,
+  "researchedAt": "2026-09-22T06:55:30.019Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인도 음식 입문자 및 인근 관광객",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "난",
+      "커리",
+      "탄두리 치킨",
+      "사모사"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "해당 주소(부산 해운대구 중동 1383-18 / 구남로 25)에 사업자 등록 및 웹상 등록 기록이 존재하는 인도 음식점 '난앤커리(Naan & Curry)'이나, 상세 리뷰나 상세 메뉴판/영업시간 정보는 온라인상에 매우 드물거나 현재는 폐업/업종변경(동일 건물에 타 음식점 입점 등)되었을 가능성이 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "인도 전통 메뉴인 난(Naan)과 커리(Curry)를 주력으로 하며, 탄두리 치킨과 사모사 등 다양한 인도 요리를 제공합니다. 향신료가 과하게 강하지 않아 인도 음식을 처음 접하는 분들도 무난하게 즐길 수 있다는 평이 있습니다. 해운대 해수욕장과 가까워 식사 후 산책을 즐기기에 좋은 위치입니다.",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "자극적이지 않고 무난한 인도 커리와 난, 탄두리 치킨을 맛볼 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대역 및 해운대 해수욕장 구남로 인근에 위치해 산책 및 접근이 용이함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

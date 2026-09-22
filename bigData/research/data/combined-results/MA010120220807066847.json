@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220807066847",
+  "name": "이에이치육",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 122718,
+  "researchedAt": "2026-09-22T07:05:53.503Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "미쉐린 가이드 및 주요 리뷰에서 웨이팅 필수 매장으로 꼽히며 '웨이팅해도 아깝지 않은' 곳으로 소개됨"
+  },
+  "descriptors": {
+    "audience": "연인·가족·관광객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "히츠마부시",
+      "카이센동"
+    ],
+    "yearsClaimed": 5
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (라스트오더 21:00, 브레이크타임 평일 15:00 ~ 17:00 / 주말 없음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "외지인(관광객)과 현지인 모두의 발걸음이 꾸준히 이어지는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "'이에이치육'은 부산광역시 해운대구 구남로24번길 8에 본점을 둔 나고야식 장어덮밥(히츠마부시) 전문 일식 브랜드 '해목'의 법인 사업체입니다.",
+  "photoUrls": [
+    "https://prod-pics.guide.michelin.com/api/public/content/cb526d4a250c44668abed3e241d74252.jpeg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "히츠마부시(민물장어 덮밥) 39,000원, 특 히츠마부시 57,000원, 카이센동 36,000원",
+    "priceWon": 39000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "외지인과 현지인의 발걸음이 꾸준히 이어지는 해목은 대중적인 일식 요리를 선보인다. 파란색 담장과 어딘가 이국적인 구조물이 주변과는 또 다른 분위기를 자아낸다. 원목 베이스의 인테리어와 다다미 좌석 역시 이국적 정취를 느끼게 하는 데 한몫한다. 해목은 일본식 덮밥 서너 가지와 사시미, 튀김, 타다끼 요리 등을 제공하지만 대표 메뉴는 뭐니뭐니 해도 히츠마부시이다. 그윽한 훈연의 풍미와 감칠맛 나는 소스의 맛을 머금은 우나기는 고슬고슬하게 지은 밥과 잘 어울린다. 해목은 부산 본점 외에 서울에서도 분점을 운영 중이다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/haemok"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/haemok"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "그윽한 훈연 풍미와 감칠맛 나는 소스가 어우러진 수준 높은 나고야식 히츠마부시(장어덮밥) 맛 자체",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 빕 구르망에 선정될 만큼 대기(웨이팅)를 감수하고서라도 찾는 높은 인기와 수요",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

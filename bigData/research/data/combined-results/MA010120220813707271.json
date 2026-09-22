@@ -2,8 +2,30 @@
   "id": "MA010120220813707271",
   "name": "포트루",
   "cat": "빵/도넛",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 영도구 남항로41번길 18-20 에 있는 '포트루'(빵/도넛 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항",
   "attempts": 1,
-  "researchedAt": "2026-09-21T23:05:54.789Z"
+  "geminiTokens": 83155,
+  "researchedAt": "2026-09-22T06:16:02.755Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "매장 정보 없음",
+  "notes": "부산광역시 영도구 남항로41번길 18-20 위치 및 '포트루'(빵/도넛) 상호명으로 웹 조사를 진행하였으나, 해당 상호 및 주소와 일치하는 등록 정보나 리뷰가 확인되지 않는 가게입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
 }

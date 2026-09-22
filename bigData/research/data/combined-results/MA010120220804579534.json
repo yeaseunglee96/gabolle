@@ -2,8 +2,45 @@
   "id": "MA010120220804579534",
   "name": "우화전",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 강서구 화전산업대로 272-45 에 있는 '우화전'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. ",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:53:33.158Z"
+  "geminiTokens": 46811,
+  "researchedAt": "2026-09-22T05:59:48.181Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "가게 정보 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": "가게 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "가게 정보 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 상호의 식당 없음",
+  "notes": "해당 주소(부산광역시 강서구 화전산업대로 272-45) 및 상호명 '우화전'으로 웹 조사를 진행했으나, '우화전'이라는 상호의 식당은 검색되지 않았습니다. 동일 주소지에는 한우 전문점 '본록산' 등이 위치해 있으며 돼지고기 구이/찜 업종의 '우화전'은 실존하지 않거나 폐업/미등록 상태입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "가게 정보 없음",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
 }

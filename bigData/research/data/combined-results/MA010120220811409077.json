@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220811409077",
+  "name": "숙이네조개전골",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 125127,
+  "researchedAt": "2026-09-22T06:45:24.978Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "회식, 술모임, 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "조개전골",
+      "불쭈꾸미",
+      "왕새우철판구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 5시 ~ 새벽 1시"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 사상구 사상로277번길 36(삼락동)에 위치한 조개 요리 전문점으로, 조개전골과 해산물 구이 등을 판매함. 주차는 불가하며 늦은 오후부터 심야까지 운영함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 사상구 사상로277번길 36 (삼락동 417-17) / 전화번호: 051-303-0990 / 영업시간: 오후 5시 ~ 새벽 1시 / 기타 정보: 주차 및 포장 불가",
+      "url": "https://pervsi.com"
+    },
+    {
+      "excerpt": "가리비 등 신선한 해산물을 활용한 조개전골과 불쭈꾸미, 왕새우 철판구이 등을 주력으로 하는 맛집",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 조개전골과 불쭈꾸미 등 특색 있는 해산물 안주 요리를 맛보기 위해 방문함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

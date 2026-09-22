@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202310A0084278",
+  "name": "하데나",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 67721,
+  "researchedAt": "2026-09-22T10:39:50.927Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 대한 명시적 언급 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "데이트·조용한 식사·혼밥객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "와라야키 사바동",
+      "와라야키 마구로동",
+      "청어소바",
+      "지라시스시"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 – 21:00 (화요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 중심인지에 대한 명시적 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "부산 해운대구 좌동순환로에 위치한 일본식 볏짚 훈연 구이(와라야키) 및 덮밥/소바 전문점",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "와라야키 사바동(볏짚 고등어 덮밥) 16,000원, 와라야키 마구로동 18,000원, 지라시스시 23,000원, 청어소바 16,000원",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "하데나는 짚불에 훈연한 요리와 정갈한 일본식 한상 차림이 특징입니다. 와라야키 사바동(고등어), 와라야키 마구로동(참치), 와라야키 사와라동(삼치)... 일본 전통 가옥을 연상시키는 원목 인테리어와 은은한 조명 덕분에 아늑하고 고즈넉한 분위기를 자아냅니다.",
+      "url": "https://www.siksinhot.com/P/1818223"
+    },
+    {
+      "excerpt": "마치 일본의 전통 가옥을 옮겨놓은 듯한 분위기에서 식사를 즐길 수 있는 곳으로 짚불에 구운 생선 덮밥(와라야키동), 청어 소바 등을 제공합니다. 주소: 부산광역시 해운대구 좌동순환로468번길 23, 1층",
+      "url": "https://app.catchtable.co.kr/ct/shop/hadena"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1818223",
+    "https://app.catchtable.co.kr/ct/shop/hadena"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "짚불에 훈연한 특색 있는 생선구이 덮밥과 정갈한 일본 가정식 한상 차림",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202604A0049565",
+  "name": "하바하바",
+  "cat": "생맥주 전문",
+  "attempts": 1,
+  "geminiTokens": 103539,
+  "researchedAt": "2026-09-22T06:55:37.389Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기열에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "null",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "기네스 생맥주"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "부산광역시 수영구 감포로 93(광안동 76-1)에 등록된 생맥주/펍 매장으로, 대표 메뉴로 기네스 생맥주가 등록되어 있으나 상세 블로그 리뷰나 방문 후기 등의 웹 콘텐츠가 극히 부족하여 정량 정보 확인이 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "null",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호: 하바하바, 주소: 부산광역시 수영구 감포로 93 (지번: 부산광역시 수영구 광안동 76-1), 업종: 나이트라이프 > 펍, 대표 메뉴: 기네스 생맥주",
+      "url": "https://www.siksinhot.com/P/350791"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/350791"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기네스 생맥주를 취급하는 펍/생맥주 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

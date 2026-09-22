@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220810771986",
+  "name": "상림횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 60082,
+  "researchedAt": "2026-09-22T10:37:06.358Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로 278, 3층에 소재한 일반음식점(횟집)으로 확인되었으나, 가격표, 영업시간, 줄서기 등 상세 방문 후기는 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상림횟집 / 부산광역시 수영구 광안해변로 278, 3층 (민락동) / 051-752-0003",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

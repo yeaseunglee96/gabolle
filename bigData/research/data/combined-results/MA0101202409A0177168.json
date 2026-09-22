@@ -1,0 +1,79 @@
+{
+  "id": "MA0101202409A0177168",
+  "name": "영도면옥",
+  "cat": "냉면/밀면",
+  "attempts": 1,
+  "geminiTokens": 65115,
+  "researchedAt": "2026-09-22T06:40:56.693Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심시간이나 주말에는 전용 주차장 및 매장 이용에 혼잡이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 직장인/인근 주민 식사",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "칼국수",
+      "충무김밥",
+      "냉면",
+      "손만두"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 20:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "가족 외식 및 인근 수변공원 방문객, 지역 주민들이 주로 찾는 대형 한식 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "영도면옥은 칼국수, 충무김밥, 냉면, 만두, 곰탕 등을 판매하는 영도 해양로의 대형 면옥/한식당으로 본점(해양로 70) 및 확장 분점(해양로 211 / 지번 인접 해양로 205-1 권역)으로 운영되고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "칼국수 7,500원 / 충무김밥 9,000원 / 손만두 5,000원",
+    "priceWon": 7500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "영도면옥 본점 기준으로 1층에서는 주로 칼국수, 손만두, 충무김밥 등을 판매하며, 2층에서는 물냉면, 비빔냉면, 수육, 곰탕 등을 맛볼 수 있습니다. 자극적이지 않고 깔끔한 맛으로 알려져 있어 가족 외식 장소로도 자주 언급됩니다. 전용 주차장이 마련되어 있으나, 점심시간이나 주말에는 혼잡할 수 있습니다.",
+      "url": "https://blogsailing.com"
+    },
+    {
+      "excerpt": "칼국수 7,500원, 충무김밥 9,000원, 손만두 5,000원. 키오스크를 통한 주문 방식이며 넓은 주차 공간과 함께 운영됩니다. 영업시간 매일 11:00 ~ 20:30.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://blogsailing.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "자극적이지 않고 깔끔 담백한 칼국수와 충무김밥, 냉면 등의 기본기 있는 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "넓은 전용 주차장 구비와 층별/파트별 전문 분리 운영으로 가족 외식에 용이함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -2,8 +2,86 @@
   "id": "MA010120220812855445",
   "name": "명소",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 북구 용당로 7 에 있는 '명소'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:40:49.611Z"
+  "geminiTokens": 45073,
+  "researchedAt": "2026-09-22T05:57:01.629Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기줄이나 웨이팅에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 회식객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "1++ 한우 꽃등심",
+      "명소모듬",
+      "갈비살",
+      "육회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "가족 모임이나 회식 장소로 자주 이용되는 지역 내 한우 전문 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "사용자 요청에는 돼지고기 구이/찜 업종의 '명소'로 제시되었으나, 해당 주소(부산광역시 북구 용당로 7)에 위치한 실제 음식점은 1++ 등급 한우 숯불구이를 전문으로 하는 '명소한우참숯불구이(명소)'로 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이 주소지에는 '명소한우참숯불구이'라는 식당이 위치해 있습니다. 특징: 1++ 등급의 최상급 한우를 취급하는 음식점으로, 경남 한우경진대회에서 수상한 경력이 있는 곳입니다. 고기를 직접 구워주는 서비스가 제공되어 가족 외식이나 회식 장소로 자주 언급되는 지역 내 맛집입니다. 매일 10:30 ~ 22:00. 매장 내 주차 시설을 보유하고 있어 접근이 편리합니다.",
+      "url": "https://www.forourtour.com"
+    },
+    {
+      "excerpt": "경남 한우 경진대회 최우수상을 수상한 이력이 있으며, 직접 경매를 통해 엄선한 1++ 한우만을 취급합니다. 가족 모임, 회식, 데이트 등을 위한 프라이빗한 룸과 칸막이 좌석을 갖추고 있습니다. 영업시간은 매일 10:30 ~ 22:00입니다. 매장 1층에 주차 시설이 구비되어 있습니다. 대표 메뉴: 1++ 등급(No.9) 한우 꽃등심, 명소모듬, 갈비살, 육회, 육사시미 등.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.forourtour.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "경남 한우경진대회 최우수상 수상 및 1++(No.9) 등급의 최상급 한우를 취급하여 육질이 뛰어남",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원이 고기를 직접 구워주며 프라이빗 룸과 칸막이 좌석, 전용 주차장을 갖춰 모임하기 편함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "직접 구워주는 그릴링 서비스와 쾌적한 룸 구비로 편안한 식사 환경 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
 }

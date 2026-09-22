@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220810506109",
+  "name": "주영식품",
+  "cat": "구내식당",
+  "attempts": 1,
+  "geminiTokens": 24675,
+  "researchedAt": "2026-09-22T09:54:28.245Z",
+  "crowding": {
+    "found": false,
+    "note": "관련 정보 없음"
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "4회 검색(상호명+주소, 상호명+메뉴/가격, 상호명+리뷰, 주소+구내식당) 결과, 부산광역시 서구 원양로 125에 위치한 '주영식품' 구내식당에 대한 공개 웹 정보(블로그, 리뷰, SNS 등)를 전혀 확인할 수 없었습니다. 해당 주소 일대는 수산가공선진화단지로 수산물 가공·유통 기업 밀집 지역이며, '주영식품'이라는 상호는 경상남도 양산시 소재 업체로만 확인됩니다. 구내식당(직원식당)의 경우 외부에 공개되지 않아 온라인 정보가 없는 경우가 일반적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

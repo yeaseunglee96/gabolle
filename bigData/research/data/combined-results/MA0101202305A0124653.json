@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202305A0124653",
+  "name": "솔팅",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 61311,
+  "researchedAt": "2026-09-22T07:05:32.465Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 미확인 (샤퀴테리 공방 흔적 외 일반 매장 정보 없음)",
+  "notes": "부산 수영구 수영로536번길 12 소재 '솔팅'은 일반 소비자 대상 식당/경양식 매장으로서의 리뷰, 영업시간, 가격, 사진 등 유의미한 정보가 검색되지 않아 조사를 종료합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

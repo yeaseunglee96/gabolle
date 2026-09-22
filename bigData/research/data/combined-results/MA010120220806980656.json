@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220806980656",
+  "name": "하모횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 77286,
+  "researchedAt": "2026-09-22T10:44:48.031Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 줄서기 혼잡에 대한 명시적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "제철 해산물 애호가 및 모임 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "하모샤브샤브",
+      "하모회",
+      "새조개샤브샤브"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 12:00 ~ 21:30 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 단골 위주 또는 관광객 방문에 관한 명확한 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 수영구 민락동 광안해변로에 위치한 제철 해산물 전문점으로 하모(갯장어) 샤브샤브와 회, 겨울철 새조개 샤브샤브를 주로 선보입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "하모 샤브샤브 1인 45,000원 / 하모회 (소) 80,000원",
+    "priceWon": 45000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "하모(갯장어) 요리 전문점으로, 제철인 4~11월경에 하모 샤브샤브와 하모회를 주로 취급합니다. 겨울철에는 여수산 새조개 샤브샤브를 맛볼 수 있는 곳으로도 알려져 있습니다. 마지막에 육수에 감자면을 넣어 먹는 것이 별미라는 후기가 많습니다. 운영 시간: 월~토 12:00 ~ 21:30 (일요일 휴무). 주차: 수협민락지점 주차장 또는 인근 로얄주차장 이용 시 2시간 무료 지원",
+      "url": "https://badaon.or.kr"
+    },
+    {
+      "excerpt": "하모회 소: 80,000원, 중: 110,000원, 대: 140,000원 / 하모 샤브샤브 1인: 45,000원. 하모는 여름 제철 어종으로, 관련 메뉴는 주로 5월에서 10월 사이에 제공됩니다.",
+      "url": "https://badaon.or.kr"
+    }
+  ],
+  "sources": [
+    "https://badaon.or.kr",
+    "https://polle.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "여름철 갯장어(하모)와 겨울철 새조개 샤브샤브 등 신선한 제철 해산물 전문 요리를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

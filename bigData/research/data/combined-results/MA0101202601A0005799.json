@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202601A0005799",
+  "name": "캄",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 87678,
+  "researchedAt": "2026-09-22T07:06:06.797Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": "부산광역시 수영구 민락로27번길 3의 '캄'(경양식) 식당 관련 정보를 웹에서 찾을 수 없음",
+  "notes": "부산 수영구 민락로27번길 3 및 인근 위치의 경양식 '캄'에 대한 상호, 영업정보, 후기 웹 문서가 존재하지 않아 found: false로 기록합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

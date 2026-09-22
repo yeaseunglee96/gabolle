@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220804375944",
+  "name": "진조",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 63136,
+  "researchedAt": "2026-09-22T06:49:20.680Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 웨이팅이 잦으며 테이블링 원격 줄서기가 이용됨"
+  },
+  "descriptors": {
+    "audience": "모임/술자리/관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "조개구이",
+      "얼큰 조개탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "일~목 17:00 ~ 24:00, 금·토 및 공휴일 전날 17:00 ~ 01:00 (마지막 주문 영업 마감 1시간 전)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 인근 위치로 관광객 및 주말 방문객 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": "제시된 업종(백반/한정식)과 달리 실제 해당 주소의 '진조'는 조개구이 전문점(진조 조개구이)으로 운영되고 있습니다.",
+  "notes": "부산광역시 수영구 광안로61번길 28 위치의 '진조'는 백반/한정식이 아닌 '진조 조개구이' 전문점입니다. 인근 안전 주차장에 1시간 무료 주차가 지원되며 테이블링 대기가 가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "조개구이 단품 및 조개 A세트(조개구이+얼큰 조개탕)",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안로61번길 28에 위치한 진조 조개구이. 영업시간은 평일(일~목) 17:00~24:00, 금/토/공휴일 전날 17:00~01:00. 인기가 많아 웨이팅이 발생하며 테이블링 앱 이용 가능. 인근 안전 주차장 1시간 무료 주차 지원. 신선한 조개구이와 얼큰 조개탕이 대표 메뉴.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 당일 입고 조개구이와 얼큰한 조개탕의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해수욕장 인근의 접근성과 포차 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

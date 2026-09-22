@@ -2,8 +2,59 @@
   "id": "MA010120220805297346",
   "name": "있돈",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 가야대로 364-4 에 있는 '있돈'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로",
   "attempts": 1,
-  "researchedAt": "2026-09-21T22:51:02.583Z"
+  "geminiTokens": 75295,
+  "researchedAt": "2026-09-22T05:59:18.889Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "대학생 및 인근 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제돈까스",
+      "치즈돈까스",
+      "쫄면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동서대 등 인근 대학생과 주민들이 찾는 동네 밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "사상구 주례동(가야대로 364-4) 냉정역 인근에 위치한 착한가격업소 선정 이력의 대학가 가성비 수제돈까스 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 사상구 가야대로 364-4, 특징: 인근 대학교(동서대학교 등) 학생들을 상대로 박리다매로 운영하는 가성비가 좋은 돈가스 맛집으로 알려져 있습니다. 착한가격업소로도 지정된 바 있으며, 저렴한 가격에 푸짐한 양을 제공하는 곳으로 평가받고 있습니다. 주요 메뉴: 수제돈가스, 치즈돈가스, 쫄면 등",
+      "url": "https://www.sasang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대학가 앞에서 저렴한 가격과 푸짐한 양을 제공하는 가성비 수제돈까스집",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
 }

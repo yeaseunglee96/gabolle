@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202604A0028083",
+  "name": "바카라운지광안리",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 48225,
+  "researchedAt": "2026-09-22T10:38:34.377Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "웹 검색 결과에 줄서기나 매장 혼잡도에 관한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "휴식 및 여유를 즐기려는 카페 방문객, 데이트 이용객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "시그니처 커피",
+      "수제 푸딩",
+      "브런치 디저트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 07:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 도보권에 위치해 여행객 및 데이트 코스로 언급되며 바다 뷰 대신 조용하게 힐링하는 스팟으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "상호 '바카라운지광안리'(바카 커피 라운지 / VACA Coffee Lounge)로 부산 수영구 수영로540번길 74 1층에 위치한 카페/경양식 디저트 매장으로 확인됨. 도심 속 이국적인 치앙마이 감성 정원과 휴양지 컨셉의 힐링 공간으로 소개됨.",
+  "photoUrls": [
+    "https://passorder-static.passorder.site/store/d5edc0b2-0364-4e18-b8b7-9609e0ea5d6f/main/0/260706-044555-253175.image"
+  ],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 수영로540번길 74, 1층. 영업시간: 매일 07:00 ~ 23:00. '일상 속 작은 휴가'를 슬로건으로 하는 도심 속 휴양지 컨셉의 카페입니다. 치앙마이 감성의 이국적인 정원 공간이 특징으로 알려져 있습니다. 메뉴: 시그니처 커피, 시즌 음료, 수제 푸딩 등이 준비되어 있습니다. 매장 앞 잠시 정차 가능한 공간이 마련되어 있습니다.",
+      "url": "https://passorder.co.kr"
+    },
+    {
+      "excerpt": "바카 커피 라운지 (Baka Coffee Lounge) 부산광역시 수영구 수영로540번길 74 1층. 광안리 해수욕장 도보권에 위치해 있습니다. 바다 뷰가 직접적으로 보이는 곳은 아니지만, 조용하게 힐링할 수 있는 '느좋(느낌 좋은)' 감성 카페로 블로그 등에서 소개되고 있습니다. 브런치와 디저트 메뉴가 있는 힐링 스팟으로 알려져 있습니다. 지하철 금련산역 1번 출구(도보 약 7분) 또는 광안역 5번 출구(도보 약 10분)를 통해 방문 가능합니다. 전용 주차 지원은 없는 것으로 안내되고 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://passorder.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "도심 속 이국적인 치앙마이 감성의 야외 정원과 휴양지 분위기에서 조용하게 힐링할 수 있어서",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해수욕장 및 지하철역 도보 이동이 편리하고 이른 아침부터 밤늦게까지 운영해 방문하기 편해서",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

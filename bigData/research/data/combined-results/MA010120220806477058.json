@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220806477058",
+  "name": "오뚝이국수",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 41462,
+  "researchedAt": "2026-09-22T06:27:01.406Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": null
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 주거지 주민들이 찾는 동네 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동구 좌천동 정공단로 11(좌천동 535-13)에 위치한 소규모 국수 전문점으로, 지역 포털 및 식신 맛집 DB에 가성비 국수집으로 등록되어 있으나 상세 리뷰나 메뉴판, 사진 정보는 웹상에 매우 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오뚝이국수 / 부산광역시 동구 정공단로 11 (좌천동 535-13) / 전화번호 051-646-7318 / 가성비 좋은 국수집",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "오뚝이국수 / 한식 / 부산광역시 동구 좌천동 535-13 (정공단로 11) / 051-646-7318",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "좌천동 동네 주민들이 찾는 가성비 국수 전문점",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}
