@@ -114,8 +114,36 @@ public class BehaviorTasteFolder {
 	 * 앱 쪽 중복을 걷어내도 이 조건은 그대로 있어야 한다 — 옛 앱 판이 한참 계속 보낸다.
 	 *
 	 * <p>{@code place_dislike} 도 같다. 의견은 상태이지 반복하는 행동이 아니다.
+	 *
+	 * <h2>🔴 그래서 «마지막 것» 만 본다 (S15P21E201-1506)</h2>
+	 *
+	 * 상태라면 읽는 법도 상태여야 한다. 예전에는 {@code DISTINCT} 로 <b>첫 관측</b>을 남겼는데,
+	 * 그러면 켰다 끈 사람을 읽지 못한다 — 끈 것이 이력 뒤에 있어도 앞의 「켬」이 남는다.
+	 * 이제 {@code (사람, 장소)} 마다 <b>가장 최근</b> 이벤트 하나만 보고 그 종류로 판정한다.
+	 *
+	 * <pre>
+	 * 마지막이 place_like          → +1.0
+	 * 마지막이 place_like_removed  →  기여 없음 (하트를 아예 안 누른 것과 같다)
+	 * 마지막이 place_dislike       → -1.0
+	 * </pre>
+	 *
+	 * <p>중복 제거는 그대로 살아 있다 — 장소마다 행이 하나만 나오므로 앱·서버가 각자 적은
+	 * 하트 두 건도 한 번으로 세어진다.
+	 *
+	 * <p>순서는 {@code seq} 로 가른다. {@code occurred_at} 만으로 정렬하면 같은 시각의 이벤트
+	 * 순서가 임의로 떨어진다 — 그 칼럼이 있는 이유가 정확히 이것이다.
 	 */
-	private static final List<String> ONCE_PER_PLACE_EVENTS = List.of("place_like", "place_dislike");
+	private static final List<String> STATE_PLACE_EVENTS =
+			List.of("place_like", "place_like_removed", "place_dislike");
+
+	/**
+	 * 상태를 <b>끄는</b> 이벤트 — 마지막이 이것이면 그 장소는 기여가 없다.
+	 *
+	 * <p>🔴 {@link #CONTRIBUTION} 에 {@code 0.0} 으로 넣지 않고 질의에서 <b>빼는</b> 이유가
+	 * 있다. 기여가 0 이어도 행이 나오면 {@code observations} 가 세어져 {@link #MIN_SUPPORT}
+	 * 가드를 넘길 수 있다 — 「끈 하트 두 개」가 성분을 만들어 낸다. 아예 안 나오는 것이 맞다.
+	 */
+	private static final List<String> STATE_CLEARING_EVENTS = List.of("place_like_removed");
 
 	/**
 	 * payload 에 장소가 하나 실리고, <b>반복이 뜻을 가지는</b> 이벤트.
@@ -155,16 +183,24 @@ public class BehaviorTasteFolder {
 	 * 뒤에 평가될 수 있어 막지 못한다. 그래서 함수에 들어가기 전에 빈 배열로 바꾼다.
 	 */
 	private static final String ATTRIBUTION_SQL = """
-			WITH signal AS (
-			    -- 하트·싫어요 — 같은 장소는 한 번만. 이유는 ONCE_PER_PLACE_EVENTS 에 있다.
-			    SELECT DISTINCT
-			           e.event_type                          AS event_type,
-			           CAST(e.payload ->> 'placeId' AS uuid) AS place_id
-			      FROM event_outbox e
-			     WHERE e.user_id = ?
-			       AND e.received_at <= ?
-			       AND e.event_type = ANY (string_to_array(?, ','))
-			       AND e.payload ->> 'placeId' ~ ?
+			WITH state AS (
+			    -- 하트·하트끔·싫어요 — «상태» 라 마지막 것만 본다. 이유는 STATE_PLACE_EVENTS 에 있다.
+			    SELECT DISTINCT ON (place_id) event_type, place_id
+			      FROM (SELECT e.event_type                          AS event_type,
+			                   CAST(e.payload ->> 'placeId' AS uuid) AS place_id,
+			                   e.seq                                 AS seq
+			              FROM event_outbox e
+			             WHERE e.user_id = ?
+			               AND e.received_at <= ?
+			               AND e.event_type = ANY (string_to_array(?, ','))
+			               AND e.payload ->> 'placeId' ~ ?) observed
+			     ORDER BY place_id, seq DESC
+			),
+			signal AS (
+			    -- 마지막이 «끔» 인 장소는 행 자체가 안 나온다 — 하트를 아예 안 누른 것과 같다.
+			    SELECT event_type, place_id
+			      FROM state
+			     WHERE event_type <> ALL (string_to_array(?, ','))
 			    UNION ALL
 			    -- 보기·방문 — 반복이 뜻을 가지므로 그대로 센다.
 			    SELECT e.event_type,
@@ -238,7 +274,8 @@ public class BehaviorTasteFolder {
 			}
 			running.computeIfAbsent(new Key(dimension, code), (k) -> new Running())
 					.add(contribution * observations, observations);
-		}, userId, asOf, String.join(",", ONCE_PER_PLACE_EVENTS), UUID_SHAPE,
+		}, userId, asOf, String.join(",", STATE_PLACE_EVENTS), UUID_SHAPE,
+				String.join(",", STATE_CLEARING_EVENTS),
 				userId, asOf, String.join(",", REPEATABLE_PLACE_EVENTS), UUID_SHAPE,
 				userId, asOf, String.join(",", MANY_PLACE_EVENTS), UUID_SHAPE);
 

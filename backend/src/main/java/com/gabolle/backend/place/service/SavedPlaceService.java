@@ -91,8 +91,10 @@ public class SavedPlaceService {
 	 * 기록된다. 그 판정은 {@code insertIfAbsent} 의 반환값을 쓴다 — 자바에서 {@code exists} 로
 	 * 다시 보면 두 요청 사이가 벌어져 중복이 되살아난다.
 	 *
-	 * <p>하트 해제는 여기서 안 적는다. {@code PLACE_DISLIKE}("싫다")와 "이제 관심 없다" 는 다른
-	 * 사건이라 섞으면 학습이 틀린 것을 배운다.
+	 * <p>🔴 하트 해제는 {@link #recordLikeRemoved} 가 따로 적는다 (S15P21E201-1506). 예전에는
+	 * 아예 안 적었는데, 이유는 {@code PLACE_DISLIKE}("싫다")와 "이제 관심 없다" 가 다른
+	 * 사건이라 섞으면 학습이 틀린 것을 배우기 때문이었다. 그 판단은 옳았고 — 빠뜨린 것이
+	 * 아니라 <b>적을 칸이 없었다.</b> 이제 {@code PLACE_LIKE_REMOVED} 가 생겨서 적는다.
 	 *
 	 * <p>개인화를 끈 사람은 {@code recordFromServer} 안의 {@code collectsBehaviorOf} 가 거르므로
 	 * 여기서 또 검사하지 않는다. 같은 규칙이 두 곳에 생기면 반드시 어긋난다.
@@ -113,7 +115,33 @@ public class SavedPlaceService {
 	/** 안 켜져 있던 것을 꺼도 성공이다 — 404 를 주면 두 번 누른 사용자가 오류를 보게 된다. */
 	@Transactional
 	public void remove(UUID userId, UUID placeId) {
-		this.savedPlaceRepository.deleteByUserIdAndPlaceId(userId, placeId);
+		int deleted = this.savedPlaceRepository.deleteByUserIdAndPlaceId(userId, placeId);
+
+		// 🔴 실제로 꺼졌을 때만 적는다. 위 주석대로 「안 켜져 있던 것을 끈 요청」도 성공으로
+		//    받으므로, 지운 행 수를 안 보면 두 번 누르기와 재시도가 전부 취향 신호가 된다.
+		//    save() 가 insertIfAbsent 의 반환값을 보는 것과 같은 규칙이다.
+		if (deleted > 0) {
+			recordLikeRemoved(userId, placeId);
+		}
+	}
+
+	/**
+	 * 하트를 끈 것을 행동 신호로 남긴다 (S15P21E201-1506).
+	 *
+	 * <p>🔴 이것은 「싫다」가 아니라 <b>「안 누른 상태로 되돌리기」</b>다. 되돌린 뒤에는 하트를
+	 * 아예 안 누른 사람과 같아져야 한다 — 그 판정은 {@code BehaviorTasteFolder} 가 한다.
+	 * 여기서는 사실만 적는다.
+	 *
+	 * <p>{@link #recordLike} 와 같은 규칙을 따른다 — 빈이 없으면 안 적고, 개인화를 껐는지는
+	 * {@code recordFromServer} 안에서 거르므로 여기서 또 검사하지 않는다.
+	 */
+	private void recordLikeRemoved(UUID userId, UUID placeId) {
+		EventIngestService ingest = this.events.getIfAvailable();
+		if (ingest == null) {
+			return;
+		}
+		ingest.recordFromServer(UUID.randomUUID(), EventType.PLACE_LIKE_REMOVED, 1,
+				userId, null, null, Map.of("placeId", placeId.toString()));
 	}
 
 	/**

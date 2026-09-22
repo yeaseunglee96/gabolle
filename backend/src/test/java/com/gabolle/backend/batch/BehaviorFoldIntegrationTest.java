@@ -102,6 +102,72 @@ class BehaviorFoldIntegrationTest extends BatchPostgresTest {
 				.isNotEmpty();
 	}
 
+	/**
+	 * 🔴 S15P21E201-1506 이전에는 이 자리가 두 겹으로 고장나 있었다. 끈 하트가 이벤트로 아예
+	 * 안 남았고, 남았더라도 질의가 <b>첫 관측</b>을 보던 터라 뒤의 「끔」이 앞의 「켬」을
+	 * 못 이겼다. 그래서 끈 하트가 90일 뒤 이벤트가 지워질 때까지 취향에 남았다.
+	 */
+	@Test
+	@DisplayName("🔴 하트를 켰다 끄면 성분이 안 생긴다 — 아예 안 누른 것과 같다")
+	void turningLikesOffLeavesNoComponent() {
+		UUID user = this.fixtures.newUser();
+		UUID cafeA = taggedPlace(CAFE);
+		UUID cafeB = taggedPlace(CAFE);
+
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeB, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE_REMOVED, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE_REMOVED, cafeB, DAY1);
+
+		this.foldService.fold(user, DAY2);
+
+		assertThat(components(user))
+			.filteredOn((w) -> w.getEvidence() != TasteEvidence.SURVEY)
+			.as("끈 하트가 남으면 「이제 관심 없다」를 계속 취향으로 읽는다")
+			.isEmpty();
+	}
+
+	@Test
+	@DisplayName("하트 → 끔 → 다시 하트면 그대로 되돌아온다")
+	void likingAgainAfterRemovalCountsAgain() {
+		UUID user = this.fixtures.newUser();
+		UUID cafeA = taggedPlace(CAFE);
+		UUID cafeB = taggedPlace(CAFE);
+
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeB, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE_REMOVED, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE_REMOVED, cafeB, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeB, DAY1);
+
+		this.foldService.fold(user, DAY2);
+
+		UserTasteWeight component = onlyComponent(user);
+		assertThat(component.getSupport()).as("장소마다 마지막 상태 하나만 센다").isEqualTo(2);
+		// 처음 두 번 눌렀을 때와 같은 값이어야 한다. raw = 2.0, K = 3 → 2/(2+3)
+		assertThat(component.getWeight()).isEqualTo(0.4);
+	}
+
+	/**
+	 * 🔴 끔과 싫어요를 한 이벤트로 합치면 안 되는 이유가 이 시험이다. 끔은 <b>안 누른 것과
+	 * 같아지는</b> 것이고, 싫어요는 <b>안 누른 것보다 낮아지는</b> 것이다.
+	 */
+	@Test
+	@DisplayName("🔴 싫어요는 끔과 다르다 — 안 누른 것보다 낮게 남는다")
+	void dislikeIsNotTheSameAsTurningTheHeartOff() {
+		UUID user = this.fixtures.newUser();
+
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_DISLIKE, taggedPlace(CAFE), DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_DISLIKE, taggedPlace(CAFE), DAY1);
+
+		this.foldService.fold(user, DAY2);
+
+		UserTasteWeight component = onlyComponent(user);
+		// raw = -2.0, K = 3 → -2/(2+3). 끔이었다면 성분 자체가 없었을 자리다.
+		assertThat(component.getWeight()).isEqualTo(-0.4);
+	}
+
 	@Test
 	@DisplayName("🔴 같은 장소의 하트가 두 건 들어와도 한 번으로 센다 — 앱과 저장 API 가 각자 적는다")
 	void oneHeartCountsOnceEvenWhenRecordedTwice() {
