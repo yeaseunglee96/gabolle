@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220803237442",
+  "name": "옵서예수제도너츠",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 66627,
+  "researchedAt": "2026-09-22T11:58:58.275Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "가격이 저렴하고 맛이 좋아 꽈배기와 고로케 등이 금방 동이 나기도 한다는 언급이 있음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 도넛/꽈배기 포장 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "찹쌀꽈배기",
+      "찹쌀도너츠",
+      "고로케"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 09:30 ~ 19:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 골목에 위치한 소박한 꽈배기/도너츠 전문점으로 입소문을 타고 포장해가는 로컬 간식집"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "해당 주소(부산광역시 수영구 수영로540번길 29)에서 '옵서예'라는 상호로 찹쌀꽈배기, 찹쌀도너츠, 고로케 등을 직접 만들어 판매하는 수제 도너츠 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "도너츠 한 도시락 2,000원 선으로 매우 저렴한 가격대",
+    "priceWon": 2000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가게 이름은 제주도 방언을 사용했으나, 실제로는 부산 광안리에 위치한 작고 소박한 꽈배기 전문점입니다. 대표 메뉴는 찹쌀꽈배기와 찹쌀도너츠이며, 겉은 바삭하고 속은 쫀득한 '겉바속촉'의 식감으로 입소문이 난 곳입니다. 가격이 저렴하고 맛이 좋아 꽈배기와 고로케 등이 금방 동이 나기도 합니다. 달달한 흰 앙금이 들어간 찹쌀도너츠도 인기 메뉴로 꼽힙니다. 매일 09:30~19:00 (일요일 휴무)",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "겉은 바삭하고 속은 쫀득한 찹쌀 꽈배기와 흰 앙금이 들어간 도너츠의 뛰어난 식감과 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "도너츠 한 도시락 기준 2,000원 안팎으로 부담 없이 즐길 수 있는 뛰어난 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

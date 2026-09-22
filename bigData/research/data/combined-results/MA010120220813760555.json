@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220813760555",
+  "name": "구름속의산책",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 46018,
+  "researchedAt": "2026-09-22T12:00:38.234Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "1인 조리 매장으로 음식이 나오는 데 시간이 다소 걸릴 수 있으나 대기 줄에 대한 언급은 없음"
+  },
+  "descriptors": {
+    "audience": "연인 및 가족",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 수제 함박스테이크",
+      "쉬림프 크림 브로콜리 스파게티"
+    ],
+    "yearsClaimed": 1998
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 영업 시작 (마감 시간 및 브레이크타임 유동적)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송도 바다가 한눈에 내려다보이는 오션뷰와 오랜 추억을 찾는 연인 및 현지 주민 방문이 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 송도해수욕장 바로 앞 건물 3층에 위치한 1998년 오픈 경양식 레스토랑으로, 탁 트인 오션뷰와 사장님이 직접 빚는 수제 함박스테이크·파스타가 유명함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "1인 평균 1~3만 원대 (함박스테이크 및 파스타류)",
+    "priceWon": 20000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1998년부터 운영된 곳으로, 바다가 내려다보이는 오션뷰가 특징인 데이트 명소로 알려져 있습니다. 수제 한우스테이크가 대표 메뉴로 꼽히며, 식전 빵과 함께 제공되는 양식 요리들이 좋은 평가를 받고 있습니다. 사장님께서 직접 조리하시는 경우가 많아 음식이 나오기까지 다소 시간이 걸릴 수 있다는 후기가 있으나, 맛과 분위기에 대한 만족도가 높은 편입니다.",
+      "url": "https://www.trip.com"
+    },
+    {
+      "excerpt": "구름속의산책 / 분류: 양식 / 주소: 부산 서구 송도해변로 131 3층 / 전화번호: 051-253-6655",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com",
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송도해수욕장이 시원하게 펼쳐지는 3층 오션뷰와 레트로하고 아늑한 데이트 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "1998년부터 오랜 기간 이어져 온 사장님의 정성 어린 수제 한우 함박스테이크와 양식 요리",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

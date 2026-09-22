@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220810149343",
+  "name": "호록호록",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 69209,
+  "researchedAt": "2026-09-22T11:59:37.997Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말에는 웨이팅이나 재료 소진이 발생할 수 있으나 평일에는 비교적 여유가 있음"
+  },
+  "descriptors": {
+    "audience": "가족, 친구, 술자리 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "상차림(초장집)",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "14:00 ~ 01:30"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "광안리 민락어민활어직판장 인근 e편한세상 오션테라스 3단지 상가 107호에 위치한 초장집 형태의 식당입니다. 회센터에서 구매한 회나 조개류를 가져와 상차림비를 내고 이용하며 매운탕 및 콜키지 서비스를 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "회 상차림비 1인 6,000원 / 조개류 상차림비 8,000원 / 매운탕(소) 10,000원",
+    "priceWon": 6000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산 수영구 광안해변로326번길 32, 오션테라스 3단지 상가 107호. 영업시간: 14:00 ~ 01:30. 인근 민락어민활어직판장 등에서 회를 떠와 상차림비(회 기준 인당 6,000원, 조개류 8,000원 수준)를 내고 식사할 수 있는 곳. 매운탕(약 10,000원) 주문 시 부산 스타일로 방아잎과 산초가루를 제공하며, 와인 및 니혼슈 콜키지 서비스를 운영. 날씨가 좋을 때 문을 열면 광안대교 뷰를 즐길 수 있음. 주차: 근처 공영주차장 이용 가능. 평일에는 비교적 세심한 서비스를 받을 수 있으나, 주말에는 웨이팅이나 횟감 소진이 발생할 수 있음.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 활어직판장에서 뜬 회를 가져와 부담 없는 상차림비로 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "오션테라스 상가에 위치해 광안대교 뷰를 즐기며 식사할 수 있고 콜키지 이용이 용이함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

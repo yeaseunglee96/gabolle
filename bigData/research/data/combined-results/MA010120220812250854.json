@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220812250854",
+  "name": "경우돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 83079,
+  "researchedAt": "2026-09-22T12:00:33.208Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "돈까스"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "'경우돈까스'는 부산 수영구 수영성로 18(수영동) 1층에 온누리상품권 가맹점/상호 등록(전화번호: 051-757-5900) 기록이 확인되나, 방문자 후기·블로그 리뷰·메뉴판 세부 가격 및 영업시간 등 일반 소비자 대상 웹 컨텐츠는 존재하지 않거나 폐업/소규모 배달 매장으로 추정됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "경우돈까스 / 부산광역시 수영구 수영성로 18, 1층 (수영동) / 051-757-5900 / 돈까스",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": []
+}

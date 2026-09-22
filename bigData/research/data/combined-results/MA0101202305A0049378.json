@@ -1,0 +1,46 @@
+{
+  "id": "MA0101202305A0049378",
+  "name": "나스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 122742,
+  "researchedAt": "2026-09-22T12:01:04.268Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false,
+    "note": ""
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 주소(부산 부산진구 전포대로216번길 7)에는 경양식 업종의 '나스' 식당이 존재하지 않으며, 펍/사운드바 형태의 매장(나스)만 확인됩니다.",
+  "notes": "조사 결과 대상 주소지에는 '경양식' 업종의 '나스'라는 음식점이 존재하지 않는 것으로 확인되었습니다. (사운드바/바 매장만 확인됨)",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

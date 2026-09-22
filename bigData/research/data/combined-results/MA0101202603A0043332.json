@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202603A0043332",
+  "name": "크림어스",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 56466,
+  "researchedAt": "2026-09-22T11:59:56.812Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 언급 없음 (주문제작 예약 중심 매장 추정)"
+  },
+  "descriptors": {
+    "audience": "기념일·선물 주문 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생화케이크",
+      "화분케이크",
+      "답례품"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "광안동에 위치한 베이커리로 생화케이크, 화분케이크 등 주문제작 케이크 및 답례품 위주로 운영되는 매장. 상세 후기나 가격표는 변동/주문제작 형태로 온라인 노출이 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "변동/시가 (주문제작 케이크 위주)",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "크림어스 (Creamus) 주소: 부산광역시 수영구 광안로41번길 14 (광안동 152-14) 업종: 세계음식 > 베이커리/제과점 주요 메뉴: 생화케이크, 답례품, 화분케이크 등",
+      "url": "https://search.daum.net/search?w=tot&q=%ED%81%AC%EB%A6%BC%EC%96%B4%EC%8A%A4"
+    }
+  ],
+  "sources": [
+    "https://search.daum.net/search?w=tot&q=%ED%81%AC%EB%A6%BC%EC%96%B4%EC%8A%A4"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기념일용 생화 케이크 및 화분 케이크, 답례품 주문 제작을 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

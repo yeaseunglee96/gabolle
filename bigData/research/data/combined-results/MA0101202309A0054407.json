@@ -1,0 +1,52 @@
+{
+  "id": "MA0101202309A0054407",
+  "name": "센텀숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 80431,
+  "researchedAt": "2026-09-22T11:56:48.889Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "숯불 생갈비"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 재송동(해운대로 185-15) 소재의 숯불갈비 전문 고기집으로 사업자/매장 등록 정보 및 숯불 생갈비 등의 취급 정보가 확인되나, 상세 블로그 리뷰나 세부 영업시간, 가격표는 웹상에 상세히 노출되어 있지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "센텀숯불갈비는 부산광역시 해운대구 재송동에 위치한 고기 요리 전문점입니다. 주소: 부산광역시 해운대구 해운대로 185-15 (재송동 437-6), 전화번호: 0507-1473-8234. 해당 식당은 숯불 생갈비 등을 제공하는 곳으로 알려져 있으며, 재송동 및 센텀 인근 지역에서 영업 중입니다.",
+      "url": "https://www.konest.com/contents/gourmet_mise_detail.html?id=37730"
+    }
+  ],
+  "sources": [
+    "https://www.konest.com/contents/gourmet_mise_detail.html?id=37730"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "재송동 및 센텀 인근에서 숯불 생갈비 및 고기 구이를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

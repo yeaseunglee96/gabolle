@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220808034422",
+  "name": "대패파티",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 66868,
+  "researchedAt": "2026-09-22T11:56:07.470Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 친구, 단체 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "대패삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 송정동에 위치한 대패삼겹살 전문점으로 저렴한 가격대와 셀프 코너, 단체석(20~30인)을 갖춘 식당입니다. 구체적인 최신 상세 메뉴판 전종이나 정확한 영업시간은 웹상에서 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "대패삼겹살 (1인분 기준)",
+    "priceWon": 2500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 해운대구 송정중앙로27번길 15 (송정동). 대패삼겹살을 주메뉴로 하며, 저렴한 가격대와 셀프 코너를 갖추고 있습니다. 가족 식사나 친구 모임 장소로 이용하기 좋으며, 단체석(20~30명 수용 가능)도 마련되어 있습니다. 별도의 주차장은 없으므로 차량 이용 시 주변 상황을 고려하는 것이 좋습니다. 대패삼겹살 1인분 2,500원.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대패삼겹살을 저렴한 가격에 셀프 코너와 함께 부담 없이 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "20~30명 규모의 단체석을 갖추고 있어 모임 및 가족 식사에 이용하기 편함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
