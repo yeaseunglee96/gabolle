@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220806648632",
+  "name": "생생돈까스",
+  "cat": "일식 카레/돈가스/덮밥",
+  "attempts": 1,
+  "geminiTokens": 65901,
+  "researchedAt": "2026-09-22T06:52:34.759Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 매장 혼잡도에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼밥 및 배달/포장 이용객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "생생돈까스",
+      "고구마치즈돈까스",
+      "안심까스"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 별도 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 수영구 감포로 17에 '생생돈까스 부산수영민락점'(몬떡&생생돈까스) 상호로 등록 이력이 확인되며 대표 메뉴로 생생돈까스, 고구마치즈돈까스, 안심까스 등이 확인됩니다. 배달/포장 중심 또는 업종 변경 이력이 있는 소규모 점포로 상세 영업시간 및 대기 정보는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "-",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "생생돈까스 부산수영민락점. 위치: 부산광역시 수영구 감포로 17 (광안동). 대표 메뉴: 생생돈까스, 안심까스. 고구마치즈돈까스가 일품.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바삭하고 다양한 돈까스(고구마치즈돈까스, 안심까스 등)를 즐기기 위해 방문 및 배달 이용",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

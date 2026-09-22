@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811398014",
+  "name": "부창루",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 115727,
+  "researchedAt": "2026-09-22T06:50:38.024Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "웨이팅이나 혼잡도에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민 및 기사님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "간짜장",
+      "짬뽕",
+      "잡채밥"
+    ],
+    "yearsClaimed": 50
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 20:00 (브레이크타임 16:00 ~ 17:00, 매주 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해리단길 인근에 위치하며, 현지 주민들과 택시 기사님들이 즐겨 찾는 로컬 노포 중식당으로 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "해운대 해리단길 인근 50년 전통 노포 중식당 부창루 조사 결과",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부창루(富昌樓)는 부산광역시 해운대구 우동2로 15(우동)에 위치한 중식당입니다. 50년 전통의 노포 중식당으로 알려져 있으며, 현지인들과 기사님들 사이에서 맛집으로 소문난 곳입니다. 해리단길 인근에 위치해 있습니다. 간짜장과 짬뽕이 특히 유명하며, 잡채밥 등도 인기 메뉴로 꼽힙니다. 영업시간: 11:00 ~ 20:00, 브레이크 타임: 16:00 ~ 17:00, 정기 휴무: 매주 화요일. 주차장: 별도의 주차 공간은 마련되어 있지 않습니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "50년 전통의 오랜 노포 중식당",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "투박하지만 깊은 맛의 간짜장과 짬뽕 등 인기 메뉴의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "지역 주민 및 기사님들이 주로 찾는 로컬 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

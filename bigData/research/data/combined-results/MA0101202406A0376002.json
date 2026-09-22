@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202406A0376002",
+  "name": "카츠백",
+  "cat": "일식 카레/돈가스/덮밥",
+  "attempts": 1,
+  "geminiTokens": 87400,
+  "researchedAt": "2026-09-22T06:52:41.269Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "배달·혼밥 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈카츠 유부우동 세트",
+      "돈카츠 튀김 유부우동 세트"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 남구 천제등로 59-14에 위치한 '카츠백 남구대연점'은 돈카츠 배달/포장 중심 매장으로 파악되며, 일반 방문 블로그 리뷰나 대기열, 영업시간 관련 상세 정보는 웹상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "카츠백 남구대연점. 주소: 부산광역시 남구 천제등로 59-14, 1층 1호 (대연동). 대표메뉴: 돈카츠 유부우동 세트, 돈카츠 튀김 유부우동 세트. 돈카츠 전문 프랜차이즈 매장.",
+      "url": "http://katsubaek.com"
+    }
+  ],
+  "sources": [
+    "http://katsubaek.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "배달 및 포장 위주의 돈카츠 및 세트 메뉴 이용",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

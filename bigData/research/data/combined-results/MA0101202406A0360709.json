@@ -1,0 +1,85 @@
+{
+  "id": "MA0101202406A0360709",
+  "name": "부단",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 65513,
+  "researchedAt": "2026-09-22T06:49:56.562Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "만석 시 캐치테이블 앱을 통한 원격 웨이팅 발생"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 여행객 (데이트 및 모임)",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "치즈쭈새우",
+      "매달구",
+      "치즈고구마돈가스",
+      "오레오 막걸리"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:00 ~ 03:00 (라스트 오더 02:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 오션뷰와 비주얼 안주 요리로 방문객 및 관광객들의 데이트·핫플 코스로 인기"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "공식 인허가/분류상 한식/백반으로 등록된 경우도 있으나 실제로는 광안대교 오션뷰 퓨전 요리주점(다이닝펍)으로 운영되고 있습니다. 전용 주차장이 없어 인근 공영주차장을 이용해야 합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부단의 시그니처 메뉴인 '치즈쭈새우'는 주꾸미와 새우, 치즈의 조화가 훌륭하다는 평이 많습니다. 특히 소스가 맛있어 많은 방문객들이 만족하는 메뉴입니다. 방문객들은 치즈쭈새우와 함께 '매달구(매콤달콤한 닭 요리)'나 '치즈고구마돈가스'를 자주 곁들여 주문하며, 시그니처 주류인 오레오 막걸리와의 궁합도 인기가 좋습니다. 광안대교 오션뷰를 즐길 수 있는 매장 위치 덕분에 데이트 코스나 술자리 장소로 높은 평가를 받고 있습니다.",
+      "url": "https://eathing.co.kr"
+    },
+    {
+      "excerpt": "매장 내 만석 시 '캐치테이블' 앱을 통해 원격 웨이팅이 가능합니다. 광안리의 인기 있는 핫플레이스인 만큼 주말이나 성수기에는 대기가 발생할 수 있으므로, 방문 전 캐치테이블 앱을 통해 실시간 대기 현황을 확인하시는 것을 추천합니다. 전용 주차장이 없으므로 매장 인근의 공영주차장을 이용해야 합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://eathing.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교가 한눈에 보이는 탁 트인 오션뷰와 감성적인 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "치즈쭈새우, 매달구 등 특색 있는 시그니처 퓨전 요리의 맛과 비주얼",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "캐치테이블 대기가 필수적인 광안리 대표 핫플레이스로서의 인기",
+      "sources": [
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

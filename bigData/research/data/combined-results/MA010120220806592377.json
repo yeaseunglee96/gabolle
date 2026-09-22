@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220806592377",
+  "name": "이팔곱창",
+  "cat": "곱창 전골/구이",
+  "attempts": 1,
+  "geminiTokens": 67198,
+  "researchedAt": "2026-09-22T06:52:06.873Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "해운대 구남로 인근에 위치해 피크 시간대에는 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "직장인, 로컬 주민, 여행객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "이팔곱창구이",
+      "곱창구이",
+      "곱창전골"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:30 - 영업 시작 (재료 소진 시 마감 등 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 구남로·구청 인근 위치로 현지 단골 주민 및 해운대 방문 관광객 모두 찾는 곳"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "서울식 부추곱창 스타일의 초벌 소곱창 전문점으로, 곱이 꽉 찬 시그니처 '이팔곱창구이'와 양념 부추 구이 조합으로 인기. 건물(경보이리스오션) 주차 지원이 가능함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "이팔곱창구이 21,000원 / 곱창구이 16,000원 / 대창구이 16,000원 / 곱창전골 16,000원",
+    "priceWon": 21000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "서울식 부추곱창 스타일로, 초벌된 곱창과 함께 부추, 감자, 버섯, 양파, 염통 등이 불판에 제공된다. 대표 메뉴인 '이팔곱창'과 일반 '곱창구이'로 나뉘며 둘의 차이는 곱의 양이다.",
+      "url": "https://polle.com/"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 중동1로19번길 24 경보이리스오션 1층 108호. 해운대 경보이리스오션 건물 주차장을 이용할 수 있으며 2시간 무료 주차를 지원한다. 보통 오후 5시 30분부터 영업을 시작한다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://polle.com/",
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "곱이 가득 찬 신선한 소곱창을 초벌하여 양념 부추와 함께 구워 먹는 서울식 부추곱창 맛 자체의 매력",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대역 및 구남로·구청 인근 위치에 건물 주차장 무료 주차 지원으로 방문 편의성이 높음",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

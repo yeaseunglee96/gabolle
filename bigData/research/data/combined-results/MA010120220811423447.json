@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811423447",
+  "name": "불이아",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 74394,
+  "researchedAt": "2026-09-22T06:51:01.484Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "해당 매장 폐점으로 인한 혼잡 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가족 및 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "훠궈 (홍탕/백탕)",
+      "양고기 샤브샤브",
+      "소고기 샤브샤브"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "폐점으로 인해 현재 유효한 영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 해운대구 구남로24번길 7에 위치했던 '불이아 부산점(해운대점)'은 과거 운영되었으나 현재는 폐점(폐업)된 상태입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "훠궈 세트",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "문의하신 '불이아 부산점(해운대 구남로)'은 현재 폐점된 상태입니다. 따라서 해당 매장의 영업시간, 메뉴, 가격 정보는 더 이상 유효하지 않습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "한국인의 입맛에 맞게 개선된 얼큰한 마라 맛의 홍탕과 담백한 백탕을 함께 즐길 수 있는 훠궈 맛집으로 알려져 있습니다. 깔끔한 매장 분위기와 세팅 덕분에 가족 모임이나 회식 장소로도 자주 언급됩니다. 주요 메뉴: 훠궈(소고기, 양고기 샤브샤브)를 비롯하여 양꼬치 등을 제공합니다.",
+      "url": "https://polinews.co.kr"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://polinews.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한국인 입맛에 맞춘 얼큰한 홍탕과 담백한 백탕의 훠궈 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "깔끔한 매장 분위기와 세팅으로 모임/회식에 편리함",
+      "sources": [
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

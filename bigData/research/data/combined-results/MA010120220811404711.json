@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220811404711",
+  "name": "비학산칼국수",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 155666,
+  "researchedAt": "2026-09-22T06:51:52.808Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "점심시간 등 피크 타임에는 인근 직장인 및 손님들로 대기(줄서기)가 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "직장인 및 지역 주민, 관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "보리밥",
+      "생바지락 칼국수",
+      "수육"
+    ],
+    "yearsClaimed": 15
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지역 주민과 인근 직장인들이 주로 찾으며, 방송(전지적 참견 시점 배우 정우성 언급 등) 소개 이후 관광객들도 꾸준히 찾는 집"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "정식 상호명은 '비학산보리밥생칼국수'(또는 비학산칼국수)로, 해운대해변로 329-4(중동) 소재 본점 및 센텀점 등으로 알려져 있습니다. 과거 배우 정우성과 방송인 이영자가 언급하여 화제가 되었으며, 보리밥과 바지락 생칼국수, 수육 세트 등이 대표적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "보리밥, 바지락 칼국수, 점심특선 세트",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대에 위치한 비학산보리밥생칼국수는 보리밥과 생칼국수를 전문으로 하는 유명 맛집입니다. 과거 MBC '전지적 참견 시점'에서 이영자와 정우성이 추천한 곳으로 알려지며 인기를 끌었습니다. 주문 즉시 조리하는 방식이며 보리밥 주문 시 콩비지, 된장찌개, 신선한 나물 반찬 등이 함께 제공됩니다. 칼국수와 수육을 함께 즐기는 세트 메뉴도 인기가 많습니다.",
+      "url": "https://www.busan.com/view/busan/view.php?code=20190220000293"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com/view/busan/view.php?code=20190220000293",
+    "https://www.travie.com/news/articleView.html?idxno=21132"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바지락 생칼국수와 구수한 보리밥, 정갈한 나물 및 콩비지찌개 등 자극적이지 않고 정성 담긴 손맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "방송(전지적 참견 시점 등)에서 배우 정우성 단골집으로 추천되며 대중적 인지도와 화제성을 얻음",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    },
+    {
+      "note": "보리밥과 칼국수, 수육을 곁들인 세트 메뉴의 뛰어난 가성비와 알찬 구성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

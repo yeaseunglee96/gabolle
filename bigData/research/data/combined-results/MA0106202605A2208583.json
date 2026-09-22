@@ -1,0 +1,76 @@
+{
+  "id": "MA0106202605A2208583",
+  "name": "제로라멘",
+  "cat": "일식 면 요리",
+  "attempts": 1,
+  "geminiTokens": 58900,
+  "researchedAt": "2026-09-22T06:53:38.088Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 웨이팅에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼밥객, 데이트 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "시오라멘",
+      "아부라소바",
+      "쇼유라멘"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 - 20:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 광안리에 위치한 신상 라멘 전문점으로 시오라멘과 꾸덕한 아부라소바 등을 주로 판매하며 혼밥 및 데이트 장소로 이용됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "라멘류",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 해변 인근에 위치한 신상 라멘 전문점으로, 혼밥이나 데이트를 즐기기에 좋은 분위기입니다. 시오라멘(소금 라멘)과 꾸덕한 아부라소바 등이 주요 메뉴로 알려져 있으며, 유자 단무지가 곁들임 찬으로 제공됩니다. 영업시간: 오전 11:30 - 오후 8:00",
+      "url": "https://www.youtube.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 광안로21번길 7, 1층 제로라멘",
+      "url": "https://foodbus.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com",
+    "https://foodbus.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "깔끔한 시오라멘과 꾸덕한 아부라소바 등 라멘 맛과 특색 있는 유자 단무지 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "혼자 밥을 먹거나 데이트하기에 부담 없고 편안한 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

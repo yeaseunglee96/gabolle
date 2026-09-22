@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220810292853",
+  "name": "우뚝",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 82174,
+  "researchedAt": "2026-09-22T06:49:53.849Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "별도의 심한 대기 줄 언급은 없으나 24시간 운영으로 아침 식사나 야간, 혼밥 손님이 꾸준히 찾는 편임"
+  },
+  "descriptors": {
+    "audience": "해운대 관광객, 아침 해장객, 1인 혼밥러",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "뼈해장국",
+      "우거지 감자탕",
+      "묵은지 뼈해장국"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "24시간 영업, 연중무휴"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해수욕장 및 구남로 번화가 중심에 있어 관광객 비중이 높고 24시간 식사를 찾는 방문객이 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 해운대구 구남로 25에 위치한 한식/탕 전문점 '우뚝해장국감자탕 해운대본점' 조사 결과입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "뼈해장국 9,000원, 묵은지 뼈해장국 10,000원, 우거지 감자탕(소) 33,000원",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "우뚝해장국감자탕 해운대본점. 주소: 부산광역시 해운대구 구남로 25. 영업시간: 24시간 연중무휴. 해운대역 3번 출구에서 도보 약 3분 거리에 위치하고 있으며 해운대 해수욕장에서도 도보 5분 거리로 접근성이 좋습니다. 전용 주차장은 별도로 마련되어 있지 않아 인근 공영주차장 이용이 권장됩니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 구남로 중심가에서 24시간 언제든 아침 식사나 해장이 가능한 뛰어난 접근성과 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "부담 없는 가격대로 뼈해장국과 감자탕을 든든하게 먹을 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

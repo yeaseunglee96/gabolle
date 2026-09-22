@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202511A0037919",
+  "name": "가생이우동",
+  "cat": "일식 면 요리",
+  "attempts": 1,
+  "geminiTokens": 59701,
+  "researchedAt": "2026-09-22T06:53:47.070Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 가벼운 식사/해장 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "우뽕",
+      "냄비우동",
+      "오뎅"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근 동네에서 가볍게 들러 식사하거나 해장하기 좋은 작은 우동집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 수영구 민락동 민락로 36에 위치한 작은 우동집으로 우동에 짬뽕 스타일을 접목한 '우뽕' 등이 대표적입니다. 가격대는 6,000~8,000원 선으로 저렴합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "오뎅 6,000원, 냄비우동 7,000원, 우뽕 8,000원",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 인근에서 가볍게 들러 식사하기 좋은 작은 우동집으로 알려져 있습니다. 특히 '우뽕(우동+짬뽕)'이라는 독특한 메뉴가 있어 해장 메뉴로도 언급되곤 합니다. 메뉴 예시: 오뎅(6,000원), 냄비우동(7,000원), 우뽕(8,000원) 등이 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "우동과 짬뽕을 결합한 특색 있는 '우뽕' 및 따뜻한 냄비우동 메뉴를 맛보기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "한 그릇 6,000~8,000원대로 부담 없는 식사 및 가성비 해장 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

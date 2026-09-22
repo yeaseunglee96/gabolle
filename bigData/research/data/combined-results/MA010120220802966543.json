@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220802966543",
+  "name": "라르도",
+  "cat": "피자",
+  "attempts": 1,
+  "geminiTokens": 53330,
+  "researchedAt": "2026-09-22T06:50:21.747Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "생활의 달인 방송 출연 및 식사 시간대 웨이팅과 재료 소진 가능성이 언급됨"
+  },
+  "descriptors": {
+    "audience": "연인, 가족, 피자 매니아",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "마르게리타",
+      "감베로니 피자",
+      "깔라마리",
+      "콰트로포르마지"
+    ],
+    "yearsClaimed": 15
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 21:30 (브레이크타임 15:30 ~ 17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "달인 방영 및 미슐랭 출신 셰프 소문으로 해운대 현지 단골뿐 아니라 외지 방문객 데이트 코스로도 인기"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notes": "SBS '생활의 달인'(696회) 화덕피자 달인(정상목 달인)으로 소개된 나폴리식 참나무 장작 화덕피자 전문점. 마린시티점도 분점으로 운영됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "마르게리타 피자 / 파스타류",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "SBS '생활의 달인'에서 화덕피자의 달인으로 소개된 부산 해운대구 중동의 '피제리아 라르도'(부산 해운대구 좌동순환로433번길 38-37). 미국 미슐랭 가이드 선정 식당에서 쌓은 노하우를 바탕으로 참나무 장작 화덕과 특별한 도우 반죽법으로 쫄깃한 피자를 선보인다.",
+      "url": "http://www.kookje.co.kr"
+    },
+    {
+      "excerpt": "가게 앞 도로 갓길 주차가 가능하며, 참나무 장작 화덕을 사용하여 쫄깃한 도우가 특징이고 채수로 반죽해 소화가 잘 된다. 깔라마리 튀김과 마르게리타 피자가 인기다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "http://www.kookje.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참나무 장작 화덕에서 구워내는 쫄깃한 나폴리식 도우와 수제 토마토 소스의 피자 맛",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "SBS 생활의 달인(696회) 화덕피자 달인 방영 및 미국 미슐랭 출신 셰프 이력",
+      "sources": [
+        1
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}
