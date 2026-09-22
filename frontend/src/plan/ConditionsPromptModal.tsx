@@ -16,6 +16,11 @@
 //
 //    다시 여는 조건: 운영 place_feature 에 ALLERGEN_TAG 가 VERIFIED 로 쌓였을 때.
 //    ck_place_feature_safety_never_estimated 가 ESTIMATED 저장을 막으므로 추정으로는 못 채운다.
+// 🔴 **판정할 장소 자료가 한 곳도 없는 문항에는 그 사실을 적는다** (S15P21E201-1044).
+//    알레르기와 같은 병인데 처방이 다르다 — 알레르기는 틀린 답이 «사람을 다치게» 해서
+//    질문을 지웠고(-1497), 여기는 고르는 것을 그대로 두고 **무슨 일이 일어나는지만** 적는다.
+//    목록은 앱에 없다. 서버가 센다 (S15P21E201-1508 · `conditionCoverage.ts`) — 박아 두면
+//    자료가 들어온 날 거짓말이 된다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 conditions-modal / conditions-sheet
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -27,6 +32,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan, type ConstraintSelectionStatus, type PlanDraft } from '@/plan/PlanProvider';
+import { COVERAGE_FEATURE, hasNoPlaceData, useConditionCoverage } from '@/plan/conditionCoverage';
 import { conditionsFromDraft, saveTravelConditions } from '@/plan/travelConditions';
 
 const DIETS = [
@@ -38,6 +44,28 @@ const WALK_LIMITS = [500, 1000, 2000, 0] as const;
 
 /** 사람이 이 모달을 어떻게 닫았나. 「나중에」와 「다시 묻지 않기」는 다른 답이다. */
 export type ConditionsOutcome = 'SAVED' | 'LATER' | 'NEVER' | 'DISMISSED';
+
+/**
+ * 「이 조건을 판정할 장소 자료가 지금 한 곳도 없다」 — S15P21E201-1044.
+ *
+ * 🔴 **자료가 없을 때만 그린다.** 서버에 못 물어봤으면(끝점이 아직 없는 배포·네트워크 실패)
+ *    `hasNoPlaceData` 가 `false` 를 내므로 아무것도 안 나온다 — 모르는 것을 「없다」로
+ *    적으면 화면이 지어내는 것이 된다. 판단은 `conditionCoverage.ts` 한 곳에 있다.
+ *
+ * 🔴 **문항을 지우거나 못 고르게 하지 않는다.** 알레르기는 지웠지만(-1497) 그건 틀린 답이
+ *    사람을 다치게 하는 자리였고, 여기는 아니다. 고르는 것은 그대로 두고 **무슨 일이
+ *    일어나는지만 사실대로 적는다.**
+ */
+function NoPlaceData({ label }: { label: string }) {
+  // 🔴 `alert` 역할을 주지 않는다. 화면을 여는 순간 이미 셋이 붙어 있어서, 알림으로
+  //    읽히면 **한꺼번에 세 번** 끼어든다. 바로 앞 줄에 딸린 설명이라 읽는 차례대로
+  //    나오는 편이 맞다.
+  return (
+    <Text variant="caption" color={color.text.muted} style={styles.noData}>
+      {label}
+    </Text>
+  );
+}
 
 function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   return (
@@ -59,6 +87,13 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
   const { kind } = useLayout();
   const { draft, update } = usePlan();
   const { user, accessToken } = useAuth();
+  // 자료가 한 곳도 없는 문항에 그 사실을 적는다 (S15P21E201-1044). 못 받아오면 null 이고,
+  // 그때는 아무 문항에도 안 붙는다.
+  const coverage = useConditionCoverage();
+  const noData = tx(
+    '지금은 이 조건을 확인할 장소 자료가 없어요 — 골라도 지금은 가려낼 수 없어요.',
+    'We have no place data to check this yet — picking it cannot filter anything right now.',
+  );
   const phone = kind === 'phone';
   const [never, setNever] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -138,6 +173,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             <View style={styles.block}>
               <Text weight="bold">{tx('식단', 'Diet')} <Text color={color.state.danger}>*</Text></Text>
               {statusRow(tx('식단', 'Diet'), 'dietStatus', 'dietAnswered', 'dietTypes')}
+              {hasNoPlaceData(coverage, COVERAGE_FEATURE.diet) ? <NoPlaceData label={noData} /> : null}
               {draft.dietStatus === 'VALUES' ? (
                 <View style={styles.chips}>{DIETS.map(([code, ko, en]) => (
                   <Chip key={code} label={tx(ko, en)} selected={draft.dietTypes.includes(code)} onPress={() => toggle('dietTypes', code)} />
@@ -162,17 +198,23 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
                 />
               ))}</View>
 
+              {/* 🔴 마지막 칸은 이 줄이 «실제로 보는» 장소 표식이다 (S15P21E201-1044).
+                  「이동 조건」으로 뭉뚱그리지 않는다 — 접근성은 자료가 있고 계단은 0곳이라,
+                  뭉치면 있는 쪽이 없는 쪽을 덮어 계단 줄이 계속 못 지키는 약속으로 남는다. */}
               {([
-                ['slopeConstraint', '가파른 경사 피하기', 'Avoid steep slopes', 'AVOID', 'ALLOW'],
-                ['stairsConstraint', '계단 피하기', 'Avoid stairs', 'AVOID', 'ALLOW'],
-                ['shadePreference', '그늘길 우선', 'Prefer shaded routes', 'PREFER', 'NO_PREFERENCE'],
-              ] as const).map(([field, ko, en, yes, no]) => (
-                <View key={field} style={styles.binaryRow}>
-                  <Text style={styles.binaryLabel}>{tx(ko, en)}</Text>
-                  <View style={styles.chips}>
-                    <Chip label={tx('예', 'Yes')} selected={draft[field] === yes} onPress={() => update({ [field]: yes } as Partial<PlanDraft>)} />
-                    <Chip label={tx('아니요', 'No')} selected={draft[field] === no} onPress={() => update({ [field]: no } as Partial<PlanDraft>)} />
+                ['slopeConstraint', '가파른 경사 피하기', 'Avoid steep slopes', 'AVOID', 'ALLOW', COVERAGE_FEATURE.slope],
+                ['stairsConstraint', '계단 피하기', 'Avoid stairs', 'AVOID', 'ALLOW', COVERAGE_FEATURE.stairs],
+                ['shadePreference', '그늘길 우선', 'Prefer shaded routes', 'PREFER', 'NO_PREFERENCE', COVERAGE_FEATURE.shade],
+              ] as const).map(([field, ko, en, yes, no, featureType]) => (
+                <View key={field}>
+                  <View style={styles.binaryRow}>
+                    <Text style={styles.binaryLabel}>{tx(ko, en)}</Text>
+                    <View style={styles.chips}>
+                      <Chip label={tx('예', 'Yes')} selected={draft[field] === yes} onPress={() => update({ [field]: yes } as Partial<PlanDraft>)} />
+                      <Chip label={tx('아니요', 'No')} selected={draft[field] === no} onPress={() => update({ [field]: no } as Partial<PlanDraft>)} />
+                    </View>
                   </View>
+                  {hasNoPlaceData(coverage, featureType) ? <NoPlaceData label={noData} /> : null}
                 </View>
               ))}
             </View>
@@ -234,6 +276,8 @@ const styles = StyleSheet.create({
   chip: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.ivory, borderWidth: 1, borderColor: color.surface.border },
   chipOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   binaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[2] },
+  // 앞 줄에 딸린 말이라 줄 바로 밑에 붙인다. 위쪽 여백을 주면 다음 줄의 것으로 읽힌다.
+  noData: { marginTop: spacing[1] },
   binaryLabel: { flex: 1 },
   saveFailed: { paddingHorizontal: spacing[6], paddingTop: spacing[3] },
   footer: { gap: spacing[3], padding: spacing[6], paddingBottom: spacing[8], borderTopWidth: 1, borderColor: color.surface.border },
