@@ -35,7 +35,10 @@ services:
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      # 노드가 하나뿐이라 컨트롤러는 자기 자신이다 — localhost 가 맞는 주소다.
+      # (compose 에서는 kafka 도 풀리지만, CI 서비스에서는 자기 별명이 안 풀린다.
+      #  양쪽을 같은 값으로 두어 「여기선 되는데 저기선 안 되는」 자리를 없앤다.)
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
