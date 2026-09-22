@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202409A0177285",
+  "name": "광안리카페이플",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 67208,
+  "researchedAt": "2026-09-22T10:39:41.907Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "광안리 해변 골목의 주택 개조 카페로 북적이지 않고 조용하게 힐링하기 좋은 분위기로 언급됨"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 반려동물 동반객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "아이스크림 라떼",
+      "딸기라떼",
+      "바닐라 치즈케이크",
+      "과일 디저트"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 23:50 (또는 24:00, 행사 시 연장 영업)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "바다 바로 앞의 번잡한 카페 대신 골목 안 아늑하고 차분한 감성 카페를 찾는 방문객들이 주로 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "인허가 업종상 경양식으로 분류되어 있으나 실제로는 주택 개조 감성 디저트 및 커피 전문 카페(카페이플 / Cafe Eple)로 운영되고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 남천바다로21번길 23, 1층. 붉은 벽돌의 주택을 개조하여 고즈넉하고 차분한 감성을 느낄 수 있습니다. 과일 디저트와 다양한 감성적인 메뉴, 반려동물 동반이 가능하며 별도의 전용 주차장은 없고 골목 주차를 이용해야 합니다. 영업시간 매일 10:00 ~ 24:00 (불꽃놀이 등 특정 행사일에는 연장 영업).",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "주택을 개조하여 만든 카페로, 한적한 골목 분위기와 어우러진 감성적인 인테리어가 특징입니다. 바다 바로 앞은 아니지만, 분위기가 좋아 '느낌 좋은 카페(느좋 카페)'로 자주 언급됩니다. 커피류(아메리카노 등)와 딸기라떼, 아이스크림 라떼, 바닐라 치즈케이크 등이 인기 메뉴입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "붉은 벽돌 주택을 개조한 고즈넉하고 아늑한 감성 공간과 밤늦게까지 운영하는 편의성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "아이스크림 라떼, 과일 디저트, 치즈케이크 등 특색 있는 음료와 디저트의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

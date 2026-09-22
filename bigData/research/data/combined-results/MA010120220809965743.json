@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220809965743",
+  "name": "이태리상점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 163514,
+  "researchedAt": "2026-09-22T10:37:06.251Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "늘 앞을 지나가면 사람들이 대기하고 있고 오픈 5분 전에 도착해도 대기가 발생할 정도로 웨이팅이 잦음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 가족",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "마르게리따 피자",
+      "비스큐 링귀니",
+      "깔조네 크림치즈 샐러드"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~금 11:00 ~ 20:00 (브레이크타임 14:30 ~ 17:00), 토~일 11:00 ~ 20:30 (브레이크타임 15:00 ~ 17:00), 매주 월요일 정기휴무 (또는 11:30 ~ 21:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지 단골 손님들과 해운대/동백섬을 찾는 관광객 모두에게 인기가 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "해운대 동백역 인근에 위치한 나폴리식 화덕피자 및 파스타 전문점으로, 매일 직접 반죽 및 72시간 저온 숙성한 도우를 참나무 장작 화덕에 구워내는 것으로 유명합니다. 과거 이태리부부 자리에서 상호를 변경하여 운영을 이어오고 있습니다.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/nl4AL/btswkmcwSpU/AAAAAAAAAAAAAAAAAAAAAL_PRgA1UrrP5qqurKrcaxnT8BEUVQIZWGUMSHQxiyM5/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=6eYXUq3uig5kCtjYNTBV3zyGHw4%3D",
+    "https://blog.kakaocdn.net/dna/b26zTy/btsv5lUgjoz/AAAAAAAAAAAAAAAAAAAAAFdSiVJwwn_IvM84DWURfaztgxtW7sRg7_oI_QE7PF_j/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=rIFGD1N1MQTv8z%2BLg%2FT4leXvNDM%3D",
+    "https://blog.kakaocdn.net/dna/18LCM/btsv5kVkxWX/AAAAAAAAAAAAAAAAAAAAAF5G_8e7E_-jShNIeV1esqiwit3xF84knQWup7ABarYY/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=YWgnH9wX5OoiOkUIugowo22ZAU8%3D",
+    "https://blog.kakaocdn.net/dna/ny7Yl/btswkm4FMJz/AAAAAAAAAAAAAAAAAAAAAEodxGZGITRw9927_81zBV6A-E2nz9WMuMMXD932tzUa/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=oXg%2Fb7yhJBvTa47SIv7q1yC0Ca8%3D",
+    "https://blog.kakaocdn.net/dna/bBGz0r/btsv7flWrTv/AAAAAAAAAAAAAAAAAAAAAKmnjvANvoslkyo_2Tmdy5uKiOHyFGKU9ssQrenHCXJf/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=TZ7Fvkjojg%2BvldeI5pS3LeHy67E%3D",
+    "https://blog.kakaocdn.net/dna/mWQw0/btsv0l761hw/AAAAAAAAAAAAAAAAAAAAABXzMC9AC5J8v3ow6m93tV7lZXiLkutTRFEQFplriEIh/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=AdVG4lvWlbnl%2FSSKrPINJTGuWi0%3D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "마르게리따에 루꼴라 19,000원, 비스큐 링귀니 19,000원~20,000원, 알리오 에 올리오 16,000원",
+    "priceWon": 19000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "늘 앞을 지나가면 사람들이 대기하고 있어서 가보고 싶었지만 드디어 가봤습니다. \"이태리상점\"입니다. 이태리상점은 화덕에서 직접 구운 나폴리식 피자와 파스타를 판매하고 있습니다. 저는 저녁 오픈하기 5분 전에 도착했지만 앞에 미리 도착하신 분들이 계셔서 마지막 남은 자리를 앉았습니다. 제 뒤에 오신 분들은 테이블이 없어서 앉지 못하고 대기하셨습니다. 신선한 루꼴라가 듬뿍 올라간 마르게리따와 녹진한 맛이 일품인 비스큐링귀니입니다.",
+      "url": "https://honihonihoni.tistory.com/43"
+    }
+  ],
+  "sources": [
+    "https://honihonihoni.tistory.com/43"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화덕에서 갓 구워낸 쫄깃한 나폴리식 도우의 피자와 새우 내장의 깊은 맛을 낸 비스큐 링귀니 파스타가 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "매장이 아담하고 이국적인 분위기가 매력적이나 좌석이 적어 오픈 전부터 대기 줄이 형성됨",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "MA0101202406A0077394",
+  "name": "기역",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 68137,
+  "researchedAt": "2026-09-22T10:38:02.505Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼술 및 소규모 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "닭목살 구이",
+      "감자 고로케",
+      "오차즈케",
+      "라멘전골"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 광안동(수영로594번길 37) 소재의 심야식당 스타일 이자카야 '기역'입니다. 회/초밥 및 일식 안주류(닭목살 구이, 고로케, 오차즈케 등)를 다루며 바 테이블 형태의 혼술 분위기로 알려져 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "혼술을 즐기기에 좋은 분위기로 알려져 있으며, 바 테이블에서 사장님이 요리하는 모습을 볼 수 있습니다. 주요 추천 메뉴로는 닭목살 구이, 감자 고로케, 오차즈케, 크림치즈 등이 언급됩니다. 아기자기하고 조용한 분위기의 심야식당 스타일 이자카야로 많은 방문객에게 인기가 있습니다.",
+      "url": "https://insight.co.kr"
+    },
+    {
+      "excerpt": "이자카야 기역(ㄱ)은 아기자기한 인테리어로 꾸며진 광안리의 숨은 맛집으로 알려져 있습니다. 주요 메뉴: 라멘전골, 닭육수 오차즈케. 이 외에도 다양한 일식 기반의 메뉴를 제공하고 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://insight.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바 테이블 형태의 아늑하고 조용한 심야식당 분위기에서 혼술을 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "닭목살 구이, 감자 고로케, 오차즈케, 라멘전골 등 특색 있는 일식 안주 메뉴",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220813533675",
+  "name": "태리식당",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 90600,
+  "researchedAt": "2026-09-22T10:36:57.779Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 혼잡에 대한 직접적인 서술은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "연인, 모임 및 아이 동반 가족(키즈존 구비)",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "쉬림프 파스타",
+      "전복 리조또",
+      "트러플 크림 파스타",
+      "페퍼로니 피자파이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미기재"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "해리단길(우동1로 42)에 위치한 이탈리안 경양식 식당으로, 따뜻한 유럽 가정식 분위기와 파스타/피자파이 메뉴로 방문하는 곳입니다. 주차공간은 없으며 예약 및 아동 동반(키즈존)이 가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해리단길에 위치한 아담하고 따뜻한 분위기의 이탈리안 레스토랑입니다. 유럽 뒷골목의 가정식 식당 같은 감성으로 잘 알려져 있습니다. 쉬림프 파스타, 전복 리조또, 리가토니 트러플 크림 파스타, 페퍼로니 피자파이 등이 인기 메뉴입니다. 키즈존으로 운영되어 아이 동반 방문이 가능하며, 아기 의자와 식기 등이 구비되어 있습니다. 예약이 가능하며 주차장은 따로 없습니다. 매장 간판이 눈에 잘 띄지 않을 수 있으니 건물 외관을 확인하며 방문하는 것이 좋습니다.",
+      "url": "https://www.siksinhot.com/P/1331776"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1331776"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "유럽 뒷골목 가정식 식당 같은 아늑하고 따뜻한 감성의 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "쉬림프 파스타, 전복 리조또, 트러플 크림 파스타, 페퍼로니 피자파이 등 특색 있는 이탈리안 메뉴의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

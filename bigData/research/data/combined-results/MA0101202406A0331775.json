@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202406A0331775",
+  "name": "피제리아아이올라",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58289,
+  "researchedAt": "2026-09-22T10:37:33.292Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인/데이트",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "화덕피자",
+      "파스타"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 수영로540번길 42 소재의 피제리아아이올라(화덕피자 전문)에 대한 기본 상호/위치 및 업종 정보 외 상세 리뷰나 영업시간 등의 정보는 매우 희소함",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 피제리아 아이올라 (Pizzeria Aiola) 위치: 부산광역시 수영구 수영로540번길 42 (광안동) 특징: 광안리해수욕장 인근에 위치한 화덕피자 및 파스타 맛집으로, 데이트 코스로도 잘 알려져 있습니다.",
+      "url": "https://repov.me"
+    }
+  ],
+  "sources": [
+    "https://repov.me"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 인근 데이트 코스로 찾는 화덕피자·파스타 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

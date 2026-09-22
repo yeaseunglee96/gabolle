@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220811408926",
+  "name": "우리장횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 46880,
+  "researchedAt": "2026-09-22T10:39:22.787Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기줄이나 웨이팅에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "관광객 및 인근 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "장어구이",
+      "조개구이"
+    ],
+    "yearsClaimed": 15
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "24시간 영업 (방문 전 매장 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 민락회센터 관광지 상권에 위치하여 관광객 방문 비중이 높은 편으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "광안리 민락회센터 및 바닷가 인근 1층에 위치하여 접근성과 오션뷰가 언급되는 횟집. 모듬회 외에 조개구이, 장어구이 등을 함께 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 바닷가 바로 옆, 민락회센터 인근 1층에 위치하여 접근성이 좋고 오션뷰를 즐길 수 있는 것으로 소개됩니다. 모듬회, 줄돔, 도미, 농어, 도다리, 광어 등 활어회와 더불어 조개구이, 장어구이, 꼼장어, 낙지탕탕이 등 다양한 해산물 요리를 제공합니다.",
+      "url": "https://www.siksinhot.com/P/1012920"
+    },
+    {
+      "excerpt": "위치: 부산광역시 수영구 민락수변로 9 (민락동 181-135). 24시간 영업으로 운영되며 관광지 특성상 호객 행위나 가성비, 서비스 등에 대해 다양한 후기가 있음.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1012920",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 바닷가 및 민락회센터 바로 인접한 1층에 자리 잡아 바다 조망과 찾아가기 쉬운 입지 조건",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "모듬 활어회뿐만 아니라 조개구이, 장어구이, 꼼장어 등 구이류와 다양한 해산물 메뉴 구비",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

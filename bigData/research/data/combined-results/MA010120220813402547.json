@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220813402547",
+  "name": "피오또",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 103975,
+  "researchedAt": "2026-09-22T10:37:52.287Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 사전 예약제(캐치테이블)로 운영되어 현장 대기나 줄서기 없이 프라이빗하게 운영됨"
+  },
+  "descriptors": {
+    "audience": "미식가, 커플 데이트 및 특별한 날 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "자가제면 생면 파스타",
+      "직접 만든 생햄",
+      "콤부차"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~일 18:00~22:00 (정기휴무: 매주 월요일, 화요일)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "미쉐린 가이드 1스타 및 그린스타 선정 이후 전국 각지의 미식 관광객과 부산 현지 미식가들이 모두 찾는 명소"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 해운대 피오또는 미쉐린 가이드 1스타 및 그린 스타를 동시 획득한 이탈리안 파스타 테이스팅 코스 전문점입니다. 경북 영천의 부모님 농장(선원농장)에서 재배한 제철 농산물을 90% 이상 활용하는 팜투테이블(Farm-to-Table) 레스토랑입니다.",
+  "photoUrls": [
+    "https://prod-pics.guide.michelin.com/api/public/content/5e1da5b7ff5646559f9c4b40b51e874e.jpeg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "디너 테이스팅 코스 (1인)",
+    "priceWon": 250000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "달맞이 고개에 자리한 피오또는 부부가 함께 운영하는 아담한 공간으로, 파스타를 포함한 테이스팅 코스를 선보인다. 부모님의 농장에서 직접 재배한 채소와 산지에서 공수한 지리산 돼지, 토종 쌀 등을 활용해 풍부한 구성의 메뉴를 만든다. 여러 종류의 생면을 비롯해 생햄, 콤부차 식초와 시럽 등 대부분의 식재료를 직접 준비하며, 자연스러운 맛과 색을 피오또만의 방식으로 풀어낸다. 모든 요리는 피오또의 담백하고 건강한 감각을 담고 있으며, 현대적 이탈리아 조리법을 기반으로 파스타와 다양한 전분 요리를 균형 있게 구성한다. 정제된 단맛과 가벼운 터치가 식재료의 본질을 그대로 드러내며, 우드 톤과 베이지·그레이 컬러가 어우러진 공간은 아늑하고 편안한 분위기를 자아낸다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/fiotto"
+    },
+    {
+      "excerpt": "피오또는 레스토랑에서 사용하는 채소와 과일의 90% 이상을 부모님의 농장에서 조달한다. 셰프 부부는 자신들의 요리 철학에 걸맞은 건강한 식재료를 얻기 위해 부모님의 농사일에도 적극 참여하고 있다. 이들은 공산품 식재료의 사용을 최소화하는 대신 자연에서 난 식재료를 사용한 뒤 이를 다시 자연으로 돌려보내는 환경 친화적 선순환에 집중한다. 셰프 부부의 농사 이야기와 식재료의 출처를 듣는 것도 피오또의 요리만큼이나 흥미로운 다이닝 경험을 선사한다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/fiotto"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/fiotto"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미쉐린 1스타 및 그린 스타를 동시 획득한 지속 가능한 팜투테이블 레스토랑으로 유명함",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    },
+    {
+      "note": "부모님 농장 채소와 직접 빚은 생면 파스타, 홈메이드 생햄 및 발효식초를 활용한 독창적이고 건강한 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

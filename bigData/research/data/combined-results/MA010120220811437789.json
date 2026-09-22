@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811437789",
+  "name": "마니주",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 48678,
+  "researchedAt": "2026-09-22T10:38:02.824Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "단체 모임 및 회식, 가족 단위 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "민물장어",
+      "바다장어",
+      "곰장어"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~금: 11:30 - 22:30 (브레이크타임 15:30 - 17:00), 토~일: 11:30 - 22:30 (라스트오더 21:30), 정기휴무: 매주 월요일"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "대상 업소는 사용자가 명시한 '횟집' 업종이 아니라 민물장어/바다장어 등을 취급하는 장어구이 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 366, 2층 (민락동) / 업종: 한식 일반 음식점 (장어구이 전문점) / 화~금: 11:30 - 22:30 (15:30 - 17:00 브레이크 타임), 토~일: 11:30 - 22:30, 정기휴무: 매주 월요일 / 참숯으로 초벌한 민물장어 및 바다장어 요리를 제공합니다. 점심 특선 메뉴를 운영하여 비교적 합리적인 가격에 장어구이 등을 즐길 수 있습니다. 단체 및 모임 대관이 가능하며, 광안리 해수욕장 및 민락 수변공원 인근에 위치해 있습니다.",
+      "url": "https://bizno.net"
+    }
+  ],
+  "sources": [
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "참숯으로 초벌구이한 민물장어와 바다장어를 점심 특선 등으로 합리적으로 즐길 수 있고 단체 모임 공간을 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "점심 특선 메뉴 운영 등 합리적인 가격대 구성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202507A0012340",
+  "name": "라코",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 79245,
+  "researchedAt": "2026-09-22T10:40:17.931Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "연인 및 소규모 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "사시미 모리아와세",
+      "1인 사시미",
+      "고등어 봉초밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 03:00 (매주 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 명시적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 수영구 민락동에 위치한 사케바 라코(Rakko)로, 제철 숙성 사시미 모리아와세와 고등어 봉초밥 등 일식 안주와 사케 소믈리에 추천 사케를 페어링하는 이자카야/사케바입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "사시미 모리아와세 50,000원, 1인 사시미 30,000원",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "사케바 라코. 부산광역시 수영구 민락본동로11번길 66 1층. 조용한 분위기의 이자카야로 제철 숙성 사시미와 다양한 일식 안주를 제공하며, 사케 소믈리에(키키자케시)가 상주하여 사케 추천을 받을 수 있습니다. 사시미 모리아와세, 1인 사시미, 아나고 덴뿌라, 나고야식 테바사키, 고등어 봉초밥. 17:00 ~ 03:00 (매주 화요일 휴무)",
+      "url": "https://www.siwse.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 민락본동로11번길 66 1층 (지번: 민락동 35-4). 어두운 톤의 벽과 조명을 사용하여 조용하고 고급스러운 분위기를 갖추고 있으며, 바 좌석과 테이블석이 모두 마련되어 있어 데이트나 소규모 모임에 적합합니다. 사시미 모리아와세 50,000원, 1인 사시미 30,000원. 그 외 고등어 봉초밥, 한우 모츠 나베, 부타노 가쿠니, 나폴리탄 등 다양한 일본식 안주.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siwse.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제철 숙성 사시미 및 고등어 봉초밥 등 퀄리티 높은 일식 요리 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "사케 소믈리에(키키자케시)가 상주하여 전문적인 사케 페어링 및 추천 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

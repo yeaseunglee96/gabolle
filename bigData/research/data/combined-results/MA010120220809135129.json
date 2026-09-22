@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220809135129",
+  "name": "한다솥",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 38491,
+  "researchedAt": "2026-09-22T10:38:34.301Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "피크타임 대기 인원이 있을 경우 현장 대기 방식으로 안내받음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 데이트",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "화덕 고등어구이",
+      "화덕 삼치구이",
+      "갈비솥밥",
+      "전복솥밥",
+      "대게솥밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:00 / 22:00 (라스트오더 20:30, 브레이크타임 15:00~17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 근처에 위치하여 관광객 및 데이트/가족 외식 방문객이 많이 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 수영구 남천바다로33번길 101에 위치한 한다솥 본점으로 화덕 생선구이 및 프리미엄 솥밥 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "갈비솥밥 / 화덕 생선구이 정식류",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "한다솥 본점. 주소: 부산광역시 수영구 남천바다로33번길 101 (광안동 195-7). 광안리 해수욕장 인근에 위치한 화덕 생선구이 및 솥밥 전문점입니다. 매일 11:00 ~ 21:00 (라스트오더 20:30). 매장 맞은편 '광안주차장'을 이용할 수 있으며, 1시간 주차 지원이 가능합니다. 화덕에서 구운 생선구이와 정갈한 솥밥으로 유명한 맛집입니다. 화덕 고등어구이, 삼치구이, 각종 솥밥(갈비, 대게, 전복 등). 매장이 정갈하고 깔끔하여 가족 단위 방문이나 식사 장소로 인기가 많습니다.",
+      "url": "https://autoreserve.com/ko/restaurants/rWnN6i9p2yHqBwQp"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com/ko/restaurants/rWnN6i9p2yHqBwQp",
+    "https://siksinhot.com/P/1090547"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "500도 화덕에서 구워 겉바속촉한 생선구이와 정갈한 솥밥의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "깔끔하고 고급스러운 인테리어 및 정갈한 상차림으로 데이트와 모임에 적합",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

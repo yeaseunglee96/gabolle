@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220812019833",
+  "name": "오비피씨",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 74582,
+  "researchedAt": "2026-09-22T10:37:35.668Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "저녁 시간대나 주말에는 현장 웨이팅이 발생할 수 있으며 캐치테이블 원격 줄서기가 가능하고 평일 낮에는 네이버 예약이 가능하다."
+  },
+  "descriptors": {
+    "audience": "데이트 코스, 피맥을 즐기는 연인 및 청년층, 반려동물 동반 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "크림새우피자",
+      "포테로니피자",
+      "불이난닭피자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금 12:20 ~ 01:00, 토~일 11:00 ~ 01:00 (라스트오더 00:40)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 오션뷰와 야경 명소로 잘 알려져 있어 관광객 및 방문객들의 데이트 명소로 인기가 많다."
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "광안대교를 정면으로 바라보는 뛰어난 뷰와 크림새우피자 등 이색적인 피자 메뉴, 볶음김치·물김치 등을 곁들여 먹는 특색 있는 구성으로 피맥을 즐기기 좋은 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "피자 한 판 (반반 피자 등)",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 민락수변로 49, 지상 1층 116호 (KCC 스위첸 하버뷰 상가) 영업시간: 월~금: 12:20 ~ 01:00 토~일: 11:00 ~ 01:00 라스트 오더: 00:40 주차: 상가 주차장 이용 시 무료 주차 가능합니다. 저녁 시간대나 주말에는 현장 웨이팅이 발생할 수 있으며, 캐치테이블 원격 줄서기를 활용하면 편리합니다. 대표 메뉴: '크림새우 피자'가 가장 유명한 시그니처 메뉴입니다.",
+      "url": "https://www.google.com/search?q=부산+오비피씨+피자+광안리"
+    },
+    {
+      "excerpt": "부산 광안리의 오비피씨(OBPC, One Bite Pizza Club) 광안점은 광안대교를 정면으로 바라보는 뛰어난 오션뷰와 함께 피맥(피자+맥주)을 즐길 수 있는 곳으로 잘 알려진 맛집입니다. 대표 메뉴: '크림새우피자'가 가장 유명하며, 취향에 따라 다른 맛과 반반으로 주문하는 경우가 많습니다. 그 외 포테로니(포테이토+페퍼로니), 불이난닭 피자 등도 자주 언급됩니다. 피자와 함께 볶음김치나 물김치가 제공되는 것이 특징입니다.",
+      "url": "https://www.google.com/search?q=오비피씨+광안점+블로그+리뷰+광안대교"
+    }
+  ],
+  "sources": [
+    "https://www.google.com/search?q=부산+오비피씨+피자+광안리",
+    "https://www.google.com/search?q=오비피씨+광안점+블로그+리뷰+광안대교"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교가 정면으로 보이는 파노라마 오션뷰와 야경을 감상하며 피맥을 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "크림새우피자, 포테로니 등 특색 있는 토핑과 볶음김치·물김치가 제공되는 이색적인 피자 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "MA0101202409A0207361",
+  "name": "라포르포옹",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 105761,
+  "researchedAt": "2026-09-22T10:36:17.692Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "클래스 예약제 및 주문 제작 위주 운영으로 대기 줄서기 등에 관한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "커플, 취미 클래스 수강생",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "레터링 케이크",
+      "입체 동물 케이크",
+      "딸기 케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "사전 예약 및 클래스 일정에 따른 변동 운영"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "조사 대상 주소지인 부산 수영구 민락본동로11번길 78-7 2층에 위치한 '라포르포옹(Rapport Poong)'은 일반 경양식 음식점이 아닌 디저트/레터링 케이크 원데이 클래스 공방 겸 카페로 운영되는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "라포르포옹(Rapport Poong)은 부산광역시 수영구 민락본동로11번길 78-7, 2층에 위치한 디저트 카페이자 원데이 클래스 공방입니다. 캐릭터 케이크 등으로 유명하며, 특히 귀여운 디자인의 케이크와 커피를 즐길 수 있는 공간입니다. 화이트 톤의 아기자기하고 따뜻한 인테리어로 잘 알려져 있습니다. 케이크 만들기 원데이 클래스를 운영하고 있습니다. 레터링 케이크나 입체 동물 케이크 등 나만의 케이크를 직접 만들어볼 수 있는 체험형 수업이 진행됩니다.",
+      "url": "https://www.sssd.co.kr"
+    },
+    {
+      "excerpt": "광안리 바다가 보이는 한적한 골목에 위치한 따뜻한 분위기의 카페이자 클래스룸입니다. 귀여운 캐릭터 케이크와 딸기 케이크 등으로 잘 알려져 있으며, 인테리어가 예뻐 방문객들에게 인기가 많습니다. 레터링 케이크 등을 직접 만들어볼 수 있는 원데이 클래스를 운영합니다. 2인 1케이크 제작이 가능한 수업이 있어 데이트 코스로도 인기가 높으며, 친절한 지도와 사진 촬영 등을 도와주어 만족도가 높은 편입니다.",
+      "url": "https://www.sssd.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sssd.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "귀여운 입체 동물 및 레터링 케이크를 직접 만들어볼 수 있는 맞춤형 원데이 클래스 체험",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "아기자기하고 따뜻한 감성 인테리어와 특별한 디자인의 디저트/케이크를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

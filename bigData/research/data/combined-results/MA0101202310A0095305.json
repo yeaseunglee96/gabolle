@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202310A0095305",
+  "name": "치직",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 68022,
+  "researchedAt": "2026-09-22T10:39:29.020Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기/줄서기 관련 명시적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "데이트, 저녁 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "치직 세트",
+      "한우 세트",
+      "특상 우설",
+      "한우 함박샌드"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "저녁 시간대부터 새벽까지 운영 (캐치테이블 예약 가능)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객 대상 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 민락동(광안리) 광안해변로255번길 45 2층에 위치한 한우 및 한돈 야키니쿠 다이닝 전문점 치직(CHI-ZIK).",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로255번길 45(민락동)에 위치한 '치직(CHI-ZIK)'은 한우와 한돈을 활용한 야키니쿠 다이닝 전문점입니다. 한식을 베이스로 한 야키니쿠와 다양한 안주, 주류를 즐길 수 있는 이자카야 겸 바(Bar) 형태의 캐주얼 다이닝입니다. 한우와 버크셔K 돼지고기 등을 주재료로 사용하며, 일부 좌석에서는 직원이 직접 고기를 구워주는 그릴링 서비스를 제공합니다. 주요 메뉴: 치직 세트, 한우 세트, 특상 우설, 한우 함박샌드 등",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한우와 버크셔K 돼지고기를 활용한 정갈한 야키니쿠 화로구이와 안주류 제공",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "캐주얼하고 세련된 다이닝 바 분위기에 고기를 구워주는 그릴링 서비스 제공",
+      "sources": [
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

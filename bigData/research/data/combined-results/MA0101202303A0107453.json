@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202303A0107453",
+  "name": "고결",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 48964,
+  "researchedAt": "2026-09-22T10:39:15.710Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "피크타임(주말 저녁, 연휴 등) 대기가 잦아 네이버 예약이나 캐치테이블 원격 대기 권장"
+  },
+  "descriptors": {
+    "audience": "연인, 가족, 단체 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "짚불 초벌 우대갈비",
+      "짚불 삼겹살",
+      "짚불 목살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:00 ~ 24:00 (라스트오더 23:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "광안리 해변 인근 한옥풍 외관의 고깃집으로 대나무 숯 초벌 및 짚불 훈연 고기를 직원이 직접 구워주는 서비스 제공",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로255번길 50, 1~2층에 위치한 고결은 대나무 숯으로 초벌한 뒤 짚불로 2차 훈연하여 육즙과 풍미를 살린 고기를 직원이 직접 구워주는 서비스를 제공합니다. 우대갈비, 짚불 삼겹살, 짚불 목살, 항아리 된장찌개, 파김치볶음밥 등이 대표 메뉴이며 제일주차장 이용 시 1시간 30분 지원을 받을 수 있습니다. 피크타임에는 대기가 잦아 네이버 예약이나 캐치테이블 등을 활용한 사전 예약을 권장합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대나무 숯 초벌 및 짚불 2차 훈연으로 살린 고기 맛과 풍미",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원이 고기를 직접 구워주는 그릴링 서비스와 쾌적한 한옥풍 공간",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

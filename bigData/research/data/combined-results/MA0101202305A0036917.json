@@ -1,0 +1,54 @@
+{
+  "id": "MA0101202305A0036917",
+  "name": "오브제라운지",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 72444,
+  "researchedAt": "2026-09-22T10:38:30.270Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "모임, 파티, 대관 행사 이용객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "인허가상 일반음식점(경양식)으로 등록되어 있으나, 실질적으로는 일반 식당 형태가 아닌 프라이빗 파티, 행사 대관, 위스키/와인 라운지 형태의 복합 문화/대관 공간으로 운영되고 있어 고정 식사 메뉴나 일반적인 식당 운영 정보를 제공하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오브제라운지(Objet Lounge)는 부산광역시 해운대구 해운대로 650, 해운대 센트럴 푸르지오 상가 지하 2층에 위치한 문화 및 대관 공간입니다. 공간 용도: 다양한 음악과 콘텐츠가 함께하는 문화 공간으로, 위스키와 와인 등을 즐길 수 있으며, 각종 행사나 모임을 위한 공간 대관 서비스를 제공합니다. 대관 시 외부 음식 및 주류 반입이 가능한 경우가 많으나, 청소 및 분리수거 등은 대관자의 책임 하에 운영됩니다. 주요 시설: 16M x 3M 대형 LED 스크린, DJ 장비, 음향 믹서, 무선 마이크 등 행사용 장비 완비, 고급 테이블 및 의자 (약 30인 수용 가능), 주차 가능 (100대 규모)",
+      "url": "https://www.spacecloud.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.spacecloud.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대형 LED 스크린과 음향 장비를 갖춘 파티·이벤트·공연 공간 대관 및 와인·위스키 라운지 목적",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

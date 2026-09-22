@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202406A0030710",
+  "name": "미생스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 74391,
+  "researchedAt": "2026-09-22T10:39:46.277Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소 및 상호로 실제 운영 중이거나 상세한 리뷰/메뉴/영업 정보가 존재하는 식당을 찾을 수 없음",
+  "notes": "요청된 주소(부산광역시 수영구 광안해변로307번길 42)는 양식당 '225토마토스트릿' 등이 위치한 곳으로 확인되며, '미생스시'에 대한 실제 메뉴, 영업 정보, 방문 후기, 사진 등의 유의미한 정보가 검색되지 않아 조사가 불가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

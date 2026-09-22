@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811488678",
+  "name": "해림이네",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 78728,
+  "researchedAt": "2026-09-22T10:41:30.088Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 저녁 시간에는 대기(웨이팅)가 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "관광객 및 모임 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "모둠 조개구이",
+      "장어구이",
+      "해물라면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 - 03:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "청사포 해변열차 정거장 인근 관광 명소로 오션뷰와 조개구이를 즐기려는 관광객 및 방문객 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 청사포 바닷가 앞에 위치한 조개구이·장어구이 전문점으로, 연탄불 구이와 바다 전망(오션뷰)으로 유명합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "모둠 조개구이 (소/대)",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 청사포로 159에 위치하며 매일 10:00 - 03:00 영업한다. 대표 메뉴는 모둠 조개구이, 장어구이이며 연탄불에 구워 먹는 방식이다. 3층 규모의 매장으로 바다 전망(오션뷰)을 즐길 수 있으며 단체석이 완비되어 있다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "청사포 정거장에서 도보로 약 10분 정도 거리에 위치하며, 1층과 2층 좌석이 마련되어 있어 바다 풍경을 감상하며 식사하기 좋다. 주말이나 저녁 시간에는 대기가 발생할 수 있다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바다 전망(오션뷰)을 보며 연탄불에 구워 먹는 조개구이와 장어구이 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "청사포 바다 앞 정거장 도보 거리 접근성과 넓은 오션뷰 좌석 완비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
