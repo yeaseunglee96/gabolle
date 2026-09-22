@@ -31,14 +31,14 @@ describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
     const notice = allergenNotice(scan({ lines: [
       line({ text: '새우튀김 12,000', translatedText: '새우튀김 12,000', allergenWords: ['새우'] }),
       line({ text: '우유푸딩 6,000', translatedText: '우유푸딩 6,000', allergenWords: ['우유'] }),
-    ] }), tx);
+    ] }), tx)!;
     expect(notice.words).toEqual(['새우', '우유']);
     expect(notice.caution).toContain('직원에게 확인');
     assertNeverSaysNone(notice.headline + notice.caution);
   });
 
   it('🔴 못 찾았을 때 「없다는 뜻이 아니에요」가 반드시 붙는다', () => {
-    const notice = allergenNotice(scan({ lines: [line({ text: '김치찌개 9,000', translatedText: '김치찌개 9,000', allergenWords: [] })] }), tx);
+    const notice = allergenNotice(scan({ lines: [line({ text: '김치찌개 9,000', translatedText: '김치찌개 9,000', allergenWords: [] })] }), tx)!;
     expect(notice.words).toEqual([]);
     expect(notice.caution).toContain('없다는 뜻이 아니');
     expect(notice.caution).toContain('직원에게 확인');
@@ -46,17 +46,41 @@ describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
   });
 
   it('🔴 영어에서도 「없다」를 말하지 않고 확인을 요구한다', () => {
-    const notice = allergenNotice(scan({ lines: [line({ text: 'Kimchi stew', translatedText: 'Kimchi stew', allergenWords: [] })] }), txEn);
+    const notice = allergenNotice(scan({ lines: [line({ text: 'Kimchi stew', translatedText: 'Kimchi stew', allergenWords: [] })] }), txEn)!;
     expect(notice.caution.toLowerCase()).toContain('does not mean');
     expect(notice.caution.toLowerCase()).toContain('check with the staff');
     assertNeverSaysNone(notice.headline + notice.caution);
+  });
+
+  /**
+   * 🔴 글자를 한 줄도 못 읽었으면 알레르기 안내 자체를 안 낸다 — S15P21E201-1489(B-14).
+   *
+   * <p>실기기(iOS build 39)에서 두 문장이 한 화면에 같이 떴다.
+   *
+   * <pre>
+   *   읽은 글자에서는 알레르기와 관련된 낱말을 찾지 못했어요
+   *   글자를 찾지 못했어요. 더 밝은 곳에서 …
+   * </pre>
+   *
+   * <p>앞뒤가 안 맞는 것을 넘어 위험하다 — 「못 찾았다」는 찾아본 뒤에야 할 수 있는 말인데,
+   * 아무것도 못 읽은 상태에서 그렇게 말하면 알레르기가 있는 사람이 «확인됐다»로 읽는다.
+   */
+  it('🔴 글자를 한 줄도 못 읽었으면 아무 말도 안 한다 — null 이다', () => {
+    expect(allergenNotice(scan({ lines: [] }), tx)).toBeNull();
+    expect(allergenNotice(scan({ lines: [] }), txEn)).toBeNull();
+  });
+
+  it('한 줄이라도 읽었으면 낱말이 없어도 안내는 낸다 — 「못 읽음」과 「낱말 없음」은 다르다', () => {
+    const notice = allergenNotice(scan({ lines: [line({ text: '김치찌개', translatedText: '김치찌개', allergenWords: [] })] }), tx);
+    expect(notice).not.toBeNull();
+    expect(notice!.words).toEqual([]);
   });
 
   it('같은 낱말이 여러 줄에 있어도 한 번만 나온다', () => {
     const notice = allergenNotice(scan({ lines: [
       line({ text: '새우튀김', translatedText: '새우튀김', allergenWords: ['새우'] }),
       line({ text: '새우볶음밥', translatedText: '새우볶음밥', allergenWords: ['새우'] }),
-    ] }), tx);
+    ] }), tx)!;
     expect(notice.words).toEqual(['새우']);
   });
 });
@@ -71,7 +95,7 @@ describe('못 읽은 줄은 숨기지 않는다', () => {
   });
 
   it('🔴 못 읽은 줄이 0이어도 알레르기 주의는 그대로 붙는다', () => {
-    const notice = allergenNotice(scan({ unreadLineCount: 0, lines: [line({ text: '된장찌개', translatedText: '된장찌개', allergenWords: [] })] }), tx);
+    const notice = allergenNotice(scan({ unreadLineCount: 0, lines: [line({ text: '된장찌개', translatedText: '된장찌개', allergenWords: [] })] }), tx)!;
     expect(notice.caution).toContain('직원에게 확인');
   });
 });

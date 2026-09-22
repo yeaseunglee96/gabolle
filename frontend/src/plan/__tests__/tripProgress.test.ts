@@ -4,7 +4,7 @@
 //    둘 다 화면에서는 멀쩡해 보인다. 중지해 놓고 기록이 쌓이면 「멈췄다」가 거짓이 되고,
 //    예정 시각을 모르는데 「정시」라고 적으면 늦고 있는 사람에게 괜찮다고 말하게 된다.
 import {
-  EMPTY_PROGRESS, arrive, drift, isToday, localDateKey, needsManualArrival, pause, skip, start, stepStates,
+  EMPTY_PROGRESS, arrive, drift, isToday, localDateKey, needsManualArrival, pause, saysStartsIn, skip, start, stepStates,
 } from '@/plan/tripProgress';
 
 const STOPS = ['a', 'b', 'c'];
@@ -95,6 +95,32 @@ describe('예정과의 차이', () => {
   it('🔴 예정을 모르면 아무 말도 안 한다', () => {
     expect(drift(NOW, null)).toBeNull();
     expect(drift(NOW, '말이 안 되는 값')).toBeNull();
+  });
+
+  /**
+   * 🔴 시작 전에는 「예정보다 빠름」이 아니라 「N 뒤 시작」이다 — S15P21E201-1489(B-13).
+   *
+   * 실기기에서 「지금 00:52 · 예정보다 8시간 47분 빠름」이 떴다(iOS build 39). 계산은
+   * 맞지만 아직 떠나지도 않은 여행이 진행 중인 것처럼 읽힌다.
+   */
+  describe('시작 전에는 「빠름」이라고 하지 않는다', () => {
+    it('🔴 아직 안 떠났고 첫 일정이 남았으면 「뒤 시작」이라고 말한다', () => {
+      expect(saysStartsIn('PLANNED', { early: true })).toBe(true);
+    });
+
+    it('이미 움직이고 있으면 그대로 「예정보다 빠름」이다', () => {
+      expect(saysStartsIn('RUNNING', { early: true })).toBe(false);
+      expect(saysStartsIn('PAUSED', { early: true })).toBe(false);
+      expect(saysStartsIn('DONE', { early: true })).toBe(false);
+    });
+
+    it('🔴 늦은 것은 시작 전에도 늦었다고 말한다 — 첫 일정 시각이 지난 것이다', () => {
+      expect(saysStartsIn('PLANNED', { early: false })).toBe(false);
+    });
+
+    it('차이를 모르면 아무 말도 안 한다', () => {
+      expect(saysStartsIn('PLANNED', null)).toBe(false);
+    });
   });
 
   it('차이가 없으면 굳이 적지 않는다', () => {

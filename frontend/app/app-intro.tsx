@@ -19,10 +19,18 @@ const INTRO_IMAGES = {
   'local-discovery': require('../assets/home/gamcheon.png'),
   'field-talk': require('../assets/home/gwangalli.png'),
 } as const;
-// 로 메뉴판 카메라 번역 기능 자체를 출시 전 배포에서 뺐다 — 이 온보딩
+// S15P21E201-907 로 메뉴판 카메라 번역 기능 자체를 출시 전 배포에서 뺐다 — 이 온보딩
 // 소개 화면에 "메뉴판을 찍고 바로 이해해요" 페이지가 남아 있으면, 앱에 없는 기능을
 // 광고하는 셈이라 chat.tsx QUICK_TOOLS와 같은 원칙(실제로 동작하는 화면만 올린다)에
 // 어긋난다. 그 페이지를 빼고 실제로 있는 기능 둘만 남긴다.
+//
+// 🔴 **위 문단은 이제 사실이 아니다** — S15P21E201-1489(B-15), 2026-09-22 정정.
+//    메뉴판 번역은 **되살아났고 build 39 실기기에서 끝까지 동작한다**(홈 우하단 도우미 →
+//    「메뉴판 번역」 → 사진 고르기 → OCR → 결과). 그런데 주석이 반대로 적혀 있어, 읽는
+//    사람은 없는 기능으로 안다. 낡은 판단을 지우지 않고 **정정한 날짜와 함께** 남긴다.
+//
+//    이 화면의 페이지 구성은 그대로 둔다. 소개에 무엇을 올릴지는 「기능이 있나」가 아니라
+//    「처음 보는 사람에게 무엇을 먼저 말할까」의 문제라, 이 티켓이 정할 일이 아니다.
 const PAGES = [
   { id: 'ai-travel', eyebrowKo: 'AI 여행', eyebrowEn: 'AI travel', titleKo: '조건만 알려주면\n일정을 만들어요', titleEn: 'Tell us your conditions,\nwe build the itinerary', descriptionKo: '날짜와 취향, 이동 조건을 반영해 나만의 부산 여행을 구성해요.', descriptionEn: 'We put together your Busan trip using your dates, tastes, and mobility needs.' },
   { id: 'local-discovery', eyebrowKo: '부산 둘러보기', eyebrowEn: 'Explore Busan', titleKo: '장소를 찾고 저장해\n내 여행으로 이어가요', titleEn: 'Find and save places,\nthen add them to your trip', descriptionKo: '이름으로 장소를 찾고, 마음에 든 곳은 부슐랭과 꼭 갈 장소에 담을 수 있어요.', descriptionEn: 'Search places by name, then save favorites or add them as must-visits.' },

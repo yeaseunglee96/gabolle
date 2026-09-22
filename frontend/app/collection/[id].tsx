@@ -210,7 +210,11 @@ export default function CollectionListDetail() {
       ) : null}
       <Text variant="caption" color={color.text.muted}>{tx('돌려서 고르세요. 지역은 검색에서 고르면 자동으로 채워져요.', 'Spin to choose. Picking a search result fills the area for you.')}</Text>
       <TextInput accessibilityLabel={tx('한줄 메모', 'One-line note')} maxLength={COLLECTION_LIMITS.note} value={note} onChangeText={setNote} placeholder={tx('한줄 메모 (선택)', 'One-line note (optional)')} placeholderTextColor={color.text.muted} style={styles.input} />
-      <Button label={tx('담기', 'Save')} disabled={!name.trim()} onPress={submitPlace} />
+      {/* 🔴 영어를 'Save' 로 두지 않는다 — S15P21E201-1489(B-11). 장소 상세의
+          「내 여행 후보에 저장」도 영어가 'Save…' 라, 둘 다 「저장」으로 읽혀 한쪽에
+          저장하고 다른 쪽을 열어 보고 「저장이 안 됐다」고 오해한다. 실제로 둘은 다른
+          저장소다 — 이쪽은 부슐랭(컬렉션), 저쪽은 일정 생성에 쓰는 mustVisitPlaces. */}
+      <Button label={tx('담기', 'Add to list')} disabled={!name.trim()} onPress={submitPlace} />
     </Card> : null}
 
     {listPlaces.length === 0 && !adding ? <View style={styles.empty}><Text variant="body" weight="bold">{tx('아직 담은 장소가 없어요.', 'No places in this list yet.')}</Text></View> : null}
