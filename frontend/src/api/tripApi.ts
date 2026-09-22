@@ -40,6 +40,12 @@ export type CreateTripPayload = {
   // 스무 곳이 전부 출발지 근처였다.
   travelAreas: string[];
   accommodationPlaceId: string | null;
+  // 홈 시작 바의 숙소 칸(S15P21E201-1511). 동네·검색 결과라 place_id 가 없어 좌표로 보낸다.
+  // 🔴 서버가 이 칸을 받기 전까지는 조용히 버려진다 — 칸 이름은 백엔드 레인이 정했다.
+  //    위도·경도는 함께 오거나 함께 비어야 한다(반쪽이면 서버가 거부하기로 했다).
+  accommodationLat: number | null;
+  accommodationLng: number | null;
+  accommodationName: string | null;
   englishMenuRequired: boolean;
   foreignCardRequired: boolean;
   soloFriendlyPriority: boolean;
@@ -109,10 +115,15 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
     mobility('STAIRS_AVOIDANCE', draft.stairsConstraint === null ? null : draft.stairsConstraint === 'AVOID'),
   ];
 
+  const hasLodging = draft.lodgingLat !== null && draft.lodgingLng !== null;
+
   return {
     mustVisitPlaceIds: draft.mustVisitPlaces.map((place) => place.placeId),
     travelAreas: draft.travelAreas,
     accommodationPlaceId: draft.accommodationPlace?.placeId ?? null,
+    accommodationLat: hasLodging ? draft.lodgingLat : null,
+    accommodationLng: hasLodging ? draft.lodgingLng : null,
+    accommodationName: hasLodging && draft.lodging.trim() ? draft.lodging.trim() : null,
     englishMenuRequired: draft.englishMenuRequired,
     foreignCardRequired: draft.foreignCardRequired,
     soloFriendlyPriority: draft.soloDiningPreferred,
