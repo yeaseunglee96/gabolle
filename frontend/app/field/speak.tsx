@@ -30,7 +30,7 @@ export default function Speak() {
   const router = useRouter();
   const { tx, language } = useI18n();
   const { accessToken } = useAuth();
-  const { tab: initialTab } = useLocalSearchParams<{ tab?: string }>();
+  const { tab: initialTab, phrase: handedPhrase } = useLocalSearchParams<{ tab?: string; phrase?: string }>();
   const [tab, setTab] = useState<Tab>(initialTab === 'taxi' ? 'taxi' : 'speak');
   // 목록에 없는 문장을 직접 입력해 들려주는 기능.
   const direction = directionForLanguage(language);
@@ -111,6 +111,25 @@ export default function Speak() {
     setTranslateNotice(blockedNotice(outcome.reason));
     speakAloud(text, toBcp47(language));
   }
+
+  // 🔴 챗봇이 문장을 들려 보내면 그것을 크게 띄우고 바로 읽는다 — S15P21E201-1502.
+  //    전에는 단추가 이 화면을 «열기만» 해서, 「크게 보고 듣기」를 눌러도 문장도 소리도 없이
+  //    현장 도구 첫 화면만 떴다. 실기에서 고장으로 올라온 자리다.
+  //
+  //    읽는 언어는 언제나 한국어다. 이 문장은 «상대에게 들려주려고» 받은 한국어라,
+  //    앱 언어가 일본어여도 일본어로 읽으면 아무 쓸모가 없다. 그래서 번역을 거치지 않는다.
+  const handedOnce = useRef(false);
+  useEffect(() => {
+    if (handedOnce.current) return;
+    const text = typeof handedPhrase === 'string' ? handedPhrase.trim() : '';
+    if (!text) return;
+    handedOnce.current = true;
+    setTab('speak');
+    setSpokenText(text);
+    speakAloud(text, 'ko-KR');
+    // speakAloud 는 이 컴포넌트가 다시 그려져도 같은 함수라, 의존성에 넣지 않아도 한 번만 돈다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handedPhrase]);
 
   async function copySpokenText() {
     if (!spokenText) return;
