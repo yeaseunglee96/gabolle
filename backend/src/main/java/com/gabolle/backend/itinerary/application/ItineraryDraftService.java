@@ -88,6 +88,25 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private final String foodCategory;
 
     /**
+     * 자리 수의 몇 배를 후보로 받을까 (S15P21E201-1494).
+     *
+     * <p>🔴 <b>자리 수만큼만 받으면 고를 여지가 없다.</b> 전부 다 들어가야 하므로, 지역이
+     * 안 맞는 곳이 있어도 바꿔 넣을 것이 없다.
+     *
+     * <p>2026-09-22 운영 사례가 그 자리를 정확히 보여줬다. 2일 × 4곳 = 8자리에
+     * {@code defaultTopK} 가 10이라 여벌이 <b>둘</b> 있었는데, 그 9·10위가 <b>둘 다 해운대</b>
+     * 였다. 영도는 11위가 처음이라 영도 날을 채울 것이 없었다. 여벌이 아주 없었던 것이
+     * 아니라 <b>여벌이 한 지역에 몰려 있었다.</b>
+     *
+     * <p>1 이면 예전 동작(자리 수만큼)이다. 아래로는 안 내려간다 — 0을 주면 후보가 0이 되어
+     * 일정이 통째로 비고, 그 증상은 설정 오타와 구별되지 않는다.
+     *
+     * <p>🔴 이 값은 <b>공짜가 아니다.</b> 추천 엔진이 그만큼 더 계산하고 응답도 커진다
+     * ({@code defaultTopK} 가 이 값을 따라간다). 늘릴 때는 그 비용을 같이 본다.
+     */
+    private final int candidateHeadroom;
+
+    /**
      * 구간(leg) 계산. 생성과 편집(순서 바꾸기) 두 경로가 같은 규칙을 써야 해서
      * {@link ItineraryLegPlanner} 로 뽑았다.
      */
@@ -123,6 +142,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
             @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
+            @Value("${gabolle.itinerary.candidate-headroom:2}") int candidateHeadroom,
             ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours,
             PlaceTimeFactFilterPort timeFact, ObjectProvider<RouteOrderPort> routeOrder,
             ApplicationEventPublisher events) {
@@ -132,6 +152,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.maxItemsPerDay = maxItemsPerDay;
         this.maxFoodPerDay = maxFoodPerDay;
         this.foodCategory = foodCategory;
+        this.candidateHeadroom = Math.max(1, candidateHeadroom);
         this.legPlanner = legPlanner;
         this.openingHours = openingHours;
         this.timeFact = timeFact;
@@ -146,11 +167,16 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * <p>밥집 상한은 <b>더하지 않는다.</b> 상한은 「그중 몇 곳까지 밥집이어도 되나」이지 자리를
      * 늘리는 값이 아니다. 필요한 것은 자리 수이고, 상한에 걸려 밀린 밥집 대신 앉을 것이
      * 후보에 있어야 한다는 뜻이다.
+     *
+     * <p>🔴 S15P21E201-1494 — 자리 수에 {@link #candidateHeadroom} 을 곱한다. 자리 수만큼만
+     * 받으면 전부 다 들어가야 해서 <b>고를 여지가 없고</b>, 지역이 안 맞는 곳이 있어도 바꿔
+     * 넣을 것이 없다. 배정이 지역을 보게 한 것({@code S15P21E201-1493})은 <b>고를 것이
+     * 있을 때만</b> 뜻이 있다.
      */
     @Override
     public int placesNeeded(String tripId) {
         return this.tripRepository.findById(tripId)
-                .map((trip) -> Math.max(1, trip.days() * itemsPerDay(trip)))
+                .map((trip) -> Math.max(1, trip.days() * itemsPerDay(trip) * this.candidateHeadroom))
                 .orElse(1);
     }
 
