@@ -90,6 +90,25 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private final String foodCategory;
 
     /**
+     * 자리 수의 몇 배를 후보로 받을까 (S15P21E201-1494).
+     *
+     * <p>🔴 <b>자리 수만큼만 받으면 고를 여지가 없다.</b> 전부 다 들어가야 하므로, 지역이
+     * 안 맞는 곳이 있어도 바꿔 넣을 것이 없다.
+     *
+     * <p>2026-09-22 운영 사례가 그 자리를 정확히 보여줬다. 2일 × 4곳 = 8자리에
+     * {@code defaultTopK} 가 10이라 여벌이 <b>둘</b> 있었는데, 그 9·10위가 <b>둘 다 해운대</b>
+     * 였다. 영도는 11위가 처음이라 영도 날을 채울 것이 없었다. 여벌이 아주 없었던 것이
+     * 아니라 <b>여벌이 한 지역에 몰려 있었다.</b>
+     *
+     * <p>1 이면 예전 동작(자리 수만큼)이다. 아래로는 안 내려간다 — 0을 주면 후보가 0이 되어
+     * 일정이 통째로 비고, 그 증상은 설정 오타와 구별되지 않는다.
+     *
+     * <p>🔴 이 값은 <b>공짜가 아니다.</b> 추천 엔진이 그만큼 더 계산하고 응답도 커진다
+     * ({@code defaultTopK} 가 이 값을 따라간다). 늘릴 때는 그 비용을 같이 본다.
+     */
+    private final int candidateHeadroom;
+
+    /**
      * 구간(leg) 계산. 생성과 편집(순서 바꾸기) 두 경로가 같은 규칙을 써야 해서
      * {@link ItineraryLegPlanner} 로 뽑았다.
      */
@@ -134,6 +153,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
             @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
+            @Value("${gabolle.itinerary.candidate-headroom:3}") int candidateHeadroom,
             ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours,
             PlaceTimeFactFilterPort timeFact, ObjectProvider<RouteOrderPort> routeOrder,
             PlaceRepository placeRepository, ApplicationEventPublisher events) {
@@ -144,6 +164,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.maxItemsPerDay = maxItemsPerDay;
         this.maxFoodPerDay = maxFoodPerDay;
         this.foodCategory = foodCategory;
+        this.candidateHeadroom = Math.max(1, candidateHeadroom);
         this.legPlanner = legPlanner;
         this.openingHours = openingHours;
         this.timeFact = timeFact;
@@ -158,11 +179,16 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * <p>밥집 상한은 <b>더하지 않는다.</b> 상한은 「그중 몇 곳까지 밥집이어도 되나」이지 자리를
      * 늘리는 값이 아니다. 필요한 것은 자리 수이고, 상한에 걸려 밀린 밥집 대신 앉을 것이
      * 후보에 있어야 한다는 뜻이다.
+     *
+     * <p>🔴 S15P21E201-1494 — 자리 수에 {@link #candidateHeadroom} 을 곱한다. 자리 수만큼만
+     * 받으면 전부 다 들어가야 해서 <b>고를 여지가 없고</b>, 지역이 안 맞는 곳이 있어도 바꿔
+     * 넣을 것이 없다. 배정이 지역을 보게 한 것({@code S15P21E201-1493})은 <b>고를 것이
+     * 있을 때만</b> 뜻이 있다.
      */
     @Override
     public int placesNeeded(String tripId) {
         return this.tripRepository.findById(tripId)
-                .map((trip) -> Math.max(1, trip.days() * itemsPerDay(trip)))
+                .map((trip) -> Math.max(1, trip.days() * itemsPerDay(trip) * this.candidateHeadroom))
                 .orElse(1);
     }
 
@@ -326,13 +352,30 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // 다음 중심은 이미 잡힌 중심들에서 가장 먼 곳이다 — 그래야 날끼리 겹치지 않는다.
         double[][] dayAnchor = seedDayAnchors(places, coords, days);
 
+        // 🔴 S15P21E201-1494 — **두 번 훑는다.** 한 번만 훑으면서 순위대로 무조건 앉히면,
+        //    앞쪽 후보가 자리를 다 채워서 **뒤에 있는 「지역이 맞는 후보」의 차례가 안 온다.**
+        //
+        //    운영 사례가 그랬다. 8자리를 순위 1~8이 다 채우는데 그 8번째가 해운대라
+        //    영도 날에 끼었고, 정작 영도인 11위는 앉을 자리가 없었다. 후보를 더 받아도
+        //    (candidateHeadroom) 쓰이질 않으니 아무것도 안 바뀐다.
+        //
+        //    그래서 첫 훑기는 **지역이 맞는 것만** 앉힌다. 위 8번째는 여기서 건너뛰어지고,
+        //    11위가 영도 날을 채운다. 남은 자리는 두 번째 훑기가 순위대로 메운다.
+        List<ItineraryDraftCommand.PlannedPlace> deferred = new ArrayList<>();
+        for (ItineraryDraftCommand.PlannedPlace place : places) {
+            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor, true)) {
+                deferred.add(place);
+            }
+        }
+
         // 미뤄 둔 밥집으로 빈 자리를 메우지 않는다. 끼니 상한을 무시하고 메우면 명소 데이터가
         // 모자란 지역에서 하루가 통째로 음식점이 되고, 데이터가 모자라다는 사실이 아무 데도
         // 안 보인다. 사용자에게는 "이 앱은 밥집만 추천한다" 로 보이고 팀에게는 신호가 안 온다.
         // 그래서 비워 두고 말한다.
         int rejectedFood = 0;
-        for (ItineraryDraftCommand.PlannedPlace place : places) {
-            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor) && isFood(place)) {
+        for (ItineraryDraftCommand.PlannedPlace place : deferred) {
+            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false)
+                    && isFood(place)) {
                 rejectedFood++;
             }
         }
@@ -415,10 +458,15 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      *
      * <p>좌표가 없으면 예전 동작(자리 있는 첫 날)으로 떨어진다. 좌표를 못 구했다고 일정
      * 생성이 멈추면 안 된다.
+     *
+     * @param regionOnly 참이면 <b>지역이 맞는 자리만</b> 받는다. 맞는 날이 없으면 앉히지 않고
+     *     {@code false} 를 돌려준다 — 부르는 쪽이 미뤄 뒀다가 두 번째 훑기에서 다시 준다.
+     *     이것이 없으면 앞쪽 후보가 자리를 다 채워 뒤의 「지역이 맞는 후보」가 차례를 못 얻는다
+     *     (S15P21E201-1494)
      */
     private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay,
             ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay,
-            Map<UUID, double[]> coords, double[][] dayAnchor) {
+            Map<UUID, double[]> coords, double[][] dayAnchor, boolean regionOnly) {
 
         boolean food = isFood(place);
         double[] here = coords.get(place.placeId());
@@ -434,6 +482,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             }
             if (here == null || dayAnchor[day] == null) {
                 // 좌표를 모르는 자리가 하나라도 있으면 거리로 고를 수 없다. 예전처럼 첫 날.
+                // 첫 훑기에서는 그냥 미룬다 — 모르는 것을 「지역이 맞다」로 치지 않는다.
+                if (regionOnly) {
+                    return false;
+                }
                 best = day;
                 break;
             }
@@ -444,6 +496,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             }
         }
         if (best < 0) {
+            return false;
+        }
+        if (regionOnly && bestDistance > REGION_MIXED_KM) {
+            // 자리는 있지만 그 날의 지역이 아니다. 지금 앉히면 뒤에 오는 「그 지역 후보」가
+            // 자리를 못 얻는다. 미뤄 두고 두 번째 훑기에 맡긴다.
             return false;
         }
         byDay.get(best).add(place);

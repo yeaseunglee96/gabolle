@@ -107,7 +107,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", 1, legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -288,7 +288,7 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
-				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN,
+				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1, legPlanner, ALWAYS_UNKNOWN,
 				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
@@ -526,7 +526,7 @@ class ItineraryDraftServiceTest {
 		@SuppressWarnings("unchecked")
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
-		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD",
+		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1,
 				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact,
 				noRouteOrder(), this.placeRepository, noEvents());
 	}
@@ -658,6 +658,50 @@ class ItineraryDraftServiceTest {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 🔴 S15P21E201-1494 — <b>운영 사례 그대로.</b> 이것이 이 변경의 진짜 증명이다.
+	 *
+	 * <p>순위 1~8 이 해운대 5 · 영도 3 이라 그 여덟으로 8자리를 채우면 <b>반드시 섞인다.</b>
+	 * 여벌(9~11위)에 영도가 하나 있는데, 예전 코드는 순위대로 무조건 앉혀서 8자리가 1~8로
+	 * 다 차고 <b>11위의 차례가 오지 않았다.</b>
+	 *
+	 * <p>두 번 훑기가 그것을 고친다. 첫 훑기가 <b>지역이 맞는 것만</b> 앉히므로 8위 해운대는
+	 * 영도 날에 못 들어가고 미뤄지며, 11위 영도가 그 자리를 얻는다.
+	 */
+	@Test
+	@DisplayName("🔴 지역이 맞는 후보가 뒤에 있으면 순위를 건너뛴다 — 8위 해운대 대신 11위 영도")
+	void skipsAheadToACandidateThatFitsTheRegion() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 22), LocalDate.of(2026, 9, 23));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 순위 1~8 은 운영과 같다(해운대 5 · 영도 3). 9~11 이 여벌이고 11위만 영도다.
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesAt(
+				List.of("FOOD", "CAFE_HEALING", "CITY", "FOOD", "CULTURE_TEMPLE", "FOOD",
+						"NATURE_WALK", "CULTURE_TEMPLE", "CITY", "CULTURE_TEMPLE", "CULTURE_TEMPLE"),
+				List.of(HAEUNDAE_SHOJIN, YEONGDO_KKOSHONE, YEONGDO_CHEONGHAK, YEONGDO_PIYAK,
+						HAEUNDAE_DONGBAEK, HAEUNDAE_DOPHINE, HAEUNDAE_HAEPARANG, HAEUNDAE_GWANGWANG,
+						HAEUNDAE_SHOJIN, HAEUNDAE_DONGBAEK, YEONGDO_DARIFESTIVAL))));
+
+		Map<Integer, List<double[]>> byDay = new HashMap<>();
+		for (ItineraryDraft.DraftItem item : draft.items()) {
+			byDay.computeIfAbsent(item.dayIndex(), key -> new ArrayList<>())
+					.add(coordinateOf(item.placeId()));
+		}
+
+		for (Map.Entry<Integer, List<double[]>> day : byDay.entrySet()) {
+			for (double[] a : day.getValue()) {
+				for (double[] b : day.getValue()) {
+					assertThat(kmBetween(a, b))
+							.as("%d일차가 섞였다 — 여벌에 그 지역 후보가 있는데 안 썼다", day.getKey())
+							.isLessThan(8.0);
+				}
+			}
+		}
+		assertThat(draft.warningCodes())
+				.as("바꿔 넣었으니 경고가 없어야 한다")
+				.doesNotContain(com.gabolle.backend.itinerary.domain.ItineraryWarningCodes.DAY_REGION_MIXED);
 	}
 
 	@Test
@@ -800,7 +844,7 @@ class ItineraryDraftServiceTest {
 		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
 		when(provider.getIfAvailable()).thenReturn(port);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
-				4, 3, "FOOD", new ItineraryLegPlanner(this.placeRepository, provider),
+				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, provider),
 				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
 	}
 
@@ -837,7 +881,7 @@ class ItineraryDraftServiceTest {
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
-				4, 3, "FOOD", new ItineraryLegPlanner(this.placeRepository, noTravelTime),
+				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, noTravelTime),
 				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, provider, this.placeRepository, noEvents());
 	}
 
@@ -978,9 +1022,68 @@ class ItineraryDraftServiceTest {
 		when(this.tripRepository.findById("itn_trip_3d")).thenReturn(Optional.of(threeDays));
 
 		// 기분을 안 골랐으니 하루 4곳(이 시험이 만든 서비스의 설정값) × 3일.
+		// 이 시험의 서비스는 여벌 배수가 1 이라 자리 수와 같다.
 		assertThat(this.service.placesNeeded("itn_trip_3d"))
 				.as("추천이 10개만 주면 이 여행은 두 자리를 못 채운다")
 				.isEqualTo(12);
+	}
+
+	/**
+	 * 🔴 S15P21E201-1494 — 자리 수만큼만 받으면 <b>고를 여지가 없다.</b>
+	 *
+	 * <p>2026-09-22 운영 사례: 2일 × 4곳 = 8자리에 여벌이 <b>둘</b> 있었는데 그 9·10위가
+	 * <b>둘 다 해운대</b>였다. 영도는 11위가 처음이라 영도 날을 채울 것이 없었다. 여벌이
+	 * 아주 없었던 것이 아니라 <b>여벌이 한 지역에 몰려 있었다</b> — 그래서 배수가 필요하다.
+	 */
+	@Test
+	@DisplayName("🔴 여벌 배수만큼 더 받는다 — 자리 수와 후보 수가 같으면 바꿔 넣을 것이 없다")
+	void placesNeededAsksForHeadroom() {
+		Trip twoDays = Trip.builder()
+				.tripId("itn_trip_2d").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 22)).finishDate(LocalDate.of(2026, 9, 23))
+				.partySize(2).timezone("Asia/Seoul")
+				.createdAt(Instant.now())
+				.build();
+		when(this.tripRepository.findById("itn_trip_2d")).thenReturn(Optional.of(twoDays));
+
+		// 자리는 2일 × 4곳 = 8. 배수 2 면 16 을 받아야 한다 — 운영 사례에서 영도가 처음
+		// 나오는 11위가 그 안에 들어온다.
+		ItineraryDraftService withHeadroom = new ItineraryDraftService(this.tripRepository,
+				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 2,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTimeProvider()),
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+
+		assertThat(withHeadroom.placesNeeded("itn_trip_2d"))
+				.as("8자리 × 배수 2")
+				.isEqualTo(16);
+	}
+
+	@Test
+	@DisplayName("여벌 배수를 0 이하로 줘도 1 아래로는 안 내려간다 — 후보가 0이면 일정이 통째로 빈다")
+	void headroomNeverDropsBelowOne() {
+		Trip oneDay = Trip.builder()
+				.tripId("itn_trip_1d").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 22)).finishDate(LocalDate.of(2026, 9, 22))
+				.partySize(2).timezone("Asia/Seoul")
+				.createdAt(Instant.now())
+				.build();
+		when(this.tripRepository.findById("itn_trip_1d")).thenReturn(Optional.of(oneDay));
+
+		ItineraryDraftService zeroHeadroom = new ItineraryDraftService(this.tripRepository,
+				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 0,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTimeProvider()),
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+
+		assertThat(zeroHeadroom.placesNeeded("itn_trip_1d"))
+				.as("0 을 곱하면 후보가 0이 되고, 그 증상은 설정 오타와 구별되지 않는다")
+				.isEqualTo(4);
+	}
+
+	@SuppressWarnings("unchecked")
+	private ObjectProvider<TravelTimePort> noTravelTimeProvider() {
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(null);
+		return provider;
 	}
 
 	@Test

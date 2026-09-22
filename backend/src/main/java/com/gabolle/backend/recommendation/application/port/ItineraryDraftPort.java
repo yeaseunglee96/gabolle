@@ -14,7 +14,12 @@ public interface ItineraryDraftPort {
     ItineraryDraft assemble(ItineraryDraftCommand command);
 
     /**
-     * 이 여행의 일정을 다 채우려면 장소가 몇 곳 필요한가 — 날 수 × 하루 항목 수.
+     * 이 여행의 일정을 만들려면 장소가 몇 곳 필요한가 — 날 수 × 하루 항목 수 <b>× 여벌 배수</b>.
+     *
+     * <p>🔴 S15P21E201-1494 — <b>자리 수만으로는 모자란다.</b> 자리 수와 후보 수가 같으면
+     * 전부 다 들어가야 하므로 <b>고를 여지가 없고</b>, 지역이 안 맞는 곳이 있어도 바꿔 넣을
+     * 것이 없다. 배정이 지역을 보게 한 것({@code S15P21E201-1493})은 고를 것이 있을 때만
+     * 뜻이 있다. 배수는 {@code gabolle.itinerary.candidate-headroom} 이 정한다.
      *
      * <p>🔴 <b>추천이 이것을 직접 계산하면 안 된다.</b> 하루 몇 곳인지는 여행의 「기분(pace)」이
      * 정하고 그 규칙은 구현({@code ItineraryDraftService.itemsPerDay})에 있다. 추천 쪽에 같은
