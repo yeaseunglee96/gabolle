@@ -2,8 +2,71 @@
   "id": "MA010120220810586449",
   "name": "송정돈가",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 송정강변로 45 에 있는 '송정돈가'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각",
   "attempts": 1,
-  "researchedAt": "2026-09-22T11:41:35.352Z"
+  "geminiTokens": 93230,
+  "researchedAt": "2026-09-22T11:46:10.079Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 및 모임 단위 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "숙성 생돼지갈비",
+      "양념돼지갈비",
+      "한우암소생갈비"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 22:00 (브레이크 타임 15:00 ~ 17:00 / 라스트 오더 21:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 송정강변로 45에 위치한 숯불구이 전문 고깃집으로, 숙성 생돼지갈비 및 한우 암소갈비 등을 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "숯불 그릴을 사용하여 고기의 풍미와 숯향을 살려내는 것이 특징이며, 된장찌개와 냉면 등 식사 메뉴가 함께 준비되어 있습니다. 좌석 규모가 넉넉하여 모임 장소로도 자주 이용됩니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://redtable.global/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불 그릴에 구워 숯향과 풍미를 살린 숙성 생돼지갈비와 고기 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "넉넉한 좌석 규모와 편의성으로 모임 및 회식 장소로 이용",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }
