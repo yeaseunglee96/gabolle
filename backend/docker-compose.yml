@@ -15,6 +15,53 @@ services:
       retries: 12
     restart: unless-stopped
 
+  # S15P21E201-561 — 아웃박스를 내보낼 브로커.
+  #
+  # 🔴 profiles 를 달아 뒀다. `docker compose up` 만 하면 이 서비스는 안 뜬다.
+  #    쓰려면 `docker compose --profile events up` 이다. 이유는 기계가 좁아서다 —
+  #    운영 EC2 는 4코어 한 대이고 거기서 Airflow 도 돈다. 로컬에서 백엔드만 띄우려던
+  #    사람에게 브로커까지 얹으면 그 PC 가 먼저 죽는다.
+  #
+  # ZooKeeper 가 없다. KRaft(**카프카가 자기 메타데이터를 스스로 관리하는 방식** — 예전에는
+  # ZooKeeper 라는 별도 서버가 그 일을 했다)로 단일 노드를 띄운다. 컨테이너가 하나 줄고
+  # 띄우는 시간도 짧다.
+  kafka:
+    # 🔴 3.9.0 이 아니라 3.8.0 이다. Testcontainers 1.21.3 이 3.9.0 을 띄우면
+    #    advertised.listeners 에 0.0.0.0 을 넣어 기동 전에 카프카가 거부한다
+    #    ("cannot use the nonroutable meta-address 0.0.0.0"). 시험과 운영이 다른 판을
+    #    쓰면 시험의 뜻이 줄기 때문에 양쪽을 3.8.0 으로 맞춘다.
+    image: apache/kafka:3.8.0
+    profiles: ["events"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      # 노드가 하나뿐이라 컨트롤러는 자기 자신이다 — localhost 가 맞는 주소다.
+      # (compose 에서는 kafka 도 풀리지만, CI 서비스에서는 자기 별명이 안 풀린다.
+      #  양쪽을 같은 값으로 두어 「여기선 되는데 저기선 안 되는」 자리를 없앤다.)
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      # 🔴 브로커가 한 대라 복제본을 1 로 내린다. 기본값 3 을 그대로 두면 내부 토픽조차
+      #    못 만들어 "NOT_ENOUGH_REPLICAS" 로 기동이 반쯤 죽는다. 브로커를 늘릴 때 같이 올린다.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      # 소비자가 아직 없다. 보관 기간을 길게 둬서 소비자가 붙기 전에 지워지지 않게 한다.
+      # (DB 쪽 이벤트 보관은 별개다 — gabolle.privacy 의 90일 정책이 그쪽을 본다.)
+      KAFKA_LOG_RETENTION_HOURS: 168
+    volumes:
+      - gabolle_kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
   backend:
     build:
       context: .
@@ -70,9 +117,28 @@ services:
       #    읽는데 여기 나열에 없어 컨테이너 안까지 안 감)이라 여기서 같이 고친다.
       GABOLLE_TRANSIT_SERVICE_KEY: ${GABOLLE_TRANSIT_SERVICE_KEY:-}
       GABOLLE_EXCHANGE_RATE_AUTH_KEY: ${GABOLLE_EXCHANGE_RATE_AUTH_KEY:-}
+      # 🔴 S15P21E201-561 — 위 KMA·TRANSIT 키와 똑같은 함정을 피하려고 처음부터 적어 둔다.
+      #    여기 나열에 없으면 .env 에 값을 넣어도 컨테이너 안까지 안 간다.
+      #
+      #    기본값은 전부 꺼짐이다. 브로커를 띄웠더라도(--profile events) 이 둘을 true 로
+      #    바꾸기 전에는 아무것도 안 나간다 — 붙었는지만 먼저 확인할 수 있게 나눠 뒀다.
+      GABOLLE_EVENT_KAFKA_ENABLED: ${GABOLLE_EVENT_KAFKA_ENABLED:-false}
+      GABOLLE_EVENT_KAFKA_TOPIC: ${GABOLLE_EVENT_KAFKA_TOPIC:-gabolle.events.v1}
+      GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED: ${GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED:-false}
+      GABOLLE_EVENT_KAFKA_CONSUMER_GROUP: ${GABOLLE_EVENT_KAFKA_CONSUMER_GROUP:-gabolle-event-consumer}
+      GABOLLE_EVENT_KAFKA_CONSUMER_MAX_ATTEMPTS: ${GABOLLE_EVENT_KAFKA_CONSUMER_MAX_ATTEMPTS:-3}
+      GABOLLE_OUTBOX_RELAY_ENABLED: ${GABOLLE_OUTBOX_RELAY_ENABLED:-false}
+      GABOLLE_OUTBOX_RELAY_CRON: ${GABOLLE_OUTBOX_RELAY_CRON:-0 * * * * *}
+      GABOLLE_OUTBOX_RELAY_MAX_ATTEMPTS: ${GABOLLE_OUTBOX_RELAY_MAX_ATTEMPTS:-5}
+      GABOLLE_OUTBOX_RELAY_BATCH_SIZE: ${GABOLLE_OUTBOX_RELAY_BATCH_SIZE:-100}
+      # 🔴 기본값을 빈 값으로 두지 않는다(위 MENU_SCAN_BASE_URL 과 같은 이유 — 빈 문자열은
+      #    「값이 없다」가 아니라 「빈 주소」로 전달돼 설정 파일의 기본값을 덮어쓴다).
+      #    compose 안에서는 localhost 가 아니라 서비스 이름 kafka 로 부른다.
+      GABOLLE_KAFKA_BOOTSTRAP_SERVERS: ${GABOLLE_KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     restart: unless-stopped
 
 volumes:
   gabolle_postgres_data:
+  gabolle_kafka_data:

@@ -396,6 +396,38 @@ backend:build:
     - name: quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z
       alias: minio
       command: ["server", "/data"]
+    # 🔴 S15P21E201-561 — 카프카를 **서비스 컨테이너**로 붙인다. 이 러너에는 도커 소켓이
+    #    없어서(docker-in-docker 가 아니다) 테스트가 Testcontainers 로 브로커를 직접 띄우면
+    #    "Could not find a valid Docker environment" 로 죽는다. 로컬에서는 도커가 있어
+    #    통과하고 **CI 에서만** 죽는 종류라, 올리기 전에는 안 드러난다 (MR !1442 가 그랬다).
+    #
+    #    🔴 3.9.0 이 아니라 3.8.0 이다 — Testcontainers 1.21.3 이 3.9.0 을 띄우면
+    #    advertised.listeners 에 0.0.0.0 을 넣어 카프카가 기동 전에 거부한다. 로컬(도커)과
+    #    CI(서비스)가 같은 판을 써야 시험의 뜻이 유지되므로 양쪽을 3.8.0 으로 맞춘다.
+    #
+    #    ZooKeeper 가 없다. KRaft(카프카가 자기 메타데이터를 스스로 관리하는 방식)로
+    #    단일 노드를 띄운다. 복제본은 브로커가 한 대뿐이라 전부 1 이다 — 기본값 3 을
+    #    그대로 두면 내부 토픽조차 못 만들어 기동이 반쯤 죽는다.
+    - name: apache/kafka:3.8.0
+      alias: kafka
+      variables:
+        KAFKA_NODE_ID: "1"
+        KAFKA_PROCESS_ROLES: "broker,controller"
+        # 🔴 kafka 가 아니라 localhost 다. GitLab 의 서비스 별명은 **잡 컨테이너에서만**
+        #    풀린다 — 서비스가 자기 별명을 자기가 부를 수는 없다. 1@kafka:9093 으로
+        #    두었더니 브로커가 기동 중에 java.net.UnknownHostException: kafka 로
+        #    DNS 재시도만 하다 죽었고, 5분 뒤 시험이 붙을 브로커가 없었다.
+        #    노드가 하나뿐이라 컨트롤러는 자기 자신이고, localhost 가 맞는 주소다.
+        #    아래 ADVERTISED_LISTENERS 는 **잡에서 부르는 주소**라 kafka 그대로다.
+        KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
+        KAFKA_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+        KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+        KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+        KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+        KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+        KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
   variables:
     POSTGRES_DB: gabolle_test
     POSTGRES_USER: gabolle
@@ -408,6 +440,9 @@ backend:build:
     GABOLLE_TEST_MINIO_ENDPOINT: http://minio:9000
     GABOLLE_TEST_MINIO_ACCESS_KEY: gabolle
     GABOLLE_TEST_MINIO_SECRET_KEY: gabolle_ci_minio
+    # S15P21E201-561 — TestKafka 가 이 값을 보면 컨테이너를 안 띄우고 이 주소를 쓴다.
+    # 없으면 도커를 찾다가 죽는다(위 kafka 서비스 주석 참고).
+    GABOLLE_TEST_KAFKA_BOOTSTRAP: kafka:9092
     GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle-home
     UV_CACHE_DIR: $CI_PROJECT_DIR/.uv-cache
     GABOLLE_ROUTE_OPTIMIZER_PYTHON: /opt/route-optimizer-venv/bin/python3

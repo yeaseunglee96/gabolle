@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.event.application.port.EventPublisherPort;
+import com.gabolle.backend.event.config.OutboxRelayProperties;
 import com.gabolle.backend.event.domain.EventOutbox;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
 
@@ -18,23 +19,29 @@ import com.gabolle.backend.event.repository.EventOutboxRepository;
  *
  * <p>리포지토리를 직접 부른다. {@code OutboxService} 는 적는 입구라서 거치지 않는다 —
  * 여기서 하는 일은 이미 적힌 것의 발행 상태를 갱신하는 것이다.
+ *
+ * <p>🔴 이 클래스는 <b>브로커가 무엇인지 모른다.</b> 카프카든 무엇이든
+ * {@link EventPublisherPort} 뒤에 있다. 그래서 설정도 카프카 것이 아니라
+ * {@link OutboxRelayProperties} 를 받는다 — 브로커를 갈아 끼울 때 재시도 상한과 배치 크기가
+ * 같이 따라 사라지면 안 된다.
  */
 @Service
 @Profile({ "db", "dev" })
 public class OutboxRelayService {
 
-	/** 한 번에 몇 건씩. 너무 크면 한 건 실패에 전체가 늦어진다. */
-	private static final int BATCH_SIZE = 100;
-
 	private final EventOutboxRepository repository;
 
 	private final EventPublisherPort publisher;
 
+	private final OutboxRelayProperties properties;
+
 	private final Clock clock;
 
-	public OutboxRelayService(EventOutboxRepository repository, EventPublisherPort publisher, Clock clock) {
+	public OutboxRelayService(EventOutboxRepository repository, EventPublisherPort publisher,
+			OutboxRelayProperties properties, Clock clock) {
 		this.repository = repository;
 		this.publisher = publisher;
+		this.properties = properties;
 		this.clock = clock;
 	}
 
@@ -51,8 +58,10 @@ public class OutboxRelayService {
 			return 0;
 		}
 
-		List<EventOutbox> pending = this.repository
-			.findByPublishedAtIsNullOrderBySeqAsc(PageRequest.of(0, BATCH_SIZE));
+		// 🔴 재시도 상한을 넘긴 행은 조회에서 빠진다. 안 빼면 영원히 실패하는 한 건이 아래
+		//    break 에 걸려 그 뒤의 모든 이벤트를 영구히 막는다(독약 메시지).
+		List<EventOutbox> pending = this.repository.findByPublishedAtIsNullAndPublishAttemptsLessThanOrderBySeqAsc(
+				this.properties.getMaxAttempts(), PageRequest.of(0, this.properties.getBatchSize()));
 		int sent = 0;
 
 		for (EventOutbox event : pending) {
