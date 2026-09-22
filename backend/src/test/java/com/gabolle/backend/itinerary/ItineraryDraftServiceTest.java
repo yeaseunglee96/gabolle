@@ -107,7 +107,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", 1, legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", 1, legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -289,7 +289,7 @@ class ItineraryDraftServiceTest {
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1, legPlanner, ALWAYS_UNKNOWN,
-				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
+				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -528,7 +528,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1,
 				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact,
-				noRouteOrder(), noEvents());
+				noRouteOrder(), this.placeRepository, noEvents());
 	}
 
 	@Test
@@ -571,6 +571,170 @@ class ItineraryDraftServiceTest {
 	private Trip tripWithWindow(LocalDate startDate, LocalDate finishDate) {
 		return new Trip("itn_trip_1", "usr_1", startDate, finishDate, null, null, null, 2, null, "Asia/Seoul",
 				null, LocalTime.of(9, 0), LocalTime.of(17, 0), Instant.now());
+	}
+
+	// ── 지역으로 날을 가른다 (S15P21E201-1493) ──────────────────────────────
+
+	/** 영도 — 실제 좌표다. 아래 시험이 운영에서 난 사례를 그대로 옮긴 것이라 값도 그대로 쓴다. */
+	private static final double[] YEONGDO_KKOSHONE = { 35.0903, 129.0579 };
+
+	private static final double[] YEONGDO_CHEONGHAK = { 35.0966, 129.0604 };
+
+	private static final double[] YEONGDO_PIYAK = { 35.0864, 129.0767 };
+
+	/** 해운대 — 영도에서 약 17km 다. */
+	private static final double[] HAEUNDAE_SHOJIN = { 35.1633, 129.1596 };
+
+	private static final double[] HAEUNDAE_DONGBAEK = { 35.1537, 129.1523 };
+
+	private static final double[] HAEUNDAE_DOPHINE = { 35.1662, 129.1578 };
+
+	private static final double[] HAEUNDAE_HAEPARANG = { 35.1585, 129.1707 };
+
+	private static final double[] HAEUNDAE_GWANGWANG = { 35.1584, 129.1599 };
+
+	private static final double[] YEONGDO_DARIFESTIVAL = { 35.0786, 129.0803 };
+
+	/** 순위 차례로 좌표를 붙인 후보를 만들고, 저장소 목이 그 좌표를 주게 한다. */
+	private List<ItineraryDraftCommand.PlannedPlace> plannedPlacesAt(List<String> categories,
+			List<double[]> coordinates) {
+
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>();
+		List<com.gabolle.backend.place.domain.Place> rows = new ArrayList<>();
+		for (int i = 0; i < categories.size(); i++) {
+			UUID placeId = UUID.randomUUID();
+			this.categoryByPlaceId.put(placeId, categories.get(i));
+			this.coordinateByPlaceId.put(placeId, coordinates.get(i));
+			places.add(new ItineraryDraftCommand.PlannedPlace(placeId, i + 1, List.of("REASON"),
+					List.of(), categories.get(i)));
+			rows.add(com.gabolle.backend.place.domain.Place.imported(placeId, "장소" + (i + 1),
+					categories.get(i), "부산", coordinates.get(i)[0], coordinates.get(i)[1],
+					"TEST", "test-" + i, null, null, "v1"));
+		}
+		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(rows);
+		return places;
+	}
+
+	/**
+	 * 🔴 2026-09-22 운영에서 난 사례를 그대로 옮겼다.
+	 *
+	 * <p>순위가 <b>1위 쇼진(해운대) · 2~4위 영도 셋 · 5~8위 해운대 넷</b> 이었다. 예전 코드는
+	 * 「자리 있는 첫 날」에 앉혀서 1일차가 <b>영도·해운대·영도·영도</b> 가 됐고, 그 하루에
+	 * 16km 를 갔다 돌아왔다(그 두 구간만 왕복 104분).
+	 *
+	 * <p>여기서 보는 것은 <b>하루가 한 지역인가</b> 하나다. 정확히 어느 날에 어느 지역이
+	 * 가는지는 안 본다 — 그건 순위가 정하는 것이고, 이 시험이 묶어 두면 순위 규칙을 바꿀 때
+	 * 이 시험이 엉뚱하게 빨개진다.
+	 *
+	 * <p>🔴 후보를 지역마다 <b>자리 수만큼</b> 준다(영도 4 · 해운대 4). 그래야 순수한 배정이
+	 * 가능하다. 한쪽이 모자라면 코드가 어떻게 해도 섞일 수밖에 없고, 그때는 아래
+	 * {@link #warnsWhenARegionCannotBeKeptTogether()} 가 보는 대로 <b>경고를 남긴다.</b>
+	 */
+	@Test
+	@DisplayName("🔴 하루에 한 지역만 담는다 — 영도 셋 사이에 해운대 하나가 끼지 않는다")
+	void eachDayStaysInOneRegion() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 22), LocalDate.of(2026, 9, 23));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesAt(
+				List.of("FOOD", "CAFE_HEALING", "CITY", "FOOD",
+						"CULTURE_TEMPLE", "FOOD", "NATURE_WALK", "CULTURE_TEMPLE"),
+				List.of(HAEUNDAE_SHOJIN, YEONGDO_KKOSHONE, YEONGDO_CHEONGHAK, YEONGDO_PIYAK,
+						YEONGDO_DARIFESTIVAL, HAEUNDAE_DOPHINE, HAEUNDAE_HAEPARANG, HAEUNDAE_GWANGWANG))));
+
+		Map<Integer, List<double[]>> byDay = new HashMap<>();
+		for (ItineraryDraft.DraftItem item : draft.items()) {
+			byDay.computeIfAbsent(item.dayIndex(), key -> new ArrayList<>())
+					.add(coordinateOf(item.placeId()));
+		}
+		assertThat(byDay).hasSize(2);
+
+		for (Map.Entry<Integer, List<double[]>> day : byDay.entrySet()) {
+			for (double[] a : day.getValue()) {
+				for (double[] b : day.getValue()) {
+					assertThat(kmBetween(a, b))
+							.as("%d일차 안의 두 곳이 8km 넘게 떨어졌다 — 지역이 섞였다", day.getKey())
+							.isLessThan(8.0);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 🔴 S15P21E201-1494 — <b>운영 사례 그대로.</b> 이것이 이 변경의 진짜 증명이다.
+	 *
+	 * <p>순위 1~8 이 해운대 5 · 영도 3 이라 그 여덟으로 8자리를 채우면 <b>반드시 섞인다.</b>
+	 * 여벌(9~11위)에 영도가 하나 있는데, 예전 코드는 순위대로 무조건 앉혀서 8자리가 1~8로
+	 * 다 차고 <b>11위의 차례가 오지 않았다.</b>
+	 *
+	 * <p>두 번 훑기가 그것을 고친다. 첫 훑기가 <b>지역이 맞는 것만</b> 앉히므로 8위 해운대는
+	 * 영도 날에 못 들어가고 미뤄지며, 11위 영도가 그 자리를 얻는다.
+	 */
+	@Test
+	@DisplayName("🔴 지역이 맞는 후보가 뒤에 있으면 순위를 건너뛴다 — 8위 해운대 대신 11위 영도")
+	void skipsAheadToACandidateThatFitsTheRegion() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 22), LocalDate.of(2026, 9, 23));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 순위 1~8 은 운영과 같다(해운대 5 · 영도 3). 9~11 이 여벌이고 11위만 영도다.
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesAt(
+				List.of("FOOD", "CAFE_HEALING", "CITY", "FOOD", "CULTURE_TEMPLE", "FOOD",
+						"NATURE_WALK", "CULTURE_TEMPLE", "CITY", "CULTURE_TEMPLE", "CULTURE_TEMPLE"),
+				List.of(HAEUNDAE_SHOJIN, YEONGDO_KKOSHONE, YEONGDO_CHEONGHAK, YEONGDO_PIYAK,
+						HAEUNDAE_DONGBAEK, HAEUNDAE_DOPHINE, HAEUNDAE_HAEPARANG, HAEUNDAE_GWANGWANG,
+						HAEUNDAE_SHOJIN, HAEUNDAE_DONGBAEK, YEONGDO_DARIFESTIVAL))));
+
+		Map<Integer, List<double[]>> byDay = new HashMap<>();
+		for (ItineraryDraft.DraftItem item : draft.items()) {
+			byDay.computeIfAbsent(item.dayIndex(), key -> new ArrayList<>())
+					.add(coordinateOf(item.placeId()));
+		}
+
+		for (Map.Entry<Integer, List<double[]>> day : byDay.entrySet()) {
+			for (double[] a : day.getValue()) {
+				for (double[] b : day.getValue()) {
+					assertThat(kmBetween(a, b))
+							.as("%d일차가 섞였다 — 여벌에 그 지역 후보가 있는데 안 썼다", day.getKey())
+							.isLessThan(8.0);
+				}
+			}
+		}
+		assertThat(draft.warningCodes())
+				.as("바꿔 넣었으니 경고가 없어야 한다")
+				.doesNotContain(com.gabolle.backend.itinerary.domain.ItineraryWarningCodes.DAY_REGION_MIXED);
+	}
+
+	@Test
+	@DisplayName("🔴 지역이 섞일 수밖에 없으면 조용히 두지 않고 경고를 남긴다")
+	void warnsWhenARegionCannotBeKeptTogether() {
+		// 하루 4곳인데 한 지역에 3곳뿐이다 — 넷째 자리는 먼 곳으로 채울 수밖에 없다.
+		Trip trip = tripOf(LocalDate.of(2026, 9, 22), LocalDate.of(2026, 9, 22));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesAt(
+				List.of("CAFE_HEALING", "CITY", "FOOD", "CULTURE_TEMPLE"),
+				List.of(YEONGDO_KKOSHONE, YEONGDO_CHEONGHAK, YEONGDO_PIYAK, HAEUNDAE_SHOJIN))));
+
+		assertThat(draft.warningCodes())
+				.as("바꿀 수 없으면 바꾸지 않고 말한다")
+				.contains(com.gabolle.backend.itinerary.domain.ItineraryWarningCodes.DAY_REGION_MIXED);
+	}
+
+	private final Map<UUID, double[]> coordinateByPlaceId = new HashMap<>();
+
+	private double[] coordinateOf(UUID placeId) {
+		return this.coordinateByPlaceId.get(placeId);
+	}
+
+	/** 시험이 쓰는 거리. 본 코드와 같은 식이라야 같은 잣대로 본다. */
+	private static double kmBetween(double[] a, double[] b) {
+		double earthRadiusKm = 6371.0;
+		double dLat = Math.toRadians(b[0] - a[0]);
+		double dLng = Math.toRadians(b[1] - a[1]);
+		double s = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+				+ Math.cos(Math.toRadians(a[0])) * Math.cos(Math.toRadians(b[0]))
+						* Math.sin(dLng / 2) * Math.sin(dLng / 2);
+		return 2 * earthRadiusKm * Math.asin(Math.min(1.0, Math.sqrt(s)));
 	}
 
 	private Trip tripOf(LocalDate startDate, LocalDate finishDate) {
@@ -681,7 +845,7 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, provider),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
 	}
 
 	private List<ItineraryDraftCommand.PlannedPlace> plannedPlaces(int count) {
@@ -718,7 +882,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, noTravelTime),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, provider, noEvents());
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, provider, this.placeRepository, noEvents());
 	}
 
 	private static List<UUID> placeIdsOf(List<ItineraryDraftCommand.PlannedPlace> places) {
@@ -887,7 +1051,7 @@ class ItineraryDraftServiceTest {
 		ItineraryDraftService withHeadroom = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 2,
 				new ItineraryLegPlanner(this.placeRepository, noTravelTimeProvider()),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
 
 		assertThat(withHeadroom.placesNeeded("itn_trip_2d"))
 				.as("8자리 × 배수 2")
@@ -908,7 +1072,7 @@ class ItineraryDraftServiceTest {
 		ItineraryDraftService zeroHeadroom = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 0,
 				new ItineraryLegPlanner(this.placeRepository, noTravelTimeProvider()),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
 
 		assertThat(zeroHeadroom.placesNeeded("itn_trip_1d"))
 				.as("0 을 곱하면 후보가 0이 되고, 그 증상은 설정 오타와 구별되지 않는다")
