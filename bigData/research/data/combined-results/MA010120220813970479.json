@@ -2,8 +2,97 @@
   "id": "MA010120220813970479",
   "name": "부산맛집",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 강변대로 420-7 에 있는 '부산맛집'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.319Z"
+  "geminiTokens": 121956,
+  "researchedAt": "2026-09-22T06:24:48.097Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "예약하고 방문했음에도 자리 안내를 받기까지 15분 정도 대기시간이 소요됨"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "간장돼지갈비",
+      "고추장돼지갈비",
+      "양념소갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 - 21:30 (라스트오더 20:45)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 주민/가족 단위 현지 손님들이 가족 외식 및 모임 장소로 주로 찾는 분위기"
+  },
+  "menuDiversity": {
+    "dishCount": 9,
+    "found": true
+  },
+  "notes": "부산 사상구 강변대로 420-7에 위치한 돼지고기 구이 전문점은 '풍원장 고기정찬 엄궁점'(법인명 부산맛집(주))입니다. 주방에서 초벌 및 완벌로 2번 구워져 나와 냄새와 연기 없이 편하게 먹을 수 있어 가족 모임 장소로 자주 이용됩니다.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/cMGK0R/btrVaSALyC0/AAAAAAAAAAAAAAAAAAAAAA560t1xCjMkxGnf7TiKjn-Q0AQPd9oJ8D_L_5gjealf/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=Ct7eU1fb%2BqEEtcn%2BD8uVp%2FeP6NA%3D",
+    "https://blog.kakaocdn.net/dna/CoGXc/btrVh6xwGbE/AAAAAAAAAAAAAAAAAAAAAPF7PBxYSiJHdho6Tk34C6iUDmYP5ctzCAoJbXI6_ovP/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=8leGZKJvUbnMYLDK6Jhn69a4YCM%3D",
+    "https://blog.kakaocdn.net/dna/EfpoL/btrVjOb7AhH/AAAAAAAAAAAAAAAAAAAAAOUfEsbrgtO4b0VUUYWeRCS4KdoO8ORfeKwhURJtFwCh/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=1OxBbDYeQie4cmpRlTtdM9eY%2BEQ%3D",
+    "https://blog.kakaocdn.net/dna/bGY8EM/btrVexQqCCQ/AAAAAAAAAAAAAAAAAAAAAO6MMdr6m2tDSX5TdVPS34UtPwGAs-a2s6EoFuONY4SY/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=NqqK2siFgDjwWrxMVaH%2FltkIW%2Fo%3D",
+    "https://blog.kakaocdn.net/dna/bdT9kA/btrVjiq0ene/AAAAAAAAAAAAAAAAAAAAACqniCkJ_b9kPH2_aTf3EHiLJUlG8EyPBEroWX3ZnAD1/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=zz%2F%2Bf2S9nq1%2BPt409WDXDxwVV98%3D",
+    "https://blog.kakaocdn.net/dna/be8LZD/btrVjmUq08b/AAAAAAAAAAAAAAAAAAAAAAKxm_7jlWSKRcN6mYlQJJ9sRWs_TC2yQl40cdEsB4OM/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=6uto13cUQ0fBHFjsRCNL%2FW6%2FHLw%3D",
+    "https://blog.kakaocdn.net/dna/bElGAq/btrVcMf0hy0/AAAAAAAAAAAAAAAAAAAAADqHfFpDvxbo3hK0K_dI08q6mJFKUZ4Y3p3dfz6onKHe/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=VEJc1EfwCNR3lhgQgODmYzPFl%2BY%3D"
+  ],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "규모는 엄청 컸고 주차장도 꽤 넓었다. 가족모임이나 회식?으로 많이 오는 것 같았는데 예약하고 갔는데도 자리를 엄~청 늦게 안내받음. * 문의 : 051-323-9279 * 위치 : 부산 사상구 강변대로 420-7 * 영업시간 : 매일 11:30 - 21:30 (라스트오더 20:45)",
+      "url": "https://tikntok.tistory.com/1801"
+    },
+    {
+      "excerpt": "메뉴는 크게 메뉴는 양념소갈비, 간장돼지갈비, 고추장돼지갈비, 안심 스테이크, 양갈비 스테이크, 보리굴비가 있었고 무조건 1인 1주문이 원칙이다.",
+      "url": "https://tikntok.tistory.com/1801"
+    },
+    {
+      "excerpt": "고기는 주방에서 초벌과 재벌로 2번 구워 나와서 굽는데 별 힘들지도 않아서 좋았다. 그리고 냄새가 옷에 배지 않고 고기를 구우면 나오는 연기도 없어서 눈이 안아팠음! 간장보다 고추장이 더 맛있었고 양도 적당했다.",
+      "url": "https://tikntok.tistory.com/1801"
+    },
+    {
+      "excerpt": "집이랑 가깝고 가족모임장소로 딱인 듯 하다. 고기를 막 열심히 안구워도 된다는게 난 넘 좋았구...",
+      "url": "https://tikntok.tistory.com/1801"
+    }
+  ],
+  "sources": [
+    "https://tikntok.tistory.com/1801"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고기가 주방에서 2번 구워져 나와 연기나 냄새 없이 편하게 먹을 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "규모가 크고 개별 룸과 넓은 주차 공간이 갖춰져 있어 가족 외식 및 모임에 적합함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "정갈한 기본 반찬(계란찜, 도토리 묵사발 등)과 함께 깔끔하고 무난한 갈비 맛을 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

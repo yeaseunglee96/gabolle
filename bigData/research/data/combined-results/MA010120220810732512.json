@@ -2,8 +2,58 @@
   "id": "MA010120220810732512",
   "name": "별난돼지",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 백양대로 511 에 있는 '별난돼지'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 ",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.618Z"
+  "geminiTokens": 70205,
+  "researchedAt": "2026-09-22T06:26:13.903Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 동네 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "대패삼겹살",
+      "꼬들대패"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "주례동 인근 주민들이 주로 찾는 동네 고깃집 (대패삼겹살)"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": false
+  },
+  "notes": "부산 사상구 주례동 백양대로 511에 인허가 등록된 고기 구이 일반음식점(별난돼지)으로 대패삼겹살 및 꼬들대패 등의 메뉴가 확인되나, 상세 블로그 리뷰나 사진 등 웹 정보가 극히 제한적인 동네 로컬 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 사상구 백양대로 511 (주례동) 업종: 일반음식점 특징: 대패삼겹살, 꼬들대패 등을 판매하는 고기집으로 알려져 있습니다. 지역 내에서는 '주례 맛집' 혹은 '주례 대패'로 언급되기도 합니다.",
+      "url": "https://www.sasang.go.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대패삼겹살, 꼬들대패를 즐기기 위해 찾는 동네 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

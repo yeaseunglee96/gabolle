@@ -2,8 +2,35 @@
   "id": "MA010120220810584048",
   "name": "내내식당",
   "cat": "중국집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 동구 진성로 51 에 있는 '내내식당'(중국집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.669Z"
+  "geminiTokens": 55526,
+  "researchedAt": "2026-09-22T06:26:38.546Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 사업자 등록(한식) 기록 외에 실제 운영 정보나 중국집 관련 리뷰 및 상세 정보가 전혀 존재하지 않음",
+  "notes": "부산광역시 동구 진성로 51(좌천동)에 '내내식당'이라는 상호의 전화번호/사업자 정보는 일반한식으로 일부 조회되나, 중국집 업종이 아니며 웹상에 실제 방문자 리뷰, 메뉴판, 영업시간, 사진 등의 상세 정보가 일절 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": []
 }

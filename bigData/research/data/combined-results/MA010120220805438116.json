@@ -2,8 +2,55 @@
   "id": "MA010120220805438116",
   "name": "승승학장점",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 대동로 154 에 있는 '승승학장점'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 ",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.573Z"
+  "geminiTokens": 58755,
+  "researchedAt": "2026-09-22T06:25:55.585Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주민 및 인근 직장인/가족 단위",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "대패삼겹살"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사상구 대동로 154에 위치한 일반음식점 인허가/상호 데이터상 '승승삼겹(학장점)'(등록 상호: 승승학장점)으로 확인되나, 방문자 블로그 상세 후기나 상세 영업시간, 가격표 등 세부 정보는 웹상에 상세히 공개되어 있지 않고 기본 상호/주소 인허가 내역 위주로 등록되어 있습니다. 대패삼겹살 전문 프랜차이즈 계열입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 승승삼겹(학장점), 소재지: 부산광역시 사상구 대동로 154, 1층 (학장동) 대패삼겹살 등을 전문으로 하는 식당으로, 지역 내 음식점 정보 등에 등록되어 있습니다.",
+      "url": "https://www.bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://www.bigvalue.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대패삼겹살 등 가성비 좋은 돼지고기 구이 전문 브랜드 지점",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
 }

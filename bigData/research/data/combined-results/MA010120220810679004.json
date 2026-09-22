@@ -2,8 +2,63 @@
   "id": "MA010120220810679004",
   "name": "구덕산감나무집",
   "cat": "돼지고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 학감대로39번안길 24 에 있는 '구덕산감나무집'(돼지고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.583Z"
+  "geminiTokens": 67017,
+  "researchedAt": "2026-09-22T06:26:12.398Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 없음 (방문 전 예약 권장)"
+  },
+  "descriptors": {
+    "audience": "가족 모임 및 단체 회식",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "통오리 바비큐",
+      "돼지고기 삼겹살 훈연 바비큐",
+      "돈마호크 바비큐"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~ 22:00 영업 종료 (방문 전 전화 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 여부에 대한 구체적인 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 사상구 학장동 118(학감대로39번안길 24) 구덕산 자락에 위치한 바비큐 전문점(상호명 '감나무집')으로 훈연 바비큐 및 야외 텐트 좌석 등을 운영함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "통오리 바비큐 55,000원~105,000원, 돼지고기 삼겹살 훈연 바비큐 53,000원~105,000원, 돈마호크 바비큐 60,000원",
+    "priceWon": 53000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 학감대로39번안길 24 (학장동 118). 훈연 바비큐 전문점으로 통오리 바비큐, 돼지고기(삼겹살) 훈연 바비큐, 모듬 훈연 바비큐, 돈마호크 바비큐 등을 제공합니다. 하루 전 숙성 후 완전 조리하는 방식을 사용합니다. 구덕산 자락 아래 위치해 있어 캠핑 감성을 느낄 수 있으며, 계곡과 정원이 어우러진 자연 친화적인 분위기입니다. 1층과 2층에 다양한 인원(2~10인)을 수용할 수 있는 텐트 좌석과 야외 테이블, 실내 좌석이 마련되어 있어 가족 모임이나 단체 회식에 적합합니다.",
+      "url": "https://www.siksinhot.com/P/1013753"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1013753"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "구덕산 자락의 자연 친화적 정원 및 계곡 텐트 좌석에서 하루 전 숙성한 훈연 바비큐를 캠핑 감성으로 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

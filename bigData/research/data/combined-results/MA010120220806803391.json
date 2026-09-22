@@ -2,8 +2,44 @@
   "id": "MA010120220806803391",
   "name": "평길식당",
   "cat": "백반/한정식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 감천항로 517 에 있는 '평길식당'(백반/한정식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.442Z"
+  "geminiTokens": 61233,
+  "researchedAt": "2026-09-22T06:24:44.293Z",
+  "confidence": "high",
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "검색 결과 해당 주소(부산광역시 사하구 감천항로 517)에는 (주)평길해양, (주)평길그린워터 등의 기업체가 위치해 있으며, '평길식당'이라는 상호의 음식점에 대한 대중 방문기, 리뷰, 메뉴 정보 등 웹상 실제 영업 정보가 존재하지 않습니다.",
+  "notes": "부산 사하구 감천항로 517 일대 검색 결과 평길해양 등 기업체가 소재해 있으며, 일반 음식점 '평길식당'에 대한 웹 문서 및 방문 리뷰가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.kjebi.com",
+    "https://www.kiwta.or.kr"
+  ],
+  "whyPeopleGo": []
 }

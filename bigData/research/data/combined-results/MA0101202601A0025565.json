@@ -2,8 +2,39 @@
   "id": "MA0101202601A0025565",
   "name": "뉴이",
   "cat": "빵/도넛",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 가야대로284번길 11 에 있는 '뉴이'(빵/도넛 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.777Z"
+  "geminiTokens": 61247,
+  "researchedAt": "2026-09-22T06:27:28.256Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소지(부산광역시 사상구 가야대로284번길 11, 2층)에 즉석판매제조가공업체 'NUEE(뉴이)'의 인허가 등록 내역은 확인되나, 일반 소비자를 대상으로 영업하는 매장 리뷰, 메뉴, 영업시간, 사진 등 세부 영업 정보 및 방문 후기는 웹상에서 확인되지 않는 비공개 작업실/제조업체 형태입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 가야대로284번길 11, 2층 (주례동) NUEE(뉴이) 즉석판매제조가공업",
+      "url": "https://www.sasang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": []
 }

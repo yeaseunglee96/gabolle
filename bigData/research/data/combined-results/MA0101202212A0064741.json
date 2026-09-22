@@ -2,8 +2,74 @@
   "id": "MA0101202212A0064741",
   "name": "베트남대박",
   "cat": "베트남식 전문",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 사상로 309 에 있는 '베트남대박'(베트남식 전문 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.396Z"
+  "geminiTokens": 95729,
+  "researchedAt": "2026-09-22T06:24:51.106Z",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "현지인, 외국인 이주민 및 베트남 현지식 애호가",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "소이세우(xoi xeo)",
+      "반미분짜",
+      "반고이(banh goi)",
+      "멧치엔탑깜(met chien thap cam)",
+      "체사우(두리안)"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "외국인 투자기업으로 등록된 현지식 전문점으로 한국화되지 않은 베트남 전통 현지 음식(소이세우, 반고이, 체사우 등) 위주 구성"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 사상구 사상로 309(덕포동) 해피궁 2층에 위치한 (주)베트남대박 음식점으로, 대중적인 블로그 리뷰나 상세 영업시간 등은 확인되지 않으나 소이세우, 반고이, 두리안 디저트 등 정통 베트남 현지식을 취급하는 곳으로 등록되어 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 사상구 사상로 309 (덕포동 419-11) '해피궁' 건물 2층. 업종: 베트남 음식 전문점 (외국인 투자기업으로 등록된 음식점업체). 주요 메뉴: 소이세우(xoi xeo), 반미분짜, 체사우(두리안), 반고이(banh goi), 멧치엔탑깜(met chien thap cam) 등 다양한 베트남 현지식 메뉴를 제공하는 것으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산 사상구 덕포동에 위치한 '베트남대박'은 법인 명칭이 (주)베트남대박인 베트남 음식점입니다. 위치: 부산광역시 사상구 사상로 309 (덕포동) 2층. 대표 메뉴: 소이세우(Xoi Xeo), 반미분짜 등이 주요 메뉴로 소개되어 있습니다. 공공데이터 상의 외국인 투자기업 및 음식점업으로 등록되어 있으며, 덕포역 인근에 위치한 베트남 요리 전문점입니다.",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "소이세우, 반고이, 멧치엔탑깜 등 국내에서 흔치 않은 전통 베트남 현지 메뉴 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "외국인 투자기업으로 설립된 사상 덕포동 인근 베트남 현지 식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
 }

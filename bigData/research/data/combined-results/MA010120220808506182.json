@@ -2,8 +2,73 @@
   "id": "MA010120220808506182",
   "name": "밥꽃수레",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 사리로 56-2 에 있는 '밥꽃수레'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:05.967Z"
+  "geminiTokens": 56653,
+  "researchedAt": "2026-09-22T06:32:10.847Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "학생 및 인근 주민",
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 돈까스",
+      "김치나베",
+      "사발 메밀"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 부산보건대학교 학생들과 지역 주민들이 주로 찾는 동네 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 사하구 사리로 56-2 괴정동(대티역 인근, 부산보건대학교 인근)에 위치한 소규모 경양식/돈까스 음식점으로, 수제 돈까스와 김치나베, 사발메밀 등을 취급함. 상세 영업시간 및 정확한 단일 메뉴 가격은 웹 상에 명시되어 있지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "돈까스류 약 8,000원~10,000원 내외",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사하구 괴정동에 위치한 '밥꽃수레'는 식신(Siksin) 사이트에서 바삭한 돈까스를 맛볼 수 있는 곳으로 소개되고 있습니다. 아기자기하고 예스러운 느낌의 포근한 분위기라는 평가가 있습니다. 바삭한 돈까스에 대한 긍정적인 평이 있으며, 인근 부산보건대학교 학생들과 지역 주민들이 즐겨 찾는 식당으로 알려져 있습니다. 대티역 인근에서 식사할 곳을 찾을 때 가성비 좋게 들르기 좋은 곳으로 종종 언급됩니다. 주요 메뉴: 수제 돈까스, 김치나베, 사발 메밀 등.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바삭한 수제 돈까스와 아기자기하고 편안한 분위기의 대학가 가성비 식사",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "인근 부산보건대학교 학생 및 지역 주민들이 편하게 찾는 동네 밥집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "돈까스류 8,000원~10,000원 안팎의 부담 없는 가격대",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
 }

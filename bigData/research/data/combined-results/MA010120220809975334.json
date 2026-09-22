@@ -2,8 +2,70 @@
   "id": "MA010120220809975334",
   "name": "백곰경양식",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 백양대로 526 에 있는 '백곰경양식'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.657Z"
+  "geminiTokens": 60462,
+  "researchedAt": "2026-09-22T06:26:40.838Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주민, 가족 단위 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "백곰돈까스",
+      "치즈돈까스",
+      "오므라이스"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 11:00 - 20:00 (매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 상가 및 주거 지역 인근에서 주민들이 찾는 경양식 돈가스 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 사상구 백양대로 526(주례동 상가) 및 백양순환로 일대 상권에 위치/등록된 경양식 전문점으로 돈가스 및 오므라이스를 판매함",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "백곰돈까스",
+    "priceWon": 6500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "백곰경양식은 부산광역시 사상구 백양대로 526에 위치하며, 월~토 11:00~20:00 영업하고 기본 돈가스, 치즈돈까스, 오므라이스 등을 판매한다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://disco.re"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "옛날 경양식 돈가스와 오므라이스를 합리적인 가격에 즐길 수 있는 동네 식당",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "기본 돈까스 6천원대 등 부담 없는 가격대로 식사 가능",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
 }

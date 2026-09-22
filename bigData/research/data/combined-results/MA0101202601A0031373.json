@@ -2,8 +2,50 @@
   "id": "MA0101202601A0031373",
   "name": "고릴라",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 사상로 312 에 있는 '고릴라'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.372Z"
+  "geminiTokens": 52592,
+  "researchedAt": "2026-09-22T06:24:02.057Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "골뱅이 소면",
+      "호두과자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 사상구 사상로 312(덕포동) 소재 '고릴라'는 식신 DB 등에 유로피언/일반음식점으로 등록되어 있으며 골뱅이 소면, 호두과자 등의 메뉴가 등재되어 있으나, 방문 후기나 경양식 전문점으로서의 상세 운영 정보는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매장명: 고릴라, 위치: 부산광역시 사상구 사상로 312 (덕포동), 업종 분류: 유로피언, 대표 메뉴: 골뱅이 소면, 호두과자(앙버터+팥앙금), 호두과자(앙버터)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
 }

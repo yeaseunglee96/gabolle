@@ -2,8 +2,78 @@
   "id": "MA010120220805367090",
   "name": "백스시",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사하구 사리로 2 에 있는 '백스시'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:21:53.683Z"
+  "geminiTokens": 52949,
+  "researchedAt": "2026-09-22T06:32:04.121Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 웨이팅, 혼잡도 관련 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼밥, 직장인, 데이트, 가족",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오늘의초밥",
+      "특선초밥",
+      "오마카세",
+      "모둠사시미"
+    ],
+    "yearsClaimed": 5
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~ 24:00 (자정 영업 종료)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사하구 괴정동에서 하단동으로 이전하여 인근 주민과 직장인들이 찾는 동네 초밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 사하구 괴정동(사리로 2)에서 운영하다가 하단동(하신중앙로335번길 13)으로 이전하여 영업 중인 초밥/일식 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "오늘의초밥, 특선초밥, 런치세트, 커플세트 등",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "특선초밥(광어, 연어, 소고기 등), 모둠사시미, 런치세트, 오마카세 등 다양한 일식 메뉴를 제공합니다. 사이드 메뉴로는 새우튀김, 감자고로케, 나가사키짬뽕 등이 있습니다. 주문 시 장국이 함께 제공되며, 식전 샐러드와 죽, 식후 아이스크림 디저트가 제공된다는 후기가 있습니다. 매장은 아늑하고 깔끔한 분위기로 데이트나 혼밥 장소로도 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "식전 죽·샐러드부터 식후 디저트까지 코스처럼 정갈하게 나오는 세트 구성과 초밥/사시미의 기본기 탄탄한 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "단품 초밥, 런치세트, 커플세트, 오마카세 등 혼밥과 식사, 안주까지 두루 맞춘 다양한 세트 메뉴와 합리적인 가격 구성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "죽, 샐러드, 후식 아이스크림 제공 등 친절하고 정성스러운 상차림과 고객 응대 서비스",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
 }

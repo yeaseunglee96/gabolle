@@ -2,8 +2,78 @@
   "id": "MA010120220810521489",
   "name": "오이시",
   "cat": "일식 회/초밥",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 가야대로284번길 11 에 있는 '오이시'(일식 회/초밥 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.752Z"
+  "geminiTokens": 60328,
+  "researchedAt": "2026-09-22T06:27:21.214Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기열에 대한 구체적인 언급은 확인되지 않았습니다."
+  },
+  "descriptors": {
+    "audience": "모임, 회식, 가족 외식",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "초밥",
+      "회석요리 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "주례동 인근 직장인 및 주민들의 회식/모임 위주 일식당"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 사상구 주례동(가야대로284번길 11)에 위치한 일식당으로 정통 일식, 모듬회, 스시, 구이, 튀김, 탕, 회석요리 코스 등을 취급하며 프라이빗 룸을 갖춘 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업체명: 오이시스시 (오이시) / 주소: 부산광역시 사상구 가야대로284번길 11 (주례동 507-18) / 전화번호: 051-313-8253 / 정통 일식 전문점으로 사시미, 스시, 구이, 튀김, 탕, 회석요리 등을 제공",
+      "url": "https://fordining.kr"
+    },
+    {
+      "excerpt": "일반 테이블과 룸으로 구성되어 있어 예약 후 조용하게 식사하기 좋은 구조로 운영. 단품 초밥뿐만 아니라 저녁에는 안주류, 그리고 회석 요리(코스, 오이시 프리미엄 등)를 제공. 전채요리, 전복회, 모듬회, 스시, 구이와 튀김, 식사 및 후식 순으로 제공되는 형태.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://fordining.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "룸 완비로 프라이빗한 모임 및 정통 일식 회석 요리 코스를 즐기기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "모듬회와 초밥, 구이, 튀김 등 정통 일식 코스 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

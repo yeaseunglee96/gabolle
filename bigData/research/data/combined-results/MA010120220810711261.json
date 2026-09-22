@@ -2,8 +2,69 @@
   "id": "MA010120220810711261",
   "name": "남강루",
   "cat": "중국집",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 대동로 193 에 있는 '남강루'(중국집 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.547Z"
+  "geminiTokens": 59713,
+  "researchedAt": "2026-09-22T06:25:40.421Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "짬뽕",
+      "간짜장"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금 10:30~19:30, 토 10:40~19:30 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객 대상 홍보나 방문 후기 없이 인근 주민 대상 배달 및 식사를 위주로 하는 동네 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "사상구 학장동 학장지구대 인근에 위치한 전형적인 동네 배달/방문 중식당으로, 온라인 상세 리뷰가 매우 적음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "짜장면 7,000원, 짬뽕 8,000원, 간짜장 8,500원, 볶음밥 8,500원, 탕수육밥 15,000원",
+    "priceWon": 7000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "남강루 / 주소: 부산광역시 사상구 대동로 193 (학장동 242-13) / 주요 메뉴: 짜장면(7,000원), 짬뽕(8,000원), 간짜장(8,500원), 볶음밥(8,500원), 탕수육밥(15,000원) 등 다양한 중식 메뉴를 제공합니다. / 배달과 포장이 가능한 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 사상구 대동로 193 (학장동) / 전화번호: 051-323-0821 / 영업시간: 월~금 10:30–19:30, 토 10:40–19:30 (일요일 휴무)",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기본적인 중식 식사류 배달 및 인근 식사 해결을 위해 찾는 동네 식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

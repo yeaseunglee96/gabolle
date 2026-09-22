@@ -2,8 +2,69 @@
   "id": "MA0101202502A0101447",
   "name": "스윗당",
   "cat": "빵/도넛",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 사상구 엄궁로 100 에 있는 '스윗당'(빵/도넛 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 ",
   "attempts": 1,
-  "researchedAt": "2026-09-22T06:22:45.335Z"
+  "geminiTokens": 60106,
+  "researchedAt": "2026-09-22T06:23:49.323Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 매장 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "디저트·구움과자 포장 고객, 인근 주민 및 학생",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "두바이 쫀득쿠키",
+      "키티 마들렌",
+      "곰돌이 마들렌",
+      "휘낭시에(오레오 크림치즈, 황치즈, 쑥인절미, 꿀고구마)"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광객/현지인 언급 없음 (아파트 상가 내 소규모 베이커리 공방/디저트점)"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산광역시 사상구 엄궁로 100(엄궁쌍용스윗닷홈 아파트 상가동 3층 303호)에 위치한 수제 구움과자 및 디저트 전문점. 두바이 쫀득쿠키, 캐릭터 마들렌(키티/곰돌이), 다양한 토핑의 휘낭시에 등을 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "정보 없음",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 엄궁로 100, 쌍용스윗닷홈 상가동 3층 303호 스윗당. 두바이 쫀득쿠키 등의 디저트 메뉴를 판매하는 것으로 확인됩니다.",
+      "url": "https://www.siksinhot.com/search?keywords=스윗당"
+    },
+    {
+      "excerpt": "스윗당: 키티 마들렌, 곰돌이 마들렌, 오레오 크림치즈 휘낭시에, 황치즈 휘낭시에, 쑥인절미 휘낭시에, 꿀고구마 휘낭시에 등 다양한 구움과자류를 판매하고 있습니다.",
+      "url": "https://www.siksinhot.com/search?keywords=스윗당"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/search?keywords=스윗당"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "키티/곰돌이 모양의 캐릭터 마들렌과 다양한 수제 휘낭시에, 두바이 쫀득쿠키 등 특색 있는 구움과자 디저트를 구매하기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }
