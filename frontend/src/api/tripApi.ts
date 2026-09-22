@@ -82,10 +82,18 @@ function mobility(
 
 export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
   const constraints: ConstraintInput[] = [
-    ...draft.allergies.map<ConstraintInput>((code) => ({
-      type: 'ALLERGY', constraintKey: code, severity: 'HARD', operator: 'EXCLUDES',
-      value: null, threshold: null, answerStatus: 'SELECTED', dietRequirement: null,
-    })),
+    // 🔴 ALLERGY 를 «일부러» 안 보낸다 (S15P21E201-1497, 결정은 -1468 의 ㄱ).
+    //
+    //    운영 place_feature 에 ALLERGEN_TAG 가 0행이다. 채점기는 표식 없는 후보를
+    //    「확인 못 함」으로 남기고 unknown-exclusion-threshold=REQUIRED 가 그것을 전부
+    //    뺀다 — 보내는 순간 후보가 0건이 되어 일정 생성이 실패한다.
+    //    실측(2026-09-22): 알레르기·식단을 고른 작업 8건 중 성공 0건.
+    //
+    //    🔴 질문을 지우는 것만으로는 부족해서 여기도 막는다. draft.allergies 에는
+    //    «전에 답해 둔 사람»의 값이 그대로 남아 있고, 그 사람들은 질문이 사라져도
+    //    계속 실패하게 된다. 지우지 않고 안 보내기만 한다 — 다시 열 때 그대로 쓴다.
+    //
+    //    다시 보내는 조건: ALLERGEN_TAG 가 VERIFIED 로 쌓였을 때. 그때 이 블록을 되살린다.
     ...draft.dietTypes.map<ConstraintInput>((code) => ({
       type: 'DIET', constraintKey: code, severity: 'HARD', operator: 'EXCLUDES',
       value: null, threshold: null, answerStatus: 'SELECTED', dietRequirement: 'REQUIRED',
