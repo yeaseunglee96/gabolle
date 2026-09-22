@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.TasteSignal;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 
 /**
@@ -80,93 +81,9 @@ public class BehaviorTasteFolder {
 	public record Attribution(TasteDimension dimension, String code, double raw, int support) {
 	}
 
-	/**
-	 * 이벤트 하나가 그 장소의 태그 쪽으로 미는 힘.
-	 *
-	 * <p>🔴 {@code place_view} 가 작은 것은 <b>「목록 맨 위」가 곧 취향이 되는 것을 막기</b>
-	 * 위해서다. 사람은 위에 있는 것을 더 보고, 위에 있는 이유는 지금 추천이 그렇게 정했기
-	 * 때문이다. 크게 주면 추천이 자기가 고른 것을 근거로 자기를 강화한다.
-	 *
-	 * <p>🔴 {@code itinerary_remove} 가 <b>약한</b> 부정인 것은 일정에서 빼는 이유가 「싫어서」만이
-	 * 아니기 때문이다 — 문 닫았고, 비 오고, 시간이 없다. 운영 사유가 적힌 것은 아예 안 세고
-	 * (질의의 {@code operational_reason} 조건), 안 적힌 것도 확신하지 않는다.
-	 *
-	 * <p>여기 없는 취향 신호({@code itinerary_replace}·{@code route_skip})는 <b>아직 아무도 안
-	 * 만들어서 payload 모양이 안 정해졌다.</b> 모양을 모르는 채로 기여값을 적으면 그것이 계약이
-	 * 된다 — 만드는 쪽이 정해지면 그때 한 줄씩 더한다.
-	 */
-	private static final Map<String, Double> CONTRIBUTION = Map.of(
-			"place_like", 1.0,
-			"place_visit", 0.5,
-			"place_view", 0.1,
-			"place_dislike", -1.0,
-			"itinerary_remove", -0.5);
-
-	/**
-	 * payload 에 장소가 하나 실리고, <b>같은 장소를 두 번 세면 안 되는</b> 이벤트.
-	 *
-	 * <h2>🔴 하트 한 번이 이벤트 두 건이다</h2>
-	 *
-	 * 앱이 하트를 켜면 <b>두 경로가 각자 적는다</b> — 저장 API 가 서버에서
-	 * ({@code SavedPlaceService.recordLike}), 앱이 분석 이벤트로 한 번 더. {@code eventId} 가
-	 * 달라 Outbox 멱등도 안 걸린다. 그래서 한 번 누른 하트가 「두 번 관측」이 되어
-	 * {@link #MIN_SUPPORT} 가드가 무력화된다 (S15P21E201-1485).
-	 *
-	 * <p>그런데 이 {@code DISTINCT} 는 그 중복을 덮는 반창고가 <b>아니다.</b> 하트는 켜짐/꺼짐
-	 * 이라 애초에 「두 번 켠 상태」가 없다 — {@code SavedPlaceService} 주석이 같은 말을 한다.
-	 * 같은 장소를 두 번 좋아할 수는 없으므로 한 번으로 세는 것이 <b>옳은 의미</b>이고,
-	 * 앱 쪽 중복을 걷어내도 이 조건은 그대로 있어야 한다 — 옛 앱 판이 한참 계속 보낸다.
-	 *
-	 * <p>{@code place_dislike} 도 같다. 의견은 상태이지 반복하는 행동이 아니다.
-	 *
-	 * <h2>🔴 그래서 «마지막 것» 만 본다 (S15P21E201-1506)</h2>
-	 *
-	 * 상태라면 읽는 법도 상태여야 한다. 예전에는 {@code DISTINCT} 로 <b>첫 관측</b>을 남겼는데,
-	 * 그러면 켰다 끈 사람을 읽지 못한다 — 끈 것이 이력 뒤에 있어도 앞의 「켬」이 남는다.
-	 * 이제 {@code (사람, 장소)} 마다 <b>가장 최근</b> 이벤트 하나만 보고 그 종류로 판정한다.
-	 *
-	 * <pre>
-	 * 마지막이 place_like          → +1.0
-	 * 마지막이 place_like_removed  →  기여 없음 (하트를 아예 안 누른 것과 같다)
-	 * 마지막이 place_dislike       → -1.0
-	 * </pre>
-	 *
-	 * <p>중복 제거는 그대로 살아 있다 — 장소마다 행이 하나만 나오므로 앱·서버가 각자 적은
-	 * 하트 두 건도 한 번으로 세어진다.
-	 *
-	 * <p>순서는 {@code seq} 로 가른다. {@code occurred_at} 만으로 정렬하면 같은 시각의 이벤트
-	 * 순서가 임의로 떨어진다 — 그 칼럼이 있는 이유가 정확히 이것이다.
-	 */
-	private static final List<String> STATE_PLACE_EVENTS =
-			List.of("place_like", "place_like_removed", "place_dislike");
-
-	/**
-	 * 상태를 <b>끄는</b> 이벤트 — 마지막이 이것이면 그 장소는 기여가 없다.
-	 *
-	 * <p>🔴 {@link #CONTRIBUTION} 에 {@code 0.0} 으로 넣지 않고 질의에서 <b>빼는</b> 이유가
-	 * 있다. 기여가 0 이어도 행이 나오면 {@code observations} 가 세어져 {@link #MIN_SUPPORT}
-	 * 가드를 넘길 수 있다 — 「끈 하트 두 개」가 성분을 만들어 낸다. 아예 안 나오는 것이 맞다.
-	 */
-	private static final List<String> STATE_CLEARING_EVENTS = List.of("place_like_removed");
-
-	/**
-	 * payload 에 장소가 하나 실리고, <b>반복이 뜻을 가지는</b> 이벤트.
-	 *
-	 * <p>같은 장소를 두 번 본 것은 한 번 본 것과 다르고, 두 번 간 것은 한 번 간 것과 다르다.
-	 * 여기에 {@code DISTINCT} 를 걸면 그 차이가 사라진다.
-	 */
-	private static final List<String> REPEATABLE_PLACE_EVENTS = List.of("place_view", "place_visit");
-
-	/** payload 에 장소가 <b>여럿</b> 실리는 이벤트 — {@code place_ids} 배열. */
-	private static final List<String> MANY_PLACE_EVENTS = List.of("itinerary_remove");
-
-	/**
-	 * 이보다 적게 관측된 성분은 안 내보낸다.
-	 *
-	 * <p>🔴 한 번 누른 것을 확신처럼 다루지 않는다. {@code UserTasteWeight} 가
-	 * {@code SURVEY} 가 아닌 성분에 {@code support=0} 을 DB 에서 거부하는 것과 같은 정신이다.
-	 */
-	private static final int MIN_SUPPORT = 2;
+	// 🔴 기여값과 이벤트 분류는 TasteSignal 로 옮겼다 (S15P21E201-1500). 카프카 소비자가
+	//    같은 값으로 같은 판정을 해야 하는데, 두 곳에 두면 반드시 어긋나고 어긋나면
+	//    "배치가 만든 값과 소비자가 만든 값이 다르다"가 오류 없이 생긴다.
 
 	/** JSONB 에는 UUID 가 아닌 문자열도 들어올 수 있다. 캐스팅 전에 모양을 먼저 본다. */
 	private static final String UUID_SHAPE =
@@ -182,7 +99,7 @@ public class BehaviorTasteFolder {
 	 */
 	private static final String ATTRIBUTION_SQL = """
 			WITH state AS (
-			    -- 하트·하트끔·싫어요 — «상태» 라 마지막 것만 본다. 이유는 STATE_PLACE_EVENTS 에 있다.
+			    -- 하트·하트끔·싫어요 — «상태» 라 마지막 것만 본다. 이유는 TasteSignal 에 있다.
 			    SELECT DISTINCT ON (place_id) event_type, place_id
 			      FROM (SELECT e.event_type                          AS event_type,
 			                   CAST(e.payload ->> 'placeId' AS uuid) AS place_id,
@@ -262,7 +179,7 @@ public class BehaviorTasteFolder {
 			String eventType = rs.getString("event_type");
 			int observations = rs.getInt("observations");
 
-			Double contribution = CONTRIBUTION.get(eventType);
+			Double contribution = TasteSignal.contributionOf(eventType);
 			if (dimension == null || code == null || contribution == null) {
 				// 질의가 골라 온 것이므로 여기 오면 대조표와 이 클래스의 목록이 어긋난 것이다.
 				// 조용히 넘기지 않는다 — 그 어긋남은 "성분이 적게 나온다" 로만 나타난다.
@@ -272,14 +189,14 @@ public class BehaviorTasteFolder {
 			}
 			running.computeIfAbsent(new Key(dimension, code), (k) -> new Running())
 					.add(contribution * observations, observations);
-		}, userId, asOf, String.join(",", STATE_PLACE_EVENTS), UUID_SHAPE,
-				String.join(",", STATE_CLEARING_EVENTS),
-				userId, asOf, String.join(",", REPEATABLE_PLACE_EVENTS), UUID_SHAPE,
-				userId, asOf, String.join(",", MANY_PLACE_EVENTS), UUID_SHAPE);
+		}, userId, asOf, TasteSignal.stateEventsCsv(), UUID_SHAPE,
+				TasteSignal.stateClearingEventsCsv(),
+				userId, asOf, TasteSignal.repeatableEventsCsv(), UUID_SHAPE,
+				userId, asOf, TasteSignal.manyPlaceEventsCsv(), UUID_SHAPE);
 
 		List<Attribution> result = new ArrayList<>();
 		running.forEach((key, sum) -> {
-			if (sum.support < MIN_SUPPORT) {
+			if (sum.support < TasteSignal.MIN_SUPPORT) {
 				return;
 			}
 			result.add(new Attribution(key.dimension(), key.code(), sum.raw, sum.support));

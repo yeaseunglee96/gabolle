@@ -53,6 +53,9 @@ public record TasteWeightComponent(TasteDimension dimension, String code, double
 		// 순서가 실행마다 흔들리면 「왜 이 점수인가」를 되짚을 때 diff 가 시끄럽다.
 		Map<String, Accumulator> byComponent = new LinkedHashMap<>();
 		for (UserTasteWeight row : rows) {
+			if (tooThinToTrust(row)) {
+				continue;
+			}
 			byComponent.computeIfAbsent(key(row.getDimension(), row.getCode()),
 					(ignored) -> new Accumulator(row.getDimension(), row.getCode())).add(row);
 		}
@@ -62,6 +65,20 @@ public record TasteWeightComponent(TasteDimension dimension, String code, double
 			merged.add(accumulator.toComponent());
 		}
 		return List.copyOf(merged);
+	}
+
+	/**
+	 * 뒷받침이 모자란 <b>행동</b> 행인가 (S15P21E201-1500).
+	 *
+	 * <p>🔴 배치는 이런 행을 <b>만들지 않는다</b> — 전 이력을 다 세고 나서 모자란 것을 안
+	 * 내보낸다. 소비자는 그럴 수가 없다. 관측이 하나씩 오므로 첫 번째에서 이미 행이 생기고
+	 * 두 번째에 2 가 된다. 그래서 읽을 때 한 번 더 거른다.
+	 *
+	 * <p>설문 행은 안 거른다. 설문의 뒷받침은 0 이고, 그건 「관측이 모자라다」가 아니라
+	 * <b>관측이라는 개념이 없다</b>는 뜻이다 — 사람이 직접 고른 값이다.
+	 */
+	private static boolean tooThinToTrust(UserTasteWeight row) {
+		return row.getEvidence() == TasteEvidence.INTERACTION && row.getSupport() < TasteSignal.MIN_SUPPORT;
 	}
 
 	/**
