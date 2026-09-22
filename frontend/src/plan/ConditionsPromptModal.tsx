@@ -1,4 +1,21 @@
-// 여행 조건 모달 — 알레르기 · 식단 · 이동 환경.
+// 여행 조건 모달 — 식단 · 이동 환경.
+//
+// 🔴 알레르기는 «일부러» 안 묻는다 (S15P21E201-1497, 결정은 -1468 의 ㄱ).
+//    묻고 나서 그 답 때문에 여행을 «못 만들게» 하고 있었다. 운영 place_feature 에
+//    ALLERGEN_TAG 가 0행이라, 채점기가 표식 없는 후보를 「확인 못 함」으로 남기고
+//    unknown-exclusion-threshold=REQUIRED 가 그것을 전부 뺀다 — 후보가 0건이 된다.
+//    실측(2026-09-22): 알레르기·식단을 «고른» 작업 8건 중 성공 0건. 한 명도 못 만들었다.
+//
+//    「확인 못 했어요」 경고를 달아 내보내는 길(-1468 의 ㄴ)은 이동 제약에서 실제로
+//    통했지만(표식 1.5%였는데 경고로 바꾼 뒤 55건 성공), 알레르기에는 쓰지 않는다.
+//    접근성 추정이 틀리면 «불편»하고 알레르기 추정이 틀리면 «사람이 다친다».
+//
+//    🔴 여기서 안 묻는 것은 «여행을 만들 때 거는 조건» 하나다. 메뉴판 읽기
+//    (field/menuScan.ts)와 장소 상세의 안전 표시는 그대로다 — 그건 사용자가 그 자리에서
+//    직접 확인하는 것이라 성격이 다르다. 이미 저장된 값도 지우지 않는다.
+//
+//    다시 여는 조건: 운영 place_feature 에 ALLERGEN_TAG 가 VERIFIED 로 쌓였을 때.
+//    ck_place_feature_safety_never_estimated 가 ESTIMATED 저장을 막으므로 추정으로는 못 채운다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 conditions-modal / conditions-sheet
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -11,12 +28,6 @@ import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan, type ConstraintSelectionStatus, type PlanDraft } from '@/plan/PlanProvider';
 import { conditionsFromDraft, saveTravelConditions } from '@/plan/travelConditions';
-
-const ALLERGIES = [
-  ['PEANUT', '땅콩', 'Peanuts'], ['TREE_NUT', '견과류', 'Tree nuts'], ['SHELLFISH_CRUSTACEAN', '갑각류', 'Shellfish'],
-  ['FISH', '생선', 'Fish'], ['EGG', '달걀', 'Egg'], ['MILK_DAIRY', '우유·유제품', 'Milk · dairy'],
-  ['WHEAT', '밀', 'Wheat'], ['SOY', '대두', 'Soy'],
-] as const;
 
 const DIETS = [
   ['VEGETARIAN', '채식', 'Vegetarian'], ['VEGAN', '비건', 'Vegan'], ['HALAL', '할랄', 'Halal'],
@@ -71,28 +82,30 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
     onClose(outcome);
   };
 
-  const setStatus = (field: 'allergyStatus' | 'dietStatus', answered: 'allergyAnswered' | 'dietAnswered', values: 'allergies' | 'dietTypes', next: ConstraintSelectionStatus) => {
+  const setStatus = (field: 'dietStatus', answered: 'dietAnswered', values: 'dietTypes', next: ConstraintSelectionStatus) => {
     // 「해당 없음」을 고르면 고른 항목을 비운다. 안 비우면 「해당 없음인데 땅콩 선택됨」이
     // 남아, 서버가 둘 중 어느 것을 믿어야 할지 모른다.
     update({ [field]: next, [answered]: true, ...(next === 'VALUES' ? {} : { [values]: [] }) } as Partial<PlanDraft>);
   };
 
-  const toggle = (field: 'allergies' | 'dietTypes', code: string) => {
+  const toggle = (field: 'dietTypes', code: string) => {
     const list = draft[field];
     update({ [field]: list.includes(code) ? list.filter((item) => item !== code) : [...list, code] } as Partial<PlanDraft>);
   };
 
-  // 저장하려면 알레르기·식단 둘 다 답해야 한다. 그 둘은 「모르면 안전하다고 치지 않는」
-  // 자리라, 비운 채로 저장하면 확인 화면이 다시 막는다 — 지금 사용자가 겪은 그것이다.
-  const savable = draft.allergyAnswered && draft.dietAnswered
-    && (draft.allergyStatus !== 'VALUES' || draft.allergies.length > 0)
+  // 저장하려면 식단에 답해야 한다. 「모르면 안전하다고 치지 않는」 자리라, 비운 채로
+  // 저장하면 확인 화면이 다시 막는다.
+  //
+  // 🔴 알레르기는 이 조건에서 «빠져야» 한다. 질문을 지웠으므로 allergyAnswered 가 영영
+  //    false 인 사람이 생기고, 남겨 두면 그런 사람은 저장 단추를 영영 못 누른다.
+  const savable = draft.dietAnswered
     && (draft.dietStatus !== 'VALUES' || draft.dietTypes.length > 0);
 
   const statusRow = (
     label: string,
-    field: 'allergyStatus' | 'dietStatus',
-    answered: 'allergyAnswered' | 'dietAnswered',
-    values: 'allergies' | 'dietTypes',
+    field: 'dietStatus',
+    answered: 'dietAnswered',
+    values: 'dietTypes',
   ) => (
     <View style={styles.chips}>
       <Chip label={tx('해당 없음', 'None')} selected={draft[field] === 'NONE'} onPress={() => setStatus(field, answered, values, 'NONE')} />
@@ -119,18 +132,8 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             <Text color={color.text.body} style={styles.intro}>
               {reprompt
                 ? tx('일정을 만들기 전에 여행 조건을 알려주실래요? 건너뛰면 다음 「일정 물어보기」 때 다시 물어요.', 'Shall we take your travel conditions before building the itinerary? If you skip, we will ask again next time.')
-                : tx('알레르기와 식단은 안전에 걸리는 것이라, 모르면 안전하다고 치지 않아요. 한 번만 알려주시면 다음부터 안 물어봐요.', 'Allergies and diet affect safety — we never assume a place is safe when we do not know. Tell us once and we will not ask again.')}
+                : tx('식단은 안전에 걸리는 것이라, 모르면 안전하다고 치지 않아요. 한 번만 알려주시면 다음부터 안 물어봐요.', 'Diet affects safety — we never assume a place is safe when we do not know. Tell us once and we will not ask again.')}
             </Text>
-
-            <View style={styles.block}>
-              <Text weight="bold">{tx('알레르기', 'Allergies')} <Text color={color.state.danger}>*</Text></Text>
-              {statusRow(tx('알레르기', 'Allergies'), 'allergyStatus', 'allergyAnswered', 'allergies')}
-              {draft.allergyStatus === 'VALUES' ? (
-                <View style={styles.chips}>{ALLERGIES.map(([code, ko, en]) => (
-                  <Chip key={code} label={tx(ko, en)} selected={draft.allergies.includes(code)} onPress={() => toggle('allergies', code)} />
-                ))}</View>
-              ) : null}
-            </View>
 
             <View style={styles.block}>
               <Text weight="bold">{tx('식단', 'Diet')} <Text color={color.state.danger}>*</Text></Text>
