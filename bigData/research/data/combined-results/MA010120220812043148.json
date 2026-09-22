@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220812043148",
+  "name": "이리스",
+  "cat": "그 외 기타 간이 음식점",
+  "attempts": 1,
+  "geminiTokens": 53125,
+  "researchedAt": "2026-09-22T06:57:50.312Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 방문 후기 및 일반 영업 정보를 확인할 수 없음",
+  "notes": "부산광역시 해운대구 중동1로37번길 12(태진빌딩) 104호 등에 '이리스'라는 사업자 명칭(샌드위치/기타 간이음식점)이 일부 등록 DB에 나타나나, 실제 소비자가 이용하는 블로그 후기나 방문 리뷰, 메뉴 상세 정보 등이 웹상에 존재하지 않아 실질적인 매장 정보 확인 불가.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://saramin.co.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202505A0030065",
+  "name": "타이하우스",
+  "cat": "기타 동남아식 전문",
+  "attempts": 1,
+  "geminiTokens": 69530,
+  "researchedAt": "2026-09-22T06:55:46.834Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 부재 및 실존 여부 미확인",
+  "notes": "부산광역시 해운대구 구남로 31에 위치한 '타이하우스' 음식점에 대해 웹 검색을 수행하였으나, 해당 주소지에 입점해 있는 실제 식당 정보나 방문 리뷰, 메뉴, 운영 내역을 확인할 수 없었습니다(해당 주소지는 과거 타 업종/식당 등이 위치했던 이력이 확인되며, 타이하우스 관련 실질적인 음식점 정보 부재로 found: false 처리).",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

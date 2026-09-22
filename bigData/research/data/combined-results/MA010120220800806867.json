@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220800806867",
+  "name": "런던샷",
+  "cat": "생맥주 전문",
+  "attempts": 1,
+  "geminiTokens": 106464,
+  "researchedAt": "2026-09-22T06:55:14.525Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 직접적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "연인 및 친목 모임, 혼술족",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "칵테일",
+      "생맥주",
+      "나초"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:00 ~ 익일 04:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변가에 위치하여 광안대교 오션뷰 야경을 즐기려는 관광객 및 혼술 방문객 언급 있음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "광안해변로에 위치한 라운지 펍으로 1~3층 규모(1층 바, 2층 오션뷰 테이블/단체석, 3층 루프탑)로 운영되며 광안대교 조망이 특징입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1~3층 규모로 구성된 공간으로, 칵테일, 위스키, 와인, 맥주 등 다양한 주류를 즐길 수 있습니다. 1층은 바 테이블 위주로 활기차고 자유로운 분위기, 2층은 테이블석과 단체석이 마련되어 있으며 광안대교와 오션뷰를 감상할 수 있어 데이트나 지인과의 모임에 적합합니다. 3층은 루프탑 공간으로 시원한 바닷바람과 함께 야외 분위기를 즐길 수 있습니다. 각 테이블에 비치된 패드를 통해 주문하는 시스템입니다. 평일만 예약이 가능합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "운영 시간: 매일 16:00 ~ 익일 04:00. 광안리 해변가에 위치해 있어 광안대교 야경을 즐기기 좋은 핫플레이스로 알려져 있습니다.",
+      "url": "https://nol.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://nol.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변 바로 앞 오션뷰와 광안대교 야경을 층별(루프탑/테이블석)로 즐길 수 있는 라운지 펍 분위기 때문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

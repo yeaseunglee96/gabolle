@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202508A0009104",
+  "name": "코로링",
+  "cat": "그 외 기타 간이 음식점",
+  "attempts": 1,
+  "geminiTokens": 52020,
+  "researchedAt": "2026-09-22T06:57:33.709Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 또는 줄서기에 대한 웹 언급 없음"
+  },
+  "descriptors": {
+    "audience": "간편식·샐러드 및 건강 간식을 찾는 방문객/혼밥객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "가마보코(어묵)",
+      "코롱",
+      "슈마이"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간에 대한 정확한 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 별도 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 해리단길(우동1로38번가길 28)에 위치한 일본식 찐 어묵 전문 간이음식점으로, 튀기지 않은 가마보코, 코롱, 슈마이 등을 야채와 함께 조합해 건강식/간식/식사대용으로 판매함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "일본 대표 간식인 가마보코(어묵), 코롱, 슈마이 등을 신선한 야채와 함께 조합하여 즐길 수 있는 간식 및 식사 대용 매장입니다. 기름에 튀기지 않은 일본식 찐 어묵을 사용하며, 신선한 야채와 다양한 재료를 조합해 웰빙 샐러드 느낌으로 즐길 수 있어 식사 대용이나 간식으로 인기가 있습니다. 위치: 부산광역시 해운대구 우동1로38번가길 28 (해리단길 내)",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기름에 튀기지 않은 일본식 찐 어묵(가마보코, 코롱, 슈마이)과 신선한 야채를 조합한 웰빙 건강 간식 및 간편 식사",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

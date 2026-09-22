@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220811474451",
+  "name": "박옥녀뽀뽀통닭",
+  "cat": "치킨",
+  "attempts": 1,
+  "geminiTokens": 86603,
+  "researchedAt": "2026-09-22T06:59:04.813Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "여행객, 단체 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "켄터키 치킨",
+      "통마리 치킨",
+      "반반 치킨"
+    ],
+    "yearsClaimed": 1990
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "24시간 영업 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 전통시장 내 위치하여 여행객들이 숙소에서 즐기기 좋은 포장·배달 장소로도 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 구남로41번길 40(해운대 전통시장 골목)에 위치한 1990년 시작된 노포 통닭집(박옥녀 뽀뽀통닭). 24시간 영업 및 포장/배달을 지원함. 현재 운영 여부는 변동 가능성이 있어 확인 필요.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1990년부터 이어온 노포 분위기의 시장 통닭집입니다. 켄터키 치킨, 통마리 치킨, 후라이드, 양념, 간장 치킨 등 다양한 메뉴를 판매합니다. 매장 내부가 넓어 단체 방문이나 식사가 가능하며, 포장 및 배달도 활발하여 여행객들이 숙소에서 즐기기 좋은 곳으로 인기가 많습니다.",
+      "url": "https://www.siksinhot.com/P/278453"
+    },
+    {
+      "excerpt": "해운대 전통시장 인근에 위치한 노포 치킨집으로, 바삭한 식감의 '켄터키 치킨'과 '통마리 치킨', '반반 치킨' 등이 유명합니다. 배달 및 포장이 가능하여 해운대 여행객들이 숙소에서 즐기기에도 좋은 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/P/278453"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/278453",
+    "https://www.menupan.com/restaurant/onepage.asp?acode=H701824"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1990년부터 운영되어 온 전통시장 노포 시장통닭의 분위기와 바삭한 켄터키·통마리 치킨 맛",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "바삭한 식감의 전통 켄터키 치킨 및 통마리·양념 치킨의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "24시간 운영과 포장 및 배달이 편리하여 해운대 여행객의 숙소 야식으로 용이함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

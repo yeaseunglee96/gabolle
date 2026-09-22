@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220803418492",
+  "name": "탁주",
+  "cat": "요리 주점",
+  "attempts": 1,
+  "geminiTokens": 41186,
+  "researchedAt": "2026-09-22T06:58:02.098Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소지(부산광역시 수영구 광안로61번길 69-6)로 사업자 상호 '탁주(TAKJU)' 등록 이력은 존재하나, 실제 일반 대중을 상대로 영업 중인 요리주점에 대한 상세 정보(영업시간, 메뉴, 후기 등)는 웹상에서 확인되지 않음. 과거 동 주소지에는 카페/펍 '럼블' 등이 운영된 기록이 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

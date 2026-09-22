@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220810771913",
+  "name": "수궁복집",
+  "cat": "복 요리 전문",
+  "attempts": 1,
+  "geminiTokens": 66188,
+  "researchedAt": "2026-09-22T06:56:35.966Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기 관련 온라인 리뷰나 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "복국",
+      "복요리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 동래구 충렬대로 296(낙민동)에 위치한 복요리 전문 일반음식점으로 동래구청 등의 공식 등록 정보상 확인되나, 상세 블로그 리뷰나 메뉴판 정보가 온라인에 등록되어 있지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "수궁복집 (Sugung Puffer Fish Restaurant) 전화번호: 051-555-2151",
+      "url": "https://www.dongnae.go.kr"
+    },
+    {
+      "excerpt": "주소: 부산광역시 동래구 충렬대로 296 (낙민동) 전화번호: 051-555-2151 복국 및 복요리 전문점",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://www.dongnae.go.kr",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동래구 낙민동에 위치한 복국 및 복요리 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220808188748",
+  "name": "빌리버거",
+  "cat": "버거",
+  "attempts": 1,
+  "geminiTokens": 108989,
+  "researchedAt": "2026-09-22T06:54:55.142Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도의 웨이팅이나 줄서기 언급은 없으나, 내부가 아담하고 구경하며 기다린다는 언급 있음"
+  },
+  "descriptors": {
+    "audience": "버거 및 아메리칸 스타일 수제버거 선호 고객, 캐주얼 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "치즈버거",
+      "더블 치즈버거",
+      "트리플 치즈버거"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~월 11:30 ~ 20:00 (라스트오더 19:30), 매주 화요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 직접적인 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "메인 메뉴는 치즈버거 단일 라인업으로 패티 개수(오리지널, 더블, 트리플)를 선택하는 스매시드 패티 전문 수제버거점. 세트 주문 시 감자튀김과 음료(맥주 변경 가능)가 포함됨.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/bvpekI/btsMr7F6vQi/AAAAAAAAAAAAAAAAAAAAAPRZkLguTu0zjBZz0e-db-3-rGFMR4pxk5f8EiAGEMgY/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=K21X5S0ULZ382qt0oCtJ%2Fd6jGhU%3D",
+    "https://blog.kakaocdn.net/dna/Uiflh/btsMtaovq4H/AAAAAAAAAAAAAAAAAAAAAPzBRZDq7Idm23hiYbsy5w1lP1F86zzZR8QW2R8wKCZs/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=eaxw7eYdF0df0KHPN9bE9NJmCvY%3D"
+  ],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "외관에서 느껴지는 아메리카 향기. 주차는 가게 앞에 1-2대 가능하다. 내부에서도 느껴지는 아메리카 향기. 메인 메뉴는 오직 치즈버거! 패티 개수 선택만 가능하다. 단일 메뉴는 왠지 더 신뢰가 가고 메뉴 고민을 줄일 수 있어서 좋다. 가게 곳곳에 아기자기한 소품들이 많아 기다리면서 구경하는 재미가 있다.",
+      "url": "https://nadragon.tistory.com/318"
+    },
+    {
+      "excerpt": "더블 치즈버거 세트. 패티 두 장 들어간 치즈버거에 감자튀김, 음료가 포함된다. 추가 요금을 내고 탄산음료를 버드와이저 맥주로 바꿨다. 패티가 꾸욱 눌러 구워져서 얇지만 바삭하고 정말 맛있다. 고기 좋아하시는 분들은 더블 치즈버거로 시키세요! 힙한 분위기도 좋았지만 무엇보다 버거가 맛있어서 또 방문하고픈 빌리버거",
+      "url": "https://nadragon.tistory.com/318"
+    }
+  ],
+  "sources": [
+    "https://nadragon.tistory.com/318"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "스매시드 방식으로 바삭하게 눌러 구운 패티의 치즈버거 맛과 풍미",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미국 감성의 힙한 인테리어와 아기자기한 소품 분위기",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

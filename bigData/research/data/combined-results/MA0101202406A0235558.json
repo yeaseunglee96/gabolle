@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202406A0235558",
+  "name": "왓더버거광안리점",
+  "cat": "버거",
+  "attempts": 1,
+  "geminiTokens": 45838,
+  "researchedAt": "2026-09-22T06:54:27.401Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "친구·연인·관광객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "직화 통새우버거",
+      "왓더버거",
+      "셧더버거"
+    ],
+    "yearsClaimed": 2020
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "매장 상세 영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 인근 위치로 광안대교 조망과 함께 방문하는 관광객 및 나들이객 언급"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "왓더버거 공식 매장 목록 및 맛집 정보 사이트(식신 등)에 등록된 실제 매장으로, 대표 메뉴는 직화 통새우버거 등이 확인됩니다. 상세 영업시간과 개별 줄서기 언급은 확인되지 않아 해당 항목은 false 처리했습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리점 / 부산광역시 수영구 광안해변로 241 (민락동) / 051-751-4626",
+      "url": "https://whattheburger.co.kr"
+    },
+    {
+      "excerpt": "광안리 수제버거의 진수라는 평과 함께 등록되어 있습니다. 주소: 부산광역시 수영구 광안해변로 241 1층",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://whattheburger.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "직화 통새우버거, 왓더버거 등 신선한 수제 패티와 특제 소스를 활용한 수제버거 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해변로에 위치해 광안대교와 바다 인근에서 접근하기 편함",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
