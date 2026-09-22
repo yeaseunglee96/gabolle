@@ -2,8 +2,47 @@
   "id": "MA0101202406A0578509",
   "name": "소셜에프앤비",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 달맞이길117번가길 175 에 있는 '소셜에프앤비'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. *",
   "attempts": 1,
-  "researchedAt": "2026-09-22T11:45:23.205Z"
+  "geminiTokens": 71923,
+  "researchedAt": "2026-09-22T11:48:12.429Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "일반 소비자 대상 음식점 매장이 아닌 신규 외식업 등록 법인(주식회사) 정보만 확인되며, 실제 방문 가능한 식당 영업 정보 및 리뷰가 존재하지 않음",
+  "notes": "'소셜에프앤비'는 부산광역시 해운대구 달맞이길117번가길 175에 등록된 외식업 법인(주식회사 소셜에프앤비, 2024년 5월 설립)으로 확인되나, 일반 소비자가 방문하는 독립된 대중 음식점/식당 매장으로서의 리뷰, 메뉴판, 영업시간, 방문 이유 등 소비자 대상 매장 정보가 웹상에 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "기업 개요: 2024년 5월 7일에 설립된 법인 기업으로, 주요 업종은 양식 등 음식점업입니다. 소재지: 부산광역시 해운대구 달맞이길117번가길 175, 3층 (중동)에 위치하고 있습니다. 기업 형태: 중소기업이며 비상장 기업입니다.",
+      "url": "https://www.albamon.com"
+    }
+  ],
+  "sources": [
+    "https://www.albamon.com"
+  ],
+  "whyPeopleGo": []
 }

@@ -2,8 +2,73 @@
   "id": "MA0101202411A0049339",
   "name": "울트라바이트",
   "cat": "경양식",
-  "found": null,
-  "error": "Command failed: agy --model gemini-3.8-flash-low --effort low --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 수영구 민락로14번길 28 에 있는 '울트라바이트'(경양식 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목",
   "attempts": 1,
-  "researchedAt": "2026-09-22T11:44:58.206Z"
+  "geminiTokens": 92033,
+  "researchedAt": "2026-09-22T11:48:33.527Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "예약 기반으로 운영되며 줄서기/혼잡 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트, 와인 및 컨템퍼러리 미식 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "통으로 구운 한치 (앤쵸비 크림, 라르도)",
+      "새송이버섯 튀김 (생강 소스, 라임 주스)"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월요일, 수요일~일요일 18:00-01:00 (화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 골목길의 미쉐린 가이드 수록 레스토랑으로 데이트 및 트렌디한 식당을 찾는 손님층 방문"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "미쉐린 가이드 부산에 등재된 민락동의 컨템퍼러리 다이닝 바/비스트로입니다.",
+  "photoUrls": [
+    "https://prod-pics.guide.michelin.com/api/public/content/ab7727707d0f4c7ca4452f19c318ff5b.jpg?format=webp",
+    "https://prod-pics.guide.michelin.com/api/public/content/8e206c3203934267b1af9eaed7b3241a.jpg?format=webp",
+    "https://prod-pics.guide.michelin.com/api/public/content/2e9b9a8e356949e2b3c33e4e7258bcfc.jpg?format=webp"
+  ],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 작은 골목길 끝에 보이는 울트라바이트. 세련된 파사드에 큰 유리창 안으로 보이는 내부의 은은한 조명과 와인병이 아늑한 분위기를 자아낸다. 젊은 셰프들이 운영하는 이 공간은 그 분위기에 걸맞게 편하게 즐길 수 있는 세련된 요리와 와인을 제공한다. 호주와 서울에서 경험을 쌓고 돌아온 셰프들이 각자의 경험과 창의성을 십분 활용해 재기 발랄한 음식들을 만들어낸다. 통으로 구운 한치는 앤쵸비 크림과 라르도, 발효한 토마토 피클을 사용하는데 식감이 쫄깃할 뿐 아니라 부드러운 소스의 맛과 상큼한 토마토의 절묘한 밸런스가 와인과 잘 어우러진다. 큰 새송이 버섯에 튀김옷을 입혀 통째로 튀긴 후 달콤하고 매콤한 생강 소스를 입혀 낸 튀김은 마치 버섯 탕수를 먹는 느낌을 주고 함께 나오는 라임 주스와 김가루가 독특한 맛을 더한다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/ultra-bite"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/ultra-bite"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "호주와 서울 경험의 젊은 셰프들이 선보이는 창의적인 컨템퍼러리 요리와 와인의 페어링 완성도",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산에 등재된 검증된 다이닝 바",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
 }
