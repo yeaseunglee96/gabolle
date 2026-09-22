@@ -3,6 +3,9 @@ package com.gabolle.backend.itinerary.infra;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 
 import jakarta.persistence.Column;
@@ -71,6 +74,15 @@ public class ItineraryLegJpaEntity {
 	@Column(name = "fare_krw", updatable = false)
 	private Integer fareKrw;
 
+	/**
+	 * 이 구간이 지나는 길의 좌표 목록을 JSON 으로 — {@code [[경도,위도], …]} 순서다.
+	 * {@code null} 은 "어느 길로 갔는지 모른다" 이고, DB 의 {@code ck_itinerary_leg_path} 가
+	 * 점 하나짜리와 빈 배열을 막는다.
+	 */
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "path", updatable = false)
+	private String path;
+
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private OffsetDateTime createdAt;
 
@@ -81,7 +93,7 @@ public class ItineraryLegJpaEntity {
 	ItineraryLegJpaEntity(UUID itineraryLegId, UUID itineraryVersionId, int dayIndex, int sequence,
 			UUID fromPlaceId, UUID toPlaceId, String travelMode, Integer distanceM, Integer durationMin,
 			Integer walkingMeters, Integer ascentM, Integer stairSteps,
-			ItineraryItem.DataStatus dataStatus, Integer fareKrw, OffsetDateTime createdAt) {
+			ItineraryItem.DataStatus dataStatus, Integer fareKrw, String path, OffsetDateTime createdAt) {
 		this.itineraryLegId = itineraryLegId;
 		this.itineraryVersionId = itineraryVersionId;
 		this.dayIndex = dayIndex;
@@ -96,9 +108,11 @@ public class ItineraryLegJpaEntity {
 		this.stairSteps = stairSteps;
 		this.dataStatus = dataStatus;
 		this.fareKrw = fareKrw;
+		this.path = path;
 		this.createdAt = createdAt;
 	}
 
+	String path() { return path; }
 	UUID itineraryLegId() { return itineraryLegId; }
 	UUID itineraryVersionId() { return itineraryVersionId; }
 	int dayIndex() { return dayIndex; }

@@ -93,7 +93,10 @@ public class ItineraryLegPlanner {
 
                 legs.add(new ItineraryDraft.DraftLeg(dayIndex, i + 1,
                         fromPlaceId, toPlaceId, travelMode, distanceM, measured.durationMin(),
-                        walkingMeters, measured.dataStatus(), measured.fareKrw()));
+                        walkingMeters, measured.dataStatus(), measured.fareKrw(),
+                        // 선형은 실제 길찾기 응답을 받았을 때만 들어온다. 위에서 직선거리로
+                        // 메운 경우에는 null 이고, 그 구분이 지도에서 실선과 점선을 가른다.
+                        measured.path()));
             }
         }
         return legs;
@@ -139,7 +142,7 @@ public class ItineraryLegPlanner {
                 leg.fromPlaceId() != null ? leg.fromPlaceId().toString() : null,
                 leg.toPlaceId().toString(), leg.travelMode(), leg.distanceM(),
                 leg.durationMin(), leg.walkingMeters(), null, null,
-                leg.dataStatus(), leg.fareKrw(), now);
+                leg.dataStatus(), leg.fareKrw(), leg.path(), now);
     }
 
     /**

@@ -91,6 +91,20 @@ public record ItineraryDetailResponse(
 			 * 그 장소에 들어가는 돈인 {@code estimatedCostKrw} 와 더하지 않는다.
 			 */
 			Integer travelFareKrw,
+			/**
+			 * 이 항목으로 오는 구간이 <b>실제로 지나는 길</b>의 좌표 목록.
+			 * {@code [[경도, 위도], …]} 순서다 — GeoJSON·지도 라이브러리와 같은 순서라 그대로
+			 * 넘겨 그릴 수 있다.
+			 *
+			 * <p>🔴 <b>{@code null} 이면 직선을 그리라는 뜻이 아니라 「어느 길인지 모른다」는
+			 * 뜻이다.</b> 길찾기 응답을 실제로 받은 구간에만 값이 있고, 직선거리로 어림잡은
+			 * 구간은 비어 있다. 화면은 이 둘을 다르게 그린다 — 실제 길은 실선, 추정은 점선
+			 * (S15P21E201-1234).
+			 *
+			 * <p>이 칸이 생기기 전(2026-09-22)에 만들어진 판은 전부 {@code null} 이다.
+			 * 그때 어느 길로 갔는지는 남아 있지 않다.
+			 */
+			List<double[]> travelPath,
 
 			/**
 			 * 이 항목에 붙은 경고. {@code itinerary_item.warning_codes} 를 그대로 옮긴다. 경고가
