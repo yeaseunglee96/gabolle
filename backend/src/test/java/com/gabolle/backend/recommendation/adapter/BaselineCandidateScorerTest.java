@@ -377,15 +377,17 @@ class BaselineCandidateScorerTest {
 	@DisplayName("🔴 벡터가 겹치면 덧점수가 실제로 붙는다 — 기여가 0 이 아니다")
 	void tasteVectorAddsWhenItOverlaps() {
 		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
-		List<UserTasteWeight> vector = List.of(
-				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, 7, NOW));
+		// 🔴 예전에는 무게 1.0 을 넣었는데 그건 운영에서 나올 수 없는 값이다 (S15P21E201-1500).
+		//    행동 무게는 관측이 아무리 쌓여도 1 에 못 닿는다 — raw/(|raw|+K) 는 늘 1 미만이다.
+		List<UserTasteWeight> vector = List.of(UserTasteWeight.fromInteraction(TASTE_VECTOR_ID,
+				TasteDimension.CATEGORY, "CAFE_HEALING", rawForWeight(0.75), 7, NOW));
 
 		EngineCandidate without = score(cafe, null, List.of());
 		EngineCandidate with = score(cafe, null, List.of(), vector);
 
 		assertThat(with.preRankScore()).as("겹쳤는데 점수가 안 움직이면 배관이 끊긴 것이다")
 				.isGreaterThan(without.preRankScore());
-		assertThat(with.preRankScore() - without.preRankScore()).isCloseTo(TASTE_MULTIPLIER * 1.0, within(1e-9));
+		assertThat(with.preRankScore() - without.preRankScore()).isCloseTo(TASTE_MULTIPLIER * 0.75, within(1e-9));
 		assertThat(with.scoreComponents()).containsKey("tasteVectorContribution");
 	}
 
@@ -409,7 +411,8 @@ class BaselineCandidateScorerTest {
 	void negativeWeightLowersScore() {
 		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
 		List<UserTasteWeight> dislike = List.of(
-				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", -1.0, 7, NOW));
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING",
+						rawForWeight(-0.75), 7, NOW));
 
 		EngineCandidate without = score(cafe, null, List.of());
 		EngineCandidate with = score(cafe, null, List.of(), dislike);
@@ -423,7 +426,8 @@ class BaselineCandidateScorerTest {
 	void vectorWithoutOverlapContributesZero() {
 		PlaceCandidateResponse.Candidate notCafe = candidate(List.of(tag("INTEREST_TAG", "FOOD", "VERIFIED", "true")));
 		List<UserTasteWeight> vector = List.of(
-				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, 7, NOW));
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING",
+						rawForWeight(0.75), 7, NOW));
 
 		EngineCandidate without = score(notCafe, null, List.of());
 		EngineCandidate with = score(notCafe, null, List.of(), vector);
@@ -468,7 +472,8 @@ class BaselineCandidateScorerTest {
 		List<UserTasteWeight> mixed = List.of(
 				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "SEA_BEACH", 1.0, NOW),
 				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 0.4, NOW),
-				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 0.6, 3, NOW));
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING",
+						rawForWeight(0.6), 3, NOW));
 
 		EngineCandidate without = score(cafe, null, List.of());
 		EngineCandidate with = score(cafe, null, List.of(), mixed);
@@ -495,6 +500,20 @@ class BaselineCandidateScorerTest {
 		return this.scorer.score(candidate, snapshot, constraints, RADIUS_M, WEIGHTS, ALIGNMENT_WEIGHTS,
 				this.preferenceCodeMap,
 				this.constraintCodeMap, TasteWeightComponent.merge(tasteWeights), TASTE_MULTIPLIER);
+	}
+
+	/**
+	 * 원하는 «무게» 에서 {@code raw} 를 역산한다 (S15P21E201-1500).
+	 *
+	 * <p>{@code fromInteraction} 은 이제 눌러 담기 전의 합을 받는다 —
+	 * {@code weight = raw/(|raw|+K)} 이므로 {@code raw = K*w/(1-|w|)} 이다. 시험은 무게로
+	 * 말하는 편이 읽히므로 여기서 되돌린다.
+	 *
+	 * <p>🔴 {@code w = ±1} 은 못 넣는다. 나누는 값이 0 이 되는데, <b>그것이 사실이다</b> —
+	 * 행동 무게는 관측이 아무리 쌓여도 1 에 못 닿는다.
+	 */
+	private static double rawForWeight(double weight) {
+		return (UserTasteWeight.CONFIDENCE_K * weight) / (1.0 - Math.abs(weight));
 	}
 
 	private static PlaceCandidateResponse.Candidate candidate(List<PlaceFeatureView> features) {

@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.UserTasteWeight;
 
 /**
  * 행동 이벤트를 취향 성분 {@code (차원, 코드)} 으로 귀속시킨다.
@@ -70,10 +71,13 @@ public class BehaviorTasteFolder {
 	/**
 	 * 한 {@code (차원, 코드)} 에 행동이 남긴 것.
 	 *
-	 * @param weight {@code -1}(싫다) ~ {@code +1}(좋다)
+	 * @param raw 눌러 담기 <b>전</b> 의 기여값 합. 무게로 옮기는 것은
+	 *     {@link UserTasteWeight#confidence(double)} 가 한다 — 여기서 미리 눌러 담아 넘기면
+	 *     저장하는 쪽이 {@code raw} 를 알 수 없고, 그러면 소비자가 증분으로 더할 수 없다
+	 *     (S15P21E201-1500)
 	 * @param support 이 값을 뒷받침한 관측 수
 	 */
-	public record Attribution(TasteDimension dimension, String code, double weight, int support) {
+	public record Attribution(TasteDimension dimension, String code, double raw, int support) {
 	}
 
 	/**
@@ -155,12 +159,6 @@ public class BehaviorTasteFolder {
 
 	/** payload 에 장소가 <b>여럿</b> 실리는 이벤트 — {@code place_ids} 배열. */
 	private static final List<String> MANY_PLACE_EVENTS = List.of("itinerary_remove");
-
-	/**
-	 * 「몇 건이면 확신하나」. {@code weight = raw / (|raw| + K)} 의 K 다 — 같은 태그로 K 건이
-	 * 모이면 0.5, 3K 건이면 0.75 가 된다. 올리면 더 신중해지고 내리면 성급해진다.
-	 */
-	private static final double CONFIDENCE_K = 3.0;
 
 	/**
 	 * 이보다 적게 관측된 성분은 안 내보낸다.
@@ -284,18 +282,9 @@ public class BehaviorTasteFolder {
 			if (sum.support < MIN_SUPPORT) {
 				return;
 			}
-			result.add(new Attribution(key.dimension(), key.code(), confidence(sum.raw), sum.support));
+			result.add(new Attribution(key.dimension(), key.code(), sum.raw, sum.support));
 		});
 		return result;
-	}
-
-	/**
-	 * 쌓인 힘을 {@code -1 ~ +1} 무게로 옮긴다. 건수가 늘수록 1 에 가까워지되 절대 넘지 않는다 —
-	 * {@code ck_user_taste_weight_range} 가 범위를 막기도 하지만, 잘려서 통과하는 것과 애초에
-	 * 그 안에 있는 것은 다르다. 잘리면 100 건과 1000 건이 같은 값이 된다.
-	 */
-	private static double confidence(double raw) {
-		return raw / (Math.abs(raw) + CONFIDENCE_K);
 	}
 
 	private static TasteDimension parseDimension(String raw) {
