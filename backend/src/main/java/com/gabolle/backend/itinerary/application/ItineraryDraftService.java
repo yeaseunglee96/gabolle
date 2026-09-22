@@ -140,6 +140,21 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
+     * 날 수 × 하루 항목 수. 하루 몇 곳인지를 정하는 규칙({@link #itemsPerDay})이 여기 있으므로
+     * 이 계산도 여기 있다 — 부르는 쪽이 자기 상수로 어림하면 둘이 어긋난다.
+     *
+     * <p>밥집 상한은 <b>더하지 않는다.</b> 상한은 「그중 몇 곳까지 밥집이어도 되나」이지 자리를
+     * 늘리는 값이 아니다. 필요한 것은 자리 수이고, 상한에 걸려 밀린 밥집 대신 앉을 것이
+     * 후보에 있어야 한다는 뜻이다.
+     */
+    @Override
+    public int placesNeeded(String tripId) {
+        return this.tripRepository.findById(tripId)
+                .map((trip) -> Math.max(1, trip.days() * itemsPerDay(trip)))
+                .orElse(1);
+    }
+
+    /**
      * 순수 계산 + 읽기만 — DB 에 아무것도 쓰지 않는다. 부르는 쪽이 트랜잭션 밖에서 부른다.
      */
     @Override

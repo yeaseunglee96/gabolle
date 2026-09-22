@@ -113,6 +113,9 @@ public class BaselineCandidateScorer {
 		// 1km 칸이고, 되돌려도 그 칸보다 정밀한 위치가 나오지 않는다.
 		featureValues.put("category", candidate.category());
 		featureValues.put("localityBucket", CoarseArea.of(candidate.lat(), candidate.lng()));
+		// 카테고리만으로는 돼지국밥집과 칼국수집이 둘 다 FOOD 라 재정렬이 둘을 구분하지 못한다.
+		// 그래서 한 칸 더 가는 축을 같이 남긴다 (S15P21E201-1450).
+		featureValues.put("cuisine", cuisineTagsOf(candidate, preferenceCodeMap));
 
 		// ── 거리 — 항상 잴 수 있다 ────────────────────────────────────────────
 		double distanceComponent = clamp01(1.0 - (candidate.distanceM() / (double) radiusM));
@@ -440,6 +443,35 @@ public class BaselineCandidateScorer {
 				.filter(row -> userInputCode.equals(row.getUserInputCode()) && row.getMatchKind() == matchKind)
 				.map(UserPlaceCodeMap::getPlaceFeatureType)
 				.findFirst();
+	}
+
+	/**
+	 * 이 장소의 음식 종류 표식 — 다양성 재정렬이 「같은 음식이 거듭되나」를 보는 축이다.
+	 *
+	 * <p>🔴 <b>점수에는 안 쓴다.</b> 음식 취향이 맞는 정도는
+	 * {@code applyTagComponent(FOOD_PREFERENCE, weights.cuisine())} 이 이미 매기고, 여기서 또
+	 * 더하면 같은 사실을 두 번 세는 것이 된다. 이 값은 <b>순서를 고르게 만드는 데만</b> 쓰인다 —
+	 * {@code localityBucket} 을 남기는 이유와 같다.
+	 *
+	 * <p>표식 이름을 하드코딩하지 않고 대조표에서 {@code FOOD_PREFERENCE} 의 짝을 읽는다.
+	 * 다른 태그 항들과 같은 규칙이다 — 대조표가 바뀌면 이 검색도 따라가야 한다.
+	 */
+	private List<String> cuisineTagsOf(PlaceCandidateResponse.Candidate candidate,
+			List<UserPlaceCodeMap> preferenceCodeMap) {
+
+		String featureType = featureTypeFor(preferenceCodeMap, "FOOD_PREFERENCE").orElse(null);
+		if (featureType == null) {
+			return List.of();
+		}
+		List<String> tags = new ArrayList<>();
+		for (PlaceFeatureView feature : candidate.features()) {
+			if (featureType.equals(feature.featureType()) && feature.featureKey() != null
+					&& FeaturePresence.indicatesPresence(feature.evidenceStatus(), rawValue(feature))
+					&& !tags.contains(feature.featureKey())) {
+				tags.add(feature.featureKey());
+			}
+		}
+		return tags;
 	}
 
 	private Optional<String> featureTypeFor(List<UserPlaceCodeMap> rows, String preferenceCode) {
