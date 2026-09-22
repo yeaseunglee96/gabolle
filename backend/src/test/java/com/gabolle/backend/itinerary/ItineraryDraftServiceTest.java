@@ -31,6 +31,7 @@ import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.application.port.TravelTimePort;
+import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryWarningCodes;
 import com.gabolle.backend.place.repository.PlaceRepository;
@@ -299,6 +300,40 @@ class ItineraryDraftServiceTest {
 			assertThat(leg.distanceM()).isEqualTo(1234);
 			assertThat(leg.dataStatus()).isEqualTo(ItineraryItem.DataStatus.VERIFIED);
 		});
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1498 — 일정을 처음 만들 때 구간 요금이 저장까지 간다")
+	void legFareSurvivesPersist() {
+		// 이 시험이 생긴 이유. 요금은 여기까지 제대로 실려 왔다가 persist 가 ItineraryLeg 로
+		// 옮길 때 통째로 버려졌다. 운영 실측(2026-09-22)으로 자동차 구간 33건이 전부
+		// data_status=VERIFIED 인데 요금은 0건이었다 — 업체가 답을 준 구간인데도 그랬다.
+		// 그래서 초안(draft)이 아니라 «저장소에 넘어간 것» 을 본다. 초안만 보면 이 버그를
+		// 다시 놓친다.
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) ->
+				new TravelTime(1234, 25, ItineraryItem.DataStatus.VERIFIED, 12_800);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(port);
+
+		ItineraryRepository repository = mock(ItineraryRepository.class);
+		ItineraryDraftService service = new ItineraryDraftService(this.tripRepository, repository, CLOCK,
+				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, provider), ALWAYS_UNKNOWN,
+				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+
+		service.persist(service.assemble(commandOf("trip_1", plannedPlaces(3))));
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryLeg>> savedLegs = ArgumentCaptor.forClass(List.class);
+		verify(repository).create(any(), any(), any(), savedLegs.capture());
+
+		assertThat(savedLegs.getValue()).isNotEmpty();
+		assertThat(savedLegs.getValue()).allSatisfy((leg) -> assertThat(leg.fareKrw())
+				.as("요금을 받아 놓고 저장에서 흘리면 화면이 비용 줄을 아예 안 그린다")
+				.isEqualTo(12_800));
 	}
 
 	@Test
