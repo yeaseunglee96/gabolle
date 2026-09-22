@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202409A0156858",
+  "name": "해광에프앤씨",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 51446,
+  "researchedAt": "2026-09-22T07:07:31.489Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "법인/운영사 등록 정보 위주로 확인되어 대기/줄서기 정보 없음"
+  },
+  "descriptors": {
+    "audience": "가족/연인/관광객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "피자"
+    ],
+    "yearsClaimed": 2
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "일반 소비자용 매장 영업시간 정보 확인 불가"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "해당 법인명 명의의 직접적인 방문자 구성 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로 235 2층에 위치한 (주)해광에프앤씨는 2024년 설립된 서양식 음식점업(F&B) 및 주방기기 제조 법인으로, 피자 브랜드(원피스피자 등 외식업 및 매드독스 광안본점 운영 주체)를 운영하는 사업체입니다. 일반 음식점 간판명이 아닌 법인/운영사명으로 등록되어 있어 소비자 대상 상세 메뉴판 및 영업시간은 단독 표기되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주식회사 해광에프앤씨는 2024년 9월에 설립된 부산광역시 수영구 광안해변로 235, 2층에 위치한 F&B 및 주방기기 제조 전문 기업입니다. '원피스피자' 브랜드를 통해 부산 광안리 해변에서 프리미엄 서양식 외식 서비스를 제공하고 있습니다.",
+      "url": "https://rndcircle.io"
+    }
+  ],
+  "sources": [
+    "https://rndcircle.io",
+    "https://www.saramin.co.kr",
+    "https://www.albamon.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변가에서 피자 등 이탈리안/서양식 다이닝 브랜드를 운영하는 외식 F&B 사업체",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

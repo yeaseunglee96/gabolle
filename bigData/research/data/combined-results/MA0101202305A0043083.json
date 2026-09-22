@@ -1,0 +1,69 @@
+{
+  "id": "MA0101202305A0043083",
+  "name": "하쿠센",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 63965,
+  "researchedAt": "2026-09-22T07:06:11.814Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "100% 예약제로 운영되어 캐치테이블 등으로 사전 예약 후 방문"
+  },
+  "descriptors": {
+    "audience": "예약 고객, 미식가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "미니동",
+      "스키야키"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "100% 예약제로 운영되며, 캐치테이블 등을 통해 예약이 가능합니다. 방문객 리뷰에 따르면 '미니동(덮밥)' 메뉴 등이 알려져 있으나, 예약 없이 방문하여 당일 주문이 어려운 메뉴가 있을 수 있으므로 사전에 예약 및 메뉴 확인이 권장됩니다. 메뉴 중 스키야키 등 일부 메뉴는 사전 예약이 필수이므로, 방문 전 예약 시 확인이 필요합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "100% 사전 예약제로 정갈하게 즐기는 일식 메뉴(미니동, 스키야키 등)",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "캐치테이블 사전 예약을 통한 대기 없는 운영 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

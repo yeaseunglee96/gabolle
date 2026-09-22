@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220812302778",
+  "name": "아마",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 51652,
+  "researchedAt": "2026-09-22T07:09:49.046Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장 규모가 아담하여 예약 후 방문을 권장하는 편입니다."
+  },
+  "descriptors": {
+    "audience": "데이트 및 스페인 가정식 미식 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오징어 먹물 빠에야(아로스 네그로)",
+      "감바스 알 아히요",
+      "하몬",
+      "뿔포 아 라 가예가"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "변동 가능성이 있어 매장 확인 필요(웹상 정확한 고정 영업시간 미기재)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "생활의 달인(819회) 방영 이후 알려진 스페인 요리 전문점으로 현지 미식가들과 방송을 보고 찾는 방문객들이 공존합니다."
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "인허가 행정상 '경양식' 업종으로 분류되어 있으나 실제로는 스페인 출신 셰프가 운영하는 정통 스페인 가정식 레스토랑(타파스/빠에야 전문점)입니다. SBS '생활의 달인' 819회(2021년 10월 25일)에 스페인 요리 달인으로 방영되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "감바스 알 아히요 13,000원, 하몬 26,000원, 브로체타스 감바스 9,000원",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스페인 출신 셰프가 운영하는 정통 스페인 가정식 식당으로, 따뜻한 홈메이드 스타일의 요리를 선보입니다. SBS <생활의 달인> 819회(2021년 10월 25일 방영)에 '스페인 요리 달인'으로 소개된 바 있습니다. 오징어 먹물 빠에야(아로스 네그로), 감바스, 염소 치즈를 올린 핀초, 문어 요리(뿔포 아 라 가예가) 등이 인기 메뉴입니다.",
+      "url": "https://www.siksinhot.com/P/1242398"
+    },
+    {
+      "excerpt": "SBS 생활의 달인 819회 2021년 10월 25일 방영 - 스페인 요리 달인 매장명 아마(AMA), 부산 수영구 감포로8번길 15.",
+      "url": "https://www.queen.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1242398",
+    "https://www.queen.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "스페인 현지 출신 셰프가 선보이는 정통 스페인 홈메이드 가정식 요리의 뛰어난 맛과 독창성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "SBS <생활의 달인> 819회에 스페인 요리 달인으로 방영되어 검증된 화제성",
+      "sources": [
+        1
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

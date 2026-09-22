@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811460074",
+  "name": "외식하는사람들",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 54488,
+  "researchedAt": "2026-09-22T07:06:26.635Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 미운영 / 법인 상호명",
+  "notes": "해당 주소지(부산광역시 해운대구 우동1로38번길 14-9)에 등록된 '외식하는사람들'은 실제 경양식 음식점 상호가 아니라 외식업 법인/사업체명(과거 원컵어데이 등 운영)으로 확인되었으며, 소비자가 방문하는 독립된 식당 정보가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://allthatcompany.com"
+  ]
+}

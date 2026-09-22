@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220811679989",
+  "name": "뜨라또리아단테",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 68444,
+  "researchedAt": "2026-09-22T07:05:45.113Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장이 작고 4개 테이블로 협소하여 예약 위주로 운영되며 예약 권장"
+  },
+  "descriptors": {
+    "audience": "연인, 소규모 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "새우 비스크 크림 오징어먹물 트레네떼",
+      "라구 볼로네제 딸리아뗄레",
+      "트러플 크림 안심 딸리아뗄레"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 영업 (브레이크타임 15:00~18:00, 라스트오더 21:30), 매주 월요일 휴무(공휴일인 경우 정상 영업 후 익일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근에서 예약 방문 위주의 차분하고 조용한 생면 파스타 전문점으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "이탈리아 요리학교(I.C.I.F.) 출신 오너 셰프가 운영하는 1인 생면 파스타 식당으로 정기적으로 메뉴 리뉴얼이 이루어집니다. 전용 주차장은 없으며 인근 주차타워 지원이 일부 제공됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이탈리아 요리학교(I.C.I.F.) 출신의 오너 셰프가 운영하는 1인 식당으로, 생면과 소스, 디저트 등을 직접 만드는 정통 이탈리아 식당입니다. 매장이 협소하고(테이블 4개 등) 예약 손님 위주로 운영되므로 방문 전 카카오톡 채널이나 인스타그램 DM 등을 통한 예약이 권장됩니다. 매장 자체 주차장은 없으며, 인근 '광안신호주차타워' 이용 시 할인권을 제공받을 수 있습니다. 월요일은 휴무입니다(공휴일인 경우 정상 영업 후 익일 휴무).",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "매장이 작고 아담하며, 예약 위주로 운영되는 조용한 분위기의 식당입니다. 새우 비스크 크림 오징어먹물 트레네떼, 라구 볼로네제 딸리아뗄레, 바질페스토 딸리아뗄레, 트러플 크림 안심 딸리아뗄레 등 다양한 생면 파스타를 선보입니다. (메뉴는 자주 변동될 수 있습니다)",
+      "url": "https://polle.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://polle.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "이탈리아 요리학교(I.C.I.F.) 출신 오너 셰프가 직접 생면과 소스를 만드는 정통 생면 파스타 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "테이블 4개의 아담한 규모에서 1인 셰프가 예약 위주로 정성스럽게 서브하는 아늑한 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

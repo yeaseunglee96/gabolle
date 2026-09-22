@@ -1,0 +1,59 @@
+{
+  "id": "MA0106202605A0579501",
+  "name": "헬로우미스장",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 74986,
+  "researchedAt": "2026-09-22T07:07:00.842Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "해산물 부야베스",
+      "모듬 사시미"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": false
+  },
+  "notes": "부산 수영구 민락로34번길 12-2 소재 '헬로우미스장'은 식품안전나라 인허가 및 식신 등록 데이터상 대표메뉴(해산물 부야베스, 모듬 사시미)와 반려동물 동반 정보가 확인되나, 현재 해당 주소지에는 카페 '테토(TETO)'가 위치해 있는 등 실제 방문 리뷰나 영업시간/가격 등의 상세 정보를 확인하기 어렵습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락로34번길 12-2 (민락동) 헬로우미스장. 대표 메뉴: 해산물 부야베스, 모듬 사시미. 반려동물 동반 가능.",
+      "url": "https://www.foodsafetykorea.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.foodsafetykorea.go.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해산물 부야베스와 모듬 사시미 등 일식 해산물 메뉴 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

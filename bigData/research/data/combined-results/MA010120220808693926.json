@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220808693926",
+  "name": "쥬가정효",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 422675,
+  "researchedAt": "2026-09-22T07:08:39.679Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 예약제로 운영되어 줄서기 대신 예약 경쟁 및 방문 난이도가 매우 높음"
+  },
+  "descriptors": {
+    "audience": "사케 및 계절 일식 코스 애호가, 성인 고객(노키즈존)",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "계절 오마카세/가이세키 코스",
+      "하모",
+      "은어구이",
+      "아나고 솥밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 ~ 22:00 (또는 23:00, 월·화 정기휴무, 100% 예약제)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 일식 코스/가이세키의 대표 주자로 미식가와 관광객 모두에게 유명함"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "의뢰된 주소(부산 해운대구 우동1로20번길 53)는 과거 매장 위치이며 현재는 해운대로 620(라뮤에뜨 3층)으로 이전하여 예약제로 운영 중임",
+  "photoUrls": [
+    "https://cdn.revitguide.com/derived/v1/reviews/20260826001753ebd3fc86-90a9-4bf5-a57d-0a7c1ae14143_IMG_0146.jpg/w1920.webp",
+    "https://cdn.revitguide.com/derived/v1/reviews/2026082600175352fa9ec5-04ed-47d0-9345-fc7570aa9484_IMG_0150.jpg/w1920.webp",
+    "https://cdn.revitguide.com/derived/v1/reviews/202608260017535c7f4417-b4f1-4edc-8b9c-ba51c6fa6827_IMG_0151.jpg/w1920.webp",
+    "https://cdn.revitguide.com/derived/v1/reviews/20260826001753272e1d77-a2f2-48c5-9df2-47f1ba35b3f4_IMG_0152.jpg/w1920.webp",
+    "https://cdn.revitguide.com/derived/v1/reviews/202608260017538a706d12-2022-4fa9-b1c3-5e1f28a908e2_IMG_0153.jpg/w1920.webp",
+    "https://cdn.revitguide.com/derived/v1/reviews/202608260017534a1ebd88-3dc9-46d9-96b1-2718f401d530_IMG_0154.jpg/w1920.webp"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "가이세키/슈코 저녁 코스 1인 약 130,000원 ~ 136,000원 내외(주류 주문 필수)",
+    "priceWon": 136000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산에서 가이세키를 이야기할 때 빼놓기 어려운 곳이 바로 쥬가정효입니다. 100% 예약제로 운영되는 만큼 방문 난이도는 있지만 그만한 이유를 충분히 보여주는 곳이라는 생각이 들었습니다. 이곳의 가장 큰 매력은 계절을 담아내는 코스입니다. 제철 식재료를 중심으로 메뉴가 꾸준히 바뀌기 때문에 같은 계절이 아니면 다시 만날 수 없는 요리들이 많고 그래서 재방문하는 재미도 큽니다. 특히 니혼슈를 좋아한다면 만족도가 더욱 높을 것 같습니다. 다양한 사케를 합리적인 가격으로 즐길 수 있고 음식과 함께 곁들이면 코스의 흐름이 훨씬 좋더라구요.",
+      "url": "https://revitguide.com/stores/2111"
+    },
+    {
+      "excerpt": "개인적으로 일식 코스로는 부산에서 손에 꼽히는 곳이라고 생각한다. 본인들은 가이세키가 아니라고 하시지만, 가이세키와 비교해도 전혀 밀리지 않는 수준. 오히려 더 자연스럽고, 더 술이 맛있어지는 코스였다.",
+      "url": "https://revitguide.com/stores/2111"
+    }
+  ],
+  "sources": [
+    "https://revitguide.com/stores/2111",
+    "https://www.catchtable.net/shop/jyuga/info"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "원물의 맛을 극대화한 계절 식재료 요리와 사케 페어링의 완성도가 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "사케 등 니혼슈와 어울리는 수준 높은 계절 안주(슈코/가이세키) 코스를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

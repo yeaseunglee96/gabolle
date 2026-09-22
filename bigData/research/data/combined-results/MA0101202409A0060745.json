@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202409A0060745",
+  "name": "태오",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 71537,
+  "researchedAt": "2026-09-22T07:09:11.844Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인·소모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "프렌치 유러피안 요리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~금 17:00 - 24:00 (라스트 오더 22:30), 토~일 15:00 - 24:00 (라스트 오더 22:30), 매주 월요일 정기 휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 직접적인 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광남로 166(광안리슈빌DS 상가 1층)에 위치한 오너 셰프 프렌치·유러피안 캐주얼 다이닝 겸 바 '태오(TAEO)'. 주차 지원은 불가하여 인근 유료 주차장 이용 필요.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "메뉴 기준 단품 약 7,000원~45,000원 대",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오너 셰프가 선보이는 프렌치 스타일의 유러피안 요리를 즐길 수 있는 캐주얼 레스토랑 겸 바입니다. 화~금: 17:00 - 24:00 (라스트 오더 22:30), 토~일: 15:00 - 24:00 (라스트 오더 22:30), 정기 휴무: 매주 월요일. 주차 지원 없음 (인근 유료 주차장 이용)",
+      "url": "https://catchtable.net"
+    },
+    {
+      "excerpt": "부산 수영구 광남로 166(민락동, 광안리슈빌DS 1층)에 위치한 태오(TAEO)는 양식 전문점입니다. 가격대는 대략 7,000원에서 45,000원 사이로 형성되어 있습니다.",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://catchtable.net",
+    "https://heyyumi.ai",
+    "https://visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오너 셰프가 선보이는 프렌치 스타일의 유러피안 요리와 와인을 즐기기 위해 찾음",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
