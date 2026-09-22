@@ -465,29 +465,31 @@ public class BaselineCandidateScorer {
 	 * 된다. 이 거름은 그 일이 <b>생기지 않게 미리 걸어 둔 자물쇠</b>이지 지금 일어나는 일을 고친 것이
 	 * 아니다 — 아래를 보라.
 	 *
-	 * <h2>🔴 이 항은 오늘 언제나 0 이다. 이유는 근거가 아니라 차원이다</h2>
+	 * <h2>이 항은 «설문만 있던 동안» 언제나 0 이었다</h2>
 	 *
-	 * 실서버 {@code user_taste_weight} 에 <b>{@code CATEGORY} 행이 0건</b>이다 (2026-09-21 실측).
+	 * 실서버 {@code user_taste_weight} 에 <b>{@code CATEGORY} 행이 0건</b>이었다 (2026-09-21 실측).
 	 * 있는 것은 {@code FOOD_PREFERENCE} 21 · {@code LOCALITY} 12 · {@code QUIETNESS} 12 ·
-	 * {@code TOURIST_PREFERENCE} 12 이고 전부 {@code SURVEY} 다. 설문이 {@code CATEGORY} 차원을
-	 * 안 내기 때문이다.
+	 * {@code TOURIST_PREFERENCE} 12 이고 전부 {@code SURVEY} 였다. 계정 설문이 {@code CATEGORY}
+	 * 차원을 안 싣기 때문인데, 그것은 설문의 결함이 아니라 결정이다 —
+	 * {@code PreferenceDefaultsService.CARRY_OVER} 가 <i>「CATEGORY·ATMOSPHERE 는 사람의 성향이
+	 * 아니라 그 여행의 성격이라」</i> 일부러 뺀다.
 	 *
-	 * <p>그래서 아래 거름은 걸리기도 전에 {@code categoryWeights} 가 비고, 이 메서드는 바로 0 을
-	 * 낸다. 「설문을 두 번 세는 중」이라고 적혀 있던 옛 주석은 <b>의도였지 실제가 아니었다.</b>
+	 * <h2>🔴 정정 (2026-09-22) — 여기 적혀 있던 「둘 중 하나를 정해야 한다」가 틀렸다</h2>
 	 *
-	 * <h2>🔴 행동 귀속을 만들 때 걸릴 함정</h2>
+	 * 옛 주석은 {@code CATEGORY} 성분을 얻으려면 <i>「설문 문항을 건드려야 해서 범위가 크다」</i>
+	 * 고 적었다. <b>설문을 건드릴 필요가 없었다.</b> 셋째 길이 있다 —
+	 * {@link com.gabolle.backend.batch.application.BehaviorTasteFolder} 가 좋아요·제외 이벤트의
+	 * 장소에서 {@code place_feature.CATEGORY_TAG} 를 읽고 대조표({@code user_place_code_map})를
+	 * 지나 {@code CATEGORY} 성분을 만든다 (S15P21E201-1482). 설문은 그대로 두고 장소 쪽 표식에서
+	 * 차원이 나온다.
 	 *
-	 * 행동을 접어 {@code INTERACTION} 성분을 써 넣어도 <b>그 성분이 {@code CATEGORY} 가 아니면
-	 * 점수에 한 번도 닿지 않는다.</b> 오류 없이 조용히 0 이라, 만들고 나서 「왜 안 변하지」를 한참
-	 * 찾게 된다. 먼저 둘 중 하나를 정해야 한다.
+	 * <p>그래서 아래 거름 두 줄은 이제 <b>실제로 걸리는 조건</b>이다. 설문 성분은 걸러지고
+	 * ({@code applyTagComponent} 가 이미 채점했으므로) 행동 성분만 남는다 — 그것이 이 항의
+	 * 존재 이유이고, 이제 그 성분이 실제로 존재한다.
 	 *
-	 * <ol>
-	 * <li>접기가 {@code CATEGORY} 성분을 내게 한다 — 설문 문항을 건드려야 해서 범위가 크다</li>
-	 * <li>이 항이 실제로 있는 차원({@code FOOD_PREFERENCE}·{@code LOCALITY}·{@code QUIETNESS})도
-	 *     읽게 한다 — 그 셋은 설문 경로가 이미 채점하므로 <b>그때 비로소 진짜 두 번 세기</b>가 되고,
-	 *     위의 자물쇠가 그때 필요해진다. {@code TOURIST_PREFERENCE} 는 짝인 {@code TOURIST_RATIO}
-	 *     가 폐기 예정이라 맞출 대상이 없어 셈에서 뺀다</li>
-	 * </ol>
+	 * <p>다른 차원({@code FOOD_PREFERENCE}·{@code LOCALITY}·{@code QUIETNESS})은 <b>여전히 안
+	 * 읽는다.</b> 그 셋은 설문 경로가 이미 채점하므로 여기서 또 더하면 <b>그때 비로소 진짜 두 번
+	 * 세기</b>가 된다. 읽고 싶으면 그 경로와의 관계를 먼저 정해야 한다.
 	 *
 	 * <p>{@link #applyTagComponent} 가 맞은 개수 ÷ 고른 개수인 것과 달리 여기서는 맞은 성분의
 	 * 가중치 합 ÷ 벡터의 CATEGORY 성분 개수를 쓴다. 전부 맞고 가중치가 1.0 이면 1.0 이라 같은
