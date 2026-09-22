@@ -45,6 +45,8 @@ import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 
+import tools.jackson.databind.JsonNode;
+
 /**
  * 규칙 기반 BASELINE 추천 엔진. 학습 모델·온톨로지 서버가 아직 없는 동안 이 엔진이
  * {@link RecommendationEnginePort} 자리를 채운다 ({@link FallbackMode#BASELINE}).
@@ -490,24 +492,50 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	}
 
 	/**
-	 * 후보마다의 가격대({@code PRICE_LEVEL}). 값이 {@code {"band":"MID","raw":"mid"}} 모양이라
-	 * {@code band} 만 꺼낸다.
+	 * 후보마다의 가격대. 출처가 둘이고 <b>사람이 매긴 등급이 먼저</b>다.
 	 *
-	 * <p>가격대가 없는 곳은 표에 아예 넣지 않는다 — 「모른다」를 빈 문자열이나 기본 등급으로
-	 * 채우면 조사 안 된 곳이 특정 등급인 것처럼 점수를 받는다.
+	 * <ul>
+	 * <li>{@code PRICE_LEVEL} — {@code {"band":"MID","raw":"mid"}} 모양. {@code band} 만 꺼낸다
+	 * <li>{@code MENU_PRICE_WON} — {@code {"priceWon":39000,"menu":"…"}} 모양. 원 단위 값을
+	 *     {@link BudgetFit#bandOfWon} 이 등급으로 접는다
+	 * </ul>
+	 *
+	 * <p>🔴 <b>왜 둘째가 필요한가.</b> 2026-09-22 실측으로 운영에 {@code PRICE_LEVEL} 은
+	 * <b>0행</b>이다. 그래서 이 표가 늘 비었고, {@link BudgetFit#apply} 가 첫 줄에서 그대로
+	 * 돌아 나가 <b>예산이 순위에 한 번도 안 닿았다</b>(S15P21E201-1495). 실제로 실려 있는 것은
+	 * {@code MENU_PRICE_WON} 189곳이다.
+	 *
+	 * <p>가격을 모르는 곳은 <b>표에 열쇠를 만들지 않는다</b> — 「모른다」를 빈 문자열이나 기본
+	 * 등급으로 채우면 조사 안 된 곳이 특정 등급인 것처럼 점수를 받는다. 값이 있는 곳이 아직
+	 * 6,866곳 중 189곳뿐이라 이 구분이 특히 중요하다.
 	 */
 	private static Map<UUID, String> priceBandsOf(PlaceCandidateResponse response) {
 		Map<UUID, String> bandByPlace = new LinkedHashMap<>();
 		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
+			String band = null;
+			String fromWon = null;
 			for (PlaceFeatureView feature : candidate.features()) {
-				if (!BudgetFit.FEATURE_TYPE.equals(feature.featureType()) || feature.value() == null) {
+				if (feature.value() == null) {
 					continue;
 				}
-				String band = feature.value().path("band").asText("");
-				if (!band.isBlank()) {
-					bandByPlace.put(candidate.placeId(), band);
+				if (BudgetFit.FEATURE_TYPE.equals(feature.featureType())) {
+					String value = feature.value().path("band").asText("");
+					if (!value.isBlank()) {
+						band = value;
+						// 사람이 매긴 등급이 있으면 더 볼 것이 없다.
+						break;
+					}
 				}
-				break;
+				else if (BudgetFit.WON_FEATURE_TYPE.equals(feature.featureType()) && fromWon == null) {
+					JsonNode won = feature.value().path("priceWon");
+					if (won.isNumber()) {
+						fromWon = BudgetFit.bandOfWon(won.asInt());
+					}
+				}
+			}
+			String resolved = (band != null) ? band : fromWon;
+			if (resolved != null) {
+				bandByPlace.put(candidate.placeId(), resolved);
 			}
 		}
 		return bandByPlace;

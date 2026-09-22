@@ -131,4 +131,44 @@ class BudgetFitTest {
 		return new EngineCandidate(placeId, "BASELINE", ConstraintVerdict.PASS, List.of(), List.of(), null,
 				Map.of(), Map.of("distance", 0.1), score, List.of("NEAR_ORIGIN"), List.of());
 	}
+	@Test
+	@DisplayName("🔴 원 단위 값이 등급이 된다 — 예산이 안 돌던 진짜 원인 (S15P21E201-1495)")
+	void bandOfWonFoldsResearchedPriceIntoBand() {
+		// 경계는 targetBand 와 같은 자를 쓴다 — 1만·2만·4만
+		assertThat(BudgetFit.bandOfWon(2_050)).isEqualTo("LOW");
+		assertThat(BudgetFit.bandOfWon(10_000)).isEqualTo("LOW");
+		assertThat(BudgetFit.bandOfWon(10_500)).isEqualTo("MID");
+		assertThat(BudgetFit.bandOfWon(20_000)).isEqualTo("MID");
+		assertThat(BudgetFit.bandOfWon(21_000)).isEqualTo("MID_HIGH");
+		assertThat(BudgetFit.bandOfWon(40_000)).isEqualTo("MID_HIGH");
+		assertThat(BudgetFit.bandOfWon(42_000)).isEqualTo("HIGH");
+		assertThat(BudgetFit.bandOfWon(182_000)).isEqualTo("HIGH");
+	}
+
+	@Test
+	@DisplayName("🔴 값을 모르면 등급도 없다 — 특정 등급으로 접지 않는다")
+	void bandOfWonKeepsUnknownUnknown() {
+		assertThat(BudgetFit.bandOfWon(null)).isNull();
+		assertThat(BudgetFit.bandOfWon(0)).isNull();
+		assertThat(BudgetFit.bandOfWon(-1)).isNull();
+	}
+
+	@Test
+	@DisplayName("원 단위에서 만든 등급도 점수를 움직인다 — 등급 문자열과 같은 길로 간다")
+	void wonDerivedBandMovesScore() {
+		// 2명·3일에 12만원 → 1인 1끼 10,000원 → 목표 등급 LOW
+		Trip trip = trip(120_000);
+		assertThat(BudgetFit.targetBand(trip)).isEqualTo("LOW");
+
+		List<EngineCandidate> out = BudgetFit.apply(
+				List.of(candidate(CHEAP, 0.50), candidate(PRICEY, 0.50)),
+				Map.of(CHEAP, BudgetFit.bandOfWon(8_000),      // LOW  — 예산 안
+						PRICEY, BudgetFit.bandOfWon(60_000)),  // HIGH — 예산 밖
+				BudgetFit.targetBand(trip));
+
+		assertThat(out.get(0).preRankScore()).isEqualTo(0.50 + BudgetFit.MATCH_BONUS);
+		assertThat(out.get(0).reasonCodes()).contains(BudgetFit.REASON_WITHIN_BUDGET);
+		assertThat(out.get(1).preRankScore()).isEqualTo(0.50 - BudgetFit.OVER_PENALTY);
+		assertThat(out.get(1).reasonCodes()).contains(BudgetFit.REASON_OVER_BUDGET);
+	}
 }
