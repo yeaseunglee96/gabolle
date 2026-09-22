@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220811369764",
+  "name": "고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 61197,
+  "researchedAt": "2026-09-22T06:43:49.227Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 북구 만덕3로57번길 27 주소지에는 '만덕연탄고기' 등의 상호 등록 이력 외에 대중적으로 알려지거나 상세 리뷰/메뉴/영업정보가 확인되는 '고기'라는 상호의 음식점이 존재하지 않거나 폐업/미등록 상태로 파악됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

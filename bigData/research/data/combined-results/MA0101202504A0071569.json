@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202504A0071569",
+  "name": "먹곳하노이",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 54334,
+  "researchedAt": "2026-09-22T06:44:43.580Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "베트남 현지인 및 이주민, 인근 거주자",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "쌀국수(Phở)",
+      "분짜(Bún chả)"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "상세 영업시간 정보 미제공"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 사상구 거주 베트남인 커뮤니티 및 현지인을 주 고객층으로 하는 하노이 전통 음식점"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "상호명 '먹곳하노이'는 베트남어 'Một Góc Hà Nội'(하노이의 한 구석/길모퉁이)를 한글로 표기한 상호로, 사상구 삼락동(사상로277번길 35)에 위치한 정통 베트남 요리 전문점입니다. 2025년 여름 개업한 곳으로 하노이 전통 쌀국수, 분짜 등을 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "-",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 사상로277번길 35, 1층. Một Góc Hà Nội. Nhà hàng phục vụ các món ăn mang hương vị truyền thống Hà Nội như phở, bún chả và các món nhậu kiểu Việt. Khai trương vào ngày 12/07/2025.",
+      "url": "https://www.facebook.com/"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com/",
+    "https://udanax.org/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "하노이 전통 방식의 쌀국수, 분짜 등 정통 베트남 요리의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "사상 공단 및 인근 베트남 교민과 현지인을 대상으로 한 정통 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

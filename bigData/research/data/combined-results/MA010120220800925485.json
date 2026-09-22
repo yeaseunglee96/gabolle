@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220800925485",
+  "name": "안안",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 64137,
+  "researchedAt": "2026-09-22T06:44:28.222Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 등록된 경양식 음식점 '안안'에 대한 웹 리뷰, 상세 영업 정보, 블로그 글이 존재하지 않음 (단독주택/방앗간 밀집 주거지역)",
+  "notes": "부산 사상구 삼덕로46번안길 7-4에 위치한 경양식 음식점 '안안'을 웹 검색한 결과, 실제 방문 후기나 영업시간, 메뉴, 가격 등의 정보를 확인할 수 있는 문서나 리뷰가 존재하지 않아 조사를 마칩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

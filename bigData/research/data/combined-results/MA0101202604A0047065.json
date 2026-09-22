@@ -1,0 +1,30 @@
+{
+  "id": "MA0101202604A0047065",
+  "name": "도우첸",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 46828,
+  "researchedAt": "2026-09-22T06:40:22.168Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 북구 만덕대로128번길 12 위치에 '도우첸'이라는 경양식 음식점 정보가 웹상에 존재하지 않음",
+  "notes": "해당 상호 및 주소에 대해 검색을 진행했으나 실존하는 음식점 정보나 블로그/웹 리뷰를 전혀 찾을 수 없습니다. ('도우첸'은 웹툰 캐릭터 이름 등으로만 확인됨)",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

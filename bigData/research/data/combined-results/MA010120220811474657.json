@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811474657",
+  "name": "동주",
+  "cat": "카페",
+  "attempts": 1,
+  "geminiTokens": 366118,
+  "researchedAt": "2026-09-22T06:45:35.752Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 시간에 대한 구체적인 언급은 확인되지 않으나 저녁 늦은 시간에는 디저트가 소진된다는 언급이 있음"
+  },
+  "descriptors": {
+    "audience": "혼자만의 시간이나 조용한 대화, 데이트를 즐기려는 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "앙버터",
+      "딸기라떼",
+      "패션후르츠 에이드"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 22:00 (매주 일요일 휴무 언급 게시물 있음)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 직접적인 비교 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 동구 수정동 산복도로(망양로)에 위치한 주택 개조 감성 카페로, 원목 인테리어, 다락방 및 코타츠 좌석, 탁 트인 산복도로 뷰와 야경 감상 명소로 알려져 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "카페 동주는 부산 동구 망양로에 위치한 조용하고 아늑한 분위기의 2층 카페입니다. 차분한 인테리어와 함께 다양한 디저트와 커피를 즐길 수 있어 혼자만의 시간을 보내거나 조용한 대화를 나누기에 좋은 공간입니다. 고층에서 내려다보는 뷰도 일품이며, 감성적인 분위기를 선호하는 이들에게 사랑받고 있습니다. 소소하지만 여유로운 시간을 보내고 싶다면 카페 동주를 추천드립니다.",
+      "url": "https://healthmind.tistory.com/entry/%EB%B6%80%EC%82%B0-%EC%88%98%EC%A0%95%EB%8F%99-%EC%B9%B4%ED%8E%98-%EC%B6%94%EC%B2%9C-%EB%B2%A0%EC%8A%A4%ED%8A%B8-10"
+    },
+    {
+      "excerpt": "카페 동주는 어떤 곳인가요? 매주 일요일 휴무 가정집이 변신한 아기자기한 감성 공간",
+      "url": "https://place.udanax.org/p/875835/%EC%B9%B4%ED%8E%98%20%EB%8F%99%EC%A3%BC"
+    }
+  ],
+  "sources": [
+    "https://healthmind.tistory.com/entry/%EB%B6%80%EC%82%B0-%EC%88%98%EC%A0%95%EB%8F%99-%EC%B9%B4%ED%8E%98-%EC%B6%94%EC%B2%9C-%EB%B2%A0%EC%8A%A4%ED%8A%B8-10",
+    "https://place.udanax.org/p/875835/%EC%B9%B4%ED%8E%98%20%EB%8F%99%EC%A3%BC",
+    "https://app.passorder.co.kr/advance/57cd26a8-5b92-40b2-b0a6-0d33e28d4344"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주택을 개조한 원목 감성의 공간에 코타츠 및 다락방 좌석, 산복도로 풍경과 야경이 어우러진 여유로운 분위기 때문에 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "인기 시그니처 디저트인 앙버터와 딸기라떼, 패션후르츠 에이드 등 다양한 음료를 즐기기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

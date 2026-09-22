@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202601A0002682",
+  "name": "옥후엔",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 67027,
+  "researchedAt": "2026-09-22T06:44:32.281Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소 및 상호명 '옥후엔'에 대한 실질적인 음식점 정보나 방문 후기가 검색되지 않음",
+  "notes": "부산광역시 사상구 사상로277번길 58(삼락동 417-7) 소재지에 등록된 상호는 타 업종(짝뒷고기 등)이며, '옥후엔'이라는 베트남 음식점의 방문 후기, 메뉴, 영업시간 등의 정보가 웹상에 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

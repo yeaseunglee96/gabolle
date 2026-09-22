@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220813185110",
+  "name": "성광횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 51933,
+  "researchedAt": "2026-09-22T06:41:59.778Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사상구 모라동(사상로531번길 45)에 소재한 일반음식점(성광횟집)의 인허가/주소 및 상가 임대 정보는 확인되나, 방문자 리뷰나 메뉴/가격/영업시간 등 세부 이용 정보는 온라인상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업소명: 성광횟집, 소재지: 부산광역시 사상구 사상로531번길 45 (모라동), 업종: 일반음식점",
+      "url": "https://www.sasang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": []
+}

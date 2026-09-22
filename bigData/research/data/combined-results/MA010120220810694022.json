@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220810694022",
+  "name": "해송반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 63622,
+  "researchedAt": "2026-09-22T06:43:15.775Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기 시간에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "주민·혼밥객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "사천짜장",
+      "간짜장",
+      "볶음밥"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 20:00 (화요일 정기휴무 언급 있음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 주민들이 주로 찾는 오래된 동네 노포 중식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": false
+  },
+  "notes": "부산 북구 숙등역 인근에 위치한 30년 전통의 노포 중국집으로 특히 사천짜장, 간짜장, 볶음밥이 유명함. 주차장은 따로 없음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "30년 넘게 운영되어 온 노포 중국집으로, 특히 매콤한 사천짜장이 유명한 맛집으로 알려져 있습니다. 간짜장과 볶음밥도 평이 좋습니다. 부산 지하철 3호선 숙등역 3번 출구에서 도보로 약 234m 거리이며, 별도의 전용 주차장은 없습니다. 영업시간: 11:00 ~ 20:00",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com",
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "30년 넘는 내공의 노포 중국집으로 매콤한 사천짜장과 간짜장 등 옛날 중식 맛이 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오랜 기간 자리를 지키며 동네 주민들에게 꾸준히 사랑받는 30년 전통의 노포 중식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

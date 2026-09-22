@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220809312182",
+  "name": "흥부네",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 76869,
+  "researchedAt": "2026-09-22T06:39:59.208Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "상가 데이터베이스 외에 방문 리뷰, 메뉴, 영업시간 등 상세 정보를 확인할 수 있는 웹 문서가 존재하지 않음",
+  "notes": "부산광역시 연제구 해맞이로105번길 10(거제동 815-59) 주소지에 '흥부네'라는 상호가 상가 목록 데이터베이스에 한식 업종으로 등재된 내역은 있으나, 블로그 방문기, 메뉴판, 영업시간, 사진 등의 상세 정보를 제공하는 실제 웹 페이지가 존재하지 않아 상세 조회가 불가합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

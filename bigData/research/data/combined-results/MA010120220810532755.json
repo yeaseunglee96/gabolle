@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220810532755",
+  "name": "뿅라면분식",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 52225,
+  "researchedAt": "2026-09-22T06:45:11.253Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사하구 신평동(다대로142번길 31 / 신평동 82-147)에 상호 '뿅라면분식'으로 등록된 사업체/음식점 정보는 존재하나, 웹상에 상세 방문 후기, 블로그 리뷰, 메뉴판, 영업시간 등의 정량 정보나 방문 이유에 대한 서술이 전혀 확인되지 않는 소규모 동네 업소입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사하구 다대로142번길 31 (신평동) / 신평동 82-147번지 뿅라면분식",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220810695903",
+  "name": "녹슨드럼통",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 60305,
+  "researchedAt": "2026-09-22T06:45:57.659Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "방문 전 최소 1시간 전 예약을 권장할 정도로 피크 시 인기가 많음"
+  },
+  "descriptors": {
+    "audience": "가족, 단체, 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "녹슨바베큐(통삼겹살)",
+      "수제소시지"
+    ],
+    "yearsClaimed": 14
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~금 12:00 ~ 21:00 (또는 16:00~21:00), 토~일 12:00 ~ 22:00 (매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "캠핑 감성의 통삼겹 바베큐를 즐기러 외식·모임 목적으로 찾는 부산 현지인 및 근교 방문객 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 강서구 대저동(등구역 인근)에 본점을 둔 녹슨드럼통으로, 넓은 자갈마당/캠핑장 분위기에서 통삼겹살 바베큐와 수제 소시지를 구워 먹는 콘셉트로 유명함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "녹슨바베큐(1kg) 1판 68,000원 / 커플세트(500g+수제소세지) 48,000원",
+    "priceWon": 68000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 강서구 경전철로 233-2 (대저2동) 녹슨드럼통 부산본점. 캠핑 감성을 느낄 수 있는 야외 분위기의 바베큐 전문점으로, 미송 장작으로 초벌한 육즙 가득한 통삼겹살이 대표 메뉴입니다. 건물 앞과 뒤쪽에 넓은 전용 주차 공간이 마련되어 있어 자차 이용 시 편리합니다. 방문 최소 1시간 전 예약 권장.",
+      "url": "https://autoreserve.com/ko/restaurants/rW44z8g3L27T5a794b1a"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com/ko/restaurants/rW44z8g3L27T5a794b1a"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "초벌구이된 두툼한 통삼겹살과 껍데기의 쫄깃한 식감 및 육즙",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "도심 속 야외 자갈마당 및 캠핑장 느낌의 바베큐 공간 감성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220810612209",
+  "name": "짜짜루",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 77579,
+  "researchedAt": "2026-09-22T06:40:00.969Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 연제구 해맞이로 103에 위치한 중식당 '짜짜루'의 상호 및 기본 위치 정보(거제동/거제해맞이역 인근)는 확인되나, 방문 후기, 메뉴판, 영업시간, 혼잡도 등 상세 정량 정보 및 블로그 리뷰 콘텐츠는 웹상에 공개된 데이터가 거의 확인되지 않는 동네 배달/골목 중식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호: 짜짜루, 소재지: 부산광역시 연제구 해맞이로 103 (거제동)",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산광역시 연제구 거제동에 위치한 중화요리 전문점",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "거제해맞이역 인근 거제동 지역 주민들을 대상으로 하는 동네 중국음식점",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

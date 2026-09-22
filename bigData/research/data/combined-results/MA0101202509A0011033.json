@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202509A0011033",
+  "name": "광명갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 56241,
+  "researchedAt": "2026-09-22T06:43:28.783Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기 시간이나 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 인근 동네 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비",
+      "김치말이국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "덕천동 주민 및 가족 외식 위주의 동네 주민/현지인 방문 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 북구 덕천동(의성로115번길/덕천동 422-2 소호아파트 상가)에 위치한 숯불돼지갈비 식당으로, 지역 나눔가게 협약 및 인근 주민들의 가족 외식 후기가 확인됨. 상세 영업시간이나 주차 정보는 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "기본 반찬으로 나물류가 제공되며, 이를 불판에 함께 구워 먹는 것이 특징 중 하나입니다. 덕천3동 행정복지센터와 협약을 맺고 소외계층을 위해 밑반찬을 정기적으로 지원하는 등 지역사회 나눔 활동에 참여하고 있습니다. 소호아파트 A동 3호 등록.",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "부산 북구 덕천동에 위치한 숯불돼지갈비 전문점으로 가족 동네 외식 장소로 추천되며 돼지갈비, 시원한 김치말이국수 등이 소개되었습니다. 나물 반찬을 제공하며 이를 불판에 올려 구워 먹는 것이 별미입니다. 백김치와 쌈 채소 등 기본 반찬이 푸짐하게 나오는 편입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "푸짐한 기본 반찬과 함께 나물을 불판에 올려 구워 먹는 숯불돼지갈비 별미",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "덕천동 인근 주민들이 편안하게 찾는 정겨운 동네 가족 외식 식당",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220810733904",
+  "name": "칠성집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 62115,
+  "researchedAt": "2026-09-22T06:41:41.380Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주민, 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "숙성 삼겹살",
+      "숙성 목살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:30 ~ 02:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "모라동 인근 주민 및 직장인들이 주로 찾는 동네 고깃집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 사상구 모라동 모라역 인근에 위치한 고깃집으로, 숙성 삼겹살과 목살을 전문으로 하며 벚꽃 장식 등 이자카야풍 인테리어가 특징입니다. 현재는 폐업했거나 업종/상호 변경 가능성이 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 사상구 모라로 94-1 (모라동 483), 모라역 2번 출구에서 약 330m. 숙성 삼겹살, 숙성 목살 등을 주력으로 판매하는 고기 맛집으로 내부는 벚꽃나무 장식 등 이자카야 느낌의 인테리어가 특징. 영업시간은 매일 16:30 ~ 02:00 (연중무휴).",
+      "url": "https://dyesonagi.tistory.com/"
+    }
+  ],
+  "sources": [
+    "https://dyesonagi.tistory.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "육즙이 풍부한 숙성 삼겹살과 목살, 이자카야풍의 분위기 있는 인테리어",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

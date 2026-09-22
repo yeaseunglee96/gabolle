@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220810674267",
+  "name": "명가낚지",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 78130,
+  "researchedAt": "2026-09-22T06:44:23.972Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "사업체 상호 DB(부산광역시 북구 만덕3로48번나길 24, 051-338-5712, 한식/횟집 업종)에서 사업체 실존 여부는 확인되었으나, 일반 블로그 리뷰나 세부 방문기/사진/메뉴 정보는 온라인상에 존재하지 않는 골목 소규모 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "명가낚지 부산광역시 북구 만덕3로48번나길 24 (만덕동 909-11) 전화번호: 051-338-5712 업종: 한식/백반/한정식, 한식 음식점업, 횟집",
+      "url": "https://koreacharts.com/firm/view.php?idx=2722137"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com/firm/view.php?idx=2722137"
+  ],
+  "whyPeopleGo": []
+}
