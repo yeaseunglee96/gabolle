@@ -60,6 +60,9 @@ public class BaselineCandidateScorer {
 	 */
 	static final String ACCESSIBILITY_UNVERIFIED_WARNING = RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED;
 
+	/** 식단을 안 재 봤다는 경고. 같은 이유로 문자열을 여기서 다시 적지 않는다. */
+	static final String DIET_UNVERIFIED_WARNING = RecommendationCodes.WARNING_DIET_SUPPORT_UNVERIFIED;
+
 	private final ObjectMapper objectMapper;
 
 	public BaselineCandidateScorer(ObjectMapper objectMapper) {
@@ -266,7 +269,8 @@ public class BaselineCandidateScorer {
 			String type = constraint.type() == null ? "" : constraint.type().toUpperCase(Locale.ROOT);
 			switch (type) {
 				case "ALLERGY" -> evaluateAllergy(candidate, constraint, constraintCodeMap, violations, unknownFacts);
-				case "DIET" -> evaluateDiet(candidate, constraint, constraintCodeMap, violations, unknownFacts);
+				case "DIET" ->
+						evaluateDiet(candidate, constraint, constraintCodeMap, violations, unknownFacts, warnings);
 				case "MOBILITY" ->
 						evaluateMobility(candidate, constraint, constraintCodeMap, violations, unknownFacts, warnings);
 				default -> {
@@ -303,7 +307,7 @@ public class BaselineCandidateScorer {
 
 	private void evaluateDiet(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
 			List<UserPlaceCodeMap> constraintCodeMap, List<Map<String, Object>> violations,
-			List<Map<String, Object>> unknownFacts) {
+			List<Map<String, Object>> unknownFacts, List<String> warnings) {
 
 		String featureType = hardFilterFeatureType(constraintCodeMap, "DIET").orElse(null);
 		if (featureType == null) {
@@ -321,9 +325,17 @@ public class BaselineCandidateScorer {
 				case PRESENT -> {
 					// 지원 표식이 있다고 확인됨 — 통과 기여.
 				}
+				// 확인된 「지원 안 함」은 그대로 탈락이다. 모르는 것이 아니라 아는 것이라
+				// 거르는 것이 맞다.
 				case ABSENT -> violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", code));
-				case UNVERIFIED -> unknownFacts.add(Map.of("fact", "DIET_SUPPORT_UNVERIFIED", "featureKey", code,
-						"severity", severityOf(constraint)));
+				// 🔴 안 재 본 것은 «탈락이 아니라 경고» 다 — 접근성(evaluateMobility)과 같은
+				//    자리, 같은 이유. unknownFacts 에 남기면 unknown-exclusion-threshold
+				//    (기본 REQUIRED)가 그 후보를 빼는데, DIETARY_SUPPORT_TAG 가 운영에 0건이라
+				//    식단을 고르기만 하면 후보가 전부 빠져 여행을 못 만들었다.
+				//    팀 결정으로 식단은 「거르지 말고 확인 못 했다고 말한다」로 갔다.
+				//    🔴 알레르기는 이 처리를 «일부러» 안 받는다 — 접근성·식단이 틀리면
+				//    불편하지만 알레르기가 틀리면 사람이 다친다. evaluateAllergy 를 건드리지 말 것.
+				case UNVERIFIED -> warnings.add(DIET_UNVERIFIED_WARNING);
 			}
 		}
 		else if (bucket == PresenceBucket.UNVERIFIED) {

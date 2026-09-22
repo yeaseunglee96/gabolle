@@ -164,6 +164,60 @@ class BaselineCandidateScorerTest {
 	}
 
 	@Test
+	@DisplayName("🔴 DIET REQUIRED — 미확인은 «탈락이 아니라 경고» 다 (S15P21E201-1468)")
+	void required_식단_미확인이면_탈락이아니라경고() {
+		// 이 시험이 생긴 이유. DIETARY_SUPPORT_TAG 가 운영에 0건이라, 식단을 고르기만 하면
+		// 모든 후보가 unknownFacts 를 달고 unknown-exclusion-threshold(기본 REQUIRED)에
+		// 전부 걸려 여행을 못 만들었다 — 실측으로 식단·알레르기를 고른 작업 8건이 8건 다
+		// 실패했다. 팀이 식단만 「거르지 말고 확인 못 했다고 말한다」로 정했다.
+		TripConstraint vegan = diet("VEGAN", TripConstraint.DietRequirement.REQUIRED);
+		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
+
+		EngineCandidate result = score(candidate, null, List.of(vegan));
+
+		assertThat(result.constraintVerdict()).as("미확인만으로 후보를 빼지 않는다")
+				.isEqualTo(ConstraintVerdict.PASS);
+		assertThat(result.unknownFacts()).as("여기 남으면 threshold 가 다시 빼 간다").isEmpty();
+		assertThat(result.warningCodes()).contains("DIET_SUPPORT_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 경고 문자열은 앱 사전과 같은 이름이어야 한다 — 다르면 화면에서 조용히 사라진다")
+	void 식단경고_문자열이_앱사전과_같다() {
+		// describeWarningCodes 는 사전에 없는 코드를 건너뛴다. 이름만 바뀌어도 경고가
+		// 안 뜨는데 오류는 안 난다 — 그래서 문자열 자체를 못 박는다.
+		// 앱: frontend/src/plan/warningLabels.ts (S15P21E201-1503)
+		assertThat(BaselineCandidateScorer.DIET_UNVERIFIED_WARNING).isEqualTo("DIET_SUPPORT_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 알레르기는 이 처리를 안 받는다 — 미확인이면 여전히 UNKNOWN 이다")
+	void 알레르기는_식단과_같게_다루지_않는다() {
+		// 접근성·식단이 틀리면 불편하고, 알레르기가 틀리면 사람이 다친다. 같은 저울에
+		// 올리지 않는다는 것이 팀 결정이고, 이 시험이 그것을 지킨다.
+		TripConstraint peanut = allergy("PEANUT");
+		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
+
+		EngineCandidate result = score(candidate, null, List.of(peanut));
+
+		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
+		assertThat(result.warningCodes()).doesNotContain("ALLERGEN_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("DIET REQUIRED — 「지원 안 함」이 확인되면 그대로 탈락이다 (경고로 낮추지 않는다)")
+	void required_식단_확인된미지원은_그대로탈락() {
+		TripConstraint vegan = diet("VEGAN", TripConstraint.DietRequirement.REQUIRED);
+		PlaceCandidateResponse.Candidate candidate = candidate(
+				List.of(tag("DIETARY_SUPPORT_TAG", "VEGAN", "VERIFIED", "false")));
+
+		EngineCandidate result = score(candidate, null, List.of(vegan));
+
+		assertThat(result.constraintVerdict()).as("아는 것은 거르는 게 맞다").isEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.warningCodes()).doesNotContain("DIET_SUPPORT_UNVERIFIED");
+	}
+
+	@Test
 	@DisplayName("DIET PREFERRED — 미확인이면 UNKNOWN 이고 severity 는 PREFERRED 다(REQUIRED 를 지어내지 않는다)")
 	void preferred_식단_미확인이면_경고severity_preferred() {
 		TripConstraint vegan = diet("VEGAN", TripConstraint.DietRequirement.PREFERRED);
