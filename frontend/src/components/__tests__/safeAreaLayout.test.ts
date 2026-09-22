@@ -1,5 +1,6 @@
 import { screenBottomPadding } from '../Screen';
 import { bottomBarClearance, tabBarBottomMargin } from '../TabBar';
+import { myPageSheetHeight } from '@/me/MyPageSheet';
 
 
 // tsconfig 가 node 타입을 안 들고 있어서 import 로 쓰면 타입 검사가 막힌다 —
@@ -108,3 +109,44 @@ function block(source: string, startsWith: string): string {
   expect(to).toBeGreaterThan(from);
   return source.slice(from, to);
 }
+
+/**
+ * 🔴 **마이페이지 시트가 상태바 뒤로 넘치던 것** — S15P21E201-1490(B-01).
+ *
+ * 시트는 화면 아래에서 자라므로 윗변은 `화면높이 − 아래여백 − 시트높이` 다. 전에는
+ * 시트 높이를 `화면높이 − 40`(고정)으로 셌는데, 화면높이에는 상태바·다이내믹 아일랜드가
+ * 들어 있어서 시트가 위로 넘쳤다. 그러면 시트의 첫 요소인 **손잡이와 「내리기」 단추가
+ * 상태바 뒤로 숨는다** — 사용자는 닫는 수단이 없다고 읽는다.
+ *
+ * <p>🔴 **세로에서만 났다.** 가로는 위쪽 안전영역이 0 이라 우연히 맞아떨어졌다.
+ * 실기기 확인(2026-09-22)에서도 가로에서는 손잡이가 보이고 세로에서는 안 보였다.
+ * 그래서 이 시험은 **두 방향을 다 잰다** — 한 방향만 재면 이 결함이 그대로 통과한다.
+ */
+describe('마이페이지 시트는 상태바 뒤로 넘치지 않는다', () => {
+  /** 시트의 윗변이 화면 어디에 오는가. 시트는 아래에서 자란다. */
+  const sheetTopY = (h: number, top: number, bottom: number) =>
+    h - tabBarBottomMargin(bottom) - myPageSheetHeight(h, top, bottom);
+
+  const DEVICES: Array<[string, number, number, number]> = [
+    // 이름, 화면높이, 위 안전영역, 아래 안전영역
+    ['아이폰 16 Pro 세로', 874, 62, 34],
+    ['🔴 아이폰 16 Pro 가로', 402, 0, 21],
+    ['노치 없는 옛 기기 세로', 667, 20, 0],
+    ['안드로이드 세로(제스처바)', 800, 24, 16],
+  ];
+
+  it.each(DEVICES)('%s — 윗변이 위쪽 안전영역 아래에 있다', (_name, h, top, bottom) => {
+    expect(sheetTopY(h, top, bottom)).toBeGreaterThanOrEqual(top);
+  });
+
+  it('🔴 위쪽 안전영역이 커지면 시트도 그만큼 낮아진다 — 고정값이면 이 시험이 빨개진다', () => {
+    const flat = myPageSheetHeight(874, 0, 34);
+    const notched = myPageSheetHeight(874, 62, 34);
+
+    expect(flat - notched).toBe(62);
+  });
+
+  it('아무리 좁아도 최소 높이는 지킨다 — 머리와 본문 한 줄은 들어가야 한다', () => {
+    expect(myPageSheetHeight(300, 62, 34)).toBe(320);
+  });
+});

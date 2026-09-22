@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Animated, BackHandler, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -21,7 +22,7 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { CoverButton, MyPageCover } from '@/me/MyPageCover';
 import { loadUserStories, relativeStoryTime, type StoryDto } from '@/social/stories';
 import { MyPageModal } from '@/me/MyPageModal';
-import { MyPageSheetBody } from '@/me/MyPageSheet';
+import { MyPageSheetBody, myPageSheetHeight } from '@/me/MyPageSheet';
 import { isPanelKey, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
 import { MyTripCard } from '@/home/HomeBlocks';
 import { RecordsBrowser } from '@/me/RecordsBrowser';
@@ -116,9 +117,9 @@ export default function Me() {
   }, [user?.userId, user?.avatarUrl]);
 
   const wide = isAtLeast(width, 'lg');
-  // 시안 06 은 화면을 거의 다 채운다 — 아래 띄움과 위 틈을 뺀 나머지.
-  // 숫자를 박지 않는다. 화면 높이는 기기마다 다르다.
-  const sheetHeight = Math.max(320, height - spacing[2] - spacing[8]);
+  // 시트 높이 계산은 myPageSheetHeight 가 소유한다 — 왜 위쪽 안전영역을 빼는지도 거기 적혀 있다.
+  const insets = useSafeAreaInsets();
+  const sheetHeight = myPageSheetHeight(height, insets.top, insets.bottom);
 
   const name = user?.displayName || tx('여행자', 'Traveler');
   const none = tx('아직 없음 ›', 'None yet ›');
