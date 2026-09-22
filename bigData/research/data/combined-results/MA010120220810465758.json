@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220810465758",
+  "name": "갑오갈비국",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 65011,
+  "researchedAt": "2026-09-22T11:44:33.859Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 상호의 식당 정보 및 실제 영업/리뷰 내역을 웹상에서 찾을 수 없음",
+  "notes": "부산광역시 수영구 광남로48번길 14 소재 '갑오갈비국'은 사업자 DB 외에 대중적 방문기, 블로그 리뷰, 메뉴 및 영업 정보 등의 유효한 식당 정보를 웹상에서 찾을 수 없습니다. 폐업했거나 일반 영업 중인 식당으로 확인되지 않아 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

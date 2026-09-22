@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220804949143",
+  "name": "거대숯불구이",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 90764,
+  "researchedAt": "2026-09-22T11:41:56.319Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "전석 룸 위주 구성으로 사전 전화 예약 후 방문하는 편이다"
+  },
+  "descriptors": {
+    "audience": "가족 모임 및 비즈니스 접대",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "안심",
+      "등심",
+      "프리미엄 갈비살",
+      "점심특선 한우양념갈비"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 22:00 (브레이크 타임 15:00 ~ 17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 현지인 외식 및 비즈니스 접대, 외지 관광객의 미식 방문지로 두루 인기가 높다"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해당 지번(부산 해운대구 좌동순환로 459)에 위치한 '거대숯불구이'는 '거대갈비 신관'으로 널리 알려진 프리미엄 1++ 암소 한우 숯불구이 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "안심(100g) 75,000원 / 등심(100g) 74,000원 / 점심특선 50,000~60,000원대",
+    "priceWon": 75000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 좌동순환로 459에 위치한 곳은 '거대숯불구이'(거대갈비 신관)입니다. 이곳은 최고급 한우를 전문으로 하며, 정갈한 상차림과 수준 높은 서비스로 유명한 맛집입니다. 대부분 룸으로 구성되어 조용하게 식사하기 좋습니다. 직원이 직접 고기를 구워주는 서비스가 제공됩니다. 매일 11:30 - 22:00 (브레이크 타임 15:00 - 17:00).",
+      "url": "https://revitguide.com/entry/거대숯불구이-신관-해운대-방문기"
+    }
+  ],
+  "sources": [
+    "https://revitguide.com/entry/거대숯불구이-신관-해운대-방문기",
+    "https://www.visitbusan.net/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1++ 투뿔 암소 한우 숯불구이의 뛰어난 고기 맛과 퀄리티",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "프라이빗 룸 구성과 직원이 직접 고기를 구워주는 고급스러운 서비스 및 발렛파킹",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

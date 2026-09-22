@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202512A0023085",
+  "name": "테타라운지바",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 53533,
+  "researchedAt": "2026-09-22T11:41:24.330Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 시간이나 줄서기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트, 모임, 기념일 방문객",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "캘리포니아롤",
+      "사시미",
+      "칵테일"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 16:00 ~ 00:00, 금·토·일 16:00 ~ 02:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해수욕장 인근 오션뷰 라운지로 관광객 및 데이트 방문객이 즐겨 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "해운대 해변로 하버타운 2층에 위치한 라운지 바로, 해운대 바다 조망과 이국적인 인테리어, 칵테일/주류 및 캘리포니아롤/사시미 등의 안주, 시샤(물담배)를 제공하는 공간입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "연어 사시미 25,000원, 장어 사시미 25,000원, 살몬 스시 3,000원, 모엣 샹동 280,000원 등",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "테타라운지바는 부산광역시 해운대구 해운대해변로 257, 하버타운 2층에 위치해 있으며, 해운대 해수욕장과 가까워 접근성이 좋고 창가에서 해운대 바다를 조망할 수 있는 라운지 바입니다. 칵테일, 하이볼, 위스키 등 다양한 주류와 캘리포니아롤 등 안주 메뉴를 제공하며 운영시간은 평일 16:00~00:00, 금토일 16:00~02:00입니다.",
+      "url": "https://pandarank.net"
+    },
+    {
+      "excerpt": "해운대 해수욕장 인근 대로변 하버타운에 위치하여 바다 조망(오션뷰)이 가능하며 세련되고 이국적인 분위기로 데이트 코스 및 주류(칵테일/위스키)와 스시, 시샤(물담배)를 즐길 수 있는 라운지 바입니다.",
+      "url": "https://ps.me"
+    }
+  ],
+  "sources": [
+    "https://pandarank.net",
+    "https://ps.me"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 바다를 한눈에 볼 수 있는 오션뷰와 이국적이고 세련된 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "칵테일, 위스키 등 주류와 캘리포니아롤, 사시미, 시샤를 함께 즐길 수 있는 특별한 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

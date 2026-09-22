@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202307A0018027",
+  "name": "태산",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 73885,
+  "researchedAt": "2026-09-22T11:42:52.990Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 사전 예약제로 운영되며 웨이팅 없이 프라이빗 룸으로 안내됨"
+  },
+  "descriptors": {
+    "audience": "모임·데이트·기념일",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "강화도 갯벌장어구이",
+      "한우"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 23:00 (라스트오더 21:30), 매주 화요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로 263(파로스오피스텔 17층)의 '태산'은 일반 횟집이 아닌 강화도 갯벌장어 및 한우 등을 취급하는 고급 장어구이 전문점(태산장어)으로 확인되었습니다. 전 좌석 프라이빗 오션뷰 룸 및 100% 예약제로 운영됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 263, 파로스오피스텔 17층에 위치한 '태산'은 강화도 갯벌장어 전문점으로 전 좌석이 프라이빗 룸으로 구성되어 있으며 광안리 바다를 조망할 수 있는 오션뷰 매장입니다. 100% 예약제로 운영되며 영업시간은 12:00 ~ 23:00 (21:30 라스트오더, 화요일 휴무)입니다.",
+      "url": "https://catchtable.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://catchtable.co.kr/",
+    "https://m.place.naver.com/restaurant/1242186457"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 바다와 광안대교가 내려다보이는 17층 전 좌석 프라이빗 룸 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "강화도 갯벌장어구이와 한우를 제공하는 고급 식사 코스",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

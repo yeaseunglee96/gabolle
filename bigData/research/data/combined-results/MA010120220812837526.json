@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220812837526",
+  "name": "봉참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 68863,
+  "researchedAt": "2026-09-22T11:43:00.977Z",
+  "confidence": "high",
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 남구 용소로7번길 9) 및 대연동 인근에 '봉참치'라는 음식점이 등록 및 입점되어 있지 않습니다.",
+  "notes": "해당 주소(부산광역시 남구 용소로7번길 9, 대연동 중앙프라자) 및 인근 상권에 '봉참치'라는 상호의 음식점은 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

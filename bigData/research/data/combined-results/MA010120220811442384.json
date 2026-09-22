@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220811442384",
+  "name": "일번지자갈치산곰장어",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 99238,
+  "researchedAt": "2026-09-22T11:44:32.381Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도에 대한 명확한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "관광객 및 현지인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "산곰장어 양념구이",
+      "산곰장어 소금구이",
+      "산곰장어 통구이"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 01:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 전통시장 내 위치하여 현지인과 관광객이 모두 즐겨 찾는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "해운대 전통시장 내 위치한 곰장어 전문점으로 주문 시 연탄 초벌구이가 가능하며, 식사 후 볶음밥과 우동사리 추가가 별미로 꼽힘.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "곰장어 (소) 30,000원, (중) 40,000원, (대) 50,000원, (특대) 60,000원 수준",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 구남로41번길 12. 영업시간: 11:00 ~ 01:00. 연중무휴. 해운대 시장 내에 위치하고 있으며... 산곰장어 구이 (양념구이, 소금구이, 통구이). 주문 시 요청하면 연탄 초벌구이를 제공합니다. 양념구이를 드신 후 볶음밥이나 우동사리를 추가해 먹는 것이 별미로 알려져 있습니다.",
+      "url": "https://tripinfo.co.kr"
+    },
+    {
+      "excerpt": "해운대 전통시장 인근에서 오랫동안 운영되어 온 곰장어 전문점으로, 현지인과 관광객들이 즐겨 찾는 곳입니다. 반반 메뉴 주문이 가능하며, 매장 내 단체석이 마련되어 있습니다. 포장 및 전화 예약이 가능합니다.",
+      "url": "https://infotravelog.com"
+    }
+  ],
+  "sources": [
+    "https://tripinfo.co.kr",
+    "https://infotravelog.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "살아있는 신선한 산곰장어를 연탄불에 초벌구이해 특유의 불향과 쫄깃한 식감을 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 전통시장 내에 위치하여 접근성이 좋고 늦은 새벽까지 영업함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

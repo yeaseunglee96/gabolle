@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202506A0037869",
+  "name": "리앤플레이",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 50612,
+  "researchedAt": "2026-09-22T11:44:52.147Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(해운대해변로 314, 페어필드 바이 메리어트 부산)에 (주)리앤플레이 법인이 한식 음식점업으로 사업자 등록되어 있으나, 소비자가 방문하는 독립 매장 상호가 아닌 식음료 위탁/법인 사업자명이며 실제 식당 매장 정보 및 방문 후기가 존재하지 않음",
+  "notes": "해운대해변로 314에 사업자등록된 (주)리앤플레이는 호텔 내부 F&B 위탁/법인 사업체로 보이며, 일반 고객이 이용하는 '리앤플레이'라는 상호의 식당이나 메뉴, 영업시간, 방문기 등 소비자 대상 매장 정보가 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.allthatcompany.com",
+    "https://www.marriott.com"
+  ],
+  "whyPeopleGo": []
+}

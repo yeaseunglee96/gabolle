@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220811408808",
+  "name": "민락반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 56226,
+  "researchedAt": "2026-09-22T11:43:30.700Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 주민, 노포 중식 애호가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짬뽕",
+      "탕수육",
+      "쟁반짜장"
+    ],
+    "yearsClaimed": 1983
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 09:30~21:30 (첫째·셋째 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "37년 이상 자리를 지키며 지역 주민들에게 꾸준히 사랑받고 있는 동네 노포 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광남로 255-1에 위치한 민락반점은 1983년경부터 이어져 온 노포 중국집으로 사골 육수를 활용한 깊은 맛의 짬뽕과 바삭한 탕수육으로 유명합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 광남로 255-1 (민락동 29-26), 전화번호: 051-751-2500, 특징: 37년 이상의 전통을 자랑하는 노포 중식당으로, 지역 주민들에게 꾸준히 사랑받고 있습니다. 특히 진하고 깔끔한 맛의 짬뽕과 바삭한 탕수육, 쟁반짜장 등이 대표 메뉴로 유명합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "1983년부터 영업을 시작한 노포 중식당으로, 사골 육수를 사용한 짬뽕과 바삭한 탕수육 등이 유명합니다. 주차장은 별도로 마련되어 있지 않으며, 첫째·셋째 화요일이 휴무일인 것으로 알려져 있습니다. 영업시간은 매일 09:30~21:30",
+      "url": "https://www.daily.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.daily.co.kr",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1983년부터 이어져 온 37년 이상의 노포 중식당으로 지역 주민들의 오랜 지지를 받음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "사골 육수를 기본으로 한 진한 짬뽕과 탕수육 본연의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

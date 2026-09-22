@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220814253633",
+  "name": "회춘",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 52766,
+  "researchedAt": "2026-09-22T11:43:11.739Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 여행객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "브런치",
+      "커피",
+      "파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 미포 오션뷰와 제주도풍 감성 인테리어로 관광객 및 데이트 방문객이 주로 찾는 카페 겸 다이닝"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 달맞이길62번길 55(미포)에 위치한 오션뷰 브런치·다이닝 카페 겸 레스토랑으로, 제주도 콘셉트의 인테리어와 바다 조망으로 알려져 있습니다. 다만 주차 및 진입 환경이 다소 불편하다는 후기가 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 미포에 위치한 '회춘(Hweichun)'은 제주도 분위기를 콘셉트로 한 오션뷰 카페 겸 레스토랑입니다. 제주도 느낌이 나는 인테리어로 유명하며, 바다가 보이는 조망을 갖추고 있습니다. 미포 지역의 특성상 진입로가 좁고 주차 환경이 다소 불편할 수 있으니 방문 시 유의가 필요합니다.",
+      "url": "https://psyworld.co.kr"
+    }
+  ],
+  "sources": [
+    "https://psyworld.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제주도 감성의 독특한 인테리어와 해운대 미포 앞바다를 조망할 수 있는 오션뷰 다이닝 공간",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

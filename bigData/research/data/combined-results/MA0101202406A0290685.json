@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202406A0290685",
+  "name": "아미티스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 55393,
+  "researchedAt": "2026-09-22T11:41:53.736Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": null
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "파스타",
+      "피자",
+      "리조또"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "호텔 투숙객 및 해운대 방문 관광객 이용 중심"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 구남로 37 라비드아틀란호텔 32층에 위치한 스카이라운지 겸 캐주얼 이탈리안 레스토랑입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 구남로 37에 위치한 라비드아틀란호텔 32층에 자리 잡고 있는 이탈리안 레스토랑 겸 스카이라운지입니다. 해운대 바다를 조망할 수 있는 오션뷰와 통창, 야외 테라스 공간을 갖추고 있습니다. 파스타, 피자, 리조또 등 캐주얼한 이탈리안 요리를 제공합니다. 단체석 및 개별 룸 예약이 가능하며, 주차 지원(호텔 주차장 최대 2시간 등)을 제공합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "라비드아틀란 호텔 32층 아미티스 레스토랑. 호텔 내에 위치한 이탈리안 레스토랑으로 투숙객 10% 할인 혜택 제공.",
+      "url": "https://www.trip.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 바다를 조망할 수 있는 32층 통창 오션뷰 및 야외 테라스 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "호텔 투숙객 할인 등 가성비/편의 혜택",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}
