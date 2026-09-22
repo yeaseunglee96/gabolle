@@ -141,6 +141,20 @@ class ItineraryLegPathPersistenceIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 좌표에 NaN 이 섞이면 선만 버리고 일정은 만들어진다 — JSON 이 깨져 INSERT 가 죽지 않는다")
+	void nonFiniteCoordinateDropsTheLineNotTheItinerary() {
+		// StringBuilder 는 NaN 을 "NaN" 이라고 적는데 그것은 JSON 이 아니다. 막지 않으면 구간
+		// 하나 때문에 INSERT 가 깨져 일정 생성 전체가 실패한다 — 선 하나 못 그리는 것과
+		// 여행을 못 만드는 것은 값이 다르다.
+		ItineraryLeg read = saveAndReadBack(leg(List.of(
+				new double[] { 129.1604, 35.1587 },
+				new double[] { Double.NaN, 35.1796 })), 2);
+
+		assertThat(read.path()).as("선은 버린다").isNull();
+		assertThat(read.distanceM()).as("구간 자체는 남는다").isEqualTo(8_400);
+	}
+
+	@Test
 	@DisplayName("🔴 ck_itinerary_leg_path 가 점 하나짜리 선을 막는다 — 도메인을 우회해도 막힌다")
 	void checkConstraintRejectsASinglePoint() {
 		// 도메인은 점 하나를 null 로 눕혀 주지만, 적재기나 손질 SQL 이 DB 로 바로 들어오는 길도

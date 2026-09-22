@@ -462,9 +462,15 @@ public class JpaItineraryRepository implements ItineraryRepository {
 		StringBuilder json = new StringBuilder(path.size() * 24).append('[');
 		for (int i = 0; i < path.size(); i++) {
 			double[] point = path.get(i);
-			if (point == null || point.length < 2) {
+			if (point == null || point.length < 2
+					|| !Double.isFinite(point[0]) || !Double.isFinite(point[1])) {
 				// 좌표 하나가 깨졌으면 선 전체를 버린다. 그 점만 빼면 길이 슬쩍 달라진 채로
 				// 「실제로 잰 길」이라고 주장하게 된다.
+				//
+				// 🔴 NaN·무한대를 따로 막는다. StringBuilder 는 그것을 "NaN"·"Infinity" 라고
+				//    적는데 둘 다 JSON 이 아니다. 그대로 두면 이 구간 하나 때문에 INSERT 가
+				//    깨져 일정 생성 전체가 실패한다 — 선 하나 못 그리는 것과 여행을 못 만드는
+				//    것은 값이 다르다.
 				return null;
 			}
 			if (i > 0) {
