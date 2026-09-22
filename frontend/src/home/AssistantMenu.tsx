@@ -7,7 +7,7 @@
 // 데스크톱과 폰이 같은 부품을 쓴다. 폭과 행 높이만 다르다 — 두 벌로 만들면 항목이 늘 때
 // 한쪽만 늘어나고, 그 차이는 두 화면을 나란히 눌러 봐야만 보인다.
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, Image, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, BackHandler, Easing, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { GabolleMascot } from '@/components/DongbaekMascot';
@@ -76,6 +76,21 @@ export function AssistantMenu({
     onClose();
     router.push(path as never);
   };
+
+  // 🔴 이 드롭업도 `<Modal>` 이 아니라 `AssistantBackdrop`(그냥 View)로 바깥을 막는
+  // 방식이라 `onRequestClose` 가 없다 — 안드로이드 하드웨어 뒤로가기가 이 메뉴를 그대로
+  // 통과해 홈 화면 자체가 뒤로 간다(src/home/PlanStartBar.tsx 의 시트가 겪은 것과 같은
+  // 종류). 웹에는 하드웨어 뒤로가기가 없으니 ESC 가 그 자리를 대신한다.
+  useEffect(() => {
+    if (!open) return;
+    if (Platform.OS === 'web') {
+      const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => { onClose(); return true; });
+    return () => sub.remove();
+  }, [open, onClose]);
 
   // 🔴 닫혔을 때는 아예 안 그린다. 투명도만 0으로 두면 화면 읽기 프로그램이 항목을 읽고,
   // 사용자는 안 보이는 메뉴 안을 걷게 된다. 누르는 자리도 남아 아래 내용을 가린다.

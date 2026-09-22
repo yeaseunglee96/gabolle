@@ -1,7 +1,8 @@
 // 홈의 여행 시작 바 — 출발지 · 날짜 · 인원을 홈에서 받는다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Animated, BackHandler, Easing, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -47,13 +48,41 @@ function monthCells(year: number, month: number): Array<string | null> {
   ];
 }
 
+/** 한 주가 일곱 칸. */
+export const DAYS_IN_WEEK = 7;
+
+/**
+ * 🔴 <b>달력을 주 단위 줄로 묶는다 — S15P21E201-1434.</b>
+ *
+ * <p>전에는 칸을 한 줄에 쏟아 놓고 {@code flexWrap} 으로 접었다. 칸 폭이 {@code 100/7 %}
+ * (14.2857…%)인데 React Native(Yoga)는 칸마다 픽셀 격자에 맞춰 반올림하므로, 올림이 쌓여
+ * 일곱 칸 합이 부모 폭을 넘고 <b>마지막 칸이 다음 줄로 밀린다.</b> 요일 머리는 접히지 않아
+ * 그대로 일곱이 서서, 실기에서 21일(월)이 「목」 칸에 있었다. 웹은 CSS 백분율이라 재현되지
+ * 않는다 — 그래서 눈으로도 자동 검사로도 안 잡혔다.
+ *
+ * <p>줄바꿈에 기대지 않으면 이 문제가 생길 자리가 없다. 한 줄에 일곱 칸을 직접 넣고 칸은
+ * 줄 폭을 나눠 갖는다({@code flex: 1}).
+ *
+ * <p>마지막 주는 빈 칸으로 일곱을 채운다 — 안 채우면 남은 칸들이 늘어나 그 주만 칸이 넓어진다.
+ */
+export function monthWeeks(year: number, month: number): Array<Array<string | null>> {
+  const cells = monthCells(year, month);
+  const weeks: Array<Array<string | null>> = [];
+  for (let index = 0; index < cells.length; index += DAYS_IN_WEEK) {
+    const week = cells.slice(index, index + DAYS_IN_WEEK);
+    while (week.length < DAYS_IN_WEEK) week.push(null);
+    weeks.push(week);
+  }
+  return weeks;
+}
+
 export function MonthGrid({
   year, month, value, today, onPick, tx,
 }: {
   year: number; month: number; value: StartBarValue; today: string;
   onPick: (key: string) => void; tx: (ko: string, en: string) => string;
 }) {
-  const cells = useMemo(() => monthCells(year, month), [year, month]);
+  const weeks = useMemo(() => monthWeeks(year, month), [year, month]);
   const heads = WEEKDAY_HEADS_KO.map((head, index) => tx(head, WEEKDAY_HEADS_EN[index]));
   return (
     <View style={styles.month}>
@@ -66,7 +95,9 @@ export function MonthGrid({
         ))}
       </View>
       <View style={styles.grid}>
-        {cells.map((key, index) => {
+        {weeks.map((week, weekIndex) => (
+        <View key={`week-${weekIndex}`} style={styles.week}>
+        {week.map((key, index) => {
           if (!key) return <View key={`blank-${index}`} style={styles.cell} />;
           const past = key < today;
           const isStart = key === value.startDate;
@@ -94,6 +125,8 @@ export function MonthGrid({
             </Pressable>
           );
         })}
+        </View>
+        ))}
       </View>
     </View>
   );
@@ -183,6 +216,7 @@ export function PlanStartBar({
   sheet = false, value: controlledValue, onChange, onClose, onOpenSheet,
 }: PlanStartBarProps) {
   const { tx, language } = useI18n();
+  const insets = useSafeAreaInsets();
   // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다.
   // 그 언어들은 번역표에 없는 문구가 있으면 영어로 떨어지기로 정해져 있다
   // (resolveTextLanguage). 그 규칙을 그대로 쓴다 — S15P21E201-1296.
@@ -265,7 +299,7 @@ export function PlanStartBar({
       return `${formatDateShort(value.startDate, tx)}${value.endDate && value.endDate !== value.startDate ? ` – ${formatDateShort(value.endDate, tx)}` : ''} · ${tx(`${days}일`, `${days}d`)}`;
     }
     const total = value.adults + value.children;
-    return total > 0 ? tx(`성인 ${value.adults}${value.children ? ` · 어린이 ${value.children}` : ''}`, `${total} travelers`) : tx('인원 추가', 'Add travelers');
+    return total > 0 ? (value.children ? tx(`성인 ${value.adults} · 어린이 ${value.children}`, `${value.adults} adults · ${value.children} children`) : tx(`성인 ${value.adults}`, `${value.adults} adults`)) : tx('인원 추가', 'Add travelers');
   };
 
   // 두 가지가 움직인다.
@@ -333,6 +367,22 @@ export function PlanStartBar({
     if (!sheet) return;
     Animated.timing(sheetIn, { toValue: 1, duration: reduceMotion ? 0 : 600, easing: EASE_SOFT, useNativeDriver: false }).start();
   }, [sheet, reduceMotion, sheetIn]);
+
+  // 🔴 이 시트는 RN `<Modal>` 이 아니라 그냥 View 라서 `onRequestClose` 가 없다 — 즉
+  // 안드로이드 하드웨어 뒤로가기를 이 시트가 알아서 삼켜 주지 않는다. 처리를 안 하면
+  // 뒤로가기가 시트를 그대로 통과해 밑에 있는 화면(또는 앱 자체)이 뒤로 간다 —
+  // app/(tabs)/me.tsx 의 패널이 겪었던 것과 같은 종류의 결함이다. 웹에는 하드웨어
+  // 뒤로가기가 없으니 ESC 가 그 자리를 대신한다(같은 파일의 선례를 그대로 따른다).
+  useEffect(() => {
+    if (!sheet || !onClose) return;
+    if (Platform.OS === 'web') {
+      const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => { onClose(); return true; });
+    return () => sub.remove();
+  }, [sheet, onClose]);
 
   const toggle = (which: Exclude<Section, null>) => setSection((prev) => (prev === which ? null : which));
 
@@ -479,7 +529,8 @@ export function PlanStartBar({
           ))}
         </ScrollView>
 
-        <View style={styles.sheetFoot}>
+        {/* 🔴 시트는 화면 바닥까지 덮는다(absolute bottom:0) — 안드로이드 탐색줄만큼 띄우지 않으면 「일정 물어보기」가 반쯤 가린다(실기 빌드 28, S15P21E201-1438). */}
+        <View style={[styles.sheetFoot, { paddingBottom: spacing[6] + insets.bottom }]}>
           <Pressable
             onPress={() => { setValue(EMPTY_START_BAR); setSection('origin'); }}
             accessibilityRole="button"
@@ -654,9 +705,12 @@ const styles = StyleSheet.create({
   month: { flex: 1, gap: spacing[2] },
   monthTitle: { textAlign: 'center' },
   weekHead: { flexDirection: 'row' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  cell: { width: `${100 / 7}%`, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headCell: { width: `${100 / 7}%`, textAlign: 'center' },
+  grid: {},
+  // 🔴 한 줄에 일곱 칸을 직접 넣는다. flexWrap 으로 접으면 폭 반올림 때문에 일곱째 칸이
+  //    다음 줄로 밀려 날짜가 요일과 어긋난다(S15P21E201-1434).
+  week: { flexDirection: 'row' },
+  cell: { flex: 1, height: 40, alignItems: 'center', justifyContent: 'center' },
+  headCell: { flex: 1, textAlign: 'center' },
   cellBetween: { backgroundColor: color.surface.tint },
   cellPicked: { backgroundColor: color.brand.navy, borderRadius: radius.full },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },

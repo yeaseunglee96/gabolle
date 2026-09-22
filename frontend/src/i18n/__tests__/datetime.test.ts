@@ -1,4 +1,4 @@
-import { formatClock, formatDayHeading, formatMonthDay, formatNumericDate } from '@/i18n/datetime';
+import { formatClock, formatDateTime, formatDayHeading, formatFullDate, formatMonthDay, formatNumericDate } from '@/i18n/datetime';
 import { toBcp47 } from '@/i18n/languages';
 
 /**
@@ -61,6 +61,16 @@ describe('날짜·시각을 고른 언어에 맞춘다', () => {
     expect(formatNumericDate(DATE, toBcp47('ko'))).toBeTruthy();
   });
 
+  /**
+   * 🔴 초대 링크·공유 일정 만료일이 겪던 것과 같은 자리 — S15P21E201-1399 후속.
+   * `formatDayHeading` 등과 달리 이 둘은 연도를 넣는다(만료일은 올해가 아닐 수 있다).
+   */
+  it('만료일·만료 시각도 연도까지 넣어 언어를 본다', () => {
+    expect(formatFullDate(DATE, toBcp47('ko'))).toContain('2026');
+    expect(formatFullDate(DATE, toBcp47('ja'))).not.toMatch(/Sep/);
+    expect(formatDateTime(TIME, toBcp47('ko'))).toContain('2026');
+  });
+
   describe('못 읽는 값에 지어내지 않는다', () => {
     it('날짜가 아니면 null 이다 — 부르는 쪽이 「n일차」로 대신한다', () => {
       expect(formatDayHeading('내일쯤', 'ko-KR')).toBeNull();
@@ -70,6 +80,62 @@ describe('날짜·시각을 고른 언어에 맞춘다', () => {
     it('시각은 못 읽어도 화면을 비우지 않는다 — 원래 글자에서 시:분만 꺼낸다', () => {
       expect(formatClock('2026-09-20T09:05', 'ko-KR')).toBe('09:05');
       expect(formatClock('아무거나', 'ko-KR')).toBe('아무거나');
+    });
+  });
+
+  /**
+   * 🔴 «없는 것»보다 «조용히 바뀌는 것» — S15P21E201-1399.
+   *
+   * <p>여기서 재는 것은 «글자»가 아니라 **판정**이다. 「다섯 언어가 잘 나온다」는 시험은
+   * 일부러 안 쓴다 — 시험이 도는 Node 는 ICU 를 전부 갖고 있어서 **기기에서 깨져 있어도
+   * 초록**이기 때문이다. 그래서 엔진이 「그 자료 없다」고 답하는 상황을 만들어 놓고,
+   * 그때 우리가 숫자로 내려가는지만 본다.
+   */
+  describe('엔진에 그 언어 자료가 없을 때', () => {
+    const DATE_OUT = '9. 20.';
+
+    /** supportedLocalesOf 가 「없다」고 답하게 만든다. 실제 기기에서 나는 일을 흉내 낸다. */
+    function withUnsupportedLocale(run: () => void) {
+      const real = Intl.DateTimeFormat.supportedLocalesOf;
+      try {
+        Intl.DateTimeFormat.supportedLocalesOf = () => [];
+        run();
+      }
+      finally {
+        Intl.DateTimeFormat.supportedLocalesOf = real;
+      }
+    }
+
+    it('🔴 숫자로 내려간다 — 딴 언어 날짜를 보여주지 않는다', () => {
+      withUnsupportedLocale(() => {
+        expect(formatDayHeading(DATE, toBcp47('zh-Hant'))).toBe(DATE_OUT);
+        expect(formatMonthDay(DATE, toBcp47('zh-Hant'))).toBe(DATE_OUT);
+        expect(formatNumericDate(DATE, toBcp47('zh-Hant'))).toBe('9.20');
+        expect(formatClock(TIME, toBcp47('zh-Hant'))).toBe('14:30');
+        expect(formatFullDate(DATE, toBcp47('zh-Hant'))).toBe('2026. 09. 20.');
+        expect(formatDateTime(TIME, toBcp47('zh-Hant'))).toBe('2026. 09. 20. 14:30');
+      });
+    });
+
+    /**
+     * 🔴 이 시험이 이 티켓의 근거다. Intl 은 자료가 없어도 **던지지 않는다.** 그래서
+     * try/catch 만 두면 대체가 한 번도 안 걸린 채 딴 언어 날짜가 나간다.
+     */
+    it('🔴 Intl 은 이때 던지지 않는다 — try/catch 만으로는 못 잡았다', () => {
+      expect(() => new Intl.DateTimeFormat('xx-YY', { month: 'long', day: 'numeric' })).not.toThrow();
+      expect(Intl.DateTimeFormat.supportedLocalesOf(['xx-YY'])).toEqual([]);
+    });
+
+    it('supportedLocalesOf 자체가 터지는 판에서도 안 죽는다', () => {
+      const real = Intl.DateTimeFormat.supportedLocalesOf;
+      try {
+        Intl.DateTimeFormat.supportedLocalesOf = () => { throw new Error('없는 판'); };
+        expect(formatDayHeading(DATE, 'ko-KR')).toBe(DATE_OUT);
+        expect(formatClock(TIME, 'ko-KR')).toBe('14:30');
+      }
+      finally {
+        Intl.DateTimeFormat.supportedLocalesOf = real;
+      }
     });
   });
 

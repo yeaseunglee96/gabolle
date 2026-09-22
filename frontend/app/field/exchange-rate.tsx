@@ -15,6 +15,7 @@ import {
   krwToForeign,
   loadExchangeRates,
   pickRate,
+  unitsPerQuote,
   type ExchangeBlockedReason,
   type ExchangeRate,
 } from '@/field/exchangeRates';
@@ -30,9 +31,42 @@ function digitsOnly(value: string): string {
   return value.replace(/[^\d]/g, '').slice(0, 12);
 }
 
-/** 자리 구분 쉼표. 표기는 고른 언어를 따른다 — 문구가 영어여도 숫자 읽는 법은 그 나라 방식이 맞다. */
+/**
+ * 자리 구분 쉼표. 표기는 고른 언어를 따른다 — 문구가 영어여도 숫자 읽는 법은 그 나라 방식이 맞다.
+ *
+ * 🔴 «자료가 없으면 조용히 딴 로케일로 갈아치운다»는 `Intl` 의 성질은 `Intl.NumberFormat`
+ *    에도 똑같이 있다(S15P21E201-1399 — 같은 판단이 `CurrencyBadge.tsx`·`i18n/datetime.ts`
+ *    에도 있다). 쓰기 전에 `supportedLocalesOf` 로 묻고, 자료가 없으면 로케일에 기대지
+ *    않는 자리 구분(쉼표)으로 내려간다 — 환전 화면에서 숫자가 잘못 보이면 실제 돈 액수를
+ *    오해하게 되므로, 여기서만은 «다른 나라 표기가 섞이는 것»조차 허용하지 않는다.
+ */
 function grouped(value: number, locale: string): string {
-  return value.toLocaleString(locale, { maximumFractionDigits: 0 });
+  const rounded = Math.round(value);
+  try {
+    if (Intl.NumberFormat.supportedLocalesOf([locale]).length) {
+      return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(rounded);
+    }
+  } catch {
+    // 아래 자리 구분으로 내려간다.
+  }
+  return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+/**
+ * 화면에 적을 통화 표기. 100단위로 고시되는 통화는 «그 수를 앞에 붙인다».
+ *
+ * 🔴 계산은 늘 맞았다(unitsPerQuote). 틀린 것은 «보여줄 때»다 — displayCode 가
+ *    `JPY(100)` 에서 괄호를 걷어내면서 100 이 화면에서 사라져, 목록 줄이 「JPY … ₩881」이
+ *    됐다. 1엔이 881원으로 읽힌다. 부산은 일본·중국 여행객이 주 대상이라 JPY 는 대표
+ *    통화이고, 100배 틀린 값으로 읽히는 숫자를 가격표 옆에 두면 이 화면이 하려던 일과
+ *    정반대가 된다(S15P21E201-1449).
+ *
+ * 말이 아니라 «숫자와 코드»로만 적는다 — 어느 언어로 보든 같게 읽힌다.
+ */
+function quotedCode(currencyCode: string): string {
+  const units = unitsPerQuote(currencyCode);
+  const code = displayCode(currencyCode);
+  return units > 1 ? `${units} ${code}` : code;
 }
 
 export default function Exchange() {
@@ -178,6 +212,7 @@ export default function Exchange() {
 
             {/* 기준율과 매도율을 같이 적는다. 기준율만 보여주면 환전소에서 그 값이 안 나온다. */}
             <Text variant="caption" color={color.text.muted}>
+              {unitsPerQuote(rate.currencyCode) > 1 ? `${quotedCode(rate.currencyCode)} · ` : ''}
               {txf(tx, '매매기준율 %s원 · 살 때 %s원', 'Base %s KRW · You pay about %s KRW', grouped(rate.baseRate, locale), grouped(rate.sellingRate, locale))}
             </Text>
             <Text variant="caption" color={color.text.muted}>
@@ -198,13 +233,13 @@ export default function Exchange() {
                   key={item.currencyCode}
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
-                  accessibilityLabel={`${displayCode(item.currencyCode)} ${name}`}
+                  accessibilityLabel={`${quotedCode(item.currencyCode)} ${name}`}
                   onPress={() => setCode(item.currencyCode)}
                   style={({ pressed }) => [styles.currencyRow, selected && styles.currencyRowSelected, pressed && styles.pressed]}
                 >
                   <CurrencyBadge code={item.currencyCode} size="large" />
                   <View style={styles.currencyCopy}>
-                    <Text variant="body" weight="bold">{displayCode(item.currencyCode)}</Text>
+                    <Text variant="body" weight="bold">{quotedCode(item.currencyCode)}</Text>
                     {name && name !== displayCode(item.currencyCode) ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{name}</Text> : null}
                   </View>
                   <Text variant="body" weight="bold">₩{grouped(item.baseRate, locale)}</Text>

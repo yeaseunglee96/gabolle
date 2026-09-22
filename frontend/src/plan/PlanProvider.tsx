@@ -5,6 +5,7 @@ import { getApiLanguage } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { conflictingFoodCode, foodLabel } from './foodConflicts';
 import { conditionsToDraftPatch, loadTravelConditions } from './travelConditions';
+import { getTasteProfile, type TasteAnswers } from '@/preferences/tasteProfile';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
@@ -86,6 +87,32 @@ const VOLATILE_CONSTRAINTS: Partial<PlanDraft> = {
   accessibilityNeeds: [],
 };
 
+/** 계정에 저장된 평소 취향은 이번 여행에서 아직 답하지 않은 칸에만 기본값으로 넣는다. (jinmiri S15P21E201-76) */
+export function applyTasteProfile(current: PlanDraft, saved: TasteAnswers): PlanDraft {
+  const status = { ...current.preferenceAnswerStatus };
+  const patch: Partial<PlanDraft> = {};
+  let changed = false;
+  const applyScale = (key: 'localityLevel' | 'quietLevel' | 'touristLevel', dimension: 'locality' | 'quietness' | 'touristPreference', value: number | undefined) => {
+    if (value === undefined || status[dimension] !== 'UNKNOWN') return;
+    patch[key] = value;
+    status[dimension] = 'SELECTED';
+    changed = true;
+  };
+  applyScale('localityLevel', 'locality', saved.locality);
+  applyScale('quietLevel', 'quietness', saved.quiet);
+  applyScale('touristLevel', 'touristPreference', saved.tourist);
+  if (saved.foods?.length && status.foodPreference === 'UNKNOWN') {
+    patch.foods = [...saved.foods];
+    status.foodPreference = 'SELECTED';
+    changed = true;
+  }
+  if (saved.slope !== undefined && current.slopeConstraint === null) {
+    patch.slopeConstraint = saved.slope;
+    changed = true;
+  }
+  return changed ? { ...current, ...patch, preferenceAnswerStatus: status } : current;
+}
+
 type PlanContextValue = {
   draft: PlanDraft;
   ready: boolean;
@@ -109,6 +136,7 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   const [hydratedKey, setHydratedKey] = useState<string | null>(null);
   const [foodConflictNotice, setFoodConflictNotice] = useState<string | null>(null);
   const changedBeforeHydration = useRef(false);
+  const tasteProfileAppliedKey = useRef<string | null>(null);
   const ready = hydratedKey !== null;
 
   useEffect(() => {
@@ -165,6 +193,22 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     });
     return () => { alive = false; };
   }, [accessToken, authReady, hydratedKey, storageKey, userId]);
+
+  // 계정에 저장된 평소 취향(로컬성·조용함·음식·경사)을 새 여행의 기본값으로 얹는다.
+  // 여행 조건(위)과 같은 방식이다 — 아직 답하지 않은 칸에만 넣으므로, /plan 에서 그 문항을
+  // 빼도 온보딩에서 답한 값이 추천까지 흐른다. 로그인한 사람에게만(계정에만 저장되므로).
+  useEffect(() => {
+    if (!user || !accessToken || hydratedKey !== storageKey || tasteProfileAppliedKey.current === storageKey) return;
+    tasteProfileAppliedKey.current = storageKey;
+    let cancelled = false;
+    void getTasteProfile(accessToken)
+      .then((saved) => {
+        if (cancelled) return;
+        setDraft((current) => applyTasteProfile(current, saved));
+      })
+      .catch(() => { /* 서버 취향 조회 실패는 여행 작성 자체를 막지 않는다. */ });
+    return () => { cancelled = true; };
+  }, [accessToken, hydratedKey, storageKey, user]);
 
   useEffect(() => {
     if (hydratedKey !== storageKey) return;

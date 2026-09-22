@@ -21,6 +21,20 @@ export type TripSummaryDto = {
   role: TripRole;
   createdAt: string;
   updatedAt: string;
+  /**
+   * 🔴 여행 카드에 그릴 사진. 서버가 목록과 «함께» 준다(S15P21E201-1370 · 1436).
+   *
+   * 전에는 화면이 카드마다 일정 → 일정 내용 → 장소 여섯을 따로 불러 스스로 찾았다. 「내 여행」을
+   * 열면 1초에 51건이 나갔고, 서버 앞단이 초당 10건까지만 받아 59건이 503 으로 거절됐다
+   * (그중 52건이 사진 요청). 게다가 실패를 세션 내내 기억해서, 거절된 카드는 앱을 끌 때까지
+   * 사진이 안 나왔다 — 어느 카드가 그럴지는 그때그때 달랐다(S15P21E201-1435).
+   *
+   * null 이 흔하다. 사진 없는 카드가 기본이고 사진은 덤이다.
+   */
+  coverImageUrl: string | null;
+  /** 첫 방문지 이름. 사진은 앞쪽 몇 곳을 훑어 찾으므로 «사진이 이 장소의 것이 아닐 수 있다». */
+  firstStopNameKo: string | null;
+  firstStopNameEn: string | null;
 };
 
 /** 여행 카드에 그릴 제목 */

@@ -8,7 +8,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
-import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { Text } from './Text';
@@ -26,8 +25,23 @@ export const TAB_BAR_HEIGHT = 64;
  */
 export const TAB_BAR_SHEET_HEIGHT = 560;
 
-const BAR_MAX_WIDTH = 328;
-const SHEET_MAX_WIDTH = 361;
+// 세로에서 알약이 갖는 상한. 시안의 폭이다.
+/**
+ * 접힌 막대와 자란 시트의 폭.
+ *
+ * 🔴 추천 화면의 «코스 바» 도 이 둘을 쓴다 — 그 바는 탭바를 «대신» 서고 같은 동작으로
+ *    자라므로, 폭이 다르면 같은 것으로 안 읽힌다. 숫자를 그쪽에 다시 적지 않는다.
+ */
+export const BAR_MAX_WIDTH = 328;
+// 🔴 가로에서는 이 상한을 쓰지 않는다. 폰을 가로로 돌리면 화면이 829dp 로 넓어지는데
+//    328 짜리 알약이 그대로 남아 «화면 한가운데 떠 있는 막대»로 보이고, 그 아래 글자를 덮는다
+//    (S15P21E201-1245 의 B-09 · 1475). 가로에서는 바닥에 걸친 «띠»가 되는 편이 맞다.
+//    가로를 포기하고 portrait 으로 잠그는 대신 이 길을 골랐다.
+function barMaxWidth(layoutWidth: number, isLandscape: boolean): number {
+  if (!isLandscape) return BAR_MAX_WIDTH;
+  return Math.max(BAR_MAX_WIDTH, layoutWidth - spacing[4] * 2);
+}
+export const SHEET_MAX_WIDTH = 361;
 
 /** 늘어나고 줄어드는 데 걸리는 시간. 시안의 .42s cubic-bezier(.34,1.3,.64,1). */
 const GROW_MS = 420;
@@ -89,7 +103,7 @@ export function TabBar({
 }) {
   const router = useRouter();
   const { tx } = useI18n();
-  const { width } = useLayout();
+  const { kind, width: layoutWidth, isLandscape } = useLayout();
   const grow = useRef(new Animated.Value(0)).current;
   /** 0 이면 제자리, 1 이면 화면 아래로 내려가 사라진 상태. */
   const hide = useRef(new Animated.Value(0)).current;
@@ -119,11 +133,16 @@ export function TabBar({
   // 시스템 하단 내비게이션 바(제스처바·버튼바)에 가려진다. 하단 인셋을 직접 더한다.
   const insets = useSafeAreaInsets();
 
-  // 이 바는 휴대폰 폭(하단 고정 탭) 전용이다 — breakpoints.ts 의 반응형 표를 보면
-  // 600px 부터는 상단 가로 바로 바뀌어야 한다. 그 화면은 아직 없으니, 없는 것을
-  // 지어내 보여주는 대신 desktop 폭에서는 아무것도 안 그린다(home.tsx 의 데스크톱
-  // 리다이렉트와 같은 판단). 화면 가운데 붕 뜬 모바일 탭바보다는 없는 쪽이 낫다.
-  if (isAtLeast(width, 'md')) return null;
+  // 이 바는 폰 전용이다. 태블릿에서는 상단 바(TopNav)가 그 자리를 맡는다.
+  //
+  // 🔴 숨기는 기준은 TopNav 와 **같은 것**(useLayout 의 kind)이어야 한다 — 2026-09-21.
+  //    전에는 여기가 폭(width > 599)이고 TopNav 는 kind(짧은 변 >= 600)였다. 기준이
+  //    둘이면 둘 다 안 그리는 구간이 생긴다 — 아이폰 가로(932×430)가 그랬다. 폭은 932 라
+  //    이 바가 숨고, 짧은 변은 430 이라 TopNav 도 안 떠서, 화면 안 「‹」 말고는 어디로도
+  //    못 갔다(app.json 이 orientation: default 라 실제로 돌아간다). kind 는 짧은 변으로
+  //    정하므로 돌려도 안 바뀌고, 폴드는 펼칠 때 짧은 변이 커지므로 그때만 태블릿이 된다
+  //    (frontend/CLAUDE.md 의 「폭 분기는 useLayout」 규칙이 바로 이 자리다).
+  if (kind === 'tablet') return null;
 
   // 받침(dock)에 담아 띄운다.
   return (
@@ -144,8 +163,15 @@ export function TabBar({
       style={[
         styles.bar,
         {
+          width: Math.max(0, layoutWidth - spacing[4] * 2),
           height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, sheetHeight] }),
-          maxWidth: grow.interpolate({ inputRange: [0, 1], outputRange: [BAR_MAX_WIDTH, SHEET_MAX_WIDTH] }),
+          maxWidth: grow.interpolate({
+            inputRange: [0, 1],
+            outputRange: [
+              barMaxWidth(layoutWidth, isLandscape),
+              Math.max(SHEET_MAX_WIDTH, barMaxWidth(layoutWidth, isLandscape)),
+            ],
+          }),
         },
       ]}
     >
@@ -211,6 +237,20 @@ export function tabBarBottomMargin(bottomInset: number) {
   return Math.max(spacing[2], bottomInset);
 }
 
+/**
+ * 탭바가 있는 화면에서 «하단 고정 줄»이 비워야 하는 높이.
+ *
+ * 🔴 탭바는 `position: absolute; bottom: 0` 이다. 그래서 흐름에 놓인 하단 줄은 탭바
+ *    «뒤»로 들어가고, 그 아래로 시스템 탐색줄이 또 있다. 둘을 안 비우면 단추가 완전히
+ *    가려져 누를 수 없다 — 빌드 29 실기에서 일정 화면의 「순서 수정」이 그랬고, 추천 코스의
+ *    하단 바는 `bottom: 96` 으로 어림해 두어 3단추 탐색줄 기기에서 아랫단이 덮였다.
+ *
+ * 숫자를 화면마다 적으면 이 계산이 또 어긋난다. 여기 한 벌만 둔다.
+ */
+export function bottomBarClearance(bottomInset: number) {
+  return TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset) + spacing[2];
+}
+
 const styles = StyleSheet.create({
   // 받침 — 화면 아래에 깔리되 자기는 아무것도 안 그린다. 알약을 가운데 세우는 일만 한다.
   dock: {
@@ -222,6 +262,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    // 알약은 «가운데»다. 폭이 상한(BAR_MAX_WIDTH)에 걸리므로 정렬을 빼면 왼쪽으로 쏠린다.
     alignItems: 'center',
     // 🔴 화면 내용 위에 있어야 한다. 마이페이지가 시트를 열 때 어둠막(20)을 깔므로
     //    그보다 높아야 시트가 가려지지 않는다 — 안 주면 나중에 그린 것이 이긴다.
@@ -229,8 +270,9 @@ const styles = StyleSheet.create({
   },
   bar: {
     alignSelf: 'center',
-    width: '100%',
-    marginHorizontal: spacing[4],
+    // 🔴 폭은 화면에서 받아 «숫자»로 넣는다(아래 barWidth). 전에는 width:'100%' 였는데,
+    //    부모(dock)가 alignItems:'center' 라 자식의 가로 크기가 내용 기준이 되고 그러면
+    //    Yoga 가 그 백분율을 못 풀어 auto 로 떨어진다 — 상한에 가려 티가 안 났을 뿐이다.
     overflow: 'hidden',
     backgroundColor: color.surface.card,
     borderRadius: radius.lg,

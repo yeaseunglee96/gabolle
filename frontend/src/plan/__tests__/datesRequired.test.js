@@ -31,14 +31,18 @@ describe('날짜 없이 일정 만들기', () => {
   });
 
   it('🔴 왜 안 눌리는지 화면에 적는다 — 안 적으면 고장으로 읽는다', () => {
-    // 1376 부터는 마지막 장에서도 같은 안내를 쓴다 — 「날짜만 정하면 바로 만들 수 있어요 ↑」(위 달력 카드로).
-    expect(SCREEN).toContain('날짜만 정하면 바로 만들 수 있어요 ↑');
+    // 1425 부터는 「지금 이대로 만들기 ↑」 카드를 걷어내고(문항별 스테퍼) 상태 문구로 말한다 —
+    // 「필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요」. 마지막 자리에는 알림 줄도 뜬다.
+    expect(SCREEN).toContain('날짜만 정하면 만들 수 있어요');
+    expect(SCREEN).toContain('날짜를 정해야 만들 수 있어요');
   });
 
   it('🔴 거기서 정하러 갈 수 있다 — 잠그기만 하고 문을 안 주지 않는다', () => {
+    // 날짜가 없으면 달력 카드가 저절로 펼쳐진다(showDateCard) — 잠근 자리 바로 위에 문이 있다.
+    expect(code).toContain('datesOpen ?? datesMissing');
+    // 폰 위쪽 줄(goSetDates)과 답한 날짜 행(setDatesOpen) 둘 다 그 카드를 편다.
     expect(code).toContain('goSetDates');
-    // 알림 줄과 폰 위쪽 줄 둘 다 그 문을 쓴다.
-    expect(code.match(/goSetDates/g).length).toBeGreaterThanOrEqual(3);
+    expect(code.match(/setDatesOpen\(true\)/g).length).toBeGreaterThanOrEqual(2);
   });
 
   it('🔴 폰의 날짜 단추가 「받은 것이 있을 때만」에 묶여 있지 않다', () => {

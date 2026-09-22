@@ -5,7 +5,7 @@ import { pickLanguage } from '@/i18n';
 import { txf } from '@/i18n/format';
 import type { LanguageCode } from '@/i18n/languages';
 
-export type TripPassField = { key: string; value: string };
+export type TripPassField = { key: string; value: string; /** 온 칸을 쓴다 — 장소 이름처럼 3분의 1 칸에 안 들어가는 값. */ wide?: boolean };
 
 export type TripPassData = {
   /** 영수증 오른쪽 위 코드. 같은 일정이면 언제나 같은 값이 나온다. */
@@ -20,6 +20,8 @@ export type TripPassData = {
   endTime: string | null;
   /** 「9.20(토) – 9.21(일)」. 날짜가 없으면 null. */
   dateRange: string | null;
+  /** 도장에 찍는 출발일 「20 · SEP · 2026」. 도장 그림에는 날짜 칸이 비어 있다(S15P21E201-1437). 없으면 null. */
+  stampDate: string | null;
   /** 이동 수단 배지. 모르면 null. */
   mode: string | null;
   /** 여행자 이름. 로그인 전이면 null. */
@@ -120,6 +122,7 @@ export function buildTripPass(input: TripPassInput): TripPassData {
   const firstDate = parseDate(days[0]?.date ?? input.startDate);
   const lastDate = parseDate(days.at(-1)?.date ?? input.endDate);
 
+  const stampDate = firstDate ? `${String(firstDate.getDate()).padStart(2, '0')} · ${['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][firstDate.getMonth()]} · ${firstDate.getFullYear()}` : null;
   const dateRange = firstDate
     ? lastDate && lastDate.getTime() !== firstDate.getTime()
       ? `${formatDay(firstDate, tx)} – ${formatDay(lastDate, tx)}`
@@ -152,7 +155,7 @@ export function buildTripPass(input: TripPassInput): TripPassData {
   }
 
   const firstStopName = allItems[0]?.title?.trim();
-  if (firstStopName) fields.push({ key: tx('첫 일정', 'First stop'), value: firstStopName });
+  if (firstStopName) fields.push({ key: tx('첫 일정', 'First stop'), value: firstStopName, wide: true });
 
   const modeKey = (input.transport ?? '').toUpperCase();
   const modeLabel = MODE_LABEL[modeKey];
@@ -164,6 +167,7 @@ export function buildTripPass(input: TripPassInput): TripPassData {
     startTime: formatTime(allItems[0]?.startsAt),
     endTime: formatTime(allItems.at(-1)?.startsAt),
     dateRange,
+    stampDate,
     mode: modeLabel ? tx(modeLabel.ko, modeLabel.en) : null,
     owner: input.ownerName?.trim() || null,
     fields: fields.slice(0, 6),

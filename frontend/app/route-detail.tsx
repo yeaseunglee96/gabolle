@@ -101,7 +101,7 @@ export default function RouteDetail() {
 
       <View style={styles.heading}>
         <Eyebrow>{tx('이동 경로', 'Route')}</Eyebrow>
-        <Text variant="display" weight="bold">{tx(`${originName} → ${destName}`, `${originName} → ${destName}`)}</Text>
+        <Text variant="display" weight="bold">{txf(tx, '%s → %s', '%s → %s', originName, destName)}</Text>
       </View>
 
       {!hasCoords ? (

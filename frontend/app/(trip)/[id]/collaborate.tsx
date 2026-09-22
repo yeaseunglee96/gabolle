@@ -29,6 +29,7 @@ const OPERATION_LABEL: Record<TripActivityOperation, [string, string]> = {
   CREATE: ['일정을 만들었어요', 'created the itinerary'],
   REGENERATE: ['일정을 전체 다시 만들었어요', 'regenerated the whole itinerary'],
   REGENERATE_DAY: ['하루 일정을 다시 만들었어요', 'regenerated a day'],
+  REPLAN_DAY: ['남은 일정을 다시 계획했어요', 'replanned the rest of the day'],
   REPLACE_ITEM: ['장소를 바꿨어요', 'replaced a place'],
   REMOVE_ITEM: ['장소를 뺐어요', 'removed a place'],
   LOCK_ITEM: ['장소 고정 상태를 바꿨어요', 'changed a place’s lock'],

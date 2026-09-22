@@ -2,10 +2,11 @@
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p1.
 
 import type { PlanDraft } from '@/plan/PlanProvider';
+import { timeToMinutes } from '@/plan/tripBasics';
 
 export type QuestionKey =
   | 'areas' | 'budget' | 'move' | 'cats' | 'pace'
-  | 'moods' | 'scales' | 'foods' | 'aids' | 'must';
+  | 'aids' | 'must';
 
 export type PlanQuestion = {
   key: QuestionKey;
@@ -18,6 +19,21 @@ export type PlanQuestion = {
   /** 이 질문에 답한 것으로 볼 조건. */
   answered: (draft: PlanDraft) => boolean;
 };
+
+/**
+ * 하루 시간대가 쓸 수 있는 값인가. 문제가 없으면 null.
+ *
+ * 🔴 **화면과 통과 조건이 이 함수 하나를 같이 쓴다.** 「넘어가도 되나」와 「무엇이
+ *    틀렸다고 적나」가 서로 다른 판정을 쓰면, 넘어가지는 않는데 이유는 안 뜨는 화면이 된다.
+ */
+export function dayWindowIssue(draft: Pick<PlanDraft, 'dayStartTime' | 'dayEndTime'>): 'FORMAT' | 'ORDER' | null {
+  const start = timeToMinutes(draft.dayStartTime);
+  const end = timeToMinutes(draft.dayEndTime);
+  if (Number.isNaN(start) || Number.isNaN(end)) return 'FORMAT';
+  // 끝이 시작보다 이르거나 같으면 하루가 안 된다. 서버는 이것을 안 막는다(1453).
+  if (end <= start) return 'ORDER';
+  return null;
+}
 
 export const PLAN_QUESTIONS: PlanQuestion[] = [
   {
@@ -39,7 +55,10 @@ export const PLAN_QUESTIONS: PlanQuestion[] = [
     hintKo: '몇 시부터 몇 시까지 다닐지, 무엇으로 이동할지 알려 주세요.',
     hintEn: 'When you want to be out, and how you will get around.',
     skippable: false,
-    answered: (draft) => Boolean(draft.transport),
+    // 🔴 여기가 `Boolean(draft.transport)` 뿐이었다 — **이동수단만 보고 시각은 안 봤다.**
+    //    그래서 「0800」처럼 못 읽는 값을 넣고도 다음으로 넘어갔고, 서버는 그것을 시간
+    //    범위가 아니라 프리셋 이름으로 오해해 **조용히 버렸다**(S15P21E201-1452·1453).
+    answered: (draft) => Boolean(draft.transport) && dayWindowIssue(draft) === null,
   },
   {
     key: 'cats', ko: '여행 카테고리', en: 'Trip categories',
@@ -54,27 +73,6 @@ export const PLAN_QUESTIONS: PlanQuestion[] = [
     hintEn: 'How many places a day feels right.',
     skippable: true,
     answered: (draft) => Boolean(draft.paceLevel),
-  },
-  {
-    key: 'moods', ko: '좋아하는 분위기', en: 'Preferred mood',
-    hintKo: '여러 개 골라도 괜찮아요.',
-    hintEn: 'Pick as many as you like.',
-    skippable: true,
-    answered: (draft) => draft.atmospheres.length > 0,
-  },
-  {
-    key: 'scales', ko: '로컬성 · 조용함 · 관광지', en: 'Local, quiet, touristy',
-    hintKo: '셋 중 하나만 답해도 돼요.',
-    hintEn: 'Answering just one is fine.',
-    skippable: true,
-    answered: (draft) => draft.localityLevel !== null || draft.quietLevel !== null || draft.touristLevel !== null,
-  },
-  {
-    key: 'foods', ko: '음식 취향', en: 'Food preferences',
-    hintKo: '못 먹는 것은 앞에서 받은 조건으로 이미 걸러져요.',
-    hintEn: 'Anything you cannot eat is already filtered out.',
-    skippable: true,
-    answered: (draft) => draft.foods.length > 0,
   },
   {
     key: 'aids', ko: '이번 여행 이동 보조 · 짐', en: 'Mobility aids and luggage',
@@ -139,24 +137,7 @@ export function nextOpenIndex(_draft: PlanDraft, state: QuestionState): number {
   return Math.min(state.open + 1, PLAN_QUESTIONS.length);
 }
 
-/**
- * 열 질문을 세 장으로 — S15P21E201-1377.
- *
- * 🔴 한 질문 = 한 장이면 열 장을 넘겨야 한다. 시안 4·5 는 같은 성격의 질문을 한 장에 모은다.
- *    질문 수·선택지는 그대로고 «장»만 셋이다. 1장은 필수(일정을 만드는 데 꼭 필요한 것),
- *    2·3장은 선택 — 1장이 끝나면 어느 장에서든 만들 수 있다.
- */
-export type PlanPage = { key: 'basics' | 'taste' | 'detail'; ko: string; en: string; subKo: string; subEn: string; questions: PlanQuestion[] };
-
-const byKey = (keys: QuestionKey[]) => keys.map((key) => PLAN_QUESTIONS.find((item) => item.key === key) as PlanQuestion);
-
-export const PLAN_PAGES: PlanPage[] = [
-  { key: 'basics', ko: '기본', en: 'Basics', subKo: '이것만 있으면 일정이 나와요', subEn: 'Enough to build a plan', questions: byKey(['areas', 'budget', 'move']) },
-  { key: 'taste', ko: '취향', en: 'Taste', subKo: '답할수록 내 취향에 가까워져요', subEn: 'Each answer tunes the plan to you', questions: byKey(['cats', 'pace', 'moods', 'scales']) },
-  { key: 'detail', ko: '세부', en: 'Details', subKo: '음식·이동·꼭 갈 곳', subEn: 'Food, mobility, must-visits', questions: byKey(['foods', 'aids', 'must']) },
-];
-
-/** 이 장의 필수 질문 가운데 아직 안 답한 것. 없으면 「다음」으로 갈 수 있다. */
-export function pageMissing(page: PlanPage, draft: PlanDraft): PlanQuestion[] {
-  return page.questions.filter((question) => !question.skippable && !question.answered(draft));
-}
+// 🔴 «장»(page) 묶음은 걷어냈다 — S15P21E201-1425. 시안이 한 화면에 질문 하나씩
+//    보이는 스테퍼로 돌아갔다(필수 3 + 선택 4). 예전 3-장 모델(-1377)은 문항을 열 개까지
+//    한 장에 모으려던 것인데, 문항이 일곱으로 줄면서 장으로 묶을 이유가 사라졌다.
+//    진행은 위 settledCount / nextOpenIndex 가 질문 단위로 그대로 잰다.

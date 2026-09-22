@@ -50,9 +50,25 @@ describe('표지에 얹는 것은 사진이 있을 때만이다', () => {
   });
 
   it('🔴 그 둘은 «사진이 있을 때만» 붙는다', () => {
-    expect(SOURCE).toContain('const overlayOnCover = Boolean(cover);');
+    // 🔴 2026-09-22 (S15P21E201-1454) — 판정식이 `Boolean(cover)` 에서
+    //    `photos.length > 0` 으로 바뀌었다. 표지가 사진 한 장이 아니라 **콜라주**가
+    //    되면서 재는 대상이 「사진 한 장이 있나」에서 「사진이 하나라도 있나」로 바뀐 것이다.
+    //    지키려는 것은 그대로다 — **표지가 없으면 아무것도 얹지 않는다.**
+    expect(SOURCE).toContain('const overlayOnCover = photos.length > 0;');
     expect(SOURCE).toContain('overlayOnCover ? styles.badgeOverlay : null');
-    expect(SOURCE).toContain('overlayOnCover ? styles.saveOverlay : null');
+    expect(SOURCE).toContain('overlayOnCover ? styles.saveOverlay : styles.saveInline');
+  });
+
+  it('🔴 사진이 없어도 ☆ 는 오른쪽 끝이다 — 카드마다 자리가 달라지면 매번 다시 찾는다', () => {
+    // 자식이 배지 없이 ☆ 하나뿐일 때가 있어 `space-between` 으로는 안 된다.
+    expect(styleBlock('saveInline')).toContain("marginLeft: 'auto'");
+  });
+
+  it('🔴 표지가 없으면 칸을 아예 안 만든다 — 회색 띠를 남기지 않는다', () => {
+    // 예전에는 사진이 없어도 96px 칸이 남았고, 그 좁은 칸이 겹침 사고의 원인이었다.
+    // 이제는 높이 0 이라 얹힐 자리 자체가 없다.
+    expect(styleBlock('coverNone')).toContain('height: 0');
+    expect(SOURCE).toContain('if (photos.length === 0) return null;');
   });
 
   it('사진이 없으면 본문 줄에 세운다 — 어디에도 안 그리면 저장을 못 한다', () => {

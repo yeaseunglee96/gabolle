@@ -35,7 +35,7 @@ mkdirSync(OUT, { recursive: true })
 //    깨지는 것을 영영 못 본다.
 const day = (date, items) => ({ date, items })
 const ITINERARY = {
-  id: 'demo', title: '부산 2박 3일 — 바다와 시장', version: 3,
+  id: 'demo', title: '부산 2박 3일 — 바다와 시장', version: 3, tripId: 'trip-demo',
   totalEstimatedCostKrw: 48000, totalWalkingMeters: 6200, fallbackMode: 'MODEL',
   myRole: 'OWNER', canEdit: true,
   days: [
@@ -54,16 +54,39 @@ const ITINERARY = {
     ]),
   ],
 }
+// 🔴 예산은 **일정이 아니라 여행**에 있다 (backend TripDto.budgetKrw). 이 응답을 안 주면
+//    화면이 예산 줄을 아예 안 그린다 — 0 으로 떨어뜨리지 않기 때문이다.
+const TRIP = { trip: { tripId: 'trip-demo', budgetKrw: 300000 }, constraints: [] }
+
+// 장소 갈래 — 예산 카드의 갈래 막대가 이 값으로 나뉜다. 사진은 전부 null 이라
+// 정차 칸이 갈래 아이콘으로 떨어진다(바깥 그림을 안 받아 찍기가 빨라진다).
+// 🔴 이 자료에는 **카페가 한 곳도 없다.** 갈래 줄이 「카페 0곳 · 미정」으로 뜨는 것이
+//    맞다 — 억지로 한 곳을 카페로 바꾸면 없는 것을 있는 것처럼 보게 된다.
+const PLACE_CATEGORY = {
+  p1: 'SEA_BEACH', p2: 'NATURE_WALK', p3: 'FOOD', p4: 'CITY',
+  p5: 'TRADITIONAL_MARKET', p6: 'CITY', p7: 'NATURE_WALK',
+}
+
 const VERSIONS = [
   { version: 3, baseVersion: 2, operation: 'REORDER', createdBy: 'me', createdAt: '2026-09-16T05:00:00Z', requestId: 'r3' },
   { version: 2, baseVersion: 1, operation: 'LOCK', createdBy: 'me', createdAt: '2026-09-16T04:00:00Z', requestId: 'r2' },
   { version: 1, baseVersion: 0, operation: 'CREATE', createdBy: 'me', createdAt: '2026-09-16T03:00:00Z', requestId: 'r1' },
 ]
 
+// 🔴 **오늘 실제 서버가 주는 모습.** 항목 비용이 하나도 없다 — 장소 표에 가격 칸이
+//    없어서다(backend 시험 「imageUrl·estimatedCostKrw 는 항상 null」이 못박고 있다).
+//    위 고정 자료는 값이 들어왔을 때를 보려고 채운 것이라, 그것만 찍으면 **사람이 실제로
+//    보게 될 화면을 한 번도 안 보고** 끝난다.
+const withoutCosts = (itinerary) => ({
+  ...itinerary,
+  totalEstimatedCostKrw: null,
+  days: itinerary.days.map((d) => ({ ...d, items: d.items.map((i) => ({ ...i, estimatedCostKrw: null })) })),
+})
+
 const browser = await chromium.launch()
 const shots = []
 
-async function shoot(name, width, height, { withData = true, route = '/trips/demo/itinerary', act } = {}) {
+async function shoot(name, width, height, { withData = true, route = '/trips/demo/itinerary', act, costs = 'some' } = {}) {
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 2 })
   const errors = []
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 160)) })
@@ -72,7 +95,11 @@ async function shoot(name, width, height, { withData = true, route = '/trips/dem
     if (!withData) return r.abort()                     // 서버에 못 닿는 상태를 흉내가 아니라 실제로 만든다
     const envelope = (data) => ({ status: 200, contentType: 'application/json', body: JSON.stringify({ data }) })
     if (/\/versions$/.test(url)) return r.fulfill(envelope({ items: VERSIONS }))
-    if (/\/itineraries\/demo$/.test(url)) return r.fulfill(envelope(ITINERARY))
+    if (/\/itineraries\/demo$/.test(url)) return r.fulfill(envelope(costs === 'none' ? withoutCosts(ITINERARY) : ITINERARY))
+    if (url.endsWith('/trips/trip-demo')) return r.fulfill(envelope(TRIP))
+    // 장소 상세 — 갈래만 준다. 사진은 null 이라 정차 칸이 갈래 아이콘으로 떨어진다.
+    const afterPlaces = url.includes('/places/') ? url.split('/places/')[1].split(/[?#]/)[0] : null
+    if (afterPlaces) return r.fulfill(envelope({ placeId: afterPlaces, name: afterPlaces, category: PLACE_CATEGORY[afterPlaces] ?? null, photoUrl: null, photoSource: null }))
     return r.fulfill({ status: 404, contentType: 'application/json', body: JSON.stringify({ error: { code: 'NOT_FOUND', message: '없음' } }) })
   })
   await page.goto(`${BASE}${route}`, { waitUntil: 'load', timeout: 90000 })
@@ -89,6 +116,32 @@ async function shoot(name, width, height, { withData = true, route = '/trips/dem
 
 await shoot('폰-390-일정', 390, 844)
 await shoot('넓은화면-1280-일정', 1280, 900)
+// 시안이 그린 두 폭 (S15P21E201-1432)
+await shoot('넓은화면-1024-일정', 1024, 1200)
+// 🔴 오늘 실제 서버가 주는 모습 — 비용이 하나도 없는 판
+await shoot('폰-390-비용없음', 390, 844, { costs: 'none' })
+// 🔴 폰에서 예산 카드는 **화면 아래**에 있다. 이 화면은 페이지가 길어지는 것이 아니라
+//    안쪽 상자가 구르므로 fullPage 로는 안 찍힌다 — 굴려 놓고 찍는다.
+const scrollToBottom = async (page) => {
+  await page.evaluate(() => {
+    const boxes = Array.from(document.querySelectorAll('div'))
+      .filter((d) => d.scrollHeight > d.clientHeight + 40 && d.clientHeight > 200)
+    const box = boxes[boxes.length - 1]
+    if (box) box.scrollTop = box.scrollHeight
+  })
+}
+await shoot('폰-390-예산', 390, 844, { act: scrollToBottom })
+await shoot('폰-390-예산-비용없음', 390, 844, { costs: 'none', act: scrollToBottom })
+// 🔴 **알약이 정말 움직이는가.** 정지 그림 한 장으로는 「2일차에 빨간 칸이 있다」까지만
+//    보이고, 그것은 칸마다 배경을 켜고 끈 것과 구분이 안 된다. 누른 직후(구르는 중)와
+//    다 구른 뒤를 둘 다 찍어서 **가는 도중이 있다**는 것을 남긴다.
+const pickDay2 = (waitMs) => async (page) => {
+  await page.getByTestId('itinerary-day-2').click()
+  await page.waitForTimeout(waitMs)
+}
+await shoot('넓은화면-1024-일차2-가는중', 1024, 1200, { act: pickDay2(150) })
+await shoot('넓은화면-1024-일차2-도착', 1024, 1200, { act: pickDay2(900) })
+await shoot('넓은화면-1024-비용없음', 1024, 1200, { costs: 'none' })
 await shoot('폰-390-서버못닿음', 390, 844, { withData: false })
 await shoot('폰-390-펼침', 390, 844, { act: async (page) => { await page.getByRole('button', { name: /해운대 해수욕장/ }).first().click() } })
 await shoot('폰-390-더보기', 390, 844, { act: async (page) => { await page.getByRole('button', { name: /더 보기|More/ }).first().click() } })

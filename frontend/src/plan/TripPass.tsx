@@ -21,13 +21,8 @@ const QR_DELAY_MS = 1700;
 const QR_MS = 700;
 /** 뒤집는 데 걸리는 시간. 시안의 800ms 스프링. */
 const FLIP_MS = 800;
-/**
- * 출력이 끝난 뒤 이 간격으로 한 번씩 **살짝 젖힌다**(시안 gbTease).
- *
- * 🔴 「눌러서 뒤집을 수 있다」를 글자로만 적으면 아무도 안 읽는다. 카드가 스스로 조금
- *    움직이는 것이 그 자리에서 가장 짧은 설명이다.
- */
-const TEASE_EVERY_MS = 3600;
+// 🔴 출력 뒤 3.6초마다 카드를 -16° 젖히던 「gbTease」는 뺐다(2026-09-21 실기, S15P21E201-1400) — 사람은
+//    「뒤집을 수 있다」가 아니라 「티켓이 자꾸 오른쪽으로 움직인다」로 읽었다. 그 말은 아래 「눌러서 여행표 상세 보기 ↻」 글줄이 한다.
 
 /** 지그재그 절취선. 시안은 CSS 그라데이션인데 RN 에 없어서 삼각형을 늘어놓는다. */
 function TearLine() {
@@ -42,30 +37,6 @@ function TearLine() {
         />
       ))}
     </Svg>
-  );
-}
-
-/**
- * 바코드. 굵기가 일정하면 「그림」으로 보이므로 코드 글자에서 굵기를 만든다
- * 같은 여행이면 언제나 같은 무늬가 나온다.
- */
-function Barcode({ seed }: { seed: string }) {
-  const bars = useMemo(() => {
-    const source = seed || 'GABOLLE';
-    return Array.from({ length: 60 }).map((_, index) => {
-      const charCode = source.charCodeAt(index % source.length) + index * 7;
-      return { width: (charCode % 3) + 1, ink: charCode % 3 !== 0 };
-    });
-  }, [seed]);
-  return (
-    <View style={styles.barcode}>
-      {bars.map((bar, index) => (
-        <View
-          key={index}
-          style={{ width: bar.width, height: 48, backgroundColor: bar.ink ? color.text.heading : color.surface.card }}
-        />
-      ))}
-    </View>
   );
 }
 
@@ -107,7 +78,9 @@ function QrCode({ value, size }: { value: string; size: number }) {
 
 function PlaneIcon() {
   return (
-    <Svg width={16} height={16} viewBox="0 0 24 24">
+    // 🔴 그림이 위를 향하게 그려져 있어 「출발 → 부산」 사이에서 하늘로 올라가는 것처럼 보였다(2026-09-21 실기).
+    //    도착 쪽으로 90° 돌린다.
+    <Svg width={16} height={16} viewBox="0 0 24 24" style={{ transform: [{ rotate: '90deg' }] }}>
       <Path
         d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"
         fill={color.text.heading}
@@ -177,30 +150,16 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
   const canFlip = printed && Boolean(details && details.length);
   const [flipped, setFlipped] = useState(false);
   const flip = useRef(new Animated.Value(0)).current;
-  const tease = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!canFlip) return;
     Animated.spring(flip, { toValue: flipped ? 1 : 0, damping: 14, stiffness: 120, mass: 1, useNativeDriver: true }).start();
   }, [canFlip, flip, flipped]);
 
-  // 🔴 뒤집힌 뒤에는 젖히지 않는다. 뒷면에는 단추가 있어서, 움직이는 카드 위에서
-  //    누르면 손가락 아래에서 자리가 바뀐다.
-  useEffect(() => {
-    if (!canFlip || flipped) return;
-    const timer = setInterval(() => {
-      Animated.sequence([
-        Animated.timing(tease, { toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-        Animated.timing(tease, { toValue: 0, duration: 420, easing: Easing.bezier(0.34, 1.3, 0.64, 1), useNativeDriver: true }),
-      ]).start();
-    }, TEASE_EVERY_MS);
-    return () => clearInterval(timer);
-  }, [canFlip, flipped, tease]);
 
   const frontRotate = flip.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
   const backRotate = flip.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
   const flipScale = flip.interpolate({ inputRange: [0, 1], outputRange: [1, wide ? 1.18 : 1.06] });
-  const teaseRotate = tease.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-16deg'] });
 
   return (
     <View style={styles.root}>
@@ -217,7 +176,6 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                 { translateY },
                 { perspective: 1200 },
                 { rotateY: frontRotate },
-                { rotateZ: teaseRotate },
                 { scale: flipScale },
               ],
             },
@@ -295,9 +253,9 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
             {data.fields.length > 0 && (
               <View style={styles.grid}>
                 {data.fields.map((field) => (
-                  <View key={field.key} style={styles.gridCell}>
+                  <View key={field.key} style={[styles.gridCell, field.wide && styles.gridCellWide]}>
                     <Text variant="caption" color={color.text.body}>{field.key}</Text>
-                    <Text variant="caption" weight="bold" numberOfLines={1}>{field.value}</Text>
+                    <Text variant="caption" weight="bold" numberOfLines={field.wide ? 2 : 1}>{field.value}</Text>
                   </View>
                 ))}
               </View>
@@ -309,14 +267,21 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
           <View style={styles.stub}>
             {/* 입국 도장 — 여행표가 「부산에 도착했다」는 표시. 팀이 고른 2b 안(BUSAN · 날짜 · GAB동백이LLE).
                 QR(가운데 96~120)과 겹치지 않도록 오른쪽 귀퉁이에 비스듬히 찍는다. 장식이라 낭독기에는 안 읽힌다. */}
-            <Image source={stamp} resizeMode="contain" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.stamp} />
-            <Barcode seed={data.code} />
+            {/* 🔴 가짜 바코드는 뺐다(2026-09-21 실기, S15P21E201-1400) — QR 과 바코드가 둘이라 「왜 둘인지」를 물었다.
+                남는 것은 진짜로 읽히는 QR 하나. 도장은 QR 옆 제 칸에 크게 — 귀퉁이에 겹쳐 찍었을 때 글자가 안 읽혔다. */}
+            <View style={styles.codeRow}>
+              {!!data.url && (
+                <Animated.View style={{ opacity: codeMark, transform: [{ scale: markScale }] }}>
+                  <QrCode value={data.url} size={wide ? 120 : 104} />
+                </Animated.View>
+              )}
+              {/* 🔴 날짜는 그림에 안 박혀 있다 — 「12 · SEP · 2026」이 모든 여행에 찍히던 것(실기 빌드 28, S15P21E201-1437). 빈 칸에 출발일을 앱이 찍는다. */}
+              <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.stamp, wide && styles.stampWide]}>
+                <Image source={stamp} resizeMode="contain" style={styles.stampImage} />
+                {data.stampDate ? <Text weight="bold" color={color.action.outline} style={[styles.stampDate, wide && styles.stampDateWide]}>{data.stampDate}</Text> : null}
+              </View>
+            </View>
             <Text variant="caption" color={color.text.muted} style={styles.validText}>{data.validText}</Text>
-            {!!data.url && (
-              <Animated.View style={{ opacity: codeMark, transform: [{ scale: markScale }] }}>
-                <QrCode value={data.url} size={wide ? 120 : 96} />
-              </Animated.View>
-            )}
             {!!data.code && (
               <Text variant="caption" weight="bold" color={color.text.body}>{data.code}</Text>
             )}
@@ -434,7 +399,11 @@ const styles = StyleSheet.create({
   //    (웹만 지킨다. 네이티브는 이 속성이 없어 가운데 축으로 돈다 — 그래도 안 깨진다.)
   paper: { width: RECEIPT_WIDTH, backfaceVisibility: 'hidden', transformOrigin: 'top center' },
   faceHidden: { opacity: 0 },
-  flipHint: { alignItems: 'center', paddingVertical: spacing[2] },
+  // 🔴 이 줄도 «종이»다. 흰 바탕은 머리(sheet)·스터브(stub)가 각자 칠하는데 여기만
+  //    안 칠해서, 마지막 절취선 뒤의 「눌러서 여행표 상세 보기」가 페이지 바탕 위에 떠
+  //    «승차권 밖으로 튀어나간» 것처럼 보였다(실기 빌드 29, S15P21E201-1460).
+  //    stub 과 같은 marginTop: 4 로 절취선 틈도 위와 같게 둔다.
+  flipHint: { backgroundColor: color.surface.card, marginTop: 4, alignItems: 'center', paddingVertical: spacing[2] },
 
   // 뒷면 — 앞면과 **같은 자리**에 겹쳐 둔다. 크기가 다르면 뒤집는 동안 자리가 튄다.
   back: {
@@ -464,7 +433,13 @@ const styles = StyleSheet.create({
   sheet: { backgroundColor: color.surface.card, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 12, gap: spacing[3] },
   wordmark: { width: 116, height: 21, marginLeft: -2 },
   // 도장 — 스터브 오른쪽, QR 옆 빈 자리. 유효기간 글줄(바코드 바로 아래) 위에 얹히지 않게 그 밑에서 시작한다.
-  stamp: { position: 'absolute', right: 0, top: 104, width: 84, height: 84, transform: [{ rotate: '-12deg' }], opacity: 0.92, zIndex: 1, pointerEvents: 'none' },
+  codeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[4] },
+  stamp: { width: 112, height: 112, transform: [{ rotate: '-8deg' }], pointerEvents: 'none' },
+  stampImage: { width: '100%', height: '100%' },
+  // 그림의 빈 띠(1024 기준 y 486~620)에 맞춘 자리 — 112px 에서는 위 53px, 글자 7px.
+  stampDate: { position: 'absolute', left: 0, right: 0, top: 53, textAlign: 'center', fontSize: 7, lineHeight: 9, letterSpacing: 1 },
+  stampDateWide: { top: 61, fontSize: 8, lineHeight: 10 },
+  stampWide: { width: 128, height: 128 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   legRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
   legEnd: { flexShrink: 1 },
@@ -474,8 +449,9 @@ const styles = StyleSheet.create({
   modeBadge: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingTop: 10, borderTopWidth: 1, borderColor: color.surface.field, borderStyle: 'dashed' },
   gridCell: { width: '33.33%', paddingTop: spacing[1], paddingRight: spacing[1] },
+  // 장소 이름은 3분의 1 칸에 안 들어간다 — 「충무동 새벽…」으로 잘려 일정이 안 보인다고 했다(2026-09-21 실기).
+  gridCellWide: { width: '100%' },
   stub: { backgroundColor: color.surface.card, marginTop: 4, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12, alignItems: 'center', gap: spacing[3] },
-  barcode: { flexDirection: 'row', alignItems: 'stretch', height: 48, width: '100%', overflow: 'hidden' },
   validText: { letterSpacing: 0.1, textAlign: 'center' },
   tear: { backgroundColor: 'transparent' },
   reprint: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], marginTop: spacing[3] },

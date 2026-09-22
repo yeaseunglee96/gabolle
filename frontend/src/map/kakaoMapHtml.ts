@@ -20,6 +20,9 @@ export function buildKakaoMapHtml(appKey: string): string {
   // 부를 때마다 오버레이(마커·선·현재 위치 점)만 지우고 다시 그린다.
   var map = null;
   var overlays = [];
+  var fit = null;
+  // 🔴 시트가 열리며 WebView 가 커지면 지도에 말해 줘야 한다(S15P21E201-1417) — 안 하면 처음 크기만큼만 그린다.
+  window.addEventListener('resize', function () { if (map) { map.relayout(); if (fit) fit(); } });
 
   function post(type, payload) {
     if (window.ReactNativeWebView) {
@@ -115,8 +118,8 @@ export function buildKakaoMapHtml(appKey: string): string {
     }
 
     // 와 같은 이유 — 점이 하나면 bounds 넓이가 0이라 최대 줌으로 튄다.
-    if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); }
-    else map.setBounds(bounds, 60, 60, 60, 60);
+    fit = function () { if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, 60, 60, 60, 60); };
+    fit();
 
     post('ready', null);
   };

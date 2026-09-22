@@ -118,7 +118,10 @@ export default function Welcome() {
       children: value.children,
       travelers: value.adults + value.children,
     });
-    router.push('/plan');
+    // 🔴 /plan 의 「출발지 수정」으로 왔으면(edit 매개변수) 그 /plan 이 아래에 쌓여 있다 — push 하면 /plan 이 둘이 되어
+    //    뒤로 가면 출발지 없던 옛 화면이 한 번 더 나온다(실기 빌드 28, S15P21E201-1439). 왔던 화면으로 돌아간다.
+    if (editSection && router.canGoBack()) router.back();
+    else router.push('/plan');
   };
 
   const startPlanFromBar = (value: StartBarValue) => {
@@ -255,7 +258,8 @@ export default function Welcome() {
         {/* 부제는 메뉴에 실제로 있는 것을 적는다. 전에는 「일정 · 통역 · 여행 도움」이라고
             적어 두고 챗봇 한 곳으로만 갔다 — 셋을 약속하고 하나만 줬다. */}
         <View style={styles.webAssistantLabel}><Text variant="body" weight="bold">{tx('AI에게 물어보기', 'Ask AI')}</Text><Text variant="caption" color={color.text.muted}>{assistantSubtitle(tx)}</Text></View>
-        <GabolleMascot state="idle" style={styles.webAssistantMascot} />
+        {/* 메뉴가 열린 동안 >.< — 폰과 같은 규칙(S15P21E201-1430). 흔들리지 않는다. */}
+        <GabolleMascot state={assistantOpen ? 'thinking' : 'idle'} still style={styles.webAssistantMascot} />
       </Pressable>
     </View>
     <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />

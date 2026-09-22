@@ -74,6 +74,8 @@ export function noticeCopy(notice: ActivityNotice, tx: (ko: string, en: string) 
       return { title: tx('일정이 만들어졌어요', 'Your itinerary is ready'), body: `「${notice.tripTitle}」 — ${tx('확인하고 저장해 주세요.', 'Take a look and save it.')}` };
     case 'REGENERATE':
     case 'REGENERATE_DAY':
+    // 남은 하루 재계획(장소·순서는 두고 아직 안 지난 방문지의 시각만 다시) — 뜻이 같아 같은 문구. 빠져서 「일정이 바뀌었어요」로 뭉개졌다(S15P21E201-1443).
+    case 'REPLAN_DAY':
       return { title: tx('남은 일정을 다시 계획했어요', 'The rest of the day was replanned'), body: `「${notice.tripTitle}」${who ? ` — ${by}${tx('다시 계획했어요.', 'replanned it.')}` : ''}` };
     case 'REVERT':
       return { title: tx('변경을 되돌렸어요', 'A change was undone'), body: `「${notice.tripTitle}」${who ? ` — ${by}${tx('되돌렸어요.', 'undid it.')}` : ''}` };

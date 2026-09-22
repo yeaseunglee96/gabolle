@@ -8,6 +8,9 @@ describe('알림 말 — S15P21E201-1380', () => {
     expect(noticeCopy(notice({}), tx)).toEqual({ title: '일정이 만들어졌어요', body: '「부산 바다 2박 3일」 — 확인하고 저장해 주세요.' });
     expect(noticeCopy(notice({ operation: 'REORDER', actorName: '수민', isMe: false }), tx).body).toBe('「부산 바다 2박 3일」 — 수민님이 순서를 바꿨어요.');
     expect(noticeCopy(notice({ operation: 'REORDER' }), tx).body).toBe('「부산 바다 2박 3일」');
+    // 🔴 REPLAN_DAY(남은 하루 재계획)는 서버가 실제로 보내는 갈래인데 빠져 있었다 — S15P21E201-1443.
+    expect(noticeCopy(notice({ operation: 'REPLAN_DAY' }), tx).title).toBe('남은 일정을 다시 계획했어요');
+    expect(noticeCopy(notice({ operation: 'REGENERATE_DAY' }), tx).title).toBe(noticeCopy(notice({ operation: 'REPLAN_DAY' }), tx).title);
   });
   it('안 본 것 — 마지막으로 본 시각 뒤의 것만', () => {
     const items = [notice({ at: '2026-09-21T10:00:00Z' })];

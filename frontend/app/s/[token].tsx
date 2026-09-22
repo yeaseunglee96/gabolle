@@ -15,6 +15,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { formatClock, formatFullDate } from '@/i18n/datetime';
 import { usePlan } from '@/plan/PlanProvider';
 import { getSharedItinerary, type SharedItineraryDto } from '@/share/sharedItinerary';
 
@@ -99,8 +100,8 @@ export default function SharedItinerary() {
     <View style={styles.heading}>
       <Text variant="eyebrow" weight="bold">{tx('공유된 여행 일정', 'Shared trip itinerary')}</Text>
       <Text variant="display" weight="bold">{data.title}</Text>
-      <Text color={color.text.body}>{tx(`${data.startDate} ~ ${data.finishDate}`, `${data.startDate} – ${data.finishDate}`)}</Text>
-      <Text variant="caption" color={color.text.muted}>{txf(tx, '이 링크는 %s까지 볼 수 있어요.', 'This link is viewable until %s.', new Date(data.expiresAt).toLocaleDateString(locale))}</Text>
+      <Text color={color.text.body}>{txf(tx, '%s ~ %s', '%s – %s', data.startDate, data.finishDate)}</Text>
+      <Text variant="caption" color={color.text.muted}>{txf(tx, '이 링크는 %s까지 볼 수 있어요.', 'This link is viewable until %s.', formatFullDate(data.expiresAt, locale))}</Text>
     </View>
 
     <View style={styles.notice}>
@@ -118,7 +119,7 @@ export default function SharedItinerary() {
         ) : day.items.map((item) => (
           <View key={item.sequence} style={styles.itemRow}>
             <Text variant="caption" weight="bold" color={color.text.accent} style={styles.itemTime}>
-              {item.startsAt ? new Date(item.startsAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) : '–'}
+              {item.startsAt ? formatClock(item.startsAt, locale) : '–'}
             </Text>
             <View style={styles.itemCopy}>
               <Text weight="bold">{item.placeName}</Text>

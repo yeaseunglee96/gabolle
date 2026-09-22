@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import * as Clipboard from 'expo-clipboard';
+import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
+import { sortByDistance } from '@/social/nearby';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { RegionPicker } from '@/components/RegionPicker';
@@ -25,7 +27,7 @@ import { useLayout } from '@/layout/useLayout';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RouteMap } from '@/map/RouteMap';
-import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type FeedSort, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { applyReaction, nextReaction, StoryReactionRow } from '@/social/StoryReactionRow';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
@@ -44,6 +46,8 @@ const BODY_MAX = 500;
 /** 사진 장수에 따라 칸을 다르게 쓴다 — 한 장은 넓게, 여러 장은 정사각으로 나눈다. */
 // — 사진을 가로로 줄 세우던 것을 장수·방향에 따른 배치로 바꾼다.
 // 배치 규칙은 @/social/photoGrid 한 곳에 있고, 작성 미리보기·글 상세도 같은 것을 쓴다.
+type FeedTab = 'HOT' | 'FOR_YOU' | 'MINE';
+
 function StoryImages({ images, compact }: { images: StoryDto['images']; compact: boolean }) {
   const { tx } = useI18n();
   if (!images.length) return null;
@@ -95,8 +99,11 @@ function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: bool
   );
 }
 
-function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingStar, reacting, onUnfollow, onOpen, onOpenAuthor, onReport, onToggleSave, onReact, onQuote }: {
-  story: StoryDto; compact: boolean; showUnfollow: boolean; unfollowBusy: boolean;
+function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, saved, savingStar, reacting, onUnfollow, onOpen, onOpenAuthor, onReport, onToggleSave, onReact, onQuote }: {
+  story: StoryDto; compact: boolean;
+  /** 실시간 인기 1·2·3위 — 시안 4 02a 의 검은 네모 숫자. 그 밖은 null(S15P21E201-1431). */
+  rank?: number | null;
+  showUnfollow: boolean; unfollowBusy: boolean;
   /** 내가 저장한 기록인가 — S15P21E201-1221. StoryDto엔 없는 칸이라 화면이 따로 들고 다닌다. */
   saved: boolean;
   savingStar: boolean;
@@ -119,7 +126,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
         ⋯ 인지 구분이 안 됐다. 반투명 배경을 깔아도 사진에 흰 면이 많으면 그대로 묻힌다.
         그래서 **사진 위쪽에 자기 줄**을 준다 — 배경 위에 서므로 항상 읽힌다. */}
     <View style={styles.cardHead}>
-
+      {rank ? <View accessibilityLabel={txf(tx, '%s위', 'Rank %s', String(rank))} style={styles.rankBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{rank}</Text></View> : null}
       {/* 좌상단 작성자 알약 — 사진 위에 얹히므로 배경을 깔아 글자가 읽히게 한다. */}
       <Pressable
         accessibilityRole="link"
@@ -464,8 +471,9 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
   const following = scope === 'FOLLOWING';
   const mine = scope === 'MINE';
   return <View style={[styles.emptyCard, compact && styles.emptyCardCompact]}>
+    {/* 「없어요」에는 >.< 표정, 「모으고 있어요」에는 기본 표정(S15P21E201-1430). */}
     <Image
-      source={require('../../assets/mascot/dongbaek-idle.png')}
+      source={mine || following ? require('../../assets/mascot/dongbaek-thinking.png') : require('../../assets/mascot/dongbaek-idle.png')}
       resizeMode="contain"
       accessibilityLabel={tx('동백 마스코트', 'Dongbaek mascot')}
       style={[styles.mascot, compact && styles.mascotCompact]}
@@ -503,7 +511,31 @@ export default function Feed() {
   const wide = isAtLeast(width, 'lg');
   const compact = !isAtLeast(width, 'md');
 
-  const [scope, setScope] = useState<FeedScope>('ALL');
+  // 🔴 시안 4 의 02a/02b 대로 위 탭 셋(S15P21E201-1431). 전에는 전체·추천·팔로잉 + 최신/인기 토글이었다.
+  //    실시간 인기 = 서버 인기순(1368) + 1·2·3위 배지 + 「전체 / 내 근처」. 맞춤 추천 = FOR_YOU(팔로잉은 그 안의 갈래).
+  //    내 피드 = 내 기록 — 비었으면 02c 동백이.
+  const [tab, setTab] = useState<FeedTab>('HOT');
+  const [followingOnly, setFollowingOnly] = useState(false);
+  const [area, setArea] = useState<'ALL' | 'NEAR'>('ALL');
+  const [here, setHere] = useState<{ latitude: number; longitude: number } | null | 'denied'>(null);
+  const scope: FeedScope = tab === 'HOT' ? 'ALL' : tab === 'MINE' ? 'MINE' : followingOnly ? 'FOLLOWING' : 'FOR_YOU';
+  const sort: FeedSort = tab === 'HOT' ? 'POPULAR' : 'RECENT';
+  // 「내 근처」 — 위치를 한 번만 묻는다. 거부하면 그렇다고 말하고 전체로 돌아간다. 좌표는 기기에만 있고 서버로 안 간다.
+  useEffect(() => {
+    if (area !== 'NEAR' || here) return;
+    let alive = true;
+    void (async () => {
+      try {
+        const permission = await Location.requestForegroundPermissionsAsync();
+        if (!permission.granted) { if (alive) setHere('denied'); return; }
+        const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        if (alive) setHere({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+      } catch {
+        if (alive) setHere('denied');
+      }
+    })();
+    return () => { alive = false; };
+  }, [area, here]);
   // 인용(링크 복사) 뒤 한 줄 알림 — 복사는 화면에 아무 흔적이 없어서 말로 알려야 한다.
   const [copyNotice, setCopyNotice] = useState('');
   useEffect(() => { if (!copyNotice) return; const timer = setTimeout(() => setCopyNotice(''), 2600); return () => clearTimeout(timer); }, [copyNotice]);
@@ -534,17 +566,22 @@ export default function Feed() {
   // — 글쓰기 입구는 여기서 고르지 않고 composeEntry 한 곳에서 받는다.
   // 조건을 화면 두 곳에 나눠 적었더니 그 사이 폭(600~1023)에 입구가 하나도 없었다.
   const composeEntry = composeEntryFor(width, signedIn);
-  const key = FEED_KEY(scope, signedIn);
+  const key = FEED_KEY(scope, signedIn, sort);
 
   // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다.
   const feedQuery = useQuery({
     queryKey: key,
     // 「내 기록」은 서버 피드가 아니라 내 프로필의 기록 목록이다 — 피드 API 에 MINE 갈래가 없다.
-    queryFn: () => (scope === 'MINE' ? loadUserStories(user?.userId ?? '', accessToken) : loadFeed({ scope, accessToken })),
+    queryFn: () => (scope === 'MINE' ? loadUserStories(user?.userId ?? '', accessToken) : loadFeed({ scope, sort, accessToken })),
+    // 손님의 「내 피드」는 부를 것이 없다 — 로그인 안내만 그린다.
+    enabled: !(scope === 'MINE' && !user),
   });
   const result: FeedLoadResult = feedQuery.data ?? { state: 'success', items: [], nextCursor: null };
-  const loading = feedQuery.isPending;
-  const items = result.state === 'success' ? result.items : [];
+  // isLoading = pending 이면서 실제로 받는 중 — 껐다(손님의 내 피드)면 「불러오는 중」이 아니다.
+  const loading = feedQuery.isLoading;
+  const rawItems = result.state === 'success' ? result.items : [];
+  // 「내 근처」는 앱에서 거리로 늘어놓는다 — 서버에 근처 갈래가 없다. 좌표 없는 기록은 뒤로(지어내지 않는다).
+  const items = tab === 'HOT' && area === 'NEAR' && here && here !== 'denied' ? sortByDistance(rawItems, here) : rawItems;
 
   // 저장 여부 — S15P21E201-1221. StoryDto엔 없는 칸이라 저장 id 집합을 따로 받아 대조한다.
   const savedIdsQuery = useQuery({
@@ -593,13 +630,14 @@ export default function Feed() {
   const loadMore = async () => {
     if (result.state !== 'success' || !result.nextCursor || loadingMore) return;
     setLoadingMore(true);
-    const next = scope === 'MINE' ? await loadUserStories(user?.userId ?? '', accessToken, result.nextCursor) : await loadFeed({ scope, cursor: result.nextCursor, accessToken });
+    const next = scope === 'MINE' ? await loadUserStories(user?.userId ?? '', accessToken, result.nextCursor) : await loadFeed({ scope, sort, cursor: result.nextCursor, accessToken });
     setLoadingMore(false);
     if (next.state !== 'success') return;
     const seenCount = result.items.length + next.items.length;
     queryClient.setQueryData<FeedLoadResult>(key, (current) =>
       current && current.state === 'success'
-        ? { state: 'success', items: [...current.items, ...next.items], nextCursor: next.nextCursor }
+        // 커서가 무효라 첫 쪽부터 다시 받았으면 이어 붙이지 않고 갈아 끼운다 — 같은 기록이 두 번 보이지 않게.
+        ? { ...current, items: next.restarted ? next.items : [...current.items, ...next.items], nextCursor: next.nextCursor, applied: next.applied ?? current.applied }
         : current);
     // 더 보기까지 눌렀다는 것은 이 제품이 뭔지 이미 봤다는 뜻이다. 그때 권한다 — 막지는 않는다.
     if (shouldPromptSignIn({ signedIn, seenCount, lastPromptedAt })) {
@@ -633,17 +671,18 @@ export default function Feed() {
     if (outcome.state === 'success') replaceItems((current) => current.map((item) => (item.id === story.id ? outcome.story : item)));
   };
 
-  const scopeButton = (target: FeedScope, label: string) => {
-    const selected = scope === target;
-    const disabled = target !== 'ALL' && !signedIn;
+  // 시안 4 의 탭 — 글자 아래 붉은 점이 「지금 여기」다. 셋 다 손님도 누를 수 있다(내 피드는 로그인 안내를 그린다).
+  const tabButton = (target: FeedTab, label: string) => {
+    const selected = tab === target;
     return <Pressable
+      key={target}
       accessibilityRole="tab"
-      accessibilityState={{ selected, disabled }}
-      disabled={disabled}
-      onPress={() => setScope(target)}
-      style={[compact ? styles.scopeChip : styles.scopeSegment, selected && styles.scopeSelected, disabled && styles.scopeDisabled]}
+      accessibilityState={{ selected }}
+      onPress={() => setTab(target)}
+      style={styles.tab}
     >
-      <Text variant={compact ? 'caption' : 'body'} weight="bold" color={selected ? color.text.onAction : color.text.body}>{label}</Text>
+      <Text variant={compact ? 'body' : 'title'} weight={selected ? 'bold' : 'medium'} color={selected ? color.text.heading : color.text.muted}>{label}</Text>
+      <View style={[styles.tabDot, !selected && styles.tabDotHidden]} />
     </Pressable>;
   };
 
@@ -670,11 +709,11 @@ export default function Feed() {
       )}
     </View>
     <View style={styles.headerActions}>
-      <View accessibilityRole="tablist" style={compact ? styles.scopeChips : styles.scopeSegments}>
-        {scopeButton('ALL', tx('전체', 'All'))}
-        {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
-        {/* 손님에게는 「내 기록」이 없다 — 눌러 봐야 로그인 안내뿐이라 칩 자체를 안 그린다(S15P21E201-1393). */}
-        {user ? scopeButton('MINE', tx('내 기록', 'Mine')) : null}
+      <View accessibilityRole="tablist" style={styles.tabs}>
+        {tabButton('HOT', tx('실시간 인기', 'Trending'))}
+        {tabButton('FOR_YOU', tx('맞춤 추천', 'For you'))}
+        {/* 「내 피드」는 시안 4 의 02c — 마이페이지 기록 탭과 같은 목록이지만, 피드에서 「내 것도 여기 있다」를 확인하는 자리(S15P21E201-1431). */}
+        {tabButton('MINE', tx('내 피드', 'My feed'))}
       </View>
       {/* 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 (시안 5번).
           여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor 의
@@ -683,10 +722,51 @@ export default function Feed() {
     </View>
   </View>;
 
+  const applied = result.state === 'success' ? result.applied ?? null : null;
+  // 🔴 추천을 부탁했는데 서버가 인기순으로 대체했다 — 실서버 팔로우가 거의 없어 이것이 «기본 경로»다(백엔드 1368 실측).
+  //    말없이 인기순을 「추천」이라고 보여 주지 않는다. 머리가 없으면(옛 서버) 아무 말도 안 한다.
+  const fellBackToPopular = scope === 'FOR_YOU' && applied === 'POPULAR';
+  const chip = (selected: boolean, label: string, onPress: () => void, disabled = false) => (
+    <Pressable key={label} accessibilityRole="radio" accessibilityState={{ checked: selected, disabled }} disabled={disabled} onPress={onPress} style={[styles.areaChip, selected && styles.areaChipOn, disabled && styles.scopeDisabled]}>
+      <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.body}>{label}</Text>
+    </Pressable>
+  );
+  // 탭 아래 한 줄 — 왼쪽은 기준, 오른쪽은 갈래. 시안 4 02a 의 「최근 1시간 반응 기준 · 전체/내 근처」 자리.
+  const subRow = tab === 'HOT' ? (
+    <View style={styles.subRow}>
+      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{area === 'NEAR' && here === 'denied' ? tx('위치 권한이 없어 전체로 보여드려요', 'No location permission — showing all') : area === 'NEAR' && !here ? tx('내 위치 찾는 중…', 'Finding your location…') : tx('좋아요 많은 순 · 같으면 최신순', 'Most liked · newest first among ties')}</Text>
+      <View accessibilityRole="radiogroup" style={styles.areaChips}>
+        {chip(area === 'ALL', tx('전체', 'All'), () => setArea('ALL'))}
+        {chip(area === 'NEAR', tx('내 근처', 'Near me'), () => setArea('NEAR'))}
+      </View>
+    </View>
+  ) : tab === 'FOR_YOU' ? (
+    <View style={styles.subRow}>
+      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{followingOnly ? tx('팔로우한 사람들의 기록', 'Records from people you follow') : tx('팔로우한 사람 먼저, 없으면 인기순', 'People you follow first; popular ones otherwise')}</Text>
+      <View accessibilityRole="radiogroup" style={styles.areaChips}>
+        {chip(!followingOnly, tx('추천', 'For you'), () => setFollowingOnly(false))}
+        {chip(followingOnly, tx('팔로잉만', 'Following only'), () => setFollowingOnly(true), !signedIn)}
+      </View>
+    </View>
+  ) : null;
   const feedColumn = <View style={styles.feedColumn}>
     {header}
+    {subRow}
+    {fellBackToPopular ? (
+      <View accessibilityLiveRegion="polite" style={styles.fallbackNotice}>
+        <Text variant="caption" color={color.text.body}>{signedIn ? tx('아직 팔로우한 사람이 없어 인기순으로 보여드려요.', "You don't follow anyone yet, so here are the popular ones.") : tx('로그인하고 사람을 팔로우하면 그 사람들 기록이 먼저 와요. 지금은 인기순이에요.', 'Sign in and follow people to see their records first. For now, popular ones.')}</Text>
+        <Pressable accessibilityRole="button" onPress={() => setTab('HOT')}><Text variant="caption" weight="bold" color={color.state.info}>{tx('실시간 인기 보기 →', 'See trending →')}</Text></Pressable>
+      </View>
+    ) : null}
+    {tab === 'MINE' && !signedIn ? (
+      <View style={styles.fallbackNotice}>
+        <Text variant="caption" color={color.text.body}>{tx('로그인하면 내가 남긴 기록이 여기 모여요.', 'Sign in to see your own records here.')}</Text>
+        <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}><Text variant="caption" weight="bold" color={color.state.info}>{tx('로그인 →', 'Sign in →')}</Text></Pressable>
+      </View>
+    ) : null}
 
-    {!signedIn
+    {/* 추천에서 인기순으로 떨어진 손님에게는 위 안내가 이미 로그인을 권한다 — 같은 말을 두 번 하지 않는다. */}
+    {!signedIn && !fellBackToPopular && tab !== 'MINE'
       ? <View style={styles.loginNotice}>
           <Text variant="caption" color={color.text.body}>{tx('로그인하면 기록을 남기고 팔로잉 피드를 볼 수 있어요.', 'Sign in to write records and see your following feed.')}</Text>
           <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}><Text variant="caption" weight="bold" color={color.state.info}>{tx('로그인 →', 'Sign in →')}</Text></Pressable>
@@ -719,7 +799,7 @@ export default function Feed() {
           scope={scope}
           signedIn={signedIn}
           compact={compact}
-          onSeeAll={() => setScope('ALL')}
+          onSeeAll={() => setTab('HOT')}
           onWrite={() => router.push(signedIn ? '/feed/compose' : { pathname: '/sign-in', params: { returnTo: '/feed/compose' } })}
         />
       : null}
@@ -728,10 +808,11 @@ export default function Feed() {
         왜 필요한지 모른 채 쫓겨난 것처럼 느끼게 하지 않는다
     */}
     {!loading && result.state === 'success' && items.length
-      ? <View style={compact ? styles.list : styles.listWide}>{items.map((story) => <StoryCard
+      ? <View style={compact ? styles.list : styles.listWide}>{items.map((story, index) => <StoryCard
           key={story.id}
           story={story}
           compact={compact}
+          rank={tab === 'HOT' && area === 'ALL' && index < 3 ? index + 1 : null}
           showUnfollow={scope === 'FOLLOWING'}
           unfollowBusy={unfollowingId === story.author.id}
           onUnfollow={() => void unfollow(story)}
@@ -897,9 +978,23 @@ const styles = StyleSheet.create({
   // width:'100%' 를 원했다. 지금은 버튼이 직접 자기 폭을 정한다 — `compact`.
 
   // 넓은 화면은 붙은 세그먼트, 폰은 떨어진 칩.
+  tabs: { flexDirection: 'row', gap: spacing[6], borderBottomWidth: 1, borderBottomColor: color.surface.field, alignSelf: 'stretch' },
+  tab: { minHeight: 46, alignItems: 'center', justifyContent: 'center', gap: 2, paddingHorizontal: spacing[1] },
+  tabDot: { width: 5, height: 5, borderRadius: radius.full, backgroundColor: color.action.outline },
+  tabDotHidden: { opacity: 0 },
+  subRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginTop: spacing[3], flexWrap: 'wrap' },
+  subRowText: { flexShrink: 1 },
+  areaChips: { flexDirection: 'row', gap: spacing[1] },
+  areaChip: { minHeight: 36, paddingHorizontal: spacing[4], borderRadius: radius.full, justifyContent: 'center', borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
+  areaChipOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  rankBadge: { width: 26, height: 26, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
   scopeSegments: { flexDirection: 'row', gap: spacing[1], padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   scopeSegment: { minHeight: 36, paddingHorizontal: spacing[4], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   scopeChips: { flexDirection: 'row', gap: spacing[2] },
+  sortRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[1], marginTop: spacing[2] },
+  sortChip: { minHeight: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, justifyContent: 'center' },
+  sortChipOn: { backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
+  fallbackNotice: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   scopeChip: { minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center' },
   scopeSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   scopeDisabled: { opacity: 0.5 },

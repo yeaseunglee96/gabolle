@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;font-weight:400;src:url(assets/fonts/Pretendard-Regular.ttf)}
+@font-face{font-family:Pretendard;font-weight:500;src:url(assets/fonts/Pretendard-Medium.ttf)}
+@font-face{font-family:Pretendard;font-weight:700;src:url(assets/fonts/Pretendard-Bold.ttf)}
+body{margin:0;background:#E4E4E8;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#191919;-webkit-font-smoothing:antialiased}
+a{color:#191919;text-decoration:none}a:hover{color:#D83A48}
+*{box-sizing:border-box}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+@keyframes gbSwap{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<section style="display:flex;gap:64px;align-items:flex-start;padding:56px 48px;flex-wrap:wrap">
+
+<!-- 2b · 왼쪽 280 체크리스트 레일 + 카드만 -->
+<div style="flex:none;display:flex;flex-direction:column;gap:12px">
+  <div style="font-size:12px;font-weight:700;color:#6F6F6F">배포본 · 데스크톱 1440 — /plan · 왼쪽 280 체크리스트 레일 + 질문 카드</div>
+  <div data-screen-label="배포본 데스크톱 조건 질문" style="width:1440px;background:#F5F5F7;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(25,25,25,.12)">
+    <div style="height:36px;background:#E9E9EC"></div>
+    <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #EBEBEF">
+      <img src="assets/gabolle-logo-hd.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain">
+      <div style="display:flex;align-items:center;gap:4px;padding:4px">
+        <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">홈</div>
+        <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">피드</div>
+        <div style="height:40px;padding:0 20px;border-radius:999px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">내 여행</div>
+      </div>
+      <div style="height:40px;padding:0 16px;border-radius:14px;background:#D83A48;display:flex;align-items:center;font-size:15px;font-weight:700;color:#fff">여행 만들기</div>
+    </div>
+    <div style="display:flex;justify-content:center;align-items:flex-start;gap:32px;padding:24px 40px 64px">
+      <div style="width:280px;flex:none;display:flex;flex-direction:column;gap:12px;position:sticky;top:24px">
+        <div style="display:flex;flex-direction:column;gap:4px;padding:12px 16px;border-radius:14px;background:#fff;border:1px solid #EBEBEF">
+          <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">이번 여행</div><a href="#" style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">수정</a></div>
+          <div style="font-size:15px;line-height:23px;font-weight:700">10.3(토) – 10.5(월) · 2박</div>
+          <div style="font-size:13px;line-height:18px;color:#6F6F6F">부산역 출발 · 성인 2 · 어린이 1</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;padding:8px;border-radius:14px;background:#fff;border:1px solid #EBEBEF">
+          <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="7">
+          <button onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 8px;border:0;border-radius:10px;background:{{ c.rowBg }};text-align:left;width:100%">
+            <div style="width:24px;height:24px;border-radius:999px;background:{{ c.bg }};border:{{ c.border }};color:{{ c.color }};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none">{{ c.text }}</div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="font-size:13px;line-height:18px;font-weight:{{ c.labelWeight }};color:{{ c.labelColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.label }}</div><div style="font-size:12px;line-height:16px;color:#6F6F6F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.value }}</div></div>
+          </button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="width:760px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ stepEyebrow }}</div>
+          <div style="font-size:18px;line-height:24px;font-weight:700">{{ stepTitle }}</div>
+        </div>
+        <div style="height:4px;border-radius:999px;background:#DADCE2;overflow:hidden"><div style="height:4px;border-radius:999px;background:#2B2B2E;width:{{ fillPct }};transition:width .4s"></div></div>
+        <div style="display:flex;flex-direction:column;gap:16px;padding:24px;border-radius:20px;border:1px solid #EBEBEF;background:#fff;animation:gbSwap .35s ease both" key="{{ qKey }}">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ qEyebrow }}</div>
+              <div style="font-size:18px;line-height:24px;font-weight:700">{{ qTitle }}</div>
+              <div style="font-size:15px;line-height:23px;color:#6F6F6F">{{ qHint }}</div>
+            </div>
+            <sc-if value="{{ qSkippable }}" hint-placeholder-val="{{ false }}"><button onClick="{{ skip }}" style="min-height:32px;border:0;background:transparent;padding:0;font-size:13px;font-weight:700;color:#2B2B2E;flex:none">건너뛰기</button></sc-if>
+          </div>
+          <sc-if value="{{ isBudget }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="font-size:34px;line-height:40px;letter-spacing:-.25px;font-weight:700">{{ budgetLabel }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ budgetSteps }}" as="b" hint-placeholder-count="4"><button onClick="{{ b.onClick }}" style="min-height:44px;padding:0 16px;border-radius:999px;background:#fff;border:1px solid #EBEBEF;font-size:15px;font-weight:700;color:#191919;white-space:nowrap">{{ b.label }}</button></sc-for>
+                <button onClick="{{ budgetClear }}" style="min-height:44px;padding:0 16px;border-radius:999px;background:#fff;border:1px solid #EBEBEF;font-size:15px;font-weight:700;color:#2B2B2E;white-space:nowrap">전체 지우기</button>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isMove }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:12px">
+              <div style="flex:1;display:flex;flex-direction:column;gap:4px"><div style="font-size:13px;line-height:18px;color:#6F6F6F">시작</div><input value="{{ dayStart }}" onChange="{{ setStart }}" placeholder="09:00" style="min-height:48px;padding:0 12px;border-radius:14px;border:1px solid #EBEBEF;font-size:15px;color:#191919;width:100%;outline:none"></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:4px"><div style="font-size:13px;line-height:18px;color:#6F6F6F">종료</div><input value="{{ dayEnd }}" onChange="{{ setEnd }}" placeholder="18:00" style="min-height:48px;padding:0 12px;border-radius:14px;border:1px solid #EBEBEF;font-size:15px;color:#191919;width:100%;outline:none"></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ options }}" as="o" hint-placeholder-count="6">
+              <button onClick="{{ o.onClick }}" style="flex:1 1 150px;min-width:150px;min-height:72px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:12px;border-radius:14px;border:1px solid {{ o.border }};background:{{ o.bg }};opacity:{{ o.op }};text-align:left;transition:background .2s,border-color .2s">
+                <div style="font-size:15px;line-height:23px;font-weight:700;color:{{ o.color }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.label }}</div>
+                <div style="font-size:13px;line-height:18px;color:{{ o.sub }}">{{ o.subText }}</div>
+              </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isAids }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ aids }}" as="r" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                <div style="flex:1;font-size:15px;line-height:23px">{{ r.label }}</div>
+                <div style="display:flex;gap:8px">
+                  <button onClick="{{ r.yes }}" style="min-height:44px;padding:0 16px;border-radius:999px;border:1px solid {{ r.yesBorder }};background:{{ r.yesBg }};color:{{ r.yesColor }};font-size:15px;font-weight:700">예</button>
+                  <button onClick="{{ r.no }}" style="min-height:44px;padding:0 16px;border-radius:999px;border:1px solid {{ r.noBorder }};background:{{ r.noBg }};color:{{ r.noColor }};font-size:15px;font-weight:700">아니요</button>
+                </div>
+              </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isMust }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <input placeholder="장소 이름으로 검색 (예: 해동용궁사)" style="min-height:48px;padding:0 12px;border-radius:14px;border:1px solid #EBEBEF;font-size:15px;color:#191919;width:100%;outline:none">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <sc-for list="{{ mustList }}" as="m" hint-placeholder-count="3">
+                <button onClick="{{ m.onClick }}" style="min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 12px;border-radius:14px;border:1px solid {{ m.border }};background:{{ m.bg }};text-align:left">
+                  <div style="display:flex;flex-direction:column"><div style="font-size:15px;line-height:23px;font-weight:700;color:{{ m.color }}">{{ m.name }}</div><div style="font-size:13px;line-height:18px;color:{{ m.sub }}">{{ m.area }}</div></div>
+                  <div style="font-size:13px;font-weight:700;color:{{ m.sub }}">{{ m.action }}</div>
+                </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasEffect }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:14px;background:#F0F0F3">
+            <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F;flex:none">이렇게 반영돼요</div>
+            <div style="flex:1;min-width:0;font-size:13px;line-height:18px;color:#191919">{{ effect }}</div>
+          </div>
+          </sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onClick="{{ prev }}" style="flex:none;white-space:nowrap;min-height:48px;padding:0 24px;border-radius:999px;border:1px solid #EBEBEF;background:#fff;font-size:15px;font-weight:700;color:{{ prevColor }};opacity:{{ prevOp }}">이전</button>
+          <button onClick="{{ next }}" style="flex:1;min-height:48px;border:0;border-radius:14px;background:{{ nextBg }};font-size:15px;font-weight:700;color:#fff;transition:background .2s">{{ nextLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ── 모바일 390 · app/(plan)/questions.tsx (phone) ── -->
+<div style="flex:none;display:flex;flex-direction:column;gap:12px">
+  <div style="font-size:12px;font-weight:700;color:#6F6F6F">배포본 · 모바일 390 — /plan · app/(plan)/questions.tsx (홈에서 출발지·날짜·인원 받은 뒤 · 필수 3 + 선택 4 — 로컬성·조용함·음식은 온보딩 값 이식)</div>
+  <div data-screen-label="배포본 모바일 조건 질문" style="width:390px;height:844px;background:#F5F5F7;position:relative;overflow:hidden;border-radius:32px;box-shadow:0 8px 40px rgba(25,25,25,.14)">
+    <div style="height:844px;overflow:auto;scrollbar-width:none"><div style="display:flex;flex-direction:column;gap:12px;padding:16px 24px 40px">
+      <!-- phoneTop -->
+      <div style="min-height:44px;display:flex;align-items:center;gap:8px">
+        <button style="width:44px;height:44px;margin-left:-12px;border:0;background:transparent;font-size:22px;line-height:1;color:#191919;display:flex;align-items:center;justify-content:center">‹</button>
+        <div style="flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:4px">
+          <div style="padding:6px 12px;border-radius:999px;border:1px solid #EBEBEF;background:#fff;font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">10.3(토) – 10.5(월) · 2박</div>
+          <div style="padding:6px 12px;border-radius:999px;border:1px solid #EBEBEF;background:#fff;font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">부산역</div>
+          <div style="padding:6px 12px;border-radius:999px;border:1px solid #EBEBEF;background:#fff;font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">성인 2 · 어린이 1</div>
+          <button style="margin-left:auto;min-height:32px;padding:0 4px;border:0;background:transparent;font-size:13px;font-weight:700;color:#2B2B2E">수정</button>
+        </div>
+      </div>
+
+      <!-- stepHead -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+          <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ stepEyebrow }}</div>
+          <div style="font-size:18px;line-height:24px;font-weight:700">{{ stepTitle }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;flex:none">
+          <sc-for list="{{ dots }}" as="d" hint-placeholder-count="7"><button onClick="{{ d.onClick }}" aria-label="{{ d.label }}" style="width:{{ d.w }};height:{{ d.h }};margin-left:{{ d.ml }};opacity:{{ d.op }};border:0;padding:0;border-radius:999px;background:{{ d.bg }};transition:width .3s,background .3s"></button></sc-for>
+        </div>
+      </div>
+      <div style="height:4px;border-radius:999px;background:#DADCE2;overflow:hidden"><div style="height:4px;border-radius:999px;background:#2B2B2E;width:{{ fillPct }};transition:width .4s"></div></div>
+      <div style="font-size:13px;line-height:18px;color:#6F6F6F">{{ statusLine }}</div>
+
+      <!-- answered rows (dates + settled) -->
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <button style="display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border:0;border-radius:14px;background:#fff;text-align:left;width:100%">
+          <div style="width:18px;height:18px;border-radius:999px;background:#2E9E5B;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">✓</div>
+          <div style="flex:1;min-width:0;padding:4px 0;display:flex;flex-direction:column"><div style="font-size:12px;line-height:16px;color:#6F6F6F">여행 날짜</div><div style="font-size:13px;line-height:18px;font-weight:700">10.3(토) – 10.5(월) · 2박</div></div>
+          <div style="font-size:13px;font-weight:700;color:#6F6F6F">수정</div>
+        </button>
+        <sc-for list="{{ answered }}" as="a" hint-placeholder-count="0">
+        <button onClick="{{ a.onClick }}" style="display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border:0;border-radius:14px;background:#fff;text-align:left;width:100%">
+          <div style="width:18px;height:18px;border-radius:999px;background:#2E9E5B;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">✓</div>
+          <div style="flex:1;min-width:0;padding:4px 0;display:flex;flex-direction:column"><div style="font-size:12px;line-height:16px;color:#6F6F6F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.label }}</div><div style="font-size:13px;line-height:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.value }}</div></div>
+          <div style="font-size:13px;font-weight:700;color:#6F6F6F">수정</div>
+        </button>
+        </sc-for>
+      </div>
+
+      <!-- fork card -->
+      <sc-if value="{{ showFork }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:20px;background:#F0F0F3">
+        <div style="font-size:18px;line-height:24px;font-weight:700">필수 3개 끝! 지금 만들 수 있어요</div>
+        <div style="font-size:13px;line-height:18px;color:#6F6F6F">아래 4개는 선택이에요. 답할수록 일정이 취향에 가까워지고, 언제든 「지금 이대로 만들기」를 눌러도 돼요.</div>
+        <button onClick="{{ build }}" style="margin-top:4px;min-height:48px;border-radius:999px;border:1.5px solid #D83A48;background:#fff;font-size:15px;font-weight:700;color:#D83A48">지금 이대로 만들기 →</button>
+      </div>
+      </sc-if>
+
+      <!-- question card -->
+      <div style="display:flex;flex-direction:column;gap:16px;padding:20px;border-radius:20px;border:1px solid #EBEBEF;background:#fff;animation:gbSwap .35s ease both" key="{{ qKey }}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+            <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ qEyebrow }}</div>
+            <div style="font-size:18px;line-height:24px;font-weight:700">{{ qTitle }}</div>
+            <div style="font-size:15px;line-height:23px;color:#6F6F6F">{{ qHint }}</div>
+          </div>
+          <sc-if value="{{ qSkippable }}" hint-placeholder-val="{{ false }}"><button onClick="{{ skip }}" style="min-height:32px;border:0;background:transparent;padding:0;font-size:13px;font-weight:700;color:#2B2B2E;flex:none">건너뛰기</button></sc-if>
+        </div>
+
+        <sc-if value="{{ isBudget }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="font-size:34px;line-height:40px;letter-spacing:-.25px;font-weight:700">{{ budgetLabel }}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ budgetSteps }}" as="b" hint-placeholder-count="4"><button onClick="{{ b.onClick }}" style="min-height:44px;padding:0 16px;border-radius:999px;background:#fff;border:1px solid #EBEBEF;font-size:15px;font-weight:700;color:#191919;white-space:nowrap">{{ b.label }}</button></sc-for>
+              <button onClick="{{ budgetClear }}" style="min-height:44px;padding:0 16px;border-radius:999px;background:#fff;border:1px solid #EBEBEF;font-size:15px;font-weight:700;color:#2B2B2E;white-space:nowrap">전체 지우기</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isMove }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:12px">
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px"><div style="font-size:13px;line-height:18px;color:#6F6F6F">시작</div><input value="{{ dayStart }}" onChange="{{ setStart }}" placeholder="09:00" style="min-height:48px;padding:0 12px;border-radius:14px;border:1px solid #EBEBEF;font-size:15px;color:#191919;width:100%;outline:none"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px"><div style="font-size:13px;line-height:18px;color:#6F6F6F">종료</div><input value="{{ dayEnd }}" onChange="{{ setEnd }}" placeholder="18:00" style="min-height:48px;padding:0 12px;border-radius:14px;border:1px solid #EBEBEF;font-size:15px;color:#191919;width:100%;outline:none"></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ options }}" as="o" hint-placeholder-count="6">
+            <button onClick="{{ o.onClick }}" style="flex:1 1 150px;min-width:150px;min-height:72px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:12px;border-radius:14px;border:1px solid {{ o.border }};background:{{ o.bg }};opacity:{{ o.op }};text-align:left;transition:background .2s,border-color .2s">
+              <div style="font-size:15px;line-height:23px;font-weight:700;color:{{ o.color }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.label }}</div>
+              <div style="font-size:13px;line-height:18px;color:{{ o.sub }}">{{ o.subText }}</div>
+            </button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isScales }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ scales }}" as="s" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:15px;line-height:23px;font-weight:700">{{ s.title }}</div>
+              <div style="display:flex;gap:8px">
+                <sc-for list="{{ s.levels }}" as="l" hint-placeholder-count="5"><button onClick="{{ l.onClick }}" style="width:44px;height:44px;border-radius:999px;border:1px solid {{ l.border }};background:{{ l.bg }};color:{{ l.color }};font-size:13px;font-weight:700">{{ l.n }}</button></sc-for>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;line-height:18px;color:#6F6F6F"><div>{{ s.low }}</div><div>{{ s.high }}</div></div>
+            </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isAids }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ aids }}" as="r" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div style="flex:1;font-size:15px;line-height:23px">{{ r.label }}</div>
+              <div style="display:flex;gap:8px">
+                <button onClick="{{ r.yes }}" style="min-height:44px;padding:0 16px;border-radius:999px;border:1px solid {{ r.yesBorder }};background:{{ r.yesBg }};color:{{ r.yesColor }};font-size:15px;font-weight:700">예</button>
+                <button onClick="{{ r.no }}" style="min-height:44px;padding:0 16px;border-radius:999px;border:1px solid {{ r.noBorder }};background:{{ r.noBg }};color:{{ r.noColor }};font-size:15px;font-weight:700">아니요</button>
+              </div>
+            </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isMust }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <input placeholder="장소 이름으로 검색 (예: 해동용궁사)" style="min-height:48px;padding:0 12px;border-radius:14px;border:1px solid #EBEBEF;font-size:15px;color:#191919;width:100%;outline:none">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <sc-for list="{{ mustList }}" as="m" hint-placeholder-count="3">
+              <button onClick="{{ m.onClick }}" style="min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 12px;border-radius:14px;border:1px solid {{ m.border }};background:{{ m.bg }};text-align:left">
+                <div style="display:flex;flex-direction:column"><div style="font-size:15px;line-height:23px;font-weight:700;color:{{ m.color }}">{{ m.name }}</div><div style="font-size:13px;line-height:18px;color:{{ m.sub }}">{{ m.area }}</div></div>
+                <div style="font-size:13px;font-weight:700;color:{{ m.sub }}">{{ m.action }}</div>
+              </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasEffect }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:14px;background:#F0F0F3">
+          <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F;flex:none">이렇게 반영돼요</div>
+          <div style="flex:1;min-width:0;font-size:13px;line-height:18px;color:#191919">{{ effect }}</div>
+        </div>
+        </sc-if>
+      </div>
+
+      <!-- navRow -->
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onClick="{{ prev }}" style="flex:none;white-space:nowrap;min-height:48px;padding:0 24px;border-radius:999px;border:1px solid #EBEBEF;background:#fff;font-size:15px;font-weight:700;color:{{ prevColor }};opacity:{{ prevOp }}">이전</button>
+        <button onClick="{{ next }}" style="flex:1;min-height:48px;border:0;border-radius:14px;background:{{ nextBg }};font-size:15px;font-weight:700;color:#fff;transition:background .2s">{{ nextLabel }}</button>
+      </div>
+
+      <sc-if value="{{ showBuildNow }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ build }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 16px;border-radius:14px;border:1.5px solid #2B2B2E;background:#fff">
+        <div style="font-size:15px;line-height:23px;font-weight:700;color:#191919">지금 이대로 만들기 →</div>
+        <div style="font-size:13px;line-height:18px;color:#6F6F6F">나머지 질문은 나중에 일정에서 고칠 수 있어요</div>
+      </button>
+      </sc-if>
+
+      <!-- upcoming -->
+      <sc-if value="{{ hasUpcoming }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:2px;margin-top:8px">
+        <div style="font-size:12px;line-height:16px;font-weight:700;color:#6F6F6F;padding:0 8px">다음 질문</div>
+        <sc-for list="{{ upcoming }}" as="u" hint-placeholder-count="9">
+        <button onClick="{{ u.onClick }}" style="display:flex;align-items:center;gap:8px;min-height:36px;padding:0 8px;border:0;background:transparent;text-align:left;width:100%">
+          <div style="width:22px;height:22px;border-radius:999px;border:1px solid #DADCE2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#6F6F6F;flex:none">{{ u.n }}</div>
+          <div style="flex:1;min-width:0;font-size:13px;line-height:18px;color:#6F6F6F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.label }}</div>
+          <div style="font-size:12px;line-height:16px;font-weight:{{ u.tagWeight }};color:{{ u.tagColor }}">{{ u.tag }}</div>
+        </button>
+        </sc-for>
+      </div>
+      </sc-if>
+    </div></div>
+  </div>
+</div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;stepIndex&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:0,&quot;max&quot;:6,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;화면 상태&quot;}}">
+const Q = [
+  { key:'areas', ko:'여행 범위', hint:'가고 싶은 지역을 골라 주세요. 여러 곳도 괜찮아요.', req:true },
+  { key:'budget', ko:'총예산', hint:'한 사람이 아니라 이번 여행 전체 예산이에요.', req:true },
+  { key:'move', ko:'하루 여행 시간 · 이동수단', hint:'몇 시부터 몇 시까지 다닐지, 무엇으로 이동할지 알려 주세요.', req:true },
+  { key:'cats', ko:'여행 카테고리', hint:'최대 세 가지까지 고를 수 있어요.' },
+  { key:'pace', ko:'여행 기분', hint:'하루에 몇 곳을 도는 게 좋은지로 정해요.' },
+  { key:'aids', ko:'이번 여행 이동 보조 · 짐', hint:'여행마다 달라서 계정이 아니라 이 여행에만 저장해요.' },
+  { key:'must', ko:'꼭 가고 싶은 장소', hint:'없으면 건너뛰어도 돼요.' },
+];
+const OPT = {
+  areas: [['HAEUNDAE','해운대','해변 · 동백섬 · 해리단길'],['GWANGALLI','광안리','광안대교 야경 · 카페'],['NAMPO','남포동','국제시장 · 자갈치 · 부산타워'],['SEOMYEON','서면','번화가 · 전포카페거리'],['YEONGDO','영도','태종대 · 흰여울마을'],['SONGJEONG','송정','서핑 · 한적한 해변']],
+  cats: [['SEA_BEACH','바다 & 해변','해수욕장 · 해안 산책로'],['CITY','도심 탐험','시장 · 거리 · 전망'],['CAFE_HEALING','카페 & 힐링','뷰 카페 · 쉼'],['CULTURE_TEMPLE','문화 & 사찰','용궁사 · 범어사 · 마을'],['FOOD','맛집 & 먹거리','국밥 · 밀면 · 시장 음식'],['NATURE_WALK','자연 & 산책','이기대 · 태종대']],
+  moods: [['LIVELY','활기찬','시장 · 번화가 · 축제'],['RELAXED','여유로운','해변 · 공원 · 산책'],['SENTIMENTAL','감성적인','골목 · 마을 · 서점'],['ROMANTIC','낭만적인','야경 · 노을 · 다리']],
+  pace: [['RELAXED','여유롭게','하루 2–3곳 · 머무는 시간 길게'],['BALANCED','균형 있게','하루 3–4곳'],['PACKED','알차게','하루 5곳 이상 · 이동 빠르게']],
+  move: [['TRANSIT','대중교통','지하철·버스 환승 최소'],['CAR','자동차','주차 가능한 곳 우선'],['WALK','도보 위주','한 동네 안에서 촘촘히']],
+  foods: [['SEAFOOD','해산물','자갈치 · 기장'],['PORK_SOUP','돼지국밥',''],['MILMYEON','밀면','여름 점심'],['CAFE_DESSERT','카페·디저트',''],['MARKET','시장 먹거리',''],['VEGETARIAN','채식','']],
+};
+const SCALES = [['locality','로컬 느낌','관광지','동네'],['quiet','조용함','북적임','조용함']];
+const MUST = [['해동용궁사','기장군'],['흰여울문화마을','영도구'],['전포카페거리','부산진구']];
+const labelOf = (list, codes) => list.filter(o => codes.includes(o[0])).map(o => o[1]).join(' · ');
+
+class Component extends DCLogic {
+  state = {
+    index: 0, skipped: {},
+    d: { areas: [], budget: 100000, start: '09:00', end: '18:00', transport: 'TRANSIT', cats: ['SEA_BEACH','CAFE_HEALING'], pace: null, moods: ['RELAXED'], locality: null, quiet: null, tourist: null, foods: [], wheelchair: null, stroller: null, luggage: null, must: [] },
+  };
+  componentDidMount() {
+    const s = Number(this.props.stepIndex);
+    if (Number.isFinite(s) && s > 0) this.setState(st => ({ index: Math.min(s, Q.length - 1), d: { ...st.d, areas: ['HAEUNDAE', 'GWANGALLI'], budget: 200000, cats: s > 3 ? ['SEA_BEACH', 'CAFE_HEALING'] : st.d.cats, pace: s > 4 ? 'RELAXED' : null, wheelchair: s > 5 ? false : null, stroller: s > 5 ? false : null, luggage: s > 5 ? true : null } }));
+  }
+  up(patch) { this.setState(s => ({ d: { ...s.d, ...patch } })); }
+  answered(key, d) {
+    switch (key) {
+      case 'areas': return d.areas.length > 0;
+      case 'budget': return d.budget > 0;
+      case 'move': return Boolean(d.transport);
+      case 'cats': return d.cats.length > 0 && d.cats.length <= 3;
+      case 'pace': return Boolean(d.pace);
+      case 'moods': return d.moods.length > 0;
+      case 'scales': return d.locality !== null || d.quiet !== null;
+      case 'foods': return d.foods.length > 0;
+      case 'aids': return d.wheelchair !== null || d.stroller !== null || d.luggage !== null;
+      default: return true;
+    }
+  }
+  summary(key, d, skipped) {
+    if (skipped) return '건너뜀';
+    switch (key) {
+      case 'areas': return labelOf(OPT.areas, d.areas);
+      case 'budget': return `${(d.budget / 10000).toLocaleString()}만원`;
+      case 'move': return [`${d.start}–${d.end}`, labelOf(OPT.move, [d.transport])].filter(Boolean).join(' · ');
+      case 'cats': return labelOf(OPT.cats, d.cats);
+      case 'pace': return labelOf(OPT.pace, [d.pace]);
+      case 'moods': return labelOf(OPT.moods, d.moods);
+      case 'scales': return SCALES.filter(s => d[s[0]] !== null).map(s => `${s[1]} ${d[s[0]]}`).join(' · ');
+      case 'foods': return labelOf(OPT.foods, d.foods);
+      case 'aids': { const p = []; if (d.wheelchair) p.push('휠체어'); if (d.stroller) p.push('유아차'); if (d.luggage) p.push('큰 짐'); return p.length ? p.join(' · ') : '해당 없음'; }
+      case 'must': return d.must.length ? d.must.join(' · ') : '없음';
+    }
+  }
+  effect(key, d) {
+    switch (key) {
+      case 'areas': return d.areas.length ? `${d.areas.length}개 지역 안에서만 장소를 골라요. 지역 사이 이동은 하루에 한 번 이하로 묶어요.` : '지역을 고르면 그 안에서만 장소를 골라요.';
+      case 'cats': return d.cats.length ? '고른 갈래가 하루 정차지의 약 70%를 차지해요. 나머지는 이동 동선에 맞춰 채워요.' : '최대 셋. 고른 갈래가 정차지의 대부분을 차지해요.';
+      case 'pace': return { RELAXED: '하루 2–3곳, 한 곳에 1시간 반 이상 머물러요.', BALANCED: '하루 3–4곳, 점심·저녁 사이에 한 곳씩.', PACKED: '하루 5곳 이상, 이동은 가까운 순으로 붙여요.' }[d.pace] || '하루에 도는 장소 수와 머무는 시간이 정해져요.';
+      case 'moods': return d.moods.length ? '고른 분위기의 장소를 저녁·마무리 시간대에 우선 배치해요.' : '분위기는 시간대 배치(아침/저녁)에 반영돼요.';
+      case 'foods': return d.foods.length ? '점심·저녁 자리는 고른 음식이 있는 곳 근처로 잡아요.' : '식사 시간대의 장소 선택에 반영돼요.';
+      default: return null;
+    }
+  }
+  renderVals() {
+    const { index, skipped, d } = this.state;
+    const q = Q[index], last = index === Q.length - 1, REQ = 3;
+    const goTo = n => this.setState({ index: Math.max(0, Math.min(Q.length - 1, n)) });
+    const settledAt = i => Boolean(skipped[Q[i].key]) || this.answered(Q[i].key, d);
+    const settledCount = Q.filter((_, i) => i < index && settledAt(i)).length;
+    const missing = Q.filter(x => x.req && !this.answered(x.key, d));
+    const ready = missing.length === 0;
+    const toggle = (list, code, max) => list.includes(code) ? list.filter(c => c !== code) : (max && list.length >= max ? list : [...list, code]);
+    const grid = (list, picked, onPick, max) => list.map(([code, label, sub]) => {
+      const on = picked.includes(code), off = Boolean(max) && picked.length >= max && !on;
+      return { label, subText: sub, onClick: () => onPick(code), bg: on ? '#191919' : '#fff', border: on ? '#191919' : '#EBEBEF', color: off ? '#6F6F6F' : on ? '#fff' : '#191919', sub: on ? '#DADADF' : '#6F6F6F', op: off ? 0.5 : 1 };
+    });
+    let options = [];
+    if (q.key === 'areas') options = grid(OPT.areas, d.areas, c => this.up({ areas: toggle(d.areas, c) }));
+    if (q.key === 'move') options = grid(OPT.move, [d.transport], c => this.up({ transport: c }));
+    if (q.key === 'cats') options = grid(OPT.cats, d.cats, c => this.up({ cats: toggle(d.cats, c, 3) }), 3);
+    if (q.key === 'pace') options = grid(OPT.pace, [d.pace], c => this.up({ pace: c }));
+    const pill = on => ({ bg: on ? '#191919' : '#fff', border: on ? '#191919' : '#EBEBEF', color: on ? '#fff' : '#191919' });
+    const canNext = last ? ready : (this.answered(q.key, d) || !q.req);
+    const eff = this.effect(q.key, d);
+    const build = () => alert('→ /plan/generating (추천 일정 만드는 중)');
+    return {
+      qKey: q.key,
+      stepEyebrow: q.req ? `필수 ${index + 1} / ${REQ}` : `선택 ${index + 1 - REQ} / ${Q.length - REQ}`,
+      stepTitle: q.req ? '필수 질문은 3개뿐이에요' : '더 답하면 일정이 좋아져요',
+      dots: Q.map((x, i) => { const now = i === index, done = !now && i < index && settledAt(i), opt = i >= REQ;
+        return { label: x.ko, onClick: () => goTo(i), w: now ? '22px' : opt ? '5px' : '8px', h: now ? '8px' : opt ? '5px' : '8px', ml: i === REQ ? '8px' : '0', op: now ? 1 : opt ? 0.7 : 1, bg: now ? '#2B2B2E' : done ? '#2E9E5B' : '#DADCE2' }; }),
+      fillPct: `${Math.round(settledCount / Q.length * 100)}%`,
+      statusLine: ready ? `이제 만들 수 있어요 · 남은 ${Q.length - settledCount}개는 답할수록 일정이 좋아지는 질문이에요` : '필수 3개만 답하면 만들 수 있어요 · 나머지는 건너뛰어도 돼요',
+      answered: Q.map((x, i) => ({ label: x.ko, i, value: i < index && settledAt(i) ? this.summary(x.key, d, Boolean(skipped[x.key])) : '' })).filter(r => r.value).map(r => ({ ...r, onClick: () => goTo(r.i) })),
+      showFork: false,
+      showBuildNow: false,
+      qEyebrow: q.req ? '필수' : '선택 · 건너뛰어도 돼요', qTitle: q.ko, qHint: q.hint, qSkippable: !q.req,
+      skip: () => { this.setState(s => ({ skipped: { ...s.skipped, [q.key]: true } })); if (!last) goTo(index + 1); },
+      isGrid: options.length > 0, options,
+      isBudget: q.key === 'budget', budgetLabel: `${(d.budget / 10000).toLocaleString()}만원`,
+      budgetSteps: [10000, 30000, 50000, 100000].map(s => ({ label: `+${s / 10000}만`, onClick: () => this.up({ budget: d.budget + s }) })),
+      budgetClear: () => this.up({ budget: 0 }),
+      isMove: q.key === 'move', dayStart: d.start, dayEnd: d.end, setStart: e => this.up({ start: e.target.value }), setEnd: e => this.up({ end: e.target.value }),
+      isScales: q.key === 'scales',
+      scales: SCALES.map(([k, title, low, high]) => ({ title, low, high, levels: [1, 2, 3, 4, 5].map(n => ({ n, onClick: () => this.up({ [k]: n }), ...pill(d[k] === n) })) })),
+      isAids: q.key === 'aids',
+      aids: [['wheelchair', '휠체어를 써요'], ['stroller', '유아차가 있어요'], ['luggage', '큰 짐이 있어요']].map(([k, label]) => { const y = pill(d[k] === true), n = pill(d[k] === false);
+        return { label, yes: () => this.up({ [k]: true }), no: () => this.up({ [k]: false }), yesBg: y.bg, yesBorder: y.border, yesColor: y.color, noBg: n.bg, noBorder: n.border, noColor: n.color }; }),
+      isMust: q.key === 'must',
+      mustList: MUST.map(([name, area]) => { const on = d.must.includes(name); return { name, area, action: on ? '빼기' : '추가', onClick: () => this.up({ must: toggle(d.must, name) }), bg: on ? '#191919' : '#fff', border: on ? '#191919' : '#EBEBEF', color: on ? '#fff' : '#191919', sub: on ? '#DADADF' : '#6F6F6F' }; }),
+      hasEffect: Boolean(eff), effect: eff || '',
+      prev: () => goTo(index - 1), prevColor: index === 0 ? '#6F6F6F' : '#191919', prevOp: index === 0 ? 0.5 : 1,
+      next: () => { if (!canNext) return; if (last) build(); else goTo(index + 1); },
+      nextLabel: last ? '이 조건으로 일정 만들기' : '다음', nextBg: canNext ? '#D83A48' : '#DADCE2',
+      build,
+      hasUpcoming: !last,
+      upcoming: Q.slice(index + 1).map((x, off) => { const i = index + 1 + off; return { n: i + 1, label: x.ko, tag: x.req ? '필수' : '선택', tagWeight: x.req ? 700 : 400, tagColor: x.req ? '#444' : '#6F6F6F', onClick: () => { if (!x.req || ready) goTo(i); } }; }),
+      checklist: Q.map((x, i) => { const now = i === index, done = i < index && settledAt(i);
+        return { n: i + 1, label: x.ko, value: done ? this.summary(x.key, d, Boolean(skipped[x.key])) : (x.req ? '필수' : '선택'), onClick: () => { if (!x.req || ready || i <= index) goTo(i); },
+          bg: now ? '#191919' : done ? '#2E9E5B' : '#fff', color: now || done ? '#fff' : '#6F6F6F', border: now || done ? '0' : '1px solid #DADCE2', text: done ? '✓' : String(i + 1),
+          labelColor: now ? '#191919' : '#444', labelWeight: now ? 700 : 500, rowBg: now ? '#F0F0F3' : 'transparent' }; }),
+      tastes: ['로컬 느낌 4', '조용함 3', '해산물', '밀면', '카페·디저트', '경사 피함', '예산 10만원'],
+    };
+  }
+}
+</script>
+</body>
+</html>

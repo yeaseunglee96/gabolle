@@ -1,4 +1,5 @@
 // 마이페이지 진입 화면.
+import { loadProfileAvatar } from '@/me/profileAvatar';
 import { useState } from 'react';
 import { Animated, BackHandler, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useEffect, useRef } from 'react';
@@ -7,6 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
@@ -22,8 +24,7 @@ import { MyPageModal } from '@/me/MyPageModal';
 import { MyPageSheetBody } from '@/me/MyPageSheet';
 import { isPanelKey, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
 import { MyTripCard } from '@/home/HomeBlocks';
-import { HomeRow } from '@/home/HomeRow';
-import { RecordCard } from '@/me/RecordCard';
+import { RecordsBrowser } from '@/me/RecordsBrowser';
 import { ProfileCard, ProfileCardButton } from '@/me/ProfileCard';
 import { InfoRow } from '@/me/InfoRow';
 import { AppLanguageSetting } from '@/me/AppLanguageSetting';
@@ -38,7 +39,7 @@ import { PREFERENCE_TOTAL } from '@/preferences/accountPreferences';
 export default function Me() {
   const router = useRouter();
   const { user, signOut, accessToken } = useAuth();
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const plan = usePlan();
   const { width, height } = useWindowDimensions();
   const { answeredPreferences, storyCount, followerCount, followingCount } = useMyPageCounts();
@@ -106,9 +107,13 @@ export default function Me() {
   const tripCount = tripsQuery.data?.state === 'success' ? tripsQuery.data.trips.length : null;
 
   useEffect(() => {
-    if (!user?.userId) { setAvatarUri(null); return; }
-    void AsyncStorage.getItem(`gabolle:profile-avatar:${user.userId}`).then(setAvatarUri);
-  }, [user?.userId]);
+    // 🔴 계정에 붙은 사진이 «먼저»다. 여기가 기기 저장소만 읽어서, 사진을 올려도
+    //    마이페이지는 끝까지 첫 글자 동그라미였다 — 편집 화면에서는 바뀌어 보이는데
+    //    나오면 그대로라 「저장이 안 됐나」로 읽혔다(팀원 실기 지적).
+    let active = true;
+    void loadProfileAvatar(user?.userId ?? null, user?.avatarUrl).then((next) => { if (active) setAvatarUri(next); });
+    return () => { active = false; };
+  }, [user?.userId, user?.avatarUrl]);
 
   const wide = isAtLeast(width, 'lg');
   // 시안 06 은 화면을 거의 다 채운다 — 아래 띄움과 위 틈을 뺀 나머지.
@@ -169,6 +174,8 @@ export default function Me() {
         disabled={!user}
       />
       <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities')} disabled={!user} />
+      {/* 백엔드(DELETE /me)도 흐름도 있는데 프로필 편집 맨 아래에만 있어 설정에서 안 보였다(2026-09-21 실기, S15P21E201-1401). */}
+      <InfoRow label={tx('회원 탈퇴', 'Delete account')} description={tx('여행, 기록, 취향이 모두 지워져요', 'Deletes your trips, records, and preferences')} value="›" onPress={() => openPanel('delete-account')} disabled={!user} />
     </View>
   </>;
 
@@ -238,29 +245,29 @@ export default function Me() {
           tx={tx}
         />
 
-        {/* 🔴 커버와 3열 사이에 기록 줄. 전에는 「내 기록 ›」 행이 이 일을 했는데,
-            그 행은 눌러서 모달을 열어야만 무엇이 있는지 보였다 — 자기 기록인데도
-            «몇 개 있는지»만 알고 «무엇을 썼는지»는 한 번 더 눌러야 했다. */}
-        <HomeRow
-          title={storyCount === null
-            ? txf(tx, '%s의 기록', "%s's records", name)
-            : txf(tx, '%s의 기록 %s개', "%s's records · %s", name, String(storyCount))}
-          onOpen={() => openPanel('posts')}
-          openLabel={tx('기록 전체 보기', 'See all records')}
-          width={width}
-          cardWidth={recordRowCardWidth}
-        >
-          {(myStories ?? []).map((story) => (
-            <RecordCard key={story.id} story={story} width={recordRowCardWidth} onPress={() => router.push(`/feed/${story.id}`)} tx={tx} />
-          ))}
-          {user ? (
-            <Pressable accessibilityRole="button" onPress={() => router.push('/feed')} style={[styles.recordNew, { width: recordRowCardWidth }]}>
-              <View style={styles.recordNewIcon}><Text weight="bold" color={color.text.onAction}>✎</Text></View>
-              <Text weight="bold" numberOfLines={1}>{tx('새 기록 남기기', 'Write a record')}</Text>
-              <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx('사진 3장까지', 'Up to 3 photos')}</Text>
-            </Pressable>
-          ) : null}
-        </HomeRow>
+        {/* 🔴 커버와 3열 사이에 내 기록. 전에는 한 줄(HomeRow)이었는데 «무엇을 썼는지»만 보이고
+            «언제 어디»는 못 찾았다 — 격자 | 달력 보기와 지역·#태그 칩으로 바꿨다(S15P21E201-1444).
+            폰의 「기록」 탭과 같은 부품이다. 관리(삭제·공개 범위)는 여전히 「내 기록」 시트다. */}
+        {user ? (
+          <View style={styles.wideRecords}>
+            <View style={styles.wideRecordsHead}>
+              <Text variant="title" weight="bold">{storyCount === null
+                ? txf(tx, '%s의 기록', "%s's records", name)
+                : txf(tx, '%s의 기록 %s개', "%s's records · %s", name, String(storyCount))}</Text>
+              <Pressable accessibilityRole="button" onPress={() => openPanel('posts')} hitSlop={8}><Text weight="bold" color={color.text.muted}>{tx('기록 관리', 'Manage records')} ›</Text></Pressable>
+            </View>
+            {myStories !== null && myStories.length === 0 ? (
+              <View style={styles.recordsEmpty}>
+                <GabolleMascot state="thinking" still style={styles.recordsEmptyMascot} />
+                <Text variant="title" weight="bold">{tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>
+                <Button label={tx('첫 기록 남기기', 'Write your first record')} variant="secondary" onPress={() => router.push('/feed/compose')} containerStyle={styles.recordsEmptyCta} />
+              </View>
+            ) : (
+              <RecordsBrowser stories={myStories ?? []} tx={tx} locale={locale} cardWidth={recordRowCardWidth} onOpen={(story) => router.push(`/feed/${story.id}`)} onCompose={() => router.push('/feed/compose')} />
+            )}
+            {myStories === null && !myStoriesQuery.isPending ? <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text> : null}
+          </View>
+        ) : null}
 
         <View style={styles.wideGrid}>
           <View style={styles.wideColumn}>
@@ -340,26 +347,25 @@ export default function Me() {
           <Text weight="bold" color={meTab === key ? color.text.onAction : color.text.body} numberOfLines={1}>
             {key === 'settings'
               ? tx('설정', 'Settings')
-              : storyCount === null ? tx('기록', 'Records') : tx(`기록 ${storyCount}`, `Records ${storyCount}`)}
+              : storyCount === null ? tx('기록', 'Records') : txf(tx, '기록 %s', 'Records %s', String(storyCount))}
           </Text>
         </Pressable>
       ))}
     </View>
 
     <Animated.View style={{ opacity: tabIn, transform: [{ translateY: tabIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
-      {meTab === 'records' ? (
-        <View style={styles.recordsGrid}>
-          {(myStories ?? []).map((story) => (
-            <RecordCard key={story.id} story={story} onPress={() => router.push(`/feed/${story.id}`)} tx={tx} />
-          ))}
-          {/* 남의 프로필에는 이 칸이 없다 — 그건 /user/[id] 가 따로 그린다. */}
-          {user ? (
-            <Pressable accessibilityRole="button" onPress={() => router.push('/feed')} style={styles.recordNew}>
-              <View style={styles.recordNewIcon}><Text weight="bold" color={color.text.onAction}>✎</Text></View>
-              <Text weight="bold" numberOfLines={1}>{tx('새 기록 남기기', 'Write a record')}</Text>
-              <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx('사진 3장까지', 'Up to 3 photos')}</Text>
-            </Pressable>
-          ) : null}
+      {/* 🔴 비었을 때는 격자 대신 시안 4 의 02c — 동백이가 「아직 남긴 기록이 없어요」라고 말한다(S15P21E201-1418).
+          예전엔 「새 기록 남기기」 타일 하나만 덩그러니 있어 빈 화면이 고장처럼 보였다. 못 불러온 것(null)은 비어 있는 것과 다르다. */}
+      {meTab === 'records' && user && myStories !== null && myStories.length === 0 ? (
+        <View style={styles.recordsEmpty}>
+          <GabolleMascot state="thinking" still style={styles.recordsEmptyMascot} />
+          <Text variant="title" weight="bold">{tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>
+          <Text color={color.text.body} style={styles.recordsEmptyCopy}>{tx('여행 중 찍은 사진 한 장이면 충분해요.\n기록은 피드에도 함께 보여요.', 'One photo from your trip is enough.\nYour records also show up in the feed.')}</Text>
+          <Button label={tx('첫 기록 남기기', 'Write your first record')} variant="secondary" onPress={() => router.push('/feed/compose')} containerStyle={styles.recordsEmptyCta} />
+        </View>
+      ) : meTab === 'records' ? (
+        <View>
+          {user ? <RecordsBrowser stories={myStories ?? []} tx={tx} locale={locale} onOpen={(story) => router.push(`/feed/${story.id}`)} onCompose={() => router.push('/feed/compose')} /> : null}
           {/* 못 불러온 것을 「없다」로 바꾸지 않는다. */}
           {user && myStories === null && !myStoriesQuery.isPending ? (
             <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text>
@@ -472,10 +478,13 @@ const styles = StyleSheet.create({
   segmentItemOn: { backgroundColor: color.action.primary },
 
   // 🔴 스크롤 칸 안이라 flex 를 안 쓴다. 쓰면 카드가 세로로 눌린다.
-  recordsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[3] },
-  recordNew: {
-    width: '48%', aspectRatio: 0.78, alignItems: 'center', justifyContent: 'center', gap: spacing[2],
-    borderRadius: radius.lg, borderWidth: 1, borderStyle: 'dashed', borderColor: color.surface.field,
-  },
-  recordNewIcon: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.primary },
+  wideRecords: { gap: spacing[2], paddingHorizontal: desktopGutter },
+  wideRecordsHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
+  recordsEmpty: { alignItems: 'center', gap: spacing[3], marginTop: spacing[3], paddingVertical: spacing[8], paddingHorizontal: spacing[4] },
+  recordsEmptyMascot: { width: 104, height: 104 },
+  recordsEmptyCopy: { textAlign: 'center' },
+  // 🔴 minWidth 로는 껍데기 폭이 «자동»으로 남는다. 그러면 안쪽 단추의 width:'100%' 가
+  //    풀리지 않아 글자 폭으로 줄고 왼쪽에 붙는다 — 실기에서 껍데기는 251..829(가운데 540)인데
+  //    단추는 251..508(가운데 379)이었다(S15P21E201-1456). width 를 확정해 주면 풀린다.
+  recordsEmptyCta: { marginTop: spacing[1], alignSelf: 'center', width: '100%', maxWidth: 320 },
 });

@@ -29,21 +29,22 @@ const SUGGESTIONS = [
 //    「내 여행 보기」「로컬 탐색」은 하단 탭에 이미 있어 여기서는 중복이고, 머리말 「여행 중 급할 때」와도
 //    안 맞는다. 급할 때 실제로 여는 넷 — 메뉴판 번역·통역·환율·주변 버스 — 을 그림과 함께 2×2 로 두고,
 //    날씨·준비물까지 다 있는 허브(/field/translate)는 아래 한 줄로 잇는다.
-const cameraIcon = require('../assets/icons/common/camera.png');
-const speakerIcon = require('../assets/icons/common/speaker.png');
-type QuickTool = { key: string; labelKo: string; labelEn: string; hintKo: string; hintEn: string; href: '/field/menu-scan' | '/field/speak' | '/field/exchange-rate' | '/field/transit'; icon: ImageSourcePropType | string | 'bus' };
+const dialectIcon = require('../assets/mascot/dongbaek-open.png');
+type QuickTool = { key: string; labelKo: string; labelEn: string; hintKo: string; hintEn: string; href: '/field/exchange-rate' | '/field/transit' | '/field/dialect' | '/help'; icon: ImageSourcePropType | string | 'bus' };
 const QUICK_TOOLS: QuickTool[] = [
-  { key: 'menu', labelKo: '메뉴판 번역', labelEn: 'Menu translation', hintKo: '찍으면 읽어 드려요', hintEn: 'Snap it, we read it', href: '/field/menu-scan', icon: cameraIcon },
-  { key: 'speak', labelKo: '통역', labelEn: 'Interpreter', hintKo: '말하고 들려주기', hintEn: 'Speak and play aloud', href: '/field/speak', icon: speakerIcon },
+  // 🔴 메뉴판 번역·통역은 여기 없다(S15P21E201-1422) — 홈 동백이 단추가 「메뉴판 번역 · 통역 · AI 챗봇」이라, 챗봇에 들어와서
+  //    같은 둘을 또 보면 「이미 봤는데?」가 된다. 동백이 메뉴에 없는 넷만 둔다.
   { key: 'exchange', labelKo: '환율 계산', labelEn: 'Currency', hintKo: '가격표를 내 돈으로', hintEn: 'Convert a price tag', href: '/field/exchange-rate', icon: '₩' },
   { key: 'bus', labelKo: '주변 버스', labelEn: 'Buses nearby', hintKo: '몇 분 뒤에 오는지', hintEn: 'Minutes until arrival', href: '/field/transit', icon: 'bus' },
+  { key: 'dialect', labelKo: '부산 사투리 한마디', labelEn: 'Busan dialect', hintKo: '진짜 부산 억양으로 듣기', hintEn: 'Hear a real Busan accent', href: '/field/dialect', icon: dialectIcon },
+  { key: 'help', labelKo: '도움말·문의', labelEn: 'Help & support', hintKo: '앱 소개 · 자주 묻는 질문', hintEn: 'App tour · FAQ', href: '/help', icon: '?' },
 ];
 
 export default function Chat() {
   const router = useRouter(); const { update } = usePlan();
   const { accessToken } = useAuth();
   const { width } = useLayout();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const desktop = isAtLeast(width, 'md');
   const [input, setInput] = useState('');
   // 인사말은 언어 환경설정이 뒤늦게 준비돼도 반영돼야 해서 state 초깃값(마운트 시 한 번만 평가됨)에
@@ -90,7 +91,7 @@ export default function Chat() {
     setPending(true);
     try {
       const action = accessToken
-        ? await askAssistant(content, accessToken, history).catch(() => understandAssistantMessage(content))
+        ? await askAssistant(content, accessToken, history, language).catch(() => understandAssistantMessage(content))
         : understandAssistantMessage(content);
       setMessages((current) => [...current, { id: assistantId, role: 'assistant', text: action.reply, action }]);
     } finally {
@@ -101,16 +102,16 @@ export default function Chat() {
 
   const toolIcon = (icon: QuickTool['icon']) => icon === 'bus' ? <BusIcon /> : typeof icon === 'string' ? <Text variant="title" weight="bold" color={color.action.secondary}>{icon}</Text> : <Image source={icon} resizeMode="contain" style={styles.toolIconImage} />;
   const tools = <View accessibilityLabel={tx('여행 도구 바로가기', 'Trip tool shortcuts')} style={[styles.toolSection, desktop && styles.toolSectionDesktop]}>
-    {!desktop ? <View style={styles.sectionHeading}><Text variant="body" weight="bold">{tx('대화 없이 바로 실행', 'Run these without chatting')}</Text><Text variant="caption" color={color.text.body}>{tx('여행 중 급할 때 바로 열어보세요.', 'Open these right away when you need them on your trip.')}</Text></View> : null}
+    {!desktop ? <View style={styles.sectionHeading}><Text variant="body" weight="bold">{tx('대화 없이 바로 실행', 'Run these without chatting')}</Text><Text variant="caption" color={color.text.body}>{tx('메뉴판 번역·통역은 홈의 동백이 단추에 있어요.', 'Menu translation and interpreter live on the home Dongbaek button.')}</Text></View> : null}
     <View style={[styles.quickTools, desktop && styles.quickToolsDesktop]}>{QUICK_TOOLS.map((tool) => <Pressable key={tool.key} accessibilityRole="button" accessibilityLabel={`${tx(tool.labelKo, tool.labelEn)}, ${tx(tool.hintKo, tool.hintEn)}`} onPress={() => router.push(tool.href)} style={({ pressed }) => [styles.quickTool, desktop && styles.quickToolDesktop, pressed && styles.quickToolPressed]}>
       <View style={styles.toolIconBox}>{toolIcon(tool.icon)}</View>
       <View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={1}>{tx(tool.labelKo, tool.labelEn)}</Text><Text variant="caption" color={color.text.body} numberOfLines={1}>{tx(tool.hintKo, tool.hintEn)}</Text></View>
     </Pressable>)}</View>
-    <Pressable accessibilityRole="link" accessibilityLabel={tx('현장 도구 전부 보기', 'See all on-the-go tools')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.toolMore, pressed && styles.quickToolPressed]}><Text variant="caption" weight="bold" color={desktop ? color.text.onAction : color.action.secondary}>{tx('날씨·준비물까지 현장 도구 전부 보기 ›', 'See all on-the-go tools, weather & packing too ›')}</Text></Pressable>
+    <Pressable accessibilityRole="link" accessibilityLabel={tx('현장 도구 전부 보기', 'See all on-the-go tools')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.toolMore, pressed && styles.quickToolPressed]}><Text variant="caption" weight="bold" color={desktop ? color.text.onAction : color.action.secondary}>{tx('현장 도구 전부 보기 ›', 'See all on-the-go tools ›')}</Text></Pressable>
   </View>;
 
   return <Screen wide style={[styles.screen, desktop && styles.desktopScreen]}>
-    <View style={[styles.header, desktop && styles.desktopHeader]}><View style={styles.identity}><GabolleMascot state="open" delay={180} style={desktop ? styles.desktopAvatar : styles.avatar} /><View style={styles.identityText}><Text variant={desktop ? 'display' : 'title'} weight="bold">{tx('가볼래 AI', 'GABOLLE AI')}</Text><Text variant="caption" color={color.text.body}>{tx('앱 기능을 실행하는 부산 여행 도우미', 'A Busan travel assistant that runs app features for you')}</Text></View></View><Pressable accessibilityRole="button" accessibilityLabel={tx('채팅 닫기', 'Close chat')} onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.close}><Text variant="title">×</Text></Pressable></View>
+    <View style={[styles.header, desktop && styles.desktopHeader]}><View style={styles.identity}><GabolleMascot state="open" still style={desktop ? styles.desktopAvatar : styles.avatar} /><View style={styles.identityText}><Text variant={desktop ? 'display' : 'title'} weight="bold">{tx('가볼래 AI', 'GABOLLE AI')}</Text><Text variant="caption" color={color.text.body}>{tx('앱 기능을 실행하는 부산 여행 도우미', 'A Busan travel assistant that runs app features for you')}</Text></View></View><Pressable accessibilityRole="button" accessibilityLabel={tx('채팅 닫기', 'Close chat')} onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.close}><Text variant="title">×</Text></Pressable></View>
     <View style={[styles.workspace, desktop && styles.workspaceDesktop]}>
       {desktop ? <View style={styles.sidebar}><Eyebrow>{tx('여행 도구', 'Travel tools')}</Eyebrow><Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중 필요한 기능을 바로 실행하세요', 'Run the features you need for your trip right away')}</Text><Text variant="body" color={color.text.onAction}>{tx('현장 문장은 크게 보거나 음성으로 듣고, 메뉴판 번역 도구도 바로 열 수 있어요.', 'View on-the-go phrases in large text or hear them aloud, and open the menu translation tool right away.')}</Text>{tools}</View> : null}
       <View style={[styles.chatPanel, desktop && styles.chatPanelDesktop]}>
