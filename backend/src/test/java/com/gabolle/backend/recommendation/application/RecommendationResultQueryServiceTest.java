@@ -106,6 +106,50 @@ class RecommendationResultQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 사진이 있으면 주소·출처·피사체를 함께 싣는다 (S15P21E201-1496)")
+	void photoIsCarriedWithItsSourceAndSubject() {
+		// 이 시험이 생긴 이유. imageUrl 이 null 로 못 박혀 있었고 그 옆 주석이 "place 표에
+		// 이미지 칸이 없다" 고 틀리게 적혀 있어서, 사진이 있는 후보 710곳(반환 후보의 24%)이
+		// 통째로 버려지고 있었다. 주석이 코드보다 오래 산 자리다.
+		Place photographed = mock(Place.class);
+		when(photographed.getPlaceId()).thenReturn(this.placeId);
+		when(photographed.getNameKo()).thenReturn("해운대 해수욕장");
+		when(photographed.getPhotoUrl()).thenReturn("https://tong.visitkorea.or.kr/haeundae.jpg");
+		when(photographed.getPhotoSource()).thenReturn("한국관광공사 관광사진갤러리");
+		when(photographed.getPhotoSubject()).thenReturn(Place.PhotoSubject.SELF);
+		when(this.placeRepository.findByPlaceIdIn(any())).thenReturn(List.of(photographed));
+
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(returnedCandidateBuilder().build()));
+
+		RecommendationResultResponse.Item item = this.service.buildResult(succeededJob(FallbackMode.BASELINE))
+				.items().get(0);
+
+		assertThat(item.imageUrl()).isEqualTo("https://tong.visitkorea.or.kr/haeundae.jpg");
+		// 🔴 출처는 선택 사항이 아니다. 공공누리 자료라 표기가 이용 조건이고, 화면은 이 값으로
+		// 출처 줄을 그린다. 주소만 보내면 출처 없이 사진이 걸린다.
+		assertThat(item.photoSource()).as("주소만 보내면 화면이 출처 없이 사진을 건다")
+				.isEqualTo("한국관광공사 관광사진갤러리");
+		assertThat(item.photoSubject()).isEqualTo(Place.PhotoSubject.SELF);
+	}
+
+	@Test
+	@DisplayName("🔴 사진이 없으면 셋 다 null — 기본 이미지를 지어내지 않는다")
+	void missingPhotoStaysNull() {
+		// 기본 이미지를 넣으면 화면이 "사진이 있다" 로 읽는다. 갈래 아이콘을 그리는 것은
+		// 화면의 몫이라고 S15P21E201-1378 이 이미 정했다.
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(returnedCandidateBuilder().build()));
+
+		RecommendationResultResponse.Item item = this.service.buildResult(succeededJob(FallbackMode.BASELINE))
+				.items().get(0);
+
+		assertThat(item.imageUrl()).isNull();
+		assertThat(item.photoSource()).isNull();
+		assertThat(item.photoSubject()).isNull();
+	}
+
+	@Test
 	@DisplayName("🔴 returned=false 후보는 응답에 없다 — 반환 전용 조회만 쓴다")
 	void onlyReturnedCandidatesQueried() {
 		RecommendationCandidate candidate = returnedCandidateBuilder().build();
