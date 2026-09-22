@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202508A0025811",
+  "name": "호이안",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 59463,
+  "researchedAt": "2026-09-22T12:18:14.696Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 가족",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "양지 쌀국수",
+      "삼겹살 분짜",
+      "다낭식 새우볶음밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:10 ~ 21:00 (브레이크 타임: 15:00 ~ 17:00 / 라스트 오더: 20:15, 매주 목요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "제시된 업종(중국집)과 달리 실제 해당 주소(부산 해운대구 송정중앙로6번길 188 2층)에 위치한 '호이안'은 쌀국수, 분짜 등을 판매하는 베트남 음식 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 송정중앙로6번길 188, 2층 호이안. 영업시간: 11:10 ~ 21:00 (브레이크 타임: 15:00 ~ 17:00 / 라스트 오더: 20:15) 휴무일: 매주 목요일. 건물 1층 주차 가능 (공간이 다소 협소함). 대표 메뉴: 양지 쌀국수, 삼겹살 분짜, 다낭식 새우볶음밥. 깔끔한 인테리어와 함께 송정 바다 뷰를 감상할 수 있어 데이트 장소로도 인기가 많습니다. 창가 자리에서는 해변 열차가 지나가는 모습을 볼 수 있습니다. 진하고 깊은 육수 맛과 푸짐한 양으로 긍정적인 평가를 받고 있는 베트남 요리 전문점입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송정 해변 바다와 지나가는 해변열차를 감상할 수 있는 뷰와 깔끔한 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "진하고 깊은 국물의 쌀국수와 푸짐한 베트남 요리 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

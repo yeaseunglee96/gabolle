@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202503A0044645",
+  "name": "이이히",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 67842,
+  "researchedAt": "2026-09-22T12:18:53.607Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "대학생, 인근 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "아부라미 카츠",
+      "사사미 카츠",
+      "로스등심 카츠",
+      "에비텐 카츠"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금 11:00–14:25 (토, 일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "경성대·부경대 대학가 인근 상권에 위치하여 인근 학생/로컬 위주 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "사업자 등록 업종은 일식 회/초밥 등으로 분류되어 있으나 실제로는 돈카츠 전문 일식당(카츠 및 냉우동, 냉소바 등 판매)으로 확인됩니다. 점심 한정 영업을 진행합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이이히(Iihi)는 부산광역시 남구 대연동, 경성대·부경대역 인근에 위치한 일식당입니다. 위치: 부산광역시 남구 용소로13번길 61 1층. 주요 메뉴: 돈카츠 전문점으로 아부라미 카츠, 사사미 카츠, 로스등심 카츠, 에비텐 카츠 및 냉우동, 냉소바 등을 판매합니다. 영업시간: 월~금 11:00–14:25 (토, 일 휴무)",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아부라미·사사미 등 특색 있는 돈카츠와 냉우동/소바 메뉴를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

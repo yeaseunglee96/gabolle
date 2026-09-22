@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202406A0584000",
+  "name": "상식",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 77337,
+  "researchedAt": "2026-09-22T12:19:19.654Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "웹 검색(주소 '부산광역시 수영구 감포로 77' 및 상호 '상식', 국수/칼국수 업종) 결과 해당 위치에 존재하는 식당이나 관련 리뷰·기록을 전혀 찾을 수 없음. 없는 가게로 판명되거나 폐업/미등록 상태임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

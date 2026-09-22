@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202604A0037308",
+  "name": "백양회초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 141971,
+  "researchedAt": "2026-09-22T12:22:13.208Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "요청된 주소('부산광역시 부산진구 부전로96번길 29')에 위치한 '백양회초밥'에 대한 실제 매장 정보, 리뷰, 정량 정보(가격, 영업시간 등)가 웹상에 확인되지 않아 found: false 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

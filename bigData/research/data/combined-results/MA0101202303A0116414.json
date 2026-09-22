@@ -1,0 +1,35 @@
+{
+  "id": "MA0101202303A0116414",
+  "name": "대중소",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 87587,
+  "researchedAt": "2026-09-22T12:19:36.731Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산광역시 해운대구 구남로21번길 9-22)는 '해운대소문난암소갈비집'의 주소이며, 해당 위치에 '대중소'(돼지고기 구이/찜) 매장은 실존하지 않거나 오기재된 정보로 확인되어 found: false 처리했습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.youtube.com/watch?v=k5jG58dI6uM"
+  ],
+  "whyPeopleGo": []
+}

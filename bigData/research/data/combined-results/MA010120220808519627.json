@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220808519627",
+  "name": "구르메",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 89928,
+  "researchedAt": "2026-09-22T12:18:58.367Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소 및 대연동 일대에서 일식 회/초밥 전문점 '구르메'에 대한 실존 정보나 관련 방문 후기를 찾을 수 없음",
+  "notes": "부산광역시 남구 용소로13번길 61 및 대연동/경성대 인근 '구르메'에 대해 웹 검색을 4회 수행하였으나, 해당 위치에 일식 회/초밥 관련 실제 매장 및 블로그 리뷰가 확인되지 않아 미발견 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

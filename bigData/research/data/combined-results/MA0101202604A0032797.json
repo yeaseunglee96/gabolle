@@ -1,0 +1,30 @@
+{
+  "id": "MA0101202604A0032797",
+  "name": "회담",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 93176,
+  "researchedAt": "2026-09-22T12:21:00.692Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게를 웹에서 찾을 수 없음",
+  "notes": "부산광역시 수영구 광남로 22 및 남천동 일대의 일식 회/초밥 업종 '회담'을 다각도로 검색하였으나 실재하는 가게 정보를 찾을 수 없어 found: false로 기록합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

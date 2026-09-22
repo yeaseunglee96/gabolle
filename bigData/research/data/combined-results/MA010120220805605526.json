@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220805605526",
+  "name": "도라보울",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 49132,
+  "researchedAt": "2026-09-22T12:21:40.579Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 혼밥",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "치킨과 하루야채 17종",
+      "돼지고기와 하루야채 17종",
+      "모듬버섯과 하루야채 17종"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:00 (라스트 오더 20:30)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "사용자 제시 업종은 '일식 회/초밥'으로 표기되었으나, 실제 해당 주소(부산진구 서전로38번길 43)의 '도라보울'은 삿포로식 수프카레 전문 일식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 서전로38번길 43에 위치한 도라보울은 일본 삿포로식 스프카레 전문점으로, 화학조미료를 사용하지 않고 사골 육수와 다양한 향신료, 신선한 야채를 활용한 수제 카레를 제공합니다. 동화 속 분위기가 느껴지는 아늑하고 감각적인 인테리어가 특징입니다. 주요 메뉴로는 치킨과 하루야채 17종 수프 카레, 돼지고기와 하루야채 17종 수프 카레, 모듬버섯과 하루야채 17종 등이 있습니다.",
+      "url": "https://siksinhot.com/P/1065679"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com/P/1065679"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화학조미료 없이 사골 육수와 각종 향신료, 큼직한 야채로 끓여낸 건강한 삿포로식 스프카레 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

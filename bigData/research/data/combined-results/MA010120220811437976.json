@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811437976",
+  "name": "사북칼국수",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 77657,
+  "researchedAt": "2026-09-22T12:21:22.086Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "식사 시간에는 대기가 발생할 수 있으나 회전율이 있는 편임"
+  },
+  "descriptors": {
+    "audience": "현지인 및 관광객, 혼밥족",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "사북칼국수(장칼국수)",
+      "돼지찌개"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00 ~ 21:00 (방문 전 휴무 및 영업시간 유동적 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "30년 동안 한 자리를 지켜온 노포로 현지인과 관광객 모두에게 사랑받는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "강원도 사북식 고추장 베이스 칼국수(장칼국수)를 전문으로 하는 해운대 노포. 면을 먹은 후 밥을 말아먹는 조합으로 유명함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "사북칼국수",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "강원도 장칼국수를 부산식으로 재해석한 곳으로, 고추장 베이스의 걸쭉하고 칼칼한 국물이 특징입니다. 맑은 멸치 칼국수보다는 묵직하고 투박한 맛을 선호하는 분들에게 인기가 많습니다. 해운대시장 근처 골목에 위치한 오래된 노포로, 벽면에는 수많은 손님의 낙서가 남아 있어 정겨운 분위기를 느낄 수 있습니다.",
+      "url": "https://busantaste.com"
+    },
+    {
+      "excerpt": "강원도 사북 지역의 장칼국수를 부산식으로 재해석한 곳으로, 칼칼하고 중독성 있는 국물 맛이 특징입니다. 약 30년 동안 한 자리를 지켜온 노포로, 현지인과 관광객 모두에게 꾸준히 사랑받고 있습니다. 면을 먹은 후 공깃밥을 추가해 국물에 비벼(말아) 먹는 것이 맛있게 먹는 방법으로 잘 알려져 있습니다. 별도의 주차장은 없습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://busantaste.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고추장 베이스의 걸쭉하고 칼칼하며 중독성 있는 장칼국수 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "약 30년간 해운대 골목 한 자리를 지켜온 오래된 노포 감성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

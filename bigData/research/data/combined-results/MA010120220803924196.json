@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220803924196",
+  "name": "레드도어",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 77062,
+  "researchedAt": "2026-09-22T12:20:24.464Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 단체, 혼밥",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "탕수육",
+      "짜장면",
+      "짬뽕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30 ~ 21:30 (15:00 ~ 16:30 브레이크 타임)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 해운대구 해운대해변로 271(씨스타 빌딩 B1층)에 위치한 중식당 '레드도어(RED DOOR / 홍문)'로, 빨간색 출입문 인테리어가 특징이며 탕수육, 짜장면, 짬뽕 및 코스 요리를 판매합니다. 기계식 주차 지원(MS호텔 주차타워 등)이 제공됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 해수욕장 근처에 위치한 정통 중식당으로, 외관의 빨간 문이 특징입니다. 내부는 생각보다 넓고 쾌적하여 가족 모임, 단체 손님, 혼밥이 모두 가능한 곳입니다. 약간 반지하 형태지만 접근이 어렵지 않으며, 엘리베이터도 이용 가능합니다. 특히 탕수육과 짜장면이 방문객들에게 좋은 평가를 받고 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 해운대해변로 271, 씨스타 빌딩 지하 1층. 매일 10:30 ~ 21:30 (15:00 ~ 16:30 브레이크 타임). MS호텔 주차타워 등을 이용할 수 있으며, 주차 시 1시간 30분 무료 주차 지원 등 혜택이 있는 것으로 알려져 있습니다. 짜장면, 짬뽕 등 식사류 외에도 탕수육, 꿔바로우, 코스 요리 등 다양한 중화요리를 제공합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "탕수육과 전통적인 짜장면 맛이 좋은 평가를 받음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 해수욕장 앞 접근성이 좋고 매장이 넓어 단체 및 혼밥에 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

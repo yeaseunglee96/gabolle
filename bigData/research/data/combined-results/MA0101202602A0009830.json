@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202602A0009830",
+  "name": "밥꽃",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 58368,
+  "researchedAt": "2026-09-22T12:18:54.484Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "물막국수",
+      "비빔막국수"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해운대구 달맞이길50번길 10에 상호 '밥꽃'으로 사업자/식당 디렉토리에 등록되어 있으나, 일반 블로그 후기나 상세 방문 리뷰, 영업시간 및 가격 정보는 거의 확인되지 않는 소규모/폐업 추정 음식점입니다. 식신 등의 등록 정보에서 물막국수/비빔막국수 메뉴가 일부 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 달맞이길50번길 10 (중동)에 위치한 한식(백반/한정식) 식당입니다. 해당 식당의 대표 메뉴로는 물 막국수와 비빔 막국수가 언급되고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

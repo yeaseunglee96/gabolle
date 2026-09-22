@@ -1,0 +1,17 @@
+{
+  "id": "MA0106202605A0791765",
+  "name": "더온정",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 70393,
+  "researchedAt": "2026-09-22T12:17:41.952Z",
+  "confidence": "high",
+  "found": false,
+  "notFound": "해당 주소(부산광역시 수영구 광안해변로 189)는 '호텔 센트럴베이' 소재지이며, 해당 주소 및 부산 수영구/광안리 일대에서 '더온정'이라는 백반/한정식 식당은 실존하지 않거나 웹상에 전혀 검색되지 않습니다.",
+  "notes": "수영구 광안해변로 189 소재 '더온정'은 실존하지 않는 식당으로 확인되어 없는 가게를 지어내지 않는 원칙에 따라 found: false 처리합니다.",
+  "photoUrls": [],
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.centralbay.co.kr"
+  ]
+}

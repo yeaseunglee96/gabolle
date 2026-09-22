@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202406A0203430",
+  "name": "요미우돈교자해리단길",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 99239,
+  "researchedAt": "2026-09-22T12:18:28.403Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "해리단길 인기 맛집으로 피크타임 및 주말에 웨이팅이 발생하는 편이나 회전율이 비교적 괜찮음"
+  },
+  "descriptors": {
+    "audience": "연인/친구/혼밥객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "넓적우동",
+      "베이컨크림우동",
+      "마제우동",
+      "교자만두"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 20:30 (브레이크타임 15:00 ~ 16:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길 관광 및 나들이객 위주로 많이 찾는 퓨전 일식 우동 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 해리단길(우동1로 45)에 위치한 퓨전 일본식 우동 및 교자 전문점으로, 얇고 넓은 면을 쯔유와 참깨소스에 적셔 먹는 '넓적우동'이 대표적 시그니처 메뉴입니다. 현재 일부 플랫폼에서는 폐점/영업 변동으로 표시되기도 합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "넓적우동 13,900원 / 베이컨 크림 우동 14,900원",
+    "priceWon": 13900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 우동1로 45, 1층 (해리단길). 일본 현지 식당에 온 듯한 깔끔하고 세련된 인테리어로, 혼밥이나 혼술을 즐기기에도 좋은 분위기입니다. 대표 메뉴는 넓적우동으로 넓고 얇은 면의 독특한 식감이 특징입니다.",
+      "url": "https://www.trip.com"
+    },
+    {
+      "excerpt": "요미우돈교자 해리단길점: 부산광역시 해운대구 우동1로 45. 넓적우동(냉우동), 베이컨크림우동, 마제우동, 각종 교자 등이 대표 메뉴로 얼음 위에 올려진 얇고 넓은 면을 참깨 소스와 쯔유 소스에 찍어 먹는다. 매일 11:00 ~ 20:30 운영.",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com",
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "얼음 위에 서빙되는 독특한 식감의 넓적우동과 퓨전 우동, 바삭한 교자 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "일본 현지 감성의 이국적인 인테리어와 해리단길 특유의 힙한 식당 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

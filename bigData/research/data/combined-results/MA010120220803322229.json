@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220803322229",
+  "name": "광안리진양호횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 67399,
+  "researchedAt": "2026-09-22T12:21:52.389Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "단체 모임, 가족 외식, 연인 데이트",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "진양호 A코스",
+      "진양호 스페샬",
+      "제철 활어회"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 오션뷰와 함께 단체 모임 및 가족 여행객, 데이트 코스로 찾는 곳으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 민락동 풍경타워 4층에 위치한 활어회 코스 전문점. 광안대교 전망과 함께 제철 활어회 및 다양한 곁들임찬(해산물, 전복, 산낙지 등)과 회 리필이 포함된 코스 메뉴가 특징.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "진양호 A코스 (1인) 50,000원, 진양호 스페샬 (1인) 60,000원",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "진양호횟집: 부산광역시 수영구 광안해변로344번길 풍경타워 4층. 민락수변공원 인근에 위치해 있으며, 광안대교 뷰를 감상할 수 있는 곳으로 알려져 있습니다. 코스 요리 전문점으로, 제철 활어회와 함께 다양한 스끼다시가 제공되는 구성이 특징입니다. 단체 모임, 가족 여행, 데이트 등 다양한 목적으로 방문하기 적합한 공간으로 소개되고 있습니다. 매일 11:00 ~ 22:30. 진양호 A코스(1인) 50,000원, 진양호 스페샬(1인) 60,000원.",
+      "url": "https://www.busan.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.busan.go.kr",
+    "https://www.anewsa.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교 오션뷰를 보며 회 리필이 가능한 제철 활어회 코스 요리를 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "단체석과 광안리 해변 조망권을 갖추어 모임 및 데이트 장소로 이용하기 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
