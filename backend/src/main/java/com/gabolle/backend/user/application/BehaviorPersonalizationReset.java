@@ -86,6 +86,13 @@ public class BehaviorPersonalizationReset {
 				""", userId);
 		int vectors = execute("DELETE FROM UserTasteVector v WHERE v.userId = :userId", userId);
 
+		// 🔴 (사람, 장소) 의 취향 반영 상태도 행동 파생값이다 (S15P21E201-1500). 안 지우면
+		//    개인화를 껐다 켠 사람에게 「하트가 이미 반영돼 있다」는 옛 상태가 남아, 소비자가
+		//    그 다음 이벤트의 차이를 엉뚱한 기준으로 계산한다.
+		this.entityManager.createNativeQuery("DELETE FROM user_place_taste_state WHERE user_id = :userId")
+			.setParameter("userId", userId)
+			.executeUpdate();
+
 		// 4. 실제 방문 시각으로 만든 개인 속도 계수. 행동으로 만든 사람별 프로필이라
 		// 벡터와 같은 스위치가 지운다.
 		//

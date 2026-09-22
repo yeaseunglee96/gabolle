@@ -56,6 +56,20 @@ public class KafkaEventPublisher implements EventPublisherPort {
 
 	private static final String HEADER_OCCURRED_AT = "occurred_at";
 
+	/**
+	 * 누구의 사건인가 (S15P21E201-1500).
+	 *
+	 * <p>🔴 <b>키로 대신하지 않는다.</b> 파티션 키가 지금은 사용자이지만
+	 * ({@code EventIngestService.partitionKeyOf}) 그건 <b>순서를 지키기 위한 것</b>이지
+	 * 「누구인가」를 담기로 한 자리가 아니다. 비로그인 이벤트에서는 aggregate 가 들어가고,
+	 * 나중에 순서 단위를 바꾸면 키의 뜻도 바뀐다. 그때 취향이 <b>엉뚱한 사람에게 조용히</b>
+	 * 붙는다.
+	 *
+	 * <p>사용자가 없는 이벤트도 있으므로 값이 있을 때만 싣는다 — 빈 문자열을 넣으면 받는 쪽이
+	 * 「모른다」와 「없다」를 구분할 수 없다.
+	 */
+	private static final String HEADER_USER_ID = "user_id";
+
 	private final KafkaTemplate<String, String> kafkaTemplate;
 
 	private final KafkaEventProperties properties;
@@ -73,6 +87,9 @@ public class KafkaEventPublisher implements EventPublisherPort {
 		addHeader(record, HEADER_EVENT_TYPE, event.getEventType());
 		addHeader(record, HEADER_EVENT_VERSION, Integer.toString(event.getEventVersion()));
 		addHeader(record, HEADER_OCCURRED_AT, event.getOccurredAt().toString());
+		if (event.getUserId() != null) {
+			addHeader(record, HEADER_USER_ID, event.getUserId().toString());
+		}
 
 		try {
 			this.kafkaTemplate.send(record).get(SEND_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
