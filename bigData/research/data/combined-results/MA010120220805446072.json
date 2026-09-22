@@ -2,8 +2,49 @@
   "id": "MA010120220805446072",
   "name": "홈런볼",
   "cat": "일반 유흥 주점",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 해운대해변로209번나길 43 에 있는 '홈런볼'(일반 유흥 주점 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다",
   "attempts": 1,
-  "researchedAt": "2026-09-22T09:58:47.813Z"
+  "geminiTokens": 44979,
+  "researchedAt": "2026-09-22T10:26:07.422Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "성인/유흥객",
+    "priceBand": "high",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 업소는 부산 해운대구 해운대해변로209번나길 43(지상 2층)에 등록된 일반 유흥주점(식품접객업-유흥주점영업)입니다. 일반 음식점 형태가 아닌 룸살롱/유흥주점 업종으로, 일반 블로그 맛집 방문 후기나 메뉴판/음식 사진, 상세 영업시간 등의 공개 정보는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 우동, 해운대해변로209번나길 43, 지상 2층에 위치해 있습니다. 업종: 행정안전부 인허가상 '식품접객업(유흥주점영업)'으로 등록된 업소입니다. 2015년에 인허가를 받아 영업 중인 곳으로 확인됩니다.",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 일대 성인 유흥 목적의 유흥주점(룸살롱) 이용",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

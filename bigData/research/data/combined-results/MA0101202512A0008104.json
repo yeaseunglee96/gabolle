@@ -2,8 +2,67 @@
   "id": "MA0101202512A0008104",
   "name": "야키토리로만",
   "cat": "기타 일식 음식점",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 해운대로570번길 14 에 있는 '야키토리로만'(기타 일식 음식점 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는",
   "attempts": 1,
-  "researchedAt": "2026-09-22T09:58:23.379Z"
+  "geminiTokens": 68047,
+  "researchedAt": "2026-09-22T10:26:52.593Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "오픈 시간부터 만석이 되는 경우가 많아 방문 전 예약이 권장되는 편입니다."
+  },
+  "descriptors": {
+    "audience": "연인 및 지인 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "츠쿠네",
+      "세세리",
+      "사사미",
+      "새우삼겹말이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:30 - 01:00 (금·토 17:30 - 02:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 20,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "야키토리 코스(3/5/7코스) 및 츠쿠네 등 부위별 닭꼬치와 사이드 요리를 다루는 정통 일식 꼬치구이 전문점입니다. 주차 불가, 유료 콜키지가 가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "코스 요리(3/5/7코스 세트) 및 단품 꼬치/사이드 구성, 콜키지 20,000원",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "야키토리로만 해운대점 - 위치: 부산광역시 해운대구 해운대로570번길 14, 1층. 영업시간: 매일 17:30 - 01:00, 금·토 17:30 - 02:00. 주차 불가, 콜키지 유료(20,000원). 일본 현지 정통 스타일의 야키토리(닭꼬치)를 제공하는 이자카야.",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com",
+    "https://www.siksinhot.com",
+    "https://www.albamon.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일본 현지 정통 스타일의 닭 부위별 야키토리 코스 요리와 안주를 즐길 수 있어서",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

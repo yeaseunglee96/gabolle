@@ -2,8 +2,69 @@
   "id": "MA0101202406A0159741",
   "name": "하라식당",
   "cat": "기타 일식 음식점",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 수영구 민락로28번길 19 에 있는 '하라식당'(기타 일식 음식점 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** —",
   "attempts": 1,
-  "researchedAt": "2026-09-22T09:59:07.312Z"
+  "geminiTokens": 45412,
+  "researchedAt": "2026-09-22T10:26:39.097Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 웨이팅 등록이 가능하며 당일 준비된 연어 소진 시 조기 마감됨"
+  },
+  "descriptors": {
+    "audience": "연인, 혼밥러, 친구",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "연어초밥",
+      "연어국수",
+      "나가사끼 짬뽕"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 ~ 22:00 (라스트 오더 21:00, 매주 수요일 정기휴무, 재료 소진 시 조기 마감)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객에 대한 명시적 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 광안리 인근 주택 2층을 개조해 당일 손질한 생연어로 연어초밥, 연어국수 등을 전문으로 판매하는 일식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "당일 손질한 신선한 연어를 사용하는 연어 요리 전문점으로, 연어초밥, 연어국수, 덮밥, 나가사끼 짬뽕, 에비후라이 등이 주요 메뉴입니다. 가정집을 개조한 건물 2층에 위치해 있으며 캐치테이블 등을 통해 웨이팅 등록이 가능하며, 재료 소진 시 조기 마감될 수 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 민락로28번길 19, 2층 (민락동). 영업시간: 10:30 ~ 22:00 (라스트 오더 21:00), 정기휴무: 매주 수요일, 연어 요리(연어국수, 생연어초밥 등)와 덮밥류가 인기 있는 식당. 연어 소진 시 조기 마감될 수 있습니다. 혼밥, 데이트, 술 한잔하기 좋은 분위기.",
+      "url": "https://facebook.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "당일 손질한 신선한 생연어로 만든 연어초밥과 연어국수의 높은 맛과 품질",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

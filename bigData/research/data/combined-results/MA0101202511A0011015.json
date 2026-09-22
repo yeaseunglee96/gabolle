@@ -2,8 +2,57 @@
   "id": "MA0101202511A0011015",
   "name": "초선마라",
   "cat": "마라탕/훠궈",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 수영구 무학로52번길 11 에 있는 '초선마라'(마라탕/훠궈 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나",
   "attempts": 1,
-  "researchedAt": "2026-09-22T10:05:21.172Z"
+  "geminiTokens": 66161,
+  "researchedAt": "2026-09-22T10:27:53.143Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반/배달·포장 이용객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "마라탕",
+      "마라샹궈"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 무학로52번길 11 에 입점한 초선마라 광안점 브랜드 지점입니다. 공식 사이트 매장 등록 정보 외에 개별 방문 블로그 리뷰나 혼잡도, 세부 영업시간 정보는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "초선마라 광안점: 부산광역시 수영구 무학로52번길 11, 1층 (전화: 050-7782-9392) '초선마라'는 한국인의 입맛에 맞춘 마라탕과 마라샹궈를 제공하는 브랜드로 알려져 있습니다.",
+      "url": "https://choseonmara.com"
+    }
+  ],
+  "sources": [
+    "https://choseonmara.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한국인의 입맛에 맞춘 마라탕과 마라샹궈를 전문으로 함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

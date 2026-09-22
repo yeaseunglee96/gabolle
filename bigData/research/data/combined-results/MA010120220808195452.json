@@ -2,8 +2,83 @@
   "id": "MA010120220808195452",
   "name": "청사포토종옻닭",
   "cat": "닭/오리고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 청사포로58번길 37 에 있는 '청사포토종옻닭'(닭/오리고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 ",
   "attempts": 1,
-  "researchedAt": "2026-09-22T10:03:30.269Z"
+  "geminiTokens": 79474,
+  "researchedAt": "2026-09-22T10:27:35.545Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "백숙 조리 시간이 최소 40분~1시간 걸려 사전 예약이 필수적이며 안내됨"
+  },
+  "descriptors": {
+    "audience": "가족 모임 및 보양식 식사객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "토종옻닭",
+      "닭백숙",
+      "옻오리",
+      "오리백숙",
+      "오리불고기"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 - 21:00 (라스트오더 20:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "20년 전통의 노포로 현지인들에게 보양식 맛집으로 알려져 있으며 방송인 추천 맛집으로도 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "신축 이전하여 주차장을 갖춘 깔끔하고 쾌적한 환경이며 조미료를 쓰지 않는 정갈한 밑반찬과 깔끔한 육수가 특징. 백숙 특성상 방문 전 예약 권장.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "토종옻닭, 옻오리 등 백숙류",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 청사포로58번길 37 / 영업 시간: 매일 10:00 - 21:00 (라스트오더 20:00) / 대표 메뉴: 토종옻닭, 닭백숙",
+      "url": "https://esquirekorea.co.kr"
+    },
+    {
+      "excerpt": "20년 이상의 전통을 가진 노포로, 가정집 같은 아늑한 분위기에서 식사할 수 있습니다. 조미료를 사용하지 않고 직접 만든 정갈한 밑반찬과 건강하고 깔끔한 국물 맛으로 잘 알려져 있습니다. 방문 전 최소 40분~1시간 전에 미리 예약하는 것을 추천합니다.",
+      "url": "https://josunhotel.com"
+    },
+    {
+      "excerpt": "대표 메뉴: 토종옻닭, 닭백숙, 옻오리, 오리백숙, 오리불고기",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://esquirekorea.co.kr",
+    "https://josunhotel.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "조미료 없이 끓여낸 건강하고 깊고 깔끔한 옻닭 국물과 정갈한 수제 밑반찬 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "20년 넘게 영업하며 신뢰를 쌓아온 청사포 현지인 보양식 명소",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    }
+  ]
 }

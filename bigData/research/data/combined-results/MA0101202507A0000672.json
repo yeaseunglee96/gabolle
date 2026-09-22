@@ -2,8 +2,71 @@
   "id": "MA0101202507A0000672",
   "name": "야키토리텐진",
   "cat": "기타 일식 음식점",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 마린시티1로 9 에 있는 '야키토리텐진'(기타 일식 음식점 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** ",
   "attempts": 1,
-  "researchedAt": "2026-09-22T10:00:28.987Z"
+  "geminiTokens": 72915,
+  "researchedAt": "2026-09-22T10:27:02.793Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "마린시티 인근 주민 및 모임·회식 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬꼬지 6품",
+      "한우짚불타다끼",
+      "모듬사시미",
+      "한우모츠나베"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 11,
+    "found": true
+  },
+  "notes": "부산 해운대구 마린시티1로 9(마린시티자이 1층 109호)에 위치한 야키토리/이자카야. 모듬꼬지 및 일식 나베/사시미 메뉴를 취급하며 주차 및 콜키지 프리 정보가 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "모듬꼬지 6품 23,000원, 한우모츠나베 34,000원, 모듬사시미 45,000원",
+    "priceWon": 23000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산 해운대구 마린시티1로 9 (우동), 마린시티자이 1층 109호. 업종: 야키토리 전문 이자카야. 주요 메뉴: 한우짚불타다끼, 모듬꼬지 6품, 모듬사시미, 후토마끼, 한우모츠나베 등. 주차 가능, 콜키지 프리, 예약 가능.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "모듬꼬지구이, 한우짚불타다끼, 모츠나베 등 다양한 일식 요리 안주 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "마린시티자이 상가 1층 위치, 주차 지원 및 콜키지 프리 운영",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

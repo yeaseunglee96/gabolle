@@ -2,8 +2,67 @@
   "id": "MA0101202509A0020987",
   "name": "야키토리규",
   "cat": "기타 일식 음식점",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 부산진구 신천대로102번길 34 에 있는 '야키토리규'(기타 일식 음식점 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다",
   "attempts": 1,
-  "researchedAt": "2026-09-22T10:00:31.192Z"
+  "geminiTokens": 85369,
+  "researchedAt": "2026-09-22T10:26:55.927Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기에 대한 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "직장인, 친구, 2차 술자리 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "야사이마끼(채소말이 꼬치)",
+      "닭 꼬치구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "상세 영업시간 미제공 (현재 폐업 또는 상호 전환 상태)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 직접적인 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 부산진구 신천대로102번길 34에 위치했던 야키토리(꼬치구이) 및 이자카야 전문점으로, '소설담 베이직'에서 상호 변경되어 닭 특수부위 구이 및 채소말이 꼬치(야사이마끼)를 주력으로 취급함. 현재는 폐업 상태로 파악됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "기존에 운영되던 '소설담 베이직'이 상호를 변경하여 현재의 '야키토리 규'가 되었습니다. 야키토리 규는 닭 특수부위뿐만 아니라 야채를 고기로 감싼 '야사이마끼' 등을 전문으로 하는 매장으로 운영되고 있습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "부산광역시 부산진구 신천대로102번길 34 (부전동) 서면 지역에 위치한 꼬치구이(야키토리) 전문 이자카야입니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "닭 특수부위 숯불 꼬치구이 및 정갈한 채소 삼겹말이(야사이마끼) 꼬치를 맛보기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
 }

@@ -2,8 +2,40 @@
   "id": "MA0101202508A0034178",
   "name": "경성파스타",
   "cat": "파스타/스테이크",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 남구 수영로 309 에 있는 '경성파스타'(파스타/스테이크 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — 하나를",
   "attempts": 1,
-  "researchedAt": "2026-09-22T09:53:28.813Z"
+  "geminiTokens": 68387,
+  "researchedAt": "2026-09-22T10:26:24.562Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "부산 남구 수영로 309(경성대학교) 소재 '경성파스타' 식당 상세 정보를 웹상에서 확인할 수 없음",
+  "notes": "부산광역시 남구 수영로 309는 경성대학교 소재지 주소입니다. 웹 검색 결과, 독립적인 '경성파스타' 일반 식당 정보(영업시간, 메뉴, 가격, 방문자 리뷰 등)는 확인되지 않습니다. 과거 경성대 학생회관 푸드코트 구인공고에 단편적으로 상호가 언급된 적은 있으나 현재 실존하는 음식점으로 검증 가능한 정보가 없어 미발견(found: false) 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
 }

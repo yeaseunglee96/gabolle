@@ -2,8 +2,85 @@
   "id": "MA010120220812662967",
   "name": "채정정직유부",
   "cat": "기타 일식 음식점",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 남구 용소로21번길 68 에 있는 '채정정직유부'(기타 일식 음식점 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** ",
   "attempts": 1,
-  "researchedAt": "2026-09-22T10:01:20.691Z"
+  "geminiTokens": 111655,
+  "researchedAt": "2026-09-22T10:27:12.426Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "부경대 쪽문 인근 대학가에 위치하여 주로 포장 및 학생 혼밥 수요가 많은 형태임"
+  },
+  "descriptors": {
+    "audience": "대학생, 혼밥족, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "정직유부초밥",
+      "참치마요유부초밥",
+      "불고기유부초밥",
+      "정직라면"
+    ],
+    "yearsClaimed": 2019
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 11:00 - 20:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부경대학교 인근 대학가 및 원룸촌 상권으로 관광객보다는 인근 대학생과 지역 주민 위주의 매장"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "사업자등록 또는 인허가상 법인명 (주)채정 및 브랜드 '정직유부'가 결합된 상호(채정정직유부)로 등록되어 있으며, 본 주소지(용소로21번길 68 디아이하우스) 1층에서 시작된 프랜차이즈 유부초밥 전문점 본점/초기 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "기본 정직유부 4p 기준 약 3,900원~4,500원 선 (1인 세트 기준 7~9천원대)",
+    "priceWon": 4200
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 용소로21번길 68(대연동 455-28)에 위치한 디아이하우스 건물 1층에 정직유부 본점(또는 지점)이 위치해 있으며, 유부초밥 전문 프랜차이즈 기업 (주)채정이 운영하는 브랜드의 발상지/초기 매장이다.",
+      "url": "https://jjub0524.com"
+    },
+    {
+      "excerpt": "(주)채정은 유부초밥 프랜차이즈 브랜드인 '정직유부'를 운영하는 본사이며, 부경대학교 인근에서 처음 시작된 유부초밥 전문점으로 학생과 지역 주민들에게 사랑받는 맛집으로 알려져 있다.",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://jjub0524.com",
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "불맛을 입힌 큼직하고 든든한 유부초밥과 가성비 높은 분식 조합",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부경대 인근에서 저렴하고 든든하게 한 끼를 해결할 수 있는 착한 가격",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "혼밥 및 간편 포장/테이크아웃에 특화된 접근 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
 }

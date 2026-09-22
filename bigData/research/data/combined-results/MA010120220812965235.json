@@ -2,8 +2,35 @@
   "id": "MA010120220812965235",
   "name": "메이저",
   "cat": "일반 유흥 주점",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 해운대구 해운대해변로 203 에 있는 '메이저'(일반 유흥 주점 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다** — ",
   "attempts": 1,
-  "researchedAt": "2026-09-22T09:57:14.468Z"
+  "geminiTokens": 60731,
+  "researchedAt": "2026-09-22T10:26:23.217Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(해운대해변로 203, 오션타워) 내 '메이저'라는 일반유흥주점의 상세 정보(메뉴, 가격, 영업시간, 이용자 리뷰 등)를 웹상에서 확인할 수 없음",
+  "notes": "부산광역시 해운대구 해운대해변로 203(오션타워)에 위치한 것으로 등록된 '메이저'(일반유흥주점)는 인허가 등록 상호 혹은 폐업/사업자용 명칭으로 추정되며, 실제 일반 대중용 블로그나 방문 후기, 메뉴, 영업시간, 사진 등의 상세 정보를 웹상에서 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.juso.go.kr"
+  ],
+  "whyPeopleGo": []
 }

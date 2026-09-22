@@ -2,8 +2,41 @@
   "id": "MA0101202411A0091686",
   "name": "닭집",
   "cat": "닭/오리고기 구이/찜",
-  "found": null,
-  "error": "Command failed: agy --model claude-sonnet-4-6 --dangerously-skip-permissions -p=너는 부산 음식점을 웹에서 실제로 검색해서 조사하는 조사원이다.\n\n대상: 부산광역시 부산진구 서전로10번길 45-6 에 있는 '닭집'(닭/오리고기 구이/찜 업종)\n\n## 할 일\n\n1. 이 가게를 웹에서 검색해서 \"사람들이 왜 이 집에 가는지\"를 찾는다.\n2. 아래 정량 정보도 같이 찾는다 — 가격, 영업시간, 혼잡/줄서기, 현지인/관광객 언급,\n   메뉴 다양성. **각 항목은 따로 찾는다*",
   "attempts": 1,
-  "researchedAt": "2026-09-22T10:01:42.013Z"
+  "geminiTokens": 64588,
+  "researchedAt": "2026-09-22T10:27:18.341Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 부산진구 서전로10번길 45-6 / 부전동 168-141)에는 '닭집'이라는 상호의 독립된 실제 소비자 대상 음식점이 존재하지 않으며, 사업자등록 명칭이거나 인접 필지(서전로10번길 45) '닭동가리 서면점'의 부속건물/창고 등으로 확인되어 일반 식당 정보를 찾을 수 없습니다.",
+  "notes": "'닭집' 상호로 검색 시 사업자등록/부동산 경매 목록 외에 소비자가 방문하는 독립 음식점 정보가 없으며, 현장은 '닭동가리 서면점' 건물 부속 또는 경매 물건지로 확인되어 found: false 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 서전로10번길 45-6(부전동) 소재지와 관련하여 해당 주소지는 법원 부동산 경매 물건 등 관련 문서에서 '닭동가리'라는 가게가 위치한 곳으로 확인되며, 제시외 건물 및 창고 등으로 사용되거나 해당 가게 내부를 통해 출입하는 형태의 건물 구조가 보고된 바 있습니다. '닭집'이라는 명칭은 해당 주소지의 사업자 정보 등에서 상호로 등록되어 있거나, 일반적인 업종 분류상의 명칭으로 언급된 것으로 보입니다.",
+      "url": "https://auctionmsg.com"
+    }
+  ],
+  "sources": [
+    "https://auctionmsg.com",
+    "https://missgoauction.com"
+  ],
+  "whyPeopleGo": []
 }
