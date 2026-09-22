@@ -18,6 +18,7 @@ import com.gabolle.backend.batch.support.TasteVectorFixtures;
 import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.preference.domain.TasteDimension;
 import com.gabolle.backend.preference.domain.TasteEvidence;
+import com.gabolle.backend.preference.domain.TasteWeightComponent;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
 
@@ -200,9 +201,18 @@ class BehaviorFoldIntegrationTest extends BatchPostgresTest {
 		assertThat(components(user)).allMatch((w) -> w.getEvidence() == TasteEvidence.SURVEY);
 	}
 
+	/**
+	 * 🔴 <b>예전에는 이 자리가 {@code BLENDED} 한 행이었다</b> (S15P21E201-1499 이전). PK 가
+	 * {@code (판, 차원, 코드)} 뿐이라 두 행이 될 수 없었기 때문이다. 이제 근거가 키에 들어가서
+	 * 설문 행과 행동 행이 <b>따로</b> 앉는다.
+	 *
+	 * <p>합친 값의 기대치 세 개는 <b>한 글자도 안 바꿨다</b> — 0.75 · support 2 · BLENDED.
+	 * 저장 모양만 바뀌고 읽는 값은 같다는 것이 이 시험이 지키는 약속이다. 합치는 규칙이 원래
+	 * 합이라 성립한다.
+	 */
 	@Test
-	@DisplayName("🔴 설문과 겹치면 BLENDED «한 행» 이다 — PK 가 (판, 차원, 코드) 라 두 행이 될 수 없다")
-	void surveyAndBehaviourMeetInOneBlendedRow() {
+	@DisplayName("🔴 설문과 겹치면 «두 행» 이 된다 — 합치면 예전과 같은 값이다")
+	void surveyAndBehaviourSitInSeparateRowsAndMergeBack() {
 		UUID user = this.fixtures.newUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(user, DAY1);
 		this.fixtures.selectedCodes(snapshot, "CATEGORY", CAFE);
@@ -212,11 +222,16 @@ class BehaviorFoldIntegrationTest extends BatchPostgresTest {
 
 		this.foldService.fold(user, DAY2);
 
-		UserTasteWeight component = onlyComponent(user);
-		assertThat(component.getEvidence()).isEqualTo(TasteEvidence.BLENDED);
+		List<UserTasteWeight> rows = components(user);
+		assertThat(rows).hasSize(2);
+		assertThat(rows).extracting(UserTasteWeight::getEvidence)
+			.containsExactlyInAnyOrder(TasteEvidence.SURVEY, TasteEvidence.INTERACTION);
+
+		TasteWeightComponent merged = TasteWeightComponent.merge(rows).get(0);
+		assertThat(merged.evidence()).isEqualTo(TasteEvidence.BLENDED);
 		// 설문 +1.0 에 행동 -0.25 를 더한다. 평균이 아니라 합이다.
-		assertThat(component.getWeight()).isEqualTo(0.75);
-		assertThat(component.getSupport()).isEqualTo(2);
+		assertThat(merged.weight()).isEqualTo(0.75);
+		assertThat(merged.support()).isEqualTo(2);
 	}
 
 	@Test
