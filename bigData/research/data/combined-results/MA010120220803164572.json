@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220803164572",
+  "name": "레썽스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59218,
+  "researchedAt": "2026-09-22T11:16:00.947Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "좌석 수가 적고 코스 특성상 캐치테이블 등을 통한 사전 예약 위주로 운영됨"
+  },
+  "descriptors": {
+    "audience": "연인/미식가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "런치 테이스팅 코스",
+      "디너 테이스팅 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수요일 17:30~23:00, 목~일요일 12:00~23:00 (브레이크타임 14:30~17:30), 월·화요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 남천동에 위치한 프렌치 컨템포러리 다이닝으로 전지성 셰프가 제철 식재료와 장류·발효 식품을 접목한 코스 요리를 제공하며 미쉐린 가이드 부산에 등재되어 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "전지성 셰프가 운영하는 곳으로, 한국의 제철 식재료와 장류, 발효 식품 등을 프렌치 기법과 조합하여 독창적인 코스 요리를 선보입니다. 미쉐린 가이드에 선정된 바 있는 레스토랑으로 잘 알려져 있습니다. 수요일: 17:30 ~ 23:00, 목~일요일: 12:00 ~ 23:00 (브레이크 타임 14:30~17:30), 월·화요일: 휴무. 좌석이 많지 않아 캐치테이블 등을 통한 사전 예약 후 방문하는 것이 권장됩니다. 주차 공간이 협소하므로 인근 공영주차장 이용이 추천됩니다.",
+      "url": "https://guide.michelin.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 수영구 광남로22번길 17 (남천동 9-11) 3층. 한국의 장류, 천연 식초 등 제철 식재료와 발효 기법을 프렌치 요리에 접목하여 깊은 감칠맛과 산미를 살린 독창적인 코스 요리를 선보입니다. 남천동 주택가 골목에 위치한 아늑하고 조용한 분위기의 레스토랑으로, 코스마다 셰프와 매니저의 상세한 요리 설명이 곁들여집니다.",
+      "url": "https://busantaste.com"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com",
+    "https://busantaste.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한국 제철 식재료와 발효 기법을 접목한 독창적인 프렌치 코스 요리를 즐기기 위해",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산에 등재된 수준 높은 프렌치 다이닝을 경험하기 위해",
+      "sources": [
+        0
+      ],
+      "type": "투표·독자 선정"
+    }
+  ]
+}

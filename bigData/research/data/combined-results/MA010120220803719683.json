@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220803719683",
+  "name": "우문현답",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 58812,
+  "researchedAt": "2026-09-22T11:14:44.384Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장이 협소한 편으로 네이버 예약 또는 전화 예약 필수(예약제 운영)"
+  },
+  "descriptors": {
+    "audience": "데이트, 기념일, 프라이빗 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "투플러스(1++) 한우 우마카세 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:00 ~ 02:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객 대상 비율 관련 구체적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안로61번길 69-8에 위치한 '우문현답'은 '소를 묻는다면 가장 현명하게 답하는 곳(牛問賢答)'이라는 의미의 1++ 한우 우마카세/이자카야 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "브랜드 스토리: 일반적인 사자성어 '우문현답(어리석은 질문에 현명하게 답함)'을 '소를 묻는다면 가장 현명하게 답하는 곳(牛問賢答)'이라는 의미로 재해석하여 한우 전문점이라는 정체성을 담았습니다. 분위기: 우드톤의 깔끔하고 고급스러운 인테리어로 프라이빗한 분위기를 제공하며, 1층은 다찌석, 2층은 단체석 등으로 구성되어 있습니다. 메뉴: 투플러스(1++) 한우를 활용한 우마카세 코스를 선보이며, 애프터눈 티 세트처럼 예쁘게 플레이팅되어 나오는 것이 특징입니다.",
+      "url": "https://brandtimes.co.kr"
+    },
+    {
+      "excerpt": "매장이 협소하여 예약제로 운영되므로 네이버나 전화를 통한 예약이 필수입니다. 주로 1층 바 좌석과 2층 테이블석으로 구성되어 있습니다. 영업시간: 매일 17:00 ~ 02:00, 문의: 051-757-0551",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://brandtimes.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "투플러스(1++) 한우를 애프터눈 티 세트처럼 정갈하게 플레이팅해 선보이는 우마카세 코스",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "우드톤의 깔끔하고 프라이빗한 인테리어와 바/테이블 좌석 구성의 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

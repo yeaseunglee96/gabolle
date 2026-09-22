@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220814169358",
+  "name": "이와",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 69087,
+  "researchedAt": "2026-09-22T11:13:28.032Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 사전 예약제(캐치테이블)로 운영되어 현장 줄서기 없이 타임별 소수 인원만 입장함"
+  },
+  "descriptors": {
+    "audience": "연인, 가족, 비즈니스 접대, 미식가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "스시 오마카세",
+      "숙성 사시미",
+      "아귀 튀김",
+      "삼치구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 - 22:00 (사전 예약 타임제 운영)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 방문 관광객뿐 아니라 미식가 및 현지 주민들의 기념일·접대 방문 수요가 공존함"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "국가인증 생선 숙성 특허 기술을 기반으로 한 오마카세 전문 일식당으로, 미쉐린 가이드 부산 셀렉션에 등재된 업장입니다. 주차 지원은 없으며 캐치테이블 예약제 중심입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "런치 오마카세 80,000원, 디너 오마카세 120,000원",
+    "priceWon": 120000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "국가인증 생선 숙성 특허를 보유한 일식 오마카세 다이닝입니다. 스시뿐만 아니라 사시미, 아귀 튀김, 삼치구이 등 다양한 일식 요리가 포함된 코스로 구성되어 있습니다. 예약제로 운영되므로 방문 전 예약이 필수입니다. 매장 내 주차 지원은 없으며 인근 유료 주차장을 이용해야 합니다.",
+      "url": "https://www.siksinhot.com/P/1039860"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 해운대해변로209번길 13, 2층. 미쉐린 가이드 부산에 선정된 일식 스시 오마카세 레스토랑.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/iwa"
+    },
+    {
+      "excerpt": "스시 오마카세 전문점으로 런치 80,000원, 디너 120,000원이며 예약은 캐치테이블 앱을 통해 진행됩니다. 별도 주차장이 없어 인근 공영주차장을 이용해야 합니다.",
+      "url": "https://catchtable.co.kr/iwa"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1039860",
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/iwa",
+    "https://catchtable.co.kr/iwa"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "국가인증 특허 기술로 숙성한 생선회와 완성도 높은 오마카세 코스 요리",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산 선정 및 신뢰할 만한 미식 레스토랑 인지도",
+      "sources": [
+        1
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

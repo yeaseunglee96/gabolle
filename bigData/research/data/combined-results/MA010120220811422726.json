@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811422726",
+  "name": "영미횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 71687,
+  "researchedAt": "2026-09-22T11:13:02.354Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 줄서기 관련 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 단골손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 회",
+      "도다리 세꼬시",
+      "회비빔밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 명시 확인 불가"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 관광지형 횟집과 달리 골목 인근에 있어 현지 단골 중심 방문으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로 31-11(남천동)에 위치한 자연산 회 전문 횟집으로, 도다리 세꼬시와 묵은지 조합으로 알려져 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "자연산 회 시가/인당 또는 세트 구성",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "일식집처럼 1인당 가격으로 계산하는 방식이 특징이며, 길쭉하게 썬 회를 묵은지와 함께 싸 먹는 방식이 유명합니다. 오랜 전통을 가진 곳으로, 도다리 외에도 제철 횟감을 다룹니다. 해당 횟집은 광안리 해수욕장 메인 해변도로변에 위치한 관광지형 횟집들과는 달리 남천동 골목 인근에 자리하고 있습니다.",
+      "url": "https://www.busan.com"
+    },
+    {
+      "excerpt": "자연산 회를 전문으로 하는 곳으로 소개되어 있으며, 과거 방문자들은 신선한 회와 함께 나오는 밑반찬(스끼다시)의 구성에 대해 긍정적인 평을 남긴 바 있습니다. 현재 매장의 운영 여부가 확인되지 않고 있다는 안내 문구가 표시되어 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "길쭉하게 썬 도다리 세꼬시와 제철 자연산 회를 묵은지에 싸 먹는 특유의 신선한 맛 때문에 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "관광지 메인 거리 횟집과 달리 남천동 골목 인근에서 현지 단골들이 꾸준히 찾는 곳으로 소개됨",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

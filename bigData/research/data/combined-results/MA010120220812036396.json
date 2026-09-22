@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220812036396",
+  "name": "비에이치앤오비",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 52899,
+  "researchedAt": "2026-09-22T11:16:18.987Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 오프라인 경양식 식당 매장이 아니라 프랜차이즈/식육가공 법인 사무실임",
+  "notes": "부산광역시 수영구 남천동로108번길 20 4층에 소재한 '비에이치앤오비(BHNOB)'는 2020년 2월 설립된 법인 사업자(축산물 가공제조, 프랜차이즈/컨설팅 등 등록 법인)이며 일반 소비자를 상대로 영업하는 오프라인 경양식 식당 매장이 아닙니다. 실제 매장 음식점이 아니므로 방문 리뷰, 메뉴, 가격 등의 정보가 존재하지 않아 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주식회사 비에이치앤오비(BHNOB)는 부산광역시 수영구 남천동로108번길 20, 4층에 소재한 기업으로, 업종은 서양식 음식점업(일반 음식점업), 주요 사업은 축산물 가공 제조, 식육가공 소매, 프랜차이즈 및 프랜차이즈 컨설팅 등이며 2020년 2월 설립되었습니다.",
+      "url": "https://www.saramin.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr/"
+  ],
+  "whyPeopleGo": []
+}

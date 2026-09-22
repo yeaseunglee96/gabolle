@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220811418895",
+  "name": "동백섬횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 74862,
+  "researchedAt": "2026-09-22T11:18:09.631Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "예약 없이 방문하기보다 사전 전화 예약 위주로 방문하는 편임"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 회식, 미식가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "이시가리(줄가자미)",
+      "자연산 활어회 코스",
+      "아구수육"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 22:00 (브레이크타임 14:00 ~ 16:00, 라스트오더 20:20)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 현지 단골 및 전국 미식가 관광객이 함께 찾는 자연산 회 명소"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "해운대 구 그랜드호텔 뒤편에 위치한 유명 자연산 활어 전문 횟집으로, 특히 줄가자미(이시가리) 코스로 정평이 나 있다. 3층 규모의 단독 건물에 전용 주차장 및 룸을 완비하여 예약 방문이 많다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "자연산 회 코스 (이시가리 포함 코스 등)",
+    "priceWon": 80000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동백섬횟집은 해운대 그랜드호텔 인근에 위치한 자연산 활어회 전문 횟집입니다. 대표 메뉴는 줄가자미(이시가리)이며 생선회를 주문하면 문어숙회, 멍게, 전복, 가자미구이, 새우튀김 등 다양한 밑반찬이 제공됩니다. 건물 앞에 전용 주차장이 마련되어 있습니다.",
+      "url": "https://www.visitbusan.net/"
+    },
+    {
+      "excerpt": "동백섬횟집에서 이시가리(줄가자미)를 드시기 위해서는 1인당 8만 원 이상의 코스를 주문하셔야 합니다. 1인 8만 원 코스부터 이시가리가 포함되어 제공되며, 인기 있는 식당이므로 방문 전 예약하는 것을 권장합니다. 영업시간은 매일 12:00~22:00입니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net/",
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고급 어종인 줄가자미(이시가리)를 비롯한 수준 높은 자연산 활어회 코스를 맛보기 위해",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "프라이빗 룸과 주차 시설을 갖추고 있어 가족 외식 및 접대 모임에 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

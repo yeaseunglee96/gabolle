@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202305A0087072",
+  "name": "서희와제과",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 86845,
+  "researchedAt": "2026-09-22T11:17:08.660Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장이 협소하여 테이크아웃 위주로 운영되며, 시간대에 따라 웨이팅 및 인기 품목 조기 품절 발생"
+  },
+  "descriptors": {
+    "audience": "빵지순례 여행객 및 빵 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "밤팥빵",
+      "팥소보루",
+      "명란감자소금버터",
+      "휘낭시에",
+      "쑥떡팥떡"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~일 11:00 ~ 19:00 (매주 월·화 정기휴무, 매월 마지막 주 월·화·수 휴무, 빵 소진 시 조기 마감)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서면 희와제과의 2호점으로, 부산 현지인뿐 아니라 전국의 관광객들이 찾는 빵지순례 코스"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 전포동 희와제과의 광안리 2호점으로, 팥과 밤이 가득 찬 묵직한 밤팥빵과 구움과자 등으로 유명한 테이크아웃 전문 베이커리입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "포장봉투 100원, 아메리카노 2,000원, 베이커리 단품 수천 원대",
+    "priceWon": 3500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "서희와제과는 부산광역시 수영구 광남로 89 1층에 위치한 베이커리로 서면 전포동의 유명 빵집인 '희와제과'의 2호점입니다. 테이크아웃 전문점이며, 부산 빵지순례 필수 코스로 꼽히는 곳입니다. 웨이팅이 발생하는 경우가 많으며, 오픈런을 하거나 시간대를 잘 맞춰 방문하는 것이 좋습니다. 인기 메뉴는 밤팥빵(시그니처), 명란감자소금버터, 쑥떡팥떡, 휘낭시에 등입니다.",
+      "url": "https://busantaste.com/seohee/"
+    },
+    {
+      "excerpt": "서희와제과의 밤팥빵은 팥이 아낌없이 들어가 매우 묵직하며, 빵 피가 쫀득쫀득한 것이 특징입니다. 통밤이 듬뿍 들어있어 단팥을 평소 즐기지 않는 사람들에게도 '인생 팥빵'으로 불릴 만큼 인기가 많습니다. 밤팥빵은 워낙 인기가 많아 조기 품절되는 경우가 잦습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://busantaste.com/seohee/",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서면 '희와제과'의 2호점으로 통밤과 단팥이 꽉 찬 묵직하고 쫀득한 빵의 뛰어난 맛",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산 빵지순례 필수 코스로 꼽히며 오픈런과 대기가 잦은 높은 수요",
+      "sources": [
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

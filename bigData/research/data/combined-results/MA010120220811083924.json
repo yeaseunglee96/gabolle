@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220811083924",
+  "name": "참가자미집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 73466,
+  "researchedAt": "2026-09-22T11:15:46.191Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기/줄서기 관련 명시적 기록 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가족/모임/관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "참가자미회",
+      "이시가리",
+      "참가자미물회"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 확인 불가"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "파라다이스 호텔 및 엘시티 인근으로 관광객 및 인근 호텔 투숙객 방문 언급"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "해당 주소지(달맞이길62번길 23 1층)에 위치한 자연산 참가자미 전문 횟집으로, '감포참가자미'(허대현참가자미/부산엘씨티점)로 운영됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 달맞이길62번길에 위치한 '감포참가자미(부산엘씨티점/미포엘티씨점)'는 자연산 참가자미와 이시가리 등을 전문으로 하는 횟집입니다. 주소: 부산광역시 해운대구 달맞이길62번길 23 1층. 특징: 파라다이스 호텔에서 도보 5분 거리에 위치해 있으며, 자연산 횟감을 취급합니다. 내부에는 일반 입식 테이블 외에도 프라이빗하게 이용 가능한 룸(좌식)이 마련되어 있습니다. 대표 메뉴: 자연산 참가자미회, 이시가리(줄가자미), 참가자미 물회 등",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 미포·엘시티 인근에서 자연산 참가자미 및 이시가리(줄가자미) 회를 전문으로 취급하여 신선한 자연산 회를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

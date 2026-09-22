@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202406A0132413",
+  "name": "밀락더카바레",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 69701,
+  "researchedAt": "2026-09-22T11:14:20.027Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 주소(부산 수영구 광안해변로307번길 25-2) 및 상호명 '밀락더카바레'로 운영 중인 실제 경양식 음식점 정보를 웹에서 찾을 수 없습니다.",
+  "notes": "웹 검색 결과 '밀락더카바레'라는 이름의 경양식 음식점은 실재하지 않거나 폐업/미등록 상태로 확인되며 관련 후기나 메뉴 정보가 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

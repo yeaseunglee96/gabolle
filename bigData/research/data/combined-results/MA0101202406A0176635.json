@@ -1,0 +1,51 @@
+{
+  "id": "MA0101202406A0176635",
+  "name": "골목연1호",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 82663,
+  "researchedAt": "2026-09-22T11:14:04.486Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "사업자/인허가 DB상 부산 수영구 광안해변로277번길 61에 일식(회/초밥) 업종으로 등록된 '골목연1호'의 등록 내역은 확인되나, 실제 방문자 리뷰, 메뉴 및 가격, 영업시간, 혼잡도 등 세부 방문/영업 정보는 웹상에 존재하지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로277번길 61에 위치한 '골목연1호'는 일식(회/초밥) 전문점으로 등록되어 있습니다. 해당 주소지에는 '골목연1호' 외에도 '골목연2호'가 함께 언급되고 있습니다.",
+      "url": "https://pervsi.com"
+    },
+    {
+      "excerpt": "골목연은 부산 수영구 민락동 인근에 위치한 일식당으로 확인됩니다. 일반음식점(일식)으로 분류되어 있으며, '골목연 1호'와 '골목연 2호'가 모두 일식당으로 등록되어 있습니다.",
+      "url": "https://dbmon.kr"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com",
+    "https://dbmon.kr"
+  ],
+  "whyPeopleGo": []
+}

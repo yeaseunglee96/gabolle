@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220814340967",
+  "name": "소연옥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 97550,
+  "researchedAt": "2026-09-22T11:16:51.177Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 캐치테이블 원격 줄서기를 이용하며 대기가 상시 발생함"
+  },
+  "descriptors": {
+    "audience": "연인, 데이트, 가족",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "살치살 스테이크 규카츠",
+      "연어덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 20:20 (브레이크타임 15:00 ~ 17:00, 라스트오더 19:45)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "미니 화로에 직접 구워 먹는 살치살 규카츠와 연어덮밥 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "살치살 규카츠 정식 / 연어덮밥",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 민락로 22에 위치한 소연옥 부산광안점. 영업시간: 매일 11:30 ~ 20:20, 브레이크 타임: 15:00 ~ 17:00, 라스트 오더: 19:45. 규카츠와 연어덮밥이 대표 메뉴인 맛집으로 미니 화로에 원하는 굽기로 직접 구워 먹는 방식. 캐치테이블 앱을 통해 실시간 웨이팅 현황 확인 및 원격 줄서기 가능. 가게 앞 1~4대 정도 주차 가능하나 협소.",
+      "url": "https://trip.com"
+    }
+  ],
+  "sources": [
+    "https://trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미니 화로에 직접 구워 먹는 부드러운 살치살 규카츠와 연어덮밥의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "캐치테이블 원격 줄서기를 이용할 정도로 대기 수요가 많은 유명 인기점",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

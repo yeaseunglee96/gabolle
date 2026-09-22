@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220813234328",
+  "name": "뺀데호",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 72123,
+  "researchedAt": "2026-09-22T11:12:59.057Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 '뺀데호'(경양식) 매장 부재 및 이전/폐업 확인",
+  "notes": "제시된 주소(부산광역시 수영구 광안해변로307번길 25-2)에는 현재 '뺀데호'라는 상호의 경양식 또는 음식점이 존재하지 않으며 이전/폐업된 상태입니다. 과거 타코 전문점 '뺀데호'가 해당 주소지 1층에 등록되었던 이력이 있으나 현재는 다른 위치(수영로582번길 / 민락본동로)로 이전하였고, 해당 번지에는 키친띠리오, 은상, 베이크웤스 등 다른 매장이 입점해 있습니다. 규정에 따라 found:false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

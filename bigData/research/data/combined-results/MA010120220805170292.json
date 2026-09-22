@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220805170292",
+  "name": "다이닝커널오프쇼어",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58720,
+  "researchedAt": "2026-09-22T11:15:06.465Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 송정동에 인허가 데이터베이스 상 서양식(경양식) 음식점으로 등재된 상호이나, 실제 방문 후기, 상세 메뉴, 가격, 영업시간 등의 세부 정보는 웹상에 공개되어 있지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "다이닝커널오프쇼어는 부산 해운대구 송정동에 위치한 경양식(서양식) 음식점으로 등록되어 있습니다. 해당 상호에 대한 상세한 매장 정보나 연락처는 확인되지 않으며, 송정광어골로 29 일대에서 영업 중이거나 관련이 있는 것으로 보입니다.",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": []
+}

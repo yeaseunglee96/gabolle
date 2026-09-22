@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202602A0015982",
+  "name": "청류",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 62101,
+  "researchedAt": "2026-09-22T11:14:49.200Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 소규모 모임",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오마카세"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "해운대 로데오아울렛 B동 1층(122호)에 입점한 오마카세 매장으로 확인되나, 웹상 상세 후기나 정량적 영업정보는 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 좌동순환로 473, 해운대로데오아울렛 B동 1층... 청류 깔끔하고 조용한 분위기의 오마카세 매장",
+      "url": "https://dongnealba.com"
+    }
+  ],
+  "sources": [
+    "https://dongnealba.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "깔끔하고 조용한 분위기에서 즐기는 오마카세",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

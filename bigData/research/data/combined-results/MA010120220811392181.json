@@ -1,0 +1,86 @@
+{
+  "id": "MA010120220811392181",
+  "name": "진미언양불고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 99553,
+  "researchedAt": "2026-09-22T11:17:28.875Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "성시경 '먹을텐데' 등 방송 소개 이후 웨이팅이 빈번하여 피크시간 줄서기 및 원격 대기 필요"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 모임, 관광객, 미식가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "언양불고기",
+      "등심구이",
+      "찌개세트"
+    ],
+    "yearsClaimed": 40
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30~22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "오랜 전통의 지역 유명 고깃집이자 성시경 '먹을텐데' 소개 이후 관광객과 외지인의 방문이 크게 늘어남"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 남천바다로33번길 7에 위치한 40년 전통의 언양불고기 전문점으로, 성시경 '먹을텐데' 방송 이후 대기 수요가 집중되는 대표 노포 고깃집입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "언양불고기 35,000원, 등심구이 40,000원, 찌개세트 6,000원",
+    "priceWon": 35000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가수 성시경의 '먹을텐데'에 소개된 곳으로 알려져 있으며, 한우 생고기에 양념을 바로 무쳐 숯불에 구워 먹는 언양식 불고기 전문점입니다. 주소: 부산광역시 수영구 남천바다로33번길 7, 영업시간: 매일 10:30~22:00",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "40년 전통의 노포로, 성시경의 유튜브 채널 '먹을텐데'에 소개되어 더욱 유명해진 곳입니다. 한우 생고기에 양념을 바로 무쳐 숯불에 굽는 방식으로 육향과 불향이 어우러진 것이 특징입니다. 직원들이 고기를 직접 구워주는 서비스를 제공합니다. 발렛 주차 서비스를 이용할 수 있습니다. 언양불고기: 35,000원, 등심구이: 40,000원~43,000원, 특수부위: 45,000원~50,000원, 찌개세트: 6,000원",
+      "url": "https://busantaste.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://busantaste.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 한우 생고기에 즉석 양념을 무쳐 숯불에 구워내는 언양식 불고기 본연의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 인근에서 40여 년간 운영되어 온 오랜 역사의 노포",
+      "sources": [
+        1
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "성시경 '먹을텐데' 소개 이후 줄서서 찾는 높은 대중적 인지도와 인기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

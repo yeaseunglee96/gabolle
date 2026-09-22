@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202505A0072004",
+  "name": "모또",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 71394,
+  "researchedAt": "2026-09-22T11:15:37.829Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "조용하고 차분한 감성 카페로 혼자 방문하거나 책을 읽기 좋은 공간으로 묘사됨"
+  },
+  "descriptors": {
+    "audience": "혼자 방문하는 손님, 조용한 카페를 찾는 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "피스타치오 크림라떼",
+      "레몬바닐라쉐이크",
+      "흑임자 갸또"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 19:00 (라스트 오더 18:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 해운대구 중동1로37번길 11, 3층에 위치한 '모또(Motto)'는 빵/도넛 전문점보다는 빈티지 감성의 카페/디저트 매장으로 운영되고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 중동1로37번길 11, 3층 301호. 블랙&우드 톤의 빈티지한 인테리어와 식물이 어우러진 조용한 분위기의 감성 카페. 피스타치오 크림라떼, 레몬바닐라쉐이크, 흑임자 갸또 등이 인기 메뉴. 매일 11:00 ~ 19:00 (라스트오더 18:30)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "블랙&우드 빈티지 인테리어와 조용하고 차분한 공간 분위기 때문에 찾음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "피스타치오 크림라떼, 레몬바닐라쉐이크, 흑임자 갸또 등 특색 있는 음료와 디저트 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
