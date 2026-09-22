@@ -173,4 +173,86 @@ class PlaceFeatureLoaderTest {
 		assertThat(counts.skippedNoValue()).isEqualTo(1);
 	}
 
+	// 가격+narrative 통합 조사 (S15P21E201-1414)
+
+	private static List<PlaceFeatureNdjsonReader.Fact> priceNarrative(Path path) {
+		List<PlaceFeatureNdjsonReader.Fact> facts = new ArrayList<>();
+		PlaceFeatureNdjsonReader.readPriceNarrative(path, 500, facts::addAll);
+		return facts;
+	}
+
+	@Test
+	@DisplayName("한 줄에서 가격과 왜 가는지를 각각 다른 사실로 낸다")
+	void 가격과_narrative를_같이_낸다() {
+		Path path = file("price-narrative.ndjson",
+				"{\"placeId\":\"MA0101\",\"price\":{\"found\":true,\"priceWon\":8500,"
+						+ "\"priceMenu\":\"완당 8,500원\"},\"whyPeopleGo\":[{\"type\":\"오랜 역사\","
+						+ "\"note\":\"1948년부터\"}],\"sources\":[\"https://example.com/a\"]}");
+
+		List<PlaceFeatureNdjsonReader.Fact> facts = priceNarrative(path);
+
+		assertThat(facts).hasSize(2);
+		assertThat(facts).allSatisfy(fact -> assertThat(fact.storeId()).isEqualTo("MA0101"));
+
+		PlaceFeatureNdjsonReader.Fact price = facts.get(0);
+		assertThat(price.featureType()).isEqualTo("MENU_PRICE_WON");
+		assertThat(value(price).path("priceWon").asInt()).isEqualTo(8500);
+		assertThat(value(price).path("menu").asText()).isEqualTo("완당 8,500원");
+
+		PlaceFeatureNdjsonReader.Fact why = facts.get(1);
+		assertThat(why.featureType()).isEqualTo("WHY_VISIT");
+		assertThat(value(why).path("reasons").get(0).path("type").asText()).isEqualTo("오랜 역사");
+		assertThat(value(why).path("sources").get(0).asText()).isEqualTo("https://example.com/a");
+	}
+
+	@Test
+	@DisplayName("🔴 못 찾은 가격은 0원으로 적지 않는다 — 사실을 아예 안 낸다")
+	void 못_찾은_가격은_안_낸다() {
+		Path path = file("price-narrative.ndjson",
+				"{\"placeId\":\"MA0101\",\"price\":{\"found\":false},\"whyPeopleGo\":[]}");
+
+		List<PlaceFeatureNdjsonReader.Fact> facts = priceNarrative(path);
+
+		assertThat(facts).isEmpty();
+	}
+
+	@Test
+	@DisplayName("whyPeopleGo 가 비어 있으면 WHY_VISIT 을 안 낸다")
+	void 빈_narrative는_안_낸다() {
+		Path path = file("price-narrative.ndjson",
+				"{\"placeId\":\"MA0101\",\"price\":{\"found\":true,\"priceWon\":5000},\"whyPeopleGo\":[]}");
+
+		List<PlaceFeatureNdjsonReader.Fact> facts = priceNarrative(path);
+
+		assertThat(facts).hasSize(1);
+		assertThat(facts.get(0).featureType()).isEqualTo("MENU_PRICE_WON");
+	}
+
+	@Test
+	@DisplayName("가격+narrative 사실도 SBIZ 네임스페이스다")
+	void 가격_narrative는_SBIZ_네임스페이스다() {
+		List<PlaceFeatureNdjsonReader.Fact> facts = priceNarrative(file("price-narrative.ndjson",
+				"{\"placeId\":\"MA0101\",\"price\":{\"found\":true,\"priceWon\":5000},\"whyPeopleGo\":[]}"));
+
+		assertThat(facts.get(0).keySource()).isEqualTo("SBIZ");
+	}
+
+	@Test
+	@DisplayName("장소 번호가 없는 줄은 버리고 버린 수를 센다")
+	void 가격_narrative도_버린_줄을_센다() {
+		Path path = file("price-narrative.ndjson",
+				"{\"placeId\":\"MA0101\",\"price\":{\"found\":true,\"priceWon\":5000},\"whyPeopleGo\":[]}",
+				// placeId 가 없다
+				"{\"price\":{\"found\":true,\"priceWon\":5000},\"whyPeopleGo\":[]}",
+				// 가격도 못 찾고 narrative 도 없다 — 낼 사실이 없다
+				"{\"placeId\":\"MA0103\",\"price\":{\"found\":false},\"whyPeopleGo\":[]}");
+
+		PlaceFeatureNdjsonReader.Counts counts = PlaceFeatureNdjsonReader.readPriceNarrative(path, 500, chunk -> {
+		});
+
+		assertThat(counts.total()).isEqualTo(3);
+		assertThat(counts.usable()).isEqualTo(1);
+		assertThat(counts.skippedNoValue()).isEqualTo(2);
+	}
+
 }

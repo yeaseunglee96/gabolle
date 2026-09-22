@@ -7,6 +7,7 @@ import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 /**
@@ -48,6 +49,33 @@ public class PlaceEventPeriod {
 
 	@Column(name = "created_at", nullable = false)
 	private OffsetDateTime createdAt;
+
+	/**
+	 * 🔴 <b>이 값을 아무도 안 채워서 축제 적재가 한 번도 성공한 적이 없다</b> — S15P21E201-1374.
+	 *
+	 * <p>표에는 {@code created_at TIMESTAMPTZ NOT NULL DEFAULT now()} 로 기본값이 있다. 그런데
+	 * Hibernate 는 INSERT 문에 이 칸을 <b>명시적으로 {@code null} 로</b> 넣어서 기본값을 덮는다.
+	 * 그래서 운영에서 이렇게 끝났다.
+	 *
+	 * <pre>
+	 *   ERROR: null value in column "created_at" of relation "place_event_period"
+	 *          violates not-null constraint
+	 * </pre>
+	 *
+	 * 적재가 통째로 굴러떨어져 {@code place_event_period} 는 0행이었고, 그래서
+	 * {@code GET /api/v1/festivals} 가 <b>어떤 기간으로도</b> 빈 목록이었다. 질의는 멀쩡했다 —
+	 * 읽을 것이 없었을 뿐이다(2026-09-21 실측, jinmiri 제보).
+	 *
+	 * <p>🔴 <b>왜 시험이 못 잡았나.</b> {@code FestivalIntegrationTest} 는 생 SQL 로 행을 넣어
+	 * DB 기본값이 채워졌고, {@code FestivalPeriodReaderTest} 는 파일만 읽는다. <b>JPA 로 저장하는
+	 * 길을 지나는 시험이 하나도 없었다.</b> 그 길을 지나는 시험을 함께 넣는다.
+	 */
+	@PrePersist
+	void stampCreatedAt() {
+		if (this.createdAt == null) {
+			this.createdAt = OffsetDateTime.now();
+		}
+	}
 
 	protected PlaceEventPeriod() {
 	}

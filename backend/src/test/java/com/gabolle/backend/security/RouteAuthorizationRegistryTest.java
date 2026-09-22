@@ -564,6 +564,12 @@ class RouteAuthorizationRegistryTest {
 				"도착 기록은 편집 권한자만 — 그 기록은 여행이 끝난 뒤에도 남는다. ItineraryRunService.arrive");
 		put(m, "POST /api/v1/itineraries/{}/progress/stops/{}/skip", Policy.OWNED,
 				"건너뛰기도 같다. 남의 일정에서 정차지를 빼는 것은 편집이다");
+		put(m, "POST /api/v1/itineraries/{}/progress/location", Policy.OWNED,
+				"🔴 위치를 올리는 것은 편집 권한자만 — 보기 전용으로 초대된 사람이 남의 여행 궤적에 "
+						+ "자기 위치를 섞어 넣을 수 있으면 안 된다. 위치 기록은 지우기 전까지 남는다. "
+						+ "ItineraryRunService.recordLocations");
+		put(m, "POST /api/v1/itineraries/{}/progress/complete", Policy.OWNED,
+				"완료도 편집이다. 남이 달리는 일정을 끝내 버릴 수 있으면 안 된다. ItineraryRunService.complete");
 
 		put(m, "PUT /api/v1/itineraries/{}/items/{}/actual", Policy.OWNED,
 				"그 여행의 편집자만 자기 일정의 방문 시각을 적는다 — 남의 여행은 존재를 감춘 404, VIEWER 는 403. ItineraryActualTimeIntegrationTest (-293)");
@@ -746,11 +752,28 @@ class RouteAuthorizationRegistryTest {
 						+ "'아무나' 와 같은 말이 됐다 — 내부 운영 숫자는 서비스 규모의 단서다. "
 						+ "경로 앞자리가 실제 보호 장치다. AnalyticsControllerTest (-1010)");
 
+		// ── 알림
+		put(m, "PUT /api/v1/me/push-tokens", Policy.AUTHENTICATED_ONLY,
+				"이 기기로 알림을 받겠다고 등록한다(-1391). 우리 자원이지만 «남의 것을 가리킬 자리»가 "
+						+ "없다 — 주인은 경로가 아니라 출입증에서 온다. 🔴 익명 출입증에 매달면 로그아웃한 "
+						+ "뒤에도 그 기기로 알림이 가므로 로그인을 요구한다. PushTokenControllerTest");
+		put(m, "DELETE /api/v1/me/push-tokens/{}", Policy.OWNED,
+				"로그아웃할 때 이 기기를 뗀다(-1391). 🔴 경로의 {token} 은 사람이 아니라 기기지만 "
+						+ "OWNED 다 — 주인을 안 보면 아무나 남의 기기를 알림에서 떼어 낼 수 있다. 서비스가 "
+						+ "(token, user_id) 둘로 지운다. 없거나 남의 것이면 204 로 조용히 지나간다 — 「그 토큰이 "
+						+ "있다」를 알려 주지 않는다. PushTokenControllerTest");
+
 		// ── 도구
 		put(m, "POST /api/v1/tools/translate", Policy.AUTHENTICATED_ONLY,
 				"문장 하나를 번역 업체에 대신 물어보는 창구라 우리 자원이 아니라 주인이 없다. "
 						+ "인증을 요구하는 것은 route/directions 와 같은 이유 — 우리 업체 키로 남이 대신 "
 						+ "번역을 돌리는 것(비용)을 막기 위해서다. TranslateControllerTest");
+		put(m, "POST /api/v1/tools/translate/batch", Policy.AUTHENTICATED_ONLY,
+				"여러 문장을 한 번에 번역한다(-1363). 장소·축제·기록처럼 서버가 한국어로만 가진 글을 "
+						+ "일본어·중국어 화면에 보여 주려고 화면이 모아서 부른다. 위 단건 번역과 같은 이유로 "
+						+ "인증을 요구한다 — 우리 업체 키로 남이 대신 돌리는 비용. 🔴 익명 출입증으로 열지 "
+						+ "않은 것은 손님에게도 번역을 주면 캐시에 없는 문장마다 값이 나가기 때문이다. 손님에게 "
+						+ "열지는 비용 판단이라 따로 정한다. TranslateControllerTest");
 
 		// ── 날씨
 		put(m, "GET /api/v1/weather", Policy.AUTHENTICATED_ONLY,

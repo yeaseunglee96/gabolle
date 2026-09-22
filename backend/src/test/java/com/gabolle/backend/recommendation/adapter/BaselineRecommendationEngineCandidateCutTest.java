@@ -2,6 +2,7 @@ package com.gabolle.backend.recommendation.adapter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
+import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
@@ -88,7 +90,7 @@ class BaselineRecommendationEngineCandidateCutTest {
 				new BaselineCandidateTranslator(PROPERTIES, this.codeMapRepository, this.objectMapper),
 				new BaselineCandidateScorer(this.objectMapper), PROPERTIES,
 				new PreferenceAlignmentWeights(null, null, null, null, null),
-				this.codeMapRepository, this.seedPlaceRepository, Optional.empty(),
+				this.codeMapRepository, this.seedPlaceRepository, mock(PlaceRepository.class), Optional.empty(),
 				// 벡터 빈이 없는 자리 — 채점이 벡터 없던 때와 완전히 같아야 한다
 				emptyProvider(), emptyProvider());
 	}
@@ -198,5 +200,78 @@ class BaselineRecommendationEngineCandidateCutTest {
 				List.of(new PreferenceSnapshot.PreferenceAnswer(dimension, valueJson,
 						PreferenceSnapshot.AnswerStatus.SELECTED)),
 				PersonalizationScope.TRIP, List.of(), java.time.Instant.now());
+	}
+	// ── 갈래를 안 고른 사람에게 여행마다 다르게 (S15P21E201-1463) ──────────────
+
+	/** 같은 조건에서 tripId 만 바꿔 두 번 돌린다. */
+	private List<UUID> keptFor(String tripId, List<PlaceCandidateResponse.Candidate> pool) {
+		when(this.tripRepository.findById(tripId)).thenReturn(Optional.of(Trip.builder()
+				.tripId(tripId).createdBy(UUID.randomUUID().toString())
+				.startDate(LocalDate.of(2026, 10, 1)).finishDate(LocalDate.of(2026, 10, 3))
+				.originLat(35.15).originLng(129.05).partySize(2).timezone("Asia/Seoul")
+				.build()));
+		when(this.seedPlaceRepository.findByTripId(tripId)).thenReturn(List.of());
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+		EngineRequest req = new EngineRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.fromString(tripId), 1,
+				UUID.randomUUID(), null, null, null, 10);
+		return engine().generate(req).candidates().stream().map(EngineCandidate::placeId).toList();
+	}
+
+	private static List<PlaceCandidateResponse.Candidate> manyCandidates(int count) {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>();
+		for (int i = 0; i < count; i++) {
+			pool.add(new PlaceCandidateResponse.Candidate(new UUID(7L, i), "후보" + i, "FOOD",
+					35.15, 129.05, 100L + i, List.of()));
+		}
+		return pool;
+	}
+
+	@Test
+	@DisplayName("🔴 같은 여행은 두 번 돌려도 같은 곳이 나온다 — 난수를 쓰면 이게 깨진다")
+	void 같은_여행은_늘_같다() {
+		String tripId = new UUID(9L, 1L).toString();
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		assertThat(keptFor(tripId, pool)).isEqualTo(keptFor(tripId, pool));
+	}
+
+	@Test
+	@DisplayName("🔴 여행이 다르면 다른 곳이 나온다 — 갈래를 안 고른 사람에게도 개성이 생긴다")
+	void 여행마다_다르다() {
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		List<UUID> a = keptFor(new UUID(9L, 2L).toString(), pool);
+		List<UUID> b = keptFor(new UUID(9L, 3L).toString(), pool);
+
+		assertThat(a).isNotEqualTo(b);
+		assertThat(a).hasSize(KEEP);
+		assertThat(b).hasSize(KEEP);
+	}
+
+	@Test
+	@DisplayName("🔴 점수 맨 위쪽은 섞이지 않는다 — 가장 잘 맞는 곳을 다양성 때문에 잃지 않는다")
+	void 맨_위쪽은_지킨다() {
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		// 앞쪽 절반(반올림)은 어느 여행에서든 같아야 한다.
+		List<UUID> a = keptFor(new UUID(9L, 4L).toString(), pool);
+		List<UUID> b = keptFor(new UUID(9L, 5L).toString(), pool);
+		int anchor = Math.max(1, Math.round(KEEP * 0.5f));
+
+		assertThat(a.subList(0, anchor)).isEqualTo(b.subList(0, anchor));
+	}
+
+	@Test
+	@DisplayName("내보내는 순서는 점수 순이다 — 고르기만 섞고 순서는 안 섞는다")
+	void 순서는_점수_순이다() {
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		EngineRequest req = new EngineRequest(UUID.randomUUID(), UUID.randomUUID(),
+				UUID.fromString(TRIP_ID), 1, UUID.randomUUID(), null, null, null, 10);
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+		List<EngineCandidate> kept = engine().generate(req).candidates();
+
+		List<Double> scores = kept.stream().map(EngineCandidate::preRankScore).toList();
+		assertThat(scores).isSortedAccordingTo(Comparator.<Double>reverseOrder());
 	}
 }

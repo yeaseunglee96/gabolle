@@ -10,6 +10,8 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.gabolle.backend.itinerary.domain.ItineraryRunRepository;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,10 +74,21 @@ public class AccountDeletionService {
 
 	private final StorageCleanupService storageCleanupService;
 
+	/**
+	 * 위치 궤적을 지우려고 받는다. {@link #USER_OWNED_ROWS} 로 못 지우는 이유는 그 표에
+	 * 사람을 가리키는 칸이 없기 때문이다 — 일정을 거쳐 여행의 주인까지 가야 한다.
+	 * <p>
+	 * 🔴 FK 연쇄 삭제에 기대지 않고 따로 부른다. 위치 기록은 이 저장소에서 제일 민감한
+	 * 자료라 <b>지우는 자리가 코드에 보여야</b> 한다. 연쇄 삭제는 스키마를 열어 봐야만 알 수
+	 * 있고, 그 사이에 표가 하나 끼면 조용히 안 지워진다.
+	 */
+	private final ObjectProvider<ItineraryRunRepository> itineraryRuns;
+
 	public AccountDeletionService(LocalCredentialRepository credentialRepository,
 			AuthSessionRepository sessionRepository, AuthIdentityRepository identityRepository,
 			UserConsentRepository consentRepository, AppUserRepository userRepository,
-			PasswordEncoder passwordEncoder, Clock clock, StorageCleanupService storageCleanupService) {
+			PasswordEncoder passwordEncoder, Clock clock, StorageCleanupService storageCleanupService,
+			ObjectProvider<ItineraryRunRepository> itineraryRuns) {
 		this.credentialRepository = credentialRepository;
 		this.sessionRepository = sessionRepository;
 		this.identityRepository = identityRepository;
@@ -84,6 +97,7 @@ public class AccountDeletionService {
 		this.passwordEncoder = passwordEncoder;
 		this.clock = clock;
 		this.storageCleanupService = storageCleanupService;
+		this.itineraryRuns = itineraryRuns;
 	}
 
 	/**
@@ -157,6 +171,7 @@ public class AccountDeletionService {
 		deleteStories(userId);
 		deleteLoginMeans(userId, credential);
 		deleteUserOwnedRows(userId);
+		deleteLocationTrails(userId);
 		detachEvents(userId);
 
 		user.anonymizeForDeletion(this.clock.instant());
@@ -207,7 +222,12 @@ public class AccountDeletionService {
 			new OwnedRows("TripShareLink", "createdBy"),
 			// 이 칸은 @ManyToOne 이라 경로가 한 칸 더 들어간다. 지워도 안전한 이유는
 			// 가입/연결을 끝내기 전의 10분짜리 1회용 티켓이라서다.
-			new OwnedRows("OAuthSignupTicket", "existingUser.userId"));
+			new OwnedRows("OAuthSignupTicket", "existingUser.userId"),
+			// 🔴 기기 푸시 토큰 (S15P21E201-1391). 표에 ON DELETE CASCADE 를 걸어 두었지만
+			//    이 서비스는 app_user 행을 «지우지 않고 익명화» 하므로 그 규칙은 한 번도 안 돈다.
+			//    남기면 탈퇴한 사람의 폰으로 그 여행 알림이 계속 간다 — 동행자가 일정을 고칠
+			//    때마다, 계정이 없어진 뒤에도.
+			new OwnedRows("PushTokenJpaEntity", "userId"));
 
 	/**
 	 * 지울 표 하나 — 엔티티 이름과 그 사람을 가리키는 칸.
@@ -225,6 +245,19 @@ public class AccountDeletionService {
 	 * {@code collection_item} 은 {@code CASCADE} 로 같이 지워지고, 초대·공유 링크를 가리키는
 	 * 둘은 {@code SET NULL} 로 칸만 비워진다.
 	 */
+	/**
+	 * 이 사람의 위치 궤적을 지운다.
+	 *
+	 * <p>빈이 없는 판(일정 쪽을 안 띄우는 시험 슬라이스)에서는 아무 일도 안 한다 — 지울
+	 * 궤적도 없다.
+	 */
+	private void deleteLocationTrails(UUID userId) {
+		ItineraryRunRepository runs = this.itineraryRuns.getIfAvailable();
+		if (runs != null) {
+			runs.deletePingsOfUser(userId.toString());
+		}
+	}
+
 	private void deleteUserOwnedRows(UUID userId) {
 		for (OwnedRows owned : USER_OWNED_ROWS) {
 			execute("DELETE FROM %s e WHERE e.%s = :userId".formatted(owned.entityName(), owned.userField()),

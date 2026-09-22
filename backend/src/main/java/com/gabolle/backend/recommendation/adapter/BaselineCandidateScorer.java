@@ -20,6 +20,7 @@ import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.TasteEvidence;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
@@ -112,6 +113,9 @@ public class BaselineCandidateScorer {
 		// 1km 칸이고, 되돌려도 그 칸보다 정밀한 위치가 나오지 않는다.
 		featureValues.put("category", candidate.category());
 		featureValues.put("localityBucket", CoarseArea.of(candidate.lat(), candidate.lng()));
+		// 카테고리만으로는 돼지국밥집과 칼국수집이 둘 다 FOOD 라 재정렬이 둘을 구분하지 못한다.
+		// 그래서 한 칸 더 가는 축을 같이 남긴다 (S15P21E201-1450).
+		featureValues.put("cuisine", cuisineTagsOf(candidate, preferenceCodeMap));
 
 		// ── 거리 — 항상 잴 수 있다 ────────────────────────────────────────────
 		double distanceComponent = clamp01(1.0 - (candidate.distanceM() / (double) radiusM));
@@ -441,6 +445,35 @@ public class BaselineCandidateScorer {
 				.findFirst();
 	}
 
+	/**
+	 * 이 장소의 음식 종류 표식 — 다양성 재정렬이 「같은 음식이 거듭되나」를 보는 축이다.
+	 *
+	 * <p>🔴 <b>점수에는 안 쓴다.</b> 음식 취향이 맞는 정도는
+	 * {@code applyTagComponent(FOOD_PREFERENCE, weights.cuisine())} 이 이미 매기고, 여기서 또
+	 * 더하면 같은 사실을 두 번 세는 것이 된다. 이 값은 <b>순서를 고르게 만드는 데만</b> 쓰인다 —
+	 * {@code localityBucket} 을 남기는 이유와 같다.
+	 *
+	 * <p>표식 이름을 하드코딩하지 않고 대조표에서 {@code FOOD_PREFERENCE} 의 짝을 읽는다.
+	 * 다른 태그 항들과 같은 규칙이다 — 대조표가 바뀌면 이 검색도 따라가야 한다.
+	 */
+	private List<String> cuisineTagsOf(PlaceCandidateResponse.Candidate candidate,
+			List<UserPlaceCodeMap> preferenceCodeMap) {
+
+		String featureType = featureTypeFor(preferenceCodeMap, "FOOD_PREFERENCE").orElse(null);
+		if (featureType == null) {
+			return List.of();
+		}
+		List<String> tags = new ArrayList<>();
+		for (PlaceFeatureView feature : candidate.features()) {
+			if (featureType.equals(feature.featureType()) && feature.featureKey() != null
+					&& FeaturePresence.indicatesPresence(feature.evidenceStatus(), rawValue(feature))
+					&& !tags.contains(feature.featureKey())) {
+				tags.add(feature.featureKey());
+			}
+		}
+		return tags;
+	}
+
 	private Optional<String> featureTypeFor(List<UserPlaceCodeMap> rows, String preferenceCode) {
 		if (rows == null) {
 			return Optional.empty();
@@ -459,6 +492,37 @@ public class BaselineCandidateScorer {
 	 * 접힌 취향 벡터가 {@code CATEGORY} 겹침에 더하는 덧점수. 기존 채점을 대체하지 않고 더하기만
 	 * 한다 — 아직 벡터가 없는 사람이 대부분이라, 대체하면 그 사람들의 취향 반영이 0 이 된다.
 	 *
+	 * <p><b>행동이 들어간 성분만 더한다</b>({@code INTERACTION}·{@code BLENDED}). 설문만으로 접힌
+	 * 성분은 {@link #applyTagComponent} 가 이미 같은 답으로 채점하므로, 여기서 또 더하면 두 번 세기가
+	 * 된다. 이 거름은 그 일이 <b>생기지 않게 미리 걸어 둔 자물쇠</b>이지 지금 일어나는 일을 고친 것이
+	 * 아니다 — 아래를 보라.
+	 *
+	 * <h2>이 항은 «설문만 있던 동안» 언제나 0 이었다</h2>
+	 *
+	 * 실서버 {@code user_taste_weight} 에 <b>{@code CATEGORY} 행이 0건</b>이었다 (2026-09-21 실측).
+	 * 있는 것은 {@code FOOD_PREFERENCE} 21 · {@code LOCALITY} 12 · {@code QUIETNESS} 12 ·
+	 * {@code TOURIST_PREFERENCE} 12 이고 전부 {@code SURVEY} 였다. 계정 설문이 {@code CATEGORY}
+	 * 차원을 안 싣기 때문인데, 그것은 설문의 결함이 아니라 결정이다 —
+	 * {@code PreferenceDefaultsService.CARRY_OVER} 가 <i>「CATEGORY·ATMOSPHERE 는 사람의 성향이
+	 * 아니라 그 여행의 성격이라」</i> 일부러 뺀다.
+	 *
+	 * <h2>🔴 정정 (2026-09-22) — 여기 적혀 있던 「둘 중 하나를 정해야 한다」가 틀렸다</h2>
+	 *
+	 * 옛 주석은 {@code CATEGORY} 성분을 얻으려면 <i>「설문 문항을 건드려야 해서 범위가 크다」</i>
+	 * 고 적었다. <b>설문을 건드릴 필요가 없었다.</b> 셋째 길이 있다 —
+	 * {@link com.gabolle.backend.batch.application.BehaviorTasteFolder} 가 좋아요·제외 이벤트의
+	 * 장소에서 {@code place_feature.CATEGORY_TAG} 를 읽고 대조표({@code user_place_code_map})를
+	 * 지나 {@code CATEGORY} 성분을 만든다 (S15P21E201-1482). 설문은 그대로 두고 장소 쪽 표식에서
+	 * 차원이 나온다.
+	 *
+	 * <p>그래서 아래 거름 두 줄은 이제 <b>실제로 걸리는 조건</b>이다. 설문 성분은 걸러지고
+	 * ({@code applyTagComponent} 가 이미 채점했으므로) 행동 성분만 남는다 — 그것이 이 항의
+	 * 존재 이유이고, 이제 그 성분이 실제로 존재한다.
+	 *
+	 * <p>다른 차원({@code FOOD_PREFERENCE}·{@code LOCALITY}·{@code QUIETNESS})은 <b>여전히 안
+	 * 읽는다.</b> 그 셋은 설문 경로가 이미 채점하므로 여기서 또 더하면 <b>그때 비로소 진짜 두 번
+	 * 세기</b>가 된다. 읽고 싶으면 그 경로와의 관계를 먼저 정해야 한다.
+	 *
 	 * <p>{@link #applyTagComponent} 가 맞은 개수 ÷ 고른 개수인 것과 달리 여기서는 맞은 성분의
 	 * 가중치 합 ÷ 벡터의 CATEGORY 성분 개수를 쓴다. 전부 맞고 가중치가 1.0 이면 1.0 이라 같은
 	 * 축이고, 가중치가 음수면(싫어하는 갈래) 총점이 내려간다 — 개수만 세면 못 하는 일이다.
@@ -475,11 +539,18 @@ public class BaselineCandidateScorer {
 			List<String> reasonCodes) {
 
 		String featureType = featureTypeFor(preferenceCodeMap, "CATEGORY").orElse(null);
+		// 🔴 설문만으로 접힌 성분은 뺀다. 그 답은 applyTagComponent 의 CATEGORY 태그 겹침이 이미
+		//    채점했으므로, 여기서 또 더하면 같은 설문을 배수만큼 한 번 더 세는 것이 된다.
+		//    남는 것은 행동이 들어간 성분(INTERACTION·BLENDED)뿐이고, 그것이 이 항의 존재 이유다.
 		List<UserTasteWeight> categoryWeights = (tasteWeights == null) ? List.of()
-				: tasteWeights.stream().filter((w) -> w.getDimension() == TasteDimension.CATEGORY).toList();
+				: tasteWeights.stream()
+						.filter((w) -> w.getDimension() == TasteDimension.CATEGORY)
+						.filter((w) -> w.getEvidence() != TasteEvidence.SURVEY)
+						.toList();
 
 		if (featureType == null || categoryWeights.isEmpty()) {
 			// 값을 0.0 이 아니라 null 로 둔다 — "겹친 게 없다" 와 "잴 것이 없다" 는 다르다.
+			// 행동이 아직 하나도 안 접힌 동안에는 언제나 이 자리다.
 			featureValues.put("tasteVectorOverlap", null);
 			scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, null, null));
 			return 0.0;
@@ -504,8 +575,8 @@ public class BaselineCandidateScorer {
 		double ratio = sum / categoryWeights.size();
 
 		featureValues.put("tasteVectorOverlap", ratio);
-		// evidence 를 함께 남긴다. 지금은 전부 SURVEY 라 이 항이 설문을 두 번 세는 중이고,
-		// 그 사실을 되짚으려면 무엇을 근거로 더했는지가 행에 남아 있어야 한다.
+		// evidence 를 함께 남긴다. 무엇을 근거로 더했는지가 행에 있어야 「이 점수가 행동에서
+		// 왔는가 설문에서 왔는가」를 나중에 되짚을 수 있다.
 		scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, ratio,
 				Map.of("matched", matched, "componentCount", categoryWeights.size(),
 						"evidence", evidenceSummary(categoryWeights))));

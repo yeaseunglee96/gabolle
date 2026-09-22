@@ -3,7 +3,9 @@ package com.gabolle.backend.batch.application;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,8 +62,16 @@ public class TasteVectorFoldService {
 	private static final String SCORE_CODE = "SCORE";
 
 	/**
-	 * 취향 신호로 세는 이벤트 종류. 지금은 이 중 어느 것도 계측되지 않아서 세어지는 값이
-	 * 0 이고, 벡터는 당분간 {@code evidence=SURVEY} 만으로 만들어진다 — 0 이 정상이다.
+	 * 취향 신호로 세는 이벤트 종류.
+	 *
+	 * <p>이 목록은 <b>세는 데만</b> 쓴다 — 「이 구간에 행동이 왔나」를 물어 판을 다시 만들지
+	 * 정하는 용도다. 그 이벤트를 {@code (차원, 코드)} 성분으로 바꾸는 것은
+	 * {@link BehaviorTasteFolder} 가 하고, 그쪽은 payload 모양을 아는 이벤트만 다루므로
+	 * <b>이 목록보다 좁다</b>(S15P21E201-1482).
+	 *
+	 * <p>🔴 두 목록이 다른 것은 실수가 아니다. 여기 있고 저기 없는 종류
+	 * ({@code itinerary_replace}·{@code route_skip})는 <b>아직 아무도 안 만들어서</b> payload
+	 * 모양이 안 정해졌다. 세는 것은 종류 이름만 알면 되지만 귀속은 장소를 꺼내야 한다.
 	 *
 	 * <p>목록도 대소문자도 여기서 정하지 않고 {@link EventType} 에 맡긴다. 수집을 막는 목록과
 	 * 세는 목록이 같은 파일에 있어야 둘의 포함 관계를 검사가 지킬 수 있고, 손으로 적으면
@@ -79,13 +89,18 @@ public class TasteVectorFoldService {
 
 	private final ObjectMapper objectMapper;
 
+	/** 행동을 성분으로 귀속시키는 자리. 설문 접기와 분리한 이유는 그 클래스 머리말에 있다. */
+	private final BehaviorTasteFolder behaviorFolder;
+
 	public TasteVectorFoldService(JdbcTemplate jdbc, UserTasteVectorRepository vectors,
-			UserTasteWeightRepository weights, TasteVectorProperties properties, ObjectMapper objectMapper) {
+			UserTasteWeightRepository weights, TasteVectorProperties properties, ObjectMapper objectMapper,
+			BehaviorTasteFolder behaviorFolder) {
 		this.jdbc = jdbc;
 		this.vectors = vectors;
 		this.weights = weights;
 		this.properties = properties;
 		this.objectMapper = objectMapper;
+		this.behaviorFolder = behaviorFolder;
 	}
 
 	/**
@@ -115,7 +130,8 @@ public class TasteVectorFoldService {
 
 		// 행동을 볼지 말지만 여기서 가른다. 설문은 그대로 접는다 — 끈 것은 "행동으로 추측하지
 		// 마라" 이지 "내가 고른 것도 잊으라" 가 아니다.
-		int newEvents = allowsBehaviorPersonalization(userId) ? countTasteSignals(userId, watermark, asOf) : 0;
+		boolean behaviorAllowed = allowsBehaviorPersonalization(userId);
+		int newEvents = behaviorAllowed ? countTasteSignals(userId, watermark, asOf) : 0;
 
 		// 성분이 하나도 없는 벡터를 만들지 않는다. "취향이 없는 사람" 과 "아직 안 물어본 사람"
 		// 은 다르고, 한 번 섞으면 되돌릴 수 없다.
@@ -130,11 +146,11 @@ public class TasteVectorFoldService {
 					current.getTasteVectorId(), current.getVersion(), 0, 0);
 		}
 
-		return rebuild(userId, asOf, current, survey, newEvents);
+		return rebuild(userId, asOf, current, survey, newEvents, behaviorAllowed);
 	}
 
 	private TasteVectorFoldOutcome rebuild(UUID userId, OffsetDateTime asOf, UserTasteVector current,
-			SurveySource survey, int newEvents) {
+			SurveySource survey, int newEvents, boolean behaviorAllowed) {
 
 		int nextVersion = (current == null) ? 1 : current.getVersion() + 1;
 		int cumulativeEvents = ((current == null) ? 0 : current.getObservedEventCount()) + newEvents;
@@ -151,16 +167,74 @@ public class TasteVectorFoldService {
 				cumulativeEvents, asOf, this.properties.getVectorVersion(), this.properties.getOntologyVersion(), asOf);
 		this.vectors.save(next);
 
-		List<UserTasteWeight> folded = foldSurvey(next.getTasteVectorId(), survey, asOf);
+		List<UserTasteWeight> fromSurvey = foldSurvey(next.getTasteVectorId(), survey, asOf);
+		List<BehaviorTasteFolder.Attribution> fromBehavior = behaviorAllowed
+				? this.behaviorFolder.fold(userId, asOf)
+				: List.of();
+
+		List<UserTasteWeight> folded = merge(next.getTasteVectorId(), fromSurvey, fromBehavior, asOf);
 		if (!folded.isEmpty()) {
 			this.weights.saveAll(folded);
 		}
 
-		log.info("취향 벡터를 접었다 user={} version={} 성분={} 새 행동={} asOf={}", userId, nextVersion, folded.size(), newEvents,
-				asOf);
+		log.info("취향 벡터를 접었다 user={} version={} 성분={}(설문 {} · 행동 {}) 새 행동={} asOf={}", userId, nextVersion,
+				folded.size(), fromSurvey.size(), fromBehavior.size(), newEvents, asOf);
 
 		return new TasteVectorFoldOutcome(userId, TasteVectorFoldOutcome.Action.REBUILT, next.getTasteVectorId(),
 				nextVersion, folded.size(), newEvents);
+	}
+
+	/**
+	 * 설문 성분과 행동 성분을 한 벌로 합친다.
+	 *
+	 * <h2>🔴 같은 {@code (차원, 코드)} 는 «두 행이 될 수 없다»</h2>
+	 *
+	 * {@code user_taste_weight} 의 PK 가 {@code (판, 차원, 코드)} 다. 두 목록을 그냥 이어 붙여
+	 * 저장하면 겹치는 자리에서 한쪽이 말없이 덮어쓰거나 DB 가 거부한다. 그래서 키로 모으는
+	 * 맵을 지나게 한다 — 맵 자체가 그 제약을 코드에서 다시 말해 준다.
+	 *
+	 * <p>겹친 자리는 {@link TasteEvidence#BLENDED} 한 행이 된다. 그것이 그 값의 사실이기도
+	 * 하다 — 설문도 행동도 같은 것을 가리키고 있다.
+	 *
+	 * <h2>무게를 더하고 자른다</h2>
+	 *
+	 * 「카페를 좋아한다」고 답했는데(+1) 카페를 계속 빼고 있으면(−0.6) 합은 +0.4 다. 평균이
+	 * 아니라 합인 것은, 평균이면 행동이 아무 말도 안 할 때 설문의 세기가 절반으로 깎이기
+	 * 때문이다. 자르는 것은 {@code ck_user_taste_weight_range} 때문이기도 하지만, 「좋아한다」
+	 * 보다 더 좋아할 수는 없어서이기도 하다.
+	 *
+	 * @param fromSurvey {@link #foldSurvey} 가 만든 것. {@code evidence=SURVEY}
+	 * @param fromBehavior {@link BehaviorTasteFolder} 가 귀속시킨 것
+	 */
+	private List<UserTasteWeight> merge(UUID tasteVectorId, List<UserTasteWeight> fromSurvey,
+			List<BehaviorTasteFolder.Attribution> fromBehavior, OffsetDateTime asOf) {
+
+		Map<String, UserTasteWeight> byKey = new LinkedHashMap<>();
+		for (UserTasteWeight weight : fromSurvey) {
+			byKey.put(weightKey(weight.getDimension(), weight.getCode()), weight);
+		}
+
+		for (BehaviorTasteFolder.Attribution attribution : fromBehavior) {
+			String key = weightKey(attribution.dimension(), attribution.code());
+			UserTasteWeight surveyWeight = byKey.get(key);
+			if (surveyWeight == null) {
+				byKey.put(key, UserTasteWeight.fromInteraction(tasteVectorId, attribution.dimension(),
+						attribution.code(), attribution.weight(), attribution.support(), asOf));
+				continue;
+			}
+			byKey.put(key, UserTasteWeight.blended(tasteVectorId, attribution.dimension(), attribution.code(),
+					clampWeight(surveyWeight.getWeight() + attribution.weight()), attribution.support(), asOf));
+		}
+		return List.copyOf(byKey.values());
+	}
+
+	/** 열거형과 문자열을 한 키로 — {@code (차원, 코드)} 가 같으면 같은 성분이다. */
+	private static String weightKey(TasteDimension dimension, String code) {
+		return dimension.name() + ' ' + code;
+	}
+
+	private static double clampWeight(double value) {
+		return Math.max(-1.0, Math.min(1.0, value));
 	}
 
 	/**

@@ -9,15 +9,20 @@ import java.time.ZoneId;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
@@ -27,6 +32,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryRevision;
+import com.gabolle.backend.itinerary.domain.ItineraryChangedByMember;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.ItineraryWarningCodes;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
@@ -58,6 +64,22 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     private final Clock clock;
 
+    /**
+     * 여행 기분이 정하는 하루 곳 수. 앱이 화면에 적어 둔 약속 그대로다
+     * ({@code planOptions.ts} 의 {@code PACE_OPTIONS}) — 「여유롭게 = 하루 2–3곳」,
+     * 「균형 있게 = 하루 3–4곳」, 「알차게 = 하루 5곳 이상」.
+     * <p>
+     * 범위의 <b>위쪽</b>을 고른 이유는, 이 수가 「최대」이고 후보가 모자라면 그보다 적게 들어가기
+     * 때문이다. 아래쪽을 고르면 「2–3곳」이라 적어 두고 언제나 2곳만 나온다.
+     * <p>
+     * 🔴 이 숫자들은 실측이 아니라 <b>화면이 이미 한 약속</b>이다. 화면 문구를 고치면 여기도
+     * 같이 고친다 — 두 곳이 어긋나면 사용자에게는 앱이 거짓말한 것이 된다.
+     */
+    private static final java.util.Map<String, Integer> ITEMS_PER_DAY_BY_PACE = java.util.Map.of(
+            "RELAXED", 3,
+            "BALANCED", 4,
+            "PACKED", 5);
+
     /** 하루에 배정할 최대 항목 수. 프리셋·설정이 없으면 4. */
     private final int maxItemsPerDay;
 
@@ -84,12 +106,26 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private final PlaceTimeFactFilterPort timeFact;
 
+    /**
+     * 하루의 차례를 거리로 다시 세우는 문. {@link ItineraryLegPlanner} 가 이동시간 문을 다루는
+     * 방식과 같게 {@link ObjectProvider} 로 받는다 — 최적화 어댑터가 없는 판(슬라이스 테스트,
+     * 프로필이 안 맞는 기동)에서도 일정 생성은 그대로 돌아야 한다. 없으면 순위 차례로 간다.
+     */
+    private final ObjectProvider<RouteOrderPort> routeOrder;
+
+    /**
+     * 「일정이 생겼다 · 바뀌었다」를 알리는 자리. 듣는 쪽은 동행자 폰에 알림을 띄우는
+     * {@code TripPushNotifier} 하나이고, 커밋이 끝난 뒤에만 받는다 (S15P21E201-1391).
+     */
+    private final ApplicationEventPublisher events;
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
             @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
             ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours,
-            PlaceTimeFactFilterPort timeFact) {
+            PlaceTimeFactFilterPort timeFact, ObjectProvider<RouteOrderPort> routeOrder,
+            ApplicationEventPublisher events) {
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
@@ -99,6 +135,23 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.legPlanner = legPlanner;
         this.openingHours = openingHours;
         this.timeFact = timeFact;
+        this.routeOrder = routeOrder;
+        this.events = events;
+    }
+
+    /**
+     * 날 수 × 하루 항목 수. 하루 몇 곳인지를 정하는 규칙({@link #itemsPerDay})이 여기 있으므로
+     * 이 계산도 여기 있다 — 부르는 쪽이 자기 상수로 어림하면 둘이 어긋난다.
+     *
+     * <p>밥집 상한은 <b>더하지 않는다.</b> 상한은 「그중 몇 곳까지 밥집이어도 되나」이지 자리를
+     * 늘리는 값이 아니다. 필요한 것은 자리 수이고, 상한에 걸려 밀린 밥집 대신 앉을 것이
+     * 후보에 있어야 한다는 뜻이다.
+     */
+    @Override
+    public int placesNeeded(String tripId) {
+        return this.tripRepository.findById(tripId)
+                .map((trip) -> Math.max(1, trip.days() * itemsPerDay(trip)))
+                .orElse(1);
     }
 
     /**
@@ -115,7 +168,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 .orElseThrow(() -> new IllegalStateException("여행을 찾을 수 없다: " + command.tripId()));
 
         int days = trip.days();
-        Distribution distribution = distributeByDay(command.places(), days, mealsPerDay(trip));
+        Distribution distribution = distributeByDay(command.places(), days, mealsPerDay(trip),
+                itemsPerDay(trip));
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
 
         // 구간을 만들 때 필요한, 날짜별 "그 날 다녀올 장소" 원본 순서.
@@ -125,6 +179,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         for (int dayIndex = 0; dayIndex < byDay.size(); dayIndex++) {
             List<ItineraryDraftCommand.PlannedPlace> dayPlaces = byDay.get(dayIndex);
             LocalDate visitDate = trip.startDate().plusDays(dayIndex);
+
+            // 자리에 앉히기 전에 차례를 거리로 다시 세운다. 앉히는 규칙(영업시간·밥 때)은 그대로
+            // 두고 훑는 차례만 바꾼다 — placeIntoSlots 은 목록을 앞에서부터 보므로, 목록의 차례가
+            // 곧 "같은 조건이면 이쪽 먼저" 가 된다.
+            dayPlaces = reorderByRoute(trip, dayPlaces);
 
             List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate);
             placedByDay.add(placedToday);
@@ -168,7 +227,60 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 순위대로 날짜에 배분한다. 하루가 {@link #maxItemsPerDay} 를 채우면 다음 날로 넘기고,
+     * 그 날의 장소를 <b>이동이 가장 적은 차례</b>로 다시 세운다.
+     * <p>
+     * 여기까지 오는 차례는 추천 <b>순위</b>다. 순위는 "얼마나 잘 맞는가" 이지 "어디에 있는가" 가
+     * 아니라서, 순위 그대로 훑으면 도시 반대편을 오갈 수 있다. 그것이 일정이 가게 나열처럼
+     * 보이는 이유였다 — 차례를 정하는 단계가 거리를 한 번도 안 봤다.
+     * <p>
+     * 🔴 <b>순위를 버리는 것이 아니다.</b> 바뀌는 것은 {@link #placeIntoSlots} 이 후보를 훑는
+     * 차례뿐이고, 영업시간·밥 때 판정은 그대로 남는다. 그리고 답이 없거나 받은 것과 한 톨이라도
+     * 어긋나면 <b>들어온 차례를 그대로 돌려준다</b> — 최적화가 없어도 일정은 오늘처럼 나온다.
+     */
+    private List<ItineraryDraftCommand.PlannedPlace> reorderByRoute(Trip trip,
+            List<ItineraryDraftCommand.PlannedPlace> dayPlaces) {
+
+        RouteOrderPort port = this.routeOrder.getIfAvailable();
+        if (port == null || dayPlaces.size() < 2) {
+            return dayPlaces;
+        }
+
+        List<UUID> placeIds = new ArrayList<>(dayPlaces.size());
+        for (ItineraryDraftCommand.PlannedPlace place : dayPlaces) {
+            placeIds.add(place.placeId());
+        }
+
+        // 여행이 고른 이동수단의 첫 값. ItineraryLegPlanner 와 같은 규칙이라야 차례를 정한
+        // 잣대와 구간을 잰 잣대가 같아진다.
+        String[] modes = trip.travelModes();
+        String travelMode = (modes == null || modes.length == 0) ? "WALK" : modes[0];
+
+        List<UUID> ordered = port.shortestOrder(new RouteOrderPort.RouteOrderRequest(
+                trip.originLat(), trip.originLng(), List.copyOf(placeIds), travelMode));
+        if (ordered == null || ordered.size() != dayPlaces.size()) {
+            return dayPlaces;
+        }
+
+        // 같은 장소가 두 번 들어와도 어긋나지 않게 꺼내 쓴다.
+        Map<UUID, List<ItineraryDraftCommand.PlannedPlace>> byId = new HashMap<>();
+        for (ItineraryDraftCommand.PlannedPlace place : dayPlaces) {
+            byId.computeIfAbsent(place.placeId(), key -> new ArrayList<>()).add(place);
+        }
+
+        List<ItineraryDraftCommand.PlannedPlace> reordered = new ArrayList<>(dayPlaces.size());
+        for (UUID placeId : ordered) {
+            List<ItineraryDraftCommand.PlannedPlace> waiting = byId.get(placeId);
+            if (waiting == null || waiting.isEmpty()) {
+                // 받은 적 없는 장소가 왔거나 같은 것이 너무 많이 왔다. 통째로 버린다.
+                return dayPlaces;
+            }
+            reordered.add(waiting.remove(waiting.size() - 1));
+        }
+        return reordered;
+    }
+
+    /**
+     * 순위대로 날짜에 배분한다. 하루가 {@code itemsPerDay} 를 채우면 다음 날로 넘기고,
      * 모든 날이 다 차면 남은 후보는 일정에 넣지 않는다.
      * 넘치는 것을 마지막 날에 쌓지 않는다 — 하루에 열 곳은 일정이 아니고, 그렇게 쌓인 날은
      * 이동 시간도 머무는 시간도 계산이 안 맞는다. 1일 여행이면 넘길 날이 아예 없어 후보가
@@ -180,7 +292,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 채운다 — 후보의 대부분이 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다.
      */
     private Distribution distributeByDay(
-            List<ItineraryDraftCommand.PlannedPlace> places, int days, int mealsPerDay) {
+            List<ItineraryDraftCommand.PlannedPlace> places, int days, int mealsPerDay, int itemsPerDay) {
 
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = new ArrayList<>(days);
         for (int i = 0; i < days; i++) {
@@ -195,14 +307,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // 그래서 비워 두고 말한다.
         int rejectedFood = 0;
         for (ItineraryDraftCommand.PlannedPlace place : places) {
-            if (!seat(byDay, foodPerDay, place, mealsPerDay) && isFood(place)) {
+            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay) && isFood(place)) {
                 rejectedFood++;
             }
         }
 
         // 자리는 남았는데 앉힐 것이 밥집밖에 없었던 경우에만 경고한다. 하루가 꽉 차서
         // 밥집이 밀린 것은 정상이고, 그건 빈 자리를 만들지 않는다.
-        boolean roomLeft = byDay.stream().anyMatch(day -> day.size() < this.maxItemsPerDay);
+        boolean roomLeft = byDay.stream().anyMatch(day -> day.size() < itemsPerDay);
         return new Distribution(byDay, roomLeft && rejectedFood > 0);
     }
 
@@ -228,6 +340,23 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 09:00~18:00 이면 점심(150분 겹침)과 저녁(60분 겹침)으로 2다. 아침은 30분만 겹쳐서 안 센다.
      * 활동 시간대를 안 정한 여행은 2를 준다 — 모름을 0으로 두면 밥집이 한 곳도 안 들어간다.
      */
+    /**
+     * 그 여행의 하루에 몇 곳을 넣을까 — 사용자가 고른 「여행 기분」이 정한다.
+     * <p>
+     * 안 고른 여행은 설정 기본값({@code gabolle.itinerary.max-items-per-day})을 그대로 쓴다.
+     * {@code null} 을 「보통」으로 바꾸지 않는다 — 안 고른 것과 「균형 있게」를 고른 것은 다른
+     * 사실이고, 기본값은 운영이 조정할 수 있는 손잡이라 임의로 4 에 묶으면 그 손잡이가 죽는다.
+     * <p>
+     * 모르는 값이 와도 기본값으로 떨어진다. {@link Trip} 생성자가 이미 아는 값만 통과시키므로
+     * 여기까지 오지 않지만, 저장된 옛 행이 어긋났을 때 일정 생성이 멈추지는 않아야 한다.
+     */
+    private int itemsPerDay(Trip trip) {
+        if (trip.pace() == null) {
+            return this.maxItemsPerDay;
+        }
+        return ITEMS_PER_DAY_BY_PACE.getOrDefault(trip.pace(), this.maxItemsPerDay);
+    }
+
     private int mealsPerDay(Trip trip) {
         LocalTime start = trip.timeWindowStart();
         LocalTime end = trip.timeWindowEnd();
@@ -253,11 +382,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      *     자리를 메울 때는 안 지킨다
      */
     private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay,
-            ItineraryDraftCommand.PlannedPlace place, int mealsPerDay) {
+            ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay) {
 
         boolean food = isFood(place);
         for (int day = 0; day < byDay.size(); day++) {
-            if (byDay.get(day).size() >= this.maxItemsPerDay) {
+            if (byDay.get(day).size() >= itemsPerDay) {
                 continue;
             }
             if (food && foodPerDay[day] >= mealsPerDay) {
@@ -553,6 +682,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // "판은 있는데 내용이 없는" 상태다.
         this.itineraryRepository.create(itinerary, firstVersion, items, legs);
         markTripReady(draft.tripId(), now);
+
+        // 🔴 «이 알림이 이 기능의 이유다.» 일정 만들기는 오래 걸려서 사람이 앱을 닫고 기다린다.
+        //    다 됐다는 것을 폰이 알려 주지 않으면, 사람은 몇 분마다 앱을 열어 확인하거나 잊는다.
+        //    그래서 CREATE 만은 «만든 본인에게도» 간다 (TripPushNotifier.onItineraryChanged).
+        this.events.publishEvent(new ItineraryChangedByMember(
+                itineraryId, 1, ItineraryVersion.Operation.CREATE, draft.userId()));
 
         return new ItineraryHandle(itineraryId, 1);
     }
@@ -858,6 +993,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             throw new ItineraryPublishConflictException(revision.itineraryId(), revision.baseVersion(),
                     ex.latestVersion());
         }
+        // 위 catch 로 빠지면 여기까지 오지 않는다 — 진 편집으로 알림이 나가지 않는다.
+        this.events.publishEvent(new ItineraryChangedByMember(
+                revision.itineraryId(), newVersion, revision.operation(), revision.userId()));
         return new ItineraryHandle(revision.itineraryId(), newVersion);
     }
 }

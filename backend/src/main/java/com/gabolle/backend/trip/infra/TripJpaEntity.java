@@ -95,6 +95,10 @@ public class TripJpaEntity {
 	@Column(name = "max_transit_transfers")
 	private Integer maxTransitTransfers;
 
+	/** 여행 기분. 안 고른 여행은 {@code null} 이다 — 「보통」이 아니라 「모른다」다. */
+	@Column(name = "pace", length = 16)
+	private String pace;
+
 	@Column(name = "timezone", nullable = false)
 	private String timezone;
 
@@ -127,7 +131,7 @@ public class TripJpaEntity {
 			String timeWindow, String timezone, String[] travelModes,
 			LocalTime timeWindowStart, LocalTime timeWindowEnd,
 			UUID accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
-			boolean soloFriendlyPriority, Integer maxTransitTransfers, String title, Trip.Status status,
+			boolean soloFriendlyPriority, Integer maxTransitTransfers, String pace, String title, Trip.Status status,
 			OffsetDateTime createdAt, OffsetDateTime updatedAt, OffsetDateTime deletedAt) {
 		this.tripId = tripId;
 		this.ownerUserId = ownerUserId;
@@ -147,6 +151,7 @@ public class TripJpaEntity {
 		this.foreignCardRequired = foreignCardRequired;
 		this.soloFriendlyPriority = soloFriendlyPriority;
 		this.maxTransitTransfers = maxTransitTransfers;
+		this.pace = pace;
 		this.timezone = timezone;
 		this.title = title;
 		this.status = status;
@@ -198,6 +203,7 @@ public class TripJpaEntity {
 	boolean foreignCardRequired() { return foreignCardRequired; }
 	boolean soloFriendlyPriority() { return soloFriendlyPriority; }
 	Integer maxTransitTransfers() { return maxTransitTransfers; }
+	String pace() { return pace; }
 	String timezone() { return timezone; }
 	Trip.Status status() { return status; }
 	OffsetDateTime createdAt() { return createdAt; }

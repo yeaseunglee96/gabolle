@@ -66,12 +66,20 @@ public class EventIngestService {
 		NOT_COLLECTED
 	}
 
-	/** 클라이언트가 보낸 이벤트를 적는다. 이미 받은 {@code eventId} 면 조용히 성공으로 응답한다. */
+	/**
+	 * 클라이언트가 보낸 이벤트를 적는다. 이미 받은 {@code eventId} 면 조용히 성공으로 응답한다.
+	 *
+	 * <p>payload 의 키는 {@link ClientPayloadKeys} 가 서버 어휘로 옮긴 뒤에 적힌다. 앱은
+	 * {@code place_id} 로 보내는데 읽는 쪽({@code recommendation_exposure} 뷰)은
+	 * {@code placeId} 로만 찾기 때문이다 (S15P21E201-1481). 앱을 고쳐도 옛 판을 쓰는 사람이
+	 * 남으므로 받는 자리에서 옮긴다 — 왜 앱이 아니라 여기인지는 그 클래스에 적혀 있다.
+	 */
 	@Transactional
 	public Outcome ingestFromClient(UUID eventId, EventType type, int eventVersion, UUID userId, UUID tripId,
 			UUID requestId, OffsetDateTime occurredAt, Map<String, Object> payload) {
 
-		return append(eventId, type, eventVersion, Producer.CLIENT, userId, tripId, requestId, occurredAt, payload);
+		return append(eventId, type, eventVersion, Producer.CLIENT, userId, tripId, requestId, occurredAt,
+				ClientPayloadKeys.canonical(payload));
 	}
 
 	/**

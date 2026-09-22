@@ -133,4 +133,64 @@ class ItineraryRunTest {
 			assertThat(planned().start(T0).advance(List.of(0), 1, T1).acceptsLocation()).isFalse();
 		}
 	}
+
+	@Nested
+	@DisplayName("위치와 완료")
+	class LocationAndComplete {
+
+		@Test
+		@DisplayName("아직 위치를 못 받았으면 null 이다 — 0,0 이 아니다")
+		void lastLocationStartsNull() {
+			assertThat(planned().lastLocation()).isNull();
+		}
+
+		@Test
+		@DisplayName("위치를 받아도 상태와 몇 번째는 안 바뀐다 — 받은 것과 도착 판정은 다른 일이다")
+		void locationDoesNotMoveTheStopIndex() {
+			ItineraryRun running = planned().start(T0);
+
+			ItineraryRun located = running.withLocation(35.1587, 129.1604, T1, T1);
+
+			assertThat(located.status()).isEqualTo(ItineraryRun.Status.RUNNING);
+			assertThat(located.currentStopIndex()).isEqualTo(running.currentStopIndex());
+			assertThat(located.lastLocation().lat()).isEqualTo(35.1587);
+			assertThat(located.lastLocation().at()).isEqualTo(T1);
+		}
+
+		@Test
+		@DisplayName("🔴 위치는 상태가 바뀌어도 남는다 — 중지했다 다시 켜도 지도를 어디에 놓을지 안다")
+		void locationSurvivesStateChanges() {
+			ItineraryRun paused = planned().start(T0).withLocation(35.1, 129.0, T0, T0).pause(T1);
+
+			assertThat(paused.lastLocation()).isNotNull();
+			assertThat(paused.lastLocation().lng()).isEqualTo(129.0);
+		}
+
+		@Test
+		@DisplayName("완료하면 다 돈 것이 된다 — 남은 정차지가 있어도 끝낸다")
+		void completeEndsTheRun() {
+			assertThat(planned().start(T0).complete(T1).status()).isEqualTo(ItineraryRun.Status.DONE);
+		}
+
+		@Test
+		@DisplayName("🔴 출발한 적 없으면 완료로 안 간다 — 시작하지 않은 여행을 끝낼 수는 없다")
+		void cannotCompleteWhatNeverStarted() {
+			assertThat(planned().complete(T1).status()).isEqualTo(ItineraryRun.Status.PLANNED);
+		}
+
+		@Test
+		@DisplayName("멈춘 여행도 완료할 수 있다 — 중지한 채로 여행이 끝나는 것이 보통이다")
+		void pausedCanComplete() {
+			assertThat(planned().start(T0).pause(T0).complete(T1).status()).isEqualTo(ItineraryRun.Status.DONE);
+		}
+
+		@Test
+		@DisplayName("🔴 달리는 중일 때만 위치를 받는다 — 멈춘 동안에도 쌓이면 「멈췄다」가 거짓말이 된다")
+		void acceptsLocationOnlyWhileRunning() {
+			assertThat(planned().acceptsLocation()).isFalse();
+			assertThat(planned().start(T0).acceptsLocation()).isTrue();
+			assertThat(planned().start(T0).pause(T1).acceptsLocation()).isFalse();
+			assertThat(planned().start(T0).complete(T1).acceptsLocation()).isFalse();
+		}
+	}
 }

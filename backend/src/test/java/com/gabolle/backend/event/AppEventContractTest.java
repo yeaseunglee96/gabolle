@@ -102,6 +102,11 @@ class AppEventContractTest {
 		assertThat(command.tripId()).isNull();
 		assertThat(command.producer()).isEqualTo(Producer.CLIENT);
 		assertThat(command.payload()).containsEntry("surface", "home");
+		// 🔴 앱은 place_id 로 보냈는데 placeId 로 적힌다. payload 에서 장소를 꺼내는 자리
+		//    (recommendation_exposure 뷰)가 그 이름으로만 찾기 때문이다 — S15P21E201-1481.
+		assertThat(command.payload())
+				.containsEntry("placeId", "seomyeon-1")
+				.doesNotContainKey("place_id");
 	}
 
 	@Test
@@ -117,7 +122,25 @@ class AppEventContractTest {
 						""".formatted(UUID.randomUUID())))
 				.andExpect(status().isAccepted());
 
-		assertThat(captureCommand().payload()).containsEntry("surface", "place_detail");
+		assertThat(captureCommand().payload())
+				.containsEntry("surface", "place_detail")
+				.containsEntry("placeId", "haeundae-1")
+				.doesNotContainKey("place_id");
+	}
+
+	@Test
+	@DisplayName("🔴 place_id 와 placeId 를 함께 보내면 400 이다 — 어느 쪽이 맞는지 서버가 못 정한다")
+	void conflictingPlaceKeysAreRejected() throws Exception {
+		this.mockMvc.perform(post("/api/v1/events")
+				.contentType(MediaType.APPLICATION_JSON)
+				.principal(asMe())
+				.content("""
+						{"eventId":"%s","eventType":"place_like","eventVersion":1,
+						 "occurredAt":"2026-09-07T09:00:00.000+09:00",
+						 "payload":{"place_id":"haeundae-1","placeId":"nampo-1","surface":"home"}}
+						""".formatted(UUID.randomUUID())))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error.code").value("EVENT_REJECTED"));
 	}
 
 	@Test

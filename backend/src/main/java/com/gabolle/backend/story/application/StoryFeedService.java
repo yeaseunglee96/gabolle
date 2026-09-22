@@ -1,6 +1,7 @@
 package com.gabolle.backend.story.application;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -13,9 +14,10 @@ import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.presentation.dto.StoryFeedResponse;
 import com.gabolle.backend.story.presentation.dto.StoryResponse;
 import com.gabolle.backend.story.repository.StoryRepository;
+import com.gabolle.backend.story.repository.UserFollowRepository;
 
 /**
- * 기록 피드 — 전체 / 팔로잉 / 한 사람.
+ * 기록 피드 — 전체 / 팔로잉 / 맞춤 / 한 사람.
  *
  * <p>세 피드 모두 커서 방식이고 "한 개 더 읽기" 로 다음 묶음이 있는지 안다 — {@code limit + 1} 개를 읽어
  * {@code limit} 개보다 많이 왔으면 마지막 것을 잘라 내고 그 앞의 마지막 항목으로 {@code nextCursor} 를
@@ -29,11 +31,62 @@ public class StoryFeedService {
 
 	public static final int MAX_LIMIT = 50;
 
+	/**
+	 * 인기순이 좋아요를 세는 구간 — <b>최근 24시간</b>. 첫 탭이 「실시간 인기」라고 말하려면 어제
+	 * 받은 좋아요가 오늘의 순위를 붙잡고 있으면 안 된다. 창이 없으면 그 탭은 「역대 인기」가 되고,
+	 * 한 번 올라간 글이 계속 위에 남아 새 글이 영영 안 보인다.
+	 *
+	 * <p>🔴 <b>반응이 얇으면 이 탭은 최신순처럼 보인다.</b> 24시간 밖의 좋아요가 전부 0 이 되므로
+	 * 대부분이 동점이 되고, 동점은 공개 시각으로 내려간다. 자료가 쌓이기 전까지는 그게 맞다 —
+	 * 「역대 인기 6건」으로 순위를 만드는 것보다 최신순이 덜 틀린다.
+	 */
+	public static final Duration POPULAR_WINDOW = Duration.ofHours(24);
+
 	public enum Scope {
 		/** 공개 기록 전부 + 내 기록. */
 		ALL,
 		/** 내가 팔로우한 사람의 기록. */
-		FOLLOWING
+		FOLLOWING,
+		/**
+		 * 맞춤 — 팔로우한 사람의 기록을 인기순으로. 팔로우가 없거나 그 사람들이 아직 안 올렸으면
+		 * 전체 인기순으로 대체한다.
+		 *
+		 * <p>대체가 예외가 아니라 기본이다. 실서버의 팔로우 관계가 한 건뿐이라 거의 모든 요청이
+		 * 대체로 간다. 그래서 무엇이 적용됐는지를 {@code X-Feed-Applied} 로 내보낸다 — 화면이
+		 * 「맞춤 추천」이라고 써 놓고 실은 인기순을 보여주는 상태를 사용자에게 숨기지 않는다.
+		 */
+		FOR_YOU
+	}
+
+	/**
+	 * 정렬 갈래. 미리 만들어 둔 피드가 아니라 <b>부를 때 계산한다</b> — 기록 수가 적어 그 편이 싸고,
+	 * 미리 만들면 새 기록이 다음 빌드까지 안 보인다.
+	 */
+	public enum Sort {
+		/** 최신순. 기본값이다. */
+		RECENT,
+		/**
+		 * 실시간 인기순 — <b>최근 24시간에 받은</b> 좋아요가 많은 순({@link #POPULAR_WINDOW}).
+		 * 동점이면 최신순으로 내려간다. 세는 창은 첫 쪽에서 한 번 정해져 커서를 타고 끝까지 간다.
+		 */
+		POPULAR
+	}
+
+	/**
+	 * 실제로 적용된 것. {@link Sort} 와 따로 두는 이유는 <b>맞춤은 요청 파라미터가 아니기</b> 때문이다 —
+	 * 같은 열거형에 두면 {@code sort=FOR_YOU} 로 부를 수 있게 되고, 그때 서버는 최신순을 주면서
+	 * 머리에는 맞춤이라고 적는 상태가 된다.
+	 */
+	public enum Applied {
+		RECENT, POPULAR, FOR_YOU
+	}
+
+	/**
+	 * 한 쪽과, 그 쪽을 만들 때 <b>실제로 적용된</b> 것. 요청한 것과 다를 수 있어서 함께 낸다.
+	 *
+	 * @param applied 요청이 {@link Scope#FOR_YOU} 여도 대체가 일어났으면 {@link Applied#POPULAR} 다
+	 */
+	public record Feed(StoryFeedResponse page, Applied applied) {
 	}
 
 	private final StoryRepository storyRepository;
@@ -46,12 +99,17 @@ public class StoryFeedService {
 
 	private final BlockService blockService;
 
+	/** 맞춤 피드가 「이 사람이 누굴 팔로우하고 있나」를 물을 때만 쓴다. */
+	private final UserFollowRepository followRepository;
+
 	public StoryFeedService(StoryRepository storyRepository, StoryService storyService,
-			StoryResponseAssembler assembler, BlockService blockService, Clock clock) {
+			StoryResponseAssembler assembler, BlockService blockService,
+			UserFollowRepository followRepository, Clock clock) {
 		this.storyRepository = storyRepository;
 		this.storyService = storyService;
 		this.assembler = assembler;
 		this.blockService = blockService;
+		this.followRepository = followRepository;
 		this.clock = clock;
 	}
 
@@ -62,21 +120,131 @@ public class StoryFeedService {
 	 */
 	@Transactional(readOnly = true)
 	public StoryFeedResponse feed(UUID viewer, Scope scope, String cursor, Integer limit) {
+		return feed(viewer, scope, Sort.RECENT, cursor, limit).page();
+	}
+
+	/**
+	 * @param sort {@link Sort#POPULAR} 이면 좋아요 많은 순. 커서는 정렬 갈래마다 모양이 달라서
+	 *     갈래를 바꾸면 앞서 받은 커서를 다시 쓸 수 없다 — 화면이 갈래를 바꿀 때 커서를 비운다.
+	 *     {@link Scope#FOR_YOU} 는 이 값을 무시한다(언제나 인기순 모양이다)
+	 */
+	@Transactional(readOnly = true)
+	public Feed feed(UUID viewer, Scope scope, Sort sort, String cursor, Integer limit) {
+		if (scope == Scope.FOR_YOU) {
+			return forYou(viewer, cursor, limit);
+		}
 		Instant now = this.clock.instant();
-		FeedCursor from = FeedCursor.decode(cursor);
 		int size = clamp(limit);
-		List<Story> rows = switch (scope) {
+		if (scope == Scope.FOLLOWING && viewer == null) {
+			throw new AnonymousFollowingFeedException();
+		}
+		FeedCursor from = decodeFor(sort, cursor, now);
+		List<Story> rows = (sort == Sort.POPULAR)
+				? popularRows(viewer, scope, now, from, size + 1)
+				: recentRows(viewer, scope, now, from, size + 1);
+		return new Feed(page(rows, size, viewer, now, sort, from), Applied.valueOf(sort.name()));
+	}
+
+	/**
+	 * 맞춤 — 팔로우한 사람의 기록을 인기순으로 내고, 나올 것이 없으면 전체 인기순으로 대체한다.
+	 *
+	 * <h2>취향 벡터를 아직 안 쓴다</h2>
+	 *
+	 * 기록에 장소가 붙어야 취향 벡터와 견줄 수 있는데, 실서버에서 {@code story.place_id} 가 채워진
+	 * 기록이 39건 중 3건이다. 열에 아홉은 견줄 것이 없어서, 지금 넣으면 점수가 거의 모든 기록에서
+	 * 같은 값이 되고 «취향을 반영했다»는 말만 남는다. 기록에 장소가 붙는 비율이 오르면 그때 더한다.
+	 *
+	 * <h2>두 길 중 어느 쪽인지는 쪽마다 같은 기준으로 정한다</h2>
+	 *
+	 * 「이 사람의 팔로잉 피드에 하나라도 있는가」 하나만 본다. 커서를 보지 않으므로 1쪽과 2쪽이
+	 * 다른 길로 갈 수 없다.
+	 *
+	 * <p>처음에는 「첫 쪽에서만 대체를 판단한다」로 짰는데 그게 버그였다. 팔로우는 있고 그 사람들의
+	 * 기록이 없는 사용자는 1쪽이 대체(전체 인기순)로 채워지는데, 2쪽은 커서가 있다는 이유로 팔로잉
+	 * 경로로 가서 빈 목록이 됐다 — 피드가 2쪽에서 끊기고 머리도 뒤집혔다.
+	 *
+	 * <p>익명도 거절하지 않는다. 팔로우가 없는 사람일 뿐이라 대체 경로로 간다 —
+	 * {@link Scope#FOLLOWING} 이 400 을 내는 것과 다르다. 그쪽은 「팔로잉만 보여 달라」는 요청이고
+	 * 이쪽은 「알아서 보여 달라」는 요청이다.
+	 */
+	private Feed forYou(UUID viewer, String cursor, Integer limit) {
+		Instant now = this.clock.instant();
+		int size = clamp(limit);
+		FeedCursor from = decodeFor(Sort.POPULAR, cursor, now);
+
+		if (hasFollowingFeed(viewer, now, from.windowStart())) {
+			List<Story> rows = this.storyRepository.findFollowingFeedPopular(viewer, now, from.publishAt(),
+					from.storyId(), from.likeCount(), from.windowStart(), size + 1);
+			return new Feed(page(rows, size, viewer, now, Sort.POPULAR, from), Applied.FOR_YOU);
+		}
+		List<Story> fallback = popularRows(viewer, Scope.ALL, now, from, size + 1);
+		return new Feed(page(fallback, size, viewer, now, Sort.POPULAR, from), Applied.POPULAR);
+	}
+
+	/**
+	 * 이 사람의 팔로잉 피드에 내놓을 것이 하나라도 있는가. 커서와 무관하게 <b>맨 앞에서</b> 한 건만
+	 * 물어본다 — 쪽마다 같은 답이 나와야 1쪽과 2쪽이 같은 길로 간다.
+	 *
+	 * <p>팔로우 수를 세는 것만으로는 모자란다. 팔로우는 있는데 그 사람들이 아직 안 썼거나 전부
+	 * 비공개면 팔로잉 피드는 비어 있고, 그때도 대체로 가야 한다.
+	 */
+	private boolean hasFollowingFeed(UUID viewer, Instant now, Instant windowStart) {
+		if (viewer == null || this.followRepository.countByKeyFollowerUserId(viewer) == 0) {
+			return false;
+		}
+		// 창은 「하나라도 있나」의 답을 바꾸지 않는다 — 좋아요 수를 세는 데만 쓰이고 글을 거르지
+		// 않는다. 그래도 이 쪽이 쓰는 창을 그대로 넘긴다. 아무 값이나 넣어도 지금은 같은 답이
+		// 나오지만, 나중에 창이 조건으로도 쓰이면 그때 말없이 갈라진다.
+		return !this.storyRepository.findFollowingFeedPopular(viewer, now, FeedCursor.NONE.publishAt(),
+				FeedCursor.NONE.storyId(), Integer.MAX_VALUE, windowStart, 1).isEmpty();
+	}
+
+	private List<Story> recentRows(UUID viewer, Scope scope, Instant now, FeedCursor from, int limit) {
+		return switch (scope) {
 			case ALL -> viewer == null
-					? this.storyRepository.findPublicFeedForAnonymous(now, from.publishAt(), from.storyId(), size + 1)
-					: this.storyRepository.findPublicFeed(viewer, now, from.publishAt(), from.storyId(), size + 1);
-			case FOLLOWING -> {
-				if (viewer == null) {
-					throw new AnonymousFollowingFeedException();
-				}
-				yield this.storyRepository.findFollowingFeed(viewer, now, from.publishAt(), from.storyId(), size + 1);
-			}
+					? this.storyRepository.findPublicFeedForAnonymous(now, from.publishAt(), from.storyId(), limit)
+					: this.storyRepository.findPublicFeed(viewer, now, from.publishAt(), from.storyId(), limit);
+			case FOLLOWING ->
+				this.storyRepository.findFollowingFeed(viewer, now, from.publishAt(), from.storyId(), limit);
+			case FOR_YOU -> throw new IllegalStateException("FOR_YOU 는 forYou() 가 먼저 가로챈다");
 		};
-		return page(rows, size, viewer, now);
+	}
+
+	private List<Story> popularRows(UUID viewer, Scope scope, Instant now, FeedCursor from, int limit) {
+		int likes = from.likeCount();
+		Instant window = from.windowStart();
+		return switch (scope) {
+			case ALL -> viewer == null
+					? this.storyRepository.findPublicFeedForAnonymousPopular(now, from.publishAt(), from.storyId(),
+							likes, window, limit)
+					: this.storyRepository.findPublicFeedPopular(viewer, now, from.publishAt(), from.storyId(), likes,
+							window, limit);
+			case FOLLOWING -> this.storyRepository.findFollowingFeedPopular(viewer, now, from.publishAt(),
+					from.storyId(), likes, window, limit);
+			case FOR_YOU -> throw new IllegalStateException("FOR_YOU 는 forYou() 가 먼저 가로챈다");
+		};
+	}
+
+	/**
+	 * 커서가 없을 때의 출발점이 갈래마다 다르다. 인기순은 좋아요 수의 상한에서 내려와야 하므로
+	 * {@link FeedCursor#nonePopular(Instant)} 다.
+	 *
+	 * <p>🔴 <b>창의 왼쪽 끝은 여기서 딱 한 번 정해진다</b> — 커서가 없을 때만
+	 * {@code now - POPULAR_WINDOW} 로 잡고, 이후 쪽은 커서가 들고 온 것을 그대로 쓴다. 쪽마다
+	 * 다시 계산하면 창이 조금씩 밀려 경계의 글이 겹치거나 건너뛰어진다({@link FeedCursor} 참고).
+	 *
+	 * <p>다른 갈래에서 받은 커서를 그대로 보내면 400 이다. 조용히 첫 쪽으로 되돌리지 않는다 —
+	 * 화면은 이어보기를 했다고 믿는데 목록이 처음으로 돌아가 있으면 같은 것을 두 번 보게 된다.
+	 */
+	private static FeedCursor decodeFor(Sort sort, String cursor, Instant now) {
+		if (cursor == null || cursor.isBlank()) {
+			return (sort == Sort.POPULAR) ? FeedCursor.nonePopular(now.minus(POPULAR_WINDOW)) : FeedCursor.NONE;
+		}
+		FeedCursor from = FeedCursor.decode(cursor);
+		if ((sort == Sort.POPULAR) != from.isPopular()) {
+			throw new FeedCursor.InvalidCursorException(cursor);
+		}
+		return from;
 	}
 
 	/**
@@ -112,13 +280,30 @@ public class StoryFeedService {
 	}
 
 	private StoryFeedResponse page(List<Story> rows, int size, UUID viewer, Instant now) {
+		return page(rows, size, viewer, now, Sort.RECENT, FeedCursor.NONE);
+	}
+
+	/**
+	 * @param from 이 쪽을 부를 때 쓴 커서. 인기순에서 <b>창의 왼쪽 끝</b>을 다음 쪽으로 넘기려고
+	 *     받는다 — 그 값은 첫 쪽에서 한 번 정해져 목록이 끝날 때까지 같아야 한다
+	 */
+	private StoryFeedResponse page(List<Story> rows, int size, UUID viewer, Instant now, Sort sort,
+			FeedCursor from) {
 		boolean hasMore = rows.size() > size;
 		List<Story> shown = hasMore ? rows.subList(0, size) : rows;
 		List<StoryResponse> items = this.assembler.many(shown, viewer, now);
 		String next = null;
 		if (hasMore) {
 			Story last = shown.get(shown.size() - 1);
-			next = new FeedCursor(last.getPublishAt(), last.getStoryId()).encode();
+			// 🔴 인기순 커서의 좋아요 수는 «조립된 응답에서 가져오면 안 된다». 응답의
+			//    likeCount 는 기간 제한 없는 누적이고 정렬이 쓴 수는 창 안의 수라, 둘은 다른
+			//    값이다. 누적을 실으면 다음 쪽이 훨씬 위에서 이어져 한 뭉치를 통째로 건너뛴다.
+			//    그래서 정렬이 쓴 그 수를 같은 창으로 다시 센다.
+			next = (sort == Sort.POPULAR)
+					? new FeedCursor(last.getPublishAt(), last.getStoryId(),
+							this.storyRepository.countLikesSince(last.getStoryId(), from.windowStart()),
+							from.windowStart()).encode()
+					: new FeedCursor(last.getPublishAt(), last.getStoryId()).encode();
 		}
 		return new StoryFeedResponse(items, next);
 	}

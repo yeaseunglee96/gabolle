@@ -1,11 +1,15 @@
 package com.gabolle.backend.recommendation.adapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.Map;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -17,8 +21,11 @@ import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
+import com.gabolle.backend.place.api.PlaceFeatureView;
+import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
+import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
@@ -35,6 +42,7 @@ import com.gabolle.backend.trip.domain.TravelArea;
 import com.gabolle.backend.trip.domain.TripTravelAreaRepository;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 
 /**
@@ -72,8 +80,20 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 */
 	private static final int MIN_AREA_CANDIDATES = 60;
 
-	/** 복제 씨앗. 보통 여행은 비어 있어 아무 일도 하지 않는다({@link SeedBoost}). */
+	/** 빠진 씨앗을 자기 좌표로 찾을 때의 반경. 요청이 허용하는 가장 작은 값이다. */
+	private static final int SEED_LOOKUP_RADIUS_M = 100;
+
+	/** 같은 자리에 여러 장소가 겹쳐 있어도 자기 자신이 섞여 나오도록 한 줌만 받는다. */
+	private static final int SEED_LOOKUP_LIMIT = 20;
+
+	/** 반경 밖 씨앗을 끼워 넣었다는 표시. 응답의 appliedFilters 에 남는다. */
+	private static final String SEED_INJECTED_FILTER = "SEED_PLACE_INJECTED";
+
+	/** 씨앗 — 사용자가 적은 「꼭 가고 싶은 장소」와 공유 일정 복제. 보통 여행은 비어 있다({@link SeedBoost}). */
 	private final TripSeedPlaceRepository seedPlaceRepository;
+
+	/** 후보 풀 밖에 있는 씨앗의 좌표를 찾을 때만 쓴다 ({@link #includeMissingSeeds}). */
+	private final PlaceRepository placeRepository;
 
 	/** 여행 범위. 안 고른 여행은 비어 있어 범위가 없던 때와 똑같이 돈다. */
 	private final Optional<TripTravelAreaRepository> travelAreas;
@@ -91,7 +111,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 			PlaceCandidateQueryService placeCandidateQueryService, BaselineCandidateTranslator translator,
 			BaselineCandidateScorer scorer, BaselineEngineProperties properties,
 			PreferenceAlignmentWeights alignmentWeights, UserPlaceCodeMapRepository codeMapRepository,
-			TripSeedPlaceRepository seedPlaceRepository,
+			TripSeedPlaceRepository seedPlaceRepository, PlaceRepository placeRepository,
 			Optional<TripTravelAreaRepository> travelAreas,
 			ObjectProvider<UserTasteVectorRepository> tasteVectors,
 			ObjectProvider<UserTasteWeightRepository> tasteWeightRepository) {
@@ -103,6 +123,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		this.alignmentWeights = alignmentWeights;
 		this.codeMapRepository = codeMapRepository;
 		this.seedPlaceRepository = seedPlaceRepository;
+		this.placeRepository = placeRepository;
 		this.travelAreas = travelAreas;
 		this.tasteVectors = tasteVectors;
 		this.tasteWeightRepository = tasteWeightRepository;
@@ -148,6 +169,9 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		PlaceCandidateRequest queryRequest =
 				this.translator.translate(location, trip, preferenceSnapshot, constraints);
 		PlaceCandidateResponse response = findCandidatesWithinTravelAreas(trip.tripId(), queryRequest);
+		// 사용자가 적은 「꼭 가고 싶은 장소」가 반경 밖이면 여기까지 안 들어온다. 끼워 넣는다.
+		List<TripSeedPlace> seeds = this.seedPlaceRepository.findByTripId(trip.tripId());
+		response = includeMissingSeeds(response, seeds);
 		long candidateGenerationMs = elapsedMs(candidateGenerationStart);
 
 		// 대조표는 배치당 한 번만 읽는다 — 후보마다 다시 읽으면 질의 수가 후보 수에 비례한다.
@@ -186,10 +210,14 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 					this.properties.weights(), this.alignmentWeights, preferenceCodeMap, constraintCodeMap,
 					tasteWeights, this.properties.tasteVectorMultiplier()));
 		}
-		// 복제 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다 — SeedBoost 참고.
-		candidates = SeedBoost.apply(candidates, this.seedPlaceRepository.findByTripId(trip.tripId()));
+		// 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다 — SeedBoost 참고.
+		candidates = SeedBoost.apply(candidates, seeds);
+		// 총예산에 맞춘다. 역시 점수만 움직이고 후보를 빼지 않는다 — BudgetFit 참고.
+		candidates = BudgetFit.apply(candidates, priceBandsOf(response), BudgetFit.targetBand(trip));
 		// 자르기는 채점을 마친 뒤다.
-		candidates = keepBestScoring(candidates, this.properties.candidateLimit());
+		// 갈래를 안 골랐으면 뒤쪽을 여행마다 다르게 채운다 (S15P21E201-1463).
+		boolean noCategoryChosen = queryRequest.categoriesOrEmpty().isEmpty();
+		candidates = keepBestScoring(candidates, this.properties.candidateLimit(), noCategoryChosen, request.tripId());
 		long rankingMs = elapsedMs(rankingStart);
 
 		String datasetVersion = resolveDatasetVersion(response.datasetVersions());
@@ -204,24 +232,78 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	}
 
 	/**
+	 * 무작위로 채우는 자리가 상한에서 차지하는 몫. 위쪽 절반은 점수 순으로 그대로 지킨다.
+	 *
+	 * <p>🔴 <b>전부 섞으면 가장 잘 맞는 곳이 빠질 수 있다.</b> 카테고리를 안 골랐어도 음식·분위기
+	 * 같은 다른 취향은 골랐을 수 있고, 그 사람에게 1등을 떨어뜨리는 것은 다양성이 아니라 손해다.
+	 * 그래서 앞쪽은 고정하고 <b>뒤쪽만</b> 넓은 풀에서 골라 채운다.
+	 */
+	private static final double ANCHOR_SHARE = 0.5;
+
+	/**
+	 * 뒤쪽을 채울 때 들여다보는 풀의 크기 = {@code limit} 의 몇 배인가.
+	 *
+	 * <p>값 자체가 실험 대상이라 설정으로 빼지 않고 상수로 둔다 — {@code MOBILITY_WARNING_PENALTY}
+	 * 와 같은 이유다. 너무 크면 점수가 한참 낮은 곳까지 같은 확률로 올라오고, 1이면 섞을 것이 없다.
+	 */
+	private static final int VARIETY_POOL_FACTOR = 3;
+
+	/**
 	 * 점수 높은 순으로 {@code limit} 개만 남긴다. 자르는 자리가 채점 뒤여야 한다 —
 	 * {@code candidateLimit} 을 {@code PlaceCandidateQueryService} 로 넘기면 그쪽은 점수를
 	 * 모르므로 거리순으로 잘라, 상한이 "가까운 순 N곳만 채점 대상" 이 된다. 동점은
 	 * {@code placeId} 로 가른다 — 순서가 실행마다 달라지면 나중에 비교할 수 없다.
 	 * 점수가 낮으면 탈락 판정 후보도 지켜지지 않는 것은 알려진 한계다.
+	 *
+	 * <p>🔴 <b>갈래를 안 고른 사람에게는 뒤쪽을 여행마다 다르게 채운다</b> (S15P21E201-1463).
+	 * 이 엔진에는 무작위가 하나도 없어서, 조건이 비슷하면 <b>늘 같은 곳이 같은 순서로</b> 나왔다.
+	 * 갈래를 고른 사람은 그 뜻이 점수에 실리지만 안 고른 사람에게는 개성이 들어갈 자리가 없다.
+	 *
+	 * <p>🔴 <b>씨앗은 {@code tripId} 다. 그냥 난수가 아니다.</b> 이 저장소의 추천은 재현
+	 * 가능하게 만들어져 있고(엔진 버전 다섯을 들고 다니는 이유가 그것이다), 난수를 쓰면 같은
+	 * 여행을 다시 열 때마다 다른 곳이 나와 <b>문제가 생겨도 그 결과를 다시 만들어 볼 수 없다.</b>
+	 * 씨앗을 여행 번호로 고정하면 여행마다 다르면서 같은 여행은 늘 같다.
+	 *
+	 * <p>🔴 <b>들어온 뒤의 순서는 점수 순이다.</b> 무작위는 「어느 곳이 들어오나」에만 쓴다 —
+	 * {@code ItineraryDraftCommand.places} 의 계약이 「rank 오름차순」이고, 화면도 앞쪽을 더 잘
+	 * 맞는 곳으로 읽는다.
+	 *
+	 * @param varyTail 갈래를 안 골라서 뒤쪽을 섞어도 되는가. 골랐으면 {@code false} —
+	 *     「카페를 골랐는데 카페가 적네」가 생기면 안 된다
+	 * @param seed 섞기의 씨앗. 같은 값이면 같은 결과다
 	 */
-	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit) {
+	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit,
+			boolean varyTail, UUID seed) {
 		if (candidates.size() <= limit) {
 			return candidates;
 		}
 		List<EngineCandidate> sorted = new ArrayList<>(candidates);
-		sorted.sort(Comparator
+		sorted.sort(scoreOrder());
+		if (!varyTail) {
+			return new ArrayList<>(sorted.subList(0, limit));
+		}
+
+		int anchor = Math.max(1, (int) Math.round(limit * ANCHOR_SHARE));
+		int poolEnd = Math.min(sorted.size(), Math.max(limit, limit * VARIETY_POOL_FACTOR));
+		List<EngineCandidate> tail = new ArrayList<>(sorted.subList(anchor, poolEnd));
+		// 씨앗이 같으면 같은 순서가 나온다. 들어오는 목록도 점수 순으로 정해져 있어야 그렇다.
+		Collections.shuffle(tail, new Random(seed == null ? 0L : seed.getMostSignificantBits() ^ seed.getLeastSignificantBits()));
+
+		List<EngineCandidate> kept = new ArrayList<>(sorted.subList(0, anchor));
+		kept.addAll(tail.subList(0, Math.min(limit - anchor, tail.size())));
+		// 고르기는 섞어서 했어도 내보내는 순서는 점수 순이다.
+		kept.sort(scoreOrder());
+		return kept;
+	}
+
+	/** 점수 내림차순, 동점은 {@code placeId}. 두 곳에서 같은 순서를 써야 해서 따로 뺐다. */
+	private static Comparator<EngineCandidate> scoreOrder() {
+		return Comparator
 				// 점수가 없는 후보를 0 으로 치지 않는다 — 없는 것과 낮은 것은 다르다. 맨 뒤로
 				// 보내되 자리가 남으면 들어온다.
 				.comparing(EngineCandidate::preRankScore,
-						Comparator.nullsLast(Comparator.reverseOrder()))
-				.thenComparing(EngineCandidate::placeId));
-		return new ArrayList<>(sorted.subList(0, limit));
+						Comparator.nullsLast(Comparator.<Double>reverseOrder()))
+				.thenComparing(EngineCandidate::placeId);
 	}
 
 	private Trip loadTrip(UUID tripId) {
@@ -328,6 +410,107 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		return new PlaceCandidateResponse(candidates, candidates.size(), fromAreas.minimumRequired(),
 				candidates.size() < fromAreas.minimumRequired(), appliedFilters, fromAreas.notApplied(),
 				fromAreas.scanTruncated(), fromAreas.datasetVersions());
+	}
+
+	/**
+	 * 후보 풀에 없는 씨앗을 풀에 끼워 넣는다.
+	 *
+	 * <p><b>왜 필요한가.</b> 후보는 출발지·여행 범위를 중심으로 한 반경
+	 * ({@code gabolle.recommendation.baseline.radius-m}, 기본 5,000m) 안에서만 뽑는다. 부산은
+	 * 동서로 30km 가 넘어서, 서면에서 출발하는 여행에 해운대를 「꼭 가고 싶은 장소」로 적으면
+	 * 그 장소는 후보에 들어오지도 못하고 {@link SeedBoost} 도 볼 수 없다. 사용자가 이름을 직접
+	 * 적어 넣은 유일한 답이 조용히 사라지는 자리였다.
+	 *
+	 * <p><b>어떻게.</b> 빠진 장소를 <b>그 장소 자신을 중심으로</b> 다시 조회한다. 원래 조회의
+	 * 갈래·표식 조건은 걸지 않는다 — 이름을 적어 넣은 곳을 갈래로 거를 이유가 없고, 제약 판정은
+	 * 뒤에서 채점기와 {@code CandidateAssembler} 가 그대로 한다(알레르기 같은 하드 필터에
+	 * 걸리는 곳은 지금처럼 빠진다). 여기서 하는 일은 <b>판정할 기회를 주는 것</b>뿐이다.
+	 *
+	 * <p>좌표를 모르는 장소는 넣지 않는다 — 거리 점수를 매길 수 없고, 0 을 넣으면 "출발지에
+	 * 붙어 있다" 는 다른 주장이 된다.
+	 */
+	private PlaceCandidateResponse includeMissingSeeds(PlaceCandidateResponse response, List<TripSeedPlace> seeds) {
+		if (seeds.isEmpty()) {
+			return response;
+		}
+		Set<UUID> inPool = new LinkedHashSet<>();
+		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
+			inPool.add(candidate.placeId());
+		}
+		List<UUID> missing = new ArrayList<>();
+		for (TripSeedPlace seed : seeds) {
+			UUID placeId = UUID.fromString(seed.placeId());
+			if (!inPool.contains(placeId)) {
+				missing.add(placeId);
+			}
+		}
+		if (missing.isEmpty()) {
+			return response;
+		}
+
+		List<PlaceCandidateResponse.Candidate> added = new ArrayList<>();
+		for (Place place : this.placeRepository.findByPlaceIdIn(missing)) {
+			if (!place.hasCoordinates()) {
+				LOGGER.warn("씨앗 장소에 좌표가 없어 후보에 못 넣었다 — placeId={}", place.getPlaceId());
+				continue;
+			}
+			findSelf(place).ifPresent(added::add);
+		}
+		if (added.isEmpty()) {
+			return response;
+		}
+
+		List<PlaceCandidateResponse.Candidate> merged = new ArrayList<>(response.candidates());
+		merged.addAll(added);
+		List<String> appliedFilters = new ArrayList<>(response.appliedFilters());
+		// 조용히 넣지 않는다. 뒤에서 "반경 밖 장소가 왜 여기 있냐" 를 설명할 수 있어야 한다.
+		appliedFilters.add(SEED_INJECTED_FILTER);
+		return new PlaceCandidateResponse(merged, merged.size(), response.minimumRequired(),
+				merged.size() < response.minimumRequired(), appliedFilters, response.notApplied(),
+				response.scanTruncated(), response.datasetVersions());
+	}
+
+	/**
+	 * 장소 하나를 자기 좌표를 중심으로 다시 조회해서 후보 모양으로 받아 온다.
+	 * 직접 만들지 않고 조회를 거치는 이유는, 채점기가 보는 표식 값들이 이 조회에서 채워지기
+	 * 때문이다 — 손으로 만들면 표식이 빈 후보가 되어 취향 점수가 통째로 0 이 된다.
+	 */
+	private Optional<PlaceCandidateResponse.Candidate> findSelf(Place place) {
+		PlaceCandidateRequest self = new PlaceCandidateRequest(
+				new PlaceCandidateRequest.Center(place.getLat(), place.getLng()), SEED_LOOKUP_RADIUS_M,
+				null, null, null, null, null, SEED_LOOKUP_LIMIT);
+		for (PlaceCandidateResponse.Candidate candidate : this.placeCandidateQueryService.findCandidates(self)
+				.candidates()) {
+			if (candidate.placeId().equals(place.getPlaceId())) {
+				return Optional.of(candidate);
+			}
+		}
+		LOGGER.warn("씨앗 장소를 자기 좌표로도 못 찾았다 — placeId={}", place.getPlaceId());
+		return Optional.empty();
+	}
+
+	/**
+	 * 후보마다의 가격대({@code PRICE_LEVEL}). 값이 {@code {"band":"MID","raw":"mid"}} 모양이라
+	 * {@code band} 만 꺼낸다.
+	 *
+	 * <p>가격대가 없는 곳은 표에 아예 넣지 않는다 — 「모른다」를 빈 문자열이나 기본 등급으로
+	 * 채우면 조사 안 된 곳이 특정 등급인 것처럼 점수를 받는다.
+	 */
+	private static Map<UUID, String> priceBandsOf(PlaceCandidateResponse response) {
+		Map<UUID, String> bandByPlace = new LinkedHashMap<>();
+		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
+			for (PlaceFeatureView feature : candidate.features()) {
+				if (!BudgetFit.FEATURE_TYPE.equals(feature.featureType()) || feature.value() == null) {
+					continue;
+				}
+				String band = feature.value().path("band").asText("");
+				if (!band.isBlank()) {
+					bandByPlace.put(candidate.placeId(), band);
+				}
+				break;
+			}
+		}
+		return bandByPlace;
 	}
 
 }

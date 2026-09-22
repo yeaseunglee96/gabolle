@@ -323,7 +323,7 @@ class BaselineCandidateScorerTest {
 	void tasteVectorAddsWhenItOverlaps() {
 		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
 		List<UserTasteWeight> vector = List.of(
-				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, NOW));
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, 7, NOW));
 
 		EngineCandidate without = score(cafe, null, List.of());
 		EngineCandidate with = score(cafe, null, List.of(), vector);
@@ -354,7 +354,7 @@ class BaselineCandidateScorerTest {
 	void negativeWeightLowersScore() {
 		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
 		List<UserTasteWeight> dislike = List.of(
-				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", -1.0, NOW));
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", -1.0, 7, NOW));
 
 		EngineCandidate without = score(cafe, null, List.of());
 		EngineCandidate with = score(cafe, null, List.of(), dislike);
@@ -368,13 +368,51 @@ class BaselineCandidateScorerTest {
 	void vectorWithoutOverlapContributesZero() {
 		PlaceCandidateResponse.Candidate notCafe = candidate(List.of(tag("INTEREST_TAG", "FOOD", "VERIFIED", "true")));
 		List<UserTasteWeight> vector = List.of(
-				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, NOW));
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, 7, NOW));
 
 		EngineCandidate without = score(notCafe, null, List.of());
 		EngineCandidate with = score(notCafe, null, List.of(), vector);
 
 		assertThat(with.preRankScore()).isEqualTo(without.preRankScore());
 		assertThat(with.featureValues()).containsEntry("tasteVectorOverlap", 0.0);
+	}
+
+	/**
+	 * 설문만으로 접힌 성분은 이 항에 안 들어온다. 그 답은 {@code applyTagComponent} 의 CATEGORY
+	 * 태그 겹침이 이미 채점했으므로, 여기서 또 더하면 같은 설문을 배수만큼 한 번 더 세는 것이 된다.
+	 *
+	 * <p>잴 것이 아예 없는 것과 같은 자리라 {@code tasteVectorOverlap} 은 {@code null} 이다 —
+	 * 0.0(겹친 게 없다)과 구분한다.
+	 */
+	@Test
+	@DisplayName("🔴 설문만으로 접힌 성분은 덧점수에 안 들어간다 — 설문을 두 번 세지 않는다")
+	void surveyOnlyWeightsDoNotCountTwice() {
+		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
+		List<UserTasteWeight> surveyOnly = List.of(
+				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, NOW));
+
+		EngineCandidate without = score(cafe, null, List.of());
+		EngineCandidate with = score(cafe, null, List.of(), surveyOnly);
+
+		assertThat(with.preRankScore()).isEqualTo(without.preRankScore());
+		assertThat(with.featureValues()).containsEntry("tasteVectorOverlap", null);
+	}
+
+	/** 설문과 행동이 섞여 있으면 행동 쪽만 세고, 분모도 그 개수다. */
+	@Test
+	@DisplayName("설문과 행동이 섞이면 행동 성분만 더한다")
+	void blendsCountOnlyBehaviourBackedComponents() {
+		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
+		List<UserTasteWeight> mixed = List.of(
+				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "SEA_BEACH", 1.0, NOW),
+				UserTasteWeight.blended(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, 3, NOW));
+
+		EngineCandidate without = score(cafe, null, List.of());
+		EngineCandidate with = score(cafe, null, List.of(), mixed);
+
+		// 분모가 걸러낸 뒤의 성분 수(1)라, 하나 맞으면 비율이 1.0 이다. 설문 성분까지 분모에
+		// 넣으면 0.5 가 되어 「설문을 많이 답할수록 행동 신호가 묽어지는」 값이 된다.
+		assertThat(with.preRankScore() - without.preRankScore()).isCloseTo(TASTE_MULTIPLIER * 1.0, within(1e-9));
 	}
 
 	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot snapshot,

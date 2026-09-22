@@ -40,6 +40,9 @@ import jakarta.validation.constraints.Min;
 @Profile({ "db", "dev" })
 public class StoryController {
 
+	/** 실제로 적용된 정렬을 싣는 응답 머리. 화면이 사용자에게 무엇을 보여주는 중인지 말할 근거다. */
+	public static final String FEED_APPLIED_HEADER = "X-Feed-Applied";
+
 	private final StoryService storyService;
 
 	private final StoryFeedService feedService;
@@ -49,15 +52,25 @@ public class StoryController {
 		this.feedService = feedService;
 	}
 
+	/**
+	 * 기록 목록.
+	 *
+	 * <p>응답 머리에 {@code X-Feed-Applied} 로 <b>실제로 적용된 정렬</b>을 싣는다. 화면이 「맞춤 추천」
+	 * 이라고 써 놓고 속으로는 인기순을 보여주는 일이 생기지 않게 하려는 것이다 — 본문(DTO)은
+	 * 안 건드린다.
+	 */
 	@GetMapping
-	public ApiResponse<StoryFeedResponse> feed(
+	public ResponseEntity<ApiResponse<StoryFeedResponse>> feed(
 			@RequestParam(value = "scope", required = false, defaultValue = "ALL") StoryFeedService.Scope scope,
+			@RequestParam(value = "sort", required = false, defaultValue = "RECENT") StoryFeedService.Sort sort,
 			@RequestParam(value = "cursor", required = false) String cursor,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			Authentication authentication) {
 		// 피드는 로그인 없이도 볼 수 있다. 익명이면 viewer 가 null 이 되고 StoryFeedService 가 공개 기록만 내보낸다.
 		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
-		return ApiResponse.success(this.feedService.feed(viewer, scope, cursor, limit), requestId());
+		StoryFeedService.Feed feed = this.feedService.feed(viewer, scope, sort, cursor, limit);
+		return ResponseEntity.ok().header(FEED_APPLIED_HEADER, feed.applied().name())
+				.body(ApiResponse.success(feed.page(), requestId()));
 	}
 
 	@PostMapping

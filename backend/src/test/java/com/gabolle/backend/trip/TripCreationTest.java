@@ -5,6 +5,7 @@ import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.user.support.ConsentGuards;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -56,6 +57,36 @@ class TripCreationTest {
                 new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty(), Optional.empty());
     }
 
+    /** 「여행 기분」까지 답한 요청. 나머지는 {@link #command()} 와 같다. */
+    private TripCreationService.Command commandWithPace(String pace) {
+        var base = command();
+        var preferences = new java.util.ArrayList<>(base.preferences());
+        preferences.add(new PreferenceSnapshot.PreferenceAnswer(
+                "pace", "\"" + pace + "\"", PreferenceSnapshot.AnswerStatus.SELECTED));
+        return new TripCreationService.Command(
+                base.userId(), base.startDate(), base.finishDate(), base.originLat(), base.originLng(),
+                base.budgetKrw(), base.partySize(), base.timeWindow(), base.timezone(),
+                preferences, base.constraints());
+    }
+
+    @Test
+    @DisplayName("🔴 「여행 기분」은 trip 에 실리고 취향 스냅샷에는 안 들어간다 — preference_answer 의 CHECK 가 그 이름을 안 받는다")
+    void paceGoesToTripNotToThePreferenceSnapshot() {
+        var result = service.create(commandWithPace("RELAXED"), null);
+
+        assertEquals("RELAXED", result.trip().pace(), "일정 생성이 읽는 자리");
+
+        var snapshot = repository.findLatestSnapshot(result.trip().tripId()).orElseThrow();
+        assertTrue(snapshot.answers().stream().noneMatch(a -> a.dimension().equalsIgnoreCase("pace")),
+                "여기에 두면 취향 한 줄 때문에 여행·멤버·제약까지 통째로 롤백된다 — transport 와 같은 이유다");
+    }
+
+    @Test
+    @DisplayName("기분을 안 답한 여행은 null 이다 — 「보통」으로 채우지 않는다")
+    void unansweredPaceStaysNull() {
+        assertNull(service.create(command(), null).trip().pace());
+    }
+
     private TripCreationService.Command command() {
         return new TripCreationService.Command(
                 "usr_1",
@@ -65,7 +96,7 @@ class TripCreationTest {
                 "MORNING_TO_EVENING", "Asia/Seoul",
                 List.of(
                         new PreferenceSnapshot.PreferenceAnswer(
-                                "pace", "RELAXED", PreferenceSnapshot.AnswerStatus.SELECTED),
+                                "quietness", "3", PreferenceSnapshot.AnswerStatus.SELECTED),
                         new PreferenceSnapshot.PreferenceAnswer(
                                 "theme", "NATURE", PreferenceSnapshot.AnswerStatus.SELECTED)),
                 List.of(new TripCreationService.Command.ConstraintInput(
@@ -112,10 +143,14 @@ class TripCreationTest {
         assertFalse(snapshot.snapshotId().isBlank(), "로그와 이벤트가 가리키는 값");
         assertEquals(PersonalizationScope.TRIP, snapshot.scope(), "TRIP-01 이 만드는 스냅샷은 항상 이번 여행 전용이다");
 
-        var pace = snapshot.answers().stream()
-                .filter(a -> a.dimension().equals("pace")).findFirst().orElseThrow();
-        assertEquals("RELAXED", pace.valueJson());
-        assertEquals(PreferenceSnapshot.AnswerStatus.SELECTED, pace.status());
+        // 🔴 예시로 "pace" 를 쓰던 자리다. 그 이름은 이제 취향이 아니라 여행의 모양(trip.pace)이라
+        //    스냅샷에 안 들어간다. 여기서 재려는 것은 "보낸 답이 그대로 굳는가" 이므로
+        //    preference_answer.dimension 의 CHECK 가 실제로 받는 어휘를 쓴다 — 가짜 저장소는
+        //    그 CHECK 를 안 걸어서, 어휘 밖 이름을 쓰면 여기서는 통과하고 운영에서만 터진다.
+        var quietness = snapshot.answers().stream()
+                .filter(a -> a.dimension().equals("quietness")).findFirst().orElseThrow();
+        assertEquals("3", quietness.valueJson());
+        assertEquals(PreferenceSnapshot.AnswerStatus.SELECTED, quietness.status());
         assertEquals(1, snapshot.constraintIds().size(), "그때의 제약도 함께 굳는다");
 
         assertThrows(UnsupportedOperationException.class,

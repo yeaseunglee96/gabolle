@@ -449,6 +449,13 @@ public class StoryService {
 	 * 저쪽에 범위를 다시 적으면 프로필의 숫자와 목록의 숫자가 소리 없이 어긋난다.
 	 */
 	List<String> visibleScopesOf(UUID author, UUID viewer) {
+		// 🔴 로그인하지 않은 사람은 «남»이다 — S15P21E201-1373.
+		//    이 줄이 없으면 아래에서 viewer 가 null 인 채로 팔로우 관계를 찾게 된다.
+		//    공개 피드는 전용 질의(findPublicFeedForAnonymous)로 돌아서 여기에 안 닿았고,
+		//    작성자별 피드를 익명에 열면서 처음으로 닿는다.
+		if (viewer == null) {
+			return STRANGER_SCOPES;
+		}
 		if (author.equals(viewer)) {
 			return SELF_SCOPES;
 		}

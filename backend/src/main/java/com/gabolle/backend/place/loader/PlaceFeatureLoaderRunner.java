@@ -39,6 +39,21 @@ import org.springframework.stereotype.Component;
  * 산출물 모양은 {@link PlaceFeatureNdjsonReader#readVisitorFacts} 참고. 가격대와 달리
  * {@code namespace} 를 함께 적어야 한다 — TourAPI 출처 장소에도 붙는 산출물이라서다.
  *
+ * <p>agy 헤드리스 가격+narrative 통합 조사(S15P21E201-1414)는 또 다른 인자로 넣는다.
+ *
+ * <pre>
+ * git show origin/bigData/dev:bigData/data/staged/place-research-combined.ndjson &gt; /tmp/price-narrative.ndjson
+ *
+ * java -jar gabolle-backend.jar \
+ *   --spring.profiles.active=dev \
+ *   --gabolle.place.loader.price-narrative=/tmp/price-narrative.ndjson \
+ *   --gabolle.place.loader.dataset-version=price-narrative-202609
+ * </pre>
+ *
+ * 산출물 모양은 {@link PlaceFeatureNdjsonReader#readPriceNarrative} 참고. 조사가 계속
+ * 진행 중이라 산출물이 자란다 — 다시 돌려도 이미 있는 사실은 건드리지 않으므로({@link
+ * PlaceFeatureLoader} 의 {@code ON CONFLICT DO NOTHING}), 늘어난 뒷부분만 새로 들어간다.
+ *
  * <p>유명세는 여기서 안 넣는다. {@code PopularityLoaderRunner} 가 다른 방식으로 넣으므로,
  * 같은 값을 넣는 경로가 둘이면 어느 쪽이 진짜인지 알 수 없다.
  *
@@ -55,12 +70,17 @@ import org.springframework.stereotype.Component;
 		+ "or '${gabolle.place.loader.place-slope:}' != '' "
 		+ "or '${gabolle.place.loader.place-quietness:}' != '' "
 		+ "or '${gabolle.place.loader.place-locality:}' != '' "
-		+ "or '${gabolle.place.loader.place-shade:}' != ''")
+		+ "or '${gabolle.place.loader.place-shade:}' != '' "
+		+ "or '${gabolle.place.loader.price-narrative:}' != ''")
 public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	public static final String PRICE_BAND_SOURCE_TYPE = "RESEARCH_PRICEBAND";
 
 	public static final String VISITOR_FACTS_SOURCE_TYPE = "RESEARCH_VISITOR_FACTS";
+
+	/** agy 헤드리스 조사가 낸 가격·narrative. 사람이 웹에서 찾은 {@link #PRICE_BAND_SOURCE_TYPE}
+	 * 와는 값 목록이 달라 출처를 따로 둔다. */
+	public static final String PRICE_NARRATIVE_SOURCE_TYPE = "RESEARCH_PRICE_NARRATIVE";
 
 	/**
 	 * 경사만 {@link TourApiPlaceLoader#SOURCE_TYPE} 을 쓴다. 되짚기가 아니라 장소 아이디 때문이다
@@ -102,6 +122,8 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	private final String placeShadePath;
 
+	private final String priceNarrativePath;
+
 	private final String datasetVersion;
 
 	public PlaceFeatureLoaderRunner(PlaceFeatureLoader loader,
@@ -111,6 +133,7 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 			@Value("${gabolle.place.loader.place-quietness:}") String placeQuietnessPath,
 			@Value("${gabolle.place.loader.place-locality:}") String placeLocalityPath,
 			@Value("${gabolle.place.loader.place-shade:}") String placeShadePath,
+			@Value("${gabolle.place.loader.price-narrative:}") String priceNarrativePath,
 			@Value("${gabolle.place.loader.dataset-version:}") String datasetVersion) {
 		this.loader = loader;
 		this.priceBandPath = priceBandPath;
@@ -119,6 +142,7 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 		this.placeQuietnessPath = placeQuietnessPath;
 		this.placeLocalityPath = placeLocalityPath;
 		this.placeShadePath = placeShadePath;
+		this.priceNarrativePath = priceNarrativePath;
 		this.datasetVersion = datasetVersion;
 	}
 
@@ -147,6 +171,8 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 		load("장소 그늘", this.placeShadePath, DERIVED_SHADE_SOURCE_TYPE,
 				(file, chunkSize, chunkConsumer) -> PlaceFeatureNdjsonReader.readPlaceScores(
 						file, "shadeScore", "SHADE_SCORE", chunkSize, chunkConsumer));
+		load("가격+narrative 조사", this.priceNarrativePath, PRICE_NARRATIVE_SOURCE_TYPE,
+				PlaceFeatureNdjsonReader::readPriceNarrative);
 	}
 
 	private void load(String label, String path, String sourceType,

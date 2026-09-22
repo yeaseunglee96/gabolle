@@ -696,6 +696,39 @@ backend:migration-order:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['backend/src/main/resources/db/migration/**/*']
 
+
+# ── 챗봇 이동 주소 계약 ─────────────────────────────────────────────────────
+#
+# 🔴 2026-09-18 운영에서 비서(챗봇)의 **이동 버튼 다섯 중 셋이 사라져 있었다**
+#    (S15P21E201-1273). 서버는 버튼을 제대로 내줬는데 앱이 그 주소를 모르는 주소로
+#    보고 지웠다. 사용자에게는 **없는 기능**으로 보였다.
+#
+#    목록이 두 곳에 있고 한쪽만 자란 것이 원인인데, 그때의 검사는 **손으로 베낀 배열을
+#    자기 자신과** 비교하고 있어서 갈라진 뒤에도 계속 초록이었다. 그 검사는 고쳐졌지만
+#    비교 대상인 서버 목록이 여전히 베낀 스냅샷이라, 서버가 주소를 하나 더 늘리면
+#    같은 사고가 다시 난다. 이 잡은 **양쪽 원본 파일을 직접 읽어** 대조한다.
+#
+# 🔴 앱 코드는 이 브랜치에 없다. `back/dev` 의 `frontend/` 는 README 한 장짜리
+#    자리표시자다. 그래서 `front/dev` 를 **이름 붙여** 받아 온다 — 그냥
+#    `git fetch origin front/dev` 를 하면 결과가 FETCH_HEAD 에만 남고
+#    `origin/front/dev` 라는 이름으로는 안 생겨서 `git show` 가 못 찾는다
+#    (바로 위 backend:migration-order 가 같은 함정을 주석으로 적어 뒀다).
+assistant:href-contract:
+  stage: verify
+  variables:
+    GIT_DEPTH: 0
+  # 🔴 전역 before_script 를 [] 로 덮지 않는다. 이 잡은 git 을 쓰고,
+  #    node:20-alpine 에는 git 이 없다.
+  before_script:
+    - apk add --no-cache git
+  script:
+    - git fetch origin "+refs/heads/front/dev:refs/remotes/origin/front/dev" --quiet
+    - node ci/assistant-href-contract.mjs
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - 'backend/src/main/java/com/gabolle/backend/assistant/adapter/GeminiAssistantAdapter.java'
+        - 'ci/assistant-href-contract.mjs'
 # ── 파이프라인이 존재하게 한다 ───────────────────────────────────────────────
 #
 # 🔴 이 잡이 없으면 `ref/` 만 바꾼 MR 은 **잡이 하나도 안 돌아 파이프라인 자체가

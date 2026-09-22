@@ -55,6 +55,45 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 
 	String BEFORE_CURSOR = " AND (s.publish_at, s.story_id) < (CAST(:cursorAt AS timestamptz), CAST(:cursorId AS uuid)) ";
 
+	/**
+	 * 인기순이 쓰는 좋아요 수 — <b>{@code :windowStart} 이후에 받은 것만</b> 센다. 누적 칸이 아니라
+	 * 반응 표를 그때그때 센다. {@code story_reaction} 의 PK 가 {@code (story_id, user_id)} 라 한 사람이
+	 * 한 번만 세어지고, 취소한 사람은 행이 남되 {@code reaction} 이 바뀌므로 여기서 빠진다.
+	 *
+	 * <h2>🔴 이 수는 화면에 보이는 좋아요 수가 아니다</h2>
+	 *
+	 * 화면의 하트 옆 숫자({@code StoryResponse.likeCount})는 기간 제한 없는 <b>누적</b>이다. 여기
+	 * 이 수는 <b>정렬에만 쓰는 창 안의 수</b>라 거의 언제나 더 작다. 둘을 같은 것으로 보고
+	 * 커서에 화면의 수를 실으면 다음 쪽이 엉뚱한 자리에서 이어진다 —
+	 * {@code StoryFeedService.page} 가 이 저장소의 {@link #countLikesSince} 로 따로 세는 이유다.
+	 *
+	 * <p>시각 열은 {@code created_at} 이다. 색인 {@code ix_story_reaction_recent
+	 * (created_at DESC, reaction, story_id)} 이 이 모양 그대로라 «시각으로 먼저 자르고 글별로 센다»
+	 * 가 색인만으로 끝난다. 좋아요를 눌렀다가 싫어요로 바꿨다 되돌린 사람은 행이 안 새로 생기므로
+	 * 처음 누른 시각으로 남는다 — 「최근 24시간 안에 새로 받은 좋아요」라는 뜻에 그게 맞다.
+	 */
+	String RECENT_LIKE_COUNT = "(SELECT count(*) FROM story_reaction r WHERE r.story_id = s.story_id"
+			+ " AND r.reaction = 'LIKE' AND r.created_at >= :windowStart)";
+
+	/**
+	 * 인기순 정렬. 좋아요 수가 같을 때 최신순으로 내려가고 마지막에 식별자로 끊는다.
+	 *
+	 * <p>뒤의 두 열이 없으면 안 된다. 지금 실서버는 기록 39건에 반응 6건이라 대부분이 0 으로 동점인데,
+	 * 동점의 순서를 정하지 않으면 DB 가 주는 대로 나와 새로고침할 때마다 목록이 뒤바뀐다.
+	 * 창으로 자르면 동점이 더 늘어난다 — 24시간 밖의 좋아요는 전부 0 이 되므로, 반응이 얇은
+	 * 동안 인기순은 사실상 최신순으로 내려앉는다. 그게 이 정렬의 의도된 바닥이다.
+	 */
+	String POPULAR_ORDER = " ORDER BY " + RECENT_LIKE_COUNT
+			+ " DESC, s.publish_at DESC, s.story_id DESC LIMIT :limit";
+
+	/**
+	 * 인기순 커서. 정렬 열이 셋이므로 비교도 셋이다 — 창 안의 좋아요 수가 커서보다 적거나,
+	 * 같으면서 {@code (공개 시각, 식별자)} 가 뒤인 것.
+	 */
+	String BEFORE_POPULAR_CURSOR = " AND (" + RECENT_LIKE_COUNT + " < :cursorLikes OR (" + RECENT_LIKE_COUNT
+			+ " = :cursorLikes"
+			+ " AND (s.publish_at, s.story_id) < (CAST(:cursorAt AS timestamptz), CAST(:cursorId AS uuid)))) ";
+
 	/** 전체 피드 — 공개(PUBLIC) 기록, 그리고 내 기록은 범위와 무관하게. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
 			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR + BEFORE_CURSOR
@@ -72,6 +111,46 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			+ BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
 	List<Story> findPublicFeedForAnonymous(@Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
 			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
+
+	/** 전체 피드, 인기순. {@link #findPublicFeed} 와 조건은 같고 정렬과 커서만 다르다. */
+	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
+			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR
+			+ BEFORE_POPULAR_CURSOR + POPULAR_ORDER, nativeQuery = true)
+	List<Story> findPublicFeedPopular(@Param("me") UUID me, @Param("now") Instant now,
+			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId,
+			@Param("cursorLikes") int cursorLikes, @Param("windowStart") Instant windowStart,
+			@Param("limit") int limit);
+
+	/** 로그인하지 않은 사람의 전체 피드, 인기순. 조건을 따로 두는 이유는 {@link #findPublicFeedForAnonymous} 와 같다. */
+	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED + " AND s.visibility = 'PUBLIC'"
+			+ BEFORE_POPULAR_CURSOR + POPULAR_ORDER, nativeQuery = true)
+	List<Story> findPublicFeedForAnonymousPopular(@Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
+			@Param("cursorId") UUID cursorId, @Param("cursorLikes") int cursorLikes,
+			@Param("windowStart") Instant windowStart, @Param("limit") int limit);
+
+	/** 팔로잉 피드, 인기순. */
+	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
+			+ " AND s.visibility IN ('PUBLIC', 'FOLLOWERS')"
+			+ " AND s.author_user_id IN (SELECT f.followee_user_id FROM user_follow f WHERE f.follower_user_id = :me)"
+			+ NOT_BLOCKED_BY_AUTHOR + BEFORE_POPULAR_CURSOR + POPULAR_ORDER, nativeQuery = true)
+	List<Story> findFollowingFeedPopular(@Param("me") UUID me, @Param("now") Instant now,
+			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId,
+			@Param("cursorLikes") int cursorLikes, @Param("windowStart") Instant windowStart,
+			@Param("limit") int limit);
+
+	/**
+	 * 한 글이 창 안에서 받은 좋아요 수 — <b>다음 쪽 커서에 실을 값</b>이다.
+	 *
+	 * <p>{@link #RECENT_LIKE_COUNT} 와 같은 것을 세지만 글 하나만 본다. 이 메서드가 따로 있는
+	 * 이유는 정렬이 쓰는 수와 화면에 보이는 수가 <b>다른 값</b>이기 때문이다 — 커서는 정렬이 쓴
+	 * 그 수로 이어져야 하는데, 조립된 응답에는 누적 수밖에 없다.
+	 *
+	 * <p>쪽마다 한 번씩 더 도는 질의지만 색인 {@code ix_story_reaction_recent} 로 끝나고,
+	 * 쪽당 1회다 — 목록을 그리는 질의가 이미 글마다 같은 부질의를 돌고 있다.
+	 */
+	@Query(value = "SELECT count(*) FROM story_reaction r WHERE r.story_id = :storyId"
+			+ " AND r.reaction = 'LIKE' AND r.created_at >= :windowStart", nativeQuery = true)
+	int countLikesSince(@Param("storyId") UUID storyId, @Param("windowStart") Instant windowStart);
 
 	/** 팔로잉 피드 — 내가 팔로우한 사람의 PUBLIC·FOLLOWERS 기록. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED

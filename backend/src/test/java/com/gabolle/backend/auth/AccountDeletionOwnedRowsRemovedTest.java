@@ -73,7 +73,9 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 			new Owned("trip_share_link", "created_by"),
 			new Owned("oauth_signup_ticket", "existing_user_id"),
 			// 알레르기·식단이 들어 있는 자리라 반드시 지워져야 한다.
-			new Owned("user_travel_constraint", "user_id"));
+			new Owned("user_travel_constraint", "user_id"),
+			// 🔴 기기 푸시 토큰. 남으면 탈퇴한 사람의 폰으로 알림이 계속 간다 (S15P21E201-1391).
+			new Owned("push_token", "user_id"));
 
 	@Autowired
 	private AccountDeletionService accountDeletionService;
@@ -133,7 +135,7 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 지운다고 적어 둔 열세 자리가 탈퇴 뒤 전부 0건이다 — 애플 심사 5.1.1(v)")
+	@DisplayName("🔴 지운다고 적어 둔 자리가 탈퇴 뒤 전부 0건이다 — 애플 심사 5.1.1(v)")
 	void everyOwnedRowIsActuallyGone() {
 		// 먼저 넣었는지 본다. 시드가 조용히 실패하면 아래 검사가 거저 통과한다.
 		List<String> notSeeded = new ArrayList<>();
@@ -258,6 +260,9 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 				+ "VALUES (?, ?, now())", user, this.otherUserId);
 		this.jdbc.update("INSERT INTO user_block (blocker_user_id, blocked_user_id, created_at) "
 				+ "VALUES (?, ?, now())", this.otherUserId, user);
+		this.jdbc.update("INSERT INTO push_token (push_token_id, user_id, token, platform, created_at, updated_at) "
+				+ "VALUES (?, ?, ?, 'android', now(), now())",
+				UUID.randomUUID(), user, "ExponentPushToken[" + shortId() + "]");
 	}
 
 	private UUID createUser(String address) {

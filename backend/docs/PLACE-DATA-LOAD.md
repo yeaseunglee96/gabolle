@@ -308,6 +308,79 @@ exit
 야시장·기념품샵은 계속 0건이고 그것이 맞다 — 원천에 신호가 없어 일부러 비웠다
 (`S15P21E201-474` 코멘트).
 
+## 7. 가격+narrative 조사 (S15P21E201-1414, 2026-09-22 추가 — 진행 중)
+
+agy 헤드리스로 부산 음식점을 웹에서 조사해 가격과 "왜 가는지"를 모으는 작업
+(`bigData/research/price-queue.mjs`)이다. **위 절차와 다른 점 하나** — 대상 장소는
+전부 SBIZ 상가정보 출처라 이미 `place` 표에 있다. ①(장소 먼저)을 다시 안 밟아도 된다.
+
+🔴 **한 번에 다 넣는 파일이 아니다.** 조사가 계속 도는 중이라 `place-research-combined.ndjson`
+이 돌 때마다 자란다. 적재기는 이미 있는 사실을 건드리지 않으므로(`ON CONFLICT DO NOTHING`),
+**늘어난 뒤쪽만 새로 들어간다** — 다시 돌려도 앞서 넣은 것이 두 배가 되지 않는다.
+
+```bash
+git fetch origin bigData/dev
+git show origin/bigData/dev:bigData/data/staged/place-research-combined.ndjson \
+  > /tmp/load/price-narrative.ndjson
+scp -i $PEM /tmp/load/price-narrative.ndjson $HOST:/home/ubuntu/load/
+
+ssh -i $PEM $HOST
+docker run -d --network local-route-personalization_data_net --env-file /tmp/load.env \
+  -e GABOLLE_JWT_SECRET=loader-only-throwaway-value-0123456789abcdef \
+  -v /home/ubuntu/load:/load local-route-backend:candidate \
+  --gabolle.place.loader.price-narrative=/load/price-narrative.ndjson \
+  --gabolle.place.loader.dataset-version=price-narrative-<오늘날짜>
+```
+
+넣는 것 둘 — `MENU_PRICE_WON`(가격, 못 찾은 곳은 0원이 아니라 사실 자체를 안 낸다)과
+`WHY_VISIT`("왜 가는지" 이유 목록 + 근거 주소). 영업시간·혼잡도·현지인 비중·메뉴
+다양성은 이번엔 안 넣는다 — 아직 화면이 안 읽는 값이다(`PlaceFeatureNdjsonReader
+.readPriceNarrative` 주석 참고).
+
+> 🔴 **마이그레이션이 하나 필요하다 — 2026-09-22 (S15P21E201-1478).**
+> 1465 커밋은 *"place_feature 가 feature_type 에 CHECK 를 안 걸어서 새 종류를 자유롭게
+> 추가할 수 있다"* 고 적었는데 **사실이 아니었다.** `ck_place_feature_type` 이 걸려 있어
+> `MENU_PRICE_WON` · `WHY_VISIT` 이 막혔고, 돌리면 **한 줄도 안 들어가고 통째로
+> 되돌려졌다.** `V20260922080000__place_feature_price_narrative_types.sql` 이 그것을 푼다.
+>
+> **그 마이그레이션이 들어간 이미지로 돌려야 한다.** 적재 컨테이너는 앱을 통째로 띄우므로
+> 기동할 때 마이그레이션도 함께 적용한다 — 낡은 이미지로 돌리면 제약이 옛것이라 또 막힌다.
+
+### 🔴 적재 기록 — 언제 무엇을 얼마나 넣었나
+
+**이 표는 낡지 않는다.** 「지금 몇 곳인가」가 아니라 **「그날 무엇을 넣었나」**를 적기
+때문이다. 지우지 말고 **아래에 줄을 더한다.** 이게 없으면 다음 사람이 *"어디까지
+넣었지"* 를 DB 를 뒤져 다시 알아내야 한다.
+
+세는 법 — 적재기는 넣은 줄마다 `source_version` 을 찍는다.
+
+```sql
+SELECT source_version, feature_type, count(*)
+FROM place_feature WHERE source_type = 'RESEARCH_PRICE_NARRATIVE'
+GROUP BY 1, 2 ORDER BY 1, 2;
+```
+
+| 날짜 | `dataset-version` | 입력 줄 | `MENU_PRICE_WON` | `WHY_VISIT` | 결과 |
+|---|---|---|---|---|---|
+| 2026-09-22 07:21 | `price-narrative-20260922` | 522 | — | — | 🔴 **0행.** `ck_place_feature_type` 이 막았다 (S15P21E201-1478) |
+| 2026-09-22 07:39 | `price-narrative-20260922` | 645 | **189** | **545** | 🟢 넣음 734 · 장소가 없어 못 넣음 **0** · 이미 있어 건너뜀 **0** · 1.7초 |
+
+적재기가 마지막 줄에 스스로 세어 찍는다 — 그대로 옮기면 된다.
+
+```
+가격+narrative 조사 적재를 마쳤다 — 줄 645 · 값이 없어 뺌 100 · 쓸 수 있는 것 734
+                                 · 넣음 734 · 장소가 없어 못 넣음 0 · 이미 있어 건너뜀 0 · 1720ms
+```
+
+> 🔴 **자료가 들어간 것과 화면에 보이는 것은 또 다른 일이다.** 2026-09-22 현재
+> `MENU_PRICE_WON` 을 **읽는 코드가 없다** — 추천 응답을 만드는 자리에
+> `null, // estimatedCostKrw — 비용 데이터가 없다` 라고 못 박혀 있다
+> (`RecommendationResultQueryService`). 그 주석은 어제까지 맞았고 오늘부터 틀리다.
+> 잇는 일은 **S15P21E201-1479** 다.
+
+조사가 계속 도는 중이라 입력 줄은 돌릴 때마다 는다. 적재기는 `ON CONFLICT DO NOTHING`
+이라 **다시 돌려도 앞의 것이 두 배가 되지 않고 늘어난 뒤쪽만** 들어간다.
+
 ## 되돌리기
 
 전부 출처와 수집분이 찍힌다.
@@ -322,6 +395,15 @@ DELETE FROM place         WHERE source_type = 'TOURAPI' AND dataset_version = 't
 ### 유도값 되돌리기 (2026-09-17)
 
 조용함·로컬성은 **자기 이름의 출처**로 들어가서 한 줄로 지워진다.
+
+### 가격+narrative 되돌리기 (2026-09-22)
+
+```sql
+DELETE FROM place_feature WHERE source_type = 'RESEARCH_PRICE_NARRATIVE';
+```
+
+수집분(`dataset_version`)이 날마다 달라도 `source_type` 하나로 전부 걸린다 — 조사가
+계속 자라는 산출물이라, 날짜별로 나눠 지우면 그날 이후 걸 놓친다.
 
 ```sql
 DELETE FROM place_feature WHERE source_type = 'DERIVED_QUIETNESS';

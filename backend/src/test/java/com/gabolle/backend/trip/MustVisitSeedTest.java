@@ -169,7 +169,7 @@ class MustVisitSeedTest {
 				100000, 2,
 				"MORNING_TO_EVENING", "Asia/Seoul",
 				List.of(new PreferenceSnapshot.PreferenceAnswer(
-						"pace", "RELAXED", PreferenceSnapshot.AnswerStatus.SELECTED)),
+						"quietness", "3", PreferenceSnapshot.AnswerStatus.SELECTED)),
 				List.of(),
 				com.gabolle.backend.trip.domain.Trip.OwnerType.USER,
 				null, false, false, false, null,

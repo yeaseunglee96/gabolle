@@ -40,7 +40,7 @@ class CandidateAssemblerTest {
 	 */
 	private final CandidateAssembler assembler = new CandidateAssembler(
 			new JsonPayloads(JsonMapper.builder().build()), new SensitivePayloadGuard(),
-			new DiversityReranker(new DiversityProperties(null, null, null)));
+			new DiversityReranker(new DiversityProperties(null, null, null, null)));
 
 	private final OffsetDateTime now = OffsetDateTime.now();
 

@@ -70,7 +70,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		// 사람을 안 가리키지만 꾸러미 단위로 올리므로 함께 들어온다.
 		"com.gabolle.backend.dish.domain",
 		"com.gabolle.backend.review.domain",
-		"com.gabolle.backend.share.domain"
+		"com.gabolle.backend.share.domain",
+		// 탈퇴가 PushTokenJpaEntity 를 직접 지운다 (S15P21E201-1391).
+		"com.gabolle.backend.notification.infra"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",

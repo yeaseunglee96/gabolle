@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.beans.factory.ObjectProvider;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +27,7 @@ import com.gabolle.backend.itinerary.application.ItineraryDraftService;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
+import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.application.port.TravelTimePort;
@@ -78,6 +81,16 @@ class ItineraryDraftServiceTest {
 
 	private PlaceRepository placeRepository;
 
+	/**
+	 * 알림 사건을 버리는 자리 — S15P21E201-1391.
+	 *
+	 * <p>이 검사가 보는 것은 초안과 저장이지 알림이 아니다. 알림 자체는
+	 * {@code TripPushNotifierTest} 가 본다.
+	 */
+	private static ApplicationEventPublisher noEvents() {
+		return (event) -> { };
+	}
+
 	private ItineraryDraftService service;
 
 	@BeforeEach
@@ -94,7 +107,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT);
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -276,7 +289,7 @@ class ItineraryDraftServiceTest {
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN,
-				ALWAYS_UNKNOWN_TIME_FACT);
+				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -514,7 +527,8 @@ class ItineraryDraftServiceTest {
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD",
-				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact);
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact,
+				noRouteOrder(), noEvents());
 	}
 
 	@Test
@@ -667,7 +681,7 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", new ItineraryLegPlanner(this.placeRepository, provider),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT);
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), noEvents());
 	}
 
 	private List<ItineraryDraftCommand.PlannedPlace> plannedPlaces(int count) {
@@ -681,5 +695,192 @@ class ItineraryDraftServiceTest {
 	private ItineraryDraftCommand commandOf(String tripId, List<ItineraryDraftCommand.PlannedPlace> places) {
 		return new ItineraryDraftCommand(UUID.randomUUID(), tripId, "usr_1", places,
 				"model-1", "feature-1", "ontology-1", "policy-1", "dataset-1");
+	}
+
+	/**
+	 * 동선 최적화가 붙어 있지 않은 판. 이 파일의 다른 시험들이 전부 이 상태이고, 그때 차례는
+	 * 순위 그대로다 — 최적화가 없어도 일정이 오늘처럼 나온다는 것을 그 시험들이 같이 지킨다.
+	 */
+	private static ObjectProvider<RouteOrderPort> noRouteOrder() {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<RouteOrderPort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(null);
+		return provider;
+	}
+
+	/** 동선 최적화가 정해진 답을 내는 판. 파이썬을 부르지 않는다 — 배선만 본다. */
+	private ItineraryDraftService serviceWithRouteOrder(RouteOrderPort routeOrder) {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<RouteOrderPort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(routeOrder);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		when(noTravelTime.getIfAvailable()).thenReturn(null);
+		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
+				4, 3, "FOOD", new ItineraryLegPlanner(this.placeRepository, noTravelTime),
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, provider, noEvents());
+	}
+
+	private static List<UUID> placeIdsOf(List<ItineraryDraftCommand.PlannedPlace> places) {
+		return places.stream().map(ItineraryDraftCommand.PlannedPlace::placeId).collect(Collectors.toList());
+	}
+
+	private static List<UUID> placeIdsOfItems(ItineraryDraft draft) {
+		return draft.items().stream().map(ItineraryDraft.DraftItem::placeId).collect(Collectors.toList());
+	}
+
+	@Test
+	@DisplayName("동선 최적화가 낸 차례대로 일정에 앉는다 — 추천 순위 차례가 아니라")
+	void seatsInRouteOrderNotRankOrder() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(4);
+		List<UUID> rankOrder = placeIdsOf(places);
+		List<UUID> routeOrder = new ArrayList<>(rankOrder);
+		Collections.reverse(routeOrder);
+
+		ItineraryDraftService service = serviceWithRouteOrder(request -> routeOrder);
+
+		ItineraryDraft draft = service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(placeIdsOfItems(draft))
+				.as("최적화가 낸 차례가 그대로 일정의 차례가 되어야 한다")
+				.containsExactlyElementsOf(routeOrder);
+	}
+
+	@Test
+	@DisplayName("최적화가 답을 못 내면 순위 차례 그대로 간다 — 일정이 멈추지 않는다")
+	void keepsRankOrderWhenRouteOrderIsEmpty() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(4);
+		List<UUID> rankOrder = placeIdsOf(places);
+
+		ItineraryDraftService service = serviceWithRouteOrder(request -> List.of());
+
+		ItineraryDraft draft = service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(placeIdsOfItems(draft)).containsExactlyElementsOf(rankOrder);
+	}
+
+	@Test
+	@DisplayName("최적화가 받은 적 없는 장소를 돌려주면 통째로 버린다 — 한 톨이라도 어긋나면 순위 차례다")
+	void keepsRankOrderWhenRouteOrderReturnsUnknownPlace() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(4);
+		List<UUID> rankOrder = placeIdsOf(places);
+		// 수는 맞는데 마지막 하나가 우리가 준 적 없는 장소다.
+		List<UUID> broken = new ArrayList<>(rankOrder.subList(0, 3));
+		broken.add(UUID.randomUUID());
+
+		ItineraryDraftService service = serviceWithRouteOrder(request -> broken);
+
+		ItineraryDraft draft = service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(placeIdsOfItems(draft))
+				.as("차례만 바꾼다는 약속이 깨진 답은 쓰지 않는다")
+				.containsExactlyElementsOf(rankOrder);
+	}
+
+	@Test
+	@DisplayName("여행이 고른 이동수단이 최적화에 그대로 간다 — 차례를 정한 잣대와 구간을 잰 잣대가 같아야 한다")
+	void passesTripTravelModeToRouteOrder() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(3);
+		List<String> seen = new ArrayList<>();
+
+		ItineraryDraftService service = serviceWithRouteOrder(request -> {
+			seen.add(request.travelMode());
+			return List.of();
+		});
+		service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(seen).as("이동수단을 안 고른 여행은 WALK 로 떨어진다 — ItineraryLegPlanner 와 같은 규칙")
+				.containsExactly("WALK");
+	}
+
+	/** 「여행 기분」을 고른 여행. 나머지 조건은 {@link #tripOf} 와 같다. */
+	private Trip tripWithPace(String pace) {
+		return Trip.builder()
+				.tripId("itn_trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 10)).finishDate(LocalDate.of(2026, 9, 10))
+				.partySize(2).timezone("Asia/Seoul").pace(pace)
+				.createdAt(Instant.now())
+				.build();
+	}
+
+	private int placedCountFor(String pace, int candidates) {
+		Trip trip = tripWithPace(pace);
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+		return this.service.assemble(commandOf("itn_trip_1", plannedPlaces(candidates))).items().size();
+	}
+
+	@Test
+	@DisplayName("🔴 「여행 기분」이 하루 곳 수를 정한다 — 화면은 「하루 2–3곳」이라 약속하는데 서버는 전원 4곳이었다")
+	void paceDecidesHowManyPlacesPerDay() {
+		// 후보는 넉넉히 같은 수로 주고 고른 값만 바꾼다. 달라지는 것이 기분뿐이어야 뜻이 있다.
+		assertThat(placedCountFor("RELAXED", 8)).as("여유롭게 — 하루 2–3곳").isEqualTo(3);
+		assertThat(placedCountFor("BALANCED", 8)).as("균형 있게 — 하루 3–4곳").isEqualTo(4);
+		assertThat(placedCountFor("PACKED", 8)).as("알차게 — 하루 5곳 이상").isEqualTo(5);
+	}
+
+	@Test
+	@DisplayName("기분을 안 고른 여행은 지금까지처럼 설정 기본값을 쓴다 — null 은 「보통」이 아니라 「모른다」다")
+	void unsetPaceKeepsTheConfiguredDefault() {
+		assertThat(placedCountFor(null, 8))
+				.as("이 시험이 만든 서비스의 설정값은 4다")
+				.isEqualTo(4);
+	}
+
+	@Test
+	@DisplayName("후보가 모자라면 기분이 정한 수보다 적게 들어간다 — 없는 곳을 지어내지 않는다")
+	void fewerCandidatesThanThePaceAsksFor() {
+		assertThat(placedCountFor("PACKED", 2)).isEqualTo(2);
+	}
+
+	// ── 필요한 자리 수 (S15P21E201-1450) ──────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 필요한 자리 수는 날 수 × 하루 곳 수다 — 응답 개수(기본 10)로 어림해 3일 여행이 두 자리 모자랐다")
+	void placesNeededCountsEverySeat() {
+		Trip threeDays = Trip.builder()
+				.tripId("itn_trip_3d").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 10)).finishDate(LocalDate.of(2026, 9, 12))
+				.partySize(2).timezone("Asia/Seoul")
+				.createdAt(Instant.now())
+				.build();
+		when(this.tripRepository.findById("itn_trip_3d")).thenReturn(Optional.of(threeDays));
+
+		// 기분을 안 골랐으니 하루 4곳(이 시험이 만든 서비스의 설정값) × 3일.
+		assertThat(this.service.placesNeeded("itn_trip_3d"))
+				.as("추천이 10개만 주면 이 여행은 두 자리를 못 채운다")
+				.isEqualTo(12);
+	}
+
+	@Test
+	@DisplayName("기분이 하루 곳 수를 정하므로 필요한 자리 수도 따라 바뀐다 — 규칙을 한 벌로 둔 값어치")
+	void placesNeededFollowsThePace() {
+		assertThat(placesNeededFor("RELAXED")).as("여유롭게 — 하루 3곳 × 1일").isEqualTo(3);
+		assertThat(placesNeededFor("BALANCED")).as("균형 있게 — 하루 4곳 × 1일").isEqualTo(4);
+		assertThat(placesNeededFor("PACKED")).as("알차게 — 하루 5곳 × 1일").isEqualTo(5);
+	}
+
+	@Test
+	@DisplayName("여행을 못 찾으면 1 이다 — 이 값 때문에 추천이 실패하면 안 된다")
+	void placesNeededFallsBackToOneForAnUnknownTrip() {
+		when(this.tripRepository.findById("itn_trip_none")).thenReturn(Optional.empty());
+
+		assertThat(this.service.placesNeeded("itn_trip_none")).isEqualTo(1);
+	}
+
+	private int placesNeededFor(String pace) {
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(tripWithPace(pace)));
+		return this.service.placesNeeded("itn_trip_1");
 	}
 }
