@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,8 +43,15 @@ import com.gabolle.backend.preference.domain.UserTasteWeight;
  * 카프카 파티션 키가 사용자라, 한 사람의 이벤트는 <b>보낸 순서대로</b> 온다
  * ({@code EventIngestService.partitionKeyOf}). 상태 전이를 순서대로 밟을 수 있는 근거가 그것이다.
  * 같은 이유로 한 사용자에 대해 두 스레드가 동시에 이 코드를 돌지 않는다.
+ *
+ * <h2>🔴 {@code @Profile} 이 붙은 이유</h2>
+ *
+ * {@code JdbcTemplate} 은 데이터소스가 있을 때만 생긴다. 프로필을 안 걸었더니 <b>DB 가 없는
+ * 컨텍스트가 이 빈을 만들려다 죽었다</b> — 기동 검사·슬라이스 검사 여섯이 한꺼번에 빨개졌다.
+ * {@code BehaviorTasteFolder} 가 같은 이유로 같은 프로필을 달고 있다.
  */
 @Component
+@Profile({ "db", "dev" })
 public class TasteAttributionService {
 
 	private static final Logger log = LoggerFactory.getLogger(TasteAttributionService.class);
