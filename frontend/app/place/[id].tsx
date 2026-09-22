@@ -85,7 +85,7 @@ export default function Place() {
 
   // 🔴 「이 장소를 봤다」 — place_view (S15P21E201-638). 서버 취향 귀속의 마지막 조각(1482, 기여값 +0.1).
   //    화면당 «한 번만» 보낸다 — 재렌더·뒤로가기·재시도로 두 번 나가면 「두 번 본 것」이 되어 가중치가 부푼다.
-  //    «로딩이 끝난 뒤에만» — not-found 인 장소를 봤다고 적지 않는다. demoPlace 는 place_like 와 같은 이유로 뺀다.
+  //    «로딩이 끝난 뒤에만» — not-found 인 장소를 봤다고 적지 않는다. demoPlace(내장 견본)는 실제 장소가 아니라 뺀다.
   //    requestId 는 이번 범위가 아니다(랭킹 평가용 — 취향 귀속에는 필요 없다, 별도 티켓).
   const viewed = useRef<Set<string>>(new Set());
   useEffect(() => {
@@ -119,8 +119,9 @@ export default function Place() {
         ? tx('내 여행 후보에 저장했어요. 일정을 만들 때 이 장소를 먼저 넣어요.', 'Saved to your trip candidates — we will use it first when building an itinerary.')
         : tx('저장을 해제했어요.', 'Removed from saved.'));
     }
-    // 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
-    if (nextSaved && !demoPlace) sendAppEvent({ type: 'place_like', accessToken, payload: { placeId: id, surface: 'place_detail' } });
+    // 🔴 place_like 는 여기서 보내지 않는다 — S15P21E201-1486. 저장 API(PUT /me/saved-places)가
+    //    서버에서 같은 트랜잭션으로 PLACE_LIKE 를 적는다(inserted == 1 일 때만이라 연타·재시도에도
+    //    한 건). 앱이 또 보내면 하트 한 번에 두 건이 됐다. place_view 는 서버 짝이 없어 그대로 둔다.
   };
 
   const notFound = !demoPlace && remote.status === 'not-found';
