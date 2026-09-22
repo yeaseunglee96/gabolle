@@ -10,14 +10,12 @@ import org.apache.kafka.common.header.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import com.gabolle.backend.event.application.EventConsumptionService;
+import com.gabolle.backend.event.application.EventConsumptionService.ConsumedEvent;
 import com.gabolle.backend.event.config.KafkaEventProperties;
-import com.gabolle.backend.event.domain.EventConsumption;
-import com.gabolle.backend.event.repository.EventConsumptionRepository;
-import com.gabolle.backend.preference.application.TasteAttributionService;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -27,15 +25,21 @@ import tools.jackson.databind.ObjectMapper;
  *
  * <p>반영은 둘이다. <b>하나</b> — 장부({@code event_consumption})에 한 줄 적어 같은 이벤트를
  * 두 번 세지 않게 한다. <b>둘</b> — 장소가 실린 행동 이벤트면 취향 벡터를 증분으로 고친다
- * ({@link TasteAttributionService}, S15P21E201-1500).
+ * ({@code TasteAttributionService}, S15P21E201-1500). 둘은 <b>한 트랜잭션</b>이다
+ * ({@link EventConsumptionService}, S15P21E201-1501).
  *
  * <p>예전에는 장부에 적는 것이 전부였다. 취향으로 옮기는 규칙이 아직 없었기 때문이다 —
  * <b>경로가 뚫렸다는 것과 무게를 정했다는 것은 다른 일이다.</b> 그 규칙이 S15P21E201-1482 로
  * 정해져서 이제 잇는다.
  *
  * <p>🔴 <b>멱등을 조회로 하지 않는다.</b> "이미 처리했나" 를 물어보고 아니면 처리하는 식은
- * 조회와 쓰기 사이의 틈에서 둘 다 통과한다. 그냥 넣어 보고 <b>기본키가 거부하면</b> 이미
- * 반영된 것으로 읽는다. 그 판정은 데이터베이스가 하므로 틈이 없다.
+ * 조회와 쓰기 사이의 틈에서 둘 다 통과한다. {@code INSERT … ON CONFLICT DO NOTHING} 을 보내고
+ * <b>넣은 행 수</b>로 판정한다 — 그 판정은 데이터베이스가 하므로 틈이 없다.
+ *
+ * <p>🔴 예전에는 JPA {@code saveAndFlush} 가 기본키 위반을 던지기를 기대했는데, <b>그게 안
+ * 일어났다.</b> 번호를 직접 넣는 엔티티라 Spring Data 가 {@code merge} 로 저장하고, merge 는
+ * 이미 있는 행을 만나면 조용히 넘어간다. 중복을 잡는 {@code catch} 는 한 번도 안 도는 코드였고,
+ * 재전송된 보기·방문이 취향에 두 번 더해졌다 (S15P21E201-1501).
  *
  * <p>처리에 실패하면 예외를 <b>그대로 던진다.</b> 여기서 삼키면 스프링 카프카가 "성공했다" 로
  * 보고 오프셋을 넘겨 버려 그 이벤트가 사라진다. 재시도와 DLQ 는
@@ -63,22 +67,19 @@ public class KafkaEventConsumer {
 	/** payload 안에서 장소를 가리키는 칸. {@code SavedPlaceService} 가 이 이름으로 싣는다. */
 	private static final String PAYLOAD_PLACE_ID = "placeId";
 
-	private final EventConsumptionRepository repository;
+	private final EventConsumptionService consumption;
 
 	private final KafkaEventProperties properties;
 
 	private final Clock clock;
 
-	private final TasteAttributionService attribution;
-
 	private final ObjectMapper objectMapper;
 
-	public KafkaEventConsumer(EventConsumptionRepository repository, KafkaEventProperties properties, Clock clock,
-			TasteAttributionService attribution, ObjectMapper objectMapper) {
-		this.repository = repository;
+	public KafkaEventConsumer(EventConsumptionService consumption, KafkaEventProperties properties, Clock clock,
+			ObjectMapper objectMapper) {
+		this.consumption = consumption;
 		this.properties = properties;
 		this.clock = clock;
-		this.attribution = attribution;
 		this.objectMapper = objectMapper;
 	}
 
@@ -95,49 +96,19 @@ public class KafkaEventConsumer {
 							+ " offset=" + record.offset());
 		}
 
-		EventConsumption consumption = new EventConsumption(eventId, headerOrDefault(record, HEADER_EVENT_TYPE),
-				record.key() == null ? "" : record.key(), this.properties.getConsumerGroup(), record.partition(),
-				record.offset(), OffsetDateTime.now(this.clock));
+		String eventType = headerOrDefault(record, HEADER_EVENT_TYPE);
+		ConsumedEvent event = new ConsumedEvent(eventId, eventType, record.key() == null ? "" : record.key(),
+				this.properties.getConsumerGroup(), record.partition(), record.offset(), OffsetDateTime.now(this.clock),
+				uuidHeader(record, HEADER_USER_ID), placeIdOf(record), occurredAt(record));
 
-		try {
-			this.repository.saveAndFlush(consumption);
-			log.debug("event=EVENT_CONSUMED eventId={} type={}", eventId, consumption.getEventType());
+		// 예외는 여기서 삼키지 않는다 — 올라가야 카프카가 다시 보내고, 끝내 안 되면 DLQ 로 간다.
+		// 중복은 예외가 아니라 false 로 온다.
+		if (this.consumption.recordFirstTime(event)) {
+			log.debug("event=EVENT_CONSUMED eventId={} type={}", eventId, eventType);
 		}
-		catch (DataIntegrityViolationException duplicate) {
-			// 기본키가 막았다 = 이미 반영했다. 이것은 오류가 아니라 **설계대로 된 것**이다.
-			// 릴레이가 "적어도 한 번" 을 보장하므로 여기 오는 것은 정상 경로에 속한다.
+		else {
 			log.debug("event=EVENT_ALREADY_CONSUMED eventId={}", eventId);
-			return;
 		}
-
-		applyToTaste(record);
-	}
-
-	/**
-	 * 장부에 처음 적힌 이벤트만 취향에 반영한다 (S15P21E201-1500).
-	 *
-	 * <p>🔴 <b>장부에 적는 것과 이 반영은 같은 트랜잭션이 아니다.</b> 사이에서 죽으면 그 이벤트는
-	 * 「반영했다」고 적힌 채 반영이 안 된다. 지금은 배치가 계속 돌면서 전 이력으로 다시 접으므로
-	 * 다음 접기에서 메워진다 — 그래서 지금 단계에서는 잃는 것이 없다.
-	 *
-	 * <p>배치를 걷어내는 S15P21E201-1501 에서는 이 창이 <b>영구 손실</b>이 된다. 그때 둘을 한
-	 * 트랜잭션으로 묶어야 한다. 묶는 방법도 정해져 있다 — 반영을 먼저 하고 장부를 나중에 적으면,
-	 * 중복일 때 기본키가 거부하면서 <b>반영까지 함께 되돌아간다.</b> 다만 그러려면 이 메서드
-	 * 바깥에 트랜잭션 경계가 하나 필요해서 이번 MR 에는 안 넣었다.
-	 *
-	 * <p>취향과 무관한 이벤트는 조용히 넘어간다. 여기 오는 것 대부분이 그렇다.
-	 */
-	private void applyToTaste(ConsumerRecord<String, String> record) {
-		String eventType = header(record, HEADER_EVENT_TYPE);
-		if (eventType == null) {
-			return;
-		}
-		UUID userId = uuidHeader(record, HEADER_USER_ID);
-		UUID placeId = placeIdOf(record);
-		if (userId == null || placeId == null) {
-			return;
-		}
-		this.attribution.apply(userId, eventType, placeId, occurredAt(record));
 	}
 
 	/**
