@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220812480459",
+  "name": "낫개스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 59605,
+  "researchedAt": "2026-09-22T05:58:58.311Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 사하구 다송로 71에 '낫개스시'라는 상호의 단독 매장은 존재하지 않음 (해당 주소는 '미스터스시 다대낫개점' 등이 위치)",
+  "notes": "제시된 상호 '낫개스시'는 부산광역시 사하구 다송로 71(세인트마린)에 실존하지 않는 상호입니다. 해당 주소에는 '미스터스시 다대낫개점'이 위치해 있어 '다대낫개 스시' 키워드와 혼동된 것으로 파악되며, '없는 가게를 지어내지 마라'는 원칙에 따라 found: false 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

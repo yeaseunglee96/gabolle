@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220811583846",
+  "name": "명진추어탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 43952,
+  "researchedAt": "2026-09-22T06:00:07.137Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 주민, 시장 상인/방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "추어탕"
+    ],
+    "yearsClaimed": 33
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "금정구 서동시장길 16-19에 위치한 한식 일반음식점으로 1993년 4월 인허가를 받아 영업 중인 곳이나, 블로그 후기나 상세 방문기 등 웹 공개 리뷰가 전무하여 정량 항목(영업시간, 가격, 줄서기 등)은 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "명진추어탕 / 부산광역시 금정구 서동시장길 16-19 (서동) / 전화번호 051-529-0092 / 일반음식점 / 한식 / 인허가일자 1993-04-29",
+      "url": "https://www.geumjeong.go.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr/",
+    "https://findby.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1993년부터 서동시장 골목에서 동네 주민과 상인들을 대상으로 유지해온 추어탕 식당",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

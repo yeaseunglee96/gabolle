@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220805105590",
+  "name": "선우고깃집",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 56887,
+  "researchedAt": "2026-09-22T05:57:41.614Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "현지인/인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "생선구이 정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "고깃집 상호이나 생선구이 정식이 푸짐하게 나오는 현지인 대상 로컬 식당으로 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "상호는 선우고깃집이나 실제로는 생선구이 정식 등의 백반/식사류로 알려진 동네 로컬 식당임. 상세 가격표 및 영업시간 미공개.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 당감동에 위치한 '선우고깃집'은 고깃집이라는 상호와 달리, 푸짐하고 맛있는 생선구이 정식으로 유명한 로컬 맛집입니다. 오랜 기간 운영된 노포 느낌의 식당으로, 생선구이의 가성비와 맛이 훌륭하여 방문객들의 만족도가 높은 편입니다. 위치: 부산광역시 부산진구 당감로64번길 32",
+      "url": "https://mukk360.com"
+    }
+  ],
+  "sources": [
+    "https://mukk360.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고깃집 상호와 달리 가성비 좋고 푸짐한 생선구이 정식을 제공함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "푸짐한 한상 차림과 맛있는 생선구이 백반 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "당감동 인근 주민들이 즐겨 찾는 동네 로컬 밥집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}
