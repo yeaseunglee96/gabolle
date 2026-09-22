@@ -1,0 +1,87 @@
+{
+  "id": "MA0101202511A0034087",
+  "name": "소수인",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 97497,
+  "researchedAt": "2026-09-22T11:52:30.681Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많고 예약이 필수적이며 이용시간 제한(2시간)이 있을 수 있음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 술자리 모임",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "사시미 모리아와세",
+      "고등어 봉초밥",
+      "시메사바 이소베마끼",
+      "민물장어 숯불구이",
+      "표고버섯 육회튀김"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 17:00 ~ 01:00 (매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 서면 대표 이자카야 맛집으로 현지인 및 여행객 모두에게 인기 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "당일 준비되는 신선한 재료에 따라 매일 메뉴판을 새로 인쇄하여 운영하는 서면의 일식 주점(이자카야)입니다. 주소는 부전동 번지/도로명(부전로 75-5 1층 또는 가야대로750번길 17) 부근에 위치합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "-",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "분위기 좋은 이자카야로 잘 알려져 있으며, 일본 소도시의 술집 같은 운치 있는 감성을 갖추고 있습니다. 예약이 필수일 정도로 인기가 많아 캐치테이블이나 전화 예약을 권장합니다. 숙성 사시미 모리아와세가 인기 메뉴이며, 고등어 봉초밥, 시메사바, 이소베마끼 등 퀄리티 높은 일식 메뉴를 선보입니다. 민물장어 숯불구이, 옥돔 소금구이, 표고버섯 육회튀김, 모찌리도후 등이 호평받고 있습니다. 콜키지는 병당 2만 원이며, 이용 시간은 2시간 제한이 있을 수 있습니다.",
+      "url": "https://www.siksinhot.com/P/1381335"
+    },
+    {
+      "excerpt": "신선한 제철 식재료를 사용하며, 매일 메뉴판을 새로 출력할 정도로 메뉴 구성이 유동적인 것으로 알려져 있습니다. 예약이 어려울 정도로 인기가 많은 서면의 유명 맛집입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1381335",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 제철 식재료로 정성껏 준비하는 수준 높은 숙성 사시미와 요리 안주",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "일본 소도시 골목 심야식당을 연상시키는 아늑하고 운치 있는 인테리어 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "예약이 필수적일 만큼 서면에서 손꼽히는 높은 인지도와 웨이팅 수요",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": "MA010120220801875831",
+  "name": "까치횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 75619,
+  "researchedAt": "2026-09-22T11:50:54.480Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식, 모임, 회식, 접대",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "A코스",
+      "모둠회",
+      "자연산 뼈꼬시"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30 ~ 22:30 (명절 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산시 '부산의 맛' 선정 및 광안대교 뷰를 찾는 관광객과 모임/외식 현지인 모두 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 수영구 민락동 수변공원 인근 풍경타워 5층에 위치한 횟집으로, 2023 부산의 맛 선정 이력이 있음. 광안대교 전망과 함께 정갈하게 나오는 백김치, 간장게장, 새우장 곁들임이 특징임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 바다 풍경을 배경으로 식사를 즐길 수 있는 횟집으로, 직접 준비하는 백김치가 회와 잘 어울리며 간장게장과 새우장이 깔끔하고 맛있기로 알려져 있습니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "광안대교 전망을 감상할 수 있는 뷰 맛집으로 알려져 있습니다. 주요 메뉴로는 코스 요리(A코스, B코스)와 자연산 뼈꼬시 등이 있습니다. 직접 담근 백김치와 간장게장, 새우장 등이 곁들임 반찬으로 제공됩니다. 가족 외식이나 모임, 접대 장소로 인기가 많습니다.",
+      "url": "https://busantaste.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://busantaste.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교와 광안리 바다 조망을 감상하며 신선한 회와 해산물 코스를 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직접 담근 백김치와 정갈한 간장게장, 새우장 등 수준 높은 곁들임 찬 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산시 '부산의 맛' 선정 음식점으로 공인된 신뢰도 보유",
+      "sources": [
+        0
+      ],
+      "type": "투표·독자 선정"
+    }
+  ]
+}

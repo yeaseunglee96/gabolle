@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202512A0008408",
+  "name": "엘",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 82199,
+  "researchedAt": "2026-09-22T11:51:29.918Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 남구 수영로334번길 22 소재의 경양식 업종 음식점 '엘'을 웹에서 검색했으나, 해당 주소 및 상호와 일치하는 실제 식당 정보를 찾을 수 없습니다.",
+  "notes": "해당 주소지(대연동 58-15 인근) 및 '엘' 상호로 검색하였으나 일치하는 경양식 음식점 정보를 확인할 수 없어 미발견(found: false) 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

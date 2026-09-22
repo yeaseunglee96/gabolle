@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220806380573",
+  "name": "파리바게뜨민락동방점",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 73387,
+  "researchedAt": "2026-09-22T11:53:14.244Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기에 관한 구체적인 웹 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 생활권 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "식빵",
+      "케이크",
+      "단팥빵"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광남로 203에 위치한 파리바게뜨 프랜차이즈 가맹점(민락동방점)으로 공식 사이트 및 관련 목록에 등록되어 있으나 개별 블로그 후기 및 정량 세부 항목은 웹상에서 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매장명: 파리바게뜨 민락동방점, 주소: 부산광역시 수영구 광남로 203 (민락동), 전화번호: 051-754-2727",
+      "url": "https://www.paris.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.paris.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 주거지 상권 내 베이커리/제과류 구매를 위한 생활 밀착형 접근 편의 목적",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

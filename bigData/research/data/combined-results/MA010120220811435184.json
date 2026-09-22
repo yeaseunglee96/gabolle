@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220811435184",
+  "name": "고옥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 51018,
+  "researchedAt": "2026-09-22T11:51:15.618Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "예약은 받지 않으며 매장 앞 대기 명단 작성 후 호명 대기하는 웨이팅 시스템으로 피크 시 대기 발생 및 재료 소진 시 조기 마감됨"
+  },
+  "descriptors": {
+    "audience": "남녀노소/미식가/가족/관광객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "히츠마부시",
+      "바다장어 히츠마부시"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30~15:00 / 17:00~21:00 (브레이크타임 15:00~17:00, 매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산에서 나고야식 히츠마부시를 유행시킨 대표 맛집으로 부산 현지인과 외지 관광객 모두에게 인지도 높은 장어덮밥 명소"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 수영구 남천동(광남로 6)에 위치한 나고야식 장어덮밥(히츠마부시) 전문점으로, 숯불에 구워낸 민물장어/바다장어 덮밥 및 간구이(기모야끼) 등을 제공합니다. 인근 제휴 주차장(GS타임즈 고옥 주차장) 1시간 지원 및 현장 대기명단 순으로 입장합니다.",
+  "photoUrls": [
+    "https://www.visitbusan.net/uploadImgs/files/cntnts/20240418094044725_ttiel"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "히츠마부시(큰것) 40,000원 / 1/2 히츠마부시 28,000원 / 바다장어 히츠마부시 30,000원",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "고옥은 부산에 나고야식 히츠마부시를 유행시킨 곳으로 알려져 있으며, 매일 아침 신선한 장어를 숯불에 구워 제공합니다. 재료 소진 시 조기 마감될 수 있다는 점을 참고하시기 바랍니다. 예약은 받지 않으며, 방문하는 순서대로 입점하여 식사할 수 있습니다.",
+      "url": "https://www.visitbusan.net/index.do?menuCd=DOM_000000201004001000&uc_seq=496"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net/index.do?menuCd=DOM_000000201004001000&uc_seq=496"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산에 나고야식 장어덮밥을 대중화시키며 참숯에 정성껏 구워낸 겉바속촉 장어 본연의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산 히츠마부시 유행의 시초 격으로 널리 알려진 대표 장어덮밥 전문점",
+      "sources": [
+        0
+      ],
+      "type": "원조·최초"
+    },
+    {
+      "note": "식사 시간대 항상 대기 명단을 적어야 하고 재료 소진 시 조기 마감될 정도로 높은 인기와 수요",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

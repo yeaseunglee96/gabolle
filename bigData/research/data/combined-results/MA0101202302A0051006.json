@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202302A0051006",
+  "name": "파리바게뜨센텀포레점",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 128770,
+  "researchedAt": "2026-09-22T11:53:40.811Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 아파트 주민 및 지하철 이용객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "식빵",
+      "샌드위치",
+      "케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 22:00 영업 종료"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 수영로 776(민락역 1번 출구 인근) 센텀포레 상가에 위치한 프랜차이즈 베이커리 매장.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 파리바게뜨 센텀포레점, 전화번호: 051-757-6662, 주소: 부산광역시 수영구 수영로 776, 위치: 민락역 1번 출구에서 약 107m 거리, 시설 정보: 전체 테이블 2개(입식 2개)",
+      "url": "https://wheelbusan.or.kr"
+    },
+    {
+      "excerpt": "파리바게뜨 센텀포레점, 영업시간: 매일 22:00에 영업 종료, 주요 메뉴: 빵류, 샌드위치, 케이크",
+      "url": "https://www.siksinhot.com/P/1464162096067117"
+    }
+  ],
+  "sources": [
+    "https://wheelbusan.or.kr",
+    "https://www.siksinhot.com/P/1464162096067117"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "민락역 1번 출구 인근에 위치하여 접근성이 좋고 가볍게 빵과 샌드위치를 구매하기 용이함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

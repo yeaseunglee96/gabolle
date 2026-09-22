@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202406A0548853",
+  "name": "부엌간",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 40945,
+  "researchedAt": "2026-09-22T11:51:43.138Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "테이블링 원격 줄서기 및 사전 예약(네이버/전화)을 지원함"
+  },
+  "descriptors": {
+    "audience": "데이트 및 기념일, 가족 모임 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "바질 페스토 크림 파스타",
+      "부엌간 스테이크",
+      "잠봉 피자",
+      "해산물 토마토 뚝배기 파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:00 (브레이크 타임 15:00 ~ 16:30, 라스트 오더 20:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 달맞이길 드라이브 및 방문객, 현지 주민들의 데이트·가족 모임 장소로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 해운대구 달맞이길 옛 '산수탕' 자리에 위치한 독채 건물 2층에 입점한 유러피안 경양식/양식 레스토랑(1층은 부엌간 차이니즈). 영국 럭셔리 호텔 컨셉의 세련된 인테리어와 모던한 분위기를 갖추고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "바질 페스토 크림 파스타 / 부엌간 스테이크",
+    "priceWon": 21000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "영국 럭셔리 호텔 컨셉의 유러피안 레스토랑으로, 매장이 넓고 분위기가 좋아 데이트, 기념일, 가족 모임 장소로 인기가 많습니다. 통유리창을 통해 경치를 감상할 수 있으며, 전용 주차장을 갖추고 있어 차량 방문도 편리합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "위치: 부산광역시 해운대구 달맞이길117번나길 200 2층 (옛 '산수탕'이 있던 단독 독채 건물 2층에 위치). 영업시간: 매일 11:00 ~ 21:00 (브레이크 타임: 15:00 ~ 16:30). 테이블링 앱을 통한 원격 줄서기가 가능합니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "영국 럭셔리 호텔 컨셉의 고급스러운 인테리어와 분위기로 데이트 및 모임에 적합함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "바질 페스토 크림 파스타와 스테이크 등 특색 있는 유러피안 양식 메뉴 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

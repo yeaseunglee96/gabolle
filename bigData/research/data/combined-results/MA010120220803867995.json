@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220803867995",
+  "name": "돼지야",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 64811,
+  "researchedAt": "2026-09-22T11:51:23.666Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "회식/가족/친구 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "꽃삼겹살",
+      "꽃오겹살",
+      "차돌된장찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 송정중앙로 38 빅마트 1층에 위치한 '돼지야 숯불 꽃 생삼겹 송정1호점'으로, 숯불에 구워 먹는 꽃삼겹살·꽃오겹살과 묵은지·고사리를 함께 구워 먹는 고깃집입니다. 주차는 불가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "꽃삼겹살 (130g) 12,000원, 꽃오겹살 (130g) 12,000원, 목살 (130g) 12,000원, 항정살 (130g) 17,000원, 가브리살 (130g) 17,000원",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "돼지야 숯불 꽃 생삼겹 송정1호점 주소: 부산 해운대구 송정중앙로 38 빅마트 1층. 꽃삼겹살 (130g) 12,000원, 꽃오겹살 (130g) 12,000원, 목살 (130g) 12,000원, 항정살 (130g) 17,000원, 가브리살 (130g) 17,000원. 숯불에 구워 먹는 방식이며 묵은지와 고사리를 구워 먹을 수 있습니다. 계란찜이 기본 서비스로 제공되며 주차는 불가합니다.",
+      "url": "https://polle.com/post/1004655"
+    }
+  ],
+  "sources": [
+    "https://polle.com/post/1004655"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불에 구워 먹는 꽃삼겹/꽃오겹살과 묵은지, 고사리, 차돌된장찌개 등 찬과 사이드의 조화",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

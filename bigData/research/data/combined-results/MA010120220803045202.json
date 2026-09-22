@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220803045202",
+  "name": "선육후면부산",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 40491,
+  "researchedAt": "2026-09-22T11:54:08.178Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장 입구에 대기실이 구비되어 있음"
+  },
+  "descriptors": {
+    "audience": "가족 및 지역 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "연탄 초벌 왕돼지갈비",
+      "메밀국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 22:00 (브레이크 타임: 15:00 ~ 17:00, 매주 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "가족 단위 방문객이나 지역 주민들 사이에서 입소문이 난 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "연탄 초벌 왕돼지갈비와 메밀국수 전문점으로, 인공감미료와 카라멜 소스, 식용 접착제 등을 쓰지 않는 천연 재료 원칙을 내세우며 샐러드바를 운영하는 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "인공감미료, 카라멜 소스, 식용 접착제 등을 사용하지 않는다는 원칙을 내세우며, 천연 재료로 손질한 돼지갈비와 시원한 메밀국수를 제공하는 곳으로 지역 주민들에게 알려져 있습니다. 매장 입구에는 대기실도 구비되어 있습니다.",
+      "url": "https://imaeil.com"
+    },
+    {
+      "excerpt": "주소: 부산 해운대구 재반로 70-1 (재송동), 영업시간: 오전 11:30 ~ 오후 10:00 (브레이크 타임: 오후 3:00 ~ 오후 5:00), 휴무일: 매주 화요일, 주차: 가게 앞 주차 가능",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://imaeil.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인공감미료·카라멜소스·식용접착제 없이 천연 재료로 조리한 연탄초벌 왕돼지갈비와 시원한 메밀국수의 맛",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "가게 앞 전용 주차 공간과 신선한 샐러드바 완비",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "지역 주민과 가족 단위 고객 중심의 입소문과 지지",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

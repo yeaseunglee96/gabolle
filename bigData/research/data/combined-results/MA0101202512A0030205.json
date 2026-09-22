@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202512A0030205",
+  "name": "피보",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50697,
+  "researchedAt": "2026-09-22T11:54:34.606Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 부산진구 동성로 23-2)에는 경양식 업종의 '피보'라는 음식점이 존재하지 않으며, 일본 라멘 전문점인 '나의 피는 라멘으로 되어있어'가 위치해 있습니다. '피보'라는 상호의 경양식당은 확인되지 않습니다.",
+  "notes": "부산광역시 부산진구 동성로 23-2에 위치한 경양식 '피보'를 검색하였으나, 해당 주소에는 라멘 전문점 '나의 피는 라멘으로 되어있어'만 존재하며 '피보'라는 경양식당은 존재하지 않는 것으로 확인되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

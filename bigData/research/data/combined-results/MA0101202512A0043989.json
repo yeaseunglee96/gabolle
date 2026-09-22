@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0043989",
+  "name": "피피씨",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 64085,
+  "researchedAt": "2026-09-22T11:50:25.294Z",
+  "confidence": "high",
+  "found": false,
+  "notFound": "해당 주소(부산광역시 부산진구 중앙대로 706) 및 상호명('피피씨', 일식 회/초밥)으로 등록된 음식점 정보를 찾을 수 없습니다.",
+  "notes": "웹 검색 결과 해당 위치 또는 서면 일대에서 일식/회/초밥 업종의 '피피씨' 매장 정보가 확인되지 않습니다.",
+  "photoUrls": [],
+  "sourceExcerpts": [],
+  "sources": []
+}

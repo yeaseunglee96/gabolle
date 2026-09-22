@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202409A0013772",
+  "name": "우나쥬",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 60615,
+  "researchedAt": "2026-09-22T11:50:00.868Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 및 네이버 예약이 가능해 사전 예약 후 방문을 권장하며 조용한 룸에서 식사할 수 있음"
+  },
+  "descriptors": {
+    "audience": "가족 및 모임, 정갈한 일식 선호 고객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "히츠마부시",
+      "장어김밥"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (브레이크타임 15:00 ~ 17:00, 라스트오더 20:30, 매주 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "청사포 언덕길에 위치하여 차량으로 방문하는 미식객 및 관광객 위주 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "일본 30년 경력 셰프의 나고야식 장어덮밥(히츠마부시) 전문점으로 미쉐린 가이드 부산에 등재된 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "히츠마부시 39,000원, 평일 런치 특선 28,000원, 장어김밥 12,000원",
+    "priceWon": 39000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "나고야에서 1948년 창업한 '시라카와'의 레시피를 이어받아 운영되는 곳으로, 일본에서 30년 경력을 쌓은 셰프가 선보이는 나고야식 장어덮밥(히츠마부시) 전문점입니다. 장어를 찌지 않고 바로 굽는 나고야식 방식을 사용하며, 초벌구이한 장어를 다시 한번 구워내어 '겉바속촉(겉은 바삭하고 속은 촉촉)'한 식감을 살린 것이 특징입니다.",
+      "url": "https://www.busan.com"
+    },
+    {
+      "excerpt": "부산 해운대구 청사포로67번길 39 (중동 478-4). 영업시간 11:00 ~ 22:00 (브레이크타임 15:00 ~ 17:00, 라스트오더 20:30, 정기 휴무 매주 화요일). 매장 앞 전용 주차장이 마련되어 있어 주차가 편리합니다.",
+      "url": "https://guide.michelin.com"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com",
+    "https://guide.michelin.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "초벌 후 다시 구워 겉은 바삭하고 속은 촉촉한 30년 경력 나고야식 정통 히츠마부시의 풍미",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산 등재 및 1948년 나고야 전통 레시피 계승",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "투표·독자 선정"
+    }
+  ]
+}

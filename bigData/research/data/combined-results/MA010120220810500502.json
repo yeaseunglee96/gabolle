@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220810500502",
+  "name": "지원실업",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 49601,
+  "researchedAt": "2026-09-22T11:54:09.989Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 없음 (법인 등록명만 존재하며 실제 운영 중인 돼지고기 식당 정보 없음)",
+  "notes": "부산광역시 수영구 감포로 77에 위치한 '(주)지원실업'은 기업 DB 상 한식 해산물요리 전문점/관광식당 등으로 등록된 법인명일 뿐, 일반 소비자가 방문하는 돼지고기 구이/찜 등의 실제 외식 매장 상호나 방문 후기, 메뉴, 영업시간 정보가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://www.nicebizinfo.com"
+  ],
+  "whyPeopleGo": []
+}
