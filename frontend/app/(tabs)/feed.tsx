@@ -1,11 +1,11 @@
 // 여행 기록 피드 —재설계 1단계(구조).
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import * as Clipboard from 'expo-clipboard';
 import * as Location from 'expo-location';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { sortByDistance } from '@/social/nearby';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -568,7 +568,7 @@ export default function Feed() {
   const composeEntry = composeEntryFor(width, signedIn);
   const key = FEED_KEY(scope, signedIn, sort);
 
-  // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다.
+  // 화면 밖 보관소에서 읽는다. staleTime(30초) 안이면 탭을 오가도 다시 안 부른다.
   const feedQuery = useQuery({
     queryKey: key,
     // 「내 기록」은 서버 피드가 아니라 내 프로필의 기록 목록이다 — 피드 API 에 MINE 갈래가 없다.
@@ -576,6 +576,13 @@ export default function Feed() {
     // 손님의 「내 피드」는 부를 것이 없다 — 로그인 안내만 그린다.
     enabled: !(scope === 'MINE' && !user),
   });
+  // 탭에 30초 이상(staleTime) 자리를 비웠다 돌아오면 다시 불러온다 — 남이 올린 새 글이
+  // 탭을 나갔다 들어오는 것만으로는 영영 안 보이던 것을 고친다(S15P21E201-1509). isStale
+  // 일 때만 불러서, refetchOnWindowFocus 를 끈 이유(S15P21E201-957 — 탭을 자주 오갈
+  // 때마다 요청이 나가던 것)가 다시 돌아오지 않게 한다.
+  useFocusEffect(useCallback(() => {
+    if (feedQuery.isStale) void feedQuery.refetch();
+  }, [feedQuery.isStale, feedQuery.refetch]));
   const result: FeedLoadResult = feedQuery.data ?? { state: 'success', items: [], nextCursor: null };
   // isLoading = pending 이면서 실제로 받는 중 — 껐다(손님의 내 피드)면 「불러오는 중」이 아니다.
   const loading = feedQuery.isLoading;
