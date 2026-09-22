@@ -1,0 +1,55 @@
+{
+  "id": "MA0101202509A0015994",
+  "name": "네오",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 46814,
+  "researchedAt": "2026-09-22T11:57:52.631Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "커플, 연인 (데이트 코스)",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 전포동(서전로38번길 35-14)에 위치한 일식당/주점으로 '2023 부산의 맛' 및 전포동 데이트·감성 핫플로 소개됨. 상세 메뉴판 및 가격표/영업시간 등은 검색 결과상 직접적인 텍스트 노출이 제한되어 기본 항목 외에는 found:false 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산진구 서전로38번길 35-14 제일빌딩 102호 네오. 데이트하기 좋은 전포동 핫플 술집 일식당.",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com",
+    "https://afob.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감성적인 분위기와 일식 요리로 전포동 데이트 코스로 인기가 높음",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

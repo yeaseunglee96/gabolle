@@ -1,0 +1,35 @@
+{
+  "id": "MA0101202512A0030533",
+  "name": "램블맨션",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60259,
+  "researchedAt": "2026-09-22T11:56:35.633Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 상호명('램블맨션') 및 주소지('부산광역시 부산진구 서전로58번길 18-1')로 웹 검색을 수행했으나 음식점 정보나 블로그/리뷰 글이 확인되지 않습니다.",
+  "notes": "웹 검색 결과 해당 식당 관련 정보가 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

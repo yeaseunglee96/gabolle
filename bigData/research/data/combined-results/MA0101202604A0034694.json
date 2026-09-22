@@ -1,0 +1,90 @@
+{
+  "id": "MA0101202604A0034694",
+  "name": "대맥",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 315680,
+  "researchedAt": "2026-09-22T11:55:39.240Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "가오픈 기간임에도 오픈 직후 손님이 차고 식사 후 나올 때 준비된 재료가 소진되어 조기 마감됨"
+  },
+  "descriptors": {
+    "audience": "가족, 친구 모임 및 1인 혼밥 고객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "보리 삼계 백반",
+      "향토 장닭갈비"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00 ~ 15:00 / 17:00 ~ 21:00 (20:30 라스트 오더, 재료 소진 시 CLOSE)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 28년 차 주민 블로거가 할매탕 목욕 방문 중 발견하여 직접 방문하고 재방문 의사를 밝힘"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/qGw2O/dJMcaglPnMC/AAAAAAAAAAAAAAAAAAAAAHq5kCCfVbfsK_YAh4Z_7P3i6Ok2EEbGKUMqOxzTD4lB/tfile.jpg",
+    "https://blog.kakaocdn.net/dna/F7Ht1/dJMcacKAB0J/AAAAAAAAAAAAAAAAAAAAALWDnliFZ1W2JQ4HzJjh1hpMKwlku8JgXeVmHawEIzhe/tfile.jpg",
+    "https://blog.kakaocdn.net/dna/py2yA/dJMcacKAB1a/AAAAAAAAAAAAAAAAAAAAAIH-aPLbEKOrkqU4_5akW0mIf3OlnGqLgFpIg8c3MB5k/tfile.jpg",
+    "https://blog.kakaocdn.net/dna/cMiAwN/dJMcaaMIxkJ/AAAAAAAAAAAAAAAAAAAAAB-tG_ZyDmo0haH31b_G46vwpaM_Rt5KKlTC7X6tsgKQ/tfile.jpg",
+    "https://blog.kakaocdn.net/dna/cHGMbG/dJMcaaMIxk4/AAAAAAAAAAAAAAAAAAAAANbd9-gPbPmtE1-NIyYxQIBVKv29dWvYn2ioZpEYi1_M/tfile.jpg",
+    "https://blog.kakaocdn.net/dna/bbhHNJ/dJMcacKAB2n/AAAAAAAAAAAAAAAAAAAAABmZG0Mow_j5zwNkwTsRedF33Liryr5o9oFk8hSK3anS/tfile.jpg",
+    "https://blog.kakaocdn.net/dna/ZQ1gd/dJMcacKAB2x/AAAAAAAAAAAAAAAAAAAAAGef-cgmVx0rGu-qaGyFPoSQHrrYpYIuP9dZV8DtkUm9/tfile.jpg",
+    "https://blog.kakaocdn.net/dna/cpXdSN/dJMcaaMIxn1/AAAAAAAAAAAAAAAAAAAAAOEFsiBbTopyZexqjVJW0GweLwS8UVhFfsyXm2pxmrU7/tfile.jpg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "보리 삼계 백반 15,000원, 향토 장닭갈비 15,000원",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "보리육수로 정성껏 우려낸 자연의 맛 한국의 맛을 이어가는 대맥. 할매탕에 목욕갔다가 커다란 가마솥을 내세운 가게가 들어선 것을 보고 그리고 보리육수로 정성껏 우려낸 자연의 맛이라는 문구에 궁금해서 참을 수가 없었어요 아직 가오픈 중이고 7월 13일 정식 오픈을 한다고 해요 제가 방문한 날은 7월 7일 화요일입니다 11시 30분에 오픈이라고 써놔서 11시 20분쯤 들어갔더니 우리가 두번째 손님이더라고요",
+      "url": "https://zero0712.com/entry/%EA%B0%80%EC%98%A4%ED%94%88%EC%9D%B4%EC%A7%8C-%EB%8C%80%EB%B0%95%EC%98%88%EA%B0%90-%EB%8C%80%EB%A7%A5-%EB%B0%A9%EB%AC%B8%ED%9B%84%EA%B8%B0"
+    },
+    {
+      "excerpt": "위치 해운대구 중동 2로 10번길 7 / 영업시간 10:00 ~ 15:00 17:00 ~ 21:00 (20:30 라스트 오더) 재료소진시 CLOSE / 전화번호 010-4806-2688 / 주차가능 해운대 온천센터 주차장 이용 2만원 이상 식사시 1시간 무료 / 좌석 · 공간 1층과 2층으로 구성 카운터석, 바테이블, 1인석 , 6인석",
+      "url": "https://zero0712.com/entry/%EA%B0%80%EC%98%A4%ED%94%88%EC%9D%B4%EC%A7%8C-%EB%8C%80%EB%B0%95%EC%98%88%EA%B0%90-%EB%8C%80%EB%A7%A5-%EB%B0%A9%EB%AC%B8%ED%9B%84%EA%B8%B0"
+    },
+    {
+      "excerpt": "보리 삼계 백반 15,000 / 향토 장닭갈비 15,000 메뉴에 대한 설명이 적혀 있어서 좋았어요 지금은 가오픈기간이라 메뉴가 다 완성된건 아닌가보더라고요 향토 장닭갈비 말고는 머리속에서 떠오르는 그림이 없을 정도로 생소한 이름들이었어요",
+      "url": "https://zero0712.com/entry/%EA%B0%80%EC%98%A4%ED%94%88%EC%9D%B4%EC%A7%8C-%EB%8C%80%EB%B0%95%EC%98%88%EA%B0%90-%EB%8C%80%EB%A7%A5-%EB%B0%A9%EB%AC%B8%ED%9B%84%EA%B8%B0"
+    },
+    {
+      "excerpt": "준비한 재료가 소진되면 바로 가게를 닫더라고요 우리가 밥 다 먹고 나오니까 닫았다는 문구가 가게 앞에 세워져 있어서 아직 가오픈인데도 불구하고 대맥의 인기를 실감할 수 있었어요",
+      "url": "https://zero0712.com/entry/%EA%B0%80%EC%98%A4%ED%94%88%EC%9D%B4%EC%A7%8C-%EB%8C%80%EB%B0%95%EC%98%88%EA%B0%90-%EB%8C%80%EB%A7%A5-%EB%B0%A9%EB%AC%B8%ED%9B%84%EA%B8%B0"
+    }
+  ],
+  "sources": [
+    "https://zero0712.com/entry/%EA%B0%80%EC%98%A4%ED%94%88%EC%9D%B4%EC%A7%8C-%EB%8C%80%EB%B0%95%EC%98%88%EA%B0%90-%EB%8C%80%EB%A7%A5-%EB%B0%A9%EB%AC%B8%ED%9B%84%EA%B8%B0"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대형 가마솥에서 우려낸 구수한 보리육수와 담백한 삼계백반 및 부드러운 장닭갈비의 깊은 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "정갈하고 건강한 한식 백반 구성과 1인석부터 다인석까지 갖춘 쾌적한 매장 환경",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

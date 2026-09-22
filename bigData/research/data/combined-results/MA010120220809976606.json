@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220809976606",
+  "name": "강돈",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 80955,
+  "researchedAt": "2026-09-22T11:56:48.140Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 장대골로39번길 3(광안동)에 일반음식점(돼지고기 구이/찜)으로 등록된 '강돈'의 사업자/상가 등록 정보는 확인되나, 방문자 리뷰나 블로그 글, 세부 메뉴판 및 영업시간 등의 상세 웹 콘텐츠는 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'강돈'은 부산광역시 수영구 광안동(장대골로39번길 등)에 위치한 돼지고기 구이 및 찜 전문 요식업체입니다. 업종: 일반음식점 (돼지고기 구이/찜), 주소: 부산광역시 수영구 장대골로39번길 3 (광안동)",
+      "url": "https://disco.re"
+    }
+  ],
+  "sources": [
+    "https://disco.re",
+    "https://114.co.kr"
+  ],
+  "whyPeopleGo": []
+}

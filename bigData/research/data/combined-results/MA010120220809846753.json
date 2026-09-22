@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220809846753",
+  "name": "블루",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 42001,
+  "researchedAt": "2026-09-22T11:58:07.104Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 경양식 '블루' 식당에 대한 정보가 확인되지 않음",
+  "notes": "부산광역시 수영구 광안해변로 350(부림빌딩) 위치에서 경양식 업종의 '블루' 식당에 대한 검색 결과가 존재하지 않아 폐업 또는 실존하지 않는 상호로 판단됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": "MA010120220811396677",
+  "name": "돼지고기구이/찜",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 37079,
+  "researchedAt": "2026-09-22T11:56:32.106Z",
+  "confidence": "high",
+  "found": false,
+  "notFound": "부산광역시 해운대구 구남로 31 주소지에는 돼지고기구이/찜 업종 식당이 존재하지 않음 (인도 요리점 등 타 업종 위치)",
+  "notes": "부산광역시 해운대구 구남로 31 주소지를 검색한 결과, 해당 주소지에는 인도 요리점('펀자브') 등이 위치해 있으며 '돼지고기구이/찜' 업종의 식당은 존재하지 않거나 폐업/이전되어 확인할 수 없습니다.",
+  "photoUrls": [],
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.shuttledelivery.co.kr"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220811447214",
+  "name": "안동갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 81346,
+  "researchedAt": "2026-09-22T11:54:53.278Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 모임, 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "안동갈비(마늘양념)",
+      "생갈비",
+      "된장찌개(된장밥)"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 해운대구 중동 금호어울림 상가 105호에 위치한 소갈비 전문점으로, 즉석에서 버무려 내는 마늘 양념 소갈비(안동갈비)와 식사 후 된장찌개에 밥을 말아 먹는 된장밥이 특징인 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "안동갈비(양념)/생갈비 120g 기준 약 19,000원선",
+    "priceWon": 19000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 좌동순환로 480(중동, 금호어울림 상가 105호)에 위치한 안동갈비는 한우 생갈비 전문점입니다. 이곳은 마늘 양념을 곁들여 먹는 소갈비로 알려져 있으며, 여러 매체나 영상 등에서 해운대 지역의 소갈비 맛집으로 소개된 바 있습니다.",
+      "url": "https://maptons.com"
+    },
+    {
+      "excerpt": "마늘 양념 갈비가 대표 메뉴이며, 쾌적한 시설과 유명인들의 방문 흔적(사인 등)이 많은 곳으로 알려져 있습니다. 방문객 평: \"마늘 양념 맛이 좋다\"는 평이 많으며, 식사 후 공기밥을 된장찌개에 넣어 '된장밥'으로 먹는 것이 별미로 언급됩니다. 양은 다소 적다는 의견이 있어 추가 주문을 하는 경우가 많습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://maptons.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "즉석에서 버무린 특제 마늘 양념 갈비와 구수한 된장찌개 밥의 독특한 맛 조합",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

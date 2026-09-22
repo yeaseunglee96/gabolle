@@ -1,0 +1,47 @@
+{
+  "id": "MA0101202311A0037727",
+  "name": "올라운더에프앤비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 49629,
+  "researchedAt": "2026-09-22T11:57:19.320Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 등록된 법인 사업체(주식회사 올라운더에프앤비)로 확인되며, 실제 방문 가능한 단독 돼지고기 구이/찜 일반음식점으로 운영되는 매장 정보가 없음",
+  "notes": "'올라운더에프앤비'는 부산 수영구 광남로 125에 사업장 주소를 둔 법인(일식 음식점업 및 전자상거래 소매업)이며, 소비자가 방문하는 돼지고기 구이/찜 식당으로 운영되는 실제 매장 정보는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주식회사 올라운더에프앤비(AllRounder F&B Inc.)는 부산광역시 수영구 광남로 125, 1층에 위치한 기업입니다. 주소: 부산광역시 수영구 광남로 125, 1층 (광안동), 업종: 일식 음식점업 및 전자상거래 소매업 등, 대표자: 박용범",
+      "url": "https://bizno.net"
+    }
+  ],
+  "sources": [
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": []
+}

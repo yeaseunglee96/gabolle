@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220812599371",
+  "name": "노이",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 55908,
+  "researchedAt": "2026-09-22T11:54:59.583Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트, 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "관자바질파스타",
+      "리가토니라구",
+      "트러플 고르곤졸라 크림 뇨끼",
+      "명란게살크림파스타"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 - 22:00 (라스트오더 21:00)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산광역시 부산진구 서전로68번길 51 2층에 위치한 이탈리안 레스토랑으로, 파스타, 뇨끼, 리조또, 스테이크 등을 판매하는 감성적인 다이닝 공간입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 서전로68번길 51, 2층. 업종: 이탈리안 레스토랑 (파스타, 스테이크 등). 대표 메뉴: 관자바질파스타, 리가토니라구, 명란게살크림파스타 등. 영업시간: 매일 12:00 - 22:00 (라스트 오더 21:00). 전포역 인근에 위치해 있으며, 오픈 키친 형태의 조용한 다이닝 분위기",
+      "url": "https://tripsoda.com"
+    },
+    {
+      "excerpt": "부산광역시 부산진구 서전로68번길 51, 2층 (전포동 229-13). 업종: 이탈리안 레스토랑 (파스타, 뇨끼, 리조또, 스테이크 등). 빈티지하고 감성적인 인테리어와 차분한 분위기로 데이트나 모임 장소로 인기가 많습니다. 주요 메뉴로는 관자 바질 크림 리조또, 트러플 고르곤졸라 크림 뇨끼, 명란 게살 크림 파스타 등",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://tripsoda.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "차분하고 빈티지한 감성의 오픈 키친 분위기 속에서 즐기는 파스타·뇨끼 다이닝",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}
