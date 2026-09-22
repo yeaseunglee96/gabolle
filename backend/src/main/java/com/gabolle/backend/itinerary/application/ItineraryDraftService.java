@@ -902,10 +902,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     draftLeg.fromPlaceId() != null ? draftLeg.fromPlaceId().toString() : null,
                     draftLeg.toPlaceId().toString(), draftLeg.travelMode(), draftLeg.distanceM(),
                     draftLeg.durationMin(), draftLeg.walkingMeters(), null, null,
-                    // 🔴 요금은 여기서 예전부터 안 넘어간다 — draftLeg.fareKrw() 가 있는데도
-                    //    null 이 들어간다. S15P21E201-1251 의 일이 아니라 따로 고칠 것이라
-                    //    이번에는 동작을 그대로 두고 눈에만 보이게 적어 둔다.
-                    draftLeg.dataStatus(), null, draftLeg.path(), now));
+                    // 요금을 여기서 흘리면 일정을 처음 만들 때 받은 값이 통째로 사라진다.
+                    // 다시 계산하는 경로(ItineraryLegPlanner.toLeg)는 넘기고 있어서, 같은 칸이
+                    // 어느 경로로 만들어졌느냐로 값이 갈렸다 (S15P21E201-1498).
+                    // 선형도 같은 자리에서 같은 이유로 넘긴다 (S15P21E201-1251).
+                    draftLeg.dataStatus(), draftLeg.fareKrw(), draftLeg.path(), now));
         }
 
         // 판과 내용을 한 번에 넘긴다. 판을 먼저 만들고 내용을 나중에 넣으면 그 두 걸음 사이가
@@ -1185,8 +1186,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     draftLeg.fromPlaceId() != null ? draftLeg.fromPlaceId().toString() : null,
                     draftLeg.toPlaceId().toString(), draftLeg.travelMode(), draftLeg.distanceM(),
                     draftLeg.durationMin(), draftLeg.walkingMeters(), null, null,
-                    // 요금이 안 넘어가는 것은 위(생성 경로)와 같다 — 따로 고칠 일이다.
-                    draftLeg.dataStatus(), null, draftLeg.path(), now));
+                    // 판을 새로 만들 때도 같다 — 요금이 판 하나 넘어갈 때마다 사라지면
+                    // 편집한 일정만 조용히 비용을 잃는다 (S15P21E201-1498).
+                    // 선형도 마찬가지다 (S15P21E201-1251).
+                    draftLeg.dataStatus(), draftLeg.fareKrw(), draftLeg.path(), now));
         }
 
         ItineraryVersion.Versions versions = new ItineraryVersion.Versions(
