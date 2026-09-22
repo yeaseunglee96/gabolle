@@ -27,7 +27,7 @@ import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
-import com.gabolle.backend.preference.domain.UserTasteWeight;
+import com.gabolle.backend.preference.domain.TasteWeightComponent;
 import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
 import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
@@ -134,15 +134,20 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	/**
 	 * 이 사용자의 현재 판 성분들. 빈 목록은 정상이다 — 빈으로 못 올라온 슬라이스, 아직 접힌
 	 * 적 없는 사용자, 사용자를 모르는 요청이 모두 여기로 온다.
+	 *
+	 * <p>🔴 <b>저장된 행을 그대로 내보내지 않는다</b> (S15P21E201-1499). 근거가 키의 일부라
+	 * 한 성분이 설문 행과 행동 행으로 나뉘어 앉아 있다. 그대로 넘기면 채점기가 같은 성분을 두
+	 * 번 세므로, 여기서 {@code (차원, 코드)} 마다 하나로 합쳐 내보낸다. 읽어 넘기는 자리가
+	 * 여기 하나뿐이라 합치는 것도 여기 한 곳이면 된다.
 	 */
-	private List<UserTasteWeight> currentTasteWeights(UUID userId) {
+	private List<TasteWeightComponent> currentTasteWeights(UUID userId) {
 		UserTasteVectorRepository vectors = this.tasteVectors.getIfAvailable();
 		UserTasteWeightRepository weights = this.tasteWeightRepository.getIfAvailable();
 		if (userId == null || vectors == null || weights == null) {
 			return List.of();
 		}
 		return vectors.findByUserIdAndSupersededAtIsNull(userId)
-				.map((vector) -> weights.findByIdTasteVectorId(vector.getTasteVectorId()))
+				.map((vector) -> TasteWeightComponent.merge(weights.findByIdTasteVectorId(vector.getTasteVectorId())))
 				.orElseGet(List::of);
 	}
 
@@ -183,7 +188,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT);
 
 		// 취향 벡터도 대조표와 같은 이유로 요청당 한 번만 읽는다.
-		List<UserTasteWeight> tasteWeights = currentTasteWeights(request.userId());
+		List<TasteWeightComponent> tasteWeights = currentTasteWeights(request.userId());
 
 		// 후보가 0곳이면 여기서 멈춘다. 이 검사가 없으면 아래 resolveDatasetVersion 이 빈
 		// 목록을 받아 null 을 내고 요청이 VERSION_UNRESOLVED 로 끝나는데, 그것은 원인이 아니라

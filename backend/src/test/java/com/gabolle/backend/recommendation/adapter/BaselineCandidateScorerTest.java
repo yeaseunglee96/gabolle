@@ -3,6 +3,7 @@ package com.gabolle.backend.recommendation.adapter;
 import static org.assertj.core.api.Assertions.within;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.TasteWeightComponent;
 import java.time.OffsetDateTime;
 import java.time.Instant;
 import java.util.List;
@@ -398,14 +399,22 @@ class BaselineCandidateScorerTest {
 		assertThat(with.featureValues()).containsEntry("tasteVectorOverlap", null);
 	}
 
-	/** 설문과 행동이 섞여 있으면 행동 쪽만 세고, 분모도 그 개수다. */
+	/**
+	 * 설문과 행동이 섞여 있으면 행동 쪽만 세고, 분모도 그 개수다.
+	 *
+	 * <p>🔴 이 시험이 {@code CAFE_HEALING} 을 <b>설문 행 + 행동 행 두 줄</b>로 준다
+	 * (S15P21E201-1499). 예전에는 그 자리가 {@code BLENDED} 한 줄이었고 값이 1.0 이었는데,
+	 * 합치는 규칙이 합이라 {@code 0.4 + 0.6} 으로 나눠 적어도 합쳐 보면 같은 1.0 이다.
+	 * <b>기대값이 그대로인 것이 「나눠 적어도 점수가 안 바뀐다」의 증명이다.</b>
+	 */
 	@Test
-	@DisplayName("설문과 행동이 섞이면 행동 성분만 더한다")
+	@DisplayName("설문과 행동이 섞이면 행동 성분만 더한다 — 나눠 적어도 합친 값은 같다")
 	void blendsCountOnlyBehaviourBackedComponents() {
 		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
 		List<UserTasteWeight> mixed = List.of(
 				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "SEA_BEACH", 1.0, NOW),
-				UserTasteWeight.blended(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, 3, NOW));
+				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 0.4, NOW),
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 0.6, 3, NOW));
 
 		EngineCandidate without = score(cafe, null, List.of());
 		EngineCandidate with = score(cafe, null, List.of(), mixed);
@@ -420,12 +429,18 @@ class BaselineCandidateScorerTest {
 		return score(candidate, snapshot, constraints, List.of());
 	}
 
-	/** 취향 벡터를 함께 넘기는 갈래. */
+	/**
+	 * 취향 벡터를 함께 넘기는 갈래.
+	 *
+	 * <p>저장된 행을 그대로 넘기지 않고 {@link TasteWeightComponent#merge(List)} 를 거친다 —
+	 * 운영에서 {@code BaselineRecommendationEngine} 이 읽어 넘길 때 하는 것과 같다. 시험이
+	 * 그 단계를 건너뛰면 「나눠 적어도 점수가 같다」를 증명하지 못한다 (S15P21E201-1499).
+	 */
 	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot snapshot,
 			List<TripConstraint> constraints, List<UserTasteWeight> tasteWeights) {
 		return this.scorer.score(candidate, snapshot, constraints, RADIUS_M, WEIGHTS, ALIGNMENT_WEIGHTS,
 				this.preferenceCodeMap,
-				this.constraintCodeMap, tasteWeights, TASTE_MULTIPLIER);
+				this.constraintCodeMap, TasteWeightComponent.merge(tasteWeights), TASTE_MULTIPLIER);
 	}
 
 	private static PlaceCandidateResponse.Candidate candidate(List<PlaceFeatureView> features) {

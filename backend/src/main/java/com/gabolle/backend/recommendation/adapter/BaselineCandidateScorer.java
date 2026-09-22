@@ -21,7 +21,7 @@ import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.preference.domain.TasteDimension;
 import com.gabolle.backend.preference.domain.TasteEvidence;
-import com.gabolle.backend.preference.domain.UserTasteWeight;
+import com.gabolle.backend.preference.domain.TasteWeightComponent;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
 import com.gabolle.backend.recommendation.domain.CoarseArea;
@@ -79,7 +79,7 @@ public class BaselineCandidateScorer {
 			PreferenceSnapshot preferenceSnapshot, List<TripConstraint> constraints, int radiusM,
 			BaselineEngineProperties.Weights weights, PreferenceAlignmentWeights alignmentWeights,
 			List<UserPlaceCodeMap> preferenceCodeMap, List<UserPlaceCodeMap> constraintCodeMap,
-			List<UserTasteWeight> tasteWeights, double tasteVectorMultiplier) {
+			List<TasteWeightComponent> tasteWeights, double tasteVectorMultiplier) {
 
 		List<Map<String, Object>> violations = new ArrayList<>();
 		List<Map<String, Object>> unknownFacts = new ArrayList<>();
@@ -534,7 +534,7 @@ public class BaselineCandidateScorer {
 	 *     후보마다 다시 읽으면 질의 개수가 후보 수에 비례한다
 	 */
 	private double applyTasteVectorComponent(PlaceCandidateResponse.Candidate candidate,
-			List<UserPlaceCodeMap> preferenceCodeMap, List<UserTasteWeight> tasteWeights,
+			List<UserPlaceCodeMap> preferenceCodeMap, List<TasteWeightComponent> tasteWeights,
 			double multiplier, Map<String, Object> featureValues, Map<String, Object> scoreComponents,
 			List<String> reasonCodes) {
 
@@ -542,10 +542,10 @@ public class BaselineCandidateScorer {
 		// 🔴 설문만으로 접힌 성분은 뺀다. 그 답은 applyTagComponent 의 CATEGORY 태그 겹침이 이미
 		//    채점했으므로, 여기서 또 더하면 같은 설문을 배수만큼 한 번 더 세는 것이 된다.
 		//    남는 것은 행동이 들어간 성분(INTERACTION·BLENDED)뿐이고, 그것이 이 항의 존재 이유다.
-		List<UserTasteWeight> categoryWeights = (tasteWeights == null) ? List.of()
+		List<TasteWeightComponent> categoryWeights = (tasteWeights == null) ? List.of()
 				: tasteWeights.stream()
-						.filter((w) -> w.getDimension() == TasteDimension.CATEGORY)
-						.filter((w) -> w.getEvidence() != TasteEvidence.SURVEY)
+						.filter((w) -> w.dimension() == TasteDimension.CATEGORY)
+						.filter((w) -> w.evidence() != TasteEvidence.SURVEY)
 						.toList();
 
 		if (featureType == null || categoryWeights.isEmpty()) {
@@ -566,10 +566,10 @@ public class BaselineCandidateScorer {
 
 		Map<String, Object> matched = new LinkedHashMap<>();
 		double sum = 0.0;
-		for (UserTasteWeight weight : categoryWeights) {
-			if (placeTags.contains(weight.getCode())) {
-				matched.put(weight.getCode(), weight.getWeight());
-				sum += weight.getWeight();
+		for (TasteWeightComponent weight : categoryWeights) {
+			if (placeTags.contains(weight.code())) {
+				matched.put(weight.code(), weight.weight());
+				sum += weight.weight();
 			}
 		}
 		double ratio = sum / categoryWeights.size();
@@ -587,10 +587,10 @@ public class BaselineCandidateScorer {
 	}
 
 	/** 성분들이 무엇을 근거로 접혔는지 — {@code SURVEY} · {@code INTERACTION} · {@code BLENDED} 별 개수. */
-	private static Map<String, Integer> evidenceSummary(List<UserTasteWeight> weights) {
+	private static Map<String, Integer> evidenceSummary(List<TasteWeightComponent> weights) {
 		Map<String, Integer> counts = new LinkedHashMap<>();
-		for (UserTasteWeight weight : weights) {
-			counts.merge(weight.getEvidence().name(), 1, Integer::sum);
+		for (TasteWeightComponent weight : weights) {
+			counts.merge(weight.evidence().name(), 1, Integer::sum);
 		}
 		return counts;
 	}
