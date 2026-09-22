@@ -37,6 +37,7 @@ import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripMemberJoined;
 import com.gabolle.backend.trip.domain.TripMemberRoleChanged;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
  * 여행 활동 → 동행자 폰 알림 — S15P21E201-1391 (2/2).
@@ -299,5 +300,45 @@ class TripPushNotifierTest {
 				new ItineraryChangedByMember("itn_gone", 6, ItineraryVersion.Operation.REORDER, ME));
 
 		assertThat(this.sender.sent).isEmpty();
+	}
+
+	/**
+	 * 작성자가 없는 사건 — 여기서만 {@link ActorNames} 를 <b>진짜로</b> 쓴다.
+	 *
+	 * <p>다른 시험은 모두 목으로 바꾸는데, 그러면 이름을 찾는 길에 {@code UUID.fromString} 이
+	 * 한 번도 안 지난다. 이 결함(S15P21E201-1484)이 정확히 거기 있었다 — 목을 세운 채로는
+	 * 영원히 안 잡힌다. 진짜 {@code ActorNames} 는 {@code null} 을 스스로 걸러 사용자 표를
+	 * 읽지도 않으므로, 저장소는 부르지 않을 목이면 된다.
+	 */
+	private TripPushNotifier withRealActorNames() {
+		return new TripPushNotifier(this.itineraries, this.trips,
+				new ActorNames(mock(AppUserRepository.class)), this.pushTokens, this.sender);
+	}
+
+	@Test
+	@DisplayName("🔴 작성자가 «없는» 편집도 알림이 나간다 — 탈퇴로 빈 칸이 되면 통째로 버려졌다")
+	void anEditWithNoActorStillNotifiesEveryone() {
+		// 판 이력의 작성자 칸은 ON DELETE SET NULL 이라 탈퇴하면 비워진다.
+		// 전에는 그 null 을 빈 문자열로 바꿔 넘겨 UUID.fromString("") 이 터졌고,
+		// 그 예외를 리스너의 catch 가 먹어 «한 통도» 안 나갔다.
+		withRealActorNames().onItineraryChanged(
+				new ItineraryChangedByMember(ITINERARY_ID, 6, ItineraryVersion.Operation.REORDER, null));
+
+		RecordingSender.Sent sent = onlySent();
+		assertThat(sent.tokens()).containsExactlyInAnyOrder("tok:" + ME, "tok:" + MATE, "tok:" + VIEWER);
+		// 이름이 없으면 여행 이름만 — 서버가 「누군가」를 지어내지 않는다.
+		assertThat(sent.message().body()).isEqualTo("「부산 바다 2박 3일」");
+	}
+
+	@Test
+	@DisplayName("🔴 자격을 바꾼 사람이 «없어도» 당사자는 알림을 받는다 — 같은 결함이 여기에도 있었다")
+	void aRoleChangeWithNoActorStillReachesTheMember() {
+		withRealActorNames()
+				.onRoleChanged(new TripMemberRoleChanged(TRIP_ID, MATE, TripMember.Role.VIEWER, null));
+
+		RecordingSender.Sent sent = onlySent();
+		assertThat(sent.tokens()).containsExactly("tok:" + MATE);
+		assertThat(sent.message().title()).isEqualTo("이제 일정을 보기만 할 수 있어요");
+		assertThat(sent.message().body()).isEqualTo("「부산 바다 2박 3일」");
 	}
 }

@@ -16,6 +16,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
@@ -61,5 +62,38 @@ class ActorNamesTest {
 		// 호출자는 null 을 받고 화면이 문구를 정한다. 서버는 문구를 지어내지 않는다.
 		assertThat(names).doesNotContainKey(alive.toString());
 		verify(this.appUserRepository).findAllById(List.of(alive));
+	}
+
+	@Test
+	@DisplayName("🔴 돌려준 맵은 비어 있는 작성자로 «되찾아도» 된다 — 부르는 쪽이 전부 그렇게 쓴다")
+	void theReturnedMapCanBeLookedUpWithANullActor() {
+		// 부르는 쪽은 죄다 names.get(version.createdBy()) 로 되찾는다 — 걸러 내기 «전»의 값이고,
+		// 탈퇴하면 그 칸이 비어 있다. 전에는 이 자리가 Map.of() 라 없는 키가 아니라 찾는 것
+		// 자체로 NPE 였다. 한 쪽의 판이 전부 탈퇴자 것이면 판 목록 전체가 500 이 됐다.
+		Map<String, String> allNull = this.actorNames.resolve(Arrays.asList(null, null));
+		assertThatCode(() -> allNull.get(null)).doesNotThrowAnyException();
+		assertThat(allNull.get(null)).isNull();
+
+		Map<String, String> nothingGiven = this.actorNames.resolve(List.of());
+		assertThatCode(() -> nothingGiven.get(null)).doesNotThrowAnyException();
+
+		Map<String, String> nullGiven = this.actorNames.resolve(null);
+		assertThatCode(() -> nullGiven.get(null)).doesNotThrowAnyException();
+	}
+
+	@Test
+	@DisplayName("🔴 찾은 사람이 있어도 되찾는 규칙은 같다 — 나가는 길을 하나로 둔다")
+	void theSameHoldsWhenSomeNamesWereFound() {
+		UUID alive = UUID.randomUUID();
+		AppUser user = mock(AppUser.class);
+		when(user.getUserId()).thenReturn(alive);
+		when(user.getDisplayName()).thenReturn("수민");
+		when(this.appUserRepository.findAllById(any())).thenReturn(List.of(user));
+
+		Map<String, String> names = this.actorNames.resolve(Arrays.asList(alive.toString(), null));
+
+		assertThat(names.get(alive.toString())).isEqualTo("수민");
+		assertThatCode(() -> names.get(null)).doesNotThrowAnyException();
+		assertThat(names.get(null)).isNull();
 	}
 }
