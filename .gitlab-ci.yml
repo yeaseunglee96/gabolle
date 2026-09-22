@@ -668,7 +668,11 @@ assistant:href-contract:
     - apk add --no-cache git
   script:
     - git fetch origin "+refs/heads/front/dev:refs/remotes/origin/front/dev" --quiet
-    - node ci/assistant-href-contract.mjs
+    # 🔴 --app-ref 를 «명시»한다 (S15P21E201-1492). 안 주면 working tree 가 이기는데,
+    #    <파트>/main 브랜치에는 그 자리에 «아무도 안 건드린 낡은 frontend/ 거울»이 있다.
+    #    그것을 앱의 현재 모습으로 읽고 있지도 않은 계약 위반을 보고해 승격 !1332 가 막혔다.
+    #    값은 DEFAULT_APP_REF 와 같다 — 바뀌는 것은 「실제로 쓰인다」는 것뿐이다.
+    - node ci/assistant-href-contract.mjs --app-ref origin/front/dev
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
