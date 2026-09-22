@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202505A0083114",
+  "name": "뚱보김치찜",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 49495,
+  "researchedAt": "2026-09-22T06:50:03.161Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 영도구 남항새싹길 27 (신선동3가 129-7) 소재지로 사업자/상가 DB에는 등록되어 있으나, 실제 블로그 리뷰, 방문기, 배달앱 등에서 방문 이유 및 가격/영업시간 등의 상세 정량 정보를 확인할 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bizno.net",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

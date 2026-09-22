@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220810732628",
+  "name": "강변마당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 53139,
+  "researchedAt": "2026-09-22T06:49:39.346Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 강서구 식만로 114(식만동 818-6)에 사업체 '강변마당'이 한식/돼지고기 구이·찜 업종으로 사업자/상호 디렉토리에 등록되어 있으나, 실제 방문 블로그 후기나 세부 메뉴판, 영업시간, 사진 등은 웹상에 거의 남아있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "강변마당 한식 음식점 도로명주소: 부산광역시 강서구 식만로 114 (식만동) 지번주소: 부산광역시 강서구 식만동 818-6 전화번호: 051-545-6000",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220810693796",
+  "name": "강나루",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 60387,
+  "researchedAt": "2026-09-22T06:49:21.968Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 강서구 둔치강변길 46 / 봉림동 765-1)는 사업체/시설명으로 '강나루 온누리' 등으로만 검색되며, 돼지고기 구이/찜 식당 관련 후기, 메뉴, 영업시간 등 실제 방문/영업 정보가 웹상에 확인되지 않음.",
+  "notes": "부산 강서구 둔치강변길 46에 위치한 '강나루'는 인허가 등록 정보 외에 대중적인 음식점 후기 및 상세 메뉴/영업 정보를 찾을 수 없는 상태입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

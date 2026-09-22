@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811444956",
+  "name": "해운마루",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 47627,
+  "researchedAt": "2026-09-22T06:50:40.058Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "테라스 좌석과 일몰 시간대에는 수요가 많아 사전 예약을 권장함"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 회식, 여행객, 상견례",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "해운마루 스페셜",
+      "자연산 활어회",
+      "명품 물회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30~22:00 (브레이크타임 15:00~16:30, 라스트오더 20:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 바다 조망과 블루라인파크 인접 위치로 관광객 및 가족 외식 방문이 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "해운대 달맞이길 미포 방면에 위치한 오션뷰 활어회 코스 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "스페셜 코스 1인 60,000원 / 고급 스페셜 코스 80,000원 / 프리미엄 코스 100,000원 / 점심 회정식 38,000원 / 명품 물회 23,000원",
+    "priceWon": 60000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운마루 스페셜: 물회, 샐러드, 모듬해산물, 생선구이, 비빔국수, 치자 밥, 전, 튀김, 회, 매운탕 등으로 구성된 코스 요리. 250석 규모의 넓은 홀, 테라스 좌석, 프라이빗 룸을 갖추고 있어 상견례, 가족 모임, 회식 등 단체 예약이 가능합니다. 주차장이 마련되어 있으며 예약도 가능합니다. 매일 11:30~22:00 (브레이크타임 15:00~16:30, 라스트오더 20:00)",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "해운대 달맞이길 끝자락 미포 인근에 위치한 활어회 전문점으로, 광안대교와 오륙도, 그리고 탁 트인 바다를 조망할 수 있는 오션뷰 맛집으로 유명합니다. 테라스 좌석과 빨간 파라솔이 상징적이며, 노을 시간에 방문하면 아름다운 풍경을 즐길 수 있습니다. 실내는 200석 규모의 넓은 공간으로, 가족 모임이나 회식에 적합한 룸과 입식 테이블을 갖추고 있습니다.",
+      "url": "https://tripinfo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tripinfo.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 바다, 광안대교, 오륙도 및 일몰 노을을 한눈에 내려다보는 뛰어난 오션뷰 테라스 전망",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "자연산 활어회와 물회, 해산물, 매운탕까지 푸짐하게 나오는 정갈한 코스 요리 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220806394003",
+  "name": "다미가횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 56385,
+  "researchedAt": "2026-09-22T06:50:38.382Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "회식, 모임, 여행객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "막썰어회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동백섬과 마린시티, 미포 바다 전망을 즐기러 찾는 외지 여행객 및 모임 손님들이 주로 방문한 기록이 확인됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해운대 달맞이고개에서 미포 선착장 쪽으로 이전해 운영되었던 횟집으로, 2층 창가에서 보이는 동백섬·마린시티 바다 조망과 푸짐한 밑반찬(스끼다시), 막썰어/모듬회 구성이 특징인 곳입니다. 현재는 폐업 또는 상호 변경(해당 주소지는 이씨할매횟집 등으로 변경) 가능성이 높습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 미포에 위치한 횟집으로, 과거 달맞이고개 쪽에 있다가 미포 쪽으로 이전한 것으로 알려져 있습니다. 바다 전망이 좋으며, 2층에 위치해 있어 창밖으로 동백섬, 마린시티 등 시원한 바다 풍경을 볼 수 있다는 점을 장점으로 꼽았습니다. '막썰어횟집' 메뉴를 비롯해 메인 회가 나오기 전 다양한 해산물 애피타이저가 제공됩니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "2층 통창 너머로 동백섬, 마린시티 및 해운대 미포 바다가 한눈에 들어오는 오션뷰 전망",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "메인 회 전에 멍게 등 다양한 해산물 밑반찬(스끼다시)과 막썰어 회 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

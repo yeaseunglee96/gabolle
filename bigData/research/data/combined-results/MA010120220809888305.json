@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220809888305",
+  "name": "미소들",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 67614,
+  "researchedAt": "2026-09-22T06:50:52.404Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "안창살",
+      "갈매기살"
+    ]
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 수영구 남천바다로33번길 99)에 과거 '미소들참숯구이 광안점'이 영업했거나 '(주)미소들' 법인이 등록되었으나, 현재는 폐업/업종변경되어 다른 매장(펍 등)이 운영 중이며 실영업 정보 및 유효한 방문 리뷰를 찾을 수 없음.",
+  "notes": "과거 소고기/안창살 등을 취급하던 '미소들참숯구이 광안점'으로 확인되나 현재는 폐업하여 영업시간, 가격, 줄서기 등 유효 정보를 확인할 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bigvalue.ai",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

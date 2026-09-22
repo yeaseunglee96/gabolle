@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220810184881",
+  "name": "주주원",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 76873,
+  "researchedAt": "2026-09-22T06:49:22.007Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "내부 테이블이 많아 대기는 없으나 배달 주문이 많아 음식 나오기까지 20~30분 소요될 수 있음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "간짜장",
+      "탕수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "외진 위치의 동네 배달/인근 방문 중심 중식당으로 주로 현지 인근 주민 및 근로자가 이용"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 강서구 가락대로 1429(죽림동) 소재의 중식당으로 간짜장, 탕수육 등이 대표 메뉴이며 전용 주차 공간을 갖추고 있음",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치 및 접근성: 죽림동 구석진 곳에 위치해 있어 찾아가기 다소 어려울 수 있으나, 주차장은 마련되어 있으며 주변 주차도 가능한 것으로 보입니다. 식당 분위기: 내부 테이블이 많아 대기 없이 이용하기에 적합한 편입니다. 음식 및 서비스: 간짜장과 탕수육 등이 주요 메뉴로 언급됩니다. 다만, 배달 주문이 많아 음식 제공까지 다소 시간(약 20~30분)이 소요될 수 있다는 후기가 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://infosori.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "간짜장과 탕수육 맛 및 넉넉한 내부 좌석과 전용 주차장 구비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "구석진 위치지만 전용 주차 공간과 넓은 테이블을 갖추어 단체 및 차량 방문이 용이함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

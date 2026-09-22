@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220810681677",
+  "name": "칡넝굴2",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 60259,
+  "researchedAt": "2026-09-22T06:48:56.848Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 및 단체 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리탕",
+      "오리생구이",
+      "오리양념구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (명절 연휴 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "강서구 강동동 일대 현지 주민들이 주로 찾는 오리요리 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "상호명이 등록 상호 '칡넝굴2' 및 영업 상호 '칡넝쿨유황오리'로 확인됨. 행정구역 및 도로명 주소(부산 강서구 상덕로 52) 일치.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "오리탕",
+    "priceWon": 38000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 강서구 상덕로 52 1층 (강동동) 오리탕, 오리생구이, 오리양념구이, 훈제 바베큐, 백숙 등. 칼칼한 국물의 오리탕이 특히 유명하며, 밑반찬이 잘 나오는 곳으로 알려져 있습니다. 예약, 포장, 발렛파킹, 유아의자 이용 가능.",
+      "url": "https://polle.com/"
+    },
+    {
+      "excerpt": "부산광역시 강서구 상덕로 52(강동동 2102-1) 칡넝쿨 유황 오리 / 칡넝굴2. 영업시간: 11:00 ~ 22:00 (명절 연휴 휴무). 전화 051-971-6569. 오리탕 38,000원, 오리생구이 44,000원.",
+      "url": "https://www.konest.com/"
+    }
+  ],
+  "sources": [
+    "https://polle.com/",
+    "https://www.konest.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "칼칼하고 시원한 국물의 오리탕과 푸짐한 밑반찬의 오리요리 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

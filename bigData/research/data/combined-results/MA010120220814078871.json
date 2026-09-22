@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220814078871",
+  "name": "푸드나눔그룹",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 53075,
+  "researchedAt": "2026-09-22T06:49:42.604Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "실제 식당 이용 후기 및 상세 운영 정보가 온라인상에 존재하지 않음",
+  "notes": "부산광역시 영도구 하나길 일대(신선동2가) 공공 상가 데이터에 '푸드나눔그룹'(국수/칼국수)으로 등록된 이력은 확인되나, 실제 방문 후기, 블로그 리뷰, 메뉴 및 가격, 영업시간 등 식당으로서의 실질적인 정보가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}
