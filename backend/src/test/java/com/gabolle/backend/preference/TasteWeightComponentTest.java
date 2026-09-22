@@ -32,7 +32,7 @@ class TasteWeightComponentTest {
 	void mergesSurveyAndInteractionIntoOneComponent() {
 		List<TasteWeightComponent> merged = TasteWeightComponent.merge(List.of(
 				UserTasteWeight.fromSurvey(VECTOR, TasteDimension.CATEGORY, "CAFE", 0.4, NOW),
-				UserTasteWeight.fromInteraction(VECTOR, TasteDimension.CATEGORY, "CAFE", 0.6, 3, NOW)));
+				UserTasteWeight.fromInteraction(VECTOR, TasteDimension.CATEGORY, "CAFE", rawForWeight(0.6), 3, NOW)));
 
 		assertThat(merged).hasSize(1);
 		TasteWeightComponent cafe = merged.get(0);
@@ -47,7 +47,7 @@ class TasteWeightComponentTest {
 	void clampsSumToRange() {
 		List<TasteWeightComponent> merged = TasteWeightComponent.merge(List.of(
 				UserTasteWeight.fromSurvey(VECTOR, TasteDimension.CATEGORY, "CAFE", 1.0, NOW),
-				UserTasteWeight.fromInteraction(VECTOR, TasteDimension.CATEGORY, "CAFE", 0.6, 2, NOW)));
+				UserTasteWeight.fromInteraction(VECTOR, TasteDimension.CATEGORY, "CAFE", rawForWeight(0.6), 2, NOW)));
 
 		assertThat(merged.get(0).weight()).isCloseTo(1.0, within(1e-9));
 	}
@@ -66,7 +66,7 @@ class TasteWeightComponentTest {
 	@DisplayName("행동 행만 있으면 근거도 행동 그대로")
 	void keepsInteractionOnlyEvidence() {
 		List<TasteWeightComponent> merged = TasteWeightComponent.merge(
-				List.of(UserTasteWeight.fromInteraction(VECTOR, TasteDimension.CATEGORY, "CAFE", -0.3, 5, NOW)));
+				List.of(UserTasteWeight.fromInteraction(VECTOR, TasteDimension.CATEGORY, "CAFE", rawForWeight(-0.3), 5, NOW)));
 
 		assertThat(merged.get(0).evidence()).isEqualTo(TasteEvidence.INTERACTION);
 		assertThat(merged.get(0).support()).isEqualTo(5);
@@ -106,6 +106,19 @@ class TasteWeightComponentTest {
 	void emptyInputGivesEmptyOutput() {
 		assertThat(TasteWeightComponent.merge(List.of())).isEmpty();
 		assertThat(TasteWeightComponent.merge(null)).isEmpty();
+	}
+
+	/**
+	 * 원하는 «무게» 에서 {@code raw} 를 역산한다 (S15P21E201-1500).
+	 *
+	 * <p>{@code fromInteraction} 은 이제 눌러 담기 전의 합을 받는다 —
+	 * {@code weight = raw/(|raw|+K)} 이므로 {@code raw = K*w/(1-|w|)} 이다. 이 시험들은
+	 * 합치는 규칙을 보는 것이라 무게로 말하는 편이 읽힌다.
+	 *
+	 * <p>🔴 {@code w = ±1} 은 못 넣는다 — 행동 무게는 관측이 아무리 쌓여도 1 에 못 닿는다.
+	 */
+	private static double rawForWeight(double weight) {
+		return (UserTasteWeight.CONFIDENCE_K * weight) / (1.0 - Math.abs(weight));
 	}
 
 }

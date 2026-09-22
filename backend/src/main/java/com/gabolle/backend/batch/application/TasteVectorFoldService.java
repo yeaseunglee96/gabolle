@@ -213,7 +213,7 @@ public class TasteVectorFoldService {
 		List<UserTasteWeight> rows = new ArrayList<>(fromSurvey);
 		for (BehaviorTasteFolder.Attribution attribution : fromBehavior) {
 			rows.add(UserTasteWeight.fromInteraction(tasteVectorId, attribution.dimension(), attribution.code(),
-					attribution.weight(), attribution.support(), asOf));
+					attribution.raw(), attribution.support(), asOf));
 		}
 		return List.copyOf(rows);
 	}
