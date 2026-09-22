@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220800456301",
+  "name": "기승이네왕족발",
+  "cat": "족발/보쌈",
+  "attempts": 1,
+  "geminiTokens": 76180,
+  "researchedAt": "2026-09-22T06:57:35.740Z",
+  "crowding": {
+    "found": false,
+    "note": "혼잡·줄서기 관련 정보를 웹에서 확인하지 못함"
+  },
+  "descriptors": {
+    "audience": "현지인 및 관광객",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "족발",
+      "보쌈"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 24:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해수욕장 및 해운대 전통시장 인근 위치로 현지인과 관광객 모두에게 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "검색 결과가 대부분 구글 중계 주소(vertexaisearch grounding-api-redirect)와 유튜브로만 나와 원문 블로그·리뷰 페이지에 직접 접근하지 못했습니다. 확인된 정보: 주소(부산 해운대구 구남로41번길 5), 영업시간(매일 11:00~24:00), 전화(051-731-3967), 해운대전통시장 인근 위치. 구체적인 메뉴 가격, 줄서기 현황, 메뉴 구성 상세 정보는 접근 가능한 원문 페이지에서 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 전통시장 내에 위치한 업체로 알려져 있습니다. 주소: 부산광역시 해운대구 구남로41번길 5 (중동), 연락처: 051-731-3967, 영업시간: 매일 11:00~24:00. 해운대 해수욕장 및 해운대 전통시장과 가까운 위치 덕분에 접근성이 뛰어나며, 현지인과 관광객 모두에게 꾸준히 사랑받는 곳 중 하나입니다.",
+      "url": "https://www.youtube.com/"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 전통시장 인근 위치로 해수욕장 방문객과 시장 이용객이 접근하기 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "현지인과 관광객 모두 꾸준히 찾는 곳으로 언급됨",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}
