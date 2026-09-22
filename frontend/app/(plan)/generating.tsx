@@ -260,7 +260,11 @@ export default function Generating() {
         <View style={kind !== 'phone' ? styles.statusCopy : undefined}>
         <View style={styles.aiBadge}><View style={[styles.pulse, isWorking && styles.pulseActive]} /><Text variant="caption" weight="bold" color={color.text.onAction}>{job.state === 'completed' ? tx('AI 일정 완성', 'AI itinerary ready') : failed ? tx('일정 생성 실패', 'Itinerary generation failed') : tx('AI 일정 생성 중', 'Creating your itinerary')}</Text></View>
         <Text variant="display" weight="bold" color={color.brand.ivory} style={styles.headline}>{job.state === 'completed' ? tx(kind === 'phone' ? '당신만의 부산 여행이\n완성됐어요' : '당신만의 부산 여행이 완성됐어요', kind === 'phone' ? 'Your Busan trip\nis ready' : 'Your Busan trip is ready') : failed ? tx('일정을 만들지\n못했어요', "We couldn't build\nyour itinerary") : tx('동백이가 당신만을 위한\n부산 여행을 만들고 있어요', 'Dongbaek is building\nyour Busan trip')}</Text>
-        <Text color={color.text.onDarkMuted}>{failed ? job.errorMessage : delayed && isWorking ? tx('부산 동선을 조금 더 다듬고 있어요. 화면을 닫아도 작업은 계속됩니다.', 'We are refining your route through Busan. The job continues if you leave this screen.') : tx('현지 정보와 안전 조건, 이동 부담을 함께 확인하고 있어요.', 'We are checking local information, safety, and travel effort together.')}</Text>
+        {/* 🔴 끝난 화면에서 진행 중 문구를 남기지 않는다 — S15P21E201-1489(B-10).
+            바로 아래 진행률이 이미 같은 이유로 완료 때 치워진다. 이 부제만 그 처리를
+            빠뜨려서, 제목은 「완성됐어요」인데 부제는 「확인하고 있어요」였다(iOS build 39).
+            한 화면에서 끝났다고도 하고 하는 중이라고도 하면 사람은 덜 끝난 쪽을 믿는다. */}
+        <Text color={color.text.onDarkMuted}>{failed ? job.errorMessage : job.state === 'completed' ? tx('현지 정보와 안전 조건, 이동 부담을 모두 확인했어요.', 'We checked local information, safety, and travel effort.') : delayed && isWorking ? tx('부산 동선을 조금 더 다듬고 있어요. 화면을 닫아도 작업은 계속됩니다.', 'We are refining your route through Busan. The job continues if you leave this screen.') : tx('현지 정보와 안전 조건, 이동 부담을 함께 확인하고 있어요.', 'We are checking local information, safety, and travel effort together.')}</Text>
         {/* 끝났으면 진행률을 치운다. 100% 로 멈춘 막대와 "처리 중" 이라는
             단계 이름은 완료된 뒤에는 정보가 아니라 거짓이다 — 위의 단계 목록이 이미 전부
             "완료" 라고 말하고 있고, 그 옆에서 다른 말을 하면 사용자는 덜 끝난 쪽을 믿는다.

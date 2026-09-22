@@ -8,7 +8,7 @@ import { TripNameSheet } from '@/trip/TripNameSheet';
 import { NowCard } from '@/plan/NowCard';
 import {
   EMPTY_PROGRESS, arrive as arriveAt, drift, loadProgress, needsManualArrival,
-  isToday, localDateKey, pause as pauseRun, saveProgress, skip as skipStop, start as startRun, stepStates,
+  isToday, localDateKey, pause as pauseRun, saveProgress, saysStartsIn, skip as skipStop, start as startRun, stepStates,
   type TripProgress,
 } from '@/plan/tripProgress';
 import {
@@ -574,8 +574,12 @@ export default function ItineraryScreen() {
         : txf(tx, '%s시간 %s분', '%s h %s min', Math.floor(nowDriftValue.minutes / 60), nowDriftValue.minutes % 60)
       : txf(tx, '%s분', '%s min', nowDriftValue.minutes)
     : null;
+  // 🔴 시작하지도 않은 여행에 「예정보다 빠름」이라고 하지 않는다 — S15P21E201-1489(B-13).
+  //    왜 그런지는 saysStartsIn 의 주석이 소유한다(src/plan/tripProgress.ts).
   const nowDrift = nowDriftValue && driftSpan
-    ? txf(tx, '예정보다 %s %s', '%s %s', driftSpan, nowDriftValue.early ? tx('빠름', 'early') : tx('늦음', 'late'))
+    ? saysStartsIn(progress.status, nowDriftValue)
+      ? txf(tx, '%s 뒤 시작', 'starts in %s', driftSpan)
+      : txf(tx, '예정보다 %s %s', '%s %s', driftSpan, nowDriftValue.early ? tx('빠름', 'early') : tx('늦음', 'late'))
     : null;
   const nowTitle = progress.status === 'DONE'
     ? tx('오늘 일정을 다 돌았어요', 'You finished today')

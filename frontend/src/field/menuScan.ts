@@ -162,8 +162,25 @@ export function unreadNotice(scan: MenuScan, tx: Translate): string | null {
   ).replace('%d', String(scan.unreadLineCount));
 }
 
-/** 알레르기 안내. */
-export function allergenNotice(scan: MenuScan, tx: Translate): { words: string[]; headline: string; caution: string } {
+/**
+ * 알레르기 안내.
+ *
+ * 🔴 **글자를 한 줄도 못 읽었으면 아무 말도 안 한다**(`null`) — S15P21E201-1489(B-14).
+ *
+ * <p>전에는 읽은 것이 없어도 「읽은 글자에서는 알레르기와 관련된 낱말을 찾지 못했어요」를
+ * 냈다. 그래서 실기기에서 아래 두 문장이 한 화면에 같이 떴다(iOS build 39).
+ *
+ * <pre>
+ *   읽은 글자에서는 알레르기와 관련된 낱말을 찾지 못했어요
+ *   글자를 찾지 못했어요. 더 밝은 곳에서 …
+ * </pre>
+ *
+ * <p>앞뒤가 안 맞는 것을 넘어 **위험하다.** 「못 찾았다」는 찾아본 뒤에야 할 수 있는 말인데,
+ * 아무것도 못 읽은 상태에서 그렇게 말하면 알레르기가 있는 사람이 «확인됐다»로 읽는다.
+ * 판정을 부르는 쪽마다 맡기면 한 자리는 반드시 빠뜨리므로 여기서 한 번에 막는다.
+ */
+export function allergenNotice(scan: MenuScan, tx: Translate): { words: string[]; headline: string; caution: string } | null {
+  if (scan.lines.length === 0) return null;
   const words = [...new Set(scan.lines.flatMap((line) => line.allergenWords))];
   return {
     words,

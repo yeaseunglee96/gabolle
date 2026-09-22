@@ -122,6 +122,25 @@ export function drift(nowIso: string, plannedIso: string | null): { minutes: num
 }
 
 /**
+ * 「예정보다 빠름」이 아니라 「N 뒤 시작」이라고 말해야 하나 — S15P21E201-1489(B-13).
+ *
+ * <p>실기기에서 「지금 00:52 · 예정보다 8시간 47분 빠름」이 떴다(iOS build 39). 첫 일정이
+ * 09:39 이니 {@link drift} 의 계산은 정확하다. 틀린 것은 **말**이다 — 「예정보다 빠름」은
+ * 이미 움직이고 있는 사람에게 하는 말이라, 아직 시작도 안 한 여행이 진행 중인 것처럼
+ * 읽힌다. 안 떠난 사람에게 필요한 말은 「언제 시작하나」다.
+ *
+ * <p>🔴 **늦음은 시작 전에도 그대로 둔다.** 첫 일정 시각이 지났는데 아직 {@code PLANNED}
+ * 면 실제로 늦은 것이 맞고, 그때는 그렇게 말해 주는 편이 낫다.
+ *
+ * <p>이 판단을 화면이 아니라 여기에 두는 이유는 시험할 수 있게 하기 위해서다 — 화면에
+ * 두면 여행 하나를 통째로 세워야 하고, 그러면 아무도 안 쓴다.
+ */
+export function saysStartsIn(status: ProgressStatus, drift: { early: boolean } | null): boolean {
+  if (!drift) return false;
+  return status === 'PLANNED' && drift.early;
+}
+
+/**
  * 「도착 찍기」를 보여 줘야 하나.
  *
  * 🔴 **언제나 보이면 안 된다**(인계 §10-4). 기본은 GPS 자동이고, 손으로 찍는 단추는

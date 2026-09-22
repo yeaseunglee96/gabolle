@@ -8,12 +8,24 @@ type ToggleProps = {
   value: boolean;
   onValueChange: (next: boolean) => void;
   disabled?: boolean;
+  /**
+   * 🔴 무엇을 켜고 끄는 스위치인가 — S15P21E201-1489(B-03).
+   *
+   * <p>이 부품은 글자를 안 그린다. 부르는 쪽이 라벨을 형제 {@code View} 에 두므로,
+   * 화면 읽기 프로그램에는 스위치와 글자가 **안 묶인다.** 실기기 VoiceOver 가
+   * 「스위치」라고만 읽었다(iOS build 39). 개인정보 동의 스위치라 더 나쁘다.
+   *
+   * <p>선택 항목으로 둔 것은 이미 쓰고 있는 자리를 깨지 않기 위해서다. 다만 새로
+   * 쓰는 자리는 반드시 준다 — 안 주면 같은 결함이 그대로 생긴다.
+   */
+  accessibilityLabel?: string;
 };
 
-export function Toggle({ value, onValueChange, disabled }: ToggleProps) {
+export function Toggle({ value, onValueChange, disabled, accessibilityLabel }: ToggleProps) {
   return (
     <Pressable
       accessibilityRole="switch"
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ checked: value, disabled }}
       disabled={disabled}
       onPress={() => onValueChange(!value)}

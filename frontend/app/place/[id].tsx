@@ -112,7 +112,12 @@ export default function Place() {
     if (sync === 'failed') {
       setFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
     } else {
-      setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
+      // 🔴 어디에 저장됐는지까지 말한다 — S15P21E201-1489(B-11). 「저장했어요」만 들으면
+      //    부슐랭(컬렉션)을 열어 보고 비어 있어서 「저장이 안 됐다」고 오해한다. 실제로 둘은
+      //    다른 저장소다 — 이쪽은 일정 만들 때 쓰는 후보이고, 부슐랭은 따로 담는다.
+      setFeedback(nextSaved
+        ? tx('내 여행 후보에 저장했어요. 일정을 만들 때 이 장소를 먼저 넣어요.', 'Saved to your trip candidates — we will use it first when building an itinerary.')
+        : tx('저장을 해제했어요.', 'Removed from saved.'));
     }
     // 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
     if (nextSaved && !demoPlace) sendAppEvent({ type: 'place_like', accessToken, payload: { placeId: id, surface: 'place_detail' } });
