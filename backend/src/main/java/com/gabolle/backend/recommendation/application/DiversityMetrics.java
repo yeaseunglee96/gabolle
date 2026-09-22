@@ -23,6 +23,7 @@ final class DiversityMetrics {
 	static Map<String, Object> of(List<EngineCandidate> items) {
 		Map<String, Integer> categoryCounts = new LinkedHashMap<>();
 		Map<String, Integer> localityCounts = new LinkedHashMap<>();
+		Map<String, Integer> cuisineCounts = new LinkedHashMap<>();
 		for (EngineCandidate candidate : items) {
 			String category = DiversityKeys.categoryOf(candidate);
 			if (category != null) {
@@ -32,12 +33,18 @@ final class DiversityMetrics {
 			if (locality != null) {
 				localityCounts.merge(locality, 1, Integer::sum);
 			}
+			// 🔴 표식이 둘인 가게는 둘 다 세어진다. 그래서 countedForCuisine 이 size 를 넘을 수
+			//    있다 — 다른 두 축과 달리 이 축은 「장소 수」가 아니라 「표식 수」다.
+			for (String cuisine : DiversityKeys.cuisinesOf(candidate)) {
+				cuisineCounts.merge(cuisine, 1, Integer::sum);
+			}
 		}
 
 		Map<String, Object> metrics = new LinkedHashMap<>();
 		metrics.put("size", items.size());
 		put(metrics, "category", categoryCounts);
 		put(metrics, "locality", localityCounts);
+		put(metrics, "cuisine", cuisineCounts);
 		return metrics;
 	}
 
