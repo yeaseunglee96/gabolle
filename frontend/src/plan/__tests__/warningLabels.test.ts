@@ -65,6 +65,9 @@ describe('서버가 실제로 보내는 코드는 하나도 안 사라진다', (
     'RECALC_NO_CANDIDATE',
     'RECALC_TIMES_RESHUFFLED',
     'RECALC_DAY_PARTIALLY_FILLED',
+    // 🔴 -1468 의 ㄴ. 서버가 «아직» warnings 로 안 보낸다 — 앱을 먼저 넓히는 것이 순서다.
+    //    (BaselineCandidateScorer 가 지금은 unknownFacts 에 담는다: fact=DIET_SUPPORT_UNVERIFIED)
+    'DIET_SUPPORT_UNVERIFIED',
   ];
 
   it.each(서버가_보내는_코드)('%s 에 한국어·영어 짝이 있다', (code) => {
@@ -91,5 +94,24 @@ describe('서버가 실제로 보내는 코드는 하나도 안 사라진다', (
       expect(korean).not.toContain(code);
       expect(korean).not.toMatch(/[A-Z]{3,}_[A-Z]/);
     }
+  });
+});
+
+// ── 식단 미확인 — S15P21E201-1468 의 ㄴ ──────────────────────────────────────
+describe('식단을 확인 못 한 곳', () => {
+  const tx = (ko: string) => ko;
+
+  it('🔴 「안 된다」가 아니라 「안 재 봤다」로 말한다', () => {
+    const [message] = describeWarningCodes(['DIET_SUPPORT_UNVERIFIED'], tx);
+    expect(message).toContain('확인되지 않은');
+    // 갈 수 있는 곳을 못 가게 만드는 말이 섞이면 안 된다.
+    expect(message).not.toContain('안 돼요');
+    expect(message).not.toContain('불가');
+  });
+
+  it('🔴 알레르기는 이 사전에 «없다» — 아예 묻지 않기로 했다 (-1497)', () => {
+    // 접근성·식단이 틀리면 불편하고, 알레르기가 틀리면 사람이 다친다.
+    // 경고로 내보내는 길을 열어 두면 「확인 못 했지만 추천함」이 되어 그 선이 무너진다.
+    expect(describeWarningCodes(['ALLERGEN_UNVERIFIED'], tx)).toEqual([]);
   });
 });

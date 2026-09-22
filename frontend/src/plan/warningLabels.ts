@@ -23,6 +23,21 @@ export const WARNING_LABEL: Record<string, [string, string]> = {
     'Wheelchair access here has not been checked yet.',
   ],
 
+  // 🔴 식단 미확인 — S15P21E201-1468 의 ㄴ. 서버가 DIET_SUPPORT_UNVERIFIED 를
+  //    unknownFacts 에서 warnings 로 옮기기 «전에» 여기에 먼저 넣는다.
+  //    이 사전에 없는 코드는 화면에 «안 나간다»(describeWarningCodes). 서버부터 옮기면
+  //    경고가 조용히 사라지고 「그냥 추천된 곳」으로 보인다 — 이 파일 위 주석이 적어 둔,
+  //    전에 실제로 겪은 그 일이다.
+  //
+  //    🔴 알레르기(ALLERGEN_UNVERIFIED)는 «여기 안 넣는다». 알레르기는 아예 안 묻기로
+  //    했다(-1497). 접근성·식단이 틀리면 불편하고, 알레르기가 틀리면 사람이 다친다.
+  //
+  //    「안 된다」가 아니라 「안 재 봤다」로 옮긴다 — 위의 넷과 같은 선이다.
+  DIET_SUPPORT_UNVERIFIED: [
+    '이 식단을 지원하는지 아직 확인되지 않은 곳이에요. 안 된다는 뜻은 아니에요.',
+    "Whether this place supports your diet has not been checked yet — it doesn't mean it can't.",
+  ],
+
   // 서버는 이것들을 이미 보내고 있었다. 사전에 짝이 없어서 화면에 아무것도 안 나갔다.
   // 아침엔 암호가 보이는 것이 문제였는데, 그걸 「안 보이게」로 고친
   // 뒤로는 진짜 경고가 같이 삼켜지는 것이 문제가 됐다. 안전망은 목표가 아니다.
