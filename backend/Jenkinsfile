@@ -424,6 +424,12 @@ pipeline {
                             #
                             #    브로커는 같은 망(local-route-personalization_data_net)에 kafka 라는 이름으로
                             #    떠 있다. 포트를 밖으로 안 열어서 망 안에서만 닿는다.
+                            #
+                            # 🟢 S15P21E201-1516 — 새벽 취향 접기(GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED)만은
+                            #    기본값이 켜짐이다 (2026-09-23). Airflow DAG taste_vector_daily 가 하던 일을
+                            #    백엔드가 넘겨받았고, 그 DAG 는 켜진 것을 확인한 뒤 일시정지한다. 둘 다 켜지면
+                            #    같은 시각에 같은 사람을 두 번 접는다 — DAG 를 다시 켤 거면 Jenkins 에 이 값을
+                            #    false 로 넣는다.
                         docker run -d --name backend \
                             --restart unless-stopped \
                             --network local-route-personalization_data_net \
@@ -473,7 +479,7 @@ pipeline {
                             -e GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED="${GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED:-false}" \
                             -e GABOLLE_OUTBOX_RELAY_ENABLED="${GABOLLE_OUTBOX_RELAY_ENABLED:-false}" \
                             -e GABOLLE_KAFKA_BOOTSTRAP_SERVERS="${GABOLLE_KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}" \
-                            -e GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED="${GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED:-false}" \
+                            -e GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED="${GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED:-true}" \
                             -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
                             -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
@@ -671,7 +677,7 @@ pipeline {
                                     -e GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED="${GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED:-false}" \
                                     -e GABOLLE_OUTBOX_RELAY_ENABLED="${GABOLLE_OUTBOX_RELAY_ENABLED:-false}" \
                                     -e GABOLLE_KAFKA_BOOTSTRAP_SERVERS="${GABOLLE_KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}" \
-                                    -e GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED="${GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED:-false}" \
+                                    -e GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED="${GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED:-true}" \
                                     -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
                                     -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
