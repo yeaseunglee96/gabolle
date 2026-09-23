@@ -127,7 +127,10 @@ const styles = StyleSheet.create({
   body: { gap: spacing[2], paddingHorizontal: spacing[4], paddingBottom: spacing[4], marginTop: -40 },
   // 🔴 아바타 줄을 커버 «위»로 올린다. 안 올리면 커버의 overflow: hidden 이 겹친 부분을
   //    잘라 먹어서, 아바타가 반달처럼 보인다.
-  topRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing[3], zIndex: 1 },
+  // 🔴 alignItems: 'center' — 줄이 -40 올라가 있고 아바타가 80 이라 줄의 세로 가운데가 곧 커버와
+  //    흰 카드의 경계선이다. 단추도 가운데에 두면 둘 다 경계선 위에 앉는다(시안 design_handoff_mypage_v2
+  //    변경점 1, S15P21E201-1526). 전에는 flex-end 라 단추가 아바타 아랫단에 붙어 경계선 아래로 처졌다.
+  topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], zIndex: 1 },
   avatar: {
     width: AVATAR, height: AVATAR, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center',
     backgroundColor: color.action.secondary, borderWidth: 4, borderColor: color.surface.card, overflow: 'hidden',
