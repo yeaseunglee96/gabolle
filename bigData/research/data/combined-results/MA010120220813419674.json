@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220813419674",
+  "name": "브라운돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49825,
+  "researchedAt": "2026-09-22T11:29:14.012Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산광역시 해운대구 구남로29번길 35)에 과거 '브라운돈까스 해운대점'으로 등록된 기록은 일부 데이터베이스에 남아 있으나, 실제 방문 후기나 사진, 블로그 리뷰가 전무하며 현재 해당 위치에는 타 매장이 입점해 있거나 폐업하여 실존하지 않는 매장으로 확인되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://nett.kr",
+    "https://maptons.com"
+  ],
+  "whyPeopleGo": []
+}

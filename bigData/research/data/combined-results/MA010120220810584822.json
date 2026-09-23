@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810584822",
+  "name": "쇼진",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 105086,
+  "researchedAt": "2026-09-22T11:14:12.285Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "사전 예약제로 운영되어 별도의 대기 줄 없이 시간대별로 쾌적하게 입장 및 이용함"
+  },
+  "descriptors": {
+    "audience": "기념일 및 모임 고객",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "오마카세 (가이세키 코스 요리)",
+      "장어덮밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 ~ 22:00 (매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 해운대구 구남로 9 라마다앙코르 해운대 호텔 2층 214호에 위치한 일식 가이세키 오마카세 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "오마카세 코스 1인 160,000원, 장어덮밥 55,000원",
+    "priceWon": 160000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 구남로 9 (우동), 라마다 앙코르 호텔 214호. 대표 메뉴: 오마카세 (가격: 160,000원). 운영 시간: 18:00 ~ 22:00. 제철 고급 식재료(금태, 참치, 성게알, 단새우, 소고기 등)를 사용한 가이세키 코스 요리를 제공하며, 콜키지가 가능하고 프라이빗한 식사를 위한 룸을 갖추고 있습니다.",
+      "url": "https://busanly.com"
+    },
+    {
+      "excerpt": "매일 어시장에서 엄선한 신선한 식재료를 사용하여 계절감이 느껴지는 일본 코스 요리를 제공합니다. 초밥 오마카세와는 차별화된 가이세키 스타일의 요리를 맛볼 수 있으며, 숯 화로 등을 이용한 조리 방식이 특징입니다. 예약제로 운영되며, 노키즈존으로 운영될 수 있습니다.",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://busanly.com",
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매일 어시장에서 엄선한 제철 해산물과 숯 화로 조리를 결합한 수준 높은 가이세키 코스 요리를 제공한다.",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전석 예약제 및 프라이빗 룸을 구비하여 기념일이나 특별한 모임에 최적화된 식사 환경을 갖추었다.",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

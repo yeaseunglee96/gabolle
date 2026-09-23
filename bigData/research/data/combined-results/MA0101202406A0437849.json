@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202406A0437849",
+  "name": "카페블르와",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 44579,
+  "researchedAt": "2026-09-22T07:06:16.371Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 디저트/카페 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "크림 브륄레"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 20:00 (매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "광안역 인근에 위치했던 디저트 카페 '블르와(VOULOIR)'로 프랑스 가정집 분위기와 크림 브륄레로 알려져 있으나, 현재는 동일 주소지에 다른 매장이 들어서는 등 변동 가능성이 큼.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안로45번길 3 (1층) 프랑스 가정집 같은 따스하고 아기자기한 분위기의 인테리어와 이국적인 테라스 좌석을 갖추고 있습니다. 주문 즉시 설탕을 뿌려 토치로 구워주는 크림 브륄레가 대표적인 디저트 메뉴로 잘 알려져 있습니다. 영업시간: 12:00 ~ 20:00 (매주 월요일 휴무)",
+      "url": "https://facebook.com"
+    }
+  ],
+  "sources": [
+    "https://facebook.com",
+    "https://cafeinbusan.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "프랑스 가정집 풍의 아기자기한 감성 인테리어와 야외 테라스 분위기를 즐기러 방문함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "주문 즉시 설탕을 토치로 구워 제공하는 대표 디저트 크림 브륄레를 맛보기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

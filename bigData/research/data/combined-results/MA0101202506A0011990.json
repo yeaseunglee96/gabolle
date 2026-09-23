@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202506A0011990",
+  "name": "리쿠리식당",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 67438,
+  "researchedAt": "2026-09-22T10:33:50.953Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": null
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 1~2인 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "리쿠리 초밥정식",
+      "하쿠 장어덮밥 정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 20:30 (15:30~17:00 브레이크 타임, 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "주택을 개조한 감성적인 분위기와 한 소쿠리에 정갈하게 담겨 나오는 일본 가정식 스타일의 초밥/덮밥 정식이 특징인 식당.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "리쿠리 초밥정식",
+    "priceWon": 17500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주택을 개조한 식당으로, 화이트와 우드 톤의 인테리어에 식물을 더해 아늑하고 아기자기한 카페 같은 감성을 주는 일식당입니다. 리쿠리 초밥정식: 10피스 초밥과 함께 가라아게, 샐러드, 한입롤, 고구마 무스, 과일 등이 한 소쿠리에 담겨 나오는 시그니처 구성입니다. 하쿠 장어덮밥 정식: 불향을 입힌 민물장어와 달달한 소스가 특징이며, 계란말이가 함께 제공됩니다. 광안리 해수욕장에서 도보로 약 5분 거리에 위치해 있어 접근성이 좋은 편입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정갈하고 아기자기한 소쿠리 한상 플레이팅과 감성적인 주택 개조 인테리어",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해수욕장에서 도보 5분 거리로 접근하기 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

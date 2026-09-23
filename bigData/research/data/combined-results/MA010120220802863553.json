@@ -1,0 +1,89 @@
+{
+  "id": "MA010120220802863553",
+  "name": "온더야드",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 189561,
+  "researchedAt": "2026-09-22T11:56:28.200Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "피크 시간대 대기가 있을 수 있으며 매장 외부 곳곳에 웨이팅용 벤치와 대기 공간이 마련되어 있음"
+  },
+  "descriptors": {
+    "audience": "연인 및 데이트 고객, 대학생, 모임 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "4치즈 피자",
+      "리코타 청포도 샐러드",
+      "오징어 게살 먹물파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 - 22:00 (브레이크타임: 15:00 - 17:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 18,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "경성대·부경대 인근 주택을 개조해 정원과 레트로·빈티지 감성을 갖춘 화덕피자 및 파스타 전문점으로 데이트 장소로 인기가 높음.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/qEFbZ/btrm2oe8Y44/AAAAAAAAAAAAAAAAAAAAAF8fvobIc8lfUebH_VsoAk0zrWtc8Yjq7UqazvkO9LI3/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=YKzyVzF4CRtDHEXKi7kpJDsft%2Fo%3D",
+    "https://blog.kakaocdn.net/dna/bMfwQ1/btrm56ELPtv/AAAAAAAAAAAAAAAAAAAAAF8d1HT-I6et8SfiutBT8YlL0Zah69Zb9eVSCdv0raXb/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=7%2BU6j2Hz11BrF9DL%2FHATn1k4b1Y%3D",
+    "https://blog.kakaocdn.net/dna/UiOZ9/btrnbJvCjW7/AAAAAAAAAAAAAAAAAAAAAG8La0T9QlcSfpGh-cHvqFIeRnA1EQIMn9XF9vSGLQ93/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=llu3hGE7Du8HS0xvlFgnw81Vn3E%3D",
+    "https://blog.kakaocdn.net/dna/WDGwR/btrm3PjmYxT/AAAAAAAAAAAAAAAAAAAAAAdUzo9b-sNqwOsFhqeratvNfaFjNP6ISO06Nkq2CgI8/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=WvwWuczVLsQPzUCjnQnrSHcijwQ%3D",
+    "https://blog.kakaocdn.net/dna/bwgXVG/btrmZmPstZI/AAAAAAAAAAAAAAAAAAAAAH6SfLl7OCxl76tH2O2xPlxbDIcwg1HANkpGQP_R4h_U/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=Mpl91ffZ7OXrDcSuZIDpxdIyEc0%3D",
+    "https://blog.kakaocdn.net/dna/bXj78B/btrnbWIlIwZ/AAAAAAAAAAAAAAAAAAAAAIPsgZY1jcBv7dIpN35zGSPFZrMVzmYy3kopnHsIV4Rg/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=YWHSIHENFja5MoiQ8hY2ymJ5Udc%3D",
+    "https://blog.kakaocdn.net/dna/cRmdgU/btrndnyNBCK/AAAAAAAAAAAAAAAAAAAAAHerS7v6lQtn3rCOhYF4CX25MLVxK2SoLa7gl4cqFPkn/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=stSfWDETYdOuga8dzWAtZVUDOFk%3D",
+    "https://blog.kakaocdn.net/dna/3rqc9/btrmZmaNCVv/AAAAAAAAAAAAAAAAAAAAAD437HloBtFxMBOOvu7fBzdcmffal_DCNjrYdbfGTCs4/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=9zcuWPXpoqIXPFdJSIrnApu46kw%3D",
+    "https://blog.kakaocdn.net/dna/dwXTMj/btrndnS5r7t/AAAAAAAAAAAAAAAAAAAAABBSVfAk_EIcxT3lEUwnhVp8pnIp_nTpb8C4YqmE6hP2/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=5Sy0E0B6wKmp9XBeRZG9elucUFo%3D",
+    "https://blog.kakaocdn.net/dna/cTRvNH/btrndGSp6Xp/AAAAAAAAAAAAAAAAAAAAANdByQSHn2-jKPRsqqN_20r3YzK-oixKqTlRpnuiLnxd/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=%2BhoG7Nntm4y%2BlOxQZunDp87GP7c%3D",
+    "https://blog.kakaocdn.net/dna/bHoyTT/btrnbIDsn2F/AAAAAAAAAAAAAAAAAAAAAPDOMHQeRFSZ7BNgCMqCB5X3QJgZSh0jq4c0EkyTyMo4/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=Egyjn3o0xcgVWQ1B26wCmQ2wO4E%3D",
+    "https://blog.kakaocdn.net/dna/UNafC/btrndsmsK3U/AAAAAAAAAAAAAAAAAAAAAFADEC8XBFlu5jsqVqCKP86X-r20ZAe1USuS0nTtKmcn/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=AyPXttNLP%2FuXsNp4Oz2GlssQlq4%3D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "4치즈 피자",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제가 피자를 너무 좋아하는 피자 귀신이라 데이트 할 때도 종종 피자를 먹곤 하는데요. 오늘은 경성대 부경대 쪽에 피자로 유명한 맛집 온더야드를 다녀와서 리뷰를 합니다. 위치 / 요약 주소 : 부산 남구 수영로346번길 23-1 / 대연동 34-18 (경성대 부경대역 1번 출구에서 318m 도보 4분) 전화번호 : 070-4131-0567 영업시간 : 매일 11:30 - 22:00 (브레이크타임: 15:00 - 17:00) 주차 : 주차공간 없음 (노상주차) 주요 메뉴 및 가격 : 4치즈 피자 16000원, 베이컨 크림 파스타 10500원, 쉬림프 파스타 11000원 포장배달 가능여부 : 포장 가능 특이사항 : 반반피자 가능, 맵기 조절가능",
+      "url": "https://tastedongmin.tistory.com/114"
+    },
+    {
+      "excerpt": "파스타 가게에서 적당히 내놓는 느낌의 씬 피자가 아니라 화덕으로 구운 제대로 된 피자를 만드는 곳이네요. 주방을 보니 벌써 마음에 듭니다. ... 밖에는 곳곳에 웨이팅을 할 수 있는 공간이 있습니다. ... 분위기도 그렇고 소개팅 같은 걸 하기에도 나쁘지 않은 가게 같네요. ... 맛동민 한줄평 : 경성대 부경대에 괜찮은 화덕 피자 맛집. 파스타보다는 피자를 추천.",
+      "url": "https://tastedongmin.tistory.com/114"
+    }
+  ],
+  "sources": [
+    "https://tastedongmin.tistory.com/114"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화덕에서 직접 구워내는 쫄깃하고 바삭한 도우의 피자 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "정원이 있는 주택 개조 공간으로 감성적이고 분위기가 좋아 데이트·소개팅하기 적합함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

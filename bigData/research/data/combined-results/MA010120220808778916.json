@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220808778916",
+  "name": "유파스타",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60736,
+  "researchedAt": "2026-09-22T11:58:05.865Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "학생 및 인근 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "파스타"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "해당 주소지(부산 남구 용소로13번길 83)에 '유파스타(YOU PASTA)' 상호가 등록/존재했던 이력은 확인되나, 상세 블로그 리뷰나 세부 메뉴 정보 없이 현재는 폐업 후 타 업종(구공해락 등)으로 변경된 것으로 파악됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 용소로13번길 83 소재의 장소와 관련하여 안내해 드립니다. 해당 주소지는 과거 '유파스타(YOU PASTA)'가 운영되었던 곳으로 확인됩니다. 다만, 현재 해당 위치는 '구공해락 족발구이' 전문점으로 운영되고 있는 것으로 보입니다.",
+      "url": "https://www.bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://www.bigvalue.ai",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "경성대·부경대 인근 대학가 골목에 위치했던 캐주얼 파스타 전문점",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202507A0035343",
+  "name": "퀸즈",
+  "cat": "그 외 기타 간이 음식점",
+  "attempts": 1,
+  "geminiTokens": 52629,
+  "researchedAt": "2026-09-22T06:57:35.830Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "홀덤 및 주류 이용객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "데일리 게임",
+      "새틀라이트 게임"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "19:00 영업 시작"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "해당 위치(부산광역시 해운대구 해운대해변로265번길 13, 지번 우동 1359 3층)의 사업자 등록 및 포털 등재 상호는 '퀸즈' 또는 '퀸즈홀덤펍'으로, 일반 식당이 아닌 홀덤펍(주류/엔터테인먼트) 형태로 운영되는 매장입니다. 상세 음식 메뉴나 후기 블로그 등은 거의 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업체명: 퀸즈홀덤펍, 주소: 부산광역시 해운대구 해운대해변로265번길 13 (우동 1359), 업종: 나이트라이프 > 맥주/호프, 영업시간: 19:00 영업 시작, 주요 메뉴: 데일리 게임, 새틀라이트 게임, 하이롤러 게임, 토너먼트 게임 등",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "홀덤 카드 게임 토너먼트 및 주류를 함께 즐길 수 있는 홀덤펍 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "MA0101202502A0094544",
+  "name": "지즈",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 62476,
+  "researchedAt": "2026-09-22T11:48:24.239Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "식사 시간 대기가 잦아 캐치테이블 원격 줄서기가 활용됨"
+  },
+  "descriptors": {
+    "audience": "연인, 2030 친구, 혼밥족",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "로스카츠 정식",
+      "히레카츠 정식",
+      "믹스카츠 정식",
+      "상로스카츠 정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금 11:30 - 21:00 (브레이크타임 15:00 - 17:00), 토~일 11:30 - 21:00 (브레이크타임 16:00 - 17:00), 라스트오더 20:30"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "사용자 프롬프트에 '일식 회/초밥 업종'으로 기재되어 있으나, 해당 주소(부산 수영구 남천바다로21번길 6, 세종오스타 1층 103호)의 '지즈'는 프리미엄 숙성 일식 돈카츠 전문점(지즈 광안점)으로 확인되었습니다. 전포동 본점의 인기에 이어 광안리에 오픈한 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "로스카츠 정식",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 남천바다로21번길 6, 103호. 부드럽고 육즙이 풍부한 돈카츠로 유명하며, 허브 오일이나 트러플 크림 등 독특한 소스를 곁들여 먹는 방식이 특징입니다. 인기가 많아 식사 시간에는 대기가 발생할 수 있으니 방문 시 참고하시기 바랍니다.",
+      "url": "https://www.facebook.com"
+    },
+    {
+      "excerpt": "월~금요일: 11:30 - 21:00 (브레이크 타임 15:00 - 17:00) / 토~일요일: 11:30 - 21:00 (브레이크 타임 16:00 - 17:00) / 라스트 오더: 20:30. 캐치테이블을 통한 원격 줄서기가 가능합니다. 로스카츠 정식, 히레카츠 정식, 믹스카츠 정식. 참숯으로 훈연한 풍미와 허브/갈릭 오일, 소금 등을 곁들여 먹는 방식이 특징입니다.",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "육즙이 풍부하고 부드러운 고기에 참숯 훈연 및 허브오일·소금을 곁들여 먹는 돈카츠의 뛰어난 풍미",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "식사 피크 시간대 대기가 발생하여 캐치테이블 원격 줄서기로 방문 수요가 몰림",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

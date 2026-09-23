@@ -1,0 +1,61 @@
+{
+  "id": "MA0106202605A1023160",
+  "name": "토리엔",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 79663,
+  "researchedAt": "2026-09-22T11:55:47.220Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민, 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "꼬치 6종 세트",
+      "닭날개",
+      "토리나베",
+      "명란크림우동"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 17:30 ~ 01:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "식신 등 다이닝 정보 등록 기준 숯불 꼬치구이 전문 이자카야 매장으로 확인됨. 세부 블로그 리뷰나 줄서기 관련 기록은 드물며 동네 술집/이자카야로 운영 중임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 재송1로32번길 64에 위치하고 있으며, 주로 꼬치 6종 세트, 닭날개, 나베류 등 다양한 일식 안주를 판매합니다. 영업시간: 월~토 17:30 ~ 01:00 (일요일 휴무)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불 수제 꼬치구이와 나베류 안주를 즐길 수 있는 동네 이자카야",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

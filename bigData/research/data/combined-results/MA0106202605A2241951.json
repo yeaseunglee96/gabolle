@@ -1,0 +1,62 @@
+{
+  "id": "MA0106202605A2241951",
+  "name": "코너스톤",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 70338,
+  "researchedAt": "2026-09-22T11:27:59.629Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 친구",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 칵테일"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "20:00~04:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해변 인근 호텔 투숙객 및 방문객 중심"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산 해운대구 해운대해변로 287 코오롱씨클라우드호텔 1층)의 '코너스톤'은 경양식 전문점이 아니며 칵테일 및 주류/음료를 취급하는 칵테일바입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 해운대해변로 287 (중동, 코오롱씨클라우드호텔 1층). 업종 및 특징: 칵테일 및 음료를 제공하는 주점(칵테일바)입니다. 고급스러운 인테리어와 조용한 분위기로 알려져 있으며, 연인이나 친구와 대화를 나누기 좋은 장소로 소개되고 있습니다. 해당 주소의 코너스톤은 경양식 메뉴를 주력으로 하는 식당이 아닙니다.",
+      "url": "https://www.trip.com"
+    },
+    {
+      "excerpt": "칵테일바 코너스톤(CORNER STONE): 해운대 씨클라우드 호텔 1층에 위치한 분위기 좋은 칵테일바입니다. 아늑하고 세련된 인테리어와 수제 시럽을 사용한 다양한 칵테일로 잘 알려져 있으며, 데이트 장소로 인기가 많습니다. 위치: 부산 해운대구 해운대해변로 287 (씨클라우드 호텔 1층). 영업시간: 보통 저녁 시간대(20:00~04:00)에 운영되는 것으로 확인됩니다.",
+      "url": "https://www.trip.com"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "세련되고 아늑한 분위기에서 수제 칵테일을 즐길 수 있는 심야 데이트 장소",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

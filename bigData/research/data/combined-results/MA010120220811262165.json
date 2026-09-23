@@ -1,0 +1,88 @@
+{
+  "id": "MA010120220811262165",
+  "name": "자갈치왕짬뽕",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 51047,
+  "researchedAt": "2026-09-22T06:46:10.336Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "식사 시간대나 점심시간에 대기 줄(웨이팅)이 생길 정도로 붐빈다고 언급됨"
+  },
+  "descriptors": {
+    "audience": "가족 단위 및 직장인, 공항/맥도생태공원 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "낙지짬뽕",
+      "짬뽕",
+      "찹쌀탕수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 - 20:00 (연중무휴 또는 매주 월요일 휴무 안내 있음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "김해공항 및 인근 맥도생태공원 방문객과 인근 현지 직장인/주민들이 주로 찾는 중식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "김해공항 및 맥도생태공원 인근에 위치한 중식당으로 낙지 한 마리가 통째로 들어간 푸짐한 낙지짬뽕과 불맛 나는 옛날 스타일의 국물로 유명한 곳. 가게 앞 넉넉한 전용 주차장이 완비되어 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "낙지짬뽕",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "꽃게 반 마리와 낙지가 들어간 짬뽕으로 유명한 웨이팅 맛집으로 알려져 있습니다. 김해공항에서 약 10분 거리에 위치해 있으며, 맥도생태공원과 가까워 산책 전후에 방문하기 좋습니다. 가게 앞마당에 넉넉한 주차 공간이 마련되어 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "자갈치왕짬뽕은 부산광역시 강서구 대저2동(공항로447번길 6)에 위치한 중식당으로, 김해공항 근처 맛집으로 잘 알려져 있습니다. 대표 메뉴: 낙지짬뽕. 국물에서 옛날 짬뽕 특유의 연기 향과 불맛이 나는 것이 특징이라는 평이 많습니다. 푸짐한 양과 맛으로 인해 식사 시간대에 대기 줄이 발생하는 경우가 많습니다.",
+      "url": "https://tripinfo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tripinfo.co.kr",
+    "https://tistory.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "불맛이 감도는 시원하고 칼칼한 옛날 스타일의 해물 짬뽕 국물 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "통낙지와 꽃게 등 해물이 푸짐하게 들어간 대표 메뉴 낙지짬뽕의 가성비와 넉넉한 양",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "가게 앞 전용 주차장이 넓게 마련되어 있고 김해공항 및 맥도생태공원 인근에 위치해 방문이 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

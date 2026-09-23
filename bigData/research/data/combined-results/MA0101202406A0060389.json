@@ -1,0 +1,88 @@
+{
+  "id": "MA0101202406A0060389",
+  "name": "램지",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 104656,
+  "researchedAt": "2026-09-22T07:07:14.556Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 사전 예약제(캐치테이블)로 운영되어 현장 대기나 줄서기 없이 지정된 시간에 입장 및 식사 진행됨"
+  },
+  "descriptors": {
+    "audience": "연인 및 기념일 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "런치 코스",
+      "디너 코스",
+      "클래식 프렌치 제철 코스 요리"
+    ],
+    "yearsClaimed": 2
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수요일~일요일 런치 12:00 ~ 15:00, 디너 18:00 ~ 22:00 (브레이크타임 15:00 ~ 18:00, 매주 월·화요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 현지인 기념일 데이트 코스뿐 아니라 광안대교 오션뷰 파인다이닝을 찾는 관광객 방문 언급 다수"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "이규진 셰프가 총괄하는 프렌치 파인다이닝으로 미쉐린 가이드 부산 셀렉티드 레스토랑에 선정되었으며, 광안대교가 내려다보이는 해링턴타워광안 3층에서 런치/디너 단일 제철 코스를 선보입니다.",
+  "photoUrls": [
+    "https://cdn.imweb.me/thumbnail/20250315/5ac994fd57517.jpg",
+    "https://cdn.imweb.me/thumbnail/20250315/9fa1ad013ee70.jpg",
+    "https://cdn.imweb.me/thumbnail/20250315/b1b241c24e8a7.jpg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "런치 코스 98,000 KRW / 디너 코스 195,000 KRW",
+    "priceWon": 98000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이규진 셰프는 한 번도 프랑스의 땅을 밟아본 적 없지만, 그곳의 미식 문화를 누구보다 깊이 사유해 왔습니다. 직접 경험하지 못했기에 더욱 치열하게 탐구했고, 정형화된 틀을 답습하는 대신, 자신만의 해석을 더해 나갔습니다. 그에게 요리는 단순한 기술이 아닌, 상상 속의 풍미를 현실로 구현하는 과정입니다. 부산이라는 도시의 정체성을 담아, 전통적인 프렌치를 새로운 시선으로 재구성합니다. 그렇게 탄생한 램지는, 익숙하지만 새롭고, 전통적이면서도 과감한 미식을 제안합니다.",
+      "url": "https://restaurantramsey.com"
+    },
+    {
+      "excerpt": "단일 코스로 구성되며, 신선한 제철 재료에 따라 매일 세심한 변화를 거듭합니다. Lunch 98,000 KRW / Dinner 195,000 KRW Address Korean: 부산 수영구 광안해변로284번길 38 해링턴타워광안 304호",
+      "url": "https://restaurantramsey.com"
+    }
+  ],
+  "sources": [
+    "https://restaurantramsey.com",
+    "https://guide.michelin.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산의 식재료와 정체성을 현대적인 프렌치 기법으로 재해석한 독창적인 파인다이닝 코스 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안대교와 바다가 한눈에 내려다보이는 파노라마 오션뷰와 고급스러운 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "미쉐린 가이드 부산 셀렉티드 선정으로 입증된 퀴진 완성도",
+      "sources": [
+        1
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

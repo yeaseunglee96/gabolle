@@ -1,0 +1,51 @@
+{
+  "id": "MA010120220810693244",
+  "name": "하베스트베이커리",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 61671,
+  "researchedAt": "2026-09-22T06:47:32.245Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "queueing": false,
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 북구 효열로 136 (금곡동 810-3 주공아파트 상가 일대)에 인허가 등록(1996년 5월 개업)된 동네 빵집으로, 온라인 블로그 리뷰나 세부 메뉴/가격/영업시간 등 상세 방문 후기 정보는 웹상에 공개된 바가 거의 없는 로컬 제과점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "하베스트베이커리 부산광역시 북구 효열로 136 (금곡동) 제과점영업 1996-05-28 인허가",
+      "url": "https://placeview.co.kr"
+    }
+  ],
+  "sources": [
+    "https://placeview.co.kr",
+    "https://ubell.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1996년 인허가를 받아 약 30년간 금곡동 아파트 단지 상가에서 운영되어 온 동네 빵집",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

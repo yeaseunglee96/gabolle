@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810612147",
+  "name": "임실치즈쌀피자",
+  "cat": "피자",
+  "attempts": 1,
+  "geminiTokens": 58505,
+  "researchedAt": "2026-09-22T06:50:26.239Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 줄서기 관련 온라인 리뷰나 기록 확인 불가"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 포장 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "임실치즈 쌀피자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 방문 후기 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 수영구 남천바다로 23 (광안동 190-11) 주소지에 상호가 등록되어 있으나, 온라인 상세 메뉴판, 영업시간 및 방문자 후기가 거의 남아있지 않은 소규모 등록 업소입니다. 해당 주소지 건물 2층 등에 타 업종이 영업 중이며 현재 정상 영업 여부는 유선 또는 현장 확인이 필요합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 남천바다로 23 (광안동 190-11) 에 위치한 피자 전문점... 임실치즈를 사용한 쌀피자",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://maptons.com",
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "밀가루 도우 대신 쌀도우와 임실치즈를 사용한 동네 피자",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

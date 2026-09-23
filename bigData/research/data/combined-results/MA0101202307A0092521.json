@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202307A0092521",
+  "name": "오누식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 53208,
+  "researchedAt": "2026-09-22T05:58:02.553Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "삼겹살",
+      "고기구이"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 또는 16:30 영업 시작 (종료 시간 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 아파트 및 주택가(부암동 백양순환로) 인근에 위치한 작은 고깃집으로 주로 현지 주민 중심 상권"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "테이블 6개 규모의 동네 소규모 고깃집(한국식 야키니쿠/삼겹살 등 고기구이). 블로그 상세 리뷰나 포털 지도 직접 수집이 제한되어 있어 구인/예약 플랫폼의 등록 정보 위주로 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 부산진구 백양순환로 145 1층, 테이블 6개 규모의 작은 고깃집",
+      "url": "https://dongnealba.com"
+    },
+    {
+      "excerpt": "오누식당 부산광역시 부산진구 백양순환로 145, 1층 (부암동), 한국식 야키니쿠 전문점",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com",
+    "https://dongnealba.com",
+    "https://alba.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "테이블 6개 규모의 아담한 동네 고깃집에서 즐기는 삼겹살 및 고기구이/야외 좌석 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

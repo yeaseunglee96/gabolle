@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202512A0015111",
+  "name": "고결담",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 70017,
+  "researchedAt": "2026-09-22T11:33:36.242Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 구체적인 언급 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "데이트, 가족 외식, 부모님 동반 식사",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "화덕 고등어구이 정식",
+      "미나리 삼겹살 정식",
+      "가마솥 닭짜글이",
+      "솥밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월·화·목·금·토·일: 11:00 ~ 22:00, 수요일: 10:00 ~ 22:00 (브레이크타임 15:00 ~ 16:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 앞 광안대교 파노라마 뷰로 관광객 및 데이트·가족 외식 방문이 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "의뢰 내용상 '횟집 업종'으로 제시되었으나, 실제 조사 결과 해당 위치(광안해변로 249, 3층)의 '고결담'은 500도 화덕 생선구이(고등어 등), 미나리 삼겹살, 가마솥 닭짜글이, 갓 지은 솥밥 및 반찬 무한리필 셀프바를 운영하는 한식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 249, 3층에 위치한 고결담은 광안대교 오션뷰를 즐길 수 있는 한식당으로, 500도 화덕에서 화산석을 이용해 구워낸 고등어구이 정식, 미나리 삼겹살 정식, 가마솥 닭짜글이가 대표적입니다. 정식 메뉴 주문 시 12가지 반찬의 셀프바를 이용할 수 있으며 갓 지은 솥밥이 제공됩니다. 영업시간은 11:00 ~ 22:00(브레이크 타임 15:00 ~ 16:30)입니다.",
+      "url": "https://blog.naver.com"
+    }
+  ],
+  "sources": [
+    "https://blog.naver.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교 파노라마 오션뷰를 감상할 수 있는 통창 인테리어",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "500도 화덕에서 구운 생선구이 정식과 갓 지은 솥밥, 제육볶음 포함 반찬 무제한 셀프바 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811404643",
+  "name": "감골횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 75084,
+  "researchedAt": "2026-09-22T10:40:46.482Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "손님 접대, 모임, 회식",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "참돔",
+      "광어"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "민락동 횟집 거리에 위치한 곳으로, 천사채 대신 옥돌 위에 회를 정갈하게 내어주며 참돔·광어 등 활어 모듬회를 취급합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "감골횟집은 부산광역시 수영구 민락동에 위치하며, 천사채를 사용하지 않고 평평한 옥돌 위에 회를 정갈하게 올려 제공한다. 참돔, 광어, 우럭 등 자연산 활어를 취급하며 식감이 쫄깃하고 고급스러운 분위기라 손님 접대에 적합하다. 영업시간 11:00 ~ 22:00 (연중무휴), 주차 가능.",
+      "url": "https://jack-list.com"
+    }
+  ],
+  "sources": [
+    "https://jack-list.com",
+    "http://www.kookje.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "천사채 없이 옥돌 위에 정갈하게 회를 올리고 활어 선도와 쫄깃한 식감이 좋음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "분위기가 깔끔하고 고급스러워 모임 및 손님 대접에 적합함",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

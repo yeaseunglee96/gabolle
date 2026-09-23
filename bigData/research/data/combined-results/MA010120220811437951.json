@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220811437951",
+  "name": "오산야식",
+  "cat": "기타 한식 음식점",
+  "attempts": 1,
+  "geminiTokens": 53747,
+  "researchedAt": "2026-09-22T06:57:12.307Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "배달 중심 야식 전문점으로 매장 대기·혼잡 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "야식·배달 이용객 및 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지두루치기",
+      "오징어볶음",
+      "아구찜",
+      "닭도리탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 5시 ~ 오전 5시"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 지역 현지 배달 야식집으로 소개되며 주민 및 지역 방송/유튜버 위주로 소비됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "부산 해운대구 좌동순환로446번길에 위치한 야식 배달 전문점으로 돼지두루치기, 오징어볶음, 닭도리탕, 찜 요리와 서비스 순두부찌개 등이 알려져 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오산야식은 부산광역시 해운대구 중동(좌동순환로446번길 19-7)에 위치한 한식 야식 전문점입니다. 주요 메뉴: 두루치기, 오징어볶음, 아구찜, 오징어찜, 미더덕찜, 닭도리탕 등 다양한 한식 메뉴를 제공하며, 순두부찌개가 서비스로 함께 제공되는 경우가 많습니다. 영업 시간: 일반적으로 오후 5시부터 다음 날 오전 5시까지 운영되는 것으로 알려져 있습니다. 특징: 해운대 지역의 배달 맛집으로 유명하며, 유튜브 먹방 콘텐츠 등에도 여러 차례 소개된 바 있습니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com",
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "새벽 늦게까지 배달로 즐길 수 있는 두루치기·찜 등 한식 야식 메뉴와 푸짐한 서비스 반찬",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "돼지두루치기, 오징어볶음 등 밥과 안주로 좋은 매콤한 야식 한식 메뉴의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

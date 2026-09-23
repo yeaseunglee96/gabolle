@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202603A0042494",
+  "name": "고즈넉",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 77070,
+  "researchedAt": "2026-09-22T12:07:15.562Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 중국집 업종의 '고즈넉' 식당 실체 및 관련 정보가 확인되지 않음",
+  "notes": "부산광역시 수영구 민락본동로19번길 68 소재의 '고즈넉'(중국집)을 검색하였으나, 해당 주소지는 위스키 바 등으로 등록된 이력만 존재하며 중식당 업종의 '고즈넉'에 대한 정보(영업시간, 메뉴, 후기 등)는 확인되지 않아 found: false로 종결함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

@@ -1,0 +1,100 @@
+{
+  "id": "MA0101202409A0030089",
+  "name": "부다면옥",
+  "cat": "냉면/밀면",
+  "attempts": 1,
+  "geminiTokens": 217102,
+  "researchedAt": "2026-09-22T06:55:49.207Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "위치가 해운대 전통시장, 구청 근처 2층으로 생각보다 많이 알려지지 않아 대기 혼잡 없이 식사 가능했음"
+  },
+  "descriptors": {
+    "audience": "평양냉면 애호가, 해운대 인근 직장인 및 미식 여행객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "순메밀 평양냉면",
+      "맛보기 한우 수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 20:00 (라스트오더 19:30, 매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산에서는 평양냉면 인지도가 낮아 손님들이 밀면을 찾거나 슴슴한 맛에 대해 묻는 편이며, 미쉐린 가이드 선정 이후 미식 여행객들의 유입이 늘고 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "기본 냉면 12,000원에 100% 순메밀면을 사용하며, 서울 평양냉면 순면에 비해 가성비가 매우 훌륭하고 아롱사태와 꼬리 부위 등이 나오는 맛보기 한우 수육의 품질 평가가 매우 높음. 전용 주차장은 없으며 인근 공영주차장 지원이 안내됨.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/FGL7Y/btsLFyoTxxc/AAAAAAAAAAAAAAAAAAAAAPKt7hmaGmz24LpYdQb3DcsfwvktLx-Jb9DyZ5Lvtmaj/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=8dihmUx657qxjNNQANyb%2F2nqHMQ%3D",
+    "https://blog.kakaocdn.net/dna/bpDHog/btsLEiN4J9u/AAAAAAAAAAAAAAAAAAAAAFmJegESY5mJvferrwrgfdIPZW1clqnMS2xFmgdXmJIP/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=4OQnMja3ltwyc9S%2BJHP8py3uszs%3D",
+    "https://blog.kakaocdn.net/dna/w4UJ2/btsLCJTzW1Q/AAAAAAAAAAAAAAAAAAAAAPx7K7ZlAOjqWmkixCiIgg2ick9DSPLCGxzJa0ZZTQc9/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=LW5UGigFxZzPfFGTO7yT8GnR%2FSI%3D",
+    "https://blog.kakaocdn.net/dna/wMylb/btsLEd63KZX/AAAAAAAAAAAAAAAAAAAAAKB2-24UtQ0mkcOwAy_U36lv8tsxBAIkzqIooj-fbnA1/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=SbEHLWZ2qx5AXCE8hDanHyCTeII%3D",
+    "https://blog.kakaocdn.net/dna/b6YCoq/btsLEXipn1Q/AAAAAAAAAAAAAAAAAAAAAFp-KkR2jaY7zgql9Rp1Y4iOGT8lVyxPbe4ROE4XFJIW/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=Tm%2Bk9LzWH960kAbncCxo4gVsIaQ%3D",
+    "https://blog.kakaocdn.net/dna/LKX98/btsLDYWAdlI/AAAAAAAAAAAAAAAAAAAAAG-VJE3mBvEmRGnQzQySfkBKri-nmgnGcjZc5xOV3m79/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=0W%2FGGr%2Bf%2FJNC7L%2BjS6%2BvSII4WcM%3D",
+    "https://blog.kakaocdn.net/dna/bpveVs/btsLEqek4wU/AAAAAAAAAAAAAAAAAAAAAOZA_CetANsHsbeUDXmCU4SJx6VJoQ18u4QMuofiRx1D/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=IzJNzL%2BRJt6%2F0SGDyUA8GSPwzyM%3D",
+    "https://blog.kakaocdn.net/dna/zuxzL/btsLC0HQDBM/AAAAAAAAAAAAAAAAAAAAAPPyVH9fY_Ny0jygu27kDy_vHEh2Bij8W1JdHqqBawO5/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=A%2BlIdfuLzGQCIZvFqspZS6KuETQ%3D",
+    "https://blog.kakaocdn.net/dna/b1MvWx/btsLFgWhEzh/AAAAAAAAAAAAAAAAAAAAAAw0AbeqA3ISfjRFgiA2Bn2Dmx7JQWU62n33OD1CskSX/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=ijbY07If1v3Np9oWvJwBcdP4clc%3D",
+    "https://blog.kakaocdn.net/dna/VHCvz/btsLC5hNQl1/AAAAAAAAAAAAAAAAAAAAADlNgfsHIDTfKBuOaBIvPLOyv_upGUKltEXfL-w6mV0H/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=GXyblB450IQtt6ePt%2FbzISE1128%3D",
+    "https://blog.kakaocdn.net/dna/tthAK/btsLFAtsoi8/AAAAAAAAAAAAAAAAAAAAADoH18KjXBZFRkHdFbxRrnA__riUblTK-n53TX2CzMpw/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=Fmv1HVzCeNOo84ZtaMuX%2Fu01mJg%3D",
+    "https://blog.kakaocdn.net/dna/b2zdVp/btsLDMWozCb/AAAAAAAAAAAAAAAAAAAAACniy-DSZb4vGCPuJJr95r14Um05IT53uS9K1dMQ3vA7/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=XR9GTvv5E7j5j%2BvwenAiqCwmH%2Fg%3D",
+    "https://blog.kakaocdn.net/dna/B5BLA/btsLEqk1FOW/AAAAAAAAAAAAAAAAAAAAAF0ZC5kRlB4vIo-iqd8ve1cLN7Iy1uI2DXWK4RMFupL1/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=IPEX8q1hRJpn8GiVCw0Qz8HbNTs%3D",
+    "https://blog.kakaocdn.net/dna/1VWY0/btsLFec8vfX/AAAAAAAAAAAAAAAAAAAAAG7EixdVUCp9asRZyX8hhzeydBOrWycReVbZUUe_aahq/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=urB4%2FETgVm96e6XaYA4Ex81ANPk%3D",
+    "https://blog.kakaocdn.net/dna/bbwVbG/btsLDMoBcdi/AAAAAAAAAAAAAAAAAAAAAFPUOsOg3pIkMlTOWkaabvsaF23_LNOIRZtoZ5i5tyDU/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=F3wT1FVV%2Bi%2Bzi3Mfe%2BaZdjR22z0%3D",
+    "https://blog.kakaocdn.net/dna/cr4tlc/btsLEeLG7io/AAAAAAAAAAAAAAAAAAAAAC7loQXDQx41zw3Fzdx_wmqlxfZq3IQ9G8snn-FJB1Rg/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=FXgP0ACtY0V2pBr6hCA03gz4cbY%3D",
+    "https://blog.kakaocdn.net/dna/tPX8a/btsLFyvFsNc/AAAAAAAAAAAAAAAAAAAAAP3UJ9kBH7xAdDsxWUaDUW2Cgk8ttQzk4EiEpa1h4RwY/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=71qMvSL7Xa7YEj7nEiGVTZMA8t4%3D",
+    "https://blog.kakaocdn.net/dna/mxhGm/btsLFyoTylV/AAAAAAAAAAAAAAAAAAAAAAFn8S4AZqw4Q909SjZvQenIzZsh8Fn2twYfiLANuv7I/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=ivXY9SWCgXDc9wEMW%2F%2FFstUN%2BUI%3D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "평양냉면(기본 12,000원, 곱빼기 17,000원), 맛보기 한우 수육(20,000원)",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 전통 시장, 해운대 구청 근처에 있어 위치도 상당히 좋은데 생각보다 많이 알려지지 않은 것 같아요. 저도 이 길을 꽤 많이 다녔는데 처음 봤습니다. 2층에 있어서 그런가 봐요. 가게 들어서자 마자 직원들이 '밀면은 없습니다.'라고 하는 걸 듣고 역시 부산은 밀면이란 생각이 들었습니다. 평양냉면에 대한 인지도도 선호도도 아직 부족하단 얘기겠죠. 그만큼 사람들이 많이 묻고 더러는 따지기도 해서 아예 미리 얘기를 하는 것이 아닐까 싶어요. 냉면 둘을 주문하니 한 번 더 얘기 하더라고요. 다대기 없이 심심한 냉면이라고. 메뉴는 냉면과 수육입니다. 기본 냉면이 12000원인데 면이 순메밀입니다. 서울에서 순면 평냉을 먹으려면 이보다 1.5배는 받죠. 곱빼기는 17000원. 냉면만을 즐기고 싶다면 냉면 큰걸로 주문하셔도 좋지만 이집은 맛보기 한우 수육이 기가 막히니 냉면+수육 조합을 추천합니다.",
+      "url": "https://mistyfriday.kr/3927"
+    },
+    {
+      "excerpt": "사람들이 좋아하는 평냉 고유의 맑고 담백한, 그러면서 끝맛에 육향과 감칠맛이 도는 매력을 잘 살렸습니다. 서울의 평냉집들과 비교하면 육향은 중간 이상급으로 강한 편에 속합니다. 순메밀면인데도 면에 찰기가 있는 게 의외였는데 메밀 향이 충분히 나고 툭툭 끊어지는 걸 보면 맞는 것 같아요. 게다가 고기를 아주 부드럽게 잘 삶았습니다. 종종 유명한 냉면집에서도 고기가 종이 씹는 것처럼 질기고 별다른 맛이나 향이 없는 경우가 있는데 이집은 고기 단독으로도 맛있습니다. 함께 시킨 수육을 한 점 먹고 눈이 번쩍. 냉면에 올린 고기도 맛있지만 수육은 차원이 다른 식감과 풍미가 있습니다. 아롱사태, 꼬리 등 네 가지 부위가 나오는데 하나 하나가 그간 먹던 수육 중 베스트에 꼽을 정도였어요. 지방이 많은 부위는 입에서 녹을 듯 부드럽고 살코기 부분은 담백하고 촉촉했습니다. 먹다보니 양도 2만원이라는 가격이 아깝지 않을만큼 되고요. 서울에서 방문한 웬만한 평냉집보다 맛있었습니다.",
+      "url": "https://mistyfriday.kr/3927"
+    }
+  ],
+  "sources": [
+    "https://mistyfriday.kr/3927"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "100% 순메밀면과 진한 한우 육향의 평양냉면, 극찬받는 한우 수육의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "100% 순메밀면 평양냉면을 12,000원에 제공하여 서울 유명 순면 평양냉면집 대비 가성비가 매우 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "미쉐린 가이드 부산 빕 구르망에 선정된 검증된 평양냉면 전문점",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "MA0101202301A0064095",
+  "name": "앤스하우스",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 77681,
+  "researchedAt": "2026-09-22T11:56:01.274Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 남천동(남천동로108번길 42)에 제과점(빵/도넛) 사업체로 등록되어 있으나, 일반 블로그 리뷰, 방문기, 메뉴 및 가격 등 세부 정보는 온라인상에 거의 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "앤스하우스 / 제과점업 / 부산광역시 수영구 남천동로108번길 42 (남천동)",
+      "url": "https://www.disco.re"
+    }
+  ],
+  "sources": [
+    "https://www.disco.re"
+  ],
+  "whyPeopleGo": []
+}

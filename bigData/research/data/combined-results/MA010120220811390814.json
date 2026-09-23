@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220811390814",
+  "name": "태양횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 77469,
+  "researchedAt": "2026-09-22T12:06:56.662Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 모임 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 활어회"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로 31-9(남천어민활어판매장 건물 3층)에 위치한 자연산 회 전문 횟집입니다. 세부 메뉴판 및 영업시간은 웹상 등록된 정보가 적어 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "-",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 31-9 (남천동 558-16) 남천동 어민활어판매장 건물 3층. 신선한 자연산 회를 전문으로 하는 곳. 전화번호: 051-624-8961",
+      "url": "https://www.siksinhot.com/P/384770"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/384770"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "남천동 어민활어판매장 내에서 신선한 자연산 활어회를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

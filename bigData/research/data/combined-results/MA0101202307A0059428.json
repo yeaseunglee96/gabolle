@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202307A0059428",
+  "name": "스바루",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 65664,
+  "researchedAt": "2026-09-22T12:08:12.257Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인, 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스바루스시세트",
+      "생연어스시세트",
+      "초밥"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 20:00 (매주 수요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 수영구 수영동(구락로43번길 45)에 위치한 일식 초밥/스시 전문점 스바루에 대한 정보입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 구락로43번길 45 1층. 주요 메뉴: 스시세트 (스바루스시세트, 생연어스시세트 등), 단품 초밥 (연어스시, 광어스시 등). 운영 시간: 11:30 ~ 20:00, 정기 휴무: 매주 수요일.",
+      "url": "https://heyyumi.ai"
+    },
+    {
+      "excerpt": "수영구 수영동에 위치한 '스바루'는 \"일본 사장님의 진정한 스시!\"라는 설명과 함께 식신 내 수영구 맛집 리스트에 포함되어 있습니다. 조용하고 깔끔한 일본풍 분위기의 식당.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일본 현지 사장님이 선보이는 정통 스시와 신선한 초밥 세트 메뉴를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

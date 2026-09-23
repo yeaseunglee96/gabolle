@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220810684773",
+  "name": "만선",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 45555,
+  "researchedAt": "2026-09-22T06:47:49.187Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 사상구 모라로110번길 60(또는 인근 52)에 등록된 일반음식점(횟집) '만선'/'만선2' 사업자 정보 및 상호 등록 내역은 존재하나, 방문 후기·블로그 리뷰·세부 메뉴판 등 정량 정보 및 방문 사유를 확인할 수 있는 공개 웹 문서가 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 모라로110번길 60(모라동 561)에 위치한 업소로 회를 취급하는 곳으로 등록되어 있습니다",
+      "url": "https://chunman.li"
+    },
+    {
+      "excerpt": "만선횟집: 사상구 모라동(주소: 모라로110번길 52 또는 모라동 1243-13 등)에 위치한 횟집으로, 과거 지역 맛집으로 언급된 기록이 있습니다",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://chunman.li",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

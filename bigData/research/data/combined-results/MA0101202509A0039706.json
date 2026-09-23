@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202509A0039706",
+  "name": "데이오프데이광안",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 85931,
+  "researchedAt": "2026-09-22T11:50:49.891Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 디저트/카페 투어객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "아이스크림 (얼그레이 무화과 등)",
+      "빅토리아 케이크",
+      "잠봉뵈르"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "전포 본점에 이어 광안리에 문을 연 2호점으로 감성 카페 투어객과 여행객 방문이 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "전포동 인기 카페 '데이오프데이'의 광안점(부산광역시 수영구 수영로554번가길 23). 시그니처 아이스크림과 베이커리/디저트, 감성적인 공간 인테리어로 알려져 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "데이오프데이 광안점은 부산광역시 수영구 수영로554번가길 23(광안동)에 위치한 카페입니다. 건물 1.5층과 2층을 사용하며, 광안역 5번 출구에서 도보로 약 7~8분 거리에 있습니다. 전포동 카페거리에서 시작된 유명 카페 '데이오프데이'의 2호점입니다. 감성적인 인테리어와 식물, 다양한 좌석 구성으로 사진 맛집으로도 잘 알려져 있습니다. 아이스크림이 시그니처 메뉴이며, 케이크(빅토리아 등)와 잠봉뵈르 샌드위치 등이 인기가 많습니다. 주차 공간은 별도로 마련되어 있지 않아 인근 공영주차장 이용이 권장됩니다.",
+      "url": "https://pandarank.net"
+    }
+  ],
+  "sources": [
+    "https://pandarank.net",
+    "https://trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "얼그레이 무화과 등 특색 있는 수제 아이스크림과 빅토리아 케이크, 잠봉뵈르 등 디저트의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전포 본점에 이은 감성적인 식물 인테리어와 포토존 공간 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

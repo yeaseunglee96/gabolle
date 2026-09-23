@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220811487301",
+  "name": "진횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 76329,
+  "researchedAt": "2026-09-22T11:55:36.410Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 또는 대기줄 관련 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 회식, 관광객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "활어회 코스",
+      "참돔",
+      "줄돔",
+      "돔찜"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "영업종료 23:00 (전화 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 및 바다 전망을 즐기기 위해 관광객 및 모임 단위 손님들이 많이 방문하는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 민락수변로 5 성진회센터 3층에 위치한 활어 전문 횟집으로 광안대교 및 바다 전망을 보며 회 코스를 즐길 수 있는 곳",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "1인 코스 (3인 이상) 45,000원, 1인 코스 (2인 이상) 55,000원, 1인 코스 70,000원",
+    "priceWon": 45000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락수변로 5, 성진회센터 3층에 위치. 광안리 민락수변로의 성진회센터 3층에 위치해 있으며, 매장 내부에서 광안대교와 광안리 앞바다를 조망할 수 있는 뷰 맛집으로 알려져 있습니다. 활어 전문점으로, 참돔, 줄돔 등 신선한 회와 함께 산낙지, 개불, 가리비, 전복, 멍게 등 다양한 해산물, 그리고 돔찜 등이 포함된 코스요리를 주로 제공합니다. 좌식 형태에서 테이블석으로 리모델링되어 편안한 식사가 가능하며, 가족 외식, 데이트, 각종 모임 장소로 자주 언급됩니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "코스요리: 1인 코스 (3인 이상): 45,000원, 1인 코스 (2인 이상): 55,000원, 1인 코스: 70,000원 / 전복죽: 15,000원, 식사: 2,000원 / 영업 종료 시간 23:00 / 전화: 051-757-0303",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://www.visitbusan.net/",
+    "https://www.suyeong.go.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "통창 너머로 광안대교와 광안리 바다를 조망하며 식사할 수 있는 오션뷰 회 코스 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "참돔, 줄돔 등 신선한 활어회와 해산물, 돔찜이 푸짐하게 나오는 코스 요리 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

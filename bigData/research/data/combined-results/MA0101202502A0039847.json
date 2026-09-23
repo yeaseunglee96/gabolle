@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202502A0039847",
+  "name": "칸슈",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 52515,
+  "researchedAt": "2026-09-22T11:41:56.278Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 사전 예약제로 6석 규모 바 좌석 운영되어 현장 줄서기 대신 예약 필수"
+  },
+  "descriptors": {
+    "audience": "연인, 기념일 방문객",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "일식 8코스 오마카세",
+      "사시미",
+      "스테이크",
+      "솥밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 12:00 ~ 22:00 (월요일 휴무) / 디너 18:30~ (캐치테이블 예약제)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 직접적인 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "1인 오마카세 코스",
+    "priceWon": 80000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 마린시티1로 9, 마린시티자이 아파트 상가동 210호. 바(Bar) 형태의 6석 좌석으로 구성된 프라이빗한 공간에서 8코스 오마카세를 제공합니다. 전통적인 일식 요리를 현대적으로 재해석한 퓨전 일식을 선보입니다. 캐치테이블을 통한 사전 예약제로 운영되며 건물 내 주차 지원이 가능합니다. 사시미, 스테이크, 솥밥, 디저트 등 제공.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "6석 프라이빗 바 좌석에서 즐기는 감각적인 8코스 일식 오마카세와 기념일 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

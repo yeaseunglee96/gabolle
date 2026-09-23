@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220804900656",
+  "name": "부산미가돼지국밥",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 58447,
+  "researchedAt": "2026-09-22T11:54:07.766Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지국밥",
+      "순대국밥",
+      "수육백반"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "연중무휴 24시간 영업"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해수욕장 및 해운대역 인근에 위치하며 24시간 운영, 외국어 메뉴판 지원 등으로 여행객들이 방문하기 용이한 곳으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "해운대구 해운대해변로209번길 22-1에 위치한 돼지국밥 전문점으로 24시간 연중무휴 영업 정보 및 메뉴 정보가 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "돼지국밥 7,000원, 순대국밥 7,500원 (과거 기준)",
+    "priceWon": 7000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "店名: 釜山ミガテジクッパッ（부산미가돼지국밥）, 住所: 釜山市 海雲台区 海雲台海辺路209番ギル 22-1（釜山市 海雲台区 佑1洞 693-3）, 営業時間: 24時間営業, 定休日: 無休, テジクッパッ: 7,000ウォン, スンデクッパッ: 7,500ウォン, スユッ: 20,000ウォン / 30,000ウォン",
+      "url": "https://www.pusannavi.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 해운대해변로209번길 22-1 (우동 693-3). 해운대 해수욕장 인근에 위치해 있으며 외국어 메뉴판을 지원하며, 24시간 운영하여 여행객들이 방문하기 편리한 곳입니다. 메뉴: 돼지국밥, 순대국밥, 섞어국밥, 내장국밥, 수육백반, 수육, 내장 곱창전골 등.",
+      "url": "https://www.busan.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.pusannavi.com",
+    "https://www.busan.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 해수욕장 인근에서 24시간 연중무휴로 운영되어 언제든 식사하기 편함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "돼지국밥, 순대국밥, 수육 등 든든한 국밥 및 수육 메뉴 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

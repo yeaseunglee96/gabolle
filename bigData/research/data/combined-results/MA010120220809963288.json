@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220809963288",
+  "name": "솔티독",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 54443,
+  "researchedAt": "2026-09-22T11:40:52.020Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 웨이팅에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트 및 모임, 혼술 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "솔티독 칵테일",
+      "과일 플래터",
+      "카프리제",
+      "호떡 아이스크림"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 18:30 ~ 02:30 (라스트 오더 01:30) (매주 월요일 정기 휴무 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락수변로 105 지하 1층에 위치한 와인 및 칵테일 바. 엔틱하고 아늑한 분위기와 시그니처 칵테일, 위스키, 와인 및 페어링 안주를 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "엔틱하고 고급스러운 인테리어와 아늑한 조명으로 데이트나 모임 장소로 인기가 많습니다. 위스키, 다양한 칵테일, 와인, 데킬라 등 폭넓은 주류를 제공하며, 안주로는 과일 플래터, 카프리제, 호떡 아이스크림 등이 준비되어 있습니다. 매장 내에 가글, 치실 등 편의 용품이 구비되어 있는 등 세심한 서비스로 좋은 평가를 받고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "엔틱하고 아늑한 인테리어와 감성적인 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "취향 맞춤 주류 추천 및 화장실 내 세심한 편의용품 구비 등 친절한 응대",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

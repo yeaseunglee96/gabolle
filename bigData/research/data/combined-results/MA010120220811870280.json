@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220811870280",
+  "name": "두꺼비",
+  "cat": "일반 유흥 주점",
+  "attempts": 1,
+  "geminiTokens": 24132,
+  "researchedAt": "2026-09-22T09:54:07.778Z",
+  "crowding": {
+    "found": false,
+    "note": "검색 결과 없음"
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "3회 검색(주소·상호명·블로그 리뷰 조합) 결과 해당 업소에 관한 블로그·리뷰·SNS 페이지가 발견되지 않음. 같은 상호의 다른 지역 업소나 인근 유흥업소 정보만 노출됨.",
+  "notes": "부산광역시 해운대구 해운대해변로209번나길 43 소재 유흥주점 '두꺼비'에 대한 리뷰·후기·메뉴·영업시간 등 정보가 공개된 웹 페이지에서 확인되지 않음. 해당 주소와 정확히 일치하는 업소 정보가 없어 found:false 처리.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

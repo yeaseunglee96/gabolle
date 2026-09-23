@@ -1,0 +1,65 @@
+{
+  "id": "MA0106202201A1870903",
+  "name": "엣지993더위",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 174782,
+  "researchedAt": "2026-09-22T10:43:55.022Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "방문객 붐빔이나 웨이팅에 대한 명시적 언급 미확인"
+  },
+  "descriptors": {
+    "audience": "연인 및 관광객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "엣지 크림라떼",
+      "나나라떼",
+      "엣지 슈페너"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 11:00~21:00 / 주말 09:30/10:00~22:00/22:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 미포 오션뷰 루프탑 및 블루라인파크 전망을 즐기러 오는 관광객 및 나들이객 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "상호명의 '(주)더위'는 엣지993(Edge993)을 운영하는 법인 회사명이며, 인허가 업종상 경양식/휴게음식점으로 등록되어 있으나 실제로는 오션뷰 루프탑 카페 및 펜션/바로 운영되는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "엣지 크림라떼 7,500~8,000원, 나나라떼 7,500원, 엣지 슈페너 7,000원, 케이크류 6,500~7,000원",
+    "priceWon": 7500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "카페 건물에서 파노라마 뷰로 광안대교, 마린시티, 동백섬, 해운대 백사장, 달맞이 언덕을 한눈에 조망할 수 있습니다. 특히 루프탑에서 즐기는 오션뷰가 인기이며, 통창으로 된 실내에서도 바다를 감상하기 좋습니다. 카페(1층, 5층, 루프탑)와 펜션, 바(Bar)를 함께 운영하고 있습니다.",
+      "url": "http://edge993.co.kr/"
+    }
+  ],
+  "sources": [
+    "http://edge993.co.kr/",
+    "https://www.visitbusan.net/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 미포 앞바다와 광안대교, 마린시티, 블루라인파크를 한눈에 조망할 수 있는 루프탑 오션뷰",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

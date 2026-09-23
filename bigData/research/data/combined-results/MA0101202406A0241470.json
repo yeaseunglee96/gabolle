@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202406A0241470",
+  "name": "붉은수염스몰",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 68299,
+  "researchedAt": "2026-09-22T11:12:57.053Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼술, 소규모 2차 술자리",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "사시미",
+      "문어숙회",
+      "돈소쿠(족발구이)",
+      "명란구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 시작"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "붉은수염스몰 / 부산광역시 수영구 무학로 43-3 1층 (광안동 109-29) / 전화번호: 0507-1324-4411 / 영업시간: 18:00 시작 / 4~5개의 4인 테이블로 구성된 아담한 규모의 이자카야로, 혼술이나 조용한 분위기에서 술 한잔하기 좋은 곳입니다. 주요 메뉴로는 아사히 생맥주, 사시미, 문어숙회, 돈소쿠(족발구이), 명란 크림뇨끼 등 다양한 일본식 안주를 제공합니다.",
+      "url": "https://www.siksinhot.com/P/1603504"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1603504"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아담한 규모에서 사시미와 다양한 일식 안주, 생맥주를 곁들여 조용하게 혼술이나 2차를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

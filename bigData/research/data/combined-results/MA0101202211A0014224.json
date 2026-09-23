@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202211A0014224",
+  "name": "레드베릴즈",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 62068,
+  "researchedAt": "2026-09-22T11:15:44.215Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기·혼잡 관련 명시적인 언급 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 디저트 애호가, 기념일 케이크 구매 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "딸기 타르트",
+      "보늬밤 타르트",
+      "도시락 미니 케이크",
+      "생크림 케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 ~ 21:00 (금·토요일 10:30 ~ 22:00)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객 방문 구분에 대한 구체적 기술 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "사업자 등록 또는 분류상 경양식/일반음식점으로 등록되어 있을 수 있으나 실제로는 수제 타르트 및 주문제작 케이크를 주로 다루는 디저트 카페로 운영되고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "바닐라 딸기 타르트 등 타르트류 8,000원~12,000원대, 도시락 미니 케이크 24,000원~25,000원대, 1호 생크림 케이크 51,000원",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "딸기가 가득 올라간 타르트와 케이크로 유명한 디저트 카페입니다. 비주얼이 예쁜 케이크로 알려져 있어 생일이나 기념일 등을 위한 도시락 미니 케이크 주문 제작도 가능합니다. 대체로 10:30 ~ 21:00 (금·토요일은 22:00까지 운영하는 등 요일별로 약간의 차이가 있을 수 있습니다). 반려동물 동반이 가능한 곳이니 참고하시기 바랍니다.",
+      "url": "https://nol.com"
+    },
+    {
+      "excerpt": "동물성 생크림과 이태리 크림치즈 등을 사용하여 직접 만드는 타르트와 케이크가 대표 메뉴입니다. 계절 과일을 활용한 다양한 타르트와 기념일용 레터링 케이크, 도시락 케이크 등을 주문 및 구매할 수 있습니다. 반려동물 동반이 가능한 카페입니다. 광안리 해변 근처 골목에 위치하여 접근성이 좋으며, 아기자기하고 예쁜 디저트 비주얼 덕분에 인기가 많습니다.",
+      "url": "https://blog.naver.com"
+    }
+  ],
+  "sources": [
+    "https://nol.com",
+    "https://blog.naver.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제철 과일과 동물성 생크림으로 직접 만든 고품질의 예쁜 타르트와 케이크를 즐기기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

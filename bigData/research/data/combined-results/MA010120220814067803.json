@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220814067803",
+  "name": "마우스필",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 107970,
+  "researchedAt": "2026-09-22T11:17:14.730Z",
+  "confidence": "none",
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안로35번길 11 에 위치한 '마우스필'(빵/도넛 업종)에 대해 웹 검색을 수행하였으나, 해당 상호 및 주소와 일치하는 실제 운영 정보, 메뉴, 영업시간, 방문 후기 등의 구체적 출처를 확인할 수 없어 found:false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

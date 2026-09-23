@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220812025012",
+  "name": "영빈",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 50624,
+  "researchedAt": "2026-09-22T11:55:41.558Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 일식 회/초밥 업종의 '영빈' 식당에 대한 정보나 리뷰를 찾을 수 없음",
+  "notes": "부산광역시 부산진구 중앙대로680번가길 80-10 에 위치한 일식 회/초밥 업종의 '영빈' 식당은 웹 검색 결과 실제 운영 및 관련 리뷰가 확인되지 않아 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

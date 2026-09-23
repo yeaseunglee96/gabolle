@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202306A0093613",
+  "name": "미엘",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 44443,
+  "researchedAt": "2026-09-22T11:57:23.460Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "인허가/상가 공부상 부산 수영구 민락동 110-28(나경크리스탈 타워)에 '미엘(경양식)' 상호 등록 이력은 확인되나, 실제 운영 관련 블로그, 방문자 리뷰, 메뉴, 영업시간 등의 소비자 방문 정보가 확인되지 않음 (폐업 또는 실영업 미확인)",
+  "notes": "해당 주소지 건물(나경크리스탈 타워)의 공부상 상가 등록 내역 외에 실제 방문 후기나 영업 현황 정보가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 민락동 110-28(나경크리스탈 타워) 정보에 따르면, 해당 건물 내 상가로 '미엘(업종: 경양식)'이 등록되어 있습니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

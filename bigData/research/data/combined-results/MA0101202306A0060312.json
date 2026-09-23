@@ -1,0 +1,82 @@
+{
+  "id": "MA0101202306A0060312",
+  "name": "거북이금고",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 71877,
+  "researchedAt": "2026-09-22T10:38:47.320Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "수영구 남천동 시절부터 유명했던 맛집으로 해운대 이전 후 매장이 넓어졌으나 식사 피크 시간 대기가 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "가족 및 개인 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "제주흑돼지 등심돈까스",
+      "제주흑돼지 등심+안심",
+      "카레 돈까스"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:00 (브레이크타임 15:00 ~ 17:00, 라스트오더 20:30, 매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "남천동 시절부터 현지인 단골이 많았던 돈까스 맛집으로 해운대 이전 후 관광객과 현지인 모두 즐겨 찾는 곳"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "사용자 요청에는 '일식 회/초밥'으로 표기되어 있으나 실제로는 제주 흑돼지 수제 돈까스 및 카레 전문 일식당임",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "제주흑돼지 등심돈까스",
+    "priceWon": 11000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "거북이금고는 부산광역시 해운대구 중동1로 32(중동 1394-29 1층)에 위치한 돈까스 전문 식당입니다. 과거 수영구 남천동에서 운영되던 맛집으로, 현재는 해운대 재래시장 인근으로 이전하여 영업 중입니다. 제주산 흑돼지 생고기를 숙성하여 만든 두툼한 돈까스가 특징입니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "영업시간: 11:30 ~ 21:00, 라스트 오더: 20:30, 브레이크 타임: 15:00 ~ 17:00, 정기 휴무: 매주 월요일. 전용 주차장은 없으며 인근 유료 주차장을 이용해야 합니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "제주흑돼지 등심돈까스 11,000원, 제주흑돼지 등심+안심 13,500원, 카레 제주흑돼지 등심+안심 14,500원. 우유버터와 양파, 소고기를 볶아 만든 수제 카레가 인기 메뉴 중 하나입니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://tistory.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제주 흑돼지 생고기를 숙성시켜 만든 두툼하고 육즙 가득한 돈까스와 수제 카레 맛 때문",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "남천동 골목 맛집 시절부터 돈까스로 입소문이 난 오랜 단골 기반의 식당이기 때문",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

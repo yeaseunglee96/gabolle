@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202309A0023620",
+  "name": "몬산토에이치피",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 52273,
+  "researchedAt": "2026-09-22T10:43:06.615Z",
+  "confidence": "high",
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 상호는 외식업을 영위하는 법인 사업체((주)몬산토에이치피 - 라멘 브랜드 '류센소' 운영사)의 법인 등록명이며, 일반 소비자가 방문하는 독립된 개별 음식점(식당 상호)이 아닙니다. 실제 해당 주소지(부산 해운대구 구남로8번길 62) 1층에는 '류센소 본점'이 영업 중입니다.",
+  "notes": "'몬산토에이치피'는 독립된 음식점 상호가 아닌 라멘 브랜드 '류센소' 등을 운영하는 외식 프랜차이즈 법인 사업체입니다. 일반 손님을 대상으로 하는 '몬산토에이치피'라는 이름의 식당 영업 및 후기/메뉴 정보가 존재하지 않아 found: false 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://bizno.net"
+  ]
+}

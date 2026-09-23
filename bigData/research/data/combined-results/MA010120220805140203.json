@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220805140203",
+  "name": "피타피자1984",
+  "cat": "피자",
+  "attempts": 1,
+  "geminiTokens": 67801,
+  "researchedAt": "2026-09-22T12:20:53.621Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 해운대구 우동1로 6 소재의 '피타피자1984'에 대해 검색하였으나, 해당 상호로 운영 중인 실제 매장 정보, 리뷰, 방문 이유, 영업시간, 메뉴 등의 실질적인 정보가 확인되지 않습니다. (해당 주소지는 과거 카가와식당 등으로 알려져 있으며 상가 입주/사업자 등록 이력 외 실제 이용 후기나 웹 정보 부재)",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

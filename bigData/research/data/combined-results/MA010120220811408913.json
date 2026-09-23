@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811408913",
+  "name": "곰포횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 58452,
+  "researchedAt": "2026-09-22T11:27:44.998Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "회식 및 단체 모임, 관광객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "상차림",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 민락회타운 1층에서 횟감을 구매한 관광객 및 모임 손님들이 오션뷰를 보며 식사하는 초장집 형태"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 민락회타운 6층에 위치했던 초장집(상차림 횟집)입니다. 1층 활어판매장에서 회를 구입해 올라와 상차림비(초장값 약 5,000~6,000원선)를 지불하고 매운탕과 밑반찬을 즐기던 곳이며, 광안리 바다 및 광안대교 오션뷰가 주요 방문 요인입니다. 현재는 폐업 상태인 것으로 파악됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "1인 상차림비",
+    "priceWon": 6000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "곰포횟집은 부산광역시 수영구 민락수변로 1(민락동)에 위치한 민락회타운 6층에 자리 잡고 있는 횟집입니다. 이곳은 전형적인 '초장집(상차림 식당)' 형태로 운영되는 것이 특징입니다. 1층 활어판매장에서 원하는 횟감을 직접 구입 후 6층으로 이동하여 상차림비를 내고 회와 함께 매운탕 등을 즐깁니다. 오션뷰: 민락회타운 6층에 위치해 있어 광안리 해수욕장과 광안대교 전망을 감상할 수 있는 곳으로 잘 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "일반적인 민락회타운 내 초장집들의 상차림비는 1인당 약 5,000원~6,000원 수준으로 형성되어 있습니다. 곰포횟집 역시 이와 유사한 정책을 따르고 있으며, 매운탕 및 공깃밥 등은 별도 요금을 지불해야 합니다. 광안리 해수욕장이 보이는 오션뷰를 갖추고 있으며, 룸 형태의 좌석이 마련되어 있어 단체 모임이나 회식 장소로도 언급됩니다.",
+      "url": "https://www.waffle-gl.org"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.waffle-gl.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "민락회타운 6층에서 광안리 해수욕장과 광안대교 전망을 조망할 수 있는 뷰 편의성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "1층 활어판매장에서 횟감을 직접 사 와 1인 상차림비로 회와 매운탕을 즐길 수 있는 가성비 초장집 구조",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

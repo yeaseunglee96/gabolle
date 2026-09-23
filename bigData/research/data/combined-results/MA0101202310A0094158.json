@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202310A0094158",
+  "name": "올데이파스타",
+  "cat": "파스타/스테이크",
+  "attempts": 1,
+  "geminiTokens": 76661,
+  "researchedAt": "2026-09-22T09:48:48.764Z",
+  "crowding": {
+    "found": false,
+    "note": "혼잡·줄서기 관련 정보 없음"
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "스파이시 크림파스타",
+      "새우바질크림파스타",
+      "명란 알리오올리오",
+      "베이컨 김치필라프",
+      "리조또"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 수영구 광서로 24-1 '올데이파스타 수영본점'은 웹 검색상 존재가 확인되나, 국세청 사업자 정보에서 폐업 상태로 분류되어 있음. 배달 전문 브랜드로 운영된 것으로 보이며, 매장 방문 후기나 블로그 리뷰는 거의 없음. 가게 이름·주소는 linktoplace.com 등에서 확인되나, 실질적 영업 상태 및 상세 정보(영업시간, 메뉴판, 혼잡도 등)는 웹상에서 확인 불가. 4번의 검색에서 이 특정 수영본점에 대한 방문 리뷰나 사진 자료는 발견되지 않았음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해당 사업장은 2023년 11월에 설립되었으나, 현재 국세청 등록 정보상 폐업자로 분류되어 있습니다.",
+      "url": "https://bizno.net"
+    },
+    {
+      "excerpt": "올데이파스타 수영본점 / 부산광역시 수영구 광서로 24-1 (광안동) / 주로 파스타, 필라프, 리조또 등을 판매하는 배달 전문 업체",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "올데이파스타 수영본점 / 배달 전문점 중심의 프랜차이즈 브랜드",
+      "url": "https://alldaypasta.com"
+    }
+  ],
+  "sources": [
+    "https://bizno.net",
+    "https://alldaypasta.com",
+    "https://www.siksinhot.com",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "배달 전문 브랜드로 1만~3만원대 가성비 위주 식사를 원하는 고객 대상",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

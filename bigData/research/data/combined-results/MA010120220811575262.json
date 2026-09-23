@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811575262",
+  "name": "고마대구탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 51094,
+  "researchedAt": "2026-09-22T06:49:07.380Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "아침 이른 시간부터 해장 손님이 꾸준히 찾으며 주말 피크타임에는 혼잡하나 매장이 넓고 회전율이 빠른 편임"
+  },
+  "descriptors": {
+    "audience": "관광객 및 현지인 해장객, 단체 및 가족 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "대구탕",
+      "대구찜정식",
+      "완도산 전복 대구탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 07:00 ~ 21:00 (과거 24시간 영업에서 단축 운영)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 인근으로 관광객과 부산 현지인 해장 손님이 고루 찾는 곳으로 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남천동/광안리 해변에 위치한 대표 대구탕 전문점으로 맑고 시원한 국물과 전용 주차장 완비가 특징입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "대구탕 14,000원, 대구찜정식 18,000원, 완도산 전복 대구탕 22,000원",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 해변 끝자락에 위치하며, 담백하고 시원한 국물로 해장에 좋은 대구탕 전문점입니다. 신선한 대구 살을 사용하며, 대구탕 외에도 매콤한 대구찜 정식 등이 인기 메뉴입니다. 식당 바로 앞에 넓은 주차장이 있어 주차 편의성이 좋습니다.",
+      "url": "https://www.siksinhot.com/P/297298"
+    },
+    {
+      "excerpt": "고마대구탕은 아침 일찍부터 영업을 시작하여 아침 식사가 가능한 곳으로 유명합니다. 오전 7시 30분과 같은 이른 시간에도 이미 식사를 하거나 식사를 마치고 나가는 손님들이 있을 정도로 아침 시간대 방문객이 꾸준히 있는 편입니다. 광안리 해변 근처의 인기 맛집인 만큼 손님들의 발길이 끊이지 않으며, 주차장이 넓게 마련되어 있어 차량 이용 시 편리하게 접근할 수 있다는 점이 장점입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/297298",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "맑고 담백하며 시원한 국물 맛으로 해장 식사 만족도가 높음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오전 7시부터 아침 식사가 가능하고 넓은 전용 주차장을 갖춰 방문 편의성이 뛰어남",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

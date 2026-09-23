@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220813202032",
+  "name": "바리오",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 65631,
+  "researchedAt": "2026-09-22T06:52:19.192Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 데이트 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "감자 뇨끼",
+      "스테이크",
+      "파스타"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 해운대구 우동1로50번길 2)의 '바리오(VARIO)'는 베트남 음식점이 아닌 이탈리안 레스토랑이었으며 현재 폐점 상태입니다.",
+  "notes": "조사 대상 주소에 존재했던 '바리오(VARIO)'는 뇨끼/파스타 등을 취급하던 이탈리안 레스토랑이었으며 현재는 폐점(영업종료) 상태입니다. 요청받은 '베트남식 전문 업종'의 바리오는 존재하지 않으므로 found: false 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": []
+}

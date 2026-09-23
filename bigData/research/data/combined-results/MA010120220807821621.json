@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220807821621",
+  "name": "동백초이",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 41964,
+  "researchedAt": "2026-09-22T06:21:54.822Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 및 관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 서구 대영로 62-7(동대신동1가)에 사업자/상호 등록(분식, 빵/도넛, 카페 등)은 확인되나, 온라인상에 구체적인 방문 리뷰나 메뉴판, 영업시간 정보가 거의 존재하지 않는 소규모 매장임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동백초이는 부산광역시 서구 동대신동1가(도로명 주소: 대영로 62-7)에 위치한 업체입니다. 업종: 분식점 및 기타 일반음식점으로 분류되어 있습니다. 일부 자료에서는 기타 음료 및 식품 관련업으로도 언급됩니다. 위치: 부산광역시 서구 대영로 62-7 (동대신동1가).",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

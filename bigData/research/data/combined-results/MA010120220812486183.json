@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220812486183",
+  "name": "다다제과",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 63165,
+  "researchedAt": "2026-09-22T06:31:33.103Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡 관련 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "디저트 및 구움과자 포장 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "바나나푸딩",
+      "두바이 초코케이크",
+      "라즈베리 초코치즈케이크",
+      "뉴욕 초코칩쿠키",
+      "바닐라빈 까눌레"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~ 19:30 영업 종료 (방문 전 전화 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 11,
+    "found": true
+  },
+  "notes": "부산 북구 금곡대로 213에 위치한 테이크아웃 전문 베이커리/디저트샵으로, 바나나푸딩, 케이크, 쿠키, 까눌레 등 다양한 수제 디저트와 음료를 판매함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "바나나푸딩 5,500원 / 바닐라빈 까눌레 3,300원 / 아메리카노 3,000원 / 쫀득쿠키 4,000원~5,800원",
+    "priceWon": 5500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 금곡대로 213, 1층 다다제과. 에그타르트, 쿠키, 케이크 등 다양한 디저트를 판매하며, 선물 포장 및 홀케이크 예약이 가능합니다. 테이크아웃 전문점. 주요 메뉴: 바나나푸딩 5,500원, 두바이 초코케이크 9,500원, 라즈베리 초코치즈케이크 8,000원, 딥 초콜릿가나슈케이크 8,000원, 쫀득쿠키류 4,000원 ~ 5,800원, 바닐라빈 까눌레 3,300원, 아메리카노 3,000원 등.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바나나푸딩, 까눌레, 초코치즈케이크 등 다양한 수제 구움과자 및 케이크 디저트를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220813276620",
+  "name": "설",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 58648,
+  "researchedAt": "2026-09-22T06:23:48.261Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사상구 엄궁로 203에 위치한 일식/회/초밥 업종의 '설' 식당을 검색하였으나, 해당 주소지 및 엄궁동 일대에서 일치하는 가게 정보를 확인할 수 없음(폐업 또는 부정확한 상호/주소 추정).",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202509A0019070",
+  "name": "비바구스토",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 39245,
+  "researchedAt": "2026-09-22T11:57:32.383Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 및 연인, 이탈리아 피자 선호 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "나폴리 화덕피자",
+      "파스타"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 매장은 부산 해운대구 좌동순환로8번길 54-12(중동)에 소재한 APN 나폴리 정회원 나폴리 화덕피자/파스타 전문점으로 채용 및 업체 정보가 확인되나, 상세 블로그 리뷰나 방문객 작성 후기는 웹상에 제한적이어서 영업시간·줄서기·혼잡도 정보는 found:false 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "비바구스토는 부산 해운대구 좌동순환로8번길 54-12(중동)에 위치한 나폴리 화덕피자 전문점(APN 나폴리 정회원)입니다.",
+      "url": "https://www.jobkorea.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.jobkorea.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "이탈리아 APN 나폴리 피자협회 정회원 인증을 받은 정통 나폴리 화덕피자와 파스타 전문점이기 때문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": "MA010120220811442573",
+  "name": "오라",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 67966,
+  "researchedAt": "2026-09-22T12:13:45.890Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 방문 전 예약이 필수/권장되며 공간이 아담함"
+  },
+  "descriptors": {
+    "audience": "연인, 모임, 미식가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "라구 파스타",
+      "소꼬리 파스타",
+      "뇨끼",
+      "아란치니",
+      "티라미수"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~금 10:00~19:00, 토 10:00~15:00 / 17:00~21:00, 일 10:00~16:00 (월·화 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "KBS 부산방송총국 뒤 주택가 골목에 위치하여 단골 및 예약 손님 위주 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 남천동 주택가에 위치한 이탈리안 가정식 레스토랑으로 조미료 없이 제철 재료와 정성 들인 육수로 요리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가정집을 개조한 따뜻하고 감각적인 분위기의 이탈리안 가정식 레스토랑입니다. 조미료를 사용하지 않고 정성 들인 육수와 제철 재료를 사용하는 것으로 알려져 있습니다. 인기가 많은 곳으로 방문 전 예약을 추천합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "KBS 부산방송총국 뒷편, 동여자고등학교 입구, (구) 부산시장 관사 바로 앞에 위치해 있습니다. 소꼬리 파스타, 버섯 크림 스파게티, 아란치니, 라구 소스를 곁들인 가지구이, 바질 페스토 크림 뇨끼 등. 전용 주차 공간이 협소하여 주로 인근 주택가 갓길 주차를 이용하는 경우가 많습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "조미료 없이 제철 식재료와 정성 들인 육수로 만드는 수준 높은 이탈리안 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주택 개조 공간의 따뜻하고 감각적인 분위기와 예약제 중심 운영",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

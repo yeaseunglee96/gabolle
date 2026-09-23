@@ -1,0 +1,59 @@
+{
+  "id": "MA010120220810626192",
+  "name": "송백숯불농원",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 73509,
+  "researchedAt": "2026-09-22T06:26:55.383Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인/인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우꽃등심",
+      "생삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 10:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산광역시 동구 좌천동(진성로28번길 9)에 위치한 고기 구이 전문점으로 대표 메뉴로 한우꽃등심과 생삼겹살, 점심 특선이 확인되나, 개인 블로그 방문기나 상세 리뷰는 극히 드물어 혼잡도 및 상세 방문 후기 파악에는 제한이 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "송백숯불농원 / 주소: 부산광역시 동구 진성로28번길 9 (좌천동 692-22) / 주요메뉴: 한우꽃등심, 생삼겹살 / 점심특선 / 영업시간: 주중 10:00 ~ 22:00 / 갈비 전문점",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한우꽃등심과 생삼겹살 구이 및 점심 특선 식사 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

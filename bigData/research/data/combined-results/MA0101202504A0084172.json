@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202504A0084172",
+  "name": "뚜벅스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 102634,
+  "researchedAt": "2026-09-22T10:30:45.812Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "광안대교 오션뷰 카페로 인기가 많아 창가 자리 대기 및 자리 경쟁이 잦음"
+  },
+  "descriptors": {
+    "audience": "관광객 및 젊은층, 연인, 친구",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "코코넛 밀크 음료",
+      "칵테일"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 09:30~22:00, 주말 09:30~22:30"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 전망과 뚜벅이 여행자를 위한 편의시설로 관광객 방문 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로 239 샤인빌딩 7층 위치. 인허가 업종상 경양식/일반음식점이나 실제로는 오션뷰 카페 겸 펍으로 운영. 음료 주문 시 안마의자/보드게임/오락실 무료 이용 가능. 전용 주차장 없음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "음료 4,400원부터",
+    "priceWon": 4400
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "뚜벅스 광안점은 부산광역시 수영구 광안해변로 239(민락동, 샤인빌딩) 7층에 위치한 오션뷰 카페입니다. 건물 7층에 위치하여 광안리 해수욕장과 광안대교를 파노라마 뷰로 감상할 수 있는 '뷰 맛집'으로 유명합니다. '뚜벅이 여행자'를 위한 컨셉의 카페로, 음료 구매 시 안마의자, 보드게임, 오락실 등을 무제한으로 이용할 수 있는 서비스가 제공됩니다. 전용 주차 공간은 없습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "광안대교와 광안리 해수욕장을 한눈에 볼 수 있는 통창 카페로, 음료 한 잔(4,400원부터~)을 구매하면 안마의자, 보드게임, 오락실을 무제한으로 이용할 수 있는 이색 카페입니다. 코코넛 밀크 음료가 시그니처 메뉴이며, 베이커리, 케이크, 칵테일 등도 판매합니다. 위치: 부산광역시 수영구 광안해변로 239, 7층",
+      "url": "https://www.st-news.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.st-news.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해수욕장과 광안대교를 한눈에 볼 수 있는 파노라마 오션뷰 조망",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "음료 주문 시 안마의자, 보드게임, 오락실을 무제한 이용할 수 있는 여행자 맞춤 편의 서비스",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

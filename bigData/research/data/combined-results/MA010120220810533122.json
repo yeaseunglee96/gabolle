@@ -1,0 +1,59 @@
+{
+  "id": "MA010120220810533122",
+  "name": "부천성",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 70984,
+  "researchedAt": "2026-09-22T06:17:01.874Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 배달 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "짬뽕",
+      "탕수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 사하구 옥천로 73-1(감천동 16-51)에 위치한 소규모 동네 중식당으로, 온라인상에 상세한 메뉴판 가격, 영업시간, 줄서기/혼잡도 정보나 별도의 개별 방문 블로그 리뷰가 거의 남아있지 않은 일반적인 로컬 배달/동네 중국집입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부천성 전화번호: 051-271-1940 주소: 부산광역시 사하구 옥천로 73-1 (감천동 16-51) 업종: 중식당",
+      "url": "https://www.bil.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.bil.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감천동 주택가 인근에서 일상적으로 찾는 동네 중식당",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

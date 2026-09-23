@@ -1,0 +1,56 @@
+{
+  "id": "MA0101202412A0084485",
+  "name": "베티블루",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 53111,
+  "researchedAt": "2026-09-22T12:06:50.136Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "경양식 요리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 남천동(남천동로108번길 15)에 소재한 경양식/서양식 음식점으로, 정성스러운 손맛과 분위기의 경양식 전문점으로 등재되어 있으나 상세 메뉴 가격표 및 상세 영업시간 등은 온라인 공개 정보가 매우 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 남천동에 위치한 베티블루는 경양식 및 서양식 요리를 전문으로 하는 음식점입니다. 업종 분류: 서양식, 경양식. 위치: 부산광역시 수영구 남천동로108번길 15 (남천동 7-12). 특징: 경양식 전문점으로 알려져 있으며, 방문객들에게 정성스러운 음식과 분위기로 인지도가 있습니다. 별도의 전용 주차 공간은 없으나 인근 대중교통 이용이 편리합니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정성스러운 음식과 분위기를 갖춘 남천동 경양식 음식점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

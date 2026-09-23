@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202306A0046264",
+  "name": "만득이",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 51285,
+  "researchedAt": "2026-09-22T06:44:00.548Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 퇴근길 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "막창반반 연탄구이",
+      "곱창전골",
+      "껍데기"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 5시 영업 시작"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "만덕동 주택가 상권에 위치하여 인근 주민들의 홀 식사 및 배달·포장 위주로 이용되는 동네 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산광역시 북구 만덕3로57번길 4에 위치한 '만득이(만득이연탄곱창)'로 확인되었습니다. 연탄구이 막창/곱창 및 전골 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "만득이연탄곱창 부산광역시 북구 만덕3로57번길 4 1층 (만덕동 920-2) 0507-1332-7752. 연탄에 직접 구워 잡내 없이 고소한 막창과 곱창을 맛볼 수 있는 곳으로, 파채와 함께 즐기는 조합이 인기입니다. 막창반반 연탄구이 등이 대표 메뉴이며, 홀 식사뿐만 아니라 포장 및 배달도 가능합니다. 오후 5시에 영업을 시작합니다.",
+      "url": "https://www.siksinhot.com/P/1557929"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1557929"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "연탄에 직접 구워 잡내 없이 고소한 막창·곱창 연탄구이를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "홀 식사 외에도 포장 및 배달 주문이 편리하게 지원됨",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

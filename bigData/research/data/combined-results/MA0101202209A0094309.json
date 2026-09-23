@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202209A0094309",
+  "name": "베비_부산",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 37370,
+  "researchedAt": "2026-09-22T11:56:46.119Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트, 지인 모임 등 캐주얼 바 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "베비 하이볼",
+      "비프 타르타르"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "사업자 인허가상 경양식 등으로 등록되어 있을 수 있으나 실제 매장은 전포사잇길 2층에 위치한 캐주얼 바/펍(칵테일, 와인, 위스키, 비프 타르타르 등 판매)입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 부산진구 서전로58번길 49, 2층. 인생네컷과 전포연가 사이 건물 2층에 위치. 칵테일, 와인, 위스키 등 다양한 주류와 간단한 음식을 제공하는 캐주얼 바.",
+      "url": "https://kihya.com"
+    },
+    {
+      "excerpt": "부산 전포동에 위치한 '베비 부산(Bevvy Busan)'. 칵테일, 위스키, 와인, 맥주 등을 즐길 수 있는 바로, 시그니처 메뉴인 베비 하이볼을 비롯하여 다양한 칵테일과 위스키, 비프 타르타르와 같은 안주류 제공.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://kihya.com",
+    "https://siksinhot.com",
+    "https://jikum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전포사잇길 특유의 오리엔탈 감성 분위기와 다양한 주류(칵테일, 하이볼, 위스키, 와인) 및 안주를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

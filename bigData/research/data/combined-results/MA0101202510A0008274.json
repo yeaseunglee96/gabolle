@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202510A0008274",
+  "name": "워킹홀리데이",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 48104,
+  "researchedAt": "2026-09-22T12:07:56.727Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "창가 오션뷰 좌석 위주로 손님이 몰리는 편임"
+  },
+  "descriptors": {
+    "audience": "연인 및 관광객",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "연어 에그 베네딕트",
+      "오지 빅 브레키",
+      "부라타 뽀모도로 파스타"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:00 ~ 23:00 (낮에는 브런치, 밤에는 다이닝/바 운영)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 오션뷰 명소로 관광객 및 데이트 코스 방문객이 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영구 민락수변로 29(바다마루 7층)에 위치한 호주식 브런치/다이닝 레스토랑으로 정식 상호는 '워킹홀리데이 민락점 앤나잇(workingholiday and night)'입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "브런치 및 파스타류 1만원대 중후반~2만원 내외",
+    "priceWon": 18000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락수변로 29, 바다마루 7층. 민락 회센터 거리 끝부분에 위치하며, 광안대교를 조망할 수 있는 오션뷰 브런치 카페입니다. 워킹홀리데이 민락점 앤나잇이라는 명칭으로도 알려져 있으며, 낮에는 브런치, 밤에는 다이닝 카페로 운영됩니다.",
+      "url": "https://wanderboat.ai"
+    }
+  ],
+  "sources": [
+    "https://wanderboat.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교가 한눈에 내려다보이는 탁 트인 파노라마 오션뷰 조망",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "호주식 에그 베네딕트와 파스타 등 감성적인 브런치 다이닝 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

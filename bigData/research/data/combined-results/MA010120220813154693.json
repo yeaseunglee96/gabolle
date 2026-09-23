@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220813154693",
+  "name": "해운회관",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 67018,
+  "researchedAt": "2026-09-22T11:34:15.272Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 주말 저녁 등에 대기가 자주 발생하며 캐치테이블 등을 활용해 웨이팅이나 예약을 진행함"
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 소규모 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "숙성회 세트",
+      "제철 모둠회",
+      "해산물(전복·멍게·낙지)",
+      "문어숙회"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:30 ~ 00:30 (라스트오더 23:30 / 요일별로 00:00 또는 01:00 마감), 매주 월요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 대 관광객 비중에 대한 명시적 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해운대역 인근 구남로에 위치한 활어 숙성회 전문점으로, 깔끔하고 모던한 분위기와 푸짐한 기본 곁들임(홍합부추전, 콘치즈, 새우튀김 등), 콜키지 프리 등으로 인기가 높음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "변동(인원 및 제철 시세에 따른 세트 구성)",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "숙성회 전문점으로 광어, 참돔, 농어, 도다리, 연어 등 도톰한 숙성회를 제공하며, 초대리밥과 다양한 소스가 곁들여집니다. 깔끔한 홀 분위기로 인기가 많아 주말 저녁 등에는 대기가 발생할 수 있습니다. 매장 뒤편 현대주차장 및 행운주차장 이용 가능. 세트 구성에는 숙성회와 함께 전복, 멍게, 낙지 등의 해산물 및 문어숙회 등이 포함됩니다.",
+      "url": "https://www.siksinhot.com/P/1602419"
+    },
+    {
+      "excerpt": "활어 숙성회를 전문으로 하며, 회 주문 시 우동샐러드, 콘치즈, 부추전, 새우튀김, 매운탕 등 다양한 곁들임 음식이 함께 제공되어 만족도가 높다는 후기가 많습니다. 캐치테이블을 통한 웨이팅 및 예약이 가능하며 건물 뒤편 현대주차장, 행운주차장 이용 시 1시간 무료 주차를 지원합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1602419",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두툼하고 신선한 제철 활어 숙성회와 푸짐하게 깔리는 알찬 기본 상차림(부추전, 튀김 등) 때문에 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대역 5번 출구 인근(약 120m)의 접근성과 깔끔한 내부 인테리어, 콜키지 프리 편의성 때문에 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

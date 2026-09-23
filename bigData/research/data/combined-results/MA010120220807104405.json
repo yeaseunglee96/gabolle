@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220807104405",
+  "name": "코이요스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 38503,
+  "researchedAt": "2026-09-22T11:38:45.507Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 웨이팅에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "대학생, 연인, 직장인",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모둠 10p",
+      "모둠 14p",
+      "코이요 세트"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (라스트 오더 21:30, 평일 브레이크 타임 15:00 ~ 16:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 구체적 언급 없음 (경성대·부경대 대학가 상권 위치)"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "경성대·부경대 인근에 위치하여 대학생 및 젊은 층 대상의 합리적인 세트 메뉴 구성과 가성비로 찾는 초밥 전문점.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "모둠초밥 및 세트 메뉴 위주 구성",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 용소로13번길 54, 1층. 특징: 초밥, 연어덮밥, 세트 메뉴(코이요 세트 A·B·C 등)가 인기 있는 곳으로, 초밥과 함께 튀김, 우동 등을 합리적인 가격에 즐길 수 있어 가성비 맛집으로 알려져 있습니다. 매장 인근에 주차가 가능합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "영업시간: 11:00~22:00 (라스트 오더 21:30, 평일 브레이크 타임 15:00~16:30). 가성비가 좋은 초밥집으로 알려져 있으며, 세트 메뉴 구성이 잘 되어 있어 2인 이상 방문 시 이용하기 좋습니다. 대표 메뉴로 모둠 10p, 모둠 14p 등이 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "초밥과 튀김, 우동 등으로 구성된 세트 메뉴의 합리적인 가격과 높은 가성비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

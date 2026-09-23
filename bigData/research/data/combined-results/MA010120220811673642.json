@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220811673642",
+  "name": "일송",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 56088,
+  "researchedAt": "2026-09-22T12:19:51.188Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 웹 상 언급 없음"
+  },
+  "descriptors": {
+    "audience": "회·일식 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "고래고기",
+      "고등어회",
+      "초밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 비율에 대한 직접 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 감포로88번길 7에 위치한 '일송'은 비짓부산(Visit Busan) 외국어 메뉴판 지원 음식점 등으로 등록되어 있으며, 고래고기·고등어회·초밥 등을 취급하는 일식당입니다. 다만 온라인상의 일반 방문기나 상세 가격/영업시간 정보는 매우 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "정보 없음",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 일송, 주소: 부산광역시 수영구 감포로88번길 7 (민락동), 외국어 메뉴판 지원 음식점, 연락처: 051-244-7230",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "일송 전화번호: 051-244-7230, 고래고기, 고등어회, 초밥 등을 제공하는 일식 전문점",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고래고기, 고등어회 등 특색 있는 일식 회 및 요리를 제공함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

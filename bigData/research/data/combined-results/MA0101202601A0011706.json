@@ -1,0 +1,43 @@
+{
+  "id": "MA0101202601A0011706",
+  "name": "후후푸드",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60753,
+  "researchedAt": "2026-09-22T12:14:18.092Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": "부산 수영구 수영성로3번길 11 및 '후후푸드' 상호로 검색했으나 음식점 정보 및 후기가 전혀 존재하지 않습니다.",
+  "notes": "웹 검색(4회) 결과 해당 상호 및 주소지에 대한 식당 정보가 확인되지 않아 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

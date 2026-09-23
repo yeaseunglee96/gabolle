@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220812749322",
+  "name": "민락돼지국밥",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 111906,
+  "researchedAt": "2026-09-22T12:12:31.357Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 웨이팅에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "주민, 단골 로컬 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "막창국밥",
+      "막창순대",
+      "돼지국밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "08:00 - 22:00 (월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "화려한 관광지 식당보다는 민락골목시장 인근에서 동네 주민과 단골 현지인들이 주로 찾는 소박한 로컬 노포 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로277번길 28-13(민락동)에 위치한 민락돼지국밥으로, 흔치 않은 막창국밥과 막창순대(옛날순대)를 시그니처로 하는 로컬 노포 국밥집입니다. 전용 주차장이 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "연락처: 051-754-2988, 주소: 부산광역시 수영구 광안해변로277번길 28-13 (민락동 189-29). 막창국밥으로 알려진 곳으로, 오전 8시부터 밤 10시까지 영업하며, 월요일은 휴업하는 것으로 알려져 있습니다.",
+      "url": "https://suyeong.go.kr"
+    },
+    {
+      "excerpt": "일반적인 돼지국밥 외에도 부산에서 보기 드문 막창국밥과 막창순대(옛날순대)로 유명한 노포 스타일의 맛집입니다. 민락골목시장 인근에 위치하고 있으며 화려한 인테리어보다는 정감 가는 노포 분위기의 로컬 식당으로 동네 주민과 현지인들 사이에서 꾸준히 사랑받는 곳입니다. 전용 주차장이 따로 마련되어 있지 않습니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://suyeong.go.kr",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산에서 흔히 보기 힘든 막창국밥과 쫄깃한 막창순대(옛날순대)를 맛보기 위해 방문함",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "민락골목시장 부근에서 동네 주민과 단골들이 꾸준히 찾는 정감 있는 로컬 노포 식당 분위기 때문",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220807158774",
+  "name": "회석요리고옥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 67663,
+  "researchedAt": "2026-09-22T11:57:05.132Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "웨이팅이 긴 편이며, 재료 소진 시 조기 마감됨"
+  },
+  "descriptors": {
+    "audience": "남녀노소 및 가족·부모님 동반 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "히츠마부시",
+      "바다장어 히츠마부시"
+    ],
+    "yearsClaimed": 13
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 11:30~21:00 (브레이크타임 15:00~17:00), 매주 월요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 현지인과 외지 관광객 모두에게 히츠마부시 성지로 널리 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "상호명은 '회석요리고옥'으로도 사업자 등록되어 있으며, 대중적으로는 나고야식 장어덮밥(히츠마부시) 전문점 '고옥'으로 널리 알려져 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "히츠마부시",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "신선한 장어를 아침에 직접 손질하여 숯불에 구워내는 히츠마부시 전문점입니다. 장어의 부드럽고 쫄깃한 식감과 불향이 어우러진 맛으로 잘 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/P/324108"
+    },
+    {
+      "excerpt": "부산에서 히츠마부시(장어덮밥)를 유행시킨 유명한 식당입니다. 장어는 숯불에 구워 제공하며, 당일 준비된 재료가 소진되면 조기 마감합니다. 별도의 예약을 받지 않으며, 입점 순서대로 식사를 제공합니다.",
+      "url": "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201001001000&uc_seq=992"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/324108",
+    "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201001001000&uc_seq=992"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불 향이 가득 배어 부드럽고 쫄깃하며 비린 맛이 없는 고품질 장어덮밥 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산에 나고야식 히츠마부시(장어덮밥) 문화를 대중화하고 유행시킨 원조격 명소",
+      "sources": [
+        1
+      ],
+      "type": "원조·최초"
+    },
+    {
+      "note": "피크 시간대 웨이팅이 발생하고 재료 소진 시 조기 마감될 정도로 높은 인기와 수요",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

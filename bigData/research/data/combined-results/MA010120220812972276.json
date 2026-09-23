@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220812972276",
+  "name": "화목한식뷔페",
+  "cat": "뷔페",
+  "attempts": 1,
+  "geminiTokens": 75609,
+  "researchedAt": "2026-09-22T06:57:34.633Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 주민, 모임 손님",
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "한식 뷔페"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30~13:30"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광안동 화목오피스텔 내에 위치한 한식 뷔페로, 주로 점심 시간(11:30~13:30)에 운영되며 가성비 좋은 다양한 한식 요리를 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 수영로 668 (광안동), 화목오피스텔. 다양한 한식 요리를 가성비 좋게 즐길 수 있는 곳으로 알려져 있으며 광안역에서 도보 접근 가능하고 주차 공간이 마련되어 있다. 점심시간 11:30~13:30 운영.",
+      "url": "https://makemedal.com"
+    }
+  ],
+  "sources": [
+    "https://makemedal.com",
+    "https://albamon.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다양한 한식 요리를 합리적인 가격에 즐길 수 있는 가성비 한식 뷔페",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "수영역 및 광안리 인근 위치로 접근성이 편리하고 주차 공간 구비",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

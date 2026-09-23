@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202406A0596610",
+  "name": "크라클랑",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 75156,
+  "researchedAt": "2026-09-22T11:26:36.568Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 미존재",
+  "notes": "부산광역시 해운대구 좌동로 50 및 인근에 '크라클랑'이라는 경양식 음식점은 검색 및 확인되지 않습니다. (동명의 법인 (주)크라클랑은 금정구 소재 제과/베이커리 제조업체임)",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

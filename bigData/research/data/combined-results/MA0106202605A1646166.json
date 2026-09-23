@@ -1,0 +1,60 @@
+{
+  "id": "MA0106202605A1646166",
+  "name": "로열커리앤난",
+  "cat": "기타 동남아식 전문",
+  "attempts": 1,
+  "geminiTokens": 60533,
+  "researchedAt": "2026-09-22T06:56:25.721Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 무슬림/할랄 음식 선호 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "Curry",
+      "Naan"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "Monday–Sunday, 12:00 PM – 11:00 PM"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "할랄 푸드를 찾는 무슬림 관광객 및 외국인 방문객 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로 193 지하 1층에 위치했던 인도/파키스탄 요리 전문점으로, 영문명 'ROYAL CURRY AND NAAN'으로 등록되어 있습니다. 할랄 식재료를 사용한 커리와 난을 주 메뉴로 제공하며 최근 다수 플랫폼에서 폐업(Closed) 상태로 표시되기도 합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "ROYAL CURRY AND NAAN is an Indian and Pakistani restaurant located in B1, 193 Gwanganhaebyeon-ro, Suyeong-gu, Busan, South Korea. Operating Hours: Monday–Sunday, 12:00 PM – 11:00 PM. Category: Halal-friendly restaurant.",
+      "url": "https://www.wherehalal.com/"
+    }
+  ],
+  "sources": [
+    "https://www.wherehalal.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변 인근에서 할랄 인증 식재료로 조리한 정통 인도·파키스탄 커리와 난을 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

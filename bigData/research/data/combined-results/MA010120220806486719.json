@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220806486719",
+  "name": "오쪽이락",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 77013,
+  "researchedAt": "2026-09-22T11:42:28.202Z",
+  "crowding": {
+    "found": true,
+    "note": "광안리 인기 쪽갈비 맛집으로 주말 저녁 등 피크 시간대에는 웨이팅이 길어 캐치테이블 원격 줄서기 이용 권장"
+  },
+  "descriptors": {
+    "audience": "친구·연인·회식 모임",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "쪽갈비",
+      "돼지껍데기"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "일~목: 16:30 ~ 00:30 (라스트오더 23:30/24:00 표기 혼재), 금~토: 16:30 ~ 01:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 및 드론쇼 관람 동선과 인접해 관광객과 현지 손님 모두 자주 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락동(광안리) 소재 연탄·숯불 초벌구이 쪽갈비 및 껍데기 전문점. 인근 경동주차장 1시간 주차 지원 제공.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락로 7-7 (상운원룸 1층). 광안리 해수욕장에서 한 골목 뒤편에 위치해 있으며, 연탄불과 숯불로 미리 구워져 나오는 쪽갈비가 대표 메뉴입니다. 쪽갈비 외에도 돼지껍데기 맛집으로도 잘 알려져 있습니다. 인근 경동 주차장 1시간 지원을 제공합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "광안리 인기 맛집으로, 특히 주말 저녁에는 웨이팅이 긴 편입니다. '캐치테이블' 앱을 통해 미리 대기를 걸어두고 방문하는 것이 좋습니다. 친근한 포차 느낌의 인테리어로, 밥과 술을 함께 즐기기에 적합한 분위기라는 평이 많습니다. 쪽갈비가 맛있어서 웨이팅을 감수하고도 다시 찾게 된다, 숯불 향이 좋아 술안주로 제격이다라는 등의 긍정적인 후기들이 주로 검색됩니다. 주요 메뉴로는 쪽갈비가 가장 유명하며, 이외에도 생오겹살, 돼지껍데기 등을 판매하고 있습니다.",
+      "url": "https://blogsailing.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://blogsailing.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "연탄불과 숯불로 초벌되어 불향이 배어 있는 쪽갈비와 돼지껍데기의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주문한 고기가 미리 주방에서 다 구워져 나와 번거로움 없이 바로 먹을 수 있는 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "광안리 해수욕장 이면도로에 위치해 해변 관광 및 드론쇼 관람 전후 식사하기 좋은 위치",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

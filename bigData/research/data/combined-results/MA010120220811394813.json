@@ -1,0 +1,112 @@
+{
+  "id": "MA010120220811394813",
+  "name": "진미횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 144824,
+  "researchedAt": "2026-09-22T11:46:30.644Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "상시 극심한 대기보다는 주말·피크시간대 대기 발생 가능, 매장 내부는 넓고 테이블 간격이 여유로움"
+  },
+  "descriptors": {
+    "audience": "가족, 지인 모임 및 관광객·현지인 회식",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "세꼬시(눈꽃세꼬시)",
+      "광어",
+      "우럭",
+      "물회"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:40 ~ 21:30 (방문처 기준, 점심특선 11:00 ~ 17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산에서 세꼬시 맛집으로 유명하여 로컬 주민뿐만 아니라 타지에서 온 관광객/친구들에게도 추천하는 횟집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로 207에 위치한 광안대교 오션뷰 세꼬시 전문 횟집으로, 국내산 횟감 사용 및 점심특선(물회/회덮밥+매운탕 세트) 구성이 인기 있음. 주차 지원(등대주차장, KNC주차장) 가능.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/biKr0K/btsH2oR302Y/AAAAAAAAAAAAAAAAAAAAAPw_r6Gyx3eAw1mtJa5z79oV0AE9iJYHl7URZyuJD3kf/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=%2B6jnLuT%2FM1PmQvLtT%2Bv8Bkf2JvI%3D",
+    "https://blog.kakaocdn.net/dna/3Xfso/btsHZ9IaHTL/AAAAAAAAAAAAAAAAAAAAAJpz3X0q1lmKjTMK32n0hC6L8reT6pM8QKaAy-7Y22ZM/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=9m4TRWPM6Dk6KsmAxwm1iC7tkyw%3D",
+    "https://blog.kakaocdn.net/dna/PWebT/btsH01Q9KgR/AAAAAAAAAAAAAAAAAAAAALhiA8mVPwdFm7NDkY4_G_1vVwyj8ObWwFPey3BssFaI/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=iEE8DNYBCg71BnnDp21ABDwvCQY%3D",
+    "https://blog.kakaocdn.net/dna/FSQtn/btsH0mN1wvL/AAAAAAAAAAAAAAAAAAAAAPamiIZdNIBlNACWT6UgREX50dBeke0BZEFWurG0OPWW/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=GtGA8lTWzTLOeMw22CT12FZHpq8%3D",
+    "https://blog.kakaocdn.net/dna/bPEh06/btsH1NKpaJR/AAAAAAAAAAAAAAAAAAAAAPty18jx5P0PzorYv0Quj4e0OWWvVPRxaUbNOjpnhEGu/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=W1M5slPvQP44amXv9%2BePaHNRlIA%3D",
+    "https://blog.kakaocdn.net/dna/pYFr9/btsH0YTq0zU/AAAAAAAAAAAAAAAAAAAAALp1v1waS_jO-pA1ymXpSnDmc-emZQ3Ncj-4xP6wrhUn/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=laPq%2B%2BldAHlIv4XRjdCGqP8Tnl4%3D",
+    "https://blog.kakaocdn.net/dna/cb5G3O/btsH19GrHz4/AAAAAAAAAAAAAAAAAAAAAFU3-8fRDAw1MG29O8_FmNSuH62cE4LAD5HXTpon1EPW/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=1Atyr4Tnir0Ctnle96tTr5%2FzSDs%3D",
+    "https://blog.kakaocdn.net/dna/ekQIGg/btsH2a6qPaI/AAAAAAAAAAAAAAAAAAAAABjMuOEwUhPlmr0-yWuWiGO0f3hTerjAw7iRZLdR_2CJ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=9N%2F8kfb2xYQXOKtDfGNqfI%2B1CIk%3D",
+    "https://blog.kakaocdn.net/dna/1og9r/btsHUymH6Cj/AAAAAAAAAAAAAAAAAAAAALnNxF4nMIU-tag9B1Q8C3t3IGw0GMwD4AWIVvNzV3HA/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=TyAm302OSliAAF8vYLpB3t0lVIU%3D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "점심특선 물회+매운탕+식사 17,000원 (회덮밥 15,000원)",
+    "priceWon": 17000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산에서 세꼬시 맛집하면 바로 떠오르는 맛집일 만큼 굉장히 유명해요.",
+      "url": "https://youmssi-illsang.tistory.com/entry/%EC%A7%84%EB%AF%B8%ED%9A%9F%EC%A7%91-%EB%B6%80%EC%82%B0-%EA%B4%91%EC%95%88%EB%A6%AC-%EC%98%A4%EC%85%98%EB%B7%B0-%EC%84%B8%EA%BC%AC%EC%8B%9C-%EB%AC%BC%ED%9A%8C-%EB%A7%9B%EC%A7%91-%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EC%86%94%EC%A7%81%ED%9B%84%EA%B8%B0"
+    },
+    {
+      "excerpt": "주차는 등대 주차장과 KNC 주차장을 이용하시면 되고, 식사손님은 1시간, 회 손님은 1시간 30분 주차가 지원된다고 해요.",
+      "url": "https://youmssi-illsang.tistory.com/entry/%EC%A7%84%EB%AF%B8%ED%9A%9F%EC%A7%91-%EB%B6%80%EC%82%B0-%EA%B4%91%EC%95%88%EB%A6%AC-%EC%98%A4%EC%85%98%EB%B7%B0-%EC%84%B8%EA%BC%AC%EC%8B%9C-%EB%AC%BC%ED%9A%8C-%EB%A7%9B%EC%A7%91-%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EC%86%94%EC%A7%81%ED%9B%84%EA%B8%B0"
+    },
+    {
+      "excerpt": "무엇보다 진미횟집은 매월 방사능 검사를 하는 방사능안심존 인증을 받은 곳이며, 회 종류는 수입산 없이 모두 국내산이라고 해서 믿음이 갔습니다. 매장 내부 역시 넓고 깔끔한 느낌이었습니다. 매장 내에 테이블도 굉장히 많았고 테이블 간 간격이 넓은 편이라 답답하지 않아서 좋았어요.",
+      "url": "https://youmssi-illsang.tistory.com/entry/%EC%A7%84%EB%AF%B8%ED%9A%9F%EC%A7%91-%EB%B6%80%EC%82%B0-%EA%B4%91%EC%95%88%EB%A6%AC-%EC%98%A4%EC%85%98%EB%B7%B0-%EC%84%B8%EA%BC%AC%EC%8B%9C-%EB%AC%BC%ED%9A%8C-%EB%A7%9B%EC%A7%91-%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EC%86%94%EC%A7%81%ED%9B%84%EA%B8%B0"
+    },
+    {
+      "excerpt": "메뉴는 회 메뉴와 사이드 메뉴로 나뉘는데, 회 메뉴는 세꼬시, 광어, 우럭을 주문할 수 있고, 사이드 메뉴로는 회덮밥, 물회, 멍게, 새우튀김, 생우럭탕, 생우럭찜 등을 주문할 수 있었습니다. 제가 방문했을 때는 회덮밥이 12,000원, 물회가 14,000원이었는데 6월 1일부터는 회덮밥 15,000원, 물회 17,000원으로 가격이 인상한다고 합니다.",
+      "url": "https://youmssi-illsang.tistory.com/entry/%EC%A7%84%EB%AF%B8%ED%9A%9F%EC%A7%91-%EB%B6%80%EC%82%B0-%EA%B4%91%EC%95%88%EB%A6%AC-%EC%98%A4%EC%85%98%EB%B7%B0-%EC%84%B8%EA%BC%AC%EC%8B%9C-%EB%AC%BC%ED%9A%8C-%EB%A7%9B%EC%A7%91-%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EC%86%94%EC%A7%81%ED%9B%84%EA%B8%B0"
+    },
+    {
+      "excerpt": "물회 맛있게 먹으면서 광안대교뷰도 보면서 힐링 제대로 했습니다. 타지에서 부산에 놀러 오는 친구들에게도 추천할 만한 로컬 찐맛집인 것 같아요.",
+      "url": "https://youmssi-illsang.tistory.com/entry/%EC%A7%84%EB%AF%B8%ED%9A%9F%EC%A7%91-%EB%B6%80%EC%82%B0-%EA%B4%91%EC%95%88%EB%A6%AC-%EC%98%A4%EC%85%98%EB%B7%B0-%EC%84%B8%EA%BC%AC%EC%8B%9C-%EB%AC%BC%ED%9A%8C-%EB%A7%9B%EC%A7%91-%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EC%86%94%EC%A7%81%ED%9B%84%EA%B8%B0"
+    }
+  ],
+  "sources": [
+    "https://youmssi-illsang.tistory.com/entry/%EC%A7%84%EB%AF%B8%ED%9A%9F%EC%A7%91-%EB%B6%80%EC%82%B0-%EA%B4%91%EC%95%88%EB%A6%AC-%EC%98%A4%EC%85%98%EB%B7%B0-%EC%84%B8%EA%BC%AC%EC%8B%9C-%EB%AC%BC%ED%9A%8C-%EB%A7%9B%EC%A7%91-%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EC%86%94%EC%A7%81%ED%9B%84%EA%B8%B0"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산 대표 세꼬시 맛집으로 신선하고 담백한 국내산 활어회와 세꼬시의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 바닷가 바로 앞 탁 트인 광안대교 오션뷰 전경 조망 가능",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "물회나 회덮밥 주문 시 매운탕과 공깃밥이 포함된 알찬 점심특선 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "타지 관광객뿐만 아니라 현지인에게도 널리 알려진 로컬 인증 횟집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

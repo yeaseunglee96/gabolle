@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202604A0034832",
+  "name": "박스밀전포점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 88125,
+  "researchedAt": "2026-09-22T11:53:21.758Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 상세 정보 부재 및 폐업 추정 (해당 주소지 현재 타 업체 운영 중)",
+  "notes": "부산광역시 부산진구 서전로 62-1에 위치했던 것으로 보이는 '박스밀전포점'은 과거 맛집/식당 디렉토리에 상호만 일부 남아있을 뿐, 실제 운영 상세 정보(메뉴, 가격, 영업시간, 방문자 리뷰)가 공개 웹상에 남아있지 않으며, 현재 해당 주소지에는 '조장'(닭구이) 등 다른 매장이 운영 중인 것으로 확인되어 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

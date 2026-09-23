@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220812827502",
+  "name": "고메빵집",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 89537,
+  "researchedAt": "2026-09-22T12:05:01.428Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 대기 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 해리단길 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "시오빵(소금빵)",
+      "고메빵",
+      "앙버터",
+      "치즈팡도미"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 8시부터 오후 9시 30분까지 (08:00 ~ 21:30, 요일별 상이할 수 있음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길에 위치하여 방문객들이 가볍게 들르기 좋은 동네 빵집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "해운대 해리단길에 위치한 동네 베이커리로 소금빵(시오빵)과 고메빵 등이 대표 메뉴입니다. 주차 및 포장/배달이 가능한 것으로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "시오빵 2,000원, 앙버터 3,900원, 치즈팡도미 4,000원, 고메빵 5,500원, 꽈배기 1,700원",
+    "priceWon": 2000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 우동1로 66 1층. 해리단길 내에 위치한 동네 빵집으로, 다양한 빵을 판매하고 있습니다. 식빵, 도넛, 샌드위치, 마들렌, 쿠키, 케이크 등을 취급하며 포장 및 배달이 가능합니다. 고메빵: 5,500원, 치즈팡도미: 4,000원, 앙버터: 3,900원, 시오빵(소금빵): 2,000원, 꽈배기: 1,700원. 시오빵에 대한 평이 대체로 좋은 편이며, 가볍게 들르기 좋은 평범한 동네 빵집이라는 평가가 많습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "부산 해운대구 우동1로 66 1층. 영업시간은 보통 오전 8시부터 오후 9시 30분까지 운영하는 것으로 알려져 있습니다. (051-901-9114)",
+      "url": "https://redtable.global"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://redtable.global"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "가볍게 방문해 즐길 수 있는 시오빵(소금빵)과 다양한 베이커리 메뉴의 대중적인 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해리단길 인근에서 접근하기 편하고 포장/배달/주차가 가능한 동네 빵집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

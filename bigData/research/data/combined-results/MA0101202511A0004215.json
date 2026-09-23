@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202511A0004215",
+  "name": "블러드문",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 45501,
+  "researchedAt": "2026-09-22T11:45:27.067Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 또는 대기 혼잡에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "서브컬처 팬 및 이색 컨셉카페 이용객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "음료",
+      "칵테일",
+      "체키(폴라로이드)"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 16:00 ~ 22:00, 주말 13:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 부산진구 중앙대로702번길 27-8 3층에 위치한 '블러드문'은 경양식 일반음식점이 아닌 남장여자 뱀파이어 테마의 컨셉카페(집사카페)로 확인되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "입장료 10,000원, 음료 12,000원, 칵테일 15,900원, 체키 14,900원",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "블러드문(Blood Moon)은 부산광역시 부산진구 중앙대로702번길 27-8, 3층에 위치한 뱀파이어 세계관을 기반으로 한 남장여자 컨셉카페이다. 영업시간은 평일 16:00 ~ 22:00, 주말 13:00 ~ 22:00이며 1인 1음료 주문이 필수이다. 캐스트들이 손님을 방치하는 일이 거의 없고, 매주 코스프레 데이 등 독특한 테마 이벤트가 활발하게 진행된다.",
+      "url": "https://namu.wiki/"
+    }
+  ],
+  "sources": [
+    "https://namu.wiki/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산 최초 남장여자 뱀파이어 세계관 컨셉과 방치 없는 밀착 소통 서비스",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220808601139",
+  "name": "미식육",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 59849,
+  "researchedAt": "2026-09-22T11:36:38.451Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "반려견 동반 손님 및 가족 단위 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한돈 생대패 삼겹살",
+      "한돈 목살",
+      "애견 전용 메뉴(한우/한돈)"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안해변로344번길 9-5에 위치했던 '미식육'은 솥뚜껑에 한돈 생대패 삼겹살 및 목살 등을 구워 먹고 반려견 동반 및 반려견 전용 메뉴를 제공하던 고깃집이었으며, 현재는 동일 위치에서 일본식 소고기 전문점 '비쇼쿠(Bishoku)'로 상호 및 업종이 변경되어 운영 중입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 광안해변로344번길 9-5 (민락동) 미식육. 솥뚜껑 구이 방식으로 김치, 고사리, 콩나물 등을 함께 구워 먹는 것이 특징이며 반려견과 함께 방문할 수 있는 식당으로 반려견을 위한 전용 메뉴(한우/한돈)도 구비. 1~3층 규모로 프라이빗한 룸 및 야외 테라스 좌석 마련. 인근 수변공원 공용주차장 이용 가능. 현재는 비쇼쿠(한우 야끼니꾸)로 변경되어 운영 중.",
+      "url": "https://ban-life.com"
+    }
+  ],
+  "sources": [
+    "https://ban-life.com",
+    "https://busans.com",
+    "https://ktriptips.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대형 솥뚜껑에 생대패 삼겹살과 다양한 채소를 함께 구워 먹는 재미가 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "반려견 동반이 가능하며 반려견 전용 고기 메뉴와 프라이빗 룸/테라스를 갖춤",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

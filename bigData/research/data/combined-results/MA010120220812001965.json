@@ -1,0 +1,51 @@
+{
+  "id": "MA010120220812001965",
+  "name": "플래터다하",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59766,
+  "researchedAt": "2026-09-22T06:40:43.640Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 북구 의성로115번길 15 2층에 외국음식/경양식 일반음식점 등록 이력(상호: 플래터다하)은 확인되나, 블로그 리뷰, 세부 메뉴, 가격, 영업시간 등 방문 후기 및 상세 운영 정보가 웹상에 거의 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 의성로115번길 15 (덕천동) 2층 플래터다하 음식점 (외국음식)",
+      "url": "https://www.albamon.com"
+    },
+    {
+      "excerpt": "부산광역시 북구 덕천동 412-28, 2층 플래터다하 업종 외국 음식",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://www.albamon.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

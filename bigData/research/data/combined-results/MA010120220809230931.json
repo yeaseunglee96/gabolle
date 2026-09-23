@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220809230931",
+  "name": "모녀주방",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 64792,
+  "researchedAt": "2026-09-22T12:18:52.306Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 관한 정보가 언급되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족/어린이 동반 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모녀 돈까스",
+      "옛날 돈까스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송수초등학교 앞 상가에 위치하여 인근 가족 단위 현지 주민 중심 방문"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해운대구 재송동 센텀휴상가 1층(송수초등학교 앞)에 위치한 경양식/돈까스 음식점으로, 키즈 맞춤 메뉴 및 합리적인 가격의 돈까스를 제공함. 온라인 상세 리뷰가 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 해운대로76번길 16 (재송동, 센텀휴상가 1층) 특징: 합리적인 가격의 양식당으로, 아이들을 위한 맞춤형 '아이 한상 키즈 메뉴'가 있어 가족 단위 방문객에게 인기가 있습니다. 송수초등학교 바로 앞에 위치하고 있습니다. 대표 메뉴: 모녀 돈까스, 옛날 돈까스 등",
+      "url": "https://mom-mom.net"
+    }
+  ],
+  "sources": [
+    "https://mom-mom.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아이 한상 키즈 메뉴 등 가족 단위 방문에 맞춘 합리적인 가격대의 양식 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

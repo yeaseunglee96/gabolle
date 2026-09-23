@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202307A0045386",
+  "name": "토종진순대",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 58234,
+  "researchedAt": "2026-09-22T11:41:28.692Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "순대국",
+      "순대"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광객 대상 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 수영로521번길 5(광안동 337-26)에 위치한 국/탕/일반음식점(토종진순대, 051-753-3515)으로 실제 등록 업체이나 온라인 리뷰/블로그 기록이 극히 적은 로컬 소상공인 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 수영로521번길 5 (광안동 337-26) / 전화번호: 051-753-3515 / 토종진순대 일반음식점",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네 인근에서 순대 및 순대국 등 식사를 해결할 수 있는 일상적인 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

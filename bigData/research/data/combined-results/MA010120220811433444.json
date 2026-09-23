@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220811433444",
+  "name": "동방명주",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 43666,
+  "researchedAt": "2026-09-22T11:43:32.005Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기줄에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 직장인, 혼밥족, 광안리 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짬뽕",
+      "군만두",
+      "탕수육",
+      "깐풍기"
+    ],
+    "yearsClaimed": 15
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00~22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "화교가 운영하는 광안리 인근 전통 중식당으로 현지 주민과 광안리 방문객들이 두루 찾는 곳으로 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 남천바다로 31에 위치한 화교 운영 중식당으로, 수제 군만두와 짬뽕, 탕수육 등이 대표 메뉴로 알려져 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "군만두 대 6,000원(과거 기준) 등 보통의 중식당 가격대 형성",
+    "priceWon": 6000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동방명주는 부산광역시 수영구 남천바다로 31에 위치한 중식당입니다. 화교가 운영하는 전통 중식당으로, 광안리 해수욕장 인근에서 오랫동안 자리를 지켜온 맛집으로 알려져 있습니다. 대표 메뉴: 짬뽕, 탕수육, 그리고 육즙이 풍부한 군만두가 특히 유명합니다. 군만두는 매일 아침 직접 빚어 만드는 것으로 잘 알려져 있습니다. 영업 시간: 일반적으로 10:00~22:00에 운영되나, 방문 전 확인을 권장합니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "화교가 직접 운영하는 식당으로, 중국 산둥성 스타일의 중식을 맛볼 수 있는 곳으로 알려져 있습니다. 특히 깐풍기나 탕수육 같은 요리류와 짬뽕 등이 인기 메뉴입니다. 영업시간: 매일 10:00~22:00 전화번호: 051-753-8885",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://www.suyeong.go.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매일 아침 직접 빚어내는 육즙 풍부한 수제 군만두와 산둥식 짬뽕의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "화교가 직접 운영하며 광안리 해수욕장 인근에서 오랫동안 자리를 지켜온 전통 중식당",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "오랜 역사"
+    }
+  ]
+}

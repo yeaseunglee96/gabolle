@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202504A0090609",
+  "name": "몽삼",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 74465,
+  "researchedAt": "2026-09-22T12:19:48.347Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "등갈비구이",
+      "오돌뼈 주먹밥"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:00 - 23:00 (라스트오더 21:50), 매주 월요일 정기 휴무"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산광역시 수영구 남천바다로 34에 위치한 등갈비구이 전문점 '몽삼(광안리 본점)'으로 확인되며 백반/한정식보다는 숯불 등갈비 전문 고깃집에 가깝습니다. 주차는 불가하며 인근 공영주차장(수영구청 등)을 권장합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 남천바다로 34, 1층에 위치한 등갈비 전문점으로 숯불향을 입힌 등갈비가 대표 메뉴이며 오돌뼈 주먹밥, 계란찜, 묵사발 등의 메뉴를 함께 즐길 수 있습니다. 매일 오후 4시부터 오후 11시까지 운영하며 매주 월요일은 정기 휴무입니다. 주차 지원은 불가합니다.",
+      "url": "https://www.albamon.com"
+    }
+  ],
+  "sources": [
+    "https://www.albamon.com",
+    "https://www.alba.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불향을 입힌 등갈비구이와 주먹밥 등 곁들임 메뉴를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

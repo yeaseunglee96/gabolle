@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202604A0021428",
+  "name": "클래식바노블",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 76800,
+  "researchedAt": "2026-09-22T11:54:36.824Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 상호 및 주소지에 일치하는 경양식 음식점 정보를 찾을 수 없음",
+  "notes": "해당 주소(부산 수영구 남천바다로15번길 7) 및 '클래식바노블' 상호로 검색한 결과 일치하는 업소 정보가 존재하지 않습니다. 해당 주소지는 숙박시설(펜션)로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

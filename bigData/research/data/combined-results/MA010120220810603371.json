@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220810603371",
+  "name": "아구마을",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 59749,
+  "researchedAt": "2026-09-22T05:57:27.861Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산진구 백양순환로 110 주소지에 '아구마을' 상호의 사업체 등록 이력은 확인되나, 온라인 블로그 및 상세 방문 후기, 메뉴/가격, 영업시간 등의 세부 정량 정보는 공개되어 있지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 백양순환로 110에 위치한 '아구마을'은 한식 해산물 요리 전문점으로 등록되어 있습니다. 해당 주소지에서 운영 중인 개인사업체로 확인됩니다.",
+      "url": "https://www.saramin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220803866794",
+  "name": "제스터",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 51843,
+  "researchedAt": "2026-09-22T10:44:33.065Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "젊은층·연인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "푸딩 케이크",
+      "커피"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 ~ 22:00 (라스트 오더 21:30), 연중무휴"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해리단길 골목에 위치하여 젊은 층과 방문객들이 주로 찾는 주택 개조 감성 카페"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "상호명은 일반음식점/경양식 업종 코드로 등록되어 있을 수 있으나 실제로는 해운대 해리단길의 주택 개조 디저트 카페로 운영됨",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "커피 및 디저트",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "골목 어귀의 화살표 간판을 따라 들어가면 나타나는 잔디가 깔린 마당과 야외 테이블이 특징이며, 주택 개조형 카페 특유의 아늑한 감성을 느낄 수 있습니다. 여럿이서 함께 방문해도 편안하게 앉을 수 있을 만큼 넉넉한 좌석을 갖추고 있습니다. 합리적인 가격의 커피 메뉴가 있으며, 푸딩 케이크가 시그니처 메뉴로 알려져 있습니다.",
+      "url": "https://pandarank.net"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 우동1로38번가길 7-5 1층. 영업시간: 10:30 ~ 22:00 (라스트 오더 21:30), 연중무휴. 젊은 층에게 인기가 많은 해리단길의 카페로, 분위기 있는 인테리어가 특징입니다.",
+      "url": "https://cn.hanchao.com"
+    }
+  ],
+  "sources": [
+    "https://pandarank.net",
+    "https://cn.hanchao.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "마당과 야외 테이블을 갖춘 주택 개조 특유의 아늑한 인테리어와 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "푸딩 케이크 등 시그니처 디저트와 합리적인 가격의 커피 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

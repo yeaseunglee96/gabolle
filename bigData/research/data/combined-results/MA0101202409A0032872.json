@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202409A0032872",
+  "name": "그로토",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 62658,
+  "researchedAt": "2026-09-22T11:15:07.283Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "호텔 투숙객 및 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 2023
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "19:00~02:00 (매주 수요일 휴무 / 호텔 운영 상황에 따라 임시 휴장 또는 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "호텔 투숙객 중심의 관광객 이용 부대시설"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 위치(송정광어골로 11)는 2023년 개관한 '더 쿨리스트 호텔(The Coolest Hotel)'이며, 지하 1층에 위치한 '그로토(Grotto Bar)'는 호텔 내 식당/바 부대시설로 등록된 공간입니다. 단독 경양식 레스토랑보다는 호텔 조식 공간 겸 바로 운영되며 현재 임시 휴장 상태로 안내되는 경우가 많습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "더 쿨리스트 호텔 부대시설 안내: 호텔 지하 1층(B1F)에 위치한 그로토 바(Grotto Bar)와 조식을 제공하는 식당으로 운영되는 공간입니다. 운영 시간: 19:00~02:00 (매주 수요일 휴무)",
+      "url": "https://www.agoda.com"
+    },
+    {
+      "excerpt": "부대시설: 지하 1층 그로토(Grotto) - 임시 휴장 상태로 기재되어 있는 경우가 많으니 방문 전 호텔 측에 운영 여부를 직접 확인하시는 것이 가장 정확합니다.",
+      "url": "https://www.yeogi.com"
+    }
+  ],
+  "sources": [
+    "https://www.agoda.com",
+    "https://www.yeogi.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송정 해변 앞 감성 호텔인 더 쿨리스트 호텔 투숙객들이 이용하는 지하 1층 감성 바/조식 시설",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

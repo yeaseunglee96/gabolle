@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220811470821",
+  "name": "일품한우",
+  "cat": "소고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 99191,
+  "researchedAt": "2026-09-22T06:57:14.763Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "프라이빗 룸 위주 구성으로 사전 예약 방문이 잦고, 대기보다는 예약 위주로 이용됨"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 비즈니스 접대, 귀빈 회식, 외국인 손님 접대",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "상강꽃갈비",
+      "한우생갈비",
+      "한우스테이크등심"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 11:30 ~ 24:00, 일요일 11:30 ~ 22:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 현지 접대 및 가족 외식뿐 아니라 유명인사(BTS 뷔, 봉준호 감독 등) 방문 및 관광객/외국인 손님 접대로도 자주 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "특허받은 상강꽃갈비와 최상급 한우, 전 객실 프라이빗 룸 및 그릴링 서비스로 고급 접대·외식 수요가 매우 높음. 네이버·카카오 지도 응답 제외 및 원문 정보 바탕 작성.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "상강꽃갈비(250g) 약 109,000~119,000원 / 한우생갈비(180g) 약 54,000~57,000원 선",
+    "priceWon": 109000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "일품한우는 부산광역시 해운대구 해운대로570번길 49에 위치한 고급 한우 전문점으로 특허받은 상강꽃갈비, 생등심, 생갈비 등 최상급 한우를 취급하며 프라이빗한 룸과 직원이 직접 고기를 구워주는 그릴링 서비스를 제공한다. 전용 주차장을 갖추고 있으며 BTS 뷔, 봉준호 감독 등 유명 인사가 방문한 곳으로도 유명하다.",
+      "url": "https://www.siksinhot.com/P/365518"
+    },
+    {
+      "excerpt": "월요일~토요일 11:30~24:00, 일요일 11:30~22:00 연중무휴로 운영되며, 주요 메뉴로는 상강꽃갈비, 한우생갈비, 한우스테이크등심 등이 있다. 건물 뒷편 전용 주차장을 이용할 수 있다.",
+      "url": "https://tripinfo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/365518",
+    "https://tripinfo.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "특허받은 상강꽃갈비 및 1++ 등급 최상급 한우 고기의 부드러운 육질과 깊은 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "프라이빗 개별 룸 완비 및 직원이 직접 고기를 구워주는 친절한 그릴링 서비스 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "BTS 뷔, 봉준호 감독 등 유명인사 및 명사 방문 명소이자 접대·모임 특화 시설",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

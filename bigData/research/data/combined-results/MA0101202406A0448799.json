@@ -1,0 +1,43 @@
+{
+  "id": "MA0101202406A0448799",
+  "name": "사루오뎅",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 145840,
+  "researchedAt": "2026-09-22T06:40:28.373Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "-",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "부산광역시 북구 만덕대로 68 소재 사루오뎅의 실제 운영 정보(후기, 메뉴, 영업시간, 사진 등)를 찾을 수 없음",
+  "notes": "부산광역시 북구 만덕대로 68에 등록된 '사루오뎅'은 전화번호(051-334-7449) 및 사업체 등록 데이터베이스 외에 실제 방문기, 블로그 후기, 메뉴, 영업시간, 사진 등의 상세 정보를 웹상에서 찾을 수 없습니다 (서울 방이동 동명 매장만 후기 확인됨).",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.linktoplace.com/ko/place/313516/%EC%82%AC%EB%25A3%25A8%EC%98%A4%EB%8D%B5"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220810524585",
+  "name": "옛날왕돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60986,
+  "researchedAt": "2026-09-22T12:04:25.982Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "별도의 대기줄이나 웨이팅 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 해변 방문객, 단골손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 왕돈까스"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송도해수욕장 해변가 골목에서 10년 이상 영업하며 인근 현지인 단골이 자주 찾는 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 송도해수욕장 인근 골목에 위치한 수제 경양식 돈까스 전문점으로, 돈까스 외에 아구찜, 대구뽈찜 등 식사 및 안주류를 함께 취급하는 로컬 식당.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "수제 왕돈까스",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 서구 암남동(송도해수욕장 인근)에 위치한 '옛날왕돈까스'. 송도해수욕장 해변가 골목에 위치해 있으며, 오픈한 지 10년 이상 된 현지인들도 자주 찾는 로컬 맛집입니다. 수제 왕돈까스 외에도 아구찜, 대구뽈찜 등 다양한 메뉴를 함께 판매하여 식사와 술자리 모두 가능한 곳으로 알려져 있습니다. 돈까스는 양이 푸짐하고 소스가 듬뿍 뿌려져 나오는 전형적인 옛날식 경양식 스타일이라는 평이 많습니다. 영업시간: 11:00 ~ 21:00. 수제 왕돈까스 가격은 8,000원.",
+      "url": "https://badaon.or.kr"
+    }
+  ],
+  "sources": [
+    "https://badaon.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "푸짐한 양에 소스가 듬뿍 뿌려진 클래식한 옛날식 수제 왕돈까스 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "8,000원대 가격으로 든든하게 한 끼를 해결할 수 있는 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "10년 이상 한자리에서 운영하며 형성된 현지인 단골들의 로컬 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

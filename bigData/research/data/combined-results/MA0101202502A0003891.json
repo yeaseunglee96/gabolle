@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202502A0003891",
+  "name": "부산샌드",
+  "cat": "피자",
+  "attempts": 1,
+  "geminiTokens": 68864,
+  "researchedAt": "2026-09-22T12:05:12.216Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "여행객·선물용",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리지널 버터샌드",
+      "산딸기 버터샌드",
+      "블루베리 버터샌드",
+      "초코 버터샌드"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 - 20:00 (또는 10:00 - 21:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 여행 기념품 및 답례품, 선물용으로 찾는 관광객 중심 디저트 매장"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "사용자 요청 상 '피자 업종'으로 분류되어 지정되었으나, 실제 해당 주소의 '부산샌드'는 피자가 아닌 버터샌드/수제쿠키 디저트 전문 브랜드 매장입니다.",
+  "photoUrls": [
+    "https://busansand.co.kr/images/section_bg/BSM_%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%8001_2025060201_noHeader.png",
+    "https://busansand.co.kr/images/thumbnail/BSM_%EC%98%A8%EB%9D%BC%EC%9D%B8%EC%87%BC%ED%95%91%EB%AA%B0_%EC%8D%B8%EB%84%A4%EC%9D%BC_%EA%B8%B0%EB%B3%B801_2025050702.png"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "오리지널 버터샌드 17,000원 / 산딸기·블루베리·초코 18,000원",
+    "priceWon": 17000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부드럽고 달콤한 파도가 밀려옵니다. 입안에 번지는 부산의 맛, 부산샌드. 부산을 대표하는 수제 디저트 브랜드입니다. 부산 해운대구 우동1로 13-29 1층. 가격대: ₩17,000 ~ ₩18,000. 디저트, 커피. 감사한 마음을 전하는 특별한 수제 디저트, 쿠키 답례품, 고급 돌 답례품, 집들이 선물",
+      "url": "https://busansand.co.kr/"
+    },
+    {
+      "excerpt": "달콤한 부산의 매력, '부산샌드': 해운대 해리단길에 자리한 '부산샌드'. 주소: 부산 해운대구 우동1로 13-29 1층, 운영시간: 매일 10:00~20:00, 교통정보: 해운대역 4번 출구에서 도보 약 5분 거리",
+      "url": "https://www.visitbusan.net/"
+    }
+  ],
+  "sources": [
+    "https://busansand.co.kr/",
+    "https://www.visitbusan.net/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산 천연 꿀과 버터를 활용한 부산 대표 수제 버터샌드로 여행 기념품 및 선물용 수요가 높음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

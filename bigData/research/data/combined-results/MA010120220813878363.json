@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220813878363",
+  "name": "포트",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 63121,
+  "researchedAt": "2026-09-22T11:13:33.423Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "전석 오션뷰 개별 룸 및 테이블 좌석 구비, 사전 예약 권장"
+  },
+  "descriptors": {
+    "audience": "가족 및 연인, 반려견 동반 손님",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "제주 흑돼지 오겹살",
+      "목살",
+      "양념오돌갈비"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 23:00 (라스트오더 21:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 직접적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "과거 카페 '포트1902'가 있던 자리에 오픈한 제주 돼지고기 구이 전문점으로, 전석 파노라마 오션뷰와 직원이 고기를 직접 구워주는 그릴링 서비스, 개별 룸 및 반려동물 동반 시설을 갖추고 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "오겹살/목살 세트",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "송정 바다를 조망하며 식사할 수 있는 환경입니다. 고기가 초벌되어 나오며, 직원이 직접 구워주어 편리하게 식사할 수 있습니다. 프라이빗한 개별 룸을 갖추고 있어 가족 모임이나 아이와 함께 방문하기에도 좋은 곳으로 알려져 있습니다. 매일 12:00 ~ 23:00 운영.",
+      "url": "https://www.siksinhot.com/P/1608975"
+    },
+    {
+      "excerpt": "오션뷰 프리미엄 레스토랑으로, 주로 제주 돼지고기(오겹살, 목살 등)를 판매하며 직원이 고기를 초벌하고 직접 구워주는 서비스를 제공합니다. 반려동물 동반이 가능하며 실내 애견 침대가 마련되어 있습니다.",
+      "url": "https://ban-life.com/place/14995"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1608975",
+    "https://ban-life.com/place/14995"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송정 구덕포 바다가 한눈에 들어오는 오션뷰와 프라이빗 개별 룸 구비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "초벌된 제주 돼지고기(오겹살, 목살)를 직원이 직접 구워주는 그릴링 서비스",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "반려동물 전용 침대 등 반려견 동반 가능한 식사 환경 제공",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

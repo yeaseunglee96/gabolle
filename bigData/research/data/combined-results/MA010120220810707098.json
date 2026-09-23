@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220810707098",
+  "name": "주공감자탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 60149,
+  "researchedAt": "2026-09-22T06:47:52.539Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "아파트 단지 인근 주민",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "감자탕"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "모라주공 영구임대아파트 상가 내 입점한 소규모 동네 식당으로 인근 주민 위주 이용 추정"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "사상구청 행정 데이터 및 부동산 상가 목록상 모라주공아파트 상가에 입점한 사업체로 확인되나, 인터넷 블로그 후기나 사진, 메뉴판 가격 및 영업시간 등 상세 정보는 거의 등록되어 있지 않은 동네 소규모 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 모라로192번길 24, 모라주공영구임대아파트 상가동 204호 주공감자탕",
+      "url": "https://www.sasang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "모라주공아파트 상가 내에 위치하여 인근 주민들의 식사 접근성이 높음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

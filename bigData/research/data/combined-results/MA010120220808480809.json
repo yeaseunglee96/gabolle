@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220808480809",
+  "name": "떼떼오네",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 46722,
+  "researchedAt": "2026-09-22T12:14:45.876Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "최대 정원 6명 규모의 소규모 ㄱ자 바 좌석 형태로 운영되어 조용하며 예약 위주 방문"
+  },
+  "descriptors": {
+    "audience": "와인 및 미식을 즐기는 연인이나 소규모 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 비프 타르타르",
+      "능이 오리 라구 파스타",
+      "전복 내장 파스타",
+      "데미 오무라이스"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 15:00~24:00 (라스트오더 23:00), 토요일 12:00~24:00 (라스트오더 23:00), 일요일 12:00~18:00 (라스트오더 17:00), 매주 월·화요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 14,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 전포동에 위치한 창의적인 양식 다이닝 바/경양식 요리 전문점으로 제철 식재료와 와인 페어링을 선보임",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "능이 오리 라구 파스타 30,000원, 한우 비프 타르타르 25,000원, 전복 내장 파스타 25,000원, 데미 오무라이스 16,000원 등",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 동성로25번길 35 (전포동). 국적에 제한 없는 창의적인 요리를 제공하며, 수준 높은 술안주와 식사를 함께 즐길 수 있는 공간. 바(Bar) 형태의 좌석이 있어 셰프와 소통하기 좋고 조용한 분위기를 갖추고 있습니다. 평일 15:00 ~ 24:00 (라스트 오더 23:00), 토요일 12:00 ~ 24:00, 일요일 12:00 ~ 18:00, 매주 월, 화요일 휴무.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "6명이 최대 정원인 ㄱ자 형태의 바(Bar) 구조로 되어 있어 분위기가 조용하고 셰프와 소통하기 좋은 곳. 제철 재료를 활용하여 파스타, 타파스 등 다양한 양식 요리와 함께 와인을 즐길 수 있는 다이닝 바.",
+      "url": "https://fromswing.tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://fromswing.tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제철 식재료를 창의적으로 재해석한 수준 높은 양식 및 타파스 요리와 와인 페어링",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "최대 6인 규모의 아늑한 ㄱ자 바 좌석에서 셰프와 교감할 수 있는 조용한 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

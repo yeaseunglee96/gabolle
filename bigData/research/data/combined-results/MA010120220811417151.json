@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220811417151",
+  "name": "줌",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 88179,
+  "researchedAt": "2026-09-22T07:05:07.340Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 없음",
+  "notes": "부산광역시 수영구 광남로 168 위치의 경양식 업종 '줌' 관련 정보가 웹상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

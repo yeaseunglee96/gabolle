@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220806437167",
+  "name": "이앤디스튜디오",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 53017,
+  "researchedAt": "2026-09-22T11:56:01.436Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 특정 시즌에 대기(웨이팅)가 발생할 수 있는 인기 디저트 카페로 언급됨"
+  },
+  "descriptors": {
+    "audience": "디저트/카페 애호가, 2030 여성 및 연인 단위 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "과일 롤 크레이프 케이크",
+      "샌드베이글",
+      "망고 샌드베이글"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 19:00 (화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 전용 언급 구분 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안리에 위치한 과일 롤 크레이프 및 과일 샌드베이글 전문 디저트 카페로, 감성적인 인테리어와 예쁜 디저트 비주얼로 잘 알려져 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "과일 롤 크레이프 케이크류",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이앤디스튜디오 (E&D Studio)는 부산 수영구 광안리 해변 근처에 위치한 디저트 카페입니다. 주소: 부산광역시 수영구 수영로540번길 26 1층, 영업시간: 12:00 ~ 19:00 (화요일 휴무). 감각적인 포스터와 아기자기한 소품으로 꾸며진 인테리어가 특징인 곳입니다. 과일 롤 크레이프가 대표 메뉴로 잘 알려져 있으며, 최근에는 다양한 과일과 크림치즈를 채운 '샌드베이글'로도 인기를 얻고 있습니다. 제철 과일을 활용한 망고 샌드베이글, 복숭아 샤인 샌드베이글 등이 스테디셀러로 꼽힙니다.",
+      "url": "https://www.chosun.com"
+    },
+    {
+      "excerpt": "광안역과 금련산역 사이에 위치하며, 별도의 전용 주차장이 없으므로 인근 공영주차장 이용이 권장됩니다. 케이크류 가격대는 메뉴에 따라 다를 수 있으나, 과일이 들어간 크레이프 케이크 등은 약 1만 원대 전후로 형성되어 있으며, 인기가 많은 디저트 카페인만큼 주말이나 특정 시즌에는 대기(웨이팅)가 발생할 수 있습니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://www.chosun.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제철 생과일을 듬뿍 넣은 롤 크레이프 케이크와 크림치즈 샌드베이글 등 특색 있는 디저트 메뉴의 높은 완성도",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

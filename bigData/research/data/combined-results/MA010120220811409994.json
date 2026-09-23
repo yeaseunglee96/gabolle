@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220811409994",
+  "name": "장퀘",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 53757,
+  "researchedAt": "2026-09-22T12:08:56.020Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "별도의 웨이팅 줄서기 시스템보다는 피크타임 및 야간 안주 손님으로 붐비는 편입니다."
+  },
+  "descriptors": {
+    "audience": "현지인 및 직장인, 모임/야식 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "과일 탕수육",
+      "삼선짜장면",
+      "해물쟁반짜장"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 24:00 (브레이크타임 15:00 ~ 16:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "오랫동안 한자리를 지켜온 해운대 현지인 단골이 주를 이루며 엘시티 인근 방문객과 연예인도 찾는 곳입니다."
+  },
+  "menuDiversity": {
+    "dishCount": 20,
+    "found": true
+  },
+  "notes": "수타면과 과일 탕수육으로 유명한 해운대 중동 중식당으로, 늦은 시간까지 운영하여 식사 및 중식 안주로 사랑받는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "과일 탕수육 (소) / 요리류",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오랫동안 한자리를 지켜온 현지인 단골이 많은 중식당으로, 내부에 다양한 중국풍 소품들이 진열되어 있습니다. 수타면을 사용하는 것으로 알려져 있으며 대표 메뉴로는 삼선짜장면과 과일 탕수육이 유명합니다. 전용 주차장이 있으나 협소한 편입니다.",
+      "url": "https://korean.visitkorea.or.kr"
+    },
+    {
+      "excerpt": "DJ DOC 1집 전 멤버 박정환 씨가 운영하는 곳으로 잘 알려져 있습니다. 해운대 현지인들이 자주 찾는 오래된 맛집으로, 수타면을 사용하는 것이 특징이며 과일 탕수육이 유명합니다. 10년 이상 된 노포 느낌의 식당으로 술과 함께 중식을 즐기기 좋습니다.",
+      "url": "https://fivepin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://korean.visitkorea.or.kr",
+    "https://fivepin.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "직접 뽑는 수타면 면발과 달콤한 과일 탕수육의 뛰어난 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오랜 기간 한자리를 지키며 인근 주민과 단골들이 꾸준히 방문함",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "심야(24시)까지 영업하여 늦은 시간 식사 및 중화요리 주류 이용이 편리함",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

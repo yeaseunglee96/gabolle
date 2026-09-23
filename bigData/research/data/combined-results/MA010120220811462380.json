@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220811462380",
+  "name": "키친보리에주",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 36137,
+  "researchedAt": "2026-09-22T11:36:02.175Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "'키친보리에주'((주)키친보리에)는 부산광역시 해운대구 동백로 52(더베이101)에 소재한 법인/운영사이며, 단일 돼지고기 구이/찜 일반음식점이 아닙니다. 해당 주소지(더베이101) 내에서 대도식당(한우 등심), 핑거스앤쳇(피시앤칩스/펍), 보리에 베이커리 등을 직영 운영하는 F&B 및 복합문화공간 전문 법인으로 확인되어 단일 식당으로 볼 수 없어 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "(주)키친보리에는 부산의 대표적인 외식 전문 기업으로, 더베이101과 대도식당 등 다양한 F&B 브랜드를 운영 및 관리하는 법인입니다. 더베이101은 키친보리에가 개발·소유·운영하는 해양레저 및 복합문화공간이며... 대도식당은 2010년 키친보리에가 인수하여 운영하고 있는 한우 등심 전문점입니다.",
+      "url": "https://www.thebay101.com"
+    }
+  ],
+  "sources": [
+    "https://www.thebay101.com"
+  ]
+}

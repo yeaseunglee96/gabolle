@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202603A0037178",
+  "name": "스시린",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 87699,
+  "researchedAt": "2026-09-22T07:02:23.663Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 수영구 민락로 35-1에 등록된 '스시린'은 과거 등록 후 폐업한 상태로, 방문 후기나 세부 영업 정보가 존재하지 않습니다.",
+  "notes": "부산 수영구 민락로 35-1에 위치했던 '스시린'은 사업자/상호 등록 이력만 남아있거나 폐업된 상태로 확인되며, 실제 방문 리뷰 및 정량 정보가 부재합니다. 현재 해당 주소지에는 '첨벙', 과거 '스시 아카리' 등의 매장이 입점했던 것으로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202308A0083806",
+  "name": "식스시즌스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 75918,
+  "researchedAt": "2026-09-22T10:30:12.456Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트·친구 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "해물 오이스터 크림파스타",
+      "앤초비 오일 파스타",
+      "시즌스 스테이크 플레이트"
+    ],
+    "yearsClaimed": 6
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 수영구 광안동 골목 상가(수영로540번길 55)에 2020년 오픈한 유러피언 캐주얼 양식당. 전용 주차장 없음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "식스시즌스는 '나의 계절을 찾아서'라는 슬로건을 가진 캐주얼 레스토랑으로, 식물과 우드톤 인테리어, 통창 채광이 어우러진 편안한 분위기를 갖추고 있습니다. 파스타와 스테이크가 주력 메뉴이며, 해물 오이스터 크림파스타, 앤초비 오일 파스타, 슬라임치즈 목살 플레이트, 찹스테이크, 서양식 크림떡볶이, 시즌스 스테이크 플레이트 등을 제공합니다. 전용 주차장은 없으므로 인근 유료 주차장을 이용해야 합니다. 2020년 부산 광안동 골목에서 시작하여 현재까지 운영 중인 곳으로",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.kookje.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "우드톤과 통창 채광의 편안한 감성 인테리어와 스테이크·파스타 등 캐주얼 양식 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "골목길 데이트 및 편안한 분위기의 캐주얼 레스토랑",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

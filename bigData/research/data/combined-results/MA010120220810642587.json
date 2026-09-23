@@ -1,0 +1,57 @@
+{
+  "id": "MA010120220810642587",
+  "name": "주원식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 93273,
+  "researchedAt": "2026-09-22T06:42:29.650Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "백반"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 동구 홍곡로 91(수정동 327-11)에 등록된 일반음식점(한식/백반)으로 확인되나, 블로그 리뷰나 메뉴판 사진 등 웹상의 세부 방문 후기는 찾아보기 어려운 주택가 로컬 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 홍곡로 91 (수정동 327-11) 주원식당 일반음식점",
+      "url": "https://koreacharts.com"
+    }
+  ],
+  "sources": [
+    "https://koreacharts.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네 생활권 인접 위치에서 접근성 중심의 식사 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

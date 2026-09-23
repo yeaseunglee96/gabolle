@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202501A0025787",
+  "name": "미우바",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 64484,
+  "researchedAt": "2026-09-22T11:56:07.405Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "웹상에 실제 음식점/경양식 운영 정보 및 리뷰가 존재하지 않음 (단순 인허가 상호만 존재)",
+  "notes": "부산 남구 수영로322번길 32(대연동 한라빌딩 2층) 인허가 대장에 '미우바'(기타 일반음식점)로 단순 등록된 기록 외에, 실제 영업 중인 경양식/음식점 관련 블로그, 방문 후기, 메뉴, 영업시간 등의 상세 정보가 웹상에 전혀 존재하지 않습니다. 폐업했거나 일반 식당이 아닌 형태일 가능성이 높아 조사가 불가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": []
+}

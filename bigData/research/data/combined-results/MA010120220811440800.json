@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811440800",
+  "name": "젠스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 157655,
+  "researchedAt": "2026-09-22T11:44:59.871Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "스시 오마카세 특성상 캐치테이블 등을 통한 사전 예약이 권장/필수적임"
+  },
+  "descriptors": {
+    "audience": "미식가, 기념일 모임",
+    "generations": null,
+    "parking": null,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "스시 코스",
+      "사시미 코스",
+      "오마카세"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 ~ 22:00 (화요일 휴무 또는 월·화 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지역 미식가 및 외부 관광객 모두에게 숙성 스시로 인정받는 곳"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 대천로42번길 28-5에 위치한 '젠스시'는 명인 인증서를 받은 백선필 오너 셰프가 운영하는 하이엔드 스시 전문점으로, 엄격한 주방 위생 관리와 재료 본연의 맛을 살린 숙성 스시/오마카세로 유명합니다. 사전 예약제 중심으로 운영됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "디너 코스",
+    "priceWon": 150000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "젠스시는 부산 해운대에 위치한 유명한 일식 전문점으로, 명인 인증서를 받은 오너 셰프가 운영하는 곳으로 잘 알려져 있습니다. 셰프가 직접 초밥을 쥐어주는 카운터석(다찌)이 있으며, 엄격한 주방 분위기와 철저한 위생 관리로 유명합니다. 10가지의 초밥과 미소시루(된장국), 달걀찜, 튀김 등으로 구성된 코스 요리가 대표적입니다. 디너 코스: 1인 150,000원, 콜키지 비용: 병당 50,000원. 주소: 부산광역시 해운대구 대천로42번길 28-5.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "명인 인증을 받은 오너 셰프(백선필 셰프)가 운영하는 곳으로 잘 알려져 있습니다. 엄격한 주방 분위기와 위생 관리, 재료 본연의 맛을 살린 숙성 스시로 미식가들 사이에서 인기가 높습니다. 일반적으로 18:00 ~ 22:00에 운영하며, 캐치테이블 등을 통한 사전 예약 확인이 필수입니다.",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "명인 인증을 받은 백선필 오너 셰프의 장인정신과 엄격한 위생 관리",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "재료 본연의 맛을 극대화한 수준 높은 숙성 스시와 코스 요리",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

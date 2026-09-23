@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202303A0061381",
+  "name": "주앙",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 66543,
+  "researchedAt": "2026-09-22T11:56:38.113Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "네이버 예약 및 단체 예약이 가능하며 골목 안쪽에 위치함"
+  },
+  "descriptors": {
+    "audience": "연인, 모임, 친구",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "파스타",
+      "스테이크",
+      "로제 아란치니",
+      "피자"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 21:30 (라스트 오더 20:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 직접적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 전포역 6번 출구 골목 안쪽에 위치한 유럽 감성 양식당(파스타, 스테이크, 아란치니, 피자 등 판매)",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 전포대로186번길 6-5에 위치한 '주앙(Jouang)'은 부산 전포동에 있는 유럽 감성의 양식당입니다. 주요 메뉴: 피자, 파스타, 로제 아란치니 등. 골목 안쪽에 위치한 아늑한 분위기의 식당으로, 데이트나 모임 장소로 자주 언급됩니다. 네이버 예약을 통해 단체 예약이 가능하며, 와인 콜키지(평일 무료, 주말 유료) 서비스를 제공합니다. 전포역 6번 출구에서 도보로 약 1~3분 거리에 위치해 있습니다. 영업시간: 매일 11:30 ~ 21:30 (라스트 오더 20:30)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아늑한 유럽 감성의 분위기와 파스타/스테이크 등 양식 요리로 데이트 및 모임 목적 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전포역 인근 접근성 및 와인 콜키지·예약 편의 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

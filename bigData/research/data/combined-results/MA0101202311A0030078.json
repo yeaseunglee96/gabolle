@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202311A0030078",
+  "name": "솟간장터",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 40989,
+  "researchedAt": "2026-09-22T11:56:44.732Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 테이블링 등 대기가 발생할 수 있으며 예약이 가능하다."
+  },
+  "descriptors": {
+    "audience": "술자리 및 고기/안주 모임 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "당일도축 뭉티기",
+      "차돌박이 사시미",
+      "오드레기",
+      "육회 짜파구리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 다음 날 02:00 (라스트오더 00:30, 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "당일 도축한 신선한 생고기(뭉티기)와 차돌박이 사시미, 오드레기 등을 전문으로 취급하는 수영역 인근 요리주점. 주차 공간은 별도로 마련되어 있지 않아 인근 유료 주차장 이용 필요.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "당일도축 뭉티기 38,000원 / 뭉티기 차돌 세트 56,000원 / 오드레기 35,000원",
+    "priceWon": 38000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 무학로 29 (광안동). 업종: 당일 도축한 신선한 뭉티기(생고기)와 차돌박이 사시미, 오드레기, 육회 등을 전문으로 하는 요리주점. 대표 메뉴: 당일 도축 뭉티기, 1++(9) 차돌박이 사시미, 오드레기, 육회탕탕이, 육회 짜파구리 등. 인기가 많아 대기(테이블링 등)가 발생할 수 있으며 예약이 가능합니다. 주차 공간은 별도로 마련되어 있지 않으므로 방문 시 참고하시기 바랍니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "영업시간: 17:00 ~ 다음 날 02:00 (라스트 오더 00:30, 일요일 정기휴무). 주요 메뉴 및 가격: 뭉티기 차돌 세트 56,000원, 당일도축 뭉티기 38,000원, 1++(9) 차돌박이 사시미 38,000원, 오드레기 35,000원, 육회 27,000원, 육회 짜파구리 11,000원. 별도의 전용 주차장은 없으므로 인근 유료 주차장을 이용해야 합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "당일 도축한 신선한 뭉티기와 차돌박이 사시미, 오드레기 등 질 좋은 생고기 안주를 즐기기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

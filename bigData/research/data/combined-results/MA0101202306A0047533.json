@@ -1,0 +1,43 @@
+{
+  "id": "MA0101202306A0047533",
+  "name": "광안헤이와",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 52200,
+  "researchedAt": "2026-09-22T12:20:05.645Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 수영구 광남로94번길 2)에 상호 등록 이력 외에 실제 영업시간, 메뉴, 가격, 방문 후기 등의 실질적인 정보가 웹상에 존재하지 않음",
+  "notes": "사업자/건축물 등록 데이터 외에 일반 고객 방문 후기 및 구체적 매장 정보가 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

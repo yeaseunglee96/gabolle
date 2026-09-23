@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202305A0111986",
+  "name": "소연옥해리단길점",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 58318,
+  "researchedAt": "2026-09-22T11:53:45.655Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "해리단길 내 인기 맛집으로 캐치테이블 원격 웨이팅(2팀 이상 대기 시 등록) 필수이며 피크 시간대 대기가 발생함"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 2인 단위 방문객 및 관광객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "살치살 규카츠 정식",
+      "연어덮밥 정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금: 11:30 ~ 20:55 (브레이크타임 15:00 ~ 16:30), 토~일: 11:30 ~ 20:55 (브레이크타임 없음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길을 찾는 외지 관광객 및 데이트 방문객이 즐겨 찾는 인기 코스로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해리단길 골목 안쪽에 위치한 살치살 규카츠와 숙성 생연어덮밥 전문점으로 전용 주차 공간은 없어 인근 공영주차장 이용 권장됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "살치살 규카츠 스테이크 정식 / 연어덮밥 정식",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "소연옥은 인기가 많은 곳으로, 방문 전 캐치테이블 어플을 통해 실시간 웨이팅 현황을 확인하는 것이 좋습니다. 매장에 직접 가지 않아도 캐치테이블 어플을 통해 원격으로 웨이팅 등록이 가능합니다. 매일 아침 작업한 신선한 살치살을 사용하며, 불판에 살짝 구워 소금이나 와사비, 소스와 함께 즐기는 방식입니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "영업시간: 월~금 11:30 ~ 20:55 (브레이크 타임: 15:00 ~ 16:30), 토~일: 11:30 ~ 20:55 (브레이크 타임 없음). 살치살 스테이크 규카츠와 연어덮밥을 전문으로 하는 곳입니다. 2인 방문 시 규카츠와 연어덮밥, 우동 등을 함께 즐길 수 있는 세트 구성이 가성비가 좋아 인기가 많습니다.",
+      "url": "https://trip.com"
+    }
+  ],
+  "sources": [
+    "https://trip.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매일 아침 직접 손질한 신선한 살치살을 개인 미니 화로에 직접 구워 먹는 부드러운 규카츠와 숙성 연어덮밥의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "규카츠, 연어덮밥, 미니우동으로 묶인 세트 구성의 만족스러운 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

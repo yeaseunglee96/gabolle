@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202301A0081603",
+  "name": "빗센",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 67185,
+  "researchedAt": "2026-09-22T12:12:42.093Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 웨이팅에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트, 친구 모임, 브런치/와인 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "화이트 라구 파스타",
+      "트러플 리조또",
+      "상하이 스프 파스타",
+      "에그인헬"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 01:00 (00:00 라스트오더 / 11:00~17:00 브런치&커피, 17:00~01:00 디너&주류)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "전포동 카페거리 골목에 위치한 브런치 카페 겸 다이닝 펍(와인바)으로 파스타와 리조또 등의 양식 메뉴와 주류를 제공함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "파스타/리조또류",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 서면 전포 빗센, 화이트 라구 파스타 트러플 리조또 상하이 스프 파스타 에그인헬 그리고 맥주. 브런치부터 저녁 술자리까지 모두 즐길 수 있는 분위기 좋은 맛집으로, 1층은 테라스 형태의 개방감 있는 공간, 2층은 보다 아늑하고 프라이빗한 공간으로 구성되어 있습니다. 위치: 부산 부산진구 전포대로210번길 23 1층, 영업시간: 11:00~01:00.",
+      "url": "https://doridolidori.tistory.com/entry/%EB%B6%80%EC%82%B0-%EC%84%9C%EB%A9%B4-%EC%A0%84%ED%8F%AC-%EB%B9%97%EC%84%BC-%ED%99%94%EC%9D%B4%ED%8A%B8-%EB%9D%BC%EA%B5%AC-%ED%8C%8C%EC%8A%A4%ED%83%80-%ED%8A%B8%EB%9F%AC%ED%94%8C-%EB%A6%AC%EC%87%A0%EB%8 human"
+    }
+  ],
+  "sources": [
+    "https://doridolidori.tistory.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "낮에는 브런치와 파스타를 즐기고 밤에는 와인과 하이볼을 곁들일 수 있는 테라스 및 아늑한 분위기 공간",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "낮 11시부터 새벽 1시까지 브런치부터 늦은 밤 다이닝 주점까지 운영하여 시간대별 활용도가 높음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

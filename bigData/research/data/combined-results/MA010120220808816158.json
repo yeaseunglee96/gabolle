@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220808816158",
+  "name": "광안다이닝",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58344,
+  "researchedAt": "2026-09-22T10:44:53.726Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장 규모가 크지 않고 주류 주문 필수라 예약 권장"
+  },
+  "descriptors": {
+    "audience": "데이트, 기념일, 모임 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "와인 다이닝 코스",
+      "와인 페어링 코스",
+      "한우 부르스게타",
+      "스테이크와 버섯 구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~22:00 (영업 종료 시간 기준)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로 299(민락동씨랜드활어센타) 201호에 위치한 한우 오마카세 및 와인 페어링 다이닝 바.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "와인 다이닝 코스 120,000원 / 와인 (3 Glass) 페어링 코스 180,000원 / 와인 (4 Glass) 페어링 코스 190,000원",
+    "priceWon": 120000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안다이닝은 부산광역시 수영구 광안해변로 299(민락동, 민락동씨랜드활어센타) 201호에 위치한 한우 오마카세 및 와인 다이닝 레스토랑입니다. 프리미엄 한우 오마카세와 와인 페어링을 전문으로 하며, 소믈리에가 상주하여 코스 요리에 맞춘 와인 페어링 서비스를 제공합니다. 데이트, 기념일, 생일 모임 등 특별한 날에 방문하기 좋은 고급스럽고 프라이빗한 분위기를 갖추고 있습니다. 한우 부르스게타, 오리 가슴살 스테이크, 홍합스튜, 스테이크와 버섯 구이 등 코스 요리가 제공되며, 주류 주문이 필수인 곳입니다. 매장이 크지 않아 방문 전 예약하는 것이 권장됩니다. 와인 다이닝 코스: 120,000원, 와인 (3 Glass) 페어링 코스: 180,000원. 영업시간: ~22:00. 전화번호: 051-757-1985.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "소믈리에가 페어링해 주는 프리미엄 한우 오마카세 코스 요리와 와인을 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "데이트, 기념일, 생일 등 프라이빗하고 고급스러운 분위기를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

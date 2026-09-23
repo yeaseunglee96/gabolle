@@ -1,0 +1,43 @@
+{
+  "id": "MA0101202311A0027227",
+  "name": "시크리또",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 40754,
+  "researchedAt": "2026-09-22T07:05:35.240Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 실질 정보 부재 및 폐업 추정",
+  "notes": "부산 수영구 민락로 24-6의 '시크리또'는 상권/인근 편의시설 데이터에 일식 일반음식점 명칭으로만 조회되며, 실제 방문 리뷰, 메뉴, 가격, 영업시간 등 운영 정보가 존재하지 않습니다(해당 주소지에는 온김에/아카미 등 다른 매장 기록 확인).",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.zippoom.com",
+    "https://www.dbmon.kr"
+  ],
+  "whyPeopleGo": []
+}

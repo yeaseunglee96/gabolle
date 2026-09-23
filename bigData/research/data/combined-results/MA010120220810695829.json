@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220810695829",
+  "name": "새마시",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 89627,
+  "researchedAt": "2026-09-22T06:43:10.886Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주민, 배달 이용객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "향어회",
+      "물회",
+      "세꼬시",
+      "광어",
+      "밀치"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 11:30 ~ 24:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 북구 덕천로 146에 위치한 회 배달 및 포장 위주의 횟집으로, 향어회와 물회, 활어회(세꼬시, 광어, 밀치 등)를 주로 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "새마시 / 업종: 한국음식 > 회/횟집/참치 / 전화번호: 0507-1432-5594 / 주소: 부산광역시 북구 덕천로 146 / 지번: 부산광역시 북구 덕천동 791 / 테마 키워드: 일상(배달) / 매장소개: 회 배달 전문점, 향어회 / 영업시간: 주중 11:30 ~ 24:00 / 메뉴: 물회, 세꼬시, 광어, 밀치, 우럭",
+      "url": "https://www.siksinhot.com/P/1608670183756314"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1608670183756314"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "향어회와 각종 활어회 및 물회를 집에서 편하게 즐길 수 있는 회 배달·포장 전문점",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

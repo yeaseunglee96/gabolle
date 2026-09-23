@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220808194982",
+  "name": "구들장",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 68427,
+  "researchedAt": "2026-09-22T11:28:35.887Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 수영구 광안해변로277번길 10)에는 현재 대만 요리 전문점 '융캉찌에'가 영업 중이며, '구들장'은 과거 인허가/상호 데이터에만 존재하고 실제 운영 정보나 리뷰가 없는 폐업 상태입니다.",
+  "notes": "폐업 또는 다른 매장으로 변경되어 실제 방문/리뷰 데이터를 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/yongkangjie"
+  ],
+  "whyPeopleGo": []
+}

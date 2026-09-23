@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202503A0000027",
+  "name": "나수브",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 53584,
+  "researchedAt": "2026-09-22T12:10:36.029Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 음악/오션뷰를 즐기는 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "트러플 바스크 치즈케이크",
+      "티(Tea) 메뉴",
+      "칵테일"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수요일~목요일 12:00 ~ 01:00, 금요일~일요일 12:00 ~ 02:00 (월, 화 휴무) 또는 월~목 12:00~01:00, 금~일 12:00~02:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 및 광안대교 오션뷰, 드론쇼 조망 명소로 관광객 및 방문객 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "해당 주소(부산 수영구 광안해변로 247, 5층)의 '나수브(Nasub)'는 인허가/공공데이터상 백반/한정식으로 등록되어 있으나, 실제 운영 형태는 한정식/백반집이 아니라 낮에는 티와 바스크 치즈케이크를 팔고 밤에는 DJ 공연과 칵테일을 파는 오션뷰 티카페 겸 DJ 바(Bar)입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 247(민락동) 5층에 위치한 '나수브(Nasub)'는 백반이나 한정식 전문점이 아닌, 광안리 해수욕장 인근의 오션뷰 카페 및 바(Cafe & Bar)로 알려져 있습니다. 광안대교가 보이는 조망과 함께 음료, 주류, 음악 등을 즐길 수 있는 공간으로, 저녁 시간에는 디제잉 공연 등 이벤트가 열리기도 합니다.",
+      "url": "https://maptons.com"
+    },
+    {
+      "excerpt": "낮에는 트러플 바스크 치즈케이크와 티(Tea) 메뉴를 즐길 수 있는 카페로, 밤에는 유명 DJ가 선곡하는 음악과 함께 칵테일을 즐길 수 있는 바로 운영됩니다. 광안리 해변과 광안대교를 한눈에 조망할 수 있는 통창 오션뷰를 갖추고 있으며, 감각적인 인테리어와 빵빵한 사운드로 유명합니다. 수요일~목요일: 12:00 ~ 01:00, 금요일~일요일: 12:00 ~ 02:00, 휴무일: 월요일, 화요일",
+      "url": "https://cafeinbusan.co.kr"
+    }
+  ],
+  "sources": [
+    "https://maptons.com",
+    "https://cafeinbusan.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변과 광안대교가 한눈에 내려다보이는 통창 오션뷰와 드론쇼 관람 환경",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "낮에는 티와 디저트, 밤에는 DJ 선곡 및 디제잉 음악과 칵테일을 즐길 수 있는 감각적인 분위기",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202409A0002148",
+  "name": "사라랑",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 62581,
+  "researchedAt": "2026-09-22T11:16:20.881Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 운영 중인 경양식 식당 후기나 메뉴, 방문 기록이 웹상에 존재하지 않고 인허가/사업자 상호 목록에만 경양식 업태로 단순 등록되어 있거나 이미 폐업/용도 변경(탱고 카페 등)된 곳으로 확인됩니다.",
+  "notes": "부산광역시 부산진구 신천대로62번길 62에 '사라랑'(경양식)으로 상호 등록된 내역은 있으나, 실제 방문 후기나 영업시간, 메뉴, 가격 등 운영 관련 정보가 전혀 없으며 해당 주소지는 카페/문화공간 등으로 바뀐 상태입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://infosori.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

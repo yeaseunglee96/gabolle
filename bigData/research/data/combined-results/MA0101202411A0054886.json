@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202411A0054886",
+  "name": "마츠자키",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 33770,
+  "researchedAt": "2026-09-22T11:57:57.222Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 등 사전 예약제로 운영되어 예약 경쟁이 있는 편이다."
+  },
+  "descriptors": {
+    "audience": "연인, 가족, 미식가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "가이세키 오마카세 코스",
+      "핫슨",
+      "솥밥",
+      "나베"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 18:00~23:00 (매주 일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 수영구 광안동 골목에 위치한 정통 가이세키 오마카세 전문점으로, 단일 코스 요리를 사전 예약제로 선보이고 있다. 미쉐린 가이드 부산에 등재되어 있다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "가이세키 오마카세 1인",
+    "priceWon": 110000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 광안동의 골목에 위치한 정통 가이세키 오마카세 전문점입니다. 계절 식재료를 활용해 감칠맛이 풍부한 국물 요리부터 핫슨(계절 요리 모음), 솥밥, 나베 등 기본에 충실한 일본 전통 코스 요리를 선보입니다. 셰프가 직접 모은 고급 식기와 와인잔, 정갈한 인테리어로 기념일이나 부모님을 모시고 가기 좋은 조용한 식당으로 알려져 있습니다. 캐치테이블 등을 통해 예약이 가능하며, 월~토 18:00~23:00 (일요일 휴무) 운영됩니다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/matsuzaki"
+    },
+    {
+      "excerpt": "젊은 셰프가 운영하는 작고 아담한 공간으로, 셰프가 직접 수집한 고급 식기와 와인잔, 어머니가 그린 그림 등으로 우아하게 꾸며진 것이 특징입니다. 정성 가득한 음식을 제공하는 정통 가이세키 오마카세 전문점으로 미쉐린 가이드에 등재되어 있습니다.",
+      "url": "https://www.visitbusan.net/"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/matsuzaki",
+    "https://www.visitbusan.net/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "계절 식재료와 기본에 충실한 정통 가이세키 코스 요리의 완성도 높은 미식 경험을 제공한다.",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산에 선정된 전문 일식당으로서의 인지도와 검증된 퀄리티를 지닌다.",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

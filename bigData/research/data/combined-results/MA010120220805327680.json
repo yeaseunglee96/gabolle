@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220805327680",
+  "name": "도군수산횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 67529,
+  "researchedAt": "2026-09-22T11:26:35.566Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "모듬회",
+      "물회"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 민락동(민락수변로7번길 19 일대)의 '도군수산횟집'으로 기본 정보 및 모듬회, 물회 메뉴 취급 사실만 확인되며, 상세 방문 후기, 영업시간, 혼잡도, 사진 원본 링크 등은 웹상에서 찾기 어렵습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락동 광안리 인근에 위치한 도군수산횟집. 모듬회, 물회 등이 대표 메뉴.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 및 민락동 인근에서 모듬회와 물회 등 신선한 해산물을 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

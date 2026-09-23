@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220810516756",
+  "name": "본동횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 59732,
+  "researchedAt": "2026-09-22T05:58:44.971Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "로컬 주민, 회 식사 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "물회",
+      "회덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "다대동 지역 주민들에게 잘 알려진 동네 로컬 횟집"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 사하구 다대동(다송로72번길 20)에 위치한 횟집으로 모듬회, 물회, 회덮밥, 매운탕 등을 취급하며 다대동 로컬 식당으로 등록되어 있음. 블로그 사진 직링크 및 세부 영업시간/가격표 원문은 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상 호(전화번호) : 본동횟집 (051-263-1537) 주 소 : 부산광역시 사하구 다대동 다송로 72번길 20 위 치 : 낫개역 2번 출구에서 716m",
+      "url": "https://wheelbusan.or.kr"
+    }
+  ],
+  "sources": [
+    "https://wheelbusan.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다대동 인근에서 신선한 모듬회와 물회 식사를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

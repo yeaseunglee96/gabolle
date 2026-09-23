@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220811473654",
+  "name": "경북횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 60922,
+  "researchedAt": "2026-09-22T11:50:07.501Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "가게 규모가 아담하여 주말 등에는 미리 예약하고 방문하는 것이 권장됨"
+  },
+  "descriptors": {
+    "audience": "관광객 및 현지인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "회정식",
+      "숙성회",
+      "수제비 매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인 (전화 예약 권장: 051-743-5917)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "유명 연예인 및 여행객뿐만 아니라 오랜 단골 현지인들이 찾는 노포 횟집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "해운대 미포에 위치한 숙성회 및 1인 회정식 전문 횟집으로, 씻은 묵은지/김에 싸 먹는 숙성회와 수제비 매운탕이 대표적임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "회정식 (1인)",
+    "priceWon": 55000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "김 속에 회를 싸 먹는 방식으로 유명한 횟집입니다. 일반적인 횟집과 달리 일식집처럼 1인당 가격을 받는 시스템으로 운영되며, 인원수에 맞춰 회와 해산물 등을 제공합니다. 씻은 묵은지에 회를 싸 먹는 것도 별미로 알려져 있습니다. 가게 규모가 아담한 편이라 방문 전 미리 확인하시는 것을 추천드립니다.",
+      "url": "https://www.siksinhot.com/P/314175"
+    },
+    {
+      "excerpt": "미포 지역에 위치한 숙성회 및 회정식 전문점으로 잘 알려져 있습니다. 김치에 회를 싸 먹는 방식이 유명하며, 정갈한 반찬과 함께 회정식 코스를 즐길 수 있는 곳으로 후기가 많습니다. 인기가 많아 주말에는 예약을 권장하는 경우가 많으며, 현지인뿐만 아니라 여행객들에게도 유명한 노포 횟집 중 하나입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/314175"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "묵은지와 김에 싸 먹는 감칠맛 있는 숙성회와 회정식, 수제비 매운탕의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "현지인 단골과 여행객, 연예인 등이 즐겨 찾는 오랜 미포 노포 횟집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220811971002",
+  "name": "바오하우스",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 91763,
+  "researchedAt": "2026-09-22T11:45:26.580Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "미쉐린 가이드 및 후기에서 매장 공간이 넓지 않고 예약을 받지 않아 대기 시간이 길어 원격 줄서기 앱을 주로 이용한다고 언급"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 미식 여행객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "클래식 바오",
+      "어향가지튀김",
+      "루로우판",
+      "우육미엔",
+      "마파두부"
+    ],
+    "yearsClaimed": 5
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 21:00 (브레이크타임 15:00 ~ 17:00, 라스트오더 20:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "전포 카페거리 현지 단골 및 미쉐린 빕 구르망을 보고 찾아오는 관광객 모두 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "photoUrls": [
+    "https://prod-pics.guide.michelin.com/api/public/content/4691374996b84063b8fcdd00166f82d9.jpg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "클래식 바오 5,000원, 어향가지튀김 14,000원, 우육미엔 12,500원, 루로우판 8,500원",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "바오하우스는 대만식 요리를 기반으로 삼아 캐주얼하고 심플한 요리를 선보인다. 셰프는 이처럼 요리의 문턱을 낮춤으로써 친숙하면서도 이국적인 중화권 요리를 편하게 즐길 수 있게 한다. 바오하우스에서는 대만식 찐빵 ‘바오’와 대만식 간장 소스 삼겹살 덮밥 ‘루로우판’, 마파두부, 어향가지튀김 등 음식 본연의 풍미와 셰프의 아이디어가 접목된 요리를 가볍게 즐길 수 있다. 레스토랑의 공간이 넓지 않고 예약을 받지 않으므로 대기 시간이 있을 수 있다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/bao-haus"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/bao-haus"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미쉐린 가이드 빕 구르망 선정으로 공인된 대만 캐주얼 다이닝",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    },
+    {
+      "note": "대만식 찐빵 바오와 어향가지튀김 등 개성 있고 독창적인 풍미의 요리",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "협소한 좌석과 잦은 웨이팅으로 항상 붐비는 전포 핫플레이스",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

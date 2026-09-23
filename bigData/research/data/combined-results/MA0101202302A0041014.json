@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202302A0041014",
+  "name": "남해호",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 65079,
+  "researchedAt": "2026-09-22T10:32:19.391Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "미상",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 사업체 명칭 수준으로만 존재하며 실제 영업 정보나 방문 리뷰를 찾을 수 없음",
+  "notes": "부산광역시 해운대구 달맞이길62번길 51 소재의 '남해호'(횟집)는 사업자 등록 정보 외에 실제 방문자 후기, 영업 정보(영업시간, 메뉴, 가격 등)나 상세 웹 페이지가 확인되지 않아 유의미한 식당 정보를 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

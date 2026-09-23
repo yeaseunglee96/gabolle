@@ -1,0 +1,85 @@
+{
+  "id": "MA0101202409A0006866",
+  "name": "스시키츠네",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 54285,
+  "researchedAt": "2026-09-22T10:31:24.231Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "100% 사전 예약제(타임제) 및 1인 오너 셰프 업장으로 운영되어 현장 대기 대신 사전 예약 방문 필수"
+  },
+  "descriptors": {
+    "audience": "성인 방문객(노키즈존), 데이트, 1인~소규모 식사",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "키츠네 스시",
+      "숙성회 오마카세"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "타임제 예약 운영(매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인과 관광객 비중에 대한 명확한 직접 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 광안리 인근 광남로 200에 위치한 1인 셰프 숙성회 스시 오마카세 업장으로, 100% 예약제 및 노키즈존으로 운영됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "키츠네 스시 오마카세(런치/디너 동일)",
+    "priceWon": 35000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스시키츠네(Sushi Kitsune) 광안점은 부산광역시 수영구 광남로 200에 위치한 숙성회 오마카세 스시 전문점입니다. 1인 오너 셰프가 운영하는 숙성회 오마카세 형태의 식당입니다. 다찌석과 테이블석이 갖춰진 아담한 공간으로, 예약제로 운영됩니다. 제철 네타(재료)를 사용하며 노키즈존으로 운영됩니다. 인근 동방스카이주차장 이용이 가능합니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "운영 방식: 1인 오너 셰프가 운영하는 100% 예약제 숙성회 오마카세 전문점입니다. 대표 메뉴: 키츠네 스시 약 35,000원 선 (런치/디너 동일). 휴무일: 매주 월요일 휴무",
+      "url": "https://catchtable.net"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://catchtable.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1인 오너 셰프가 선보이는 제철 네타 숙성회 스시 오마카세 코스",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "런치/디너 동일 3만원대 가격으로 즐기는 부담 없는 입문용 오마카세 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "100% 사전 예약제와 노키즈존으로 운영되는 차분하고 아담한 다찌석 식사 환경",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

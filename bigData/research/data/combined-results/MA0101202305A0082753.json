@@ -1,0 +1,79 @@
+{
+  "id": "MA0101202305A0082753",
+  "name": "쿠치가",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 63597,
+  "researchedAt": "2026-09-22T07:04:36.174Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 캐치테이블 등을 통한 웨이팅 확인 및 예약 방문 권장"
+  },
+  "descriptors": {
+    "audience": "혼술객, 연인, 소규모 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "사시미 모리아와세",
+      "고등어봉초밥",
+      "후토마끼",
+      "모츠나베"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:30 ~ 02:00 (라스트오더 01:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 인근 관광지에 위치하여 관광객과 현지 혼술·데이트 손님이 두루 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안해변로277번길 8에 위치한 이자카야 '쿠치가'에 대한 웹 조사 결과입니다. 1인 사시미와 고등어봉초밥, 나베류 등 수준 높은 일식 안주와 다찌석 분위기로 인기가 높습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "사시미 모리아와세 (1인) 21,000원 / 고등어봉초밥 24,000원 / 후토마끼 18,000원",
+    "priceWon": 21000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로277번길 8, 1층. 영업시간 매일 17:30 ~ 02:00 (라스트 오더 01:00). 다찌석이 잘 갖추어져 있어 혼술을 즐기기에 좋은 곳으로 알려져 있습니다. 1인 사시미, 고등어 봉초밥, 후토마끼, 모츠나베 등이 대표적인 메뉴입니다.",
+      "url": "https://visitbusan.net"
+    },
+    {
+      "excerpt": "사시미 모리아와세 (1인): 21,000원, 고등어봉초밥 (하루 한정): 24,000원, 후토마끼 (5pc): 18,000원, 모듬스시 (6p): 13,000원 / (12p): 26,000원. 캐치테이블 등을 활용할 수 있으며 인기가 많은 곳이므로 필요시 미리 확인하시는 것이 좋습니다.",
+      "url": "https://loneat.kr"
+    }
+  ],
+  "sources": [
+    "https://visitbusan.net",
+    "https://loneat.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1인 사시미와 고등어봉초밥 등 신선하고 완성도 높은 일식 요리의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "다찌석 중심의 아늑하고 세련된 분위기로 혼술 및 소규모 데이트 만족도가 높음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

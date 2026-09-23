@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220811399884",
+  "name": "서울육계장",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 57242,
+  "researchedAt": "2026-09-22T11:58:31.716Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 운영 중인 식당 리뷰/정보 없음",
+  "notes": "부산광역시 수영구 광안해변로 423에 등록된 '서울육계장'은 과거 사업자 상호 또는 부동산 데이터 목록에만 단편적으로 존재하며, 실제 영업 여부나 방문 후기, 메뉴, 영업시간 등의 상세 웹 정보가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": []
+}

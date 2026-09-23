@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202502A0044256",
+  "name": "송정참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 78266,
+  "researchedAt": "2026-09-22T11:34:53.209Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트, 가족 모임, 회식",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "모듬참치",
+      "뱃살모듬",
+      "메로구이",
+      "한우스지오뎅탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00부터 영업 시작"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "송정역 인근에 위치한 참치 전문점으로 조용하고 아늑한 분위기 속에서 참다랑어 오도로, 주도로, 아카미 등 다양한 부위의 참치회 세트 및 단품, 메로구이, 스지오뎅탕 등의 안주를 즐길 수 있습니다. 매장 앞 골목 주차가 가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "모듬참치 세트",
+    "priceWon": 90000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "송정참치 - 부산광역시 해운대구 송정강변로 25 1층 (송정동 195-2). 참다랑어 오도로, 주도로, 아카미를 비롯해 눈다랑어, 황새치 등 다양한 부위를 제공하며, 조용하고 아늑한 분위기에서 데이트, 가족 모임, 회식 등을 즐기기 좋은 곳. 동해선 송정역에서 도보로 약 7~8분 거리에 위치하며, 매장 앞 골목 주차가 가능합니다. 영업시간: 17:00부터 영업 시작. 모듬참치 세트 및 단품, 뱃살 모듬 외에도 메로구이, 한우스지오뎅탕 등 사이드 메뉴가 준비되어 있습니다.",
+      "url": "https://www.siksinhot.com/P/350058"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/350058"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오도로, 주도로, 아카미 등 다양한 부위의 숙성 참치회를 조용하고 아늑한 분위기에서 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "데이트, 가족 모임, 단체 회식에 어울리는 아늑하고 편안한 공간 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

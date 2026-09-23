@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220813026810",
+  "name": "규장",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 61435,
+  "researchedAt": "2026-09-22T11:33:28.244Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인/친구/담소 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "와규 화로구이",
+      "명란구이",
+      "한우 육회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 12:00 ~ 23:00 (라스트 오더 22:00) / 일요일 휴무 (일부 변동 가능성 있음)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "공공/인허가상 돼지고기 구이/찜 업종으로 분류되어 있으나 실제로는 와규(소고기) 화로구이를 전문으로 하는 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 송정강변로 27에 위치한 '규장(牛張)'은 일본식 와규 화로구이를 전문으로 하는 식당입니다. 캐주얼한 분위기에서 직접 화로에 고기를 구워 먹는 스타일로, 담소를 나누며 식사하기 좋은 곳으로 알려져 있습니다. 프리미엄 와규 모듬, 규장 모듬, 호르몬 세트, 한우 육회 등이 있으며, 사이드 메뉴로 명란구이가 호평을 받습니다. 영업시간 월~토 12:00 ~ 23:00 (라스트 오더 22:00) / 일요일 휴무. 가게 앞 도로 또는 인근 무료 주차 구역 이용 가능.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://app.catchtable.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "개인 화로에 직접 구워 먹는 일본식 와규 구이의 풍미와 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "캐주얼하면서도 아늑하게 담소를 나누기 좋은 화로구이 식사 환경",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

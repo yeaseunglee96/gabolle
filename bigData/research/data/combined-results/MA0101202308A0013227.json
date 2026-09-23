@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202308A0013227",
+  "name": "하진식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 73162,
+  "researchedAt": "2026-09-22T12:18:27.996Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기(웨이팅)에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인, 혼밥 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "된장찌개 정식",
+      "김치찌개 정식",
+      "돈까스 정식",
+      "생선구이 정식"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일(월~토) 11:00 ~ 21:00, 일요일 11:30 ~ 18:00 (재료 소진 시 조기 마감 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 직장인과 동네 주민/혼밥 손님이 주로 찾는 전형적인 동네 집밥 백반집으로 확인됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 수영구 수영로 523(광안동, 금련산역 2번 출구 인근)에 위치한 집밥 스타일 백반 전문점 하진식당 조사 완료. 정식 주문 시 찌개(된장/김치)와 돈까스 또는 생선구이를 선택하여 제공하는 가성비 식당임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "된장찌개/김치찌개 정식(+돈까스 or 생선구이)",
+    "priceWon": 8000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "깔끔한 집밥 스타일의 백반집으로, 가성비가 좋아 인근 직장인이나 혼밥을 즐기는 손님들에게 인기가 많습니다. 주요 메뉴: 된장찌개 또는 김치찌개 정식에 돈까스나 생선구이를 선택하여 구성하는 방식입니다. (정식 주문 시 기본 반찬 5가지와 밥이 함께 제공됩니다.) 아담하고 정겨운 노포 분위기이며, 부담 없는 가격으로 식사할 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/P/1018991"
+    },
+    {
+      "excerpt": "된장찌개 정식 + 돈까스 or 생선구이: 8,000원 / 김치찌개 정식 + 돈까스 or 생선구이: 8,000원 / 정식(국) + 돈까스 or 생선구이: 8,000원. 영업시간 평일(월~토): 오전 11:00 ~ 오후 9:00 / 일요일: 오전 11:30 ~ 오후 6:00 (재료 소진 시 조기 마감될 수 있음). 현금 결제 위주로 운영된다는 후기가 많음.",
+      "url": "https://beautihost.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1018991",
+    "https://beautihost.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "8,000원대 가격에 찌개와 돈까스 또는 생선구이가 함께 나오는 가성비 집밥 백반 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "금련산역 2번 출구 인근에 위치하여 인근 직장인과 1인 혼밥 손님이 편하게 식사하기 좋은 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

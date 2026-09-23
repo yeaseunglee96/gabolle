@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220811411295",
+  "name": "우정",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 82529,
+  "researchedAt": "2026-09-22T11:55:46.601Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비",
+      "돌솥밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 광안로7번길 30에 위치한 '우정'은 한식/돼지고기 구이 업종의 음식점으로 확인되며, '우정숯불갈비' 명칭으로 등록되어 돼지갈비와 영양 돌솥밥 등을 취급하는 동네 한식 식당입니다. 온라인 상세 후기 및 블로그 콘텐츠가 극히 희소하여 상세 영업시간, 주차 및 대기줄 정보는 공식적으로 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "우정 (또는 우정숯불갈비), 주소: 부산광역시 수영구 광안로7번길 30 (광안동). 숯불갈비와 함께 돌솥밥을 즐길 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/P/377317"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/377317"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돼지갈비 숯불구이와 영양 돌솥밥을 함께 즐길 수 있는 동네 한식 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

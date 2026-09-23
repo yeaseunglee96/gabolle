@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202604A0011449",
+  "name": "루베르부산",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65687,
+  "researchedAt": "2026-09-22T10:29:42.234Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많은 신상 술집으로 캐치테이블 등을 통해 예약을 하고 방문하는 것을 추천하고 있음"
+  },
+  "descriptors": {
+    "audience": "연인·데이트·단체 모임",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "꽃게 투움바 파스타",
+      "육회",
+      "육사시미",
+      "통대창 삼겹 실비김치찜",
+      "매운 돌판 뼈구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~목 17:00 ~ 02:00, 금~토 17:00 ~ 03:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 구체적 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로255번길 23 1층(민락동)에 위치한 퓨전 양식/요리주점 형태의 식당으로 감각적인 인테리어와 특색 있는 안주 메뉴로 데이트 코스로 언급됨",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "루베르부산 (광안리) 주소: 부산 수영구 광안해변로255번길 23 1층 (민락동 174-4). 영업 시간: 월~목: 17:00 ~ 02:00, 금~토: 17:00 ~ 03:00. 분위기: 감각적이고 감성적인 인테리어로 데이트 코스나 분위기 좋은 술집으로 인기가 많습니다. 주요 메뉴: 꽃게 투움바 파스타, 육회, 육사시미, 통대창 삼겹 실비김치찜, 매운 돌판 뼈구이 등 다양하고 특색 있는 안주를 제공합니다. 인기가 많은 신상 술집이므로 캐치테이블 등을 통해 예약을 하고 방문하는 것을 추천드립니다.",
+      "url": "https://navet.co.kr"
+    }
+  ],
+  "sources": [
+    "https://navet.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감각적인 인테리어와 분위기로 데이트 코스 및 감성 주점으로 인기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "꽃게 투움바 파스타, 통대창 삼겹 실비김치찜 등 특색 있는 퓨전 시그니처 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

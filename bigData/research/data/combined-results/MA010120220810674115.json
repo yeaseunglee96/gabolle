@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220810674115",
+  "name": "창성숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 69826,
+  "researchedAt": "2026-09-22T06:00:42.796Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 직장인/주민 회식",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "숯불갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사상구 감전동(새벽로168번길 59)에 등록된 식당으로 확인되나, 상세 블로그 리뷰나 상세 메뉴판/가격/영업시간 등 상세 정보는 웹상에 매우 제한적입니다. 식신 등의 디렉토리에서 푸짐한 숯불갈비, 감전동 회식 맛집 등으로 짤막하게 소개되어 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 사상구 감전동: 푸짐한 숯불갈비가 특징이며, 부산 사상구 감전동 회식 맛집으로 소개되고 있습니다",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "푸짐한 숯불갈비와 회식 장소로 소개됨",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220811215114",
+  "name": "오피시",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47412,
+  "researchedAt": "2026-09-22T07:05:04.496Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "맥주 및 주류 애호가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "수리세종",
+      "크래프트 맥주"
+    ],
+    "yearsClaimed": 2014
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(광남로 238-1)의 상호 '오피시'는 크래프트 맥주 펍/바틀샵으로 유명한 '아울앤푸시캣(Owl and Pussycat, 약칭 OPC)'의 인허가/공공데이터상 한글 표기 등록명칭입니다. 2층/3층에는 다이닝바 '틴타젤'이 함께 위치해 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "아울앤푸시캣 (Owl and PussyCat, OPC): 부산 수영구 광남로 238-1에 위치했던 유명한 크래프트 맥주 펍 및 바틀샵입니다. 2014년부터 운영되다 문을 닫은 후, 2022년 새로운 컨셉으로 재오픈한 바 있습니다. 이곳은 과거 'OPC'라는 명칭으로 널리 알려져 있었습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "해당 건물 내부 상가로 '오피시'(업종: 경양식)라는 상호가 등록되어 있습니다. 같은 건물(광남로 238-1) 2층에는 '틴타젤'이라는 식당이 위치해 있는 것으로 알려져 있습니다.",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 대표 크래프트 맥주 전문점이자 자체 레시피 맥주(수리세종 등) 및 바틀샵을 운영함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

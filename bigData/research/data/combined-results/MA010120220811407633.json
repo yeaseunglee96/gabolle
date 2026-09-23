@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811407633",
+  "name": "남일횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 66932,
+  "researchedAt": "2026-09-22T12:00:20.046Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "너무 북적이지 않아 한적하게 식사를 즐기기에 적당한 분위기임"
+  },
+  "descriptors": {
+    "audience": "현지인, 가족 단위",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 모듬회",
+      "매운탕",
+      "회덮밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 11:00 ~ 오후 9:30~40경"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송정시장 골목에 위치하여 관광지 번화가보다 현지인들이 주로 찾는 노포 횟집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 송정시장 골목 안에 위치한 노포 횟집으로, 자연산 활어 모듬회와 생선 통 매운탕이 대표적이며 가성비와 한적한 분위기로 현지인들의 지지를 받음. 전용 주차장은 없음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "송정시장 안에 위치한 자연산 활어회 전문점으로, 광어, 농어, 도다리, 전어 등 다양한 자연산 모듬회를 맛볼 수 있습니다. 회를 드신 후 제공되는 생선이 통째로 들어간 매운탕과 직접 만든 초장이 인기 메뉴입니다. 송정시장 골목 안에 자리 잡고 있어 외관은 오래된 느낌이지만, 내부는 깨끗하게 관리되고 있습니다. 너무 북적이지 않아 한적하게 식사를 즐기기에 적당한 분위기입니다. 별도의 주차장은 없으며, 인근 도로변을 이용해야 한다는 리뷰가 있습니다.",
+      "url": "https://www.siksinhot.com/P/297298"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/297298"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "자연산 모듬회와 생선이 통째로 들어간 매운탕, 수제 초장의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "송정시장 골목 노포 횟집으로 현지인들이 주로 즐겨 찾는 가성비 명소",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

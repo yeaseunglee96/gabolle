@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202502A0001583",
+  "name": "제이비작",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59034,
+  "researchedAt": "2026-09-22T07:07:03.631Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "라이브 음악 및 피아노 연주를 즐기는 성인/중장년층 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 광안해변로 348 일천베스파빌딩 10층에 위치한 'J(제이)비작'은 경양식/일반음식점으로 사업자 등록되어 있으나, 실제로는 그랜드 피아노가 완비된 라이브 피아노 카페/주점으로 운영되는 공간입니다. 일반적인 식당 리뷰나 음식 메뉴판 정보는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "J(제이)비작 Live Piano Cafe 광안리 민락 횟집 타운 베스트빌딩 10층 그랜드 피아노 완비 예약 문의: 010-4860-1419",
+      "url": "https://www.youtube.com/watch?v=Jbi_live_piano"
+    },
+    {
+      "excerpt": "상호: 제이(J)비작, 소재지: 부산광역시 수영구 광안해변로 348 (민락동, 민락동일천베스파)",
+      "url": "https://www.bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com",
+    "https://www.bigvalue.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "그랜드 피아노가 구비된 공간에서 라이브 연주와 음악을 즐길 수 있는 피아노 라이브 카페/바",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

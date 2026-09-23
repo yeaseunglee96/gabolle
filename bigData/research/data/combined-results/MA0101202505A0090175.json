@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202505A0090175",
+  "name": "구상",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 73721,
+  "researchedAt": "2026-09-22T10:44:50.722Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "빵/샌드위치 애호가 및 동네 주민, 반려견 동반 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "사워도우 바게트",
+      "새싹살구잠봉 바게트 샌드위치",
+      "꽁떼트러플 바게트 샌드위치",
+      "사워도우 초코바게트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인 (방문 전 인스타그램 @9usan9 등 공지 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "조용한 주택가 골목에 위치하여 베이커리 샌드위치 마니아 및 반려견 동반 주민들이 주로 찾는 분위기"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 수영구 광안동 주택가 골목(수영로624번길 82-1)에 위치한 베이커리 카페 '구상(9u Sang)'. 주력 메뉴는 사워도우 바게트와 이를 활용한 잠봉/트러플 샌드위치류.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "사워도우 바게트 3,500원 / 사워도우 초코바게트 6,000원",
+    "priceWon": 3500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 수영로624번길 82-1에 위치한 '구상(9u Sang)'. 구상은 부산 수영구 광안동에 위치한 베이커리 카페로, 주로 사워도우 바게트를 활용한 샌드위치로 유명한 곳입니다. 주요 메뉴: 사워도우 바게트, 바게트 샌드위치(새싹 살구 잠봉, 꽁떼트러플잠봉, 아보카도 쉬림프 등), 명란바게트, 고메 소금빵 등이 있습니다. 조용한 주택가 골목에 자리 잡은 아늑하고 빈티지한 분위기의 공간이며, 신선한 재료를 사용한 샌드위치 메뉴가 인기가 많습니다.",
+      "url": "https://www.siksinhot.com/P/1608930"
+    },
+    {
+      "excerpt": "사워도우 바게트를 사용하여 겉은 파삭하면서도 속은 쫄깃한 식감이 특징입니다. 대표 메뉴로는 '새싹살구잠봉' 샌드위치가 인기 메뉴로 자주 언급됩니다. 아늑한 공간에서 샌드위치를 즐길 수 있어 많은 블로거와 방문객들이 찾는 곳입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1608930",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "겉은 파삭하고 속은 쫄깃한 사워도우 바게트와 새싹살구잠봉 등 독창적인 샌드위치의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

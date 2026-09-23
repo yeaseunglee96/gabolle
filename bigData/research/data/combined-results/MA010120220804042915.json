@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220804042915",
+  "name": "사계",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 102080,
+  "researchedAt": "2026-09-22T12:07:27.187Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기나 혼잡에 대한 명시적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가족 모임 및 단체 회식 객, 관광객, 현지인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "언양불고기",
+      "한우 암소 채끝 등심"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해변 인근 관광객뿐만 아니라 현지인들도 많이 찾는 식당으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해운대해변로 293(노보텔 맞은편 인근)에 위치한 '사계(사계언양불고기)'는 1++ 암소 한우 언양불고기와 채끝 등심을 전문으로 취급하는 음식점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "언양불고기(암소 한우 200g) 29,000원, 1++ 한우 채끝 등심(100g) 38,000원",
+    "priceWon": 29000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "사계(사계언양불고기)는 해운대에서 합리적인 가격으로 담백한 한우 언양불고기를 맛볼 수 있는 곳으로, 투뿔(1++) 암소 한우를 참숯 직화 방식으로 구워내는 것이 특징이다. 여행객뿐만 아니라 현지인들도 많이 찾는 식당이다. 전용 주차장이 마련되어 있으며 식사 시 3시간 무료 주차가 가능하다. 매일 11:00 ~ 23:00 영업한다.",
+      "url": "https://www.ksilbo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.ksilbo.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "투뿔(1++) 암소 한우를 참숯 직화로 구워내는 담백한 언양불고기 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 해변 접근성과 전용 주차장(3시간 무료) 완비로 방문 및 모임 편의성 높음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

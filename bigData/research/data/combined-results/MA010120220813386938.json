@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220813386938",
+  "name": "샌드웨이",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 62324,
+  "researchedAt": "2026-09-22T11:31:34.301Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인·친구 브런치 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "크루아상",
+      "토스트",
+      "브리오슈",
+      "파스타"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산광역시 수영구 광일로14번길 7(광안동)에 위치했던 곳으로, 정식 상호는 '센드웨이(SENDWAY)'인 브런치 카페·와인바입니다. 현재는 폐업된 상태로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "센드웨이(SENDWAY) - 부산광역시 수영구 광일로14번길 7. 담백하고 편안한 인테리어로 힙한 분위기의 브런치 카페. 크루아상, 토스트, 브리오슈, 파스타 등 브런치 메뉴 제공. (현재 폐점)",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "담백하고 편안한 인테리어와 힙한 분위기에서 크루아상, 파스타 등 브런치 메뉴를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

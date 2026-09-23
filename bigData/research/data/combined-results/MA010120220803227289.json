@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220803227289",
+  "name": "나가하마만게츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 180164,
+  "researchedAt": "2026-09-22T11:39:06.348Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 원격 줄서기가 가능하며 오픈 직후 및 피크 시간대 긴 대기열이 발생하는 대표적 웨이팅 맛집이다."
+  },
+  "descriptors": {
+    "audience": "젊은 층, 미식가 및 관광객/혼밥족",
+    "generations": 3,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "나가하마 라멘",
+      "나가하마 라멘 교자 세트"
+    ],
+    "yearsClaimed": 1963
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금 11:00-15:30 / 16:30-20:30, 토~일 11:00-20:30 (라스트 오더 20:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길 안쪽에 위치하여 해운대를 찾는 관광객과 젊은 층뿐 아니라 라멘 매니아층에게 필수 방문 코스로 언급된다."
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "1963년 일본 후쿠오카 나가하마에서 시작한 전통 라멘 전문점의 첫 한국 지점(부산 해운대)으로, 미쉐린 가이드 부산 빕 구르망에 등재되어 있다. 단품 라멘과 교자 세트 등 단일 라멘에 집중하는 전문점이다.",
+  "photoUrls": [
+    "https://prod-pics.guide.michelin.com/api/public/content/ba3846ac16e743f59fa2c37df6bbdcbb.jpg?format=webp",
+    "https://prod-pics.guide.michelin.com/api/public/content/2dec84edba2f4dbfb22bdb747678d51f.jpg?format=webp"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "나가하마 라멘 12,000원 / 나가하마 라멘 교자 세트 19,000원",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해리단길 안쪽으로 깊숙이 들어가면 긴 줄이 보인다. 1960년대에 후쿠오카 나가하마에서 시작한 라멘 전문점이 부산에 처음 지점을 연 곳이다. 이곳의 라멘은 돈 사골을 오랜 시간 고아 낸 국물에 비법 간장을 넣어 진하면서도 무겁지 않은 맛을 낸다. 취향에 따라 면의 삶기 정도를 선택할 수 있고 생마늘이나 매운 소스를 첨가해 즐길 수도 있다. 짜게 느껴진다면 국물을 더 요청할 수도 있으니 망설이지 말고 취향껏 추가해 먹어볼 것을 권한다.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/nagahama-mangetsu"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/nagahama-mangetsu"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1963년부터 후쿠오카 나가하마에서 이어져 온 60여 년 역사의 전통 라멘 노포 한국 1호 지점이다.",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "돈 사골을 오랜 시간 푹 고아 낸 국물과 비법 간장, 조절 가능한 면 삶기와 마늘·매운 소스 등의 깊은 감칠맛을 자랑한다.",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산 빕 구르망에 선정되어 공인된 맛과 대중적 인기를 누린다.",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

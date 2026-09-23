@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220810692025",
+  "name": "직송식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 33951,
+  "researchedAt": "2026-09-22T06:00:44.183Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "자연산회",
+      "활어회"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사상구 감전시장 인근 공단/주거 배후 상권으로 구청 업무추진비 집행 및 인근 주민이 찾는 로컬 식당"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사상구 새벽로168번길(감전제일상가시장 인근)에 등록된 일반음식점(횟집)으로 공공데이터 및 구청 인허가/행정자료상 '직송식당' 및 '직송횟집'으로 확인되나, 상세 블로그 리뷰나 메뉴판 정보는 매우 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 새벽로168번길 17 (감전동), 직송식당, 한식 음식점업, 사상구청 업무추진비 및 음식점 인허가 내역",
+      "url": "https://www.sasang.go.kr"
+    },
+    {
+      "excerpt": "직송횟집 (직송회도매센타) 주소: 부산광역시 사상구 새벽로168번길 9 (감전동 121-60), 전화번호: 051-317-5065, 감전제일상가시장 근처 자연산회 전문",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감전동 새벽시장 골목 일대에서 자연산 회와 신선한 해산물을 취급하는 로컬 횟집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

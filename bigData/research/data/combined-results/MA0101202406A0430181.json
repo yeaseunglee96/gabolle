@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202406A0430181",
+  "name": "은상",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 66382,
+  "researchedAt": "2026-09-22T07:08:05.682Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도 대기/혼잡 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 1인 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생새우덮밥",
+      "특생새우덮밥",
+      "연어새우덮밥",
+      "지라시스시"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30~21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인과 관광객 모두에게 인기가 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 광안리 골목 2층에 위치한 생새우/해산물 덮밥 전문 일식당",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "당일 조업한 생참다랑어나 신선한 단새우 등 제철 해산물을 활용한 카이센동(해산물 덮밥)이 대표 메뉴입니다. 정갈한 한 상 차림으로 제공되며, 현지인과 관광객 모두에게 인기가 많습니다. 부산광역시 수영구 광안해변로307번길 25-2, 2층. 생새우덮밥, 특생새우덮밥, 연어새우덮밥, 연어오차즈케, 새우장 등 새우 요리를 전문으로 하는 곳으로 알려져 있습니다.",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://matple.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 단새우와 생참다랑어 등 제철 해산물을 활용한 정갈한 카이센동과 생새우덮밥을 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220814084596",
+  "name": "돈까스예찬",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 69626,
+  "researchedAt": "2026-09-22T12:20:27.713Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼밥 또는 지인 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제돈까스",
+      "모밀"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "부산진구 부전동 242-7 1층(서면로68번길 44)에 위치한 수제돈까스 전문점으로 가성비와 다양한 소스, 혼밥 편의성 등이 언급됨",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/NFhYC/btspxrLGqFr/AAAAAAAAAAAAAAAAAAAAAMyS0Rr3eHNifBkm72FtGnNIXlxYlI02rorzbjYEOXku/img.jpg"
+  ],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "수제돈까스 맛집 서면에 있는 돈까스 예찬입니다. 부산 서면에 있는 수제돈까스 맛집이예요. 근처에서 시원한 모밀을 먹고 싶은데, 도무지 검색으로 찾을 수 없어, 직접 근처를 돌아다니며 발품을 팔아 찾아낸 맛집이랍니다. 주변에 있는 서면의 다른 음식점들과 비교했을 때 가격도 저렴하고 맛도 좋아요. 입구에서 보면 식당이 넓어 보이지 않는데, 식당 안으로 들어가면 밖에서 보던 것과는 달리 식당이 넓고, 테이블도 많이 있습니다. 테이블 상판이 보통의 식당들과는 다르게 철판느낌이예요. 메뉴도 보시면 다양하죠. 매일 매일 가도 다르게 먹을 수 있고, 셀프바에 가시면 밥,야채 리필 가능하구요, 소스는 직원분께 말씀하시면 리필 가능해요 혼밥하기도 편안할 수 있게 테이블 세팅되어 있고, 친구랑 여럿이 가서 다양하게 시켜 맛보기도 좋고, 여러모로 장점이 많은 식당인 듯 해요. 돈까스 좋아하시는 분들에게 강추 강추~!! 소스도 5가지나 있어 원하는 대로 고를 수 있답니다.",
+      "url": "https://happiness-is-nearby.tistory.com/13"
+    }
+  ],
+  "sources": [
+    "https://happiness-is-nearby.tistory.com/13"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서면 타 음식점 대비 저렴한 가격에 맛이 좋고, 밥과 야채 및 소스 리필이 가능하여 가성비가 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "혼밥하기 편한 좌석 세팅과 함께 여럿이 가기에도 넉넉한 공간 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "수제돈까스와 5가지의 다양한 소스 선택지 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811875388",
+  "name": "정엽국밥집",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 58367,
+  "researchedAt": "2026-09-22T06:25:11.551Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 사하구 구평로 6-1 소재의 '정엽국밥집'/'정엽국밥'을 검색하였으나, 웹상에 일치하는 음식점 정보나 문서가 확인되지 않습니다.",
+  "notes": "웹 검색 결과 해당 상호 및 주소와 일치하는 식당 정보가 존재하지 않아 조사를 종료합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

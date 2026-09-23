@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220812509626",
+  "name": "제주옥탑",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 89926,
+  "researchedAt": "2026-09-22T11:42:10.588Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "대기 손님이 발생하며 30분 이상 웨이팅 시 감귤 에이드 제공 등의 대기 서비스가 있음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 여행객, 가족",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "흑돼지 숄더랙",
+      "흑돼지 본삼겹",
+      "흑돼지 본생갈비"
+    ],
+    "yearsClaimed": 3
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "14:00 - 24:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 구남로 문화광장 인근 번화가에 위치해 관광객 및 방문객이 많이 찾는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "제주 흑돼지 전문점으로 해운대 구남로 15 2층에 위치. 드라이에이징/웻에이징 교차 숙성 흑돼지와 직원이 직접 구워주는 그릴링 서비스, 돌하르방 등 제주풍 인테리어가 특징임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "흑돼지 숄더랙 / 본삼겹 / 본생갈비 등 (100g당 약 11,000~12,000원대)",
+    "priceWon": 38000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제주옥탑 해운대점은 부산광역시 해운대구 구남로 15, 2층에 위치한 흑돼지 전문점으로 영업시간은 14:00 - 24:00이다. 직원이 고기를 직접 구워주는 그릴링 서비스를 제공하며 30분 이상 웨이팅 시 감귤 에이드를 서비스로 제공한다. 드라이에이징과 웻에이징 숙성법을 거친 최상급 흑돼지(흑돼지 숄더랙, 꽃목살, 본삼겹 등)를 제공한다. 매장 맞은편 골목에 위치한 현대 주차장 이용이 가능하다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://jejurooftop.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "웻에이징 및 드라이에이징 교차 숙성을 거친 품질 높은 흑돼지 구이 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원이 고기를 알맞게 처음부터 끝까지 직접 구워주는 편리한 그릴링 서비스 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "해운대역 구남로 문화광장 중심가에 인근 주차 지원 및 접근성이 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

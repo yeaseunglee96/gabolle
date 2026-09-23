@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220813586628",
+  "name": "명가",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 47842,
+  "researchedAt": "2026-09-22T11:56:37.497Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 수영구 남천바다로33번길 105) 및 수영구 일대 검색 결과 '명가'(일식 회/초밥)는 존재하지 않습니다. (해당 주소에는 '볶는집'이 위치해 있음)",
+  "notes": "조사 대상 음식점이 존재하지 않아 규칙에 따라 found:false 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

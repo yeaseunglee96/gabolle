@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220811408831",
+  "name": "청도횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 141332,
+  "researchedAt": "2026-09-22T11:31:20.039Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 줄서기 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 단체 회식, 어르신",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "도다리 회",
+      "밀치 회",
+      "모듬회",
+      "아나고회",
+      "매운탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 08:30 ~ 12:00 (변동 가능)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 vs 관광객 비중 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "민락동 수변공원 인근 상가 건물(3층)에 위치한 노포 횟집으로, 도다리와 밀치 등 신선한 활어회와 생선 잡뼈로 푹 끓여낸 진하고 칼칼한 매운탕, 그리고 노부부의 친절한 정겨운 서비스가 특징임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락동에 위치한 청도횟집에 대한 식신(Siksin)의 정보입니다. 주소: 부산광역시 수영구 민락수변로7번길 19, 3층 (민락동 181-72). 특징: 도다리와 밀치 회가 대표 메뉴로, 쫄깃한 식감과 고소하고 담백한 맛이 특징입니다. 생선 잡뼈를 듬뿍 넣어 비린내 없이 진하고 칼칼한 맛을 내는 매운탕이 좋은 평가를 받고 있습니다. 노부부가 운영하는 정겨운 분위기의 노포 횟집으로, 친절하고 세심한 서비스로 알려져 있습니다. 영업시간: 주중 08:30 ~ 12:00 (영업 시간은 변동될 수 있으므로 방문 전 확인을 권장합니다). 문의: 0507-1331-5304. 대표 메뉴: 모듬회(소/중/대), 아나고회, 매운탕 등.",
+      "url": "https://www.siksinhot.com/P/386008"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/386008"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "쫄깃하고 고소·담백한 도다리·밀치 회와 잡뼈를 듬뿍 넣어 비린내 없이 칼칼하고 진한 매운탕 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "노부부가 운영하는 푸근하고 정겨운 노포 분위기와 친절하고 세심한 응대",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220810520521",
+  "name": "아날로그키친",
+  "cat": "파스타/스테이크",
+  "attempts": 1,
+  "geminiTokens": 86405,
+  "researchedAt": "2026-09-22T09:53:38.122Z",
+  "crowding": {
+    "found": true,
+    "note": "매장이 6~7개 테이블로 작아 평일에도 만석인 경우가 많으므로 예약 후 방문 권장"
+  },
+  "descriptors": {
+    "audience": "커플·소모임",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "까망베르 크림불고기"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 18:00 - 24:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 서구청 인근 골목 로컬 맛집으로, 현지인 위주 언급. 관광객 특별 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true,
+    "note": "까망베르 크림불고기 등 안주류 + 하이볼·증류주·전통주 등 주류. 정확한 메뉴 수 미확인"
+  },
+  "notes": "실제 블로그 원문 URL 확보 실패 — 구글 그라운딩 API가 리다이렉트 URL만 제공하고 tistory 직접 접근 불가. 여러 검색에서 일관된 정보로 가게 존재 확인. 주소는 '구덕로142번길 37'과 '구덕로120번길 23' 두 가지가 혼재 — 동일 가게의 도로명 주소 차이 또는 이전 가능성. 파스타/스테이크 업종이 아닌 요리주점(안주 중심) 성격이 강한 것으로 언급됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "까망베르 크림불고기 25,000원",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "아늑하고 분위기가 좋아 데이트 장소나 소규모 모임, 회식 장소로 인기가 많습니다. 매장 규모가 크지 않아(6~7개 테이블) 예약 후 방문하는 것을 추천합니다. 대표 메뉴 예시: 까망베르 크림불고기 (25,000원) — 불고기, 치즈, 땡초가 어우러진 메뉴로, 빵과 함께 제공되어 식사 겸 안주로 인기가 많습니다. 하이볼, 증류주, 전통주 등 다양한 주류를 판매합니다.",
+      "url": "tistory.com (via Google grounding)"
+    },
+    {
+      "excerpt": "부산광역시 서구 구덕로142번길 37 (부산 서구청 옆 골목). 매장 규모가 아주 크지 않아 평일에도 만석이 되는 경우가 많으므로 예약 후 방문하는 것을 추천합니다. 주요 메뉴로 육사시미 등이 있으며, 분위기 좋은 요리주점으로 블로그 리뷰 등이 다수 등록되어 있습니다. 영업시간: 월~토 18:00 - 24:00 (일요일 휴무)",
+      "url": "tistory.com (via Google grounding)"
+    }
+  ],
+  "sources": [
+    "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEuPoYrFgsNEl-0oIb-Zt3UmSiwfYXaEIxOC-119yviNAcWDjAzVHlDT6P1q-ppwAJxT1wNv2ky-l-ER3c8bjmZ8BgjnUwlmtWB8bIXUekoOwc0tR-TVBK5y3A=",
+    "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGIqOtkkMaTBToPJUMGsX_-JvRM1RpyjCjbFSGs5S7H_d3V8wPPqmL75qjs3AFreG3NHE7GDof8SEACltyUUqpzuqUBgDCzkkR7RnNs8TfKknGlrREkysB74Bg="
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "까망베르 크림불고기 등 특색 있는 메뉴가 맛과 비주얼 면에서 인기",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "아늑하고 감성적인 인테리어로 데이트·소모임 장소로 선택",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "평일에도 만석인 로컬 맛집으로 예약 필수라는 후기 다수",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

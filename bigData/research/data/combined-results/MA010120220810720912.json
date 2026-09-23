@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220810720912",
+  "name": "리나정",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 68430,
+  "researchedAt": "2026-09-22T06:43:30.853Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 줄서기 관련 온라인 후기 정보 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민, 동네 단골",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "아구찜"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "상세 영업시간 정보 미제공"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "북구 덕천3동 지역 희망나눔가게 및 착한가격업소 등록 동네 주민 위주 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 북구 덕천동 소재 한식당으로 착한가격업소 및 희망나눔가게로 등록되어 있으며 아구찜 등을 취급함",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "아구찜(소)",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 북구 덕천동에 위치한 '리나정(리나네아구찜)'... 상호명: 리나정 (또는 리나네아구찜), 주요 메뉴: 아구찜(소: 25,000원 등), 연락처: 051-337-9559, 위치: 부산광역시 북구 만덕대로66번길 28 (덕천3동), 이곳은 부산 북구청 자료 등에 따르면 지역사회 내 나눔 활동에 참여하는 '희망나눔가게'로도 알려져 있습니다.",
+      "url": "https://www.bsbukgu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.bsbukgu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "북구 착한가격업소 등록 및 저렴한 가격대의 아구찜 등 한식 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "덕천3동 희망나눔가게 지정 등 지역 사회 기부 및 동네 주민 기반 운영",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

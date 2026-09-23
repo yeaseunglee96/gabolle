@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202508A0000544",
+  "name": "오만거때만거",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 49906,
+  "researchedAt": "2026-09-22T10:33:50.585Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말 저녁에는 웨이팅이 발생할 수 있어 사전 예약을 권장함"
+  },
+  "descriptors": {
+    "audience": "술모임/2차·3차 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "제철 해산물 모둠",
+      "오때카세",
+      "갑오징어 튀김",
+      "얼큰꽃게탕",
+      "숯불간장오돌갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:00 ~ 06:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락동에 위치한 심야 제철 해산물 포차/이자카야. 사장님이 직접 당일 공수한 제철 해산물과 오마카세(오때카세), 조림/탕/구이류를 제공하며 새벽 6시까지 심야 영업을 함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "오때카세(1인)",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오만거때만거는 부산광역시 수영구 민락본동로19번길 36-7 (민락동)에 위치한 해산물 전문 포차(이자카야)입니다. 제철 해산물과 사시미 등을 주메뉴로 하며, 심야 시간(오전 6시까지)에도 영업하여 2차, 3차 모임 장소로 인기가 많습니다. 매일 17:00 ~ 06:00. 주요 메뉴: 제철 해산물 모둠, 숯불간장오돌갈비, 얼큰꽃게탕, 각종 사시미 및 조림류 등. 전용 주차장은 없으므로 주변 공영주차장 이용이 권장됩니다. 주말 저녁에는 웨이팅이 발생할 수 있어 사전 예약을 권장합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "사장님이 직접 프리다이빙으로 당일 공수한 제철 해산물을 취급하며, 메뉴 폭이 넓고 신선도가 강점인 포차입니다. 오때카세(오마카세): 2인부터 주문 가능하며, 1인당 약 50,000원의 가격으로 다양한 해산물과 사시미를 한 번에 즐길 수 있는 메뉴로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "당일 공수한 신선한 제철 해산물과 다채로운 안주 요리를 맛볼 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "익일 새벽 6시까지 심야 영업을 하여 2차·3차 늦은 시간 술자리 모임에 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

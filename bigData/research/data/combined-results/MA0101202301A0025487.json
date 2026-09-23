@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202301A0025487",
+  "name": "우리콩순두부",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 127056,
+  "researchedAt": "2026-09-22T11:59:40.786Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "순두부찌개",
+      "부대찌개",
+      "청국장"
+    ],
+    "yearsClaimed": 15
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해수욕장 인근 로컬 식당 및 직장인/주민 대상 식당으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "해운대 해변로 이면도로에 위치한 소규모 한식당으로, 웹상에 세부 영업시간이나 상세 블로그 리뷰는 드물며 기본 상호명, 주소, 대표메뉴(순두부, 부대찌개, 청국장 등) 위주의 등록 정보가 확인됨",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 '우리콩순두부(우리콩순두부부대찌개)': 주소 부산광역시 해운대구 해운대해변로265번길 11-1 (우동), 순두부찌개, 된장찌개, 불낙전골 등을 판매하는 한식당입니다. 전화번호 051-747-2298. 구수한 청국장 등 한식 위주의 메뉴를 제공합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "순두부찌개, 청국장, 부대찌개 등 친숙하고 든든한 한식 백반 식사 목적",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

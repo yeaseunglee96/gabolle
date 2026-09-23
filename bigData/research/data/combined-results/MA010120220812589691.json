@@ -1,0 +1,82 @@
+{
+  "id": "MA010120220812589691",
+  "name": "구덕포끝집고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 45945,
+  "researchedAt": "2026-09-22T12:08:30.822Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많은 오션뷰 맛집으로 주말이나 피크 타임에는 대기 줄 및 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 가족, 반려견 동반 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "삼겹살",
+      "목살",
+      "끝집라면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 23:30 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 송정 해변 및 구덕포 오션뷰 명소로 관광객 및 나들이 방문객 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 송정 바다 구덕포길 끝자락에 위치하여 탁 트인 오션뷰와 24시간 허브 숙성 돼지고기, 고사리 구이, 끝집라면이 유명한 고깃집입니다. 테라스 좌석 애견 동반 가능.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "고기류 (100g당 약 11,000원 선)",
+    "priceWon": 11000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "국내산 돼지고기를 월계수, 흑후추, 로즈마리 등 수십여 가지 허브와 정제소금, 구운 소금으로 밑간하여 24시간 숙성합니다. 숙성된 고기는 속은 촉촉하고 겉은 바삭한 풍미를 내며, 볶은 고사리를 곁들여 먹는 것이 별미로 꼽힙니다. 테라스 좌석: 송정 바다 풍경을 볼 수 있어 인기가 많으며, 애견 동반이 가능합니다.",
+      "url": "https://tripinfo.co.kr"
+    },
+    {
+      "excerpt": "구덕포끝집고기는 부산광역시 해운대구 송정구덕포길 178에 위치한 돼지고기 전문점입니다. 매일 12:00 ~ 23:30 (연중무휴), 주차 가능 (무료). 송정 바다와 구덕포의 풍경을 한눈에 감상할 수 있는 위치에 자리하고 있어 경치가 좋기로 유명합니다.",
+      "url": "https://tripinfo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tripinfo.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송정 바다와 구덕포 풍경이 한눈에 보이는 탁 트인 오션뷰 테라스 좌석",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "수십여 가지 허브와 소금으로 24시간 숙성한 육즙 가득한 돼지고기와 구운 고사리, 끝집라면 조합",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원이 고기를 구워주는 서비스 및 테라스석 애견 동반 가능 편의성",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220810752084",
+  "name": "호광유통",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 65160,
+  "researchedAt": "2026-09-22T12:13:23.108Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 해운대구 좌동순환로8번길 13 소재 '호광유통'을 다방면으로 검색하였으나, 일반 소비자를 대상으로 하는 음식점(돼지고기 구이/찜 등)으로서의 방문 후기, 메뉴, 영업 정보가 확인되지 않습니다. 해당 명칭의 사업체는 축산물 유통/가공 또는 통신판매업체로 등록된 기록만 확인되며 실제 식당으로서의 정보를 찾을 수 없어 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

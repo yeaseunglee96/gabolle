@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220810449664",
+  "name": "삼성관",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 64712,
+  "researchedAt": "2026-09-22T06:49:56.820Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 상세 정보 및 방문 리뷰 부재(폐업 추정)",
+  "notes": "부산광역시 영도구 중복길 223 소재 '삼성관'은 과거 영도구 신선동 일대에 존재했던 상호 흔적 외에 블로그 리뷰, 방문기, 메뉴 및 가격, 영업시간 등 유효한 상세 정보를 웹상에서 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

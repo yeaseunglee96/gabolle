@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220810584048",
+  "name": "내내식당",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 55526,
+  "researchedAt": "2026-09-22T06:26:38.546Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 사업자 등록(한식) 기록 외에 실제 운영 정보나 중국집 관련 리뷰 및 상세 정보가 전혀 존재하지 않음",
+  "notes": "부산광역시 동구 진성로 51(좌천동)에 '내내식당'이라는 상호의 전화번호/사업자 정보는 일반한식으로 일부 조회되나, 중국집 업종이 아니며 웹상에 실제 방문자 리뷰, 메뉴판, 영업시간, 사진 등의 상세 정보가 일절 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": []
+}

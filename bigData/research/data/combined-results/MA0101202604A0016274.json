@@ -1,0 +1,43 @@
+{
+  "id": "MA0101202604A0016274",
+  "name": "세레노",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 74127,
+  "researchedAt": "2026-09-22T07:04:50.637Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "기타",
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 우동1로38번가길 31(해리단길 인근)에 등록된 외식업체(이태리 식당/경양식) '세레노(Sereno)'는 사업자/기업 정보 및 식신 등의 디렉토리 목록에는 등록되어 있으나, 일반 방문 리뷰나 블로그 글, 세부 영업시간/메뉴/가격/사진 등의 소비자 상세 정보가 웹상에 거의 남아있지 않거나 폐업/미운영 상태로 추정됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'세레노(Sereno)'는 부산광역시 해운대구 우동1로38번가길 31에 위치한 외식업체입니다. 주소: 부산광역시 해운대구 우동1로38번가길 31, 업종: 외식업·식음료, 분류: 이태리 음식점(이태리 식당)으로 분류되기도 합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.saramin.co.kr"
+  ],
+  "whyPeopleGo": []
+}

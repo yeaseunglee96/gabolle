@@ -1,0 +1,82 @@
+{
+  "id": "MA010120220813173716",
+  "name": "미포할매복집",
+  "cat": "복 요리 전문",
+  "attempts": 1,
+  "geminiTokens": 100244,
+  "researchedAt": "2026-09-22T06:56:41.187Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "방문 시 안쪽에 어르신 모임이 있었으나 줄서기나 대기에 대한 언급은 없음"
+  },
+  "descriptors": {
+    "audience": "단골 어르신 및 해운대 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "복국",
+      "복불고기",
+      "전복죽"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오픈 시간 07:00 마감 시간 15:00 / 휴무일 월요일"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "오래된 단골 어르신들이 많이 찾는 곳이자 해운대 여행객·방문객이 아침 식사로 들르는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "해운대 달맞이길/미포 입구에 위치한 복요리 전문점으로 '미포할매복국본가' 또는 '미포할매복집'으로 불립니다. 복국(은복, 밀복, 까치복, 참복 지리/매운탕)과 전복죽 등이 대표 메뉴입니다.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/U8777/dJMcaaF4eSh/AAAAAAAAAAAAAAAAAAAAANFvkNrAkb1mVZt3qVHWVdhWCDNM9t0zlJpm7qGWtg8Z/tfile.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=mJBV28cEjOrkU0lsnNnpnkP82Ic%3D",
+    "https://blog.kakaocdn.net/dna/wDauH/dJMcaaeXMiN/AAAAAAAAAAAAAAAAAAAAAPwuBiLWDn7YAaUpquQy3mW9G6nZSmchrlWsgy71me6t/tfile.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=kuF4uykI1XQfFXZy1gEF4X6%2BvYA%3D",
+    "https://blog.kakaocdn.net/dna/Q9LuH/dJMcaaF4eSr/AAAAAAAAAAAAAAAAAAAAAOvNPDDBONB_vFHxbh-dwCQw8zNmsTrWLhC8knbZ6q63/tfile.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=GA91ZDy5mg%2FAAJ2mT6K4kd4RXXo%3D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "전복죽 15,000원 / 은복 14,000원 / 밀복 23,000원 / 까치복 23,000원 / 참복 35,000원",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "원래는 복국집으로 유명한 곳인데, 예전에 지인과 함께 복국을 먹으러 갔다가 엄청 많은 양에 깜짝 놀랐던 적이 있어요 둘이서 반도 못 먹어서 지인이 포장해서 집으로 가져갔었어요 그 후에 우연히 혼자 들어가서 전복죽을 먹었다가 너무 맛있어서 다시 가보고 싶었던 미포 할매 복국에 친구랑 같이 갔다왔어요 위치 부산 해운대구 달맞이길 62번길 27-1 전화번호 051-741-4114 영업시간 오픈 시간 07:00 마감 시간 15:00 휴무일 월요일 1층으로 되어 있는 데, 홀과 룸으로 되어있어요 오래된 단골분들이 많이 오는 곳이에요 제가 갔던 날도 안쪽에 어르신들 모임이 있는 것 같아 보이더라고요 주문한 메뉴 전복죽 15,000 다른 전복죽 집에 비해서 기본 밑반찬이 많은 편이에요 여러가지 채소와 해초로 만든 밑반찬들이라서 좋았어요",
+      "url": "https://zero0712.com/entry/%EB%AF%B8%ED%8F%AC-%ED%95%A0%EB%A7%A4-%EB%B3%B5%EA%B5%AD%EC%97%90%EC%84%9C-%EC%A0%84%EB%B3%B5%EC%A3%BD-%EB%A8%B9%EA%B3%A0-%EC%98%A8-%ED%9B%84%EA%B8%B0"
+    }
+  ],
+  "sources": [
+    "https://zero0712.com/entry/%EB%AF%B8%ED%8F%AC-%ED%95%A0%EB%A7%A4-%EB%B3%B5%EA%B5%AD%EC%97%90%EC%84%9C-%EC%A0%84%EB%B3%B5%EC%A3%BD-%EB%A8%B9%EA%B3%A0-%EC%98%A8-%ED%9B%84%EA%B8%B0"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "시원하고 푸짐한 양의 복국과 밑반찬이 잘 갖춰진 전복죽의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오전 일찍 문을 열어 해운대 미포에서 속 편한 아침 식사와 해장 한 끼를 즐기기 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "오랜 기간 방문해온 지역 단골 어르신들의 꾸준한 모임 및 방문 지지",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

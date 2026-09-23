@@ -1,0 +1,30 @@
+{
+  "id": "MA0101202507A0023117",
+  "name": "온다락",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47828,
+  "researchedAt": "2026-09-22T12:11:15.361Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 부산진구 서전로68번길 17) 및 전포동 일대에서 '온다락' 상호의 경양식 음식점 정보를 웹에서 찾을 수 없음",
+  "notes": "웹 검색 결과 해당 위치 및 상호의 음식점이 존재하지 않거나 정보가 등록되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

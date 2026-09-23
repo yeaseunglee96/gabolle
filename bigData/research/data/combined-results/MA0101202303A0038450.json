@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202303A0038450",
+  "name": "치즈해르트",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 46843,
+  "researchedAt": "2026-09-22T11:35:56.202Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "디저트/타르트 애호가 및 해리단길 카페 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 치즈 타르트"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "해운대 해리단길(우동1로 31 1층)에 입점해 있는 수제 치즈타르트 전문 디저트 매장으로 확인됩니다. 세부 영업시간 및 가격표 원문 정보는 웹상에 상세히 노출되어 있지 않아 해당 항목들은 미확인(found:false) 처리하였습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 해리단길에 위치한 '치즈해르트'는 우동(면 요리) 전문점이 아니라 수제 치즈 타르트 전문 디저트 카페입니다. 제철 과일을 듬뿍 올린 타르트와 크림치즈 베이스의 다양한 타르트 메뉴로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "크림치즈 베이스 및 제철 과일을 올린 수제 치즈 타르트 디저트를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

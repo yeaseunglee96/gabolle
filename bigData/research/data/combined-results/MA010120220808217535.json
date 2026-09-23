@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220808217535",
+  "name": "미스터식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 65949,
+  "researchedAt": "2026-09-22T11:55:36.097Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 사업체('미스터식당', 부산 해운대구 구남로 36-2, 사업자등록번호 441-26-00671)는 사업자 등록 및 부동산 데이터상 실존하는 계속사업자로 확인되나, 일반 방문객 후기, 블로그 리뷰, 상세 메뉴/가격/영업시간 등의 상세 정보는 웹상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미스터식당에 대한 사업자정보 과세유형 : 부가가치세 일반과세자 법인형태 : 개인과세사업자 사업자 현재 상태(※국세청 홈택스 실시간 정보제공) : 계속사업자 회사주소 : 부산광역시 해운대구 구남로 36-2 36-2, Gunam-ro, Haeundae-gu, Busan, Republic of Korea 사업자등록번호 : 441-26-00671",
+      "url": "https://bizno.net/article/4412600671"
+    }
+  ],
+  "sources": [
+    "https://bizno.net/article/4412600671"
+  ],
+  "whyPeopleGo": []
+}

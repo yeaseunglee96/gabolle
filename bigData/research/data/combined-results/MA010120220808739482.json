@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220808739482",
+  "name": "해금강곰장어",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 67127,
+  "researchedAt": "2026-09-22T10:41:03.795Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 현지인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "곰장어 소금구이",
+      "곰장어 양념구이",
+      "볶음밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 03:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 전통시장 내에 위치하여 관광객과 현지인이 모두 찾는 곳으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "해운대 전통시장 내 위치한 곰장어 전문점으로, 이연복 셰프가 방문하여 극찬한 단골 맛집으로 유명함. 주문 즉시 손질하는 산곰장어 구이(양념/소금)와 볶음밥이 대표적임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "곰장어 (소)",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 구남로41번길 37(해운대 전통시장 골목 내)에 위치해 있습니다. 싱싱한 곰장어를 바로 손질하여 조리하는 모습을 볼 수 있는 식당으로 알려져 있습니다. 이연복 셰프가 방문하여 극찬한 맛집으로 유명하며, 이로 인해 많은 여행객이 찾는 곳입니다. 대표 메뉴는 곰장어 소금구이와 양념구이입니다. 가격대는 소(小) 3~4만 원대부터 시작하며, 마지막에 볶음밥을 볶아 먹는 것이 별미로 언급됩니다. 영업시간은 오전 11:00부터 익일 03:00까지 운영하는 것으로 소개됩니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://daum.net",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "이연복 셰프가 극찬한 유명 곰장어 맛집으로 알려져 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주문 즉시 살아있는 곰장어를 손질해 신선하게 구워냄",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

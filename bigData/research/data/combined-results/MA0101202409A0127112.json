@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202409A0127112",
+  "name": "번하우스광안리점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 91970,
+  "researchedAt": "2026-09-22T10:32:35.274Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "별도 온라인 웨이팅 시스템은 없으나 2인석 위주 매장으로 주말·성수기 혼잡 가능"
+  },
+  "descriptors": {
+    "audience": "연인·1인 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모카번",
+      "시나몬번",
+      "초코번",
+      "레몬밀크롤"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00~18:00 (화요일, 수요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 13,
+    "found": true
+  },
+  "notes": "광안리 인근에 위치한 수제 번 및 롤 도넛 전문 베이커리 카페로 데이트 및 개별 방문에 적합한 공간입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "모카번 3,500원 / 시나몬번 3,800원 / 아메리카노 4,500원",
+    "priceWon": 3500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매장에서 직접 구운 시나몬번, 초코번, 모카크림번, 레몬밀크롤 등 다양한 번과 롤 도넛을 맛볼 수 있는 곳입니다. 푸른빛 외관과 영국 런던 로컬 감성이 느껴지는 따뜻한 나무 인테리어가 특징이며, 조용하고 아늑한 분위기로 데이트나 혼자 시간을 보내기에 적합합니다. 반려동물 동반이 가능하며, 포장 및 테이크아웃 할인 등의 서비스를 제공합니다.",
+      "url": "https://siksinhot.com/P/1666675"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com/P/1666675"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매장에서 직접 구워내는 다채로운 수제 번과 롤 도넛 디저트의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "영국 런던 감성의 아늑한 원목 인테리어와 차분한 공간 분위기",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

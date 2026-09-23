@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220811425120",
+  "name": "베트남식전문",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 46221,
+  "researchedAt": "2026-09-22T11:54:22.959Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 해운대구 해운대해변로 163, 현대베네시티)에 해당 상호 및 베트남 음식점의 실재 정보가 확인되지 않음",
+  "notes": "해당 주소지(부산광역시 해운대구 해운대해변로 163, 현대베네시티 상가)에는 '베트남식전문' 상호 또는 베트남 음식점이 존재하지 않거나 폐업/미운영 상태입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://dorojuso.kr"
+  ],
+  "whyPeopleGo": []
+}

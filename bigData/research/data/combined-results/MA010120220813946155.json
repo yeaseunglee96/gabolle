@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220813946155",
+  "name": "돼지.양",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 56247,
+  "researchedAt": "2026-09-22T10:45:48.243Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "과거 인허가 상호로만 등록되어 있고 현재는 맛찬들왕소금구이가 운영 중이며, 해당 상호의 실제 이용/방문 정보가 없습니다.",
+  "notes": "부산 해운대구 구남로24번길 29(지번: 우동 635-1)에는 과거 인허가 상호로 '돼지.양(숯불갈비)'이 등록된 이력만 확인되며, 현재는 '맛찬들왕소금구이 해운대점'이 운영 중입니다. '돼지.양'에 대한 실제 방문기, 메뉴 가격, 영업시간, 사진 등의 상세 정보는 웹상에 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.easyzip.co.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220808491063",
+  "name": "송뎅",
+  "cat": "김밥/만두/분식",
+  "attempts": 1,
+  "geminiTokens": 35720,
+  "researchedAt": "2026-09-22T09:47:34.610Z",
+  "crowding": {
+    "found": false,
+    "note": "관련 정보 없음"
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "4회 검색(일반 키워드·상호명 정확 검색·네이버 블로그 한정·주소 포함 검색) 및 여러 URL 직접 접근을 시도했으나, '송뎅'(부산 해운대구 송정해변로 42-8, 김밥/만두/분식)에 대한 블로그 리뷰·메뉴판·영업시간 등 실질적인 1차 정보를 담은 페이지를 읽는 데 실패했습니다. 검색 요약에서 업종·주소 정도만 간접 언급되었고, 실제 읽을 수 있는 리뷰 페이지나 이미지 URL은 확인되지 않았습니다. 가게 존재 자체는 사라민(saramin) 등 사업자 정보 데이터베이스에서 간접 확인되나, 구체적인 정보(가격·영업시간·리뷰·사진)를 담은 공개 페이지를 접근·독해하지 못했으므로 found:false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

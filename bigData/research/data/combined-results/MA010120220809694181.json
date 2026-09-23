@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220809694181",
+  "name": "스시문",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 89970,
+  "researchedAt": "2026-09-22T11:42:38.827Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "아파트 단지 주민 및 인근 주민",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "수제초밥",
+      "수제돈까스",
+      "모듬사시미"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 힐스테이트위브 아파트 상가 내 입점해 있어 관광객보다는 인근 아파트 단지 주민 중심의 지역 로컬 상권 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "해운대구 좌동순환로433번길 30-1 해운대힐스테이트위브 상가 B10호에 위치한 수제 초밥 및 돈까스, 사시미 전문 식당. (참고: 인근 좌동순환로 43에 위치한 유명 오마카세 '문스시'와는 상호가 유사하나 다른 매장임)",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스시문 (부산 해운대구 중동) 주소: 부산광역시 해운대구 좌동순환로433번길 30-1 (해운대힐스테이트위브 상가 B10호) 특징: 호텔 경험을 바탕으로 한 수제 초밥과 수제 돈까스 등을 판매하는 식당입니다. 다양한 초밥 세트(나홀로초밥, Moon 초밥, 특선초밥 등)와 사시미 메뉴가 준비되어 있습니다.",
+      "url": "https://www.siksinhot.com/P/1608670183181827"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1608670183181827"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "호텔 조리 경험을 바탕으로 한 수제 초밥과 수제 돈까스를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

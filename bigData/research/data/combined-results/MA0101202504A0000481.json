@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202504A0000481",
+  "name": "미까사에스뚜까사",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 53175,
+  "researchedAt": "2026-09-22T10:39:07.287Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 줄서기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "이국적인 멕시칸 요리를 즐기려는 연인, 친구 및 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "타코",
+      "플라우따스",
+      "치미창가"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "확인되지 않음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "사업자/상호명 '미까사에스뚜까사(Mi Casa Es Tu Casa)'는 '미까뚜까(MiCaTuCa)'라는 상호로 운영 중인 멕시칸 타코/경양식 요리 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "-",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미까뚜까(Mi Casa es Tu Casa). '내 집은 곧 네 집'이라는 따뜻한 의미를 담고 있으며, 타코, 플라우따스, 치미창가 등 현지 느낌이 물씬 나는 멕시칸 요리를 제공한다. 사장님이 멕시코 거주 당시 직접 구매해 온 소품들로 꾸며진 아늑하고 이국적인 인테리어가 특징.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "현지 느낌의 정통 멕시코 요리(타코, 치미창가, 플라우따스) 맛과 이국적인 남미풍 인테리어 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

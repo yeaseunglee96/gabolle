@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220805492624",
+  "name": "참치허",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 55407,
+  "researchedAt": "2026-09-22T12:20:49.916Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반/직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "참치회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 남구 용소로7번길 77 7번가빌딩 1층에 등록된 일식 참치회 전문점 '참치허'로 사업자 및 기본 매장 등록 정보는 확인되나, 상세 블로그 리뷰나 영업시간/메뉴판 등의 온라인 세부 정보가 매우 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 남구 용소로7번길 77 (대연동), 7번가빌딩 1층. 업종: 일식 (회/초밥)",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://www.disco.re"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대연동 경성대·부경대 인근에서 참치회를 전문으로 다루는 일식당",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

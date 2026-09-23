@@ -1,0 +1,61 @@
+{
+  "id": "MA0101202504A0033237",
+  "name": "애취",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 60247,
+  "researchedAt": "2026-09-22T12:06:31.430Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "얼큰 돼지항정 전골",
+      "크림부대찌개",
+      "육회 플라워",
+      "들기름 제육 두부김치",
+      "명란 에그 감자전"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 수영구 남천바다로33번길 108(광안동 196-7) 소재 요리주점 업소로 등록되어 있으나, 백반/한정식이 아닌 요리주점 형태이며 상세 리뷰 및 블로그 언급이 거의 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 남천바다로33번길 108 (지번 주소: 광안동 196-7), 나이트라이프 기타 (요리주점 등). 주요 메뉴: 얼큰 돼지항정 전골, 크림부대찌개, 육회 플라워, 들기름 제육 두부김치, 명란 에그 감자전 등 다양한 요리 안주를 판매하고 있습니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다양한 퓨전 한식 안주 요리를 즐길 수 있는 요리주점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

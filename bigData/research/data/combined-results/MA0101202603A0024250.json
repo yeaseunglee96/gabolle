@@ -1,0 +1,51 @@
+{
+  "id": "MA0101202603A0024250",
+  "name": "영예당",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 70133,
+  "researchedAt": "2026-09-22T06:31:48.274Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 북구 화명대로 108(화명유림아파트 상가동 2층 203호)에 제과점으로 인허가 등록되어 있으나, 방문 후기나 메뉴, 가격, 영업시간 등 상세 운영 정보가 웹상에 확인되지 않는 소규모/신규 등록 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업종: 제과점, 주소: 부산광역시 북구 화명대로 108, 화명유림아파트 상가동 2층 203호, 인허가 일자가 2026년 3월로 등록되어 있어, 비교적 최근에 영업을 시작했거나 정보가 갱신된 것으로 보입니다.",
+      "url": "https://sori114.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 북구 화명대로 108 (화명유림아파트)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://sori114.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202305A0165298",
+  "name": "페테",
+  "cat": "피자",
+  "attempts": 1,
+  "geminiTokens": 75708,
+  "researchedAt": "2026-09-22T11:59:38.455Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "공공데이터 및 상가 정보 상에 부산광역시 수영구 수영로 634-1 주소지에 '페테'(피자 업종)라는 상호가 등록된 흔적은 일부 확인되나, 실제 운영 여부, 상세 메뉴, 영업시간, 방문자 리뷰 및 사진 등 실제 음식점 운영과 관련된 구체적인 정보는 웹상에서 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://pervsi.com"
+  ]
+}

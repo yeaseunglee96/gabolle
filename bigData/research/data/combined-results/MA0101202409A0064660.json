@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202409A0064660",
+  "name": "유닝케이크",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 52911,
+  "researchedAt": "2026-09-22T11:35:48.563Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "기념일·생일 축하 방문객 및 선물 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "레터링 케이크",
+      "당일 케이크",
+      "한입 케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 21:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "주소 이전 또는 등록 주소지에 차이가 있을 수 있음 (부산 수영구 남천바다로 8-2 1층 및 무학로52번길 50 혼재). 100% 예약/주문제작 위주 레터링 케이크 매장으로 줄서기나 현장 식사 공간은 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 및 남천동 지역의 레터링 케이크, 당일 케이크, 한입 케이크 등으로 잘 알려져 있습니다. 다른 정보에서는 부산 수영구 남천바다로 8-2 1층(금련산역 3번 출구 인근)으로 기재되어 있기도 합니다. 영업시간: 매일 12:00 ~ 21:00",
+      "url": "http://pf.kakao.com/_qxjxbxbG"
+    },
+    {
+      "excerpt": "많은 이용객이 기념일(5주년, 생일 등)을 맞아 방문하며, 디자인과 퀄리티 면에서 전반적으로 높은 만족도를 보이고 있습니다. 레터링 케이크뿐만 아니라 한입 케이크 등 다양한 사이즈의 주문 제작 케이크를 제공하여 가볍게 선물하거나 축하하기 좋다는 평이 있습니다.",
+      "url": "http://pf.kakao.com/_qxjxbxbG/posts"
+    }
+  ],
+  "sources": [
+    "http://pf.kakao.com/_qxjxbxbG",
+    "http://pf.kakao.com/_qxjxbxbG/posts"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기념일 및 생일을 위한 맞춤형 디자인 레터링 케이크와 당일/한입 케이크 제작 편의성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202512A0034776",
+  "name": "라이크어플레임",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 66454,
+  "researchedAt": "2026-09-22T10:40:54.993Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 수영구 광안로61번길 7에 개인사업자(라이크어플레임/LAF) 등록 내역 외에 실제 방문 가능한 빵/도넛 베이커리 매장 정보나 리뷰가 존재하지 않음",
+  "notes": "사업자 등록 주소는 확인되나 일반 소비자가 방문하는 음식점/제과점 매장으로서의 리뷰, 가격, 영업시간, 메뉴 등의 실체적 영업 정보가 웹상에 확인되지 않음",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": []
+}

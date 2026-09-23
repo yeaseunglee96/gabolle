@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202506A0027891",
+  "name": "영주숯불갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 81032,
+  "researchedAt": "2026-09-22T06:27:05.475Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "웹상에 혼잡도나 줄서기에 대한 방문 후기 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민, 인근 직장인 및 관공서 관계자",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "갈비탕",
+      "숯불구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "웹상에 구체적인 영업시간 기재 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 부산 동구청 간담회나 인근 관공서/주민들이 주로 이용하는 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산광역시 동구 좌천동(정공단로 38)에 실재하는 숯불구이/갈비탕 전문 식당으로, 동구 지정 우수/건강음식점으로 등록되어 있습니다. 대중적인 블로그 및 SNS 방문 후기가 거의 없는 골목 로컬 업소입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "영주숯불갈비 | 주소: 부산광역시 동구 정공단로 38 (좌천동) | 전화번호: 051-634-1747 | 업종: 식육(숯불구이) | 주요메뉴: 갈비탕 | 지정현황: 건강음식점(우수음식점)",
+      "url": "https://www.bsdonggu.go.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.bsdonggu.go.kr/",
+    "https://findby.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동구청 지정 건강·우수음식점으로 인근 관공서 간담회 및 로컬 식사 장소로 이용됨",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

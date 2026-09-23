@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202406A0240851",
+  "name": "허그어스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65967,
+  "researchedAt": "2026-09-22T10:31:41.066Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "혼잡/줄서기 정보 미확인"
+  },
+  "descriptors": {
+    "audience": "연인 및 친구, 로컬 맥주/양식 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "파스타",
+      "수제 맥주"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "로컬 커뮤니티와 소통하며 주민 사랑방 역할을 하는 로컬 공간으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로 125에 위치한 허그어스(Hugus)는 경양식/서양식 파스타 및 수제 맥주(크래프트 비어)를 다루는 로컬 펍/음식점으로 확인됩니다. 상세 메뉴판 및 영업시간 정보는 웹상에서 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 125에 위치한 곳은 '허그어스(Hugus)'로 확인됩니다. 해당 업체는 광안리에서 운영 중인 수제 맥주집(크래프트 비어 펍)으로 알려져 있으며, 'Hug + Us(서로를 안고, 연결하고, 소통하자)'라는 의미를 담고 있습니다. 로컬 커뮤니티와 소통하며 다양한 수제 맥주를 선보이는 공간으로 소개되고 있습니다. 남천동(광안리해수욕장에서 도보 1분 거리)에 자리한 서양식·경양식 맛집으로 파스타를 비롯한 서양식 및 경양식 메뉴를 제공합니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "로컬 커뮤니티 소통 공간과 수제 맥주 및 서양식/경양식 요리를 즐기기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

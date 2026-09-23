@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220808739749",
+  "name": "돈파네",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58312,
+  "researchedAt": "2026-09-22T05:58:58.129Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 직장인",
+    "priceBand": "cheap",
+    "signatureDishes": [
+      "수제돈까스",
+      "1+1 수제돈까스",
+      "수제 로제치즈 퐁듀 돈까스"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 사하구 다대동(삼환아파트 상가 인근)에 위치한 수제 돈가스 전문 경양식당으로, 수제돈까스 및 1+1 돈까스 세트, 로제치즈 퐁듀 돈까스 등을 판매함. 블로그 후기나 상세 사진은 웹상에 거의 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "수제돈까스 9,000원, 1+1(원플러스원) 수제돈까스 16,000원, 수제 로제치즈 퐁듀 돈까스 12,000원",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 사하구에 위치한 돈까스 전문점 '돈파네'에 대한 정보입니다. 주소: 부산광역시 사하구 다대로429번길 12. 영업시간: 11:00 ~ 21:00. 주요 메뉴: 수제돈까스: 9,000원, 1+1(원플러스원) 수제돈까스: 16,000원, 수제 로제치즈 퐁듀 돈까스: 12,000원, 1+1 수제돈까스 + 치즈치킨까스: 16,000원, 돈파네 모듬돈까스: 13,000원, 모짜렐라 치즈 치킨까스: 9,500원, 비,돈(비빔국수 + 돈까스)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다양한 수제 돈까스와 가성비 좋은 1+1 돈까스 구성을 맛보기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1+1 수제돈까스 세트 등 합리적인 가격대에 푸짐한 메뉴를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

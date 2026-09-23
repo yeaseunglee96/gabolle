@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220813074297",
+  "name": "러브빈",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 64435,
+  "researchedAt": "2026-09-22T06:44:14.202Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "남녀노소/디저트 및 선물용 구매 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "마카롱",
+      "블루베리 마카롱",
+      "바나나우유 마카롱"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 북구 만덕동(덕천로 215/219)에 소재한 수제 디저트 및 마카롱 전문점으로, '러브빈마카롱'으로도 알려져 있습니다. 매일 직접 생산하는 덜 달고 쫀득한 식감의 마카롱이 주요 특징입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "덜 달고 쫀득한 마카롱을 매일 직접 만드는 곳",
+      "url": "https://blog.naver.com"
+    },
+    {
+      "excerpt": "과하게 달지 않으면서도 마카롱 특유의 쫀득한 식감이 잘 살아있다는 평이 많습니다. 블루베리, 바나나우유 등 다양한 맛을 즐길 수 있으며, 개별 포장된 세트 구성으로 선물용이나 단체 주문용으로도 인기가 있습니다.",
+      "url": "https://oopy.io"
+    }
+  ],
+  "sources": [
+    "https://blog.naver.com",
+    "https://oopy.io"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "과하게 달지 않으면서도 쫀득한 식감의 수제 마카롱을 매일 직접 제조함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

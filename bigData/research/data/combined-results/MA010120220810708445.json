@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220810708445",
+  "name": "모라성",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 56420,
+  "researchedAt": "2026-09-22T06:47:23.594Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "아파트 상가 내에 입점하여 인근 주민들이 배달 및 식사로 이용하는 동네 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 사상구 모라로192번길 24 모라주공아파트 상가 내 위치한 동네 중국집(일반음식점)으로, 인허가 및 기본 상호·위치 정보는 확인되나 상세 메뉴판/영업시간/리뷰 등은 온라인상에 거의 등록되어 있지 않은 소규모 동네 배달·상가 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 사상구 모라로192번길 24, 모라주공영구임대아파트 상가 가동 209호 (모라동) / 업태: 중국식 일반음식점 / 전화번호: 051-301-0894",
+      "url": "https://infosori.com"
+    },
+    {
+      "excerpt": "부산 사상구 모라동 75 모라성 중국요리",
+      "url": "https://chunman.li"
+    }
+  ],
+  "sources": [
+    "https://infosori.com",
+    "https://chunman.li"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "모라주공아파트 상가에 위치해 인근 주민들이 간편하게 이용하는 동네 중식당",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

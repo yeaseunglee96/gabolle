@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220814384771",
+  "name": "사십이",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 67022,
+  "researchedAt": "2026-09-22T11:34:08.066Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "웨이팅 발생 시 이용 시간이 2시간 30분으로 제한될 수 있으며 늦은 시간에는 재료 소진 가능성이 있음"
+  },
+  "descriptors": {
+    "audience": "혼술 및 연인/소규모 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "모듬 사시미",
+      "하이볼"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일요일 16:00~24:00 (매주 월요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 인근으로 바다 구경 후 들르는 관광객 및 조용한 혼술 손님들이 주로 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "일반적인 대형 횟집이 아닌 소규모 사시미/이자카야 스타일 감성 주점",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "모듬 사시미",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "조용하고 아늑한 분위기에서 혼술하기 좋은 곳으로 유명하며, 방문객들이 남기는 방명록이 비치되어 있는 것이 특징입니다. 광안역 3번 출구에서 도보로 약 10분(약 658m) 거리이며, 광안리 해수욕장과 가까워 바다 구경 후 방문하기 좋습니다. 화~일요일 16:00~24:00 (매주 월요일 정기 휴무). 늦은 시간에 방문할 경우 재료가 소진될 수 있으며, 웨이팅 발생 시 이용 시간이 2시간 30분으로 제한될 수 있습니다.",
+      "url": "https://trvlogue.com"
+    }
+  ],
+  "sources": [
+    "https://trvlogue.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 모듬 사시미와 함께 조용하고 아늑하게 혼술을 즐기기 좋은 분위기",
+      "sources": [
+        0
+      ],
+      "type": "분위기·감성"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202603A0004641",
+  "name": "후이퍼",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 69191,
+  "researchedAt": "2026-09-22T06:44:40.220Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "parking": false,
+    "queueing": false,
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산광역시 사상구 사상로277번길 50) 및 '후이퍼' 상호로 검색하였으나 일치하는 베트남 음식점이 존재하지 않습니다. (해당 주소지는 종교시설/엘림교회 등으로 확인됨)",
+  "notes": "가게가 실존하지 않아 조사를 종료합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

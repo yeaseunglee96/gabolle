@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202411A0006279",
+  "name": "오프더레코드광안리",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 57668,
+  "researchedAt": "2026-09-22T10:30:48.164Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼술 및 조용한 음악 감상객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "행정 인허가상 업종 분류(일반음식점-경양식)로 등록되었을 수 있으나, 해당 주소('부산 수영구 수영로510번길 57')에서 실제로 운영 중인 경양식 음식점은 확인되지 않으며, 광안리 일대에 동명의 '오프더레코드'는 음식점이 아닌 주류 및 음악 감상 중심의 리스닝 바(Listening Bar, 광안해변로 279번길 인근)로 식사 메뉴를 취급하지 않습니다.",
+  "notes": "요청된 '부산광역시 수영구 수영로510번길 57' 주소지의 '오프더레코드광안리'(경양식)는 실존하는 식당으로 확인되지 않아 규칙에 따라 found:false 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

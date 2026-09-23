@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220803184005",
+  "name": "부산초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 47422,
+  "researchedAt": "2026-09-22T11:45:24.665Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "직장인 회식, 가족 외식, 비즈니스 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥",
+      "생선회 코스요리",
+      "복지리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (브레이크 타임 14:30 ~ 16:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "롯데호텔/백화점 인근에 위치하여 단골손님들이 주로 찾는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 서면 롯데호텔 후문 인근에 위치한 정통 일식당으로 개별 룸과 단체석이 완비되어 회식 및 모임 장소로 이용됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "초밥 20,000원, 특초밥 30,000원, 생선회 코스요리 B 45,000원, 생복지리 20,000원",
+    "priceWon": 20000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오랫동안 한자리를 지켜온 일식집으로, 우드톤의 옛 분위기가 나는 매장입니다. 생선회 코스요리, 초밥, 회정식 외에도 복지리, 대구탕, 장어덮밥, 멍게비빔밥 등 다양한 일식 메뉴를 제공합니다. 1층 홀 좌석과 2층 단체석(의자 좌석)이 마련되어 있습니다. 신선한 재료를 강조하며, 롯데호텔 근처에 위치해 있어 단골손님들이 많이 찾는 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/P/324125"
+    },
+    {
+      "excerpt": "주소: 부산광역시 부산진구 부전로66번길 16 (서면 롯데백화점 본점 후문 근처). 주요 메뉴: 생선회 코스요리, 특초밥, 일식 정식, 복지리, 연어덮밥, 통영 멍게비빔밥 등. 룸이 구비되어 있어 가족 외식, 회식, 상견례 등 소규모 모임에 자주 이용됩니다.",
+      "url": "https://redtable.global/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/324125",
+    "https://redtable.global/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서면 롯데호텔/백화점 후문 근처에서 단골 중심의 신선한 일식 코스와 초밥을 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "1층 홀 외에도 개별 룸과 2층 단체석이 마련되어 회식이나 모임하기 편함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

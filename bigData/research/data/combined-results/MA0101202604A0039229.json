@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202604A0039229",
+  "name": "청춘",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 33611,
+  "researchedAt": "2026-09-22T11:56:55.448Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 남구 용소로13번길 40)에서 '청춘' 상호의 경양식 음식점을 찾을 수 없음 (하단끝집, 다꾸갈비 등 타 업종 매장 확인됨)",
+  "notes": "해당 주소지(부산 남구 용소로13번길 40) 및 인근 상권을 다각도로 검색했으나, '청춘'(경양식 업종)이라는 음식점의 실체 및 방문 리뷰를 찾을 수 없습니다. 동일 주소지에는 하단끝집, 다꾸갈비, 먹90다 등의 타 음식점이 입점/운영된 내역만 확인되어 원칙에 따라 found: false로 보고합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

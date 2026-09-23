@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220808648748",
+  "name": "찬팅",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 73559,
+  "researchedAt": "2026-09-22T05:59:17.448Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 정보 미확인 (부산 사상구 주례로 74 찬팅 관련 상세 리뷰 및 정보 부재)",
+  "notes": "부산광역시 사상구 주례로 74 소재의 '찬팅'(중국집)을 다각도로 검색하였으나, 실제 영업 및 방문 리뷰, 메뉴, 가격 등의 정보를 찾을 수 없어 조사를 종료합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

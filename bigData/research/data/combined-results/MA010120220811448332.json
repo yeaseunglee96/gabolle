@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220811448332",
+  "name": "갯마을수산",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 54423,
+  "researchedAt": "2026-09-22T11:29:41.731Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 관한 정보는 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 시장 방문객, 포장/배달 이용객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "광어",
+      "우럭",
+      "참가자미"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "민락골목시장 입구에 위치하여 포장 및 배달, 인근 주민 중심의 실속형 수산물/횟집으로 확인됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광남로 224 민락골목시장 입구에 위치한 '갯마을수산(갯마을횟집)'으로, 모듬회 및 활어회(광어, 우럭, 참가자미 등) 포장/배달 및 판매를 전문으로 하는 시장형 횟집/수산물 매장입니다. 온누리상품권 가맹점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 광남로 224 (민락동, 민락골목시장 입구). 민락골목시장 입구에 위치해 있으며, 회 포장 및 배달을 전문으로 하는 횟집입니다. 모듬회, 광어, 우럭, 참가자미 등 다양한 활어회 메뉴를 제공하며 온누리상품권 가맹점입니다.",
+      "url": "http://smci.co.kr"
+    }
+  ],
+  "sources": [
+    "http://smci.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "시장 입구에서 실속 있게 활어회를 포장 및 배달해 먹을 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "민락골목시장 인근 주민 및 시장 방문객의 포장/구매 접근성이 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

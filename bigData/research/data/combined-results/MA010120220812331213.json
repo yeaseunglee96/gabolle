@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220812331213",
+  "name": "카이브",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 55587,
+  "researchedAt": "2026-09-22T11:14:41.408Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "음식점 아님 (숙박시설 '카이브 부산 송정 1호점')",
+  "notes": "부산광역시 해운대구 송정광어골로 15에 위치한 '카이브'는 경양식 음식점이 아닌 단체 독채 풀빌라/펜션 숙박업체('카이브 부산 송정 1호점')입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 송정광어골로 15는 '카이브 부산 송정 1호점'의 주소입니다. 카이브(KAIVE)는 송정해수욕장 인근에서 운영되는 프라이빗 단체 숙소로, 해당 주소의 1호점을 비롯해 여러 지점이 인근에 위치해 있습니다. 지점별 주소: 송정 1호점: 부산광역시 해운대구 송정광어골로 15",
+      "url": "https://kaive.co.kr"
+    }
+  ],
+  "sources": [
+    "https://kaive.co.kr"
+  ],
+  "whyPeopleGo": []
+}

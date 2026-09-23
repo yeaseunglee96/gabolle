@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220800923376",
+  "name": "미우",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 68450,
+  "researchedAt": "2026-09-22T11:30:01.018Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "단체 회식 및 가족 외식",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "숙성 삼겹살",
+      "돼지왕갈비",
+      "한우 꽃등심"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 01:00에 영업 종료"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해운대 구남로 22 2층에 위치한 '미우 숯불갈비'로 확인됨. 프리미엄 한돈 및 한우 숯불구이 전문점이며 단체석 및 콜키지 프리 서비스를 제공함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "숙성 삼겹살 (130g) 13,000원, 숙성 목살 13,000원, 돼지왕갈비 13,000원, 한우 꽃등심 32,000원",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미우 숯불갈비(부산광역시 해운대구 구남로 22, 2층). 프리미엄 한우와 한돈, 숙성 삼겹살, 돼지왕갈비 등을 숯불에 구워 즐길 수 있습니다. 단체 모임(최대 90석 수용 가능) 및 회식에 적합한 넓은 공간과 개별 룸이 마련되어 있습니다. 콜키지 프리 서비스를 운영하여 와인이나 위스키를 가져가서 마실 수 있으며, 전용 잔도 제공합니다. 매일 01:00에 영업 종료. 숙성 삼겹살 (130g): 13,000원, 돼지왕갈비: 13,000원.",
+      "url": "https://www.siksinhot.com/search?keywords=구남로+22+미우"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/search?keywords=구남로+22+미우"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "프리미엄 한돈·한우 숯불구이와 단체 룸 완비 및 콜키지 프리 편의 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "숙성 삼겹살 및 돼지왕갈비 등 숯불구이의 우수한 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

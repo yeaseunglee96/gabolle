@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202406A0040356",
+  "name": "극동횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 77121,
+  "researchedAt": "2026-09-22T12:15:35.082Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족/관광객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "아나고회",
+      "모듬회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "기장군 연화리 대변항 인근 소재 확인. 아나고회 및 모듬회를 다루는 곳으로 언급되나 상세 웹페이지 리뷰 및 정량 세부정보(영업시간, 줄서기 등)는 거의 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 기장군 기장읍 연화1길 163-3. 특징: 기장 대변항 인근에 위치한 횟집으로, 오션뷰를 즐길 수 있는 곳으로 알려져 있습니다. 아나고회, 모듬회, 코스요리 등을 주요 메뉴로 제공합니다.",
+      "url": "https://maptons.com"
+    }
+  ],
+  "sources": [
+    "https://maptons.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바다 전망과 함께 기장 특산물인 아나고회 및 모듬회를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

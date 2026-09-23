@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202603A0001549",
+  "name": "광안만쿠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 66320,
+  "researchedAt": "2026-09-22T10:30:13.560Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 대기 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "미상",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오뎅"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 수영구 민락로 9에 위치한 오뎅바 전문점이나, 상세 블로그 리뷰/메뉴판/영업시간 등 상세 이용자 후기 정보는 웹상에 매우 제한적임",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락로 9 (민락동) 1층 오뎅바 전문점 광안 만쿠",
+      "url": "https://www.albamon.com"
+    }
+  ],
+  "sources": [
+    "https://www.albamon.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 인근에 위치한 오뎅바 전문 주점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

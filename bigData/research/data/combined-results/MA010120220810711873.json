@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220810711873",
+  "name": "황금정",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 61726,
+  "researchedAt": "2026-09-22T06:47:24.185Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 언급을 확인하지 못함"
+  },
+  "descriptors": {
+    "audience": "가족 및 중장년 보양식 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "황칠삼계탕",
+      "황칠나무오리백숙",
+      "황칠나무해신탕"
+    ],
+    "yearsClaimed": 20
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광지 식당이 아닌 금곡동 주택단지 내 위치한 지역 기반 보양식 음식점으로 현지 주민들이 주로 이용"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 북구 효열로 222(금곡동 57-9)에 위치한 황금정은 황칠나무 연구가인 김상배 대표가 운영하는 황칠 오리/닭 보양식 및 고기 요리 전문점으로 확인되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "황칠나무와 오리를 활용한 보양식을 제공하는 음식점으로, 김상배 대표가 운영하고 있다. 지인의 암 치료 경험을 계기 삼아 20여 년간 황칠나무를 연구해 온 전문가로 소개되었다. 황칠나무의 효능을 알리기 위해 실내건축업을 그만두고 요리연구가로 나서며 설립한 곳으로 알려져 있다. 부산 금곡동 부산본점 등이 운영되고 있다.",
+      "url": "http://www.inewspeople.co.kr/news/articleView.html?idxno=10557"
+    },
+    {
+      "excerpt": "부산광역시 북구 효열로 222 (금곡동 57-9) 국민주택단지 내, 황칠나무해신탕, 황칠나무오리백숙, 황칠삼계탕 등이 대표적인 보양식 전문점. 북구 안심식당 등록.",
+      "url": "https://www.siksinhot.com/P/381180"
+    }
+  ],
+  "sources": [
+    "http://www.inewspeople.co.kr/news/articleView.html?idxno=10557",
+    "https://www.siksinhot.com/P/381180"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "황칠나무를 20여 년간 연구한 대표가 직접 조리하는 황칠오리백숙, 황칠삼계탕 등 특색 있는 건강 보양식을 맛보기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

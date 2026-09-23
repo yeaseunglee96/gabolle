@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220804427095",
+  "name": "물찬제비",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 71376,
+  "researchedAt": "2026-09-22T11:51:03.495Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 매장으로 웨이팅 대기 시간이 있을 수 있어 예약 권장됨"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 가족",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "새우크림뇨끼",
+      "츠바메 오일파스타",
+      "갈비초밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~목 11:30~21:30 (브레이크타임 15:30~17:00 / 라스트오더 20:20), 일 11:30~21:30 (브레이크타임 16:00~17:00 / 라스트오더 20:20), 월요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "정보 없음",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 전포동에 위치한 '물찬제비'는 전포카페거리 중심에 자리 잡은 퓨전 양식 전문점입니다. 아늑하고 감성적인 분위기를 갖추고 있어 가족, 연인, 친구와 함께 방문하기 좋은 곳입니다. 시그니처 세트 메뉴로는 츠바메 오일 파스타, 새우 크림 뇨끼, 갈비 초밥, 자몽 에이드 등이 있으며, 독특한 풍미의 요리를 제공합니다. 부산광역시 부산진구 전포동 677-15번지 2층에 위치하고 있습니다.",
+      "url": "https://autoreserve.com"
+    },
+    {
+      "excerpt": "새우 크림 뇨끼: 쫄깃한 식감과 진한 크림 소스가 특징인 대표 인기 메뉴. 갈비 초밥: 부드러운 갈비와밥의 조화가 일품. 주택을 개조한 감성적인 분위기로, 혼밥을 위한 좌석도 마련되어 있습니다. 예약이 가능한 매장으로, 인기가 많은 곳이므로 방문 전 예약 여부를 확인하면 대기 시간을 줄일 수 있습니다. 화~목요일: 11:30 ~ 21:30 (브레이크 타임 15:30 ~ 17:00 / 라스트 오더 20:20) 일요일: 11:30 ~ 21:30 (브레이크 타임 16:00 ~ 17:00 / 라스트 오더 20:20) 월요일 정기휴무.",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "새우크림뇨끼와 갈비초밥 등 특색 있는 퓨전 양식 메뉴와 감성적인 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

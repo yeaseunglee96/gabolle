@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220811404676",
+  "name": "소문난대구탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 83503,
+  "researchedAt": "2026-09-22T06:49:30.833Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기에 대한 명시적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "여행객 및 현지 주민 식사/해장",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "대구탕",
+      "대구뽈찜"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~목, 일 10:00 - 22:00 / 금~토 08:30 - 22:00 (또는 매일 08:00 - 22:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 미포·엘시티 인근에 위치하여 여행객 아침 해장 및 현지인 식사로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 달맞이길62번길 31(중동 957-14)에 위치한 식당으로, 대구탕과 대구뽈찜을 주력으로 하는 국/탕/찌개류 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "대구탕, 대구뽈찜",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업체명: 소문난대구탕 (소문난 대구탕•뽈찜). 주소: 부산광역시 해운대구 달맞이길62번길 31 (지번 주소: 부산광역시 해운대구 중동 957-14). 전화번호: 051-743-6344. 주요 메뉴: 대구탕, 뽈찜. 영업시간: 월~목, 일: 10:00 - 22:00, 금~토: 08:30 - 22:00.",
+      "url": "https://www.konest.com/contents/gourmet_mise_detail.html?id=12959"
+    }
+  ],
+  "sources": [
+    "https://www.konest.com/contents/gourmet_mise_detail.html?id=12959"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미포선착장 및 엘시티 인근에서 시원한 국물의 대구탕과 대구뽈찜으로 아침 식사 및 해장을 하기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 달맞이길 미포 골목에 인접하여 접근이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

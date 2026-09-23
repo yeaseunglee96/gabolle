@@ -1,0 +1,47 @@
+{
+  "id": "MA0101202508A0034451",
+  "name": "굿키드",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 43968,
+  "researchedAt": "2026-09-22T11:43:53.837Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "불명",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "사업자등록/채용공고 등 상가 데이터에는 2025년 8월 설립, 음료 제조 및 간단한 요리 판매(경양식) 업종으로 등록된 이력이 확인되나, 실제 방문 후기나 블로그 리뷰, 메뉴판, 영업시간, 혼잡도 등 상세 정보는 웹상에 공개되어 있지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "굿키드는 2025년 8월에 설립된 기업으로, 주요 사업 내용은 음료 제조, 손님 응대, 그리고 간단한 요리 판매입니다. 위치: 부산광역시 부산진구 중앙대로 722-4",
+      "url": "https://www.albamon.com"
+    }
+  ],
+  "sources": [
+    "https://www.albamon.com"
+  ],
+  "whyPeopleGo": []
+}

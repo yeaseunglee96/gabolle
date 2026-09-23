@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202506A0009871",
+  "name": "하이29",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 73366,
+  "researchedAt": "2026-09-22T10:32:23.786Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 사업자 인허가 상호로만 등록되어 있고, 실제 방문 리뷰, 영업시간, 메뉴, 사진 등 실질적인 음식점 정보를 웹상에서 찾을 수 없음",
+  "notes": "부산광역시 해운대구 해운대해변로209번나길 56(우동) 소재 '하이29'(경양식)는 인허가 등록 내역 외에 실제 운영 정보나 블로그/방문자 후기가 전혀 확인되지 않아 조사가 불가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

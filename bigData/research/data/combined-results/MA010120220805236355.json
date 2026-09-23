@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220805236355",
+  "name": "고향카츠",
+  "cat": "일식 카레/돈가스/덮밥",
+  "attempts": 1,
+  "geminiTokens": 110495,
+  "researchedAt": "2026-09-22T06:52:56.519Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트 / 친구",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "로스카츠정식",
+      "모둠카츠",
+      "히레카츠",
+      "카츠산도",
+      "나폴리탄"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": true,
+    "text": "화요일 ~ 일요일 11:30 ~ 21:00 (브레이크타임 15:00 ~ 17:30, 매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 골목에 위치하여 현지인들에게 알음알음 입소문 났던 돈카츠 맛집으로 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": "부산광역시 수영구 수영로510번길 43에 위치했던 '고향카츠'는 현재 폐업(영업 종료) 상태로 확인되었습니다.",
+  "notes": "부산광역시 수영구 수영로510번길 43에 위치했던 '고향카츠 광안본점'은 현재 영업이 종료되어 폐업된 상태입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "문의하신 부산 수영구 수영로510번길 43에 위치했던 '고향카츠'는 현재 영업이 종료(폐업)된 상태입니다.",
+      "url": "https://m.daum.net"
+    },
+    {
+      "excerpt": "광안리 해수욕장 뒤편 골목에 위치하여 현지인들에게 알음알음 입소문이 났던 돈카츠 맛집으로, 과거 '블루리본 서베이'에 등재되기도 했습니다. 두툼한 통등심을 사용한 로스카츠 정식과 모둠카츠, 그리고 사이드 메뉴인 나폴리탄 등이 좋은 평가를 받았습니다. 현재는 영업이 종료(폐업)된 상태입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://m.daum.net",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두툼한 통등심 돈카츠와 모둠카츠 등 특색 있는 일식 카츠 메뉴의 맛 자체",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 골목 숨은 맛집으로 현지인 입소문 및 블루리본 서베이 등재",
+      "sources": [
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

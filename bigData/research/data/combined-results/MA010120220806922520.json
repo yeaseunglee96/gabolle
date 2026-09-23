@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220806922520",
+  "name": "우미오모루",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 76387,
+  "researchedAt": "2026-09-22T11:31:49.982Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "상가 건축물 및 인허가/업체 디렉토리 데이터상 '부산광역시 부산진구 동천로 97-4 (부전동 149-10) 2층'에 일식당으로 등재되어 있으나, 실제 방문 후기 블로그나 상세 메뉴/영업시간/가격 정보는 웹상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 동천로 97-4, 2층 일식당 우미오모루",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com",
+    "https://matple.com"
+  ],
+  "whyPeopleGo": []
+}

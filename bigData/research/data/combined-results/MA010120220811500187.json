@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220811500187",
+  "name": "하루참치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 70595,
+  "researchedAt": "2026-09-22T11:17:53.897Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "별도 대기/줄서기 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "직장인 회식 및 지인 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "참치회 코스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~목 17:00 ~ 24:00, 금~토 17:00 ~ 01:00 (매주 일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 구청 인근 골목에 위치하여 주로 인근 직장인/아는 사람들 사이의 모임 및 술자리 위주로 방문"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "해운대구청 인근 골목에 위치한 참치 전문점으로 코스 위주 영업, 골목 주차가 협소함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 중동1로27번길 9에 위치한 '하루참치'는 해운대구 중동(해운대구청 인근)에 자리 잡고 있는 참치 전문점입니다. 이곳은 골목에 위치해 있어 아는 사람들 사이에서 숨은 맛집으로 알려져 있으며, 모임 장소나 술자리로 찾는 분들이 있는 곳입니다.",
+      "url": "https://maptons.com"
+    },
+    {
+      "excerpt": "해당 업소는 해운대 구청 인근에 위치해 있으며, 참치회 코스 요리를 전문으로 하는 곳으로 알려져 있습니다. 방문 시 골목 주차는 다소 협소할 수 있다는 점 참고하시기 바랍니다. 영업시간: 월~목 17:00~24:00, 금~토 17:00~01:00, 매주 일요일 휴무.",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://maptons.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 구청 인근 골목의 아는 사람들 중심 숨은 참치회 코스 모임 장소",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

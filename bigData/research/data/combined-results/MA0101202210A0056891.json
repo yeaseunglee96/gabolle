@@ -1,0 +1,56 @@
+{
+  "id": "MA0101202210A0056891",
+  "name": "루프탑193",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 61957,
+  "researchedAt": "2026-09-22T11:38:24.670Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 관광객",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "비프 웰링턴",
+      "블랙 퍼스트 프렌치",
+      "칠리 치즈 오믈렛"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 21:00 (라스트 오더 20:30)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 달맞이길 193에 위치했던 대형 루프탑 브런치/경양식 매장으로, 해운대 오션뷰 조망 명소였으나 현재는 영업이 종료(폐업)된 상태로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "루프탑193 위치: 부산광역시 해운대구 달맞이길 193 A동 2층. 해운대 바다와 푸른 하늘을 한눈에 조망할 수 있는 뷰 맛집으로 유명한 대형 카페이자 브런치 식당입니다. 대표 메뉴는 비프 웰링턴이며, 블랙 퍼스트 프렌치, 칠리 치즈 오믈렛 등 다양한 브런치 메뉴를 제공합니다. 매일 10:00 ~ 21:00 (라스트 오더 20:30) 운영. 현재는 영업 종료(폐업).",
+      "url": "https://hotplacehunter.co.kr"
+    }
+  ],
+  "sources": [
+    "https://hotplacehunter.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 바다와 하늘을 한눈에 조망할 수 있는 루프탑 오션뷰와 비프 웰링턴 등의 브런치 메뉴를 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220805420673",
+  "name": "수제돈까스무무",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65381,
+  "researchedAt": "2026-09-22T10:45:51.831Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "혼밥 및 인근 주민, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제돈까스",
+      "오므라이스",
+      "야끼우동"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미기재"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안역 인근 주민과 현지 직장인들이 가벼운 식사로 찾는 가성비 동네 밥집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "'수제돈까스무무'(상호명 무무돈까스)는 부산 수영구 광안역 5번 출구 인근(광안로7번길 8)에 위치했던 수제 돈까스 전문점으로, 돈까스, 오므라이스, 야끼우동 등을 판매하는 소규모(약 12석) 가성비 식당입니다. 현재는 폐업한 것으로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "수제돈까스",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 광안로7번길 8, 전화번호: 051-754-5553, 위치: 광안역 5번 출구에서 104m 거리, 주메뉴: 돈까스, 테이블 수: 전체 12석 (입식 12석)",
+      "url": "https://wheelbusan.or.kr"
+    },
+    {
+      "excerpt": "광안역 5번 출구 근처 가성비 좋은 수제 돈까스 맛집으로, 돈까스 외에도 오므라이스, 야끼우동 등의 메뉴도 제공하며 포장도 가능합니다. 오랜 기간 영업해 온 지역의 친근한 돈까스 식당입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://wheelbusan.or.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안역 인근에서 저렴하고 부담 없이 한 끼 식사를 할 수 있는 가성비 옛날식 수제 돈까스집",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "광안역 5번 출구 도보 100m 거리의 편리한 접근성과 포장 이용 편의",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

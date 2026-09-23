@@ -1,0 +1,86 @@
+{
+  "id": "MA0101202310A0002338",
+  "name": "석화연",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 147797,
+  "researchedAt": "2026-09-22T06:52:03.230Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 맛집으로 테이블링 원격 줄서기가 추천되며 창가석은 대기가 치열함"
+  },
+  "descriptors": {
+    "audience": "연인, 가족, 단체 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "숙성 뼈목살",
+      "숙성 뼈등심",
+      "숙성 삼겹살"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 24:00 (브레이크타임 15:00 ~ 16:00, 라스트오더 23:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 오션뷰 명소로 관광객 및 데이트·모임 방문객이 즐겨 찾는 인기 고깃집"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "광안해변로 199 2층에 위치한 광안대교 오션뷰 숙성 한돈 전문점. 웻에이징과 드라이에이징 교차 숙성육을 직원이 직접 구워주는 그릴링 서비스를 제공함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "삼겹살(130g) 14,900원 / 한정판매 뼈목살(330g) 35,000원 / 한정판매 뼈등심(330g) 35,000원",
+    "priceWon": 14900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 199, 201호. 광안대교 오션뷰를 즐길 수 있는 숙성 돼지고기 전문점입니다. 직원이 고기를 직접 구워주는 그릴링 서비스를 제공하여 편리하게 식사할 수 있습니다. 대표 메뉴: 뼈목살, 뼈등심 (한정 판매). 테이블링 앱을 통한 원격 줄서기 이용이 추천됩니다. 건물 뒷편 비치비키니 주차장이나 광안타워 주차장을 이용할 경우 1시간 무료 주차 등을 지원하고 있습니다.",
+      "url": "https://www.siksinhot.com/P/1786675062267201"
+    },
+    {
+      "excerpt": "석화연 부산 광안 본점은 광안리 해변에 위치한 숙성 돼지고기 전문점으로, 오션뷰를 즐기며 식사할 수 있는 곳입니다. 광안대교가 보이는 탁 트인 전망, 직원들이 직접 고기를 구워주는 서비스, 숙성 삼겹살 및 목살 등이 대표 메뉴입니다. 영업 시간: 매일 12:00 ~ 24:00 (브레이크 타임 15:00 ~ 16:00).",
+      "url": "https://autoreserve.com/ko/restaurants/rO3t777eFv4M4tH3v2Ew"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1786675062267201",
+    "https://autoreserve.com/ko/restaurants/rO3t777eFv4M4tH3v2Ew"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교가 한눈에 펼쳐지는 탁 트인 오션뷰 전망",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "웻에이징 및 드라이에이징 교차 숙성을 거친 부드럽고 육즙 가득한 돼지고기 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원이 고기를 처음부터 끝까지 직접 구워주는 편리한 그릴링 서비스",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

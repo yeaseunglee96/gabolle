@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202209A0020425",
+  "name": "광복집",
+  "cat": "복 요리 전문",
+  "attempts": 1,
+  "geminiTokens": 54879,
+  "researchedAt": "2026-09-22T06:56:18.310Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "삼겹살",
+      "꼬들살",
+      "가브리살"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "인허가/부동산 공공 데이터상 복 요리 전문점으로 분류 등록된 바 있으나, 실제 운영 매장은 삼겹살·꼬들살·가브리살 등 돼지고기 특수부위 구이 전문점이었으며 현재는 폐업된 상태임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광복집은 부산광역시 수영구 광안해변로 314 진로비치상가 1층(민락동 113-21)에 위치하며 국내산 삼겹살, 가브리살, 꼬들살, 오도독살, 돼지껍데기 등을 판매하며, 고기 주문 시 김치국밥, 된장찌개, 라면 등을 제공하여 가성비가 좋은 곳으로 알려져 있습니다. 레트로 감성의 인테리어를 갖추고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고기 주문 시 김치국밥, 된장찌개, 라면 등이 무료 제공되는 뛰어난 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "레트로 감성의 인테리어와 삼겹살, 꼬들살, 오도독살 등 특수부위 로스구이 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

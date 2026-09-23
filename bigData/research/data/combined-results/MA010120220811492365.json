@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220811492365",
+  "name": "초이스에프앤비",
+  "cat": "생맥주 전문",
+  "attempts": 1,
+  "geminiTokens": 69021,
+  "researchedAt": "2026-09-22T06:54:54.572Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기 관련 상세 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "20-30대 및 직장인, 해변 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "이자카야 안주류",
+      "생맥주"
+    ],
+    "yearsClaimed": 2
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "'초이스에프앤비'는 부산 수영구 광안해변로 201 3층에 사업자/법인으로 등록된 외식 프랜차이즈 기업이며, 동일 주소지에서 주점/이자카야(시선 등)를 운영하는 법인 사업체입니다. 일반 손님 대상 상호명은 매장 브랜드를 사용합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "미확인",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주식회사 초이스에프앤비는 부산광역시 수영구 광안해변로 201, 3층(광안동)에 위치한 기업입니다. 기타 주점업 및 생맥주 전문점 등을 운영하는 외식 프랜차이즈 관련 중소기업입니다. 시선 이자카야 광안리점을 운영하고 있는 것으로 확인됩니다. 2022년 6월에 설립된 비상장 기업으로, 대표자는 최슬지입니다.",
+      "url": "https://www.saramin.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 201 3층에 위치한 이자카야입니다. 초이스에프앤비: 해당 주소(광안해변로 201, 3층)에 등록되어 있는 기업명으로, 생맥주 전문점 등을 운영하는 외식 프랜차이즈 관련 기업으로 확인됩니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.saramin.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변 앞 빌딩 3층에 위치한 생맥주 전문/이자카야 주점으로 주류와 안주를 즐기기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

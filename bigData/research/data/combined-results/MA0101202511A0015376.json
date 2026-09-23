@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202511A0015376",
+  "name": "에테르컨셉바",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 71188,
+  "researchedAt": "2026-09-22T12:06:31.312Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "이색 컨셉 카페 및 칵테일 바 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "칵테일"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 19:00 ~ 02:00, 금~토 19:00 ~ 04:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "부산진구 중앙대로702번길 27-8에 위치했던 '에테르컨셉바(LAB: AETHER)'는 실험실 컨셉의 메이드바/컨셉바로 2025년 11월 1일 오픈 후 2026년 폐업했습니다. 전문 바텐더가 상주해 클래식바 수준의 칵테일을 선보인 점이 방문 이유로 꼽힙니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "기존 오레브 메이드카페&바를 리뉴얼한 컨셉카페이며, 실험실 컨셉이기 때문에 직원 각자의 직함이 있는 것이 큰 특징이다. 기존 모찌 메이드카페에서 기존 모찌의 인력들이 LAB: AETHER로 많이 이동을 하였다. 10월 18일 에테르 VIP 행사를 진행을 하였으며, 이 날을 시점으로 정식 오픈인 11월 1일 전까지 매일 가오픈을 진행하였고, 이후에는 정식으로 운영을 하고 있다. 실제 현직 바텐더분이 활동하기에 타 메이드카페에 비해 주류퀄리티가 상당히 높다. 웬만한 클래식바 수준의 칵테일이 나오며 웬만한 클래식바 수준의 칵테일 가격이 나온다. 다른 바와 달리, 메이드카페의 컨셉도 어느 정도 유지하고 있기 때문에 오픈 시간인 7시부터 10시까지는 미성년자 출입이 가능하다. 다만 술은 주문이 금지된다.",
+      "url": "https://namu.wiki/w/LAB:%20AETHER"
+    },
+    {
+      "excerpt": "- 주중 19:00 ~ 02:00\n- 금~토 19:00 ~ 04:00",
+      "url": "https://namu.wiki/w/LAB:%20AETHER"
+    }
+  ],
+  "sources": [
+    "https://namu.wiki/w/LAB:%20AETHER"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "현직 바텐더가 상주하여 일반 메이드/컨셉 카페 대비 높은 퀄리티의 클래식 바 수준 칵테일을 맛볼 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

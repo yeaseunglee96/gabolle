@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202602A0032120",
+  "name": "양.아찌",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 57586,
+  "researchedAt": "2026-09-22T06:50:58.929Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "회식 및 술자리, 양꼬치/양고기 애호가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "고급양갈비",
+      "양꼬치",
+      "꿔바로우",
+      "짬뽕탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 17:00 ~ 01:10 (일요일 정기휴무, 라스트오더 23:40)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 전통시장 인근 골목의 노포 감성 로컬 맛집으로 주로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "해운대 전통시장 인근에 위치한 양꼬치/양갈비 및 중화요리 전문점으로, 골목 안 노포 감성의 로컬 분위기 맛집으로 알려져 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "고급양갈비, 양꼬치, 꿔바로우, 짬뽕탕",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "숯불에 구워 육즙이 풍부하고 잡내가 거의 없는 양꼬치와 양갈비가 대표 메뉴입니다. 꿔바로우나 짬뽕탕 같은 중화요리 사이드 메뉴도 인기가 많습니다. 골목 안에 위치한 작은 가게로, 노포 느낌의 빈티지한 감성과 벽면 낙서 등이 어우러진 '로컬 맛집' 분위기라는 평이 많습니다.",
+      "url": "https://www.siksinhot.com/P/1018596"
+    },
+    {
+      "excerpt": "해운대 전통시장 인근 골목에 위치한 로컬 양고기 맛집으로 알려져 있습니다. 매장 앞 공영주차장 및 전용 주차장을 이용할 수 있습니다. 영업시간: 월~토 17:00 ~ 01:10 (일요일 정기휴무, 라스트오더 23:40)",
+      "url": "https://www.siksinhot.com/P/1018596"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1018596"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불에 구워 잡내 없이 육즙이 풍부한 양갈비·양꼬치와 꿔바로우 등 사이드 요리의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "골목 안 빈티지하고 벽면 낙서가 있는 노포 스타일의 편안한 로컬 감성",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

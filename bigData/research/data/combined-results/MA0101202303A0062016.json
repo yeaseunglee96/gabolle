@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202303A0062016",
+  "name": "판나",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 57012,
+  "researchedAt": "2026-09-22T11:50:02.834Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "젊은 층, 커플",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "투움바 파스타",
+      "우삼겹 덮밥",
+      "수비드 스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 22:00 (브레이크 타임: 15:00 ~ 17:00 / 라스트 오더: 21:00, 매주 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 서전로38번길 62, 2층에 위치한 양식당 '판나(panna)'로 확인되었습니다. 투움바 파스타, 수비드 스테이크 등의 양식 메뉴를 취급하고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "판나 (panna): 해당 주소지 2층에 위치한 양식당입니다. 파스타, 스테이크, 덮밥 등의 메뉴를 제공하며 영업시간은 11:30~22:00(브레이크 타임 15:00~17:00, 라스트 오더 21:00)이며, 매주 월요일은 휴무입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "투움바 파스타, 수비드 스테이크 등 양식 플레이트 메뉴를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

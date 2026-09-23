@@ -1,0 +1,69 @@
+{
+  "id": "MA0101202507A0022531",
+  "name": "카츠미치",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 87188,
+  "researchedAt": "2026-09-22T11:16:18.140Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼밥객, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "로스카츠",
+      "히레카츠",
+      "모듬카츠"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "20:30 영업 종료"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "제공된 주소(부산광역시 수영구 남천동로108번길 43)에 위치한 돈카츠 전문점 '카츠미치'에 대한 기본 정보(메뉴, 가격대, 영업종료 시간 등)를 확인하였습니다. 별도의 개인 블로그 글이나 사진 원본 링크는 확인되지 않아 사진 URL은 빈 배열로 처리되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "로스카츠 정식",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "저온 숙성 후 고온에서 튀기고, 이후 레스팅 과정을 거쳐 겉은 바삭하고 속은 촉촉한 육즙을 살린 돈카츠를 제공합니다. 로스카츠, 히레카츠, 상로스카츠를 비롯해 여러 부위를 즐길 수 있는 모듬카츠 정식이 인기 있습니다. 지례흑돈을 사용한 메뉴도 준비되어 있습니다. 일본식 카운터 바 형태의 아담한 공간으로, 가림막이 있는 다찌 테이블과 창가 좌석이 있어 혼밥하기에도 적합한 환경입니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "저온 숙성 및 레스팅 기법으로 겉바속촉 육즙을 살린 돈카츠와 지례흑돈 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "다찌 형태의 아담한 일본식 카운터 바로 혼밥하기 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

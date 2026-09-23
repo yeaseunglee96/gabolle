@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220814201874",
+  "name": "우동토오루",
+  "cat": "일식 면 요리",
+  "attempts": 1,
+  "geminiTokens": 43243,
+  "researchedAt": "2026-09-22T06:53:45.317Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심시간 등에 대기(웨이팅)가 발생할 수 있어 오픈 시간에 맞춰 방문을 권장하는 후기가 있음"
+  },
+  "descriptors": {
+    "audience": "연인·관광객·혼밥",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "토오루 니꾸 우동",
+      "토오루 마제우동",
+      "히야텐 붓카케 우동",
+      "토오루 텐동"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 20:30 (브레이크 타임 14:40 ~ 17:00, 라스트 오더 20:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "달맞이길 입구 및 해운대 여행 방문객들이 자주 찾는 코스로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 해운대 달맞이길 입구에 위치한 일식 우동 및 텐동 전문점으로 오픈 키친 바 형태의 좌석 구성과 쫄깃한 사누키식 면발, 바삭한 튀김으로 호평받는 곳입니다. 전용 주차장은 없으나 인근 유료주차장 제휴 할인이 제공됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "토오루 니꾸 우동",
+    "priceWon": 11000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "달맞이길 입구 근처에 위치해 있어 접근성이 좋으며, 해운대 여행 시 일본식 우동을 즐기기에 적합한 곳으로 자주 언급됩니다. 일식 우동, 텐동(튀김덮밥), 텐푸라 등을 전문으로 하며, 깔끔하고 일본 분위기를 느낄 수 있는 인테리어로 알려져 있습니다.",
+      "url": "https://www.trip.com"
+    },
+    {
+      "excerpt": "우동 면발의 탄력과 깊은 국물 맛으로 좋은 평가를 받고 있습니다. 텐동과 튀김 메뉴도 인기가 많아, 우동과 함께 모둠 튀김을 곁들여 먹는 것을 추천하는 후기가 많습니다. 점심시간에는 대기가 발생할 수 있으므로, 오픈 시간대에 맞춰 방문하는 것이 비교적 여유롭습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "쫄깃한 우동 면발과 깊은 국물 맛, 바삭한 튀김과 텐동의 완성도 높은 일식 맛 자체",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 달맞이길 입구에 위치하여 여행 및 산책 동선 상 접근하기 좋은 위치",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

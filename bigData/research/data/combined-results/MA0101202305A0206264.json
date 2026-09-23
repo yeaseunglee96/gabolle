@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202305A0206264",
+  "name": "태닝돈광안리점",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 48510,
+  "researchedAt": "2026-09-22T11:52:05.526Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "루프탑 및 창가 오션뷰 좌석 위주로 인기가 높음"
+  },
+  "descriptors": {
+    "audience": "광안리 방문객, 관광객, 야경 및 술자리 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "흑돼지 삼겹살",
+      "흑돼지 꼬들목살",
+      "흑돼지 삼겹국밥"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 익일 오전 06:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 뷰와 루프탑으로 관광객 및 바다 전망을 찾는 방문객 비중이 큼"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 해수욕장 인근(수영구 광안해변로 251)에 위치하며, 매장에서 광안대교와 바다를 한눈에 볼 수 있는 오션뷰를 자랑합니다. 특히 3층 루프탑 자리가 인기가 많습니다. 흑돼지 삼겹살과 흑돼지 꼬들목살, 흑돼지 삼겹국밥 등이 주요 메뉴입니다. 구이와 샤브샤브를 동시에 즐길 수 있는 불판을 사용하는 것이 특징입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교와 광안리 바다가 내려다보이는 3층 루프탑 오션뷰와 심야 영업 환경",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "흑돼지 삼겹살, 꼬들목살 및 삼겹국밥 등 차별화된 흑돼지 메뉴 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

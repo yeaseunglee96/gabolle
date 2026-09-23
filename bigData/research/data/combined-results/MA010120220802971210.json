@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220802971210",
+  "name": "육단지",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 315175,
+  "researchedAt": "2026-09-22T06:33:55.355Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "사장님 혼자 운영하시며 테이블이 6~7개 정도이나 매번 손님이 붐비지 않고 여유로운 편으로 언급됨"
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 동네 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "꽃갈비살",
+      "삼겹살",
+      "생고기 김치찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 16:00 ~ 24:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지하철 대티역 인근 동네 골목 상권에 위치해 나만 알고 싶은 동네 숨은 맛집 느낌으로 현지인들이 주로 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산광역시 사하구 괴정동(낙동대로 145 / 괴정동 319-9) 대티역 2번 출구 바로 앞에 위치한 고깃집 '육단지' 조사 결과입니다. 꽃갈비살과 삼겹살, 생고기 김치찌개가 대표적입니다.",
+  "photoUrls": [
+    "https://postfiles.pstatic.net/MjAyMDEyMDNfMjE0/MDAxNjA2OTk3NDIxMDIx.iOTG62ccUAWvJSTVSO2SIoHCYJjCbXlM4QFkgOw3eNwg.RHoUNliE495YFBH1syUyXh4a4_w96VcfYvYF1boCIs4g.JPEG.alswjd0445/IMG_5687.jpg",
+    "https://postfiles.pstatic.net/MjAyMDEyMDNfMTI5/MDAxNjA2OTk3NjAwNzc0.83BgYNpkbcyGhS1BMoE0EcLyqt8Kf3fyFyxn3GzCuw0g._9xjcS8_7FkrAyoxrbPRCnfsDq_4BGk3Wh11ysZRya0g.JPEG.alswjd0445/IMG_5676.jpg",
+    "https://postfiles.pstatic.net/MjAyMDEyMDNfMTY3/MDAxNjA2OTk3NjAwNzYz.hsDOk3BSNrFVjPTkBOvP-SZxfoVFD88SjagMl7Oqrn0g.1rFfoE5GVAwB_THxBHT0_OrSqvNGlciDrt3is8ntGAUg.JPEG.alswjd0445/IMG_5677.jpg",
+    "https://postfiles.pstatic.net/MjAyMDEyMDNfMjg0/MDAxNjA2OTk3NjAwNzgy.QiL3wVvXNYsCu1ehkqi-QkiaG913VGjQ-ztGielhZPwg.XmfuMJ3XqEtj45d3komygLoc1OTRZYiXRa0mWI7auVUg.JPEG.alswjd0445/IMG_5679.jpg",
+    "https://postfiles.pstatic.net/MjAyMDEyMDNfMjkz/MDAxNjA2OTk3NzAyNjk1.rGlyIgjZF7iy9q-bRsZheNtL9u1x3tre2FSvl5O8R7Ag.mOmqdoIqgs0EAAX5MY3CMcTIO9ViApeCMw1WuDpUEiog.JPEG.alswjd0445/IMG_5680.jpg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "생고기 김치찌개 4,000원, 수제소세지 5,000원",
+    "priceWon": 4000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "육단지 부산광역시 사하구 괴정동 319-9 ✔️운영시간 : 매일16:00~24:00 괴정이지만 지하철역으로는 대티역 2번출구 코앞에 있는 육단지에요 구구커플이랑 같이 처음 가보고 맛있어서 남친 델꾸 몇번 방문한 괴정 고기집 맛집 육단지 외/내부 사진은 못찍었지만 내부도 깔끔하고 테이블도 6-7개 정도 넓찍하게 있는 편이당 사장님 혼자하시는데 친절하시고, 손님은 매번 많이 없는편,, 왜 없을까 의문인 맛집 육단지 근데 또 너무 붐벼도 싫을듯 ㅠ 나만 알고싶은 맛집같은 느낌 괴정고기집맛집 육단지 메뉴판 모듬판이 가성비가 좋겠지만, 육단지는 꽃갈비살 맛집 !!!!!!! 그래서 둘이서 가면 모듬 안시키고 꽃갈비살이랑 삼겹살 이렇게 꼭 시킨다 ㅎㅎ 꽃갈비살이 국내산은 아니였던 걸로 기억하는데 진짜 한우만큼 맛있는 육단지 꽃갈비살 강추당 괴정고기집맛집 육단지는 밑반찬이 다양하게 나온다 고사리 명이나물 백김치 파절임 양파 무피클?까지 진짜 내가 좋아하는거 다나옴 ,, 고사리 추가시에는 ₩2,000 별도 !!! 꽃갈비살1인분 , 삼겹살 2인분 생고기 김치찌개 : ₩4,000 고기론 심심할때 김치찌개 추가 김치찌개가 얼큰하고 맛있어요 맛 보자마자 공기밥 추가해서 같이 먹었어용 육단지 김찌도 꿀맛 수제소세지 : ₩5,000",
+      "url": "https://blog.naver.com/93_tak/222170338676"
+    }
+  ],
+  "sources": [
+    "https://blog.naver.com/93_tak/222170338676"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한우 못지않게 부드럽고 맛있는 꽃갈비살과 삼겹살 등 참숯 구이 고기 맛이 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "고사리, 명이나물, 백김치 등 고기와 곁들이기 좋은 밑반찬 구성과 얼큰한 생고기 김치찌개의 조화",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "대티역 2번 출구 바로 앞이라 접근성이 좋고 붐비지 않아 여유롭게 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

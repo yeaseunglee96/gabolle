@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220811431613",
+  "name": "오징어랑해물이랑",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 65609,
+  "researchedAt": "2026-09-22T12:18:50.396Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "고급모듬회",
+      "강도다리",
+      "매운탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인 (방문 전 전화 문의 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지 맛집 분위기의 아늑한 횟집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "수영구 민락동에 위치한 횟집으로 모듬회 및 생선회, 방아잎 매운탕을 주로 취급함. 상세 영업시간 및 주차 정보는 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "모듬회",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "현지 맛집 분위기의 아늑한 횟집으로 알려져 있습니다. 모듬회, 고급모듬회, 강도다리, 참돔, 농어 등 다양한 활어회와 세꼬시 메뉴를 제공합니다. 방아잎을 넣은 매운탕이 별미로 언급되며, 서비스로 제공되는 가자미구이 등이 알찬 구성으로 인기가 있습니다. 가족 외식이나 모임 장소로도 종종 추천되는 곳입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "오징어랑해물이랑: 부산광역시 수영구 광안로61번길 21(민락동)에 위치한 횟집으로, 모듬회, 고급모듬회, 가자미회 등 다양한 활어회를 제공하는 곳입니다. (문의전화: 051-753-6608)",
+      "url": "https://www.badaon.or.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.badaon.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "방아잎 매운탕과 알찬 곁들임찬 및 신선한 활어회 세꼬시 구성",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 인근에서 모임 및 외식하기 좋은 현지 횟집 분위기",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

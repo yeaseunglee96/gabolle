@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220807392715",
+  "name": "회춘",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 66618,
+  "researchedAt": "2026-09-22T11:58:55.231Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인 및 친구 (데이트/모임)",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "브런치",
+      "내추럴 와인",
+      "커피"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 10:00 ~ 오후 10:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 민락로 21에 위치했던 주택 개조형 브런치 카페 겸 와인 레스토랑 '회춘 광안점'입니다. 야외 테라스와 가든 분위기, 브런치와 와인을 함께 즐길 수 있는 공간으로 알려져 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "특징: 브런치 카페 겸 레스토랑으로, 낮에는 브런치, 밤에는 와인과 함께 요리를 즐길 수 있는 공간으로 알려져 있었습니다. 주택을 개조한 아기자기한 테라스와 가든 분위기로 데이트 장소나 인생샷 명소로 인기가 많았습니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "부산광역시 수영구 민락동에 위치한 '회춘 광안점'. 위치: 부산광역시 수영구 민락로 21. 특징: 예쁜 정원이 있는 캐주얼한 분위기의 카페로, 브런치, 커피, 내추럴 와인 등을 즐길 수 있는 공간입니다. 운영 시간: 오전 10:00 ~ 오후 10:00. 아메리카노 등 다양한 커피 및 음료와 브런치 메뉴를 제공합니다.",
+      "url": "https://www.tistory.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://www.tistory.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주택 개조 가든 테라스 분위기와 낮에는 브런치, 밤에는 와인을 즐기기 위한 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

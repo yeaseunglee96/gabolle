@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220813969128",
+  "name": "거마덕미",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 57100,
+  "researchedAt": "2026-09-22T11:26:44.534Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 피크 시간대 해리단길 방문객으로 혼잡할 수 있음"
+  },
+  "descriptors": {
+    "audience": "연인, 디저트/카페 투어객, 관광객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "로즈떼느와",
+      "그라니타",
+      "치즈케이크",
+      "프렌치 토스트"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 21:00 (금~일/주말 21:30까지 연장 운영)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길에 위치하여 타지 관광객과 카페 투어를 즐기는 현지인 방문객이 함께 찾는 곳"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "사업자등록 및 주소지명상 '거마덕미'로 등록되어 운영 중인 해리단길 디저트 카페 '금송덕미 해리단길점(덕미 2호점 / 덕미 컨시어지)'에 대한 조사 내용입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "아메리카노 5,500원 / 로즈떼느와 6,500원 / 그라니타 7,000~8,500원 / 치즈케이크 7,800~10,500원",
+    "priceWon": 7000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "유럽의 모던한 호텔을 모티브로 한 고급스러운 인테리어의 디저트 카페로, 시즌마다 바뀌는 수제 디저트와 음료가 유명합니다. 덕미 컨시어지 컨셉으로 운영되는 곳입니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "금송덕미 해리단길점: 주소 부산광역시 해운대구 우동1로38번가길 19, 동부산재일교회 2층. 별도의 전용 주차장은 없으며 인근 유료 주차장을 이용해야 합니다.",
+      "url": "https://mom-mom.net"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://mom-mom.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "유럽 모던 호텔 컨셉의 인테리어 분위기와 특색 있는 시즌 수제 디저트 및 시그니처 음료를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

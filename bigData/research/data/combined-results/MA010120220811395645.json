@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811395645",
+  "name": "풍영갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 63262,
+  "researchedAt": "2026-09-22T11:13:55.940Z",
+  "confidence": "high",
+  "found": false,
+  "notFound": "식당 정보 없음",
+  "notes": "부산광역시 수영구 민락로14번길 2 및 부산 전역을 대상으로 검색하였으나 '풍영갈비'라는 상호의 음식점은 확인되지 않았습니다. 지침에 따라 없는 식당을 지어내지 않고 found: false로 처리합니다.",
+  "photoUrls": [],
+  "sourceExcerpts": [],
+  "sources": []
+}

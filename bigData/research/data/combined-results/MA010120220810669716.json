@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810669716",
+  "name": "라치베타",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 71906,
+  "researchedAt": "2026-09-22T12:08:17.579Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "가게가 아늑하고 넓지 않아 방문 전 전화 문의 또는 예약 권장됨"
+  },
+  "descriptors": {
+    "audience": "와인 모임 및 연인 데이트 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "파스타",
+      "스테이크",
+      "카프레제"
+    ],
+    "yearsClaimed": 5
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월-금 12:00-14:30, 17:00-23:30(LO 22:30) / 토 11:30-15:00, 17:00-23:30(LO 22:30) / 일 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "외국어 메뉴판을 갖추고 있어 외국인 여행객 및 서면 현지 데이트·모임 손님이 함께 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 부산진구 가야대로784번길 46-6에 위치한 이탈리안 레스토랑 '오스테리아 라치베타(Osteria La Civetta)' 조사 완료.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "1인 평균 코스/단품 식사",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오스테리아 라치베타(Osteria La Civetta)는 부산광역시 부산진구 가야대로784번길 46-6 (부전동) 1층에 위치한 양식/이탈리아 요리와 와인을 제공하는 레스토랑이다. 외국어 메뉴판을 지원하여 외국인도 편리하게 이용할 수 있는 음식점으로 소개되어 있다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "서면 중심가에서 5년 이상 운영 중인 분위기 맛집으로 알려져 있으며, 신선한 해산물과 야채를 활용한 정통 이탈리아 스타일의 다채로운 파스타와 스테이크 요리, 풍부한 와인 리스트를 제공한다.",
+      "url": "https://www.trip.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://www.trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "셰프가 직접 조리하는 정통 이탈리안 파스타와 스테이크의 뛰어난 맛과 와인 페어링",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "아늑하고 감성적인 매장 분위기와 와인 마시기 좋은 편안한 환경",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220811447522",
+  "name": "다이닝센부",
+  "cat": "패밀리레스토랑",
+  "attempts": 1,
+  "geminiTokens": 59341,
+  "researchedAt": "2026-09-22T06:59:35.855Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "복층 대형 매장 구조로 회전 및 수용력이 있어 심한 줄서기 언급은 없으며 예약/단체 가능 정보 위주"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 연인 데이트, 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "목살스테이크 샐러드",
+      "새우필라프",
+      "까르보나라",
+      "빠네 스프"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 10:30 ~ 오후 9:00 (브레이크타임 주중 15:00~17:00, 주말 16:00~17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "이기대 입구 인근 주민들의 가족 외식 및 데이트 장소로 주로 찾는 로컬 패밀리 레스토랑"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 남구 용호로 88(용호동 135-9 명진빌딩 3, 4층)에 위치한 캐주얼 패밀리레스토랑 '다이닝센 부산본점' 조사 결과입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "목살스테이크 샐러드 (2조각) 16,900원, 필라프/파스타류 15,500원~17,900원 선, 세트메뉴 46,500원~48,000원",
+    "priceWon": 16900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "다이닝센(DiningSen)은 신선한 재료를 사용한 다양한 음식을 Big & Small Plate 형태로 제공하는 캐주얼 패밀리 레스토랑입니다. 복층 구조로 되어 있으며, 가족 외식이나 연인들의 데이트 장소로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "이기대 입구 근처에 위치한 패밀리 레스토랑으로, 빅(Big) & 스몰(Small) 사이즈 플레이트로 메뉴를 구성하여 연인부터 가족 단위까지 다양하게 즐길 수 있는 곳으로 알려져 있습니다. 3층과 4층 복층 구조로 이루어져 있으며, 윗층이 인기가 많은 편입니다. 단체 모임을 위한 공간도 마련되어 있습니다. 건물 자체 주차장은 2,000cc 미만의 차량만 주차가 가능합니다.",
+      "url": "https://blog.daum.net"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://blog.daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "목살스테이크와 파스타, 필라프 등 빅/스몰 플레이트 형태의 가성비 좋은 캐주얼 양식 메뉴 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "3·4층 복층 구조로 넓고 쾌적하여 가족 외식 및 단체 모임하기 좋은 환경",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

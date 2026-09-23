@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220806601177",
+  "name": "미트테리안",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 56246,
+  "researchedAt": "2026-09-22T12:04:25.559Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 모임, 와인 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스테이크",
+      "파스타",
+      "와인"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 부산진구 전포대로209번길 17-5 2층에 위치했던 양식/와인바 '미트테리언(Meatatarian)'으로 확인되며, 현재는 폐업(폐점) 상태입니다. 스테이크와 파스타, 와인을 취급했던 곳으로 등록되어 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미트테리언 (Meatatarian): 부산진구 전포대로209번길 17-5(2층)에 위치했던 와인바 및 레스토랑의 이름입니다. 스테이크, 파스타, 와인 등을 판매하던 곳으로 알려져 있으나, 현재는 폐점된 상태입니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "스테이크와 파스타 등 양식 요리와 함께 와인을 즐기기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

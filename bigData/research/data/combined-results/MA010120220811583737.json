@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220811583737",
+  "name": "영일각",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 48841,
+  "researchedAt": "2026-09-22T06:00:21.935Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 온라인 후기 정보 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 배달 이용객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광객 방문이나 현지인 추천 관련 상세 리뷰 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 금정구 서동로103번길 30(서동 522-2)에 위치한 중식당(영일각, 051-522-1116)으로 상호 및 주소 등록 내역은 확인되나, 블로그 방문 리뷰나 상세 메뉴판/사진 등 온라인 후기 기록이 거의 없는 일반 동네 중식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "영일각 부산광역시 금정구 서동로103번길 30 (서동) 전화번호 051-522-1116 업종 중식",
+      "url": "https://www.geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220810607255",
+  "name": "서면대복집",
+  "cat": "복 요리 전문",
+  "attempts": 1,
+  "geminiTokens": 78840,
+  "researchedAt": "2026-09-22T06:56:26.708Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "주변 직장인 및 인근 주민 추정",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "복국",
+      "복요리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 서면문화로5번길 6 소재 복 요리 전문 한식당 '서면대복집'으로 등록되어 있으나, 온라인 상에 상세한 방문 후기나 메뉴판/영업시간/사진 등의 상세 데이터가 거의 남아있지 않은 상태입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "서면대복집. 부산광역시 부산진구 서면문화로5번길 6 (부전동). 한식(복 요리 전문). 전화번호: 051-809-3714",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서면 영광도서 인근 골목에서 복요리/복국 식사를 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

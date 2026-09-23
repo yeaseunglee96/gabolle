@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220804992146",
+  "name": "연탄의추억",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 65207,
+  "researchedAt": "2026-09-22T11:57:43.977Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 해운대구 재송동(해운대로161번길 27)에 상호 '연탄의추억'(돼지고기 구이/찜)으로 사업자/상가 등록 정보 및 전화번호(051-912-9930)가 확인되나, 방문자 블로그 후기나 세부 메뉴 가격, 영업시간 등 상세 리뷰 콘텐츠는 웹상에서 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "연탄의추억 주소: 부산광역시 해운대구 해운대로161번길 27 (재송동 1112-7) 업종: 돼지고기 구이/찜 연락처: 051-912-9930",
+      "url": "https://zippoom.com"
+    }
+  ],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

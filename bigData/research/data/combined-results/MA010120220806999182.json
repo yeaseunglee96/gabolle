@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220806999182",
+  "name": "스시오다",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 60934,
+  "researchedAt": "2026-09-22T06:50:27.789Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기나 혼잡에 대한 명시적인 기록 없음"
+  },
+  "descriptors": {
+    "audience": "주민, 1인 가구",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥",
+      "생선카츠",
+      "우동"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수요일 ~ 금요일 11:30~15:00 / 17:00~20:30 (라스트 오더 20:00), 토요일 ~ 일요일 11:30~15:00 / 17:00~21:00 (라스트 오더 20:30), 월·화요일 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안더샵 아파트 상가 내 입점하여 인근 주민 대상 식사 및 배달 위주 이용"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": false
+  },
+  "notes": "부산 수영구 광안더샵 아파트 상가에 위치한 소규모 초밥 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "작고 아기자기한 분위기의 초밥집으로, 생선카츠가 바삭하고 부드러워 맛있다는 평이 있습니다.",
+      "url": "https://maptons.com"
+    },
+    {
+      "excerpt": "광안더샵 아파트 상가 내에 위치하고 있으며, 인근 주민들에게 초밥 맛집으로 알려져 있습니다. 아기자기한 분위기의 소규모 식당으로, 매장 식사뿐만 아니라 배달로도 이용이 가능합니다.",
+      "url": "https://daum.net"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com",
+    "https://maptons.com",
+    "https://daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바삭하고 부드러운 생선카츠와 신선한 초밥의 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "아파트 상가 내에 위치하여 인근 주민들의 식사 및 배달 이용이 용이함",
+      "sources": [
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

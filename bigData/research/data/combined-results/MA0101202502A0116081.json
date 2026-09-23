@@ -1,0 +1,31 @@
+{
+  "id": "MA0101202502A0116081",
+  "name": "코드",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 65748,
+  "researchedAt": "2026-09-22T11:56:06.543Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산진구 부전로 46) 및 부전동 일대에서 '코드'라는 상호의 경양식 음식점 정보를 찾을 수 없음",
+  "notes": "부산광역시 부산진구 부전로 46에 위치한 경양식 업종의 '코드' 상호를 웹에서 4회 검색하였으나, 해당 위치 및 상호와 일치하는 음식점 영업 정보, 리뷰, 메뉴 등이 전혀 확인되지 않아 폐업했거나 정보가 존재하지 않는 곳으로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

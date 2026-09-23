@@ -1,0 +1,59 @@
+{
+  "id": "MA0106202505A1542860",
+  "name": "별국수",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 57443,
+  "researchedAt": "2026-09-22T06:41:40.870Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "피아크/아르떼뮤지엄 방문객, 가족 단위 관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "별국수"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "피아크 복합문화공간 및 아르떼뮤지엄 부산과 인접해 관광객 방문 코스로 연계됨"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 영도 피아크(P.ARK) 복합문화공간 2층에 입점한 국수 전문점으로, 대표메뉴인 별국수를 취급하며 아르떼뮤지엄 인근에 위치함. 피아크 대형 주차시설 이용 가능.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호: 별국수, 전화번호: 070-8211-0860, 주소: 부산광역시 영도구 해양로 195번길 180, 2층, 위치: 아르떼뮤지엄에서 7m 거리, 주메뉴: 별국수, 시설 정보: 화장실, 엘리베이터, 자동문 이용이 가능하며 입식 테이블이 마련되어 있습니다. (테이블 수: 전체 10개, 입식 10개)",
+      "url": "https://wheelbusan.or.kr"
+    }
+  ],
+  "sources": [
+    "https://wheelbusan.or.kr",
+    "https://p-ark.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "영도 피아크 복합문화공간 및 아르떼뮤지엄 부산 관람 후 건물 내에서 간편하게 식사하기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

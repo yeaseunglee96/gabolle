@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220806417108",
+  "name": "베이크시즌",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 92799,
+  "researchedAt": "2026-09-22T11:57:07.395Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "예약제 레터링 케이크 및 픽업 위주 매장으로 무인 픽업 서비스 운영"
+  },
+  "descriptors": {
+    "audience": "기념일 케이크 주문 고객, 원데이 클래스 수강생",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "레터링 케이크",
+      "디저트"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~일 12:00 - 20:00 (일요일 12:00 - 17:00, 토요일은 픽업만 가능)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음 (광안리 인근 주문제작/클래스 중심)"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안리(금련산역 부근)에 위치한 레터링 케이크 및 디저트 전문점으로, 원데이 클래스와 무인 픽업을 함께 운영함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 수영로521번길 23. 지하철 2호선 금련산역 2번 출구에서 도보로 약 5분 거리에 위치해 있습니다. 광안리 지역의 레터링 케이크 및 디저트 샵으로, 원데이 클래스도 운영하고 있습니다. 영업시간: 월~일: 12:00 - 20:00, 일요일: 12:00 - 17:00, 토요일은 픽업만 가능. 무인 픽업 서비스도 이용 가능합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://pf.kakao.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기념일 맞춤 레터링 케이크 제작 및 케이크 만들기 원데이 클래스 참여를 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "금련산역 도보 5분 거리 접근성과 예약 후 편리하게 찾아갈 수 있는 무인 픽업 서비스 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

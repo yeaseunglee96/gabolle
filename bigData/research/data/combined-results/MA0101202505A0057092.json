@@ -1,0 +1,74 @@
+{
+  "id": "MA0101202505A0057092",
+  "name": "이목",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 77398,
+  "researchedAt": "2026-09-22T10:32:51.261Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "술자리/데이트",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "쿠시야키 7종",
+      "스지오뎅탕",
+      "메로구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 19:00 - 05:00 (라스트오더 04:00)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영구 광남로 122 경동리인 상가 1층 105-3호에 위치한 숯불 야키토리 및 일식 안주 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 광남로 122 경동리인 상가 1층 105-3호에 위치한 숯불 향이 가득한 야키토리 전문점으로, 오픈 키친 형태의 다찌석을 갖추고 있어 꼬치를 굽는 모습을 직접 볼 수 있는 분위기 좋은 술집. 대표 메뉴는 쿠시야키 7종, 수제 새우튀김 등이 있으며 영업시간은 매일 19:00 - 다음 날 05:00 (라스트오더 04:00).",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산 광안리 해수욕장 인근 야키토리 전문점. 쿠시야키 7종, 스지오뎅탕, 메로구이 등 다양한 일식 안주류를 판매.",
+      "url": "https://catchtable.net"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://catchtable.net",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오픈 키친 다찌석에서 숯불에 직접 구워내는 야키토리와 안주를 즐길 수 있는 심야 일식 주점 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "새벽 5시까지 영업하여 늦은 밤 편하게 방문하기 좋은 심야 술자리",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

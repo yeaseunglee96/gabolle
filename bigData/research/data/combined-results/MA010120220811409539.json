@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220811409539",
+  "name": "하씨횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 67171,
+  "researchedAt": "2026-09-22T11:27:52.796Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장 규모가 넓고 별도 룸이 있어 단체 모임 및 예약이 가능함"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임, 광안대교 뷰를 찾는 관광객 및 모임 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "스페셜 코스",
+      "활어 상차림",
+      "전복죽"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30 ~ 익일 02:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 오션뷰 및 드론쇼 명소로 관광객 및 모임 손님 방문, 1층 활어센터 연계 상차림 이용"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "민락회타운 6층에 위치하여 광안리 바다와 광안대교 전망이 우수한 횟집으로, 직접 회를 시켜 먹거나 1층 활어판매장에서 횟감을 떠와 상차림비(초장값)를 내고 이용 가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "기본 상차림비(초장값) 1인 5,000원 / 모듬회(소~특대), 코스 메뉴 등",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 민락수변로 1, 민락회타운 6층. 6층에 위치하여 창가 자리에서 광안리 해변과 광안대교를 조망할 수 있으며, 특히 광안리 드론쇼를 감상하기 좋은 위치로 알려져 있습니다. 매장 규모가 상당히 큰 편으로, 테이블 좌석과 별도의 룸이 마련되어 있어 단체 모임에도 적합합니다. 모듬회(소~특대), 스페셜 코스(A~D), 전복죽, 아나고, 돌돔, 다금바리 등. 1층 활어판매장에서 회를 구매하여 올라올 경우, 1인당 기본 상차림비(초장값) 5,000원이 부과되며 매운탕은 별도로 주문해야 합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 민락수변로 1 (민락동) 민락회타운 6층. 영업시간 매일 오전 10:30부터 새벽 2시경까지. 문의: 051-751-6622. 광안리 해수욕장과 광안대교를 조망할 수 있는 전망 좋은 곳에 위치해 있습니다.",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변과 광안대교가 한눈에 보이는 우수한 오션뷰 및 드론쇼 조망 환경",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "1층 활어시장에서 횟감을 사서 6층에서 저렴한 상차림비로 회를 즐길 수 있는 편의성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

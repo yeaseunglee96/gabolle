@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220807944235",
+  "name": "상무네횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 104111,
+  "researchedAt": "2026-09-22T11:52:41.425Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장이 협소하여 피크타임에는 대기가 발생할 수 있으며 대기명부를 작성해야 함"
+  },
+  "descriptors": {
+    "audience": "애주가/가족/현지인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "자연산 모둠회",
+      "양념 곰장어",
+      "매운탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 ~ 23:00 (라스트오더 21:30, 매주 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인들에게 가성비 좋은 자연산 횟집으로 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 해운대구 송정중앙로 24에 위치한 자연산 모둠회 및 양념곰장어 전문 횟집",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "자연산 모둠회와 양념 곰장어 세트로 잘 알려진 가성비 맛집입니다. 회를 두툼하게 썰어주며, 선장이 직접 잡은 자연산 생선을 위주로 제공하는 경우가 많아 현지인들에게도 평이 좋습니다. 피크타임에는 대기가 발생하는 경우가 많습니다. 매장 내 비치된 대기명부를 먼저 작성하는 방식이므로, 도착 즉시 대기자 명단을 확인하세요. 매장 전용 주차장은 따로 없으므로 인근 공영주차장이나 유료주차장을 이용하셔야 합니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "주소: 부산광역시 해운대구 송정중앙로 24 (송정동). 특징: 자연산 모둠회와 양념곰장어 세트 메뉴로 잘 알려진 현지인 맛집입니다. 선장이 직접 잡은 자연산 회를 맛볼 수 있는 곳으로, 회와 곰장어를 함께 즐길 수 있어 인기가 많습니다. 영업시간: 16:00 ~ 23:00 (라스트오더 21:30), 정기휴무: 매주 화요일.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "선장이 직접 잡은 신선하고 두툼한 자연산 회와 양념곰장어를 세트로 푸짐하게 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "자연산 회와 곰장어 구성을 합리적인 가격대로 즐길 수 있는 로컬 횟집으로 현지인 평이 좋음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220812502783",
+  "name": "나오스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 74896,
+  "researchedAt": "2026-09-22T11:44:28.585Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 앱을 통한 사전 예약 필수제(카운터석 위주)로 운영되어 현장 대기보다 예약 방문 위주임"
+  },
+  "descriptors": {
+    "audience": "연인, 기념일 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스시 오마카세"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~토 12:00~21:00 (일·월 휴무) 혹은 평일 디너/주말 런치·디너 타임제 운영 (캐치테이블 예약제)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 중동 인근 주민 및 기념일·데이트를 위한 방문객들이 주로 찾는 가성비 스시 오마카세로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 중동역 5번 출구 인근(좌동순환로 502)에 위치한 1인 약 5.5만원 선의 가성비 스시 오마카세 전문점입니다. 카운터석 위주로 운영되며 캐치테이블 사전 예약제로 운영됩니다. 건물 내 주차가 지원됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "런치/디너 스시 오마카세 1인 55,000원",
+    "priceWon": 55000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 좌동순환로 502 1층 (중동역 5번 출구에서 도보 약 2분 거리). 스시 오마카세 전문점으로 가성비가 좋은 곳으로 알려져 있습니다. 캐치테이블 등을 통해 예약이 가능하며, 인기가 많은 곳이므로 방문 전 예약이 필수적입니다. 건물 지하주차장을 이용할 수 있으며, 약 2시간 지원됩니다. 런치와 디너 동일하게 1인 55,000원입니다. 화~토 12:00~21:00 (일·월 휴무).",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1인 5만원대의 합리적인 가격에 알찬 코스를 제공하는 가성비 스시 오마카세 전문점임",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "정갈하고 조용한 카운터석 분위기로 기념일 및 데이트 코스로 만족도가 높음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

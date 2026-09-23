@@ -1,0 +1,87 @@
+{
+  "id": "MA010120220810631391",
+  "name": "우리나라횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 51805,
+  "researchedAt": "2026-09-22T06:17:43.805Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "골목 안 소규모 매장으로 피크 시간대에는 혼잡할 수 있음"
+  },
+  "descriptors": {
+    "audience": "동네 주민, 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "해물모듬",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 22:00 (일요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인 추천 가성비 맛집 및 노포 감성 횟집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 동구 좌천역 인근 골목에 위치한 노포 분위기의 가성비 횟집으로, 신선한 모듬회와 매운탕, 해물 등을 제공하며 야외 노상 테이블을 운영하기도 함",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 성남이로 48 (좌천동). 좌천역 인근에 위치한 노포 감성의 횟집. 야외 노상 테이블을 운영하기도 하며, 회가 신선하고 밑반찬이 잘 나온다는 평가. 합리적인 가격대의 모듬회와 매운탕 등이 주요 메뉴. 일반적인 영업시간은 11:00~22:00이며, 일요일은 정기휴무. 별도의 전용 주차장이 없는 소규모 매장.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "노포 감성이 있는 현지인 추천 가성비 맛집으로 알려져 있습니다. 골목 안에 위치하고 있으며, 야외 노상 테이블을 운영하기도 합니다. 회에서 비린 맛이 없고 밑반찬(스끼다시)이 잘 나오는 곳으로 평가받습니다. 주요 메뉴: 모듬회, 해물모듬, 멍게/해삼, 개불/산낙지, 매운탕 등. 전용 주차장이 없는 소규모 매장.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "노포 감성과 함께 가성비 좋은 신선한 회와 푸짐한 밑반찬을 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "골목길 야외 노상 테이블 분위기와 노포 특유의 현지인 단골 감성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "비린 맛 없이 신선한 회와 얼큰한 매운탕 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

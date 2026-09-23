@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220808830101",
+  "name": "이타쇼",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 74774,
+  "researchedAt": "2026-09-22T06:50:19.265Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "소규모 모임, 연인",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": "확인 불가"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "실제 영업 또는 유효한 상세 방문 리뷰가 확인되지 않음",
+  "notes": "부산광역시 수영구 광안해변로 197 주소 및 '이타쇼' 상호로 웹 조사를 진행하였으나, 실제 상세 방문 후기, 정확한 메뉴/가격 및 영업 정보가 확인되지 않아(실제 영업 여부 불분명 또는 비존재/폐업 추정) found: false로 기록합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "확인 불가",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

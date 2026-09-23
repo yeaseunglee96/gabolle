@@ -1,0 +1,30 @@
+{
+  "id": "MA0101202601A0012703",
+  "name": "도우",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 81817,
+  "researchedAt": "2026-09-22T07:05:01.808Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 해운대구 우동1로 59-2) 및 상호 '도우'로 등록된 음식점 정보를 웹 검색에서 확인할 수 없음",
+  "notes": "부산광역시 해운대구 우동1로 59-2 (지번: 우동 397-17) 주소 및 상호 '도우'로 웹 조사를 진행하였으나, 해당 주소지에 위치한 경양식 음식점 '도우' 관련 상호 정보, 메뉴, 영업 정보 등을 확인할 수 없었습니다. (규칙에 따라 없는 가게를 지어내지 않고 found: false 처리함)",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

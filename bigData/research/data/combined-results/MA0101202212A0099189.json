@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202212A0099189",
+  "name": "진양골",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 47480,
+  "researchedAt": "2026-09-22T11:54:38.103Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 단체, 직장인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "장어구이",
+      "장어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로358번길 14 씨플렉스 4층에 위치했던 '진양골(진양골 장어명가)'로 확인됨. 횟집/해산물 업종으로 인허가 분류되어 있으나 주력 메뉴는 여수식 철판 장어구이 및 장어탕 전문점이었음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 진양골. 주소: 부산광역시 수영구 광안해변로358번길 14 (민락동), 씨플렉스 4층 401호. 여수 방식의 철판 장어구이와 빨간 장어탕을 전문으로 하며, 광안대교를 조망할 수 있는 오션뷰 매장으로 알려져 있습니다. 민락동 수변공원 인근에 위치해 있어 많은 블로그와 맛집 사이트에서 보양식 맛집으로 소개되고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교 오션뷰 조망과 함께 여수식 철판 장어구이 및 얼큰한 장어탕을 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220803092241",
+  "name": "꿀밤숯불구이",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 52189,
+  "researchedAt": "2026-09-22T12:15:28.064Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "돼지고기구이"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안동(수영로618번길 32-9 / 광안동 120-261 인근)에 식육/숯불구이 일반음식점으로 등록·기록된 상호이나, 웹상에 실제 방문 블로그 후기나 상세 메뉴판, 영업시간, 대기 정보 등 구체적인 이용 정보가 게시되어 있지 않아 정량적 세부 항목은 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 광안동에 위치한 꿀밤숯불구이. 업종: 식육(숯불구이). 광안역 인근에 위치하며 부동산 및 지역 상권 정보에서 기준점 및 인근 상가로 언급됨.",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "꿀밤숯불구이 - 부산광역시 수영구 광안동 120-261 / 수영로618번길 인근 일반음식점 식육(숯불구이)",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://infosori.com"
+  ],
+  "whyPeopleGo": []
+}

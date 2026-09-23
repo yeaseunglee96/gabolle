@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220807013079",
+  "name": "태영식육식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 64403,
+  "researchedAt": "2026-09-22T06:01:05.925Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡 관련 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "근처 공단 및 동네 주민",
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "식육 숯불구이"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 방문 여부 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산광역시 사상구 대동로 313 (감전동 132-5)에 등록된 일반음식점(식육 숯불구이)입니다. 관공서 인허가 데이터 및 상가 정보에는 존재하나 일반 블로그/리뷰 후기가 거의 노출되지 않아 세부 가격, 영업시간 등은 온라인상 확인이 어렵습니다. (부곡동 등 동명 식육식당과 구분 필요)",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 대동로 313 (지번 주소: 감전동 132-5) 업종: 음식점 (식육 숯불구이)",
+      "url": "https://www.sasang.go.kr"
+    },
+    {
+      "excerpt": "위치: 부산광역시 사상구 대동로 313 (감전동), 업종: 일반음식점 (식육 숯불구이 등)",
+      "url": "https://www.findby.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr",
+    "https://www.findby.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "사상구 감전동 인근에서 식육 숯불구이를 제공하는 식육식당 업소",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

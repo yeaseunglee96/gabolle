@@ -1,0 +1,35 @@
+{
+  "id": "MA0101202503A0005782",
+  "name": "올드파파야",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 69298,
+  "researchedAt": "2026-09-22T11:57:54.872Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "parking": false,
+    "queueing": false,
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산 해운대구 우동1로38번가길 5) 및 '올드파파야' 상호로 웹 검색을 진행하였으나 일치하는 음식점 정보나 관련 웹 페이지/리뷰가 존재하지 않아 미발견(found: false) 처리함. (해당 주소지는 과거 '료미' 해운대점 등이 있던 해리단길 위치)",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

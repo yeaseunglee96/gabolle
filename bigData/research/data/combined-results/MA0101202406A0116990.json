@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202406A0116990",
+  "name": "오지테이블",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 130481,
+  "researchedAt": "2026-09-22T11:37:37.508Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "테이블 수가 많지 않아 피크 타임 및 주말에는 웨이팅이 발생하나 평일 등 시간대에 따라 바로 입장 가능함"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 여행객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "스테이크앤스위트포테이토",
+      "갈릭 오징어 파스타",
+      "시금치 프리타타",
+      "에그 베네딕트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:00 ~ 20:00 (라스트오더 19:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "여행으로 해운대 들렀다가 캐리어 두고 편하게 식사하기 좋은 장소로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 해운대 해리단길에 위치한 호주식 브런치 전문점으로 합리적인 가격의 세트메뉴와 파스타, 스테이크, 오픈 샌드위치 등을 제공함. 매장 전용 주차장은 없으며 인근 공영주차장 이용 권장.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/XYEOL/btsPR8HCoWp/AAAAAAAAAAAAAAAAAAAAAALrOMKjibwRH4JtVLhjTGo5wJRz20tdJXzbDaUu1h3s/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=XZGr54sILwQipgauRIiR%2BXk7sik%3D",
+    "https://blog.kakaocdn.net/dna/vpv3r/btsPQzFLcfj/AAAAAAAAAAAAAAAAAAAAACdyvFdgXpM4FG2paiddrzerrO2fRcdddZsWY3exVR5Z/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=pMuw1OJz5h5GbmZV6FqxvKNExzw%3D",
+    "https://blog.kakaocdn.net/dna/bfKvZk/btsPTDNa5dO/AAAAAAAAAAAAAAAAAAAAADZZxeUEQmcNFW82ibf2QRikmDifiEI73QBqdIT_3j7K/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=wUH2QLgo%2BbhS0ETDu84HQlcdyd8%3D",
+    "https://blog.kakaocdn.net/dna/Uo1YJ/btsPRp306xu/AAAAAAAAAAAAAAAAAAAAALTi2_EUZl9rov1HWJ7eCqSTgUP7gFmvJhtG3V2pYOvC/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=QQTgnqr4Y5IFpP5jfLG4HLIVALo%3D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "베이컨 에그 베네딕트 13,900원 / 고르곤졸라 피자 16,900원 / 우삼겹 떡볶이 12,900원",
+    "priceWon": 13900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 가끔 지나다닐때 외관이 이뻐서 가끔 힐끔힐끔 보다가 들어가게 되었습니다. 영업시간 09:00 ~ 20:00 (라스트오더 19:30)... 세트메뉴 가성비가 정말 좋았습니다. 가격대비 맛도 괜찮았고, 적당한 테이블 간격 등이 마음에 들었습니다. 가성비짱. 여행으로 해운대 들렸다가 공간도 넓어서 케리어 놔두기 편하고 좋아 보였습니다.",
+      "url": "https://jji-jjil.tistory.com/55"
+    }
+  ],
+  "sources": [
+    "https://jji-jjil.tistory.com/55"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "호주식 브런치 메뉴와 세트메뉴의 가성비가 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "감성적인 벽돌 외관과 편안하고 쾌적한 내부 인테리어 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ],
+  "yearsClaimed": null
+}

@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220805838016",
+  "name": "갈매기집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 68002,
+  "researchedAt": "2026-09-22T11:59:28.878Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "생물 아구를 사용하므로 방문 전 사전 예약이 필수적이거나 권장됨"
+  },
+  "descriptors": {
+    "audience": "모임, 주당, 미식가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "아구수육",
+      "생물 아귀회",
+      "해산물"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 민락수변로 29 바다마루 5층에 위치한 아구수육/해산물 전문점 '갈매기집'. 생물 아구를 사용하여 내장과 시원한 국물 맛이 뛰어난 아구수육이 대표적이며 예약제로 주로 운영됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "아구수육",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락수변로 29 바다마루 5층. 생물 아구로 만든 아구수육이 유명한 곳입니다. 예약제로 운영되므로 방문 전 예약이 필수입니다. 국물 맛이 시원하고 감칠맛이 뛰어나며, 내장을 포함한 생물 아구의 품질이 좋아 많은 추천을 받는 맛집입니다. 마무리로 우동 사리를 추가해 먹는 것이 별미로 언급됩니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "부산 수영구 민락수변로 29, 바다마루 5층. 아구수육을 주력으로 하며, 회와 해산물도 함께 판매합니다. 생물 아구를 사용하여 내장까지 맛볼 수 있는 것으로 알려져 있으며, 국물 맛에 대한 평이 좋습니다.",
+      "url": "https://www.trip.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://www.trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 생물 아구를 사용해 잡내 없이 시원하고 감칠맛 뛰어난 아구수육과 내장을 맛볼 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

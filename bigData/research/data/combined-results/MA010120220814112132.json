@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220814112132",
+  "name": "광안리산해횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 68556,
+  "researchedAt": "2026-09-22T12:05:31.036Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 시간에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 가족, 단체 모임",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "대게 코스",
+      "랍스타 코스",
+      "모듬회"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "웹 검색 결과 공식 일일 영업시간이 명확하게 기재되어 있지 않음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 및 바다 전망으로 부산을 찾는 관광객 및 모임 손님들이 주로 방문하는 오션뷰 횟집으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 수영구 민락동(광안해변로344번길) 산바다빌딩/풍경타워 8층에 위치하여 광안대교 및 광안리 해수욕장을 내려다보는 통유리 오션뷰와 다양한 스끼다시 및 대게·랍스타 코스 요리가 주요 방문 요인임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "코스 요리(대게/랍스타 코스, 모듬회) 변동/별도 문의",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치 및 특징: 부산 광안리 수변공원 뒤편 '산바다' 건물 8층에 위치하고 있습니다. 통유리로 되어 있어 광안리 바다와 광안대교를 조망할 수 있는 전망 좋은 횟집으로 소개된 바 있습니다. 자연산 전문 횟집으로, 대게와 랍스타 코스요리를 주문할 경우 회를 무한리필로 즐길 수 있는 점이 특징으로 언급되었습니다. 죽, 산낙지, 전복, 멍게, 가리비 치즈구이, 생우럭탕수, 참치타다끼, 육회 등 다양한 스끼다시(밑반찬)가 함께 제공되는 것으로 소개되었습니다.",
+      "url": "http://www.newsrep.co.kr/news/articleView.html?idxno=98254"
+    },
+    {
+      "excerpt": "주소: 부산광역시 수영구 광안해변로344번길 17-20 (민락동, 풍경타워 8층) 주차: 건물 1층에 전용 주차장이 마련되어 있으며, 인근의 넓은 수변공원 공영주차장도 이용 가능합니다.",
+      "url": "http://www.navet.co.kr"
+    }
+  ],
+  "sources": [
+    "http://www.newsrep.co.kr/news/articleView.html?idxno=98254",
+    "http://www.navet.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "8층 통유리창을 통해 광안리 바다와 광안대교를 한눈에 볼 수 있는 오션뷰 전망",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "대게·랍스타 코스 및 신선한 활어회와 산낙지·전복 등 풍성한 스끼다시 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220811224699",
+  "name": "기장장어집",
+  "cat": "해산물 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 57695,
+  "researchedAt": "2026-09-22T06:53:11.881Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객, 시장 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "곰장어 소금구이",
+      "곰장어 양념구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대시장 내에 위치하여 현지인뿐만 아니라 시장을 찾는 관광객들도 자주 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "해운대 전통시장 동문 상국이네 떡볶이 근처에 위치한 산곰장어 전문점. 소금구이와 양념구이를 취급하며 택배 주문도 가능함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "곰장어 소금구이 중/대 등",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대시장 내 위치한 꼼장어 전문점으로, 현지인뿐만 아니라 관광객들도 많이 찾는 곳입니다. 소금구이: 껍질을 벗긴 것과 벗기지 않은 것을 반반으로 제공하는 경우가 많습니다. 특히 껍질이 있는 경우 바싹 구워 먹으면 고소하고 오독오독한 식감을 즐길 수 있습니다. 양념구이: 후추 향이 강하고 자극적인 맛으로, 볶음밥과 함께 즐기기 좋습니다. 메뉴판: 사이즈별(소, 중 등)로 꼼장어 그람수가 표기되어 있어 주문 시 참고하기 편리합니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "위치: 부산광역시 해운대구 구남로41번길 42 (해운대시장 동문 근처). 인근의 유명 분식집인 '상국이네'를 찾은 뒤 왼쪽 옆옆 가게를 확인하면 쉽게 찾을 수 있다는 후기가 있습니다. 주요 메뉴: 곰장어(산곰장어) 소금구이 및 양념구이",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 전통시장 내에서 고소한 껍질 식감의 소금구이와 자극적인 양념구이 산곰장어를 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 전통시장 동문 상국이네 분식 인근에 위치해 시장 방문 시 접근이 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220813100550",
+  "name": "갈삼구이",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 95098,
+  "researchedAt": "2026-09-22T11:59:55.480Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "창가 자리는 인기가 많아 조기 마감되거나 줄을 서야 할 수 있고 예약 여부를 확인하는 경우가 많음"
+  },
+  "descriptors": {
+    "audience": "연인, 관광객, 가족",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "갈미조개 갈삼구이",
+      "키조개 갈삼구이",
+      "전복 갈삼구이",
+      "새우 갈삼구이"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 22:30 (토요일 23:00 마감)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 특색 음식인 갈미조개와 삼겹살 조합 및 광안대교 오션뷰로 현지인과 관광객 모두에게 인기가 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안리 민락수변로 OK타운 4층에 위치한 갈미조개+삼겹살 구이 전문점. 광안대교 뷰와 독특한 식재료 조합으로 유명함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "갈미조개 갈삼구이 25,000원 / 키조개 갈삼구이 24,000원 / 전복 갈삼구이 23,000원 / 새우 갈삼구이 22,000원",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "건물 4층에 위치하여 광안리 해수욕장과 광안대교를 내려다보는 오션뷰를 감상할 수 있습니다. 갈미조개와 대패 삼겹살을 주재료로 하는 갈삼구이가 대표 메뉴이며 직원이 기본 세팅과 조리를 도와주어 편리하게 식사할 수 있습니다.",
+      "url": "https://www.siksinhot.com/P/1018991"
+    },
+    {
+      "excerpt": "부산광역시 수영구 민락수변로 7(4층)에 위치한 갈삼구이는 갈미조개, 키조개, 전복, 새우 등을 삼겹살과 함께 구워 먹는 대표 메뉴로 현지인 및 관광객들에게 인기가 많으며 창가 자리는 인기가 많아 조기 마감될 수 있습니다. 매일 12:00 ~ 22:30 운영.",
+      "url": "https://catchtable.net/shop/galsamgui"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1018991",
+    "https://catchtable.net/shop/galsamgui"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산 명물 갈미조개와 대패삼겹살, 콩나물을 함께 곁들여 먹는 이색적인 별미 조합",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해수욕장과 광안대교가 한눈에 내려다보이는 4층 오션뷰 조망",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

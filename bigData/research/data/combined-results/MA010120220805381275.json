@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220805381275",
+  "name": "고가우동",
+  "cat": "일식 면 요리",
+  "attempts": 1,
+  "geminiTokens": 70212,
+  "researchedAt": "2026-09-22T06:54:14.035Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "서퍼, 관광객, 반려견 동반 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "고가우동",
+      "제육덮밥",
+      "매운우동",
+      "황태라면",
+      "고가김밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:30~20:00 (아침 식사 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송정해수욕장 및 서프빌리지 인근 방문객과 서퍼들이 간단히 식사하기 좋은 위치"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 송정해변로 골목 안쪽에 위치한 우동·분식 전문점으로, 야외 테라스 좌석(반려견 동반 가능) 및 아침 식사 편의를 제공함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "고가우동 7,000원, 매운우동 7,500원, 고가김밥 4,000원, 떡볶이&당면만두 6,000원, 제육덮밥 9,000원",
+    "priceWon": 7000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 송정해변로 34-10 1층 (송정동 297-25). 우동, 라면, 김밥, 떡볶이 등의 분식 메뉴와 골뱅이무침, 오뎅탕 등 안주류를 판매하며, 야외 테라스 좌석(반려견 동반 가능)과 아기의자가 준비되어 있습니다. 아침 식사도 가능합니다. 고가우동(7,000원), 매운우동(7,500원), 고가김밥(4,000원), 떡볶이&당면만두(6,000원), 제육덮밥(9,000원) 등",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "영업시간: 09:30~20:00. 테라스 좌석이 있어 반려동물 동반이 가능합니다. 유아용 의자(아기의자)도 구비되어 있습니다.",
+      "url": "https://www.redtable.global/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://www.redtable.global/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "송정해변 인근에서 아침 식사나 분식/우동으로 가볍게 식사하기 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "야외 테라스 좌석이 구비되어 반려동물 동반 식사가 가능함",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

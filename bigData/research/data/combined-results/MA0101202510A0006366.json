@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202510A0006366",
+  "name": "석옥갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 68577,
+  "researchedAt": "2026-09-22T12:13:49.692Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡도 관련 구체적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가족 및 연인, 관광객, 현지인 외식",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대에 위치하여 현지인과 관광객 모두 방문하는 컨템포러리 포크립 하우스"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해운대구 좌동순환로 499-9에 위치한 돼지갈비 전문점으로, '컨템포러리 포크립 하우스'를 표방하며 정교한 칼집과 모노톤의 세련된 인테리어를 갖춘 곳으로 소개됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'돼지갈비, 연구하고 작품으로 만들다'라는 슬로건을 내건 곳으로, 장인의 기술과 과학적 연구를 접목한 '컨템포러리 포크립 하우스(Contemporary Pork Rib House)'를 표방하고 있습니다. 짙은 그레이와 블랙 톤의 모노톤 인테리어를 갖춘 정제된 공간에서 돼지갈비를 즐길 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://www.joongang.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.joongang.co.kr",
+    "https://kculture-map.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "과학적 연구와 장인 기술을 접목한 부드러운 육질의 프리미엄 돼지갈비 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "모노톤의 갤러리 같은 정제되고 세련된 현대적 인테리어 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

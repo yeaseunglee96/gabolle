@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220811436091",
+  "name": "남천칼국수",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 48117,
+  "researchedAt": "2026-09-22T06:51:31.857Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인, 1인 혼밥 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "칼국수",
+      "수제비",
+      "김밥",
+      "들깨칼국수"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 11:00 ~ 21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "가정집을 개조하여 오래전부터 운영해 온 남천동 동네 단골·혼밥 중심의 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 남천동 금련산역 인근에서 가정집을 개조하여 오랜 기간 동네 주민과 혼밥족을 상대로 칼국수, 수제비, 김밥 등을 판매해 온 동네 밥집. 최근에는 키오스크 및 테이블 모니터 주문 시스템을 도입해 운영 중임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "남천칼국수는 부산광역시 수영구 남천바다로10번길 46(남천동 30-23)에 위치한 칼국수 전문점입니다. 가정집을 개조하여 운영하는 식당으로, 오래전부터 지역 내에서 내공 있는 칼국수 맛집으로 알려져 왔습니다. 키오스크와 테이블 모니터를 통한 주문·결제 방식을 도입하여 운영하고 있으며, 혼밥이나 점심/저녁 식사 장소로도 많이 이용됩니다. 칼국수, 수제비, 김밥을 중심으로 냉칼국수, 콩칼국수, 얼큰 칼국수, 들깨칼국수, 소고기버섯칼국수, 쫄면 등 다양한 면류와 밥류를 제공합니다. 주중 11:00 ~ 21:00.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "가정집 개조 식당 특유의 분위기에서 다양한 칼국수와 수제비, 김밥을 편하게 즐길 수 있는 동네 단골 밥집",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "금련산역 역세권 접근성과 키오스크·테이블 모니터 주문 시스템을 갖춰 혼밥 및 식사 편의성이 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220806931845",
+  "name": "스트릿27",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 44007,
+  "researchedAt": "2026-09-22T10:37:30.277Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안로61번길 25 소재의 경양식 업종 '스트릿27'에 대한 실제 영업 정보나 상세 웹 기록(블로그/리뷰/출처)을 찾을 수 없습니다. 광안리 일대에 과거 동명의 펍/와인바(Street27, 민락동 소재)가 존재했던 흔적만 일부 확인되며, 제시된 주소지의 경양식 매장은 실존 여부 확인 불가 및 폐업/불명으로 판단하여 found:false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

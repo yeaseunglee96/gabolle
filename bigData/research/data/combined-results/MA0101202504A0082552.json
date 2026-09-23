@@ -1,0 +1,38 @@
+{
+  "id": "MA0101202504A0082552",
+  "name": "작은집",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 72954,
+  "researchedAt": "2026-09-22T12:05:59.891Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소지(부산광역시 수영구 수미로26번길 53)에는 경양식 업종의 '작은집'이라는 식당에 대한 정보가 존재하지 않습니다. 동일 주소지에는 디저트/케이크 관련 업체(도두당, 미쯔케이크 등)가 확인되며, 경양식 음식점 '작은집' 관련 웹 문서나 방문 리뷰, 메뉴 정보 등은 확인되지 않아 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

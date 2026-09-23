@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220812370799",
+  "name": "미송하모샤브샤브",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 80255,
+  "researchedAt": "2026-09-22T12:00:28.082Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "식사 시간 및 제철 여름철에는 손님이 많아 대기(웨이팅)가 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "어르신 및 보양식 찾는 가족/모임 단위 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "하모 샤브샤브",
+      "하모회",
+      "하모 매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:30 (매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "송도 인근 현지인 및 어르신 단골이 주로 찾는 보양식 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 서구 암남동 충무대로에 위치한 하모(갯장어) 샤브샤브 전문점 조사 결과입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "하모샤브 (중)",
+    "priceWon": 110000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미송하모샤브샤브는 부산광역시 서구 충무대로 124(암남동)에 위치한 하모(갯장어) 요리 전문점입니다. 송도해수욕장 인근에 위치해 있으며, 여름철 기력 회복을 위한 보양식으로 잘 알려져 있습니다. 현지인과 어르신들이 자주 찾는 맛집으로, 특히 제철인 초여름부터 늦여름까지 인기가 많습니다. 주문 시 신선한 야채와 함께 제공되는 갯장어를 육수에 살짝 익혀 먹는 샤브샤브가 대표 메뉴입니다. 매일 11:30 ~ 21:30 (매주 월요일 정기휴무)",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "하모는 제철 보양식으로 가격대가 다소 있는 편입니다. 최근 후기에 따르면 하모샤브 중 사이즈가 110,000원에 판매된 기록이 있습니다. 하모 매운탕(대, 50,000원) 등의 메뉴가 있으며, 식사 후에는 라면 사리나 죽 등을 추가하여 즐기는 경우가 많습니다. 식사 시간에는 손님이 많아 대기가 발생할 수 있습니다.",
+      "url": "https://daum.net"
+    }
+  ],
+  "sources": [
+    "https://www.bsseogu.go.kr",
+    "https://tistory.com",
+    "https://daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "초여름~늦여름 제철 보양식으로 즐기는 신선한 갯장어 샤브샤브와 회",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "송도 인근 현지인 및 어르신들의 지지와 선호도가 높은 음식점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

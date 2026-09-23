@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202506A0024120",
+  "name": "인더빈야드",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60540,
+  "researchedAt": "2026-09-22T11:53:42.209Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 매장 방문 후기, 메뉴, 영업시간 등 식당 영업 정보가 존재하지 않고 인허가 대장에만 존재함",
+  "notes": "부산 수영구 수영로679번길 22 소재의 '인더빈야드'는 인허가 데이터에만 등록되어 있고 실제 방문 리뷰나 메뉴, 영업시간 등 실질적인 음식점 정보를 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://marketbang.kr"
+  ],
+  "whyPeopleGo": []
+}

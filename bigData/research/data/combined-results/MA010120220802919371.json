@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220802919371",
+  "name": "비비드13",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 95747,
+  "researchedAt": "2026-09-22T10:33:53.854Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "오픈 시간대부터 손님이 붐비며 주말이나 피크 타임에는 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "연인·여성 모임·브런치 이용객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "브런치 플레이트",
+      "제철 과일 프렌치 토스트",
+      "파스타"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 08:30 ~ 19:00 (또는 20:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 및 금련산역 인근에 위치해 여행객 방문 및 데이트/모임 방문객이 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 광안리 광남로 129에 위치한 브런치 카페 '비비드13'으로, 신선한 재료를 활용한 브런치 플레이트 및 파스타 등을 주력으로 운영하고 있습니다. 전용 주차장은 없어 인근 유료 주차장을 이용해야 합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "브런치 플레이트 및 파스타류",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "비비드13(VIVID13)은 부산광역시 수영구 광남로 129 광안빌딩 1층에 위치한 브런치 및 파스타 전문점으로, 신선한 야채와 과일, 직접 만든 소스를 사용한 메뉴가 특징이며 오픈 시간대부터 손님이 붐비는 브런치 맛집입니다. 전용 주차장은 없으나 인근 유료 주차장 이용이 가능합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 재료와 직접 만든 소스로 만든 푸짐한 브런치 플레이트 및 파스타를 맛보기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "탁 트인 창과 감성적인 인테리어, 사진 찍기 좋은 브런치 카페 분위기 때문에 방문",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220813396607",
+  "name": "마이페이보릿쿠키",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 96701,
+  "researchedAt": "2026-09-22T11:14:42.546Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 오픈 시간대에는 20~30분 내외의 웨이팅이 필수적이나 테이크아웃 전문이라 회전은 비교적 빠른 편임"
+  },
+  "descriptors": {
+    "audience": "연인·친구·선물구매객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "레드벨벳 크림치즈",
+      "말차 크림치즈"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 20:00 (쿠키 소진 시 조기 마감)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 필수 방문 코스로 관광객 및 선물 포장 수요가 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "서면 전포동에서 광안리로 이전한 수제 쿠키 전문점으로 두툼하고 쫀득한 미국식 쿠키를 취급함",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "수제 쿠키 개당",
+    "priceWon": 3800
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 광안리에 위치한 마이페이보릿쿠키(My Favorite Cookie)에 대한 정보입니다. 쿠키 가격: 종류에 따라 3,000원 ~ 3,800원 선입니다. 주요 메뉴: 레드벨벳 크림치즈 오레오, 말차 크림치즈, 월넛 초콜릿, 피칸 코코넛 초콜릿, 뉴욕 초콜릿, 버터 스카치 프레첼, 솔트 초코 아몬드 등 약 10여 종의 다양한 쿠키가 준비되어 있습니다. 웨이팅은 부산의 대표적인 디저트 핫플인 만큼 주말이나 오픈 시간대에는 웨이팅이 필수인 경우가 많습니다. 테이크아웃 전문점이라 회전율은 비교적 빠른 편이며, 보통 20~30분 내외의 대기가 발생하는 경우가 많습니다. 운영 시간: 매일 11:00 ~ 20:00. 주차: 전용 주차장은 없으며, 인근 공영주차장을 이용해야 합니다.",
+      "url": "https://www.myrealtrip.com"
+    },
+    {
+      "excerpt": "순수우유버터, 벨기에산 초콜릿, 프랑스 코코아분말, 끼리크림치즈 등을 사용하며 방부제가 들어가지 않은 쫀득한 미국식 쿠키를 판매하는 곳입니다. 서면 전포동에서 광안리로 이전한 유명 쿠키 맛집입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.myrealtrip.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "끼리크림치즈와 고급 초콜릿, 순수우유버터를 아낌없이 넣어 쫀득하고 두툼한 미국식 수제 쿠키 본연의 맛 때문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해수욕장 인근의 대표적인 디저트 핫플이자 유명 선물 포장 코스로 입소문을 타 줄을 섬",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

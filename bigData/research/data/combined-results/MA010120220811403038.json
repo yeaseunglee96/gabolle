@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220811403038",
+  "name": "삼천각",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 80529,
+  "researchedAt": "2026-09-22T11:57:52.247Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 단골손님 및 가족 외식 모임 객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "잡채",
+      "탕수육",
+      "짜장면"
+    ],
+    "yearsClaimed": 45
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 11시 30분 영업 시작"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "30~40년 넘게 찾아온 현지 단골 주민들이 주를 이루는 지역 노포 중식당"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "1981년 7월 개업하여 40년 넘게 운영 중인 광안리 남천동 해변가 노포 중식당. 화교 출신 대표가 운영하며 광안대교 오션뷰와 가성비, 기본기에 충실한 요리로 지역민들에게 오랜 사랑을 받고 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "짜장면/탕수육/잡채 등 일반 중식당 가격대 (가성비 좋은 식당으로 보도)"
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 남천동 삼천각은 1981년 7월에 문을 열어 30년 넘게 운영되어 온 지역의 터줏대감 같은 곳이다. 화교 출신 사장님이 운영하며 정통 중식 맛을 유지하고 광안리 바다와 광안대교를 조망할 수 있다. 대표 메뉴로는 잡채, 탕수육 등이 꼽힌다.",
+      "url": "https://www.busan.com"
+    },
+    {
+      "excerpt": "정 넘치고 가성비 좋은 광안리 터줏대감 중식당. 위치: 부산광역시 수영구 남천동로108번길 54 (남천동 5-1)",
+      "url": "https://www.busan.com"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1981년 7월 개업하여 40년 이상 남천동·광안리 일대를 지켜온 화교 노포 중식당",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "지역 단골손님들이 오래도록 찾는 정겨운 분위기와 탄탄한 현지 주민 지지",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    },
+    {
+      "note": "광안리 바다와 광안대교 뷰를 바라보며 합리적인 가격에 즐기는 탕수육·잡채 등 기본기 충실한 중화요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

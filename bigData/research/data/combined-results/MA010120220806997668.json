@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220806997668",
+  "name": "삼오식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 58986,
+  "researchedAt": "2026-09-22T11:43:24.198Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 수영구 수영로610번길 24-2에 '삼오식당'(돼지고기 구이/찜) 관련 정보가 웹상에 전혀 확인되지 않으며, 해당 주소지는 숙박시설(에어비앤비)로 운영 중입니다.",
+  "notes": "해당 상호 및 주소지로 검색을 3차례 진행했으나 식당 정보가 확인되지 않아 조사를 종료합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

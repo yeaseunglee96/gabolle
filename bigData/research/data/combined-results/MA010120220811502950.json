@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811502950",
+  "name": "청사포경북횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 79888,
+  "researchedAt": "2026-09-22T11:52:58.314Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 해운대구 청사포로 141-1 주소지 및 청사포 일대를 검색한 결과 '청사포경북횟집' 또는 '경북횟집'이라는 상호의 식당은 존재하지 않거나 확인되지 않습니다. 해당 주소지에는 조개구이 전문점 '사랑방 청사포점'이 위치했던 기록이 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

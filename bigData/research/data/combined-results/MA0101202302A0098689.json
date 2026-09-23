@@ -1,0 +1,81 @@
+{
+  "id": "MA0101202302A0098689",
+  "name": "레인즈",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 103268,
+  "researchedAt": "2026-09-22T10:36:36.952Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "웨이팅이나 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "반려견 동반 손님, 브런치 및 데이트 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "매운 크림 뇨끼",
+      "바질 파스타",
+      "구운 로메인 샐러드",
+      "에그 샌드위치",
+      "크로와상 치킨 샌드위치"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 - 21:00 (라스트오더 19:50), 매주 수요일 정기 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근의 골목에 위치한 아늑한 브런치 명소로 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "영국 Raynes Park 마을에서 영감을 받은 따뜻한 우드톤 브런치 카페로, 반려동물 동반이 가능하며 매운 크림 뇨끼와 브런치 메뉴로 인기를 끌고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "영국 '레인즈 파크(Raynes Park)'라는 마을에서 느낀 따뜻함과 여유로움을 담은 브런치 카페입니다. 주요 메뉴: 매운 크림 뇨끼, 바질 파스타, 각종 샌드위치(에그, 크로와상 치킨), 구운 로메인 샐러드 등이 있습니다. 애견 동반 가능 (강아지 전용 물그릇 구비), 별도의 전용 주차장은 없으며, 인근 공영주차장이나 유료 주차장을 이용해야 합니다.",
+      "url": "https://www.siksinhot.com/P/1608669959632856"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1608669959632856"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "영국 Raynes Park 마을 감성의 아늑하고 따뜻한 우드톤 인테리어와 여유로운 브런치 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "시그니처인 매운 크림 뇨끼, 바질 파스타, 로메인 샐러드 등 특색 있는 브런치 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "반려견 전용 물그릇 구비 등 편리한 애견 동반 가능 환경 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

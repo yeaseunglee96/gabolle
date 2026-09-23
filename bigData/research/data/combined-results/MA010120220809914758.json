@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220809914758",
+  "name": "제주돈떵이",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 56844,
+  "researchedAt": "2026-09-22T11:57:10.706Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 수영구 민락수변로17번길 35)의 '제주돈떵이'에 대한 구체적인 매장 정보 및 방문 후기 문서 없음",
+  "notes": "웹 검색(4회) 결과 해당 주소지에 위치한 '제주돈떵이'의 실질적인 영업 정보, 후기, 메뉴 및 가격 등의 상세 내역을 확인할 수 없었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

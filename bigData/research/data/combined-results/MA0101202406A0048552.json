@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202406A0048552",
+  "name": "웅비식당",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 73269,
+  "researchedAt": "2026-09-22T11:54:06.663Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 해운대구 구남로 35-11 소재 '웅비식당'은 웹상에서 방문 리뷰, 메뉴, 가격, 영업시간 등의 실제 영업 정보가 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220803700098",
+  "name": "찐스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 44365,
+  "researchedAt": "2026-09-22T11:58:07.780Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주변 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "찐초밥",
+      "특선초밥",
+      "후토마끼"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 – 21:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "제시된 주소(부산 해운대구 좌동순환로468번길 71-12)에 사업체/구인 등록 이력이 확인되며, 인근 좌동순환로 47-1 매장 정보와 연계된 초밥/일식 전문점입니다. 블로그 후기 및 세부 방문기/사진 직링크는 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 좌동순환로468번길 71-12 에 '찐스시'라는 일식/초밥 전문점이 있는 것으로 확인됩니다.",
+      "url": "https://www.jobkorea.co.kr"
+    },
+    {
+      "excerpt": "위치: 부산광역시 해운대구 좌동순환로 47-1 1층 / 영업시간: 매일 11:00 – 21:00 / 주요 메뉴: 런치/디너 세트, 찐초밥, 특선초밥, 오마카세(활어)초밥, 후토마끼, 연어초밥, 사시미 등",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://www.jobkorea.co.kr",
+    "https://www.albamon.com",
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "런치/디너 세트와 모둠초밥, 후토마끼 등 스시 메뉴를 간편하게 즐기기 위해 방문",
+      "sources": [
+        2
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "MA0101202508A0032039",
+  "name": "섬과섬사이광안리점",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 72232,
+  "researchedAt": "2026-09-22T11:31:00.171Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 미확인"
+  },
+  "descriptors": {
+    "audience": "연인, 관광객, 해산물 및 뷰 선호 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "조개구이",
+      "조개찜",
+      "독도새우"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "14:00 - 02:00 (근무/매장 안내 기준)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 앞 광안대교 뷰를 감상하는 핫플레이스로 관광객 및 방문객 주로 언급"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "광안대교를 조망할 수 있는 통창 오션뷰와 조개구이/해산물 전문점으로 알려져 있는 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오션뷰: 광안대교를 조망할 수 있는 통창 오션뷰 식당으로 잘 알려져 있습니다. 주요 메뉴: 조개구이, 조개찜, 독도새우 등 해산물 요리를 제공합니다. 시설: 건물 3층에 위치하고 있으며, 인근에 광안리 해수욕장이 있어 접근성이 좋습니다.",
+      "url": "https://mrmention.co.kr"
+    },
+    {
+      "excerpt": "부산 수영구 광안로62번길 39, 3층. 근무 시간대 14:00부터 02:00까지. 매장 전화: 051-902-4589. 반려동물 동반이 가능한 조개구이 전문점",
+      "url": "https://dongnealba.com"
+    }
+  ],
+  "sources": [
+    "https://mrmention.co.kr",
+    "https://dongnealba.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교를 정면으로 바라볼 수 있는 통창 오션뷰 조망 환경",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "조개구이, 조개찜, 독도새우 등 신선한 해산물 요리 전문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

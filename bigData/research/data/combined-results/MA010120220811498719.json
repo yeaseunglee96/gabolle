@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811498719",
+  "name": "아펙트",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 46302,
+  "researchedAt": "2026-09-22T10:36:11.462Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블을 통한 예약 권장 매장이며 차분하고 아늑한 바 테이블 중심 운영"
+  },
+  "descriptors": {
+    "audience": "연인, 데이트, 기념일 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오징어 세비체",
+      "시금치 쉬림프 오일 소스 타야린",
+      "육회 타르타르"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 - 21:00 (일, 월요일 휴무, 일부 마감 22:00~23:00 안내)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "분위기와 프렌치 다이닝 와인 페어링을 즐기러 찾는 데이트 및 기념일 방문객 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 민락동(수영구 무학로64번길 31) 1층에 위치한 프렌치 베이스의 다이닝 레스토랑 겸 와인 바 아펙트(Afekt) 정보입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "오징어 세비체",
+    "priceWon": 28000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "커다란 U자 형태의 테이블이 인상적인 프렌치 베이스의 다이닝 레스토랑으로, 제철 재료를 활용하며 와인과 페어링하기 좋은 메뉴를 제공합니다. 대표 메뉴: 오징어 세비체 (28,000원), 시금치 쉬림프 오일 소스 타야린 (25,000원). 주소: 부산광역시 수영구 무학로64번길 31, 1층",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "부산광역시 수영구 무학로64번길 31, 1층 (민락동 157-19). 제철 재료를 활용한 프렌치 기반의 다이닝 레스토랑이자 와인 바입니다. 커다란 U자 형태의 테이블이 특징이며, 차분하고 고급스러운 분위기로 기념일에 방문하기 좋은 곳으로 알려져 있습니다. 예약: 캐치테이블을 통해 예약이 가능하며, 예약 권장 매장입니다. 주차: 매장 전용 주차장은 없으며 인근 주차장 이용.",
+      "url": "https://blog.naver.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://blog.naver.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제철 식재료로 조리한 프렌치 다이닝 및 파스타 메뉴와 와인 페어링의 퀄리티",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "대형 U자 바 테이블과 차분하고 감각적인 인테리어로 데이트·기념일에 어울리는 공간 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

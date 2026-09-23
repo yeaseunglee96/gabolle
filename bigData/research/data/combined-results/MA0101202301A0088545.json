@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202301A0088545",
+  "name": "아키나",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 68057,
+  "researchedAt": "2026-09-22T11:40:43.486Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "대학생, 직장인",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "염통",
+      "날개",
+      "껍질",
+      "목살",
+      "안심",
+      "삼겹말이"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~목: 18:00 – 01:00, 금~토: 18:00 – 02:00, 일요일 휴무"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "의뢰 대상 업종 설명에는 '일식 회/초밥'으로 기재되어 있으나, 실제 주소지(부산 남구 수영로346번길 33 1층)의 '아키나'는 야키토리(닭꼬치구이) 및 꼬치구이류를 전문으로 하는 이자카야/일식 주점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 남구 수영로346번길 33 (1층). 주요 메뉴: 염통, 날개, 껍질, 목살, 안심, 허벅지, 아킬레스, 무릎연골 등 다양한 닭꼬치류와 삼겹말이, 새우버터구이 등. 영업 시간: 월~목: 18:00–01:00, 금~토: 18:00–02:00, 일요일: 휴무. 교통: 부산 지하철 2호선 경성대·부경대역에서 도보 약 4~5분 거리.",
+      "url": "https://heyyumi.ai"
+    },
+    {
+      "excerpt": "부산광역시 남구 수영로346번길 33 1층 아키나",
+      "url": "https://alba.co.kr"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://alba.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "경성대·부경대역 인근에서 다양한 부위의 닭꼬치와 꼬치구이를 즐길 수 있는 야키토리 이자카야",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

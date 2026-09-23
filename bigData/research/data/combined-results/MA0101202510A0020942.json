@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202510A0020942",
+  "name": "대니얼스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 67347,
+  "researchedAt": "2026-09-22T07:08:23.471Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 웨이팅 관련 언급 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 동네 주민",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "파니니",
+      "브런치",
+      "케이크"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 - 23:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근에 위치하며 지역 상권 일상 프로그램(독서 모임 등)과 커뮤니티 행사가 진행되는 복합문화공간형 브런치 카페로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 수영로554번가길 8에 위치한 대니얼스는 전통적인 경양식(돈까스 등) 전문점이 아닌 파니니, 디저트/케이크, 음료 등을 취급하는 브런치 카페 및 비스트로 형태의 복합문화공간입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "파니니, 브런치 세트",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 수영로554번가길 8에 위치한 '대니얼스'는 낮에는 브런치 카페, 저녁에는 비스트로(디너)로 운영되는 복합문화공간 컨셉의 레스토랑입니다. 가게 내부에 피아노가 비치되어 있는 등 분위기 좋은 곳으로 알려져 있으며, 독서 모임 등 지역 상권 내 다양한 프로그램도 진행되는 공간입니다. 매일 10:00 - 23:00 영업하며 가게 앞 주차 공간이 마련되어 있습니다.",
+      "url": "https://autoreserve.com"
+    },
+    {
+      "excerpt": "대니얼스(Daniels): 부산광역시 수영구 수영로554번가길 8 1층 (광안동, 광남지구대 인근). 파니니와 같은 브런치 메뉴와 음료를 제공하며, 아늑하고 유니크한 분위기 덕분에 사진 촬영이나 데이트 장소로 잘 알려져 있습니다.",
+      "url": "https://matple.com"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com",
+    "https://matple.com",
+    "https://trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아늑하고 유니크한 분위기에서 즐기는 파니니 등 브런치 및 감성 데이트 공간",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "낮에는 브런치 카페, 밤에는 비스트로이자 독서모임 등 커뮤니티 프로그램이 열리는 복합문화공간",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

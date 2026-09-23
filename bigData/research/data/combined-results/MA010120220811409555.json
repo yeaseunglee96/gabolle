@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220811409555",
+  "name": "해초록",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 58056,
+  "researchedAt": "2026-09-22T10:40:43.600Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "고급 비즈니스 접대, 미식가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 활어회",
+      "도다리",
+      "이시가리(줄가자미)",
+      "해초쌈"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로279번길 11에 위치했던 자연산 활어 전문 일식/횟집 '해초록(부산본점)'에 대한 조사 결과입니다. 남해안 자연산 활어와 해초쌈으로 서울 대치/삼성점까지 확장했던 유명 고급 횟집이었으나, 현재 해당 주소지에는 '서리단 광안점'이 들어서 있어 기존 부산본점 매장은 폐업 또는 이전된 상태로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해초록(부산본점) 위치: 부산광역시 수영구 광안해변로279번길 11, 전화: 051-758-3200. 남해 청정지역의 제철 자연산 활어를 제공하며, 계절별로 도다리, 돌돔, 광어, 감성돔, 돌가자미 등 다양한 제철 생선을 맛볼 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://groundnews.net"
+    }
+  ],
+  "sources": [
+    "https://groundnews.net",
+    "https://visitseoul.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "남해 청정지역에서 공수한 고급 자연산 활어와 제철 생선회(도다리, 돌가자미 등) 전문 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

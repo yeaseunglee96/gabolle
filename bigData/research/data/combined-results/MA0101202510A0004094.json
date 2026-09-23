@@ -1,0 +1,45 @@
+{
+  "id": "MA0101202510A0004094",
+  "name": "랑야각",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 47666,
+  "researchedAt": "2026-09-22T05:59:18.702Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사상구 주례로 76-1(지번: 주례동 92-370)에 중식 업종으로 상호 '랑야각'이 사업자 및 포털 데이터(식신 등)에 등재되어 있으나, 블로그 방문 후기나 세부 영업 정보(영업시간, 메뉴, 가격, 혼잡도 등)는 웹상에 확인되지 않습니다. 동일 주소지에 '화반 주례 2호점' 등이 확인되어 현재 실제 영업 여부 확인이 필요합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 사상구 주례동에 위치한 '랑야각'은 중식당으로 알려져 있습니다. 주요 정보: 주소 부산광역시 사상구 주례로 76-1 (지번: 부산광역시 사상구 주례동 92-370), 업종: 중식 음식점업",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "상호: 랑야각, 주소: 부산광역시 사상구 주례로 76-1 (주례동 92-370), 업종: 중식 음식점업",
+      "url": "https://bizno.net"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220806636887",
+  "name": "이태리식탁",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 39437,
+  "researchedAt": "2026-09-22T07:06:39.536Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 휴일에는 웨이팅이 발생할 수 있고 인기 메뉴는 재료 소진 시 조기 품절될 수 있음"
+  },
+  "descriptors": {
+    "audience": "데이트 코스 및 연인, 친구 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "봉골레",
+      "까르보나라",
+      "고르곤졸라 피자",
+      "스텔라 피자"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 20:30 (평일 브레이크 타임 15:00 ~ 17:00, 매주 수요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객에 대한 명시적 구분 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 13,
+    "found": true
+  },
+  "notes": "해운대 해리단길 2층에 위치한 파스타·피자 전문 이탈리안 레스토랑으로 감성적인 분위기와 데이트 코스로 인기가 높음",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "파스타류 14,000원~16,000원, 피자류 15,000원~17,000원",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 우동1로38번길 2 (2층). 해리단길에 위치한 아기자기하고 빈티지한 감성의 이탈리안 레스토랑으로, 파스타와 화덕 피자 등을 주로 판매합니다. 주요 메뉴로는 까르보나라, 아마트리치아나, 봉골레 등의 파스타와 고르곤졸라, 스텔라 피자 등이 있습니다. 영업시간: 11:30 ~ 20:30, 평일 브레이크 타임 15:00 ~ 17:00, 매주 수요일 정기휴무. 인기 메뉴는 재료 소진 시 조기 품절될 수 있으며, 주말이나 휴일에는 웨이팅이 발생할 수 있습니다.",
+      "url": "https://polle.com/"
+    }
+  ],
+  "sources": [
+    "https://polle.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "파스타와 화덕 피자 본연의 맛과 소스가 훌륭함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "깔끔하고 빈티지한 감성 인테리어와 해리단길 데이트 코스로 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

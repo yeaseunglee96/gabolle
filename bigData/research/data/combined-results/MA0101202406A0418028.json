@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202406A0418028",
+  "name": "와루가키노아소비",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 59010,
+  "researchedAt": "2026-09-22T11:16:11.925Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "다찌석 8~10석 규모의 협소한 매장으로 인기가 많아 웨이팅이 발생하며 캐치테이블 또는 현장 대기를 이용함"
+  },
+  "descriptors": {
+    "audience": "라멘 마니아, 혼밥객, 광안리 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "토종닭 시오 파이탄",
+      "게우 아부라소바",
+      "키타키타 라멘"
+    ],
+    "yearsClaimed": 2
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "메뉴 및 영업일/시간이 매일 유동적이라 공식 인스타그램(@warugaki_asobi) 스토리로 당일 공지"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근 라멘 마니아 및 현지인들 사이에서 유명한 곳으로 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락동 골목에 위치한 라멘 전문점으로, 고정 메뉴 없이 제철 식재료에 따라 1,000가지 라멘을 목표로 매일 메뉴를 바꾸어 선보이는 실험적인 라멘야입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "라멘류 약 12,000원~13,000원, 차슈 공기밥 1,000원",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제철 식재료를 기반으로 고정 메뉴 없이 다양한 종류의 라멘을 선보이는 곳으로 잘 알려져 있습니다. 1,000가지 라멘을 만드는 것을 목표로 운영되고 있습니다.",
+      "url": "https://metizen.co.kr"
+    },
+    {
+      "excerpt": "일본의 심야식당이 떠오르는 어둡고 아늑한 분위기의 라멘 및 이자카야입니다. 매장 내부는 약 8~10석 규모의 다찌석으로만 구성된 아담한 공간입니다. 시오라멘, 쇼유라멘, 블랙라멘 등 다양한 라멘 메뉴를 선보이며, 매일 바뀌는 메뉴는 인스타그램 스토리를 통해 공지됩니다.",
+      "url": "https://busantaste.com"
+    }
+  ],
+  "sources": [
+    "https://metizen.co.kr",
+    "https://busantaste.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매일 바뀌는 실험적인 라멘과 1,000가지 라멘을 목표로 하는 독창적인 라멘 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "일본 심야식당 감성의 아담한 다찌석 공간과 라멘 마니아들의 높은 호응",
+      "sources": [
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

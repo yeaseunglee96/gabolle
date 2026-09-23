@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220805857021",
+  "name": "아키수산광안",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 83476,
+  "researchedAt": "2026-09-22T10:36:31.265Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 테이블링 원격 줄서기가 권장되며 대기가 잦음"
+  },
+  "descriptors": {
+    "audience": "연인·친구·해산물 안주 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "카니미소구이",
+      "사시미 모리아와세",
+      "명란마요 가리비구이",
+      "후리카케 주먹밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 02:00 (라스트 오더 00:50, 매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리를 찾는 관광객과 현지인 모두에게 웨이팅 맛집으로 인기"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영구 민락동(광안해변로255번길 19)에 위치한 해산물 전문 캐주얼 이자카야 '아키수산 광안'에 대한 정보 조사 완료.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "카니미소구이 2pcs",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 광안해변로 255번길 19, 가동 1층. 영업시간: 17:00 ~ 02:00 (라스트 오더: 00:50). 대표 메뉴: 카니미소구이(게딱지 구이), 왕가리비구이, 명란가리비, 사시미 모리아와세 등이 인기 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "신선한 해산물 요리를 전문으로 하는 캐주얼 이자카야로, 인기가 많아 웨이팅이 필수인 경우가 많습니다. '테이블링'과 같은 예약 시스템을 활용하여 미리 대기를 등록하는 것이 좋습니다. 전용 주차장이 없습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "게 내장과 특제 소스를 버무려 화로에 구워 먹는 시그니처 카니미소 및 가리비구이의 독보적인 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해변 인근에서 즐기는 감성적인 일본식 해산물 안주와 캐주얼한 이자카야 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

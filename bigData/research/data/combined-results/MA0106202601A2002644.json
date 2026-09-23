@@ -1,0 +1,37 @@
+{
+  "id": "MA0106202601A2002644",
+  "name": "부바",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 60706,
+  "researchedAt": "2026-09-22T11:29:10.514Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "백반/한정식 업종의 '부바'라는 식당은 실존하지 않음. 해당 주소지는 '부산바다샌드(법인명: 주식회사 부바)' 디저트 매장이 위치한 곳임.",
+  "notes": "부산광역시 해운대구 우동1로20번길 21 주소지를 웹 검색하여 조사한 결과, 백반/한정식 업종의 '부바'라는 식당은 실존하지 않습니다. 해당 주소지(해리단길)에는 디저트 기념품 전문점인 '부산바다샌드'(운영 법인명: 주식회사 부바, 캐릭터명: 부바) 및 피자 전문점(포르타나)이 입점해 있으며, 한식/백반 식당은 확인되지 않아 'found: false'로 종결합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": []
+}

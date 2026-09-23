@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220806341930",
+  "name": "무스비",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 58089,
+  "researchedAt": "2026-09-22T12:18:10.992Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "해리단길 인기 맛집으로 식사 시간에 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "소바 및 일식을 즐기는 직장인, 주민, 관광객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "사바소바(구운 고등어 소바)",
+      "니싱소바(청어 소바)",
+      "들기름 소바"
+    ],
+    "yearsClaimed": 2020
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월요일 11:30 - 15:00 (라스트오더 14:50), 화~일요일 11:30 - 20:00 (브레이크타임 15:00 - 17:00 / 라스트오더 19:50)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길 방문객 및 관광객과 지역 주민들이 찾는 소바 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": 9,
+    "found": true
+  },
+  "notes": "SBS 생활의 달인 836회 '구운 고등어 소바' 달인 출연 업소. 자가제면 메밀소바 전문점.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "사바소바(구운 고등어 소바)",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 우동 해리단길에 위치한 소바 전문점입니다. 직접 제면한 메밀면을 사용하여 트렌디하고 현대적인 일식 소바를 선보이는 곳으로 잘 알려져 있습니다. 사바소바(구운 고등어 소바): 이 집의 대표 메뉴로, 담백한 가쓰오부시 국물과 구운 고등어가 어우러진 것이 특징입니다. 비린 맛 없이 깔끔하다는 평이 많습니다. SBS '생활의 달인'(836회, 2022년 3월 28일 방영)에 '구운 고등어 소바' 달인으로 소개된 바 있습니다.",
+      "url": "https://programs.sbs.co.kr/culture/lifemaster"
+    },
+    {
+      "excerpt": "해운대에서 '고등어 소바(사바소바)'로 유명한 식당은 '무스비(무스비소바)'입니다. 생활의 달인(836회)에 '구운 고등어 온소바' 달인으로 출연한 조충희 달인이 운영하는 곳입니다. 담백하면서도 구수한 맛이 특징이며, 메밀 함량이 높은 면을 사용합니다. 월요일: 11:30 - 15:00, 화~일요일: 11:30 - 20:00 (브레이크 타임 15:00 - 17:00). 식사 시간에 웨이팅이 있을 수 있으니 참고하시기 바랍니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://programs.sbs.co.kr/culture/lifemaster",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "SBS 생활의 달인에 방영된 비린내 없는 구운 고등어 온소바(사바소바)의 독특한 맛과 자가제면 메밀면의 완성도",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

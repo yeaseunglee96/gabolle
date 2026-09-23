@@ -1,0 +1,30 @@
+{
+  "id": "MA0101202409A0228473",
+  "name": "버디Buddy",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 46949,
+  "researchedAt": "2026-09-22T11:31:02.557Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 정보 미존재 (폐업 또는 등록되지 않은 상호)",
+  "notes": "부산광역시 해운대구 구남로 9(라마다 앙코르 해운대 호텔 주소지) 및 인근에서 '버디Buddy'(경양식) 식당 정보를 검색하였으나, 실제 영업 이력 및 관련 정보가 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

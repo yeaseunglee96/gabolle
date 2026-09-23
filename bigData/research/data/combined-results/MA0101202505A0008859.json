@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202505A0008859",
+  "name": "쿠시노아광안리점",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 123038,
+  "researchedAt": "2026-09-22T10:40:11.607Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "만석 시 매장 앞 태블릿을 통해 현장 웨이팅 등록이 진행됨"
+  },
+  "descriptors": {
+    "audience": "데이트 및 2인 술자리, 혼술 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "수제꼬치 5종",
+      "글루텐프리 수제쌀어묵",
+      "소고기 타다끼"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 18:00 ~ 03:00 (라스트오더 02:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 도보 2~3분 거리에 위치하여 관광객 및 인근 데이트·혼술 손님이 주로 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 18,
+    "found": true
+  },
+  "notes": "사업자 등록/업종 표기는 일식 회/초밥 등으로 등록되어 있을 수 있으나 실제 매장은 프리미엄 야키토리(수제 닭꼬치구이) 및 글루텐프리 수제 쌀어묵을 메인으로 하는 오뎅바/이자카야로 운영 중입니다. 형제주차장 1시간 무료 이용을 지원합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "쿠시노아 2인 세트 / 수제어묵·쿠시야키 세트",
+    "priceWon": 28000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "쿠시노아 광안리점은 부산광역시 수영구 광안로61번길 73(민락동)에 위치한 야키토리(닭꼬치) 및 오뎅바 전문 이자카야입니다. 일본 감성의 인테리어와 따뜻한 분위기를 갖추고 있으며, 광안리 해수욕장과 도보 2~3분 거리에 있어 접근성이 좋습니다. 수제 꼬치구이, 글루텐 프리 수제 쌀어묵, 닭사골 어묵 국물 등이 인기가 많으며, 만석 시 매장 앞 태블릿을 통해 웨이팅 등록이 가능합니다. 형제 주차장 1시간 무료 이용 가능.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://kusinoa.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "쌀로 만든 수제 프리미엄 어묵과 닭사골 육수, 비장탄에 구워내는 정통 수제 야키토리의 뛰어난 안주 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해변가 골목 안쪽에 위치해 일본 선술집 특유의 아늑하고 따뜻한 심야 혼술 및 데이트 분위기 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

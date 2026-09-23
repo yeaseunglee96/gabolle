@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202211A0103350",
+  "name": "코르파스타바",
+  "cat": "파스타/스테이크",
+  "attempts": 1,
+  "geminiTokens": 97420,
+  "researchedAt": "2026-09-22T10:26:30.589Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "10석 남짓한 소규모 카운터석 매장으로 캐치테이블을 통한 사전 예약 권장 및 1인 1주류 주문 필수"
+  },
+  "descriptors": {
+    "audience": "혼밥 및 미식 데이트 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "비스크 스파게티",
+      "보타르가 파스타",
+      "한우 라구",
+      "뇨끼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 12:00 ~ 21:00 (브레이크타임 14:30 ~ 17:00, 라스트오더 20:00), 매주 월요일 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "전포동 골목 상권에서 현지인 데이트 및 미식가뿐 아니라 미쉐린 가이드 빕 구르망 선정 이후 관광객 방문도 증가"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "미쉐린 가이드 부산 빕 구르망에 선정된 생면 파스타 전문 바로, 오픈 키친 카운터석에서 직접 제면한 파스타와 와인을 즐길 수 있는 곳입니다.",
+  "photoUrls": [
+    "https://prod-pics.guide.michelin.com/api/public/content/a3d4ae03b2c74a3880174f824289ac10.jpeg?format=webp",
+    "https://prod-pics.guide.michelin.com/api/public/content/32dbba9ff08b493c86bac214e8973c32.jpeg?format=webp",
+    "https://prod-pics.guide.michelin.com/api/public/content/ae2faba10d6a4f70b56920a8f4826108.jpeg?format=webp"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "라비올리(23,000원), 뇨끼(25,000원), 비스크 파스타(26,000원), 보타르가 파스타(28,000원)",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 전포동의 힙한 골목길 2층. 레스토랑 문을 열면 개방된 주방에서 분주히 움직이는 셰프들과 10석 남짓한 카운터 테이블이 눈에 들어온다. ‘코르 파스타 바‘라는 이름처럼 이곳에는 직접 제면한 파스타를 다양하게 선보인다. 진한 비스크 풍미의 스파게티, 이탈리아 어란이 들어간 보타르가 파스타, 한우를 사용한 라구까지 클래식 이탤리언 테이스트를 지향하는 셰프의 메뉴를 즐길 수 있다. 1인 1주류 주문이 필수이니 파스타와 함께 합리적인 가격대의 와인도 음미해 보시길.",
+      "url": "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/cor-pasta-bar"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan/restaurant/cor-pasta-bar"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매장에서 직접 제면한 수준 높은 생면 파스타와 클래식 이탤리언 요리의 뛰어난 미식 경험",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산 빕 구르망에 선정된 공인된 품질의 파스타 바",
+      "sources": [
+        1
+      ],
+      "type": "투표·독자 선정"
+    }
+  ]
+}

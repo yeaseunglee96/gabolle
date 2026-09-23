@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220809796299",
+  "name": "예반",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 95522,
+  "researchedAt": "2026-09-22T11:59:09.295Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족/직장인/동네 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "배꼽살",
+      "오겹살",
+      "등겹살"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월요일~토요일 11:00 ~ 23:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "남천동 로컬/현지인 중심의 돼지고기 구이 전문점으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 수영구 남천동(남천동로108번길 10 / 남천동 6-9) 소재 돼지고기 구이 전문점 '고기꿉는예반'(등록명: 예반)으로, 특수 부위인 배꼽살과 오겹살, 등겹살 등을 취급하는 로컬 고깃집입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 남천동에 위치한 '고기꿉는예반'에 대한 정보입니다. 상호명: 고기꿉는예반, 주소: 부산광역시 수영구 남천동로108번길 10, 1층, 주요 메뉴: 오겹살, 등겹살, 배꼽살 등 국내산 돼지고기, 특징: 남천동 현지인 맛집으로 알려져 있으며, 특히 '배꼽살' 부위가 특별한 메뉴로 언급됩니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "위치: 부산광역시 수영구 남천동 6-9번지, 1층, 영업시간: 월요일~토요일 11:00 ~ 23:00 (일요일 휴무)",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오겹살, 등겹살 외에 특색 있는 '배꼽살' 부위를 맛보기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "남천동 동네 주민 및 단골들이 주로 찾는 동네 고깃집",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

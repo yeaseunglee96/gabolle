@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202309A0081396",
+  "name": "파자마",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 45273,
+  "researchedAt": "2026-09-22T12:07:20.185Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "칵테일",
+      "위스키",
+      "와인",
+      "양식 다이닝 요리"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매주 월요일 정기 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 인근 방문객 및 현지인 다이닝 바 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": false
+  },
+  "notes": "부산광역시 수영구 남천바다로 26, 2층에 위치한 '파자마(PAJAMA)'는 인허가상 또는 등록상 백반/한정식으로 분류되어 있을 수 있으나, 실제로는 양식 안주류와 위스키, 와인, 칵테일을 취급하는 캐주얼 다이닝 라운지 바/펍입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "단품 메뉴 및 주류",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 남천바다로 26, 2층 (지하철 2호선 금련산역 3번 출구 인근). 위스키, 와인, 칵테일 등을 즐길 수 있는 분위기 좋은 다이닝 바입니다. 상호명처럼 '일과를 마치고 입는 잠옷'과 같이 편안하고 포근한 공간을 컨셉으로 합니다. 매주 월요일은 정기 휴무이며 주차 지원은 별도로 제공하지 않습니다.",
+      "url": "https://foodnjob.com"
+    }
+  ],
+  "sources": [
+    "https://foodnjob.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일과 후 파자마처럼 아늑하고 편안한 분위기에서 칵테일과 와인을 즐길 수 있는 다이닝 바",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

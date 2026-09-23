@@ -1,0 +1,56 @@
+{
+  "id": "MA010120220801049693",
+  "name": "뉴월드",
+  "cat": "무도 유흥 주점",
+  "attempts": 1,
+  "geminiTokens": 38793,
+  "researchedAt": "2026-09-22T06:58:26.833Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "성인/중장년/유흥 이용객",
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 업소는 부산광역시 부산진구 부전동(새싹로8번길 36) 2층에 위치한 유흥주점(상호: '뉴월드' 또는 '뉴월드노래방')으로 공공 인허가 및 상가 등록 정보상 확인되나, 일반 대중음식점이나 관광객 대상 맛집이 아닌 야간 성인 유흥시설(노래주점 형태) 특성상 공개된 메뉴판, 가격표, 영업시간, 고객 상세 후기 등 정량 정보가 웹상에 부재함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 부전동(새싹로8번길 36, 2층 등)에 위치한 업소로, 유흥주점 영업 형태를 띠고 있습니다. 이 지역은 서면 상권으로, 인근에 다수의 유흥주점 및 단란주점이 밀집해 있습니다.",
+      "url": "https://nett.kr"
+    },
+    {
+      "excerpt": "상호명: 뉴월드 노래방 / 주소: 부산광역시 부산진구 새싹로8번길 36, 2층 (부전동) / 업종: 유흥주점 / 지하철 1·2호선 서면역 인근 위치",
+      "url": "https://yeosijob.com"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://yeosijob.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서면 상권에 위치하여 인근 직장인이나 성인 방문객의 음주 및 노래 유흥 목적으로 이용됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

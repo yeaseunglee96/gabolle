@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220809903301",
+  "name": "달자아구찜",
+  "cat": "해산물 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 43656,
+  "researchedAt": "2026-09-22T06:52:33.661Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가족, 지인 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생아귀찜",
+      "아구탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매달 2, 4번째 일요일 정기휴무 (영업시간 유동적으로 방문 전 전화 문의 필요)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 미포항 인근 골목의 로컬 노포 식당으로 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해운대 미포 어촌마을 뒷길에 위치한 생아귀 전문 노포 식당으로 오션뷰를 갖추고 있었으나, 최근 영업 정보가 드물고 폐업 또는 휴업 가능성이 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "생아귀찜(소)",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 중동 1024-1 (미포 어촌마을 뒷길 골목) 생아귀를 사용하여 요리하며, 이른 새벽부터 정성스럽게 밥을 지어 내어주시는 따뜻한 분위기의 노포 식당으로 알려져 있습니다. 대표 메뉴: 생아귀찜 (소) 가격은 30,000원 선으로 확인됩니다.",
+      "url": "https://www.youtube.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 달맞이길62번길 41 (중동) 미포항 인근의 로컬 맛집으로, 일부 좌석에서 오션뷰를 즐길 수 있는 것으로 알려져 있습니다. 정기휴무일이 매달 2, 4번째 일요일이라는 정보가 있으나 변동 가능성이 있으니 확인이 필요합니다.",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com",
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "이른 새벽부터 밥을 짓고 생아귀를 사용하여 만드는 정성 가득한 손맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 미포 골목의 오션뷰와 함께 즐기는 따뜻한 분위기의 노포 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

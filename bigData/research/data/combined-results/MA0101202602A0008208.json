@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202602A0008208",
+  "name": "연어가게",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 77102,
+  "researchedAt": "2026-09-22T11:54:12.866Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 매장 혼잡에 대한 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼술객, 연인(커플)",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "숙성연어듬뿍초밥",
+      "숙성 생 연어사시미"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "24:00에 영업 종료"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산진구 신천대로162번길 19에 위치한 연어 전문점으로 숙성 생연어 사시미, 숙성연어초밥, 혼술세트 및 커플세트 등을 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "숙성연어듬뿍초밥(10p) 17,000원 / 숙성 생 연어사시미(소 200g) 24,500원 / 연어가게 스페셜 커플세트 43,800원",
+    "priceWon": 17000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 신천대로162번길 19 (지번 주소: 부산광역시 부산진구 부전동 387-4). 영업시간: 24:00에 영업 종료. 숙성연어듬뿍초밥(10p): 17,000원, 숙성연어듬뿍초밥(12p): 19,000원, 숙성 생 연어사시미(소 200g): 24,500원, 연어가게 스페셜 커플세트: 43,800원, 혼술하기 딱 좋은 연어세트.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다양한 구성의 숙성 생연어 사시미와 연어초밥 중심의 전문 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "혼술세트와 커플세트 등 1인 혼술 및 데이트 방문 편의 구성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

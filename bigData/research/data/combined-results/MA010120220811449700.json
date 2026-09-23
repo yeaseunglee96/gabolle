@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811449700",
+  "name": "보리문디",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 84972,
+  "researchedAt": "2026-09-22T10:39:22.211Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 자리가 협소하고 평일에도 웨이팅이 발생할 수 있어 방문 전 예약이나 전화 확인을 권장함"
+  },
+  "descriptors": {
+    "audience": "술자리, 혼술, 모임 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "모둠사시미",
+      "아구간아에",
+      "치즈도후",
+      "후토마끼",
+      "시메사바"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00~01:00 (라스트오더 00:00 / 매주 화요일 정기 휴무 혹은 일요일 휴무 등 매장 확인 필요)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인들에게도 잘 알려진 인기 숙성회 이자카야 맛집으로 평가됨"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "해운대 중동 일대의 인기 숙성회 전문 일식 이자카야로, 1층 다찌석과 2층 좌석 중심의 아늑하고 레트로한 분위기에서 퀄리티 높은 제철 모둠사시미와 다양한 일식 수제 안주를 즐길 수 있는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "모둠사시미 45,000원, 모둠사시미+성게알 65,000원, 후토마끼 25,000원",
+    "priceWon": 45000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대에 위치한 보리문디는 현지인들에게도 숙성회 맛집으로 잘 알려진 인기 이자카야입니다. 신선한 사시미(숙성회)가 대표 메뉴로, 많은 방문객이 회의 퀄리티와 맛을 높게 평가합니다. 레트로한 감성의 인테리어로 아늑한 느낌을 주며, 1층 다찌석과 2층 좌석 등으로 구성되어 있습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "제철 숙성 모둠 사시미가 대표 메뉴이며, 참치 뱃살, 성게알(우니), 단새우(아미에비) 등의 메뉴도 인기가 많습니다. 인기가 많은 곳이라 평일에도 웨이팅이 발생할 수 있으므로, 방문 전 전화로 자리 확인이나 예약을 하시는 것을 추천드립니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선하고 숙성도가 뛰어난 고품질 모둠사시미와 해산물 요리",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 현지 주민 및 단골들이 꾸준히 찾는 검증된 이자카야",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

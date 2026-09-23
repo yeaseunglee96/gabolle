@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220812039045",
+  "name": "송정크로플",
+  "cat": "김밥/만두/분식",
+  "attempts": 1,
+  "geminiTokens": 53106,
+  "researchedAt": "2026-09-22T06:56:26.716Z",
+  "crowding": {
+    "found": false,
+    "note": "정보 없음"
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "총 4회 검색(일반 검색 2회, 시식사이트 직접 접속 1회, 블로그 검색 1회)을 수행했습니다. 부산광역시 해운대구 송정해변로 42-10 '송정크로플'(김밥/만두/분식 업종)에 대한 리뷰, 블로그 포스팅, 상세 정보 페이지가 웹상에서 확인되지 않았습니다. 식신(siksinhot.com)이 해당 주소 근처의 가게로 안내했으나 실제 접속 결과 전혀 다른 가게(동백이다방, 경북 포항)의 페이지였습니다. '송정크로플'이라는 상호 자체를 명시적으로 다룬 블로그·리뷰 페이지는 단 한 건도 발견되지 않았습니다. 운영 중단, 신규 오픈 후 미인덱싱, 또는 상호 오류 가능성이 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}
