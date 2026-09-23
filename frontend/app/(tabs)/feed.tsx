@@ -797,7 +797,7 @@ export default function Feed() {
           <GabolleMascot state="sad" style={styles.sadMascot} />
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('피드 API를 기다리고 있어요', 'Waiting for the feed API') : tx('피드를 불러오지 못했어요', 'Could not load the feed')}</Text>
           <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void feedQuery.refetch()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" compact onPress={() => void feedQuery.refetch()} />
         </View>
       : null}
 

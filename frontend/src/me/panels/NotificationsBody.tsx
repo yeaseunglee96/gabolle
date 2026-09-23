@@ -159,5 +159,6 @@ const styles = StyleSheet.create({
   permissionCard: { width: '100%', maxWidth: 360, minHeight: 72, marginTop: spacing[4], padding: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   statusDot: { width: 10, height: 10, borderRadius: radius.full },
   permissionCopy: { flex: 1, gap: spacing[1] },
-  action: { maxWidth: 360 },
+  // 가운데 정렬 안에서는 껍데기가 글자 폭으로 줄어 버튼이 쪼그라든다 — 폭을 적어야 360 까지 편다(S15P21E201-1524).
+  action: { width: '100%', maxWidth: 360 },
 });

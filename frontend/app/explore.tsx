@@ -140,7 +140,7 @@ export default function LocalExplore() {
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('로컬 탐색 API를 기다리고 있어요', 'Waiting for the local explore API') : tx('갈래를 불러오지 못했어요', 'Could not load categories')}</Text>
           <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" compact onPress={() => void load()} />
         </View>
       ) : null}
 
@@ -284,7 +284,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   if (result.state !== 'success') {
     return <View style={styles.branchBody}>
       <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
-      <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }).then(setResult)} containerStyle={styles.branchRetry} />
+      <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }).then(setResult)} compact containerStyle={styles.branchRetry} />
     </View>;
   }
   if (result.items.length === 0) {
@@ -305,8 +305,8 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
         <View style={styles.expandedNotice}>
           <Text variant="caption" weight="bold" color={color.state.info}>{tx('내 위치를 몰라 부산 중심에서 찾았어요. 거리도 그 기준이에요.', 'We searched from the center of Busan because your location is unavailable. Distances use that point.')}</Text>
           {canAskAgain
-            ? <Button label={tx('내 위치로 다시 찾기', 'Search from my location')} variant="tertiary" onPress={onRetryLocation} containerStyle={styles.branchRetry} />
-            : <Button label={tx('설정에서 위치 허용하기', 'Allow location in Settings')} variant="tertiary" onPress={() => void Linking.openSettings()} containerStyle={styles.branchRetry} />}
+            ? <Button label={tx('내 위치로 다시 찾기', 'Search from my location')} variant="tertiary" onPress={onRetryLocation} compact containerStyle={styles.branchRetry} />
+            : <Button label={tx('설정에서 위치 허용하기', 'Allow location in Settings')} variant="tertiary" onPress={() => void Linking.openSettings()} compact containerStyle={styles.branchRetry} />}
         </View>
       )}
       {result.radiusExpanded && (

@@ -59,7 +59,7 @@ export default function CollectionHome() {
       )}
     </View>
 
-    <View style={styles.sectionHeading}><Text variant="title" weight="bold">{tx('내 리스트', 'My lists')}</Text><Button label={tx('+ 새 리스트', '+ New list')} variant="tertiary" onPress={() => setCreating(true)} containerStyle={styles.newListButton} /></View>
+    <View style={styles.sectionHeading}><Text variant="title" weight="bold">{tx('내 리스트', 'My lists')}</Text><Button label={tx('+ 새 리스트', '+ New list')} variant="tertiary" compact onPress={() => setCreating(true)} /></View>
 
     {creating ? <Card style={styles.createCard}>
       <Text variant="caption" weight="bold" color={color.text.muted}>{tx('리스트 이름', 'List name')}</Text>
@@ -125,7 +125,6 @@ const styles = StyleSheet.create({
   deviceOnlyNotice: { marginTop: spacing[3], opacity: 0.72 },
   sectionHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing[6] },
   sectionTitle: { marginTop: spacing[8], marginBottom: spacing[2] },
-  newListButton: { width: 'auto', paddingHorizontal: spacing[4] },
   createCard: { gap: spacing[2], marginTop: spacing[3] },
   input: { minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
   createActions: { flexDirection: 'row', gap: spacing[2] },
