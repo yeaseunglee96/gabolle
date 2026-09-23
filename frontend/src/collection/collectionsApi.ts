@@ -103,8 +103,9 @@ export function serverToDevice(collections: ServerCollection[]): DeviceCollectio
         addedAt: collection.updatedAt,
         lat: item.lat ?? null,
         lng: item.lng ?? null,
-        // 지울 때 쓸 서버 이름표 — S15P21E201-1148.
+        // 지울 때 쓸 서버 이름표 — S15P21E201-1148. 리스트마다 따로도 든다(S15P21E201-1530).
         serverItemId: item.itemId,
+        serverItemIds: { ...places[key]?.serverItemIds, [collection.collectionId]: item.itemId },
       };
     }
     return {
@@ -132,7 +133,7 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
         .filter((list) => !deletedLists.has(list.id))
         .map((list) => ({
           ...list,
-          placeIds: list.placeIds.filter((placeId) => !deletedItems.has(`${list.id}\u0000${server.places[placeId]?.serverItemId ?? placeId}`)),
+          placeIds: list.placeIds.filter((placeId) => !deletedItems.has(`${list.id}\u0000${server.places[placeId]?.serverItemIds?.[list.id] ?? server.places[placeId]?.serverItemId ?? placeId}`)),
         })),
     };
   }
@@ -296,7 +297,11 @@ export async function loadCollections(device: DeviceCollections, accessToken: st
   // — 이름을 실제로 보냈으면 서버가 바뀐 것이다.
   const renamedOnServer = pendingRenames.length > remainingRenames.length;
 
-  const { merged, onlyOnDevice, pendingUploads } = mergeCollections(device, server, remainingDeletes, remainingRenames);
+  // 🔴 여기서 합치는 `server` 는 **지우기·이름 고치기를 보내기 전에** 받은 것이다 — S15P21E201-1530.
+  //    그래서 걸러낼 때는 남은 것이 아니라 **이번에 보낸 것 전부**를 쓴다. 남은 것만 쓰면 성공한
+  //    지우기가 빠져 지운 리스트·장소가 낡은 목록에서 되살아났고, 그것이 기기에 저장된 뒤 다음
+  //    불러오기에서 「기기에만 있는 것」으로 보여 서버에 다시 올라갔다 — 지워도 영영 안 지워졌다.
+  const { merged, onlyOnDevice, pendingUploads } = mergeCollections(device, server, pendingDeletes, pendingRenames);
   let uploaded = 0;
   let blocked = 0;
   let changedServer = renamedOnServer;

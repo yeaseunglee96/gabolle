@@ -24,6 +24,12 @@ export type CollectionPlace = {
   lng: number | null;
   // — 서버가 이 장소를 뭐라고 부르는가.
   serverItemId?: string | null;
+  /**
+   * 리스트마다 서버가 부르는 이름표 — S15P21E201-1530. 같은 장소가 두 리스트에 있으면 항목도 둘이라
+   * 이름표도 둘인데, 위 한 칸은 나중 리스트 것으로 덮였다. 그래서 첫 리스트에서 빼면 남의 이름표로
+   * 지우기를 보내 404 가 났고(404 는 「이미 없음」으로 친다), 새로고침하면 되살아났다.
+   */
+  serverItemIds?: Record<string, string>;
 };
 
 export type CollectionList = {
@@ -193,7 +199,8 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   const removePlaceFromList = useCallback((listId: string, placeId: string) => {
     // — 서버가 아는 리스트의, 서버가 아는 장소일 때만 보낸다.
     // serverItemId 는 서버에서 받아온 장소에만 있다(collectionsApi 의 serverToDevice).
-    const serverItemId = dataRef.current.places[placeId]?.serverItemId;
+    const stored = dataRef.current.places[placeId];
+    const serverItemId = stored?.serverItemIds?.[listId] ?? stored?.serverItemId;
     if (isServerId(listId) && serverItemId) queueDelete({ kind: 'item', collectionId: listId, itemId: serverItemId });
     setData((current) => {
       const lists = current.lists.map((list) => list.id === listId ? { ...list, placeIds: list.placeIds.filter((id) => id !== placeId) } : list);

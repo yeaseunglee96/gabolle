@@ -1,6 +1,6 @@
 // 부슐랭 리스트 상세 — 장소를 담고, 한줄메모를 남기고, 뺀다.
 import { useEffect, useRef, useState } from 'react';
-import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -31,7 +31,7 @@ export default function CollectionListDetail() {
   const { tx, language } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { accessToken } = useAuth();
-  const { lists, places, syncedToServer, addNewPlaceToList, removePlaceFromList, deleteList, renameList } = useCollection();
+  const { ready, lists, places, syncedToServer, addNewPlaceToList, removePlaceFromList, deleteList, renameList } = useCollection();
   const list = lists.find((entry) => entry.id === id);
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
@@ -106,6 +106,17 @@ export default function CollectionListDetail() {
     setSearchResults([]); setSearched(false); setSearching(false);
   };
 
+  // — 이름을 고치는 자리가 화면에 아예 없었다.
+  // 🔴 훅은 아래 「리스트가 없으면 돌아가기」보다 **위**에 둔다(S15P21E201-1530). 아래에 있으면 첫 렌더(부슐랭을
+  //    아직 못 불러와 리스트가 없음)와 다음 렌더(불러옴)의 훅 수가 달라 화면이 통째로 죽었다 —
+  //    「Rendered more hooks than during the previous render」. 목록에서 눌러 들어오면 안 보이고,
+  //    이 화면에서 새로고침하거나 주소로 바로 열면 매번 났다.
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [draftDescription, setDraftDescription] = useState('');
+
+  // 아직 불러오는 중이면 「못 찾았다」고 하지 않는다 — 모르는 것을 없다고 말하게 된다.
+  if (!list && !ready) return <View style={styles.shell}><Screen scroll><View style={styles.empty}><ActivityIndicator color={color.action.primary} /></View></Screen></View>;
   if (!list) return <View style={styles.shell}><Screen scroll><View style={styles.empty}><Text variant="title" weight="bold">{tx('리스트를 찾을 수 없어요', "Couldn't find this list")}</Text><Button compact label={tx('부슐랭으로', 'Back to collection')} variant="tertiary" onPress={() => router.replace('/collection')} /></View></Screen></View>;
 
   const listPlaces = list.placeIds.map((placeId) => places[placeId]).filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
@@ -122,10 +133,6 @@ export default function CollectionListDetail() {
     setName(''); setCategory(''); setLocality(''); setNote(''); setPhotoUri(null); setCoords(null); setSearchResults([]); setSearched(false); setAdding(false);
   };
 
-  // — 이름을 고치는 자리가 화면에 아예 없었다.
-  const [editing, setEditing] = useState(false);
-  const [draftName, setDraftName] = useState('');
-  const [draftDescription, setDraftDescription] = useState('');
 
   const openEdit = () => {
     // 지금 값으로 채워서 연다 — 빈 칸으로 열면 고치려던 사람이 처음부터 다시 쓴다.

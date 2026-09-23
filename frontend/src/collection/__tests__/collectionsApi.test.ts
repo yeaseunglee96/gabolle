@@ -437,6 +437,61 @@ describe('지우기를 서버로 보낸다 (S15P21E201-1148)', () => {
     expect(result.data.lists.map((l) => l.id)).not.toContain('srv-1');
   });
 
+  // — S15P21E201-1530. 서버 목록을 «지우기 전에» 받아 두고, 지우기가 성공하면 보류 목록에서
+  //   빼는 바람에 그 낡은 목록이 그대로 합쳐져 지운 것이 되살아났다. 되살아난 것은 기기에
+  //   저장되고, 다음 불러오기에서 「기기에만 있는 것」으로 보여 서버에 다시 올라갔다.
+  it('🔴 지우기가 성공해도 화면에 다시 안 나타난다 — 리스트', async () => {
+    mockServer((method) => (method === 'DELETE' ? ok({}) : ok(serverPage([srvList]))));
+
+    const result = await loadCollections(empty, 'token', [{ kind: 'list', collectionId: 'srv-1' }]);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.data.lists.map((l) => l.id)).not.toContain('srv-1');
+  });
+
+  it('🔴 지우기가 성공해도 화면에 다시 안 나타난다 — 리스트 안의 장소', async () => {
+    const two = serverList('srv-1', '바다 보러', [{ placeId: 'p1', name: '광안리', position: 0 }, { placeId: 'p2', name: '해운대', position: 1 }]);
+    mockServer((method) => (method === 'DELETE' ? ok({}) : ok(serverPage([two]))));
+    // 기기는 이미 p1 을 뺀 상태다 — removePlaceFromList 가 그렇게 해 두고 지우기를 보류한다.
+    const deviceNow: DeviceCollections = { lists: [list('srv-1', '바다 보러', ['p2'])], places: { p2: { ...place('p2', '해운대'), serverItemId: 'srv-1-item-1' } } };
+
+    const result = await loadCollections(deviceNow, 'token', [{ kind: 'item', collectionId: 'srv-1', itemId: 'srv-1-item-0' }]);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.data.lists.find((l) => l.id === 'srv-1')?.placeIds).toEqual(['p2']);
+  });
+
+  it('🔴 지운 장소가 다음 불러오기에서 서버에 다시 올라가지 않는다', async () => {
+    // 진짜 서버처럼 지우면 정말 없어진다.
+    let items = [{ placeId: 'p1', name: '광안리', position: 0 }];
+    const posted: string[] = [];
+    mockServer((method, url) => {
+      if (method === 'DELETE') { items = []; return ok({}); }
+      if (method === 'POST') { posted.push(url); return ok({}); }
+      return ok(serverPage([serverList('srv-1', '바다 보러', items)]));
+    });
+
+    const first = await loadCollections({ lists: [list('srv-1', '바다 보러', [])], places: {} }, 'token', [{ kind: 'item', collectionId: 'srv-1', itemId: 'srv-1-item-0' }]);
+    // 앱을 다시 켠다 — 첫 불러오기가 기기에 남긴 것을 그대로 들고.
+    await loadCollections(first.data, 'token', first.pendingDeletes);
+
+    expect(posted).toEqual([]);
+  });
+
+  it('🔴 같은 장소가 두 리스트에 있으면 리스트마다 제 이름표로 지운다', () => {
+    // 한 칸(serverItemId)만 두면 나중 리스트(srv-b) 것으로 덮여, srv-a 에서 빼면 남의 이름표로 지웠다.
+    const both = serverToDevice([
+      serverList('srv-a', '바다', [{ placeId: 'p1', name: '광안리', position: 0 }]),
+      serverList('srv-b', '야경', [{ placeId: 'p1', name: '광안리', position: 0 }]),
+    ]);
+    expect(both.places.p1.serverItemIds).toEqual({ 'srv-a': 'srv-a-item-0', 'srv-b': 'srv-b-item-0' });
+
+    // 보류 삭제를 걸러낼 때도 그 리스트의 이름표를 쓴다 — srv-a 것만 빠지고 srv-b 는 남는다.
+    const { merged } = mergeCollections({ lists: [], places: {} }, both, [{ kind: 'item', collectionId: 'srv-a', itemId: 'srv-a-item-0' }]);
+    expect(merged.lists.find((l) => l.id === 'srv-a')?.placeIds).toEqual([]);
+    expect(merged.lists.find((l) => l.id === 'srv-b')?.placeIds).toEqual(['p1']);
+  });
+
   it('로그인 전에는 보내지 않고 그대로 들고 있는다', async () => {
     const queued: PendingDelete[] = [{ kind: 'list', collectionId: 'srv-1' }];
     const result = await loadCollections(empty, null, queued);
