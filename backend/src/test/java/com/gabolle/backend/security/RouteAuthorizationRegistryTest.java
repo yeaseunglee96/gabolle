@@ -490,6 +490,13 @@ class RouteAuthorizationRegistryTest {
 						+ "같은 404. TripTitleTest (-1023)");
 		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
+		put(m, "GET /api/v1/trips/{}/recommendations", Policy.OWNED,
+				"추천 코스 3안. 참여자만 — 추천 요청과 같은 관문(TripQueryService.get)을 지난다. 비회원과 "
+						+ "없는 여행이 같은 404. 추천이 아직 없으면 빈 목록이다. TripCourseIntegrationTest (-1454)");
+		put(m, "POST /api/v1/trips/{}/course", Policy.OWNED,
+				"고른 코스를 일정으로 만든다. 참여자만 — 같은 관문을 지난다. 남의 여행의 코스 번호를 내 여행 "
+						+ "주소로 보내도 404 다(코스 번호가 그 여행 것인지 따로 본다). "
+						+ "TripCourseIntegrationTest · TripCourseServiceTest (-1454)");
 		put(m, "GET /api/v1/trips/{}/stories", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404 이고, 참여자에게도 그 기록의 공개 범위 판정"
 						+ "(StoryVisibilityPolicy.canView)을 한 번 더 지난다 — 여행에 달렸다는 이유로 남의 "
