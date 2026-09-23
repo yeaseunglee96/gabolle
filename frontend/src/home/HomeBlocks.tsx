@@ -280,7 +280,14 @@ function dateRange(trip: TripSummaryDto, tx: Tx, locale: string) {
     : formatDay(trip.startDate, tx, locale);
 }
 
-export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | null; signedIn: boolean; loaded: boolean }) {
+/**
+ * 내 여행 카드.
+ *
+ * @param layout `'column'`(기본) — 홈의 폭 360 세로 카드. `'row'` — 마이페이지 넓은 화면의 가로형:
+ *     칸 폭을 다 쓰고, 왼쪽에 글자·오른쪽에 「일정 보기 →」, 선 없는 흰 카드
+ *     (시안 design_handoff_mypage_v2 변경점 3, S15P21E201-1526). 🔴 홈은 안 바뀐다 — 기본값이 그대로다.
+ */
+export function MyTripCard({ trip, signedIn, loaded, layout = 'column' }: { trip: TripSummaryDto | null; signedIn: boolean; loaded: boolean; layout?: 'column' | 'row' }) {
   const router = useRouter();
   const { tx, locale } = useI18n();
   const { accessToken } = useAuth();
@@ -293,32 +300,38 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
     router.push(destination as never);
   };
   if (!signedIn) return null;
+  const row = layout === 'row';
+
+  // 🔴 함수로 둔다 — 여행이 없을 때(trip === null) 미리 만들면 statusLabel(null) 이 터진다.
+  const tripCopy = (t: TripSummaryDto) => <>
+    <Text variant="caption" weight="bold" color={color.state.success}>{statusLabel(t, tx)}</Text>
+    {/* 이름이 있으면 이름, 없으면 날짜. 없는 이름을 지어내지 않는
+        것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다.
+    */}
+    <Text variant="title" weight="bold">
+      {tripDisplayTitle(t, dateRange(t, tx, locale))}
+    </Text>
+    {/* 이름을 제목에 올리면 날짜가 화면에서 사라진다 — 그러면 같은 이름의 여행
+        둘을 날짜로 가릴 수 없다. 이름이 있을 때만 이 줄에 날짜를 같이 적는다.
+        이름이 없으면 제목이 이미 날짜라 두 번 적지 않는다 (시안 design_handoff_trip_name_flow).
+    */}
+    <Text color={color.text.body}>
+      {t.title?.trim() && t.startDate
+        ? txf(tx, '%s · %s일 · %s명', '%s · %s days · %s travelers', dateRange(t, tx, locale), t.dayCount, t.partySize)
+        : tx(`${t.dayCount}일 · ${t.partySize}명`, `${t.dayCount} days · ${t.partySize} travelers`)}
+    </Text>
+  </>;
 
   return (
-    <View style={styles.tripBlock}>
+    <View style={[styles.tripBlock, row && styles.tripBlockRow]}>
       <Text variant="eyebrow" weight="bold">{tx('내 여행', 'My trip')}</Text>
-      {!loaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : trip ? (
-        <Pressable accessibilityRole="button" accessibilityState={{ busy: opening, disabled: opening }} disabled={opening} onPress={() => void openTrip()} style={({ pressed }) => [styles.tripCard, pressed && styles.tripCardPressed]}>
-          <Text variant="caption" weight="bold" color={color.state.success}>{statusLabel(trip, tx)}</Text>
-          {/* 이름이 있으면 이름, 없으면 날짜. 없는 이름을 지어내지 않는
-              것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다.
-          */}
-          <Text variant="title" weight="bold">
-            {tripDisplayTitle(trip, dateRange(trip, tx, locale))}
-          </Text>
-          {/* 이름을 제목에 올리면 날짜가 화면에서 사라진다 — 그러면 같은 이름의 여행
-              둘을 날짜로 가릴 수 없다. 이름이 있을 때만 이 줄에 날짜를 같이 적는다.
-              이름이 없으면 제목이 이미 날짜라 두 번 적지 않는다 (시안 design_handoff_trip_name_flow).
-          */}
-          <Text color={color.text.body}>
-            {trip.title?.trim() && trip.startDate
-              ? txf(tx, '%s · %s일 · %s명', '%s · %s days · %s travelers', dateRange(trip, tx, locale), trip.dayCount, trip.partySize)
-              : tx(`${trip.dayCount}일 · ${trip.partySize}명`, `${trip.dayCount} days · ${trip.partySize} travelers`)}
-          </Text>
-          <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{opening ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
+      {!loaded ? <View style={[styles.tripCard, styles.tripSkeleton, row && styles.tripSkeletonRow]} /> : trip ? (
+        <Pressable accessibilityRole="button" accessibilityState={{ busy: opening, disabled: opening }} disabled={opening} onPress={() => void openTrip()} style={({ pressed }) => [styles.tripCard, row && styles.tripCardRow, pressed && (row ? styles.pressed : styles.tripCardPressed)]}>
+          {row ? <View style={styles.tripRowCopy}>{tripCopy(trip)}</View> : tripCopy(trip)}
+          <Text weight="bold" color={color.brand.navy} style={row ? styles.tripGoRow : styles.tripGo}>{opening ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
         </Pressable>
       ) : (
-        <View style={styles.tripEmpty}>
+        <View style={[styles.tripEmpty, row && styles.tripEmptyRow]}>
           <GabolleMascot state="idle" style={styles.tripMascot} />
           <View style={styles.tripEmptyCopy}>
             <Text weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
@@ -373,4 +386,14 @@ const styles = StyleSheet.create({
   tripEmpty: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },
   tripMascot: { width: 64, height: 64 },
   tripEmptyCopy: { flex: 1, gap: spacing[1] },
+
+  // ── layout="row" — 마이페이지 넓은 화면 (시안 design_handoff_mypage_v2) ──
+  // 칸 폭을 다 쓴다. 눈썹과 카드 사이 8, 카드 아래 16(다음 눈썹 「내 계정」까지).
+  tripBlockRow: { width: '100%', gap: spacing[2], marginBottom: spacing[4] },
+  // 🔴 선 없는 흰 카드 — tokens 규칙 3(카드에 선·그림자 없음). 세로형은 홈 시안이 선을 둬서 그대로 둔다.
+  tripCardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[4], borderWidth: 0 },
+  tripRowCopy: { flex: 1, minWidth: 0, gap: spacing[1] },
+  tripGoRow: { flexShrink: 0 },
+  tripSkeletonRow: { height: 96, borderWidth: 0 },
+  tripEmptyRow: { borderWidth: 0 },
 });

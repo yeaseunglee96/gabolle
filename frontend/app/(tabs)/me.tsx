@@ -129,14 +129,35 @@ export default function Me() {
   const recordRowCardWidth = Math.max(180, Math.floor((width - desktopGutter * 2 - 3 * spacing[4]) / 4));
 
   // 폰의 「기록 | 설정」 — 주소는 안 바뀐다. 내용만 갈아 끼운다.
+  //
+  // 움직임 셋 (시안 design_handoff_mypage_v2 변경점 2, S15P21E201-1526):
+  //   · 빨간 표시가 미끄러진다 — 320ms, cubic-bezier(0.2,0.8,0.2,1)
+  //   · 글자색이 바뀐다 — 240ms ease. 두 벌을 겹쳐 두고 서로 흐려지게 한다(Text 가 색 애니메이션을 못 받는다)
+  //   · 내용이 들어온다 — 기록은 왼쪽(-24)에서, 설정은 오른쪽(+24)에서. 표시가 가는 쪽과 같다
+  // 탭을 눌렀는데 내용이 «즉시» 갈리면 바뀐 줄 모르고 지나간다. 같은 자리에 같은 크기의 흰
+  // 화면이 있기 때문이다 — 시작 바 칸 전환과 같은 이유다.
   const [meTab, setMeTab] = useState<'records' | 'settings'>('records');
+  /** 빨간 표시의 자리 — 0 기록 · 1 설정 */
+  const tabPos = useRef(new Animated.Value(0)).current;
+  /** 글자색 — 0 이면 기록이 흰 글자, 1 이면 설정이 흰 글자 */
+  const tabInk = useRef(new Animated.Value(0)).current;
+  /** 내용이 들어오는 정도 */
   const tabIn = useRef(new Animated.Value(1)).current;
+  /** 표시가 달리는 칸의 폭 — 표시가 반 칸이므로 이 값의 반만큼 옮긴다 */
+  const [segmentTrack, setSegmentTrack] = useState(0);
+  const firstTab = useRef(true);
   useEffect(() => {
-    // 탭을 눌렀는데 내용이 «즉시» 갈리면 바뀐 줄 모르고 지나간다. 같은 자리에 같은
-    // 크기의 흰 화면이 있기 때문이다 — 시작 바 칸 전환과 같은 이유다.
+    const to = meTab === 'settings' ? 1 : 0;
+    // 🔴 첫 로드는 움직이지 않는다(시안). 전에는 들어오자마자 내용이 한 번 떠올랐다.
+    if (firstTab.current) { firstTab.current = false; return; }
+    const slide = Easing.bezier(0.2, 0.8, 0.2, 1);
     tabIn.setValue(0);
-    Animated.timing(tabIn, { toValue: 1, duration: 300, easing: Easing.bezier(0.22, 1, 0.36, 1), useNativeDriver: false }).start();
-  }, [meTab, tabIn]);
+    Animated.parallel([
+      Animated.timing(tabPos, { toValue: to, duration: 320, easing: slide, useNativeDriver: false }),
+      Animated.timing(tabInk, { toValue: to, duration: 240, easing: Easing.ease, useNativeDriver: false }),
+      Animated.timing(tabIn, { toValue: 1, duration: 320, easing: slide, useNativeDriver: false }),
+    ]).start();
+  }, [meTab, tabPos, tabInk, tabIn]);
 
   // 내 기록. 숫자(storyCount)만으로는 격자를 못 그린다 — 실제 글이 필요하다.
   const myStoriesQuery = useQuery({
@@ -214,7 +235,7 @@ export default function Me() {
     </View>
   </>;
 
-  const logoutButton = user ? <Button label={tx('로그아웃', 'Sign out')} variant="tertiary" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>;
+  const logoutButton = user ? <Button label={tx('로그아웃', 'Sign out')} variant="tertiary" onPress={() => setLogoutAsk(true)} containerStyle={styles.logoutWide} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>;
 
   const logoutModal = <Modal visible={logoutAsk} transparent animationType="fade" onRequestClose={() => setLogoutAsk(false)}>
       <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
@@ -280,21 +301,20 @@ export default function Me() {
           </View>
         ) : null}
 
+        {/* 🔴 2열이다 — 전에는 3열(내 계정 | 앱 | 내 여행·로그아웃)이었다(시안 design_handoff_mypage_v2
+            변경점 3, S15P21E201-1526). 왼쪽: 내 여행(가로형) → 내 계정 → 로그아웃 / 오른쪽: 앱. */}
         <View style={styles.wideGrid}>
           <View style={styles.wideColumn}>
+            {/* 🔴 여기에 「내 여행」 눈썹을 붙이지 않는다. MyTripCard 가 같은 것을 스스로
+                그린다 — 붙이면 같은 말이 두 줄로 겹친다. */}
+            <MyTripCard layout="row" trip={trip} signedIn={Boolean(user)} loaded={!tripsQuery.isLoading} />
             <Eyebrow>{tx('내 계정', 'Account')}</Eyebrow>
             {accountGroup}
+            {logoutButton}
           </View>
           <View style={styles.wideColumn}>
             <Eyebrow>{tx('앱', 'App')}</Eyebrow>
             {appGroup}
-          </View>
-          <View style={styles.wideColumn}>
-            {/* 🔴 여기에 「내 여행」 눈썹을 붙이지 않는다. MyTripCard 가 같은 것을 스스로
-                그린다 — 붙이면 같은 말이 두 줄로 겹친다. 옆의 두 칸과 다르게 생긴 것이
-                아니라, 제목을 그리는 쪽이 다를 뿐이다. */}
-            <MyTripCard trip={trip} signedIn={Boolean(user)} loaded={!tripsQuery.isLoading} />
-            {logoutButton}
           </View>
         </View>
       </ScrollView>
@@ -347,24 +367,35 @@ export default function Me() {
     {/* 「기록 | 설정」 — 주소를 안 바꾸고 내용만 갈아 끼운다. 설정을 보러 들어온 사람이
         기록을 스크롤해 지나가지 않아도 되고, 기록을 보러 온 사람이 설정 목록을 안 본다. */}
     <View style={styles.segment}>
-      {(['records', 'settings'] as const).map((key) => (
-        <Pressable
-          key={key}
-          accessibilityRole="tab"
-          accessibilityState={{ selected: meTab === key }}
-          onPress={() => setMeTab(key)}
-          style={[styles.segmentItem, meTab === key && styles.segmentItemOn]}
-        >
-          <Text weight="bold" color={meTab === key ? color.text.onAction : color.text.body} numberOfLines={1}>
-            {key === 'settings'
-              ? tx('설정', 'Settings')
-              : storyCount === null ? tx('기록', 'Records') : txf(tx, '기록 %s', 'Records %s', String(storyCount))}
-          </Text>
-        </Pressable>
-      ))}
+      {/* 빨간 표시 — 반 칸짜리 하나가 미끄러진다. 표시가 달리는 칸은 세그먼트 안쪽(여백 4 를 뺀 자리)이다. */}
+      <View pointerEvents="none" style={styles.segmentTrack} onLayout={(event) => setSegmentTrack(event.nativeEvent.layout.width)}>
+        <Animated.View style={[styles.segmentIndicator, { transform: [{ translateX: tabPos.interpolate({ inputRange: [0, 1], outputRange: [0, segmentTrack / 2] }) }] }]} />
+      </View>
+      {(['records', 'settings'] as const).map((key, index) => {
+        const label = key === 'settings'
+          ? tx('설정', 'Settings')
+          : storyCount === null ? tx('기록', 'Records') : txf(tx, '기록 %s', 'Records %s', String(storyCount));
+        // 이 탭이 흰 글자인 정도. 기록은 tabInk 0 에서, 설정은 1 에서 흰 글자다.
+        const white = tabInk.interpolate({ inputRange: [0, 1], outputRange: index === 0 ? [1, 0] : [0, 1] });
+        const dark = tabInk.interpolate({ inputRange: [0, 1], outputRange: index === 0 ? [0, 1] : [1, 0] });
+        return (
+          <Pressable
+            key={key}
+            accessibilityRole="tab"
+            accessibilityLabel={label}
+            accessibilityState={{ selected: meTab === key }}
+            onPress={() => setMeTab(key)}
+            style={styles.segmentItem}
+          >
+            {/* 🔴 같은 글자를 두 벌 겹친다 — 낭독기가 두 번 읽지 않게 둘 다 숨기고 이름은 위 accessibilityLabel 이 준다. */}
+            <Animated.View aria-hidden style={[styles.segmentInk, { opacity: dark }]}><Text weight="bold" color={color.text.body} numberOfLines={1}>{label}</Text></Animated.View>
+            <Animated.View aria-hidden style={[styles.segmentInk, { opacity: white }]}><Text weight="bold" color={color.text.onAction} numberOfLines={1}>{label}</Text></Animated.View>
+          </Pressable>
+        );
+      })}
     </View>
 
-    <Animated.View style={{ opacity: tabIn, transform: [{ translateY: tabIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
+    <Animated.View style={{ opacity: tabIn, transform: [{ translateX: tabIn.interpolate({ inputRange: [0, 1], outputRange: [meTab === 'settings' ? 24 : -24, 0] }) }] }}>
       {/* 🔴 비었을 때는 격자 대신 시안 4 의 02c — 동백이가 「아직 남긴 기록이 없어요」라고 말한다(S15P21E201-1418).
           예전엔 「새 기록 남기기」 타일 하나만 덩그러니 있어 빈 화면이 고장처럼 보였다. 못 불러온 것(null)은 비어 있는 것과 다르다. */}
       {meTab === 'records' && user && myStories !== null && myStories.length === 0 ? (
@@ -452,11 +483,12 @@ const styles = StyleSheet.create({
 
   wideScroll: { flex: 1, backgroundColor: color.canvas },
   wideContent: { minHeight: '100%' },
+  // 시안: padding 40 40 64 · gap 24 · 위쪽 맞춤. 위 40 은 좌우와 같은 desktopGutter 다.
   wideGrid: {
     flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6],
-    paddingTop: spacing[8], paddingHorizontal: desktopGutter, paddingBottom: 64,
+    paddingTop: desktopGutter, paddingHorizontal: desktopGutter, paddingBottom: 64,
   },
-  // 세 칸이 같은 폭을 나눠 가진다. 칸마다 내용 길이가 달라 위쪽을 맞춘다.
+  // 두 칸이 같은 폭을 나눠 가진다. 칸마다 내용 길이가 달라 위쪽을 맞춘다.
   wideColumn: { flex: 1, minWidth: 0, gap: spacing[2] },
   heading: { gap: spacing[2], marginBottom: spacing[6] },
   profile: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
@@ -476,6 +508,8 @@ const styles = StyleSheet.create({
   // 주황으로 하려면 Button 에 그 variant 가 있어야 한다. 여기서 흉내내면 버튼 뒤에
   // 도형이 하나 더 남을 뿐이다.
   logout: { marginTop: spacing[6], marginBottom: spacing[4] },
+  // 넓은 화면은 내 계정 목록 바로 아래라 16 (시안 1b). 폰은 위 24 그대로.
+  logoutWide: { marginTop: spacing[4] },
   guestActions: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[4] },
 
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
@@ -486,10 +520,20 @@ const styles = StyleSheet.create({
   // ── 폰 「기록 | 설정」 ────────────────────────────────────────────────────
   segment: { flexDirection: 'row', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft, marginTop: spacing[6] },
   segmentItem: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  segmentItemOn: { backgroundColor: color.action.primary },
+  // 표시가 달리는 칸 = 세그먼트 안쪽. 여백(4)만큼 들여 놓아야 반 칸이 정확히 탭 하나가 된다.
+  segmentTrack: { position: 'absolute', top: spacing[1], bottom: spacing[1], left: spacing[1], right: spacing[1] },
+  // 🔴 이 화면의 「활성 탭」 동백 채움 — check-palette 의 me.tsx 예외가 말하는 바로 그것이다(사용자 지시).
+  //    전에는 누른 탭 자체를 칠했고, 지금은 이 표시가 미끄러지며 칠한다. 채움이 하나 는 것이 아니다.
+  //    그림자는 시안 값(0 2px 8px, 동백 28%) — 표시가 바닥에서 살짝 떠 보여 «움직이는 것»으로 읽힌다.
+  segmentIndicator: {
+    width: '50%', height: '100%', borderRadius: radius.full, backgroundColor: color.action.primary,
+    shadowColor: color.action.primary, shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 3,
+  },
+  segmentInk: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center' },
 
   // 🔴 스크롤 칸 안이라 flex 를 안 쓴다. 쓰면 카드가 세로로 눌린다.
-  wideRecords: { gap: spacing[2], paddingHorizontal: desktopGutter },
+  // 커버와 「○○의 기록」 사이 24 — 시안 1b 의 margin-top:24px. 전에는 0 이라 제목이 커버 아랫단에 붙었다.
+  wideRecords: { gap: spacing[2], paddingHorizontal: desktopGutter, marginTop: spacing[6] },
   wideRecordsHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
   recordsEmpty: { alignItems: 'center', gap: spacing[3], marginTop: spacing[3], paddingVertical: spacing[8], paddingHorizontal: spacing[4] },
   recordsEmptyMascot: { width: 104, height: 104 },
