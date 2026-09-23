@@ -378,7 +378,8 @@ public class JpaTripRepository implements TripRepository {
 				t.accommodationPlaceId() == null ? null : UUID.fromString(t.accommodationPlaceId()),
 				t.englishMenuRequired(), t.foreignCardRequired(), t.soloFriendlyPriority(),
 				t.maxTransitTransfers(), t.pace(), t.title(), t.status(),
-				toOffset(t.createdAt()), toOffset(t.updatedAt()), toOffset(t.deletedAt()));
+				toOffset(t.createdAt()), toOffset(t.updatedAt()), toOffset(t.deletedAt()),
+				t.accommodationArea());
 	}
 
 	private static Trip toDomain(TripJpaEntity e) {
@@ -398,6 +399,7 @@ public class JpaTripRepository implements TripRepository {
 				.travelModes(e.travelModes())
 				.pace(e.pace())
 				.accommodationPlaceId(e.accommodationPlaceId() == null ? null : e.accommodationPlaceId().toString())
+				.accommodationArea(e.accommodationArea())
 				.englishMenuRequired(e.englishMenuRequired())
 				.foreignCardRequired(e.foreignCardRequired())
 				.soloFriendlyPriority(e.soloFriendlyPriority())

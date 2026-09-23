@@ -79,7 +79,8 @@ public final class CreateTripRequestMapper {
                 r.maxTransitTransfers(),
                 r.mustVisitPlaceIdsOrEmpty(),
                 r.travelAreasOrEmpty(),
-                r.accommodation());
+                r.accommodation(),
+                r.accommodationArea());
     }
 
     private static TripConstraint.Severity parseSeverity(String raw) {

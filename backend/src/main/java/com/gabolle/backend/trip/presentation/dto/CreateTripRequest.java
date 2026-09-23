@@ -8,6 +8,7 @@ import com.gabolle.backend.place.api.PlaceSnapshotRequest;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -91,7 +92,22 @@ public record CreateTripRequest(
          * 고른 것이 확실한데 스냅샷을 또 보면, 둘이 어긋났을 때 어느 쪽이 맞는지 서버가
          * 정하게 된다.
          */
-        @Valid PlaceSnapshotRequest accommodation) {
+        @Valid PlaceSnapshotRequest accommodation,
+
+        /**
+         * 묵는 동네 — {@code TravelArea} 코드다({@code HAEUNDAE}·{@code SEOMYEON} 등).
+         * S15P21E201-1544.
+         *
+         * <p>앱의 숙소 칸은 검색어가 없을 때 추천 동네를 먼저 보여 준다. 그것을 위
+         * {@code accommodation} 스냅샷으로 보내면 장소 행 「해운대」가 생기는데, 그 동네는
+         * 서버에 {@code TravelArea} 로 <b>이미 있고 좌표까지 같다.</b> 장소로도 만들면 같은
+         * 동네가 세 벌이 되므로 코드로 받는다.
+         *
+         * <p>🔴 모르는 코드가 와도 <b>400 이 아니다.</b> 그 칸만 비운다 —
+         * {@code TravelArea.of} 가 그렇게 만들어져 있고 이유도 적혀 있다: 앱이 새 지역을 먼저
+         * 내보내는 날 여행 생성이 막히면 안 된다.
+         */
+        @Size(max = 30) String accommodationArea) {
 
     /** 안 보냈으면 빈 목록이다. */
     public List<String> travelAreasOrEmpty() {
@@ -112,7 +128,7 @@ public record CreateTripRequest(
             List<PreferenceAnswerInput> preferences,
             List<ConstraintInput> constraints) {
         this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
-                preferences, null, constraints, null, null, null, null, null, null, null, null);
+                preferences, null, constraints, null, null, null, null, null, null, null, null, null);
     }
 
     public CreateTripRequest(
@@ -124,7 +140,7 @@ public record CreateTripRequest(
             SpendProfileAnswerInput spendProfile,
             List<ConstraintInput> constraints) {
         this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
-                preferences, spendProfile, constraints, null, null, null, null, null, null, null, null);
+                preferences, spendProfile, constraints, null, null, null, null, null, null, null, null, null);
     }
 
     public CreateTripRequest(
@@ -142,7 +158,7 @@ public record CreateTripRequest(
             Integer maxTransitTransfers) {
         this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
                 preferences, spendProfile, constraints, accommodationPlaceId, englishMenuRequired,
-                foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, null, null, null);
+                foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, null, null, null, null);
     }
 
     /** 안 보냈으면 우선하지 않는 것으로 본다. */

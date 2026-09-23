@@ -146,7 +146,8 @@ public class TripCreationService {
                 command.englishMenuRequired(), command.foreignCardRequired(), command.soloFriendlyPriority(),
                 maxTransitTransfers,
                 pace,
-                now);
+                now,
+                TravelArea.of(command.accommodationArea()).map(Enum::name).orElse(null));
 
         // scope 는 TRIP 고정이다 — 여기서 만드는 제약은 항상 이번 여행 전용이다.
         List<TripConstraint> constraints = new ArrayList<>();
@@ -384,7 +385,10 @@ public class TripCreationService {
              * 우리 표에 없는 숙소를 골랐을 때의 스냅샷 — S15P21E201-1522. {@code null} 이거나
              * {@code accommodationPlaceId} 가 이미 있으면 안 본다.
              */
-            PlaceSnapshotRequest accommodation) {
+            PlaceSnapshotRequest accommodation,
+
+            /** 묵는 동네({@code TravelArea} 코드). 모르는 값이면 저장 단계에서 버린다. */
+            String accommodationArea) {
 
         /** 안 준 목록을 빈 목록으로 고정한다 — 뒤쪽이 null 을 다시 보지 않게 한다. */
         public Command {
@@ -400,7 +404,7 @@ public class TripCreationService {
                 boolean foreignCardRequired, boolean soloFriendlyPriority, Integer maxTransitTransfers) {
             this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
                     preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
-                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, List.of(), List.of(), null);
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, List.of(), List.of(), null, null);
         }
 
         public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
@@ -411,7 +415,7 @@ public class TripCreationService {
                 List<String> mustVisitPlaceIds) {
             this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
                     preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
-                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, mustVisitPlaceIds, List.of(), null);
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, mustVisitPlaceIds, List.of(), null, null);
         }
 
         /** 숙소 스냅샷 없이 목록 둘까지 주는 판. 그 기능을 안 쓰는 호출자가 쓴다. */
@@ -424,7 +428,7 @@ public class TripCreationService {
             this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow,
                     timezone, preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
                     foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, mustVisitPlaceIds,
-                    travelAreas, null);
+                    travelAreas, null, null);
         }
 
         public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
