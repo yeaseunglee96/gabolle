@@ -142,7 +142,7 @@ export default function PlaceReviews() {
           <>
             <Text variant="body" weight="bold">{tx('다녀오셨나요?', 'Have you visited?')}</Text>
             <Text variant="caption" color={color.text.muted}>{tx('현재 위치로 방문을 인증하면 신뢰도 높은 평가를 남길 수 있어요.', 'Verify your visit with your current location to leave a trusted review.')}</Text>
-            <Button variant="outline" label={tx('방문 인증하기', 'Verify my visit')} onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
+            <Button compact variant="outline" label={tx('방문 인증하기', 'Verify my visit')} onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
         {verify.kind === 'checking' ? <View style={styles.verifyingRow}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('위치를 확인하고 있어요…', 'Checking your location…')}</Text></View> : null}
@@ -157,20 +157,20 @@ export default function PlaceReviews() {
           <>
             <Text variant="body" weight="bold" color={color.state.danger}>{tx('현재 위치가 장소에서 멀리 떨어져 있습니다', 'Your current location is far from this place')}</Text>
             {verify.distanceM != null ? <Text variant="caption" color={color.text.body}>{tx(`약 ${verify.distanceM}m 떨어져 있어요.`, `About ${verify.distanceM}m away.`)}</Text> : null}
-            <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
+            <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
         {verify.kind === 'LOW_ACCURACY' ? (
           <>
             <Text variant="body" weight="bold" color={color.state.danger}>{tx('위치 정확도가 낮아요', 'Location accuracy is too low')}</Text>
             <Text variant="caption" color={color.text.body}>{localizeMessage(tx, verify.message)}</Text>
-            <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
+            <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
         {verify.kind === 'error' ? (
           <>
             <Text variant="body" weight="bold" color={color.state.danger}>{localizeMessage(tx, verify.message)}</Text>
-            <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
+            <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void requestVerification()} containerStyle={styles.verifyButton} />
           </>
         ) : null}
       </View>
@@ -216,7 +216,7 @@ export default function PlaceReviews() {
       {listState === 'loading' ? <View style={styles.notice}><ActivityIndicator color={color.action.primary} /></View> : null}
       {/* 손님에게는 리뷰 조회도 401 이다(2026-09-21 실측, S15P21E201-1372) — 오류가 아니라 잠긴 문으로 보여 준다. */}
       {listState === 'error' && !accessToken ? <View style={styles.notice}><Text color={color.text.body}>{tx('로그인하면 리뷰를 볼 수 있어요.', 'Sign in to read reviews.')}</Text><Button label={tx('로그인', 'Sign in')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/place-reviews/${id}` } })} containerStyle={styles.noticeButton} /></View> : null}
-      {listState === 'error' && accessToken ? <View style={styles.notice}><Text color={color.text.body}>{tx('리뷰를 불러오지 못했어요.', 'Could not load reviews.')}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReviews()} /></View> : null}
+      {listState === 'error' && accessToken ? <View style={styles.notice}><Text color={color.text.body}>{tx('리뷰를 불러오지 못했어요.', 'Could not load reviews.')}</Text><Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReviews()} /></View> : null}
       {listState === 'ready' && reviews && reviews.length === 0 ? <View style={styles.notice}><Text color={color.text.body}>{tx('아직 리뷰가 없어요.', 'No reviews yet.')}</Text></View> : null}
       {listState === 'ready' && reviews && reviews.length > 0 ? (
         <View style={styles.reviewList}>

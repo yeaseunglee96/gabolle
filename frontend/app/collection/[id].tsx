@@ -106,7 +106,7 @@ export default function CollectionListDetail() {
     setSearchResults([]); setSearched(false); setSearching(false);
   };
 
-  if (!list) return <View style={styles.shell}><Screen scroll><View style={styles.empty}><Text variant="title" weight="bold">{tx('리스트를 찾을 수 없어요', "Couldn't find this list")}</Text><Button label={tx('부슐랭으로', 'Back to collection')} variant="tertiary" onPress={() => router.replace('/collection')} /></View></Screen></View>;
+  if (!list) return <View style={styles.shell}><Screen scroll><View style={styles.empty}><Text variant="title" weight="bold">{tx('리스트를 찾을 수 없어요', "Couldn't find this list")}</Text><Button compact label={tx('부슐랭으로', 'Back to collection')} variant="tertiary" onPress={() => router.replace('/collection')} /></View></Screen></View>;
 
   const listPlaces = list.placeIds.map((placeId) => places[placeId]).filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 

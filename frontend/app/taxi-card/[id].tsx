@@ -65,14 +65,14 @@ export default function TaxiCardScreen() {
       {state.status === 'not-found' ? (
         <View style={styles.notice} accessibilityRole="alert">
           <Text variant="title" weight="bold">{tx('장소를 찾을 수 없어요', 'Place not found')}</Text>
-          <Button label={tx('돌아가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} />
+          <Button compact label={tx('돌아가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} />
         </View>
       ) : null}
 
       {state.status === 'error' ? (
         <View style={styles.notice} accessibilityRole="alert">
           <Text variant="title" weight="bold">{tx('택시 카드를 불러오지 못했어요', "We couldn't load the taxi card")}</Text>
-          <Button label={tx('다시 시도', 'Try again')} onPress={() => setRetryCount((count) => count + 1)} />
+          <Button compact label={tx('다시 시도', 'Try again')} onPress={() => setRetryCount((count) => count + 1)} />
         </View>
       ) : null}
 
