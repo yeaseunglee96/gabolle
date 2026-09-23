@@ -17,6 +17,7 @@ import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { webInputNoOutline } from '@/design/webGlobalStyles';
 import { useI18n } from '@/i18n';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { localizeMessage } from '@/i18n/messages';
@@ -36,6 +37,8 @@ export default function OAuthSignup() {
     provider?: OAuthProvider; signupTicket?: string; email?: string; displayName?: string; language?: string; emailProvided?: string; returnTo?: string;
   }>();
   const [displayName, setDisplayName] = useState(params.displayName ?? '');
+  // 포커스 = 붉은 2px 선 — 웹의 검은 기본 외곽선을 끈 대신이다(회원가입 시안과 같게, S15P21E201-1518).
+  const [nameFocused, setNameFocused] = useState(false);
   const [language, setLanguage] = useState<SignupLanguage>(params.language === 'EN' ? 'EN' : 'KO');
   const [ageAccepted, setAgeAccepted] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -108,7 +111,7 @@ export default function OAuthSignup() {
 
         <View style={styles.field}>
           <Text variant="caption" weight="bold">{tx('이름', 'Name')}</Text>
-          <TextInput accessibilityLabel={tx('이름', 'Name')} autoComplete="name" maxLength={30} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={styles.input} value={displayName} />
+          <TextInput accessibilityLabel={tx('이름', 'Name')} autoComplete="name" maxLength={30} onFocus={() => setNameFocused(true)} onBlur={() => setNameFocused(false)} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={[styles.input, nameFocused && styles.inputFocused]} value={displayName} />
         </View>
 
         <View style={styles.field}>
@@ -152,7 +155,9 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: spacing[1], marginBottom: spacing[6] },
   form: { gap: spacing[4] },
   field: { gap: spacing[2] },
-  input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4] },
+  // 🔴 웹의 검은 포커스 외곽선을 끈다 — 대신 inputFocused 의 붉은 선이 포커스를 보여 준다.
+  input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4], ...webInputNoOutline },
+  inputFocused: { borderColor: color.action.outline, borderWidth: 2 },
   languageRow: { flexDirection: 'row', gap: spacing[2] },
   language: { flex: 1, alignItems: 'center', padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
   languageSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },

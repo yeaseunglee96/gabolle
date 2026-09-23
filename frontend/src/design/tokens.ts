@@ -100,6 +100,12 @@ export const color = {
     dot: '#F25454',
     /** 🔴 경고·제외 전용 배경. 선택이나 안내에 쓰지 않는다 */
     dangerBg: '#FEF0F1',
+    /**
+     * 입력칸 «안» 채움 — 값에 문제가 있을 때만 (S15P21E201-1518, 회원가입 시안).
+     * dangerBg 는 경고 상자용이라 입력칸에 깔면 너무 진해 칸 전체가 경고처럼 읽힌다.
+     * 🔴 사람이 **입력한 뒤에만** 쓴다. 처음 연 빈 칸은 오류가 아니다.
+     */
+    dangerFieldBg: '#FFFBFB',
     success: '#2E9E5B',
     successBg: '#E7F5EC',
     warning: '#B06A00',

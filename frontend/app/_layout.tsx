@@ -10,6 +10,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { color, fontFamily } from '@/design/tokens';
 import { shouldWaitForFonts } from '@/design/fontGate';
+import { installWebGlobalStyles } from '@/design/webGlobalStyles';
 import { toHtmlLang } from '@/i18n/languages';
 import { AuthProvider } from '@/auth/AuthProvider';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
@@ -24,6 +25,8 @@ import { attachNotificationNavigation, installNotificationHandler } from '@/noti
 
 // 앱이 앞에 떠 있을 때도 알림이 보이게 — 모듈이 처음 읽힐 때 한 번(S15P21E201-1429).
 installNotificationHandler();
+// 웹 자동완성의 파란 배경 등 StyleSheet 로 못 닿는 브라우저 기본값 — 웹에서만 한 번(S15P21E201-1518).
+installWebGlobalStyles();
 
 // 웹에서만 의미가 있다 — 스크린 리더가 어느 언어 발음 규칙을 쓸지, 브라우저가 어느
 // 언어의 맞춤법 검사·번역 제안을 띄울지가 이 값을 본다. 네이티브

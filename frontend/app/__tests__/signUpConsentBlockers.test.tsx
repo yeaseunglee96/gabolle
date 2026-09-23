@@ -1,0 +1,123 @@
+// 회원가입 — 버튼이 왜 잠겼는지 적고, 입력칸은 «입력한 뒤에만» 빨갛다 (S15P21E201-1518).
+//
+// 시안: frontend/docs/design_handoff_signup_consent/README.md
+// 이 시험이 지키는 것:
+//   · 비활성 이유 상자 — 처음엔 열 줄, 다 채우면 사라지고 버튼이 열린다
+//   · 🔴 처음 연 빈 칸은 오류가 아니다 — 옅은 붉은 채움은 입력한 뒤에만
+//   · 폰은 진행 점으로 칸을 건너뛰어 와도 상자가 «버튼이 왜 잠겼나» 를 거짓말하지 않는다
+import { fireEvent, render } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+
+import { color } from '@/design/tokens';
+import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
+
+let mockKind: 'phone' | 'tablet' = 'tablet';
+
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ back: jest.fn(), replace: jest.fn(), push: jest.fn(), canGoBack: () => true }),
+  useLocalSearchParams: () => ({}),
+}));
+// 폰 칸 넘김 애니메이션 — jest 에는 네이티브 worklets 가 없어 불러오기만 해도 죽는다. 라이브러리가 주는
+// 가짜(react-native-reanimated/mock)도 worklets 를 불러 똑같이 죽는다(2026-09-23 실측). 이 화면이 쓰는 것만 흉내 낸다.
+jest.mock('react-native-reanimated', () => {
+  const { View } = require('react-native');
+  const chain = { duration: () => chain, reduceMotion: () => chain };
+  return { __esModule: true, default: { View }, FadeInRight: chain, FadeOutLeft: chain, ReduceMotion: { System: 'system' } };
+});
+jest.mock('@/auth/authApi', () => ({ signup: jest.fn(), resendEmailVerification: jest.fn() }));
+jest.mock('@/auth/pendingReturnTo', () => ({ savePendingReturnTo: jest.fn(async () => {}), isSafeReturnPath: () => false }));
+jest.mock('@/components/BrandLogoLink', () => ({ BrandLogoLink: () => null }));
+jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ kind: mockKind, width: mockKind === 'phone' ? 390 : 1440, height: 900, isLandscape: false }) }));
+jest.mock('react-native-safe-area-context', () => ({
+  SafeAreaView: ({ children }: { children: unknown }) => children,
+  useSafeAreaInsets: () => ({ top: 47, left: 0, right: 0, bottom: 34 }),
+}));
+
+import SignUp from '../(auth)/sign-up';
+
+const HEADING = '회원가입하려면 아래를 마저 채워 주세요';
+const REASONS = [
+  '이메일 형식이 올바르지 않아요',
+  '비밀번호를 8~64자로 입력해 주세요',
+  '비밀번호에 영문을 넣어 주세요',
+  '비밀번호에 숫자를 넣어 주세요',
+  '비밀번호에 특수문자(!@#$% 등)를 넣어 주세요',
+  // 「비밀번호 확인이 일치하지 않아요」는 비밀번호를 쳐야 나온다 — 빈 화면에는 없다
+  '이름을 1~30자로 입력해 주세요',
+  '만 14세 이상인지 확인해 주세요',
+  '이용약관에 동의해 주세요',
+  '개인정보 처리방침에 동의해 주세요',
+];
+const AGREEMENTS = ['만 14세 이상입니다.', '이용약관에 동의합니다. (필수)', '개인정보 처리방침에 동의합니다. (필수)'];
+const mount = () => render(<OnboardingPreferencesProvider><SignUp /></OnboardingPreferencesProvider>);
+type RowStyle = { backgroundColor?: string; borderColor?: string; borderWidth?: number; borderRadius?: number };
+/** 입력칸을 감싼 행 — 테두리와 채움은 거기 있다. 입력칸에서 위로 올라가 처음 만나는 둥근 상자다. */
+const rowOf = (view: ReturnType<typeof mount>, testID: string): RowStyle => {
+  let node = view.getByTestId(testID).parent;
+  while (node) {
+    const style = StyleSheet.flatten(node.props.style as never) as RowStyle | undefined;
+    if (style?.borderRadius) return style;
+    node = node.parent;
+  }
+  throw new Error(`${testID} 를 감싼 행을 못 찾았다`);
+};
+const submitDisabled = (view: ReturnType<typeof mount>) => Boolean(view.getByTestId('sign-up-submit').props.accessibilityState?.disabled);
+
+beforeEach(() => { mockKind = 'tablet'; });
+
+describe('회원가입 — 넓은 화면', () => {
+  it('처음엔 이유 아홉 줄이 버튼 위에 뜨고, 어느 칸도 빨갛지 않다', () => {
+    const view = mount();
+    expect(view.getByText(HEADING)).toBeTruthy();
+    for (const reason of REASONS) expect(view.getByText(`○ ${reason}`)).toBeTruthy();
+    expect(submitDisabled(view)).toBe(true);
+    for (const id of ['sign-up-email', 'sign-up-password', 'sign-up-confirm', 'sign-up-name']) {
+      expect(rowOf(view, id).backgroundColor).toBe(color.surface.card);
+    }
+  });
+
+  it('🔴 입력한 뒤에만 옅은 붉은 채움 — 틀린 이메일을 치면 칸이 물들고, 지우면 돌아온다', () => {
+    const view = mount();
+    fireEvent.changeText(view.getByTestId('sign-up-email'), 'abc');
+    expect(rowOf(view, 'sign-up-email').backgroundColor).toBe(color.state.dangerFieldBg);
+    expect(view.getByText('올바른 이메일 주소를 입력해 주세요.')).toBeTruthy();
+    fireEvent.changeText(view.getByTestId('sign-up-email'), '');
+    expect(rowOf(view, 'sign-up-email').backgroundColor).toBe(color.surface.card);
+  });
+
+  it('포커스는 붉은 2px 선이고, 떠나면 돌아온다', () => {
+    const view = mount();
+    fireEvent(view.getByTestId('sign-up-name'), 'focus');
+    expect(rowOf(view, 'sign-up-name')).toMatchObject({ borderColor: color.action.outline, borderWidth: 2 });
+    fireEvent(view.getByTestId('sign-up-name'), 'blur');
+    expect(rowOf(view, 'sign-up-name')).toMatchObject({ borderColor: color.surface.field, borderWidth: 1 });
+  });
+
+  it('다 채우면 상자가 사라지고 회원가입이 열린다', () => {
+    const view = mount();
+    fireEvent.changeText(view.getByTestId('sign-up-email'), 'me@example.com');
+    fireEvent.changeText(view.getByTestId('sign-up-password'), 'abcd1234!');
+    fireEvent.changeText(view.getByTestId('sign-up-confirm'), 'abcd1234!');
+    fireEvent.changeText(view.getByTestId('sign-up-name'), '효준');
+    // 동의 셋만 남는다
+    for (const reason of REASONS) {
+      if (REASONS.indexOf(reason) < 6) expect(view.queryByText(`○ ${reason}`)).toBeNull();
+      else expect(view.getByText(`○ ${reason}`)).toBeTruthy();
+    }
+    for (const label of AGREEMENTS) fireEvent.press(view.getByText(label));
+    expect(view.queryByText(HEADING)).toBeNull();
+    expect(submitDisabled(view)).toBe(false);
+  });
+});
+
+describe('회원가입 — 폰', () => {
+  it('🔴 진행 점으로 마지막 칸에 건너뛰어 와도, 동의를 다 하면 «앞 칸이 비었다» 가 남는다 — 상자 없이 잠긴 버튼이 되지 않는다', () => {
+    mockKind = 'phone';
+    const view = mount();
+    fireEvent.press(view.getByLabelText('약관 동의 단계로 이동'));
+    for (const label of AGREEMENTS) fireEvent.press(view.getByText(label));
+    expect(submitDisabled(view)).toBe(true);
+    expect(view.getByText(HEADING)).toBeTruthy();
+    expect(view.getByText('○ 이메일 형식이 올바르지 않아요')).toBeTruthy();
+  });
+});
