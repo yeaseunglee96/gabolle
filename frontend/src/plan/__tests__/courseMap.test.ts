@@ -13,7 +13,7 @@ const stop = (name: string, lat: number | null, lng: number | null) => ({
 const course = (days: TripCourse['days']): TripCourse => ({
   id: 'c1', title: '코스 A', tagline: '', days,
   summary: { places: null, moveMin: null, walkKm: null, costKrw: null },
-  status: 'ESTIMATED', rationale: null, itineraryId: null,
+  status: 'ESTIMATED', rationale: null, itineraryId: null, preview: null,
 });
 
 describe('코스를 지도에 올린다', () => {

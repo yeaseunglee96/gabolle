@@ -55,6 +55,13 @@ export type TripCourse = {
   rationale: string | null;
   /** 이 안을 고르면 열릴 일정. 서버가 미리 만들어 둔 경우에만 있다. */
   itineraryId: string | null;
+  /**
+   * 일정이 아직 없는 안(2안·3안)을 그릴 재료 — 일정 조회와 **같은 모양**이다 (S15P21E201-1454).
+   *
+   * 🔴 여행 페이지는 코스를 일정 모양으로만 그린다(카드의 비용·이동 시간·지도). 이것이 없으면
+   *    2안을 눌러도 카드가 빈다. 고르면 {@link ensureCourseItinerary} 가 서버에 만들어 달라고 한다.
+   */
+  preview: ItineraryDto | null;
 };
 
 export type TripCoursesResult =
@@ -69,6 +76,7 @@ type CourseDto = {
   status?: string | null;
   rationale?: string | null;
   itineraryId?: string | null;
+  preview?: ItineraryDto | null;
 };
 type CoursesDto = { courses?: CourseDto[] | null };
 
@@ -117,6 +125,8 @@ export function adaptCourse(dto: CourseDto): TripCourse {
     status: dto?.status === 'CONFIRMED' ? 'CONFIRMED' : 'ESTIMATED',
     rationale: typeof dto?.rationale === 'string' && dto.rationale !== '' ? dto.rationale : null,
     itineraryId: typeof dto?.itineraryId === 'string' && dto.itineraryId !== '' ? dto.itineraryId : null,
+    // 날이 없는 것은 그릴 수 없다 — 모양이 어긋난 값을 일정인 척 넘기지 않는다.
+    preview: dto?.preview && Array.isArray(dto.preview.days) ? dto.preview : null,
   };
 }
 
@@ -160,7 +170,41 @@ export function courseFromItinerary(itinerary: ItineraryDto): TripCourse {
     status: 'ESTIMATED',
     rationale: null,
     itineraryId: itinerary.id,
+    preview: null,
   };
+}
+
+/**
+ * 이 안을 확정할 수 있나 — 일정이 이미 있거나, 서버가 만들어 줄 미리보기가 있다.
+ * 화면들이 버튼을 켜고 끄는 규칙을 각자 들고 있으면 한 화면만 2안을 못 고르는 날이 온다.
+ */
+export function canConfirmCourse(course: TripCourse): boolean {
+  return Boolean(course.itineraryId || course.preview);
+}
+
+/**
+ * 고른 안의 일정 번호. 이미 있으면 그대로, 없으면(2안·3안) 서버에 만들어 달라고 한다 (S15P21E201-1454).
+ *
+ * 🔴 서버는 미리 보여 준 것과 같은 입력으로 만들고, 같은 안을 두 번 골라도 새로 만들지 않는다.
+ *    그래서 실패 뒤에 다시 눌러도 일정이 둘 생기지 않는다.
+ */
+export async function ensureCourseItinerary(
+  tripId: string,
+  course: TripCourse,
+  accessToken: string | null,
+): Promise<{ state: 'success'; itineraryId: string } | { state: 'error'; message: string }> {
+  if (course.itineraryId) return { state: 'success', itineraryId: course.itineraryId };
+  try {
+    const chosen = await apiRequest<{ itineraryId?: string | null }>(`/api/v1/trips/${encodeURIComponent(tripId)}/course`, {
+      method: 'POST', accessToken, body: { courseId: course.id },
+    });
+    if (typeof chosen?.itineraryId === 'string' && chosen.itineraryId !== '') {
+      return { state: 'success', itineraryId: chosen.itineraryId };
+    }
+    return { state: 'error', message: '이 코스로 일정을 만들지 못했어요.' };
+  } catch (error) {
+    return { state: 'error', message: error instanceof Error ? error.message : '이 코스로 일정을 만들지 못했어요.' };
+  }
 }
 
 /**

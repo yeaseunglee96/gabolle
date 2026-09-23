@@ -31,7 +31,7 @@ import { courseLetter } from '@/plan/CourseCard';
 import type { ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
-import type { TripCourse } from '@/plan/tripCourses';
+import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
 import { humanTripTitle } from '@/trip/tripNaming';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 
@@ -166,8 +166,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
               {course ? (
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityState={{ busy: confirming, disabled: confirming || !course.itineraryId }}
-                  disabled={confirming || !course.itineraryId}
+                  accessibilityState={{ busy: confirming, disabled: confirming || !canConfirmCourse(course) }}
+                  disabled={confirming || !canConfirmCourse(course)}
                   onPress={() => void confirm(course)}
                   style={({ pressed }) => [styles.confirmButton, (pressed || confirming) && styles.pressed]}
                 >

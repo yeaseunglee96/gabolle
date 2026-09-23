@@ -19,6 +19,9 @@ export const MESSAGE_EN: Record<string, string> = {
   '요청을 취소했어요.': 'The request was cancelled.',
   '요청이 취소됐어요.': 'The request was cancelled.',
   '요청을 처리하지 못했어요.': 'We could not complete that request.',
+  // 추천 코스 2안·3안을 고르면 서버가 그때 일정을 만든다 (S15P21E201-1454).
+  '이 코스로 일정을 만들지 못했어요.': 'We could not build an itinerary from this course.',
+  '그 코스를 찾지 못했어요.': 'We could not find that course.',
   '사진 파일 읽기가 중단됐어요': 'Reading the photo file was interrupted',
   // 「취소되었어요」라고 단정하지 않는다 — 결과만으로는 취소와 못 돌아옴을 못 가른다 (S15P21E201-1480, oauth.ts)
   '로그인을 마치지 못했어요. 창을 닫았거나 연결이 끊겼을 수 있으니 다시 시도해 주세요.': "Sign-in didn't finish. The window may have been closed or the connection may have dropped — please try again.",

@@ -30,7 +30,7 @@ import { CourseCard, CourseRow, courseCost, courseFacts, courseLetter } from '@/
 import { courseMapLayers, dayColor } from '@/plan/courseMap';
 import { useCourseRoutePaths } from '@/map/courseRoutePaths';
 import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
-import { loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
+import { canConfirmCourse, ensureCourseItinerary, loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
 import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { timeToMinutes } from '@/plan/tripBasics';
 import { loadTrips } from '@/trip/trips';
@@ -153,6 +153,8 @@ function RecommendationsClassic() {
   /** 스트립이 칸보다 넓은가(넘치는가) · 지금 얼마나 굴렀나 — 둘 다 재서 안다. */
   const [strip, setStrip] = useState({ view: 0, content: 0, left: 0 });
   const [saved, setSaved] = useState<Record<string, boolean>>({});
+  /** 고른 안을 서버가 만드는 중인가 — 두 번 눌러 요청이 겹치지 않게 (S15P21E201-1454). */
+  const building = useRef(false);
 
   const load = useCallback(async () => {
     setLoaded({ state: 'loading' });
@@ -267,9 +269,17 @@ function RecommendationsClassic() {
   const build = async (course: TripCourse) => {
     // 🔴 「코스를 골랐다」는 이벤트를 안 보낸다. 서버가 받는 종류가 넷으로 정해져 있고,
     //    없는 종류를 만들어 보내면 그 줄은 조용히 버려진다 — 재는 줄 알고 안 재게 된다.
-    const itineraryId = course.itineraryId;
-    if (!itineraryId) return;
-    const target = `/trips/${itineraryId}/itinerary`;
+    if (!canConfirmCourse(course) || building.current) return;
+    // 🔴 2안·3안은 고른 지금 서버가 만든다 (S15P21E201-1454). 두 번 눌러 요청이 겹치면 서버가
+    //    「이미 만든 것」을 못 보고 둘 다 만들 수 있다 — 도는 동안은 다시 받지 않는다.
+    building.current = true;
+    const made = await ensureCourseItinerary(tripId, course, accessToken);
+    building.current = false;
+    if (made.state !== 'success') {
+      setLoaded({ state: 'ready', result: { state: 'error', message: made.message } });
+      return;
+    }
+    const target = `/trips/${made.itineraryId}/itinerary`;
     try {
       const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
       const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
