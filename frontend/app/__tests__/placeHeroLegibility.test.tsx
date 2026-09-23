@@ -18,6 +18,7 @@ const mockPlace = {
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), replace: jest.fn(), push: jest.fn(), canGoBack: () => true }),
   useLocalSearchParams: () => ({ id: 'p1' }),
+  usePathname: () => '/place/p1',
 }));
 jest.mock('@/discovery/places', () => {
   const actual = jest.requireActual('@/discovery/places');
