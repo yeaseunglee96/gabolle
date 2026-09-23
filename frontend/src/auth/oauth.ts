@@ -70,14 +70,39 @@ async function beginOAuthChallenge(provider: OAuthProvider) {
   return { redirectUri, landingUri, codeVerifier, challenge, authorizationUrl };
 }
 
+/**
+ * 인증 창이 코드 없이 끝났을 때 무엇이라고 말하나 — S15P21E201-1480.
+ *
+ * 🔴 「로그인이 취소되었어요」라고 단정하던 것을 고친다. 결과만으로는 «사용자가 취소했다»와
+ *    «못 돌아와서 닫았다»를 가를 수 없다 — expo-web-browser 57 실제 코드 기준:
+ *
+ *      iOS      ASWebAuthenticationSession 이 콜백 없이 끝나면 **무조건 `cancel`**
+ *               (WebAuthSession.swift: callbackUrl != nil ? "success" : "cancel").
+ *               사용자가 취소를 누른 것도, 제공자·착지 페이지가 안 열려 할 수 없이 닫은 것도,
+ *               설치 직후라 Universal Link 연결을 아직 못 받아 와 돌아올 수 없는 것도 전부 이것이다
+ *      Android  사용자가 브라우저를 닫으면 `cancel`
+ *      둘 다    `dismiss` 는 **우리 코드가 창을 직접 닫을 때만** 온다(dismissAuthSession)
+ *
+ *    그래서 「dismiss 만 연결 문제로」 가르는 것도 답이 아니다 — 제보된 경우는 `cancel` 로 온다.
+ *    둘 다에 참인 말만 한다. 사용자 탓으로 단정하면 사용자는 자기가 뭘 잘못 눌렀다고 읽고
+ *    (2026-09-22 실제로 그 제보로 없는 원인을 한 시간 뒤졌다), 연결 탓으로 단정하면 일부러
+ *    닫은 사람에게 틀린 말을 한다.
+ */
+export const AUTH_SESSION_NOT_FINISHED = '로그인을 마치지 못했어요. 창을 닫았거나 연결이 끊겼을 수 있으니 다시 시도해 주세요.';
+
+/** `success` 가 아닌 결과를 사람이 읽는 오류로. 코드 `OAUTH_CANCELLED` 는 이름만 옛것이다 — 다른 곳에서 안 읽는다. */
+export function authSessionFailure(type: string): ApiClientError {
+  if (type === 'cancel' || type === 'dismiss') return new ApiClientError(AUTH_SESSION_NOT_FINISHED, 'OAUTH_CANCELLED', 0);
+  return new ApiClientError('소셜 로그인을 완료하지 못했어요.', 'OAUTH_FAILED', 0);
+}
+
 // 네이티브(앱)는 팝업 차단이 끼어들 자리가 없는 앱 안 브라우저 화면을 쓰므로
 // 이전 방식 그대로 코드를 바로 받아 온다.
 // 두 번째 인자는 제공자에게 넘긴 redirect_uri 가 아니라 앱 안 브라우저가 착지하기를 기다리는
 // 주소다. 애플만 둘이 다르다 — 애플은 서버의 POST 수신 경로로 보내고 그 서버가 여기로 넘긴다.
 async function runNativeAuthSession(authorizationUrl: string, landingUri: string, expectedState: string) {
   const result = await WebBrowser.openAuthSessionAsync(authorizationUrl, landingUri, { preferUniversalLinks: true });
-  if (result.type === 'cancel' || result.type === 'dismiss') throw new ApiClientError('로그인이 취소되었어요.', 'OAUTH_CANCELLED', 0);
-  if (result.type !== 'success') throw new ApiClientError('소셜 로그인을 완료하지 못했어요.', 'OAUTH_FAILED', 0);
+  if (result.type !== 'success') throw authSessionFailure(result.type);
   const callback = new URL(result.url);
   const callbackError = callback.searchParams.get('error');
   const authorizationCode = callback.searchParams.get('code');
