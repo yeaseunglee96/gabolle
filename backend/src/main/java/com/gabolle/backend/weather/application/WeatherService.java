@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.weather.config.WeatherProperties;
-import com.gabolle.backend.weather.domain.DailyForecast;
 import com.gabolle.backend.weather.domain.KmaBaseTime;
 import com.gabolle.backend.weather.domain.KmaBaseTimeCalculator;
 import com.gabolle.backend.weather.domain.KmaForecastAggregator;
@@ -116,9 +115,9 @@ public class WeatherService {
 		}
 
 		List<KmaForecastItem> items = KmaForecastJsonParser.parse(rawJson, this.objectMapper);
-		Optional<DailyForecast> forecast = KmaForecastAggregator.aggregate(items, query.date());
-		if (forecast.isPresent()) {
-			return new WeatherForecastResult(grid, forecast.get(), cacheHit);
+		Optional<WeatherForecastResult> fromThisRound = resultOf(grid, items, query, cacheHit);
+		if (fromThisRound.isPresent()) {
+			return fromThisRound.get();
 		}
 
 		// 이번 회차에 그 날짜가 없다. 밤 23시 10분 이후의 「오늘」이 그렇다 —
@@ -146,14 +145,26 @@ public class WeatherService {
 			if (json.isEmpty()) {
 				continue;
 			}
-			Optional<DailyForecast> found = KmaForecastAggregator
-					.aggregate(KmaForecastJsonParser.parse(json.get(), this.objectMapper), query.date());
+			// 캐시로만 답했으므로 cached 는 참이다.
+			Optional<WeatherForecastResult> found = resultOf(grid,
+					KmaForecastJsonParser.parse(json.get(), this.objectMapper), query, true);
 			if (found.isPresent()) {
-				// 캐시로만 답했으므로 cached 는 참이다.
-				return Optional.of(new WeatherForecastResult(grid, found.get(), true));
+				return found;
 			}
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * 한 회차 원문의 항목들로 하루 요약과 시간별 예보를 함께 만든다. 둘은 반드시 같은 items 에서
+	 * 나온다 — 하루 요약은 이 회차인데 시간별은 다른 회차인 응답을 만들지 않으려고 한 곳에 묶었다.
+	 * 기상청을 더 부르지 않는다. 그 날짜가 이 회차에 없으면 빈 값.
+	 */
+	private static Optional<WeatherForecastResult> resultOf(KmaGridCoordinate grid, List<KmaForecastItem> items,
+			WeatherQuery query, boolean cached) {
+		return KmaForecastAggregator.aggregate(items, query.date())
+				.map(daily -> new WeatherForecastResult(grid, daily,
+						KmaForecastAggregator.hourly(items, query.date()), cached));
 	}
 
 	/**
