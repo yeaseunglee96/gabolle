@@ -9,6 +9,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { sortByDistance } from '@/social/nearby';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { PencilIcon } from '@/components/PencilIcon';
 import { RegionPicker } from '@/components/RegionPicker';
 import { composeEntryFor } from '@/social/composeEntry';
 import { PhotoGrid } from '@/components/PhotoGrid';
@@ -100,6 +101,9 @@ function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: bool
   );
 }
 
+/** 1·2·3위 — 금·은·동. 카드 테두리와 사진 위 딱지가 같은 색이라 순위 카드임이 한눈에 보인다(S15P21E201-1531). */
+const RANK_COLOR: Record<number, string> = { 1: color.rank.first, 2: color.rank.second, 3: color.rank.third };
+
 function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, saved, savingStar, reacting, onUnfollow, onOpen, onOpenAuthor, onReport, onToggleSave, onReact, onQuote }: {
   story: StoryDto; compact: boolean;
   /** 실시간 인기 1·2·3위 — 시안 4 02a 의 검은 네모 숫자. 그 밖은 null(S15P21E201-1431). */
@@ -121,13 +125,14 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
   // 제목은 장소 이름이다. 장소가 없으면 「OO의 기록」 — 비워 두지 않는다(시안 「자주 틀리는 것」 5번).
   const title = story.place?.name ?? txf(tx, '%s의 기록', "%s's record", story.author.displayName);
 
-  return <View style={[styles.card, compact ? styles.cardCompact : styles.cardInGrid]}>
+  const medal = rank ? RANK_COLOR[rank] : undefined;
+
+  return <View style={[styles.card, compact ? styles.cardCompact : styles.cardInGrid, medal ? { borderColor: medal } : null]}>
  {/* 이름과 ⋯ 를 사진 위에 얹지 않는다 (2026-09-18 실기기).
         사진이 밝거나 사진 자체가 다른 화면의 캡처면 어디까지가 이름이고 어디부터
         ⋯ 인지 구분이 안 됐다. 반투명 배경을 깔아도 사진에 흰 면이 많으면 그대로 묻힌다.
         그래서 **사진 위쪽에 자기 줄**을 준다 — 배경 위에 서므로 항상 읽힌다. */}
     <View style={styles.cardHead}>
-      {rank ? <View accessibilityLabel={txf(tx, '%s위', 'Rank %s', String(rank))} style={styles.rankBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{rank}</Text></View> : null}
       {/* 좌상단 작성자 알약 — 사진 위에 얹히므로 배경을 깔아 글자가 읽히게 한다. */}
       <Pressable
         accessibilityRole="link"
@@ -163,6 +168,9 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
     </View>
     <View style={styles.coverWrap}>
       <StoryCover story={story} compact={compact} onOpen={onOpen} />
+      {/* 🔴 순위는 사진 왼쪽 위에 얹는다 — S15P21E201-1531. 머리 줄에 두면 양 끝 정렬 줄에 칸이 하나 늘어
+          작성자가 가운데로 밀렸다(1·2·3위 카드만 프로필 자리가 달랐다). 사진 위라서 바탕을 칠한 딱지로 둔다. */}
+      {rank ? <View pointerEvents="none" accessibilityLabel={txf(tx, '%s위', 'Rank %s', String(rank))} style={[styles.rankBadge, { backgroundColor: medal }]}><Text variant="title" weight="bold" color={color.text.heading}>{txf(tx, '%s위', '#%s', String(rank))}</Text></View> : null}
     </View>
 
     <Pressable accessibilityRole="link" accessibilityLabel={tx('기록 자세히 보기', 'View record details')} onPress={onOpen} style={styles.cardBody}>
@@ -190,6 +198,8 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
         반응 칸은 상세 화면과 같은 부품을 쓴다
     */}
     <StoryReactionRow story={story} reacting={reacting} onReact={onReact} saved={saved} saving={savingStar} onToggleSave={onToggleSave} onQuote={onQuote} />
+    {/* 순위 카드는 테두리를 한 겹 더 — 두께를 바꾸면 안쪽 자리가 1 밀리므로 겉 두께는 두고 안쪽에 덧그린다. */}
+    {medal ? <View pointerEvents="none" style={[styles.rankRing, { borderColor: medal }]} /> : null}
   </View>;
 }
 
@@ -916,7 +926,7 @@ export default function Feed() {
                     둘 겹쳐서, 어느 것이 무엇인지 눌러 봐야 안다.
                     시안은 「orange 기록 FAB」이라고만 했지 글자를 정하지 않았다.
                 */}
-                <Text variant="title" weight="bold" color={color.text.onAction}>✎</Text>
+                <PencilIcon tint={color.text.onAction} />
               </Pressable>
             : null}
         </Animated.View>
@@ -999,7 +1009,8 @@ const styles = StyleSheet.create({
   areaChips: { flexDirection: 'row', gap: spacing[1] },
   areaChip: { minHeight: 36, paddingHorizontal: spacing[4], borderRadius: radius.full, justifyContent: 'center', borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
   areaChipOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  rankBadge: { width: 26, height: 26, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  // 바탕은 순위 색(RANK_COLOR)을 덮어 칠한다. 흰 테두리는 밝은 사진·어두운 사진 어느 쪽에서도 딱지를 띄운다.
+  rankBadge: { position: 'absolute', top: spacing[3], left: spacing[3], minHeight: 38, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 2, borderColor: color.text.onAction, alignItems: 'center', justifyContent: 'center' },
   scopeSegments: { flexDirection: 'row', gap: spacing[1], padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   scopeSegment: { minHeight: 36, paddingHorizontal: spacing[4], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   scopeChips: { flexDirection: 'row', gap: spacing[2] },
@@ -1037,6 +1048,7 @@ const styles = StyleSheet.create({
   // ── 카드 ──────────────────────────────────────────────────
   card: { borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border, overflow: 'hidden' },
   coverWrap: { position: 'relative' },
+  rankRing: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, borderRadius: radius.lg, borderWidth: 1 },
   cover: { width: '100%', backgroundColor: color.surface.soft },
   /** 폰은 높이를 고정한다 — 사진 비율이 제각각이어도 카드 높이가 들쭉날쭉하지 않게. */
   coverPhone: { height: 300 },
