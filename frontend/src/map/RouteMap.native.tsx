@@ -167,7 +167,17 @@ const MAP_BASE_URL = RAW_MAP_BASE_URL.endsWith('/') ? RAW_MAP_BASE_URL.slice(0, 
 const styles = StyleSheet.create({
   shell: { width: '100%', borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.soft },
   map: { width: '100%', height: '100%', backgroundColor: 'transparent' },
-  backRow: { position: 'absolute', left: spacing[3], bottom: spacing[3] },
+  /**
+   * 🔴 **좌하단에 두지 않는다** — S15P21E201-1490(B-12). 카카오 지도는 그 자리에
+   * **로고와 축척 표시**를 그린다. 전에는 `bottom: spacing[3]` 이라 이 단추가 그 둘을
+   * 덮었고, 지도 제공처 표기는 이용약관상 가려지면 안 되는 자리다(iOS build 39 QA).
+   *
+   * 위쪽으로 옮긴다. 이 앱은 카카오 컨트롤(확대·지도 종류)을 **하나도 안 넣으므로**
+   * (`kakaoMapHtml.ts` — addControl 0건) 지도 위쪽은 비어 있다. 단추를 지도 «밖»으로
+   * 내보내지 않는 이유는 이 부품이 `height` 만큼만 자리를 받기 때문이다 — 밖으로
+   * 빼면 부르는 화면 넷의 높이 계산이 같이 어긋난다.
+   */
+  backRow: { position: 'absolute', left: spacing[3], top: spacing[3] },
   empty: { width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft },
   fallback: {
     width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft,
