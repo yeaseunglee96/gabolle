@@ -115,6 +115,7 @@ export default function Welcome() {
       lodging: value.lodging,
       lodgingLat: value.lodgingLat,
       lodgingLng: value.lodgingLng,
+      lodgingPlace: value.lodgingPlace,
       startDate: value.startDate,
       endDate: value.endDate,
       adults: value.adults,

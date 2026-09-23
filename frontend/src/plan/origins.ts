@@ -9,6 +9,31 @@ export type OriginCandidate = {
   source: 'KAKAO_LOCAL' | 'INTERNAL_FALLBACK';
 };
 
+/**
+ * 검색에서 고른 장소를 서버에 넘기는 모양 — 서버 `PlaceSnapshotRequest` 와 같다.
+ *
+ * 카카오·대체 목록 결과에는 우리 place_id 가 없다. 서버가 `(source, externalId)` 로 장소를 찾거나
+ * 만들어 id 를 준다. 🔴 **기록(S15P21E201-1527)과 숙소(S15P21E201-1536)가 이 한 벌을 같이 쓴다** —
+ * 서버도 한 벌이다. 두 벌로 두면 한쪽에만 칸이 늘어 「어떤 화면에서 고른 장소만 안 붙는」 결함이 된다.
+ * 🔴 `source` 는 `OriginCandidate.source` 그대로다 — 바꾸면 이미 적재된 같은 장소와 다른 행이 된다.
+ */
+export type PlaceSnapshot = {
+  source: OriginCandidate['source'];
+  externalId: string;
+  name: string;
+  address?: string;
+  lat: number;
+  lng: number;
+};
+
+/** 후보를 스냅샷으로. 서버가 거절할 모양(이름·출처·식별자 없음, 좌표 한쪽만)이면 안 만든다 — 400 대신 안 싣는다. */
+export function placeSnapshotOf(item: Pick<OriginCandidate, 'name' | 'address'> & Partial<OriginCandidate>): PlaceSnapshot | undefined {
+  const name = (item.name ?? '').trim();
+  if (!name || !item.source || !item.externalId) return undefined;
+  if (!Number.isFinite(item.lat) || !Number.isFinite(item.lng)) return undefined;
+  return { source: item.source, externalId: item.externalId, name, address: item.address || undefined, lat: item.lat as number, lng: item.lng as number };
+}
+
 type OriginSearchDto = {
   items: OriginCandidate[];
   degraded: boolean;
@@ -50,3 +75,17 @@ export const RECOMMENDED_LODGING_AREAS: OriginCandidate[] = [
   { name: '광안리', address: '야경과 카페 골목', lat: 35.1532, lng: 129.1187, externalId: 'lodging-gwangalli', source: 'INTERNAL_FALLBACK' },
   { name: '남포동 · 중앙동', address: '시장·원도심 도보 여행', lat: 35.0980, lng: 129.0306, externalId: 'lodging-nampo', source: 'INTERNAL_FALLBACK' },
 ];
+
+/**
+ * 숙소로 고른 후보를 스냅샷으로 — S15P21E201-1536.
+ *
+ * 🔴 추천 동네(위 RECOMMENDED_LODGING_AREAS)는 장소가 아니라 **동네**다. 주소 칸에는 주소가 아니라
+ *    설명(「바다 앞 호텔·리조트가 모여 있어요」)이 들어 있어서, 그대로 보내면 서버에 주소가 설명 문장인
+ *    장소가 생긴다. 그래서 동네는 이름·좌표만 보낸다 — 좌표로 「어디서 묵나」는 정확히 말해진다.
+ */
+export function lodgingSnapshotOf(candidate: OriginCandidate): PlaceSnapshot | null {
+  const snapshot = placeSnapshotOf(candidate);
+  if (!snapshot) return null;
+  const isArea = RECOMMENDED_LODGING_AREAS.some((area) => area.externalId === candidate.externalId);
+  return isArea ? { ...snapshot, address: undefined } : snapshot;
+}

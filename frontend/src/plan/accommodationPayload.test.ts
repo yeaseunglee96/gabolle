@@ -1,5 +1,6 @@
 import { toCreateTripPayload } from '@/api/tripApi';
 import { EMPTY_PLAN } from '@/plan/PlanProvider';
+import { lodgingSnapshotOf, RECOMMENDED_LODGING_AREAS } from '@/plan/origins';
 
 describe('여행 생성 요청의 숙소와 이용 조건', () => {
   it('검색에서 고른 숙소 식별자와 이용 조건을 서버 계약 이름으로 싣는다', () => {
@@ -22,23 +23,38 @@ describe('여행 생성 요청의 숙소와 이용 조건', () => {
   });
 });
 
-describe('홈 시작 바의 숙소 — 좌표로 싣는다 (S15P21E201-1511)', () => {
-  it('고른 숙소의 좌표와 이름을 백엔드가 정한 칸 이름으로 싣는다', () => {
-    const payload = toCreateTripPayload({ ...EMPTY_PLAN, lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604 });
-    expect(payload).toEqual(expect.objectContaining({ accommodationLat: 35.1587, accommodationLng: 129.1604, accommodationName: '해운대' }));
+describe('홈 시작 바의 숙소 — 스냅샷으로 싣는다 (S15P21E201-1536)', () => {
+  // 🔴 예전에는 accommodationLat·Lng·Name 을 보냈는데 서버에 그 칸이 없어 조용히 버려졌다.
+  const 카카오호텔 = { name: '해운대 어느 호텔', address: '부산 해운대구 우동', lat: 35.1585, lng: 129.1598, externalId: '7913306', source: 'KAKAO_LOCAL' as const };
+
+  it('🔴 검색에서 고른 숙소는 서버 계약 그대로 accommodation 에 싣는다 — source 도 바꾸지 않는다', () => {
+    const lodgingPlace = lodgingSnapshotOf(카카오호텔);
+    const payload = toCreateTripPayload({ ...EMPTY_PLAN, lodging: 카카오호텔.name, lodgingLat: 카카오호텔.lat, lodgingLng: 카카오호텔.lng, lodgingPlace });
+    expect(payload.accommodation).toEqual({ source: 'KAKAO_LOCAL', externalId: '7913306', name: '해운대 어느 호텔', address: '부산 해운대구 우동', lat: 35.1585, lng: 129.1598 });
+    expect(payload).not.toHaveProperty('accommodationLat');
   });
 
-  it('「숙소 아직 안 정했어요」면 셋 다 비운다 — 출발지 기준으로 짠다', () => {
-    const payload = toCreateTripPayload(EMPTY_PLAN);
-    expect(payload.accommodationLat).toBeNull();
-    expect(payload.accommodationLng).toBeNull();
-    expect(payload.accommodationName).toBeNull();
+  it('🔴 추천 동네는 이름·좌표만 — 주소 칸의 설명 문장을 주소로 보내지 않는다', () => {
+    const area = RECOMMENDED_LODGING_AREAS[0];
+    const snapshot = lodgingSnapshotOf(area);
+    expect(snapshot).toEqual({ source: 'INTERNAL_FALLBACK', externalId: 'lodging-haeundae', name: '해운대', address: undefined, lat: 35.1587, lng: 129.1604 });
   });
 
-  it('🔴 좌표가 반쪽이면 아무것도 안 보낸다 — 서버가 반쪽 좌표를 거부한다', () => {
-    const payload = toCreateTripPayload({ ...EMPTY_PLAN, lodging: '해운대', lodgingLat: 35.1587, lodgingLng: null });
-    expect(payload.accommodationLat).toBeNull();
-    expect(payload.accommodationLng).toBeNull();
-    expect(payload.accommodationName).toBeNull();
+  it('「숙소 아직 안 정했어요」면 안 싣는다 — 출발지 기준으로 짠다', () => {
+    expect(toCreateTripPayload(EMPTY_PLAN).accommodation).toBeNull();
+  });
+
+  it('우리 표의 숙소(accommodationPlaceId)가 있으면 스냅샷은 안 싣는다', () => {
+    const payload = toCreateTripPayload({
+      ...EMPTY_PLAN,
+      accommodationPlace: { placeId: 'hotel-1', nameKo: '해운대 호텔', nameEn: 'Haeundae Hotel', address: '부산 해운대구', lat: 35.16, lng: 129.16 },
+      lodgingPlace: lodgingSnapshotOf(카카오호텔),
+    });
+    expect(payload.accommodationPlaceId).toBe('hotel-1');
+    expect(payload.accommodation).toBeNull();
+  });
+
+  it('🔴 서버가 거절할 모양(좌표 한쪽 없음)이면 스냅샷을 안 만든다', () => {
+    expect(lodgingSnapshotOf({ ...카카오호텔, lng: Number.NaN })).toBeNull();
   });
 });

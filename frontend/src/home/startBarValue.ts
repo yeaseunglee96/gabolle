@@ -2,6 +2,7 @@
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 
 import { txf } from '@/i18n/format';
+import type { PlaceSnapshot } from '@/plan/origins';
 
 export type StartBarValue = {
   origin: string;
@@ -11,6 +12,11 @@ export type StartBarValue = {
   lodging: string;
   lodgingLat: number | null;
   lodgingLng: number | null;
+  /**
+   * 고른 숙소를 서버가 장소로 찾거나 만들 수 있게 든다 — S15P21E201-1536. 좌표만으로는 서버가 받을 칸이
+   * 없어 버려졌다. 검색 결과가 아닌 것(미정)은 null.
+   */
+  lodgingPlace: PlaceSnapshot | null;
   startDate: string;
   endDate: string;
   adults: number;
@@ -24,6 +30,7 @@ export const EMPTY_START_BAR: StartBarValue = {
   lodging: '',
   lodgingLat: null,
   lodgingLng: null,
+  lodgingPlace: null,
   startDate: '',
   endDate: '',
   adults: 2,
@@ -62,6 +69,8 @@ export function startBarFromDraft(draft: StartBarValue): StartBarValue {
     lodging: draft.lodging,
     lodgingLat: draft.lodgingLat,
     lodgingLng: draft.lodgingLng,
+    // 예전에 저장된 초안에는 이 칸이 없다 — 없으면 null.
+    lodgingPlace: draft.lodgingPlace ?? null,
     startDate: draft.startDate,
     endDate: draft.endDate,
     // 인원은 0 이 될 수 없다. 빈 초안이면 시작 바의 기본값을 쓴다.
