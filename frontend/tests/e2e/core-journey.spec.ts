@@ -68,8 +68,11 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   //    "부산역 출발"이라는 전혀 다른 요소가 동시에 걸렸다. 주소(origins.ts의
   //    MAJOR_BUSAN_ORIGINS)까지 넣어 그 행만 특정한다.
   await page.getByRole('button', { name: /부산역.*중앙대로/ }).click();
-  // 출발지를 고르면 pickOrigin이 곧바로 날짜 패널을 연다(section을 'dates'로 바꾼다) —
-  // "날짜" 세그먼트를 또 누르면 오히려 toggle()이 닫아 버리므로 누르지 않는다.
+  // 🔴 출발지를 고르면 pickOrigin이 «숙소» 패널을 연다 (S15P21E201-1511 부터 — 출발지 → 숙소 →
+  //    날짜 → 인원). 숙소는 선택이라 탈출구 「숙소 아직 안 정했어요」로 넘기면 날짜 패널이 열린다.
+  //    접근성 이름에 부제(「출발지 기준으로 일정을 짜요」)가 붙으므로 exact 로 찾지 않는다.
+  //    "날짜" 세그먼트를 또 누르면 오히려 toggle()이 닫아 버리므로 누르지 않는다.
+  await page.getByRole('button', { name: /^숙소 아직 안 정했어요/ }).click();
   await page.getByRole('button', { name: '1박 2일', exact: true }).click();
 
   await page.getByRole('button', { name: '일정 물어보기', exact: true }).click();
