@@ -56,9 +56,14 @@ type RouteMapProps = {
   currentLocation?: CurrentLocation | null;
   onBackToList?: () => void;
   height?: number;
+  /**
+   * 고른 곳을 지도 가운데로 옮긴다 — 여행 페이지 시안 「장소를 누르면 지도가 그 위치를 가운데로」
+   * (S15P21E201-1535). 기본은 꺼짐: 다른 화면은 지금처럼 모든 점이 들어오게만 맞춘다.
+   */
+  focusSelected?: boolean;
 };
 
-export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340 }: RouteMapProps) {
+export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340, focusSelected = false }: RouteMapProps) {
   const { tx } = useI18n();
   const hostRef = useRef<HTMLElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -164,7 +169,14 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // 밀어붙인다 — 고정 34px 마커가 화면 대부분을 덮어 장소 이름을 가린다. 하나일 때는
         // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
         const fit = () => { if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, 60, 60, 60, 60); };
-        fit(); fitRef.current = fit;
+        // 🔴 모두 들어오게 맞춘 «다음에» 고른 곳으로 민다(panTo 는 부드럽게 옮긴다). 맞추기를 건너뛰면
+        //    처음 열었을 때 줌이 도시 전체(level 8)라 점들이 한 덩어리로 뭉친다.
+        const selectedStop = focusSelected ? stops.find((stop) => stop.id === selectedId) : undefined;
+        const fitAndFocus = () => {
+          fit();
+          if (selectedStop) map.panTo(new maps.LatLng(selectedStop.latitude, selectedStop.longitude));
+        };
+        fitAndFocus(); fitRef.current = fitAndFocus;
         setFailure(null);
       });
     };
@@ -204,7 +216,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
       script.removeEventListener('load', draw);
       script.removeEventListener('error', onError);
     };
-  }, [appKey, currentLocation, onSelect, points, routes, selectedId, stops]);
+  }, [appKey, currentLocation, focusSelected, onSelect, points, routes, selectedId, stops]);
 
   // 🔴 칸 크기가 바뀌면 지도에 말해 줘야 한다 — S15P21E201-1417. 카카오 지도는 만들어질 때의 크기만 알고,
   //    피드의 지도 시트는 열리면서 커진다. 안 말해 주면 처음 크기만큼(맨 위 한 줄)만 타일을 그리고

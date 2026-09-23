@@ -25,6 +25,7 @@ import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { TripPageDesktop } from '@/trip/page/TripPageDesktop';
 import {
   loadItinerary,
   loadItineraryPace,
@@ -381,7 +382,21 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
 
 type ViewMode = 'day' | 'all';
 
+/**
+ * 넓은 화면(1024~)은 여행 페이지 통합 화면을 연다 — 추천 코스 + 일정을 한 화면에 (S15P21E201-1535, 시안
+ * frontend/docs/design_handoff_trip_page/). 🔴 `?classic=1` 이면 지금까지의 화면 그대로다 — 새 화면의
+ * ⋯ 「일정 편집」이 이리로 온다. 순서·고정·제외·다시 계산·되돌리기는 여기에만 있다.
+ *
+ * 폰과 좁은 화면은 그대로 아래 ItineraryClassic 이다(모바일은 통합 2단계).
+ */
 export default function ItineraryScreen() {
+  const { width } = useLayout();
+  const { id, name, classic } = useLocalSearchParams<{ id: string; name?: string; classic?: string }>();
+  if (isAtLeast(width, 'lg') && classic !== '1' && id) return <TripPageDesktop source={{ kind: 'itinerary', itineraryId: id }} askName={name === '1'} />;
+  return <ItineraryClassic />;
+}
+
+function ItineraryClassic() {
   const router = useRouter();
   const { accessToken } = useAuth();
   // 🔴 `name=1` 은 ③ 코스 고르기에서 넘어왔다는 뜻이다. 그때만 이름 묻기가 **열린 채로**

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Regular.ttf);font-weight:400}
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Bold.ttf);font-weight:700}
+body{margin:0;background:#E4E4E8}
+a{color:#2B2B2E}a:hover{color:#191919}
+</style>
+</helmet>
+<section style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;word-break:keep-all;padding:64px;display:flex;flex-direction:column;gap:48px;color:#191919">
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:1100px">
+    <div style="font-size:13px;font-weight:700;color:#6F6F6F">추천 코스(1a·1b) + 일정(2b·2c) 통합안</div>
+    <div style="font-size:34px;line-height:40px;font-weight:700;letter-spacing:-0.25px">여행 페이지 — 하나로 합치기</div>
+    <div style="font-size:15px;line-height:23px;color:#444;text-wrap:pretty">데스크톱은 진행 순서를 빼고 정보 제공에 집중해요. 장소를 열로 나란히 보고 지도는 오른쪽에 둬요. 모바일은 여행 중에 자주 여는 화면이라 지도 위에 시트를 올리고, 「지금」 카드와 타임라인을 앞에 뒀어요. 추천 코스는 두 화면 모두 한 줄 요약으로 들어가요. 각 판은 직접 눌러서 다른 상태로 바꿔 볼 수 있어요. 날씨 수치는 예시예요.</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="font-size:18px;line-height:24px;font-weight:700">데스크톱 · 1440 × 900</div>
+    <div style="display:flex;flex-wrap:wrap;gap:48px">
+      <div id="3a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">3a</span><span style="font-size:15px;font-weight:700">기본 — 정보 비교</span></div><dc-import name="TripPageDesktop" view="default" hint-size="1440px,900px"></dc-import></div>
+      <div id="3b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">3b</span><span style="font-size:15px;font-weight:700">큰 지도 — 오른쪽 위 전환 버튼</span></div><dc-import name="TripPageDesktop" view="map" hint-size="1440px,900px"></dc-import></div>
+      <div id="3c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">3c</span><span style="font-size:15px;font-weight:700">동행 초대 — 가운데 창</span></div><dc-import name="TripPageDesktop" view="invite" hint-size="1440px,900px"></dc-import></div>
+      <div id="3d" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">3d</span><span style="font-size:15px;font-weight:700">날씨 — 오른쪽 서랍</span></div><dc-import name="TripPageDesktop" view="weather" hint-size="1440px,900px"></dc-import></div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="font-size:18px;line-height:24px;font-weight:700">모바일 · 390</div>
+    <div style="display:flex;flex-wrap:wrap;gap:48px">
+      <div id="4a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">4a</span><span style="font-size:15px;font-weight:700">기본 — 지도 위 시트</span></div><dc-import name="TripPageMobile" view="default" hint-size="410px,864px"></dc-import></div>
+      <div id="4b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">4b</span><span style="font-size:15px;font-weight:700">지도 보기 — 시트 내림 + 정차지 카드</span></div><dc-import name="TripPageMobile" view="map" hint-size="410px,864px"></dc-import></div>
+      <div id="4c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">4c</span><span style="font-size:15px;font-weight:700">동행 초대 — 아래 시트</span></div><dc-import name="TripPageMobile" view="invite" hint-size="410px,864px"></dc-import></div>
+      <div id="4d" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">4d</span><span style="font-size:15px;font-weight:700">날씨 — 아래 시트</span></div><dc-import name="TripPageMobile" view="weather" hint-size="410px,864px"></dc-import></div>
+    </div>
+  </div>
+</section>
+</x-dc>
+</body>
+</html>

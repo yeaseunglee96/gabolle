@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Regular.ttf);font-weight:400}
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Medium.ttf);font-weight:500}
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Bold.ttf);font-weight:700}
+body{margin:0;background:#E4E4E8}
+a{color:#2B2B2E}a:hover{color:#191919}
+</style>
+</helmet>
+<section style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;word-break:keep-all;padding:64px;display:flex;flex-direction:column;gap:48px;color:#191919">
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:1200px">
+    <div style="font-size:13px;font-weight:700;color:#6F6F6F">app/trips/[id]/recommendations.tsx · app/trips/[id]/itinerary.tsx</div>
+    <div style="font-size:34px;line-height:40px;font-weight:700;letter-spacing:-0.25px">추천 코스 → 일정 — 배포본 원본</div>
+    <div style="font-size:15px;line-height:23px;color:#444;text-wrap:pretty">배포본 코드를 그대로 옮겼어요. 지도는 캡처한 카카오맵을 깔았어요(마커는 캡처에 들어 있음). 코스 바 → 시트 열기, 정차지 카드 선택, 일정의 행 펼치기·고정을 눌러 볼 수 있어요.</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="font-size:18px;line-height:24px;font-weight:700">① 추천 코스 고르기 · /trips/[id]/recommendations</div>
+    <div style="display:flex;flex-wrap:wrap;gap:64px;align-items:flex-start">
+
+      <div id="1a" style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">1a</span><span style="font-size:15px;font-weight:700">모바일 · 390</span></div>
+        <div style="width:390px;height:844px;border-radius:48px;border:10px solid #191919;background:#F5F5F7;overflow:hidden;position:relative;box-sizing:content-box">
+          <div style="height:47px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;font-size:15px;font-weight:700"><span>9:41</span><span style="width:24px;height:11px;border-radius:3px;border:1.5px solid #191919"></span></div>
+          <div style="height:797px;overflow-y:auto;scrollbar-width:none;box-sizing:border-box;padding:24px 24px 138px">
+            <div style="min-height:44px;display:flex;align-items:center;justify-content:space-between">
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:24px;cursor:pointer">‹</div>
+              <span style="font-size:13px;line-height:18px;font-weight:700">추천 코스</span>
+              <div style="width:44px;height:44px"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">추천 코스 고르기</span>
+                <span style="font-size:34px;line-height:40px;letter-spacing:-0.25px;font-weight:700">추천 코스</span>
+                <span style="font-size:13px;line-height:18px;color:#6F6F6F">지금은 만들어진 일정 하나만 보여 드려요. 세 가지 코스 비교는 준비 중이에요.</span>
+              </div>
+              <div style="border-radius:20px;border:2px solid #D83A48;background:#FFFFFF;overflow:hidden;box-shadow:0 6px 16px rgba(216,58,72,0.16)">
+                <div style="display:flex;flex-direction:column;gap:8px;padding:16px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="padding:4px 12px;border-radius:999px;background:#191919;color:#FFFFFF;font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">✓ 내 일정으로</div>
+                    <div onClick="{{ toggleSave }}" style="margin-left:auto;width:32px;height:32px;flex:none;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:{{ saveColor }};cursor:pointer">{{ saveGlyph }}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="flex:1;min-width:0;font-size:18px;line-height:24px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">2026-09-23 ~ 2026-09-23</span>
+                    <span style="flex:none;padding:2px 8px;border-radius:999px;background:#FFF3DC;color:#B06A00;font-size:13px;line-height:18px;font-weight:700">추정</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="flex:none;padding:2px 8px;border-radius:999px;background:#E9E9EC;font-size:13px;line-height:18px;font-weight:700">1일차</span>
+                    <span style="flex:1;min-width:0;font-size:13px;line-height:18px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">카페오뜨 → 늘리 → 무슈뱅상 → 쇼진</span>
+                  </div>
+                  <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:4px">
+                    <div style="display:flex;align-items:baseline;gap:4px"><span style="font-size:18px;line-height:24px;font-weight:700">22.0만원</span><span style="font-size:13px;line-height:18px;color:#6F6F6F">예상</span></div>
+                    <div style="min-height:44px;display:flex;align-items:center;padding:0 16px;border-radius:999px;background:#191919;color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer">이 코스로 일정 만들기 →</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:absolute;left:16px;right:16px;bottom:34px;margin:0 auto;height:{{ barH }};max-width:{{ barW }};overflow:hidden;border-radius:20px;background:#FFFFFF;box-shadow:0 -2px 14px rgba(25,25,25,0.10);z-index:30;transition:height 420ms cubic-bezier(0.34,1.3,0.64,1),max-width 420ms cubic-bezier(0.34,1.3,0.64,1)">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;gap:12px;padding:0 8px 0 16px;opacity:{{ rowOp }};pointer-events:{{ rowPe }};transition:opacity 300ms ease">
+              <div style="flex:1;min-width:0">
+                <div style="font-size:15px;line-height:23px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">22.0만원 예상</div>
+                <div style="font-size:13px;line-height:18px;color:#6F6F6F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">장소 4곳 · 이동 116분</div>
+              </div>
+              <div onClick="{{ openSheet }}" style="min-height:44px;display:flex;align-items:center;padding:0 16px;border-radius:999px;background:#D83A48;color:#FFFFFF;font-size:15px;font-weight:700;white-space:nowrap;cursor:pointer">해당 코스 일정 보기</div>
+            </div>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;padding:12px 12px 16px;opacity:{{ sheetOp }};pointer-events:{{ sheetPe }};transition:opacity 300ms ease">
+              <div onClick="{{ closeSheet }}" style="height:20px;flex:none;display:flex;align-items:center;justify-content:center;cursor:pointer"><div style="width:36px;height:4px;border-radius:999px;background:#DADCE2"></div></div>
+              <div style="flex:none">
+                <div style="font-size:18px;line-height:24px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">2026-09-23 ~ 2026-09-23</div>
+                <div style="font-size:13px;line-height:18px;color:#6F6F6F">장소 4곳 · 이동 116분</div>
+              </div>
+              <div style="flex:1;min-height:0;border-radius:20px;border:1px solid #DADCE2;background-color:#E9E9EC;background-image:url(assets/kakao-course-map.jpg);background-size:auto 100%;background-position:18% center"></div>
+              <div style="flex:none;max-height:132px;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:flex-start;gap:12px"><span style="width:44px;flex:none;font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ s.time }}</span><span style="flex:1;min-width:0;font-size:15px;line-height:23px;font-weight:700">{{ s.name }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="1b" style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">1b</span><span style="font-size:15px;font-weight:700">데스크톱 · 1920 × 1000</span></div>
+        <div style="width:1920px;height:1000px;display:flex;background:#F5F5F7;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 #DADCE2">
+          <div style="width:600px;flex:none;height:100%;overflow-y:auto;box-sizing:border-box;padding:24px;display:flex;flex-direction:column;gap:16px;background:#F5F5F7">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">추천 코스 고르기</span>
+              <span style="font-size:34px;line-height:40px;letter-spacing:-0.25px;font-weight:700">추천 코스</span>
+              <span style="font-size:13px;line-height:18px;color:#6F6F6F">지금은 만들어진 일정 하나만 보여 드려요. 세 가지 코스 비교는 준비 중이에요.</span>
+            </div>
+            <div style="border-radius:20px;border:2px solid #D83A48;background:#FFFFFF;overflow:hidden;box-shadow:0 6px 16px rgba(216,58,72,0.16)">
+              <div style="display:flex;flex-direction:column;gap:8px;padding:16px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="padding:4px 12px;border-radius:999px;background:#191919;color:#FFFFFF;font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">✓ 내 일정으로</div>
+                  <div onClick="{{ toggleSave }}" style="margin-left:auto;width:32px;height:32px;flex:none;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:{{ saveColor }};cursor:pointer">{{ saveGlyph }}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="flex:1;min-width:0;font-size:18px;line-height:24px;font-weight:700">2026-09-23 ~ 2026-09-23</span>
+                  <span style="flex:none;padding:2px 8px;border-radius:999px;background:#FFF3DC;color:#B06A00;font-size:13px;line-height:18px;font-weight:700">추정</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="flex:none;padding:2px 8px;border-radius:999px;background:#E9E9EC;font-size:13px;line-height:18px;font-weight:700">1일차</span>
+                  <span style="flex:1;min-width:0;font-size:13px;line-height:18px;color:#444">카페오뜨 → 늘리 → 무슈뱅상 → 쇼진</span>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:4px">
+                  <div style="display:flex;align-items:baseline;gap:4px"><span style="font-size:18px;line-height:24px;font-weight:700">22.0만원</span><span style="font-size:13px;line-height:18px;color:#6F6F6F">예상</span></div>
+                  <div style="min-height:44px;display:flex;align-items:center;padding:0 16px;border-radius:999px;background:#191919;color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer">이 코스로 일정 만들기 →</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1;min-width:0;position:relative;background-color:#E9E9EC;background-image:url(assets/kakao-course-map.jpg);background-size:auto 100%;background-position:67% center;background-repeat:no-repeat">
+            <div style="position:absolute;top:12px;right:12px;padding:8px 12px;border-radius:14px;background:#FFFFFF;box-shadow:0 2px 8px rgba(25,25,25,0.08);font-size:13px;line-height:18px;font-weight:700">장소 4곳 · 이동 116분</div>
+            <div style="position:absolute;left:0;right:0;bottom:24px;padding-top:24px">
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(233,233,236,0) 0%,#E9E9EC 40%)"></div>
+              <div style="position:relative;display:flex;align-items:flex-start;gap:8px;padding:16px">
+                <sc-for list="{{ strip }}" as="s" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div onClick="{{ s.pick }}" style="width:150px;box-sizing:border-box;display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:14px;border:2px solid {{ s.bd }};background:#FFFFFF;cursor:pointer;transition:border-color 200ms ease">
+                      <div style="display:flex;align-items:center;gap:8px"><div style="width:22px;height:22px;border-radius:999px;background:#191919;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ s.n }}</div><span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ s.time }}</span></div>
+                      <span style="font-size:15px;line-height:23px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</span>
+                    </div>
+                    <sc-if value="{{ s.hasNext }}" hint-placeholder-val="{{ true }}">
+                      <div style="width:44px;display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F;white-space:nowrap">{{ s.gap }}</span><div style="align-self:stretch;border-top:2px dashed #DADCE2"></div></div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="font-size:18px;line-height:24px;font-weight:700">② 일정 · /trips/[id]/itinerary</div>
+    <div style="display:flex;flex-wrap:wrap;gap:64px;align-items:flex-start">
+
+      <div id="2a" style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">2a</span><span style="font-size:15px;font-weight:700">모바일 · 390</span></div>
+        <div style="width:390px;height:844px;border-radius:48px;border:10px solid #191919;background:#F5F5F7;overflow:hidden;position:relative;box-sizing:content-box;display:flex;flex-direction:column">
+          <div style="height:47px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 32px;font-size:15px;font-weight:700"><span>9:41</span><span style="width:24px;height:11px;border-radius:3px;border:1.5px solid #191919"></span></div>
+          <div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;box-sizing:border-box;padding:12px 24px 32px">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <div style="width:44px;height:44px;margin-left:-12px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer">‹</div>
+                <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer">⋯</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <span style="flex:1;min-width:0;margin-top:8px;font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">부산 여행</span>
+                <div style="min-height:32px;display:flex;align-items:center;padding:0 12px;box-sizing:border-box;border-radius:999px;background:#FFFFFF;border:1px solid #EBEBEF;font-size:13px;font-weight:700;cursor:pointer">이름 바꾸기</div>
+              </div>
+              <span style="font-size:15px;line-height:23px;color:#6F6F6F">1일 · 4곳 · 약 22만원</span>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:20px;background:#191919">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                  <div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;border-radius:999px;background:#F25454"></div></div><span style="font-size:13px;line-height:18px;font-weight:700;color:#D83A48">지금</span></div>
+                  <span style="font-size:13px;line-height:18px;color:#DADADF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">14:40 · 예정보다 4시간 55분 늦음</span>
+                </div>
+                <span style="font-size:18px;line-height:24px;font-weight:700;color:#FFFFFF">다음은 카페오뜨</span>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px">
+                  <div style="min-height:40px;display:flex;align-items:center;padding:0 16px;border-radius:14px;background:#D83A48;color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer">▶ 출발</div>
+                  <span style="flex:1;min-width:140px;text-align:right;font-size:13px;line-height:18px;color:#DADADF">출발을 누르면 위치 추적이 시작돼요</span>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+                <sc-for list="{{ heroActions }}" as="a" hint-placeholder-count="3">
+                  <div style="min-height:44px;display:flex;align-items:center;padding:0 12px;box-sizing:border-box;border-radius:14px;background:#FFFFFF;border:1px solid #EBEBEF;font-size:13px;font-weight:700;cursor:pointer">{{ a }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:16px">
+              <span style="font-size:15px;line-height:23px;font-weight:700">9월 23일 (수)</span>
+              <span style="font-size:13px;line-height:18px;color:#6F6F6F">도보 거리 미집계 · 220,400원</span>
+            </div>
+            <div style="margin-top:16px;padding:12px;border-radius:14px;background:#F0F0F3;font-size:13px;line-height:18px;font-weight:700;color:#B02A38">1곳이 하루를 넘길 위험이 있어요. (기록이 적어 추정값이에요)</div>
+
+            <div style="margin-top:12px;margin-bottom:16px">
+              <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+                <div>
+                  <div style="display:flex;align-items:stretch;gap:12px;min-height:44px">
+                    <div style="width:32px;flex:none;display:flex;flex-direction:column;align-items:center"><div style="width:3px;flex:1;min-height:16px;border-radius:999px;background:#191919"></div></div>
+                    <div style="flex:1;display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:700">{{ s.leg }}</div>
+                  </div>
+                  <div style="display:flex;gap:12px;align-items:stretch">
+                    <div style="width:32px;flex:none;display:flex;flex-direction:column;align-items:center">
+                      <div style="width:40px;height:40px;flex:none;box-sizing:border-box;border-radius:999px;border:{{ s.nodeBd }};background:{{ s.nodeBg }};color:{{ s.nodeFg }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ s.n }}</div>
+                      <sc-if value="{{ s.hasNext }}" hint-placeholder-val="{{ true }}"><div style="width:3px;flex:1;min-height:16px;border-radius:999px;background:#191919"></div></sc-if>
+                    </div>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding-bottom:12px">
+                      <div style="display:flex;align-items:flex-start;gap:8px">
+                        <div style="width:56px;height:56px;flex:none;border-radius:14px;background:#F0F0F3;display:flex;align-items:center;justify-content:center;font-size:15px">{{ s.glyph }}</div>
+                        <div onClick="{{ s.toggle }}" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;cursor:pointer">
+                          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+                            <span style="font-size:15px;line-height:23px;font-weight:700">{{ s.name }}</span>
+                            <span style="padding:2px 8px;border-radius:999px;background:#FFF3DC;color:#B06A00;font-size:13px;line-height:18px;font-weight:700">추정</span>
+                            <sc-if value="{{ s.risk }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 8px;border-radius:999px;background:#FEF0F1;color:#B02A38;font-size:13px;line-height:18px;font-weight:700">하루 넘길 위험</span></sc-if>
+                          </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px">
+                          <span style="font-size:15px;line-height:23px;font-weight:700">{{ s.time }}</span>
+                          <div onClick="{{ s.lock }}" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer">{{ s.lockGlyph }}</div>
+                        </div>
+                      </div>
+                      <sc-if value="{{ s.open }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #EBEBEF">
+                          <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;line-height:18px;color:#6F6F6F"><span>{{ s.leg }}</span><span>{{ s.cost }}</span></div>
+                          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px">
+                            <span style="font-size:13px;line-height:18px;font-weight:700;color:{{ s.paceColor }}">{{ s.paceText }}</span>
+                            <div style="min-height:44px;display:flex;align-items:center;padding:0 12px;box-sizing:border-box;border-radius:999px;border:1px solid #191919;font-size:13px;font-weight:700;cursor:pointer">도착 찍기</div>
+                          </div>
+                          <div style="min-height:44px;display:flex;align-items:center;justify-content:center;padding:0 8px;border-radius:999px;background:#FEF0F1;color:#B02A38;font-size:13px;font-weight:700;cursor:pointer">이 장소 제외</div>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <sc-for list="{{ summaryCells }}" as="c" hint-placeholder-count="3">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;background:#FFFFFF;border:1px solid #EBEBEF">
+                  <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ c.label }}</span>
+                  <span style="font-size:{{ c.size }};line-height:{{ c.lh }};font-weight:{{ c.weight }};color:{{ c.color }}">{{ c.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;padding:16px;border-radius:20px;background:#FFFFFF;border:1px solid #EBEBEF">
+              <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">예산 대비</span>
+              <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px">
+                <div style="flex:1;min-width:120px"><span style="font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">220,400원</span></div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span style="font-size:13px;line-height:18px;color:#6F6F6F">예산 300,000원</span><span style="font-size:13px;line-height:18px;font-weight:700;color:#2E9E5B">예산에 맞아요 · 8만원 남음</span></div>
+              </div>
+              <div style="display:flex;height:10px;border-radius:999px;overflow:hidden;background:#E9E9EC"><div style="flex:0.7347;background:#2B2B2E"></div><div style="flex:0.2653"></div></div>
+              <div style="display:flex;gap:2px;height:6px;border-radius:999px;overflow:hidden"><div style="flex:210000;background:#2B2B2E;border-radius:999px"></div><div style="flex:10400;background:#6F6F6F;border-radius:999px"></div></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ budgetRows }}" as="b" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="width:8px;height:8px;flex:none;border-radius:999px;background:{{ b.dot }}"></div>
+                    <span style="flex:1;min-width:0;font-size:13px;line-height:18px">{{ b.label }}</span>
+                    <span style="font-size:13px;line-height:18px;color:#6F6F6F">{{ b.count }}</span>
+                    <span style="min-width:72px;text-align:right;font-size:13px;line-height:18px;font-weight:{{ b.weight }};color:{{ b.color }}">{{ b.value }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <span style="font-size:13px;line-height:18px;color:#6F6F6F">교통은 구간 거리로 추정한 값이에요 · 입장료·식비는 장소 자료 기준</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;padding:16px;border-radius:20px;background:#FFFFFF;border:1px solid #EBEBEF">
+              <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">1일차 이동 요약</span>
+              <span style="font-size:13px;line-height:18px;color:#6F6F6F">도보 거리 — 대중교통 구간은 재지 않아요</span>
+              <span style="font-size:13px;line-height:18px;color:#444">이동 합계 116분</span>
+              <span style="font-size:13px;line-height:18px;color:#6F6F6F">대중교통 안내 — 아직 없어요</span>
+            </div>
+          </div>
+          <div style="flex:none;padding:8px 24px 106px;background:#F5F5F7">
+            <div style="min-height:48px;border-radius:14px;background:#E9E9EC;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer">순서 수정</div>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:0;padding-bottom:34px;display:flex;justify-content:center;z-index:30">
+            <div style="width:328px;height:64px;padding:0 8px;box-sizing:border-box;display:flex;align-items:center;border-radius:20px;background:#FFFFFF;box-shadow:0 -2px 14px rgba(25,25,25,0.10)">
+              <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+                <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+                  <div style="width:32px;height:32px;border-radius:16px;background:{{ t.wrapBg }};display:flex;align-items:center;justify-content:center"><img src="{{ t.icon }}" alt="" style="width:20px;height:20px;object-fit:contain;opacity:{{ t.op }};filter:{{ t.filter }}"></div>
+                  <span style="font-size:12px;line-height:16px;letter-spacing:0.2px;font-weight:{{ t.weight }};color:{{ t.color }}">{{ t.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="2c" style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="background:#D83A48;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">2c</span><span style="font-size:15px;font-weight:700">모바일 · 개편안 (카드 타임라인)</span></div>
+        <div style="width:390px;height:844px;border-radius:48px;border:10px solid #191919;background:#F5F5F7;overflow:hidden;position:relative;box-sizing:content-box;display:flex;flex-direction:column">
+          <div style="height:47px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 32px;font-size:15px;font-weight:700"><span>9:41</span><span style="width:24px;height:11px;border-radius:3px;border:1.5px solid #191919"></span></div>
+          <div style="height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px">
+            <div style="width:44px;height:44px;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;cursor:pointer">‹</div>
+            <span style="font-size:18px;line-height:24px;font-weight:700">부산 여행</span>
+            <div style="width:44px;height:44px;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;cursor:pointer">⋯</div>
+          </div>
+          <div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;box-sizing:border-box;padding:4px 16px 130px;display:flex;flex-direction:column;gap:12px">
+
+            <div style="border-radius:20px;background:#FFFFFF;padding:12px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;gap:12px;align-items:center">
+                <div role="img" style="width:104px;height:104px;flex:none;border-radius:14px;background-color:#E9E9EC;background-image:url(assets/busan-night.jpg);background-size:cover;background-position:center"></div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:22px;line-height:28px;letter-spacing:-0.2px;font-weight:700">부산 여행</span>
+                  <span style="font-size:15px;line-height:23px;color:#6F6F6F">1일 · 4곳 · 약 22만원</span>
+                  <span style="margin-top:8px;font-size:13px;line-height:18px;color:#444">9월 23일 (수)</span>
+                </div>
+              </div>
+              <div style="height:1px;background:#EBEBEF"></div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <sc-for list="{{ heroActions }}" as="a" hint-placeholder-count="3">
+                  <div style="min-height:40px;display:flex;align-items:center;padding:0 14px;border-radius:14px;background:#F0F0F3;font-size:13px;font-weight:700;cursor:pointer">{{ a }}</div>
+                </sc-for>
+                <div style="margin-left:auto;min-height:40px;display:flex;align-items:center;padding:0 12px;font-size:13px;font-weight:700;color:#6F6F6F;cursor:pointer">이름 바꾸기</div>
+              </div>
+            </div>
+
+            <div style="border-radius:20px;background:#191919;padding:16px;display:flex;align-items:center;gap:12px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:999px;background:#F25454"></div><span style="font-size:13px;line-height:18px;font-weight:700;color:#D83A48">지금</span><span style="font-size:13px;line-height:18px;color:#DADADF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">· 14:40 · 4시간 55분 늦음</span></div>
+                <span style="font-size:18px;line-height:24px;font-weight:700;color:#FFFFFF">다음은 카페오뜨</span>
+                <span style="font-size:13px;line-height:18px;color:#DADADF">출발을 누르면 위치 추적이 시작돼요</span>
+              </div>
+              <div style="flex:none;min-height:44px;display:flex;align-items:center;padding:0 16px;border-radius:14px;background:#D83A48;color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer">▶ 출발</div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:14px;background:#FEF0F1">
+              <span style="font-size:13px;line-height:18px;font-weight:700;color:#B02A38">1곳이 하루를 넘길 위험이 있어요</span>
+              <span style="font-size:13px;line-height:18px;color:#B02A38">· 기록이 적어 추정값</span>
+            </div>
+
+            <div style="position:relative;display:flex;flex-direction:column;gap:0;margin-top:4px">
+              <div style="position:absolute;left:23px;top:36px;bottom:40px;width:2px;border-radius:999px;background:#DADCE2"></div>
+              <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:48px minmax(0,1fr);column-gap:8px">
+                  <div></div>
+                  <div style="height:32px;display:flex;align-items:center;padding-left:4px;font-size:12px;line-height:16px;letter-spacing:0.2px;font-weight:700;color:#8B8B8B">{{ s.leg }}</div>
+                  <div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:{{ s.railJustify }};padding-top:{{ s.railPad }}">
+                    <sc-if value="{{ s.first }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;background:#F5F5F7;padding:2px 0 4px;position:relative;z-index:1">
+                        <span style="font-size:13px;line-height:18px;font-weight:700">수</span>
+                        <div style="width:32px;height:32px;border-radius:999px;background:#D83A48;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">23</div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ s.notFirst }}" hint-placeholder-val="{{ true }}">
+                      <div style="width:10px;height:10px;border-radius:999px;background:#DADCE2;box-shadow:0 0 0 4px #F5F5F7;position:relative;z-index:1"></div>
+                    </sc-if>
+                  </div>
+                  <div style="border-radius:20px;background:#FFFFFF;padding:10px;display:flex;flex-direction:column;gap:10px">
+                    <div style="display:flex;align-items:center;gap:12px">
+                      <div style="width:64px;height:64px;flex:none;border-radius:14px;background:#F0F0F3;display:flex;align-items:center;justify-content:center;font-size:28px">{{ s.glyph }}</div>
+                      <div onClick="{{ s.toggle }}" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;cursor:pointer">
+                        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px">
+                          <span style="font-size:15px;line-height:21px;font-weight:700">{{ s.name }}</span>
+                          <span style="padding:1px 6px;border-radius:999px;background:#FFF3DC;color:#B06A00;font-size:12px;line-height:16px;font-weight:700">추정</span>
+                        </div>
+                        <span style="font-size:13px;line-height:18px;color:#6F6F6F">{{ s.time }} · {{ s.cost }}</span>
+                        <sc-if value="{{ s.risk }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;line-height:16px;font-weight:700;color:#B02A38">하루 넘길 위험</span></sc-if>
+                      </div>
+                      <div onClick="{{ s.lock }}" style="width:40px;height:40px;flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer">{{ s.lockGlyph }}</div>
+                    </div>
+                    <sc-if value="{{ s.open }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid #EBEBEF">
+                        <span style="flex:1;min-width:0;font-size:13px;line-height:18px;font-weight:700;color:{{ s.paceColor }}">{{ s.paceText }}</span>
+                        <div style="min-height:40px;display:flex;align-items:center;padding:0 12px;border-radius:14px;background:#F0F0F3;font-size:13px;font-weight:700;cursor:pointer">도착 찍기</div>
+                        <div style="min-height:40px;display:flex;align-items:center;padding:0 12px;border-radius:14px;background:#FEF0F1;color:#B02A38;font-size:13px;font-weight:700;cursor:pointer">제외</div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <sc-for list="{{ summaryCells }}" as="c" hint-placeholder-count="3">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;background:#FFFFFF">
+                  <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ c.label }}</span>
+                  <span style="font-size:{{ c.size }};line-height:{{ c.lh }};font-weight:{{ c.weight }};color:{{ c.color }}">{{ c.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="border-radius:20px;background:#FFFFFF;padding:16px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+                <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">예산 대비</span>
+                <span style="font-size:13px;line-height:18px;font-weight:700;color:#2E9E5B">8만원 남음</span>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">220,400원</span><span style="font-size:13px;line-height:18px;color:#6F6F6F">/ 300,000원</span></div>
+              <div style="display:flex;height:10px;border-radius:999px;overflow:hidden;background:#E9E9EC"><div style="flex:0.7347;background:#2B2B2E"></div><div style="flex:0.2653"></div></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ budgetRows }}" as="b" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="width:8px;height:8px;flex:none;border-radius:999px;background:{{ b.dot }}"></div>
+                    <span style="flex:1;min-width:0;font-size:13px;line-height:18px">{{ b.label }}</span>
+                    <span style="font-size:13px;line-height:18px;color:#6F6F6F">{{ b.count }}</span>
+                    <span style="min-width:72px;text-align:right;font-size:13px;line-height:18px;font-weight:{{ b.weight }};color:{{ b.color }}">{{ b.value }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="min-height:48px;border-radius:14px;background:#E9E9EC;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer">순서 수정</div>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:0;padding-bottom:34px;display:flex;justify-content:center;z-index:30">
+            <div style="width:328px;height:64px;padding:0 8px;box-sizing:border-box;display:flex;align-items:center;border-radius:20px;background:#FFFFFF;box-shadow:0 -2px 14px rgba(25,25,25,0.10)">
+              <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+                <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+                  <div style="width:32px;height:32px;border-radius:16px;background:{{ t.wrapBg }};display:flex;align-items:center;justify-content:center"><img src="{{ t.icon }}" alt="" style="width:20px;height:20px;object-fit:contain;opacity:{{ t.op }};filter:{{ t.filter }}"></div>
+                  <span style="font-size:12px;line-height:16px;letter-spacing:0.2px;font-weight:{{ t.weight }};color:{{ t.color }}">{{ t.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="2b" style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">2b</span><span style="font-size:15px;font-weight:700">데스크톱 · 1440</span></div>
+        <div style="width:1440px;background:#F5F5F7;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 #DADCE2;box-sizing:border-box;padding:12px 24px 32px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <div style="width:44px;height:44px;margin-left:-12px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer">‹</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer">⋯</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="flex:1;min-width:0;margin-top:8px;font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">부산 여행</span>
+              <div style="min-height:32px;display:flex;align-items:center;padding:0 12px;box-sizing:border-box;border-radius:999px;background:#FFFFFF;border:1px solid #EBEBEF;font-size:13px;font-weight:700;cursor:pointer">이름 바꾸기</div>
+            </div>
+            <span style="font-size:15px;line-height:23px;color:#6F6F6F">1일 · 4곳 · 약 22만원</span>
+            <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:20px;background:#191919">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;border-radius:999px;background:#F25454"></div></div><span style="font-size:13px;line-height:18px;font-weight:700;color:#D83A48">지금</span></div>
+                <span style="font-size:13px;line-height:18px;color:#DADADF">14:40 · 예정보다 4시간 55분 늦음</span>
+              </div>
+              <span style="font-size:18px;line-height:24px;font-weight:700;color:#FFFFFF">다음은 카페오뜨</span>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px">
+                <div style="min-height:40px;display:flex;align-items:center;padding:0 16px;border-radius:14px;background:#D83A48;color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer">▶ 출발</div>
+                <span style="flex:1;min-width:140px;text-align:right;font-size:13px;line-height:18px;color:#DADADF">출발을 누르면 위치 추적이 시작돼요</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+              <sc-for list="{{ heroActions }}" as="a" hint-placeholder-count="3">
+                <div style="min-height:44px;display:flex;align-items:center;padding:0 12px;box-sizing:border-box;border-radius:14px;background:#FFFFFF;border:1px solid #EBEBEF;font-size:13px;font-weight:700;cursor:pointer">{{ a }}</div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:16px">
+            <span style="font-size:15px;line-height:23px;font-weight:700">9월 23일 (수)</span>
+            <span style="font-size:13px;line-height:18px;color:#6F6F6F">도보 거리 미집계 · 220,400원</span>
+          </div>
+          <div style="margin-top:16px;padding:12px;border-radius:14px;background:#F0F0F3;font-size:13px;line-height:18px;font-weight:700;color:#B02A38">1곳이 하루를 넘길 위험이 있어요. (기록이 적어 추정값이에요)</div>
+
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:12px 0;overflow-x:auto">
+            <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 8px">
+                  <div style="width:72px;height:3px;border-radius:999px;background:#191919"></div>
+                  <span style="font-size:13px;line-height:18px;font-weight:700;white-space:nowrap">{{ s.leg }}</span>
+                </div>
+                <div style="width:112px;display:flex;flex-direction:column;align-items:center;gap:4px">
+                  <div style="width:40px;height:40px;border-radius:999px;background:{{ s.stripNode }};color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ s.n }}</div>
+                  <span style="font-size:13px;line-height:18px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:112px">{{ s.name }}</span>
+                  <span style="font-size:13px;line-height:18px;color:#6F6F6F">{{ s.time }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:24px">
+            <div style="flex:1;min-width:0;margin-top:12px;margin-bottom:16px">
+              <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+                <div style="display:flex;gap:12px;align-items:stretch;border-bottom:1px solid #EBEBEF;padding:12px 0">
+                  <div style="width:32px;flex:none;display:flex;flex-direction:column;align-items:center">
+                    <div style="width:40px;height:40px;flex:none;box-sizing:border-box;border-radius:999px;border:{{ s.nodeBd }};background:{{ s.nodeBg }};color:{{ s.nodeFg }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ s.n }}</div>
+                  </div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding-bottom:12px">
+                    <div style="display:flex;align-items:flex-start;gap:8px">
+                      <div style="width:72px;height:72px;flex:none;border-radius:14px;background:#F0F0F3;display:flex;align-items:center;justify-content:center;font-size:18px">{{ s.glyph }}</div>
+                      <div onClick="{{ s.toggle }}" style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:4px;cursor:pointer">
+                        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+                          <span style="font-size:18px;line-height:24px;font-weight:700">{{ s.name }}</span>
+                          <span style="padding:2px 8px;border-radius:999px;background:#FFF3DC;color:#B06A00;font-size:13px;line-height:18px;font-weight:700">추정</span>
+                          <sc-if value="{{ s.risk }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 8px;border-radius:999px;background:#FEF0F1;color:#B02A38;font-size:13px;line-height:18px;font-weight:700">하루 넘길 위험</span></sc-if>
+                        </div>
+                      </div>
+                      <div style="display:flex;align-items:flex-start;gap:4px">
+                        <div style="display:flex;flex-direction:column;align-items:flex-end">
+                          <span style="font-size:18px;line-height:24px;font-weight:700">{{ s.time }}</span>
+                          <span style="font-size:13px;line-height:18px;color:#6F6F6F">{{ s.cost }}</span>
+                        </div>
+                        <div onClick="{{ s.lock }}" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer">{{ s.lockGlyph }}</div>
+                      </div>
+                    </div>
+                    <sc-if value="{{ s.open }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #EBEBEF">
+                        <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;line-height:18px;color:#6F6F6F"><span>{{ s.leg }}</span><span>{{ s.cost }}</span></div>
+                        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px">
+                          <span style="font-size:13px;line-height:18px;font-weight:700;color:{{ s.paceColor }}">{{ s.paceText }}</span>
+                          <div style="min-height:44px;display:flex;align-items:center;padding:0 12px;box-sizing:border-box;border-radius:999px;border:1px solid #191919;font-size:13px;font-weight:700;cursor:pointer">도착 찍기</div>
+                        </div>
+                        <div style="min-height:44px;display:flex;align-items:center;justify-content:center;padding:0 8px;border-radius:999px;background:#FEF0F1;color:#B02A38;font-size:13px;font-weight:700;cursor:pointer">이 장소 제외</div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="width:360px;flex:none">
+              <div style="display:flex;gap:8px;margin-bottom:12px">
+                <sc-for list="{{ summaryCells }}" as="c" hint-placeholder-count="3">
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;background:#FFFFFF;border:1px solid #EBEBEF">
+                    <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ c.label }}</span>
+                    <span style="font-size:{{ c.size }};line-height:{{ c.lh }};font-weight:{{ c.weight }};color:{{ c.color }}">{{ c.value }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;padding:16px;border-radius:20px;background:#FFFFFF;border:1px solid #EBEBEF">
+                <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">예산 대비</span>
+                <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px">
+                  <div style="flex:1;min-width:120px"><span style="font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">220,400원</span></div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span style="font-size:13px;line-height:18px;color:#6F6F6F">예산 300,000원</span><span style="font-size:13px;line-height:18px;font-weight:700;color:#2E9E5B">예산에 맞아요 · 8만원 남음</span></div>
+                </div>
+                <div style="display:flex;height:10px;border-radius:999px;overflow:hidden;background:#E9E9EC"><div style="flex:0.7347;background:#2B2B2E"></div><div style="flex:0.2653"></div></div>
+                <div style="display:flex;gap:2px;height:6px;border-radius:999px;overflow:hidden"><div style="flex:210000;background:#2B2B2E;border-radius:999px"></div><div style="flex:10400;background:#6F6F6F;border-radius:999px"></div></div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ budgetRows }}" as="b" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <div style="width:8px;height:8px;flex:none;border-radius:999px;background:{{ b.dot }}"></div>
+                      <span style="flex:1;min-width:0;font-size:13px;line-height:18px">{{ b.label }}</span>
+                      <span style="font-size:13px;line-height:18px;color:#6F6F6F">{{ b.count }}</span>
+                      <span style="min-width:72px;text-align:right;font-size:13px;line-height:18px;font-weight:{{ b.weight }};color:{{ b.color }}">{{ b.value }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <span style="font-size:13px;line-height:18px;color:#6F6F6F">교통은 구간 거리로 추정한 값이에요 · 입장료·식비는 장소 자료 기준</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;padding:16px;border-radius:20px;background:#FFFFFF;border:1px solid #EBEBEF">
+                <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">1일차 이동 요약</span>
+                <span style="font-size:13px;line-height:18px;color:#6F6F6F">도보 거리 — 대중교통 구간은 재지 않아요</span>
+                <span style="font-size:13px;line-height:18px;color:#444">이동 합계 116분</span>
+                <span style="font-size:13px;line-height:18px;color:#6F6F6F">대중교통 안내 — 아직 없어요</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;sheetOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const STOPS = [
+  { id: 's1', n: 1, name: '카페오뜨', time: '09:46', cost: '6,000원', glyph: '☕', leg: '출발지에서 46분 (어림)' },
+  { id: 's2', n: 2, name: '늘리', time: '11:53', cost: '50,000원', glyph: '🍽', leg: '이동 21분 (어림)' },
+  { id: 's3', n: 3, name: '무슈뱅상', time: '14:08', cost: '4,400원', glyph: '☕', leg: '이동 29분 (어림)' },
+  { id: 's4', n: 4, name: '쇼진', time: '16:14', cost: '160,000원', glyph: '🍽', leg: '이동 20분 (어림)', risk: true },
+];
+const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+
+class Component extends DCLogic {
+  state = { sheet: null, saved: false, stripSel: '', open: {}, locked: {} };
+
+  renderVals() {
+    const sheet = this.state.sheet ?? this.props.sheetOpen ?? false;
+    const tabsDef = [['home','홈'],['heart','피드'],['plus','여행 만들기'],['map','내 여행'],['user','마이페이지']];
+    return {
+      barH: sheet ? '560px' : '64px', barW: sheet ? '361px' : '328px',
+      rowOp: sheet ? 0 : 1, rowPe: sheet ? 'none' : 'auto',
+      sheetOp: sheet ? 1 : 0, sheetPe: sheet ? 'auto' : 'none',
+      openSheet: () => this.setState({ sheet: true }),
+      closeSheet: () => this.setState({ sheet: false }),
+      saveGlyph: this.state.saved ? '★' : '☆', saveColor: this.state.saved ? '#2B2B2E' : '#6F6F6F',
+      toggleSave: () => this.setState(s => ({ saved: !s.saved })),
+      strip: STOPS.map((s, i) => {
+        const next = STOPS[i + 1], on = this.state.stripSel === s.id;
+        return { ...s, hasNext: !!next, gap: next ? `${toMin(next.time) - toMin(s.time)}분` : '',
+          bd: on ? '#D83A48' : '#FFFFFF', pick: () => this.setState({ stripSel: on ? '' : s.id }) };
+      }),
+      stops: STOPS.map((s, i) => {
+        const open = !!this.state.open[s.id], locked = !!this.state.locked[s.id], first = i === 0;
+        return { ...s, risk: !!s.risk, hasNext: i < STOPS.length - 1, open,
+          first, notFirst: !first, railJustify: first ? 'flex-start' : 'center', railPad: first ? '6px' : '0px',
+          nodeBg: first ? '#191919' : '#FFFFFF', nodeFg: first ? '#FFFFFF' : '#6F6F6F', nodeBd: first ? 'none' : '2px solid #DADCE2',
+          stripNode: first ? '#2B2B2E' : '#191919',
+          lockGlyph: locked ? '🔒' : '🔓',
+          paceText: `예상 도착 ${s.time} (추정)${s.risk ? ' · 하루를 넘길 위험' : ''}`, paceColor: s.risk ? '#B02A38' : '#6F6F6F',
+          toggle: () => this.setState(st => ({ open: { ...st.open, [s.id]: !st.open[s.id] } })),
+          lock: () => this.setState(st => ({ locked: { ...st.locked, [s.id]: !st.locked[s.id] } })) };
+      }),
+      heroActions: ['지도 보기', '동행 초대', '날씨'],
+      summaryCells: [
+        { label: '장소', value: '4곳', size: '18px', lh: '24px', weight: 700, color: '#191919' },
+        { label: '이동 합계', value: '116분', size: '18px', lh: '24px', weight: 700, color: '#191919' },
+        { label: '수단', value: '아직 없어요', size: '13px', lh: '18px', weight: 400, color: '#6F6F6F' },
+      ],
+      budgetRows: [
+        { label: '식비', count: '2곳', value: '210,000원', dot: '#2B2B2E', weight: 700, color: '#191919' },
+        { label: '카페', count: '2곳', value: '10,400원', dot: '#6F6F6F', weight: 700, color: '#191919' },
+        { label: '입장·체험', count: '0곳', value: '미정', dot: '#8B8B8B', weight: 400, color: '#6F6F6F' },
+        { label: '교통 (추정)', count: '구간 거리 기준', value: '미정', dot: '#DADCE2', weight: 400, color: '#6F6F6F' },
+      ],
+      tabs: tabsDef.map(([k, label]) => {
+        const sel = k === 'map', create = k === 'plus';
+        return { icon: `assets/tab/${k}.png`, label, wrapBg: create ? '#D83A48' : 'transparent',
+          op: create || sel ? 1 : 0.55, filter: create ? 'none' : sel ? 'brightness(0)' : 'grayscale(1)',
+          weight: sel ? 700 : 400, color: sel ? '#191919' : '#8B8B8B' };
+      }),
+    };
+  }
+}
+</script>
+</body>
+</html>
