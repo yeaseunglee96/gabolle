@@ -76,7 +76,7 @@ class AccommodationSnapshotTest {
 				35.1587, 129.1604, 300000, 2, "MORNING_TO_EVENING", "Asia/Seoul",
 				List.of(), List.of(), Trip.OwnerType.USER,
 				accommodationPlaceId, false, false, false, null,
-				List.of(), List.of(), accommodation);
+				List.of(), List.of(), accommodation, null);
 	}
 
 	private Trip create(TripCreationService.Command command, String key) {
