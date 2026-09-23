@@ -186,7 +186,7 @@ export default function SignUp() {
           {(kind === 'tablet' || panelIndex === 0) && <Field label={tx('이메일', 'Email')}>
           <View style={rowStyle('email')}>
             <TextInput testID="sign-up-email" accessibilityLabel={tx('이메일', 'Email')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="username" returnKeyType="next" onSubmitEditing={() => passwordRef.current?.focus()} submitBehavior="submit" {...focusProps('email')} onChangeText={(value) => { setEmail(value); touch('email'); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={email} />
-            {email.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이메일 지우기', 'Clear email')} onPress={() => setEmail('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+            {email.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이메일 지우기', 'Clear email')} onPress={() => setEmail('')} tabIndex={-1} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           {touched.email && email.length > 0 && !emailValid && <ErrorText>{tx('올바른 이메일 주소를 입력해 주세요.', 'Please enter a valid email address.')}</ErrorText>}
           {duplicateEmail && <View style={styles.inlineRow}><ErrorText>{tx('이미 가입된 이메일이에요.', 'This email is already registered.')}</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })}><Text variant="caption" weight="bold" color={color.action.secondary}>{tx('로그인하기', 'Sign in')}</Text></Pressable></View>}
@@ -196,7 +196,7 @@ export default function SignUp() {
         <Field label={tx('비밀번호', 'Password')}>
           <View style={rowStyle('password')}>
             <TextInput testID="sign-up-password" accessibilityLabel={tx('비밀번호', 'Password')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => passwordConfirmRef.current?.focus()} submitBehavior="submit" ref={passwordRef} {...focusProps('password')} onChangeText={(value) => { setPassword(value); touch('password'); }} placeholder={tx('영문·숫자·특수문자 포함 8~64자', '8-64 characters with letters, numbers, and symbols')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={password} />
-            {password.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 지우기', 'Clear password')} onPress={() => setPassword('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+            {password.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 지우기', 'Clear password')} onPress={() => setPassword('')} tabIndex={-1} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           <View style={styles.ruleRow}><Rule ok={passwordChecks.length} label={tx('8~64자', '8-64 characters')} /><Rule ok={passwordChecks.letter} label={tx('영문', 'Letters')} /><Rule ok={passwordChecks.number} label={tx('숫자', 'Numbers')} /><Rule ok={passwordChecks.special} label={tx('특수문자 (!@#$% 등)', 'Symbols (!@#$% etc.)')} /></View>
         </Field>
@@ -204,7 +204,7 @@ export default function SignUp() {
         <Field label={tx('비밀번호 확인', 'Confirm password')}>
           <View style={rowStyle('confirm')}>
             <TextInput testID="sign-up-confirm" accessibilityLabel={tx('비밀번호 확인', 'Confirm password')} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => displayNameRef.current?.focus()} submitBehavior="submit" ref={passwordConfirmRef} {...focusProps('confirm')} onChangeText={(value) => { setPasswordConfirm(value); touch('confirm'); }} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={passwordConfirm} />
-            {passwordConfirm.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 확인 지우기', 'Clear password confirmation')} onPress={() => setPasswordConfirm('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+            {passwordConfirm.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 확인 지우기', 'Clear password confirmation')} onPress={() => setPasswordConfirm('')} tabIndex={-1} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           {passwordConfirm.length > 0 && <Text variant="caption" color={passwordMatches ? color.state.success : color.state.danger}>{passwordMatches ? tx('비밀번호가 일치해요.', 'Passwords match.') : tx('비밀번호가 일치하지 않아요.', 'Passwords do not match.')}</Text>}
         </Field>
@@ -214,7 +214,7 @@ export default function SignUp() {
         <Field label={tx('이름', 'Name')}>
           <View style={rowStyle('name')}>
             <TextInput testID="sign-up-name" accessibilityLabel={tx('이름', 'Name')} autoFocus={kind === 'phone'} autoComplete="name" textContentType="name" returnKeyType="done" ref={displayNameRef} maxLength={30} {...focusProps('name')} onChangeText={(value) => { setDisplayName(value); touch('name'); }} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={displayName} />
-            {displayName.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이름 지우기', 'Clear name')} onPress={() => setDisplayName('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+            {displayName.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이름 지우기', 'Clear name')} onPress={() => setDisplayName('')} tabIndex={-1} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           <Text variant="caption" color={nameValid ? color.state.success : color.text.muted}>{tx(`${displayName.trim().length}/30자`, `${displayName.trim().length}/30`)}</Text>
         </Field>
@@ -296,6 +296,8 @@ const styles = StyleSheet.create({
   inputRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
   // 🔴 웹의 검은 포커스 외곽선을 끈다. 포커스 표시는 행(inputRow)의 붉은 선(inputFocused)이 대신한다.
   inputWithClear: { flex: 1, minWidth: 0, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4], paddingVertical: spacing[3], ...webInputNoOutline },
+  // ✕ 는 tabIndex={-1} — 키보드 탭이 ✕ 에 걸려 이메일 → 비밀번호로 바로 못 가던 것(S15P21E201-1518 피드백).
+  //    누르는 것은 그대로 된다. 키보드로는 칸 안에서 지우면 된다.
   clear: { minWidth: 36, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   // 손댄 뒤 값에 문제가 있을 때 — 선은 경고 글자색, 칸 안은 아주 옅은 붉은빛(dangerBg 는 너무 진하다).
   inputProblem: { borderColor: color.state.danger, backgroundColor: color.state.dangerFieldBg },

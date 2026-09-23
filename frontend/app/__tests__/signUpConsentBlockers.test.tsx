@@ -85,6 +85,17 @@ describe('회원가입 — 넓은 화면', () => {
     expect(rowOf(view, 'sign-up-email').backgroundColor).toBe(color.surface.card);
   });
 
+  it('🔴 칸 안의 ✕ 는 키보드 탭 순서에서 빠진다 — 이메일에서 탭을 누르면 비밀번호로 바로 간다', () => {
+    const view = mount();
+    fireEvent.changeText(view.getByTestId('sign-up-email'), 'me@example.com');
+    fireEvent.changeText(view.getByTestId('sign-up-password'), 'abc');
+    fireEvent.changeText(view.getByTestId('sign-up-confirm'), 'abc');
+    fireEvent.changeText(view.getByTestId('sign-up-name'), '효준');
+    for (const label of ['이메일 지우기', '비밀번호 지우기', '비밀번호 확인 지우기', '이름 지우기']) {
+      expect(view.getByLabelText(label).props.tabIndex).toBe(-1);
+    }
+  });
+
   it('포커스는 붉은 2px 선이고, 떠나면 돌아온다', () => {
     const view = mount();
     fireEvent(view.getByTestId('sign-up-name'), 'focus');
