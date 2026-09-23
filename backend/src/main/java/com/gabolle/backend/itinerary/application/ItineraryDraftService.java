@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.place.domain.Place;
@@ -871,18 +872,72 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     @Override
     public ItineraryHandle persist(ItineraryDraft draft) {
+        String requestIdString = draft.requestId().toString();
+        return persist(draft, requestIdString, requestIdString);
+    }
+
+    /**
+     * 추천 코스 2안·3안을 <b>고른 순간</b> 일정으로 만든다 (S15P21E201-1454). 초안은
+     * {@link TripCourseService} 가 1안과 같은 추천 결과로 조립한 것이다.
+     *
+     * <p>🔴 판의 {@code source_request_id} 를 <b>비운다.</b> 그 칸은 「추천 요청 하나에 일정 하나」를
+     * 유일 색인({@code uq_itinerary_version_source_request})으로 지키고, 그 자리는 이미 1안이
+     * 차지하고 있다. 같은 요청 번호로 넣으면 두 번째 INSERT 가 거기서 실패한다. 어느 추천에서 나왔는지는
+     * 항목의 {@code source_request_id}(유일하지 않다)에 그대로 남는다.
+     *
+     * <p>대신 판의 {@code request_id} 에 {@code courseLabel} 을 적는다. 같은 안을 두 번 골랐을 때
+     * 새로 만들지 않고 그 일정을 돌려주는 데 쓴다({@link TripCourseService}).
+     *
+     * <p>{@link #persist(ItineraryDraft)} 와 달리 트랜잭션을 여기서 연다 — 이 경로에는 감싸 줄 추천
+     * 작업이 없다. 일정과 여행 상태가 같이 반영되거나 같이 안 돼야 한다.
+     */
+    @Transactional
+    public ItineraryHandle persistAlternative(ItineraryDraft draft, String courseLabel) {
+        return persist(draft, courseLabel, null);
+    }
+
+    private ItineraryHandle persist(ItineraryDraft draft, String versionRequestId, String sourceRequestId) {
         String itineraryId = UUID.randomUUID().toString();
         String itineraryVersionId = UUID.randomUUID().toString();
         Instant now = this.clock.instant();
-        String requestIdString = draft.requestId().toString();
 
         Itinerary itinerary = new Itinerary(itineraryId, draft.tripId(), 1);
         ItineraryVersion.Versions versions = new ItineraryVersion.Versions(
                 draft.modelVersion(), draft.featureVersion(), draft.ontologyVersion(),
                 draft.policyVersion(), draft.datasetVersion());
         ItineraryVersion firstVersion = new ItineraryVersion(itineraryVersionId, itineraryId, 1, null,
-                ItineraryVersion.Operation.CREATE, draft.userId(), requestIdString, versions, now,
-                requestIdString, draft.warningCodes());
+                ItineraryVersion.Operation.CREATE, draft.userId(), versionRequestId, versions, now,
+                sourceRequestId, draft.warningCodes());
+
+        DraftContent content = contentOf(draft, itineraryVersionId, now);
+
+        // 판과 내용을 한 번에 넘긴다. 판을 먼저 만들고 내용을 나중에 넣으면 그 두 걸음 사이가
+        // "판은 있는데 내용이 없는" 상태다.
+        this.itineraryRepository.create(itinerary, firstVersion, content.items(), content.legs());
+        markTripReady(draft.tripId(), now);
+
+        // 🔴 «이 알림이 이 기능의 이유다.» 일정 만들기는 오래 걸려서 사람이 앱을 닫고 기다린다.
+        //    다 됐다는 것을 폰이 알려 주지 않으면, 사람은 몇 분마다 앱을 열어 확인하거나 잊는다.
+        //    그래서 CREATE 만은 «만든 본인에게도» 간다 (TripPushNotifier.onItineraryChanged).
+        this.events.publishEvent(new ItineraryChangedByMember(
+                itineraryId, 1, ItineraryVersion.Operation.CREATE, draft.userId()));
+
+        return new ItineraryHandle(itineraryId, 1);
+    }
+
+    /** 초안을 옮긴 판 하나의 항목·구간. */
+    record DraftContent(List<ItineraryItem> items, List<ItineraryLeg> legs) {
+    }
+
+    /**
+     * 초안을 판 하나의 항목·구간으로 옮긴다. 저장하지 않는다.
+     *
+     * <p>저장({@link #persist})과 추천 코스 미리보기({@link TripCourseService}, S15P21E201-1454)가 이
+     * 한 벌을 같이 쓴다. 둘이 따로 옮기면 <b>미리 본 코스와 골라서 만들어진 일정이 어긋난다</b> —
+     * 칸 하나(요금·선형)를 한쪽만 넘기는 식으로. 그 어긋남은 S15P21E201-1498 에서 이미 한 번 났다.
+     */
+    DraftContent contentOf(ItineraryDraft draft, String itineraryVersionId, Instant now) {
+        String requestIdString = draft.requestId().toString();
 
         List<ItineraryItem> items = new ArrayList<>(draft.items().size());
         for (ItineraryDraft.DraftItem draftItem : draft.items()) {
@@ -908,19 +963,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     // 선형도 같은 자리에서 같은 이유로 넘긴다 (S15P21E201-1251).
                     draftLeg.dataStatus(), draftLeg.fareKrw(), draftLeg.path(), now));
         }
-
-        // 판과 내용을 한 번에 넘긴다. 판을 먼저 만들고 내용을 나중에 넣으면 그 두 걸음 사이가
-        // "판은 있는데 내용이 없는" 상태다.
-        this.itineraryRepository.create(itinerary, firstVersion, items, legs);
-        markTripReady(draft.tripId(), now);
-
-        // 🔴 «이 알림이 이 기능의 이유다.» 일정 만들기는 오래 걸려서 사람이 앱을 닫고 기다린다.
-        //    다 됐다는 것을 폰이 알려 주지 않으면, 사람은 몇 분마다 앱을 열어 확인하거나 잊는다.
-        //    그래서 CREATE 만은 «만든 본인에게도» 간다 (TripPushNotifier.onItineraryChanged).
-        this.events.publishEvent(new ItineraryChangedByMember(
-                itineraryId, 1, ItineraryVersion.Operation.CREATE, draft.userId()));
-
-        return new ItineraryHandle(itineraryId, 1);
+        return new DraftContent(items, legs);
     }
 
     /**

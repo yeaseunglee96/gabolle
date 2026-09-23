@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.itinerary.application.TripCourseService;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
@@ -19,7 +20,8 @@ import com.gabolle.backend.trip.application.TripQueryService;
  * {@link TripItineraryController} 도 함께 맡는다. 두 경로가 같은 규칙으로 404 를 내야 하는데
  * advice 를 따로 두면 한쪽만 고쳐지는 날이 온다.
  */
-@RestControllerAdvice(assignableTypes = { TripActivityController.class, TripItineraryController.class })
+@RestControllerAdvice(assignableTypes = { TripActivityController.class, TripItineraryController.class,
+		TripCourseController.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class TripActivityExceptionHandler {
 
@@ -27,6 +29,13 @@ public class TripActivityExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleNotFound(TripQueryService.TripNotFoundException e) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(ApiResponse.failure(new ApiError("TRIP_NOT_FOUND", "그 여행을 찾지 못했어요."), requestId()));
+	}
+
+	/** 이 여행의 코스 번호가 아니다 (S15P21E201-1454). 남의 여행 것과 없는 것을 같은 404 로 답한다. */
+	@ExceptionHandler(TripCourseService.CourseNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleCourseNotFound(TripCourseService.CourseNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(ApiResponse.failure(new ApiError("COURSE_NOT_FOUND", "그 코스를 찾지 못했어요."), requestId()));
 	}
 
 	/** {@code limit} 범위 밖. */

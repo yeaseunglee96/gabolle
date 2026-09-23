@@ -39,6 +39,7 @@ import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripMember;
 
 /**
  * 완성된 일정표 조회. {@link ItineraryQueryController} 가 부른다.
@@ -99,19 +100,44 @@ public class ItineraryQueryService {
 				.orElseThrow(() -> new IllegalStateException(
 						"일정의 최신 판(version=" + latestVersion + ") 내용이 없다: itineraryId=" + itineraryId));
 
-		Map<UUID, Place> placesByPlaceId = lookupPlaces(content.items());
-
-		Map<LegKey, ItineraryLeg> legsByKey = content.legs().stream()
-				.collect(Collectors.toMap(leg -> new LegKey(leg.dayIndex(), leg.sequence()), leg -> leg));
-
-		Map<Integer, List<ItineraryItem>> itemsByDay = content.items().stream()
-				.collect(Collectors.groupingBy(ItineraryItem::dayIndex));
-
 		// 실제 시각은 판이 아니라 일정에 매달려 있으므로 판 번호와 무관하게 한 번에 읽는다.
 		// 편집으로 판이 바뀌어도 같은 item_key 의 기록이 그대로 붙는다.
 		Map<String, ItineraryItemActual> actualsByItemKey = this.actualRepository.findByItineraryId(itineraryId)
 				.stream()
 				.collect(Collectors.toMap(ItineraryItemActual::itemKey, actual -> actual));
+
+		return render(itineraryId, latestVersion, trip, content.items(), content.legs(), actualsByItemKey,
+				resolveFallbackMode(content.version()), access.role().name(), access.role().canEdit(),
+				content.version().warningCodes());
+	}
+
+	/**
+	 * 아직 저장하지 않은 일정(추천 코스 2안·3안)을 저장된 일정과 <b>같은 모양</b>으로 그린다
+	 * (S15P21E201-1454). 화면은 코스를 이 모양으로만 그리므로, 모양이 다르면 미리보기에서만 비용·이동
+	 * 시간이 비는 식으로 어긋난다.
+	 *
+	 * <p>권한은 부르는 쪽({@link TripCourseService})이 여행 회원인지를 이미 본 뒤다. {@code canEdit}
+	 * 은 언제나 거짓이다 — 아직 일정이 아니라서 고칠 판이 없다. 판 번호는 {@code 0} 이다.
+	 *
+	 * @param previewId 화면이 이 미리보기를 가리킬 이름. 일정 번호가 아니다 — 코스 번호다
+	 */
+	@Transactional(readOnly = true)
+	public ItineraryDetailResponse preview(String previewId, Trip trip, TripMember.Role role,
+			List<ItineraryItem> items, List<ItineraryLeg> legs, List<String> warningCodes) {
+		return render(previewId, 0, trip, items, legs, Map.of(), null, role.name(), false, warningCodes);
+	}
+
+	private ItineraryDetailResponse render(String id, int version, Trip trip, List<ItineraryItem> contentItems,
+			List<ItineraryLeg> contentLegs, Map<String, ItineraryItemActual> actualsByItemKey,
+			FallbackMode fallbackMode, String myRole, boolean canEdit, List<String> warningCodes) {
+
+		Map<UUID, Place> placesByPlaceId = lookupPlaces(contentItems);
+
+		Map<LegKey, ItineraryLeg> legsByKey = contentLegs.stream()
+				.collect(Collectors.toMap(leg -> new LegKey(leg.dayIndex(), leg.sequence()), leg -> leg));
+
+		Map<Integer, List<ItineraryItem>> itemsByDay = contentItems.stream()
+				.collect(Collectors.groupingBy(ItineraryItem::dayIndex));
 
 		// 🔴 가격은 **읽을 때** 찾는다. 항목에 박아 두지 않는 것은 조사가 아직 도는 중이라
 		// (`price-queue.mjs`) 오늘 만든 일정이 오늘 아는 것에 영원히 묶이기 때문이다.
@@ -121,28 +147,26 @@ public class ItineraryQueryService {
 		List<ItineraryDetailResponse.Day> days = buildDays(trip, itemsByDay, legsByKey, placesByPlaceId,
 				actualsByItemKey, menuPriceByPlaceId);
 
-		Integer totalEstimatedCostKrw = sumOrNull(content.items().stream()
+		Integer totalEstimatedCostKrw = sumOrNull(contentItems.stream()
 				.map(item -> costOf(item, menuPriceByPlaceId)));
-		Integer totalWalkingMeters = sumOrNull(content.legs().stream()
+		Integer totalWalkingMeters = sumOrNull(contentLegs.stream()
 				.map(ItineraryLeg::walkingMeters));
 
-		FallbackMode fallbackMode = resolveFallbackMode(content.version());
-
 		return new ItineraryDetailResponse(
-				itineraryId,
+				id,
 				// 이름은 Trip 이 정한다 — 사용자가 붙인 것이 있으면 그것, 없으면 기간.
 				trip.displayTitle(),
-				latestVersion,
+				version,
 				days,
 				totalEstimatedCostKrw,
 				totalWalkingMeters,
 				fallbackMode,
-				access.role().name(),
-				access.role().canEdit(),
-				content.version().warningCodes(),
+				myRole,
+				canEdit,
+				warningCodes,
 				trip.tripId(),
 				// 이미 읽어 둔 항목에서 센다. DB 를 다시 묻지 않는다.
-				accessibilityUnverifiedCount(content.items()),
+				accessibilityUnverifiedCount(contentItems),
 				trip.partySize());
 	}
 
