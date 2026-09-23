@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.gabolle.backend.event.application.BehaviorConsent;
 import com.gabolle.backend.event.application.EventIngestService;
 import com.gabolle.backend.event.application.OutboxAppendCommand;
 import com.gabolle.backend.event.application.OutboxService;
@@ -62,14 +63,14 @@ class AppEventContractTest {
 	void setUp() {
 		this.outboxService = mock(OutboxService.class);
 		given(this.outboxService.appendReportingDuplicate(any()))
-				.willReturn(new OutboxService.AppendResult(mock(EventOutbox.class), true));
+				.willReturn(OutboxService.AppendResult.stored(mock(EventOutbox.class)));
 
 		// 이 검사는 앱이 보내는 본문의 모양을 잰다. 행동 기반 개인화가 켜져 있는 사람으로
 		// 고정하지 않으면 본문이 깨져도 수집 차단에 걸려 202 만 보고 통과한다.
 		AppUserRepository users = mock(AppUserRepository.class);
 		given(users.findPersonalizationMode(any())).willReturn(Optional.of(PersonalizationMode.BEHAVIOR_ENABLED));
 
-		EventIngestService service = new EventIngestService(this.outboxService, users,
+		EventIngestService service = new EventIngestService(this.outboxService, new BehaviorConsent(users),
 				Clock.fixed(NOW, ZoneOffset.UTC));
 		this.mockMvc = MockMvcBuilders
 				.standaloneSetup(new EventIngestController(service))

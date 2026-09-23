@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import com.gabolle.backend.event.application.BehaviorConsent;
 import com.gabolle.backend.event.application.EventIngestService;
 import com.gabolle.backend.event.application.OutboxAppendCommand;
 import com.gabolle.backend.event.application.OutboxService;
@@ -50,14 +51,17 @@ class EventIngestServiceTest {
     void setUp() {
         this.outboxService = mock(OutboxService.class);
         this.users = mock(AppUserRepository.class);
-        this.service = new EventIngestService(this.outboxService, this.users, Clock.fixed(NOW, ZoneOffset.UTC));
+        this.service = new EventIngestService(this.outboxService, new BehaviorConsent(this.users),
+                Clock.fixed(NOW, ZoneOffset.UTC));
         givenAppendReturns(true);
         givenBehaviorPersonalization(PersonalizationMode.BEHAVIOR_ENABLED);
     }
 
     private void givenAppendReturns(boolean created) {
         given(this.outboxService.appendReportingDuplicate(any()))
-                .willReturn(new OutboxService.AppendResult(mock(EventOutbox.class), created));
+                .willReturn(created
+                        ? OutboxService.AppendResult.stored(mock(EventOutbox.class))
+                        : OutboxService.AppendResult.duplicate(mock(EventOutbox.class)));
     }
 
     /**

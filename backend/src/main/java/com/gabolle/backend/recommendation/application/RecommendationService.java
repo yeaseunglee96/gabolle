@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.common.privacy.SensitiveDataInPayloadException;
-import com.gabolle.backend.event.application.EventIngestService;
 import com.gabolle.backend.event.application.OutboxAppendCommand;
 import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.event.domain.Producer;
@@ -82,18 +81,12 @@ public class RecommendationService {
 	 */
 	private final JobProgressReporter progress;
 
-	/**
-	 * 행동 개인화 동의를 묻는 통로. 추천만 스캔하는 시험 컨텍스트에는 이 빈이 없을 수 있어
-	 * {@code ObjectProvider} 다.
-	 */
-	private final ObjectProvider<EventIngestService> eventIngest;
-
 	public RecommendationService(ObjectProvider<RecommendationEnginePort> enginePort,
 			CandidateAssembler candidateAssembler, RecommendationRecorder recorder,
 			RecommendationProperties properties, Clock clock,
 			ObjectProvider<ItineraryDraftPort> itineraryDraftPort,
 			ObjectProvider<EditorialPickBaselineProvider> editorialPickProvider,
-			JobProgressReporter progress, ObjectProvider<EventIngestService> eventIngest) {
+			JobProgressReporter progress) {
 		this.enginePort = enginePort;
 		this.candidateAssembler = candidateAssembler;
 		this.recorder = recorder;
@@ -102,7 +95,6 @@ public class RecommendationService {
 		this.itineraryDraftPort = itineraryDraftPort;
 		this.editorialPickProvider = editorialPickProvider;
 		this.progress = progress;
-		this.eventIngest = eventIngest;
 	}
 
 	/**
@@ -543,10 +535,12 @@ public class RecommendationService {
 	 * 실패하면 이벤트도 없다 — 일정이 그대로인데 거부 신호가 남으면 랭커가 일어나지 않은
 	 * 일을 배운다.
 	 *
-	 * <p>이 경로는 {@code OutboxService} 를 직접 불러 {@code EventIngestService} 안의 동의
-	 * 검사를 안 지나므로, 명령을 만들기 전에 {@code collectsBehaviorOf} 로 직접 묻는다.
-	 * 판정 규칙을 여기에 다시 쓰지 않는 것이 핵심이다 — 두 벌이 되면 한쪽만 바뀐다. 빈이
-	 * 없으면 안 적는다: 동의를 확인할 수 없는데 적는 것보다 안 적는 쪽이 맞다.
+	 * <p>🔴 <b>여기서 동의를 묻지 않는다.</b> 전에는 이 자리가 {@code collectsBehaviorOf} 를
+	 * 직접 불렀다 — 이 경로가 {@code OutboxService} 를 직접 불러 수집 API 의 동의 검사를 안
+	 * 지났기 때문이다. 지금은 그 검사가 {@code OutboxService} 입구에 있어
+	 * ({@code BehaviorConsent}, S15P21E201-1096) <b>부르는 쪽이 알 필요가 없다.</b> 개인화를 끈
+	 * 사람이면 이 명령은 만들어졌다가 입구에서 걸러지고, 같은 트랜잭션의 Job·후보는 그대로
+	 * 커밋된다. 명령을 만드는 것 자체는 부작용이 없다.
 	 */
 	private Optional<OutboxAppendCommand> itineraryRemoveEvent(RecommendationJob job,
 			RecommendationCommand command, OffsetDateTime occurredAt) {
@@ -556,10 +550,6 @@ public class RecommendationService {
 		}
 		RecommendationCommand.ItineraryEdit edit = command.edit();
 		if (edit == null || edit.newlyExcludedPlaceIds().isEmpty()) {
-			return Optional.empty();
-		}
-		EventIngestService ingest = this.eventIngest.getIfAvailable();
-		if (ingest == null || !ingest.collectsBehaviorOf(job.getUserId())) {
 			return Optional.empty();
 		}
 

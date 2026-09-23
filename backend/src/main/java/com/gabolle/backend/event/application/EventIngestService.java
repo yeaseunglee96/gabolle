@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.event.domain.Producer;
-import com.gabolle.backend.user.domain.PersonalizationMode;
-import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
  * 이벤트 적재 — 응용 계층.
@@ -26,7 +24,7 @@ import com.gabolle.backend.user.repository.AppUserRepository;
  *
  * <p>탈퇴 정책은 "계정은 삭제, 이벤트는 익명화" 다 — 지우면 과거 추천 평가를 재현할 수 없다.
  * 행동 기반 개인화를 끈 사람은 다르게 다룬다: 행동 관찰 이벤트를 아예 적지 않는다.
- * 이유는 {@link #collectsBehaviorOf(java.util.UUID)} 에 있다.
+ * 이유는 {@link BehaviorConsent} 에 있다.
  *
  * <p>{@code event_outbox} 에는 {@code user_id} 외래키를 걸지 않는다. FK 가 있으면 CASCADE 로
  * 이벤트가 같이 지워지거나 RESTRICT 로 계정 삭제가 막힌다 — 둘 다 정책 위반이다.
@@ -43,13 +41,13 @@ public class EventIngestService {
 
 	private final OutboxService outboxService;
 
-	private final AppUserRepository users;
+	private final BehaviorConsent consent;
 
 	private final Clock clock;
 
-	public EventIngestService(OutboxService outboxService, AppUserRepository users, Clock clock) {
+	public EventIngestService(OutboxService outboxService, BehaviorConsent consent, Clock clock) {
 		this.outboxService = outboxService;
-		this.users = users;
+		this.consent = consent;
 		this.clock = clock;
 	}
 
@@ -96,29 +94,16 @@ public class EventIngestService {
 	}
 
 	/**
-	 * 이 사람의 행동을 지금 적어도 되는가.
+	 * 이 사람의 행동을 지금 적어도 되는가. 규칙은 {@link BehaviorConsent} 에 있다 — 여기에
+	 * 다시 쓰지 않는다.
 	 *
-	 * <p>탈퇴처럼 {@code user_id} 만 비우는 방법은 여기서 쓸 수 없다. 행동 이벤트는 대부분 축이
-	 * 여행이라 {@code aggregate_id} 에 {@code trip_id} 가 들어 있고 그 여행에는 주인이 있다 —
-	 * 비워도 여행을 거쳐 그 사람으로 되돌아갈 수 있다. 되돌릴 수 있는 가리기는 가린 것이
-	 * 아니므로 아예 적지 않는다.
-	 *
-	 * <p>없는 사람과 모르는 사람을 다르게 다룬다. {@code userId == null} 이면 적는다 — 이미
-	 * 익명이라 막아도 지켜지는 개인정보가 없고 집계만 사라진다. 사람은 있는데 계정을 못 찾으면
-	 * 안 적는다 — 동의를 확인할 수 없는 상태이고, 실패는 조용한 수집이 아니라 빈 자리로
-	 * 나타나야 한다.
-	 *
-	 * <p>public 인 것은 {@code OutboxService} 를 직접 부르는 경로가 이 클래스 밖에 있어서다.
-	 * 그쪽이 규칙을 다시 쓰지 않고 이것을 부르게 한다. 임시 방편이고, 제대로 된 자리는
-	 * 입구인 {@code OutboxService} 다.
+	 * <p>🔴 <b>이것이 유일한 방어선이 아니다.</b> 진짜 방어선은 Outbox 입구인
+	 * {@code OutboxService} 이고(S15P21E201-1096), 여기서 한 번 더 보는 것은 <b>형식 검사를
+	 * 다 지난 뒤에</b> 물어서 {@link Outcome#NOT_COLLECTED} 를 이 API 의 답으로 돌려주기
+	 * 위해서다. 두 자리가 같은 {@code BehaviorConsent} 를 부르므로 규칙이 갈라지지 않는다.
 	 */
-	public boolean collectsBehaviorOf(UUID userId) {
-		if (userId == null) {
-			return true;
-		}
-		return this.users.findPersonalizationMode(userId)
-				.filter(PersonalizationMode.BEHAVIOR_ENABLED::equals)
-				.isPresent();
+	private boolean collectsBehaviorOf(UUID userId) {
+		return this.consent.collects(userId);
 	}
 
 	private Outcome append(UUID eventId, EventType type, int eventVersion, Producer producer, UUID userId, UUID tripId,
@@ -165,7 +150,13 @@ public class EventIngestService {
 			return Outcome.NOT_COLLECTED;
 		}
 
-		return this.outboxService.appendReportingDuplicate(command).created() ? Outcome.STORED : Outcome.DUPLICATE;
+		// 입구가 한 번 더 본다. 여기서 이미 걸렀으므로 보통은 같은 답이지만, 「입구가 낸 판정을
+		// 그대로 옮긴다」 로 적어 두면 이 앞의 검사를 나중에 지워도 답이 안 바뀐다.
+		return switch (this.outboxService.appendReportingDuplicate(command).outcome()) {
+			case STORED -> Outcome.STORED;
+			case DUPLICATE -> Outcome.DUPLICATE;
+			case NOT_COLLECTED -> Outcome.NOT_COLLECTED;
+		};
 	}
 
 	/**
