@@ -538,7 +538,8 @@ backend:build:
 # 실제 버전을 대조한다. Gradle 은 기본으로 잠금 파일을 안 쓰므로 backend/build.gradle
 # 에 dependencyLocking 을 켜고 backend/gradle.lockfile 을 커밋해 뒀다
 # (S15P21E201-680). frontend 쪽은 npm audit 이 이미 잠금 파일(package-lock.json)을
-# 쓰므로 별도 잠금 설정이 필요 없다 — front/dev 에 같은 rules 로 추가한다.
+# 쓰므로 별도 잠금 설정이 필요 없다 — ci/parts/frontend.yml 의 frontend:dependency-scan
+# 잡으로 이미 추가돼 있다(S15P21E201-786).
 #
 # 🔴 심각도 HIGH 미만은 잡지 않는다 — 전부 빨갛게 하면 아무도 안 본다. OSV 결과의
 #    groups[].max_severity(osv-scanner 가 계산해 주는 CVSS 점수 문자열)로 판정한다.
@@ -549,16 +550,15 @@ backend:build:
 #    (이 파일 머리말 참고). 새 판이 팀을 깨면 이 변수를 CI/CD Variables 에서
 #    구체적인 태그(예: v2.5.1)로 덮어써서 되돌린다.
 #
-# 🔴 allow_failure: true (2026-09-07) — Pipelines must succeed 가 켜져 있어서,
-#    이 잡을 blocking 으로 만들면 **이 잡을 처음 추가하는 MR 자체가 못 들어간다.**
-#    지금 실측이 HIGH 39건(대부분 Spring Boot 4.0.0/Spring Security 7.0.0이
-#    최신 GA라 이미 공개된 CVE)이라, 잡을 blocking 으로 켜는 순간 그 MR이
-#    스스로를 막는 잠금 상태가 된다. 드러내는 것(사용자 확인, 2026-09-07)이
-#    목적이라 우선 non-blocking 으로 켜고, 기존 39건을 정리하는 후속 티켓이
-#    끝나면 이 줄을 지운다 — 그때부터 진짜로 막는다.
+# 🔴 allow_failure 를 지웠다 (S15P21E201-1550, 2026-09-24) — 2026-09-07 에는
+#    HIGH 39건(대부분 Spring Boot 4.0.0/Spring Security 7.0.0이 최신 GA라 이미
+#    공개된 CVE)이 있어서 blocking 으로 켜는 순간 이 잡을 추가하는 MR 자체가
+#    막혔다. 그래서 우선 non-blocking 으로 드러내기만 하고, 기존 39건이
+#    정리되면 지우기로 해뒀다(위 주석 이력). 2026-09-24 실측(back/dev 최근 두
+#    MR 파이프라인, job #631219·#631272)으로 HIGH(≥7.0) 0건·판정 불가 0건을
+#    확인했다 — 이제 진짜로 막는다.
 backend:dependency-scan:
   stage: verify
-  allow_failure: true
   variables:
     OSV_SCANNER_VERSION: "latest"
   before_script:
