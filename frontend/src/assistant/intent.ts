@@ -1,9 +1,14 @@
 import type { PlanDraft } from '@/plan/PlanProvider';
-import { getApiLanguage } from '@/api/client';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
 
 // 키워드 매칭은 한국어 입력만 인식한다 — reply/summary(응답 문구)는 UI 언어를 따라가지만
 // 영어로 입력해도 이 매처 자체는 아직 반응하지 않는다. 별도 범위(영어 입력 인식)로 남겨 둔다.
-const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+//
+// 🔴 번역표를 본다 — S15P21E201-1517. 전에는 「영어가 아니면 한국어」로 골라서(서버용 언어는
+//    ko|en 뿐이라) 일본어·중국어 사용자에게 이 답이 늘 영어로 나갔다. 표에 줄이 이미 있었는데도
+//    못 썼다. 표에 없는 문구는 전과 같이 영어로 떨어진다(pickLanguage).
+const t = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 /**
  * 비서가 안내할 수 있는 화면 주소.
