@@ -47,6 +47,12 @@ type Layout = 'cards' | 'map';
 const COURSE_SLOT = 220;
 const VIEW_SLOT = 132;
 const MAP_WIDTH = 440;
+/**
+ * 장소 카드 한 장의 최대 폭. 시안(1440)에서 카드는 약 215 다 — 그보다 조금 넉넉히 두고 거기서 멈춘다.
+ * 🔴 상한이 없으면 넓은 모니터(2900)에서 카드가 680 까지 부풀고 지도는 440 에 남아, 지도가 «옆의 작은 띠» 가 된다
+ *    (2026-09-23 사용자 지적). 남는 폭은 지도가 가져간다 — 사용자가 고른 방식이다.
+ */
+const CARD_MAX_WIDTH = 260;
 const BIG_LIST_WIDTH = 320;
 /** 시안의 미끄러짐 — 코스 360ms · 보기 전환 320ms, 같은 곡선. */
 const SLIDE = Easing.bezier(0.2, 0.8, 0.2, 1);
@@ -68,6 +74,9 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const [naming, setNaming] = useState(askName);
   const [leftHeight, setLeftHeight] = useState(0);
   const [gridWidth, setGridWidth] = useState(0);
+  /** 스크롤 칸이 보여 주는 높이와, 그 안에서 본문이 시작하는 자리 — 지도를 «화면 아래까지» 늘리는 데 쓴다. */
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [bodyTop, setBodyTop] = useState(0);
 
   if (!page) return <LoadingState tx={tx} />;
   if (page.state === 'error') return <ErrorState message={localizeMessage(tx, page.message)} onRetry={() => void load()} tx={tx} />;
@@ -77,6 +86,11 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
     totalTravelMinutes(items) > 0 ? txf(tx, '이동 %s분', '%s min travel', totalTravelMinutes(items)) : null,
   ].filter(Boolean).join(' · ');
   const bigMapHeight = Math.max(520, windowHeight - 260);
+  // 시안 3a 의 지도는 카드 위끝에서 **화면 아래까지** 내려온다(아래 여백 = 본문 아래 여백). 카드 열이 그보다 길면
+  // 카드 열에 맞춘다. 둘 다 모르는 첫 그림에서는 440.
+  // 본문 위 여백(styles.body 의 paddingTop)까지 빼야 딱 맞는다 — 안 빼면 4px 넘쳐 쓸데없는 스크롤이 생긴다.
+  const fillHeight = viewportHeight && bodyTop ? viewportHeight - bodyTop - spacing[1] - spacing[8] : 0;
+  const cardsMapHeight = Math.max(MAP_WIDTH, leftHeight, fillHeight);
 
   const mapPanel = (height: number) => (
     <View style={[styles.mapPanel, { height }]}>
@@ -99,7 +113,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
 
   return (
     <View style={styles.shell}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} onLayout={(event) => setViewportHeight(Math.round(event.nativeEvent.layout.height))}>
         {/* ── 머리 — ‹ · 제목 + 요약 · 동행 초대 · 날씨 · ⋯ ───────────────────── */}
         <View style={styles.head}>
           <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/trips'))} style={({ pressed }) => [styles.circle44, pressed && styles.pressed]}>
@@ -182,10 +196,13 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
         {!loaded ? (
           itinerary?.message
             ? <ErrorState message={localizeMessage(tx, itinerary.message)} onRetry={() => void load()} tx={tx} />
-            : <View style={styles.body}><View style={styles.left}><Skeleton height={420} radius={radius.lg} /></View><Skeleton width={MAP_WIDTH} height={420} radius={radius.lg} /></View>
+            : <View key="loading" style={styles.body}><View style={styles.left}><Skeleton height={420} radius={radius.lg} /></View><Skeleton width={MAP_WIDTH} height={420} radius={radius.lg} /></View>
         ) : layout === 'cards' ? (
-          <View style={styles.body}>
-            <View style={styles.left} onLayout={(event) => setLeftHeight(Math.round(event.nativeEvent.layout.height))}>
+          // 🔴 세 갈래(불러오는 중 · 장소 카드 · 큰 지도)에 key 를 따로 준다. 안 주면 React 가 **같은 자리의 같은 View 를
+          //    다시 쓰고**, 웹의 onLayout 은 View 가 처음 생길 때만 크기 재기를 건다 — 뼈대 때 onLayout 이 없던 View 를
+          //    물려받으면 카드 열 높이가 끝내 안 들어와 지도가 440 에 갇혔다(2026-09-23 사용자 지적, 배포본 재현).
+          <View key="cards" style={styles.body} onLayout={(event) => setBodyTop(Math.round(event.nativeEvent.layout.y))}>
+            <View style={[styles.left, styles.leftCapped]} onLayout={(event) => setLeftHeight(Math.round(event.nativeEvent.layout.height))}>
               <View style={styles.grid} onLayout={(event) => setGridWidth(Math.round(event.nativeEvent.layout.width))}>
                 {gridWidth > 0 ? items.map((item, index) => (
                   <PlaceCard
@@ -227,11 +244,11 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                 </View>
               </View>
             </View>
-            {/* 지도는 왼쪽 열 높이를 «재서» 맞춘다 — 숫자로 박으면 카드가 두 줄일 때 지도가 짧다. */}
-            <View style={styles.mapColumn}>{mapPanel(Math.max(440, leftHeight))}</View>
+            {/* 지도는 왼쪽 열 높이와 화면 아래까지 중 긴 쪽 — 둘 다 «재서» 맞춘다. 숫자로 박으면 카드가 두 줄일 때 지도가 짧다. */}
+            <View style={styles.mapColumn}>{mapPanel(cardsMapHeight)}</View>
           </View>
         ) : (
-          <View style={styles.body}>
+          <View key="map" style={styles.body}>
             <View style={styles.bigList}>
               {items.map((item, index) => {
                 const photo = photos[item.placeId] ?? null;
@@ -444,8 +461,11 @@ const styles = StyleSheet.create({
 
   body: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6], paddingTop: spacing[1] },
   left: { flex: 1, minWidth: 0, gap: spacing[4] },
+  // 카드 열은 카드 넷이 CARD_MAX_WIDTH 에 닿는 폭에서 멈춘다. 그보다 좁으면(시안 1440) 줄어들고 지도는 440 을 지킨다.
+  leftCapped: { flexGrow: 1, flexShrink: 1, flexBasis: CARD_MAX_WIDTH * 4 + spacing[3] * 3, maxWidth: CARD_MAX_WIDTH * 4 + spacing[3] * 3 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
-  mapColumn: { width: MAP_WIDTH },
+  // 지도는 440 아래로 안 줄고, 카드 열이 멈춘 뒤 남는 폭을 전부 가져간다.
+  mapColumn: { flexGrow: 1, flexShrink: 0, flexBasis: MAP_WIDTH, minWidth: MAP_WIDTH },
 
   // 카드 — 흰색 radius 20 padding 10, 고른 것은 붉은 2px 선(시안). 안 고른 것도 2px 자리를 흰색으로 둬 흔들리지 않게.
   card: { padding: 10, gap: 10, borderRadius: radius.lg, borderWidth: 2, borderColor: color.surface.card, backgroundColor: color.surface.card },
