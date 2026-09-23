@@ -58,22 +58,30 @@ export default function SignIn() {
   const leaving = useRef(false);
   // 이 화면이 한 번이라도 가려졌다가 다시 보이는 것인가.
   const cameBack = useRef(false);
-  // 뒤로 가기로 돌아와도 이 화면은 다시 만들어지지 않는다 — 쌓인 칸으로 살아
-  // 있다가 다시 보일 뿐이다. 그래서 `useEffect` 는 다시 돌지 않고, 「여기서 방금
-  // 로그인했다」는 표시(signedInHere)도 그대로 남아 가드를 막았다. 내가 예외로 둔
-  // 바로 그 자리가 고침을 덮어버렸다.
+  // 🔴 `user`·`ready` 를 useFocusEffect 콜백의 deps 에 그대로 두면 안 된다 — expo-router 의
+  // useFocusEffect(실은 react-navigation 원본)는 내부 useEffect 가 `[effect, navigation]` 에
+  // 걸려 있어서, 화면이 그대로 떠 있는 채로(포커스를 잃지 않고) `effect` 참조만 바뀌어도
+  // cleanup 을 부르고 곧장 다시 부른다. submit() 이 로그인에 성공해 `user` 가 채워지는
+  // 바로 그 렌더에서 이게 걸리면, cleanup 이 cameBack.current 를 미리 true 로 만들어
+  // "여기서 방금 로그인했다" 가드(mine)를 무너뜨리고 홈으로 비키는 코드가 끼어든다 —
+  // submit() 자신의 returnTo 이동과 경합해서 이긴 쪽이 남는다(S15P21E201-1541 재발,
+  // 이번엔 이메일 로그인·네이티브에서). 그래서 `user`·`ready` 는 ref 로 최신값만 들고
+  // 콜백 자체는 라우터가 바뀔 때만(사실상 거의 안 바뀐다) 다시 만든다.
+  const userRef = useRef(user);
+  const readyRef = useRef(ready);
+  useEffect(() => { userRef.current = user; readyRef.current = ready; });
   useFocusEffect(
     useCallback(() => {
       // 이 화면에서 로그인 절차를 시작했고 아직 떠난 적이 없으면 그대로 둔다
       // 그쪽은 submit·social 이 직접 목적지로 보낸다. 둘이 같이 움직이면 한 번 갈 길을 두 번 간다.
       const mine = signedInHere.current && !cameBack.current;
-      if (ready && user && !mine && !leaving.current) {
+      if (readyRef.current && userRef.current && !mine && !leaving.current) {
         leaving.current = true;
         enterApp(router, '/home');
       }
       // 포커스를 잃으면 「다음엔 돌아온 것」으로 친다.
       return () => { cameBack.current = true; leaving.current = false; };
-    }, [ready, user, router]),
+    }, [router]),
   );
   async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); signedInHere.current = true; try { await signIn(email, password); enterApp(router, (await resolveDestination(returnTo)) as Href); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) {
