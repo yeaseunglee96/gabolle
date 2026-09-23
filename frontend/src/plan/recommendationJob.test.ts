@@ -68,4 +68,27 @@ describe('꼭 지켜야 하는 조건이 후보를 다 걷어냈을 때', () => 
     expect(message).toContain('조건을 조정해서');
     expect(message).not.toContain('알레르기');
   });
+
+  // — S15P21E201-1514. 서버가 «어느 조건이» 막았는지 알려 주면 그것이 먼저다.
+  const failedWith = (blockedBy: unknown) => adaptPolledJob(jobId, {
+    jobId, status: 'FAILED',
+    progress: { stage: 'CONSTRAINT_EVALUATION', percent: 70 },
+    failure: { code: 'RECOMMENDATION_NO_FEASIBLE_RESULT', detail: 'CONSTRAINT_EVALUATION', blockedBy },
+    retryable: false, pollAfterSeconds: null,
+  });
+
+  it('🔴 blockedBy 가 오면 셋을 늘어놓지 않고 막은 조건을 짚는다', () => {
+    const message = failedWith([
+      { constraintType: 'DIET', constraintKey: 'VEGAN', reason: 'UNVERIFIED', code: 'DIET_SUPPORT_UNVERIFIED', blockedCandidates: 120 },
+    ]).errorMessage ?? '';
+    expect(message).toContain('식단 조건에 맞는지 확인된 곳이 없어');
+    expect(message).toContain('걸린 조건: 비건');
+    expect(message).not.toContain('알레르기 · 식단 · 이동');
+  });
+
+  it('blockedBy 가 비었거나 모르는 갈래뿐이면 예전 단계별 문구로 떨어진다', () => {
+    expect(failedWith([]).errorMessage).toContain('알레르기 · 식단 · 이동');
+    expect(failedWith([{ constraintType: 'WEATHER', blockedCandidates: 9 }]).errorMessage).toContain('알레르기 · 식단 · 이동');
+    expect(failedWith(undefined).errorMessage).toContain('알레르기 · 식단 · 이동');
+  });
 });

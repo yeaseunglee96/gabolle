@@ -2,6 +2,7 @@ import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
 import { readableApiError } from '@/api/errorText';
 import { cloneSharedTripAndJob, createTripAndRecommendationJob } from '@/api/tripApi';
 import type { PlanDraft } from '@/plan/PlanProvider';
+import { describeBlockedBy, readBlockedBy } from '@/plan/blockedByMessage';
 import type { RecommendationJobStreamSnapshot } from '@/plan/recommendationJobStream';
 
 export type RecommendationJobState = 'idle' | 'submitting' | 'accepted' | 'polling' | 'completed' | 'conflict' | 'consent-required' | 'failed' | 'cancelled' | 'unavailable';
@@ -11,7 +12,12 @@ export type RecommendationJobPollDto = {
   jobId: string;
   status: 'QUEUED' | 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELED' | 'CANCELLED' | 'EXPIRED';
   progress: { stage: string; percent: number };
-  failure: { code: string; detail: string | null } | null;
+  /**
+   * `blockedBy` — 어느 조건이 후보를 다 걷어냈나(S15P21E201-1514). 서버가 모양을 바꿔도
+   * 화면이 안 죽게 `unknown` 으로 받아 blockedByMessage.readBlockedBy 가 확인한다.
+   * 설명할 수 없는 실패면 빈 목록이 온다.
+   */
+  failure: { code: string; detail: string | null; blockedBy?: unknown } | null;
   retryable: boolean;
   pollAfterSeconds: number | null;
 };
@@ -58,10 +64,13 @@ export function adaptPolledJob(jobId: string, dto: RecommendationJobPollDto, pre
   const reported = Math.max(0, Math.min(100, dto.progress.percent));
   const progress = reported === null ? previous?.progress ?? null : Math.max(previous?.progress ?? 0, reported);
   const isKo = getApiLanguage() !== 'en';
+  // 🔴 서버가 «어느 조건이» 막았는지 알려 주면 그것이 먼저다 (S15P21E201-1514).
+  //    못 알려 주면(빈 목록 · 모르는 갈래뿐) 예전처럼 단계·코드별 문구로 떨어진다.
   const failureMessage = dto.failure
-    ? (STAGE_FAILURE_MESSAGE[dto.failure.code]?.[dto.failure.detail ?? '']
-      ?? JOB_FAILURE_MESSAGE[dto.failure.code]
-      ?? DEFAULT_JOB_FAILURE_MESSAGE)[isKo ? 0 : 1]
+    ? describeBlockedBy(readBlockedBy(dto.failure.blockedBy))
+      ?? (STAGE_FAILURE_MESSAGE[dto.failure.code]?.[dto.failure.detail ?? '']
+        ?? JOB_FAILURE_MESSAGE[dto.failure.code]
+        ?? DEFAULT_JOB_FAILURE_MESSAGE)[isKo ? 0 : 1]
     : null;
   const errorMessage = dto.failure ? failureMessage : dto.status === 'EXPIRED' ? '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.' : null;
   return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null };
