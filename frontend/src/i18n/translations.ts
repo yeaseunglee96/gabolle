@@ -2723,6 +2723,12 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '여행을 불러오지 못했어요': { ja: '旅行を読み込めませんでした', zhHans: '无法加载旅行', zhHant: '無法載入旅行' },
   '%d시간': { ja: '%d時間', zhHans: '%d小时', zhHant: '%d小時' },
   '%d시간 %d분': { ja: '%d時間%d分', zhHans: '%d小时%d分钟', zhHant: '%d小時%d分鐘' },
+  // 여행 페이지 2단계 — 폰 (S15P21E201-1535)
+  '일정 접기': { ja: '日程をたたむ', zhHans: '收起行程', zhHant: '收起行程' },
+  '일정 펼치기': { ja: '日程を開く', zhHans: '展开行程', zhHant: '展開行程' },
+  '확정하면 이 카드는 접혀요. 위에서 다시 바꿀 수 있어요.': { ja: '確定するとこのカードはたたまれます。上からいつでも変更できます。', zhHans: '确定后此卡片会收起。可在上方重新更改。', zhHant: '確定後此卡片會收起。可在上方重新更改。' },
+  '추정값': { ja: '推定値', zhHans: '估算值', zhHant: '估算值' },
+  '✓ 다녀옴': { ja: '✓ 訪問済み', zhHans: '✓ 已去过', zhHant: '✓ 已去過' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {

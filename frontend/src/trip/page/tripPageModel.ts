@@ -3,10 +3,26 @@
 // 시안: frontend/docs/design_handoff_trip_page/ (README · TripPageDesktop.dc.html)
 // 🔴 여기에는 그리는 코드를 두지 않는다. 숫자를 짓는 규칙이 화면 안에 섞이면 시험이 화면을
 //    통째로 띄워야만 그 규칙을 볼 수 있다.
+import { isAtLeast } from '@/layout/breakpoints';
+import type { LayoutKind } from '@/layout/useLayout';
 import type { MapRouteLayer } from '@/map/RouteMap';
 import { legKey, type LegPath } from '@/map/courseRoutePaths';
 import type { MapStop } from '@/map/types';
 import type { ItineraryItemDto } from '@/plan/itinerary';
+
+/**
+ * 두 입구(추천·일정)가 어느 판을 여나 — 넓은 화면(폭 1024~, 1단계) · 폰(2단계) · 지금까지의 화면.
+ *
+ * 🔴 폭이 1024 에 못 미치는 **태블릿**(짧은 변 600~)은 지금까지의 화면이다. 폰 판은 «탭바가 늘어난 창» 인데
+ *    태블릿에는 탭바가 없다(TabBar 가 kind === 'tablet' 에서 안 그린다).
+ * 🔴 `?classic=1` 은 넓은 화면·폰 모두 지금까지의 화면이다 — 새 판의 ⋯ 「일정 편집」이 순서·고정·제외·
+ *    다시 계산·되돌리기를 하러 이 길로 온다. 편집은 새 판에 자리가 없다.
+ */
+export function tripPageKind(width: number, kind: LayoutKind, classic: boolean): 'desktop' | 'mobile' | 'classic' {
+  if (classic) return 'classic';
+  if (isAtLeast(width, 'lg')) return 'desktop';
+  return kind === 'phone' ? 'mobile' : 'classic';
+}
 
 /** 「HH:mm」 을 넘어 쓰는 분 — 시각 문자열(ISO)에서 그날 0시부터 센 분. 못 읽으면 null. */
 export function minutesOfDay(startsAt: string | null | undefined): number | null {

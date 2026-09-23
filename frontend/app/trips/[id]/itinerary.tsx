@@ -26,6 +26,8 @@ import { color, gutter, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { TripPageDesktop } from '@/trip/page/TripPageDesktop';
+import { TripPageMobile } from '@/trip/page/TripPageMobile';
+import { tripPageKind } from '@/trip/page/tripPageModel';
 import {
   loadItinerary,
   loadItineraryPace,
@@ -387,12 +389,15 @@ type ViewMode = 'day' | 'all';
  * frontend/docs/design_handoff_trip_page/). 🔴 `?classic=1` 이면 지금까지의 화면 그대로다 — 새 화면의
  * ⋯ 「일정 편집」이 이리로 온다. 순서·고정·제외·다시 계산·되돌리기는 여기에만 있다.
  *
- * 폰과 좁은 화면은 그대로 아래 ItineraryClassic 이다(모바일은 통합 2단계).
+ * 폰은 같은 통합 화면의 폰 판이다(통합 2단계, TripPageMobile). 1024 에 못 미치는 태블릿은 아직 아래
+ * ItineraryClassic 이다 — 어느 판을 여는지의 규칙은 tripPageKind(src/trip/page/tripPageModel.ts)가 갖는다.
  */
 export default function ItineraryScreen() {
-  const { width } = useLayout();
+  const { width, kind } = useLayout();
   const { id, name, classic } = useLocalSearchParams<{ id: string; name?: string; classic?: string }>();
-  if (isAtLeast(width, 'lg') && classic !== '1' && id) return <TripPageDesktop source={{ kind: 'itinerary', itineraryId: id }} askName={name === '1'} />;
+  const page = id ? tripPageKind(width, kind, classic === '1') : 'classic';
+  if (id && page === 'desktop') return <TripPageDesktop source={{ kind: 'itinerary', itineraryId: id }} askName={name === '1'} />;
+  if (id && page === 'mobile') return <TripPageMobile source={{ kind: 'itinerary', itineraryId: id }} askName={name === '1'} />;
   return <ItineraryClassic />;
 }
 
