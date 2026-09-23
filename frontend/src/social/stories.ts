@@ -1,6 +1,7 @@
 import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL, APP_WEB_BASE_URL } from '@/api/client';
 import { singleFileFormData } from '@/api/multipart';
 import { txf } from '@/i18n/format';
+import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 /** MINE 은 화면만의 갈래다 — 서버 피드에는 없고 내 프로필 기록 목록(loadUserStories)으로 채운다. */
@@ -203,6 +204,11 @@ export async function createStory(input: {
   region?: string;
   visibility?: StoryVisibility;
   placeId?: string;
+  /**
+   * 카카오·대체 목록에서 고른 장소 — S15P21E201-1527. placeId 가 있으면 안 싣는다(서버도 placeId 가 이긴다).
+   * 서버가 (source, externalId) 로 찾거나 만들어 글에 잇는다(S15P21E201-1426).
+   */
+  place?: StoryPlaceSnapshot;
   tripId?: string;
   // 없으면 서버가 "여행 종료 다음 날 0시, 여행도 없으면 지금"으로 정한다.
   // "지금 바로 공개"를 고른 경우에만 현재 시각을 실어 보낸다.
@@ -234,6 +240,7 @@ export async function createStory(input: {
         region: input.region || undefined,
         visibility: input.visibility,
         placeId: input.placeId,
+        place: input.placeId ? undefined : input.place,
         tripId: input.tripId,
         publishAt: input.publishAt,
         parentStoryId: input.parentStoryId,

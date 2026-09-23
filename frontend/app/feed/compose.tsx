@@ -15,6 +15,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { createStory, FEED_QUERY_PREFIX, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
+import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { markChecklistStep } from '@/onboarding/firstRun';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 import { localizeMessage } from '@/i18n/messages';
@@ -48,6 +49,8 @@ export default function ComposeStory() {
   const [region, setRegion] = useState('');
   // 우리 DB 장소를 고르면 채워진다. 손으로 고쳐 쓰면 다시 비워진다 (RegionPicker).
   const [placeId, setPlaceId] = useState<string | undefined>(undefined);
+  // 카카오·대체 목록에서 고르면 채워진다 — 서버가 그 장소를 찾거나 만들어 글에 잇는다 (S15P21E201-1527).
+  const [place, setPlace] = useState<StoryPlaceSnapshot | undefined>(undefined);
   const [visibility, setVisibility] = useState<StoryVisibility>('PUBLIC');
   const [publishTiming, setPublishTiming] = useState<PublishTiming>('AFTER_TRIP');
   const [submitting, setSubmitting] = useState(false);
@@ -96,9 +99,10 @@ export default function ComposeStory() {
       body: body.trim(),
       imageUrls: uploadedUrls,
       region: region.trim() || undefined,
-      // 우리 DB 장소를 골랐을 때만 실려 간다. 카카오 검색 결과에는 placeId 가 아예
-      // 없으므로(regionSearch.ts) 저장하면 안 되는 것이 여기로 흘러들 수 없다.
+      // 우리 DB 장소를 고르면 placeId, 카카오·대체 목록을 고르면 place 가 실려 간다(S15P21E201-1527).
+      // 둘은 동시에 차지 않는다(RegionPicker) — 그래도 createStory 가 placeId 를 먼저 본다.
       placeId,
+      place,
       tripId,
       visibility,
       publishAt: publishTiming === 'NOW' ? new Date().toISOString() : undefined,
@@ -188,6 +192,7 @@ export default function ComposeStory() {
       onChangeRegion={setRegion}
       placeId={placeId}
       onChangePlaceId={setPlaceId}
+      onChangePlace={setPlace}
       accessToken={accessToken}
     />
 

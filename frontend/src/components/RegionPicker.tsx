@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { regionLabelOf, searchRegions, type RegionCandidate } from '@/social/regionSearch';
+import { regionLabelOf, searchRegions, type RegionCandidate, type StoryPlaceSnapshot } from '@/social/regionSearch';
 import { txf } from '@/i18n/format';
 
 type Props = {
@@ -14,10 +14,15 @@ type Props = {
   /** 우리 DB 장소를 고르면 그 번호, 손으로 고쳐 쓰면 undefined 로 돌아간다. */
   onChangePlaceId: (placeId: string | undefined) => void;
   placeId: string | undefined;
+  /**
+   * 카카오·대체 목록 결과를 고르면 그 장소 스냅샷, 우리 장소를 고르거나 손으로 고쳐 쓰면 undefined.
+   * 서버가 이것으로 장소를 찾거나 만들어 글에 잇는다 — S15P21E201-1527.
+   */
+  onChangePlace?: (place: StoryPlaceSnapshot | undefined) => void;
   accessToken: string | null;
 };
 
-export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId, accessToken }: Props) {
+export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId, onChangePlace, accessToken }: Props) {
   const { tx } = useI18n();
   const [query, setQuery] = useState('');
   const [items, setItems] = useState<RegionCandidate[]>([]);
@@ -49,6 +54,7 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
     picked.current = label;
     onChangeRegion(label);
     onChangePlaceId(candidate.placeId);
+    onChangePlace?.(candidate.placeId ? undefined : candidate.place);
     setQuery('');
     setItems([]);
   };
@@ -99,7 +105,7 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
           onChangeRegion(value);
           // 손으로 고치면 장소 연결을 끊는다. 「해운대해수욕장」을 고른 뒤 「광안리」로
           // 바꿔 쓰면, 글에는 여전히 해운대가 달려 있게 된다 — 화면과 저장된 것이 달라진다.
-          if (picked.current !== null && value !== picked.current) { picked.current = null; onChangePlaceId(undefined); }
+          if (picked.current !== null && value !== picked.current) { picked.current = null; onChangePlaceId(undefined); onChangePlace?.(undefined); }
         }}
         maxLength={60}
       />
