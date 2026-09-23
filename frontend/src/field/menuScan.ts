@@ -186,10 +186,13 @@ export function allergenNotice(scan: MenuScan, tx: Translate): { words: string[]
     words,
     headline: words.length > 0
       ? tx('읽은 글자에서 이런 낱말이 보였어요', 'These words appeared in the text we read')
-      : tx('읽은 글자에서는 알레르기와 관련된 낱말을 찾지 못했어요', "We didn't find allergy-related words in the text we read"),
+      // 🔴 「찾지 못했어요」라고 하지 않는다 — S15P21E201-1545. 서버의 로컬 OCR 경로(S15P21E201-1538)는
+      //    알레르기 낱말을 찾아보지도 않고 늘 빈 목록을 보낸다(응답에 «찾아봤는지» 칸도 없다). 찾아보지 않은 것을
+      //    「못 찾았다」고 하면 알레르기가 있는 사람이 «확인해 봤구나»로 읽는다. 어느 경로든 참인 말만 한다.
+      : tx('알레르기 성분은 사진만으로는 확인할 수 없어요', "Allergens can't be confirmed from a photo alone"),
     caution: words.length > 0
       ? tx('사진에서 읽은 것이라 빠진 것이 있을 수 있어요. 드시기 전에 직원에게 확인해 주세요.', 'This came from a photo, so something may be missing. Please check with the staff before eating.')
-      : tx('메뉴에 없다는 뜻이 아니에요. 드시기 전에 직원에게 확인해 주세요.', "That does not mean the menu has none. Please check with the staff before eating."),
+      : tx('알레르기 낱말이 안 보인다고 없다는 뜻이 아니에요. 드시기 전에 직원에게 확인해 주세요.', "Not seeing an allergy word does not mean it isn't in the dish. Please check with the staff before eating."),
   };
 }
 

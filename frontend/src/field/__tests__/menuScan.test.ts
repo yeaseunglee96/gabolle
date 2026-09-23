@@ -76,6 +76,15 @@ describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
     expect(notice!.words).toEqual([]);
   });
 
+  // — S15P21E201-1545. 서버의 로컬 OCR 경로(S15P21E201-1538)는 알레르기 낱말을 찾아보지도 않고 늘 빈 목록을 보낸다.
+  it('🔴 낱말이 없을 때 「찾아봤다」고 말하지 않는다 — 서버가 안 찾아본 경로가 있다', () => {
+    const ko = allergenNotice(scan({ lines: [line({ text: '김치찌개', translatedText: '김치찌개', allergenWords: [] })] }), tx)!;
+    const en = allergenNotice(scan({ lines: [line({ text: 'Kimchi stew', translatedText: 'Kimchi stew', allergenWords: [] })] }), txEn)!;
+    expect(ko.headline).not.toContain('찾지 못했');
+    expect(en.headline.toLowerCase()).not.toContain("didn't find");
+    expect(ko.headline).toContain('사진만으로는 확인할 수 없어요');
+  });
+
   it('같은 낱말이 여러 줄에 있어도 한 번만 나온다', () => {
     const notice = allergenNotice(scan({ lines: [
       line({ text: '새우튀김', translatedText: '새우튀김', allergenWords: ['새우'] }),
