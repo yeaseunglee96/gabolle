@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { understandAssistantMessage, type AssistantAction } from '@/assistant/intent';
 import { isNearBottom } from '@/assistant/chatScroll';
-import { askAssistant, type AssistantTurn } from '@/assistant/assistantApi';
+import { askAssistant, isAllowedNavigateHref, type AssistantTurn } from '@/assistant/assistantApi';
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { GabolleMascot } from '@/components/DongbaekMascot';
@@ -77,7 +77,8 @@ export default function Chat() {
    *   키워드 매처로 답하는데 그 매처가 한국어만 알아듣기 때문이다(src/assistant/intent.ts).
    *   안 주면 보낸 글을 그대로 쓴다(직접 입력한 경우는 둘이 같다). S15P21E201-1327.
    */
-  async function send(value = input, shown?: string) {
+  /** @param fixed 추천 칩처럼 우리가 만든, 뜻이 정해진 단추에서 왔나 */
+  async function send(value = input, shown?: string, fixed = false) {
     const content = value.trim();
     if (!content || pending) return;
     setInput('');
@@ -90,9 +91,21 @@ export default function Chat() {
     setMessages((current) => [...current, { id: userId, role: 'user', text: (shown ?? content).trim() }]);
     setPending(true);
     try {
-      const action = accessToken
-        ? await askAssistant(content, accessToken, history, language).catch(() => understandAssistantMessage(content))
-        : understandAssistantMessage(content);
+      // 🔴 칩 「부산 로컬 스팟 보여줘」가 「새 여행 만들기」로 갔다 — S15P21E201-1517.
+      //    서버 AI 는 /explore 로 보낼 수 없다(허용 목록 다섯에 없고, 안내문이 「장소 요청은
+      //    /plan 또는 /trips 로」라고 정한다). 그래서 규칙대로 /plan 이 나왔다.
+      //    칩은 뜻이 정해진 단추라, 서버가 못 가는 화면으로 가는 칩은 서버에 묻지 않는다.
+      //    /field/dialect 가 같은 이유로 이미 「앱 안에서만 쓰는 이동」이다(-1422).
+      //
+      //    🔴 직접 친 글에는 쓰지 않는다. 로컬 해석기는 낱말만 보는 거친 도구라
+      //       「로컬 맛집 일정 짜줘」도 /explore 로 보낸다 — 그건 서버 AI 가 더 잘 가른다.
+      const local = fixed ? understandAssistantMessage(content) : null;
+      const appOnly = local?.kind === 'navigate' && !isAllowedNavigateHref(local.href);
+      const action = local && appOnly
+        ? local
+        : accessToken
+          ? await askAssistant(content, accessToken, history, language).catch(() => understandAssistantMessage(content))
+          : understandAssistantMessage(content);
       setMessages((current) => [...current, { id: assistantId, role: 'assistant', text: action.reply, action }]);
     } finally {
       setPending(false);
@@ -130,7 +143,7 @@ export default function Chat() {
               기능 버튼(tools)과 검색 예시(suggestions)를 인사말 바로 아래, 자유 입력창보다 먼저
               보여준다 — 자유 대화가 주된 사용법이라는 인상을 주지 않기 위해서다. */}
           {!desktop ? tools : null}
-          {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 검색해 보세요', 'Try searching for these')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion.ko} accessibilityRole="button" accessibilityState={{ disabled: pending }} disabled={pending} onPress={() => send(suggestion.ko, tx(suggestion.ko, suggestion.en))} style={styles.suggestion}><Text variant="body" weight="medium">{tx(suggestion.ko, suggestion.en)}</Text></Pressable>)}</View></View> : null}
+          {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 검색해 보세요', 'Try searching for these')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion.ko} accessibilityRole="button" accessibilityState={{ disabled: pending }} disabled={pending} onPress={() => send(suggestion.ko, tx(suggestion.ko, suggestion.en), true)} style={styles.suggestion}><Text variant="body" weight="medium">{tx(suggestion.ko, suggestion.en)}</Text></Pressable>)}</View></View> : null}
           {messages.map((message) => <View key={message.id} style={[styles.bubble, desktop && styles.bubbleDesktop, message.role === 'user' ? styles.userBubble : styles.assistantBubble]}><Text color={message.role === 'user' ? color.text.onAction : color.text.heading}>{message.text}</Text>
             {message.action?.kind === 'plan' && message.action.summary.length ? <View style={styles.actionCard}><Text variant="caption" weight="bold">{tx('찾은 여행 조건', 'Conditions found')}</Text><Text variant="caption" color={color.text.body}>{message.action.summary.join(' · ')}</Text><Button label={message.applied ? tx('일정 초안에 적용됨 ✓', 'Applied to draft itinerary ✓') : tx('일정에 적용하고 확인하기', 'Apply to itinerary and review')} variant="outline" disabled={message.applied} onPress={() => { applyPlan(message.id, message.action as Extract<AssistantAction, { kind: 'plan' }>); router.push('/plan'); }} /></View> : null}
             {message.action?.kind === 'phrase' ? <View style={styles.actionCard}><Text variant="title" weight="bold">{message.action.korean}</Text><Text variant="caption" color={color.text.muted}>{message.action.pronunciation}</Text><Button label={tx('크게 보고 듣기', 'View large & listen')} variant="field" onPress={() => router.push({ pathname: '/field/speak', params: { phrase: (message.action as Extract<AssistantAction, { kind: 'phrase' }>).korean } })} /></View> : null}

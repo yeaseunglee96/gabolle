@@ -21,7 +21,9 @@ const CHAT = readFileSync(join(__dirname, '..', '..', '..', 'app', 'chat.tsx'), 
 describe('비서 제안을 누르면 내가 본 문구가 말풍선에 남는다', () => {
   it('🔴 제안을 누를 때 보여 준 문구를 함께 넘긴다', () => {
     // 넘기지 않으면(send(suggestion.ko) 만) 말풍선이 한국어가 된다.
-    expect(CHAT).toContain('send(suggestion.ko, tx(suggestion.ko, suggestion.en))');
+    // 셋째 인수 true 는 「뜻이 정해진 단추에서 왔다」는 표시다(S15P21E201-1517 — 서버가 못 가는
+    // 화면으로 가는 칩은 서버에 안 묻는다).
+    expect(CHAT).toContain('send(suggestion.ko, tx(suggestion.ko, suggestion.en), true)');
   });
 
   it('🔴 말풍선은 보여 준 문구를 쓴다 — 없으면 보낸 글로 떨어진다', () => {
