@@ -9,6 +9,8 @@
  * **그리는 쪽이 이 함수를 거친다.** 영어는 여기 표에서, 일본어·중국어는 번역표에서 온다.
  * 표에 없는 문장(서버가 보낸 것 등)은 그대로 돌려준다.
  */
+import { fillNumbers, numericShape } from '@/i18n/pick';
+
 type Tx = (ko: string, en: string) => string;
 
 export const MESSAGE_EN: Record<string, string> = {
@@ -56,11 +58,35 @@ export const MESSAGE_EN: Record<string, string> = {
   '조건에 맞는 장소를 찾지 못했어요. 날짜·예산·취향 조건을 조금 넓혀서 다시 시도해 주세요.': 'No places matched your conditions. Loosen the dates, budget or preferences a little and try again.',
   '일정을 아직 못 불러왔어요.': 'The itinerary has not loaded yet.',
   '(탈퇴한 사용자)': '(deleted user)',
+  // 5xx — 상태 번호가 끼므로 «모양»으로 둔다. 찾을 때 숫자를 빼고 찾는다(pick.ts numericShape).
+  '서버가 잠시 응답하지 못했어요. 잠시 후 다시 시도해 주세요. (HTTP %d)': 'The server could not handle this just now. Please try again shortly. (HTTP %d)',
 };
+
+/**
+ * 🔴 영어로 던져진 문장도 받는다 — S15P21E201-1521.
+ *
+ * `api/client.ts` 는 연결 실패·5xx 문장을 API 언어(`apiLanguage`)로 고른다. 그런데 일본어·중국어
+ * 화면의 API 언어는 `en` 이다(resolveTextLanguage — 서버는 한국어·영어만 안다). 그래서 그 문장이
+ * **영어로** 올라왔고, 위 표는 한국어를 열쇠로 찾으니 못 찾아 일본어 화면에 영어가 그대로 나갔다
+ * (2026-09-23, 일본어 웹 — 탐색·축제·피드의 「The server is unavailable. …」).
+ * 표를 거꾸로도 찾아 한국어 원문을 되찾은 뒤 번역표를 거친다.
+ */
+const KO_BY_EN: Record<string, string> = Object.fromEntries(Object.entries(MESSAGE_EN).map(([ko, en]) => [en, ko]));
 
 /** 화면이 `message` 를 그릴 때 거친다. 표에 없으면 그대로. */
 export function localizeMessage(tx: Tx, text: string | null | undefined): string {
   if (!text) return '';
   const en = MESSAGE_EN[text];
-  return en ? tx(text, en) : text;
+  if (en) return tx(text, en);
+  const ko = KO_BY_EN[text];
+  if (ko) return tx(ko, text);
+  // 숫자가 낀 문장 — 숫자를 뺀 모양으로 한 번 더 찾고, 찾으면 숫자를 도로 끼운다.
+  const shaped = numericShape(text);
+  if (shaped) {
+    const enShape = MESSAGE_EN[shaped.shape];
+    if (enShape) return tx(text, fillNumbers(enShape, shaped.numbers));
+    const koShape = KO_BY_EN[shaped.shape];
+    if (koShape) return tx(fillNumbers(koShape, shaped.numbers), text);
+  }
+  return text;
 }

@@ -15,6 +15,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
 import { formatFeatureSlot, photoLabels } from '@/discovery/places';
 import { useI18n } from '@/i18n';
+import { localizeMessage } from '@/i18n/messages';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 
@@ -85,7 +86,7 @@ export default function Festivals() {
     </View>
 
     {state === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text variant="title" weight="bold">{tx('축제를 확인하고 있어요', 'Checking festivals')}</Text><Text color={color.text.body}>{tx('선택한 기간과 부산 지역을 기준으로 조회합니다.', 'Searching based on your selected period and the Busan area.')}</Text></View>}
-    {state === 'error' && <View accessibilityRole="alert" style={styles.stateCard}><Text variant="title" weight="bold">{tx('불러오지 못했습니다', 'Could not load')}</Text><Text color={color.text.body}>{errorMessage}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
+    {state === 'error' && <View accessibilityRole="alert" style={styles.stateCard}><Text variant="title" weight="bold">{tx('불러오지 못했습니다', 'Could not load')}</Text><Text color={color.text.body}>{localizeMessage(tx, errorMessage)}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
     {state === 'ready' && sorted.length === 0 && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기간에 열리는 축제가 없습니다', 'No festivals run during this period')}</Text><Text color={color.text.body}>{tx('날짜를 바꿔 다시 조회해 보세요. 기간과 무관한 축제는 대신 보여드리지 않아요.', "Try different dates. We don't show festivals outside the period instead.")}</Text>
       {/* 빈 화면에서 나갈 길 — 기간 정보가 없는 축제도 로컬 탐색의 축제 갈래에는 있다(S15P21E201-1372). */}
       <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/explore', params: { facet: 'FESTIVAL' } })} style={({ pressed }) => [styles.exploreLink, pressed && styles.pressed]}>
