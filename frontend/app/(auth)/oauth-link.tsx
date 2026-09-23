@@ -70,7 +70,7 @@ export default function OAuthLink() {
         <View style={styles.expiredBody}>
           <Text variant="display" weight="bold">{tx('연결 정보가 만료됐어요', 'Your link request expired')}</Text>
           <Text color={color.text.body}>{tx('소셜 로그인을 처음부터 다시 시작해 주세요.', 'Please start social sign-in again from the beginning.')}</Text>
-          <Button label={tx('로그인으로 돌아가기', 'Back to sign-in')} onPress={() => router.replace('/sign-in')} />
+          <Button compact label={tx('로그인으로 돌아가기', 'Back to sign-in')} onPress={() => router.replace('/sign-in')} />
         </View>
       </Screen>
     );

@@ -50,7 +50,7 @@ export function SavedRecordsBody() {
       {!loading && result.state !== 'success' ? (
         <View style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('저장한 기록을 불러오지 못했어요', "We couldn't load your saved records")}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
+          <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
 
@@ -59,7 +59,7 @@ export function SavedRecordsBody() {
           <GabolleMascot state="idle" style={styles.mascot} />
           <Text variant="title" weight="bold">{tx('아직 저장한 기록이 없어요', 'No saved records yet')}</Text>
           <Text style={styles.emptyCopy}>{tx('피드에서 마음에 드는 기록을 눌러 저장해 보세요.', 'Save a record you like from the feed.')}</Text>
-          <Button label={tx('피드 보러 가기', 'Browse the feed')} onPress={() => router.push('/feed')} containerStyle={styles.emptyCta} />
+          <Button compact label={tx('피드 보러 가기', 'Browse the feed')} onPress={() => router.push('/feed')} containerStyle={styles.emptyCta} />
         </View>
       ) : null}
 
