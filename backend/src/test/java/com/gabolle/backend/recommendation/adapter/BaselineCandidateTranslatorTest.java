@@ -9,8 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
-import com.gabolle.backend.place.domain.UserInputKind;
-import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.domain.RequestLocation;
@@ -23,7 +21,6 @@ import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * {@link BaselineCandidateTranslator} — 대조표 → 질의 조건. 스텁 code-map 으로 돈다.
@@ -44,7 +41,6 @@ class BaselineCandidateTranslatorTest {
 	@Test
 	@DisplayName("중심 좌표는 Trip.originLat/originLng, 반경은 설정값이고 상한은 채점 대상 상한이다")
 	void 중심좌표와_반경은_설정과_여행에서_온다() {
-		categoryIsMapped(true);
 		Trip trip = trip(35.15, 129.05);
 
 		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, null, List.of());
@@ -60,7 +56,6 @@ class BaselineCandidateTranslatorTest {
 	@Test
 	@DisplayName("🔴 requiredFeatures·excludedFeatures 는 제약이 있어도 항상 비어 있다")
 	void required와_excluded는_항상_비어있다() {
-		categoryIsMapped(true);
 		Trip trip = trip(35.15, 129.05);
 		List<TripConstraint> constraints = List.of(
 				new TripConstraint(UUID.randomUUID().toString(), trip.tripId(), "ALLERGY", "PEANUT",
@@ -75,44 +70,16 @@ class BaselineCandidateTranslatorTest {
 	}
 
 	@Test
-	@DisplayName("CATEGORY 답의 코드가 categories 로 그대로 들어간다")
-	void category_답이_categories로_들어간다() {
-		categoryIsMapped(true);
+	@DisplayName("🔴 여행 테마(CATEGORY)를 골라도 후보를 갈래로 좁히지 않는다 — 테마는 채점의 가산점이다")
+	void 테마를_골라도_후보를_좁히지_않는다() {
+		// 운영 실측(2026-09-23): SEA_BEACH 16곳 · FOOD 4,387곳. 「바다」 하나로 자르면 후보가 16곳 이하가
+		// 되어 일정이 실패하거나 식당 없는 하루가 됐다. 반영은 BaselineCandidateScorer 가 한다.
 		Trip trip = trip(35.15, 129.05);
-		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\", \"CAFE\"]}");
-
-		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, snapshot, List.of());
-
-		assertThat(request.categories()).containsExactly("SEA", "CAFE");
-	}
-
-	@Test
-	@DisplayName("대조표에 CATEGORY 짝이 없으면 categories 로 좁히지 않는다 — 없는 관계를 지어내지 않는다")
-	void 대조표에_카테고리_짝이_없으면_비운다() {
-		categoryIsMapped(false);
-		Trip trip = trip(35.15, 129.05);
-		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\"]}");
+		PreferenceSnapshot snapshot = snapshot("CATEGORY", "[\"SEA_BEACH\", \"FOOD\"]");
 
 		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, snapshot, List.of());
 
 		assertThat(request.categories()).isEmpty();
-	}
-
-	@Test
-	@DisplayName("취향 스냅샷이 없으면 categories 는 빈 목록이다")
-	void 취향스냅샷_없으면_categories_비어있다() {
-		categoryIsMapped(true);
-		Trip trip = trip(35.15, 129.05);
-
-		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, null, List.of());
-
-		assertThat(request.categories()).isEmpty();
-	}
-
-	private void categoryIsMapped(boolean mapped) {
-		List<UserPlaceCodeMap> rows = mapped ? List.of(mock(UserPlaceCodeMap.class)) : List.of();
-		when(this.codeMapRepository.findByIdUserInputKindAndIdUserInputCode(UserInputKind.PREFERENCE, "CATEGORY"))
-				.thenReturn(rows);
 	}
 
 	private static Trip trip(double lat, double lng) {

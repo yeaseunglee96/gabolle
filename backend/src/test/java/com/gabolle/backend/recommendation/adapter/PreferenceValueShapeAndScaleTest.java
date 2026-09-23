@@ -78,9 +78,11 @@ class PreferenceValueShapeAndScaleTest {
 	@Test
 	@DisplayName("고른 코드 둘 중 하나만 장소에 있으면 0.5 다 — 분모는 사용자가 고른 수")
 	void 절반만_겹치면_절반이다() {
+		// 관심 태그 어휘(NATURE·WALK)로 잰다. 후보의 갈래(FOOD)를 코드에 넣으면 「테마가 갈래와 같으면 만점」
+		// 규칙(S15P21E201-1535)이 먼저 걸려 비율을 볼 수 없다.
 		EngineCandidate result = score(
-				candidate(List.of(tag("INTEREST_TAG", "FOOD", "ESTIMATED", "true"))),
-				snapshot("CATEGORY", "[\"FOOD\",\"SEA_BEACH\"]"));
+				candidate(List.of(tag("INTEREST_TAG", "NATURE", "ESTIMATED", "true"))),
+				snapshot("CATEGORY", "[\"NATURE\",\"WALK\"]"));
 
 		assertThat(component(result, "interest")).isEqualTo(0.5);
 	}

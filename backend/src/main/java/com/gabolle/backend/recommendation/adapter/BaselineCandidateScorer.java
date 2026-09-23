@@ -641,6 +641,20 @@ public class BaselineCandidateScorer {
 		}
 		double ratio = matched.size() / (double) userCodes.size();
 
+		// 🔴 여행 테마(CATEGORY)는 장소의 갈래(place.category)와도 맞춰 본다 (2026-09-23, S15P21E201-1535).
+		//    앱의 테마 코드(SEA_BEACH·CITY·CAFE_HEALING·CULTURE_TEMPLE·FOOD·NATURE_WALK)는 place.category 와
+		//    같은 어휘인데, 관심 태그(INTEREST_TAG)는 다른 어휘다(운영: NATURE·WALK·TRADITIONAL_MARKET …).
+		//    태그만 보면 테마가 어떤 장소와도 안 겹쳐 가산이 0 이었다. 전에는 번역기가 갈래로 후보를
+		//    «잘라서» 테마를 반영했는데 그 거르기를 없앴으므로(BaselineCandidateTranslator) 여기서 가산한다.
+		//    장소는 갈래가 하나라 비율이 아니라 «맞으면 만점» 이다 — 테마 둘을 고른 사람에게 바다가 반점이면 안 된다.
+		if ("CATEGORY".equals(preferenceCode) && candidate.category() != null
+				&& userCodes.contains(candidate.category())) {
+			if (!matched.contains(candidate.category())) {
+				matched.add(candidate.category());
+			}
+			ratio = 1.0;
+		}
+
 		featureValues.put(featureValueKey, ratio);
 		scoreComponents.put(componentKey, componentDetail(weight, ratio, Map.of("matched", matched)));
 		if (!matched.isEmpty()) {
