@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,6 +19,19 @@ import java.util.List;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 
+/**
+ * 🔴 S15P21E201-1548 — {@code @EnableMethodSecurity} 를 켠다. 이전에는 이게 꺼져 있어
+ * {@code AdminModerationController}·{@code AnalyticsController} 가 {@code @PreAuthorize} 를
+ * 붙여도 조용히 무시된다고 스스로 경고하고 있었다 — 방어선이 아래 {@code requestMatchers}
+ * 경로 매처 단 하나뿐이라, 누가 실수로 그 컨트롤러를 {@code /api/v1/admin/} 밖으로 옮기면
+ * 그 즉시 인가가 사라졌다.
+ *
+ * <p>이제 두 컨트롤러에 {@code @PreAuthorize("hasRole('ADMIN')")} 를 추가로 붙여
+ * **이중 방어**로 만든다 — 경로 매처는 대체된 것이 아니라 그대로 남아 있다. 코드베이스
+ * 어디에도 기존 {@code @PreAuthorize}/{@code @Secured}/{@code @RolesAllowed} 사용이 없었으므로
+ * (2026-09-24 확인), 이 스위치를 켜도 다른 곳의 숨은 동작이 갑자기 살아나지 않는다.
+ */
+@EnableMethodSecurity
 @Configuration
 public class SecurityConfig {
 
@@ -60,9 +74,9 @@ public class SecurityConfig {
 				// 공유 조회는 43글자 난수 토큰을 아는 사람이 로그인 없이 연다. 발급(POST)·복제는
 				// 여전히 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/shares/*").permitAll()
-				// 운영자 전용 경로. @PreAuthorize 를 쓰지 않는다 — 이 저장소는 메서드 보안
-				// (@EnableMethodSecurity)이 꺼져 있어 그 애너테이션이 조용히 무시된다. 경로 앞자리로
-				// 막으면 운영자 API 를 새로 만드는 사람이 애너테이션을 잊어도 막힌다.
+				// 운영자 전용 경로. S15P21E201-1548 — 이제 메서드 보안도 켜져 있어 컨트롤러의
+				// @PreAuthorize 가 이중으로 막지만, 이 경로 매처는 대체가 아니라 그대로 둔다 —
+				// 운영자 API 를 새로 만드는 사람이 애너테이션을 잊어도 이 줄이 여전히 막는다.
 				// 권한은 HmacJwtAuthenticationFilter 가 매 요청 DB 에서 role 을 읽어 심는다
 				// (토큰 클레임이 아니라 DB 라서 권한 회수가 즉시 반영된다).
 				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
