@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.gabolle.backend.batch.application.TasteDecayProperties;
+import com.gabolle.backend.batch.application.TasteVectorDailyFoldProperties;
 import com.gabolle.backend.batch.application.TasteVectorProperties;
 import com.gabolle.backend.batch.security.InternalTokenAuthenticationFilter;
 
@@ -18,7 +19,7 @@ import com.gabolle.backend.batch.security.InternalTokenAuthenticationFilter;
  */
 @Configuration
 @EnableConfigurationProperties({ InternalApiProperties.class, TasteVectorProperties.class,
-		TasteDecayProperties.class })
+		TasteDecayProperties.class, TasteVectorDailyFoldProperties.class })
 public class BatchConfiguration {
 
 	@Bean
