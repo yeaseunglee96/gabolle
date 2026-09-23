@@ -16,6 +16,14 @@ export type CourseStop = {
   note: string | null;
   photoUrl: string | null;
   /**
+   * 사진 출처 표기 문구. {@link photoUrl} 과 «짝이다».
+   *
+   * 🔴 지금 실려 오는 사진은 TourAPI 등 공공누리 자료라 **출처 표기가 이용 조건**이다.
+   *    그래서 화면은 «출처를 못 그리면 사진도 안 그린다» (CourseCard). 선택 사항이 아니다
+   *    — S15P21E201-1125 의 「출처 표기를 구조로 강제한다」와 같은 선이다.
+   */
+  photoSource: string | null;
+  /**
    * 지도에 선을 그리는 재료 —-1333.
    *
    * 🔴 **모르면 `null` 이지 `0` 이 아니다.** 0 으로 그리면 지도에 아프리카 서쪽 바다가
@@ -56,7 +64,7 @@ export type TripCoursesResult =
 
 type CourseDto = {
   id?: string; courseId?: string; title?: string; tagline?: string | null;
-  days?: Array<{ day?: number; stops?: Array<{ placeId?: string | null; name?: string; time?: string | null; note?: string | null; photoUrl?: string | null; lat?: number | null; lng?: number | null }> }>;
+  days?: Array<{ day?: number; stops?: Array<{ placeId?: string | null; name?: string; time?: string | null; note?: string | null; photoUrl?: string | null; photoSource?: string | null; lat?: number | null; lng?: number | null }> }>;
   summary?: { places?: number | null; moveMin?: number | null; walkKm?: number | null; costKrw?: number | null } | null;
   status?: string | null;
   rationale?: string | null;
@@ -71,6 +79,7 @@ function toStop(dto: NonNullable<NonNullable<CourseDto['days']>[number]['stops']
     time: typeof dto?.time === 'string' && dto.time !== '' ? dto.time : null,
     note: typeof dto?.note === 'string' && dto.note !== '' ? dto.note : null,
     photoUrl: typeof dto?.photoUrl === 'string' && dto.photoUrl !== '' ? dto.photoUrl : null,
+    photoSource: typeof dto?.photoSource === 'string' && dto.photoSource !== '' ? dto.photoSource : null,
     lat: coordinate(dto?.lat),
     lng: coordinate(dto?.lng),
   };
@@ -129,6 +138,7 @@ export function courseFromItinerary(itinerary: ItineraryDto): TripCourse {
       note: item.description ?? null,
       // 🔴 일정 항목에는 사진 칸이 없다. 없는 것을 지어내지 않는다 — 화면이 사진 자리를 접는다.
       photoUrl: null,
+      photoSource: null,
       lat: coordinate(item.lat),
       lng: coordinate(item.lng),
     })).filter((stop) => stop.name !== ''),

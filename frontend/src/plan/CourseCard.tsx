@@ -42,7 +42,7 @@ export function courseCost(course: TripCourse, tx: Tx): string | null {
  *
  * 🔴 장소 사진은 354곳이 끝이라 0장인 카드가 흔하다. 그래서 0장이 예외가 아니라 기본이다.
  */
-function CourseCover({ photos, extra, tx }: { photos: Array<{ url: string; name: string }>; extra: number; tx: Tx }) {
+function CourseCover({ photos, extra, tx }: { photos: Array<{ url: string; name: string; source: string }>; extra: number; tx: Tx }) {
   if (photos.length === 0) return null;
   const [first, ...rest] = photos;
   return (
@@ -70,10 +70,17 @@ function CourseCover({ photos, extra, tx }: { photos: Array<{ url: string; name:
   );
 }
 
-function CoverPhoto({ photo, extra = 0, tx }: { photo: { url: string; name: string }; extra?: number; tx: Tx }) {
+function CoverPhoto({ photo, extra = 0, tx }: { photo: { url: string; name: string; source: string }; extra?: number; tx: Tx }) {
   return (
     <>
       <Image source={{ uri: photo.url }} resizeMode="cover" accessibilityLabel="" style={styles.coverPhoto} />
+      {/* 🔴 출처는 사진과 «같이» 간다 (S15P21E201-1496). 이름 꼬리표 위에 한 줄로 얹는다 —
+          자리가 좁아 작게 들어가지만, 빼는 선택지는 없다(공공누리 이용 조건). */}
+      <View style={styles.coverCredit}>
+        <Text variant="micro" numberOfLines={1} color={color.text.onAction}>
+          {txf(tx, '사진 제공: %s', 'Photo: %s', photo.source)}
+        </Text>
+      </View>
       {/* 좌하단 이름 꼬리표. +N 이 있는 칸은 그만큼 좁힌다 — 겹치면 둘 다 못 읽는다. */}
       <View style={[styles.coverTag, extra > 0 && styles.coverTagNarrow]}>
         <Text variant="micro" weight="bold" numberOfLines={1} color={color.text.onAction}>{photo.name}</Text>
@@ -177,11 +184,17 @@ export function CourseCard({
   }, [selected, pick]);
   const pickBorder = pick.interpolate({ inputRange: [0, 1], outputRange: [color.surface.border, color.action.outline] });
 
+  // 🔴 출처가 «없으면 사진도 안 그린다» — S15P21E201-1496.
+  //
+  //    여기 실리는 사진은 TourAPI 등 공공누리 자료라 출처 표기가 이용 조건이다.
+  //    주소만 받아 걸면 그 조건을 깬다. 그래서 짝이 안 맞으면 «안 거는 쪽»을 고른다 —
+  //    사진이 안 보이는 것은 눈에 띄어 고쳐지지만, 출처 없이 걸린 것은 아무도 모른다.
+  //    (S15P21E201-1125 「출처 표기를 구조로 강제한다」와 같은 선. PlaceVisual 도 같다.)
   const photos = course.days
     .flatMap((day) => day.stops)
-    .filter((stop) => stop.photoUrl)
+    .filter((stop) => stop.photoUrl && stop.photoSource)
     .slice(0, 3)
-    .map((stop) => ({ url: stop.photoUrl as string, name: stop.name }));
+    .map((stop) => ({ url: stop.photoUrl as string, name: stop.name, source: stop.photoSource as string }));
   // +N — 표지에 못 담은 나머지. 총 장소 수를 모르면 안 그린다(0 으로 짓지 않는다).
   const extra = typeof course.summary.places === 'number'
     ? Math.max(0, course.summary.places - photos.length)
@@ -332,6 +345,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(25,25,25,0.72)',
   },
   coverTagNarrow: { maxWidth: '62%' },
+  // 출처 줄 — 좌«상»단. 우상단은 ☆ 자리이고 하단은 이름 꼬리표·+N 자리다.
+  coverCredit: {
+    position: 'absolute', left: spacing[2], top: spacing[2], maxWidth: '72%',
+    paddingHorizontal: spacing[2], paddingVertical: 1, borderRadius: radius.full,
+    backgroundColor: 'rgba(25,25,25,0.56)',
+  },
   coverMore: {
     position: 'absolute', right: spacing[2], bottom: spacing[2],
     paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full,

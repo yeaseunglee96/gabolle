@@ -85,7 +85,7 @@ export default function Place() {
 
   // 🔴 「이 장소를 봤다」 — place_view (S15P21E201-638). 서버 취향 귀속의 마지막 조각(1482, 기여값 +0.1).
   //    화면당 «한 번만» 보낸다 — 재렌더·뒤로가기·재시도로 두 번 나가면 「두 번 본 것」이 되어 가중치가 부푼다.
-  //    «로딩이 끝난 뒤에만» — not-found 인 장소를 봤다고 적지 않는다. demoPlace 는 place_like 와 같은 이유로 뺀다.
+  //    «로딩이 끝난 뒤에만» — not-found 인 장소를 봤다고 적지 않는다. demoPlace(내장 견본)는 실제 장소가 아니라 뺀다.
   //    requestId 는 이번 범위가 아니다(랭킹 평가용 — 취향 귀속에는 필요 없다, 별도 티켓).
   const viewed = useRef<Set<string>>(new Set());
   useEffect(() => {
@@ -112,10 +112,16 @@ export default function Place() {
     if (sync === 'failed') {
       setFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
     } else {
-      setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
+      // 🔴 어디에 저장됐는지까지 말한다 — S15P21E201-1489(B-11). 「저장했어요」만 들으면
+      //    부슐랭(컬렉션)을 열어 보고 비어 있어서 「저장이 안 됐다」고 오해한다. 실제로 둘은
+      //    다른 저장소다 — 이쪽은 일정 만들 때 쓰는 후보이고, 부슐랭은 따로 담는다.
+      setFeedback(nextSaved
+        ? tx('내 여행 후보에 저장했어요. 일정을 만들 때 이 장소를 먼저 넣어요.', 'Saved to your trip candidates — we will use it first when building an itinerary.')
+        : tx('저장을 해제했어요.', 'Removed from saved.'));
     }
-    // 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
-    if (nextSaved && !demoPlace) sendAppEvent({ type: 'place_like', accessToken, payload: { placeId: id, surface: 'place_detail' } });
+    // 🔴 place_like 는 여기서 보내지 않는다 — S15P21E201-1486. 저장 API(PUT /me/saved-places)가
+    //    서버에서 같은 트랜잭션으로 PLACE_LIKE 를 적는다(inserted == 1 일 때만이라 연타·재시도에도
+    //    한 건). 앱이 또 보내면 하트 한 번에 두 건이 됐다. place_view 는 서버 짝이 없어 그대로 둔다.
   };
 
   const notFound = !demoPlace && remote.status === 'not-found';
@@ -162,8 +168,16 @@ export default function Place() {
                       여태 축제 화면만 말하고 여기는 아무 말도 안 했다.
                   */}
                   <PhotoSubjectBadge photoSubject={resolved.apiPlace.photoSubject} style={styles.subjectBadge} />
+                  {/* 🔴 accessibilityLabel 을 반드시 함께 준다 (2026-09-22, build 41 실기기).
+
+                      iOS 에서는 testID 가 accessibility identifier 로 나가는데, 라벨이 없으면
+                      **그 식별자가 읽을 글자로 새어 나온다.** 접근성 트리에 실제 출처 문구와
+                      별도로 `place-photo-credit` 이라는 항목이 하나 더 잡혔고(실측),
+                      VoiceOver 는 그것을 영어 알파벳 그대로 읽는다. 화면에는 안 보인다.
+
+                      라벨을 주면 식별자는 자동화용으로만 남고 소리로는 안 나간다. */}
                   {resolved.apiPlace.photoSource ? (
-                    <Text testID="place-photo-credit" variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)}</Text>
+                    <Text testID="place-photo-credit" accessibilityLabel={txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)} variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)}</Text>
                   ) : null}
                 </View>
               </ImageBackground>

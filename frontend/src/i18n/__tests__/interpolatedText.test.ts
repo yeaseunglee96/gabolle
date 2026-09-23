@@ -29,7 +29,7 @@ describe('값이 끼는 문구 — 글자 자리(%s)', () => {
   const tx = (language: LanguageCode) => (ko: string, en: string) => pickLanguage(language, { ko, en });
 
   it('틀을 표에서 찾아 값을 끼운다', () => {
-    expect(txf(tx('ja'), '%s 상세 보기', 'View details for %s', '海雲台')).toBe('海雲台 の詳細を見る');
+    expect(txf(tx('ja'), '%s 상세 보기', 'View details for %s', '海雲台')).toBe('海雲台の詳細を見る');
     expect(txf(tx('zh-Hans'), '사진: %s', 'Photo: %s', '韩国观光公社')).toBe('照片: 韩国观光公社');
     expect(txf(tx('zh-Hant'), '%s 빼기', 'Remove %s', '甘川洞')).toBe('移除 甘川洞');
   });
@@ -41,7 +41,7 @@ describe('값이 끼는 문구 — 글자 자리(%s)', () => {
 
   it('🔴 값이 둘일 때 순서가 안 뒤집힌다', () => {
     // [읽을 글자][언어 이름] 순서다. 뒤집히면 「日本語 を 김치 で聞く」가 된다.
-    expect(txf(tx('ja'), '%s %s로 듣기', 'Hear %s in %s', '김치', '日本語')).toBe('김치 を 日本語 で聞く');
+    expect(txf(tx('ja'), '%s %s로 듣기', 'Hear %s in %s', '김치', '日本語')).toBe('김치を 日本語で聞く');
     expect(txf(tx('zh-Hans'), '%s %s로 듣기', 'Hear %s in %s', '김치', '中文')).toBe('收听 김치（中文）');
   });
 
@@ -119,5 +119,37 @@ describe('값이 끼는 문구 — 글자 자리(%s)', () => {
     it('숫자도 글자로 끼운다', () => {
       expect(fillValues('%s개', [3])).toBe('3개');
     });
+  });
+
+  /**
+   * 🔴 **일본어·중국어는 어절을 띄우지 않는다** — S15P21E201-1489(B-18).
+   *
+   * <p>실기기(iOS build 39)에서 마이페이지 숫자 칸이 이렇게 읽혔다.
+   *
+   * <pre>
+   *   記録 を見る      ← 조사(を) 앞에 공백
+   *   查看 记录
+   * </pre>
+   *
+   * <p>QA 는 iOS 가 자동 생성한 라벨이라고 봤지만 아니었다 — 표의 번역값
+   * (`'%s 보기'` → `'%s を見る'`)에 **공백이 박혀 있었다.** 한국어 원문에 공백이 있다고
+   * 번역까지 따라 적으면 이렇게 된다.
+   *
+   * <p>🔴 **일본어 조사만 본다.** 처음에 「값 자리 뒤의 공백」을 통째로 잡아 봤더니
+   * 중국어까지 걸렸는데, 중국어는 사정이 다르다 — 라틴 문자나 값을 사이에 둘 때 앞뒤로
+   * 공백을 두는 것이 실제로 흔한 표기다(「查看 %s 详情」). 언어마다 다른 관습을 한 자로
+   * 재면 정당한 번역이 빨개지고, 그러면 사람이 검사를 지운다.
+   *
+   * <p>일본어 조사는 예외가 없다 — 앞 낱말에 **반드시 붙여 쓴다.** 그래서 이것만 막는다.
+   * 이 검사를 처음 켰을 때 표에서 54자리가 걸렸고, 전부 같은 결함이라 함께 고쳤다.
+   */
+  it('🔴 일본어 조사는 %s 에 붙여 쓴다 — 「%s を見る」 같은 공백이 없다', () => {
+    const spaced: string[] = [];
+    for (const [ko, row] of Object.entries(TRANSLATIONS)) {
+      if (row.ja && /%s (を|の|で|に|が|は|と|へ|から|まで|より)/.test(row.ja)) {
+        spaced.push(`${JSON.stringify(ko)} › ja: ${JSON.stringify(row.ja)}`);
+      }
+    }
+    expect(spaced).toEqual([]);
   });
 });

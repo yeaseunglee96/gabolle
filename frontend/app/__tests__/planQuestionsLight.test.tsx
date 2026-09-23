@@ -6,6 +6,7 @@
 //    필수를 다 채우면 마지막 질문의 「이 조건으로 일정 만들기」가 일정을 보낸다 · 자리를 이어 붙인다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { EMPTY_PLAN, type PlanDraft } from '@/plan/PlanProvider';
@@ -41,7 +42,13 @@ const BASE: PlanDraft = { ...EMPTY_PLAN, startDate: '2026-10-03', endDate: '2026
 /** 필수 셋(범위·예산·이동수단)까지 다 채운 초안 — 「다음」으로 끝까지 갈 수 있다. */
 const REQUIRED_DONE: PlanDraft = { ...BASE, travelAreas: ['HAEUNDAE'], budgetKrw: 100000, transport: 'TRANSIT' };
 
-const mount = () => render(<OnboardingPreferencesProvider><PlanConditions /></OnboardingPreferencesProvider>);
+// 이 화면이 품은 여행 조건 모달이 「이 조건을 판정할 장소 자료가 있나」를 서버에
+// 묻는다(S15P21E201-1044). 시험에서는 재시도를 끈다 — 끝점이 없는 자리라 매번 기다린다.
+const mount = () => render(
+  <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+    <OnboardingPreferencesProvider><PlanConditions /></OnboardingPreferencesProvider>
+  </QueryClientProvider>,
+);
 
 beforeEach(async () => { jest.clearAllMocks(); mockDraft = BASE; await AsyncStorage.clear(); });
 
@@ -71,6 +78,16 @@ describe('여행 조건 문항 — 한 번에 하나 (S15P21E201-1425)', () => {
     fireEvent.press(view.getByText('이 조건으로 일정 만들기'));
     await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/plan/generating', params: { jobId: 'job-1' } });
+  });
+
+  it('🔴 알레르기를 안 물었어도(기본값 「모름」) 경고 없이 바로 보낸다 — 조건 창이 다시 뜨지 않는다 (S15P21E201-1513)', async () => {
+    // 조건 창이 알레르기를 더는 안 묻는다(-1497). 그래서 새 사람은 알레르기가 영영 'UNKNOWN' 이다.
+    mockDraft = { ...REQUIRED_DONE, allergyStatus: 'UNKNOWN', allergyAnswered: false };
+    const view = mount();
+    for (let i = 0; i < 6; i += 1) fireEvent.press(view.getByText('다음'));
+    expect(view.queryByText('식단을 아직 안 알려주셨어요. 눌러서 알려주세요.')).toBeNull();
+    fireEvent.press(view.getByText('이 조건으로 일정 만들기'));
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
   });
 
   it('🔴 날짜가 없으면 달력 카드가 이 화면 안에 펼쳐진다 — 홈으로 보내지 않는다 (S15P21E201-1376)', () => {

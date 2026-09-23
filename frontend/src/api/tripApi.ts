@@ -40,6 +40,12 @@ export type CreateTripPayload = {
   // 스무 곳이 전부 출발지 근처였다.
   travelAreas: string[];
   accommodationPlaceId: string | null;
+  // 홈 시작 바의 숙소 칸(S15P21E201-1511). 동네·검색 결과라 place_id 가 없어 좌표로 보낸다.
+  // 🔴 서버가 이 칸을 받기 전까지는 조용히 버려진다 — 칸 이름은 백엔드 레인이 정했다.
+  //    위도·경도는 함께 오거나 함께 비어야 한다(반쪽이면 서버가 거부하기로 했다).
+  accommodationLat: number | null;
+  accommodationLng: number | null;
+  accommodationName: string | null;
   englishMenuRequired: boolean;
   foreignCardRequired: boolean;
   soloFriendlyPriority: boolean;
@@ -82,10 +88,18 @@ function mobility(
 
 export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
   const constraints: ConstraintInput[] = [
-    ...draft.allergies.map<ConstraintInput>((code) => ({
-      type: 'ALLERGY', constraintKey: code, severity: 'HARD', operator: 'EXCLUDES',
-      value: null, threshold: null, answerStatus: 'SELECTED', dietRequirement: null,
-    })),
+    // 🔴 ALLERGY 를 «일부러» 안 보낸다 (S15P21E201-1497, 결정은 -1468 의 ㄱ).
+    //
+    //    운영 place_feature 에 ALLERGEN_TAG 가 0행이다. 채점기는 표식 없는 후보를
+    //    「확인 못 함」으로 남기고 unknown-exclusion-threshold=REQUIRED 가 그것을 전부
+    //    뺀다 — 보내는 순간 후보가 0건이 되어 일정 생성이 실패한다.
+    //    실측(2026-09-22): 알레르기·식단을 고른 작업 8건 중 성공 0건.
+    //
+    //    🔴 질문을 지우는 것만으로는 부족해서 여기도 막는다. draft.allergies 에는
+    //    «전에 답해 둔 사람»의 값이 그대로 남아 있고, 그 사람들은 질문이 사라져도
+    //    계속 실패하게 된다. 지우지 않고 안 보내기만 한다 — 다시 열 때 그대로 쓴다.
+    //
+    //    다시 보내는 조건: ALLERGEN_TAG 가 VERIFIED 로 쌓였을 때. 그때 이 블록을 되살린다.
     ...draft.dietTypes.map<ConstraintInput>((code) => ({
       type: 'DIET', constraintKey: code, severity: 'HARD', operator: 'EXCLUDES',
       value: null, threshold: null, answerStatus: 'SELECTED', dietRequirement: 'REQUIRED',
@@ -101,10 +115,15 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
     mobility('STAIRS_AVOIDANCE', draft.stairsConstraint === null ? null : draft.stairsConstraint === 'AVOID'),
   ];
 
+  const hasLodging = draft.lodgingLat !== null && draft.lodgingLng !== null;
+
   return {
     mustVisitPlaceIds: draft.mustVisitPlaces.map((place) => place.placeId),
     travelAreas: draft.travelAreas,
     accommodationPlaceId: draft.accommodationPlace?.placeId ?? null,
+    accommodationLat: hasLodging ? draft.lodgingLat : null,
+    accommodationLng: hasLodging ? draft.lodgingLng : null,
+    accommodationName: hasLodging && draft.lodging.trim() ? draft.lodging.trim() : null,
     englishMenuRequired: draft.englishMenuRequired,
     foreignCardRequired: draft.foreignCardRequired,
     soloFriendlyPriority: draft.soloDiningPreferred,

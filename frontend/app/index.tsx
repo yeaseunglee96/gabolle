@@ -60,7 +60,7 @@ export default function Welcome() {
   const home = useHomeData(isDesktop);
   // 하트는 화면이 한 번 쥐고 줄 둘에 내려 준다 — 줄마다 따로 쥐면 같은 장소가
   // 두 줄에 있을 때 한쪽만 켜진다.
-  const saved = useSavedPlaces(accessToken, 'home-desktop');
+  const saved = useSavedPlaces(accessToken);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const onToggleLike = (placeId: string) => {
     // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
@@ -112,6 +112,9 @@ export default function Welcome() {
       origin: value.origin,
       originLat: value.originLat,
       originLng: value.originLng,
+      lodging: value.lodging,
+      lodgingLat: value.lodgingLat,
+      lodgingLng: value.lodgingLng,
       startDate: value.startDate,
       endDate: value.endDate,
       adults: value.adults,

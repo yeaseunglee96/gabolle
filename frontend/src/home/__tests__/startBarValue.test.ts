@@ -9,6 +9,8 @@ import {
   dayCount,
   nightCount,
   startBarChips,
+  startBarEditSection,
+  startBarFromDraft,
   summarizeStartBar,
   toDateKey,
   type StartBarValue,
@@ -158,5 +160,36 @@ describe('홈에서 받은 정보 칩', () => {
 
   it('어린이가 있으면 인원 칩 하나에 같이 적는다', () => {
     expect(startBarChips(value({ origin: '부산역', adults: 2, children: 1 }), KO).at(-1)).toBe('성인 2 · 어린이 1');
+  });
+});
+
+describe('숙소 — design_handoff_home_lodging', () => {
+  it('요약 줄에 출발지 다음, 날짜 앞에 들어간다', () => {
+    expect(summarizeStartBar(value({ origin: '부산역', lodging: '해운대', startDate: '2026-09-20', endDate: '2026-09-21', adults: 2 }), KO))
+      .toBe('부산역 · 해운대 · 9.20(일) – 9.21(월) · 1박 · 성인 2');
+  });
+
+  it('🔴 정하지 않았으면(빈 문자열) 요약에서 생략한다', () => {
+    expect(summarizeStartBar(value({ origin: '부산역', adults: 2 }), KO)).not.toContain('undefined');
+    expect(summarizeStartBar(value({ origin: '부산역' }), KO)).toBe('부산역 · 성인 2');
+  });
+
+  it('칩 줄에도 따로 들어간다', () => {
+    expect(startBarChips(value({ origin: '부산역', lodging: '해운대', adults: 2 }), KO))
+      .toEqual(['부산역 출발', '해운대 숙박', '성인 2']);
+  });
+
+  it('숙소만으로는 요약도 칩도 만들지 않는다 — 출발지·날짜와 같은 기준을 따른다', () => {
+    expect(summarizeStartBar(value({ lodging: '해운대' }), KO)).toBe('');
+    expect(startBarChips(value({ lodging: '해운대' }), KO)).toEqual([]);
+  });
+
+  it('주소의 ?edit= 값으로 숙소 칸도 열 수 있다', () => {
+    expect(startBarEditSection('lodging')).toBe('lodging');
+  });
+
+  it('초안에서 시작 바로 옮길 때 숙소 좌표까지 같이 옮긴다', () => {
+    const draft = value({ lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604 });
+    expect(startBarFromDraft(draft)).toMatchObject({ lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604 });
   });
 });

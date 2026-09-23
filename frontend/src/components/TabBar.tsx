@@ -214,8 +214,19 @@ export function TabBar({
             accessibilityState={{ selected, disabled: !tab.route }}
             style={({ pressed }) => [styles.item, pressed && styles.itemPressed]}
             disabled={!tab.route}
+            // 🔴 지금 보고 있는 탭을 다시 눌렀을 때는 아무것도 하지 않는다 (2026-09-22, build 41 실기기).
+            //
+            // 전에는 `selected` 를 안 보고 무조건 router.replace 를 불렀다. 그런데 이 셸은 진짜 탭
+            // 내비게이션이 아니라 Stack 하나이고(이 파일 맨 위 참고) **탭바를 화면마다 따로 그린다.**
+            // 그래서 같은 탭을 눌러도 화면이 통째로 다시 마운트되고, 그때 탭바도 같이 사라졌다 생겼다.
+            // 연타하면 그 재생성 프레임이 「이상한 화면」으로 스친다 — 팀이 실기기에서 본 증상이다.
+            //
+            // 자동화로도 확인했다: 탭 하나를 누르는 순간 **나머지 탭 요소가 전부 무효**가 된다
+            // (「previously found element is no longer available」). 바가 자리에 남아 있었다면 살아 있어야 한다.
+            //
+            // `selected` 는 바로 위에서 이미 계산해 둔 값이다 — 쓰기만 하면 됐다.
             onPress={() => {
-              if (tab.route) router.replace(tab.route);
+              if (tab.route && !selected) router.replace(tab.route);
             }}
           >
             {/* 현재 탭 표시는 굵은 글자 + 진한 아이콘뿐이다. 글자 밑의 붉은 점은 글자를 가렸다(2026-09-21 지적, S15P21E201-1390). */}

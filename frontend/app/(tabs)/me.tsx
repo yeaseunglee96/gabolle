@@ -196,9 +196,19 @@ export default function Me() {
       <View style={styles.consentRow}>
         <View style={styles.consentCopy}>
           <Text weight="bold">{tx('맞춤 추천', 'Personalized picks')}</Text>
-          <Text variant="caption">{tx('저장·제외·일정 수정·체크인 후기 같은 활동을 바탕으로 추천을 맞춰요. 이 설정은 이 기기에 저장돼요.', 'We tune your picks using activity like saves, exclusions, itinerary edits, and check-in reviews. This setting is stored on this device.')}</Text>
+          {/* 🔴 「추천을 맞춰요」가 아니다 — S15P21E201-1489(B-16). 이 동의값은 가입·소셜
+              로그인 때만 서버로 가고(src/auth/authApi.ts), 일정 추천 요청에는 실리지 않는다.
+              실기기에서 스위치를 켜고 같은 조건으로 다시 만들어 보니 결과가 완전히 같았다.
+              「지금 켜면 달라진다」로 읽히는 문구는 안 지킬 약속이라, 언제부터 반영되는지를 적는다. */}
+          <Text variant="caption">{tx('저장·제외·일정 수정·체크인 후기 같은 활동을 다음 여행부터 추천에 반영해요. 지금 보고 있는 일정은 바뀌지 않아요. 이 설정은 이 기기에 저장돼요.', 'From your next trip on, we use activity like saves, exclusions, itinerary edits, and check-in reviews. The itinerary you are looking at now will not change. This setting is stored on this device.')}</Text>
         </View>
-        <Toggle value={behaviorPersonalization} onValueChange={setBehaviorPersonalization} />
+        {/* 🔴 라벨을 스위치에 직접 준다 — S15P21E201-1489(B-03). 글자는 형제 View 에 있어서
+            스위치와 안 묶인다. 실기기 VoiceOver 가 「스위치」라고만 읽었다(개인정보 동의라 더 나쁘다). */}
+        <Toggle
+          value={behaviorPersonalization}
+          onValueChange={setBehaviorPersonalization}
+          accessibilityLabel={tx('맞춤 추천', 'Personalized picks')}
+        />
       </View>
     </View>
   </>;

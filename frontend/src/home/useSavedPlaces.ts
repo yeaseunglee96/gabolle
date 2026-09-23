@@ -5,7 +5,6 @@
 // 두 화면을 나란히 눌러 봐야만 보인다.
 import { useCallback, useEffect, useState } from 'react';
 
-import { sendAppEvent } from '@/analytics/appEvents';
 import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 
@@ -16,10 +15,10 @@ export type SavedPlaces = {
   toggle: (placeId: string) => void;
 };
 
-/**
- * @param surface 분석에 남길 화면 이름. 하트가 어느 화면에서 눌렸는지 가른다.
- */
-export function useSavedPlaces(accessToken: string | null, surface: string): SavedPlaces {
+// 🔴 place_like 이벤트는 여기서 보내지 않는다 — S15P21E201-1486. 저장 API 가 서버에서 적는 것이
+//    정본이라 앱이 또 보내면 하트 한 번에 두 건이 됐다. 그래서 「어느 화면에서 눌렸나」(surface)도
+//    더는 받지 않는다.
+export function useSavedPlaces(accessToken: string | null): SavedPlaces {
   const { tx } = useI18n();
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [feedback, setFeedback] = useState('');
@@ -49,11 +48,9 @@ export function useSavedPlaces(accessToken: string | null, surface: string): Sav
           ));
         }
       });
-      if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { placeId, surface } });
-
       return next;
     });
-  }, [accessToken, surface, tx]);
+  }, [accessToken, tx]);
 
   return { likedIds, feedback, toggle };
 }

@@ -7,6 +7,10 @@ export type StartBarValue = {
   origin: string;
   originLat: number | null;
   originLng: number | null;
+  /** 숙소 표시 이름. '' 는 미정 — 시안 design_handoff_home_lodging. */
+  lodging: string;
+  lodgingLat: number | null;
+  lodgingLng: number | null;
   startDate: string;
   endDate: string;
   adults: number;
@@ -17,6 +21,9 @@ export const EMPTY_START_BAR: StartBarValue = {
   origin: '',
   originLat: null,
   originLng: null,
+  lodging: '',
+  lodgingLat: null,
+  lodgingLng: null,
   startDate: '',
   endDate: '',
   adults: 2,
@@ -24,7 +31,7 @@ export const EMPTY_START_BAR: StartBarValue = {
 };
 
 /** 시작 바에서 열 수 있는 칸. */
-export type StartBarSection = 'origin' | 'dates' | 'people' | null;
+export type StartBarSection = 'origin' | 'lodging' | 'dates' | 'people' | null;
 
 /**
  * 🔴 주소의 `?edit=` 를 열 칸으로 바꾼다 — S15P21E201-1350.
@@ -34,7 +41,7 @@ export type StartBarSection = 'origin' | 'dates' | 'people' | null;
  */
 export function startBarEditSection(raw: string | string[] | undefined): StartBarSection {
   const value = Array.isArray(raw) ? raw[0] : raw;
-  return value === 'origin' || value === 'dates' || value === 'people' ? value : null;
+  return value === 'origin' || value === 'lodging' || value === 'dates' || value === 'people' ? value : null;
 }
 
 /**
@@ -52,6 +59,9 @@ export function startBarFromDraft(draft: StartBarValue): StartBarValue {
     origin: draft.origin,
     originLat: draft.originLat,
     originLng: draft.originLng,
+    lodging: draft.lodging,
+    lodgingLat: draft.lodgingLat,
+    lodgingLng: draft.lodgingLng,
     startDate: draft.startDate,
     endDate: draft.endDate,
     // 인원은 0 이 될 수 없다. 빈 초안이면 시작 바의 기본값을 쓴다.
@@ -114,6 +124,7 @@ export function summarizeStartBar(value: StartBarValue, tx: StartBarTx): string 
 
   const parts: string[] = [];
   if (value.origin.trim()) parts.push(value.origin.trim());
+  if (value.lodging.trim()) parts.push(value.lodging.trim());
 
   if (value.startDate) {
     const range = value.endDate && value.endDate !== value.startDate
@@ -137,6 +148,7 @@ export function startBarChips(value: StartBarValue, tx: StartBarTx): string[] {
   if (!value.origin.trim() && !value.startDate) return [];
   const chips: string[] = [];
   if (value.origin.trim()) chips.push(txf(tx, '%s 출발', 'From %s', value.origin.trim()));
+  if (value.lodging.trim()) chips.push(txf(tx, '%s 숙박', 'Staying in %s', value.lodging.trim()));
   if (value.startDate) {
     const range = value.endDate && value.endDate !== value.startDate
       ? `${formatDateShort(value.startDate, tx)} – ${formatDateShort(value.endDate, tx)}`

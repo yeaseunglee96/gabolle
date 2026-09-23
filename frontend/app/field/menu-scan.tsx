@@ -120,13 +120,15 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
     {/* 알레르기 안내가 제일 위다. 그리고 「찾은 낱말」과 「직접 확인하라」는 함께 온다
         둘을 떼어 놓을 수 없게 한 함수가 같이 낸다.
     */}
-    <View style={styles.allergenCard} accessibilityRole="summary">
+    {/* 🔴 글자를 한 줄도 못 읽었으면 이 카드 자체를 안 그린다 — allergenNotice 가 null 을
+        낸다(S15P21E201-1489 B-14). 「못 찾았다」는 찾아본 뒤에야 할 수 있는 말이다. */}
+    {allergen && <View style={styles.allergenCard} accessibilityRole="summary">
       <Text variant="title" weight="bold">{allergen.headline}</Text>
       {allergen.words.length > 0 && <View style={styles.wordRow}>
         {allergen.words.map((word) => <View key={word} style={styles.word}><Text variant="caption" weight="bold" color={color.state.danger}>{word}</Text></View>)}
       </View>}
       <Text color={color.text.body}>{allergen.caution}</Text>
-    </View>
+    </View>}
 
     {unread && <View style={styles.unreadCard} accessibilityRole="summary"><Text variant="caption" weight="bold">{unread}</Text></View>}
 

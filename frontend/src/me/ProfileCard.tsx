@@ -8,6 +8,7 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { useLayout } from '@/layout/useLayout';
 import { txf } from '@/i18n/format';
 
 /** 사진이 없는 계정도 빈 회색 판이 아니다 — 넓은 화면(MyPageCover)과 같은 부산 기본 사진. S15P21E201-1375 */
@@ -29,9 +30,20 @@ export type ProfileCardProps = {
 
 export function ProfileCard({ name, email, avatarUri, coverUri, counts, actions, tx }: ProfileCardProps) {
   const initial = name.trim().slice(0, 1) || '·';
+  // 🔴 가로로 눕히면 커버를 낮춘다 (2026-09-22, build 41 실기기).
+  //
+  // 세로 874 에서는 커버 120 을 써도 이름·칩이 탭바(하단 고정) 위에 넉넉히 들어간다.
+  // 그런데 가로는 높이가 **402** 뿐이라, 같은 120 을 쓰면 첫 화면에 이름까지밖에 안 들어오고
+  // 「기록·팔로워·팔로잉」 칩이 탭바 뒤로 밀린다(실측: 칩 y=353~385 · 탭바 y=323).
+  // 스크롤하면 닿기는 하지만, 첫 화면에서 자기 계정 숫자가 안 보이는 것은 어색하다.
+  //
+  // 폭이 아니라 **높이**로 가른다 — 폴드처럼 켜진 채 비율이 바뀌는 기기도 useWindowDimensions
+  // 기반이라 그 자리에서 따라온다(frontend/CLAUDE.md 의 「폭 분기는 useLayout」).
+  const { isLandscape } = useLayout();
+  const coverHeight = isLandscape ? COVER_HEIGHT_LANDSCAPE : COVER_HEIGHT;
   return (
     <View style={styles.card}>
-      <View style={styles.cover}>
+      <View style={[styles.cover, { height: coverHeight }]}>
         <Image source={coverUri ? { uri: coverUri } : DEFAULT_COVER} resizeMode="cover" style={styles.coverPhoto} accessibilityLabel={coverUri ? tx('배경 사진', 'Cover photo') : ''} />
       </View>
 
@@ -103,6 +115,8 @@ export function ProfileCardButton({
 
 /** 시안 02 의 값. 아바타가 걸쳐 앉을 만큼만 있으면 된다. */
 const COVER_HEIGHT = 120;
+/** 가로는 화면 높이가 402 뿐이라 커버를 낮춘다 — 아바타(80)가 여전히 걸쳐 앉는다. */
+const COVER_HEIGHT_LANDSCAPE = 72;
 const AVATAR = 80;
 
 const styles = StyleSheet.create({

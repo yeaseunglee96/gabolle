@@ -43,11 +43,19 @@ const heartIcon = require('../../assets/icons/home/heart.png');
  */
 const MOBILE_CARD = 160;
 
-/** 「21° / 28°」 — 최저·최고가 다 있으면 둘, 하나뿐이면 그것만. */
-function weatherTemperatureText(weather: { minTemperature: number | null; maxTemperature: number | null }): string {
-  return weather.minTemperature !== null && weather.maxTemperature !== null
-    ? `${Math.round(weather.minTemperature)}° / ${Math.round(weather.maxTemperature)}°`
-    : `${Math.round((weather.maxTemperature ?? weather.minTemperature) as number)}°`;
+/**
+ * 「21° / 28°」 — 최저·최고가 다 있으면 둘, 하나뿐이면 그것만.
+ *
+ * 🔴 반올림한 «뒤에» 같은지 본다 — S15P21E201-1502. 기상청 단기예보는 남은 시간대가 짧으면
+ *    최저와 최고를 같게 준다(밤에 부르면 자주 그렇다). 그대로 이으면 「22° / 22°」가 되고,
+ *    실기에서 그것을 고장으로 읽었다. 21.6 과 22.4 처럼 원값이 달라도 화면에 같은 숫자가
+ *    두 번 보이는 것은 마찬가지라, 비교는 반올림 뒤에 한다.
+ */
+export function weatherTemperatureText(weather: { minTemperature: number | null; maxTemperature: number | null }): string {
+  const low = weather.minTemperature !== null ? Math.round(weather.minTemperature) : null;
+  const high = weather.maxTemperature !== null ? Math.round(weather.maxTemperature) : null;
+  if (low === null || high === null) return `${(high ?? low) as number}°`;
+  return low === high ? `${low}°` : `${low}° / ${high}°`;
 }
 
 export default function Home() {
@@ -77,7 +85,7 @@ export default function Home() {
   }, [user?.userId, accessToken]));
   const home = useHomeData(!desktop);
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
-  const saved = useSavedPlaces(accessToken, 'home-mobile');
+  const saved = useSavedPlaces(accessToken);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [openingTrip, setOpeningTrip] = useState(false);
   // 동백이 단추는 탭바 윗변에서 12 위 — 안전영역이 있는 폰이든 없는 웹이든 탭바와의 간격이 같다.
@@ -159,6 +167,9 @@ export default function Home() {
       origin: value.origin,
       originLat: value.originLat,
       originLng: value.originLng,
+      lodging: value.lodging,
+      lodgingLat: value.lodgingLat,
+      lodgingLng: value.lodgingLng,
       startDate: value.startDate,
       endDate: value.endDate,
       adults: value.adults,
@@ -208,13 +219,21 @@ export default function Home() {
                 언어는 첫 화면과 마이페이지 설정 「앱 언어」(AppLanguageSetting)에서 바꾼다. */}
             {signedIn ? (
               <>
+                {/* 🔴 칩이 <View> 였다 — S15P21E201-1502. 알약 모양에 값이 들어 있으면 사람은 누른다.
+                    실제로 실기에서 「눌러도 안 들어가진다」로 올라왔다. 누를 데가 아니면 모양을 바꿔야
+                    하는데, 날씨·준비물 화면이 이미 있으므로 그리로 잇는 편이 맞다. */}
                 {weather && (weather.maxTemperature !== null || weather.minTemperature !== null) ? (
-                  <View style={styles.weatherChip}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={tx('내 여행 날씨·준비물', 'Weather and packing for my trip')}
+                    onPress={() => router.push('/field/translate')}
+                    style={({ pressed }) => [styles.weatherChip, pressed && styles.pressed]}
+                  >
                     <Text variant="caption" weight="bold" numberOfLines={1} style={styles.weatherWord}>
                       {weather.skyCondition === 'CLEAR' ? tx('맑음', 'Clear') : weather.skyCondition === 'CLOUDY' ? tx('흐림', 'Cloudy') : tx('구름 조금', 'Partly cloudy')}
                     </Text>
                     <Text variant="caption" numberOfLines={1} style={styles.weatherTemp}>{weatherTemperatureText(weather)}</Text>
-                  </View>
+                  </Pressable>
                 ) : null}
                 {/* 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
                     읽을 것이 없는데도 있는 것처럼 보이고, 안 찍는 쪽이 거짓이 아니다.
