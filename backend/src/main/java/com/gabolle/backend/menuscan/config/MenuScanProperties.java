@@ -49,8 +49,39 @@ public class MenuScanProperties {
 	 * <p>이 경로만 예산이 크다. 음식 30개짜리 실제 메뉴판은 써 내는 양 때문에 10초를 넘고, 프롬프트를
 	 * 줄여도 음식 수는 그대로다. 앱 쪽 짝은 {@code frontend/src/field/menuScan.ts} 의 요청 시간
 	 * 제한이고 한쪽만 바꾸면 안 된다 — {@code MenuScanLatencyBudgetTest} 가 그 짝을 지킨다.
+	 *
+	 * <p>🔴 25초에서 20초로 줄였다 (S15P21E201-1538). 이 경로가 이제 «우리 모델이 실패했을 때의
+	 * 대체»라, 우리 모델의 예산(연결 1 + 읽기 5)과 더해도 앱 대기 30초 안에 들어와야 한다. 고친
+	 * 프롬프트의 실측이 10.91~13.51초라 20초면 6초 넘게 남는다.
 	 */
-	private Duration readTimeout = Duration.ofSeconds(25);
+	private Duration readTimeout = Duration.ofSeconds(20);
+
+	/**
+	 * 서버 안의 메뉴판 OCR({@code backend/menu-ocr}, 컨테이너 이름 {@code menu-ocr}) 주소.
+	 *
+	 * <p>비어 있으면 부르지 않고 곧장 위의 GMS 비전으로 읽는다. 기본값을 비워 두는 이유는 그 컨테이너가
+	 * 없는 곳(시험, 개발 PC)에서 매번 연결 실패를 겪고 물러서지 않게 하려는 것이다. 운영 값은
+	 * application-dev.properties 가 준다 — 그 값을 비우는 것이 «우리 모델을 끄는» 손잡이다.
+	 */
+	private String localBaseUrl = "";
+
+	/** 같은 망 안의 컨테이너라 연결이 1초를 넘으면 떠 있지 않은 것이다. 오래 기다릴 이유가 없다. */
+	private Duration localConnectTimeout = Duration.ofSeconds(1);
+
+	/**
+	 * 우리 모델을 기다리는 시간. 운영 서버 실측은 실사진 한 장 1.9초(2026-09-23, 조용할 때)다. 같은
+	 * 기계에서 CI 잡이 돌면 1.5~3배 느려진다. 이 시간을 넘기면 GMS 비전으로 대신 읽는다.
+	 */
+	private Duration localReadTimeout = Duration.ofSeconds(5);
+
+	/**
+	 * 우리 모델이 읽은 음식 이름 가운데 한식진흥원 800선 사전에 없는 것만 글자로 번역하는 모델.
+	 * 사진을 보내지 않으므로 싼 모델로 충분하다 — 현장 번역과 같은 모델이다.
+	 */
+	private String translateModel = "gpt-4o-mini";
+
+	/** 이름 몇십 개를 옮기는 짧은 요청이다. 넘기면 번역 없이 원문 이름만 보여 준다. */
+	private Duration translateReadTimeout = Duration.ofSeconds(6);
 
 	/** 받을 수 있는 사진 크기. 큰 사진은 크레딧을 태우고, 키가 팀 공용이라 한 사람이 다 쓰면 전부 멈춘다. */
 	private long maxImageBytes = 8L * 1024 * 1024;
@@ -90,4 +121,14 @@ public class MenuScanProperties {
 	public void setMaxLines(int maxLines) { this.maxLines = maxLines; }
 	public int getMaxLineLength() { return this.maxLineLength; }
 	public void setMaxLineLength(int maxLineLength) { this.maxLineLength = maxLineLength; }
+	public String getLocalBaseUrl() { return this.localBaseUrl; }
+	public void setLocalBaseUrl(String localBaseUrl) { this.localBaseUrl = localBaseUrl; }
+	public Duration getLocalConnectTimeout() { return this.localConnectTimeout; }
+	public void setLocalConnectTimeout(Duration localConnectTimeout) { this.localConnectTimeout = localConnectTimeout; }
+	public Duration getLocalReadTimeout() { return this.localReadTimeout; }
+	public void setLocalReadTimeout(Duration localReadTimeout) { this.localReadTimeout = localReadTimeout; }
+	public String getTranslateModel() { return this.translateModel; }
+	public void setTranslateModel(String translateModel) { this.translateModel = translateModel; }
+	public Duration getTranslateReadTimeout() { return this.translateReadTimeout; }
+	public void setTranslateReadTimeout(Duration translateReadTimeout) { this.translateReadTimeout = translateReadTimeout; }
 }

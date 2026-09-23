@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.gabolle.backend.menuscan.adapter.GmsMenuReader;
+import com.gabolle.backend.menuscan.adapter.LocalMenuReader;
 import com.gabolle.backend.menuscan.application.MenuScanRateLimiter;
 import com.gabolle.backend.menuscan.domain.MenuScanUsage;
 import com.gabolle.backend.menuscan.repository.MenuScanUsageRepository;
@@ -69,7 +70,10 @@ class MenuScanControllerTest {
 		MenuScanUsageRepository usage = inMemoryUsage();
 		MenuScanRateLimiter limiter = new MenuScanRateLimiter(this.properties, usage,
 				Clock.fixed(Instant.parse("2026-09-16T12:00:00Z"), ZoneOffset.UTC));
-		MenuScanService service = new MenuScanService(this.reader, limiter, this.properties);
+		// 우리 모델(menu-ocr)은 «설정 없음»으로 둔다 — 이 시험들은 GMS 경로의 안전을 본다. 우리 모델
+		// 경로와 대체는 MenuScanServiceFallbackTest 가 본다
+		LocalMenuReader local = mock(LocalMenuReader.class);
+		MenuScanService service = new MenuScanService(this.reader, local, limiter, this.properties);
 
 		this.mockMvc = MockMvcBuilders.standaloneSetup(new MenuScanController(service))
 				.setControllerAdvice(new MenuScanExceptionHandler())

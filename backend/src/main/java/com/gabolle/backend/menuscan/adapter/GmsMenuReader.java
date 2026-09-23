@@ -173,7 +173,7 @@ public class GmsMenuReader {
 	 * 앱 언어 코드를 모델이 알아듣는 언어 이름으로 바꾼다. 다섯 갈래 밖은 전부 한국어로 떨어진다 —
 	 * 언어 값을 안 보내는 옛 앱 빌드가 «그대로 옮겨 적기»를 그대로 받아야 한다.
 	 */
-	private static String languageNameFor(String language) {
+	static String languageNameFor(String language) {
 		if (language == null) {
 			return "한국어";
 		}

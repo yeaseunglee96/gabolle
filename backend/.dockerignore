@@ -7,3 +7,6 @@ build/
 *.iml
 README.md
 Dockerfile
+
+# S15P21E201-1538 — 메뉴판 OCR 은 따로 빌드하는 컨테이너다(Jenkinsfile 의 Menu OCR 단계). 백엔드 이미지에 싣지 않는다
+menu-ocr/

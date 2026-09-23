@@ -277,6 +277,58 @@ pipeline {
             }
         }
 
+        // 🟢 S15P21E201-1538 — 메뉴판 사진을 서버 안에서 읽는 경량 OCR(backend/menu-ocr).
+        //    백엔드를 배포할 때마다 같이 빌드해서 같은 망에 menu-ocr 라는 이름으로 띄운다.
+        //    백엔드는 http://menu-ocr:8000 을 먼저 부르고, 실패하면 GMS 비전으로 대신 읽는다.
+        //
+        //    🔴 이 단계가 실패해도 백엔드 배포는 멈추지 않는다(catchError → 빌드는 UNSTABLE).
+        //       menu-ocr 이 없어도 백엔드가 GMS 로 대신 읽으므로, 이 단계 때문에 백엔드 배포가 막히면
+        //       고장 하나가 둘이 된다.
+        //    🔴 :candidate 로 받고 헬스체크를 통과해야만 :latest 로 옮긴다 — 백엔드와 같은 규칙이다.
+        //       통과 못 하면 :latest(마지막으로 통과한 판)를 다시 띄운다.
+        //    🔴 이미지를 만들 때 시험(tests/)이 돈다. 실패하면 docker build 가 멈추고 돌던 판은 그대로다.
+        //
+        //    자원: CPU 2개·메모리 1500MB 상한. 실측 최대 메모리는 약 650MB(실사진 2배 확대 때).
+        //    포트를 밖으로 열지 않는다 — 백엔드만 망 안에서 부른다.
+        stage('Menu OCR') {
+            steps {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh '''
+                        set -eu
+                        docker build -t gabolle-menu-ocr:candidate backend/menu-ocr
+
+                        run_menu_ocr() {
+                          docker stop menu-ocr >/dev/null 2>&1 || true
+                          docker rm menu-ocr >/dev/null 2>&1 || true
+                          docker run -d --name menu-ocr --restart unless-stopped --network local-route-personalization_data_net --cpus="2.0" --memory="1500m" --memory-swap="1500m" -e OCR_THREADS=2 "$1"
+                        }
+
+                        run_menu_ocr gabolle-menu-ocr:candidate
+                        for i in $(seq 1 45); do
+                          if curl -sf http://menu-ocr:8000/health > /dev/null; then
+                            echo "menu-ocr 준비됨 — $(curl -s http://menu-ocr:8000/health)"
+                            docker tag gabolle-menu-ocr:candidate gabolle-menu-ocr:latest
+                            exit 0
+                          fi
+                          sleep 2
+                        done
+
+                        echo "🔴 menu-ocr 헬스체크 실패 — 최근 로그:"
+                        docker logs menu-ocr --tail 80 2>&1 || true
+                        if docker image inspect gabolle-menu-ocr:latest > /dev/null 2>&1; then
+                          echo "직전에 통과한 판(gabolle-menu-ocr:latest)을 다시 띄운다"
+                          run_menu_ocr gabolle-menu-ocr:latest
+                        else
+                          echo "통과한 판이 아직 없다 — menu-ocr 없이 둔다. 백엔드는 GMS 비전으로 읽는다"
+                          docker stop menu-ocr >/dev/null 2>&1 || true
+                          docker rm menu-ocr >/dev/null 2>&1 || true
+                        fi
+                        exit 1
+                    '''
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
                 script {
@@ -474,6 +526,7 @@ pipeline {
                             -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                             -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
                             -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
+                            -e GABOLLE_MENU_SCAN_LOCAL_BASE_URL="${GABOLLE_MENU_SCAN_LOCAL_BASE_URL-http://menu-ocr:8000}" \
                             -e GABOLLE_EXCHANGE_RATE_AUTH_KEY="$GABOLLE_EXCHANGE_RATE_AUTH_KEY" \
                             -e GABOLLE_EVENT_KAFKA_ENABLED="${GABOLLE_EVENT_KAFKA_ENABLED:-false}" \
                             -e GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED="${GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED:-false}" \
@@ -672,6 +725,7 @@ pipeline {
                                     -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                                     -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
                                     -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
+                                    -e GABOLLE_MENU_SCAN_LOCAL_BASE_URL="${GABOLLE_MENU_SCAN_LOCAL_BASE_URL-http://menu-ocr:8000}" \
                                     -e GABOLLE_EXCHANGE_RATE_AUTH_KEY="$GABOLLE_EXCHANGE_RATE_AUTH_KEY" \
                                     -e GABOLLE_EVENT_KAFKA_ENABLED="${GABOLLE_EVENT_KAFKA_ENABLED:-false}" \
                                     -e GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED="${GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED:-false}" \
