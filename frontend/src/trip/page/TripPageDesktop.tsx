@@ -11,7 +11,7 @@
 //
 // 🔴 편집(순서·고정·제외·다시 계산·되돌리기)은 여기서 안 한다. 시안의 넓은 화면에 그 자리가 없다.
 //    대신 ⋯ 의 「일정 편집」이 지금까지의 일정 화면을 그대로 연다(?classic=1) — 기능을 잃지 않는다.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -27,20 +27,18 @@ import { koreanSubject } from '@/i18n/korean';
 import { localizeMessage } from '@/i18n/messages';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { RouteMap } from '@/map/RouteMap';
-import { useCourseRoutePaths } from '@/map/courseRoutePaths';
 import { courseLetter } from '@/plan/CourseCard';
-import { loadItinerary, loadItineraryPace, type ItineraryDto, type ItineraryItemDto, type ItineraryPaceDto } from '@/plan/itinerary';
-import { summarizeItineraryBudget, type BudgetCategoryKey } from '@/plan/itineraryBudget';
+import type { ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
-import { categoryGlyph, loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
+import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import type { TripCourse } from '@/plan/tripCourses';
-import { loadTripBudget } from '@/trip/tripBudget';
-import { humanTripTitle, shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
+import { humanTripTitle } from '@/trip/tripNaming';
 import { TripNameSheet } from '@/trip/TripNameSheet';
-import { loadTrips } from '@/trip/trips';
 
-import { loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
-import { dayMap, dayRoutes, formatDuration, formatManwon, stayMinutes } from './tripPageModel';
+import { TripBudgetCard } from './TripBudgetCard';
+import type { TripPageSource } from './tripPageData';
+import { formatDuration, formatManwon, stayMinutes } from './tripPageModel';
+import { useTripPage } from './useTripPage';
 
 type Tx = (ko: string, en: string) => string;
 type Layout = 'cards' | 'map';
@@ -59,125 +57,17 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const { tx, locale } = useI18n();
   const { height: windowHeight } = useWindowDimensions();
 
-  const [page, setPage] = useState<TripPageCourses | null>(null);
-  const [courseIndex, setCourseIndex] = useState(0);
-  const [confirmed, setConfirmed] = useState(false);
-  const [itinerary, setItinerary] = useState<{ id: string; value: ItineraryDto | null; message: string | null } | null>(null);
-  const [dayIndex, setDayIndex] = useState(0);
+  // 불러오기·세기는 폰과 같이 쓴다(useTripPage). 여기 남은 것은 넓은 화면에만 있는 상태다.
+  const {
+    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
+    itinerary, setItinerary, loaded, dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace,
+    map, routes, anyEstimatedLine, travelTotal, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
+  } = useTripPage(source);
   const [layout, setLayout] = useState<Layout>('cards');
-  const [selectedId, setSelectedId] = useState('');
-  const [photos, setPhotos] = useState<Record<string, PlacePhoto>>({});
-  const [pace, setPace] = useState<ItineraryPaceDto | null>(null);
-  const [budgetKrw, setBudgetKrw] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [naming, setNaming] = useState(askName);
-  const [confirming, setConfirming] = useState(false);
   const [leftHeight, setLeftHeight] = useState(0);
   const [gridWidth, setGridWidth] = useState(0);
-
-  const sourceKey = source.kind === 'trip' ? `trip:${source.tripId}:${source.jobId ?? ''}` : `itinerary:${source.itineraryId}`;
-  const load = useMemo(() => async () => {
-    setPage(null);
-    const next = await loadTripPageCourses(source, accessToken);
-    setPage(next);
-    if (next.state === 'ready') {
-      const own = next.courses.findIndex((course) => course.id === next.confirmedCourseId);
-      // 확정한 코스가 있으면 그것을, 없으면 첫 안을 켠다 — 시안 3a 는 코스 A 가 켜진 채로 열린다.
-      setCourseIndex(own >= 0 ? own : 0);
-      setConfirmed(own >= 0);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sourceKey, accessToken]);
-  useEffect(() => { void load(); }, [load]);
-
-  const courses = page?.state === 'ready' ? page.courses : [];
-  const course: TripCourse | null = courses[courseIndex] ?? null;
-  const tripId = page?.state === 'ready' ? page.tripId : '';
-
-  // 고른 코스의 일정을 받는다 — 카드의 비용·추정·구간 시간은 코스 요약이 아니라 일정 항목에 있다.
-  useEffect(() => {
-    const id = course?.itineraryId;
-    if (!id) { setItinerary(null); return; }
-    let alive = true;
-    setItinerary({ id, value: null, message: null });
-    void loadItinerary(id, accessToken).then((next) => {
-      if (!alive) return;
-      setItinerary({ id, value: next.state === 'success' ? next.itinerary : null, message: next.state === 'success' ? null : next.message });
-    });
-    return () => { alive = false; };
-  }, [course?.itineraryId, accessToken]);
-
-  const loaded = itinerary?.value ?? null;
-  // 코스·일정이 바뀌면 1일차 첫 곳으로 돌아간다 — 열린 채로 내용만 갈리면 무엇을 보고 있는지 모른다.
-  useEffect(() => { setDayIndex(0); }, [loaded?.id]);
-  const items: ItineraryItemDto[] = useMemo(() => loaded?.days[dayIndex]?.items ?? [], [loaded, dayIndex]);
-  useEffect(() => { setSelectedId(items[0]?.id ?? ''); }, [items]);
-
-  useEffect(() => {
-    if (!loaded) return;
-    let alive = true;
-    void loadPlacePhotos(loaded.days.flatMap((day) => day.items.map((item) => item.placeId))).then((next) => { if (alive) setPhotos(next); });
-    return () => { alive = false; };
-  }, [loaded]);
-
-  useEffect(() => {
-    if (!loaded) { setPace(null); return; }
-    let alive = true;
-    void loadItineraryPace(loaded.id, dayIndex, accessToken).then((next) => { if (alive) setPace(next.state === 'success' ? next.pace : null); });
-    return () => { alive = false; };
-  }, [loaded?.id, loaded?.version, dayIndex, accessToken]);
-
-  useEffect(() => {
-    if (!tripId) return;
-    let alive = true;
-    void loadTripBudget(tripId, accessToken).then((next) => { if (alive) setBudgetKrw(next.state === 'success' ? next.budgetKrw : null); });
-    return () => { alive = false; };
-  }, [tripId, accessToken]);
-
-  // ── 지도 ────────────────────────────────────────────────────────────────
-  const map = useMemo(() => dayMap(items, dayIndex + 1), [items, dayIndex]);
-  const legs = useCourseRoutePaths(map.days, accessToken);
-  const routes = useMemo(() => dayRoutes(map, dayIndex + 1, color.brand.navy, legs), [map, dayIndex, legs]);
-  const anyEstimatedLine = routes.some((route) => route.estimated !== false);
-
-  // ── 요약 숫자 ──────────────────────────────────────────────────────────
-  const allItems = useMemo(() => loaded?.days.flatMap((day) => day.items) ?? [], [loaded]);
-  const travelTotal = totalTravelMinutes(allItems);
-  const categoryByPlaceId = useMemo(() => Object.fromEntries(Object.entries(photos).map(([placeId, photo]) => [placeId, photo.category])), [photos]);
-  const budget = useMemo(() => (loaded ? summarizeItineraryBudget(loaded, categoryByPlaceId, budgetKrw) : null), [loaded, categoryByPlaceId, budgetKrw]);
-  const atRisk = useMemo(() => items.filter((item) => pace?.atRiskItemIds.includes(item.id)), [items, pace]);
-  const allEstimated = items.length > 0 && items.every((item) => item.dataStatus !== 'VERIFIED');
-
-  const title = humanTripTitle(loaded?.title) ?? tx('부산 여행', 'Busan trip');
-  const firstDate = loaded?.days[0]?.date;
-  const headSub = loaded ? [
-    firstDate ? (formatDayHeading(firstDate, locale) ?? firstDate) : null,
-    loaded.days.length > 1 ? txf(tx, '%s일', '%s days', loaded.days.length) : null,
-    txf(tx, '%s곳', '%s places', allItems.length),
-    budget && budget.known > 0 ? txf(tx, '약 %s', 'about %s', formatManwon(budget.krw, tx)) : null,
-    travelTotal > 0 ? txf(tx, '이동 %s분', '%s min travel', travelTotal) : null,
-  ].filter(Boolean).join(' · ') : '';
-
-  // ── 확정 ────────────────────────────────────────────────────────────────
-  const confirm = async (target: TripCourse) => {
-    const id = target.itineraryId;
-    if (!id || confirming) return;
-    setConfirming(true);
-    const path = `/trips/${id}/itinerary`;
-    try {
-      const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
-      const currentTitle = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
-      // 코스를 고른 직후에만 이름 묻기가 열린 채로 들어간다 — recommendations.tsx 와 같은 규칙.
-      if (shouldAskTripName({ title: currentTitle, alreadyAsked })) { router.push(`${path}?name=1`); return; }
-    } catch {
-      // 물어볼지 정하다 실패하면 묻지 않고 지나간다. 일정을 여는 길을 막지 않는다.
-    } finally {
-      setConfirming(false);
-    }
-    // 같은 일정이면 주소가 같다 — 옮기지 않고 확정 표시만 켠다.
-    if (source.kind === 'itinerary' && source.itineraryId === id) { setConfirmed(true); return; }
-    router.push(path);
-  };
 
   if (!page) return <LoadingState tx={tx} />;
   if (page.state === 'error') return <ErrorState message={localizeMessage(tx, page.message)} onRetry={() => void load()} tx={tx} />;
@@ -315,7 +205,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                 {items.length === 0 ? <Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text> : null}
               </View>
               <View style={styles.summaryRow}>
-                <BudgetCard budget={budget} tx={tx} />
+                <TripBudgetCard budget={budget} style={styles.summaryFlexBudget} />
                 <View style={[styles.summaryCard, styles.summaryFlex1]}>
                   <Text variant="caption" weight="bold" color={color.text.muted}>{tx('이동', 'Travel')}</Text>
                   <Text variant="display" weight="bold">{travelTotal > 0 ? txf(tx, '%s분', '%s min', travelTotal) : tx('미집계', 'Not measured')}</Text>
@@ -491,39 +381,6 @@ function PlaceCard({ item, index, items, width, photo, selected, risky, onPress,
   );
 }
 
-const BUDGET_LABEL: Record<BudgetCategoryKey, [string, string]> = {
-  FOOD: ['식비', 'Food'],
-  CAFE: ['카페', 'Cafés'],
-  ADMISSION: ['입장·체험', 'Admission'],
-  TRANSIT: ['교통 (추정)', 'Transit (est.)'],
-};
-
-function BudgetCard({ budget, tx }: { budget: ReturnType<typeof summarizeItineraryBudget> | null; tx: Tx }) {
-  const known = budget && budget.known > 0;
-  const limit = budget?.budgetKrw ?? null;
-  const remaining = budget?.remainingKrw ?? null;
-  const used = known && limit ? Math.min(1, budget.krw / limit) : 0;
-  const breakdown = budget?.categories.filter((entry) => entry.krw > 0).map((entry) => `${tx(...BUDGET_LABEL[entry.key])} ${txf(tx, '%s원', '%s KRW', entry.krw.toLocaleString())}`).join(' · ');
-  return (
-    <View style={[styles.summaryCard, styles.summaryFlexBudget]}>
-      <View style={styles.rowBetween}>
-        <Text variant="caption" weight="bold" color={color.text.muted}>{tx('예산 대비', 'Against budget')}</Text>
-        {remaining !== null && known ? (
-          <Text variant="caption" weight="bold" color={remaining >= 0 ? color.state.success : color.state.danger}>
-            {remaining >= 0 ? txf(tx, '%s 남음', '%s left', formatManwon(remaining, tx)) : txf(tx, '%s 넘음', '%s over', formatManwon(-remaining, tx))}
-          </Text>
-        ) : null}
-      </View>
-      <View style={styles.rowBaseline}>
-        <Text variant="display" weight="bold">{known ? txf(tx, '%s원', '%s KRW', budget.krw.toLocaleString()) : tx('비용 미정', 'Cost unknown')}</Text>
-        {limit !== null ? <Text variant="caption" color={color.text.muted}>{`/ ${txf(tx, '%s원', '%s KRW', limit.toLocaleString())}`}</Text> : null}
-      </View>
-      {limit !== null ? <View style={styles.budgetTrack}><View style={[styles.budgetUsed, { flex: used }]} /><View style={{ flex: 1 - used }} /></View> : <Text variant="caption" color={color.text.muted}>{tx('예산을 정하지 않은 여행이에요', 'No budget set for this trip')}</Text>}
-      {breakdown ? <Text variant="caption" color={color.text.muted}>{breakdown}</Text> : null}
-    </View>
-  );
-}
-
 function LoadingState({ tx }: { tx: Tx }) {
   return (
     <View accessibilityLabel={tx('여행을 불러오고 있어요', 'Loading your trip')} style={[styles.shell, styles.content]}>
@@ -556,8 +413,6 @@ const styles = StyleSheet.create({
   shrink: { flexShrink: 1 },
   fill: { width: '100%', height: '100%' },
   rowCenter: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] },
-  rowBaseline: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
 
   head: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], zIndex: 5 },
   headCopy: { flex: 1, minWidth: 0, gap: 2 },
@@ -608,8 +463,6 @@ const styles = StyleSheet.create({
   summaryCard: { padding: spacing[4], gap: 6, borderRadius: radius.lg, backgroundColor: color.surface.card },
   summaryFlexBudget: { flex: 1.2 },
   summaryFlex1: { flex: 1 },
-  budgetTrack: { flexDirection: 'row', height: 10, borderRadius: radius.full, overflow: 'hidden', backgroundColor: color.surface.soft },
-  budgetUsed: { backgroundColor: color.action.secondary },
 
   mapPanel: { borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.soft },
   mapEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[6] },

@@ -22,8 +22,9 @@ import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
-import { isAtLeast } from '@/layout/breakpoints';
 import { TripPageDesktop } from '@/trip/page/TripPageDesktop';
+import { TripPageMobile } from '@/trip/page/TripPageMobile';
+import { tripPageKind } from '@/trip/page/tripPageModel';
 import { RouteMap } from '@/map/RouteMap';
 import { CourseCard, CourseRow, courseCost, courseFacts, courseLetter } from '@/plan/CourseCard';
 import { courseMapLayers, dayColor } from '@/plan/courseMap';
@@ -106,12 +107,15 @@ function CourseSlot({ collapsed, card, row }: { collapsed: boolean; card: React.
 
 /**
  * 넓은 화면(1024~)은 여행 페이지 통합 화면을 연다 — 코스 고르기가 그 화면의 「추천 코스」 알약이 된다
- * (S15P21E201-1535, 시안 frontend/docs/design_handoff_trip_page/). 600~1023 과 폰은 아래 그대로다.
+ * (S15P21E201-1535, 시안 frontend/docs/design_handoff_trip_page/). 폰은 같은 화면의 폰 판(TripPageMobile, 2단계)이고,
+ * 1024 에 못 미치는 태블릿만 아래 그대로다 — 규칙은 tripPageKind(src/trip/page/tripPageModel.ts)가 갖는다.
  */
 export default function Recommendations() {
-  const { width } = useLayout();
+  const { width, kind } = useLayout();
   const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
-  if (isAtLeast(width, 'lg') && id) return <TripPageDesktop source={{ kind: 'trip', tripId: id, jobId: jobId ?? null }} />;
+  const page = id ? tripPageKind(width, kind, false) : 'classic';
+  if (id && page === 'desktop') return <TripPageDesktop source={{ kind: 'trip', tripId: id, jobId: jobId ?? null }} />;
+  if (id && page === 'mobile') return <TripPageMobile source={{ kind: 'trip', tripId: id, jobId: jobId ?? null }} />;
   return <RecommendationsClassic />;
 }
 
