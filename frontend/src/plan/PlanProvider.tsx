@@ -6,6 +6,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { conflictingFoodCode, foodLabel } from './foodConflicts';
 import { conditionsToDraftPatch, loadTravelConditions } from './travelConditions';
 import type { PlaceSnapshot } from './origins';
+import { hasPlanInput, parseStoredDraft } from './planDraftCarry';
 import { getTasteProfile, type TasteAnswers } from '@/preferences/tasteProfile';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
@@ -164,8 +165,18 @@ export function PlanProvider({ children }: { children: ReactNode }) {
 
     let cancelled = false;
     changedBeforeHydration.current = false;
-    AsyncStorage.getItem(storageKey).then((raw) => {
+    // 🔴 로그인된 채로 «처음» 읽을 때만 손님 초안을 본다 — 웹 소셜 로그인은 페이지를 떠났다 돌아와서
+    //    위 갈래(로그인 흐름 안에서 넘겨주기)가 안 걸린다(S15P21E201-1541, planDraftCarry.ts).
+    //    계정을 바꾸는 중(hydratedKey 가 다른 계정)이면 보지 않는다.
+    const carryFromGuest = hydratedKey === null && storageKey !== ANONYMOUS_KEY;
+    Promise.all([AsyncStorage.getItem(storageKey), carryFromGuest ? AsyncStorage.getItem(ANONYMOUS_KEY) : Promise.resolve(null)]).then(([raw, guestRaw]) => {
       if (cancelled) return;
+      const guest = parseStoredDraft<PlanDraft>(guestRaw, VERSION);
+      if (hasPlanInput(guest)) {
+        void AsyncStorage.removeItem(ANONYMOUS_KEY);
+        if (!changedBeforeHydration.current) setDraft({ ...EMPTY_PLAN, ...guest, ...VOLATILE_CONSTRAINTS });
+        return;
+      }
       let restored: PlanDraft | null = null;
       if (raw) {
         try {
