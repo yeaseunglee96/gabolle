@@ -227,6 +227,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             dayPlaces = reorderByRoute(trip, dayIndex, lodging, dayPlaces);
 
             List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate);
+            // 칸에 앉힌 뒤 한 번 더 — 끼니 칸이 차례를 섞어 놓은 것을 동선으로 다시 푼다(S15P21E201-1547).
+            placedToday = shortestSlotOrder(trip, dayIndex, lodging, placedToday, visitDate);
             placedByDay.add(placedToday);
 
             List<UUID> placeIdsToday = new ArrayList<>(placedToday.size());
@@ -707,6 +709,141 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             placed.add(new Placed(place, slot, warnings));
         }
         return placed;
+    }
+
+    /**
+     * 칸 종류(끼니·아닌 것)와 영업시간을 지키는 차례 중 <b>하루 이동거리가 가장 짧은 것</b>으로 바꾼다.
+     *
+     * <p>🔴 왜 (2026-09-23, S15P21E201-1547). 차례는 {@link #reorderByRoute} 가 최단으로 정하지만,
+     * {@link #placeIntoSlots} 가 점심·저녁 칸에 «목록에서 처음 나오는 밥집» 을 앉히면서 그 차례를 다시
+     * 섞는다. 운영 사례: 남포 카페 → <b>해운대</b> 밥집 → 영도 시장 → 영도 밥집 — 남포·해운대·영도를
+     * 오갔다(일정 eb0d0494). 하루는 3~5곳이라 가능한 차례를 전부 따져도 120가지다.
+     *
+     * <p>지키는 것: ① 끼니 칸에 밥집이 앉는 수가 원래보다 줄지 않는다 ② 영업시간에 걸리는 수가
+     * 원래보다 늘지 않는다. 둘을 지키는 차례가 원래보다 짧을 때만 바꾼다 — 같으면 원래 그대로.
+     *
+     * <p>좌표를 모르는 곳이 있거나, 칸 시각이 없거나(활동 시간 미정), 하루가 6곳을 넘으면 손대지 않는다.
+     */
+    private List<Placed> shortestSlotOrder(Trip trip, int dayIndex, Place lodging, List<Placed> placed,
+            LocalDate visitDate) {
+
+        int count = placed.size();
+        if (count < 2 || count > 6) {
+            return placed;
+        }
+        Double[] start = this.legPlanner.dayStart(trip, dayIndex, lodging);
+        List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>(count);
+        for (Placed p : placed) {
+            places.add(p.place());
+        }
+        Map<UUID, double[]> coords = coordinatesOf(places);
+        if (coords.size() < count) {
+            return placed;
+        }
+        OffsetDateTime[] at = new OffsetDateTime[count];
+        boolean[] wantFood = new boolean[count];
+        for (int i = 0; i < count; i++) {
+            Slot slot = placed.get(i).slot();
+            if (slot.start() == null) {
+                return placed;
+            }
+            at[i] = visitDate.atTime(slot.start()).atZone(ZONE).toOffsetDateTime();
+            wantFood[i] = overlapsMealBand(slot);
+        }
+
+        int[] identity = new int[count];
+        for (int i = 0; i < count; i++) {
+            identity[i] = i;
+        }
+        int baseMealHits = mealHits(places, identity, wantFood);
+        int baseViolations = violations(places, identity, at);
+        double baseDistance = pathKm(start, places, identity, coords);
+
+        int[] best = identity;
+        double bestDistance = baseDistance;
+        for (int[] order : permutations(count)) {
+            if (mealHits(places, order, wantFood) < baseMealHits || violations(places, order, at) > baseViolations) {
+                continue;
+            }
+            double distance = pathKm(start, places, order, coords);
+            // 반올림 흔들림으로 바꾸지 않게 100m 넘게 짧을 때만.
+            if (distance < bestDistance - 0.1) {
+                bestDistance = distance;
+                best = order;
+            }
+        }
+        if (best == identity) {
+            return placed;
+        }
+
+        List<Placed> reordered = new ArrayList<>(count);
+        for (int slotIndex = 0; slotIndex < count; slotIndex++) {
+            ItineraryDraftCommand.PlannedPlace place = places.get(best[slotIndex]);
+            List<String> warnings = place.warningCodes();
+            String violation = violationAt(place.placeId(), at[slotIndex]);
+            if (violation != null) {
+                warnings = new ArrayList<>(warnings == null ? List.of() : warnings);
+                warnings.add(violation);
+            }
+            reordered.add(new Placed(place, placed.get(slotIndex).slot(), warnings));
+        }
+        return reordered;
+    }
+
+    private int mealHits(List<ItineraryDraftCommand.PlannedPlace> places, int[] order, boolean[] wantFood) {
+        int hits = 0;
+        for (int i = 0; i < order.length; i++) {
+            if (wantFood[i] && isFood(places.get(order[i]))) {
+                hits++;
+            }
+        }
+        return hits;
+    }
+
+    private int violations(List<ItineraryDraftCommand.PlannedPlace> places, int[] order, OffsetDateTime[] at) {
+        int count = 0;
+        for (int i = 0; i < order.length; i++) {
+            if (violationAt(places.get(order[i]).placeId(), at[i]) != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /** 출발점 → 차례대로의 직선거리 합(km). 출발점을 모르면 첫 곳부터 잰다. */
+    private static double pathKm(Double[] start, List<ItineraryDraftCommand.PlannedPlace> places, int[] order,
+            Map<UUID, double[]> coords) {
+        double total = 0;
+        double[] previous = (start[0] != null && start[1] != null) ? new double[] { start[0], start[1] } : null;
+        for (int index : order) {
+            double[] here = coords.get(places.get(index).placeId());
+            if (previous != null) {
+                total += haversineKm(previous, here);
+            }
+            previous = here;
+        }
+        return total;
+    }
+
+    private static List<int[]> permutations(int n) {
+        List<int[]> out = new ArrayList<>();
+        permute(new int[n], new boolean[n], 0, out);
+        return out;
+    }
+
+    private static void permute(int[] current, boolean[] taken, int depth, List<int[]> out) {
+        if (depth == current.length) {
+            out.add(current.clone());
+            return;
+        }
+        for (int i = 0; i < current.length; i++) {
+            if (!taken[i]) {
+                taken[i] = true;
+                current[depth] = i;
+                permute(current, taken, depth + 1, out);
+                taken[i] = false;
+            }
+        }
     }
 
     /** 그 시각에 문을 연 후보 중, 원하는 종류의 첫 번째. 없으면 {@code -1}. */
