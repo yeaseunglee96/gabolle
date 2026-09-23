@@ -111,7 +111,20 @@ export default function Generating() {
       closeStream = openJobProgressStream(activeJobId, accessToken, {
         onSnapshot: (snapshot) => {
           if (cancelled) return;
-          setJob(adaptStreamedJob(activeJobId, snapshot, jobRef.current));
+          const next = adaptStreamedJob(activeJobId, snapshot, jobRef.current);
+          setJob(next);
+          // 🔴 스트림은 실패의 «이유»를 안 싣는다 — {code} 뿐이라 멈춘 단계(detail)도,
+          //    어느 조건이 막았는지(blockedBy)도 없다. 실패로 끝났으면 정식 조회를 한 번 해서
+          //    그 둘을 받아 온다(S15P21E201-1514). 폰은 원래 폴링이라 처음부터 받는다.
+          //
+          //    `cancelled` 로 막지 않는다 — 실패로 바뀌는 순간 isWorking 이 꺼져 이 효과가
+          //    정리되므로, 그걸로 막으면 답이 늘 버려진다. 대신 «아직 같은 작업을 보고 있나»로 본다.
+          //    조회 자체가 실패하면(stage 가 null — toFailure 가 만든 것) 스트림 문구를 그대로 둔다.
+          if (snapshot.status === 'FAILED') {
+            void adapter.poll(activeJobId, next).then((full) => {
+              if (jobRef.current.jobId === activeJobId && full.state === 'failed' && full.stage !== null) setJob(full);
+            });
+          }
         },
         onDone: () => { /* 서버가 끝 상태를 보내고 스스로 닫았다 — 더 할 일 없음 */ },
         onError: () => { if (!cancelled) startPolling(); },
