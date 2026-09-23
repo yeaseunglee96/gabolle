@@ -34,10 +34,10 @@ describe('홈 시작 바의 숙소 — 스냅샷으로 싣는다 (S15P21E201-153
     expect(payload).not.toHaveProperty('accommodationLat');
   });
 
-  it('🔴 추천 동네는 이름·좌표만 — 주소 칸의 설명 문장을 주소로 보내지 않는다', () => {
-    const area = RECOMMENDED_LODGING_AREAS[0];
-    const snapshot = lodgingSnapshotOf(area);
-    expect(snapshot).toEqual({ source: 'INTERNAL_FALLBACK', externalId: 'lodging-haeundae', name: '해운대', address: undefined, lat: 35.1587, lng: 129.1604 });
+  it('🔴 추천 동네는 싣지 않는다 — 장소가 아니라 동네다(서버 TravelArea 와 같은 넷)', () => {
+    for (const area of RECOMMENDED_LODGING_AREAS) expect(lodgingSnapshotOf(area)).toBeNull();
+    const payload = toCreateTripPayload({ ...EMPTY_PLAN, lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604, lodgingPlace: lodgingSnapshotOf(RECOMMENDED_LODGING_AREAS[0]) });
+    expect(payload.accommodation).toBeNull();
   });
 
   it('「숙소 아직 안 정했어요」면 안 싣는다 — 출발지 기준으로 짠다', () => {

@@ -79,13 +79,15 @@ export const RECOMMENDED_LODGING_AREAS: OriginCandidate[] = [
 /**
  * 숙소로 고른 후보를 스냅샷으로 — S15P21E201-1536.
  *
- * 🔴 추천 동네(위 RECOMMENDED_LODGING_AREAS)는 장소가 아니라 **동네**다. 주소 칸에는 주소가 아니라
- *    설명(「바다 앞 호텔·리조트가 모여 있어요」)이 들어 있어서, 그대로 보내면 서버에 주소가 설명 문장인
- *    장소가 생긴다. 그래서 동네는 이름·좌표만 보낸다 — 좌표로 「어디서 묵나」는 정확히 말해진다.
+ * 🔴 **추천 동네(위 RECOMMENDED_LODGING_AREAS)는 싣지 않는다** — 실제 숙소(검색 결과)만 싣는다.
+ *    동네는 장소가 아니다. 서버에는 같은 넷이 이미 여행 범위 코드(TravelArea: HAEUNDAE·SEOMYEON·
+ *    GWANGALLI·NAMPO — 좌표까지 같다)로 있어서, place 에 「해운대」 행을 또 만들면 같은 동네의
+ *    이름이 세 벌(lodging-haeundae · HAEUNDAE · 새 행)이 되고 서로 이어지지 않는다. place 를 훑는
+ *    다음 작업(사진·피처·갈래 세기)도 그 행을 «갈 수 있는 한 곳»으로 본다(고지혁 판단, 2026-09-23).
+ *    동네를 받을 올바른 자리는 아직 없다 — accommodation_place_id 는 장소 외래키다. 숙소를 날마다의
+ *    중심으로 쓸지(인수인계 결정 4번, S15P21E201-1493 과 충돌)가 정해지면 TravelArea 어휘로 칸이 생긴다.
  */
 export function lodgingSnapshotOf(candidate: OriginCandidate): PlaceSnapshot | null {
-  const snapshot = placeSnapshotOf(candidate);
-  if (!snapshot) return null;
-  const isArea = RECOMMENDED_LODGING_AREAS.some((area) => area.externalId === candidate.externalId);
-  return isArea ? { ...snapshot, address: undefined } : snapshot;
+  if (RECOMMENDED_LODGING_AREAS.some((area) => area.externalId === candidate.externalId)) return null;
+  return placeSnapshotOf(candidate) ?? null;
 }
