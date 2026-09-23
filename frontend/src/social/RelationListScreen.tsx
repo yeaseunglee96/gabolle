@@ -1,7 +1,7 @@
 // 팔로워·팔로잉·차단 목록의 공통 몸통 —·-1181.
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, usePathname, useRouter } from 'expo-router';
 
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
@@ -52,12 +52,18 @@ function FollowActionButton({ item, refresh }: { item: RelationItem; refresh: ()
 /** Screen 없이 목록만 그린다 — MyPageShell처럼 이미 Screen 안에 있는 자리에서 쓴다. */
 export function RelationList({ emptyMessage, loader, renderAction }: RelationListProps) {
   const router = useRouter();
-  const { accessToken } = useAuth();
+  const pathname = usePathname();
+  const { accessToken, ready } = useAuth();
+  // 🔴 손님이면 목록을 부르지 않는다 — S15P21E201-1532. 서버가 401 을 주고, 화면에는 서버 문장
+  //    「인증 정보가 올바르지 않습니다.」와 「다시 시도」가 떴다. 몇 번을 눌러도 안 되는 단추였다
+  //    (배포본에서 남의 프로필 → 팔로워, 2026-09-23). 로그인 상태를 되살리는 중(ready 전)에는 기다린다.
+  const guest = ready && !accessToken;
   const { tx } = useI18n();
   const [state, setState] = useState<ListState>({ status: 'loading' });
   const [loadingMore, setLoadingMore] = useState(false);
 
   const load = useCallback(async () => {
+    if (!accessToken) return;
     setState({ status: 'loading' });
     const result = await loader(accessToken);
     setState(result.state === 'success' ? { status: 'loaded', items: result.items, nextCursor: result.nextCursor } : { status: 'unavailable', message: result.message });
@@ -81,7 +87,14 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
 
   return (
     <View style={styles.body}>
-      {state.status === 'loading' ? <View style={styles.stateCard}><ActivityIndicator color={color.action.primary} /></View> : null}
+      {guest ? (
+        <View style={styles.stateCard}>
+          <Text color={color.text.body}>{tx('로그인하면 팔로워·팔로잉 목록을 볼 수 있어요.', 'Sign in to see followers and following.')}</Text>
+          <Button compact label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: pathname } })} />
+        </View>
+      ) : null}
+
+      {!guest && state.status === 'loading' ? <View style={styles.stateCard}><ActivityIndicator color={color.action.primary} /></View> : null}
 
       {state.status === 'unavailable' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
