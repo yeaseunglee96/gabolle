@@ -189,10 +189,10 @@ export default function PlanConditions() {
 
   const headerChips = useMemo(() => startBarChips({
     origin: draft.origin, originLat: draft.originLat, originLng: draft.originLng,
-    lodging: draft.lodging, lodgingLat: draft.lodgingLat, lodgingLng: draft.lodgingLng,
+    lodging: draft.lodging, lodgingLat: draft.lodgingLat, lodgingLng: draft.lodgingLng, lodgingPlace: draft.lodgingPlace,
     startDate: draft.startDate, endDate: draft.endDate,
     adults: draft.adults, children: draft.children,
-  }, tx), [draft.adults, draft.children, draft.endDate, draft.lodging, draft.lodgingLat, draft.lodgingLng, draft.origin, draft.originLat, draft.originLng, draft.startDate, tx]);
+  }, tx), [draft.lodgingPlace, draft.adults, draft.children, draft.endDate, draft.lodging, draft.lodgingLat, draft.lodgingLng, draft.origin, draft.originLat, draft.originLng, draft.startDate, tx]);
 
   const goTo = (next: number) => setState((prev) => ({ ...prev, open: Math.max(0, Math.min(PLAN_QUESTIONS.length - 1, next)), editing: null }));
   /** 지금 질문을 「건너뜀」으로 적고 다음으로. 선택 질문의 카드 머리에 있는 단추가 부른다. */

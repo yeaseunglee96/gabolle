@@ -5,6 +5,7 @@ import { getApiLanguage } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { conflictingFoodCode, foodLabel } from './foodConflicts';
 import { conditionsToDraftPatch, loadTravelConditions } from './travelConditions';
+import type { PlaceSnapshot } from './origins';
 import { getTasteProfile, type TasteAnswers } from '@/preferences/tasteProfile';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
@@ -28,6 +29,8 @@ export type PlanDraft = {
   lodging: string;
   lodgingLat: number | null;
   lodgingLng: number | null;
+  /** 홈 시작 바에서 고른 숙소의 스냅샷 — 여행 만들기 때 accommodation 으로 싣는다(S15P21E201-1536). */
+  lodgingPlace: PlaceSnapshot | null;
   transport: Transport;
   budgetKrw: number | null;
   dayStartTime: string;
@@ -82,7 +85,7 @@ const ANONYMOUS_KEY = `${STORAGE_PREFIX}:anonymous`;
 const LEGACY_STORAGE_KEY = STORAGE_PREFIX;
 
 const storageKeyFor = (userId: string | null) => (userId ? `${STORAGE_PREFIX}:${userId}` : ANONYMOUS_KEY);
-export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, transport: 'TRANSIT', budgetKrw: 100000, dayStartTime: '09:00', dayEndTime: '18:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null };
+export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null, transport: 'TRANSIT', budgetKrw: 100000, dayStartTime: '09:00', dayEndTime: '18:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null };
 
 const VOLATILE_CONSTRAINTS: Partial<PlanDraft> = {
   allergies: [], dietTypes: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false,

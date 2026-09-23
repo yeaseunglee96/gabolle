@@ -1,23 +1,9 @@
 // 「지역」 검색 — S15P21E201-1145.
 import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
-import { searchOrigins, type OriginCandidate } from '@/plan/origins';
+import { placeSnapshotOf, searchOrigins, type OriginCandidate, type PlaceSnapshot } from '@/plan/origins';
 
-/**
- * 카카오·대체 목록에서 고른 장소를 서버에 넘기는 모양 — S15P21E201-1527 (서버 S15P21E201-1426).
- *
- * 서버가 `(source, externalId)` 로 찾거나 만들어 그 id 를 글에 잇는다. 우리 표에 없는 식별자를
- * 글에 바로 적는 것이 아니라 **서버가 만든 뒤에만** id 가 생긴다.
- * 🔴 `source` 는 `OriginCandidate.source` 그대로다(KAKAO_LOCAL · INTERNAL_FALLBACK) — 바꾸면 이미
- *    적재된 같은 장소(해운대해수욕장 등)와 다른 행이 된다.
- */
-export type StoryPlaceSnapshot = {
-  source: OriginCandidate['source'];
-  externalId: string;
-  name: string;
-  address?: string;
-  lat: number;
-  lng: number;
-};
+/** 기록에 싣는 장소 스냅샷 — 숙소와 같은 한 벌이다(plan/origins.ts 의 PlaceSnapshot · S15P21E201-1536). */
+export type StoryPlaceSnapshot = PlaceSnapshot;
 
 export type RegionCandidate = {
   /** 화면에 크게 보이는 이름. */
@@ -31,14 +17,6 @@ export type RegionCandidate = {
    */
   place?: StoryPlaceSnapshot;
 };
-
-/** 서버가 받는 조건을 채우는가 — 이름·출처·식별자가 있고 좌표가 둘 다 숫자. 못 채우면 안 싣는다(400 대신 지역 글자만). */
-function snapshotOf(item: Pick<OriginCandidate, 'name' | 'address'> & Partial<OriginCandidate>): StoryPlaceSnapshot | undefined {
-  const name = (item.name ?? '').trim();
-  if (!name || !item.source || !item.externalId) return undefined;
-  if (!Number.isFinite(item.lat) || !Number.isFinite(item.lng)) return undefined;
-  return { source: item.source, externalId: item.externalId, name, address: item.address || undefined, lat: item.lat as number, lng: item.lng as number };
-}
 
 /** 주소에서 「구·군」을 뽑는다 — 지역 칸에 넣을 말. */
 export function regionFromAddress(address: string): string {
@@ -71,7 +49,7 @@ export function mergeRegionCandidates(
     const key = `${item.name}|${item.address}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    const place = snapshotOf(item);
+    const place = placeSnapshotOf(item);
     merged.push(place ? { name: item.name, address: item.address, place } : { name: item.name, address: item.address });
   }
   return merged.slice(0, limit);

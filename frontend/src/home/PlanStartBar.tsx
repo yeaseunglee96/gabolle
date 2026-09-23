@@ -8,7 +8,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { resolveTextLanguage } from '@/i18n/languages';
-import { MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, searchOrigins, type OriginCandidate } from '@/plan/origins';
+import { lodgingSnapshotOf, MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, searchOrigins, type OriginCandidate } from '@/plan/origins';
 import {
   EMPTY_START_BAR,
   type StartBarSection,
@@ -297,14 +297,15 @@ export function PlanStartBar({
   };
 
   const pickLodging = (candidate: OriginCandidate) => {
-    setValue((prev) => ({ ...prev, lodging: candidate.name, lodgingLat: candidate.lat, lodgingLng: candidate.lng }));
+    // externalId·source 까지 든다 — 좌표만 두면 서버가 숙소를 못 남긴다(S15P21E201-1536).
+    setValue((prev) => ({ ...prev, lodging: candidate.name, lodgingLat: candidate.lat, lodgingLng: candidate.lng, lodgingPlace: lodgingSnapshotOf(candidate) }));
     setLodgingQuery('');
     setSection('dates');
   };
 
   /** 「숙소 아직 안 정했어요」— 탈출구. 숙소는 선택 사항이라 미정으로 두고 다음 칸으로. */
   const clearLodging = () => {
-    setValue((prev) => ({ ...prev, lodging: '', lodgingLat: null, lodgingLng: null }));
+    setValue((prev) => ({ ...prev, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null }));
     setLodgingQuery('');
     setSection('dates');
   };

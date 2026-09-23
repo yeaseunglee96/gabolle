@@ -41,6 +41,8 @@ describe('이미 답한 것을 시작 바에 다시 채운다', () => {
   const draft = {
     origin: '부산역', originLat: 35.1152, originLng: 129.0403,
     lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604,
+    // 숙소 스냅샷도 옮겨야 한다 — 빠지면 「날짜 정하기」로 다녀온 뒤 여행에 숙소가 안 남는다(S15P21E201-1536).
+    lodgingPlace: { source: 'INTERNAL_FALLBACK' as const, externalId: 'lodging-haeundae', name: '해운대', lat: 35.1587, lng: 129.1604 },
     startDate: '2026-09-20', endDate: '2026-09-22',
     adults: 3, children: 1,
   };
