@@ -338,7 +338,8 @@ class BaselineCandidateScorerTest {
 	@Test
 	@DisplayName("관심 태그가 겹치면 TAG_MATCH_INTEREST 와 겹침 비율을 남긴다")
 	void 관심태그_겹치면_리즌코드와_비율() {
-		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\", \"CAFE\"]}");
+		// 두 번째 코드는 이 후보의 갈래(CAFE)가 아니어야 한다 — 갈래가 맞으면 아래 테마 규칙으로 만점이 된다.
+		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\", \"PARK\"]}");
 		PlaceCandidateResponse.Candidate candidate = candidate(
 				List.of(tag("INTEREST_TAG", "SEA", "VERIFIED", null)));
 
@@ -346,6 +347,33 @@ class BaselineCandidateScorerTest {
 
 		assertThat(result.reasonCodes()).contains("TAG_MATCH_INTEREST");
 		assertThat((Double) result.featureValues().get("interestTagOverlap")).isEqualTo(0.5);
+	}
+
+	@Test
+	@DisplayName("🔴 여행 테마가 장소 갈래(place.category)와 같으면 태그가 없어도 관심 만점 — 앱 테마와 관심 태그는 어휘가 다르다")
+	void 테마가_장소갈래와_같으면_관심_만점() {
+		// 운영 관심 태그는 NATURE·WALK·TRADITIONAL_MARKET … 이고 앱 테마는 SEA_BEACH·FOOD … 다(2026-09-23 실측).
+		// 태그만 보면 테마가 아무 데도 안 겹쳐 가산이 0 이었다.
+		PreferenceSnapshot snapshot = snapshot("CATEGORY", "[\"SEA_BEACH\", \"FOOD\"]");
+		PlaceCandidateResponse.Candidate beach = candidateOf("SEA_BEACH", List.of());
+
+		EngineCandidate result = score(beach, snapshot, List.of());
+
+		assertThat(result.reasonCodes()).contains("TAG_MATCH_INTEREST");
+		// 테마를 둘 골랐어도 반점이 아니다 — 장소는 갈래가 하나다.
+		assertThat((Double) result.featureValues().get("interestTagOverlap")).isEqualTo(1.0);
+	}
+
+	@Test
+	@DisplayName("테마와 갈래가 다르면 가산이 없다 — 고른 갈래가 위로 올라오는 것은 이 차이 때문이다")
+	void 테마와_갈래가_다르면_가산없음() {
+		PreferenceSnapshot snapshot = snapshot("CATEGORY", "[\"SEA_BEACH\"]");
+
+		EngineCandidate beach = score(candidateOf("SEA_BEACH", List.of()), snapshot, List.of());
+		EngineCandidate restaurant = score(candidateOf("FOOD", List.of()), snapshot, List.of());
+
+		assertThat((Double) restaurant.featureValues().get("interestTagOverlap")).isEqualTo(0.0);
+		assertThat(beach.preRankScore()).isGreaterThan(restaurant.preRankScore());
 	}
 
 	// ── 도구 ──────────────────────────────────────────────────────────────────
@@ -518,6 +546,11 @@ class BaselineCandidateScorerTest {
 
 	private static PlaceCandidateResponse.Candidate candidate(List<PlaceFeatureView> features) {
 		return candidate(1000L, features);
+	}
+
+	private static PlaceCandidateResponse.Candidate candidateOf(String category, List<PlaceFeatureView> features) {
+		return new PlaceCandidateResponse.Candidate(UUID.randomUUID(), "테스트 장소", category, 35.1, 129.0,
+				1000L, features);
 	}
 
 	private static PlaceCandidateResponse.Candidate candidate(long distanceM, List<PlaceFeatureView> features) {
