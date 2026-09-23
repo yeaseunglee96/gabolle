@@ -1277,4 +1277,50 @@ class ItineraryDraftServiceTest {
 				.as("하루가 여러 권역에 걸쳤는데 경고가 없다 — 화면이 그냥 좋은 일정으로 그린다")
 				.contains(ItineraryWarningCodes.DAY_REGION_MIXED);
 	}
+
+	/**
+	 * 🔴 2026-09-23 운영 일정(eb0d0494) 그대로 — 하루가 남포 카페 → <b>해운대</b> 밥집 → 영도 시장 → 영도 밥집이었다.
+	 *
+	 * <p>점심·저녁 칸은 «목록에서 처음 나오는 밥집» 을 앉혀서, 먼 밥집이 한가운데 끼면 남포·해운대·영도를
+	 * 오간다. 끼니 칸 규칙을 지키는 차례 중 가장 짧은 것을 고르면 해운대는 맨 끝(또는 맨 앞)으로 간다.
+	 */
+	@Test
+	@DisplayName("🔴 끼니 칸이 동선을 섞지 않는다 — 먼 밥집이 하루 한가운데 끼지 않는다(S15P21E201-1547)")
+	void mealSlotsDoNotZigzagTheDay() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 22), LocalDate.of(2026, 9, 22), LocalTime.of(9, 0), LocalTime.of(18, 0));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		double[] nampoCafe = { 35.0903, 129.0579 };
+		double[] haeundaeFood = { 35.1633, 129.1596 };
+		double[] yeongdoMarket = { 35.0966, 129.0604 };
+		double[] yeongdoFood = { 35.0864, 129.0767 };
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesAt(
+				List.of("CAFE_HEALING", "FOOD", "CITY", "FOOD"),
+				List.of(nampoCafe, haeundaeFood, yeongdoMarket, yeongdoFood));
+
+		// 운영에서는 최적화기가 여행 출발지(해운대)에서 최단 차례를 잡아 해운대 밥집을 맨 앞에 뒀다.
+		// 첫 칸은 밥 때가 아니라 그 밥집을 건너뛰고, 점심 칸이 «목록의 첫 밥집» 인 그것을 앉혔다.
+		List<UUID> fromHaeundae = List.of(places.get(1).placeId(), places.get(0).placeId(),
+				places.get(2).placeId(), places.get(3).placeId());
+		ItineraryDraftService service = serviceWithRouteOrder(request -> fromHaeundae);
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		List<ItineraryDraft.DraftItem> day = draft.items().stream()
+				.sorted(java.util.Comparator.comparing(ItineraryDraft.DraftItem::startTime))
+				.toList();
+		double total = 0;
+		for (int i = 1; i < day.size(); i++) {
+			total += kmBetween(coordinateOf(day.get(i - 1).placeId()), coordinateOf(day.get(i).placeId()));
+		}
+		UUID haeundae = places.get(1).placeId();
+		int haeundaeAt = day.stream().map(ItineraryDraft.DraftItem::placeId).toList().indexOf(haeundae);
+
+		assertThat(haeundaeAt).as("해운대 밥집이 남포·영도 사이에 끼었다").isIn(0, day.size() - 1);
+		// 옛 차례(남포→해운대→영도→영도)는 약 25km 였다.
+		assertThat(total).isLessThan(18.0);
+		// 끼니 칸 규칙은 그대로다 — 두 밥집이 점심·저녁 자리에 있다.
+		assertThat(day.stream().filter(item -> "FOOD".equals(this.categoryByPlaceId.get(item.placeId()))).count()).isEqualTo(2);
+	}
+
 }
