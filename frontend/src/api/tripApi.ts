@@ -136,13 +136,20 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
     timeWindow: `${draft.dayStartTime}-${draft.dayEndTime}`,
     timezone: 'Asia/Seoul',
     preferences: [
-      preference('category', draft.preferenceAnswerStatus.category, draft.preferences),
+      // 🔴 칩을 골랐으면 「고름(SELECTED)」으로 보낸다 (2026-09-23, S15P21E201-1535). 질문 화면의 칩은
+      //    draft.preferences 만 바꾸고 preferenceAnswerStatus.category 는 안 바꿔서, 테마를 골라도
+      //    UNKNOWN·값 null 로 나갔다 — 서버는 SELECTED 만 읽으므로 **테마가 한 번도 반영되지 않았다.**
+      //    (운영 실측: 최근 여행 전부 테마 없음.) 칩이 비었으면 원래 상태(모름·상관없음)를 그대로 둔다.
+      preference('category', draft.preferences.length ? 'SELECTED' : draft.preferenceAnswerStatus.category, draft.preferences),
       preference('locality', draft.preferenceAnswerStatus.locality, draft.localityLevel),
       preference('quietness', draft.preferenceAnswerStatus.quietness, draft.quietLevel),
       preference('foodPreference', draft.preferenceAnswerStatus.foodPreference, draft.foods),
       preference('transport', 'SELECTED', draft.transport),
       preference('slopePreference', draft.slopeConstraint === null ? 'UNKNOWN' : 'SELECTED', draft.slopeConstraint),
       preference('shadePreference', draft.shadePreference === null ? 'UNKNOWN' : 'SELECTED', draft.shadePreference),
+      // 🔴 「여행 기분」을 묻기만 하고 안 보냈다 (2026-09-23, S15P21E201-1535). 서버는 이 값으로 하루에 넣을
+      //    장소 수를 정한다(RELAXED 3 · BALANCED 4 · PACKED 5, ItineraryDraftService). 안 오면 누구나 4곳이었다.
+      preference('pace', draft.paceLevel ? 'SELECTED' : 'UNKNOWN', draft.paceLevel),
     ],
     constraints,
   };
@@ -177,7 +184,10 @@ export async function createTripAndRecommendationJob(
       accessToken,
       body: {
         preferenceSnapshotVersion: trip.preferenceSnapshot?.version ?? null,
-        topK: 20,
+        // 🔴 20 으로 박아 두지 않는다 (2026-09-23, S15P21E201-1535). 서버는 비우면 여행 길이에 맞춰
+        //    (일수 × 하루 장소 수 × 3, 최소 10) 후보 수를 정하는데, 20 을 주면 그 계산을 덮는다 —
+        //    5일이면 여유가 0 이고 6일부터는 날을 다 못 채웠다(RecommendationService.defaultTopKFor).
+        topK: null,
       },
     },
   );
