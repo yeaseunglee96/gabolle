@@ -3,6 +3,7 @@ package com.gabolle.backend.recommendation.adapter;
 import static org.assertj.core.api.Assertions.within;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.TasteWeightComponent;
 import java.time.OffsetDateTime;
 import java.time.Instant;
 import java.util.List;
@@ -164,6 +165,60 @@ class BaselineCandidateScorerTest {
 	}
 
 	@Test
+	@DisplayName("🔴 DIET REQUIRED — 미확인은 «탈락이 아니라 경고» 다 (S15P21E201-1468)")
+	void required_식단_미확인이면_탈락이아니라경고() {
+		// 이 시험이 생긴 이유. DIETARY_SUPPORT_TAG 가 운영에 0건이라, 식단을 고르기만 하면
+		// 모든 후보가 unknownFacts 를 달고 unknown-exclusion-threshold(기본 REQUIRED)에
+		// 전부 걸려 여행을 못 만들었다 — 실측으로 식단·알레르기를 고른 작업 8건이 8건 다
+		// 실패했다. 팀이 식단만 「거르지 말고 확인 못 했다고 말한다」로 정했다.
+		TripConstraint vegan = diet("VEGAN", TripConstraint.DietRequirement.REQUIRED);
+		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
+
+		EngineCandidate result = score(candidate, null, List.of(vegan));
+
+		assertThat(result.constraintVerdict()).as("미확인만으로 후보를 빼지 않는다")
+				.isEqualTo(ConstraintVerdict.PASS);
+		assertThat(result.unknownFacts()).as("여기 남으면 threshold 가 다시 빼 간다").isEmpty();
+		assertThat(result.warningCodes()).contains("DIET_SUPPORT_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 경고 문자열은 앱 사전과 같은 이름이어야 한다 — 다르면 화면에서 조용히 사라진다")
+	void 식단경고_문자열이_앱사전과_같다() {
+		// describeWarningCodes 는 사전에 없는 코드를 건너뛴다. 이름만 바뀌어도 경고가
+		// 안 뜨는데 오류는 안 난다 — 그래서 문자열 자체를 못 박는다.
+		// 앱: frontend/src/plan/warningLabels.ts (S15P21E201-1503)
+		assertThat(BaselineCandidateScorer.DIET_UNVERIFIED_WARNING).isEqualTo("DIET_SUPPORT_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 알레르기는 이 처리를 안 받는다 — 미확인이면 여전히 UNKNOWN 이다")
+	void 알레르기는_식단과_같게_다루지_않는다() {
+		// 접근성·식단이 틀리면 불편하고, 알레르기가 틀리면 사람이 다친다. 같은 저울에
+		// 올리지 않는다는 것이 팀 결정이고, 이 시험이 그것을 지킨다.
+		TripConstraint peanut = allergy("PEANUT");
+		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
+
+		EngineCandidate result = score(candidate, null, List.of(peanut));
+
+		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
+		assertThat(result.warningCodes()).doesNotContain("ALLERGEN_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("DIET REQUIRED — 「지원 안 함」이 확인되면 그대로 탈락이다 (경고로 낮추지 않는다)")
+	void required_식단_확인된미지원은_그대로탈락() {
+		TripConstraint vegan = diet("VEGAN", TripConstraint.DietRequirement.REQUIRED);
+		PlaceCandidateResponse.Candidate candidate = candidate(
+				List.of(tag("DIETARY_SUPPORT_TAG", "VEGAN", "VERIFIED", "false")));
+
+		EngineCandidate result = score(candidate, null, List.of(vegan));
+
+		assertThat(result.constraintVerdict()).as("아는 것은 거르는 게 맞다").isEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.warningCodes()).doesNotContain("DIET_SUPPORT_UNVERIFIED");
+	}
+
+	@Test
 	@DisplayName("DIET PREFERRED — 미확인이면 UNKNOWN 이고 severity 는 PREFERRED 다(REQUIRED 를 지어내지 않는다)")
 	void preferred_식단_미확인이면_경고severity_preferred() {
 		TripConstraint vegan = diet("VEGAN", TripConstraint.DietRequirement.PREFERRED);
@@ -322,15 +377,17 @@ class BaselineCandidateScorerTest {
 	@DisplayName("🔴 벡터가 겹치면 덧점수가 실제로 붙는다 — 기여가 0 이 아니다")
 	void tasteVectorAddsWhenItOverlaps() {
 		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
-		List<UserTasteWeight> vector = List.of(
-				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, 7, NOW));
+		// 🔴 예전에는 무게 1.0 을 넣었는데 그건 운영에서 나올 수 없는 값이다 (S15P21E201-1500).
+		//    행동 무게는 관측이 아무리 쌓여도 1 에 못 닿는다 — raw/(|raw|+K) 는 늘 1 미만이다.
+		List<UserTasteWeight> vector = List.of(UserTasteWeight.fromInteraction(TASTE_VECTOR_ID,
+				TasteDimension.CATEGORY, "CAFE_HEALING", rawForWeight(0.75), 7, NOW));
 
 		EngineCandidate without = score(cafe, null, List.of());
 		EngineCandidate with = score(cafe, null, List.of(), vector);
 
 		assertThat(with.preRankScore()).as("겹쳤는데 점수가 안 움직이면 배관이 끊긴 것이다")
 				.isGreaterThan(without.preRankScore());
-		assertThat(with.preRankScore() - without.preRankScore()).isCloseTo(TASTE_MULTIPLIER * 1.0, within(1e-9));
+		assertThat(with.preRankScore() - without.preRankScore()).isCloseTo(TASTE_MULTIPLIER * 0.75, within(1e-9));
 		assertThat(with.scoreComponents()).containsKey("tasteVectorContribution");
 	}
 
@@ -354,7 +411,8 @@ class BaselineCandidateScorerTest {
 	void negativeWeightLowersScore() {
 		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
 		List<UserTasteWeight> dislike = List.of(
-				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", -1.0, 7, NOW));
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING",
+						rawForWeight(-0.75), 7, NOW));
 
 		EngineCandidate without = score(cafe, null, List.of());
 		EngineCandidate with = score(cafe, null, List.of(), dislike);
@@ -368,7 +426,8 @@ class BaselineCandidateScorerTest {
 	void vectorWithoutOverlapContributesZero() {
 		PlaceCandidateResponse.Candidate notCafe = candidate(List.of(tag("INTEREST_TAG", "FOOD", "VERIFIED", "true")));
 		List<UserTasteWeight> vector = List.of(
-				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, 7, NOW));
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING",
+						rawForWeight(0.75), 7, NOW));
 
 		EngineCandidate without = score(notCafe, null, List.of());
 		EngineCandidate with = score(notCafe, null, List.of(), vector);
@@ -398,14 +457,23 @@ class BaselineCandidateScorerTest {
 		assertThat(with.featureValues()).containsEntry("tasteVectorOverlap", null);
 	}
 
-	/** 설문과 행동이 섞여 있으면 행동 쪽만 세고, 분모도 그 개수다. */
+	/**
+	 * 설문과 행동이 섞여 있으면 행동 쪽만 세고, 분모도 그 개수다.
+	 *
+	 * <p>🔴 이 시험이 {@code CAFE_HEALING} 을 <b>설문 행 + 행동 행 두 줄</b>로 준다
+	 * (S15P21E201-1499). 예전에는 그 자리가 {@code BLENDED} 한 줄이었고 값이 1.0 이었는데,
+	 * 합치는 규칙이 합이라 {@code 0.4 + 0.6} 으로 나눠 적어도 합쳐 보면 같은 1.0 이다.
+	 * <b>기대값이 그대로인 것이 「나눠 적어도 점수가 안 바뀐다」의 증명이다.</b>
+	 */
 	@Test
-	@DisplayName("설문과 행동이 섞이면 행동 성분만 더한다")
+	@DisplayName("설문과 행동이 섞이면 행동 성분만 더한다 — 나눠 적어도 합친 값은 같다")
 	void blendsCountOnlyBehaviourBackedComponents() {
 		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
 		List<UserTasteWeight> mixed = List.of(
 				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "SEA_BEACH", 1.0, NOW),
-				UserTasteWeight.blended(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, 3, NOW));
+				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 0.4, NOW),
+				UserTasteWeight.fromInteraction(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING",
+						rawForWeight(0.6), 3, NOW));
 
 		EngineCandidate without = score(cafe, null, List.of());
 		EngineCandidate with = score(cafe, null, List.of(), mixed);
@@ -420,12 +488,32 @@ class BaselineCandidateScorerTest {
 		return score(candidate, snapshot, constraints, List.of());
 	}
 
-	/** 취향 벡터를 함께 넘기는 갈래. */
+	/**
+	 * 취향 벡터를 함께 넘기는 갈래.
+	 *
+	 * <p>저장된 행을 그대로 넘기지 않고 {@link TasteWeightComponent#merge(List)} 를 거친다 —
+	 * 운영에서 {@code BaselineRecommendationEngine} 이 읽어 넘길 때 하는 것과 같다. 시험이
+	 * 그 단계를 건너뛰면 「나눠 적어도 점수가 같다」를 증명하지 못한다 (S15P21E201-1499).
+	 */
 	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot snapshot,
 			List<TripConstraint> constraints, List<UserTasteWeight> tasteWeights) {
 		return this.scorer.score(candidate, snapshot, constraints, RADIUS_M, WEIGHTS, ALIGNMENT_WEIGHTS,
 				this.preferenceCodeMap,
-				this.constraintCodeMap, tasteWeights, TASTE_MULTIPLIER);
+				this.constraintCodeMap, TasteWeightComponent.merge(tasteWeights), TASTE_MULTIPLIER);
+	}
+
+	/**
+	 * 원하는 «무게» 에서 {@code raw} 를 역산한다 (S15P21E201-1500).
+	 *
+	 * <p>{@code fromInteraction} 은 이제 눌러 담기 전의 합을 받는다 —
+	 * {@code weight = raw/(|raw|+K)} 이므로 {@code raw = K*w/(1-|w|)} 이다. 시험은 무게로
+	 * 말하는 편이 읽히므로 여기서 되돌린다.
+	 *
+	 * <p>🔴 {@code w = ±1} 은 못 넣는다. 나누는 값이 0 이 되는데, <b>그것이 사실이다</b> —
+	 * 행동 무게는 관측이 아무리 쌓여도 1 에 못 닿는다.
+	 */
+	private static double rawForWeight(double weight) {
+		return (UserTasteWeight.CONFIDENCE_K * weight) / (1.0 - Math.abs(weight));
 	}
 
 	private static PlaceCandidateResponse.Candidate candidate(List<PlaceFeatureView> features) {

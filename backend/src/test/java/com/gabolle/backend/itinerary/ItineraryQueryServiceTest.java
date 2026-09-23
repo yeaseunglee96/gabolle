@@ -1,5 +1,6 @@
 package com.gabolle.backend.itinerary;
 
+import java.util.Map;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -73,7 +74,9 @@ class ItineraryQueryServiceTest {
 		// 대역이면 충분하다 — 기록이 있을 때는 ItineraryActualTimeServiceTest 가 본다.
 		this.service = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
 				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
-				new FakeItineraryItemActualRepository());
+				new FakeItineraryItemActualRepository(),
+				// 가격 자료가 없는 상태 — 「모르면 null, 0 이 아니다」가 그대로 지켜지는지 본다.
+				placeIds -> Map.of());
 
 		this.place = mock(Place.class);
 		when(this.place.getPlaceId()).thenReturn(this.placeId);

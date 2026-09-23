@@ -4,6 +4,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.gabolle.backend.batch.application.TasteDecayProperties;
 import com.gabolle.backend.batch.application.TasteVectorProperties;
 import com.gabolle.backend.batch.security.InternalTokenAuthenticationFilter;
 
@@ -16,7 +17,8 @@ import com.gabolle.backend.batch.security.InternalTokenAuthenticationFilter;
  * 체인 안에 직접 꽂는다.
  */
 @Configuration
-@EnableConfigurationProperties({ InternalApiProperties.class, TasteVectorProperties.class })
+@EnableConfigurationProperties({ InternalApiProperties.class, TasteVectorProperties.class,
+		TasteDecayProperties.class })
 public class BatchConfiguration {
 
 	@Bean

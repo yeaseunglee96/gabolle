@@ -30,6 +30,22 @@ public final class ItineraryWarningCodes {
      */
     public static final String SIGHT_SLOT_UNFILLED = "SIGHT_SLOT_UNFILLED";
 
+    /**
+     * 하루 안에 멀리 떨어진 곳이 섞였고, 그것을 바꿔 넣을 후보가 그 지역에 없었다 (S15P21E201-1493).
+     *
+     * <p>이동이 길어진 것을 <b>조용히 두지 않는다.</b> 2026-09-22 운영에서 영도 세 곳 사이에
+     * 해운대 한 곳이 껴서 16km 를 갔다 돌아오는 일정이 나왔다(그 두 구간만 왕복 104분).
+     *
+     * <p>그 자체는 후보가 그 지역에 모자라서 생긴 일이라 코드가 늘 없앨 수는 없다. 억지로
+     * 채우면 순위가 한참 낮은 곳을 넣게 되고, 그건 <b>이동을 줄이려고 추천 품질을 버리는</b>
+     * 맞바꿈이다. 실측으로도 영도권 후보는 28곳뿐이고 그중 20곳이 음식점이라, 지역을 맞추려
+     * 내려가다 보면 하루가 밥집이 된다.
+     *
+     * <p>그래서 바꿀 수 없으면 바꾸지 않고 <b>말한다.</b> 빈 자리를 밥집으로 메우지 않는 것
+     * ({@link #SIGHT_SLOT_UNFILLED})과 같은 판단이다.
+     */
+    public static final String DAY_REGION_MIXED = "DAY_REGION_MIXED";
+
     private ItineraryWarningCodes() {
     }
 }

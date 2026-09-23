@@ -1,5 +1,6 @@
 package com.gabolle.backend.recommendation.application;
 
+import java.util.Map;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -54,7 +55,9 @@ class RecommendationResultQueryServiceTest {
 		this.placeRepository = mock(PlaceRepository.class);
 		this.itineraryRepository = mock(ItineraryRepository.class);
 		this.service = new RecommendationResultQueryService(this.candidateRepository, this.placeRepository,
-				this.itineraryRepository, new ObjectMapper());
+				this.itineraryRepository, new ObjectMapper(),
+				// 가격 자료가 없는 상태 — estimatedCostKrw 가 null 로 남는지 본다.
+				placeIds -> Map.of());
 
 		Place place = mock(Place.class);
 		when(place.getPlaceId()).thenReturn(this.placeId);
@@ -86,8 +89,8 @@ class RecommendationResultQueryServiceTest {
 	}
 
 	@Test
-	@DisplayName("🔴 imageUrl·estimatedCostKrw 는 항상 null — place 표에 그 칸이 없다")
-	void imageUrlAndCostAreAlwaysNull() {
+	@DisplayName("🔴 가격이 없는 곳은 estimatedCostKrw 가 null — 0 으로 채우지 않는다")
+	void costIsNullWhenPriceNotCollected() {
 		RecommendationCandidate candidate = returnedCandidateBuilder().build();
 		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
 				.thenReturn(List.of(candidate));
@@ -100,6 +103,50 @@ class RecommendationResultQueryServiceTest {
 		assertThat(item.estimatedCostKrw()).isNull();
 		assertThat(item.id()).isEqualTo(this.placeId.toString());
 		assertThat(item.title()).isEqualTo("해운대 해수욕장");
+	}
+
+	@Test
+	@DisplayName("🔴 사진이 있으면 주소·출처·피사체를 함께 싣는다 (S15P21E201-1496)")
+	void photoIsCarriedWithItsSourceAndSubject() {
+		// 이 시험이 생긴 이유. imageUrl 이 null 로 못 박혀 있었고 그 옆 주석이 "place 표에
+		// 이미지 칸이 없다" 고 틀리게 적혀 있어서, 사진이 있는 후보 710곳(반환 후보의 24%)이
+		// 통째로 버려지고 있었다. 주석이 코드보다 오래 산 자리다.
+		Place photographed = mock(Place.class);
+		when(photographed.getPlaceId()).thenReturn(this.placeId);
+		when(photographed.getNameKo()).thenReturn("해운대 해수욕장");
+		when(photographed.getPhotoUrl()).thenReturn("https://tong.visitkorea.or.kr/haeundae.jpg");
+		when(photographed.getPhotoSource()).thenReturn("한국관광공사 관광사진갤러리");
+		when(photographed.getPhotoSubject()).thenReturn(Place.PhotoSubject.SELF);
+		when(this.placeRepository.findByPlaceIdIn(any())).thenReturn(List.of(photographed));
+
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(returnedCandidateBuilder().build()));
+
+		RecommendationResultResponse.Item item = this.service.buildResult(succeededJob(FallbackMode.BASELINE))
+				.items().get(0);
+
+		assertThat(item.imageUrl()).isEqualTo("https://tong.visitkorea.or.kr/haeundae.jpg");
+		// 🔴 출처는 선택 사항이 아니다. 공공누리 자료라 표기가 이용 조건이고, 화면은 이 값으로
+		// 출처 줄을 그린다. 주소만 보내면 출처 없이 사진이 걸린다.
+		assertThat(item.photoSource()).as("주소만 보내면 화면이 출처 없이 사진을 건다")
+				.isEqualTo("한국관광공사 관광사진갤러리");
+		assertThat(item.photoSubject()).isEqualTo(Place.PhotoSubject.SELF);
+	}
+
+	@Test
+	@DisplayName("🔴 사진이 없으면 셋 다 null — 기본 이미지를 지어내지 않는다")
+	void missingPhotoStaysNull() {
+		// 기본 이미지를 넣으면 화면이 "사진이 있다" 로 읽는다. 갈래 아이콘을 그리는 것은
+		// 화면의 몫이라고 S15P21E201-1378 이 이미 정했다.
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(returnedCandidateBuilder().build()));
+
+		RecommendationResultResponse.Item item = this.service.buildResult(succeededJob(FallbackMode.BASELINE))
+				.items().get(0);
+
+		assertThat(item.imageUrl()).isNull();
+		assertThat(item.photoSource()).isNull();
+		assertThat(item.photoSubject()).isNull();
 	}
 
 	@Test
@@ -282,5 +329,34 @@ class RecommendationResultQueryServiceTest {
 				.thenReturn(List.of(returnedCandidateBuilder().build()));
 
 		assertThat(this.service.buildResult(succeededJob(FallbackMode.BASELINE)).tripId()).isNull();
+	}
+	@Test
+	@DisplayName("실린 가격이 있으면 estimatedCostKrw 로 나온다 (S15P21E201-1479)")
+	void costComesFromMenuPrice() {
+		RecommendationResultQueryService withPrice = new RecommendationResultQueryService(this.candidateRepository,
+				this.placeRepository, this.itineraryRepository, new ObjectMapper(),
+				placeIds -> Map.of(this.placeId, 17_000));
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = withPrice.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.items().get(0).estimatedCostKrw()).isEqualTo(17_000);
+	}
+
+	@Test
+	@DisplayName("🔴 다른 장소의 가격이 섞이지 않는다 — 열쇠가 맞을 때만 붙는다")
+	void costDoesNotLeakFromAnotherPlace() {
+		RecommendationResultQueryService withPrice = new RecommendationResultQueryService(this.candidateRepository,
+				this.placeRepository, this.itineraryRepository, new ObjectMapper(),
+				placeIds -> Map.of(UUID.randomUUID(), 99_000));
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = withPrice.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.items().get(0).estimatedCostKrw()).isNull();
 	}
 }

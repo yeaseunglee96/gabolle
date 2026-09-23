@@ -2,6 +2,7 @@ package com.gabolle.backend.recommendation.presentation.dto;
 
 import java.util.List;
 
+import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 
 /** 추천 결과 응답. 프론트가 이미 코드에 박아 놓고 부르는 모양을 그대로 따른다. */
@@ -38,10 +39,45 @@ public record RecommendationResultResponse(
 			String id,
 			/** {@code place.name_ko}. */
 			String title,
-			/** 항상 {@code null} — {@code place} 표에 이미지 칸이 없다. */
+			/**
+			 * 대표 사진 주소({@code place.photo_url}). 없으면 {@code null} 이고, 그때 기본 이미지를
+			 * 지어내지 않는다 — 갈래 아이콘을 그리는 것은 화면의 몫이다(S15P21E201-1378).
+			 *
+			 * <p>🔴 2026-09-22 이전에는 <b>항상 {@code null}</b> 이었고, 그 옆의 주석이
+			 * <i>"{@code place} 표에 이미지 칸이 없다"</i> 고 <b>틀리게</b> 적어 두고 있었다.
+			 * 칸은 {@code Place.photoUrl} 로 처음부터 있었다. 그 한 줄 때문에 사진이 있는 후보
+			 * <b>710곳(반환 후보의 24%)</b>이 통째로 버려지고 있었다(S15P21E201-1496).
+			 */
 			String imageUrl,
+			/**
+			 * 사진 출처 표기 문구. {@link #imageUrl} 과 <b>짝이다</b> — 주소만 보내면 화면이
+			 * 출처 없이 사진을 건다.
+			 *
+			 * <p>🔴 <b>이것이 선택 사항이 아닌 이유.</b> 지금 실려 있는 사진은 TourAPI 등
+			 * 공공누리 자료라 <b>출처 표기가 이용 조건</b>이다. 프론트({@code PlaceVisual})는
+			 * {@code photoUrl} 이 있을 때 이 값으로 출처 줄을 그리게 되어 있고
+			 * (S15P21E201-1125 — 「출처 표기를 구조로 강제한다」), 서버가 이 값을 빼면 그
+			 * 강제가 조용히 무력해진다.
+			 */
+			String photoSource,
+			/**
+			 * 그 사진이 무엇을 찍은 것인가. {@code SELF} 는 이 장소 자체를 찍은 사진이고
+			 * {@code VENUE} 는 장소가 아니라 그곳이 열리는 자리를 찍은 사진이다.
+			 *
+			 * <p>목록·근처 응답이 같은 이유로 이미 싣고 있다(S15P21E201-1205) — 이 값이 없으면
+			 * 화면이 「이 장소를 찍은 사진인가」 뱃지를 달 수 없어, 주변 시설 사진을 이 장소
+			 * 사진처럼 그리게 된다.
+			 */
+			Place.PhotoSubject photoSubject,
 			List<String> reasonCodes,
-			/** 항상 {@code null} — 비용 데이터가 없다. {@code 0} 을 넣으면 "공짜" 로 읽힌다. */
+			/**
+			 * 대표 메뉴 한 가지의 값(원). 조사된 곳만 숫자이고 <b>나머지는 {@code null}</b> 이다
+			 * — {@code 0} 을 넣지 않는다. 0 은 "모름" 이 아니라 <b>"공짜"</b> 로 읽힌다.
+			 *
+			 * <p>🔴 2026-09-22 이전에는 <b>항상 {@code null}</b> 이었다. 그때는 비용 자료가 정말
+			 * 없었고, 이제는 {@code MENU_PRICE_WON} 이 실려 있다(S15P21E201-1479). 값이 있는 곳이
+			 * 아직 일부라 <b>「비었으니 무료」로 읽으면 안 된다</b>는 것은 그대로다.
+			 */
 			Integer estimatedCostKrw,
 			/** {@code LOW} · {@code MEDIUM} · {@code HIGH}. 근거가 없으면 {@code null}. */
 			String crowdLevel,

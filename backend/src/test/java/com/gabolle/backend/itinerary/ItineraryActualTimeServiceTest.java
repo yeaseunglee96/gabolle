@@ -1,5 +1,6 @@
 package com.gabolle.backend.itinerary;
 
+import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -98,7 +99,9 @@ class ItineraryActualTimeServiceTest {
 		this.service = new ItineraryActualTimeService(itineraryAccess, this.itineraryRepository,
 				this.actualRepository);
 		this.queryService = new ItineraryQueryService(this.itineraryRepository, itineraryAccess, placeRepository,
-				mock(RecommendationJobRepository.class), mock(ActorNames.class), this.actualRepository);
+				mock(RecommendationJobRepository.class), mock(ActorNames.class), this.actualRepository,
+				// 가격 자료가 없는 상태. 이 시험이 보는 것은 시각이지 비용이 아니다 (S15P21E201-1479).
+				placeIds -> Map.of());
 
 		Trip trip = new Trip(this.tripId, this.ownerId, PAST_DAY, LAST_DAY,
 				null, null, null, 1, null, "Asia/Seoul", Instant.now());

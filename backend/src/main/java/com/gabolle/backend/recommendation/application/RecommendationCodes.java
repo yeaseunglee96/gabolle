@@ -68,6 +68,17 @@ public final class RecommendationCodes {
 	 */
 	public static final String WARNING_ACCESSIBILITY_UNVERIFIED = "ACCESSIBILITY_UNVERIFIED";
 
+	/**
+	 * 이 식단을 지원하는지 <b>안 재 봤다</b>는 경고. 「지원 안 한다」가 아니다 —
+	 * {@code DIET_NOT_SUPPORTED}(확인된 위반)와 다른 사실이고, 화면 문구도 다르다.
+	 *
+	 * <p>🔴 <b>문자열을 바꾸지 말 것.</b> 앱의 경고 사전(`warningLabels.ts`)이 이 이름으로
+	 * 들어가 있고({@code S15P21E201-1503}), 그 사전에 없는 코드는 화면에서 <b>조용히
+	 * 사라진다</b>({@code describeWarningCodes} 가 모르는 코드를 건너뛴다). 이름만 바꿔도
+	 * 경고가 안 뜨는데 오류는 안 납니다.
+	 */
+	public static final String WARNING_DIET_SUPPORT_UNVERIFIED = "DIET_SUPPORT_UNVERIFIED";
+
 	/** 이 후보가 편집자가 고른 목록에서 왔다. */
 	public static final String REASON_EDITORIAL_PICK = "EDITORIAL_PICK";
 

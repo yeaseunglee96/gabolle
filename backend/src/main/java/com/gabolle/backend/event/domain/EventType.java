@@ -63,6 +63,25 @@ public enum EventType {
     PLACE_VIEW(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.USER),
     PLACE_LIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER,
             EnumSet.of(Producer.CLIENT, Producer.SERVER)),
+
+    /**
+     * 하트를 껐다 (S15P21E201-1506).
+     *
+     * <p>🔴 {@link #PLACE_DISLIKE}(「싫다」)와 <b>다른 사건이다.</b> 이것은 「안 누른 상태로
+     * 되돌리기」라, 되돌린 뒤에는 하트를 아예 안 누른 사람과 <b>같아야</b> 한다. 싫어요는
+     * 안 누른 사람보다 <b>낮아야</b> 한다. 둘을 한 이벤트로 합치면 나중에 「왜 이 사람이
+     * 카페를 싫어한다고 나오지」를 되짚을 수 없다.
+     *
+     * <p>이 칸이 없어서 그동안 하트 해제를 <b>아예 안 적었다</b> — 적을 자리가 없었지
+     * 빠뜨린 것이 아니다 ({@code SavedPlaceService.recordLike} 의 옛 주석이 그 판단을 적어
+     * 뒀다). 그래서 끈 하트가 90일이 지나 이벤트가 지워질 때까지 취향에 남아 있었다.
+     *
+     * <p>서버만 보낸다. 앱은 저장 해제 API 를 부를 뿐이고, 이벤트는 그 API 가 <b>실제로
+     * 행을 지웠을 때만</b> 생긴다 — 안 켜져 있던 것을 끈 요청까지 신호가 되면 네트워크
+     * 재시도가 취향으로 기록된다.
+     */
+    PLACE_LIKE_REMOVED(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER),
+
     PLACE_DISLIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER,
             EnumSet.of(Producer.CLIENT, Producer.SERVER)),
     ITINERARY_LOCK(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
@@ -104,7 +123,7 @@ public enum EventType {
      * <p>{@link #TASTE_SIGNALS} 는 이 목록의 부분집합이다 — 세는 것은 좁고 안 모으는 것은 넓다.
      */
     private static final Set<EventType> BEHAVIOR_SIGNALS = EnumSet.of(
-            PLACE_VIEW, PLACE_LIKE, PLACE_DISLIKE, PLACE_VISIT,
+            PLACE_VIEW, PLACE_LIKE, PLACE_LIKE_REMOVED, PLACE_DISLIKE, PLACE_VISIT,
             ITINERARY_LOCK, ITINERARY_REMOVE, ITINERARY_REPLACE,
             ROUTE_SKIP, ROUTE_DEVIATION, RECOMMENDATION_IMPRESSION,
             STORY_LIKE, STORY_DISLIKE);
@@ -114,7 +133,10 @@ public enum EventType {
      * 세는 목록에 없다고 모아도 되는 것은 아니다.
      */
     private static final Set<EventType> TASTE_SIGNALS = EnumSet.of(
-            PLACE_LIKE, PLACE_DISLIKE, PLACE_VISIT, PLACE_VIEW,
+            // 🔴 PLACE_LIKE_REMOVED 는 «더하는» 신호가 아니라 «되돌리는» 신호인데도 여기 있다.
+            //    이 목록은 「취향 계산을 다시 돌려야 하는 사건」이기도 해서다 — 빼면 하트를
+            //    꺼도 벡터가 다시 접히지 않아 끈 하트가 그대로 남는다 (S15P21E201-1506).
+            PLACE_LIKE, PLACE_LIKE_REMOVED, PLACE_DISLIKE, PLACE_VISIT, PLACE_VIEW,
             ITINERARY_REMOVE, ITINERARY_REPLACE, ROUTE_SKIP);
 
     private final Producer expectedProducer;

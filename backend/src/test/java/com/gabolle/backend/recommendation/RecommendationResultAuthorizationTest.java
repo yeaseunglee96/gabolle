@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.gabolle.backend.recommendation.application.BlockingConstraintAnalyzer;
 import com.gabolle.backend.recommendation.application.JobProgressBroker;
 import com.gabolle.backend.recommendation.application.RecommendationJobRunner;
 import com.gabolle.backend.recommendation.application.RecommendationResultQueryService;
@@ -58,7 +59,8 @@ class RecommendationResultAuthorizationTest {
 				.standaloneSetup(
 						// 진행률 통로. 이 검사는 쓰지 않지만 컨트롤러가 요구하고, 상태를
 						// 갖지 않아 mock 으로 대신할 이유가 없다.
-						new RecommendationJobController(this.runner, new JobProgressBroker()),
+						new RecommendationJobController(this.runner, new JobProgressBroker(),
+								mock(BlockingConstraintAnalyzer.class)),
 						new RecommendationResultController(this.runner, this.resultQueryService))
 				.setControllerAdvice(new RecommendationJobExceptionHandler())
 				.build();

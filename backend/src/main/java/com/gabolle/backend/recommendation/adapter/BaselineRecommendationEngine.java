@@ -27,7 +27,7 @@ import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
-import com.gabolle.backend.preference.domain.UserTasteWeight;
+import com.gabolle.backend.preference.domain.TasteWeightComponent;
 import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
 import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
@@ -44,6 +44,8 @@ import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
+
+import tools.jackson.databind.JsonNode;
 
 /**
  * 규칙 기반 BASELINE 추천 엔진. 학습 모델·온톨로지 서버가 아직 없는 동안 이 엔진이
@@ -132,15 +134,20 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	/**
 	 * 이 사용자의 현재 판 성분들. 빈 목록은 정상이다 — 빈으로 못 올라온 슬라이스, 아직 접힌
 	 * 적 없는 사용자, 사용자를 모르는 요청이 모두 여기로 온다.
+	 *
+	 * <p>🔴 <b>저장된 행을 그대로 내보내지 않는다</b> (S15P21E201-1499). 근거가 키의 일부라
+	 * 한 성분이 설문 행과 행동 행으로 나뉘어 앉아 있다. 그대로 넘기면 채점기가 같은 성분을 두
+	 * 번 세므로, 여기서 {@code (차원, 코드)} 마다 하나로 합쳐 내보낸다. 읽어 넘기는 자리가
+	 * 여기 하나뿐이라 합치는 것도 여기 한 곳이면 된다.
 	 */
-	private List<UserTasteWeight> currentTasteWeights(UUID userId) {
+	private List<TasteWeightComponent> currentTasteWeights(UUID userId) {
 		UserTasteVectorRepository vectors = this.tasteVectors.getIfAvailable();
 		UserTasteWeightRepository weights = this.tasteWeightRepository.getIfAvailable();
 		if (userId == null || vectors == null || weights == null) {
 			return List.of();
 		}
 		return vectors.findByUserIdAndSupersededAtIsNull(userId)
-				.map((vector) -> weights.findByIdTasteVectorId(vector.getTasteVectorId()))
+				.map((vector) -> TasteWeightComponent.merge(weights.findByIdTasteVectorId(vector.getTasteVectorId())))
 				.orElseGet(List::of);
 	}
 
@@ -181,7 +188,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT);
 
 		// 취향 벡터도 대조표와 같은 이유로 요청당 한 번만 읽는다.
-		List<UserTasteWeight> tasteWeights = currentTasteWeights(request.userId());
+		List<TasteWeightComponent> tasteWeights = currentTasteWeights(request.userId());
 
 		// 후보가 0곳이면 여기서 멈춘다. 이 검사가 없으면 아래 resolveDatasetVersion 이 빈
 		// 목록을 받아 null 을 내고 요청이 VERSION_UNRESOLVED 로 끝나는데, 그것은 원인이 아니라
@@ -490,24 +497,50 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	}
 
 	/**
-	 * 후보마다의 가격대({@code PRICE_LEVEL}). 값이 {@code {"band":"MID","raw":"mid"}} 모양이라
-	 * {@code band} 만 꺼낸다.
+	 * 후보마다의 가격대. 출처가 둘이고 <b>사람이 매긴 등급이 먼저</b>다.
 	 *
-	 * <p>가격대가 없는 곳은 표에 아예 넣지 않는다 — 「모른다」를 빈 문자열이나 기본 등급으로
-	 * 채우면 조사 안 된 곳이 특정 등급인 것처럼 점수를 받는다.
+	 * <ul>
+	 * <li>{@code PRICE_LEVEL} — {@code {"band":"MID","raw":"mid"}} 모양. {@code band} 만 꺼낸다
+	 * <li>{@code MENU_PRICE_WON} — {@code {"priceWon":39000,"menu":"…"}} 모양. 원 단위 값을
+	 *     {@link BudgetFit#bandOfWon} 이 등급으로 접는다
+	 * </ul>
+	 *
+	 * <p>🔴 <b>왜 둘째가 필요한가.</b> 2026-09-22 실측으로 운영에 {@code PRICE_LEVEL} 은
+	 * <b>0행</b>이다. 그래서 이 표가 늘 비었고, {@link BudgetFit#apply} 가 첫 줄에서 그대로
+	 * 돌아 나가 <b>예산이 순위에 한 번도 안 닿았다</b>(S15P21E201-1495). 실제로 실려 있는 것은
+	 * {@code MENU_PRICE_WON} 189곳이다.
+	 *
+	 * <p>가격을 모르는 곳은 <b>표에 열쇠를 만들지 않는다</b> — 「모른다」를 빈 문자열이나 기본
+	 * 등급으로 채우면 조사 안 된 곳이 특정 등급인 것처럼 점수를 받는다. 값이 있는 곳이 아직
+	 * 6,866곳 중 189곳뿐이라 이 구분이 특히 중요하다.
 	 */
 	private static Map<UUID, String> priceBandsOf(PlaceCandidateResponse response) {
 		Map<UUID, String> bandByPlace = new LinkedHashMap<>();
 		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
+			String band = null;
+			String fromWon = null;
 			for (PlaceFeatureView feature : candidate.features()) {
-				if (!BudgetFit.FEATURE_TYPE.equals(feature.featureType()) || feature.value() == null) {
+				if (feature.value() == null) {
 					continue;
 				}
-				String band = feature.value().path("band").asText("");
-				if (!band.isBlank()) {
-					bandByPlace.put(candidate.placeId(), band);
+				if (BudgetFit.FEATURE_TYPE.equals(feature.featureType())) {
+					String value = feature.value().path("band").asText("");
+					if (!value.isBlank()) {
+						band = value;
+						// 사람이 매긴 등급이 있으면 더 볼 것이 없다.
+						break;
+					}
 				}
-				break;
+				else if (BudgetFit.WON_FEATURE_TYPE.equals(feature.featureType()) && fromWon == null) {
+					JsonNode won = feature.value().path("priceWon");
+					if (won.isNumber()) {
+						fromWon = BudgetFit.bandOfWon(won.asInt());
+					}
+				}
+			}
+			String resolved = (band != null) ? band : fromWon;
+			if (resolved != null) {
+				bandByPlace.put(candidate.placeId(), resolved);
 			}
 		}
 		return bandByPlace;

@@ -197,6 +197,92 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 		this.jdbc.update("DELETE FROM app_user WHERE user_id = ?", thirdUserId);
 	}
 
+	/**
+	 * 🔴 탈퇴가 취향 <b>무게</b>까지 지우는지 본다 — S15P21E201-1500 을 위한 안전장치.
+	 *
+	 * <p><b>왜 위의 검사로는 못 잡나.</b> 위 {@link #everyOwnedRowIsActuallyGone()} 은
+	 * {@code USER_OWNED_ROWS}(사용자 칸을 직접 가진 표들)를 돌지만, {@code user_taste_weight}
+	 * 에는 <b>사용자 칸이 없다</b> — 벡터를 가리킨다. 그래서 그 목록에 못 들어가고,
+	 * 실제로 지우는 것은 {@code deletePersonalizationArtifacts()} 의 별도 JPQL 이다.
+	 * <b>지금까지 그 JPQL 을 보는 검사가 하나도 없었다.</b>
+	 *
+	 * <p><b>왜 지금 필요한가.</b> {@code S15P21E201-1500} 이 무게를 <b>소비자가 증분으로
+	 * 더하는</b> 모양으로 바꾼다. 그러면 행동 한 건의 기여가 이벤트가 아니라 <b>이 표 안에</b>
+	 * 들어앉는다 — 원본 이벤트를 지워도 파생값이 남을 수 있는 모양이 된다. 애플 심사에
+	 * <i>"계정과 이용자 자료를 지운다"</i>고 이미 선언했고(5.1.1(v)), Play 데이터 안전 양식
+	 * ({@code S15P21E201-1018})도 아직 제출 전이라 <b>여기서 뭐라고 하느냐가 그 양식에
+	 * 적힐 문장</b>이다.
+	 *
+	 * <p>같은 함정을 이 저장소가 이미 한 번 겪었다 — 푸시 토큰에 {@code ON DELETE CASCADE} 가
+	 * 걸려 있었는데 탈퇴가 {@code app_user} 를 <b>익명화</b>해서 그 규칙이 한 번도 안 돌았다.
+	 * 취향 쪽은 부모가 {@code app_user} 가 아니라 벡터이고 그 벡터를 실제로 지우므로 지금은
+	 * 안전한데, <b>그 안전이 검사로 묶여 있지 않았다.</b>
+	 */
+	@Test
+	@DisplayName("🔴 탈퇴하면 취향 «무게»까지 지워진다 — 벡터만 보면 못 잡는다 (S15P21E201-1500)")
+	void tasteWeightsAreDeletedWithTheVector() {
+		UUID myVector = insertTasteVector(this.userId);
+		// 설문에서 온 무게와 행동에서 온 무게를 둘 다 넣는다. -1500 뒤에는 뒤엣것이
+		// 소비자가 증분으로 쌓는 줄이 되므로, 그때도 같이 지워지는지가 이 검사의 요점이다.
+		insertTasteWeight(myVector, "CATEGORY", "FOOD", "SURVEY");
+		insertTasteWeight(myVector, "ATMOSPHERE", "QUIET", "INTERACTION");
+
+		UUID othersVector = insertTasteVector(this.otherUserId);
+		insertTasteWeight(othersVector, "CATEGORY", "FOOD", "SURVEY");
+
+		// 시드가 조용히 실패하면 아래 검사가 거저 통과한다.
+		assertThat(tasteWeightCount(myVector)).as("시드가 안 들어갔다 — 검사가 거저 통과한다").isEqualTo(2L);
+
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
+
+		assertThat(tasteWeightCount(myVector)).as("""
+
+				🔴 탈퇴했는데 취향 무게가 남았습니다.
+
+				   원본 이벤트를 지워도 이 표가 그 사람의 행동을 계속 담고 있으면,
+				   「계정과 이용자 자료를 지운다」(애플 심사 5.1.1(v))는 선언과 실제가 어긋납니다.
+				   AccountDeletionService.deletePersonalizationArtifacts() 를 보십시오.
+				""").isZero();
+		assertThat(tasteVectorCount(this.userId)).as("벡터도 함께 지워져야 한다").isZero();
+		assertThat(tasteWeightCount(othersVector))
+				.as("남의 취향까지 쓸어 갔다 — 탈퇴는 그 사람 것만 지운다").isEqualTo(1L);
+
+		this.jdbc.update("DELETE FROM user_taste_weight WHERE taste_vector_id = ?", othersVector);
+		this.jdbc.update("DELETE FROM user_taste_vector WHERE taste_vector_id = ?", othersVector);
+	}
+
+	private UUID insertTasteVector(UUID user) {
+		UUID vectorId = UUID.randomUUID();
+		this.jdbc.update("""
+				INSERT INTO user_taste_vector
+				    (taste_vector_id, user_id, version, observed_event_count,
+				     vector_version, ontology_version, created_at)
+				VALUES (?, ?, 1, 0, 'test-vector-v1', 'test-ontology-v1', now())
+				""", vectorId, user);
+		return vectorId;
+	}
+
+	/** {@code evidence} 가 키의 일부다 (S15P21E201-1499) — 설문 몫과 행동 몫이 다른 줄로 앉는다. */
+	private void insertTasteWeight(UUID vectorId, String dimension, String code, String evidence) {
+		this.jdbc.update("""
+				INSERT INTO user_taste_weight
+				    (taste_vector_id, dimension, code, evidence, weight, raw, support, updated_at)
+				VALUES (?, ?, ?, ?, 0.5, 3.0, 1, now())
+				""", vectorId, dimension, code, evidence);
+	}
+
+	private long tasteWeightCount(UUID vectorId) {
+		Long n = this.jdbc.queryForObject(
+				"SELECT count(*) FROM user_taste_weight WHERE taste_vector_id = ?", Long.class, vectorId);
+		return n == null ? 0 : n;
+	}
+
+	private long tasteVectorCount(UUID user) {
+		Long n = this.jdbc.queryForObject(
+				"SELECT count(*) FROM user_taste_vector WHERE user_id = ?", Long.class, user);
+		return n == null ? 0 : n;
+	}
+
 	private long countBetween(String table, String left, String right, UUID leftUser, UUID rightUser) {
 		Long n = this.jdbc.queryForObject(
 				"SELECT count(*) FROM " + table + " WHERE " + left + " = ? AND " + right + " = ?",
