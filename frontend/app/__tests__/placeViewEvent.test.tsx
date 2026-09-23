@@ -17,6 +17,7 @@ let mockGetPlace: () => Promise<unknown> = async () => mockPlace;
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), replace: jest.fn(), push: jest.fn(), canGoBack: () => true }),
   useLocalSearchParams: () => ({ id: mockParamId }),
+  usePathname: () => '/place/demo',
 }));
 jest.mock('@/discovery/places', () => {
   const actual = jest.requireActual('@/discovery/places');

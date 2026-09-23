@@ -11,6 +11,7 @@ import { usePlan } from '@/plan/PlanProvider';
 import { EMPTY_START_BAR, startBarEditSection, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { useTopNavShown } from '@/nav/TopNav';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
 import { TAB_BAR_HEIGHT, TabBar, tabBarBottomMargin } from '@/components/TabBar';
@@ -69,6 +70,8 @@ export default function Home() {
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'lg');
+  // 위쪽 메뉴가 떠 있으면(폴드 펼침 등 태블릿) 로그인·종을 거기 맡긴다 — 머리에서 두 번 그리지 않는다.
+  const topNav = useTopNavShown();
   const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
   // 시안 5 Home 의 「⊕ 한국어」 — 외국인이 홈에서 바로 언어를 바꾼다(S15P21E201-1372). 첫 화면의 언어 시트를 그대로 쓴다.
   // 안 본 알림이 있으면 종에 점 — 여행 활동을 마지막으로 본 시각과 견준다(S15P21E201-1380). 화면에 돌아올 때마다 다시 본다.
@@ -240,16 +243,19 @@ export default function Home() {
                     읽을 것이 없는데도 있는 것처럼 보이고, 안 찍는 쪽이 거짓이 아니다.
                 */}
               </>
-            ) : (
+            ) : topNav ? null : (
               <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
                 <Text weight="bold" color={color.brand.navy}>{tx('로그인', 'Sign in')}</Text>
               </Pressable>
             )}
-            {/* 종은 늘 그 자리에(시안 5 Home). 손님이 누르면 알림 화면이 로그인을 안내한다 — 자리가 비면 「알림이 없는 앱」으로 읽힌다(2026-09-21 지적). */}
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
-              <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
-              {bellDot ? <View style={styles.bellDot} /> : null}
-            </Pressable>
+            {/* 종은 늘 그 자리에(시안 5 Home). 손님이 누르면 알림 화면이 로그인을 안내한다 — 자리가 비면 「알림이 없는 앱」으로 읽힌다(2026-09-21 지적).
+                🔴 위쪽 메뉴가 떠 있으면(폴드 펼침 등 태블릿) 로그인·종이 거기 이미 있다 — 두 번 그리지 않는다(S15P21E201-1547). */}
+            {topNav ? null : (
+              <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
+                <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
+                {bellDot ? <View style={styles.bellDot} /> : null}
+              </Pressable>
+            )}
           </View>
         </View>
 
