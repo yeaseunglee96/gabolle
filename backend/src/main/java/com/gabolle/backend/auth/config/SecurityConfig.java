@@ -148,7 +148,32 @@ public class SecurityConfig {
 				"X-Device-Id", "X-Session-Token", "Idempotency-Key"));
 		configuration.setExposedHeaders(List.of("X-Request-Id"));
 		configuration.setAllowCredentials(true);
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		// 🔴 S15P21E201-1556 — 2026-09-23 App Store 심사에서 Apple 로그인이 Touch ID 이후
+		// «항상» 403(Invalid CORS request)이었다. 실제 리뷰어 IP(17.64.127.x, 애플 자체
+		// 대역)가 이 403을 맞은 것을 nginx 로그로 확인했고, curl 로 Origin 헤더 하나만
+		// appleid.apple.com 으로 줘도 그대로 재현된다.
+		//
+		// 원인: 위 configuration 이 "/**" 전부에 걸리는데, 그 allowed-origins 는 우리
+		// 프론트 주소들뿐이라 appleid.apple.com 이 없다. 그런데 이 경로(형 form-post)는
+		// Apple 서버가 브라우저를 통해 «폼을 그대로 제출»하는 자리이지, 우리 JS 가
+		// fetch/XHR 로 부르는 API 가 아니다 — CORS 는 스크립트가 교차 출처 응답을 읽는
+		// 것을 막는 장치이지 폼이 어디로 제출되는지를 막는 장치가 아닌데, Spring 의 CORS
+		// 필터는 Origin 헤더가 있으면(최신 Safari/Chrome 은 교차 출처 POST 내비게이션에도
+		// 자동으로 붙인다) 경로를 안 가리고 판정한다.
+		//
+		// 그래서 이 경로만 origin 을 아예 안 가리는 별도 설정을 더 앞에 등록한다(더 구체적인
+		// 패턴이 "/**" 보다 먼저 검사돼야 한다). 응답은 JS 가 안 읽고 브라우저가 그대로
+		// 따라가는 302 라 자격 증명(쿠키)도 필요 없다 — allowCredentials 를 켜지 않아야
+		// addAllowedOriginPattern("*") 을 같이 쓸 수 있다(CORS 스펙이 credentials=true 와
+		// 와일드카드 출처의 동시 사용을 금지한다).
+		CorsConfiguration formPostConfiguration = new CorsConfiguration();
+		formPostConfiguration.addAllowedOriginPattern("*");
+		formPostConfiguration.setAllowedMethods(List.of("POST"));
+		formPostConfiguration.setAllowCredentials(false);
+		source.registerCorsConfiguration("/api/v1/auth/oauth/*/form-post", formPostConfiguration);
+
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
