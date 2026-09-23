@@ -65,7 +65,11 @@ export function understandAssistantMessage(raw: string): AssistantAction {
   if (includesAny(text, ['내 일정', '여행 목록', '만든 일정'])) return { kind: 'navigate', reply: t('저장한 여행 목록을 열어드릴게요.', "I'll open your saved trip list."), label: t('내 여행 보기', 'View my trips'), href: '/trips' };
   // : 갈래 개수는 GET /api/v1/places/facets 가 정한다 — 숫자를 박지 않는다.
   if (includesAny(text, ['로컬', '야시장', '둘러보'])) return { kind: 'navigate', reply: t('부산 로컬 스팟을 보여드릴게요.', "I'll show you local Busan spots."), label: t('로컬 탐색 열기', 'Open local exploring'), href: '/explore' };
-  if (includesAny(text, ['일정', '여행', '코스', '짜줘', '추천'])) {
+  // 🔴 지역이나 취향만 말해도 일정 조건으로 받는다 — S15P21E201-1542. 「해운대 근처 맛집 알려줘」에
+  //    「일정·여행…」 낱말이 없다고 일반 안내(「…도와드릴 수 있어요」)로 떨어졌다. 손님은 서버 AI 없이
+  //    이 해석기만 쓰므로 그 한 줄이 대화의 전부였다. 아래 목록에서 찾은 것을 조건으로 보여주고 묻는다.
+  const mentionsCondition = AREAS.some(([label]) => text.includes(label)) || PREFERENCES.some(([key]) => text.includes(key));
+  if (includesAny(text, ['일정', '여행', '코스', '짜줘', '추천']) || mentionsCondition) {
     const patch: Partial<PlanDraft> = {}; const summary: string[] = [];
     const dates = text.match(/20\d{2}[-./]\d{1,2}[-./]\d{1,2}/g)?.map((value) => value.replace(/[./]/g, '-').split('-').map((part, index) => index ? part.padStart(2, '0') : part).join('-')) ?? [];
     if (dates[0]) { patch.startDate = dates[0]; summary.push(t(`출발 ${dates[0]}`, `Departs ${dates[0]}`)); }

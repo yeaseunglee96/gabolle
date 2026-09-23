@@ -68,3 +68,28 @@ describe('챗봇 칩 — 서버가 못 가는 화면은 앱이 직접 연다', (
     expect(CHAT).toContain('const local = fixed ? understandAssistantMessage(content) : null;');
   });
 });
+
+describe('지역·취향만 말해도 일정 조건으로 받는다 — S15P21E201-1542', () => {
+  // 손님은 서버 AI 없이 이 해석기만 쓴다. 「일정·여행…」 낱말이 없다고 일반 안내로 떨어졌다.
+  it('🔴 「해운대 근처 맛집 알려줘」 → 해운대 · 맛집을 조건으로 보여주고 묻는다', () => {
+    const action = understandAssistantMessage('해운대 근처 맛집 알려줘');
+    expect(action.kind).toBe('plan');
+    if (action.kind !== 'plan') return;
+    expect(action.patch.travelAreas).toEqual(['HAEUNDAE']);
+    expect(action.patch.preferences).toEqual(['FOOD']);
+  });
+
+  it('취향만 — 「카페 가고 싶어」', () => {
+    const action = understandAssistantMessage('카페 가고 싶어');
+    expect(action.kind === 'plan' && action.patch.preferences).toEqual(['CAFE_HEALING']);
+  });
+
+  it('지역도 취향도 없으면 전처럼 안내한다', () => {
+    expect(understandAssistantMessage('안녕하세요').kind).toBe('help');
+  });
+
+  it('로컬 탐색·사투리처럼 앞에서 가르는 요청은 그대로다', () => {
+    const action = understandAssistantMessage('해운대 야시장 둘러보기');
+    expect(action.kind === 'navigate' && action.href).toBe('/explore');
+  });
+});
