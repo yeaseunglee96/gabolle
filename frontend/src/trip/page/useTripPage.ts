@@ -3,7 +3,7 @@
 // 🔴 둘이 따로 부르면 두 화면이 서로 다른 숫자를 말하는 날이 온다(한쪽만 고치고 끝나기 때문이다).
 //    그래서 «무엇을 불러와서 어떻게 세는가» 는 여기 한 벌만 두고, 화면은 그리기만 한다.
 //    1단계 때 TripPageDesktop 안에 있던 것을 그대로 옮겼다 — 옮기면서 바꾼 것은 아래 🔴 둘뿐이다.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -16,7 +16,7 @@ import { loadItinerary, loadItineraryPace, type ItineraryDto, type ItineraryItem
 import { summarizeItineraryBudget } from '@/plan/itineraryBudget';
 import { totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
-import type { TripCourse } from '@/plan/tripCourses';
+import { canConfirmCourse, ensureCourseItinerary, type TripCourse } from '@/plan/tripCourses';
 import { loadTripBudget } from '@/trip/tripBudget';
 import { humanTripTitle, shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { loadTrips } from '@/trip/trips';
@@ -44,6 +44,7 @@ export function useTripPage(source: TripPageSource) {
   const [paceNonce, setPaceNonce] = useState(0);
   const [budgetKrw, setBudgetKrw] = useState<number | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const confirmingNow = useRef(false);
 
   const sourceKey = source.kind === 'trip' ? `trip:${source.tripId}:${source.jobId ?? ''}` : `itinerary:${source.itineraryId}`;
   const load = useMemo(() => async () => {
@@ -67,7 +68,9 @@ export function useTripPage(source: TripPageSource) {
   // 고른 코스의 일정을 받는다 — 카드의 비용·추정·구간 시간은 코스 요약이 아니라 일정 항목에 있다.
   useEffect(() => {
     const id = course?.itineraryId;
-    if (!id) { setItinerary(null); return; }
+    // 🔴 아직 일정이 없는 안(2안·3안)은 서버가 같은 모양으로 실어 보낸 미리보기를 그린다 (S15P21E201-1454).
+    //    받을 일정이 없다고 비워 두면 그 안을 눌렀을 때 카드와 지도가 통째로 빈다.
+    if (!id) { setItinerary(course?.preview ? { id: course.id, value: course.preview, message: null } : null); return; }
     let alive = true;
     // 🔴 (옮기며 바꾼 것 ①) 같은 일정을 다시 받을 때는 지금 것을 비우지 않는다. 비우면 편집 한 번에
     //    화면 전체가 뼈대(Skeleton)로 깜박인다 — 「지워졌나」로 읽힌다.
@@ -77,7 +80,7 @@ export function useTripPage(source: TripPageSource) {
       setItinerary({ id, value: next.state === 'success' ? next.itinerary : null, message: next.state === 'success' ? null : next.message });
     });
     return () => { alive = false; };
-  }, [course?.itineraryId, accessToken, itineraryNonce]);
+  }, [course?.itineraryId, course?.id, course?.preview, accessToken, itineraryNonce]);
 
   const loaded = itinerary?.value ?? null;
   // 코스·일정이 바뀌면 1일차 첫 곳으로 돌아간다 — 열린 채로 내용만 갈리면 무엇을 보고 있는지 모른다.
@@ -97,11 +100,12 @@ export function useTripPage(source: TripPageSource) {
   // 🔴 도착 기록은 일정 판(version)을 안 올린다(itinerary.tsx 주석). 그래서 판만 보고 다시 받으면
   //    「도착 찍기」 뒤에 예상 도착이 영영 안 바뀐다 — paceNonce 로 따로 깨운다.
   useEffect(() => {
-    if (!loaded) { setPace(null); return; }
+    // 미리보기(2안·3안)는 아직 일정이 아니라 물어볼 일정 번호가 없다 — 부르면 404 만 돌아온다.
+    if (!loaded || !course?.itineraryId) { setPace(null); return; }
     let alive = true;
     void loadItineraryPace(loaded.id, dayIndex, accessToken).then((next) => { if (alive) setPace(next.state === 'success' ? next.pace : null); });
     return () => { alive = false; };
-  }, [loaded?.id, loaded?.version, dayIndex, accessToken, paceNonce]);
+  }, [loaded?.id, loaded?.version, course?.itineraryId, dayIndex, accessToken, paceNonce]);
 
   useEffect(() => {
     if (!tripId) return;
@@ -136,9 +140,21 @@ export function useTripPage(source: TripPageSource) {
 
   // ── 확정 ────────────────────────────────────────────────────────────────
   const confirm = async (target: TripCourse) => {
-    const id = target.itineraryId;
-    if (!id || confirming) return;
+    // `confirming` 은 다음 그리기까지 안 바뀐다 — 그 사이 두 번째 누름이 들어오면 서버가 같은 안을 둘
+    // 만들 수 있어서, 곧바로 바뀌는 잠금을 따로 둔다.
+    if (!canConfirmCourse(target) || confirmingNow.current) return;
+    confirmingNow.current = true;
     setConfirming(true);
+    // 🔴 2안·3안은 아직 일정이 없다 — 고른 지금 서버가 만든다 (S15P21E201-1454). 못 만들면 카드 자리에
+    //    오류와 「다시 시도」를 띄운다. 눌렀는데 아무 일도 안 나는 버튼은 없는 버튼보다 나쁘다.
+    const made = await ensureCourseItinerary(tripId, target, accessToken);
+    confirmingNow.current = false;
+    if (made.state !== 'success') {
+      setConfirming(false);
+      setItinerary({ id: target.id, value: null, message: made.message });
+      return;
+    }
+    const id = made.itineraryId;
     const path = `/trips/${id}/itinerary`;
     try {
       const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);

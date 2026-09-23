@@ -41,7 +41,7 @@ import {
 } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
-import type { TripCourse } from '@/plan/tripCourses';
+import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
 import { drift, isToday, localDateKey, needsManualArrival, saysStartsIn, stepStates, type StepState } from '@/plan/tripProgress';
 import { humanTripTitle } from '@/trip/tripNaming';
 import { TripNameSheet } from '@/trip/TripNameSheet';
@@ -575,8 +575,8 @@ function CourseCardMobile({ open, courses, index, full, estimated, items, touche
             {course ? (
               <Pressable
                 accessibilityRole="button"
-                accessibilityState={{ busy: confirming, disabled: confirming || !course.itineraryId }}
-                disabled={confirming || !course.itineraryId}
+                accessibilityState={{ busy: confirming, disabled: confirming || !canConfirmCourse(course) }}
+                disabled={confirming || !canConfirmCourse(course)}
                 onPress={onConfirm}
                 style={({ pressed }) => [styles.confirmButton, (pressed || confirming) && styles.pressed]}
               >
