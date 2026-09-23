@@ -44,6 +44,22 @@ import tools.jackson.databind.ObjectMapper;
  * <p>처리에 실패하면 예외를 <b>그대로 던진다.</b> 여기서 삼키면 스프링 카프카가 "성공했다" 로
  * 보고 오프셋을 넘겨 버려 그 이벤트가 사라진다. 재시도와 DLQ 는
  * {@link KafkaConsumerErrorConfiguration} 이 건다.
+ *
+ * <p>🔴 <b>신뢰 경계 (2026-09-24 보안 감사, S15P21E201-1552).</b> {@link #HEADER_USER_ID} 는
+ * <b>메시지 자체에 서명이 없다</b> — 이 리스너는 헤더에 적힌 값을 그대로 믿고 취향 벡터에
+ * 반영한다. 지금 이게 안전한 이유는 <b>이 토픽에 쓸 수 있는 프로듀서가 이 백엔드 자기 자신
+ * 하나뿐</b>이기 때문이다: HTTP 요청 → {@code Authentication} 통과(본문의 {@code userId} 를
+ * 그대로 믿지 않고 인증 주체와 대조 — {@code EventIngestController.resolveSubject}) → DB
+ * 아웃박스 행 → {@link com.gabolle.backend.event.application.OutboxRelayService} 가 릴레이 →
+ * {@link KafkaEventPublisher} 가 발행. 즉 {@code user_id} 는 카프카에 닿기 전에 이미 인증을
+ * 한 번 거친 값이고, 이 리스너는 그 전제 위에서만 안전하다.
+ *
+ * <p>🔴 <b>이 전제가 깨지는 조건 — 그날은 반드시 메시지 레벨 인증을 먼저 넣는다.</b>
+ * (1) 이 브로커에 다른 서비스가 프로듀서로 붙어 같은 토픽에 쓰기 시작하는 순간, 또는
+ * (2) 브로커 네트워크 격리가 느슨해져 제3자가 브로커에 직접 메시지를 넣을 수 있게 되는 순간,
+ * 이 리스너는 위조된 {@code user_id} 로 남의 취향 벡터를 오염시키는 통로가 된다. 둘 중
+ * 하나라도 계획한다면 이 클래스를 건드리기 전에 먼저 (a) 메시지 자체에 HMAC 서명을 얹거나
+ * (b) 브로커 접근을 mTLS/ACL 로 프로듀서 신원까지 검증하도록 좁혀야 한다 — 지금은 둘 다 없다.
  */
 @Component
 @ConditionalOnProperty(prefix = "gabolle.event.kafka", name = "consumer-enabled", havingValue = "true")
