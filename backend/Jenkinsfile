@@ -463,7 +463,7 @@ pipeline {
                             # 🔴 S15P21E201-561 — 카프카. **여기 나열에 없으면 Jenkins 에 값을 넣어도
                             #    컨테이너 안까지 안 간다** (KMA·TRANSIT 키가 그 함정에 빠진 적이 있다).
                             #
-                            #    기본값이 전부 꺼짐이다. 이 줄들을 더하는 것만으로는 아무것도 안 바뀐다 —
+                            #    🟢 2026-09-23 (S15P21E201-1547) 기본값을 켬으로 바꿨다 — 끄려면 Jenkins 에 값을 false 로 넣는다. 원래 기본값은 꺼짐이었고 이 줄들을 더하는 것만으로는 아무것도 안 바뀌었다 —
                             #    배포 파일을 고치는 일과 기능을 켜는 일을 나눠서, 배포가 깨졌을 때
                             #    「파일을 잘못 고쳤나, 기능이 문제인가」를 가릴 수 있게 한다.
                             #
@@ -528,9 +528,9 @@ pipeline {
                             -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
                             -e GABOLLE_MENU_SCAN_LOCAL_BASE_URL="${GABOLLE_MENU_SCAN_LOCAL_BASE_URL-http://menu-ocr:8000}" \
                             -e GABOLLE_EXCHANGE_RATE_AUTH_KEY="$GABOLLE_EXCHANGE_RATE_AUTH_KEY" \
-                            -e GABOLLE_EVENT_KAFKA_ENABLED="${GABOLLE_EVENT_KAFKA_ENABLED:-false}" \
-                            -e GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED="${GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED:-false}" \
-                            -e GABOLLE_OUTBOX_RELAY_ENABLED="${GABOLLE_OUTBOX_RELAY_ENABLED:-false}" \
+                            -e GABOLLE_EVENT_KAFKA_ENABLED="${GABOLLE_EVENT_KAFKA_ENABLED:-true}" \
+                            -e GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED="${GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED:-true}" \
+                            -e GABOLLE_OUTBOX_RELAY_ENABLED="${GABOLLE_OUTBOX_RELAY_ENABLED:-true}" \
                             -e GABOLLE_KAFKA_BOOTSTRAP_SERVERS="${GABOLLE_KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}" \
                             -e GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED="${GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED:-true}" \
                             -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
@@ -668,7 +668,7 @@ pipeline {
                                     # 🔴 S15P21E201-561 — 카프카. **여기 나열에 없으면 Jenkins 에 값을 넣어도
                                     #    컨테이너 안까지 안 간다** (KMA·TRANSIT 키가 그 함정에 빠진 적이 있다).
                                     #
-                                    #    기본값이 전부 꺼짐이다. 이 줄들을 더하는 것만으로는 아무것도 안 바뀐다 —
+                                    #    🟢 2026-09-23 (S15P21E201-1547) 기본값을 켬으로 바꿨다 — 끄려면 Jenkins 에 값을 false 로 넣는다. 원래 기본값은 꺼짐이었고 이 줄들을 더하는 것만으로는 아무것도 안 바뀌었다 —
                                     #    배포 파일을 고치는 일과 기능을 켜는 일을 나눠서, 배포가 깨졌을 때
                                     #    「파일을 잘못 고쳤나, 기능이 문제인가」를 가릴 수 있게 한다.
                                     #
@@ -727,9 +727,9 @@ pipeline {
                                     -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
                                     -e GABOLLE_MENU_SCAN_LOCAL_BASE_URL="${GABOLLE_MENU_SCAN_LOCAL_BASE_URL-http://menu-ocr:8000}" \
                                     -e GABOLLE_EXCHANGE_RATE_AUTH_KEY="$GABOLLE_EXCHANGE_RATE_AUTH_KEY" \
-                                    -e GABOLLE_EVENT_KAFKA_ENABLED="${GABOLLE_EVENT_KAFKA_ENABLED:-false}" \
-                                    -e GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED="${GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED:-false}" \
-                                    -e GABOLLE_OUTBOX_RELAY_ENABLED="${GABOLLE_OUTBOX_RELAY_ENABLED:-false}" \
+                                    -e GABOLLE_EVENT_KAFKA_ENABLED="${GABOLLE_EVENT_KAFKA_ENABLED:-true}" \
+                                    -e GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED="${GABOLLE_EVENT_KAFKA_CONSUMER_ENABLED:-true}" \
+                                    -e GABOLLE_OUTBOX_RELAY_ENABLED="${GABOLLE_OUTBOX_RELAY_ENABLED:-true}" \
                                     -e GABOLLE_KAFKA_BOOTSTRAP_SERVERS="${GABOLLE_KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}" \
                                     -e GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED="${GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED:-true}" \
                                     -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
