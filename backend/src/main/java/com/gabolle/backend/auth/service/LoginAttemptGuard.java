@@ -113,12 +113,20 @@ public class LoginAttemptGuard {
 	}
 
 	/**
+	 * 가입되지 않은 이메일로 로그인을 시도했을 때도 IP 실패로 센다.
+	 *
+	 * <p>{@code LocalAuthService.login}은 이메일이 없으면 계정을 못 찾아 {@link #recordFailure}
+	 * (계정 아이디가 있어야 한다)를 부를 수 없다 — 그런데 IP 단위가 막으려는 크리덴셜 스터핑은
+	 * 오히려 "존재하지 않는 이메일을 계속 바꿔가며 시도하는" 경우가 더 흔하다. 그래서 계정을 못
+	 * 찾은 경로 전용으로 이 메서드를 따로 둔다.
+	 */
+	public void recordIpFailureForUnknownAccount(Instant now) {
+		recordIpFailure(now);
+	}
+
+	/**
 	 * 지금 이 요청의 클라이언트 IP가 잠겨 있는가. {@link #recordFailure}로 이미 채워진 메모리
 	 * 상태만 읽으므로 트랜잭션이 필요 없다.
-	 *
-	 * <p>🔴 아직 어디서도 부르지 않는다 — {@code LocalAuthService.login}이 계정 단위
-	 * {@link #isLocked}를 부르는 자리에 이 메서드도 같이 불러야 실제로 막힌다(S15P21E201-1549
-	 * 후속 — 그 파일은 이번 작업 범위 밖이라 안 건드렸다).
 	 */
 	public boolean isIpLocked(Instant now) {
 		IpWindow window = this.ipAttempts.get(resolveClientIp());

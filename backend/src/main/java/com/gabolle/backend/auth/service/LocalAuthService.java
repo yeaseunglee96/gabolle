@@ -168,16 +168,26 @@ public class LocalAuthService {
 
 	@Transactional
 	public AuthTokenService.IssuedTokens login(AuthCommands.Login command) {
+		Instant now = clock.instant();
+
+		// 계정을 찾기 전에 IP 단위 잠금부터 본다 — 계정 단위(credentialId 필요)로는 «한 IP가
+		// 존재하지도 않는 이메일을 계속 바꿔가며 시도하는» 크리덴셜 스터핑을 못 막는다
+		// (S15P21E201-1549). 이메일 존재 여부를 아직 안 봤으니 이 응답은 계정 상태를 전혀
+		// 드러내지 않는다.
+		if (loginAttemptGuard.isIpLocked(now)) {
+			throw ipLoginLocked(loginAttemptGuard.ipLockedUntil(), now);
+		}
+
 		String normalizedEmail = normalizeEmail(command.email());
 		// 가입되지 않은 이메일도 기록한다 — 유출 목록으로 넓게 뿌리는 공격은 대부분 이 경로로
 		// 들어온다. 응답은 아래 비밀번호 불일치와 똑같은 401 이어야 한다. 로그만 갈라지고
 		// 응답은 같다 — 그 이메일로 가입했는지를 응답으로 알려주지 않는 것이 의도다.
 		LocalCredential credential = credentialRepository.findByEmail(normalizedEmail)
 				.orElseThrow(() -> {
+					loginAttemptGuard.recordIpFailureForUnknownAccount(now);
 					this.securityEventLogger.loginFailureForUnknownAccount(normalizedEmail);
 					return invalidCredentials();
 				});
-		Instant now = clock.instant();
 
 		// 비밀번호를 보기 전에 잠금부터 본다. 잠긴 동안에는 맞는 비밀번호도 거부한다 —
 		// 비밀번호가 맞는지 알려 주는 것 자체가 공격자에게 정보다.
@@ -221,6 +231,17 @@ public class LocalAuthService {
 	 * 계정이 있다는 사실을 알려 준다 — 화면이 "잠시 후 다시" 를 띄워야 해서 알면서 받아들였다.
 	 */
 	private AuthException loginLocked(Instant lockedUntil, Instant now) {
+		long seconds = Math.max(1, java.time.Duration.between(now, lockedUntil).toSeconds());
+		return new AuthException("TOO_MANY_LOGIN_ATTEMPTS",
+				"로그인 시도가 너무 많습니다. " + ((seconds + 59) / 60) + "분 뒤에 다시 시도해 주세요.",
+				org.springframework.http.HttpStatus.TOO_MANY_REQUESTS);
+	}
+
+	/**
+	 * IP 단위 잠금 응답. {@link #loginLocked}와 코드·상태는 같지만, 이건 계정을 보기 전에
+	 * 나가므로 특정 계정이 존재한다는 것을 전혀 알려주지 않는다 — 문구도 계정을 언급하지 않는다.
+	 */
+	private AuthException ipLoginLocked(Instant lockedUntil, Instant now) {
 		long seconds = Math.max(1, java.time.Duration.between(now, lockedUntil).toSeconds());
 		return new AuthException("TOO_MANY_LOGIN_ATTEMPTS",
 				"로그인 시도가 너무 많습니다. " + ((seconds + 59) / 60) + "분 뒤에 다시 시도해 주세요.",
