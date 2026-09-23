@@ -15,6 +15,7 @@ import { toBcp47 } from '@/i18n/languages';
 import { useAuth } from '@/auth/AuthProvider';
 import { directionForLanguage, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
 import { canSearchDestination, destinationSubtitle, searchTaxiDestinations, type TaxiDestinationOutcome } from '@/field/taxiDestination';
+import { KOREAN_OR_ENGLISH_HINT, needsKoreanOrEnglishName } from '@/discovery/nameSearchHint';
 import { txf } from '@/i18n/format';
 
 // 입력칸 상한은 번역 모듈과 한 값을 쓴다 — 두 벌이 되면 화면은 받아 놓고 보낼 때 잘린다.
@@ -286,7 +287,11 @@ export default function Speak() {
 
           {destination.state === 'empty' ? (
             <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.muted}>
-              {tx('그 이름의 장소를 못 찾았어요. 다르게 적어 보세요.', "We couldn't find that place. Try another spelling.")}
+              {/* 🔴 한자·가나로만 치면 서버가 원래 못 찾는다(nameKo·nameEn 만 대조, S15P21E201-1519).
+                  「다르게 적어 보세요」로는 어떻게 다르게인지 모른다 — 찾아지는 글자를 말해 준다. */}
+              {needsKoreanOrEnglishName(destinationQuery)
+                ? tx(KOREAN_OR_ENGLISH_HINT.ko, KOREAN_OR_ENGLISH_HINT.en)
+                : tx('그 이름의 장소를 못 찾았어요. 다르게 적어 보세요.', "We couldn't find that place. Try another spelling.")}
             </Text>
           ) : null}
 
