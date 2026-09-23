@@ -2,16 +2,43 @@
 import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
 import { searchOrigins, type OriginCandidate } from '@/plan/origins';
 
+/**
+ * 카카오·대체 목록에서 고른 장소를 서버에 넘기는 모양 — S15P21E201-1527 (서버 S15P21E201-1426).
+ *
+ * 서버가 `(source, externalId)` 로 찾거나 만들어 그 id 를 글에 잇는다. 우리 표에 없는 식별자를
+ * 글에 바로 적는 것이 아니라 **서버가 만든 뒤에만** id 가 생긴다.
+ * 🔴 `source` 는 `OriginCandidate.source` 그대로다(KAKAO_LOCAL · INTERNAL_FALLBACK) — 바꾸면 이미
+ *    적재된 같은 장소(해운대해수욕장 등)와 다른 행이 된다.
+ */
+export type StoryPlaceSnapshot = {
+  source: OriginCandidate['source'];
+  externalId: string;
+  name: string;
+  address?: string;
+  lat: number;
+  lng: number;
+};
+
 export type RegionCandidate = {
   /** 화면에 크게 보이는 이름. */
   name: string;
   address: string;
-  /**
-   * 우리 DB 장소일 때만 있다. 있으면 글에 그 장소를 잇고, 없으면 지역 글자만 남는다.
-   * 카카오 결과에는 일부러 넣지 않는다 — 넣을 값이 있어도 저장하면 안 되기 때문이다.
-   */
+  /** 우리 DB 장소일 때만 있다. 있으면 글에 그 장소를 잇는다. */
   placeId?: string;
+  /**
+   * 카카오·대체 목록 결과일 때만 있다. 예전에는 합칠 때 버려서 지역 글자만 남았다 —
+   * 원글 28건 중 장소가 이어진 것이 5건이었다(2026-09-23 운영 DB).
+   */
+  place?: StoryPlaceSnapshot;
 };
+
+/** 서버가 받는 조건을 채우는가 — 이름·출처·식별자가 있고 좌표가 둘 다 숫자. 못 채우면 안 싣는다(400 대신 지역 글자만). */
+function snapshotOf(item: Pick<OriginCandidate, 'name' | 'address'> & Partial<OriginCandidate>): StoryPlaceSnapshot | undefined {
+  const name = (item.name ?? '').trim();
+  if (!name || !item.source || !item.externalId) return undefined;
+  if (!Number.isFinite(item.lat) || !Number.isFinite(item.lng)) return undefined;
+  return { source: item.source, externalId: item.externalId, name, address: item.address || undefined, lat: item.lat as number, lng: item.lng as number };
+}
 
 /** 주소에서 「구·군」을 뽑는다 — 지역 칸에 넣을 말. */
 export function regionFromAddress(address: string): string {
@@ -31,7 +58,7 @@ export function regionLabelOf(candidate: RegionCandidate): string {
 /** 두 갈래를 한 목록으로 합친다. */
 export function mergeRegionCandidates(
   ours: Pick<PlaceSearchItem, 'placeId' | 'nameKo' | 'address'>[],
-  kakao: Pick<OriginCandidate, 'name' | 'address'>[],
+  kakao: (Pick<OriginCandidate, 'name' | 'address'> & Partial<OriginCandidate>)[],
   limit = 8,
 ): RegionCandidate[] {
   const merged: RegionCandidate[] = ours.map((place) => ({
@@ -44,7 +71,8 @@ export function mergeRegionCandidates(
     const key = `${item.name}|${item.address}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    merged.push({ name: item.name, address: item.address });
+    const place = snapshotOf(item);
+    merged.push(place ? { name: item.name, address: item.address, place } : { name: item.name, address: item.address });
   }
   return merged.slice(0, limit);
 }

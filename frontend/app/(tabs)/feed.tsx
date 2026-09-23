@@ -28,6 +28,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RouteMap } from '@/map/RouteMap';
 import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type FeedSort, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { applyReaction, nextReaction, StoryReactionRow } from '@/social/StoryReactionRow';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
@@ -214,6 +215,8 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
   const [regionOpen, setRegionOpen] = useState(false);
   // 우리 DB 장소를 고르면 채워진다. 손으로 고쳐 쓰면 다시 비워진다 (RegionPicker).
   const [placeId, setPlaceId] = useState<string | undefined>(undefined);
+  // 카카오·대체 목록에서 고르면 채워진다 — 서버가 그 장소를 찾거나 만들어 글에 잇는다 (S15P21E201-1527).
+  const [place, setPlace] = useState<StoryPlaceSnapshot | undefined>(undefined);
   const [visibility, setVisibility] = useState<StoryVisibility>('PUBLIC');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -232,9 +235,10 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       body: body.trim(),
       imageUrls: uploadedUrls,
       region: region.trim() || undefined,
-      // 우리 DB 장소를 골랐을 때만 실려 간다. 카카오 검색 결과에는 placeId 가 아예
-      // 없으므로(regionSearch.ts) 저장하면 안 되는 것이 여기로 흘러들 수 없다.
+      // 우리 DB 장소를 고르면 placeId, 카카오·대체 목록을 고르면 place 가 실려 간다(S15P21E201-1527).
+      // 둘은 동시에 차지 않는다(RegionPicker) — 그래도 createStory 가 placeId 를 먼저 본다.
       placeId,
+      place,
       visibility,
       // 🔴 올라간 것만 붙인다. 실패한 동영상은 주소가 없어서 여기로 안 온다 —
       //    사진이 같은 규칙이다.
@@ -243,7 +247,7 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
     });
     setSubmitting(false);
     if (outcome.state !== 'success') { setError(outcome.message); return; }
-    setBody(''); setRegion(''); setPlaceId(undefined); setRegionOpen(false); clearImages(); clearVideo();
+    setBody(''); setRegion(''); setPlaceId(undefined); setPlace(undefined); setRegionOpen(false); clearImages(); clearVideo();
     onPosted();
   };
 
@@ -302,6 +306,7 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       onChangeRegion={setRegion}
       placeId={placeId}
       onChangePlaceId={setPlaceId}
+      onChangePlace={setPlace}
       accessToken={accessToken}
     /> : null}
 
