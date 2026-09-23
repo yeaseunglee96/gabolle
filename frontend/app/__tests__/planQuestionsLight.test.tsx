@@ -80,6 +80,16 @@ describe('여행 조건 문항 — 한 번에 하나 (S15P21E201-1425)', () => {
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/plan/generating', params: { jobId: 'job-1' } });
   });
 
+  it('🔴 알레르기를 안 물었어도(기본값 「모름」) 경고 없이 바로 보낸다 — 조건 창이 다시 뜨지 않는다 (S15P21E201-1513)', async () => {
+    // 조건 창이 알레르기를 더는 안 묻는다(-1497). 그래서 새 사람은 알레르기가 영영 'UNKNOWN' 이다.
+    mockDraft = { ...REQUIRED_DONE, allergyStatus: 'UNKNOWN', allergyAnswered: false };
+    const view = mount();
+    for (let i = 0; i < 6; i += 1) fireEvent.press(view.getByText('다음'));
+    expect(view.queryByText('식단을 아직 안 알려주셨어요. 눌러서 알려주세요.')).toBeNull();
+    fireEvent.press(view.getByText('이 조건으로 일정 만들기'));
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
+  });
+
   it('🔴 날짜가 없으면 달력 카드가 이 화면 안에 펼쳐진다 — 홈으로 보내지 않는다 (S15P21E201-1376)', () => {
     mockDraft = { ...BASE, startDate: '', endDate: '' };
     const view = mount();

@@ -133,9 +133,12 @@ export default function PlanConditions() {
   const missing = PLAN_QUESTIONS.filter((item) => !item.skippable && !item.answered(draft));
   const requiredReady = missing.length === 0;
 
-  // 미확인 필수 조건(알레르기·식단)이 남아 있나. 「모르면 안전하다고 치지 않는다」가 방침이다.
-  const hardUnknown = draft.allergyStatus === 'UNKNOWN' || draft.dietStatus === 'UNKNOWN'
-    || (draft.allergyStatus === 'VALUES' && !draft.allergies.length)
+  // 미확인 필수 조건(식단)이 남아 있나. 「모르면 안전하다고 치지 않는다」가 방침이다.
+  //
+  // 🔴 알레르기는 여기서 «빠져야» 한다 (-1513). 조건 창이 알레르기를 더는 안 묻는데(-1497)
+  //    기본값이 'UNKNOWN' 이라, 남겨 두면 모두가 영영 「모름」이다 — 마지막 질문에 경고가 늘
+  //    뜨고, 만들기를 누르면 이미 답한 조건 창이 한 번 더 뜬다. 창의 저장 조건과 같게 맞춘다.
+  const hardUnknown = draft.dietStatus === 'UNKNOWN'
     || (draft.dietStatus === 'VALUES' && !draft.dietTypes.length);
 
   /**
@@ -429,7 +432,7 @@ export default function PlanConditions() {
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('날짜를 정해야 만들 수 있어요 · 위에서 골라 주세요', 'Pick your dates above to build')}</Text>
       ) : null}
       {last && hardUnknown ? (
-        <Text variant="caption" color={color.state.danger}>{tx('알레르기·식단을 아직 안 알려주셨어요. 눌러서 알려주세요.', 'We still need your allergy and diet answers — tap to add them.')}</Text>
+        <Text variant="caption" color={color.state.danger}>{tx('식단을 아직 안 알려주셨어요. 눌러서 알려주세요.', 'We still need your diet answer — tap to add it.')}</Text>
       ) : null}
       {job?.state === 'consent-required' && job.requiredConsent === 'HEALTH_CONSTRAINTS' ? (
         <View style={styles.consent}>
