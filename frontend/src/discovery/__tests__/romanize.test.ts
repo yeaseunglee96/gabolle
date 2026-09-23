@@ -14,6 +14,30 @@ describe('한글을 읽는 법으로 적기', () => {
     expect(romanizeKorean('국수락')).toBe('Guksurak');
   });
 
+  // — S15P21E201-1543. 받침 표가 27칸이라 ㄱ·ㄴ 뒤쪽 받침이 한 칸씩 밀려 있었다. 위 시험은 ㄱ·ㄴ만 봐서 못 잡았다.
+  it('🔴 받침 ㅇ 은 ng — 「송정해수욕장」이 「Sotjeothaesuyokjat」이 되던 것', () => {
+    expect(romanizeKorean('송정해수욕장')).toBe('Songjeonghaesuyokjang');
+    expect(romanizeKorean('광안리')).toBe('Gwanganri');
+  });
+
+  it('🔴 뒤쪽 받침을 모두 제 소리로 — ㅄ ㅆ ㅈ ㅊ ㅋ ㅌ ㅍ ㅎ', () => {
+    expect(romanizeKorean('값')).toBe('Gap');
+    expect(romanizeKorean('있')).toBe('It');
+    expect(romanizeKorean('낮')).toBe('Nat');
+    expect(romanizeKorean('꽃')).toBe('Kkot');
+    expect(romanizeKorean('부엌')).toBe('Bueok');
+    expect(romanizeKorean('밭')).toBe('Bat');
+    expect(romanizeKorean('앞')).toBe('Ap');
+    expect(romanizeKorean('좋')).toBe('Jot');
+  });
+
+  it('🔴 어떤 음절도 「undefined」를 만들지 않는다 — 한글 음절 11,172자 전부', () => {
+    for (let code = 0xac00; code <= 0xd7a3; code += 1) {
+      const out = romanizeKorean(String.fromCharCode(code)) ?? '';
+      if (out.includes('undefined') || !/^[A-Za-z]+$/.test(out)) throw new Error(`${String.fromCharCode(code)} → ${out}`);
+    }
+  });
+
   it('한글이 없으면 아무것도 만들지 않는다 — 빈 괄호를 만들지 않으려고', () => {
     expect(romanizeKorean('BIFF')).toBeNull();
     expect(romanizeKorean('123')).toBeNull();
