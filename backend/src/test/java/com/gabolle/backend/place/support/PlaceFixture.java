@@ -53,7 +53,11 @@ public final class PlaceFixture {
 				""",
 				placeId, prefix() + nameKo,
 				nameEn == null ? null : prefix() + nameEn,
-				category, prefix() + "주소", lat, lng, this.token);
+				// 🔴 source_id 를 장소마다 다르게 준다. 전에는 이 실행의 token 하나를 모든 장소에
+				//    똑같이 넣었는데, uq_place_source(S15P21E201-1426)가 생기면서 한 시험이 장소를
+				//    둘 넣는 순간 두 번째가 제약에 걸린다. 같은 (출처, 식별자)를 여러 장소에 주는
+				//    것은 원래도 「서로 다른 장소가 같은 원천 기록에서 왔다」는 거짓말이었다.
+				category, prefix() + "주소", lat, lng, this.token + "-" + placeId);
 		this.placeIds.push(placeId);
 		return placeId;
 	}

@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.place.service.UserSubmittedPlaceService;
 import com.gabolle.backend.story.domain.StorageCleanupEntry;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryImage;
@@ -79,6 +80,8 @@ public class StoryService {
 
 	private final PlaceRepository placeRepository;
 
+	private final UserSubmittedPlaceService userSubmittedPlaces;
+
 	private final StorageCleanupService storageCleanupService;
 
 	private final StoryResponseAssembler assembler;
@@ -98,6 +101,7 @@ public class StoryService {
 	public StoryService(StoryRepository storyRepository, StoryImageRepository storyImageRepository,
 			UploadedImageRepository uploadedImageRepository, UserFollowRepository userFollowRepository,
 			TripRepository tripRepository, PlaceRepository placeRepository,
+			UserSubmittedPlaceService userSubmittedPlaces,
 			StorageCleanupService storageCleanupService, StoryResponseAssembler assembler,
 			StoryVisibilityPolicy visibilityPolicy, StoryViewRepository storyViewRepository,
 			StoryLinkCopyRepository storyLinkCopyRepository, StoryVideoRepository storyVideoRepository,
@@ -108,6 +112,7 @@ public class StoryService {
 		this.userFollowRepository = userFollowRepository;
 		this.tripRepository = tripRepository;
 		this.placeRepository = placeRepository;
+		this.userSubmittedPlaces = userSubmittedPlaces;
 		this.storageCleanupService = storageCleanupService;
 		this.assembler = assembler;
 		this.visibilityPolicy = visibilityPolicy;
@@ -136,6 +141,11 @@ public class StoryService {
 			place = this.placeRepository.findById(request.placeId())
 					.orElseThrow(() -> new InvalidReferenceException("placeId", "그 장소를 찾을 수 없습니다."));
 		}
+		else if (request.place() != null) {
+			// 우리 표에 없는 장소를 골랐다. 서버가 먼저 만들고 그 id 를 쓴다 — 앱이 우리 표에 없는
+			// 식별자를 저장하는 것이 아니다 (S15P21E201-1426).
+			place = resolveSubmittedPlace(request.place());
+		}
 
 		List<UploadedImage> images = resolveImages(authorUserId, request.imageUrlsOrEmpty());
 		// 글을 저장하기 전에 먼저 본다. 저장한 뒤에 거절하면 본문만 남은 기록이 생긴다.
@@ -146,7 +156,9 @@ public class StoryService {
 				: regionOf(place);
 		Instant publishAt = request.publishAt() != null ? request.publishAt() : defaultPublishAt(trip, now);
 
-		Story story = new Story(UUID.randomUUID(), authorUserId, request.tripId(), request.placeId(),
+		// request.placeId() 가 아니라 해석된 장소의 id 다. 스냅샷으로 만든 장소는 요청에 id 가 없다.
+		Story story = new Story(UUID.randomUUID(), authorUserId, request.tripId(),
+				place == null ? null : place.getPlaceId(),
 				request.body(), region, request.visibilityOrDefault(), publishAt, now);
 		this.storyRepository.save(story);
 
@@ -628,6 +640,23 @@ public class StoryService {
 
 		public StoryUnderModerationException(UUID storyId) {
 			super("신고 검토 중인 기록은 고칠 수 없습니다. 지우는 것은 됩니다.");
+		}
+	}
+
+	/**
+	 * 사용자가 검색 결과에서 고른 장소를 우리 표의 장소로 바꾼다 — S15P21E201-1426.
+	 *
+	 * <p>규칙은 {@link UserSubmittedPlaceService} 에 있다. 여기서는 그쪽이 내는 오류를 이 API 의
+	 * 400 으로 옮기기만 한다 — 그러지 않으면 앱이 보낸 값이 잘못됐는데 500 이 나간다.
+	 */
+	private Place resolveSubmittedPlace(StoryCreateRequest.PlaceSnapshotRequest snapshot) {
+		try {
+			return this.userSubmittedPlaces.findOrCreate(new UserSubmittedPlaceService.Snapshot(
+					snapshot.source(), snapshot.externalId(), snapshot.name(), snapshot.address(),
+					snapshot.lat(), snapshot.lng(), snapshot.category()));
+		}
+		catch (IllegalArgumentException ex) {
+			throw new InvalidReferenceException("place", ex.getMessage());
 		}
 	}
 

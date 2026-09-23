@@ -111,6 +111,16 @@ public class Place {
 	@Column(name = "subway_exit", length = 100)
 	private String subwayExit;
 
+	/**
+	 * 추천 후보로 써도 되는가 — S15P21E201-1426. 출처({@link #sourceType})와 다른 질문이다.
+	 *
+	 * <p>{@code null} 이 아니다. DB 기본값이 {@code CURATED} 라 이관 전에 들어온 행은 전부
+	 * 그 값이고, 새 행은 만드는 자리가 정한다.
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "curation_status", nullable = false, length = 20)
+	private CurationStatus curationStatus = CurationStatus.CURATED;
+
 	protected Place() {
 	}
 
@@ -158,6 +168,41 @@ public class Place {
 		place.photoUrl = photoUrl;
 		place.photoSource = photoSource;
 		return place;
+	}
+
+	/**
+	 * 사용자가 기록에 붙이려고 고른 장소 — S15P21E201-1426.
+	 *
+	 * <p>{@link #imported} 와 갈라 두는 이유는 {@code curationStatus} 하나 때문이 아니다.
+	 * <b>여기서 만든 행은 아무도 안 본 값이다</b> — 이름·주소·좌표가 남의 검색 결과 그대로다.
+	 * 같은 공장에서 찍으면 나중에 누가 사진이나 피처를 붙일 때 검증된 행과 구분이 안 된다.
+	 *
+	 * <p>🔴 {@code datasetVersion} 을 안 채운다. 그 칸은 「어느 수집분에서 왔나」인데 이 행은
+	 * 수집분에 속하지 않는다. 지어내면 추천 재현이 그 가짜 값을 따라간다. 추천 후보에
+	 * 안 들어가므로 {@code VERSION_UNRESOLVED} 로 실패할 자리도 없다.
+	 *
+	 * @param sourceId 원천의 식별자. 이것과 {@code sourceType} 이 같으면 같은 장소다
+	 *     ({@code uq_place_source})
+	 */
+	public static Place userSubmitted(UUID placeId, String nameKo, String category, String address,
+			Double lat, Double lng, String sourceType, String sourceId, OffsetDateTime createdAt) {
+		Place place = new Place();
+		place.placeId = placeId;
+		place.nameKo = nameKo;
+		place.category = category;
+		place.address = address;
+		place.lat = lat;
+		place.lng = lng;
+		place.createdAt = createdAt;
+		place.sourceType = sourceType;
+		place.sourceId = sourceId;
+		place.collectedAt = createdAt;
+		place.curationStatus = CurationStatus.USER_SUBMITTED;
+		return place;
+	}
+
+	public CurationStatus getCurationStatus() {
+		return curationStatus;
 	}
 
 	public UUID getPlaceId() {

@@ -7,6 +7,9 @@ import java.util.UUID;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryVisibility;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -54,7 +57,40 @@ public record StoryCreateRequest(
 		 * <p>{@code story_image} 에 들어가지 않으므로 사진 3장과 자리를 다투지 않는다.
 		 * {@code videoUrl} 없이 이것만 보내면 400 이다.
 		 */
-		String thumbnailUrl) {
+		String thumbnailUrl,
+
+		/**
+		 * 우리 표에 없는 장소를 골랐을 때 그 자리에서 보내는 스냅샷 — S15P21E201-1426.
+		 *
+		 * <p>글 작성 화면은 우리 DB 장소와 카카오 검색 결과를 섞어 보여주는데, 카카오 결과에는
+		 * {@code placeId} 가 없어 지금까지 장소가 안 실렸다. 이 칸이 있으면 서버가
+		 * {@code (source, externalId)} 로 찾거나 만들어 그 id 를 {@code story.place_id} 에 넣는다.
+		 *
+		 * <p>🔴 {@code placeId} 가 있으면 <b>이 칸은 안 본다.</b> 우리 표의 장소를 고른 것이
+		 * 확실한데 스냅샷을 또 보고 upsert 하면, 앱이 실수로 다른 장소의 스냅샷을 실었을 때
+		 * 어느 쪽이 맞는지 서버가 정하게 된다. 둘 다 없으면 지금처럼 장소 없는 기록이다.
+		 */
+		@Valid PlaceSnapshotRequest place) {
+
+	/**
+	 * 사용자가 검색 결과에서 고른 장소 한 건. 앱의 {@code OriginCandidate} 를 그대로 옮긴 모양이다.
+	 *
+	 * @param source 어느 검색이 준 값인가 — {@code KAKAO_LOCAL} · {@code INTERNAL_FALLBACK}.
+	 *     🔴 표에 이미 쓰이는 어휘 그대로다. {@code KAKAO} 처럼 새 철자를 들이면 같은 것을
+	 *     가리키는 값이 두 벌이 되고, {@code uq_place_source} 가 그 둘을 다른 장소로 본다
+	 * @param externalId 그 원천에서의 식별자
+	 * @param lat 위도. {@code lng} 와 함께 있거나 함께 없어야 한다 ({@code ck_place_origin_pair})
+	 */
+	public record PlaceSnapshotRequest(
+			@NotBlank @Size(max = 50) String source,
+			@NotBlank @Size(max = 200) String externalId,
+			@NotBlank @Size(max = 200) String name,
+			@Size(max = 300) String address,
+			@DecimalMin("-90") @DecimalMax("90") Double lat,
+			@DecimalMin("-180") @DecimalMax("180") Double lng,
+			@Size(max = 50) String category) {
+	}
+
 
 	/**
 	 * {@code parentStoryId} 를 안 적은 자바 호출자를 위한 통로 — 원글로 본다. JSON 역직렬화는 이 생성자를
@@ -62,7 +98,7 @@ public record StoryCreateRequest(
 	 */
 	public StoryCreateRequest(String body, List<String> imageUrls, UUID placeId, UUID tripId, String region,
 			StoryVisibility visibility, Instant publishAt) {
-		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, null, null, null);
+		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, null, null, null, null);
 	}
 
 	/**
@@ -71,7 +107,7 @@ public record StoryCreateRequest(
 	 */
 	public StoryCreateRequest(String body, List<String> imageUrls, UUID placeId, UUID tripId, String region,
 			StoryVisibility visibility, Instant publishAt, UUID parentStoryId) {
-		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, parentStoryId, null, null);
+		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, parentStoryId, null, null, null);
 	}
 
 	public List<String> imageUrlsOrEmpty() {

@@ -2,6 +2,7 @@ package com.gabolle.backend.place.repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Limit;
@@ -23,6 +24,15 @@ import com.gabolle.backend.place.domain.Place;
  * <p>{@code limit} 이 걸리는 조회에는 모두 {@code ORDER BY} 가 있어야 한다. 정렬이 없으면 상한에
  * 걸렸을 때 어느 행이 남는지 SQL 이 아무것도 약속하지 않아 같은 요청이 매번 다른 결과를 낸다.
  * 거리순으로 정렬하고 싶지만 삼각함수가 없어 못 하므로, 재현 가능하기만 한 순서를 쓴다.
+ *
+ * <p><b>찾아 주는 조회는 모두 {@code curationStatus = CURATED} 를 본다</b> — S15P21E201-1426.
+ * 사용자가 기록에 붙이려고 고른 장소는 서버가 만들지만 아무도 검증하지 않은 값이라, 검색·
+ * 주변·추천 후보 어디에도 안 나온다. 조건을 질의마다 되풀이해 적는 것은 JPQL 이 조각을
+ * 공유할 방법을 주지 않아서다 — 새 조회를 더할 때 이 줄을 빠뜨리면 검증 안 된 장소가 샌다.
+ *
+ * <p>🔴 {@code findById}·{@code findAllById}·{@link #findByPlaceIdIn} 은 거르지 <b>않는다.</b>
+ * 그것은 「찾아 주기」가 아니라 「이미 이어진 것을 읽기」다. 기록에 붙은 장소를 화면에 그리려면
+ * 그 행을 읽을 수 있어야 하고, 거기서 걸러 버리면 자기가 고른 장소가 글에서 사라진다.
  */
 public interface PlaceRepository extends JpaRepository<Place, UUID> {
 
@@ -38,8 +48,9 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	 */
 	@Query("""
 			SELECT p FROM Place p
-			WHERE LOWER(p.nameKo) LIKE :pattern ESCAPE '\\'
-			   OR (p.nameEn IS NOT NULL AND LOWER(p.nameEn) LIKE :pattern ESCAPE '\\')
+			WHERE p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
+			  AND (LOWER(p.nameKo) LIKE :pattern ESCAPE '\\'
+			       OR (p.nameEn IS NOT NULL AND LOWER(p.nameEn) LIKE :pattern ESCAPE '\\'))
 			ORDER BY p.placeId
 			""")
 	List<Place> searchByName(@Param("pattern") String pattern, Limit limit);
@@ -50,6 +61,7 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			WHERE (LOWER(p.nameKo) LIKE :pattern ESCAPE '\\'
 			       OR (p.nameEn IS NOT NULL AND LOWER(p.nameEn) LIKE :pattern ESCAPE '\\'))
 			  AND LOWER(p.category) = LOWER(:category)
+			  AND p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
 			ORDER BY p.placeId
 			""")
 	List<Place> searchByNameAndCategory(@Param("pattern") String pattern,
@@ -72,6 +84,7 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			  AND p.lat BETWEEN :minLat AND :maxLat
 			  AND p.lng BETWEEN :minLng AND :maxLng
 			  AND p.closedOn IS NULL
+			  AND p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
 			ORDER BY p.placeId
 			""")
 	List<Place> findWithinBoundingBox(@Param("minLat") double minLat, @Param("maxLat") double maxLat,
@@ -91,6 +104,7 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			  AND p.lat BETWEEN :minLat AND :maxLat
 			  AND p.lng BETWEEN :minLng AND :maxLng
 			  AND p.closedOn IS NULL
+			  AND p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
 			  AND EXISTS (SELECT 1 FROM PlaceFeature f
 			              WHERE f.placeId = p.placeId
 			                AND f.featureType = :featureType
@@ -105,7 +119,8 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	/** 표식을 가진 장소 (경계상자 없이). UNKNOWN 제외 규칙은 위와 같다. */
 	@Query("""
 			SELECT p FROM Place p
-			WHERE EXISTS (SELECT 1 FROM PlaceFeature f
+			WHERE p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
+			  AND EXISTS (SELECT 1 FROM PlaceFeature f
 			              WHERE f.placeId = p.placeId
 			                AND f.featureType = :featureType
 			                AND (:featureKey IS NULL OR f.featureKey = :featureKey)
@@ -118,6 +133,18 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	List<Place> findByPlaceIdIn(Collection<UUID> placeIds);
 
 	/**
+	 * 원천 식별자로 찾는다 — 같은 장소를 두 번 만들지 않기 위한 조회다 (S15P21E201-1426).
+	 *
+	 * <p>🔴 {@code curationStatus} 를 안 본다. 사용자가 카카오에서 해운대해수욕장을 고르면
+	 * 이미 있는 <b>큐레이션 행</b>을 찾아야 한다 — 거기서 CURATED 만 보든 USER_SUBMITTED 만
+	 * 보든, 못 찾으면 같은 카카오 장소로 행이 하나 더 생기고 {@code uq_place_source} 에
+	 * 부딪힌다.
+	 *
+	 * <p>{@code uq_place_source} 가 두 칸의 짝을 유일하게 만들므로 결과는 최대 하나다.
+	 */
+	Optional<Place> findBySourceTypeAndSourceId(String sourceType, String sourceId);
+
+	/**
 	 * 종류(category)만으로 거른다. 검색어가 없어 {@link #searchByNameAndCategory} 를 재사용할 수 없다.
 	 * {@code category} 는 자유 문자열이라 소문자로 맞춰 비교하므로, 호출하는 쪽이 이미 소문자로
 	 * 넘겨야 한다.
@@ -125,6 +152,7 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	@Query("""
 			SELECT p FROM Place p
 			WHERE LOWER(p.category) IN :categories
+			  AND p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
 			ORDER BY p.nameKo, p.placeId
 			""")
 	List<Place> findByCategoryIn(@Param("categories") List<String> categories, Limit limit);
@@ -142,6 +170,7 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			SELECT p.category AS code, COUNT(p) AS placeCount
 			FROM Place p
 			WHERE p.category IS NOT NULL AND p.category <> ''
+			  AND p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
 			GROUP BY p.category
 			ORDER BY COUNT(p) DESC, p.category ASC
 			""")
