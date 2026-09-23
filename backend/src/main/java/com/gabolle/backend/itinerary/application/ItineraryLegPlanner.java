@@ -44,8 +44,8 @@ public class ItineraryLegPlanner {
     }
 
     /**
-     * 날짜별 구간 — 연속한 두 항목 사이. 각 날의 첫 구간은 여행 출발지에서 출발한다
-     * ({@code Trip.originLat/Lng} — "매일 여기서 일정이 시작된다").
+     * 날짜별 구간 — 연속한 두 항목 사이. 각 날의 첫 구간은 {@link #dayStart} 에서 출발한다 —
+     * 첫날은 여행 출발지, 둘째 날부터는 숙소(있으면).
      */
     public List<ItineraryDraft.DraftLeg> buildLegs(Trip trip, List<List<UUID>> placeIdsByDay) {
         // 여행이 고른 이동수단의 첫 값을 쓴다. 아직 안 고른 여행이면 WALK 로 떨어진다 —
@@ -55,6 +55,7 @@ public class ItineraryLegPlanner {
         String travelMode = (modes == null || modes.length == 0) ? "WALK" : modes[0];
 
         Map<UUID, Place> placesById = lookupPlaces(placeIdsByDay);
+        Place lodging = lodgingOf(trip);
 
         List<ItineraryDraft.DraftLeg> legs = new ArrayList<>();
         for (int dayIndex = 0; dayIndex < placeIdsByDay.size(); dayIndex++) {
@@ -67,8 +68,9 @@ public class ItineraryLegPlanner {
                 Double fromLat;
                 Double fromLng;
                 if (fromPlaceId == null) {
-                    fromLat = trip.originLat();
-                    fromLng = trip.originLng();
+                    Double[] start = dayStart(trip, dayIndex, lodging);
+                    fromLat = start[0];
+                    fromLng = start[1];
                 }
                 else {
                     Place from = placesById.get(fromPlaceId);
@@ -168,6 +170,38 @@ public class ItineraryLegPlanner {
      */
     public static Integer walkingMetersFor(String travelMode, Integer distanceM) {
         return "WALK".equals(travelMode) ? distanceM : null;
+    }
+
+    /**
+     * 그날 일정이 시작하는 자리 — {@code [위도, 경도]}.
+     *
+     * <p>🔴 <b>둘째 날부터는 숙소에서 나선다</b> (2026-09-23, S15P21E201-1547). 전에는 매일 여행
+     * 출발지(역·집)에서 시작했다. 사람은 숙소에서 자고 나오는데 일정은 매일 부산역에서 출발하는
+     * 것처럼 이동 시간을 쟀고, 숙소를 입력해도 일정이 한 줄도 안 바뀌었다(숙소는 저장만 됐다).
+     * 첫날은 그대로 출발지다 — 짐을 들고 도착하는 날이다.
+     *
+     * <p>숙소가 없거나, 우리 표의 장소가 아니거나, 좌표가 없으면 출발지로 둔다. 모르는 자리를
+     * 지어내지 않는다. 출발지도 모르는 옛 여행이면 둘 다 {@code null} 이다(전과 같다).
+     */
+    public Double[] dayStart(Trip trip, int dayIndex, Place lodging) {
+        if (dayIndex > 0 && lodging != null && lodging.hasCoordinates()) {
+            return new Double[] { lodging.getLat(), lodging.getLng() };
+        }
+        return new Double[] { trip.originLat(), trip.originLng() };
+    }
+
+    /** 여행의 숙소 장소. 없거나 못 찾으면 {@code null}. 날마다 부르지 않게 부르는 쪽이 한 번 받아 둔다. */
+    public Place lodgingOf(Trip trip) {
+        String id = trip.accommodationPlaceId();
+        if (id == null || id.isBlank()) {
+            return null;
+        }
+        try {
+            return this.placeRepository.findById(UUID.fromString(id)).orElse(null);
+        }
+        catch (IllegalArgumentException malformed) {
+            return null;
+        }
     }
 
     private Map<UUID, Place> lookupPlaces(List<List<UUID>> placeIdsByDay) {

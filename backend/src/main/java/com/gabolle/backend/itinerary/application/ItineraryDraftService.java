@@ -215,6 +215,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         List<List<UUID>> placeIdsByDay = new ArrayList<>();
         List<List<Placed>> placedByDay = new ArrayList<>();
 
+        // 둘째 날부터는 숙소에서 나선다 — 차례를 정하는 잣대도 구간을 재는 잣대와 같은 출발점을 쓴다.
+        Place lodging = this.legPlanner.lodgingOf(trip);
         for (int dayIndex = 0; dayIndex < byDay.size(); dayIndex++) {
             List<ItineraryDraftCommand.PlannedPlace> dayPlaces = byDay.get(dayIndex);
             LocalDate visitDate = trip.startDate().plusDays(dayIndex);
@@ -222,7 +224,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             // 자리에 앉히기 전에 차례를 거리로 다시 세운다. 앉히는 규칙(영업시간·밥 때)은 그대로
             // 두고 훑는 차례만 바꾼다 — placeIntoSlots 은 목록을 앞에서부터 보므로, 목록의 차례가
             // 곧 "같은 조건이면 이쪽 먼저" 가 된다.
-            dayPlaces = reorderByRoute(trip, dayPlaces);
+            dayPlaces = reorderByRoute(trip, dayIndex, lodging, dayPlaces);
 
             List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate);
             placedByDay.add(placedToday);
@@ -281,7 +283,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 차례뿐이고, 영업시간·밥 때 판정은 그대로 남는다. 그리고 답이 없거나 받은 것과 한 톨이라도
      * 어긋나면 <b>들어온 차례를 그대로 돌려준다</b> — 최적화가 없어도 일정은 오늘처럼 나온다.
      */
-    private List<ItineraryDraftCommand.PlannedPlace> reorderByRoute(Trip trip,
+    private List<ItineraryDraftCommand.PlannedPlace> reorderByRoute(Trip trip, int dayIndex, Place lodging,
             List<ItineraryDraftCommand.PlannedPlace> dayPlaces) {
 
         RouteOrderPort port = this.routeOrder.getIfAvailable();
@@ -299,8 +301,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         String[] modes = trip.travelModes();
         String travelMode = (modes == null || modes.length == 0) ? "WALK" : modes[0];
 
+        Double[] start = this.legPlanner.dayStart(trip, dayIndex, lodging);
         List<UUID> ordered = port.shortestOrder(new RouteOrderPort.RouteOrderRequest(
-                trip.originLat(), trip.originLng(), List.copyOf(placeIds), travelMode));
+                start[0], start[1], List.copyOf(placeIds), travelMode));
         if (ordered == null || ordered.size() != dayPlaces.size()) {
             return dayPlaces;
         }
