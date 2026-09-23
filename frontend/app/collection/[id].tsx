@@ -1,6 +1,6 @@
 // 부슐랭 리스트 상세 — 장소를 담고, 한줄메모를 남기고, 뺀다.
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -151,6 +151,7 @@ export default function CollectionListDetail() {
   };
 
   const confirmDeleteList = () => {
+    setConfirmDelete(false);
     deleteList(list.id);
     router.replace('/collection');
   };
@@ -173,7 +174,22 @@ export default function CollectionListDetail() {
             </View></>
           : <>{list.description ? <Text variant="caption" color={color.text.muted}>{list.description}</Text> : null}
             <Pressable accessibilityRole="button" accessibilityLabel={tx('리스트 이름 고치기', 'Edit list name')} onPress={openEdit}><Text variant="caption" weight="bold" color={color.action.secondary}>{tx('이름 고치기', 'Edit name')}</Text></Pressable></>}</View>
-      {confirmDelete ? <View style={styles.deleteConfirm}><Pressable accessibilityRole="button" onPress={() => setConfirmDelete(false)}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('취소', 'Cancel')}</Text></Pressable><Pressable accessibilityRole="button" onPress={confirmDeleteList}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제 확정', 'Confirm delete')}</Text></Pressable></View> : <Pressable accessibilityRole="button" accessibilityLabel={tx('리스트 삭제', 'Delete list')} onPress={() => setConfirmDelete(true)}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text></Pressable>}
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('리스트 삭제', 'Delete list')} onPress={() => setConfirmDelete(true)}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text></Pressable>
+      {/* 🔴 되돌릴 수 없는 삭제는 창으로 묻는다 — S15P21E201-1533. 예전에는 「삭제」 자리가 작은 글자
+          「취소 · 삭제 확정」으로 바뀌기만 해서, 바뀐 줄 모르거나 같은 자리를 연달아 눌러 지우기 쉬웠고
+          무엇이 사라지는지도 말하지 않았다(팀원 실사용). 여행 삭제 창(trips.tsx)과 같은 모양이다. */}
+      <Modal visible={confirmDelete} transparent animationType="fade" onRequestClose={() => setConfirmDelete(false)}>
+        <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
+          <Text variant="title" weight="bold">{txf(tx, '「%s」 리스트를 삭제할까요?', 'Delete “%s”?', list.name)}</Text>
+          <Text color={color.text.body}>{listPlaces.length > 0
+            ? txf(tx, '담긴 장소 %s곳이 이 리스트에서 빠지고, 되돌릴 수 없어요.', 'The %s places in it will be removed from this list — this can’t be undone.', listPlaces.length)
+            : tx('삭제하면 되돌릴 수 없어요.', 'This can’t be undone.')}</Text>
+          <View style={styles.confirmActions}>
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => setConfirmDelete(false)} containerStyle={styles.confirmButton} />
+            <Button label={tx('삭제', 'Delete')} variant="danger" onPress={confirmDeleteList} containerStyle={styles.confirmButton} />
+          </View>
+        </View></View>
+      </Modal>
     </View>
 
     <Button label={adding ? tx('취소', 'Cancel') : tx('+ 장소 담기', '+ Add a place')} variant={adding ? 'tertiary' : 'primary'} onPress={() => setAdding((value) => !value)} containerStyle={styles.addToggle} />
@@ -243,6 +259,10 @@ const styles = StyleSheet.create({
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3] },
   grow: { flex: 1, gap: spacing[1] },
+  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
+  modalCard: { width: '100%', maxWidth: 480, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
+  confirmActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] },
+  confirmButton: { flex: 1 },
   deleteConfirm: { flexDirection: 'row', gap: spacing[3] },
   addToggle: { marginTop: spacing[4] },
   form: { gap: spacing[2], marginTop: spacing[3] },
