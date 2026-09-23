@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Regular.ttf);font-weight:400}
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Medium.ttf);font-weight:500}
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Bold.ttf);font-weight:700}
+body{margin:0;background:#E4E4E8}
+a{color:#2B2B2E}a:hover{color:#191919}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-text-fill-color:#191919;caret-color:#191919;transition:background-color 600000s 0s,color 600000s 0s}
+input:autofill{background:transparent}
+</style>
+</helmet>
+<section style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;word-break:keep-all;padding:64px;display:flex;flex-direction:column;gap:40px;color:#191919">
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:1200px">
+    <div style="font-size:13px;font-weight:700;color:#6F6F6F">회원가입 · 약관 동의 (/sign-up)</div>
+    <div style="font-size:34px;line-height:40px;font-weight:700;letter-spacing:-0.25px">동의는 모달이 아니라 회원가입 페이지 안에 있어요</div>
+    <div style="font-size:15px;line-height:23px;color:#444;text-wrap:pretty">폰에서는 4단계 중 마지막 칸(약관 동의 4/4)으로, 넓은 화면에서는 한 페이지 폼의 맨 아래 상자로 그려져요. 아래는 두 화면을 실제 모양 그대로 그린 것이고, 파란 표시는 설명용이에요.</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:64px;align-items:flex-start">
+
+    <div id="1a" style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">1a</span><span style="font-size:15px;font-weight:700">모바일 · 390</span></div>
+      <div style="width:390px;height:844px;border-radius:48px;border:10px solid #191919;background:#F5F5F7;overflow:hidden;position:relative;box-sizing:content-box">
+        <div style="height:47px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;font-size:15px;font-weight:700"><span>9:41</span><span style="width:24px;height:11px;border-radius:3px;border:1.5px solid #191919"></span></div>
+        <div style="padding:24px 24px 32px;display:flex;flex-direction:column">
+          <div style="min-height:52px;margin-top:24px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+            <div style="min-height:44px;display:flex;align-items:center;font-size:15px;line-height:23px;font-weight:700;color:#444">← 뒤로</div>
+            <img src="assets/gabolle-logo-hd.png" alt="GABOLLE" style="width:176px;height:32px;object-fit:contain">
+          </div>
+          <div style="font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">회원가입</div>
+          <div style="margin-top:4px;font-size:15px;line-height:23px;color:#444">여행을 저장하고 어디서든 이어보세요.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+            <div style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">약관 동의 4 / 4</div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;height:4px;border-radius:999px;background:#2B2B2E;opacity:0.72"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#2B2B2E;opacity:0.72"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#2B2B2E;opacity:0.72"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#2B2B2E;opacity:{{ mDotOp }}"></div>
+            </div>
+          </div>
+          <div style="margin-top:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:14px;background:#FFFFFF">
+              <div onClick="{{ mAgeToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+                <div style="width:24px;height:24px;flex:none;box-sizing:border-box;border-radius:8px;border:1.5px solid {{ mAgeBd }};background:{{ mAgeBg }};display:flex;align-items:center;justify-content:center"><sc-if value="{{ mAge }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;line-height:18px;font-weight:700;color:#fff">✓</span></sc-if></div>
+                <span style="flex:1;font-size:15px;line-height:23px;color:#444">만 14세 이상입니다.</span>
+              </div>
+              <div onClick="{{ mTermsToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+                <div style="width:24px;height:24px;flex:none;box-sizing:border-box;border-radius:8px;border:1.5px solid {{ mTermsBd }};background:{{ mTermsBg }};display:flex;align-items:center;justify-content:center"><sc-if value="{{ mTerms }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;line-height:18px;font-weight:700;color:#fff">✓</span></sc-if></div>
+                <span style="flex:1;font-size:15px;line-height:23px;color:#444">이용약관에 동의합니다. (필수)</span>
+              </div>
+              <div style="min-height:44px;display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:700;color:#2B2B2E">이용약관 보기 ›</div>
+              <div onClick="{{ mPrivToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+                <div style="width:24px;height:24px;flex:none;box-sizing:border-box;border-radius:8px;border:1.5px solid {{ mPrivBd }};background:{{ mPrivBg }};display:flex;align-items:center;justify-content:center"><sc-if value="{{ mPriv }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;line-height:18px;font-weight:700;color:#fff">✓</span></sc-if></div>
+                <span style="flex:1;font-size:15px;line-height:23px;color:#444">개인정보 처리방침에 동의합니다. (필수)</span>
+              </div>
+              <div style="min-height:44px;display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:700;color:#2B2B2E">개인정보 처리 안내 보기 ›</div>
+            </div>
+            <sc-if value="{{ mHasReasons }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;gap:4px;padding:12px 16px;border-radius:14px;background:#F0F0F3"><div style="font-size:13px;line-height:18px;font-weight:700;color:#191919">회원가입하려면 아래를 마저 채워 주세요</div><sc-for list="{{ mReasons }}" as="r" hint-placeholder-count="1"><div style="font-size:13px;line-height:18px;color:#444">○ {{ r }}</div></sc-for></div></sc-if>
+            <div style="margin-top:4px;display:flex;align-items:center;gap:12px">
+              <div style="min-width:72px;min-height:48px;padding:0 12px;box-sizing:border-box;border-radius:999px;border:1px solid #DADCE2;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">이전</div>
+              <div style="flex:1;min-height:48px;border-radius:14px;background:#D83A48;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:23px;font-weight:700;color:#fff;opacity:{{ mBtnOp }}">회원가입</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;min-height:48px;border-radius:14px;background:#E9E9EC;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:23px;font-weight:700;color:#191919">비회원으로 둘러보기</div>
+          <div style="min-height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:23px;color:#444">이미 계정이 있나요?&nbsp;<b style="color:#2B2B2E">로그인</b></div>
+        </div>
+      </div>
+      <div style="max-width:390px;display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:19px;color:#2C64B5">
+        <div style="font-weight:700">어디서 오나요</div>
+        <div style="color:#444">로그인 화면의 「회원가입」 → 이메일 → 비밀번호 → 이름·언어 → <b>약관 동의</b>. 새 화면이 아니라 같은 페이지에서 칸만 오른쪽으로 넘어가요. 아래 탭바·상단 바는 없어요.</div>
+        <div style="color:#444">「이용약관 보기 ›」는 모달이 아니라 /legal/terms 페이지로 이동해요.</div>
+      </div>
+    </div>
+
+    <div id="1b" style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;gap:8px"><span style="background:#2C64B5;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px">1b</span><span style="font-size:15px;font-weight:700">데스크톱 · 1440</span></div>
+      <div style="width:1440px;border-radius:12px;overflow:visible;background:#F5F5F7;box-shadow:0 0 0 1px #DADCE2">
+        <div style="height:36px;background:#E9E9EC;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #DADCE2">
+          <div style="display:flex;gap:8px"><span style="width:12px;height:12px;border-radius:50%;background:#DADCE2"></span><span style="width:12px;height:12px;border-radius:50%;background:#DADCE2"></span><span style="width:12px;height:12px;border-radius:50%;background:#DADCE2"></span></div>
+          <div style="width:420px;height:24px;border-radius:8px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:12px;color:#6F6F6F">gabolle.app/sign-up</div>
+          <div style="width:52px"></div>
+        </div>
+        <div style="height:36px;padding:0 40px;display:flex;align-items:center;justify-content:flex-end;gap:12px;background:#E9E9EC">
+          <div style="display:flex;align-items:center"><div style="height:36px;width:30px;display:flex;align-items:center;justify-content:center"><img src="assets/flags/kr.png" style="width:20px;height:14px;border-radius:2px;object-fit:contain"></div></div>
+          <div style="display:flex;align-items:center"><div style="width:1px;height:14px;background:#DADCE2;margin-right:8px"></div><div style="height:36px;width:30px;display:flex;align-items:center;justify-content:center;opacity:0.55"><img src="assets/flags/us.png" style="width:20px;height:14px;border-radius:2px;object-fit:contain"></div></div>
+          <div style="display:flex;align-items:center"><div style="width:1px;height:14px;background:#DADCE2;margin-right:8px"></div><div style="height:36px;width:30px;display:flex;align-items:center;justify-content:center;opacity:0.55"><img src="assets/flags/jp.png" style="width:20px;height:14px;border-radius:2px;object-fit:contain"></div></div>
+          <div style="display:flex;align-items:center"><div style="width:1px;height:14px;background:#DADCE2;margin-right:8px"></div><div style="height:36px;width:30px;display:flex;align-items:center;justify-content:center;opacity:0.55"><img src="assets/flags/cn.png" style="width:20px;height:14px;border-radius:2px;object-fit:contain"></div></div>
+          <div style="display:flex;align-items:center"><div style="width:1px;height:14px;background:#DADCE2;margin-right:8px"></div><div style="height:36px;width:30px;display:flex;align-items:center;justify-content:center;opacity:0.55"><img src="assets/flags/tw.png" style="width:20px;height:14px;border-radius:2px;object-fit:contain"></div></div>
+          <div style="width:1px;height:14px;background:#DADCE2"></div>
+          <div style="height:36px;width:32px;display:flex;align-items:center;justify-content:center"><img src="assets/bell.png" style="width:18px;height:18px;object-fit:contain"></div>
+          <div style="height:36px;padding:0 4px;display:flex;align-items:center;font-size:14px;line-height:20px;font-weight:700;color:#6F6F6F">로그인</div>
+          <div style="height:36px;padding:0 4px;display:flex;align-items:center;position:relative;font-size:14px;line-height:20px;font-weight:700;color:#191919">회원가입<div style="position:absolute;inset:4px -6px;border:2px solid #2C64B5;border-radius:8px"></div><div style="position:absolute;bottom:calc(100% + 44px);right:-6px;white-space:nowrap;background:#2C64B5;color:#fff;font-size:12px;line-height:16px;font-weight:700;padding:4px 8px;border-radius:6px;z-index:2">진입: 로그아웃 상태 상단 바 「회원가입」</div></div>
+        </div>
+        <div style="height:60px;box-sizing:border-box;padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:#FFFFFF;border-bottom:1px solid #EBEBEF">
+          <img src="assets/gabolle-logo-hd.png" alt="GABOLLE" style="width:154px;height:28px;object-fit:contain">
+          <div style="display:flex;align-items:center;gap:4px;padding:4px">
+            <div style="height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">홈</div>
+            <div style="height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">피드</div>
+            <div style="height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#444">내 여행</div>
+          </div>
+          <div style="height:40px;box-sizing:border-box;padding:0 16px;border-radius:14px;border:1px solid #D83A48;background:#FFFFFF;display:flex;align-items:center;font-size:15px;font-weight:700;color:#D83A48;white-space:nowrap">여행 만들기</div>
+        </div>
+        <div style="padding:24px 24px 32px">
+          <div style="min-height:52px;margin-top:24px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+            <div style="min-height:44px;display:flex;align-items:center;font-size:15px;line-height:23px;font-weight:700;color:#444">← 뒤로</div>
+            <img src="assets/gabolle-logo-hd.png" alt="GABOLLE" style="width:176px;height:32px;object-fit:contain">
+          </div>
+          <div style="display:flex;align-items:stretch;gap:32px">
+            <div style="flex:1;min-height:280px;box-sizing:border-box;padding:64px;border-radius:14px;background:#191919 url(assets/busan-night.jpg) center 35%/cover no-repeat;display:flex;flex-direction:column;justify-content:flex-start;gap:16px">
+              <div style="font-size:13px;line-height:18px;font-weight:700;color:#DADADF">가볼래 계정</div>
+              <div style="font-size:34px;line-height:40px;letter-spacing:-0.25px;font-weight:700;color:#FFFFFF;max-width:440px">내 여행을 안전하게 저장하세요</div>
+              <div style="font-size:15px;line-height:23px;color:#DADADF;max-width:440px">선택한 언어와 여행 조건을 이어서 사용할 수 있어요.</div>
+            </div>
+            <div style="flex:1;max-width:480px;display:flex;flex-direction:column">
+              <div style="font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">회원가입</div>
+              <div style="margin-top:4px;font-size:15px;line-height:23px;color:#444">여행을 저장하고 어디서든 이어보세요.</div>
+              <div style="margin-top:24px;display:flex;flex-direction:column;gap:16px">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="font-size:13px;line-height:18px;font-weight:700;color:#191919">이메일</div>
+                  <div style="min-height:52px;box-sizing:border-box;display:flex;align-items:center;border-radius:14px;border:1px solid {{ dEmailBd }};box-shadow:{{ dEmailSh }};background:{{ dEmailBg }}"><input type="text" value="{{ email }}" onChange="{{ onEmail }}" onFocus="{{ focEmail }}" onBlur="{{ blur }}" placeholder="name@example.com" style="flex:1;min-width:0;border:0;outline:none;background:transparent;padding:12px 16px;font-family:inherit;font-size:15px;color:#191919"><div onClick="{{ clrEmail }}" style="min-width:36px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#6F6F6F;cursor:pointer">✕</div></div>
+                  <sc-if value="{{ dEmailErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;line-height:18px;color:#B02A38">올바른 이메일 주소를 입력해 주세요.</div></sc-if>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="font-size:13px;line-height:18px;font-weight:700;color:#191919">비밀번호</div>
+                  <div style="min-height:52px;box-sizing:border-box;display:flex;align-items:center;border-radius:14px;border:1px solid {{ dPwBd }};box-shadow:{{ dPwSh }};background:{{ dPwBg }}"><input type="password" value="{{ pw }}" onChange="{{ onPw }}" onFocus="{{ focPw }}" onBlur="{{ blur }}" placeholder="영문·숫자·특수문자 포함 8~64자" style="flex:1;min-width:0;border:0;outline:none;background:transparent;padding:12px 16px;font-family:inherit;font-size:15px;color:#191919"><div onClick="{{ clrPw }}" style="min-width:36px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#6F6F6F;cursor:pointer">✕</div></div>
+                  <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:13px;line-height:18px"><sc-for list="{{ dRules }}" as="r" hint-placeholder-count="4"><span style="color:{{ r.color }}">{{ r.text }}</span></sc-for></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="font-size:13px;line-height:18px;font-weight:700;color:#191919">비밀번호 확인</div>
+                  <div style="min-height:52px;box-sizing:border-box;display:flex;align-items:center;border-radius:14px;border:1px solid {{ dPw2Bd }};box-shadow:{{ dPw2Sh }};background:{{ dPw2Bg }}"><input type="password" value="{{ pw2 }}" onChange="{{ onPw2 }}" onFocus="{{ focPw2 }}" onBlur="{{ blur }}" placeholder="한 번 더 입력하세요" style="flex:1;min-width:0;border:0;outline:none;background:transparent;padding:12px 16px;font-family:inherit;font-size:15px;color:#191919"><div onClick="{{ clrPw2 }}" style="min-width:36px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#6F6F6F;cursor:pointer">✕</div></div>
+                  <sc-if value="{{ dPw2Show }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;line-height:18px;color:{{ dPw2Color }}">{{ dPw2Msg }}</div></sc-if>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="font-size:13px;line-height:18px;font-weight:700;color:#191919">이름</div>
+                  <div style="min-height:52px;box-sizing:border-box;display:flex;align-items:center;border-radius:14px;border:1px solid {{ dNameBd }};box-shadow:{{ dNameSh }};background:{{ dNameBg }}"><input type="text" value="{{ name }}" onChange="{{ onName }}" onFocus="{{ focName }}" onBlur="{{ blur }}" placeholder="1~30자" maxlength="30" style="flex:1;min-width:0;border:0;outline:none;background:transparent;padding:12px 16px;font-family:inherit;font-size:15px;color:#191919"><div onClick="{{ clrName }}" style="min-width:36px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#6F6F6F;cursor:pointer">✕</div></div>
+                  <div style="font-size:13px;line-height:18px;color:{{ dNameColor }}">{{ dNameCount }}</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="font-size:13px;line-height:18px;font-weight:700;color:#191919">언어</div>
+                  <div style="display:flex;gap:8px">
+                    <div style="flex:1;padding:12px;border-radius:14px;border:1px solid #2B2B2E;background:#2B2B2E;text-align:center;font-size:15px;line-height:23px;font-weight:700;color:#fff">한국어</div>
+                    <div style="flex:1;padding:12px;border-radius:14px;border:1px solid #DADCE2;background:#FFFFFF;text-align:center;font-size:15px;line-height:23px;font-weight:700;color:#191919">English</div>
+                  </div>
+                </div>
+                <div style="position:relative;display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:14px;background:#FFFFFF">
+                  <div style="position:absolute;inset:-6px;border:2px solid #2C64B5;border-radius:18px;pointer-events:none"></div>
+                  <div style="position:absolute;left:calc(100% + 16px);top:0;width:200px;font-size:13px;line-height:19px;color:#2C64B5;font-weight:700">동의 영역 — 폼 안의 흰 상자. 모달·시트 아님.</div>
+                  <div onClick="{{ dAgeToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+                    <div style="width:24px;height:24px;flex:none;box-sizing:border-box;border-radius:8px;border:1.5px solid {{ dAgeBd }};background:{{ dAgeBg }};display:flex;align-items:center;justify-content:center"><sc-if value="{{ dAge }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;line-height:18px;font-weight:700;color:#fff">✓</span></sc-if></div>
+                    <span style="flex:1;font-size:15px;line-height:23px;color:#444">만 14세 이상입니다.</span>
+                  </div>
+                  <div onClick="{{ dTermsToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+                    <div style="width:24px;height:24px;flex:none;box-sizing:border-box;border-radius:8px;border:1.5px solid {{ dTermsBd }};background:{{ dTermsBg }};display:flex;align-items:center;justify-content:center"><sc-if value="{{ dTerms }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;line-height:18px;font-weight:700;color:#fff">✓</span></sc-if></div>
+                    <span style="flex:1;font-size:15px;line-height:23px;color:#444">이용약관에 동의합니다. (필수)</span>
+                  </div>
+                  <div style="min-height:44px;display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:700;color:#2B2B2E">이용약관 보기 ›</div>
+                  <div onClick="{{ dPrivToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+                    <div style="width:24px;height:24px;flex:none;box-sizing:border-box;border-radius:8px;border:1.5px solid {{ dPrivBd }};background:{{ dPrivBg }};display:flex;align-items:center;justify-content:center"><sc-if value="{{ dPriv }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;line-height:18px;font-weight:700;color:#fff">✓</span></sc-if></div>
+                    <span style="flex:1;font-size:15px;line-height:23px;color:#444">개인정보 처리방침에 동의합니다. (필수)</span>
+                  </div>
+                  <div style="min-height:44px;display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:700;color:#2B2B2E">개인정보 처리 안내 보기 ›</div>
+                </div>
+                <sc-if value="{{ dHasReasons }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;gap:4px;padding:12px 16px;border-radius:14px;background:#F0F0F3"><div style="font-size:13px;line-height:18px;font-weight:700;color:#191919">회원가입하려면 아래를 마저 채워 주세요</div><sc-for list="{{ dReasons }}" as="r" hint-placeholder-count="2"><div style="font-size:13px;line-height:18px;color:#444">○ {{ r }}</div></sc-for></div></sc-if>
+                <div style="min-height:48px;border-radius:14px;background:#D83A48;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:23px;font-weight:700;color:#fff;opacity:{{ dBtnOp }}">회원가입</div>
+              </div>
+              <div style="margin-top:12px;min-height:48px;border-radius:14px;background:#E9E9EC;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:23px;font-weight:700;color:#191919">비회원으로 둘러보기</div>
+              <div style="min-height:44px;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:23px;color:#444">이미 계정이 있나요?&nbsp;<b style="color:#2B2B2E">로그인</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="max-width:900px;font-size:13px;line-height:19px;color:#444">넓은 화면(짧은 변 600 이상)에서는 단계 없이 모든 칸이 한 번에 보이고, 앱 공통 상단 바가 그대로 위에 붙어요. 입력칸과 체크박스는 직접 바꿔볼 수 있어요 — 조건이 하나라도 남으면 버튼 위 회색 상자에 이유가 뜨고, 다 채우면 상자가 사라지며 「회원가입」이 활성화돼요. (폰은 앞 단계의 「다음」이 이미 막고 있어 마지막 칸엔 동의 항목만 남아요.)</div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { mAge: true, mTerms: true, mPriv: false, dAge: false, dTerms: false, dPriv: false, email: '', pw: '', pw2: '', name: '', touched: {} };
+  renderVals() {
+    const v = {};
+    const s0 = this.state;
+    for (const f of ['email', 'pw', 'pw2', 'name']) {
+      const cap = f[0].toUpperCase() + f.slice(1);
+      v[f] = s0[f];
+      v['on' + cap] = e => this.setState(s => ({ [f]: e.target.value, touched: { ...s.touched, [f]: true } }));
+      v['clr' + cap] = () => this.setState({ [f]: '' });
+    }
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s0.email.trim());
+    const pw = s0.pw;
+    const chk = { length: pw.length >= 8 && pw.length <= 64, letter: /[A-Za-z]/.test(pw), number: /\d/.test(pw), special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/.test(pw) };
+    const match = pw.length > 0 && pw === s0.pw2;
+    const n = s0.name.trim().length, nameOk = n >= 1 && n <= 30;
+    const OK = '#2E9E5B', MUTED = '#6F6F6F', DANGER = '#B02A38', FIELD = '#DADCE2';
+    v.dRules = [['length', '8~64자'], ['letter', '영문'], ['number', '숫자'], ['special', '특수문자 (!@#$% 등)']].map(([k, t]) => ({ text: (chk[k] ? '✓ ' : '○ ') + t, color: chk[k] ? OK : MUTED }));
+    const t = s0.touched;
+    v.dEmailErr = !!t.email && s0.email.length > 0 && !emailOk;
+    v.dEmailBd = v.dEmailErr ? DANGER : FIELD;
+    v.dPw2Show = !!t.pw2 && s0.pw2.length > 0;
+    v.dPw2Msg = match ? '비밀번호가 일치해요.' : '비밀번호가 일치하지 않아요.';
+    v.dPw2Color = match ? OK : DANGER;
+    v.dPw2Bd = s0.pw2.length > 0 && !match ? DANGER : FIELD;
+    v.dNameBd = s0.name.length > 0 && !nameOk ? DANGER : FIELD;
+    const bad = { email: v.dEmailErr, pw: !!t.pw && pw.length > 0 && !Object.values(chk).every(Boolean), pw2: v.dPw2Show && !match, name: !!t.name && s0.name.length > 0 && !nameOk };
+    v.blur = () => this.setState({ focus: null });
+    for (const f of ['email', 'pw', 'pw2', 'name']) {
+      const cap = f[0].toUpperCase() + f.slice(1);
+      const foc = s0.focus === f;
+      v['foc' + cap] = () => this.setState({ focus: f });
+      v['d' + cap + 'Bd'] = foc ? '#D83A48' : bad[f] ? DANGER : FIELD;
+      v['d' + cap + 'Sh'] = foc ? '0 0 0 1px #D83A48' : 'none';
+      v['d' + cap + 'Bg'] = bad[f] ? '#FFFBFB' : '#FFFFFF';
+    }
+    v.dNameCount = n + '/30자';
+    v.dNameColor = nameOk ? OK : MUTED;
+    const agree = (p) => [!s0[p + 'Age'] && '만 14세 이상인지 확인해 주세요', !s0[p + 'Terms'] && '이용약관에 동의해 주세요', !s0[p + 'Priv'] && '개인정보 처리방침에 동의해 주세요'].filter(Boolean);
+    const dR = [
+      !emailOk && '이메일 형식이 올바르지 않아요',
+      !chk.length && '비밀번호를 8~64자로 입력해 주세요',
+      !chk.letter && '비밀번호에 영문을 넣어 주세요',
+      !chk.number && '비밀번호에 숫자를 넣어 주세요',
+      !chk.special && '비밀번호에 특수문자(!@#$% 등)를 넣어 주세요',
+      pw.length > 0 && !match && '비밀번호 확인이 일치하지 않아요',
+      !nameOk && '이름을 1~30자로 입력해 주세요',
+      ...agree('d'),
+    ].filter(Boolean);
+    const mR = agree('m');
+    v.dReasons = dR; v.dHasReasons = dR.length > 0;
+    v.mReasons = mR; v.mHasReasons = mR.length > 0;
+    for (const k of ['mAge', 'mTerms', 'mPriv', 'dAge', 'dTerms', 'dPriv']) {
+      const on = this.state[k];
+      v[k] = on;
+      v[k + 'Bg'] = on ? '#2B2B2E' : 'transparent';
+      v[k + 'Bd'] = on ? '#2B2B2E' : '#DADCE2';
+      v[k + 'Toggle'] = () => this.setState(s => ({ [k]: !s[k] }));
+    }
+    const s = this.state;
+    const mAll = s.mAge && s.mTerms && s.mPriv;
+    v.mBtnOp = mAll ? 1 : 0.4;
+    v.mDotOp = mAll ? 0.72 : 1;
+    v.dBtnOp = dR.length === 0 ? 1 : 0.4;
+    return v;
+  }
+}
+</script>
+</body>
+</html>
