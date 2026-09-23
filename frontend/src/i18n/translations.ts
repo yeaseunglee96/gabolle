@@ -412,7 +412,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '어린이 %d': { ja: '子ども %d', zhHans: '儿童 %d', zhHant: '兒童 %d' },
   '성인 %d · 어린이 %d': { ja: '大人 %d · 子ども %d', zhHans: '成人 %d · 儿童 %d', zhHant: '成人 %d · 兒童 %d' },
   '%s 출발': { ja: '%s 出発', zhHans: '从 %s 出发', zhHant: '從 %s 出發' },
-  '%s 숙박': { ja: '%s に宿泊', zhHans: '住在 %s', zhHant: '住在 %s' },
+  '%s 숙박': { ja: '%sに宿泊', zhHans: '住在 %s', zhHant: '住在 %s' },
   '이번 주말 1박 2일': { ja: '今週末 1泊2日', zhHans: '本周末 两天一晚', zhHant: '本週末 兩天一晚' },
   '둘이서 2박 3일': { ja: '二人で 2泊3日', zhHans: '两人 三天两晚', zhHant: '兩人 三天兩晚' },
   '아이와 당일치기': { ja: '子どもと日帰り', zhHans: '带孩子一日游', zhHant: '帶孩子一日遊' },
