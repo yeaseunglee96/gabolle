@@ -4,12 +4,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import com.gabolle.backend.place.api.PlaceSnapshotRequest;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryVisibility;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -72,24 +71,6 @@ public record StoryCreateRequest(
 		 */
 		@Valid PlaceSnapshotRequest place) {
 
-	/**
-	 * 사용자가 검색 결과에서 고른 장소 한 건. 앱의 {@code OriginCandidate} 를 그대로 옮긴 모양이다.
-	 *
-	 * @param source 어느 검색이 준 값인가 — {@code KAKAO_LOCAL} · {@code INTERNAL_FALLBACK}.
-	 *     🔴 표에 이미 쓰이는 어휘 그대로다. {@code KAKAO} 처럼 새 철자를 들이면 같은 것을
-	 *     가리키는 값이 두 벌이 되고, {@code uq_place_source} 가 그 둘을 다른 장소로 본다
-	 * @param externalId 그 원천에서의 식별자
-	 * @param lat 위도. {@code lng} 와 함께 있거나 함께 없어야 한다 ({@code ck_place_origin_pair})
-	 */
-	public record PlaceSnapshotRequest(
-			@NotBlank @Size(max = 50) String source,
-			@NotBlank @Size(max = 200) String externalId,
-			@NotBlank @Size(max = 200) String name,
-			@Size(max = 300) String address,
-			@DecimalMin("-90") @DecimalMax("90") Double lat,
-			@DecimalMin("-180") @DecimalMax("180") Double lng,
-			@Size(max = 50) String category) {
-	}
 
 
 	/**

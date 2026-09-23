@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.api.PlaceSnapshotRequest;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.service.UserSubmittedPlaceService;
 import com.gabolle.backend.story.domain.StorageCleanupEntry;
@@ -649,7 +650,7 @@ public class StoryService {
 	 * <p>규칙은 {@link UserSubmittedPlaceService} 에 있다. 여기서는 그쪽이 내는 오류를 이 API 의
 	 * 400 으로 옮기기만 한다 — 그러지 않으면 앱이 보낸 값이 잘못됐는데 500 이 나간다.
 	 */
-	private Place resolveSubmittedPlace(StoryCreateRequest.PlaceSnapshotRequest snapshot) {
+	private Place resolveSubmittedPlace(PlaceSnapshotRequest snapshot) {
 		try {
 			return this.userSubmittedPlaces.findOrCreate(new UserSubmittedPlaceService.Snapshot(
 					snapshot.source(), snapshot.externalId(), snapshot.name(), snapshot.address(),
