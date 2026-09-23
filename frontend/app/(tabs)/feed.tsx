@@ -9,6 +9,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { sortByDistance } from '@/social/nearby';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { PencilIcon } from '@/components/PencilIcon';
 import { RegionPicker } from '@/components/RegionPicker';
 import { composeEntryFor } from '@/social/composeEntry';
 import { PhotoGrid } from '@/components/PhotoGrid';
@@ -925,7 +926,7 @@ export default function Feed() {
                     둘 겹쳐서, 어느 것이 무엇인지 눌러 봐야 안다.
                     시안은 「orange 기록 FAB」이라고만 했지 글자를 정하지 않았다.
                 */}
-                <Text variant="title" weight="bold" color={color.text.onAction}>✎</Text>
+                <PencilIcon tint={color.text.onAction} />
               </Pressable>
             : null}
         </Animated.View>

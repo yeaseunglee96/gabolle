@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
+import { PencilIcon } from '@/components/PencilIcon';
 import { Text } from '@/components/Text';
 import { formatDayHeading } from '@/i18n/datetime';
 import { color, radius, spacing } from '@/design/tokens';
@@ -80,7 +81,7 @@ export function RecordsBrowser({
           {shown.map((story) => <RecordCard key={story.id} story={story} width={cardWidth} onPress={() => onOpen(story)} tx={tx} />)}
           {onCompose && !filtering ? (
             <Pressable accessibilityRole="button" onPress={onCompose} style={[styles.recordNew, cardWidth ? { width: cardWidth } : null]}>
-              <View style={styles.recordNewIcon}><Text weight="bold" color={color.text.onAction}>✎</Text></View>
+              <View style={styles.recordNewIcon}><PencilIcon tint={color.text.onAction} size={18} /></View>
               <Text weight="bold" numberOfLines={1}>{tx('새 기록 남기기', 'Write a record')}</Text>
               <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx('사진 3장까지', 'Up to 3 photos')}</Text>
             </Pressable>
