@@ -509,7 +509,11 @@ export default function PlanConditions() {
   );
 
   // ── 폰 — 위 칩 줄 · StepDots · 상태 문구 · 답한 행 · 질문 카드 · 다음 질문 ──
-  const answeredQuestions = PLAN_QUESTIONS.map((item, i) => ({ item, i })).filter(({ i }) => i < index && settledAt(i));
+  // 🔴 앞에 남은 «안 답한 필수 질문»도 이 목록에 넣는다 (-1540). 답한 것만 그리면, 기기에 남은
+  //    자리나 선택 질문 점으로 뒤에 선 사람이 「아직 안 답한 게 있어요: 여행 범위」만 보고 그 질문으로
+  //    돌아갈 줄을 못 찾는다 — 남는 길이 8px 점 하나였다. 넓은 화면은 레일이 이미 일곱을 다 그린다.
+  const answeredQuestions = PLAN_QUESTIONS.map((item, i) => ({ item, i, missed: !item.skippable && !item.answered(draft) }))
+    .filter(({ i, missed }) => i < index && (missed || settledAt(i)));
   const upcomingList = PLAN_QUESTIONS.slice(index + 1);
   const mobileColumn = (
     <View style={styles.questions}>
@@ -555,14 +559,22 @@ export default function PlanConditions() {
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
             </Pressable>
           ) : null}
-          {answeredQuestions.map(({ item, i }) => (
-            <Pressable key={item.key} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 수정', 'Edit %s', tx(item.ko, item.en))} onPress={() => goTo(i)} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
-              <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+          {answeredQuestions.map(({ item, i, missed }) => (
+            <Pressable
+              key={item.key}
+              accessibilityRole="button"
+              accessibilityLabel={missed ? txf(tx, '%s 답하기', 'Answer %s', tx(item.ko, item.en)) : txf(tx, '%s 수정', 'Edit %s', tx(item.ko, item.en))}
+              onPress={() => goTo(i)}
+              style={({ pressed }) => [styles.answeredRowItem, missed && styles.missedRowItem, pressed && styles.pressed]}
+            >
+              <View style={[styles.answeredCheck, missed && styles.missedMark]}><Text variant="micro" weight="bold" color={color.text.onAction}>{missed ? '!' : '✓'}</Text></View>
               <View style={styles.answeredBody}>
                 <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx(item.ko, item.en)}</Text>
-                <Text variant="caption" weight="bold" numberOfLines={1}>{summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko) || tx('건너뜀', 'Skipped')}</Text>
+                {missed
+                  ? <Text variant="caption" weight="bold" color={color.state.danger} numberOfLines={1}>{tx('아직 안 답했어요 · 필수', 'Not answered yet · required')}</Text>
+                  : <Text variant="caption" weight="bold" numberOfLines={1}>{summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko) || tx('건너뜀', 'Skipped')}</Text>}
               </View>
-              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
+              <Text variant="caption" weight="bold" color={missed ? color.state.danger : color.text.muted}>{missed ? tx('답하기', 'Answer') : tx('수정', 'Edit')}</Text>
             </Pressable>
           ))}
         </View>
@@ -699,6 +711,8 @@ const styles = StyleSheet.create({
   answeredList: { gap: spacing[1] },
   answeredRowItem: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   answeredCheck: { width: 18, height: 18, borderRadius: radius.full, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' },
+  missedRowItem: { borderWidth: 1, borderColor: color.state.danger, backgroundColor: color.state.dangerFieldBg },
+  missedMark: { backgroundColor: color.state.danger },
   answeredBody: { flex: 1, paddingVertical: spacing[1] },
   upcoming: { gap: 2, marginTop: spacing[2] },
   upcomingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[2] },

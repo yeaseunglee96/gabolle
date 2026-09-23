@@ -108,4 +108,14 @@ describe('여행 조건 문항 — 한 번에 하나 (S15P21E201-1425)', () => {
     const again = mount();
     await waitFor(() => expect(again.getByText('필수 2 / 3')).toBeTruthy());
   });
+
+  it('🔴 여행 범위를 안 답한 채 마지막 질문에서 열려도 폰 목록에 그 줄이 있고, 누르면 그 질문으로 간다 (S15P21E201-1540)', async () => {
+    // 기기에 남은 자리는 마지막인데 초안의 여행 범위는 비었다 — 로그아웃이 초안만 지우고 자리는 남긴 모양.
+    await AsyncStorage.setItem('gabolle:plan-questions-state', JSON.stringify({ open: 6, skipped: {} }));
+    const view = mount();
+    await waitFor(() => expect(view.getByText('선택 4 / 4')).toBeTruthy());
+    expect(view.getByText('아직 안 답했어요 · 필수')).toBeTruthy();
+    fireEvent.press(view.getByLabelText('여행 범위 답하기'));
+    await waitFor(() => expect(view.getByText('필수 1 / 3')).toBeTruthy());
+  });
 });
