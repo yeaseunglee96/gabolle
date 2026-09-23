@@ -237,7 +237,7 @@ export function ReplyCard({
             childrenError ? (
               <View accessibilityRole="alert" style={styles.replyNotice}>
                 <Text variant="caption" color={color.text.body}>{tx('답글을 불러오지 못했어요.', "We couldn't load the replies.")}</Text>
-                <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadChildren()} containerStyle={styles.recoveryButton} />
+                <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadChildren()} containerStyle={styles.recoveryButton} />
               </View>
             ) : loadingChildren || children === null ? (
               <ActivityIndicator color={color.action.primary} />
@@ -520,7 +520,7 @@ export default function StoryDetail() {
         <View style={styles.notice} accessibilityRole="alert" accessibilityLiveRegion="polite">
           <Text variant="title" weight="bold">{tx('신고가 접수됐어요', 'Report submitted')}</Text>
           <Text color={color.text.body}>{tx('신고한 기록은 더 이상 보이지 않아요. 24시간 안에 처리돼요.', 'This record is no longer shown to you. It will be reviewed within 24 hours.')}</Text>
-          <Button label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
+          <Button compact label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
         </View>
       ) : null}
 
@@ -601,7 +601,7 @@ export default function StoryDetail() {
           {repliesError ? (
             <View accessibilityRole="alert" style={styles.replyNotice}>
               <Text variant="caption" color={color.text.body}>{tx('댓글을 불러오지 못했어요.', "We couldn't load the comments.")}</Text>
-              <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReplies()} containerStyle={styles.recoveryButton} />
+              <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReplies()} containerStyle={styles.recoveryButton} />
             </View>
           ) : replies === null ? (
             <ActivityIndicator color={color.action.primary} />
@@ -665,7 +665,7 @@ export default function StoryDetail() {
         <View style={styles.notice} accessibilityRole="alert">
           <Text variant="title" weight="bold">{tx('기록을 찾을 수 없어요', 'Could not find this record')}</Text>
           <Text color={color.text.body}>{tx('삭제됐거나, 볼 수 없는 기록이에요.', "It's been deleted, or you don't have access to it.")}</Text>
-          <Button label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
+          <Button compact label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
         </View>
       ) : null}
 
@@ -674,7 +674,7 @@ export default function StoryDetail() {
           <GabolleMascot state="sad" style={styles.sadMascot} />
           <Text variant="title" weight="bold">{tx('기록을 불러오지 못했어요', "We couldn't load this record")}</Text>
           <Text color={color.text.body}>{state.message}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} containerStyle={styles.recoveryButton} />
+          <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} containerStyle={styles.recoveryButton} />
         </View>
       ) : null}
 

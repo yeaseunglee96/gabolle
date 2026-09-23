@@ -86,7 +86,7 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
       {state.status === 'unavailable' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
+          <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
 
