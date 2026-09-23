@@ -567,7 +567,7 @@ export default function PlanConditions() {
               onPress={() => goTo(i)}
               style={({ pressed }) => [styles.answeredRowItem, missed && styles.missedRowItem, pressed && styles.pressed]}
             >
-              <View style={[styles.answeredCheck, missed && styles.missedMark]}><Text variant="micro" weight="bold" color={color.text.onAction}>{missed ? '!' : '✓'}</Text></View>
+              <View style={[styles.answeredCheck, missed && styles.missedMark]}><Text variant="micro" weight="bold" color={missed ? color.state.danger : color.text.onAction}>{missed ? '!' : '✓'}</Text></View>
               <View style={styles.answeredBody}>
                 <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx(item.ko, item.en)}</Text>
                 {missed
@@ -712,7 +712,8 @@ const styles = StyleSheet.create({
   answeredRowItem: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   answeredCheck: { width: 18, height: 18, borderRadius: radius.full, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' },
   missedRowItem: { borderWidth: 1, borderColor: color.state.danger, backgroundColor: color.state.dangerFieldBg },
-  missedMark: { backgroundColor: color.state.danger },
+  // 🔴 위험은 채우지 않는다(check:palette) — 연분홍 바탕 + 빨간 「!」.
+  missedMark: { backgroundColor: color.state.dangerBg },
   answeredBody: { flex: 1, paddingVertical: spacing[1] },
   upcoming: { gap: 2, marginTop: spacing[2] },
   upcomingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[2] },
