@@ -9,6 +9,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { resolveTextLanguage } from '@/i18n/languages';
 import { lodgingSnapshotOf, MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, searchOrigins, type OriginCandidate } from '@/plan/origins';
+import { MonthPicker } from '@/home/MonthPicker';
+import { MAX_MONTH_OFFSET, monthOffsetOf } from '@/home/monthJump';
 import {
   EMPTY_START_BAR,
   type StartBarSection,
@@ -77,18 +79,27 @@ export function monthWeeks(year: number, month: number): Array<Array<string | nu
 }
 
 export function MonthGrid({
-  year, month, value, today, onPick, tx,
+  year, month, value, today, onPick, tx, onPressTitle, titleOpen = false,
 }: {
   year: number; month: number; value: StartBarValue; today: string;
   onPick: (key: string) => void; tx: (ko: string, en: string) => string;
+  /** 있으면 제목을 눌러 «달 바로 고르기»를 연다 — S15P21E201-1539. */
+  onPressTitle?: () => void;
+  titleOpen?: boolean;
 }) {
   const weeks = useMemo(() => monthWeeks(year, month), [year, month]);
   const heads = WEEKDAY_HEADS_KO.map((head, index) => tx(head, WEEKDAY_HEADS_EN[index]));
   return (
     <View style={styles.month}>
-      <Text variant="caption" weight="bold" style={styles.monthTitle}>
-        {tx(`${year}년 ${month + 1}월`, `${month + 1}/${year}`)}
-      </Text>
+      {onPressTitle
+        ? <Pressable accessibilityRole="button" accessibilityState={{ expanded: titleOpen }} onPress={onPressTitle} style={styles.monthTitleButton}>
+            <Text variant="caption" weight="bold" style={styles.monthTitle}>
+              {tx(`${year}년 ${month + 1}월`, `${month + 1}/${year}`)} {titleOpen ? '▴' : '▾'}
+            </Text>
+          </Pressable>
+        : <Text variant="caption" weight="bold" style={styles.monthTitle}>
+            {tx(`${year}년 ${month + 1}월`, `${month + 1}/${year}`)}
+          </Text>}
       <View style={styles.weekHead}>
         {heads.map((head, index) => (
           <Text key={`${head}-${index}`} variant="caption" color={color.text.muted} style={styles.headCell}>{head}</Text>
@@ -242,7 +253,12 @@ export function PlanStartBar({
   const [lodgingQuery, setLodgingQuery] = useState('');
   const [lodgingResults, setLodgingResults] = useState<OriginCandidate[]>([]);
   const [lodgingSearching, setLodgingSearching] = useState(false);
-  const [monthOffset, setMonthOffset] = useState(0);
+  // 이미 고른 출발일이 있으면 그 달부터 연다 — S15P21E201-1539. 이번 달부터 열면 고른 날을 보려고 › 를 또 눌러야 했다.
+  const [monthOffset, setMonthOffset] = useState(() => monthOffsetOf(value.startDate, today));
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+  // 🔴 여행 만들기 달력(DateRangeCard)과 같은 12개월 — 넓은 화면은 두 달을 나란히 그려서 한 칸 덜 넘긴다.
+  //    예전에는 끝없이 넘어가 13개월 뒤를 고를 수 있었고, 여행 만들기 달력은 그 달을 못 보였다.
+  const maxOffset = wide ? MAX_MONTH_OFFSET - 1 : MAX_MONTH_OFFSET;
   const todayKey = toDateKey(today);
   const summary = summarizeStartBar(value, tx);
   const ready = canAskForPlan(value);
@@ -485,14 +501,22 @@ export function PlanStartBar({
         >
           <Text weight="bold" color={monthOffset === 0 ? color.text.muted : color.text.heading}>‹</Text>
         </Pressable>
-        <Pressable onPress={() => setMonthOffset((n) => n + 1)} accessibilityRole="button" accessibilityLabel={tx('다음 달', 'Next month')} style={styles.navButton}>
-          <Text weight="bold">›</Text>
+        <Pressable
+          onPress={() => setMonthOffset((n) => Math.min(maxOffset, n + 1))}
+          disabled={monthOffset >= maxOffset}
+          accessibilityRole="button"
+          accessibilityLabel={tx('다음 달', 'Next month')}
+          style={styles.navButton}
+        >
+          <Text weight="bold" color={monthOffset >= maxOffset ? color.text.muted : color.text.heading}>›</Text>
         </Pressable>
       </View>
-      <View style={wide ? styles.monthRow : undefined}>
-        <MonthGrid {...monthBase} value={value} today={todayKey} onPick={pickDate} tx={tx} />
-        {wide ? <MonthGrid {...secondMonth} value={value} today={todayKey} onPick={pickDate} tx={tx} /> : null}
-      </View>
+      {monthPickerOpen
+        ? <MonthPicker today={today} selected={monthOffset} onPick={(offset) => { setMonthOffset(Math.min(maxOffset, offset)); setMonthPickerOpen(false); }} tx={tx} />
+        : <View style={wide ? styles.monthRow : undefined}>
+            <MonthGrid {...monthBase} value={value} today={todayKey} onPick={pickDate} tx={tx} onPressTitle={() => setMonthPickerOpen(true)} />
+            {wide ? <MonthGrid {...secondMonth} value={value} today={todayKey} onPick={pickDate} tx={tx} /> : null}
+          </View>}
       <View style={styles.chipRow}>
         {[0, 1, 2, 3].map((nights) => (
           <Pressable
@@ -770,6 +794,8 @@ const styles = StyleSheet.create({
   monthRow: { flexDirection: 'row', gap: spacing[6] },
   month: { flex: 1, gap: spacing[2] },
   monthTitle: { textAlign: 'center' },
+  // 제목을 누르는 자리 — 글자만으로는 누르기 작고 누를 수 있는 줄도 모른다. 알약으로 둔다.
+  monthTitleButton: { minHeight: 32, alignSelf: 'center', justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
   weekHead: { flexDirection: 'row' },
   grid: {},
   // 🔴 한 줄에 일곱 칸을 직접 넣는다. flexWrap 으로 접으면 폭 반올림 때문에 일곱째 칸이
