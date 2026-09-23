@@ -726,6 +726,10 @@ class RouteAuthorizationRegistryTest {
 				"갈래별 건수. 공용 기준 데이터다. PlaceFacetInterestTagIntegrationTest");
 		put(m, "GET /api/v1/places/categories", Policy.AUTHENTICATED_ONLY,
 				"적재된 place.category 값과 건수. 요청자와 무관한 공용 기준 데이터라 facets 와 같은 정책이다. PlaceCategoryServiceTest");
+		put(m, "GET /api/v1/places/condition-coverage", Policy.AUTHENTICATED_ONLY,
+				"어느 문항에 장소 자료가 있는지. 장소 표식 수를 세는 것이라 요청자와 무관한 공용 기준 데이터다 — "
+						+ "facets·categories 와 같은 정책이다. 사용자 답이 아니라 장소 쪽 덮임만 나가므로 "
+						+ "남의 취향이 새지 않는다. ConditionCoverageServiceTest");
 		put(m, "GET /api/v1/routes/directions", Policy.AUTHENTICATED_ONLY,
 				"좌표 두 개로 답이 정해진다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
 						+ "우리 카카오 키로 남이 길찾기를 대신 쓰는 것을 막기 위해서다. RouteControllerTest");

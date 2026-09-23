@@ -71,14 +71,21 @@ class ConditionCoverageQueryIntegrationTest extends PlacePostgresIntegrationTest
 	@Test
 	@DisplayName("🔴 한 장소에 같은 갈래가 여러 줄이어도 «한 곳»으로 센다")
 	void onePlaceWithManyRowsCountsOnce() {
+		// 🔴 절대값이 아니라 «늘어난 양»을 본다. 이 질의는 표 전체를 세므로 다른 검사가
+		//    남긴 행이 있으면 절대값이 달라진다 — 실제로 그렇게 CI 에서 빨개졌다.
+		//    이 검사가 보려는 것은 「3줄이 1곳으로 세어지는가」이고, 그건 차이로 봐야 한다.
+		long before = countsOf("ALLERGEN_TAG").getOrDefault("ALLERGEN_TAG", 0L);
+
 		UUID placeId = this.fixture.insertPlace("여러줄장소", null, "FOOD", 35.11, 129.01);
 		this.fixture.insertTagFeature(placeId, "ALLERGEN_TAG", "PEANUT", "VERIFIED", "true");
 		this.fixture.insertTagFeature(placeId, "ALLERGEN_TAG", "SHRIMP", "VERIFIED", "true");
 		this.fixture.insertTagFeature(placeId, "ALLERGEN_TAG", "MILK", "VERIFIED", "true");
 
-		// 줄로 세면 3, 장소로 세면 1 이다. 줄로 세면 알레르기 표식 열 줄이 붙은 한 곳이
-		// 「열 곳」이 되어 화면이 자료가 넉넉한 줄 안다.
-		assertThat(countsOf("ALLERGEN_TAG").get("ALLERGEN_TAG")).isEqualTo(1L);
+		long after = countsOf("ALLERGEN_TAG").getOrDefault("ALLERGEN_TAG", 0L);
+
+		// 줄로 세면 3 이 늘고, 장소로 세면 1 이 는다. 줄로 세면 알레르기 표식 열 줄이 붙은
+		// 한 곳이 「열 곳」이 되어 화면이 자료가 넉넉한 줄 안다.
+		assertThat(after - before).as("3줄을 넣었는데 장소 수가 1 만큼 늘지 않았다").isEqualTo(1L);
 	}
 
 	@Test
