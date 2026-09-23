@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,8 @@ import com.gabolle.backend.trip.domain.TravelArea;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 import com.gabolle.backend.trip.domain.TripTravelAreaRepository;
+import com.gabolle.backend.place.api.PlaceSnapshotRequest;
+import com.gabolle.backend.place.service.UserSubmittedPlaceService;
 import com.gabolle.backend.user.application.ConsentGuard;
 
 /** 여행 생성. 이 계층은 순서를 조율하고 트랜잭션 경계를 긋는다 — 업무 규칙은 도메인에 있다. */
@@ -57,16 +60,40 @@ public class TripCreationService {
     /** {@link #seedPlaces} 와 같은 이유로 {@link Optional} 이다. */
     private final Optional<TripTravelAreaRepository> travelAreas;
 
+    /**
+     * 🔴 {@code Optional} 인 것은 이 클래스가 프로필 없이 뜨는 문맥에도 있어서다.
+     *    {@code UserSubmittedPlaceService} 는 {@code db}·{@code dev} 에서만 있는
+     *    {@code PlaceRepository} 를 물고 있어, 그냥 주입하면 그 문맥이 통째로 못 뜬다
+     *    (S15P21E201-1096 에서 실제로 그렇게 깨졌다). 위 저장소 둘이 이미 같은 방식이다.
+     */
+    private final Optional<UserSubmittedPlaceService> userSubmittedPlaces;
+
+    /**
+     * 숙소 스냅샷을 안 푸는 판 — 그 기능을 안 쓰는 호출자(주로 시험)가 쓴다. 스냅샷이 와도
+     * {@code accommodationPlaceId} 만 본다.
+     */
     public TripCreationService(TripRepository repository, Clock clock,
                                PreferenceDefaultsService preferenceDefaults, ConsentGuard consentGuard,
                                Optional<TripSeedPlaceRepository> seedPlaces,
                                Optional<TripTravelAreaRepository> travelAreas) {
+        this(repository, clock, preferenceDefaults, consentGuard, seedPlaces, travelAreas, Optional.empty());
+    }
+
+    // 🔴 생성자가 둘이라 이 표시가 없으면 Spring 이 어느 것을 쓸지 못 정하고
+    //    "No default constructor found" 로 죽는다. 하나뿐일 때는 알아서 골랐다.
+    @Autowired
+    public TripCreationService(TripRepository repository, Clock clock,
+                               PreferenceDefaultsService preferenceDefaults, ConsentGuard consentGuard,
+                               Optional<TripSeedPlaceRepository> seedPlaces,
+                               Optional<TripTravelAreaRepository> travelAreas,
+                               Optional<UserSubmittedPlaceService> userSubmittedPlaces) {
         this.repository = repository;
         this.clock = clock;
         this.preferenceDefaults = preferenceDefaults;
         this.consentGuard = consentGuard;
         this.seedPlaces = seedPlaces;
         this.travelAreas = travelAreas;
+        this.userSubmittedPlaces = userSubmittedPlaces;
     }
 
     /**
@@ -101,6 +128,10 @@ public class TripCreationService {
         boolean usesPrivateCar = java.util.Arrays.asList(travelModes).contains("PRIVATE_CAR");
         Integer maxTransitTransfers = usesPrivateCar ? null : command.maxTransitTransfers();
 
+        // 숙소를 장소로 바꾼다. 앱이 우리 place_id 를 못 주고 좌표로만 보내던 것을 여기서 받는다
+        // (S15P21E201-1522). Trip 을 만들기 전에 해야 accommodation_place_id 외래키가 맞는다.
+        String accommodationPlaceId = resolveAccommodation(command);
+
         // timeWindow 는 원문을 그대로 넘긴다 — fingerprintOf 가 원문 기준이라, 파생값을 저장하면
         // 재시도 판정이 흔들린다.
         Trip trip = new Trip(tripId, command.userId(), command.ownerType(),
@@ -111,7 +142,7 @@ public class TripCreationService {
                 travelModes,
                 window.map(TimeWindows.TimeWindow::start).orElse(null),
                 window.map(TimeWindows.TimeWindow::end).orElse(null),
-                command.accommodationPlaceId(),
+                accommodationPlaceId,
                 command.englishMenuRequired(), command.foreignCardRequired(), command.soloFriendlyPriority(),
                 maxTransitTransfers,
                 pace,
@@ -299,6 +330,28 @@ public class TripCreationService {
         return valueJson;
     }
 
+    /**
+     * 이 여행의 숙소 {@code place_id}. 앱이 직접 준 것이 있으면 그것이고, 없고 스냅샷이
+     * 오면 그것으로 장소를 찾거나 만든다 — S15P21E201-1522.
+     *
+     * <p>🔴 빈이 없으면 스냅샷을 못 푼다. 그때는 {@code null} 로 둔다 — 여기서 던지면
+     * 숙소 하나 때문에 여행 생성 전체가 실패한다. 빈이 없는 것은 프로필이 좁은 문맥뿐이고
+     * 거기서는 어차피 저장이 일어나지 않는다.
+     */
+    private String resolveAccommodation(Command command) {
+        if (command.accommodationPlaceId() != null || command.accommodation() == null) {
+            return command.accommodationPlaceId();
+        }
+        UserSubmittedPlaceService resolver = this.userSubmittedPlaces.orElse(null);
+        if (resolver == null) {
+            return null;
+        }
+        PlaceSnapshotRequest snapshot = command.accommodation();
+        return resolver.findOrCreate(new UserSubmittedPlaceService.Snapshot(
+                snapshot.source(), snapshot.externalId(), snapshot.name(), snapshot.address(),
+                snapshot.lat(), snapshot.lng(), snapshot.category())).getPlaceId().toString();
+    }
+
     /** 응용 계층 입력. 표현 계층 DTO 를 도메인까지 끌고 들어가지 않는다. */
     public record Command(
             String userId,
@@ -325,7 +378,13 @@ public class TripCreationService {
             List<String> mustVisitPlaceIds,
 
             /** 모르는 코드는 저장 단계에서 버린다({@link TravelArea#of}). */
-            List<String> travelAreas) {
+            List<String> travelAreas,
+
+            /**
+             * 우리 표에 없는 숙소를 골랐을 때의 스냅샷 — S15P21E201-1522. {@code null} 이거나
+             * {@code accommodationPlaceId} 가 이미 있으면 안 본다.
+             */
+            PlaceSnapshotRequest accommodation) {
 
         /** 안 준 목록을 빈 목록으로 고정한다 — 뒤쪽이 null 을 다시 보지 않게 한다. */
         public Command {
@@ -341,7 +400,7 @@ public class TripCreationService {
                 boolean foreignCardRequired, boolean soloFriendlyPriority, Integer maxTransitTransfers) {
             this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
                     preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
-                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, List.of(), List.of());
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, List.of(), List.of(), null);
         }
 
         public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
@@ -352,7 +411,20 @@ public class TripCreationService {
                 List<String> mustVisitPlaceIds) {
             this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
                     preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
-                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, mustVisitPlaceIds, List.of());
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, mustVisitPlaceIds, List.of(), null);
+        }
+
+        /** 숙소 스냅샷 없이 목록 둘까지 주는 판. 그 기능을 안 쓰는 호출자가 쓴다. */
+        public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat,
+                Double originLng, Integer budgetKrw, int partySize, String timeWindow, String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences, List<ConstraintInput> constraints,
+                Trip.OwnerType ownerType, String accommodationPlaceId, boolean englishMenuRequired,
+                boolean foreignCardRequired, boolean soloFriendlyPriority, Integer maxTransitTransfers,
+                List<String> mustVisitPlaceIds, List<String> travelAreas) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow,
+                    timezone, preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, mustVisitPlaceIds,
+                    travelAreas, null);
         }
 
         public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
