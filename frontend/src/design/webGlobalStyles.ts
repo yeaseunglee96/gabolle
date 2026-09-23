@@ -26,6 +26,31 @@ export const webInputNoOutline: TextStyle | null = Platform.OS === 'web'
  *    이 앱은 web.output 을 안 정해 단일 페이지(single)로 내보내므로 거기 적어도 아무 데도 안 간다.
  *    JS 로 한 번 붙이면 개발 서버·내보내기·정적 어느 쪽이든 같다.
  */
+/**
+ * 🔴 일본어·중국어 화면에서는 `word-break: keep-all` 을 푼다 — S15P21E201-1525.
+ *
+ * `Text` 는 한국어가 낱말 중간에서 끊기지 않게 모든 글에 keep-all 을 준다(S15P21E201-1360).
+ * 그런데 keep-all 은 띄어쓰기에서만 끊으라는 뜻이라, 띄어쓰기가 없는 일본어·중국어 문장은
+ * **통째로 한 낱말**이 된다. 그러면 안전장치 `overflow-wrap: anywhere` 가 줄 끝에서 아무 데나
+ * 자르고, 이때는 「。」「、」를 줄 머리에 두지 않는 규칙(금칙)이 안 걸린다 — 리스트 빈 화면의
+ * 「…作成してみましょう / 。」, 알림의 「ここで見ら / れます。」(2026-09-23 일본어 웹).
+ *
+ * 언어는 `<html lang>` 으로 가른다(app/_layout.tsx 의 HtmlLangSync). 속성이 바뀌는 즉시 걸려서
+ * 다시 그릴 필요가 없다 — `Text` 가 렌더 때 언어를 읽으면 첫 로드의 언어가 렌더 뒤(effect)에
+ * 정해지는 탓에 첫 화면이 한국어 규칙으로 남는다. keep-all 은 인라인 style 로 붙으므로
+ * !important 가 아니면 못 덮는다. keep-all 을 단 글자만 고른다.
+ *
+ * `line-break: strict` 는 장음 「ー」·작은 가나까지 줄 머리에 못 오게 한다. 기본값(auto)은 이것을
+ * 허용해 「ベ / ース」처럼 낱말이 갈렸다(개인정보 화면 · 여행 만들기 칩).
+ */
+const CJK_LINE_BREAK = `
+html:lang(ja) [style*="word-break: keep-all"],
+html:lang(zh) [style*="word-break: keep-all"] {
+  word-break: normal !important;
+  line-break: strict;
+}
+`;
+
 const CSS = `
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -34,7 +59,8 @@ input:-webkit-autofill:focus {
   caret-color: ${color.text.heading};
   transition: background-color 600000s 0s, color 600000s 0s;
 }
-`;
+
+${CJK_LINE_BREAK}`;
 
 const STYLE_ID = 'gabolle-web-global-styles';
 
