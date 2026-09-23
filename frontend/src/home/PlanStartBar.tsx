@@ -8,7 +8,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { resolveTextLanguage } from '@/i18n/languages';
-import { MAJOR_BUSAN_ORIGINS, searchOrigins, type OriginCandidate } from '@/plan/origins';
+import { MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, searchOrigins, type OriginCandidate } from '@/plan/origins';
 import {
   EMPTY_START_BAR,
   type StartBarSection,
@@ -239,6 +239,9 @@ export function PlanStartBar({
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<OriginCandidate[]>([]);
   const [searching, setSearching] = useState(false);
+  const [lodgingQuery, setLodgingQuery] = useState('');
+  const [lodgingResults, setLodgingResults] = useState<OriginCandidate[]>([]);
+  const [lodgingSearching, setLodgingSearching] = useState(false);
   const [monthOffset, setMonthOffset] = useState(0);
   const todayKey = toDateKey(today);
   const summary = summarizeStartBar(value, tx);
@@ -247,6 +250,7 @@ export function PlanStartBar({
   //    (2026-09-21 승격 파이프라인 210801). 이유는 단추 안 둘째 줄로 적는다.
   const blocker = askForPlanBlocker(value, tx);
   const abortRef = useRef<AbortController | null>(null);
+  const lodgingAbortRef = useRef<AbortController | null>(null);
 
   // 출발지 검색 — 서버가 두 글자 미만을 거절하므로 나가기 전에 막는다.
   useEffect(() => {
@@ -267,9 +271,41 @@ export function PlanStartBar({
     return () => { clearTimeout(timer); controller.abort(); };
   }, [accessToken, query]);
 
+  // 숙소 검색 — 출발지와 같은 searchOrigins 를 재사용한다(design_handoff_home_lodging).
+  // 검색창·중단기를 따로 두는 이유는 두 칸이 동시에 타이핑될 수 있어서다(가짓 값이 아니다).
+  useEffect(() => {
+    const trimmed = lodgingQuery.trim();
+    if (trimmed.length < 2) { setLodgingResults([]); setLodgingSearching(false); return; }
+    const controller = new AbortController();
+    lodgingAbortRef.current?.abort();
+    lodgingAbortRef.current = controller;
+    setLodgingSearching(true);
+    const timer = setTimeout(async () => {
+      const outcome = await searchOrigins(trimmed, accessToken, controller.signal);
+      if (controller.signal.aborted) return;
+      setLodgingSearching(false);
+      setLodgingResults(outcome.state === 'success' ? outcome.items : []);
+    }, 250);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [accessToken, lodgingQuery]);
+
   const pickOrigin = (candidate: OriginCandidate) => {
     setValue((prev) => ({ ...prev, origin: candidate.name, originLat: candidate.lat, originLng: candidate.lng }));
     setQuery('');
+    // 출발지를 고르면 숙소로 넘어간다 — design_handoff_home_lodging.
+    setSection('lodging');
+  };
+
+  const pickLodging = (candidate: OriginCandidate) => {
+    setValue((prev) => ({ ...prev, lodging: candidate.name, lodgingLat: candidate.lat, lodgingLng: candidate.lng }));
+    setLodgingQuery('');
+    setSection('dates');
+  };
+
+  /** 「숙소 아직 안 정했어요」— 탈출구. 숙소는 선택 사항이라 미정으로 두고 다음 칸으로. */
+  const clearLodging = () => {
+    setValue((prev) => ({ ...prev, lodging: '', lodgingLat: null, lodgingLng: null }));
+    setLodgingQuery('');
     setSection('dates');
   };
 
@@ -293,6 +329,7 @@ export function PlanStartBar({
 
   const segmentLabel = (which: Exclude<Section, null>) => {
     if (which === 'origin') return value.origin || tx('어디서 출발해요?', 'Where from?');
+    if (which === 'lodging') return value.lodging || tx('어디에 머물러요?', 'Where are you staying?');
     if (which === 'dates') {
       if (!value.startDate) return tx('날짜 추가', 'Add dates');
       const days = dayCount(value.startDate, value.endDate || value.startDate);
@@ -409,6 +446,32 @@ export function PlanStartBar({
     </View>
   );
 
+  const lodgingPanel = (
+    <View style={styles.panel}>
+      <TextInput
+        value={lodgingQuery}
+        onChangeText={setLodgingQuery}
+        placeholder={tx('숙소 이름이나 동네를 검색해 보세요', 'Search a place or neighborhood')}
+        placeholderTextColor={color.text.muted}
+        style={styles.search}
+        accessibilityLabel={tx('숙소 검색', 'Search lodging')}
+      />
+      {lodgingSearching ? <ActivityIndicator color={color.action.primary} /> : null}
+      <Text variant="caption" color={color.text.muted}>{tx('추천 숙소 지역', 'Suggested areas to stay')}</Text>
+      {(lodgingResults.length ? lodgingResults : RECOMMENDED_LODGING_AREAS).map((candidate) => (
+        <Pressable key={candidate.externalId} onPress={() => pickLodging(candidate)} accessibilityRole="button" style={styles.originRow}>
+          <Text weight="bold">{candidate.name}</Text>
+          <Text variant="caption" color={color.text.muted}>{candidate.address}</Text>
+        </Pressable>
+      ))}
+      {/* 탈출구 — 항상 마지막. 검색 결과 중이어도 그대로 둔다, 언제든 «안 정했다」로 빠져나갈 수 있게. */}
+      <Pressable onPress={clearLodging} accessibilityRole="button" style={styles.originRow}>
+        <Text weight="bold">{tx('숙소 아직 안 정했어요', 'Not decided yet')}</Text>
+        <Text variant="caption" color={color.text.muted}>{tx('출발지 기준으로 일정을 짜요', "We'll plan around your starting point")}</Text>
+      </Pressable>
+    </View>
+  );
+
   const datePanel = (
     <View style={styles.panel}>
       <View style={styles.monthNav}>
@@ -484,7 +547,7 @@ export function PlanStartBar({
     </View>
   );
 
-  const panel = section === 'origin' ? originPanel : section === 'dates' ? datePanel : section === 'people' ? peoplePanel : null;
+  const panel = section === 'origin' ? originPanel : section === 'lodging' ? lodgingPanel : section === 'dates' ? datePanel : section === 'people' ? peoplePanel : null;
 
   // 홈이 시트를 맡으면(onOpenSheet) 알약 아래 패널은 안 그린다 — 같은 것을 두 자리에
   // 그리게 된다. 시트를 안 쓰는 자리는 지금까지대로 아래로 펼친다.
@@ -496,6 +559,7 @@ export function PlanStartBar({
   if (sheet) {
     const cards = [
       { key: 'origin' as const, label: tx('출발지', 'From'), body: originPanel },
+      { key: 'lodging' as const, label: tx('숙소', 'Lodging'), body: lodgingPanel },
       { key: 'dates' as const, label: tx('날짜', 'Dates'), body: datePanel },
       { key: 'people' as const, label: tx('인원', 'Travelers'), body: peoplePanel },
     ];
@@ -562,7 +626,7 @@ export function PlanStartBar({
             pointerEvents="none"
             style={[styles.highlight, { left: highlightX, width: highlightW, opacity: highlightO }]}
           />
-          {(['origin', 'dates', 'people'] as const).map((which, index) => (
+          {(['origin', 'lodging', 'dates', 'people'] as const).map((which, index) => (
             <Pressable
               key={which}
               onPress={() => toggle(which)}
@@ -576,7 +640,7 @@ export function PlanStartBar({
               style={[styles.segment, index > 0 && styles.segmentDivider]}
             >
               <Text variant="caption" color={color.text.muted}>
-                {which === 'origin' ? tx('출발지', 'From') : which === 'dates' ? tx('날짜', 'Dates') : tx('인원', 'Travelers')}
+                {which === 'origin' ? tx('출발지', 'From') : which === 'lodging' ? tx('숙소', 'Lodging') : which === 'dates' ? tx('날짜', 'Dates') : tx('인원', 'Travelers')}
               </Text>
               <Text weight="bold" numberOfLines={1}>{segmentLabel(which)}</Text>
             </Pressable>
@@ -617,10 +681,10 @@ export function PlanStartBar({
         >
           {!wide ? (
             <View style={styles.phoneTabs}>
-              {(['origin', 'dates', 'people'] as const).map((which) => (
+              {(['origin', 'lodging', 'dates', 'people'] as const).map((which) => (
                 <Pressable key={which} onPress={() => setSection(which)} accessibilityRole="button" style={[styles.phoneTab, section === which && styles.phoneTabOn]}>
                   <Text variant="caption" weight="bold" color={section === which ? color.text.onAction : color.text.heading}>
-                    {which === 'origin' ? tx('출발지', 'From') : which === 'dates' ? tx('날짜', 'Dates') : tx('인원', 'Travelers')}
+                    {which === 'origin' ? tx('출발지', 'From') : which === 'lodging' ? tx('숙소', 'Lodging') : which === 'dates' ? tx('날짜', 'Dates') : tx('인원', 'Travelers')}
                   </Text>
                 </Pressable>
               ))}
@@ -671,7 +735,8 @@ const styles = StyleSheet.create({
   // 이것이 화면의 «유일한 입력 진입점»이라, 선이 없으면 다른 카드들 사이에 묻힌다.
   // 검색 입력(styles.search)에는 넣지 않는다 — 그건 이 바 «안»의 부품이다.
   bar: {
-    flexDirection: 'row', alignItems: 'center', alignSelf: 'center', width: '100%', maxWidth: 860, minHeight: 72,
+    // maxWidth 920 — 칸이 넷(출발지·숙소·날짜·인원)이 되어 860 에서 넓혔다(design_handoff_home_lodging).
+    flexDirection: 'row', alignItems: 'center', alignSelf: 'center', width: '100%', maxWidth: 920, minHeight: 72,
     padding: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.action.outline,
   },
   segment: { flex: 1, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
@@ -688,7 +753,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.action.outline,
   },
   panelShell: { marginTop: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
-  panelShellWide: { alignSelf: 'center', width: '100%', maxWidth: 860 },
+  panelShellWide: { alignSelf: 'center', width: '100%', maxWidth: 920 },
   // 🔴 높이를 묶지 않는다. 420 을 걸어 두면 두 달 달력이 넘쳐 스크롤이 생기고,
   // 그 스크롤이 칸 전환의 위아래 움직임까지 삼켜서 애니메이션이 안 보였다.
   // 내용 길이대로 늘어난다 — 모바일은 시트 자체가 스크롤한다.

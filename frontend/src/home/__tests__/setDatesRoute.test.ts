@@ -40,6 +40,7 @@ describe('주소의 ?edit= 를 열 칸으로 바꾼다', () => {
 describe('이미 답한 것을 시작 바에 다시 채운다', () => {
   const draft = {
     origin: '부산역', originLat: 35.1152, originLng: 129.0403,
+    lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604,
     startDate: '2026-09-20', endDate: '2026-09-22',
     adults: 3, children: 1,
   };
