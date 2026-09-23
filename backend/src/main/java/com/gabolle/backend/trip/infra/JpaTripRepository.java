@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,7 @@ import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.UserPreferenceDefaultsSaved;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -42,6 +44,7 @@ public class JpaTripRepository implements TripRepository {
 	private final PreferenceAnswerJpaRepository preferenceAnswerJpaRepository;
 	private final ConstraintSnapshotJpaRepository constraintSnapshotJpaRepository;
 	private final ConstraintAnswerJpaRepository constraintAnswerJpaRepository;
+	private final ApplicationEventPublisher events;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -51,13 +54,15 @@ public class JpaTripRepository implements TripRepository {
 			PreferenceSnapshotJpaRepository preferenceSnapshotJpaRepository,
 			PreferenceAnswerJpaRepository preferenceAnswerJpaRepository,
 			ConstraintSnapshotJpaRepository constraintSnapshotJpaRepository,
-			ConstraintAnswerJpaRepository constraintAnswerJpaRepository) {
+			ConstraintAnswerJpaRepository constraintAnswerJpaRepository,
+			ApplicationEventPublisher events) {
 		this.tripJpaRepository = tripJpaRepository;
 		this.memberJpaRepository = memberJpaRepository;
 		this.preferenceSnapshotJpaRepository = preferenceSnapshotJpaRepository;
 		this.preferenceAnswerJpaRepository = preferenceAnswerJpaRepository;
 		this.constraintSnapshotJpaRepository = constraintSnapshotJpaRepository;
 		this.constraintAnswerJpaRepository = constraintAnswerJpaRepository;
+		this.events = events;
 	}
 
 	@Override
@@ -236,6 +241,10 @@ public class JpaTripRepository implements TripRepository {
 					UUID.randomUUID(), snapshotId, answer.dimension(), answer.valueJson(),
 					answer.status(), toOffset(at)));
 		}
+		// 취향 판을 새로 접게 알린다 (S15P21E201-1515). 여기서 내는 이유는 계정 기본 취향을 쓰는
+		// 문이 이 메서드 하나라서다 — 설문(PreferenceDefaultsService)도 씀씀이(SpendProfileService)도
+		// 여기를 지난다. 받는 쪽은 커밋 뒤에 돈다. 커밋 전에 접으면 롤백된 설문으로 판을 만든다.
+		this.events.publishEvent(new UserPreferenceDefaultsSaved(ownerUserId));
 		return new PreferenceSnapshot(snapshotId.toString(), null, nextVersion, answers,
 				PersonalizationScope.USER, List.of(), at);
 	}
