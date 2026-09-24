@@ -106,6 +106,10 @@ public record CreateTripRequest(
          * <p>🔴 모르는 코드가 와도 <b>400 이 아니다.</b> 그 칸만 비운다 —
          * {@code TravelArea.of} 가 그렇게 만들어져 있고 이유도 적혀 있다: 앱이 새 지역을 먼저
          * 내보내는 날 여행 생성이 막히면 안 된다.
+         *
+         * <p>🔴 <b>단, 1박 이상 여행은 숙소가 있어야 한다</b>(S15P21E201-1585). 모르는 코드만 오고
+         * 숙소 장소도 없으면 숙소가 없는 여행이라 {@code accommodation} 칸으로 400 이다 — 만들어 놓고
+         * 추천을 못 받는 여행을 남기지 않는다. 당일치기는 그대로 칸만 비운다.
          */
         @Size(max = 30) String accommodationArea) {
 

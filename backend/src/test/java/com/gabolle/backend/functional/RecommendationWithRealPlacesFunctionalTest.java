@@ -230,6 +230,8 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 				Map.entry("originLat", originLat),
 				Map.entry("originLng", originLng),
 				Map.entry("partySize", 2),
+				// 1박이라 숙소가 있어야 한다(S15P21E201-1585). 출발지(우암동)에서 가까운 동네로.
+				Map.entry("accommodationArea", "SEOMYEON"),
 				Map.entry("timeWindow", "09:00-18:00"),
 				Map.entry("timezone", "Asia/Seoul"),
 				Map.entry("preferences", java.util.List.of(

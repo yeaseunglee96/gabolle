@@ -131,6 +131,9 @@ public class TripCreationService {
         // 숙소를 장소로 바꾼다. 앱이 우리 place_id 를 못 주고 좌표로만 보내던 것을 여기서 받는다
         // (S15P21E201-1522). Trip 을 만들기 전에 해야 accommodation_place_id 외래키가 맞는다.
         String accommodationPlaceId = resolveAccommodation(command);
+        // 🔴 1박 이상이면 숙소가 있어야 한다(S15P21E201-1585). 스냅샷을 장소로 바꾼 뒤에 본다 — 검색으로 고른 호텔도 숙소다.
+        TripConditionRules.requireLodging(command.startDate(), command.finishDate(), accommodationPlaceId,
+                command.accommodationArea());
 
         // timeWindow 는 원문을 그대로 넘긴다 — fingerprintOf 가 원문 기준이라, 파생값을 저장하면
         // 재시도 판정이 흔들린다.

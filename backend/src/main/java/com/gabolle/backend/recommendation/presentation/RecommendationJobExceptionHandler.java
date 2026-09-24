@@ -12,6 +12,7 @@ import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.recommendation.application.RecommendationJobIdempotencyConflictException;
 import com.gabolle.backend.trip.application.TripQueryService;
+import com.gabolle.backend.trip.domain.TripConditionRules;
 
 /** 추천 Job 생성·조회의 오류를 HTTP 로 번역한다. */
 // assignableTypes 에서 컨트롤러가 빠지면 TripQueryService.TripNotFoundException 이 아무에게도
@@ -26,6 +27,19 @@ public class RecommendationJobExceptionHandler {
 		// 아래 handleInvalid 와 같은 이유로 번역 키 대신 문장을 넣는다.
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(ApiResponse.failure(new ApiError("TRIP_NOT_FOUND", "해당 여행을 찾을 수 없어요."), requestId()));
+	}
+
+	/**
+	 * 여행 조건이 추천을 받을 수 없다 — 지금은 숙소 없는 1박 이상 여행(S15P21E201-1585). 여행 만들기
+	 * ({@code TripExceptionHandler})와 <b>같은 코드·같은 모양</b>으로 낸다. 화면이 칸 이름으로 문장을 고르므로
+	 * 두 곳이 다르면 같은 잘못에 다른 말이 뜬다. 아래 {@link #handleInvalid} 보다 구체적인 타입이라 먼저 잡힌다.
+	 */
+	@ExceptionHandler(TripConditionRules.TripConditionRejectedException.class)
+	public ResponseEntity<ApiResponse<Void>> handleTripConditionRejected(
+			TripConditionRules.TripConditionRejectedException e) {
+		return ResponseEntity.badRequest().body(ApiResponse.failure(
+				new ApiError("TRIP_VALIDATION_FAILED", "입력한 조건 중 서버가 받지 못한 것이 있어요.", e.fieldLines()),
+				requestId()));
 	}
 
 	/** 없는 작업 번호(또는 남의 작업 번호 — 둘을 구분해 응답하지 않는다). */

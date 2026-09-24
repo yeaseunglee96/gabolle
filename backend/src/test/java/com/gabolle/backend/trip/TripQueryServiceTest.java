@@ -1,5 +1,6 @@
 package com.gabolle.backend.trip;
 
+import static com.gabolle.backend.trip.support.TripCommands.withLodging;
 import java.util.Optional;
 import com.gabolle.backend.user.support.ConsentGuards;
 
@@ -41,7 +42,7 @@ class TripQueryServiceTest {
     }
 
     private TripCreationService.Command command() {
-        return new TripCreationService.Command(
+        return withLodging(new TripCreationService.Command(
                 "usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604,
@@ -51,7 +52,7 @@ class TripQueryServiceTest {
                         "quietness", "3", PreferenceSnapshot.AnswerStatus.SELECTED)),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "MOBILITY", "MAX_WALKING_METERS", TripConstraint.Severity.HARD, "LTE", null, 5000.0,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null))));
     }
 
     @Test
@@ -92,9 +93,9 @@ class TripQueryServiceTest {
     @Test
     @DisplayName("조건 없이 만든 여행을 조회하면 빈 목록이 나온다 - null 이 아니다")
     void tripWithNoConstraintsReturnsEmptyListNotNull() {
-        var noConstraints = new TripCreationService.Command("usr_1",
+        var noConstraints = withLodging(new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                35.1587, 129.1604, null, 1, null, null, List.of(), List.of()); // 출발지 좌표 - 이 검사가 재는 것은 빈 제약 목록이지 좌표가 아니다
+                35.1587, 129.1604, null, 1, null, null, List.of(), List.of())); // 출발지 좌표 - 이 검사가 재는 것은 빈 제약 목록이지 좌표가 아니다
         var created = creationService.create(noConstraints, null);
 
         var view = queryService.get(created.trip().tripId(), "usr_1");

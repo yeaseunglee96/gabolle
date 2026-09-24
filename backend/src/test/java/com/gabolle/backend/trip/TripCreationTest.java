@@ -1,5 +1,6 @@
 package com.gabolle.backend.trip;
 
+import static com.gabolle.backend.trip.support.TripCommands.withLodging;
 import java.util.Optional;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.user.support.ConsentGuards;
@@ -63,10 +64,10 @@ class TripCreationTest {
         var preferences = new java.util.ArrayList<>(base.preferences());
         preferences.add(new PreferenceSnapshot.PreferenceAnswer(
                 "pace", "\"" + pace + "\"", PreferenceSnapshot.AnswerStatus.SELECTED));
-        return new TripCreationService.Command(
+        return withLodging(new TripCreationService.Command(
                 base.userId(), base.startDate(), base.finishDate(), base.originLat(), base.originLng(),
                 base.budgetKrw(), base.partySize(), base.timeWindow(), base.timezone(),
-                preferences, base.constraints());
+                preferences, base.constraints()));
     }
 
     @Test
@@ -88,7 +89,7 @@ class TripCreationTest {
     }
 
     private TripCreationService.Command command() {
-        return new TripCreationService.Command(
+        return withLodging(new TripCreationService.Command(
                 "usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604,
@@ -101,7 +102,7 @@ class TripCreationTest {
                                 "theme", "NATURE", PreferenceSnapshot.AnswerStatus.SELECTED)),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "MOBILITY", "MAX_WALKING_METERS", TripConstraint.Severity.HARD, "LTE", null, 5000.0,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null))));
     }
 
     @Test
@@ -161,13 +162,13 @@ class TripCreationTest {
     @Test
     @DisplayName("건너뛴 취향과 안 물어본 취향이 값 없이 저장되고 서로 구분된다")
     void skippedAndUnknownPreferencesAreDistinctWithoutValues() {
-        var withSkipAndUnknown = new TripCreationService.Command("usr_1",
+        var withSkipAndUnknown = withLodging(new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, // 출발지 좌표 — 이 검사가 재는 것은 좌표가 아니다
                 List.of(
                         new PreferenceSnapshot.PreferenceAnswer("theme", null, PreferenceSnapshot.AnswerStatus.SKIPPED),
                         new PreferenceSnapshot.PreferenceAnswer("locality", null, PreferenceSnapshot.AnswerStatus.UNKNOWN)),
-                List.of());
+                List.of()));
 
         var result = service.create(withSkipAndUnknown, null);
         var snapshot = repository.findLatestSnapshot(result.trip().tripId()).orElseThrow();
@@ -196,7 +197,7 @@ class TripCreationTest {
     @Test
     @DisplayName("제약도 없다와 안 물어봄을 값 없이 구분해 저장한다")
     void constraintNoneAndUnknownAreDistinctWithoutValues() {
-        var withNoneAndUnknown = new TripCreationService.Command("usr_1",
+        var withNoneAndUnknown = withLodging(new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(
@@ -205,7 +206,7 @@ class TripCreationTest {
                                 TripConstraint.AnswerStatus.NONE, null),
                         new TripCreationService.Command.ConstraintInput("MOBILITY", "MAX_WALKING_METERS", TripConstraint.Severity.SOFT,
                                 null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
-                                TripConstraint.AnswerStatus.UNKNOWN, null)));
+                                TripConstraint.AnswerStatus.UNKNOWN, null))));
 
         var result = service.create(withNoneAndUnknown, null);
         List<TripConstraint> constraints = repository.findConstraints(result.trip().tripId());
@@ -260,11 +261,11 @@ class TripCreationTest {
     void sameKeyDifferentBodyIsRejected() {
         service.create(command(), "key_1");
 
-        var different = new TripCreationService.Command(
+        var different = withLodging(new TripCreationService.Command(
                 "usr_1",
                 LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
                 35.1587, 129.1604, 300000, 2,
-                "MORNING_TO_EVENING", "Asia/Seoul", List.of(), List.of());
+                "MORNING_TO_EVENING", "Asia/Seoul", List.of(), List.of()));
 
         assertThrows(TripRepository.IdempotencyKeyConflictException.class,
                 () -> service.create(different, "key_1"));
@@ -315,9 +316,9 @@ class TripCreationTest {
     @Test
     @DisplayName("종료일이 시작일보다 앞이면 거부된다")
     void finishBeforeStartIsRejected() {
-        var bad = new TripCreationService.Command("usr_1",
+        var bad = withLodging(new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 8), LocalDate.of(2026, 9, 6),
-                null, null, null, 1, null, null, List.of(), List.of());
+                null, null, null, 1, null, null, List.of(), List.of()));
 
         assertThrows(IllegalArgumentException.class, () -> service.create(bad, null));
     }
@@ -325,9 +326,9 @@ class TripCreationTest {
     @Test
     @DisplayName("인원이 0명이면 거부된다")
     void zeroPartySizeIsRejected() {
-        var bad = new TripCreationService.Command("usr_1",
+        var bad = withLodging(new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 0, null, null, List.of(), List.of());
+                null, null, null, 0, null, null, List.of(), List.of()));
 
         assertThrows(IllegalArgumentException.class, () -> service.create(bad, null));
     }
@@ -335,12 +336,12 @@ class TripCreationTest {
     @Test
     @DisplayName("알레르기 자유 입력(OTHER)은 거부된다 - 암호화 경로가 없다")
     void sensitiveFreeTextConstraintIsRejected() {
-        var withAllergy = new TripCreationService.Command("usr_1",
+        var withAllergy = withLodging(new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "ALLERGY", "OTHER", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.NONE, null)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.NONE, null))));
 
         assertThrows(TripConstraint.SensitiveConstraintNotSupportedException.class,
                 () -> service.create(withAllergy, null));
@@ -359,12 +360,12 @@ class TripCreationTest {
                 new PreferenceDefaultsService(repository, Clock.fixed(NOW, ZoneOffset.UTC)),
                 ConsentGuards.refusing(), Optional.empty(), Optional.empty());
 
-        var withAllergy = new TripCreationService.Command(CONSENTING_USER,
+        var withAllergy = withLodging(new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "ALLERGY", "PEANUT", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null))));
 
         var refused = assertThrows(AuthException.class, () -> refusing.create(withAllergy, null));
         assertEquals("HEALTH_CONSENT_REQUIRED", refused.getCode());
@@ -394,13 +395,13 @@ class TripCreationTest {
                 new PreferenceDefaultsService(repository, Clock.fixed(NOW, ZoneOffset.UTC)),
                 ConsentGuards.refusing(), Optional.empty(), Optional.empty());
 
-        var withPreferredDiet = new TripCreationService.Command(CONSENTING_USER,
+        var withPreferredDiet = withLodging(new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "VEGETARIAN", TripConstraint.Severity.SOFT, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,
-                        TripConstraint.DietRequirement.PREFERRED)));
+                        TripConstraint.DietRequirement.PREFERRED))));
 
         var result = refusing.create(withPreferredDiet, null);
 
@@ -410,12 +411,12 @@ class TripCreationTest {
     @Test
     @DisplayName("2026-09-04 회귀 - 코드로 된 알레르기(PEANUT)는 저장된다 (고지혁 님 리뷰)")
     void codedAllergyConstraintIsAllowed() {
-        var withAllergy = new TripCreationService.Command(CONSENTING_USER,
+        var withAllergy = withLodging(new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "ALLERGY", "PEANUT", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null))));
 
         var result = service.create(withAllergy, null);
         var allergy = repository.findConstraints(result.trip().tripId()).get(0);
@@ -425,13 +426,13 @@ class TripCreationTest {
     @Test
     @DisplayName("2026-09-04 회귀 - DIET+REQUIRED 자유 입력은 거부된다 (HEALTH_DIET 판정 구멍 수정)")
     void requiredDietConstraintIsRejected() {
-        var withRequiredDiet = new TripCreationService.Command("usr_1",
+        var withRequiredDiet = withLodging(new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "OTHER", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.NONE,
-                        TripConstraint.DietRequirement.REQUIRED)));
+                        TripConstraint.DietRequirement.REQUIRED))));
 
         assertThrows(TripConstraint.SensitiveConstraintNotSupportedException.class,
                 () -> service.create(withRequiredDiet, null));
@@ -440,13 +441,13 @@ class TripCreationTest {
     @Test
     @DisplayName("코드로 된 DIET+REQUIRED(예: HALAL)는 저장된다 - 구조화된 값이다")
     void codedRequiredDietConstraintIsAllowed() {
-        var withHalal = new TripCreationService.Command(CONSENTING_USER,
+        var withHalal = withLodging(new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "HALAL", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,
-                        TripConstraint.DietRequirement.REQUIRED)));
+                        TripConstraint.DietRequirement.REQUIRED))));
 
         var result = service.create(withHalal, null);
         var diet = repository.findConstraints(result.trip().tripId()).get(0);
@@ -456,13 +457,13 @@ class TripCreationTest {
     @Test
     @DisplayName("DIET+PREFERRED 는 값을 보내도 저장된다 - 민감하지 않다")
     void preferredDietConstraintIsAllowed() {
-        var withPreferredDiet = new TripCreationService.Command("usr_1",
+        var withPreferredDiet = withLodging(new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "VEGETARIAN", TripConstraint.Severity.SOFT, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,
-                        TripConstraint.DietRequirement.PREFERRED)));
+                        TripConstraint.DietRequirement.PREFERRED))));
 
         var result = service.create(withPreferredDiet, null);
         var diet = repository.findConstraints(result.trip().tripId()).get(0);
@@ -482,12 +483,12 @@ class TripCreationTest {
     @Test
     @DisplayName("HARD 제약에 비교 방법이 없으면 거부된다 - 판정할 수 없다")
     void hardConstraintNeedsOperator() {
-        var noOperator = new TripCreationService.Command("usr_1",
+        var noOperator = withLodging(new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 null, null, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "MOBILITY", "MAX_WALKING_METERS", TripConstraint.Severity.HARD, null, null, 5000.0,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null))));
 
         assertThrows(IllegalArgumentException.class, () -> service.create(noOperator, null));
     }

@@ -101,7 +101,9 @@ class ShareLinkJourneyFunctionalTest extends FunctionalJourneyTest {
 		CreateTripRequest.ConstraintInput walkingConstraint = new CreateTripRequest.ConstraintInput(
 				"MOBILITY", "MAX_WALKING_METERS", "SOFT", "LTE", null, 2000.0, "SELECTED", null);
 		CreateTripRequest tripRequest = new CreateTripRequest(start, finish, originLat, originLng, null, 2, null,
-				null, List.of(categoryAnswer), null, List.of(walkingConstraint), null, null, null, null, null);
+				null, List.of(categoryAnswer), null, List.of(walkingConstraint), null, null, null, null, null,
+				// 1박이라 숙소가 있어야 한다(S15P21E201-1585). 출발지(부산역)에서 가까운 동네로.
+				null, null, null, "NAMPO");
 		ResponseEntity<ApiResponse<TripDto>> tripResponse = owner.post("/api/v1/trips", tripRequest,
 				new ParameterizedTypeReference<ApiResponse<TripDto>>() {
 				});
@@ -143,7 +145,9 @@ class ShareLinkJourneyFunctionalTest extends FunctionalJourneyTest {
 
 		// 5) 복제는 비로그인으로는 안 된다 — 401.
 		CreateTripRequest cloneRequest = new CreateTripRequest(start, finish, originLat, originLng, null, 2, null,
-				null, List.of(categoryAnswer), null, List.of(walkingConstraint), null, null, null, null, null);
+				null, List.of(categoryAnswer), null, List.of(walkingConstraint), null, null, null, null, null,
+				// 1박이라 숙소가 있어야 한다(S15P21E201-1585). 출발지(부산역)에서 가까운 동네로.
+				null, null, null, "NAMPO");
 		ResponseEntity<String> unauthedClone = this.rest.exchange(
 				"/api/v1/shares/" + token + "/clone", HttpMethod.POST, new HttpEntity<>(cloneRequest), String.class);
 		assertThat(unauthedClone.getStatusCode())

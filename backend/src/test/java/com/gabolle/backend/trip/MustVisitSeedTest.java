@@ -1,5 +1,6 @@
 package com.gabolle.backend.trip;
 
+import static com.gabolle.backend.trip.support.TripCommands.withLodging;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -162,7 +163,7 @@ class MustVisitSeedTest {
 	}
 
 	private TripCreationService.Command command(List<String> mustVisitPlaceIds, List<String> travelAreas) {
-		return new TripCreationService.Command(
+		return withLodging(new TripCreationService.Command(
 				"usr_1",
 				LocalDate.of(2026, 10, 12), LocalDate.of(2026, 10, 13),
 				35.1587, 129.1604,
@@ -174,6 +175,6 @@ class MustVisitSeedTest {
 				com.gabolle.backend.trip.domain.Trip.OwnerType.USER,
 				null, false, false, false, null,
 				mustVisitPlaceIds,
-				travelAreas);
+				travelAreas));
 	}
 }
