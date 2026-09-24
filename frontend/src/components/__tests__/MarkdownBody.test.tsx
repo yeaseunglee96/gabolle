@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { MarkdownBody } from '../MarkdownBody';
@@ -37,6 +38,23 @@ describe('마크다운 글 그리기', () => {
   it('마크다운을 안 쓴 기존 글이 그대로 보인다', () => {
     const view = mount('오늘 해운대에 다녀왔어요.');
     expect(view.getByText('오늘 해운대에 다녀왔어요.')).toBeTruthy();
+  });
+
+  it('🔴 제목 세 단계가 크기로 갈린다 — # > ## > ### > 본문 (S15P21E201-1597)', () => {
+    // 전에는 제목 안쪽 글자 조각이 본문 크기(15)를 스스로 박아서 바깥 제목 크기를 덮었다.
+    // 그래서 # 도 화면에서는 본문 크기에 굵게만 보였다. 글자가 실제로 받는 크기를 잰다.
+    const view = mount('# 하나\n\n## 둘\n\n### 셋\n\n본문');
+    const size = (text: string) => StyleSheet.flatten(view.getByText(text).props.style).fontSize as number;
+    expect(size('하나')).toBeGreaterThan(size('둘'));
+    expect(size('둘')).toBeGreaterThan(size('셋'));
+    expect(size('셋')).toBeGreaterThan(size('본문'));
+  });
+
+  it('제목 안의 굵게·링크도 제목 크기를 따른다', () => {
+    const view = mount('# 해운대 **바다** [지도](https://example.com)');
+    const size = (text: string) => StyleSheet.flatten(view.getByText(text).props.style).fontSize as number;
+    expect(size('바다')).toBe(size('해운대 '));
+    expect(size('지도')).toBe(size('해운대 '));
   });
 
   it('빈 글이면 아무것도 안 그린다', () => {
