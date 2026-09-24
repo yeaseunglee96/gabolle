@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face { font-family: 'Pretendard-Regular'; src: url('assets/fonts/Pretendard-Regular.ttf'); font-weight: 400; }
+@font-face { font-family: 'Pretendard-Medium'; src: url('assets/fonts/Pretendard-Medium.ttf'); font-weight: 500; }
+@font-face { font-family: 'Pretendard-Bold'; src: url('assets/fonts/Pretendard-Bold.ttf'); font-weight: 700; }
+body { margin: 0; background: #DADCE2; font-family: 'Pretendard-Regular', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; word-break: keep-all; overflow-wrap: anywhere; }
+a { color: #191919; text-decoration: none; } a:hover { color: #444444; }
+</style>
+</helmet>
+<section style="display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start; padding: 64px;">
+<div id="desktop" style="display: flex; flex-direction: column; gap: 12px;"><div style="display: flex; align-items: center; gap: 8px; font-family: 'Pretendard-Bold'; font-size: 14px; color: #191919;"><span style="background: #191919; color: #FFFFFF; padding: 2px 8px; border-radius: 6px;">데스크톱</span>1440 · 카드 격자 3열 · 최대 1200</div>
+<div data-screen-label="내 여행 · 데스크톱 2b" style="width: 1440px; min-height: 900px; background: #F5F5F7; display: flex; flex-direction: column;"><div style="background: #E9E9EC;">
+      <div style="height: 36px; padding: 0 40px; display: flex; flex-direction: row; align-items: center; justify-content: flex-end; gap: 12px;">
+        <div style="display: flex; align-items: center;"><div style="height: 36px; width: 30px; display: flex; align-items: center; justify-content: center;"><img src="assets/flags/kr.png" style="width: 20px; height: 14px; border-radius: 2px; object-fit: contain;"></div></div>
+        <div style="display: flex; align-items: center;"><div style="width: 1px; height: 14px; background: #DADCE2; margin-right: 8px;"></div><div style="height: 36px; width: 30px; display: flex; align-items: center; justify-content: center; opacity: 0.55;"><img src="assets/flags/us.png" style="width: 20px; height: 14px; border-radius: 2px; object-fit: contain;"></div></div>
+        <div style="display: flex; align-items: center;"><div style="width: 1px; height: 14px; background: #DADCE2; margin-right: 8px;"></div><div style="height: 36px; width: 30px; display: flex; align-items: center; justify-content: center; opacity: 0.55;"><img src="assets/flags/jp.png" style="width: 20px; height: 14px; border-radius: 2px; object-fit: contain;"></div></div>
+        <div style="display: flex; align-items: center;"><div style="width: 1px; height: 14px; background: #DADCE2; margin-right: 8px;"></div><div style="height: 36px; width: 30px; display: flex; align-items: center; justify-content: center; opacity: 0.55;"><img src="assets/flags/cn.png" style="width: 20px; height: 14px; border-radius: 2px; object-fit: contain;"></div></div>
+        <div style="display: flex; align-items: center;"><div style="width: 1px; height: 14px; background: #DADCE2; margin-right: 8px;"></div><div style="height: 36px; width: 30px; display: flex; align-items: center; justify-content: center; opacity: 0.55;"><img src="assets/flags/tw.png" style="width: 20px; height: 14px; border-radius: 2px; object-fit: contain;"></div></div>
+        <div style="width: 1px; height: 14px; background: #DADCE2;"></div>
+        <div style="height: 36px; width: 32px; display: flex; align-items: center; justify-content: center;"><img src="assets/icons/bell.png" style="width: 18px; height: 18px; object-fit: contain;"></div>
+        <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ true }}">
+          <div style="height: 36px; display: flex; align-items: center; padding: 0 4px; max-width: 160px; font-family: 'Pretendard-Bold'; font-size: 14px; line-height: 20px; color: #191919; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ userName }}</div>
+        </sc-if>
+        <sc-if value="{{ guest }}" hint-placeholder-val="{{ false }}">
+          <div style="height: 36px; display: flex; align-items: center; padding: 0 4px; font-family: 'Pretendard-Bold'; font-size: 14px; line-height: 20px; color: #6F6F6F;">로그인</div>
+          <div style="height: 36px; display: flex; align-items: center; padding: 0 4px; font-family: 'Pretendard-Bold'; font-size: 14px; line-height: 20px; color: #191919;">회원가입</div>
+        </sc-if>
+      </div>
+    </div>
+    <div style="height: 60px; padding: 0 40px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; background: #FFFFFF; border-bottom: 1px solid #EBEBEF;">
+      <div style="min-height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px;"><img src="assets/brand/gabolle-logo-hd.png" style="width: 154px; height: 28px; object-fit: contain;"></div>
+      <div style="display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 4px;">
+        <div style="height: 40px; padding: 0 20px; display: flex; align-items: center; justify-content: center; font-family: 'Pretendard-Medium'; font-size: 15px; line-height: 23px; color: #444444;">홈</div>
+        <div style="height: 40px; padding: 0 20px; display: flex; align-items: center; justify-content: center; font-family: 'Pretendard-Medium'; font-size: 15px; line-height: 23px; color: #444444;">피드</div>
+        <div style="position: relative; height: 40px; padding: 0 20px; display: flex; align-items: center; justify-content: center; font-family: 'Pretendard-Bold'; font-size: 15px; line-height: 23px; color: #191919;">내 여행<div style="position: absolute; bottom: -10px; left: 50%; margin-left: -2.5px; width: 5px; height: 5px; border-radius: 999px; background: #F25454;"></div></div>
+      </div>
+      <div style="display: flex; flex-direction: row; align-items: center; gap: 16px;">
+        <div style="height: 40px; padding: 0 16px; border-radius: 14px; border: 1px solid #D83A48; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Pretendard-Bold'; font-size: 15px; line-height: 23px; color: #D83A48; white-space: nowrap;">여행 만들기</div>
+      </div>
+    </div>
+
+    <div style="width: 100%; max-width: 1200px; align-self: center; padding: 24px 24px 32px;"><div style="margin-top: 24px; display: flex; flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 12px;">
+<div style="flex: 1; min-width: 0;"><div style="font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #6F6F6F;">여행 목록</div><div style="margin-top: 4px; margin-bottom: 8px; font-family: 'Pretendard-Bold'; font-size: 26px; line-height: 34px; letter-spacing: -0.2px; color: #191919;">내 여행</div><div style="font-size: 15px; line-height: 23px; color: #444444;">내가 만들었거나 초대받은 여행이에요.</div></div><div style="display: flex; flex-direction: row; gap: 8px;">
+<div style="width: 96px; min-height: 48px; padding: 12px 0; border-radius: 14px; background: #FFFFFF; border: 1.5px solid #D83A48; display: flex; align-items: center; justify-content: center; font-family: 'Pretendard-Bold'; font-size: 15px; line-height: 23px; color: #D83A48;">새 여행</div></div></div><div style="margin-top: 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch;"><sc-for list="{{ trips }}" as="trip" hint-placeholder-count="3">
+            <div style="padding: 16px; border-radius: 20px; border: 1px solid #EBEBEF; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 10px rgba(25,25,25,0.06); height: 100%; justify-content: space-between;">
+              <div style="display: flex; flex-direction: column; gap: 12px; cursor: pointer;">
+                <sc-if value="{{ trip.cover }}" hint-placeholder-val="{{ false }}"><img src="{{ trip.cover }}" style="width: 100%; height: 160px; border-radius: 14px; background: #E9E9EC; object-fit: cover; display: block;"></sc-if><sc-if value="{{ trip.noCover }}" hint-placeholder-val="{{ false }}"><div style="width: 100%; height: 160px; border-radius: 14px; background: #F0F0F3;"></div></sc-if>
+                <div style="display: flex; flex-direction: row; align-items: center; gap: 12px;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="font-family: 'Pretendard-Bold'; font-size: 18px; line-height: 24px; color: #191919;">{{ trip.cardTitle }}</div>
+                    <sc-if value="{{ trip.dateSub }}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; line-height: 18px; color: #6F6F6F;">{{ trip.dateSub }}</div></sc-if>
+                    <sc-if value="{{ trip.invited }}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; line-height: 18px; color: #6F6F6F;">초대받은 여행</div></sc-if>
+                  </div>
+                  <div style="font-size: 18px; line-height: 24px; color: #6F6F6F;">›</div>
+                </div>
+                <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px;">
+                  <sc-if value="{{ trip.pending }}" hint-placeholder-val="{{ false }}"><div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #FEF0F1; border: 1px solid #B02A38; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #B02A38;">일정 준비 중</div></sc-if>
+                  <sc-if value="{{ trip.live }}" hint-placeholder-val="{{ false }}"><div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #E9E9EC; display: flex; flex-direction: row; align-items: center; gap: 4px;"><div style="width: 6px; height: 6px; border-radius: 999px; background: #2E9E5B;"></div><div style="font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #2E9E5B;">{{ trip.statusLabel }}</div></div></sc-if>
+                  <sc-if value="{{ trip.plain }}" hint-placeholder-val="{{ true }}"><div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #E9E9EC; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #191919;">{{ trip.statusLabel }}</div></sc-if>
+                  <sc-if value="{{ trip.timing }}" hint-placeholder-val="{{ true }}"><div style="font-size: 13px; line-height: 18px; color: #6F6F6F;">{{ trip.timing }}</div></sc-if>
+                  <div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #E9E9EC; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #6F6F6F;">{{ trip.days }}</div>
+                  <div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #E9E9EC; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #6F6F6F;">{{ trip.party }}</div>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <div style="align-self: flex-start; min-height: 44px; display: flex; align-items: center; padding: 0 12px; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #191919; white-space: nowrap;">{{ trip.renameLabel }}</div>
+                <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 18px; line-height: 24px; color: #6F6F6F;">⋯</div>
+              </div>
+            </div>
+          </sc-for></div></div></div></div>
+<div id="mobile" style="display: flex; flex-direction: column; gap: 12px;">
+  <div style="display: flex; align-items: center; gap: 8px; font-family: 'Pretendard-Bold'; font-size: 14px; color: #191919;"><span style="background: #191919; color: #FFFFFF; padding: 2px 8px; border-radius: 6px;">모바일</span>390 × 844</div>
+  <div data-screen-label="내 여행 · 모바일" style="position: relative; width: 390px; height: 844px; background: #F5F5F7; overflow: hidden;">
+    <div style="position: absolute; inset: 0; overflow-y: auto; padding-top: 47px;">
+      <div style="width: 100%; padding: 24px 24px 130px;">
+        <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 12px;">
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #6F6F6F;">여행 목록</div>
+            <div style="margin-top: 4px; margin-bottom: 8px; font-family: 'Pretendard-Bold'; font-size: 26px; line-height: 34px; letter-spacing: -0.2px; color: #191919;">내 여행</div>
+            <div style="font-size: 15px; line-height: 23px; color: #444444;">내가 만들었거나 초대받은 여행이에요.</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="width: 96px; min-height: 48px; padding: 12px 0; border-radius: 14px; background: #FFFFFF; border: 1.5px solid #D83A48; display: flex; align-items: center; justify-content: center; font-family: 'Pretendard-Bold'; font-size: 15px; line-height: 23px; color: #D83A48;">새 여행</div>
+          </div>
+        </div>
+
+        <sc-if value="{{ guest }}" hint-placeholder-val="{{ false }}">
+          <div style="min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center;">
+            <div style="font-family: 'Pretendard-Bold'; font-size: 15px; line-height: 23px; color: #444444;">비회원으로 여행 만들기 화면을 둘러볼 수 있어요.</div>
+            <div style="font-size: 15px; line-height: 23px; color: #444444;">내 여행을 저장하고 다시 보려면 로그인해 주세요.</div>
+            <div style="min-width: 180px; margin-top: 8px; min-height: 48px; padding: 12px 16px; border-radius: 14px; background: #D83A48; display: flex; align-items: center; justify-content: center; font-family: 'Pretendard-Bold'; font-size: 15px; line-height: 23px; color: #FFFFFF;">여행 만들기 둘러보기</div>
+            <div style="min-width: 180px; margin-top: 8px; min-height: 48px; padding: 12px 16px; border-radius: 14px; background: #E9E9EC; display: flex; align-items: center; justify-content: center; font-family: 'Pretendard-Bold'; font-size: 15px; line-height: 23px; color: #191919;">로그인</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+          <div style="min-height: 320px; margin-top: 24px; padding: 24px; border-radius: 20px; border: 1px solid #DADCE2; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+            <img src="assets/mascot/dongbaek-open.png" style="width: 110px; height: 110px; object-fit: contain;">
+            <div style="font-family: 'Pretendard-Bold'; font-size: 18px; line-height: 24px; color: #191919;">아직 만든 여행이 없어요</div>
+            <div style="max-width: 300px; text-align: center; font-size: 15px; line-height: 23px; color: #444444;">여행을 만들면 이곳에 보여드려요.</div>
+            <div style="min-width: 180px; margin-top: 8px; min-height: 48px; padding: 12px 16px; border-radius: 14px; background: #D83A48; display: flex; align-items: center; justify-content: center; font-family: 'Pretendard-Bold'; font-size: 15px; line-height: 23px; color: #FFFFFF;">첫 여행 만들기</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasTrips }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+            <sc-for list="{{ trips }}" as="trip" hint-placeholder-count="3">
+              <div style="padding: 16px; border-radius: 20px; border: 1px solid #EBEBEF; background: #FFFFFF; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 10px rgba(25,25,25,0.06);">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <sc-if value="{{ trip.cover }}" hint-placeholder-val="{{ false }}"><img src="{{ trip.cover }}" style="width: 100%; height: 132px; border-radius: 14px; background: #E9E9EC; object-fit: cover; display: block;"></sc-if>
+                  <div style="display: flex; flex-direction: row; align-items: center; gap: 12px;">
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                      <div style="font-family: 'Pretendard-Bold'; font-size: 18px; line-height: 24px; color: #191919;">{{ trip.cardTitle }}</div>
+                      <sc-if value="{{ trip.dateSub }}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; line-height: 18px; color: #6F6F6F;">{{ trip.dateSub }}</div></sc-if>
+                      <sc-if value="{{ trip.invited }}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; line-height: 18px; color: #6F6F6F;">초대받은 여행</div></sc-if>
+                    </div>
+                    <div style="font-size: 18px; line-height: 24px; color: #6F6F6F;">›</div>
+                  </div>
+                  <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px;">
+                    <sc-if value="{{ trip.pending }}" hint-placeholder-val="{{ false }}"><div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #FEF0F1; border: 1px solid #B02A38; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #B02A38;">일정 준비 중</div></sc-if>
+                    <sc-if value="{{ trip.live }}" hint-placeholder-val="{{ false }}"><div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #E9E9EC; display: flex; flex-direction: row; align-items: center; gap: 4px;"><div style="width: 6px; height: 6px; border-radius: 999px; background: #2E9E5B;"></div><div style="font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #2E9E5B;">{{ trip.statusLabel }}</div></div></sc-if>
+                    <sc-if value="{{ trip.plain }}" hint-placeholder-val="{{ true }}"><div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #E9E9EC; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #191919;">{{ trip.statusLabel }}</div></sc-if>
+                    <sc-if value="{{ trip.timing }}" hint-placeholder-val="{{ true }}"><div style="font-size: 13px; line-height: 18px; color: #6F6F6F;">{{ trip.timing }}</div></sc-if>
+                    <div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #E9E9EC; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #6F6F6F;">{{ trip.days }}</div>
+                    <div style="padding: 4px 12px; white-space: nowrap; border-radius: 999px; background: #E9E9EC; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #6F6F6F;">{{ trip.party }}</div>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                  <div style="align-self: flex-start; min-height: 44px; display: flex; align-items: center; padding: 0 12px; font-family: 'Pretendard-Bold'; font-size: 13px; line-height: 18px; color: #191919; white-space: nowrap;">{{ trip.renameLabel }}</div>
+                  <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 18px; line-height: 24px; color: #6F6F6F;">⋯</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; padding-bottom: 34px; display: flex; flex-direction: column; align-items: center; z-index: 30;">
+      <div style="width: 358px; max-width: 328px; height: 64px; overflow: hidden; background: #FFFFFF; border-radius: 20px; box-shadow: 0 -2px 14px rgba(25,25,25,0.10);">
+        <div style="display: flex; flex-direction: row; align-items: center; height: 64px; padding: 0 8px;">
+          <div style="flex: 1; min-height: 53px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
+            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><img src="assets/icons/home-muted.png" style="width: 20px; height: 20px; object-fit: contain;"></div>
+            <div style="font-size: 12px; line-height: 16px; letter-spacing: 0.2px; color: #8B8B8B;">홈</div>
+          </div>
+          <div style="flex: 1; min-height: 53px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
+            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><img src="assets/icons/heart-muted.png" style="width: 20px; height: 20px; object-fit: contain;"></div>
+            <div style="font-size: 12px; line-height: 16px; letter-spacing: 0.2px; color: #8B8B8B;">피드</div>
+          </div>
+          <div style="flex: 1; min-height: 53px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
+            <div style="width: 32px; height: 32px; border-radius: 16px; background: #D83A48; display: flex; align-items: center; justify-content: center;"><img src="assets/icons/plus.png" style="width: 20px; height: 20px; object-fit: contain;"></div>
+            <div style="font-size: 12px; line-height: 16px; letter-spacing: 0.2px; color: #8B8B8B;">여행 만들기</div>
+          </div>
+          <div style="flex: 1; min-height: 53px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
+            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><img src="assets/icons/map-active.png" style="width: 20px; height: 20px; object-fit: contain;"></div>
+            <div style="font-family: 'Pretendard-Bold'; font-size: 12px; line-height: 16px; letter-spacing: 0.2px; color: #191919;">내 여행</div>
+          </div>
+          <div style="flex: 1; min-height: 53px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
+            <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><img src="assets/icons/user-muted.png" style="width: 20px; height: 20px; object-fit: contain;"></div>
+            <div style="font-size: 12px; line-height: 16px; letter-spacing: 0.2px; color: #8B8B8B;">마이페이지</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;state&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;여행 있음&quot;, &quot;빈 목록&quot;, &quot;비회원&quot;], &quot;default&quot;: &quot;여행 있음&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;화면 상태&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const state = this.props.state ?? '여행 있음';
+    const guest = state === '비회원';
+    const empty = state === '빈 목록';
+    const hasTrips = state === '여행 있음';
+    const raw = [
+      { title: '부산 가족여행', date: '9월 26일 (토) – 9월 28일 (월)', cover: 'assets/covers/haeundae.png', status: 'READY', timing: '2일 뒤 출발', days: '3일', party: '4명', role: 'OWNER' },
+      { title: '', date: '9월 23일 (수) – 9월 25일 (금)', cover: 'assets/covers/gamcheon.png', status: 'IN_PROGRESS', timing: '여행 2일째', days: '3일', party: '2명', role: 'EDITOR' },
+      { title: '', date: '10월 10일 (토) – 10월 11일 (일)', cover: null, status: 'PLANNING', timing: '16일 뒤 출발', days: '2일', party: '1명', role: 'OWNER' },
+      { title: '광안리 야경 투어', date: '9월 12일 (토) – 9월 13일 (일)', cover: null, status: 'COMPLETED', timing: '지난 여행', days: '2일', party: '2명', role: 'OWNER' },
+    ];
+    const label = { READY: '예정', IN_PROGRESS: '진행 중', COMPLETED: '다녀옴' };
+    const trips = raw.map((t) => ({
+      cover: t.cover,
+      noCover: !t.cover,
+      cardTitle: t.title || t.date,
+      dateSub: t.title ? t.date : null,
+      invited: t.role !== 'OWNER',
+      pending: t.status === 'PLANNING',
+      live: t.status === 'IN_PROGRESS',
+      plain: t.status === 'READY' || t.status === 'COMPLETED',
+      statusLabel: label[t.status] || '',
+      timing: t.timing,
+      days: t.days,
+      party: t.party,
+      renameLabel: t.title ? '이름 바꾸기' : '이름 붙이기',
+    }));
+    return { guest, signedIn: !guest, empty, hasTrips, trips, userName: '김부산' };
+  }
+}
+</script>
+</body>
+</html>
