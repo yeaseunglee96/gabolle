@@ -159,6 +159,17 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     static final double BUDGET_OVERRUN_ALLOWANCE = 0.20;
 
     /**
+     * 카페는 하루 한 곳까지 — 남는 자리는 명소(문화·자연·도시·바다)가 먼저 앉는다 (S15P21E201-1573).
+     *
+     * <p>밥집은 끼니 수로 상한이 있지만 카페는 없어서, 카테고리를 안 고른 여행이 하루 4곳 중 밥집 2 · 카페 1~2 · 명소 0~1
+     * 로 짜였다(운영 실측 2026-09-24 — 후보에는 문화 18·자연 7 이 있었다). 사용자 요청: 고르지 않아도 액티비티·자연이 끼게.
+     * 명소가 모자라면 미뤄 둔 카페가 빈 자리를 채운다 — 자리를 비우지 않는다(카페에는 끼니 규칙이 없다).
+     */
+    static final String CAFE_CATEGORY = "CAFE_HEALING";
+
+    static final int MAX_CAFE_PER_DAY = 1;
+
+    /**
      * 장소마다의 대표 메뉴 값. 없으면(시험용 조립·가격 계층이 없는 컨텍스트) 예산 상한을 안 건다 — 모르는 값으로
      * 막지 않는다.
      */
@@ -419,6 +430,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         }
 
         int[] foodPerDay = new int[days];
+        int[] cafePerDay = new int[days];
 
         // S15P21E201-1493 — 좌표를 미리 한 번에 읽는다. 없으면(저장소가 못 주면) 아래 배정은
         // 예전처럼 "자리 있는 첫 날" 로 떨어진다 — 좌표가 없다고 일정 생성이 멈추면 안 된다.
@@ -444,7 +456,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             if (cap != null && cap.wouldExceed(place)) {
                 continue;
             }
-            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor, true)) {
+            if (!seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, true)) {
                 deferred.add(place);
             }
             else if (cap != null) {
@@ -462,13 +474,27 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 // 예산으로 뺀 것은 「밥집밖에 없어 비웠다」가 아니다 — 그 경고에 안 센다.
                 continue;
             }
-            if (seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false)) {
+            if (seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false)) {
                 if (cap != null) {
                     cap.take(place);
                 }
             }
             else if (isFood(place)) {
                 rejectedFood++;
+            }
+        }
+
+        // 세 번째 훑기 — 명소로 못 채운 자리가 남으면 미뤄 둔 카페로 메운다(카페 상한을 풀고). 빈 자리보다 카페가 낫다.
+        for (ItineraryDraftCommand.PlannedPlace place : deferred) {
+            if (!isCafe(place) || byDay.stream().anyMatch(day -> day.contains(place))) {
+                continue;
+            }
+            if (cap != null && cap.wouldExceed(place)) {
+                continue;
+            }
+            if (seat(byDay, foodPerDay, cafePerDay, false, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false)
+                    && cap != null) {
+                cap.take(place);
             }
         }
 
@@ -556,11 +582,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      *     이것이 없으면 앞쪽 후보가 자리를 다 채워 뒤의 「지역이 맞는 후보」가 차례를 못 얻는다
      *     (S15P21E201-1494)
      */
-    private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay,
-            ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay,
+    private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay, int[] cafePerDay,
+            boolean enforceCafeCap, ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay,
             Map<UUID, double[]> coords, double[][] dayAnchor, boolean regionOnly) {
 
         boolean food = isFood(place);
+        boolean cafe = isCafe(place);
         double[] here = coords.get(place.placeId());
 
         int best = -1;
@@ -570,6 +597,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 continue;
             }
             if (food && foodPerDay[day] >= mealsPerDay) {
+                continue;
+            }
+            if (cafe && enforceCafeCap && cafePerDay[day] >= MAX_CAFE_PER_DAY) {
                 continue;
             }
             if (here == null || dayAnchor[day] == null) {
@@ -598,6 +628,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         byDay.get(best).add(place);
         if (food) {
             foodPerDay[best]++;
+        }
+        if (cafe) {
+            cafePerDay[best]++;
         }
         return true;
     }
@@ -723,6 +756,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     /** 갈래를 모르면 밥집이 아닌 것으로 다룬다 — 모르는 것을 끼니로 세지 않는다. */
     private boolean isFood(ItineraryDraftCommand.PlannedPlace place) {
         return place.category() != null && place.category().equalsIgnoreCase(this.foodCategory);
+    }
+
+    private static boolean isCafe(ItineraryDraftCommand.PlannedPlace place) {
+        return place.category() != null && place.category().equalsIgnoreCase(CAFE_CATEGORY);
     }
 
     /**
