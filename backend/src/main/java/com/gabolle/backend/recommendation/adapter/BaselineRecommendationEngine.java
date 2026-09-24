@@ -31,6 +31,7 @@ import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.preference.domain.TasteWeightComponent;
 import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
 import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
+import com.gabolle.backend.place.service.MenuPriceWon;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
@@ -45,8 +46,6 @@ import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
-
-import tools.jackson.databind.JsonNode;
 
 /**
  * 규칙 기반 BASELINE 추천 엔진. 학습 모델·온톨로지 서버가 아직 없는 동안 이 엔진이
@@ -576,7 +575,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * 등급으로 채우면 조사 안 된 곳이 특정 등급인 것처럼 점수를 받는다. 값이 있는 곳이 아직
 	 * 6,866곳 중 189곳뿐이라 이 구분이 특히 중요하다.
 	 */
-	private static Map<UUID, String> priceBandsOf(PlaceCandidateResponse response) {
+	static Map<UUID, String> priceBandsOf(PlaceCandidateResponse response) {
 		Map<UUID, String> bandByPlace = new LinkedHashMap<>();
 		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
 			String band = null;
@@ -594,9 +593,11 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 					}
 				}
 				else if (BudgetFit.WON_FEATURE_TYPE.equals(feature.featureType()) && fromWon == null) {
-					JsonNode won = feature.value().path("priceWon");
-					if (won.isNumber()) {
-						fromWon = BudgetFit.bandOfWon(won.asInt());
+					// 비용을 읽는 다른 곳과 같은 판정을 거친다 — 「2인 세트」 값은 1인분이 아니라 모름이다
+					// (S15P21E201-1615). 여기서 따로 읽으면 가격대만 비싼 곳으로 잘못 매겨진다.
+					Integer won = MenuPriceWon.wonOfNode(feature.value());
+					if (won != null) {
+						fromWon = BudgetFit.bandOfWon(won);
 					}
 				}
 			}
