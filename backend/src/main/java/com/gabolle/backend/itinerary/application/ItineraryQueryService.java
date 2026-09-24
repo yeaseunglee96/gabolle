@@ -259,10 +259,23 @@ public class ItineraryQueryService {
 			}
 
 			days.add(new ItineraryDetailResponse.Day(date.toString(), items,
-					returnLegOf(trip, dayIndex, lodging, itemsOfDay)));
+					returnLegOf(trip, dayIndex, lodging, itemsOfDay), startOf(trip, dayIndex, lodging)));
 			date = date.plusDays(1);
 		}
 		return days;
+	}
+
+	/**
+	 * 그날 출발 자리 — 첫 구간을 잴 때 쓴 것과 <b>같은 함수</b>({@link ItineraryLegPlanner#startAnchor})에서 꺼낸다.
+	 * 여기서 규칙을 다시 쓰면 앱이 적는 출발지와 서버가 잰 이동 시간이 어긋날 수 있다.
+	 */
+	private ItineraryDetailResponse.Start startOf(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging) {
+		if (this.legPlanner == null) {
+			return null;
+		}
+		ItineraryLegPlanner.Anchor start = this.legPlanner.startAnchor(trip, dayIndex, lodging);
+		return (start == null) ? null
+				: new ItineraryDetailResponse.Start(start.kind(), start.label(), start.lat(), start.lng());
 	}
 
 	/**
