@@ -18,7 +18,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
-import { applyReaction, nextReaction, StoryReactionRow, type Reaction } from '@/social/StoryReactionRow';
+import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
@@ -108,8 +108,32 @@ export function ReplyCard({
   const [saveError, setSaveError] = useState('');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  // 좋아요는 이 카드가 낙관적으로 맞춘다 — 원글과 같은 규칙(applyReaction). 댓글도 글이라 같은 반응 주소를 쓴다.
+  // 인용·저장은 댓글에 없다 — linkCopyCount 를 비워 두면 반응 줄이 인용 칸을 안 그린다.
+  const [reaction, setReaction] = useState<ReactableStory>(() => ({
+    myReaction: reply.myReaction, likeCount: reply.likeCount, dislikeCount: reply.dislikeCount, linkCopyCount: undefined,
+  }));
+  const [reacting, setReacting] = useState(false);
 
   const startEdit = () => { setDraft(reply.body); setSaveError(''); setEditing(true); };
+
+  const react = async (pressed: Reaction) => {
+    if (!accessToken || reacting) return;
+    const next = nextReaction(reaction.myReaction, pressed);
+    setReacting(true);
+    const outcome = await setStoryReaction(reply.id, next, accessToken);
+    setReacting(false);
+    if (outcome.state === 'success') setReaction((current) => applyReaction(current, next));
+  };
+
+  // 수정·삭제·신고는 원글처럼 ⋯ 메뉴 하나로 — 댓글마다 글자 단추가 늘어서면 본문보다 단추가 먼저 읽힌다.
+  const menuItems: DropdownMenuItem[] = reply.mine
+    ? [
+        { key: 'edit', label: tx('수정', 'Edit'), onPress: startEdit },
+        { key: 'delete', label: tx('삭제', 'Delete'), destructive: true, onPress: () => setConfirmingDelete(true) },
+      ]
+    : [{ key: 'report', label: tx('신고', 'Report'), onPress: () => onReport(reply.id) }];
 
   const saveEdit = async () => {
     const body = draft.trim();
@@ -156,14 +180,26 @@ export function ReplyCard({
   // 서버가 세는 값이라 이쪽이 진짜다. 0 이면 단추 자체를 안 그린다 — 눌러도 빈 목록만 나온다.
   const childCount = reply.replyCount ?? 0;
 
+  // 🔴 트위터 답글형(사용자 결정 2026-09-24, S15P21E201-1576) — 원글과 같은 머리(동그라미·이름·시간·⋯)에 본문·사진,
+  //    그 아래 좋아요·답글 줄. 답글을 펼치면 왼쪽 동그라미 밑으로 세로선이 이어져 한 줄기로 읽힌다.
   return (
     <View style={styles.reply}>
-      <View style={styles.replyHead}>
+      <View style={styles.replyRail}>
         <View style={styles.replyAvatar}>
           <Text variant="caption" weight="bold" color={color.text.onAction}>{reply.author.displayName.slice(0, 1)}</Text>
         </View>
-        <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.grow}>{reply.author.displayName}</Text>
-        <Text variant="caption" color={color.text.muted}>{relativeStoryTime(reply.createdAt, tx)}</Text>
+        {expanded && childCount > 0 ? <View style={styles.replyRailLine} /> : null}
+      </View>
+
+      <View style={styles.replyMain}>
+      <View style={styles.replyHead}>
+        <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.replyName}>{reply.author.displayName}</Text>
+        <Text variant="caption" color={color.text.muted} style={styles.grow}>{relativeStoryTime(reply.createdAt, tx)}</Text>
+        {!editing && !confirmingDelete ? (
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 더 보기', 'More comment options')} onPress={() => setMenuOpen(true)} style={styles.replyMenuButton}>
+            <Text variant="body" weight="bold" color={color.text.muted}>⋯</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       {editing ? (
@@ -190,49 +226,37 @@ export function ReplyCard({
         ? <PhotoGrid photos={reply.images.map((image) => ({ uri: image.url }))} compact accessibilityLabel={tx('댓글 사진', 'Comment photo')} style={styles.replyPhotos} />
         : null}
 
-      {!editing ? (
-        <View style={styles.replyActions}>
-          {reply.mine ? (
-            confirmingDelete ? (
-              <View style={styles.confirmRow}>
-                <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('댓글을 삭제할까요?', 'Delete this comment?')}</Text>
-                <View style={styles.confirmButtons}>
-                  <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
-                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
-                </View>
-              </View>
-            ) : (
-              <>
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 수정', 'Edit comment')} onPress={startEdit} style={styles.replyTextAction}>
-                  <Text variant="caption" weight="bold" color={color.text.accent}>{tx('수정', 'Edit')}</Text>
-                </Pressable>
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 삭제', 'Delete comment')} onPress={() => setConfirmingDelete(true)} style={styles.replyTextAction}>
-                  <Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text>
-                </Pressable>
-              </>
-            )
-          ) : (
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 신고', 'Report comment')} onPress={() => onReport(reply.id)} style={styles.replyTextAction}>
-              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('신고', 'Report')}</Text>
-            </Pressable>
-          )}
+      {confirmingDelete ? (
+        <View style={styles.confirmRow}>
+          <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('댓글을 삭제할까요?', 'Delete this comment?')}</Text>
+          <View style={styles.confirmButtons}>
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
+            <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
+          </View>
         </View>
+      ) : null}
+
+      {!editing && !confirmingDelete ? (
+        // 좋아요 · 답글 — 원글과 같은 알약 부품이다.
+        <StoryReactionRow story={reaction} reacting={reacting} onReact={(pressed) => void react(pressed)} style={styles.replyReactions}>
+          {childCount > 0 ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded }}
+              accessibilityLabel={expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개 보기`, `Show ${childCount} replies`)}
+              onPress={toggleChildren}
+              style={storyReactionStyles.button}
+            >
+              <Text variant="util" weight="bold" color={color.text.body}>
+                {expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개`, `${childCount} replies`)}
+              </Text>
+            </Pressable>
+          ) : null}
+        </StoryReactionRow>
       ) : null}
 
       {!editing && childCount > 0 ? (
         <View style={styles.replyThread}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ expanded }}
-            accessibilityLabel={expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개 보기`, `Show ${childCount} replies`)}
-            onPress={toggleChildren}
-            style={styles.replyTextAction}
-          >
-            <Text variant="caption" weight="bold" color={color.text.accent}>
-              {expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개`, `${childCount} replies`)}
-            </Text>
-          </Pressable>
-
           {expanded ? (
             childrenError ? (
               <View accessibilityRole="alert" style={styles.replyNotice}>
@@ -265,6 +289,10 @@ export function ReplyCard({
           ) : null}
         </View>
       ) : null}
+      </View>
+
+      {/* 열 때만 그린다 — 댓글마다 닫힌 메뉴 창을 하나씩 깔아 두면 댓글이 많을 때 무겁다. */}
+      {menuOpen ? <DropdownMenu visible items={menuItems} onClose={() => setMenuOpen(false)} /> : null}
     </View>
   );
 }
@@ -555,6 +583,10 @@ export default function StoryDetail() {
           */}
           <MarkdownBody source={story.body} />
 
+          {/* 좋아요·인용·저장 — 카드 «안»에 둔다(사용자 지적 2026-09-24, S15P21E201-1576). 카드 밖에 두면 그 기록의 것인지
+              아래 댓글의 것인지 흐려진다. 목록(feed.tsx)과 같은 부품이다. */}
+          <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} saved={savedIds.has(story.id)} saving={saving} onToggleSave={() => void toggleSave()} onQuote={() => void copyLink()} style={styles.inCardReactions} />
+
  {/*— 삭제·신고·차단은 우상단 ⋯ 메뉴로 옮겼다. 공동 작성자는
               "더 보기" 성격이 아니라 주된 이동이라 그대로 남긴다. 삭제 확인은 메뉴에서
               "삭제"를 고르면 여기 그대로 펼쳐진다 — 자리만 옮기고 확인 흐름은 안 바꿨다. */}
@@ -576,13 +608,6 @@ export default function StoryDetail() {
             ) : null}
           </View>
         </View>
-      ) : null}
-
-      {/* 좋아요·저장 — S15P21E201-1247. 목록과 같은 부품을 쓴다. 저장 버튼은 목록에만 있고 여기엔 없던 것을 채웠다. 칸 이름을 못 받아
-          비워 뒀던 자리인데가 상세 응답에도 실어 주면서 채웠다.
-      */}
-      {story && !reported ? (
-        <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} saved={savedIds.has(story.id)} saving={saving} onToggleSave={() => void toggleSave()} onQuote={() => void copyLink()} />
       ) : null}
 
       {/* 지표 줄 — S15P21E201-1213. 시안이 정한 자리가 댓글 바로 위다. */}
@@ -609,16 +634,19 @@ export default function StoryDetail() {
             <Text variant="caption" color={color.text.muted}>{tx('아직 댓글이 없어요.', 'No comments yet.')}</Text>
           ) : (
             <>
-              {shownReplies.map((reply) => (
-                <ReplyCard
-                  key={reply.id}
-                  reply={reply}
-                  accessToken={accessToken}
-                  onUpdated={updateReply}
-                  onDeleted={removeReply}
-                  onReport={setReportingTargetId}
-                />
-              ))}
+              {/* 원글에서 내려오는 세로선 — 답글 묶음이 원글에 매달린 것으로 읽히게(트위터형, S15P21E201-1576). */}
+              <View style={styles.replyList}>
+                {shownReplies.map((reply) => (
+                  <ReplyCard
+                    key={reply.id}
+                    reply={reply}
+                    accessToken={accessToken}
+                    onUpdated={updateReply}
+                    onDeleted={removeReply}
+                    onReport={setReportingTargetId}
+                  />
+                ))}
+              </View>
               {hasMoreReplies ? (
                 <Text variant="caption" color={color.text.muted}>
                   {tx(`댓글 ${totalReplies}개 중 ${shownReplies.length}개를 보여드렸어요.`, `Showing ${shownReplies.length} of ${totalReplies} comments.`)}
@@ -731,18 +759,28 @@ const styles = StyleSheet.create({
 
   // ── 댓글 ────────────────────────────────────────────────
   comments: { gap: spacing[3], marginTop: spacing[4] },
-  reply: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  replyList: { gap: spacing[2], marginLeft: spacing[4], paddingLeft: spacing[3], borderLeftWidth: 2, borderLeftColor: color.surface.border },
+  // 답글 한 장 — 원글 카드와 같은 흰 바탕·둥근 모서리. 왼쪽 동그라미 기둥 + 오른쪽 내용(트위터 답글형, S15P21E201-1576).
+  reply: { flexDirection: 'row', gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  replyRail: { alignItems: 'center' },
+  replyRailLine: { flex: 1, width: 2, marginTop: spacing[1], borderRadius: 1, backgroundColor: color.surface.border },
+  replyMain: { flex: 1, minWidth: 0, gap: spacing[2] },
   replyHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  replyAvatar: { width: 24, height: 24, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  replyName: { flexShrink: 1 },
+  replyMenuButton: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginVertical: -spacing[2] },
+  replyAvatar: { width: 36, height: 36, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  // 반응 줄은 목록 카드용 좌우 여백을 갖고 있다 — 여백 있는 카드 안에서는 뺀다.
+  replyReactions: { paddingHorizontal: 0, paddingBottom: 0, marginTop: 0 },
+  inCardReactions: { paddingHorizontal: 0, paddingBottom: 0, marginTop: 0 },
   replyPhotos: { marginTop: spacing[1] },
   replyNotice: { gap: spacing[2], alignItems: 'flex-start' },
   replyEdit: { gap: spacing[2] },
-  replyActions: { flexDirection: 'row', gap: spacing[1] },
-  replyTextAction: { minHeight: 36, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
   replyThread: { gap: spacing[2] },
   replyChildren: { gap: spacing[2], marginLeft: spacing[3] },
   composer: { gap: spacing[2] },
   // textAlignVertical 은 안드로이드에서 여러 줄 입력이 가운데로 쏠리는 것을 막는다.
   composerInput: { minHeight: 88, padding: spacing[3], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },
-  composerButton: { alignSelf: 'flex-end', width: 'auto', paddingHorizontal: spacing[6] },
+  // 🔴 폭을 박는다. Button 안쪽은 width:'100%' 라 껍데기가 «auto» 면 글자 폭으로 쪼그라들어 「남기기」가 잘렸다
+  //    (사용자 화면 2026-09-24 — S15P21E201-1524 와 같은 원인).
+  composerButton: { alignSelf: 'flex-end', width: 120 },
 });

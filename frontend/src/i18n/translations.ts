@@ -560,6 +560,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s시간': { ja: '%s時間', zhHans: '%s 小时', zhHant: '%s 小時' },
   '%s시간 %s분': { ja: '%s時間%s分', zhHans: '%s 小时 %s 分钟', zhHant: '%s 小時 %s 分鐘' },
   '%s분': { ja: '%s分', zhHans: '%s 分钟', zhHant: '%s 分鐘' },
+  '댓글 더 보기': { ja: 'コメントのその他の操作', zhHans: '评论更多操作', zhHant: '留言更多操作' },
   '경사': { ja: '勾配', zhHans: '坡度', zhHant: '坡度' },
   '그늘': { ja: '日陰', zhHans: '阴凉', zhHant: '陰涼' },
   '빨간 길: 경사 8.33% 이상 — 휠체어 경사로 기준(1:12)을 넘어요': { ja: '赤い道：勾配8.33%以上 — 車いすスロープ基準（1:12）を超えます', zhHans: '红色路段：坡度 8.33% 以上 — 超过轮椅坡道标准（1:12）', zhHant: '紅色路段：坡度 8.33% 以上 — 超過輪椅坡道標準（1:12）' },

@@ -28,6 +28,7 @@ import { useLayout } from '@/layout/useLayout';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RouteMap } from '@/map/RouteMap';
+
 import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type FeedSort, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
@@ -37,6 +38,14 @@ import { useStoryImages } from '@/social/useStoryImages';
 import { useStoryVideo } from '@/social/useStoryVideo';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+
+/**
+ * 추억 지도는 핀만 — 기록 사이에 선을 긋지 않는다(사용자 요청 2026-09-24, S15P21E201-1576).
+ * 기록은 여행 동선이 아니라 따로따로 남긴 곳이라, 이어 그리면 「이 순서로 다녔다」로 읽힌다.
+ * RouteMap 은 선을 안 주면 정차지를 잇는 선을 기본으로 그리므로 «빈 목록»을 준다. 매번 새 배열을 만들면
+ * 지도가 다시 그려지므로 하나를 만들어 쓴다.
+ */
+const NO_ROUTES: never[] = [];
 
 // 열쇠는 src/social/stories.ts 로 옮겼다 — 글쓰기 화면도 같은 것을 써야 해서다
 // 이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
@@ -443,7 +452,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
 
       <View style={styles.sheetMap} onLayout={(event) => setMapHeight(Math.round(event.nativeEvent.layout.height))}>
         {mapHeight > 0
-          ? <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} height={mapHeight} />
+          ? <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} routes={NO_ROUTES} height={mapHeight} />
           : null}
       </View>
 
@@ -466,7 +475,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
   return <View style={styles.mapPanel}>
     <Eyebrow>{tx('추억 지도', 'Memory map')}</Eyebrow>
     <View style={styles.mapCard}>
-      <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} height={360} />
+      <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} routes={NO_ROUTES} height={360} />
     </View>
 
     {/* 장소 라벨 — 누르면 지도에서 그 핀이 골라지고, 한 번 더 누르면 그 기록으로 간다.
