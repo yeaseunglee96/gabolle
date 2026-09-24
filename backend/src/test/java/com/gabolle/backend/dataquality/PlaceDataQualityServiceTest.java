@@ -34,10 +34,26 @@ class PlaceDataQualityServiceTest extends PostgresIntegrationTest {
 	@Autowired
 	private Clock clock;
 
+	/**
+	 * 장소 표를 딸린 표까지 한꺼번에 비운다 (S15P21E201-1612).
+	 *
+	 * <p>🔴 전에는 {@code DELETE FROM place_feature} → {@code DELETE FROM place} 였다. 같은 실행에서 앞서
+	 * 돈 일정 시험이 남긴 일정 항목이 장소를 가리키면 외래키({@code fk_itinerary_item_place})에 막혀 이
+	 * 클래스 8건이 한꺼번에 빨개졌다 — 도는 순서에 따라 났다 안 났다 했다. {@code CASCADE} 는 장소를
+	 * 가리키는 표(일정 항목·기록·표식 등)까지 비워 막힐 자리를 없앤다. 남의 시험이 남긴 것만 지운다.
+	 *
+	 * <p>시험 DB 에서만 돈다 — {@code TestDatabase} 가 이름에 {@code test} 가 없는 DB 를 거부한다.
+	 *
+	 * <p>🔴 <b>남은 얽힘:</b> 관광공사 적재·지하철 출구 적재·표식 적재 시험
+	 * ({@code TourApiPlaceLoaderIntegrationTest}·{@code SubwayExitLoaderTest}·
+	 * {@code PlaceFeatureLoaderIntegrationTest})이 이 비우기에 기댄다 — 그 셋은 「관광공사 장소 전부」를
+	 * 지우며 뒷정리를 하는데, 마이그레이션이 넣은 장소가 이 비우기로 먼저 사라져 있어야 통과한다.
+	 * 이 비우기를 좁히면 그 셋이 깨진다(2026-09-25 실측). 각자 자기가 넣은 장소만 치우게 고치는 것은
+	 * 발표 뒤 일이다.
+	 */
 	@BeforeEach
 	void clean() {
-		this.jdbcTemplate.update("DELETE FROM place_feature");
-		this.jdbcTemplate.update("DELETE FROM place");
+		this.jdbcTemplate.update("TRUNCATE place CASCADE");
 	}
 
 	private UUID insertPlace(String nameEn) {
