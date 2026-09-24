@@ -40,8 +40,22 @@ describe('홈 시작 바의 숙소 — 스냅샷으로 싣는다 (S15P21E201-153
     expect(payload.accommodation).toBeNull();
   });
 
+  it('🔴 추천 동네는 동네 코드로 싣는다 — 서버가 그 중심을 둘째 날 출발점·하루 끝 돌아가는 자리로 쓴다 (S15P21E201-1566)', () => {
+    const expected: Record<string, string> = { '해운대': 'HAEUNDAE', '서면': 'SEOMYEON', '광안리': 'GWANGALLI', '남포동 · 중앙동': 'NAMPO' };
+    for (const area of RECOMMENDED_LODGING_AREAS) {
+      const payload = toCreateTripPayload({ ...EMPTY_PLAN, lodging: area.name, lodgingLat: area.lat, lodgingLng: area.lng, lodgingPlace: lodgingSnapshotOf(area) });
+      expect(payload.accommodationArea).toBe(expected[area.name]);
+    }
+  });
+
+  it('검색해서 고른 숙소면 동네 코드는 안 싣는다 — 스냅샷이 더 정확하다', () => {
+    const payload = toCreateTripPayload({ ...EMPTY_PLAN, lodging: 카카오호텔.name, lodgingLat: 35.1587, lodgingLng: 129.1604, lodgingPlace: lodgingSnapshotOf(카카오호텔) });
+    expect(payload.accommodationArea).toBeNull();
+  });
+
   it('「숙소 아직 안 정했어요」면 안 싣는다 — 출발지 기준으로 짠다', () => {
     expect(toCreateTripPayload(EMPTY_PLAN).accommodation).toBeNull();
+    expect(toCreateTripPayload(EMPTY_PLAN).accommodationArea).toBeNull();
   });
 
   it('우리 표의 숙소(accommodationPlaceId)가 있으면 스냅샷은 안 싣는다', () => {

@@ -560,6 +560,9 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s시간': { ja: '%s時間', zhHans: '%s 小时', zhHant: '%s 小時' },
   '%s시간 %s분': { ja: '%s時間%s分', zhHans: '%s 小时 %s 分钟', zhHant: '%s 小時 %s 分鐘' },
   '%s분': { ja: '%s分', zhHans: '%s 分钟', zhHant: '%s 分鐘' },
+  '%s분 (어림)': { ja: '%s分（目安）', zhHans: '%s 分钟（估算）', zhHant: '%s 分鐘（估算）' },
+  '숙소로 돌아가기': { ja: '宿泊先へ戻る', zhHans: '返回住宿', zhHant: '返回住宿' },
+  '출발지로 돌아가기': { ja: '出発地へ戻る', zhHans: '返回出发地', zhHant: '返回出發地' },
   '예정보다 %s %s': { ja: '予定より %s %s', zhHans: '比计划 %s %s', zhHant: '比計畫 %s %s' },
   // 아직 안 떠난 여행에 쓴다 — 「예정보다 빠름」은 이미 움직이는 사람의 말이다(B-13).
   '%s 뒤 시작': { ja: '%s後に開始', zhHans: '%s后开始', zhHant: '%s後開始' },

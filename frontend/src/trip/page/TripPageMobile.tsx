@@ -50,6 +50,7 @@ import type { TripPageSource } from './tripPageData';
 import { formatManwon } from './tripPageModel';
 import { useTripPage } from './useTripPage';
 import { useTripProgress } from './useTripProgress';
+import { DayReturnRow } from './DayReturnRow';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
@@ -349,6 +350,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   locale={locale}
                 />
               ))}
+              {/* 하루 끝 — 숙소(마지막 날은 출발지)로 돌아가기 (S15P21E201-1566) */}
+              <DayReturnRow leg={day?.returnLeg} tx={tx} />
             </View>
           )}
 

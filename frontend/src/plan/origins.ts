@@ -91,3 +91,25 @@ export function lodgingSnapshotOf(candidate: OriginCandidate): PlaceSnapshot | n
   if (RECOMMENDED_LODGING_AREAS.some((area) => area.externalId === candidate.externalId)) return null;
   return placeSnapshotOf(candidate) ?? null;
 }
+
+/** 추천 동네 → 서버 여행 범위 코드(TravelArea). 좌표가 같은 값이라 잇는 이름만 적는다. */
+const LODGING_AREA_CODE: Record<string, string> = {
+  'lodging-haeundae': 'HAEUNDAE',
+  'lodging-seomyeon': 'SEOMYEON',
+  'lodging-gwangalli': 'GWANGALLI',
+  'lodging-nampo': 'NAMPO',
+};
+
+/**
+ * 숙소로 고른 것이 추천 동네면 그 동네의 여행 범위 코드 — S15P21E201-1566.
+ *
+ * 🔴 위 lodgingSnapshotOf 가 동네를 «장소로» 안 싣는 까닭은 그대로다. 대신 서버가 이제 동네를 받는 칸
+ *    (accommodationArea)을 갖고, 그 동네 중심을 둘째 날 출발점·하루 끝 돌아가는 자리로 쓴다(S15P21E201-1565).
+ *    전에는 이 칸이 없어 **동네 숙소를 고른 여행 전부가 숙소 없이 짜였다** — 운영 최근 여행 20개 중 숙소가 쓰인 것 0개.
+ *    초안에는 동네의 이름과 좌표만 남으므로 좌표로 되짚는다(두 곳이 같은 상수를 쓴다).
+ */
+export function lodgingAreaCodeOf(lat: number | null, lng: number | null): string | null {
+  if (lat == null || lng == null) return null;
+  const area = RECOMMENDED_LODGING_AREAS.find((candidate) => candidate.lat === lat && candidate.lng === lng);
+  return area ? LODGING_AREA_CODE[area.externalId] ?? null : null;
+}

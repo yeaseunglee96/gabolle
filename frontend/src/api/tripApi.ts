@@ -1,6 +1,6 @@
 import { apiRequest, getApiLanguage } from '@/api/client';
 import type { PlanDraft, PreferenceAnswerStatus } from '@/plan/PlanProvider';
-import type { PlaceSnapshot } from '@/plan/origins';
+import { lodgingAreaCodeOf, type PlaceSnapshot } from '@/plan/origins';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
@@ -48,6 +48,11 @@ export type CreateTripPayload = {
    *    trip.accommodation_place_id 에 넣는다. accommodationPlaceId 가 있으면 서버는 이 칸을 안 본다.
    */
   accommodation: PlaceSnapshot | null;
+  /**
+   * 추천 동네를 숙소로 골랐을 때 그 동네 코드(HAEUNDAE 등) — S15P21E201-1566. 서버가 동네 중심을 숙소 자리로 쓴다.
+   * 우리 표의 숙소나 검색한 숙소가 있으면 null — 그쪽이 더 정확하다.
+   */
+  accommodationArea: string | null;
   englishMenuRequired: boolean;
   foreignCardRequired: boolean;
   soloFriendlyPriority: boolean;
@@ -123,6 +128,7 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
     accommodationPlaceId: draft.accommodationPlace?.placeId ?? null,
     // 우리 표의 숙소가 있으면 그것만 — 둘 다 보내도 서버가 placeId 를 먼저 보지만, 보내는 쪽에서도 하나만 싣는다.
     accommodation: draft.accommodationPlace?.placeId ? null : draft.lodgingPlace ?? null,
+    accommodationArea: draft.accommodationPlace?.placeId || draft.lodgingPlace ? null : lodgingAreaCodeOf(draft.lodgingLat, draft.lodgingLng),
     englishMenuRequired: draft.englishMenuRequired,
     foreignCardRequired: draft.foreignCardRequired,
     soloFriendlyPriority: draft.soloDiningPreferred,
