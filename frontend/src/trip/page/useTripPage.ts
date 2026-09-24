@@ -21,15 +21,20 @@ import { loadTripBudget } from '@/trip/tripBudget';
 import { humanTripTitle, shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { loadTrips } from '@/trip/trips';
 
-import { loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
+import { itineraryFirstPage, loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
 import { dayMap, dayRoutes, formatManwon, returnRoute, returnTrip, startTrip } from './tripPageModel';
 
 export type TripItinerary = { id: string; value: ItineraryDto | null; message: string | null };
 
 export function useTripPage(source: TripPageSource) {
   const router = useRouter();
-  const { accessToken } = useAuth();
+  const { accessToken, ready } = useAuth();
   const { tx, locale } = useI18n();
+  // 🔴 여는 길은 열쇠의 «값»이 아니라 «로그인했나»에만 묶는다(S15P21E201-1599). 열쇠는 갱신할 때마다 바뀌는데,
+  //    바뀔 때마다 코스 목록(수 초)부터 처음부터 다시 불러서 한 번 여는 동안 같은 요청이 몇 벌씩 나갔다.
+  const tokenRef = useRef(accessToken);
+  tokenRef.current = accessToken;
+  const signedIn = accessToken !== null;
 
   const [page, setPage] = useState<TripPageCourses | null>(null);
   const [courseIndex, setCourseIndex] = useState(0);
@@ -46,20 +51,35 @@ export function useTripPage(source: TripPageSource) {
   const [confirming, setConfirming] = useState(false);
   const confirmingNow = useRef(false);
 
+  /** 화면에 이미 올린 일정 번호 — 같은 일정을 다시 받지 않으려고 둔다. 편집 뒤 다시 받기(reloadItinerary)가 비운다. */
+  const shownItineraryId = useRef<string | null>(null);
+  /** 다시 불러오기가 겹치면 늦게 온 앞의 답이 새 화면을 덮는다 — 마지막 부름만 반영한다. */
+  const loadSerial = useRef(0);
+
   const sourceKey = source.kind === 'trip' ? `trip:${source.tripId}:${source.jobId ?? ''}` : `itinerary:${source.itineraryId}`;
   const load = useMemo(() => async () => {
+    const serial = ++loadSerial.current;
     setPage(null);
-    const next = await loadTripPageCourses(source, accessToken);
-    setPage(next);
-    if (next.state === 'ready') {
+    const pick = (next: TripPageCourses) => {
+      setPage(next);
+      if (next.state !== 'ready') return;
       const own = next.courses.findIndex((course) => course.id === next.confirmedCourseId);
       // 확정한 코스가 있으면 그것을, 없으면 첫 안을 켠다 — 시안 3a 는 코스 A 가 켜진 채로 열린다.
       setCourseIndex(own >= 0 ? own : 0);
       setConfirmed(own >= 0);
-    }
+    };
+    const next = await loadTripPageCourses(source, tokenRef.current, (opened) => {
+      if (serial !== loadSerial.current) return;
+      // 🔴 연 일정은 손에 있다 — 코스 목록을 기다리지 않고 먼저 그리고, 아래 일정 받기가 같은 것을 또 받지 않게 둔다.
+      shownItineraryId.current = opened.id;
+      setItinerary({ id: opened.id, value: opened, message: null });
+      pick(itineraryFirstPage(opened));
+    });
+    if (serial === loadSerial.current) pick(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sourceKey, accessToken]);
-  useEffect(() => { void load(); }, [load]);
+  }, [sourceKey, signedIn]);
+  // 🔴 로그인 복구가 끝나기 전에는 부르지 않는다. 열쇠 없이 부르면 401 → 갱신이 겹쳐 같은 요청이 몇 벌 더 나간다.
+  useEffect(() => { if (ready) void load(); }, [load, ready]);
 
   const courses = useMemo(() => (page?.state === 'ready' ? page.courses : []), [page]);
   const course: TripCourse | null = courses[courseIndex] ?? null;
@@ -70,13 +90,21 @@ export function useTripPage(source: TripPageSource) {
     const id = course?.itineraryId;
     // 🔴 아직 일정이 없는 안(2안·3안)은 서버가 같은 모양으로 실어 보낸 미리보기를 그린다 (S15P21E201-1454).
     //    받을 일정이 없다고 비워 두면 그 안을 눌렀을 때 카드와 지도가 통째로 빈다.
-    if (!id) { setItinerary(course?.preview ? { id: course.id, value: course.preview, message: null } : null); return; }
+    if (!id) {
+      shownItineraryId.current = null;
+      setItinerary(course?.preview ? { id: course.id, value: course.preview, message: null } : null);
+      return;
+    }
+    // 🔴 이미 화면에 있는 일정이면 다시 받지 않는다(S15P21E201-1599) — 연 일정으로 먼저 그린 뒤 코스 목록이 오면
+    //    같은 일정이 다른 코스 이름으로 다시 들어오고, 열쇠가 바뀌어도 이 자리가 다시 돈다.
+    if (shownItineraryId.current === id) return;
     let alive = true;
     // 🔴 (옮기며 바꾼 것 ①) 같은 일정을 다시 받을 때는 지금 것을 비우지 않는다. 비우면 편집 한 번에
     //    화면 전체가 뼈대(Skeleton)로 깜박인다 — 「지워졌나」로 읽힌다.
     setItinerary((prev) => (prev?.id === id ? prev : { id, value: null, message: null }));
     void loadItinerary(id, accessToken).then((next) => {
       if (!alive) return;
+      if (next.state === 'success') shownItineraryId.current = id;
       setItinerary({ id, value: next.state === 'success' ? next.itinerary : null, message: next.state === 'success' ? null : next.message });
     });
     return () => { alive = false; };
@@ -200,7 +228,7 @@ export function useTripPage(source: TripPageSource) {
 
   return {
     page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
-    itinerary, setItinerary, loaded, reloadItinerary: () => setItineraryNonce((n) => n + 1),
+    itinerary, setItinerary, loaded, reloadItinerary: () => { shownItineraryId.current = null; setItineraryNonce((n) => n + 1); },
     dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace, reloadPace: () => setPaceNonce((n) => n + 1),
     map, routes, points, anyEstimatedLine, allItems, travelTotal, budget, atRisk, allEstimated,
     title, headSub, confirm, confirming,
