@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,8 @@ import com.gabolle.backend.event.repository.EventOutboxRepository;
 @Service
 @Profile({ "db", "dev" })
 public class OutboxRelayService {
+
+	private static final Logger log = LoggerFactory.getLogger(OutboxRelayService.class);
 
 	private final EventOutboxRepository repository;
 
@@ -58,6 +62,8 @@ public class OutboxRelayService {
 			return 0;
 		}
 
+		warnAboutExhausted();
+
 		// 🔴 재시도 상한을 넘긴 행은 조회에서 빠진다. 안 빼면 영원히 실패하는 한 건이 아래
 		//    break 에 걸려 그 뒤의 모든 이벤트를 영구히 막는다(독약 메시지).
 		List<EventOutbox> pending = this.repository.findByPublishedAtIsNullAndPublishAttemptsLessThanOrderBySeqAsc(
@@ -78,6 +84,21 @@ public class OutboxRelayService {
 	}
 
 	/**
+	 * 한도를 넘겨 더는 안 보내는 행이 있으면 매 차례 경고한다 (S15P21E201-1613).
+	 *
+	 * <p>🔴 전에는 조회에서 조용히 빠질 뿐이라, 표를 직접 열어 보지 않으면 이벤트가 안 나간 것을 아무도
+	 * 몰랐다. 행은 지우지 않으므로 원인을 고친 뒤 {@code publish_attempts} 를 0 으로 되돌리면 다시 나간다.
+	 */
+	private void warnAboutExhausted() {
+		int maxAttempts = this.properties.getMaxAttempts();
+		long exhausted = this.repository.countByPublishedAtIsNullAndPublishAttemptsGreaterThanEqual(maxAttempts);
+		if (exhausted > 0) {
+			log.warn("event=OUTBOX_EXHAUSTED count={} maxAttempts={} — 한도를 넘겨 더는 안 보내는 이벤트가 있다. "
+					+ "원인을 고친 뒤 publish_attempts 를 0 으로 되돌리면 다시 나간다", exhausted, maxAttempts);
+		}
+	}
+
+	/**
 	 * 한 건 보내고 결과를 적는다.
 	 *
 	 * <p>전송과 기록이 다른 시스템이라 "보냈는데 보냈다고 적기 전에" 죽는 구간은 없앨 수 없다.
@@ -94,6 +115,14 @@ public class OutboxRelayService {
 			event.markPublished(OffsetDateTime.now(this.clock));
 			this.repository.save(event);
 			return true;
+		}
+		catch (EventPublisherPort.BrokerUnavailableException unreachable) {
+			// 🔴 이 이벤트 탓이 아니다 — 시도 횟수를 세지 않는다(S15P21E201-1613). 세면 브로커가
+			//    몇 분 죽어 있는 동안 맨 앞 이벤트가 한도를 채워 영영 안 나간다. 행은 그대로 두고
+			//    이번 차례만 멈춘다 — 브로커가 살아나면 다음 차례에 맨 앞부터 나간다.
+			log.warn("event=OUTBOX_RELAY_BROKER_UNREACHABLE eventId={} reason={}", event.getEventId(),
+					unreachable.getMessage());
+			return false;
 		}
 		catch (RuntimeException ex) {
 			event.markFailed(ex.getClass().getSimpleName() + ": " + ex.getMessage());
