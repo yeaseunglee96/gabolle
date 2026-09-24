@@ -2,7 +2,7 @@
 import { loadProfileAvatar } from '@/me/profileAvatar';
 import { useState } from 'react';
 import { Animated, BackHandler, Easing, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -21,6 +21,7 @@ import { txf } from '@/i18n/format';
 import { useLayout } from '@/layout/useLayout';
 import { CoverButton, MyPageCover } from '@/me/MyPageCover';
 import { loadUserStories, relativeStoryTime, type StoryDto } from '@/social/stories';
+import { KeptPanes } from '@/me/KeptPanes';
 import { MyPageModal } from '@/me/MyPageModal';
 import { MyPageSheetBody, myPageSheetHeight } from '@/me/MyPageSheet';
 import { isPanelKey, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
@@ -128,37 +129,6 @@ export default function Me() {
   // 넓은 화면 기록 줄은 4열이다 — 홈의 7열과 다르다. 화살표가 한 장씩 밀려면
   // 이 값을 줄에도 같이 줘야 한다.
   const recordRowCardWidth = Math.max(180, Math.floor((width - desktopGutter * 2 - 3 * spacing[4]) / 4));
-
-  // 폰의 「기록 | 설정」 — 주소는 안 바뀐다. 내용만 갈아 끼운다.
-  //
-  // 움직임 셋 (시안 design_handoff_mypage_v2 변경점 2, S15P21E201-1526):
-  //   · 빨간 표시가 미끄러진다 — 320ms, cubic-bezier(0.2,0.8,0.2,1)
-  //   · 글자색이 바뀐다 — 240ms ease. 두 벌을 겹쳐 두고 서로 흐려지게 한다(Text 가 색 애니메이션을 못 받는다)
-  //   · 내용이 들어온다 — 기록은 왼쪽(-24)에서, 설정은 오른쪽(+24)에서. 표시가 가는 쪽과 같다
-  // 탭을 눌렀는데 내용이 «즉시» 갈리면 바뀐 줄 모르고 지나간다. 같은 자리에 같은 크기의 흰
-  // 화면이 있기 때문이다 — 시작 바 칸 전환과 같은 이유다.
-  const [meTab, setMeTab] = useState<'records' | 'settings'>('records');
-  /** 빨간 표시의 자리 — 0 기록 · 1 설정 */
-  const tabPos = useRef(new Animated.Value(0)).current;
-  /** 글자색 — 0 이면 기록이 흰 글자, 1 이면 설정이 흰 글자 */
-  const tabInk = useRef(new Animated.Value(0)).current;
-  /** 내용이 들어오는 정도 */
-  const tabIn = useRef(new Animated.Value(1)).current;
-  /** 표시가 달리는 칸의 폭 — 표시가 반 칸이므로 이 값의 반만큼 옮긴다 */
-  const [segmentTrack, setSegmentTrack] = useState(0);
-  const firstTab = useRef(true);
-  useEffect(() => {
-    const to = meTab === 'settings' ? 1 : 0;
-    // 🔴 첫 로드는 움직이지 않는다(시안). 전에는 들어오자마자 내용이 한 번 떠올랐다.
-    if (firstTab.current) { firstTab.current = false; return; }
-    const slide = Easing.bezier(0.2, 0.8, 0.2, 1);
-    tabIn.setValue(0);
-    Animated.parallel([
-      Animated.timing(tabPos, { toValue: to, duration: 320, easing: slide, useNativeDriver: false }),
-      Animated.timing(tabInk, { toValue: to, duration: 240, easing: Easing.ease, useNativeDriver: false }),
-      Animated.timing(tabIn, { toValue: 1, duration: 320, easing: slide, useNativeDriver: false }),
-    ]).start();
-  }, [meTab, tabPos, tabInk, tabIn]);
 
   // 내 기록. 숫자(storyCount)만으로는 격자를 못 그린다 — 실제 글이 필요하다.
   const myStoriesQuery = useQuery({
@@ -367,46 +337,22 @@ export default function Me() {
 
     {/* 「기록 | 설정」 — 주소를 안 바꾸고 내용만 갈아 끼운다. 설정을 보러 들어온 사람이
         기록을 스크롤해 지나가지 않아도 되고, 기록을 보러 온 사람이 설정 목록을 안 본다. */}
-    <View style={styles.segment}>
-      {/* 빨간 표시 — 반 칸짜리 하나가 미끄러진다. 표시가 달리는 칸은 세그먼트 안쪽(여백 4 를 뺀 자리)이다. */}
-      <View pointerEvents="none" style={styles.segmentTrack} onLayout={(event) => setSegmentTrack(event.nativeEvent.layout.width)}>
-        <Animated.View style={[styles.segmentIndicator, { transform: [{ translateX: tabPos.interpolate({ inputRange: [0, 1], outputRange: [0, segmentTrack / 2] }) }] }]} />
-      </View>
-      {(['records', 'settings'] as const).map((key, index) => {
-        const label = key === 'settings'
-          ? tx('설정', 'Settings')
-          : storyCount === null ? tx('기록', 'Records') : txf(tx, '기록 %s', 'Records %s', String(storyCount));
-        // 이 탭이 흰 글자인 정도. 기록은 tabInk 0 에서, 설정은 1 에서 흰 글자다.
-        const white = tabInk.interpolate({ inputRange: [0, 1], outputRange: index === 0 ? [1, 0] : [0, 1] });
-        const dark = tabInk.interpolate({ inputRange: [0, 1], outputRange: index === 0 ? [0, 1] : [1, 0] });
-        return (
-          <Pressable
-            key={key}
-            accessibilityRole="tab"
-            accessibilityLabel={label}
-            accessibilityState={{ selected: meTab === key }}
-            onPress={() => setMeTab(key)}
-            style={styles.segmentItem}
-          >
-            {/* 🔴 같은 글자를 두 벌 겹친다 — 낭독기가 두 번 읽지 않게 둘 다 숨기고 이름은 위 accessibilityLabel 이 준다. */}
-            <Animated.View aria-hidden style={[styles.segmentInk, { opacity: dark }]}><Text weight="bold" color={color.text.body} numberOfLines={1}>{label}</Text></Animated.View>
-            <Animated.View aria-hidden style={[styles.segmentInk, { opacity: white }]}><Text weight="bold" color={color.text.onAction} numberOfLines={1}>{label}</Text></Animated.View>
-          </Pressable>
-        );
-      })}
-    </View>
-
-    <Animated.View style={{ opacity: tabIn, transform: [{ translateX: tabIn.interpolate({ inputRange: [0, 1], outputRange: [meTab === 'settings' ? 24 : -24, 0] }) }] }}>
-      {/* 🔴 비었을 때는 격자 대신 시안 4 의 02c — 동백이가 「아직 남긴 기록이 없어요」라고 말한다(S15P21E201-1418).
-          예전엔 「새 기록 남기기」 타일 하나만 덩그러니 있어 빈 화면이 고장처럼 보였다. 못 불러온 것(null)은 비어 있는 것과 다르다. */}
-      {meTab === 'records' && user && myStories !== null && myStories.length === 0 ? (
+    {/* 🔴 누른 탭은 아래 RecordsSettingsTabs 가 쥔다 — 화면 전체가 쥐면 누를 때마다 프로필·기록 카드·설정 목록이
+        전부 다시 그려져 전환 애니메이션을 삼켰다(S15P21E201-1603). 두 판은 여기서 한 번 만들어 넘긴다. */}
+    <RecordsSettingsTabs
+      recordsLabel={storyCount === null ? tx('기록', 'Records') : txf(tx, '기록 %s', 'Records %s', String(storyCount))}
+      settingsLabel={tx('설정', 'Settings')}
+      panes={{ records: (
+      /* 🔴 비었을 때는 격자 대신 시안 4 의 02c — 동백이가 「아직 남긴 기록이 없어요」라고 말한다(S15P21E201-1418).
+          예전엔 「새 기록 남기기」 타일 하나만 덩그러니 있어 빈 화면이 고장처럼 보였다. 못 불러온 것(null)은 비어 있는 것과 다르다. */
+      user && myStories !== null && myStories.length === 0 ? (
         <View style={styles.recordsEmpty}>
           <GabolleMascot state="thinking" still style={styles.recordsEmptyMascot} />
           <Text variant="title" weight="bold">{tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>
           <Text color={color.text.body} style={styles.recordsEmptyCopy}>{tx('여행 중 찍은 사진 한 장이면 충분해요.\n기록은 피드에도 함께 보여요.', 'One photo from your trip is enough.\nYour records also show up in the feed.')}</Text>
           <Button label={tx('첫 기록 남기기', 'Write your first record')} variant="secondary" onPress={() => router.push('/feed/compose')} containerStyle={styles.recordsEmptyCta} />
         </View>
-      ) : meTab === 'records' ? (
+      ) : (
         <View>
           {user ? <RecordsBrowser stories={myStories ?? []} tx={tx} locale={locale} onOpen={(story) => router.push(`/feed/${story.id}`)} onCompose={() => router.push('/feed/compose')} /> : null}
           {/* 못 불러온 것을 「없다」로 바꾸지 않는다. */}
@@ -414,7 +360,7 @@ export default function Me() {
             <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text>
           ) : null}
         </View>
-      ) : (
+      )), settings: (
         <>
           <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('내 계정', 'Account')}</Text>
           {accountGroup}
@@ -422,8 +368,8 @@ export default function Me() {
           {appGroup}
           {user ? <Button label={tx('로그아웃', 'Sign out')} variant="tertiary" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>}
         </>
-      )}
-    </Animated.View>
+      ) }}
+    />
 
     <Modal visible={logoutAsk} transparent animationType="fade" onRequestClose={() => setLogoutAsk(false)}>
       <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
@@ -465,6 +411,80 @@ export default function Me() {
       ) : undefined}
     />
   </View>;
+}
+
+/**
+ * 폰의 「기록 | 설정」 — 누른 탭과 움직임을 이 부품이 쥔다(S15P21E201-1603).
+ *
+ * 🔴 두 판(panes)은 화면이 만들어 넘긴다. 누를 때 이 부품만 다시 그려지고, 넘겨받은 판은 같은 것이라 React 가
+ *    건너뛴다. 전에는 화면 전체가 탭을 쥐어서, 누를 때마다 화면 전체가 다시 그려졌다(폰 성능 흉내에서 한 번에 약 0.9초).
+ */
+function RecordsSettingsTabs({ recordsLabel, settingsLabel, panes }: { recordsLabel: string; settingsLabel: string; panes: Record<'records' | 'settings', ReactNode> }) {
+  // 폰의 「기록 | 설정」 — 주소는 안 바뀐다. 내용만 갈아 끼운다.
+  //
+  // 움직임 셋 (시안 design_handoff_mypage_v2 변경점 2, S15P21E201-1526):
+  //   · 빨간 표시가 미끄러진다 — 320ms, cubic-bezier(0.2,0.8,0.2,1)
+  //   · 글자색이 바뀐다 — 240ms ease. 두 벌을 겹쳐 두고 서로 흐려지게 한다(Text 가 색 애니메이션을 못 받는다)
+  //   · 내용이 들어온다 — 기록은 왼쪽(-24)에서, 설정은 오른쪽(+24)에서. 표시가 가는 쪽과 같다
+  // 탭을 눌렀는데 내용이 «즉시» 갈리면 바뀐 줄 모르고 지나간다. 같은 자리에 같은 크기의 흰
+  // 화면이 있기 때문이다 — 시작 바 칸 전환과 같은 이유다.
+  const [meTab, setMeTab] = useState<'records' | 'settings'>('records');
+  /** 빨간 표시의 자리 — 0 기록 · 1 설정 */
+  const tabPos = useRef(new Animated.Value(0)).current;
+  /** 글자색 — 0 이면 기록이 흰 글자, 1 이면 설정이 흰 글자 */
+  const tabInk = useRef(new Animated.Value(0)).current;
+  /** 내용이 들어오는 정도 */
+  const tabIn = useRef(new Animated.Value(1)).current;
+  /** 표시가 달리는 칸의 폭 — 표시가 반 칸이므로 이 값의 반만큼 옮긴다 */
+  const [segmentTrack, setSegmentTrack] = useState(0);
+  const firstTab = useRef(true);
+  useEffect(() => {
+    const to = meTab === 'settings' ? 1 : 0;
+    // 🔴 첫 로드는 움직이지 않는다(시안). 전에는 들어오자마자 내용이 한 번 떠올랐다.
+    if (firstTab.current) { firstTab.current = false; return; }
+    const slide = Easing.bezier(0.2, 0.8, 0.2, 1);
+    tabIn.setValue(0);
+    // 셋 다 transform·opacity 라 네이티브 드라이버로 돈다 — 앱에서는 JS 가 바빠도 안 끊긴다(S15P21E201-1603).
+    Animated.parallel([
+      Animated.timing(tabPos, { toValue: to, duration: 320, easing: slide, useNativeDriver: true }),
+      Animated.timing(tabInk, { toValue: to, duration: 240, easing: Easing.ease, useNativeDriver: true }),
+      Animated.timing(tabIn, { toValue: 1, duration: 320, easing: slide, useNativeDriver: true }),
+    ]).start();
+  }, [meTab, tabPos, tabInk, tabIn]);
+
+  return <>
+    <View style={styles.segment}>
+      {/* 빨간 표시 — 반 칸짜리 하나가 미끄러진다. 표시가 달리는 칸은 세그먼트 안쪽(여백 4 를 뺀 자리)이다. */}
+      <View pointerEvents="none" style={styles.segmentTrack} onLayout={(event) => setSegmentTrack(event.nativeEvent.layout.width)}>
+        <Animated.View style={[styles.segmentIndicator, { transform: [{ translateX: tabPos.interpolate({ inputRange: [0, 1], outputRange: [0, segmentTrack / 2] }) }] }]} />
+      </View>
+      {(['records', 'settings'] as const).map((key, index) => {
+        const label = key === 'settings' ? settingsLabel : recordsLabel;
+        // 이 탭이 흰 글자인 정도. 기록은 tabInk 0 에서, 설정은 1 에서 흰 글자다.
+        const white = tabInk.interpolate({ inputRange: [0, 1], outputRange: index === 0 ? [1, 0] : [0, 1] });
+        const dark = tabInk.interpolate({ inputRange: [0, 1], outputRange: index === 0 ? [0, 1] : [1, 0] });
+        return (
+          <Pressable
+            key={key}
+            accessibilityRole="tab"
+            accessibilityLabel={label}
+            accessibilityState={{ selected: meTab === key }}
+            onPress={() => setMeTab(key)}
+            style={styles.segmentItem}
+          >
+            {/* 🔴 같은 글자를 두 벌 겹친다 — 낭독기가 두 번 읽지 않게 둘 다 숨기고 이름은 위 accessibilityLabel 이 준다. */}
+            <Animated.View aria-hidden style={[styles.segmentInk, { opacity: dark }]}><Text weight="bold" color={color.text.body} numberOfLines={1}>{label}</Text></Animated.View>
+            <Animated.View aria-hidden style={[styles.segmentInk, { opacity: white }]}><Text weight="bold" color={color.text.onAction} numberOfLines={1}>{label}</Text></Animated.View>
+          </Pressable>
+        );
+      })}
+    </View>
+
+    <Animated.View style={{ opacity: tabIn, transform: [{ translateX: tabIn.interpolate({ inputRange: [0, 1], outputRange: [meTab === 'settings' ? 24 : -24, 0] }) }] }}>
+      {/* 🔴 두 판은 한 번 만든 뒤 붙여 둔다 — 누를 때마다 새로 만들지 않는다. */}
+      <KeptPanes active={meTab} panes={panes} />
+    </Animated.View>
+  </>;
 }
 
 const styles = StyleSheet.create({
