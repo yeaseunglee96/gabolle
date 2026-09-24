@@ -29,6 +29,21 @@ export type ItineraryItemDto = {
   lng?: number | null;
 };
 
+/**
+ * 하루 끝에 돌아가는 이동 — S15P21E201-1565. 마지막 날이 아니면 숙소(LODGING), 마지막 날이면 여행 출발지(ORIGIN).
+ * 옛 서버에는 칸이 없고(undefined), 돌아갈 자리를 모르는 날은 null 이다.
+ */
+export type DayReturnLeg = {
+  kind: 'LODGING' | 'ORIGIN';
+  /** 숙소 이름 또는 동네 이름. 출발지면 null. */
+  label: string | null;
+  lat: number;
+  lng: number;
+  durationMin: number | null;
+  distanceM: number | null;
+  travelDataStatus: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN' | null;
+};
+
 export type ItineraryDto = {
   id: string;
   title: string;
@@ -41,7 +56,7 @@ export type ItineraryDto = {
    *    「모른다」와 「혼자다」가 구분이 안 된다.
    */
   partySize?: number | null;
-  days: Array<{ date: string; items: ItineraryItemDto[] }>;
+  days: Array<{ date: string; items: ItineraryItemDto[]; returnLeg?: DayReturnLeg | null }>;
   totalEstimatedCostKrw?: number | null;
   totalWalkingMeters?: number | null;
   fallbackMode?: 'MODEL' | 'RULE' | 'BASELINE' | null;

@@ -39,6 +39,7 @@ import { TripBudgetCard } from './TripBudgetCard';
 import type { TripPageSource } from './tripPageData';
 import { formatDuration, formatManwon, stayMinutes } from './tripPageModel';
 import { useTripPage } from './useTripPage';
+import { DayReturnRow } from './DayReturnRow';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
@@ -225,6 +226,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                 )) : null}
                 {items.length === 0 ? <Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text> : null}
               </View>
+              {/* 하루 끝 — 숙소(마지막 날은 출발지)로 돌아가기 (S15P21E201-1566) */}
+              <DayReturnRow leg={loaded?.days[dayIndex]?.returnLeg} tx={tx} />
               <View style={styles.summaryRow}>
                 <TripBudgetCard budget={budget} style={styles.summaryFlexBudget} />
                 <View style={[styles.summaryCard, styles.summaryFlex1]}>
