@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,6 +98,21 @@ public class TripCreationService {
     }
 
     /**
+     * 1박 이상 여행에 숙소를 요구하는가(S15P21E201-1585) — <b>기본은 꺼짐</b>(S15P21E201-1596).
+     *
+     * <p>🔴 규칙이 운영에 나가자 앱 build 44 가 1박 이상 여행을 못 만들었다 — 추천 동네를 골라도 동네 코드를
+     * ({@code accommodationArea}) 안 보내는 판이라 숙소 없는 여행으로 판정됐다. App Store 재제출이 그 판으로
+     * 준비 중이어서 검사를 스위치 뒤로 뺐다. 동네 코드를 보내는 앱이 나간 뒤 운영 환경변수
+     * {@code GABOLLE_TRIP_LODGING_REQUIRED=true} 로 켠다. 추천 요청 쪽({@code RecommendationJobRunner})도 같은 스위치다.
+     */
+    private boolean lodgingRequired;
+
+    @Value("${gabolle.trip.lodging-required:false}")
+    public void setLodgingRequired(boolean lodgingRequired) {
+        this.lodgingRequired = lodgingRequired;
+    }
+
+    /**
      * 여행을 만든다. 여행·제약·소유자·취향이 하나의 트랜잭션이다 — 나뉘면 소유자 없는 여행이나
      * 제약이 절반만 들어간 여행이 생긴다. 같은 {@code Idempotency-Key} 로 다시 오면 기존 여행을
      * 돌려준다.
@@ -132,8 +148,11 @@ public class TripCreationService {
         // (S15P21E201-1522). Trip 을 만들기 전에 해야 accommodation_place_id 외래키가 맞는다.
         String accommodationPlaceId = resolveAccommodation(command);
         // 🔴 1박 이상이면 숙소가 있어야 한다(S15P21E201-1585). 스냅샷을 장소로 바꾼 뒤에 본다 — 검색으로 고른 호텔도 숙소다.
-        TripConditionRules.requireLodging(command.startDate(), command.finishDate(), accommodationPlaceId,
-                command.accommodationArea());
+        //    스위치가 켜졌을 때만이다(S15P21E201-1596) — 기본은 꺼짐.
+        if (this.lodgingRequired) {
+            TripConditionRules.requireLodging(command.startDate(), command.finishDate(), accommodationPlaceId,
+                    command.accommodationArea());
+        }
 
         // timeWindow 는 원문을 그대로 넘긴다 — fingerprintOf 가 원문 기준이라, 파생값을 저장하면
         // 재시도 판정이 흔들린다.

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -50,6 +51,14 @@ public class RecommendationJobRunner {
 	private final RecommendationJobWorker worker;
 
 	private final RecommendationJobIdempotencyRepository idempotencyRepository;
+
+	/** 숙소 없는 1박 이상 여행의 추천을 거부하는가 — 여행 만들기와 같은 스위치, 기본은 꺼짐(S15P21E201-1596). */
+	private boolean lodgingRequired;
+
+	@Value("${gabolle.trip.lodging-required:false}")
+	public void setLodgingRequired(boolean lodgingRequired) {
+		this.lodgingRequired = lodgingRequired;
+	}
 
 	public RecommendationJobRunner(TripQueryService tripQueryService, TripRepository tripRepository,
 			RecommendationJobRepository jobRepository, RecommendationService recommendationService,
@@ -121,8 +130,11 @@ public class RecommendationJobRunner {
 
 		// 🔴 숙소 없는 1박 이상 여행은 추천하지 않는다(S15P21E201-1585) — 규칙이 생기기 전에 만든 여행도 여기서 막힌다.
 		// 여행 만들기와 같은 규칙·같은 칸 이름(accommodation)이라 화면이 한 문장으로 답한다.
-		TripConditionRules.requireLodging(view.trip().startDate(), view.trip().finishDate(),
-				view.trip().accommodationPlaceId(), view.trip().accommodationArea());
+		//    여행 만들기와 같은 스위치다 — 기본은 꺼짐(S15P21E201-1596, TripCreationService#setLodgingRequired).
+		if (this.lodgingRequired) {
+			TripConditionRules.requireLodging(view.trip().startDate(), view.trip().finishDate(),
+					view.trip().accommodationPlaceId(), view.trip().accommodationArea());
+		}
 
 		PreferenceSnapshot snapshot = (preferenceSnapshotVersion != null)
 				? this.tripRepository.findSnapshot(tripId, preferenceSnapshotVersion)
