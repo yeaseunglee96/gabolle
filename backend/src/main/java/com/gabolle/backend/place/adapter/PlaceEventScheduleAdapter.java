@@ -2,7 +2,10 @@ package com.gabolle.backend.place.adapter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -42,7 +45,34 @@ public class PlaceEventScheduleAdapter implements PlaceEventSchedulePort {
 			return PlaceEventSchedule.unscheduled();
 		}
 
-		List<PlaceEventPeriod> periods = this.eventPeriods.findByPlaceIdOrderByStartDateAsc(id);
+		return scheduleOf(this.eventPeriods.findByPlaceIdOrderByStartDateAsc(id), from, to);
+	}
+
+	/** 후보 여럿을 한 번의 질의로. 판정은 {@link #scheduleWithin} 과 같은 {@link #scheduleOf} 다. */
+	@Override
+	public Map<String, PlaceEventSchedule> schedulesWithin(Collection<String> placeIds, LocalDate from, LocalDate to) {
+		Map<UUID, String> byId = new HashMap<>();
+		for (String placeId : placeIds) {
+			UUID id = parseOrNull(placeId);
+			if (id != null) {
+				byId.put(id, placeId);
+			}
+		}
+		Map<UUID, List<PlaceEventPeriod>> periodsByPlace = new HashMap<>();
+		if (!byId.isEmpty()) {
+			for (PlaceEventPeriod period : this.eventPeriods.findByPlaceIdIn(byId.keySet())) {
+				periodsByPlace.computeIfAbsent(period.getPlaceId(), (k) -> new ArrayList<>()).add(period);
+			}
+		}
+		Map<String, PlaceEventSchedule> out = new HashMap<>();
+		for (String placeId : placeIds) {
+			UUID id = parseOrNull(placeId);
+			out.put(placeId, scheduleOf(id == null ? List.of() : periodsByPlace.getOrDefault(id, List.of()), from, to));
+		}
+		return out;
+	}
+
+	private static PlaceEventSchedule scheduleOf(List<PlaceEventPeriod> periods, LocalDate from, LocalDate to) {
 		if (periods.isEmpty()) {
 			return PlaceEventSchedule.unscheduled();
 		}

@@ -1,6 +1,9 @@
 package com.gabolle.backend.itinerary.application.port;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 일정 → 장소 방향의 유일한 문.
@@ -23,4 +26,19 @@ public interface PlaceEventSchedulePort {
      * @param to 여행 마지막 날 (포함)
      */
     PlaceEventSchedule scheduleWithin(String placeId, LocalDate from, LocalDate to);
+
+    /**
+     * 여러 장소를 한 번에 — {@link #scheduleWithin} 과 같은 판정이다. 추천 후보를 일정에 앉힐 때 쓴다.
+     * 기본 구현은 하나씩 묻는다. 장소 쪽 구현은 한 번의 질의로 덮어쓴다.
+     *
+     * @return 물어본 장소마다 한 칸. 기간이 정해지지 않은 장소도 {@code unscheduled} 로 들어 있다
+     */
+    default Map<String, PlaceEventSchedule> schedulesWithin(Collection<String> placeIds, LocalDate from,
+            LocalDate to) {
+        Map<String, PlaceEventSchedule> out = new HashMap<>();
+        for (String placeId : placeIds) {
+            out.put(placeId, scheduleWithin(placeId, from, to));
+        }
+        return out;
+    }
 }
