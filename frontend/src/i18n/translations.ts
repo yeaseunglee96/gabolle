@@ -1219,7 +1219,6 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.': { ja: 'まだ残された記録がありません。最初の記録を残してみましょう。', zhHans: '还没有记录,来分享第一篇吧。', zhHant: '還沒有記錄,來分享第一篇吧。' },
   '부산 둘러보기': { ja: '釜山を見て回る', zhHans: '探索釜山', zhHant: '探索釜山' },
   '내 여행': { ja: 'マイ旅行', zhHans: '我的旅行', zhHant: '我的旅行' },
-  '준비 완료': { ja: '準備完了', zhHans: '准备就绪', zhHant: '準備就緒' },
   '예정': { ja: '予定', zhHans: '即将开始', zhHant: '即將開始' },
   '날짜 미정': { ja: '日程未定', zhHans: '日期待定', zhHant: '日期待定' },
   '일정 찾는 중…': { ja: '日程を検索中…', zhHans: '正在查找行程…', zhHant: '正在查找行程…' },

@@ -20,6 +20,9 @@ import { HomeRow, homeCardWidth } from './HomeRow';
 import type { HomeCardPlace, HomeFacetRow } from './useHomeData';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
 import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
+// 🔴 상태 글자는 여행 목록 카드와 같은 함수다 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 전에는 서버 status 를
+//    그대로 읽는 홈 전용 함수가 따로 있어서, 오늘 진행 중인 여행에도 「준비 완료」가 붙었다.
+import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
 import type { DailyForecastDto } from '@/trip/weather';
 
 const heartIcon = require('../../assets/icons/home/heart.png');
@@ -267,12 +270,6 @@ function formatDay(iso: string | null, tx: Tx, locale: string) {
   return formatMonthDay(iso, locale) ?? iso;
 }
 
-function statusLabel(trip: TripSummaryDto, tx: Tx) {
-  if (trip.status === 'IN_PROGRESS') return tx('진행 중', 'In progress');
-  if (trip.status === 'READY') return tx('준비 완료', 'Ready');
-  return tx('예정', 'Upcoming');
-}
-
 /** 카드에 적을 날짜 범위. 시작일이 없으면 부르는 쪽이 안 쓰게 되어 있다. */
 function dateRange(trip: TripSummaryDto, tx: Tx, locale: string) {
   return trip.startDate && trip.endDate
@@ -302,9 +299,9 @@ export function MyTripCard({ trip, signedIn, loaded, layout = 'column' }: { trip
   if (!signedIn) return null;
   const row = layout === 'row';
 
-  // 🔴 함수로 둔다 — 여행이 없을 때(trip === null) 미리 만들면 statusLabel(null) 이 터진다.
+  // 🔴 함수로 둔다 — 여행이 없을 때(trip === null) 미리 만들면 상태 글자(tripStatusLabel)가 null 을 읽다 터진다.
   const tripCopy = (t: TripSummaryDto) => <>
-    <Text variant="caption" weight="bold" color={color.state.success}>{statusLabel(t, tx)}</Text>
+    <Text variant="caption" weight="bold" color={color.state.success}>{tripStatusLabel(effectiveTripStatus(t), tx)}</Text>
     {/* 이름이 있으면 이름, 없으면 날짜. 없는 이름을 지어내지 않는
         것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다.
     */}
