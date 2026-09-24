@@ -8,6 +8,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { resolveTextLanguage } from '@/i18n/languages';
+import { isOvernight } from '@/plan/lodgingRequired';
 import { lodgingSnapshotOf, MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, searchOrigins, type OriginCandidate } from '@/plan/origins';
 import { MonthPicker } from '@/home/MonthPicker';
 import { MAX_MONTH_OFFSET, monthOffsetOf } from '@/home/monthJump';
@@ -481,11 +482,15 @@ export function PlanStartBar({
           <Text variant="caption" color={color.text.muted}>{candidate.address}</Text>
         </Pressable>
       ))}
-      {/* 탈출구 — 항상 마지막. 검색 결과 중이어도 그대로 둔다, 언제든 «안 정했다」로 빠져나갈 수 있게. */}
-      <Pressable onPress={clearLodging} accessibilityRole="button" style={styles.originRow}>
-        <Text weight="bold">{tx('숙소 아직 안 정했어요', 'Not decided yet')}</Text>
-        <Text variant="caption" color={color.text.muted}>{tx('출발지 기준으로 일정을 짜요', "We'll plan around your starting point")}</Text>
-      </Pressable>
+      {/* 탈출구 — 항상 마지막. 검색 결과 중이어도 그대로 둔다, 언제든 «안 정했다」로 빠져나갈 수 있게.
+          🔴 1박 이상이면 안 보인다(S15P21E201-1591) — 1박 이상은 숙소가 있어야 일정을 만든다(S15P21E201-1584).
+          골라 봐야 「만들기」에서 막히는 길을 열어 두지 않는다. 날짜를 아직 안 골랐으면 모르니 그대로 둔다. */}
+      {isOvernight(value.startDate, value.endDate) ? null : (
+        <Pressable onPress={clearLodging} accessibilityRole="button" style={styles.originRow}>
+          <Text weight="bold">{tx('숙소 아직 안 정했어요', 'Not decided yet')}</Text>
+          <Text variant="caption" color={color.text.muted}>{tx('출발지 기준으로 일정을 짜요', "We'll plan around your starting point")}</Text>
+        </Pressable>
+      )}
     </View>
   );
 
