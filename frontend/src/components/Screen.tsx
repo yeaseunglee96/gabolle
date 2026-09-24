@@ -11,7 +11,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 
 import { color, gutter, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
@@ -36,9 +36,11 @@ type ScreenProps = {
   /** 이 화면이 TabBar 를 형제로 그리는가 */
   withTabBar?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** scroll 화면에서 화면이 스스로 굴러야 할 때(펼친 칸을 보여 주기 등) 쓴다. */
+  scrollRef?: Ref<ScrollView>;
 };
 
-export function Screen({ children, scroll = false, wide = false, withTabBar = false, style }: ScreenProps) {
+export function Screen({ children, scroll = false, wide = false, withTabBar = false, style, scrollRef }: ScreenProps) {
   const { kind } = useLayout();
   const insets = useSafeAreaInsets();
 
@@ -57,7 +59,7 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
   const keyboardBehavior = Platform.OS === 'ios' ? 'padding' : undefined;
 
   const body = scroll ? (
-    <ScrollView contentContainerStyle={contentStyle} keyboardShouldPersistTaps="handled">
+    <ScrollView ref={scrollRef} contentContainerStyle={contentStyle} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   ) : (
