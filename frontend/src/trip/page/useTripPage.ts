@@ -119,7 +119,8 @@ export function useTripPage(source: TripPageSource) {
   // 하루 끝 — 숙소(마지막 날은 출발지)로 돌아가는 선과 표식(S15P21E201-1567). 그 구간의 길도 같이 받아 온다.
   const returnLeg = loaded?.days[dayIndex]?.returnLeg ?? null;
   const back = useMemo(() => returnTrip(map, dayIndex + 1, returnLeg), [map, dayIndex, returnLeg]);
-  const legDays = useMemo(() => (back ? [...map.days, back.day] : map.days), [map, back]);
+  // 동네 숙소면(approximate) 그 구간의 길은 안 받아 온다 — 곧은 점선으로 그린다(S15P21E201-1570).
+  const legDays = useMemo(() => (back && !back.approximate ? [...map.days, back.day] : map.days), [map, back]);
   const legs = useCourseRoutePaths(legDays, accessToken);
   const routes = useMemo(
     () => [...dayRoutes(map, dayIndex + 1, color.brand.navy, legs), ...(back ? [returnRoute(back, color.brand.navy, legs)] : [])],
