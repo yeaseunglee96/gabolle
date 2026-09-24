@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,5 +132,28 @@ class ItineraryPersistenceIntegrationTest {
 
 		// 진 쪽 시도로 포인터가 어긋나지 않는다 — 여전히 2다.
 		assertThat(itineraryRepository.findById(itineraryId).orElseThrow().latestVersion()).isEqualTo(2);
+	}
+
+	// ── 고른 시각 (S15P21E201-1602) ─────────────────────────────────────
+
+	private Instant chosenAt() {
+		return jdbcTemplate.queryForObject("SELECT chosen_at FROM itineraries WHERE itinerary_id = ?",
+				java.sql.Timestamp.class, UUID.fromString(itineraryId)).toInstant();
+	}
+
+	@Test
+	@DisplayName("일정이 생기면 고른 시각이 채워진다 — 일정을 만드는 길 어디서도 따로 적지 않아도 된다")
+	void aNewItineraryIsChosenWhenCreated() {
+		assertThat(chosenAt()).isNotNull();
+	}
+
+	@Test
+	@DisplayName("🔴 다시 고르면 고른 시각이 옮겨진다 — C 를 골랐다가 A 로 되돌아오면 A 가 확정이 되는 근거")
+	void markChosenMovesTheChosenTime() {
+		Instant later = Instant.now().plus(java.time.Duration.ofHours(1)).truncatedTo(ChronoUnit.MICROS);
+
+		itineraryRepository.markChosen(itineraryId, later);
+
+		assertThat(chosenAt()).isEqualTo(later);
 	}
 }

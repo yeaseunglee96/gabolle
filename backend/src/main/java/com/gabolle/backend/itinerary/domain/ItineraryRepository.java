@@ -1,5 +1,6 @@
 package com.gabolle.backend.itinerary.domain;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -71,4 +72,12 @@ public interface ItineraryRepository {
      * 판 자체가 이력이라 따로 이력 표를 두지 않는다.
      */
     List<ItineraryVersion> findRecentVersions(Collection<String> itineraryIds, int limit);
+
+    /**
+     * 이 일정을 방금 골랐다 — 여행의 「지금 확정된 일정」이 된다(S15P21E201-1602, {@code itineraries.chosen_at}).
+     * 일정이 새로 생길 때는 DB 기본값이 그 시각을 채우므로 부르지 않아도 된다. 이미 있는 안을 다시 고를 때 부른다.
+     * 메모리 구현과 시험 대역은 확정 개념이 없어 아무것도 안 한다.
+     */
+    default void markChosen(String itineraryId, Instant at) {
+    }
 }

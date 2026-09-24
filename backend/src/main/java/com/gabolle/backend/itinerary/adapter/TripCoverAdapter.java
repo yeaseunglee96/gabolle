@@ -144,6 +144,34 @@ public class TripCoverAdapter implements TripCoverPort {
 		}
 	}
 
+	/**
+	 * 여행마다 {@code chosen_at} 이 가장 늦은 일정(S15P21E201-1602). 일정이 생길 때 그 시각이 찍히고, 이미 있는 안을
+	 * 다시 고르면 지금으로 옮겨진다({@code TripCourseService.choose}).
+	 */
+	private static final String CURRENT_OF_EACH_TRIP = """
+			SELECT DISTINCT ON (itinerary.trip_id) itinerary.trip_id, itinerary.itinerary_id
+			FROM itineraries itinerary
+			WHERE itinerary.trip_id IN (:tripIds)
+			ORDER BY itinerary.trip_id, itinerary.chosen_at DESC, itinerary.created_at DESC, itinerary.itinerary_id DESC
+			""";
+
+	@Override
+	public Map<String, String> currentItinerariesOf(Collection<String> tripIds) {
+		List<UUID> ids = tripIds.stream().map(TripCoverAdapter::parseOrNull).filter((id) -> id != null).toList();
+		if (ids.isEmpty()) {
+			return Map.of();
+		}
+		@SuppressWarnings("unchecked")
+		List<Object[]> rows = this.entityManager.createNativeQuery(CURRENT_OF_EACH_TRIP)
+				.setParameter("tripIds", ids)
+				.getResultList();
+		Map<String, String> current = new HashMap<>();
+		for (Object[] row : rows) {
+			current.put(String.valueOf(row[0]), String.valueOf(row[1]));
+		}
+		return current;
+	}
+
 	/** 식별자 모양이 아니면 조용히 뺀다 — 표지 하나 때문에 목록을 실패시키지 않는다. */
 	private static UUID parseOrNull(String tripId) {
 		try {

@@ -35,6 +35,8 @@ import com.gabolle.backend.trip.domain.TripRepository;
  *     을 언어와 무관하게 둘 다 싣고 고르는 것은 화면의 몫이다. 앱의 언어 전환은 서버를 다시
  *     부르지 않고 그 자리에서 일어나므로({@code tx(ko, en)}), 서버가 하나만 고르면 영어로 바꾼
  *     화면에 한국어 이름이 남는다
+ * @param currentItineraryId 지금 확정된 일정 — 코스를 마지막으로 고른 일정, 안 골랐으면 추천이 만든 기본 일정
+ *     (S15P21E201-1602). 일정이 없으면 {@code null}. 앱이 이것으로 「버전 N」 목록 없이 바로 연다
  */
 public record TripSummaryResponse(
 		String tripId,
@@ -49,10 +51,12 @@ public record TripSummaryResponse(
 		Instant updatedAt,
 		String coverImageUrl,
 		String firstStopNameKo,
-		String firstStopNameEn) {
+		String firstStopNameEn,
+		String currentItineraryId) {
 
 	/** @param cover 표지를 못 구했으면 {@code null}. 그때 표지 세 칸이 전부 {@code null} 이다 */
-	public static TripSummaryResponse of(TripRepository.MemberTrip row, TripCoverPort.Cover cover) {
+	public static TripSummaryResponse of(TripRepository.MemberTrip row, TripCoverPort.Cover cover,
+			String currentItineraryId) {
 		Trip t = row.trip();
 		return new TripSummaryResponse(
 				t.tripId(),
@@ -67,6 +71,7 @@ public record TripSummaryResponse(
 				t.updatedAt(),
 				cover == null ? null : cover.imageUrl(),
 				cover == null ? null : cover.stopNameKo(),
-				cover == null ? null : cover.stopNameEn());
+				cover == null ? null : cover.stopNameEn(),
+				currentItineraryId);
 	}
 }

@@ -516,4 +516,14 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	private static Instant toInstant(OffsetDateTime offsetDateTime) {
 		return offsetDateTime == null ? null : offsetDateTime.toInstant();
 	}
+
+	@Override
+	@Transactional
+	public void markChosen(String itineraryId, Instant at) {
+		// 엔티티에 칸을 두지 않는다 — 저장할 때 늘 DB 기본값(now())이 채우고, 바꾸는 곳은 여기 하나다.
+		entityManager.createNativeQuery("UPDATE itineraries SET chosen_at = ?1 WHERE itinerary_id = ?2")
+				.setParameter(1, java.sql.Timestamp.from(at))
+				.setParameter(2, UUID.fromString(itineraryId))
+				.executeUpdate();
+	}
 }
