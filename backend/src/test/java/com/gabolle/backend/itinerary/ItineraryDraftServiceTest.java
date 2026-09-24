@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.gabolle.backend.itinerary.application.ItineraryDraftService;
+import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
@@ -272,6 +273,34 @@ class ItineraryDraftServiceTest {
 			assertThat(item.stayMinutes()).isNull();
 			assertThat(item.dataStatus()).isEqualTo("UNKNOWN");
 		});
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1565 — 마지막 방문지는 돌아갈 시간만큼 일찍 끝난다(당일치기 = 출발지로)")
+	void lastStopLeavesRoomToGoBack() {
+		LocalDate day = LocalDate.of(2026, 9, 10);
+		Trip trip = new Trip("trip_1", "usr_1", day, day, 35.1152, 129.0422, null, 2, "09:00-18:00", "Asia/Seoul",
+				new String[] { "BUS" }, LocalTime.of(9, 0), LocalTime.of(18, 0), Instant.now());
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		// 방문지에 좌표가 있어야 돌아가는 길을 잰다.
+		when(this.placeRepository.findById(org.mockito.ArgumentMatchers.any(UUID.class))).thenAnswer((call) ->
+				Optional.of(Place.imported(call.getArgument(0), "장소", "CAFE_HEALING", null, 35.16, 129.16,
+						"FIXTURE", call.getArgument(0).toString(), null, null, "v1")));
+		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) ->
+				new TravelTime(5000, 25, ItineraryItem.DataStatus.ESTIMATED);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(port);
+		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
+				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1,
+				new ItineraryLegPlanner(this.placeRepository, provider), ALWAYS_UNKNOWN,
+				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+
+		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
+
+		LocalTime lastEnd = draft.items().get(draft.items().size() - 1).endTime();
+		assertThat(lastEnd).as("18:00 에서 돌아가는 25분을 먼저 뗀다 — 나눗셈 나머지만큼 더 이를 수 있다")
+				.isBetween(LocalTime.of(17, 30), LocalTime.of(17, 35));
 	}
 
 	@Test

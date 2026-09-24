@@ -43,8 +43,29 @@ public record ItineraryDetailResponse(
 		/** 이 여행을 몇 명이 가는가. {@code trip.party_size} 그대로다. */
 		int partySize) {
 
-	/** 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}). */
-	public record Day(String date, List<Item> items) {
+	/**
+	 * 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}).
+	 *
+	 * @param returnLeg 그날 마지막 방문지에서 돌아가는 이동(S15P21E201-1565). 돌아갈 자리를 모르면 {@code null}
+	 */
+	public record Day(String date, List<Item> items, ReturnLeg returnLeg) {
+
+		/** 돌아가는 이동을 모르는 날. */
+		public Day(String date, List<Item> items) {
+			this(date, items, null);
+		}
+	}
+
+	/**
+	 * 하루 끝에 돌아가는 이동 — 마지막 날이 아니면 숙소로, 마지막 날이면 여행 출발지로.
+	 *
+	 * @param kind            {@code LODGING}(숙소) · {@code ORIGIN}(여행 출발지)
+	 * @param label           숙소 이름 또는 동네 이름. 출발지면 {@code null} — 화면이 「출발지」로 적는다
+	 * @param durationMin     못 쟀으면 {@code null}
+	 * @param travelDataStatus {@code VERIFIED}·{@code ESTIMATED}. 어림값을 잰 값처럼 그리지 않게 싣는다
+	 */
+	public record ReturnLeg(String kind, String label, double lat, double lng, Integer durationMin,
+			Integer distanceM, String travelDataStatus) {
 	}
 
 	public record Item(
