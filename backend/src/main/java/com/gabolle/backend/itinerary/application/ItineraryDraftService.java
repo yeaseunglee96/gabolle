@@ -379,30 +379,36 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      *
      * <p>합계 규칙은 일정 응답·화면과 같다(ItineraryQueryService.costOf · 앱 itineraryBudget): <b>아는 가격만</b>
      * 더한다. 모르는 곳은 0 이 아니라 합계에서 빠지므로 여기서도 막지 않는다.
+     *
+     * <p>🔴 S15P21E201-1579 — 메뉴 값은 한 그릇(1인분)이고 예산은 여행 전체 총액이다. 그래서 값에 인원수를 곱해
+     * 센다. 안 곱하면 3명 여행에서 실제 식비의 1/3 만 세어 상한이 사실상 안 걸린다.
      */
     private static final class BudgetCap {
 
         private final Map<UUID, Integer> prices;
 
+        private final int partySize;
+
         private final long limit;
 
         private long spent;
 
-        private BudgetCap(Map<UUID, Integer> prices, long limit) {
+        private BudgetCap(Map<UUID, Integer> prices, int partySize, long limit) {
             this.prices = prices;
+            this.partySize = partySize;
             this.limit = limit;
         }
 
         /** 이곳을 넣으면 상한을 넘나. 값을 모르면 안 넘는다. */
         boolean wouldExceed(ItineraryDraftCommand.PlannedPlace place) {
             Integer price = this.prices.get(place.placeId());
-            return price != null && this.spent + price > this.limit;
+            return price != null && this.spent + (long) price * this.partySize > this.limit;
         }
 
         void take(ItineraryDraftCommand.PlannedPlace place) {
             Integer price = this.prices.get(place.placeId());
             if (price != null) {
-                this.spent += price;
+                this.spent += (long) price * this.partySize;
             }
         }
     }
@@ -418,7 +424,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             ids.add(place.placeId());
         }
         long limit = Math.round(budget * (1 + BUDGET_OVERRUN_ALLOWANCE));
-        return new BudgetCap(this.menuPrice.pricesOf(ids), limit);
+        return new BudgetCap(this.menuPrice.pricesOf(ids), trip.partySize(), limit);
     }
 
     private Distribution distributeByDay(

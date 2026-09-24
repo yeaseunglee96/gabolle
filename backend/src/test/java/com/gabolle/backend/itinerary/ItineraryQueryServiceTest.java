@@ -274,6 +274,37 @@ class ItineraryQueryServiceTest {
 		assertThat(this.service.getDetail(itineraryId, this.requesterId).partySize()).isEqualTo(3);
 	}
 
+	// ── 비용 × 인원 (S15P21E201-1579) ─────────────────────────────────────
+
+	/** 대표 메뉴가 한 그릇 15,000원인 장소 하나를 첫날에 둔 일정을, 인원만 바꿔 연다. */
+	private ItineraryDetailResponse detailWithMenuPrice(int partySize) {
+		ItineraryQueryService priced = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
+				new FakeItineraryItemActualRepository(), placeIds -> Map.of(this.placeId, 15_000));
+		stubTripMembership(new Trip(this.tripId, this.requesterId, LocalDate.of(2026, 9, 10),
+				LocalDate.of(2026, 9, 12), null, null, 300_000, partySize, null, "Asia/Seoul", Instant.now()));
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("item_key_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+		return priced.getDetail(itineraryId, this.requesterId);
+	}
+
+	/**
+	 * 예산은 「한 사람이 아니라 이번 여행 전체 예산」으로 묻는다. 비용이 1인분이면 화면이 1인분 식비를 총예산과
+	 * 견준다 — 운영에서 2명 여행의 「삼겹살 1인분 15,000원」 집이 15,000원으로 찍혔다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-1579 — 항목 비용과 합계는 1인분 메뉴 값 × 인원이다")
+	void costIsMenuPriceTimesPartySize() {
+		ItineraryDetailResponse forOne = detailWithMenuPrice(1);
+		ItineraryDetailResponse forThree = detailWithMenuPrice(3);
+
+		assertThat(forOne.days().get(0).items().get(0).estimatedCostKrw()).isEqualTo(15_000);
+		assertThat(forOne.totalEstimatedCostKrw()).isEqualTo(15_000);
+		assertThat(forThree.days().get(0).items().get(0).estimatedCostKrw()).isEqualTo(45_000);
+		assertThat(forThree.totalEstimatedCostKrw()).as("합계도 같은 값을 더한다 — 항목과 합계가 어긋나면 안 된다")
+				.isEqualTo(45_000);
+	}
+
 	// ── 방문지 좌표 ─────────────────────────────────────────────────────────
 
 	/** 좌표가 없으면 코스 화면이 동선을 글로만 세운다. */
