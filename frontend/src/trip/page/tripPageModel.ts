@@ -7,6 +7,7 @@ import type { MapRouteLayer } from '@/map/RouteMap';
 import { legKey, type LegPath } from '@/map/courseRoutePaths';
 import type { MapStop } from '@/map/types';
 import type { DayReturnLeg, ItineraryItemDto } from '@/plan/itinerary';
+import { lodgingAreaCodeOf } from '@/plan/origins';
 
 /**
  * 두 입구(추천·일정)가 어느 판을 여나 — 넓은 화면(1단계) · 폰(2단계) · 지금까지의 화면.
@@ -96,18 +97,25 @@ export function dayMap(items: ItineraryItemDto[], dayNumber: number): DayMap {
  */
 export const RETURN_DAY_OFFSET = 1000;
 
-export type ReturnTrip = { day: { day: number; stops: MapStop[] }; anchor: MapStop; kind: DayReturnLeg['kind'] };
+/**
+ * @param approximate 돌아가는 자리가 동네 중심이라 정확한 숙소를 모른다 — 길을 받아 오지 않고 곧은 점선으로 그린다.
+ */
+export type ReturnTrip = { day: { day: number; stops: MapStop[] }; anchor: MapStop; kind: DayReturnLeg['kind']; approximate: boolean };
 
 export function returnTrip(map: DayMap, dayNumber: number, returnLeg: DayReturnLeg | null | undefined): ReturnTrip | null {
   const last = map.stops[map.stops.length - 1];
   if (!returnLeg || !last) return null;
   const anchor: MapStop = { id: `return-${dayNumber}`, number: 0, name: returnLeg.label ?? '', latitude: returnLeg.lat, longitude: returnLeg.lng };
-  return { day: { day: RETURN_DAY_OFFSET + dayNumber, stops: [last, anchor] }, anchor, kind: returnLeg.kind };
+  // 🔴 숙소를 동네(「해운대」)로 골랐으면 서버는 동네 중심을 숙소 자리로 쓴다. 해운대의 그 점은 해수욕장 모래사장
+  //    위라서, 카카오 «자동차» 길찾기가 거기 닿으려고 일방통행을 돌아 동백섬까지 갔다 왔다(사용자 폰 화면 2026-09-24,
+  //    S15P21E201-1570). 정확한 숙소를 모르는데 길을 지어내지 않는다 — 곧은 점선(어림)이다.
+  const approximate = returnLeg.kind === 'LODGING' && lodgingAreaCodeOf(returnLeg.lat, returnLeg.lng) != null;
+  return { day: { day: RETURN_DAY_OFFSET + dayNumber, stops: [last, anchor] }, anchor, kind: returnLeg.kind, approximate };
 }
 
 /** 돌아가는 구간의 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선. */
 export function returnRoute(back: ReturnTrip, lineColor: string, legs: Record<string, LegPath>): MapRouteLayer {
-  const leg = legs[legKey(back.day.day, 0)];
+  const leg = back.approximate ? undefined : legs[legKey(back.day.day, 0)];
   return { id: `return-${back.day.day}`, color: lineColor, stops: back.day.stops, path: leg?.path, estimated: leg ? leg.estimated : true };
 }
 
