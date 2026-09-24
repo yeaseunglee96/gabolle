@@ -34,6 +34,7 @@ import com.gabolle.backend.recommendation.domain.RecommendationCandidate;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationCandidateRepository;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
+import com.gabolle.backend.recommendation.support.FakeItineraryDraftPort;
 import com.gabolle.backend.recommendation.support.FakeRecommendationEngine;
 import com.gabolle.backend.recommendation.support.PersonalizationFixture;
 import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
@@ -49,6 +50,9 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 
 	@Autowired
 	private FakeRecommendationEngine engine;
+
+	@Autowired
+	private FakeItineraryDraftPort draftPort;
 
 	@Autowired
 	private RecommendationJobRepository jobRepository;
@@ -339,6 +343,25 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 		assertThat(job.getResourceId()).isEqualTo(job.getTripId());
 		assertThat(job.getJobStatus()).isEqualTo(JobStatus.SUCCEEDED);
 		assertThat(job.getPolicyVersion()).isEqualTo("policy-2026-09-01");
+	}
+
+	@Test
+	@DisplayName("🔴 일정 조립 시간이 조립 시간 칸에 적히고 전체 시간에도 들어간다 — 전에는 조립 전에 재고 끝났다")
+	void assemblyTimeIsRecorded() {
+		this.engine.willReturn(FakeRecommendationEngine.batchOf(List.of(
+				FakeRecommendationEngine.passing(UUID.randomUUID(), 0.9))));
+		this.draftPort.delayAssembleBy(300);
+		RecommendationResult result;
+		try {
+			result = this.recommendationService.recommend(command(5));
+		}
+		finally {
+			this.draftPort.delayAssembleBy(0);
+		}
+
+		RecommendationJob job = this.jobRepository.findByRequestId(result.requestId()).orElseThrow();
+		assertThat(job.getOptimizationLatencyMs()).isGreaterThanOrEqualTo(300L);
+		assertThat(job.getTotalLatencyMs()).isGreaterThanOrEqualTo(job.getOptimizationLatencyMs());
 	}
 
 	@Test

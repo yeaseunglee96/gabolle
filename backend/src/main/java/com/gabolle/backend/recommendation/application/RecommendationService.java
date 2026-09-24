@@ -267,6 +267,8 @@ public class RecommendationService {
 		// 자리가 markCompleted 뒤·recorder 호출 앞인 것이 중요하다. Job 상태는 이미 SUCCEEDED
 		// 지만 itineraryId 는 아직 없다 — attachItinerary 는 recorder.recordWithItinerary 안에서
 		// 저장 직전에 불린다. 자세한 근거는 RecommendationJob.assertItineraryAttachedIfRequired().
+		// 일정 조립(편집이면 하루 다시 채우기)에 든 시간. markCompleted 뒤라 위의 applyLatencies 가 못 잰다.
+		long optimizationStartedNanos = System.nanoTime();
 		ItineraryDraft draft = null;
 		if (job.getJobType() == JobType.ITINERARY_GENERATION) {
 			ItineraryDraftPort port = this.itineraryDraftPort.getIfAvailable();
@@ -305,6 +307,10 @@ public class RecommendationService {
 				throw abandon(job, RecommendationCodes.ERROR_ITINERARY_ASSEMBLY_FAILED, JobStage.ROUTE_OPTIMIZATION,
 						false, false, createdAt, startedNanos, ex);
 			}
+		}
+
+		if (draft != null || revision != null) {
+			job.applyOptimizationLatency(elapsedMs(optimizationStartedNanos), elapsedMs(startedNanos));
 		}
 
 		// 이 목록은 recorder 의 같은 트랜잭션으로 들어간다 — 여기 담긴 것은 Job·후보와 같이
