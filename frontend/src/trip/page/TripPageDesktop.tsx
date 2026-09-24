@@ -71,7 +71,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const {
     page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
     itinerary, setItinerary, loaded, dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace,
-    map, routes, anyEstimatedLine, travelTotal, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
+    map, routes, points, anyEstimatedLine, travelTotal, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
   const [layout, setLayout] = useState<Layout>('cards');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -100,7 +100,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const mapPanel = (height: number) => (
     <View style={[styles.mapPanel, { height }]}>
       {map.stops.length ? (
-        <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} height={height} focusSelected />
+        <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} height={height} focusSelected />
       ) : (
         <View style={styles.mapEmpty}><Text variant="caption" color={color.text.muted}>{tx('장소의 좌표가 아직 없어 지도에 그릴 수 없어요.', 'These places have no coordinates yet, so the map is empty.')}</Text></View>
       )}

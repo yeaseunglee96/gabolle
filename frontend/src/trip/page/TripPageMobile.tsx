@@ -91,7 +91,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const {
     page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
     itinerary, setItinerary, loaded, reloadItinerary, dayIndex, setDayIndex, items, selectedId, setSelectedId,
-    photos, pace, reloadPace, map, routes, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
+    photos, pace, reloadPace, map, routes, points, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
 
   const [panel, setPanel] = useState<Panel>('trip');
@@ -373,7 +373,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         {map.stops.length ? (
           // 🔴 지도 부품은 둥근 테두리 칸으로 그려진다. 바탕으로 쓰려면 모서리를 화면 밖으로 밀어낸다.
           <View style={styles.mapBleed}>
-            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} height={mapHeight + radius.lg * 2} focusSelected />
+            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} height={mapHeight + radius.lg * 2} focusSelected />
           </View>
         ) : loaded ? (
           <View style={[styles.mapEmpty, { paddingTop: insets.top }]}>

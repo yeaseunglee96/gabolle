@@ -6,7 +6,7 @@
 import type { MapRouteLayer } from '@/map/RouteMap';
 import { legKey, type LegPath } from '@/map/courseRoutePaths';
 import type { MapStop } from '@/map/types';
-import type { ItineraryItemDto } from '@/plan/itinerary';
+import type { DayReturnLeg, ItineraryItemDto } from '@/plan/itinerary';
 
 /**
  * 두 입구(추천·일정)가 어느 판을 여나 — 넓은 화면(1단계) · 폰(2단계) · 지금까지의 화면.
@@ -86,6 +86,29 @@ export function dayMap(items: ItineraryItemDto[], dayNumber: number): DayMap {
     stops.push({ id: item.id, number: index + 1, name: item.title, latitude: item.lat, longitude: item.lng });
   });
   return { stops, days: stops.length ? [{ day: dayNumber, stops }] : [] };
+}
+
+/**
+ * 하루 끝에 돌아가는 구간 — 그날 마지막 정차지 → 숙소(마지막 날은 출발지). S15P21E201-1567.
+ *
+ * 길을 받아 오는 열쇠(legKey)가 정차지 구간과 안 겹치게 날 번호에 {@link RETURN_DAY_OFFSET} 을 더한다.
+ * 돌아갈 자리를 모르거나(returnLeg 없음) 좌표 있는 정차지가 없으면 null — 선을 지어내지 않는다.
+ */
+export const RETURN_DAY_OFFSET = 1000;
+
+export type ReturnTrip = { day: { day: number; stops: MapStop[] }; anchor: MapStop; kind: DayReturnLeg['kind'] };
+
+export function returnTrip(map: DayMap, dayNumber: number, returnLeg: DayReturnLeg | null | undefined): ReturnTrip | null {
+  const last = map.stops[map.stops.length - 1];
+  if (!returnLeg || !last) return null;
+  const anchor: MapStop = { id: `return-${dayNumber}`, number: 0, name: returnLeg.label ?? '', latitude: returnLeg.lat, longitude: returnLeg.lng };
+  return { day: { day: RETURN_DAY_OFFSET + dayNumber, stops: [last, anchor] }, anchor, kind: returnLeg.kind };
+}
+
+/** 돌아가는 구간의 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선. */
+export function returnRoute(back: ReturnTrip, lineColor: string, legs: Record<string, LegPath>): MapRouteLayer {
+  const leg = legs[legKey(back.day.day, 0)];
+  return { id: `return-${back.day.day}`, color: lineColor, stops: back.day.stops, path: leg?.path, estimated: leg ? leg.estimated : true };
 }
 
 /** 정차지 사이 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선(estimated). */
