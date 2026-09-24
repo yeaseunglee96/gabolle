@@ -60,9 +60,10 @@ export function useTripProgress(itineraryId: string | null) {
     error,
     start: () => send(startRun(progress), () => startProgress(id, accessToken)),
     pause: () => send(pauseRun(progress), () => pauseProgress(id, accessToken)),
-    arrive: (stopIds: string[], stopId: string) => send(
-      arriveAt(progress, stopIds, stopId, new Date().toISOString(), 'manual'),
-      () => arriveProgress(id, stopId, 'manual', accessToken)),
+    // how — 「도착」 단추면 manual, 위치로 알아챘으면 auto(S15P21E201-1568). 서버·기기 기록에 그대로 남는다.
+    arrive: (stopIds: string[], stopId: string, how: 'auto' | 'manual' = 'manual') => send(
+      arriveAt(progress, stopIds, stopId, new Date().toISOString(), how),
+      () => arriveProgress(id, stopId, how, accessToken)),
     skip: (stopIds: string[], stopId: string) => send(
       skipStop(progress, stopIds, stopId, new Date().toISOString()),
       () => skipProgress(id, stopId, accessToken)),

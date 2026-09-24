@@ -50,6 +50,8 @@ import type { TripPageSource } from './tripPageData';
 import { formatManwon } from './tripPageModel';
 import { useTripPage } from './useTripPage';
 import { useTripProgress } from './useTripProgress';
+import { remainingMeters, stepDwell, usableFix, type Dwell } from './autoArrival';
+import { useLiveLocation } from './useLiveLocation';
 import { DayReturnRow } from './DayReturnRow';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
@@ -188,6 +190,37 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const progress = run.progress;
   const currentStop = items[Math.min(progress.currentStopIndex, Math.max(0, items.length - 1))] ?? null;
   const nowDriftValue = drift(new Date().toISOString(), currentStop?.startsAt ?? null);
+
+  // ── 내 위치 · 자동 도착 (S15P21E201-1568) ────────────────────────────────────
+  // 출발(RUNNING) 동안만 위치를 따라간다. 지금 향하는 곳 50m 안에 2분 머물면 도착으로 적는다(autoArrival.ts).
+  const live = useLiveLocation(progress.status === 'RUNNING');
+  const target = currentStop && typeof currentStop.lat === 'number' && typeof currentStop.lng === 'number'
+    ? { id: currentStop.id, latitude: currentStop.lat, longitude: currentStop.lng } : null;
+  const dwellRef = useRef<Dwell>(null);
+  const liveFixRef = useRef(live.fix);
+  liveFixRef.current = live.fix;
+  const targetRef = useRef(target);
+  targetRef.current = target;
+  const arriveRef = useRef(run.arrive);
+  arriveRef.current = run.arrive;
+  useEffect(() => {
+    if (progress.status !== 'RUNNING') { dwellRef.current = null; return undefined; }
+    // 가만히 있으면 기기가 새 위치를 안 줄 수 있다 — 마지막 위치로 15초마다 다시 센다(그 사이 거기 있었다고 본다).
+    const check = (atNow: boolean) => {
+      const fix = liveFixRef.current;
+      const step = stepDwell(dwellRef.current, fix && atNow ? { ...fix, at: Date.now() } : fix, targetRef.current);
+      dwellRef.current = step.dwell;
+      if (step.arrive && targetRef.current) {
+        dwellRef.current = null;
+        arriveRef.current(stopIds, targetRef.current.id, 'auto');
+      }
+    };
+    check(false);
+    const timer = setInterval(() => check(true), 15_000);
+    return () => clearInterval(timer);
+  }, [progress.status, live.fix, stopIds]);
+  // 위치를 믿을 수 있을 때만 「도착」 단추를 숨긴다. 거부·꺼짐·부정확이면 손으로 적게 둔다.
+  const gpsUsable = live.state === 'on' && usableFix(live.fix);
   const driftSpan = nowDriftValue
     ? nowDriftValue.minutes >= 60
       ? nowDriftValue.minutes % 60 === 0
@@ -206,12 +239,17 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       ? txf(tx, `%s${koreanToward(currentStop.title)} 이동 중`, 'Heading to %s', currentStop.title)
       : currentStop ? txf(tx, '다음은 %s', 'Next: %s', currentStop.title) : tx('오늘 갈 곳이 없어요', 'Nothing planned today');
   const doneCount = stopIds.filter((id) => progress.outcomes[id]).length;
+  // 🔴 남은 거리 — 위치를 믿을 수 있을 때만(S15P21E201-1568). 모르면 안 적는다.
+  const leftM = progress.status === 'RUNNING' ? remainingMeters(live.fix, target) : null;
+  const leftText = leftM == null ? null
+    : leftM >= 1000 ? txf(tx, '남은 거리 %skm', '%s km to go', (leftM / 1000).toFixed(1)) : txf(tx, '남은 거리 %sm', '%s m to go', leftM);
   // 🔴 출발 전에는 「첫 곳까지 얼마」를 적는다(시안 4a 「출발지에서 50분」). 없는 안내를 지어내지 않는다 —
   //    구간 시간을 모르면 아무것도 안 적는다.
   const nowDetail = progress.status === 'PLANNED'
     ? (items[0] ? formatTravelLabel(items[0], tx, true) : null)
     : txf(tx, '%s곳 중 %s곳 다녀옴', '%s of %s stops done', items.length, doneCount)
-      + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '');
+      + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '')
+      + (leftText ? ` · ${leftText}` : '');
   const nowRatio = items.length && progress.status !== 'PLANNED' ? doneCount / items.length : null;
 
   // ── 조각 ─────────────────────────────────────────────────────────────────
@@ -283,13 +321,13 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             <View style={styles.nowWrap}>
               <NowCard
                 status={progress.status}
-                gpsUsable
+                gpsUsable={gpsUsable}
                 title={nowTitle}
                 detail={nowDetail}
                 clock={new Date().toTimeString().slice(0, 5)}
                 driftText={nowDrift}
                 progress={nowRatio}
-                showManualArrival={needsManualArrival(progress.status, true)}
+                showManualArrival={needsManualArrival(progress.status, gpsUsable)}
                 onStart={run.start}
                 onPause={run.pause}
                 onArrive={() => currentStop && run.arrive(stopIds, currentStop.id)}
@@ -373,7 +411,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         {map.stops.length ? (
           // 🔴 지도 부품은 둥근 테두리 칸으로 그려진다. 바탕으로 쓰려면 모서리를 화면 밖으로 밀어낸다.
           <View style={styles.mapBleed}>
-            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} height={mapHeight + radius.lg * 2} focusSelected />
+            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected />
           </View>
         ) : loaded ? (
           <View style={[styles.mapEmpty, { paddingTop: insets.top }]}>
