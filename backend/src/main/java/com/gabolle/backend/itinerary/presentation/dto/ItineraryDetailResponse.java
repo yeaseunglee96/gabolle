@@ -76,6 +76,10 @@ public record ItineraryDetailResponse(
 			String title,
 			/** 항상 {@code null} — {@code place} 표에 설명 칸이 없다. 주소를 대신 넣지 않는다. */
 			String description,
+			/**
+			 * 이 여행 인원 <b>전체</b>가 그곳에서 쓸 값(원) — 대표 메뉴 한 그릇 값 × {@code partySize}. 1인분이 아니다
+			 * (S15P21E201-1579). 모르면 {@code null} — {@code 0} 은 "무료"라는 다른 사실이다.
+			 */
 			Integer estimatedCostKrw,
 			/** 이 항목으로 들어오는 구간의 도보 거리. 그 구간이 없거나 도보가 아니면 {@code null}. */
 			Integer walkingMeters,

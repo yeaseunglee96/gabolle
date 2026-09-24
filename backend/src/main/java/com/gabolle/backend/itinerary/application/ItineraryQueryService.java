@@ -156,7 +156,12 @@ public class ItineraryQueryService {
 		// 🔴 가격은 **읽을 때** 찾는다. 항목에 박아 두지 않는 것은 조사가 아직 도는 중이라
 		// (`price-queue.mjs`) 오늘 만든 일정이 오늘 아는 것에 영원히 묶이기 때문이다.
 		// 항목에 값이 이미 있으면 그것이 먼저다 — 나중에 박아 두기로 바뀌어도 여기는 안 고친다.
-		Map<UUID, Integer> menuPriceByPlaceId = this.menuPrice.pricesOf(placesByPlaceId.keySet());
+		// 🔴 S15P21E201-1579 — 메뉴 값은 한 그릇(1인분)이다. 여기서 인원수를 곱해 「이 여행이 그곳에서 쓸 값」으로
+		// 바꾼 뒤 항목 비용과 합계에 쓴다. 예산(trip.budget_krw)은 여행 전체 총액이라 이래야 화면이 둘을 견준다.
+		// 일정을 짤 때의 예산 상한(ItineraryDraftService.BudgetCap)도 같은 곱셈을 한다.
+		Map<UUID, Integer> menuPriceByPlaceId = new HashMap<>();
+		this.menuPrice.pricesOf(placesByPlaceId.keySet())
+				.forEach((placeId, won) -> menuPriceByPlaceId.put(placeId, won * trip.partySize()));
 
 		List<ItineraryDetailResponse.Day> days = buildDays(trip, itemsByDay, legsByKey, placesByPlaceId,
 				actualsByItemKey, menuPriceByPlaceId);
@@ -381,7 +386,8 @@ public class ItineraryQueryService {
 
 	/** 하나도 값이 없으면 {@code 0} 이 아니라 {@code null} — "안 걸었다"·"공짜"와 "안 쟀다"는 다르다. */
 	/**
-	 * 이 항목의 비용(원). 항목에 박힌 값이 있으면 그것, 없으면 그 장소의 대표 메뉴 값.
+	 * 이 항목의 비용(원). 항목에 박힌 값이 있으면 그것, 없으면 그 장소의 대표 메뉴 값 × 인원수
+	 * ({@code menuPriceByPlaceId} 가 이미 곱한 값을 들고 온다).
 	 *
 	 * <p>🔴 <b>둘 다 없으면 {@code null} 이다. {@code 0} 으로 바꾸지 않는다.</b> 0 은 화면에서
 	 * <b>「무료」</b>로 그려지므로, 조사가 안 된 곳이 공짜인 것처럼 보이고 그 잘못이 합계에

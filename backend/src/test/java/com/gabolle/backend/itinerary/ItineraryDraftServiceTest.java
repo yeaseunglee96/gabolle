@@ -1064,18 +1064,26 @@ class ItineraryDraftServiceTest {
 
 	// ── 예산 상한 (S15P21E201-1572) ─────────────────────────────────────
 
-	private Trip tripWithBudget(Integer budgetKrw) {
+	private Trip tripWithBudget(Integer budgetKrw, int partySize) {
 		return Trip.builder()
 				.tripId("itn_trip_1").createdBy("usr_1")
 				.startDate(LocalDate.of(2026, 9, 10)).finishDate(LocalDate.of(2026, 9, 10))
-				.budgetKrw(budgetKrw).partySize(2).timezone("Asia/Seoul")
+				.budgetKrw(budgetKrw).partySize(partySize).timezone("Asia/Seoul")
 				.createdAt(Instant.now())
 				.build();
 	}
 
-	/** 순위 1~5 의 명소. 가격은 A 9만 · B 5만 · C 1만 · D 모름 · E 5천. */
+	/**
+	 * 순위 1~5 의 명소. 1인분 가격은 A 9만 · B 5만 · C 1만 · D 모름 · E 5천.
+	 * 아래 1인 시험들의 셈은 인원 1명이라 1인분 값이 곧 비용이다(S15P21E201-1579 이후 비용 = 1인분 × 인원).
+	 */
 	private List<UUID> placeBudgetCase(ItineraryDraftService service, Integer budgetKrw) {
-		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(tripWithBudget(budgetKrw)));
+		return placeBudgetCase(service, budgetKrw, 1);
+	}
+
+	private List<UUID> placeBudgetCase(ItineraryDraftService service, Integer budgetKrw, int partySize) {
+		when(this.tripRepository.findById("itn_trip_1"))
+				.thenReturn(Optional.of(tripWithBudget(budgetKrw, partySize)));
 		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesOf("CITY", "CITY", "CITY", "CITY", "CITY");
 		Map<UUID, Integer> prices = new HashMap<>();
 		prices.put(places.get(0).placeId(), 90_000);
@@ -1114,6 +1122,23 @@ class ItineraryDraftServiceTest {
 
 		assertThat(placed).containsExactlyInAnyOrder(this.budgetCase.get(0).placeId(), this.budgetCase.get(1).placeId(),
 				this.budgetCase.get(2).placeId(), this.budgetCase.get(3).placeId());
+	}
+
+	/**
+	 * 메뉴 값은 한 그릇이고 예산은 여행 전체 총액이다. 곱하지 않으면 3명 여행에서 실제 식비의 1/3 만 세어,
+	 * 1명일 때와 같은 곳이 앉는다 — 상한이 사실상 안 걸린다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-1579 — 같은 예산이라도 3명이면 1인분 값 × 3 으로 센다")
+	void budgetCapCountsEveryoneInTheParty() {
+		// 예산 10만 → 상한 12만. 3명: A 27만·B 15만은 혼자서 넘는다. C 3만 + D(모름) + E 1.5만 = 4.5만.
+		List<UUID> forThree = placeBudgetCase(this.service, 100_000, 3);
+
+		assertThat(forThree).containsExactlyInAnyOrder(this.budgetCase.get(2).placeId(),
+				this.budgetCase.get(3).placeId(), this.budgetCase.get(4).placeId());
+
+		// 같은 예산·같은 가격인데 1명이면 A(9만)가 앉는다 — 인원만 다르다.
+		assertThat(placeBudgetCase(this.service, 100_000, 1)).contains(this.budgetCase.get(0).placeId());
 	}
 
 	/** 「여행 기분」을 고른 여행. 나머지 조건은 {@link #tripOf} 와 같다. */
