@@ -75,6 +75,10 @@ public final class ItineraryDelayProjector {
 
         Instant dayEnd = plannedEndOfDay(day);
         Instant cursor = startingPoint(day, actualByKey, now);
+        // 🔴 아직 시작 안 한 날은 첫 항목의 «계획 도착»에서 센다 — 그 시각은 출발지에서 오는 이동을 이미 넣고 깐 것이다
+        //    (ItineraryDraftService.layoutDay). 거기에 첫 구간 이동을 또 더하면 첫 이동(부산역→해운대 79분)만큼 전부 밀려,
+        //    시간 안에 끝나는 일정의 마지막 곳에 「하루 넘길 위험」이 떴다(운영 실측 2026-09-24, S15P21E201-1571).
+        boolean startsAtPlannedArrival = !anyVisited(day, actualByKey) && plannedInstant(day.get(0), day.get(0).startTime()) != null;
 
         List<Entry> entries = new ArrayList<>();
         for (ItineraryItem item : day) {
@@ -84,7 +88,9 @@ public final class ItineraryDelayProjector {
                 continue;
             }
 
-            Integer travelMin = travelMinutesInto(legBySequence.get(item.sequence()), item);
+            Integer travelMin = (startsAtPlannedArrival && item == day.get(0))
+                    ? null
+                    : travelMinutesInto(legBySequence.get(item.sequence()), item);
             Instant predictedArrival = cursor.plus(Duration.ofMinutes(travelMin == null ? 0 : travelMin));
             Instant predictedDeparture = predictedArrival.plus(stayOf(item, factor));
             cursor = predictedDeparture;
@@ -122,6 +128,10 @@ public final class ItineraryDelayProjector {
         }
         Instant plannedStart = plannedInstant(day.get(0), day.get(0).startTime());
         return plannedStart == null ? now : plannedStart;
+    }
+
+    private static boolean anyVisited(List<ItineraryItem> day, Map<String, ItineraryItemActual> actualByKey) {
+        return day.stream().anyMatch(item -> isVisited(actualByKey.get(item.itemKey())));
     }
 
     /** 그날 마지막 항목의 계획 끝 시각. 이 시각을 넘기는 항목이 "하루를 넘길 위험" 이다. */
