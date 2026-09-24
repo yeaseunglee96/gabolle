@@ -9,6 +9,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -33,7 +34,7 @@ import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/re
 import { canConfirmCourse, ensureCourseItinerary, loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
 import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { timeToMinutes } from '@/plan/tripBasics';
-import { loadTrips } from '@/trip/trips';
+import { invalidateTripLists, loadTrips } from '@/trip/trips';
 import { localizeMessage } from '@/i18n/messages';
 
 type Loaded = { state: 'loading' } | { state: 'ready'; result: TripCoursesResult };
@@ -121,6 +122,7 @@ export default function Recommendations() {
 
 function RecommendationsClassic() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { accessToken } = useAuth();
   const { tx, language } = useI18n();
   const { kind } = useLayout();
@@ -279,6 +281,8 @@ function RecommendationsClassic() {
       setLoaded({ state: 'ready', result: { state: 'error', message: made.message } });
       return;
     }
+    // 🔴 확정 일정이 바뀌었다 — 여행 목록 캐시를 비워야 돌아가 카드를 눌렀을 때 새로 고른 것이 열린다(S15P21E201-1605).
+    void invalidateTripLists(queryClient);
     const target = `/trips/${made.itineraryId}/itinerary`;
     try {
       const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
