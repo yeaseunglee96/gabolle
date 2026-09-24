@@ -22,7 +22,10 @@ describe('도로 선이 점선으로 굳지 않는다', () => {
   it('🔴 받는 도중 로그인 열쇠가 바뀌어도 선이 온다 — 요청을 취소하지 않는다', async () => {
     let finish!: (value: unknown) => void;
     mocked.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
-    const { result, rerender } = renderHook(({ token }) => useCourseRoutePaths(days, token), { initialProps: { token: null as string | null } });
+    const { result, rerender } = renderHook(
+      ({ token }: { token: string | null }) => useCourseRoutePaths(days, token),
+      { initialProps: { token: null as string | null } },
+    );
 
     rerender({ token: 'token' });
     await act(async () => { finish(ok); });
