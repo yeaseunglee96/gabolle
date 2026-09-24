@@ -449,4 +449,36 @@ class TripCourseServiceTest {
 		}
 		assertThat(this.assembled).as("2안·3안 각 한 번씩만").hasSize(TripCourseService.ALTERNATIVES);
 	}
+
+	// ── 지금 확정된 일정 (S15P21E201-1602) ─────────────────────────────
+
+	@Test
+	@DisplayName("🔴 A안을 (다시) 고르면 A 가 확정이 된다 — 고른 시각을 지금으로 옮긴다")
+	void choosingTheFirstCourseMarksItChosen() {
+		this.service.choose(TRIP, REQUEST + ":0", USER);
+
+		verify(this.itineraryRepository).markChosen(eq(BASE.toString()), any());
+	}
+
+	@Test
+	@DisplayName("🔴 이미 만든 C안을 다시 고르면 C 가 확정이 된다")
+	void choosingAnExistingCourseMarksItChosen() {
+		givenRankedPool(9);
+		givenAlreadyChosen("chosen-1", "course:" + REQUEST + ":1");
+
+		this.service.choose(TRIP, REQUEST + ":1", USER);
+
+		verify(this.itineraryRepository).markChosen(eq("chosen-1"), any());
+	}
+
+	@Test
+	@DisplayName("새로 만드는 안은 따로 표시하지 않는다 — 만들 때 DB 기본값이 그 시각을 채운다")
+	void aNewlyMadeCourseIsChosenByItsCreation() {
+		givenRankedPool(9);
+
+		this.service.choose(TRIP, REQUEST + ":1", USER);
+
+		verify(this.itineraryRepository, never()).markChosen(anyString(), any());
+		verify(this.draftService).persistAlternative(any(), eq("course:" + REQUEST + ":1"));
+	}
 }

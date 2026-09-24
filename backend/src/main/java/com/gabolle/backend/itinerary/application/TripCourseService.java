@@ -189,13 +189,15 @@ public class TripCourseService {
 				.filter(candidate -> candidate.getTripId().toString().equals(trip))
 				.orElseThrow(() -> new CourseNotFoundException(courseId));
 
+		// 고른 일정이 여행의 「지금 확정된 일정」이 된다(S15P21E201-1602). 이미 있는 안을 다시 골라도 옮긴다 —
+		// C 를 골랐다가 A 로 되돌아오면 A 가 확정이다. 새로 만드는 안은 만들 때 DB 기본값이 그 시각을 채운다.
 		if (ref.index() == 0) {
-			return job.getItineraryId().toString();
+			return chosen(job.getItineraryId().toString());
 		}
 		String label = label(job, ref.index());
 		String existing = chosenByLabel(trip).get(label);
 		if (existing != null) {
-			return existing;
+			return chosen(existing);
 		}
 		// 목록이 보여 준 안이면 그 초안을 그대로 저장한다 — 미리 본 것과 저장되는 것이 같다.
 		List<Alternative> built = (ref.index() <= ALTERNATIVES) ? alternativesOnce(job, view, requesterUserId)
@@ -205,6 +207,11 @@ public class TripCourseService {
 				.findFirst()
 				.orElseThrow(() -> new CourseNotFoundException(courseId));
 		return this.draftService.persistAlternative(alternative.draft(), label).itineraryId();
+	}
+
+	private String chosen(String itineraryId) {
+		this.itineraryRepository.markChosen(itineraryId, this.clock.instant());
+		return itineraryId;
 	}
 
 	/**
