@@ -196,7 +196,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
             </>
           )}
           {/* 🔴 한 안뿐인 이유를 말한다. 조용히 하나만 그리면 비교를 놓친 줄도 모른다(recommendations.tsx 와 같은 문구). */}
-          {page.full ? null : <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.courseNote}>{tx('세 코스 비교는 준비 중이에요', 'Comparing three courses is on the way')}</Text>}
+          {/*    목록을 아직 받는 중이면 말하지 않는다 — 연 일정으로 먼저 그린 사이에는 몇 안인지 아직 모른다(S15P21E201-1599). */}
+          {page.full || page.coursesLoading ? null : <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.courseNote}>{tx('세 코스 비교는 준비 중이에요', 'Comparing three courses is on the way')}</Text>}
           <ViewSwitch layout={layout} onChange={setLayout} tx={tx} />
         </View>
 
