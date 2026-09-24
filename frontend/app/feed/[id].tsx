@@ -17,6 +17,7 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
+import { CoauthorByline } from '@/social/CoauthorByline';
 import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
@@ -555,13 +556,20 @@ export default function StoryDetail() {
       {story && !reported ? (
         <View style={styles.card}>
           <View style={styles.headerRow}>
-            <Pressable accessibilityRole="link" accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.grow}>
-              <Text variant="title" weight="bold">{story.author.displayName}</Text>
+            {/* 작성자 이름 뒤에 공동 작성자 「· 이예승」(S15P21E201-1583). 이름 버튼 «안»에 둘 수 없어서
+                (버튼 안의 버튼) 이름만 프로필로 가는 버튼이 되고, 시각·지역 줄은 그 아래 글자로 선다. */}
+            <View style={styles.grow}>
+              <View style={styles.bylineRow}>
+                <Pressable accessibilityRole="link" accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.authorLink}>
+                  <Text variant="title" weight="bold" numberOfLines={1}>{story.author.displayName}</Text>
+                </Pressable>
+                <CoauthorByline story={story} large />
+              </View>
               <Text variant="caption" color={color.text.muted}>
                 {relativeStoryTime(story.createdAt, tx)}
                 {story.region ? ` · ${story.region}` : ''}
               </Text>
-            </Pressable>
+            </View>
             {story.mine && story.visibility !== 'PUBLIC' ? (
               <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View>
             ) : null}
@@ -733,6 +741,8 @@ const styles = StyleSheet.create({
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
   grow: { flex: 1, gap: spacing[1] },
+  bylineRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minWidth: 0 },
+  authorLink: { flexShrink: 1 },
   visibilityBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   menuButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   images: { marginTop: spacing[2] },

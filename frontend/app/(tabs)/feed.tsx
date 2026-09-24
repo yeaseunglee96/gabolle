@@ -33,6 +33,7 @@ import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { applyReaction, nextReaction, StoryReactionRow } from '@/social/StoryReactionRow';
+import { CoauthorByline } from '@/social/CoauthorByline';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 import { useStoryVideo } from '@/social/useStoryVideo';
@@ -142,16 +143,20 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
         ⋯ 인지 구분이 안 됐다. 반투명 배경을 깔아도 사진에 흰 면이 많으면 그대로 묻힌다.
         그래서 **사진 위쪽에 자기 줄**을 준다 — 배경 위에 서므로 항상 읽힌다. */}
     <View style={styles.cardHead}>
-      {/* 좌상단 작성자 알약 — 사진 위에 얹히므로 배경을 깔아 글자가 읽히게 한다. */}
-      <Pressable
-        accessibilityRole="link"
-        accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)}
-        onPress={onOpenAuthor}
-        style={styles.authorPill}
-      >
-        <View style={styles.authorPillAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{story.author.displayName.slice(0, 1)}</Text></View>
-        <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1}>{story.author.displayName}</Text>
-      </Pressable>
+      {/* 좌상단 작성자 알약 — 사진 위에 얹히므로 배경을 깔아 글자가 읽히게 한다.
+          그 옆에 공동 작성자 「· 이예승」(S15P21E201-1583) — 알약 안이 아니라 옆에 따로 누르는 자리다. */}
+      <View style={styles.byline}>
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)}
+          onPress={onOpenAuthor}
+          style={styles.authorPill}
+        >
+          <View style={styles.authorPillAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{story.author.displayName.slice(0, 1)}</Text></View>
+          <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1}>{story.author.displayName}</Text>
+        </Pressable>
+        <CoauthorByline story={story} />
+      </View>
 
       {/* 우상단 — 내 글이면 공개 범위, 남의 글이면 신고. 시안의 하트 자리는 아직 안 쓴다(아래 참고). */}
       <View style={styles.coverActions}>
@@ -1073,6 +1078,7 @@ const styles = StyleSheet.create({
   dotFirst: { opacity: 1 },
   // 사진 위가 아니라 카드 맨 위 한 줄이다. 반투명 배경이 필요 없어졌다.
   cardHead: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], paddingHorizontal: spacing[3], paddingTop: spacing[3], paddingBottom: spacing[2] },
+  byline: { flexShrink: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
   authorPill: {
     flexShrink: 1,
     flexDirection: 'row', alignItems: 'center', gap: spacing[2],

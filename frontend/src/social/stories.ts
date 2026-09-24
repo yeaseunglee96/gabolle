@@ -51,6 +51,12 @@ export type StoryDto = {
    * 묶으면 싫어요 상태가 "안 누름"으로 보인다 — kojh0124 님 경고 그대로다.
    */
   myReaction?: 'LIKE' | 'DISLIKE' | null;
+  /**
+   * 공동 작성자 — S15P21E201-1583(서버 S15P21E201-1578). 만든 사람은 빠지고(author 칸에 있다),
+   * 수락한 사람만, 합류 순서대로, 없으면 빈 배열이다. 탈퇴한 사람은 displayName 이 null 로 남는다.
+   * 🔴 서버가 배포되기 전에는 칸 자체가 없다 — 없으면 아무것도 안 그린다.
+   */
+  coauthors?: Array<{ id: string; displayName: string | null }>;
 };
 
 // GET /api/v1/stories/:id 계약이 생기기 전이전)에는 목록에서 받은
