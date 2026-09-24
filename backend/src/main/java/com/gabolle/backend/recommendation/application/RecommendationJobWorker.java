@@ -6,12 +6,15 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.recommendation.application.port.ItineraryPublishConflictException;
 import com.gabolle.backend.recommendation.domain.JobStage;
+import com.gabolle.backend.recommendation.domain.JobStatus;
+import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 
@@ -43,14 +46,18 @@ public class RecommendationJobWorker {
 	 */
 	private final JobProgressReporter progress;
 
+	/** 일정을 만들며 성공하면 {@link RecommendationJobSucceeded} 를 낸다 — 코스 2·3안 미리 짜기(S15P21E201-1604). */
+	private final ApplicationEventPublisher events;
+
 	public RecommendationJobWorker(RecommendationJobRepository jobRepository,
 			RecommendationService recommendationService, RecommendationRecorder recorder, Clock clock,
-			JobProgressReporter progress) {
+			JobProgressReporter progress, ApplicationEventPublisher events) {
 		this.jobRepository = jobRepository;
 		this.recommendationService = recommendationService;
 		this.recorder = recorder;
 		this.clock = clock;
 		this.progress = progress;
+		this.events = events;
 	}
 
 	/**
@@ -115,6 +122,24 @@ public class RecommendationJobWorker {
 			// 화면이 연결이 열린 채 아무 소식도 못 받는다. 상태가 끝이면 통로는 그 자리에서
 			// 닫힌다(JobProgressBroker.send).
 			this.progress.publishCurrent(job);
+			announceSuccess(job);
+		}
+	}
+
+	/**
+	 * 끝을 화면에 알린 <b>뒤</b>에 낸다 — 받는 쪽(코스 미리 짜기)이 몇 초 걸려도 화면은 이미 다음으로 넘어갔다.
+	 * 받는 쪽은 따로 실행기에서 돈다. 여기서 무엇이 실패해도 추천은 이미 성공했으니 삼키고 남긴다.
+	 */
+	private void announceSuccess(RecommendationJob job) {
+		if (job.getJobStatus() != JobStatus.SUCCEEDED || job.getJobType() != JobType.ITINERARY_GENERATION
+				|| job.getItineraryId() == null) {
+			return;
+		}
+		try {
+			this.events.publishEvent(new RecommendationJobSucceeded(job.getRequestId()));
+		}
+		catch (RuntimeException ex) {
+			log.warn("추천 성공 알림을 못 냈습니다 — 코스 2·3안은 첫 조회 때 짭니다. requestId={}", job.getRequestId(), ex);
 		}
 	}
 }

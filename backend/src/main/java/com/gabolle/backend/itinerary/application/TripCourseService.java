@@ -19,7 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.itinerary.domain.Itinerary;
@@ -29,6 +31,7 @@ import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.presentation.dto.TripCoursesResponse;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.recommendation.application.RecommendationJobSucceeded;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand.PlannedPlace;
@@ -212,6 +215,34 @@ public class TripCourseService {
 	private String chosen(String itineraryId) {
 		this.itineraryRepository.markChosen(itineraryId, this.clock.instant());
 		return itineraryId;
+	}
+
+	/**
+	 * 추천이 일정을 만들며 끝나면 2안·3안을 미리 짜서 담아 둔다 (S15P21E201-1604). 추천 직후 처음 여는 화면이 코스
+	 * 목록이라, 거기서 짜면 첫 부름이 약 3초 걸렸다(1598 은 두 번째 부름부터만 빨랐다).
+	 *
+	 * <p>추천을 요청한 사람의 몫으로 짠다 — 담아 두는 열쇠에 요청자가 들어 있다. 다른 동행자가 먼저 열면 그 사람 몫은
+	 * 그때 짠다. 미리 짜는 중에 화면이 부르면 같은 계산을 기다린다({@link #alternativesOnce}).
+	 *
+	 * <p>따로 실행기에서 돈다 — 추천 작업 실행기를 붙잡으면 다음 추천이 밀린다. 실패해도 추천은 이미 성공했다.
+	 * 삼키고 남긴다 — 그때는 지금처럼 첫 부름에 짠다.
+	 */
+	@Async("courseWarmExecutor")
+	@EventListener
+	public void prewarm(RecommendationJobSucceeded event) {
+		try {
+			RecommendationJob job = this.jobRepository.findByRequestId(event.requestId())
+					.filter(TripCourseService::isFinishedGeneration)
+					.orElse(null);
+			if (job == null) {
+				return;
+			}
+			String requester = job.getUserId().toString();
+			alternativesOnce(job, this.tripQueryService.get(job.getTripId().toString(), requester), requester);
+		}
+		catch (RuntimeException ex) {
+			log.warn("코스 2·3안을 미리 짜지 못했다 — 첫 조회 때 짠다. requestId={}", event.requestId(), ex);
+		}
 	}
 
 	/**
