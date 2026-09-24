@@ -35,6 +35,7 @@ class PlaceDetailResponseSerializationTest {
 		assertThat(json.has("photoSubject")).isFalse();
 		assertThat(json.has("openingHours")).isFalse();
 		assertThat(json.has("priceLevel")).isFalse();
+		assertThat(json.has("photoLicense")).isFalse();
 	}
 
 	@Test
@@ -71,6 +72,26 @@ class PlaceDetailResponseSerializationTest {
 		assertThat(json.get("photoSource").asString())
 				.as("출처와 주제는 다른 질문이라 칸이 갈려 있다 — 둘 다 와야 한다")
 				.isEqualTo("한국관광공사 관광사진갤러리");
+	}
+
+	/**
+	 * 위키미디어 사진(CC BY-SA 등)은 라이선스 이름과 링크를 같이 보여야 쓸 수 있다 (S15P21E201-1606).
+	 * 실제 수집본의 한 줄(부산근대역사관)에서 가져온 값이다.
+	 */
+	@Test
+	@DisplayName("🔴 라이선스가 있으면 이름·주소·원본 파일 페이지가 한 칸에 묶여 온다")
+	void thePhotoLicenseIsSerialized() throws Exception {
+		PlaceDetailResponse response = sample("1-2-3 Test-dong", "https://upload.wikimedia.org/a.jpg",
+				"Wikimedia Commons · 촬영 Katsura Roen", Place.PhotoSubject.SELF, null, null, "ko",
+				new Place.PhotoLicense("CC BY-SA 3.0", "https://creativecommons.org/licenses/by-sa/3.0",
+						"https://commons.wikimedia.org/wiki/File:Busan_Modern_History_Museum-01.jpg"));
+
+		JsonNode license = writeAndRead(response).get("photoLicense");
+
+		assertThat(license.get("name").asString()).isEqualTo("CC BY-SA 3.0");
+		assertThat(license.get("url").asString()).isEqualTo("https://creativecommons.org/licenses/by-sa/3.0");
+		assertThat(license.get("filePage").asString())
+				.isEqualTo("https://commons.wikimedia.org/wiki/File:Busan_Modern_History_Museum-01.jpg");
 	}
 
 	@Test
@@ -111,11 +132,19 @@ class PlaceDetailResponseSerializationTest {
 	private PlaceDetailResponse sample(String addressEn, String photoUrl, String photoSource,
 			Place.PhotoSubject photoSubject, PlaceDetailResponse.FeatureSlot openingHours,
 			PlaceDetailResponse.FeatureSlot priceLevel, String resolvedLanguage) {
+		return sample(addressEn, photoUrl, photoSource, photoSubject, openingHours, priceLevel, resolvedLanguage,
+				null);
+	}
+
+	private PlaceDetailResponse sample(String addressEn, String photoUrl, String photoSource,
+			Place.PhotoSubject photoSubject, PlaceDetailResponse.FeatureSlot openingHours,
+			PlaceDetailResponse.FeatureSlot priceLevel, String resolvedLanguage, Place.PhotoLicense photoLicense) {
 		return new PlaceDetailResponse(
 				UUID.randomUUID(), "샘플장소", null, null, null, null, null,
 				new PlaceDetailResponse.Provenance(null, null, null, null, null),
 				List.of(),
 				new PlaceDetailResponse.ItineraryInclusion("UNAVAILABLE", "ITINERARY_NOT_SPECIFIED"),
-				addressEn, photoUrl, photoSource, photoSubject, openingHours, priceLevel, resolvedLanguage);
+				addressEn, photoUrl, photoSource, photoSubject, openingHours, priceLevel, resolvedLanguage,
+				photoLicense);
 	}
 }

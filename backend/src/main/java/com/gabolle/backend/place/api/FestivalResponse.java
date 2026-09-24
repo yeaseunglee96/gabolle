@@ -29,6 +29,8 @@ public record FestivalResponse(List<FestivalItem> items, int count, boolean hasM
 	 *        {@code VENUE}=이 축제가 열리는 곳을 찍은 사진. 화면은 이 값으로 둘을 갈라 그려야 한다 —
 	 *        {@code VENUE} 를 그냥 띄우면 축제를 찍은 사진으로 읽힌다. {@code null} 은 모른다는
 	 *        뜻이고, 모르는 것을 {@code SELF} 로 다루지 않는다
+	 * @param photoLicense 사진의 라이선스 — 이름·주소·원본 파일 페이지(S15P21E201-1606). 위키미디어
+	 *        사진(CC BY 등)은 출처 문구와 함께 이것을 보여야 쓸 수 있다. 없으면 칸을 뺀다
 	 * @param priceLevel 입장료. {@code place_feature.feature_type = 'PRICE_LEVEL'} 행에서 온다.
 	 *        그 행 자체가 없으면 이 칸을 통째로 뺀다 — {@code UNKNOWN}(수집은 했는데 못 정함)과는
 	 *        다른 상태이므로 섞으면 안 된다.
@@ -48,6 +50,7 @@ public record FestivalResponse(List<FestivalItem> items, int count, boolean hasM
 			// photoUrl 바로 옆에 둔다. 떨어뜨려 두면 사진만 그리고 출처·피사체를 빠뜨리기 쉽다.
 			String photoSource,
 			Place.PhotoSubject photoSubject,
+			Place.PhotoLicense photoLicense,
 			LocalDate startDate,
 			LocalDate endDate,
 			PriceLevel priceLevel,
