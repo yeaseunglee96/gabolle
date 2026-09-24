@@ -1,4 +1,8 @@
 // 「지역」을 검색해서 고른다 — S15P21E201-1145.
+//
+// 🔴 입력칸은 하나다(S15P21E201-1593). 전에는 검색칸과 「지역 직접 쓰기」칸이 따로 있어서 「지역」을 누르면
+//    칸이 두 개 떴고, 어느 칸에 써야 하는지 헷갈렸다. 이제 적는 글자가 곧 지역이고, 같은 글자로 검색한다.
+//    결과를 고르면 장소가 연결되고, 고른 뒤 고쳐 쓰면 연결이 끊긴다.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
@@ -66,16 +70,23 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
         style={styles.search}
         placeholder={tx('장소나 지역을 검색해요 (예: 해운대)', 'Search a place or area (e.g. Haeundae)')}
         placeholderTextColor={color.text.muted}
-        value={query}
-        onChangeText={setQuery}
+        value={region}
+        onChangeText={(value) => {
+          onChangeRegion(value);
+          setQuery(value);
+          // 손으로 고치면 장소 연결을 끊는다. 「해운대해수욕장」을 고른 뒤 「광안리」로
+          // 바꿔 쓰면, 글에는 여전히 해운대가 달려 있게 된다 — 화면과 저장된 것이 달라진다.
+          if (picked.current !== null && value !== picked.current) { picked.current = null; onChangePlaceId(undefined); onChangePlace?.(undefined); }
+        }}
         autoCorrect={false}
+        maxLength={60}
       />
 
       {busy ? <View style={styles.row}><ActivityIndicator color={color.action.primary} /></View> : null}
 
-      {/* 검색이 실패해도 손으로 쓰는 길은 막지 않는다. */}
+      {/* 검색이 실패해도 손으로 쓰는 길은 막지 않는다 — 적은 글자가 그대로 지역이다. */}
       {failed ? <Text variant="caption" color={color.text.muted} style={styles.note}>
-        {tx('검색이 안 돼요. 아래에 직접 적어도 돼요.', 'Search is unavailable — you can type it below.')}
+        {tx('검색이 안 돼요. 적은 그대로 지역으로 저장돼요.', 'Search is unavailable — what you typed is saved as the region.')}
       </Text> : null}
 
       {items.map((item) => (
@@ -95,21 +106,6 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
         </Pressable>
       ))}
 
-      <TextInput
-        accessibilityLabel={tx('지역', 'Region')}
-        style={styles.region}
-        placeholder={tx('예: 해운대구', 'e.g. Haeundae-gu')}
-        placeholderTextColor={color.text.muted}
-        value={region}
-        onChangeText={(value) => {
-          onChangeRegion(value);
-          // 손으로 고치면 장소 연결을 끊는다. 「해운대해수욕장」을 고른 뒤 「광안리」로
-          // 바꿔 쓰면, 글에는 여전히 해운대가 달려 있게 된다 — 화면과 저장된 것이 달라진다.
-          if (picked.current !== null && value !== picked.current) { picked.current = null; onChangePlaceId(undefined); onChangePlace?.(undefined); }
-        }}
-        maxLength={60}
-      />
-
       {placeId ? <Text variant="caption" color={color.text.muted} style={styles.note}>
         {tx('이 글이 그 장소에 함께 보여요.', 'This record will also show on that place.')}
       </Text> : null}
@@ -120,7 +116,6 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
 const styles = StyleSheet.create({
   frame: { gap: spacing[1] },
   search: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.sm, backgroundColor: color.surface.soft, color: color.text.heading },
-  region: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.sm, backgroundColor: color.surface.soft, color: color.text.heading },
   row: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.sm },
   rowBody: { flex: 1, minWidth: 0 },
   note: { paddingHorizontal: spacing[1] },

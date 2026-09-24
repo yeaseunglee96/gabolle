@@ -45,6 +45,8 @@ import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
 import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
+import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
+import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
 
 type Tx = (ko: string, en: string) => string;
@@ -79,7 +81,10 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   // 그날 첫 곳은 어디서 오나 — 둘째 날부터는 숙소다(S15P21E201-1580). 서버가 안 알려 주면(옛 응답) 출발지.
   const startKind: DayStart['kind'] = loaded?.days[dayIndex]?.start?.kind ?? 'ORIGIN';
   const [layout, setLayout] = useState<Layout>('cards');
-  const [menuOpen, setMenuOpen] = useState(false);
+  // 🔴 ⋯ 메뉴는 공용 DropdownMenu(창)다(S15P21E201-1593). 전에는 화면 위에 직접 그린 판이라 닫는 길이 「⋯ 다시 누르기」뿐이었다 —
+  //    메뉴를 연 채 「동행 초대」를 누르면 메뉴가 초대 창 위에 남고 Escape 로도 안 닫혔다(넓은 화면 실측).
+  //    창 방식은 바깥을 누르거나 Escape(onRequestClose)로 닫히고, 열린 동안 뒤의 알약은 눌리지 않는다.
+  const menu = useDropdownMenu();
   // 지도의 경사·그늘 겹(S15P21E201-1569) — 켜면 정차지 둘레 길을 칠한다. 경로 선 아래 깔린다.
   const [layerKind, setLayerKind] = useState<MobilityLayerKind | null>(null);
   const [overlay, setOverlay] = useState<TripOverlayKind | null>(null);
@@ -127,6 +132,15 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
     </View>
   );
 
+  const menuItems: DropdownMenuItem[] = [
+    ...(tripId ? [{ key: 'rename', label: tx('이름 바꾸기', 'Rename'), onPress: () => setNaming(true) }] : []),
+    ...(course?.itineraryId ? [{
+      key: 'edit',
+      label: tx('일정 편집', 'Edit itinerary'),
+      hint: tx('순서·고정·제외·다시 계산', 'Order, pin, remove, recalculate'),
+      onPress: () => router.push(`/trips/${course.itineraryId}/itinerary?classic=1`),
+    }] : []),
+  ];
   return (
     <View style={styles.shell}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} onLayout={(event) => setViewportHeight(Math.round(event.nativeEvent.layout.height))}>
@@ -141,24 +155,13 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
           </View>
           {/* 화면을 옮기지 않고 창으로 연다 — 동행 초대는 가운데 창, 날씨는 오른쪽 서랍(S15P21E201-1561). */}
           {tripId ? <HeadPill label={tx('동행 초대', 'Invite')} active={overlay === 'invite'} onPress={() => setOverlay('invite')} /> : null}
+          {/* 「공유」는 동행 초대 창 맨 아래에 숨어 있던 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기(S15P21E201-1593). */}
+          {tripId ? <HeadPill label={tx('공유', 'Share')} active={overlay === 'share'} onPress={() => setOverlay('share')} /> : null}
+          {tripId ? <HeadPill label={tx('기록 남기기', 'Write a record')} onPress={() => router.push(`/feed/compose?tripId=${encodeURIComponent(tripId)}`)} /> : null}
           {tripId ? <HeadPill label={tx('날씨', 'Weather')} active={overlay === 'weather'} onPress={() => setOverlay('weather')} /> : null}
-          <View>
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={({ pressed }) => [styles.circle40, pressed && styles.pressed]}>
-              <Text weight="bold">⋯</Text>
-            </Pressable>
-            {menuOpen ? (
-              <View style={styles.menu}>
-                {tripId ? <MenuItem label={tx('이름 바꾸기', 'Rename')} onPress={() => { setMenuOpen(false); setNaming(true); }} /> : null}
-                {course?.itineraryId ? (
-                  <MenuItem
-                    label={tx('일정 편집', 'Edit itinerary')}
-                    hint={tx('순서·고정·제외·다시 계산', 'Order, pin, remove, recalculate')}
-                    onPress={() => { setMenuOpen(false); router.push(`/trips/${course.itineraryId}/itinerary?classic=1`); }}
-                  />
-                ) : null}
-              </View>
-            ) : null}
-          </View>
+          <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menu.open }} onPress={menu.openMenu} style={({ pressed }) => [styles.circle40, pressed && styles.pressed]}>
+            <Text weight="bold">⋯</Text>
+          </Pressable>
         </View>
 
         {/* ── 코스 줄 — 추천 코스 알약 · 확정 · (오른쪽) 장소 카드 | 큰 지도 ───────── */}
@@ -311,9 +314,11 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
       {tripId ? (
         <TripOverlay visible={overlay !== null} shape={overlay === 'weather' ? 'drawer' : 'center'} onClose={() => setOverlay(null)}>
           {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
+          {overlay === 'share' && tripId ? <TripReadLinkPanel tripId={tripId} /> : null}
           {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
         </TripOverlay>
       ) : null}
+      <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
     </View>
   );
 }
@@ -325,15 +330,6 @@ function HeadPill({ label, active = false, onPress }: { label: string; active?: 
   return (
     <Pressable accessibilityRole="button" accessibilityState={{ expanded: active }} onPress={onPress} style={({ pressed }) => [styles.headPill, active && styles.headPillOn, pressed && styles.pressed]}>
       <Text variant="caption" weight="bold" color={active ? color.text.onAction : undefined}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function MenuItem({ label, hint, onPress }: { label: string; hint?: string; onPress: () => void }) {
-  return (
-    <Pressable accessibilityRole="menuitem" onPress={onPress} style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}>
-      <Text weight="bold">{label}</Text>
-      {hint ? <Text variant="caption" color={color.text.muted}>{hint}</Text> : null}
     </Pressable>
   );
 }
@@ -466,11 +462,6 @@ const styles = StyleSheet.create({
   circle40: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   headPill: { minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   headPillOn: { backgroundColor: color.action.secondary },
-  menu: {
-    position: 'absolute', top: 48, right: 0, minWidth: 220, padding: spacing[2], gap: spacing[1], borderRadius: radius.md, backgroundColor: color.surface.card,
-    shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4,
-  },
-  menuItem: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.sm, gap: 2 },
 
   courseRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingTop: spacing[2] },
   track: { flexDirection: 'row', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },

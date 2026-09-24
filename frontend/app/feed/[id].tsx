@@ -18,6 +18,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { CoauthorByline } from '@/social/CoauthorByline';
+import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
+import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
@@ -369,6 +371,7 @@ export default function StoryDetail() {
 
   // 새로 가져오는 동안에도 목록에서 이미 받은 내용을 자리표시로 먼저 보여준다.
   const story = state.status === 'loaded' ? state.story : state.status === 'loading' ? state.cached : null;
+  const courseLink = story ? findCourseLink(story.body) : null;
 
   const shownReplies = replies ?? [];
   // 서버는 기본 50개까지만 준다. 잘린 것을 조용히 숨기면 사용자는 그게 전부인 줄 안다
@@ -589,7 +592,9 @@ export default function StoryDetail() {
           {/* — 마크다운을 그린다. 마크다운을 안 쓴 기존 글은
               문단 하나가 되므로 지금과 똑같이 보인다.
           */}
-          <MarkdownBody source={story.body} />
+          <MarkdownBody source={withoutCourseLink(story.body, courseLink)} />
+          {/* 본문의 코스 링크는 코스 카드로 그린다 — 글자로 또 쓰지 않는다(S15P21E201-1593). */}
+          {courseLink ? <CourseLinkCard token={courseLink.token} /> : null}
 
           {/* 좋아요·인용·저장 — 카드 «안»에 둔다(사용자 지적 2026-09-24, S15P21E201-1576). 카드 밖에 두면 그 기록의 것인지
               아래 댓글의 것인지 흐려진다. 목록(feed.tsx)과 같은 부품이다. */}

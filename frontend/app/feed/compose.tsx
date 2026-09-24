@@ -19,6 +19,8 @@ import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { markChecklistStep } from '@/onboarding/firstRun';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 import { localizeMessage } from '@/i18n/messages';
+import { issueShareLink } from '@/share/sharedItinerary';
+import { appendCourseLink } from '@/social/courseLink';
 
 const BODY_MAX = 500;
 // 업로드 실패 뒤 화면을 새로 고쳐도 쓰던 글이 남아 있어야 한다완료 기준).
@@ -55,6 +57,8 @@ export default function ComposeStory() {
   const [publishTiming, setPublishTiming] = useState<PublishTiming>('AFTER_TRIP');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 「코스 링크 함께 올리기」(S15P21E201-1593) — 여행 화면의 「기록 남기기」로 들어온 글쓰기에만 있다. 켜야 붙는다.
+  const [attachCourse, setAttachCourse] = useState(false);
   const draftLoaded = useRef(false);
 
   // 사진은 공용 훅이 맡는다 — 피드의 인라인 글쓰기와 같은 코드를 쓴다
@@ -95,8 +99,27 @@ export default function ComposeStory() {
     if (!canSubmit) return;
     setSubmitting(true);
     setError(null);
+    // 코스 링크를 켰으면 올리는 순간 읽기 전용 링크를 만들어 본문 끝에 붙인다 — 「공유」와 같은 링크다(새 API 없음).
+    // 🔴 링크를 못 만들거나 붙이면 한도를 넘으면 올리지 않고 말한다. 링크 없이 몰래 올리지 않는다.
+    let finalBody = body.trim();
+    if (tripId && attachCourse) {
+      try {
+        if (!accessToken) throw new Error('no session');
+        const joined = appendCourseLink(finalBody, (await issueShareLink(tripId, accessToken)).shareUrl);
+        if (joined.length > BODY_MAX) {
+          setSubmitting(false);
+          setError(tx('본문이 길어 코스 링크를 붙일 수 없어요. 조금 줄이거나 코스 링크를 꺼 주세요.', 'The text is too long to add the course link. Shorten it or turn the course link off.'));
+          return;
+        }
+        finalBody = joined;
+      } catch {
+        setSubmitting(false);
+        setError(tx('코스 링크를 만들지 못했어요. 잠시 뒤 다시 올리거나 코스 링크를 끄고 올려 주세요.', "Couldn't create the course link. Try again shortly, or post with the course link off."));
+        return;
+      }
+    }
     const outcome = await createStory({
-      body: body.trim(),
+      body: finalBody,
       imageUrls: uploadedUrls,
       region: region.trim() || undefined,
       // 우리 DB 장소를 고르면 placeId, 카카오·대체 목록을 고르면 place 가 실려 간다(S15P21E201-1527).
@@ -137,6 +160,19 @@ export default function ComposeStory() {
       maxLength={BODY_MAX}
     />
     <Text variant="caption" color={color.text.muted} style={styles.counter}>{body.trim().length}/{BODY_MAX}</Text>
+    {/* 여행 화면의 「기록 남기기」로 왔으면 그 여행과 이어진다 — 서버에 tripId 가 함께 간다(S15P21E201-1593). */}
+    {tripId ? (
+      <View style={styles.tripLink}>
+        <Text variant="caption" weight="bold" color={color.state.success}>{tx('✓ 이 여행과 연결됨', '✓ Linked to this trip')}</Text>
+        <Pressable accessibilityRole="switch" accessibilityState={{ checked: attachCourse }} accessibilityLabel={tx('코스 링크 함께 올리기', 'Include the course link')} onPress={() => setAttachCourse((on) => !on)} style={styles.toggleRow}>
+          <View style={[styles.checkbox, attachCourse && styles.checkboxOn]}>{attachCourse ? <Text variant="caption" weight="bold" color={color.text.onAction}>✓</Text> : null}</View>
+          <View style={styles.toggleCopy}>
+            <Text weight="bold">{tx('코스 링크 함께 올리기', 'Include the course link')}</Text>
+            <Text variant="caption" color={color.text.muted}>{tx('올릴 때 읽기 전용 링크를 만들어 본문 끝에 붙여요. 피드에는 코스 카드로 보여요. 30일 뒤 만료돼요.', 'When you post, we add a read-only link at the end. It shows as a course card in the feed and expires in 30 days.')}</Text>
+          </View>
+        </Pressable>
+      </View>
+    ) : null}
 
     {/* — 쓴 것이 어떻게 보일지 미리 본다.
         마크다운을 몰라도 된다. 그냥 쓰면 평범한 글이 되므로 아무것도 막지 않고
@@ -245,4 +281,10 @@ const styles = StyleSheet.create({
   hint: { marginTop: spacing[2] },
   error: { marginTop: spacing[4] },
   submit: { marginTop: spacing[6] },
+  tripLink: { gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  toggleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 44 },
+  checkbox: { width: 24, height: 24, borderRadius: radius.sm, borderWidth: 2, borderColor: color.text.muted, alignItems: 'center', justifyContent: 'center' },
+  // 동백 채움은 이 화면의 다음 할 일(「기록 올리기」) 하나뿐이다 — 고른 표시는 짙은 회색(배색 검사).
+  checkboxOn: { borderColor: color.action.secondary, backgroundColor: color.action.secondary },
+  toggleCopy: { flex: 1, gap: 2 },
 });

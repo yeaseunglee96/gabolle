@@ -34,6 +34,8 @@ import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { applyReaction, nextReaction, StoryReactionRow } from '@/social/StoryReactionRow';
 import { CoauthorByline } from '@/social/CoauthorByline';
+import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
+import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 import { useStoryVideo } from '@/social/useStoryVideo';
@@ -95,7 +97,8 @@ function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: bool
       </>
     : <View style={styles.coverEmpty}>
         <Text variant={compact ? 'display' : 'title'} weight="bold" color={color.text.heading} numberOfLines={5} style={styles.coverEmptyText}>
-          {markdownToPlain(story.body)}
+          {/* 코스 링크는 아래 코스 카드로 그린다 — 글자로 또 쓰지 않는다(S15P21E201-1593). */}
+          {markdownToPlain(withoutCourseLink(story.body, findCourseLink(story.body)))}
         </Text>
       </View>;
 
@@ -131,6 +134,7 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
 }) {
   const { tx } = useI18n();
   const hasPhoto = (story.images?.length ?? 0) > 0;
+  const courseLink = findCourseLink(story.body);
 
   // 제목은 장소 이름이다. 장소가 없으면 「OO의 기록」 — 비워 두지 않는다(시안 「자주 틀리는 것」 5번).
   const title = story.place?.name ?? txf(tx, '%s의 기록', "%s's record", story.author.displayName);
@@ -195,7 +199,7 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
           생략" 이라고 적었다.
       */}
       {hasPhoto
-        ? <Text variant="body" color={color.text.body} numberOfLines={2} style={styles.body}>{markdownToPlain(story.body)}</Text>
+        ? <Text variant="body" color={color.text.body} numberOfLines={2} style={styles.body}>{markdownToPlain(withoutCourseLink(story.body, courseLink))}</Text>
         : null}
 
       {/* 메타 한 줄.
@@ -207,6 +211,9 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
         {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${story.region}` : ''}
       </Text>
     </Pressable>
+
+    {/* 본문에 코스 링크가 있으면 코스 카드(S15P21E201-1593). 「기록 자세히 보기」 단추 «안»이 아니라 뒤에 둔다 — 단추 안의 단추가 된다. */}
+    {courseLink ? <View style={styles.courseCard}><CourseLinkCard token={courseLink.token} /></View> : null}
 
     {/* 좋아요·인용·저장 —(반응 카운트, kojh0124 님)·-1221(저장).
         반응 칸은 상세 화면과 같은 부품을 쓴다
@@ -1087,6 +1094,7 @@ const styles = StyleSheet.create({
   authorPillAvatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
   coverActions: { flexShrink: 0, flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   cardBody: { gap: spacing[1], padding: spacing[4] },
+  courseCard: { paddingHorizontal: spacing[4], paddingBottom: spacing[3] },
   // flexShrink 0 — 폰 목록은 세로로 쌓이는데, 높이가 모자라면 카드가 눌려서
   // 사진이 찌그러진다. 시안 04 가 커버를 300 으로 고정하는 것과 같은 이유다.
   cardCompact: { padding: spacing[4], flexShrink: 0 },
