@@ -39,6 +39,9 @@ import { TripBudgetCard } from './TripBudgetCard';
 import type { TripPageSource } from './tripPageData';
 import { formatDuration, formatManwon, stayMinutes } from './tripPageModel';
 import { useTripPage } from './useTripPage';
+import { TripOverlay, type TripOverlayKind } from './TripOverlay';
+import { TripInvitePanel } from '@/trip/TripInvitePanel';
+import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
 
 type Tx = (ko: string, en: string) => string;
 type Layout = 'cards' | 'map';
@@ -71,6 +74,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   } = useTripPage(source);
   const [layout, setLayout] = useState<Layout>('cards');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [overlay, setOverlay] = useState<TripOverlayKind | null>(null);
   const [naming, setNaming] = useState(askName);
   const [leftHeight, setLeftHeight] = useState(0);
   const [gridWidth, setGridWidth] = useState(0);
@@ -123,9 +127,9 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
             <Text variant="title" weight="bold" numberOfLines={1}>{title}</Text>
             {headSub ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{headSub}</Text> : null}
           </View>
-          {/* 🔴 1단계에서는 지금 있는 초대·준비 화면으로 간다. 가운데 창·오른쪽 서랍은 3단계다. */}
-          {tripId ? <HeadPill label={tx('동행 초대', 'Invite')} onPress={() => router.push(`/${tripId}/share`)} /> : null}
-          {tripId ? <HeadPill label={tx('날씨', 'Weather')} onPress={() => router.push(`/${tripId}/prepare`)} /> : null}
+          {/* 화면을 옮기지 않고 창으로 연다 — 동행 초대는 가운데 창, 날씨는 오른쪽 서랍(S15P21E201-1561). */}
+          {tripId ? <HeadPill label={tx('동행 초대', 'Invite')} active={overlay === 'invite'} onPress={() => setOverlay('invite')} /> : null}
+          {tripId ? <HeadPill label={tx('날씨', 'Weather')} active={overlay === 'weather'} onPress={() => setOverlay('weather')} /> : null}
           <View>
             <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={({ pressed }) => [styles.circle40, pressed && styles.pressed]}>
               <Text weight="bold">⋯</Text>
@@ -286,16 +290,24 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
           }}
         />
       ) : null}
+
+      {tripId ? (
+        <TripOverlay visible={overlay !== null} shape={overlay === 'weather' ? 'drawer' : 'center'} onClose={() => setOverlay(null)}>
+          {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
+          {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} /> : null}
+        </TripOverlay>
+      ) : null}
     </View>
   );
 }
 
 // ── 부품 ────────────────────────────────────────────────────────────────────
 
-function HeadPill({ label, onPress }: { label: string; onPress: () => void }) {
+/** 시안: 열린 알약은 #191919 바탕 · 흰 글자. */
+function HeadPill({ label, active = false, onPress }: { label: string; active?: boolean; onPress: () => void }) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.headPill, pressed && styles.pressed]}>
-      <Text variant="caption" weight="bold">{label}</Text>
+    <Pressable accessibilityRole="button" accessibilityState={{ expanded: active }} onPress={onPress} style={({ pressed }) => [styles.headPill, active && styles.headPillOn, pressed && styles.pressed]}>
+      <Text variant="caption" weight="bold" color={active ? color.text.onAction : undefined}>{label}</Text>
     </Pressable>
   );
 }
@@ -436,6 +448,7 @@ const styles = StyleSheet.create({
   circle44: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   circle40: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   headPill: { minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
+  headPillOn: { backgroundColor: color.action.secondary },
   menu: {
     position: 'absolute', top: 48, right: 0, minWidth: 220, padding: spacing[2], gap: spacing[1], borderRadius: radius.md, backgroundColor: color.surface.card,
     shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4,

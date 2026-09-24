@@ -11,7 +11,6 @@
 //    폭·높이·곡선은 TabBar 의 것을 그대로 가져온다. 한 앱 안에서 자라는 모양이 둘이면 같은 것으로 안 읽힌다.
 //
 // 🔴 이번 단계에 **없는 것** (시안에는 있다):
-//    · 동행 초대 창 · 날씨 창 — 3단계다. 지금은 넓은 화면처럼 옛 화면으로 간다.
 //    · 타임라인을 내려가는 내 위치 점 — 4단계다. 「지금」 카드의 출발·중지·건너뛰기는 지금도 된다.
 //    · 지도 위 고른 곳의 붉은 맥동 링과 이름표 — 지도 부품(RouteMap)은 고른 표식을 키우기만 한다(1단계와 같다).
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -51,6 +50,9 @@ import type { TripPageSource } from './tripPageData';
 import { formatManwon } from './tripPageModel';
 import { useTripPage } from './useTripPage';
 import { useTripProgress } from './useTripProgress';
+import { TripOverlay, type TripOverlayKind } from './TripOverlay';
+import { TripInvitePanel } from '@/trip/TripInvitePanel';
+import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
 
 type Tx = (ko: string, en: string) => string;
 type Panel = 'trip' | 'collapsed';
@@ -96,6 +98,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const [touched, setTouched] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [overlay, setOverlay] = useState<TripOverlayKind | null>(null);
   const [naming, setNaming] = useState(askName);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [excludeTarget, setExcludeTarget] = useState<ItineraryItemDto | null>(null);
@@ -248,12 +251,12 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         </View>
       ) : null}
 
-      {/* 알약 셋 — 지도 보기(= 창 접기) · 동행 초대 · 날씨. 🔴 뒤의 둘은 3단계 전까지 옛 화면으로 간다. */}
+      {/* 알약 셋 — 지도 보기(= 창 접기) · 동행 초대 · 날씨. 뒤의 둘은 화면을 옮기지 않고 아래 시트로 연다(S15P21E201-1561). */}
       {ready ? (
         <View style={styles.actions}>
           <ActionPill label={tx('지도 보기', 'View map')} onPress={() => setPanel('collapsed')} />
-          {tripId ? <ActionPill label={tx('동행 초대', 'Invite')} onPress={() => router.push(`/${tripId}/share`)} /> : null}
-          {tripId ? <ActionPill label={tx('날씨', 'Weather')} onPress={() => router.push(`/${tripId}/prepare`)} /> : null}
+          {tripId ? <ActionPill label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
+          {tripId ? <ActionPill label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
         </View>
       ) : null}
 
@@ -471,6 +474,12 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           if (target) void exclude(target);
         }}
       />
+      {tripId ? (
+        <TripOverlay visible={overlay !== null} shape="sheet" onClose={() => setOverlay(null)}>
+          {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
+          {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} /> : null}
+        </TripOverlay>
+      ) : null}
     </View>
   );
 }
