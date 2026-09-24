@@ -36,15 +36,28 @@ describe('「기록 | 설정」 두 판', () => {
     expect(hidden('settings')).toBe(false);
   });
 
-  it('🔴 안 연 판은 첫 화면에서는 만들지 않고, 한가해지면 미리 만든다 — 첫 누름도 새로 만들지 않게', () => {
+  it('🔴 안 연 판은 첫 화면에서는 만들지 않고, 첫 화면 뒤 잠시 후 미리 만든다 — 첫 누름도 새로 만들지 않게', () => {
     jest.useFakeTimers();
     try {
       const view = render(<KeptPanes active="records" panes={panes} />);
       expect(mounts).toEqual({ records: 1, settings: 0 });
-      act(() => { jest.runAllTimers(); });
+      act(() => { jest.advanceTimersByTime(300); });
       expect(mounts).toEqual({ records: 1, settings: 1 });
       view.rerender(<KeptPanes active="settings" panes={panes} />);
       expect(mounts).toEqual({ records: 1, settings: 1 });
+      // 🔴 진짜 시계로 돌리기 전에 치운다 — 가짜 시계에 걸린 일이 남으면 뒷정리가 멈춘다(!1605 CI).
+      view.unmount();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('🔴 미리 만들기 전에 화면이 사라지면 타이머도 같이 치운다 — 남은 타이머가 시험 작업 칸을 붙잡지 않게', () => {
+    jest.useFakeTimers();
+    try {
+      const view = render(<KeptPanes active="records" panes={panes} />);
+      view.unmount();
+      expect(jest.getTimerCount()).toBe(0);
     } finally {
       jest.useRealTimers();
     }
