@@ -18,7 +18,7 @@ import { Button } from '@/components/Button';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
-import { TabBar, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
+import { TabBar, TAB_BAR_HEIGHT, bottomDockPosition, tabBarBottomMargin } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, gutter, radius, spacing } from '@/design/tokens';
@@ -1044,7 +1044,8 @@ const styles = StyleSheet.create({
   scopeSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   scopeDisabled: { opacity: 0.5 },
 
-  copyNoticeDock: { position: 'absolute', left: 0, right: 0, alignItems: 'center', zIndex: 25 },
+  // 탭바 바로 위에 뜨므로 탭바와 같은 기준으로 선다(S15P21E201-1601 — 폰 홈 AI 단추와 같은 문제).
+  copyNoticeDock: { position: bottomDockPosition(), left: 0, right: 0, alignItems: 'center', zIndex: 25 },
   copyNotice: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.action.secondary, shadowColor: color.brand.navy, shadowOpacity: 0.18, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   loginNotice: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], alignItems: 'center', marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
 
