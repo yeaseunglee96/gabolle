@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   backdropSheet: { justifyContent: 'flex-end' },
   panel: { overflow: 'hidden' },
   center: { width: '100%', maxWidth: 520, maxHeight: '90%', borderRadius: 20, backgroundColor: color.surface.card },
-  drawer: { width: 420, maxWidth: '100%', height: '100%', backgroundColor: color.canvas, shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 24, shadowOffset: { width: -8, height: 0 } },
+  drawer: { width: 420, maxWidth: '100%', height: '100%', backgroundColor: color.canvas, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 24, shadowOffset: { width: -8, height: 0 } },
   sheet: { maxHeight: '88%', borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: color.surface.card },
   grabber: { alignSelf: 'center', width: 36, height: 5, marginTop: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.field },
   close: { position: 'absolute', top: spacing[4], right: spacing[4], zIndex: 1, width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },

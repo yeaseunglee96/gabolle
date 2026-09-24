@@ -245,7 +245,7 @@ const ALLOWED_MULTI_FILL = {
     '🔴 배타적인 넷 + 의도적으로 같이 뜨는 둘(활성 탭 · 새 기록 ✎). 뒤의 둘은 사용자 지시다 — 위 주석을 읽어라.',
   'app/(tabs)/feed.tsx':
     '둘이지만 화면에는 하나다. 맨 위 입력창과 떠 있는 ✎ 단추가 **둘 다 composeEntryFor 의 답 하나**를 보고 뜬다(inline / headerButton). 25e0306a 전에는 ✎ 단추만 폭을 직접 봐서 600~1023 에서 둘 다 떴다 — 색 문제가 아니라 동작 결함이었고, 색으로 덮지 않고 고쳤다.',
-  'app/(trip)/[id]/share.tsx':
+  'src/trip/TripInvitePanel.tsx':
     '「로그인하기」는 accessToken 이 없을 때, 「초대 링크 만들기」는 있을 때만 그려진다.',
   'app/(plan)/generating.tsx':
     '「조건 다시 확인하기」는 실패했을 때, 「일정 자세히 보기」는 완료됐을 때만 그려진다. 진행 중에는 둘 다 없다.',
