@@ -201,7 +201,9 @@ class ItineraryRecalculationIntegrationTest {
 		new RecommendationJobWorker(this.jobRepository, this.recommendationService, this.recorder, this.clock,
 				// 이 검사는 진행률을 보지 않지만 워커가 요구하므로 진짜 객체를 준다 — 보는 연결이
 				// 하나도 없으면 알림은 그냥 버려진다.
-				new JobProgressReporter(this.jobRepository, new JobProgressBroker()))
+				new JobProgressReporter(this.jobRepository, new JobProgressBroker()),
+				// 성공 알림(코스 미리 짜기)은 이 검사가 보지 않는다 — 받는 곳 없이 버린다.
+				(event) -> { })
 				.execute(job, command);
 		return this.jobRepository.findById(job.getJobId()).orElseThrow();
 	}
@@ -381,7 +383,9 @@ class ItineraryRecalculationIntegrationTest {
 
 		new RecommendationJobWorker(this.jobRepository, this.recommendationService, this.recorder, this.clock,
 				// 이 검사는 진행률을 보지 않지만 워커가 요구하므로 진짜 객체를 준다.
-				new JobProgressReporter(this.jobRepository, new JobProgressBroker()))
+				new JobProgressReporter(this.jobRepository, new JobProgressBroker()),
+				// 성공 알림(코스 미리 짜기)은 이 검사가 보지 않는다 — 받는 곳 없이 버린다.
+				(event) -> { })
 				.execute(job, command);
 
 		RecommendationJob saved = this.jobRepository.findById(job.getJobId()).orElseThrow();

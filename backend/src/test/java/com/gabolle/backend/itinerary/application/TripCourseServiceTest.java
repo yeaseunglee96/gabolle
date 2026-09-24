@@ -41,6 +41,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.presentation.dto.TripCoursesResponse;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.recommendation.application.RecommendationJobSucceeded;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand.PlannedPlace;
@@ -107,6 +108,7 @@ class TripCourseServiceTest {
 		when(this.job.getItineraryId()).thenReturn(BASE);
 		when(this.job.getRequestId()).thenReturn(REQUEST);
 		when(this.job.getTripId()).thenReturn(UUID.fromString(TRIP));
+		when(this.job.getUserId()).thenReturn(UUID.fromString(USER));
 		when(this.jobRepository.findByTripIdOrderByCreatedAtDesc(eq(UUID.fromString(TRIP)), any()))
 				.thenReturn(List.of(this.job));
 		when(this.jobRepository.findByRequestId(REQUEST)).thenReturn(Optional.of(this.job));
@@ -448,5 +450,40 @@ class TripCourseServiceTest {
 			pool.shutdownNow();
 		}
 		assertThat(this.assembled).as("2안·3안 각 한 번씩만").hasSize(TripCourseService.ALTERNATIVES);
+	}
+
+	// ── 추천이 끝나면 미리 짠다 (S15P21E201-1604) ─────────────────────────
+
+	/** 추천 직후 처음 여는 화면이 코스 목록이라, 거기서 짜면 첫 부름이 약 3초였다. */
+	@Test
+	@DisplayName("🔴 추천 성공 알림을 받으면 2안·3안을 짜 두고, 이어서 연 목록은 다시 짜지 않는다")
+	void prewarmBuildsOnceAndTheListReusesIt() {
+		givenRankedPool(9);
+
+		this.service.prewarm(new RecommendationJobSucceeded(REQUEST));
+		int afterPrewarm = this.assembled.size();
+		this.service.list(TRIP, USER);
+
+		assertThat(afterPrewarm).as("알림을 받고도 안 짰다").isPositive();
+		assertThat(this.assembled).as("목록이 또 짰다 — 미리 짠 것을 안 썼다").hasSize(afterPrewarm);
+	}
+
+	@Test
+	@DisplayName("🔴 미리 짜기가 실패해도 예외가 새지 않는다 — 추천은 이미 성공했고 첫 부름에 다시 짠다")
+	void aFailingPrewarmIsSwallowed() {
+		givenRankedPool(9);
+		when(this.tripQueryService.get(TRIP, USER)).thenThrow(new IllegalStateException("여행을 못 읽음"));
+
+		this.service.prewarm(new RecommendationJobSucceeded(REQUEST));
+
+		assertThat(this.assembled).isEmpty();
+	}
+
+	@Test
+	@DisplayName("모르는 추천 판이면 아무것도 안 한다")
+	void anUnknownRequestIsIgnored() {
+		this.service.prewarm(new RecommendationJobSucceeded(UUID.randomUUID()));
+
+		assertThat(this.assembled).isEmpty();
 	}
 }
