@@ -8,6 +8,7 @@ import { TripPass } from '@/plan/TripPass';
 import type { TripPassData } from '@/plan/tripPassData';
 
 const tx = (ko: string) => ko;
+const PASS_URL = 'https://example.test/trips/1';
 
 const data: TripPassData = {
   code: 'GB-ABC123',
@@ -20,7 +21,7 @@ const data: TripPassData = {
   mode: '대중교통',
   owner: '진미리',
   fields: [{ key: '방문지', value: '9곳' }],
-  url: 'https://example.test/trips/1',
+  url: PASS_URL,
   validText: '이 승차권은 10.3 여행에만 쓸 수 있어요',
 };
 
@@ -29,7 +30,7 @@ describe('여행표 앞면의 「내 일정 보기」', () => {
     const open = jest.fn();
     const view = render(<TripPass data={data} tx={tx} onOpenItinerary={open} />);
 
-    expect(view.queryByLabelText(data.url)).toBeNull();
+    expect(view.queryByLabelText(PASS_URL)).toBeNull();
     fireEvent.press(view.getByText('내 일정 보기'));
     expect(open).toHaveBeenCalledTimes(1);
   });
@@ -38,6 +39,6 @@ describe('여행표 앞면의 「내 일정 보기」', () => {
     const view = render(<TripPass data={data} tx={tx} />);
 
     expect(view.queryByText('내 일정 보기')).toBeNull();
-    expect(view.getByLabelText(data.url)).toBeTruthy();
+    expect(view.getByLabelText(PASS_URL)).toBeTruthy();
   });
 });
