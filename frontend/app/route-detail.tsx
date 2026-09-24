@@ -2,7 +2,7 @@
 // 제목 → 지도 → 요약 → 단계별 안내 → 액션 버튼. 1024px 이상에서는 왼쪽 안내 + 오른쪽 지도
 // 2열로 바뀐다(작업 내용 4번, breakpoint.md = 1023).
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -13,7 +13,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { getRouteDirections, type RouteDirectionsResult, type TravelMode } from '@/map/routeDirections';
@@ -42,7 +42,6 @@ function parseText(value: string | string[] | undefined): string | undefined {
 export default function RouteDetail() {
   const { tx, language } = useI18n();
   const router = useRouter();
-  const { width } = useWindowDimensions();
   const { accessToken } = useAuth();
   const params = useLocalSearchParams<{ originLat?: string; originLng?: string; originName?: string; destLat?: string; destLng?: string; destName?: string; destPlaceId?: string; mode?: string }>();
 
@@ -88,7 +87,8 @@ export default function RouteDetail() {
     ];
   }, [hasCoords, originLat, originLng, originName, destLat, destLng, destName]);
 
-  const twoColumn = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const twoColumn = useLayout().desktop;
   const directions = result?.state === 'success' ? result.directions : null;
 
   return (

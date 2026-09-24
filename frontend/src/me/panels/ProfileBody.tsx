@@ -4,7 +4,7 @@
 // 「나」에 해당하는 것만 떼어 왔다 — 사진 · 닉네임 · 이메일 · 언어 · 회원 탈퇴.
 import { deviceAvatarKey, loadProfileAvatar } from '@/me/profileAvatar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -17,7 +17,7 @@ import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { usePlan } from '@/plan/PlanProvider';
 import { txf } from '@/i18n/format';
 
@@ -34,8 +34,8 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
   const { tx } = useI18n();
   const plan = usePlan();
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const desktop = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const desktop = useLayout().desktop;
 
 
   async function shareProfile() {

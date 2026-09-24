@@ -17,7 +17,6 @@ import { describeDish, loadDishImage, DISH_IMAGE_POLL, type Dish } from '@/field
 import { allergenNotice, emptyNotice, scanMenu, unreadNotice, type MenuLine, type MenuScan } from '@/field/menuScan';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_OPTIONS, toBcp47, type LanguageCode } from '@/i18n/languages';
-import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
@@ -31,10 +30,11 @@ type Phase =
 export default function MenuScanScreen() {
   const router = useRouter();
   const { tx, language } = useI18n();
-  const { width } = useLayout();
+  const { desktop } = useLayout();
   const { accessToken } = useAuth();
   const [phase, setPhase] = useState<Phase>({ state: 'idle' });
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = desktop;
 
   const read = async (photoUri: string) => {
     setPhase({ state: 'reading', photoUri });
