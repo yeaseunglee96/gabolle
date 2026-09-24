@@ -14,6 +14,7 @@ import { effectiveTripStatus, tripStatusLabel, tripTimingLabel } from '@/trip/tr
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { useLayout } from '@/layout/useLayout';
 import { deleteTrip, loadTripItineraries, loadTrips, tripDisplayTitle, type TripItineraryRefDto, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
 import { leaveTrip } from '@/trip/collaboration';
 import { TripNameSheet } from '@/trip/TripNameSheet';
@@ -41,6 +42,9 @@ export default function Trips() {
   const { open } = useLocalSearchParams<{ open?: string }>();
   const { tx, locale } = useI18n();
   const { accessToken, user } = useAuth();
+  // 넓은 화면은 최대 1200 폭의 3열 카드 격자다(시안 docs/design_handoff_my_trips, S15P21E201-1587).
+  // 전에는 카드 한 장이 1440 폭 전체로 늘어진 한 줄 목록이었다.
+  const { desktop } = useLayout();
   const queryClient = useQueryClient();
   const [openingTripId, setOpeningTripId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState('');
@@ -111,8 +115,10 @@ export default function Trips() {
 
   const trips = result.state === 'success' ? result.trips : [];
 
-  return <View style={styles.shell}><Screen scroll wide withTabBar style={styles.canvas}>
-    <View style={styles.header}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('부슐랭', 'My places')} variant="tertiary" onPress={() => router.push('/collection')} containerStyle={styles.newTrip} /><Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
+  return <View style={styles.shell}><Screen scroll wide withTabBar style={[styles.canvas, desktop && styles.canvasDesktop]}>
+    {/* 🔴 폰은 헤더 위 여백을 따로 안 준다 — Screen 이 이미 24 를 주고, 헤더의 24 가 겹쳐 48 이 비어 있었다(시안 변경 3).
+        부슐랭 단추는 뺐다(시안 변경 2) — 헤더의 행동은 「새 여행」 하나다. */}
+    <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
 
     {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('비회원으로 여행 만들기 화면을 둘러볼 수 있어요.', 'You can browse the trip planner as a guest.')}</Text><Text color={color.text.body}>{tx('내 여행을 저장하고 다시 보려면 로그인해 주세요.', 'Sign in to save and revisit your trips.')}</Text><Button label={tx('여행 만들기 둘러보기', 'Browse trip planner')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /><Button label={tx('로그인', 'Sign in')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}
 
@@ -124,7 +130,7 @@ export default function Trips() {
 
     {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
 
-    {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.list}>{trips.map((trip) => <View key={trip.tripId} style={styles.card}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
+    {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={[styles.list, desktop && styles.grid]}>{trips.map((trip) => <View key={trip.tripId} style={desktop ? styles.gridSlot : undefined}><View style={[styles.card, desktop && styles.cardInGrid]}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
       <TripCover uri={trip.coverImageUrl} />
       <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx, locale)}</Text>{trip.title?.trim() ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx, locale)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : <Text variant="title" color={color.text.muted}>›</Text>}</View>
       <View style={styles.meta}>
@@ -132,10 +138,11 @@ export default function Trips() {
             정상 여행과 카드가 똑같이 보였다 — PLANNING(아직 일정 없음)만 눈에 띄게 표시한다.
         */}
         {/* 상태 배지 — 계획 중은 붉은 선(사용자가 손볼 것), 진행 중은 초록 점, 나머지는 회색. 언제인지(「3일 뒤 출발」)도 한 칸. */}
-        {trip.status === 'PLANNING' ? <View style={styles.statusPillPending}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('일정 준비 중', 'Itinerary pending')}</Text></View>
-          : <View style={[styles.metaPill, effectiveTripStatus(trip) === 'IN_PROGRESS' && styles.statusPillLive]}>{effectiveTripStatus(trip) === 'IN_PROGRESS' ? <View style={styles.liveDot} /> : null}<Text variant="caption" weight="bold" color={effectiveTripStatus(trip) === 'IN_PROGRESS' ? color.state.success : color.text.heading}>{tripStatusLabel(effectiveTripStatus(trip), tx)}</Text></View>}
+        {/* 배지 글자는 한 줄 — 격자로 좁아진 카드에서 「일정 준비 중」이 두 줄로 깨졌다(시안 변경 1). */}
+        {trip.status === 'PLANNING' ? <View style={styles.statusPillPending}><Text variant="caption" weight="bold" color={color.state.danger} numberOfLines={1}>{tx('일정 준비 중', 'Itinerary pending')}</Text></View>
+          : <View style={[styles.metaPill, effectiveTripStatus(trip) === 'IN_PROGRESS' && styles.statusPillLive]}>{effectiveTripStatus(trip) === 'IN_PROGRESS' ? <View style={styles.liveDot} /> : null}<Text variant="caption" weight="bold" color={effectiveTripStatus(trip) === 'IN_PROGRESS' ? color.state.success : color.text.heading} numberOfLines={1}>{tripStatusLabel(effectiveTripStatus(trip), tx)}</Text></View>}
         {tripTimingLabel(trip, tx) ? <Text variant="caption" color={color.text.muted}>{tripTimingLabel(trip, tx)}</Text> : null}
-        <View style={styles.metaPill}><Text variant="caption" weight="bold">{tx(`${trip.dayCount}일`, `${trip.dayCount} days`)}</Text></View><View style={styles.metaPill}><Text variant="caption" weight="bold">{txf(tx, '%s명', '%s travelers', trip.partySize)}</Text></View>
+        <View style={styles.metaPill}><Text variant="caption" weight="bold" numberOfLines={1}>{tx(`${trip.dayCount}일`, `${trip.dayCount} days`)}</Text></View><View style={styles.metaPill}><Text variant="caption" weight="bold" numberOfLines={1}>{txf(tx, '%s명', '%s travelers', trip.partySize)}</Text></View>
       </View>
       </Pressable>
       {/* 🔴 행동 단추는 카드 Pressable 의 «형제»다. 안에 넣으면 웹에서 <button> 속 <button> 이 되어(RN-web 은 button 역할을 진짜 button 으로 그린다) 안쪽 단추가 안 눌리거나 둘 다 눌린다. */}
@@ -175,7 +182,7 @@ export default function Trips() {
           </Pressable>
         </View>
       ) : null}
-    </View>)}</View> : null}
+    </View></View>)}</View> : null}
   </Screen><TabBar active="map" />
 
   {naming ? <TripNameSheet
@@ -220,24 +227,40 @@ export default function Trips() {
 }
 
 /**
- * 여행 카드 커버 — 없으면 자리를 만들지 않는다. 빈 회색 판은 「못 불러왔다」로 읽힌다.
+ * 여행 카드 커버 — 폰은 없으면 자리를 만들지 않는다. 빈 회색 판은 「못 불러왔다」로 읽힌다.
+ *
+ * 🔴 넓은 화면 3열 격자에서만 사진이 없어도 연한 빈 판(높이 160)을 둔다 — 사용자 결정(2026-09-24, S15P21E201-1587).
+ *    안 두면 같은 줄 카드끼리 제목 높이가 어긋난다. 폰은 한 줄에 한 장이라 맞출 옆 카드가 없다.
  *
  * 🔴 사진 주소는 목록 응답이 그대로 준다(trip.coverImageUrl). 여기서 따로 부르지 않는다 —
  * 전에는 카드마다 일정·장소를 세 번씩 불러서, 「내 여행」을 열 때 1초에 51건이 나가고 서버 앞단이
  * 그중 59건을 503 으로 거절했다. 거절된 카드는 앱을 끌 때까지 사진이 없었다(S15P21E201-1435).
  */
 function TripCover({ uri }: { uri: string | null }) {
-  if (!uri) return null;
-  return <Image source={{ uri }} resizeMode="cover" accessibilityLabel="" style={styles.cover} />;
+  const { desktop } = useLayout();
+  if (!uri) return desktop ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.cover, styles.coverDesktop, styles.coverBlank]} /> : null;
+  return <Image source={{ uri }} resizeMode="cover" accessibilityLabel="" style={[styles.cover, desktop && styles.coverDesktop]} />;
 }
 
 const styles = StyleSheet.create({
   shell: { flex: 1, backgroundColor: color.canvas }, canvas: { backgroundColor: color.canvas },
-  header: { marginTop: spacing[6], flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] }, headerCopy: { flex: 1, minWidth: 0 }, title: { marginTop: spacing[1], marginBottom: spacing[2] }, headerActions: { gap: spacing[2] }, newTrip: { width: 96, minHeight: 44, flexShrink: 0 },
+  // 넓은 화면은 1200 까지 — Screen 의 넓은 판(1440) 위에 덮는다. 가운데 정렬은 Screen 이 이미 한다.
+  canvasDesktop: { maxWidth: 1200 },
+  header: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] },
+  // 넓은 화면은 윗줄 메뉴 아래라 24 를 그대로 두고, 「새 여행」을 제목 덩어리 바닥에 맞춘다(시안).
+  headerDesktop: { marginTop: spacing[6], alignItems: 'flex-end' },
+  headerCopy: { flex: 1, minWidth: 0 }, title: { marginTop: spacing[1], marginBottom: spacing[2] }, headerActions: { gap: spacing[2] }, newTrip: { width: 96, minHeight: 48, flexShrink: 0 },
   feedback: { minHeight: 48, marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] }, state: { minHeight: 220, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, sadMascot: { width: 96, height: 96 }, emptyMascot: { width: 110, height: 110 },
   empty: { minHeight: 320, marginTop: spacing[6], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, emptyMark: { width: 68, height: 68, borderRadius: radius.full, backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' }, emptyIcon: { width: 32, height: 32, tintColor: color.text.muted }, center: { maxWidth: 300, textAlign: 'center' }, emptyCta: { minWidth: 180, marginTop: spacing[2] },
   cover: { width: '100%', height: 132, borderRadius: radius.md, backgroundColor: color.surface.soft },
-  list: { marginTop: spacing[6], gap: spacing[3] }, cardBody: { gap: spacing[3] }, card: { padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, gap: spacing[3], shadowColor: color.brand.navy, shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] }, cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, cardCopy: { flex: 1, gap: spacing[1] }, meta: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, metaPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  coverDesktop: { height: 160 }, coverBlank: { backgroundColor: color.surface.tint },
+  list: { marginTop: spacing[6], gap: spacing[3] },
+  // 3열 격자 — 칸 사이 16 은 칸마다 사방 8 로 내고, 바깥 8 은 음수 여백으로 거둔다(퍼센트 폭에서 gap 을 빼는 계산이 RN 에 없다).
+  // 한 줄의 칸은 줄 높이만큼 늘어나고(stretch), 카드가 칸을 채워 같은 줄 카드 높이가 같다.
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 0, marginTop: spacing[6] - spacing[2], marginHorizontal: -spacing[2], marginBottom: -spacing[2] },
+  gridSlot: { width: '33.3333%', padding: spacing[2] },
+  // 행동 줄(이름 바꾸기 / ⋯)이 늘 카드 바닥에 붙는다.
+  cardInGrid: { flex: 1, justifyContent: 'space-between' }, cardBody: { gap: spacing[3] }, card: { padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, gap: spacing[3], shadowColor: color.brand.navy, shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] }, cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, cardCopy: { flex: 1, gap: spacing[1] }, meta: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, metaPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   statusPillLive: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] }, liveDot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.state.success },
   statusPillPending: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.dangerBg, borderWidth: 1, borderColor: color.state.danger },
   cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: spacing[2] },
