@@ -6,11 +6,14 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.gabolle.backend.functional.support.AuthedClient;
 import com.gabolle.backend.functional.support.FunctionalJourneyTest;
@@ -24,6 +27,9 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 
 	private static final String TRIPS = "/api/v1/trips";
 
+	@Autowired
+	private JdbcTemplate jdbc;
+
 	/** 성립하는 요청 한 벌. 각 검사는 여기서 한 칸만 어긋나게 바꿔 보낸다. */
 	private static Map<String, Object> validBody() {
 		LocalDate start = LocalDate.now().plusDays(30);
@@ -35,6 +41,8 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 		body.put("originLat", 35.15);
 		body.put("originLng", 129.16);
 		body.put("timeWindow", "09:00-18:00");
+		// 2박이라 숙소가 있어야 한다(S15P21E201-1585) — 숙소 동네로 채운다.
+		body.put("accommodationArea", "HAEUNDAE");
 		return body;
 	}
 
@@ -137,5 +145,60 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 		assertThat(fieldsOf(response)).hasSizeGreaterThanOrEqualTo(3);
 		assertThat(String.join(" ", fieldsOf(response)))
 				.contains("finishDate").contains("budgetKrw").contains("originLat");
+	}
+
+	// ── 숙소 (S15P21E201-1585) ─────────────────────────────────────────
+
+	/** 앱은 칸 이름 {@code accommodation} 으로 사람 말을 고른다 — 이름이 바뀌면 화면에 원문이 뜬다. */
+	@Test
+	@DisplayName("🔴 1박 이상인데 숙소가 없으면 400 · TRIP_VALIDATION_FAILED · 「accommodation: …」")
+	void aMultiDayTripWithoutLodgingIsRejected() {
+		AuthedClient authed = loginAsNewUser("revalidate-lodging");
+		Map<String, Object> body = validBody();
+		body.remove("accommodationArea");
+
+		ResponseEntity<String> response = post(authed, body);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+		assertThat(JsonPath.<String>read(response.getBody(), "$.error.code")).isEqualTo("TRIP_VALIDATION_FAILED");
+		assertThat(fieldsOf(response)).anySatisfy((line) -> assertThat(line).startsWith("accommodation: "));
+	}
+
+	@Test
+	@DisplayName("당일치기는 숙소 없이 만들어진다")
+	void aDayTripNeedsNoLodging() {
+		AuthedClient authed = loginAsNewUser("revalidate-daytrip");
+		Map<String, Object> body = validBody();
+		body.remove("accommodationArea");
+		body.put("finishDate", body.get("startDate"));
+
+		ResponseEntity<String> response = post(authed, body);
+
+		assertThat(response.getStatusCode())
+				.withFailMessage("당일치기가 숙소 때문에 거부됐습니다: %s", response.getBody())
+				.isEqualTo(HttpStatus.CREATED);
+	}
+
+	/**
+	 * 규칙이 생기기 전에 만든 숙소 없는 여러 날 여행. 지금은 HTTP 로 만들 수 없어서, 숙소를 넣어 만든 뒤
+	 * 숙소 칸을 DB 에서 비워 옛 여행을 흉내 낸다.
+	 */
+	@Test
+	@DisplayName("🔴 숙소 없는 옛 여러 날 여행은 추천 요청이 여행 만들기와 같은 400 으로 거부된다")
+	void anOldMultiDayTripWithoutLodgingCannotBeRecommended() {
+		AuthedClient authed = loginAsNewUser("revalidate-old-trip");
+		ResponseEntity<String> created = post(authed, validBody());
+		assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+		String tripId = JsonPath.read(created.getBody(), "$.data.tripId");
+		this.jdbc.update("UPDATE trip SET accommodation_area = NULL, accommodation_place_id = NULL WHERE trip_id = ?",
+				UUID.fromString(tripId));
+
+		ResponseEntity<String> response = authed.post(TRIPS + "/" + tripId + "/recommendation-jobs", Map.of(),
+				String.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+		assertThat(JsonPath.<String>read(response.getBody(), "$.error.code"))
+				.as("여행 만들기와 같은 코드여야 화면이 같은 문장을 고른다").isEqualTo("TRIP_VALIDATION_FAILED");
+		assertThat(fieldsOf(response)).anySatisfy((line) -> assertThat(line).startsWith("accommodation: "));
 	}
 }

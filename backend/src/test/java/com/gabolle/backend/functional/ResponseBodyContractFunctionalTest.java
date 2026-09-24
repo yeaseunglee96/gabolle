@@ -40,7 +40,9 @@ class ResponseBodyContractFunctionalTest extends FunctionalJourneyTest {
 				"finishDate", start.plusDays(2).toString(),
 				"partySize", 2,
 				"originLat", 35.15,
-				"originLng", 129.16);
+				"originLng", 129.16,
+				// 2박이라 숙소가 있어야 한다(S15P21E201-1585). 출발지(해운대) 그 동네로.
+				"accommodationArea", "HAEUNDAE");
 		return authed.post(TRIPS, body, String.class);
 	}
 

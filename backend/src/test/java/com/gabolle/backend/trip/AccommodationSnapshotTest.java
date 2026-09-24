@@ -71,13 +71,21 @@ class AccommodationSnapshotTest {
 	}
 
 	private TripCreationService.Command command(String accommodationPlaceId, PlaceSnapshotRequest accommodation) {
+		return command(accommodationPlaceId, accommodation, LocalDate.of(2026, 9, 27));
+	}
+
+	/** 당일치기는 {@code finish} 를 가는 날(9/25)과 같게 준다 — 숙소 없이 만들어진다(S15P21E201-1585). */
+	private TripCreationService.Command command(String accommodationPlaceId, PlaceSnapshotRequest accommodation,
+			LocalDate finish) {
 		return new TripCreationService.Command("usr_1",
-				LocalDate.of(2026, 9, 25), LocalDate.of(2026, 9, 27),
+				LocalDate.of(2026, 9, 25), finish,
 				35.1587, 129.1604, 300000, 2, "MORNING_TO_EVENING", "Asia/Seoul",
 				List.of(), List.of(), Trip.OwnerType.USER,
 				accommodationPlaceId, false, false, false, null,
 				List.of(), List.of(), accommodation, null);
 	}
+
+	private static final LocalDate DAY_TRIP = LocalDate.of(2026, 9, 25);
 
 	private Trip create(TripCreationService.Command command, String key) {
 		return this.repository.findById(this.service.create(command, key).trip().tripId()).orElseThrow();
@@ -120,9 +128,10 @@ class AccommodationSnapshotTest {
 	}
 
 	@Test
-	@DisplayName("둘 다 없으면 숙소 없는 여행이다 — 아직 안 정한 것이고 오류가 아니다")
+	@DisplayName("둘 다 없으면 숙소 없는 여행이다 — 당일치기는 숙소가 필요 없어 오류가 아니다")
 	void noAccommodationIsFine() {
-		assertThat(create(command(null, null), "key_4").accommodationPlaceId()).isNull();
+		// 1박 이상이면 숙소가 있어야 한다(S15P21E201-1585) — 그 거부는 TripConditionRulesTest 가 잰다.
+		assertThat(create(command(null, null, DAY_TRIP), "key_4").accommodationPlaceId()).isNull();
 	}
 
 	@Test
@@ -137,11 +146,14 @@ class AccommodationSnapshotTest {
 	}
 
 	@Test
-	@DisplayName("🔴 장소 해석기 빈이 없어도 여행은 만들어진다 — 숙소 하나 때문에 전체가 실패하면 안 된다")
+	@DisplayName("🔴 장소 해석기 빈이 없어도 여행은 만들어진다 — 숙소 하나 때문에 전체가 실패하면 안 된다 (당일치기)")
 	void aMissingResolverDoesNotFailTheTrip() {
 		TripCreationService withoutResolver = newService(Optional.empty());
 
-		var result = withoutResolver.create(command(null, snapshot()), "key_6");
+		// 해석기가 없으면 스냅샷이 장소가 못 되어 숙소가 없는 것이 된다. 1박 이상이면 그래서 거부되고
+		// (S15P21E201-1585 — 스냅샷을 장소로 바꾼 뒤에 판정한다), 당일치기는 숙소가 필요 없어 그대로 만들어진다.
+		// 운영에는 해석기가 늘 있다.
+		var result = withoutResolver.create(command(null, snapshot(), DAY_TRIP), "key_6");
 
 		Trip saved = this.repository.findById(result.trip().tripId()).orElseThrow();
 		assertThat(saved.accommodationPlaceId()).isNull();

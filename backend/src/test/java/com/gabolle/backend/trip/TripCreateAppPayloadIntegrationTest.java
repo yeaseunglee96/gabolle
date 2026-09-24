@@ -101,6 +101,7 @@ class TripCreateAppPayloadIntegrationTest {
 				{
 				  "startDate": "2026-09-10",
 				  "finishDate": "2026-09-12",
+				  "accommodationArea": "HAEUNDAE",
 				  "originLat": 35.1587,
 				  "originLng": 129.1604,
 				  "budgetKrw": 100000,

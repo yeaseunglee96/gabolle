@@ -19,6 +19,7 @@ import com.gabolle.backend.recommendation.repository.RecommendationJobIdempotenc
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
+import com.gabolle.backend.trip.domain.TripConditionRules;
 import com.gabolle.backend.trip.domain.TripRepository;
 
 /**
@@ -117,6 +118,11 @@ public class RecommendationJobRunner {
 	private RecommendationCommand buildCommand(String tripId, String userId, Integer preferenceSnapshotVersion,
 			Integer topK) {
 		TripQueryService.View view = this.tripQueryService.get(tripId, userId);
+
+		// 🔴 숙소 없는 1박 이상 여행은 추천하지 않는다(S15P21E201-1585) — 규칙이 생기기 전에 만든 여행도 여기서 막힌다.
+		// 여행 만들기와 같은 규칙·같은 칸 이름(accommodation)이라 화면이 한 문장으로 답한다.
+		TripConditionRules.requireLodging(view.trip().startDate(), view.trip().finishDate(),
+				view.trip().accommodationPlaceId(), view.trip().accommodationArea());
 
 		PreferenceSnapshot snapshot = (preferenceSnapshotVersion != null)
 				? this.tripRepository.findSnapshot(tripId, preferenceSnapshotVersion)

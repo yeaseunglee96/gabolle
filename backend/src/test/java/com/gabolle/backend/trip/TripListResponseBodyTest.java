@@ -82,6 +82,7 @@ class TripListResponseBodyTest {
 								{
 								  "startDate": "2026-09-20",
 								  "finishDate": "2026-09-22",
+								  "accommodationArea": "HAEUNDAE",
 								  "partySize": 2,
 								  "originLat": 35.1587,
 								  "originLng": 129.1604

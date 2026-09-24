@@ -1,5 +1,6 @@
 package com.gabolle.backend.trip;
 
+import static com.gabolle.backend.trip.support.TripCommands.withLodging;
 import java.util.Optional;
 import com.gabolle.backend.user.support.ConsentGuards;
 
@@ -45,7 +46,7 @@ class TripCreationServiceAccommodationTest {
 				: List.of(new PreferenceSnapshot.PreferenceAnswer(
 						"transport", "\"" + transport[0] + "\"", PreferenceSnapshot.AnswerStatus.SELECTED));
 
-		return new TripCreationService.Command(
+		return withLodging(new TripCreationService.Command(
 				"usr_1",
 				LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12),
 				35.1587, 129.1604,
@@ -53,7 +54,7 @@ class TripCreationServiceAccommodationTest {
 				"MORNING_TO_EVENING", "Asia/Seoul",
 				preferences,
 				List.of(),
-				accommodationPlaceId, englishMenu, foreignCard, soloFriendly, maxTransfers);
+				accommodationPlaceId, englishMenu, foreignCard, soloFriendly, maxTransfers));
 	}
 
 	@Test

@@ -21,6 +21,7 @@ import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripConditionRules;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
 
@@ -62,12 +63,47 @@ class RecommendationJobRunnerTest {
 		this.runner = new RecommendationJobRunner(this.tripQueryService, this.tripRepository, this.jobRepository,
 				this.recommendationService, this.worker, this.idempotencyRepository);
 
-		Trip trip = new Trip(this.tripId, this.userId, java.time.LocalDate.of(2026, 9, 10),
-				java.time.LocalDate.of(2026, 9, 11), null, null, null, 1, null, "Asia/Seoul", Instant.now());
+		// 1박이라 숙소가 있어야 추천을 받는다(S15P21E201-1585) — 숙소 동네로 채운다.
+		stubTrip(tripOneNight().accommodationArea("HAEUNDAE").build());
+	}
+
+	private Trip.Builder tripOneNight() {
+		return Trip.builder().tripId(this.tripId).createdBy(this.userId)
+				.startDate(java.time.LocalDate.of(2026, 9, 10)).finishDate(java.time.LocalDate.of(2026, 9, 11))
+				.partySize(1).timezone("Asia/Seoul").createdAt(Instant.now());
+	}
+
+	private void stubTrip(Trip trip) {
 		PreferenceSnapshot snapshot = new PreferenceSnapshot(UUID.randomUUID().toString(), this.tripId, 1,
 				List.of(), PersonalizationScope.TRIP, List.of(), Instant.now());
 		when(this.tripQueryService.get(this.tripId, this.userId))
 				.thenReturn(new TripQueryService.View(trip, List.of(), snapshot, TripMember.Role.OWNER));
+	}
+
+	/** 규칙이 생기기 전에 만든 숙소 없는 여러 날 여행 — 여행 만들기와 같은 칸 이름으로 거부된다. */
+	@Test
+	@DisplayName("🔴 S15P21E201-1585 — 숙소 없는 1박 이상 옛 여행은 추천을 요청할 수 없다")
+	void rejectsAMultiDayTripWithoutLodging() {
+		stubTrip(tripOneNight().build());
+
+		assertThatThrownBy(() -> this.runner.enqueue(this.tripId, this.userId, null, null))
+				.isInstanceOf(TripConditionRules.TripConditionRejectedException.class)
+				.hasMessageStartingWith("accommodation: ");
+
+		verify(this.jobRepository, Mockito.never()).save(any());
+		verify(this.worker, Mockito.never()).execute(any(), any());
+	}
+
+	@Test
+	@DisplayName("당일치기는 숙소 없이도 추천을 요청할 수 있다")
+	void aDayTripNeedsNoLodging() {
+		stubTrip(tripOneNight().finishDate(java.time.LocalDate.of(2026, 9, 10)).build());
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		when(this.recommendationService.prepare(any())).thenReturn(RecommendationJob.start(UUID.randomUUID(),
+				UUID.randomUUID(), UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now()));
+
+		assertThat(this.runner.enqueue(this.tripId, this.userId, null, null)).isNotNull();
 	}
 
 	@Test

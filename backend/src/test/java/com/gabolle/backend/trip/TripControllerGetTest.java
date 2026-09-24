@@ -72,6 +72,7 @@ class TripControllerGetTest {
                 {
                   "startDate": "2026-09-06",
                   "finishDate": "2026-09-08",
+                  "accommodationArea": "HAEUNDAE",
                   "budgetKrw": 300000,
                   "partySize": 2,
                   "originLat": 35.1587,
@@ -115,6 +116,7 @@ class TripControllerGetTest {
                 {
                   "startDate": "2026-09-06",
                   "finishDate": "2026-09-08",
+                  "accommodationArea": "HAEUNDAE",
                   "partySize": 1,
                   "originLat": 35.1587,
                   "originLng": 129.1604
