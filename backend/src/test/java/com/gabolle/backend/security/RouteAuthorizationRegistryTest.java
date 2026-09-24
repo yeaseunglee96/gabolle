@@ -680,6 +680,9 @@ class RouteAuthorizationRegistryTest {
 				"남의 프로필 보기가 기능이다. 위험은 비공개 항목이 섞이는 것. FollowIntegrationTest");
 		put(m, "GET /api/v1/users/{}/stories", Policy.OTHER_USER_OK,
 				"남의 기록 목록 보기가 기능이다. visibleScopesOf 가 팔로우 여부로 범위를 가른다. FollowIntegrationTest");
+		put(m, "GET /api/v1/users/me/replies", Policy.AUTHENTICATED_ONLY,
+				"내 댓글 목록이다. 대상이 인증 주체로만 정해져 남의 댓글 목록을 부를 자리가 없다. 원글 미리보기는 "
+						+ "내가 지금 볼 수 있을 때만 싣는다. MyRepliesIntegrationTest (-1600)");
 		put(m, "PUT /api/v1/users/{}/block", Policy.OTHER_USER_OK,
 				"남을 차단하는 것이 기능이다. 주체는 인증에서만 읽어 남의 이름으로 차단할 수 없다. BlockIntegrationTest");
 		put(m, "DELETE /api/v1/users/{}/block", Policy.OTHER_USER_OK,

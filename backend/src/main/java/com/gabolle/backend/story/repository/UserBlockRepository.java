@@ -1,5 +1,6 @@
 package com.gabolle.backend.story.repository;
 
+import java.util.Collection;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -41,4 +42,9 @@ public interface UserBlockRepository extends JpaRepository<UserBlock, UserBlock.
 			+ "ORDER BY b.created_at DESC, b.blocked_user_id DESC LIMIT :limit", nativeQuery = true)
 	List<RelationRow> findBlocked(@Param("userId") UUID userId, @Param("cursorAt") Instant cursorAt,
 			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
+
+	/** {@code candidates} 중 나를 차단한 사람들 — 목록 한 쪽을 한 번에 묻는다(사람마다 {@link #isBlockedBy} 를 부르지 않게). */
+	@Query(value = "SELECT blocker_user_id FROM user_block WHERE blocked_user_id = :me AND blocker_user_id IN (:candidates)",
+			nativeQuery = true)
+	List<UUID> findBlockersAmong(@Param("me") UUID me, @Param("candidates") Collection<UUID> candidates);
 }

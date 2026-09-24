@@ -37,7 +37,7 @@ import com.gabolle.backend.story.domain.UserFollow;
  */
 @RestControllerAdvice(
 		assignableTypes = { StoryController.class, UserSocialController.class, StoryCoauthorController.class,
-				StoryReactionController.class })
+				StoryReactionController.class, MyRepliesController.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class StoryExceptionHandler {
 
