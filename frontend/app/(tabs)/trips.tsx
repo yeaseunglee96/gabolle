@@ -117,7 +117,7 @@ export default function Trips() {
 
   return <View style={styles.shell}><Screen scroll wide withTabBar style={[styles.canvas, desktop && styles.canvasDesktop]}>
     {/* 🔴 폰은 헤더 위 여백을 따로 안 준다 — Screen 이 이미 24 를 주고, 헤더의 24 가 겹쳐 48 이 비어 있었다(시안 변경 3).
-        부슐랭 단추는 뺐다(시안 변경 2) — 헤더의 행동은 「새 여행」 하나다. */}
+        헤더의 행동은 「새 여행」 하나다(시안 변경 2). */}
     <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
 
     {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('비회원으로 여행 만들기 화면을 둘러볼 수 있어요.', 'You can browse the trip planner as a guest.')}</Text><Text color={color.text.body}>{tx('내 여행을 저장하고 다시 보려면 로그인해 주세요.', 'Sign in to save and revisit your trips.')}</Text><Button label={tx('여행 만들기 둘러보기', 'Browse trip planner')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /><Button label={tx('로그인', 'Sign in')} variant="tertiary" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}

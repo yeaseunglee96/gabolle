@@ -33,7 +33,7 @@ const INTRO_IMAGES = {
 //    「처음 보는 사람에게 무엇을 먼저 말할까」의 문제라, 이 티켓이 정할 일이 아니다.
 const PAGES = [
   { id: 'ai-travel', eyebrowKo: 'AI 여행', eyebrowEn: 'AI travel', titleKo: '조건만 알려주면\n일정을 만들어요', titleEn: 'Tell us your conditions,\nwe build the itinerary', descriptionKo: '날짜와 취향, 이동 조건을 반영해 나만의 부산 여행을 구성해요.', descriptionEn: 'We put together your Busan trip using your dates, tastes, and mobility needs.' },
-  { id: 'local-discovery', eyebrowKo: '부산 둘러보기', eyebrowEn: 'Explore Busan', titleKo: '장소를 찾고 저장해\n내 여행으로 이어가요', titleEn: 'Find and save places,\nthen add them to your trip', descriptionKo: '이름으로 장소를 찾고, 마음에 든 곳은 부슐랭과 꼭 갈 장소에 담을 수 있어요.', descriptionEn: 'Search places by name, then save favorites or add them as must-visits.' },
+  { id: 'local-discovery', eyebrowKo: '부산 둘러보기', eyebrowEn: 'Explore Busan', titleKo: '장소를 찾고 저장해\n내 여행으로 이어가요', titleEn: 'Find and save places,\nthen add them to your trip', descriptionKo: '이름으로 장소를 찾고, 마음에 든 곳은 꼭 갈 장소에 담을 수 있어요.', descriptionEn: 'Search places by name, then add your favorites as must-visits.' },
   { id: 'field-talk', eyebrowKo: '현장 말하기', eyebrowEn: 'Field talk', titleKo: '여행지에서 필요한 말을\n바로 보여주고 들려줘요', titleEn: 'The phrases you need on the road,\nshown and spoken instantly', descriptionKo: '식당과 택시에서 쓸 문장을 크게 보여주거나 한국어 음성으로 들려줘요.', descriptionEn: 'Restaurant and taxi phrases shown in large text or read aloud in Korean.' },
 ] as const;
 
