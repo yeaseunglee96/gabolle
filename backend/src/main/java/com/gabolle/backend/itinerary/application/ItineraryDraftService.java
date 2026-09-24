@@ -267,6 +267,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         // 둘째 날부터는 숙소에서 나선다 — 차례를 정하는 잣대도 구간을 재는 잣대와 같은 출발점을 쓴다.
         ItineraryLegPlanner.Anchor lodging = this.legPlanner.lodgingOf(trip);
+        ViolationMemo verdicts = new ViolationMemo();
         for (int dayIndex = 0; dayIndex < byDay.size(); dayIndex++) {
             List<ItineraryDraftCommand.PlannedPlace> dayPlaces = byDay.get(dayIndex);
             LocalDate visitDate = trip.startDate().plusDays(dayIndex);
@@ -276,9 +277,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             // 곧 "같은 조건이면 이쪽 먼저" 가 된다.
             dayPlaces = reorderByRoute(trip, dayIndex, lodging, dayPlaces);
 
-            List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate);
+            List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate, verdicts);
             // 칸에 앉힌 뒤 한 번 더 — 끼니 칸이 차례를 섞어 놓은 것을 동선으로 다시 푼다(S15P21E201-1547).
-            placedToday = shortestSlotOrder(trip, dayIndex, lodging, placedToday, visitDate);
+            placedToday = shortestSlotOrder(trip, dayIndex, lodging, placedToday, visitDate, verdicts);
             placedByDay.add(placedToday);
 
             List<UUID> placeIdsToday = new ArrayList<>(placedToday.size());
@@ -854,7 +855,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 순위 그대로 앉힌다.
      */
     private List<Placed> placeIntoSlots(Trip trip, List<ItineraryDraftCommand.PlannedPlace> dayPlaces,
-                                        LocalDate visitDate) {
+                                        LocalDate visitDate, ViolationMemo verdicts) {
 
         int count = dayPlaces.size();
         List<Placed> placed = new ArrayList<>(count);
@@ -871,11 +872,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
             int chosen = -1;
             if (at != null) {
-                chosen = firstOpen(dayPlaces, used, at, wantFood);
+                chosen = firstOpen(dayPlaces, used, at, wantFood, verdicts);
                 if (chosen < 0) {
                     // 원하는 종류가 없다. 종류를 포기하고 영업시간만 본다 — 자리를 비우는 것보다는 낫다.
                     // "밥 때인데 밥집이 없다" 는 사실은 이미 distributeByDay 가 SIGHT_SLOT_UNFILLED 로 말한다.
-                    chosen = firstOpen(dayPlaces, used, at, !wantFood);
+                    chosen = firstOpen(dayPlaces, used, at, !wantFood, verdicts);
                 }
             }
 
@@ -892,7 +893,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             used[chosen] = true;
             ItineraryDraftCommand.PlannedPlace place = dayPlaces.get(chosen);
             List<String> warnings = place.warningCodes();
-            String violation = (forced && at != null) ? violationAt(place.placeId(), at) : null;
+            String violation = (forced && at != null) ? verdicts.at(place.placeId(), at) : null;
             if (violation != null) {
                 warnings = new ArrayList<>(warnings == null ? List.of() : warnings);
                 warnings.add(violation);
@@ -916,7 +917,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * <p>좌표를 모르는 곳이 있거나, 칸 시각이 없거나(활동 시간 미정), 하루가 6곳을 넘으면 손대지 않는다.
      */
     private List<Placed> shortestSlotOrder(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging, List<Placed> placed,
-            LocalDate visitDate) {
+            LocalDate visitDate, ViolationMemo verdicts) {
 
         int count = placed.size();
         if (count < 2 || count > 6) {
@@ -947,13 +948,13 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             identity[i] = i;
         }
         int baseMealHits = mealHits(places, identity, wantFood);
-        int baseViolations = violations(places, identity, at);
+        int baseViolations = violations(places, identity, at, verdicts);
         double baseDistance = pathKm(start, places, identity, coords);
 
         int[] best = identity;
         double bestDistance = baseDistance;
         for (int[] order : permutations(count)) {
-            if (mealHits(places, order, wantFood) < baseMealHits || violations(places, order, at) > baseViolations) {
+            if (mealHits(places, order, wantFood) < baseMealHits || violations(places, order, at, verdicts) > baseViolations) {
                 continue;
             }
             double distance = pathKm(start, places, order, coords);
@@ -971,7 +972,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         for (int slotIndex = 0; slotIndex < count; slotIndex++) {
             ItineraryDraftCommand.PlannedPlace place = places.get(best[slotIndex]);
             List<String> warnings = place.warningCodes();
-            String violation = violationAt(place.placeId(), at[slotIndex]);
+            String violation = verdicts.at(place.placeId(), at[slotIndex]);
             if (violation != null) {
                 warnings = new ArrayList<>(warnings == null ? List.of() : warnings);
                 warnings.add(violation);
@@ -991,10 +992,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         return hits;
     }
 
-    private int violations(List<ItineraryDraftCommand.PlannedPlace> places, int[] order, OffsetDateTime[] at) {
+    private int violations(List<ItineraryDraftCommand.PlannedPlace> places, int[] order, OffsetDateTime[] at,
+            ViolationMemo verdicts) {
         int count = 0;
         for (int i = 0; i < order.length; i++) {
-            if (violationAt(places.get(order[i]).placeId(), at[i]) != null) {
+            if (verdicts.at(places.get(order[i]).placeId(), at[i]) != null) {
                 count++;
             }
         }
@@ -1039,13 +1041,13 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     /** 그 시각에 문을 연 후보 중, 원하는 종류의 첫 번째. 없으면 {@code -1}. */
     private int firstOpen(List<ItineraryDraftCommand.PlannedPlace> dayPlaces, boolean[] used,
-            OffsetDateTime at, boolean food) {
+            OffsetDateTime at, boolean food, ViolationMemo verdicts) {
 
         for (int i = 0; i < dayPlaces.size(); i++) {
             if (used[i] || isFood(dayPlaces.get(i)) != food) {
                 continue;
             }
-            if (violationAt(dayPlaces.get(i).placeId(), at) == null) {
+            if (verdicts.at(dayPlaces.get(i).placeId(), at) == null) {
                 return i;
             }
         }
@@ -1091,6 +1093,33 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             return ItineraryOpeningHoursChecker.VIOLATION_LAST_ORDER;
         }
         return null;
+    }
+
+    /**
+     * 한 번 조립하는 동안 (장소, 시각) 마다 {@link #violationAt} 을 한 번만 묻는다 — S15P21E201-1621.
+     *
+     * <p>🔴 왜. {@link #shortestSlotOrder} 는 하루 5곳이면 120가지 차례를 전부 따지는데, 차례마다·자리마다
+     * 영업시간·브레이크타임·라스트오더를 DB 에서 새로 읽었다. 8일·하루 5곳 조립이 질의 6,852번·7.3초였다
+     * (운영 8.3초). 답은 「어느 장소가 몇 시에」에만 달려 있어 서로 다른 물음은 하루에 장소 수 × 칸 수뿐이다.
+     *
+     * <p>판정 규칙은 그대로다 — 같은 물음에 처음 받은 답을 다시 줄 뿐이라 고르는 차례도 전과 같다.
+     * 조립 한 번 안에서만 산다(요청마다 새로 만든다). 서비스는 여러 요청이 함께 쓰는 하나라 필드에 두면 안 된다.
+     */
+    private final class ViolationMemo {
+
+        private final Map<Visit, String> answers = new HashMap<>();
+
+        /** {@link #violationAt} 과 같은 답. 「걸리는 것 없음」({@code null})도 기억한다. */
+        String at(UUID placeId, OffsetDateTime at) {
+            Visit visit = new Visit(placeId, at);
+            if (!this.answers.containsKey(visit)) {
+                this.answers.put(visit, violationAt(placeId, at));
+            }
+            return this.answers.get(visit);
+        }
+    }
+
+    private record Visit(UUID placeId, OffsetDateTime at) {
     }
 
     /**
