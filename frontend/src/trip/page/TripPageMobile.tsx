@@ -52,6 +52,8 @@ import { useTripPage } from './useTripPage';
 import { useTripProgress } from './useTripProgress';
 import { remainingMeters, stepDwell, usableFix, type Dwell } from './autoArrival';
 import { useLiveLocation } from './useLiveLocation';
+import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
+import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
 import { DayReturnRow } from './DayReturnRow';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
@@ -101,6 +103,10 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const [touched, setTouched] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  // 지도의 경사·그늘 겹(S15P21E201-1569).
+  const [layerKind, setLayerKind] = useState<MobilityLayerKind | null>(null);
+  const mobility = useMobilityLayer(layerKind, map.stops);
+  const mapRoutes = useMemo(() => [...mobility.lines, ...routes], [mobility.lines, routes]);
   const [overlay, setOverlay] = useState<TripOverlayKind | null>(null);
   const [naming, setNaming] = useState(askName);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -411,7 +417,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         {map.stops.length ? (
           // 🔴 지도 부품은 둥근 테두리 칸으로 그려진다. 바탕으로 쓰려면 모서리를 화면 밖으로 밀어낸다.
           <View style={styles.mapBleed}>
-            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected />
+            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={mapRoutes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected />
           </View>
         ) : loaded ? (
           <View style={[styles.mapEmpty, { paddingTop: insets.top }]}>
@@ -423,6 +429,9 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         <View pointerEvents="none" style={[styles.mapSummary, { top: insets.top + spacing[2] }]}>
           <Text variant="caption" weight="bold" numberOfLines={1}>{mapSummary}</Text>
         </View>
+      ) : null}
+      {loaded && map.stops.length ? (
+        <MobilityLayerToggle value={layerKind} onChange={setLayerKind} basis={mobility.basis} tx={tx} style={[styles.mapLayers, { top: insets.top + spacing[2] + 40 }]} />
       ) : null}
 
       {/* ── 접었을 때 — 탭바 위 정차지 카드 줄 (시안 4b) ──────────────────────────── */}
@@ -797,6 +806,7 @@ const styles = StyleSheet.create({
 
   // ── 지도 ──
   mapClip: { position: 'absolute', left: 0, right: 0, top: 0, overflow: 'hidden' },
+  mapLayers: { position: 'absolute', left: spacing[4] },
   mapBleed: { marginTop: -radius.lg, marginHorizontal: -radius.lg },
   mapEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[6] },
   mapSummary: { position: 'absolute', left: spacing[4], zIndex: 5, paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, ...floating },

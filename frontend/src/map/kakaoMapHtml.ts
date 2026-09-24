@@ -113,7 +113,7 @@ export function buildKakaoMapHtml(appKey: string): string {
       // 실제 길 좌표가 있고 "추정 아님" 이라고 적혀 있을 때만 실선이다.
       // 나머지는 직선을 이은 것이므로 점선으로 그린다 — 실선은 "이 길로 가면 된다" 는 뜻이다.
       var real = !!(route.path && route.path.length) && route.estimated === false;
-      var line = new maps.Polyline({ path: path, strokeWeight: 5, strokeColor: route.color, strokeOpacity: real ? 0.9 : 0.75, strokeStyle: real ? 'solid' : 'shortdash' });
+      var line = new maps.Polyline({ path: path, strokeWeight: route.weight || 5, strokeColor: route.color, strokeOpacity: route.opacity != null ? route.opacity : (real ? 0.9 : 0.75), strokeStyle: real ? 'solid' : 'shortdash' });
       line.setMap(map); overlays.push(line);
     }
 
