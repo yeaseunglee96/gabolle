@@ -106,6 +106,53 @@ class RouteQueryServiceTest {
 		assertThat(provider.calls.get()).isEqualTo(2);
 	}
 
+	/** 해운대 해리단길의 두 식당 — 운영에서 대중교통 178분이 나왔던 구간. 직선 약 655m. */
+	private static final RouteQuery SHORT_TRANSIT =
+			new RouteQuery(35.1600, 129.1554, 35.1653, 129.1586, TravelMode.TRANSIT);
+
+	private static RouteLeg transitLeg(int durationMin) {
+		return new RouteLeg(TravelMode.TRANSIT, 838, durationMin, null, null, 1, true, "배차간격",
+				"TRANSIT_NETWORK", List.of(), List.of(), 1550);
+	}
+
+	@Test
+	@DisplayName("🔴 대중교통이 걷기보다 느리면 도보로 답한다 — 650m 가 178분으로 나오던 것 (S15P21E201-1564)")
+	void walksWhenWalkingBeatsTransit() {
+		RouteQueryService service = serviceWith(new StubProvider(TravelMode.TRANSIT, Optional.of(transitLeg(178))));
+
+		RouteLeg leg = service.find(SHORT_TRANSIT);
+
+		assertThat(leg.mode()).isEqualTo(TravelMode.WALK);
+		assertThat(leg.durationMin()).as("655m × 우회 1.3 ÷ 시속 4km ≈ 13분").isBetween(10, 16);
+		assertThat(leg.estimated()).as("도보 쪽도 어림값이다 — 표시 없이 나가면 화면이 잰 값처럼 그린다").isTrue();
+		assertThat(leg.transitFareKrw()).as("걷는 데는 요금이 없다 — 버스 요금을 옮겨 적지 않는다").isNull();
+	}
+
+	@Test
+	@DisplayName("대중교통이 더 빠르면 그대로 대중교통이다 — 먼 구간(해운대→서면)을 걷게 하지 않는다")
+	void keepsTransitWhenItIsFaster() {
+		RouteQuery far = new RouteQuery(35.1587, 129.1604, 35.1578, 129.0592, TravelMode.TRANSIT);
+		RouteQueryService service = serviceWith(new StubProvider(TravelMode.TRANSIT, Optional.of(transitLeg(45))));
+
+		RouteLeg leg = service.find(far);
+
+		assertThat(leg.mode()).isEqualTo(TravelMode.TRANSIT);
+		assertThat(leg.durationMin()).isEqualTo(45);
+		assertThat(leg.transitFareKrw()).isEqualTo(1550);
+	}
+
+	@Test
+	@DisplayName("자동차는 걷기와 견주지 않는다 — 고른 것이 차면 차로 답한다")
+	void carIsNeverSwappedForWalking() {
+		RouteLeg slowCar = new RouteLeg(TravelMode.CAR, 838, 178, 5000, 0, null, false, null,
+				RouteLeg.PROVIDER_KAKAO_MOBILITY, List.of(), List.of());
+		RouteQueryService service = serviceWith(new StubProvider(TravelMode.CAR, Optional.of(slowCar)));
+
+		RouteLeg leg = service.find(new RouteQuery(35.1600, 129.1554, 35.1653, 129.1586, TravelMode.CAR));
+
+		assertThat(leg.mode()).isEqualTo(TravelMode.CAR);
+	}
+
 	/** 정해진 답만 돌려주고 호출 횟수를 센다. */
 	private static final class StubProvider implements RouteProviderPort {
 
