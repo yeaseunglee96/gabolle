@@ -32,6 +32,9 @@ export type MapRouteLayer = {
   path?: MapPathPoint[];
   /** 실제 길이 아니라 직선 추정인가. 안 적으면 추정으로 본다. */
   estimated?: boolean;
+  /** 선 굵기·불투명도 — 경사·그늘 겹(S15P21E201-1569)처럼 경로 아래 깔리는 선만 준다. 안 주면 경로 선 그대로. */
+  weight?: number;
+  opacity?: number;
 };
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 
@@ -158,9 +161,9 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const real = route.path?.length ? route.estimated === false : false;
           const line = new maps.Polyline({
             path,
-            strokeWeight: 5,
+            strokeWeight: route.weight ?? 5,
             strokeColor: route.color,
-            strokeOpacity: real ? 0.9 : 0.75,
+            strokeOpacity: route.opacity ?? (real ? 0.9 : 0.75),
             strokeStyle: real ? 'solid' : 'shortdash',
           });
           line.setMap(map); overlaysRef.current.push(line);

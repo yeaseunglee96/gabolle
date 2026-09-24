@@ -11,7 +11,7 @@
 //
 // 🔴 편집(순서·고정·제외·다시 계산·되돌리기)은 여기서 안 한다. 시안의 넓은 화면에 그 자리가 없다.
 //    대신 ⋯ 의 「일정 편집」이 지금까지의 일정 화면을 그대로 연다(?classic=1) — 기능을 잃지 않는다.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -40,6 +40,8 @@ import type { TripPageSource } from './tripPageData';
 import { formatDuration, formatManwon, stayMinutes } from './tripPageModel';
 import { useTripPage } from './useTripPage';
 import { DayReturnRow } from './DayReturnRow';
+import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
+import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
@@ -75,6 +77,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   } = useTripPage(source);
   const [layout, setLayout] = useState<Layout>('cards');
   const [menuOpen, setMenuOpen] = useState(false);
+  // 지도의 경사·그늘 겹(S15P21E201-1569) — 켜면 정차지 둘레 길을 칠한다. 경로 선 아래 깔린다.
+  const [layerKind, setLayerKind] = useState<MobilityLayerKind | null>(null);
   const [overlay, setOverlay] = useState<TripOverlayKind | null>(null);
   const [naming, setNaming] = useState(askName);
   const [leftHeight, setLeftHeight] = useState(0);
@@ -82,6 +86,9 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   /** 스크롤 칸이 보여 주는 높이와, 그 안에서 본문이 시작하는 자리 — 지도를 «화면 아래까지» 늘리는 데 쓴다. */
   const [viewportHeight, setViewportHeight] = useState(0);
   const [bodyTop, setBodyTop] = useState(0);
+
+  const mobility = useMobilityLayer(layerKind, map.stops);
+  const mapRoutes = useMemo(() => [...mobility.lines, ...routes], [mobility.lines, routes]);
 
   if (!page) return <LoadingState tx={tx} />;
   if (page.state === 'error') return <ErrorState message={localizeMessage(tx, page.message)} onRetry={() => void load()} tx={tx} />;
@@ -100,11 +107,12 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const mapPanel = (height: number) => (
     <View style={[styles.mapPanel, { height }]}>
       {map.stops.length ? (
-        <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} height={height} focusSelected />
+        <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={mapRoutes} points={points} height={height} focusSelected />
       ) : (
         <View style={styles.mapEmpty}><Text variant="caption" color={color.text.muted}>{tx('장소의 좌표가 아직 없어 지도에 그릴 수 없어요.', 'These places have no coordinates yet, so the map is empty.')}</Text></View>
       )}
       <View pointerEvents="none" style={styles.mapSummary}><Text variant="caption" weight="bold" numberOfLines={1}>{mapSummary}</Text></View>
+      {map.stops.length ? <MobilityLayerToggle value={layerKind} onChange={setLayerKind} basis={mobility.basis} tx={tx} style={styles.mapLayers} /> : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={layout === 'map' ? tx('장소 카드로 보기', 'Show place cards') : tx('큰 지도로 보기', 'Show the big map')}
@@ -506,6 +514,7 @@ const styles = StyleSheet.create({
     position: 'absolute', left: spacing[3], top: spacing[3], paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card,
     shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2,
   },
+  mapLayers: { position: 'absolute', left: spacing[3], bottom: spacing[3] },
   mapExpand: {
     position: 'absolute', right: spacing[3], top: spacing[3], width: 40, height: 40, borderRadius: radius.md, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center',
     shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2,
