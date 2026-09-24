@@ -34,6 +34,7 @@ import { hasUnseen, loadActivityFeed, loadSeenAt } from '@/notifications/activit
 import { useFocusEffect } from 'expo-router';
 import { relativeStoryTime } from '@/social/stories';
 import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
+import type { TripSummaryDto } from '@/trip/trips';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
@@ -131,10 +132,10 @@ export default function Home() {
   }, [coachQueued, promptChecked, conditions.open]);
   const closeCoach = () => setCoach((current) => ({ ...current, visible: false }));
 
-  const openHomeTrip = async (tripId: string) => {
+  const openHomeTrip = async (trip: TripSummaryDto) => {
     if (openingTrip) return;
     setOpeningTrip(true);
-    const destination = await resolveHomeTripDestination(tripId, accessToken);
+    const destination = await resolveHomeTripDestination(trip, accessToken);
     setOpeningTrip(false);
     router.push(destination as never);
   };
@@ -308,7 +309,7 @@ export default function Home() {
           <View style={styles.sectionPadded}>
             <Text variant="eyebrow" weight="bold">{tx('내 여행', 'My trip')}</Text>
             {!home.tripsLoaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : home.trip ? (
-              <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTrip, disabled: openingTrip }} disabled={openingTrip} onPress={() => void openHomeTrip(home.trip!.tripId)} style={({ pressed }) => [styles.tripCard, pressed && styles.pressed]}>
+              <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTrip, disabled: openingTrip }} disabled={openingTrip} onPress={() => void openHomeTrip(home.trip!)} style={({ pressed }) => [styles.tripCard, pressed && styles.pressed]}>
                 <Text variant="caption" weight="bold" color={color.state.success}>
                   {/* 여행 목록 카드와 같은 함수 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 오늘 여행에 「준비 완료」가 붙던 것. */}
                   {tripStatusLabel(effectiveTripStatus(home.trip), tx)}

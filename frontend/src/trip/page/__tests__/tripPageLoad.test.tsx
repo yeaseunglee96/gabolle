@@ -7,6 +7,7 @@
 //    ② 확정한 일정은 코스 목록을 기다리지 않고 먼저 그린다. 코스 목록은 서버에서 수 초가 걸린다.
 import type { ReactNode } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import type { ItineraryDto } from '@/plan/itinerary';
@@ -25,9 +26,12 @@ jest.mock('@/plan/tripCourses', () => ({ ...jest.requireActual('@/plan/tripCours
 jest.mock('@/plan/placePhotos', () => ({ ...jest.requireActual('@/plan/placePhotos'), loadPlacePhotos: jest.fn(async () => ({})) }));
 jest.mock('@/trip/tripBudget', () => ({ loadTripBudget: jest.fn(async () => ({ state: 'error', message: 'x' })) }));
 jest.mock('@/map/courseRoutePaths', () => ({ useCourseRoutePaths: () => ({}) }));
+jest.mock('@/trip/trips', () => ({ ...jest.requireActual('@/trip/trips'), invalidateTripLists: jest.fn(async () => {}), loadTrips: jest.fn(async () => ({ state: 'success', trips: [] })) }));
+jest.mock('@/trip/tripNaming', () => ({ ...jest.requireActual('@/trip/tripNaming'), wasTripNameAsked: jest.fn(async () => true) }));
 
 const { loadItinerary } = jest.requireMock('@/plan/itinerary') as { loadItinerary: jest.Mock };
 const { loadTripCourses } = jest.requireMock('@/plan/tripCourses') as { loadTripCourses: jest.Mock };
+const { invalidateTripLists } = jest.requireMock('@/trip/trips') as { invalidateTripLists: jest.Mock };
 
 const ITINERARY: ItineraryDto = {
   id: 'it-1', tripId: 'trip-1', title: '광안리 여행', version: 1,
@@ -39,7 +43,8 @@ const course = (id: string, itineraryId: string | null): TripCourse => ({
 });
 const LIST: TripCoursesResult = { state: 'success', courses: [course('A', null), course('B', 'it-1'), course('C', null)], full: true };
 
-const wrapper = ({ children }: { children: ReactNode }) => <OnboardingPreferencesProvider>{children}</OnboardingPreferencesProvider>;
+const queryClient = new QueryClient({ defaultOptions: { queries: { gcTime: Infinity } } });
+const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={queryClient}><OnboardingPreferencesProvider>{children}</OnboardingPreferencesProvider></QueryClientProvider>;
 const source = { kind: 'itinerary' as const, itineraryId: 'it-1' };
 
 beforeEach(() => {
@@ -103,5 +108,15 @@ describe('여행 일정 화면 여는 길', () => {
     // 목록이 비었다고 연 일정을 다시 받지 않는다 — 이미 손에 있다
     expect(loadTripCourses).toHaveBeenCalledWith('trip-1', null, 'token-1');
     expect(loadItinerary).toHaveBeenCalledTimes(1);
+  });
+
+  it('🔴 코스를 확정하면 여행 목록 캐시를 비운다 — 돌아가 카드를 눌렀을 때 새로 고른 일정이 열리게 (S15P21E201-1605)', async () => {
+    auth.accessToken = 'token-1';
+    auth.ready = true;
+    const view = renderHook(() => useTripPage({ kind: 'trip', tripId: 'trip-1', jobId: null }), { wrapper });
+    await waitFor(() => expect(view.result.current.courses).toHaveLength(3));
+    invalidateTripLists.mockClear();
+    await act(async () => { await view.result.current.confirm(view.result.current.courses[1]); });
+    expect(invalidateTripLists).toHaveBeenCalledTimes(1);
   });
 });

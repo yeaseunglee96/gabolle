@@ -292,7 +292,7 @@ export function MyTripCard({ trip, signedIn, loaded, layout = 'column' }: { trip
   const openTrip = async () => {
     if (!trip || opening) return;
     setOpening(true);
-    const destination = await resolveHomeTripDestination(trip.tripId, accessToken);
+    const destination = await resolveHomeTripDestination(trip, accessToken);
     setOpening(false);
     router.push(destination as never);
   };

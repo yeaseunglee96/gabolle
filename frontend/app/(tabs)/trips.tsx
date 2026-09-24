@@ -15,7 +15,7 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
-import { deleteTrip, loadTripItineraries, loadTrips, tripDisplayTitle, type TripItineraryRefDto, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
+import { deleteTrip, loadTrips, resolveTripItinerary, tripDisplayTitle, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
 import { leaveTrip } from '@/trip/collaboration';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 import { txf } from '@/i18n/format';
@@ -48,7 +48,6 @@ export default function Trips() {
   const queryClient = useQueryClient();
   const [openingTripId, setOpeningTripId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState('');
-  const [picker, setPicker] = useState<{ tripId: string; itineraries: TripItineraryRefDto[] } | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<TripSummaryDto | null>(null);
   const [removingTripId, setRemovingTripId] = useState<string | null>(null);
   // 🔴 「여행 삭제」는 ⋯ 안에 있다 — 카드마다 붉은 글자로 서 있으면 실수로 누르기 쉬운 자리다(2026-09-21, S15P21E201-1393).
@@ -78,16 +77,15 @@ export default function Trips() {
     }
     setFeedback('');
     setOpeningTripId(trip.tripId);
-    const outcome = await loadTripItineraries(trip.tripId, accessToken);
+    // 🔴 일정이 여럿이어도 묻지 않는다 — 확정한 일정을 바로 연다(S15P21E201-1605). 규칙은 resolveTripItinerary 가 갖는다.
+    const outcome = await resolveTripItinerary(trip, accessToken);
     setOpeningTripId(null);
-    if (outcome.state !== 'success') { setFeedback(outcome.message); return; }
     // : 일정 생성이 실패하면 여행만 남고 일정은 영원히 안 생긴다(재시도 기능은
     // 아직 없다) — "아직 없어요"라고만 하면 곧 생기는 것처럼 들려 계속 눌러보게 만든다.
     // 실제로 할 수 있는 행동(지우고 새로 만들기)을 바로 알려준다.
-    if (outcome.itineraries.length === 0) { setFeedback(tx('이 여행은 일정이 만들어지지 않았어요. 아래에서 삭제하고 새로 만들어 주세요.', "This trip's itinerary was never created. Delete it below and start a new one.")); return; }
-    if (outcome.itineraries.length === 1) { openItinerary(outcome.itineraries[0].itineraryId); return; }
-    // 배열 순서가 계약이 아니라 어느 것이 최신인지 서버가 정해 주지 않는다 — 사용자가 고른다.
-    setPicker({ tripId: trip.tripId, itineraries: outcome.itineraries });
+    if (outcome.state === 'none') { setFeedback(tx('이 여행은 일정이 만들어지지 않았어요. 아래에서 삭제하고 새로 만들어 주세요.', "This trip's itinerary was never created. Delete it below and start a new one.")); return; }
+    if (outcome.state !== 'open') { setFeedback(outcome.message); return; }
+    openItinerary(outcome.itineraryId);
   };
 
   const confirmRemove = async () => {
@@ -204,15 +202,6 @@ export default function Trips() {
     }}
   /> : null}
 
-  <Modal visible={!!picker} transparent animationType="fade" onRequestClose={() => setPicker(null)}>
-    <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
-      <Text variant="title" weight="bold">{tx('열 일정을 골라주세요', 'Choose which itinerary to open')}</Text>
-      <Text color={color.text.body}>{tx('이 여행에는 일정이 여러 개 있어요.', 'This trip has more than one itinerary.')}</Text>
-      <View style={styles.pickerList}>{picker?.itineraries.map((itinerary) => <Pressable key={itinerary.itineraryId} accessibilityRole="button" onPress={() => { setPicker(null); openItinerary(itinerary.itineraryId); }} style={styles.pickerItem}><Text weight="bold">{tx(`버전 ${itinerary.latestVersion}`, `Version ${itinerary.latestVersion}`)}</Text><Text variant="title" color={color.text.muted}>›</Text></Pressable>)}</View>
-      <Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={() => setPicker(null)} />
-    </View></View>
-  </Modal>
-
   <Modal visible={!!confirmTarget} transparent animationType="fade" onRequestClose={() => setConfirmTarget(null)}>
     <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
       <Text variant="title" weight="bold">{confirmTarget?.role === 'OWNER' ? tx('이 여행을 삭제할까요?', 'Delete this trip?') : tx('이 여행에서 나갈까요?', 'Leave this trip?')}</Text>
@@ -267,6 +256,5 @@ const styles = StyleSheet.create({
   removeButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, moreButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, cardMenu: { alignSelf: 'flex-end', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card }, cardMenuItem: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4] }, removeButtonPressed: { opacity: 0.6 },
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
   modalCard: { width: '100%', maxWidth: 480, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
-  pickerList: { gap: spacing[2] }, pickerItem: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.soft },
   confirmActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] }, confirmButton: { flex: 1 },
 });

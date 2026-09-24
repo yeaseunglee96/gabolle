@@ -5,6 +5,7 @@
 //    1단계 때 TripPageDesktop 안에 있던 것을 그대로 옮겼다 — 옮기면서 바꾼 것은 아래 🔴 둘뿐이다.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { color } from '@/design/tokens';
@@ -19,7 +20,7 @@ import { loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
 import { canConfirmCourse, ensureCourseItinerary, type TripCourse } from '@/plan/tripCourses';
 import { loadTripBudget } from '@/trip/tripBudget';
 import { humanTripTitle, shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
-import { loadTrips } from '@/trip/trips';
+import { invalidateTripLists, loadTrips } from '@/trip/trips';
 
 import { itineraryFirstPage, loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
 import { dayMap, dayRoutes, formatManwon, returnRoute, returnTrip, startTrip } from './tripPageModel';
@@ -28,6 +29,7 @@ export type TripItinerary = { id: string; value: ItineraryDto | null; message: s
 
 export function useTripPage(source: TripPageSource) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { accessToken, ready } = useAuth();
   const { tx, locale } = useI18n();
   // 🔴 여는 길은 열쇠의 «값»이 아니라 «로그인했나»에만 묶는다(S15P21E201-1599). 열쇠는 갱신할 때마다 바뀌는데,
@@ -209,6 +211,8 @@ export function useTripPage(source: TripPageSource) {
       setItinerary({ id: target.id, value: null, message: made.message });
       return;
     }
+    // 🔴 확정 일정이 바뀌었다 — 여행 목록 캐시를 비워야 돌아가 카드를 눌렀을 때 새로 고른 것이 열린다(S15P21E201-1605).
+    void invalidateTripLists(queryClient);
     const id = made.itineraryId;
     const path = `/trips/${id}/itinerary`;
     try {
