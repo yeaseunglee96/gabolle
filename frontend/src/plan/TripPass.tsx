@@ -270,7 +270,17 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
             {/* 🔴 가짜 바코드는 뺐다(2026-09-21 실기, S15P21E201-1400) — QR 과 바코드가 둘이라 「왜 둘인지」를 물었다.
                 남는 것은 진짜로 읽히는 QR 하나. 도장은 QR 옆 제 칸에 크게 — 귀퉁이에 겹쳐 찍었을 때 글자가 안 읽혔다. */}
             <View style={styles.codeRow}>
-              {!!data.url && (
+              {/* 🔴 일정이 다 되면 QR 자리가 「내 일정 보기」 단추가 된다(S15P21E201-1562). 티켓을 눌러 뒤집고
+                  뒷면의 「일정 보기」를 눌러야 다음으로 가는데, 화면이 그걸 말해 주지 않아 사람이 티켓 앞에서 멈췄다.
+                  뒤집어 상세를 보는 것은 그대로다 — 이 단추 밖의 티켓을 누르면 된다. */}
+              {onOpenItinerary ? (
+                <Animated.View style={{ opacity: codeMark, transform: [{ scale: markScale }] }}>
+                  <Pressable accessibilityRole="button" onPress={onOpenItinerary} style={({ pressed }) => [styles.nextButton, wide && styles.nextButtonWide, pressed && styles.backPressed]}>
+                    <Text weight="bold" color={color.text.onAction} style={styles.nextLabel}>{tx('내 일정 보기', 'View my itinerary')}</Text>
+                    <Text variant="title" weight="bold" color={color.text.onAction}>→</Text>
+                  </Pressable>
+                </Animated.View>
+              ) : !!data.url && (
                 <Animated.View style={{ opacity: codeMark, transform: [{ scale: markScale }] }}>
                   <QrCode value={data.url} size={wide ? 120 : 104} />
                 </Animated.View>
@@ -427,6 +437,9 @@ const styles = StyleSheet.create({
   backStatus: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
   backDot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.state.success },
   backActions: { gap: spacing[2], marginTop: spacing[2] },
+  nextButton: { width: 120, height: 104, alignItems: 'center', justifyContent: 'center', gap: spacing[1], paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.action.primary },
+  nextButtonWide: { width: 136, height: 120 },
+  nextLabel: { textAlign: 'center' },
   backPrimary: { minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.brand.navy },
   backGhost: { minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   backPressed: { opacity: 0.8 },
