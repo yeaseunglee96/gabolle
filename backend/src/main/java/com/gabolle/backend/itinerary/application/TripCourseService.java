@@ -1,6 +1,8 @@
 package com.gabolle.backend.itinerary.application;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +11,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +51,8 @@ import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
  * </ul>
  *
  * <p>2안·3안은 <b>고른 순간에 저장한다</b>({@link #choose}). 추천이 끝날 때 셋 다 저장하면 고르지도 않은
- * 일정 둘이 여행마다 쌓이고, 저장마다 「일정이 완성됐다」 알림이 나간다. 고를 때 같은 입력으로 다시
- * 조립하므로 미리 본 곳들이 그대로 들어간다.
+ * 일정 둘이 여행마다 쌓이고, 저장마다 「일정이 완성됐다」 알림이 나간다. 고를 때 목록이 보여 준 초안을
+ * 그대로 저장하므로 미리 본 곳들이 그대로 들어간다({@link #alternativesMemo}).
  *
  * <p>권한은 추천 작업과 같다 — 여행 회원이면 된다({@link TripQueryService#get}). 없는 여행과 남의 여행은
  * 같은 404 다.
@@ -92,6 +97,32 @@ public class TripCourseService {
 
 	private final Clock clock;
 
+	/**
+	 * 2안·3안 초안을 들고 있는 시간. 초안의 입력(추천 판의 순위표·꼭 갈 곳·1안의 첫 판)은 판이 만들어진 뒤로 안
+	 * 바뀌므로 오래 들고 있어도 틀리지 않는다. 그래도 끝을 두는 것은 이동 시간·영업시간 같은 바깥 자료가 새로
+	 * 들어오면 언젠가는 반영되게 하려는 것이다.
+	 */
+	static final Duration ALTERNATIVES_TTL = Duration.ofMinutes(30);
+
+	/** 초안을 들고 있는 (판, 요청자) 짝의 상한. 넘치면 지난 것부터 버리고, 그래도 넘치면 통째로 비운다. */
+	static final int ALTERNATIVES_MAX_ENTRIES = 256;
+
+	/**
+	 * (추천 판, 요청자) → 2안·3안 초안 (S15P21E201-1598).
+	 *
+	 * <p>🔴 <b>왜.</b> 전에는 코스 목록을 부를 때마다 2안·3안을 처음부터 다시 짰다. 조립은 날마다 경로 최적화기(파이썬
+	 * OR-Tools)를 프로세스로 띄우는데 운영에서 한 번에 약 0.45초(기동 0.13~0.16초 + 풀이 예산 0.3초)라, 3일 여행이면
+	 * 6번 ≈ 2.7초였다. 운영에서 이 요청이 3.7초, 앱이 겹쳐 부르면 12.8초였다(2026-09-25).
+	 *
+	 * <p>판 번호가 열쇠라 새로 추천하면 새 판이 되어 옛 초안이 나올 수 없다. 요청자도 열쇠에 넣는다 — 초안에 실린
+	 * 요청자가 고른 안의 {@code created_by} 가 된다. 동시에 온 첫 요청들은 먼저 꽂힌 약속(future)을 함께 기다려
+	 * 한 번만 계산한다. 프로세스 메모리에만 둔다 — 서버가 한 대다({@code RouteCache} 와 같은 판단).
+	 */
+	private final ConcurrentHashMap<String, Memo> alternativesMemo = new ConcurrentHashMap<>();
+
+	private record Memo(Instant createdAt, CompletableFuture<List<Alternative>> alternatives) {
+	}
+
 	public TripCourseService(TripQueryService tripQueryService, RecommendationJobRepository jobRepository,
 			RecommendationCandidateRepository candidateRepository, ItineraryRepository itineraryRepository,
 			ItineraryDraftService draftService, ItineraryQueryService queryService, PlaceRepository placeRepository,
@@ -127,7 +158,7 @@ public class TripCourseService {
 		courses.add(toCourse(courseId(job, 0), this.queryService.getDetail(baseId, requesterUserId), baseId, null));
 
 		Map<String, String> chosen = chosenByLabel(trip);
-		for (Alternative alternative : alternatives(job, view, requesterUserId, ALTERNATIVES)) {
+		for (Alternative alternative : alternativesOnce(job, view, requesterUserId)) {
 			String id = courseId(job, alternative.index());
 			String itineraryId = chosen.get(label(job, alternative.index()));
 			if (itineraryId != null) {
@@ -166,11 +197,59 @@ public class TripCourseService {
 		if (existing != null) {
 			return existing;
 		}
-		Alternative alternative = alternatives(job, view, requesterUserId, ref.index()).stream()
+		// 목록이 보여 준 안이면 그 초안을 그대로 저장한다 — 미리 본 것과 저장되는 것이 같다.
+		List<Alternative> built = (ref.index() <= ALTERNATIVES) ? alternativesOnce(job, view, requesterUserId)
+				: alternatives(job, view, requesterUserId, ref.index());
+		Alternative alternative = built.stream()
 				.filter(candidate -> candidate.index() == ref.index())
 				.findFirst()
 				.orElseThrow(() -> new CourseNotFoundException(courseId));
 		return this.draftService.persistAlternative(alternative.draft(), label).itineraryId();
+	}
+
+	/**
+	 * {@link #alternatives} 를 (추천 판, 요청자)마다 한 번만 부른다 — {@link #alternativesMemo} 참고. 계산이 실패하면
+	 * 담아 두지 않는다(다음 요청이 다시 시도한다).
+	 */
+	private List<Alternative> alternativesOnce(RecommendationJob job, TripQueryService.View view,
+			String requesterUserId) {
+		String key = job.getRequestId() + "|" + requesterUserId;
+		Instant now = this.clock.instant();
+		Memo fresh = new Memo(now, new CompletableFuture<>());
+		Memo memo = this.alternativesMemo.compute(key, (k, old) -> usable(old, now) ? old : fresh);
+		if (memo == fresh) {
+			evictIfFull(now);
+			try {
+				fresh.alternatives().complete(alternatives(job, view, requesterUserId, ALTERNATIVES));
+			}
+			catch (RuntimeException ex) {
+				this.alternativesMemo.remove(key, fresh);
+				fresh.alternatives().completeExceptionally(ex);
+				throw ex;
+			}
+		}
+		try {
+			return memo.alternatives().join();
+		}
+		catch (CompletionException ex) {
+			// 다른 요청이 하던 계산이 실패했다 — 그 요청이 받은 것과 같은 예외를 받는다.
+			throw (ex.getCause() instanceof RuntimeException cause) ? cause : ex;
+		}
+	}
+
+	private static boolean usable(Memo memo, Instant now) {
+		return memo != null && !memo.alternatives().isCompletedExceptionally()
+				&& now.isBefore(memo.createdAt().plus(ALTERNATIVES_TTL));
+	}
+
+	private void evictIfFull(Instant now) {
+		if (this.alternativesMemo.size() <= ALTERNATIVES_MAX_ENTRIES) {
+			return;
+		}
+		this.alternativesMemo.values().removeIf((memo) -> !usable(memo, now));
+		if (this.alternativesMemo.size() > ALTERNATIVES_MAX_ENTRIES) {
+			this.alternativesMemo.clear();
+		}
 	}
 
 	/**
