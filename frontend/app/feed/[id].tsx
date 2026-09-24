@@ -6,7 +6,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
-import { DropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
+import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { MarkdownBody } from '@/components/MarkdownBody';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { Button } from '@/components/Button';
@@ -108,7 +108,7 @@ export function ReplyCard({
   const [saveError, setSaveError] = useState('');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const menu = useDropdownMenu();
   // 좋아요는 이 카드가 낙관적으로 맞춘다 — 원글과 같은 규칙(applyReaction). 댓글도 글이라 같은 반응 주소를 쓴다.
   // 인용·저장은 댓글에 없다 — linkCopyCount 를 비워 두면 반응 줄이 인용 칸을 안 그린다.
   const [reaction, setReaction] = useState<ReactableStory>(() => ({
@@ -196,7 +196,7 @@ export function ReplyCard({
         <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.replyName}>{reply.author.displayName}</Text>
         <Text variant="caption" color={color.text.muted} style={styles.grow}>{relativeStoryTime(reply.createdAt, tx)}</Text>
         {!editing && !confirmingDelete ? (
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 더 보기', 'More comment options')} onPress={() => setMenuOpen(true)} style={styles.replyMenuButton}>
+          <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('댓글 더 보기', 'More comment options')} onPress={menu.openMenu} style={styles.replyMenuButton}>
             <Text variant="body" weight="bold" color={color.text.muted}>⋯</Text>
           </Pressable>
         ) : null}
@@ -292,7 +292,7 @@ export function ReplyCard({
       </View>
 
       {/* 열 때만 그린다 — 댓글마다 닫힌 메뉴 창을 하나씩 깔아 두면 댓글이 많을 때 무겁다. */}
-      {menuOpen ? <DropdownMenu visible items={menuItems} onClose={() => setMenuOpen(false)} /> : null}
+      {menu.open ? <DropdownMenu visible anchor={menu.anchor} items={menuItems} onClose={menu.close} /> : null}
     </View>
   );
 }
@@ -312,7 +312,7 @@ export default function StoryDetail() {
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [blockNotice, setBlockNotice] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false);
+  const menu = useDropdownMenu();
   // null = 아직 모른다. StoryDto 에는 "내가 이 작성자를 팔로우하는가" 칸이 없어서
   // (반응 카운트와 달리 얹지 않기로 했다) getUserProfile 로 따로 물어봐야 한다
   // 안 물어본 상태를 false 로 두면 실제로 팔로우 중인데 "팔로우" 로 잘못 그린다.
@@ -565,7 +565,7 @@ export default function StoryDetail() {
             {story.mine && story.visibility !== 'PUBLIC' ? (
               <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View>
             ) : null}
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More options')} onPress={() => setMenuOpen(true)} style={styles.menuButton}>
+            <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More options')} onPress={menu.openMenu} style={styles.menuButton}>
               <Text variant="body" weight="bold" color={color.text.muted}>⋯</Text>
             </Pressable>
           </View>
@@ -718,7 +718,7 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
-      <DropdownMenu visible={menuOpen} items={menuItems} onClose={() => setMenuOpen(false)} />
+      <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
       <ReportModal visible={reportingTargetId !== null} onClose={() => setReportingTargetId(null)} onSubmit={submitReport} />
       <BlockUserDialog visible={confirmingBlock} displayName={story?.author.displayName ?? ''} onClose={() => setConfirmingBlock(false)} onConfirm={confirmBlock} />
     </Screen>

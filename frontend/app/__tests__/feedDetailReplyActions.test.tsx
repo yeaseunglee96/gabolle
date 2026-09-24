@@ -1,6 +1,7 @@
 // 댓글 수정·삭제·신고 — S15P21E201-1239.
 import type { ReactElement } from 'react';
 import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react-native';
+import { View } from 'react-native';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -151,9 +152,18 @@ function installApi() {
   });
 }
 
+// ⋯ 메뉴는 버튼 자리를 잰 뒤에 열린다(S15P21E201-1576). 시험 환경의 View 는 재는 함수가 아무것도 안 하는
+// 가짜라 그대로 두면 메뉴가 영영 안 열린다 — 버튼 하나의 자리를 돌려주게 한다.
+type Measurable = { measureInWindow: (callback: (x: number, y: number, width: number, height: number) => void) => void };
+function measureButtonsAt(x: number, y: number) {
+  jest.spyOn((View as unknown as { prototype: Measurable }).prototype, 'measureInWindow')
+    .mockImplementation((callback) => callback(x, y, 32, 32));
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
   installApi();
+  measureButtonsAt(300, 100);
 });
 
 // 🔴 수정·삭제·신고는 댓글의 ⋯ 메뉴 안에 있다(트위터 답글형, S15P21E201-1576). 댓글은 [내 것, 남의 것] 순서로 온다.
