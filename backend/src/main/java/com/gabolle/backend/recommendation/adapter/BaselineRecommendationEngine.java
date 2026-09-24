@@ -222,6 +222,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		candidates = SeedBoost.apply(candidates, seeds);
 		// 총예산에 맞춘다. 역시 점수만 움직이고 후보를 빼지 않는다 — BudgetFit 참고.
 		candidates = BudgetFit.apply(candidates, priceBandsOf(response), BudgetFit.targetBand(trip));
+		// 전국 프랜차이즈는 점수를 낮춘다 — 동네 가게가 먼저 나오게. 역시 후보를 빼지 않는다 — ChainPenalty 참고.
+		candidates = ChainPenalty.apply(candidates, ChainPenalty.brandsOf(response));
 		// 자르기는 채점을 마친 뒤다. 갈래를 골랐으면 그 갈래·끼니·쉼 갈래에 몫을 먼저 준다({@link #keepWithCategoryShares}).
 		// 갈래를 안 골랐으면 뒤쪽을 여행마다 다르게 채운다 (S15P21E201-1463).
 		// 🔴 고른 갈래는 질의가 아니라 취향에서 읽는다 — 질의는 갈래로 좁히지 않아(-1535) 늘 비어 있고, 그 탓에

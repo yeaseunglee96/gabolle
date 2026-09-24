@@ -244,6 +244,42 @@ class ItineraryDraftServiceTest {
 		assertThat(countByDay).containsEntry(0, 4L).containsEntry(1, 4L).containsEntry(2, 4L);
 	}
 
+	/**
+	 * 운영 일정 201개 중 4개가 같은 체인의 다른 지점을 두 번 넣었다 (S15P21E201-1616). 이름은 운영에 실린 모양 그대로
+	 * — 붙여 쓴 「배스킨라빈스광안역점」, 영어 「Starbucks」 — 이다. 띄어쓰기로 가르면 이 둘을 놓친다.
+	 */
+	@Test
+	@DisplayName("🔴 한 일정에 같은 상표는 한 번만 — 순위가 높은 지점만 남고, 체인 아닌 곳은 그대로다")
+	void aBrandAppearsOnceInAnItinerary() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamed(List.of(
+				"배스킨라빈스광안역점", "해운대해수욕장", "베스킨라빈스 해운대점", "동백섬", "Starbucks", "스타벅스 해운대달맞이길점"));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> placed = draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList();
+		assertThat(placed)
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(3).placeId(),
+						places.get(4).placeId())
+				.as("같은 상표의 뒤 지점은 빠진다")
+				.doesNotContain(places.get(2).placeId(), places.get(5).placeId());
+	}
+
+	/** 이름을 붙인 후보. 갈래·좌표는 비워 둔다 — 끼니 상한·지역 가르기와 섞이지 않게. */
+	private List<ItineraryDraftCommand.PlannedPlace> plannedPlacesNamed(List<String> names) {
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>();
+		List<com.gabolle.backend.place.domain.Place> rows = new ArrayList<>();
+		for (int i = 0; i < names.size(); i++) {
+			UUID placeId = UUID.randomUUID();
+			places.add(new ItineraryDraftCommand.PlannedPlace(placeId, i + 1, List.of("REASON"), List.of(), null));
+			rows.add(com.gabolle.backend.place.domain.Place.imported(placeId, names.get(i), null, "부산", null, null,
+					"TEST", "test-" + i, null, null, "v1"));
+		}
+		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(rows);
+		return places;
+	}
+
 	@Test
 	@DisplayName("순위대로 날짜에 배분한다 — 하루 4개를 채우면 다음 날로 넘긴다")
 	void distributesPlacesAcrossDaysByRankAndCarriesOverflowForward() {
