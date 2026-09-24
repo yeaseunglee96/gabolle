@@ -100,6 +100,9 @@ describe('일정 완성 화면 — 「일정 보기」가 여는 주소 (S15P21E
     const view = render(<Providers><Generating /></Providers>);
 
     // 첫 폴링은 2초 뒤에 돈다(generating.tsx 의 폴링 간격) — 실제 타이머로 그만큼 기다린다.
+    // 🔴 CI 러너는 로컬보다 느려서 jest 기본 5초 제한을 이 대기만으로 넘겼다(2026-09-24
+    // 파이프라인 #220580 실패) — waitFor 자체의 timeout 이 아니라 it() 전체의 제한이라,
+    // 그 셋째 인자를 넉넉히 올려야 한다.
     await waitFor(() => expect(capturedOnOpenItinerary).toBeDefined(), { timeout: 3000 });
     fireEvent.press(view.getByText('일정 보기 →'));
 
@@ -108,7 +111,7 @@ describe('일정 완성 화면 — 「일정 보기」가 여는 주소 (S15P21E
     // 폴링 루프의 10초짜리 지연 타이머가 남아 있으면 이 테스트 파일이 끝난 뒤에도 불려
     // "환경이 이미 정리됐다" 오류가 난다 — 언마운트로 effect cleanup을 확실히 태운다.
     view.unmount();
-  });
+  }, 10000);
 
   it('트립 ID를 아직 못 받았으면(로딩 중) 버튼 자체가 없다 — 작업 ID로 대신 채우지 않는다', async () => {
     let resolveLoad: (value: unknown) => void = () => {};
@@ -122,5 +125,5 @@ describe('일정 완성 화면 — 「일정 보기」가 여는 주소 (S15P21E
     resolveLoad({ state: 'success', courses: [], conflicts: [], message: '', itineraryId: null, placeCount: null, estimatedTravelMinutes: null, tripId: 'trip-real-999' });
     await waitFor(() => expect(view.getByText('일정 보기 →')).toBeTruthy());
     view.unmount();
-  });
+  }, 10000);
 });
