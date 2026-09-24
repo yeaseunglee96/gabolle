@@ -163,6 +163,17 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId, @Param("limit") int limit);
 
 	/**
+	 * 내가 쓴 댓글·대댓글, 최신순 (S15P21E201-1600). 원글이 지워지거나 가려져도 나온다 — 그것이 이 목록의 이유다.
+	 * 그래서 {@link #NOT_DELETED_AND_PUBLISHED} 를 안 쓴다(그 상수에 「원글만」이 들어 있다). 내가 지운 댓글과
+	 * 검토로 가려진 내 댓글은 뺀다 — 프로필 목록과 같은 기준이다.
+	 */
+	@Query(value = "SELECT s.* FROM story s WHERE s.author_user_id = :me AND s.parent_story_id IS NOT NULL"
+			+ " AND s.deleted_at IS NULL AND s.publish_at <= :now AND s.moderation_state = 'VISIBLE'"
+			+ BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
+	List<Story> findMyReplies(@Param("me") UUID me, @Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
+			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
+
+	/**
 	 * 한 사람의 기록(프로필). 본인이면 전부, 팔로워면 PUBLIC·FOLLOWERS, 그 외에는 PUBLIC 만.
 	 * 어느 경우인지는 호출자가 {@code visibilities} 로 넘긴다.
 	 */
