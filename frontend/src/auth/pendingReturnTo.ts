@@ -32,3 +32,12 @@ export function guestDestination(returnTo?: string | null, gated?: string | null
   if (gated === '1') return '/home';
   return isSafeReturnPath(returnTo) ? returnTo : '/home';
 }
+
+/**
+ * 이미 로그인한 사람이 로그인 화면에 왔을 때 보낼 곳 — S15P21E201-1594.
+ * returnTo 가 안전한 앱 안 주소면 그리로, 없으면 홈. 저장해 둔 옛 returnTo 는 쓰지 않는다 —
+ * 이번에 온 주소가 말하지 않은 곳으로 보내면 사람은 왜 거기 갔는지 모른다.
+ */
+export function signedInDestination(returnTo?: string | null): string {
+  return isSafeReturnPath(returnTo) ? returnTo : '/home';
+}
