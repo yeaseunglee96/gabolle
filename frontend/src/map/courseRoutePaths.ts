@@ -46,7 +46,10 @@ async function fetchLeg(a: MapStop, b: MapStop, accessToken: string | null, sign
       if (result.state !== 'success') return null;
       const path = result.directions.path ?? [];
       if (path.length < 2) return null;
-      return { path: path.map(([lat, lng]) => ({ latitude: lat, longitude: lng })), estimated: result.directions.estimated !== false };
+      // 🔴 서버는 [경도, 위도] 순서로 준다(RouteLeg.path — GeoJSON 과 같은 순서). 여기서 [위도, 경도]로 읽어서
+      //    실제 도로 선이 위도 129 인 곳, 즉 지도 밖에 그려졌다 — 여행 페이지에 정차지 사이 선이 안 보이던
+      //    원인(S15P21E201-1567, 운영 실측: 한 구간 점 48개가 전부 뒤바뀌어 있었다).
+      return { path: path.map(([lng, lat]) => ({ latitude: lat, longitude: lng })), estimated: result.directions.estimated !== false };
     }).catch(() => null);
     cache.set(key, pending);
   }

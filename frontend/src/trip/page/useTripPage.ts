@@ -22,7 +22,7 @@ import { humanTripTitle, shouldAskTripName, wasTripNameAsked } from '@/trip/trip
 import { loadTrips } from '@/trip/trips';
 
 import { loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
-import { dayMap, dayRoutes, formatManwon } from './tripPageModel';
+import { dayMap, dayRoutes, formatManwon, returnRoute, returnTrip } from './tripPageModel';
 
 export type TripItinerary = { id: string; value: ItineraryDto | null; message: string | null };
 
@@ -116,8 +116,19 @@ export function useTripPage(source: TripPageSource) {
 
   // ── 지도 ────────────────────────────────────────────────────────────────
   const map = useMemo(() => dayMap(items, dayIndex + 1), [items, dayIndex]);
-  const legs = useCourseRoutePaths(map.days, accessToken);
-  const routes = useMemo(() => dayRoutes(map, dayIndex + 1, color.brand.navy, legs), [map, dayIndex, legs]);
+  // 하루 끝 — 숙소(마지막 날은 출발지)로 돌아가는 선과 표식(S15P21E201-1567). 그 구간의 길도 같이 받아 온다.
+  const returnLeg = loaded?.days[dayIndex]?.returnLeg ?? null;
+  const back = useMemo(() => returnTrip(map, dayIndex + 1, returnLeg), [map, dayIndex, returnLeg]);
+  const legDays = useMemo(() => (back ? [...map.days, back.day] : map.days), [map, back]);
+  const legs = useCourseRoutePaths(legDays, accessToken);
+  const routes = useMemo(
+    () => [...dayRoutes(map, dayIndex + 1, color.brand.navy, legs), ...(back ? [returnRoute(back, color.brand.navy, legs)] : [])],
+    [map, dayIndex, legs, back],
+  );
+  const points = useMemo(
+    () => (back ? [{ id: 'return', label: back.kind === 'LODGING' ? tx('숙소', 'Stay') : tx('출발지', 'Start'), color: color.brand.navy, stops: [back.anchor] }] : []),
+    [back, tx],
+  );
   const anyEstimatedLine = routes.some((route) => route.estimated !== false);
 
   // ── 요약 숫자 ──────────────────────────────────────────────────────────
@@ -175,7 +186,7 @@ export function useTripPage(source: TripPageSource) {
     page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
     itinerary, setItinerary, loaded, reloadItinerary: () => setItineraryNonce((n) => n + 1),
     dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace, reloadPace: () => setPaceNonce((n) => n + 1),
-    map, routes, anyEstimatedLine, allItems, travelTotal, budget, atRisk, allEstimated,
+    map, routes, points, anyEstimatedLine, allItems, travelTotal, budget, atRisk, allEstimated,
     title, headSub, confirm, confirming,
   };
 }
