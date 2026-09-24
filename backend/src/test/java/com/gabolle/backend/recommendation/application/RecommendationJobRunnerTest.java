@@ -82,8 +82,9 @@ class RecommendationJobRunnerTest {
 
 	/** 규칙이 생기기 전에 만든 숙소 없는 여러 날 여행 — 여행 만들기와 같은 칸 이름으로 거부된다. */
 	@Test
-	@DisplayName("🔴 S15P21E201-1585 — 숙소 없는 1박 이상 옛 여행은 추천을 요청할 수 없다")
+	@DisplayName("🔴 S15P21E201-1585 — 숙소 필수 스위치가 켜지면 숙소 없는 1박 이상 옛 여행은 추천을 요청할 수 없다")
 	void rejectsAMultiDayTripWithoutLodging() {
+		this.runner.setLodgingRequired(true);
 		stubTrip(tripOneNight().build());
 
 		assertThatThrownBy(() -> this.runner.enqueue(this.tripId, this.userId, null, null))
@@ -92,6 +93,18 @@ class RecommendationJobRunnerTest {
 
 		verify(this.jobRepository, Mockito.never()).save(any());
 		verify(this.worker, Mockito.never()).execute(any(), any());
+	}
+
+	@Test
+	@DisplayName("🔴 스위치가 꺼져 있으면(기본, S15P21E201-1596) 숙소 없는 1박 이상 여행도 추천을 요청할 수 있다")
+	void aMultiDayTripWithoutLodgingIsRecommendedWhileTheSwitchIsOff() {
+		stubTrip(tripOneNight().build());
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		when(this.recommendationService.prepare(any())).thenReturn(RecommendationJob.start(UUID.randomUUID(),
+				UUID.randomUUID(), UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now()));
+
+		assertThat(this.runner.enqueue(this.tripId, this.userId, null, null)).isNotNull();
 	}
 
 	@Test

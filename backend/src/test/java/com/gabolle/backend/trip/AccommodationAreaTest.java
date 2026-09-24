@@ -105,11 +105,23 @@ class AccommodationAreaTest {
 	 * 받을 수 없다(S15P21E201-1585) — 만들어 놓고 추천을 못 받는 여행을 남기느니 만들 때 말한다.
 	 */
 	@Test
-	@DisplayName("🔴 여러 날 여행에 모르는 코드만 오면 숙소가 없는 것이라 거부된다")
+	@DisplayName("🔴 숙소 필수 스위치가 켜지면 — 여러 날 여행에 모르는 코드만 오면 숙소가 없는 것이라 거부된다")
 	void anUnknownAreaAloneIsNoLodgingForAMultiDayTrip() {
+		this.service.setLodgingRequired(true);
+
 		assertThatThrownBy(() -> create("GIJANG_NEW_2027", "key_6"))
 				.isInstanceOf(TripConditionRules.TripConditionRejectedException.class)
 				.hasMessageStartingWith("accommodation: ");
+	}
+
+	/** 앱 build 44 가 추천 동네 코드를 안 보내 1박 여행을 못 만들었다 — 스위치의 기본은 꺼짐이다(S15P21E201-1596). */
+	@Test
+	@DisplayName("🔴 스위치가 꺼져 있으면(기본) 숙소 없는 여러 날 여행도 전처럼 만들어진다")
+	void aMultiDayTripWithoutLodgingIsCreatedWhileTheSwitchIsOff() {
+		Trip saved = create("GIJANG_NEW_2027", "key_7");
+
+		assertThat(saved.accommodationArea()).isNull();
+		assertThat(saved.tripId()).isNotNull();
 	}
 
 	@Test

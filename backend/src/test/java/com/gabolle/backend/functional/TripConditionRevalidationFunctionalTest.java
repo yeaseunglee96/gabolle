@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.gabolle.backend.functional.support.AuthedClient;
 import com.gabolle.backend.functional.support.FunctionalJourneyTest;
+import com.gabolle.backend.recommendation.application.RecommendationJobRunner;
+import com.gabolle.backend.trip.application.TripCreationService;
 import com.jayway.jsonpath.JsonPath;
 
 /**
@@ -29,6 +32,25 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 
 	@Autowired
 	private JdbcTemplate jdbc;
+
+	/** 숙소 필수 스위치(S15P21E201-1596)를 켜 보는 시험이 있다. 컨텍스트를 새로 띄우지 않으려고 빈에서 바로 켠다. */
+	@Autowired
+	private TripCreationService tripCreationService;
+
+	@Autowired
+	private RecommendationJobRunner recommendationJobRunner;
+
+	/** 공용 컨텍스트를 다른 여정에 넘기기 전에 기본(꺼짐)으로 되돌린다. */
+	@AfterEach
+	void switchLodgingRuleBackOff() {
+		this.tripCreationService.setLodgingRequired(false);
+		this.recommendationJobRunner.setLodgingRequired(false);
+	}
+
+	private void requireLodging() {
+		this.tripCreationService.setLodgingRequired(true);
+		this.recommendationJobRunner.setLodgingRequired(true);
+	}
 
 	/** 성립하는 요청 한 벌. 각 검사는 여기서 한 칸만 어긋나게 바꿔 보낸다. */
 	private static Map<String, Object> validBody() {
@@ -151,8 +173,9 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 
 	/** 앱은 칸 이름 {@code accommodation} 으로 사람 말을 고른다 — 이름이 바뀌면 화면에 원문이 뜬다. */
 	@Test
-	@DisplayName("🔴 1박 이상인데 숙소가 없으면 400 · TRIP_VALIDATION_FAILED · 「accommodation: …」")
+	@DisplayName("🔴 숙소 필수 스위치가 켜지면 — 1박 이상인데 숙소가 없으면 400 · TRIP_VALIDATION_FAILED · 「accommodation: …」")
 	void aMultiDayTripWithoutLodgingIsRejected() {
+		requireLodging();
 		AuthedClient authed = loginAsNewUser("revalidate-lodging");
 		Map<String, Object> body = validBody();
 		body.remove("accommodationArea");
@@ -184,8 +207,9 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 	 * 숙소 칸을 DB 에서 비워 옛 여행을 흉내 낸다.
 	 */
 	@Test
-	@DisplayName("🔴 숙소 없는 옛 여러 날 여행은 추천 요청이 여행 만들기와 같은 400 으로 거부된다")
+	@DisplayName("🔴 숙소 필수 스위치가 켜지면 — 숙소 없는 옛 여러 날 여행은 추천 요청이 여행 만들기와 같은 400 으로 거부된다")
 	void anOldMultiDayTripWithoutLodgingCannotBeRecommended() {
+		requireLodging();
 		AuthedClient authed = loginAsNewUser("revalidate-old-trip");
 		ResponseEntity<String> created = post(authed, validBody());
 		assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -200,5 +224,26 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 		assertThat(JsonPath.<String>read(response.getBody(), "$.error.code"))
 				.as("여행 만들기와 같은 코드여야 화면이 같은 문장을 고른다").isEqualTo("TRIP_VALIDATION_FAILED");
 		assertThat(fieldsOf(response)).anySatisfy((line) -> assertThat(line).startsWith("accommodation: "));
+	}
+
+	/**
+	 * 앱 build 44 는 추천 동네를 골라도 동네 코드를 안 보낸다. 숙소 필수 규칙이 운영에 나가자 그 판으로 1박 이상
+	 * 여행을 못 만들었다 — App Store 재제출이 그 판이다. 그래서 스위치의 기본은 꺼짐이다(S15P21E201-1596).
+	 */
+	@Test
+	@DisplayName("🔴 스위치가 꺼져 있으면(기본) 숙소 없는 1박 이상 여행이 201 로 만들어지고 추천도 접수된다 — 앱 build 44 가 보내는 모양")
+	void aMultiDayTripWithoutLodgingIsAcceptedWhileTheSwitchIsOff() {
+		AuthedClient authed = loginAsNewUser("revalidate-lodging-off");
+		Map<String, Object> body = validBody();
+		body.remove("accommodationArea");
+
+		ResponseEntity<String> created = post(authed, body);
+
+		assertThat(created.getStatusCode())
+				.withFailMessage("스위치가 꺼졌는데 숙소 때문에 거부됐습니다: %s", created.getBody())
+				.isEqualTo(HttpStatus.CREATED);
+		String tripId = JsonPath.read(created.getBody(), "$.data.tripId");
+		ResponseEntity<String> job = authed.post(TRIPS + "/" + tripId + "/recommendation-jobs", Map.of(), String.class);
+		assertThat(job.getBody()).as("추천 요청이 숙소 때문에 거부되면 안 된다").doesNotContain("accommodation: ");
 	}
 }
