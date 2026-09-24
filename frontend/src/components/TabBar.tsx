@@ -262,6 +262,16 @@ export function bottomBarClearance(bottomInset: number) {
   return TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset) + spacing[2];
 }
 
+/**
+ * 화면 아래에 떠 있는 것(탭바, 그 위의 떠 있는 단추)의 기준 — 웹에서는 보이는 창, 앱에서는 부모.
+ *
+ * 🔴 탭바 곁에 뜨는 것은 **탭바와 같은 기준**이어야 한다(S15P21E201-1601). 폰 홈의 AI 단추만 `absolute` 로
+ *    남아 있어서, 주소창이 접혀 보이는 창이 길어질 때 탭바만 새 바닥으로 내려가고 단추는 옛 자리에 남았다.
+ */
+export function bottomDockPosition(os: string = Platform.OS): 'absolute' {
+  return os === 'web' ? ('fixed' as 'absolute') : 'absolute';
+}
+
 const styles = StyleSheet.create({
   // 받침 — 화면 아래에 깔리되 자기는 아무것도 안 그린다. 알약을 가운데 세우는 일만 한다.
   dock: {
@@ -269,7 +279,7 @@ const styles = StyleSheet.create({
     // `<View flex:1>` 안에 스크롤 영역과 탭바가 형제로 들어 있는데, 모바일 브라우저는
     // 문서 자체가 스크롤되고 주소창이 접히며 뷰포트 높이까지 바뀐다. 그래서 빠르게
     // 스크롤하면 탭바가 바닥에 안 붙고 내용과 같이 올라와 카드 위를 덮었다.
-    position: Platform.OS === 'web' ? ('fixed' as 'absolute') : 'absolute',
+    position: bottomDockPosition(),
     left: 0,
     right: 0,
     bottom: 0,

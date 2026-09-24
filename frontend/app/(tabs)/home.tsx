@@ -14,7 +14,7 @@ import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { useTopNavShown } from '@/nav/TopNav';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
-import { TAB_BAR_HEIGHT, TabBar, tabBarBottomMargin } from '@/components/TabBar';
+import { TAB_BAR_HEIGHT, TabBar, bottomDockPosition, tabBarBottomMargin } from '@/components/TabBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -454,7 +454,9 @@ const styles = StyleSheet.create({
   saveFeedback: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[6], marginHorizontal: spacing[6], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy },
 
   // 메뉴가 이 상자 위에 뜬다. 절대 위치를 단추가 아니라 감싸는 상자가 가진다.
-  assistantAnchor: { position: 'absolute', right: spacing[6], zIndex: 20 },
+  // 🔴 탭바와 같은 기준으로 선다 — 웹에서는 보이는 창에 고정(S15P21E201-1601). 부모 기준이면 폰 크롬에서 주소창이
+  //    접힐 때 탭바만 내려가고 이 단추는 남아 간격이 벌어졌다.
+  assistantAnchor: { position: bottomDockPosition(), right: spacing[6], zIndex: 20 },
   assistantButton: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.14, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   assistantBadge: { position: 'absolute', top: -2, right: -2, minWidth: 22, height: 18, paddingHorizontal: 5, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
   assistantMascot: { width: 50, height: 50 },
