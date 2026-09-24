@@ -11,6 +11,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 
 import com.gabolle.backend.event.application.OutboxRelayService;
 import com.gabolle.backend.event.application.port.EventPublisherPort;
@@ -47,11 +53,16 @@ class OutboxRelayTest {
         private final List<UUID> sent = new ArrayList<>();
         private boolean available = true;
         private RuntimeException failWith;
+        /** 이 이벤트만 늘 실패한다 — 「독약 이벤트」. */
+        private UUID poison;
 
         @Override
         public void publish(EventOutbox event) {
             if (this.failWith != null) {
                 throw this.failWith;
+            }
+            if (event.getEventId().equals(this.poison)) {
+                throw new EventPublisherPort.EventPublishException("레코드가 너무 크다", null);
             }
             this.sent.add(event.getEventId());
         }
@@ -196,6 +207,76 @@ class OutboxRelayTest {
 
         verify(this.repository).findByPublishedAtIsNullAndPublishAttemptsLessThanOrderBySeqAsc(anyInt(),
                 argThat((pageable) -> pageable != null && pageable.getPageSize() == 7));
+    }
+
+    // ── 브로커 장애 vs 독약 이벤트 (S15P21E201-1613) ─────────────────────────────
+
+    /**
+     * DB 처럼 조회한다 — 안 나갔고 시도 횟수가 한도 밑인 것만, 넣은 순서대로. 두 시험은 한도에 걸려
+     * 빠지는지가 요점이라 {@link #givenPending} 처럼 늘 같은 목록을 돌려주면 아무것도 증명하지 못한다.
+     */
+    private void givenQueue(EventOutbox... events) {
+        given(this.repository.findByPublishedAtIsNullAndPublishAttemptsLessThanOrderBySeqAsc(anyInt(), any()))
+                .willAnswer((call) -> java.util.Arrays.stream(events)
+                        .filter((event) -> event.isPending() && event.getPublishAttempts() < (int) call.getArgument(0))
+                        .toList());
+    }
+
+    /** 릴레이가 남기는 로그를 붙잡는다. */
+    private ListAppender<ILoggingEvent> relayLog() {
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        ((Logger) LoggerFactory.getLogger(OutboxRelayService.class)).addAppender(appender);
+        return appender;
+    }
+
+    /**
+     * 🔴 전에는 브로커가 죽어 생긴 실패도 시도 횟수로 셌다. 릴레이는 1분마다 돌고 한도가 5 라, 카프카가
+     * 5분 넘게 죽어 있으면 맨 앞 이벤트가 이벤트 탓도 아닌데 영영 안 나갔다.
+     */
+    @Test
+    @DisplayName("🔴 카프카가 10분 죽었다 살아나면 맨 앞 이벤트까지 전부 나간다 — 못 닿은 것은 횟수에 안 센다")
+    void aTenMinuteOutageLosesNothing() {
+        EventOutbox head = pending();
+        EventOutbox next = pending();
+        givenQueue(head, next);
+        this.publisher.failWith = new EventPublisherPort.BrokerUnavailableException("카프카에 닿지 못했다", null);
+
+        for (int minute = 1; minute <= 10; minute++) {
+            assertThat(this.relay.relayOnce()).as("%d분째 — 죽어 있는 동안은 아무것도 못 보낸다", minute).isZero();
+        }
+        assertThat(head.getPublishAttempts()).as("못 닿은 것은 이 이벤트 탓이 아니다").isZero();
+
+        this.publisher.failWith = null;
+
+        assertThat(this.relay.relayOnce()).isEqualTo(2);
+        assertThat(this.publisher.sent).containsExactly(head.getEventId(), next.getEventId());
+    }
+
+    @Test
+    @DisplayName("🔴 독약 이벤트는 한도 뒤 멈추고 경고가 찍힌다 — 뒤 이벤트는 그 다음 차례에 나간다")
+    void aPoisonEventStopsAtTheLimitAndIsWarnedAbout() {
+        EventOutbox poison = pending();
+        EventOutbox after = pending();
+        givenQueue(poison, after);
+        this.publisher.poison = poison.getEventId();
+
+        for (int attempt = 1; attempt <= this.properties.getMaxAttempts(); attempt++) {
+            assertThat(this.relay.relayOnce()).isZero();
+        }
+        assertThat(poison.getPublishAttempts()).isEqualTo(this.properties.getMaxAttempts());
+
+        // 한도에 닿은 행은 조회에서 빠지고, DB 는 그것을 한 건으로 센다.
+        given(this.repository.countByPublishedAtIsNullAndPublishAttemptsGreaterThanEqual(
+                this.properties.getMaxAttempts())).willReturn(1L);
+        ListAppender<ILoggingEvent> log = relayLog();
+
+        assertThat(this.relay.relayOnce()).isEqualTo(1);
+        assertThat(this.publisher.sent).containsExactly(after.getEventId());
+        assertThat(log.list).anySatisfy((line) -> {
+            assertThat(line.getLevel()).isEqualTo(Level.WARN);
+            assertThat(line.getFormattedMessage()).contains("OUTBOX_EXHAUSTED").contains("count=1");
+        });
     }
 
     @Test

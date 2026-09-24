@@ -42,4 +42,17 @@ public interface EventPublisherPort {
             super(message, cause);
         }
     }
+
+    /**
+     * 브로커에 닿지 못했다 — 시간 초과·일시적 네트워크 오류·종료 중 중단. <b>이 이벤트 탓이 아니다.</b>
+     *
+     * <p>릴레이는 이것을 시도 횟수에 세지 않는다(S15P21E201-1613). 세면 브로커가 몇 분 죽어 있는
+     * 동안 맨 앞 이벤트가 한도를 채워 영영 안 나간다. 이벤트 자체가 잘못된 실패(너무 큼 등)만
+     * {@link EventPublishException} 으로 던져 센다.
+     */
+    class BrokerUnavailableException extends EventPublishException {
+        public BrokerUnavailableException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }

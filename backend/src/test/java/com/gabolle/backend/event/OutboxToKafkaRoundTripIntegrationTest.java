@@ -245,9 +245,12 @@ class OutboxToKafkaRoundTripIntegrationTest {
 		KafkaEventPublisher deadBrokerPublisher = new KafkaEventPublisher(deadBrokerTemplate(),
 				new KafkaEventProperties());
 
+		// 🔴 「못 닿음」으로 분류돼야 한다(S15P21E201-1613). 가짜가 아니라 진짜 카프카 클라이언트가 내는
+		//    실패라서, 여기서 보통 실패로 떨어지면 브로커가 죽어 있는 동안 릴레이가 시도 횟수를 세어
+		//    맨 앞 이벤트를 버린다.
 		assertThatThrownBy(() -> deadBrokerPublisher.publish(appended))
 			.as("죽은 브로커로 보내면 반드시 실패해야 한다 — 조용히 성공하면 이벤트가 사라진다")
-			.isInstanceOf(EventPublisherPort.EventPublishException.class);
+			.isInstanceOf(EventPublisherPort.BrokerUnavailableException.class);
 
 		// 실패했어도 적힌 것은 그대로다. 이것이 아웃박스를 두는 이유 전부다.
 		EventOutbox stillThere = this.outboxRepository.findById(eventId).orElseThrow();
