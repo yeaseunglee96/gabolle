@@ -120,7 +120,7 @@ export function MustVisitSearch({
                 onPress={() => add(item)}
                 style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
               >
-                <View style={styles.badge}><Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>{item.category.slice(0, 2)}</Text></View>
+                <View style={styles.badge}><Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>{(item.category ?? '').slice(0, 2)}</Text></View>
                 <View style={styles.rowCopy}>
                   <Text weight="bold" numberOfLines={1}>{ko ? item.nameKo : item.nameEn ?? item.nameKo}</Text>
                   <Text variant="caption" color={color.text.muted} numberOfLines={1}>{item.address}</Text>
