@@ -75,6 +75,21 @@ class ItineraryDelayProjectorTest {
     }
 
     @Test
+    @DisplayName("🔴 시간 안에 끝나는 일정은 위험이 아니다 — 첫 구간 이동을 두 번 세지 않는다 (S15P21E201-1571)")
+    void theFirstLegIsNotCountedTwice() {
+        Fixture fixture = new Fixture();
+        // 출발지(부산역)에서 A 까지 79분. A 의 계획 도착 09:00 은 이 이동을 이미 넣고 깐 시각이다.
+        fixture.legs.removeIf(l -> l.sequence() == 1);
+        fixture.legs.add(Fixture.leg(1, null, "place-A", 79));
+
+        ItineraryDelayProjector.Projection projection = fixture.project(null, BEFORE_THE_DAY);
+
+        assertThat(entry(projection, "A").predictedArrival()).isEqualTo(at(LocalTime.of(9, 0)));
+        assertThat(entry(projection, "C").delayMinutes()).isEqualTo(0L);
+        assertThat(projection.atRisk()).as("계획대로면 하루 끝을 안 넘긴다").isEmpty();
+    }
+
+    @Test
     @DisplayName("완료 기준 — 하루 끝을 넘기는 항목이 따로 구분된다")
     void itemsThatOverrunTheDayAreSeparated() {
         Fixture fixture = new Fixture();
