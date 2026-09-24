@@ -33,6 +33,7 @@ import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { hasUnseen, loadActivityFeed, loadSeenAt } from '@/notifications/activityFeed';
 import { useFocusEffect } from 'expo-router';
 import { relativeStoryTime } from '@/social/stories';
+import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
@@ -309,7 +310,8 @@ export default function Home() {
             {!home.tripsLoaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : home.trip ? (
               <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTrip, disabled: openingTrip }} disabled={openingTrip} onPress={() => void openHomeTrip(home.trip!.tripId)} style={({ pressed }) => [styles.tripCard, pressed && styles.pressed]}>
                 <Text variant="caption" weight="bold" color={color.state.success}>
-                  {home.trip.status === 'IN_PROGRESS' ? tx('진행 중', 'In progress') : home.trip.status === 'READY' ? tx('준비 완료', 'Ready') : tx('예정', 'Upcoming')}
+                  {/* 여행 목록 카드와 같은 함수 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 오늘 여행에 「준비 완료」가 붙던 것. */}
+                  {tripStatusLabel(effectiveTripStatus(home.trip), tx)}
                 </Text>
                 {/* 여행에 제목이 없다 — 날짜를 제목 자리에 올린다. */}
                 <Text variant="title" weight="bold">
