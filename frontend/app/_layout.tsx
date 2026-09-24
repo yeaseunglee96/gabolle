@@ -16,7 +16,6 @@ import { AuthProvider } from '@/auth/AuthProvider';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { ApiAvailabilityBanner } from '@/components/ApiAvailabilityBanner';
 import { BuildInfoBadge } from '@/components/BuildInfoBadge';
-import { CollectionProvider } from '@/collection/CollectionProvider';
 import { OnboardingPreferencesProvider, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
 import { TopNav } from '@/nav/TopNav';
@@ -87,22 +86,20 @@ export default function RootLayout() {
           <BuildInfoBadge />
           <AuthProvider>
             <PlanProvider>
-              <CollectionProvider>
-                {/* 넓은 화면 상단 바는 여기, 앱 뼈대에서 한 번만 붙인다
-                     화면이나 하위 레이아웃에서 또 붙이지 않는다 — 전에는
-                    네 군데에서 따로 붙였고, 그래서 50개 넘는 화면에 바가 없었다.
-                    좁은 화면(폰)에서는 TopNav 자신이 아무것도 안 그린다.
-                */}
-                <View style={{ flex: 1 }}>
-                  <TopNav />
-                  <Stack
-                    screenOptions={{
-                      headerShown: false,
-                      contentStyle: { backgroundColor: color.canvas },
-                    }}
-                  />
-                </View>
-              </CollectionProvider>
+              {/* 넓은 화면 상단 바는 여기, 앱 뼈대에서 한 번만 붙인다
+                   화면이나 하위 레이아웃에서 또 붙이지 않는다 — 전에는
+                  네 군데에서 따로 붙였고, 그래서 50개 넘는 화면에 바가 없었다.
+                  좁은 화면(폰)에서는 TopNav 자신이 아무것도 안 그린다.
+              */}
+              <View style={{ flex: 1 }}>
+                <TopNav />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: color.canvas },
+                  }}
+                />
+              </View>
             </PlanProvider>
           </AuthProvider>
         </OnboardingPreferencesProvider>

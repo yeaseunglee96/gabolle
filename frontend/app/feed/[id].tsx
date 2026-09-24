@@ -535,7 +535,7 @@ export default function StoryDetail() {
     <Screen scroll>
       {/* — 목적지를 약속하지 않는다. 이 화면에 들어오는 입구가 일곱인데
           피드는 그중 하나라, 「피드로」라고 적으면 대부분의 경로에서 라벨과 결과가 어긋난다.
-          place/[id]·collection/[id]·user/[id]·feed/[id]/coauthors 가 쓰는 규칙과 같다.
+          place/[id]·user/[id]·feed/[id]/coauthors 가 쓰는 규칙과 같다.
       */}
       <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
         <Text variant="title" weight="bold">‹ {tx('뒤로', 'Back')}</Text>
