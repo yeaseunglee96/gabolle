@@ -64,6 +64,12 @@ export const MAJOR_BUSAN_ORIGINS: OriginCandidate[] = [
   { name: '서면역', address: '부산 부산진구 가야대로', lat: 35.1578, lng: 129.0592, externalId: 'major-seomyeon', source: 'INTERNAL_FALLBACK' },
   { name: '남포동', address: '부산 중구 남포동', lat: 35.0980, lng: 129.0306, externalId: 'major-nampo', source: 'INTERNAL_FALLBACK' },
   { name: '광안리해수욕장', address: '부산 수영구 광안동', lat: 35.1532, lng: 129.1187, externalId: 'major-gwangalli', source: 'INTERNAL_FALLBACK' },
+  // 🔴 비행기·시외버스로 오는 사람의 첫 출발지(S15P21E201-1591). 좌표·주소를 지어내지 않았다 —
+  //    앱의 출발지 검색(GET /api/v1/origins → 카카오 로컬)이 2026-09-24 에 돌려준 첫 결과 그대로다.
+  //    카카오 장소 번호: 김해국제공항 국제선청사 8239831 · 부산종합버스터미널 12479254 · 부산서부버스터미널 18166577.
+  { name: '김해공항', address: '부산 강서구 대저2동 2350-1', lat: 35.172488, lng: 128.946785, externalId: 'major-gimhae-airport', source: 'INTERNAL_FALLBACK' },
+  { name: '부산종합버스터미널(노포)', address: '부산 금정구 중앙대로 2238', lat: 35.284773, lng: 129.095472, externalId: 'major-nopo-terminal', source: 'INTERNAL_FALLBACK' },
+  { name: '부산서부버스터미널(사상)', address: '부산 사상구 사상로 201', lat: 35.163239, lng: 128.982525, externalId: 'major-sasang-terminal', source: 'INTERNAL_FALLBACK' },
 ];
 
 // 숙소 칸이 검색어 없이 보여 주는 추천 지역 — 시안 design_handoff_home_lodging. 출발지와

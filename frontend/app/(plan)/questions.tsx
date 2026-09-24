@@ -266,7 +266,7 @@ export default function PlanConditions() {
                     onChangeText={(value) => update({ [field]: maskTimeInput(value) } as Partial<PlanDraft>)}
                     keyboardType="number-pad"
                     maxLength={5}
-                    placeholder={field === 'dayStartTime' ? '09:00' : '18:00'}
+                    placeholder={field === 'dayStartTime' ? '09:00' : '21:00'}
                     placeholderTextColor={color.text.muted}
                     accessibilityLabel={tx(k, e)}
                     style={styles.input}
