@@ -14,15 +14,36 @@ export type DailyForecastDto = {
   skyCondition: SkyCondition | null;
 };
 
+/** 기상청 PTY(강수형태). 서버 PrecipitationType 그대로 — NONE 은 「비 없음」이고, 모르면 null 이다. */
+export type PrecipitationType = 'NONE' | 'RAIN' | 'RAIN_SNOW' | 'SNOW' | 'SHOWER';
+
+/**
+ * 한 시각의 예보(서버 HourlyForecastDto, S15P21E201-1534). time 은 "HH:mm" 이고 날짜는 forecast.date 다.
+ * 🔴 원문에 없는 값은 null 이다 — 0 과 다르다(0 은 「강수확률 0%」, null 은 「모른다」). 채우지 않는다.
+ */
+export type HourlyForecastDto = {
+  time: string;
+  temperature: number | null;
+  skyCondition: SkyCondition | null;
+  precipitationProbability: number | null;
+  precipitationType: PrecipitationType | null;
+};
+
 type WeatherForecastResponseDto = {
   nx: number;
   ny: number;
   cached: boolean;
   forecast: DailyForecastDto;
+  /** 나중에 더해진 칸이다 — 옛 서버는 안 보낸다. */
+  hourly?: HourlyForecastDto[] | null;
 };
 
 export type WeatherLoadResult =
-  | { state: 'success'; forecast: DailyForecastDto }
+  /**
+   * hourly 는 **서버가 준 시각만** 담는다(S15P21E201-1582). 오늘 날짜면 발표 이후 시각 몇 칸만 오고
+   * (2026-09-24 운영 실측: 21~23시 셋), 옛 서버면 빈 목록이다. 빈 시각을 지어서 채우지 않는다.
+   */
+  | { state: 'success'; forecast: DailyForecastDto; hourly: HourlyForecastDto[] }
   /** 기상청 단기예보는 발표 시점부터 사흘 남짓만 준다 — 그 밖의 날짜는 «실패»가 아니라 «아직»이다(S15P21E201-1376). */
   | { state: 'out-of-range'; message: string }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
@@ -38,7 +59,7 @@ export async function loadWeatherForecast(date: string, accessToken: string | nu
   try {
     const params = new URLSearchParams({ lat: String(BUSAN_LAT), lon: String(BUSAN_LON), date });
     const response = await apiRequest<WeatherForecastResponseDto>(`/api/v1/weather?${params.toString()}`, { accessToken });
-    return { state: 'success', forecast: response.forecast };
+    return { state: 'success', forecast: response.forecast, hourly: response.hourly ?? [] };
   } catch (error) {
     if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '날씨 API가 아직 준비되지 않았어요.' };
     // 서버 원문: 「date 가 이 발표 회차의 단기예보 범위를 벗어났습니다」(2026-09-21 실서버 실기, 출발 6일 전 여행).
