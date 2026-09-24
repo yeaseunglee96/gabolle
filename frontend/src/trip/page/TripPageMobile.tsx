@@ -58,6 +58,8 @@ import { DayReturnRow } from './DayReturnRow';
 import { DayStartRow } from './DayStartRow';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
+import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
+import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
 
 type Tx = (ko: string, en: string) => string;
@@ -103,7 +105,9 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   /** 코스 알약을 눌렀나 — 눌러야 「코스 A로 확정」 줄이 펼쳐진다(시안 Interactions). */
   const [touched, setTouched] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  // ⋯ 메뉴는 공용 DropdownMenu(창)다 — 바깥을 누르거나 Escape 로 닫힌다(S15P21E201-1593). 전에는 본문 사이에 끼어드는 판이라
+  //    닫는 길이 「⋯ 다시 누르기」뿐이었고, 연 채로 다른 창을 열면 그대로 남았다.
+  const menu = useDropdownMenu();
   // 지도의 경사·그늘 겹(S15P21E201-1569).
   const [layerKind, setLayerKind] = useState<MobilityLayerKind | null>(null);
   const mobility = useMobilityLayer(layerKind, map.stops);
@@ -286,24 +290,20 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           ) : null}
         </View>
         {ready ? (
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={({ pressed }) => [styles.circle44, pressed && styles.pressed]}>
+          <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menu.open }} onPress={menu.openMenu} style={({ pressed }) => [styles.circle44, pressed && styles.pressed]}>
             <Text variant="title" weight="bold">⋯</Text>
           </Pressable>
         ) : null}
       </View>
 
-      {menuOpen ? (
-        <View style={styles.menu}>
-          {tripId ? <MenuItem label={tx('이름 바꾸기', 'Rename')} onPress={() => { setMenuOpen(false); setNaming(true); }} /> : null}
-          {course?.itineraryId ? <MenuItem label={tx('일정 편집', 'Edit itinerary')} hint={tx('순서·고정·제외·다시 계산', 'Order, pin, remove, recalculate')} onPress={() => { setMenuOpen(false); openClassic(); }} /> : null}
-        </View>
-      ) : null}
-
-      {/* 알약 셋 — 지도 보기(= 창 접기) · 동행 초대 · 날씨. 뒤의 둘은 화면을 옮기지 않고 아래 시트로 연다(S15P21E201-1561). */}
+      {/* 알약 — 지도 보기(= 창 접기) · 동행 초대 · 공유 · 기록 남기기 · 날씨. 창은 화면을 옮기지 않고 아래 시트로 연다(S15P21E201-1561).
+          「공유」는 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기다(S15P21E201-1593). */}
       {ready ? (
         <View style={styles.actions}>
           <ActionPill label={tx('지도 보기', 'View map')} onPress={() => setPanel('collapsed')} />
           {tripId ? <ActionPill label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
+          {tripId ? <ActionPill label={tx('공유', 'Share')} onPress={() => setOverlay('share')} /> : null}
+          {tripId ? <ActionPill label={tx('기록 남기기', 'Write a record')} onPress={() => router.push(`/feed/compose?tripId=${encodeURIComponent(tripId)}`)} /> : null}
           {tripId ? <ActionPill label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
         </View>
       ) : null}
@@ -415,6 +415,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       )}
     </ScrollView>
   );
+
+  const menuItems: DropdownMenuItem[] = [
+    ...(tripId ? [{ key: 'rename', label: tx('이름 바꾸기', 'Rename'), onPress: () => setNaming(true) }] : []),
+    ...(course?.itineraryId ? [{ key: 'edit', label: tx('일정 편집', 'Edit itinerary'), hint: tx('순서·고정·제외·다시 계산', 'Order, pin, remove, recalculate'), onPress: openClassic }] : []),
+  ];
 
   return (
     <View style={styles.shell}>
@@ -533,9 +538,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       {tripId ? (
         <TripOverlay visible={overlay !== null} shape="sheet" onClose={() => setOverlay(null)}>
           {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
+          {overlay === 'share' ? <TripReadLinkPanel tripId={tripId} /> : null}
           {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
         </TripOverlay>
       ) : null}
+      <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
     </View>
   );
 }
@@ -546,15 +553,6 @@ function ActionPill({ label, onPress }: { label: string; onPress: () => void }) 
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.actionPill, pressed && styles.pressed]}>
       <Text variant="caption" weight="bold" numberOfLines={1}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function MenuItem({ label, hint, onPress }: { label: string; hint?: string; onPress: () => void }) {
-  return (
-    <Pressable accessibilityRole="menuitem" onPress={onPress} style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}>
-      <Text weight="bold">{label}</Text>
-      {hint ? <Text variant="caption" color={color.text.muted}>{hint}</Text> : null}
     </Pressable>
   );
 }
@@ -857,10 +855,9 @@ const styles = StyleSheet.create({
   headCopy: { flex: 1, minWidth: 0, gap: 2 },
   confirmedChip: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', marginTop: spacing[1], paddingHorizontal: 10, paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.card },
   circle44: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
-  menu: { padding: spacing[2], gap: spacing[1], borderRadius: radius.md, backgroundColor: color.surface.card },
-  menuItem: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.sm, gap: 2 },
-  actions: { flexDirection: 'row', gap: spacing[2] },
-  actionPill: { flex: 1, minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
+  // 알약이 다섯이라(S15P21E201-1593) 한 줄이면 「지도 …」처럼 잘린다 — 한 줄에 셋까지, 넘치면 다음 줄로 감긴다.
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  actionPill: { flexGrow: 1, flexBasis: '30%', minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   dayRow: { flexDirection: 'row', gap: spacing[2] },
   dayChip: { minHeight: 36, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card },
   dayChipOn: { backgroundColor: color.action.secondary },

@@ -15,6 +15,8 @@ export type DropdownMenuItem = {
   label: string;
   /** 삭제·차단처럼 되돌리기 어렵거나 남에게 안 좋은 뜻의 항목 — 위험색으로 그린다. */
   destructive?: boolean;
+  /** 이름 아래 작은 설명 줄 — 「일정 편집」의 「순서·고정·제외·다시 계산」처럼. 없으면 안 그린다. */
+  hint?: string;
   onPress: () => void;
 };
 
@@ -78,6 +80,7 @@ export function DropdownMenu({ visible, anchor, items, onClose }: {
             style={({ pressed }) => [styles.item, index > 0 && styles.itemBorder, pressed && styles.pressed]}
           >
             <Text variant="body" weight="bold" color={item.destructive ? color.state.danger : color.text.heading}>{item.label}</Text>
+            {item.hint ? <Text variant="caption" color={color.text.muted}>{item.hint}</Text> : null}
           </Pressable>
         ))}
       </View>
@@ -98,7 +101,7 @@ const styles = StyleSheet.create({
     elevation: 6,
     overflow: 'hidden',
   },
-  item: { minHeight: ITEM_HEIGHT, justifyContent: 'center', paddingHorizontal: spacing[4] },
+  item: { minHeight: ITEM_HEIGHT, justifyContent: 'center', paddingHorizontal: spacing[4], paddingVertical: spacing[2] },
   itemBorder: { borderTopWidth: 1, borderTopColor: color.surface.border },
   pressed: { opacity: 0.72 },
 });
