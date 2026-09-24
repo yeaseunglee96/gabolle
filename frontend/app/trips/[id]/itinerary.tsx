@@ -23,7 +23,6 @@ import { Skeleton } from '@/components/Skeleton';
 import { TabBar, bottomBarClearance } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
-import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { TripPageDesktop } from '@/trip/page/TripPageDesktop';
 import { TripPageMobile } from '@/trip/page/TripPageMobile';
@@ -385,17 +384,17 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
 type ViewMode = 'day' | 'all';
 
 /**
- * 넓은 화면(1024~)은 여행 페이지 통합 화면을 연다 — 추천 코스 + 일정을 한 화면에 (S15P21E201-1535, 시안
+ * 넓은 화면(데스크톱 판정 — useLayout)은 여행 페이지 통합 화면을 연다 — 추천 코스 + 일정을 한 화면에 (S15P21E201-1535, 시안
  * frontend/docs/design_handoff_trip_page/). 🔴 `?classic=1` 이면 지금까지의 화면 그대로다 — 새 화면의
  * ⋯ 「일정 편집」이 이리로 온다. 순서·고정·제외·다시 계산·되돌리기는 여기에만 있다.
  *
- * 폰은 같은 통합 화면의 폰 판이다(통합 2단계, TripPageMobile). 1024 에 못 미치는 태블릿은 아직 아래
- * ItineraryClassic 이다 — 어느 판을 여는지의 규칙은 tripPageKind(src/trip/page/tripPageModel.ts)가 갖는다.
+ * 폰은 같은 통합 화면의 폰 판이다(통합 2단계, TripPageMobile). 아래 ItineraryClassic 은 `?classic=1` 로만 온다
+ * — 어느 판을 여는지의 규칙은 tripPageKind(src/trip/page/tripPageModel.ts)가 갖는다.
  */
 export default function ItineraryScreen() {
-  const { width, kind } = useLayout();
+  const { desktop } = useLayout();
   const { id, name, classic } = useLocalSearchParams<{ id: string; name?: string; classic?: string }>();
-  const page = id ? tripPageKind(width, kind, classic === '1') : 'classic';
+  const page = id ? tripPageKind(desktop, classic === '1') : 'classic';
   if (id && page === 'desktop') return <TripPageDesktop source={{ kind: 'itinerary', itineraryId: id }} askName={name === '1'} />;
   if (id && page === 'mobile') return <TripPageMobile source={{ kind: 'itinerary', itineraryId: id }} askName={name === '1'} />;
   return <ItineraryClassic />;
@@ -619,8 +618,9 @@ function ItineraryClassic() {
   const nowProgressRatio = dayStops.length && progress.status !== 'PLANNED' ? doneCount / dayStops.length : null;
   // 넓은 화면에서만 2단으로 나눈다. 저장소 반응형 표가 「1024~ 사이드바 + 본문」이라
   // 그 경계를 그대로 쓴다 — 여기서 숫자를 새로 정하지 않는다(layout/breakpoints.ts).
-  const { width } = useLayout();
-  const wide = isAtLeast(width, 'lg');
+  const { desktop } = useLayout();
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = desktop;
   const insets = useSafeAreaInsets();
   // — 통계는 값이 있는 것만 만든다. 판정은 itinerarySummary.ts 에 있다.
   const stats = useMemo(() => (itinerary ? itineraryStats(itinerary, tx) : []), [itinerary, tx]);

@@ -4,7 +4,7 @@
 import { txf } from '@/i18n/format';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -12,7 +12,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import {
   getSpendProfile,
   MEAL_VARIES_CODE,
@@ -166,9 +166,9 @@ function Chips({ options, values, onChange }: { options: { code: string; label: 
 export function PreferencesBody() {
   const { tx } = useI18n();
   const { accessToken } = useAuth();
-  const { width } = useWindowDimensions();
   // 1024 이상 — breakpoints.ts 의 표에서 사이드바가 들어가는 폭이다.
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = useLayout().desktop;
   const queryClient = useQueryClient();
   const [open, setOpen] = useState<OpenRow | null>(null);
   const [toast, setToast] = useState<string | null>(null);

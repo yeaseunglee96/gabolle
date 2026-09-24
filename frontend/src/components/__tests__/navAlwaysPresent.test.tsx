@@ -19,16 +19,18 @@ jest.mock('expo-router', () => ({
   usePathname: () => '/home',
 }));
 
-// useLayout 의 kind 는 짧은 변으로 정한다 — src/layout/useLayout.ts 의 규칙을 그대로 옮긴다.
-const MOCK_TABLET_MIN_SHORT_SIDE = 600;
+// useLayout 의 판정은 진짜를 쓴다 — 전에는 규칙을 여기 옮겨 적어서, 규칙이 바뀌면(S15P21E201-1563) 이 시험만 옛 규칙을 봤다.
 let mockSize = { width: 420, height: 880 };
-jest.mock('@/layout/useLayout', () => ({
-  useLayout: () => ({
-    width: mockSize.width,
-    height: mockSize.height,
-    kind: Math.min(mockSize.width, mockSize.height) >= MOCK_TABLET_MIN_SHORT_SIDE ? 'tablet' : 'phone',
-  }),
-}));
+jest.mock('@/layout/useLayout', () => {
+  const { isDesktopWindow } = jest.requireActual('@/layout/useLayout');
+  return {
+    isDesktopWindow,
+    useLayout: () => {
+      const desktop = isDesktopWindow(mockSize.width, mockSize.height);
+      return { width: mockSize.width, height: mockSize.height, desktop, kind: desktop ? 'tablet' : 'phone' };
+    },
+  };
+});
 
 const METRICS: Metrics = { frame: { x: 0, y: 0, width: 420, height: 880 }, insets: { top: 0, left: 0, right: 0, bottom: 0 } };
 
@@ -47,17 +49,21 @@ function tabBarShown(): boolean {
 }
 
 /**
- * TopNav 는 kind === 'tablet' 일 때 그린다(src/nav/TopNav.tsx:71). 렌더 트리 전체를 세우기
- * 무거워 그 조건을 그대로 옮긴다 — TopNav 쪽 조건이 바뀌면 이 줄도 같이 바꿔야 한다.
+ * TopNav 는 kind === 'tablet'(= 데스크톱 판정)일 때 그린다(src/nav/TopNav.tsx). 렌더 트리 전체를 세우기
+ * 무거워 판정 함수를 그대로 부른다.
  */
 function topNavShown(): boolean {
-  return Math.min(mockSize.width, mockSize.height) >= MOCK_TABLET_MIN_SHORT_SIDE;
+  return (jest.requireActual('@/layout/useLayout') as typeof import('@/layout/useLayout')).isDesktopWindow(mockSize.width, mockSize.height);
 }
 
 const CASES: Array<[string, { width: number; height: number }]> = [
   ['아이폰 세로 420×880', { width: 420, height: 880 }],
   ['🔴 아이폰 가로 932×430 — 전에 둘 다 사라지던 자리', { width: 932, height: 430 }],
   ['폴드 펼침 884×1104', { width: 884, height: 1104 }],
+  ['폴드8 외부 374×918', { width: 374, height: 918 }],
+  ['폴드8 외부 가로 918×374', { width: 918, height: 374 }],
+  ['폴드8 펼침 세로 717×795', { width: 717, height: 795 }],
+  ['폴드8 펼침 가로 795×717', { width: 795, height: 717 }],
   ['아이패드 가로 1366×1024', { width: 1366, height: 1024 }],
 ];
 
@@ -73,6 +79,15 @@ describe('어느 크기에서도 이동 수단이 하나는 있다', () => {
     mockSize = { width: 932, height: 430 };
     expect(tabBarShown()).toBe(true);
     expect(topNavShown()).toBe(false);
+  });
+
+  it('🔴 폴드8 펼침 — 세로는 탭바(모바일), 가로는 상단 바(데스크톱) (S15P21E201-1563)', () => {
+    mockSize = { width: 717, height: 795 };
+    expect(tabBarShown()).toBe(true);
+    expect(topNavShown()).toBe(false);
+    mockSize = { width: 795, height: 717 };
+    expect(tabBarShown()).toBe(false);
+    expect(topNavShown()).toBe(true);
   });
 
   it('태블릿에서는 탭바가 비켜 준다 — 상단 바가 그 자리를 맡는다', () => {

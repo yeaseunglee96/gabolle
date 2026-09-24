@@ -7,7 +7,7 @@ import { render } from '@testing-library/react-native';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 
 let mockKind: 'phone' | 'tablet' = 'phone';
-jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ kind: mockKind, width: 717, height: 795, isLandscape: false }) }));
+jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ kind: mockKind, desktop: mockKind === 'tablet', width: 795, height: 717, isLandscape: true }) }));
 jest.mock('@/i18n', () => ({ useI18n: () => ({ tx: (ko: string) => ko }) }));
 jest.mock('expo-router', () => ({ useRouter: () => ({ replace: jest.fn() }), usePathname: () => '/home' }));
 
@@ -19,7 +19,7 @@ describe('로고는 한 번만', () => {
     expect(logoCount(<BrandLogoLink />)).toBe(1);
   });
 
-  it('🔴 태블릿·폴드 펼침(위쪽 메뉴 있음) — 화면 머리는 로고를 안 그린다', () => {
+  it('🔴 데스크톱 판정 — 폴드 펼침 가로 등(위쪽 메뉴 있음) — 화면 머리는 로고를 안 그린다', () => {
     mockKind = 'tablet';
     expect(logoCount(<BrandLogoLink />)).toBe(0);
   });

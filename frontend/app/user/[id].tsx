@@ -14,7 +14,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { CoverButton, MyPageCover } from '@/me/MyPageCover';
 import { ProfileCard, ProfileCardButton } from '@/me/ProfileCard';
 import { RecordCard } from '@/me/RecordCard';
@@ -30,7 +30,8 @@ export default function UserProfile() {
   const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { width } = useWindowDimensions();
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = useLayout().desktop;
   // 남의 프로필은 화살표 없이 전부 펼친다(시안 3절) — 내 기록 줄과 같은 4열 폭을 쓴다.
   const cardWidth = Math.max(180, Math.floor((width - desktopGutter * 2 - 3 * spacing[4]) / 4));
   const [state, setState] = useState<ProfileState>({ status: 'loading' });

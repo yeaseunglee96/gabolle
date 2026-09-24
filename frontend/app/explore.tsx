@@ -98,9 +98,10 @@ export default function LocalExplore() {
   // wide 600~ : 갈래 칩이 줄바꿈되고 결과가 카드 격자가 된다
   // split 1024~ : 내용 최대 폭을 넓게 연다. 배치가 둘로 갈리던 자리였는데, 왼쪽 기둥을
   //               없애고(시안 05) 지금은 폭만 정한다
-  const { width } = useLayout();
+  const { width, desktop } = useLayout();
   const wide = isAtLeast(width, 'md');
-  const split = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const split = desktop;
   const selectedFacet = visibleFacets?.find((entry) => entry.featureKey === selectedKey) ?? visibleFacets?.[0] ?? null;
   // 폰 2열 · 600~1023 3열 · 1024~ 4열. 계산은 exploreGrid 가 하고 여기서는 값만 받는다.
   const cardWidth = exploreCardWidth(width);

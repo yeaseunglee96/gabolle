@@ -517,13 +517,14 @@ export default function Feed() {
   const router = useRouter();
   const { accessToken, user } = useAuth();
   const { tx } = useI18n();
-  const { width } = useLayout();
+  const { width, desktop } = useLayout();
   const queryClient = useQueryClient();
 
   // 1024 이상에서만 보조 칸을 붙인다. 저장소 반응형 표가 「1024~ 사이드바 + 본문」
   // 이라고 정해 두었다(layout/breakpoints.ts). 인계 문서는 'md' 라고 적었지만 이
   // 저장소의 md 는 600 이라, 거기서 320 보조 칸을 붙이면 본문이 짓눌린다.
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = desktop;
   const compact = !isAtLeast(width, 'md');
 
   // 🔴 시안 4 의 02a/02b 대로 위 탭 셋(S15P21E201-1431). 전에는 전체·추천·팔로잉 + 최신/인기 토글이었다.

@@ -26,7 +26,6 @@ import { FirstTripChecklist } from '@/onboarding/FirstTripChecklist';
 import { HomeCoach, type CoachHole } from '@/onboarding/HomeCoach';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { resolveHomeTripDestination } from '@/home/tripNavigation';
-import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
@@ -68,8 +67,8 @@ export default function Home() {
   // 「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
-  const { width } = useLayout();
-  const desktop = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const { width, desktop } = useLayout();
   // 위쪽 메뉴가 떠 있으면(폴드 펼침 등 태블릿) 로그인·종을 거기 맡긴다 — 머리에서 두 번 그리지 않는다.
   const topNav = useTopNavShown();
   const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();

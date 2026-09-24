@@ -22,7 +22,6 @@ import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { FLAG_IMAGES, WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
-import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { useI18n } from '@/i18n';
@@ -45,7 +44,7 @@ const welcomeVideo = require('../assets/video/busan-tram-portrait.mp4');
 
 export default function Welcome() {
   const router = useRouter();
-  const { width } = useLayout();
+  const { width, desktop } = useLayout();
   const { language, mobility, setPreferences, hydrated, hasEnteredApp } = useOnboardingPreferences();
   const { tx } = useI18n();
   const { user, ready, accessToken } = useAuth();
@@ -54,7 +53,8 @@ export default function Welcome() {
   const editSection = startBarEditSection(useLocalSearchParams().edit);
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
-  const isDesktop = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const isDesktop = desktop;
   // 홈이 쓰는 값(기록·갈래·날씨·장소·내 여행)을 한곳에서 읽는다. 폰 분기에서도 훅 순서가
   // 바뀌면 안 되므로 조건 없이 위에서 부른다 — 폰에서는 그린 것이 없어 값만 놀고 끝난다.
   const home = useHomeData(isDesktop);

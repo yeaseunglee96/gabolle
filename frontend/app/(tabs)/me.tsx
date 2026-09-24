@@ -18,7 +18,7 @@ import { Toggle } from '@/components/Toggle';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { CoverButton, MyPageCover } from '@/me/MyPageCover';
 import { loadUserStories, relativeStoryTime, type StoryDto } from '@/social/stories';
 import { MyPageModal } from '@/me/MyPageModal';
@@ -116,7 +116,8 @@ export default function Me() {
     return () => { active = false; };
   }, [user?.userId, user?.avatarUrl]);
 
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = useLayout().desktop;
   // 시트 높이 계산은 myPageSheetHeight 가 소유한다 — 왜 위쪽 안전영역을 빼는지도 거기 적혀 있다.
   const insets = useSafeAreaInsets();
   const sheetHeight = myPageSheetHeight(height, insets.top, insets.bottom);
