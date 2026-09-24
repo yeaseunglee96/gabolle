@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -180,6 +181,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		// 사용자가 적은 「꼭 가고 싶은 장소」가 반경 밖이면 여기까지 안 들어온다. 끼워 넣는다.
 		List<TripSeedPlace> seeds = this.seedPlaceRepository.findByTripId(trip.tripId());
 		response = includeMissingSeeds(response, seeds);
+		response = withoutClosedEvents(response, trip, seeds);
 		long candidateGenerationMs = elapsedMs(candidateGenerationStart);
 
 		// 대조표는 배치당 한 번만 읽는다 — 후보마다 다시 읽으면 질의 수가 후보 수에 비례한다.
@@ -536,6 +538,47 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		appliedFilters.add(SEED_INJECTED_FILTER);
 		return new PlaceCandidateResponse(merged, merged.size(), response.minimumRequired(),
 				merged.size() < response.minimumRequired(), appliedFilters, response.notApplied(),
+				response.scanTruncated(), response.datasetVersions());
+	}
+
+	/** 여행 날짜에 하루도 안 여는 행사 장소를 뺐다는 표시. 응답의 appliedFilters 에 남는다. */
+	static final String EVENT_DATES_FILTER = "EVENT_OPEN_ON_TRIP_DATES";
+
+	/**
+	 * 기간표가 있는데 여행 기간에 하루도 안 여는 장소(끝난 축제·아직 안 한 축제)를 후보에서 뺀다 (S15P21E201-1618).
+	 *
+	 * <p>🔴 전에는 이 거르기가 일정 조립에만 있었다({@code ItineraryDraftService.eventDaysOf}). 축제는 갈래가 비어
+	 * 후보에 아예 안 들어와서 문제가 안 됐는데, 축제 갈래(FESTIVAL_EVENT)를 채우면 날짜가 안 맞는 축제가 추천 결과
+	 * 목록에 뜬다. 조립과 같은 판정이고, 조립처럼 사용자가 직접 고른 「꼭 갈 곳」은 빼지 않는다.
+	 */
+	private PlaceCandidateResponse withoutClosedEvents(PlaceCandidateResponse response, Trip trip,
+			List<TripSeedPlace> seeds) {
+		if (response.candidates().isEmpty()) {
+			return response;
+		}
+		Set<UUID> mustVisit = new HashSet<>();
+		for (TripSeedPlace seed : seeds) {
+			mustVisit.add(UUID.fromString(seed.placeId()));
+		}
+		List<UUID> ids = response.candidates().stream()
+				.map(PlaceCandidateResponse.Candidate::placeId)
+				.filter((id) -> !mustVisit.contains(id))
+				.toList();
+		if (ids.isEmpty()) {
+			return response;
+		}
+		Set<UUID> closed = new HashSet<>(
+				this.placeRepository.findEventPlacesClosedThroughout(ids, trip.startDate(), trip.finishDate()));
+		if (closed.isEmpty()) {
+			return response;
+		}
+		List<PlaceCandidateResponse.Candidate> open = response.candidates().stream()
+				.filter((candidate) -> !closed.contains(candidate.placeId()))
+				.toList();
+		List<String> appliedFilters = new ArrayList<>(response.appliedFilters());
+		appliedFilters.add(EVENT_DATES_FILTER);
+		return new PlaceCandidateResponse(open, open.size(), response.minimumRequired(),
+				open.size() < response.minimumRequired(), appliedFilters, response.notApplied(),
 				response.scanTruncated(), response.datasetVersions());
 	}
 

@@ -1,5 +1,6 @@
 package com.gabolle.backend.place.repository;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -131,6 +132,21 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			@Param("featureKey") String featureKey, Limit limit);
 
 	List<Place> findByPlaceIdIn(Collection<UUID> placeIds);
+
+	/**
+	 * 기간표가 있는데 {@code [from, to]} 에 하루도 안 여는 장소 — 추천 후보에서 뺀다 (S15P21E201-1618).
+	 *
+	 * <p>일정 조립이 쓰는 판정({@code PlaceEventScheduleAdapter} — 여행 날짜 중 하루라도 회차 기간 안이면 연다)과
+	 * 같은 뜻이다. 기간표가 없는 장소는 여기 안 나온다 — 상시 여는 곳이다.
+	 */
+	@Query("""
+			SELECT DISTINCT e.placeId FROM PlaceEventPeriod e
+			 WHERE e.placeId IN :placeIds
+			   AND NOT EXISTS (SELECT o.placeEventPeriodId FROM PlaceEventPeriod o
+			                    WHERE o.placeId = e.placeId AND o.startDate <= :to AND o.endDate >= :from)
+			""")
+	List<UUID> findEventPlacesClosedThroughout(@Param("placeIds") Collection<UUID> placeIds,
+			@Param("from") LocalDate from, @Param("to") LocalDate to);
 
 	/**
 	 * 원천 식별자로 찾는다 — 같은 장소를 두 번 만들지 않기 위한 조회다 (S15P21E201-1426).

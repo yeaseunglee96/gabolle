@@ -75,7 +75,29 @@ final class TourApiCategory {
 	 */
 	private static final Set<String> COASTAL_WALK_CONTENT_IDS = Set.of("252561", "2822343");
 
+	/** 관광공사 콘텐츠 유형 — 축제·공연·행사. */
+	static final String CONTENT_TYPE_FESTIVAL = "15";
+
+	/**
+	 * 축제 갈래 (S15P21E201-1618). 앱의 여섯 낱말에 더한 일곱째 낱말이고 — {@code FESTIVAL} 은 탐색 사전의 「축제」라
+	 * 겹치지 않게 {@code FESTIVAL_EVENT} 다 — 여행 날짜에 여는 것만 추천된다 —
+	 * 그 거르기는 일정 조립과 추천 엔진이 기간표로 한다. 갈래로는 기간을 모른다.
+	 */
+	static final String FESTIVAL = "FESTIVAL_EVENT";
+
 	private TourApiCategory() {
+	}
+
+	/**
+	 * 콘텐츠 유형까지 보고 옮긴다. 축제(유형 15)는 {@code cat1} 이 비어 오거나 인문으로 와서 분류로는 못 가른다
+	 * — 전에는 그래서 갈래가 비어 추천에 한 번도 안 들어갔다(운영 62곳). 나머지는 {@link #of(String, String, String)}
+	 * 와 같다.
+	 */
+	static String of(String contentId, String contentTypeId, String cat1, String cat3) {
+		if (CONTENT_TYPE_FESTIVAL.equals(contentTypeId)) {
+			return FESTIVAL;
+		}
+		return of(contentId, cat1, cat3);
 	}
 
 	/**
