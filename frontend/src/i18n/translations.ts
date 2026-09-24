@@ -1200,6 +1200,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '날짜 미정': { ja: '日程未定', zhHans: '日期待定', zhHant: '日期待定' },
   '일정 찾는 중…': { ja: '日程を検索中…', zhHans: '正在查找行程…', zhHant: '正在查找行程…' },
   '일정 보기 →': { ja: '日程を見る →', zhHans: '查看行程 →', zhHant: '查看行程 →' },
+  '내 일정 보기': { ja: 'マイ日程を見る', zhHans: '查看我的行程', zhHant: '查看我的行程' },
   '아직 만든 여행이 없어요': { ja: 'まだ作成した旅行がありません', zhHans: '尚未创建旅行', zhHant: '尚未建立旅行' },
   '첫 여행 만들기 →': { ja: '最初の旅行を作る →', zhHans: '创建第一次旅行 →', zhHant: '建立第一次旅行 →' },
   '저장 안내 닫기': { ja: '保存案内を閉じる', zhHans: '关闭保存提示', zhHant: '關閉保存提示' },

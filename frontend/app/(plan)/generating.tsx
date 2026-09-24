@@ -339,8 +339,8 @@ export default function Generating() {
             key={reprint}
           />
         )}
-        {/* 승차권 뒷면의 「일정 보기 →」가 문이다 — 같은 곳으로 가는 큰 단추를 아래 또 두지 않는다(2026-09-21 실기, S15P21E201-1381). */}
-        {job.state === 'completed' && kind === 'phone' && <View style={styles.actions}><Text variant="caption" color={color.text.muted}>{tx('승차권을 눌러 뒤집으면 「일정 보기」가 있어요.', 'Tap the pass to flip it — “View itinerary” is on the back.')}</Text></View>}
+        {/* 승차권 앞면 QR 자리의 「내 일정 보기」가 문이다 — 같은 곳으로 가는 큰 단추를 아래 또 두지 않는다(2026-09-21 실기, S15P21E201-1381).
+            「뒤집으면 일정 보기가 있어요」 안내는 뺐다 — 앞면에 단추가 생겨 할 말이 없어졌다(S15P21E201-1562). */}
         </View>
       </View>}
     </View>
