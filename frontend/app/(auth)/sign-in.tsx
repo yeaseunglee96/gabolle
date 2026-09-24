@@ -15,7 +15,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { loginWithOAuth } from '@/auth/oauth';
 import { navigateAfterOAuthComplete } from '@/auth/oauthNavigation';
 import type { OAuthProvider } from '@/auth/authApi';
-import { guestDestination, resolveDestination, savePendingReturnTo } from '@/auth/pendingReturnTo';
+import { guestDestination, resolveDestination, savePendingReturnTo, signedInDestination } from '@/auth/pendingReturnTo';
 import { enterApp } from '@/auth/enterApp';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -69,20 +69,32 @@ export default function SignIn() {
   // 콜백 자체는 라우터가 바뀔 때만(사실상 거의 안 바뀐다) 다시 만든다.
   const userRef = useRef(user);
   const readyRef = useRef(ready);
-  useEffect(() => { userRef.current = user; readyRef.current = ready; });
+  const returnToRef = useRef(returnTo);
+  useEffect(() => { userRef.current = user; readyRef.current = ready; returnToRef.current = returnTo; });
+  // 이 화면이 지금 보이고 있나 — 아래 「로그인 복구가 늦게 끝났을 때」 판정이 가려진 화면에서 돌지 않게.
+  const screenFocused = useRef(false);
+  // 🔴 이미 로그인한 사람은 returnTo 로, 없으면 홈으로 비킨다(S15P21E201-1594). 전에는 언제나 홈이었다.
+  const leaveIfSignedIn = useCallback(() => {
+    // 이 화면에서 로그인 절차를 시작했고 아직 떠난 적이 없으면 그대로 둔다
+    // 그쪽은 submit·social 이 직접 목적지로 보낸다. 둘이 같이 움직이면 한 번 갈 길을 두 번 간다.
+    const mine = signedInHere.current && !cameBack.current;
+    if (screenFocused.current && readyRef.current && userRef.current && !mine && !leaving.current) {
+      leaving.current = true;
+      enterApp(router, signedInDestination(returnToRef.current) as Href);
+    }
+  }, [router]);
   useFocusEffect(
     useCallback(() => {
-      // 이 화면에서 로그인 절차를 시작했고 아직 떠난 적이 없으면 그대로 둔다
-      // 그쪽은 submit·social 이 직접 목적지로 보낸다. 둘이 같이 움직이면 한 번 갈 길을 두 번 간다.
-      const mine = signedInHere.current && !cameBack.current;
-      if (readyRef.current && userRef.current && !mine && !leaving.current) {
-        leaving.current = true;
-        enterApp(router, '/home');
-      }
+      screenFocused.current = true;
+      leaveIfSignedIn();
       // 포커스를 잃으면 「다음엔 돌아온 것」으로 친다.
-      return () => { cameBack.current = true; leaving.current = false; };
-    }, [router]),
+      return () => { screenFocused.current = false; cameBack.current = true; leaving.current = false; };
+    }, [leaveIfSignedIn]),
   );
+  // 🔴 로그인 복구가 화면보다 늦게 끝나도 비킨다(S15P21E201-1594). 웹에서 주소로 /sign-in 에 바로 오면 화면이 먼저 뜨고
+  //    로그인 복구(쿠키 → 토큰)는 뒤에 끝난다. 위 판정은 화면이 보이는 순간 한 번뿐이라 그때는 아직 모르고 지나갔다.
+  //    이것은 포커스 효과가 아니라 cleanup 이 cameBack 을 건드리지 않는다 — 위 1541 의 경합을 다시 만들지 않는다.
+  useEffect(() => { leaveIfSignedIn(); }, [ready, user, leaveIfSignedIn]);
   async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); signedInHere.current = true; try { await signIn(email, password); enterApp(router, (await resolveDestination(returnTo)) as Href); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) {
     if (busy || provider) return;

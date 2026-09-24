@@ -5,7 +5,7 @@
 import { txf } from '@/i18n/format';
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { PlaceVisual } from '@/components/PlaceVisual';
@@ -16,9 +16,8 @@ import { formatMonthDay } from '@/i18n/datetime';
 import { markdownToPlain } from '@/social/markdown';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
-import type { PlaceSearchItem } from '@/discovery/places';
 import { HomeRow, homeCardWidth } from './HomeRow';
-import type { HomeFacetRow } from './useHomeData';
+import type { HomeCardPlace, HomeFacetRow } from './useHomeData';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
 import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
 import type { DailyForecastDto } from '@/trip/weather';
@@ -157,7 +156,7 @@ function PlaceCard({
   liked,
   onToggleLike,
 }: {
-  place: PlaceSearchItem;
+  place: HomeCardPlace;
   cardWidth: number;
   liked: boolean;
   onToggleLike: () => void;
@@ -237,7 +236,8 @@ export function PlaceRow({
       eyebrow={tx('로컬 탐색', 'Explore locally')}
       title={tx(row.titleKo, row.titleEn)}
       openLabel={tx('이 갈래 전체 보기', 'See all in this category')}
-      onOpen={() => router.push({ pathname: '/explore', params: { facet: row.facetKey } })}
+      // 줄마다 여는 곳이 다르다 — 축제는 날짜로 거르는 축제 화면, 나머지는 로컬 탐색(S15P21E201-1594).
+      onOpen={() => router.push(row.href as Href)}
       width={width}
       gutter={gutter}
       arrows={arrows}

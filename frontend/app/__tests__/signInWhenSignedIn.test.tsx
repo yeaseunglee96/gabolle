@@ -9,6 +9,8 @@ const mockReplace = jest.fn();
 const mockPush = jest.fn();
 const mockCanGoBack = jest.fn(() => true);
 const mockAuth = { signIn: jest.fn(), acceptTokens: jest.fn(), user: null as unknown, ready: true };
+/** 주소로 들어온 값 — returnTo 를 시험마다 바꾼다(S15P21E201-1594). */
+let mockParams: { returnTo?: string } = {};
 /** 화면이 가려졌다가 다시 보이는 일을 손으로 만든다. */
 const mockFocus: { run: null | (() => void | (() => void)) } = { run: null };
 function refocus() {
@@ -19,7 +21,7 @@ function refocus() {
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: mockBack, replace: mockReplace, push: mockPush, canGoBack: mockCanGoBack, canDismiss: () => false, dismissAll: () => {} }),
-  useLocalSearchParams: () => ({}),
+  useLocalSearchParams: () => mockParams,
   // 화면이 보이는 동안은 useEffect 와 같이 돌고, 언마운트할 때 cleanup 이 돌게 한다.
   // 「돌아왔다」는 재마운트로 흉내 낼 수 없어(실제로도 재마운트되지 않는다)
   // 아래에서 refocus 으로 포커스를 손으로 돌려 준다.
@@ -33,6 +35,8 @@ jest.mock('expo-router', () => ({
 jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => mockAuth }));
 
 jest.mock('@/auth/pendingReturnTo', () => ({
+  // 이미 로그인한 사람의 목적지(signedInDestination)는 진짜를 쓴다 — 그것이 이 시험의 대상이다.
+  ...jest.requireActual('@/auth/pendingReturnTo'),
   savePendingReturnTo: jest.fn(async () => {}),
   resolveDestination: jest.fn(async () => '/home'),
   guestDestination: jest.fn(() => '/home'),
@@ -55,6 +59,7 @@ beforeEach(() => {
   mockCanGoBack.mockReturnValue(true);
   mockAuth.user = null;
   mockAuth.ready = true;
+  mockParams = {};
 });
 
 describe('로그인 화면 — 이미 로그인한 사람은 붙잡지 않는다', () => {
@@ -103,5 +108,34 @@ describe('로그인 화면 — 이미 로그인한 사람은 붙잡지 않는다
     render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
     expect(mockBack).not.toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it('🔴 returnTo 가 있으면 그리로 비킨다 — 홈이 아니다(S15P21E201-1594)', async () => {
+    mockAuth.user = { userId: 'u1', displayName: '이예승' };
+    mockParams = { returnTo: '/trips' };
+    render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/trips'));
+    expect(mockReplace).not.toHaveBeenCalledWith('/home');
+  });
+
+  it('바깥 주소 returnTo 는 따르지 않는다 — 홈으로', async () => {
+    mockAuth.user = { userId: 'u1', displayName: '이예승' };
+    mockParams = { returnTo: 'https://example.com/steal' };
+    render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/home'));
+  });
+
+  // 웹에서 주소로 /sign-in 에 바로 오면 화면이 먼저 뜨고 로그인 복구(쿠키 → 토큰)는 뒤에 끝난다.
+  // 전에는 화면이 보이는 순간 한 번만 판정해서, 그때 아직 모르면 로그인 화면에 그대로 남았다.
+  it('🔴 로그인 복구가 화면보다 늦게 끝나도 비킨다', async () => {
+    mockAuth.ready = false;
+    mockParams = { returnTo: '/trips' };
+    const view = render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
+    expect(mockReplace).not.toHaveBeenCalled();
+
+    mockAuth.ready = true;
+    mockAuth.user = { userId: 'u1', displayName: '이예승' };
+    view.rerender(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/trips'));
   });
 });
