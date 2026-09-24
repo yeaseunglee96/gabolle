@@ -1,5 +1,6 @@
 // 날짜 계산은 눈으로 검산이 안 된다. 「1박 2일」이 이틀인지 사흘인지, 월이 바뀔 때
 // 어떻게 되는지가 여기서 정해진다.
+import { RECOMMENDED_LODGING_AREAS } from '@/plan/origins';
 import {
   EMPTY_START_BAR,
   START_BAR_PRESETS,
@@ -109,6 +110,18 @@ describe('일정 물어보기를 누를 수 있나', () => {
     expect(askForPlanBlocker(value(), tx)).toBe('날짜를 골라 주세요');
     expect(askForPlanBlocker(value({ startDate: '2026-09-20', adults: 0 }), tx)).toBe('인원을 정해 주세요');
     expect(askForPlanBlocker(value({ startDate: '2026-09-20' }), tx)).toBeNull();
+  });
+
+  it('🔴 1박 이상이면 숙소가 있어야 한다 — 당일치기는 숙소 없이 된다 (S15P21E201-1584)', () => {
+    const tx = (ko: string) => ko;
+    const overnight = { startDate: '2026-09-20', endDate: '2026-09-21' };
+    expect(canAskForPlan(value(overnight))).toBe(false);
+    expect(askForPlanBlocker(value(overnight), tx)).toBe('숙소를 골라 주세요');
+    expect(canAskForPlan(value({ startDate: '2026-09-20', endDate: '2026-09-20' }))).toBe(true);
+    const haeundae = RECOMMENDED_LODGING_AREAS.find((area) => area.externalId === 'lodging-haeundae')!;
+    const withArea = value({ ...overnight, lodging: '해운대', lodgingLat: haeundae.lat, lodgingLng: haeundae.lng });
+    expect(canAskForPlan(withArea)).toBe(true);
+    expect(askForPlanBlocker(withArea, tx)).toBeNull();
   });
 });
 

@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { EMPTY_PLAN, type PlanDraft } from '@/plan/PlanProvider';
+import { RECOMMENDED_LODGING_AREAS } from '@/plan/origins';
 
 const mockPush = jest.fn();
 const mockSubmit = jest.fn(async () => ({ state: 'submitting', jobId: 'job-1', progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null }));
@@ -36,8 +37,11 @@ import PlanConditions from '../(plan)/questions';
 
 /** 날짜·출발지는 있고(서버가 요구한다) 알레르기·식단은 답해 둔다 — 안 그러면 조건 창이 먼저 뜬다. */
 // 🔴 출발지도 필수다 — 없으면 서버가 일정을 안 만든다(S15P21E201-1342).
+// 🔴 1박 이상이면 숙소도 필수다(S15P21E201-1584) — 해운대 동네로 골라 둔다.
+const HAEUNDAE = RECOMMENDED_LODGING_AREAS.find((area) => area.externalId === 'lodging-haeundae')!;
 const BASE: PlanDraft = { ...EMPTY_PLAN, startDate: '2026-10-03', endDate: '2026-10-05',
   origin: '부산역', originLat: 35.1152, originLng: 129.0403,
+  lodging: '해운대', lodgingLat: HAEUNDAE.lat, lodgingLng: HAEUNDAE.lng,
   allergyStatus: 'NONE', allergyAnswered: true, dietStatus: 'NONE', dietAnswered: true };
 /** 필수 셋(범위·예산·이동수단)까지 다 채운 초안 — 「다음」으로 끝까지 갈 수 있다. */
 const REQUIRED_DONE: PlanDraft = { ...BASE, travelAreas: ['HAEUNDAE'], budgetKrw: 100000, transport: 'TRANSIT' };
@@ -78,6 +82,18 @@ describe('여행 조건 문항 — 한 번에 하나 (S15P21E201-1425)', () => {
     fireEvent.press(view.getByText('이 조건으로 일정 만들기'));
     await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/plan/generating', params: { jobId: 'job-1' } });
+  });
+
+  it('🔴 1박 이상인데 숙소가 없으면 안 보내고 이유를 말한다 (S15P21E201-1584)', async () => {
+    mockDraft = { ...REQUIRED_DONE, lodging: '', lodgingLat: null, lodgingLng: null };
+    const view = mount();
+    expect(view.getByText('어디에서 묵으세요?')).toBeTruthy();
+    for (let i = 0; i < 6; i += 1) fireEvent.press(view.getByText('다음'));
+    expect(view.getByText('1박 이상 여행은 숙소를 골라야 만들 수 있어요 · 위에서 골라 주세요')).toBeTruthy();
+    fireEvent.press(view.getByText('이 조건으로 일정 만들기'));
+    expect(mockSubmit).not.toHaveBeenCalled();
+    fireEvent.press(view.getByText('어디에서 묵으세요?'));
+    expect(mockPush).toHaveBeenCalledWith(expect.objectContaining({ params: { edit: 'lodging' } }));
   });
 
   it('🔴 알레르기를 안 물었어도(기본값 「모름」) 경고 없이 바로 보낸다 — 조건 창이 다시 뜨지 않는다 (S15P21E201-1513)', async () => {

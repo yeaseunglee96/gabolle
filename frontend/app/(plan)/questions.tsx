@@ -40,6 +40,7 @@ import {
 } from '@/plan/planQuestions';
 import { maskTimeInput } from '@/plan/inputMasks';
 import { startBarChips } from '@/home/startBarValue';
+import { lodgingMissing as isLodgingMissing } from '@/plan/lodgingRequired';
 import { assistantPrefillPatch } from '@/plan/assistantPrefill';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
@@ -150,8 +151,10 @@ export default function PlanConditions() {
   // 🔴 출발지가 없으면 서버가 일정을 안 만들어 준다 — S15P21E201-1342. 이 앱에서 출발지를 채우는
   //    곳은 홈 시작 바 하나뿐이다(PlanStartBar).
   const originMissing = draft.originLat === null || draft.originLng === null;
-  // 서버가 실제로 만들 수 있는 조건 — 필수 질문 + 날짜 + 출발지. 마지막 단추가 이걸 본다.
-  const readyToBuild = missing.length === 0 && !datesMissing && !originMissing;
+  // 🔴 1박 이상이면 숙소가 있어야 만든다 — S15P21E201-1584. 숙소도 홈 시작 바에서만 고른다.
+  const lodgingMissing = isLodgingMissing(draft);
+  // 서버가 실제로 만들 수 있는 조건 — 필수 질문 + 날짜 + 출발지 + (1박 이상이면) 숙소. 마지막 단추가 이걸 본다.
+  const readyToBuild = missing.length === 0 && !datesMissing && !originMissing && !lodgingMissing;
 
   // 🔴 예전에는 홈의 시작 줄로 보냈다(S15P21E201-1350). 돌아오면 문항이 1번부터라 열 개를 다 답한
   //    사람이 처음부터 다시 했다. 이제 이 화면 안의 달력 카드를 편다.
@@ -159,6 +162,7 @@ export default function PlanConditions() {
   // 🔴 출발지 고르기는 검색이 붙어 있어(PlanStartBar) 여기 한 벌 더 만들지 않는다 — 시작 바를
   //    출발지 칸이 열린 채로 연다. 「일정 물어보기」를 누르면 홈이 다시 /plan 으로 돌려보낸다.
   const goPickOrigin = () => router.push({ pathname: wide ? '/' : '/home', params: { edit: 'origin' } });
+  const goPickLodging = () => router.push({ pathname: wide ? '/' : '/home', params: { edit: 'lodging' } });
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
   /**
@@ -344,7 +348,9 @@ export default function PlanConditions() {
       ? txf(tx, '이제 만들 수 있어요 · 남은 %s개는 답할수록 일정이 좋아지는 질문이에요', 'You can build now · the remaining %s tune the plan to you', PLAN_QUESTIONS.length - settledSoFar)
       : originMissing
         ? tx('필수 질문은 다 답했어요 · 출발지만 고르면 만들 수 있어요', 'Required questions done · just pick a starting point to build')
-        : tx('필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요', 'Required questions done · just pick your dates to build')
+        : lodgingMissing && !datesMissing
+          ? tx('필수 질문은 다 답했어요 · 숙소만 고르면 만들 수 있어요', 'Required questions done · just pick where you will stay to build')
+          : tx('필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요', 'Required questions done · just pick your dates to build')
     : txf(tx, '필수 %s개만 답하면 만들 수 있어요 · 나머지는 건너뛰어도 돼요', 'Answer the %s required questions to build · the rest are optional', requiredCount);
 
   // ── 어디서나 쓰는 조각들 ──────────────────────────────────────────────────
@@ -355,6 +361,14 @@ export default function PlanConditions() {
     <Pressable accessibilityRole="button" onPress={goPickOrigin} style={({ pressed }) => [styles.originAsk, pressed && styles.pressed]}>
       <Text variant="body" weight="bold" color={color.text.heading}>{tx('어디에서 출발하세요?', 'Where are you starting from?')}</Text>
       <Text variant="caption" color={color.text.muted}>{tx('출발지를 골라야 일정을 만들 수 있어요 · 눌러서 고르기', 'We need a starting point to build your trip · tap to choose')}</Text>
+    </Pressable>
+  ) : null;
+
+  // 🔴 숙소 — 1박 이상인데 없으면 여기서 짚어 준다(S15P21E201-1584). 출발지와 같은 자리, 같은 모양.
+  const lodgingAsk = !originMissing && lodgingMissing ? (
+    <Pressable accessibilityRole="button" onPress={goPickLodging} style={({ pressed }) => [styles.originAsk, pressed && styles.pressed]}>
+      <Text variant="body" weight="bold" color={color.text.heading}>{tx('어디에서 묵으세요?', 'Where are you staying?')}</Text>
+      <Text variant="caption" color={color.text.muted}>{tx('1박 이상 여행은 숙소를 골라야 일정을 만들 수 있어요 · 눌러서 고르기', 'Trips with an overnight stay need a place to stay · tap to choose')}</Text>
     </Pressable>
   ) : null;
 
@@ -406,7 +420,7 @@ export default function PlanConditions() {
           label={last
             ? job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('이 조건으로 일정 만들기', 'Build my itinerary')
             : tx('다음', 'Next')}
-          disabled={last ? missing.length > 0 || datesMissing || originMissing || job?.state === 'submitting' : !canNext}
+          disabled={last ? missing.length > 0 || datesMissing || originMissing || lodgingMissing || job?.state === 'submitting' : !canNext}
           onPress={() => {
             completeStep(index + 1);
             if (last) { if (readyToBuild) void submitPlan(); }
@@ -427,6 +441,9 @@ export default function PlanConditions() {
       ) : null}
       {last && requiredReady && originMissing ? (
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('출발지를 골라야 만들 수 있어요 · 위에서 골라 주세요', 'Pick a starting point above to build')}</Text>
+      ) : null}
+      {last && requiredReady && !originMissing && !datesMissing && lodgingMissing ? (
+        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('1박 이상 여행은 숙소를 골라야 만들 수 있어요 · 위에서 골라 주세요', 'Pick where you will stay above to build')}</Text>
       ) : null}
       {last && requiredReady && !originMissing && datesMissing ? (
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('날짜를 정해야 만들 수 있어요 · 위에서 골라 주세요', 'Pick your dates above to build')}</Text>
@@ -501,6 +518,7 @@ export default function PlanConditions() {
       </View>
       <View style={styles.track}><View style={[styles.fill, { width: `${fillPct}%` }]} /></View>
       {originAsk}
+      {lodgingAsk}
       {dateCardEl}
       {questionCard}
       {navRow}
@@ -535,6 +553,7 @@ export default function PlanConditions() {
       <Text variant="caption" color={color.text.muted}>{statusLine}</Text>
 
       {originAsk}
+      {lodgingAsk}
       {dateCardEl}
 
       {answeredQuestions.length || (!originMissing) || (!showDateCard && dateLabel) ? (
