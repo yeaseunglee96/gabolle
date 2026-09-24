@@ -85,7 +85,19 @@ public class UserSubmittedPlaceService {
 		}
 
 		return this.places.findBySourceTypeAndSourceId(sourceType, externalId)
+				.map(this::survivorOf)
 				.orElseGet(() -> create(sourceType, externalId, name, snapshot));
+	}
+
+	/**
+	 * 합쳐진 줄이면 남는 줄로 잇는다 — S15P21E201-1619. 사용자가 카카오에서 고른 곳이 합쳐진 줄이면 그 줄에 기록을
+	 * 붙여 봐야 찾아 주는 조회에서 빠져 있어 다시 못 찾는다. 남는 줄이 없으면 받은 줄 그대로다.
+	 */
+	private Place survivorOf(Place found) {
+		if (found.getMergedInto() == null) {
+			return found;
+		}
+		return this.places.findById(found.getMergedInto()).orElse(found);
 	}
 
 	private Place create(String sourceType, String externalId, String name, Snapshot snapshot) {

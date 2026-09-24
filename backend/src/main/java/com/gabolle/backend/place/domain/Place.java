@@ -131,6 +131,13 @@ public class Place {
 	@Column(name = "curation_status", nullable = false, length = 20)
 	private CurationStatus curationStatus = CurationStatus.CURATED;
 
+	/**
+	 * 이 줄이 합쳐진 남는 줄 — S15P21E201-1619. 합쳐진 줄({@link CurationStatus#MERGED})에만 값이 있다.
+	 * 합치기는 DB 함수 {@code place_merge} 가 하고 앱은 읽기만 한다.
+	 */
+	@Column(name = "merged_into", insertable = false, updatable = false)
+	private UUID mergedInto;
+
 	protected Place() {
 	}
 
@@ -209,6 +216,11 @@ public class Place {
 		place.collectedAt = createdAt;
 		place.curationStatus = CurationStatus.USER_SUBMITTED;
 		return place;
+	}
+
+	/** 합쳐진 줄이면 남는 줄의 번호, 아니면 {@code null} — S15P21E201-1619. */
+	public UUID getMergedInto() {
+		return this.mergedInto;
 	}
 
 	public CurationStatus getCurationStatus() {
