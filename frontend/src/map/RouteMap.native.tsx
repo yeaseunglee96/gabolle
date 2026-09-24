@@ -9,6 +9,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
 import { buildKakaoMapHtml } from './kakaoMapHtml';
+import { fitPadding } from './mapFocus';
 
 import type { MapStop } from './types';
 
@@ -25,6 +26,8 @@ type RouteMapProps = {
   currentLocation?: CurrentLocation | null;
   onBackToList?: () => void;
   height?: number;
+  /** 지도 아래쪽이 창에 가려진 높이(px) — 웹 RouteMap 과 같은 뜻(S15P21E201-1607). */
+  bottomInset?: number;
 };
 
 /**
@@ -45,6 +48,7 @@ export function RouteMap({
   currentLocation,
   onBackToList,
   height = 340,
+  bottomInset = 0,
 }: RouteMapProps) {
   const { tx } = useI18n();
   const webViewRef = useRef<WebView | null>(null);
@@ -65,6 +69,9 @@ export function RouteMap({
       routes: routes ?? [{ id: 'selected', color: color.action.primary, stops }],
       selectedId,
       currentLocation: currentLocation ?? null,
+      // 아래가 창에 가려진 만큼 맞추기 여백을 더 둔다(S15P21E201-1607, 웹과 같은 셈 — mapFocus.ts).
+      // 🔴 이 값만 바뀌어서는 다시 보내지 않는다 — 창을 여닫을 때마다 지도가 다시 맞춰져 튀면 안 된다.
+      fitPadding: fitPadding(bottomInset, height),
       colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas },
     };
     webViewRef.current.injectJavaScript(`window.__renderKakaoMap(${JSON.stringify(data)}); true;`);

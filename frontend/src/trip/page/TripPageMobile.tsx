@@ -14,7 +14,7 @@
 //    · 타임라인을 내려가는 내 위치 점 — 4단계다. 「지금」 카드의 출발·중지·건너뛰기는 지금도 된다.
 //    · 지도 위 고른 곳의 붉은 맥동 링과 이름표 — 지도 부품(RouteMap)은 고른 표식을 키우기만 한다(1단계와 같다).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import { Animated, BackHandler, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -56,7 +56,7 @@ import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
 import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
 import { DayReturnRow } from './DayReturnRow';
 import { DayStartRow } from './DayStartRow';
-import { TripOverlay, type TripOverlayKind } from './TripOverlay';
+import type { TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
@@ -78,9 +78,14 @@ const RAIL = 48;
 const THUMB = 64;
 /** 창의 손잡이 줄 높이(시안 24). */
 const HANDLE = 24;
-/** 시안의 곡선들 — 창이 자라는 것은 TabBar 와 같은 튀는 곡선, 미끄러짐·접힘은 부드러운 곡선. */
-const GROW = Easing.bezier(0.34, 1.3, 0.64, 1);
+/** 시안의 곡선 — 미끄러짐·접힘은 부드러운 곡선. */
 const SLIDE = Easing.bezier(0.2, 0.8, 0.2, 1);
+/**
+ * 창이 오르내리는 움직임 (S15P21E201-1607). 🔴 올라갈 때와 내려갈 때 «같은 것»을 쓴다.
+ * 전에는 튀는 곡선(overshoot)으로 창의 높이·폭·바탕색을 JS 쪽에서 매 프레임 바꿔서, 폰에서 버벅이고 끝에서 출렁였다.
+ * 지금은 다 자란 판을 translateY 로만 밀어 올리므로 네이티브 드라이버로 돈다.
+ */
+const SHEET_MOTION = { duration: 360, easing: SLIDE, useNativeDriver: true } as const;
 
 const TAB_ICONS: Record<'home' | 'feed' | 'map', ImageSourcePropType> = {
   home: require('../../../assets/icons/home/home.png'),
@@ -142,15 +147,32 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const bottomMargin = tabBarBottomMargin(insets.bottom);
   const sheetTop = insets.top + Math.min(MAP_PEEK, Math.round(height * 0.3));
   const sheetHeight = Math.max(TAB_BAR_HEIGHT * 4, height - bottomMargin - sheetTop);
-  // 🔴 지도 칸을 «보이는 만큼» 으로 줄인다. 장소를 누르면 지도가 칸 가운데로 옮겨 가는데(focusSelected),
-  //    칸이 화면 전체면 그 가운데가 창 뒤에 숨는다. 창의 둥근 모서리 뒤까지는 지도가 이어지게 radius 만큼 더 둔다.
-  const mapHeight = panel === 'trip' ? sheetTop + radius.lg : height;
+  // 🔴 지도는 줄이지 않는다(S15P21E201-1607). 전에는 창이 열리면 지도 칸을 창 위만큼으로 줄여서, 여닫을 때마다
+  //    지도가 다시 가운데를 잡으며 튀었다. 지금은 늘 화면 전체이고 창이 그 위에 겹친다. 창에 가린 높이(mapCovered)만
+  //    지도에 알려서, 고른 곳을 보이는 부분의 가운데로 옮기게 한다(RouteMap 의 bottomInset).
+  const mapHeight = height;
+  const [stripHeight, setStripHeight] = useState(0);
+  const mapCovered = panel === 'trip' ? height - sheetTop : bottomMargin + TAB_BAR_HEIGHT + spacing[2] + stripHeight;
 
-  const grow = useRef(new Animated.Value(1)).current;
+  // 창은 다 자란 크기로 깔아 두고 밀어 올린다 — 높이를 매 프레임 바꾸지 않는다.
+  const shown = useRef(new Animated.Value(1)).current;
   useEffect(() => {
-    // 🔴 높이·폭은 네이티브 드라이버로 못 움직인다(TabBar 와 같은 이유).
-    Animated.timing(grow, { toValue: panel === 'trip' ? 1 : 0, duration: 420, easing: GROW, useNativeDriver: false }).start();
-  }, [panel, grow]);
+    Animated.timing(shown, { toValue: panel === 'trip' ? 1 : 0, ...SHEET_MOTION }).start();
+  }, [panel, shown]);
+  // 창을 접으면 창 안에 열어 둔 판(동행 초대 등)도 닫는다 — 다시 펴면 일정이 보여야 한다.
+  useEffect(() => { if (panel === 'collapsed') setOverlay(null); }, [panel]);
+  // 창 안의 판은 뒤로 가기(안드로이드)·Escape(웹)로도 닫힌다 — 전에 모달이 하던 일이다.
+  useEffect(() => {
+    if (!overlay) return undefined;
+    if (Platform.OS === 'web') {
+      if (typeof window === 'undefined') return undefined;
+      const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setOverlay(null); };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => { setOverlay(null); return true; });
+    return () => sub.remove();
+  }, [overlay]);
 
   const dayTravel = totalTravelMinutes(items);
   const mapSummary = [
@@ -428,7 +450,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         {map.stops.length ? (
           // 🔴 지도 부품은 둥근 테두리 칸으로 그려진다. 바탕으로 쓰려면 모서리를 화면 밖으로 밀어낸다.
           <View style={styles.mapBleed}>
-            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={mapRoutes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected />
+            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={mapRoutes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected bottomInset={mapCovered} />
           </View>
         ) : loaded ? (
           <View style={[styles.mapEmpty, { paddingTop: insets.top }]}>
@@ -451,6 +473,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           horizontal
           showsHorizontalScrollIndicator={false}
           style={[styles.strip, { bottom: bottomMargin + TAB_BAR_HEIGHT + spacing[2] }]}
+          onLayout={(event) => setStripHeight(Math.ceil(event.nativeEvent.layout.height))}
           contentContainerStyle={styles.stripInner}
         >
           {items.map((item, index) => (
@@ -466,37 +489,14 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         </ScrollView>
       ) : null}
 
-      {/* ── 탭바 = 창 ─────────────────────────────────────────────────────────── */}
+      {/* ── 접힌 탭 줄 — 홈 · 피드 · 일정 펼치기 · 내 여행 · 뒤로 (시안 4b). 늘 제자리이고, 창이 올라오면 그 밑에 깔린다. ── */}
       <View pointerEvents="box-none" style={[styles.dock, { paddingBottom: bottomMargin }]}>
-        <Animated.View
-          style={[
-            styles.bar,
-            {
-              width: Math.max(0, width - spacing[4] * 2),
-              maxWidth: grow.interpolate({ inputRange: [0, 1], outputRange: [BAR_MAX_WIDTH, SHEET_MAX_WIDTH] }),
-              height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, sheetHeight] }),
-              backgroundColor: grow.interpolate({ inputRange: [0, 1], outputRange: [color.surface.card, color.canvas] }),
-            },
-          ]}
+        <View
+          pointerEvents={panel === 'collapsed' ? 'auto' : 'none'}
+          aria-hidden={panel !== 'collapsed' || undefined}
+          style={[styles.bar, { width: Math.max(0, width - spacing[4] * 2), maxWidth: BAR_MAX_WIDTH, height: TAB_BAR_HEIGHT, backgroundColor: color.surface.card }]}
         >
-          {/* 창 내용 — 막대가 자라는 동안 줄바꿈이 흔들리지 않게 «다 자란 높이» 로 미리 깔아 둔다(시안도 그렇게 그린다). */}
-          <Animated.View
-            pointerEvents={panel === 'trip' ? 'auto' : 'none'}
-            aria-hidden={panel !== 'trip' || undefined}
-            style={[styles.sheetLayer, { height: sheetHeight, opacity: grow }]}
-          >
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 접기', 'Hide itinerary')} onPress={() => setPanel('collapsed')} style={styles.handleZone}>
-              <View style={styles.handle} />
-            </Pressable>
-            {tripContent}
-          </Animated.View>
-
-          {/* 접힌 탭 줄 — 홈 · 피드 · 일정 펼치기 · 내 여행 · 뒤로 (시안 4b) */}
-          <Animated.View
-            pointerEvents={panel === 'collapsed' ? 'auto' : 'none'}
-            aria-hidden={panel !== 'collapsed' || undefined}
-            style={[styles.tabRow, { opacity: grow.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
-          >
+          <View style={styles.tabRow}>
             <TabSlot label={tx('홈', 'Home')} icon={TAB_ICONS.home} onPress={() => router.replace('/home')} />
             <TabSlot label={tx('피드', 'Feed')} icon={TAB_ICONS.feed} onPress={() => router.replace('/feed')} />
             <TabSlot label={tx('일정 펼치기', 'Show itinerary')} strong onPress={() => setPanel('trip')}>
@@ -506,7 +506,49 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             <TabSlot label={tx('뒤로', 'Back')} strong onPress={goBack}>
               <View style={styles.backCircle}><View style={styles.chevronLeft} /></View>
             </TabSlot>
-          </Animated.View>
+          </View>
+        </View>
+      </View>
+
+      {/* ── 창 — 다 자란 크기로 깔아 두고 밀어 올린다(S15P21E201-1607). 지도는 그 뒤에 그대로 있다. ── */}
+      <View pointerEvents="box-none" style={[styles.dock, styles.sheetDock, { paddingBottom: bottomMargin }]}>
+        <Animated.View
+          pointerEvents={panel === 'trip' ? 'auto' : 'none'}
+          aria-hidden={panel !== 'trip' || undefined}
+          style={[
+            styles.bar,
+            styles.sheet,
+            {
+              width: Math.max(0, width - spacing[4] * 2),
+              maxWidth: SHEET_MAX_WIDTH,
+              height: sheetHeight,
+              // 접히면 화면 아래로 — 그림자까지 치우게 조금 더 내린다.
+              transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [sheetHeight + bottomMargin + spacing[8], 0] }) }],
+            },
+          ]}
+        >
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 접기', 'Hide itinerary')} onPress={() => setPanel('collapsed')} style={styles.handleZone}>
+            <View style={styles.handle} />
+          </Pressable>
+          {/* 🔴 동행 초대·공유·날씨는 창 «안에서» 내용만 바꾼다(S15P21E201-1607). 전에는 창 위에 아래 판이 하나 더 올라와
+              두 겹이 됐다. 「기록 남기기」는 글쓰기 화면으로 이동한다(사용자 결정). */}
+          {overlay && tripId ? (
+            <View style={styles.sheetScroll}>
+              <View style={styles.overlayHead}>
+                <Pressable accessibilityRole="button" accessibilityLabel={tx('일정으로 돌아가기', 'Back to itinerary')} onPress={() => setOverlay(null)} style={({ pressed }) => [styles.circle44, pressed && styles.pressed]}>
+                  <View style={styles.chevronLeft} />
+                </Pressable>
+                <Text variant="title" weight="bold" numberOfLines={1} style={styles.shrink}>
+                  {overlay === 'invite' ? tx('동행 초대', 'Invite') : overlay === 'share' ? tx('공유', 'Share') : tx('날씨', 'Weather')}
+                </Text>
+              </View>
+              <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
+                {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
+                {overlay === 'share' ? <TripReadLinkPanel tripId={tripId} /> : null}
+                {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
+              </ScrollView>
+            </View>
+          ) : tripContent}
         </Animated.View>
       </View>
 
@@ -535,13 +577,6 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           if (target) void exclude(target);
         }}
       />
-      {tripId ? (
-        <TripOverlay visible={overlay !== null} shape="sheet" onClose={() => setOverlay(null)}>
-          {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
-          {overlay === 'share' ? <TripReadLinkPanel tripId={tripId} /> : null}
-          {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
-        </TripOverlay>
-      ) : null}
       <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
     </View>
   );
@@ -832,7 +867,10 @@ const styles = StyleSheet.create({
     // 🔴 그림자는 탭바만의 예외다(tokens 규칙 3) — 이 막대가 탭바 자리다.
     shadowColor: color.brand.navy, shadowOpacity: 0.10, shadowRadius: 14, shadowOffset: { width: 0, height: -2 }, elevation: 8,
   },
-  sheetLayer: { position: 'absolute', left: 0, right: 0, top: 0 },
+  // 창은 탭 줄보다 위에 뜬다 — 같은 받침 모양, 한 층 위.
+  sheetDock: { zIndex: 31 },
+  sheet: { backgroundColor: color.canvas },
+  overlayHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingHorizontal: spacing[4], paddingBottom: spacing[2] },
   handleZone: { height: HANDLE, alignItems: 'center', justifyContent: 'center' },
   handle: { width: 36, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
   sheetScroll: { flex: 1 },

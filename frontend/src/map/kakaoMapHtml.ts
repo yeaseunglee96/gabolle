@@ -118,7 +118,9 @@ export function buildKakaoMapHtml(appKey: string): string {
     }
 
     // 와 같은 이유 — 점이 하나면 bounds 넓이가 0이라 최대 줌으로 튄다.
-    fit = function () { if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, 60, 60, 60, 60); };
+    // 여백은 앱이 셈해서 보낸다 — 아래가 창에 가려진 만큼 더(S15P21E201-1607, mapFocus.ts). 안 보내면 네 변 60.
+    var pad = data.fitPadding || [60, 60, 60, 60];
+    fit = function () { if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); };
     fit();
 
     post('ready', null);
