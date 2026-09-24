@@ -78,6 +78,10 @@ export default function Generating() {
   //    버튼 핸들러가 나중에 읽는다. 전에는 이 자리가 없어서 job.jobId(작업 ID)를 대신 넣었고,
   //    그 값으로는 /api/v1/trips/{jobId}/recommendations 가 항상 404 였다(실기기 재확인, 2026-09-24).
   const [tripId, setTripId] = useState<string | null>(previewJob?.state === 'completed' ? 'preview-trip' : null);
+  // 🔴 S15P21E201-1577 — 티켓은 일정을 **받아 온 뒤에** 한 번 출력한다. 완성 순간에는 아직 일정이
+  //    없어서 코드가 빈 티켓이 먼저 나오고, 일정이 오면 또 나와 영수증이 두 번 출력됐다.
+  //    받아 오기에 실패해도 true 가 된다 — 그때는 가진 값으로 한 번 나온다. 프린터가 멈춰 있으면 안 된다.
+  const [ticketLoaded, setTicketLoaded] = useState(previewJob?.state === 'completed');
   // 접근성 안내 창 — 확인 안 된 곳이 하나라도 있으면 한 번만 뜬다.
   // warnedJobRef 가 "한 번만" 을 지킨다. 이 화면은 스트림·폴링·재렌더로 같은 완료 상태를
   // 여러 번 지나가므로, 상태 하나로는 닫은 창이 다시 열린다.
@@ -166,12 +170,14 @@ export default function Generating() {
       }
       if (!recommendation.itineraryId) {
         setItineraryMessage(recommendation.message);
+        setTicketLoaded(true);
         return;
       }
       const result = await loadItinerary(recommendation.itineraryId, accessToken);
       if (cancelled) return;
       if (result.state === 'success') { setItinerary(result.itinerary); void clear(); }
       else setItineraryMessage(result.message);
+      setTicketLoaded(true);
     };
     void load();
     return () => { cancelled = true; };
@@ -323,6 +329,7 @@ export default function Generating() {
               details={ticketReady ? tripPassDetails : undefined}
               onOpenItinerary={ticketReady && tripId && job.jobId ? () => router.replace(`/trips/${tripId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
               coverUrl={coverUrl}
+              ready={ticketReady && ticketLoaded}
               onReprint={() => setReprint((n) => n + 1)}
               key={reprint}
             />
@@ -335,6 +342,7 @@ export default function Generating() {
             details={ticketReady ? tripPassDetails : undefined}
             onOpenItinerary={ticketReady && tripId && job.jobId ? () => router.replace(`/trips/${tripId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
             coverUrl={coverUrl}
+            ready={ticketReady && ticketLoaded}
             onReprint={() => setReprint((n) => n + 1)}
             key={reprint}
           />
