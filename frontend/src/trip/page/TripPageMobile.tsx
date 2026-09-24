@@ -14,7 +14,7 @@
 //    · 타임라인을 내려가는 내 위치 점 — 4단계다. 「지금」 카드의 출발·중지·건너뛰기는 지금도 된다.
 //    · 지도 위 고른 곳의 붉은 맥동 링과 이름표 — 지도 부품(RouteMap)은 고른 표식을 키우기만 한다(1단계와 같다).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, BackHandler, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import { AccessibilityInfo, Animated, BackHandler, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -22,8 +22,9 @@ import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { Skeleton } from '@/components/Skeleton';
+import { MAX_CONTENT_WIDTH } from '@/components/Screen';
 import { StopName } from '@/components/StopName';
-import { BAR_MAX_WIDTH, SHEET_MAX_WIDTH, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
+import { BAR_MAX_WIDTH, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
@@ -87,6 +88,8 @@ const STRIP_CARD = 150;
 /** 타임라인 왼쪽 기둥 폭(시안 그리드 48px | 1fr). */
 const RAIL = 48;
 const THUMB = 64;
+/** 첫 칸 기둥의 위 여백 — 날짜 표시가 이만큼 내려와 선다. */
+const RAIL_FIRST_TOP = 6;
 /** 창의 손잡이 줄 높이(시안 24). */
 const HANDLE = 24;
 /** 시안의 곡선 — 미끄러짐·접힘은 부드러운 곡선. */
@@ -97,6 +100,9 @@ const SLIDE = Easing.bezier(0.2, 0.8, 0.2, 1);
  * 지금은 다 자란 판을 translateY 로만 밀어 올리므로 네이티브 드라이버로 돈다.
  */
 const SHEET_MOTION = { duration: 360, easing: SLIDE, useNativeDriver: true } as const;
+/** 창 안에서 일정 ↔ 동행 초대·공유·날씨가 바뀔 때 (S15P21E201-1627). 들어오는 쪽이 이만큼 옆에서 미끄러져 온다. */
+const SWAP_SHIFT = 24;
+const SWAP_MOTION = { duration: 240, easing: SLIDE, useNativeDriver: true } as const;
 
 const TAB_ICONS: Record<'home' | 'feed' | 'map', ImageSourcePropType> = {
   home: require('../../../assets/icons/home/home.png'),
@@ -189,6 +195,31 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   useEffect(() => {
     Animated.timing(shown, { toValue: panel === 'trip' ? 1 : 0, ...SHEET_MOTION }).start();
   }, [panel, shown]);
+  // 🔴 창 안의 내용이 바뀔 때 한 프레임에 툭 바뀌지 않게 한다 (S15P21E201-1627). 창은 부드럽게 오르는데 안만 툭
+  //    바뀌면 다른 화면으로 튄 것처럼 읽혔다. 들어가는 판은 오른쪽에서, 일정으로 돌아올 때는 왼쪽에서 온다.
+  const swap = useRef(new Animated.Value(1)).current;
+  const swapFrom = useRef(new Animated.Value(SWAP_SHIFT)).current;
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void AccessibilityInfo.isReduceMotionEnabled().then((on) => { if (alive) setReduceMotion(on); });
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => { alive = false; sub.remove(); };
+  }, []);
+  const lastOverlay = useRef<TripOverlayKind | null>(null);
+  useEffect(() => {
+    const was = lastOverlay.current;
+    lastOverlay.current = overlay;
+    if (was === overlay || reduceMotion) return;
+    swapFrom.setValue(overlay ? SWAP_SHIFT : -SWAP_SHIFT);
+    swap.setValue(0);
+    Animated.timing(swap, { toValue: 1, ...SWAP_MOTION }).start();
+  }, [overlay, reduceMotion, swap, swapFrom]);
+  const swapStyle = {
+    flex: 1,
+    opacity: swap,
+    transform: [{ translateX: Animated.multiply(swapFrom, Animated.subtract(1, swap)) }],
+  };
   // 창을 접으면 창 안에 열어 둔 판(동행 초대 등)도 닫는다 — 다시 펴면 일정이 보여야 한다.
   useEffect(() => { if (panel === 'collapsed') setOverlay(null); }, [panel]);
   // 창 안의 판은 뒤로 가기(안드로이드)·Escape(웹)로도 닫힌다 — 전에 모달이 하던 일이다.
@@ -626,10 +657,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
 
       {/* ── 접힌 탭 줄 — 홈 · 피드 · 일정 펼치기 · 내 여행 · 뒤로 (시안 4b). 늘 제자리이고, 창이 올라오면 그 밑에 깔린다. ── */}
       <View pointerEvents="box-none" style={[styles.dock, { paddingBottom: bottomMargin }]}>
-        <View
+        {/* 🔴 창이 반투명이라(S15P21E201-1627) 밑에 깔린 이 줄이 창 바닥으로 비쳐 보였다 — 창이 오르는 만큼 흐려진다. */}
+        <Animated.View
           pointerEvents={panel === 'collapsed' ? 'auto' : 'none'}
           aria-hidden={panel !== 'collapsed' || undefined}
-          style={[styles.bar, { width: Math.max(0, width - spacing[4] * 2), maxWidth: BAR_MAX_WIDTH, height: TAB_BAR_HEIGHT, backgroundColor: color.surface.card }]}
+          style={[styles.bar, { width: Math.max(0, width - spacing[4] * 2), maxWidth: BAR_MAX_WIDTH, height: TAB_BAR_HEIGHT, backgroundColor: color.surface.card, opacity: shown.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
         >
           <View style={styles.tabRow}>
             <TabSlot label={tx('홈', 'Home')} icon={TAB_ICONS.home} onPress={() => router.replace('/home')} />
@@ -642,7 +674,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
               <View style={styles.backCircle}><View style={styles.chevronLeft} /></View>
             </TabSlot>
           </View>
-        </View>
+        </Animated.View>
       </View>
 
       {/* ── 창 — 다 자란 크기로 깔아 두고 밀어 올린다(S15P21E201-1607). 지도는 그 뒤에 그대로 있다. ── */}
@@ -655,7 +687,9 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             styles.sheet,
             {
               width: Math.max(0, width - spacing[4] * 2),
-              maxWidth: SHEET_MAX_WIDTH,
+              // 🔴 361(탭바 시트 폭)에 묶지 않는다 (S15P21E201-1627). 폴드 펼침 세로(673)에서 창이 가운데 361 로 떠
+              //    양옆이 비고 일정이 좁게 줄바꿈됐다. 화면 폭을 따라가되 읽기 좋은 폭(720)에서 멈춘다.
+              maxWidth: MAX_CONTENT_WIDTH,
               height: sheetHeight,
               // 접히면 화면 아래로 — 그림자까지 치우게 조금 더 내린다.
               transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [sheetHeight + bottomMargin + spacing[8], 0] }) }],
@@ -667,6 +701,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           </Pressable>
           {/* 🔴 동행 초대·공유·날씨는 창 «안에서» 내용만 바꾼다(S15P21E201-1607). 전에는 창 위에 아래 판이 하나 더 올라와
               두 겹이 됐다. 「기록 남기기」는 글쓰기 화면으로 이동한다(사용자 결정). */}
+          <Animated.View style={swapStyle}>
           {overlay && tripId ? (
             <View style={styles.sheetScroll}>
               <View style={styles.overlayHead}>
@@ -684,6 +719,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
               </ScrollView>
             </View>
           ) : tripContent}
+          </Animated.View>
         </Animated.View>
       </View>
 
@@ -873,6 +909,8 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
   ].filter(Boolean).join(' · ');
   const weekday = date ? formatWeekdayShort(date, locale) : null;
   const dayNumber = date ? Number(date.slice(8, 10)) : NaN;
+  // 날짜 표시의 높이 — 첫 칸의 세로선은 그 아래에서 시작한다(아래 railBelowDate).
+  const [markHeight, setMarkHeight] = useState(0);
 
   return (
     <View>
@@ -896,9 +934,9 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
           {/* 🔴 세로선은 칸마다 «점에서 점까지» 조각으로 긋는다. 한 줄을 통째로 깔고 위아래를 숫자로 자르면
               카드 높이가 달라질 때(두 줄 이름·위험 표시) 첫 날짜 위나 마지막 점 아래로 선 끝이 삐져나온다. */}
           {index > 0 ? <View style={[styles.railLine, styles.railTopHalf]} /> : null}
-          {!last ? <View style={[styles.railLine, index === 0 ? styles.railBelowDate : styles.railBottomHalf]} /> : null}
+          {!last ? <View style={[styles.railLine, index === 0 ? [styles.railBelowDate, { top: RAIL_FIRST_TOP + markHeight }] : styles.railBottomHalf]} /> : null}
           {index === 0 && Number.isFinite(dayNumber) ? (
-            <View style={styles.dateMark}>
+            <View style={styles.dateMark} onLayout={(event) => setMarkHeight(Math.ceil(event.nativeEvent.layout.height))}>
               {weekday ? <Text variant="caption" weight="bold">{weekday}</Text> : null}
               {/* 🔴 동백 채움이 「코스 A로 확정」과 같이 보인다 — tokens 규칙 1(화면당 하나)의 예외다. 회색으로 바꾸지 마라.
                   시안이 이 원을 동백으로 그렸고, 짙은 회색 판과 나란히 본 뒤 사용자가 시안대로 가기로 정했다
@@ -1043,7 +1081,9 @@ const styles = StyleSheet.create({
   },
   // 창은 탭 줄보다 위에 뜬다 — 같은 받침 모양, 한 층 위.
   sheetDock: { zIndex: 31 },
-  sheet: { backgroundColor: color.canvas },
+  // 🔴 창 뒤로 지도가 비친다 (S15P21E201-1627) — 탭바가 늘어난 것이지 지도 위에 판을 하나 덮은 것이 아니다.
+  //    웹은 뒤를 흐려 글자가 지도 선과 겹쳐 읽히지 않게 한다. 네이티브는 흐림 없이 비침만(새 네이티브 모듈 없이).
+  sheet: { backgroundColor: color.surface.sheetGlass, ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px) saturate(1.2)' } as object) : null) },
   overlayHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingHorizontal: spacing[4], paddingBottom: spacing[2] },
   handleZone: { height: HANDLE, alignItems: 'center', justifyContent: 'center' },
   handle: { width: 36, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
@@ -1105,13 +1145,15 @@ const styles = StyleSheet.create({
   railFull: { top: 0, bottom: 0 },
   railTopHalf: { top: 0, height: '50%' },
   railBottomHalf: { top: '50%', bottom: 0 },
-  // 첫 칸은 점이 아니라 날짜 표시가 위에 붙는다 — 선은 그 뒤(바탕색 칸)에서 시작해 아래로 간다.
-  railBelowDate: { top: spacing[3], bottom: 0 },
+  // 첫 칸은 점이 아니라 날짜 표시가 위에 붙는다 — 선은 날짜 표시 «아래»에서 시작한다(top 은 잰 높이로 준다).
+  // 🔴 전에는 선을 날짜 뒤로 지나가게 두고 날짜에 바탕색(canvas) 칸을 깔아 가렸다. 창이 반투명이 되자(S15P21E201-1627)
+  //    그 칸이 지도 위에 회색 네모로 드러났다.
+  railBelowDate: { bottom: 0 },
   stopRow: { flexDirection: 'row', gap: spacing[2] },
   rail: { width: RAIL, alignItems: 'center' },
-  railFirst: { justifyContent: 'flex-start', paddingTop: 6 },
+  railFirst: { justifyContent: 'flex-start', paddingTop: RAIL_FIRST_TOP },
   railCenter: { justifyContent: 'center' },
-  dateMark: { alignItems: 'center', gap: spacing[1], paddingTop: 2, paddingBottom: spacing[1], backgroundColor: color.canvas },
+  dateMark: { alignItems: 'center', gap: spacing[1], paddingTop: 2, paddingBottom: spacing[1] },
   // 🔴 사용자 결정으로 시안대로 동백이다 — 위 JSX 주석을 읽어라.
   dateCircle: { width: 32, height: 32, borderRadius: radius.full, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
   // 점 — 바탕색 4px 고리로 세로선을 끊는다(시안 box-shadow 0 0 0 4px #F5F5F7).
