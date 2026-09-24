@@ -1,6 +1,7 @@
 package com.gabolle.backend.place.repository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,4 +40,7 @@ public interface PlaceEventPeriodRepository extends JpaRepository<PlaceEventPeri
 			Pageable pageable);
 
 	List<PlaceEventPeriod> findByPlaceIdOrderByStartDateAsc(UUID placeId);
+
+	/** 추천 후보 여럿의 회차를 한 번에 — 후보마다 물으면 그 수만큼 질의가 는다. */
+	List<PlaceEventPeriod> findByPlaceIdIn(Collection<UUID> placeIds);
 }

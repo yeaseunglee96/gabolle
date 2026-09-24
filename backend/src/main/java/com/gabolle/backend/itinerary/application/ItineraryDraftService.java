@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gabolle.backend.itinerary.application.port.PlaceEventSchedulePort;
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.service.PlaceMenuPricePort;
@@ -41,6 +43,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryChangedByMember;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.ItineraryWarningCodes;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
+import com.gabolle.backend.recommendation.adapter.SeedBoost;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
@@ -180,6 +183,17 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.menuPrice = menuPrice;
     }
 
+    /**
+     * 축제처럼 기간이 정해진 장소가 여행 날짜에 여는가 — 손으로 장소를 더할 때({@code ItineraryEditService})와 같은 문이다.
+     * 없으면(시험용 조립·장소 계층이 없는 컨텍스트) 거르지 않는다.
+     */
+    private PlaceEventSchedulePort eventSchedule;
+
+    @Autowired(required = false)
+    public void setEventSchedule(PlaceEventSchedulePort eventSchedule) {
+        this.eventSchedule = eventSchedule;
+    }
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
@@ -237,8 +251,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 .orElseThrow(() -> new IllegalStateException("여행을 찾을 수 없다: " + command.tripId()));
 
         int days = trip.days();
-        Distribution distribution = distributeByDay(command.places(), days, budgetCapOf(trip, command.places()), mealsPerDay(trip),
-                itemsPerDay(trip));
+        // 🔴 끝난 축제가 추천 일정에 들어가던 것 — 여행 날짜에 한 날도 안 여는 행사 장소는 후보에서 빼고, 며칠만 여는 곳은
+        //    그 날에만 앉힌다({@link #eventDaysOf}).
+        Map<UUID, Set<Integer>> eventDays = eventDaysOf(trip, command.places());
+        List<ItineraryDraftCommand.PlannedPlace> places = command.places().stream()
+                .filter((p) -> !eventDays.containsKey(p.placeId()) || !eventDays.get(p.placeId()).isEmpty())
+                .toList();
+        Distribution distribution = distributeByDay(places, days, budgetCapOf(trip, places), mealsPerDay(trip),
+                itemsPerDay(trip), eventDays);
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
 
         // 구간을 만들 때 필요한, 날짜별 "그 날 다녀올 장소" 원본 순서.
@@ -427,8 +447,43 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         return new BudgetCap(this.menuPrice.pricesOf(ids), trip.partySize(), limit);
     }
 
+    /**
+     * 기간이 정해진 장소(축제·박람회 — {@code place_event_period} 가 한 줄이라도 있는 곳)가 이 여행의 몇째 날(0부터)에
+     * 여나. 한 날도 안 열면 빈 집합이다 — 부르는 쪽이 후보에서 뺀다.
+     *
+     * <p>🔴 운영(2026-09-24)에서 회차 14개가 전부 끝났는데 「카운트다운 부산」이 9월 여행에 들어갔다. 기간은 손으로
+     * 더할 때만 보고 추천이 후보를 고를 때는 안 봤다 — 그 장소들의 갈래가 {@code CULTURE_TEMPLE} 이라 일반 명소와
+     * 똑같이 앉았다. 판정은 손으로 더할 때와 같은 {@link PlaceEventSchedulePort} 다 — 규칙을 두 번 쓰지 않는다.
+     *
+     * <p>기간이 없는 장소는 담지 않는다(아무 날이나). 사용자가 직접 고른 「꼭 갈 장소」도 담지 않는다 — 사용자의 선택이다.
+     */
+    private Map<UUID, Set<Integer>> eventDaysOf(Trip trip, List<ItineraryDraftCommand.PlannedPlace> places) {
+        if (this.eventSchedule == null || places.isEmpty()) {
+            return Map.of();
+        }
+        List<String> ids = places.stream()
+                .filter((p) -> p.reasonCodes() == null || !p.reasonCodes().contains(SeedBoost.REASON_CODE_MUST_VISIT))
+                .map((p) -> p.placeId().toString())
+                .distinct()
+                .toList();
+        LocalDate first = trip.startDate();
+        Map<UUID, Set<Integer>> out = new HashMap<>();
+        this.eventSchedule.schedulesWithin(ids, first, trip.finishDate()).forEach((placeId, schedule) -> {
+            if (!schedule.scheduled()) {
+                return;
+            }
+            Set<Integer> days = new HashSet<>();
+            for (LocalDate open : schedule.openDates()) {
+                days.add((int) ChronoUnit.DAYS.between(first, open));
+            }
+            out.put(UUID.fromString(placeId), days);
+        });
+        return out;
+    }
+
     private Distribution distributeByDay(
-            List<ItineraryDraftCommand.PlannedPlace> places, int days, BudgetCap cap, int mealsPerDay, int itemsPerDay) {
+            List<ItineraryDraftCommand.PlannedPlace> places, int days, BudgetCap cap, int mealsPerDay, int itemsPerDay,
+            Map<UUID, Set<Integer>> eventDays) {
 
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = new ArrayList<>(days);
         for (int i = 0; i < days; i++) {
@@ -462,7 +517,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             if (cap != null && cap.wouldExceed(place)) {
                 continue;
             }
-            if (!seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, true)) {
+            if (!seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, true,
+                    eventDays.get(place.placeId()))) {
                 deferred.add(place);
             }
             else if (cap != null) {
@@ -480,7 +536,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 // 예산으로 뺀 것은 「밥집밖에 없어 비웠다」가 아니다 — 그 경고에 안 센다.
                 continue;
             }
-            if (seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false)) {
+            if (seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false,
+                    eventDays.get(place.placeId()))) {
                 if (cap != null) {
                     cap.take(place);
                 }
@@ -498,7 +555,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             if (cap != null && cap.wouldExceed(place)) {
                 continue;
             }
-            if (seat(byDay, foodPerDay, cafePerDay, false, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false)
+            if (seat(byDay, foodPerDay, cafePerDay, false, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false,
+                    eventDays.get(place.placeId()))
                     && cap != null) {
                 cap.take(place);
             }
@@ -590,7 +648,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay, int[] cafePerDay,
             boolean enforceCafeCap, ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay,
-            Map<UUID, double[]> coords, double[][] dayAnchor, boolean regionOnly) {
+            Map<UUID, double[]> coords, double[][] dayAnchor, boolean regionOnly, Set<Integer> openDays) {
 
         boolean food = isFood(place);
         boolean cafe = isCafe(place);
@@ -600,6 +658,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         double bestDistance = Double.MAX_VALUE;
         for (int day = 0; day < byDay.size(); day++) {
             if (byDay.get(day).size() >= itemsPerDay) {
+                continue;
+            }
+            // 기간이 정해진 장소(축제)는 여는 날에만 앉는다. null 이면 기간이 없는 장소다.
+            if (openDays != null && !openDays.contains(day)) {
                 continue;
             }
             if (food && foodPerDay[day] >= mealsPerDay) {
@@ -1415,9 +1477,15 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         int target = dayItems.isEmpty() ? this.maxItemsPerDay : dayItems.size();
         int vacancies = Math.max(0, target - kept.size());
         List<ItineraryDraftCommand.PlannedPlace> fills = new ArrayList<>(vacancies);
+        // 새 일정과 같은 규칙 — 그 날 안 여는 행사 장소(끝난 축제 등)로 빈자리를 채우지 않는다.
+        Map<UUID, Set<Integer>> eventDays = eventDaysOf(trip, command.rankedPool());
         for (ItineraryDraftCommand.PlannedPlace candidate : command.rankedPool()) {
             if (fills.size() >= vacancies) {
                 break;
+            }
+            Set<Integer> openDays = eventDays.get(candidate.placeId());
+            if (openDays != null && !openDays.contains(dayIndex)) {
+                continue;
             }
             String placeId = candidate.placeId().toString();
             if (unavailable.add(placeId)) {

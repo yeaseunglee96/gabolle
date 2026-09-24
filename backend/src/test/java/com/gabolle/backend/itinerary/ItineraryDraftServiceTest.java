@@ -38,6 +38,15 @@ import com.gabolle.backend.itinerary.domain.ItineraryWarningCodes;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
+import com.gabolle.backend.itinerary.application.port.PlaceEventSchedule;
+import com.gabolle.backend.itinerary.application.port.PlaceEventSchedulePort;
+import com.gabolle.backend.itinerary.domain.Itinerary;
+import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryVersion;
+import com.gabolle.backend.recommendation.adapter.SeedBoost;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionCommand;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionDraft;
+import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripRepository;
 
@@ -1458,6 +1467,110 @@ class ItineraryDraftServiceTest {
 		assertThat(total).isLessThan(18.0);
 		// 끼니 칸 규칙은 그대로다 — 두 밥집이 점심·저녁 자리에 있다.
 		assertThat(day.stream().filter(item -> "FOOD".equals(this.categoryByPlaceId.get(item.placeId()))).count()).isEqualTo(2);
+	}
+
+	// ── 기간이 정해진 장소 — 축제·박람회 ───────────────────────────────
+
+	private static final LocalDate FESTIVAL_TRIP_START = LocalDate.of(2026, 9, 10);
+
+	/** 사흘짜리 여행(9/10~9/12)의 후보 여섯. 순위 1위가 축제다 — 고치기 전에는 첫날 첫 자리에 앉는다. */
+	private List<ItineraryDraftCommand.PlannedPlace> festivalCase(List<String> festivalReasons) {
+		when(this.tripRepository.findById("itn_trip_1"))
+				.thenReturn(Optional.of(tripOf(FESTIVAL_TRIP_START, FESTIVAL_TRIP_START.plusDays(2))));
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>(
+				plannedPlacesOf("CULTURE_TEMPLE", "CITY", "CITY", "CITY", "CITY", "CITY"));
+		ItineraryDraftCommand.PlannedPlace festival = places.get(0);
+		places.set(0, new ItineraryDraftCommand.PlannedPlace(festival.placeId(), festival.rank(), festivalReasons,
+				List.of(), festival.category()));
+		return places;
+	}
+
+	/** 그 장소 하나만 기간이 정해져 있고 {@code openDates} 에만 연다. 나머지는 기간이 없는 장소다. */
+	private static PlaceEventSchedulePort eventOnly(UUID placeId, LocalDate... openDates) {
+		return (id, from, to) -> placeId.toString().equals(id)
+				? PlaceEventSchedule.openOn(List.of(openDates))
+				: PlaceEventSchedule.unscheduled();
+	}
+
+	private static List<String> daysAndPlaces(ItineraryDraft draft) {
+		return draft.items().stream().map((item) -> item.dayIndex() + ":" + item.placeId()).toList();
+	}
+
+	/** 운영(2026-09-24)에서 회차 14개가 전부 끝났는데 「카운트다운 부산」이 9월 여행에 17번 들어갔다. */
+	@Test
+	@DisplayName("🔴 여행 중 한 날도 안 여는 축제(끝난 축제)는 추천 일정에 안 들어간다")
+	void anEndedFestivalIsNotSeated() {
+		List<ItineraryDraftCommand.PlannedPlace> places = festivalCase(List.of("REASON"));
+		// 기간 기록은 있는데 이 여행 날짜에 여는 날이 없다.
+		this.service.setEventSchedule(eventOnly(places.get(0).placeId()));
+
+		List<UUID> placed = placeIdsOfItems(this.service.assemble(commandOf("itn_trip_1", places)));
+
+		assertThat(placed).doesNotContain(places.get(0).placeId());
+		assertThat(placed).containsAll(placeIdsOf(places.subList(1, places.size())));
+	}
+
+	@Test
+	@DisplayName("🔴 여행 둘째 날만 여는 축제는 둘째 날에만 앉는다")
+	void aFestivalOpenOnlyOnTheSecondDaySitsThere() {
+		List<ItineraryDraftCommand.PlannedPlace> places = festivalCase(List.of("REASON"));
+		this.service.setEventSchedule(eventOnly(places.get(0).placeId(), FESTIVAL_TRIP_START.plusDays(1)));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(draft.items()).filteredOn((item) -> item.placeId().equals(places.get(0).placeId()))
+				.singleElement().extracting(ItineraryDraft.DraftItem::dayIndex).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("기간 기록이 없는 장소는 전과 같다 — 기간을 묻는 문이 붙어도 일정이 한 줄도 안 바뀐다")
+	void placesWithoutPeriodsAreUnaffected() {
+		List<ItineraryDraftCommand.PlannedPlace> places = festivalCase(List.of("REASON"));
+		ItineraryDraft without = this.service.assemble(commandOf("itn_trip_1", places));
+
+		this.service.setEventSchedule((id, from, to) -> PlaceEventSchedule.unscheduled());
+		ItineraryDraft with = this.service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(daysAndPlaces(with)).containsExactlyElementsOf(daysAndPlaces(without));
+	}
+
+	@Test
+	@DisplayName("🔴 사용자가 직접 고른 꼭 갈 장소는 기간을 안 본다 — 사용자의 선택이다")
+	void aMustVisitFestivalIsLeftAlone() {
+		List<ItineraryDraftCommand.PlannedPlace> places = festivalCase(List.of(SeedBoost.REASON_CODE_MUST_VISIT));
+		this.service.setEventSchedule(eventOnly(places.get(0).placeId()));
+
+		assertThat(placeIdsOfItems(this.service.assemble(commandOf("itn_trip_1", places))))
+				.contains(places.get(0).placeId());
+	}
+
+	/**
+	 * 하루 다시 짜기는 순위 풀에서 빈자리를 채운다. 풀이 넷(축제 + 명소 셋)이고 비어 있던 날의 목표도 넷이라, 축제로
+	 * 채우지 않으면 셋만 채워지고 「일부만 채웠다」 경고가 남는다 — 모자라도 안 여는 곳으로 억지로 채우지 않는다.
+	 */
+	@Test
+	@DisplayName("🔴 하루 다시 짜기도 그 날 안 여는 축제로 빈자리를 채우지 않는다")
+	void dayRecalculationSkipsAFestivalClosedThatDay() {
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		ItineraryDraftService reviser = new ItineraryDraftService(this.tripRepository, itineraries, CLOCK, 4, 3, "FOOD", 1,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT,
+				noRouteOrder(), this.placeRepository, noEvents());
+		List<ItineraryDraftCommand.PlannedPlace> pool = festivalCase(List.of("REASON")).subList(0, 4);
+		// 축제는 셋째 날만 연다 — 첫째 날을 다시 짜면 못 들어간다.
+		reviser.setEventSchedule(eventOnly(pool.get(0).placeId(), FESTIVAL_TRIP_START.plusDays(2)));
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(base, List.of(), List.of(), List.of())));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		ItineraryRevisionDraft draft = reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1,
+				"usr_1", JobType.ITINERARY_RECALCULATE, 0, null, List.of(), null, pool, "m", "f", "o", "p", "d"));
+
+		assertThat(draft.filledCount()).as("축제로 채웠다면 넷이다").isEqualTo(3);
+		assertThat(draft.warningCodes()).contains(ItineraryWarningCodes.RECALC_DAY_PARTIALLY_FILLED);
 	}
 
 }
