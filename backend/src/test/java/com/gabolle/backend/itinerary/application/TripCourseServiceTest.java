@@ -8,10 +8,19 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -301,5 +310,143 @@ class TripCourseServiceTest {
 	/** 순위 번호로 정해지는 장소 번호 — 같은 순위는 늘 같은 장소다. */
 	private static UUID place(int rank) {
 		return new UUID(0L, rank);
+	}
+
+	// ── 2안·3안 초안을 한 번만 짠다 (S15P21E201-1598) ─────────────────────
+
+	/** 손으로 옮기는 시계 — 30분이 지난 뒤를 재현한다. */
+	private static final class MovableClock extends Clock {
+
+		private Instant now = Instant.parse("2026-09-25T00:00:00Z");
+
+		void advance(Duration by) {
+			this.now = this.now.plus(by);
+		}
+
+		@Override
+		public ZoneOffset getZone() {
+			return ZoneOffset.UTC;
+		}
+
+		@Override
+		public Clock withZone(java.time.ZoneId zone) {
+			return this;
+		}
+
+		@Override
+		public Instant instant() {
+			return this.now;
+		}
+	}
+
+	private TripCourseService serviceWith(Clock clock) {
+		return new TripCourseService(this.tripQueryService, this.jobRepository, this.candidateRepository,
+				this.itineraryRepository, this.draftService, this.queryService, mock(PlaceRepository.class),
+				mock(TripSeedPlaceRepository.class), clock);
+	}
+
+	/**
+	 * 운영에서 코스 목록이 3.7초, 겹쳐 부르면 12.8초였다 — 부를 때마다 2안·3안을 처음부터 다시 짰고, 조립은 날마다
+	 * 경로 최적화기(파이썬)를 띄운다. 같은 추천 판이면 초안은 같으니 한 번만 짠다.
+	 */
+	@Test
+	@DisplayName("🔴 코스 목록을 두 번 불러도 2안·3안은 한 번만 짠다 — 같은 추천 판이면 초안이 같다")
+	void listAssemblesAlternativesOnlyOnce() {
+		givenRankedPool(9);
+
+		TripCoursesResponse first = this.service.list(TRIP, USER);
+		int afterFirst = this.assembled.size();
+		TripCoursesResponse second = this.service.list(TRIP, USER);
+
+		assertThat(afterFirst).isPositive();
+		assertThat(this.assembled).as("두 번째 부름에서 조립이 또 돌았다").hasSize(afterFirst);
+		assertThat(second.courses()).extracting(TripCoursesResponse.Course::id)
+				.containsExactlyElementsOf(first.courses().stream().map(TripCoursesResponse.Course::id).toList());
+	}
+
+	/** 초안에 실린 요청자가 고른 안의 만든 사람이 된다 — 남이 짠 초안을 내 것으로 저장하면 안 된다. */
+	@Test
+	@DisplayName("요청자가 다르면 따로 짠다")
+	void anotherRequesterGetsItsOwnDrafts() {
+		givenRankedPool(9);
+		String other = UUID.randomUUID().toString();
+		TripQueryService.View sameTrip = this.tripQueryService.get(TRIP, USER);
+		when(this.tripQueryService.get(TRIP, other)).thenReturn(sameTrip);
+		when(this.queryService.getDetail(anyString(), eq(other)))
+				.thenAnswer(invocation -> detail(invocation.getArgument(0), List.of(place(1), place(2), place(3))));
+
+		this.service.list(TRIP, USER);
+		int afterFirst = this.assembled.size();
+		this.service.list(TRIP, other);
+
+		assertThat(this.assembled).hasSize(afterFirst * 2);
+		assertThat(this.assembled.get(afterFirst).userId()).isEqualTo(other);
+	}
+
+	@Test
+	@DisplayName("30분이 지나면 다시 짠다 — 이동 시간·영업시간 같은 바깥 자료가 새로 들어오면 언젠가는 반영된다")
+	void draftsAreRebuiltAfterTheTtl() {
+		givenRankedPool(9);
+		MovableClock clock = new MovableClock();
+		TripCourseService timed = serviceWith(clock);
+
+		timed.list(TRIP, USER);
+		int afterFirst = this.assembled.size();
+		clock.advance(TripCourseService.ALTERNATIVES_TTL.minusSeconds(1));
+		timed.list(TRIP, USER);
+		assertThat(this.assembled).as("30분 안에는 다시 안 짠다").hasSize(afterFirst);
+
+		clock.advance(Duration.ofSeconds(2));
+		timed.list(TRIP, USER);
+		assertThat(this.assembled).hasSize(afterFirst * 2);
+	}
+
+	@Test
+	@DisplayName("🔴 목록을 본 뒤 고르면 새로 짜지 않고 미리 본 그 초안을 저장한다")
+	void choosingAfterListingSavesThePreviewedDraft() {
+		givenRankedPool(9);
+		this.service.list(TRIP, USER);
+		int afterList = this.assembled.size();
+
+		this.service.choose(TRIP, REQUEST + ":1", USER);
+
+		assertThat(this.assembled).as("고를 때 조립이 또 돌았다").hasSize(afterList);
+		ArgumentCaptor<ItineraryDraft> saved = ArgumentCaptor.forClass(ItineraryDraft.class);
+		verify(this.draftService).persistAlternative(saved.capture(), eq("course:" + REQUEST + ":1"));
+		assertThat(saved.getValue().items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.containsExactly(place(4), place(5), place(6));
+	}
+
+	/** 앱이 같은 요청을 겹쳐 보내면 같은 계산이 동시에 여러 번 돌아 12.8초까지 늘었다. */
+	@Test
+	@DisplayName("🔴 동시에 온 첫 요청들도 한 번만 짠다 — 늦게 온 쪽은 먼저 시작한 계산을 기다린다")
+	void concurrentFirstRequestsAssembleOnce() throws Exception {
+		givenRankedPool(9);
+		CountDownLatch entered = new CountDownLatch(1);
+		CountDownLatch release = new CountDownLatch(1);
+		// when(...) 로 다시 걸면 기존 가짜가 빈 인자로 한 번 불린다 — doAnswer 로 건다.
+		doAnswer(invocation -> {
+			ItineraryDraftCommand command = invocation.getArgument(0);
+			synchronized (this.assembled) {
+				this.assembled.add(command);
+			}
+			entered.countDown();
+			release.await(5, TimeUnit.SECONDS);
+			return draftOf(command.places().stream().limit(SLOTS).map(PlannedPlace::placeId).toList());
+		}).when(this.draftService).assemble(any());
+		ExecutorService pool = Executors.newFixedThreadPool(2);
+		try {
+			Future<TripCoursesResponse> a = pool.submit(() -> this.service.list(TRIP, USER));
+			assertThat(entered.await(5, TimeUnit.SECONDS)).isTrue();
+			Future<TripCoursesResponse> b = pool.submit(() -> this.service.list(TRIP, USER));
+			Thread.sleep(200);
+			release.countDown();
+
+			assertThat(a.get(5, TimeUnit.SECONDS).courses()).hasSize(b.get(5, TimeUnit.SECONDS).courses().size());
+		}
+		finally {
+			pool.shutdownNow();
+		}
+		assertThat(this.assembled).as("2안·3안 각 한 번씩만").hasSize(TripCourseService.ALTERNATIVES);
 	}
 }
