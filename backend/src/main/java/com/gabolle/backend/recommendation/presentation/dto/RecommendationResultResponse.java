@@ -69,6 +69,12 @@ public record RecommendationResultResponse(
 			 * 사진처럼 그리게 된다.
 			 */
 			Place.PhotoSubject photoSubject,
+			/**
+			 * 사진의 라이선스 — 이름·주소·원본 파일 페이지(S15P21E201-1606). 위키미디어 사진(CC BY 등)은
+			 * {@link #photoSource} 와 함께 이것을 보여야 쓸 수 있다. 이 칸으로 받은 것이 없으면 {@code null}
+			 * 이다 — 공공누리 사진은 지금 전부 그렇고, 그 표기는 {@link #photoSource} 가 진다.
+			 */
+			Place.PhotoLicense photoLicense,
 			List<String> reasonCodes,
 			/**
 			 * 대표 메뉴 한 가지의 값(원). 조사된 곳만 숫자이고 <b>나머지는 {@code null}</b> 이다

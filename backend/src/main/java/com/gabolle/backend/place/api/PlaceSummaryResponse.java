@@ -42,20 +42,29 @@ public record PlaceSummaryResponse(
 		 * 1건뿐이라, 이 칸이 없으면 화면이 주변 시설 사진을 이 장소 사진처럼 그린다.
 		 * 화면은 {@code VENUE} 일 때만 뱃지를 띄운다.
 		 */
-		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject) {
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject,
+
+		/**
+		 * 사진의 라이선스 — 이름·주소·원본 파일 페이지(S15P21E201-1606). 위키미디어 사진(CC BY 등)은
+		 * 출처 문구와 함께 이것을 보여야 쓸 수 있다. 이 칸으로 받은 것이 없으면 키가 빠진다 —
+		 * 공공누리 사진은 지금 전부 그렇고, 그 표기는 {@code photoSource} 가 진다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense) {
 
 	/** 이름 검색 결과 한 줄. 어느 이름 칸이 걸렸는지 서비스 계층의 순위 계산이 정해 준다. */
 	public static PlaceSummaryResponse of(Place place, MatchedField matchedField) {
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), matchedField,
-				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject());
+				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
+				place.getPhotoLicense());
 	}
 
 	/** 갈래 필터 목록 결과 한 줄. 이름 매칭이 아니라 표식으로 골랐으므로 matchedField 가 없다. */
 	public static PlaceSummaryResponse ofFacetMatch(Place place) {
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), null,
-				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject());
+				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
+				place.getPhotoLicense());
 	}
 
 	/**

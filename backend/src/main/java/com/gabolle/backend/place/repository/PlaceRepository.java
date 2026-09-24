@@ -145,6 +145,15 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	Optional<Place> findBySourceTypeAndSourceId(String sourceType, String sourceId);
 
 	/**
+	 * 한 출처의 장소 여럿을 원천 번호로 한 번에 찾는다 — 사진 적재기(S15P21E201-1606).
+	 *
+	 * <p>🔴 장소 번호를 원천 번호에서 계산해 찾지 않는 이유: 관광공사 장소 중 마이그레이션으로 손수
+	 * 넣은 것은 번호가 계산 규칙과 다르다(운영의 「구상반려암」·「백양산」). 원천 번호는 모든
+	 * 출처에 있고 {@code uq_place_source} 가 유일하게 지킨다.
+	 */
+	List<Place> findBySourceTypeAndSourceIdIn(String sourceType, Collection<String> sourceIds);
+
+	/**
 	 * 종류(category)만으로 거른다. 검색어가 없어 {@link #searchByNameAndCategory} 를 재사용할 수 없다.
 	 * {@code category} 는 자유 문자열이라 소문자로 맞춰 비교하므로, 호출하는 쪽이 이미 소문자로
 	 * 넘겨야 한다.
