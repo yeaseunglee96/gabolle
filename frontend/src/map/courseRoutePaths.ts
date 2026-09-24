@@ -32,14 +32,20 @@ function coordKey(a: MapStop, b: MapStop) {
   return `${r(a.latitude)},${r(a.longitude)}>${r(b.latitude)},${r(b.longitude)}`;
 }
 
-async function fetchLeg(a: MapStop, b: MapStop, accessToken: string | null, signal?: AbortSignal): Promise<LegPath | null> {
+/**
+ * 🔴 여기 요청은 **취소하지 않는다**(signal 을 안 넘긴다). 좌표 단위로 캐시에 담아 여러 화면·효과가 나눠 쓰는데,
+ *    한 효과가 정리되며 취소하면 그 취소가 null(「길 없음」)로 캐시에 남아 **다른 효과도 끝까지 점선**이었다
+ *    (운영 2026-09-24: 여행 페이지를 열 때 로그인 열쇠가 한 번 바뀌어 요청 3건이 142ms 에 취소 → 선 전부 점선,
+ *    S15P21E201-1575). 효과는 결과만 버린다(useCourseRoutePaths 의 alive).
+ * 🔴 못 받은 것(null)은 캐시에서 지운다 — 잠깐의 실패가 새로 고침 전까지 영원히 점선이 되지 않게.
+ */
+async function fetchLeg(a: MapStop, b: MapStop, accessToken: string | null): Promise<LegPath | null> {
   const key = coordKey(a, b);
   let pending = cache.get(key);
   if (!pending) {
     pending = getRouteDirections(
       { originLat: a.latitude, originLng: a.longitude, destLat: b.latitude, destLng: b.longitude },
       accessToken,
-      signal,
     ).then((result) => {
       // 🔴 못 받으면 null 이다. 빈 경로를 돌려주면 화면이 「길이 없다」와 「아직 못 받았다」를
       //    구분 못 하고, 둘 다 직선으로 떨어뜨리게 된다.
@@ -50,7 +56,10 @@ async function fetchLeg(a: MapStop, b: MapStop, accessToken: string | null, sign
       //    실제 도로 선이 위도 129 인 곳, 즉 지도 밖에 그려졌다 — 여행 페이지에 정차지 사이 선이 안 보이던
       //    원인(S15P21E201-1567, 운영 실측: 한 구간 점 48개가 전부 뒤바뀌어 있었다).
       return { path: path.map(([lng, lat]) => ({ latitude: lat, longitude: lng })), estimated: result.directions.estimated !== false };
-    }).catch(() => null);
+    }).catch(() => null).then((leg) => {
+      if (leg == null) cache.delete(key);
+      return leg;
+    });
     cache.set(key, pending);
   }
   return pending;
@@ -74,7 +83,6 @@ export function useCourseRoutePaths(
   const shape = days.map((d) => `${d.day}:${d.stops.map((s) => coordKey(s, s)).join('|')}`).join(';');
 
   useEffect(() => {
-    const controller = new AbortController();
     let alive = true;
     const wanted: Array<{ key: string; a: MapStop; b: MapStop }> = [];
     for (const day of days) {
@@ -82,10 +90,10 @@ export function useCourseRoutePaths(
         wanted.push({ key: legKey(day.day, i), a: day.stops[i], b: day.stops[i + 1] });
       }
     }
-    if (wanted.length === 0) { setLegs({}); return () => controller.abort(); }
+    if (wanted.length === 0) { setLegs({}); return undefined; }
 
     void Promise.all(wanted.map(async (leg) => {
-      const got = await fetchLeg(leg.a, leg.b, accessToken, controller.signal);
+      const got = await fetchLeg(leg.a, leg.b, accessToken);
       return got ? ([leg.key, got] as const) : null;
     })).then((results) => {
       if (!alive) return;
@@ -94,7 +102,7 @@ export function useCourseRoutePaths(
       setLegs(next);
     });
 
-    return () => { alive = false; controller.abort(); };
+    return () => { alive = false; };
     // shape 가 같으면 같은 코스다 — days 배열이 매번 새로 만들어져도 다시 안 부른다.
   }, [shape, accessToken]);
 
