@@ -1033,6 +1033,35 @@ class ItineraryDraftServiceTest {
 				.containsExactly("WALK");
 	}
 
+	// ── 카페는 하루 한 곳 (S15P21E201-1573) ─────────────────────────────
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1573 — 카페는 하루 한 곳, 남는 자리는 명소가 먼저 — 카테고리를 안 골라도 자연·문화가 낀다")
+	void oneCafePerDayLeavesRoomForSights() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10), LocalTime.of(9, 0), LocalTime.of(18, 0));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 운영 후보 모양 — 순위 위쪽에 카페가 몰려 있고 명소는 그 뒤다.
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesOf(
+				"CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING", "CULTURE_TEMPLE", "NATURE_WALK", "FOOD", "FOOD")));
+
+		List<String> categories = draft.items().stream().map(this::categoryOfItem).toList();
+		assertThat(categories.stream().filter("CAFE_HEALING"::equals).count()).as("카페는 하루 한 곳").isEqualTo(1);
+		assertThat(categories).contains("CULTURE_TEMPLE", "NATURE_WALK");
+	}
+
+	@Test
+	@DisplayName("명소가 없으면 카페로 빈 자리를 채운다 — 상한 때문에 하루를 비우지 않는다")
+	void cafesFillTheDayWhenThereAreNoSights() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10), LocalTime.of(9, 0), LocalTime.of(18, 0));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesOf(
+				"CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING")));
+
+		assertThat(draft.items()).hasSize(4);
+	}
+
 	// ── 예산 상한 (S15P21E201-1572) ─────────────────────────────────────
 
 	private Trip tripWithBudget(Integer budgetKrw) {
