@@ -112,9 +112,21 @@ public class JpaItineraryRepository implements ItineraryRepository {
 		this.exclusionJpaRepository = exclusionJpaRepository;
 	}
 
+	/**
+	 * 번호 형식이 틀리면 「그런 일정 없음」이다 — 예외로 두면 부르는 쪽 오류 번역기가 몰라 500 이 된다.
+	 * 운영에서 추천 화면이 코스 2·3안의 번호({@code 요청번호:1})를 일정 번호로 넘겨 실제로 그랬다
+	 * (S15P21E201-1609).
+	 */
 	@Override
 	public Optional<Itinerary> findById(String itineraryId) {
-		return itineraryJpaRepository.findById(UUID.fromString(itineraryId)).map(JpaItineraryRepository::toDomain);
+		UUID id;
+		try {
+			id = UUID.fromString(itineraryId);
+		}
+		catch (IllegalArgumentException malformed) {
+			return Optional.empty();
+		}
+		return itineraryJpaRepository.findById(id).map(JpaItineraryRepository::toDomain);
 	}
 
 	/**
