@@ -72,6 +72,12 @@ export default function Generating() {
   const [job, setJob] = useState<RecommendationJobSnapshot>(() => previewJob ?? (jobId ? { state: 'accepted', jobId, progress: 0, stage: tx('요청 접수', 'Request received'), canCancel: false, errorMessage: null, resultRef: null } : unavailableJob(tx('생성 요청을 찾을 수 없어요. 조건을 확인한 뒤 다시 시작해 주세요.', 'Could not find the generation request. Please review your conditions and try again.'))));
   const [itinerary, setItinerary] = useState<ItineraryDto | null>(() => previewJob?.state === 'completed' ? PREVIEW_ITINERARY : null);
   const [itineraryMessage, setItineraryMessage] = useState<string | null>(null);
+  // 🔴 S15P21E201-1559 — 「일정 보기」가 이 트립 ID로 /trips/{tripId}/recommendations 를 연다.
+  //    이 화면은 jobId 만 라우트 파라미터로 받고 tripId 는 안 받아서, 아래 결과 로딩이 끝나야만
+  //    (recommendation.tripId) 알 수 있다 — 그래서 로컬 변수로 두면 안 되고 상태로 들고 있어야
+  //    버튼 핸들러가 나중에 읽는다. 전에는 이 자리가 없어서 job.jobId(작업 ID)를 대신 넣었고,
+  //    그 값으로는 /api/v1/trips/{jobId}/recommendations 가 항상 404 였다(실기기 재확인, 2026-09-24).
+  const [tripId, setTripId] = useState<string | null>(previewJob?.state === 'completed' ? 'preview-trip' : null);
   // 접근성 안내 창 — 확인 안 된 곳이 하나라도 있으면 한 번만 뜬다.
   // warnedJobRef 가 "한 번만" 을 지킨다. 이 화면은 스트림·폴링·재렌더로 같은 완료 상태를
   // 여러 번 지나가므로, 상태 하나로는 닫은 창이 다시 열린다.
@@ -148,6 +154,7 @@ export default function Generating() {
       setItineraryMessage(null);
       const recommendation = await loadRecommendationResult(job.jobId!, accessToken);
       if (cancelled) return;
+      if (recommendation.tripId) setTripId(recommendation.tripId);
       // 일정을 못 읽어도 이 안내는 띄운다. 접근성은 일정이 열리는지와 별개로
       // 사용자가 알아야 하는 것이고, 아래 early return 뒤에 두면 그때 조용히 사라진다.
       if (warnedJobRef.current !== job.jobId && recommendation.conflicts.includes(ACCESSIBILITY_UNVERIFIED)) {
@@ -314,7 +321,7 @@ export default function Generating() {
               wide
               tx={tx}
               details={ticketReady ? tripPassDetails : undefined}
-              onOpenItinerary={ticketReady && job.jobId ? () => router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
+              onOpenItinerary={ticketReady && tripId && job.jobId ? () => router.replace(`/trips/${tripId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
               coverUrl={coverUrl}
               onReprint={() => setReprint((n) => n + 1)}
               key={reprint}
@@ -326,7 +333,7 @@ export default function Generating() {
             wide={false}
             tx={tx}
             details={ticketReady ? tripPassDetails : undefined}
-            onOpenItinerary={ticketReady && job.jobId ? () => router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
+            onOpenItinerary={ticketReady && tripId && job.jobId ? () => router.replace(`/trips/${tripId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
             coverUrl={coverUrl}
             onReprint={() => setReprint((n) => n + 1)}
             key={reprint}
