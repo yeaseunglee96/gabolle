@@ -1033,6 +1033,60 @@ class ItineraryDraftServiceTest {
 				.containsExactly("WALK");
 	}
 
+	// ── 예산 상한 (S15P21E201-1572) ─────────────────────────────────────
+
+	private Trip tripWithBudget(Integer budgetKrw) {
+		return Trip.builder()
+				.tripId("itn_trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 10)).finishDate(LocalDate.of(2026, 9, 10))
+				.budgetKrw(budgetKrw).partySize(2).timezone("Asia/Seoul")
+				.createdAt(Instant.now())
+				.build();
+	}
+
+	/** 순위 1~5 의 명소. 가격은 A 9만 · B 5만 · C 1만 · D 모름 · E 5천. */
+	private List<UUID> placeBudgetCase(ItineraryDraftService service, Integer budgetKrw) {
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(tripWithBudget(budgetKrw)));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesOf("CITY", "CITY", "CITY", "CITY", "CITY");
+		Map<UUID, Integer> prices = new HashMap<>();
+		prices.put(places.get(0).placeId(), 90_000);
+		prices.put(places.get(1).placeId(), 50_000);
+		prices.put(places.get(2).placeId(), 10_000);
+		prices.put(places.get(4).placeId(), 5_000);
+		service.setMenuPrice(ids -> prices);
+		this.budgetCase = places;
+		return placeIdsOfItems(service.assemble(commandOf("itn_trip_1", places)));
+	}
+
+	private List<ItineraryDraftCommand.PlannedPlace> budgetCase;
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1572 — 합계가 예산의 120% 를 넘게 만드는 곳은 건너뛰고 다음 후보가 앉는다")
+	void budgetCapSkipsThePlaceThatWouldBreakIt() {
+		// 예산 10만 → 상한 12만. A(9만) 앉고, B(5만)면 14만이라 건너뛴다. C(1만)·D(모름)·E(5천)가 채운다 = 10.5만.
+		List<UUID> placed = placeBudgetCase(this.service, 100_000);
+
+		assertThat(placed).containsExactlyInAnyOrder(this.budgetCase.get(0).placeId(), this.budgetCase.get(2).placeId(),
+				this.budgetCase.get(3).placeId(), this.budgetCase.get(4).placeId());
+	}
+
+	@Test
+	@DisplayName("값을 모르는 곳은 막지 않는다 — 합계에서 빠지는 것과 같은 규칙(0 원으로 세지 않는다)")
+	void unknownPricesAreNotBlocked() {
+		List<UUID> placed = placeBudgetCase(this.service, 100_000);
+
+		assertThat(placed).contains(this.budgetCase.get(3).placeId());
+	}
+
+	@Test
+	@DisplayName("예산이 없으면 상한도 없다 — 순위 1~4 그대로")
+	void noBudgetMeansNoCap() {
+		List<UUID> placed = placeBudgetCase(this.service, null);
+
+		assertThat(placed).containsExactlyInAnyOrder(this.budgetCase.get(0).placeId(), this.budgetCase.get(1).placeId(),
+				this.budgetCase.get(2).placeId(), this.budgetCase.get(3).placeId());
+	}
+
 	/** 「여행 기분」을 고른 여행. 나머지 조건은 {@link #tripOf} 와 같다. */
 	private Trip tripWithPace(String pace) {
 		return Trip.builder()

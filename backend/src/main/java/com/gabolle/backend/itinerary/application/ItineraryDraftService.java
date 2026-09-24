@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.service.PlaceMenuPricePort;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
@@ -150,6 +152,23 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private final ApplicationEventPublisher events;
 
+    /**
+     * 예산을 넘겨도 되는 폭 — 예산의 20% (사용자 결정 2026-09-24, S15P21E201-1572). 예산은 딱 맞추기 어렵고(메뉴 값은
+     * 대표값이다) 조금 넘는 것은 괜찮지만, 두 배 가까이 넘는 일정(운영: 20만원에 23.8만원)을 그대로 내지는 않는다.
+     */
+    static final double BUDGET_OVERRUN_ALLOWANCE = 0.20;
+
+    /**
+     * 장소마다의 대표 메뉴 값. 없으면(시험용 조립·가격 계층이 없는 컨텍스트) 예산 상한을 안 건다 — 모르는 값으로
+     * 막지 않는다.
+     */
+    private PlaceMenuPricePort menuPrice;
+
+    @Autowired(required = false)
+    public void setMenuPrice(PlaceMenuPricePort menuPrice) {
+        this.menuPrice = menuPrice;
+    }
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
@@ -207,7 +226,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 .orElseThrow(() -> new IllegalStateException("여행을 찾을 수 없다: " + command.tripId()));
 
         int days = trip.days();
-        Distribution distribution = distributeByDay(command.places(), days, mealsPerDay(trip),
+        Distribution distribution = distributeByDay(command.places(), days, budgetCapOf(trip, command.places()), mealsPerDay(trip),
                 itemsPerDay(trip));
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
 
@@ -344,8 +363,55 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 첫 배분에서는 밥집을 하루 {@link #maxFoodPerDay} 곳까지만 앉히고 나머지 자리를 명소로
      * 채운다 — 후보의 대부분이 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다.
      */
+    /**
+     * 예산 상한 — 아는 가격의 누계가 {@code 예산 × (1 + 허용 폭)} 을 넘지 않게 자리를 채운다.
+     *
+     * <p>합계 규칙은 일정 응답·화면과 같다(ItineraryQueryService.costOf · 앱 itineraryBudget): <b>아는 가격만</b>
+     * 더한다. 모르는 곳은 0 이 아니라 합계에서 빠지므로 여기서도 막지 않는다.
+     */
+    private static final class BudgetCap {
+
+        private final Map<UUID, Integer> prices;
+
+        private final long limit;
+
+        private long spent;
+
+        private BudgetCap(Map<UUID, Integer> prices, long limit) {
+            this.prices = prices;
+            this.limit = limit;
+        }
+
+        /** 이곳을 넣으면 상한을 넘나. 값을 모르면 안 넘는다. */
+        boolean wouldExceed(ItineraryDraftCommand.PlannedPlace place) {
+            Integer price = this.prices.get(place.placeId());
+            return price != null && this.spent + price > this.limit;
+        }
+
+        void take(ItineraryDraftCommand.PlannedPlace place) {
+            Integer price = this.prices.get(place.placeId());
+            if (price != null) {
+                this.spent += price;
+            }
+        }
+    }
+
+    /** 예산이 없거나 가격 계층이 없으면 {@code null} — 상한을 안 건다. */
+    private BudgetCap budgetCapOf(Trip trip, List<ItineraryDraftCommand.PlannedPlace> places) {
+        Integer budget = trip.budgetKrw();
+        if (budget == null || budget <= 0 || this.menuPrice == null) {
+            return null;
+        }
+        List<UUID> ids = new ArrayList<>(places.size());
+        for (ItineraryDraftCommand.PlannedPlace place : places) {
+            ids.add(place.placeId());
+        }
+        long limit = Math.round(budget * (1 + BUDGET_OVERRUN_ALLOWANCE));
+        return new BudgetCap(this.menuPrice.pricesOf(ids), limit);
+    }
+
     private Distribution distributeByDay(
-            List<ItineraryDraftCommand.PlannedPlace> places, int days, int mealsPerDay, int itemsPerDay) {
+            List<ItineraryDraftCommand.PlannedPlace> places, int days, BudgetCap cap, int mealsPerDay, int itemsPerDay) {
 
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = new ArrayList<>(days);
         for (int i = 0; i < days; i++) {
@@ -371,10 +437,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         //
         //    그래서 첫 훑기는 **지역이 맞는 것만** 앉힌다. 위 8번째는 여기서 건너뛰어지고,
         //    11위가 영도 날을 채운다. 남은 자리는 두 번째 훑기가 순위대로 메운다.
+        // 🔴 예산 상한(S15P21E201-1572) — 넣으면 상한을 넘는 곳은 아예 앉히지 않는다. 그 자리는 뒤의 후보(더 싸거나
+        //    값을 모르는 곳)가 맡는다. 두 훑기 모두에서 먼저 본다 — 두 번째 훑기가 순위대로 메우며 비싼 곳을 되살리면 안 된다.
         List<ItineraryDraftCommand.PlannedPlace> deferred = new ArrayList<>();
         for (ItineraryDraftCommand.PlannedPlace place : places) {
+            if (cap != null && cap.wouldExceed(place)) {
+                continue;
+            }
             if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor, true)) {
                 deferred.add(place);
+            }
+            else if (cap != null) {
+                cap.take(place);
             }
         }
 
@@ -384,8 +458,16 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // 그래서 비워 두고 말한다.
         int rejectedFood = 0;
         for (ItineraryDraftCommand.PlannedPlace place : deferred) {
-            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false)
-                    && isFood(place)) {
+            if (cap != null && cap.wouldExceed(place)) {
+                // 예산으로 뺀 것은 「밥집밖에 없어 비웠다」가 아니다 — 그 경고에 안 센다.
+                continue;
+            }
+            if (seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false)) {
+                if (cap != null) {
+                    cap.take(place);
+                }
+            }
+            else if (isFood(place)) {
                 rejectedFood++;
             }
         }
