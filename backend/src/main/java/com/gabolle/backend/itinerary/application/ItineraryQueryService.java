@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -68,10 +69,14 @@ public class ItineraryQueryService {
 
 	private final PlaceMenuPricePort menuPrice;
 
+	/** 하루 끝에 돌아가는 이동을 잰다(S15P21E201-1565). 없으면 그 칸을 비운다 — 시험용 생성자가 그렇다. */
+	private final ItineraryLegPlanner legPlanner;
+
+	@Autowired
 	public ItineraryQueryService(ItineraryRepository itineraryRepository, ItineraryAccess itineraryAccess,
 			PlaceRepository placeRepository, RecommendationJobRepository recommendationJobRepository,
 			ActorNames actorNames, ItineraryItemActualRepository actualRepository,
-			PlaceMenuPricePort menuPrice) {
+			PlaceMenuPricePort menuPrice, ItineraryLegPlanner legPlanner) {
 		this.itineraryRepository = itineraryRepository;
 		this.itineraryAccess = itineraryAccess;
 		this.placeRepository = placeRepository;
@@ -79,6 +84,15 @@ public class ItineraryQueryService {
 		this.actorNames = actorNames;
 		this.actualRepository = actualRepository;
 		this.menuPrice = menuPrice;
+		this.legPlanner = legPlanner;
+	}
+
+	public ItineraryQueryService(ItineraryRepository itineraryRepository, ItineraryAccess itineraryAccess,
+			PlaceRepository placeRepository, RecommendationJobRepository recommendationJobRepository,
+			ActorNames actorNames, ItineraryItemActualRepository actualRepository,
+			PlaceMenuPricePort menuPrice) {
+		this(itineraryRepository, itineraryAccess, placeRepository, recommendationJobRepository, actorNames,
+				actualRepository, menuPrice, null);
 	}
 
 	/**
@@ -227,6 +241,7 @@ public class ItineraryQueryService {
 
 		List<ItineraryDetailResponse.Day> days = new ArrayList<>(trip.days());
 		LocalDate date = trip.startDate();
+		ItineraryLegPlanner.Anchor lodging = (this.legPlanner == null) ? null : this.legPlanner.lodgingOf(trip);
 		for (int dayIndex = 0; dayIndex < trip.days(); dayIndex++) {
 			List<ItineraryItem> itemsOfDay = itemsByDay.getOrDefault(dayIndex, List.of()).stream()
 					.sorted((a, b) -> Integer.compare(a.sequence(), b.sequence()))
@@ -238,10 +253,31 @@ public class ItineraryQueryService {
 						menuPriceByPlaceId));
 			}
 
-			days.add(new ItineraryDetailResponse.Day(date.toString(), items));
+			days.add(new ItineraryDetailResponse.Day(date.toString(), items,
+					returnLegOf(trip, dayIndex, lodging, itemsOfDay)));
 			date = date.plusDays(1);
 		}
 		return days;
+	}
+
+	/**
+	 * 그날 마지막 방문지에서 돌아가는 이동 — 일정을 만들 때 시간표에서 뗀 것과 <b>같은 규칙</b>으로 다시 잰다
+	 * ({@link ItineraryLegPlanner#returnFor}). 저장해 두지 않는 까닭은 그 메서드 설명에 있다.
+	 */
+	private ItineraryDetailResponse.ReturnLeg returnLegOf(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging,
+			List<ItineraryItem> itemsOfDay) {
+		if (this.legPlanner == null || itemsOfDay.isEmpty()) {
+			return null;
+		}
+		ItineraryItem last = itemsOfDay.get(itemsOfDay.size() - 1);
+		ItineraryLegPlanner.DayReturn back = this.legPlanner.returnFor(trip, dayIndex, lodging,
+				UUID.fromString(last.placeId()));
+		if (back == null) {
+			return null;
+		}
+		return new ItineraryDetailResponse.ReturnLeg(back.to().kind(), back.to().label(), back.to().lat(),
+				back.to().lng(), back.travel().durationMin(), back.travel().distanceM(),
+				back.travel().dataStatus() == null ? null : back.travel().dataStatus().name());
 	}
 
 	/**

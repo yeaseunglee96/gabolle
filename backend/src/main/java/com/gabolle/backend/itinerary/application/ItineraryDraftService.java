@@ -216,7 +216,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         List<List<Placed>> placedByDay = new ArrayList<>();
 
         // 둘째 날부터는 숙소에서 나선다 — 차례를 정하는 잣대도 구간을 재는 잣대와 같은 출발점을 쓴다.
-        Place lodging = this.legPlanner.lodgingOf(trip);
+        ItineraryLegPlanner.Anchor lodging = this.legPlanner.lodgingOf(trip);
         for (int dayIndex = 0; dayIndex < byDay.size(); dayIndex++) {
             List<ItineraryDraftCommand.PlannedPlace> dayPlaces = byDay.get(dayIndex);
             LocalDate visitDate = trip.startDate().plusDays(dayIndex);
@@ -248,7 +248,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         for (int dayIndex = 0; dayIndex < placedByDay.size(); dayIndex++) {
             List<Placed> placedToday = placedByDay.get(dayIndex);
             LocalDate visitDate = trip.startDate().plusDays(dayIndex);
-            List<Slot> timed = layoutDay(trip, placedToday.size(), travelMinutesFor(legs, dayIndex, placedToday.size()));
+            // 하루 끝에 숙소(마지막 날은 출발지)로 돌아가는 시간을 먼저 뗀다 — 안 떼면 마지막 방문지가 활동
+            // 시간대 끝까지 머물고, 돌아가는 길은 시간대 밖으로 밀린다(S15P21E201-1565).
+            Integer returnMinutes = returnMinutesOf(trip, dayIndex, lodging, placeIdsByDay.get(dayIndex));
+            List<Slot> timed = layoutDay(trip, placedToday.size(), travelMinutesFor(legs, dayIndex, placedToday.size()),
+                    returnMinutes);
 
             for (int i = 0; i < placedToday.size(); i++) {
                 Placed placed = placedToday.get(i);
@@ -285,7 +289,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 차례뿐이고, 영업시간·밥 때 판정은 그대로 남는다. 그리고 답이 없거나 받은 것과 한 톨이라도
      * 어긋나면 <b>들어온 차례를 그대로 돌려준다</b> — 최적화가 없어도 일정은 오늘처럼 나온다.
      */
-    private List<ItineraryDraftCommand.PlannedPlace> reorderByRoute(Trip trip, int dayIndex, Place lodging,
+    private List<ItineraryDraftCommand.PlannedPlace> reorderByRoute(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging,
             List<ItineraryDraftCommand.PlannedPlace> dayPlaces) {
 
         RouteOrderPort port = this.routeOrder.getIfAvailable();
@@ -724,7 +728,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      *
      * <p>좌표를 모르는 곳이 있거나, 칸 시각이 없거나(활동 시간 미정), 하루가 6곳을 넘으면 손대지 않는다.
      */
-    private List<Placed> shortestSlotOrder(Trip trip, int dayIndex, Place lodging, List<Placed> placed,
+    private List<Placed> shortestSlotOrder(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging, List<Placed> placed,
             LocalDate visitDate) {
 
         int count = placed.size();
@@ -947,7 +951,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * {@link #slotFor} 와 달리 하루치를 한 번에 낸다 — 앞 항목의 끝을 알아야 다음 시작을 정할
      * 수 있어서 항목 하나만 따로 계산할 수가 없다.
      */
-    private static List<Slot> layoutDay(Trip trip, int countToday, List<Integer> travelMinutes) {
+    /** 그날 마지막 방문지에서 돌아가는 데 드는 분 — 돌아갈 자리를 모르거나 못 재면 {@code null}. */
+    private Integer returnMinutesOf(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging, List<UUID> placeIdsToday) {
+        if (placeIdsToday == null || placeIdsToday.isEmpty()) {
+            return null;
+        }
+        ItineraryLegPlanner.DayReturn back = this.legPlanner.returnFor(trip, dayIndex, lodging,
+                placeIdsToday.get(placeIdsToday.size() - 1));
+        return back == null ? null : back.travel().durationMin();
+    }
+
+    /** @param returnMinutes 마지막 방문지에서 돌아가는 분. 없으면 {@code null} — 전처럼 시간대 끝까지 쓴다 */
+    private static List<Slot> layoutDay(Trip trip, int countToday, List<Integer> travelMinutes, Integer returnMinutes) {
         List<Slot> slots = new ArrayList<>(countToday);
         LocalTime windowStart = trip.timeWindowStart();
         LocalTime windowEnd = trip.timeWindowEnd();
@@ -963,6 +978,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         for (Integer minutes : travelMinutes) {
             travelTotal += (minutes == null) ? 0 : minutes;
         }
+        travelTotal += (returnMinutes == null) ? 0 : returnMinutes;
 
         long stayMinutes = (windowMinutes - travelTotal) / countToday;
         if (stayMinutes < 1) {
@@ -1305,7 +1321,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             todayOnly.add(d == dayIndex ? orderedToday : List.of());
         }
         List<Slot> timedToday = layoutDay(trip, countToday,
-                travelMinutesFor(this.legPlanner.buildLegs(trip, todayOnly), dayIndex, countToday));
+                travelMinutesFor(this.legPlanner.buildLegs(trip, todayOnly), dayIndex, countToday),
+                returnMinutesOf(trip, dayIndex, this.legPlanner.lodgingOf(trip), orderedToday));
 
         List<ItineraryItem> dayResult = new ArrayList<>(countToday);
         boolean lockedTimeMoved = false;
