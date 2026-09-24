@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -273,5 +275,83 @@ class BaselineRecommendationEngineCandidateCutTest {
 
 		List<Double> scores = kept.stream().map(EngineCandidate::preRankScore).toList();
 		assertThat(scores).isSortedAccordingTo(Comparator.<Double>reverseOrder());
+	}
+
+	// ── 고른 갈래의 몫 ──────────────────────────────────────────────
+
+	/**
+	 * 운영 범위의 기울기를 줄여 흉내 낸다 — 밥집 300(가까워 점수가 높다) · 카페 5 · 바다 3 · 자연 3(멀다).
+	 * 운영에서는 밥집이 인기도·예산 가산으로 앞섰다. 여기서는 거리로 앞서게 한다 — 재는 것은 채점이 아니라 자르기다.
+	 */
+	private static List<PlaceCandidateResponse.Candidate> skewedPool() {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>(manyCandidates(300));
+		String[] others = { "CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING",
+				"SEA_BEACH", "SEA_BEACH", "SEA_BEACH", "NATURE_WALK", "NATURE_WALK", "NATURE_WALK" };
+		for (int i = 0; i < others.length; i++) {
+			pool.add(new PlaceCandidateResponse.Candidate(new UUID(8L, i), others[i] + i, others[i],
+					35.15, 129.05, 4000L + i, List.of()));
+		}
+		return pool;
+	}
+
+	/** 갈래를 고른 여행(취향 스냅샷에 CATEGORY 답)으로 돌려 남은 후보의 갈래를 센다. */
+	private Map<String, Long> keptCategoriesChoosing(String categoriesJson) {
+		UUID snapshotId = UUID.randomUUID();
+		when(this.tripRepository.findSnapshotById(snapshotId.toString()))
+				.thenReturn(Optional.of(snapshot("CATEGORY", categoriesJson)));
+		when(this.queryService.findCandidates(any())).thenReturn(response(skewedPool()));
+		EngineRequest req = new EngineRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.fromString(TRIP_ID), 1,
+				snapshotId, null, null, null, 10);
+		List<EngineCandidate> kept = engine().generate(req).candidates();
+		assertThat(kept).hasSize(KEEP);
+		assertThat(kept.stream().map(EngineCandidate::preRankScore).toList())
+				.as("몫으로 골랐어도 내보내는 순서는 점수 순이다")
+				.isSortedAccordingTo(Comparator.<Double>reverseOrder());
+		return kept.stream().collect(Collectors.groupingBy(
+				(c) -> String.valueOf(c.featureValues().get("category")), Collectors.counting()));
+	}
+
+	/** 운영(2026-09-24): 바다·맛집·자연을 고른 여행의 후보 200곳이 밥집 199 · 꼭 갈 곳 1 이었다. */
+	@Test
+	@DisplayName("🔴 맛집+바다+자연을 고르면 후보에 바다·자연이 들어온다 — 밥집이 상위를 다 채우지 않는다")
+	void 고른_갈래는_몫을_받는다() {
+		Map<String, Long> kept = keptCategoriesChoosing("[\"SEA_BEACH\", \"FOOD\", \"NATURE_WALK\"]");
+
+		assertThat(kept.getOrDefault("SEA_BEACH", 0L)).isPositive();
+		assertThat(kept.getOrDefault("NATURE_WALK", 0L)).isPositive();
+		assertThat(kept.getOrDefault("FOOD", 0L)).isPositive();
+	}
+
+	@Test
+	@DisplayName("맛집만 고르면 지금처럼 밥집 위주다 — 고르지 않은 바다·자연은 몫이 없다")
+	void 맛집만_고르면_밥집_위주다() {
+		Map<String, Long> kept = keptCategoriesChoosing("[\"FOOD\"]");
+
+		assertThat(kept.getOrDefault("FOOD", 0L)).isGreaterThanOrEqualTo(KEEP - 1);
+		assertThat(kept).doesNotContainKeys("SEA_BEACH", "NATURE_WALK");
+	}
+
+	@Test
+	@DisplayName("바다·자연만 골라도 끼니를 채울 밥집이 남는다")
+	void 밥집을_안_골라도_끼니_몫이_있다() {
+		Map<String, Long> kept = keptCategoriesChoosing("[\"SEA_BEACH\", \"NATURE_WALK\"]");
+
+		assertThat(kept.getOrDefault("FOOD", 0L)).isPositive();
+		assertThat(kept.getOrDefault("SEA_BEACH", 0L) + kept.getOrDefault("NATURE_WALK", 0L)).isPositive();
+	}
+
+	@Test
+	@DisplayName("🔴 아무것도 안 고르면 기존 다양성 규칙(-1463) 그대로다 — 몫을 안 나누고 뒤쪽을 여행마다 다르게 채운다")
+	void 안_고르면_기존_규칙이다() {
+		String tripA = new UUID(9L, 6L).toString();
+		String tripB = new UUID(9L, 7L).toString();
+		List<PlaceCandidateResponse.Candidate> pool = skewedPool();
+
+		List<UUID> a = keptFor(tripA, pool);
+		List<UUID> b = keptFor(tripB, pool);
+
+		assertThat(a).isNotEqualTo(b);
+		assertThat(a).as("안 골랐으면 몫이 없어 점수가 낮은 바다·자연·카페는 안 들어온다")
+				.allMatch((id) -> id.getMostSignificantBits() == 7L);
 	}
 }
