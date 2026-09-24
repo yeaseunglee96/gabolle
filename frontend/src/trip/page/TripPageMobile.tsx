@@ -36,7 +36,7 @@ import { courseLetter } from '@/plan/CourseCard';
 import { NowCard } from '@/plan/NowCard';
 import {
   pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
-  type ItineraryItemDto, type ItineraryPaceItemDto,
+  type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto,
 } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
@@ -55,6 +55,7 @@ import { useLiveLocation } from './useLiveLocation';
 import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
 import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
 import { DayReturnRow } from './DayReturnRow';
+import { DayStartRow } from './DayStartRow';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
@@ -123,6 +124,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const progressId = confirmed ? loaded?.id ?? null : null;
   const run = useTripProgress(progressId);
   const day = loaded?.days[dayIndex];
+  // 그날 첫 곳은 어디서 오나 — 둘째 날부터는 숙소다(S15P21E201-1580). 서버가 안 알려 주면(옛 응답) 출발지.
+  const startKind: DayStart['kind'] = day?.start?.kind ?? 'ORIGIN';
   const stopIds = useMemo(() => items.map((item) => item.id), [items]);
   const steps = stepStates(stopIds, run.progress);
   // 🔴 오늘 날짜의 일차에서만 그린다 — 지난 날짜나 다음 날짜에 「출발」이 있으면 거짓이다(itinerary.tsx 와 같은 규칙).
@@ -252,7 +255,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   // 🔴 출발 전에는 「첫 곳까지 얼마」를 적는다(시안 4a 「출발지에서 50분」). 없는 안내를 지어내지 않는다 —
   //    구간 시간을 모르면 아무것도 안 적는다.
   const nowDetail = progress.status === 'PLANNED'
-    ? (items[0] ? formatTravelLabel(items[0], tx, true) : null)
+    ? (items[0] ? formatTravelLabel(items[0], tx, startKind) : null)
     : txf(tx, '%s곳 중 %s곳 다녀옴', '%s of %s stops done', items.length, doneCount)
       + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '')
       + (leftText ? ` · ${leftText}` : '');
@@ -370,10 +373,13 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             <View style={styles.emptyCard}><Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text></View>
           ) : (
             <View>
+              {/* 하루 시작 — 첫날은 출발지, 둘째 날부터는 숙소에서 (S15P21E201-1580) */}
+              <DayStartRow start={day?.start} tx={tx} />
               {items.map((item, index) => (
                 <TimelineStop
                   key={item.id}
                   item={item}
+                  startKind={startKind}
                   index={index}
                   last={index === items.length - 1}
                   date={index === 0 ? day?.date ?? null : null}
@@ -449,7 +455,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                 <Text variant="caption" weight="bold" color={color.text.muted}>{item.startsAt.slice(11, 16)}</Text>
               </View>
               <Text weight="bold" numberOfLines={1}>{item.title}</Text>
-              {formatTravelLabel(item, tx, index === 0) ? <Text variant="micro" color={color.text.muted} numberOfLines={1}>{formatTravelLabel(item, tx, index === 0)}</Text> : null}
+              {formatTravelLabel(item, tx, index === 0 && startKind) ? <Text variant="micro" color={color.text.muted} numberOfLines={1}>{formatTravelLabel(item, tx, index === 0 && startKind)}</Text> : null}
             </Pressable>
           ))}
         </ScrollView>
@@ -666,12 +672,12 @@ function RiskStrip({ atRisk, known, estimated, tx }: { atRisk: ItineraryItemDto[
   );
 }
 
-function TimelineStop({ item, index, last, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, tx, locale }: {
-  item: ItineraryItemDto; index: number; last: boolean; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
+function TimelineStop({ item, startKind, index, last, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, tx, locale }: {
+  item: ItineraryItemDto; startKind: DayStart['kind']; index: number; last: boolean; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
   onToggle: () => void; onLock: () => void; onArrive: () => void; onExclude: () => void; tx: Tx; locale: string;
 }) {
-  const leg = formatTravelLabel(item, tx, index === 0);
+  const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const done = step === 'done';
   const label = photo?.category ? PLACE_CATEGORY_LABELS[photo.category] : undefined;
   // 🔴 값이 없는 칸은 만들지 않는다 — 「비용 미정」을 줄마다 적으면 빈 칸이 화면에서 제일 눈에 띈다(itinerary.tsx 와 같은 규칙).

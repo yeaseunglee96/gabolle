@@ -44,6 +44,19 @@ export type DayReturnLeg = {
   travelDataStatus: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN' | null;
 };
 
+/**
+ * 그날 일정이 시작하는 자리 — S15P21E201-1580. 첫날은 여행 출발지(ORIGIN), 둘째 날부터는 숙소(LODGING, 숙소를
+ * 모르면 출발지). 규칙은 서버 한 곳(ItineraryLegPlanner.dayStart)이 정한다 — 화면이 따로 추측하지 않는다.
+ * 옛 서버에는 칸이 없고(undefined), 출발지도 모르는 여행은 null 이다.
+ */
+export type DayStart = {
+  kind: 'LODGING' | 'ORIGIN';
+  /** 숙소 이름 또는 동네 이름. 출발지면 null. */
+  label: string | null;
+  lat: number;
+  lng: number;
+};
+
 export type ItineraryDto = {
   id: string;
   title: string;
@@ -56,7 +69,7 @@ export type ItineraryDto = {
    *    「모른다」와 「혼자다」가 구분이 안 된다.
    */
   partySize?: number | null;
-  days: Array<{ date: string; items: ItineraryItemDto[]; returnLeg?: DayReturnLeg | null }>;
+  days: Array<{ date: string; items: ItineraryItemDto[]; returnLeg?: DayReturnLeg | null; start?: DayStart | null }>;
   totalEstimatedCostKrw?: number | null;
   totalWalkingMeters?: number | null;
   fallbackMode?: 'MODEL' | 'RULE' | 'BASELINE' | null;

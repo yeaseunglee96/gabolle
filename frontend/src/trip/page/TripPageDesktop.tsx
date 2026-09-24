@@ -28,7 +28,7 @@ import { localizeMessage } from '@/i18n/messages';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { RouteMap } from '@/map/RouteMap';
 import { courseLetter } from '@/plan/CourseCard';
-import type { ItineraryItemDto } from '@/plan/itinerary';
+import type { DayStart, ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
@@ -40,6 +40,7 @@ import type { TripPageSource } from './tripPageData';
 import { formatDuration, formatManwon, stayMinutes } from './tripPageModel';
 import { useTripPage } from './useTripPage';
 import { DayReturnRow } from './DayReturnRow';
+import { DayStartRow } from './DayStartRow';
 import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
 import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
@@ -75,6 +76,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
     itinerary, setItinerary, loaded, dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace,
     map, routes, points, anyEstimatedLine, travelTotal, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
+  // 그날 첫 곳은 어디서 오나 — 둘째 날부터는 숙소다(S15P21E201-1580). 서버가 안 알려 주면(옛 응답) 출발지.
+  const startKind: DayStart['kind'] = loaded?.days[dayIndex]?.start?.kind ?? 'ORIGIN';
   const [layout, setLayout] = useState<Layout>('cards');
   const [menuOpen, setMenuOpen] = useState(false);
   // 지도의 경사·그늘 겹(S15P21E201-1569) — 켜면 정차지 둘레 길을 칠한다. 경로 선 아래 깔린다.
@@ -216,11 +219,14 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
           //    물려받으면 카드 열 높이가 끝내 안 들어와 지도가 440 에 갇혔다(2026-09-23 사용자 지적, 배포본 재현).
           <View key="cards" style={styles.body} onLayout={(event) => setBodyTop(Math.round(event.nativeEvent.layout.y))}>
             <View style={[styles.left, styles.leftCapped]} onLayout={(event) => setLeftHeight(Math.round(event.nativeEvent.layout.height))}>
+              {/* 하루 시작 — 첫날은 출발지, 둘째 날부터는 숙소에서 (S15P21E201-1580) */}
+              <DayStartRow start={loaded?.days[dayIndex]?.start} tx={tx} />
               <View style={styles.grid} onLayout={(event) => setGridWidth(Math.round(event.nativeEvent.layout.width))}>
                 {gridWidth > 0 ? items.map((item, index) => (
                   <PlaceCard
                     key={item.id}
                     item={item}
+                    startKind={startKind}
                     index={index}
                     items={items}
                     width={Math.floor((gridWidth - spacing[3] * 3) / 4)}
@@ -267,7 +273,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
             <View style={styles.bigList}>
               {items.map((item, index) => {
                 const photo = photos[item.placeId] ?? null;
-                const leg = formatTravelLabel(item, tx, index === 0);
+                const leg = formatTravelLabel(item, tx, index === 0 && startKind);
                 return (
                   <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: item.id === selectedId }} onPress={() => setSelectedId(item.id)} style={[styles.bigRow, item.id === selectedId && styles.selectedBorder]}>
                     <View style={styles.bigThumb}>
@@ -385,13 +391,13 @@ function ViewSwitch({ layout, onChange, tx }: { layout: Layout; onChange: (next:
   );
 }
 
-function PlaceCard({ item, index, items, width, photo, selected, risky, onPress, tx, locale }: {
-  item: ItineraryItemDto; index: number; items: ItineraryItemDto[]; width: number; photo: PlacePhoto | null;
+function PlaceCard({ item, startKind, index, items, width, photo, selected, risky, onPress, tx, locale }: {
+  item: ItineraryItemDto; startKind: DayStart['kind']; index: number; items: ItineraryItemDto[]; width: number; photo: PlacePhoto | null;
   selected: boolean; risky: boolean; onPress: () => void; tx: Tx; locale: string;
 }) {
   const label = photo?.category ? PLACE_CATEGORY_LABELS[photo.category] : undefined;
   const category = label ? tx(label[0], label[1]) : null;
-  const leg = formatTravelLabel(item, tx, index === 0);
+  const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const stay = stayMinutes(items, index);
   const last = index === items.length - 1;
   return (

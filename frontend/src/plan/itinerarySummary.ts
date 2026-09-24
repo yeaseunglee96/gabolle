@@ -1,15 +1,23 @@
-import type { ItineraryDto, ItineraryItemDto } from './itinerary';
+import type { DayStart, ItineraryDto, ItineraryItemDto } from './itinerary';
 
 type Tx = (ko: string, en: string) => string;
 
 // — 전에는 페이스 API 의 delayMinutes 를 「38분 지연」이라고 불렀다.
 // 아직 떠나지도 않은 여행에 지연이 있을 수 없다. 그 값은 "계획 시각과 예측 도착의 차"
 // 이지 지연이 아니고, 출발 전에는 계획이 그렇다는 말일 뿐이다.
-export function formatTravelLabel(item: ItineraryItemDto, tx: Tx, fromOrigin = false): string | null {
+//
+// `from` — 그날 첫 곳이면 어디서 오는가. `true` 는 출발지다(옛 호출).
+// 🔴 둘째 날부터는 숙소에서 나서는데 「출발지에서」라고 적으면 틀린 말이다(S15P21E201-1580).
+export function formatTravelLabel(item: ItineraryItemDto, tx: Tx, from: boolean | DayStart['kind'] = false): string | null {
   if (item.travelDurationMin == null) return null;
   const minutes = Math.round(item.travelDurationMin);
   const estimated = item.travelDataStatus === 'ESTIMATED';
-  if (fromOrigin) {
+  if (from === 'LODGING') {
+    return estimated
+      ? tx(`숙소에서 ${minutes}분 (어림)`, `${minutes}m from your stay (est.)`)
+      : tx(`숙소에서 ${minutes}분`, `${minutes}m from your stay`);
+  }
+  if (from) {
     return estimated
       ? tx(`출발지에서 ${minutes}분 (어림)`, `${minutes}m from start (est.)`)
       : tx(`출발지에서 ${minutes}분`, `${minutes}m from start`);

@@ -22,7 +22,7 @@ import { humanTripTitle, shouldAskTripName, wasTripNameAsked } from '@/trip/trip
 import { loadTrips } from '@/trip/trips';
 
 import { loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
-import { dayMap, dayRoutes, formatManwon, returnRoute, returnTrip } from './tripPageModel';
+import { dayMap, dayRoutes, formatManwon, returnRoute, returnTrip, startTrip } from './tripPageModel';
 
 export type TripItinerary = { id: string; value: ItineraryDto | null; message: string | null };
 
@@ -119,17 +119,32 @@ export function useTripPage(source: TripPageSource) {
   // 하루 끝 — 숙소(마지막 날은 출발지)로 돌아가는 선과 표식(S15P21E201-1567). 그 구간의 길도 같이 받아 온다.
   const returnLeg = loaded?.days[dayIndex]?.returnLeg ?? null;
   const back = useMemo(() => returnTrip(map, dayIndex + 1, returnLeg), [map, dayIndex, returnLeg]);
+  // 하루 시작 — 그날 출발점(첫날 출발지, 둘째 날부터 숙소)에서 첫 곳까지의 선과 표식(S15P21E201-1580).
+  const dayStart = loaded?.days[dayIndex]?.start ?? null;
+  const start = useMemo(() => startTrip(map, dayIndex + 1, dayStart), [map, dayIndex, dayStart]);
   // 동네 숙소면(approximate) 그 구간의 길은 안 받아 온다 — 곧은 점선으로 그린다(S15P21E201-1570).
-  const legDays = useMemo(() => (back && !back.approximate ? [...map.days, back.day] : map.days), [map, back]);
+  const legDays = useMemo(
+    () => [...map.days, ...(back && !back.approximate ? [back.day] : []), ...(start && !start.approximate ? [start.day] : [])],
+    [map, back, start],
+  );
   const legs = useCourseRoutePaths(legDays, accessToken);
   const routes = useMemo(
-    () => [...dayRoutes(map, dayIndex + 1, color.brand.navy, legs), ...(back ? [returnRoute(back, color.brand.navy, legs)] : [])],
-    [map, dayIndex, legs, back],
+    () => [
+      ...(start ? [returnRoute(start, color.brand.navy, legs)] : []),
+      ...dayRoutes(map, dayIndex + 1, color.brand.navy, legs),
+      ...(back ? [returnRoute(back, color.brand.navy, legs)] : []),
+    ],
+    [map, dayIndex, legs, back, start],
   );
-  const points = useMemo(
-    () => (back ? [{ id: 'return', label: back.kind === 'LODGING' ? tx('숙소', 'Stay') : tx('출발지', 'Start'), color: color.brand.navy, stops: [back.anchor] }] : []),
-    [back, tx],
-  );
+  const points = useMemo(() => {
+    const anchorLabel = (kind: 'LODGING' | 'ORIGIN') => (kind === 'LODGING' ? tx('숙소', 'Stay') : tx('출발지', 'Start'));
+    // 숙소에서 나와 숙소로 돌아가는 날은 두 표식이 한 자리다 — 하나만 찍는다.
+    const sameSpot = start && back && start.anchor.latitude === back.anchor.latitude && start.anchor.longitude === back.anchor.longitude;
+    return [
+      ...(start && !sameSpot ? [{ id: 'start', label: anchorLabel(start.kind), color: color.brand.navy, stops: [start.anchor] }] : []),
+      ...(back ? [{ id: 'return', label: anchorLabel(back.kind), color: color.brand.navy, stops: [back.anchor] }] : []),
+    ];
+  }, [start, back, tx]);
   const anyEstimatedLine = routes.some((route) => route.estimated !== false);
 
   // ── 요약 숫자 ──────────────────────────────────────────────────────────

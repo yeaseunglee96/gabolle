@@ -571,6 +571,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s분 (어림)': { ja: '%s分（目安）', zhHans: '%s 分钟（估算）', zhHant: '%s 分鐘（估算）' },
   '숙소로 돌아가기': { ja: '宿泊先へ戻る', zhHans: '返回住宿', zhHant: '返回住宿' },
   '출발지로 돌아가기': { ja: '出発地へ戻る', zhHans: '返回出发地', zhHant: '返回出發地' },
+  '숙소에서 시작': { ja: '宿泊先から出発', zhHans: '从住宿出发', zhHant: '從住宿出發' },
+  '출발지에서 시작': { ja: '出発地から出発', zhHans: '从出发地出发', zhHant: '從出發地出發' },
   '예정보다 %s %s': { ja: '予定より %s %s', zhHans: '比计划 %s %s', zhHant: '比計畫 %s %s' },
   // 아직 안 떠난 여행에 쓴다 — 「예정보다 빠름」은 이미 움직이는 사람의 말이다(B-13).
   '%s 뒤 시작': { ja: '%s後に開始', zhHans: '%s后开始', zhHant: '%s後開始' },
@@ -744,6 +746,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '환승 %d회': { ja: '乗り換え %d回', zhHans: '换乘 %d 次', zhHant: '轉乘 %d 次' },
   '출발지에서 %d분': { ja: '出発地から %d分', zhHans: '距出发地 %d 分钟', zhHant: '距出發地 %d 分鐘' },
   '출발지에서 %d분 (어림)': { ja: '出発地から %d分 (おおよそ)', zhHans: '距出发地约 %d 分钟', zhHant: '距出發地約 %d 分鐘' },
+  '숙소에서 %d분': { ja: '宿泊先から %d分', zhHans: '距住宿 %d 分钟', zhHant: '距住宿 %d 分鐘' },
+  '숙소에서 %d분 (어림)': { ja: '宿泊先から %d分 (おおよそ)', zhHans: '距住宿约 %d 分钟', zhHant: '距住宿約 %d 分鐘' },
   '이동 %d분': { ja: '移動 %d分', zhHans: '路程 %d 分钟', zhHant: '路程 %d 分鐘' },
   '이동 %d분 (어림)': { ja: '移動 %d分 (おおよそ)', zhHans: '路程约 %d 分钟', zhHant: '路程約 %d 分鐘' },
   '%d분 전': { ja: '%d分前', zhHans: '%d 分钟前', zhHant: '%d 分鐘前' },

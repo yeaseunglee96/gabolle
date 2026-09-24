@@ -6,7 +6,7 @@
 import type { MapRouteLayer } from '@/map/RouteMap';
 import { legKey, type LegPath } from '@/map/courseRoutePaths';
 import type { MapStop } from '@/map/types';
-import type { DayReturnLeg, ItineraryItemDto } from '@/plan/itinerary';
+import type { DayReturnLeg, DayStart, ItineraryItemDto } from '@/plan/itinerary';
 import { lodgingAreaCodeOf } from '@/plan/origins';
 
 /**
@@ -113,7 +113,23 @@ export function returnTrip(map: DayMap, dayNumber: number, returnLeg: DayReturnL
   return { day: { day: RETURN_DAY_OFFSET + dayNumber, stops: [last, anchor] }, anchor, kind: returnLeg.kind, approximate };
 }
 
-/** 돌아가는 구간의 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선. */
+/** 하루 시작 구간의 열쇠 — {@link RETURN_DAY_OFFSET} 과 같은 까닭으로 날 번호에 더한다. */
+export const START_DAY_OFFSET = 2000;
+
+/**
+ * 하루 시작 구간 — 그날 출발점(첫날 출발지, 둘째 날부터 숙소) → 첫 정차지. S15P21E201-1580.
+ * 돌아가는 구간과 모양이 같아서 선은 {@link returnRoute} 로 그리고, 동네 숙소면 같은 까닭으로 곧은 점선이다.
+ * 출발점을 모르거나(start 없음) 좌표 있는 정차지가 없으면 null.
+ */
+export function startTrip(map: DayMap, dayNumber: number, start: DayStart | null | undefined): ReturnTrip | null {
+  const first = map.stops[0];
+  if (!start || !first) return null;
+  const anchor: MapStop = { id: `start-${dayNumber}`, number: 0, name: start.label ?? '', latitude: start.lat, longitude: start.lng };
+  const approximate = start.kind === 'LODGING' && lodgingAreaCodeOf(start.lat, start.lng) != null;
+  return { day: { day: START_DAY_OFFSET + dayNumber, stops: [anchor, first] }, anchor, kind: start.kind, approximate };
+}
+
+/** 돌아가는 구간(과 하루 시작 구간)의 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선. */
 export function returnRoute(back: ReturnTrip, lineColor: string, legs: Record<string, LegPath>): MapRouteLayer {
   const leg = back.approximate ? undefined : legs[legKey(back.day.day, 0)];
   return { id: `return-${back.day.day}`, color: lineColor, stops: back.day.stops, path: leg?.path, estimated: leg ? leg.estimated : true };
