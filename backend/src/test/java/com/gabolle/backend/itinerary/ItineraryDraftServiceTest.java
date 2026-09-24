@@ -1469,6 +1469,87 @@ class ItineraryDraftServiceTest {
 		assertThat(day.stream().filter(item -> "FOOD".equals(this.categoryByPlaceId.get(item.placeId()))).count()).isEqualTo(2);
 	}
 
+	/**
+	 * 🔴 2026-09-25 운영 일정(55476311) 2일차 그대로 — 09~21시 · 하루 5곳(알차게).
+	 *
+	 * <p>칸이 144분씩이라 저녁 시각대(17~20시)가 넷째 칸(16:12~)과 다섯째 칸(18:36~)에 다 걸려 밥 칸이 셋이었다.
+	 * 밥집은 둘이라 동선을 줄이는 단계가 둘을 저녁 두 칸으로 옮겼다 — 광안리해수욕장 → 카페오뜨 → 동경밥상 16:15
+	 * → 한끼맛있다 18:44. 점심이 사라지고 저녁을 두 번 먹었다.
+	 */
+	@Test
+	@DisplayName("🔴 하루 5곳이어도 점심 1번·저녁 1번이 각 시각대에 들어가고 밥집이 연달아 붙지 않는다(S15P21E201-1624)")
+	void oneLunchAndOneDinnerInTheirBands() {
+		Trip trip = Trip.builder()
+				.tripId("trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 10, 17)).finishDate(LocalDate.of(2026, 10, 17))
+				.partySize(4).timezone("Asia/Seoul").pace("PACKED")
+				.timeWindowStart(LocalTime.of(9, 0)).timeWindowEnd(LocalTime.of(21, 0))
+				.createdAt(Instant.now())
+				.build();
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesAt(
+				List.of("NATURE_WALK", "SEA_BEACH", "CAFE_HEALING", "FOOD", "FOOD"),
+				List.of(new double[] { 35.1618, 129.1325 },   // 부산 갈맷길 2코스
+						new double[] { 35.1532, 129.1190 },   // 광안리해수욕장
+						new double[] { 35.1528, 129.1176 },   // 카페오뜨
+						new double[] { 35.1484, 129.1139 },   // 동경밥상
+						new double[] { 35.1546, 129.0619 })); // 한끼맛있다
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<ItineraryDraft.DraftItem> day = draft.items().stream()
+				.sorted(java.util.Comparator.comparing(ItineraryDraft.DraftItem::sequence))
+				.toList();
+		assertThat(day).hasSize(5);
+		List<LocalTime> meals = day.stream()
+				.filter(item -> "FOOD".equals(categoryOfItem(item)))
+				.map(ItineraryDraft.DraftItem::startTime)
+				.toList();
+		assertThat(meals).as("밥 먹는 시각").hasSize(2);
+		assertThat(meals.get(0)).as("점심 — 11시~14시 사이에 닿는다").isBetween(LocalTime.of(11, 0), LocalTime.of(14, 0));
+		assertThat(meals.get(1)).as("저녁 — 17시~20시 사이에 닿는다").isBetween(LocalTime.of(17, 0), LocalTime.of(20, 0));
+		for (int i = 1; i < day.size(); i++) {
+			assertThat("FOOD".equals(categoryOfItem(day.get(i - 1))) && "FOOD".equals(categoryOfItem(day.get(i))))
+					.as("%d·%d번째가 둘 다 밥집", i, i + 1)
+					.isFalse();
+		}
+	}
+
+	/**
+	 * 같은 병이 다른 기분에도 있었다. 09~21시를 나누면 — 하루 4곳(균형)은 칸이 180분씩이라 저녁 칸이 15:00·18:00 둘,
+	 * 하루 3곳(여유)은 240분씩이라 09:00 칸이 점심에 90분 걸려 <b>아침 9시에 점심</b>을 먹을 수 있었다.
+	 */
+	@Test
+	@DisplayName("🔴 기분이 무엇이든 09~21시 여행은 점심은 점심 때·저녁은 저녁 때 한 번씩 먹는다(S15P21E201-1624)")
+	void everyPaceEatsLunchAndDinnerInTheirBands() {
+		Map<String, List<String>> dayOf = Map.of(
+				"RELAXED", List.of("FOOD", "FOOD", "SEA_BEACH"),
+				"BALANCED", List.of("FOOD", "FOOD", "SEA_BEACH", "CULTURE_TEMPLE"),
+				"PACKED", List.of("FOOD", "FOOD", "SEA_BEACH", "CULTURE_TEMPLE", "NATURE_WALK"));
+		for (Map.Entry<String, List<String>> pace : dayOf.entrySet()) {
+			Trip trip = Trip.builder()
+					.tripId("trip_1").createdBy("usr_1")
+					.startDate(LocalDate.of(2026, 10, 17)).finishDate(LocalDate.of(2026, 10, 17))
+					.partySize(2).timezone("Asia/Seoul").pace(pace.getKey())
+					.timeWindowStart(LocalTime.of(9, 0)).timeWindowEnd(LocalTime.of(21, 0))
+					.createdAt(Instant.now())
+					.build();
+			when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+			ItineraryDraft draft = this.service.assemble(
+					commandOf("trip_1", plannedPlacesOf(pace.getValue().toArray(String[]::new))));
+
+			List<LocalTime> meals = draft.items().stream()
+					.filter(item -> "FOOD".equals(categoryOfItem(item)))
+					.map(ItineraryDraft.DraftItem::startTime)
+					.sorted()
+					.toList();
+			assertThat(meals).as(pace.getKey()).hasSize(2);
+			assertThat(meals.get(0)).as(pace.getKey() + " 점심").isBetween(LocalTime.of(11, 0), LocalTime.of(14, 0));
+			assertThat(meals.get(1)).as(pace.getKey() + " 저녁").isBetween(LocalTime.of(17, 0), LocalTime.of(20, 0));
+		}
+	}
+
 	// ── 기간이 정해진 장소 — 축제·박람회 ───────────────────────────────
 
 	private static final LocalDate FESTIVAL_TRIP_START = LocalDate.of(2026, 9, 10);
