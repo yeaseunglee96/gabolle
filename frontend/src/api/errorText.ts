@@ -40,6 +40,11 @@ const BY_FIELD: Record<string, [string, string]> = {
   startDate: ['가는 날을 아직 안 정했어요.', 'You have not picked a departure date yet.'],
   finishDate: ['오는 날을 아직 안 정했어요.', 'You have not picked a return date yet.'],
   partySize: ['인원을 확인해 주세요.', 'Please check the number of travellers.'],
+  // 1박 이상 여행은 숙소가 있어야 서버가 만든다(S15P21E201-1584). 숙소도 홈 시작 바에서 고른다.
+  accommodation: [
+    '1박 이상 여행은 숙소를 골라야 일정을 만들 수 있어요. 홈에서 숙소를 골라 주세요.',
+    'Trips with an overnight stay need a place to stay. Pick one on the home screen.',
+  ],
 };
 
 /** `"originLat: 출발지 좌표가 없다…"` 에서 칸 이름만 뗀다. 구분자가 없으면 칸 이름이 없는 것이다. */
