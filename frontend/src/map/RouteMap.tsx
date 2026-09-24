@@ -6,6 +6,7 @@ import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { MapPathPoint, MapStop } from './types';
+import { fitPadding, focusShiftY } from './mapFocus';
 import { txf } from '@/i18n/format';
 
 declare global { interface Window { kakao?: any } }
@@ -64,15 +65,27 @@ type RouteMapProps = {
    * (S15P21E201-1535). 기본은 꺼짐: 다른 화면은 지금처럼 모든 점이 들어오게만 맞춘다.
    */
   focusSelected?: boolean;
+  /**
+   * 지도 아래쪽이 창에 가려진 높이(px). 전체를 맞출 때 그만큼 아래 여백을 더 두고, 고른 곳은 보이는 부분의 가운데로
+   * 옮긴다(S15P21E201-1607 — 폰 여행 화면은 지도를 줄이지 않고 창을 겹쳐 올린다).
+   * 🔴 이 값만 바뀌어서는 다시 맞추지 않는다. 창을 여닫을 때마다 지도가 가운데를 다시 잡으며 튀면 안 된다 —
+   *    다음에 맞출 때(고른 곳이 바뀔 때 등) 쓴다.
+   */
+  bottomInset?: number;
 };
 
-export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340, focusSelected = false }: RouteMapProps) {
+export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340, focusSelected = false, bottomInset = 0 }: RouteMapProps) {
   const { tx } = useI18n();
   const hostRef = useRef<HTMLElement | null>(null);
   const mapRef = useRef<any>(null);
   const overlaysRef = useRef<any[]>([]);
   // 마지막으로 맞춘 범위 — 칸 크기가 바뀌면 같은 범위를 새 크기에 다시 맞춘다.
   const fitRef = useRef<(() => void) | null>(null);
+  // 가려진 높이는 «맞출 때» 읽는다 — 의존성에 넣으면 창을 여닫을 때마다 지도가 다시 맞춰져 튄다.
+  const insetRef = useRef(bottomInset);
+  insetRef.current = bottomInset;
+  // 지도 칸의 실제 높이 — 여백이 칸보다 커지지 않게 잰다.
+  const hostHeight = () => hostRef.current?.clientHeight || height;
   const [failure, setFailure] = useState<MapFailure | null>(null);
   const appKey = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
 
@@ -171,13 +184,24 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // : stop이 하나면 bounds 넓이가 0이라 setBounds가 지도를 최대 줌으로
         // 밀어붙인다 — 고정 34px 마커가 화면 대부분을 덮어 장소 이름을 가린다. 하나일 때는
         // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
-        const fit = () => { if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, 60, 60, 60, 60); };
+        const fit = () => {
+          if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); return; }
+          const [top, right, bottom, left] = fitPadding(insetRef.current, hostHeight());
+          map.setBounds(bounds, top, right, bottom, left);
+        };
         // 🔴 모두 들어오게 맞춘 «다음에» 고른 곳으로 민다(panTo 는 부드럽게 옮긴다). 맞추기를 건너뛰면
         //    처음 열었을 때 줌이 도시 전체(level 8)라 점들이 한 덩어리로 뭉친다.
         const selectedStop = focusSelected ? stops.find((stop) => stop.id === selectedId) : undefined;
         const fitAndFocus = () => {
           fit();
-          if (selectedStop) map.panTo(new maps.LatLng(selectedStop.latitude, selectedStop.longitude));
+          if (!selectedStop) return;
+          // 보이는 부분의 가운데로 — 지도 중심을 가린 높이의 절반만큼 아래에 둔다(mapFocus.ts).
+          const target = new maps.LatLng(selectedStop.latitude, selectedStop.longitude);
+          const shift = focusShiftY(insetRef.current, hostHeight());
+          if (!shift) { map.panTo(target); return; }
+          const projection = map.getProjection();
+          const point = projection.containerPointFromCoords(target);
+          map.panTo(projection.coordsFromContainerPoint(new maps.Point(point.x, point.y + shift)));
         };
         fitAndFocus(); fitRef.current = fitAndFocus;
         setFailure(null);
