@@ -2,8 +2,9 @@
 // 옛 화면(app/(trip)/[id]/prepare.tsx)의 날씨 카드를 떼어 왔다. 여행 페이지는 이것을 창으로 띄운다
 // (시안: 데스크톱 오른쪽 서랍 · 폰 아래 시트).
 // 「1시간별 예보」는 서버가 시간별을 싣게 되어 그린다(S15P21E201-1582) — **서버가 준 시각만.**
-// 🔴 시안의 «들를 때 날씨»·일정 시각 테두리는 아직 없다 — 이 창은 일정 항목을 안 받는다. 숫자를 지어내지 않는다.
-import { useEffect, useState } from 'react';
+// 「들를 때 날씨」·일정 시각 테두리는 여행 페이지가 출발일 일정 항목을 넘겨서 그린다(S15P21E201-1586).
+// 🔴 정차 시각의 칸이 서버에 없으면 옆 칸으로 대신하지 않는다 — 「—」. 숫자를 지어내지 않는다.
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { Eyebrow } from '@/components/Eyebrow';
@@ -34,28 +35,84 @@ const PRECIPITATION: Record<Exclude<PrecipitationType, 'NONE'>, { icon: string; 
 const RAIN_HIGHLIGHT = 30;
 /** 모르는 값(null)의 자리. 0 으로 그리면 「0%」·「0°」라고 단언하는 것이 된다. */
 const UNKNOWN = '—';
+/** 폰 줄의 칸 폭과 칸 사이 — 첫 일정 칸까지 밀어 둘 거리를 이것으로 잰다. */
+const HOUR_CELL_WIDTH = 60;
+const HOUR_GAP = 6;
+
+type Tx = (ko: string, en: string) => string;
+
+/** 그날 들르는 곳 — 시각("HH:mm")과 이름. */
+export type WeatherStop = { time: string; name: string };
+
+/** 일정 항목 → 들르는 곳. 시각은 startsAt 글자 그대로(서버가 보낸 현지 시각)에서 읽는다. 시각이 없는 항목은 뺀다. */
+export function weatherStops(items: ReadonlyArray<{ startsAt: string; title: string }> | null | undefined): WeatherStop[] {
+  return (items ?? []).flatMap((item) => {
+    const clock = /T(\d{2}:\d{2})/.exec(item.startsAt)?.[1];
+    return clock ? [{ time: clock, name: item.title }] : [];
+  });
+}
+
+/**
+ * 정차 시각에 쓸 시간별 칸 — 가장 가까운 정시(09:46 → 10시, 09:29 → 9시)의 칸이다.
+ * 기상청 시간별 값은 「그 정시의 예보」라서 내림보다 반올림이 그 시각에 가깝다.
+ * 🔴 그 칸이 서버 응답에 없으면 null — 옆 칸으로 대신하지 않는다(오늘은 발표 이후 시각만 오고, 23:40 은 없는 「24시」다).
+ */
+export function hourForStop(stopTime: string, hourly: ReadonlyArray<HourlyForecastDto>): HourlyForecastDto | null {
+  const [hour, minute] = stopTime.split(':').map(Number);
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) return null;
+  const key = `${String(hour + (minute >= 30 ? 1 : 0)).padStart(2, '0')}:00`;
+  return hourly.find((cell) => cell.time === key) ?? null;
+}
+
+/** 폰 줄을 처음 열 때 밀어 둘 거리 — 일정이 있는 가장 이른 칸이 맨 앞에 오게. 일정 칸이 없으면 0(맨 앞부터). */
+export function firstStopScrollX(hourly: ReadonlyArray<HourlyForecastDto>, stops: ReadonlyArray<WeatherStop>): number {
+  const marked = new Set(stops.map((stop) => hourForStop(stop.time, hourly)).filter(Boolean));
+  const index = hourly.findIndex((cell) => marked.has(cell));
+  return index > 0 ? index * (HOUR_CELL_WIDTH + HOUR_GAP) : 0;
+}
+
+/** 한 칸을 사람이 읽는 조각으로 — 칸과 「들를 때 날씨」 줄이 같은 말을 하게 한 곳에서 만든다. */
+function describeHour(hour: HourlyForecastDto, tx: Tx) {
+  const precipitation = hour.precipitationType && hour.precipitationType !== 'NONE' ? PRECIPITATION[hour.precipitationType] : null;
+  const chance = hour.precipitationProbability;
+  return {
+    icon: precipitation?.icon ?? (hour.skyCondition ? SKY_ICON[hour.skyCondition] : null),
+    condition: precipitation ? tx(...precipitation.label) : hour.skyCondition ? tx(...SKY_LABEL[hour.skyCondition]) : null,
+    temperature: hour.temperature != null ? `${Math.round(hour.temperature)}°` : null,
+    chance,
+    spokenChance: chance != null ? tx(`강수확률 ${chance}%`, `${chance}% chance of rain`) : null,
+  };
+}
 
 /**
  * 시안의 「1시간별 예보」 — 폰은 옆으로 밀어 보는 한 줄, 넓은 화면(서랍)은 7칸 격자.
  * 넓은지는 여행 페이지가 폰/넓은 판을 고르는 것과 같은 값(useLayout().desktop)으로 본다.
+ * 일정이 있는 시각의 칸은 테두리를 두르고 정차 번호를 붙인다(시안 「9시 · 1」).
  */
-function HourlyForecast({ hourly }: { hourly: HourlyForecastDto[] }) {
+function HourlyForecast({ hourly, stops }: { hourly: HourlyForecastDto[]; stops: WeatherStop[] }) {
   const { tx } = useI18n();
   const { desktop } = useLayout();
+  const stopNumbers = new Map<HourlyForecastDto, number[]>();
+  stops.forEach((stop, index) => {
+    const cell = hourForStop(stop.time, hourly);
+    if (cell) stopNumbers.set(cell, [...(stopNumbers.get(cell) ?? []), index + 1]);
+  });
+  // 🔴 폰은 처음 열 때 첫 일정 칸으로 한 번만 밀어 둔다. 앞으로 밀면 새벽도 보인다 — 줄을 자르지 않는다.
+  const scrollRef = useRef<ScrollView>(null);
+  const scrolled = useRef(false);
+  const startX = firstStopScrollX(hourly, stops);
   const cells = hourly.map((hour) => {
     const clock = Number(hour.time.slice(0, 2));
-    const label = Number.isInteger(clock) ? tx(`${clock}시`, `${clock}:00`) : hour.time;
-    const precipitation = hour.precipitationType && hour.precipitationType !== 'NONE' ? PRECIPITATION[hour.precipitationType] : null;
-    const sky = hour.skyCondition ? tx(...SKY_LABEL[hour.skyCondition]) : null;
-    const temperature = hour.temperature != null ? `${Math.round(hour.temperature)}°` : null;
-    const chance = hour.precipitationProbability;
-    const spoken = [label, precipitation ? tx(...precipitation.label) : sky, temperature, chance != null ? tx(`강수확률 ${chance}%`, `${chance}% chance of rain`) : null];
+    const numbers = stopNumbers.get(hour);
+    // 정차 번호 — 좁은 격자 칸은 시안처럼 붙여 쓴다(「9시·1」), 폰 칸은 띄운다(「9시 · 1」).
+    const label = (Number.isInteger(clock) ? tx(`${clock}시`, `${clock}:00`) : hour.time) + (numbers ? `${desktop ? '·' : ' · '}${numbers.join(',')}` : '');
+    const said = describeHour(hour, tx);
     return (
-      <View key={hour.time} accessible accessibilityLabel={spoken.filter(Boolean).join(', ')} style={[styles.hourCell, desktop && styles.hourCellWide]}>
-        <Text variant="caption" weight="bold" color={color.text.muted}>{label}</Text>
-        <Text style={styles.hourIcon}>{precipitation?.icon ?? (hour.skyCondition ? SKY_ICON[hour.skyCondition] : UNKNOWN)}</Text>
-        <Text weight="bold">{temperature ?? UNKNOWN}</Text>
-        <Text variant="caption" color={chance != null && chance >= RAIN_HIGHLIGHT ? color.state.info : color.text.muted}>{chance != null ? `${chance}%` : UNKNOWN}</Text>
+      <View key={hour.time} accessible accessibilityLabel={[label, said.condition, said.temperature, said.spokenChance].filter(Boolean).join(', ')} style={[styles.hourCell, desktop && styles.hourCellWide, numbers && styles.hourCellStop]}>
+        <Text variant="caption" weight="bold" color={numbers ? color.text.heading : color.text.muted} numberOfLines={1}>{label}</Text>
+        <Text style={styles.hourIcon}>{said.icon ?? UNKNOWN}</Text>
+        <Text weight="bold">{said.temperature ?? UNKNOWN}</Text>
+        <Text variant="caption" color={said.chance != null && said.chance >= RAIN_HIGHLIGHT ? color.state.info : color.text.muted}>{said.chance != null ? `${said.chance}%` : UNKNOWN}</Text>
       </View>
     );
   });
@@ -67,8 +124,50 @@ function HourlyForecast({ hourly }: { hourly: HourlyForecastDto[] }) {
           {cells.map((cell) => <View key={cell.key} style={styles.hourGridSlot}>{cell}</View>)}
         </View>
       ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hourRow}>{cells}</ScrollView>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.hourRow}
+          onContentSizeChange={() => {
+            if (scrolled.current || startX === 0) return;
+            scrolled.current = true;
+            scrollRef.current?.scrollTo({ x: startX, animated: false });
+          }}
+        >
+          {cells}
+        </ScrollView>
       )}
+    </View>
+  );
+}
+
+/** 시안의 「들를 때 날씨」 — 정차지마다 그 시각의 칸. 칸이 없으면 「—」. */
+function StopWeather({ stops, hourly }: { stops: WeatherStop[]; hourly: HourlyForecastDto[] }) {
+  const { tx } = useI18n();
+  return (
+    <View style={styles.hourly}>
+      <Text variant="caption" weight="bold" color={color.text.muted}>{tx('들를 때 날씨', 'Weather at each stop')}</Text>
+      <View style={styles.stopList}>
+        {stops.map((stop, index) => {
+          const cell = hourForStop(stop.time, hourly);
+          const said = cell ? describeHour(cell, tx) : null;
+          const rain = said?.chance != null ? tx(`비 ${said.chance}%`, `Rain ${said.chance}%`) : null;
+          const summary = said ? [said.icon, said.temperature ?? UNKNOWN].filter(Boolean).join(' ') + (rain ? ` · ${rain}` : '') : UNKNOWN;
+          return (
+            <View
+              key={`${stop.time}-${index}`}
+              accessible
+              accessibilityLabel={[stop.time, stop.name, ...(said ? [said.condition, said.temperature, said.spokenChance] : [tx('예보 없음', 'No forecast')])].filter(Boolean).join(', ')}
+              style={[styles.stopRow, index > 0 && styles.stopRowDivided]}
+            >
+              <Text variant="caption" weight="bold" color={color.text.muted} style={styles.stopTime}>{stop.time}</Text>
+              <Text weight="bold" numberOfLines={1} style={styles.stopName}>{stop.name}</Text>
+              <Text variant="caption" color={color.text.body}>{summary}</Text>
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 }
@@ -76,8 +175,9 @@ function HourlyForecast({ hourly }: { hourly: HourlyForecastDto[] }) {
 /**
  * `date` — 출발일. `undefined` 는 아직 모른다(불러오는 중), `null` 은 일정이 없어 알 수 없다.
  * `hourly` — 카드 아래에 「1시간별 예보」를 그린다. 여행 페이지의 창만 켠다.
+ * `stops` — 그날 들르는 곳. 있으면 시간별 칸에 테두리를 두르고 「들를 때 날씨」를 그린다.
  */
-export function TripWeatherCard({ date, hourly = false }: { date: string | null | undefined; hourly?: boolean }) {
+export function TripWeatherCard({ date, hourly = false, stops = [] }: { date: string | null | undefined; hourly?: boolean; stops?: WeatherStop[] }) {
   const { tx } = useI18n();
   const { accessToken } = useAuth();
   const [weather, setWeather] = useState<WeatherLoadResult | null>(null);
@@ -124,21 +224,35 @@ export function TripWeatherCard({ date, hourly = false }: { date: string | null 
           <Text variant="body" color={color.text.muted}>{tx('예보를 불러오는 중…', 'Loading the forecast…')}</Text>
         )}
       </View>
-      {/* 옛 서버(칸 없음)·시각이 하나도 없는 날은 줄 자체를 안 그린다 — 빈 줄에 「—」를 늘어놓지 않는다. */}
-      {hourly && weather?.state === 'success' && weather.hourly.length > 0 ? <HourlyForecast hourly={weather.hourly} /> : null}
+      {/* 옛 서버(칸 없음)·시각이 하나도 없는 날은 줄 자체를 안 그린다 — 빈 줄에 「—」를 늘어놓지 않는다.
+          「들를 때 날씨」도 같다 — 시간별이 하나도 없으면 모든 줄이 「—」라 말할 것이 없다. */}
+      {hourly && weather?.state === 'success' && weather.hourly.length > 0 ? (
+        <>
+          <HourlyForecast hourly={weather.hourly} stops={stops} />
+          {stops.length > 0 ? (
+            <>
+              <StopWeather stops={stops} hourly={weather.hourly} />
+              <Text variant="caption" color={color.text.muted} style={styles.hourly}>{tx('테두리는 일정이 있는 시간이에요. 예보는 부산 전체 기준이에요.', 'Outlined hours have a stop. The forecast covers all of Busan.')}</Text>
+            </>
+          ) : null}
+        </>
+      ) : null}
     </>
   );
 }
 
-/** 창에 띄우는 꼴 — 머리(여행 전 · 출발일) + 카드. */
-export function TripWeatherPanel({ date }: { date: string | null | undefined }) {
+/**
+ * 창에 띄우는 꼴 — 머리(여행 전 · 출발일) + 카드.
+ * `items` — 출발일의 일정 항목. 여행 페이지가 그날 일정을 넘긴다(없으면 시간별 줄만).
+ */
+export function TripWeatherPanel({ date, items }: { date: string | null | undefined; items?: ReadonlyArray<{ startsAt: string; title: string }> | null }) {
   const { tx, locale } = useI18n();
   const departure = date ? formatMonthDay(date, locale) : null;
   return (
     <View>
       <Eyebrow>{departure ? txf(tx, '여행 전 · %s 출발', 'Before the trip · Departing %s', departure) : tx('여행 전', 'Before the trip')}</Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>{tx('출발일 날씨', 'Departure-day weather')}</Text>
-      <TripWeatherCard date={date} hourly />
+      <TripWeatherCard date={date} hourly stops={weatherStops(items)} />
     </View>
   );
 }
@@ -165,14 +279,22 @@ const styles = StyleSheet.create({
   },
   // ── 1시간별 예보 — 시안 TripPageMobile/Desktop.dc.html 의 hours 칸 ──
   hourly: { marginTop: spacing[4], gap: spacing[2] },
-  hourRow: { gap: 6 },
+  hourRow: { gap: HOUR_GAP },
   hourGrid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -3 },
   // 7칸 — 칸 사이 6px 은 칸마다 양옆 3px 로 낸다(퍼센트 폭에서 gap 을 빼는 계산이 RN 에 없다).
   hourGridSlot: { width: '14.2857%', padding: 3 },
+  // 테두리 자리는 모든 칸에 비워 둔다 — 일정 칸만 굵어지면 그 칸만 커져서 줄이 들쭉날쭉해진다.
   hourCell: {
-    width: 60, alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: spacing[1],
-    borderRadius: radius.md, backgroundColor: color.surface.tint,
+    width: HOUR_CELL_WIDTH, alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 2,
+    borderRadius: radius.md, borderWidth: 2, borderColor: 'transparent', backgroundColor: color.surface.tint,
   },
-  hourCellWide: { width: '100%', gap: spacing[1], paddingVertical: spacing[2], paddingHorizontal: 2 },
+  hourCellWide: { width: '100%', gap: spacing[1], paddingVertical: spacing[2], paddingHorizontal: 0 },
+  hourCellStop: { borderColor: color.text.heading },
   hourIcon: { fontSize: 20, lineHeight: 24 },
+  // ── 들를 때 날씨 ──
+  stopList: { borderRadius: radius.lg, backgroundColor: color.surface.tint, paddingHorizontal: spacing[4], paddingVertical: spacing[1] },
+  stopRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 48 },
+  stopRowDivided: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.surface.border },
+  stopTime: { width: 44 },
+  stopName: { flex: 1, minWidth: 0 },
 });

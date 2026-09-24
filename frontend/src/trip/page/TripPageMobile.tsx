@@ -533,7 +533,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       {tripId ? (
         <TripOverlay visible={overlay !== null} shape="sheet" onClose={() => setOverlay(null)}>
           {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
-          {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} /> : null}
+          {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
         </TripOverlay>
       ) : null}
     </View>
