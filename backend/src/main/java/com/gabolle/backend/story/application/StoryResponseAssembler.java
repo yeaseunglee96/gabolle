@@ -16,12 +16,14 @@ import com.gabolle.backend.common.security.HtmlOutputEncoder;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.story.domain.Story;
+import com.gabolle.backend.story.domain.StoryCoauthor;
 import com.gabolle.backend.story.domain.ReactionType;
 import com.gabolle.backend.story.domain.StoryImage;
 import com.gabolle.backend.story.domain.StoryVideo;
 import com.gabolle.backend.story.domain.UploadedImage;
 import com.gabolle.backend.story.domain.UploadedVideo;
 import com.gabolle.backend.story.presentation.dto.StoryResponse;
+import com.gabolle.backend.story.repository.StoryCoauthorRepository;
 import com.gabolle.backend.story.repository.StoryImageRepository;
 import com.gabolle.backend.story.repository.StoryVideoRepository;
 import com.gabolle.backend.story.repository.StoryReactionRepository;
@@ -52,10 +54,13 @@ public class StoryResponseAssembler {
 
 	private final StoryReactionRepository storyReactionRepository;
 
+	private final StoryCoauthorRepository storyCoauthorRepository;
+
 	public StoryResponseAssembler(StoryImageRepository storyImageRepository,
 			UploadedImageRepository uploadedImageRepository, AppUserRepository appUserRepository,
 			PlaceRepository placeRepository, StoryReactionRepository storyReactionRepository,
-			StoryVideoRepository storyVideoRepository, UploadedVideoRepository uploadedVideoRepository) {
+			StoryVideoRepository storyVideoRepository, UploadedVideoRepository uploadedVideoRepository,
+			StoryCoauthorRepository storyCoauthorRepository) {
 		this.storyImageRepository = storyImageRepository;
 		this.uploadedImageRepository = uploadedImageRepository;
 		this.appUserRepository = appUserRepository;
@@ -63,6 +68,7 @@ public class StoryResponseAssembler {
 		this.storyReactionRepository = storyReactionRepository;
 		this.storyVideoRepository = storyVideoRepository;
 		this.uploadedVideoRepository = uploadedVideoRepository;
+		this.storyCoauthorRepository = storyCoauthorRepository;
 	}
 
 	public StoryResponse one(Story story, UUID viewer, Instant now) {
@@ -113,6 +119,13 @@ public class StoryResponseAssembler {
 			if (story.getPlaceId() != null) {
 				placeIds.add(story.getPlaceId());
 			}
+		}
+		// 공동 작성자의 이름은 작성자 이름 조회에 같이 태운다 — 질의를 하나 더 늘리지 않는다.
+		Map<UUID, List<StoryCoauthor>> coauthorsByStory = new HashMap<>();
+		for (StoryCoauthor coauthor : this.storyCoauthorRepository
+				.findByKeyStoryIdInOrderByJoinedAtAscKeyUserIdAsc(storyIds)) {
+			coauthorsByStory.computeIfAbsent(coauthor.getStoryId(), (k) -> new ArrayList<>()).add(coauthor);
+			authorIds.add(coauthor.getUserId());
 		}
 		Map<UUID, AppUser> authors = new HashMap<>();
 		for (AppUser user : this.appUserRepository.findAllById(authorIds)) {
@@ -175,6 +188,14 @@ public class StoryResponseAssembler {
 							thumbnail == null ? null : thumbnail.getImageUrl(), video.getDurationSec()));
 				}
 			}
+			// 작성자와 달리 「탈퇴한 사용자」 글자를 박지 않고 null 로 둔다 — 계약이 그렇게 정했다.
+			List<StoryResponse.Coauthor> coauthors = new ArrayList<>();
+			for (StoryCoauthor coauthor : coauthorsByStory.getOrDefault(story.getStoryId(), List.of())) {
+				AppUser user = authors.get(coauthor.getUserId());
+				String name = (user == null || user.getDeletedAt() != null || user.getDisplayName() == null
+						|| user.getDisplayName().isBlank()) ? null : HtmlOutputEncoder.forHtml(user.getDisplayName());
+				coauthors.add(new StoryResponse.Coauthor(coauthor.getUserId().toString(), name));
+			}
 			out.add(new StoryResponse(
 					story.getStoryId().toString(),
 					new StoryResponse.Author(story.getAuthorUserId().toString(), displayName),
@@ -202,7 +223,8 @@ public class StoryResponseAssembler {
 					myReactions.containsKey(story.getStoryId())
 							? myReactions.get(story.getStoryId()).name()
 							: null,
-					media));
+					media,
+					coauthors));
 		}
 		return out;
 	}

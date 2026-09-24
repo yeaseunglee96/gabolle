@@ -13,6 +13,7 @@ import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryVisibility;
 import com.gabolle.backend.story.presentation.dto.StoryResponse;
+import com.gabolle.backend.story.repository.StoryCoauthorRepository;
 import com.gabolle.backend.story.repository.StoryImageRepository;
 import com.gabolle.backend.story.repository.StoryReactionRepository;
 import com.gabolle.backend.story.repository.StoryVideoRepository;
@@ -50,6 +51,9 @@ class StoryResponseAssemblerTest {
 		StoryVideoRepository storyVideoRepository = mock(StoryVideoRepository.class);
 		UploadedVideoRepository uploadedVideoRepository = mock(UploadedVideoRepository.class);
 		when(storyVideoRepository.findByStoryIdIn(any())).thenReturn(List.of());
+		// 공동 작성자가 실제로 실리는지는 StoryCoauthorsInResponseIntegrationTest 가 잰다.
+		StoryCoauthorRepository storyCoauthorRepository = mock(StoryCoauthorRepository.class);
+		when(storyCoauthorRepository.findByKeyStoryIdInOrderByJoinedAtAscKeyUserIdAsc(any())).thenReturn(List.of());
 
 		when(storyImageRepository.findByStoryIdInOrderByStoryIdAscPositionAsc(any())).thenReturn(List.of());
 		when(storyReactionRepository.countByStories(any())).thenReturn(List.of());
@@ -57,7 +61,7 @@ class StoryResponseAssemblerTest {
 
 		this.assembler = new StoryResponseAssembler(storyImageRepository, uploadedImageRepository,
 				this.appUserRepository, placeRepository, storyReactionRepository, storyVideoRepository,
-				uploadedVideoRepository);
+				uploadedVideoRepository, storyCoauthorRepository);
 	}
 
 	/** {@code AppUser.userId} 는 {@code @GeneratedValue} 라 persist 전에는 null 이므로 직접 심는다. */

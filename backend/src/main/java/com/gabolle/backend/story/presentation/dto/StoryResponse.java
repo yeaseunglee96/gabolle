@@ -68,9 +68,22 @@ public record StoryResponse(
 		 *
 		 * <p>없으면 빈 배열이고 {@code null} 이 아니다.
 		 */
-		List<Media> media) {
+		List<Media> media,
+
+		/**
+		 * 함께 쓰는 사람 — 초대를 수락해 합류한 사람만, 합류한 순서대로. 만든 사람({@code author})은 들어가지
+		 * 않는다. 없으면 빈 배열이고 {@code null} 이 아니다.
+		 *
+		 * <p>참여자 목록({@code GET /stories/{id}/coauthors})과 같은 사실이지만, 피드 카드가 글마다 그것을
+		 * 따로 부르지 않게 여기에도 싣는다.
+		 */
+		List<Coauthor> coauthors) {
 
 	public record Author(String id, String displayName) {
+	}
+
+	/** @param displayName 탈퇴했거나 이름이 비었으면 {@code null} — 무엇으로 부를지는 화면이 정한다 */
+	public record Coauthor(String id, String displayName) {
 	}
 
 	/**
