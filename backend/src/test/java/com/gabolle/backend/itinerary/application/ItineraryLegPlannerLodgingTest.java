@@ -128,6 +128,57 @@ class ItineraryLegPlannerLodgingTest {
 				.isEqualTo(ItineraryLegPlanner.Anchor.ORIGIN);
 	}
 
+	// ── 그날 출발 자리 (S15P21E201-1581) ─────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 첫날은 출발지(ORIGIN · 이름 없음), 둘째 날은 숙소(LODGING · 동네 이름)에서 연다")
+	void 첫날은_출발지_둘째날은_숙소() {
+		Trip trip = tripWithArea(null, "HAEUNDAE");
+		ItineraryLegPlanner.Anchor lodging = this.planner.lodgingOf(trip);
+
+		ItineraryLegPlanner.Anchor first = this.planner.startAnchor(trip, 0, lodging);
+		ItineraryLegPlanner.Anchor second = this.planner.startAnchor(trip, 1, lodging);
+
+		assertThat(first.kind()).isEqualTo(ItineraryLegPlanner.Anchor.ORIGIN);
+		assertThat(first.label()).as("출발지 이름은 저장하지 않는다").isNull();
+		assertThat(first.lat()).isEqualTo(ORIGIN_LAT);
+		assertThat(second.kind()).isEqualTo(ItineraryLegPlanner.Anchor.LODGING);
+		assertThat(second.label()).isEqualTo("해운대");
+		assertThat(second.lat()).isEqualTo(LODGING_LAT);
+	}
+
+	@Test
+	@DisplayName("숙소가 없으면 둘째 날도 출발지에서 연다")
+	void 숙소가_없으면_둘째날도_출발지() {
+		ItineraryLegPlanner.Anchor second = this.planner.startAnchor(trip(null), 1, null);
+
+		assertThat(second.kind()).isEqualTo(ItineraryLegPlanner.Anchor.ORIGIN);
+		assertThat(second.lat()).isEqualTo(ORIGIN_LAT);
+	}
+
+	@Test
+	@DisplayName("출발지도 모르는 옛 여행이면 null — 모르는 자리를 지어내지 않는다")
+	void 출발지를_모르면_null() {
+		Trip noOrigin = new Trip("trip_1", "usr_1", LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 2),
+				null, null, 300_000, 2, "09:00-18:00", "Asia/Seoul",
+				new String[] { "WALK" }, null, null, null, false, false, false, null, Instant.now());
+
+		assertThat(this.planner.startAnchor(noOrigin, 0, null)).isNull();
+		assertThat(this.planner.startAnchor(noOrigin, 1, null)).isNull();
+	}
+
+	@Test
+	@DisplayName("🔴 dayStart 는 startAnchor 와 같은 자리다 — 잰 이동 시간과 응답의 출발지가 어긋나지 않는다")
+	void dayStart_와_startAnchor_는_같은_자리() {
+		Trip trip = tripWithArea(null, "HAEUNDAE");
+		ItineraryLegPlanner.Anchor lodging = this.planner.lodgingOf(trip);
+
+		for (int day = 0; day < 2; day++) {
+			ItineraryLegPlanner.Anchor anchor = this.planner.startAnchor(trip, day, lodging);
+			assertThat(this.planner.dayStart(trip, day, lodging)).containsExactly(anchor.lat(), anchor.lng());
+		}
+	}
+
 	@Test
 	@DisplayName("돌아가는 이동은 그날 마지막 방문지에서 숙소까지 잰다")
 	void 돌아가는_이동은_마지막_방문지에서_잰다() {

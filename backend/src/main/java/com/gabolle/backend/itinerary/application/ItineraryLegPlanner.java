@@ -198,10 +198,23 @@ public class ItineraryLegPlanner {
      * 둘 다 {@code null} 이다(전과 같다).
      */
     public Double[] dayStart(Trip trip, int dayIndex, Anchor lodging) {
+        Anchor start = startAnchor(trip, dayIndex, lodging);
+        return (start == null) ? new Double[] { null, null } : new Double[] { start.lat(), start.lng() };
+    }
+
+    /**
+     * {@link #dayStart} 의 자리를 이름·종류까지 담아 낸다 — 일정 응답의 「그날 어디서 출발하나」
+     * (S15P21E201-1581). 규칙은 여기 한 곳이다. 첫날이거나 숙소를 모르면 출발지, 둘째 날부터 숙소.
+     * 출발지도 모르면 {@code null}.
+     */
+    public Anchor startAnchor(Trip trip, int dayIndex, Anchor lodging) {
         if (dayIndex > 0 && lodging != null) {
-            return new Double[] { lodging.lat(), lodging.lng() };
+            return lodging;
         }
-        return new Double[] { trip.originLat(), trip.originLng() };
+        if (trip.originLat() == null || trip.originLng() == null) {
+            return null;
+        }
+        return new Anchor(trip.originLat(), trip.originLng(), Anchor.ORIGIN, null);
     }
 
     /**

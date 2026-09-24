@@ -11,9 +11,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.beans.factory.ObjectProvider;
+
 import com.gabolle.backend.itinerary.application.ItineraryAccess;
 import com.gabolle.backend.itinerary.application.ActorNames;
+import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
 import com.gabolle.backend.itinerary.application.ItineraryQueryService;
+import com.gabolle.backend.itinerary.application.port.TravelTimePort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
@@ -311,6 +315,38 @@ class ItineraryQueryServiceTest {
 
 		assertThat(item.lat()).isNull();
 		assertThat(item.lng()).isNull();
+	}
+
+	// ── 그날 출발 자리 (S15P21E201-1581) ─────────────────────────────────
+
+	/**
+	 * 서버는 둘째 날부터 숙소에서 출발시켜 이동 시간을 재는데, 응답에 그 자리가 없어 앱이 매일 「출발지에서 N분」
+	 * 으로 적었다. 규칙 자체는 {@code ItineraryLegPlannerLodgingTest} 가 본다 — 여기는 응답까지 닿는지만 본다.
+	 */
+	@Test
+	@DisplayName("🔴 일정 응답의 날마다 출발 자리가 실린다 — 첫날 출발지, 둘째 날 숙소 동네")
+	void eachDayCarriesWhereItStarts() {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noRoutes = mock(ObjectProvider.class);
+		ItineraryQueryService withPlanner = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
+				new FakeItineraryItemActualRepository(), placeIds -> Map.of(),
+				new ItineraryLegPlanner(this.placeRepository, noRoutes));
+		// 부산역에서 출발, 해운대 동네에 묵는 1박 2일.
+		stubTripMembership(new Trip(this.tripId, this.requesterId, Trip.OwnerType.USER, LocalDate.of(2026, 9, 10),
+				LocalDate.of(2026, 9, 11), 35.1152, 129.0422, null, 2, null, "Asia/Seoul",
+				new String[] { "WALK" }, null, null, null, false, false, false, null, null, Instant.now(), "HAEUNDAE"));
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, null, null),
+				itemOf("item_2", 1, LocalDate.of(2026, 9, 11), 1, null, null)));
+
+		List<ItineraryDetailResponse.Day> days = withPlanner.getDetail(itineraryId, this.requesterId).days();
+
+		assertThat(days.get(0).start().kind()).isEqualTo("ORIGIN");
+		assertThat(days.get(0).start().label()).isNull();
+		assertThat(days.get(0).start().lat()).isEqualTo(35.1152);
+		assertThat(days.get(1).start().kind()).isEqualTo("LODGING");
+		assertThat(days.get(1).start().label()).isEqualTo("해운대");
 	}
 
 	private String seedItinerary(int version, List<ItineraryItem> items) {

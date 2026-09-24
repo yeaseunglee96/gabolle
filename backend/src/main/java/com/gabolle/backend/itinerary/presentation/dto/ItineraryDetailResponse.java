@@ -47,13 +47,24 @@ public record ItineraryDetailResponse(
 	 * 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}).
 	 *
 	 * @param returnLeg 그날 마지막 방문지에서 돌아가는 이동(S15P21E201-1565). 돌아갈 자리를 모르면 {@code null}
+	 * @param start     그날 어디서 출발하나(S15P21E201-1581). 첫 방문지로 들어오는 구간이 여기서 잰 것이다.
+	 *                  출발지도 모르는 옛 여행이면 {@code null}
 	 */
-	public record Day(String date, List<Item> items, ReturnLeg returnLeg) {
+	public record Day(String date, List<Item> items, ReturnLeg returnLeg, Start start) {
 
-		/** 돌아가는 이동을 모르는 날. */
+		/** 돌아가는 이동도 출발 자리도 모르는 날. */
 		public Day(String date, List<Item> items) {
-			this(date, items, null);
+			this(date, items, null, null);
 		}
+	}
+
+	/**
+	 * 하루를 여는 자리 — 첫날이거나 숙소를 모르면 여행 출발지, 둘째 날부터는 숙소.
+	 *
+	 * @param kind  {@code ORIGIN}(여행 출발지) · {@code LODGING}(숙소)
+	 * @param label 숙소 이름 또는 동네 이름. 출발지면 {@code null} — 출발지 이름은 저장하지 않는다
+	 */
+	public record Start(String kind, String label, double lat, double lng) {
 	}
 
 	/**
