@@ -69,6 +69,11 @@ public class BaselineCandidateScorer {
 		this.objectMapper = objectMapper;
 	}
 
+	/** 사용자가 고른 여행 테마(갈래) — 채점의 관심 항이 읽는 것과 같은 답이다. 안 골랐으면 빈 목록. */
+	List<String> chosenCategories(PreferenceSnapshot preferenceSnapshot) {
+		return PreferenceJson.codesFor(preferenceSnapshot, "CATEGORY", this.objectMapper);
+	}
+
 	/**
 	 * @param alignmentWeights 점수형 취향 다섯 차원이 {@code weights.preferenceAlignment} 를
 	 *     나누는 비율. 빈 주입이 아니라 인수인 이유는, 한 요청 안에서 설정이 다른 두 벌로 같은

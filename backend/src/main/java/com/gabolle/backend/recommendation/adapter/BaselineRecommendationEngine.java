@@ -3,6 +3,7 @@ package com.gabolle.backend.recommendation.adapter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -221,10 +222,12 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		candidates = SeedBoost.apply(candidates, seeds);
 		// 총예산에 맞춘다. 역시 점수만 움직이고 후보를 빼지 않는다 — BudgetFit 참고.
 		candidates = BudgetFit.apply(candidates, priceBandsOf(response), BudgetFit.targetBand(trip));
-		// 자르기는 채점을 마친 뒤다.
+		// 자르기는 채점을 마친 뒤다. 갈래를 골랐으면 그 갈래·끼니·쉼 갈래에 몫을 먼저 준다({@link #keepWithCategoryShares}).
 		// 갈래를 안 골랐으면 뒤쪽을 여행마다 다르게 채운다 (S15P21E201-1463).
-		boolean noCategoryChosen = queryRequest.categoriesOrEmpty().isEmpty();
-		candidates = keepBestScoring(candidates, this.properties.candidateLimit(), noCategoryChosen, request.tripId());
+		// 🔴 고른 갈래는 질의가 아니라 취향에서 읽는다 — 질의는 갈래로 좁히지 않아(-1535) 늘 비어 있고, 그 탓에
+		//    「안 골랐다」가 모든 여행에 참이 되어 있었다.
+		List<String> chosenCategories = this.scorer.chosenCategories(preferenceSnapshot);
+		candidates = keepBestScoring(candidates, this.properties.candidateLimit(), chosenCategories, request.tripId());
 		long rankingMs = elapsedMs(rankingStart);
 
 		String datasetVersion = resolveDatasetVersion(response.datasetVersions());
@@ -275,19 +278,19 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * {@code ItineraryDraftCommand.places} 의 계약이 「rank 오름차순」이고, 화면도 앞쪽을 더 잘
 	 * 맞는 곳으로 읽는다.
 	 *
-	 * @param varyTail 갈래를 안 골라서 뒤쪽을 섞어도 되는가. 골랐으면 {@code false} —
+	 * @param chosenCategories 사용자가 고른 갈래. 비었으면 뒤쪽을 섞고, 골랐으면 섞지 않고 갈래 몫을 먼저 준다 —
 	 *     「카페를 골랐는데 카페가 적네」가 생기면 안 된다
 	 * @param seed 섞기의 씨앗. 같은 값이면 같은 결과다
 	 */
 	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit,
-			boolean varyTail, UUID seed) {
+			List<String> chosenCategories, UUID seed) {
 		if (candidates.size() <= limit) {
 			return candidates;
 		}
 		List<EngineCandidate> sorted = new ArrayList<>(candidates);
 		sorted.sort(scoreOrder());
-		if (!varyTail) {
-			return new ArrayList<>(sorted.subList(0, limit));
+		if (!chosenCategories.isEmpty()) {
+			return keepWithCategoryShares(sorted, limit, chosenCategories);
 		}
 
 		int anchor = Math.max(1, (int) Math.round(limit * ANCHOR_SHARE));
@@ -301,6 +304,65 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		// 고르기는 섞어서 했어도 내보내는 순서는 점수 순이다.
 		kept.sort(scoreOrder());
 		return kept;
+	}
+
+	/**
+	 * 고른 갈래가 남기는 후보에서 차지하는 몫의 합. 앱이 「고른 갈래가 하루 정차지의 약 70%를 차지해요」라고
+	 * 약속한다(frontend {@code planOptions.ts}) — 후보에 그만큼이 없으면 그 약속을 일정이 지킬 수 없다.
+	 */
+	static final double CHOSEN_SHARE = 0.7;
+
+	/** 고르지 않았어도 끼니 자리를 채울 밥집의 몫. 바다·자연만 고른 사람도 밥은 먹는다. */
+	static final double MEAL_SHARE = 0.15;
+
+	/** 고르지 않았어도 쉼 자리(카페)의 몫. 일정이 카페를 하루 한 곳까지 앉힌다(S15P21E201-1573). */
+	static final double REST_SHARE = 0.05;
+
+	static final String MEAL_CATEGORY = "FOOD";
+
+	static final String REST_CATEGORY = "CAFE_HEALING";
+
+	/**
+	 * 갈래를 고른 사람의 자르기 — 갈래마다 최소 몫을 점수 순으로 먼저 채우고, 남은 자리를 전체 점수 순으로 채운다.
+	 *
+	 * <p>🔴 <b>왜.</b> 고른 갈래는 채점에서 «가산점» 이다(-1535). 그런데 운영 장소는 밥집이 압도적이라(광안리+해운대
+	 * 범위: 밥집 1,074 · 카페 156 · 자연 10 · 바다 2) 맛집도 고르면 수천 곳이 같은 가산점을 받고, 밥집에만 붙는
+	 * 인기도·예산 가산까지 얹혀 상위 200 을 밥집이 다 채웠다. 바다·자연·맛집을 고른 운영 여행의 후보가
+	 * <b>밥집 199 · 꼭 갈 곳 1</b> 이었고 코스 셋이 전부 식당으로 찼다(2026-09-24).
+	 *
+	 * <p>한 갈래의 후보가 몫보다 적으면 있는 만큼만 넣는다 — 바다가 2곳이면 2곳이다. 몫의 합이 {@code limit} 의
+	 * 90% 이하라 점수 순으로 채우는 자리가 늘 남는다(꼭 갈 곳은 점수가 맨 위라 거기서 들어온다).
+	 */
+	private static List<EngineCandidate> keepWithCategoryShares(List<EngineCandidate> sorted, int limit,
+			List<String> chosenCategories) {
+		Map<String, Integer> shares = new LinkedHashMap<>();
+		int perChosen = Math.max(1, (int) (limit * CHOSEN_SHARE / chosenCategories.size()));
+		for (String category : chosenCategories) {
+			shares.put(category, perChosen);
+		}
+		shares.putIfAbsent(MEAL_CATEGORY, Math.max(1, (int) (limit * MEAL_SHARE)));
+		shares.putIfAbsent(REST_CATEGORY, Math.max(1, (int) (limit * REST_SHARE)));
+
+		Map<UUID, EngineCandidate> kept = new LinkedHashMap<>();
+		Map<String, Integer> taken = new HashMap<>();
+		for (EngineCandidate candidate : sorted) {
+			Object category = candidate.featureValues() == null ? null : candidate.featureValues().get("category");
+			Integer share = (category == null) ? null : shares.get(category.toString());
+			if (share != null && taken.getOrDefault(category.toString(), 0) < share) {
+				kept.put(candidate.placeId(), candidate);
+				taken.merge(category.toString(), 1, Integer::sum);
+			}
+		}
+		for (EngineCandidate candidate : sorted) {
+			if (kept.size() >= limit) {
+				break;
+			}
+			kept.putIfAbsent(candidate.placeId(), candidate);
+		}
+		List<EngineCandidate> out = new ArrayList<>(kept.values());
+		// 몫으로 골랐어도 내보내는 순서는 점수 순이다 — ItineraryDraftCommand.places 의 계약.
+		out.sort(scoreOrder());
+		return out;
 	}
 
 	/** 점수 내림차순, 동점은 {@code placeId}. 두 곳에서 같은 순서를 써야 해서 따로 뺐다. */
