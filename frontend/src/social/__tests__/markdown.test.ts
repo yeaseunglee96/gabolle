@@ -1,4 +1,4 @@
-import { looksLikeMarkdown, markdownToPlain, parseMarkdown } from '../markdown';
+import { looksLikeMarkdown, markdownToPlain, markdownToPreview, parseMarkdown } from '../markdown';
 
 describe('마크다운 해석', () => {
   it('굵게·기울임·링크를 알아본다', () => {
@@ -46,6 +46,23 @@ describe('마크다운 해석', () => {
     expect(plain).toBe('제목 굵게 와 기울임 하나 둘');
     expect(plain).not.toContain('#');
     expect(plain).not.toContain('**');
+  });
+
+  // S15P21E201-1649 — 목록 카드는 제목 줄을 크기 그대로 굵게만 그린다(사용자 결정 (다)). 그러려면 어디가 제목이었는지 남아야 한다.
+  it('🔴 목록 카드 미리보기는 제목(#·##·###) 줄이었던 곳을 표시한다 — 이어 붙이면 평문과 같다', () => {
+    const source = '# 해운대 하루\n\n**바다**가 *좋았어요*\n\n### 먹은 것\n\n- 돼지국밥';
+    expect(markdownToPreview(source)).toEqual([
+      { text: '해운대 하루', heading: true },
+      { text: '바다 가 좋았어요', heading: false },
+      { text: '먹은 것', heading: true },
+      { text: '돼지국밥', heading: false },
+    ]);
+    expect(markdownToPreview(source).map((piece) => piece.text).join(' ')).toBe(markdownToPlain(source));
+  });
+
+  it('제목이 없는 글은 조각 하나, 빈 글은 조각 없음', () => {
+    expect(markdownToPreview('오늘 해운대에 다녀왔어요.')).toEqual([{ text: '오늘 해운대에 다녀왔어요.', heading: false }]);
+    expect(markdownToPreview('   ')).toEqual([]);
   });
 
   it('빈 글이나 공백만 있어도 죽지 않는다', () => {

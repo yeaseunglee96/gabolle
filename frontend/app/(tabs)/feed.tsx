@@ -14,6 +14,7 @@ import { RegionPicker } from '@/components/RegionPicker';
 import { composeEntryFor } from '@/social/composeEntry';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { markdownToPlain } from '@/social/markdown';
+import { MarkdownPreview } from '@/social/MarkdownPreview';
 import { Button } from '@/components/Button';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ReportModal } from '@/components/ReportModal';
@@ -199,7 +200,8 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
           생략" 이라고 적었다.
       */}
       {hasPhoto
-        ? <Text variant="body" color={color.text.body} numberOfLines={2} style={styles.body}>{markdownToPlain(withoutCourseLink(story.body, courseLink))}</Text>
+        // 제목(#·##·###) 줄은 크기 그대로 굵게만 — 줄 수 자르기는 그대로(S15P21E201-1649, 사용자 결정 (다)).
+        ? <MarkdownPreview source={withoutCourseLink(story.body, courseLink)} variant="body" color={color.text.body} numberOfLines={2} style={styles.body} />
         : null}
 
       {/* 메타 한 줄.
