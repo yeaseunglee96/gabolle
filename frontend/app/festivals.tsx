@@ -7,6 +7,7 @@ import { AddPlaceToItineraryModal } from '@/components/AddPlaceToItineraryModal'
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
+import { PhotoCredit } from '@/components/PhotoCredit';
 import { Text } from '@/components/Text';
 import { useAuth } from '@/auth/AuthProvider';
 import { maskDateInput } from '@/plan/inputMasks';
@@ -107,7 +108,7 @@ export default function Festivals() {
             <Text variant="caption" weight="bold" color={color.text.eyebrow}>{festival.startDate} — {festival.endDate}</Text>
           </View>
           <Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
-          {festival.photoUrl && photo.credit && <Text variant="caption" color={color.text.muted}>{photo.credit}</Text>}
+          {festival.photoUrl && photo.credit ? <PhotoCredit credit={photo.credit} licenseUrl={photo.licenseUrl} variant="caption" color={color.text.muted} /> : null}
           <Pressable accessibilityRole="button" onPress={() => accessToken ? setAddPlaceId(festival.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/festivals' } })} style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}>
             <Text variant="caption" weight="bold" color={color.action.outline}>{tx('+ 내 일정에 추가', '+ Add to my itinerary')}</Text>
           </Pressable>

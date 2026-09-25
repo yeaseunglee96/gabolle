@@ -10,6 +10,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { PhotoCredit } from '@/components/PhotoCredit';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ScopeSwitch } from '@/discovery/ScopeSwitch';
@@ -17,7 +18,7 @@ import { EXPLORE_GRID_GAP, exploreCardWidth } from '@/discovery/exploreGrid';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { color, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
-import { getPlacesByFacet, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
+import { getPlacesByFacet, photoLabels, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
@@ -359,7 +360,8 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
         <PlacePhoto item={item} style={styles.cardPhoto} />
         {/* 🔴 사진 출처는 꾸밈이 아니라 이용 조건이다. 사진을 그리면 반드시 함께 그리고,
             문구는 서버가 준 값을 쓴다 — 지어내지 않는다. */}
-        {item.photoSource ? <View style={styles.sourcePill}><Text variant="caption" color={color.text.muted} numberOfLines={1}>{txf(tx, '사진: %s', 'Photo: %s', item.photoSource)}</Text></View> : null}
+        {/* 위키미디어 사진은 라이선스 이름을 덧붙이고, 누르면 파일 페이지가 열린다(S15P21E201-1610). */}
+        {item.photoSource ? <View style={styles.sourcePill}><PhotoCredit credit={txf(tx, '사진: %s', 'Photo: %s', item.photoSource) + (item.photoLicense?.name ? ` · ${item.photoLicense.name}` : '')} licenseUrl={photoLabels(item, tx).licenseUrl} variant="caption" color={color.text.muted} numberOfLines={1} /></View> : null}
       </View>
       <View style={styles.cardBody}>
         <Text weight="bold" numberOfLines={1}>{localPlaceName(item, language)}</Text>

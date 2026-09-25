@@ -10,9 +10,10 @@ import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { Screen } from '@/components/Screen';
+import { PhotoCredit } from '@/components/PhotoCredit';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
+import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, hasLocalityScore, needsFoodSafetyCheck, photoLabels, type Place as ApiPlace } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
 import { DEMO_PLACES, loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
@@ -59,6 +60,8 @@ export default function Place() {
         : null
   ), [demoPlace, remote, tx]);
   const photoUrl = resolved?.apiPlace?.photoUrl ?? null;
+  // 사진 출처 줄 — 위키미디어 사진은 라이선스 이름을 덧붙이고, 누르면 파일 페이지가 열린다(S15P21E201-1610).
+  const photoCredit = resolved?.apiPlace ? photoLabels(resolved.apiPlace, tx) : null;
   const taxiPlaceId = resolved?.apiPlace?.placeId ?? null;
 
   useEffect(() => {
@@ -177,8 +180,8 @@ export default function Place() {
                       VoiceOver 는 그것을 영어 알파벳 그대로 읽는다. 화면에는 안 보인다.
 
                       라벨을 주면 식별자는 자동화용으로만 남고 소리로는 안 나간다. */}
-                  {resolved.apiPlace.photoSource ? (
-                    <Text testID="place-photo-credit" accessibilityLabel={txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)} variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)}</Text>
+                  {photoCredit?.credit ? (
+                    <PhotoCredit testID="place-photo-credit" accessibilityLabel={photoCredit.credit} credit={photoCredit.credit} licenseUrl={photoCredit.licenseUrl} variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]} />
                   ) : null}
                 </View>
               </ImageBackground>

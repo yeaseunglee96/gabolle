@@ -25,6 +25,7 @@ export type Place = {
   photoSource?: string;
   // 사진 피사체 구분용. 값이 없으면 칸 자체가 안 온다.
   photoSubject?: PhotoSubject | null;
+  photoLicense?: PhotoLicense | null;
   openingHours?: FeatureSlot;
   priceLevel?: FeatureSlot;
 };
@@ -39,14 +40,24 @@ export function missingValueLabel(slot: FeatureSlot, tx: (ko: string, en: string
 // 사진의 피사체가 그 장소가 아닐 수 있음.
 export type PhotoSubject = 'SELF' | 'VENUE';
 
+/**
+ * 사진의 라이선스 — 위키미디어 커먼즈 사진(CC BY·CC BY-SA 등)에만 온다(S15P21E201-1610, 백엔드 S15P21E201-1606).
+ * 🔴 그 사진들은 출처와 함께 «라이선스 이름과 링크»를 보여야 쓸 수 있다. url 은 퍼블릭 도메인이면 null.
+ *    관광공사 공공누리 사진에는 이 칸이 없다 — 그 표기는 photoSource 가 진다.
+ */
+export type PhotoLicense = { name: string; url?: string | null; filePage?: string | null };
+
 /** 사진 설명 두 줄 — null 이면 화면에 줄을 안 만든다 */
 export function photoLabels(
-  photo: { photoSource?: string | null; photoSubject?: PhotoSubject | null },
+  photo: { photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null },
   tx: (ko: string, en: string) => string,
-): { badge: string | null; credit: string | null } {
+): { badge: string | null; credit: string | null; licenseUrl: string | null } {
+  // 라이선스 이름은 고유명사라 번역하지 않는다(「CC BY-SA 3.0」). 링크는 파일 페이지가 먼저 — 작성자·라이선스가 거기 다 있다.
+  const license = photo.photoLicense?.name ? photo.photoLicense : null;
   return {
     badge: photo.photoSubject === 'VENUE' ? tx('행사장 사진', 'Venue photo') : null,
-    credit: photo.photoSource ? txf(tx, '사진 제공: %s', 'Photo: %s', photo.photoSource) : null,
+    credit: photo.photoSource ? txf(tx, '사진 제공: %s', 'Photo: %s', photo.photoSource) + (license ? ` · ${license.name}` : '') : null,
+    licenseUrl: license ? license.filePage || license.url || null : null,
   };
 }
 
@@ -239,15 +250,15 @@ export function getPlace(placeId: string, signal?: AbortSignal) {
 // 계약 — GET /api/v1/places, query 와 facetType 은 정확히 하나만(둘 다 없거나 둘 다 있으면 400).
 // photoUrl·photoSource 는 값이 없으면 칸이 안 와서 optional. 사진을 그리면 출처도 같이 그린다
 // — 공공누리 이용 조건.
-export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null };
+export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null };
 
 type PlacePageDto = { items: PlaceSearchItemDto[]; limit: number; nextCursor: string | null; hasNext: boolean; rankTruncated: boolean };
-export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null };
+export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null };
 
 /** 목록 응답 한 건의 화면 모양 변환 */
 export function toPlaceSearchItem(dto: PlaceSearchItemDto): PlaceSearchItem {
-  const { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject } = dto;
-  return { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject };
+  const { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject, photoLicense } = dto;
+  return { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject, photoLicense };
 }
 
 /** 변환에서 일부러 빼는 칸 — 시험이 이 목록만 예외로 친다 */
