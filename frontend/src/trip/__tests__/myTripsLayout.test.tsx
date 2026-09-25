@@ -55,6 +55,9 @@ const blankCovers = () => screen.UNSAFE_root.findAll((node) => {
 });
 const gridSlots = () => screen.UNSAFE_root.findAll((node) => typeof node.type === 'string' && (StyleSheet.flatten(node.props.style) as { width?: string } | undefined)?.width === '33.3333%');
 const WAIT = { timeout: 5000 };
+// 🔴 기다림(WAIT 5초)보다 시험 제한 시간이 길어야 기다림이 먹힌다. jest 기본 제한 시간도 5초라, 부하가 걸리면 기다림이
+//    끝나기 전에 시험이 먼저 끝났다(「Exceeded timeout of 5000 ms」 — S15P21E201-1665). 파일 전체에 넉넉히 준다.
+jest.setTimeout(20000);
 
 beforeEach(() => { mockDesktop = false; mockLoadTrips.mockResolvedValue({ state: 'success', trips: TRIPS }); });
 
