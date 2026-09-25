@@ -10,6 +10,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
@@ -63,10 +65,32 @@ public class BaselineCandidateScorer {
 	/** 식단을 안 재 봤다는 경고. 같은 이유로 문자열을 여기서 다시 적지 않는다. */
 	static final String DIET_UNVERIFIED_WARNING = RecommendationCodes.WARNING_DIET_SUPPORT_UNVERIFIED;
 
+	/**
+	 * 경사가 이동 조건(휠체어·유아차·큰 짐)의 상한을 넘었다 — S15P21E201-1625. 「반드시」면 탈락 사유 코드,
+	 * 「되도록」이면 경고 코드로 같은 낱말을 쓴다.
+	 */
+	static final String SLOPE_OVER_LIMIT = "SLOPE_OVER_LIMIT";
+
+	/**
+	 * 이동 조건이 받아들이는 경사 상한(%)의 기본값 — 온톨로지의 휠체어 경사로 기준 1:12({@code bm:RuleWheelchairSlope}).
+	 * 휠체어·유아차·큰 짐이 이 값 하나를 같이 쓴다(2026-09-25 사용자 결정 — 「경사」 하나로 묶는다).
+	 */
+	static final double DEFAULT_MAX_SLOPE_PERCENT = 8.33;
+
 	private final ObjectMapper objectMapper;
 
+	private final double maxSlopePercent;
+
 	public BaselineCandidateScorer(ObjectMapper objectMapper) {
+		this(objectMapper, DEFAULT_MAX_SLOPE_PERCENT);
+	}
+
+	@Autowired
+	public BaselineCandidateScorer(ObjectMapper objectMapper,
+			@Value("${gabolle.recommendation.mobility.max-slope-percent:" + DEFAULT_MAX_SLOPE_PERCENT + "}")
+			double maxSlopePercent) {
 		this.objectMapper = objectMapper;
+		this.maxSlopePercent = maxSlopePercent;
 	}
 
 	/** 사용자가 고른 여행 테마(갈래) — 채점의 관심 항이 읽는 것과 같은 답이다. 안 골랐으면 빈 목록. */
@@ -394,10 +418,42 @@ public class BaselineCandidateScorer {
 		switch (bucketFor(candidate, featureType, key)) {
 			// 방향이 알레르기와 반대다 — 여기는 "없다고 확인됨" 이 FAIL 이다.
 			case ABSENT -> violations.add(Map.of("code", "ACCESS_VERIFIED_UNAVAILABLE", "featureKey", key));
-			case UNVERIFIED -> warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
+			case UNVERIFIED -> {
+				warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
+				evaluateSlope(candidate, constraint, violations, warnings);
+			}
 			case PRESENT -> {
 				// 검증된 접근 가능 — 통과 기여.
 			}
+		}
+	}
+
+	/**
+	 * 확인된 접근성 표식이 없는 곳을 경사로 가른다 — S15P21E201-1625.
+	 *
+	 * <p>🔴 왜. 접근성 표식은 운영 6,933곳 중 111줄뿐이라, 유아차를 「반드시」로 골라도 봉래산·사자봉 조망 지점
+	 * 같은 산이 「미확인」 경고만 달고 일정에 들어갔다(여행 79da403f). 경사(주변 걷는 길의 가운데 값)는 거의 모든
+	 * 장소에 있다.
+	 *
+	 * <p>규칙: 상한을 넘으면 「반드시」는 빼고 「되도록」은 경고만. 경사를 모르면 아무것도 더하지 않는다 — 위의 미확인
+	 * 경고가 이미 붙어 있다(전과 같다). 상한 아래여도 미확인 경고는 그대로 둔다 — 경사는 둘레 길로 짐작한 추정값이지
+	 * 그 장소를 잰 것이 아니라, 「갈 수 있음」을 약속하지 못한다.
+	 *
+	 * <p>확인된 표식이 있으면 여기까지 오지 않는다 — 확인된 사실이 추정값보다 앞선다.
+	 * 계단은 경사 자료에 없다(계단은 따로 {@code STAIRS_AVOIDANCE} 가 본다).
+	 */
+	private void evaluateSlope(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
+			List<Map<String, Object>> violations, List<String> warnings) {
+		Double slope = extractPlaceScore(candidate, "SLOPE_PERCENT");
+		if (slope == null || slope <= this.maxSlopePercent) {
+			return;
+		}
+		if (constraint.severity() == TripConstraint.Severity.HARD) {
+			violations.add(Map.of("code", SLOPE_OVER_LIMIT, "featureKey", constraint.constraintKey(),
+					"slopePercent", slope, "maxSlopePercent", this.maxSlopePercent));
+		}
+		else if (!warnings.contains(SLOPE_OVER_LIMIT)) {
+			warnings.add(SLOPE_OVER_LIMIT);
 		}
 	}
 

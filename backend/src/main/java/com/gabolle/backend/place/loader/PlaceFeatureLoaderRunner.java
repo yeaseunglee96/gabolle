@@ -54,6 +54,20 @@ import org.springframework.stereotype.Component;
  * 진행 중이라 산출물이 자란다 — 다시 돌려도 이미 있는 사실은 건드리지 않으므로({@link
  * PlaceFeatureLoader} 의 {@code ON CONFLICT DO NOTHING}), 늘어난 뒷부분만 새로 들어간다.
  *
+ * <p>장소 경사는 장소 번호판으로 넣는다(S15P21E201-1625). 🔴 옛 경사 행(관광공사·상가 번호판, 2,682줄)을 먼저
+ * 지워야 새 값이 들어간다 — 장소마다 경사 행은 하나뿐이고 적재는 있는 행을 안 건드린다.
+ *
+ * <pre>
+ * -- 1) 옛 행 지우기 (되돌리려면 옛 산출물 place-slope.ndjson · place-slope-sbiz.ndjson 을 place-slope 인자로 다시 넣는다)
+ * DELETE FROM gabolle.place_feature
+ *  WHERE feature_type = 'SLOPE_PERCENT'
+ *    AND source_version IN ('2026-09-16-slope-r200', '2026-09-16-slope-r200-sbiz');
+ *
+ * -- 2) 새 값 넣기
+ * git show origin/bigData/dev:bigData/data/staged/place-slope-by-id.ndjson &gt; /tmp/place-slope-by-id.ndjson
+ * java -jar gabolle-backend.jar  *   --spring.profiles.active=dev  *   --gabolle.place.loader.place-slope-by-id=/tmp/place-slope-by-id.ndjson  *   --gabolle.place.loader.dataset-version=2026-09-25-slope-p50-r200
+ * </pre>
+ *
  * <p>유명세는 여기서 안 넣는다. {@code PopularityLoaderRunner} 가 다른 방식으로 넣으므로,
  * 같은 값을 넣는 경로가 둘이면 어느 쪽이 진짜인지 알 수 없다.
  *
@@ -68,6 +82,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnExpression("'${gabolle.place.loader.price-band:}' != '' "
 		+ "or '${gabolle.place.loader.visitor-facts:}' != '' "
 		+ "or '${gabolle.place.loader.place-slope:}' != '' "
+		+ "or '${gabolle.place.loader.place-slope-by-id:}' != '' "
 		+ "or '${gabolle.place.loader.place-quietness:}' != '' "
 		+ "or '${gabolle.place.loader.place-locality:}' != '' "
 		+ "or '${gabolle.place.loader.place-shade:}' != '' "
@@ -103,6 +118,15 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	public static final String DERIVED_SHADE_SOURCE_TYPE = "DERIVED_SHADE";
 
+	/**
+	 * 장소 번호판 경사(S15P21E201-1625). 옛 경사 행은 원천 이름(TOURAPI·SBIZ)을 빌려 들어가 있어 원천의 표식과
+	 * 한 덩어리였다 — 이 판부터는 유도값 이름으로 따로 둔다.
+	 *
+	 * <p>🔴 옛 행 위에 그냥 돌리면 안 바뀐다. 장소마다 경사 행은 하나뿐이고({@code uq_place_feature_unkeyed})
+	 * 적재는 있으면 건드리지 않는다. 옛 행을 먼저 지운다 — 절차는 이 파일 머리말.
+	 */
+	public static final String DERIVED_SLOPE_SOURCE_TYPE = "DERIVED_SLOPE";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(PlaceFeatureLoaderRunner.class);
 
 	/** 한 트랜잭션에 넣는 사실 수. 파일이 작아 한 번에 넣어도 되지만 다른 적재와 규칙을 같게 둔다. */
@@ -115,6 +139,8 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 	private final String visitorFactsPath;
 
 	private final String placeSlopePath;
+
+	private final String placeSlopeByIdPath;
 
 	private final String placeQuietnessPath;
 
@@ -130,6 +156,7 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 			@Value("${gabolle.place.loader.price-band:}") String priceBandPath,
 			@Value("${gabolle.place.loader.visitor-facts:}") String visitorFactsPath,
 			@Value("${gabolle.place.loader.place-slope:}") String placeSlopePath,
+			@Value("${gabolle.place.loader.place-slope-by-id:}") String placeSlopeByIdPath,
 			@Value("${gabolle.place.loader.place-quietness:}") String placeQuietnessPath,
 			@Value("${gabolle.place.loader.place-locality:}") String placeLocalityPath,
 			@Value("${gabolle.place.loader.place-shade:}") String placeShadePath,
@@ -139,6 +166,7 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 		this.priceBandPath = priceBandPath;
 		this.visitorFactsPath = visitorFactsPath;
 		this.placeSlopePath = placeSlopePath;
+		this.placeSlopeByIdPath = placeSlopeByIdPath;
 		this.placeQuietnessPath = placeQuietnessPath;
 		this.placeLocalityPath = placeLocalityPath;
 		this.placeShadePath = placeShadePath;
@@ -158,6 +186,8 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 		load("방문객 안내", this.visitorFactsPath, VISITOR_FACTS_SOURCE_TYPE, PlaceFeatureNdjsonReader::readVisitorFacts);
 		load("장소 경사", this.placeSlopePath, PLACE_SLOPE_SOURCE_TYPE,
 				PlaceFeatureNdjsonReader::readPlaceSlopes);
+		load("장소 경사(장소 번호)", this.placeSlopeByIdPath, DERIVED_SLOPE_SOURCE_TYPE,
+				PlaceFeatureNdjsonReader::readPlaceSlopesById);
 		// 조용함·로컬성은 산출물이 0~100 인데 채점기 눈금은 0~1 이다. 나누는 것은 읽는 쪽이
 		// 한다 — PlaceFeatureNdjsonReader.readPlaceScores 참고.
 		load("장소 조용함", this.placeQuietnessPath, DERIVED_QUIETNESS_SOURCE_TYPE,

@@ -1,5 +1,6 @@
 package com.gabolle.backend.place.loader;
 
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +56,12 @@ public class PlaceFeatureLoader {
 			VALUES (?1, ?2, ?3, ?4, CAST(?5 AS jsonb), ?6, ?7, ?8, ?9, ?10, ?11)
 			ON CONFLICT DO NOTHING
 			""";
+
+	/**
+	 * 열쇠가 원천 번호가 아니라 우리 장소 번호({@code place_id}) 그대로라는 표시 — S15P21E201-1625.
+	 * 운영 장소 전체를 번호로 뽑아 계산한 산출물(장소 경사)이 쓴다. 출처가 무엇이든 한 규칙으로 붙는다.
+	 */
+	static final String PLACE_ID_KEY = "PLACE_ID";
 
 	private final PlaceRepository placeRepository;
 
@@ -142,6 +149,9 @@ public class PlaceFeatureLoader {
 	// 패키지 전용이다 — SubwayExitLoader 가 같은 열쇠 체계로 장소를 찾느라 이 계산을 그대로
 	// 재사용한다. 새 계산을 또 만들면 두 곳의 공식이 갈라질 여지가 생긴다.
 	static UUID placeIdOf(String sourceType, String key) {
+		if (PLACE_ID_KEY.equals(sourceType)) {
+			return UUID.fromString(key);
+		}
 		if (TourApiPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
 			return TourApiPlaceLoader.placeIdOf(key);
 		}
@@ -158,6 +168,10 @@ public class PlaceFeatureLoader {
 	 * 아이디가 새 공식과 어긋난다.
 	 */
 	static UUID featureIdOf(String sourceType, String key, String featureType, String featureKey) {
+		if (PLACE_ID_KEY.equals(sourceType)) {
+			return UUID.nameUUIDFromBytes(("gabolle:place_feature:PLACE_ID:" + key + ":" + featureType + ":" + featureKey)
+					.getBytes(StandardCharsets.UTF_8));
+		}
 		if (TourApiPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
 			return TourApiPlaceLoader.featureIdOf(key, featureType, featureKey);
 		}

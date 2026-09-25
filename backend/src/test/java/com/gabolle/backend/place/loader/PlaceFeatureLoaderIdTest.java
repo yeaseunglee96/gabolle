@@ -2,6 +2,8 @@ package com.gabolle.backend.place.loader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +38,19 @@ class PlaceFeatureLoaderIdTest {
 
 		assertThat(PlaceFeatureLoader.featureIdOf("SBIZ", storeId, "PRICE_LEVEL", null))
 				.isEqualTo(SbizPlaceLoader.featureIdOf(storeId, "PRICE_LEVEL", null));
+	}
+
+	@Test
+	@DisplayName("🔴 열쇠가 PLACE_ID 면 그 번호가 곧 장소 아이디다 — 다시 계산하지 않는다")
+	void placeIdKeyIsThePlaceIdItself() {
+		UUID placeId = UUID.fromString("434a90ee-c94f-4f0e-a709-007913306001");
+
+		assertThat(PlaceFeatureLoader.placeIdOf(PlaceFeatureLoader.PLACE_ID_KEY, placeId.toString())).isEqualTo(placeId);
+		assertThat(PlaceFeatureLoader.featureIdOf(PlaceFeatureLoader.PLACE_ID_KEY, placeId.toString(), "SLOPE_PERCENT", null))
+				.as("같은 번호·같은 종류면 같은 피처 아이디 — 두 번 돌려도 한 행")
+				.isEqualTo(PlaceFeatureLoader.featureIdOf(PlaceFeatureLoader.PLACE_ID_KEY, placeId.toString(),
+						"SLOPE_PERCENT", null))
+				.isNotEqualTo(PlaceFeatureLoader.featureIdOf("TOURAPI", placeId.toString(), "SLOPE_PERCENT", null));
 	}
 
 	@Test
