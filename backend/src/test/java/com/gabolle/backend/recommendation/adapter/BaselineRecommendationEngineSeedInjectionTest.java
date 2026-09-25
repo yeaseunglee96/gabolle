@@ -29,6 +29,7 @@ import tools.jackson.databind.ObjectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -135,6 +136,53 @@ class BaselineRecommendationEngineSeedInjectionTest {
 		assertThat(batch.candidates().stream().map(EngineCandidate::placeId))
 				.as("좌표가 없으면 거리 점수를 매길 수 없다 — 넣지 않고 넘어가되 일정 생성은 멈추지 않는다")
 				.containsExactly(IN_POOL);
+	}
+
+	// ── 여행 날짜에 여는 행사만 (S15P21E201-1618) ───────────────────────────────
+
+	private static final UUID FESTIVAL = new UUID(7L, 3L);
+
+	/**
+	 * 🔴 전에는 이 거르기가 일정 조립에만 있었다. 축제 갈래(FESTIVAL_EVENT)를 채우면 날짜가 안 맞는 축제가 추천 결과
+	 * 목록에 뜬다 — 그래서 엔진도 뺀다. 여행 기간을 그대로 묻는지(10/1~10/3)도 본다.
+	 */
+	@Test
+	@DisplayName("🔴 여행 기간에 하루도 안 여는 축제는 추천 후보에서 빠진다")
+	void 여행_기간에_안_여는_축제는_빠진다() {
+		givenTrip();
+		givenSeeds();
+		when(this.queryService.findCandidates(any()))
+				.thenReturn(response(List.of(inPoolCandidate(), festivalCandidate())));
+		when(this.placeRepository.findEventPlacesClosedThroughout(anyCollection(),
+				eq(LocalDate.of(2026, 10, 1)), eq(LocalDate.of(2026, 10, 3)))).thenReturn(List.of(FESTIVAL));
+
+		EngineCandidateBatch batch = engine().generate(request());
+
+		assertThat(batch.candidates().stream().map(EngineCandidate::placeId))
+				.contains(IN_POOL)
+				.doesNotContain(FESTIVAL);
+	}
+
+	@Test
+	@DisplayName("사용자가 직접 고른 꼭 갈 곳은 기간이 안 맞아도 빼지 않는다 — 일정 조립과 같다")
+	void 꼭_갈_곳은_기간으로_안_뺀다() {
+		givenTrip();
+		givenSeeds(mustVisit(FESTIVAL));
+		when(this.queryService.findCandidates(any()))
+				.thenReturn(response(List.of(inPoolCandidate(), festivalCandidate())));
+		// 묻는 목록에 들어 있으면 「닫혔다」고 답한다 — 꼭 갈 곳을 묻지 않아야 살아남는다.
+		when(this.placeRepository.findEventPlacesClosedThroughout(anyCollection(), any(), any()))
+				.thenAnswer((call) -> ((java.util.Collection<?>) call.getArgument(0)).contains(FESTIVAL)
+						? List.of(FESTIVAL) : List.of());
+
+		EngineCandidateBatch batch = engine().generate(request());
+
+		assertThat(batch.candidates().stream().map(EngineCandidate::placeId)).contains(FESTIVAL);
+	}
+
+	private static PlaceCandidateResponse.Candidate festivalCandidate() {
+		return new PlaceCandidateResponse.Candidate(FESTIVAL, "부산불꽃축제", "FESTIVAL_EVENT",
+				ORIGIN_LAT, ORIGIN_LNG, 500L, List.of());
 	}
 
 	// ── 도구 ──────────────────────────────────────────────────────────────────
