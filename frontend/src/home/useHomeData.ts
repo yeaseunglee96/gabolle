@@ -111,8 +111,6 @@ export type HomeData = {
   facetRows: HomeFacetRow[];
   trip: TripSummaryDto | null;
   tripsLoaded: boolean;
-  /** 받은 여행 목록 전부. 아직이거나 실패면 null — 종 점이 목록을 다시 부르지 않고 이것을 쓴다(S15P21E201-1686). */
-  trips: TripSummaryDto[] | null;
 };
 
 
@@ -218,6 +216,5 @@ export function useHomeData(enabled = true): HomeData {
     })),
     trip: tripsQuery.data?.state === 'success' ? pickActiveTrip(tripsQuery.data.trips) : null,
     tripsLoaded: tripsQuery.data?.state === 'success',
-    trips: tripsQuery.data?.state === 'success' ? tripsQuery.data.trips : null,
   };
 }

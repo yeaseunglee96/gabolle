@@ -76,8 +76,8 @@ export default function Home() {
   // 시안 5 Home 의 「⊕ 한국어」 — 외국인이 홈에서 바로 언어를 바꾼다(S15P21E201-1372). 첫 화면의 언어 시트를 그대로 쓴다.
   const home = useHomeData(!desktop);
   // 안 본 알림이 있으면 종에 점 — 여행 활동을 마지막으로 본 시각과 견준다(S15P21E201-1380). 화면에 돌아올 때마다 다시 본다.
-  // 🔴 홈 카드가 받은 여행 목록으로, 홈이 그려지고 몇 초 뒤에, 최근 여행 셋만 본다(S15P21E201-1686) — 전에는 여는 순간 여행마다 불렀다.
-  const bellDot = useHomeBellDot({ userId: user?.userId ?? null, accessToken, trips: home.trips, visible: !topNav, tx });
+  // 🔴 홈이 그려지고 몇 초 뒤에 서버의 알림 요약 한 번으로 본다(S15P21E201-1702) — 전에는 여는 순간 여행마다 활동을 불렀다.
+  const bellDot = useHomeBellDot({ userId: user?.userId ?? null, accessToken, visible: !topNav });
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
   const saved = useSavedPlaces(accessToken);
   const [assistantOpen, setAssistantOpen] = useState(false);

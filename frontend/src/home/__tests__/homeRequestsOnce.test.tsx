@@ -4,9 +4,11 @@
 //    1. 피드 글 — 로그인 복원이 끝나기 전에 손님 몫으로 한 번, 끝난 뒤 회원 몫으로 또 한 번 불렀다.
 //       복원이 끝난 뒤(ready) 한 번만 부른다.
 //    2. 종 점 — 홈 카드가 이미 받은 여행 목록을 한 번 더 부르고, 내 여행마다(최대 12개) 활동을 동시에 불렀다.
-//       홈이 받은 목록을 다시 쓰고, 몇 초 뒤에, 가장 최근에 바뀐 여행 셋만 본다(조율 세션 결정).
+//       이제는 몇 초 뒤에 서버의 알림 요약 한 번으로 본다(S15P21E201-1702, 서버 S15P21E201-1699).
+//       서버가 이 조회를 모르면(404) 점을 안 켤 뿐, 여행마다 부르는 옛 방식으로 돌아가지 않는다(조율 세션 결정).
 //    3. 여행 조건 — 홈의 「물을까」 판정과 새 여행 초안이 거의 동시에 같은 조건을 불렀다. 한 요청으로 묶는다.
 import type { ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -30,7 +32,7 @@ jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => mockAuth }));
 
 import { useHomeData } from '@/home/useHomeData';
 import { loadActivityFeed } from '@/notifications/activityFeed';
-import { BELL_DOT_DELAY_MS, BELL_DOT_TRIPS, useHomeBellDot } from '@/notifications/useHomeBellDot';
+import { BELL_DOT_DELAY_MS, NOTIFICATION_SUMMARY_PATH, useHomeBellDot } from '@/notifications/useHomeBellDot';
 import { loadTravelConditions, saveTravelConditions } from '@/plan/travelConditions';
 
 jest.setTimeout(20000);
@@ -87,67 +89,99 @@ describe('1. 피드 글은 로그인 복원이 끝난 뒤 한 번', () => {
     await waitFor(() => expect(mockedFeed).toHaveBeenCalledTimes(1));
     expect(mockedFeed.mock.calls[0][0].accessToken).toBeNull();
   });
-
-  it('홈 카드가 받은 여행 목록을 밖으로 내준다 — 종 점이 다시 부르지 않게', async () => {
-    mockAuth = { accessToken: 'member-token', ready: true };
-    const { result } = renderHook(() => useHomeData(true), { wrapper });
-    await waitFor(() => expect(result.current.trips).toHaveLength(5));
-    expect(mockedTrips).toHaveBeenCalledTimes(1);
-  });
 });
 
-describe('2. 종 점', () => {
-  beforeEach(() => { jest.useFakeTimers(); });
+describe('2. 종 점 — 서버 알림 요약 한 번', () => {
+  const SEEN_KEY = 'gabolle:notifications-seen-at';
+  const summaryCalls = () => mockedApi.mock.calls.filter(([path]) => String(path).startsWith(NOTIFICATION_SUMMARY_PATH));
+  // 기기 저장 읽기 → 서버 요청 → 점 켜기가 약속 몇 개를 거쳐 이어진다. 가짜 시계에서는 하나씩 흘려보낸다.
+  const settle = async () => { for (let i = 0; i < 5; i += 1) await act(async () => { await Promise.resolve(); }); };
+  const summary = (hasUnseen: boolean) => async (path: string) =>
+    (String(path).startsWith(NOTIFICATION_SUMMARY_PATH) ? { hasUnseen, latestAt: '2026-09-25T09:00:00Z' } : undefined);
+
+  beforeEach(async () => {
+    jest.useFakeTimers();
+    await AsyncStorage.clear();
+    mockedApi.mockImplementation(summary(true));
+  });
   afterEach(() => { jest.useRealTimers(); });
 
   const bell = (props: Partial<Parameters<typeof useHomeBellDot>[0]> = {}) =>
-    renderHook(() => useHomeBellDot({ userId: 'me', accessToken: 'member-token', trips: FIVE, visible: true, tx, ...props }));
+    renderHook(() => useHomeBellDot({ userId: 'me', accessToken: 'member-token', visible: true, ...props }));
 
   it('🔴 홈이 그려진 순간에는 부르지 않는다 — 몇 초 뒤에', async () => {
     bell();
     await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS - 1); });
-    expect(mockedActivity).not.toHaveBeenCalled();
+    await settle();
+    expect(summaryCalls()).toHaveLength(0);
     await act(async () => { jest.advanceTimersByTime(1); });
-    expect(mockedActivity).toHaveBeenCalled();
+    await settle();
+    expect(summaryCalls()).toHaveLength(1);
   });
 
-  it('🔴 가장 최근에 바뀐 여행 셋만 본다', async () => {
+  it('🔴 요약 한 번뿐이다 — 여행 목록도, 여행마다의 활동도 부르지 않는다', async () => {
     bell();
     await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS); });
-    expect(BELL_DOT_TRIPS).toBe(3);
-    expect(mockedActivity.mock.calls.map(([tripId]) => tripId)).toEqual(['t-new', 't-newer', 't-mid']);
-  });
-
-  it('🔴 홈이 받은 여행 목록을 다시 쓴다 — 목록을 또 부르지 않는다', async () => {
-    bell();
-    await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS); });
+    await settle();
+    expect(summaryCalls()).toHaveLength(1);
     expect(mockedTrips).not.toHaveBeenCalled();
+    expect(mockedActivity).not.toHaveBeenCalled();
   });
 
-  it('안 본 활동이 있으면 점이 켜진다', async () => {
+  it('한 번도 안 봤으면 since 를 빼고, 내 열쇠로 묻는다', async () => {
+    bell();
+    await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS); });
+    await settle();
+    const [path, options] = summaryCalls()[0];
+    expect(path).toBe(NOTIFICATION_SUMMARY_PATH);
+    expect(options).toEqual({ accessToken: 'member-token' });
+  });
+
+  it('마지막으로 본 시각이 있으면 since 로 넘긴다 — 알림 화면이 남긴 그 값', async () => {
+    await AsyncStorage.setItem(SEEN_KEY, '2026-09-25T08:00:00.000Z');
+    bell();
+    await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS); });
+    await settle();
+    expect(summaryCalls()[0][0]).toBe(`${NOTIFICATION_SUMMARY_PATH}?since=2026-09-25T08%3A00%3A00.000Z`);
+  });
+
+  it('서버가 안 본 것이 있다고 하면 점이 켜진다', async () => {
     const { result } = bell();
     await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS); });
-    await act(async () => { await Promise.resolve(); });
+    await settle();
     expect(result.current).toBe(true);
   });
 
-  it('여행 목록이 아직 안 왔으면 기다린다', async () => {
-    bell({ trips: null });
-    await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS * 3); });
-    expect(mockedActivity).not.toHaveBeenCalled();
+  it('서버가 다 봤다고 하면 점이 꺼진다', async () => {
+    mockedApi.mockImplementation(summary(false));
+    const { result } = bell();
+    await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS); });
+    await settle();
+    expect(result.current).toBe(false);
+  });
+
+  it('🔴 서버가 이 조회를 모르면(404) 점을 안 켤 뿐 — 여행마다 부르는 옛 방식으로 돌아가지 않는다', async () => {
+    mockedApi.mockRejectedValue(Object.assign(new Error('Not Found'), { status: 404 }));
+    const { result } = bell();
+    await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS); });
+    await settle();
+    expect(result.current).toBe(false);
     expect(mockedTrips).not.toHaveBeenCalled();
+    expect(mockedActivity).not.toHaveBeenCalled();
   });
 
   it('종이 이 화면에 안 그려지면(위쪽 메뉴가 떠 있을 때) 세지 않는다', async () => {
     bell({ visible: false });
     await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS * 3); });
-    expect(mockedActivity).not.toHaveBeenCalled();
+    await settle();
+    expect(summaryCalls()).toHaveLength(0);
   });
 
   it('로그인 안 했으면 부르지 않는다', async () => {
     const { result } = bell({ userId: null, accessToken: null });
     await act(async () => { jest.advanceTimersByTime(BELL_DOT_DELAY_MS * 3); });
-    expect(mockedActivity).not.toHaveBeenCalled();
+    await settle();
+    expect(summaryCalls()).toHaveLength(0);
     expect(result.current).toBe(false);
   });
 
