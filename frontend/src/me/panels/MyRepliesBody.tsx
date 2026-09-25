@@ -14,7 +14,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { markdownToPlain } from '@/social/markdown';
-import { decodeHtmlText, loadMyReplies, type MyReplyItem } from '@/social/myReplies';
+import { decodeHtmlText } from '@/social/htmlText';
+import { loadMyReplies, type MyReplyItem } from '@/social/myReplies';
 import { deleteStory, relativeStoryTime } from '@/social/stories';
 
 type Translate = (ko: string, en: string) => string;

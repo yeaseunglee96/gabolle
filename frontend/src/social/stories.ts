@@ -2,6 +2,7 @@ import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL, APP_WEB_
 import { singleFileFormData } from '@/api/multipart';
 import { txf } from '@/i18n/format';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
+import { decodeHtmlText } from '@/social/htmlText';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 /** MINE 은 화면만의 갈래다 — 서버 피드에는 없고 내 프로필 기록 목록(loadUserStories)으로 채운다. */
@@ -70,8 +71,18 @@ export function resolveStoryImageUrl(url: string) {
   return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
+/**
+ * 서버에서 받은 기록을 화면용으로 고친다 — 사진 주소와, 서버가 HTML 인코딩한 이름·본문(S15P21E201-1657).
+ * 🔴 기록을 받는 모든 길이 이것을 지난다. 이름·본문을 되돌리지 않으면 「Tom &amp; Jerry」가 보이고, 댓글 수정 창이
+ *    인코딩된 본문을 입력칸에 넣어 & 가 든 댓글을 고칠 때마다 &amp; 가 글자로 불어난다.
+ */
 function withDisplayImageUrls(story: StoryDto): StoryDto {
-  return { ...story, images: story.images.map((image) => ({ ...image, url: resolveStoryImageUrl(image.url) })) };
+  return {
+    ...story,
+    author: { ...story.author, displayName: decodeHtmlText(story.author.displayName) },
+    body: decodeHtmlText(story.body),
+    images: story.images.map((image) => ({ ...image, url: resolveStoryImageUrl(image.url) })),
+  };
 }
 
 /** 글에 붙일 지표 문구들 — S15P21E201-1213. */
