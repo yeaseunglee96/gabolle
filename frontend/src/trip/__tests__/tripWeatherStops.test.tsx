@@ -34,6 +34,15 @@ const item = (clock: string, title: string) => ({ startsAt: `2026-09-25T${clock}
 
 beforeEach(() => { mockApiRequest.mockReset(); mockDesktop = false; });
 
+// 🔴 이 시험은 날짜를 2026-09-25 로 박았다 — 시계도 그날에 멈춘다(S15P21E201-1641). 날씨는 오늘부터 사흘 안만 부르므로
+//    시계를 안 멈추면 다음 날부터 「지난 날짜」라 부르지 않고 이 시험이 실패한다. 한국·UTC(CI 러너) 어느 시각대로 돌려도
+//    같은 날이 되게 한낮에 멈춘다. 멈추는 것은 날짜뿐이다 — 기다리기(setTimeout 등)는 진짜 시계 그대로 둔다.
+const FROZEN_NOW = new Date('2026-09-25T12:00:00+09:00');
+beforeAll(() => {
+  jest.useFakeTimers({ now: FROZEN_NOW, doNotFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'setImmediate', 'clearImmediate', 'queueMicrotask', 'nextTick', 'requestAnimationFrame', 'cancelAnimationFrame', 'requestIdleCallback', 'cancelIdleCallback', 'hrtime', 'performance'] });
+});
+afterAll(() => { jest.useRealTimers(); });
+
 describe('정차 시각 → 시간별 칸', () => {
   it('일정 항목에서 시각과 이름을 읽는다 — 시각이 없는 항목은 뺀다', () => {
     expect(weatherStops([item('09:46', '카페오뜨'), { startsAt: '2026-09-25', title: '시각 없음' }])).toEqual([{ time: '09:46', name: '카페오뜨' }]);

@@ -21,10 +21,7 @@ jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ desktop: mockDeskto
 
 const Providers = ({ children }: { children: ReactNode }) => <OnboardingPreferencesProvider>{children}</OnboardingPreferencesProvider>;
 
-// 날짜는 «오늘»이다 — 날씨는 예보 범위(오늘부터 사흘) 안에서만 부른다(S15P21E201-1641). 전에는 2026-09-24 로 박혀 있어서
-// 그날이 지나면 저절로 깨질 시험이었다.
-const TODAY = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
-const forecast = { date: TODAY, minTemperature: 22, maxTemperature: 23, precipitationProbability: 30, skyCondition: 'CLOUDY' };
+const forecast = { date: '2026-09-24', minTemperature: 22, maxTemperature: 23, precipitationProbability: 30, skyCondition: 'CLOUDY' };
 const hour = (time: string, extra: Partial<HourlyForecastDto> = {}): HourlyForecastDto => ({
   time, temperature: 22, skyCondition: 'CLEAR', precipitationProbability: 0, precipitationType: 'NONE', ...extra,
 });
@@ -32,13 +29,22 @@ const respond = (hourly?: HourlyForecastDto[]) => mockApiRequest.mockResolvedVal
 
 beforeEach(() => { mockApiRequest.mockReset(); mockDesktop = false; });
 
+// 🔴 이 시험은 날짜를 2026-09-24 로 박았다 — 시계도 그날에 멈춘다(S15P21E201-1641). 날씨는 오늘부터 사흘 안만 부르므로
+//    시계를 안 멈추면 그날이 지나 「지난 날짜」라 부르지 않고 이 시험이 실패한다. 한국·UTC(CI 러너) 어느 시각대로 돌려도
+//    같은 날이 되게 한낮에 멈춘다. 멈추는 것은 날짜뿐이다 — 기다리기(setTimeout 등)는 진짜 시계 그대로 둔다.
+const FROZEN_NOW = new Date('2026-09-24T12:00:00+09:00');
+beforeAll(() => {
+  jest.useFakeTimers({ now: FROZEN_NOW, doNotFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'setImmediate', 'clearImmediate', 'queueMicrotask', 'nextTick', 'requestAnimationFrame', 'cancelAnimationFrame', 'requestIdleCallback', 'cancelIdleCallback', 'hrtime', 'performance'] });
+});
+afterAll(() => { jest.useRealTimers(); });
+
 // 첫 시험은 부품을 처음 불러오는 값(수 초)을 치른다 — 기본 1초 대기로는 그 사이에 끝나 버린다(로컬 실측 3.5초).
 const WAIT = { timeout: 5000 };
 
 describe('날씨 창 — 1시간별 예보', () => {
   it('🔴 서버가 준 시각만 그린다 — 오늘처럼 세 칸만 오면 세 칸이다', async () => {
     respond([hour('21:00'), hour('22:00'), hour('23:00')]);
-    render(<TripWeatherPanel date={TODAY} />, { wrapper: Providers });
+    render(<TripWeatherPanel date="2026-09-24" />, { wrapper: Providers });
 
     expect(await screen.findByText('1시간별 예보', {}, WAIT)).toBeTruthy();
     expect(screen.getAllByText(/^\d+시$/).map((node) => node.props.children)).toEqual(['21시', '22시', '23시']);
@@ -46,7 +52,7 @@ describe('날씨 창 — 1시간별 예보', () => {
 
   it('🔴 모르는 값(null)을 0 으로 그리지 않는다', async () => {
     respond([hour('09:00', { temperature: null, skyCondition: null, precipitationProbability: null, precipitationType: null })]);
-    render(<TripWeatherPanel date={TODAY} />, { wrapper: Providers });
+    render(<TripWeatherPanel date="2026-09-24" />, { wrapper: Providers });
 
     expect(await screen.findByText('9시', {}, WAIT)).toBeTruthy();
     expect(screen.queryByText('0°')).toBeNull();
@@ -57,7 +63,7 @@ describe('날씨 창 — 1시간별 예보', () => {
 
   it('비가 오면 하늘보다 비를 그리고, 낭독기에도 그렇게 읽힌다', async () => {
     respond([hour('15:00', { skyCondition: 'CLOUDY', precipitationType: 'RAIN', precipitationProbability: 60, temperature: 20.6 })]);
-    render(<TripWeatherPanel date={TODAY} />, { wrapper: Providers });
+    render(<TripWeatherPanel date="2026-09-24" />, { wrapper: Providers });
 
     expect(await screen.findByText('🌧', {}, WAIT)).toBeTruthy();
     expect(screen.getByText('21°')).toBeTruthy();
@@ -66,7 +72,7 @@ describe('날씨 창 — 1시간별 예보', () => {
 
   it('옛 서버(시간별 칸이 없다)면 줄 자체를 안 그린다 — 하루 요약은 그대로', async () => {
     respond();
-    render(<TripWeatherPanel date={TODAY} />, { wrapper: Providers });
+    render(<TripWeatherPanel date="2026-09-24" />, { wrapper: Providers });
 
     expect(await screen.findByText('강수확률 30%', {}, WAIT)).toBeTruthy();
     expect(screen.queryByText('1시간별 예보')).toBeNull();
@@ -75,7 +81,7 @@ describe('날씨 창 — 1시간별 예보', () => {
   it('넓은 화면(서랍)에서도 같은 칸을 그린다 — 격자로 놓일 뿐 시각은 그대로', async () => {
     mockDesktop = true;
     respond([hour('08:00'), hour('09:00')]);
-    render(<TripWeatherPanel date={TODAY} />, { wrapper: Providers });
+    render(<TripWeatherPanel date="2026-09-24" />, { wrapper: Providers });
 
     expect(await screen.findByText('8시', {}, WAIT)).toBeTruthy();
     expect(screen.getByText('9시')).toBeTruthy();
