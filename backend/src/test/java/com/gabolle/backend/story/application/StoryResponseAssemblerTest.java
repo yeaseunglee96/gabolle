@@ -29,10 +29,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** 기록 본문과 작성자 표시 이름이 응답에서 HTML 인코딩되는가. */
+/**
+ * 기록 본문은 응답에서 HTML 인코딩되고(S15P21E201-835 — ZAP 이 잡은 자리의 방어층), 작성자 표시 이름은 원문 그대로 나가는가
+ * (S15P21E201-1655 — 앱이 Text 로 그려 「&amp;」가 보이던 것).
+ */
 class StoryResponseAssemblerTest {
 
 	private static final String XSS_PAYLOAD = "<script>alert(1)</script>";
+
+	/** 인코딩되면 모양이 바뀌는 글자 다섯을 다 넣은 이름. */
+	private static final String TRICKY_NAME = "A&B's \"공방\" <부산>";
 
 	private StoryResponseAssembler assembler;
 
@@ -90,18 +96,20 @@ class StoryResponseAssemblerTest {
 	}
 
 	@Test
-	@DisplayName("🔴 작성자 표시 이름도 같은 자유 입력이라 인코딩된다")
-	void displayNameIsHtmlEncoded() {
+	@DisplayName("🔴 작성자 표시 이름은 원문 그대로 — & ' \" < > 가 인코딩되지 않는다 (S15P21E201-1655)")
+	void displayNameIsSentAsIs() {
 		UUID authorId = UUID.randomUUID();
-		AppUser author = authorNamed(authorId, XSS_PAYLOAD);
+		AppUser author = authorNamed(authorId, TRICKY_NAME);
 		when(this.appUserRepository.findAllById(any())).thenReturn(List.of(author));
 
 		Instant now = Instant.now();
-		Story story = new Story(UUID.randomUUID(), authorId, null, null, "평범한 글", "해운대구",
+		Story story = new Story(UUID.randomUUID(), authorId, null, null, "A&B 가 갔던 곳 <부산>", "해운대구",
 				StoryVisibility.PUBLIC, now, now);
 
 		StoryResponse response = this.assembler.one(story, authorId, now);
 
-		assertThat(response.author().displayName()).doesNotContain("<script>");
+		assertThat(response.author().displayName()).isEqualTo(TRICKY_NAME);
+		assertThat(response.body()).as("같은 응답의 본문은 인코딩을 유지한다(S15P21E201-835)")
+				.isEqualTo("A&amp;B 가 갔던 곳 &lt;부산&gt;");
 	}
 }

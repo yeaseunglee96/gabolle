@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.gabolle.backend.common.security.HtmlOutputEncoder;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryCoauthor;
 import com.gabolle.backend.story.presentation.dto.MyRepliesResponse;
@@ -150,20 +149,24 @@ public class MyRepliesService {
 		};
 	}
 
-	/** 앞 60자(글자 단위 — 이모지를 반으로 자르지 않는다). 응답으로 나가는 자리라 인코딩한다. */
+	/**
+	 * 앞 60자(글자 단위 — 이모지를 반으로 자르지 않는다).
+	 *
+	 * <p>🔴 원문 그대로 낸다 (S15P21E201-1655). 이 미리보기는 앱이 마크다운을 거치지 않고 Text 로 바로 그려, 인코딩해서
+	 * 내면 「&amp;」가 그대로 보였다. 앱은 모든 글을 Text 로 그려 주입 경로가 없다 — 근거는 docs/VULNERABILITY-REPORT.md.
+	 */
 	static String preview(String body) {
 		if (body == null) {
 			return null;
 		}
 		int end = body.codePointCount(0, body.length()) <= PREVIEW_LENGTH ? body.length()
 				: body.offsetByCodePoints(0, PREVIEW_LENGTH);
-		return HtmlOutputEncoder.forHtml(body.substring(0, end));
+		return body.substring(0, end);
 	}
 
-	/** {@link StoryResponseAssembler} 의 작성자 이름과 같은 규칙 — 탈퇴했으면 「탈퇴한 사용자」. */
+	/** {@link StoryResponseAssembler} 의 작성자 이름과 같은 규칙 — 탈퇴했으면 「탈퇴한 사용자」, 이름은 원문 그대로. */
 	private static String authorName(AppUser author) {
-		return HtmlOutputEncoder.forHtml((author == null || author.getDeletedAt() != null
-				|| author.getDisplayName() == null || author.getDisplayName().isBlank()) ? "탈퇴한 사용자"
-						: author.getDisplayName());
+		return (author == null || author.getDeletedAt() != null || author.getDisplayName() == null
+				|| author.getDisplayName().isBlank()) ? "탈퇴한 사용자" : author.getDisplayName();
 	}
 }
