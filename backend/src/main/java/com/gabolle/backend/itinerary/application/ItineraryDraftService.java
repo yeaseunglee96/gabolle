@@ -888,6 +888,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         int count = dayPlaces.size();
         List<Placed> placed = new ArrayList<>(count);
         boolean[] used = new boolean[count];
+        boolean[] mealSlot = mealSlots(trip, count);
 
         for (int slotIndex = 0; slotIndex < count; slotIndex++) {
             Slot slot = slotFor(trip, slotIndex, count);
@@ -896,7 +897,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
             // 이 칸이 밥 먹는 시각이면 밥집을, 아니면 밥집이 아닌 곳을 먼저 찾는다.
             // 같은 조건이면 순위가 높은 쪽이 먼저다.
-            boolean wantFood = overlapsMealBand(slot);
+            boolean wantFood = mealSlot[slotIndex];
 
             int chosen = -1;
             if (at != null) {
@@ -961,14 +962,13 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             return placed;
         }
         OffsetDateTime[] at = new OffsetDateTime[count];
-        boolean[] wantFood = new boolean[count];
+        boolean[] wantFood = mealSlots(trip, count);
         for (int i = 0; i < count; i++) {
             Slot slot = placed.get(i).slot();
             if (slot.start() == null) {
                 return placed;
             }
             at[i] = visitDate.atTime(slot.start()).atZone(ZONE).toOffsetDateTime();
-            wantFood[i] = overlapsMealBand(slot);
         }
 
         int[] identity = new int[count];
@@ -1083,26 +1083,69 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 이 칸이 밥 먹는 시각인가 — 식사 시각대와 {@link #MEAL_OVERLAP_MINUTES} 이상 겹치면.
+     * 하루 칸 가운데 밥 칸 — 식사 시각대마다 <b>한 칸만</b> (S15P21E201-1624).
+     *
+     * <p>🔴 왜. 칸이 길면 한 시각대가 두 칸에 걸린다. 09~21시·하루 5곳이면 칸이 144분씩이라 저녁(17~20시)이
+     * 넷째 칸(16:12~, 96분)과 다섯째 칸(18:36~, 84분)에 다 걸렸다. 밥 칸이 셋(점심 하나·저녁 둘)인데 밥집은
+     * 하루 둘이라, {@link #shortestSlotOrder} 가 「밥 칸에 앉은 밥집 수가 안 줄면 된다」로 둘을 저녁 두 칸에
+     * 옮겼다 — 점심이 빠지고 16시·18시에 밥을 두 번 먹었다(운영 일정 55476311 2일차).
+     *
+     * <p>고르는 법: 그 시각대에 걸리는 칸({@link #overlapsBand}) 가운데 <b>도착해서 첫 한 시간</b>이 시각대와 가장
+     * 많이 겹치는 칸. 밥은 도착해서 먹는다 — 16:12 에 닿는 칸보다 18:36 에 닿는 칸이 저녁이다. 같으면 칸 전체가 더
+     * 많이 겹치는 칸, 그것도 같으면 앞 칸. 걸리는 칸이 없는 시각대는 밥 칸이 없다(전과 같다).
+     */
+    private static boolean[] mealSlots(Trip trip, int count) {
+        boolean[] meal = new boolean[count];
+        for (LocalTime[] band : MEAL_BANDS) {
+            int best = -1;
+            long bestFirstHour = -1;
+            long bestOverlap = -1;
+            for (int i = 0; i < count; i++) {
+                Slot slot = slotFor(trip, i, count);
+                if (!overlapsBand(slot, band)) {
+                    continue;
+                }
+                // 칸이 한 시간보다 길 때만 더하므로 자정을 넘겨 돌아가지 않는다.
+                LocalTime firstHourEnd = Duration.between(slot.start(), slot.end()).toMinutes() > MEAL_OVERLAP_MINUTES
+                        ? slot.start().plusMinutes(MEAL_OVERLAP_MINUTES)
+                        : slot.end();
+                long firstHour = overlapMinutes(slot.start(), firstHourEnd, band);
+                long overlap = overlapMinutes(slot.start(), slot.end(), band);
+                if (firstHour > bestFirstHour || (firstHour == bestFirstHour && overlap > bestOverlap)) {
+                    best = i;
+                    bestFirstHour = firstHour;
+                    bestOverlap = overlap;
+                }
+            }
+            if (best >= 0) {
+                meal[best] = true;
+            }
+        }
+        return meal;
+    }
+
+    /**
+     * 이 칸이 이 식사 시각대에 걸리는가 — {@link #MEAL_OVERLAP_MINUTES} 이상 겹치면.
      * 스치기만 한 것은 안 센다. 09:00~18:00 · 하루 4곳이면 첫 칸 09:00~11:15 가 아침에 30분
      * 걸리는데, 겹치기만 하면 센다는 규칙이면 오전 첫 자리가 밥집이 된다.
      * {@link #mealsPerDay} 도 같은 30분을 안 세므로, 같은 잣대를 써야 칸 수와 끼니 수가 맞는다.
      * 칸 자체가 60분보다 짧으면 그 길이를 기준으로 삼는다 — 안 그러면 짧은 칸은 통째로 점심
      * 안에 들어가 있어도 영영 밥 때가 아니게 된다.
      */
-    private static boolean overlapsMealBand(Slot slot) {
+    private static boolean overlapsBand(Slot slot, LocalTime[] band) {
         if (slot.start() == null || slot.end() == null) {
             return false;
         }
         long required = Math.min(MEAL_OVERLAP_MINUTES, Duration.between(slot.start(), slot.end()).toMinutes());
-        for (LocalTime[] band : MEAL_BANDS) {
-            LocalTime from = band[0].isAfter(slot.start()) ? band[0] : slot.start();
-            LocalTime to = band[1].isBefore(slot.end()) ? band[1] : slot.end();
-            if (to.isAfter(from) && Duration.between(from, to).toMinutes() >= required) {
-                return true;
-            }
-        }
-        return false;
+        long overlap = overlapMinutes(slot.start(), slot.end(), band);
+        return overlap > 0 && overlap >= required;
+    }
+
+    /** [from, to) 와 식사 시각대가 겹치는 분. 안 겹치면 0. */
+    private static long overlapMinutes(LocalTime from, LocalTime to, LocalTime[] band) {
+        LocalTime start = band[0].isAfter(from) ? band[0] : from;
+        LocalTime end = band[1].isBefore(to) ? band[1] : to;
+        return end.isAfter(start) ? Duration.between(start, end).toMinutes() : 0;
     }
 
     /**

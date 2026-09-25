@@ -85,16 +85,19 @@ class AssembleReadCountIntegrationTest {
 	private final List<ItineraryDraftCommand.PlannedPlace> planned = new ArrayList<>();
 
 	/**
-	 * 고치기 전 코드(back/dev 929d65b79)가 이 입력으로 낸 일정 — 날짜마다 {@code 차례:심은번호@시각[경고]}.
-	 * 차례 규칙을 <b>일부러</b> 바꾸는 작업이면 새 값으로 갈아 끼운다. 이 시험이 지키는 것은 「판정을 기억해 쓰는
-	 * 것만으로는 일정이 안 바뀐다」이다.
+	 * 이 입력으로 나와야 하는 일정 — 날짜마다 {@code 차례:심은번호@시각[경고]}. 처음 값은 판정을 기억해 쓰기 전 코드
+	 * (back/dev 929d65b79)가 낸 것이다. 차례 규칙을 <b>일부러</b> 바꾸는 작업이면 새 값으로 갈아 끼운다. 이 시험이 지키는
+	 * 것은 「판정을 기억해 쓰는 것만으로는 일정이 안 바뀐다」이다.
+	 *
+	 * <p>갈아 끼운 기록: S15P21E201-1624 — 식사 시각대마다 밥 칸을 한 칸만 고르게 바꿔 넷째·다섯째 날(3·4)이 달라졌다.
+	 * 전에는 16:12 칸도 저녁 칸이라 넷째 날 밥집(39)이 16:12 에 앉았고, 이제 점심 칸(11:24)에 앉는다.
 	 */
-	private static final String BEFORE =
+	private static final String EXPECTED =
 			"{0=[1:4@09:00[], 2:0@11:24[], 3:32@13:48[], 4:47@16:12[], 5:12@18:36[OPENING_HOURS_CLOSED]], "
 			+ "1=[1:29@09:00[], 2:1@11:24[], 3:26@13:48[], 4:18@16:12[OPENING_HOURS_CLOSED], 5:3@18:36[]], "
 			+ "2=[1:7@09:00[OPENING_HOURS_CLOSED], 2:35@11:24[], 3:31@13:48[], 4:38@16:12[OPENING_HOURS_CLOSED], 5:33@18:36[]], "
-			+ "3=[1:25@09:00[], 2:37@11:24[], 3:34@13:48[], 4:39@16:12[], 5:8@18:36[]], "
-			+ "4=[1:15@09:00[], 2:16@11:24[], 3:17@13:48[], 4:27@16:12[], 5:13@18:36[]], "
+			+ "3=[1:34@09:00[], 2:39@11:24[], 3:25@13:48[], 4:37@16:12[], 5:8@18:36[]], "
+			+ "4=[1:15@09:00[], 2:27@11:24[], 3:16@13:48[], 4:17@16:12[], 5:13@18:36[]], "
 			+ "5=[1:41@09:00[OPENING_HOURS_CLOSED], 2:24@11:24[], 3:46@13:48[], 4:14@16:12[], 5:9@18:36[]], "
 			+ "6=[1:23@09:00[OPENING_HOURS_CLOSED], 2:21@11:24[], 3:11@13:48[], 4:19@16:12[], 5:28@18:36[]], "
 			+ "7=[1:5@09:00[], 2:6@11:24[], 3:10@13:48[], 4:2@16:12[], 5:20@18:36[]]}";
@@ -153,7 +156,7 @@ class AssembleReadCountIntegrationTest {
 	void theItineraryIsTheSameAsBefore() {
 		ItineraryDraft draft = this.draftService.assemble(command());
 
-		assertThat(orderOf(draft)).isEqualTo(BEFORE);
+		assertThat(orderOf(draft)).isEqualTo(EXPECTED);
 	}
 
 	@Test
