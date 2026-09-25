@@ -304,9 +304,11 @@ public class TripCreationService {
      * <p>같은 트랜잭션이다(아웃박스) — 여행 저장이 되돌려지면 이벤트도 없다. 동의와 무관하다 — 행동 관찰이 아니라 명시
      * 입력이다({@code EventType.BEHAVIOR_SIGNALS} 에 없다).
      *
-     * <p>🔴 싣지 않는 것: 출발지 좌표(지역 코드도 없이 「있다」만), 제약 값. 알레르기·꼭 지키는 식단은 항목 이름도 건강 정보라
-     * 뺀다({@link TripConstraint#isSensitive}). 비로그인(ANONYMOUS) 여행은 사람 축 이벤트(취향·제약)를 적을 사람이 없어
-     * {@code trip_created} 만 남긴다.
+     * <p>🔴 싣지 않는 것: 출발지 좌표(지역 코드도 없이 「있다」만), 제약 값, <b>제약 항목 이름</b>. 항목 이름을 모든 제약에서
+     * 빼는 까닭(2026-09-25 결정) — 「개인화 정보로 이미 가지고 있다」는 원칙이 이름에도 같고, 민감 판정
+     * ({@link TripConstraint#isSensitive})이 알레르기·꼭 지킬 식단만 거른다. 휠체어(장애 = 건강 정보)·선호 식단의
+     * HALAL·KOSHER(종교) 같은 민감정보가 그 판정을 지나 이름으로 실린다. 남기는 것은 종류 · 값 유무 · 반드시 여부 · 답 상태다.
+     * 비로그인(ANONYMOUS) 여행은 사람 축 이벤트(취향·제약)를 적을 사람이 없어 {@code trip_created} 만 남긴다.
      */
     private void recordExplicitInputs(Trip trip, Command command, List<PreferenceSnapshot.PreferenceAnswer> preferences,
             List<TripConstraint> constraints) {
@@ -344,11 +346,9 @@ public class TripCreationService {
             this.events.recordFromServer(UUID.randomUUID(), EventType.PREFERENCE_SET, 1, userId, tripId, null, payload);
         }
         for (TripConstraint constraint : constraints) {
-            boolean sensitive = TripConstraint.isSensitive(constraint.type(), constraint.dietRequirement());
             Map<String, Object> payload = new LinkedHashMap<>();
             payload.put("scope", "TRIP");
             payload.put("constraint_type", constraint.type());
-            payload.put("constraint_key", sensitive ? null : constraint.constraintKey());
             payload.put("has_value", constraint.value() != null || constraint.threshold() != null);
             payload.put("hard", constraint.severity() == TripConstraint.Severity.HARD);
             payload.put("answer_status", constraint.answerStatus() == null ? null : constraint.answerStatus().name());

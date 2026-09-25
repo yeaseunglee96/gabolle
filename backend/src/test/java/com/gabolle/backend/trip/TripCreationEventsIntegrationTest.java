@@ -91,20 +91,40 @@ class TripCreationEventsIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 제약 이벤트에는 값을 싣지 않고, 알레르기는 항목 이름도 싣지 않는다 — 건강 정보다")
+	@DisplayName("🔴 제약 이벤트에는 값도 항목 이름도 싣지 않는다 — 종류 · 값 유무 · 반드시 여부 · 답 상태만")
 	void constraintEventsCarryNoValues() {
 		var result = this.creationService.create(command(), null);
 		List<Map<String, Object>> constraints = payloadOf(result.trip().tripId(), "constraint_set");
 
 		Map<String, Object> walking = constraints.stream()
 				.filter((p) -> "MOBILITY".equals(p.get("constraint_type"))).findFirst().orElseThrow();
-		assertThat(walking).containsEntry("constraint_key", "MAX_WALKING_METERS").containsEntry("hard", true)
-				.containsEntry("has_value", true).doesNotContainKey("threshold").doesNotContainKey("value");
+		assertThat(walking).containsEntry("hard", true).containsEntry("has_value", true)
+				.doesNotContainKey("constraint_key").doesNotContainKey("threshold").doesNotContainKey("value");
+		assertThat(constraints.toString()).doesNotContain("MAX_WALKING_METERS").doesNotContain("PEANUT");
+	}
 
-		Map<String, Object> allergy = constraints.stream()
-				.filter((p) -> "ALLERGY".equals(p.get("constraint_type"))).findFirst().orElseThrow();
-		assertThat(allergy.get("constraint_key")).isNull();
-		assertThat(allergy.toString()).doesNotContain("PEANUT");
+	/**
+	 * 민감 판정({@code TripConstraint.isSensitive})은 알레르기·꼭 지킬 식단만 거른다. 휠체어(장애)·선호 식단 HALAL(종교)은 그
+	 * 판정을 지나지만 민감정보다 — 그래서 항목 이름을 모든 제약에서 뺐다(2026-09-25 결정).
+	 */
+	@Test
+	@DisplayName("🔴 휠체어 · 선호 HALAL 을 넣어도 이벤트에 그 이름이 안 나온다 — 장애 · 종교는 민감정보다")
+	void wheelchairAndHalalNamesNeverAppear() {
+		TripCreationService.Command base = new TripCreationService.Command(this.userId,
+				LocalDate.of(2026, 10, 15), LocalDate.of(2026, 10, 16), 35.1587, 129.1604, null, 2, "09:00-21:00",
+				"Asia/Seoul", List.of(),
+				List.of(new TripCreationService.Command.ConstraintInput("MOBILITY", "WHEELCHAIR",
+								TripConstraint.Severity.HARD, "EQ", "true", null, null, TripConstraint.AnswerStatus.SELECTED,
+								null),
+						new TripCreationService.Command.ConstraintInput("DIET", "HALAL", TripConstraint.Severity.SOFT,
+								"EQ", "true", null, null, TripConstraint.AnswerStatus.SELECTED,
+								TripConstraint.DietRequirement.PREFERRED)));
+		var result = this.creationService.create(withLodging(base), null);
+
+		List<Map<String, Object>> constraints = payloadOf(result.trip().tripId(), "constraint_set");
+		assertThat(constraints).hasSize(2);
+		assertThat(constraints.toString()).doesNotContain("WHEELCHAIR").doesNotContain("HALAL");
+		assertThat(constraints).extracting((p) -> p.get("constraint_type")).containsExactlyInAnyOrder("MOBILITY", "DIET");
 	}
 
 	@Test
