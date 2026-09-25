@@ -17,12 +17,13 @@ import type { SlopePiece } from '@/map/slopeGrades';
 import type { MapPathPoint, MapStop } from '@/map/types';
 
 /**
- * 🔴 걷는 구간을 걷기로 받아 경사 조각을 칠할까(S15P21E201-1658). **지금은 꺼 둔다.**
- *    백엔드 !1626(우리 보행 길찾기 — 걷기에 실제 길 모양과 경사 조각)이 운영에 나가기 전에는 걷기 요청이 직선 어림
- *    (두 점, 조각 없음)으로 온다. 켜면 걷는 구간이 지금의 자동차 길 대신 곧은 선이 된다(사용자 결정: 배포 뒤 켠다).
- *    !1626 배포를 확인한 뒤 true 로 바꾸는 커밋 하나면 된다.
+ * 🔴 걷는 구간을 걷기로 받아 경사 조각을 칠할까(S15P21E201-1658). **켜져 있다**(S15P21E201-1712, 사용자 결정).
+ *    백엔드 !1626(우리 보행 길찾기 — 걷기에 실제 길 모양과 경사 조각)이 운영에 들어간 것을 확인하고 켰다 — 운영 백엔드가
+ *    기동 때 「보행 그래프를 읽었다」를 남긴다(2026-09-26 08:15, 점 473,756 · 길 66,746). 그 그래프를 못 읽으면 서버는
+ *    걷기를 직선 어림(두 점, 조각 없음)으로 답하고, 그러면 걷는 구간이 곧은 선이 된다.
+ *    되돌리려면 false 로 바꾸는 커밋 하나 — 걷는 구간이 다시 방식 없이(자동차 길) 받아진다.
  */
-export const WALK_SLOPE_ROUTES = false;
+export const WALK_SLOPE_ROUTES = true;
 
 /** 한 구간의 결과. `estimated` 가 true 면 화면이 옅게 그린다. `pieces` 는 걷기로 받은 구간의 경사 조각이다. */
 export type LegPath = { path: MapPathPoint[]; estimated: boolean; pieces?: SlopePiece[] };
