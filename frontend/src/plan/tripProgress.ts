@@ -28,8 +28,11 @@ const SANE_DRIFT_MINUTES = 12 * 60;
 
 export const EMPTY_PROGRESS: TripProgress = { status: 'PLANNED', currentStopIndex: 0, outcomes: {} };
 
-/** 단계 하나가 화면에서 어떤 모습인가. */
-export type StepState = 'done' | 'current' | 'next' | 'later';
+/**
+ * 단계 하나가 화면에서 어떤 모습인가.
+ * `staying` 은 stepStates 가 내지 않는다 — 폰 여행 화면이 지금 머무는 곳 한 곳에만 덧씌운다(S15P21E201-1690).
+ */
+export type StepState = 'done' | 'current' | 'next' | 'later' | 'staying';
 
 /**
  * 단계들의 모습을 정한다.
@@ -37,7 +40,7 @@ export type StepState = 'done' | 'current' | 'next' | 'later';
  * 🔴 「다녀옴」과 「건너뜀」을 **같은 모습으로 그리지 않는다** — 건너뛴 곳은 안 간 곳이다.
  *    같이 그리면 나중에 「거기 갔었나?」를 기억으로만 풀어야 한다.
  */
-export function stepStates(stopIds: string[], progress: TripProgress): StepState[] {
+export function stepStates(stopIds: string[], progress: TripProgress): Exclude<StepState, 'staying'>[] {
   return stopIds.map((id, index) => {
     if (progress.outcomes[id]) return 'done';
     if (progress.status === 'PLANNED') return index === 0 ? 'next' : 'later';

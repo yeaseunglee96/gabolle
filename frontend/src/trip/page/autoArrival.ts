@@ -43,6 +43,24 @@ export function stepDwell(dwell: Dwell, fix: Fix | null, target: Target | null):
   return { dwell: { stopId: target.id, since }, arrive: fix.at - since >= ARRIVE_DWELL_MS };
 }
 
+// ── 자동 출발 (S15P21E201-1690) ─────────────────────────────────────────────
+// 도착을 적은 곳의 반경 밖으로 «나가 머물면» 출발로 적는다. 도착과 같은 반경·같은 시간 —
+// 문 앞에 잠깐 나갔다 오거나, 위치가 한 번 튀는 것으로는 출발이 아니다.
+
+/** 이만큼 밖에 있으면 출발. 도착과 같다. */
+export const DEPART_DWELL_MS = ARRIVE_DWELL_MS;
+/** 머무는 곳 밖에 나가 있는 동안과 나간 시각. 안이면 null. */
+export type Away = { stopId: string; since: number } | null;
+
+/** 위치 하나를 받아 「밖에 있음」을 다음으로 넘기고, 출발로 적을지 답한다. 안으로 돌아오면 처음부터 센다. */
+export function stepAway(away: Away, fix: Fix | null, stay: Target | null): { away: Away; depart: boolean } {
+  if (!stay || !usableFix(fix)) return { away: away && stay && away.stopId === stay.id ? away : null, depart: false };
+  const outside = distanceM(fix.latitude, fix.longitude, stay.latitude, stay.longitude) > ARRIVE_RADIUS_M;
+  if (!outside) return { away: null, depart: false };
+  const since = away && away.stopId === stay.id ? away.since : fix.at;
+  return { away: { stopId: stay.id, since }, depart: fix.at - since >= DEPART_DWELL_MS };
+}
+
 /** 「남은 거리 350m」·「1.2km」 — 카드에 붙인다. 위치를 못 믿으면 null. */
 export function remainingMeters(fix: Fix | null, target: Target | null): number | null {
   if (!target || !usableFix(fix)) return null;

@@ -14,6 +14,7 @@ import {
 import {
   arriveProgress, fetchProgress, pauseProgress, skipProgress, startProgress, type ProgressResult,
 } from '@/plan/tripProgressApi';
+import { arrivedAtOf } from '@/trip/page/actualTime';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -364,8 +365,8 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
             {pace.visited ? <Text variant="caption" weight="bold" color={color.state.success}>{txf(tx, '도착 %s', 'Arrived %s', pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--') + (pace.predictedDeparture ? ` · ${txf(tx, '출발 %s', 'Left %s', formatTime(pace.predictedDeparture, locale))}` : '')}</Text>
               : <Text variant="caption" weight="bold" color={pace.atRisk ? color.state.danger : color.text.muted}>{txf(tx, '예상 도착 %s%s', 'Est. arrival %s%s', pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--', estimated ? tx(' (추정)', ' (est.)') : '')}{pace.atRisk ? ` · ${tx('하루를 넘길 위험', 'Risks running past the day')}` : ''}</Text>}
             {(onRecordArrival || onRecordDeparture) ? <View style={styles.actualButtons}>
-              {!pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
-                : !pace.predictedDeparture ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 출발 찍기', 'Mark departure at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
+              {onRecordArrival && !pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
+                : onRecordDeparture && !pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 출발 찍기', 'Mark departure at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
             </View> : null}
           </View> : null}
           {!reorderMode && canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 제외', 'Exclude %s', item.title)} accessibilityState={{ busy: excludeBusy, disabled }} disabled={disabled} onPress={onExclude} style={[styles.excludeButton, disabled && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.state.danger}>{excludeBusy ? tx('처리 중', 'Processing') : tx('이 장소 제외', 'Remove this place')}</Text></Pressable> : null}
@@ -428,6 +429,8 @@ function ItineraryClassic() {
   const [pace, setPace] = useState<ItineraryPaceDto | null>(null);
   const [rhythm, setRhythm] = useState<ItineraryRhythmDto | null>(null);
   const [actualBusyItemId, setActualBusyItemId] = useState<string | null>(null);
+  // 이 화면에서 방금 찍은 도착 — 진행 기록(서버의 도착 표에서 읽는다)은 다시 받기 전까지 모른다(S15P21E201-1690).
+  const [arrivalsHere, setArrivalsHere] = useState<Record<string, string>>({});
   const [replanConfirming, setReplanConfirming] = useState(false);
   const [replanBusy, setReplanBusy] = useState(false);
   const [replanOverflowIds, setReplanOverflowIds] = useState<string[] | null>(null);
@@ -577,6 +580,10 @@ function ItineraryClassic() {
 
   const itinerary = result.state === 'success' ? result.itinerary : null;
   const day = itinerary?.days[selectedDay];
+  // 🔴 손으로 찍는 것은 오늘 방문지만(S15P21E201-1690, 조율 세션 결정). 서버는 날짜를 일부러 검사하지 않는다 — 앱이 지킨다.
+  const recordToday = isToday(day?.date, localDateKey(new Date()));
+  /** 적힌 실제 도착. 도착만 적힌 곳은 서버가 「다녀옴」으로 안 봐서 속도(pace)에는 예측값만 온다 — 여기서 읽는다. */
+  const arrivalOf = (itemId: string) => arrivalsHere[itemId] ?? arrivedAtOf(progress.outcomes, itemId);
 
   // ── 「지금」 카드가 쓰는 값들 ────────────────────────────────────────────
   const dayStops = day?.items ?? [];
@@ -712,9 +719,14 @@ function ItineraryClassic() {
   const recordArrival = async (item: ItineraryItemDto) => {
     if (!itinerary) return;
     setActualBusyItemId(item.id);
-    const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt: new Date().toISOString(), departedAt: null, accessToken });
+    const arrivedAt = new Date().toISOString();
+    const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt, departedAt: null, accessToken });
     setActualBusyItemId(null);
-    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); void refreshPaceAfterActual(); }
+    if (outcome.state === 'success') {
+      setArrivalsHere((current) => ({ ...current, [item.id]: arrivedAt }));
+      setResult({ state: 'success', itinerary: outcome.itinerary });
+      void refreshPaceAfterActual();
+    }
     else if (outcome.state !== 'conflict') setActionMessage(outcome.message);
   };
 
@@ -722,7 +734,10 @@ function ItineraryClassic() {
     if (!itinerary) return;
     // PUT은 보낸 것이 최종 상태다(부분 갱신이 아니다) — 이미 기록된 도착 시각을
     // 함께 실어 보내지 않으면 출발만 남고 도착이 null로 지워진다.
-    const existingArrival = paceByItemId.get(item.id)?.predictedArrival ?? null;
+    // 🔴 실제 도착을 싣는다(S15P21E201-1690). 여기에 서버의 «예측» 도착(pace.predictedArrival)을 실었었다 — 도착만 적힌 곳은
+    //    서버가 「다녀옴」으로 안 봐서 예측값을 주고, 그 값이 실제 도착을 덮었다.
+    const existingArrival = arrivalOf(item.id);
+    if (!existingArrival) return;
     setActualBusyItemId(item.id);
     const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt: existingArrival, departedAt: new Date().toISOString(), accessToken });
     setActualBusyItemId(null);
@@ -1102,7 +1117,7 @@ function ItineraryClassic() {
           {!reorderMode && wide ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} locale={locale} /> : null}
           {displayedItems.length ? <View style={wide ? styles.wideGrid : undefined}>
             <View style={wide ? styles.timelineColumn : undefined}>
-              <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} stepState={dayStepStates[index]} />)}</View>
+              <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={recordToday && !arrivalOf(item.id) ? () => void recordArrival(item) : undefined} onRecordDeparture={recordToday && arrivalOf(item.id) ? () => void recordDeparture(item) : undefined} accessToken={accessToken} stepState={dayStepStates[index]} />)}</View>
             </View>
             {/* 이동 요약 — 시안 p6 의 3칸(장소 · 이동 합계 · 수단). 폰에도 둔다
                 「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다.

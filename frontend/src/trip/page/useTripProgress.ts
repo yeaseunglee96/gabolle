@@ -67,5 +67,13 @@ export function useTripProgress(itineraryId: string | null) {
     skip: (stopIds: string[], stopId: string) => send(
       skipStop(progress, stopIds, stopId, new Date().toISOString()),
       () => skipProgress(id, stopId, accessToken)),
+    /**
+     * 서버 것을 다시 받는다 — 도착 시각을 고치거나 목록에서 「도착 찍기」를 한 뒤(S15P21E201-1690).
+     * 진행 기록은 도착 시각을 서버의 도착 표에서 읽으므로, 다른 창구로 적은 것도 여기서 맞춰진다.
+     */
+    refresh: () => {
+      if (!itineraryId || deviceOnly !== false) return;
+      void fetchProgress(itineraryId, accessToken).then((again) => { if (again.state === 'success') setProgress(again.progress); });
+    },
   };
 }
