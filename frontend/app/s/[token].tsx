@@ -15,7 +15,9 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { formatClock, formatFullDate } from '@/i18n/datetime';
+import { formatClock, formatDayHeading, formatFullDate } from '@/i18n/datetime';
+import { koreanTopic } from '@/i18n/korean';
+import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { usePlan } from '@/plan/PlanProvider';
 import { getSharedItinerary, type SharedItineraryDto } from '@/share/sharedItinerary';
 
@@ -33,6 +35,17 @@ const NOT_SHARED_LABEL: Record<string, { ko: string; en: string }> = {
   budget: { ko: '예산', en: 'budget' },
   partySize: { ko: '인원', en: 'party size' },
 };
+
+/** 「10월 3일 (토)」 — 못 읽는 날짜면 받은 그대로. */
+function dayHeading(value: string, locale: string): string {
+  return formatDayHeading(value, locale) ?? value;
+}
+
+/** 서버는 장소의 분류 코드(SEA_BEACH 등)를 그대로 싣는다 — 이름표로 바꾸고, 모르는 코드는 안 보인다(S15P21E201-1677). */
+function categoryText(code: string | null, tx: (ko: string, en: string) => string): string | null {
+  const label = code ? PLACE_CATEGORY_LABELS[code] : undefined;
+  return label ? tx(label[0], label[1]) : null;
+}
 
 export default function SharedItinerary() {
   const router = useRouter();
@@ -100,20 +113,21 @@ export default function SharedItinerary() {
     <View style={styles.heading}>
       <Text variant="eyebrow" weight="bold">{tx('공유된 여행 일정', 'Shared trip itinerary')}</Text>
       <Text variant="display" weight="bold">{data.title}</Text>
-      <Text color={color.text.body}>{txf(tx, '%s ~ %s', '%s – %s', data.startDate, data.finishDate)}</Text>
+      {/* 날짜는 내 여행 목록과 같은 모양 — 「2026-10-03」 기계 모양을 그대로 보이지 않는다(S15P21E201-1677). */}
+      <Text color={color.text.body}>{`${dayHeading(data.startDate, locale)} – ${dayHeading(data.finishDate, locale)}`}</Text>
       <Text variant="caption" color={color.text.muted}>{txf(tx, '이 링크는 %s까지 볼 수 있어요.', 'This link is viewable until %s.', formatFullDate(data.expiresAt, locale))}</Text>
     </View>
 
     <View style={styles.notice}>
       <Text variant="caption" weight="bold">{tx('공유되지 않는 정보', 'Not shared')}</Text>
-      <Text variant="caption" color={color.text.body}>{txf(tx, '%s는(은) 공유되지 않아요.', '%s are not shared.', notSharedLabels)}</Text>
+      <Text variant="caption" color={color.text.body}>{txf(tx, `%s${koreanTopic(notSharedLabels)} 공유되지 않아요.`, '%s are not shared.', notSharedLabels)}</Text>
     </View>
 
     {data.days.length === 0 ? (
       <View style={styles.dayCard}><Text color={color.text.body}>{tx('아직 짜인 일정이 없어요.', 'No itinerary has been planned yet.')}</Text></View>
     ) : data.days.map((day, index) => (
       <View key={day.date} style={styles.dayCard}>
-        <Text variant="title" weight="bold" style={styles.dayTitle}>{txf(tx, '%s일차 · %s', 'Day %s · %s', index + 1, day.date)}</Text>
+        <Text variant="title" weight="bold" style={styles.dayTitle}>{txf(tx, '%s일차 · %s', 'Day %s · %s', index + 1, dayHeading(day.date, locale))}</Text>
         {day.items.length === 0 ? (
           <Text variant="caption" color={color.text.muted}>{tx('이 날은 일정이 없어요.', 'Nothing planned for this day.')}</Text>
         ) : day.items.map((item) => (
@@ -124,7 +138,7 @@ export default function SharedItinerary() {
             <View style={styles.itemCopy}>
               <Text weight="bold">{item.placeName}</Text>
               <Text variant="caption" color={color.text.muted}>
-                {[item.category, item.stayMinutes ? tx(`${item.stayMinutes}분 머묾`, `${item.stayMinutes} min stay`) : null].filter(Boolean).join(' · ')}
+                {[categoryText(item.category, tx), item.stayMinutes ? tx(`${item.stayMinutes}분 머묾`, `${item.stayMinutes} min stay`) : null].filter(Boolean).join(' · ')}
               </Text>
             </View>
           </View>
