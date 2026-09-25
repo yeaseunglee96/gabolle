@@ -175,7 +175,7 @@ public class CandidateAssembler {
 		// 후보에 붙이면 다른 기준으로 잰 값이 같은 칸에 섞인다.
 		if (returned) {
 			components.put(ReasonRanking.COMPONENT_KEY, ReasonRanking.of(candidate, cohortMeans));
-			String topAxis = ReasonRanking.topAxisOf(candidate);
+			String topAxis = ReasonRanking.distinctiveAxisOf(candidate, cohortMeans);
 			if (topAxis != null) {
 				reasonCodes.add(RecommendationCodes.REASON_TOP_CONTRIBUTOR_PREFIX + topAxis);
 			}

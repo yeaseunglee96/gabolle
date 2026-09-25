@@ -323,16 +323,28 @@ class BaselineCandidateScorerTest {
 	// ── 점수 ──────────────────────────────────────────────────────────────────
 
 	@Test
-	@DisplayName("거리는 항상 NEAR_ORIGIN 을 남기고, 못 구한 피처는 0 이 아니라 null 이다")
+	@DisplayName("거리는 항상 재고, 못 구한 피처는 0 이 아니라 null 이다")
 	void 거리는_항상_계산되고_못구한_피처는_null() {
 		PlaceCandidateResponse.Candidate candidate = candidate(1000L, List.of());
 
 		EngineCandidate result = score(candidate, null, List.of());
 
-		assertThat(result.reasonCodes()).contains("NEAR_ORIGIN");
 		assertThat(result.featureValues().get("distanceM")).isEqualTo(1000L);
 		// 취향 스냅샷 자체가 없으니 관심 태그 겹침을 잴 수 없다 — 0 이 아니라 null.
 		assertThat(result.featureValues().get("interestTagOverlap")).isNull();
+	}
+
+	@Test
+	@DisplayName("🔴 NEAR_ORIGIN 은 1km 미만에만 — 999m 는 붙고 1,000m 는 안 붙는다. 점수는 거리식 그대로다 (S15P21E201-1638)")
+	void 가까움은_1km_미만에만_붙고_점수는_그대로() {
+		EngineCandidate near = score(candidate(999L, List.of()), null, List.of());
+		EngineCandidate far = score(candidate(1000L, List.of()), null, List.of());
+
+		assertThat(near.reasonCodes()).contains("NEAR_ORIGIN");
+		assertThat(far.reasonCodes()).doesNotContain("NEAR_ORIGIN");
+		// 이유를 빼도 점수는 안 움직인다 — 거리 0.30 × (1 - 거리/5000) 뿐이다.
+		assertThat(near.preRankScore()).isCloseTo(0.30 * (1 - 999 / 5000.0), within(1e-9));
+		assertThat(far.preRankScore()).isCloseTo(0.30 * (1 - 1000 / 5000.0), within(1e-9));
 	}
 
 	@Test

@@ -158,8 +158,9 @@ class DiversityRerankTest {
 
 		RecommendationCandidate stored = row(assembly, candidate.placeId());
 		assertThat(stored.getScoreComponents()).contains("reasonRanking");
-		// distance 기여 0.30 이 interest 0.10 보다 크므로 절대 기여 1위는 distance 다.
-		assertThat(List.of(stored.getReasonCodes())).contains("TOP_CONTRIBUTOR_distance");
+		// 혼자 반환되면 견줄 데가 없어 평균보다 튄 축이 없다 — 「가장 크게 기여」를 붙이지 않는다 (S15P21E201-1638).
+		// 절대 기여로 고르던 때는 여기서 TOP_CONTRIBUTOR_distance 였다. 튄 축을 고르는 규칙은 HonestReasonTest 가 본다.
+		assertThat(List.of(stored.getReasonCodes())).noneMatch((code) -> code.startsWith("TOP_CONTRIBUTOR_"));
 	}
 
 	@Test

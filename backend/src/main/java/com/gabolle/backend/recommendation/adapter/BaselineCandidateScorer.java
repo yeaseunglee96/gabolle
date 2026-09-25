@@ -130,9 +130,14 @@ public class BaselineCandidateScorer {
 		featureValues.put("distanceM", candidate.distanceM());
 		// 장기 분석은 띠로 센다. 미터만 남기면 질의마다 경계를 다시 정하게 되어 같은 지표가
 		// 사람마다 다른 숫자가 된다.
-		featureValues.put("distanceBucket", DistanceBucket.of(candidate.distanceM()));
+		DistanceBucket distanceBucket = DistanceBucket.of(candidate.distanceM());
+		featureValues.put("distanceBucket", distanceBucket);
 		scoreComponents.put("distance", componentDetail(weights.distance(), distanceComponent, null));
-		reasonCodes.add("NEAR_ORIGIN");
+		// 「출발지에서 가까움」은 걸어갈 만한 곳(띠의 「걷기 상한 안쪽」 — 1km 미만)에만 붙인다 (S15P21E201-1638).
+		// 전에는 거리와 상관없이 모든 후보에 붙어 4.7km 떨어진 곳도 「가까움」이었다. 점수는 그대로다.
+		if (distanceBucket == DistanceBucket.UNDER_500M || distanceBucket == DistanceBucket.M500_TO_1KM) {
+			reasonCodes.add("NEAR_ORIGIN");
+		}
 		total += weights.distance() * distanceComponent;
 
 		// ── 태그 겹침 셋 — 관심·분위기·음식 ──────────────────────────────────

@@ -83,7 +83,8 @@ public final class RecommendationCodes {
 	public static final String REASON_EDITORIAL_PICK = "EDITORIAL_PICK";
 
 	/**
-	 * 절대 기여 1위 축의 접두사 — {@code TOP_CONTRIBUTOR_DISTANCE} 처럼 붙는다.
+	 * 평소보다 가장 많이 튄 축의 접두사 — {@code TOP_CONTRIBUTOR_interest} 처럼 붙는다. 같은 결과 안의 평균보다
+	 * 높은 축이 없으면 안 붙는다. 절대 기여 1위였던 것을 S15P21E201-1638 에서 바꿨다 — 거의 모든 곳이 「거리」였다.
 	 *
 	 * <p>축 이름은 {@code score_components} 의 키를 글자 그대로 붙이므로
 	 * {@code TOP_CONTRIBUTOR_preferenceAlignment} 처럼 대문자 규칙이 깨져 보인다. 일부러
