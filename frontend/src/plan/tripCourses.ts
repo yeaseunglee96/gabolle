@@ -4,6 +4,7 @@
 //    보여 주던 것은 장소 후보 목록이었다. 장소를 고르는 것과 일정을 고르는 것은 사람이
 //    하는 판단 자체가 다르다 — 앞은 「여기 갈까」이고 뒤는 「이렇게 다닐까」다.
 import { ApiClientError, apiRequest } from '@/api/client';
+import { isUnknownResponse } from '@/api/errorText';
 import { loadItinerary, type ItineraryDto } from '@/plan/itinerary';
 
 export type CourseStatus = 'CONFIRMED' | 'ESTIMATED';
@@ -208,7 +209,8 @@ export async function ensureCourseItinerary(
     }
     return { state: 'error', message: '이 코스로 일정을 만들지 못했어요.' };
   } catch (error) {
-    return { state: 'error', message: error instanceof Error ? error.message : '이 코스로 일정을 만들지 못했어요.' };
+    // 서버가 모르는 응답이면 요청 함수의 「요청을 처리하지 못했어요.」 대신 이 자리의 문장(S15P21E201-1672).
+    return { state: 'error', message: error instanceof Error && !isUnknownResponse(error) ? error.message : '이 코스로 일정을 만들지 못했어요.' };
   }
 }
 
