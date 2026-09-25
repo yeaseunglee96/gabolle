@@ -20,6 +20,9 @@ jest.mock('@/share/sharedItinerary', () => ({ ...jest.requireActual('@/share/sha
 
 const url = `${APP_WEB_BASE_URL}/s/abc_123-XYZ`;
 const WAIT = { timeout: 5000 };
+// 🔴 기다림(WAIT 5초)보다 시험 제한 시간이 길어야 기다림이 먹힌다. jest 기본 제한 시간도 5초라, 부하가 걸리면 기다림이
+//    끝나기 전에 시험이 먼저 끝났다(「Exceeded timeout of 5000 ms」 — S15P21E201-1665). 파일 전체에 넉넉히 준다.
+jest.setTimeout(20000);
 const Providers = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } })}>
     <OnboardingPreferencesProvider>{children}</OnboardingPreferencesProvider>

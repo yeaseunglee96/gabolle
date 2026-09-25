@@ -31,6 +31,9 @@ beforeEach(() => { mockApiRequest.mockReset(); mockDesktop = false; });
 
 // 첫 시험은 부품을 처음 불러오는 값(수 초)을 치른다 — 기본 1초 대기로는 그 사이에 끝나 버린다(로컬 실측 3.5초).
 const WAIT = { timeout: 5000 };
+// 🔴 기다림(WAIT 5초)보다 시험 제한 시간이 길어야 기다림이 먹힌다. jest 기본 제한 시간도 5초라, 부하가 걸리면 기다림이
+//    끝나기 전에 시험이 먼저 끝났다(「Exceeded timeout of 5000 ms」 — S15P21E201-1665). 파일 전체에 넉넉히 준다.
+jest.setTimeout(20000);
 
 describe('날씨 창 — 1시간별 예보', () => {
   it('🔴 서버가 준 시각만 그린다 — 오늘처럼 세 칸만 오면 세 칸이다', async () => {
