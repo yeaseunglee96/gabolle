@@ -154,6 +154,8 @@ export default function Me() {
         onPress={() => openPanel('saved')}
         disabled={!user}
       />
+      {/* 원글이 지워지거나 가려지면 내 댓글로 가는 길이 없어진다 — 여기서 모아 찾고 지운다(S15P21E201-1652). */}
+      <InfoRow label={tx('내 댓글', 'My comments')} value="›" onPress={() => openPanel('replies')} disabled={!user} />
       {/* 🔴 「팔로워」「팔로잉」 행도 여기 없다 — 위 프로필 카드의 타일(기록·팔로워·팔로잉)이 같은 곳으로
           간다(S15P21E201-1331). 같은 문이 둘이면 한쪽만 고쳐진다 — 「내 기록」과 같은 이유(1379). 되살리지 마라 — S15P21E201-1390. */}
       <InfoRow

@@ -13,6 +13,7 @@ import { BlockedAccountsBody } from '@/me/panels/BlockedAccountsBody';
 import { HelpBody } from '@/me/panels/HelpBody';
 import { IdentitiesBody } from '@/me/panels/IdentitiesBody';
 import { MyPostsBody } from '@/me/panels/MyPostsBody';
+import { MyRepliesBody } from '@/me/panels/MyRepliesBody';
 import { NotificationsBody } from '@/me/panels/NotificationsBody';
 import { PreferencesBody } from '@/me/panels/PreferencesBody';
 import { ProfileBody } from '@/me/panels/ProfileBody';
@@ -21,7 +22,7 @@ import { SavedRecordsBody } from '@/me/panels/SavedRecordsBody';
 import { TermsBody } from '@/me/panels/TermsBody';
 
 export type MyPanelKey =
-  | 'posts' | 'saved' | 'followers' | 'following' | 'preferences'
+  | 'posts' | 'saved' | 'replies' | 'followers' | 'following' | 'preferences'
   | 'identities' | 'profile' | 'delete-account' | 'notifications' | 'blocked' | 'help' | 'terms';
 
 type Translate = (ko: string, en: string) => string;
@@ -36,6 +37,7 @@ export function panelTitle(key: MyPanelKey, tx: Translate): { title: string; des
   switch (key) {
     case 'posts': return { title: tx('내 기록', 'My records'), description: tx('피드에 남긴 내 글이에요. 공개 범위는 쓸 때 정한 그대로 보여드려요.', 'These are the posts you left on the feed, with the visibility you chose when writing them.') };
     case 'saved': return { title: tx('저장한 기록', 'Saved records'), description: tx('다른 여행자의 기록 중 눌러 담아 둔 것이에요.', 'Records from other travellers that you bookmarked.') };
+    case 'replies': return { title: tx('내 댓글', 'My comments'), description: tx('내가 남긴 댓글이에요. 원글이 지워지거나 가려져도 여기서 찾고 지울 수 있어요.', 'Comments you left. You can find and delete them here even if the original post was deleted or hidden.') };
     case 'followers': return { title: tx('팔로워', 'Followers'), description: tx('나를 팔로우하는 사람들이에요.', 'People who follow you.') };
     case 'following': return { title: tx('팔로잉', 'Following'), description: tx('내가 팔로우하는 사람들이에요.', 'People you follow.') };
     case 'preferences': return { title: tx('여행 취향', 'Travel preferences'), description: tx('여행을 만들 때 이 답이 미리 채워져요. 여기서 고치면 다음 여행부터 바뀌어요. 이미 만든 여행은 그대로예요.', 'These are filled in when you plan a trip. Changes here apply from your next trip. Trips you already made stay as they are.') };
@@ -70,6 +72,7 @@ export function myPanelBody(key: MyPanelKey): ReactNode {
     case 'notifications': return <NotificationsBody />;
     case 'posts': return <MyPostsBody />;
     case 'saved': return <SavedRecordsBody />;
+    case 'replies': return <MyRepliesBody />;
     case 'preferences': return <PreferencesBody />;
     case 'profile': return <ProfileBody />;
     case 'delete-account': return <ProfileBody startDeletion />;
@@ -82,6 +85,6 @@ export function isPanelKey(value: unknown): value is MyPanelKey {
 }
 
 const PANEL_KEYS: readonly MyPanelKey[] = [
-  'posts', 'saved', 'followers', 'following', 'preferences',
+  'posts', 'saved', 'replies', 'followers', 'following', 'preferences',
   'identities', 'profile', 'delete-account', 'notifications', 'blocked', 'help', 'terms',
 ];
