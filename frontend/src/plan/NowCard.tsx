@@ -12,6 +12,7 @@ import type { ProgressStatus } from '@/plan/tripProgress';
 export function NowCard({
   status,
   gpsUsable,
+  locationOff = false,
   title,
   detail,
   clock,
@@ -26,6 +27,8 @@ export function NowCard({
 }: {
   status: ProgressStatus;
   gpsUsable: boolean;
+  /** 위치를 쓰지 않는다(위치 동의 안 함, S15P21E201-1691) — 추적한다고 말하지 않고, 도착은 손으로 찍게 한다. */
+  locationOff?: boolean;
   /** 「동백섬 산책로로 이동 중」. */
   title: string;
   /** 「도보 400m · 약 6분 남음 · 해운대해변로 따라 직진」. 모르면 null. */
@@ -57,7 +60,9 @@ export function NowCard({
     return () => loop.stop();
   }, [pulse, running]);
 
-  const hint = status !== 'RUNNING'
+  const hint = locationOff
+    ? tx('위치를 쓰지 않아요 · 도착하면 직접 찍어 주세요', 'Location is off — tap when you arrive')
+    : status !== 'RUNNING'
     ? tx('출발을 누르면 위치 추적이 시작돼요', 'Tap start and we begin tracking your location')
     : gpsUsable
       ? tx('도착은 GPS로 자동 기록돼요', 'Arrivals are recorded automatically by GPS')
@@ -77,7 +82,7 @@ export function NowCard({
             <View style={styles.dot} />
           </View>
           <Text variant="caption" weight="bold" color={color.action.primary}>
-            {running ? tx('지금 · 위치 추적 중', 'Now · tracking') : tx('지금', 'Now')}
+            {running && !locationOff ? tx('지금 · 위치 추적 중', 'Now · tracking') : tx('지금', 'Now')}
           </Text>
         </View>
         <Text variant="caption" color={color.text.onDarkMuted} numberOfLines={1}>

@@ -5,6 +5,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { syncLocationConsent } from '@/personalization/locationConsent';
+import { useLocationGate } from '@/personalization/useLocationGate';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
@@ -32,6 +34,7 @@ export default function Bus() {
   const { tx } = useI18n();
   const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { accessToken, ready } = useAuth();
+  const locationGate = useLocationGate(accessToken);
   const { width } = useLayout();
   const wide = isAtLeast(width, 'md');
 
@@ -83,6 +86,8 @@ export default function Bus() {
 
   // 이미 허용한 사람만 조용히 읽는다. 처음이거나 거부한 사람에게는 팝업을 띄우지 않는다.
   const restoreGrantedLocation = useCallback(async () => {
+    // 🔴 동의가 없으면 조용히 읽지도 않는다(S15P21E201-1691). 묻는 것은 「내 위치 허용」을 누를 때다.
+    if ((await syncLocationConsent(accessToken)) !== true) { setLocationState('denied'); return null; }
     try {
       const permission = await Location.getForegroundPermissionsAsync();
       if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return null; }
@@ -95,13 +100,15 @@ export default function Bus() {
       setLocationState('denied');
       return null;
     }
-  }, []);
+  }, [accessToken]);
 
   /**
    * 거부한 뒤에도 버튼이 살아 있어야 한다 이 같은 실수를 고쳤다).
    * 다시 물을 수 없는 상태면 설정으로 보낸다 — 눌러도 아무 일도 안 일어나는 버튼이 제일 나쁘다.
    */
   const askForLocation = useCallback(async () => {
+    // 🔴 위치 동의가 먼저다(S15P21E201-1691) — 누른 것은 쓰고 싶다는 뜻이라, 거절했어도 다시 묻는다.
+    if (!(await locationGate.request())) { setLocationState('denied'); return; }
     const current = await Location.getForegroundPermissionsAsync();
     if (!current.granted && !current.canAskAgain) {
       setCanAskAgain(false);
@@ -120,7 +127,7 @@ export default function Bus() {
     } catch {
       setLocationState('denied');
     }
-  }, [load]);
+  }, [load, locationGate.request]);
 
   useEffect(() => {
     if (!ready) return;
@@ -261,6 +268,7 @@ export default function Bus() {
           ) : null}
         </>
       ) : null}
+      {locationGate.sheet}
     </Screen>
   );
 }

@@ -1,6 +1,7 @@
 // 언어 다섯을 다 받는다. 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
 // 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
 // 떨어뜨리는 일은 여기 한 자리에서 한다.
+import { coarseCoordinate } from '@/personalization/locationConsent';
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import type { PhotoLicense, PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
@@ -94,7 +95,8 @@ export async function getNearbyPlaces(
   params: { lat: number; lng: number; facetKey?: string; radiusMeters?: number; limit?: number },
   signal?: AbortSignal,
 ): Promise<NearbyPlacesLoadResult> {
-  const query = new URLSearchParams({ lat: String(params.lat), lng: String(params.lng) });
+  // 🔴 좌표는 약 100m 로 줄여 보낸다 — 주소창에 실려 서버 접속 기록에 남는다(S15P21E201-1691).
+  const query = new URLSearchParams({ lat: String(coarseCoordinate(params.lat)), lng: String(coarseCoordinate(params.lng)) });
   if (params.facetKey) query.set('facetKey', params.facetKey);
   if (params.radiusMeters) query.set('radiusMeters', String(params.radiusMeters));
   if (params.limit) query.set('limit', String(params.limit));

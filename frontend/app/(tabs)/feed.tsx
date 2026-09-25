@@ -38,6 +38,7 @@ import { CoauthorByline } from '@/social/CoauthorByline';
 import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
 import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
+import { useLocationGate } from '@/personalization/useLocationGate';
 import { useStoryImages } from '@/social/useStoryImages';
 import { useStoryVideo } from '@/social/useStoryVideo';
 import { txf } from '@/i18n/format';
@@ -557,6 +558,7 @@ export default function Feed() {
   const [followingOnly, setFollowingOnly] = useState(false);
   const [area, setArea] = useState<'ALL' | 'NEAR'>('ALL');
   const [here, setHere] = useState<{ latitude: number; longitude: number } | null | 'denied'>(null);
+  const locationGate = useLocationGate(accessToken);
   const scope: FeedScope = tab === 'HOT' ? 'ALL' : tab === 'MINE' ? 'MINE' : followingOnly ? 'FOLLOWING' : 'FOR_YOU';
   const sort: FeedSort = tab === 'HOT' ? 'POPULAR' : 'RECENT';
   // 「내 근처」 — 위치를 한 번만 묻는다. 거부하면 그렇다고 말하고 전체로 돌아간다. 좌표는 기기에만 있고 서버로 안 간다.
@@ -565,6 +567,8 @@ export default function Feed() {
     let alive = true;
     void (async () => {
       try {
+        // 🔴 위치 동의가 먼저다(S15P21E201-1691) — 「가까운 곳」을 고른 것은 쓰고 싶다는 뜻이라, 거절했어도 다시 묻는다.
+        if (!(await locationGate.request())) { if (alive) setHere('denied'); return; }
         const permission = await Location.requestForegroundPermissionsAsync();
         if (!permission.granted) { if (alive) setHere('denied'); return; }
         const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
@@ -574,6 +578,7 @@ export default function Feed() {
       }
     })();
     return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [area, here]);
   // 인용(링크 복사) 뒤 한 줄 알림 — 복사는 화면에 아무 흔적이 없어서 말로 알려야 한다.
   const [copyNotice, setCopyNotice] = useState('');
@@ -885,6 +890,7 @@ export default function Feed() {
   </View>;
 
   return <View style={styles.shell}>
+    {locationGate.sheet}
     {/* wide 를 넘겨야 최대 폭이 720 → 1180 으로 열린다. 안 넘기면 2단이
         좁은 칸 안에서 또 나뉘어 양쪽 다 짓눌린다 — Screen 주석이 경고하는
         바로 그 고장이고, tsc 는 잡지 못한다(폭이 좁은 것은 문법 오류가 아니다).

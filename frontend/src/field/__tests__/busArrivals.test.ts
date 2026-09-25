@@ -87,10 +87,13 @@ describe('정류소도 빨리 오는 곳부터', () => {
 });
 
 describe('조회', () => {
-  it('좌표를 그대로 보낸다', async () => {
+  // 🔴 「그대로 보낸다」였다 — 좌표가 요청 주소에 실려 서버 접속 기록에 남아서, 약 100m(소수 셋째 자리)로 줄여 보낸다
+  //    (S15P21E201-1691, 조율 세션 결정). 주변 정류장 찾기에는 충분하다.
+  it('좌표를 약 100m 로 줄여 보낸다', async () => {
     await loadNearbyBusArrivals(BUSAN, 'token');
-    expect(calls[0]).toContain('lat=35.1796');
-    expect(calls[0]).toContain('lng=129.0756');
+    expect(calls[0]).toContain('lat=35.18');
+    expect(calls[0]).toContain('lng=129.076');
+    expect(calls[0]).not.toContain('35.1796');
   });
 
   it('🔴 빈 목록은 실패가 아니다 — 정말 근처에 정류소가 없을 수 있다', async () => {

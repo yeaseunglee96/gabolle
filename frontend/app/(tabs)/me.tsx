@@ -36,6 +36,7 @@ import { pickActiveTrip } from '@/home/useHomeData';
 import { loadTrips } from '@/trip/trips';
 import { useQuery } from '@tanstack/react-query';
 import { useBehaviorConsent } from '@/personalization/behaviorConsent';
+import { useLocationConsent } from '@/personalization/locationConsent';
 import { usePlan } from '@/plan/PlanProvider';
 import { PREFERENCE_TOTAL } from '@/preferences/accountPreferences';
 
@@ -47,6 +48,7 @@ export default function Me() {
   const { width, height } = useWindowDimensions();
   const { answeredPreferences, storyCount, followerCount, followingCount } = useMyPageCounts();
   const { enabled: behaviorPersonalization, setEnabled: setBehaviorPersonalization } = useBehaviorConsent(accessToken);
+  const location = useLocationConsent(accessToken);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [logoutAsk, setLogoutAsk] = useState(false);
   // 열려 있는 패널 하나. 데스크톱은 모달이, 폰은 시트가 같은 값을 받는다.
@@ -193,6 +195,15 @@ export default function Me() {
           onValueChange={setBehaviorPersonalization}
           accessibilityLabel={tx('맞춤 추천', 'Personalized picks')}
         />
+      </View>
+      {/* 🔴 위치 사용 — 「내 주변」 찾기와 여행 중 도착·출발 자동 기록을 동의 하나로 덮는다(S15P21E201-1691, 사용자 결정).
+          처음 묻는 자리는 위치를 처음 쓰는 순간의 동의 창이고, 여기는 언제든 끄고 켜는 자리다. 끄면 위치를 아예 읽지 않는다. */}
+      <View style={styles.consentRow}>
+        <View style={styles.consentCopy}>
+          <Text weight="bold">{tx('위치 사용', 'Use location')}</Text>
+          <Text variant="caption">{tx('내 주변 찾기, 방문 인증, 여행 중 도착·출발 자동 기록에 써요. 끄면 위치를 읽지 않아요. 이 설정은 내 계정에도 저장돼요.', 'Used to find things near you, to check visits, and to record arrivals and departures on your trip. When off, we never read your location. This setting is also saved to your account.')}</Text>
+        </View>
+        <Toggle value={location.consent === true} onValueChange={location.set} accessibilityLabel={tx('위치 사용', 'Use location')} />
       </View>
       <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities')} disabled={!user} />
       {/* 백엔드(DELETE /me)도 흐름도 있는데 프로필 편집 맨 아래에만 있어 설정에서 안 보였다(2026-09-21 실기, S15P21E201-1401). */}

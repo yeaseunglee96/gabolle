@@ -14,6 +14,7 @@ import { SampleNotice } from '@/components/SampleNotice';
 import { RouteMap, type CurrentLocation } from '@/map/RouteMap';
 import { loadItineraryStops, localizeItineraryStops, type ItineraryDaySeed } from '@/map/itineraryStops';
 import { useAuth } from '@/auth/AuthProvider';
+import { useLocationGate } from '@/personalization/useLocationGate';
 import { city3dUrlForStops, openCity3D } from '@/map/city3d';
 // 🔴 날짜 색은 여기서 다시 정하지 않는다. 코스 화면과 지도가 「1일차」를 다른 색으로
 //    그리면, 같은 여행을 두 곳에서 본 사람이 서로 다른 것으로 읽는다.
@@ -141,6 +142,7 @@ export default function Map() {
   const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { accessToken } = useAuth();
+  const locationGate = useLocationGate(accessToken);
   const [day, setDay] = useState<string>('DAY 1');
   const [routeScope, setRouteScope] = useState<'selected' | 'all'>('selected');
   const [showSouvenirs, setShowSouvenirs] = useState(false);
@@ -174,13 +176,15 @@ export default function Map() {
   const [requestingLocation, setRequestingLocation] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<CurrentLocation | null>(null);
 
+  // 🔴 웹은 화면을 열자마자 묻지도 않고 위치를 읽었다(S15P21E201-1691) — 위치 동의가 있을 때만. 없으면 내 위치 점 없이 그린다.
   useEffect(() => {
+    if (locationGate.consent !== true) { setCurrentLocation(null); return; }
     if (Platform.OS !== 'web' || typeof navigator === 'undefined' || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (position) => setCurrentLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
       () => {},
     );
-  }, []);
+  }, [locationGate.consent]);
 
   useEffect(() => {
     if (Platform.OS === 'web') return;
@@ -193,6 +197,7 @@ export default function Map() {
   }, []);
 
   async function requestLocation() {
+    if (!(await locationGate.request())) return;
     setRequestingLocation(true);
     try {
       const result = await Location.requestForegroundPermissionsAsync();
@@ -324,6 +329,7 @@ export default function Map() {
       <View style={styles.comparisons}><ComparisonCard route={SHADE_ROUTE} /><ComparisonCard route={WHEELCHAIR_ROUTE} /></View>
 
       <View style={styles.unknownNote}><Text variant="caption" weight="bold" color={color.text.muted}>UNKNOWN</Text><Text variant="caption" style={styles.unknownBody}>{tx('일부 구간은 데이터가 없어 판정하지 않았습니다. 모르는 것을 아는 척하지 않습니다.', "Some segments weren't judged due to missing data. We don't pretend to know what we don't.")}</Text></View>
+      {locationGate.sheet}
     </Screen>
   );
 }
