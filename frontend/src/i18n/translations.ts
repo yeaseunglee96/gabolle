@@ -681,7 +681,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '코스 %s %s': { ja: 'コース %s %s', zhHans: '路线 %s %s', zhHant: '路線 %s %s' },
   '%s 발음 듣기': { ja: '%sの発音を聞く', zhHans: '收听 %s 的发音', zhHant: '收聽 %s 的發音' },
   '%s곳은 위치를 받지 못해 지도에 없어요. 일정에는 그대로 있어요.': { ja: '%s か所は位置情報が取得できず地図にありません。日程にはそのまま残っています。', zhHans: '有 %s 个地点未获取到位置，未显示在地图上。行程中仍然保留。', zhHant: '有 %s 個地點未取得位置，未顯示在地圖上。行程中仍然保留。' },
-  '%s는(은) 공유되지 않아요.': { ja: '%sは共有されません。', zhHans: '%s 不会被共享。', zhHant: '%s 不會被分享。' },
+  '%s은 공유되지 않아요.': { ja: '%sは共有されません。', zhHans: '%s 不会被共享。', zhHant: '%s 不會被分享。' },
+  '%s는 공유되지 않아요.': { ja: '%sは共有されません。', zhHans: '%s 不会被共享。', zhHant: '%s 不會被分享。' },
   '이 링크는 %s까지 볼 수 있어요.': { ja: 'このリンクは %sまで閲覧できます。', zhHans: '此链接在 %s 之前可以查看。', zhHant: '此連結在 %s 之前可以查看。' },
 
   // 같은 화면의 «숫자만» 끼는 자리 — 부르는 곳은 안 고치고 모양으로 찾힌다.
@@ -2383,6 +2384,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '광안리어방축제': { ja: '広安里漁坊祭り', zhHans: '广安里渔坊节', zhHant: '廣安里漁坊節' },
   '부산국제영화제(BIFF)': { ja: '釜山国際映画祭(BIFF)', zhHans: '釜山国际电影节(BIFF)', zhHant: '釜山國際影展(BIFF)' },
   '문화': { ja: '文化', zhHans: '文化', zhHant: '文化' },
+  '도시': { ja: '都市', zhHans: '城市', zhHant: '城市' },
+  '축제': { ja: 'お祭り', zhHans: '节庆', zhHant: '節慶' },
   '쇼핑': { ja: 'ショッピング', zhHans: '购物', zhHant: '購物' },
   '액티비티': { ja: 'アクティビティ', zhHans: '活动体验', zhHant: '活動體驗' },
   '전통시장': { ja: '伝統市場', zhHans: '传统市场', zhHant: '傳統市場' },
