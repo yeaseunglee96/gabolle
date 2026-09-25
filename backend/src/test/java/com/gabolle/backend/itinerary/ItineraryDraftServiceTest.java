@@ -174,6 +174,10 @@ class ItineraryDraftServiceTest {
 	 * 밥집은 밥 때에 놓는다. 자리 순서가 아니라 그 칸의 시각이 정한다.
 	 * 09:00~18:00 에 네 곳이면 칸이 2시간 15분씩 넷이고, 점심·저녁에 60분 이상 걸리는 것은
 	 * 둘째와 넷째다. 첫 칸(09:00~11:15)은 아침에 30분 걸치지만 스친 것이라 명소 자리다.
+	 *
+	 * <p>실제 시각은 칸이 아니라 곳마다 머무는 시간으로 깐다(S15P21E201-1667). 60분씩 넷이면 300분이 남는데, 저녁이
+	 * 17:00 에 오려면 300분을 다 저녁 앞에 넣어야 한다. 점심 앞에는 고르게 나눈 몫(사이 셋에 100분씩)을 넣어 11:40 —
+	 * 점심 시각대(11:30~14:00) 안이라 그대로 둔다.
 	 */
 	@Test
 	@DisplayName("밥집은 점심·저녁 칸에만 들어가고 오전 첫 칸은 명소가 차지한다")
@@ -189,8 +193,8 @@ class ItineraryDraftServiceTest {
 				.sorted((a, b) -> Integer.compare(a.sequence(), b.sequence()))
 				.toList();
 		assertThat(today.stream().map(ItineraryDraft.DraftItem::startTime))
-				.containsExactly(LocalTime.of(9, 0), LocalTime.of(11, 15),
-						LocalTime.of(13, 30), LocalTime.of(15, 45));
+				.containsExactly(LocalTime.of(9, 0), LocalTime.of(11, 40),
+						LocalTime.of(14, 20), LocalTime.of(17, 0));
 		assertThat(today.stream().map(this::categoryOfItem).map("FOOD"::equals))
 				.containsExactly(false, true, false, true);
 	}
@@ -576,7 +580,8 @@ class ItineraryDraftServiceTest {
 	// ── 디저트 가게는 끼니가 아니다 (S15P21E201-1635) ──────────────────────
 
 	/**
-	 * 09:00~18:00 · 하루 4곳이면 끼니 칸은 11:15(점심)·15:45(저녁)다. 순위 1위가 디저트 표식만 있는 「밥집」(젤라또)이다 —
+	 * 09:00~18:00 · 하루 4곳이면 끼니 칸은 둘째(점심)·넷째(저녁)다.
+	 * 순위 1위가 디저트 표식만 있는 「밥집」(젤라또)이다 —
 	 * 전에는 점심 칸에 앉았다. 이제는 카페로 읽혀 진짜 밥집 둘이 끼니 칸을 맡는다.
 	 */
 	@Test
@@ -592,7 +597,7 @@ class ItineraryDraftServiceTest {
 		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
 
 		List<UUID> atMeals = draft.items().stream()
-				.filter(item -> item.startTime().equals(LocalTime.of(11, 15)) || item.startTime().equals(LocalTime.of(15, 45)))
+				.filter(item -> item.sequence() == 2 || item.sequence() == 4)
 				.map(ItineraryDraft.DraftItem::placeId)
 				.toList();
 		assertThat(atMeals).as("끼니 칸은 진짜 밥집 둘").containsExactlyInAnyOrder(places.get(1).placeId(),
@@ -1118,7 +1123,7 @@ class ItineraryDraftServiceTest {
 	 * 아래 셋이 그것을 막는다.
 	 */
 	@Test
-	@DisplayName("🔴 S15P21E201-1130 — 시각이 이동 시간을 비켜 간다: 머무는 시간이 줄고 사이가 벌어진다")
+	@DisplayName("🔴 S15P21E201-1130 — 시각이 이동 시간을 비켜 간다: 곳마다 갈래만큼 머물고 사이에 이동 시간과 빈 시각")
 	void stayTimeMakesRoomForTravelBetweenPlaces() {
 		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
 		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
@@ -1130,28 +1135,24 @@ class ItineraryDraftServiceTest {
 		List<ItineraryDraft.DraftItem> items = draft.items();
 		assertThat(items).hasSize(3);
 
-		// 활동 시간대 09:00~17:00 = 480분. 이동 75분을 빼고 3으로 나누면 135분씩이다.
-		assertThat(items).allSatisfy((item) ->
-				assertThat(item.stayMinutes())
-						.as("머무는 시간에서 이동 시간을 빼지 않으면 그만큼 매번 늦는다")
-						.isEqualTo(135));
+		// 갈래를 모르는 곳은 60분 머문다(S15P21E201-1667). 480분 - 이동 75분 - 체류 180분 = 빈 시각 225분.
+		assertThat(items).allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(60));
 
 		// 첫 장소도 09:00 에 시작하지 않는다 — 출발지에서 거기까지 25분이 걸린다.
 		assertThat(items.get(0).startTime()).isEqualTo(LocalTime.of(9, 25));
 
-		// 항목과 항목 사이가 정확히 이동 시간만큼 벌어져 있다.
-		for (int i = 1; i < items.size(); i++) {
-			assertThat(Duration.between(items.get(i - 1).endTime(), items.get(i).startTime()).toMinutes())
-					.as("앞 장소가 끝난 뒤 다음 장소가 시작하기까지 이동할 시간이 있어야 한다")
-					.isEqualTo(25);
-		}
+		// 항목과 항목 사이는 이동 25분 + 빈 시각. 빈 시각 225분을 사이 둘에 112·113분.
+		assertThat(Duration.between(items.get(0).endTime(), items.get(1).startTime()).toMinutes())
+				.as("앞 장소가 끝난 뒤 다음 장소가 시작하기까지 이동할 시간이 있어야 한다")
+				.isEqualTo(25 + 112);
+		assertThat(Duration.between(items.get(1).endTime(), items.get(2).startTime()).toMinutes()).isEqualTo(25 + 113);
 
 		// 그러고도 활동 시간대를 넘지 않는다.
 		assertThat(items.get(items.size() - 1).endTime()).isEqualTo(LocalTime.of(17, 0));
 	}
 
 	@Test
-	@DisplayName("🔴 이동 시간을 모르면 예전과 똑같이 나눈다 — 모르는 값을 지어내지 않는다")
+	@DisplayName("🔴 이동 시간을 모르면 0분으로 본다 — 모르는 값을 지어내지 않는다")
 	void withoutMeasuredTravelTheLayoutIsUnchanged() {
 		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
 		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
@@ -1159,8 +1160,10 @@ class ItineraryDraftServiceTest {
 		// this.service 는 이동시간 포트가 없는 갈래다 — durationMin 이 null 이다.
 		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlaces(3)));
 
-		assertThat(draft.items()).allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(160));
-		assertThat(draft.items().get(0).startTime()).isEqualTo(LocalTime.of(9, 0));
+		// 곳마다 60분, 남는 300분은 사이 둘에 150분씩.
+		assertThat(draft.items()).allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(60));
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::startTime)
+				.containsExactly(LocalTime.of(9, 0), LocalTime.of(12, 30), LocalTime.of(16, 0));
 		assertThat(draft.items().get(2).endTime()).isEqualTo(LocalTime.of(17, 0));
 	}
 
