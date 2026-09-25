@@ -93,23 +93,28 @@ describe('3. 시각 고치기', () => {
     expect(stepTime(arrivedAt, -5, { nowMs: now, minMs: arrivedAt })).toBe(arrivedAt);
   });
 
-  it('창에서 「5분 전」을 고르고 저장하면 그 시각', () => {
-    const onSave = jest.fn();
-    const before = Date.now();
-    render(<ActualTimeSheet visible kind="arrival" placeTitle="해운대" currentMs={before} minMs={before - 60 * MIN} onCancel={jest.fn()} onSave={onSave} tx={tx} />);
-    fireEvent.press(screen.getByText('5분 전'));
-    fireEvent.press(screen.getByText('저장'));
-    const saved = onSave.mock.calls[0][0] as number;
-    expect(Math.abs(saved - (before - 5 * MIN))).toBeLessThan(5_000);
-  });
+  // 🔴 「지금」을 고정한다. 창은 열 때 지금을 재는데, CI 러너가 느리면 그리는 데만 17초가 걸려
+  //    시험이 잰 지금과 창이 잰 지금이 어긋났다(!1686 첫 파이프라인).
+  describe('창', () => {
+    let clock: jest.SpyInstance<number, []>;
+    beforeEach(() => { clock = jest.spyOn(Date, 'now').mockReturnValue(now); });
+    afterEach(() => { clock.mockRestore(); });
 
-  it('🔴 창의 「+5」로도 지금을 넘지 못한다', () => {
-    const onSave = jest.fn();
-    const at = Date.now();
-    render(<ActualTimeSheet visible kind="departure" placeTitle="해운대" currentMs={at} minMs={at - 60 * MIN} onCancel={jest.fn()} onSave={onSave} tx={tx} />);
-    fireEvent.press(screen.getByLabelText('5분 뒤로'));
-    fireEvent.press(screen.getByText('저장'));
-    expect(onSave.mock.calls[0][0]).toBeLessThanOrEqual(Date.now());
+    it('창에서 「5분 전」을 고르고 저장하면 그 시각', () => {
+      const onSave = jest.fn();
+      render(<ActualTimeSheet visible kind="arrival" placeTitle="해운대" currentMs={now} minMs={now - 60 * MIN} onCancel={jest.fn()} onSave={onSave} tx={tx} />);
+      fireEvent.press(screen.getByText('5분 전'));
+      fireEvent.press(screen.getByText('저장'));
+      expect(onSave).toHaveBeenCalledWith(now - 5 * MIN);
+    });
+
+    it('🔴 창의 「+5」로도 지금을 넘지 못한다', () => {
+      const onSave = jest.fn();
+      render(<ActualTimeSheet visible kind="departure" placeTitle="해운대" currentMs={now} minMs={now - 60 * MIN} onCancel={jest.fn()} onSave={onSave} tx={tx} />);
+      fireEvent.press(screen.getByLabelText('5분 뒤로'));
+      fireEvent.press(screen.getByText('저장'));
+      expect(onSave).toHaveBeenCalledWith(now);
+    });
   });
 });
 
