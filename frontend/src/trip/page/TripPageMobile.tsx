@@ -110,8 +110,6 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   } = useTripPage(source);
 
   const [panel, setPanel] = useState<Panel>('trip');
-  /** 코스 알약을 눌렀나 — 눌러야 「코스 A로 확정」 줄이 펼쳐진다(시안 Interactions). */
-  const [touched, setTouched] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   // ⋯ 메뉴는 공용 DropdownMenu(창)다 — 바깥을 누르거나 Escape 로 닫힌다(S15P21E201-1593). 전에는 본문 사이에 끼어드는 판이라
   //    닫는 길이 「⋯ 다시 누르기」뿐이었고, 연 채로 다른 창을 열면 그대로 남았다.
@@ -127,8 +125,6 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const [excludingId, setExcludingId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // 🔴 안이 하나뿐이면 고를 것이 없다 — 알약을 눌러야만 확정 줄이 나오면 그 한 안을 확정할 길이 안 보인다.
-  useEffect(() => { if (courses.length === 1) setTouched(true); }, [courses.length]);
   // 코스·일차가 바뀌면 펼친 카드와 알림을 닫는다. 열린 채로 내용만 갈리면 무엇이 펼쳐졌는지 모른다.
   useEffect(() => { setExpandedId(null); setNotice(null); }, [course?.id, dayIndex]);
 
@@ -305,7 +301,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
               accessibilityRole="button"
               accessibilityLabel={tx('코스 바꾸기', 'Change course')}
               disabled={courses.length < 2}
-              onPress={() => { setConfirmed(false); setTouched(true); }}
+              onPress={() => setConfirmed(false)}
               style={({ pressed }) => [styles.confirmedChip, pressed && styles.pressed]}
             >
               <Text variant="micro" weight="bold" color={color.state.success}>{txf(tx, '✓ 코스 %s 확정', '✓ Course %s confirmed', courseLetter(courseIndex))}</Text>
@@ -381,9 +377,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             full={page.full}
             estimated={allEstimated}
             items={items}
-            touched={touched}
             confirming={confirming}
-            onPick={(index) => { setCourseIndex(index); setTouched(true); }}
+            onPick={setCourseIndex}
             onConfirm={() => course && void confirm(course)}
             tx={tx}
           />
@@ -636,12 +631,14 @@ function TabSlot({ label, icon, selected = false, strong = false, onPress, child
  * 🔴 오는 코스 수만큼만 칸을 만든다 — 셋을 그리고 둘을 비워 두면 눌러도 아무 일이 없어 고장으로 읽힌다
  *    (TripPageDesktop 의 CoursePill 과 같은 규칙).
  */
-function CourseCardMobile({ open, courses, index, full, estimated, items, touched, confirming, onPick, onConfirm, tx }: {
+function CourseCardMobile({ open, courses, index, full, estimated, items, confirming, onPick, onConfirm, tx }: {
   open: boolean; courses: TripCourse[]; index: number; full: boolean; estimated: boolean; items: ItineraryItemDto[];
-  touched: boolean; confirming: boolean; onPick: (index: number) => void; onConfirm: () => void; tx: Tx;
+  confirming: boolean; onPick: (index: number) => void; onConfirm: () => void; tx: Tx;
 }) {
   const shown = useRef(new Animated.Value(open ? 1 : 0)).current;
-  const confirmRow = useRef(new Animated.Value(open && touched ? 1 : 0)).current;
+  // 🔴 「코스 A로 확정」 줄은 처음부터 펼친다(S15P21E201-1670, 사용자 결정 — 시안 Interactions 와 다르다). 시안은 알약을
+  //    눌러야 펼쳤는데, 처음 온 사람은 확정 단추가 있는 줄 몰랐다. 첫 코스가 골라진 채로 시작한다.
+  const confirmRow = useRef(new Animated.Value(open ? 1 : 0)).current;
   const x = useRef(new Animated.Value(0)).current;
   const [cardHeight, setCardHeight] = useState(0);
   const [trackWidth, setTrackWidth] = useState(0);
@@ -651,8 +648,8 @@ function CourseCardMobile({ open, courses, index, full, estimated, items, touche
     Animated.timing(shown, { toValue: open ? 1 : 0, duration: 420, easing: SLIDE, useNativeDriver: false }).start();
   }, [open, shown]);
   useEffect(() => {
-    Animated.timing(confirmRow, { toValue: open && touched ? 1 : 0, duration: 380, easing: SLIDE, useNativeDriver: false }).start();
-  }, [open, touched, confirmRow]);
+    Animated.timing(confirmRow, { toValue: open ? 1 : 0, duration: 380, easing: SLIDE, useNativeDriver: false }).start();
+  }, [open, confirmRow]);
   useEffect(() => {
     Animated.timing(x, { toValue: index * slot, duration: 360, easing: SLIDE, useNativeDriver: false }).start();
   }, [index, slot, x]);
@@ -718,7 +715,7 @@ function RiskStrip({ atRisk, known, estimated, tx }: { atRisk: ItineraryItemDto[
     ? atRisk.length === 1
       ? txf(tx, `%s${koreanSubject(atRisk[0].title)} 하루를 넘길 수 있어요`, '%s may run past the day', atRisk[0].title)
       : txf(tx, '%s곳이 하루를 넘길 수 있어요', '%s places may run past the day', atRisk.length)
-    : known ? tx('하루 안에 여유 있게 끝나요', 'The day ends comfortably') : tx('아직 확인 못 했어요', 'Not checked yet');
+    : known ? tx('하루 안에 여유 있게 끝나요', 'The day ends comfortably') : tx('하루 안에 끝나는지 아직 몰라요', 'Not sure yet if the day fits');
   const tone = risky ? color.state.danger : known ? color.state.success : color.text.muted;
   return (
     <View style={[styles.risk, risky ? styles.riskBad : known ? styles.riskOk : styles.riskUnknown]}>
