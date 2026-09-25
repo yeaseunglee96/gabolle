@@ -2749,6 +2749,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '마지막 장소': { ja: '最後のスポット', zhHans: '最后一个地点', zhHant: '最後一個地點' },
   '머무름 약 %s': { ja: '滞在 約%s', zhHans: '停留约%s', zhHant: '停留約%s' },
   '머무름 시간 모름': { ja: '滞在時間は不明', zhHans: '停留时间未知', zhHant: '停留時間未知' },
+  '자유 시간 · %s': { ja: '自由時間 · %s', zhHans: '自由时间 · %s', zhHant: '自由時間 · %s' },
   '%s 남음': { ja: '残り%s', zhHans: '剩余%s', zhHant: '剩餘%s' },
   '%s 넘음': { ja: '%s超過', zhHans: '超出%s', zhHant: '超出%s' },
   '예산을 정하지 않은 여행이에요': { ja: '予算が決まっていない旅行です', zhHans: '这趟旅行尚未设定预算', zhHant: '這趟旅行尚未設定預算' },
