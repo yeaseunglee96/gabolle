@@ -166,25 +166,10 @@ export default function Me() {
         onPress={() => openPanel('preferences')}
         disabled={!user}
       />
-      <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities')} disabled={!user} />
-      {/* 백엔드(DELETE /me)도 흐름도 있는데 프로필 편집 맨 아래에만 있어 설정에서 안 보였다(2026-09-21 실기, S15P21E201-1401). */}
-      <InfoRow label={tx('회원 탈퇴', 'Delete account')} description={tx('여행, 기록, 취향이 모두 지워져요', 'Deletes your trips, records, and preferences')} value="›" onPress={() => openPanel('delete-account')} disabled={!user} />
-    </View>
-  </>;
-
-  const appGroup = <>
-    <View style={styles.group}>
-      <AppLanguageSetting />
-      {/* — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지
-          안에서 안 보였다는 사용자 리포트. 알림 화면은 이미 있다(app/notifications.tsx
-          홈 종 아이콘) — 여기서는 같은 화면으로 가는 입구만 하나 더 둔다.
-      */}
-      <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => openPanel('notifications')} />
-      <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => openPanel('blocked')} disabled={!user} />
-      <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => openPanel('help')} />
-      <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => openPanel('terms')} />
       {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 언제든 끄는 자리다. 끄는 길이 설정
           안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
+          🔴 「앱」 묶음 맨 아래(약관·고지 다음)였다 — 폰에서는 탭바에 반쯤 가렸고 취향과 떨어져 있었다.
+          취향을 추천에 쓰는 설정이라 「여행 취향」 바로 아래다(사용자 결정, S15P21E201-1644).
       */}
       <View style={styles.consentRow}>
         <View style={styles.consentCopy}>
@@ -206,6 +191,23 @@ export default function Me() {
           accessibilityLabel={tx('맞춤 추천', 'Personalized picks')}
         />
       </View>
+      <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities')} disabled={!user} />
+      {/* 백엔드(DELETE /me)도 흐름도 있는데 프로필 편집 맨 아래에만 있어 설정에서 안 보였다(2026-09-21 실기, S15P21E201-1401). */}
+      <InfoRow label={tx('회원 탈퇴', 'Delete account')} description={tx('여행, 기록, 취향이 모두 지워져요', 'Deletes your trips, records, and preferences')} value="›" onPress={() => openPanel('delete-account')} disabled={!user} />
+    </View>
+  </>;
+
+  const appGroup = <>
+    <View style={styles.group}>
+      <AppLanguageSetting />
+      {/* — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지
+          안에서 안 보였다는 사용자 리포트. 알림 화면은 이미 있다(app/notifications.tsx
+          홈 종 아이콘) — 여기서는 같은 화면으로 가는 입구만 하나 더 둔다.
+      */}
+      <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => openPanel('notifications')} />
+      <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => openPanel('blocked')} disabled={!user} />
+      <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => openPanel('help')} />
+      <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => openPanel('terms')} />
     </View>
   </>;
 
