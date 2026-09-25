@@ -37,6 +37,7 @@ import { courseLetter } from '@/plan/CourseCard';
 import { NowCard } from '@/plan/NowCard';
 import { useLocationGate } from '@/personalization/useLocationGate';
 import type { ExcludeReason } from '@/components/ExcludeConfirmModal';
+import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 import {
   pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
   type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto,
@@ -137,6 +138,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const run = useTripProgress(progressId);
   // 🔴 위치는 동의가 있을 때만 읽는다(S15P21E201-1691). 「출발」을 처음 누를 때 한 번 묻는다 — 거절해도 출발은 되고, 도착은 손으로 찍는다.
   const locationGate = useLocationGate(accessToken);
+  // 추천 노출 — 카드가 실제로 화면에 보일 때만 보낸다(S15P21E201-1696). 확정 전에는 코스를 고르는 중이다.
+  const impressions = useImpressionTracker({ accessToken, sourceScreen: confirmed ? 'TRIP_ITINERARY' : 'TRIP_COURSES', active: page?.state === 'ready' });
   const day = loaded?.days[dayIndex];
   // 그날 첫 곳은 어디서 오나 — 둘째 날부터는 숙소다(S15P21E201-1580). 서버가 안 알려 주면(옛 응답) 출발지.
   const startKind: DayStart['kind'] = day?.start?.kind ?? 'ORIGIN';
@@ -489,6 +492,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
               {/* 하루 시작 — 첫날은 출발지, 둘째 날부터는 숙소에서 (S15P21E201-1580) */}
               <DayStartRow start={day?.start} tx={tx} />
               {items.map((item, index) => (
+                <ImpressionView key={item.id} tracker={impressions} placeId={item.placeId} requestId={item.requestId}>
                 <TimelineStop
                   key={item.id}
                   item={item}
@@ -513,6 +517,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   tx={tx}
                   locale={locale}
                 />
+                </ImpressionView>
               ))}
               {/* 하루 끝 — 숙소(마지막 날은 출발지)로 돌아가기 (S15P21E201-1566) */}
               <DayReturnRow leg={day?.returnLeg} tx={tx} />
@@ -589,6 +594,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           contentContainerStyle={styles.stripInner}
         >
           {items.map((item, index) => (
+            <ImpressionView key={item.id} tracker={impressions} placeId={item.placeId} requestId={item.requestId}>
             <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: item.id === selectedId }} onPress={() => setSelectedId(item.id)} style={[styles.stripCard, item.id === selectedId && styles.stripCardOn]}>
               <View style={styles.rowCenter}>
                 <View style={styles.numberDot}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
@@ -597,6 +603,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
               <Text weight="bold" numberOfLines={1}>{item.title}</Text>
               {formatTravelLabel(item, tx, index === 0 && startKind) ? <Text variant="micro" color={color.text.muted} numberOfLines={1}>{formatTravelLabel(item, tx, index === 0 && startKind)}</Text> : null}
             </Pressable>
+            </ImpressionView>
           ))}
         </ScrollView>
       ) : null}

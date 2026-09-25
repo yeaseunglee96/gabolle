@@ -50,6 +50,7 @@ import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
+import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 
 type Tx = (ko: string, en: string) => string;
 type Layout = 'cards' | 'map';
@@ -80,6 +81,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
     itinerary, setItinerary, loaded, dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace,
     map, routes, points, anyEstimatedLine, travelTotal, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
+  // 추천 노출 — 카드가 실제로 화면에 보일 때만 보낸다(S15P21E201-1696). 확정 전에는 코스를 고르는 중이다.
+  const impressions = useImpressionTracker({ accessToken, sourceScreen: confirmed ? 'TRIP_ITINERARY' : 'TRIP_COURSES', active: page?.state === 'ready' });
   // 그날 첫 곳은 어디서 오나 — 둘째 날부터는 숙소다(S15P21E201-1580). 서버가 안 알려 주면(옛 응답) 출발지.
   const startKind: DayStart['kind'] = loaded?.days[dayIndex]?.start?.kind ?? 'ORIGIN';
   const [layout, setLayout] = useState<Layout>('cards');
@@ -227,6 +230,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
               <DayStartRow start={loaded?.days[dayIndex]?.start} tx={tx} />
               <View style={styles.grid} onLayout={(event) => setGridWidth(Math.round(event.nativeEvent.layout.width))}>
                 {gridWidth > 0 ? items.map((item, index) => (
+                  <ImpressionView key={item.id} tracker={impressions} placeId={item.placeId} requestId={item.requestId}>
                   <PlaceCard
                     key={item.id}
                     item={item}
@@ -241,6 +245,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                     tx={tx}
                     locale={locale}
                   />
+                  </ImpressionView>
                 )) : null}
                 {items.length === 0 ? <Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text> : null}
               </View>
