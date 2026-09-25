@@ -1,5 +1,5 @@
 import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
-import { readableApiError } from '@/api/errorText';
+import { PLAN_UNAVAILABLE_MESSAGE, readableApiError } from '@/api/errorText';
 import { cloneSharedTripAndJob, createTripAndRecommendationJob } from '@/api/tripApi';
 import type { PlanDraft } from '@/plan/PlanProvider';
 import { describeBlockedBy, readBlockedBy } from '@/plan/blockedByMessage';
@@ -57,7 +57,7 @@ const STAGE_FAILURE_MESSAGE: Record<string, Record<string, [string, string]>> = 
 
 const DEFAULT_JOB_FAILURE_MESSAGE = ['일정을 만드는 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.', 'Something went wrong while building your itinerary. Please try again shortly.'] as const;
 
-export const unavailableJob = (message = '일정 생성 서버가 아직 준비되지 않았어요. 입력한 조건은 그대로 유지됩니다.'): RecommendationJobSnapshot => ({ state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: message, resultRef: null });
+export const unavailableJob = (message = PLAN_UNAVAILABLE_MESSAGE): RecommendationJobSnapshot => ({ state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: message, resultRef: null });
 export function acceptJob(dto: RecommendationJobAcceptedDto): RecommendationJobSnapshot { return { state: 'accepted', jobId: dto.jobId, progress: 0, stage: '요청 접수', canCancel: false, errorMessage: null, resultRef: null }; }
 export function adaptPolledJob(jobId: string, dto: RecommendationJobPollDto, previous?: RecommendationJobSnapshot): RecommendationJobSnapshot {
   const state: RecommendationJobState = ({ QUEUED: 'accepted', PENDING: 'accepted', RUNNING: 'polling', SUCCEEDED: 'completed', FAILED: 'failed', CANCELED: 'cancelled', CANCELLED: 'cancelled', EXPIRED: 'failed' } as const)[dto.status];
@@ -96,7 +96,7 @@ export function adaptStreamedJob(
 
 export interface RecommendationJobAdapter { submit(draft: PlanDraft): Promise<RecommendationJobSnapshot>; poll(jobId: string, previous?: RecommendationJobSnapshot): Promise<RecommendationJobSnapshot>; }
 function toFailure(error: unknown, jobId: string | null = null): RecommendationJobSnapshot {
-  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501 || error.code === 'NETWORK_ERROR')) return { ...unavailableJob(error.message), jobId };
+  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501 || error.code === 'NETWORK_ERROR')) return { ...unavailableJob(), jobId };
   if (error instanceof ApiClientError && error.status === 409) return { state: 'conflict', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null };
   if (error instanceof ApiClientError && error.status === 403 && error.code === 'HEALTH_CONSENT_REQUIRED') return { state: 'consent-required', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null, requiredConsent: 'HEALTH_CONSTRAINTS' };
   return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: readableApiError(error, getApiLanguage() !== 'en'),
