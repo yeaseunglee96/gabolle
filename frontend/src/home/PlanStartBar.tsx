@@ -696,7 +696,7 @@ export function PlanStartBar({
               }}
               accessibilityRole="button"
               accessibilityState={{ expanded: section === which }}
-              style={[styles.segment, index > 0 && styles.segmentDivider]}
+              style={[styles.segment, index > 0 && styles.segmentDivider, section === which && styles.segmentOpen]}
             >
               <Text variant="caption" color={color.text.muted}>
                 {which === 'origin' ? tx('출발지', 'From') : which === 'lodging' ? tx('숙소', 'Lodging') : which === 'dates' ? tx('날짜', 'Dates') : tx('인원', 'Travelers')}
@@ -798,7 +798,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', alignSelf: 'center', width: '100%', maxWidth: 920, minHeight: 72,
     padding: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.action.outline,
   },
-  segment: { flex: 1, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
+  // 🔴 칸 넷을 같은 폭(flex:1)으로 나누지 않는다 (S15P21E201-1626). 숙소 이름·긴 날짜 구간이 「파라다이스호텔부산 오…」
+  //    「10.5(월) – 10.25(일) ·…」로 잘리고, 짧은 「성인 2」 칸은 비어 남았다. 값 길이만큼 자리를 갖고, 모자라면
+  //    다 같이 줄되 지금 고르는 칸은 줄지 않는다(segmentOpen). 너무 좁아지지 않게 아랫단을 둔다.
+  segment: { flexGrow: 1, flexShrink: 1, flexBasis: 'auto', minWidth: 112, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
+  segmentOpen: { flexShrink: 0, maxWidth: '46%' },
   segmentDivider: { borderLeftWidth: 1, borderLeftColor: color.surface.border },
   // 고른 칸을 따라다니는 강조 알약. 칸마다 배경을 켜고 끄면 뚝뚝 끊겨 보인다
   // 하나를 깔고 자리만 옮기면 미끄러진다(에어비앤비가 그렇게 한다).
