@@ -109,9 +109,32 @@ describe('식단을 확인 못 한 곳', () => {
     expect(message).not.toContain('불가');
   });
 
-  it('🔴 알레르기는 이 사전에 «없다» — 아예 묻지 않기로 했다 (-1497)', () => {
-    // 접근성·식단이 틀리면 불편하고, 알레르기가 틀리면 사람이 다친다.
-    // 경고로 내보내는 길을 열어 두면 「확인 못 했지만 추천함」이 되어 그 선이 무너진다.
-    expect(describeWarningCodes(['ALLERGEN_UNVERIFIED'], tx)).toEqual([]);
+  // 🔴 2026-09-25 정정(S15P21E201-1640) — 여기는 「알레르기는 이 사전에 없다(-1497)」였다. 사용자가 새로 정했다:
+  //    예전에 알레르기를 「반드시」로 건 여행은 다시 짜면 후보가 전부 빠져 실패했으니, 빼지 않고 이 경고로 남긴다.
+  //    들었다고 «확인된» 곳은 서버가 여전히 뺀다. 이 경고는 「모른다」이고, 사람이 다칠 수 있으니 「물어보라」를 붙인다.
+  it('🔴 알레르기는 「들었다」가 아니라 「확인 안 됨」 — 그리고 가게에 물어보라고 말한다', () => {
+    const [message] = describeWarningCodes(['ALLERGEN_UNVERIFIED'], tx);
+    expect(message).toContain('확인되지 않은');
+    expect(message).toContain('물어보세요');
+    expect(message).not.toContain('들었어요');
+  });
+});
+
+// ── 새 낱말 — S15P21E201-1640 ─────────────────────────────────────────────────
+describe('주변 길이 가파른 곳 · 접근성 문구', () => {
+  const tx = (ko: string) => ko;
+
+  it('🔴 가파른 곳은 사실만 말한다 — 「못 간다」가 아니라 「힘들 수 있다」, 그리고 추정임을 밝힌다', () => {
+    const [message] = describeWarningCodes(['SLOPE_OVER_LIMIT'], tx);
+    expect(message).toContain('가팔라요');
+    expect(message).toContain('추정');
+    expect(message).not.toContain('못 가');
+    expect(message).not.toContain('불가');
+  });
+
+  it('접근성 미확인은 휠체어만이 아니라 유아차·큰 짐을 고른 사람에게도 맞는 말이다', () => {
+    const [message] = describeWarningCodes(['ACCESSIBILITY_UNVERIFIED'], tx);
+    expect(message).toContain('유아차');
+    expect(message).toContain('확인되지 않은');
   });
 });
