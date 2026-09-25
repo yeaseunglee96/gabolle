@@ -58,12 +58,13 @@ public final class OsmPoiReader {
 	 * @param noCoordinates 좌표가 없어 버린 줄. {@code 0} 으로 채우지 않는다
 	 * @param taken 실제로 넘긴 줄
 	 */
-	public record Counts(int total, int noName, int noCategory, int noCoordinates, int taken) {
+	public record Counts(int total, int noName, int noCategory, int noCoordinates, int taken, int mergedPoint) {
 
 		@Override
 		public String toString() {
-			return "읽은 줄 %d · 넘긴 곳 %d (이름 없음 %d · 갈래 모름 %d · 좌표 없음 %d)"
-					.formatted(this.total, this.taken, this.noName, this.noCategory, this.noCoordinates);
+			return "읽은 줄 %d · 넘긴 곳 %d (이름 없음 %d · 갈래 모름 %d · 좌표 없음 %d · 두 가게가 한 점 %d)"
+					.formatted(this.total, this.taken, this.noName, this.noCategory, this.noCoordinates,
+							this.mergedPoint);
 		}
 	}
 
@@ -79,6 +80,7 @@ public final class OsmPoiReader {
 		int noCategory = 0;
 		int noCoordinates = 0;
 		int taken = 0;
+		int mergedPoint = 0;
 		List<OsmPoiRow> chunk = new ArrayList<>(chunkSize);
 
 		try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -96,6 +98,11 @@ public final class OsmPoiReader {
 					noName++;
 					continue;
 				}
+				if (isMergedPoint(name, tags)) {
+					mergedPoint++;
+					continue;
+				}
+				name = PlaceNames.primary(name);
 				String category = OsmPlaceCategory.of(tags);
 				if (category == null) {
 					noCategory++;
@@ -123,7 +130,7 @@ public final class OsmPoiReader {
 		if (!chunk.isEmpty()) {
 			chunkConsumer.accept(List.copyOf(chunk));
 		}
-		return new Counts(total, noName, noCategory, noCoordinates, taken);
+		return new Counts(total, noName, noCategory, noCoordinates, taken, mergedPoint);
 	}
 
 	/**
@@ -147,6 +154,17 @@ public final class OsmPoiReader {
 		}
 		String korean = tags.get("name:ko");
 		return (korean == null || korean.isBlank()) ? null : korean.strip();
+	}
+
+	/**
+	 * 두 가게가 한 점에 합쳐진 것인가 — S15P21E201-1637. 이름이 세미콜론으로 둘이고, 가게 표시({@code shop})와 명소·시설
+	 * 표시({@code amenity}·{@code tourism}·{@code historic})가 같이 있다. 운영 사례: 「삼구유통광장마트;대성당」
+	 * ({@code shop=supermarket} + {@code amenity=place_of_worship}) — 성당 표시를 보고 명소로 넣으면 이름이 마트다.
+	 * 어느 쪽이 그 점의 주인인지 원자료가 말하지 않으므로 넣지 않는다.
+	 */
+	static boolean isMergedPoint(String name, Map<String, String> tags) {
+		return name.indexOf(';') >= 0 && tags.containsKey("shop")
+				&& (tags.containsKey("amenity") || tags.containsKey("tourism") || tags.containsKey("historic"));
 	}
 
 	private static Map<String, String> tagsOf(JsonNode tags) {
