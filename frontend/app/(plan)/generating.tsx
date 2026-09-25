@@ -252,7 +252,8 @@ export default function Generating() {
               <View style={styles.waitMascotRing} />
               <GabolleMascot state={failed ? 'sad' : 'thinking'} still={failed} style={styles.waitMascot} />
             </View>
-            <Text weight="bold">{failed ? tx('조건을 조금 넓혀서 다시 해 볼까요?', 'Shall we widen the conditions and try again?') : tx('잠시만요, 딱 맞는 동선을 찾고 있어요!', 'One moment — finding the route that fits you!')}</Text>
+            {/* 서버가 없거나 닿지 않을 때(unavailable)는 조건 탓이 아니다 — 조건을 넓히라고 하지 않는다(S15P21E201-1669). */}
+            <Text weight="bold">{failed ? (job.state === 'unavailable' ? tx('잠시 뒤 다시 해 볼까요?', 'Shall we try again in a moment?') : tx('조건을 조금 넓혀서 다시 해 볼까요?', 'Shall we widen the conditions and try again?')) : tx('잠시만요, 딱 맞는 동선을 찾고 있어요!', 'One moment — finding the route that fits you!')}</Text>
           </View>
           {!failed ? (
             <View accessibilityLiveRegion="polite" style={styles.waitStages}>{STAGES.map((item, index) => { const done = index < currentStage; const active = index === currentStage && isWorking; return (
@@ -285,7 +286,7 @@ export default function Generating() {
         */}
         <View style={kind !== 'phone' ? styles.statusCopy : undefined}>
         <View style={styles.aiBadge}><View style={[styles.pulse, isWorking && styles.pulseActive]} /><Text variant="caption" weight="bold" color={color.text.onAction}>{job.state === 'completed' ? tx('AI 일정 완성', 'AI itinerary ready') : failed ? tx('일정 생성 실패', 'Itinerary generation failed') : tx('AI 일정 생성 중', 'Creating your itinerary')}</Text></View>
-        <Text variant="display" weight="bold" color={color.brand.ivory} style={styles.headline}>{job.state === 'completed' ? tx(kind === 'phone' ? '당신만의 부산 여행이\n완성됐어요' : '당신만의 부산 여행이 완성됐어요', kind === 'phone' ? 'Your Busan trip\nis ready' : 'Your Busan trip is ready') : failed ? tx('일정을 만들지\n못했어요', "We couldn't build\nyour itinerary") : tx('동백이가 당신만을 위한\n부산 여행을 만들고 있어요', 'Dongbaek is building\nyour Busan trip')}</Text>
+        <Text variant="display" weight="bold" color={color.brand.ivory} style={styles.headline}>{job.state === 'completed' ? tx(kind === 'phone' ? '당신만의 부산 여행이\n완성됐어요' : '당신만의 부산 여행이 완성됐어요', kind === 'phone' ? 'Your Busan trip\nis ready' : 'Your Busan trip is ready') : failed ? tx('일정을 만들지 못했어요', "We couldn't build your itinerary") : tx('동백이가 당신만을 위한\n부산 여행을 만들고 있어요', 'Dongbaek is building\nyour Busan trip')}</Text>
         {/* 🔴 끝난 화면에서 진행 중 문구를 남기지 않는다 — S15P21E201-1489(B-10).
             바로 아래 진행률이 이미 같은 이유로 완료 때 치워진다. 이 부제만 그 처리를
             빠뜨려서, 제목은 「완성됐어요」인데 부제는 「확인하고 있어요」였다(iOS build 39).
@@ -300,7 +301,8 @@ export default function Generating() {
         </View>
         {!failed && <View accessibilityLiveRegion="polite" style={[styles.stageList, kind !== 'phone' && styles.stageListWide]}>{STAGES.map((item, index) => { const done = index < currentStage || job.state === 'completed'; const active = index === currentStage && isWorking; return <View key={item.label} style={[styles.stage, kind !== 'phone' && styles.stageItemWide, active && styles.stageActive]}><View style={[styles.stageIcon, done && styles.stageDone]}><Text variant="caption" weight="bold" color={done ? color.text.onAction : active ? color.action.primary : color.text.muted}>{done ? '✓' : '○'}</Text></View><Text weight={done || active ? 'bold' : 'regular'} color={done || active ? color.text.onAction : color.text.muted} style={styles.stageText}>{language === 'en' ? item.en : item.label}</Text><Text variant="caption" color={done ? color.state.success : active ? color.action.primary : color.text.muted}>{done ? tx('완료', 'Done') : active ? tx('진행 중', 'In progress') : tx('대기', 'Waiting')}</Text></View>; })}</View>}
       </View>}
-      {kind === 'phone' && job.state !== 'completed' ? null : <View style={styles.ticketArea}>
+      {/* 🔴 실패하면 넓은 화면도 여행표 칸을 안 그린다(S15P21E201-1669) — 프린터만 있고 표가 안 나오는 빈 칸이 남았다. */}
+      {(kind === 'phone' && job.state !== 'completed') || failed ? null : <View style={styles.ticketArea}>
         {/* 시안 TripPassCard 의 머리줄 — 왼쪽 뒤로가기 · 가운데 TRIP PASS · 오른쪽 승차권 번호. */}
         {kind !== 'phone' ? (
           <View style={styles.passHead}>

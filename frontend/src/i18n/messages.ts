@@ -37,7 +37,7 @@ export const MESSAGE_EN: Record<string, string> = {
   '되돌릴 변경 사항이 없어요.': 'There is nothing to undo.',
   '남은 일정이 하루 안에 다 들어가지 않아요. 넘치는 방문지를 먼저 확인해 주세요.': 'The remaining stops do not fit in one day. Check the overflowing places first.',
   '일정을 만드는 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.': 'Something went wrong while building your itinerary. Please try again shortly.',
-  '일정 생성 서버가 아직 준비되지 않았어요. 입력한 조건은 그대로 유지됩니다.': 'The itinerary server is not ready yet. Your conditions are kept as entered.',
+  '지금은 일정을 만들 수 없어요. 잠시 뒤 다시 시도해 주세요. 입력한 조건은 그대로 남아 있어요.': "We can't build an itinerary right now. Please try again in a moment. Your conditions are kept as entered.",
   '공유 일정을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.': 'Could not load the shared itinerary. Please try again shortly.',
   '동영상이 너무 커요. 더 짧은 영상으로 올려주세요.': 'The video is too large. Please upload a shorter clip.',
   'mp4 동영상만 올릴 수 있어요.': 'Only mp4 videos can be uploaded.',

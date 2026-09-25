@@ -9,6 +9,13 @@ import { ApiClientError } from '@/api/client';
  */
 export const UNAVAILABLE_MESSAGE = '지금은 이 정보를 불러올 수 없어요. 잠시 뒤 다시 시도해 주세요.';
 
+/**
+ * 일정 생성 서버가 없거나(404·501) 닿지 않을 때 — 위와 같은 갈래(S15P21E201-1669). 🔴 전에는 서버 오류의 원문(「No static
+ * resource …」)이 그대로 떴고, 기본 문구도 「일정 생성 서버가 아직 준비되지 않았어요」였다. 조건을 다 채운 사람에게
+ * 「입력한 것은 남아 있다」를 같이 말한다 — 처음부터 다시 해야 하나 걱정하지 않게.
+ */
+export const PLAN_UNAVAILABLE_MESSAGE = '지금은 일정을 만들 수 없어요. 잠시 뒤 다시 시도해 주세요. 입력한 조건은 그대로 남아 있어요.';
+
 /** 「error.trip.validation」처럼 문장이 아니라 키인가. */
 export function looksLikeMessageKey(message: string): boolean {
   const text = message.trim();
