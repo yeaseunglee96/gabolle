@@ -275,8 +275,10 @@ export default function Place() {
 
       {notFound ? <View style={styles.notice} accessibilityRole="alert">
         <Text variant="title" weight="bold">{tx('장소를 찾을 수 없어요', 'Place not found')}</Text>
-        <Text color={color.text.body}>{tx('목록으로 돌아가 다른 장소를 선택해 주세요.', 'Go back to the list and choose another place.')}</Text>
-        <Button label={tx('홈으로 돌아가기', 'Back to home')} onPress={() => router.replace('/home')} containerStyle={styles.recoveryButton} />
+        {/* 문구와 단추가 같은 곳을 가리킨다(S15P21E201-1680). 전에는 「목록으로 돌아가」라고 하고 단추는 홈으로 갔다.
+            들어온 길이 없으면(주소로 바로 연 경우) 뒤로 갈 곳이 없어 홈으로 — 위의 ‹ 단추와 같은 규칙이다. */}
+        <Text color={color.text.body}>{router.canGoBack() ? tx('뒤로 가서 다른 장소를 골라 주세요.', 'Go back and choose another place.') : tx('홈에서 다른 장소를 골라 주세요.', 'Choose another place from home.')}</Text>
+        <Button label={router.canGoBack() ? tx('뒤로 가기', 'Go back') : tx('홈으로', 'Go home')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/home'))} containerStyle={styles.recoveryButton} />
       </View> : null}
 
       {loadFailed ? <View style={styles.notice} accessibilityRole="alert">

@@ -53,9 +53,27 @@ export function photoLabels(
 // 표식 상태 셋 다 화면에 보여준다 — UNKNOWN 은 「확인했으나 결과 없음」이라 그 자체가 정보다.
 // 추정값에는 「추정」을 붙인다. 모르는 모양은 JSON.stringify 대신 사람이 읽을 문장으로 물러선다
 // — 화면에 {"raw":"매일 10:00-22:00"} 이 글자 그대로 찍힌 적이 있다.
-function extractDisplayText(value: unknown, tx: (ko: string, en: string) => string): string {
+/**
+ * 가격대(PRICE_LEVEL) 등급 — 서버 값 {"band":"MID","raw":"mid"} 에서 band 로 고른다(S15P21E201-1680, 조율 세션 결정).
+ * 🔴 raw 는 조사원이 쓴 영어 낱말이다 — 그대로 써서 장소 상세에 「low」·「mid」, 축제 입장료 자리에 「high」가 떴다.
+ */
+const PRICE_BANDS: Readonly<Record<string, readonly [ko: string, en: string]>> = {
+  LOW: ['저렴한 편', 'Inexpensive'],
+  MID: ['보통', 'Moderate'],
+  MID_HIGH: ['조금 비싼 편', 'A bit pricey'],
+  HIGH: ['비싼 편', 'Expensive'],
+};
+
+/** 칸 값을 한 줄로. 안 보여야 하는 값(모르는 가격 등급)이면 null. */
+function extractDisplayText(value: unknown, tx: (ko: string, en: string) => string): string | null {
   if (typeof value === 'string' || typeof value === 'number') return String(value);
   if (value && typeof value === 'object') {
+    // 🔴 가격대를 영업시간보다 먼저 본다 — 영업시간 함수는 raw 글자를 그대로 돌려줘서, 뒤에 두면 「low」가 거기서 샌다.
+    //    모르는 등급이면 안 보인다 — raw 로 물러서면 영어 낱말이 그대로 나간다.
+    if ('band' in value) {
+      const band = PRICE_BANDS[String((value as { band: unknown }).band)];
+      return band ? tx(band[0], band[1]) : null;
+    }
     const hours = formatOpeningHoursValue(value, tx);
     if (hours) return hours;
     if (typeof (value as { raw?: unknown }).raw === 'string') return (value as { raw: string }).raw;
@@ -110,6 +128,7 @@ export function formatFeatureSlot(slot: FeatureSlot | undefined, tx: (ko: string
   if (!slot) return null;
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const text = extractDisplayText(slot.value, tx);
+  if (text === null) return null;
   return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
 }
 
