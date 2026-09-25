@@ -1,0 +1,50 @@
+{
+ "step": "process/walk-graph",
+ "at": "2026-09-25T01:56:01.979Z",
+ "git": "e961257cee5f9760223c089cc57d4bc50d71072b",
+ "node": "v24.14.0",
+ "inputs": [
+  {
+   "path": "data/staged/segment-slope.ndjson",
+   "bytes": 15590046,
+   "sha256_16": "e1b7f21de0ad421a"
+  },
+  {
+   "path": "data/raw/pbf/road.ndjson",
+   "bytes": 23105796,
+   "sha256_16": "fabef76d814bab1d"
+  },
+  {
+   "path": "data/raw/pbf/walk.ndjson",
+   "bytes": 10589753,
+   "sha256_16": "b199ffb6eff841c2"
+  },
+  {
+   "path": "data/raw/pbf/stairs.ndjson",
+   "bytes": 168251,
+   "sha256_16": "f0ce86837ec493f6"
+  }
+ ],
+ "params": {
+  "excludedHighway": [
+   "motorway",
+   "motorway_link",
+   "construction",
+   "proposed"
+  ],
+  "footNo": true,
+  "accessNoWithoutFoot": true,
+  "stairsKeptAsWay": true,
+  "slope": "p50Slope · 30m 이상 · 다리·터널 제외",
+  "nodeKey": "위경도 소수 7자리"
+ },
+ "result": {
+  "nodes": 473756,
+  "ways": 66746,
+  "refs": 579264,
+  "stairs": 724,
+  "withSlope": 51417,
+  "largestComponentShare": 0.9776,
+  "bytes": 4940282
+ }
+}
