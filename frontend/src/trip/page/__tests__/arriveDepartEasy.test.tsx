@@ -203,8 +203,8 @@ describe('6. 화면이 규칙을 지킨다', () => {
   });
 
   it('🔴 목록도 머무는 곳 한 곳에만 「머무는 중」, 나머지 도착한 곳은 「✓ 다녀옴」', () => {
-    expect(mobile).toContain('staying={item.id === stayId}');
-    expect(mobile).toContain("const done = step === 'done' && !staying;");
+    expect(mobile).toContain("item.id === stayId ? 'staying' : steps[index]");
+    expect(mobile).toContain("const staying = step === 'staying';");
   });
 
   it('자동 출발은 동의가 있을 때만 켜지는 위치를 쓴다', () => {
