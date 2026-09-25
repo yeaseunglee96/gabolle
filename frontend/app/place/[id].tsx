@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { sendAppEvent } from '@/analytics/appEvents';
+import { useBehaviorConsentAsk } from '@/personalization/consentAsk';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
@@ -42,6 +43,7 @@ export default function Place() {
   const demoPlace = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
   const [isSaved, setIsSaved] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const consent = useBehaviorConsentAsk(accessToken);
   const [remote, setRemote] = useState<RemoteState>({ status: 'loading' });
   const [retryCount, setRetryCount] = useState(0);
   const [phraseModalOpen, setPhraseModalOpen] = useState(false);
@@ -98,9 +100,15 @@ export default function Place() {
   }, [id, demoPlace, remote.status, accessToken]);
 
   // — 계정에 저장된 것과 기기 것을 합쳐서 본다.
+  // 🔴 이 답이 오기 전에는 저장 단추를 잠근다(S15P21E201-1644). 전에는 먼저 누르면 늦게 온 이 답이 방금 누른 표시를
+  //    되돌려서, 사람 눈에는 「눌렀는데 아무 일도 없다」로 보였다(운영 끝까지 흐르는 시험에서 찾음).
+  const [savedKnown, setSavedKnown] = useState(false);
   useEffect(() => {
     if (!id || !resolved) return;
-    void loadSavedPlaceIds(accessToken).then((ids) => setIsSaved(ids.includes(id)));
+    let alive = true;
+    setSavedKnown(false);
+    void loadSavedPlaceIds(accessToken).then((ids) => { if (!alive) return; setIsSaved(ids.includes(id)); setSavedKnown(true); });
+    return () => { alive = false; };
   }, [id, resolved, accessToken]);
 
   const toggleSaved = async () => {
@@ -119,6 +127,8 @@ export default function Place() {
       setFeedback(nextSaved
         ? tx('내 여행 후보에 저장했어요. 일정을 만들 때 이 장소를 먼저 넣어요.', 'Saved to your trip candidates — we will use it first when building an itinerary.')
         : tx('저장을 해제했어요.', 'Removed from saved.'));
+      // 서버에 저장된 첫 하트 — 다음 추천에 반영할지 한 번 묻는다(S15P21E201-1644).
+      if (nextSaved) void consent.askOnce();
     }
     // 🔴 place_like 는 여기서 보내지 않는다 — S15P21E201-1486. 저장 API(PUT /me/saved-places)가
     //    서버에서 같은 트랜잭션으로 PLACE_LIKE 를 적는다(inserted == 1 일 때만이라 연타·재시도에도
@@ -261,12 +271,14 @@ export default function Place() {
             레이아웃일 뿐, 안쪽 Pressable 의 색과 부딪히지 않는다).
         */}
         <View style={styles.actions}>
-          <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="tertiary" onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
+          {/* 🔴 저장했는지 알기 전에는 누를 수 없다 — 위 savedKnown 의 주석(S15P21E201-1644). */}
+          <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="tertiary" disabled={!savedKnown} onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
           <Button label={tx('한국어로 말하기', 'Speak Korean')} variant="field" onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
           {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="tertiary" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
           {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} variant="field" onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
+        {consent.prompt}
         </View>
         </View>
       </> : null}
