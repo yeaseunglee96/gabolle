@@ -96,17 +96,21 @@ export default function Saved() {
     {state === 'ready' && cards.length > 0 && (
       <View style={styles.list}>
         {cards.map((card) => (
-          <Pressable key={card.placeId} accessibilityRole="button" onPress={() => router.push(`/place/${card.placeId}`)} style={styles.card}>
-            {card.image ? <Image source={card.image} resizeMode="cover" style={styles.cardImage} /> : <View style={[styles.cardImage, styles.cardImageFallback]}><Text weight="bold" color={color.text.heading}>GABOLLE</Text></View>}
-            <View style={styles.cardBody}>
-              <Text variant="title" weight="bold">{card.title}</Text>
-              <Text variant="caption" color={color.text.muted}>{card.subtitle}</Text>
-              {card.needsFoodSafetyCheck && <Text variant="caption" weight="bold" color={color.state.danger}>{tx('알레르기·식단 확인 필요', 'Check allergy/dietary info')}</Text>}
-            </View>
-            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 저장 취소', 'Unsave %s', card.title)} onPress={(event) => { event.stopPropagation(); void unsave(card.placeId); }} style={styles.unsaveButton}>
+          // 카드는 틀이다 — 사진·글만 누르는 곳이고 「저장 취소」는 그 옆 형제다. 카드 전체를 누르는 곳으로 두면
+          // 「저장 취소」가 단추 안의 단추가 되고, 웹은 그것을 허용하지 않는다(S15P21E201-1710).
+          <View key={card.placeId} style={styles.card}>
+            <Pressable accessibilityRole="button" onPress={() => router.push(`/place/${card.placeId}`)} style={styles.cardMain}>
+              {card.image ? <Image source={card.image} resizeMode="cover" style={styles.cardImage} /> : <View style={[styles.cardImage, styles.cardImageFallback]}><Text weight="bold" color={color.text.heading}>GABOLLE</Text></View>}
+              <View style={styles.cardBody}>
+                <Text variant="title" weight="bold">{card.title}</Text>
+                <Text variant="caption" color={color.text.muted}>{card.subtitle}</Text>
+                {card.needsFoodSafetyCheck && <Text variant="caption" weight="bold" color={color.state.danger}>{tx('알레르기·식단 확인 필요', 'Check allergy/dietary info')}</Text>}
+              </View>
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 저장 취소', 'Unsave %s', card.title)} onPress={() => void unsave(card.placeId)} style={styles.unsaveButton}>
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('저장 취소', 'Unsave')}</Text>
             </Pressable>
-          </Pressable>
+          </View>
         ))}
       </View>
     )}
@@ -125,6 +129,7 @@ const styles = StyleSheet.create({
   action: { minHeight: 48, minWidth: 220, marginTop: spacing[3], alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.navy },
   list: { gap: spacing[3] },
   card: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  cardMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   cardImage: { width: 64, height: 64, borderRadius: radius.md },
   cardImageFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint },
   cardBody: { flex: 1, gap: spacing[1] },
