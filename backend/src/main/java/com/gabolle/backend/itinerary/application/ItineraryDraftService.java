@@ -34,7 +34,7 @@ import com.gabolle.backend.place.service.PlaceDessertOnlyPort;
 import com.gabolle.backend.place.service.PlaceMenuPricePort;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
-import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
+import com.gabolle.backend.place.service.PlaceTimeTablePort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
 import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
@@ -125,17 +125,13 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private final ItineraryLegPlanner legPlanner;
 
     /**
-     * 그 시각에 문을 여는가. 후보를 고르는 단계가 아니라 자리에 앉히는 단계에서 묻는다 —
-     * 후보 조회는 여행 전체에 한 번 부르고 시각 칸은 한 순간이라, 거기에 첫날 아침을 넣으면
+     * 그 시각에 문을 여는가 · 브레이크타임에 걸리는가 · 라스트오더를 지났는가. 후보를 고르는 단계가 아니라 자리에
+     * 앉히는 단계에서 묻는다 — 후보 조회는 여행 전체에 한 번 부르고 시각 칸은 한 순간이라, 거기에 첫날 아침을 넣으면
      * 화요일 오후에 방문할 곳까지 월요일 아침 기준으로 걸러진다.
+     *
+     * <p>장소마다 영업표를 한 번 읽고 시각마다의 판정은 메모리에서 한다(S15P21E201-1663) — {@link ViolationMemo}.
      */
-    private final OpeningHoursFilterPort openingHours;
-
-    /**
-     * 브레이크타임에 걸리는가 · 라스트오더를 지났는가.
-     * {@link #openingHours} 와 같은 자리에서 같은 이유로 묻는다 — 항목마다 다른 시각을 물어야 한다.
-     */
-    private final PlaceTimeFactFilterPort timeFact;
+    private final PlaceTimeTablePort timeTables;
 
     /**
      * 하루의 차례를 거리로 다시 세우는 문. {@link ItineraryLegPlanner} 가 이동시간 문을 다루는
@@ -214,8 +210,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
             @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
             @Value("${gabolle.itinerary.candidate-headroom:3}") int candidateHeadroom,
-            ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours,
-            PlaceTimeFactFilterPort timeFact, ObjectProvider<RouteOrderPort> routeOrder,
+            ItineraryLegPlanner legPlanner, PlaceTimeTablePort timeTables, ObjectProvider<RouteOrderPort> routeOrder,
             PlaceRepository placeRepository, ApplicationEventPublisher events) {
         this.placeRepository = placeRepository;
         this.tripRepository = tripRepository;
@@ -226,8 +221,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.foodCategory = foodCategory;
         this.candidateHeadroom = Math.max(1, candidateHeadroom);
         this.legPlanner = legPlanner;
-        this.openingHours = openingHours;
-        this.timeFact = timeFact;
+        this.timeTables = timeTables;
         this.routeOrder = routeOrder;
         this.events = events;
     }
@@ -1244,14 +1238,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 영업시간 · 브레이크타임 · 라스트오더 셋을 이 순서로 본다. 셋 다 "모른다" 를 "문제 없음" 으로
      * 접지 않는다 — {@link OpeningHoursFilterPort.Answer#CLOSED} 일 때만 걸린다.
      */
-    private String violationAt(UUID placeId, OffsetDateTime at) {
-        if (this.openingHours.openAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
+    private static String violationAt(PlaceTimeTablePort.PlaceTimeTable table, OffsetDateTime at) {
+        if (table.openAt(at) == OpeningHoursFilterPort.Answer.CLOSED) {
             return ItineraryOpeningHoursChecker.VIOLATION_CLOSED;
         }
-        if (this.timeFact.breakTimeAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
+        if (table.breakTimeAt(at) == OpeningHoursFilterPort.Answer.CLOSED) {
             return ItineraryOpeningHoursChecker.VIOLATION_BREAK_TIME;
         }
-        if (this.timeFact.lastOrderAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
+        if (table.lastOrderAt(at) == OpeningHoursFilterPort.Answer.CLOSED) {
             return ItineraryOpeningHoursChecker.VIOLATION_LAST_ORDER;
         }
         return null;
@@ -1346,30 +1340,25 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 한 번 조립하는 동안 (장소, 시각) 마다 {@link #violationAt} 을 한 번만 묻는다 — S15P21E201-1621.
+     * 한 번 조립하는 동안 장소마다 영업표를 한 번만 읽는다 — S15P21E201-1621 · S15P21E201-1663.
      *
      * <p>🔴 왜. {@link #shortestSlotOrder} 는 하루 5곳이면 120가지 차례를 전부 따지는데, 차례마다·자리마다
      * 영업시간·브레이크타임·라스트오더를 DB 에서 새로 읽었다. 8일·하루 5곳 조립이 질의 6,852번·7.3초였다
-     * (운영 8.3초). 답은 「어느 장소가 몇 시에」에만 달려 있어 서로 다른 물음은 하루에 장소 수 × 칸 수뿐이다.
+     * (운영 8.3초). 처음(1621)에는 (장소, 시각)마다 답을 기억했는데, 그래도 서로 다른 시각마다 셋을 새로 읽었다
+     * (영업시간·브레이크타임·라스트오더가 다 있는 48곳·8일에 457번). 읽는 것은 장소에만 달려 있고 시각은 판정에만
+     * 쓰이므로, 장소마다 한 번 읽어 두고 판정은 메모리에서 한다.
      *
-     * <p>판정 규칙은 그대로다 — 같은 물음에 처음 받은 답을 다시 줄 뿐이라 고르는 차례도 전과 같다.
+     * <p>판정 규칙은 그대로다 — 같은 행을 같은 판정 함수로 읽으므로 고르는 차례도 전과 같다.
      * 조립 한 번 안에서만 산다(요청마다 새로 만든다). 서비스는 여러 요청이 함께 쓰는 하나라 필드에 두면 안 된다.
      */
     private final class ViolationMemo {
 
-        private final Map<Visit, String> answers = new HashMap<>();
+        private final Map<UUID, PlaceTimeTablePort.PlaceTimeTable> tables = new HashMap<>();
 
-        /** {@link #violationAt} 과 같은 답. 「걸리는 것 없음」({@code null})도 기억한다. */
+        /** 그 시각에 그 장소가 걸리는 것 — {@link #violationAt}. */
         String at(UUID placeId, OffsetDateTime at) {
-            Visit visit = new Visit(placeId, at);
-            if (!this.answers.containsKey(visit)) {
-                this.answers.put(visit, violationAt(placeId, at));
-            }
-            return this.answers.get(visit);
+            return violationAt(this.tables.computeIfAbsent(placeId, timeTables::tableOf), at);
         }
-    }
-
-    private record Visit(UUID placeId, OffsetDateTime at) {
     }
 
     /**

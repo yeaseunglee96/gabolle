@@ -27,6 +27,7 @@ import com.gabolle.backend.itinerary.application.ItineraryDraftService;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
+import com.gabolle.backend.place.service.PlaceTimeTablePort;
 import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
@@ -86,6 +87,29 @@ class ItineraryDraftServiceTest {
 		}
 	};
 
+	/**
+	 * 시각마다 답하는 가짜 문 둘을 조립기가 받는 영업표 문으로 잇는다(S15P21E201-1663). 가짜는 (장소, 시각)으로 답을
+	 * 정하므로 시각마다 그대로 물어 옮긴다 — 영업표를 한 번 읽는 것은 DB 구현의 일이고 이 파일의 주제가 아니다.
+	 */
+	private static PlaceTimeTablePort tables(OpeningHoursFilterPort openingHours, PlaceTimeFactFilterPort timeFact) {
+		return (placeId) -> new PlaceTimeTablePort.PlaceTimeTable() {
+			@Override
+			public OpeningHoursFilterPort.Answer openAt(java.time.OffsetDateTime at) {
+				return openingHours.openAt(placeId, at);
+			}
+
+			@Override
+			public OpeningHoursFilterPort.Answer breakTimeAt(java.time.OffsetDateTime at) {
+				return timeFact.breakTimeAt(placeId, at);
+			}
+
+			@Override
+			public OpeningHoursFilterPort.Answer lastOrderAt(java.time.OffsetDateTime at) {
+				return timeFact.lastOrderAt(placeId, at);
+			}
+		};
+	}
+
 	private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-09-05T00:00:00Z"), ZoneOffset.UTC);
 
 	private TripRepository tripRepository;
@@ -118,7 +142,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", 1, legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", 1, legPlanner, tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -360,8 +384,8 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1,
-				new ItineraryLegPlanner(this.placeRepository, provider), ALWAYS_UNKNOWN,
-				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				new ItineraryLegPlanner(this.placeRepository, provider), tables(ALWAYS_UNKNOWN,
+				ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -385,8 +409,8 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
-				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1, legPlanner, ALWAYS_UNKNOWN,
-				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1, legPlanner, tables(ALWAYS_UNKNOWN,
+				ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -417,8 +441,8 @@ class ItineraryDraftServiceTest {
 
 		ItineraryRepository repository = mock(ItineraryRepository.class);
 		ItineraryDraftService service = new ItineraryDraftService(this.tripRepository, repository, CLOCK,
-				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, provider), ALWAYS_UNKNOWN,
-				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, provider), tables(ALWAYS_UNKNOWN,
+				ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		service.persist(service.assemble(commandOf("trip_1", plannedPlaces(3))));
 
@@ -815,6 +839,31 @@ class ItineraryDraftServiceTest {
 				assertThat(item.warningCodes()).contains("BREAK_TIME_CLOSED"));
 	}
 
+	@Test
+	@DisplayName("브레이크타임과 라스트오더가 함께 걸리면 브레이크타임 경고 하나만 — 영업시간 → 브레이크타임 → 라스트오더 차례")
+	void breakTimeIsReportedBeforeLastOrder() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraftService service = serviceWith(ALWAYS_UNKNOWN, new PlaceTimeFactFilterPort() {
+			@Override
+			public OpeningHoursFilterPort.Answer breakTimeAt(UUID placeId, java.time.OffsetDateTime at) {
+				return OpeningHoursFilterPort.Answer.CLOSED;
+			}
+
+			@Override
+			public OpeningHoursFilterPort.Answer lastOrderAt(UUID placeId, java.time.OffsetDateTime at) {
+				return OpeningHoursFilterPort.Answer.CLOSED;
+			}
+		});
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", plannedPlaces(2)));
+
+		assertThat(draft.items()).hasSize(2);
+		assertThat(draft.items()).allSatisfy((item) -> assertThat(item.warningCodes())
+				.contains("BREAK_TIME_CLOSED").doesNotContain("LAST_ORDER_PASSED"));
+	}
+
 	private ItineraryDraftService serviceWith(OpeningHoursFilterPort openingHours) {
 		return serviceWith(openingHours, ALWAYS_UNKNOWN_TIME_FACT);
 	}
@@ -824,7 +873,7 @@ class ItineraryDraftServiceTest {
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1,
-				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), tables(openingHours, timeFact),
 				noRouteOrder(), this.placeRepository, noEvents());
 	}
 
@@ -1142,7 +1191,7 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, provider),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 	}
 
 	private List<ItineraryDraftCommand.PlannedPlace> plannedPlaces(int count) {
@@ -1179,7 +1228,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, noTravelTime),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, provider, this.placeRepository, noEvents());
+				tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), provider, this.placeRepository, noEvents());
 	}
 
 	private static List<UUID> placeIdsOf(List<ItineraryDraftCommand.PlannedPlace> places) {
@@ -1456,7 +1505,7 @@ class ItineraryDraftServiceTest {
 		ItineraryDraftService withHeadroom = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 2,
 				new ItineraryLegPlanner(this.placeRepository, noTravelTimeProvider()),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		assertThat(withHeadroom.placesNeeded("itn_trip_2d"))
 				.as("8자리 × 배수 2")
@@ -1477,7 +1526,7 @@ class ItineraryDraftServiceTest {
 		ItineraryDraftService zeroHeadroom = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 0,
 				new ItineraryLegPlanner(this.placeRepository, noTravelTimeProvider()),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		assertThat(zeroHeadroom.placesNeeded("itn_trip_1d"))
 				.as("0 을 곱하면 후보가 0이 되고, 그 증상은 설정 오타와 구별되지 않는다")
@@ -1860,7 +1909,7 @@ class ItineraryDraftServiceTest {
 		@SuppressWarnings("unchecked")
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		ItineraryDraftService reviser = new ItineraryDraftService(this.tripRepository, itineraries, CLOCK, 4, 3, "FOOD", 1,
-				new ItineraryLegPlanner(this.placeRepository, noTravelTime), ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT),
 				noRouteOrder(), this.placeRepository, noEvents());
 		List<ItineraryDraftCommand.PlannedPlace> pool = festivalCase(List.of("REASON")).subList(0, 4);
 		// 축제는 셋째 날만 연다 — 첫째 날을 다시 짜면 못 들어간다.
