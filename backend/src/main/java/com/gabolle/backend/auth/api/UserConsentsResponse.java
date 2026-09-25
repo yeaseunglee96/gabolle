@@ -16,7 +16,15 @@ public record UserConsentsResponse(
 		 */
 		boolean behaviorPersonalizationEnabled,
 
-		List<Item> consents) {
+		List<Item> consents,
+
+		/**
+		 * 지금 서버가 쓰는 처리방침 판 (S15P21E201-1693). 항목의 {@code policyVersion} 이 이보다 옛것이면
+		 * 앱이 「처리방침이 바뀌었어요」를 알릴 수 있다 — 알림은 강제가 아니고, 확인을 누르면
+		 * {@code PATCH {PRIVACY_POLICY: true}} 로 이 판의 행이 새로 생긴다. 판은 동의 종류마다 따로가 아니라
+		 * 모든 종류에 같이 붙는다. 동의했나의 판정은 판과 무관하게 종류별 마지막 결정을 본다.
+		 */
+		String currentPolicyVersion) {
 
 	/**
 	 * @param consentType {@code TERMS_OF_SERVICE} · {@code PRIVACY_POLICY} ·
