@@ -131,7 +131,9 @@ export function useTripPage(source: TripPageSource) {
   //    「도착 찍기」 뒤에 예상 도착이 영영 안 바뀐다 — paceNonce 로 따로 깨운다.
   useEffect(() => {
     // 미리보기(2안·3안)는 아직 일정이 아니라 물어볼 일정 번호가 없다 — 부르면 404 만 돌아온다.
-    if (!loaded || !course?.itineraryId) { setPace(null); return; }
+    // 🔴 불러온 일정이 «그 코스의 일정»일 때만 부른다(S15P21E201-1641). 2·3안을 보다 1안으로 돌아오는 한 번의 그리기
+    //    동안 코스는 이미 1안인데 불러온 일정은 아직 미리보기라, 미리보기 번호(「작업:1」 꼴)로 불렀다 — 운영 500 10건.
+    if (!loaded || !course?.itineraryId || loaded.id !== course.itineraryId) { setPace(null); return; }
     let alive = true;
     void loadItineraryPace(loaded.id, dayIndex, accessToken).then((next) => { if (alive) setPace(next.state === 'success' ? next.pace : null); });
     return () => { alive = false; };

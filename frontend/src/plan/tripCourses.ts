@@ -67,7 +67,12 @@ export type TripCourse = {
 export type TripCoursesResult =
   | { state: 'success'; courses: TripCourse[]; /** 서버가 3안을 보냈나. 한 안뿐이면 false. */ full: boolean }
   | { state: 'empty'; message: string }
+  /** 그런 여행이 없다(지워졌거나 남의 여행) — 다시 불러도 같다. 「다시 시도」 대신 내 여행으로 보낸다(S15P21E201-1641). */
+  | { state: 'not-found'; message: string }
   | { state: 'error'; message: string };
+
+/** 「그런 여행 없음」 — 서버는 이 404 에 TRIP_NOT_FOUND 를 싣는다. 코드가 없는 404 는 옛 서버의 「계약 없음」이다. */
+export const TRIP_NOT_FOUND_MESSAGE = '이 여행을 찾을 수 없어요.';
 
 type CourseDto = {
   id?: string; courseId?: string; title?: string; tagline?: string | null;
@@ -224,6 +229,11 @@ export async function loadTripCourses(
   try {
     dto = await apiRequest<CoursesDto>(`/api/v1/trips/${encodeURIComponent(tripId)}/recommendations`, { accessToken });
   } catch (error) {
+    // 🔴 「그런 여행 없음」은 계약이 없는 것과 다르다 — 일정으로 대신 채우려고 또 부르지 않는다(S15P21E201-1641,
+    //    운영에서 없는 여행으로 4일간 55번).
+    if (error instanceof ApiClientError && error.status === 404 && error.code === 'TRIP_NOT_FOUND') {
+      return { state: 'not-found', message: TRIP_NOT_FOUND_MESSAGE };
+    }
     // 아직 없는 자리(404·501)는 실패가 아니다 — 아래에서 일정 하나로 대신한다.
     const missing = error instanceof ApiClientError && (error.status === 404 || error.status === 501);
     if (!missing) {

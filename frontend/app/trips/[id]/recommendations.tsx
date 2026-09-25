@@ -31,7 +31,7 @@ import { CourseCard, CourseRow, courseCost, courseFacts, courseLetter } from '@/
 import { courseMapLayers, dayColor } from '@/plan/courseMap';
 import { useCourseRoutePaths } from '@/map/courseRoutePaths';
 import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
-import { canConfirmCourse, ensureCourseItinerary, loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
+import { canConfirmCourse, ensureCourseItinerary, loadTripCourses, TRIP_NOT_FOUND_MESSAGE, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
 import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { timeToMinutes } from '@/plan/tripBasics';
 import { invalidateTripLists, loadTrips } from '@/trip/trips';
@@ -166,6 +166,11 @@ function RecommendationsClassic() {
     let job: string | null = jobId ?? null;
     if (!job && tripId) {
       const lookup = await findLatestRecommendationJob(tripId, accessToken);
+      // 🔴 그런 여행이 없으면 여기서 멈춘다 — 코스 목록을 또 부르면 같은 404 만 돌아온다(S15P21E201-1641).
+      if (lookup.state === 'trip-not-found') {
+        setLoaded({ state: 'ready', result: { state: 'not-found', message: TRIP_NOT_FOUND_MESSAGE } });
+        return;
+      }
       // 🔴 「없음」·「못 찾음」에는 번호 칸이 아예 없다. 있다고 치고 읽으면 undefined 가
       //    주소에 박혀 엉뚱한 자리를 부른다.
       job = 'jobId' in lookup ? lookup.jobId : null;
@@ -324,9 +329,16 @@ function RecommendationsClassic() {
       ) : loaded.result.state !== 'success' ? (
         <View style={styles.stateCard}>
           <Text color={color.text.body}>{localizeMessage(tx, loaded.result.message)}</Text>
-          <Pressable accessibilityRole="button" onPress={() => void load()} style={styles.retry}>
-            <Text weight="bold" color={color.brand.navy}>{tx('다시 시도', 'Try again')}</Text>
-          </Pressable>
+          {/* 그런 여행이 없으면 다시 불러도 같다 — 「다시 시도」 대신 내 여행으로(S15P21E201-1641). */}
+          {loaded.result.state === 'not-found' ? (
+            <Pressable accessibilityRole="button" onPress={() => router.replace('/trips')} style={styles.retry}>
+              <Text weight="bold" color={color.brand.navy}>{tx('내 여행', 'My trips')}</Text>
+            </Pressable>
+          ) : (
+            <Pressable accessibilityRole="button" onPress={() => void load()} style={styles.retry}>
+              <Text weight="bold" color={color.brand.navy}>{tx('다시 시도', 'Try again')}</Text>
+            </Pressable>
+          )}
         </View>
       ) : (
         courses.map((course, index) => (

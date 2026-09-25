@@ -7,7 +7,7 @@
 //    둘 다 「여행 번호 + 코스 목록 + 확정한 코스」로 바꿔야 한다. 그 바꾸기를 여기 한 곳에 둔다.
 import { loadItinerary, type ItineraryDto } from '@/plan/itinerary';
 import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
-import { courseFromItinerary, loadTripCourses, type TripCourse } from '@/plan/tripCourses';
+import { courseFromItinerary, loadTripCourses, TRIP_NOT_FOUND_MESSAGE, type TripCourse } from '@/plan/tripCourses';
 
 export type TripPageSource =
   | { kind: 'trip'; tripId: string; jobId?: string | null }
@@ -47,6 +47,8 @@ export async function loadTripPageCourses(
     let job = source.jobId ?? null;
     if (!job && source.tripId) {
       const lookup = await findLatestRecommendationJob(source.tripId, accessToken);
+      // 🔴 그런 여행이 없으면 여기서 멈춘다 — 코스 목록을 또 부르면 같은 404 만 돌아온다(S15P21E201-1641).
+      if (lookup.state === 'trip-not-found') return { state: 'error', message: TRIP_NOT_FOUND_MESSAGE };
       // 「없음」·「못 찾음」에는 번호 칸이 아예 없다(recommendations.tsx 와 같은 주의).
       job = 'jobId' in lookup ? lookup.jobId : null;
     }
