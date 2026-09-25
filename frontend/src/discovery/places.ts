@@ -47,6 +47,26 @@ export type PhotoSubject = 'SELF' | 'VENUE';
  */
 export type PhotoLicense = { name: string; url?: string | null; filePage?: string | null };
 
+/**
+ * 사진 출처의 영어 — 공공누리 출처 표시 의무는 번역해도 지켜진다(S15P21E201-1705, 조율 세션 결정 A).
+ * 🔴 운영 자료의 출처 글자 다섯 가지(2026-09-26 읽기만 해서 확인)가 드는 두 모양만 바꾸고, 그 밖의 글자는 그대로 둔다.
+ *    촬영자 이름은 로마자로 바꾸지 않는다 — 본인이 쓰는 철자가 따로 있을 수 있어, 지어내면 틀린 이름이 된다. 이름표만 영어.
+ */
+export function photoSourceEnglish(source: string): string {
+  // 「KOGL Type 1」은 줄바꿈 안 되는 공백으로 붙인다 — 카드 띠가 두 줄로 꺾일 때 번호 「1」만 둘째 줄에 떨어졌다.
+  const kogl = (type: string) => `KOGL\u00A0Type\u00A0${type}`;
+  const plain = source.match(/^한국관광공사 공공누리 제(\d)유형$/);
+  if (plain) return `Korea Tourism Organization · ${kogl(plain[1])}`;
+  const gallery = source.match(/^한국관광공사 관광사진갤러리 공공누리 제(\d)유형 · 촬영 (.+)$/);
+  if (gallery) return `Korea Tourism Organization Photo Gallery · ${kogl(gallery[1])} · Photographer: ${gallery[2]}`;
+  return source;
+}
+
+/** 사진 출처를 화면 언어로 — 한국어판은 받은 글자 그대로, 그 밖은 photoSourceEnglish. */
+export function photoSourceText(source: string, tx: (ko: string, en: string) => string): string {
+  return tx(source, photoSourceEnglish(source));
+}
+
 /** 사진 설명 두 줄 — null 이면 화면에 줄을 안 만든다 */
 export function photoLabels(
   photo: { photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null },
@@ -56,7 +76,7 @@ export function photoLabels(
   const license = photo.photoLicense?.name ? photo.photoLicense : null;
   return {
     badge: photo.photoSubject === 'VENUE' ? tx('행사장 사진', 'Venue photo') : null,
-    credit: photo.photoSource ? txf(tx, '사진: %s', 'Photo: %s', photo.photoSource) + (license ? ` · ${license.name}` : '') : null,
+    credit: photo.photoSource ? txf(tx, '사진: %s', 'Photo: %s', photoSourceText(photo.photoSource, tx)) + (license ? ` · ${license.name}` : '') : null,
     licenseUrl: license ? license.filePage || license.url || null : null,
   };
 }

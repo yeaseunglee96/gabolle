@@ -9,6 +9,7 @@ import { Animated, Easing, Image, Pressable, StyleSheet, View } from 'react-nati
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { photoSourceText } from '@/discovery/places';
 import type { TripCourse } from '@/plan/tripCourses';
 
 /** 「코스 A」 · 「코스 B」 … 자리로 부르는 이름. 서버가 제목을 안 줘도 부를 말이 있어야 한다. */
@@ -78,7 +79,7 @@ function CoverPhoto({ photo, extra = 0, tx }: { photo: { url: string; name: stri
           자리가 좁아 작게 들어가지만, 빼는 선택지는 없다(공공누리 이용 조건). */}
       <View style={styles.coverCredit}>
         <Text variant="micro" numberOfLines={1} color={color.text.onAction}>
-          {txf(tx, '사진: %s', 'Photo: %s', photo.source)}
+          {txf(tx, '사진: %s', 'Photo: %s', photoSourceText(photo.source, tx))}
         </Text>
       </View>
       {/* 좌하단 이름 꼬리표. +N 이 있는 칸은 그만큼 좁힌다 — 겹치면 둘 다 못 읽는다. */}
