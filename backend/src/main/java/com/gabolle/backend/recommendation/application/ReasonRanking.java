@@ -14,7 +14,7 @@ import com.gabolle.backend.recommendation.adapter.EngineCandidate;
  *
  * {@code topAxes}(절대 기여)와 {@code distinctiveAxes}(같은 결과 안의 평균과의 차이)를 둘 다
  * 싣는다. 반환된 후보가 모두 같은 성질을 가지면 절대 기여 1위 축은 순위를 설명하지 못하고,
- * 그때 대조 기여가 실제로 갈린 축을 가리킨다. 어느 쪽을 쓸지는 문장을 만드는 쪽이 정한다.
+ * 그때 대조 기여가 실제로 갈린 축을 가리킨다. 이유 코드는 대조 기여를 쓴다({@link #distinctiveAxisOf}).
  */
 final class ReasonRanking {
 
@@ -22,6 +22,12 @@ final class ReasonRanking {
 	static final String COMPONENT_KEY = "reasonRanking";
 
 	private static final int TOP_N = 3;
+
+	/**
+	 * 「평균보다 높다」로 칠 최소 차이. 같은 값들의 평균은 부동소수 반올림으로 원래 값과 끝자리가 어긋날 수 있다 —
+	 * 그 찌꺼기를 「튀었다」로 읽지 않게 한다.
+	 */
+	private static final double STANDS_OUT = 1e-9;
 
 	private static final String WEIGHT = "weight";
 
@@ -93,10 +99,7 @@ final class ReasonRanking {
 		List<Map<String, Object>> distinctive = new ArrayList<>();
 		if (!cohortMeans.isEmpty()) {
 			contributions.entrySet().stream()
-					.sorted(Comparator.<Map.Entry<String, Double>>comparingDouble(
-									(entry) -> entry.getValue() - cohortMeans.getOrDefault(entry.getKey(), 0.0))
-							.reversed()
-							.thenComparing(Map.Entry::getKey))
+					.sorted(distinctiveOrder(cohortMeans))
 					.limit(TOP_N)
 					.forEach((entry) -> distinctive.add(axis(candidate, entry.getKey(), entry.getValue(),
 							cohortMeans.get(entry.getKey()))));
@@ -105,14 +108,32 @@ final class ReasonRanking {
 		return ranking;
 	}
 
-	/** 절대 기여 1위 축 — 이유 코드로 붙는다. 없으면 {@code null}. */
-	static String topAxisOf(EngineCandidate candidate) {
+	/**
+	 * 평소보다 가장 많이 튄 축 — {@code TOP_CONTRIBUTOR_} 이유 코드로 붙는다 ({@code distinctiveAxes} 의 맨 앞과 같다).
+	 * 평균보다 높은 축이 없으면 {@code null} 이다.
+	 *
+	 * <p>🔴 <b>절대 기여 1위가 아니다</b> (S15P21E201-1638). 후보가 출발지 가까이에 몰려 거리 기여가 누구나 약 0.24 인데
+	 * 테마 기여는 커 봐야 0.20 이라, 절댓값으로 고르면 거의 모든 곳이 「거리」였다(거리 비중 조사 K: 상위 20곳 68~76/80).
+	 * 모두가 같은 값인 축은 이 장소가 왜 여기 있는지를 설명하지 못한다.
+	 *
+	 * <p>평균보다 높은 축이 하나도 없으면 붙이지 않는다 — 가장 덜 나쁜 축을 「가장 크게」라고 하면 거짓이다. 혼자 반환된
+	 * 후보도 그렇다(견줄 데가 없다).
+	 */
+	static String distinctiveAxisOf(EngineCandidate candidate, Map<String, Double> cohortMeans) {
 		return contributionsOf(candidate).entrySet().stream()
-				.sorted(Comparator.<Map.Entry<String, Double>>comparingDouble(Map.Entry::getValue).reversed()
-						.thenComparing(Map.Entry::getKey))
+				.filter((entry) -> entry.getValue() - cohortMeans.getOrDefault(entry.getKey(), 0.0) > STANDS_OUT)
+				.sorted(distinctiveOrder(cohortMeans))
 				.map(Map.Entry::getKey)
 				.findFirst()
 				.orElse(null);
+	}
+
+	/** 평균과의 차이가 큰 순. 동점이면 축 이름으로 가른다 — 같은 입력에서 근거 문장의 글자가 흔들리지 않게. */
+	private static Comparator<Map.Entry<String, Double>> distinctiveOrder(Map<String, Double> cohortMeans) {
+		return Comparator.<Map.Entry<String, Double>>comparingDouble(
+						(entry) -> entry.getValue() - cohortMeans.getOrDefault(entry.getKey(), 0.0))
+				.reversed()
+				.thenComparing(Map.Entry::getKey);
 	}
 
 	private static Map<String, Object> axis(EngineCandidate candidate, String name, double contribution,
