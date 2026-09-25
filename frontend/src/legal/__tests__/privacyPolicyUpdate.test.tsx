@@ -38,6 +38,10 @@ describe('1·2. 방침 문구', () => {
     expect(ko).toContain('도착·출발 시각만 저장하고, 좌표는 저장하거나 보내지 않습니다');
     expect(ko).toContain('약 100m 단위로 줄여 보냅니다');
     expect(ko).toContain('「위치 사용」에서 언제든 철회');
+    // 🔴 보내는 곳과 보내지 않는 곳을 나눈다 — 지도의 내 위치를 「보내는」 쪽에 적었었다(조율 세션이 짚음).
+    expect(ko).toContain('① 내 주변 찾기(둘러보기·주변 버스·지금 갈 곳):');
+    expect(ko).toContain('② 피드의 가까운 순 정렬과 지도의 내 위치 표시: 이 기기 안에서만 쓰고 보내지 않습니다.');
+    expect(text(1)).toContain('used only on this device and never sent');
     expect(text(1)).toContain('coordinates are never stored or sent');
   });
 
