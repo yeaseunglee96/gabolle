@@ -18,8 +18,13 @@ export type ProfileCardCount = { label: string; value: number | null; onPress?: 
 
 export type ProfileCardProps = {
   name: string;
-  /** 로그인 전이면 null. 그때는 이메일 줄 대신 안내를 쓴다. */
+  /** 이메일 줄. 없으면(로그인 전 · 다른 사람 프로필) null. */
   email: string | null;
+  /**
+   * 로그인 안 한 내 마이페이지인가 — 그때만 이메일 줄 자리에 「로그인 없이 앱을 둘러보는 중이에요」를 쓴다(S15P21E201-1684).
+   * 🔴 전에는 이메일이 없으면 무조건 그 말을 써서, 이메일을 비워 넘기는 다른 사람 프로필에도 떴다(iOS 심사 공지의 알려진 문제).
+   */
+  guest?: boolean;
   avatarUri: string | null;
   coverUri: string | null;
   counts: ProfileCardCount[];
@@ -28,7 +33,7 @@ export type ProfileCardProps = {
   tx: (ko: string, en: string) => string;
 };
 
-export function ProfileCard({ name, email, avatarUri, coverUri, counts, actions, tx }: ProfileCardProps) {
+export function ProfileCard({ name, email, guest = false, avatarUri, coverUri, counts, actions, tx }: ProfileCardProps) {
   const initial = name.trim().slice(0, 1) || '·';
   // 🔴 가로로 눕히면 커버를 낮춘다 (2026-09-22, build 41 실기기).
   //
@@ -58,9 +63,11 @@ export function ProfileCard({ name, email, avatarUri, coverUri, counts, actions,
         </View>
 
         <Text variant="display" weight="bold" color={color.text.heading} numberOfLines={1}>{name}</Text>
-        <Text variant="caption" color={color.text.muted} numberOfLines={1}>
-          {email || tx('로그인 없이 앱을 둘러보는 중이에요', 'Browsing without an account')}
-        </Text>
+        {email || guest ? (
+          <Text variant="caption" color={color.text.muted} numberOfLines={1}>
+            {email || tx('로그인 없이 앱을 둘러보는 중이에요', 'Browsing without an account')}
+          </Text>
+        ) : null}
 
         {/* 🔴 숫자가 버튼이 된다(시안 02). 전에는 글자라 눌러도 되는지 안 보였다 —
             눌리는 것은 눌리게 생겨야 한다. */}

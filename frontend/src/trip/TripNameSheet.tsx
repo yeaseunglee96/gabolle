@@ -1,7 +1,7 @@
 // 여행 이름 바꾸기 · 붙이기 · 지우기. 시안 `design_handoff_trip_name_flow`.
 
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
@@ -214,23 +214,28 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
 
   return (
     <Modal transparent visible animationType={kind === 'phone' ? 'slide' : 'fade'} onRequestClose={onClose}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={tx('닫기', 'Close')}
-        onPress={onClose}
-        style={[styles.backdrop, kind === 'phone' ? styles.backdropPhone : styles.backdropWide]}
-      >
-        {/* 안쪽을 눌렀을 때 닫히지 않게 누름을 여기서 멈춘다. */}
-        <Pressable onPress={() => {}} style={kind === 'phone' ? styles.sheet : styles.card}>
-          {kind === 'phone' ? <View style={styles.handle} /> : null}
-          {body}
+      {/* 🔴 키보드가 입력칸을 가리지 않게(S15P21E201-1684, iOS 심사 공지의 알려진 문제). Modal 은 앱 화면(Screen) 바깥이라
+          거기의 키보드 회피가 안 먹는다 — 같은 규칙을 여기에도: iOS 는 판을 밀어 올리고, 안드로이드는 시스템(pan)에 맡긴다. */}
+      <KeyboardAvoidingView style={styles.keyboard} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={tx('닫기', 'Close')}
+          onPress={onClose}
+          style={[styles.backdrop, kind === 'phone' ? styles.backdropPhone : styles.backdropWide]}
+        >
+          {/* 안쪽을 눌렀을 때 닫히지 않게 누름을 여기서 멈춘다. */}
+          <Pressable onPress={() => {}} style={kind === 'phone' ? styles.sheet : styles.card}>
+            {kind === 'phone' ? <View style={styles.handle} /> : null}
+            {body}
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboard: { flex: 1 },
   backdrop: { flex: 1, backgroundColor: 'rgba(25,25,25,0.62)' },
   backdropPhone: { justifyContent: 'flex-end' },
   backdropWide: { alignItems: 'center', justifyContent: 'center', padding: spacing[4] },
