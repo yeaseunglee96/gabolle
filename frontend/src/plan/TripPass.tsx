@@ -180,6 +180,11 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
   const canFlip = printed && Boolean(details && details.length);
   const [flipped, setFlipped] = useState(false);
   const flip = useRef(new Animated.Value(0)).current;
+  // 🔴 안 보이는 면은 화면 읽기(aria-hidden)와 키보드 탭(tabIndex)에서 뺀다(S15P21E201-1674). pointerEvents 는 누르기만 막아서,
+  //    앞면을 보는데 「앞면으로 돌리기」가 읽히고 뒤집은 뒤에는 안 보이는 「내 일정 보기」에 탭이 섰다.
+  const frontHidden = canFlip && flipped;
+  const frontTab = frontHidden ? -1 : 0;
+  const backTab = flipped ? 0 : -1;
 
   useEffect(() => {
     if (!canFlip) return;
@@ -213,7 +218,8 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
             //    안드로이드는 판마다 다르다 — 눌림까지 막아야 확실하다.
             canFlip && flipped ? styles.faceHidden : null,
           ]}
-          pointerEvents={canFlip && flipped ? 'none' : 'auto'}
+          pointerEvents={frontHidden ? 'none' : 'auto'}
+          aria-hidden={frontHidden}
         >
           {/* 🔴 앞면 어디를 눌러도 뒤집히지만 앞면은 «단추»가 아니다(S15P21E201-1666). 단추로 두면 화면 읽기 프로그램이
               앞면을 한 덩어리로 읽어 안쪽 「내 일정 보기」를 따로 못 누르고, 웹에서는 단추 안에 단추가 들어간다.
@@ -308,7 +314,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                   뒤집어 상세를 보는 것은 그대로다 — 이 단추 밖의 티켓을 누르면 된다. */}
               {onOpenItinerary ? (
                 <Animated.View style={{ opacity: codeMark, transform: [{ scale: markScale }] }}>
-                  <Pressable accessibilityRole="button" onPress={onOpenItinerary} style={({ pressed }) => [styles.nextButton, wide && styles.nextButtonWide, pressed && styles.backPressed]}>
+                  <Pressable accessibilityRole="button" tabIndex={frontTab} onPress={onOpenItinerary} style={({ pressed }) => [styles.nextButton, wide && styles.nextButtonWide, pressed && styles.backPressed]}>
                     <Text weight="bold" color={color.text.onAction} style={styles.nextLabel}>{tx('내 일정 보기', 'View my itinerary')}</Text>
                     <Text variant="title" weight="bold" color={color.text.onAction}>→</Text>
                   </Pressable>
@@ -332,7 +338,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
 
           <TearLine />
           {canFlip ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('여행표 상세 보기', 'See trip pass details')} onPress={() => setFlipped(true)} style={styles.flipHint}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('여행표 상세 보기', 'See trip pass details')} tabIndex={frontTab} onPress={() => setFlipped(true)} style={styles.flipHint}>
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('눌러서 여행표 상세 보기 ↻', 'Tap to see trip pass details ↻')}</Text>
             </Pressable>
           ) : null}
@@ -357,10 +363,12 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
               flipped ? null : styles.faceHidden,
             ]}
             pointerEvents={flipped ? 'auto' : 'none'}
+            aria-hidden={!flipped}
           >
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={tx('앞면으로 돌리기', 'Flip back')}
+              tabIndex={backTab}
               onPress={() => setFlipped(false)}
               style={styles.backHead}
             >
@@ -390,12 +398,12 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
 
             <View style={styles.backActions}>
               {onOpenItinerary ? (
-                <Pressable accessibilityRole="button" onPress={onOpenItinerary} style={({ pressed }) => [styles.backPrimary, pressed && styles.backPressed]}>
+                <Pressable accessibilityRole="button" tabIndex={backTab} onPress={onOpenItinerary} style={({ pressed }) => [styles.backPrimary, pressed && styles.backPressed]}>
                   <Text weight="bold" color={color.text.onAction}>{tx('일정 보기 →', 'View itinerary →')}</Text>
                 </Pressable>
               ) : null}
               {onOpenMap ? (
-                <Pressable accessibilityRole="button" onPress={onOpenMap} style={({ pressed }) => [styles.backGhost, pressed && styles.backPressed]}>
+                <Pressable accessibilityRole="button" tabIndex={backTab} onPress={onOpenMap} style={({ pressed }) => [styles.backGhost, pressed && styles.backPressed]}>
                   <Text weight="bold">{tx('지도에서 보기', 'See on the map')}</Text>
                 </Pressable>
               ) : null}
