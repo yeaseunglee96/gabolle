@@ -34,7 +34,8 @@ import { hasUnseen, loadActivityFeed, loadSeenAt } from '@/notifications/activit
 import { useFocusEffect } from 'expo-router';
 import { relativeStoryTime } from '@/social/stories';
 import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
-import type { TripSummaryDto } from '@/trip/trips';
+import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
+import { txf } from '@/i18n/format';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
@@ -44,6 +45,13 @@ const heartIcon = require('../../assets/icons/home/heart.png');
  * 다음 장이 안 보이면 옆으로 더 있다는 것을 모른다.
  */
 const MOBILE_CARD = 160;
+
+/** 「09.25 ~ 09.26」 — 폰 홈 「내 여행」 카드의 날짜. 날짜를 모르면 「날짜 미정」. */
+function homeTripDates(trip: TripSummaryDto, tx: (ko: string, en: string) => string): string {
+  return trip.startDate && trip.endDate
+    ? `${trip.startDate.slice(5).replace('-', '.')} ~ ${trip.endDate.slice(5).replace('-', '.')}`
+    : tx('날짜 미정', 'Dates TBD');
+}
 
 /**
  * 「21° / 28°」 — 최저·최고가 다 있으면 둘, 하나뿐이면 그것만.
@@ -314,13 +322,15 @@ export default function Home() {
                   {/* 여행 목록 카드와 같은 함수 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 오늘 여행에 「준비 완료」가 붙던 것. */}
                   {tripStatusLabel(effectiveTripStatus(home.trip), tx)}
                 </Text>
-                {/* 여행에 제목이 없다 — 날짜를 제목 자리에 올린다. */}
-                <Text variant="title" weight="bold">
-                  {home.trip.startDate && home.trip.endDate
-                    ? `${home.trip.startDate.slice(5).replace('-', '.')} ~ ${home.trip.endDate.slice(5).replace('-', '.')}`
-                    : tx('날짜 미정', 'Dates TBD')}
+                {/* 이름이 있으면 이름, 없으면 날짜 — 넓은 화면 카드(MyTripCard)·내 여행 목록과 같은 규칙(S15P21E201-1678).
+                    전에는 이름 기능이 생기기 전의 옛 주석대로 날짜만 올려서, 이름을 붙여도 홈에는 안 보였다.
+                    이름을 제목에 올리면 날짜는 둘째 줄로 내린다 — 같은 이름의 여행 둘을 날짜로 가린다. */}
+                <Text variant="title" weight="bold">{tripDisplayTitle(home.trip, homeTripDates(home.trip, tx))}</Text>
+                <Text color={color.text.body}>
+                  {home.trip.title?.trim() && home.trip.startDate
+                    ? txf(tx, '%s · %s일 · %s명', '%s · %s days · %s travelers', homeTripDates(home.trip, tx), home.trip.dayCount, home.trip.partySize)
+                    : tx(`${home.trip.dayCount}일 · ${home.trip.partySize}명`, `${home.trip.dayCount} days · ${home.trip.partySize} travelers`)}
                 </Text>
-                <Text color={color.text.body}>{tx(`${home.trip.dayCount}일 · ${home.trip.partySize}명`, `${home.trip.dayCount} days · ${home.trip.partySize} travelers`)}</Text>
                 <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{openingTrip ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
               </Pressable>
             ) : (
