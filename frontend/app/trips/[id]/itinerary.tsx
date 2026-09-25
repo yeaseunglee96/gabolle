@@ -15,6 +15,7 @@ import {
   arriveProgress, fetchProgress, pauseProgress, skipProgress, startProgress, type ProgressResult,
 } from '@/plan/tripProgressApi';
 import { arrivedAtOf } from '@/trip/page/actualTime';
+import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -582,6 +583,8 @@ function ItineraryClassic() {
   const day = itinerary?.days[selectedDay];
   // 🔴 손으로 찍는 것은 오늘 방문지만(S15P21E201-1690, 조율 세션 결정). 서버는 날짜를 일부러 검사하지 않는다 — 앱이 지킨다.
   const recordToday = isToday(day?.date, localDateKey(new Date()));
+  // 추천 노출 — 카드가 실제로 화면에 보일 때만 보낸다(S15P21E201-1698, !1691 과 같은 기준).
+  const impressions = useImpressionTracker({ accessToken, sourceScreen: 'TRIP_ITINERARY', active: Boolean(itinerary) });
   /** 적힌 실제 도착. 도착만 적힌 곳은 서버가 「다녀옴」으로 안 봐서 속도(pace)에는 예측값만 온다 — 여기서 읽는다. */
   const arrivalOf = (itemId: string) => arrivalsHere[itemId] ?? arrivedAtOf(progress.outcomes, itemId);
 
@@ -1118,7 +1121,7 @@ function ItineraryClassic() {
           {!reorderMode && wide ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} locale={locale} /> : null}
           {displayedItems.length ? <View style={wide ? styles.wideGrid : undefined}>
             <View style={wide ? styles.timelineColumn : undefined}>
-              <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={recordToday && !arrivalOf(item.id) ? () => void recordArrival(item) : undefined} onRecordDeparture={recordToday && arrivalOf(item.id) ? () => void recordDeparture(item) : undefined} accessToken={accessToken} stepState={dayStepStates[index]} />)}</View>
+              <View style={styles.route}>{displayedItems.map((item, index) => <ImpressionView key={item.id} tracker={impressions} placeId={item.placeId} requestId={item.requestId}><StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={recordToday && !arrivalOf(item.id) ? () => void recordArrival(item) : undefined} onRecordDeparture={recordToday && arrivalOf(item.id) ? () => void recordDeparture(item) : undefined} accessToken={accessToken} stepState={dayStepStates[index]} /></ImpressionView>)}</View>
             </View>
             {/* 이동 요약 — 시안 p6 의 3칸(장소 · 이동 합계 · 수단). 폰에도 둔다
                 「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다.

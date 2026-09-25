@@ -129,7 +129,14 @@ describe('화면이 카드를 잰다', () => {
     const mobile = source('src/trip/page/TripPageMobile.tsx');
     const desktop = source('src/trip/page/TripPageDesktop.tsx');
     expect(mobile.match(/<ImpressionView key=\{item\.id\} tracker=\{impressions\}/g)).toHaveLength(2);
-    expect(desktop.match(/<ImpressionView key=\{item\.id\} tracker=\{impressions\}/g)).toHaveLength(1);
+    // 넓은 화면: 카드 격자 + 긴 목록(S15P21E201-1698 — 긴 목록은 !1663 의 묶음 안에서 카드만 감싼다).
+    expect(desktop.match(/<ImpressionView (key=\{item\.id\} )?tracker=\{impressions\}/g)).toHaveLength(2);
     for (const page of [mobile, desktop]) expect(page).toContain("sourceScreen: confirmed ? 'TRIP_ITINERARY' : 'TRIP_COURSES'");
+  });
+
+  it('예전 일정 화면도 잰다 — 늘 확정한 일정이라 TRIP_ITINERARY', () => {
+    const classic = source('app/trips/[id]/itinerary.tsx');
+    expect(classic).toContain('<ImpressionView key={item.id} tracker={impressions} placeId={item.placeId} requestId={item.requestId}><StopRow');
+    expect(classic).toContain("sourceScreen: 'TRIP_ITINERARY'");
   });
 });

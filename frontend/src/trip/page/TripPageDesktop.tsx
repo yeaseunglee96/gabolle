@@ -288,6 +288,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                   <Fragment key={item.id}>
                     {/* 앞 곳과 이 곳 사이에 남는 시간 — 「자유 시간 · 50분」(S15P21E201-1668). 모르거나 30분이 안 되면 안 그린다. */}
                     {index > 0 ? <FreeTimeRow minutes={freeTimeMinutes(items, index - 1)} tx={tx} style={styles.bigFree} /> : null}
+                    <ImpressionView tracker={impressions} placeId={item.placeId} requestId={item.requestId}>
                     <Pressable accessibilityRole="button" accessibilityState={{ selected: item.id === selectedId }} onPress={() => setSelectedId(item.id)} style={[styles.bigRow, item.id === selectedId && styles.selectedBorder]}>
                       <View style={styles.bigThumb}>
                         {photo?.photoUrl ? <Image source={{ uri: photo.photoUrl }} resizeMode="cover" style={styles.fill} accessibilityLabel="" /> : <Text variant="title">{categoryGlyph(photo?.category)}</Text>}
@@ -297,6 +298,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                         <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[item.startsAt.slice(11, 16), leg].filter(Boolean).join(' · ')}</Text>
                       </View>
                     </Pressable>
+                    </ImpressionView>
                   </Fragment>
                 );
               })}
