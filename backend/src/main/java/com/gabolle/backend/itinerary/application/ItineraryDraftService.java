@@ -257,9 +257,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         List<ItineraryDraftCommand.PlannedPlace> places = command.places().stream()
                 .filter((p) -> !eventDays.containsKey(p.placeId()) || !eventDays.get(p.placeId()).isEmpty())
                 .toList();
-        Distribution distribution = distributeByDay(places, days, budgetCapOf(trip, places), mealsPerDay(trip),
-                itemsPerDay(trip), eventDays);
+        BudgetCap cap = budgetCapOf(trip, places);
+        Distribution distribution = distributeByDay(places, days, cap, mealsPerDay(trip), itemsPerDay(trip), eventDays);
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
+        SpareCandidates spare = new SpareCandidates(places, byDay, cap, coordinatesOf(places), eventDays);
 
         // 구간을 만들 때 필요한, 날짜별 "그 날 다녀올 장소" 원본 순서.
         List<List<UUID>> placeIdsByDay = new ArrayList<>();
@@ -277,7 +278,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             // 곧 "같은 조건이면 이쪽 먼저" 가 된다.
             dayPlaces = reorderByRoute(trip, dayIndex, lodging, dayPlaces);
 
-            List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate, verdicts);
+            List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate, verdicts, spare, dayIndex);
             // 칸에 앉힌 뒤 한 번 더 — 끼니 칸이 차례를 섞어 놓은 것을 동선으로 다시 푼다(S15P21E201-1547).
             placedToday = shortestSlotOrder(trip, dayIndex, lodging, placedToday, visitDate, verdicts);
             placedByDay.add(placedToday);
@@ -855,7 +856,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 순위 그대로 앉힌다.
      */
     private List<Placed> placeIntoSlots(Trip trip, List<ItineraryDraftCommand.PlannedPlace> dayPlaces,
-                                        LocalDate visitDate, ViolationMemo verdicts) {
+                                        LocalDate visitDate, ViolationMemo verdicts, SpareCandidates spare,
+                                        int dayIndex) {
 
         int count = dayPlaces.size();
         List<Placed> placed = new ArrayList<>(count);
@@ -878,6 +880,19 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     // 원하는 종류가 없다. 종류를 포기하고 영업시간만 본다 — 자리를 비우는 것보다는 낫다.
                     // "밥 때인데 밥집이 없다" 는 사실은 이미 distributeByDay 가 SIGHT_SLOT_UNFILLED 로 말한다.
                     chosen = firstOpen(dayPlaces, used, at, !wantFood, verdicts);
+                }
+            }
+
+            if (chosen < 0 && at != null) {
+                // 그날 남은 곳이 그 시각에 다 닫혔다 — 안 쓴 후보 가운데 여는 곳으로 바꾼다(S15P21E201-1632).
+                // 바뀐 곳에 밀린 그날 후보 하나는 끝까지 자리를 못 받고 빠진다.
+                ItineraryDraftCommand.PlannedPlace substitute = spare.openAt(dayIndex, dayPlaces, at, wantFood, verdicts);
+                if (substitute == null) {
+                    substitute = spare.openAt(dayIndex, dayPlaces, at, !wantFood, verdicts);
+                }
+                if (substitute != null) {
+                    placed.add(new Placed(substitute, slot, substitute.warningCodes()));
+                    continue;
                 }
             }
 
@@ -1136,6 +1151,88 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             return ItineraryOpeningHoursChecker.VIOLATION_LAST_ORDER;
         }
         return null;
+    }
+
+    /**
+     * 어느 날에도 안 앉힌 후보 — 그날 남은 곳이 그 시각에 다 닫혔을 때 바꿔 넣을 곳을 여기서 찾는다(S15P21E201-1632).
+     *
+     * <p>🔴 왜. 그날 남은 곳이 다 닫혔으면 순위대로 앉히고 「문 닫힘」 경고만 달았다. 운영 일정(최근 4일 161개)에
+     * 축제 말고도 18개 — 대부분 09~21시 마지막 칸(18시대)에 18시에 닫는 미술관, 월요일에 쉬는 책방. 여는 곳이
+     * 후보에 남아 있는데도 쓰지 않았다. 연 곳이 하나도 없을 때만 지금처럼 경고를 달고 앉힌다(사용자 결정).
+     *
+     * <p>바꿔 넣는 곳의 조건 — 날짜에 배분할 때와 같은 선을 지킨다: 순위 차례 · 원하는 종류(밥 칸이면 밥집 먼저) ·
+     * 기간이 정해진 곳(축제)은 그날 열어야 · 예산 상한을 안 넘어야 · 그날 곳들의 가운데에서 {@link #REGION_MIXED_KM}
+     * 안(좌표를 모르면 안 쓴다 — 멀지도 모른다). 한 번 쓴 후보는 다른 날에 또 안 쓴다.
+     */
+    private final class SpareCandidates {
+
+        private final List<ItineraryDraftCommand.PlannedPlace> places;
+
+        private final Set<UUID> taken = new HashSet<>();
+
+        private final BudgetCap cap;
+
+        private final Map<UUID, double[]> coords;
+
+        private final Map<UUID, Set<Integer>> eventDays;
+
+        SpareCandidates(List<ItineraryDraftCommand.PlannedPlace> candidates,
+                List<List<ItineraryDraftCommand.PlannedPlace>> byDay, BudgetCap cap, Map<UUID, double[]> coords,
+                Map<UUID, Set<Integer>> eventDays) {
+            Set<UUID> seated = new HashSet<>();
+            byDay.forEach(day -> day.forEach(p -> seated.add(p.placeId())));
+            this.places = candidates.stream().filter(p -> !seated.contains(p.placeId())).toList();
+            this.cap = cap;
+            this.coords = coords;
+            this.eventDays = eventDays;
+        }
+
+        /** 그날 그 시각에 여는, 원하는 종류의 첫 후보. 없으면 {@code null}. 찾으면 쓴 것으로 적는다. */
+        ItineraryDraftCommand.PlannedPlace openAt(int dayIndex, List<ItineraryDraftCommand.PlannedPlace> dayPlaces,
+                OffsetDateTime at, boolean food, ViolationMemo verdicts) {
+            double[] center = centerOf(dayPlaces);
+            for (ItineraryDraftCommand.PlannedPlace candidate : this.places) {
+                UUID id = candidate.placeId();
+                if (this.taken.contains(id) || isFood(candidate) != food) {
+                    continue;
+                }
+                Set<Integer> openDays = this.eventDays.get(id);
+                if (openDays != null && !openDays.contains(dayIndex)) {
+                    continue;
+                }
+                if (this.cap != null && this.cap.wouldExceed(candidate)) {
+                    continue;
+                }
+                double[] here = this.coords.get(id);
+                if (center != null && (here == null || haversineKm(center, here) > REGION_MIXED_KM)) {
+                    continue;
+                }
+                if (verdicts.at(id, at) == null) {
+                    this.taken.add(id);
+                    if (this.cap != null) {
+                        this.cap.take(candidate);
+                    }
+                    return candidate;
+                }
+            }
+            return null;
+        }
+
+        /** 그날 곳들의 좌표 가운데. 하나도 모르면 {@code null} — 그때는 거리로 거르지 않는다. */
+        private double[] centerOf(List<ItineraryDraftCommand.PlannedPlace> dayPlaces) {
+            double lat = 0;
+            double lng = 0;
+            int n = 0;
+            for (ItineraryDraftCommand.PlannedPlace p : dayPlaces) {
+                double[] c = this.coords.get(p.placeId());
+                if (c != null) {
+                    lat += c[0];
+                    lng += c[1];
+                    n++;
+                }
+            }
+            return n == 0 ? null : new double[] { lat / n, lng / n };
+        }
     }
 
     /**
