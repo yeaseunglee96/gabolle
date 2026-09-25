@@ -549,6 +549,72 @@ class ItineraryDraftServiceTest {
 				assertThat(item.warningCodes()).contains("OPENING_HOURS_CLOSED"));
 	}
 
+	// ── 그날 남은 곳이 다 닫혔을 때 (S15P21E201-1632) ──────────────────────
+
+	/**
+	 * 09:00~11:00 · 하루 4곳 — 끼니 칸이 없어 명소만 앉는다. 후보 다섯 중 넷이 그날 자리를 받고 다섯째가 남는다.
+	 * 넷째(D)는 늘 닫혀 있어 마지막 칸(10:30)에서 남은 곳이 D 하나뿐이다.
+	 */
+	private List<ItineraryDraftCommand.PlannedPlace> closedLastSlotCase(double[] spareAt) {
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(
+				tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10), LocalTime.of(9, 0), LocalTime.of(11, 0))));
+		return plannedPlacesAt(List.of("CULTURE_TEMPLE", "CULTURE_TEMPLE", "CULTURE_TEMPLE", "CULTURE_TEMPLE",
+				"CULTURE_TEMPLE"), List.of(new double[] { 35.100, 129.030 }, new double[] { 35.101, 129.031 },
+				new double[] { 35.102, 129.032 }, new double[] { 35.103, 129.033 }, spareAt));
+	}
+
+	@Test
+	@DisplayName("🔴 그날 남은 곳이 그 시각에 다 닫혔으면 안 쓴 후보 중 여는 곳으로 바꾼다 — 경고 없이")
+	void aClosedLastPlaceIsSwappedForAnOpenSpare() {
+		List<ItineraryDraftCommand.PlannedPlace> places = closedLastSlotCase(new double[] { 35.104, 129.034 });
+		UUID closed = places.get(3).placeId();
+		ItineraryDraftService service = serviceWith((placeId, at) -> placeId.equals(closed)
+				? OpeningHoursFilterPort.Answer.CLOSED
+				: OpeningHoursFilterPort.Answer.OPEN);
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.hasSize(4)
+				.contains(places.get(4).placeId())
+				.doesNotContain(closed);
+		assertThat(draft.items()).allSatisfy(item ->
+				assertThat(item.warningCodes()).doesNotContain("OPENING_HOURS_CLOSED"));
+	}
+
+	@Test
+	@DisplayName("안 쓴 후보도 그 시각에 다 닫혔으면 지금처럼 앉히고 경고를 단다")
+	void withoutAnOpenSpareTheClosedPlaceStaysWithAWarning() {
+		List<ItineraryDraftCommand.PlannedPlace> places = closedLastSlotCase(new double[] { 35.104, 129.034 });
+		UUID closed = places.get(3).placeId();
+		UUID spare = places.get(4).placeId();
+		ItineraryDraftService service = serviceWith((placeId, at) -> placeId.equals(closed) || placeId.equals(spare)
+				? OpeningHoursFilterPort.Answer.CLOSED
+				: OpeningHoursFilterPort.Answer.OPEN);
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId).contains(closed).doesNotContain(spare);
+		assertThat(draft.items()).filteredOn(item -> item.placeId().equals(closed))
+				.allSatisfy(item -> assertThat(item.warningCodes()).contains("OPENING_HOURS_CLOSED"));
+	}
+
+	@Test
+	@DisplayName("연 후보가 그날 동선에서 8km 넘게 떨어져 있으면 바꾸지 않는다 — 문 연 곳 하나 때문에 도시를 가로지르지 않게")
+	void aFarSpareIsNotUsed() {
+		List<ItineraryDraftCommand.PlannedPlace> places = closedLastSlotCase(new double[] { 35.180, 129.200 }); // 약 18km
+		UUID closed = places.get(3).placeId();
+		ItineraryDraftService service = serviceWith((placeId, at) -> placeId.equals(closed)
+				? OpeningHoursFilterPort.Answer.CLOSED
+				: OpeningHoursFilterPort.Answer.OPEN);
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.contains(closed)
+				.doesNotContain(places.get(4).placeId());
+	}
+
 	@Test
 	@DisplayName("활동 시간대가 없으면 문을 묻지 않는다 — 시각이 없으면 판정할 수가 없다")
 	void withoutATimeWindowNothingIsAsked() {
