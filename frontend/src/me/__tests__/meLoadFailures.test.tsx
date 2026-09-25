@@ -90,6 +90,9 @@ describe('F. 여행 취향 창', () => {
     expect(screen.getByText('다시 시도')).toBeTruthy();
     expect(screen.queryByText(/건너뛰셨어요/)).toBeNull();
     expect(screen.queryByText('아직 기억된 취향이 없어요')).toBeNull();
+    // 모르는데 줄마다 「답 안 함」이라고 하지 않는다 — 문항 줄을 숨긴다(조율 세션 결정).
+    expect(screen.queryByText('답 안 함')).toBeNull();
+    expect(screen.queryByText('오는 교통')).toBeNull();
   });
 
   it('정말 건너뛰었으면 「처음에 건너뛰셨어요」', async () => {

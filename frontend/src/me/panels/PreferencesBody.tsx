@@ -288,7 +288,9 @@ export function PreferencesBody() {
     {/* 넓은 화면에서는 두 그룹을 나란히. alignItems 를 'flex-start' 로 둬야 한 쪽 줄을
         펼쳤을 때 반대쪽 카드가 같이 늘어나지 않는다 — 늘어나면 빈 흰 바탕이 생긴다.
     */}
-    <View style={wide ? styles.groupsWide : undefined}>
+    {/* 🔴 못 불러왔으면 문항 줄을 숨긴다(S15P21E201-1681, 조율 세션 결정) — 모르는데 줄마다 「답 안 함」이라고 했다.
+        할 일은 위의 「다시 시도」 하나로 또렷하게. */}
+    {!saved.loadFailed && <View style={wide ? styles.groupsWide : undefined}>
     <View style={wide ? styles.groupColumn : undefined}>
     <Eyebrow>{tx('여행 스타일 세 질문', 'Three questions about your style')}</Eyebrow>
     <View style={styles.group}>
@@ -380,7 +382,7 @@ export function PreferencesBody() {
       })}
     </View>
     </View>
-    </View>
+    </View>}
 
     {/* 넓은 화면에서는 설명과 버튼이 한 줄에 눕는다. */}
     {answeredCount > 0 && <View style={[styles.dangerCard, wide && styles.dangerCardWide]}>
