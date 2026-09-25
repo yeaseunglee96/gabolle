@@ -162,6 +162,12 @@ public final class RecommendationCodes {
 	/** 위 코드들로 분류되지 않는, 예상하지 못한 실패. {@code RecommendationJobWorker} 의 마지막 방어선이 쓴다. */
 	public static final String ERROR_UNEXPECTED = "UNEXPECTED";
 
+	/**
+	 * 추천 실행기가 꽉 차(도는 것 + 줄이 다 참) 작업을 못 받았다 — 시작도 안 했다. 잠시 뒤 같은 요청이면 되므로
+	 * 다시 시도할 수 있다. 응답의 오류 코드도 같은 글자다 (S15P21E201-1685).
+	 */
+	public static final String ERROR_SERVER_BUSY = "SERVER_BUSY";
+
 	private RecommendationCodes() {
 	}
 }
