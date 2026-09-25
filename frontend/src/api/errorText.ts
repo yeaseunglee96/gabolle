@@ -2,6 +2,13 @@
 // 일정이 안 만들어졌고, 무엇이 문제인지 알 길이 없었다.
 import { ApiClientError } from '@/api/client';
 
+/**
+ * 서버가 이 기능을 아직 모를 때(404·501, 응답 모양이 다를 때) 사용자에게 하는 말 — S15P21E201-1664.
+ * 🔴 전에는 곳마다 「내 여행 목록 API가 아직 준비되지 않았어요」처럼 「API」라는 개발자 말을 보였다(8가지). 한 문장으로 모았다.
+ *    원인을 가르는 것은 사용자 몫이 아니다 — 무엇을 하면 되는지(잠시 뒤 다시)만 말한다.
+ */
+export const UNAVAILABLE_MESSAGE = '지금은 이 정보를 불러올 수 없어요. 잠시 뒤 다시 시도해 주세요.';
+
 /** 「error.trip.validation」처럼 문장이 아니라 키인가. */
 export function looksLikeMessageKey(message: string): boolean {
   const text = message.trim();

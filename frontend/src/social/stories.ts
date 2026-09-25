@@ -1,4 +1,5 @@
 import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL, APP_WEB_BASE_URL } from '@/api/client';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 import { singleFileFormData } from '@/api/multipart';
 import { txf } from '@/i18n/format';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
@@ -177,7 +178,7 @@ type FeedFailure = { state: 'unavailable' | 'offline' | 'error'; message: string
 
 function failure(error: unknown): FeedFailure {
   if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
-  if (error instanceof ApiClientError && error.code === 'INVALID_RESPONSE') return { state: 'unavailable', message: '기록 피드 API가 아직 준비되지 않았어요.' };
+  if (error instanceof ApiClientError && error.code === 'INVALID_RESPONSE') return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
   return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
 }
 

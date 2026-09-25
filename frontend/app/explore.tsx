@@ -140,7 +140,7 @@ export default function LocalExplore() {
 
       {!loading && result.state !== 'success' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
-          <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('로컬 탐색 API를 기다리고 있어요', 'Waiting for the local explore API') : tx('갈래를 불러오지 못했어요', 'Could not load categories')}</Text>
+          <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('갈래를 불러오지 못했어요', 'Could not load categories')}</Text>
           <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
           <Button label={tx('다시 시도', 'Try again')} variant="tertiary" compact onPress={() => void load()} />
         </View>
