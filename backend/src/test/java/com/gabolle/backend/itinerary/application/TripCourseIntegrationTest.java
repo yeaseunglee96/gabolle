@@ -175,6 +175,26 @@ class TripCourseIntegrationTest {
 		});
 	}
 
+	@Test
+	@DisplayName("🔴 미리보기에도 추천 이유가 실린다 — 2·3안 카드도 일정과 같은 줄을 그린다 (S15P21E201-1643)")
+	void aPreviewCarriesReasonCodes() {
+		UUID requestId = insertJob();
+		UUID placeId = insertPlace();
+		ItineraryDraft.DraftItem item = new ItineraryDraft.DraftItem(0, LocalDate.of(2026, 9, 10), 1, placeId,
+				UUID.randomUUID(), LocalTime.of(9, 30), LocalTime.of(10, 30), 60, "ESTIMATED",
+				List.of("NEAR_ORIGIN", "TOP_CONTRIBUTOR_interest"), List.of());
+		ItineraryDraft draft = new ItineraryDraft(this.tripId.toString(), this.owner.toString(), requestId, null, null,
+				null, null, null, List.of(item), List.of(), List.of());
+		ItineraryDraftService.DraftContent content = this.draftService.contentOf(draft, "preview", java.time.Instant.now());
+		TripQueryService.View view = this.tripQueryService.get(this.tripId.toString(), this.owner.toString());
+
+		ItineraryDetailResponse preview = this.queryService.preview(requestId + ":1", view.trip(), view.role(),
+				content.items(), content.legs(), List.of());
+
+		assertThat(preview.days().get(0).items()).singleElement()
+				.satisfies(i -> assertThat(i.reasonCodes()).containsExactly("NEAR_ORIGIN", "TOP_CONTRIBUTOR_interest"));
+	}
+
 	// ---- 시드 도우미 ----
 
 	private ItineraryDraft draftFor(UUID requestId, UUID placeId) {
