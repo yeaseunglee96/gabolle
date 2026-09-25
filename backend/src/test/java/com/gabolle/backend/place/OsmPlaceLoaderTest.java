@@ -25,6 +25,7 @@ import com.gabolle.backend.place.loader.OsmPlaceCategory;
 import com.gabolle.backend.place.loader.OsmPlaceLoader;
 import com.gabolle.backend.place.loader.OsmPoiReader;
 import com.gabolle.backend.place.loader.OsmPoiRow;
+import com.gabolle.backend.place.loader.SamePlaceGuard;
 import com.gabolle.backend.place.repository.PlaceRepository;
 
 /**
@@ -163,7 +164,7 @@ class OsmPlaceLoaderTest {
 	@DisplayName("🔴 같은 OSM 번호는 한 번만 넣는다 — 같은 파일을 두 번 돌려도 행이 두 배가 되지 않는다")
 	void theSameOsmIdIsStoredOnce() {
 		when(this.placeRepository.findAllById(anyIterable())).thenReturn(List.of());
-		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository);
+		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository, new SamePlaceGuard(this.placeRepository));
 
 		int saved = loader.saveChunk(List.of(
 				new OsmPoiRow(11L, "어느식당", "FOOD", null, 35.1, 129.0),
@@ -179,7 +180,7 @@ class OsmPlaceLoaderTest {
 		Place already = Place.imported(OsmPlaceLoader.placeIdOf(12L), "먼저 들어온 이름", "FOOD", null,
 				35.1, 129.0, "TOURAPI", "12", OffsetDateTime.now(), null, "tour-1");
 		when(this.placeRepository.findAllById(anyIterable())).thenReturn(List.of(already));
-		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository);
+		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository, new SamePlaceGuard(this.placeRepository));
 
 		int saved = loader.saveChunk(
 				List.of(new OsmPoiRow(12L, "OSM 이름", "FOOD", null, 35.1, 129.0)),
@@ -193,7 +194,7 @@ class OsmPlaceLoaderTest {
 	@DisplayName("출처와 번호를 그대로 남긴다 — 어디서 온 행인지 되짚을 수 있어야 한다")
 	void keepsTheSourceAndItsId() {
 		when(this.placeRepository.findAllById(anyIterable())).thenReturn(List.of());
-		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository);
+		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository, new SamePlaceGuard(this.placeRepository));
 
 		loader.saveChunk(List.of(new OsmPoiRow(368601281L, "부산게스트하우스", "LODGING", null, 35.1591, 129.1071)),
 				"osm-busan-2026-09", OffsetDateTime.now());

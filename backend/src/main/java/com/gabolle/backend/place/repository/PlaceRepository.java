@@ -91,6 +91,40 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			@Param("minLng") double minLng, @Param("maxLng") double maxLng, Limit limit);
 
 	/**
+	 * 경계상자 안의 <b>모든</b> 장소의 이름·갈래·좌표 — 적재기가 같은 장소를 다시 넣지 않으려고 본다
+	 * (S15P21E201-1620, {@code SamePlaceGuard}).
+	 *
+	 * <p>🔴 {@link #findWithinBoundingBox} 와 달리 상태를 가리지 않는다 — 합쳐진 줄·숨긴 줄·사용자가 고른 곳·문 닫은
+	 * 곳도 나온다. 합쳐진 줄과 같은 곳이 새 번호로 들어오면 합치기가 없던 일이 되고, 숨긴 곳이 새 번호로 들어오면 숨김이
+	 * 풀린다. 엔티티가 아니라 여섯 칸만 받는다 — 부산 전체가 한 덩어리에 걸리기도 한다.
+	 */
+	@Query("""
+			SELECT p.placeId AS placeId, p.nameKo AS nameKo, p.category AS category, p.lat AS lat, p.lng AS lng,
+			       p.sourceType AS sourceType
+			  FROM Place p
+			 WHERE p.lat BETWEEN :minLat AND :maxLat
+			   AND p.lng BETWEEN :minLng AND :maxLng
+			""")
+	List<NamedSpot> findNamedSpotsWithin(@Param("minLat") double minLat, @Param("maxLat") double maxLat,
+			@Param("minLng") double minLng, @Param("maxLng") double maxLng);
+
+	/** {@link #findNamedSpotsWithin} 의 한 줄. */
+	interface NamedSpot {
+
+		UUID getPlaceId();
+
+		String getNameKo();
+
+		String getCategory();
+
+		Double getLat();
+
+		Double getLng();
+
+		String getSourceType();
+	}
+
+	/**
 	 * 어떤 표식을 실제로 가진 장소만, 경계상자 안에서.
 	 *
 	 * <p>{@code evidenceStatus <> UNKNOWN} 이 빠지면 안 된다. UNKNOWN 행은 "그 표식이 있다" 가

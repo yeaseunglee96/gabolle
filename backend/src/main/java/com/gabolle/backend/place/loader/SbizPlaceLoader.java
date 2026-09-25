@@ -53,9 +53,13 @@ public class SbizPlaceLoader {
 
 	private final PlaceFeatureRepository placeFeatureRepository;
 
-	public SbizPlaceLoader(PlaceRepository placeRepository, PlaceFeatureRepository placeFeatureRepository) {
+	private final SamePlaceGuard samePlaceGuard;
+
+	public SbizPlaceLoader(PlaceRepository placeRepository, PlaceFeatureRepository placeFeatureRepository,
+			SamePlaceGuard samePlaceGuard) {
 		this.placeRepository = placeRepository;
 		this.placeFeatureRepository = placeFeatureRepository;
+		this.samePlaceGuard = samePlaceGuard;
 	}
 
 	/**
@@ -65,23 +69,50 @@ public class SbizPlaceLoader {
 	 *
 	 * <p>{@code datasetVersion} 이 없으면 이 장소로 만든 추천이 {@code VERSION_UNRESOLVED} 로
 	 * 실패한다.
+	 *
+	 * <p>🔴 번호가 달라도 <b>같은 곳이 이미 있으면 넣지 않는다</b>({@link SamePlaceGuard}, S15P21E201-1620) — 이름이 같고
+	 * 가까운 장소다. 상가 자료에는 같은 가게가 번호 둘로 있기도 하다(운영 「광안다이닝」 두 줄이 0m). 애매한 짝(체인
+	 * 30~150m)도 넣지 않고 {@code report} 에 사람 확인으로 남긴다.
 	 */
 	@Transactional
 	public int saveChunk(List<SbizRow> rows, String datasetVersion, OffsetDateTime collectedAt) {
+		return saveChunk(rows, datasetVersion, collectedAt, new SamePlaceReport());
+	}
+
+	/** {@link #saveChunk(List, String, OffsetDateTime)} 에 같은 곳 판정을 모을 자리를 준다 — 실행기가 적재 끝에 찍는다. */
+	@Transactional
+	public int saveChunk(List<SbizRow> rows, String datasetVersion, OffsetDateTime collectedAt,
+			SamePlaceReport report) {
 		List<UUID> ids = rows.stream().map(row -> placeIdOf(row.storeId())).toList();
 		Set<UUID> existing = new HashSet<>();
 		this.placeRepository.findAllById(ids).forEach(place -> existing.add(place.getPlaceId()));
 
-		List<Place> places = new ArrayList<>(rows.size());
-		List<PlaceFeature> features = new ArrayList<>(rows.size() * 2);
+		List<SbizRow> fresh = new ArrayList<>(rows.size());
 		for (SbizRow row : rows) {
+			// 이미 있거나(DB) 이 덩어리 안에서 중복된 상가업소번호면 건너뛴다.
+			if (existing.add(placeIdOf(row.storeId()))) {
+				fresh.add(row);
+			}
+		}
+		// 견주는 이름은 저장될 이름 그대로다 — 지점명을 붙이고 세미콜론을 자른 뒤.
+		List<SamePlaceGuard.Candidate> candidates = fresh.stream()
+				.map(row -> new SamePlaceGuard.Candidate(placeIdOf(row.storeId()),
+						PlaceNames.primary(row.displayName()), categoryOf(row), row.lat(), row.lng(), SOURCE_TYPE,
+						row.storeId()))
+				.toList();
+		List<SamePlaceGuard.Verdict> verdicts = this.samePlaceGuard.screen(candidates);
+
+		List<Place> places = new ArrayList<>(fresh.size());
+		List<PlaceFeature> features = new ArrayList<>(fresh.size() * 2);
+		for (int i = 0; i < fresh.size(); i++) {
+			SbizRow row = fresh.get(i);
 			UUID placeId = placeIdOf(row.storeId());
-			if (!existing.add(placeId)) {
-				// 이미 있거나(DB) 이 덩어리 안에서 중복된 상가업소번호다.
+			if (verdicts.get(i) != null) {
+				report.record(candidates.get(i), verdicts.get(i));
 				continue;
 			}
 			Set<String> categoryTags = AppFoodVocabulary.categoryTags(row.subCategory());
-			String category = categoryTags.contains("CAFE_HEALING") ? "CAFE_HEALING" : "FOOD";
+			String category = categoryOf(row);
 			// 이름의 세미콜론(옛 이름·다른 이름)은 한 이름만 — PlaceNames(S15P21E201-1637)
 			places.add(Place.imported(placeId, cut(PlaceNames.primary(row.displayName()), NAME_MAX), category,
 					cut(row.address(), ADDRESS_MAX), row.lat(), row.lng(),
@@ -105,6 +136,11 @@ public class SbizPlaceLoader {
 		this.placeRepository.saveAll(places);
 		this.placeFeatureRepository.saveAll(features);
 		return places.size();
+	}
+
+	/** 업종에 카페 표식이 있으면 카페, 아니면 음식점 — 이 적재기가 넣는 갈래는 둘뿐이다. */
+	private static String categoryOf(SbizRow row) {
+		return AppFoodVocabulary.categoryTags(row.subCategory()).contains("CAFE_HEALING") ? "CAFE_HEALING" : "FOOD";
 	}
 
 	private static PlaceFeature feature(UUID placeId, String storeId, String featureType, String featureKey,
