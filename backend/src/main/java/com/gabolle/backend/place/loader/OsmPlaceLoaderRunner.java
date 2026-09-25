@@ -74,15 +74,18 @@ public class OsmPlaceLoaderRunner implements ApplicationRunner {
 
 		OffsetDateTime collectedAt = OffsetDateTime.now();
 		AtomicInteger inserted = new AtomicInteger();
+		SamePlaceReport samePlaces = new SamePlaceReport();
 		long startedAt = System.nanoTime();
 		LOGGER.info("OSM 장소 적재를 시작한다 — 파일={} 수집분={}", poi.toAbsolutePath(), this.datasetVersion);
 
 		OsmPoiReader.Counts counts = OsmPoiReader.read(poi, CHUNK,
-				(chunk) -> inserted.addAndGet(this.loader.saveChunk(chunk, this.datasetVersion, collectedAt)));
+				(chunk) -> inserted.addAndGet(
+						this.loader.saveChunk(chunk, this.datasetVersion, collectedAt, samePlaces)));
 
 		long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000L;
 		LOGGER.info("OSM 장소 적재를 마쳤다 — {} · 새로 넣은 장소 {}곳 · 이미 있어 건너뛴 {}곳 · {}ms",
-				counts, inserted.get(), counts.taken() - inserted.get(), elapsedMs);
+				counts, inserted.get(), counts.taken() - inserted.get() - samePlaces.notInserted(), elapsedMs);
+		samePlaces.finish(poi, OsmPlaceLoader.SOURCE_TYPE, this.datasetVersion, LOGGER);
 		// ODbL 은 출처 표기가 조건이다. 적재 로그에 남겨 두면 나중에 "이 행들이 어디서 왔나" 를
 		// 로그만 보고도 안다 — 화면 표기는 이것으로 대신할 수 없다.
 		LOGGER.info("이 장소들의 출처는 © OpenStreetMap contributors (ODbL) 다 — 화면에 표기가 필요하다");

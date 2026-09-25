@@ -74,16 +74,18 @@ public class SbizLoaderRunner implements ApplicationRunner {
 
 		OffsetDateTime collectedAt = OffsetDateTime.now();
 		AtomicInteger inserted = new AtomicInteger();
+		SamePlaceReport samePlaces = new SamePlaceReport();
 		long startedAt = System.nanoTime();
 		LOGGER.info("상가정보 적재를 시작한다 — 파일={} 수집분={}", csv.toAbsolutePath(), this.datasetVersion);
 
 		SbizCsvReader.Counts counts = SbizCsvReader.readFoodRows(csv, CHUNK,
-				chunk -> inserted.addAndGet(this.loader.saveChunk(chunk, this.datasetVersion, collectedAt)));
+				chunk -> inserted.addAndGet(this.loader.saveChunk(chunk, this.datasetVersion, collectedAt, samePlaces)));
 
 		long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000L;
 		// "넣은 것" 과 "이미 있어 건너뛴 것" 을 갈라서 남긴다. 합계만 남기면 두 번째 실행이
 		// 성공인지 아무것도 안 한 것인지 구분할 수 없다.
 		LOGGER.info("상가정보 적재를 마쳤다 — {} · 새로 넣은 장소 {}곳 · 이미 있어 건너뛴 {}곳 · {}ms",
-				counts, inserted.get(), counts.food() - inserted.get(), elapsedMs);
+				counts, inserted.get(), counts.food() - inserted.get() - samePlaces.notInserted(), elapsedMs);
+		samePlaces.finish(csv, SbizPlaceLoader.SOURCE_TYPE, this.datasetVersion, LOGGER);
 	}
 }
