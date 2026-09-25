@@ -157,7 +157,13 @@ export function useTripPage(source: TripPageSource) {
     () => [...map.days, ...(back && !back.approximate ? [back.day] : []), ...(start && !start.approximate ? [start.day] : [])],
     [map, back, start],
   );
-  const legs = useCourseRoutePaths(legDays, accessToken);
+  // 들어오는 구간이 걷기인 정차지 — 일정 항목의 walkingMeters 가 있는 곳(백엔드: 그 구간이 도보가 아니면 null).
+  // 걷는 구간만 걷기로 받아 경사 조각을 칠한다(S15P21E201-1658). 스위치(courseRoutePaths 의 WALK_SLOPE_ROUTES)가 꺼져 있으면 안 쓴다.
+  const walkInto = useMemo(
+    () => new Set((loaded?.days ?? []).flatMap((day) => day.items).filter((item) => item.walkingMeters != null).map((item) => item.id)),
+    [loaded],
+  );
+  const legs = useCourseRoutePaths(legDays, accessToken, { walkInto });
   const routes = useMemo(
     () => [
       ...(start ? [returnRoute(start, color.brand.navy, legs)] : []),

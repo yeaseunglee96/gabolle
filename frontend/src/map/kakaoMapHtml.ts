@@ -192,12 +192,16 @@ export function buildKakaoMapHtml(appKey: string): string {
     //    어림 구간을 짧은 점선으로 그리던 것이 촘촘한 꺾임을 따라 끊기며 떨려 보였다. 어림은 옅게 그린다.
     lineRecords = [];
     var tolerance = metersPerPixel() * SIMPLIFY_PIXELS;
-    function drawRouteLine(linePoints, lineColor, opacity) {
-      var linePath = toPath(simplify(linePoints, tolerance));
-      var casing = new maps.Polyline({ path: linePath, strokeWeight: ROUTE_WEIGHT + CASING_EXTRA, strokeColor: colors.casing, strokeOpacity: 0.95, strokeStyle: 'solid' });
-      var routeLine = new maps.Polyline({ path: linePath, strokeWeight: ROUTE_WEIGHT, strokeColor: lineColor, strokeOpacity: opacity, strokeStyle: 'solid' });
-      casing.setMap(map); routeLine.setMap(map); overlays.push(casing, routeLine);
-      lineRecords.push({ points: linePoints, lines: [casing, routeLine] });
+    // 흰 테두리는 경로 전체에 한 번, 그 위에 조각별 색 선 — 웹과 같다. parts = [{ points, color }].
+    function drawRouteLine(linePoints, parts, opacity) {
+      var casing = new maps.Polyline({ path: toPath(simplify(linePoints, tolerance)), strokeWeight: ROUTE_WEIGHT + CASING_EXTRA, strokeColor: colors.casing, strokeOpacity: 0.95, strokeStyle: 'solid' });
+      casing.setMap(map); overlays.push(casing);
+      lineRecords.push({ points: linePoints, lines: [casing] });
+      for (var pi = 0; pi < parts.length; pi++) {
+        var routeLine = new maps.Polyline({ path: toPath(simplify(parts[pi].points, tolerance)), strokeWeight: ROUTE_WEIGHT, strokeColor: parts[pi].color, strokeOpacity: opacity, strokeStyle: 'solid' });
+        routeLine.setMap(map); overlays.push(routeLine);
+        lineRecords.push({ points: parts[pi].points, lines: [routeLine] });
+      }
     }
     for (var r = 0; r < routes.length; r++) {
       var route = routes[r];
@@ -205,7 +209,8 @@ export function buildKakaoMapHtml(appKey: string): string {
       if (points.length < 2) continue;
       // 실제 길 좌표가 있고 "추정 아님" 이라고 적혀 있을 때만 진하다. 나머지는 어림이라 옅다.
       var real = !!(route.path && route.path.length) && route.estimated === false;
-      if (route.weight == null) { drawRouteLine(points, route.color, route.opacity != null ? route.opacity : (real ? REAL_OPACITY : ESTIMATED_OPACITY)); continue; }
+      // 걷는 길의 경사 조각 — 앱(RouteMap.native.tsx)이 slopeGrades.ts 로 잘라 색을 붙여 segments 로 보낸다(S15P21E201-1658).
+      if (route.weight == null) { drawRouteLine(points, route.segments && route.segments.length ? route.segments : [{ points: points, color: route.color }], route.opacity != null ? route.opacity : (real ? REAL_OPACITY : ESTIMATED_OPACITY)); continue; }
       // 경사·그늘 겹(굵기를 직접 준 선)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
       var line = new maps.Polyline({ path: toPath(points), strokeWeight: route.weight, strokeColor: route.color, strokeOpacity: route.opacity != null ? route.opacity : (real ? 0.9 : 0.75), strokeStyle: real ? 'solid' : 'shortdash' });
       line.setMap(map); overlays.push(line);

@@ -1,4 +1,5 @@
 import { apiRequest, ApiClientError } from '@/api/client';
+import type { SlopePiece } from '@/map/slopeGrades';
 
 // 계약: backend/src/main/java/com/gabolle/backend/route/presentation/RouteController.java
 // (-184). 좌표 두 개만 있으면 되는 일이라 여행·일정에 매달지 않는다 — 컨트롤러
@@ -21,6 +22,11 @@ export type RouteDirections = {
   provider: string;
   path: [number, number][];
   steps: RouteStep[];
+  /**
+   * 걷는 길의 경사 조각(백엔드 !1626, S15P21E201-1630). 우리 보행 길찾기가 찾은 걷기(provider OSM_WALK_GRAPH ·
+   * estimated false)에만 차고 나머지는 빈 배열이다. 그 전의 서버는 칸이 없다.
+   */
+  pieces?: SlopePiece[];
 };
 
 export type RouteDirectionsResult =
