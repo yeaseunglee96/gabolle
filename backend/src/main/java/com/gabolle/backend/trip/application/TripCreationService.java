@@ -8,8 +8,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -19,6 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gabolle.backend.event.application.EventIngestService;
+import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TimeWindows;
@@ -106,6 +110,17 @@ public class TripCreationService {
      * {@code GABOLLE_TRIP_LODGING_REQUIRED=true} 로 켠다. 추천 요청 쪽({@code RecommendationJobRunner})도 같은 스위치다.
      */
     private boolean lodgingRequired;
+
+    /**
+     * 사람이 여행을 만들며 직접 넣은 것을 이벤트로 남기는 곳(S15P21E201-1689) — 이벤트 패키지를 안 올리는 테스트 슬라이스에서는
+     * 없다. 생성자가 아니라 설정자로 받는 것은 이 서비스를 직접 만드는 시험이 많아서다.
+     */
+    private EventIngestService events;
+
+    @Autowired(required = false)
+    public void setEvents(EventIngestService events) {
+        this.events = events;
+    }
 
     @Value("${gabolle.trip.lodging-required:false}")
     public void setLodgingRequired(boolean lodgingRequired) {
@@ -231,6 +246,7 @@ public class TripCreationService {
             preferenceDefaults.carryOver(command.userId(), storedPreferences);
             saveMustVisitPlaces(outcome.trip().tripId(), command.mustVisitPlaceIds(), now);
             saveTravelAreas(outcome.trip().tripId(), command.travelAreas());
+            recordExplicitInputs(outcome.trip(), command, storedPreferences, constraints);
         }
 
         return new Result(outcome.trip(), outcome.snapshot(), outcome.created());
@@ -280,6 +296,66 @@ public class TripCreationService {
      * 여기서 400 을 내면 "동의가 없다" 와 "ID 가 이상하다" 가 다른 오류로 갈라지는데, 둘 다 할 일은
      * 저장하지 않는 것 하나다. 가드가 {@code null} 을 미동의로 다룬다.
      */
+    /**
+     * 여행을 만들며 사람이 직접 넣은 것을 이벤트로 남긴다 (S15P21E201-1689) — 계획서 P0 의 {@code trip_created} 1건 · 답한 취향마다
+     * {@code preference_set}(scope TRIP) · 답한 제약마다 {@code constraint_set}. 전에는 종류만 정의돼 있고 내는 곳이 없어 운영에
+     * 한 건도 없었다.
+     *
+     * <p>같은 트랜잭션이다(아웃박스) — 여행 저장이 되돌려지면 이벤트도 없다. 동의와 무관하다 — 행동 관찰이 아니라 명시
+     * 입력이다({@code EventType.BEHAVIOR_SIGNALS} 에 없다).
+     *
+     * <p>🔴 싣지 않는 것: 출발지 좌표(지역 코드도 없이 「있다」만), 제약 값, <b>제약 항목 이름</b>. 항목 이름을 모든 제약에서
+     * 빼는 까닭(2026-09-25 결정) — 「개인화 정보로 이미 가지고 있다」는 원칙이 이름에도 같고, 민감 판정
+     * ({@link TripConstraint#isSensitive})이 알레르기·꼭 지킬 식단만 거른다. 휠체어(장애 = 건강 정보)·선호 식단의
+     * HALAL·KOSHER(종교) 같은 민감정보가 그 판정을 지나 이름으로 실린다. 남기는 것은 종류 · 값 유무 · 반드시 여부 · 답 상태다.
+     * 비로그인(ANONYMOUS) 여행은 사람 축 이벤트(취향·제약)를 적을 사람이 없어 {@code trip_created} 만 남긴다.
+     */
+    private void recordExplicitInputs(Trip trip, Command command, List<PreferenceSnapshot.PreferenceAnswer> preferences,
+            List<TripConstraint> constraints) {
+        if (this.events == null) {
+            return;
+        }
+        UUID tripId = UUID.fromString(trip.tripId());
+        UUID userId = trip.ownerType() == Trip.OwnerType.USER ? asUuidOrNull(command.userId()) : null;
+
+        Map<String, Object> created = new LinkedHashMap<>();
+        created.put("trip_version", 1); // 새 여행은 1판이다
+        created.put("start_date", String.valueOf(trip.startDate()));
+        created.put("finish_date", String.valueOf(trip.finishDate()));
+        created.put("party_size", trip.partySize());
+        created.put("budget_krw", trip.budgetKrw());
+        created.put("time_window", trip.timeWindow());
+        created.put("pace", trip.pace());
+        created.put("travel_modes", List.of(trip.travelModes()));
+        created.put("travel_areas", command.travelAreas() == null ? List.of() : List.copyOf(command.travelAreas()));
+        created.put("accommodation_area", trip.accommodationArea());
+        created.put("has_accommodation_place", trip.accommodationPlaceId() != null);
+        created.put("must_visit_count", command.mustVisitPlaceIds() == null ? 0 : command.mustVisitPlaceIds().size());
+        created.put("has_origin", trip.originLat() != null && trip.originLng() != null);
+        this.events.recordFromServer(UUID.randomUUID(), EventType.TRIP_CREATED, 1, userId, tripId, null, created);
+
+        if (userId == null) {
+            return;
+        }
+        for (PreferenceSnapshot.PreferenceAnswer answer : preferences) {
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("scope", "TRIP");
+            payload.put("dimension", answer.dimension());
+            payload.put("value", answer.valueJson());
+            payload.put("answer_status", answer.status() == null ? null : answer.status().name());
+            this.events.recordFromServer(UUID.randomUUID(), EventType.PREFERENCE_SET, 1, userId, tripId, null, payload);
+        }
+        for (TripConstraint constraint : constraints) {
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("scope", "TRIP");
+            payload.put("constraint_type", constraint.type());
+            payload.put("has_value", constraint.value() != null || constraint.threshold() != null);
+            payload.put("hard", constraint.severity() == TripConstraint.Severity.HARD);
+            payload.put("answer_status", constraint.answerStatus() == null ? null : constraint.answerStatus().name());
+            this.events.recordFromServer(UUID.randomUUID(), EventType.CONSTRAINT_SET, 1, userId, tripId, null, payload);
+        }
+    }
+
     private static UUID asUuidOrNull(String userId) {
         try {
             return (userId == null) ? null : UUID.fromString(userId);

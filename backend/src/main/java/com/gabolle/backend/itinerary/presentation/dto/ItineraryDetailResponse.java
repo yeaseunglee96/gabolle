@@ -171,6 +171,13 @@ public record ItineraryDetailResponse(
 			List<String> reasonCodes,
 
 			/**
+			 * 이 방문지를 낸 추천 요청 번호({@code itinerary_item.source_request_id}). 사용자가 손으로 더한 곳은 {@code null}
+			 * (S15P21E201-1689). 앱이 추천 노출 이벤트({@code recommendation_impression})를 보낼 때 이 번호와 {@code placeId}
+			 * 만 실으면 된다 — 순위·이유 코드·판은 서버가 이 번호로 채운다. 전에는 응답에 없어 노출을 보낼 수 없었다.
+			 */
+			String requestId,
+
+			/**
 			 * 이 방문지의 좌표. 모르면 {@code null} 이지 {@code 0} 이 아니다 — 위도 0·경도 0 은
 			 * 기니만 바다 한가운데이고 지도에 실제로 점이 찍힌다.
 			 */

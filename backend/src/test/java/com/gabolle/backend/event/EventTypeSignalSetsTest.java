@@ -56,6 +56,13 @@ class EventTypeSignalSetsTest {
 		assertThat(EventType.RECOMMENDATION_FAILED.isBehaviorSignal()).isFalse();
 	}
 
+	@Test
+	@DisplayName("🔴 S15P21E201-1689 — 노출은 추천 품질을 재는 기록이다: 동의와 무관하게 적고, 취향을 세는 데는 안 쓴다")
+	void impressionMeasuresQualityNotTaste() {
+		assertThat(EventType.RECOMMENDATION_IMPRESSION.isBehaviorSignal()).isFalse();
+		assertThat(EventType.tasteSignalWireNames()).doesNotContain("recommendation_impression");
+	}
+
 	/**
 	 * {@code TasteVectorFoldService} 가 대문자 목록을 {@code event_outbox.event_type} 과
 	 * 비교하던 고장을 막는다. 그 칸에 실제로 들어가는 값은 {@link EventType#wireName()} 이
