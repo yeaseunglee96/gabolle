@@ -143,11 +143,6 @@ export function formatFeatureSlot(slot: FeatureSlot | undefined, tx: (ko: string
   return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
 }
 
-// 로컬점수(LOCALITY_SCORE) 유무만 확인 — 값 칸 이름이 미정이라 숫자는 안 꺼내고 배지만 표시.
-export function hasLocalityScore(place: Place) {
-  return place.features.some((feature) => feature.featureType === 'LOCALITY_SCORE');
-}
-
 // category 값 목록이 미확정이라 식당·카페 키워드로 식음료 장소를 추정한다.
 function isFoodPlace(category: string) {
   return /FOOD|RESTAURANT|CAFE|맛집|카페|식당/i.test(category);
