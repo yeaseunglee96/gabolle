@@ -18,7 +18,7 @@ export type TripPageCourses =
     state: 'ready';
     tripId: string;
     courses: TripCourse[];
-    /** 서버가 3안을 보냈나. false 면 화면이 「세 코스 비교는 준비 중」을 말한다. */
+    /** 서버가 3안을 보냈나. false 면 화면이 한 안만 그린다(「비교는 준비 중」 같은 말은 안 한다 — S15P21E201-1662). */
     full: boolean;
     /** 확정한 코스의 id. 추천에서 왔으면 null — 확정 전에는 어느 코스도 내 일정이 아니다(시안 README). */
     confirmedCourseId: string | null;
