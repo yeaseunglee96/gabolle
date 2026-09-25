@@ -217,8 +217,8 @@ export function ReplyCard({
           />
           {saveError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{saveError}</Text> : null}
           <View style={styles.confirmButtons}>
-            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={saving} onPress={() => setEditing(false)} containerStyle={styles.confirmButton} />
-            <Button label={saving ? tx('저장 중…', 'Saving…') : tx('저장', 'Save')} variant="secondary" disabled={saving || !draft.trim()} onPress={() => void saveEdit()} containerStyle={styles.confirmButton} />
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={saving} onPress={() => setEditing(false)} compact />
+            <Button label={saving ? tx('저장 중…', 'Saving…') : tx('저장', 'Save')} variant="secondary" disabled={saving || !draft.trim()} onPress={() => void saveEdit()} compact />
           </View>
         </View>
       ) : (
@@ -233,8 +233,8 @@ export function ReplyCard({
         <View style={styles.confirmRow}>
           <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('댓글을 삭제할까요?', 'Delete this comment?')}</Text>
           <View style={styles.confirmButtons}>
-            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
-            <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} compact />
+            <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} compact />
           </View>
         </View>
       ) : null}
@@ -614,8 +614,8 @@ export default function StoryDetail() {
               <View style={styles.confirmRow}>
                 <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('정말 삭제할까요? 되돌릴 수 없어요.', 'Delete this record? This cannot be undone.')}</Text>
                 <View style={styles.confirmButtons}>
-                  <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
-                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
+                  <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} compact />
+                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} compact />
                 </View>
               </View>
             ) : null}
@@ -766,7 +766,6 @@ const styles = StyleSheet.create({
   confirmRow: { flex: 1, gap: spacing[2] },
   confirmText: { textAlign: 'right' },
   confirmButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[2] },
-  confirmButton: { width: 'auto', paddingHorizontal: spacing[4] },
   recoveryButton: { marginTop: spacing[2] },
 
   // 지표 줄 — 댓글 머리 바로 위. 붙는 자리라 위 여백만 준다.
