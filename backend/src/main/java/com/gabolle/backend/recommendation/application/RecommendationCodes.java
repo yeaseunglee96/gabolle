@@ -79,6 +79,14 @@ public final class RecommendationCodes {
 	 */
 	public static final String WARNING_DIET_SUPPORT_UNVERIFIED = "DIET_SUPPORT_UNVERIFIED";
 
+	/**
+	 * 이 알레르기 재료가 들었는지 <b>안 재 봤다</b>는 경고 — S15P21E201-1633. 앱이 더 묻지 않는 알레르기의 옛 「반드시」
+	 * 답이 남은 여행에만 나온다. 「들었다」(확인된 {@code ALLERGEN_PRESENT})와 다른 사실이다.
+	 *
+	 * <p>🔴 앱의 경고 사전(`warningLabels.ts`)에 이 이름이 있어야 화면에 나온다 — 없으면 조용히 사라진다.
+	 */
+	public static final String WARNING_ALLERGEN_UNVERIFIED = "ALLERGEN_UNVERIFIED";
+
 	/** 이 후보가 편집자가 고른 목록에서 왔다. */
 	public static final String REASON_EDITORIAL_PICK = "EDITORIAL_PICK";
 
