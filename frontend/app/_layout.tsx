@@ -18,6 +18,7 @@ import { ApiAvailabilityBanner } from '@/components/ApiAvailabilityBanner';
 import { BuildInfoBadge } from '@/components/BuildInfoBadge';
 import { OnboardingPreferencesProvider, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
+import { PolicyUpdateNotice } from '@/legal/PolicyUpdateNotice';
 import { TopNav } from '@/nav/TopNav';
 import { queryClient } from '@/api/queryClient';
 import { attachNotificationNavigation, installNotificationHandler } from '@/notifications/pushToken';
@@ -99,6 +100,8 @@ export default function RootLayout() {
                     contentStyle: { backgroundColor: color.canvas },
                   }}
                 />
+                {/* 처리방침이 바뀌면 한 번 알린다 — 로그인한 사람에게만, 서버가 지금 판을 알려 줄 때만(S15P21E201-1694). */}
+                <PolicyUpdateNotice />
               </View>
             </PlanProvider>
           </AuthProvider>
