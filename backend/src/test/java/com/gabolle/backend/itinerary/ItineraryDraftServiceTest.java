@@ -2064,4 +2064,74 @@ class ItineraryDraftServiceTest {
 		});
 	}
 
+	/**
+	 * 빼기는 판을 옮기지 않고 그날 구간을 새로 잰다 (S15P21E201-1706). B 를 빼면 A→C 라는 새 쌍이 생기는데, 그 쌍의 길을
+	 * 경로 쪽이 모르면 비워 둔다 — 바탕 판의 A→B · B→C 길이나 요금을 옮겨 붙이면 지도에 틀린 길이 그려진다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-1706 — 빼기로 생긴 새 쌍(A→C)은 다른 쌍의 길 선 · 요금을 받지 않는다")
+	void removingAStopNeverBorrowsAnotherPairsPathOrFare() {
+		double[] a = { 35.10, 129.01 };
+		double[] b = { 35.11, 129.02 };
+		double[] c = { 35.12, 129.03 };
+		List<Place> rows = new ArrayList<>();
+		List<String> placeIds = new ArrayList<>();
+		for (double[] at : List.of(a, b, c)) {
+			UUID placeId = UUID.randomUUID();
+			placeIds.add(placeId.toString());
+			rows.add(Place.imported(placeId, "곳", null, "부산", at[0], at[1], "TEST", "t-" + placeId, null, null, "v1"));
+		}
+		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(rows);
+		when(this.tripRepository.findById("itn_trip_1"))
+				.thenReturn(Optional.of(tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10))));
+
+		// 경로 쪽은 A→C 길을 모른다(선형 · 요금 없음). 출발지가 없는 첫 구간도 모른다. 나머지 쌍은 자기 길을 준다.
+		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) -> {
+			boolean aToC = fromLat != null && fromLat == a[0] && toLat == c[0];
+			if (fromLat == null || aToC) {
+				return new TravelTime(2_000, 15, ItineraryItem.DataStatus.ESTIMATED);
+			}
+			return new TravelTime(1_000, 10, ItineraryItem.DataStatus.VERIFIED, 3_300,
+					List.of(new double[] { fromLng, fromLat }, new double[] { toLng, toLat }));
+		};
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(port);
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		ItineraryDraftService reviser = new ItineraryDraftService(this.tripRepository, itineraries, CLOCK, 4, 3, "FOOD", 1,
+				new ItineraryLegPlanner(this.placeRepository, provider), tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT),
+				noRouteOrder(), this.placeRepository, noEvents());
+
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		List<ItineraryItem> baseItems = new ArrayList<>();
+		for (int i = 0; i < 3; i++) {
+			baseItems.add(new ItineraryItem(UUID.randomUUID().toString(), base.itineraryVersionId(), "key_" + i, 0,
+					LocalDate.of(2026, 9, 10), i + 1, placeIds.get(i), null, null, null, false, null,
+					ItineraryItem.DataStatus.VERIFIED, List.of(), List.of(), null, Instant.now()));
+		}
+		List<double[]> storedPath = List.of(new double[] { 1.0, 1.0 }, new double[] { 2.0, 2.0 });
+		List<ItineraryLeg> baseLegs = List.of(
+				new ItineraryLeg(UUID.randomUUID().toString(), base.itineraryVersionId(), 0, 2, placeIds.get(0), placeIds.get(1),
+						"WALK", 1_000, 10, null, null, null, ItineraryItem.DataStatus.VERIFIED, 9_900, storedPath, 10, Instant.now()),
+				new ItineraryLeg(UUID.randomUUID().toString(), base.itineraryVersionId(), 0, 3, placeIds.get(1), placeIds.get(2),
+						"WALK", 1_000, 10, null, null, null, ItineraryItem.DataStatus.VERIFIED, 9_900, storedPath, 10, Instant.now()));
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(base, baseItems, baseLegs, List.of())));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		reviser.publish(reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1, "usr_1",
+				JobType.ITEM_REMOVE, 0, "key_1", List.of(), null, List.of(), "m", "f", "o", "p", "d")));
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryLeg>> legs = ArgumentCaptor.forClass(List.class);
+		verify(itineraries).appendVersion(any(), any(), legs.capture(), any());
+		ItineraryLeg aToC = legs.getValue().stream()
+				.filter((leg) -> placeIds.get(0).equals(leg.fromPlaceId()) && placeIds.get(2).equals(leg.toPlaceId()))
+				.findFirst().orElseThrow();
+		assertThat(aToC.path()).as("A→C 는 경로 쪽이 모른다 — 바탕 판의 길을 옮겨 붙이지 않는다").isNull();
+		assertThat(aToC.fareKrw()).isNull();
+		assertThat(legs.getValue()).noneSatisfy((leg) -> assertThat(leg.fareKrw()).isEqualTo(9_900));
+	}
+
 }
