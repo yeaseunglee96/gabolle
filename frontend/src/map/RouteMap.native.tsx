@@ -75,7 +75,7 @@ export function RouteMap({
       // 아래가 창에 가려진 만큼 맞추기 여백을 더 둔다(S15P21E201-1607, 웹과 같은 셈 — mapFocus.ts).
       // 🔴 이 값만 바뀌어서는 다시 보내지 않는다 — 창을 여닫을 때마다 지도가 다시 맞춰져 튀면 안 된다.
       fitPadding: fitPadding(bottomInset, height),
-      colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas },
+      colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas, casing: color.surface.card },
       focus: focusSelected,
       shiftY: focusShiftY(bottomInset, height),
     };

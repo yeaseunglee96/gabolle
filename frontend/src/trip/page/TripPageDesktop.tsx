@@ -290,7 +290,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                   </Pressable>
                 );
               })}
-              {anyEstimatedLine ? <View style={styles.lineNote}><Text variant="caption" color={color.text.body}>{tx('점선은 실제 길이 아니라 장소를 곧게 이은 선이에요. 이동 시간은 어림값이에요.', 'Dashed lines connect places directly, not along real roads. Travel times are estimates.')}</Text></View> : null}
+              {anyEstimatedLine ? <View style={styles.lineNote}><Text variant="caption" color={color.text.body}>{tx('옅은 선은 어림한 길이라 실제로 가는 길과 다를 수 있어요. 이동 시간도 어림값이에요.', 'Faded lines are estimates and may differ from the way you actually go. Travel times are estimates too.')}</Text></View> : null}
             </View>
             <View style={styles.bigMap}>{mapPanel(bigMapHeight)}</View>
           </View>
