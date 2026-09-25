@@ -40,6 +40,7 @@ import {
 } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
+import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
 import { drift, isToday, localDateKey, needsManualArrival, saysStartsIn, stepStates, type StepState } from '@/plan/tripProgress';
 import { humanTripTitle } from '@/trip/tripNaming';
@@ -711,6 +712,7 @@ function TimelineStop({ item, startKind, index, last, date, photo, step, risky, 
   onToggle: () => void; onLock: () => void; onArrive: () => void; onExclude: () => void; tx: Tx; locale: string;
 }) {
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
+  const reason = pickReasonLine(item.reasonCodes);
   const done = step === 'done';
   const label = photo?.category ? PLACE_CATEGORY_LABELS[photo.category] : undefined;
   // 🔴 값이 없는 칸은 만들지 않는다 — 「비용 미정」을 줄마다 적으면 빈 칸이 화면에서 제일 눈에 띈다(itinerary.tsx 와 같은 규칙).
@@ -769,6 +771,9 @@ function TimelineStop({ item, startKind, index, last, date, photo, step, risky, 
                 {done ? <View style={styles.chipDone}><Text variant="micro" weight="bold" color={color.state.success}>{tx('✓ 다녀옴', '✓ Visited')}</Text></View> : null}
               </View>
               {meta ? <Text variant="caption" color={color.text.muted}>{meta}</Text> : null}
+              {/* 왜 이 곳인지 하나 — 없으면 줄째 안 그린다(S15P21E201-1645). 폰 카드는 글자 칸이 좁아 한 줄이면
+                  「다른 곳보다 거리가 돋…」처럼 핵심 말이 잘려서 두 줄까지 둔다. */}
+              {reason ? <Text variant="caption" color={color.text.body} numberOfLines={2}>{reason}</Text> : null}
               {risky ? <Text variant="micro" weight="bold" color={color.state.danger}>{tx('하루 넘길 위험', 'May run past the day')}</Text> : null}
             </Pressable>
             {canEdit ? (

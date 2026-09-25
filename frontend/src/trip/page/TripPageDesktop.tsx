@@ -31,6 +31,7 @@ import { courseLetter } from '@/plan/CourseCard';
 import type { DayStart, ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
+import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
 import { humanTripTitle } from '@/trip/tripNaming';
 import { TripNameSheet } from '@/trip/TripNameSheet';
@@ -395,6 +396,7 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
   const label = photo?.category ? PLACE_CATEGORY_LABELS[photo.category] : undefined;
   const category = label ? tx(label[0], label[1]) : null;
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
+  const reason = pickReasonLine(item.reasonCodes);
   const stay = stayMinutes(items, index);
   const last = index === items.length - 1;
   return (
@@ -407,6 +409,8 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
       <View style={styles.cardName}>
         <Text variant="title" weight="bold" numberOfLines={2}>{item.title}</Text>
         {leg ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{leg}</Text> : null}
+        {/* 왜 이 곳인지 한 줄 — 없으면 줄째 안 그린다(S15P21E201-1645). */}
+        {reason ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{reason}</Text> : null}
       </View>
       <View style={styles.cardImage}>
         {/* 🔴 서버 사진이 있으면 PlaceVisual 로 그린다 — 출처 띠(공공누리 등)를 빼면 이용 조건 위반이다. */}
