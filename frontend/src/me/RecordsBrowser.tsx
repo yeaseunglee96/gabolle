@@ -17,6 +17,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { RecordCard } from '@/me/RecordCard';
 import { filterStories, groupByDay, latestMonth, monthCells, regionsOf, shiftMonth, tagsOf, type RecordsFilter } from '@/me/recordsBrowse';
 import type { StoryDto } from '@/social/stories';
+import { regionText } from '@/social/districtNames';
 
 type View_ = 'grid' | 'calendar';
 
@@ -62,7 +63,7 @@ export function RecordsBrowser({
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
           {regions.map((region) => {
             const on = filter.region === region;
-            return <Chip key={'r:' + region} label={region} on={on} onPress={() => setFilter((f) => ({ ...f, region: on ? null : region }))} />;
+            return <Chip key={'r:' + region} label={regionText(region, tx)} on={on} onPress={() => setFilter((f) => ({ ...f, region: on ? null : region }))} />;
           })}
           {tags.map((tag) => {
             const on = filter.tag === tag;

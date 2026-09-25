@@ -23,6 +23,7 @@ import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
+import { regionText } from '@/social/districtNames';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
@@ -63,7 +64,7 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
       {story.region
         ? <View style={styles.placeMetaRow}>
             <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />
-            <Text variant="body" color={color.text.body}>{story.region}</Text>
+            <Text variant="body" color={color.text.body}>{regionText(story.region, tx)}</Text>
           </View>
         : null}
     </Pressable>
@@ -570,7 +571,7 @@ export default function StoryDetail() {
               </View>
               <Text variant="caption" color={color.text.muted}>
                 {relativeStoryTime(story.createdAt, tx)}
-                {story.region ? ` · ${story.region}` : ''}
+                {story.region ? ` · ${regionText(story.region, tx)}` : ''}
               </Text>
             </View>
             {story.mine && story.visibility !== 'PUBLIC' ? (

@@ -12,6 +12,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { deleteStory, loadUserStories, relativeStoryTime, VISIBILITY_LABEL, type FeedLoadResult, type StoryDto, type StoryVisibility } from '@/social/stories';
+import { regionText } from '@/social/districtNames';
 
 type Filter = 'ALL' | StoryVisibility;
 
@@ -99,7 +100,7 @@ export function MyPostsBody() {
           <View key={story.id} style={styles.card}>
             <View style={styles.cardHead}>
               <Text variant="caption" numberOfLines={1} style={styles.cardMeta}>
-                {relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${story.region}` : ''}
+                {relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${regionText(story.region, tx)}` : ''}
               </Text>
               <View style={[styles.visPill, story.visibility === 'PUBLIC' && styles.visPillPublic]}>
                 <Text variant="caption" weight="bold" color={story.visibility === 'PUBLIC' ? color.state.success : color.text.body}>
