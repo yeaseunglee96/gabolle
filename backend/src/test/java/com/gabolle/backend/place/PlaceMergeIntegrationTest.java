@@ -158,8 +158,37 @@ class PlaceMergeIntegrationTest extends PlacePostgresIntegrationTest {
 		}
 	}
 
+	@Test
+	@DisplayName("🔴 키 없는 표식(경사·조용함)을 둘 다 가져도 합쳐진다 — 운영 사본에서 유일성 위반으로 멈췄던 모양")
+	void unkeyedFeaturesOnBothSidesDoNotBreakTheMerge() {
+		// 경사는 둘 다, 조용함은 합쳐질 쪽만. 키 없는 표식은 (장소, 종류)가 유일하다(uq_place_feature_unkeyed).
+		score(this.keep, "SLOPE_PERCENT", "3.1");
+		score(this.dup, "SLOPE_PERCENT", "9.9");
+		score(this.dup, "QUIETNESS_SCORE", "0.7");
+
+		merge();
+
+		assertThat(scoresOf(this.keep)).containsExactlyInAnyOrder("QUIETNESS_SCORE=0.7", "SLOPE_PERCENT=3.1");
+		assertThat(scoresOf(this.dup)).as("남는 줄에 이미 있는 종류는 덮지 않고 합쳐진 줄에 둔다")
+				.containsExactly("SLOPE_PERCENT=9.9");
+	}
+
 	private void merge() {
 		this.jdbc.execute("SELECT place_merge('" + this.dup + "', '" + this.keep + "')");
+	}
+
+	/** 키 없는 점수형 표식 하나. */
+	private void score(UUID placeId, String type, String value) {
+		this.jdbc.update("""
+				INSERT INTO place_feature (place_feature_id, place_id, feature_type, feature_key, value, evidence_status,
+				                           source_type, created_at)
+				VALUES (?, ?, ?, NULL, ?::jsonb, 'ESTIMATED', 'TEST', now())
+				""", UUID.randomUUID(), placeId, type, value);
+	}
+
+	private List<String> scoresOf(UUID placeId) {
+		return this.jdbc.queryForList("SELECT feature_type || '=' || value::text FROM place_feature WHERE place_id = ? "
+				+ "AND feature_key IS NULL ORDER BY 1", String.class, placeId);
 	}
 
 	private UUID user() {

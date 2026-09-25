@@ -84,10 +84,13 @@ BEGIN
       JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY (i.indkey)
      WHERE i.indrelid = p_table::regclass AND i.indisprimary;
 
+    -- 🔴 빈 칸(NULL)도 같은 값으로 본다. 키 없는 표식(경사·조용함 — feature_key 가 NULL)은 유일성이 (장소, 종류)라,
+    --    NULL 을 다르다고 보면 옮기다 uq_place_feature_unkeyed 에 걸린다. 운영 사본에서 실제로 걸렸다(2026-09-25).
+    --    to_jsonb(NULL) 은 SQL NULL 이고 ($2 -> 칸) 은 JSON null 이라 그냥 견주면 참이 안 된다 — JSON null 로 맞춘다.
     same_sql := 'TRUE';
     IF p_same IS NOT NULL THEN
         FOREACH c IN ARRAY p_same LOOP
-            same_sql := same_sql || format(' AND to_jsonb(t.%I) = ($2 -> %L)', c, c);
+            same_sql := same_sql || format(' AND COALESCE(to_jsonb(t.%I), ''null''::jsonb) = ($2 -> %L)', c, c);
         END LOOP;
     END IF;
 
