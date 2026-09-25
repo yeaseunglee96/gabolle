@@ -70,6 +70,13 @@ public class ItineraryLeg {
      */
     private final Integer fareKrw;
 
+    /**
+     * 엔진이 처음 어림한 이동 분 — 실제 이동으로 고친 배율을 적용하기 전(S15P21E201-1700). {@link #durationMin} 은 고친
+     * 값이다. 보정 계산이 「실제 ÷ 이 값」을 재므로 판을 옮길 때 이 칸을 흘리면 고친 값이 어림으로 읽혀 배율이 겹쳐
+     * 곱해진다. {@code null} 이면 이 칸 전의 구간이고, 그때는 {@link #durationMin} 이 곧 어림이다.
+     */
+    private final Integer uncalibratedDurationMin;
+
     private final Instant createdAt;
 
     /**
@@ -112,11 +119,22 @@ public class ItineraryLeg {
                 createdAt);
     }
 
+    /** 보정 전 칸 이전의 생성자 — 보정 없이 만든 구간이다. 부르는 곳이 여럿이라 한 번에 안 고친다. */
     public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
                         String fromPlaceId, String toPlaceId, String travelMode,
                         Integer distanceM, Integer durationMin, Integer walkingMeters,
                         Integer ascentM, Integer stairSteps, ItineraryItem.DataStatus dataStatus,
                         Integer fareKrw, List<double[]> path, Instant createdAt) {
+        this(itineraryLegId, itineraryVersionId, dayIndex, sequence, fromPlaceId, toPlaceId, travelMode,
+                distanceM, durationMin, walkingMeters, ascentM, stairSteps, dataStatus, fareKrw, path, null,
+                createdAt);
+    }
+
+    public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
+                        String fromPlaceId, String toPlaceId, String travelMode,
+                        Integer distanceM, Integer durationMin, Integer walkingMeters,
+                        Integer ascentM, Integer stairSteps, ItineraryItem.DataStatus dataStatus,
+                        Integer fareKrw, List<double[]> path, Integer uncalibratedDurationMin, Instant createdAt) {
 
         if (dayIndex < 0) {
             throw new IllegalArgumentException("dayIndex 는 0 이상이어야 한다: " + dayIndex);
@@ -154,6 +172,7 @@ public class ItineraryLeg {
         this.dataStatus = dataStatus;
         this.fareKrw = fareKrw;
         this.path = normalizePath(path);
+        this.uncalibratedDurationMin = uncalibratedDurationMin;
         this.createdAt = createdAt;
     }
 
@@ -182,6 +201,7 @@ public class ItineraryLeg {
     public Integer stairSteps()        { return stairSteps; }
     public ItineraryItem.DataStatus dataStatus() { return dataStatus; }
     public Integer fareKrw()           { return fareKrw; }
+    public Integer uncalibratedDurationMin() { return uncalibratedDurationMin; }
 
     /** 「어느 길로 가는지」. 모르면 {@code null} — 직선을 대신 넣지 않는다. */
     public List<double[]> path()       { return path; }

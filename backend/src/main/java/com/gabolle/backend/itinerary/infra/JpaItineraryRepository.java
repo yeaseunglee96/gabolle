@@ -435,6 +435,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				e.dataStatus(),
 				e.fareKrw(),
 				decodePath(e.path()),
+				e.uncalibratedDurationMin(),
 				toInstant(e.createdAt()));
 	}
 
@@ -455,6 +456,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				leg.dataStatus(),
 				leg.fareKrw(),
 				encodePath(leg.path()),
+				leg.uncalibratedDurationMin(),
 				toOffset(leg.createdAt()));
 	}
 
