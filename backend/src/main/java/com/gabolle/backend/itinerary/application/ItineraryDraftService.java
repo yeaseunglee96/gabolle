@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gabolle.backend.itinerary.application.port.PlaceEventSchedulePort;
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.service.PlaceDessertOnlyPort;
 import com.gabolle.backend.place.service.PlaceMenuPricePort;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
@@ -195,6 +196,17 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.eventSchedule = eventSchedule;
     }
 
+    /**
+     * 음식 종류 표식이 디저트 하나뿐인 곳 — 이런 밥집은 끼니가 아니라 카페로 본다(S15P21E201-1635). 없으면(시험용 조립·장소
+     * 계층이 없는 컨텍스트) 갈래를 그대로 쓴다.
+     */
+    private PlaceDessertOnlyPort dessertOnly;
+
+    @Autowired(required = false)
+    public void setDessertOnly(PlaceDessertOnlyPort dessertOnly) {
+        this.dessertOnly = dessertOnly;
+    }
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
@@ -255,9 +267,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // 🔴 끝난 축제가 추천 일정에 들어가던 것 — 여행 날짜에 한 날도 안 여는 행사 장소는 후보에서 빼고, 며칠만 여는 곳은
         //    그 날에만 앉힌다({@link #eventDaysOf}).
         Map<UUID, Set<Integer>> eventDays = eventDaysOf(trip, command.places());
-        List<ItineraryDraftCommand.PlannedPlace> places = command.places().stream()
+        List<ItineraryDraftCommand.PlannedPlace> places = asCafeIfDessertOnly(command.places().stream()
                 .filter((p) -> !eventDays.containsKey(p.placeId()) || !eventDays.get(p.placeId()).isEmpty())
-                .toList();
+                .toList());
         BudgetCap cap = budgetCapOf(trip, places);
         // 걷기만 고른 여행이면 첫날은 출발지에서 걸어서 30분 안(S15P21E201-1634). 아니면 null.
         double[] firstDayOrigin = WalkOnlyFirstDay.applies(trip)
@@ -850,6 +862,33 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 + Math.cos(Math.toRadians(a[0])) * Math.cos(Math.toRadians(b[0]))
                         * Math.sin(dLng / 2) * Math.sin(dLng / 2);
         return 2 * earthRadiusKm * Math.asin(Math.min(1.0, Math.sqrt(s)));
+    }
+
+    /**
+     * 디저트 표식만 있는 밥집을 카페로 다시 읽는다 — S15P21E201-1635.
+     *
+     * <p>🔴 왜. 상가 자료가 젤라또·아이스크림·빵집을 「음식점」으로 넣어 끼니 칸을 차지했다 — 「점심으로 젤라또」(최근 4일
+     * 운영 일정에 12번, 그중 8번이 점심·저녁 시간). 조립을 시작할 때 한 번 바꾸면 끼니 수·끼니 칸·카페 상한이 전부
+     * 카페로 따라간다. 데이터는 마이그레이션(V20260925060000)이 고치고, 이 코드는 다음 적재 때 다시 생기는 것을 막는다.
+     */
+    private List<ItineraryDraftCommand.PlannedPlace> asCafeIfDessertOnly(List<ItineraryDraftCommand.PlannedPlace> places) {
+        if (this.dessertOnly == null || places.isEmpty()) {
+            return places;
+        }
+        List<UUID> foodIds = places.stream().filter(this::isFood).map(ItineraryDraftCommand.PlannedPlace::placeId).toList();
+        if (foodIds.isEmpty()) {
+            return places;
+        }
+        Set<UUID> dessert = this.dessertOnly.dessertOnly(foodIds);
+        if (dessert.isEmpty()) {
+            return places;
+        }
+        return places.stream()
+                .map(p -> dessert.contains(p.placeId())
+                        ? new ItineraryDraftCommand.PlannedPlace(p.placeId(), p.rank(), p.reasonCodes(), p.warningCodes(),
+                                CAFE_CATEGORY)
+                        : p)
+                .toList();
     }
 
     /** 갈래를 모르면 밥집이 아닌 것으로 다룬다 — 모르는 것을 끼니로 세지 않는다. */
