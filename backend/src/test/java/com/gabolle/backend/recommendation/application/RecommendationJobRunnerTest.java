@@ -11,7 +11,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.springframework.core.task.TaskRejectedException;
 
+import com.gabolle.backend.recommendation.domain.JobStage;
 import com.gabolle.backend.recommendation.domain.JobStatus;
 import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
@@ -137,6 +139,50 @@ class RecommendationJobRunnerTest {
 		InOrder order = Mockito.inOrder(this.jobRepository, this.worker);
 		order.verify(this.jobRepository).save(preparedJob);
 		order.verify(this.worker).execute(any(), any());
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1685 — 실행기가 꽉 차 거부하면 작업을 「실패 · 다시 시도 가능」으로 저장하고 「바쁨」을 알린다")
+	void rejectedDispatchLeavesARetryableFailureInsteadOfAPendingJob() {
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		RecommendationJob preparedJob = RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(),
+				UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		when(this.recommendationService.prepare(any())).thenReturn(preparedJob);
+		Mockito.doThrow(new TaskRejectedException("꽉 참")).when(this.worker).execute(any(), any());
+
+		assertThatThrownBy(() -> this.runner.enqueue(this.tripId, this.userId, null, null))
+				.isInstanceOf(RecommendationBusyException.class)
+				.satisfies((e) -> assertThat(((RecommendationBusyException) e).jobId()).isEqualTo(preparedJob.getJobId()));
+
+		// 전에는 PENDING 으로 저장된 채 아무도 안 건드렸다 — 영영 「대기」였다.
+		assertThat(preparedJob.getJobStatus()).isEqualTo(JobStatus.FAILED);
+		assertThat(preparedJob.getErrorCode()).isEqualTo(RecommendationCodes.ERROR_SERVER_BUSY);
+		assertThat(preparedJob.getFailureStage()).isEqualTo(JobStage.CREATED);
+		assertThat(preparedJob.isRetryable()).isTrue();
+		// 처음 PENDING 저장 한 번 + 실패로 고쳐 저장 한 번.
+		verify(this.jobRepository, Mockito.times(2)).save(preparedJob);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1685 — Idempotency-Key 로 만든 작업도 거부되면 같은 식으로 실패로 남긴다")
+	void rejectedDispatchWithIdempotencyKeyAlsoLeavesARetryableFailure() {
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		RecommendationJob preparedJob = RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(),
+				UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		when(this.recommendationService.prepare(any())).thenReturn(preparedJob);
+		when(this.idempotencyRepository.saveWithIdempotency(any(), anyString(), anyString(), any()))
+				.thenReturn(new RecommendationJobIdempotencyRepository.Claimed(preparedJob, true));
+		Mockito.doThrow(new TaskRejectedException("꽉 참")).when(this.worker).execute(any(), any());
+
+		assertThatThrownBy(() -> this.runner.enqueue(this.tripId, this.userId, null, null, "busy-key"))
+				.isInstanceOf(RecommendationBusyException.class);
+
+		assertThat(preparedJob.getJobStatus()).isEqualTo(JobStatus.FAILED);
+		assertThat(preparedJob.getErrorCode()).isEqualTo(RecommendationCodes.ERROR_SERVER_BUSY);
+		assertThat(preparedJob.isRetryable()).isTrue();
+		verify(this.jobRepository).save(preparedJob);
 	}
 
 	@Test

@@ -3,10 +3,13 @@ package com.gabolle.backend.recommendation.application;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -14,6 +17,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.gabolle.backend.recommendation.domain.JobStage;
 import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationJobIdempotencyRepository;
@@ -113,7 +117,7 @@ public class RecommendationJobRunner {
 				.saveWithIdempotency(UUID.fromString(userId), idempotencyKey, fingerprint, prepared);
 
 		if (claimed.created()) {
-			this.worker.execute(claimed.job(), command);
+			dispatch(claimed.job(), command);
 		}
 		// created()가 거짓이면(=키 재사용) worker 를 다시 부르지 않는다 — 그 Job 은 이미
 		// 실행 중이거나 끝났고, 다시 부르면 같은 계산을 두 번 하는 것이다.
@@ -193,9 +197,32 @@ public class RecommendationJobRunner {
 		// 이 save 가 커밋돼야 아래 execute 를 부른다. 순서를 바꾸지 않는다.
 		this.jobRepository.save(job);
 
-		this.worker.execute(job, command);
+		dispatch(job, command);
 
 		return job;
+	}
+
+	/**
+	 * 실행기에 넘긴다. 실행기가 꽉 차 거부하면 작업을 「실패 · 다시 시도 가능」({@link RecommendationCodes#ERROR_SERVER_BUSY})으로
+	 * 저장하고 {@link RecommendationBusyException} 을 던진다 (S15P21E201-1685).
+	 *
+	 * <p>🔴 왜. 작업 행은 넘기기 전에 이미 커밋돼 있다(위 순서 — 바꾸지 않는다). 거부를 그대로 흘리면 그 행은 PENDING 으로
+	 * 영영 남고, 요청한 사람은 스프링 기본 500 본문을 받았다. 이 PC 로컬에서 무거운 추천 70명을 한꺼번에 넣어 재현했다 —
+	 * 실행기(동시 2 · 최대 8 · 줄 50)가 58개를 받고 12개를 거부했다.
+	 *
+	 * <p>{@code @Async} 프록시는 실행기의 거부({@code TaskRejectedException} — {@link RejectedExecutionException} 을 잇는다)를
+	 * 부른 쪽 스레드에서 그대로 던진다. 시작도 안 한 작업이라 단계는 {@link JobStage#CREATED} 다.
+	 */
+	private void dispatch(RecommendationJob job, RecommendationCommand command) {
+		try {
+			this.worker.execute(job, command);
+		}
+		catch (RejectedExecutionException rejected) {
+			job.markFailed(RecommendationCodes.ERROR_SERVER_BUSY, JobStage.CREATED, OffsetDateTime.now(ZoneOffset.UTC),
+					false, true);
+			this.jobRepository.save(job);
+			throw new RecommendationBusyException(job.getJobId(), rejected);
+		}
 	}
 
 	public Optional<RecommendationJob> findJob(String jobId) {
