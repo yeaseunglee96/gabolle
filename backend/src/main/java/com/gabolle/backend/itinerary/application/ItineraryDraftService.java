@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gabolle.backend.itinerary.application.port.PlaceEventSchedulePort;
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.service.ChainBrand;
 import com.gabolle.backend.place.service.PlaceMenuPricePort;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
@@ -254,9 +255,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // 🔴 끝난 축제가 추천 일정에 들어가던 것 — 여행 날짜에 한 날도 안 여는 행사 장소는 후보에서 빼고, 며칠만 여는 곳은
         //    그 날에만 앉힌다({@link #eventDaysOf}).
         Map<UUID, Set<Integer>> eventDays = eventDaysOf(trip, command.places());
-        List<ItineraryDraftCommand.PlannedPlace> places = command.places().stream()
+        List<ItineraryDraftCommand.PlannedPlace> places = oneOfEachBrand(command.places().stream()
                 .filter((p) -> !eventDays.containsKey(p.placeId()) || !eventDays.get(p.placeId()).isEmpty())
-                .toList();
+                .toList());
         Distribution distribution = distributeByDay(places, days, budgetCapOf(trip, places), mealsPerDay(trip),
                 itemsPerDay(trip), eventDays);
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
@@ -715,6 +716,33 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 값어치가 있다.
      */
     private static final double REGION_MIXED_KM = 8.0;
+
+    /**
+     * 한 일정에 같은 상표는 한 번만 — 순위가 가장 높은 지점 하나만 남기고 뒤 지점은 후보에서 뺀다
+     * (S15P21E201-1616, 사용자 결정). 운영 일정 201개 중 4개가 같은 체인의 다른 지점을 두 번 넣었다.
+     *
+     * <p>앉히기 <b>전에</b> 뺀다. 세 번 훑는 앉히기 안에서 막으면 훑기마다 같은 검사를 넣어야 하고 하나라도 빠지면
+     * 새어 나간다. 판정은 추천 점수를 낮추는 쪽과 같은 사전({@link ChainBrand})이다. 사전에 없는 가게는 그대로다.
+     */
+    private List<ItineraryDraftCommand.PlannedPlace> oneOfEachBrand(List<ItineraryDraftCommand.PlannedPlace> places) {
+        if (places.isEmpty()) {
+            return places;
+        }
+        List<UUID> ids = places.stream().map(ItineraryDraftCommand.PlannedPlace::placeId).toList();
+        Map<UUID, String> nameById = new HashMap<>();
+        for (Place place : this.placeRepository.findByPlaceIdIn(ids)) {
+            nameById.put(place.getPlaceId(), place.getNameKo());
+        }
+        Set<String> seen = new HashSet<>();
+        List<ItineraryDraftCommand.PlannedPlace> kept = new ArrayList<>(places.size());
+        for (ItineraryDraftCommand.PlannedPlace place : places) {
+            String brand = ChainBrand.brandOf(nameById.get(place.placeId()));
+            if (brand == null || seen.add(brand)) {
+                kept.add(place);
+            }
+        }
+        return kept;
+    }
 
     /** 좌표를 한 번에 읽는다. 저장소가 못 주는 것은 그냥 빠진다 — 그 자리는 거리 비교를 건너뛴다. */
     private Map<UUID, double[]> coordinatesOf(List<ItineraryDraftCommand.PlannedPlace> places) {
