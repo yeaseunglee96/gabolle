@@ -11,6 +11,16 @@ import { txf } from '@/i18n/format';
 
 declare global { interface Window { kakao?: any } }
 
+/**
+ * 고른 마커는 **커진다.** 테두리 색만 바꾸면 지도를 훑는 눈이 어느 것이 켜졌는지 못 찾는다 — 마커가 열 개 넘게
+ * 겹쳐 있을 때 특히 그렇다(시안 3절: 선택 마커 scale 1.25, 300ms). 고른 곳이 바뀌면 이것만 다시 부른다.
+ */
+function styleSelection(el: HTMLElement, markerColor: string, selected: boolean) {
+  el.style.border = `3px solid ${selected ? color.action.secondary : markerColor}`;
+  el.style.transform = selected ? 'scale(1.25)' : 'scale(1)';
+  el.style.zIndex = selected ? '2' : '1';
+}
+
 const SDK_ID = 'kakao-map-sdk';
 const SDK_HOST = 'dapi.kakao.com';
 // 지도가 부르는 곳은 `dapi.kakao.com` 하나가 아니다. 그 주소는 시작 파일이고
@@ -88,6 +98,23 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   const hostHeight = () => hostRef.current?.clientHeight || height;
   const [failure, setFailure] = useState<MapFailure | null>(null);
   const appKey = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
+  // 🔴 고른 곳·누를 때 부를 함수·현재 위치는 «다시 그리기» 조건이 아니다(S15P21E201-1654). 전에는 셋 중 하나만 바뀌어도
+  //    마커·선을 전부 새로 그리고 전체 맞추기(setBounds — 순간 이동)를 한 뒤 고른 곳으로 panTo 해서, 고를 때마다
+  //    여행 전체의 가운데에서 출발해 날아왔다(사용자 폰 — 「늘 왼쪽에서 날아온다」). 그리는 동안에는 이 값들을 ref 로 읽는다.
+  const selectedRef = useRef(selectedId);
+  selectedRef.current = selectedId;
+  const focusRef = useRef(focusSelected);
+  focusRef.current = focusSelected;
+  const onSelectRef = useRef(onSelect);
+  onSelectRef.current = onSelect;
+  // 마커마다 그 요소와 테두리 색 — 고른 곳이 바뀌면 이 둘만 고친다.
+  const markersRef = useRef(new Map<string, { el: HTMLElement; color: string }>());
+  // 지금 지도가 옮겨 가 있는 고른 곳 — 같은 값으로 다시 오면 옮기지 않는다.
+  const appliedSelectionRef = useRef<string | null>(null);
+  // 고른 곳으로 옮기는 함수 — 그릴 때 만든다(그때의 장소 목록을 안다).
+  const focusFnRef = useRef<(() => void) | null>(null);
+  const locationOverlayRef = useRef<any>(null);
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -127,6 +154,8 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         overlaysRef.current = [];
         const bounds = new maps.LatLngBounds();
         const visibleStops = [...stops, ...points.flatMap((layer) => layer.stops)];
+        const selectedNow = selectedRef.current;
+        markersRef.current = new Map();
         visibleStops.forEach((stop) => {
           const position = new maps.LatLng(stop.latitude, stop.longitude);
           bounds.extend(position);
@@ -141,31 +170,18 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
             img.alt = '';
             Object.assign(img.style, { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '999px' });
             content.appendChild(img);
-            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(25,25,25,.18)' });
+            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(25,25,25,.18)' });
           } else {
             content.textContent = pointLayer ? pointLayer.label : String(stop.number);
-            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.action.secondary : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(25,25,25,.18)' });
+            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(25,25,25,.18)' });
           }
-          // 🔴 고른 곳은 **커진다.** 테두리 색만 바꾸면 지도를 훑는 눈이 어느 것이
-          //    켜졌는지 못 찾는다 — 마커가 열 개 넘게 겹쳐 있을 때 특히 그렇다.
-          //    (시안 3절: 선택 마커 scale 1.25, 300ms)
-          Object.assign(content.style, {
-            transform: stop.id === selectedId ? 'scale(1.25)' : 'scale(1)',
-            transition: 'transform 300ms cubic-bezier(.34,1.3,.64,1)',
-            zIndex: stop.id === selectedId ? '2' : '1',
-          });
-          content.onclick = () => onSelect(stop.id);
+          content.style.transition = 'transform 300ms cubic-bezier(.34,1.3,.64,1)';
+          styleSelection(content, markerColor, stop.id === selectedNow);
+          markersRef.current.set(stop.id, { el: content, color: markerColor });
+          content.onclick = () => onSelectRef.current(stop.id);
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
         });
-        if (currentLocation) {
-          const position = new maps.LatLng(currentLocation.latitude, currentLocation.longitude);
-          const content = document.createElement('div');
-          content.setAttribute('aria-label', tx('현재 위치', 'Your current location'));
-          Object.assign(content.style, { width: '18px', height: '18px', borderRadius: '999px', border: `3px solid ${color.canvas}`, background: color.state.dot, boxShadow: '0 0 0 13px rgba(216,58,72,.25), 0 4px 10px rgba(25,25,25,.20)' });
-          const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
-          overlay.setMap(map); overlaysRef.current.push(overlay);
-        }
         (routes ?? [{ id: 'selected', color: color.text.heading, stops }]).forEach((route) => {
           // 실제 길 좌표가 있으면 그것을, 없으면 장소를 직선으로 잇는다.
           const points = route.path?.length ? route.path : route.stops;
@@ -191,9 +207,10 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         };
         // 🔴 모두 들어오게 맞춘 «다음에» 고른 곳으로 민다(panTo 는 부드럽게 옮긴다). 맞추기를 건너뛰면
         //    처음 열었을 때 줌이 도시 전체(level 8)라 점들이 한 덩어리로 뭉친다.
-        const selectedStop = focusSelected ? stops.find((stop) => stop.id === selectedId) : undefined;
-        const fitAndFocus = () => {
-          fit();
+        // 고른 곳으로 «지금 화면·줌에서» 민다 — 고른 곳만 바뀔 때는 이것만 부른다(아래 effect).
+        const focusOnSelected = () => {
+          if (!focusRef.current) return;
+          const selectedStop = stops.find((stop) => stop.id === selectedRef.current);
           if (!selectedStop) return;
           // 보이는 부분의 가운데로 — 지도 중심을 가린 높이의 절반만큼 아래에 둔다(mapFocus.ts).
           const target = new maps.LatLng(selectedStop.latitude, selectedStop.longitude);
@@ -203,7 +220,10 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const point = projection.containerPointFromCoords(target);
           map.panTo(projection.coordsFromContainerPoint(new maps.Point(point.x, point.y + shift)));
         };
-        fitAndFocus(); fitRef.current = fitAndFocus;
+        const fitAndFocus = () => { fit(); focusOnSelected(); };
+        fitAndFocus(); fitRef.current = fitAndFocus; focusFnRef.current = focusOnSelected;
+        appliedSelectionRef.current = selectedNow;
+        setMapReady(true);
         setFailure(null);
       });
     };
@@ -243,7 +263,40 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
       script.removeEventListener('load', draw);
       script.removeEventListener('error', onError);
     };
-  }, [appKey, currentLocation, focusSelected, onSelect, points, routes, selectedId, stops]);
+    // 고른 곳·현재 위치·누를 때 함수는 일부러 뺐다 — 위 selectedRef 설명.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appKey, points, routes, stops]);
+
+  // 고른 곳만 바뀌면 다시 그리지 않는다 — 마커 모양만 바꾸고 지금 화면·줌에서 panTo(S15P21E201-1654).
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !mapReady) return;
+    markersRef.current.forEach(({ el, color: markerColor }, id) => styleSelection(el, markerColor, id === selectedId));
+    if (appliedSelectionRef.current === selectedId) return;
+    appliedSelectionRef.current = selectedId;
+    focusFnRef.current?.();
+  }, [mapReady, selectedId]);
+
+  // 현재 위치는 점만 옮긴다 — 움직일 때마다 전체를 다시 맞추면 걷는 내내 지도가 튄다.
+  const locationLat = currentLocation?.latitude;
+  const locationLng = currentLocation?.longitude;
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !mapReady || !window.kakao?.maps) return;
+    const maps = window.kakao.maps;
+    if (locationLat == null || locationLng == null) {
+      locationOverlayRef.current?.setMap(null);
+      locationOverlayRef.current = null;
+      return;
+    }
+    const position = new maps.LatLng(locationLat, locationLng);
+    if (locationOverlayRef.current) { locationOverlayRef.current.setPosition(position); return; }
+    const content = document.createElement('div');
+    content.setAttribute('aria-label', tx('현재 위치', 'Your current location'));
+    Object.assign(content.style, { width: '18px', height: '18px', borderRadius: '999px', border: `3px solid ${color.canvas}`, background: color.state.dot, boxShadow: '0 0 0 13px rgba(216,58,72,.25), 0 4px 10px rgba(25,25,25,.20)' });
+    const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
+    overlay.setMap(mapRef.current);
+    locationOverlayRef.current = overlay;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapReady, locationLat, locationLng]);
 
   // 🔴 칸 크기가 바뀌면 지도에 말해 줘야 한다 — S15P21E201-1417. 카카오 지도는 만들어질 때의 크기만 알고,
   //    피드의 지도 시트는 열리면서 커진다. 안 말해 주면 처음 크기만큼(맨 위 한 줄)만 타일을 그리고
