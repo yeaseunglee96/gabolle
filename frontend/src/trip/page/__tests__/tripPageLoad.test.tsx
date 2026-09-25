@@ -119,4 +119,23 @@ describe('여행 일정 화면 여는 길', () => {
     await act(async () => { await view.result.current.confirm(view.result.current.courses[1]); });
     expect(invalidateTripLists).toHaveBeenCalledTimes(1);
   });
+
+  it('🔴 2·3안(미리보기)을 보다 1안으로 돌아와도 미리보기 번호로 pace 를 부르지 않는다 (S15P21E201-1641)', async () => {
+    // 한 번의 그리기 동안 「고른 코스」는 1안인데 「불러온 일정」은 아직 미리보기다 — 그 틈에 미리보기 번호로 불렀다(운영 500 10건).
+    const { loadItineraryPace } = jest.requireMock('@/plan/itinerary') as { loadItineraryPace: jest.Mock };
+    const preview = { ...ITINERARY, id: 'job-1:1' } as ItineraryDto;
+    const withPreview: TripCoursesResult = { state: 'success', full: true, courses: [course('A', 'it-1'), { ...course('B', null), preview }] };
+    loadTripCourses.mockResolvedValue(withPreview);
+    auth.accessToken = 'token-1';
+    auth.ready = true;
+    const view = renderHook(() => useTripPage(source), { wrapper });
+    await waitFor(() => expect(view.result.current.courses).toHaveLength(2));
+    await act(async () => { view.result.current.setCourseIndex(1); });
+    await waitFor(() => expect(view.result.current.loaded?.id).toBe('job-1:1'));
+    await act(async () => { view.result.current.setCourseIndex(0); });
+    await waitFor(() => expect(view.result.current.loaded?.id).toBe('it-1'));
+    const asked = loadItineraryPace.mock.calls.map(([id]) => id);
+    expect(asked).not.toContain('job-1:1');
+    expect(asked).toContain('it-1');
+  });
 });

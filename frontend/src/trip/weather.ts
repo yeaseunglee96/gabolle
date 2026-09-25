@@ -55,7 +55,21 @@ export type WeatherLoadResult =
 const BUSAN_LAT = 35.1796;
 const BUSAN_LON = 129.0756;
 
-export async function loadWeatherForecast(date: string, accessToken: string | null): Promise<WeatherLoadResult> {
+/** 오늘(이 기기의 날짜)에서 며칠 뒤인가 — 날짜 글자(YYYY-MM-DD)를 못 읽으면 null. UTC 로 세면 한국 아침엔 하루가 어긋난다. */
+function daysFromToday(date: string, now: Date): number | null {
+  const [y, m, d] = date.split('-').map(Number);
+  if (!y || !m || !d) return null;
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((new Date(y, m - 1, d).getTime() - today.getTime()) / 86_400_000);
+}
+/** 기상청 단기예보가 주는 범위 — 오늘부터 사흘 뒤까지. */
+const FORECAST_DAYS = 3;
+
+export async function loadWeatherForecast(date: string, accessToken: string | null, now: Date = new Date()): Promise<WeatherLoadResult> {
+  // 🔴 범위 밖 날짜는 부르지 않는다(S15P21E201-1641). 전에는 불러서 400 을 받은 뒤에야 「출발 3일 전부터」를 그렸다 —
+  //    여행 준비 화면이 2~4주 뒤 날짜로 4일간 12번. 서버 규칙과 같게 앱이 먼저 가른다. 못 읽는 날짜는 서버에 맡긴다.
+  const ahead = daysFromToday(date, now);
+  if (ahead !== null && (ahead < 0 || ahead > FORECAST_DAYS)) return { state: 'out-of-range', message: '출발일 예보는 출발 3일 전부터 보여드려요.' };
   try {
     const params = new URLSearchParams({ lat: String(BUSAN_LAT), lon: String(BUSAN_LON), date });
     const response = await apiRequest<WeatherForecastResponseDto>(`/api/v1/weather?${params.toString()}`, { accessToken });

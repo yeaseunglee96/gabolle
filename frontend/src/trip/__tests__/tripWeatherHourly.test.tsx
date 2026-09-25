@@ -29,6 +29,15 @@ const respond = (hourly?: HourlyForecastDto[]) => mockApiRequest.mockResolvedVal
 
 beforeEach(() => { mockApiRequest.mockReset(); mockDesktop = false; });
 
+// 🔴 이 시험은 날짜를 2026-09-24 로 박았다 — 시계도 그날에 멈춘다(S15P21E201-1641). 날씨는 오늘부터 사흘 안만 부르므로
+//    시계를 안 멈추면 그날이 지나 「지난 날짜」라 부르지 않고 이 시험이 실패한다. 한국·UTC(CI 러너) 어느 시각대로 돌려도
+//    같은 날이 되게 한낮에 멈춘다. 멈추는 것은 날짜뿐이다 — 기다리기(setTimeout 등)는 진짜 시계 그대로 둔다.
+const FROZEN_NOW = new Date('2026-09-24T12:00:00+09:00');
+beforeAll(() => {
+  jest.useFakeTimers({ now: FROZEN_NOW, doNotFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'setImmediate', 'clearImmediate', 'queueMicrotask', 'nextTick', 'requestAnimationFrame', 'cancelAnimationFrame', 'requestIdleCallback', 'cancelIdleCallback', 'hrtime', 'performance'] });
+});
+afterAll(() => { jest.useRealTimers(); });
+
 // 첫 시험은 부품을 처음 불러오는 값(수 초)을 치른다 — 기본 1초 대기로는 그 사이에 끝나 버린다(로컬 실측 3.5초).
 const WAIT = { timeout: 5000 };
 
