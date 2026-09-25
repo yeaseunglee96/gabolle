@@ -19,7 +19,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
-import { ExcludeConfirmModal, type ExcludeReason } from '@/components/ExcludeConfirmModal';
+import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { Skeleton } from '@/components/Skeleton';
 import { BAR_MAX_WIDTH, SHEET_MAX_WIDTH, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
 import { Text } from '@/components/Text';
@@ -35,6 +35,7 @@ import { RouteMap } from '@/map/RouteMap';
 import { courseLetter } from '@/plan/CourseCard';
 import { NowCard } from '@/plan/NowCard';
 import { useLocationGate } from '@/personalization/useLocationGate';
+import type { ExcludeReason } from '@/components/ExcludeConfirmModal';
 import {
   pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
   type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto,
