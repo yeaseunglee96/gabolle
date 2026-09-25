@@ -11,7 +11,7 @@ describe('사진에 무슨 말을 붙이나', () => {
   it('🔴 행사장 사진에는 배지를 단다 — 축제 사진으로 읽히면 안 된다', () => {
     const labels = photoLabels({ photoSubject: 'VENUE', photoSource: '한국관광공사 관광사진갤러리' }, tx);
     expect(labels.badge).toBe('행사장 사진');
-    expect(labels.credit).toBe('사진 제공: 한국관광공사 관광사진갤러리');
+    expect(labels.credit).toBe('사진: 한국관광공사 관광사진갤러리');
   });
 
   it('그 장소를 찍은 사진에는 배지를 안 단다 — 기대한 대로인 것은 말할 게 없다', () => {
@@ -25,7 +25,7 @@ describe('사진에 무슨 말을 붙이나', () => {
   it('출처만 있고 피사체를 모르면 출처만 적는다', () => {
     expect(photoLabels({ photoSource: '한국관광공사 관광사진갤러리' }, tx)).toEqual({
       badge: null,
-      credit: '사진 제공: 한국관광공사 관광사진갤러리',
+      credit: '사진: 한국관광공사 관광사진갤러리',
       // 라이선스가 없는 사진(공공누리)은 링크도 없다 — S15P21E201-1610.
       licenseUrl: null,
     });

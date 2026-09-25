@@ -56,7 +56,7 @@ export function photoLabels(
   const license = photo.photoLicense?.name ? photo.photoLicense : null;
   return {
     badge: photo.photoSubject === 'VENUE' ? tx('행사장 사진', 'Venue photo') : null,
-    credit: photo.photoSource ? txf(tx, '사진 제공: %s', 'Photo: %s', photo.photoSource) + (license ? ` · ${license.name}` : '') : null,
+    credit: photo.photoSource ? txf(tx, '사진: %s', 'Photo: %s', photo.photoSource) + (license ? ` · ${license.name}` : '') : null,
     licenseUrl: license ? license.filePage || license.url || null : null,
   };
 }

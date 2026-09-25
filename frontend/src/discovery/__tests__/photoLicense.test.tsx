@@ -18,12 +18,12 @@ const wrapper = ({ children }: { children: ReactNode }) => <OnboardingPreference
 
 describe('사진 출처 줄', () => {
   it('공공누리 사진은 지금과 같다 — 출처만, 링크 없음', () => {
-    expect(photoLabels({ photoSource: '한국관광공사' }, tx)).toMatchObject({ credit: '사진 제공: 한국관광공사', licenseUrl: null });
+    expect(photoLabels({ photoSource: '한국관광공사' }, tx)).toMatchObject({ credit: '사진: 한국관광공사', licenseUrl: null });
   });
 
   it('🔴 라이선스가 있으면 이름을 덧붙이고, 링크는 파일 페이지 — 없으면 라이선스 주소', () => {
     expect(photoLabels({ photoSource: 'Wikimedia Commons / Busan Museum', photoLicense: CC }, tx))
-      .toMatchObject({ credit: '사진 제공: Wikimedia Commons / Busan Museum · CC BY-SA 3.0', licenseUrl: CC.filePage });
+      .toMatchObject({ credit: '사진: Wikimedia Commons / Busan Museum · CC BY-SA 3.0', licenseUrl: CC.filePage });
     expect(photoLabels({ photoSource: 'x', photoLicense: { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0', filePage: null } }, tx).licenseUrl)
       .toBe('https://creativecommons.org/licenses/by/4.0');
     // 퍼블릭 도메인 — 라이선스 주소가 없어도 파일 페이지로 간다
@@ -33,7 +33,7 @@ describe('사진 출처 줄', () => {
   it('🔴 공용 사진 부품: 출처 줄을 누르면 파일 페이지가 열린다', () => {
     const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
     render(<PlaceVisual name="부산근대역사관" address={null} photoUrl="https://img/p.jpg" photoSource="Wikimedia Commons" photoLicense={CC} />, { wrapper });
-    fireEvent.press(screen.getByRole('link', { name: '사진 제공: Wikimedia Commons · CC BY-SA 3.0' }));
+    fireEvent.press(screen.getByRole('link', { name: '사진: Wikimedia Commons · CC BY-SA 3.0' }));
     expect(open).toHaveBeenCalledWith(CC.filePage);
     open.mockRestore();
   });

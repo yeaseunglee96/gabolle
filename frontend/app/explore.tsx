@@ -10,7 +10,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
-import { PhotoCredit } from '@/components/PhotoCredit';
+import { PhotoCreditBar } from '@/components/PhotoCreditBar';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ScopeSwitch } from '@/discovery/ScopeSwitch';
@@ -361,7 +361,8 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
         {/* 🔴 사진 출처는 꾸밈이 아니라 이용 조건이다. 사진을 그리면 반드시 함께 그리고,
             문구는 서버가 준 값을 쓴다 — 지어내지 않는다. */}
         {/* 위키미디어 사진은 라이선스 이름을 덧붙이고, 누르면 파일 페이지가 열린다(S15P21E201-1610). */}
-        {item.photoSource ? <View style={styles.sourcePill}><PhotoCredit credit={txf(tx, '사진: %s', 'Photo: %s', item.photoSource) + (item.photoLicense?.name ? ` · ${item.photoLicense.name}` : '')} licenseUrl={photoLabels(item, tx).licenseUrl} variant="caption" color={color.text.muted} numberOfLines={1} /></View> : null}
+        {/* 홈 카드와 같은 띠(S15P21E201-1682) — 전에는 흰 알약에 흐린 글자라 어두운 사진 위에서 안 읽혔고, 한 줄에서 잘려 이용 조건이 안 보였다. */}
+        {item.photoSource ? <PhotoCreditBar source={item.photoSource} license={item.photoLicense?.name ?? null} licenseUrl={photoLabels(item, tx).licenseUrl} tx={tx} /> : null}
       </View>
       <View style={styles.cardBody}>
         <Text weight="bold" numberOfLines={1}>{localPlaceName(item, language)}</Text>
@@ -428,8 +429,7 @@ const styles = StyleSheet.create({
   //    테두리가 하는 일이 없고, 네 열에서는 테두리 여덟 줄이 사진보다 먼저 눈에 든다.
   cardGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: EXPLORE_GRID_GAP },
   card: { gap: spacing[1] },
-  cardPhotoWrap: { position: 'relative' },
+  cardPhotoWrap: { position: 'relative', overflow: 'hidden', borderRadius: radius.md },
   cardPhoto: { width: '100%', aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
-  sourcePill: { position: 'absolute', left: spacing[2], bottom: spacing[2], maxWidth: '85%', paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.85)' },
   cardBody: { gap: 2, paddingTop: spacing[1] },
 });

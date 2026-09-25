@@ -42,7 +42,7 @@ describe('장소 카드가 그 표를 실제로 얹는가', () => {
     );
     expect(view.getByText('행사장 사진')).toBeTruthy();
     // 출처 표기는 그대로 있어야 한다 — 뱃지를 더하면서 그걸 밀어내면 라이선스를 어긴다.
-    expect(view.getByText('사진 제공: 한국관광공사 관광사진갤러리')).toBeTruthy();
+    expect(view.getByText('사진: 한국관광공사 관광사진갤러리')).toBeTruthy();
   });
 
   it('그 장소를 찍은 사진이면 카드에 표가 없다', () => {
@@ -56,6 +56,6 @@ describe('장소 카드가 그 표를 실제로 얹는가', () => {
       />,
     );
     expect(view.queryByText('행사장 사진')).toBeNull();
-    expect(view.getByText('사진 제공: 한국관광공사 관광사진갤러리')).toBeTruthy();
+    expect(view.getByText('사진: 한국관광공사 관광사진갤러리')).toBeTruthy();
   });
 });
