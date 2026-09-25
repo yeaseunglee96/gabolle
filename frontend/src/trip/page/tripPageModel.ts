@@ -146,6 +146,8 @@ export function dayRoutes(map: DayMap, dayNumber: number, lineColor: string, leg
       stops: [map.stops[i], map.stops[i + 1]],
       path: leg?.path,
       estimated: leg ? leg.estimated : true,
+      // 걷기로 받은 구간의 경사 조각(S15P21E201-1658) — 스위치가 꺼져 있으면 늘 없다.
+      pieces: leg?.pieces,
     });
   }
   return routes;

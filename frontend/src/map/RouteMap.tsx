@@ -8,6 +8,7 @@ import { useI18n } from '@/i18n';
 import type { MapPathPoint, MapStop } from './types';
 import { fitPadding, focusShiftY } from './mapFocus';
 import { simplifyPath } from './simplifyPath';
+import { slopeSegments, type SlopePiece } from './slopeGrades';
 import { txf } from '@/i18n/format';
 
 declare global { interface Window { kakao?: any } }
@@ -71,6 +72,8 @@ export type MapRouteLayer = {
   /** 선 굵기·불투명도 — 경사·그늘 겹(S15P21E201-1569)처럼 경로 아래 깔리는 선만 준다. 안 주면 경로 선 그대로. */
   weight?: number;
   opacity?: number;
+  /** 걷는 길의 경사 조각(S15P21E201-1658) — 있으면 path 를 조각마다 잘라 경사 색으로 긋는다(slopeGrades.ts). */
+  pieces?: SlopePiece[];
 };
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 
@@ -225,19 +228,30 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         //    「지글지글하다」). 줌이 멀면 안 보이는 꺾임은 덜어 낸다. 한 경로를 여러 색 조각으로 그릴 때도 이것을 조각마다 부른다.
         lineRecordsRef.current = [];
         const tolerance = metersPerPixel(map, maps) * SIMPLIFY_PIXELS;
-        const drawRouteLine = (points: MapPathPoint[], lineColor: string, opacity: number) => {
-          const path = simplifyPath(points, tolerance).map((point) => new maps.LatLng(point.latitude, point.longitude));
-          const casing = new maps.Polyline({ path, strokeWeight: ROUTE_WEIGHT + CASING_EXTRA, strokeColor: color.surface.card, strokeOpacity: 0.95, strokeStyle: 'solid' });
-          const line = new maps.Polyline({ path, strokeWeight: ROUTE_WEIGHT, strokeColor: lineColor, strokeOpacity: opacity, strokeStyle: 'solid' });
-          casing.setMap(map); line.setMap(map); overlaysRef.current.push(casing, line);
-          lineRecordsRef.current.push({ points, lines: [casing, line] });
+        // 흰 테두리는 경로 전체에 한 번만 깔고 그 위에 조각별 색 선을 긋는다 — 조각마다 테두리를 깔면 이음매마다
+        // 흰 점이 생긴다. 조각이 없으면 한 조각(경로 색)이다.
+        const toPath = (points: MapPathPoint[]) => simplifyPath(points, tolerance).map((point) => new maps.LatLng(point.latitude, point.longitude));
+        const drawRouteLine = (points: MapPathPoint[], parts: Array<{ points: MapPathPoint[]; color: string }>, opacity: number) => {
+          const casing = new maps.Polyline({ path: toPath(points), strokeWeight: ROUTE_WEIGHT + CASING_EXTRA, strokeColor: color.surface.card, strokeOpacity: 0.95, strokeStyle: 'solid' });
+          casing.setMap(map); overlaysRef.current.push(casing);
+          lineRecordsRef.current.push({ points, lines: [casing] });
+          parts.forEach((part) => {
+            const line = new maps.Polyline({ path: toPath(part.points), strokeWeight: ROUTE_WEIGHT, strokeColor: part.color, strokeOpacity: opacity, strokeStyle: 'solid' });
+            line.setMap(map); overlaysRef.current.push(line);
+            lineRecordsRef.current.push({ points: part.points, lines: [line] });
+          });
         };
         (routes ?? [{ id: 'selected', color: color.text.heading, stops }]).forEach((route) => {
           // 실제 길 좌표가 있으면 그것을, 없으면 장소를 직선으로 잇는다.
           const points = route.path?.length ? route.path : route.stops;
           // 실제 길이라고 적혀 있을 때만 진하다. 나머지는 어림이라 옅다.
           const real = route.path?.length ? route.estimated === false : false;
-          if (route.weight == null) { drawRouteLine(points, route.color, route.opacity ?? (real ? REAL_OPACITY : ESTIMATED_OPACITY)); return; }
+          if (route.weight == null) {
+            // 걷는 길의 경사 조각이 있으면 조각마다 경사 색(S15P21E201-1658). 조각은 실제 길에만 온다.
+            const segments = route.path?.length ? slopeSegments(route.path, route.pieces) : null;
+            drawRouteLine(points, segments ?? [{ points, color: route.color }], route.opacity ?? (real ? REAL_OPACITY : ESTIMATED_OPACITY));
+            return;
+          }
           // 경사·그늘 겹(굵기를 직접 준 선)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
           const line = new maps.Polyline({
             path: points.map((point) => new maps.LatLng(point.latitude, point.longitude)),
@@ -368,6 +382,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   // 지도에 어림 선(옅은 선)이 하나라도 있으면 그 뜻을 글로 적는다(S15P21E201-1656 — 점선 대신 옅게 그린다).
   // 옅은 선이 무슨 뜻인지 모르는 사람에게는 진한 선과 다를 바가 없고, 그러면 옅게 그리는
   // 이유가 사라진다. 실제 길만 그려진 지도에는 이 줄이 안 나온다.
+  const hasSlopePieces = (routes ?? []).some((route) => route.weight == null && !!route.path?.length && slopeSegments(route.path, route.pieces) != null);
   const hasEstimatedLine = (routes ?? [{ id: 'selected', color: '', stops }])
     .some((route) => !(route.path?.length && route.estimated === false));
 
@@ -375,9 +390,13 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     return (
       <View style={styles.webShell}>
         {createElement('div', { ref: hostRef, style: { width: '100%', height }, 'aria-label': tx('여행 동선 지도', 'Trip route map') })}
-        {hasEstimatedLine && !failure ? (
+        {(hasEstimatedLine || hasSlopePieces) && !failure ? (
           <Text variant="caption" color={color.text.muted} style={styles.estimateNote}>
-            {tx('옅은 선은 어림한 길이라 실제로 가는 길과 다를 수 있어요.', 'Faded lines are estimates and may differ from the way you actually go.')}
+            {[
+              // 걷는 길 경사 색의 뜻 — 조각이 하나라도 그려질 때만(버튼 없이, 사용자 결정 S15P21E201-1658).
+              hasSlopePieces ? tx('걷는 길 — 초록 완만 · 노랑 조금 가파름 · 빨강 경사 8.33% 이상·계단 · 회색 경사 모름', 'Walking paths — green gentle · yellow a bit steep · red 8.33%+ slope or stairs · gray slope unknown') : null,
+              hasEstimatedLine ? tx('옅은 선은 어림한 길이라 실제로 가는 길과 다를 수 있어요.', 'Faded lines are estimates and may differ from the way you actually go.') : null,
+            ].filter(Boolean).join('\n')}
           </Text>
         ) : null}
         {failure ? (

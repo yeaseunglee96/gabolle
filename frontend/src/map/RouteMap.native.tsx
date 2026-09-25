@@ -10,10 +10,21 @@ import { useI18n } from '@/i18n';
 
 import { buildKakaoMapHtml } from './kakaoMapHtml';
 import { fitPadding, focusShiftY } from './mapFocus';
+import { slopeSegments, type SlopePiece } from './slopeGrades';
 
-import type { MapStop } from './types';
+import type { MapPathPoint, MapStop } from './types';
 
-export type MapRouteLayer = { id: string; color: string; stops: MapStop[] };
+/** 웹 RouteMap.tsx 의 MapRouteLayer 와 같은 모양 — 경로·어림·굵기·경사 조각(S15P21E201-1658)까지 WebView 로 그대로 넘긴다. */
+export type MapRouteLayer = {
+  id: string;
+  color: string;
+  stops: MapStop[];
+  path?: MapPathPoint[];
+  estimated?: boolean;
+  weight?: number;
+  opacity?: number;
+  pieces?: SlopePiece[];
+};
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 export type CurrentLocation = { latitude: number; longitude: number };
 
@@ -63,13 +74,22 @@ export function RouteMap({
   const html = useMemo(() => (appKey ? buildKakaoMapHtml(appKey) : ''), [appKey]);
 
   const visibleStops = useMemo(() => [...stops, ...points.flatMap((layer) => layer.stops)], [points, stops]);
+  // 걷는 길의 경사 조각을 잘라 색을 붙여 둔다 — WebView 안의 스크립트는 slopeGrades.ts 를 못 읽는다(S15P21E201-1658).
+  const drawnRoutes = useMemo(
+    () => (routes ?? [{ id: 'selected', color: color.action.primary, stops }]).map((route) => {
+      const segments = route.weight == null && route.path?.length ? slopeSegments(route.path, route.pieces) : null;
+      return segments ? { ...route, segments } : route;
+    }),
+    [routes, stops],
+  );
+  const hasSlopePieces = drawnRoutes.some((route) => 'segments' in route);
 
   const sendRender = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
     const data = {
       stops,
       points,
-      routes: routes ?? [{ id: 'selected', color: color.action.primary, stops }],
+      routes: drawnRoutes,
       selectedId,
       currentLocation: currentLocation ?? null,
       // 아래가 창에 가려진 만큼 맞추기 여백을 더 둔다(S15P21E201-1607, 웹과 같은 셈 — mapFocus.ts).
@@ -187,6 +207,12 @@ export function RouteMap({
         javaScriptEnabled
         domStorageEnabled
       />
+      {/* 걷는 길 경사 색의 뜻 — 조각이 하나라도 그려질 때만(버튼 없이). 왼쪽 아래는 카카오 로고·축척 자리라 오른쪽 아래. */}
+      {hasSlopePieces ? (
+        <Text variant="caption" color={color.text.muted} style={styles.slopeNote}>
+          {tx('걷는 길 — 초록 완만 · 노랑 조금 가파름 · 빨강 경사 8.33% 이상·계단 · 회색 경사 모름', 'Walking paths — green gentle · yellow a bit steep · red 8.33%+ slope or stairs · gray slope unknown')}
+        </Text>
+      ) : null}
       {onBackToList ? (
         <View style={styles.backRow}>
           <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} />
@@ -214,6 +240,10 @@ const styles = StyleSheet.create({
    * 빼면 부르는 화면 넷의 높이 계산이 같이 어긋난다.
    */
   backRow: { position: 'absolute', left: spacing[3], top: spacing[3] },
+  slopeNote: {
+    position: 'absolute', right: spacing[2], bottom: spacing[2], maxWidth: '92%',
+    paddingVertical: spacing[1], paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card,
+  },
   empty: { width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft },
   fallback: {
     width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft,

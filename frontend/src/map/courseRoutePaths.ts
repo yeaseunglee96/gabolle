@@ -12,11 +12,20 @@
 //    (routeDirections.ts 주석). 그때는 `estimated: true` 로 와서 이 화면이 그 구간만
 //    점선으로 남긴다 — 직선을 실제 경로인 척 그리지 않는다.
 import { useEffect, useState } from 'react';
-import { getRouteDirections } from '@/map/routeDirections';
+import { getRouteDirections, type TravelMode } from '@/map/routeDirections';
+import type { SlopePiece } from '@/map/slopeGrades';
 import type { MapPathPoint, MapStop } from '@/map/types';
 
-/** 한 구간의 결과. `estimated` 가 true 면 화면이 점선으로 그린다. */
-export type LegPath = { path: MapPathPoint[]; estimated: boolean };
+/**
+ * 🔴 걷는 구간을 걷기로 받아 경사 조각을 칠할까(S15P21E201-1658). **지금은 꺼 둔다.**
+ *    백엔드 !1626(우리 보행 길찾기 — 걷기에 실제 길 모양과 경사 조각)이 운영에 나가기 전에는 걷기 요청이 직선 어림
+ *    (두 점, 조각 없음)으로 온다. 켜면 걷는 구간이 지금의 자동차 길 대신 곧은 선이 된다(사용자 결정: 배포 뒤 켠다).
+ *    !1626 배포를 확인한 뒤 true 로 바꾸는 커밋 하나면 된다.
+ */
+export const WALK_SLOPE_ROUTES = false;
+
+/** 한 구간의 결과. `estimated` 가 true 면 화면이 옅게 그린다. `pieces` 는 걷기로 받은 구간의 경사 조각이다. */
+export type LegPath = { path: MapPathPoint[]; estimated: boolean; pieces?: SlopePiece[] };
 
 /** 구간 하나를 가리키는 열쇠 — 「그날, 그날 안에서 몇 번째 구간」. */
 export function legKey(day: number, index: number) {
@@ -39,12 +48,13 @@ function coordKey(a: MapStop, b: MapStop) {
  *    S15P21E201-1575). 효과는 결과만 버린다(useCourseRoutePaths 의 alive).
  * 🔴 못 받은 것(null)은 캐시에서 지운다 — 잠깐의 실패가 새로 고침 전까지 영원히 점선이 되지 않게.
  */
-async function fetchLeg(a: MapStop, b: MapStop, accessToken: string | null): Promise<LegPath | null> {
-  const key = coordKey(a, b);
+async function fetchLeg(a: MapStop, b: MapStop, accessToken: string | null, mode?: TravelMode): Promise<LegPath | null> {
+  // 같은 두 점이라도 걷기로 받은 것과 방식 없이 받은 것은 다른 길이다 — 열쇠를 가른다.
+  const key = `${mode ?? ''}${coordKey(a, b)}`;
   let pending = cache.get(key);
   if (!pending) {
     pending = getRouteDirections(
-      { originLat: a.latitude, originLng: a.longitude, destLat: b.latitude, destLng: b.longitude },
+      { originLat: a.latitude, originLng: a.longitude, destLat: b.latitude, destLng: b.longitude, ...(mode ? { mode } : {}) },
       accessToken,
     ).then((result) => {
       // 🔴 못 받으면 null 이다. 빈 경로를 돌려주면 화면이 「길이 없다」와 「아직 못 받았다」를
@@ -55,7 +65,9 @@ async function fetchLeg(a: MapStop, b: MapStop, accessToken: string | null): Pro
       // 🔴 서버는 [경도, 위도] 순서로 준다(RouteLeg.path — GeoJSON 과 같은 순서). 여기서 [위도, 경도]로 읽어서
       //    실제 도로 선이 위도 129 인 곳, 즉 지도 밖에 그려졌다 — 여행 페이지에 정차지 사이 선이 안 보이던
       //    원인(S15P21E201-1567, 운영 실측: 한 구간 점 48개가 전부 뒤바뀌어 있었다).
-      return { path: path.map(([lng, lat]) => ({ latitude: lat, longitude: lng })), estimated: result.directions.estimated !== false };
+      const leg: LegPath = { path: path.map(([lng, lat]) => ({ latitude: lat, longitude: lng })), estimated: result.directions.estimated !== false };
+      if (result.directions.pieces?.length) leg.pieces = result.directions.pieces;
+      return leg;
     }).catch(() => null).then((leg) => {
       if (leg == null) cache.delete(key);
       return leg;
@@ -77,23 +89,30 @@ export function clearCourseRoutePathCache() { cache.clear(); }
 export function useCourseRoutePaths(
   days: Array<{ day: number; stops: MapStop[] }>,
   accessToken: string | null,
+  /** walkInto = 들어오는 구간이 걷기인 정차지 id(일정 항목의 walkingMeters 가 있는 곳). walkSlope 를 안 주면 위 스위치를 따른다. */
+  options: { walkInto?: ReadonlySet<string>; walkSlope?: boolean } = {},
 ): Record<string, LegPath> {
   const [legs, setLegs] = useState<Record<string, LegPath>>({});
   // 좌표가 같으면 다시 안 부른다. 코스를 고를 때마다 새 배열이 와도 내용이 같으면 그대로 둔다.
   const shape = days.map((d) => `${d.day}:${d.stops.map((s) => coordKey(s, s)).join('|')}`).join(';');
+  // 걷기로 받을 구간 — 스위치가 꺼져 있으면 없다. 목록이 매번 새 Set 이어도 내용이 같으면 다시 안 부른다.
+  const walkSlope = options.walkSlope ?? WALK_SLOPE_ROUTES;
+  const walkKey = walkSlope ? [...(options.walkInto ?? [])].sort().join(',') : '';
 
   useEffect(() => {
     let alive = true;
-    const wanted: Array<{ key: string; a: MapStop; b: MapStop }> = [];
+    const walking = new Set(walkKey ? walkKey.split(',') : []);
+    const wanted: Array<{ key: string; a: MapStop; b: MapStop; mode?: TravelMode }> = [];
     for (const day of days) {
       for (let i = 0; i + 1 < day.stops.length; i += 1) {
-        wanted.push({ key: legKey(day.day, i), a: day.stops[i], b: day.stops[i + 1] });
+        const b = day.stops[i + 1];
+        wanted.push({ key: legKey(day.day, i), a: day.stops[i], b, ...(walking.has(b.id) ? { mode: 'WALK' as const } : {}) });
       }
     }
     if (wanted.length === 0) { setLegs({}); return undefined; }
 
     void Promise.all(wanted.map(async (leg) => {
-      const got = await fetchLeg(leg.a, leg.b, accessToken);
+      const got = await fetchLeg(leg.a, leg.b, accessToken, leg.mode);
       return got ? ([leg.key, got] as const) : null;
     })).then((results) => {
       if (!alive) return;
@@ -104,7 +123,8 @@ export function useCourseRoutePaths(
 
     return () => { alive = false; };
     // shape 가 같으면 같은 코스다 — days 배열이 매번 새로 만들어져도 다시 안 부른다.
-  }, [shape, accessToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shape, accessToken, walkKey]);
 
   return legs;
 }
