@@ -686,8 +686,7 @@ function CourseCardMobile({ open, courses, index, full, estimated, items, touche
             );
           })}
         </View>
-        {/* 🔴 한 안뿐인 이유를 말한다. 조용히 하나만 그리면 비교를 놓친 줄도 모른다(넓은 화면과 같은 문구). */}
-        {full ? null : <Text variant="micro" color={color.text.muted} style={styles.coursePad}>{tx('세 코스 비교는 준비 중이에요', 'Comparing three courses is on the way')}</Text>}
+        {/* 🔴 한 안뿐일 때 코스 비교가 준비 중이라고 말하던 줄을 뺐다 — 발표·심사에서 덜 만든 것처럼 보였다(S15P21E201-1662, 사용자 결정). */}
         {routeLine ? <Text variant="caption" color={color.text.body} style={styles.coursePad}>{routeLine}</Text> : null}
         <Animated.View style={[styles.confirmClip, { opacity: confirmRow, maxHeight: confirmRow.interpolate({ inputRange: [0, 1], outputRange: [0, 64] }) }]}>
           <View style={styles.confirmRow}>

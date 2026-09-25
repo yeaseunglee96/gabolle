@@ -308,13 +308,7 @@ function RecommendationsClassic() {
           ? tx(`${courses.length}가지 코스`, `${courses.length} courses`)
           : tx('추천 코스', 'Your course')}
       </Text>
-      {/* 🔴 한 안뿐인 이유를 말한다. 조용히 하나만 그리면 사용자는 비교를 놓친 줄도 모른다. */}
-      {full ? null : (
-        <Text variant="caption" color={color.text.muted}>
-          {tx('지금은 만들어진 일정 하나만 보여 드려요. 세 가지 코스 비교는 준비 중이에요.',
-            'Only the itinerary we built is shown for now — comparing three courses is on the way.')}
-        </Text>
-      )}
+      {/* 🔴 한 안뿐일 때 코스 비교가 준비 중이라고 말하던 줄을 뺐다 — 발표·심사에서 덜 만든 것처럼 보였다(S15P21E201-1662, 사용자 결정). */}
     </View>
   );
 

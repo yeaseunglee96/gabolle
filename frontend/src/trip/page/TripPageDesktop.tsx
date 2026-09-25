@@ -196,9 +196,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
               ) : null}
             </>
           )}
-          {/* 🔴 한 안뿐인 이유를 말한다. 조용히 하나만 그리면 비교를 놓친 줄도 모른다(recommendations.tsx 와 같은 문구). */}
-          {/*    목록을 아직 받는 중이면 말하지 않는다 — 연 일정으로 먼저 그린 사이에는 몇 안인지 아직 모른다(S15P21E201-1599). */}
-          {page.full || page.coursesLoading ? null : <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.courseNote}>{tx('세 코스 비교는 준비 중이에요', 'Comparing three courses is on the way')}</Text>}
+          {/* 🔴 한 안뿐일 때 코스 비교가 준비 중이라고 말하던 줄을 뺐다 — 발표·심사에서 덜 만든 것처럼 보였다(S15P21E201-1662, 사용자 결정). */}
           <ViewSwitch layout={layout} onChange={setLayout} tx={tx} />
         </View>
 
@@ -476,7 +474,6 @@ const styles = StyleSheet.create({
   confirmButton: { minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.action.primary, justifyContent: 'center' },
   confirmedPill: { flexDirection: 'row', alignItems: 'center', minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card },
   textButton: { minHeight: 40, paddingHorizontal: spacing[3], justifyContent: 'center' },
-  courseNote: { flexShrink: 1 },
   viewSwitch: { marginLeft: 'auto' },
   viewIndicator: { position: 'absolute', top: spacing[1], bottom: spacing[1], left: spacing[1], width: VIEW_SLOT, borderRadius: radius.full, backgroundColor: color.action.secondary },
   viewSlot: { width: VIEW_SLOT, minHeight: 36, alignItems: 'center', justifyContent: 'center' },
