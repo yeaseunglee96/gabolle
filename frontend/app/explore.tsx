@@ -5,6 +5,7 @@ import { ActivityIndicator, Image, Linking, Platform, Pressable, ScrollView, Sty
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 
+import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
@@ -18,6 +19,8 @@ import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { color, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { getPlacesByFacet, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
+import { syncLocationConsent } from '@/personalization/locationConsent';
+import { useLocationGate } from '@/personalization/useLocationGate';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
@@ -37,6 +40,8 @@ export default function LocalExplore() {
   const router = useRouter();
   const { facet } = useLocalSearchParams<{ facet?: string }>();
   const { tx, language } = useI18n();
+  const { accessToken } = useAuth();
+  const locationGate = useLocationGate(accessToken);
   const [result, setResult] = useState<FacetsLoadResult>({ state: 'success', facets: [] });
   const [loading, setLoading] = useState(true);
   const requestedFacet = facet && KNOWN_FACET_KEYS.has(facet) ? facet : null;
@@ -53,6 +58,8 @@ export default function LocalExplore() {
   }, []);
 
   const detectLocation = useCallback(async () => {
+    // 🔴 위치 동의가 먼저다(S15P21E201-1691) — 「내 위치로」를 누른 것은 쓰고 싶다는 뜻이라, 거절했어도 다시 묻는다.
+    if (!(await locationGate.request())) { setLocationState('denied'); return; }
     setLocationState('detecting');
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
@@ -63,9 +70,11 @@ export default function LocalExplore() {
     } catch {
       setLocationState('denied');
     }
-  }, []);
+  }, [locationGate.request]);
 
   const restoreGrantedLocation = useCallback(async () => {
+    // 🔴 동의가 없으면 조용히 읽지도 않는다(S15P21E201-1691). 묻는 것은 「내 위치로」를 누를 때다.
+    if ((await syncLocationConsent(accessToken)) !== true) { setLocationState('denied'); return; }
     setLocationState('detecting');
     try {
       // 화면을 둘러보기만 해도 권한 팝업부터 띄우지 않는다. 이미 허용한 사람에게만 위치를
@@ -78,7 +87,7 @@ export default function LocalExplore() {
     } catch {
       setLocationState('denied');
     }
-  }, []);
+  }, [accessToken]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { void restoreGrantedLocation(); }, [restoreGrantedLocation]);
@@ -194,6 +203,7 @@ export default function LocalExplore() {
           {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cardWidth={cardWidth} /> : null}
         </View>
       ) : null}
+      {locationGate.sheet}
     </Screen>
   );
 }

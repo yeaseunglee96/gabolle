@@ -8,6 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { useLocationGate } from '@/personalization/useLocationGate';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
@@ -45,6 +46,7 @@ export default function PlaceReviews() {
   const router = useRouter();
   const { tx, language } = useI18n();
   const { accessToken } = useAuth();
+  const locationGate = useLocationGate(accessToken);
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [place, setPlace] = useState<ApiPlace | null>(null);
@@ -78,6 +80,9 @@ export default function PlaceReviews() {
 
   const requestVerification = async () => {
     if (!id) return;
+    // 🔴 위치 동의가 먼저다(S15P21E201-1691). 서버도 방문 인증에 이 동의(PRECISE_LOCATION)를 요구한다(ConsentGuard) —
+    //    동의 기록이 없던 때에는 인증이 서버에서 막혔다. 거절하면 기기 권한이 없을 때와 같은 길로 간다.
+    if (!(await locationGate.request())) { setVerify({ kind: 'permission-denied' }); return; }
     setVerify({ kind: 'checking' });
     const permission = await Location.requestForegroundPermissionsAsync();
     if (!permission.granted) {
@@ -235,6 +240,7 @@ export default function PlaceReviews() {
           ))}
         </View>
       ) : null}
+      {locationGate.sheet}
     </Screen>
   );
 }

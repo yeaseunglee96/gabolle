@@ -34,6 +34,7 @@ import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
 import { courseLetter } from '@/plan/CourseCard';
 import { NowCard } from '@/plan/NowCard';
+import { useLocationGate } from '@/personalization/useLocationGate';
 import {
   pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
   type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto,
@@ -132,6 +133,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   // ── 진행 (「지금」 카드) — 확정한 일정에서만 ────────────────────────────────
   const progressId = confirmed ? loaded?.id ?? null : null;
   const run = useTripProgress(progressId);
+  // 🔴 위치는 동의가 있을 때만 읽는다(S15P21E201-1691). 「출발」을 처음 누를 때 한 번 묻는다 — 거절해도 출발은 되고, 도착은 손으로 찍는다.
+  const locationGate = useLocationGate(accessToken);
   const day = loaded?.days[dayIndex];
   // 그날 첫 곳은 어디서 오나 — 둘째 날부터는 숙소다(S15P21E201-1580). 서버가 안 알려 주면(옛 응답) 출발지.
   const startKind: DayStart['kind'] = day?.start?.kind ?? 'ORIGIN';
@@ -228,7 +231,9 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
 
   // ── 내 위치 · 자동 도착 (S15P21E201-1568) ────────────────────────────────────
   // 출발(RUNNING) 동안만 위치를 따라간다. 지금 향하는 곳 50m 안에 2분 머물면 도착으로 적는다(autoArrival.ts).
-  const live = useLiveLocation(progress.status === 'RUNNING');
+  const live = useLiveLocation(progress.status === 'RUNNING' && locationGate.consent === true);
+  // 위치를 안 쓰는 중인가 — 거절했거나, 묻기 전인데 이미 출발한 일정(다른 기기에서 출발 등)이다. 카드가 그렇다고 말한다.
+  const locationOff = locationGate.consent === false || (progress.status === 'RUNNING' && locationGate.consent !== true);
   const target = currentStop && typeof currentStop.lat === 'number' && typeof currentStop.lng === 'number'
     ? { id: currentStop.id, latitude: currentStop.lat, longitude: currentStop.lng } : null;
   const dwellRef = useRef<Dwell>(null);
@@ -353,13 +358,14 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
               <NowCard
                 status={progress.status}
                 gpsUsable={gpsUsable}
+                locationOff={locationOff}
                 title={nowTitle}
                 detail={nowDetail}
                 clock={new Date().toTimeString().slice(0, 5)}
                 driftText={nowDrift}
                 progress={nowRatio}
                 showManualArrival={needsManualArrival(progress.status, gpsUsable)}
-                onStart={run.start}
+                onStart={() => void locationGate.ensure().then(() => run.start())}
                 onPause={run.pause}
                 onArrive={() => currentStop && run.arrive(stopIds, currentStop.id)}
                 onSkip={() => currentStop && run.skip(stopIds, currentStop.id)}
@@ -578,6 +584,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         }}
       />
       <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
+      {locationGate.sheet}
     </View>
   );
 }

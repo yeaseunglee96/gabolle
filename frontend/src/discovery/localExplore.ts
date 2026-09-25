@@ -4,6 +4,7 @@
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import type { PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
+import { coarseCoordinate } from '@/personalization/locationConsent';
 
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string; labelEn?: string | null };
 // 서버 목록과 순서는 그대로 유지한다. 이 사전은 영문 표기가 없는 기존 응답의 번역만 맡는다.
@@ -91,7 +92,8 @@ export async function getNearbyPlaces(
   params: { lat: number; lng: number; facetKey?: string; radiusMeters?: number; limit?: number },
   signal?: AbortSignal,
 ): Promise<NearbyPlacesLoadResult> {
-  const query = new URLSearchParams({ lat: String(params.lat), lng: String(params.lng) });
+  // 🔴 좌표는 약 100m 로 줄여 보낸다 — 주소창에 실려 서버 접속 기록에 남는다(S15P21E201-1691).
+  const query = new URLSearchParams({ lat: String(coarseCoordinate(params.lat)), lng: String(coarseCoordinate(params.lng)) });
   if (params.facetKey) query.set('facetKey', params.facetKey);
   if (params.radiusMeters) query.set('radiusMeters', String(params.radiusMeters));
   if (params.limit) query.set('limit', String(params.limit));
