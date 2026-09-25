@@ -47,7 +47,7 @@ import { TripNameSheet } from '@/trip/TripNameSheet';
 
 import { TripBudgetCard } from './TripBudgetCard';
 import type { TripPageSource } from './tripPageData';
-import { formatManwon } from './tripPageModel';
+import { formatManwon, freeTimeMinutes } from './tripPageModel';
 import { useTripPage } from './useTripPage';
 import { useTripProgress } from './useTripProgress';
 import { remainingMeters, stepDwell, usableFix, type Dwell } from './autoArrival';
@@ -56,6 +56,7 @@ import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
 import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
 import { DayReturnRow } from './DayReturnRow';
 import { DayStartRow } from './DayStartRow';
+import { FreeTimeRow } from './FreeTimeRow';
 import type { TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
@@ -404,6 +405,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   startKind={startKind}
                   index={index}
                   last={index === items.length - 1}
+                  freeBefore={index > 0 ? freeTimeMinutes(items, index - 1) : null}
                   date={index === 0 ? day?.date ?? null : null}
                   photo={photos[item.placeId] ?? null}
                   step={progressId ? steps[index] : undefined}
@@ -705,8 +707,8 @@ function RiskStrip({ atRisk, known, estimated, tx }: { atRisk: ItineraryItemDto[
   );
 }
 
-function TimelineStop({ item, startKind, index, last, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, tx, locale }: {
-  item: ItineraryItemDto; startKind: DayStart['kind']; index: number; last: boolean; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
+function TimelineStop({ item, startKind, index, last, freeBefore, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, tx, locale }: {
+  item: ItineraryItemDto; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
   onToggle: () => void; onLock: () => void; onArrive: () => void; onExclude: () => void; tx: Tx; locale: string;
 }) {
@@ -724,6 +726,14 @@ function TimelineStop({ item, startKind, index, last, date, photo, step, risky, 
 
   return (
     <View>
+      {/* 앞 곳을 떠나 이 곳에 오기까지 남는 시간 — 「자유 시간 · 50분」(S15P21E201-1668). 앞 곳을 떠난 뒤의 일이라
+          이동 줄보다 위에 둔다. 모르거나 30분이 안 되면 안 그린다(freeTimeMinutes). */}
+      {freeBefore !== null ? (
+        <View style={styles.legRow}>
+          <View style={styles.legRail}><View style={[styles.railLine, styles.railFull]} /></View>
+          <FreeTimeRow minutes={freeBefore} tx={tx} />
+        </View>
+      ) : null}
       {/* 들어오는 구간 — 카드 사이 32px 줄. 첫 곳은 「출발지에서 …」. */}
       {index > 0 || leg ? (
         <View style={styles.legRow}>
