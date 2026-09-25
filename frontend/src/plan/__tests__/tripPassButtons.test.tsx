@@ -70,11 +70,54 @@ describe('여행표 앞면의 단추', () => {
 
   it('뒤집는 단추는 맨 아래 안내 줄이다 — 누르면 뒷면이 열린다', () => {
     const view = printed(jest.fn());
-    const backFace = () => view.getByLabelText('앞면으로 돌리기').parent as Node;
+    const backFace = () => view.getByLabelText('앞면으로 돌리기', { includeHiddenElements: true }).parent as Node;
     const facePointer = () => { for (let n: Node | null = backFace(); n; n = n.parent ?? null) if (n.props?.pointerEvents) return n.props.pointerEvents; return undefined; };
 
     expect(facePointer()).toBe('none');
     fireEvent.press(view.getByRole('button', { name: '여행표 상세 보기' }));
     expect(facePointer()).toBe('auto');
+  });
+});
+
+// ── 안 보이는 면 (S15P21E201-1674) ─────────────────────────────────────────────
+//
+// 🔴 뒷면은 눌리지만 않게(pointerEvents) 막혀 있었다. 키보드 탭과 화면 읽기 프로그램은 안 보이는 면의 단추에도 섰다 —
+//    앞면을 보고 있는데 「앞면으로 돌리기」가 읽히고, 뒤집은 뒤에는 안 보이는 「내 일정 보기」에 탭이 섰다.
+
+type Tabbable = { parent?: Tabbable | null; props?: { tabIndex?: number } };
+/** 이름표나 글자로 찾아(숨긴 면까지) 위로 올라가며 처음 만나는 tabIndex — 없으면 기본(0, 탭이 선다). */
+function tabIndexOf(view: ReturnType<typeof printed>, name: string | RegExp): number {
+  const hidden = { includeHiddenElements: true };
+  let node = (view.queryByLabelText(name, hidden) ?? view.getByText(name, hidden)) as unknown as Tabbable | null;
+  for (; node; node = node.parent ?? null) if (typeof node.props?.tabIndex === 'number') return node.props.tabIndex;
+  return 0;
+}
+
+describe('여행표 — 안 보이는 면', () => {
+  beforeEach(() => { jest.useFakeTimers(); });
+  afterEach(() => { jest.useRealTimers(); });
+
+  it('🔴 앞면일 때 뒷면 단추는 화면 읽기에서도 키보드 탭에서도 빠진다', () => {
+    const view = printed(jest.fn());
+
+    expect(view.queryByRole('button', { name: '앞면으로 돌리기' })).toBeNull();
+    expect(view.queryByRole('button', { name: /일정 보기 →/ })).toBeNull();
+    expect(tabIndexOf(view, '앞면으로 돌리기')).toBe(-1);
+    expect(tabIndexOf(view, /일정 보기 →/)).toBe(-1);
+    // 보이는 앞면은 그대로다
+    expect(view.getByRole('button', { name: /내 일정 보기/ })).toBeTruthy();
+    expect(tabIndexOf(view, /내 일정 보기/)).toBe(0);
+  });
+
+  it('🔴 뒤집으면 거꾸로 — 앞면 단추가 빠지고 뒷면 단추가 들어온다', () => {
+    const view = printed(jest.fn());
+    fireEvent.press(view.getByRole('button', { name: '여행표 상세 보기' }));
+
+    expect(view.getByRole('button', { name: '앞면으로 돌리기' })).toBeTruthy();
+    expect(tabIndexOf(view, '앞면으로 돌리기')).toBe(0);
+    expect(view.queryByRole('button', { name: /내 일정 보기/ })).toBeNull();
+    expect(view.queryByRole('button', { name: '여행표 상세 보기' })).toBeNull();
+    expect(tabIndexOf(view, /내 일정 보기/)).toBe(-1);
+    expect(tabIndexOf(view, '여행표 상세 보기')).toBe(-1);
   });
 });
