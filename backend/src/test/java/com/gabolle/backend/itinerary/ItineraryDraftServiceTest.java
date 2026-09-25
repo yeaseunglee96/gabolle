@@ -266,6 +266,28 @@ class ItineraryDraftServiceTest {
 				.doesNotContain(places.get(2).placeId(), places.get(5).placeId());
 	}
 
+	/**
+	 * 🔴 운영(2026-09-25) — 일정 161개 중 3개에 젤라또부(400m 떨어진 두 지점)·젤라또조이(5km)가 두 번씩 들어갔다.
+	 * 등록된 상표가 아니어도 이름이 같으면 한 곳만 — 띄어쓰기·대소문자는 무시한다(S15P21E201-1631).
+	 */
+	@Test
+	@DisplayName("🔴 등록 상표가 아니어도 이름이 같은 가게는 한 일정에 한 곳만 — 순위가 높은 쪽이 남는다")
+	void sameNameAppearsOnceEvenOffTheBrandList() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamed(List.of(
+				"젤라또부", "해운대해수욕장", "젤라또 부", "동백섬", "Gelato Joy", "gelato joy"));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> placed = draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList();
+		assertThat(placed)
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(3).placeId(),
+						places.get(4).placeId())
+				.as("이름이 같은 뒤 지점은 빠진다")
+				.doesNotContain(places.get(2).placeId(), places.get(5).placeId());
+	}
+
 	/** 이름을 붙인 후보. 갈래·좌표는 비워 둔다 — 끼니 상한·지역 가르기와 섞이지 않게. */
 	private List<ItineraryDraftCommand.PlannedPlace> plannedPlacesNamed(List<String> names) {
 		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>();
