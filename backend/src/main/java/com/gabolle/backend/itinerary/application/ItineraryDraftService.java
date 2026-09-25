@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -723,7 +724,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * (S15P21E201-1616, 사용자 결정). 운영 일정 201개 중 4개가 같은 체인의 다른 지점을 두 번 넣었다.
      *
      * <p>앉히기 <b>전에</b> 뺀다. 세 번 훑는 앉히기 안에서 막으면 훑기마다 같은 검사를 넣어야 하고 하나라도 빠지면
-     * 새어 나간다. 판정은 추천 점수를 낮추는 쪽과 같은 사전({@link ChainBrand})이다. 사전에 없는 가게는 그대로다.
+     * 새어 나간다. 판정은 추천 점수를 낮추는 쪽과 같은 사전({@link ChainBrand})이다.
+     *
+     * <p>🔴 사전에 없는 가게도 <b>이름이 같으면</b> 한 곳만 남긴다(S15P21E201-1631, 사용자 결정). 운영 일정 161개 중
+     * 3개에 젤라또부(400m 떨어진 두 지점)·젤라또조이(5km)가 두 번씩 들어갔다 — 사전은 등록된 45개 상표만 본다.
+     * 이름은 띄어쓰기·대소문자를 무시하고 견준다.
      */
     private List<ItineraryDraftCommand.PlannedPlace> oneOfEachBrand(List<ItineraryDraftCommand.PlannedPlace> places) {
         if (places.isEmpty()) {
@@ -737,8 +742,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         Set<String> seen = new HashSet<>();
         List<ItineraryDraftCommand.PlannedPlace> kept = new ArrayList<>(places.size());
         for (ItineraryDraftCommand.PlannedPlace place : places) {
-            String brand = ChainBrand.brandOf(nameById.get(place.placeId()));
-            if (brand == null || seen.add(brand)) {
+            String name = nameById.get(place.placeId());
+            String brand = ChainBrand.brandOf(name);
+            String key = (brand != null) ? "brand:" + brand
+                    : (name == null || name.isBlank()) ? null : "name:" + name.replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
+            if (key == null || seen.add(key)) {
                 kept.add(place);
             }
         }
