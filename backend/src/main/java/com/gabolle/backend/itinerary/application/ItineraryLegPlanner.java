@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.UUID;
 
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import com.gabolle.backend.calibration.TravelCalibrationPort;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.application.port.TravelTimePort;
@@ -42,6 +45,17 @@ public class ItineraryLegPlanner {
     public ItineraryLegPlanner(PlaceRepository placeRepository, ObjectProvider<TravelTimePort> travelTime) {
         this.placeRepository = placeRepository;
         this.travelTime = travelTime;
+    }
+
+    /**
+     * 실제 이동으로 고친 수단별 배율(S15P21E201-1700). 스위치가 꺼져 있거나 그 수단의 배율이 아직 없으면 어림을 그대로
+     * 쓴다.
+     */
+    private TravelCalibrationPort travelCalibration;
+
+    @Autowired(required = false)
+    public void setTravelCalibration(TravelCalibrationPort travelCalibration) {
+        this.travelCalibration = travelCalibration;
     }
 
     /**
@@ -94,12 +108,14 @@ public class ItineraryLegPlanner {
                 }
                 Integer walkingMeters = walkingMetersFor(travelMode, distanceM);
 
+                // 어림은 늘 옆 칸에 남기고, 고친 값을 이동 시간으로 쓴다(S15P21E201-1700). 보정이 꺼져 있으면 둘이 같다.
+                Integer estimated = measured.durationMin();
                 legs.add(new ItineraryDraft.DraftLeg(dayIndex, i + 1,
-                        fromPlaceId, toPlaceId, travelMode, distanceM, measured.durationMin(),
+                        fromPlaceId, toPlaceId, travelMode, distanceM, calibrated(travelMode, estimated),
                         walkingMeters, measured.dataStatus(), measured.fareKrw(),
                         // 선형은 실제 길찾기 응답을 받았을 때만 들어온다. 위에서 직선거리로
                         // 메운 경우에는 null 이고, 그 구분이 지도에서 실선과 점선을 가른다.
-                        measured.path()));
+                        measured.path(), estimated));
             }
         }
         return legs;
@@ -145,7 +161,7 @@ public class ItineraryLegPlanner {
                 leg.fromPlaceId() != null ? leg.fromPlaceId().toString() : null,
                 leg.toPlaceId().toString(), leg.travelMode(), leg.distanceM(),
                 leg.durationMin(), leg.walkingMeters(), null, null,
-                leg.dataStatus(), leg.fareKrw(), leg.path(), now);
+                leg.dataStatus(), leg.fareKrw(), leg.path(), leg.uncalibratedDurationMin(), now);
     }
 
     /**
@@ -154,6 +170,15 @@ public class ItineraryLegPlanner {
      * 조용히 넘기는 대신 시끄럽게 실패하는 편이 낫다 — 조용히 넘기면 모든 구간이 이유 없이 비어
      * 나가고 아무도 이유를 못 찾는다.
      */
+    /** 어림에 그 수단의 배율을 곱한다. 어림이 없거나 배율이 없으면 어림 그대로. */
+    private Integer calibrated(String travelMode, Integer estimated) {
+        if (estimated == null || this.travelCalibration == null) {
+            return estimated;
+        }
+        OptionalDouble multiplier = this.travelCalibration.multiplierFor(travelMode);
+        return multiplier.isPresent() ? (int) Math.round(estimated * multiplier.getAsDouble()) : estimated;
+    }
+
     private TravelTime measure(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode) {
         TravelTimePort port = this.travelTime.getIfAvailable();
         if (port == null) {

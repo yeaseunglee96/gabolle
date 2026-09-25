@@ -50,11 +50,15 @@ def decide(stats: list[Stat], previous: dict[str, float], checks: dict) -> list[
 
     측정값만 반영 후보다. 차례로 본다 — 표본이 모자라면 보류, 범위 밖이면 보류, 직전 값(없으면 기본값)에서 한 번에
     움직이는 폭을 넘으면 폭까지만 반영. 보류는 새 판에 HELD 로 남고 엔진은 그 갈래의 직전 PASSED 를 계속 쓴다.
+
+    단위(unit)와 소수 자리(decimals)는 작업마다 checks.json 에 둔다 — 체류는 「분」·한 자리, 이동 배율은 「배」·두 자리.
     """
     out = []
     ratio = float(checks['max_change_ratio'])
+    unit = checks.get('unit', '분')
+    decimals = int(checks.get('decimals', 1))
     for s in stats:
-        value = None if s.value is None else round(s.value, 1)
+        value = None if s.value is None else round(s.value, decimals)
         if s.basis == 'ESTIMATED':
             out.append(Decision(s.key, s.basis, 'REFERENCE', value, s.sample_size, '추정 — 반영 안 함'))
             continue
@@ -64,7 +68,7 @@ def decide(stats: list[Stat], previous: dict[str, float], checks: dict) -> list[
             continue
         if not checks['min_value'] <= value <= checks['max_value']:
             out.append(Decision(s.key, s.basis, 'HELD', value, s.sample_size,
-                                '범위 밖 %g분 (허용 %g~%g분)' % (value, checks['min_value'], checks['max_value'])))
+                                '범위 밖 %g%s (허용 %g~%g%s)' % (value, unit, checks['min_value'], checks['max_value'], unit)))
             continue
         if s.key in previous:
             base, where = float(previous[s.key]), '직전 판'
@@ -72,9 +76,10 @@ def decide(stats: list[Stat], previous: dict[str, float], checks: dict) -> list[
             base, where = float(checks['baseline'].get(s.key, checks['baseline_default'])), '기본값'
         low, high = base * (1 - ratio), base * (1 + ratio)
         if value < low or value > high:
-            clamped = round(min(max(value, low), high), 1)
+            clamped = round(min(max(value, low), high), decimals)
             out.append(Decision(s.key, s.basis, 'PASSED', clamped, s.sample_size,
-                                '폭 제한: 계산 %g분 → %g분 (%s %g분의 ±%d%%)' % (value, clamped, where, base, round(ratio * 100))))
+                                '폭 제한: 계산 %g%s → %g%s (%s %g%s의 ±%d%%)'
+                                % (value, unit, clamped, unit, where, base, unit, round(ratio * 100))))
             continue
         out.append(Decision(s.key, s.basis, 'PASSED', value, s.sample_size, None))
     return out

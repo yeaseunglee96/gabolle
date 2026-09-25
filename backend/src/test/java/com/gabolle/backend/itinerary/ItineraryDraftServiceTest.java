@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -437,6 +438,67 @@ class ItineraryDraftServiceTest {
 		assertThat(savedLegs.getValue()).allSatisfy((leg) -> assertThat(leg.fareKrw())
 				.as("요금을 받아 놓고 저장에서 흘리면 화면이 비용 줄을 아예 안 그린다")
 				.isEqualTo(12_800));
+	}
+
+	/**
+	 * 실제 이동으로 고친 배율(S15P21E201-1700) — 저장·화면·시각 깔기는 고친 값을 쓰고, 옆 칸에 엔진의 어림을 남긴다. 어림을
+	 * 흘리면 다음 보정 계산이 고친 값을 어림으로 읽어 배율이 겹쳐 곱해진다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-1700 — 새 일정 저장: 이동 시간은 배율을 곱한 값, 옆 칸에는 엔진의 어림이 남는다")
+	void persistKeepsTheUncalibratedTravelTime() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		ItineraryRepository repository = mock(ItineraryRepository.class);
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, travelMinutes(25));
+		planner.setTravelCalibration((mode) -> OptionalDouble.of(1.2));
+		ItineraryDraftService service = new ItineraryDraftService(this.tripRepository, repository, CLOCK, 4, 3, "FOOD", 1,
+				planner, tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
+
+		service.persist(service.assemble(commandOf("trip_1", plannedPlaces(3))));
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryLeg>> savedLegs = ArgumentCaptor.forClass(List.class);
+		verify(repository).create(any(), any(), any(), savedLegs.capture());
+		assertThat(savedLegs.getValue()).isNotEmpty().allSatisfy((leg) -> {
+			assertThat(leg.durationMin()).isEqualTo(30);
+			assertThat(leg.uncalibratedDurationMin()).isEqualTo(25);
+		});
+	}
+
+	@Test
+	@DisplayName("보정이 꺼져 있으면 두 칸이 같다 — 어림이 곧 이동 시간")
+	void withoutCalibrationBothFieldsHoldTheEstimate() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, travelMinutes(25));
+
+		assertThat(planner.buildLegs(trip, List.of(List.of(UUID.randomUUID(), UUID.randomUUID())))).allSatisfy((leg) -> {
+			assertThat(leg.durationMin()).isEqualTo(25);
+			assertThat(leg.uncalibratedDurationMin()).isEqualTo(25);
+		});
+	}
+
+	@Test
+	@DisplayName("배율은 그 수단 것만 곱한다 — 다른 수단의 배율만 있으면 어림 그대로")
+	void aMultiplierForAnotherModeIsNotApplied() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, travelMinutes(25));
+		planner.setTravelCalibration((mode) -> "BUS".equals(mode) ? OptionalDouble.of(2.0) : OptionalDouble.empty());
+
+		// 이 여행은 이동 수단을 안 골라 걷기(WALK)로 짠다.
+		assertThat(planner.buildLegs(trip, List.of(List.of(UUID.randomUUID())))).singleElement().satisfies((leg) -> {
+			assertThat(leg.travelMode()).isEqualTo("WALK");
+			assertThat(leg.durationMin()).isEqualTo(25);
+		});
+	}
+
+	private static ObjectProvider<TravelTimePort> travelMinutes(int minutes) {
+		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) ->
+				new TravelTime(1000, minutes, ItineraryItem.DataStatus.ESTIMATED);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(port);
+		return provider;
 	}
 
 	@Test
@@ -1952,6 +2014,54 @@ class ItineraryDraftServiceTest {
 		verify(itineraries).appendVersion(any(), items.capture(), any(), any());
 		assertThat(items.getValue()).isNotEmpty()
 				.allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(75));
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1700 — 하루 다시 짜기의 새 판도 이동 시간은 고친 값, 옆 칸에는 엔진의 어림")
+	void dayRecalculationKeepsTheUncalibratedTravelTime() {
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, travelMinutes(20));
+		planner.setTravelCalibration((mode) -> OptionalDouble.of(1.5));
+		ItineraryDraftService reviser = new ItineraryDraftService(this.tripRepository, itineraries, CLOCK, 4, 3, "FOOD", 1,
+				planner, tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
+		List<ItineraryDraftCommand.PlannedPlace> pool = festivalCase(List.of("REASON")).subList(1, 4);
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(base, List.of(), List.of(), List.of())));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		reviser.publish(reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1,
+				"usr_1", JobType.ITINERARY_RECALCULATE, 0, null, List.of(), null, pool, "m", "f", "o", "p", "d")));
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryLeg>> legs = ArgumentCaptor.forClass(List.class);
+		verify(itineraries).appendVersion(any(), any(), legs.capture(), any());
+		assertThat(legs.getValue()).isNotEmpty().allSatisfy((leg) -> {
+			assertThat(leg.durationMin()).isEqualTo(30);
+			assertThat(leg.uncalibratedDurationMin()).isEqualTo(20);
+		});
+	}
+
+	/** 판을 옮길 때(고정·빼기·되돌리기 등) 보정 전 이동 분을 흘리면 다음 보정이 고친 값을 어림으로 읽는다. */
+	@Test
+	@DisplayName("🔴 S15P21E201-1700 — 판을 그대로 옮길 때도 보정 전 이동 분이 따라간다")
+	void copyingAVersionKeepsTheUncalibratedTravelTime() {
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		ItineraryLeg leg = new ItineraryLeg(UUID.randomUUID().toString(), base.itineraryVersionId(), 0, 1,
+				UUID.randomUUID().toString(), UUID.randomUUID().toString(), "BUS", 3000, 30, null, null, null,
+				ItineraryItem.DataStatus.ESTIMATED, null, null, 20, Instant.now());
+
+		com.gabolle.backend.itinerary.domain.ItineraryRevision.Draft copied =
+				com.gabolle.backend.itinerary.domain.ItineraryRevision.copyOf(
+						new ItineraryContent(base, List.of(), List.of(leg), List.of()), UUID.randomUUID().toString(),
+						Instant.now());
+
+		assertThat(copied.legs()).singleElement().satisfies((c) -> {
+			assertThat(c.durationMin()).isEqualTo(30);
+			assertThat(c.uncalibratedDurationMin()).isEqualTo(20);
+		});
 	}
 
 }
