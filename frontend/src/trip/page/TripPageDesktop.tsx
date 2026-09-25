@@ -11,7 +11,7 @@
 //
 // 🔴 편집(순서·고정·제외·다시 계산·되돌리기)은 여기서 안 한다. 시안의 넓은 화면에 그 자리가 없다.
 //    대신 ⋯ 의 「일정 편집」이 지금까지의 일정 화면을 그대로 연다(?classic=1) — 기능을 잃지 않는다.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -38,10 +38,11 @@ import { TripNameSheet } from '@/trip/TripNameSheet';
 
 import { TripBudgetCard } from './TripBudgetCard';
 import type { TripPageSource } from './tripPageData';
-import { formatDuration, formatManwon, stayMinutes } from './tripPageModel';
+import { formatDuration, formatManwon, freeTimeMinutes, stayMinutes } from './tripPageModel';
 import { useTripPage } from './useTripPage';
 import { DayReturnRow } from './DayReturnRow';
 import { DayStartRow } from './DayStartRow';
+import { FreeTimeRow } from './FreeTimeRow';
 import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
 import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
@@ -278,15 +279,19 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                 const photo = photos[item.placeId] ?? null;
                 const leg = formatTravelLabel(item, tx, index === 0 && startKind);
                 return (
-                  <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: item.id === selectedId }} onPress={() => setSelectedId(item.id)} style={[styles.bigRow, item.id === selectedId && styles.selectedBorder]}>
-                    <View style={styles.bigThumb}>
-                      {photo?.photoUrl ? <Image source={{ uri: photo.photoUrl }} resizeMode="cover" style={styles.fill} accessibilityLabel="" /> : <Text variant="title">{categoryGlyph(photo?.category)}</Text>}
-                    </View>
-                    <View style={styles.bigCopy}>
-                      <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><Text weight="bold" numberOfLines={1} style={styles.shrink}>{item.title}</Text></View>
-                      <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[item.startsAt.slice(11, 16), leg].filter(Boolean).join(' · ')}</Text>
-                    </View>
-                  </Pressable>
+                  <Fragment key={item.id}>
+                    {/* 앞 곳과 이 곳 사이에 남는 시간 — 「자유 시간 · 50분」(S15P21E201-1668). 모르거나 30분이 안 되면 안 그린다. */}
+                    {index > 0 ? <FreeTimeRow minutes={freeTimeMinutes(items, index - 1)} tx={tx} style={styles.bigFree} /> : null}
+                    <Pressable accessibilityRole="button" accessibilityState={{ selected: item.id === selectedId }} onPress={() => setSelectedId(item.id)} style={[styles.bigRow, item.id === selectedId && styles.selectedBorder]}>
+                      <View style={styles.bigThumb}>
+                        {photo?.photoUrl ? <Image source={{ uri: photo.photoUrl }} resizeMode="cover" style={styles.fill} accessibilityLabel="" /> : <Text variant="title">{categoryGlyph(photo?.category)}</Text>}
+                      </View>
+                      <View style={styles.bigCopy}>
+                        <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><Text weight="bold" numberOfLines={1} style={styles.shrink}>{item.title}</Text></View>
+                        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[item.startsAt.slice(11, 16), leg].filter(Boolean).join(' · ')}</Text>
+                      </View>
+                    </Pressable>
+                  </Fragment>
                 );
               })}
               {anyEstimatedLine ? <View style={styles.lineNote}><Text variant="caption" color={color.text.body}>{tx('옅은 선은 어림한 길이라 실제로 가는 길과 다를 수 있어요. 이동 시간도 어림값이에요.', 'Faded lines are estimates and may differ from the way you actually go. Travel times are estimates too.')}</Text></View> : null}
@@ -396,6 +401,7 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const reason = pickReasonLine(item.reasonCodes);
   const stay = stayMinutes(items, index);
+  const free = freeTimeMinutes(items, index);
   const last = index === items.length - 1;
   return (
     <Pressable accessibilityRole="button" accessibilityState={{ selected }} onPress={onPress} style={[styles.card, { width }, selected && styles.selectedBorder]}>
@@ -421,6 +427,8 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
       <View style={styles.cardMoney}>
         <Text weight="bold">{typeof item.estimatedCostKrw !== 'number' ? tx('비용 미정', 'Cost unknown') : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '%s KRW', item.estimatedCostKrw.toLocaleString(locale))}</Text>
         <Text variant="caption" color={color.text.body}>{last ? tx('마지막 장소', 'Last stop') : stay !== null ? txf(tx, '머무름 약 %s', 'Stay about %s', formatDuration(stay, tx)) : tx('머무름 시간 모름', 'Stay time unknown')}</Text>
+        {/* 이 곳을 떠나 다음 곳에 가기까지 남는 시간(S15P21E201-1668). 머무름과 따로 적는다 — 섞으면 머무름이 길어 보인다. */}
+        <FreeTimeRow minutes={free} tx={tx} />
       </View>
     </Pressable>
   );
@@ -520,6 +528,7 @@ const styles = StyleSheet.create({
   },
 
   bigList: { width: BIG_LIST_WIDTH, gap: spacing[2] },
+  bigFree: { marginLeft: spacing[3] },
   bigRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, borderWidth: 2, borderColor: color.surface.card, backgroundColor: color.surface.card },
   bigThumb: { width: 48, height: 48, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' },
   bigCopy: { flex: 1, minWidth: 0, gap: 2 },

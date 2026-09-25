@@ -4,6 +4,11 @@ import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 export type ItineraryItemDto = {
   id: string;
   startsAt: string;
+  /**
+   * 이 곳을 떠나는 시각 — 모양은 startsAt 과 같다(S15P21E201-1667 계약). 두 곳 사이의 빈 시각을 여기서 센다.
+   * 🔴 **지금 운영 서버에는 이 칸이 없다**(undefined). 시각을 못 깐 날은 null. 둘 다 「모른다」다 — 짐작해 채우지 않는다.
+   */
+  endsAt?: string | null;
   title: string;
   description?: string | null;
   estimatedCostKrw?: number | null;

@@ -34,6 +34,8 @@ export function minutesOfDay(startsAt: string | null | undefined): number | null
 /**
  * 한 곳에 머무는 시간(분) — 시안 README 「머무름 = 다음 시각 − 현재 시각 − 다음 구간 이동」.
  *
+ * 🔴 서버가 끝 시각(endsAt)을 주면 **끝 − 시작**이다(S15P21E201-1668). 곳 사이에 빈 시각이 생긴 뒤로는 위 식이
+ *    자유 시간까지 머무름으로 센다 — 「머무름 약 2시간 20분」이 사실은 「머무름 1시간 30분 + 자유 시간 50분」이다.
  * 🔴 **마지막 곳은 null** 이다(화면이 「마지막 장소」라고 적는다). 다음 곳이 없으니 뺄 것이 없다.
  * 🔴 **다음 구간 이동 시간을 모르면 null** 이다. 0 으로 치고 빼면 이동 시간이 머무는 시간으로
  *    둔갑한다 — 「1시간 46분 머무름」이 사실은 「46분 이동 + 1시간 머무름」일 수 있다.
@@ -44,10 +46,36 @@ export function stayMinutes(items: ItineraryItemDto[], index: number): number | 
   const next = items[index + 1];
   if (!current || !next) return null;
   const from = minutesOfDay(current.startsAt);
+  const until = minutesOfDay(current.endsAt);
+  if (from !== null && until !== null) return until - from > 0 ? until - from : null;
   const to = minutesOfDay(next.startsAt);
   if (from === null || to === null || next.travelDurationMin == null) return null;
   const stay = to - from - Math.round(next.travelDurationMin);
   return stay > 0 ? stay : null;
+}
+
+/** 이만큼 비어야 「자유 시간」 줄을 그린다(조율 세션 결정, 2026-09-25). 서버는 문턱 없이 1분 단위로 남긴다. */
+export const FREE_TIME_MIN_MINUTES = 30;
+
+/**
+ * 이번 곳(index)을 떠나 다음 곳에 닿기까지 남는 시간(분) — 「자유 시간 · n분」 (S15P21E201-1668, 백엔드 계약 S15P21E201-1667).
+ *
+ *   빈 시각 = 다음 곳 시작 − 이번 곳 끝(endsAt) − 다음 곳까지 이동
+ *
+ * 이동 시간을 모르면 0 으로 뺀다 — 서버도 그때는 이동 0분으로 놓고 시각을 깔았다.
+ * 🔴 **끝 시각을 모르면 null** — 지금 운영 서버는 이 칸을 안 보낸다. 끝 시각 없이 「다음 시각 − 이동」으로
+ *    짐작하면 머무는 시간이 자유 시간으로 둔갑한다. 새 항목 종류는 없다 — 빈 시각은 두 시각의 차이로만 드러난다.
+ * 30분 미만·음수·마지막 곳 뒤(숙소로 돌아가는 길과 섞여 있다)도 null.
+ */
+export function freeTimeMinutes(items: ItineraryItemDto[], index: number): number | null {
+  const current = items[index];
+  const next = items[index + 1];
+  if (!current || !next) return null;
+  const leave = minutesOfDay(current.endsAt);
+  const arrive = minutesOfDay(next.startsAt);
+  if (leave === null || arrive === null) return null;
+  const free = arrive - leave - Math.round(next.travelDurationMin ?? 0);
+  return free >= FREE_TIME_MIN_MINUTES ? free : null;
 }
 
 /** 「1시간 46분」·「46분」·「2시간」 — 한 시간이 넘으면 나눗셈을 읽는 사람에게 넘기지 않는다. */
