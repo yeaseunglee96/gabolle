@@ -183,6 +183,7 @@ function PlaceCard({
           photoUrl={place.photoUrl}
           photoSource={place.photoSource}
           photoSubject={place.photoSubject}
+          photoLicense={place.photoLicense}
           style={styles.placePhoto}
         />
       </Pressable>

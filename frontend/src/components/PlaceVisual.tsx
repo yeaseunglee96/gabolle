@@ -1,9 +1,10 @@
 import { Image, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 
+import { PhotoCredit } from '@/components/PhotoCredit';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
-import { photoLabels, type PhotoSubject } from '@/discovery/places';
+import { photoLabels, type PhotoLicense, type PhotoSubject } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 
 const PLACE_IMAGES = {
@@ -38,12 +39,15 @@ type Props = {
   // 「행사장 사진」을 축제 화면에서만 말하고 장소 화면에서는 아무 말도 안 했다.
   // 값이 없으면 아무것도 안 그린다 — 서버가 안 줘도 지금과 같다.
   photoSubject?: PhotoSubject | null;
+  /** 위키미디어 사진의 라이선스 — 있으면 출처 줄에 이름을 붙이고 누르면 파일 페이지가 열린다(S15P21E201-1610). */
+  photoLicense?: PhotoLicense | null;
 };
 
-export function PlaceVisual({ name, address, style, photoUrl, photoSource, photoSubject }: Props) {
+export function PlaceVisual({ name, address, style, photoUrl, photoSource, photoSubject, photoLicense }: Props) {
   const { tx } = useI18n();
   const visualKey = resolvePlaceVisual(name, address);
-  const credit = photoUrl ? photoLabels({ photoSource }, tx).credit : null;
+  const labels = photoLabels({ photoSource, photoLicense }, tx);
+  const credit = photoUrl ? labels.credit : null;
 
   // 서버 사진이 있으면 그것이 먼저다 — 번들 사진은 이름이 우연히 맞은 것이고
   // 서버 사진은 그 장소를 가리켜 붙은 것이다.
@@ -54,7 +58,7 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource, photo
         <PhotoSubjectBadge photoSubject={photoSubject} style={styles.subjectBadge} />
         {credit ? (
           <View style={styles.creditBar}>
-            <Text variant="caption" numberOfLines={1} color={color.text.onAction}>{credit}</Text>
+            <PhotoCredit credit={credit} licenseUrl={labels.licenseUrl} variant="caption" numberOfLines={1} color={color.text.onAction} />
           </View>
         ) : null}
       </View>

@@ -20,6 +20,7 @@ const FULL: Required<PlaceSearchItemDto> = {
   photoUrl: 'https://example.test/a.jpg',
   photoSource: '한국관광공사',
   photoSubject: 'VENUE',
+  photoLicense: { name: 'CC BY-SA 3.0', url: 'https://creativecommons.org/licenses/by-sa/3.0', filePage: 'https://commons.wikimedia.org/wiki/File:x.jpg' },
 };
 
 describe('toPlaceSearchItem', () => {

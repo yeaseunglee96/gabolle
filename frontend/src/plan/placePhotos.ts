@@ -3,9 +3,9 @@
 // 일정 항목(ItineraryItemDto)에는 사진 칸이 없다. 장소 상세(GET /places/{id})의 photoUrl 을 정차지마다
 // 받아 온다. 관광공사 사진이 있는 곳(관광지·시장)은 사진, 식당·카페는 대개 없다 — 없으면 갈래 아이콘.
 // 같은 장소를 두 번 묻지 않게 한 번 받은 것은 세션 동안 기억한다.
-import { getPlace } from '@/discovery/places';
+import { getPlace, type PhotoLicense } from '@/discovery/places';
 
-export type PlacePhoto = { photoUrl: string | null; photoSource: string | null; category: string | null };
+export type PlacePhoto = { photoUrl: string | null; photoSource: string | null; category: string | null; photoLicense?: PhotoLicense | null };
 
 const cache = new Map<string, Promise<PlacePhoto>>();
 const NONE: PlacePhoto = { photoUrl: null, photoSource: null, category: null };
@@ -15,7 +15,7 @@ export function loadPlacePhoto(placeId: string): Promise<PlacePhoto> {
   let pending = cache.get(placeId);
   if (!pending) {
     pending = getPlace(placeId)
-      .then((place) => ({ photoUrl: place.photoUrl ?? null, photoSource: place.photoSource ?? null, category: place.category ?? null }))
+      .then((place) => ({ photoUrl: place.photoUrl ?? null, photoSource: place.photoSource ?? null, category: place.category ?? null, photoLicense: place.photoLicense ?? null }))
       .catch(() => NONE);
     cache.set(placeId, pending);
   }

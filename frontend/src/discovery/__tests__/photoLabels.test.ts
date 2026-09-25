@@ -19,13 +19,15 @@ describe('사진에 무슨 말을 붙이나', () => {
   });
 
   it('🔴 칸이 안 왔으면 아무 말도 안 한다 — 모르는 것을 아는 척하지 않는다', () => {
-    expect(photoLabels({}, tx)).toEqual({ badge: null, credit: null });
+    expect(photoLabels({}, tx)).toEqual({ badge: null, credit: null, licenseUrl: null });
   });
 
   it('출처만 있고 피사체를 모르면 출처만 적는다', () => {
     expect(photoLabels({ photoSource: '한국관광공사 관광사진갤러리' }, tx)).toEqual({
       badge: null,
       credit: '사진 제공: 한국관광공사 관광사진갤러리',
+      // 라이선스가 없는 사진(공공누리)은 링크도 없다 — S15P21E201-1610.
+      licenseUrl: null,
     });
   });
 
@@ -68,6 +70,6 @@ describe('축제 응답이 사진 두 칸을 실어 온다', () => {
     respondWith({ ...baseItem, photoUrl: 'https://example.test/a.jpg' });
     const [festival] = await getFestivals('2026-10-01', '2026-10-05');
     expect(festival.photoUrl).toBe('https://example.test/a.jpg');
-    expect(photoLabels(festival, tx)).toEqual({ badge: null, credit: null });
+    expect(photoLabels(festival, tx)).toEqual({ badge: null, credit: null, licenseUrl: null });
   });
 });

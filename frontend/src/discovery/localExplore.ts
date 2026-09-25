@@ -2,7 +2,7 @@
 // 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
 // 떨어뜨리는 일은 여기 한 자리에서 한다.
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
-import type { PhotoSubject } from '@/discovery/places';
+import type { PhotoLicense, PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
 
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string; labelEn?: string | null };
@@ -72,6 +72,8 @@ export type NearbyPlaceItem = {
   // — 이 사진이 그 장소를 찍은 것인지, 그 장소가 든 건물을 찍은 것인지.
   // 값이 없으면 칸 자체가 안 온다. 없으면 화면은 아무 말도 안 한다(모르는 것을 아는 척 안 한다).
   photoSubject?: PhotoSubject | null;
+  // 위키미디어 사진의 라이선스 — 뜻은 places.ts 의 PhotoLicense(S15P21E201-1610).
+  photoLicense?: PhotoLicense | null;
 };
 export type NearbyPlacesDto = {
   items: NearbyPlaceItem[];

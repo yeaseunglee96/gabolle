@@ -410,7 +410,7 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
       </View>
       <View style={styles.cardImage}>
         {/* 🔴 서버 사진이 있으면 PlaceVisual 로 그린다 — 출처 띠(공공누리 등)를 빼면 이용 조건 위반이다. */}
-        {photo?.photoUrl ? <PlaceVisual name={item.title} address={null} photoUrl={photo.photoUrl} photoSource={photo.photoSource} style={styles.fill} /> : <Text style={styles.glyph}>{categoryGlyph(photo?.category)}</Text>}
+        {photo?.photoUrl ? <PlaceVisual name={item.title} address={null} photoUrl={photo.photoUrl} photoSource={photo.photoSource} photoLicense={photo.photoLicense} style={styles.fill} /> : <Text style={styles.glyph}>{categoryGlyph(photo?.category)}</Text>}
         <View style={styles.cardChips}>
           {item.dataStatus === 'ESTIMATED' ? <View style={styles.chipEstimated}><Text variant="micro" weight="bold" color={color.state.warning}>{tx('추정', 'Estimated')}</Text></View> : null}
           {risky ? <View style={styles.chipRisk}><Text variant="micro" weight="bold" color={color.state.danger}>{tx('하루 넘길 위험', 'May run past the day')}</Text></View> : null}
