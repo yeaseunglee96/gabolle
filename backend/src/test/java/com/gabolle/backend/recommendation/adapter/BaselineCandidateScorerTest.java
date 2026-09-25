@@ -280,6 +280,69 @@ class BaselineCandidateScorerTest {
 		assertThat(result.warningCodes()).contains("ACCESSIBILITY_UNVERIFIED");
 	}
 
+	// ── 이동 조건을 경사로 (S15P21E201-1625) ───────────────────────────────────
+
+	/** 경사 표식 — {@code place-slope-by-id} 가 적재하는 모양 그대로({@code score} 에 %). */
+	private static PlaceFeatureView slope(double percent) {
+		return scoreFeature("SLOPE_PERCENT", "ESTIMATED", "{\"score\": " + percent + ", \"stat\": \"p50\"}");
+	}
+
+	@Test
+	@DisplayName("🔴 유아차를 「반드시」로 고르면 경사가 상한(8.33%)을 넘는 곳은 빠진다 — 산이 경고만 달고 들어가던 것")
+	void 반드시면_가파른_곳은_빠진다() {
+		for (String key : List.of("STROLLER", "WHEELCHAIR", "HEAVY_LUGGAGE")) {
+			EngineCandidate result = score(candidateOf("NATURE_WALK", List.of(slope(16.0))), null,
+					List.of(mobility(key, TripConstraint.Severity.HARD)));
+
+			assertThat(result.constraintVerdict()).as(key).isEqualTo(ConstraintVerdict.FAIL);
+			assertThat(result.violations()).as(key)
+					.anySatisfy(v -> assertThat(v.get("code")).isEqualTo("SLOPE_OVER_LIMIT"));
+		}
+	}
+
+	@Test
+	@DisplayName("상한 아래면 안 빠지고, 미확인 경고는 그대로 남는다 — 경사는 추정값이라 「갈 수 있음」을 약속하지 않는다")
+	void 완만하면_남고_미확인_경고는_그대로다() {
+		EngineCandidate result = score(candidateOf("NATURE_WALK", List.of(slope(2.8))), null,
+				List.of(mobility("STROLLER", TripConstraint.Severity.HARD)));
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.warningCodes()).contains("ACCESSIBILITY_UNVERIFIED").doesNotContain("SLOPE_OVER_LIMIT");
+	}
+
+	@Test
+	@DisplayName("「되도록」이면 가팔라도 빼지 않고 경고만 단다")
+	void 되도록이면_경고만() {
+		EngineCandidate result = score(candidateOf("NATURE_WALK", List.of(slope(16.0))), null,
+				List.of(mobility("STROLLER", TripConstraint.Severity.SOFT)));
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.warningCodes()).contains("SLOPE_OVER_LIMIT");
+	}
+
+	@Test
+	@DisplayName("🔴 확인된 「갈 수 있음」 표식이 있으면 경사가 높아도 통과한다 — 확인된 사실이 추정값보다 앞선다")
+	void 확인된_표식이_경사보다_앞선다() {
+		EngineCandidate result = score(candidateOf("NATURE_WALK", List.of(
+				tag("ACCESSIBILITY_TAG", "STROLLER", "VERIFIED", "true"), slope(11.4))), null,
+				List.of(mobility("STROLLER", TripConstraint.Severity.HARD)));
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.violations()).isEmpty();
+	}
+
+	@Test
+	@DisplayName("상한은 설정값 하나다 — 12% 로 올리면 10% 인 곳은 안 빠진다")
+	void 상한은_설정값이다() {
+		BaselineCandidateScorer lenient = new BaselineCandidateScorer(new ObjectMapper(), 12.0);
+
+		EngineCandidate result = lenient.score(candidateOf("CULTURE_TEMPLE", List.of(slope(10.0))), null,
+				List.of(mobility("STROLLER", TripConstraint.Severity.HARD)), RADIUS_M, WEIGHTS, ALIGNMENT_WEIGHTS,
+				this.preferenceCodeMap, this.constraintCodeMap, TasteWeightComponent.merge(List.of()), TASTE_MULTIPLIER);
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+	}
+
 	@Test
 	@DisplayName("🔴 안 재 본 곳은 재 보고 갈 수 있는 곳보다 뒤로 밀린다 — 빼지 않는 대신 감점한다")
 	void 미확인은_확인된_곳보다_점수가_낮다() {

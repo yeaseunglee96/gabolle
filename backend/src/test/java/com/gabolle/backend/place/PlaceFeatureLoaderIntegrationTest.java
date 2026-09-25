@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.gabolle.backend.place.loader.PlaceFeatureLoader;
+import com.gabolle.backend.place.loader.PlaceFeatureLoaderRunner;
 import com.gabolle.backend.place.loader.PlaceFeatureNdjsonReader;
 import com.gabolle.backend.place.loader.ResearchQueueReader;
 import com.gabolle.backend.place.loader.SbizPlaceLoader;
@@ -157,6 +158,44 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		// "두 번째라 건너뛴 것" 과 "장소가 없어 못 넣은 것" 은 따로 센다.
 		assertThat(second.alreadyPresent()).isEqualTo(1);
 		assertThat(featureCount("RESEARCH_PRICEBAND")).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1625 — 장소 번호판 경사는 오픈스트리트맵 장소에도 붙는다 (전에는 관광공사·상가 번호판이라 못 붙었다)")
+	void 장소_번호로_경사가_붙는다() {
+		java.util.UUID osmPlace = java.util.UUID.randomUUID();
+		java.util.UUID unknown = java.util.UUID.randomUUID();
+		this.jdbcTemplate.update("""
+				INSERT INTO place (place_id, name_ko, category, lat, lng, source_type, source_id, created_at)
+				VALUES (?, '봉래산(부산)', 'NATURE_WALK', 35.0850, 129.0610, 'OSM', ?, now())
+				""", osmPlace, "t-1625-" + osmPlace);
+		try {
+			PlaceFeatureLoader.Saved[] saved = { new PlaceFeatureLoader.Saved(0, 0, 0) };
+			PlaceFeatureNdjsonReader.readPlaceSlopesById(
+					file("place-slope-by-id.ndjson",
+							"{\"placeId\":\"" + osmPlace + "\",\"slopePercent\":16.0,\"segments\":40,"
+									+ "\"walkLengthM\":5777,\"radiusM\":200,\"stat\":\"p50\"}",
+							"{\"placeId\":\"" + unknown + "\",\"slopePercent\":2.0,\"radiusM\":200}"),
+					500,
+					chunk -> saved[0] = saved[0].plus(this.featureLoader.saveChunk(chunk,
+							PlaceFeatureLoaderRunner.DERIVED_SLOPE_SOURCE_TYPE, DATASET, OffsetDateTime.now())));
+
+			assertThat(saved[0].inserted()).isEqualTo(1);
+			assertThat(saved[0].missingPlace()).as("운영에 없는 번호는 세어서 건너뛴다").isEqualTo(1);
+			Map<String, Object> row = this.jdbcTemplate.queryForMap("""
+					SELECT feature_type, value->>'score' AS score, value->>'stat' AS stat, source_type, source_id
+					FROM place_feature WHERE place_id = ?
+					""", osmPlace);
+			assertThat(row.get("feature_type")).isEqualTo("SLOPE_PERCENT");
+			assertThat(row.get("score")).isEqualTo("16.0");
+			assertThat(row.get("stat")).isEqualTo("p50");
+			assertThat(row.get("source_type")).isEqualTo("DERIVED_SLOPE");
+			assertThat(row.get("source_id")).isEqualTo(osmPlace.toString());
+		}
+		finally {
+			this.jdbcTemplate.update("DELETE FROM place_feature WHERE place_id = ?", osmPlace);
+			this.jdbcTemplate.update("DELETE FROM place WHERE place_id = ?", osmPlace);
+		}
 	}
 
 	@Test
