@@ -75,30 +75,36 @@ class BaselineCandidateScorerTest {
 
 	// ── 알레르기 ──────────────────────────────────────────────────────────────
 
+	/**
+	 * 🔴 S15P21E201-1633(사용자 결정 2026-09-25) — 앱이 더 묻지 않는 알레르기의 옛 「반드시」 답은 빼는 조건이 아니라
+	 * 경고다. 전에는 표식이 없는 곳이 「모름(반드시)」이 되어 후보 200곳이 전부 빠지고 다시 짜기가 실패했다.
+	 */
 	@Test
-	@DisplayName("🔴 미확인 알레르기는 절대 PASS 가 아니다 — 표식 행이 없으면 UNKNOWN 이다")
-	void 미확인_알레르기는_통과가_아니다() {
+	@DisplayName("🔴 알레르기 표식이 없는 곳은 빼지 않고 「알레르기 확인 안 됨」 경고를 단다 — 다시 짜기가 실패하지 않게")
+	void 미확인_알레르기는_경고로_남는다() {
 		TripConstraint peanutAllergy = allergy("PEANUT");
 		PlaceCandidateResponse.Candidate candidate = candidate(List.of()); // ALLERGEN_TAG 행 자체가 없다
 
 		EngineCandidate result = score(candidate, null, List.of(peanutAllergy));
 
-		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.PASS);
-		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
-		assertThat(result.unknownFacts()).anySatisfy(fact -> {
-			assertThat(fact.get("fact")).isEqualTo("ALLERGEN_UNVERIFIED");
-			assertThat(fact.get("featureKey")).isEqualTo("PEANUT");
-			assertThat(fact.get("severity")).isEqualTo("REQUIRED");
-		});
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.unknownFacts())
+				.as("「모름(반드시)」이 남으면 후보 고르기가 뺀다")
+				.noneSatisfy(fact -> assertThat(fact.get("fact")).isEqualTo("ALLERGEN_UNVERIFIED"));
+		assertThat(result.warningCodes()).contains("ALLERGEN_UNVERIFIED");
+		assertThat(result.preRankScore()).isNotNull();
 	}
 
 	@Test
 	@DisplayName("🔴 REQUIRED 미확인은 등급까지 사실로 남긴다 — 제외 여부는 채점기가 아니라 임계값 설정이 정한다")
 	void required_미확인은_등급까지_남긴다() {
+		// 알레르기 대조표 줄이 없으면 「판정 못 함(반드시)」이다 — 표식이 없는 것과 달리 설정이 어긋난 것이다.
 		TripConstraint peanutAllergy = allergy("PEANUT");
 		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
 
-		EngineCandidate result = score(candidate, null, List.of(peanutAllergy));
+		EngineCandidate result = this.scorer.score(candidate, null, List.of(peanutAllergy), RADIUS_M, WEIGHTS,
+				ALIGNMENT_WEIGHTS, this.preferenceCodeMap, List.of(), TasteWeightComponent.merge(List.of()),
+				TASTE_MULTIPLIER);
 
 		// 채점기가 점수를 지워서 후보를 빼지 않는다. unknown-exclusion-threshold 를 NONE 으로
 		// 두는 것이 정당한 설정이라, 여기서 점수를 지우면 그 설정이 안 먹는다.
@@ -192,17 +198,23 @@ class BaselineCandidateScorerTest {
 	}
 
 	@Test
-	@DisplayName("🔴 알레르기는 이 처리를 안 받는다 — 미확인이면 여전히 UNKNOWN 이다")
-	void 알레르기는_식단과_같게_다루지_않는다() {
-		// 접근성·식단이 틀리면 불편하고, 알레르기가 틀리면 사람이 다친다. 같은 저울에
-		// 올리지 않는다는 것이 팀 결정이고, 이 시험이 그것을 지킨다.
+	@DisplayName("🔴 알레르기 재료가 들었다고 확인된 곳은 여전히 뺀다 — 경고로 돌리는 것은 「확인 안 됨」뿐이다")
+	void 확인된_알레르기는_그대로_뺀다() {
+		// 옛 팀 결정(「알레르기는 식단처럼 경고로 낮추지 않는다」)은 S15P21E201-1633 에서 「확인 안 됨」에 한해 바뀌었다.
+		// 확인된 사실은 그대로다.
 		TripConstraint peanut = allergy("PEANUT");
-		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
+		PlaceCandidateResponse.Candidate candidate = candidate(List.of(tag("ALLERGEN_TAG", "PEANUT", "VERIFIED", "true")));
 
 		EngineCandidate result = score(candidate, null, List.of(peanut));
 
-		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
+		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.FAIL);
 		assertThat(result.warningCodes()).doesNotContain("ALLERGEN_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("알레르기 경고 낱말은 앱 사전의 이름 그대로다 — 바뀌면 화면에서 조용히 사라진다")
+	void 알레르기_경고_낱말() {
+		assertThat(BaselineCandidateScorer.ALLERGEN_UNVERIFIED_WARNING).isEqualTo("ALLERGEN_UNVERIFIED");
 	}
 
 	@Test

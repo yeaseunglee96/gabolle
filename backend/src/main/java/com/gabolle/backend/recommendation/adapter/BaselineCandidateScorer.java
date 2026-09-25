@@ -62,6 +62,9 @@ public class BaselineCandidateScorer {
 	 */
 	static final String ACCESSIBILITY_UNVERIFIED_WARNING = RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED;
 
+	/** 알레르기 재료가 들었는지 안 재 봤다는 경고(S15P21E201-1633). 같은 이유로 문자열을 여기서 다시 적지 않는다. */
+	static final String ALLERGEN_UNVERIFIED_WARNING = RecommendationCodes.WARNING_ALLERGEN_UNVERIFIED;
+
 	/** 식단을 안 재 봤다는 경고. 같은 이유로 문자열을 여기서 다시 적지 않는다. */
 	static final String DIET_UNVERIFIED_WARNING = RecommendationCodes.WARNING_DIET_SUPPORT_UNVERIFIED;
 
@@ -297,7 +300,8 @@ public class BaselineCandidateScorer {
 			}
 			String type = constraint.type() == null ? "" : constraint.type().toUpperCase(Locale.ROOT);
 			switch (type) {
-				case "ALLERGY" -> evaluateAllergy(candidate, constraint, constraintCodeMap, violations, unknownFacts);
+				case "ALLERGY" ->
+						evaluateAllergy(candidate, constraint, constraintCodeMap, violations, unknownFacts, warnings);
 				case "DIET" ->
 						evaluateDiet(candidate, constraint, constraintCodeMap, violations, unknownFacts, warnings);
 				case "MOBILITY" ->
@@ -310,9 +314,16 @@ public class BaselineCandidateScorer {
 		}
 	}
 
+	/**
+	 * 알레르기.
+	 *
+	 * <p>🔴 <b>확인 안 된 곳은 빼지 않고 경고만</b> 단다 — S15P21E201-1633(사용자 결정 2026-09-25). 앱은 이제 알레르기를
+	 * 묻지 않는데(-1497), 옛 「반드시」 답이 남은 여행은 후보 200곳이 전부 「확인 안 됨」이라 빠져 다시 짜기가 실패했다
+	 * (9/21~22 실패 7건 중 4건). 알레르기 재료가 <b>들었다고 확인된</b> 곳은 지금처럼 뺀다 — 확인된 사실이다.
+	 */
 	private void evaluateAllergy(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
 			List<UserPlaceCodeMap> constraintCodeMap, List<Map<String, Object>> violations,
-			List<Map<String, Object>> unknownFacts) {
+			List<Map<String, Object>> unknownFacts, List<String> warnings) {
 
 		String featureType = hardFilterFeatureType(constraintCodeMap, "ALLERGY").orElse(null);
 		if (featureType == null) {
@@ -326,8 +337,11 @@ public class BaselineCandidateScorer {
 		String code = constraint.constraintKey();
 		switch (bucketFor(candidate, featureType, code)) {
 			case PRESENT -> violations.add(Map.of("code", "ALLERGEN_PRESENT", "featureKey", code));
-			case UNVERIFIED -> unknownFacts.add(Map.of("fact", "ALLERGEN_UNVERIFIED", "featureKey", code,
-					"severity", severityOf(constraint)));
+			case UNVERIFIED -> {
+				if (!warnings.contains(ALLERGEN_UNVERIFIED_WARNING)) {
+					warnings.add(ALLERGEN_UNVERIFIED_WARNING);
+				}
+			}
 			case ABSENT -> {
 				// 확인된 해당 없음 — 통과 기여. 추가로 할 일이 없다.
 			}
