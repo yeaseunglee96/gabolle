@@ -215,9 +215,12 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
           ]}
           pointerEvents={canFlip && flipped ? 'none' : 'auto'}
         >
+          {/* 🔴 앞면 어디를 눌러도 뒤집히지만 앞면은 «단추»가 아니다(S15P21E201-1666). 단추로 두면 화면 읽기 프로그램이
+              앞면을 한 덩어리로 읽어 안쪽 「내 일정 보기」를 따로 못 누르고, 웹에서는 단추 안에 단추가 들어간다.
+              그래서 낭독(accessible)·키보드(tabIndex)에서는 빼고, 뒤집는 단추는 맨 아래 안내 줄이 맡는다. */}
           <Pressable
-            accessibilityRole={canFlip ? 'button' : undefined}
-            accessibilityLabel={canFlip ? tx('여행표 상세 보기', 'See trip pass details') : undefined}
+            accessible={false}
+            tabIndex={-1}
             disabled={!canFlip}
             onPress={() => setFlipped(true)}
           >
@@ -329,9 +332,9 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
 
           <TearLine />
           {canFlip ? (
-            <View style={styles.flipHint}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('여행표 상세 보기', 'See trip pass details')} onPress={() => setFlipped(true)} style={styles.flipHint}>
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('눌러서 여행표 상세 보기 ↻', 'Tap to see trip pass details ↻')}</Text>
-            </View>
+            </Pressable>
           ) : null}
           </Pressable>
         </Animated.View>
