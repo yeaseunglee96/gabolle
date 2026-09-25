@@ -30,11 +30,21 @@ describe('미리보기를 싣고 온다', () => {
 });
 
 describe('고른 안의 일정 번호', () => {
-  it('이미 일정이 있으면 서버를 부르지 않는다', async () => {
+  // 🔴 「이미 일정이 있으면 서버를 부르지 않는다」였다 — 그래서 1안을 확정해도 서버가 몰랐다(S15P21E201-1695, 07 계약).
+  it('🔴 이미 일정이 있어도(1안) 확정을 서버에 남기고, 그 일정을 연다', async () => {
+    mockApiRequest.mockResolvedValue({ itineraryId: 'it-a' });
     const course = adaptCourse({ id: 'req:0', itineraryId: 'it-a' });
 
     await expect(ensureCourseItinerary('trip-1', course, 'token')).resolves.toEqual({ state: 'success', itineraryId: 'it-a' });
-    expect(mockApiRequest).not.toHaveBeenCalled();
+    expect(mockApiRequest).toHaveBeenCalledWith('/api/v1/trips/trip-1/course',
+      expect.objectContaining({ method: 'POST', accessToken: 'token', body: { courseId: 'req:0' } }));
+  });
+
+  it('1안 확정 기록이 실패해도 여는 길은 막지 않는다 — 일정은 이미 있다', async () => {
+    mockApiRequest.mockRejectedValue(new Error('offline'));
+    const course = adaptCourse({ id: 'req:0', itineraryId: 'it-a' });
+
+    await expect(ensureCourseItinerary('trip-1', course, 'token')).resolves.toEqual({ state: 'success', itineraryId: 'it-a' });
   });
 
   it('🔴 일정이 없으면 이 안의 번호로 만들어 달라고 하고, 받은 일정 번호를 준다', async () => {

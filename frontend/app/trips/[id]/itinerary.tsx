@@ -58,7 +58,7 @@ import { useI18n } from '@/i18n';
 import { takeItineraryHint } from '@/onboarding/firstRun';
 import { ItineraryHint } from '@/onboarding/ItineraryHint';
 import { describeWarningCodes } from '@/plan/warningLabels';
-import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
+import { ExcludeConfirmModal, type ExcludeReason } from '@/components/ExcludeConfirmModal';
 import { localizeMessage } from '@/i18n/messages';
 import { koreanToward } from '@/i18n/korean';
 import { humanTripTitle } from '@/trip/tripNaming';
@@ -780,10 +780,11 @@ function ItineraryClassic() {
     else setResult(next);
   };
 
-  const excludeItem = async (item: ItineraryItemDto) => {
+  const excludeItem = async (item: ItineraryItemDto, reason: ExcludeReason | null) => {
     if (!itinerary) return;
     setExcludingItemId(item.id); setConflict(null); setActionMessage(null);
-    const accepted = await removeItineraryItem({ itineraryId: itinerary.id, itemId: item.id, baseVersion: itinerary.version, accessToken });
+    // 고른 이유(S15P21E201-1695). 건너뛰면 칸을 비운다.
+    const accepted = await removeItineraryItem({ itineraryId: itinerary.id, itemId: item.id, baseVersion: itinerary.version, operationalReason: reason ?? undefined, accessToken });
     if (accepted.state === 'accepted') { if (await runJob(accepted.jobId)) await reload(); }
     else if (accepted.state === 'conflict') setConflict(accepted.message);
     else setActionMessage(accepted.message);
@@ -1202,10 +1203,10 @@ function ItineraryClassic() {
     placeTitle={excludeConfirming?.title ?? ''}
     busy={excludingItemId !== null}
     onCancel={() => setExcludeConfirming(null)}
-    onConfirm={() => {
+    onConfirm={(reason) => {
       const target = excludeConfirming;
       setExcludeConfirming(null);
-      if (target) void excludeItem(target);
+      if (target) void excludeItem(target, reason);
     }}
   />
   <TabBar active="map" /></View>;

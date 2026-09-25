@@ -193,7 +193,13 @@ export async function ensureCourseItinerary(
   course: TripCourse,
   accessToken: string | null,
 ): Promise<{ state: 'success'; itineraryId: string } | { state: 'error'; message: string }> {
-  if (course.itineraryId) return { state: 'success', itineraryId: course.itineraryId };
+  // 🔴 1안(서버가 미리 만든 일정)도 확정을 서버에 남긴다(S15P21E201-1695, 07 계약). 전에는 이미 일정이 있으면 부르지 않아서
+  //    서버가 「1안을 골랐다」와 「아직 안 골랐다」를 가르지 못했다. 다시 보내도 안전하다(확정 시각만 옮긴다).
+  //    일정은 이미 있으니 기록을 기다리지 않고 연다 — 기록이 실패해도 여는 길을 막지 않는다.
+  if (course.itineraryId) {
+    void apiRequest(`/api/v1/trips/${encodeURIComponent(tripId)}/course`, { method: 'POST', accessToken, body: { courseId: course.id } }).catch(() => undefined);
+    return { state: 'success', itineraryId: course.itineraryId };
+  }
   try {
     const chosen = await apiRequest<{ itineraryId?: string | null }>(`/api/v1/trips/${encodeURIComponent(tripId)}/course`, {
       method: 'POST', accessToken, body: { courseId: course.id },
