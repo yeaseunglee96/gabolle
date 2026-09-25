@@ -88,3 +88,23 @@ describe('내 여행 탭 — 새 시안', () => {
     expect(gridSlots()).toHaveLength(0);
   });
 });
+
+// ── 상태 줄 (S15P21E201-1678) ─────────────────────────────────────────────────
+//
+// 🔴 알약 밖의 글자(「8일 뒤 출발」)가 옆 알약들보다 위로 떠 있었다 — 가로 줄에 세로 가운데 맞춤이 없어서
+//    알약만 안쪽 여백으로 가운데에 섰다.
+describe('내 여행 카드 상태 줄', () => {
+  it('🔴 알약과 글자가 세로 가운데로 맞는다', async () => {
+    render(<Trips />, { wrapper: Providers });
+    expect(await screen.findByText('광안리 야경 투어', {}, WAIT)).toBeTruthy();
+
+    type Node = { parent?: Node | null; props?: { style?: unknown } };
+    let row = screen.getAllByText('2일')[0] as unknown as Node | null;
+    let flat: { flexDirection?: string; flexWrap?: string; alignItems?: string } | undefined;
+    for (; row; row = row.parent ?? null) {
+      flat = StyleSheet.flatten(row.props?.style as never) as typeof flat;
+      if (flat?.flexDirection === 'row' && flat.flexWrap === 'wrap') break;
+    }
+    expect(flat?.alignItems).toBe('center');
+  });
+});
