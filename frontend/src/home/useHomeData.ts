@@ -111,6 +111,8 @@ export type HomeData = {
   facetRows: HomeFacetRow[];
   trip: TripSummaryDto | null;
   tripsLoaded: boolean;
+  /** 받은 여행 목록 전부. 아직이거나 실패면 null — 종 점이 목록을 다시 부르지 않고 이것을 쓴다(S15P21E201-1686). */
+  trips: TripSummaryDto[] | null;
 };
 
 
@@ -140,14 +142,16 @@ export function useHomeWeather(enabled = true): DailyForecastDto | null {
  * 이 값을 하나도 안 그리므로, 끄지 않으면 폰에서 볼 때마다 요청 다섯 개가 헛돈다.
  */
 export function useHomeData(enabled = true): HomeData {
-  const { accessToken } = useAuth();
+  const { accessToken, ready } = useAuth();
 
   // ·995로 목록과 상세 모두 익명 출입증에 열렸다.
   // 회원 전환 전후에 공개 범위가 다르므로 캐시는 분리한다.
   const signedIn = Boolean(accessToken);
   const storiesQuery = useQuery({
     queryKey: ['home', 'stories', signedIn ? 'member' : 'guest'],
-    enabled,
+    // 🔴 로그인 복원이 끝난 뒤에(S15P21E201-1686). 복원 중에는 열쇠가 아직 없어 손님 몫을 한 번 부르고,
+    //    복원이 끝나면 회원 몫을 또 불렀다 — 로그인한 사람은 홈을 열 때마다 같은 글 목록을 두 번 받았다.
+    enabled: enabled && ready,
     queryFn: () => loadFeed({ scope: 'ALL', limit: 12, accessToken }),
   });
 
@@ -214,5 +218,6 @@ export function useHomeData(enabled = true): HomeData {
     })),
     trip: tripsQuery.data?.state === 'success' ? pickActiveTrip(tripsQuery.data.trips) : null,
     tripsLoaded: tripsQuery.data?.state === 'success',
+    trips: tripsQuery.data?.state === 'success' ? tripsQuery.data.trips : null,
   };
 }
