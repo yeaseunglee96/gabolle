@@ -19,6 +19,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { Button } from '@/components/Button';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { Skeleton } from '@/components/Skeleton';
 import { BAR_MAX_WIDTH, SHEET_MAX_WIDTH, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
@@ -444,6 +445,26 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
     ...(course?.itineraryId ? [{ key: 'edit', label: tx('일정 편집', 'Edit itinerary'), hint: tx('순서·고정·제외·다시 계산', 'Order, pin, remove, recalculate'), onPress: openClassic }] : []),
   ];
 
+  // 🔴 여행이나 일정을 못 불러왔으면 지도와 창을 그리지 않는다(S15P21E201-1660, 사용자 결정). 전에는 같은 겹친 구조 그대로라
+  //    위 4분의 3 이 빈 회색 지도 자리이고, 아래 창 안에 작은 오류 카드·작은 알약만 있었다. 가운데에 오류와 큰 「다시 시도」.
+  const failedMessage = page?.state === 'error' ? page.message : !loaded && itinerary?.message ? itinerary.message : null;
+  if (failedMessage) {
+    return (
+      <View style={[styles.failedShell, { paddingTop: insets.top + spacing[3], paddingBottom: insets.bottom + spacing[4] }]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로', 'Back')} onPress={goBack} style={({ pressed }) => [styles.circle44, pressed && styles.pressed]}>
+          <Text variant="title" weight="bold">‹</Text>
+        </Pressable>
+        <View style={styles.failedCenter}>
+          <View accessibilityRole="alert" style={styles.failedCard}>
+            <Text variant="title" weight="bold">{tx('여행을 불러오지 못했어요', 'Could not load the trip')}</Text>
+            <Text color={color.text.body}>{localizeMessage(tx, failedMessage)}</Text>
+            <Button label={tx('다시 시도', 'Try again')} onPress={() => void load()} />
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.shell}>
       {/* ── 바탕 지도 ─────────────────────────────────────────────────────────── */}
@@ -842,6 +863,9 @@ const floating = {
 
 const styles = StyleSheet.create({
   shell: { flex: 1, backgroundColor: color.surface.soft, overflow: 'hidden' },
+  failedShell: { flex: 1, backgroundColor: color.canvas, paddingHorizontal: spacing[4] },
+  failedCenter: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  failedCard: { width: '100%', maxWidth: 420, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   pressed: { opacity: 0.72 },
   shrink: { flexShrink: 1 },
   grow: { flex: 1, minWidth: 0 },
