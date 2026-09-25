@@ -1,4 +1,5 @@
 import { apiRequest, ApiClientError } from '@/api/client';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 
 // 계약: backend/src/main/java/com/gabolle/backend/route/presentation/RouteController.java
 // (-184). 좌표 두 개만 있으면 되는 일이라 여행·일정에 매달지 않는다 — 컨트롤러
@@ -44,7 +45,7 @@ export async function getRouteDirections(
     return { state: 'success', directions };
   } catch (error) {
     if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
-    if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '경로 조회 API가 아직 준비되지 않았어요.' };
+    if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
     return { state: 'error', message: error instanceof Error ? error.message : '경로를 불러오지 못했어요.' };
   }
 }

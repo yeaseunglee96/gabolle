@@ -3,6 +3,7 @@
 // 안내 문구를 보여줘야 한다(상세설계서 18.5절 가짜 데이터 금지) — 그 판단을 위해
 // 실패도 종류별로 구분해 돌려준다.
 import { apiRequest, ApiClientError } from '@/api/client';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 
 export type SkyCondition = 'CLEAR' | 'PARTLY_CLOUDY' | 'CLOUDY';
 
@@ -61,7 +62,7 @@ export async function loadWeatherForecast(date: string, accessToken: string | nu
     const response = await apiRequest<WeatherForecastResponseDto>(`/api/v1/weather?${params.toString()}`, { accessToken });
     return { state: 'success', forecast: response.forecast, hourly: response.hourly ?? [] };
   } catch (error) {
-    if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '날씨 API가 아직 준비되지 않았어요.' };
+    if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
     // 서버 원문: 「date 가 이 발표 회차의 단기예보 범위를 벗어났습니다」(2026-09-21 실서버 실기, 출발 6일 전 여행).
     // 🔴 말투를 보지 않는다 — 이 화면이 보내는 값 가운데 사람이 바꾸는 것은 날짜뿐이라(좌표는 상수),
     //    이 코드의 400 은 곧 「날짜가 범위 밖」이다. 서버 문구가 바뀌어도 안 흔들린다.

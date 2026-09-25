@@ -832,7 +832,7 @@ export default function Feed() {
       ? <View style={styles.stateCard}>
           {/* 연결이 끊기거나 못 불러왔을 때는 우는 동백이 — 빈 카드에 글자만 있으면 고장 화면으로 읽힌다. */}
           <GabolleMascot state="sad" style={styles.sadMascot} />
-          <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('피드 API를 기다리고 있어요', 'Waiting for the feed API') : tx('피드를 불러오지 못했어요', 'Could not load the feed')}</Text>
+          <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('피드를 불러오지 못했어요', 'Could not load the feed')}</Text>
           <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
           <Button label={tx('다시 시도', 'Try again')} variant="tertiary" compact onPress={() => void feedQuery.refetch()} />
         </View>

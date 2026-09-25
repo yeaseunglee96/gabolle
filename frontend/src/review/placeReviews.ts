@@ -2,6 +2,7 @@
 // (PlaceReviewController.java 기준). 점수는 1~5(항목별로 null 가능)이고, mine이 참인
 // 리뷰가 있으면 그 사용자가 이미 이 장소를 평가한 것이다.
 import { apiRequest, ApiClientError } from '@/api/client';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 
 export type PlaceReviewDto = {
   placeReviewId: string;
@@ -28,7 +29,7 @@ export type PlaceReviewSubmitResult =
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
 
 function failure(error: unknown): { state: 'unavailable' | 'offline' | 'error'; message: string } {
-  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '리뷰 API가 아직 준비되지 않았어요.' };
+  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
   if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) return { state: 'offline', message: error.message };
   return { state: 'error', message: error instanceof Error ? error.message : '리뷰를 처리하지 못했어요.' };
 }

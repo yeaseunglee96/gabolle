@@ -1,4 +1,5 @@
 import { apiRequest, ApiClientError } from '@/api/client';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 
 export type ItineraryItemDto = {
   id: string;
@@ -111,7 +112,7 @@ function failure(error: unknown): Exclude<ItineraryMutationResult, { state: 'suc
     const latest = Number(error.fields.find((field) => /^latestVersion=/.test(field))?.split('=')[1]);
     return { state: 'conflict', latestVersion: Number.isFinite(latest) ? latest : 0, message: '다른 변경이 먼저 반영됐어요. 최신 일정을 불러와 다시 시도해 주세요.' };
   }
-  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '일정 API가 아직 준비되지 않았어요.' };
+  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
   if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) return { state: 'offline', message: error.message };
   return { state: 'error', message: error instanceof Error ? error.message : '일정을 처리하지 못했어요.' };
 }

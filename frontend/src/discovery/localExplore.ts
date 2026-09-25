@@ -4,6 +4,7 @@
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import type { PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string; labelEn?: string | null };
 // 서버 목록과 순서는 그대로 유지한다. 이 사전은 영문 표기가 없는 기존 응답의 번역만 맡는다.
@@ -27,7 +28,7 @@ type FacetsFailure = { state: 'unavailable' | 'offline' | 'error'; message: stri
 // — "아직 준비되지 않았어요" 는 404·501 일 때만 말한다.
 function toFailure(error: unknown): FacetsFailure {
   if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
-  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '로컬 탐색 API가 아직 준비되지 않았어요.' };
+  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
   // 5xx 는 'offline' 도 아니다 — 사용자의 인터넷은 멀쩡하므로 "연결을 확인해 주세요" 는 거짓말이다.
   if (isServerError(error)) return { state: 'error', message: (error as ApiClientError).message };
   return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
