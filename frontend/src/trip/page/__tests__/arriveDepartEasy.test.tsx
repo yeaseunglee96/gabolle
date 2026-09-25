@@ -69,13 +69,22 @@ describe('2. 머무는 곳', () => {
   const arrived = (at: string): StopOutcome => ({ kind: 'ARRIVED', at, how: 'manual' });
   const outcomes: Record<string, StopOutcome> = { a: arrived('2026-09-26T10:00:00+09:00'), b: { kind: 'SKIPPED', at: '2026-09-26T10:30:00+09:00' }, c: arrived('2026-09-26T11:00:00+09:00') };
 
-  it('🔴 도착은 적혔고 출발은 아직인 곳 중 가장 나중 것', () => {
+  // 조율 세션 결정 — 「머무는 중」은 한 곳뿐. 세 경우.
+  it('🔴 도착만 있는 마지막 곳 → 그곳이 머무는 곳', () => {
     expect(stayingStopId(['a', 'b', 'c', 'd'], outcomes, new Set())).toBe('c');
   });
 
-  it('출발까지 적힌 곳은 머무는 곳이 아니다 · 건너뛴 곳도 아니다', () => {
-    expect(stayingStopId(['a', 'b', 'c', 'd'], outcomes, new Set(['c']))).toBe('a');
-    expect(stayingStopId(['a', 'b', 'c', 'd'], outcomes, new Set(['a', 'c']))).toBeNull();
+  it('🔴 출발이 빈 채 다음 곳에 도착 → 앞 곳은 머무는 곳이 아니다(다녀옴, 출발은 비워 둔다)', () => {
+    // a 는 출발이 없지만 c 에 도착이 적혔다 — 머무는 곳은 c 하나뿐.
+    expect(stayingStopId(['a', 'b', 'c', 'd'], outcomes, new Set())).not.toBe('a');
+  });
+
+  it('🔴 가장 나중에 도착한 곳의 출발까지 적혔으면 머무는 곳은 없다 — 앞 곳으로 되돌아가지 않는다', () => {
+    expect(stayingStopId(['a', 'b', 'c', 'd'], outcomes, new Set(['c']))).toBeNull();
+  });
+
+  it('건너뛴 곳은 도착이 아니다', () => {
+    expect(stayingStopId(['a', 'b'], { a: arrived('2026-09-26T10:00:00+09:00'), b: { kind: 'SKIPPED', at: '2026-09-26T10:30:00+09:00' } }, new Set())).toBe('a');
   });
 });
 
@@ -191,6 +200,11 @@ describe('6. 화면이 규칙을 지킨다', () => {
     // 로컬 캡처에서 잡았다 — 진행 기록을 다시 받기 전에 「출발 찍기」를 누르면 고치기 전 도착이 실렸다.
     expect(mobile).toContain('arrivalFix?.id === stayId ? arrivalFix.at');
     expect(mobile).toContain('Math.max(Date.now(), Date.parse(arrivedAt) || 0)');
+  });
+
+  it('🔴 목록도 머무는 곳 한 곳에만 「머무는 중」, 나머지 도착한 곳은 「✓ 다녀옴」', () => {
+    expect(mobile).toContain('staying={item.id === stayId}');
+    expect(mobile).toContain("const done = step === 'done' && !staying;");
   });
 
   it('자동 출발은 동의가 있을 때만 켜지는 위치를 쓴다', () => {

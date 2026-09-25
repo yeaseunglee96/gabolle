@@ -2315,6 +2315,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s분 앞으로': { ja: '%s分早く', zhHans: '提前%s分钟', zhHant: '提前%s分鐘' },
   '%s분 뒤로': { ja: '%s分遅く', zhHans: '推后%s分钟', zhHant: '推後%s分鐘' },
   '%s에 머무는 중': { ja: '%sに滞在中', zhHans: '正在%s停留', zhHant: '正在%s停留' },
+  '머무는 중': { ja: '滞在中', zhHans: '停留中', zhHant: '停留中' },
   '%s 출발 %s': { ja: '%s 出発 %s', zhHans: '%s 出发 %s', zhHant: '%s 出發 %s' },
   '가볼래가 활용하는 공공데이터와 그 이용 조건입니다.': { ja: 'GABOLLEが活用する公共データとその利用条件です。', zhHans: 'GABOLLE 所使用的公共数据及其使用条件。', zhHant: 'GABOLLE 所使用的公共數據及其使用條件。' },
   '실제로 처리하는 정보와 그 목적을 투명하게 안내합니다.': { ja: '実際に処理する情報とその目的を透明に案内します。', zhHans: '透明说明我们实际处理的信息及其用途。', zhHant: '透明說明我們實際處理的資訊及其用途。' },

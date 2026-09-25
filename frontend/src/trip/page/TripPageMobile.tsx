@@ -498,6 +498,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   date={index === 0 ? day?.date ?? null : null}
                   photo={photos[item.placeId] ?? null}
                   step={progressId ? steps[index] : undefined}
+                  staying={item.id === stayId}
                   risky={pace?.atRiskItemIds.includes(item.id) ?? false}
                   pace={paceByItemId.get(item.id)}
                   paceEstimated={paceEstimated}
@@ -808,14 +809,16 @@ function RiskStrip({ atRisk, known, estimated, tx }: { atRisk: ItineraryItemDto[
   );
 }
 
-function TimelineStop({ item, startKind, index, last, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, tx, locale }: {
+function TimelineStop({ item, startKind, index, last, date, photo, step, staying = false, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, tx, locale }: {
   item: ItineraryItemDto; startKind: DayStart['kind']; index: number; last: boolean; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
+  /** 지금 머무는 곳(도착만 적혔고 그 뒤 도착이 없는 곳) — 「✓ 다녀옴」 대신 「머무는 중」(S15P21E201-1690, 조율 세션 결정). */
+  staying?: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
   /** 오늘 방문지이고 아직 도착이 안 적혔을 때만 — 아니면 null 이고 「도착 찍기」를 안 그린다(S15P21E201-1690). */
   onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; tx: Tx; locale: string;
 }) {
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
-  const done = step === 'done';
+  const done = step === 'done' && !staying;
   const label = photo?.category ? PLACE_CATEGORY_LABELS[photo.category] : undefined;
   // 🔴 값이 없는 칸은 만들지 않는다 — 「비용 미정」을 줄마다 적으면 빈 칸이 화면에서 제일 눈에 띈다(itinerary.tsx 와 같은 규칙).
   const meta = [
@@ -871,6 +874,7 @@ function TimelineStop({ item, startKind, index, last, date, photo, step, risky, 
               <View style={styles.titleLine}>
                 <Text weight="bold" style={styles.shrink}>{item.title}</Text>
                 {done ? <View style={styles.chipDone}><Text variant="micro" weight="bold" color={color.state.success}>{tx('✓ 다녀옴', '✓ Visited')}</Text></View> : null}
+                {staying ? <View style={styles.chipStaying}><Text variant="micro" weight="bold" color={color.text.body}>{tx('머무는 중', 'Here now')}</Text></View> : null}
               </View>
               {meta ? <Text variant="caption" color={color.text.muted}>{meta}</Text> : null}
               {risky ? <Text variant="micro" weight="bold" color={color.state.danger}>{tx('하루 넘길 위험', 'May run past the day')}</Text> : null}
@@ -1054,6 +1058,7 @@ const styles = StyleSheet.create({
   stopCopy: { flex: 1, minWidth: 0, gap: spacing[1] },
   titleLine: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 },
   chipDone: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: radius.full, backgroundColor: color.state.successBg },
+  chipStaying: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: radius.full, backgroundColor: color.surface.soft },
   lock: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   stopDetail: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingTop: 10, borderTopWidth: 1, borderTopColor: color.surface.border },
   detailButton: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint, justifyContent: 'center' },

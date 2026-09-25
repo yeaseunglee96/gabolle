@@ -8,14 +8,17 @@ import type { StopOutcome } from '@/plan/tripProgress';
 const MINUTE = 60_000;
 
 /**
- * 지금 머무는 곳 — 도착은 적혔고 출발은 아직인 곳 중 가장 나중 것.
+ * 지금 머무는 곳 — 가장 나중에 도착한 곳 «하나». 그곳의 출발이 적혔으면 머무는 곳은 없다.
+ *
+ * 🔴 그 뒤 방문지에 도착이 적힌 앞 곳들은 출발이 비어 있어도 「다녀옴」이다(조율 세션 결정). 출발 시각은
+ *    지어내지 않고 비워 둔다 — 다음 도착으로 채우면 머문 시간이 실제보다 길게 적히고, 그 값이 체류 시간 보정으로 들어간다.
  * @param departed 출발까지 적힌 곳(서버의 「다녀옴」, 또는 방금 이 화면에서 출발을 적은 곳).
  */
 export function stayingStopId(stopIds: string[], outcomes: Record<string, StopOutcome>, departed: ReadonlySet<string>): string | null {
   for (let index = stopIds.length - 1; index >= 0; index -= 1) {
     const id = stopIds[index];
-    const outcome = outcomes[id];
-    if (outcome?.kind === 'ARRIVED' && !departed.has(id)) return id;
+    if (outcomes[id]?.kind !== 'ARRIVED') continue;
+    return departed.has(id) ? null : id;
   }
   return null;
 }
