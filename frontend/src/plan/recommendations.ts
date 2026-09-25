@@ -36,6 +36,16 @@ const REASON: Record<string, [string, string]> = {
   DIVERSITY_RERANKED: ['다양성을 위해 순서 조정됨', 'Reordered for variety'],
   // 「걷기만」 고른 여행 — 고른 범위 밖이지만 출발지에서 걸어서 30분 안이라 첫날에 넣은 곳(백엔드 !1630).
   WALK_ONLY_FIRST_DAY: ['출발지에서 걸어갈 수 있어요', 'Within walking distance of your starting point'],
+  // 일정 장소 카드에 이유 한 줄을 달면서 채운 것들(S15P21E201-1645). 서버 코드에서 뽑은 전부 — 백엔드가 목록을 줬다.
+  USER_ADDED: ['내가 직접 넣은 곳', 'A place you added'],
+  SEED_FROM_SHARED_ITINERARY: ['공유받은 일정에서 가져온 곳', 'From a shared itinerary'],
+  TASTE_VECTOR_MATCH: ['내가 좋아한 곳들과 비슷함', 'Similar to places you liked'],
+  PREF_ALIGNED_LOCALITY: ['현지 분위기 취향과 맞음', 'Matches your local-vibe preference'],
+  PREF_ALIGNED_QUIETNESS: ['조용한 곳 취향과 맞음', 'Matches your preference for quiet'],
+  PREF_ALIGNED_TOURIST_PREFERENCE: ['관광지 취향과 맞음', 'Matches your sightseeing preference'],
+  PREF_ALIGNED_SHADE_PREFERENCE: ['그늘 취향과 맞음', 'Matches your shade preference'],
+  PREF_ALIGNED_SLOPE_PREFERENCE: ['완만한 길 취향과 맞음', 'Matches your preference for gentle slopes'],
+  WITHIN_BUDGET: ['예산 안', 'Within your budget'],
 };
 
 // TOP_CONTRIBUTOR_<축 이름> — 축 이름은 score_components 맵의 키를 대소문자까지 그대로
@@ -64,6 +74,35 @@ export const reasonLabel = (code: string): string => {
   }
   return t('추천 조건 반영', 'Reflects your conditions');
 };
+
+/**
+ * 일정 장소 카드에 달 이유 «한 줄» — 여럿이면 하나만(S15P21E201-1645). 보일 이유가 없으면 null 이고, 그때는 줄을 안 그린다.
+ *
+ * 🔴 순서는 사용자가 정했다(백엔드 제안 순서): 내가 고른 것 → 테마·취향 → 설문 → 그 장소만의 특징 → 출발지 → 인기.
+ *    옛 일정은 거의 모든 곳에 NEAR_ORIGIN·TOP_CONTRIBUTOR_distance 가 저장돼 있어(옛 규칙, 476곳 중 476·470),
+ *    그 둘이 앞이면 모든 카드가 같은 말을 한다. 「왜 여기 있나」를 말하는 걷기 첫날·공유 일정은 내가 고른 것 바로 뒤,
+ *    예산 안·에디터 추천은 맨 뒤다. DIVERSITY_RERANKED 는 순서를 섞었다는 내부 표시라 사람에게 안 보인다.
+ */
+const REASON_RANK: ReadonlyArray<(code: string) => boolean> = [
+  (code) => code === 'MUST_VISIT_PLACE' || code === 'USER_ADDED',
+  (code) => code === 'WALK_ONLY_FIRST_DAY' || code === 'SEED_FROM_SHARED_ITINERARY',
+  (code) => code.startsWith('TAG_MATCH_') || code === 'TASTE_VECTOR_MATCH',
+  (code) => code.startsWith('PREF_ALIGNED_'),
+  (code) => code.startsWith(TOP_CONTRIBUTOR_PREFIX),
+  (code) => code === 'NEAR_ORIGIN',
+  (code) => code === 'POPULAR',
+  (code) => code === 'WITHIN_BUDGET' || code === 'EDITORIAL_PICK',
+];
+
+export function pickReasonLine(codes: readonly string[] | null | undefined): string | null {
+  if (!codes?.length) return null;
+  for (const matches of REASON_RANK) {
+    // 모르는 코드는 「추천 조건 반영」으로 뭉개지 말고 건너뛴다 — 한 줄은 뜻이 있을 때만 단다.
+    const code = codes.find((entry) => matches(entry) && (REASON[entry] || entry.startsWith(TOP_CONTRIBUTOR_PREFIX)));
+    if (code) return reasonLabel(code);
+  }
+  return null;
+}
 
 export function adaptRecommendationResult(dto: RecommendationJobResultDto): RecommendationViewModel {
   const placeCount = dto.placeCount ?? null;

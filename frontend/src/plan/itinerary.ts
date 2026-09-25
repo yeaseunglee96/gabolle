@@ -6,6 +6,11 @@ export type ItineraryItemDto = {
   title: string;
   description?: string | null;
   estimatedCostKrw?: number | null;
+  /**
+   * 추천 이유 코드(백엔드 S15P21E201-1643). 옛 서버에는 칸이 없다(undefined) — 그때는 이유 줄을 안 그린다.
+   * 카드에는 pickReasonLine 이 고른 하나만 단다(S15P21E201-1645).
+   */
+  reasonCodes?: string[];
   walkingMeters?: number | null;
   locked: boolean;
   dataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
