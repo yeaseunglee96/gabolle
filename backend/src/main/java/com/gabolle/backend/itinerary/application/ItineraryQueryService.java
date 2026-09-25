@@ -345,6 +345,8 @@ public class ItineraryQueryService {
 				travelPath,
 				// ItineraryItem 이 생성자에서 빈 목록으로 정규화하므로 여기서 다시 감싸지 않는다.
 				item.warningCodes(),
+				// 이유 코드도 같다 — 생성자가 빈 목록으로 정규화한다.
+				item.reasonCodes(),
 				// 모르면 null 이고 0 으로 채우지 않는다 — 위도 0·경도 0 은 기니만 한가운데라
 				// 지도에 실제로 점이 찍힌다.
 				place.getLat(),

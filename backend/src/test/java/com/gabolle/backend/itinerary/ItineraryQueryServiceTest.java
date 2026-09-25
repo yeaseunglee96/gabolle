@@ -209,6 +209,38 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-1643 — 항목에 저장된 추천 이유가 응답에 그대로 실린다. 저장만 되고 안 나가던 값이다")
+	void itemReasonCodesAreIncluded() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		ItineraryItem withReasons = new ItineraryItem(UUID.randomUUID().toString(), "version-placeholder", "k1", 0, day,
+				1, this.placeId.toString(), LocalTime.of(10, 0), LocalTime.of(11, 0), null, false, null,
+				ItineraryItem.DataStatus.VERIFIED, List.of("NEAR_ORIGIN", "TAG_MATCH_INTEREST", "TOP_CONTRIBUTOR_interest"),
+				List.of(), null, Instant.now());
+		String itineraryId = seedItinerary(1, List.of(withReasons));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(d -> d.items().stream()).findFirst().orElseThrow();
+
+		assertThat(item.reasonCodes()).containsExactly("NEAR_ORIGIN", "TAG_MATCH_INTEREST", "TOP_CONTRIBUTOR_interest");
+		assertThat(item.warningCodes()).as("이유와 경고는 다른 칸이다 — 섞이지 않는다").isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1643 — 이유가 없는 항목의 reasonCodes 는 null 이 아니라 빈 배열")
+	void itemReasonCodesEmptyNotNull() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("k1", 0, day, 1, LocalTime.of(10, 0), LocalTime.of(11, 0))));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(d -> d.items().stream()).findFirst().orElseThrow();
+
+		assertThat(item.reasonCodes()).isNotNull().isEmpty();
+	}
+
+	@Test
 	@DisplayName("🔴 S15P21E201-1158 — accessibilityUnverifiedCount 는 확인 안 된 '곳' 수다")
 	void accessibilityUnverifiedCountCountsPlaces() {
 		stubTripMembership(threeDayTrip());
