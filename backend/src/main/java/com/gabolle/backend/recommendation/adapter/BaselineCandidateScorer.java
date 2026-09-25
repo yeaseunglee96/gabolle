@@ -74,6 +74,31 @@ public class BaselineCandidateScorer {
 		return PreferenceJson.codesFor(preferenceSnapshot, "CATEGORY", this.objectMapper);
 	}
 
+	/** 태그로 겹침을 재는 취향 — {@link #score} 의 분위기·음식 항과 같은 목록이다. */
+	private static final List<String> TAG_TASTES = List.of("ATMOSPHERE", "FOOD_PREFERENCE");
+
+	/** 점수로 맞춰 보는 취향 — {@link #score} 의 점수형 다섯과 같은 목록이다. */
+	private static final List<String> SCORE_TASTES = List.of("LOCALITY", "QUIETNESS", "TOURIST_PREFERENCE",
+			"SHADE_PREFERENCE", "SLOPE_PREFERENCE");
+
+	/**
+	 * 테마 말고도 채점에 쓰일 취향 답이 있는가 (S15P21E201-1639). 채점이 읽는 그대로 읽는다 — 「상관없어요」(경사 ALLOW ·
+	 * 그늘 NO_PREFERENCE)나 빈 음식 목록은 값이 없어 순위를 가르지 못하므로 거짓이다. 씀씀이는 취향 항이 아니다.
+	 */
+	boolean hasTasteBeyondCategory(PreferenceSnapshot preferenceSnapshot) {
+		for (String dimension : TAG_TASTES) {
+			if (!PreferenceJson.codesFor(preferenceSnapshot, dimension, this.objectMapper).isEmpty()) {
+				return true;
+			}
+		}
+		for (String dimension : SCORE_TASTES) {
+			if (PreferenceJson.scoreFor(preferenceSnapshot, dimension, this.objectMapper) != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * @param alignmentWeights 점수형 취향 다섯 차원이 {@code weights.preferenceAlignment} 를
 	 *     나누는 비율. 빈 주입이 아니라 인수인 이유는, 한 요청 안에서 설정이 다른 두 벌로 같은

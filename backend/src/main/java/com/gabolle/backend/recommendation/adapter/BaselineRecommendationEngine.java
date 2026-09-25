@@ -227,7 +227,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		// 🔴 고른 갈래는 질의가 아니라 취향에서 읽는다 — 질의는 갈래로 좁히지 않아(-1535) 늘 비어 있고, 그 탓에
 		//    「안 골랐다」가 모든 여행에 참이 되어 있었다.
 		List<String> chosenCategories = this.scorer.chosenCategories(preferenceSnapshot);
-		candidates = keepBestScoring(candidates, this.properties.candidateLimit(), chosenCategories, request.tripId());
+		candidates = keepBestScoring(candidates, this.properties.candidateLimit(), chosenCategories,
+				this.scorer.hasTasteBeyondCategory(preferenceSnapshot), request.tripId());
 		long rankingMs = elapsedMs(rankingStart);
 
 		String datasetVersion = resolveDatasetVersion(response.datasetVersions());
@@ -278,12 +279,18 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * {@code ItineraryDraftCommand.places} 의 계약이 「rank 오름차순」이고, 화면도 앞쪽을 더 잘
 	 * 맞는 곳으로 읽는다.
 	 *
+	 * <p>🔴 <b>갈래는 안 골랐어도 설문 답이 있으면 섞지 않는다</b> (S15P21E201-1639). 가입 설문(음식·동네·조용함·관광·
+	 * 경사)은 여행 답으로 옮겨져 이미 채점되는데, 섞기가 그 효과를 덮었다 — 같은 설문이어도 여행이 다르면 상위 20곳 중
+	 * 11곳이 바뀌었고 설문끼리의 차이는 그 흔들림에 묻혔다(운영 자료 로컬 측정, 2026-09-25). 대가는 같은 설문이면 여행마다
+	 * 같은 곳이 나오는 것이다(사용자 결정). 설문도 없으면 위의 섞기 그대로다.
+	 *
 	 * @param chosenCategories 사용자가 고른 갈래. 비었으면 뒤쪽을 섞고, 골랐으면 섞지 않고 갈래 몫을 먼저 준다 —
 	 *     「카페를 골랐는데 카페가 적네」가 생기면 안 된다
+	 * @param surveyed 갈래 말고도 채점에 쓰이는 취향 답이 있는가 — 있으면 섞지 않고 점수 순으로 자른다
 	 * @param seed 섞기의 씨앗. 같은 값이면 같은 결과다
 	 */
 	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit,
-			List<String> chosenCategories, UUID seed) {
+			List<String> chosenCategories, boolean surveyed, UUID seed) {
 		if (candidates.size() <= limit) {
 			return candidates;
 		}
@@ -291,6 +298,9 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		sorted.sort(scoreOrder());
 		if (!chosenCategories.isEmpty()) {
 			return keepWithCategoryShares(sorted, limit, chosenCategories);
+		}
+		if (surveyed) {
+			return new ArrayList<>(sorted.subList(0, limit));
 		}
 
 		int anchor = Math.max(1, (int) Math.round(limit * ANCHOR_SHARE));
