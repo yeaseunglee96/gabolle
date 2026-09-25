@@ -17,7 +17,8 @@ final class StayDefaults {
     /** 갈래를 모르거나 아래 표에 없는 갈래. */
     static final int UNKNOWN_CATEGORY_MINUTES = 60;
 
-    private static final Map<String, Integer> BY_CATEGORY = Map.of(
+    /** 보정 작업의 기준선(backend/calibration/jobs/stay_minutes/checks.json)과 같아야 한다 — StayCalibrationBaselineTest. */
+    static final Map<String, Integer> BY_CATEGORY = Map.of(
             "FOOD", 60,            // 밥집
             "CAFE_HEALING", 45,    // 카페·빵집 (디저트 표식만 있는 밥집도 조립 첫머리에서 카페로 읽힌다)
             "SEA_BEACH", 90,       // 바다

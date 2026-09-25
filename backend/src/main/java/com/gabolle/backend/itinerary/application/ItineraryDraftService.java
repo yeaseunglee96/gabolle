@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gabolle.backend.calibration.StayCalibrationPort;
 import com.gabolle.backend.itinerary.application.port.PlaceEventSchedulePort;
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.place.domain.Place;
@@ -205,6 +207,17 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.dessertOnly = dessertOnly;
     }
 
+    /**
+     * 실제로 머문 시간으로 고친 갈래별 체류 시간(S15P21E201-1692). 스위치가 꺼져 있거나 그 갈래 값이 아직 없으면
+     * {@link StayDefaults} 를 쓴다.
+     */
+    private StayCalibrationPort stayCalibration;
+
+    @Autowired(required = false)
+    public void setStayCalibration(StayCalibrationPort stayCalibration) {
+        this.stayCalibration = stayCalibration;
+    }
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
@@ -323,7 +336,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             for (int i = 0; i < placedToday.size(); i++) {
                 ItineraryDraftCommand.PlannedPlace place = placedToday.get(i).place();
                 boolean meal = mealBands[i] != null && isFood(place);
-                stops.add(new DayTimeLayout.Stop(StayDefaults.minutesFor(place.category()),
+                stops.add(new DayTimeLayout.Stop(stayMinutesFor(place.category()),
                         meal ? mealBands[i][0] : null, meal ? mealBands[i][1] : null));
             }
             List<Slot> timed = layoutDay(trip, stops, travelMinutesFor(legs, dayIndex, placedToday.size()),
@@ -1197,6 +1210,17 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         return meal;
     }
 
+    /** 이 갈래에 머무는 시간 — 고친 값이 있으면 그것, 없으면 기본값(S15P21E201-1692). */
+    private int stayMinutesFor(String category) {
+        if (this.stayCalibration != null) {
+            OptionalInt calibrated = this.stayCalibration.minutesFor(category);
+            if (calibrated.isPresent()) {
+                return calibrated.getAsInt();
+            }
+        }
+        return StayDefaults.minutesFor(category);
+    }
+
     /**
      * {@link #mealSlots} 와 같은 칸을 고르되, 칸마다 맡은 식사 시각대({@code {시작, 끝}})를 낸다 — 밥 칸이 아니면 {@code null}.
      * 시각 깔기({@link DayTimeLayout})가 밥 칸의 밥집을 그 시각대 안에 놓을 때 쓴다(S15P21E201-1667).
@@ -1796,7 +1820,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             String category = categoryToday.get(orderedToday.get(i));
             boolean meal = mealBandsToday[i] != null && category != null
                     && category.equalsIgnoreCase(this.foodCategory);
-            stopsToday.add(new DayTimeLayout.Stop(StayDefaults.minutesFor(category),
+            stopsToday.add(new DayTimeLayout.Stop(stayMinutesFor(category),
                     meal ? mealBandsToday[i][0] : null, meal ? mealBandsToday[i][1] : null));
         }
         List<Slot> timedToday = layoutDay(trip, stopsToday,
