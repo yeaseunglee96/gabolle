@@ -23,6 +23,7 @@ import { CoverButton, MyPageCover } from '@/me/MyPageCover';
 import { loadUserStories, relativeStoryTime, type StoryDto } from '@/social/stories';
 import { KeptPanes } from '@/me/KeptPanes';
 import { MyPageModal } from '@/me/MyPageModal';
+import { RecordsLoadFailed } from '@/me/RecordsLoadFailed';
 import { MyPageSheetBody, myPageSheetHeight } from '@/me/MyPageSheet';
 import { isPanelKey, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
 import { MyTripCard } from '@/home/HomeBlocks';
@@ -275,7 +276,7 @@ export default function Me() {
             ) : (
               <RecordsBrowser stories={myStories ?? []} tx={tx} locale={locale} cardWidth={recordRowCardWidth} onOpen={(story) => router.push(`/feed/${story.id}`)} onCompose={() => router.push('/feed/compose')} />
             )}
-            {myStories === null && !myStoriesQuery.isPending ? <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text> : null}
+            {myStories === null && !myStoriesQuery.isPending ? <RecordsLoadFailed onRetry={() => void myStoriesQuery.refetch()} tx={tx} /> : null}
           </View>
         ) : null}
 
@@ -364,7 +365,7 @@ export default function Me() {
           {user ? <RecordsBrowser stories={myStories ?? []} tx={tx} locale={locale} onOpen={(story) => router.push(`/feed/${story.id}`)} onCompose={() => router.push('/feed/compose')} /> : null}
           {/* 못 불러온 것을 「없다」로 바꾸지 않는다. */}
           {user && myStories === null && !myStoriesQuery.isPending ? (
-            <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text>
+            <RecordsLoadFailed onRetry={() => void myStoriesQuery.refetch()} tx={tx} />
           ) : null}
         </View>
       )), settings: (
