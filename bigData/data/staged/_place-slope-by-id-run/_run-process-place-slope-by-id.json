@@ -1,0 +1,116 @@
+{
+ "step": "process/place-slope-by-id",
+ "at": "2026-09-25T01:28:36.076Z",
+ "git": "e961257cee5f9760223c089cc57d4bc50d71072b",
+ "node": "v24.14.0",
+ "inputs": [
+  {
+   "path": "data/staged/segment-slope.ndjson",
+   "bytes": 15590046,
+   "sha256_16": "e1b7f21de0ad421a"
+  },
+  {
+   "path": "data/raw/pbf/road.ndjson",
+   "bytes": 23105796,
+   "sha256_16": "fabef76d814bab1d"
+  },
+  {
+   "path": "data/raw/pbf/walk.ndjson",
+   "bytes": 10589753,
+   "sha256_16": "b199ffb6eff841c2"
+  },
+  {
+   "path": "data/staged/prod-places.tsv",
+   "bytes": 689476,
+   "sha256_16": "b3922c064b96f6bd"
+  }
+ ],
+ "params": {
+  "radiusM": 200,
+  "minSegmentM": 30,
+  "minWalkM": 150,
+  "stat": "length-weighted p50 of segment p50Slope",
+  "excluded": "stairs · bridge · tunnel · motorway · foot=no"
+ },
+ "result": {
+  "places": 6933,
+  "made": 6917,
+  "segments": 51508,
+  "dropped": {
+   "stairsOrShort": 10017,
+   "bridgeOrTunnel": 4447,
+   "notWalkable": 1042,
+   "noGeometry": 0
+  },
+  "byCategory": {
+   "FOOD": {
+    "places": 4387,
+    "made": 4386
+   },
+   "CULTURE_TEMPLE": {
+    "places": 623,
+    "made": 616
+   },
+   "CAFE_HEALING": {
+    "places": 729,
+    "made": 729
+   },
+   "LODGING": {
+    "places": 836,
+    "made": 836
+   },
+   "CITY": {
+    "places": 85,
+    "made": 85
+   },
+   "(없음)": {
+    "places": 89,
+    "made": 89
+   },
+   "NATURE_WALK": {
+    "places": 168,
+    "made": 161
+   },
+   "SEA_BEACH": {
+    "places": 16,
+    "made": 15
+   }
+  },
+  "over": {
+   "5": 740,
+   "10": 179,
+   "12": 115,
+   "8.33": 299
+  },
+  "control": {
+   "flat": [
+    [
+     "해운대해수욕장",
+     3.2
+    ],
+    [
+     "해운대 그린레일웨이 (미포~송정 구간)",
+     3.5
+    ],
+    [
+     "낙동강하구 (부산 국가지질공원)",
+     1.5
+    ]
+   ],
+   "steep": [
+    [
+     "황령산",
+     12.8
+    ],
+    [
+     "금련산",
+     12.8
+    ],
+    [
+     "감천문화마을",
+     9.7
+    ]
+   ]
+  }
+ }
+}
