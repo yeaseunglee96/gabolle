@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -46,6 +47,7 @@ import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
+import com.gabolle.backend.trip.domain.WalkOnlyFirstDay;
 
 /**
  * 규칙 기반 BASELINE 추천 엔진. 학습 모델·온톨로지 서버가 아직 없는 동안 이 엔진이
@@ -175,7 +177,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		long candidateGenerationStart = System.nanoTime();
 		PlaceCandidateRequest queryRequest =
 				this.translator.translate(location, trip, preferenceSnapshot, constraints);
-		PlaceCandidateResponse response = findCandidatesWithinTravelAreas(trip.tripId(), queryRequest);
+		CandidatePool pool = findCandidatesWithinTravelAreas(trip, queryRequest);
+		PlaceCandidateResponse response = pool.response();
 		// 사용자가 적은 「꼭 가고 싶은 장소」가 반경 밖이면 여기까지 안 들어온다. 끼워 넣는다.
 		List<TripSeedPlace> seeds = this.seedPlaceRepository.findByTripId(trip.tripId());
 		response = includeMissingSeeds(response, seeds);
@@ -217,6 +220,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 					this.properties.weights(), this.alignmentWeights, preferenceCodeMap, constraintCodeMap,
 					tasteWeights, this.properties.tasteVectorMultiplier()));
 		}
+		candidates = markFirstDayOnly(candidates, pool.firstDayOnly());
 		// 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다 — SeedBoost 참고.
 		candidates = SeedBoost.apply(candidates, seeds);
 		// 총예산에 맞춘다. 역시 점수만 움직이고 후보를 빼지 않는다 — BudgetFit 참고.
@@ -446,11 +450,36 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * 덮는 원이 도시 전체가 되어 범위를 골랐다는 말이 뜻을 잃는다. 모자라면 출발지 기준
 	 * 조회로 채운다. 거리는 여전히 출발지 기준이고 이 자리는 무엇을 채점할 것인가만 정한다.
 	 */
-	private PlaceCandidateResponse findCandidatesWithinTravelAreas(String tripId, PlaceCandidateRequest base) {
-		List<TravelArea> areas = this.travelAreas.map((repository) -> repository.findByTripId(tripId))
+	/** 후보 조회 결과와, 그중 첫날에만 앉힐 곳(범위 밖인데 출발지 둘레라 들어온 곳). */
+	private record CandidatePool(PlaceCandidateResponse response, Set<UUID> firstDayOnly) {
+	}
+
+	/** 첫날에만 앉힐 곳에 {@link WalkOnlyFirstDay#REASON_CODE} 를 단다 — 일정 조립이 이 코드를 보고 날을 가린다. */
+	private static List<EngineCandidate> markFirstDayOnly(List<EngineCandidate> candidates, Set<UUID> firstDayOnly) {
+		if (firstDayOnly.isEmpty()) {
+			return candidates;
+		}
+		List<EngineCandidate> marked = new ArrayList<>(candidates.size());
+		for (EngineCandidate c : candidates) {
+			if (!firstDayOnly.contains(c.placeId())) {
+				marked.add(c);
+				continue;
+			}
+			List<String> reasons = new ArrayList<>(c.reasonCodes());
+			reasons.add(WalkOnlyFirstDay.REASON_CODE);
+			marked.add(new EngineCandidate(c.placeId(), c.candidateSource(), c.constraintVerdict(), c.violations(),
+					c.unknownFacts(), c.constraintConfidence(), c.featureValues(), c.scoreComponents(), c.preRankScore(),
+					reasons, c.warningCodes()));
+		}
+		return marked;
+	}
+
+	private CandidatePool findCandidatesWithinTravelAreas(Trip trip, PlaceCandidateRequest base) {
+		List<TravelArea> areas = this.travelAreas.map((repository) -> repository.findByTripId(trip.tripId()))
 				.orElse(List.of());
 		if (areas.isEmpty()) {
-			return this.placeCandidateQueryService.findCandidates(base);
+			// 범위를 안 골랐으면 출발지를 중심으로 훑으므로 출발지 둘레가 이미 들어 있다.
+			return new CandidatePool(this.placeCandidateQueryService.findCandidates(base), Set.of());
 		}
 
 		Map<String, PlaceCandidateResponse.Candidate> merged = new LinkedHashMap<>();
@@ -466,6 +495,23 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 			}
 		}
 
+		Set<UUID> firstDayOnly = new HashSet<>();
+		if (WalkOnlyFirstDay.applies(trip)) {
+			// 🔴 걷기만 고른 여행 — 첫날은 출발지에서 걸어갈 만한 곳이어야 하는데(S15P21E201-1634), 범위만 훑으면
+			//    출발지 둘레의 곳이 후보에 하나도 없다(출발 부산역·범위 해운대 → 200곳 전부 8~16km). 한 번 더 훑는다.
+			PlaceCandidateRequest nearOrigin = new PlaceCandidateRequest(
+					new PlaceCandidateRequest.Center(trip.originLat(), trip.originLng()), WalkOnlyFirstDay.RADIUS_M,
+					base.categories(), base.requiredFeatures(), base.excludedFeatures(),
+					base.openNowAt(), base.minimumCount(), base.limit());
+			for (PlaceCandidateResponse.Candidate candidate
+					: this.placeCandidateQueryService.findCandidates(nearOrigin).candidates()) {
+				if (merged.putIfAbsent(candidate.placeId().toString(), candidate) == null) {
+					firstDayOnly.add(candidate.placeId()); // 범위 안에서는 안 나왔다 — 첫날에만
+				}
+			}
+			appliedFilters.add("WALK_ONLY_NEAR_ORIGIN");
+		}
+
 		PlaceCandidateResponse fromAreas = this.placeCandidateQueryService.findCandidates(base);
 		if (merged.size() < MIN_AREA_CANDIDATES) {
 			// 범위 안이 비었다. 출발지 기준 후보로 채우고 그 사실을 appliedFilters 에 남긴다 —
@@ -477,9 +523,9 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		}
 
 		List<PlaceCandidateResponse.Candidate> candidates = List.copyOf(merged.values());
-		return new PlaceCandidateResponse(candidates, candidates.size(), fromAreas.minimumRequired(),
+		return new CandidatePool(new PlaceCandidateResponse(candidates, candidates.size(), fromAreas.minimumRequired(),
 				candidates.size() < fromAreas.minimumRequired(), appliedFilters, fromAreas.notApplied(),
-				fromAreas.scanTruncated(), fromAreas.datasetVersions());
+				fromAreas.scanTruncated(), fromAreas.datasetVersions()), firstDayOnly);
 	}
 
 	/**

@@ -549,6 +549,80 @@ class ItineraryDraftServiceTest {
 				assertThat(item.warningCodes()).contains("OPENING_HOURS_CLOSED"));
 	}
 
+	// ── 걷기만 고른 여행의 첫날 (S15P21E201-1634) ──────────────────────────
+
+	private static final double[] BUSAN_STATION = { 35.1152, 129.0403 };
+
+	/**
+	 * 운영 여행 54854ec1 모양 — 출발 부산역, 여행 범위 해운대, 이틀 · 하루 4곳. 순위 앞쪽이 해운대(15km) {@code haeundae}곳,
+	 * 뒤쪽이 부산역 둘레(1km 안) {@code near}곳이다. 둘레 곳은 엔진이 「범위 밖인데 출발지 둘레라서 들어온 곳」으로 표시해 넘긴다.
+	 */
+	private List<ItineraryDraftCommand.PlannedPlace> walkOnlyCase(int haeundae, int near, String... modes) {
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(Trip.builder()
+				.tripId("trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 10, 1)).finishDate(LocalDate.of(2026, 10, 2))
+				.partySize(2).timezone("Asia/Seoul").travelModes(modes)
+				.originLat(BUSAN_STATION[0]).originLng(BUSAN_STATION[1])
+				.timeWindowStart(LocalTime.of(9, 0)).timeWindowEnd(LocalTime.of(18, 0))
+				.createdAt(Instant.now())
+				.build()));
+		List<double[]> coords = new ArrayList<>();
+		for (int i = 0; i < haeundae; i++) {
+			coords.add(new double[] { 35.1587 + i * 0.001, 129.1604 + i * 0.001 });
+		}
+		for (int i = 0; i < near; i++) {
+			coords.add(new double[] { 35.1152 + i * 0.0015, 129.0403 + i * 0.0005 }); // 0.2~1km
+		}
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>(plannedPlacesAt(
+				java.util.Collections.nCopies(haeundae + near, "CULTURE_TEMPLE"), coords));
+		for (int i = haeundae; i < haeundae + near; i++) {
+			ItineraryDraftCommand.PlannedPlace p = places.get(i);
+			places.set(i, new ItineraryDraftCommand.PlannedPlace(p.placeId(), p.rank(),
+					List.of("REASON", com.gabolle.backend.trip.domain.WalkOnlyFirstDay.REASON_CODE), List.of(),
+					p.category()));
+		}
+		return places;
+	}
+
+	private static List<UUID> dayOf(ItineraryDraft draft, int dayIndex) {
+		return draft.items().stream().filter(item -> item.dayIndex() == dayIndex)
+				.map(ItineraryDraft.DraftItem::placeId).toList();
+	}
+
+	@Test
+	@DisplayName("🔴 걷기만 고른 여행의 첫날은 출발지에서 걸어서 30분 안의 곳만 — 첫날에 빈자리가 남아도 해운대(15km)를 안 넣는다")
+	void walkOnlyFirstDayStaysNearTheOrigin() {
+		// 해운대 여섯 중 넷이 둘째 날을 채우고 둘이 남는다. 규칙이 없으면 그 둘이 첫날 빈자리로 간다.
+		List<ItineraryDraftCommand.PlannedPlace> places = walkOnlyCase(6, 2, "WALK");
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> nearOrigin = places.subList(6, 8).stream().map(ItineraryDraftCommand.PlannedPlace::placeId).toList();
+		assertThat(dayOf(draft, 0)).as("첫날은 부산역 둘레뿐").containsExactlyInAnyOrderElementsOf(nearOrigin);
+	}
+
+	@Test
+	@DisplayName("🔴 범위 밖인데 출발지 둘레라서 들어온 곳은 첫날에만 — 둘째 날은 고른 범위(해운대)")
+	void firstDayOnlyPlacesStayOffOtherDays() {
+		// 둘레 여섯 중 넷이 첫날을 채우고 둘이 남는다. 규칙이 없으면 그 둘이 둘째 날 빈자리로 간다.
+		List<ItineraryDraftCommand.PlannedPlace> places = walkOnlyCase(2, 6, "WALK");
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> nearOrigin = places.subList(2, 8).stream().map(ItineraryDraftCommand.PlannedPlace::placeId).toList();
+		assertThat(dayOf(draft, 1)).as("둘째 날에 출발지 둘레 곳이 없다").isNotEmpty().noneMatch(nearOrigin::contains);
+	}
+
+	@Test
+	@DisplayName("걷기만이 아니면 지금처럼 — 첫날도 순위대로 고른 범위에서")
+	void otherTripsKeepTheRankOrder() {
+		List<ItineraryDraftCommand.PlannedPlace> places = walkOnlyCase(6, 2, "BUS", "SUBWAY");
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		assertThat(dayOf(draft, 0)).contains(places.get(0).placeId());
+	}
+
 	// ── 그날 남은 곳이 다 닫혔을 때 (S15P21E201-1632) ──────────────────────
 
 	/**
