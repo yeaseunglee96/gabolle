@@ -1,5 +1,5 @@
 // 폰 홈. 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -30,8 +30,7 @@ import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
-import { hasUnseen, loadActivityFeed, loadSeenAt } from '@/notifications/activityFeed';
-import { useFocusEffect } from 'expo-router';
+import { useHomeBellDot } from '@/notifications/useHomeBellDot';
 import { relativeStoryTime } from '@/social/stories';
 import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
 import type { TripSummaryDto } from '@/trip/trips';
@@ -75,19 +74,10 @@ export default function Home() {
   const topNav = useTopNavShown();
   const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
   // 시안 5 Home 의 「⊕ 한국어」 — 외국인이 홈에서 바로 언어를 바꾼다(S15P21E201-1372). 첫 화면의 언어 시트를 그대로 쓴다.
-  // 안 본 알림이 있으면 종에 점 — 여행 활동을 마지막으로 본 시각과 견준다(S15P21E201-1380). 화면에 돌아올 때마다 다시 본다.
-  const [bellDot, setBellDot] = useState(false);
-  useFocusEffect(useCallback(() => {
-    let active = true;
-    if (!user) { setBellDot(false); return undefined; }
-    (async () => {
-      const [feed, seenAt] = await Promise.all([loadActivityFeed(accessToken, tx), loadSeenAt()]);
-      if (active && feed.state === 'success') setBellDot(hasUnseen(feed.items, seenAt));
-    })();
-    return () => { active = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.userId, accessToken]));
   const home = useHomeData(!desktop);
+  // 안 본 알림이 있으면 종에 점 — 여행 활동을 마지막으로 본 시각과 견준다(S15P21E201-1380). 화면에 돌아올 때마다 다시 본다.
+  // 🔴 홈 카드가 받은 여행 목록으로, 홈이 그려지고 몇 초 뒤에, 최근 여행 셋만 본다(S15P21E201-1686) — 전에는 여는 순간 여행마다 불렀다.
+  const bellDot = useHomeBellDot({ userId: user?.userId ?? null, accessToken, trips: home.trips, visible: !topNav, tx });
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
   const saved = useSavedPlaces(accessToken);
   const [assistantOpen, setAssistantOpen] = useState(false);
