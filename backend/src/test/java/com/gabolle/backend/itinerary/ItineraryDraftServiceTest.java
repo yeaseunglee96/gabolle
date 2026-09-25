@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -1130,6 +1131,20 @@ class ItineraryDraftServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-1692 — 실제 체류로 고친 값이 있는 갈래는 그 값, 없는 갈래는 기본값")
+	void calibratedStayMinutesWinOverDefaults() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		this.service.setStayCalibration((category) -> "CULTURE_TEMPLE".equals(category)
+				? OptionalInt.of(75) : OptionalInt.empty());
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesOf("CULTURE_TEMPLE", "NATURE_WALK")));
+
+		assertThat(draft.items()).extracting((item) -> categoryOfItem(item) + ":" + item.stayMinutes())
+				.containsExactlyInAnyOrder("CULTURE_TEMPLE:75", "NATURE_WALK:60");
+	}
+
+	@Test
 	@DisplayName("🔴 이동 시간을 모르면 0분으로 본다 — 모르는 값을 지어내지 않는다")
 	void withoutMeasuredTravelTheLayoutIsUnchanged() {
 		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
@@ -1906,6 +1921,37 @@ class ItineraryDraftServiceTest {
 
 		assertThat(draft.filledCount()).as("축제로 채웠다면 넷이다").isEqualTo(3);
 		assertThat(draft.warningCodes()).contains(ItineraryWarningCodes.RECALC_DAY_PARTIALLY_FILLED);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1692 — 하루 다시 짜기도 실제 체류로 고친 값을 쓴다")
+	void dayRecalculationUsesCalibratedStayMinutes() {
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		ItineraryDraftService reviser = new ItineraryDraftService(this.tripRepository, itineraries, CLOCK, 4, 3, "FOOD", 1,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT),
+				noRouteOrder(), this.placeRepository, noEvents());
+		// 이 경로는 갈래를 장소 표에서 읽는데 여기 장소 표는 비어 있다 — 갈래를 몰라도 고친 값을 쓰는지만 본다(기본값은 60분).
+		reviser.setStayCalibration((category) -> OptionalInt.of(75));
+		List<ItineraryDraftCommand.PlannedPlace> pool = festivalCase(List.of("REASON")).subList(1, 4);
+		// 시각을 깔려면 활동 시간대가 있어야 한다 — 없으면 체류도 비운다.
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(tripOf(FESTIVAL_TRIP_START,
+				FESTIVAL_TRIP_START.plusDays(2), LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(base, List.of(), List.of(), List.of())));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		reviser.publish(reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1,
+				"usr_1", JobType.ITINERARY_RECALCULATE, 0, null, List.of(), null, pool, "m", "f", "o", "p", "d")));
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryItem>> items = ArgumentCaptor.forClass(List.class);
+		verify(itineraries).appendVersion(any(), items.capture(), any(), any());
+		assertThat(items.getValue()).isNotEmpty()
+				.allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(75));
 	}
 
 }
