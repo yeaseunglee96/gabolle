@@ -43,6 +43,7 @@ import { useStoryImages } from '@/social/useStoryImages';
 import { useStoryVideo } from '@/social/useStoryVideo';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+import { regionText } from '@/social/districtNames';
 
 /**
  * 추억 지도는 핀만 — 기록 사이에 선을 긋지 않는다(사용자 요청 2026-09-24, S15P21E201-1576).
@@ -211,7 +212,7 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
           0 을 하드코딩해 그리지 않는다. 모르는 것을 아는 척하는 것이라, 서버가 칸을 주는 날
  자연히 나타나게 둔다의 백엔드 몫). 지금은 시각과 지역만 말한다. */}
       <Text variant="caption" color={color.text.muted}>
-        {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${story.region}` : ''}
+        {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${regionText(story.region, tx)}` : ''}
       </Text>
     </Pressable>
 
@@ -413,7 +414,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
     .map((story, index) => ({
       id: story.id,
       number: index + 1,
-      name: story.place?.name ?? story.region ?? tx('기록', 'Record'),
+      name: story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? tx('기록', 'Record'),
       latitude: story.place?.lat as number,
       longitude: story.place?.lng as number,
     }));

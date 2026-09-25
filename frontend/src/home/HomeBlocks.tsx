@@ -24,6 +24,7 @@ import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
 //    그대로 읽는 홈 전용 함수가 따로 있어서, 오늘 진행 중인 여행에도 「준비 완료」가 붙었다.
 import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
 import type { DailyForecastDto } from '@/trip/weather';
+import { regionText } from '@/social/districtNames';
 
 const heartIcon = require('../../assets/icons/home/heart.png');
 
@@ -69,7 +70,7 @@ export function TopNavWeather({ forecast }: { forecast: DailyForecastDto | null 
 function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number }) {
   const router = useRouter();
   const { tx } = useI18n();
-  const where = story.place?.name ?? story.region ?? '';
+  const where = story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? '';
   const initial = story.author.displayName.slice(0, 1);
   const body = markdownToPlain(story.body).trim();
   const hasImage = story.images.length > 0;

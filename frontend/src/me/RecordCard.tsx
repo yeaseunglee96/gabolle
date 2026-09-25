@@ -8,6 +8,7 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
+import { regionText } from '@/social/districtNames';
 
 export function RecordCard({
   story, onPress, tx, width,
@@ -23,7 +24,7 @@ export function RecordCard({
 }) {
   const cover = story.images[0]?.url ?? null;
   // 제목 자리는 장소 이름이 먼저다 — 피드 카드와 같은 규칙.
-  const title = story.place?.name ?? story.region ?? tx('기록', 'Record');
+  const title = story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? tx('기록', 'Record');
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={[styles.card, width ? { width } : null]}>
       {cover ? (
