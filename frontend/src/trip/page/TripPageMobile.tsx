@@ -36,6 +36,7 @@ import { RouteMap } from '@/map/RouteMap';
 import { courseLetter } from '@/plan/CourseCard';
 import { NowCard } from '@/plan/NowCard';
 import { useLocationGate } from '@/personalization/useLocationGate';
+import type { ExcludeReason } from '@/components/ExcludeConfirmModal';
 import {
   pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
   type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto,
@@ -261,10 +262,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
     reloadPace();
   };
 
-  const exclude = async (item: ItineraryItemDto) => {
+  const exclude = async (item: ItineraryItemDto, reason: ExcludeReason | null) => {
     if (!loaded) return;
     setExcludingId(item.id); setNotice(null);
-    const accepted = await removeItineraryItem({ itineraryId: loaded.id, itemId: item.id, baseVersion: loaded.version, accessToken });
+    // 고른 이유(S15P21E201-1695). 건너뛰면 칸을 비운다.
+    const accepted = await removeItineraryItem({ itineraryId: loaded.id, itemId: item.id, baseVersion: loaded.version, operationalReason: reason ?? undefined, accessToken });
     if (accepted.state === 'accepted') {
       // 제외는 서버가 새 일정을 «안 돌려준다» — 작업이 끝나기를 기다렸다가 다시 받는다(itinerary.tsx 의 runJob 과 같다).
       for (;;) {
@@ -681,10 +683,10 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         placeTitle={excludeTarget?.title ?? ''}
         busy={excludingId !== null}
         onCancel={() => setExcludeTarget(null)}
-        onConfirm={() => {
+        onConfirm={(reason) => {
           const target = excludeTarget;
           setExcludeTarget(null);
-          if (target) void exclude(target);
+          if (target) void exclude(target, reason);
         }}
       />
       <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
