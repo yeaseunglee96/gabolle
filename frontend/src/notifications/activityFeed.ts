@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getTripActivity, type TripActivityOperation } from '@/trip/collaboration';
 import { loadTrips, tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
+import { txf } from '@/i18n/format';
 
 export type ActivityNotice = {
   id: string;
@@ -69,27 +70,29 @@ export async function loadActivityFeed(accessToken: string | null, tx: (ko: stri
 export function noticeCopy(notice: ActivityNotice, tx: (ko: string, en: string) => string): { title: string; body: string } {
   const who = notice.isMe ? null : notice.actorName;
   const by = who ? `${who}${tx('님이', '')} ` : '';
+  // 여행 이름을 감싸는 부호 — 한국어·일본어 「…」, 영어·중국어 “…”(S15P21E201-1711). 이름 자체는 건드리지 않는다.
+  const trip = txf(tx, '「%s」', '“%s”', notice.tripTitle);
   switch (notice.operation) {
     case 'CREATE':
-      return { title: tx('일정이 만들어졌어요', 'Your itinerary is ready'), body: `「${notice.tripTitle}」 — ${tx('확인하고 저장해 주세요.', 'Take a look and save it.')}` };
+      return { title: tx('일정이 만들어졌어요', 'Your itinerary is ready'), body: `${trip} — ${tx('확인하고 저장해 주세요.', 'Take a look and save it.')}` };
     case 'REGENERATE':
     case 'REGENERATE_DAY':
     // 남은 하루 재계획(장소·순서는 두고 아직 안 지난 방문지의 시각만 다시) — 뜻이 같아 같은 문구. 빠져서 「일정이 바뀌었어요」로 뭉개졌다(S15P21E201-1443).
     case 'REPLAN_DAY':
-      return { title: tx('남은 일정을 다시 계획했어요', 'The rest of the day was replanned'), body: `「${notice.tripTitle}」${who ? ` — ${by}${tx('다시 계획했어요.', 'replanned it.')}` : ''}` };
+      return { title: tx('남은 일정을 다시 계획했어요', 'The rest of the day was replanned'), body: `${trip}${who ? ` — ${by}${tx('다시 계획했어요.', 'replanned it.')}` : ''}` };
     case 'REVERT':
-      return { title: tx('변경을 되돌렸어요', 'A change was undone'), body: `「${notice.tripTitle}」${who ? ` — ${by}${tx('되돌렸어요.', 'undid it.')}` : ''}` };
+      return { title: tx('변경을 되돌렸어요', 'A change was undone'), body: `${trip}${who ? ` — ${by}${tx('되돌렸어요.', 'undid it.')}` : ''}` };
     case 'REORDER':
-      return { title: tx('일정 순서가 바뀌었어요', 'Stops were reordered'), body: `「${notice.tripTitle}」${who ? ` — ${by}${tx('순서를 바꿨어요.', 'reordered the stops.')}` : ''}` };
+      return { title: tx('일정 순서가 바뀌었어요', 'Stops were reordered'), body: `${trip}${who ? ` — ${by}${tx('순서를 바꿨어요.', 'reordered the stops.')}` : ''}` };
     case 'LOCK_ITEM':
-      return { title: tx('장소가 고정됐어요', 'A stop was pinned'), body: `「${notice.tripTitle}」${who ? ` — ${by}${tx('장소를 고정했어요.', 'pinned a stop.')}` : ''}` };
+      return { title: tx('장소가 고정됐어요', 'A stop was pinned'), body: `${trip}${who ? ` — ${by}${tx('장소를 고정했어요.', 'pinned a stop.')}` : ''}` };
     case 'REMOVE_ITEM':
-      return { title: tx('장소가 빠졌어요', 'A stop was removed'), body: `「${notice.tripTitle}」${who ? ` — ${by}${tx('장소를 뺐어요.', 'removed a stop.')}` : ''}` };
+      return { title: tx('장소가 빠졌어요', 'A stop was removed'), body: `${trip}${who ? ` — ${by}${tx('장소를 뺐어요.', 'removed a stop.')}` : ''}` };
     case 'ADD_ITEM':
     case 'REPLACE_ITEM':
-      return { title: tx('장소가 더해졌어요', 'A stop was added'), body: `「${notice.tripTitle}」${who ? ` — ${by}${tx('장소를 더했어요.', 'added a stop.')}` : ''}` };
+      return { title: tx('장소가 더해졌어요', 'A stop was added'), body: `${trip}${who ? ` — ${by}${tx('장소를 더했어요.', 'added a stop.')}` : ''}` };
     default:
-      return { title: tx('일정이 바뀌었어요', 'Your itinerary changed'), body: `「${notice.tripTitle}」` };
+      return { title: tx('일정이 바뀌었어요', 'Your itinerary changed'), body: `${trip}` };
   }
 }
 
