@@ -1,4 +1,5 @@
 import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
+import { koreanSubject } from '@/i18n/korean';
 
 export type RecommendationViewState = 'loading' | 'success' | 'partial' | 'fallback' | 'empty-conflict' | 'error' | 'offline' | 'unavailable';
 export type DataStatus = 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
@@ -33,6 +34,8 @@ const REASON: Record<string, [string, string]> = {
   POPULAR: ['인기 있는 곳', 'A popular spot'],
   EDITORIAL_PICK: ['에디터 추천', "Editor's pick"],
   DIVERSITY_RERANKED: ['다양성을 위해 순서 조정됨', 'Reordered for variety'],
+  // 「걷기만」 고른 여행 — 고른 범위 밖이지만 출발지에서 걸어서 30분 안이라 첫날에 넣은 곳(백엔드 !1630).
+  WALK_ONLY_FIRST_DAY: ['출발지에서 걸어갈 수 있어요', 'Within walking distance of your starting point'],
 };
 
 // TOP_CONTRIBUTOR_<축 이름> — 축 이름은 score_components 맵의 키를 대소문자까지 그대로
@@ -54,7 +57,10 @@ export const reasonLabel = (code: string): string => {
   if (code.startsWith(TOP_CONTRIBUTOR_PREFIX)) {
     const axis = code.slice(TOP_CONTRIBUTOR_PREFIX.length);
     const label = AXIS_LABEL[axis];
-    return label ? t(`${label[0]} 점수가 가장 높음`, `Highest score in ${label[1]}`) : t(`${axis} 점수가 가장 높음`, `Highest score in ${axis}`);
+    // 🔴 「점수가 가장 높은 축」이 아니라 «같은 결과 안에서 다른 곳보다 가장 두드러진 축»이다(백엔드 !1634 — 전에는 89% 가
+    //    「거리」였다). 그래서 「다른 곳보다 ○○이 돋보임」이라 말한다(S15P21E201-1640).
+    const [ko, en] = label ?? [axis, axis];
+    return t(`다른 곳보다 ${ko}${koreanSubject(ko)} 돋보임`, `Stands out for ${en}`);
   }
   return t('추천 조건 반영', 'Reflects your conditions');
 };
