@@ -354,4 +354,87 @@ class BaselineRecommendationEngineCandidateCutTest {
 		assertThat(a).as("안 골랐으면 몫이 없어 점수가 낮은 바다·자연·카페는 안 들어온다")
 				.allMatch((id) -> id.getMostSignificantBits() == 7L);
 	}
+
+	// ── 테마 없이 설문만 있는 여행 — 섞지 않는다 (S15P21E201-1639) ─────────────────
+
+	/**
+	 * 고치기 전 코드(back/dev 929d65b79)가 낸 남은 후보 — {@code 상위비트:하위비트}. 설문도 테마도 없는 여행과 테마를 고른 여행은
+	 * 이 작업 뒤에도 한 곳도 안 바뀌어야 한다. 섞기·몫 규칙을 <b>일부러</b> 바꾸는 작업이면 새 값으로 갈아 끼운다.
+	 */
+	private static final String NO_SURVEY_BEFORE = "7:0 7:1 7:2 7:3 7:4 7:5 7:7 7:18 7:22 7:29";
+
+	private static final String THEME_BEFORE = "7:0 7:1 7:2 7:3 7:4 8:0 8:5 8:6 8:8 8:9";
+
+	/** 여행 번호와 취향 스냅숏을 정해 돌리고, 남은 후보를 {@code 상위비트:하위비트} 로 늘어놓는다. */
+	private String keptWith(String tripId, List<PlaceCandidateResponse.Candidate> pool, PreferenceSnapshot snapshot) {
+		when(this.tripRepository.findById(tripId)).thenReturn(Optional.of(Trip.builder()
+				.tripId(tripId).createdBy(UUID.randomUUID().toString())
+				.startDate(LocalDate.of(2026, 10, 1)).finishDate(LocalDate.of(2026, 10, 3))
+				.originLat(35.15).originLng(129.05).partySize(2).timezone("Asia/Seoul")
+				.build()));
+		when(this.seedPlaceRepository.findByTripId(tripId)).thenReturn(List.of());
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+		UUID snapshotId = UUID.randomUUID();
+		when(this.tripRepository.findSnapshotById(snapshotId.toString())).thenReturn(Optional.ofNullable(snapshot));
+		EngineRequest req = new EngineRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.fromString(tripId), 1,
+				snapshotId, null, null, null, 10);
+		return engine().generate(req).candidates().stream()
+				.map((c) -> c.placeId().getMostSignificantBits() + ":" + c.placeId().getLeastSignificantBits())
+				.collect(Collectors.joining(" "));
+	}
+
+	/** 답 여러 개 — {@code 차원, 값 JSON} 을 번갈아 준다. */
+	private static PreferenceSnapshot answers(String... dimensionAndValue) {
+		List<PreferenceSnapshot.PreferenceAnswer> list = new ArrayList<>();
+		for (int i = 0; i < dimensionAndValue.length; i += 2) {
+			list.add(new PreferenceSnapshot.PreferenceAnswer(dimensionAndValue[i], dimensionAndValue[i + 1],
+					PreferenceSnapshot.AnswerStatus.SELECTED));
+		}
+		return new PreferenceSnapshot(UUID.randomUUID().toString(), TRIP_ID, 1, list, PersonalizationScope.TRIP,
+				List.of(), java.time.Instant.now());
+	}
+
+	/** 운영 여행 답에서 흔한 설문 — 해산물 · 현지 5 · 경사 피함(2026-09-25 최근 열흘). */
+	private static PreferenceSnapshot survey() {
+		return answers("FOOD_PREFERENCE", "[\"SEAFOOD\"]", "LOCALITY", "5", "SLOPE_PREFERENCE", "\"AVOID\"");
+	}
+
+	@Test
+	@DisplayName("🔴 설문도 테마도 없는 여행은 전과 같다 — 뒤쪽을 여행마다 섞는다(-1463)")
+	void 설문이_없으면_전과_같다() {
+		assertThat(keptWith(new UUID(9L, 11L).toString(), manyCandidates(300), null)).isEqualTo(NO_SURVEY_BEFORE);
+	}
+
+	@Test
+	@DisplayName("🔴 테마를 고른 여행은 전과 같다 — 설문이 함께 있어도 갈래 몫이 먼저다")
+	void 테마를_고르면_전과_같다() {
+		PreferenceSnapshot themeAndSurvey = answers("CATEGORY", "[\"SEA_BEACH\", \"FOOD\", \"NATURE_WALK\"]",
+				"FOOD_PREFERENCE", "[\"SEAFOOD\"]", "LOCALITY", "5");
+
+		assertThat(keptWith(new UUID(9L, 12L).toString(), skewedPool(), themeAndSurvey)).isEqualTo(THEME_BEFORE);
+	}
+
+	@Test
+	@DisplayName("🔴 테마 없이 설문만 있으면 섞지 않는다 — 여행이 달라도 같은 곳, 점수 순 상위 그대로")
+	void 설문만_있으면_섞지_않는다() {
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		String a = keptWith(new UUID(9L, 13L).toString(), pool, survey());
+		String b = keptWith(new UUID(9L, 14L).toString(), pool, survey());
+
+		assertThat(a).as("같은 설문이면 여행이 달라도 같다 — 설문 효과가 섞기에 묻히지 않는다").isEqualTo(b);
+		// 후보는 가까운 순으로 점수가 높다(표식이 없어 설문 항은 0) — 섞지 않으면 가장 가까운 열 곳이다.
+		assertThat(a).isEqualTo("7:0 7:1 7:2 7:3 7:4 7:5 7:6 7:7 7:8 7:9");
+	}
+
+	@Test
+	@DisplayName("🔴 채점에 안 쓰이는 답만 있으면 설문 없음과 같다 — 「상관없어요」·씀씀이는 순위를 가를 값이 아니다")
+	void 채점에_안_쓰이는_답만이면_섞는다() {
+		String tripId = new UUID(9L, 15L).toString();
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+		PreferenceSnapshot noSignal = answers("SLOPE_PREFERENCE", "\"ALLOW\"", "SHADE_PREFERENCE",
+				"\"NO_PREFERENCE\"", "SPEND_PROFILE", "\"MODERATE\"", "FOOD_PREFERENCE", "[]");
+
+		assertThat(keptWith(tripId, pool, noSignal)).isEqualTo(keptWith(tripId, pool, null));
+	}
 }
