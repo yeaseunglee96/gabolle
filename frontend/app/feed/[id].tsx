@@ -20,10 +20,10 @@ import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { CoauthorByline } from '@/social/CoauthorByline';
 import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
 import { CourseLinkCard } from '@/social/CourseLinkCard';
+import { regionText } from '@/social/districtNames';
 import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
-import { regionText } from '@/social/districtNames';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
