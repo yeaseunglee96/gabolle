@@ -16,6 +16,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
 import { formatFeatureSlot, photoLabels } from '@/discovery/places';
 import { useI18n } from '@/i18n';
+import { formatDayHeading } from '@/i18n/datetime';
 import { localizeMessage } from '@/i18n/messages';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
@@ -29,9 +30,16 @@ function dateInputValue(offsetDays = 0) {
   return date.toISOString().slice(0, 10);
 }
 
+/** 「9월 26일 (토) – 9월 27일 (일)」 — 내 여행 목록과 같은 모양(S15P21E201-1679). 받은 글자(2026-09-26)는 사람이 읽는 말이 아니다. */
+function festivalDates(festival: Festival, locale: string): string {
+  const start = formatDayHeading(festival.startDate, locale) ?? festival.startDate;
+  if (!festival.endDate || festival.endDate === festival.startDate) return start;
+  return `${start} – ${formatDayHeading(festival.endDate, locale) ?? festival.endDate}`;
+}
+
 export default function Festivals() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const { width } = useLayout();
   const { accessToken } = useAuth();
   const [from, setFrom] = useState(() => dateInputValue());
@@ -102,10 +110,10 @@ export default function Festivals() {
         {festival.photoUrl ? <View>
           <Image source={{ uri: festival.photoUrl }} resizeMode="cover" style={styles.image} />
           {photo.badge && <View style={styles.photoBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{photo.badge}</Text></View>}
-        </View> : <View style={styles.imageFallback}><Text weight="bold" color={color.text.heading}>GABOLLE</Text></View>}
+        </View> : <View style={styles.imageFallback}>{/* 사진이 없으면 둘러보기와 같은 📍 그림(S15P21E201-1679) — 전에는 「GABOLLE」 글자만 있었다. */}<Text variant="title" color={color.text.muted}>📍</Text></View>}
         <View style={styles.cardBody}>
           <View style={styles.cardTopRow}>
-            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{festival.startDate} — {festival.endDate}</Text>
+            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{festivalDates(festival, locale)}</Text>
           </View>
           <Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
           {festival.photoUrl && photo.credit ? <PhotoCredit credit={photo.credit} licenseUrl={photo.licenseUrl} variant="caption" color={color.text.muted} /> : null}
@@ -129,7 +137,7 @@ const styles = StyleSheet.create({
   sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.action.secondary, backgroundColor: color.action.secondary },
   stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   exploreLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] }, card: { width: '100%', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card }, cardWide: { width: '48%' }, image: { width: '100%', height: 180 }, imageFallback: { height: 180, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint }, cardBody: { gap: spacing[2], padding: spacing[4] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] }, card: { width: '100%', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card }, cardWide: { width: '48%' }, image: { width: '100%', height: 180 }, imageFallback: { height: 180, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft }, cardBody: { gap: spacing[2], padding: spacing[4] },
   cardTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   photoBadge: { position: 'absolute', top: spacing[2], left: spacing[2], paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(25,25,25,0.78)' },
   addButton: { alignSelf: 'flex-start', minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.action.outline },
