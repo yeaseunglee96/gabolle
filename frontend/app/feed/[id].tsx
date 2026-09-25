@@ -23,6 +23,7 @@ import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
+import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
@@ -341,6 +342,8 @@ export default function StoryDetail() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState('');
+  // 댓글 사진 — 원글과 같은 부품이다(S15P21E201-1651). 서버는 댓글에도 imageUrls 를 3장까지 받는다.
+  const replyPhotos = useStoryImages(accessToken, tx);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -471,14 +474,15 @@ export default function StoryDetail() {
 
   const submitReply = async () => {
     const body = draft.trim();
-    if (!id || !body || sending) return;
+    if (!id || !body || sending || replyPhotos.anyUploading) return;
     setSending(true);
-    // 댓글도 글이다 — 같은 만들기 경로에 부모 id 만 실어 보낸다.
-    const outcome = await createStory({ body, imageUrls: [], parentStoryId: id, accessToken });
+    // 댓글도 글이다 — 같은 만들기 경로에 부모 id 와 올라간 사진 주소를 실어 보낸다.
+    const outcome = await createStory({ body, imageUrls: replyPhotos.uploadedUrls, parentStoryId: id, accessToken });
     setSending(false);
     if (outcome.state !== 'success') { setSendError(outcome.message); return; }
     setDraft('');
     setSendError('');
+    replyPhotos.clearImages();
     // 서버를 다시 부르지 않고 방금 받은 것을 뒤에 붙인다 — 목록 순서가 오래된 것부터다.
     setReplies((current) => [...(current ?? []), outcome.story]);
   };
@@ -683,12 +687,42 @@ export default function StoryDetail() {
                 placeholderTextColor={color.text.muted}
                 style={styles.composerInput}
               />
-              <Button
-                label={sending ? tx('보내는 중…', 'Sending…') : tx('남기기', 'Post')}
-                disabled={sending || !draft.trim()}
-                onPress={() => void submitReply()}
-                containerStyle={styles.composerButton}
-              />
+              {/* 고른 사진 — 피드 탭 글쓰기와 같은 부품·같은 모양이다. 🔴 영상은 없다(사용자에게 따로 묻기로 했다). */}
+              {replyPhotos.images.length ? <PhotoGrid
+                photos={replyPhotos.images.map((image) => ({ uri: image.localUri }))}
+                compact
+                accessibilityLabel={tx('고른 사진', 'Selected photo')}
+                style={styles.composerPhotos}
+                renderOverlay={(index) => {
+                  const image = replyPhotos.images[index];
+                  if (!image) return null;
+                  return <>
+                    {image.uploading ? <View style={styles.composerPhotoOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
+                    {image.error ? <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => replyPhotos.retryImage(index)} style={styles.composerPhotoOverlay}>
+                      <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('다시 시도', 'Retry')}</Text>
+                    </Pressable> : null}
+                    <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} onPress={() => replyPhotos.removeImage(index)} style={styles.composerPhotoRemove}>
+                      <Text weight="bold" color={color.text.onAction}>×</Text>
+                    </Pressable>
+                  </>;
+                }}
+              /> : null}
+              {replyPhotos.images.map((image, index) => image.error
+                ? <Text key={`reply-photo-error-${index}`} variant="caption" color={color.state.danger}>{image.error}</Text>
+                : null)}
+              {replyPhotos.images.length ? <Text variant="caption" color={color.text.muted}>{tx('사진의 위치 정보는 지워져요.', 'Location data is removed from photos.')}</Text> : null}
+              <View style={styles.composerActions}>
+                <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글에 사진 추가', 'Add photo to comment')} disabled={!replyPhotos.canAddMore} onPress={() => void replyPhotos.addImage()} style={[styles.composerTool, !replyPhotos.canAddMore && styles.composerToolBusy]}>
+                  <Image source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.composerToolIcon} />
+                  <Text variant="body" color={color.text.body}>{tx(`사진 ${replyPhotos.images.length}/${MAX_STORY_IMAGES}`, `Photos ${replyPhotos.images.length}/${MAX_STORY_IMAGES}`)}</Text>
+                </Pressable>
+                <Button
+                  label={sending ? tx('보내는 중…', 'Sending…') : tx('남기기', 'Post')}
+                  disabled={sending || !draft.trim() || replyPhotos.anyUploading}
+                  onPress={() => void submitReply()}
+                  containerStyle={styles.composerButton}
+                />
+              </View>
             </View>
           ) : (
             <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } })} style={styles.textAction}>
@@ -798,4 +832,12 @@ const styles = StyleSheet.create({
   // 🔴 폭을 박는다. Button 안쪽은 width:'100%' 라 껍데기가 «auto» 면 글자 폭으로 쪼그라들어 「남기기」가 잘렸다
   //    (사용자 화면 2026-09-24 — S15P21E201-1524 와 같은 원인).
   composerButton: { alignSelf: 'flex-end', width: 120 },
+  // 사진 추가는 왼쪽, 남기기는 오른쪽 — 피드 탭 글쓰기의 도구 줄과 같은 배치다.
+  composerActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
+  composerTool: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.sm },
+  composerToolBusy: { opacity: 0.6 },
+  composerToolIcon: { width: 16, height: 16, tintColor: color.brand.navy },
+  composerPhotos: { flexDirection: 'row', gap: spacing[2] },
+  composerPhotoOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(25,25,25,0.45)' },
+  composerPhotoRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(25,25,25,0.6)', alignItems: 'center', justifyContent: 'center' },
 });
