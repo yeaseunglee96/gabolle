@@ -40,7 +40,7 @@ export function categoryGlyph(category: string | null | undefined): string {
     case 'NATURE_WALK': return '🌿';
     case 'CULTURE_TEMPLE': return '⛩';
     case 'CITY': return '🏙';
-    case 'FESTIVAL': return '🎉';
+    case 'FESTIVAL': case 'FESTIVAL_EVENT': return '🎉';
     case 'NIGHT_VIEW': return '🌉';
     case 'TRADITIONAL_MARKET': case 'NIGHT_MARKET': return '🧺';
     default: return '📍';
