@@ -27,6 +27,11 @@ export type ItineraryItemDto = {
    */
   lat?: number | null;
   lng?: number | null;
+  /**
+   * 이 방문지를 낸 추천 요청 번호(07 계약, 백엔드 !1685). 손으로 더한 곳은 null, 옛 서버에는 칸이 없다(undefined).
+   * 추천 노출 기록이 이 번호로 「어느 추천이 보였나」를 잇는다(S15P21E201-1696).
+   */
+  requestId?: string | null;
 };
 
 /**
