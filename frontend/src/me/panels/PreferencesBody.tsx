@@ -268,6 +268,7 @@ export function PreferencesBody() {
         </Text>
         <Button
           label={tx('8개 답하기 · 약 1분', 'Answer 8 questions · about a minute')}
+          compact={wide}
           containerStyle={[styles.emptyCta, wide && styles.emptyCtaWide]}
           onPress={() => setOpen({ group: 'spend', key: SPEND_QUESTIONS[0].key })}
         />
@@ -423,9 +424,9 @@ const styles = StyleSheet.create({
   emptyCopyWide: { flex: 1, alignItems: 'flex-start', justifyContent: 'center' },
   emptyBody: { textAlign: 'center' },
   emptyCta: { minHeight: 46, alignSelf: 'stretch', marginTop: spacing[2] },
-  // width: 'auto' 가 있어야 줄어든다. Button 의 기본 스타일에 width: '100%' 가 박혀
-  // 있어서 alignSelf 만으로는 아무 일도 안 일어난다 — 조용히 안 먹는 자리다.
-  emptyCtaWide: { alignSelf: 'flex-start', width: 'auto', paddingHorizontal: spacing[6] },
+  // 넓은 화면에서 글자 폭으로 줄이는 것은 버튼의 compact 가 한다(S15P21E201-1676). 🔴 여기(껍데기)에 width: 'auto'·
+  // paddingHorizontal 을 주면 색 면은 글자에 딱 붙고 여백은 투명한 바깥에 생긴다 — 그렇게 쪼그라든 채 나가 있었다.
+  emptyCtaWide: { alignSelf: 'flex-start' },
   // alignItems: 'flex-start' — 한 쪽 줄을 펼쳤을 때 반대쪽 카드가 같이 늘어나지 않게.
   // 늘어나면 그만큼 빈 흰 바탕이 생기고, 그게 "여기 뭔가 빠졌나" 로 읽힌다.
   groupsWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] },

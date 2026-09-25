@@ -51,10 +51,21 @@ function listSourceFiles(dir) {
   return out;
 }
 
-/** `styles.foo` · `[styles.foo, styles.bar]` 에서 이름만 꺼낸다. */
+/**
+ * `styles.foo` · `[styles.foo, styles.bar]` 에서 이름만 꺼낸다.
+ * 🔴 조건이 붙은 것(`wide && styles.foo` · `a ? styles.foo : styles.bar`)도 꺼낸다(S15P21E201-1676) — 전에는 못 읽어서
+ *    넓은 화면에서만 붙는 `width: 'auto'` 를 놓쳤고, 마이페이지 「8개 답하기」 단추가 글자 폭으로 쪼그라든 채 남았다.
+ *    조건은 켜진 쪽으로 친다 — 한 번이라도 그렇게 그려지면 결함이다.
+ */
 function styleNames(expression) {
   if (!expression) return [];
   if (ts.isArrayLiteralExpression(expression)) return expression.elements.flatMap(styleNames);
+  if (ts.isParenthesizedExpression(expression)) return styleNames(expression.expression);
+  if (ts.isBinaryExpression(expression)
+    && (expression.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken || expression.operatorToken.kind === ts.SyntaxKind.BarBarToken || expression.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken)) {
+    return [...styleNames(expression.left), ...styleNames(expression.right)];
+  }
+  if (ts.isConditionalExpression(expression)) return [...styleNames(expression.whenTrue), ...styleNames(expression.whenFalse)];
   if (
     ts.isPropertyAccessExpression(expression)
     && ts.isIdentifier(expression.expression)
