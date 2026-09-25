@@ -151,6 +151,17 @@ public record ItineraryDetailResponse(
 			List<String> warningCodes,
 
 			/**
+			 * 이 방문지를 왜 넣었는가. {@code itinerary_item.reason_codes} 를 그대로 옮긴다(S15P21E201-1643). 없으면 빈
+			 * 배열이지 {@code null} 이 아니다 — {@code warningCodes} 와 같다. 추천이 넣은 곳은 추천 결과의 이유 코드와 같은
+			 * 어휘({@code NEAR_ORIGIN} · {@code TAG_MATCH_INTEREST} · {@code TOP_CONTRIBUTOR_<축>} 등)이고, 사용자가 손으로
+			 * 넣은 곳은 {@code USER_ADDED} 다.
+			 *
+			 * <p>🔴 <b>그 일정을 만들 때의 코드다.</b> S15P21E201-1638 전에 만든 일정은 옛 규칙이라 모든 곳에
+			 * {@code NEAR_ORIGIN} 이 있고 「가장 크게 기여」가 거의 늘 거리다. 다시 짜면 새 규칙으로 바뀐다.
+			 */
+			List<String> reasonCodes,
+
+			/**
 			 * 이 방문지의 좌표. 모르면 {@code null} 이지 {@code 0} 이 아니다 — 위도 0·경도 0 은
 			 * 기니만 바다 한가운데이고 지도에 실제로 점이 찍힌다.
 			 */
