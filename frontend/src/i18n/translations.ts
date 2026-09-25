@@ -2385,7 +2385,6 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '부산국제영화제(BIFF)': { ja: '釜山国際映画祭(BIFF)', zhHans: '釜山国际电影节(BIFF)', zhHant: '釜山國際影展(BIFF)' },
   '문화': { ja: '文化', zhHans: '文化', zhHant: '文化' },
   '도시': { ja: '都市', zhHans: '城市', zhHant: '城市' },
-  '축제': { ja: 'お祭り', zhHans: '节庆', zhHant: '節慶' },
   '쇼핑': { ja: 'ショッピング', zhHans: '购物', zhHant: '購物' },
   '액티비티': { ja: 'アクティビティ', zhHans: '活动体验', zhHant: '活動體驗' },
   '전통시장': { ja: '伝統市場', zhHans: '传统市场', zhHant: '傳統市場' },

@@ -11,15 +11,14 @@ export const PLACE_CATEGORY_LABELS: Readonly<Record<string, LocalizedLabel>> = {
   SEA_BEACH: ['바다', 'Beach'],
   NATURE_WALK: ['자연', 'Nature'],
   CULTURE: ['문화', 'Culture'],
+  // 🔴 서버 적재기가 실제로 쓰는 코드(S15P21E201-1677) — 위 이름과 달라서 이름표가 없었고, 여행 화면에서 분류가 조용히 빠졌다.
+  //    OsmPlaceCategory·SbizPlaceLoader·AppFoodVocabulary 가 내는 낱말이다. 축제 장소는 FESTIVAL_EVENT 다(S15P21E201-1642).
+  CULTURE_TEMPLE: ['문화', 'Culture'],
+  LODGING: ['숙소', 'Stay'],
+  CITY: ['도시', 'City'],
   SHOPPING: ['쇼핑', 'Shopping'],
   NIGHT_VIEW: ['야경', 'Night view'],
   ACTIVITY: ['액티비티', 'Activity'],
   MARKET: ['전통시장', 'Market'],
   STAY: ['숙소', 'Stay'],
-  // 🔴 서버 적재기가 실제로 쓰는 코드(S15P21E201-1677) — 위 이름과 달라서 이름표가 없었고, 여행 화면에서 분류가 조용히 빠졌다.
-  //    OsmPlaceCategory·SbizPlaceLoader·AppFoodVocabulary 가 내는 낱말이다.
-  CULTURE_TEMPLE: ['문화', 'Culture'],
-  LODGING: ['숙소', 'Stay'],
-  CITY: ['도시', 'City'],
-  FESTIVAL: ['축제', 'Festival'],
 };
