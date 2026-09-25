@@ -82,7 +82,8 @@ public class SbizPlaceLoader {
 			}
 			Set<String> categoryTags = AppFoodVocabulary.categoryTags(row.subCategory());
 			String category = categoryTags.contains("CAFE_HEALING") ? "CAFE_HEALING" : "FOOD";
-			places.add(Place.imported(placeId, cut(row.displayName(), NAME_MAX), category,
+			// 이름의 세미콜론(옛 이름·다른 이름)은 한 이름만 — PlaceNames(S15P21E201-1637)
+			places.add(Place.imported(placeId, cut(PlaceNames.primary(row.displayName()), NAME_MAX), category,
 					cut(row.address(), ADDRESS_MAX), row.lat(), row.lng(),
 					SOURCE_TYPE, row.storeId(), collectedAt,
 					// 원천에 "이 사실이 언제 관측됐나" 칸이 없다. 지어내지 않고 비운다.
