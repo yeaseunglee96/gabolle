@@ -21,8 +21,36 @@ export function buildKakaoMapHtml(appKey: string): string {
   var map = null;
   var overlays = [];
   var fit = null;
+  // 🔴 고른 곳이 바뀌면 다시 그리지 않는다(S15P21E201-1654). 전에는 고를 때마다 마커·선을 전부 새로 그리고
+  //    전체 맞추기(setBounds — 순간 이동)를 해서 지도가 여행 전체로 튀었다. 고를 때는 아래 값만 고친다.
+  var markers = {};
+  var stopsById = {};
+  var colorsNow = null;
+  var selectedNow = null;
+  var focusNow = false;
+  var shiftNow = 0;
+  var locationOverlay = null;
   // 🔴 시트가 열리며 WebView 가 커지면 지도에 말해 줘야 한다(S15P21E201-1417) — 안 하면 처음 크기만큼만 그린다.
   window.addEventListener('resize', function () { if (map) { map.relayout(); if (fit) fit(); } });
+
+  // 고른 마커는 커진다 — 웹 RouteMap.tsx 의 styleSelection 과 같은 모양(시안: scale 1.25, 300ms).
+  function styleSelection(el, markerColor, selected) {
+    el.style.border = '3px solid ' + (selected ? colorsNow.selected : markerColor);
+    el.style.transform = selected ? 'scale(1.25)' : 'scale(1)';
+    el.style.zIndex = selected ? '2' : '1';
+  }
+
+  // 고른 곳으로 «지금 화면·줌에서» 민다. 아래가 창에 가려졌으면 보이는 부분의 가운데로(mapFocus.ts 의 focusShiftY).
+  function focusOn(id) {
+    if (!focusNow || !map || !stopsById[id]) return;
+    var maps = window.kakao.maps;
+    var stop = stopsById[id];
+    var target = new maps.LatLng(stop.latitude, stop.longitude);
+    if (!shiftNow) { map.panTo(target); return; }
+    var projection = map.getProjection();
+    var point = projection.containerPointFromCoords(target);
+    map.panTo(projection.coordsFromContainerPoint(new maps.Point(point.x, point.y + shiftNow)));
+  }
 
   function post(type, payload) {
     if (window.ReactNativeWebView) {
@@ -39,8 +67,14 @@ export function buildKakaoMapHtml(appKey: string): string {
     var points = data.points || [];
     var routes = data.routes || [];
     var selectedId = data.selectedId;
-    var currentLocation = data.currentLocation;
     var colors = data.colors;
+    colorsNow = colors;
+    selectedNow = selectedId;
+    focusNow = !!data.focus;
+    shiftNow = data.shiftY || 0;
+    markers = {};
+    stopsById = {};
+    for (var si = 0; si < stops.length; si++) stopsById[stops[si].id] = stops[si];
     var pointStops = [];
     for (var p = 0; p < points.length; p++) {
       for (var q = 0; q < points[p].stops.length; q++) pointStops.push(points[p].stops[q]);
@@ -78,31 +112,23 @@ export function buildKakaoMapHtml(appKey: string): string {
         content.appendChild(img);
         content.style.width = '40px'; content.style.height = '40px'; content.style.padding = '0'; content.style.overflow = 'hidden';
         content.style.borderRadius = '999px';
-        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.selected : markerColor);
         content.style.background = colors.canvas; content.style.cursor = 'pointer'; content.style.boxShadow = '0 4px 12px rgba(25,25,25,.18)';
       } else {
         content.textContent = layer ? layer.label : String(stop.number);
         content.style.minWidth = '34px'; content.style.height = '34px'; content.style.padding = '0 8px';
         content.style.borderRadius = '999px';
-        content.style.border = '3px solid ' + (stop.id === selectedId ? colors.selected : markerColor);
         content.style.background = colors.canvas; content.style.color = markerColor; content.style.fontWeight = '700';
         content.style.cursor = 'pointer'; content.style.boxShadow = '0 4px 12px rgba(25,25,25,.18)';
       }
+      content.style.transition = 'transform 300ms cubic-bezier(.34,1.3,.64,1)';
+      styleSelection(content, markerColor, stop.id === selectedId);
+      markers[stop.id] = { el: content, color: markerColor };
       (function (stopId) { content.onclick = function () { post('select', stopId); }; })(stop.id);
       var overlay = new maps.CustomOverlay({ position: position, content: content, yAnchor: 0.5 });
       overlay.setMap(map); overlays.push(overlay);
     }
 
-    if (currentLocation) {
-      var curPos = new maps.LatLng(currentLocation.latitude, currentLocation.longitude);
-      var curEl = document.createElement('div');
-      curEl.setAttribute('aria-label', '현재 위치');
-      curEl.style.width = '18px'; curEl.style.height = '18px'; curEl.style.borderRadius = '999px';
-      curEl.style.border = '3px solid ' + colors.canvas; curEl.style.background = colors.navy;
-      curEl.style.boxShadow = '0 0 0 2px rgba(25,25,25,.35), 0 4px 10px rgba(25,25,25,.28)';
-      var curOverlay = new maps.CustomOverlay({ position: curPos, content: curEl, yAnchor: 0.5 });
-      curOverlay.setMap(map); overlays.push(curOverlay);
-    }
+    window.__moveKakaoLocation(data.currentLocation);
 
     for (var r = 0; r < routes.length; r++) {
       var route = routes[r];
@@ -120,10 +146,37 @@ export function buildKakaoMapHtml(appKey: string): string {
     // 와 같은 이유 — 점이 하나면 bounds 넓이가 0이라 최대 줌으로 튄다.
     // 여백은 앱이 셈해서 보낸다 — 아래가 창에 가려진 만큼 더(S15P21E201-1607, mapFocus.ts). 안 보내면 네 변 60.
     var pad = data.fitPadding || [60, 60, 60, 60];
-    fit = function () { if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); };
+    fit = function () { if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
     fit();
 
     post('ready', null);
+  };
+
+  // 고른 곳만 바뀌었을 때 RN 쪽이 부른다 — 마커 모양만 바꾸고 panTo. 다시 그리지도, 다시 맞추지도 않는다.
+  window.__selectKakaoMap = function (data) {
+    if (!map) return;
+    focusNow = !!data.focus;
+    shiftNow = data.shiftY || 0;
+    for (var id in markers) styleSelection(markers[id].el, markers[id].color, id === data.selectedId);
+    if (selectedNow === data.selectedId) return;
+    selectedNow = data.selectedId;
+    focusOn(selectedNow);
+  };
+
+  // 현재 위치는 점만 옮긴다 — 움직일 때마다 전체를 다시 맞추면 걷는 내내 지도가 튄다.
+  window.__moveKakaoLocation = function (loc) {
+    if (!map || !window.kakao) return;
+    var maps = window.kakao.maps;
+    if (!loc) { if (locationOverlay) { locationOverlay.setMap(null); locationOverlay = null; } return; }
+    var curPos = new maps.LatLng(loc.latitude, loc.longitude);
+    if (locationOverlay) { locationOverlay.setPosition(curPos); return; }
+    var curEl = document.createElement('div');
+    curEl.setAttribute('aria-label', '현재 위치');
+    curEl.style.width = '18px'; curEl.style.height = '18px'; curEl.style.borderRadius = '999px';
+    curEl.style.border = '3px solid ' + colorsNow.canvas; curEl.style.background = colorsNow.navy;
+    curEl.style.boxShadow = '0 0 0 2px rgba(25,25,25,.35), 0 4px 10px rgba(25,25,25,.28)';
+    locationOverlay = new maps.CustomOverlay({ position: curPos, content: curEl, yAnchor: 0.5 });
+    locationOverlay.setMap(map);
   };
 
   document.addEventListener('DOMContentLoaded', function () {

@@ -9,7 +9,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
 import { buildKakaoMapHtml } from './kakaoMapHtml';
-import { fitPadding } from './mapFocus';
+import { fitPadding, focusShiftY } from './mapFocus';
 
 import type { MapStop } from './types';
 
@@ -28,6 +28,8 @@ type RouteMapProps = {
   height?: number;
   /** 지도 아래쪽이 창에 가려진 높이(px) — 웹 RouteMap 과 같은 뜻(S15P21E201-1607). */
   bottomInset?: number;
+  /** 고른 곳을 지도 가운데로 옮긴다 — 웹 RouteMap 과 같은 뜻(S15P21E201-1535). 기본은 꺼짐. */
+  focusSelected?: boolean;
 };
 
 /**
@@ -49,6 +51,7 @@ export function RouteMap({
   onBackToList,
   height = 340,
   bottomInset = 0,
+  focusSelected = false,
 }: RouteMapProps) {
   const { tx } = useI18n();
   const webViewRef = useRef<WebView | null>(null);
@@ -73,17 +76,43 @@ export function RouteMap({
       // 🔴 이 값만 바뀌어서는 다시 보내지 않는다 — 창을 여닫을 때마다 지도가 다시 맞춰져 튀면 안 된다.
       fitPadding: fitPadding(bottomInset, height),
       colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas },
+      focus: focusSelected,
+      shiftY: focusShiftY(bottomInset, height),
     };
     webViewRef.current.injectJavaScript(`window.__renderKakaoMap(${JSON.stringify(data)}); true;`);
   };
 
-  // stops·points·routes·selectedId·currentLocation 이 바뀔 때마다 이미 떠 있는 지도에
-  // 새 데이터를 밀어 넣는다. sdk 가 아직 안 떴으면(sdkReadyRef.current === false) 아무 일도
+  // 🔴 고른 곳만 바뀌면 다시 그리지 않는다(S15P21E201-1654) — 전에는 고를 때마다 전체를 다시 그리고 다시 맞춰서
+  //    지도가 여행 전체로 튀었다. 마커 모양만 바꾸고 지금 화면에서 고른 곳으로 민다.
+  const sendSelect = () => {
+    if (!sdkReadyRef.current || !webViewRef.current) return;
+    const data = { selectedId, focus: focusSelected, shiftY: focusShiftY(bottomInset, height) };
+    webViewRef.current.injectJavaScript(`window.__selectKakaoMap(${JSON.stringify(data)}); true;`);
+  };
+
+  // 현재 위치는 점만 옮긴다. 위치 객체는 부를 때마다 새것이라 좌표 두 숫자로 본다.
+  const sendLocation = () => {
+    if (!sdkReadyRef.current || !webViewRef.current) return;
+    webViewRef.current.injectJavaScript(`window.__moveKakaoLocation(${JSON.stringify(currentLocation ?? null)}); true;`);
+  };
+
+  // stops·points·routes 가 바뀔 때마다 이미 떠 있는 지도에 새 데이터를 밀어 넣는다(고른 곳·현재 위치는 아래 따로).
+  // sdk 가 아직 안 떴으면(sdkReadyRef.current === false) 아무 일도
   // 안 하고, onMessage 의 'sdkLoaded' 처리부가 뜬 직후 한 번 sendRender 를 부른다.
   useEffect(() => {
     sendRender();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stops, points, routes, selectedId, currentLocation]);
+  }, [stops, points, routes]);
+
+  useEffect(() => {
+    sendSelect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, focusSelected]);
+
+  useEffect(() => {
+    sendLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLocation?.latitude, currentLocation?.longitude]);
 
   const onMessage = (event: WebViewMessageEvent) => {
     let message: WebViewOutMessage;
