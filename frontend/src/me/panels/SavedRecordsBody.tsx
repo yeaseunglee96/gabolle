@@ -11,6 +11,7 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { markdownToPlain } from '@/social/markdown';
 import { loadSavedStories, relativeStoryTime, setStorySaved, type FeedLoadResult, type StoryDto } from '@/social/stories';
 
 export function SavedRecordsBody() {
@@ -72,7 +73,8 @@ export function SavedRecordsBody() {
 
             <View style={styles.cardBody}>
               {story.images.length ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.thumb} /> : null}
-              <Text numberOfLines={3} color={color.text.heading} style={styles.body}>{story.body}</Text>
+              {/* 목록 카드와 같은 평문 미리보기 — 본문을 그대로 찍으면 「# 제목」「**굵게**」 같은 마크다운 기호가 보인다(S15P21E201-1657). */}
+              <Text numberOfLines={3} color={color.text.heading} style={styles.body}>{markdownToPlain(story.body)}</Text>
             </View>
 
             <View style={styles.actions}>

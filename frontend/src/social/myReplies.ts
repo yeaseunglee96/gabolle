@@ -28,19 +28,3 @@ export async function loadMyReplies(accessToken: string | null, cursor?: string 
     return { state: 'error' };
   }
 }
-
-const NAMED: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
-
-/**
- * 서버가 HTML 인코딩해 보낸 글자를 되돌린다(서버의 HtmlOutputEncoder — &amp; · &lt; · &#39; …).
- * 본문은 마크다운 해석기가 알아서 되돌리지만, 미리보기·작성자 이름은 그냥 글자라 여기서 되돌린다.
- */
-export function decodeHtmlText(value: string): string {
-  return value.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, code: string) => {
-    if (code[0] === '#') {
-      const point = code[1] === 'x' || code[1] === 'X' ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
-      return Number.isFinite(point) && point > 0 && point <= 0x10ffff ? String.fromCodePoint(point) : whole;
-    }
-    return NAMED[code.toLowerCase()] ?? whole;
-  });
-}

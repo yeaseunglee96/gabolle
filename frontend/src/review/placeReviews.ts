@@ -2,6 +2,7 @@
 // (PlaceReviewController.java 기준). 점수는 1~5(항목별로 null 가능)이고, mine이 참인
 // 리뷰가 있으면 그 사용자가 이미 이 장소를 평가한 것이다.
 import { apiRequest, ApiClientError } from '@/api/client';
+import { decodeHtmlText } from '@/social/htmlText';
 
 export type PlaceReviewDto = {
   placeReviewId: string;
@@ -33,10 +34,16 @@ function failure(error: unknown): { state: 'unavailable' | 'offline' | 'error'; 
   return { state: 'error', message: error instanceof Error ? error.message : '리뷰를 처리하지 못했어요.' };
 }
 
+// 서버가 후기 본문을 HTML 인코딩해 보낸다 — 받는 곳에서 되돌린다(S15P21E201-1657, htmlText.ts).
+function decodeReview(review: PlaceReviewDto): PlaceReviewDto {
+  return review.body ? { ...review, body: decodeHtmlText(review.body) } : review;
+}
+
 export async function loadPlaceReviews(placeId: string, accessToken: string | null): Promise<PlaceReviewListResult> {
   try {
     const response = await apiRequest<PlaceReviewListResponseDto>(`/api/v1/places/${encodeURIComponent(placeId)}/reviews`, { accessToken });
-    return { state: 'success', reviews: response.reviews, averageScore: response.averageScore, mine: response.reviews.find((review) => review.mine) ?? null };
+    const reviews = response.reviews.map(decodeReview);
+    return { state: 'success', reviews, averageScore: response.averageScore, mine: reviews.find((review) => review.mine) ?? null };
   } catch (error) {
     return failure(error);
   }
@@ -88,7 +95,7 @@ export async function submitPlaceReview(input: { placeId: string; food: ThreeSte
         region: input.region ?? null,
       },
     });
-    return { state: 'success', review };
+    return { state: 'success', review: decodeReview(review) };
   } catch (error) {
     return failure(error);
   }
