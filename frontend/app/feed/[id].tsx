@@ -608,7 +608,9 @@ export default function StoryDetail() {
               "더 보기" 성격이 아니라 주된 이동이라 그대로 남긴다. 삭제 확인은 메뉴에서
               "삭제"를 고르면 여기 그대로 펼쳐진다 — 자리만 옮기고 확인 흐름은 안 바꿨다. */}
           <View style={styles.actionRow}>
-            {!confirmingDelete && (
+            {/* 🔴 내 글이면 늘(공동 작성자를 초대하는 입구), 남의 글이면 공동 작성자가 있을 때만(S15P21E201-1673) — 남의 글에서
+                누르면 빈 목록뿐이었다. 서버가 칸을 안 보내는 옛 판이면 남의 글에서는 안 그린다. */}
+            {!confirmingDelete && (story.mine || (story.coauthors?.length ?? 0) > 0) && (
               <Pressable accessibilityRole="button" accessibilityLabel={tx('공동 작성자 보기', 'View co-authors')} onPress={() => router.push(`/feed/${story.id}/coauthors`)} style={styles.textAction}>
                 {/* 「›」 — 글자만 있으면 제목처럼 읽혀서 눌러 볼 생각을 안 한다(2026-09-21 실측, S15P21E201-1372). */}
                 <Text variant="caption" weight="bold" color={color.text.accent}>{tx('공동 작성자', 'Co-authors')} ›</Text>
