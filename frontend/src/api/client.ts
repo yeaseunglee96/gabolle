@@ -395,7 +395,9 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
   const envelope = (await response.json()) as ApiEnvelope<T>;
   if (!response.ok || envelope.error || envelope.data === null) {
     // — 「이 기능은 열쇠가 없다」는 5xx 는 서버가 죽은 것이 아니다.
-    if ((envelope.error?.code ?? '').endsWith('_VENDOR_NOT_CONFIGURED')) setApiUnavailable(false);
+    //    「지금 요청이 많아요」(SERVER_BUSY 503, 추천 실행기가 꽉 참)도 그렇다 — 봉투로 답했으니 살아 있다(S15P21E201-1688).
+    const code = envelope.error?.code ?? '';
+    if (code.endsWith('_VENDOR_NOT_CONFIGURED') || code === 'SERVER_BUSY') setApiUnavailable(false);
     throw new ApiClientError(
       envelope.error?.message ?? '요청을 처리하지 못했어요.',
       envelope.error?.code ?? 'REQUEST_FAILED',

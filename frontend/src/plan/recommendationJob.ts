@@ -32,6 +32,8 @@ const JOB_FAILURE_MESSAGE: Record<string, [string, string]> = {
   ENGINE_UNAVAILABLE: ['추천 엔진에 일시적인 문제가 있어요. 잠시 후 다시 시도해 주세요.', 'The recommendation engine is temporarily unavailable. Please try again shortly.'],
   ENGINE_NOT_CONFIGURED: ['추천 엔진에 일시적인 문제가 있어요. 잠시 후 다시 시도해 주세요.', 'The recommendation engine is temporarily unavailable. Please try again shortly.'],
   ITINERARY_VERSION_CONFLICT: ['다른 곳에서 먼저 일정이 바뀌었어요. 새로고침 후 다시 시도해 주세요.', 'The itinerary changed elsewhere first. Please refresh and try again.'],
+  // 추천 실행기가 꽉 차서 서버가 이 작업을 받지 못했다(S15P21E201-1688). 다시 누르면 새 작업으로 간다.
+  SERVER_BUSY: ['지금 요청이 많아요. 잠시 뒤 다시 시도해 주세요.', 'We are handling a lot of requests right now. Please try again in a moment.'],
 };
 /**
  * 같은 실패 코드라도 «어느 단계에서» 멈췄는지에 따라 할 말이 다르다.
