@@ -9,7 +9,7 @@ import { Linking, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } 
 
 import { Text } from '@/components/Text';
 import { color, spacing } from '@/design/tokens';
-import { photoSourceText } from '@/discovery/places';
+import { photoSourceShortText, photoSourceText } from '@/discovery/places';
 import { txf } from '@/i18n/format';
 
 type Tx = (ko: string, en: string) => string;
@@ -17,9 +17,10 @@ type Tx = (ko: string, en: string) => string;
 export function PhotoCreditBar({ source, license, licenseUrl, tx, style }: {
   source: string; license: string | null; licenseUrl: string | null; tx: Tx; style?: StyleProp<ViewStyle>;
 }) {
-  // 영어판은 출처도 영어로 — 공공누리 모양만(S15P21E201-1705).
-  const credit = txf(tx, '사진: %s', 'Photo: %s', photoSourceText(source, tx));
-  const full = license ? `${credit} · ${license}` : credit;
+  // 띠에는 짧은 출처(기관 · 공공누리 유형), 화면 낭독에는 긴 출처 전체(S15P21E201-1705, 사용자 결정).
+  const credit = txf(tx, '사진: %s', 'Photo: %s', photoSourceShortText(source, tx));
+  const spoken = txf(tx, '사진: %s', 'Photo: %s', photoSourceText(source, tx));
+  const full = license ? `${spoken} · ${license}` : spoken;
   const lines = license ? (
     <>
       <Text variant="caption" numberOfLines={1} color={color.text.onAction}>{credit}</Text>

@@ -46,6 +46,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s 상세 보기': { ja: '%sの詳細を見る', zhHans: '查看 %s 详情', zhHant: '查看 %s 詳情' },
   '사진: %s': { ja: '写真: %s', zhHans: '照片: %s', zhHant: '照片: %s' },
   '사진 제공: %s': { ja: '写真提供: %s', zhHans: '照片提供: %s', zhHant: '照片提供: %s' },
+  // 카드 사진 띠의 짧은 출처(S15P21E201-1705) — 일·중판은 긴 출처와 같이 영어로 둔다(공공누리의 공식 일·중 이름을 지어내지 않는다).
+  '한국관광공사 공공누리 제%d유형': { ja: 'KTO · KOGL\u00A0Type\u00A0%d', zhHans: 'KTO · KOGL\u00A0Type\u00A0%d', zhHant: 'KTO · KOGL\u00A0Type\u00A0%d' },
   '검색 범위: %skm 이내': { ja: '検索範囲: %skm 以内', zhHans: '搜索范围: %s 公里以内', zhHant: '搜尋範圍: %s 公里以內' },
   '%skm 이내에는 이 갈래의 장소가 없어요. 부산 전체에는 있을 수 있어요.': { ja: '%skm 以内にはこの種類の場所がありません。釜山全体にはあるかもしれません。', zhHans: '%s 公里内没有此类地点。釜山其他区域可能有。', zhHant: '%s 公里內沒有此類地點。釜山其他區域可能有。' },
   '%s 고시 · 환전소 값은 조금 달라요': { ja: '%s 公示 · 両替所のレートは少し異なります', zhHans: '%s 公布 · 兑换点汇率略有不同', zhHant: '%s 公布 · 兌換處匯率略有不同' },

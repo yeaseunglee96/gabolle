@@ -47,24 +47,40 @@ export type PhotoSubject = 'SELF' | 'VENUE';
  */
 export type PhotoLicense = { name: string; url?: string | null; filePage?: string | null };
 
+// 「KOGL Type 1」은 줄바꿈 안 되는 공백으로 붙인다 — 카드 띠가 두 줄로 꺾일 때 번호 「1」만 둘째 줄에 떨어졌다.
+const koglEn = (type: string) => `KOGL\u00A0Type\u00A0${type}`;
+// 운영 자료의 출처 글자 다섯 가지(2026-09-26 읽기만 해서 확인)가 드는 두 모양.
+const PLAIN_SOURCE = /^한국관광공사 공공누리 제(\d)유형$/;
+const GALLERY_SOURCE = /^한국관광공사 관광사진갤러리 공공누리 제(\d)유형 · 촬영 (.+)$/;
+
 /**
  * 사진 출처의 영어 — 공공누리 출처 표시 의무는 번역해도 지켜진다(S15P21E201-1705, 조율 세션 결정 A).
- * 🔴 운영 자료의 출처 글자 다섯 가지(2026-09-26 읽기만 해서 확인)가 드는 두 모양만 바꾸고, 그 밖의 글자는 그대로 둔다.
+ * 🔴 위 두 모양만 바꾸고, 그 밖의 글자는 그대로 둔다.
  *    촬영자 이름은 로마자로 바꾸지 않는다 — 본인이 쓰는 철자가 따로 있을 수 있어, 지어내면 틀린 이름이 된다. 이름표만 영어.
  */
 export function photoSourceEnglish(source: string): string {
-  // 「KOGL Type 1」은 줄바꿈 안 되는 공백으로 붙인다 — 카드 띠가 두 줄로 꺾일 때 번호 「1」만 둘째 줄에 떨어졌다.
-  const kogl = (type: string) => `KOGL\u00A0Type\u00A0${type}`;
-  const plain = source.match(/^한국관광공사 공공누리 제(\d)유형$/);
-  if (plain) return `Korea Tourism Organization · ${kogl(plain[1])}`;
-  const gallery = source.match(/^한국관광공사 관광사진갤러리 공공누리 제(\d)유형 · 촬영 (.+)$/);
-  if (gallery) return `Korea Tourism Organization Photo Gallery · ${kogl(gallery[1])} · Photographer: ${gallery[2]}`;
+  const plain = source.match(PLAIN_SOURCE);
+  if (plain) return `Korea Tourism Organization · ${koglEn(plain[1])}`;
+  const gallery = source.match(GALLERY_SOURCE);
+  if (gallery) return `Korea Tourism Organization Photo Gallery · ${koglEn(gallery[1])} · Photographer: ${gallery[2]}`;
   return source;
 }
 
 /** 사진 출처를 화면 언어로 — 한국어판은 받은 글자 그대로, 그 밖은 photoSourceEnglish. */
 export function photoSourceText(source: string, tx: (ko: string, en: string) => string): string {
   return tx(source, photoSourceEnglish(source));
+}
+
+/**
+ * 좁은 자리(카드 사진 띠·코스 표지)의 짧은 출처 — 기관과 이용 조건(공공누리 유형)만(S15P21E201-1705, 사용자 결정).
+ * 🔴 폰 두 칸 카드의 띠는 두 줄까지(글자 폭 147px)다. 긴 이름은 영어 세 줄, 갤러리는 한국어도 세 줄이라 이용 조건이 잘렸다.
+ *    그래서 한국어는 「한국관광공사 공공누리 제1유형」(갤러리의 「관광사진갤러리」「· 촬영 ○○」를 뺀다), 영어는 「KTO · KOGL Type 1」.
+ *    다섯 모양 밖의 글자는 그대로. 보이는 글자만 줄이고, 화면 낭독에는 긴 것(photoSourceText)을 붙인다.
+ */
+export function photoSourceShortText(source: string, tx: (ko: string, en: string) => string): string {
+  const match = source.match(PLAIN_SOURCE) ?? source.match(GALLERY_SOURCE);
+  if (!match) return source;
+  return tx(`한국관광공사 공공누리 제${match[1]}유형`, `KTO · ${koglEn(match[1])}`);
 }
 
 /** 사진 설명 두 줄 — null 이면 화면에 줄을 안 만든다 */
