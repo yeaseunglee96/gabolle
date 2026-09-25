@@ -38,22 +38,10 @@ function titleOf(trip: TripSummaryDto, tx: (ko: string, en: string) => string): 
   return tx('부산 여행', 'Busan trip');
 }
 
-/**
- * @param options.trips 이미 받은 여행 목록. 주면 목록을 다시 부르지 않는다 — 홈 종 점이 홈 카드의 목록을 쓴다(S15P21E201-1686).
- * @param options.maxTrips 활동을 볼 여행 수, 가장 최근에 바뀐 것부터. 주지 않으면 알림 화면의 수(12).
- */
-export async function loadActivityFeed(
-  accessToken: string | null,
-  tx: (ko: string, en: string) => string,
-  options: { trips?: TripSummaryDto[]; maxTrips?: number } = {},
-): Promise<ActivityFeedResult> {
-  let list = options.trips;
-  if (!list) {
-    const trips = await loadTrips(accessToken);
-    if (trips.state !== 'success') return { state: 'error', message: trips.message };
-    list = trips.trips;
-  }
-  const recent = [...list].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, options.maxTrips ?? MAX_TRIPS);
+export async function loadActivityFeed(accessToken: string | null, tx: (ko: string, en: string) => string): Promise<ActivityFeedResult> {
+  const trips = await loadTrips(accessToken);
+  if (trips.state !== 'success') return { state: 'error', message: trips.message };
+  const recent = [...trips.trips].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, MAX_TRIPS);
   const views = await Promise.all(recent.map((trip) => getTripActivity(trip.tripId, accessToken, 10)));
   const items: ActivityNotice[] = [];
   views.forEach((view, i) => {
