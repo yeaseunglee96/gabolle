@@ -16,4 +16,6 @@ export const PLACE_CATEGORY_LABELS: Readonly<Record<string, LocalizedLabel>> = {
   ACTIVITY: ['액티비티', 'Activity'],
   MARKET: ['전통시장', 'Market'],
   STAY: ['숙소', 'Stay'],
+  // 축제 62곳의 갈래(S15P21E201-1642). 둘러보기의 FESTIVAL(「축제」)과는 다른 낱말이다.
+  FESTIVAL_EVENT: ['축제·행사', 'Festivals & events'],
 };
