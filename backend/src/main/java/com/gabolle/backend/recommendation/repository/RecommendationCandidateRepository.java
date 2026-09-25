@@ -1,6 +1,7 @@
 package com.gabolle.backend.recommendation.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,4 +19,7 @@ public interface RecommendationCandidateRepository extends JpaRepository<Recomme
 	List<RecommendationCandidate> findByRequestIdAndReturnedTrueOrderByFinalRankAsc(UUID requestId);
 
 	long countByRequestId(UUID requestId);
+
+	/** 그 요청이 그 장소를 낸 기록 — 노출 이벤트에 순위·이유를 채울 때 쓴다(S15P21E201-1689). */
+	Optional<RecommendationCandidate> findFirstByRequestIdAndPlaceId(UUID requestId, UUID placeId);
 }

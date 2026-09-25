@@ -1,7 +1,10 @@
 package com.gabolle.backend.itinerary.presentation.dto;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
+import com.gabolle.backend.itinerary.domain.RemovalReasons;
 
 /**
  * 장소 제외·재계산 요청 본문. 두 경로가 이 하나의 레코드를 함께 쓰고, 각 경로가 실제로 쓰는
@@ -20,5 +23,14 @@ public record ItineraryEditJobRequest(@NotNull Integer baseVersion, String opera
 
 	public boolean hasFromItem() {
 		return fromItemId != null && !fromItemId.isBlank();
+	}
+
+	/**
+	 * 빼기 이유는 정해진 코드만 받는다 (S15P21E201-1689) — {@link RemovalReasons}. 비어 있으면 받는다: 이미 나간 앱은 이 칸을
+	 * 보내지 않는다.
+	 */
+	@AssertTrue(message = "operationalReason 은 정해진 코드 중 하나여야 합니다(예: ALREADY_VISITED · NOT_INTERESTED · TOO_FAR · CLOSED · OTHER)")
+	public boolean isOperationalReasonKnown() {
+		return RemovalReasons.isKnownOrEmpty(operationalReason);
 	}
 }

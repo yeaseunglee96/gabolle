@@ -75,8 +75,12 @@ public class TravelConstraintService {
 						? TravelConstraintJpaEntity.saved(userId, value, now)
 						: TravelConstraintJpaEntity.withoutValue(userId, status, now)));
 
-		this.eventIngestService.recordFromServer(UUID.randomUUID(), EventType.PREFERENCE_SET, 1,
-				userId, null, requestId, Map.of("dimension", DIMENSION, "status", status.name()));
+		// 2026-09-25(S15P21E201-1689)부터 constraint_set 으로 적는다 — 제약이지 취향이 아니다. 그 전의 운영 preference_set
+		// (dimension=TRAVEL_CONSTRAINTS) 행은 그대로 둔다. 읽는 쪽은 그 날짜를 기준으로 두 종류를 이어 읽는다.
+		// 값(JSON)은 싣지 않는다 — 제약 값은 싣지 않기로 했다(개인화 정보로 이미 표에 있다).
+		this.eventIngestService.recordFromServer(UUID.randomUUID(), EventType.CONSTRAINT_SET, 1,
+				userId, null, requestId, Map.of("scope", "ACCOUNT", "dimension", DIMENSION, "answer_status", status.name(),
+						"has_value", saved.getValueJson() != null));
 
 		return toAnswer(saved);
 	}

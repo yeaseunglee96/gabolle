@@ -348,6 +348,8 @@ public class ItineraryQueryService {
 				item.warningCodes(),
 				// 이유 코드도 같다 — 생성자가 빈 목록으로 정규화한다.
 				item.reasonCodes(),
+				// 이 방문지를 낸 추천 요청 — 노출 이벤트가 이 번호로 순위·이유를 찾는다(S15P21E201-1689).
+				item.sourceRequestId(),
 				// 모르면 null 이고 0 으로 채우지 않는다 — 위도 0·경도 0 은 기니만 한가운데라
 				// 지도에 실제로 점이 찍힌다.
 				place.getLat(),

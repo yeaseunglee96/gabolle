@@ -227,6 +227,25 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-1689 — 항목을 낸 추천 요청 번호가 requestId 로 실린다. 손으로 더한 곳은 null")
+	void itemRequestIdIsIncluded() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String sourceRequestId = UUID.randomUUID().toString();
+		ItineraryItem recommended = new ItineraryItem(UUID.randomUUID().toString(), "version-placeholder", "k1", 0, day,
+				1, this.placeId.toString(), LocalTime.of(10, 0), LocalTime.of(11, 0), null, false, null,
+				ItineraryItem.DataStatus.VERIFIED, List.of("NEAR_ORIGIN"), List.of(), sourceRequestId, Instant.now());
+		ItineraryItem userAdded = itemOf("k2", 0, day, 2, LocalTime.of(12, 0), LocalTime.of(13, 0));
+		String itineraryId = seedItinerary(1, List.of(recommended, userAdded));
+
+		List<ItineraryDetailResponse.Item> items = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(d -> d.items().stream()).toList();
+
+		assertThat(items.get(0).requestId()).isEqualTo(sourceRequestId);
+		assertThat(items.get(1).requestId()).isNull();
+	}
+
+	@Test
 	@DisplayName("🔴 S15P21E201-1643 — 이유가 없는 항목의 reasonCodes 는 null 이 아니라 빈 배열")
 	void itemReasonCodesEmptyNotNull() {
 		stubTripMembership(threeDayTrip());
