@@ -158,10 +158,11 @@ public class StoryResponseAssembler {
 		for (Story story : stories) {
 			AppUser author = authors.get(story.getAuthorUserId());
 			// 탈퇴한 계정은 행이 남아 있되 이름이 비워진다 — 그때는 "탈퇴한 사용자" 로 낸다.
-			// displayName 은 사용자가 자유롭게 정하는 값이라 story.body 와 같은 종류의 입력이다.
-			String displayName = HtmlOutputEncoder.forHtml(
-					(author == null || author.getDeletedAt() != null || author.getDisplayName() == null
-							|| author.getDisplayName().isBlank()) ? "탈퇴한 사용자" : author.getDisplayName());
+			// 🔴 이름은 원문 그대로 낸다 (S15P21E201-1655). 인코딩해서 내면 Text 로 그리는 앱에 「&amp;」가 보이고, 같은
+			//    이름이 프로필 응답(원문)과 달라진다. 앱은 모든 글을 Text 로 그려 주입 경로가 없다 — 근거는
+			//    docs/VULNERABILITY-REPORT.md. 본문은 아래에서 인코딩을 유지한다(S15P21E201-835).
+			String displayName = (author == null || author.getDeletedAt() != null || author.getDisplayName() == null
+					|| author.getDisplayName().isBlank()) ? "탈퇴한 사용자" : author.getDisplayName();
 			Place place = story.getPlaceId() == null ? null : places.get(story.getPlaceId());
 			// 기본값으로 공유 배열을 건네지 않는다. 그 배열에 쓰는 변경이 하나라도 들어오면
 			// 모든 글의 수가 예외 없이 조용히 오염된다.
@@ -192,14 +193,16 @@ public class StoryResponseAssembler {
 			List<StoryResponse.Coauthor> coauthors = new ArrayList<>();
 			for (StoryCoauthor coauthor : coauthorsByStory.getOrDefault(story.getStoryId(), List.of())) {
 				AppUser user = authors.get(coauthor.getUserId());
+				// 이름은 원문 그대로 — 작성자 이름과 같은 이유(S15P21E201-1655).
 				String name = (user == null || user.getDeletedAt() != null || user.getDisplayName() == null
-						|| user.getDisplayName().isBlank()) ? null : HtmlOutputEncoder.forHtml(user.getDisplayName());
+						|| user.getDisplayName().isBlank()) ? null : user.getDisplayName();
 				coauthors.add(new StoryResponse.Coauthor(coauthor.getUserId().toString(), name));
 			}
 			out.add(new StoryResponse(
 					story.getStoryId().toString(),
 					new StoryResponse.Author(story.getAuthorUserId().toString(), displayName),
-					// 도메인은 원문을 그대로 갖고, 응답으로 나가는 여기서만 인코딩한다.
+					// 도메인은 원문을 그대로 갖고, 응답으로 나가는 여기서만 인코딩한다. 본문은 ZAP 이 잡은 자리라
+					// 방어층을 유지한다(S15P21E201-835) — 앱은 마크다운으로 파싱하며 되돌려 그린다.
 					HtmlOutputEncoder.forHtml(story.getBody()),
 					story.getRegion(),
 					place == null ? null

@@ -99,6 +99,19 @@ class MyRepliesIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 미리보기·작성자 이름은 원문 그대로 — 앱이 Text 로 바로 그려 「&amp;」가 보이던 것 (S15P21E201-1655)")
+	void previewAndAuthorNameAreSentAsIs() {
+		UUID writer = StoryFixture.insertUser(this.jdbc, "A&B's \"공방\" <부산>");
+		UUID parent = post(writer, "광안리 & 해운대 — 'B' 코스 \"좋아요\" <추천>", Instant.now().minus(Duration.ofHours(2)));
+		reply(this.me, parent, "댓글", Instant.now().minus(Duration.ofHours(1)));
+
+		MyRepliesResponse.Item item = onlyItem();
+
+		assertThat(item.parent().bodyPreview()).isEqualTo("광안리 & 해운대 — 'B' 코스 \"좋아요\" <추천>");
+		assertThat(item.parent().authorName()).isEqualTo("A&B's \"공방\" <부산>");
+	}
+
+	@Test
 	@DisplayName("🔴 원글이 지워져도 내 댓글이 나온다 — DELETED, 본문·작성자는 없다")
 	void aDeletedParentStillListsMyReply() {
 		UUID parent = post(this.other, "곧 지울 글", Instant.now().minus(Duration.ofHours(2)));

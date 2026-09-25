@@ -126,12 +126,13 @@ class StoryCoauthorsInResponseIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 공동 작성자 이름도 자유 입력이라 작성자 이름처럼 인코딩된다")
-	void coauthorNameIsHtmlEncoded() {
+	@DisplayName("🔴 공동 작성자 이름은 작성자 이름처럼 원문 그대로 — 앱이 Text 로 그려 인코딩하면 「&amp;」가 보인다 (S15P21E201-1655)")
+	void coauthorNameIsSentAsIs() {
 		UUID sneaky = StoryFixture.insertUser(this.jdbc, "<script>alert(1)</script>");
 		insertCoauthor(this.storyId, sneaky, Instant.now().minus(Duration.ofMinutes(5)));
 
-		assertThat(assemble(this.storyId, null).coauthors().get(0).displayName()).doesNotContain("<script>");
+		// 원문이어도 안전한 근거는 docs/VULNERABILITY-REPORT.md 6절 — 앱은 이 칸을 Text 로 그린다.
+		assertThat(assemble(this.storyId, null).coauthors().get(0).displayName()).isEqualTo("<script>alert(1)</script>");
 	}
 
 	/**
