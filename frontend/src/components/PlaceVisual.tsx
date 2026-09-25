@@ -1,6 +1,6 @@
 import { Image, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 
-import { PhotoCredit } from '@/components/PhotoCredit';
+import { PhotoCreditBar } from '@/components/PhotoCreditBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
@@ -56,11 +56,8 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource, photo
       <View style={[styles.frame, style]}>
         <Image source={{ uri: photoUrl }} resizeMode="cover" accessibilityLabel={`${name} 장소 사진`} style={styles.image} />
         <PhotoSubjectBadge photoSubject={photoSubject} style={styles.subjectBadge} />
-        {credit ? (
-          <View style={styles.creditBar}>
-            <PhotoCredit credit={credit} licenseUrl={labels.licenseUrl} variant="caption" numberOfLines={1} color={color.text.onAction} />
-          </View>
-        ) : null}
+        {/* 출처 띠는 둘러보기 카드와 같은 부품이다(S15P21E201-1682) — 「사진: …」 두 줄까지, 라이선스는 둘째 줄에 따로. */}
+        {photoSource ? <PhotoCreditBar source={photoSource} license={photoLicense?.name ?? null} licenseUrl={labels.licenseUrl} tx={tx} /> : null}
       </View>
     );
   }
@@ -92,7 +89,6 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource, photo
 const styles = StyleSheet.create({
   // 출처 문구는 사진 위에 얹는다 — 카드가 작아 아래에 줄을 더하면 이름이 밀린다.
   // 어두운 띠를 깔아 밝은 사진 위에서도 읽히게 한다 (공공누리 표기 의무).
-  creditBar: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: spacing[2], paddingVertical: spacing[1], backgroundColor: 'rgba(0, 0, 0, 0.45)' },
   // 사진 위 왼쪽 위. 출처 띠는 아래에 있으므로 서로 안 겹친다.
   subjectBadge: { position: 'absolute', left: spacing[2], top: spacing[2] },
   frame: { position: 'relative', width: '100%', aspectRatio: 4 / 3, overflow: 'hidden', borderRadius: radius.md, backgroundColor: color.surface.soft },

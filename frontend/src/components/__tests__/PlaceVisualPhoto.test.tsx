@@ -19,7 +19,7 @@ describe('장소 카드 사진과 출처', () => {
         photoSource="한국관광공사 관광사진갤러리"
       />,
     );
-    expect(view.getByText('사진 제공: 한국관광공사 관광사진갤러리')).toBeTruthy();
+    expect(view.getByText('사진: 한국관광공사 관광사진갤러리')).toBeTruthy();
   });
 
   it('🔴 출처가 없으면 서버 사진을 아예 쓰지 않는다 — 표기 없는 사진이 나갈 길을 막는다', () => {
