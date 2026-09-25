@@ -148,7 +148,7 @@ public class RecommendationJobController {
 	// 경로를 value 로 준다. path 는 같은 뜻이지만 인가 정책 표를 대조하는 검사가 value 를
 	// 읽어서, path 로 쓰면 경로가 빈 값으로 잡혀 "정책 없는 경로" 로 걸린다.
 	@GetMapping(value = "/api/v1/jobs/{jobId}/progress", produces = "text/event-stream")
-	public SseEmitter progress(@PathVariable String jobId, Authentication authentication) {
+	public ResponseEntity<SseEmitter> progress(@PathVariable String jobId, Authentication authentication) {
 		RecommendationJob job = this.runner.findJob(jobId).orElseThrow(() -> new JobNotFoundException(jobId));
 		if (!isOwner(job, authentication)) {
 			throw new JobNotFoundException(jobId);
@@ -164,7 +164,7 @@ public class RecommendationJobController {
 		// 기다릴 것이 없고, 한 건 보내고 닫는 것으로 끝이다.
 		if (job.getJobStatus().isTerminal()) {
 			this.progressBroker.send(now, emitter);
-			return emitter;
+			return unbuffered(emitter);
 		}
 
 		// 순서가 중요하다. 먼저 등록하고 그다음에 지금 값을 보낸다. 반대로 하면 두 호출
@@ -172,8 +172,22 @@ public class RecommendationJobController {
 		// 등록이 먼저면 같은 값을 두 번 받을 수 있는데, 진행률은 그래도 화면이 안 달라진다.
 		this.progressBroker.register(job.getJobId(), emitter);
 		this.progressBroker.send(now, emitter);
-		return emitter;
+		return unbuffered(emitter);
 	}
+
+	/**
+	 * 🔴 앞단 nginx 가 진행률을 모았다가 한꺼번에 넘기지 않게 한다 — S15P21E201-1623.
+	 *
+	 * <p>nginx 는 뒤쪽 서버의 응답을 기본으로 모아서(버퍼링) 보낸다. 진행률 알림에는 치명적이다 — 화면의 막대가
+	 * 멈춰 있다가 끝에 한 번에 찬다. 이 헤더가 붙은 응답만은 nginx 가 모으지 않고 바로 넘긴다. nginx 설정을 바꾸지
+	 * 않고 응답이 스스로 말하는 쪽을 골랐다 — 설정은 서버에만 있어 저장소 시험이 못 지킨다.
+	 */
+	private static ResponseEntity<SseEmitter> unbuffered(SseEmitter emitter) {
+		return ResponseEntity.ok().header(NO_PROXY_BUFFERING, "no").body(emitter);
+	}
+
+	/** nginx 가 읽는 헤더 이름. 값 {@code no} 는 「이 응답은 모으지 말라」다. */
+	static final String NO_PROXY_BUFFERING = "X-Accel-Buffering";
 
 	/**
 	 * 연결 하나를 열어 두는 시간의 상한.
