@@ -1,8 +1,8 @@
 // 장소 리뷰 — S15P21E201-406. GET·POST /api/v1/places/{placeId}/reviews 를 그대로 옮긴다
 // (PlaceReviewController.java 기준). 점수는 1~5(항목별로 null 가능)이고, mine이 참인
 // 리뷰가 있으면 그 사용자가 이미 이 장소를 평가한 것이다.
-import { apiRequest, ApiClientError } from '@/api/client';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
+import { apiRequest, ApiClientError } from '@/api/client';
 
 export type PlaceReviewDto = {
   placeReviewId: string;

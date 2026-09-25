@@ -1,5 +1,5 @@
-import { apiRequest, ApiClientError } from '@/api/client';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
+import { apiRequest, ApiClientError } from '@/api/client';
 
 // 계약: backend/src/main/java/com/gabolle/backend/route/presentation/RouteController.java
 // (-184). 좌표 두 개만 있으면 되는 일이라 여행·일정에 매달지 않는다 — 컨트롤러
