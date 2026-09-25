@@ -322,6 +322,7 @@ export default function Me() {
     <ProfileCard
       name={name}
       email={user?.email ?? null}
+      guest={!user}
       avatarUri={avatarUri}
       // 🔴 안 고른 사람에게는 서버가 이 칸을 **아예 안 보낸다**(S15P21E201-1297). 그래서
       //    여기서 null 이 되고, 부품이 기본 사진을 깐다 — 기본 사진을 고르는 것은 화면의 몫이다.
