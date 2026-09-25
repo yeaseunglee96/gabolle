@@ -74,7 +74,7 @@ export function RecordsBrowser({
       {filtering && shown.length === 0 ? (
         <View style={styles.none}>
           <Text weight="bold">{tx('이 조건에 맞는 기록이 없어요', 'No records match these filters')}</Text>
-          <Button label={tx('모두 보기', 'Show all')} variant="tertiary" onPress={() => setFilter({ region: null, tag: null })} containerStyle={styles.noneCta} />
+          <Button label={tx('모두 보기', 'Show all')} variant="tertiary" onPress={() => setFilter({ region: null, tag: null })} compact containerStyle={styles.noneCta} />
         </View>
       ) : view === 'grid' ? (
         <View style={styles.grid}>
