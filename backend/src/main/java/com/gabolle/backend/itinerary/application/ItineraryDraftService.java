@@ -316,7 +316,16 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             // 하루 끝에 숙소(마지막 날은 출발지)로 돌아가는 시간을 먼저 뗀다 — 안 떼면 마지막 방문지가 활동
             // 시간대 끝까지 머물고, 돌아가는 길은 시간대 밖으로 밀린다(S15P21E201-1565).
             Integer returnMinutes = returnMinutesOf(trip, dayIndex, lodging, placeIdsByDay.get(dayIndex));
-            List<Slot> timed = layoutDay(trip, placedToday.size(), travelMinutesFor(legs, dayIndex, placedToday.size()),
+            // 밥 칸에 앉은 밥집만 끼니다 — 밥집이 모자란 칸을 채운 밥집(아침 첫 칸 등)까지 점심에 맞추면 하루가 늦게 시작한다.
+            LocalTime[][] mealBands = mealSlotBands(trip, placedToday.size());
+            List<DayTimeLayout.Stop> stops = new ArrayList<>(placedToday.size());
+            for (int i = 0; i < placedToday.size(); i++) {
+                ItineraryDraftCommand.PlannedPlace place = placedToday.get(i).place();
+                boolean meal = mealBands[i] != null && isFood(place);
+                stops.add(new DayTimeLayout.Stop(StayDefaults.minutesFor(place.category()),
+                        meal ? mealBands[i][0] : null, meal ? mealBands[i][1] : null));
+            }
+            List<Slot> timed = layoutDay(trip, stops, travelMinutesFor(legs, dayIndex, placedToday.size()),
                     returnMinutes);
 
             for (int i = 0; i < placedToday.size(); i++) {
@@ -1172,7 +1181,20 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 많이 겹치는 칸, 그것도 같으면 앞 칸. 걸리는 칸이 없는 시각대는 밥 칸이 없다(전과 같다).
      */
     private static boolean[] mealSlots(Trip trip, int count) {
+        LocalTime[][] bands = mealSlotBands(trip, count);
         boolean[] meal = new boolean[count];
+        for (int i = 0; i < count; i++) {
+            meal[i] = bands[i] != null;
+        }
+        return meal;
+    }
+
+    /**
+     * {@link #mealSlots} 와 같은 칸을 고르되, 칸마다 맡은 식사 시각대({@code {시작, 끝}})를 낸다 — 밥 칸이 아니면 {@code null}.
+     * 시각 깔기({@link DayTimeLayout})가 밥 칸의 밥집을 그 시각대 안에 놓을 때 쓴다(S15P21E201-1667).
+     */
+    private static LocalTime[][] mealSlotBands(Trip trip, int count) {
+        LocalTime[][] meal = new LocalTime[count][];
         for (LocalTime[] band : MEAL_BANDS) {
             int best = -1;
             long bestFirstHour = -1;
@@ -1195,7 +1217,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 }
             }
             if (best >= 0) {
-                meal[best] = true;
+                meal[best] = band;
             }
         }
         return meal;
@@ -1388,16 +1410,6 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         return minutes;
     }
 
-    /**
-     * 하루의 시각표를 깐다 — 이동 시간을 빼고 남은 만큼만 머문다.
-     * 머무는 시간은 (활동 시간대 - 그 날 이동 시간 합) / 그 날 항목 수이고, i번째 시작은
-     * 앞 항목의 끝에 i번째로 가는 이동 시간을 더한 값이다. 마지막 항목의 끝이 활동 시간대의
-     * 끝을 넘지 않는다.
-     * 이동만으로 하루가 다 차면 시각을 아예 안 준다({@link Slot#unknown()}). 이동을 무시하고
-     * 나누면 되지도 않는 일정을 그럴듯하게 그리는 것이고, 그건 시각이 없는 것보다 나쁘다.
-     * {@link #slotFor} 와 달리 하루치를 한 번에 낸다 — 앞 항목의 끝을 알아야 다음 시작을 정할
-     * 수 있어서 항목 하나만 따로 계산할 수가 없다.
-     */
     /** 그날 마지막 방문지에서 돌아가는 데 드는 분 — 돌아갈 자리를 모르거나 못 재면 {@code null}. */
     private Integer returnMinutesOf(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging, List<UUID> placeIdsToday) {
         if (placeIdsToday == null || placeIdsToday.isEmpty()) {
@@ -1408,41 +1420,34 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         return back == null ? null : back.travel().durationMin();
     }
 
-    /** @param returnMinutes 마지막 방문지에서 돌아가는 분. 없으면 {@code null} — 전처럼 시간대 끝까지 쓴다 */
-    private static List<Slot> layoutDay(Trip trip, int countToday, List<Integer> travelMinutes, Integer returnMinutes) {
+    /**
+     * 하루의 시각표를 깐다 — 곳마다 갈래별 체류만큼 머물고, 이동 시간을 비켜 가며, 남는 시간은 곳 사이의 빈 시각이 된다.
+     * 규칙은 {@link DayTimeLayout} 에 있다(S15P21E201-1667). 마지막 항목의 끝이 활동 시간대의 끝을 넘지 않는다.
+     * 이동만으로 하루가 다 차면 시각을 아예 안 준다({@link Slot#unknown()}). 이동을 무시하고
+     * 나누면 되지도 않는 일정을 그럴듯하게 그리는 것이고, 그건 시각이 없는 것보다 나쁘다.
+     * {@link #slotFor} 와 달리 하루치를 한 번에 낸다 — 앞 항목의 끝을 알아야 다음 시작을 정할
+     * 수 있어서 항목 하나만 따로 계산할 수가 없다.
+     *
+     * @param returnMinutes 마지막 방문지에서 돌아가는 분. 없으면 {@code null} — 전처럼 시간대 끝까지 쓴다
+     */
+    private static List<Slot> layoutDay(Trip trip, List<DayTimeLayout.Stop> stops, List<Integer> travelMinutes,
+            Integer returnMinutes) {
+        int countToday = stops.size();
         List<Slot> slots = new ArrayList<>(countToday);
         LocalTime windowStart = trip.timeWindowStart();
         LocalTime windowEnd = trip.timeWindowEnd();
-        if (windowStart == null || windowEnd == null || !windowEnd.isAfter(windowStart) || countToday <= 0) {
+        List<DayTimeLayout.Visit> visits = (windowStart == null || windowEnd == null || !windowEnd.isAfter(windowStart)
+                || countToday <= 0)
+                ? null
+                : DayTimeLayout.layout(windowStart, windowEnd, stops, travelMinutes, returnMinutes);
+        if (visits == null) {
             for (int i = 0; i < countToday; i++) {
                 slots.add(Slot.unknown());
             }
             return slots;
         }
-
-        long windowMinutes = Duration.between(windowStart, windowEnd).toMinutes();
-        long travelTotal = 0;
-        for (Integer minutes : travelMinutes) {
-            travelTotal += (minutes == null) ? 0 : minutes;
-        }
-        travelTotal += (returnMinutes == null) ? 0 : returnMinutes;
-
-        long stayMinutes = (windowMinutes - travelTotal) / countToday;
-        if (stayMinutes < 1) {
-            for (int i = 0; i < countToday; i++) {
-                slots.add(Slot.unknown());
-            }
-            return slots;
-        }
-
-        LocalTime cursor = windowStart;
-        for (int i = 0; i < countToday; i++) {
-            Integer move = (i < travelMinutes.size()) ? travelMinutes.get(i) : null;
-            cursor = cursor.plusMinutes(move == null ? 0 : move);
-            LocalTime start = cursor;
-            LocalTime end = start.plusMinutes(stayMinutes);
-            slots.add(new Slot(start, end, (int) stayMinutes, "ESTIMATED"));
-            cursor = end;
+        for (DayTimeLayout.Visit visit : visits) {
+            slots.add(new Slot(visit.start(), visit.end(), visit.stayMinutes(), "ESTIMATED"));
         }
         return slots;
     }
@@ -1773,7 +1778,20 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         for (int d = 0; d < trip.days(); d++) {
             todayOnly.add(d == dayIndex ? orderedToday : List.of());
         }
-        List<Slot> timedToday = layoutDay(trip, countToday,
+        Map<UUID, String> categoryToday = new HashMap<>();
+        for (Place place : this.placeRepository.findByPlaceIdIn(orderedToday)) {
+            categoryToday.put(place.getPlaceId(), place.getCategory());
+        }
+        LocalTime[][] mealBandsToday = mealSlotBands(trip, countToday);
+        List<DayTimeLayout.Stop> stopsToday = new ArrayList<>(countToday);
+        for (int i = 0; i < countToday; i++) {
+            String category = categoryToday.get(orderedToday.get(i));
+            boolean meal = mealBandsToday[i] != null && category != null
+                    && category.equalsIgnoreCase(this.foodCategory);
+            stopsToday.add(new DayTimeLayout.Stop(StayDefaults.minutesFor(category),
+                    meal ? mealBandsToday[i][0] : null, meal ? mealBandsToday[i][1] : null));
+        }
+        List<Slot> timedToday = layoutDay(trip, stopsToday,
                 travelMinutesFor(this.legPlanner.buildLegs(trip, todayOnly), dayIndex, countToday),
                 returnMinutesOf(trip, dayIndex, this.legPlanner.lodgingOf(trip), orderedToday));
 

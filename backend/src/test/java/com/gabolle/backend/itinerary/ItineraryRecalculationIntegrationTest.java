@@ -268,6 +268,31 @@ class ItineraryRecalculationIntegrationTest {
 	}
 
 	/**
+	 * 하루 다시 짜기도 곳마다 갈래만큼 머문다 (S15P21E201-1667). 남긴 곳은 저장된 항목이라 갈래가 없어서, 그날 곳들의 갈래를
+	 * DB 에서 한 번에 읽는다. 부수기: 그 읽기를 빼면 셋 다 「갈래 없음」 60분이 된다.
+	 */
+	@Test
+	@DisplayName("🔴 하루 다시 짜기도 곳마다 갈래만큼 머문다 — 남긴 곳의 갈래는 DB 에서 읽는다")
+	void recalculatedDayStaysFollowCategories() {
+		this.jdbc.update("UPDATE place SET category = 'SEA_BEACH' WHERE place_id = ?", this.placeB);
+		this.jdbc.update("UPDATE place SET category = 'CAFE_HEALING' WHERE place_id = ?", this.placeC);
+		this.engine.willReturn(FakeRecommendationEngine.batchOf(List.of(
+				FakeRecommendationEngine.passing(this.placeE, 0.90))));
+
+		RecommendationJob job = runSynchronously(removeCommand(1, this.keyA));
+
+		assertThat(job.getJobStatus()).as("errorCode=%s stage=%s", job.getErrorCode(), job.getFailureStage())
+				.isEqualTo(JobStatus.SUCCEEDED);
+		List<ItineraryItem> day0 = day(content(2), 0);
+		assertThat(day0).extracting(ItineraryItem::placeId)
+				.containsExactly(this.placeB.toString(), this.placeC.toString(), this.placeE.toString());
+		// 바다 90 · 카페 45 · 갈래 없음 60. 전에는 셋 다 활동 시간을 3으로 나눈 값이었다.
+		assertThat(day0).extracting(ItineraryItem::stayMinutes).containsExactly(90, 45, 60);
+		assertThat(day0).allSatisfy((item) -> assertThat(java.time.Duration.between(item.startTime(), item.endTime())
+				.toMinutes()).isEqualTo(item.stayMinutes().longValue()));
+	}
+
+	/**
 	 * 뺀 장소를 행동 신호로 남긴다.
 	 * 요청이 아니라 반영을 적는다 — 이 이벤트는 Job 을 만들 때가 아니라 제외가 실제로 새 판에
 	 * 들어가는 recorder 트랜잭션에서 난다. 일정이 그대로인데 「이 장소를 거부했다」가 남으면

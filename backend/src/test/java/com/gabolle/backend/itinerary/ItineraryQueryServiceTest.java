@@ -241,6 +241,24 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-1667 — 끝 시각 endsAt 이 startsAt 과 같은 모양으로 실린다. 시각이 없는 항목은 둘 다 null")
+	void itemEndsAtIsIncluded() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("k1", 0, day, 1, LocalTime.of(10, 0), LocalTime.of(11, 15)),
+				itemOf("k2", 0, day, 2, null, null)));
+
+		List<ItineraryDetailResponse.Item> items = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(d -> d.items().stream()).toList();
+
+		assertThat(items.get(0).startsAt()).isEqualTo("2026-10-01T10:00:00+09:00");
+		assertThat(items.get(0).endsAt()).isEqualTo("2026-10-01T11:15:00+09:00");
+		assertThat(items.get(1).startsAt()).isNull();
+		assertThat(items.get(1).endsAt()).isNull();
+	}
+
+	@Test
 	@DisplayName("🔴 S15P21E201-1158 — accessibilityUnverifiedCount 는 확인 안 된 '곳' 수다")
 	void accessibilityUnverifiedCountCountsPlaces() {
 		stubTripMembership(threeDayTrip());

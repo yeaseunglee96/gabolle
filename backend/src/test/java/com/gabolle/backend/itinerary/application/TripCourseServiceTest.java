@@ -301,7 +301,7 @@ class TripCourseServiceTest {
 	private static ItineraryDetailResponse detail(String id, List<UUID> places) {
 		List<ItineraryDetailResponse.Item> items = places.stream()
 				.map(place -> new ItineraryDetailResponse.Item(UUID.randomUUID().toString(),
-						"2026-10-04T09:46:00+09:00", "장소", null, 5_000, 300, false, "ESTIMATED", null, null,
+						"2026-10-04T09:46:00+09:00", "2026-10-04T10:46:00+09:00", "장소", null, 5_000, 300, false, "ESTIMATED", null, null,
 						place.toString(), 10, "ESTIMATED", null, null, List.of(), List.of(), 35.1, 129.0))
 				.toList();
 		return new ItineraryDetailResponse(id, "부산 여행", 1, List.of(new ItineraryDetailResponse.Day("2026-10-04", items)),

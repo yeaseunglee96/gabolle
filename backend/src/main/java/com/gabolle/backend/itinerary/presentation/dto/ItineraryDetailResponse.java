@@ -84,6 +84,15 @@ public record ItineraryDetailResponse(
 			String id,
 			/** ISO-8601. {@code start_time} 이 없으면 {@code null}. */
 			String startsAt,
+			/**
+			 * 그곳을 떠나는 계획 시각. {@code startsAt} 과 같은 모양이고, {@code startsAt} 이 {@code null} 이면 이것도
+			 * {@code null} 이다(둘 중 하나만 있는 일은 없다).
+			 *
+			 * <p>빈 시각은 이것으로 안다 — 같은 날 이웃한 A → B 에서 {@code B.startsAt − A.endsAt − (B.travelDurationMin ?? 0)}
+			 * (S15P21E201-1667). 곳마다 갈래별로 머물고 남는 시간을 빈 시각으로 두는데, 새 항목 종류를 만들지 않고 두 시각의
+			 * 차로만 드러낸다 — 이미 나간 앱이 모르는 항목을 받으면 깨질 수 있다.
+			 */
+			String endsAt,
 			String title,
 			/** 항상 {@code null} — {@code place} 표에 설명 칸이 없다. 주소를 대신 넣지 않는다. */
 			String description,

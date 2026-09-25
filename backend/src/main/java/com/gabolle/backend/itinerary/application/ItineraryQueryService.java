@@ -330,6 +330,7 @@ public class ItineraryQueryService {
 		return new ItineraryDetailResponse.Item(
 				item.itemKey(),
 				startsAt(item),
+				endsAt(item),
 				place.getNameKo(),
 				null, // description — place 표에 설명 칸이 없다
 				costOf(item, menuPriceByPlaceId),
@@ -359,6 +360,15 @@ public class ItineraryQueryService {
 			return null;
 		}
 		ZonedDateTime zoned = ZonedDateTime.of(item.visitDate(), item.startTime(), ZoneId.of("Asia/Seoul"));
+		return zoned.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+	}
+
+	/** {@code visit_date} + {@code end_time} — {@link #startsAt} 과 같은 형식. DB 가 끝이 시작보다 뒤임을 지킨다. */
+	private String endsAt(ItineraryItem item) {
+		if (item.endTime() == null) {
+			return null;
+		}
+		ZonedDateTime zoned = ZonedDateTime.of(item.visitDate(), item.endTime(), ZoneId.of("Asia/Seoul"));
 		return zoned.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 	}
 
