@@ -1,4 +1,4 @@
-import { txf } from '@/i18n/format';
+import { enCount, txf } from '@/i18n/format';
 import { formatClock, formatDayHeading as formatLocaleDayHeading } from '@/i18n/datetime';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -915,7 +915,7 @@ function ItineraryClassic() {
 
   // 헤더 요약 — 값이 있는 것만 잇는다. 「미확인」이라고 적힌 칸은 정보가 아니라 잡음이다.
   const heroSummary = itinerary ? [
-    itinerary.days.length > 0 ? tx(`${itinerary.days.length}일`, `${itinerary.days.length} days`) : null,
+    itinerary.days.length > 0 ? tx(`${itinerary.days.length}일`, enCount(itinerary.days.length, 'day', 'days')) : null,
     stopCount > 0 ? tx(`${stopCount}곳`, `${stopCount} stops`) : null,
     // 🔴 여기도 「없음」과 「0」을 가른다. 대중교통 여행은 서버가 이 값을 안 채우므로
     //    예전에는 이 칸이 조용히 빠졌다 (S15P21E201-1466).
@@ -1121,7 +1121,7 @@ function ItineraryClassic() {
                 <View style={styles.summaryCell}>
                   <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이동 합계', 'Travel')}</Text>
                   {dayTravelMinutes > 0
-                    ? <Text variant="title" weight="bold">{tx(`${dayTravelMinutes}분`, `${dayTravelMinutes}m`)}</Text>
+                    ? <Text variant="title" weight="bold">{tx(`${dayTravelMinutes}분`, `${dayTravelMinutes} min`)}</Text>
                     : <Text variant="caption" color={color.text.muted}>{tx('아직 없어요', 'Not yet')}</Text>}
                 </View>
                 <View style={styles.summaryCell}>
@@ -1140,7 +1140,7 @@ function ItineraryClassic() {
                   ? <Text variant="caption" color={color.text.body}>{txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters))}</Text>
                   : <Text variant="caption" color={color.text.muted}>{tx('도보 거리 — 대중교통 구간은 재지 않아요', 'Walking distance — not measured on transit legs')}</Text>}
                 {dayTravelMinutes > 0
-                  ? <Text variant="caption" color={color.text.body}>{tx(`이동 합계 ${dayTravelMinutes}분`, `${dayTravelMinutes}m travel in total`)}</Text>
+                  ? <Text variant="caption" color={color.text.body}>{tx(`이동 합계 ${dayTravelMinutes}분`, `${dayTravelMinutes} min travel in total`)}</Text>
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날짜는 구간 이동 시간이 아직 없어요.', 'No leg travel times for this day yet.')}</Text>}
                 {/* 대중교통은 업체가 정해지지 않아 부를 API 가 없다.
                     빈 값을 그리지 않고, 없다는 것을 그대로 적는다.

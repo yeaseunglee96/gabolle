@@ -35,7 +35,7 @@ import { useFocusEffect } from 'expo-router';
 import { relativeStoryTime } from '@/social/stories';
 import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
 import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
-import { txf } from '@/i18n/format';
+import { enCount, enPlural, txf } from '@/i18n/format';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
@@ -328,8 +328,8 @@ export default function Home() {
                 <Text variant="title" weight="bold">{tripDisplayTitle(home.trip, homeTripDates(home.trip, tx))}</Text>
                 <Text color={color.text.body}>
                   {home.trip.title?.trim() && home.trip.startDate
-                    ? txf(tx, '%s · %s일 · %s명', '%s · %s days · %s travelers', homeTripDates(home.trip, tx), home.trip.dayCount, home.trip.partySize)
-                    : tx(`${home.trip.dayCount}일 · ${home.trip.partySize}명`, `${home.trip.dayCount} days · ${home.trip.partySize} travelers`)}
+                    ? txf(tx, '%s · %s일 · %s명', `%s · %s ${enPlural(home.trip.dayCount, 'day', 'days')} · %s ${enPlural(home.trip.partySize, 'traveler', 'travelers')}`, homeTripDates(home.trip, tx), home.trip.dayCount, home.trip.partySize)
+                    : tx(`${home.trip.dayCount}일 · ${home.trip.partySize}명`, `${enCount(home.trip.dayCount, 'day', 'days')} · ${enCount(home.trip.partySize, 'traveler', 'travelers')}`)}
                 </Text>
                 <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{openingTrip ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
               </Pressable>

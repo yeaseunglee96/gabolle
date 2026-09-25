@@ -2,7 +2,7 @@
 // · 여행 카드의 제목 — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
 // · 장소 카드의 사진 — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
 // 채우는 작업이 머지되고 목록 API 에 실리면 그때 넣는다.
-import { txf } from '@/i18n/format';
+import { enCount, enPlural, txf } from '@/i18n/format';
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter, type Href } from 'expo-router';
@@ -314,8 +314,8 @@ export function MyTripCard({ trip, signedIn, loaded, layout = 'column' }: { trip
     */}
     <Text color={color.text.body}>
       {t.title?.trim() && t.startDate
-        ? txf(tx, '%s · %s일 · %s명', '%s · %s days · %s travelers', dateRange(t, tx, locale), t.dayCount, t.partySize)
-        : tx(`${t.dayCount}일 · ${t.partySize}명`, `${t.dayCount} days · ${t.partySize} travelers`)}
+        ? txf(tx, '%s · %s일 · %s명', `%s · %s ${enPlural(t.dayCount, 'day', 'days')} · %s ${enPlural(t.partySize, 'traveler', 'travelers')}`, dateRange(t, tx, locale), t.dayCount, t.partySize)
+        : tx(`${t.dayCount}일 · ${t.partySize}명`, `${enCount(t.dayCount, 'day', 'days')} · ${enCount(t.partySize, 'traveler', 'travelers')}`)}
     </Text>
   </>;
 
