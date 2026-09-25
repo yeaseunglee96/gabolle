@@ -54,6 +54,7 @@ import com.gabolle.backend.recommendation.application.port.ItineraryRevisionDraf
 import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.WalkOnlyFirstDay;
 
 /**
  * 추천이 순위 매긴 장소를 실제 일정(항목·구간)으로 조립하고 저장한다.
@@ -258,9 +259,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 .filter((p) -> !eventDays.containsKey(p.placeId()) || !eventDays.get(p.placeId()).isEmpty())
                 .toList();
         BudgetCap cap = budgetCapOf(trip, places);
-        Distribution distribution = distributeByDay(places, days, cap, mealsPerDay(trip), itemsPerDay(trip), eventDays);
+        // 걷기만 고른 여행이면 첫날은 출발지에서 걸어서 30분 안(S15P21E201-1634). 아니면 null.
+        double[] firstDayOrigin = WalkOnlyFirstDay.applies(trip)
+                ? new double[] { trip.originLat(), trip.originLng() } : null;
+        Distribution distribution = distributeByDay(places, days, cap, mealsPerDay(trip), itemsPerDay(trip), eventDays,
+                firstDayOrigin);
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
-        SpareCandidates spare = new SpareCandidates(places, byDay, cap, coordinatesOf(places), eventDays);
+        SpareCandidates spare = new SpareCandidates(places, byDay, cap, coordinatesOf(places), eventDays,
+                firstDayOrigin);
 
         // 구간을 만들 때 필요한, 날짜별 "그 날 다녀올 장소" 원본 순서.
         List<List<UUID>> placeIdsByDay = new ArrayList<>();
@@ -485,7 +491,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     private Distribution distributeByDay(
             List<ItineraryDraftCommand.PlannedPlace> places, int days, BudgetCap cap, int mealsPerDay, int itemsPerDay,
-            Map<UUID, Set<Integer>> eventDays) {
+            Map<UUID, Set<Integer>> eventDays, double[] firstDayOrigin) {
 
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = new ArrayList<>(days);
         for (int i = 0; i < days; i++) {
@@ -502,6 +508,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // 하루가 한 지역이 되게 날마다 중심을 잡는다. 순위 1위가 첫 날의 중심이 되고, 그
         // 다음 중심은 이미 잡힌 중심들에서 가장 먼 곳이다 — 그래야 날끼리 겹치지 않는다.
         double[][] dayAnchor = seedDayAnchors(places, coords, days);
+        if (firstDayOrigin != null && days > 0) {
+            dayAnchor[0] = firstDayOrigin; // 걷기만 고른 여행의 첫날은 출발지가 중심이다(S15P21E201-1634)
+        }
 
         // 🔴 S15P21E201-1494 — **두 번 훑는다.** 한 번만 훑으면서 순위대로 무조건 앉히면,
         //    앞쪽 후보가 자리를 다 채워서 **뒤에 있는 「지역이 맞는 후보」의 차례가 안 온다.**
@@ -520,7 +529,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 continue;
             }
             if (!seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, true,
-                    eventDays.get(place.placeId()))) {
+                    eventDays.get(place.placeId()), firstDayOrigin)) {
                 deferred.add(place);
             }
             else if (cap != null) {
@@ -539,7 +548,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 continue;
             }
             if (seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false,
-                    eventDays.get(place.placeId()))) {
+                    eventDays.get(place.placeId()), firstDayOrigin)) {
                 if (cap != null) {
                     cap.take(place);
                 }
@@ -558,7 +567,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 continue;
             }
             if (seat(byDay, foodPerDay, cafePerDay, false, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false,
-                    eventDays.get(place.placeId()))
+                    eventDays.get(place.placeId()), firstDayOrigin)
                     && cap != null) {
                 cap.take(place);
             }
@@ -650,7 +659,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay, int[] cafePerDay,
             boolean enforceCafeCap, ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay,
-            Map<UUID, double[]> coords, double[][] dayAnchor, boolean regionOnly, Set<Integer> openDays) {
+            Map<UUID, double[]> coords, double[][] dayAnchor, boolean regionOnly, Set<Integer> openDays,
+            double[] firstDayOrigin) {
 
         boolean food = isFood(place);
         boolean cafe = isCafe(place);
@@ -670,6 +680,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 continue;
             }
             if (cafe && enforceCafeCap && cafePerDay[day] >= MAX_CAFE_PER_DAY) {
+                continue;
+            }
+            if (!fitsWalkOnlyFirstDay(place, here, day, firstDayOrigin)) {
                 continue;
             }
             if (here == null || dayAnchor[day] == null) {
@@ -717,6 +730,22 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 값어치가 있다.
      */
     private static final double REGION_MIXED_KM = 8.0;
+
+    /**
+     * 걷기만 고른 여행의 첫날 규칙(S15P21E201-1634) — 첫날은 출발지에서 걸어서 {@link WalkOnlyFirstDay#MINUTES}분 안
+     * ({@link WalkOnlyFirstDay#RADIUS_M}m)의 곳만, 범위 밖인데 출발지 둘레라서 들어온 곳({@link WalkOnlyFirstDay#REASON_CODE})은
+     * 첫날에만. 걷기만 고른 여행이 아니면({@code firstDayOrigin == null}) 늘 참이다. 첫날에 좌표를 모르는 곳은 안 앉힌다.
+     */
+    private static boolean fitsWalkOnlyFirstDay(ItineraryDraftCommand.PlannedPlace place, double[] here, int day,
+            double[] firstDayOrigin) {
+        if (firstDayOrigin == null) {
+            return true;
+        }
+        if (day == 0) {
+            return here != null && haversineKm(here, firstDayOrigin) * 1000 <= WalkOnlyFirstDay.RADIUS_M;
+        }
+        return place.reasonCodes() == null || !place.reasonCodes().contains(WalkOnlyFirstDay.REASON_CODE);
+    }
 
     /** 좌표를 한 번에 읽는다. 저장소가 못 주는 것은 그냥 빠진다 — 그 자리는 거리 비교를 건너뛴다. */
     private Map<UUID, double[]> coordinatesOf(List<ItineraryDraftCommand.PlannedPlace> places) {
@@ -1176,9 +1205,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         private final Map<UUID, Set<Integer>> eventDays;
 
+        private final double[] firstDayOrigin;
+
         SpareCandidates(List<ItineraryDraftCommand.PlannedPlace> candidates,
                 List<List<ItineraryDraftCommand.PlannedPlace>> byDay, BudgetCap cap, Map<UUID, double[]> coords,
-                Map<UUID, Set<Integer>> eventDays) {
+                Map<UUID, Set<Integer>> eventDays, double[] firstDayOrigin) {
+            this.firstDayOrigin = firstDayOrigin;
             Set<UUID> seated = new HashSet<>();
             byDay.forEach(day -> day.forEach(p -> seated.add(p.placeId())));
             this.places = candidates.stream().filter(p -> !seated.contains(p.placeId())).toList();
@@ -1205,6 +1237,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 }
                 double[] here = this.coords.get(id);
                 if (center != null && (here == null || haversineKm(center, here) > REGION_MIXED_KM)) {
+                    continue;
+                }
+                if (!fitsWalkOnlyFirstDay(candidate, here, dayIndex, this.firstDayOrigin)) {
                     continue;
                 }
                 if (verdicts.at(id, at) == null) {
