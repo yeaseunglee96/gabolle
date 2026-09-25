@@ -265,7 +265,7 @@ export default function Place() {
         </View>
         <View style={wide ? styles.asideColumn : undefined}>
         {/* 사용자 리포트 — 버튼 네 개가 전폭으로 세로로 쌓여 가독성이 떨어졌다. 2열 그리드로
-            바꿔 화면을 덜 차지하면서 한눈에 들어오게 한다. Button 컴포넌트 자체(26곳에서 쓴다)는
+            바꿔 화면을 덜 차지하면서 한눈에 들어오게 한다. Button 컴포넌트 자체(여러 화면이 같이 쓴다 — 개수는 적지 않는다, 적으면 낡는다)는
             그대로 두고, 이 화면의 containerStyle 폭만 절반으로 좁힌다 — Button.tsx 상단 주석이
             경고하는 "containerStyle 로 배경색을 흉내내는" 것과는 다르다(폭은 바깥 껍데기의
             레이아웃일 뿐, 안쪽 Pressable 의 색과 부딪히지 않는다).
