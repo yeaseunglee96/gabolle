@@ -549,6 +549,32 @@ class ItineraryDraftServiceTest {
 				assertThat(item.warningCodes()).contains("OPENING_HOURS_CLOSED"));
 	}
 
+	// ── 디저트 가게는 끼니가 아니다 (S15P21E201-1635) ──────────────────────
+
+	/**
+	 * 09:00~18:00 · 하루 4곳이면 끼니 칸은 11:15(점심)·15:45(저녁)다. 순위 1위가 디저트 표식만 있는 「밥집」(젤라또)이다 —
+	 * 전에는 점심 칸에 앉았다. 이제는 카페로 읽혀 진짜 밥집 둘이 끼니 칸을 맡는다.
+	 */
+	@Test
+	@DisplayName("🔴 디저트 표식만 있는 밥집은 끼니로 안 센다 — 점심 칸에 젤라또가 앉던 것")
+	void dessertOnlyFoodIsNotAMeal() {
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(
+				tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10), LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesOf(
+				"FOOD", "FOOD", "FOOD", "CULTURE_TEMPLE", "NATURE_WALK");
+		UUID gelato = places.get(0).placeId();
+		this.service.setDessertOnly(ids -> ids.contains(gelato) ? java.util.Set.of(gelato) : java.util.Set.of());
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> atMeals = draft.items().stream()
+				.filter(item -> item.startTime().equals(LocalTime.of(11, 15)) || item.startTime().equals(LocalTime.of(15, 45)))
+				.map(ItineraryDraft.DraftItem::placeId)
+				.toList();
+		assertThat(atMeals).as("끼니 칸은 진짜 밥집 둘").containsExactlyInAnyOrder(places.get(1).placeId(),
+				places.get(2).placeId());
+	}
+
 	// ── 걷기만 고른 여행의 첫날 (S15P21E201-1634) ──────────────────────────
 
 	private static final double[] BUSAN_STATION = { 35.1152, 129.0403 };
