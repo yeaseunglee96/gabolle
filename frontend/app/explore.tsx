@@ -19,11 +19,11 @@ import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { color, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { getPlacesByFacet, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
-import { syncLocationConsent } from '@/personalization/locationConsent';
-import { useLocationGate } from '@/personalization/useLocationGate';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+import { syncLocationConsent } from '@/personalization/locationConsent';
+import { useLocationGate } from '@/personalization/useLocationGate';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
 // 이 값과 일치하는 항목만 골라 순서는 서버가 준 그대로 둔다. 화면 쪽에서 새로 만들지 않는다.

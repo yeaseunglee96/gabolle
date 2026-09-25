@@ -1,10 +1,10 @@
 // 언어 다섯을 다 받는다. 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
 // 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
 // 떨어뜨리는 일은 여기 한 자리에서 한다.
+import { coarseCoordinate } from '@/personalization/locationConsent';
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import type { PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
-import { coarseCoordinate } from '@/personalization/locationConsent';
 
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string; labelEn?: string | null };
 // 서버 목록과 순서는 그대로 유지한다. 이 사전은 영문 표기가 없는 기존 응답의 번역만 맡는다.
