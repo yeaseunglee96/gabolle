@@ -343,6 +343,7 @@ export default function Home() {
             <Text variant="caption" weight="bold" color={color.text.onAction}>{saved.feedback}</Text>
           </View>
         ) : null}
+        {saved.consentPrompt}
         <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </Screen>
 

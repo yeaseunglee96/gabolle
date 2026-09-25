@@ -166,6 +166,31 @@ export default function Me() {
         onPress={() => openPanel('preferences')}
         disabled={!user}
       />
+      {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 언제든 끄는 자리다. 끄는 길이 설정
+          안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
+          🔴 「앱」 묶음 맨 아래(약관·고지 다음)였다 — 폰에서는 탭바에 반쯤 가렸고 취향과 떨어져 있었다.
+          취향을 추천에 쓰는 설정이라 「여행 취향」 바로 아래다(사용자 결정, S15P21E201-1644).
+      */}
+      <View style={styles.consentRow}>
+        <View style={styles.consentCopy}>
+          <Text weight="bold">{tx('맞춤 추천', 'Personalized picks')}</Text>
+          {/* 🔴 「추천을 맞춰요」가 아니다 — S15P21E201-1489(B-16). 이 동의값은 가입·소셜
+              로그인 때만 서버로 가고(src/auth/authApi.ts), 일정 추천 요청에는 실리지 않는다.
+              실기기에서 스위치를 켜고 같은 조건으로 다시 만들어 보니 결과가 완전히 같았다.
+              「지금 켜면 달라진다」로 읽히는 문구는 안 지킬 약속이라, 언제부터 반영되는지를 적는다. */}
+          {/* 🔴 「이 기기에 저장돼요」였다 — 사실과 달랐다(S15P21E201-1644). 켜고 끄면 서버의 계정 동의도 바로 바뀐다
+              (setBehaviorConsent → PATCH /me/consents, 운영 DB 확인). 「다른 기기에서도 같다」고는 쓰지 않는다 — 다른 기기는
+              그 기기에서 켠 적이 없으면 꺼진 채다(reconcileConsent 가 서버를 따라 켜지는 않는다). */}
+          <Text variant="caption">{tx('저장·제외·일정 수정·체크인 후기 같은 활동을 다음 여행부터 추천에 반영해요. 지금 보고 있는 일정은 바뀌지 않아요. 이 설정은 내 계정에도 저장돼요.', 'From your next trip on, we use activity like saves, exclusions, itinerary edits, and check-in reviews. The itinerary you are looking at now will not change. This setting is also saved to your account.')}</Text>
+        </View>
+        {/* 🔴 라벨을 스위치에 직접 준다 — S15P21E201-1489(B-03). 글자는 형제 View 에 있어서
+            스위치와 안 묶인다. 실기기 VoiceOver 가 「스위치」라고만 읽었다(개인정보 동의라 더 나쁘다). */}
+        <Toggle
+          value={behaviorPersonalization}
+          onValueChange={setBehaviorPersonalization}
+          accessibilityLabel={tx('맞춤 추천', 'Personalized picks')}
+        />
+      </View>
       <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities')} disabled={!user} />
       {/* 백엔드(DELETE /me)도 흐름도 있는데 프로필 편집 맨 아래에만 있어 설정에서 안 보였다(2026-09-21 실기, S15P21E201-1401). */}
       <InfoRow label={tx('회원 탈퇴', 'Delete account')} description={tx('여행, 기록, 취향이 모두 지워져요', 'Deletes your trips, records, and preferences')} value="›" onPress={() => openPanel('delete-account')} disabled={!user} />
@@ -183,26 +208,6 @@ export default function Me() {
       <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => openPanel('blocked')} disabled={!user} />
       <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => openPanel('help')} />
       <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => openPanel('terms')} />
-      {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 언제든 끄는 자리다. 끄는 길이 설정
-          안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
-      */}
-      <View style={styles.consentRow}>
-        <View style={styles.consentCopy}>
-          <Text weight="bold">{tx('맞춤 추천', 'Personalized picks')}</Text>
-          {/* 🔴 「추천을 맞춰요」가 아니다 — S15P21E201-1489(B-16). 이 동의값은 가입·소셜
-              로그인 때만 서버로 가고(src/auth/authApi.ts), 일정 추천 요청에는 실리지 않는다.
-              실기기에서 스위치를 켜고 같은 조건으로 다시 만들어 보니 결과가 완전히 같았다.
-              「지금 켜면 달라진다」로 읽히는 문구는 안 지킬 약속이라, 언제부터 반영되는지를 적는다. */}
-          <Text variant="caption">{tx('저장·제외·일정 수정·체크인 후기 같은 활동을 다음 여행부터 추천에 반영해요. 지금 보고 있는 일정은 바뀌지 않아요. 이 설정은 이 기기에 저장돼요.', 'From your next trip on, we use activity like saves, exclusions, itinerary edits, and check-in reviews. The itinerary you are looking at now will not change. This setting is stored on this device.')}</Text>
-        </View>
-        {/* 🔴 라벨을 스위치에 직접 준다 — S15P21E201-1489(B-03). 글자는 형제 View 에 있어서
-            스위치와 안 묶인다. 실기기 VoiceOver 가 「스위치」라고만 읽었다(개인정보 동의라 더 나쁘다). */}
-        <Toggle
-          value={behaviorPersonalization}
-          onValueChange={setBehaviorPersonalization}
-          accessibilityLabel={tx('맞춤 추천', 'Personalized picks')}
-        />
-      </View>
     </View>
   </>;
 
