@@ -504,6 +504,9 @@ class RouteAuthorizationRegistryTest {
 						+ "TripStoryJourneyFunctionalTest (-829)");
 		put(m, "GET /api/v1/trips/{}/activity", Policy.OWNED,
 				"참여자만. TripActivityIntegrationTest");
+		put(m, "GET /api/v1/me/notification-summary", Policy.OWNED,
+				"종 점. 경로에 남의 번호를 넣을 자리가 없고(/me) 내가 참여한 여행의 활동만 센다 — 남의 여행·지운 여행은 "
+						+ "안 센다. NotificationSummaryIntegrationTest (-1699)");
 		put(m, "GET /api/v1/trips/{}/members", Policy.OWNED,
 				"참여자만. TripMemberManagementIntegrationTest");
 		put(m, "POST /api/v1/trips/{}/invites", Policy.OWNED,
