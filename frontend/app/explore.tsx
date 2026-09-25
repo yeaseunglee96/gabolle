@@ -425,7 +425,9 @@ const styles = StyleSheet.create({
   resultNote: { flexShrink: 1 },
 
   // 칩이 줄바꿈된다. 숨는 것이 없어야 한다는 게 이 모양의 전부다.
-  facetWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  // 🔴 flex 1 · minWidth 0 — 토글을 뺀 남는 폭만 쓴다. 안 주면 줄지 않고 한 줄로 늘어나, 영어판에서
+  //    범위 토글이 오른쪽 밖으로 밀렸다(S15P21E201-1703 — 1280 에서 「All Busan」, 1024 에서 「Nearby」까지).
+  facetWrap: { flex: 1, minWidth: 0, flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   chipCount: { opacity: 0.75 },
 
   // 사진 — 없을 때가 더 흔하다(7~18%만 온다). 자리표시가 기본 모습이라고 보면 된다.
