@@ -99,3 +99,15 @@ export function readableApiError(error: unknown, ko: boolean): string {
   const body = known ? (ko ? known[0] : known[1]) : generic;
   return error.code ? `${body} (${error.code})` : body;
 }
+
+/**
+ * 서버가 이 요청을 모르는 응답인가 — S15P21E201-1672.
+ *
+ * 우리 봉투 모양이 아닌 응답(없는 주소일 때 Spring 기본 응답 등 — 요청 함수가 코드 없이 REQUEST_FAILED 로 던진다)이거나 501.
+ * 이때 요청 함수가 만든 「요청을 처리하지 못했어요.」는 무엇이 안 됐는지도, 무엇을 하면 되는지도 말하지 않는다 — 부르는 자리가
+ * 제 문장을 쓴다.
+ * 🔴 코드가 붙은 응답은 아니다. 서버가 이유를 알고 보낸 사용자용 문장(「코스를 찾을 수 없어요」 등)이라 덮지 않는다.
+ */
+export function isUnknownResponse(error: unknown): boolean {
+  return error instanceof ApiClientError && (error.code === 'REQUEST_FAILED' || error.status === 501);
+}
