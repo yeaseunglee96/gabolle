@@ -26,7 +26,17 @@ public record RouteDirectionsResponse(
 		 * {@code null} 은 「모른다」(요금표에 없는 노선이 끼었다), {@code 0} 은 「걷기만 해서
 		 * 공짜다」로 서로 다르다 — 화면이 둘을 같게 그리면 모르는 여정이 무료로 보인다.
 		 */
-		Integer transitFareKrw) {
+		Integer transitFareKrw,
+
+		/**
+		 * 경사 조각 — S15P21E201-1630. 우리 보행 그래프가 찾은 걷기({@code provider=OSM_WALK_GRAPH})에만 있고 나머지는
+		 * 빈 목록이다. 조각마다 {@code path[from]..path[to]}(둘 다 포함)의 경사(%, 방향 없음 · 모르면 null)와 계단 여부.
+		 */
+		List<Piece> pieces) {
+
+	/** 경사 조각 하나. {@code slopePercent} 가 {@code null} 이면 모른다 — 0(평지)과 다르다. */
+	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+	}
 
 	/** 안내 한 줄 — 예: {@code name="해운대해수욕장삼거리"}, {@code guidance="송정 방면으로 우회전"}. */
 	public record Step(String name, String guidance, int distanceM, int durationMin) {
@@ -48,6 +58,9 @@ public record RouteDirectionsResponse(
 				leg.provider(),
 				leg.path(),
 				steps,
-				leg.transitFareKrw());
+				leg.transitFareKrw(),
+				leg.pieces().stream()
+						.map(piece -> new Piece(piece.from(), piece.to(), piece.slopePercent(), piece.stairs()))
+						.toList());
 	}
 }
