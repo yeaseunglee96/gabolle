@@ -343,7 +343,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           {/* 펼치는 손잡이는 제목 덩이에만 둔다. 행 전체를 Pressable 로 감싸면 그 안의
               자물쇠가 「버튼 안의 버튼」이 되고, 웹에서는 그게 허용되지 않는다.
           */}
-          <Pressable accessibilityRole="button" accessibilityState={{ expanded }} accessibilityLabel={(expanded ? txf(tx, '%s 접기', 'Collapse %s', item.title) : txf(tx, '%s 자세히', 'Details for %s', item.title))} onPress={onToggleExpand} style={styles.grow}>
+          <Pressable accessibilityRole="button" accessibilityState={{ expanded }} accessibilityLabel={(expanded ? txf(tx, '%s 접기', 'Collapse %s', item.title) : txf(tx, '%s 자세히', 'Details for %s', item.title))} onPress={onToggleExpand} style={styles.stopTitle}>
             <View style={styles.titleLine}>
               <Text variant={wide ? 'title' : 'body'} weight="bold" style={styles.titleText}>{item.title}</Text>
               {item.dataStatus ? <View style={[styles.statusChip, STATUS_CHIP[item.dataStatus]]}><Text variant="caption" weight="bold" color={STATUS_COLOR[item.dataStatus]}>{STATUS_LABEL[item.dataStatus]}</Text></View> : null}
@@ -1287,6 +1287,9 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   stopRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
   stopRightWide: { alignItems: 'flex-start' },
   stopRightStack: { alignItems: 'flex-end' },
+  // 제목 덩이 — 사진과 시간·자물쇠 사이의 남는 자리만 쓴다. 공용 `grow` 의 최소 폭 180 을 쓰면
+  // 폰(390)에서 시간·자물쇠가 오른쪽 밖으로 50 쯤 밀려 잘렸다(S15P21E201-1701). 길면 줄을 바꾼다.
+  stopTitle: { flex: 1, minWidth: 0, gap: spacing[1] },
   stopDetail: { gap: spacing[2], paddingTop: spacing[2], borderTopWidth: 1, borderTopColor: color.surface.border },
   lockTouch: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   nodeWide: { width: 40, height: 40 },
