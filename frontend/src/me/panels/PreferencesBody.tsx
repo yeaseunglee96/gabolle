@@ -261,17 +261,27 @@ export function PreferencesBody() {
     {answeredCount === 0 && <View style={[styles.emptyCard, wide && styles.emptyCardWide]}>
       <Image source={require('../../../assets/mascot/dongbaek-thinking.png')} style={[styles.emptyMascot, wide && styles.emptyMascotWide]} resizeMode="contain" />
       <View style={[styles.emptyCopy, wide && styles.emptyCopyWide]}>
-        <Text variant="title" weight="bold">{tx('아직 기억된 취향이 없어요', 'No preferences saved yet')}</Text>
-        <Text variant="caption" color={color.text.body} style={wide ? undefined : styles.emptyBody}>
-          {tx('처음에 건너뛰셨어요. 지금 답하면 여행을 만들 때 미리 채워 드려요.',
-            'You skipped these at the start. Answer now and we will fill them in when you plan.')}
-        </Text>
-        <Button
-          label={tx('8개 답하기 · 약 1분', 'Answer 8 questions · about a minute')}
-          compact={wide}
-          containerStyle={[styles.emptyCta, wide && styles.emptyCtaWide]}
-          onPress={() => setOpen({ group: 'spend', key: SPEND_QUESTIONS[0].key })}
-        />
+        {/* 🔴 못 읽은 것을 「건너뛰었다」로 말하지 않는다(S15P21E201-1681) — 실패면 다시 시도, 건너뛴(SKIPPED) 사람에게만
+            「처음에 건너뛰셨어요」. 한 번도 답한 적 없는 사람에게는 그 말을 빼고 무엇을 하면 되는지만. */}
+        {saved.loadFailed ? <>
+          <Text variant="title" weight="bold">{tx('취향을 불러오지 못했어요', "We couldn't load your preferences")}</Text>
+          <Text variant="caption" color={color.text.body} style={wide ? undefined : styles.emptyBody}>{tx('잠시 뒤 다시 시도해 주세요.', 'Please try again in a moment.')}</Text>
+          <Button label={tx('다시 시도', 'Try again')} variant="secondary" compact={wide} containerStyle={[styles.emptyCta, wide && styles.emptyCtaWide]} onPress={() => void query.refetch()} />
+        </> : <>
+          <Text variant="title" weight="bold">{tx('아직 기억된 취향이 없어요', 'No preferences saved yet')}</Text>
+          <Text variant="caption" color={color.text.body} style={wide ? undefined : styles.emptyBody}>
+            {saved.spendSkipped
+              ? tx('처음에 건너뛰셨어요. 지금 답하면 여행을 만들 때 미리 채워 드려요.',
+                'You skipped these at the start. Answer now and we will fill them in when you plan.')
+              : tx('지금 답하면 여행을 만들 때 미리 채워 드려요.', 'Answer now and we will fill them in when you plan.')}
+          </Text>
+          <Button
+            label={tx('8개 답하기 · 약 1분', 'Answer 8 questions · about a minute')}
+            compact={wide}
+            containerStyle={[styles.emptyCta, wide && styles.emptyCtaWide]}
+            onPress={() => setOpen({ group: 'spend', key: SPEND_QUESTIONS[0].key })}
+          />
+        </>}
       </View>
     </View>}
 
