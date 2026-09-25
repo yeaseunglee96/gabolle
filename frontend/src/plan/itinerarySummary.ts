@@ -1,3 +1,4 @@
+import { enCount } from '@/i18n/format';
 import type { DayStart, ItineraryDto, ItineraryItemDto } from './itinerary';
 
 type Tx = (ko: string, en: string) => string;
@@ -14,17 +15,17 @@ export function formatTravelLabel(item: ItineraryItemDto, tx: Tx, from: boolean 
   const estimated = item.travelDataStatus === 'ESTIMATED';
   if (from === 'LODGING') {
     return estimated
-      ? tx(`숙소에서 ${minutes}분 (어림)`, `${minutes}m from your stay (est.)`)
-      : tx(`숙소에서 ${minutes}분`, `${minutes}m from your stay`);
+      ? tx(`숙소에서 ${minutes}분 (어림)`, `${minutes} min from your stay (est.)`)
+      : tx(`숙소에서 ${minutes}분`, `${minutes} min from your stay`);
   }
   if (from) {
     return estimated
-      ? tx(`출발지에서 ${minutes}분 (어림)`, `${minutes}m from start (est.)`)
-      : tx(`출발지에서 ${minutes}분`, `${minutes}m from start`);
+      ? tx(`출발지에서 ${minutes}분 (어림)`, `${minutes} min from start (est.)`)
+      : tx(`출발지에서 ${minutes}분`, `${minutes} min from start`);
   }
   return estimated
-    ? tx(`이동 ${minutes}분 (어림)`, `${minutes}m travel (est.)`)
-    : tx(`이동 ${minutes}분`, `${minutes}m travel`);
+    ? tx(`이동 ${minutes}분 (어림)`, `${minutes} min travel (est.)`)
+    : tx(`이동 ${minutes}분`, `${minutes} min travel`);
 }
 
 export type ItineraryStat = { key: string; value: string; label: string };
@@ -38,8 +39,8 @@ export function itineraryStats(itinerary: ItineraryDto, tx: Tx): ItineraryStat[]
   const lockedCount = items.filter((entry) => entry.locked).length;
   return [
     { key: 'places', value: tx(`${items.length}곳`, `${items.length}`), label: tx('방문지', 'Places') },
-    ...(travelMinutes > 0 ? [{ key: 'travel', value: tx(`${travelMinutes}분`, `${travelMinutes}m`), label: tx('총 이동 시간', 'Total travel time') }] : []),
-    { key: 'days', value: tx(`${itinerary.days.length}일`, `${itinerary.days.length} days`), label: tx('여행 기간', 'Trip length') },
+    ...(travelMinutes > 0 ? [{ key: 'travel', value: tx(`${travelMinutes}분`, `${travelMinutes} min`), label: tx('총 이동 시간', 'Total travel time') }] : []),
+    { key: 'days', value: tx(`${itinerary.days.length}일`, enCount(itinerary.days.length, 'day', 'days')), label: tx('여행 기간', 'Trip length') },
     ...(lockedCount > 0 ? [{ key: 'locked', value: tx(`${lockedCount}곳`, `${lockedCount}`), label: tx('고정된 장소', 'Pinned places') }] : []),
   ];
 }

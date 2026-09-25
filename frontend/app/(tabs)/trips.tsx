@@ -18,7 +18,7 @@ import { useLayout } from '@/layout/useLayout';
 import { deleteTrip, loadTrips, resolveTripItinerary, tripDisplayTitle, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
 import { leaveTrip } from '@/trip/collaboration';
 import { TripNameSheet } from '@/trip/TripNameSheet';
-import { txf } from '@/i18n/format';
+import { enCount, enPlural, txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 
 /** 보관소에서 이 목록을 찾는 열쇠. 사람이 바뀌면 남의 목록을 보면 안 되므로 사용자 id 를 넣는다. */
@@ -140,7 +140,7 @@ export default function Trips() {
         {trip.status === 'PLANNING' ? <View style={styles.statusPillPending}><Text variant="caption" weight="bold" color={color.state.danger} numberOfLines={1}>{tx('일정 준비 중', 'Itinerary pending')}</Text></View>
           : <View style={[styles.metaPill, effectiveTripStatus(trip) === 'IN_PROGRESS' && styles.statusPillLive]}>{effectiveTripStatus(trip) === 'IN_PROGRESS' ? <View style={styles.liveDot} /> : null}<Text variant="caption" weight="bold" color={effectiveTripStatus(trip) === 'IN_PROGRESS' ? color.state.success : color.text.heading} numberOfLines={1}>{tripStatusLabel(effectiveTripStatus(trip), tx)}</Text></View>}
         {tripTimingLabel(trip, tx) ? <Text variant="caption" color={color.text.muted}>{tripTimingLabel(trip, tx)}</Text> : null}
-        <View style={styles.metaPill}><Text variant="caption" weight="bold" numberOfLines={1}>{tx(`${trip.dayCount}일`, `${trip.dayCount} days`)}</Text></View><View style={styles.metaPill}><Text variant="caption" weight="bold" numberOfLines={1}>{txf(tx, '%s명', '%s travelers', trip.partySize)}</Text></View>
+        <View style={styles.metaPill}><Text variant="caption" weight="bold" numberOfLines={1}>{tx(`${trip.dayCount}일`, enCount(trip.dayCount, 'day', 'days'))}</Text></View><View style={styles.metaPill}><Text variant="caption" weight="bold" numberOfLines={1}>{txf(tx, '%s명', `%s ${enPlural(trip.partySize, 'traveler', 'travelers')}`, trip.partySize)}</Text></View>
       </View>
       </Pressable>
       {/* 🔴 행동 단추는 카드 Pressable 의 «형제»다. 안에 넣으면 웹에서 <button> 속 <button> 이 되어(RN-web 은 button 역할을 진짜 button 으로 그린다) 안쪽 단추가 안 눌리거나 둘 다 눌린다. */}
