@@ -102,6 +102,9 @@ describe('3. 동의 문', () => {
     let answer: Promise<boolean> = Promise.resolve(false);
     await act(async () => { answer = gate.ensure(); });
     expect(await screen.findByText('위치를 써도 될까요?')).toBeTruthy();
+    // 🔴 지도·피드는 보내지 않는다 — 「보내는 곳」과 나눠 적는다.
+    expect(screen.getByText('피드의 가까운 순 · 지도의 내 위치 — 이 기기 안에서만 쓰고 보내지 않아요.')).toBeTruthy();
+    expect(screen.queryByText(/지도 — 가까운 장소와 버스를 찾을 때 위치를 보내요/)).toBeNull();
     fireEvent.press(screen.getByText('동의하기'));
     expect(await answer).toBe(true);
     expect(await loadLocationConsent()).toBe(true);

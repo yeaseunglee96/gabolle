@@ -54,7 +54,9 @@ export function useLocationGate(accessToken: string | null) {
       <View style={styles.backdrop}>
         <View accessibilityViewIsModal style={styles.card}>
           <Text variant="title" weight="bold">{tx('위치를 써도 될까요?', 'May we use your location?')}</Text>
-          <Text color={color.text.body}>{tx('내 주변 · 지금 갈 곳 · 지도 — 가까운 장소와 버스를 찾을 때 위치를 보내요. 둘러보기와 버스는 약 100m 단위로 줄여서 보내요.', 'Nearby, Go now, and the map — we send your location to find places and buses near you. For Explore and buses we round it to about 100 m.')}</Text>
+          {/* 🔴 지도와 피드는 위치를 보내지 않는다 — 「보내는 곳」에 같이 적었었다(조율 세션이 짚음). 둘을 나눠 적는다. */}
+          <Text color={color.text.body}>{tx('내 주변 · 지금 갈 곳 — 가까운 장소와 버스를 찾을 때 위치를 보내요. 둘러보기와 버스는 약 100m 단위로 줄여서 보내요.', 'Nearby and Go now — we send your location to find places and buses near you. For Explore and buses we round it to about 100 m.')}</Text>
+          <Text color={color.text.body}>{tx('피드의 가까운 순 · 지도의 내 위치 — 이 기기 안에서만 쓰고 보내지 않아요.', 'Feed sorted by distance and your spot on the map — used only on this device, never sent.')}</Text>
           <Text color={color.text.body}>{tx('방문 인증 — 후기를 쓰기 전에 그 장소에 있는지 확인해요. 남기는 것은 거리 결과뿐이에요.', 'Visit check — before you review a place, we check that you are there. We keep only the distance result.')}</Text>
           <Text color={color.text.body}>{tx('여행 중 도착·출발 — 「출발」을 누른 동안 도착·출발을 알아채 시각만 남겨요. 좌표는 이 기기 밖으로 보내지 않아요.', 'Arrivals and departures on your trip — while you have pressed Start, we notice when you arrive and leave and keep only the times. Coordinates never leave this device.')}</Text>
           <Text variant="caption" color={color.text.muted}>{tx('앱을 닫으면 위치를 보지 않아요. 마이페이지 설정의 「위치 사용」에서 언제든 끌 수 있어요.', 'We stop looking at your location when the app is closed. You can turn this off anytime under “Use location” in My page settings.')}</Text>
