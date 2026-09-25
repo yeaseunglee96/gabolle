@@ -42,7 +42,7 @@ import {
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
-import { drift, isToday, localDateKey, needsManualArrival, saysStartsIn, stepStates, type StepState } from '@/plan/tripProgress';
+import { drift, isToday, localDateKey, saysStartsIn, stepStates, type StepState } from '@/plan/tripProgress';
 import { humanTripTitle } from '@/trip/tripNaming';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 
@@ -51,7 +51,9 @@ import type { TripPageSource } from './tripPageData';
 import { formatManwon } from './tripPageModel';
 import { useTripPage } from './useTripPage';
 import { useTripProgress } from './useTripProgress';
-import { remainingMeters, stepDwell, usableFix, type Dwell } from './autoArrival';
+import { remainingMeters, stepAway, stepDwell, usableFix, type Away, type Dwell } from './autoArrival';
+import { ActualTimeSheet } from './ActualTimeSheet';
+import { arrivedAtOf, clockOf, isoWithOffset, startOfLocalDay, stayingStopId } from './actualTime';
 import { useLiveLocation } from './useLiveLocation';
 import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
 import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
@@ -146,6 +148,23 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const paceByItemId = useMemo(() => new Map((pace?.items ?? []).map((entry) => [entry.itemId, entry] as const)), [pace]);
   const paceEstimated = pace?.paceFactor == null;
 
+  // ── 머무는 곳 · 출발 (S15P21E201-1690) ─────────────────────────────────────
+  // 🔴 서버는 도착과 출발이 «둘 다» 있어야 「다녀옴」(visited)이다. 도착만 적힌 곳이 지금 머무는 곳이다.
+  //    방금 이 화면에서 출발을 적은 곳은 속도(pace)를 다시 받기 전까지 여기(departedHere)로 센다.
+  const [departedHere, setDepartedHere] = useState<ReadonlySet<string>>(() => new Set());
+  const [lastDeparture, setLastDeparture] = useState<{ id: string; arrivedAt: string; at: string } | null>(null);
+  const [timeEdit, setTimeEdit] = useState<'arrival' | 'departure' | null>(null);
+  const [savingTime, setSavingTime] = useState(false);
+  // 방금 고친 도착 — 진행 기록을 다시 받기 전에 「출발 찍기」를 누르면 고치기 전 도착이 실렸다(로컬 캡처에서 잡음).
+  const [arrivalFix, setArrivalFix] = useState<{ id: string; at: string } | null>(null);
+  useEffect(() => { setDepartedHere(new Set()); setLastDeparture(null); setArrivalFix(null); }, [progressId]);
+  const departedIds = useMemo(
+    () => new Set([...(pace?.items ?? []).filter((entry) => entry.visited).map((entry) => entry.itemId), ...departedHere]),
+    [pace, departedHere],
+  );
+  // 🔴 손으로 찍는 것은 오늘 방문지만(조율 세션 결정). 서버는 날짜를 일부러 검사하지 않는다 — 앱이 지킨다.
+  const todayDay = isToday(day?.date, localDateKey(new Date()));
+
   // ── 모양 ──────────────────────────────────────────────────────────────────
   const bottomMargin = tabBarBottomMargin(insets.bottom);
   const sheetTop = insets.top + Math.min(MAP_PEEK, Math.round(height * 0.3));
@@ -199,8 +218,48 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
     const next = await recordItineraryItemActual({ itineraryId: loaded.id, itemId: item.id, arrivedAt: new Date().toISOString(), departedAt: null, accessToken });
     setBusyId(null);
     // 🔴 도착 기록은 일정 판을 안 올린다 — 예상 도착을 따로 다시 받는다(useTripPage 의 paceNonce).
-    if (next.state === 'success') { setItinerary({ id: next.itinerary.id, value: next.itinerary, message: null }); reloadPace(); }
+    // 진행 기록도 다시 받는다 — 머무는 곳(도착은 적혔고 출발은 아직)을 이 도착으로 안다.
+    if (next.state === 'success') { setItinerary({ id: next.itinerary.id, value: next.itinerary, message: null }); reloadPace(); run.refresh(); }
     else setNotice(next.message);
+  };
+
+  // 출발 — 🔴 이미 적힌 도착을 함께 싣는다. 보낸 것이 그 방문지의 최종 상태라서 출발만 보내면 도착이 지워진다(07 계약).
+  //    예전 일정 화면은 여기에 서버의 «예측» 도착을 실었다 — 실제 도착이 예측값으로 덮였다.
+  const departingRef = useRef(false);
+  const recordDeparture = async (item: ItineraryItemDto, arrivedAt: string, how: 'auto' | 'manual') => {
+    if (!loaded || departingRef.current) return;
+    departingRef.current = true;
+    if (how === 'manual') { setBusyId(item.id); setNotice(null); }
+    // 출발은 도착보다 이를 수 없다(서버 400) — 기기 시계가 어긋나 있어도 도착 시각 아래로는 안 보낸다.
+    const at = isoWithOffset(Math.max(Date.now(), Date.parse(arrivedAt) || 0));
+    const next = await recordItineraryItemActual({ itineraryId: loaded.id, itemId: item.id, arrivedAt, departedAt: at, accessToken });
+    departingRef.current = false;
+    if (how === 'manual') setBusyId(null);
+    if (next.state === 'success') {
+      setItinerary({ id: next.itinerary.id, value: next.itinerary, message: null });
+      setDepartedHere((current) => new Set(current).add(item.id));
+      setLastDeparture({ id: item.id, arrivedAt, at });
+      reloadPace();
+    } else if (how === 'manual') setNotice(next.message);
+  };
+
+  // 적은 시각 고치기 — 도착(머무는 곳) 또는 방금 적은 출발.
+  const saveTime = async (ms: number) => {
+    if (!loaded || !timeEdit) return;
+    const target = timeEdit === 'arrival'
+      ? (stayItem ? { id: stayItem.id, arrivedAt: isoWithOffset(ms), departedAt: null } : null)
+      : (lastDeparture ? { id: lastDeparture.id, arrivedAt: lastDeparture.arrivedAt, departedAt: isoWithOffset(ms) } : null);
+    if (!target) { setTimeEdit(null); return; }
+    setSavingTime(true); setNotice(null);
+    const next = await recordItineraryItemActual({ itineraryId: loaded.id, itemId: target.id, arrivedAt: target.arrivedAt, departedAt: target.departedAt, accessToken });
+    setSavingTime(false);
+    setTimeEdit(null);
+    if (next.state !== 'success') { setNotice(next.message); return; }
+    setItinerary({ id: next.itinerary.id, value: next.itinerary, message: null });
+    if (target.departedAt && lastDeparture) setLastDeparture({ ...lastDeparture, at: target.departedAt });
+    else setArrivalFix({ id: target.id, at: target.arrivedAt });
+    run.refresh();
+    reloadPace();
   };
 
   const exclude = async (item: ItineraryItemDto) => {
@@ -228,6 +287,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const progress = run.progress;
   const currentStop = items[Math.min(progress.currentStopIndex, Math.max(0, items.length - 1))] ?? null;
   const nowDriftValue = drift(new Date().toISOString(), currentStop?.startsAt ?? null);
+  // 지금 머무는 곳 — 「출발」 모드이거나 오늘 일정을 다 돈 뒤(마지막 곳의 출발을 적을 수 있게).
+  const stayId = progress.status === 'RUNNING' || progress.status === 'DONE' ? stayingStopId(stopIds, progress.outcomes, departedIds) : null;
+  const stayItem = stayId ? items.find((item) => item.id === stayId) ?? null : null;
+  const stayArrivedAt = stayId ? (arrivalFix?.id === stayId ? arrivalFix.at : arrivedAtOf(progress.outcomes, stayId)) : null;
+  const lastDepartureItem = lastDeparture ? items.find((item) => item.id === lastDeparture.id) ?? null : null;
 
   // ── 내 위치 · 자동 도착 (S15P21E201-1568) ────────────────────────────────────
   // 출발(RUNNING) 동안만 위치를 따라간다. 지금 향하는 곳 50m 안에 2분 머물면 도착으로 적는다(autoArrival.ts).
@@ -237,6 +301,15 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const target = currentStop && typeof currentStop.lat === 'number' && typeof currentStop.lng === 'number'
     ? { id: currentStop.id, latitude: currentStop.lat, longitude: currentStop.lng } : null;
   const dwellRef = useRef<Dwell>(null);
+  // 자동 출발(S15P21E201-1690) — 머무는 곳 반경 밖에 도착과 같은 시간(2분) 있으면. 알아챈 시각으로 적는다(조율 세션 결정 —
+  // 자동 도착도 알아챈 시각이라, 같은 방식이면 머문 시간이 맞다).
+  const awayRef = useRef<Away>(null);
+  const stayTarget = stayItem && typeof stayItem.lat === 'number' && typeof stayItem.lng === 'number'
+    ? { id: stayItem.id, latitude: stayItem.lat, longitude: stayItem.lng } : null;
+  const stayTargetRef = useRef(stayTarget);
+  stayTargetRef.current = stayTarget;
+  const departRef = useRef<() => void>(() => undefined);
+  departRef.current = () => { if (stayItem && stayArrivedAt) void recordDeparture(stayItem, stayArrivedAt, 'auto'); };
   const liveFixRef = useRef(live.fix);
   liveFixRef.current = live.fix;
   const targetRef = useRef(target);
@@ -248,18 +321,22 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
     // 가만히 있으면 기기가 새 위치를 안 줄 수 있다 — 마지막 위치로 15초마다 다시 센다(그 사이 거기 있었다고 본다).
     const check = (atNow: boolean) => {
       const fix = liveFixRef.current;
-      const step = stepDwell(dwellRef.current, fix && atNow ? { ...fix, at: Date.now() } : fix, targetRef.current);
+      const stamped = fix && atNow ? { ...fix, at: Date.now() } : fix;
+      const step = stepDwell(dwellRef.current, stamped, targetRef.current);
       dwellRef.current = step.dwell;
       if (step.arrive && targetRef.current) {
         dwellRef.current = null;
         arriveRef.current(stopIds, targetRef.current.id, 'auto');
       }
+      const away = stepAway(awayRef.current, stamped, stayTargetRef.current);
+      awayRef.current = away.away;
+      if (away.depart) { awayRef.current = null; departRef.current(); }
     };
     check(false);
     const timer = setInterval(() => check(true), 15_000);
     return () => clearInterval(timer);
   }, [progress.status, live.fix, stopIds]);
-  // 위치를 믿을 수 있을 때만 「도착」 단추를 숨긴다. 거부·꺼짐·부정확이면 손으로 적게 둔다.
+  // 위치를 믿을 수 있나 — 카드의 안내 문구가 쓴다. 「도착 찍기」는 이제 「출발」 모드에서 늘 보인다(S15P21E201-1690).
   const gpsUsable = live.state === 'on' && usableFix(live.fix);
   const driftSpan = nowDriftValue
     ? nowDriftValue.minutes >= 60
@@ -273,7 +350,9 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       ? txf(tx, '%s 뒤 시작', 'starts in %s', driftSpan)
       : txf(tx, '예정보다 %s %s', '%s %s', driftSpan, nowDriftValue.early ? tx('빠름', 'early') : tx('늦음', 'late'))
     : null;
-  const nowTitle = progress.status === 'DONE'
+  const nowTitle = stayItem
+    ? txf(tx, '%s에 머무는 중', 'At %s', stayItem.title)
+    : progress.status === 'DONE'
     ? tx('오늘 일정을 다 돌았어요', 'You finished today')
     : progress.status === 'RUNNING' && currentStop
       ? txf(tx, `%s${koreanToward(currentStop.title)} 이동 중`, 'Heading to %s', currentStop.title)
@@ -364,10 +443,16 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                 clock={new Date().toTimeString().slice(0, 5)}
                 driftText={nowDrift}
                 progress={nowRatio}
-                showManualArrival={needsManualArrival(progress.status, gpsUsable)}
+                showManualArrival={progress.status === 'RUNNING'}
+                record={stayItem && stayArrivedAt
+                  ? { text: txf(tx, '도착 %s', 'Arrived %s', clockOf(stayArrivedAt)), onEdit: () => setTimeEdit('arrival') }
+                  : lastDeparture && lastDepartureItem
+                    ? { text: txf(tx, '%s 출발 %s', 'Left %s at %s', lastDepartureItem.title, clockOf(lastDeparture.at)), onEdit: () => setTimeEdit('departure') }
+                    : null}
                 onStart={() => void locationGate.ensure().then(() => run.start())}
                 onPause={run.pause}
                 onArrive={() => currentStop && run.arrive(stopIds, currentStop.id)}
+                onDepart={stayItem && stayArrivedAt ? () => void recordDeparture(stayItem, stayArrivedAt, 'manual') : null}
                 onSkip={() => currentStop && run.skip(stopIds, currentStop.id)}
                 tx={tx}
               />
@@ -422,7 +507,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   excluding={excludingId === item.id}
                   onToggle={() => { setSelectedId(item.id); setExpandedId((open) => (open === item.id ? null : item.id)); }}
                   onLock={() => void toggleLock(item)}
-                  onArrive={() => void recordArrival(item)}
+                  onArrive={canEdit && todayDay && !arrivedAtOf(progress.outcomes, item.id) ? () => void recordArrival(item) : null}
                   onExclude={() => setExcludeTarget(item)}
                   tx={tx}
                   locale={locale}
@@ -585,6 +670,17 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       />
       <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
       {locationGate.sheet}
+      <ActualTimeSheet
+        visible={timeEdit !== null}
+        kind={timeEdit ?? 'arrival'}
+        placeTitle={(timeEdit === 'departure' ? lastDepartureItem?.title : stayItem?.title) ?? ''}
+        currentMs={timeEdit === 'departure' && lastDeparture ? Date.parse(lastDeparture.at) : stayArrivedAt ? Date.parse(stayArrivedAt) : 0}
+        minMs={timeEdit === 'departure' && lastDeparture ? Date.parse(lastDeparture.arrivedAt) : startOfLocalDay(Date.now())}
+        busy={savingTime}
+        onCancel={() => setTimeEdit(null)}
+        onSave={(ms) => void saveTime(ms)}
+        tx={tx}
+      />
     </View>
   );
 }
@@ -715,7 +811,8 @@ function RiskStrip({ atRisk, known, estimated, tx }: { atRisk: ItineraryItemDto[
 function TimelineStop({ item, startKind, index, last, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, tx, locale }: {
   item: ItineraryItemDto; startKind: DayStart['kind']; index: number; last: boolean; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
-  onToggle: () => void; onLock: () => void; onArrive: () => void; onExclude: () => void; tx: Tx; locale: string;
+  /** 오늘 방문지이고 아직 도착이 안 적혔을 때만 — 아니면 null 이고 「도착 찍기」를 안 그린다(S15P21E201-1690). */
+  onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; tx: Tx; locale: string;
 }) {
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const done = step === 'done';
@@ -798,7 +895,7 @@ function TimelineStop({ item, startKind, index, last, date, photo, step, risky, 
                   ? txf(tx, '도착 %s', 'Arrived %s', pace.predictedArrival ? formatClock(pace.predictedArrival, locale) : '--:--')
                   : txf(tx, '예상 도착 %s%s', 'Est. arrival %s%s', pace?.predictedArrival ? formatClock(pace.predictedArrival, locale) : item.startsAt.slice(11, 16), paceEstimated ? tx(' (추정)', ' (est.)') : '')}
               </Text>
-              {canEdit && !pace?.visited ? (
+              {canEdit && onArrive && !pace?.visited ? (
                 <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy }} disabled={busy} onPress={onArrive} style={({ pressed }) => [styles.detailButton, (pressed || busy) && styles.pressed]}>
                   <Text variant="caption" weight="bold">{tx('도착 찍기', 'Mark arrival')}</Text>
                 </Pressable>
