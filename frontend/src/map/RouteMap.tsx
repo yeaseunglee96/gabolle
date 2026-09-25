@@ -7,9 +7,34 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { MapPathPoint, MapStop } from './types';
 import { fitPadding, focusShiftY } from './mapFocus';
+import { simplifyPath } from './simplifyPath';
 import { txf } from '@/i18n/format';
 
 declare global { interface Window { kakao?: any } }
+
+// 일정 경로 선의 굵기와, 그 아래 까는 흰 테두리가 양옆으로 더 나오는 폭(S15P21E201-1656).
+const ROUTE_WEIGHT = 5;
+const CASING_EXTRA = 4;
+// 실제 길은 진하게, 어림은 옅게 — 점선으로 가르던 것을 불투명도로 가른다.
+const REAL_OPACITY = 0.9;
+const ESTIMATED_OPACITY = 0.45;
+// 이만큼(픽셀)보다 작은 꺾임은 화면에서 안 보이니 덜어 낸다.
+const SIMPLIFY_PIXELS = 2;
+
+/** 지금 줌에서 한 픽셀이 몇 미터인가 — 화면의 두 점(100픽셀 떨어진)이 가리키는 땅의 거리로 잰다. 못 재면 0(덜어 내지 않는다). */
+function metersPerPixel(map: any, maps: any): number {
+  try {
+    const projection = map.getProjection();
+    const a = projection.coordsFromContainerPoint(new maps.Point(0, 0));
+    const b = projection.coordsFromContainerPoint(new maps.Point(100, 0));
+    const lat = (a.getLat() * Math.PI) / 180;
+    const dx = (b.getLng() - a.getLng()) * 111320 * Math.cos(lat);
+    const dy = (b.getLat() - a.getLat()) * 110540;
+    return Math.hypot(dx, dy) / 100;
+  } catch {
+    return 0;
+  }
+}
 
 /**
  * 고른 마커는 **커진다.** 테두리 색만 바꾸면 지도를 훑는 눈이 어느 것이 켜졌는지 못 찾는다 — 마커가 열 개 넘게
@@ -115,6 +140,8 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   const focusFnRef = useRef<(() => void) | null>(null);
   const locationOverlayRef = useRef<any>(null);
   const [mapReady, setMapReady] = useState(false);
+  // 그린 경로 선마다 원래 점들과 그 선(테두리·선) — 줌이 바뀌면 덜어 낸 모양을 다시 셈한다(S15P21E201-1656).
+  const lineRecordsRef = useRef<Array<{ points: MapPathPoint[]; lines: any[] }>>([]);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -148,8 +175,19 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         if (!hostRef.current || !window.kakao) return;
         const maps = window.kakao.maps;
         const center = new maps.LatLng(stops[0].latitude, stops[0].longitude);
+        const firstDraw = !mapRef.current;
         const map = mapRef.current ?? new maps.Map(hostRef.current, { center, level: 8 });
         mapRef.current = map;
+        // 줌에 따라 덜어 내는 정도가 다르다 — 줌이 바뀌면 그려 둔 경로 선의 모양만 다시 셈한다(다시 그리지 않는다).
+        const resimplify = () => {
+          const tolerance = metersPerPixel(map, maps) * SIMPLIFY_PIXELS;
+          if (!(tolerance > 0)) return;
+          lineRecordsRef.current.forEach(({ points, lines }) => {
+            const path = simplifyPath(points, tolerance).map((point) => new maps.LatLng(point.latitude, point.longitude));
+            lines.forEach((line) => line.setPath(path));
+          });
+        };
+        if (firstDraw) maps.event?.addListener(map, 'zoom_changed', resimplify);
         overlaysRef.current.forEach((overlay) => overlay.setMap(null));
         overlaysRef.current = [];
         const bounds = new maps.LatLngBounds();
@@ -182,15 +220,28 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
         });
+        // 🔴 일정 경로 선 하나 — 넓은 흰 테두리를 먼저 깔고 그 위에 실선(S15P21E201-1656). 전에는 어림 구간을 5px 짧은
+        //    점선으로 그렸는데, 선 모양이 자동차 길이라 꺾임점이 촘촘해서 점선이 꺾임마다 끊기며 떨려 보였다(사용자 —
+        //    「지글지글하다」). 줌이 멀면 안 보이는 꺾임은 덜어 낸다. 한 경로를 여러 색 조각으로 그릴 때도 이것을 조각마다 부른다.
+        lineRecordsRef.current = [];
+        const tolerance = metersPerPixel(map, maps) * SIMPLIFY_PIXELS;
+        const drawRouteLine = (points: MapPathPoint[], lineColor: string, opacity: number) => {
+          const path = simplifyPath(points, tolerance).map((point) => new maps.LatLng(point.latitude, point.longitude));
+          const casing = new maps.Polyline({ path, strokeWeight: ROUTE_WEIGHT + CASING_EXTRA, strokeColor: color.surface.card, strokeOpacity: 0.95, strokeStyle: 'solid' });
+          const line = new maps.Polyline({ path, strokeWeight: ROUTE_WEIGHT, strokeColor: lineColor, strokeOpacity: opacity, strokeStyle: 'solid' });
+          casing.setMap(map); line.setMap(map); overlaysRef.current.push(casing, line);
+          lineRecordsRef.current.push({ points, lines: [casing, line] });
+        };
         (routes ?? [{ id: 'selected', color: color.text.heading, stops }]).forEach((route) => {
           // 실제 길 좌표가 있으면 그것을, 없으면 장소를 직선으로 잇는다.
           const points = route.path?.length ? route.path : route.stops;
-          const path = points.map((point) => new maps.LatLng(point.latitude, point.longitude));
-          // 실제 길이라고 적혀 있을 때만 실선이다. 나머지는 전부 점선이다.
+          // 실제 길이라고 적혀 있을 때만 진하다. 나머지는 어림이라 옅다.
           const real = route.path?.length ? route.estimated === false : false;
+          if (route.weight == null) { drawRouteLine(points, route.color, route.opacity ?? (real ? REAL_OPACITY : ESTIMATED_OPACITY)); return; }
+          // 경사·그늘 겹(굵기를 직접 준 선)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
           const line = new maps.Polyline({
-            path,
-            strokeWeight: route.weight ?? 5,
+            path: points.map((point) => new maps.LatLng(point.latitude, point.longitude)),
+            strokeWeight: route.weight,
             strokeColor: route.color,
             strokeOpacity: route.opacity ?? (real ? 0.9 : 0.75),
             strokeStyle: real ? 'solid' : 'shortdash',
@@ -222,6 +273,8 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         };
         const fitAndFocus = () => { fit(); focusOnSelected(); };
         fitAndFocus(); fitRef.current = fitAndFocus; focusFnRef.current = focusOnSelected;
+        // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
+        resimplify();
         appliedSelectionRef.current = selectedNow;
         setMapReady(true);
         setFailure(null);
@@ -312,8 +365,8 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     return () => observer.disconnect();
   }, [height]);
 
-  // 지도에 점선이 하나라도 있으면 그 뜻을 글로 적는다.
-  // 점선이 무슨 뜻인지 모르는 사람에게는 실선과 다를 바가 없고, 그러면 점선을 두는
+  // 지도에 어림 선(옅은 선)이 하나라도 있으면 그 뜻을 글로 적는다(S15P21E201-1656 — 점선 대신 옅게 그린다).
+  // 옅은 선이 무슨 뜻인지 모르는 사람에게는 진한 선과 다를 바가 없고, 그러면 옅게 그리는
   // 이유가 사라진다. 실제 길만 그려진 지도에는 이 줄이 안 나온다.
   const hasEstimatedLine = (routes ?? [{ id: 'selected', color: '', stops }])
     .some((route) => !(route.path?.length && route.estimated === false));
@@ -324,7 +377,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         {createElement('div', { ref: hostRef, style: { width: '100%', height }, 'aria-label': tx('여행 동선 지도', 'Trip route map') })}
         {hasEstimatedLine && !failure ? (
           <Text variant="caption" color={color.text.muted} style={styles.estimateNote}>
-            {tx('점선은 실제 길이 아니라 장소를 곧게 이은 선이에요.', 'Dashed lines connect places in a straight line, not along real roads.')}
+            {tx('옅은 선은 어림한 길이라 실제로 가는 길과 다를 수 있어요.', 'Faded lines are estimates and may differ from the way you actually go.')}
           </Text>
         ) : null}
         {failure ? (
@@ -366,7 +419,7 @@ const styles = StyleSheet.create({
   description: { color: color.text.body, textAlign: 'center', maxWidth: 420 },
   // 고칠 사람이 읽는 한 줄. 여행자에게는 작고 흐리게 보인다.
   /**
-   * 점선 안내문 — **지도 «위에» 얹는다.**
+   * 어림 선 안내문 — **지도 «위에» 얹는다.**
    *
    * 🔴 전에는 지도 아래에 흐름으로 붙어 있었다. 그래서 이 부품의 실제 높이가
    *    `height` 보다 «안내문 한 줄만큼» 컸고, 남는 자리를 재서 높이를 주는 화면에서는

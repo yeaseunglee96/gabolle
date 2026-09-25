@@ -30,6 +30,61 @@ export function buildKakaoMapHtml(appKey: string): string {
   var focusNow = false;
   var shiftNow = 0;
   var locationOverlay = null;
+  // 그린 경로 선마다 원래 점들과 그 선(테두리·선) — 줌이 바뀌면 덜어 낸 모양만 다시 셈한다(S15P21E201-1656).
+  var lineRecords = [];
+  // 웹 RouteMap.tsx 의 ROUTE_WEIGHT·CASING_EXTRA·REAL_OPACITY·ESTIMATED_OPACITY·SIMPLIFY_PIXELS 와 같은 값.
+  var ROUTE_WEIGHT = 5, CASING_EXTRA = 4, REAL_OPACITY = 0.9, ESTIMATED_OPACITY = 0.45, SIMPLIFY_PIXELS = 2;
+
+  // 🔴 src/map/simplifyPath.ts 와 같은 셈이다(더글러스-푀커). 이 스크립트는 그 파일을 못 읽어서 한 벌 더 들고 있다 — 고치면 둘 다.
+  function simplify(points, tolerance) {
+    if (points.length < 3 || !(tolerance > 0)) return points;
+    var mx = 111320 * Math.cos(points[0].latitude * Math.PI / 180), my = 110540;
+    var xy = [];
+    for (var i = 0; i < points.length; i++) xy.push([points[i].longitude * mx, points[i].latitude * my]);
+    var keep = []; for (var k = 0; k < points.length; k++) keep.push(false);
+    keep[0] = true; keep[points.length - 1] = true;
+    var spans = [[0, points.length - 1]];
+    while (spans.length) {
+      var span = spans.pop(), from = span[0], to = span[1], far = -1, farDist = tolerance;
+      var ax = xy[from][0], ay = xy[from][1], dx = xy[to][0] - ax, dy = xy[to][1] - ay, len = dx * dx + dy * dy;
+      for (var j = from + 1; j < to; j++) {
+        var t = len === 0 ? 0 : Math.max(0, Math.min(1, ((xy[j][0] - ax) * dx + (xy[j][1] - ay) * dy) / len));
+        var d = Math.sqrt(Math.pow(xy[j][0] - (ax + t * dx), 2) + Math.pow(xy[j][1] - (ay + t * dy), 2));
+        if (d > farDist) { farDist = d; far = j; }
+      }
+      if (far >= 0) { keep[far] = true; spans.push([from, far], [far, to]); }
+    }
+    var out = [];
+    for (var m = 0; m < points.length; m++) if (keep[m]) out.push(points[m]);
+    return out;
+  }
+
+  // 지금 줌에서 한 픽셀이 몇 미터인가. 못 재면 0(덜어 내지 않는다).
+  function metersPerPixel() {
+    try {
+      var maps = window.kakao.maps, projection = map.getProjection();
+      var a = projection.coordsFromContainerPoint(new maps.Point(0, 0));
+      var b = projection.coordsFromContainerPoint(new maps.Point(100, 0));
+      var dx = (b.getLng() - a.getLng()) * 111320 * Math.cos(a.getLat() * Math.PI / 180);
+      var dy = (b.getLat() - a.getLat()) * 110540;
+      return Math.sqrt(dx * dx + dy * dy) / 100;
+    } catch (e) { return 0; }
+  }
+
+  function toPath(points) {
+    var maps = window.kakao.maps, path = [];
+    for (var i = 0; i < points.length; i++) path.push(new maps.LatLng(points[i].latitude, points[i].longitude));
+    return path;
+  }
+
+  function resimplify() {
+    var tolerance = metersPerPixel() * SIMPLIFY_PIXELS;
+    if (!(tolerance > 0)) return;
+    for (var i = 0; i < lineRecords.length; i++) {
+      var path = toPath(simplify(lineRecords[i].points, tolerance));
+      for (var j = 0; j < lineRecords[i].lines.length; j++) lineRecords[i].lines[j].setPath(path);
+    }
+  }
   // 🔴 시트가 열리며 WebView 가 커지면 지도에 말해 줘야 한다(S15P21E201-1417) — 안 하면 처음 크기만큼만 그린다.
   window.addEventListener('resize', function () { if (map) { map.relayout(); if (fit) fit(); } });
 
@@ -83,7 +138,10 @@ export function buildKakaoMapHtml(appKey: string): string {
     if (!visible.length) return;
 
     var center = new maps.LatLng(visible[0].latitude, visible[0].longitude);
-    if (!map) map = new maps.Map(document.getElementById('map'), { center: center, level: 8 });
+    if (!map) {
+      map = new maps.Map(document.getElementById('map'), { center: center, level: 8 });
+      if (maps.event) maps.event.addListener(map, 'zoom_changed', resimplify);
+    }
 
     for (var i = 0; i < overlays.length; i++) overlays[i].setMap(null);
     overlays = [];
@@ -130,16 +188,26 @@ export function buildKakaoMapHtml(appKey: string): string {
 
     window.__moveKakaoLocation(data.currentLocation);
 
+    // 🔴 일정 경로 선은 넓은 흰 테두리 위에 실선이다 — 웹 RouteMap.tsx 의 drawRouteLine 과 같다(S15P21E201-1656).
+    //    어림 구간을 짧은 점선으로 그리던 것이 촘촘한 꺾임을 따라 끊기며 떨려 보였다. 어림은 옅게 그린다.
+    lineRecords = [];
+    var tolerance = metersPerPixel() * SIMPLIFY_PIXELS;
+    function drawRouteLine(linePoints, lineColor, opacity) {
+      var linePath = toPath(simplify(linePoints, tolerance));
+      var casing = new maps.Polyline({ path: linePath, strokeWeight: ROUTE_WEIGHT + CASING_EXTRA, strokeColor: colors.casing, strokeOpacity: 0.95, strokeStyle: 'solid' });
+      var routeLine = new maps.Polyline({ path: linePath, strokeWeight: ROUTE_WEIGHT, strokeColor: lineColor, strokeOpacity: opacity, strokeStyle: 'solid' });
+      casing.setMap(map); routeLine.setMap(map); overlays.push(casing, routeLine);
+      lineRecords.push({ points: linePoints, lines: [casing, routeLine] });
+    }
     for (var r = 0; r < routes.length; r++) {
       var route = routes[r];
       var points = (route.path && route.path.length) ? route.path : route.stops;
       if (points.length < 2) continue;
-      var path = [];
-      for (var pi = 0; pi < points.length; pi++) path.push(new maps.LatLng(points[pi].latitude, points[pi].longitude));
-      // 실제 길 좌표가 있고 "추정 아님" 이라고 적혀 있을 때만 실선이다.
-      // 나머지는 직선을 이은 것이므로 점선으로 그린다 — 실선은 "이 길로 가면 된다" 는 뜻이다.
+      // 실제 길 좌표가 있고 "추정 아님" 이라고 적혀 있을 때만 진하다. 나머지는 어림이라 옅다.
       var real = !!(route.path && route.path.length) && route.estimated === false;
-      var line = new maps.Polyline({ path: path, strokeWeight: route.weight || 5, strokeColor: route.color, strokeOpacity: route.opacity != null ? route.opacity : (real ? 0.9 : 0.75), strokeStyle: real ? 'solid' : 'shortdash' });
+      if (route.weight == null) { drawRouteLine(points, route.color, route.opacity != null ? route.opacity : (real ? REAL_OPACITY : ESTIMATED_OPACITY)); continue; }
+      // 경사·그늘 겹(굵기를 직접 준 선)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
+      var line = new maps.Polyline({ path: toPath(points), strokeWeight: route.weight, strokeColor: route.color, strokeOpacity: route.opacity != null ? route.opacity : (real ? 0.9 : 0.75), strokeStyle: real ? 'solid' : 'shortdash' });
       line.setMap(map); overlays.push(line);
     }
 
@@ -148,6 +216,8 @@ export function buildKakaoMapHtml(appKey: string): string {
     var pad = data.fitPadding || [60, 60, 60, 60];
     fit = function () { if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
     fit();
+    // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
+    resimplify();
 
     post('ready', null);
   };
@@ -196,4 +266,4 @@ export function buildKakaoMapHtml(appKey: string): string {
 
 // RouteMap.tsx·RouteMap.native.tsx 양쪽이 마커 색을 이 표기로 넘긴다 — 디자인 토큰의
 // hex 값을 그대로 문자열로 실어 보낸다(HTML 안 JS는 우리 색 토큰 파일을 못 읽는다).
-export type KakaoMapColors = { navy: string; selected: string; canvas: string };
+export type KakaoMapColors = { navy: string; selected: string; canvas: string; casing: string };
