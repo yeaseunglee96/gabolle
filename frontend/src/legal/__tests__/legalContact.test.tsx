@@ -47,10 +47,24 @@ describe('문의 주소는 세 문서가 같은 값을 말한다', () => {
     expect(all(TERMS_SECTIONS)).not.toContain('사업자 정보와 문의처는 팀 확정 후');
   });
 
-  it('🔴 아직 정하지 못한 것(책임자 이름·방침 버전·시행일)은 지어내지 않고 「팀 확정 후」로 남아 있다', () => {
+  it('🔴 책임자 이름·방침 버전·시행일이 확정값으로 채워졌다(2026-09-26 사용자 결정) — 「팀 확정 후」빈자리가 다시 생기지 않았다', () => {
     const section7 = PRIVACY_SECTIONS.find((s) => s.title[0].startsWith('7.'));
-    expect(section7?.paragraphs[0][0]).toContain('개인정보 보호책임자 이름, 방침 버전과 시행일은 팀 확정 후');
-    expect(section7?.paragraphs[0][1]).toContain('policy version, and effective date will be added after team confirmation');
+    expect(section7?.paragraphs[0][0]).toContain('개인정보 보호책임자: 이예승');
+    expect(section7?.paragraphs[0][0]).toContain('방침 버전 1.0, 시행일 2026년 9월 26일');
+    expect(section7?.paragraphs[0][1]).toContain('Privacy officer: Yeaseung Lee');
+    expect(section7?.paragraphs[0][1]).toContain('Policy version 1.0, effective September 26, 2026');
+    expect(section7?.paragraphs[0][0]).not.toContain('팀 확정 후');
+    expect(section7?.paragraphs[0][1]).not.toContain('team confirmation');
+  });
+
+  it('로그인 수단 넷(Google·Kakao·Naver·Apple)이 약관·방침에 같이 적혀 있다 — 실제 제공 수단과 어긋나지 않는다', () => {
+    const providers = ['Google', 'Kakao', 'Naver', 'Apple'];
+    const termsAccounts = TERMS_SECTIONS.find((s) => s.title[0].startsWith('2.'));
+    const privacyExternal = PRIVACY_SECTIONS.find((s) => s.title[0].startsWith('4.'));
+    for (const provider of providers) {
+      expect(termsAccounts?.paragraphs[0][0]).toContain(provider);
+      expect(privacyExternal?.paragraphs[0][0]).toContain(provider);
+    }
   });
 
   it('방침 5절이 삭제 안내 페이지의 주소를 알려 준다', () => {
