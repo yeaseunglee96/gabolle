@@ -197,6 +197,8 @@ export type PlanStartBarProps = {
 
 /** 시트 카드가 펼쳐질 때 제목이 커지고 오른쪽 값이 사라지는 시간. */
 const CARD_MS = 350;
+/** 날짜 칸을 연 뒤 그 칸의 자리가 바뀔 때마다 따라가는 시간 — 위 칸이 접히고 달력이 다 그려질 때까지. */
+const DATES_FOLLOW_MS = 800;
 
 /**
  * 시트의 카드 한 장.
@@ -437,6 +439,24 @@ export function PlanStartBar({
     Animated.timing(sheetIn, { toValue: 1, duration: reduceMotion ? 0 : 600, easing: EASE_SOFT, useNativeDriver: false }).start();
   }, [sheet, reduceMotion, sheetIn]);
 
+  // 🔴 날짜 칸으로 넘어가면 그 칸을 화면 위로 올린다 (S15P21E201-1626). 숙소를 고르면 날짜가 펼쳐지는데
+  //    스크롤이 제자리라, 작은 폰(360×640)에서는 달력 마지막 줄과 「1박 2일」 칩이 아래 버튼 줄 밑에 깔렸다.
+  //    위 칸이 접히면서 자리가 바뀌므로 시각(타이머)에 기대지 않는다 — 칸을 연 뒤 잠깐 동안은 날짜 칸의 자리를
+  //    «잴 때마다» 그 자리로 간다(느린 기기에서 옛 자리로 가지 않게). 이미 잰 자리가 있으면 바로 한 번 간다.
+  const sheetScrollRef = useRef<ScrollView>(null);
+  const datesCardY = useRef<number | null>(null);
+  const followDatesUntil = useRef(0);
+  const scrollToDates = () => {
+    if (datesCardY.current === null || Date.now() > followDatesUntil.current) return;
+    sheetScrollRef.current?.scrollTo({ y: Math.max(0, datesCardY.current - spacing[2]), animated: !reduceMotion });
+  };
+  useEffect(() => {
+    if (!sheet || section !== 'dates') { followDatesUntil.current = 0; return; }
+    followDatesUntil.current = Date.now() + DATES_FOLLOW_MS;
+    scrollToDates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sheet, section]);
+
   // 🔴 이 시트는 RN `<Modal>` 이 아니라 그냥 View 라서 `onRequestClose` 가 없다 — 즉
   // 안드로이드 하드웨어 뒤로가기를 이 시트가 알아서 삼켜 주지 않는다. 처리를 안 하면
   // 뒤로가기가 시트를 그대로 통과해 밑에 있는 화면(또는 앱 자체)이 뒤로 간다 —
@@ -621,19 +641,20 @@ export function PlanStartBar({
           </Pressable>
         </View>
 
-        <ScrollView style={styles.sheetBody} contentContainerStyle={styles.sheetBodyContent} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={sheetScrollRef} style={styles.sheetBody} contentContainerStyle={styles.sheetBodyContent} keyboardShouldPersistTaps="handled">
           {cards.map((card) => (
-            <SheetCard
-              key={card.key}
-              open={section === card.key}
-              label={card.label}
-              summary={segmentLabel(card.key)}
-              onPress={() => setSection(card.key)}
-            >
-              <Animated.View style={{ opacity: swapIn, transform: [{ translateY: swapIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
-                {card.body}
-              </Animated.View>
-            </SheetCard>
+            <View key={card.key} onLayout={card.key === 'dates' ? (event) => { datesCardY.current = event.nativeEvent.layout.y; scrollToDates(); } : undefined}>
+              <SheetCard
+                open={section === card.key}
+                label={card.label}
+                summary={segmentLabel(card.key)}
+                onPress={() => setSection(card.key)}
+              >
+                <Animated.View style={{ opacity: swapIn, transform: [{ translateY: swapIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
+                  {card.body}
+                </Animated.View>
+              </SheetCard>
+            </View>
           ))}
         </ScrollView>
 
@@ -681,7 +702,7 @@ export function PlanStartBar({
               }}
               accessibilityRole="button"
               accessibilityState={{ expanded: section === which }}
-              style={[styles.segment, index > 0 && styles.segmentDivider]}
+              style={[styles.segment, index > 0 && styles.segmentDivider, section === which && styles.segmentOpen]}
             >
               <Text variant="caption" color={color.text.muted}>
                 {which === 'origin' ? tx('출발지', 'From') : which === 'lodging' ? tx('숙소', 'Lodging') : which === 'dates' ? tx('날짜', 'Dates') : tx('인원', 'Travelers')}
@@ -783,7 +804,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', alignSelf: 'center', width: '100%', maxWidth: 920, minHeight: 72,
     padding: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.action.outline,
   },
-  segment: { flex: 1, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
+  // 🔴 칸 넷을 같은 폭(flex:1)으로 나누지 않는다 (S15P21E201-1626). 숙소 이름·긴 날짜 구간이 「파라다이스호텔부산 오…」
+  //    「10.5(월) – 10.25(일) ·…」로 잘리고, 짧은 「성인 2」 칸은 비어 남았다. 값 길이만큼 자리를 갖고, 모자라면
+  //    다 같이 줄되 지금 고르는 칸은 줄지 않는다(segmentOpen). 너무 좁아지지 않게 아랫단을 둔다.
+  segment: { flexGrow: 1, flexShrink: 1, flexBasis: 'auto', minWidth: 112, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
+  segmentOpen: { flexShrink: 0, maxWidth: '46%' },
   segmentDivider: { borderLeftWidth: 1, borderLeftColor: color.surface.border },
   // 고른 칸을 따라다니는 강조 알약. 칸마다 배경을 켜고 끄면 뚝뚝 끊겨 보인다
   // 하나를 깔고 자리만 옮기면 미끄러진다(에어비앤비가 그렇게 한다).
