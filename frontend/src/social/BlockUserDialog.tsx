@@ -40,7 +40,10 @@ export function BlockUserDialog({ visible, displayName, onClose, onConfirm }: Bl
       <View style={styles.backdrop}>
         <View accessibilityViewIsModal style={styles.card}>
           <Text variant="title" weight="bold">{txf(tx, '%s님을 차단할까요?', 'Block %s?', displayName)}</Text>
-          <Text color={color.text.body}>{tx('이 사용자에게 내 글이 보이지 않아요.', "This user won't see your posts.")}</Text>
+          {/* 🔴 S15P21E201-1722 — S15P21E201-1714(가이드라인 1.2)로 차단이 양방향이 된 뒤에도
+              이 문구는 「상대가 내 글을 못 본다」한 방향만 말하고 있었다. 실기(웹, 2026-09-26)로
+              차단해 보면 내 피드에서도 상대 글이 바로 사라지는데, 그 사실을 안내하지 않은 것이다. */}
+          <Text color={color.text.body}>{tx('이 사용자에게 내 글이 안 보이고, 내 피드에도 이 사람 글이 안 보여요.', "This user won't see your posts, and their posts won't show up in your feed either.")}</Text>
           <View style={styles.warning}>
             <Text variant="caption" weight="bold" color={color.state.danger}>
               {tx('팔로우도 함께 끊겨요. 차단을 풀어도 팔로우는 돌아오지 않아요.', "Your follow connection ends too. Unblocking does not restore it.")}
