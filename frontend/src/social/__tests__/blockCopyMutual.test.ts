@@ -5,11 +5,16 @@
 //    양방향이 됐는데, 문구 넷(차단 확인 대화상자·차단 직후 안내 둘·설정의 「차단된 계정」 설명)은
 //    옛 한 방향 문구 그대로였다 — 웹 실기(2026-09-26)로 발견했다. 코드가 아니라 사람이 읽는 자리라
 //    타입 검사도 다른 시험도 이 어긋남을 안 잡는다.
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+//
+// tsconfig 가 node 타입을 안 들고 있어서 import 로 쓰면 타입 검사가 막힌다 — 이 저장소의 다른 파일
+// 검사 시험(placeButtonWords.test.ts)과 같은 방식으로 우회한다.
+declare const require: (id: string) => any;
+declare const __dirname: string;
 
 function read(relative: string): string {
-  return readFileSync(join(__dirname, '..', '..', '..', relative), 'utf8');
+  const { readFileSync } = require('fs');
+  const { join } = require('path');
+  return readFileSync(join(__dirname, '..', '..', '..', relative), 'utf8') as string;
 }
 
 const SOURCES: Record<string, string> = {
@@ -42,7 +47,7 @@ describe('차단 문구는 양방향을 말한다 — 나도 상대 글이 안 �
 });
 
 describe('바뀐 한국어 문구는 번역 카탈로그에 ja·zhHans·zhHant 를 가진다', () => {
-  const translations = readFileSync(join(__dirname, '..', '..', 'i18n', 'translations.ts'), 'utf8');
+  const translations = read('src/i18n/translations.ts');
   const koLines = [
     '이제 이 사용자에게 내 글이 안 보이고, 내 피드에도 이 사람 글이 안 보여요.',
     '차단한 사람에게는 내 글이 안 보이고, 내 피드에도 그 사람 글이 안 보여요.',
