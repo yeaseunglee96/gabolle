@@ -8,7 +8,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { LegalSection } from './legalContent';
 
-export function LegalDocumentScreen({ title, lead, sections, draftNotice = true }: { title: [string, string]; lead: [string, string]; sections: LegalSection[]; draftNotice?: boolean }) {
+export function LegalDocumentScreen({ title, lead, sections, draftNotice = false }: { title: [string, string]; lead: [string, string]; sections: LegalSection[]; draftNotice?: boolean }) {
   const router = useRouter();
   const { tx } = useI18n();
   return <Screen scroll style={styles.screen}>
