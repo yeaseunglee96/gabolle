@@ -370,7 +370,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   //    구간 시간을 모르면 아무것도 안 적는다.
   const nowDetail = progress.status === 'PLANNED'
     ? (items[0] ? formatTravelLabel(items[0], tx, startKind) : null)
-    : txf(tx, '%s곳 중 %s곳 다녀옴', '%s of %s stops done', items.length, doneCount)
+    : txf(tx, '%s곳 중 %s곳 다녀옴', '%s stops · %s done', items.length, doneCount)
       + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '')
       + (leftText ? ` · ${leftText}` : '');
   const nowRatio = items.length && progress.status !== 'PLANNED' ? doneCount / items.length : null;

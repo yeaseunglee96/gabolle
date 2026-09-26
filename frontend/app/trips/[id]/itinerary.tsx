@@ -621,7 +621,7 @@ function ItineraryClassic() {
   //    「4곳 중 1곳 다녀옴 · 다음 12:30」(시안 5 Itinerary)을 적는다 — 어디까지 왔는지는 지어내는 것이 아니라 세는 것이다.
   const doneCount = dayStopIds.filter((stopId) => progress.outcomes[stopId]).length;
   const nowProgressLine = dayStops.length && progress.status !== 'PLANNED'
-    ? txf(tx, '%s곳 중 %s곳 다녀옴', '%s of %s stops done', dayStops.length, doneCount)
+    ? txf(tx, '%s곳 중 %s곳 다녀옴', '%s stops · %s done', dayStops.length, doneCount)
       + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '')
     : null;
   const nowDetail = currentStop?.description ?? nowProgressLine;
