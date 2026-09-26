@@ -75,6 +75,7 @@ import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
+import { StoryComposeForm } from '@/social/StoryComposeForm';
 
 type Tx = (ko: string, en: string) => string;
 type Panel = 'trip' | 'collapsed';
@@ -475,13 +476,13 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       </View>
 
       {/* 알약 — 지도 보기(= 창 접기) · 동행 초대 · 공유 · 기록 남기기 · 날씨. 창은 화면을 옮기지 않고 아래 시트로 연다(S15P21E201-1561).
-          「공유」는 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기다(S15P21E201-1593). */}
+          「공유」는 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기다(S15P21E201-1593) — 넷 다 창 안에서 연다(S15P21E201-1760). */}
       {ready ? (
         <View style={styles.actions}>
           <ActionPill label={tx('지도 보기', 'View map')} onPress={() => setPanel('collapsed')} />
           {tripId ? <ActionPill label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
           {tripId ? <ActionPill label={tx('공유', 'Share')} onPress={() => setOverlay('share')} /> : null}
-          {tripId ? <ActionPill label={tx('기록 남기기', 'Write a record')} onPress={() => router.push(`/feed/compose?tripId=${encodeURIComponent(tripId)}`)} /> : null}
+          {tripId ? <ActionPill label={tx('기록 남기기', 'Write a record')} onPress={() => setOverlay('record')} /> : null}
           {tripId ? <ActionPill label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
         </View>
       ) : null}
@@ -720,8 +721,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 접기', 'Hide itinerary')} onPress={() => setPanel('collapsed')} style={styles.handleZone}>
             <View style={styles.handle} />
           </Pressable>
-          {/* 🔴 동행 초대·공유·날씨는 창 «안에서» 내용만 바꾼다(S15P21E201-1607). 전에는 창 위에 아래 판이 하나 더 올라와
-              두 겹이 됐다. 「기록 남기기」는 글쓰기 화면으로 이동한다(사용자 결정). */}
+          {/* 🔴 동행 초대·공유·날씨·기록 남기기는 창 «안에서» 내용만 바꾼다(S15P21E201-1607). 전에는 창 위에 아래 판이 하나 더 올라와
+              두 겹이 됐다.
+              정정(2026-09-26, S15P21E201-1760): 「기록 남기기」는 글쓰기 화면으로 이동했었다(-1607 때 사용자 결정). 그러면 지도와
+              창이 통째로 사라졌다가 돌아오면 여행 화면이 처음부터 다시 그려져, 사용자가 「기록 남기기만 연속성이 유지가 안 된다」고 했다.
+              이제 같은 글쓰기(StoryComposeForm)를 창 안에서 연다. 쓰다 닫아도 글은 기기에 남아, 다시 열면 이어 쓴다. */}
           <Animated.View style={swapStyle}>
           {overlay && tripId ? (
             <View style={styles.sheetScroll}>
@@ -730,12 +734,15 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   <View style={styles.chevronLeft} />
                 </Pressable>
                 <Text variant="title" weight="bold" numberOfLines={1} style={styles.shrink}>
-                  {overlay === 'invite' ? tx('동행 초대', 'Invite') : overlay === 'share' ? tx('공유', 'Share') : tx('날씨', 'Weather')}
+                  {overlay === 'invite' ? tx('동행 초대', 'Invite') : overlay === 'share' ? tx('공유', 'Share') : overlay === 'record' ? tx('기록 남기기', 'Write a record') : tx('날씨', 'Weather')}
                 </Text>
               </View>
-              <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
+              {/* 글쓰기가 들어오면서 입력칸이 생겼다 — 글쓰기 화면(Screen)처럼 키보드가 떠 있어도 목록을 누를 수 있게 하고,
+                  iOS 는 키보드에 가린 만큼 스스로 굴러 올린다(안드로이드는 app.json 의 pan 이 화면째 민다). */}
+              <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
                 {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
                 {overlay === 'share' ? <TripReadLinkPanel tripId={tripId} /> : null}
+                {overlay === 'record' ? <StoryComposeForm variant="panel" tripId={tripId} onClose={() => setOverlay(null)} /> : null}
                 {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
               </ScrollView>
             </View>

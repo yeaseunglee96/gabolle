@@ -49,7 +49,8 @@ const REQUIRED: Record<string, readonly string[]> = {
     'sign-up-email', 'sign-up-password', 'sign-up-confirm', 'sign-up-name',
     'sign-up-next', 'sign-up-submit',
   ],
-  'app/feed/compose.tsx': ['compose-body', 'compose-add-photo', 'compose-submit'],
+  // 글쓰기 본문은 여행 화면 창과 같이 쓰려고 부품으로 옮겼다(S15P21E201-1760) — 글쓰기 화면도 이것을 그린다.
+  'src/social/StoryComposeForm.tsx': ['compose-body', 'compose-add-photo', 'compose-submit'],
   'app/trips/[id]/itinerary.tsx': [
     'itinerary-reorder', 'itinerary-reorder-button',
     'itinerary-save-order', 'itinerary-cancel-order', 'itinerary-undo',
