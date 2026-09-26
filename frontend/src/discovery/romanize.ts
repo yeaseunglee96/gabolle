@@ -41,3 +41,26 @@ export function placeNameForLanguage(nameKo: string, nameEn: string | null | und
   const reading = romanizeKorean(nameKo);
   return reading ? `${nameKo} (${reading})` : nameKo;
 }
+
+/**
+ * 일정·여행 중 카드에 적을 장소 이름 — S15P21E201-1735.
+ *
+ * 🔴 한국어 화면은 일정 제목 그대로다(장소 상세와 달리 영어 이름을 덧붙이지 않는다 — 한국어 화면은 바꾸지 않기로 했다).
+ *    그 밖의 언어는 장소 상세와 같은 규칙: 영어 이름이 있으면 「영어 (한글)」, 없으면 「한글 (로마자)」.
+ *    일정 항목에는 영어 이름 칸이 없어서, 부르는 쪽이 장소 사진 조회(placePhotos)에서 받은 영어 이름을 넘긴다.
+ */
+export function stopNameForLanguage(title: string, nameEn: string | null | undefined, language: LanguageCode): string {
+  if (resolveTextLanguage(language) === 'ko') return title;
+  return placeNameForLanguage(title, nameEn, language);
+}
+
+/**
+ * 좁은 한 줄에 쓸 때 쪼갠 것 — 한글(hangul)은 자르지 않고 나머지(other: 영어 이름이나 로마자)만 줄임표로 자른다.
+ * 한글은 택시·길 묻기에 그대로 보여 줘야 해서 잘리면 안 된다. otherFirst 면 「영어 (한글)」 순서.
+ */
+export function stopNameParts(title: string, nameEn: string | null | undefined, language: LanguageCode): { hangul: string; other: string | null; otherFirst: boolean } {
+  if (resolveTextLanguage(language) === 'ko') return { hangul: title, other: null, otherFirst: false };
+  const trimmedEn = nameEn?.trim();
+  if (trimmedEn) return { hangul: title, other: trimmedEn, otherFirst: true };
+  return { hangul: title, other: romanizeKorean(title), otherFirst: false };
+}

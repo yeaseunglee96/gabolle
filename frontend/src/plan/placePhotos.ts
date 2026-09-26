@@ -5,7 +5,8 @@
 // 같은 장소를 두 번 묻지 않게 한 번 받은 것은 세션 동안 기억한다.
 import { getPlace, type PhotoLicense } from '@/discovery/places';
 
-export type PlacePhoto = { photoUrl: string | null; photoSource: string | null; category: string | null; photoLicense?: PhotoLicense | null };
+/** nameEn — 일정 항목에는 영어 이름 칸이 없어서 여기서 함께 싣는다(영어 화면의 장소 이름, S15P21E201-1735). */
+export type PlacePhoto = { photoUrl: string | null; photoSource: string | null; category: string | null; photoLicense?: PhotoLicense | null; nameEn?: string | null };
 
 const cache = new Map<string, Promise<PlacePhoto>>();
 const NONE: PlacePhoto = { photoUrl: null, photoSource: null, category: null };
@@ -15,7 +16,7 @@ export function loadPlacePhoto(placeId: string): Promise<PlacePhoto> {
   let pending = cache.get(placeId);
   if (!pending) {
     pending = getPlace(placeId)
-      .then((place) => ({ photoUrl: place.photoUrl ?? null, photoSource: place.photoSource ?? null, category: place.category ?? null, photoLicense: place.photoLicense ?? null }))
+      .then((place) => ({ photoUrl: place.photoUrl ?? null, photoSource: place.photoSource ?? null, category: place.category ?? null, photoLicense: place.photoLicense ?? null, nameEn: place.nameEn ?? null }))
       .catch(() => NONE);
     cache.set(placeId, pending);
   }

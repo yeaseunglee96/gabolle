@@ -214,6 +214,16 @@ export default function Generating() {
     void loadPlacePhotos(coverIds.split(',')).then((photos) => { if (!active) return; const hit = coverIds.split(',').map((id) => photos[id]?.photoUrl).find(Boolean); setCoverUrl(hit ?? null); });
     return () => { active = false; };
   }, [coverIds]);
+  // 승차권 첫·마지막 일정의 영어 이름 — 영어(일·중) 화면에서 「영어 (한글)」, 없으면 「한글 (로마자)」(S15P21E201-1735).
+  //    일정 항목에는 영어 이름 칸이 없어 사진 조회에 함께 실려 온 것을 쓴다(같은 캐시라 겉사진과 요청이 겹치지 않는다).
+  const [nameEnByPlaceId, setNameEnByPlaceId] = useState<Record<string, string | null>>({});
+  const stopIds = (itinerary?.days.flatMap((day) => day.items) ?? []).map((item) => item.placeId).join(',');
+  useEffect(() => {
+    if (!stopIds) return undefined;
+    let active = true;
+    void loadPlacePhotos(stopIds.split(',')).then((photos) => { if (active) setNameEnByPlaceId(Object.fromEntries(Object.entries(photos).map(([id, photo]) => [id, photo.nameEn ?? null]))); });
+    return () => { active = false; };
+  }, [stopIds]);
   const visitCount = itinerary?.days.reduce((sum, day) => sum + day.items.length, 0) ?? 0;
   const actualStartDate = itinerary?.days[0]?.date || draft.startDate;
   const actualEndDate = itinerary?.days.at(-1)?.date || draft.endDate;
@@ -228,12 +238,14 @@ export default function Generating() {
     transport: draft.transport || null,
     ownerName: user?.displayName ?? null,
     language,
+    nameEnByPlaceId,
   });
   const ticketReady = job.state === 'completed';
   const tripPassDetails = buildTripPassDetails({
     itinerary, origin: draft.origin || null, startDate: draft.startDate || null, endDate: draft.endDate || null,
     transport: draft.transport || null, ownerName: user?.displayName ?? null,
     language,
+    nameEnByPlaceId,
   });
   const printedHeight = ticketReveal.interpolate({ inputRange: [0, 1], outputRange: [0, 620] });
   return <Screen scroll wide style={styles.canvas}>
