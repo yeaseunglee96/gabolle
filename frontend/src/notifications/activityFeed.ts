@@ -6,7 +6,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getTripActivity, type TripActivityOperation } from '@/trip/collaboration';
-import { loadTrips, tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
+import { loadTrips, type TripSummaryDto } from '@/trip/trips';
+import { tripNameOrDates } from '@/trip/tripNaming';
 import { txf } from '@/i18n/format';
 
 export type ActivityNotice = {
@@ -28,18 +29,12 @@ export type ActivityFeedResult =
 const SEEN_KEY = 'gabolle:notifications-seen-at';
 const MAX_TRIPS = 12;
 
-/** 여행 카드와 같은 제목 규칙 — 이름이 없으면 날짜. */
-function titleOf(trip: TripSummaryDto, tx: (ko: string, en: string) => string): string {
-  const human = tripDisplayTitle(trip, '');
-  if (human) return human;
-  if (trip.startDate) {
-    const end = trip.endDate && trip.endDate !== trip.startDate ? ` – ${trip.endDate.slice(5).replace('-', '.')}` : '';
-    return `${trip.startDate.slice(5).replace('-', '.')}${end} ${tx('여행', 'trip')}`;
-  }
-  return tx('부산 여행', 'Busan trip');
+/** 여행 카드와 같은 제목 규칙 — 이름이 없으면 날짜(tripNameOrDates, S15P21E201-1738). */
+function titleOf(trip: TripSummaryDto, tx: (ko: string, en: string) => string, locale: string): string {
+  return tripNameOrDates(trip, tx, locale);
 }
 
-export async function loadActivityFeed(accessToken: string | null, tx: (ko: string, en: string) => string): Promise<ActivityFeedResult> {
+export async function loadActivityFeed(accessToken: string | null, tx: (ko: string, en: string) => string, locale = 'ko-KR'): Promise<ActivityFeedResult> {
   const trips = await loadTrips(accessToken);
   if (trips.state !== 'success') return { state: 'error', message: trips.message };
   const recent = [...trips.trips].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, MAX_TRIPS);
@@ -53,7 +48,7 @@ export async function loadActivityFeed(accessToken: string | null, tx: (ko: stri
         id: `${entry.itineraryId}:${entry.version}`,
         tripId: trip.tripId,
         itineraryId: entry.itineraryId,
-        tripTitle: titleOf(trip, tx),
+        tripTitle: titleOf(trip, tx, locale),
         operation: entry.operation,
         actorName: entry.actorName,
         isMe: entry.isMe,

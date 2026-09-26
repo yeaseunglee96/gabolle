@@ -1,5 +1,6 @@
 // 여행 이름 짓기 — 후보 조회와 이름 저장.
 
+import { formatDayHeading } from '@/i18n/datetime';
 import { apiRequest, ApiClientError } from '@/api/client';
 
 /** 이름 길이 상한. 서버의 `Trip.TITLE_MAX_LENGTH` 와 같은 값이어야 한다. */
@@ -203,4 +204,30 @@ export function humanTripTitle(title: string | null | undefined): string | null 
 export function shouldAskTripName(input: { title: string | null | undefined; alreadyAsked: boolean }) {
   if (input.alreadyAsked) return false;
   return humanTripTitle(input.title) === null;
+}
+
+/**
+ * 「9월 26일 (토)」 · 「9월 26일 (토) – 9월 28일 (월)」 — 이름 없는 여행을 부르는 **한 가지** 날짜 표기.
+ * 날짜가 없으면 null — 지어내지 않는다.
+ */
+export function tripDatesLabel(startDate: string | null | undefined, endDate: string | null | undefined, locale: string): string | null {
+  if (!startDate) return null;
+  const start = formatDayHeading(startDate, locale) ?? startDate;
+  const end = endDate && endDate !== startDate ? (formatDayHeading(endDate, locale) ?? endDate) : null;
+  return end ? `${start} – ${end}` : start;
+}
+
+/**
+ * 여행을 화면에 부르는 이름 — 사람이 붙인 이름이 있으면 그것, 없으면 날짜(S15P21E201-1738).
+ *
+ * 🔴 전에는 같은 여행이 화면마다 달랐다(2026-09-26 실기) — 상세 「부산 여행」, 목록 「9월 26일 (토)」,
+ * 알림 「09.26 여행」, 홈 「09.26 ~ 09.26」. 여행이 넷인 줄 안다. 특히 「부산 여행」은 붙인 적 없는
+ * 이름을 지어낸 것이다. 여행을 부르는 곳은 전부 이 함수를 쓴다.
+ */
+export function tripNameOrDates(
+  trip: { title?: string | null; startDate?: string | null; endDate?: string | null },
+  tx: (ko: string, en: string) => string,
+  locale: string,
+): string {
+  return humanTripTitle(trip.title) ?? tripDatesLabel(trip.startDate, trip.endDate, locale) ?? tx('날짜 미정', 'Dates TBD');
 }

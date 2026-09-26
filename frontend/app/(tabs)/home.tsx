@@ -33,7 +33,8 @@ import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { useHomeBellDot } from '@/notifications/useHomeBellDot';
 import { relativeStoryTime } from '@/social/stories';
 import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
-import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
+import type { TripSummaryDto } from '@/trip/trips';
+import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
 import { enCount, enPlural, txf } from '@/i18n/format';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
@@ -45,11 +46,9 @@ const heartIcon = require('../../assets/icons/home/heart.png');
  */
 const MOBILE_CARD = 160;
 
-/** 「09.25 ~ 09.26」 — 폰 홈 「내 여행」 카드의 날짜. 날짜를 모르면 「날짜 미정」. */
-function homeTripDates(trip: TripSummaryDto, tx: (ko: string, en: string) => string): string {
-  return trip.startDate && trip.endDate
-    ? `${trip.startDate.slice(5).replace('-', '.')} ~ ${trip.endDate.slice(5).replace('-', '.')}`
-    : tx('날짜 미정', 'Dates TBD');
+/** 홈 「내 여행」 카드의 날짜 — 여행 목록과 같은 표기(tripDatesLabel, S15P21E201-1738). 날짜를 모르면 「날짜 미정」. */
+function homeTripDates(trip: TripSummaryDto, tx: (ko: string, en: string) => string, locale: string): string {
+  return tripDatesLabel(trip.startDate, trip.endDate, locale) ?? tx('날짜 미정', 'Dates TBD');
 }
 
 /**
@@ -69,7 +68,7 @@ export function weatherTemperatureText(weather: { minTemperature: number | null;
 
 export default function Home() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const { accessToken, user } = useAuth();
   const { draft: planDraft, update: updatePlan } = usePlan();
   // 여행 조건 모달. 로그인 후 홈 첫 진입에 한 번, 그리고
@@ -315,10 +314,10 @@ export default function Home() {
                 {/* 이름이 있으면 이름, 없으면 날짜 — 넓은 화면 카드(MyTripCard)·내 여행 목록과 같은 규칙(S15P21E201-1678).
                     전에는 이름 기능이 생기기 전의 옛 주석대로 날짜만 올려서, 이름을 붙여도 홈에는 안 보였다.
                     이름을 제목에 올리면 날짜는 둘째 줄로 내린다 — 같은 이름의 여행 둘을 날짜로 가린다. */}
-                <Text variant="title" weight="bold">{tripDisplayTitle(home.trip, homeTripDates(home.trip, tx))}</Text>
+                <Text variant="title" weight="bold">{tripNameOrDates(home.trip, tx, locale)}</Text>
                 <Text color={color.text.body}>
-                  {home.trip.title?.trim() && home.trip.startDate
-                    ? txf(tx, '%s · %s일 · %s명', `%s · %s ${enPlural(home.trip.dayCount, 'day', 'days')} · %s ${enPlural(home.trip.partySize, 'traveler', 'travelers')}`, homeTripDates(home.trip, tx), home.trip.dayCount, home.trip.partySize)
+                  {humanTripTitle(home.trip.title) && home.trip.startDate
+                    ? txf(tx, '%s · %s일 · %s명', `%s · %s ${enPlural(home.trip.dayCount, 'day', 'days')} · %s ${enPlural(home.trip.partySize, 'traveler', 'travelers')}`, homeTripDates(home.trip, tx, locale), home.trip.dayCount, home.trip.partySize)
                     : tx(`${home.trip.dayCount}일 · ${home.trip.partySize}명`, `${enCount(home.trip.dayCount, 'day', 'days')} · ${enCount(home.trip.partySize, 'traveler', 'travelers')}`)}
                 </Text>
                 <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{openingTrip ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
