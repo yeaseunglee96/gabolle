@@ -8,7 +8,7 @@ import { PlanStartBar } from '@/home/PlanStartBar';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
-import { EMPTY_START_BAR, startBarEditSection, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
+import { EMPTY_START_BAR, startBarEditSection, startBarEndDate, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { useTopNavShown } from '@/nav/TopNav';
@@ -174,7 +174,7 @@ export default function Home() {
       lodgingLng: value.lodgingLng,
       lodgingPlace: value.lodgingPlace,
       startDate: value.startDate,
-      endDate: value.endDate,
+      endDate: startBarEndDate(value),
       adults: value.adults,
       children: value.children,
       travelers: value.adults + value.children,

@@ -174,6 +174,17 @@ export function startBarChips(value: StartBarValue, tx: StartBarTx): string[] {
   return chips;
 }
 
+/**
+ * 여행 만들기로 넘길 때의 귀환일 — 시작일만 있으면 시작일(당일치기).
+ *
+ * 🔴 시작 바는 시작일만 있어도 요약·칩에 「당일치기」라고 적고 「일정 물어보기」를 켠다. 그런데 넘길 때
+ *    귀환일을 빈 채로 넘겨, 여행 만들기 화면이 날짜 카드를 다시 열고 「귀환일까지 골라 주세요」로 잠갔다
+ *    (S15P21E201-1729). 보여 준 것과 넘기는 것을 같게 한다.
+ */
+export function startBarEndDate(value: StartBarValue): string {
+  return value.endDate || value.startDate;
+}
+
 /** 「일정 물어보기」를 누를 수 있나 — 출발지와 날짜가 있어야 한다. */
 export function canAskForPlan(value: StartBarValue): boolean {
   // 🔴 출발지는 안 묻는다 — S15P21E201-1376. 서버(CreateTripRequest)는 originLat·originLng 를 선택으로
