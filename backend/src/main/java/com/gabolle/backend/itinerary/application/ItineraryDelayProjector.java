@@ -91,11 +91,15 @@ public final class ItineraryDelayProjector {
             Integer travelMin = (startsAtPlannedArrival && item == day.get(0))
                     ? null
                     : travelMinutesInto(legBySequence.get(item.sequence()), item);
-            Instant predictedArrival = cursor.plus(Duration.ofMinutes(travelMin == null ? 0 : travelMin));
+            Instant plannedArrival = plannedInstant(item, item.startTime());
+            // 🔴 S15P21E201-1740 — 계획 시각보다 이르게는 안 잡는다. 시각표에는 곳 사이의 빈 시각(자유 시간)이 있다
+            //    (S15P21E201-1667). 이어 붙이기만 하면 그 빈 시각을 건너뛰어 뒤로 갈수록 예상이 앞당겨졌다 — 카드에
+            //    「16:04」와 「예상 도착 11:45」가 함께 떴다. 앞서 있으면 자유 시간이 흡수하고, 늦으면 그만큼 밀린다.
+            Instant chained = cursor.plus(Duration.ofMinutes(travelMin == null ? 0 : travelMin));
+            Instant predictedArrival = plannedArrival != null && plannedArrival.isAfter(chained) ? plannedArrival : chained;
             Instant predictedDeparture = predictedArrival.plus(stayOf(item, factor));
             cursor = predictedDeparture;
 
-            Instant plannedArrival = plannedInstant(item, item.startTime());
             Long delayMinutes = plannedArrival == null
                     ? null
                     : Duration.between(plannedArrival, predictedArrival).toMinutes();
@@ -205,7 +209,8 @@ public final class ItineraryDelayProjector {
      * @param visited 이미 다녀온 곳인가. 참이면 아래 예측 값들은 기록된 사실 그대로다
      * @param predictedArrival 예상 도착. 다녀온 곳이면 실제 도착
      * @param predictedDeparture 예상 출발. 다녀온 곳이면 실제 출발
-     * @param delayMinutes 계획보다 몇 분 늦나. 음수면 이르다. 계획 시각이 없으면 {@code null}
+     * @param delayMinutes 계획보다 몇 분 늦나. 0 이상이다 — 앞서면 자유 시간이 흡수해 계획 시각에 닿는다
+     *     (S15P21E201-1740). 계획 시각이 없으면 {@code null}
      */
     public record Entry(String itemKey, boolean visited, Instant predictedArrival,
             Instant predictedDeparture, Instant plannedArrival, Long delayMinutes,
