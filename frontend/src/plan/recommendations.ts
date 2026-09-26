@@ -1,4 +1,6 @@
-import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
+import { apiRequest, ApiClientError } from '@/api/client';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
 import { koreanSubject } from '@/i18n/korean';
 
 export type RecommendationViewState = 'loading' | 'success' | 'partial' | 'fallback' | 'empty-conflict' | 'error' | 'offline' | 'unavailable';
@@ -19,7 +21,10 @@ export type RecommendationJobResultDto = { status: 'COMPLETED' | 'PARTIAL' | 'FA
 export type RecommendationCourse = RecommendationCourseDto & { reasons: string[]; actionState: CourseActionState };
 export type RecommendationViewModel = { state: RecommendationViewState; courses: RecommendationCourse[]; conflicts: string[]; message: string; itineraryId: string | null; placeCount: number | null; estimatedTravelMinutes: number | null; tripId: string | null };
 
-const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+// 🔴 화면 문구는 고른 언어의 번역표로 — S15P21E201-1767. 전에는 서버용 언어(ko|en 뿐)로 골라서 일본어·중국어
+//    화면에 추천 이유가 「Matches your interests」처럼 영어로 떴다(Play 35 실기기). 표에 줄은 이미 있었다.
+//    intent.ts(S15P21E201-1517)와 같은 방식이다. 표에 없는 문구는 전과 같이 영어로 떨어진다.
+const t = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 // : 이 사전은 한때 BEACH_PREFERENCE 등 다섯 개였는데 백엔드 계약이 통째로
 // 갈아엎어진 뒤에도(BaselineCandidateScorer·RecommendationCodes, back/dev) 안 따라가서
