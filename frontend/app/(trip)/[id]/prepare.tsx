@@ -21,7 +21,8 @@ import { issueShareLink } from '@/share/sharedItinerary';
 import { getTripStories } from '@/social/stories';
 import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries, loadTrips } from '@/trip/trips';
-import { TripWeatherCard } from '@/trip/TripWeatherPanel';
+import { TripWeatherCard, weatherHeading } from '@/trip/TripWeatherPanel';
+import { localToday } from '@/plan/tripBasics';
 
 // 🔴 한국어면 손으로, 그 밖이면 «무조건 en-US» 였다 (S15P21E201-1355).
 //    이제는 고른 언어에 맞는 꼴로 운영체제가 만든다.
@@ -171,16 +172,18 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
   }, [tripId, accessToken]);
 
   const departure = firstDayDate ? formatDepartureDate(firstDayDate, locale) : null;
+  // 머리 글은 날짜에 맞춘다 — 지난 여행에 「여행 전」이라 적지 않는다(S15P21E201-1773).
+  const heading = weatherHeading(tx, firstDayDate, departure, localToday());
 
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
           <Eyebrow>
-            {departure ? txf(tx, '여행 전 · %s 출발', 'Before the trip · Departing %s', departure) : tx('여행 전', 'Before the trip')}
+            {heading.eyebrow}
           </Eyebrow>
           <Text variant="display" weight="bold" style={styles.title}>
-            {tx('출발일 날씨', 'Departure-day weather')}
+            {heading.title}
           </Text>
         </View>
       </View>

@@ -217,6 +217,9 @@ export function TripWeatherCard({ date, hourly = false, stops = [] }: { date: st
               <Text variant="caption" weight="bold" color={color.state.info}>{tx('☂ 우산을 챙기세요', '☂ Bring an umbrella')}</Text>
             ) : null}
           </>
+        ) : weather?.state === 'out-of-range' && weather.past ? (
+          // 🔴 지난 날짜에 「그때 다시 열어 주세요」라고 하지 않는다 — 그때는 오지 않는다(S15P21E201-1773).
+          <Text variant="body" color={color.text.muted}>{`${tx('지난 여행', 'Past trip')} · ${tx('예보 없음', 'No forecast')}`}</Text>
         ) : weather?.state === 'out-of-range' ? (
           <Text variant="body" color={color.text.muted}>{tx('출발일 예보는 출발 3일 전부터 보여드려요. 그때 다시 열어 주세요.', 'The departure-day forecast opens 3 days before you leave. Check back then.')}</Text>
         ) : weather ? (
@@ -258,9 +261,16 @@ export function weatherPhase(date: string | null | undefined, today: string): 'b
   return day > today ? 'before' : 'after';
 }
 
-export function TripWeatherPanel({ date, items, today = localToday() }: { date: string | null | undefined; items?: ReadonlyArray<{ startsAt: string; title: string }> | null; today?: string }) {
-  const { tx, locale } = useI18n();
-  const departure = date ? formatMonthDay(date, locale) : null;
+/**
+ * 머리 글(작은 머리 + 제목)을 날짜에 맞춰 고른다 — 여행 페이지 창과 여행 준비 화면(prepare)이 같이 쓴다.
+ * 🔴 S15P21E201-1773: 준비 화면은 이 판정을 안 거치고 늘 「여행 전 · … 출발」이라 적었다(지난 여행에도).
+ */
+export function weatherHeading(
+  tx: (ko: string, en: string) => string,
+  date: string | null | undefined,
+  departure: string | null,
+  today: string,
+): { eyebrow: string; title: string } {
   const phase = weatherPhase(date, today);
   const eyebrow = phase === 'today'
     ? tx('여행 중 · 오늘', 'On the trip · Today')
@@ -268,6 +278,13 @@ export function TripWeatherPanel({ date, items, today = localToday() }: { date: 
       ? (departure ? txf(tx, '여행 중 · %s 출발', 'On the trip · Departed %s', departure) : tx('여행 중', 'On the trip'))
       : (departure ? txf(tx, '여행 전 · %s 출발', 'Before the trip · Departing %s', departure) : tx('여행 전', 'Before the trip'));
   const title = phase === 'today' ? tx('오늘 날씨', "Today's weather") : tx('출발일 날씨', 'Departure-day weather');
+  return { eyebrow, title };
+}
+
+export function TripWeatherPanel({ date, items, today = localToday() }: { date: string | null | undefined; items?: ReadonlyArray<{ startsAt: string; title: string }> | null; today?: string }) {
+  const { tx, locale } = useI18n();
+  const departure = date ? formatMonthDay(date, locale) : null;
+  const { eyebrow, title } = weatherHeading(tx, date, departure, today);
   return (
     <View>
       <Eyebrow>{eyebrow}</Eyebrow>

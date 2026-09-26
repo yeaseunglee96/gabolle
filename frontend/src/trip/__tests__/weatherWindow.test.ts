@@ -33,3 +33,20 @@ describe('날씨 예보 범위', () => {
     expect(request).toHaveBeenCalledTimes(1);
   });
 });
+
+// 🔴 지난 여행(S15P21E201-1773) — 운영 웹에서 어제 출발한 여행의 준비 화면이 「여행 전 · 9월 26일 출발」과
+//    「출발 3일 전부터 보여드려요. 그때 다시 열어 주세요」를 적었다. 「그때」는 오지 않는다.
+describe('지난 여행의 날씨 창', () => {
+  it('🔴 지난 날짜는 「지났다」고 알린다 — 「아직」과 가른다', async () => {
+    await expect(loadWeatherForecast(dayKey(-1), 'token')).resolves.toMatchObject({ state: 'out-of-range', past: true });
+    await expect(loadWeatherForecast(dayKey(14), 'token')).resolves.not.toHaveProperty('past', true);
+  });
+
+  it('🔴 준비 화면 머리 글 — 지난 여행에 「여행 전」이라 적지 않는다', () => {
+    const { weatherHeading } = jest.requireActual<typeof import('@/trip/TripWeatherPanel')>('@/trip/TripWeatherPanel');
+    const ko = (k: string) => k;
+    expect(weatherHeading(ko, '2026-09-26', '9월 26일', '2026-09-27').eyebrow).toBe('여행 중 · 9월 26일 출발');
+    expect(weatherHeading(ko, '2026-09-27', '9월 27일', '2026-09-27').title).toBe('오늘 날씨');
+    expect(weatherHeading(ko, '2026-09-30', '9월 30일', '2026-09-27').eyebrow).toBe('여행 전 · 9월 30일 출발');
+  });
+});
