@@ -147,14 +147,26 @@ describe('계정 삭제 안내 화면', () => {
     expect(view.queryByText('초안 · 팀 확정 예정')).toBeNull();
   });
 
-  it('다른 법률 문서(개인정보 처리방침)에는 초안 배너가 그대로 있다 — 이 변경이 공용 화면의 기본을 바꾸지 않는다', () => {
-    const Privacy = require('../../../app/legal/privacy').default;
-    const view = render(
-      <Providers>
-        <Privacy />
-      </Providers>,
-    );
+  // 🔴 S15P21E201-1648 — 빈칸(책임자·시행일·운영자·관할)이 모두 채워져 초안 배너를 내렸다(2026-09-26).
+  it('방침·약관 화면에도 초안 배너가 없다', () => {
+    for (const path of ['../../../app/legal/privacy', '../../../app/legal/terms']) {
+      const Screen = require(path).default;
+      const view = render(
+        <Providers>
+          <Screen />
+        </Providers>,
+      );
+      expect(view.queryByText('초안 · 팀 확정 예정')).toBeNull();
+      view.unmount();
+    }
+  });
 
-    expect(view.getByText('초안 · 팀 확정 예정')).toBeTruthy();
+  it('약관 8절이 운영자·유료 판매 없음·관할을 확정 문구로 말하고 빈자리가 없다', () => {
+    const section8 = TERMS_SECTIONS.find((s) => s.title[0].startsWith('8.'));
+    expect(section8?.paragraphs[0][0]).toContain('사업자 등록 전 팀 UNIVERSE가 운영하며 유료 판매를 하지 않습니다');
+    expect(section8?.paragraphs[0][0]).toContain('민사소송법에 따른 관할 법원');
+    expect(section8?.paragraphs[0][1]).toContain('Team UNIVERSE');
+    expect(all(TERMS_SECTIONS)).not.toContain('팀 확정 후');
+    expect(all(TERMS_SECTIONS)).not.toContain('team confirmation');
   });
 });
