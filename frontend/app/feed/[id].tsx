@@ -21,6 +21,7 @@ import { CoauthorByline } from '@/social/CoauthorByline';
 import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
 import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { regionText } from '@/social/districtNames';
+import { regionBesidePlace } from '@/social/placeRegion';
 import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
@@ -54,6 +55,8 @@ function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
 function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }) {
   const { tx } = useI18n();
   if (!story.place) return null;
+  // 🔴 지역 칸은 「장소 · 구」라 그대로 쓰면 제목의 장소 이름이 한 번 더 나온다(S15P21E201-1759).
+  const region = regionBesidePlace(story.region, story.place.name);
   return (
     <Pressable
       accessibilityRole="button"
@@ -62,10 +65,10 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
       style={({ pressed }) => [styles.placeHeading, pressed && styles.pressed]}
     >
       <Text variant="display" weight="bold" color={color.text.heading}>{story.place.name}</Text>
-      {story.region
+      {region
         ? <View style={styles.placeMetaRow}>
             <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />
-            <Text variant="body" color={color.text.body}>{regionText(story.region, tx)}</Text>
+            <Text variant="body" color={color.text.body}>{regionText(region, tx)}</Text>
           </View>
         : null}
     </Pressable>
