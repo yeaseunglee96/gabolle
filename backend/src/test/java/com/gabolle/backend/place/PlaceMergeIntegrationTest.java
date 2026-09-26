@@ -90,7 +90,7 @@ class PlaceMergeIntegrationTest extends PlacePostgresIntegrationTest {
 		Place merged = this.placeRepository.findById(this.dup).orElseThrow();
 		assertThat(merged.getCurationStatus().name()).isEqualTo("MERGED");
 		assertThat(merged.getMergedInto()).isEqualTo(this.keep);
-		assertThat(this.placeRepository.searchByName("%합치기시험 송정3대국밥 " + this.token + "%", Limit.of(10)))
+		assertThat(this.placeRepository.searchByName(("%합치기시험송정3대국밥" + this.token + "%").toLowerCase(java.util.Locale.ROOT), Limit.of(10)))
 				.extracting(Place::getPlaceId)
 				.containsExactly(this.keep);
 	}
