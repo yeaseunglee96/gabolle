@@ -9,6 +9,7 @@ import java.time.ZoneOffset;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
@@ -318,6 +319,103 @@ class ItineraryDraftServiceTest {
 						places.get(4).placeId())
 				.as("이름이 같은 뒤 지점은 빠진다")
 				.doesNotContain(places.get(2).placeId(), places.get(5).placeId());
+	}
+
+	/**
+	 * 🔴 시연 점검(2026-09-26) — 광안리 드론쇼가 한 일정에 두 번 앉았다. 운영에 오픈스트리트맵 줄과 TourAPI 줄이 약 400m
+	 * 떨어져 따로 있고, 이름은 괄호 하나만 다르다(S15P21E201-1758). 좌표는 운영 두 줄 그대로다.
+	 */
+	@Test
+	@DisplayName("🔴 괄호 안만 다른 같은 이름이 1km 안이면 한 곳만 — 광안리 드론쇼 두 줄")
+	void parenVariantWithinOneKmAppearsOnce() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamedAt(
+				List.of("광안리 M 드론 라이트쇼", "해운대해수욕장", "광안리 M(Marvelous) 드론 라이트쇼", "동백섬"),
+				List.of(new double[] { 35.15485, 129.12273 }, new double[] { 35.1587, 129.1604 },
+						new double[] { 35.15377, 129.11852 }, new double[] { 35.1530, 129.1520 }));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> placed = draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList();
+		assertThat(placed)
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(3).placeId())
+				.as("400m 떨어진 뒤 줄은 빠진다")
+				.doesNotContain(places.get(2).placeId());
+	}
+
+	@Test
+	@DisplayName("괄호 안만 다른 이름이라도 1km 밖이면 둘 다 남는다 — 괄호가 곳을 가르는 말이다")
+	void parenVariantFartherThanOneKmStays() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamedAt(
+				List.of("전망대(황령산)", "광안리해수욕장", "전망대(이기대)"),
+				List.of(new double[] { 35.1573, 129.0829 }, new double[] { 35.1532, 129.1187 },
+						new double[] { 35.1336, 129.1225 }));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList())
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(2).placeId());
+	}
+
+	/**
+	 * 운영의 갈맷길이 이 모양이다 — 「갈맷길」 여러 줄과 「갈맷길 (녹산)」. 견주는 상대는 남긴 곳뿐이라, 1km 안이라 빠진
+	 * 「갈맷길」이 3km 떨어진 「갈맷길」까지 끌고 가지 않는다.
+	 */
+	@Test
+	@DisplayName("빠진 곳은 다른 곳을 끌고 가지 않는다 — 견주는 상대는 남긴 곳뿐")
+	void droppedParenVariantDoesNotDragAFarSameName() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamedAt(
+				List.of("갈맷길 (녹산)", "해운대해수욕장", "갈맷길", "갈맷길"),
+				List.of(new double[] { 35.1532, 129.1187 }, new double[] { 35.1587, 129.1604 },
+						new double[] { 35.1559, 129.1187 }, new double[] { 35.1800, 129.1187 }));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> placed = draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList();
+		assertThat(placed)
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(3).placeId())
+				.as("300m 안의 「갈맷길」만 빠진다")
+				.doesNotContain(places.get(2).placeId());
+	}
+
+	@Test
+	@DisplayName("좌표를 모르면 괄호 안만 다른 이름이라도 빼지 않는다 — 1km 안인지 모른다")
+	void parenVariantWithoutCoordinatesStays() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		// 앞 곳은 좌표가 있고 뒤 곳만 모른다 — 모르는 쪽을 「가깝다」로 치면 빠진다.
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamedAt(
+				List.of("몰운대", "해운대해수욕장", "몰운대(부산)"),
+				Arrays.asList(new double[] { 35.1532, 129.1187 }, new double[] { 35.1587, 129.1604 }, null));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList())
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(2).placeId());
+	}
+
+	/** 이름과 좌표를 붙인 후보. 갈래는 비워 둔다 — 끼니 상한과 섞이지 않게. 좌표가 null 이면 모르는 곳이다. */
+	private List<ItineraryDraftCommand.PlannedPlace> plannedPlacesNamedAt(List<String> names,
+			List<double[]> coordinates) {
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>();
+		List<com.gabolle.backend.place.domain.Place> rows = new ArrayList<>();
+		for (int i = 0; i < names.size(); i++) {
+			UUID placeId = UUID.randomUUID();
+			double[] at = coordinates.get(i);
+			if (at != null) {
+				this.coordinateByPlaceId.put(placeId, at);
+			}
+			places.add(new ItineraryDraftCommand.PlannedPlace(placeId, i + 1, List.of("REASON"), List.of(), null));
+			rows.add(com.gabolle.backend.place.domain.Place.imported(placeId, names.get(i), null, "부산",
+					at == null ? null : at[0], at == null ? null : at[1], "TEST", "test-" + i, null, null, "v1"));
+		}
+		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(rows);
+		return places;
 	}
 
 	/** 이름을 붙인 후보. 갈래·좌표는 비워 둔다 — 끼니 상한·지역 가르기와 섞이지 않게. */
