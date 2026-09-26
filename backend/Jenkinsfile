@@ -533,6 +533,7 @@ pipeline {
                             -e GABOLLE_OUTBOX_RELAY_ENABLED="${GABOLLE_OUTBOX_RELAY_ENABLED:-true}" \
                             -e GABOLLE_KAFKA_BOOTSTRAP_SERVERS="${GABOLLE_KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}" \
                             -e GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED="${GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED:-true}" \
+                            -e GABOLLE_CONSENT_POLICY_VERSION="${GABOLLE_CONSENT_POLICY_VERSION:-2026-09}" \
                             -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
                             -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
@@ -732,6 +733,7 @@ pipeline {
                                     -e GABOLLE_OUTBOX_RELAY_ENABLED="${GABOLLE_OUTBOX_RELAY_ENABLED:-true}" \
                                     -e GABOLLE_KAFKA_BOOTSTRAP_SERVERS="${GABOLLE_KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}" \
                                     -e GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED="${GABOLLE_TASTE_VECTOR_DAILY_FOLD_ENABLED:-true}" \
+                                    -e GABOLLE_CONSENT_POLICY_VERSION="${GABOLLE_CONSENT_POLICY_VERSION:-2026-09}" \
                                     -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
                                     -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
