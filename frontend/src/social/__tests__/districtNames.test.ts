@@ -42,7 +42,8 @@ describe('부산 구·군 이름을 영어로', () => {
     ['src/me/panels/SavedRecordsBody.tsx', 1],
   ])('%s — 동네 이름을 그리는 %i 곳이 모두 regionText 를 거친다', (file, count) => {
     const source = readFileSync(join(__dirname, '..', '..', '..', file), 'utf8') as string;
-    expect(source.match(/regionText\(story\.region, tx\)/g) ?? []).toHaveLength(count);
+    // placeRegion — 장소 제목 아래 줄은 앞의 장소 이름을 뗀 값을 거친다(S15P21E201-1759).
+    expect(source.match(/regionText\((?:story\.region|placeRegion), tx\)/g) ?? []).toHaveLength(count);
   });
 
   it('마이페이지 걸러 보기 칩 — 글자만 바꾸고, 고르는 값은 원래 글자', () => {
