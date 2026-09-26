@@ -2825,6 +2825,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '다른 곳보다 인기도가 돋보임': { ja: '他より人気度が際立つ', zhHans: '比其他地方人气更突出', zhHant: '比其他地方人氣更突出' },
   '다가오는 여행이 없어요': { ja: '予定している旅行はありません', zhHans: '没有即将开始的旅行', zhHant: '沒有即將開始的旅行' },
   '새 여행 만들기 →': { ja: '新しい旅行を作成 →', zhHans: '创建新旅行 →', zhHant: '建立新旅行 →' },
+  // S15P21E201-1774 — 서버 원문(초대 링크가 없을 때). 영어는 i18n/messages.ts 에 있다.
+  '초대를 찾을 수 없습니다.': { ja: '招待が見つかりません。', zhHans: '找不到该邀请。', zhHant: '找不到該邀請。' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
