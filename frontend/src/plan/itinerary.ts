@@ -43,6 +43,12 @@ export type ItineraryItemDto = {
    * 추천 노출 기록이 이 번호로 「어느 추천이 보였나」를 잇는다(S15P21E201-1696).
    */
   requestId?: string | null;
+  /**
+   * 이 방문지에 붙은 경고(예: ACCESSIBILITY_UNVERIFIED — 휠체어로 들어갈 수 있는지 아직 모름). 없으면 빈 목록
+   * (서버 ItineraryDetailResponse.Item.warningCodes). 옛 서버에는 칸이 없다(undefined).
+   * 휠체어 안내 창이 이것으로 센다(S15P21E201-1732).
+   */
+  warningCodes?: string[];
 };
 
 /**

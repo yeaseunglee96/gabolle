@@ -15,6 +15,7 @@ import { usePlan } from '@/plan/PlanProvider';
 import { adaptStreamedJob, createRecommendationJobAdapter, type RecommendationJobSnapshot, unavailableJob } from '@/plan/recommendationJob';
 import { openJobProgressStream, supportsJobProgressStream } from '@/plan/recommendationJobStream';
 import { loadRecommendationResult } from '@/plan/recommendations';
+import { ACCESSIBILITY_UNVERIFIED, itineraryAccessibilityCounts } from '@/plan/accessibilityNotice';
 import { loadItinerary, type ItineraryDto } from '@/plan/itinerary';
 import { TripPass } from '@/plan/TripPass';
 import { markChecklistStep } from '@/onboarding/firstRun';
@@ -46,8 +47,6 @@ function stageLabel(stage: string | null, tx: (ko: string, en: string) => string
   const found = findStage(stage);
   return found ? tx(found.label, found.en) : stage ? tx('처리 중', 'Processing') : null;
 }
-// — 서버가 이미 보내고 있는 값이다. 새로 만들 필요가 없었다.
-const ACCESSIBILITY_UNVERIFIED = 'ACCESSIBILITY_UNVERIFIED';
 
 function daysBetween(start: string, end: string) { const value = Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86400000) + 1; return Number.isFinite(value) && value > 0 ? value : 1; }
 function timeLabel(value: string) { return value.match(/T(\d{2}:\d{2})/)?.[1] ?? value.match(/^(\d{2}:\d{2})/)?.[1] ?? ''; }
@@ -161,20 +160,35 @@ export default function Generating() {
       if (recommendation.tripId) setTripId(recommendation.tripId);
       // 일정을 못 읽어도 이 안내는 띄운다. 접근성은 일정이 열리는지와 별개로
       // 사용자가 알아야 하는 것이고, 아래 early return 뒤에 두면 그때 조용히 사라진다.
-      if (warnedJobRef.current !== job.jobId && recommendation.conflicts.includes(ACCESSIBILITY_UNVERIFIED)) {
+      const warn = recommendation.conflicts.includes(ACCESSIBILITY_UNVERIFIED);
+      const notify = (counts: { unverified: number; total: number }) => {
+        if (warnedJobRef.current === job.jobId) return;
         warnedJobRef.current = job.jobId!;
+        setAccessibilityNotice(counts);
+      };
+      // 추천 목록으로 센 수 — 코스 A·B·C 를 합친 목록이라 보이는 일정을 못 셀 때만 쓴다(S15P21E201-1732).
+      const fromRecommendation = () => {
         const unverified = recommendation.courses.filter((course) => course.mobilityWarnings?.includes(ACCESSIBILITY_UNVERIFIED)).length;
         // conflicts 에 코드가 있는데 항목에서 못 셌다면(서버 판이 달라 항목 경고가 안 올 수
         // 있다) 0곳이라고 말하지 않는다 — 그건 "확인됐다" 로 읽힌다. 분모 없이 알린다.
-        setAccessibilityNotice({ unverified: unverified || recommendation.courses.length, total: unverified ? recommendation.courses.length : 0 });
-      }
+        return { unverified: unverified || recommendation.courses.length, total: unverified ? recommendation.courses.length : 0 };
+      };
       if (!recommendation.itineraryId) {
+        if (warn) notify(fromRecommendation());
         setItineraryMessage(recommendation.message);
         setTicketLoaded(true);
         return;
       }
       const result = await loadItinerary(recommendation.itineraryId, accessToken);
       if (cancelled) return;
+      if (warn) {
+        // 🔴 승차권에 보이는 일정만 센다(S15P21E201-1732). 추천 목록으로 세면 방문지 8곳 승차권 위에 「24곳 중 23곳」이
+        //    떴다. 보이는 일정에 미확인이 없으면 창을 안 띄운다. 항목 경고를 모르는 옛 서버·못 읽은 일정은 전처럼 센다.
+        //    「띄웠다」 표시는 실제로 띄울 때 한다 — 일정을 읽는 동안 이 효과가 다시 돌면(열쇠 갱신 등) 창이 사라지지 않게.
+        const visible = result.state === 'success' ? itineraryAccessibilityCounts(result.itinerary) : null;
+        if (!visible) notify(fromRecommendation());
+        else if (visible.unverified > 0) notify(visible);
+      }
       if (result.state === 'success') { setItinerary(result.itinerary); void clear(); }
       else setItineraryMessage(result.message);
       setTicketLoaded(true);
