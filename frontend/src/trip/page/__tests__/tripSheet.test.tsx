@@ -4,8 +4,12 @@
 //    ① 동행 초대·공유·날씨는 창 «안에서» 내용만 바뀐다 — 창 위에 판(모달)이 하나 더 올라와 두 겹이 되지 않는다.
 //    ② 창을 여닫아도 지도 크기가 그대로다 — 전에는 창이 열리면 지도 칸을 줄여서 지도가 다시 가운데를 잡으며 튀었다.
 //    ③ 창은 밀어 올린다(transform, 네이티브 드라이버). 올라갈 때와 내려갈 때 같은 시간·곡선이다.
+//       🔴 정정(2026-09-26, S15P21E201-1756, 사용자 요청): 밀어 올리기는 없앴다 — 「일부러 하단 탭바를 띄워 놓았는데
+//       밑에서 올라오니 그 뜻이 사라진다」. 이제 떠 있는 막대가 제자리에서 늘어나 창이 된다(Reanimated, 폰 쪽에서 돈다).
+//       「펴고 접을 때 같은 시간·곡선」은 그대로 지킨다.
 import type { ReactNode } from 'react';
-import { Animated, Modal, Text } from 'react-native';
+import { Modal, Text } from 'react-native';
+import * as reanimated from 'react-native-reanimated';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
@@ -94,19 +98,18 @@ describe('폰 여행 화면의 일정 창', () => {
     expect(last().refitKey ?? null).toBeNull();
   });
 
-  it('🔴 창은 네이티브 드라이버로 밀어 올린다 — 올라갈 때와 내려갈 때 같은 시간·곡선', () => {
-    const timing = jest.spyOn(Animated, 'timing');
+  it('🔴 창은 막대가 제자리에서 늘어난 것 — 펴고 접을 때 같은 시간·곡선(S15P21E201-1756)', () => {
+    // 밀어 올리기(translateY)가 없는지는 sheetMorph.test 가 본다. 여기서는 실제 화면을 눌러 두 방향이 같은 움직임인지 본다.
+    const timing = jest.spyOn(reanimated, 'withTiming');
     try {
       mount();
       timing.mockClear();
       fireEvent.press(screen.getByText('지도 보기'));
-      const down = timing.mock.calls.map(([, config]) => config).find((config) => config.toValue === 0);
+      const down = timing.mock.calls.find(([value]) => value === 0);
       fireEvent.press(screen.getByLabelText('일정 펼치기'));
-      const up = timing.mock.calls.map(([, config]) => config).find((config) => config.toValue === 1);
-      expect(down?.useNativeDriver).toBe(true);
-      expect(up?.useNativeDriver).toBe(true);
-      expect(up?.duration).toBe(down?.duration);
-      expect(up?.easing).toBe(down?.easing);
+      const up = timing.mock.calls.find(([value]) => value === 1);
+      expect(down?.[1]).toBeDefined();
+      expect(up?.[1]).toEqual(down?.[1]);
     } finally {
       timing.mockRestore();
     }

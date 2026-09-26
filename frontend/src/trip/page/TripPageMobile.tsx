@@ -16,6 +16,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, BackHandler, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
+import Reanimated, { Easing as REasing, Extrapolation, interpolate, interpolateColor, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -51,6 +52,7 @@ import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
 import { drift, isToday, localDateKey, saysStartsIn, stepStates, type StepState } from '@/plan/tripProgress';
 import { isSkippedToday } from '@/trip/page/emptyDay';
+import { CONTENT_IN, morphSize, TABS_OUT } from '@/trip/page/sheetMorph';
 import { humanTripTitle } from '@/trip/tripNaming';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 
@@ -95,11 +97,14 @@ const HANDLE = 24;
 /** 시안의 곡선 — 미끄러짐·접힘은 부드러운 곡선. */
 const SLIDE = Easing.bezier(0.2, 0.8, 0.2, 1);
 /**
- * 창이 오르내리는 움직임 (S15P21E201-1607). 🔴 올라갈 때와 내려갈 때 «같은 것»을 쓴다.
- * 전에는 튀는 곡선(overshoot)으로 창의 높이·폭·바탕색을 JS 쪽에서 매 프레임 바꿔서, 폰에서 버벅이고 끝에서 출렁였다.
- * 지금은 다 자란 판을 translateY 로만 밀어 올리므로 네이티브 드라이버로 돈다.
+ * 탭바 ↔ 창 움직임 (S15P21E201-1756, 사용자 요청). 🔴 펴고 접을 때 «같은 것»을 쓴다 — 튀는 곡선(overshoot)은 쓰지 않는다.
+ * -1607 은 JS 쪽에서 매 프레임 높이를 바꿔 폰에서 버벅이자 «다 자란 창을 아래에서 밀어 올리기»로 바꿨는데, 그러면
+ * 떠 있는 막대가 커지는 게 아니라 화면이 밑에서 올라와 막대를 띄워 둔 뜻이 사라진다(사용자). 이제는 막대의 폭·높이를
+ * Reanimated 가 폰 쪽(UI 스레드)에서 키운다 — JS 가 바빠도 끊기지 않는다.
  */
-const SHEET_MOTION = { duration: 360, easing: SLIDE, useNativeDriver: true } as const;
+const GROW = { duration: 380, easing: REasing.bezier(0.2, 0.8, 0.2, 1) } as const;
+/** 움직임 줄이기를 켠 사람에게는 늘어나는 대신 이 시간 동안 서서히 나타난다. */
+const FADE_MS = 220;
 /** 창 안에서 일정 ↔ 동행 초대·공유·날씨가 바뀔 때 (S15P21E201-1627). 들어오는 쪽이 이만큼 옆에서 미끄러져 온다. */
 const SWAP_SHIFT = 24;
 const SWAP_MOTION = { duration: 240, easing: SLIDE, useNativeDriver: true } as const;
@@ -197,11 +202,6 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   //    카드 줄 높이가 재어지면 한 번 더 맞춘다(접은 직후 한 번뿐이다).
   const mapRefitKey = panel === 'collapsed' ? `collapsed:${stripHeight}` : null;
 
-  // 창은 다 자란 크기로 깔아 두고 밀어 올린다 — 높이를 매 프레임 바꾸지 않는다.
-  const shown = useRef(new Animated.Value(1)).current;
-  useEffect(() => {
-    Animated.timing(shown, { toValue: panel === 'trip' ? 1 : 0, ...SHEET_MOTION }).start();
-  }, [panel, shown]);
   // 🔴 창 안의 내용이 바뀔 때 한 프레임에 툭 바뀌지 않게 한다 (S15P21E201-1627). 창은 부드럽게 오르는데 안만 툭
   //    바뀌면 다른 화면으로 튄 것처럼 읽혔다. 들어가는 판은 오른쪽에서, 일정으로 돌아올 때는 왼쪽에서 온다.
   const swap = useRef(new Animated.Value(1)).current;
@@ -213,6 +213,31 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
     const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
     return () => { alive = false; sub.remove(); };
   }, []);
+  // ── 탭바 = 창 (S15P21E201-1756) — 떠 있는 막대가 제자리에서 늘어나 창이 되고, 접으면 거꾸로 줄어 막대가 된다 ──
+  //    바닥 여백과 모서리(20)는 막대와 창이 같이 쓴다 — 폭·높이만 자라므로 밑에서 밀려 올라오지 않는다.
+  const barWidth = Math.min(Math.max(0, width - spacing[4] * 2), BAR_MAX_WIDTH);
+  // 🔴 창 폭은 361(탭바 시트 폭)에 묶지 않는다 (S15P21E201-1627) — 폴드 펼침 세로(673)에서 가운데 361 로 떠 일정이 좁게
+  //    줄바꿈됐다. 화면 폭을 따라가되 읽기 좋은 폭(720)에서 멈춘다.
+  const sheetWidth = Math.min(Math.max(0, width - spacing[4] * 2), MAX_CONTENT_WIDTH);
+  /** 0 = 막대, 1 = 창. 처음은 창이 펴진 채다(panel 의 처음 값). */
+  const grow = useSharedValue(panel === 'trip' ? 1 : 0);
+  /** 움직임 줄이기일 때만 쓴다 — 늘어나는 대신 서서히 나타난다. */
+  const fade = useSharedValue(1);
+  useEffect(() => {
+    const target = panel === 'trip' ? 1 : 0;
+    // 🔴 Reanimated 는 시스템 「움직임 줄이기」가 켜져 있으면 모든 움직임을 곧바로 끝낸다(기본값 ReduceMotion.System) —
+    //    그러면 대신 쓰려던 서서히 나타나기도 없어진다(웹 실측). 나타나기는 줄인 움직임 그 자체라 이것만 Never 로 돌린다.
+    if (reduceMotion) { grow.value = target; fade.value = 0; fade.value = withTiming(1, { duration: FADE_MS, reduceMotion: ReduceMotion.Never }); return; }
+    grow.value = withTiming(target, GROW);
+  }, [panel, reduceMotion, grow, fade]);
+  const shellStyle = useAnimatedStyle(() => ({
+    ...morphSize(grow.value, { width: barWidth, height: TAB_BAR_HEIGHT }, { width: sheetWidth, height: sheetHeight }),
+    // 막대는 흰색, 창은 뒤의 지도가 비치는 유리색(S15P21E201-1627) — 자라면서 바뀐다.
+    backgroundColor: interpolateColor(grow.value, [0, 1], [color.surface.card, color.surface.sheetGlass]),
+    opacity: fade.value,
+  }), [barWidth, sheetWidth, sheetHeight]);
+  const tabsStyle = useAnimatedStyle(() => ({ opacity: interpolate(grow.value, [0, TABS_OUT], [1, 0], Extrapolation.CLAMP) }));
+  const sheetInnerStyle = useAnimatedStyle(() => ({ opacity: interpolate(grow.value, [CONTENT_IN[0], CONTENT_IN[1]], [0, 1], Extrapolation.CLAMP) }));
   const lastOverlay = useRef<TripOverlayKind | null>(null);
   useEffect(() => {
     const was = lastOverlay.current;
@@ -662,13 +687,16 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         </ScrollView>
       ) : null}
 
-      {/* ── 접힌 탭 줄 — 홈 · 피드 · 일정 펼치기 · 내 여행 · 뒤로 (시안 4b). 늘 제자리이고, 창이 올라오면 그 밑에 깔린다. ── */}
-      <View pointerEvents="box-none" style={[styles.dock, { paddingBottom: bottomMargin }]}>
-        {/* 🔴 창이 반투명이라(S15P21E201-1627) 밑에 깔린 이 줄이 창 바닥으로 비쳐 보였다 — 창이 오르는 만큼 흐려진다. */}
-        <Animated.View
+      {/* ── 탭바 = 창 (S15P21E201-1756) — 막대 하나가 제자리에서 늘어나 창이 되고, 접으면 줄어 막대로 돌아온다. ──
+          속(탭 줄 · 창 속)은 다 자란 크기로 바닥에 붙여 둔다 — 자라는 동안 줄바꿈이 다시 일어나지 않고, 막대가 커지며 드러낸다.
+          탭 줄은 자라기 시작하면 곧 흐려지고, 창 속은 커지는 끝 무렵 나타난다(sheetMorph). */}
+      <View pointerEvents="box-none" style={[styles.dock, styles.sheetDock, { paddingBottom: bottomMargin }]}>
+        <Reanimated.View style={[styles.bar, styles.sheet, styles.morphShell, shellStyle]}>
+        {/* 접힌 탭 줄 — 홈 · 피드 · 일정 펼치기 · 내 여행 · 뒤로 (시안 4b) */}
+        <Reanimated.View
           pointerEvents={panel === 'collapsed' ? 'auto' : 'none'}
           aria-hidden={panel !== 'collapsed' || undefined}
-          style={[styles.bar, { width: Math.max(0, width - spacing[4] * 2), maxWidth: BAR_MAX_WIDTH, height: TAB_BAR_HEIGHT, backgroundColor: color.surface.card, opacity: shown.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+          style={[styles.shellLayer, { width: barWidth, height: TAB_BAR_HEIGHT, marginLeft: -barWidth / 2 }, tabsStyle]}
         >
           <View style={styles.tabRow}>
             <TabSlot label={tx('홈', 'Home')} icon={TAB_ICONS.home} onPress={() => router.replace('/home')} />
@@ -681,27 +709,13 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
               <View style={styles.backCircle}><View style={styles.chevronLeft} /></View>
             </TabSlot>
           </View>
-        </Animated.View>
-      </View>
+        </Reanimated.View>
 
-      {/* ── 창 — 다 자란 크기로 깔아 두고 밀어 올린다(S15P21E201-1607). 지도는 그 뒤에 그대로 있다. ── */}
-      <View pointerEvents="box-none" style={[styles.dock, styles.sheetDock, { paddingBottom: bottomMargin }]}>
-        <Animated.View
+        {/* 창 속 — 지도는 그 뒤에 그대로 있다 */}
+        <Reanimated.View
           pointerEvents={panel === 'trip' ? 'auto' : 'none'}
           aria-hidden={panel !== 'trip' || undefined}
-          style={[
-            styles.bar,
-            styles.sheet,
-            {
-              width: Math.max(0, width - spacing[4] * 2),
-              // 🔴 361(탭바 시트 폭)에 묶지 않는다 (S15P21E201-1627). 폴드 펼침 세로(673)에서 창이 가운데 361 로 떠
-              //    양옆이 비고 일정이 좁게 줄바꿈됐다. 화면 폭을 따라가되 읽기 좋은 폭(720)에서 멈춘다.
-              maxWidth: MAX_CONTENT_WIDTH,
-              height: sheetHeight,
-              // 접히면 화면 아래로 — 그림자까지 치우게 조금 더 내린다.
-              transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [sheetHeight + bottomMargin + spacing[8], 0] }) }],
-            },
-          ]}
+          style={[styles.shellLayer, { width: sheetWidth, height: sheetHeight, marginLeft: -sheetWidth / 2 }, sheetInnerStyle]}
         >
           <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 접기', 'Hide itinerary')} onPress={() => setPanel('collapsed')} style={styles.handleZone}>
             <View style={styles.handle} />
@@ -727,7 +741,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             </View>
           ) : tripContent}
           </Animated.View>
-        </Animated.View>
+        </Reanimated.View>
+        </Reanimated.View>
       </View>
 
       {naming && tripId ? (
@@ -1088,6 +1103,10 @@ const styles = StyleSheet.create({
   },
   // 창은 탭 줄보다 위에 뜬다 — 같은 받침 모양, 한 층 위.
   sheetDock: { zIndex: 31 },
+  // 막대 = 창 껍데기(S15P21E201-1756). 크기는 shellStyle 이 매 프레임 준다. 속은 넘치는 만큼 가려진다(bar 의 overflow hidden).
+  morphShell: { position: 'relative' },
+  // 껍데기 속 두 겹(탭 줄 · 창 속) — 바닥 가운데에 다 자란 크기로 붙여 둔다. 자라는 껍데기가 이것을 드러낸다.
+  shellLayer: { position: 'absolute', bottom: 0, left: '50%' },
   // 🔴 창 뒤로 지도가 비친다 (S15P21E201-1627) — 탭바가 늘어난 것이지 지도 위에 판을 하나 덮은 것이 아니다.
   //    웹은 뒤를 흐려 글자가 지도 선과 겹쳐 읽히지 않게 한다. 네이티브는 흐림 없이 비침만(새 네이티브 모듈 없이).
   sheet: { backgroundColor: color.surface.sheetGlass, ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px) saturate(1.2)' } as object) : null) },
