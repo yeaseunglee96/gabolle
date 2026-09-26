@@ -39,6 +39,10 @@ type RouteMapProps = {
   height?: number;
   /** 지도 아래쪽이 창에 가려진 높이(px) — 웹 RouteMap 과 같은 뜻(S15P21E201-1607). */
   bottomInset?: number;
+  /** 지도 위쪽이 상태바·칩에 가려진 높이(px) — 웹 RouteMap 과 같은 뜻(S15P21E201-1754). */
+  topInset?: number;
+  /** 이 값이 (null 이 아닌 새 값으로) 바뀌면 지금 여백으로 한 번 다시 맞춘다 — 웹 RouteMap 과 같은 뜻(S15P21E201-1754). */
+  refitKey?: string | number | null;
   /** 고른 곳을 지도 가운데로 옮긴다 — 웹 RouteMap 과 같은 뜻(S15P21E201-1535). 기본은 꺼짐. */
   focusSelected?: boolean;
 };
@@ -62,6 +66,8 @@ export function RouteMap({
   onBackToList,
   height = 340,
   bottomInset = 0,
+  topInset = 0,
+  refitKey = null,
   focusSelected = false,
 }: RouteMapProps) {
   const { tx } = useI18n();
@@ -94,7 +100,8 @@ export function RouteMap({
       currentLocation: currentLocation ?? null,
       // 아래가 창에 가려진 만큼 맞추기 여백을 더 둔다(S15P21E201-1607, 웹과 같은 셈 — mapFocus.ts).
       // 🔴 이 값만 바뀌어서는 다시 보내지 않는다 — 창을 여닫을 때마다 지도가 다시 맞춰져 튀면 안 된다.
-      fitPadding: fitPadding(bottomInset, height),
+      //    다시 맞추는 것은 refitKey 가 바뀔 때 한 번뿐이다(아래 sendRefit).
+      fitPadding: fitPadding(bottomInset, height, topInset),
       colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas, casing: color.surface.card },
       focus: focusSelected,
       shiftY: focusShiftY(bottomInset, height),
@@ -108,6 +115,13 @@ export function RouteMap({
     if (!sdkReadyRef.current || !webViewRef.current) return;
     const data = { selectedId, focus: focusSelected, shiftY: focusShiftY(bottomInset, height) };
     webViewRef.current.injectJavaScript(`window.__selectKakaoMap(${JSON.stringify(data)}); true;`);
+  };
+
+  // 여백만 새로 보내 같은 범위를 다시 맞춘다(S15P21E201-1754) — «지도 보기»처럼 딱 끊어지는 전환 때만.
+  const sendRefit = () => {
+    if (!sdkReadyRef.current || !webViewRef.current) return;
+    const data = { fitPadding: fitPadding(bottomInset, height, topInset), shiftY: focusShiftY(bottomInset, height) };
+    webViewRef.current.injectJavaScript(`window.__fitKakaoMap(${JSON.stringify(data)}); true;`);
   };
 
   // 현재 위치는 점만 옮긴다. 위치 객체는 부를 때마다 새것이라 좌표 두 숫자로 본다.
@@ -128,6 +142,15 @@ export function RouteMap({
     sendSelect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, focusSelected]);
+
+  // 🔴 null 로 바뀔 때(창을 다시 열 때)는 안 맞춘다 — 창을 열 때 지도가 튀면 안 된다. 처음 뜰 때는 sendRender 가 맞춘다.
+  const lastRefitKey = useRef(refitKey);
+  useEffect(() => {
+    if (refitKey === lastRefitKey.current) return;
+    lastRefitKey.current = refitKey;
+    if (refitKey != null) sendRefit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refitKey]);
 
   useEffect(() => {
     sendLocation();

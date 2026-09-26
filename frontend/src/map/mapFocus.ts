@@ -7,10 +7,15 @@
 
 const EDGE = 60;
 
-/** 전체를 맞출 때의 여백 [위, 오른쪽, 아래, 왼쪽]. 아래는 가려진 만큼 더 — 다만 지도에 보일 자리(위아래 120)는 남긴다. */
-export function fitPadding(bottomInset: number, mapHeight: number): [number, number, number, number] {
-  const bottom = Math.min(EDGE + Math.max(0, bottomInset), Math.max(EDGE, mapHeight - EDGE * 2));
-  return [EDGE, EDGE, bottom, EDGE];
+/**
+ * 전체를 맞출 때의 여백 [위, 오른쪽, 아래, 왼쪽]. 아래는 가려진 만큼 더 — 다만 지도에 보일 자리(위아래 120)는 남긴다.
+ * 위도 가려진 만큼(topInset — 상태바와 지도 위에 뜬 칩) 더 둔다(S15P21E201-1754). 전에는 위가 늘 60 이라
+ * 폰에서 출발지·정차지가 상태바와 「장소 N곳」·「경사/그늘」 칩 밑으로 숨었다.
+ */
+export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0): [number, number, number, number] {
+  const top = EDGE + Math.max(0, topInset);
+  const bottom = Math.min(EDGE + Math.max(0, bottomInset), Math.max(EDGE, mapHeight - top - EDGE));
+  return [top, EDGE, bottom, EDGE];
 }
 
 /**

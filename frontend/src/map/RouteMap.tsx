@@ -110,9 +110,16 @@ type RouteMapProps = {
    *    다음에 맞출 때(고른 곳이 바뀔 때 등) 쓴다.
    */
   bottomInset?: number;
+  /** 지도 위쪽이 상태바·지도 위 칩에 가려진 높이(px). 맞출 때 그만큼 위 여백을 더 둔다(S15P21E201-1754). */
+  topInset?: number;
+  /**
+   * 이 값이 null 이 아닌 새 값으로 바뀌면 지금 여백으로 한 번 다시 맞춘다(S15P21E201-1754). 폰 여행 화면이 «지도 보기»로
+   * 창을 접을 때 쓴다 — 창이 열린 채 맞춘 큰 아래 여백이 남아 경로가 위쪽에 몰려 있었다. null 로 바뀔 때는 안 맞춘다.
+   */
+  refitKey?: string | number | null;
 };
 
-export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340, focusSelected = false, bottomInset = 0 }: RouteMapProps) {
+export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340, focusSelected = false, bottomInset = 0, topInset = 0, refitKey = null }: RouteMapProps) {
   const { tx } = useI18n();
   const hostRef = useRef<HTMLElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -122,6 +129,8 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   // 가려진 높이는 «맞출 때» 읽는다 — 의존성에 넣으면 창을 여닫을 때마다 지도가 다시 맞춰져 튄다.
   const insetRef = useRef(bottomInset);
   insetRef.current = bottomInset;
+  const topInsetRef = useRef(topInset);
+  topInsetRef.current = topInset;
   // 지도 칸의 실제 높이 — 여백이 칸보다 커지지 않게 잰다.
   const hostHeight = () => hostRef.current?.clientHeight || height;
   const [failure, setFailure] = useState<MapFailure | null>(null);
@@ -267,7 +276,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
         const fit = () => {
           if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); return; }
-          const [top, right, bottom, left] = fitPadding(insetRef.current, hostHeight());
+          const [top, right, bottom, left] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current);
           map.setBounds(bounds, top, right, bottom, left);
         };
         // 🔴 모두 들어오게 맞춘 «다음에» 고른 곳으로 민다(panTo 는 부드럽게 옮긴다). 맞추기를 건너뛰면
@@ -378,6 +387,15 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     observer.observe(host);
     return () => observer.disconnect();
   }, [height]);
+
+  // «지도 보기»로 창을 접었을 때 한 번 다시 맞춘다(S15P21E201-1754, 앱 RouteMap.native.tsx 와 같은 규칙).
+  // 🔴 null 로 바뀔 때(창을 다시 열 때)는 안 맞춘다 — 창을 열 때 지도가 튀면 안 된다.
+  const lastRefitKey = useRef(refitKey);
+  useEffect(() => {
+    if (refitKey === lastRefitKey.current) return;
+    lastRefitKey.current = refitKey;
+    if (refitKey != null) fitRef.current?.();
+  }, [refitKey]);
 
   // 지도에 어림 선(옅은 선)이 하나라도 있으면 그 뜻을 글로 적는다(S15P21E201-1656 — 점선 대신 옅게 그린다).
   // 옅은 선이 무슨 뜻인지 모르는 사람에게는 진한 선과 다를 바가 없고, 그러면 옅게 그리는
