@@ -14,7 +14,7 @@ import { useI18n } from '@/i18n';
 import { toBcp47 } from '@/i18n/languages';
 import { useAuth } from '@/auth/AuthProvider';
 import { directionForLanguage, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
-import { canSearchDestination, destinationSubtitle, searchTaxiDestinations, type TaxiDestinationOutcome } from '@/field/taxiDestination';
+import { canSearchDestination, destinationSubtitle, searchTaxiDestinations, taxiCardHref, type TaxiDestinationOutcome } from '@/field/taxiDestination';
 import { KOREAN_OR_ENGLISH_HINT, needsKoreanOrEnglishName } from '@/discovery/nameSearchHint';
 import { txf } from '@/i18n/format';
 
@@ -57,13 +57,13 @@ export default function Speak() {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       setDestinationSearching(true);
-      const outcome = await searchTaxiDestinations(destinationQuery, controller.signal);
+      const outcome = await searchTaxiDestinations(destinationQuery, controller.signal, accessToken);
       if (controller.signal.aborted) return;
       setDestination(outcome);
       setDestinationSearching(false);
     }, 250);
     return () => { controller.abort(); clearTimeout(timer); };
-  }, [destinationQuery]);
+  }, [destinationQuery, accessToken]);
 
   function blockedNotice(reason: TranslationBlockedReason): string {
     if (reason === 'signed-out') return tx('번역은 로그인한 뒤에 쓸 수 있어요. 지금은 입력한 그대로 읽어드릴게요.', "Translation needs you to sign in. For now we'll read out what you typed, as it is.");
@@ -309,14 +309,14 @@ export default function Speak() {
                 const subtitle = destinationSubtitle(item);
                 return (
                   <Pressable
-                    key={item.placeId}
+                    key={item.key}
                     accessibilityRole="button"
-                    accessibilityLabel={txf(tx, '%s 택시 카드 열기', 'Open taxi card for %s', item.nameKo)}
-                    onPress={() => router.push(`/taxi-card/${item.placeId}`)}
+                    accessibilityLabel={txf(tx, '%s 택시 카드 열기', 'Open taxi card for %s', item.name)}
+                    onPress={() => router.push(taxiCardHref(item))}
                     style={({ pressed }) => [styles.destinationItem, pressed && styles.pressed]}
                   >
                     <View style={styles.destinationBody}>
-                      <Text variant="body" weight="bold">{item.nameKo}</Text>
+                      <Text variant="body" weight="bold">{item.name}</Text>
                       {/* 주소가 없으면 아예 안 적는다 — 「정보 없음」은 줄만 차지한다. */}
                       {subtitle ? <Text variant="caption" color={color.text.body}>{subtitle}</Text> : null}
                     </View>

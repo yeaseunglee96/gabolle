@@ -14,6 +14,9 @@ import { color, radius, spacing } from '@/design/tokens';
 import { getTaxiCard, type TaxiCard } from '@/discovery/taxiCard';
 import { useI18n } from '@/i18n';
 
+/** 카카오 결과로 연 카드의 자리표시 id — speak.tsx 의 taxiCardHref 가 쓴다. */
+const EXTERNAL_ID = 'external';
+
 type State =
   | { status: 'loading' }
   | { status: 'loaded'; card: TaxiCard }
@@ -23,13 +26,23 @@ type State =
 export default function TaxiCardScreen() {
   const router = useRouter();
   const { tx } = useI18n();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, name, address } = useLocalSearchParams<{ id?: string; name?: string; address?: string }>();
   const [state, setState] = useState<State>({ status: 'loading' });
   const [retryCount, setRetryCount] = useState(0);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!id) return;
+    // 카카오에서 고른 곳(S15P21E201-1742) — 우리 DB 에 없는 장소라 서버에 물을 것이 없다. 받은 이름·주소로 그린다.
+    // 🔴 문장 형식은 서버(TaxiCardService#driverSentence)와 같게 둔다.
+    if (id === EXTERNAL_ID) {
+      const placeName = (name ?? '').trim();
+      const placeAddress = (address ?? '').trim();
+      setState(placeName
+        ? { status: 'loaded', card: { placeId: EXTERNAL_ID, nameKo: placeName, addressKo: placeAddress || undefined, resolvedLanguage: 'ko', driverSentence: '이 주소로 가주세요, ' + (placeAddress || placeName) } }
+        : { status: 'not-found' });
+      return;
+    }
     let active = true;
     const controller = new AbortController();
     setState({ status: 'loading' });
@@ -40,7 +53,7 @@ export default function TaxiCardScreen() {
         setState(cause instanceof ApiClientError && cause.status === 404 ? { status: 'not-found' } : { status: 'error' });
       });
     return () => { active = false; controller.abort(); };
-  }, [id, retryCount]);
+  }, [id, name, address, retryCount]);
 
   async function copyAddress(address: string) {
     await Clipboard.setStringAsync(address);
@@ -81,9 +94,13 @@ export default function TaxiCardScreen() {
           <Text variant="caption" weight="bold" color={color.text.accent}>
             {tx('기사님께 보여주세요', 'Show this to the driver')}
           </Text>
-          <Text variant="hero" weight="bold" color={color.text.heading} style={styles.address}>
-            {state.card.addressKo || state.card.nameKo}
+          {/* 🔴 이름을 가장 크게 — 기사는 주소보다 내비에 장소 이름을 넣는 일이 더 많다(S15P21E201-1742). */}
+          <Text testID="taxi-card-name" variant="hero" weight="bold" color={color.text.heading} style={styles.address}>
+            {state.card.nameKo}
           </Text>
+          {state.card.addressKo ? (
+            <Text testID="taxi-card-address" variant="title" weight="bold" color={color.text.heading}>{state.card.addressKo}</Text>
+          ) : null}
           {state.card.addressEn ? (
             <Text variant="title" color={color.text.body}>{state.card.addressEn}</Text>
           ) : null}
