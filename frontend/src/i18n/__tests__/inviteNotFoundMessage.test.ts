@@ -14,3 +14,8 @@ describe('초대를 찾지 못했을 때의 서버 문장', () => {
     expect(localizeMessage(ko, '초대를 찾을 수 없습니다.')).toBe('초대를 찾을 수 없습니다.');
   });
 });
+
+it('🔴 일본어 화면도 번역표에서 찾는다', () => {
+  const ja = (k: string, english: string) => pickLanguage('ja', { ko: k, en: english });
+  expect(localizeMessage(ja, '초대를 찾을 수 없습니다.')).toBe('招待が見つかりません。');
+});
