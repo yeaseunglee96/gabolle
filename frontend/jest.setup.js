@@ -26,7 +26,8 @@ jest.mock('react-native-reanimated', () => {
     useSharedValue: (value) => ({ value }),
     useAnimatedStyle: (fn) => fn(),
     useReducedMotion: () => false,
-    withTiming: (value) => value,
+    // 끝났다는 알림도 곧바로 준다 — 여행 화면은 움직임이 끝난 뒤에 창 상태를 바꾼다(S15P21E201-1763).
+    withTiming: (value, _config, callback) => { if (callback) callback(true); return value; },
     withRepeat: (value) => value,
     withSequence: (...values) => values[values.length - 1],
     cancelAnimation: () => {},
@@ -39,3 +40,5 @@ jest.mock('react-native-reanimated', () => {
     ReduceMotion: { System: 'system', Always: 'always', Never: 'never' },
   };
 });
+// 움직임이 끝난 뒤 앱 쪽 함수를 부르는 것(scheduleOnRN)도 같은 까닭으로 흉내 낸다 — 곧바로 부른다.
+jest.mock('react-native-worklets', () => ({ scheduleOnRN: (fn, ...args) => fn(...args) }));

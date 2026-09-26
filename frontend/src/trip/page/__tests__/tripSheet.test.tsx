@@ -114,6 +114,35 @@ describe('폰 여행 화면의 일정 창', () => {
       timing.mockRestore();
     }
   });
+
+  it('🔴 누르면 움직임부터 시작하고, 창 상태(화면 다시 그리기)는 움직임이 끝난 뒤에 바뀐다(S15P21E201-1763)', () => {
+    // 사용자: 「갤럭시 크롬에서는 좀 버벅인다」. 전에는 상태를 먼저 바꿔 여행 화면 전체를 다시 그린 뒤에야 움직였다 —
+    // CPU 6배 느림에서 누른 뒤 움직이기까지 240~350ms. 웹에서는 Reanimated 도 같은 주 스레드라 그 일이 끝나야 움직였다.
+    const ends: Array<(finished: boolean) => void> = [];
+    const timing = jest.spyOn(reanimated, 'withTiming').mockImplementation(((value: number, _config?: unknown, callback?: (finished: boolean) => void) => {
+      if (callback) ends.push(callback);
+      return value;
+    }) as unknown as typeof reanimated.withTiming);
+    try {
+      mount();
+      const last = () => mapProps[mapProps.length - 1];
+      const openInset = last().bottomInset ?? 0;
+      fireEvent.press(screen.getByText('지도 보기'));
+      // 접는 움직임은 시작됐지만 창 상태는 아직 그대로다 — 지도에 알리는 가린 높이도, 다시 맞추라는 신호도 그대로
+      expect(timing).toHaveBeenCalledWith(0, expect.anything(), expect.any(Function));
+      expect(last().bottomInset ?? 0).toBe(openInset);
+      expect(last().refitKey ?? null).toBeNull();
+      // 도중에 끊긴 움직임(반대로 누름)은 상태를 바꾸지 않는다
+      act(() => { ends[0](false); });
+      expect(last().refitKey ?? null).toBeNull();
+      // 다 접히면 그때 바뀐다
+      act(() => { ends[0](true); });
+      expect(last().refitKey).not.toBeNull();
+      expect(last().bottomInset ?? 0).toBeLessThan(openInset);
+    } finally {
+      timing.mockRestore();
+    }
+  });
 });
 
 // 쓰지 않는 가져오기 경고를 막는다 — Text 는 가짜 판 안에서 requireActual 로 쓴다.
