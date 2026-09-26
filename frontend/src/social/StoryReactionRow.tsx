@@ -25,7 +25,7 @@ import type { StoryDto } from '@/social/stories';
 export type Reaction = 'LIKE' | 'DISLIKE';
 
 /** 반응 판정과 그리기에 필요한 최소 칸 — 목록 항목도 상세 응답도 이 모양을 만족한다. */
-export type ReactableStory = Pick<StoryDto, 'myReaction' | 'likeCount' | 'dislikeCount' | 'linkCopyCount'>;
+export type ReactableStory = Pick<StoryDto, 'myReaction' | 'likeCount' | 'dislikeCount' | 'linkCopyCount'> & Partial<Pick<StoryDto, 'mine'>>;
 
 /** 누른 결과가 무엇인가 — 같은 것을 다시 누르면 끄고(null), 다른 것을 누르면 바꾼다. */
 export function nextReaction(was: Reaction | null | undefined, pressed: Reaction): Reaction | null {
@@ -121,6 +121,9 @@ export function StoryReactionRow({
 }) {
   const { tx } = useI18n();
   const liked = story.myReaction === 'LIKE';
+  // 🔴 내 글(함께 쓰는 글 포함)에는 좋아요를 못 단다 — 서버가 막는다(StoryReactionService). 전에는 단추가 눌리는데
+  //    아무 일도 없어서 고장으로 보였다(S15P21E201-1766, Play 35 실기기). 잠그고 이유를 읽어 준다.
+  const own = story.mine === true;
   const quotes = story.linkCopyCount;
   const likeLabel = tx('좋아요', 'Like');
   const onTint = color.text.onAction;
@@ -130,9 +133,9 @@ export function StoryReactionRow({
     <View style={[storyReactionStyles.row, style]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={liked ? tx('좋아요 취소', 'Remove like') : likeLabel}
-        accessibilityState={{ selected: liked, busy: reacting }}
-        disabled={reacting}
+        accessibilityLabel={own ? tx('내 글에는 좋아요를 누를 수 없어요', "You can't like your own post") : liked ? tx('좋아요 취소', 'Remove like') : likeLabel}
+        accessibilityState={{ selected: liked, busy: reacting, disabled: own }}
+        disabled={reacting || own}
         hitSlop={storyReactionTouchSlop}
         onPress={() => onReact('LIKE')}
         style={[storyReactionStyles.button, liked && storyReactionStyles.buttonOn, reacting && storyReactionStyles.busy]}

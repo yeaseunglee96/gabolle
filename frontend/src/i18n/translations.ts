@@ -2815,6 +2815,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '확정하면 이 카드는 접혀요. 위에서 다시 바꿀 수 있어요.': { ja: '確定するとこのカードはたたまれます。上からいつでも変更できます。', zhHans: '确定后此卡片会收起。可在上方重新更改。', zhHant: '確定後此卡片會收起。可在上方重新更改。' },
   '추정값': { ja: '推定値', zhHans: '估算值', zhHant: '估算值' },
   '✓ 다녀옴': { ja: '✓ 訪問済み', zhHans: '✓ 已去过', zhHant: '✓ 已去過' },
+  '내 글에는 좋아요를 누를 수 없어요': { ja: '自分の投稿には「いいね」できません', zhHans: '不能给自己的帖子点赞', zhHant: '不能給自己的貼文按讚' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
