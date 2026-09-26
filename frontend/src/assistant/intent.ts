@@ -84,3 +84,17 @@ export function understandAssistantMessage(raw: string): AssistantAction {
   }
   return { kind: 'help', reply: t('부산 일정 만들기, 한국어 현장 문장, 로컬 스팟 탐색, 내 여행 찾기를 도와드릴 수 있어요.', 'I can help you build a Busan itinerary, find on-the-go Korean phrases, explore local spots, or find your saved trips.') };
 }
+
+/**
+ * 서버 AI 에 못 닿았을 때의 답 — S15P21E201-1749.
+ *
+ * 🔴 전에는 로컬 해석기(낱말만 보는 거친 도구)의 답을 그대로 보였다. 그 해석기는 대부분의 질문을
+ *    못 알아듣고 「…를 도와드릴 수 있어요」라는 기본 안내로 떨어져서, 실기기에서 「자갈치 해산물
+ *    추천」에 그 안내만 돌아왔다 — 실패했다는 말이 어디에도 없었다.
+ *    알아들은 것(현장 문장·길 안내)은 그대로 쓰고, 못 알아들었을 때만 실패를 알린다.
+ */
+export function assistantUnavailable(raw: string): AssistantAction {
+  const local = understandAssistantMessage(raw);
+  if (local.kind !== 'help') return local;
+  return { kind: 'help', reply: t('지금은 답을 받지 못했어요. 잠시 뒤 다시 물어봐 주세요.', "I couldn't get an answer just now. Please try again in a moment.") };
+}
