@@ -1,2 +1,4 @@
 # 파이썬이 돌 때 만드는 캐시
 __pycache__/
+# CI 예약 잡이 pip · JDBC 드라이버를 모아 두는 곳(ci-run.sh · S15P21E201-1750)
+.ci-cache/

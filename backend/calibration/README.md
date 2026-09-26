@@ -100,3 +100,107 @@ CALIBRATION_DB_URL=jdbc:postgresql://<호스트>:<포트>/<DB> CALIBRATION_DB_US
 2. 러너가 운영 DB 에 닿는 길 — 포트 넘김만 되는 전용 계정·키(GitLab CI 변수 Masked·Protected) + DB 역할(창구 뷰 SELECT · 결과 표 INSERT 만). **iOS 심사 뒤.**
 3. GitLab 예약 파이프라인(새벽 한 번, 백업 러너). 실패는 GitLab 메일로 온다.
 4. 표본이 쌓이는지 본 뒤 `GABOLLE_CALIBRATION_STAY_ENABLED=true`.
+
+## 예약 — 매일 03:00 운영에서 (S15P21E201-1750)
+
+```
+[GitLab 예약 03:00, ref back/dev, SCHEDULE_KIND=calibration]
+   └▶ 잡 calibration:run — EC2 보조 러너(2065)만(태그 calibration) · CPU 2 · 4GB
+        └▶ ci-run.sh: 파이썬 · pyspark · JDBC 드라이버(지문 확인) → SSH 터널 → run.py stay_minutes · travel_multiplier
+             └▶ calib-tunnel@운영 ─(포트 넘기기만)─▶ 127.0.0.1:15432 ─ 중계 컨테이너 calib-db-relay ─▶ postgres:5432
+                  └▶ 계정 calibration_job: 뷰 둘 SELECT · calibration_value SELECT · INSERT 만
+```
+
+잡과 이 PC 로컬 리허설은 **같은 `ci-run.sh`** 를 돌린다. 리허설(같은 이미지 · 같은 제한) 결과:
+- 처음 81초(pyspark 받기 53초)
+- 캐시가 있으면 31초
+- 터널을 거치면 35초
+
+### 🔴 뷰 · 결과 표를 다시 만들면 권한이 사라진다
+
+보정 계정의 권한은 **그 개체에** 붙어 있다. 마이그레이션이 `calibration_stay_source` · `calibration_travel_source` · `calibration_value` 를 `DROP` 하고 다시 `CREATE` 하면 권한이 조용히 사라지고, 다음 새벽 예약이 `permission denied` 로 멈춘다. (`CREATE OR REPLACE VIEW` 는 권한을 지킨다.)
+
+그런 마이그레이션은 끝에 이 조각을 더한다. 그 계정이 없는 개발 · 시험 DB 에서는 아무것도 안 한다.
+
+```sql
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'calibration_job') THEN
+    GRANT SELECT ON calibration_stay_source, calibration_travel_source TO calibration_job;
+    GRANT SELECT, INSERT ON calibration_value TO calibration_job;
+  END IF;
+END $$;
+```
+
+`CalibrationGrantGuardTest` 가 이것을 지킨다 — 조각이 빠진 새 마이그레이션이면 빨개진다. 원래 뷰 마이그레이션 파일 머리에 적지 않은 까닭: 이미 운영에 적용된 파일이라 주석 한 줄에도 Flyway 지문 검사가 걸려 서버가 안 뜬다.
+
+### 운영 쪽 준비 (한 번 · 사람이 · 사용자 확인 뒤)
+
+🔴 비밀값(비밀번호 · 개인 열쇠)은 화면 · 파일 · 명령 줄에 남기지 않는다. 만든 자리에서 바로 CI 변수로 보낸다.
+
+**① 보정 전용 DB 계정** — `app_user` 는 계정을 만들 권한이 없어 Flyway 로는 못 만든다. 슈퍼유저 `postgres` 로(컨테이너 안 소켓):
+
+```sql
+-- docker exec -i local-route-personalization-postgres-1 psql -U postgres -d app_db -v ON_ERROR_STOP=1
+-- 비밀번호는 표준입력의 \set pw '…' 로만 넘긴다
+CREATE ROLE calibration_job LOGIN PASSWORD :'pw' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT CONNECTION LIMIT 2;
+GRANT CONNECT ON DATABASE app_db TO calibration_job;
+GRANT USAGE ON SCHEMA gabolle TO calibration_job;
+GRANT SELECT ON gabolle.calibration_stay_source, gabolle.calibration_travel_source TO calibration_job;
+GRANT SELECT, INSERT ON gabolle.calibration_value TO calibration_job;
+ALTER ROLE calibration_job SET search_path = gabolle;
+ALTER ROLE calibration_job SET statement_timeout = '5min';
+```
+
+뷰는 만든 사람(`app_user`) 권한으로 돈다. 그래서 뷰만 주면 원 표(방문 기록 · 장소 · 사람)는 안 보인다. 리허설에서 원 표 조회와 결과 표 `DELETE` 가 `permission denied` 인 것을 확인했다.
+
+**② 중계 컨테이너** — DB 5432 는 호스트에 공개돼 있지 않다(도커 내부망만). 호스트 루프백에만 여는 중계를 둔다. 별명 `postgres` 로 가므로 DB 컨테이너를 다시 만들어 IP 가 바뀌어도 된다. 이미지는 **지문으로 고정**한다 — alpine/socat 1.8.1.1(2026-06-20). 당일 올라온 latest 는 피했다.
+
+```bash
+docker run -d --name calib-db-relay --restart unless-stopped \
+  --network local-route-personalization_data_net -p 127.0.0.1:15432:5432 --memory 32m \
+  alpine/socat@sha256:7f9a06753033f2b7de18edc2353f2c15153413d95a039163c6db270fc7a6c3b0 \
+  TCP-LISTEN:5432,fork,reuseaddr TCP:postgres:5432
+```
+
+**③ 터널 전용 계정** — 비밀번호 없음 · 셸 없음. 열쇠는 포트 넘기기(127.0.0.1:15432)만 된다.
+
+```bash
+sudo adduser --system --group --shell /usr/sbin/nologin --home /home/calib-tunnel calib-tunnel
+sudo install -d -m 700 -o calib-tunnel -g calib-tunnel /home/calib-tunnel/.ssh
+# authorized_keys 한 줄(공개 열쇠만):
+#   restrict,port-forwarding,permitopen="127.0.0.1:15432" ssh-ed25519 AAAA… calibration-ci
+```
+
+리허설(운영 흉내 컨테이너)에서 두 가지를 확인했다. 같은 열쇠로 셸을 열면 「This account is not available」, 다른 포트는 「administratively prohibited」로 거부된다.
+
+**④ GitLab** (Maintainer)
+- CI 변수(프로젝트, **Protected**):
+
+| 변수 | Masked | 값 |
+|---|---|---|
+| `CALIBRATION_DB_PASSWORD` | ✔ | ① 의 비밀번호 |
+| `CALIB_SSH_KEY_B64` | ✔ | 개인 열쇠 base64. 만든 PC 의 파일은 바로 지운다 |
+| `CALIB_SSH_KNOWN_HOSTS` | | 운영 호스트 키 한 줄 |
+
+- 러너 2065 에 태그 `calibration` 을 더한다(`heavy` 는 그대로).
+- 예약: `0 3 * * *` · Asia/Seoul · ref `back/dev` · 변수 `SCHEDULE_KIND=calibration`.
+
+### 확인
+
+- 예약을 손으로 한 번 돌린다. CI 잡 로그에 단계별 시간이 찍히고, `calibration_value` 에 체류 보류(HELD) 줄이 쌓인다.
+- 이동은 원천이 0줄이면 줄을 쓰지 않는다 — 출발 기록이 쌓이기 전에는 정상이다.
+
+### 되돌리기 (거꾸로)
+
+```bash
+# GitLab: 예약 끄기/지우기 · CI 변수 셋 지우기 · 러너 2065 태그에서 calibration 빼기
+sudo deluser --remove-home calib-tunnel
+docker rm -f calib-db-relay
+docker image rm alpine/socat@sha256:7f9a06753033f2b7de18edc2353f2c15153413d95a039163c6db270fc7a6c3b0
+# docker exec -i local-route-personalization-postgres-1 psql -U postgres -d app_db
+#   REVOKE ALL ON gabolle.calibration_stay_source, gabolle.calibration_travel_source, gabolle.calibration_value FROM calibration_job;
+#   REVOKE USAGE ON SCHEMA gabolle FROM calibration_job; REVOKE CONNECT ON DATABASE app_db FROM calibration_job;
+#   DROP ROLE calibration_job;
+```
+
+쌓인 `calibration_value` 줄은 지우지 않아도 된다. 앱은 스위치(`GABOLLE_CALIBRATION_*_ENABLED`)가 켜져 있고 `PASSED` 인 값만 읽는다.
