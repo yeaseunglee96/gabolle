@@ -1,4 +1,6 @@
-import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
+import { apiRequest, ApiClientError } from '@/api/client';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
 import { getNearbyPlaces } from '@/discovery/localExplore';
 import type { DataStatus } from '@/plan/recommendations';
 
@@ -17,7 +19,10 @@ export type NowRecommendationResultDto = { candidates: NowCandidateDto[]; weathe
 export type NowCandidate = NowCandidateDto & { reasons: string[] };
 export type NowViewModel = { state: NowViewState; candidates: NowCandidate[]; weatherApplied: boolean; message: string };
 
-const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+// 🔴 화면 문구는 고른 언어의 번역표로 — S15P21E201-1767. 전에는 서버용 언어(ko|en 뿐)로 골라서 일본어·중국어
+//    화면에 추천 이유가 「Matches your interests」처럼 영어로 떴다(Play 35 실기기). 표에 줄은 이미 있었다.
+//    intent.ts(S15P21E201-1517)와 같은 방식이다. 표에 없는 문구는 전과 같이 영어로 떨어진다.
+const t = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 const NOW_REASON: Record<string, [string, string]> = {
   SHORT_TRAVEL: ['이동 시간이 짧아요', 'A short trip away'],
