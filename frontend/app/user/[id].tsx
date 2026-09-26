@@ -71,7 +71,11 @@ export default function UserProfile() {
     if (state.status !== 'loaded' || !id) return false;
     const outcome = await setBlocked(id, true, accessToken);
     if (outcome.state !== 'success') return false;
-    setBlockNotice(tx('이제 이 사용자에게 내 글이 보이지 않아요.', "This user can no longer see your posts."));
+    // 🔴 S15P21E201-1722 — S15P21E201-1714 로 차단이 양방향이 됐는데 이 안내는 한 방향만 말하고 있었다.
+    setBlockNotice(tx(
+      '이제 이 사용자에게 내 글이 안 보이고, 내 피드에도 이 사람 글이 안 보여요.',
+      "This user can no longer see your posts, and their posts won't show up in your feed either.",
+    ));
     await load();
     return true;
   };

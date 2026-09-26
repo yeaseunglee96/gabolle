@@ -46,7 +46,8 @@ export function panelTitle(key: MyPanelKey, tx: Translate): { title: string; des
     // 설정에서 바로 들어오는 문 — 탈퇴 흐름은 프로필 패널 안에 있고, 여기서는 그 흐름을 열어 둔 채로 연다(S15P21E201-1401).
     case 'delete-account': return { title: tx('회원 탈퇴', 'Delete account'), description: tx('여행, 기록, 취향이 모두 지워지고 되돌릴 수 없어요.', 'Your trips, records, and preferences are all deleted. This cannot be undone.') };
     case 'notifications': return { title: tx('알림', 'Notifications'), description: tx('나에게 온 소식이에요.', 'Updates for you.') };
-    case 'blocked': return { title: tx('차단된 계정', 'Blocked accounts'), description: tx('차단한 사람에게는 내 글이 보이지 않아요.', "People you've blocked can't see your posts.") };
+    // 🔴 S15P21E201-1722 — S15P21E201-1714 로 차단이 양방향이 됐는데 이 설명은 한 방향만 말하고 있었다.
+    case 'blocked': return { title: tx('차단된 계정', 'Blocked accounts'), description: tx('차단한 사람에게는 내 글이 안 보이고, 내 피드에도 그 사람 글이 안 보여요.', "People you've blocked can't see your posts, and their posts won't show up in your feed either.") };
     case 'help': return { title: tx('도움말·문의', 'Help & support'), description: tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting') };
     case 'terms': return { title: tx('약관·고지', 'Terms & notices'), description: tx('가볼래를 쓰실 때 적용되는 약관과, 이 앱이 쓰는 자료의 출처예요.', 'The terms that apply to Gabolle, and where the data in this app comes from.') };
   }

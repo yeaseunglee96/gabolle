@@ -462,14 +462,18 @@ export default function StoryDetail() {
     if (outcome.state === 'success') setAuthorFollowing(outcome.following);
   };
 
-  // 차단은 「이 글」이 아니라 「이 사람」에 대한 것이다. 차단해도 이 글은 내 화면에서 그대로
-  // 보인다 — 거르는 일은 서버가 상대 쪽 화면에서 한다.
+  // 차단은 「이 글」이 아니라 「이 사람」에 대한 것이다. 지금 이미 열어 둔 이 글은 차단해도 화면에서
+  // 그대로 보인다(직접 주소로 여는 것은 안 막는다) — 하지만 다음에 피드 목록을 다시 열면 이 사람의
+  // 글은 양쪽 다 빠진다(S15P21E201-1714·1722). 「이 글만은 예외」와 「피드 전체가 그렇다」를 헷갈리지 않는다.
   const confirmBlock = async () => {
     const authorId = story?.author.id;
     if (!authorId) return false;
     const outcome = await setBlocked(authorId, true, accessToken);
     if (outcome.state !== 'success') return false;
-    setBlockNotice(tx('이제 이 사용자에게 내 글이 보이지 않아요.', "This user can no longer see your posts."));
+    setBlockNotice(tx(
+      '이제 이 사용자에게 내 글이 안 보이고, 내 피드에도 이 사람 글이 안 보여요.',
+      "This user can no longer see your posts, and their posts won't show up in your feed either.",
+    ));
     return true;
   };
 
