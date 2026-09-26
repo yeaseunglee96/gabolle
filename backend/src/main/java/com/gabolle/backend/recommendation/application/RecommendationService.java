@@ -282,6 +282,11 @@ public class RecommendationService {
 				// recordFailure 로 남긴다.
 				draft = port.assemble(buildDraftCommand(job, assembly));
 			}
+			catch (ItineraryDraftPort.NoTimeLeftTodayException ex) {
+				// 고장이 아니라 사용자에게 알릴 사실이다 — 조립 실패와 섞으면 앱이 「다시 시도」를 권한다.
+				throw abandon(job, RecommendationCodes.ERROR_ITINERARY_NO_TIME_LEFT_TODAY, JobStage.ROUTE_OPTIMIZATION,
+						false, false, createdAt, startedNanos, ex);
+			}
 			catch (RuntimeException ex) {
 				throw abandon(job, RecommendationCodes.ERROR_ITINERARY_ASSEMBLY_FAILED, JobStage.ROUTE_OPTIMIZATION,
 						false, false, createdAt, startedNanos, ex);

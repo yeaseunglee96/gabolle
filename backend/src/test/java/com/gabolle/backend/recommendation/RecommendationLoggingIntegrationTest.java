@@ -24,6 +24,7 @@ import com.gabolle.backend.recommendation.application.RecommendationFailedExcept
 import com.gabolle.backend.recommendation.application.RecommendationResult;
 import com.gabolle.backend.recommendation.application.RecommendationService;
 import com.gabolle.backend.recommendation.application.RecommendedPlace;
+import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
 import com.gabolle.backend.recommendation.domain.CandidateStage;
 import com.gabolle.backend.recommendation.domain.ConstraintSeverity;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
@@ -317,6 +318,26 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 		assertThat(failedEvents().get(0).getPayload())
 				.contains(RecommendationCodes.ERROR_NO_FEASIBLE_RESULT);
 		assertThat(this.candidateRepository.countByRequestId(job.getRequestId())).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1734 — 오늘 당일치기를 너무 늦게 만들면 ITINERARY_NO_TIME_LEFT_TODAY 로 끝난다 · 다시 해도 같다")
+	void aDayTripWithNoTimeLeftTodayFailsWithItsOwnCode() {
+		this.engine.willReturn(FakeRecommendationEngine.batchOf(List.of(
+				FakeRecommendationEngine.passing(UUID.randomUUID(), 0.9))));
+		this.draftPort.failAssembleWith(new ItineraryDraftPort.NoTimeLeftTodayException("시험"));
+		try {
+			// 조립 실패(ITINERARY_ASSEMBLY_FAILED)와 섞이면 앱이 「다시 시도」를 권하고, 다시 해도 같은 답이 온다.
+			assertThatThrownBy(() -> this.recommendationService.recommend(command(5)))
+					.isInstanceOf(RecommendationFailedException.class);
+		}
+		finally {
+			this.draftPort.failAssembleWith(null);
+		}
+
+		RecommendationJob job = this.jobRepository.findAll().get(0);
+		assertThat(job.getErrorCode()).isEqualTo(RecommendationCodes.ERROR_ITINERARY_NO_TIME_LEFT_TODAY);
+		assertThat(job.isRetryable()).isFalse();
 	}
 
 	private List<EventOutbox> requestedEvents() {

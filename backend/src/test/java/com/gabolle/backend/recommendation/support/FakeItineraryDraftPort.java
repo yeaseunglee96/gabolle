@@ -54,8 +54,19 @@ public class FakeItineraryDraftPort implements ItineraryDraftPort {
 		this.assembleDelayMs = millis;
 	}
 
+	/** 조립이 대신 던질 예외. {@code null} 이면 안 던진다 — 쓴 시험이 끝나면 {@code null} 로 되돌린다. */
+	private volatile RuntimeException assembleFailure;
+
+	/** 다음 조립부터 이 예외를 던진다 — 조립 쪽 예외가 작업의 어느 실패 코드가 되는지 볼 때만 쓴다. */
+	public void failAssembleWith(RuntimeException failure) {
+		this.assembleFailure = failure;
+	}
+
 	@Override
 	public ItineraryDraft assemble(ItineraryDraftCommand command) {
+		if (this.assembleFailure != null) {
+			throw this.assembleFailure;
+		}
 		if (this.assembleDelayMs > 0) {
 			try {
 				Thread.sleep(this.assembleDelayMs);
