@@ -17,6 +17,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, BackHandler, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import Reanimated, { Easing as REasing, Extrapolation, interpolate, interpolateColor, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -224,13 +225,21 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const grow = useSharedValue(panel === 'trip' ? 1 : 0);
   /** 움직임 줄이기일 때만 쓴다 — 늘어나는 대신 서서히 나타난다. */
   const fade = useSharedValue(1);
-  useEffect(() => {
-    const target = panel === 'trip' ? 1 : 0;
+  // 🔴 누르면 움직임부터 시작하고, 창 상태(panel)는 움직임이 «끝난 뒤» 바꾼다(S15P21E201-1763, 사용자: 「갤럭시 크롬에서는 좀 버벅인다」).
+  //    panel 이 바뀌면 여행 화면 전체(일정 목록까지)를 다시 그린다. 전에는 상태를 먼저 바꾸고 그 뒤에 움직였는데, CPU 6배 느림
+  //    실측으로 누른 뒤 움직이기까지 240~350ms 였고 거의 전부 그 다시 그리기였다 — 웹에서는 Reanimated 도 같은 주 스레드에서 돌아
+  //    그 일이 끝나야 움직였다(데스크톱 1배는 약 35ms 라 부드러워 보였다). 이제 움직이는 동안에는 창 크기만 바뀐다. 모양은 그대로다.
+  //    움직이다 반대로 누르면 앞의 움직임은 끝나지 않은(finished=false) 채 멈추고, 나중 것이 끝날 때 그 상태가 들어간다.
+  const changePanel = (next: Panel) => {
+    const target = next === 'trip' ? 1 : 0;
     // 🔴 Reanimated 는 시스템 「움직임 줄이기」가 켜져 있으면 모든 움직임을 곧바로 끝낸다(기본값 ReduceMotion.System) —
     //    그러면 대신 쓰려던 서서히 나타나기도 없어진다(웹 실측). 나타나기는 줄인 움직임 그 자체라 이것만 Never 로 돌린다.
-    if (reduceMotion) { grow.value = target; fade.value = 0; fade.value = withTiming(1, { duration: FADE_MS, reduceMotion: ReduceMotion.Never }); return; }
-    grow.value = withTiming(target, GROW);
-  }, [panel, reduceMotion, grow, fade]);
+    if (reduceMotion) { grow.value = target; fade.value = 0; fade.value = withTiming(1, { duration: FADE_MS, reduceMotion: ReduceMotion.Never }); setPanel(next); return; }
+    grow.value = withTiming(target, GROW, (finished) => {
+      'worklet';
+      if (finished) scheduleOnRN(setPanel, next);
+    });
+  };
   const shellStyle = useAnimatedStyle(() => ({
     ...morphSize(grow.value, { width: barWidth, height: TAB_BAR_HEIGHT }, { width: sheetWidth, height: sheetHeight }),
     // 막대는 흰색, 창은 뒤의 지도가 비치는 유리색(S15P21E201-1627) — 자라면서 바뀐다.
@@ -239,6 +248,9 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   }), [barWidth, sheetWidth, sheetHeight]);
   const tabsStyle = useAnimatedStyle(() => ({ opacity: interpolate(grow.value, [0, TABS_OUT], [1, 0], Extrapolation.CLAMP) }));
   const sheetInnerStyle = useAnimatedStyle(() => ({ opacity: interpolate(grow.value, [CONTENT_IN[0], CONTENT_IN[1]], [0, 1], Extrapolation.CLAMP) }));
+  // 정차지 카드 줄은 접힌 막대 위에만 있다 — 펴기 시작하면 곧바로 숨긴다. 창 상태는 움직임이 끝나야 바뀌므로(changePanel)
+  // 그것만 보면 커지는 창 양옆으로 끝까지 비쳤다(S15P21E201-1763 사진). 접을 때는 다 접힌 뒤에 나타난다.
+  const stripStyle = useAnimatedStyle(() => ({ opacity: grow.value > 0 ? 0 : 1 }));
   const lastOverlay = useRef<TripOverlayKind | null>(null);
   useEffect(() => {
     const was = lastOverlay.current;
@@ -479,7 +491,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           「공유」는 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기다(S15P21E201-1593) — 넷 다 창 안에서 연다(S15P21E201-1760). */}
       {ready ? (
         <View style={styles.actions}>
-          <ActionPill label={tx('지도 보기', 'View map')} onPress={() => setPanel('collapsed')} />
+          <ActionPill label={tx('지도 보기', 'View map')} onPress={() => changePanel('collapsed')} />
           {tripId ? <ActionPill label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
           {tripId ? <ActionPill label={tx('공유', 'Share')} onPress={() => setOverlay('share')} /> : null}
           {tripId ? <ActionPill label={tx('기록 남기기', 'Write a record')} onPress={() => setOverlay('record')} /> : null}
@@ -666,10 +678,10 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
 
       {/* ── 접었을 때 — 탭바 위 정차지 카드 줄 (시안 4b) ──────────────────────────── */}
       {panel === 'collapsed' && items.length ? (
-        <ScrollView
+        <Reanimated.ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={[styles.strip, { bottom: bottomMargin + TAB_BAR_HEIGHT + spacing[2] }]}
+          style={[styles.strip, { bottom: bottomMargin + TAB_BAR_HEIGHT + spacing[2] }, stripStyle]}
           onLayout={(event) => setStripHeight(Math.ceil(event.nativeEvent.layout.height))}
           contentContainerStyle={styles.stripInner}
         >
@@ -685,7 +697,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             </Pressable>
             </ImpressionView>
           ))}
-        </ScrollView>
+        </Reanimated.ScrollView>
       ) : null}
 
       {/* ── 탭바 = 창 (S15P21E201-1756) — 막대 하나가 제자리에서 늘어나 창이 되고, 접으면 줄어 막대로 돌아온다. ──
@@ -702,7 +714,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           <View style={styles.tabRow}>
             <TabSlot label={tx('홈', 'Home')} icon={TAB_ICONS.home} onPress={() => router.replace('/home')} />
             <TabSlot label={tx('피드', 'Feed')} icon={TAB_ICONS.feed} onPress={() => router.replace('/feed')} />
-            <TabSlot label={tx('일정 펼치기', 'Show itinerary')} strong onPress={() => setPanel('trip')}>
+            <TabSlot label={tx('일정 펼치기', 'Show itinerary')} strong onPress={() => changePanel('trip')}>
               <View style={styles.expandCircle}><View style={styles.chevronUp} /></View>
             </TabSlot>
             <TabSlot label={tx('내 여행', 'My trips')} icon={TAB_ICONS.map} selected onPress={() => router.replace('/trips')} />
@@ -718,7 +730,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           aria-hidden={panel !== 'trip' || undefined}
           style={[styles.shellLayer, { width: sheetWidth, height: sheetHeight, marginLeft: -sheetWidth / 2 }, sheetInnerStyle]}
         >
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 접기', 'Hide itinerary')} onPress={() => setPanel('collapsed')} style={styles.handleZone}>
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 접기', 'Hide itinerary')} onPress={() => changePanel('collapsed')} style={styles.handleZone}>
             <View style={styles.handle} />
           </Pressable>
           {/* 🔴 동행 초대·공유·날씨·기록 남기기는 창 «안에서» 내용만 바꾼다(S15P21E201-1607). 전에는 창 위에 아래 판이 하나 더 올라와
