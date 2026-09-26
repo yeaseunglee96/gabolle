@@ -18,6 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import jakarta.servlet.DispatcherType;
 
 /**
  * 🔴 S15P21E201-1548 — {@code @EnableMethodSecurity} 를 켠다. 이전에는 이게 꺼져 있어
@@ -67,6 +68,17 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(authenticationEntryPoint))
 			.authorizeHttpRequests(authorize -> authorize
+				// 🔴 S15P21E201-1724 — 비동기 응답이 끝날 때의 재진입(ASYNC)만 인가 검사를 건너뛴다.
+				// 진행률 스트림(SseEmitter)이 끝나면 서블릿 컨테이너가 같은 요청을 ASYNC 로 한 번 더
+				// 들여보내는데, JWT 필터는 그 차례에 안 돌고 세션은 STATELESS 라 신원이 없다. 그래서
+				// 아래 anyRequest().authenticated() 가 거부했고, 응답이 이미 나가는 중이라 401 도 못
+				// 쓰고 예외가 컨테이너까지 올라가 ERROR 를 남기며 청크 응답의 끝 표시 없이 연결을
+				// 끊었다(nginx 의 「upstream prematurely closed」).
+				// 여는 것이 아니다 — ASYNC 재진입은 첫 차례(REQUEST)가 아래 규칙을 통과하고 처리기가
+				// 비동기를 시작한 요청에만 생긴다. 바깥에서 ASYNC 로 들어오는 요청은 없다.
+				// ERROR 재진입은 여기 넣지 않는다 — 그쪽은 필터가 다시 돌아 신원을 되살린다
+				// (HmacJwtAuthenticationFilter#shouldNotFilterErrorDispatch).
+				.dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
 				.requestMatchers("/actuator/health").permitAll()
 				// 기록 사진은 주소를 아는 사람이 그대로 연다 — 화면이 <img> 로 부르므로 그 요청에는
 				// Authorization 헤더가 안 붙는다. 키가 UUID 라 추측할 수 없고, 올리기는 인증이 필요하다.
