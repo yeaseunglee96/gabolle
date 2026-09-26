@@ -6,7 +6,9 @@ import { describeBlockedBy, readBlockedBy } from '@/plan/blockedByMessage';
 import type { RecommendationJobStreamSnapshot } from '@/plan/recommendationJobStream';
 
 export type RecommendationJobState = 'idle' | 'submitting' | 'accepted' | 'polling' | 'completed' | 'conflict' | 'consent-required' | 'failed' | 'cancelled' | 'unavailable';
-export type RecommendationJobSnapshot = { state: RecommendationJobState; jobId: string | null; progress: number | null; stage: string | null; canCancel: boolean; errorMessage: string | null; resultRef: string | null; requiredConsent?: 'HEALTH_CONSTRAINTS' };
+export type RecommendationJobSnapshot = { state: RecommendationJobState; jobId: string | null; progress: number | null; stage: string | null; canCancel: boolean; errorMessage: string | null; resultRef: string | null; requiredConsent?: 'HEALTH_CONSTRAINTS';
+  /** 서버 실패 코드 — 화면이 코드에 따라 다음 할 일을 다르게 말할 때 쓴다(S15P21E201-1739). 실패가 아니면 없다. */
+  failureCode?: string | null };
 export type RecommendationJobAcceptedDto = { jobId: string };
 export type RecommendationJobPollDto = {
   jobId: string;
@@ -34,6 +36,8 @@ const JOB_FAILURE_MESSAGE: Record<string, [string, string]> = {
   ITINERARY_VERSION_CONFLICT: ['다른 곳에서 먼저 일정이 바뀌었어요. 새로고침 후 다시 시도해 주세요.', 'The itinerary changed elsewhere first. Please refresh and try again.'],
   // 추천 실행기가 꽉 차서 서버가 이 작업을 받지 못했다(S15P21E201-1688). 다시 누르면 새 작업으로 간다.
   SERVER_BUSY: ['지금 요청이 많아요. 잠시 뒤 다시 시도해 주세요.', 'We are handling a lot of requests right now. Please try again in a moment.'],
+  // 오늘 출발 당일치기를 부산 20:31 뒤에 만들면 남은 시간이 없다(백엔드 !1734, 다시 시도 불가 — 다시 해도 같은 답). S15P21E201-1739.
+  ITINERARY_NO_TIME_LEFT_TODAY: ['오늘은 남은 시간이 없어요. 여행을 내일부터로 바꿔 주세요.', "There's no time left today. Try starting your trip tomorrow."],
 };
 /**
  * 같은 실패 코드라도 «어느 단계에서» 멈췄는지에 따라 할 말이 다르다.
@@ -75,7 +79,7 @@ export function adaptPolledJob(jobId: string, dto: RecommendationJobPollDto, pre
         ?? DEFAULT_JOB_FAILURE_MESSAGE)[isKo ? 0 : 1]
     : null;
   const errorMessage = dto.failure ? failureMessage : dto.status === 'EXPIRED' ? '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.' : null;
-  return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null };
+  return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null, failureCode: dto.failure?.code ?? null };
 }
 // — SSE(GET /api/v1/jobs/{jobId}/progress)가 보내는 건 폴링과 모양이 다르다
 // ({jobId, status, stage, percent, code} — 중첩된 progress 객체가 아니다). 판정 로직은

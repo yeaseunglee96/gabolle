@@ -279,7 +279,8 @@ export default function Generating() {
               <GabolleMascot state={failed ? 'sad' : 'thinking'} still={failed} style={styles.waitMascot} />
             </View>
             {/* 서버가 없거나 닿지 않을 때(unavailable)는 조건 탓이 아니다 — 조건을 넓히라고 하지 않는다(S15P21E201-1669). */}
-            <Text weight="bold">{failed ? (job.state === 'unavailable' ? tx('잠시 뒤 다시 해 볼까요?', 'Shall we try again in a moment?') : tx('조건을 조금 넓혀서 다시 해 볼까요?', 'Shall we widen the conditions and try again?')) : tx('잠시만요, 딱 맞는 동선을 찾고 있어요!', 'One moment — finding the route that fits you!')}</Text>
+            {/* 오늘 남은 시간이 없을 때(ITINERARY_NO_TIME_LEFT_TODAY)도 조건 탓이 아니다 — 날짜를 내일로 이끈다(S15P21E201-1739). */}
+            <Text weight="bold">{failed ? (job.state === 'unavailable' ? tx('잠시 뒤 다시 해 볼까요?', 'Shall we try again in a moment?') : job.failureCode === 'ITINERARY_NO_TIME_LEFT_TODAY' ? tx('날짜를 내일로 바꿔 볼까요?', 'Shall we start tomorrow instead?') : tx('조건을 조금 넓혀서 다시 해 볼까요?', 'Shall we widen the conditions and try again?')) : tx('잠시만요, 딱 맞는 동선을 찾고 있어요!', 'One moment — finding the route that fits you!')}</Text>
           </View>
           {!failed ? (
             <View accessibilityLiveRegion="polite" style={styles.waitStages}>{STAGES.map((item, index) => { const done = index < currentStage; const active = index === currentStage && isWorking; return (

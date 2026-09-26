@@ -35,6 +35,8 @@ import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
+import { localDateKey } from '@/plan/tripProgress';
+import { isSkippedToday } from '@/trip/page/emptyDay';
 import { humanTripTitle } from '@/trip/tripNaming';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 
@@ -249,7 +251,10 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                   />
                   </ImpressionView>
                 )) : null}
-                {items.length === 0 ? <Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text> : null}
+                {/* 늦게 만들어 비운 오늘(백엔드 !1734) — 「아직」이라고 하지 않고 내일로 이끈다(S15P21E201-1739). */}
+                {items.length === 0 ? (loaded && isSkippedToday({ days: loaded.days, dayIndex, today: localDateKey(new Date()) })
+                  ? <View style={styles.rowCenter}><Text variant="caption" weight="bold">{tx('오늘은 늦어서 내일부터 짰어요.', 'It was too late for today, so your trip starts tomorrow.')}</Text><Pressable accessibilityRole="button" onPress={() => setDayIndex(dayIndex + 1)}><Text variant="caption" weight="bold" color={color.action.primary}>{tx('내일 일정 보기 ›', "See tomorrow's plan ›")}</Text></Pressable></View>
+                  : <Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text>) : null}
               </View>
               {/* 하루 끝 — 숙소(마지막 날은 출발지)로 돌아가기 (S15P21E201-1566) */}
               <DayReturnRow leg={loaded?.days[dayIndex]?.returnLeg} tx={tx} />
