@@ -44,14 +44,17 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	 * 사용자가 {@code %} 를 넣으면 전체 스캔이 되고 {@code _} 를 넣으면 엉뚱한 것이 걸린다.
 	 * 이스케이프 문자는 {@code \} 로 고정했다.
 	 *
+	 * <p>🔴 이름과 검색어 둘 다 <b>공백을 뗀 뒤</b> 비교한다(S15P21E201-1745). 「해운대 해수욕장」이 정본의
+	 * 「해운대해수욕장」을 못 찾아 0건이었다. {@code pattern} 도 공백을 뗀 값이어야 한다.
+	 *
 	 * <p>보여주는 순서는 서비스 계층이 정한다. 아래 {@code ORDER BY} 는 그것과 다른 일을 한다 —
 	 * 상한에 걸렸을 때 어느 행이 넘어올지를 정한다.
 	 */
 	@Query("""
 			SELECT p FROM Place p
 			WHERE p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
-			  AND (LOWER(p.nameKo) LIKE :pattern ESCAPE '\\'
-			       OR (p.nameEn IS NOT NULL AND LOWER(p.nameEn) LIKE :pattern ESCAPE '\\'))
+			  AND (REPLACE(LOWER(p.nameKo), ' ', '') LIKE :pattern ESCAPE '\\'
+			       OR (p.nameEn IS NOT NULL AND REPLACE(LOWER(p.nameEn), ' ', '') LIKE :pattern ESCAPE '\\'))
 			ORDER BY p.placeId
 			""")
 	List<Place> searchByName(@Param("pattern") String pattern, Limit limit);
@@ -59,8 +62,8 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	/** 이름으로 찾되 종류로 한 번 더 거른다. {@code category} 는 자유 문자열이라 소문자로 맞춰 비교한다. */
 	@Query("""
 			SELECT p FROM Place p
-			WHERE (LOWER(p.nameKo) LIKE :pattern ESCAPE '\\'
-			       OR (p.nameEn IS NOT NULL AND LOWER(p.nameEn) LIKE :pattern ESCAPE '\\'))
+			WHERE (REPLACE(LOWER(p.nameKo), ' ', '') LIKE :pattern ESCAPE '\\'
+			       OR (p.nameEn IS NOT NULL AND REPLACE(LOWER(p.nameEn), ' ', '') LIKE :pattern ESCAPE '\\'))
 			  AND LOWER(p.category) = LOWER(:category)
 			  AND p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
 			ORDER BY p.placeId
