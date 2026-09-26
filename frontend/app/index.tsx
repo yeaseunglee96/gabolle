@@ -6,7 +6,7 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { PlanStartBar } from '@/home/PlanStartBar';
-import { startBarEditSection, startBarFromDraft } from '@/home/startBarValue';
+import { startBarEditSection, startBarEndDate, startBarFromDraft } from '@/home/startBarValue';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
@@ -117,7 +117,7 @@ export default function Welcome() {
       lodgingLng: value.lodgingLng,
       lodgingPlace: value.lodgingPlace,
       startDate: value.startDate,
-      endDate: value.endDate,
+      endDate: startBarEndDate(value),
       adults: value.adults,
       children: value.children,
       travelers: value.adults + value.children,
