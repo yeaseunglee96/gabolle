@@ -67,12 +67,12 @@ describe('걷는 구간 받아 오기', () => {
   const walkResponse = { state: 'success', directions: { mode: 'WALK', path: path.map((p) => [p.longitude, p.latitude]), pieces, estimated: false, provider: 'OSM_WALK_GRAPH' } };
   beforeEach(() => { clearCourseRoutePathCache(); mockedDirections.mockReset(); mockedDirections.mockResolvedValue(walkResponse); });
 
-  it('🔴 스위치는 지금 꺼져 있다 — 걷는 구간이어도 걷기 요청을 보내지 않는다(!1626 배포 전)', async () => {
-    expect(WALK_SLOPE_ROUTES).toBe(false);
+  it('🔴 스위치는 켜져 있다 — 따로 말하지 않아도 걷는 구간은 걷기로 받고 조각을 싣는다(백엔드 !1626 운영 배포 뒤, S15P21E201-1712)', async () => {
+    expect(WALK_SLOPE_ROUTES).toBe(true);
     const { result } = renderHook(() => useCourseRoutePaths(days, 'token', { walkInto: new Set(['b']) }));
     await waitFor(() => expect(result.current[legKey(1, 0)]).toBeTruthy());
-    expect(mockedDirections.mock.calls[0][0].mode).toBeUndefined();
-    expect(mockedDirections.mock.calls[0]).toHaveLength(2);
+    expect(mockedDirections.mock.calls[0][0].mode).toBe('WALK');
+    expect(result.current[legKey(1, 0)].pieces).toEqual(pieces);
   });
 
   it('🔴 켜면 걷는 구간만 걷기로 받고, 조각을 싣는다', async () => {
