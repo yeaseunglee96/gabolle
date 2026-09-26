@@ -514,6 +514,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   onLock={() => void toggleLock(item)}
                   onArrive={canEdit && todayDay && !arrivedAtOf(progress.outcomes, item.id) ? () => void recordArrival(item) : null}
                   onExclude={() => setExcludeTarget(item)}
+                  onOpenPlace={() => router.push(`/place/${item.placeId}`)}
                   tx={tx}
                   locale={locale}
                 />
@@ -837,11 +838,11 @@ function RiskStrip({ atRisk, known, estimated, tx }: { atRisk: ItineraryItemDto[
   );
 }
 
-function TimelineStop({ item, startKind, index, last, freeBefore, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, tx, locale }: {
+function TimelineStop({ item, startKind, index, last, freeBefore, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, tx, locale }: {
   item: ItineraryItemDto; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
   /** 오늘 방문지이고 아직 도착이 안 적혔을 때만 — 아니면 null 이고 「도착 찍기」를 안 그린다(S15P21E201-1690). */
-  onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; tx: Tx; locale: string;
+  onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; onOpenPlace: () => void; tx: Tx; locale: string;
 }) {
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const reason = pickReasonLine(item.reasonCodes);
@@ -933,6 +934,7 @@ function TimelineStop({ item, startKind, index, last, freeBefore, date, photo, s
             ) : item.locked ? <View style={styles.lock}><Text>🔒</Text></View> : null}
           </View>
           {expanded ? (
+            <>
             <View style={styles.stopDetail}>
               <Text variant="caption" weight="bold" color={pace?.atRisk ? color.state.danger : pace?.visited ? color.state.success : color.text.muted} style={styles.grow}>
                 {pace?.visited
@@ -950,6 +952,12 @@ function TimelineStop({ item, startKind, index, last, freeBefore, date, photo, s
                 </Pressable>
               ) : null}
             </View>
+            {/* 일정에서 장소 상세로 가는 유일한 길 — 카드 자체는 펼치기에 쓴다(S15P21E201-1733).
+                위 줄(예상 도착 · 도착 찍기 · 제외)에 넣으면 폰 390 에서 「예상 도착」이 한 글자씩 세로로 눌려 따로 한 줄. */}
+            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 상세 보기', 'Open details for %s', item.title)} onPress={onOpenPlace} style={({ pressed }) => [styles.detailButton, styles.placeLink, pressed && styles.pressed]}>
+              <Text variant="caption" weight="bold">{tx('자세히 보기 ›', 'Place details ›')}</Text>
+            </Pressable>
+            </>
           ) : null}
         </View>
       </View>
@@ -1105,6 +1113,7 @@ const styles = StyleSheet.create({
   lock: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   stopDetail: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingTop: 10, borderTopWidth: 1, borderTopColor: color.surface.border },
   detailButton: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint, justifyContent: 'center' },
+  placeLink: { alignSelf: 'flex-start', marginTop: spacing[2] },
   excludeButton: { backgroundColor: color.state.dangerBg },
   emptyCard: { padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
 
