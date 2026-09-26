@@ -223,7 +223,7 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
         {line.allergenWords.length > 0 && <Text variant="caption" color={color.state.danger}>{line.allergenWords.join(' · ')}</Text>}
       </View>
       {/* 가격은 사진에서 읽은 그대로다 — 숫자로 바꾸거나 통화를 붙이지 않는다. */}
-      {line.price !== '' && <View style={styles.price}><Text weight="bold">{line.price}</Text></View>}
+      {line.price !== '' && <View style={styles.price}><Text weight="bold" style={styles.priceText}>{line.price}</Text></View>}
       {/* 우리가 이미 보여주고 있는 글자를 그대로 소리내 준다 — 지어내는 것이 없다.
           음식 줄에서는 이름만 읽는다. 가격까지 읽으면 가리키는 데 방해가 된다. */}
       <ListenButtons korean={original} translated={heading} />
@@ -396,7 +396,11 @@ const styles = StyleSheet.create({
   lines: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   lineBlock: { paddingVertical: spacing[1] },
   line: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingTop: spacing[2] },
-  price: { flexShrink: 0 },
+  // 🔴 가격 칸은 폭의 45% 까지만 — S15P21E201-1761. 전에는 flexShrink:0 이라 한 줄에 가격이 여럿이면
+  //    («4,000 / 3,000 / 1,000 / 1,000») 가격이 폭을 다 먹고 이름 칸이 두 글자로 눌려 「막걸 / 리」처럼
+  //    세로로 부서졌다(Play 35 실기기). 넘치는 가격은 그 칸 안에서 줄을 바꾼다.
+  price: { flexShrink: 1, maxWidth: '45%' },
+  priceText: { textAlign: 'right' },
   credit: { marginTop: spacing[1] },
   // 44 는 손가락이 닿는 최소 크기다 — 칩 자체를 작게 만들지 않고 감싸는 칸으로 맞춘다.
   askRow: { minHeight: 44, justifyContent: 'center', alignItems: 'flex-start' },
