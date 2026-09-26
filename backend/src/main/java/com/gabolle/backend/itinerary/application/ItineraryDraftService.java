@@ -799,6 +799,16 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private static final double REGION_MIXED_KM = 8.0;
 
     /**
+     * 괄호 안만 다른 이름이 이만큼 안에 있으면 같은 곳으로 보고 한 곳만 남긴다(S15P21E201-1758, e4 결정). 광안리 드론쇼가
+     * 두 줄 — 오픈스트리트맵 「광안리 M 드론 라이트쇼」와 TourAPI 「광안리 M(Marvelous) 드론 라이트쇼」, 약 400m — 로 들어와
+     * 한 일정에 두 번 앉았다. 적재 때 중복을 합치는 기준은 150m 라 못 걸렀다.
+     *
+     * <p>운영(2026-09-26, 6,844곳)에서 이 값에 걸리는 쌍은 9쌍이고, 그중 실제로 다른 곳은 「세계를 바라보다(남자)·(여자)」
+     * (934m) 한 쌍이다. 괄호를 빼면 같지만 1km 밖이라 둘 다 남는 쌍은 19쌍이다.
+     */
+    private static final double PAREN_VARIANT_KM = 1.0;
+
+    /**
      * 걷기만 고른 여행의 첫날 규칙(S15P21E201-1634) — 첫날은 출발지에서 걸어서 {@link WalkOnlyFirstDay#MINUTES}분 안
      * ({@link WalkOnlyFirstDay#RADIUS_M}m)의 곳만, 범위 밖인데 출발지 둘레라서 들어온 곳({@link WalkOnlyFirstDay#REASON_CODE})은
      * 첫날에만. 걷기만 고른 여행이 아니면({@code firstDayOrigin == null}) 늘 참이다. 첫날에 좌표를 모르는 곳은 안 앉힌다.
@@ -824,6 +834,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * <p>🔴 사전에 없는 가게도 <b>이름이 같으면</b> 한 곳만 남긴다(S15P21E201-1631, 사용자 결정). 운영 일정 161개 중
      * 3개에 젤라또부(400m 떨어진 두 지점)·젤라또조이(5km)가 두 번씩 들어갔다 — 사전은 등록된 45개 상표만 본다.
      * 이름은 띄어쓰기·대소문자를 무시하고 견준다.
+     *
+     * <p>🔴 <b>괄호 안만 다른 이름</b>은 {@link #PAREN_VARIANT_KM} 안에 있을 때만 한 곳으로 본다(S15P21E201-1758).
+     * 이름이 완전히 같을 때처럼 거리와 상관없이 빼지 않는 것은, 괄호가 곳을 가르는 말인 경우가 있어서다 — 「전망대(황령산)」와
+     * 「전망대(이기대)」는 다른 곳이다. 견주는 상대는 <b>남긴 곳</b>뿐이다 — 빠진 곳이 다른 곳을 끌고 가지 않는다.
      */
     private List<ItineraryDraftCommand.PlannedPlace> oneOfEachBrand(List<ItineraryDraftCommand.PlannedPlace> places) {
         if (places.isEmpty()) {
@@ -831,21 +845,49 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         }
         List<UUID> ids = places.stream().map(ItineraryDraftCommand.PlannedPlace::placeId).toList();
         Map<UUID, String> nameById = new HashMap<>();
+        Map<UUID, double[]> coordById = new HashMap<>();
         for (Place place : this.placeRepository.findByPlaceIdIn(ids)) {
             nameById.put(place.getPlaceId(), place.getNameKo());
+            if (place.getLat() != null && place.getLng() != null) {
+                coordById.put(place.getPlaceId(), new double[] { place.getLat(), place.getLng() });
+            }
         }
         Set<String> seen = new HashSet<>();
+        Map<String, List<double[]>> keptByBaseName = new HashMap<>();
         List<ItineraryDraftCommand.PlannedPlace> kept = new ArrayList<>(places.size());
         for (ItineraryDraftCommand.PlannedPlace place : places) {
             String name = nameById.get(place.placeId());
             String brand = ChainBrand.brandOf(name);
             String key = (brand != null) ? "brand:" + brand
                     : (name == null || name.isBlank()) ? null : "name:" + name.replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
-            if (key == null || seen.add(key)) {
-                kept.add(place);
+            String baseName = (name == null) ? null
+                    : name.replaceAll("\\([^)]*\\)", "").replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
+            double[] here = coordById.get(place.placeId());
+            if ((key != null && seen.contains(key)) || nearKeptSameBaseName(keptByBaseName.get(baseName), here)) {
+                continue;
             }
+            if (key != null) {
+                seen.add(key);
+            }
+            if (here != null && baseName != null && !baseName.isEmpty()) {
+                keptByBaseName.computeIfAbsent(baseName, (k) -> new ArrayList<>()).add(here);
+            }
+            kept.add(place);
         }
         return kept;
+    }
+
+    /** 괄호를 뺀 이름이 같은 남긴 곳 가운데 {@link #PAREN_VARIANT_KM} 안에 있는 것이 있나. 좌표를 모르면 빼지 않는다. */
+    private static boolean nearKeptSameBaseName(List<double[]> keptSpots, double[] here) {
+        if (keptSpots == null || here == null) {
+            return false;
+        }
+        for (double[] spot : keptSpots) {
+            if (haversineKm(spot, here) <= PAREN_VARIANT_KM) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** 좌표를 한 번에 읽는다. 저장소가 못 주는 것은 그냥 빠진다 — 그 자리는 거리 비교를 건너뛴다. */
