@@ -229,4 +229,14 @@ class GeminiAssistantAdapterTest {
 		assertThat(options.timeout()).isPresent();
 	}
 
+	@Test
+	@DisplayName("🔴 재시도를 끈다 — 한 번만 부른다 (S15P21E201-1749)")
+	void retriesAreDisabled() {
+		var options = new GeminiAssistantAdapter(new AssistantProperties(), null).httpOptions();
+
+		// 비워 두면 SDK 가 기본값으로 5번까지 다시 부른다. 1 로 박아 둔다.
+		assertThat(options.retryOptions()).isPresent();
+		assertThat(options.retryOptions().get().attempts()).contains(1);
+	}
+
 }

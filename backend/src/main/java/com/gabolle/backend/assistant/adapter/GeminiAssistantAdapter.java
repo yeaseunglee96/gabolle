@@ -17,6 +17,7 @@ import com.google.genai.types.Content;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.HttpOptions;
+import com.google.genai.types.HttpRetryOptions;
 import com.google.genai.types.Part;
 import com.google.genai.types.Schema;
 import com.google.genai.types.Type;
@@ -239,7 +240,11 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	 */
 	HttpOptions httpOptions() {
 		HttpOptions.Builder builder = HttpOptions.builder()
-				.timeout((int) this.properties.getTimeout().toMillis());
+				.timeout((int) this.properties.getTimeout().toMillis())
+				// 🔴 재시도는 끈다(한 번만 부른다). SDK 는 retryOptions 가 비어 있으면 기본값으로 **5번까지**
+				//    다시 부르고 사이사이 1·2·4·8초를 쉰다 — 시간 제한은 한 번에만 걸려서, 느린 날 요청 하나가
+				//    30초를 붙잡았다. 앱은 12초에 이미 끊고 엉뚱한 기본 안내를 보였다(S15P21E201-1749).
+				.retryOptions(HttpRetryOptions.builder().attempts(1).build());
 		String baseUrl = this.properties.getBaseUrl();
 		if (baseUrl != null && !baseUrl.isBlank()) {
 			builder.baseUrl(baseUrl);
