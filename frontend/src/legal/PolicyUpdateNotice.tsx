@@ -32,9 +32,15 @@ type ConsentsWithVersion = {
 export function policyVersionToNotify(dto: ConsentsWithVersion | null | undefined, seenVersion: string | null): string | null {
   const current = dto?.currentPolicyVersion;
   if (!current) return null;
-  const mine = dto?.consents?.find((consent) => consent.consentType === 'PRIVACY_POLICY' && consent.status === 'GRANTED');
-  if (!mine?.policyVersion) return null;
-  if (!(mine.policyVersion < current)) return null;
+  // 🔴 서버는 동의를 판마다 쌓아 돌려준다(2026-01, 2026-09 …). 전에는 find 로 «첫 줄»만 봐서, 새 판에 이미
+  //    동의한 사람도 옛 판 줄에 걸려 재설치·새 기기 로그인마다 알림이 다시 떴다(S15P21E201-1769, Play 37 실기기).
+  //    동의한 판 가운데 가장 새것으로 판단한다.
+  const granted = (dto?.consents ?? [])
+    .filter((consent) => consent.consentType === 'PRIVACY_POLICY' && consent.status === 'GRANTED' && consent.policyVersion)
+    .map((consent) => consent.policyVersion as string);
+  if (granted.length === 0) return null;
+  const latest = granted.reduce((a, b) => (b > a ? b : a));
+  if (!(latest < current)) return null;
   if (seenVersion === current) return null;
   return current;
 }
