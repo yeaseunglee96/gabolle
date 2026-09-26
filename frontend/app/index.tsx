@@ -248,7 +248,7 @@ export default function Welcome() {
     {/* 로그인 안 했으면 내 여행 자리를 통째로 접는다 — 빈 여백 띠만 남으면 고장으로 보인다. */}
     {user ? (
       <View style={styles.lowerSection}>
-        <MyTripCard trip={home.trip} signedIn loaded={home.tripsLoaded} />
+        <MyTripCard trip={home.trip} signedIn loaded={home.tripsLoaded} hasTrips={home.hasTrips} />
       </View>
     ) : null}
   </ScrollView>
