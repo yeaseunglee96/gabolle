@@ -373,13 +373,42 @@ class EventIngestServiceTest {
                 .hasMessageContaining("SERVER");
     }
 
+    // ── 기기 시계 (S15P21E201-1730) ───────────────────
+
+    private OffsetDateTime storedOccurredAtFor(OffsetDateTime sent) {
+        EventIngestService.Outcome outcome = this.service.ingestFromClient(UUID.randomUUID(),
+                EventType.RECOMMENDATION_IMPRESSION, 1, null, null, UUID.randomUUID(), sent, Map.of());
+        assertThat(outcome).isEqualTo(EventIngestService.Outcome.STORED);
+        return captureCommand().occurredAt();
+    }
+
     @Test
-    @DisplayName("🔴 발생 시각이 수신 시각보다 뒤면 거부한다 — 기기 시계가 틀렸거나 조작된 값이다")
-    void occurredAtCannotBeInTheFuture() {
+    @DisplayName("🔴 기기 시계가 15ms 빠른 이벤트도 받는다 — 발생 시각은 받은 시각으로 맞춰 적는다")
+    void aSlightlyFastDeviceClockIsAcceptedAndClampedToReceipt() {
+        // 이 PC 로컬 웹에서 실제로 거절되던 차이다. 전에는 허용 폭이 0 이라 그 기기의 이벤트가 매번 버려졌다.
+        assertThat(storedOccurredAtFor(at("2026-09-03T12:00:00.015Z")).toInstant()).isEqualTo(NOW);
+    }
+
+    @Test
+    @DisplayName("허용 폭 끝(5분 빠름)까지는 받고, 역시 받은 시각으로 적는다")
+    void theEdgeOfTheAllowanceIsStillAccepted() {
+        assertThat(storedOccurredAtFor(at("2026-09-03T12:05:00Z")).toInstant()).isEqualTo(NOW);
+    }
+
+    @Test
+    @DisplayName("과거 시각은 기기가 보낸 그대로 적는다 — 맞추는 것은 미래 쪽뿐이다")
+    void aPastOccurredAtIsKeptAsSent() {
+        assertThat(storedOccurredAtFor(at("2026-09-03T11:59:00Z"))).isEqualTo(at("2026-09-03T11:59:00Z"));
+    }
+
+    @Test
+    @DisplayName("🔴 5분 넘게 미래면 지금처럼 거부한다 — 시계가 크게 틀렸거나 조작된 값이다")
+    void occurredAtFarInTheFutureIsRejected() {
         assertThatThrownBy(() -> this.service.ingestFromClient(UUID.randomUUID(),
                 EventType.RECOMMENDATION_IMPRESSION, 1, null, null, UUID.randomUUID(),
-                at("2026-09-03T12:00:01Z"), Map.of()))
+                at("2026-09-03T12:05:01Z"), Map.of()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("뒤다");
+                .hasMessageContaining("5분 넘게 뒤다");
+        verify(this.outboxService, never()).appendReportingDuplicate(any());
     }
 }

@@ -1,6 +1,7 @@
 package com.gabolle.backend.event.application;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,6 +42,18 @@ public class EventIngestService {
 	 * 서로 달라질 수 있으므로 입구에서 거부한다.
 	 */
 	static final Set<String> ENVELOPE_KEYS = Set.of("request_id", "user_id", "trip_id", "producer");
+
+	/**
+	 * 기기 시계가 서버보다 이만큼까지 빠른 것은 받아 준다 (S15P21E201-1730, 사용자 결정 2026-09-26).
+	 *
+	 * <p>앱은 보내는 순간의 기기 시각을 찍고, 실패하면 다시 보내지 않는다. 그래서 받은 시각과의 차이는
+	 * 네트워크 지연(운영 실측 64~181ms)뿐이고, 기기 시계가 그보다 조금만 빨라도 그 기기의 이벤트는
+	 * <b>매번</b> 버려졌다 — 전에는 허용 폭이 0 이었다. 이 PC 로컬 웹에서 15ms 차이로 거절됐고,
+	 * 운영에서는 안드로이드 기기 하나의 이벤트가 한 건도 안 들어왔다.
+	 *
+	 * <p>이보다 더 빠르면 시계가 틀렸거나 조작된 값으로 보고 지금처럼 거절한다.
+	 */
+	public static final Duration MAX_CLIENT_CLOCK_AHEAD = Duration.ofMinutes(5);
 
 	private final OutboxService outboxService;
 
@@ -184,10 +197,14 @@ public class EventIngestService {
 		}
 
 		OffsetDateTime receivedAt = OffsetDateTime.now(this.clock);
-		if (occurredAt.isAfter(receivedAt)) {
-			// 발생이 수신보다 뒤일 수는 없다. 기기 시계가 틀렸거나 조작된 값이다.
-			throw new IllegalArgumentException("occurredAt(" + occurredAt + ") 이 수신 시각(" + receivedAt + ") 보다 뒤다");
+		if (occurredAt.isAfter(receivedAt.plus(MAX_CLIENT_CLOCK_AHEAD))) {
+			// 허용 폭보다 더 미래다. 기기 시계가 크게 틀렸거나 조작된 값이다.
+			throw new IllegalArgumentException("occurredAt(" + occurredAt + ") 이 수신 시각(" + receivedAt + ") 보다 "
+					+ MAX_CLIENT_CLOCK_AHEAD.toMinutes() + "분 넘게 뒤다");
 		}
+		// 허용 폭 안에서 미래인 값은 받은 시각으로 맞춰 적는다. 발생이 수신보다 뒤일 수는 없으므로, 그 불변식은
+		// 적힌 값에서 그대로 지켜진다 — 뒤에서 두 값을 빼 보는 쪽이 음수를 만나지 않는다.
+		OffsetDateTime recordedOccurredAt = occurredAt.isAfter(receivedAt) ? receivedAt : occurredAt;
 
 		UUID aggregateId = aggregateIdOf(type, userId, tripId, requestId);
 
@@ -199,7 +216,7 @@ public class EventIngestService {
 				aggregateId,
 				partitionKeyOf(userId, aggregateId),
 				withoutEnvelopeFields(payload),
-				occurredAt,
+				recordedOccurredAt,
 				requestIdColumnOf(type, requestId),
 				userId,
 				tripId,
