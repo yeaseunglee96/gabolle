@@ -297,7 +297,7 @@ export default function Me() {
           <View style={styles.wideColumn}>
             {/* 🔴 여기에 「내 여행」 눈썹을 붙이지 않는다. MyTripCard 가 같은 것을 스스로
                 그린다 — 붙이면 같은 말이 두 줄로 겹친다. */}
-            <MyTripCard layout="row" trip={trip} signedIn={Boolean(user)} loaded={!tripsQuery.isLoading} />
+            <MyTripCard layout="row" trip={trip} signedIn={Boolean(user)} loaded={!tripsQuery.isLoading} hasTrips={(tripCount ?? 0) > 0} />
             <Eyebrow>{tx('내 계정', 'Account')}</Eyebrow>
             {accountGroup}
             {logoutButton}

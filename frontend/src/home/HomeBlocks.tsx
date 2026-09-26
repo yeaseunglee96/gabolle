@@ -278,7 +278,7 @@ function dateRange(trip: TripSummaryDto, tx: Tx, locale: string) {
  *     칸 폭을 다 쓰고, 왼쪽에 글자·오른쪽에 「일정 보기 →」, 선 없는 흰 카드
  *     (시안 design_handoff_mypage_v2 변경점 3, S15P21E201-1526). 🔴 홈은 안 바뀐다 — 기본값이 그대로다.
  */
-export function MyTripCard({ trip, signedIn, loaded, layout = 'column' }: { trip: TripSummaryDto | null; signedIn: boolean; loaded: boolean; layout?: 'column' | 'row' }) {
+export function MyTripCard({ trip, signedIn, loaded, layout = 'column', hasTrips = false }: { trip: TripSummaryDto | null; signedIn: boolean; loaded: boolean; layout?: 'column' | 'row'; /** 지난 여행이라도 있나 — 빈 칸 문구를 가른다(S15P21E201-1770). */ hasTrips?: boolean }) {
   const router = useRouter();
   const { tx, locale } = useI18n();
   const { accessToken } = useAuth();
@@ -325,9 +325,9 @@ export function MyTripCard({ trip, signedIn, loaded, layout = 'column' }: { trip
         <View style={[styles.tripEmpty, row && styles.tripEmptyRow]}>
           <GabolleMascot state="idle" style={styles.tripMascot} />
           <View style={styles.tripEmptyCopy}>
-            <Text weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
+            <Text weight="bold">{hasTrips ? tx('다가오는 여행이 없어요', 'No upcoming trips') : tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
             <Pressable accessibilityRole="button" onPress={() => router.push('/plan')}>
-              <Text weight="bold" color={color.brand.navy}>{tx('첫 여행 만들기 →', 'Plan your first trip →')}</Text>
+              <Text weight="bold" color={color.brand.navy}>{hasTrips ? tx('새 여행 만들기 →', 'Plan a new trip →') : tx('첫 여행 만들기 →', 'Plan your first trip →')}</Text>
             </Pressable>
           </View>
         </View>

@@ -111,6 +111,8 @@ export type HomeData = {
   facetRows: HomeFacetRow[];
   trip: TripSummaryDto | null;
   tripsLoaded: boolean;
+  /** 여행이 하나라도 있나 — 지난 여행만 있어도 참(S15P21E201-1770). 빈 칸 문구를 가른다. */
+  hasTrips: boolean;
 };
 
 
@@ -216,5 +218,6 @@ export function useHomeData(enabled = true): HomeData {
     })),
     trip: tripsQuery.data?.state === 'success' ? pickActiveTrip(tripsQuery.data.trips) : null,
     tripsLoaded: tripsQuery.data?.state === 'success',
+    hasTrips: tripsQuery.data?.state === 'success' && tripsQuery.data.trips.length > 0,
   };
 }

@@ -2823,6 +2823,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '다른 곳보다 음식 취향이 돋보임': { ja: '他より食の好みが際立つ', zhHans: '比其他地方饮食偏好更突出', zhHant: '比其他地方飲食偏好更突出' },
   '다른 곳보다 취향 일치도가 돋보임': { ja: '他より好みとの一致度が際立つ', zhHans: '比其他地方偏好匹配度更突出', zhHant: '比其他地方偏好匹配度更突出' },
   '다른 곳보다 인기도가 돋보임': { ja: '他より人気度が際立つ', zhHans: '比其他地方人气更突出', zhHant: '比其他地方人氣更突出' },
+  '다가오는 여행이 없어요': { ja: '予定している旅行はありません', zhHans: '没有即将开始的旅行', zhHant: '沒有即將開始的旅行' },
+  '새 여행 만들기 →': { ja: '新しい旅行を作成 →', zhHans: '创建新旅行 →', zhHant: '建立新旅行 →' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {

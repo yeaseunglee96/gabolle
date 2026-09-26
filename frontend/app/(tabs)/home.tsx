@@ -326,9 +326,10 @@ export default function Home() {
               <View style={styles.tripEmpty}>
                 <GabolleMascot state="idle" style={styles.tripMascot} />
                 <View style={styles.tripEmptyCopy}>
-                  <Text weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
+                  {/* 🔴 지난 여행만 있는 사람에게 「아직 만든 여행이 없어요」는 거짓이다(S15P21E201-1770) — 이 칸은 다가오는·진행 중 여행만 보인다. */}
+                  <Text weight="bold">{home.hasTrips ? tx('다가오는 여행이 없어요', 'No upcoming trips') : tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
                   <Pressable accessibilityRole="button" onPress={() => router.push('/plan/basic')}>
-                    <Text weight="bold" color={color.brand.navy}>{tx('첫 여행 만들기 →', 'Plan your first trip →')}</Text>
+                    <Text weight="bold" color={color.brand.navy}>{home.hasTrips ? tx('새 여행 만들기 →', 'Plan a new trip →') : tx('첫 여행 만들기 →', 'Plan your first trip →')}</Text>
                   </Pressable>
                 </View>
               </View>
