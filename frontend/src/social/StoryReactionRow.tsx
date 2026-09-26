@@ -138,7 +138,7 @@ export function StoryReactionRow({
         disabled={reacting || own}
         hitSlop={storyReactionTouchSlop}
         onPress={() => onReact('LIKE')}
-        style={[storyReactionStyles.button, liked && storyReactionStyles.buttonOn, reacting && storyReactionStyles.busy]}
+        style={[storyReactionStyles.button, liked && storyReactionStyles.buttonOn, (reacting || own) && storyReactionStyles.busy]}
       >
         <ThumbIcon tint={liked ? onTint : offTint} filled={liked} />
         <Text variant="util" weight="bold" color={liked ? onTint : offTint}>
