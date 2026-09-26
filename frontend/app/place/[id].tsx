@@ -54,11 +54,13 @@ export default function Place() {
   // 데모 3곳은 로컬 값을, 그 밖의 id 는 방금 받아온 API 응답을 같은 모양으로 맞춘다.
   // useMemo 로 묶는다 — 안 묶으면 매 렌더 새 객체가 생겨 resolved 를 의존성으로 삼는
   // 아래 effect 들이 재실행 루프에 빠질 수 있다.
+  // 🔴 주소가 없는 장소(OSM 출처 등, address=null)도 있다 — 번역 함수에 null 을 넘기면 일·중 화면이 하얗게 죽었다
+  //    (S15P21E201-1725 · 번역 함수 쪽 방어 !1720 에 더한 호출부 방어 S15P21E201-1726). 없으면 부제를 비운다.
   const resolved = useMemo(() => (
     demoPlace
       ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
       : remote.status === 'loaded'
-        ? { title: placeNameForLanguage(remote.place.nameKo, remote.place.nameEn, language), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
+        ? { title: placeNameForLanguage(remote.place.nameKo, remote.place.nameEn, language), subtitle: remote.place.address ? tx(remote.place.address, remote.place.addressEn ?? remote.place.address) : '', apiPlace: remote.place }
         : null
   ), [demoPlace, remote, tx]);
   const photoUrl = resolved?.apiPlace?.photoUrl ?? null;
