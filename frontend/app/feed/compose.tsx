@@ -156,7 +156,8 @@ export default function ComposeStory() {
       <View testID="compose-scheduled" accessibilityRole="alert" style={styles.scheduled}>
         <Text variant="title" weight="bold">{tx('기록을 올렸어요', 'Record posted')}</Text>
         <Text color={color.text.body}>{txf(tx, '%s에 공개돼요. 그전까지는 나만 볼 수 있고, 마이페이지 → 기록에서 고치거나 지울 수 있어요.', 'It goes live on %s. Until then only you can see it — edit or delete it from My page → Records.', when)}</Text>
-        <Button label={tx('확인', 'OK')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} />
+        {/* 🔴 동백 채움(primary)은 파일에 하나 — 「기록 올리기」가 이미 쓴다. */}
+        <Button variant="secondary" label={tx('확인', 'OK')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} />
       </View>
     </Screen>;
   }
