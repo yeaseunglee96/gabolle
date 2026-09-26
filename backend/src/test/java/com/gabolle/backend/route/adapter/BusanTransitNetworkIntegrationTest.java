@@ -381,6 +381,19 @@ class BusanTransitNetworkIntegrationTest {
 		}
 	}
 
+	/**
+	 * S15P21E201-1757. 지하철 구간 시간을 버스 평균 속도로 나눠서 서면→해운대가 71분(열차 60분)으로
+	 * 나왔다. 역 사이 소요 시간(hopMinutes, 열차시각표에서 잰 값)을 더하면 열차는 30분 남짓이다.
+	 * 걷기·기다림까지 합쳐도 한 시간이 넘으면 다시 속도 어림으로 돌아간 것이다.
+	 */
+	@Test
+	@DisplayName("🔴 서면 → 해운대는 한 시간이 안 걸린다 — 지하철은 역 사이 소요 시간을 더한다")
+	void seomyeonToHaeundaeUsesMeasuredHopMinutes() {
+		RouteLeg found = transitOrFail(35.1578, 129.0600, 35.1587, 129.1604, "서면→해운대");
+
+		assertThat(found.durationMin()).as("걷기·기다림 포함 전체 분").isBetween(30, 55);
+	}
+
 	private static RouteLeg transitOrFail(double oLat, double oLng, double dLat, double dLng, String label) {
 		Optional<RouteLeg> leg = adapter().find(new RouteQuery(oLat, oLng, dLat, dLng, TravelMode.TRANSIT));
 		assertThat(leg).as("%s 대중교통 경로를 못 찾았다", label).isPresent();

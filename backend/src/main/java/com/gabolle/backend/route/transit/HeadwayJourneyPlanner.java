@@ -99,6 +99,17 @@ public final class HeadwayJourneyPlanner {
 
 	/** 정류장 순번 {@code from} 에서 {@code to} 까지 달리는 데 걸리는 분. */
 	private int rideMinutes(TransitNetwork network, TransitNetwork.Route route, int from, int to) {
+		// 🔴 지하철은 잰 값(역 사이 소요 시간)이 있으면 그것을 더한다 — S15P21E201-1757.
+		//    전에는 지하철도 버스 평균 속도(정차 포함 14.4km/h)로 나눠서 서면→해운대가 71분
+		//    (열차만 60분)으로 나왔다. 실제는 40분 남짓이다. 버스는 잰 값이 없어 아래 어림 그대로다.
+		List<Double> hops = route.hopMinutes();
+		if (hops != null) {
+			double minutes = 0;
+			for (int i = from; i < to; i++) {
+				minutes += hops.get(i);
+			}
+			return Math.max(1, (int) Math.round(minutes));
+		}
 		List<String> stopIds = route.stopIds();
 		double meters = 0;
 		for (int i = from; i < to; i++) {
