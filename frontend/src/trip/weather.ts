@@ -46,7 +46,7 @@ export type WeatherLoadResult =
    */
   | { state: 'success'; forecast: DailyForecastDto; hourly: HourlyForecastDto[] }
   /** 기상청 단기예보는 발표 시점부터 사흘 남짓만 준다 — 그 밖의 날짜는 «실패»가 아니라 «아직»이다(S15P21E201-1376). */
-  | { state: 'out-of-range'; message: string }
+  | { state: 'out-of-range'; message: string; past?: boolean }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
 
 // 이 앱은 부산 여행 전용이라 좌표를 부산시청 기준으로 고정한다. 일정 항목에는 아직
@@ -70,7 +70,9 @@ export async function loadWeatherForecast(date: string, accessToken: string | nu
   // 🔴 범위 밖 날짜는 부르지 않는다(S15P21E201-1641). 전에는 불러서 400 을 받은 뒤에야 「출발 3일 전부터」를 그렸다 —
   //    여행 준비 화면이 2~4주 뒤 날짜로 4일간 12번. 서버 규칙과 같게 앱이 먼저 가른다. 못 읽는 날짜는 서버에 맡긴다.
   const ahead = daysFromToday(date, now);
-  if (ahead !== null && (ahead < 0 || ahead > FORECAST_DAYS)) return { state: 'out-of-range', message: '출발일 예보는 출발 3일 전부터 보여드려요.' };
+  // 지난 날짜는 「아직」이 아니라 「이미」다 — 같은 문구로 그리면 오지 않을 「그때」를 기다리게 한다(S15P21E201-1773).
+  if (ahead !== null && ahead < 0) return { state: 'out-of-range', past: true, message: '지난 날짜라 예보가 없어요.' };
+  if (ahead !== null && ahead > FORECAST_DAYS) return { state: 'out-of-range', message: '출발일 예보는 출발 3일 전부터 보여드려요.' };
   try {
     const params = new URLSearchParams({ lat: String(BUSAN_LAT), lon: String(BUSAN_LON), date });
     const response = await apiRequest<WeatherForecastResponseDto>(`/api/v1/weather?${params.toString()}`, { accessToken });
