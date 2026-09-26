@@ -17,6 +17,24 @@ import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../../assets/icons/home/bell.png');
 
+
+/**
+ * 「오늘」 묶음 — 기기 현지 날짜로 가른다(S15P21E201-1771).
+ * 🔴 전에는 UTC 날짜끼리 비교해서(toISOString().slice(0, 10)) 한국 새벽 0~9시에는 어제 알림이 「오늘」에 섞였다
+ *    (Play 37 실기기, 9/27 04시에 9/26 13시 알림이 「오늘」).
+ */
+export function splitToday<T extends { at: string }>(items: T[], now: Date = new Date()): { today: T[]; earlier: T[] } {
+  const key = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const todayKey = key(now);
+  const today: T[] = [];
+  const earlier: T[] = [];
+  for (const item of items) {
+    const at = new Date(item.at);
+    (!Number.isNaN(at.getTime()) && key(at) === todayKey ? today : earlier).push(item);
+  }
+  return { today, earlier };
+}
+
 export function NotificationsBody() {
   const { tx, language, locale } = useI18n();
   const router = useRouter();
@@ -92,9 +110,7 @@ export function NotificationsBody() {
   }
 
   if (feed.state === 'ready' && feed.items.length) {
-    const todayKey = new Date().toISOString().slice(0, 10);
-    const today = feed.items.filter((item) => item.at.slice(0, 10) === todayKey);
-    const earlier = feed.items.filter((item) => item.at.slice(0, 10) !== todayKey);
+    const { today, earlier } = splitToday(feed.items);
     const unseenFrom = feed.seenAt;
     const row = (item: ActivityNotice) => {
       const copy = noticeCopy(item, tx);
