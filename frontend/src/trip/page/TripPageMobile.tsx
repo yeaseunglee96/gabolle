@@ -905,7 +905,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
   const meta = [
     item.startsAt.slice(11, 16),
     label ? tx(label[0], label[1]) : null,
-    typeof item.estimatedCostKrw === 'number' ? (item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '%s KRW', item.estimatedCostKrw.toLocaleString(locale))) : null,
+    typeof item.estimatedCostKrw === 'number' ? (item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '₩%s', item.estimatedCostKrw.toLocaleString(locale))) : null,
   ].filter(Boolean).join(' · ');
   const weekday = date ? formatWeekdayShort(date, locale) : null;
   const dayNumber = date ? Number(date.slice(8, 10)) : NaN;
