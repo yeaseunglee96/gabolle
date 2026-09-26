@@ -437,6 +437,20 @@ export function PlanStartBar({
     Animated.timing(sheetIn, { toValue: 1, duration: reduceMotion ? 0 : 600, easing: EASE_SOFT, useNativeDriver: false }).start();
   }, [sheet, reduceMotion, sheetIn]);
 
+  // 🔴 날짜 칸으로 넘어가면 그 칸을 화면 위로 올린다 (S15P21E201-1626). 숙소를 고르면 날짜가 펼쳐지는데
+  //    스크롤이 제자리라, 작은 폰(360×640)에서는 달력 마지막 줄과 「1박 2일」 칩이 아래 버튼 줄 밑에 깔렸다.
+  //    위 칸이 접히는 것과 같은 그림에서 자리가 바뀌므로, 다 그린 다음 프레임에 잰 자리로 간다.
+  const sheetScrollRef = useRef<ScrollView>(null);
+  const datesCardY = useRef<number | null>(null);
+  useEffect(() => {
+    if (!sheet || section !== 'dates') return undefined;
+    const timer = setTimeout(() => {
+      if (datesCardY.current === null) return;
+      sheetScrollRef.current?.scrollTo({ y: Math.max(0, datesCardY.current - spacing[2]), animated: !reduceMotion });
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [sheet, section, reduceMotion]);
+
   // 🔴 이 시트는 RN `<Modal>` 이 아니라 그냥 View 라서 `onRequestClose` 가 없다 — 즉
   // 안드로이드 하드웨어 뒤로가기를 이 시트가 알아서 삼켜 주지 않는다. 처리를 안 하면
   // 뒤로가기가 시트를 그대로 통과해 밑에 있는 화면(또는 앱 자체)이 뒤로 간다 —
@@ -621,19 +635,20 @@ export function PlanStartBar({
           </Pressable>
         </View>
 
-        <ScrollView style={styles.sheetBody} contentContainerStyle={styles.sheetBodyContent} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={sheetScrollRef} style={styles.sheetBody} contentContainerStyle={styles.sheetBodyContent} keyboardShouldPersistTaps="handled">
           {cards.map((card) => (
-            <SheetCard
-              key={card.key}
-              open={section === card.key}
-              label={card.label}
-              summary={segmentLabel(card.key)}
-              onPress={() => setSection(card.key)}
-            >
-              <Animated.View style={{ opacity: swapIn, transform: [{ translateY: swapIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
-                {card.body}
-              </Animated.View>
-            </SheetCard>
+            <View key={card.key} onLayout={card.key === 'dates' ? (event) => { datesCardY.current = event.nativeEvent.layout.y; } : undefined}>
+              <SheetCard
+                open={section === card.key}
+                label={card.label}
+                summary={segmentLabel(card.key)}
+                onPress={() => setSection(card.key)}
+              >
+                <Animated.View style={{ opacity: swapIn, transform: [{ translateY: swapIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
+                  {card.body}
+                </Animated.View>
+              </SheetCard>
+            </View>
           ))}
         </ScrollView>
 

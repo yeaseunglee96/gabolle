@@ -9,7 +9,7 @@
 //    대신하므로 오른쪽엔 답한 목록·다음 질문·상태 문구를 안 그린다.
 //    폰은 기존 구조(위 칩 줄 · StepDots · 상태 문구 · 답한 행 · 질문 카드 · 다음 질문)를 유지한다.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
@@ -107,6 +107,22 @@ export default function PlanConditions() {
   useEffect(() => { if (stateRestored) void saveQuestionState(state); }, [state, stateRestored]);
   // 날짜 카드 — 날짜가 없으면 펼쳐진 채로 시작하고, 고르면 접힌다. 머리의 「수정」이 다시 편다.
   const [datesOpen, setDatesOpen] = useState<boolean | null>(null);
+  // 🔴 「수정」으로 날짜 카드를 펴면 그 카드로 굴러간다 (S15P21E201-1626). 아래로 내려가 있던 사람은
+  //    위에서 달력이 펼쳐진 줄 모른다. 자리는 «기둥의 자리 + 기둥 안 카드의 자리» 로 센다.
+  const scrollRef = useRef<ScrollView>(null);
+  const columnY = useRef(0);
+  const dateCardY = useRef<number | null>(null);
+  useEffect(() => {
+    if (datesOpen !== true) return undefined;
+    let alive = true;
+    const timer = setTimeout(() => {
+      void AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
+        if (!alive || dateCardY.current === null) return;
+        scrollRef.current?.scrollTo({ y: Math.max(0, columnY.current + dateCardY.current - spacing[3]), animated: !reduce });
+      });
+    }, 60);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [datesOpen]);
 
   const searchParams = useLocalSearchParams<{ days?: string; people?: string }>();
   const prefilled = useRef(false);
@@ -329,7 +345,9 @@ export default function PlanConditions() {
     }
   };
 
-  if (!ready) return <Screen scroll><Text>{tx('불러오는 중이에요…', 'Loading…')}</Text></Screen>;
+  // 🔴 불러오는 동안의 Screen 에도 같은 scrollRef 를 준다 — 준비된 뒤의 Screen 이 이 스크롤 상자를 그대로 이어
+  //    쓰므로, 여기서 안 주면 나중에 준 ref 가 붙지 않는다(웹 실측: 끝까지 null).
+  if (!ready) return <Screen scroll scrollRef={scrollRef}><Text>{tx('불러오는 중이에요…', 'Loading…')}</Text></Screen>;
 
   const stepEyebrow = q.skippable
     ? txf(tx, '선택 %s / %s', 'Optional %s / %s', index + 1 - requiredCount, PLAN_QUESTIONS.length - requiredCount)
@@ -374,12 +392,14 @@ export default function PlanConditions() {
 
   // 날짜 — 문항 화면 안에서 고른다(S15P21E201-1376). 없으면 펼친 카드로.
   const dateCardEl = showDateCard ? (
-    <DateRangeCard
-      value={{ startDate: draft.startDate, endDate: draft.endDate }}
-      onChange={(next) => update({ startDate: next.startDate, endDate: next.endDate })}
-      onDone={() => setDatesOpen(false)}
-      tx={tx}
-    />
+    <View onLayout={(event) => { dateCardY.current = event.nativeEvent.layout.y; }}>
+      <DateRangeCard
+        value={{ startDate: draft.startDate, endDate: draft.endDate }}
+        onChange={(next) => update({ startDate: next.startDate, endDate: next.endDate })}
+        onDone={() => setDatesOpen(false)}
+        tx={tx}
+      />
+    </View>
   ) : null;
 
   const questionCard = (
@@ -622,7 +642,7 @@ export default function PlanConditions() {
   );
 
   return (
-    <Screen scroll wide={wide} style={styles.canvas}>
+    <Screen scroll wide={wide} style={styles.canvas} scrollRef={scrollRef}>
       {/* 🔴 폰은 위 줄 하나에 뒤로 가기와 홈에서 받은 칩(출발·날짜·인원)을 같이 둔다(시안 01b).
           걸음 수는 바로 아래 눈썹이 이미 말하므로 여기 또 적지 않는다. 넓은 화면은 왼쪽 레일이 대신한다. */}
       {wide ? null : (
@@ -653,14 +673,16 @@ export default function PlanConditions() {
         </View>
       )}
 
-      {wide ? (
-        <View style={styles.split}>
-          {rail}
-          {desktopColumn}
-        </View>
-      ) : (
-        mobileColumn
-      )}
+      <View onLayout={(event) => { columnY.current = event.nativeEvent.layout.y; }}>
+        {wide ? (
+          <View style={styles.split}>
+            {rail}
+            {desktopColumn}
+          </View>
+        ) : (
+          mobileColumn
+        )}
+      </View>
 
       {/*
         🔴 -1334 — 닫힐 때 무엇을 골랐는지를 반드시 본다. ✕ 로 닫은 것(DISMISSED)만 그 자리에
