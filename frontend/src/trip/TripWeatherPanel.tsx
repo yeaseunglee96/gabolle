@@ -5,6 +5,7 @@
 // 「들를 때 날씨」·일정 시각 테두리는 여행 페이지가 출발일 일정 항목을 넘겨서 그린다(S15P21E201-1586).
 // 🔴 정차 시각의 칸이 서버에 없으면 옆 칸으로 대신하지 않는다 — 「—」. 숫자를 지어내지 않는다.
 import { useEffect, useRef, useState } from 'react';
+import { localToday } from '@/plan/tripBasics';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { Eyebrow } from '@/components/Eyebrow';
@@ -245,13 +246,32 @@ export function TripWeatherCard({ date, hourly = false, stops = [] }: { date: st
  * 창에 띄우는 꼴 — 머리(여행 전 · 출발일) + 카드.
  * `items` — 출발일의 일정 항목. 여행 페이지가 그날 일정을 넘긴다(없으면 시간별 줄만).
  */
-export function TripWeatherPanel({ date, items }: { date: string | null | undefined; items?: ReadonlyArray<{ startsAt: string; title: string }> | null }) {
+/**
+ * 머리 글의 때 — S15P21E201-1764. 전에는 날짜와 무관하게 늘 「여행 전 · 출발일 날씨」였다.
+ * Play 35 실기기에서 당일 여행(진행 중) 밤 9시에 열어도 「여행 전」이라고 적었다.
+ * 날짜는 YYYY-MM-DD 글자끼리 비교한다(같은 꼴이라 글자 순서가 곧 날짜 순서다).
+ */
+export function weatherPhase(date: string | null | undefined, today: string): 'before' | 'today' | 'after' {
+  const day = date?.slice(0, 10);
+  if (!day) return 'before';
+  if (day === today) return 'today';
+  return day > today ? 'before' : 'after';
+}
+
+export function TripWeatherPanel({ date, items, today = localToday() }: { date: string | null | undefined; items?: ReadonlyArray<{ startsAt: string; title: string }> | null; today?: string }) {
   const { tx, locale } = useI18n();
   const departure = date ? formatMonthDay(date, locale) : null;
+  const phase = weatherPhase(date, today);
+  const eyebrow = phase === 'today'
+    ? tx('여행 중 · 오늘', 'On the trip · Today')
+    : phase === 'after'
+      ? (departure ? txf(tx, '여행 중 · %s 출발', 'On the trip · Departed %s', departure) : tx('여행 중', 'On the trip'))
+      : (departure ? txf(tx, '여행 전 · %s 출발', 'Before the trip · Departing %s', departure) : tx('여행 전', 'Before the trip'));
+  const title = phase === 'today' ? tx('오늘 날씨', "Today's weather") : tx('출발일 날씨', 'Departure-day weather');
   return (
     <View>
-      <Eyebrow>{departure ? txf(tx, '여행 전 · %s 출발', 'Before the trip · Departing %s', departure) : tx('여행 전', 'Before the trip')}</Eyebrow>
-      <Text variant="display" weight="bold" style={styles.title}>{tx('출발일 날씨', 'Departure-day weather')}</Text>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <Text variant="display" weight="bold" style={styles.title}>{title}</Text>
       <TripWeatherCard date={date} hourly stops={weatherStops(items)} />
     </View>
   );
