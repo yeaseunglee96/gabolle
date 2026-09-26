@@ -21,6 +21,7 @@ export function buildKakaoMapHtml(appKey: string): string {
   var map = null;
   var overlays = [];
   var fit = null;
+  var padNow = [60, 60, 60, 60];
   // 🔴 고른 곳이 바뀌면 다시 그리지 않는다(S15P21E201-1654). 전에는 고를 때마다 마커·선을 전부 새로 그리고
   //    전체 맞추기(setBounds — 순간 이동)를 해서 지도가 여행 전체로 튀었다. 고를 때는 아래 값만 고친다.
   var markers = {};
@@ -218,13 +219,23 @@ export function buildKakaoMapHtml(appKey: string): string {
 
     // 와 같은 이유 — 점이 하나면 bounds 넓이가 0이라 최대 줌으로 튄다.
     // 여백은 앱이 셈해서 보낸다 — 아래가 창에 가려진 만큼 더(S15P21E201-1607, mapFocus.ts). 안 보내면 네 변 60.
-    var pad = data.fitPadding || [60, 60, 60, 60];
-    fit = function () { if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
+    padNow = data.fitPadding || [60, 60, 60, 60];
+    fit = function () { var pad = padNow; if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
     fit();
     // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
     resimplify();
 
     post('ready', null);
+  };
+
+  // 여백만 새로 받아 같은 범위를 한 번 다시 맞춘다 — RN 쪽이 «지도 보기»로 창을 접었을 때만 부른다(S15P21E201-1754).
+  // 창이 열린 채 맞춘 큰 아래 여백이 남아 경로가 화면 위쪽에 몰려 있었다. 다시 그리지는 않는다.
+  window.__fitKakaoMap = function (data) {
+    if (!map || !fit) return;
+    padNow = data.fitPadding || padNow;
+    shiftNow = data.shiftY || 0;
+    fit();
+    resimplify();
   };
 
   // 고른 곳만 바뀌었을 때 RN 쪽이 부른다 — 마커 모양만 바꾸고 panTo. 다시 그리지도, 다시 맞추지도 않는다.

@@ -189,6 +189,13 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const mapHeight = height;
   const [stripHeight, setStripHeight] = useState(0);
   const mapCovered = panel === 'trip' ? height - sheetTop : bottomMargin + TAB_BAR_HEIGHT + spacing[2] + stripHeight;
+  // 지도 위쪽도 가려져 있다 — 상태바, 그 아래 「장소 N곳」 요약(높이 40 자리)과 「경사/그늘」 칩(32). 지도 칸은 모서리를
+  // 숨기려 radius.lg 만큼 화면 위로 올라가 있어 그것도 더한다(S15P21E201-1754). 칩 아래 풀이 줄은 켰을 때만 떠서 셈하지 않는다.
+  const mapTopCovered = radius.lg + insets.top + spacing[2] + 40 + 32;
+  // 🔴 «지도 보기»로 접는 순간에만 지도를 다시 맞춘다(S15P21E201-1754). 창이 열린 채 맞춘 큰 아래 여백이 남아 경로가
+  //    화면 위 15% 에 몰렸다. 창을 열 때는 null 이라 안 맞춘다 — 여닫을 때마다 튀지 않게(S15P21E201-1607).
+  //    카드 줄 높이가 재어지면 한 번 더 맞춘다(접은 직후 한 번뿐이다).
+  const mapRefitKey = panel === 'collapsed' ? `collapsed:${stripHeight}` : null;
 
   // 창은 다 자란 크기로 깔아 두고 밀어 올린다 — 높이를 매 프레임 바꾸지 않는다.
   const shown = useRef(new Animated.Value(1)).current;
@@ -614,7 +621,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         {map.stops.length ? (
           // 🔴 지도 부품은 둥근 테두리 칸으로 그려진다. 바탕으로 쓰려면 모서리를 화면 밖으로 밀어낸다.
           <View style={styles.mapBleed}>
-            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={mapRoutes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected bottomInset={mapCovered} />
+            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={mapRoutes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected bottomInset={mapCovered} topInset={mapTopCovered} refitKey={mapRefitKey} />
           </View>
         ) : loaded ? (
           <View style={[styles.mapEmpty, { paddingTop: insets.top }]}>

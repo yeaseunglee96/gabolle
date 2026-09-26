@@ -11,7 +11,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { TripPageMobile } from '@/trip/page/TripPageMobile';
 
-const mapProps: Array<{ height?: number; bottomInset?: number }> = [];
+const mapProps: Array<{ height?: number; bottomInset?: number; topInset?: number; refitKey?: string | number | null }> = [];
 
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: () => true }) }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
@@ -79,6 +79,19 @@ describe('폰 여행 화면의 일정 창', () => {
     expect(coveredOpen).toBeGreaterThan(mapProps[mapProps.length - 1].bottomInset ?? 0);
     fireEvent.press(screen.getByLabelText('일정 펼치기'));
     expect(mapProps[mapProps.length - 1].height).toBe(opened);
+  });
+
+  it('🔴 «지도 보기»로 접을 때만 지도를 다시 맞춘다 — 창을 열 때는 안 맞춘다(S15P21E201-1754)', () => {
+    mount();
+    const last = () => mapProps[mapProps.length - 1];
+    // 창이 열려 있을 때는 다시 맞추라는 신호가 없다
+    expect(last().refitKey ?? null).toBeNull();
+    // 위쪽 칩(요약 40 자리 + 경사/그늘 32) 만큼은 늘 가려져 있다고 알린다
+    expect(last().topInset ?? 0).toBeGreaterThanOrEqual(72);
+    fireEvent.press(screen.getByText('지도 보기'));
+    expect(last().refitKey).not.toBeNull();
+    fireEvent.press(screen.getByLabelText('일정 펼치기'));
+    expect(last().refitKey ?? null).toBeNull();
   });
 
   it('🔴 창은 네이티브 드라이버로 밀어 올린다 — 올라갈 때와 내려갈 때 같은 시간·곡선', () => {
