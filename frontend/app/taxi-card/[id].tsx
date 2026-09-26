@@ -82,7 +82,7 @@ export default function TaxiCardScreen() {
             {tx('기사님께 보여주세요', 'Show this to the driver')}
           </Text>
           <Text variant="hero" weight="bold" color={color.text.heading} style={styles.address}>
-            {state.card.addressKo}
+            {state.card.addressKo || state.card.nameKo}
           </Text>
           {state.card.addressEn ? (
             <Text variant="title" color={color.text.body}>{state.card.addressEn}</Text>
@@ -90,11 +90,13 @@ export default function TaxiCardScreen() {
           <Text variant="title" weight="medium" color={color.text.heading} style={styles.sentence}>
             {state.card.driverSentence}
           </Text>
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('주소 복사', 'Copy address')} onPress={() => void copyAddress(state.card.addressKo)} style={styles.copyButton}>
-            <Text variant="body" weight="bold" color={color.text.accent}>
-              {copied ? tx('복사됨 ✓', 'Copied ✓') : tx('주소 복사', 'Copy address')}
-            </Text>
-          </Pressable>
+          {state.card.addressKo ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('주소 복사', 'Copy address')} onPress={() => void copyAddress(state.card.addressKo!)} style={styles.copyButton}>
+              <Text variant="body" weight="bold" color={color.text.accent}>
+                {copied ? tx('복사됨 ✓', 'Copied ✓') : tx('주소 복사', 'Copy address')}
+              </Text>
+            </Pressable>
+          ) : null}
           <Text variant="caption" color={color.text.muted} style={styles.brightnessHint}>
             {tx('※ 화면 밝기를 최대로 올려주세요', '※ Turn your screen brightness all the way up')}
           </Text>
