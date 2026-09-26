@@ -21,6 +21,8 @@ export const MESSAGE_EN: Record<string, string> = {
   '요청을 취소했어요.': 'The request was cancelled.',
   '요청이 취소됐어요.': 'The request was cancelled.',
   '요청을 처리하지 못했어요.': 'We could not complete that request.',
+  // 여행·기록 초대가 없을 때 서버가 한국어 고정 문장으로 준다(TripInviteService·StoryCoauthorService). 영어 화면에 그대로 나왔다(S15P21E201-1774).
+  '초대를 찾을 수 없습니다.': 'We could not find this invite.',
   // 추천 코스 2안·3안을 고르면 서버가 그때 일정을 만든다 (S15P21E201-1454).
   '이 코스로 일정을 만들지 못했어요.': 'We could not build an itinerary from this course.',
   '그 코스를 찾지 못했어요.': 'We could not find that course.',
