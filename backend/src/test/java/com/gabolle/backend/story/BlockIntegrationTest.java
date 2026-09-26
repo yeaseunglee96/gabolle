@@ -33,8 +33,12 @@ import com.gabolle.backend.story.presentation.UserSocialController;
 import com.gabolle.testslice.StorySliceApplication;
 
 /**
- * 차단 방향이 흔한 것과 반대다. blocker 가 blocked 를 차단하면 blocked 가 blocker 를 못 본다.
- * 구현을 반대 방향으로 고치면 이 파일이 빨개진다.
+ * 차단은 <b>양쪽으로</b> 걸린다. blocker 가 blocked 를 차단하면 (1) blocked 가 blocker 를 못 보고, (2) blocker 도 더는
+ * blocked 의 글·댓글을 피드와 댓글 목록에서 못 본다(S15P21E201-1714 — App Store 가이드라인 1.2: 차단한 사람의
+ * 콘텐츠는 차단한 사람의 피드에서 사라져야 한다). 한쪽을 빼면 이 파일이 빨개진다.
+ *
+ * <p>2026-09-26 이전에는 (2) 가 일부러 없었다 — 「차단한 쪽에는 상대 글이 그대로 보인다」를 못 박는 시험이 있었다.
+ * 심사 기준에 맞추려고 그 결정을 뒤집었고, 그 시험은 {@code blockerLosesBlockedUsersStoriesFromFeed} 로 바뀌었다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -124,14 +128,98 @@ class BlockIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 차단한 쪽의 피드에서는 상대 글이 그대로 보인다 — 반대 방향은 막지 않는다")
-	void blockerStillSeesBlockedUsersStories() throws Exception {
+	@DisplayName("🔴 차단한 쪽의 피드에서도 차단당한 사람의 글이 사라진다 — 가이드라인 1.2 (S15P21E201-1714)")
+	void blockerLosesBlockedUsersStoriesFromFeed() throws Exception {
 		UUID story = freshStory(this.blocked, "차단당한 사람의 글");
+		UUID other = freshStory(this.thirdParty(), "제3자의 글");
+
+		// 차단 전에는 둘 다 보인다 — 이 줄이 없으면 원래부터 안 보였을 가능성을 못 지운다.
+		feedOf(this.blocker).andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[?(@.id=='" + story + "')]").exists());
 
 		block();
 
 		feedOf(this.blocker).andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[?(@.id=='" + story + "')]").doesNotExist())
+				// 다른 사람의 글까지 같이 사라지면 안 된다 — 걸러낸 것이 「차단한 그 사람」뿐임을 못 박는다.
+				.andExpect(jsonPath("$.data.items[?(@.id=='" + other + "')]").exists());
+	}
+
+	@Test
+	@DisplayName("🔴 인기순 피드에서도 차단한 사람의 글이 빠진다")
+	void blockerLosesBlockedUsersStoriesFromPopularFeed() throws Exception {
+		UUID story = freshStory(this.blocked, "차단당한 사람의 글");
+		block();
+
+		this.mockMvc
+				.perform(get("/api/v1/stories").principal(StoryFixture.as(this.blocker)).param("limit", "50")
+						.param("sort", "POPULAR"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[?(@.id=='" + story + "')]").doesNotExist());
+	}
+
+	@Test
+	@DisplayName("🔴 차단을 풀면 차단한 쪽 피드에 상대 글이 다시 보인다")
+	void unblockRestoresBlockersView() throws Exception {
+		UUID story = freshStory(this.blocked, "차단당한 사람의 글");
+		block();
+
+		this.mockMvc.perform(delete("/api/v1/users/{id}/block", this.blocked).principal(StoryFixture.as(this.blocker)))
+				.andExpect(status().isOk());
+
+		feedOf(this.blocker).andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.items[?(@.id=='" + story + "')]").exists());
+	}
+
+	@Test
+	@DisplayName("🔴 로그인하지 않은 사람의 피드는 이 조건의 영향을 안 받는다 — 익명은 누구도 차단하지 못한다")
+	void anonymousFeedIsUnaffected() throws Exception {
+		UUID story = freshStory(this.blocked, "차단당한 사람의 글");
+		block();
+
+		this.mockMvc.perform(get("/api/v1/stories").param("limit", "50")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[?(@.id=='" + story + "')]").exists());
+	}
+
+	@Test
+	@DisplayName("🔴 글의 댓글 목록에서도 내가 차단한 사람의 댓글이 빠진다 — 다른 사람의 댓글은 남는다")
+	void blockerLosesBlockedUsersRepliesFromReplyList() throws Exception {
+		UUID third = thirdParty();
+		UUID post = freshStory(third, "제3자의 글");
+		UUID blockedReply = insertReply(post, this.blocked, "차단당한 사람의 댓글");
+		UUID keptReply = insertReply(post, third, "제3자의 댓글");
+
+		this.mockMvc.perform(get("/api/v1/stories/{id}/replies", post).principal(StoryFixture.as(this.blocker)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data[?(@.id=='" + blockedReply + "')]").exists())
+				.andExpect(jsonPath("$.data[?(@.id=='" + keptReply + "')]").exists());
+
+		block();
+
+		this.mockMvc.perform(get("/api/v1/stories/{id}/replies", post).principal(StoryFixture.as(this.blocker)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data[?(@.id=='" + blockedReply + "')]").doesNotExist())
+				.andExpect(jsonPath("$.data[?(@.id=='" + keptReply + "')]").exists());
+
+		// 차단하지 않은 사람에게는 그대로 보인다 — 걸러지는 것은 차단한 사람의 화면뿐이다.
+		this.mockMvc.perform(get("/api/v1/stories/{id}/replies", post).principal(StoryFixture.as(third)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data[?(@.id=='" + blockedReply + "')]").exists());
+	}
+
+	/** 차단과 무관한 제3자. 걸러낸 것이 「차단한 그 사람」뿐임을 보이는 데 쓴다. */
+	private UUID thirdParty() {
+		return StoryFixture.insertUser(this.jdbc, "제3자");
+	}
+
+	/** 댓글 한 줄을 직접 넣는다 — 부모 글에 달린 PUBLIC 댓글. */
+	private UUID insertReply(UUID parentStory, UUID author, String body) {
+		UUID id = UUID.randomUUID();
+		java.time.OffsetDateTime now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC);
+		this.jdbc.update("INSERT INTO story (story_id, author_user_id, parent_story_id, body, visibility, publish_at,"
+				+ " created_at, updated_at) VALUES (?, ?, ?, ?, 'PUBLIC', ?, ?, ?)", id, author, parentStory, body,
+				now, now, now);
+		return id;
 	}
 
 	@Test
