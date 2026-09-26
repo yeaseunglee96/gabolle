@@ -207,13 +207,20 @@ public class StoryService {
 		return this.assembler.one(reply, authorUserId, now);
 	}
 
-	/** 이 글에 직접 달린 댓글. 목록을 여는 것도 조회라 {@link #requireVisible} 을 똑같이 지난다. */
+	/**
+	 * 이 글에 직접 달린 댓글. 목록을 여는 것도 조회라 {@link #requireVisible} 을 똑같이 지난다.
+	 *
+	 * <p>로그인한 사람에게는 <b>내가 차단한 사람의 댓글을 뺀다</b>(S15P21E201-1714 — 가이드라인 1.2). 글의 댓글 수는
+	 * 그대로라 목록이 수보다 적을 수 있다.
+	 */
 	@Transactional(readOnly = true)
 	public List<StoryResponse> replies(UUID storyId, UUID viewer, int limit) {
 		Instant now = this.clock.instant();
 		Story parent = requireVisible(storyId, viewer, now);
-		List<Story> replies = this.storyRepository.findReplies(parent.getStoryId(),
-				org.springframework.data.domain.PageRequest.of(0, limit));
+		org.springframework.data.domain.Pageable page = org.springframework.data.domain.PageRequest.of(0, limit);
+		List<Story> replies = (viewer == null)
+				? this.storyRepository.findReplies(parent.getStoryId(), page)
+				: this.storyRepository.findRepliesHidingBlockedBy(parent.getStoryId(), viewer, page);
 		return this.assembler.many(replies, viewer, now);
 	}
 
