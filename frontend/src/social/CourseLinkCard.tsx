@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { txf } from '@/i18n/format';
+import { enPlural, txf } from '@/i18n/format';
 import { getSharedItinerary } from '@/share/sharedItinerary';
 
 export function CourseLinkCard({ token }: { token: string }) {
@@ -40,7 +40,7 @@ export function CourseLinkCard({ token }: { token: string }) {
   }
   const { data } = result;
   const stops = data.days.reduce((sum, day) => sum + day.items.length, 0);
-  const summary = [txf(tx, '%s일', '%s days', String(data.days.length)), txf(tx, '장소 %s곳', '%s places', String(stops))].join(' · ');
+  const summary = [txf(tx, '%s일', `%s ${enPlural(data.days.length, 'day', 'days')}`, String(data.days.length)), txf(tx, '장소 %s곳', '%s places', String(stops))].join(' · ');
   return (
     <Pressable accessibilityRole="link" accessibilityLabel={txf(tx, '%s 코스 보기', 'View course %s', data.title)} onPress={open} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
       <Text variant="caption" weight="bold" color={color.action.primary}>{tx('코스', 'Course')}</Text>

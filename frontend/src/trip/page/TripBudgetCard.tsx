@@ -23,7 +23,7 @@ export function TripBudgetCard({ budget, style }: { budget: BudgetSummary | null
   const limit = budget?.budgetKrw ?? null;
   const remaining = budget?.remainingKrw ?? null;
   const used = known && limit ? Math.min(1, budget.krw / limit) : 0;
-  const breakdown = budget?.categories.filter((entry) => entry.krw > 0).map((entry) => `${tx(...BUDGET_LABEL[entry.key])} ${txf(tx, '%s원', '%s KRW', entry.krw.toLocaleString())}`).join(' · ');
+  const breakdown = budget?.categories.filter((entry) => entry.krw > 0).map((entry) => `${tx(...BUDGET_LABEL[entry.key])} ${txf(tx, '%s원', '₩%s', entry.krw.toLocaleString())}`).join(' · ');
   return (
     <View style={[styles.card, style]}>
       <View style={styles.rowBetween}>
@@ -35,8 +35,8 @@ export function TripBudgetCard({ budget, style }: { budget: BudgetSummary | null
         ) : null}
       </View>
       <View style={styles.rowBaseline}>
-        <Text variant="display" weight="bold">{known ? txf(tx, '%s원', '%s KRW', budget.krw.toLocaleString()) : tx('비용 미정', 'Cost unknown')}</Text>
-        {limit !== null ? <Text variant="caption" color={color.text.muted}>{`/ ${txf(tx, '%s원', '%s KRW', limit.toLocaleString())}`}</Text> : null}
+        <Text variant="display" weight="bold">{known ? txf(tx, '%s원', '₩%s', budget.krw.toLocaleString()) : tx('비용 미정', 'Cost unknown')}</Text>
+        {limit !== null ? <Text variant="caption" color={color.text.muted}>{`/ ${txf(tx, '%s원', '₩%s', limit.toLocaleString())}`}</Text> : null}
       </View>
       {limit !== null ? <View style={styles.budgetTrack}><View style={[styles.budgetUsed, { flex: used }]} /><View style={{ flex: 1 - used }} /></View> : <Text variant="caption" color={color.text.muted}>{tx('예산을 정하지 않은 여행이에요', 'No budget set for this trip')}</Text>}
       {breakdown ? <Text variant="caption" color={color.text.muted}>{breakdown}</Text> : null}

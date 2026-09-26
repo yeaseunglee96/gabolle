@@ -444,7 +444,7 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
         </View>
       </View>
       <View style={styles.cardMoney}>
-        <Text weight="bold">{typeof item.estimatedCostKrw !== 'number' ? tx('비용 미정', 'Cost unknown') : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '%s KRW', item.estimatedCostKrw.toLocaleString(locale))}</Text>
+        <Text weight="bold">{typeof item.estimatedCostKrw !== 'number' ? tx('비용 미정', 'Cost unknown') : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '₩%s', item.estimatedCostKrw.toLocaleString(locale))}</Text>
         <Text variant="caption" color={color.text.body}>{last ? tx('마지막 장소', 'Last stop') : stay !== null ? txf(tx, '머무름 약 %s', 'Stay about %s', formatDuration(stay, tx)) : tx('머무름 시간 모름', 'Stay time unknown')}</Text>
         {/* 이 곳을 떠나 다음 곳에 가기까지 남는 시간(S15P21E201-1668). 머무름과 따로 적는다 — 섞으면 머무름이 길어 보인다. */}
         <FreeTimeRow minutes={free} tx={tx} />
