@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
 import { PlanStartBar } from '@/home/PlanStartBar';
 import { startBarEditSection, startBarEndDate, startBarFromDraft } from '@/home/startBarValue';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
@@ -44,6 +44,7 @@ const welcomeVideo = require('../assets/video/busan-tram-portrait.mp4');
 
 export default function Welcome() {
   const router = useRouter();
+  const focused = useIsFocused();
   const { width, desktop } = useLayout();
   const { language, mobility, setPreferences, hydrated, hasEnteredApp } = useOnboardingPreferences();
   const { tx } = useI18n();
@@ -155,7 +156,9 @@ export default function Welcome() {
       {showVideo ? <VideoView player={player} contentFit="cover" nativeControls={false} allowsPictureInPicture={false} style={styles.mobileBackgroundImage} /> : null}
       {/* 어둠막 — 위는 옅게, 아래로 갈수록 짙게. 흰 글자와 단추가 어떤 장면에서도 읽히게 한다. */}
       <LinearGradient pointerEvents="none" colors={['rgba(25,25,25,0.35)', 'rgba(25,25,25,0.15)', 'rgba(25,25,25,0.40)', 'rgba(25,25,25,0.92)']} locations={[0, 0.3, 0.6, 1]} style={styles.mobileBackgroundImage} />
-      <StatusBar style="light" />
+      {/* 🔴 흰 상태바는 영상 위에서만이다. 온보딩은 router.push 로 넘어가서 이 화면이 스택에 남는다 —
+          그대로 두면 밝은 온보딩·나이 확인·권한 화면 내내 시계와 배터리가 흰 글자로 안 보였다(S15P21E201-1747). */}
+      {focused ? <StatusBar style="light" /> : null}
       <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={styles.mobileSafeArea}>
         <ScrollView style={styles.mobileSafeArea} contentContainerStyle={styles.mobileContent}>
         <View style={styles.mobileBrand}>
