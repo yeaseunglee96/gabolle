@@ -163,7 +163,9 @@ describe('계정 삭제 안내 화면', () => {
 
   it('약관 8절이 운영자·유료 판매 없음·관할을 확정 문구로 말하고 빈자리가 없다', () => {
     const section8 = TERMS_SECTIONS.find((s) => s.title[0].startsWith('8.'));
-    expect(section8?.paragraphs[0][0]).toContain('사업자 등록 전 팀 UNIVERSE가 운영하며 유료 판매를 하지 않습니다');
+    expect(section8?.paragraphs[0][0]).toContain('사업자 등록 전 팀 UNIVERSE(이하 「운영팀」)가 운영하며 유료 판매를 하지 않습니다');
+    // 사업자 등록 전이라 「회사」는 없다 — 약관 어디에도 그 말로 운영 주체를 부르지 않는다.
+    expect(all(TERMS_SECTIONS)).not.toContain('회사');
     expect(section8?.paragraphs[0][0]).toContain('민사소송법에 따른 관할 법원');
     expect(section8?.paragraphs[0][1]).toContain('Team UNIVERSE');
     expect(all(TERMS_SECTIONS)).not.toContain('팀 확정 후');
