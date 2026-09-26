@@ -189,7 +189,8 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 
 	/**
 	 * 한 사람의 기록(프로필). 본인이면 전부, 팔로워면 PUBLIC·FOLLOWERS, 그 외에는 PUBLIC 만.
-	 * 어느 경우인지는 호출자가 {@code visibilities} 로 넘긴다.
+	 * 어느 경우인지는 호출자가 {@code visibilities} 로 넘긴다. 🔴 본인이면 {@code :now} 에 먼 미래가 온다 —
+	 * 공개 전 기록도 작성자에게는 보인다({@code StoryService#publishedCutoff}, S15P21E201-1737).
 	 */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
 			+ " AND s.author_user_id = :author AND s.visibility IN (:visibilities)" + BEFORE_CURSOR + FEED_ORDER,
