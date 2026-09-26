@@ -27,6 +27,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { useSheetBottomPadding } from '@/components/sheetBottomInset';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -95,6 +96,8 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
     'We have no place data to check this yet — picking it cannot filter anything right now.',
   );
   const phone = kind === 'phone';
+  // 🔴 안드로이드 탐색 막대 밑으로 버튼이 들어가지 않게(S15P21E201-1765).
+  const bottomPad = useSheetBottomPadding(spacing[8]);
   const [never, setNever] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
@@ -228,7 +231,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             {tx('서버에 저장하지 못했어요. 이 기기에는 적어 뒀어요 — 한 번 더 눌러 보시고, 그래도 안 되면 그대로 진행해도 괜찮아요.', 'We could not save to the server. It is stored on this device — try once more, or go ahead anyway.')}
           </Text> : null}
 
-          <View style={styles.footer}>
+          <View style={[styles.footer, phone && { paddingBottom: bottomPad }]}>
             <View style={styles.footerLeft}>
               <Pressable accessibilityRole="button" onPress={() => void finish(never ? 'NEVER' : 'LATER')} style={styles.later}>
                 <Text variant="caption" weight="bold" color={color.text.body} style={styles.underline}>

@@ -8,6 +8,7 @@
 import type { ReactNode } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { useSheetBottomPadding } from '@/components/sheetBottomInset';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -18,12 +19,14 @@ type Shape = 'center' | 'drawer' | 'sheet';
 
 export function TripOverlay({ visible, shape, onClose, children }: { visible: boolean; shape: Shape; onClose: () => void; children: ReactNode }) {
   const { tx } = useI18n();
+  // 🔴 폰 아래 시트는 안드로이드 탐색 막대만큼 아래를 비운다(S15P21E201-1765).
+  const bottomPad = useSheetBottomPadding(0);
   return (
     <Modal visible={visible} transparent animationType={shape === 'sheet' ? 'slide' : 'fade'} onRequestClose={onClose}>
       <View style={[styles.backdrop, shape === 'center' && styles.backdropCenter, shape === 'drawer' && styles.backdropDrawer, shape === 'sheet' && styles.backdropSheet]}>
         {/* 뒤의 어두운 곳을 누르면 닫힌다. 창 자체보다 먼저 깔아야 창 안의 누름을 안 가로챈다. */}
         <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={onClose} style={StyleSheet.absoluteFill} />
-        <View accessibilityViewIsModal style={[styles.panel, styles[shape]]}>
+        <View accessibilityViewIsModal style={[styles.panel, styles[shape], shape === 'sheet' && { paddingBottom: bottomPad }]}>
           {shape === 'sheet' ? <View style={styles.grabber} /> : null}
           <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={onClose} style={({ pressed }) => [styles.close, pressed && styles.pressed]}>
             <Text weight="bold">✕</Text>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/Button';
+import { useSheetBottomPadding } from '@/components/sheetBottomInset';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -39,6 +40,8 @@ export type TripNameSheetProps = {
 export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, onClose, onSaved }: TripNameSheetProps) {
   const { tx } = useI18n();
   const { kind } = useLayout();
+  // 🔴 안드로이드 탐색 막대 밑으로 버튼이 들어가지 않게(S15P21E201-1765).
+  const bottomPad = useSheetBottomPadding(spacing[8]);
   const mode: TripNameSheetMode = (currentTitle ?? '').trim() ? 'edit' : 'add';
 
   const [draft, setDraft] = useState(currentTitle ?? '');
@@ -224,7 +227,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
           style={[styles.backdrop, kind === 'phone' ? styles.backdropPhone : styles.backdropWide]}
         >
           {/* 안쪽을 눌렀을 때 닫히지 않게 누름을 여기서 멈춘다. */}
-          <Pressable onPress={() => {}} style={kind === 'phone' ? styles.sheet : styles.card}>
+          <Pressable onPress={() => {}} style={kind === 'phone' ? [styles.sheet, { paddingBottom: bottomPad }] : styles.card}>
             {kind === 'phone' ? <View style={styles.handle} /> : null}
             {body}
           </Pressable>
