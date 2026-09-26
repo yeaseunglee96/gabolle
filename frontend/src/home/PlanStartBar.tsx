@@ -114,7 +114,13 @@ export function MonthGrid({
           const past = key < today;
           const isStart = key === value.startDate;
           const isEnd = key === value.endDate;
-          const between = Boolean(value.startDate && value.endDate && key > value.startDate && key < value.endDate);
+          // 🔴 고른 기간은 한 띠로 이어진다(S15P21E201-1720). 전에는 시작·끝 칸을 칸 전체 검정 알약으로, 사이 칸을
+          //    회색 네모로 그려서 셋이 끊겨 보였고, 칸이 넓은 넓은 화면에서는 시작·끝이 가로로 긴 알약이 됐다.
+          //    띠는 칸 폭을 채우고(시작은 가운데부터 · 끝은 가운데까지), 시작·끝은 고정 크기 동그라미를 얹는다.
+          //    줄마다 알약으로 닫는다 — 줄 처음(일요일·앞이 빈칸)은 띠 왼쪽을, 줄 끝(토요일·뒤가 빈칸)은 오른쪽을 둥글게.
+          const range = Boolean(value.startDate && value.endDate && value.startDate !== value.endDate && key >= value.startDate && key <= value.endDate);
+          const rowStart = index === 0 || !week[index - 1];
+          const rowEnd = index === week.length - 1 || !week[index + 1];
           return (
             <Pressable
               key={key}
@@ -123,8 +129,16 @@ export function MonthGrid({
               accessibilityRole="button"
               accessibilityState={{ selected: isStart || isEnd, disabled: past }}
               accessibilityLabel={formatDateShort(key, tx)}
-              style={[styles.cell, between && styles.cellBetween, (isStart || isEnd) && styles.cellPicked]}
+              style={styles.cell}
             >
+              {range ? (
+                <View
+                  testID={`range-band-${key}`}
+                  pointerEvents="none"
+                  style={[styles.band, isStart && styles.bandFromCenter, isEnd && styles.bandToCenter, !isStart && rowStart && styles.bandRoundLeft, !isEnd && rowEnd && styles.bandRoundRight]}
+                />
+              ) : null}
+              {isStart || isEnd ? <View testID={`range-dot-${key}`} pointerEvents="none" style={styles.dot} /> : null}
               <Text
                 variant="caption"
                 weight={isStart || isEnd ? 'bold' : 'regular'}
@@ -808,8 +822,16 @@ const styles = StyleSheet.create({
   week: { flexDirection: 'row' },
   cell: { flex: 1, height: 40, alignItems: 'center', justifyContent: 'center' },
   headCell: { flex: 1, textAlign: 'center' },
-  cellBetween: { backgroundColor: color.surface.tint },
-  cellPicked: { backgroundColor: color.brand.navy, borderRadius: radius.full },
+  // 고른 기간의 띠 — 칸 폭을 채운다. 시작 칸은 가운데부터, 끝 칸은 가운데까지(S15P21E201-1720).
+  // 띠와 동그라미는 같은 높이(34)다. 칸(40) 안에서 위아래 3 씩 비운다.
+  band: { position: 'absolute', top: 3, bottom: 3, left: 0, right: 0, backgroundColor: color.surface.tint },
+  bandFromCenter: { left: '50%' },
+  bandToCenter: { right: '50%' },
+  bandRoundLeft: { borderTopLeftRadius: radius.full, borderBottomLeftRadius: radius.full },
+  bandRoundRight: { borderTopRightRadius: radius.full, borderBottomRightRadius: radius.full },
+  // 시작·끝 동그라미 — 크기를 고정한다. 칸 전체를 칠하면 넓은 화면에서 가로로 긴 알약이 됐다.
+  //    34 인 까닭: 칸 폭이 작은 폰(360)에서 29.4 · 390 에서 33.7 이라, 40 이면 옆 날짜 글자와 3 남짓밖에 안 떨어졌다.
+  dot: { position: 'absolute', top: 3, left: '50%', marginLeft: -17, width: 34, height: 34, borderRadius: radius.full, backgroundColor: color.brand.navy },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },
   chip: { minHeight: 32, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
   counterRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
