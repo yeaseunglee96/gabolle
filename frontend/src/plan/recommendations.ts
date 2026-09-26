@@ -58,13 +58,13 @@ const REASON: Record<string, [string, string]> = {
 // 어긋난다). 아는 축은 문구를 달고, 모르는 축이 와도 최소한 서로 다른 텍스트가 보이도록
 // 축 이름을 그대로 보여준다 — 전부 같은 안전장치 문구로 뭉개지 않는다.
 const TOP_CONTRIBUTOR_PREFIX = 'TOP_CONTRIBUTOR_';
-const AXIS_LABEL: Record<string, [string, string]> = {
-  distance: ['거리', 'distance'],
-  interest: ['관심 카테고리', 'your interests'],
-  atmosphere: ['분위기', 'mood'],
-  cuisine: ['음식 취향', 'food preferences'],
-  preferenceAlignment: ['취향 일치도', 'preference match'],
-  popularity: ['인기도', 'popularity'],
+const AXIS_LABEL: Record<string, [string, string, string, string]> = {
+  distance: ['거리', 'distance', '다른 곳보다 거리가 돋보임', 'Stands out for distance'],
+  interest: ['관심 카테고리', 'your interests', '다른 곳보다 관심 카테고리가 돋보임', 'Stands out for your interests'],
+  atmosphere: ['분위기', 'mood', '다른 곳보다 분위기가 돋보임', 'Stands out for mood'],
+  cuisine: ['음식 취향', 'food preferences', '다른 곳보다 음식 취향이 돋보임', 'Stands out for food preferences'],
+  preferenceAlignment: ['취향 일치도', 'preference match', '다른 곳보다 취향 일치도가 돋보임', 'Stands out for preference match'],
+  popularity: ['인기도', 'popularity', '다른 곳보다 인기도가 돋보임', 'Stands out for popularity'],
 };
 
 export const reasonLabel = (code: string): string => {
@@ -74,8 +74,10 @@ export const reasonLabel = (code: string): string => {
     const label = AXIS_LABEL[axis];
     // 🔴 「점수가 가장 높은 축」이 아니라 «같은 결과 안에서 다른 곳보다 가장 두드러진 축»이다(백엔드 !1634 — 전에는 89% 가
     //    「거리」였다). 그래서 「다른 곳보다 ○○이 돋보임」이라 말한다(S15P21E201-1640).
-    const [ko, en] = label ?? [axis, axis];
-    return t(`다른 곳보다 ${ko}${koreanSubject(ko)} 돋보임`, `Stands out for ${en}`);
+    // 🔴 아는 축은 «완성된 문구»로 번역표를 찾는다(S15P21E201-1767). 값을 끼운 틀은 번역표에 없어서
+    //    Play 37 실기기 일본어 화면에 「Stands out for distance」가 그대로 떴다. 모르는 축만 틀로 만든다.
+    if (label) return t(label[2], label[3]);
+    return t(`다른 곳보다 ${axis}${koreanSubject(axis)} 돋보임`, `Stands out for ${axis}`);
   }
   return t('추천 조건 반영', 'Reflects your conditions');
 };
