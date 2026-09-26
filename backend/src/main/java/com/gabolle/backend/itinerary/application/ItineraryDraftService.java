@@ -30,7 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gabolle.backend.calibration.StayCalibrationPort;
 import com.gabolle.backend.itinerary.application.port.PlaceEventSchedulePort;
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
+import com.gabolle.backend.place.domain.InterestTagCode;
 import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.domain.PlaceFeature;
+import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 import com.gabolle.backend.place.service.ChainBrand;
 import com.gabolle.backend.place.service.PlaceDessertOnlyPort;
 import com.gabolle.backend.place.service.PlaceMenuPricePort;
@@ -218,6 +221,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.stayCalibration = stayCalibration;
     }
 
+    /** 장소 태그(야경 · 야시장)를 읽는 곳 — 저녁 날(S15P21E201-1734)에 쓴다. 없으면 갈래로만 고른다. */
+    private PlaceFeatureRepository placeFeatures;
+
+    @Autowired(required = false)
+    public void setPlaceFeatures(PlaceFeatureRepository placeFeatures) {
+        this.placeFeatures = placeFeatures;
+    }
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
@@ -283,11 +294,30 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // 걷기만 고른 여행이면 첫날은 출발지에서 걸어서 30분 안(S15P21E201-1634). 아니면 null.
         double[] firstDayOrigin = WalkOnlyFirstDay.applies(trip)
                 ? new double[] { trip.originLat(), trip.originLng() } : null;
-        Distribution distribution = distributeByDay(places, days, cap, mealsPerDay(trip), itemsPerDay(trip), eventDays,
-                firstDayOrigin);
+        // 날마다 활동 시간대 — 오늘 오후에 만든 오늘 여행이면 첫날만 그 시각부터다(S15P21E201-1734). 첫날이 짧아진 만큼
+        // 넣을 곳과 끼니도 줄인다.
+        DayWindow[] windows = new DayWindow[days];
+        int[] itemsByDay = new int[days];
+        int[] mealsByDay = new int[days];
+        boolean[] eveningDay = new boolean[days];
+        Instant madeAt = this.clock.instant();
+        for (int d = 0; d < days; d++) {
+            windows[d] = DayWindow.of(trip, d, madeAt);
+            itemsByDay[d] = windows[d].scaledItems(itemsPerDay(trip), DayWindow.of(trip));
+            // 저녁 날은 식당이 먼저다 — 저녁 시각대와 덜 겹쳐도 한 끼는 둔다.
+            mealsByDay[d] = windows[d].evening() ? Math.max(1, mealsPerDay(windows[d])) : mealsPerDay(windows[d]);
+            eveningDay[d] = windows[d].evening();
+        }
+        if (days == 1 && windows[0].noTimeLeft()) {
+            throw new ItineraryDraftPort.NoTimeLeftTodayException("오늘 출발하는 당일치기인데 넣을 시간이 없다: tripId="
+                    + trip.tripId() + ", madeAt=" + madeAt);
+        }
+        Set<UUID> nightFriendly = eveningDay[0] ? nightFriendly(places) : Set.of();
+        Distribution distribution = distributeByDay(places, days, cap, mealsByDay, itemsByDay, eveningDay,
+                nightFriendly, eventDays, firstDayOrigin);
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
         SpareCandidates spare = new SpareCandidates(places, byDay, cap, coordinatesOf(places), eventDays,
-                firstDayOrigin);
+                firstDayOrigin, eveningDay, nightFriendly);
 
         // 구간을 만들 때 필요한, 날짜별 "그 날 다녀올 장소" 원본 순서.
         List<List<UUID>> placeIdsByDay = new ArrayList<>();
@@ -305,9 +335,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             // 곧 "같은 조건이면 이쪽 먼저" 가 된다.
             dayPlaces = reorderByRoute(trip, dayIndex, lodging, dayPlaces);
 
-            List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate, verdicts, spare, dayIndex);
+            List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate, verdicts, spare, dayIndex,
+                    windows[dayIndex]);
             // 칸에 앉힌 뒤 한 번 더 — 끼니 칸이 차례를 섞어 놓은 것을 동선으로 다시 푼다(S15P21E201-1547).
-            placedToday = shortestSlotOrder(trip, dayIndex, lodging, placedToday, visitDate, verdicts);
+            placedToday = shortestSlotOrder(trip, dayIndex, lodging, placedToday, visitDate, verdicts,
+                    windows[dayIndex]);
             placedByDay.add(placedToday);
 
             List<UUID> placeIdsToday = new ArrayList<>(placedToday.size());
@@ -331,7 +363,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             // 시간대 끝까지 머물고, 돌아가는 길은 시간대 밖으로 밀린다(S15P21E201-1565).
             Integer returnMinutes = returnMinutesOf(trip, dayIndex, lodging, placeIdsByDay.get(dayIndex));
             // 밥 칸에 앉은 밥집만 끼니다 — 밥집이 모자란 칸을 채운 밥집(아침 첫 칸 등)까지 점심에 맞추면 하루가 늦게 시작한다.
-            LocalTime[][] mealBands = mealSlotBands(trip, placedToday.size());
+            LocalTime[][] mealBands = mealSlotBands(windows[dayIndex], placedToday.size());
             List<DayTimeLayout.Stop> stops = new ArrayList<>(placedToday.size());
             for (int i = 0; i < placedToday.size(); i++) {
                 ItineraryDraftCommand.PlannedPlace place = placedToday.get(i).place();
@@ -339,7 +371,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 stops.add(new DayTimeLayout.Stop(stayMinutesFor(place.category()),
                         meal ? mealBands[i][0] : null, meal ? mealBands[i][1] : null));
             }
-            List<Slot> timed = layoutDay(trip, stops, travelMinutesFor(legs, dayIndex, placedToday.size()),
+            List<Slot> timed = layoutDay(windows[dayIndex], stops, travelMinutesFor(legs, dayIndex, placedToday.size()),
                     returnMinutes);
 
             for (int i = 0; i < placedToday.size(); i++) {
@@ -520,8 +552,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     private Distribution distributeByDay(
-            List<ItineraryDraftCommand.PlannedPlace> places, int days, BudgetCap cap, int mealsPerDay, int itemsPerDay,
-            Map<UUID, Set<Integer>> eventDays, double[] firstDayOrigin) {
+            List<ItineraryDraftCommand.PlannedPlace> places, int days, BudgetCap cap, int[] mealsPerDay, int[] itemsPerDay,
+            boolean[] eveningDay, Set<UUID> nightFriendly, Map<UUID, Set<Integer>> eventDays, double[] firstDayOrigin) {
 
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = new ArrayList<>(days);
         for (int i = 0; i < days; i++) {
@@ -558,7 +590,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             if (cap != null && cap.wouldExceed(place)) {
                 continue;
             }
-            if (!seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, true,
+            if (!seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, eveningDay, nightFriendly,
+                    coords, dayAnchor, true,
                     eventDays.get(place.placeId()), firstDayOrigin)) {
                 deferred.add(place);
             }
@@ -577,7 +610,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 // 예산으로 뺀 것은 「밥집밖에 없어 비웠다」가 아니다 — 그 경고에 안 센다.
                 continue;
             }
-            if (seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false,
+            if (seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, eveningDay, nightFriendly,
+                    coords, dayAnchor, false,
                     eventDays.get(place.placeId()), firstDayOrigin)) {
                 if (cap != null) {
                     cap.take(place);
@@ -596,7 +630,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             if (cap != null && cap.wouldExceed(place)) {
                 continue;
             }
-            if (seat(byDay, foodPerDay, cafePerDay, false, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false,
+            if (seat(byDay, foodPerDay, cafePerDay, false, place, mealsPerDay, itemsPerDay, eveningDay, nightFriendly,
+                    coords, dayAnchor, false,
                     eventDays.get(place.placeId()), firstDayOrigin)
                     && cap != null) {
                 cap.take(place);
@@ -605,7 +640,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         // 자리는 남았는데 앉힐 것이 밥집밖에 없었던 경우에만 경고한다. 하루가 꽉 차서
         // 밥집이 밀린 것은 정상이고, 그건 빈 자리를 만들지 않는다.
-        boolean roomLeft = byDay.stream().anyMatch(day -> day.size() < itemsPerDay);
+        boolean roomLeft = false;
+        for (int day = 0; day < days; day++) {
+            roomLeft |= byDay.get(day).size() < itemsPerDay[day];
+        }
         return new Distribution(byDay, roomLeft && rejectedFood > 0, regionMixed(byDay, coords));
     }
 
@@ -649,10 +687,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         return ITEMS_PER_DAY_BY_PACE.getOrDefault(trip.pace(), this.maxItemsPerDay);
     }
 
-    private int mealsPerDay(Trip trip) {
-        LocalTime start = trip.timeWindowStart();
-        LocalTime end = trip.timeWindowEnd();
-        if (start == null || end == null || !end.isAfter(start)) {
+    private int mealsPerDay(DayWindow window) {
+        LocalTime start = window.start();
+        LocalTime end = window.end();
+        if (!window.known()) {
             return Math.min(2, this.maxFoodPerDay);
         }
         int meals = 0;
@@ -688,7 +726,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      *     (S15P21E201-1494)
      */
     private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay, int[] cafePerDay,
-            boolean enforceCafeCap, ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay,
+            boolean enforceCafeCap, ItineraryDraftCommand.PlannedPlace place, int[] mealsPerDay, int[] itemsPerDay,
+            boolean[] eveningDay, Set<UUID> nightFriendly,
             Map<UUID, double[]> coords, double[][] dayAnchor, boolean regionOnly, Set<Integer> openDays,
             double[] firstDayOrigin) {
 
@@ -699,14 +738,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         int best = -1;
         double bestDistance = Double.MAX_VALUE;
         for (int day = 0; day < byDay.size(); day++) {
-            if (byDay.get(day).size() >= itemsPerDay) {
+            if (byDay.get(day).size() >= itemsPerDay[day]) {
                 continue;
             }
             // 기간이 정해진 장소(축제)는 여는 날에만 앉는다. null 이면 기간이 없는 장소다.
             if (openDays != null && !openDays.contains(day)) {
                 continue;
             }
-            if (food && foodPerDay[day] >= mealsPerDay) {
+            if (food && foodPerDay[day] >= mealsPerDay[day]) {
+                continue;
+            }
+            // 저녁 날(S15P21E201-1734)은 식당과 밤에 볼 만한 곳만 — 저녁에 절·박물관·산길을 넣지 않는다.
+            if (eveningDay[day] && !food && !nightFriendly.contains(place.placeId())) {
                 continue;
             }
             if (cafe && enforceCafeCap && cafePerDay[day] >= MAX_CAFE_PER_DAY) {
@@ -952,6 +995,37 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         return place.category() != null && place.category().equalsIgnoreCase(CAFE_CATEGORY);
     }
 
+    /** 밤에 볼 만한 갈래 — 바다와 도시 풍경(S15P21E201-1734). 절 · 박물관 · 산길은 밤에 닫거나 어둡다. */
+    private static final Set<String> NIGHT_CATEGORIES = Set.of("SEA_BEACH", "CITY");
+
+    /** 밤에 볼 만한 곳이라고 조사가 붙인 태그. 2026-09-26 이 PC 로컬 복사본 기준 야경 5곳 · 야시장 0곳이라 갈래가 주로 쓰인다. */
+    private static final Set<String> NIGHT_TAGS = Set.of(InterestTagCode.NIGHT_VIEW.name(),
+            InterestTagCode.NIGHT_MARKET.name());
+
+    /**
+     * 후보 가운데 저녁 날에 앉힐 수 있는 곳(식당 말고) — 갈래가 {@link #NIGHT_CATEGORIES} 이거나 {@link #NIGHT_TAGS} 태그가 붙은
+     * 곳. 영업시간은 여기서 안 본다 — 칸에 앉힐 때({@link #placeIntoSlots}) 그 시각에 닫힌 곳을 빼는 규칙이 그대로 돈다.
+     */
+    private Set<UUID> nightFriendly(List<ItineraryDraftCommand.PlannedPlace> places) {
+        Set<UUID> out = new HashSet<>();
+        List<UUID> ids = new ArrayList<>(places.size());
+        for (ItineraryDraftCommand.PlannedPlace place : places) {
+            ids.add(place.placeId());
+            if (place.category() != null && NIGHT_CATEGORIES.contains(place.category().toUpperCase(Locale.ROOT))) {
+                out.add(place.placeId());
+            }
+        }
+        if (this.placeFeatures != null && !ids.isEmpty()) {
+            for (PlaceFeature feature : this.placeFeatures.findByPlaceIdIn(ids)) {
+                if (InterestTagCode.FEATURE_TYPE.equals(feature.getFeatureType())
+                        && NIGHT_TAGS.contains(feature.getFeatureKey())) {
+                    out.add(feature.getPlaceId());
+                }
+            }
+        }
+        return out;
+    }
+
     /**
      * 한 항목이 차지할 시간 칸. 여행이 활동 시간대를 안 정했으면 세 값이 전부 비어 있고
      * {@code dataStatus} 가 {@code UNKNOWN} 이다.
@@ -977,15 +1051,15 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private List<Placed> placeIntoSlots(Trip trip, List<ItineraryDraftCommand.PlannedPlace> dayPlaces,
                                         LocalDate visitDate, ViolationMemo verdicts, SpareCandidates spare,
-                                        int dayIndex) {
+                                        int dayIndex, DayWindow window) {
 
         int count = dayPlaces.size();
         List<Placed> placed = new ArrayList<>(count);
         boolean[] used = new boolean[count];
-        boolean[] mealSlot = mealSlots(trip, count);
+        boolean[] mealSlot = mealSlots(window, count);
 
         for (int slotIndex = 0; slotIndex < count; slotIndex++) {
-            Slot slot = slotFor(trip, slotIndex, count);
+            Slot slot = slotFor(window, slotIndex, count);
             OffsetDateTime at = (slot.start() == null) ? null
                     : visitDate.atTime(slot.start()).atZone(ZONE).toOffsetDateTime();
 
@@ -1053,7 +1127,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * <p>좌표를 모르는 곳이 있거나, 칸 시각이 없거나(활동 시간 미정), 하루가 6곳을 넘으면 손대지 않는다.
      */
     private List<Placed> shortestSlotOrder(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging, List<Placed> placed,
-            LocalDate visitDate, ViolationMemo verdicts) {
+            LocalDate visitDate, ViolationMemo verdicts, DayWindow window) {
 
         int count = placed.size();
         if (count < 2 || count > 6) {
@@ -1069,7 +1143,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             return placed;
         }
         OffsetDateTime[] at = new OffsetDateTime[count];
-        boolean[] wantFood = mealSlots(trip, count);
+        boolean[] wantFood = mealSlots(window, count);
         for (int i = 0; i < count; i++) {
             Slot slot = placed.get(i).slot();
             if (slot.start() == null) {
@@ -1201,8 +1275,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 많이 겹치는 칸. 밥은 도착해서 먹는다 — 16:12 에 닿는 칸보다 18:36 에 닿는 칸이 저녁이다. 같으면 칸 전체가 더
      * 많이 겹치는 칸, 그것도 같으면 앞 칸. 걸리는 칸이 없는 시각대는 밥 칸이 없다(전과 같다).
      */
-    private static boolean[] mealSlots(Trip trip, int count) {
-        LocalTime[][] bands = mealSlotBands(trip, count);
+    private static boolean[] mealSlots(DayWindow window, int count) {
+        LocalTime[][] bands = mealSlotBands(window, count);
         boolean[] meal = new boolean[count];
         for (int i = 0; i < count; i++) {
             meal[i] = bands[i] != null;
@@ -1225,14 +1299,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * {@link #mealSlots} 와 같은 칸을 고르되, 칸마다 맡은 식사 시각대({@code {시작, 끝}})를 낸다 — 밥 칸이 아니면 {@code null}.
      * 시각 깔기({@link DayTimeLayout})가 밥 칸의 밥집을 그 시각대 안에 놓을 때 쓴다(S15P21E201-1667).
      */
-    private static LocalTime[][] mealSlotBands(Trip trip, int count) {
+    private static LocalTime[][] mealSlotBands(DayWindow window, int count) {
         LocalTime[][] meal = new LocalTime[count][];
         for (LocalTime[] band : MEAL_BANDS) {
             int best = -1;
             long bestFirstHour = -1;
             long bestOverlap = -1;
             for (int i = 0; i < count; i++) {
-                Slot slot = slotFor(trip, i, count);
+                Slot slot = slotFor(window, i, count);
                 if (!overlapsBand(slot, band)) {
                     continue;
                 }
@@ -1322,10 +1396,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         private final double[] firstDayOrigin;
 
+        /** 저녁 날(S15P21E201-1734)은 여벌도 식당과 밤에 볼 만한 곳만 — 배분과 같은 규칙이다. */
+        private final boolean[] eveningDay;
+
+        private final Set<UUID> nightFriendly;
+
         SpareCandidates(List<ItineraryDraftCommand.PlannedPlace> candidates,
                 List<List<ItineraryDraftCommand.PlannedPlace>> byDay, BudgetCap cap, Map<UUID, double[]> coords,
-                Map<UUID, Set<Integer>> eventDays, double[] firstDayOrigin) {
+                Map<UUID, Set<Integer>> eventDays, double[] firstDayOrigin, boolean[] eveningDay,
+                Set<UUID> nightFriendly) {
             this.firstDayOrigin = firstDayOrigin;
+            this.eveningDay = eveningDay;
+            this.nightFriendly = nightFriendly;
             Set<UUID> seated = new HashSet<>();
             byDay.forEach(day -> day.forEach(p -> seated.add(p.placeId())));
             this.places = candidates.stream().filter(p -> !seated.contains(p.placeId())).toList();
@@ -1341,6 +1423,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             for (ItineraryDraftCommand.PlannedPlace candidate : this.places) {
                 UUID id = candidate.placeId();
                 if (this.taken.contains(id) || isFood(candidate) != food) {
+                    continue;
+                }
+                if (this.eveningDay[dayIndex] && !isFood(candidate) && !this.nightFriendly.contains(id)) {
                     continue;
                 }
                 Set<Integer> openDays = this.eventDays.get(id);
@@ -1462,16 +1547,13 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      *
      * @param returnMinutes 마지막 방문지에서 돌아가는 분. 없으면 {@code null} — 전처럼 시간대 끝까지 쓴다
      */
-    private static List<Slot> layoutDay(Trip trip, List<DayTimeLayout.Stop> stops, List<Integer> travelMinutes,
+    private static List<Slot> layoutDay(DayWindow window, List<DayTimeLayout.Stop> stops, List<Integer> travelMinutes,
             Integer returnMinutes) {
         int countToday = stops.size();
         List<Slot> slots = new ArrayList<>(countToday);
-        LocalTime windowStart = trip.timeWindowStart();
-        LocalTime windowEnd = trip.timeWindowEnd();
-        List<DayTimeLayout.Visit> visits = (windowStart == null || windowEnd == null || !windowEnd.isAfter(windowStart)
-                || countToday <= 0)
+        List<DayTimeLayout.Visit> visits = (!window.known() || countToday <= 0)
                 ? null
-                : DayTimeLayout.layout(windowStart, windowEnd, stops, travelMinutes, returnMinutes);
+                : DayTimeLayout.layout(window.start(), window.end(), stops, travelMinutes, returnMinutes);
         if (visits == null) {
             for (int i = 0; i < countToday; i++) {
                 slots.add(Slot.unknown());
@@ -1489,13 +1571,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     // layoutDay 가 이동 시간까지 넣어 다시 깐다. 둘을 헷갈리면 이동 시간이 0인 시각표로 돌아간다.
     // 어느 쪽이든 등급은 ESTIMATED 다 — 영업시간이나 실제 이동 소요를 본 값이 아니라
     // 활동 시간대를 항목 수로 나눈 것뿐이라, VERIFIED 로 적으면 화면이 둘을 구분할 수 없다.
-    private static Slot slotFor(Trip trip, int index, int countToday) {
-        LocalTime windowStart = trip.timeWindowStart();
-        LocalTime windowEnd = trip.timeWindowEnd();
-        if (windowStart == null || windowEnd == null || !windowEnd.isAfter(windowStart) || countToday <= 0) {
+    private static Slot slotFor(DayWindow window, int index, int countToday) {
+        if (!window.known() || countToday <= 0) {
             return Slot.unknown();
         }
-        long windowMinutes = Duration.between(windowStart, windowEnd).toMinutes();
+        LocalTime windowStart = window.start();
+        long windowMinutes = window.minutes();
         long slotMinutes = windowMinutes / countToday;
         if (slotMinutes < 1) {
             return Slot.unknown();
@@ -1698,6 +1779,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         String newVersionId = UUID.randomUUID().toString();
         Instant now = this.clock.instant();
         String requestIdString = command.requestId().toString();
+        // 그날의 활동 시간대 — 오늘 오후에 만든 오늘 여행의 첫날은 처음 만든 시각부터다(S15P21E201-1734). 고치는 지금이 아니라
+        // 처음 만든 시각을 쓴다: 재계산은 들렀는지를 모른 채 그날을 통째로 다시 깔아서, 지금을 쓰면 오전에 들른 곳이 오후로 밀린다.
+        Instant madeAt = this.itineraryRepository.findVersion(command.itineraryId(), 1)
+                .map(ItineraryVersion::createdAt)
+                .orElse(now);
+        DayWindow window = DayWindow.of(trip, day, madeAt);
 
         // 1. 다른 날·제외 목록은 통째로 복사한다. 그 날 항목은 아래서 새로 만든다.
         ItineraryRevision.Draft copied = ItineraryRevision.copyOf(base, newVersionId, now);
@@ -1772,17 +1859,23 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         }
 
         // 5. 채운다. 목표는 그 날 원래 항목 수 — 재계산이 하루의 크기를 바꾸지 않는다.
-        int target = dayItems.isEmpty() ? this.maxItemsPerDay : dayItems.size();
+        //    넣을 시간이 없어 비운 첫날(S15P21E201-1734)은 채우지 않는다.
+        int target = window.noTimeLeft() ? kept.size() : dayItems.isEmpty() ? this.maxItemsPerDay : dayItems.size();
         int vacancies = Math.max(0, target - kept.size());
         List<ItineraryDraftCommand.PlannedPlace> fills = new ArrayList<>(vacancies);
         // 새 일정과 같은 규칙 — 그 날 안 여는 행사 장소(끝난 축제 등)로 빈자리를 채우지 않는다.
         Map<UUID, Set<Integer>> eventDays = eventDaysOf(trip, command.rankedPool());
+        // 새 일정과 같은 규칙 — 저녁 날은 식당과 밤에 볼 만한 곳으로만 채운다.
+        Set<UUID> nightFriendly = window.evening() ? nightFriendly(command.rankedPool()) : Set.of();
         for (ItineraryDraftCommand.PlannedPlace candidate : command.rankedPool()) {
             if (fills.size() >= vacancies) {
                 break;
             }
             Set<Integer> openDays = eventDays.get(candidate.placeId());
             if (openDays != null && !openDays.contains(dayIndex)) {
+                continue;
+            }
+            if (window.evening() && !isFood(candidate) && !nightFriendly.contains(candidate.placeId())) {
                 continue;
             }
             String placeId = candidate.placeId().toString();
@@ -1815,7 +1908,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         for (Place place : this.placeRepository.findByPlaceIdIn(orderedToday)) {
             categoryToday.put(place.getPlaceId(), place.getCategory());
         }
-        LocalTime[][] mealBandsToday = mealSlotBands(trip, countToday);
+        LocalTime[][] mealBandsToday = mealSlotBands(window, countToday);
         List<DayTimeLayout.Stop> stopsToday = new ArrayList<>(countToday);
         for (int i = 0; i < countToday; i++) {
             String category = categoryToday.get(orderedToday.get(i));
@@ -1824,7 +1917,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             stopsToday.add(new DayTimeLayout.Stop(stayMinutesFor(category),
                     meal ? mealBandsToday[i][0] : null, meal ? mealBandsToday[i][1] : null));
         }
-        List<Slot> timedToday = layoutDay(trip, stopsToday,
+        List<Slot> timedToday = layoutDay(window, stopsToday,
                 travelMinutesFor(this.legPlanner.buildLegs(trip, todayOnly), dayIndex, countToday),
                 returnMinutesOf(trip, dayIndex, this.legPlanner.lodgingOf(trip), orderedToday));
 

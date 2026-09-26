@@ -148,6 +148,12 @@ public final class RecommendationCodes {
 	/** 후보를 일정(항목·구간)으로 조립하지 못했다. {@code assemble()} 이 트랜잭션 밖에서 던진 것이다. */
 	public static final String ERROR_ITINERARY_ASSEMBLY_FAILED = "ITINERARY_ASSEMBLY_FAILED";
 
+	/**
+	 * 오늘 출발하는 당일치기를 너무 늦게 만들어 넣을 시간이 없다 (S15P21E201-1734). 저녁 22시까지 늦춰도 90분이 안
+	 * 남는 때다. {@code retryable=false} — 다시 해도 같다. 날짜를 내일로 바꾸면 된다.
+	 */
+	public static final String ERROR_ITINERARY_NO_TIME_LEFT_TODAY = "ITINERARY_NO_TIME_LEFT_TODAY";
+
 	/** 조립까지는 됐지만 저장({@code persist()})이 실패했다. */
 	public static final String ERROR_ITINERARY_PERSIST_FAILED = "ITINERARY_PERSIST_FAILED";
 

@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -2154,6 +2156,149 @@ class ItineraryDraftServiceTest {
 		assertThat(aToC.path()).as("A→C 는 경로 쪽이 모른다 — 바탕 판의 길을 옮겨 붙이지 않는다").isNull();
 		assertThat(aToC.fareKrw()).isNull();
 		assertThat(legs.getValue()).noneSatisfy((leg) -> assertThat(leg.fareKrw()).isEqualTo(9_900));
+	}
+
+	// ── 오늘 출발하는 여행 (S15P21E201-1734) ─────────────────────────────
+	//
+	// 시각은 전부 부산 시각으로 적고 Instant 로 바꿔 시계에 넣는다. 서버 기본 시간대(CI 러너는 UTC)와 상관없이 같은 답이어야 한다.
+
+	private static final LocalDate TODAY = LocalDate.of(2026, 9, 26);
+
+	private static Instant kst(LocalDate date, String time) {
+		return LocalDateTime.of(date, LocalTime.parse(time)).atZone(ZoneId.of("Asia/Seoul")).toInstant();
+	}
+
+	/** 부산 시각 {@code time} 에 일정을 만드는(또는 고치는) 서비스. */
+	private ItineraryDraftService serviceAt(String time, ItineraryRepository itineraries) {
+		return serviceAt(time, itineraries, ALWAYS_UNKNOWN);
+	}
+
+	private ItineraryDraftService serviceAt(String time, ItineraryRepository itineraries, OpeningHoursFilterPort openingHours) {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		return new ItineraryDraftService(this.tripRepository, itineraries, Clock.fixed(kst(TODAY, time), ZoneOffset.UTC), 4,
+				3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, noTravelTime),
+				tables(openingHours, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
+	}
+
+	private ItineraryDraft madeAt(String time, LocalDate start, LocalDate finish, String... categories) {
+		when(this.tripRepository.findById("trip_1"))
+				.thenReturn(Optional.of(tripOf(start, finish, LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		return serviceAt(time, mock(ItineraryRepository.class)).assemble(commandOf("trip_1", plannedPlacesOf(categories)));
+	}
+
+	private static List<ItineraryDraft.DraftItem> itemsOfDay(ItineraryDraft draft, int dayIndex) {
+		return draft.items().stream().filter((item) -> item.dayIndex() == dayIndex).toList();
+	}
+
+	private static final String[] MIXED = { "CULTURE_TEMPLE", "FOOD", "CAFE_HEALING", "NATURE_WALK", "FOOD", "CITY",
+			"CULTURE_TEMPLE", "SEA_BEACH", "CAFE_HEALING", "NATURE_WALK" };
+
+	@Test
+	@DisplayName("🔴 오늘 여행을 14:07 에 만들면 첫날은 14:30 부터다 — 09:00 부터 짜서 「예정보다 5시간 늦음」으로 시작하지 않는다")
+	void aTripForTodayMadeInTheAfternoonStartsFromNow() {
+		List<ItineraryDraft.DraftItem> today = itemsOfDay(madeAt("14:07", TODAY, TODAY, MIXED), 0);
+
+		// 앱은 「예정보다 n분」을 지금과 항목 시각의 차이로 센다 — 첫 항목이 지금(올림) 뒤에 있어야 늦음으로 시작하지 않는다.
+		assertThat(today).isNotEmpty().allSatisfy((item) -> {
+			assertThat(item.startTime()).isAfterOrEqualTo(LocalTime.of(14, 30));
+			assertThat(item.endTime()).isBeforeOrEqualTo(LocalTime.of(18, 0));
+		});
+		// 하루 4곳 × 남은 210분 / 540분 = 1.6 → 2곳. 줄이지 않으면 시각표에 안 들어가 그날 시각이 빈다.
+		assertThat(today).hasSize(2);
+	}
+
+	@Test
+	@DisplayName("오늘이 아닌 여행은 그대로다 — 같은 14:07 에 만든 내일 여행은 활동 시작부터 하루치를 짠다")
+	void aTripStartingTomorrowIsUnchanged() {
+		ItineraryDraft draft = madeAt("14:07", TODAY.plusDays(1), TODAY.plusDays(1), MIXED);
+
+		assertThat(itemsOfDay(draft, 0)).hasSize(4);
+		assertThat(itemsOfDay(draft, 0).get(0).startTime()).isBefore(LocalTime.of(12, 0));
+	}
+
+	@Test
+	@DisplayName("🔴 17:40 에 만들면 저녁 — 22:00 까지 늦춰 식당·밤에 볼 만한 곳으로 1~2곳, 절·산길·카페는 안 넣는다")
+	void aTripMadeInTheEveningGetsAnEveningOfFoodAndNightViews() {
+		List<ItineraryDraft.DraftItem> today = itemsOfDay(madeAt("17:40", TODAY, TODAY, MIXED), 0);
+
+		assertThat(today).hasSizeBetween(1, 2).allSatisfy((item) -> {
+			assertThat(item.startTime()).isAfterOrEqualTo(LocalTime.of(18, 0));
+			assertThat(item.endTime()).isBeforeOrEqualTo(LocalTime.of(22, 0));
+		});
+		assertThat(today).extracting(this::categoryOfItem).allMatch((category) -> java.util.Set.of("FOOD", "SEA_BEACH", "CITY")
+				.contains(category));
+	}
+
+	@Test
+	@DisplayName("저녁 날에 앉힌 곳이 그 시각에 닫혀 있으면 바꿔 넣는 곳도 식당·밤에 볼 만한 곳에서만 고른다")
+	void anEveningSubstituteIsAlsoFoodOrANightView() {
+		when(this.tripRepository.findById("trip_1"))
+				.thenReturn(Optional.of(tripOf(TODAY, TODAY, LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesOf("CULTURE_TEMPLE", "FOOD", "SEA_BEACH", "FOOD",
+				"CULTURE_TEMPLE");
+		UUID beach = places.get(2).placeId();
+		// 해변이 저녁에 닫혔다고 답한다 — 그 자리를 여벌 후보로 바꿔 넣는다. 절은 열려 있지만 저녁 날에 넣을 곳이 아니다.
+		ItineraryDraft draft = serviceAt("17:40", mock(ItineraryRepository.class),
+				(placeId, at) -> placeId.equals(beach) ? OpeningHoursFilterPort.Answer.CLOSED
+						: OpeningHoursFilterPort.Answer.OPEN)
+				.assemble(commandOf("trip_1", places));
+
+		assertThat(itemsOfDay(draft, 0)).isNotEmpty().extracting(this::categoryOfItem)
+				.as("여벌 거르기가 없으면 열려 있는 절이 해변 자리에 들어온다").doesNotContain("CULTURE_TEMPLE");
+	}
+
+	@Test
+	@DisplayName("🔴 22:10 에 만든 여러 날 여행은 첫날을 비우고 다음 날부터 짠다")
+	void aMultiDayTripMadeTooLateLeavesTheFirstDayEmpty() {
+		ItineraryDraft draft = madeAt("22:10", TODAY, TODAY.plusDays(1), MIXED);
+
+		assertThat(itemsOfDay(draft, 0)).isEmpty();
+		assertThat(itemsOfDay(draft, 1)).hasSize(4);
+		assertThat(itemsOfDay(draft, 1).get(0).startTime()).isBefore(LocalTime.of(12, 0));
+	}
+
+	@Test
+	@DisplayName("🔴 22:10 에 만든 당일치기는 만들지 않는다 — 「오늘은 남은 시간이 없어요」로 알린다")
+	void aDayTripMadeTooLateIsRefused() {
+		assertThatThrownBy(() -> madeAt("22:10", TODAY, TODAY, MIXED))
+				.isInstanceOf(com.gabolle.backend.recommendation.application.port.ItineraryDraftPort.NoTimeLeftTodayException.class);
+	}
+
+	@Test
+	@DisplayName("🔴 오늘 일정을 나중에 고쳐도 첫날은 처음 만든 시각부터다 — 고치는 지금부터 깔면 오전에 들른 곳이 밀린다")
+	void recalculatingTodayKeepsTheStartOfWhenTheItineraryWasMade() {
+		when(this.tripRepository.findById("itn_trip_1"))
+				.thenReturn(Optional.of(tripOf(TODAY, TODAY, LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		// 14:07 에 만든 일정 — 첫날은 14:30 부터 두 곳이었다.
+		ItineraryVersion first = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, kst(TODAY, "14:07"));
+		List<ItineraryItem> baseItems = List.of(
+				new ItineraryItem("id-a", first.itineraryVersionId(), "a", 0, TODAY, 1, UUID.randomUUID().toString(),
+						LocalTime.of(14, 30), LocalTime.of(15, 30), 60, false, null, ItineraryItem.DataStatus.ESTIMATED,
+						List.of(), List.of(), null, kst(TODAY, "14:07")),
+				new ItineraryItem("id-b", first.itineraryVersionId(), "b", 0, TODAY, 2, UUID.randomUUID().toString(),
+						LocalTime.of(16, 0), LocalTime.of(17, 0), 60, false, null, ItineraryItem.DataStatus.ESTIMATED,
+						List.of(), List.of(), null, kst(TODAY, "14:07")));
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(first, baseItems, List.of(), List.of())));
+		when(itineraries.findVersion("itn_1", 1)).thenReturn(Optional.of(first));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		// 16:40 에 고친다. 「지금」을 쓰면 17:00 부터라 남은 60분 — 저녁으로 넘어가 22:00 까지 깔린다.
+		ItineraryDraftService reviser = serviceAt("16:40", itineraries);
+		reviser.publish(reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1, "usr_1",
+				JobType.ITINERARY_RECALCULATE, 0, null, List.of(), null,
+				plannedPlacesOf("CULTURE_TEMPLE", "CAFE_HEALING", "NATURE_WALK"), "m", "f", "o", "p", "d")));
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryItem>> saved = ArgumentCaptor.forClass(List.class);
+		verify(itineraries).appendVersion(any(), saved.capture(), any(), any());
+
+		List<ItineraryItem> today = saved.getValue().stream().filter((item) -> item.dayIndex() == 0).toList();
+		assertThat(today).isNotEmpty();
+		assertThat(today.get(0).startTime()).as("처음 만든 14:07 → 14:30 부터").isEqualTo(LocalTime.of(14, 30));
+		assertThat(today).allSatisfy((item) -> assertThat(item.endTime()).isBeforeOrEqualTo(LocalTime.of(18, 0)));
 	}
 
 }
