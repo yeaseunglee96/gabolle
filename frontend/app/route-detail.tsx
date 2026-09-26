@@ -130,8 +130,8 @@ export default function RouteDetail() {
                   <View style={styles.summaryRow}>
                     <Text color={color.text.body}>{txf(tx, '%s분 · %skm', '%s min · %skm', directions.durationMin, (directions.distanceM / 1000).toFixed(1))}</Text>
                   </View>
-                  {directions.taxiFareKrw != null ? <Text color={color.text.body}>{tx(`택시 요금 약 ${directions.taxiFareKrw.toLocaleString()}원`, `Estimated taxi fare ${directions.taxiFareKrw.toLocaleString()} KRW`)}</Text> : null}
-                  {directions.tollFareKrw != null ? <Text color={color.text.body}>{tx(`통행료 약 ${directions.tollFareKrw.toLocaleString()}원`, `Estimated toll ${directions.tollFareKrw.toLocaleString()} KRW`)}</Text> : null}
+                  {directions.taxiFareKrw != null ? <Text color={color.text.body}>{tx(`택시 요금 약 ${directions.taxiFareKrw.toLocaleString()}원`, `Estimated taxi fare ₩${directions.taxiFareKrw.toLocaleString()}`)}</Text> : null}
+                  {directions.tollFareKrw != null ? <Text color={color.text.body}>{tx(`통행료 약 ${directions.tollFareKrw.toLocaleString()}원`, `Estimated toll ₩${directions.tollFareKrw.toLocaleString()}`)}</Text> : null}
                   {directions.transferCount != null ? <Text color={color.text.body}>{tx(`환승 ${directions.transferCount}회`, `${directions.transferCount} transfer(s)`)}</Text> : null}
                   {directions.estimateReason ? <Text variant="caption" color={color.text.muted}>{directions.estimateReason}</Text> : null}
                 </Card>

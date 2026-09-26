@@ -28,7 +28,7 @@ import { color, gutter, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { TripPageDesktop } from '@/trip/page/TripPageDesktop';
 import { TripPageMobile } from '@/trip/page/TripPageMobile';
-import { tripPageKind } from '@/trip/page/tripPageModel';
+import { formatManwon, tripPageKind } from '@/trip/page/tripPageModel';
 import {
   loadItinerary,
   loadItineraryPace,
@@ -158,7 +158,7 @@ function BudgetCard({ summary }: { summary: BudgetSummary }) {
   };
 
   // 「10.2만원」 — 헤더 요약과 같은 자릿수 규칙. 영어는 만 단위가 없어 원 단위 그대로.
-  const manwon = (won: number) => tx(`${Math.round(won / 1000) / 10}만원`, `${won.toLocaleString()} KRW`);
+  const manwon = (won: number) => tx(`${Math.round(won / 1000) / 10}만원`, `₩${won.toLocaleString()}`);
 
   // 🔴 **아는 비용이 하나라도 있는가.** 이 값이 카드 전체의 말투를 가른다 —
   //    없으면 숫자도 막대도 안 그리고, 「예산에 맞아요」 같은 판정도 안 한다.
@@ -174,12 +174,12 @@ function BudgetCard({ summary }: { summary: BudgetSummary }) {
     <View style={styles.budgetHead}>
       <View style={styles.budgetHeadLeft}>
         {priced
-          ? <Text variant="display" weight="bold">{txf(tx, '%s원', '%s KRW', summary.krw.toLocaleString())}</Text>
+          ? <Text variant="display" weight="bold">{txf(tx, '%s원', '₩%s', summary.krw.toLocaleString())}</Text>
           : <Text variant="body" weight="bold" color={color.text.muted}>{tx('아직 계산할 수 없어요', "Can't add this up yet")}</Text>}
         {summary.unpriced > 0 ? <Text variant="caption" color={color.text.muted}>{txf(tx, '%s곳 비용 미정', '%s place(s) unpriced', summary.unpriced)}</Text> : null}
       </View>
       {summary.budgetKrw != null ? <View style={styles.budgetHeadRight}>
-        <Text variant="caption" color={color.text.muted}>{txf(tx, '예산 %s원', 'Budget %s KRW', summary.budgetKrw.toLocaleString())}</Text>
+        <Text variant="caption" color={color.text.muted}>{txf(tx, '예산 %s원', 'Budget ₩%s', summary.budgetKrw.toLocaleString())}</Text>
         {/* 🔴 아는 비용이 없을 때 「예산에 맞아요」라고 적지 않는다. 그건 맞는 상태가
             아니라 **맞는지 모르는 상태**다. 12곳 중 0곳의 값으로 예산을 통과시키면,
             사람은 통과한 줄 알고 그 예산으로 떠난다. */}
@@ -218,7 +218,7 @@ function BudgetCard({ summary }: { summary: BudgetSummary }) {
             : txf(tx, '%s곳', '%s place(s)', entry.count)}
         </Text>
         {entry.known > 0
-          ? <Text variant="caption" weight="bold" style={styles.budgetRowValue}>{txf(tx, '%s원', '%s KRW', entry.krw.toLocaleString())}</Text>
+          ? <Text variant="caption" weight="bold" style={styles.budgetRowValue}>{txf(tx, '%s원', '₩%s', entry.krw.toLocaleString())}</Text>
           : <Text variant="caption" color={color.text.muted} style={styles.budgetRowValue}>{tx('미정', 'Unpriced')}</Text>}
       </View>)}
     </View>
@@ -232,7 +232,7 @@ function BudgetCard({ summary }: { summary: BudgetSummary }) {
           {maxDayKrw > 0 ? <><View style={[styles.budgetDayFill, { flex: day.krw }]} /><View style={{ flex: maxDayKrw - day.krw }} /></> : null}
         </View>
         {day.known > 0
-          ? <Text variant="caption" weight="bold" style={styles.budgetDayValue}>{txf(tx, '%s원', '%s KRW', day.krw.toLocaleString())}</Text>
+          ? <Text variant="caption" weight="bold" style={styles.budgetDayValue}>{txf(tx, '%s원', '₩%s', day.krw.toLocaleString())}</Text>
           : <Text variant="caption" color={color.text.muted} style={styles.budgetDayValue}>{tx('미정', 'Unpriced')}</Text>}
       </View>)}
     </View> : null}
@@ -292,7 +292,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
   const facts = [
     walkLabel,
     formatTravelLabel(item, tx, index === 0),
-    item.estimatedCostKrw == null ? null : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '%s KRW', item.estimatedCostKrw.toLocaleString()),
+    item.estimatedCostKrw == null ? null : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '₩%s', item.estimatedCostKrw.toLocaleString()),
   ].filter((fact): fact is string => fact !== null);
 
   // 구간 라벨 — 이 값들은 이 방문지로 들어오는 구간이다(backend ItineraryQueryService
@@ -355,7 +355,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           <View style={[styles.stopRight, wide && styles.stopRightWide]}>
             <View style={wide ? styles.stopRightStack : undefined}>
               <Text variant={wide ? 'title' : 'body'} weight="bold" color={color.brand.navy}>{formatTime(displayTime, locale)}</Text>
-              {wide && item.estimatedCostKrw != null ? <Text variant="caption" color={color.text.muted}>{item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '%s KRW', item.estimatedCostKrw.toLocaleString())}</Text> : null}
+              {wide && item.estimatedCostKrw != null ? <Text variant="caption" color={color.text.muted}>{item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '₩%s', item.estimatedCostKrw.toLocaleString())}</Text> : null}
             </View>
             {lockControl}
           </View>
@@ -680,7 +680,7 @@ function ItineraryClassic() {
         : txf(tx, '도보 %s (%s곳 중 %s곳)', '%s on foot (%s places, %s measured)', formatWalk(dayWalkingMeters), dayWalking.total, dayWalking.known),
     dayCost.krw > 0
       ? dayCost.known === dayCost.total
-        ? txf(tx, '%s원', '%s KRW', dayCost.krw.toLocaleString())
+        ? txf(tx, '%s원', '₩%s', dayCost.krw.toLocaleString())
         : txf(tx, '%s원 (%s곳 중 %s곳)', '%s KRW (%s places, %s priced)', dayCost.krw.toLocaleString(), dayCost.total, dayCost.known)
       : null,
   ].filter(Boolean).join(' · '), [dayWalking, dayWalkingMeters, dayCost, displayedItems.length, tx]);
@@ -942,7 +942,7 @@ function ItineraryClassic() {
       ? txf(tx, '도보 %skm', '%skm on foot', (itinerary.totalWalkingMeters / 1000).toFixed(1))
       : null,
     typeof itinerary.totalEstimatedCostKrw === 'number' && itinerary.totalEstimatedCostKrw > 0
-      ? txf(tx, '약 %s만원', 'about %s KRW', Math.round(itinerary.totalEstimatedCostKrw / 10000 * 10) / 10, itinerary.totalEstimatedCostKrw.toLocaleString()) : null,
+      ? txf(tx, '약 %s', 'about %s', formatManwon(itinerary.totalEstimatedCostKrw, tx)) : null,
   ].filter(Boolean).join(' · ') : '';
 
   // ── 네이비 헤더 (시안 design_handoff_itinerary 2·3절) ──────────────────────
