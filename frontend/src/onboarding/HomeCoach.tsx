@@ -47,6 +47,28 @@ export function coachCopyPlacement({ screenHeight, insetTop, insetBottom, startB
 }
 
 /**
+ * 동백이 설명을 시작 바 설명 «안의 한 줄»로 접을지.
+ *
+ * - 아래에 둔 시작 바 설명이 동백이 설명 자리까지 내려오면 접는다(S15P21E201-1403).
+ * - 🔴 동백이 설명이 시작 바(구멍) 자체를 덮어도 접는다 — S15P21E201-1731. 시작 바 설명이 바 «위»로
+ *   올라가면 「동백이 설명과 안 만난다」고 보고 검사를 건너뛰었는데, 동백이 설명은 오른쪽 아래 제자리다.
+ *   새 사용자 홈은 「첫 여행 준비」 카드가 시작 바를 아래로 밀어, 390×844 에서 동백이 설명이 칩 줄 위에 겹쳤다.
+ *   이 검사는 설명의 높이와 무관해서, 접은 뒤 높이가 바뀌어도 판정이 오락가락하지 않는다.
+ */
+export function shouldFoldAssistantCopy({ placement, startBarBottom, startCopyTop, startCopyHeight, assistantCopyTop, gap }: {
+  placement: 'below' | 'above';
+  /** 시작 바 구멍의 아래 끝. 못 쟀으면 null. */
+  startBarBottom: number | null;
+  startCopyTop: number;
+  startCopyHeight: number;
+  assistantCopyTop: number;
+  gap: number;
+}): boolean {
+  if (startBarBottom !== null && assistantCopyTop < startBarBottom + gap) return true;
+  return placement === 'below' && startCopyHeight > 0 && startCopyTop + startCopyHeight + gap > assistantCopyTop;
+}
+
+/**
  * 어두운 막의 진하기 — S15P21E201-1490(B-06)에서 0.9 → 0.95.
  *
  * <h2>먼저, 확인한 것</h2>
@@ -122,8 +144,14 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
     copyHeight: startCopyHeight,
     gap: spacing[4],
   }) : 'below';
-  // 위로 올리면 오른쪽 아래 동백이 설명과는 아예 안 만난다 — 접을 이유가 없다.
-  const folded = placement === 'below' && startCopyHeight > 0 && startCopyTop + startCopyHeight + spacing[3] > assistantCopyTop;
+  const folded = shouldFoldAssistantCopy({
+    placement,
+    startBarBottom: startBar ? startBar.y + startBar.height : null,
+    startCopyTop,
+    startCopyHeight,
+    assistantCopyTop,
+    gap: spacing[3],
+  });
   const copyPosition = placement === 'above' && startBar
     ? { bottom: height - startBar.y + spacing[4] }
     : { top: startCopyTop };
