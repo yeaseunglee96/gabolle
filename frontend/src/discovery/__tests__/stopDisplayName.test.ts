@@ -70,13 +70,14 @@ describe('승차권 첫·마지막 일정', () => {
 
   it('🔴 영어 — 영어 이름 먼저, 없으면 로마자', () => {
     const rows = buildTripPassDetails({ ...base, language: 'en', nameEnByPlaceId: { a: 'Gwangalli Beach' } });
-    expect(rows.find((row) => row.key === 'First stop')?.value).toBe('09:01 · Gwangalli Beach (광안리해수욕장)');
-    expect(rows.find((row) => row.key === 'Last stop')?.value).toBe('19:00 · 마끼몬스타 (Makkimonseuta)');
+    // 시각은 기기 시간대를 따른다(CI 는 UTC) — 여기서 보는 것은 이름이라 « · 이름»으로 끝나는지만 본다.
+    expect(rows.find((row) => row.key === 'First stop')?.value?.endsWith(' · Gwangalli Beach (광안리해수욕장)')).toBe(true);
+    expect(rows.find((row) => row.key === 'Last stop')?.value?.endsWith(' · 마끼몬스타 (Makkimonseuta)')).toBe(true);
   });
 
   it('한국어는 그대로', () => {
     const rows = buildTripPassDetails({ ...base, language: 'ko', nameEnByPlaceId: { a: 'Gwangalli Beach' } });
-    expect(rows.find((row) => row.key === '첫 일정')?.value).toBe('09:01 · 광안리해수욕장');
+    expect(rows.find((row) => row.key === '첫 일정')?.value?.endsWith(' · 광안리해수욕장')).toBe(true);
   });
 });
 
