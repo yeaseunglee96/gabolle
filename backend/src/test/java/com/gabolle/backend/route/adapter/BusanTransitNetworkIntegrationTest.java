@@ -343,4 +343,49 @@ class BusanTransitNetworkIntegrationTest {
 
 		assertThat(leg).as("정류장이 없는 곳에 대중교통 경로를 만들어 냈다").isEmpty();
 	}
+
+	/**
+	 * S15P21E201-1753. 운영에서 서면→해운대가 직선 어림값으로 떨어졌다. 2호선 한 번이면 가는 길이다.
+	 * 원인은 출발·도착 둘레에서 가까운 정류장 6곳만 후보로 보는데, 해운대처럼 버스 정류장이
+	 * 촘촘한 곳에서는 569m 떨어진 해운대역이 7번째 밖으로 밀려 후보에서 빠졌던 것이다.
+	 */
+	@Test
+	@DisplayName("🔴 서면 → 해운대는 2호선으로 찾는다 — 버스 정류장이 지하철역을 후보에서 밀어내지 않는다")
+	void seomyeonToHaeundaeRidesLineTwo() {
+		RouteLeg found = transitOrFail(35.1578, 129.0600, 35.1587, 129.1604, "서면→해운대");
+
+		assertThat(found.steps()).as("한 번 타서 가는 길이어야 한다: %s", found.steps()).hasSize(1);
+		assertThat(found.steps().get(0).name()).isEqualTo("2호선");
+	}
+
+	@Test
+	@DisplayName("🔴 광안리 → 해운대도 대중교통 경로가 나온다")
+	void gwangalliToHaeundaeIsFound() {
+		transitOrFail(35.1532, 129.1187, 35.1587, 129.1604, "광안리→해운대");
+	}
+
+	/**
+	 * S15P21E201-1753. 경로를 찾아도 좌표를 하나도 안 실어 지도가 선을 못 그렸다.
+	 * 탄 구간의 정류장 좌표를 순서대로 이어 {@code [경도, 위도]} 로 싣는다.
+	 */
+	@Test
+	@DisplayName("🔴 찾은 대중교통 경로에는 지도에 그릴 좌표가 있다 — 부산역 → 자갈치")
+	void aFoundTransitRouteCarriesAPath() {
+		RouteLeg found = transitOrFail(35.1151, 129.0415, 35.0966, 129.0306, "부산역→자갈치");
+
+		assertThat(found.path()).as("경로 좌표가 비어 지도가 선을 못 그린다").hasSizeGreaterThanOrEqualTo(2);
+		for (double[] point : found.path()) {
+			// [경도, 위도] 순서 — 부산은 경도 128~130, 위도 34~36 이다. 뒤집히면 여기서 걸린다.
+			assertThat(point[0]).as("경도").isBetween(128.0, 130.0);
+			assertThat(point[1]).as("위도").isBetween(34.0, 36.0);
+		}
+	}
+
+	private static RouteLeg transitOrFail(double oLat, double oLng, double dLat, double dLng, String label) {
+		Optional<RouteLeg> leg = adapter().find(new RouteQuery(oLat, oLng, dLat, dLng, TravelMode.TRANSIT));
+		assertThat(leg).as("%s 대중교통 경로를 못 찾았다", label).isPresent();
+		System.out.println("### " + label + " " + leg.get().durationMin() + "분 · " + leg.get().steps()
+				+ " · 좌표 " + leg.get().path().size() + "개");
+		return leg.get();
+	}
 }
