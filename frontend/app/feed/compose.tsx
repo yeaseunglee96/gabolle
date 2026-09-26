@@ -14,6 +14,8 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { formatMonthDay } from '@/i18n/datetime';
+import { txf } from '@/i18n/format';
 import { createStory, FEED_QUERY_PREFIX, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { markChecklistStep } from '@/onboarding/firstRun';
@@ -41,7 +43,7 @@ export default function ComposeStory() {
   const router = useRouter();
   const { accessToken } = useAuth();
   const queryClient = useQueryClient();
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   // 여행 화면(참여자 탭)에서 「기록 남기기」로 왔으면 그 여행에 글이 달린다(S15P21E201-418). 없으면 지금까지처럼 여행 없는 글.
   const { tripId: tripIdParam } = useLocalSearchParams<{ tripId?: string }>();
   const tripId = typeof tripIdParam === 'string' && tripIdParam ? tripIdParam : undefined;
@@ -57,6 +59,8 @@ export default function ComposeStory() {
   const [publishTiming, setPublishTiming] = useState<PublishTiming>('AFTER_TRIP');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 공개 전으로 올라간 글의 공개 시각. 차 있으면 올린 뒤 안내를 보여 주고 확인을 받아 돌아간다(S15P21E201-1737).
+  const [scheduledAt, setScheduledAt] = useState<string | null>(null);
   // 「코스 링크 함께 올리기」(S15P21E201-1593) — 여행 화면의 「기록 남기기」로 들어온 글쓰기에만 있다. 켜야 붙는다.
   const [attachCourse, setAttachCourse] = useState(false);
   const draftLoaded = useRef(false);
@@ -138,11 +142,25 @@ export default function ComposeStory() {
       // — 돌아가기 전에 피드 보관본을 버린다.
       await queryClient.invalidateQueries({ queryKey: FEED_QUERY_PREFIX });
       // 갈 곳이 없으면 피드로 — S15P21E201-1292.
+      // 🔴 공개 전이면 바로 돌아가지 않는다 — 피드에 안 보여서 「올라갔나?」가 된다.
+      if (outcome.story.published === false) { setScheduledAt(outcome.story.publishAt); return; }
       if (router.canGoBack()) router.back(); else router.replace('/feed');
     } else {
       setError(outcome.message);
     }
   };
+
+  if (scheduledAt) {
+    const when = formatMonthDay(scheduledAt, locale) ?? scheduledAt.slice(5, 10);
+    return <Screen>
+      <View testID="compose-scheduled" accessibilityRole="alert" style={styles.scheduled}>
+        <Text variant="title" weight="bold">{tx('기록을 올렸어요', 'Record posted')}</Text>
+        <Text color={color.text.body}>{txf(tx, '%s에 공개돼요. 그전까지는 나만 볼 수 있고, 마이페이지 → 기록에서 고치거나 지울 수 있어요.', 'It goes live on %s. Until then only you can see it — edit or delete it from My page → Records.', when)}</Text>
+        {/* 🔴 동백 채움(primary)은 파일에 하나 — 「기록 올리기」가 이미 쓴다. */}
+        <Button variant="secondary" label={tx('확인', 'OK')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} />
+      </View>
+    </Screen>;
+  }
 
   return <Screen scroll>
     <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/feed')} style={styles.back}><Text variant="title">‹</Text></Pressable>
@@ -260,6 +278,7 @@ export default function ComposeStory() {
 }
 
 const styles = StyleSheet.create({
+  scheduled: { flex: 1, justifyContent: 'center', gap: spacing[4], padding: spacing[4] },
   back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   title: { marginTop: spacing[4], marginBottom: spacing[4] },
   bodyInput: { minHeight: 120, padding: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },
