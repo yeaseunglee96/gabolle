@@ -197,6 +197,8 @@ export type PlanStartBarProps = {
 
 /** 시트 카드가 펼쳐질 때 제목이 커지고 오른쪽 값이 사라지는 시간. */
 const CARD_MS = 350;
+/** 날짜 칸을 연 뒤 그 칸의 자리가 바뀔 때마다 따라가는 시간 — 위 칸이 접히고 달력이 다 그려질 때까지. */
+const DATES_FOLLOW_MS = 800;
 
 /**
  * 시트의 카드 한 장.
@@ -439,17 +441,21 @@ export function PlanStartBar({
 
   // 🔴 날짜 칸으로 넘어가면 그 칸을 화면 위로 올린다 (S15P21E201-1626). 숙소를 고르면 날짜가 펼쳐지는데
   //    스크롤이 제자리라, 작은 폰(360×640)에서는 달력 마지막 줄과 「1박 2일」 칩이 아래 버튼 줄 밑에 깔렸다.
-  //    위 칸이 접히는 것과 같은 그림에서 자리가 바뀌므로, 다 그린 다음 프레임에 잰 자리로 간다.
+  //    위 칸이 접히면서 자리가 바뀌므로 시각(타이머)에 기대지 않는다 — 칸을 연 뒤 잠깐 동안은 날짜 칸의 자리를
+  //    «잴 때마다» 그 자리로 간다(느린 기기에서 옛 자리로 가지 않게). 이미 잰 자리가 있으면 바로 한 번 간다.
   const sheetScrollRef = useRef<ScrollView>(null);
   const datesCardY = useRef<number | null>(null);
+  const followDatesUntil = useRef(0);
+  const scrollToDates = () => {
+    if (datesCardY.current === null || Date.now() > followDatesUntil.current) return;
+    sheetScrollRef.current?.scrollTo({ y: Math.max(0, datesCardY.current - spacing[2]), animated: !reduceMotion });
+  };
   useEffect(() => {
-    if (!sheet || section !== 'dates') return undefined;
-    const timer = setTimeout(() => {
-      if (datesCardY.current === null) return;
-      sheetScrollRef.current?.scrollTo({ y: Math.max(0, datesCardY.current - spacing[2]), animated: !reduceMotion });
-    }, 60);
-    return () => clearTimeout(timer);
-  }, [sheet, section, reduceMotion]);
+    if (!sheet || section !== 'dates') { followDatesUntil.current = 0; return; }
+    followDatesUntil.current = Date.now() + DATES_FOLLOW_MS;
+    scrollToDates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sheet, section]);
 
   // 🔴 이 시트는 RN `<Modal>` 이 아니라 그냥 View 라서 `onRequestClose` 가 없다 — 즉
   // 안드로이드 하드웨어 뒤로가기를 이 시트가 알아서 삼켜 주지 않는다. 처리를 안 하면
@@ -637,7 +643,7 @@ export function PlanStartBar({
 
         <ScrollView ref={sheetScrollRef} style={styles.sheetBody} contentContainerStyle={styles.sheetBodyContent} keyboardShouldPersistTaps="handled">
           {cards.map((card) => (
-            <View key={card.key} onLayout={card.key === 'dates' ? (event) => { datesCardY.current = event.nativeEvent.layout.y; } : undefined}>
+            <View key={card.key} onLayout={card.key === 'dates' ? (event) => { datesCardY.current = event.nativeEvent.layout.y; scrollToDates(); } : undefined}>
               <SheetCard
                 open={section === card.key}
                 label={card.label}

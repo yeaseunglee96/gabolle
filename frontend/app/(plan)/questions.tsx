@@ -109,19 +109,26 @@ export default function PlanConditions() {
   const [datesOpen, setDatesOpen] = useState<boolean | null>(null);
   // 🔴 「수정」으로 날짜 카드를 펴면 그 카드로 굴러간다 (S15P21E201-1626). 아래로 내려가 있던 사람은
   //    위에서 달력이 펼쳐진 줄 모른다. 자리는 «기둥의 자리 + 기둥 안 카드의 자리» 로 센다.
+  //    시각(타이머)에 기대지 않는다 — 카드를 편 뒤 잠깐 동안은 자리를 «잴 때마다» 그 자리로 간다.
   const scrollRef = useRef<ScrollView>(null);
   const columnY = useRef(0);
   const dateCardY = useRef<number | null>(null);
+  const followDateUntil = useRef(0);
+  const reduceMotionRef = useRef(false);
   useEffect(() => {
-    if (datesOpen !== true) return undefined;
     let alive = true;
-    const timer = setTimeout(() => {
-      void AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
-        if (!alive || dateCardY.current === null) return;
-        scrollRef.current?.scrollTo({ y: Math.max(0, columnY.current + dateCardY.current - spacing[3]), animated: !reduce });
-      });
-    }, 60);
-    return () => { alive = false; clearTimeout(timer); };
+    void AccessibilityInfo.isReduceMotionEnabled().then((on) => { if (alive) reduceMotionRef.current = on; });
+    return () => { alive = false; };
+  }, []);
+  const scrollToDateCard = () => {
+    if (dateCardY.current === null || Date.now() > followDateUntil.current) return;
+    scrollRef.current?.scrollTo({ y: Math.max(0, columnY.current + dateCardY.current - spacing[3]), animated: !reduceMotionRef.current });
+  };
+  useEffect(() => {
+    if (datesOpen !== true) { followDateUntil.current = 0; return; }
+    followDateUntil.current = Date.now() + 800;
+    scrollToDateCard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datesOpen]);
 
   const searchParams = useLocalSearchParams<{ days?: string; people?: string }>();
@@ -392,7 +399,7 @@ export default function PlanConditions() {
 
   // 날짜 — 문항 화면 안에서 고른다(S15P21E201-1376). 없으면 펼친 카드로.
   const dateCardEl = showDateCard ? (
-    <View onLayout={(event) => { dateCardY.current = event.nativeEvent.layout.y; }}>
+    <View onLayout={(event) => { dateCardY.current = event.nativeEvent.layout.y; scrollToDateCard(); }}>
       <DateRangeCard
         value={{ startDate: draft.startDate, endDate: draft.endDate }}
         onChange={(next) => update({ startDate: next.startDate, endDate: next.endDate })}
@@ -673,7 +680,7 @@ export default function PlanConditions() {
         </View>
       )}
 
-      <View onLayout={(event) => { columnY.current = event.nativeEvent.layout.y; }}>
+      <View onLayout={(event) => { columnY.current = event.nativeEvent.layout.y; scrollToDateCard(); }}>
         {wide ? (
           <View style={styles.split}>
             {rail}
