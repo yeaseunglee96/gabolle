@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, TextInput, View, type ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { understandAssistantMessage, type AssistantAction } from '@/assistant/intent';
+import { assistantUnavailable, understandAssistantMessage, type AssistantAction } from '@/assistant/intent';
 import { isNearBottom } from '@/assistant/chatScroll';
 import { askAssistant, isAllowedNavigateHref, type AssistantTurn } from '@/assistant/assistantApi';
 import { useAuth } from '@/auth/AuthProvider';
@@ -104,7 +104,7 @@ export default function Chat() {
       const action = local && appOnly
         ? local
         : accessToken
-          ? await askAssistant(content, accessToken, history, language).catch(() => understandAssistantMessage(content))
+          ? await askAssistant(content, accessToken, history, language).catch(() => assistantUnavailable(content))
           : understandAssistantMessage(content);
       setMessages((current) => [...current, { id: assistantId, role: 'assistant', text: action.reply, action }]);
     } finally {
