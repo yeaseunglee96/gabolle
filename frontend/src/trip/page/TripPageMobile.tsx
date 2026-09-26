@@ -49,6 +49,7 @@ import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
 import { drift, isToday, localDateKey, saysStartsIn, stepStates, type StepState } from '@/plan/tripProgress';
+import { isSkippedToday } from '@/trip/page/emptyDay';
 import { humanTripTitle } from '@/trip/tripNaming';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 
@@ -491,7 +492,15 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
               ? <ErrorCard message={localizeMessage(tx, itinerary.message)} onRetry={() => void load()} tx={tx} />
               : <SheetSkeleton />
           ) : items.length === 0 ? (
-            <View style={styles.emptyCard}><Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text></View>
+            // 늦게 만들어 비운 오늘(백엔드 !1734 — 20:31 뒤 여러 날 여행은 첫날 0곳) — 「아직」이라고 하지 않는다(S15P21E201-1739).
+            loaded && isSkippedToday({ days: loaded.days, dayIndex, today: localDateKey(new Date()) }) ? (
+              <View style={styles.emptyCard}>
+                <Text variant="caption" weight="bold">{tx('오늘은 늦어서 내일부터 짰어요.', 'It was too late for today, so your trip starts tomorrow.')}</Text>
+                <Pressable accessibilityRole="button" onPress={() => setDayIndex(dayIndex + 1)} style={({ pressed }) => [styles.emptyAction, pressed && styles.pressed]}>
+                  <Text variant="caption" weight="bold" color={color.action.primary}>{tx('내일 일정 보기 ›', "See tomorrow's plan ›")}</Text>
+                </Pressable>
+              </View>
+            ) : <View style={styles.emptyCard}><Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text></View>
           ) : (
             <View>
               {/* 하루 시작 — 첫날은 출발지, 둘째 날부터는 숙소에서 (S15P21E201-1580) */}
@@ -1122,6 +1131,7 @@ const styles = StyleSheet.create({
   placeLink: { alignSelf: 'flex-start', marginTop: spacing[2] },
   excludeButton: { backgroundColor: color.state.dangerBg },
   emptyCard: { padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
+  emptyAction: { minHeight: 40, marginTop: spacing[2], paddingHorizontal: spacing[3], justifyContent: 'center' },
 
   budget: { gap: 10, marginTop: spacing[2] },
   reorder: { minHeight: 48, borderRadius: radius.md, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
