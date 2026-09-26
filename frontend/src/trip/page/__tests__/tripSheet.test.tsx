@@ -7,6 +7,8 @@
 //       🔴 정정(2026-09-26, S15P21E201-1756, 사용자 요청): 밀어 올리기는 없앴다 — 「일부러 하단 탭바를 띄워 놓았는데
 //       밑에서 올라오니 그 뜻이 사라진다」. 이제 떠 있는 막대가 제자리에서 늘어나 창이 된다(Reanimated, 폰 쪽에서 돈다).
 //       「펴고 접을 때 같은 시간·곡선」은 그대로 지킨다.
+//    ④ 「기록 남기기」도 ①처럼 창 안에서 바뀐다 — 글쓰기 화면으로 넘어가지 않는다(S15P21E201-1760, 사용자:
+//       「기록 남기기만 연속성이 유지가 안 된다」). 글쓰기 자체는 storyComposePanel.test 가 본다.
 import type { ReactNode } from 'react';
 import { Modal, Text } from 'react-native';
 import * as reanimated from 'react-native-reanimated';
@@ -17,7 +19,8 @@ import { TripPageMobile } from '@/trip/page/TripPageMobile';
 
 const mapProps: Array<{ height?: number; bottomInset?: number; topInset?: number; refitKey?: string | number | null }> = [];
 
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: () => true }) }));
+const mockPush = jest.fn();
+jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush, replace: jest.fn(), back: jest.fn(), canGoBack: () => true }) }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ accessToken: 'token', ready: true }) }));
 jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ kind: 'phone', desktop: false, width: 390, height: 844, isLandscape: false }) }));
@@ -27,6 +30,7 @@ jest.mock('@/map/mobilityLayers', () => ({ ...jest.requireActual('@/map/mobility
 jest.mock('@/trip/TripInvitePanel', () => ({ TripInvitePanel: () => { const { Text: T } = jest.requireActual('react-native'); return <T>invite-panel</T>; } }));
 jest.mock('@/trip/TripReadLinkPanel', () => ({ TripReadLinkPanel: () => { const { Text: T } = jest.requireActual('react-native'); return <T>share-panel</T>; } }));
 jest.mock('@/trip/TripWeatherPanel', () => ({ TripWeatherPanel: () => { const { Text: T } = jest.requireActual('react-native'); return <T>weather-panel</T>; } }));
+jest.mock('@/social/StoryComposeForm', () => ({ StoryComposeForm: () => { const { Text: T } = jest.requireActual('react-native'); return <T>record-panel</T>; } }));
 jest.mock('@/trip/TripNameSheet', () => ({ TripNameSheet: () => null }));
 // 뼈대 부품은 reanimated 를 부르는데, 시험 환경에서는 그 꾸러미가 안 불린다(signUpConsentBlockers.test 와 같은 사정).
 jest.mock('@/components/Skeleton', () => ({ Skeleton: () => null }));
@@ -55,17 +59,18 @@ const wrapper = ({ children }: { children: ReactNode }) => <OnboardingPreference
 const mount = () => render(<TripPageMobile source={{ kind: 'itinerary', itineraryId: 'it-1' }} />, { wrapper });
 const openModals = () => screen.UNSAFE_queryAllByType(Modal).filter((modal) => modal.props.visible);
 
-beforeEach(() => { mapProps.length = 0; jest.useFakeTimers(); });
+beforeEach(() => { mapProps.length = 0; mockPush.mockClear(); jest.useFakeTimers(); });
 // 창의 움직임을 끝까지 돌리고 정리한다 — 안 그러면 시험이 끝난 뒤에도 움직임이 돌아 경고가 쏟아진다.
 afterEach(() => { act(() => { jest.runOnlyPendingTimers(); }); jest.useRealTimers(); });
 
 describe('폰 여행 화면의 일정 창', () => {
-  it.each([['동행 초대', 'invite-panel'], ['공유', 'share-panel'], ['날씨', 'weather-panel']])(
-    '🔴 「%s」는 창 안에서 내용만 바뀐다 — 판이 하나 더 올라오지 않는다', (pill, panel) => {
+  it.each([['동행 초대', 'invite-panel'], ['공유', 'share-panel'], ['기록 남기기', 'record-panel'], ['날씨', 'weather-panel']])(
+    '🔴 「%s」는 창 안에서 내용만 바뀐다 — 판이 하나 더 올라오지도, 다른 화면으로 넘어가지도 않는다', (pill, panel) => {
       mount();
       fireEvent.press(screen.getByText(pill));
       expect(screen.getByText(panel)).toBeTruthy();
       expect(openModals()).toHaveLength(0);
+      expect(mockPush).not.toHaveBeenCalled();
       // 창 안의 「뒤로」로 일정으로 돌아온다
       fireEvent.press(screen.getByLabelText('일정으로 돌아가기'));
       expect(screen.queryByText(panel)).toBeNull();

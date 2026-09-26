@@ -54,6 +54,7 @@ import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
+import { StoryComposeForm } from '@/social/StoryComposeForm';
 import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 
 type Tx = (ko: string, en: string) => string;
@@ -164,9 +165,10 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
           </View>
           {/* 화면을 옮기지 않고 창으로 연다 — 동행 초대는 가운데 창, 날씨는 오른쪽 서랍(S15P21E201-1561). */}
           {tripId ? <HeadPill label={tx('동행 초대', 'Invite')} active={overlay === 'invite'} onPress={() => setOverlay('invite')} /> : null}
-          {/* 「공유」는 동행 초대 창 맨 아래에 숨어 있던 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기(S15P21E201-1593). */}
+          {/* 「공유」는 동행 초대 창 맨 아래에 숨어 있던 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기(S15P21E201-1593).
+              「기록 남기기」도 가운데 창으로 연다 — 전에는 이것만 글쓰기 화면으로 넘어가 여행 화면이 끊겼다(S15P21E201-1760). */}
           {tripId ? <HeadPill label={tx('공유', 'Share')} active={overlay === 'share'} onPress={() => setOverlay('share')} /> : null}
-          {tripId ? <HeadPill label={tx('기록 남기기', 'Write a record')} onPress={() => router.push(`/feed/compose?tripId=${encodeURIComponent(tripId)}`)} /> : null}
+          {tripId ? <HeadPill label={tx('기록 남기기', 'Write a record')} active={overlay === 'record'} onPress={() => setOverlay('record')} /> : null}
           {tripId ? <HeadPill label={tx('날씨', 'Weather')} active={overlay === 'weather'} onPress={() => setOverlay('weather')} /> : null}
           <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menu.open }} onPress={menu.openMenu} style={({ pressed }) => [styles.circle40, pressed && styles.pressed]}>
             <Text weight="bold">⋯</Text>
@@ -335,6 +337,11 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
         <TripOverlay visible={overlay !== null} shape={overlay === 'weather' ? 'drawer' : 'center'} onClose={() => setOverlay(null)}>
           {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
           {overlay === 'share' && tripId ? <TripReadLinkPanel tripId={tripId} /> : null}
+          {overlay === 'record' ? <>
+            {/* 다른 창은 제목을 스스로 그린다 — 글쓰기는 화면·폰 창이 제목을 그리므로 여기서 단다. */}
+            <Text variant="display" weight="bold" style={styles.recordTitle}>{tx('기록 남기기', 'Write a record')}</Text>
+            <StoryComposeForm variant="panel" tripId={tripId} onClose={() => setOverlay(null)} />
+          </> : null}
           {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
         </TripOverlay>
       ) : null}
@@ -482,6 +489,8 @@ const styles = StyleSheet.create({
   // 시안: 머리 padding 20 40 12 · 코스 줄 0 40 16 · 본문 0 40 32. 좌우 40 은 desktopGutter.
   content: { paddingHorizontal: desktopGutter, paddingTop: 20, paddingBottom: spacing[8], gap: spacing[3] },
   pressed: { opacity: 0.72 },
+  // 창 오른쪽 위 닫기(✕ — 창 끝에서 16+40)와 겹치지 않게 비운다. 창 속 여백 24 에 32 를 더하면 56.
+  recordTitle: { marginBottom: spacing[4], paddingRight: spacing[8] },
   shrink: { flexShrink: 1 },
   fill: { width: '100%', height: '100%' },
   rowCenter: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },

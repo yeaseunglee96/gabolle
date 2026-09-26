@@ -12,8 +12,8 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
-/** `share` — 읽기 전용 링크만 담은 창(S15P21E201-1593). */
-export type TripOverlayKind = 'invite' | 'share' | 'weather';
+/** `share` — 읽기 전용 링크만 담은 창(S15P21E201-1593). `record` — 이 여행을 단 글쓰기(S15P21E201-1760). */
+export type TripOverlayKind = 'invite' | 'share' | 'weather' | 'record';
 type Shape = 'center' | 'drawer' | 'sheet';
 
 export function TripOverlay({ visible, shape, onClose, children }: { visible: boolean; shape: Shape; onClose: () => void; children: ReactNode }) {
