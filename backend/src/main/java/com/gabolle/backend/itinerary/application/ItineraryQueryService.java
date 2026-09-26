@@ -186,7 +186,9 @@ public class ItineraryQueryService {
 				trip.tripId(),
 				// 이미 읽어 둔 항목에서 센다. DB 를 다시 묻지 않는다.
 				accessibilityUnverifiedCount(contentItems),
-				trip.partySize());
+				trip.partySize(),
+				// 일정을 짤 때의 상한과 같은 곳에서 센다 — 두 곳에서 곱하면 반올림이 경계에서 어긋난다.
+				BudgetAllowance.capKrw(trip.budgetKrw()));
 	}
 
 	/**

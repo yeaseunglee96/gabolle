@@ -306,7 +306,7 @@ class TripCourseServiceTest {
 				.toList();
 		return new ItineraryDetailResponse(id, "부산 여행", 1, List.of(new ItineraryDetailResponse.Day("2026-10-04", items)),
 				places.isEmpty() ? null : 5_000 * places.size(), places.isEmpty() ? null : 300 * places.size(), null,
-				"OWNER", true, List.of(), TRIP, 0, 2);
+				"OWNER", true, List.of(), TRIP, 0, 2, null);
 	}
 
 	/** 순위 번호로 정해지는 장소 번호 — 같은 순위는 늘 같은 장소다. */
