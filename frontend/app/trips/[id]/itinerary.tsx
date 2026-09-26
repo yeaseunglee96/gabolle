@@ -62,7 +62,7 @@ import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal, type ExcludeReason } from '@/components/ExcludeConfirmModal';
 import { localizeMessage } from '@/i18n/messages';
 import { koreanToward } from '@/i18n/korean';
-import { humanTripTitle } from '@/trip/tripNaming';
+import { humanTripTitle, tripNameOrDates } from '@/trip/tripNaming';
 import { categoryGlyph, loadPlacePhoto, loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
 import { summarizeItineraryBudget, type BudgetCategoryKey, type BudgetSummary } from '@/plan/itineraryBudget';
 import { loadTripBudget } from '@/trip/tripBudget';
@@ -963,7 +963,7 @@ function ItineraryClassic() {
         {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.brand.navy}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
       </View>
       <View style={styles.heroTitleRow}>
-        <Text variant="display" weight="bold" color={color.text.heading} style={styles.heroTitle}>{humanTripTitle(itinerary?.title) ?? tx('부산 여행', 'Busan trip')}</Text>
+        <Text variant="display" weight="bold" color={color.text.heading} style={styles.heroTitle}>{tripNameOrDates({ title: itinerary?.title, startDate: itinerary?.days[0]?.date, endDate: itinerary?.days[itinerary.days.length - 1]?.date }, tx, locale)}</Text>
         {/* 「이름 바꾸기」 — 시안 ④. 페이지로 가지 않고 그 자리에서 겹쳐 연다. */}
         {itinerary?.tripId ? (
           <Pressable accessibilityRole="button" onPress={() => setNaming(true)} style={styles.renameButton}>

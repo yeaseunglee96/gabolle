@@ -9,13 +9,13 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
-import { formatDayHeading } from '@/i18n/datetime';
 import { effectiveTripStatus, tripStatusLabel, tripTimingLabel } from '@/trip/tripStatus';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
-import { deleteTrip, loadTrips, resolveTripItinerary, tripDisplayTitle, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
+import { deleteTrip, loadTrips, resolveTripItinerary, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
+import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
 import { leaveTrip } from '@/trip/collaboration';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 import { enCount, enPlural, txf } from '@/i18n/format';
@@ -26,15 +26,12 @@ const TRIPS_KEY = (userId: string | undefined) => ['trips', userId ?? 'anonymous
 
 /** 「9월 26일 (토) – 9월 28일 (월)」 — 고른 언어의 표기로. 날짜 원문(2026-09-26)은 사람이 읽는 말이 아니다. */
 function dateLabel(trip: TripSummaryDto, tx: (ko: string, en: string) => string, locale: string) {
-  if (!trip.startDate) return tx('날짜 미확인', 'Date unknown');
-  const start = formatDayHeading(trip.startDate, locale) ?? trip.startDate;
-  const end = trip.endDate && trip.endDate !== trip.startDate ? (formatDayHeading(trip.endDate, locale) ?? trip.endDate) : null;
-  return end ? `${start} – ${end}` : start;
+  return tripDatesLabel(trip.startDate, trip.endDate, locale) ?? tx('날짜 미확인', 'Date unknown');
 }
 
 /** 카드 제목 — 사용자가 붙인 이름이 있으면 그것, 없으면 지금까지처럼 날짜 */
 function cardTitle(trip: TripSummaryDto, tx: (ko: string, en: string) => string, locale: string) {
-  return tripDisplayTitle(trip, dateLabel(trip, tx, locale));
+  return tripNameOrDates(trip, tx, locale);
 }
 
 export default function Trips() {
@@ -130,7 +127,7 @@ export default function Trips() {
 
     {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={[styles.list, desktop && styles.grid]}>{trips.map((trip) => <View key={trip.tripId} style={desktop ? styles.gridSlot : undefined}><View style={[styles.card, desktop && styles.cardInGrid]}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
       <TripCover uri={trip.coverImageUrl} />
-      <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx, locale)}</Text>{trip.title?.trim() ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx, locale)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : <Text variant="title" color={color.text.muted}>›</Text>}</View>
+      <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx, locale)}</Text>{humanTripTitle(trip.title) ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx, locale)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : <Text variant="title" color={color.text.muted}>›</Text>}</View>
       <View style={styles.meta}>
         {/* : 서버가 이미 주는 status를 화면이 안 읽어서, 일정 생성이 실패해도
             정상 여행과 카드가 똑같이 보였다 — PLANNING(아직 일정 없음)만 눈에 띄게 표시한다.

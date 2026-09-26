@@ -50,7 +50,7 @@ describe('홈 「내 여행」 카드 상태 글자', () => {
 // ── 이름 (S15P21E201-1678) ─────────────────────────────────────────────────────
 //
 // 🔴 폰 홈은 「여행에 제목이 없다 — 날짜를 제목 자리에 올린다」는 옛 주석대로 날짜만 올려서, 이름을 붙여도 홈에는 안 보였다.
-//    넓은 화면 카드와 내 여행 목록은 이미 「이름이 있으면 이름」이다 — 홈 두 곳이 같은 함수(tripDisplayTitle)로 고른다.
+//    넓은 화면 카드와 내 여행 목록은 이미 「이름이 있으면 이름」이다 — 홈 두 곳이 같은 함수(tripNameOrDates, S15P21E201-1738)로 고른다.
 describe('홈 「내 여행」 카드 이름', () => {
   it('이름이 있으면 이름이 제목이다', () => {
     render(<MyTripCard trip={trip(key(5), key(6), 'READY')} signedIn loaded />, { wrapper: Providers });
@@ -59,7 +59,7 @@ describe('홈 「내 여행」 카드 이름', () => {
 
   it('🔴 폰 홈도 같은 함수로 제목을 고른다 — 날짜만 올리는 옛 사본이 없다', () => {
     const source = readFileSync(join(__dirname, '..', '..', '..', 'app/(tabs)/home.tsx'), 'utf8') as string;
-    expect(source).toContain('tripDisplayTitle(home.trip');
+    expect(source).toContain('tripNameOrDates(home.trip');
     expect(source).not.toContain('여행에 제목이 없다');
   });
 });

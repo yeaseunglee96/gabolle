@@ -12,14 +12,14 @@ import { PlaceVisual } from '@/components/PlaceVisual';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { formatMonthDay } from '@/i18n/datetime';
 import { markdownToPlain } from '@/social/markdown';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
 import { HomeRow, homeCardWidth } from './HomeRow';
 import type { HomeCardPlace, HomeFacetRow } from './useHomeData';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
-import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
+import type { TripSummaryDto } from '@/trip/trips';
+import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
 // 🔴 상태 글자는 여행 목록 카드와 같은 함수다 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 전에는 서버 status 를
 //    그대로 읽는 홈 전용 함수가 따로 있어서, 오늘 진행 중인 여행에도 「준비 완료」가 붙었다.
 import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
@@ -266,17 +266,9 @@ export function PlaceRow({
 
 // ── 내 여행 ───────────────────────────────────────────────────────────────────
 
-function formatDay(iso: string | null, tx: Tx, locale: string) {
-  if (!iso) return tx('날짜 미정', 'Dates TBD');
-  // 「9월 20일」 · 「Sep 20」 · 「9月20日」 — 고른 언어의 방식으로(S15P21E201-1355).
-  return formatMonthDay(iso, locale) ?? iso;
-}
-
-/** 카드에 적을 날짜 범위. 시작일이 없으면 부르는 쪽이 안 쓰게 되어 있다. */
+/** 카드에 적을 날짜 범위 — 여행 목록과 같은 표기(tripDatesLabel, S15P21E201-1738). */
 function dateRange(trip: TripSummaryDto, tx: Tx, locale: string) {
-  return trip.startDate && trip.endDate
-    ? `${formatDay(trip.startDate, tx, locale)} ~ ${formatDay(trip.endDate, tx, locale)}`
-    : formatDay(trip.startDate, tx, locale);
+  return tripDatesLabel(trip.startDate, trip.endDate, locale) ?? tx('날짜 미정', 'Dates TBD');
 }
 
 /**
@@ -308,14 +300,14 @@ export function MyTripCard({ trip, signedIn, loaded, layout = 'column' }: { trip
         것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다.
     */}
     <Text variant="title" weight="bold">
-      {tripDisplayTitle(t, dateRange(t, tx, locale))}
+      {tripNameOrDates(t, tx, locale)}
     </Text>
     {/* 이름을 제목에 올리면 날짜가 화면에서 사라진다 — 그러면 같은 이름의 여행
         둘을 날짜로 가릴 수 없다. 이름이 있을 때만 이 줄에 날짜를 같이 적는다.
         이름이 없으면 제목이 이미 날짜라 두 번 적지 않는다 (시안 design_handoff_trip_name_flow).
     */}
     <Text color={color.text.body}>
-      {t.title?.trim() && t.startDate
+      {humanTripTitle(t.title) && t.startDate
         ? txf(tx, '%s · %s일 · %s명', `%s · %s ${enPlural(t.dayCount, 'day', 'days')} · %s ${enPlural(t.partySize, 'traveler', 'travelers')}`, dateRange(t, tx, locale), t.dayCount, t.partySize)
         : tx(`${t.dayCount}일 · ${t.partySize}명`, `${enCount(t.dayCount, 'day', 'days')} · ${enCount(t.partySize, 'traveler', 'travelers')}`)}
     </Text>

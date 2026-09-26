@@ -19,7 +19,7 @@ import { totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
 import { canConfirmCourse, ensureCourseItinerary, type TripCourse } from '@/plan/tripCourses';
 import { loadTripBudget } from '@/trip/tripBudget';
-import { humanTripTitle, shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
+import { humanTripTitle, tripNameOrDates, shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { invalidateTripLists, loadTrips } from '@/trip/trips';
 
 import { itineraryFirstPage, loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
@@ -193,10 +193,14 @@ export function useTripPage(source: TripPageSource) {
   const atRisk = useMemo(() => items.filter((item) => pace?.atRiskItemIds.includes(item.id)), [items, pace]);
   const allEstimated = items.length > 0 && items.every((item) => item.dataStatus !== 'VERIFIED');
 
-  const title = humanTripTitle(loaded?.title) ?? tx('부산 여행', 'Busan trip');
   const firstDate = loaded?.days[0]?.date;
+  const lastDate = loaded?.days[loaded.days.length - 1]?.date;
+  // 🔴 여행 목록·홈·알림과 같은 이름(S15P21E201-1738). 전에는 「부산 여행」을 지어냈다.
+  const named = humanTripTitle(loaded?.title) !== null;
+  const title = tripNameOrDates({ title: loaded?.title, startDate: firstDate, endDate: lastDate }, tx, locale);
   const headSub = loaded ? [
-    firstDate ? (formatDayHeading(firstDate, locale) ?? firstDate) : null,
+    // 이름이 없어 제목이 날짜면 둘째 줄에 날짜를 또 적지 않는다 — 같은 날짜가 두 번 보인다.
+    firstDate && named ? (formatDayHeading(firstDate, locale) ?? firstDate) : null,
     loaded.days.length > 1 ? txf(tx, '%s일', '%s days', loaded.days.length) : null,
     txf(tx, '%s곳', '%s places', allItems.length),
     budget && budget.known > 0 ? txf(tx, '약 %s', 'about %s', formatManwon(budget.krw, tx)) : null,

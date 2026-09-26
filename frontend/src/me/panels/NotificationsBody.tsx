@@ -18,7 +18,7 @@ import { relativeStoryTime } from '@/social/stories';
 const bellIcon = require('../../../assets/icons/home/bell.png');
 
 export function NotificationsBody() {
-  const { tx, language } = useI18n();
+  const { tx, language, locale } = useI18n();
   const router = useRouter();
   const { accessToken, user } = useAuth();
   // 🔴 알림은 여행 활동에서 나온다(S15P21E201-1380) — 서버 알림 API 가 없어 늘 비어 있던 화면이었다.
@@ -27,7 +27,7 @@ export function NotificationsBody() {
     let active = true;
     if (!user) { setFeed({ state: 'ready', items: [], seenAt: null }); return undefined; }
     (async () => {
-      const [result, seenAt] = await Promise.all([loadActivityFeed(accessToken, tx), loadSeenAt()]);
+      const [result, seenAt] = await Promise.all([loadActivityFeed(accessToken, tx, locale), loadSeenAt()]);
       if (!active) return;
       setFeed(result.state === 'success' ? { state: 'ready', items: result.items, seenAt } : { state: 'error', message: result.message });
       // 목록을 본 순간부터는 읽은 것이다 — 점은 다음에 새것이 올 때만 다시 뜬다.
