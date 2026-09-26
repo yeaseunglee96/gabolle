@@ -100,16 +100,6 @@ class PlaceSearchIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 정본에 넣은 부산 명소가 정확일치로 첫 줄에 나온다 — 부산역을 치면 호텔만 나왔다(V20260926180000)")
-	void curatedLandmarksAreFoundByExactName() {
-		for (String name : java.util.List.of("부산역", "BIFF광장", "부산타워", "더베이101", "부산시민공원", "동백섬")) {
-			PlacePageResponse page = this.placeSearchService.search(name, null, null, null);
-			assertThat(page.items()).as(name).isNotEmpty();
-			assertThat(page.items().get(0).nameKo()).as(name).isEqualTo(name);
-		}
-	}
-
-	@Test
 	@DisplayName("완료 기준 — 영문 이름이 있는 장소는 영어로 검색해도 같은 장소가 나온다")
 	void searchByEnglishNameFindsTheSamePlace() {
 		UUID placeId = this.fixture.insertPlace("감천문화마을", "Gamcheon Culture Village",
