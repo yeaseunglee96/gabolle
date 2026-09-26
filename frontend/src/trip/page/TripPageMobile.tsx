@@ -954,7 +954,7 @@ function TimelineStop({ item, startKind, index, last, freeBefore, date, photo, s
             </View>
             {/* 일정에서 장소 상세로 가는 유일한 길 — 카드 자체는 펼치기에 쓴다(S15P21E201-1733).
                 위 줄(예상 도착 · 도착 찍기 · 제외)에 넣으면 폰 390 에서 「예상 도착」이 한 글자씩 세로로 눌려 따로 한 줄. */}
-            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 자세히', '%s details', item.title)} onPress={onOpenPlace} style={({ pressed }) => [styles.detailButton, styles.placeLink, pressed && styles.pressed]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 상세 보기', 'Open details for %s', item.title)} onPress={onOpenPlace} style={({ pressed }) => [styles.detailButton, styles.placeLink, pressed && styles.pressed]}>
               <Text variant="caption" weight="bold">{tx('자세히 보기 ›', 'Place details ›')}</Text>
             </Pressable>
             </>

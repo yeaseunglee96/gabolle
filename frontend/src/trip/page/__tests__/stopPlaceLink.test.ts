@@ -27,6 +27,11 @@ describe('펼친 일정 카드의 「자세히 보기」', () => {
   it('쓰는 문구는 번역표에 이미 있다 — 일·중에서 영어로 떨어지지 않는다', () => {
     const table = read('..', '..', '..', 'i18n', 'translations.ts');
     expect(table).toContain("'자세히 보기 ›': {");
-    expect(table).toContain("'%s 자세히': {");
+    expect(table).toContain("'%s 상세 보기': {");
+  });
+
+  it('🔴 읽어 주기 이름이 카드 펼치기(「%s 자세히」)와 겹치지 않는다 — 두 동작이 같은 이름이면 화면 읽기로 못 가른다', () => {
+    const detail = PAGE.slice(PAGE.indexOf('<View style={styles.stopDetail}>'));
+    expect(detail).toContain("accessibilityLabel={txf(tx, '%s 상세 보기', 'Open details for %s', item.title)} onPress={onOpenPlace}");
   });
 });
