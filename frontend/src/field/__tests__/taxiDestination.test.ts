@@ -4,6 +4,8 @@ import {
   destinationSubtitle,
   normalizeDestinationQuery,
   searchTaxiDestinations,
+  mergeTaxiDestinations,
+  taxiCardHref,
   MIN_DESTINATION_QUERY_LENGTH,
 } from '@/field/taxiDestination';
 import type { PlaceSearchItem } from '@/discovery/places';
@@ -118,5 +120,49 @@ describe('둘째 줄', () => {
   it('🔴 주소가 없으면 아무것도 안 적는다 — 「정보 없음」은 줄만 차지한다', () => {
     expect(destinationSubtitle(place({ address: '' }))).toBeNull();
     expect(destinationSubtitle(place({ address: '   ' }))).toBeNull();
+  });
+});
+
+describe('🔴 우리 DB 와 카카오를 합친다 — S15P21E201-1742', () => {
+  const kakao = (name: string, address: string) => ({ name, address, externalId: 'k-' + name });
+
+  it('우리 DB 에 없는 곳(부산역)도 카카오 결과로 나온다', () => {
+    const out = mergeTaxiDestinations([place({ placeId: 'h', nameKo: '하운드호텔 부산역점', address: '부산 동구' })], [kakao('부산역', '부산 동구 중앙대로 206')]);
+    expect(out.map((i) => i.name)).toEqual(['하운드호텔 부산역점', '부산역']);
+    expect(out[1].placeId).toBeNull();
+  });
+
+  it('주소 있는 우리 장소 → 카카오 → 주소 없는 우리 장소 순이다', () => {
+    const out = mergeTaxiDestinations(
+      [place({ placeId: 'a', nameKo: '모모스', address: '' }), place({ placeId: 'b', nameKo: '해운대해수욕장', address: '부산 해운대구 우동' })],
+      [kakao('모모스커피 부산본점', '부산 금정구 오시게로 20')],
+    );
+    expect(out.map((i) => i.name)).toEqual(['해운대해수욕장', '모모스커피 부산본점', '모모스']);
+  });
+
+  it('같은 이름·주소는 한 번만 — 띄어쓰기가 달라도 같은 곳이다', () => {
+    const out = mergeTaxiDestinations([place({ placeId: 'b', nameKo: '해운대해수욕장', address: '부산 해운대구 우동' })], [kakao('해운대 해수욕장', '부산 해운대구 우동')]);
+    expect(out).toHaveLength(1);
+  });
+
+  it('주소 없는 카카오 결과는 버린다 — 이름만으로는 우리 장소보다 나을 것이 없다', () => {
+    expect(mergeTaxiDestinations([], [kakao('어딘가', '')])).toEqual([]);
+  });
+
+  it('🔴 우리 서버가 안 돼도 카카오가 답하면 목록을 만든다', async () => {
+    globalThis.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('/api/v1/origins')) return new Response(JSON.stringify({ data: { items: [kakao('부산역', '부산 동구 중앙대로 206')], degraded: false }, error: null, meta: { requestId: 'r' } }), { status: 200, headers: { 'content-type': 'application/json' } });
+      return new Response(JSON.stringify({ data: null, error: { code: 'X', message: 'x' }, meta: { requestId: 'r' } }), { status: 500, headers: { 'content-type': 'application/json' } });
+    }) as unknown as typeof fetch;
+    const out = await searchTaxiDestinations('부산역');
+    if (out.state !== 'ready') throw new Error('ready 여야 한다: ' + out.state);
+    expect(out.items.map((i) => i.name)).toEqual(['부산역']);
+  });
+
+  it('카카오 결과의 카드 주소에는 이름·주소가 실린다', () => {
+    expect(taxiCardHref({ key: 'k', name: '부산역', address: '부산 동구 중앙대로 206', placeId: null }))
+      .toBe('/taxi-card/external?name=' + encodeURIComponent('부산역') + '&address=' + encodeURIComponent('부산 동구 중앙대로 206'));
+    expect(taxiCardHref({ key: 'p', name: 'x', address: null, placeId: 'abc' })).toBe('/taxi-card/abc');
   });
 });
