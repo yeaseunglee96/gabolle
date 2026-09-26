@@ -18,8 +18,10 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/auth/AuthProvider';
 import { PlaceVisual } from '@/components/PlaceVisual';
 import { Skeleton } from '@/components/Skeleton';
+import { StopName } from '@/components/StopName';
 import { Text } from '@/components/Text';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
+import { stopNameForLanguage, stopNameParts } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
 import { formatDayHeading } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
@@ -72,7 +74,7 @@ const SLIDE = Easing.bezier(0.2, 0.8, 0.2, 1);
 export function TripPageDesktop({ source, askName = false }: { source: TripPageSource; askName?: boolean }) {
   const router = useRouter();
   const { accessToken } = useAuth();
-  const { tx, locale } = useI18n();
+  const { tx, locale, language } = useI18n();
   const { height: windowHeight } = useWindowDimensions();
 
   // 불러오기·세기는 폰과 같이 쓴다(useTripPage). 여기 남은 것은 넓은 화면에만 있는 상태다.
@@ -264,7 +266,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                   {atRisk.length ? (
                     <Text weight="bold" color={color.state.danger}>
                       {atRisk.length === 1
-                        ? txf(tx, `%s${koreanSubject(atRisk[0].title)} 하루를 넘길 수 있어요`, '%s may run past the day', atRisk[0].title)
+                        ? txf(tx, `%s${koreanSubject(atRisk[0].title)} 하루를 넘길 수 있어요`, '%s may run past the day', stopNameForLanguage(atRisk[0].title, photos[atRisk[0].placeId]?.nameEn, language))
                         : txf(tx, '%s곳이 하루를 넘길 수 있어요', '%s places may run past the day', atRisk.length)}
                     </Text>
                   ) : (
@@ -294,7 +296,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                         {photo?.photoUrl ? <Image source={{ uri: photo.photoUrl }} resizeMode="cover" style={styles.fill} accessibilityLabel="" /> : <Text variant="title">{categoryGlyph(photo?.category)}</Text>}
                       </View>
                       <View style={styles.bigCopy}>
-                        <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><Text weight="bold" numberOfLines={1} style={styles.shrink}>{item.title}</Text></View>
+                        <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><StopName weight="bold" title={item.title} nameEn={photo?.nameEn} /></View>
                         <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[item.startsAt.slice(11, 16), leg].filter(Boolean).join(' · ')}</Text>
                       </View>
                     </Pressable>
@@ -406,6 +408,8 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
 }) {
   const label = photo?.category ? PLACE_CATEGORY_LABELS[photo.category] : undefined;
   const category = label ? tx(label[0], label[1]) : null;
+  const { language } = useI18n();
+  const nameParts = stopNameParts(item.title, photo?.nameEn, language);
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const reason = pickReasonLine(item.reasonCodes);
   const stay = stayMinutes(items, index);
@@ -420,6 +424,8 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
       </View>
       <View style={styles.cardName}>
         <Text variant="title" weight="bold" numberOfLines={2}>{item.title}</Text>
+        {/* 영어(일·중) 화면 — 한글 아래에 영어 이름이나 로마자 한 줄(S15P21E201-1735). 넘치면 이 줄만 줄임표로 자른다 — 한글은 안 자른다. */}
+        {nameParts.other ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{nameParts.other}</Text> : null}
         {leg ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{leg}</Text> : null}
         {/* 왜 이 곳인지 한 줄 — 없으면 줄째 안 그린다(S15P21E201-1645). */}
         {reason ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{reason}</Text> : null}

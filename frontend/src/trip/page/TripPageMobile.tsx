@@ -22,10 +22,12 @@ import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { Skeleton } from '@/components/Skeleton';
+import { StopName } from '@/components/StopName';
 import { BAR_MAX_WIDTH, SHEET_MAX_WIDTH, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
+import { stopNameForLanguage } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
 import { formatClock, formatDayHeading, formatWeekdayShort } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
@@ -104,7 +106,7 @@ const TAB_ICONS: Record<'home' | 'feed' | 'map', ImageSourcePropType> = {
 export function TripPageMobile({ source, askName = false }: { source: TripPageSource; askName?: boolean }) {
   const router = useRouter();
   const { accessToken } = useAuth();
-  const { tx, locale } = useI18n();
+  const { tx, locale, language } = useI18n();
   const insets = useSafeAreaInsets();
   const { width, height } = useLayout();
 
@@ -113,6 +115,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
     itinerary, setItinerary, loaded, reloadItinerary, dayIndex, setDayIndex, items, selectedId, setSelectedId,
     photos, pace, reloadPace, map, routes, points, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
+  // 영어(일·중) 화면의 장소 이름 — 「돈반 (Donban)」, 영어 이름이 있으면 영어 먼저(S15P21E201-1735). 한국어는 제목 그대로.
+  const nameOf = (item: ItineraryItemDto) => stopNameForLanguage(item.title, photos[item.placeId]?.nameEn, language);
 
   const [panel, setPanel] = useState<Panel>('trip');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -355,12 +359,12 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       : txf(tx, '예정보다 %s %s', '%s %s', driftSpan, nowDriftValue.early ? tx('빠름', 'early') : tx('늦음', 'late'))
     : null;
   const nowTitle = stayItem
-    ? txf(tx, '%s에 머무는 중', 'At %s', stayItem.title)
+    ? txf(tx, '%s에 머무는 중', 'At %s', nameOf(stayItem))
     : progress.status === 'DONE'
     ? tx('오늘 일정을 다 돌았어요', 'You finished today')
     : progress.status === 'RUNNING' && currentStop
-      ? txf(tx, `%s${koreanToward(currentStop.title)} 이동 중`, 'Heading to %s', currentStop.title)
-      : currentStop ? txf(tx, '다음은 %s', 'Next: %s', currentStop.title) : tx('오늘 갈 곳이 없어요', 'Nothing planned today');
+      ? txf(tx, `%s${koreanToward(currentStop.title)} 이동 중`, 'Heading to %s', nameOf(currentStop))
+      : currentStop ? txf(tx, '다음은 %s', 'Next: %s', nameOf(currentStop)) : tx('오늘 갈 곳이 없어요', 'Nothing planned today');
   const doneCount = stopIds.filter((id) => progress.outcomes[id]).length;
   // 🔴 남은 거리 — 위치를 믿을 수 있을 때만(S15P21E201-1568). 모르면 안 적는다.
   const leftM = progress.status === 'RUNNING' ? remainingMeters(live.fix, target) : null;
@@ -451,7 +455,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                 record={stayItem && stayArrivedAt
                   ? { text: txf(tx, '도착 %s', 'Arrived %s', clockOf(stayArrivedAt)), onEdit: () => setTimeEdit('arrival') }
                   : lastDeparture && lastDepartureItem
-                    ? { text: txf(tx, '%s 출발 %s', 'Left %s at %s', lastDepartureItem.title, clockOf(lastDeparture.at)), onEdit: () => setTimeEdit('departure') }
+                    ? { text: txf(tx, '%s 출발 %s', 'Left %s at %s', nameOf(lastDepartureItem), clockOf(lastDeparture.at)), onEdit: () => setTimeEdit('departure') }
                     : null}
                 onStart={() => void locationGate.ensure().then(() => run.start())}
                 onPause={run.pause}
@@ -476,10 +480,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             confirming={confirming}
             onPick={setCourseIndex}
             onConfirm={() => course && void confirm(course)}
+            nameOf={nameOf}
             tx={tx}
           />
 
-          {loaded ? <RiskStrip atRisk={atRisk} known={pace !== null} estimated={paceEstimated} tx={tx} /> : null}
+          {loaded ? <RiskStrip atRisk={atRisk} known={pace !== null} estimated={paceEstimated} nameOf={nameOf} tx={tx} /> : null}
 
           {!loaded ? (
             itinerary?.message
@@ -502,6 +507,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   freeBefore={index > 0 ? freeTimeMinutes(items, index - 1) : null}
                   date={index === 0 ? day?.date ?? null : null}
                   photo={photos[item.placeId] ?? null}
+                  name={nameOf(item)}
                   step={progressId ? (item.id === stayId ? 'staying' : steps[index]) : undefined}
                   risky={pace?.atRiskItemIds.includes(item.id) ?? false}
                   pace={paceByItemId.get(item.id)}
@@ -601,7 +607,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                 <View style={styles.numberDot}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
                 <Text variant="caption" weight="bold" color={color.text.muted}>{item.startsAt.slice(11, 16)}</Text>
               </View>
-              <Text weight="bold" numberOfLines={1}>{item.title}</Text>
+              <StopName weight="bold" title={item.title} nameEn={photos[item.placeId]?.nameEn} />
               {formatTravelLabel(item, tx, index === 0 && startKind) ? <Text variant="micro" color={color.text.muted} numberOfLines={1}>{formatTravelLabel(item, tx, index === 0 && startKind)}</Text> : null}
             </Pressable>
             </ImpressionView>
@@ -744,9 +750,9 @@ function TabSlot({ label, icon, selected = false, strong = false, onPress, child
  * 🔴 오는 코스 수만큼만 칸을 만든다 — 셋을 그리고 둘을 비워 두면 눌러도 아무 일이 없어 고장으로 읽힌다
  *    (TripPageDesktop 의 CoursePill 과 같은 규칙).
  */
-function CourseCardMobile({ open, courses, index, full, estimated, items, confirming, onPick, onConfirm, tx }: {
+function CourseCardMobile({ open, courses, index, full, estimated, items, confirming, onPick, onConfirm, nameOf, tx }: {
   open: boolean; courses: TripCourse[]; index: number; full: boolean; estimated: boolean; items: ItineraryItemDto[];
-  confirming: boolean; onPick: (index: number) => void; onConfirm: () => void; tx: Tx;
+  confirming: boolean; onPick: (index: number) => void; onConfirm: () => void; nameOf: (item: ItineraryItemDto) => string; tx: Tx;
 }) {
   const shown = useRef(new Animated.Value(open ? 1 : 0)).current;
   // 🔴 「코스 A로 확정」 줄은 처음부터 펼친다(S15P21E201-1670, 사용자 결정 — 시안 Interactions 와 다르다). 시안은 알약을
@@ -769,7 +775,7 @@ function CourseCardMobile({ open, courses, index, full, estimated, items, confir
 
   const course = courses[index] ?? null;
   if (!courses.length) return null;
-  const routeLine = items.map((item) => item.title).join(' → ');
+  const routeLine = items.map((item) => nameOf(item)).join(' → ');
 
   return (
     <Animated.View
@@ -822,11 +828,11 @@ function CourseCardMobile({ open, courses, index, full, estimated, items, confir
 }
 
 /** 위험 띠 — 하루를 넘길 곳이 있으면 연분홍에 빨간 글자, 없으면 초록. 🔴 모르면 「모른다」고 적는다. */
-function RiskStrip({ atRisk, known, estimated, tx }: { atRisk: ItineraryItemDto[]; known: boolean; estimated: boolean; tx: Tx }) {
+function RiskStrip({ atRisk, known, estimated, nameOf, tx }: { atRisk: ItineraryItemDto[]; known: boolean; estimated: boolean; nameOf: (item: ItineraryItemDto) => string; tx: Tx }) {
   const risky = atRisk.length > 0;
   const text = risky
     ? atRisk.length === 1
-      ? txf(tx, `%s${koreanSubject(atRisk[0].title)} 하루를 넘길 수 있어요`, '%s may run past the day', atRisk[0].title)
+      ? txf(tx, `%s${koreanSubject(atRisk[0].title)} 하루를 넘길 수 있어요`, '%s may run past the day', nameOf(atRisk[0]))
       : txf(tx, '%s곳이 하루를 넘길 수 있어요', '%s places may run past the day', atRisk.length)
     : known ? tx('하루 안에 여유 있게 끝나요', 'The day ends comfortably') : tx('하루 안에 끝나는지 아직 몰라요', 'Not sure yet if the day fits');
   const tone = risky ? color.state.danger : known ? color.state.success : color.text.muted;
@@ -838,8 +844,8 @@ function RiskStrip({ atRisk, known, estimated, tx }: { atRisk: ItineraryItemDto[
   );
 }
 
-function TimelineStop({ item, startKind, index, last, freeBefore, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, tx, locale }: {
-  item: ItineraryItemDto; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
+function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, tx, locale }: {
+  item: ItineraryItemDto; /** 화면에 적을 장소 이름 — 영어면 로마자가 붙는다(S15P21E201-1735). */ name: string; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
   /** 오늘 방문지이고 아직 도착이 안 적혔을 때만 — 아니면 null 이고 「도착 찍기」를 안 그린다(S15P21E201-1690). */
   onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; onOpenPlace: () => void; tx: Tx; locale: string;
@@ -910,7 +916,7 @@ function TimelineStop({ item, startKind, index, last, freeBefore, date, photo, s
               style={styles.stopCopy}
             >
               <View style={styles.titleLine}>
-                <Text weight="bold" style={styles.shrink}>{item.title}</Text>
+                <Text weight="bold" style={styles.shrink}>{name}</Text>
                 {done ? <View style={styles.chipDone}><Text variant="micro" weight="bold" color={color.state.success}>{tx('✓ 다녀옴', '✓ Visited')}</Text></View> : null}
                 {staying ? <View style={styles.chipStaying}><Text variant="micro" weight="bold" color={color.text.body}>{tx('머무는 중', 'Here now')}</Text></View> : null}
               </View>
