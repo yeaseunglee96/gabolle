@@ -231,7 +231,8 @@ export function TabBar({
           >
             {/* 현재 탭 표시는 굵은 글자 + 진한 아이콘뿐이다. 글자 밑의 붉은 점은 글자를 가렸다(2026-09-21 지적, S15P21E201-1390). */}
             <View style={[styles.iconWrap, tab.key === 'schedule' && styles.createIconWrap]}><Image source={tab.icon} resizeMode="contain" style={[styles.icon, tab.key !== 'schedule' && (selected ? styles.iconSelected : styles.iconInactive)]} /></View>
-            <Text variant="micro" weight={selected ? 'bold' : 'regular'} color={selected ? color.text.heading : color.text.inactiveTab}>
+            {/* 🔴 한 줄로만 — 글자 크기 1.1 폰에서 「여행 만들기」가 두 줄로 꺾여 다른 탭보다 내려갔다(S15P21E201-1747). 넘치면 글자를 줄인다. */}
+            <Text variant="micro" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} weight={selected ? 'bold' : 'regular'} color={selected ? color.text.heading : color.text.inactiveTab}>
               {tx(tab.labelKo, tab.labelEn)}
             </Text>
           </Pressable>
