@@ -157,16 +157,18 @@ class ItineraryDelayProjectorTest {
     }
 
     @Test
-    @DisplayName("이동 시간을 모르는 구간은 0 으로 세지만 그 사실이 값에 드러난다")
+    @DisplayName("이동 시간을 모르는 구간은 0 으로 센다 — 늦어진 날에서 그 구간만큼 덜 밀린다")
     void anUnknownLegContributesNothing() {
         Fixture fixture = new Fixture();
         fixture.dropLegInto(2);
 
-        ItineraryDelayProjector.Projection projection = fixture.project(null, BEFORE_THE_DAY);
+        ItineraryDelayProjector.Projection projection = fixture.project(new BigDecimal("1.50"), BEFORE_THE_DAY);
 
-        // A 는 10:00 에 끝나고 구간을 모르니 B 도착도 10:00 이다. 계획 10:30 보다 30분 이르다.
-        assertThat(entry(projection, "B").predictedArrival()).isEqualTo(at(LocalTime.of(10, 0)));
-        assertThat(entry(projection, "B").delayMinutes()).isEqualTo(-30L);
+        // A 에 90분(60 × 1.5) 머물면 10:30 에 나온다. 구간을 모르니 이동 0 — B 도착 10:30. 구간(30분)을 알면 11:00 이다
+        // (withAFactorPredictedArrivalsDivergeFromThePlan). 전에는 계수 없이 재서 10:00(30분 이르다)으로 드러냈는데, 이제
+        // 예상은 계획보다 이르게 안 잡힌다(S15P21E201-1740).
+        assertThat(entry(projection, "B").predictedArrival()).isEqualTo(at(LocalTime.of(10, 30)));
+        assertThat(entry(projection, "B").delayMinutes()).isZero();
     }
 
     @Test
@@ -179,6 +181,73 @@ class ItineraryDelayProjectorTest {
 
         assertThat(projection.entries()).extracting(ItineraryDelayProjector.Entry::itemKey)
                 .containsExactly("A", "B", "C");
+    }
+
+    // ── 곳 사이에 자유 시간이 있는 날 (S15P21E201-1740) ─────────────────────
+    //
+    //   09:00-10:00 A · 10:30-11:30 B · (자유 시간) · 14:00-15:00 C   — B→C 이동 30분, B 끝에서 C 까지 2시간 반
+    //
+    // 시각표는 곳 사이에 빈 시각을 둔다(S15P21E201-1667). 예측이 그걸 건너뛰고 이어 붙이면 C 가 12:00 으로 나와
+    // 카드에 「14:00」과 「예상 도착 12:00」이 함께 뜬다 — 시연 점검에서 「16:04」 옆 「예상 도착 11:45」로 보였다.
+
+    @Test
+    @DisplayName("🔴 시작 안 한 날은 자유 시간이 있어도 예상 = 계획이다 — 빈 시각을 건너뛰어 앞당기지 않는다")
+    void freeTimeIsNotSkippedBeforeTheDayStarts() {
+        Fixture fixture = new Fixture();
+        fixture.freeTimeBeforeC();
+
+        ItineraryDelayProjector.Projection projection = fixture.project(null, BEFORE_THE_DAY);
+
+        assertThat(entry(projection, "C").predictedArrival()).as("이어 붙이면 12:00 이다").isEqualTo(at(LocalTime.of(14, 0)));
+        assertThat(projection.entries()).allSatisfy(e -> assertThat(e.delayMinutes()).isEqualTo(0L));
+    }
+
+    @Test
+    @DisplayName("🔴 앞선 경우 — B 를 일찍 떠나도 C 의 예상 도착은 계획 14:00 이다. 자유 시간이 앞선 만큼을 흡수한다")
+    void beingAheadIsAbsorbedByFreeTime() {
+        Fixture fixture = new Fixture();
+        fixture.freeTimeBeforeC();
+        fixture.visited("A", at(LocalTime.of(9, 0)), at(LocalTime.of(9, 40)));
+        fixture.visited("B", at(LocalTime.of(10, 10)), at(LocalTime.of(10, 50)));
+
+        ItineraryDelayProjector.Projection projection = fixture.project(null, at(LocalTime.of(10, 55)));
+
+        // 이어 붙이면 10:55 + 30분 = 11:25 — 계획보다 2시간 35분 이르다고 나왔다.
+        assertThat(entry(projection, "C").predictedArrival()).isEqualTo(at(LocalTime.of(14, 0)));
+        assertThat(entry(projection, "C").delayMinutes()).isZero();
+        assertThat(entry(projection, "C").predictedDeparture()).isEqualTo(at(LocalTime.of(15, 0)));
+    }
+
+    @Test
+    @DisplayName("🔴 늦은 경우 — 자유 시간보다 더 늦으면 그 넘친 만큼만 밀린다")
+    void beingLateBeyondTheFreeTimePushesTheRest() {
+        Fixture fixture = new Fixture();
+        fixture.freeTimeBeforeC();
+        fixture.visited("A", at(LocalTime.of(9, 0)), at(LocalTime.of(10, 0)));
+        // B 를 13:45 에 떠났다 — 계획(11:30)보다 2시간 15분 늦다. 자유 시간 2시간 반 중 2시간 15분을 썼다.
+        fixture.visited("B", at(LocalTime.of(10, 30)), at(LocalTime.of(13, 45)));
+
+        ItineraryDelayProjector.Projection projection = fixture.project(null, at(LocalTime.of(13, 45)));
+
+        // 13:45 + 이동 30분 = 14:15 — 계획 14:00 보다 15분 늦다.
+        assertThat(entry(projection, "C").predictedArrival()).isEqualTo(at(LocalTime.of(14, 15)));
+        assertThat(entry(projection, "C").delayMinutes()).isEqualTo(15L);
+        // C 의 끝(15:15)이 하루 끝(15:00)을 넘는다 — 그 위험은 그대로 알린다.
+        assertThat(entry(projection, "C").overrunsDay()).isTrue();
+    }
+
+    @Test
+    @DisplayName("늦은 경우 — 자유 시간 안에서 늦은 것은 흡수된다. 계수로 늦어진 B 뒤에도 C 는 계획대로다")
+    void lateInsideTheFreeTimeIsAbsorbed() {
+        Fixture fixture = new Fixture();
+        fixture.freeTimeBeforeC();
+
+        ItineraryDelayProjector.Projection projection = fixture.project(new BigDecimal("1.50"), BEFORE_THE_DAY);
+
+        // A 90분 → 10:30 출발 → B 11:00 도착(30분 늦음) → B 90분 → 12:30 출발 → C 는 13:00 에 닿을 수 있지만 계획은 14:00.
+        assertThat(entry(projection, "B").delayMinutes()).isEqualTo(30L);
+        assertThat(entry(projection, "C").predictedArrival()).isEqualTo(at(LocalTime.of(14, 0)));
+        assertThat(entry(projection, "C").delayMinutes()).isZero();
     }
 
     private static ItineraryDelayProjector.Entry entry(ItineraryDelayProjector.Projection projection,
@@ -218,6 +287,12 @@ class ItineraryDelayProjectorTest {
         void visited(String itemKey, Instant arrived, Instant departed) {
             actuals.add(new ItineraryItemActual(ITINERARY_ID, itemKey, arrived, departed, "user-1",
                     departed.plusSeconds(60)));
+        }
+
+        /** C 를 14:00-15:00 으로 옮겨 B 와 C 사이에 자유 시간을 둔다 — 시각표가 곳 사이에 빈 시각을 두는 모양. */
+        void freeTimeBeforeC() {
+            items.removeIf(i -> i.itemKey().equals("C"));
+            items.add(item("C", 3, LocalTime.of(14, 0), LocalTime.of(15, 0)));
         }
 
         /** 그 자리로 들어오는 구간의 이동 시간을 지운다 — 길찾기가 답을 못 준 상황. */

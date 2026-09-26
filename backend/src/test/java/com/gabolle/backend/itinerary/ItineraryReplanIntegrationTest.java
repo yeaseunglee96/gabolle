@@ -41,8 +41,9 @@ import com.gabolle.testslice.ItinerarySliceApplication;
  * 남은 하루 재계획. 실제 PostgreSQL 위에서 HTTP 로 본다.
  *
  * <p>구간의 이동 시간을 A→B 15분, B→C 20분으로 넣어 두어 B·C 의 새 시각이 정확히 계산할
- * 수 있는 값이 되게 한다 — cursor(10:30) + 15분 = B 도착(10:45), +60분(계획 머문 시간) =
- * B 출발(11:45), +20분 = C 도착(12:05), +60분 = C 출발(13:05).
+ * 수 있는 값이 되게 한다 — cursor(11:00) + 15분 = B 도착(11:15, 계획 11:00), +60분(계획 머문 시간) =
+ * B 출발(12:15), +20분 = C 에 12:35 에 닿을 수 있지만 계획이 13:30 이라 C 는 13:30 그대로다 — 곳 사이의
+ * 자유 시간이 늦음을 흡수한다(S15P21E201-1740). 예상은 계획보다 이르게 안 잡힌다.
  *
  * <p>날짜는 {@code LocalDate.now()} 기준 며칠 뒤를 쓴다. 고정 날짜를 쓰면
  * {@link ItineraryDelayProjector} 의 시작점 판정({@code max(마지막 실제 출발, now)})이
@@ -89,7 +90,7 @@ class ItineraryReplanIntegrationTest {
 	private UUID keyD;
 
 	/**
-	 * 1판: 0일차에 A(방문 기록 있음, 09:00~10:00 계획인데 10:30 에 출발)·B(고정,
+	 * 1판: 0일차에 A(방문 기록 있음, 09:00~10:00 계획인데 11:00 에 출발)·B(고정,
 	 * 11:00~12:00)·C(13:30~14:30), 1일차에 D(09:00~10:00). 구간은 0일차에 셋
 	 * (출발지→A 5분, A→B 15분, B→C 20분), 1일차에 하나(출발지→D 10분).
 	 */
@@ -142,14 +143,15 @@ class ItineraryReplanIntegrationTest {
 		insertLeg(v1, 0, 3, placeB, placeC, 2000, 20, "VERIFIED", now);
 		insertLeg(v1, 1, 1, null, placeD, 800, 10, "VERIFIED", now);
 
-		// A 는 계획보다 30분 늦게 출발했다 — 이 사실 하나가 B·C 의 새 시각을 만든다.
-		insertActual(this.keyA, seoul(this.day0, "09:00"), seoul(this.day0, "10:30"), this.ownerId, now);
+		// A 는 계획보다 1시간 늦게 출발했다 — 이 사실 하나가 B·C 의 새 시각을 만든다. 30분 늦게(10:30) 떠나면 B 까지의
+		// 틈(1시간)이 다 흡수해 아무것도 안 밀린다(S15P21E201-1740) — 그래서 틈보다 더 늦게 떠나게 둔다.
+		insertActual(this.keyA, seoul(this.day0, "09:00"), seoul(this.day0, "11:00"), this.ownerId, now);
 	}
 
 	// ---- 테스트 ----
 
 	@Test
-	@DisplayName("완료 기준 — 재계획하면 지나간 방문지는 그대로 있고 이후 방문지의 시각만 바뀐다")
+	@DisplayName("완료 기준 — 재계획하면 지나간 방문지는 그대로 있고, 이후 방문지는 늦은 만큼만 밀린다 · 자유 시간이 흡수한 곳은 계획대로")
 	void pastItemStaysAndLaterItemsShiftAfterReplan() throws Exception {
 		replanDay(0, 1).andExpect(status().isOk());
 
@@ -161,16 +163,17 @@ class ItineraryReplanIntegrationTest {
 		assertThat(a.get("start_time")).as("지나간 방문지의 계획 시각은 재계획으로도 안 바뀐다").isEqualTo("09:00:00");
 		assertThat(a.get("end_time")).isEqualTo("10:00:00");
 
-		// B·C 는 cursor(A 의 실제 출발 10:30)에서 이동 시간만큼 더한 시각으로 다시 매겨진다.
+		// B 는 cursor(A 의 실제 출발 11:00)에서 이동 시간만큼 더한 시각으로 밀린다 — 계획 11:00 보다 15분 늦다.
 		Map<String, Object> b = day0v2.get(1);
 		assertThat(b.get("item_key")).isEqualTo(this.keyB.toString());
-		assertThat(b.get("start_time")).as("cursor 10:30 + A→B 이동 15분").isEqualTo("10:45:00");
-		assertThat(b.get("end_time")).as("도착 10:45 + 계획 머문 시간 60분").isEqualTo("11:45:00");
+		assertThat(b.get("start_time")).as("cursor 11:00 + A→B 이동 15분").isEqualTo("11:15:00");
+		assertThat(b.get("end_time")).as("도착 11:15 + 계획 머문 시간 60분").isEqualTo("12:15:00");
 
+		// C 는 12:35 에 닿을 수 있지만 계획이 13:30 이다 — 자유 시간이 늦음을 흡수해 계획대로 둔다. 전에는 12:35 로 당겼다.
 		Map<String, Object> c = day0v2.get(2);
 		assertThat(c.get("item_key")).isEqualTo(this.keyC.toString());
-		assertThat(c.get("start_time")).as("B 출발 11:45 + B→C 이동 20분").isEqualTo("12:05:00");
-		assertThat(c.get("end_time")).as("도착 12:05 + 계획 머문 시간 60분").isEqualTo("13:05:00");
+		assertThat(c.get("start_time")).as("B 출발 12:15 + 이동 20분 = 12:35 < 계획 13:30").isEqualTo("13:30:00");
+		assertThat(c.get("end_time")).isEqualTo("14:30:00");
 	}
 
 	@Test
