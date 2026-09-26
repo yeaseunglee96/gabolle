@@ -468,6 +468,17 @@ public class StoryService {
 	 * <p>위 셋을 상수로 뽑아 둔 것은 기록 수를 묶어서 세는 쪽이 같은 표를 쓰게 하기 위해서다.
 	 * 저쪽에 범위를 다시 적으면 프로필의 숫자와 목록의 숫자가 소리 없이 어긋난다.
 	 */
+	/**
+	 * 프로필 목록·개수가 «이 시각까지 공개된 것» 으로 거를 기준 시각.
+	 *
+	 * <p>🔴 본인이면 공개 전 기록도 보인다 — 「여행이 끝난 뒤」로 올린 글이 목록에서 빠지면 작성자가
+	 * 찾지도, 고치지도, 지우지도 못한다(S15P21E201-1737). 상세는 이미 그렇게 동작한다. 남에게는 그대로
+	 * {@code now} 다 — 공개 전 기록은 남의 어느 목록에도 없다.
+	 */
+	Instant publishedCutoff(UUID author, UUID viewer, Instant now) {
+		return author.equals(viewer) ? FeedCursor.NONE.publishAt() : now;
+	}
+
 	List<String> visibleScopesOf(UUID author, UUID viewer) {
 		// 🔴 로그인하지 않은 사람은 «남»이다 — S15P21E201-1373.
 		//    이 줄이 없으면 아래에서 viewer 가 null 인 채로 팔로우 관계를 찾게 된다.
