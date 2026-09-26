@@ -26,6 +26,9 @@ class TourApiPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
 	private static final String DATASET = "tourapi-test-202609";
 
+	/** 이 시험이 쓰는 contentid 머리. 정본의 contentid(숫자)와도, 다른 시험의 머리와도 안 겹친다. */
+	private static final String ID_PREFIX = "test-1748-tourapi-";
+
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
@@ -35,8 +38,15 @@ class TourApiPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	@BeforeEach
 	@AfterEach
 	void cleanUp() {
-		this.jdbcTemplate.update("DELETE FROM place_feature WHERE source_type = 'TOURAPI'");
-		this.jdbcTemplate.update("DELETE FROM place WHERE source_type = 'TOURAPI'");
+		// 🔴 이 시험이 넣은 행만 지운다(S15P21E201-1748). 전에는 TOURAPI 행을 통째로 지웠는데, 마이그레이션이
+		//    넣은 TOURAPI 정본(도시 탐험 시장 등)에 MANUAL 출처 태그가 붙은 뒤로(V20260918160000) 외래키
+		//    fk_place_feature_place 에 막혔다. 통째로 지우면 남의 시험이 믿는 정본도 사라진다.
+		//    태그는 출처값이 아니라 장소로 찾아 지운다 — 적재기가 붙이는 표식의 출처가 바뀌어도 안 막힌다.
+		this.jdbcTemplate.update("""
+				DELETE FROM place_feature WHERE place_id IN (
+				    SELECT place_id FROM place WHERE source_type = 'TOURAPI' AND source_id LIKE ?)
+				""", ID_PREFIX + "%");
+		this.jdbcTemplate.update("DELETE FROM place WHERE source_type = 'TOURAPI' AND source_id LIKE ?", ID_PREFIX + "%");
 	}
 
 	@Test
@@ -68,13 +78,16 @@ class TourApiPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	private static TourApiPlaceRow row(String contentId, String firstImage, String copyrightType) {
-		return new TourApiPlaceRow(contentId, "12", "A02", "A02010100", "장소 " + contentId,
+		return new TourApiPlaceRow(ID_PREFIX + contentId, "12", "A02", "A02010100", "장소 " + contentId,
 				"부산광역시 어딘가", 35.1, 129.0, firstImage, copyrightType);
 	}
 
 	private Map<String, Map<String, Object>> placesById() {
 		List<Map<String, Object>> rows = this.jdbcTemplate.queryForList(
-				"SELECT source_id, photo_url, photo_source FROM place WHERE source_type = 'TOURAPI'");
-		return rows.stream().collect(java.util.stream.Collectors.toMap(r -> (String) r.get("source_id"), r -> r));
+				"SELECT source_id, photo_url, photo_source FROM place WHERE source_type = 'TOURAPI' AND source_id LIKE ?",
+				ID_PREFIX + "%");
+		// 머리를 떼고 돌려준다 — 시험 본문은 "1"·"2"·"3" 으로 읽는다.
+		return rows.stream().collect(java.util.stream.Collectors.toMap(
+				r -> ((String) r.get("source_id")).substring(ID_PREFIX.length()), r -> r));
 	}
 }
