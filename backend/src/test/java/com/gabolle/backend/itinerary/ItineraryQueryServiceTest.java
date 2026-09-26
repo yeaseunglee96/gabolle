@@ -148,6 +148,21 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-1743 — 예산 10만 원 여행의 일정 응답에 상한 120000 이 실린다 · 예산이 없으면 null")
+	void budgetCapIsIncluded() {
+		Trip withBudget = new Trip(this.tripId, this.requesterId, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12),
+				null, null, 100_000, 2, null, "Asia/Seoul", Instant.now());
+		stubTripMembership(withBudget);
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("item_key_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).budgetCapKrw()).isEqualTo(120_000);
+
+		stubTripMembership(threeDayTrip());
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).budgetCapKrw()).isNull();
+	}
+
+	@Test
 	@DisplayName("🔴 최신 판 포인터가 가리키는 내용이 없으면 조용히 대체하지 않고 시끄럽게 실패한다")
 	void missingLatestVersionContentFailsLoudly() {
 		stubTripMembership(threeDayTrip());

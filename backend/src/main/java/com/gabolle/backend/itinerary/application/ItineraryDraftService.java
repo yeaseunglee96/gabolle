@@ -161,12 +161,6 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private final ApplicationEventPublisher events;
 
     /**
-     * 예산을 넘겨도 되는 폭 — 예산의 20% (사용자 결정 2026-09-24, S15P21E201-1572). 예산은 딱 맞추기 어렵고(메뉴 값은
-     * 대표값이다) 조금 넘는 것은 괜찮지만, 두 배 가까이 넘는 일정(운영: 20만원에 23.8만원)을 그대로 내지는 않는다.
-     */
-    static final double BUDGET_OVERRUN_ALLOWANCE = 0.20;
-
-    /**
      * 카페는 하루 한 곳까지 — 남는 자리는 명소(문화·자연·도시·바다)가 먼저 앉는다 (S15P21E201-1573).
      *
      * <p>밥집은 끼니 수로 상한이 있지만 카페는 없어서, 카테고리를 안 고른 여행이 하루 4곳 중 밥집 2 · 카페 1~2 · 명소 0~1
@@ -465,7 +459,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 채운다 — 후보의 대부분이 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다.
      */
     /**
-     * 예산 상한 — 아는 가격의 누계가 {@code 예산 × (1 + 허용 폭)} 을 넘지 않게 자리를 채운다.
+     * 예산 상한 — 아는 가격의 누계가 {@code 예산 × (1 + 허용 폭)}({@link BudgetAllowance#capKrw}) 을 넘지 않게 자리를 채운다.
      *
      * <p>합계 규칙은 일정 응답·화면과 같다(ItineraryQueryService.costOf · 앱 itineraryBudget): <b>아는 가격만</b>
      * 더한다. 모르는 곳은 0 이 아니라 합계에서 빠지므로 여기서도 막지 않는다.
@@ -505,15 +499,15 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     /** 예산이 없거나 가격 계층이 없으면 {@code null} — 상한을 안 건다. */
     private BudgetCap budgetCapOf(Trip trip, List<ItineraryDraftCommand.PlannedPlace> places) {
-        Integer budget = trip.budgetKrw();
-        if (budget == null || budget <= 0 || this.menuPrice == null) {
+        // 상한은 한 곳에서 센다 — 일정 응답의 budgetCapKrw 와 같은 값이어야 한다(S15P21E201-1743).
+        Integer limit = BudgetAllowance.capKrw(trip.budgetKrw());
+        if (limit == null || this.menuPrice == null) {
             return null;
         }
         List<UUID> ids = new ArrayList<>(places.size());
         for (ItineraryDraftCommand.PlannedPlace place : places) {
             ids.add(place.placeId());
         }
-        long limit = Math.round(budget * (1 + BUDGET_OVERRUN_ALLOWANCE));
         return new BudgetCap(this.menuPrice.pricesOf(ids), trip.partySize(), limit);
     }
 

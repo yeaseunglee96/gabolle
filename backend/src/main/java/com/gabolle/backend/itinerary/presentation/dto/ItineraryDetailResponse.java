@@ -41,7 +41,14 @@ public record ItineraryDetailResponse(
 		int accessibilityUnverifiedCount,
 
 		/** 이 여행을 몇 명이 가는가. {@code trip.party_size} 그대로다. */
-		int partySize) {
+		int partySize,
+
+		/**
+		 * 예산 상한(원) — 일정을 짤 때 넘지 않게 한 값과 같다: {@code 반올림(예산 × (1 + 허용 폭 20%))}
+		 * ({@code BudgetAllowance}). 합계가 예산을 넘었어도 이 값 안이면 앱이 경고 대신 부드럽게 알린다
+		 * (S15P21E201-1743, 사용자 결정 2026-09-26). 예산을 안 정한 여행이면 {@code null}.
+		 */
+		Integer budgetCapKrw) {
 
 	/**
 	 * 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}).
