@@ -56,7 +56,7 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
   const { tx } = useI18n();
   if (!story.place) return null;
   // 🔴 지역 칸은 「장소 · 구」라 그대로 쓰면 제목의 장소 이름이 한 번 더 나온다(S15P21E201-1759).
-  const region = regionBesidePlace(story.region, story.place.name);
+  const placeRegion = regionBesidePlace(story.region, story.place.name);
   return (
     <Pressable
       accessibilityRole="button"
@@ -65,10 +65,10 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
       style={({ pressed }) => [styles.placeHeading, pressed && styles.pressed]}
     >
       <Text variant="display" weight="bold" color={color.text.heading}>{story.place.name}</Text>
-      {region
+      {placeRegion
         ? <View style={styles.placeMetaRow}>
             <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />
-            <Text variant="body" color={color.text.body}>{regionText(region, tx)}</Text>
+            <Text variant="body" color={color.text.body}>{regionText(placeRegion, tx)}</Text>
           </View>
         : null}
     </Pressable>
