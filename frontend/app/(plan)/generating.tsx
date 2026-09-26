@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Image, Pressable, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '@/auth/AuthProvider';
 import { AccessibilityUnverifiedModal } from '@/components/AccessibilityUnverifiedModal';
@@ -217,6 +217,29 @@ export default function Generating() {
       // 기기가 느릴 때 종이가 아직 나오는 중인데 "출력 완료" 라고 말한다.
     ]).start(({ finished }) => { if (finished) setPrinted(true); });
   }, [job.state, reduceMotion, ticketReveal]);
+  // 🔴 단계가 다 체크되고 티켓이 출력되기 시작하면 티켓으로 굴러간다 (S15P21E201-1628). 폰에서는 네이비 띠(단계 넷)
+  //    아래에서 티켓이 나오는데 스크롤이 맨 위라, 티켓이 화면 아래에 반쯤 걸려 출력되는 모습을 놓쳤다.
+  //    작업마다 한 번만 — 「다시 출력」은 사람이 이미 티켓 앞에 있으니 굴리지 않는다.
+  const scrollRef = useRef<ScrollView>(null);
+  const layoutY = useRef(0);
+  const ticketY = useRef<number | null>(null);
+  const scrolledForJob = useRef<string | null>(null);
+  /** 굴러갈 작업. 티켓 자리를 아직 못 쟀으면(웹은 onLayout 이 한 박자 늦다) 재는 순간에 간다. */
+  const scrollPending = useRef<string | null>(null);
+  const scrollToTicket = () => {
+    const pending = scrollPending.current;
+    if (!pending || ticketY.current === null) return;
+    scrollPending.current = null;
+    scrolledForJob.current = pending;
+    scrollRef.current?.scrollTo({ y: Math.max(0, layoutY.current + ticketY.current - spacing[3]), animated: !reduceMotion });
+  };
+  useEffect(() => {
+    if (job.state !== 'completed' || !ticketLoaded || !job.jobId || scrolledForJob.current === job.jobId) return undefined;
+    scrollPending.current = job.jobId;
+    const timer = setTimeout(scrollToTicket, 80);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [job.state, job.jobId, ticketLoaded]);
   const duration = itinerary?.days.length || daysBetween(draft.startDate, draft.endDate); const areas = itinerary?.title || (draft.travelAreas.length ? draft.travelAreas.join(' · ') : tx('부산 맞춤 여행', 'Personalized Busan trip')); const failed = ['failed', 'conflict', 'cancelled', 'unavailable'].includes(job.state);
   const itineraryStops = itinerary?.days.flatMap((day) => day.items).slice(0, 3) ?? [];
   // 승차권 뒷면 사진 — 첫 정차지 가운데 사진이 있는 곳(S15P21E201-1378). 식당·카페는 대개 없어서 앞의 여섯을 본다.
@@ -262,9 +285,9 @@ export default function Generating() {
     nameEnByPlaceId,
   });
   const printedHeight = ticketReveal.interpolate({ inputRange: [0, 1], outputRange: [0, 620] });
-  return <Screen scroll wide style={styles.canvas}>
+  return <Screen scroll wide style={styles.canvas} scrollRef={scrollRef}>
     {kind === 'phone' && <View style={styles.mobileTop}><Pressable accessibilityRole="button" accessibilityLabel={tx('조건 확인으로 돌아가기', 'Back to trip review')} onPress={() => router.replace('/plan')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold" color={color.brand.ivory}>{tx('생성', 'Generate')}</Text></View></View>}
-    <View style={[styles.layout, kind !== 'phone' && styles.layoutWide]}>
+    <View style={[styles.layout, kind !== 'phone' && styles.layoutWide]} onLayout={(event) => { layoutY.current = event.nativeEvent.layout.y; }}>
       {/* 🔴 폰 · 만드는 중/실패는 시안 5 의 03b 「동백이 대기 화면」이다(S15P21E201-1415). 전에는 검은 띠에
           「AI가…」만 있고 동백이가 없었고, 만드는 중인데도 아래에 빈 승차권 프린터(출발 —)가 같이 보였다.
           승차권은 완성됐을 때(03c)만 나온다. 넓은 화면은 아래의 띠 + 승차권 나란히 그대로. */}
@@ -329,7 +352,7 @@ export default function Generating() {
         {!failed && <View accessibilityLiveRegion="polite" style={[styles.stageList, kind !== 'phone' && styles.stageListWide]}>{STAGES.map((item, index) => { const done = index < currentStage || job.state === 'completed'; const active = index === currentStage && isWorking; return <View key={item.label} style={[styles.stage, kind !== 'phone' && styles.stageItemWide, active && styles.stageActive]}><View style={[styles.stageIcon, done && styles.stageDone]}><Text variant="caption" weight="bold" color={done ? color.text.onAction : active ? color.action.primary : color.text.muted}>{done ? '✓' : '○'}</Text></View><Text weight={done || active ? 'bold' : 'regular'} color={done || active ? color.text.onAction : color.text.muted} style={styles.stageText}>{language === 'en' ? item.en : item.label}</Text><Text variant="caption" color={done ? color.state.success : active ? color.action.primary : color.text.muted}>{done ? tx('완료', 'Done') : active ? tx('진행 중', 'In progress') : tx('대기', 'Waiting')}</Text></View>; })}</View>}
       </View>}
       {/* 🔴 실패하면 넓은 화면도 여행표 칸을 안 그린다(S15P21E201-1669) — 프린터만 있고 표가 안 나오는 빈 칸이 남았다. */}
-      {(kind === 'phone' && job.state !== 'completed') || failed ? null : <View style={styles.ticketArea}>
+      {(kind === 'phone' && job.state !== 'completed') || failed ? null : <View style={styles.ticketArea} onLayout={(event) => { ticketY.current = event.nativeEvent.layout.y; scrollToTicket(); }}>
         {/* 시안 TripPassCard 의 머리줄 — 왼쪽 뒤로가기 · 가운데 TRIP PASS · 오른쪽 승차권 번호. */}
         {kind !== 'phone' ? (
           <View style={styles.passHead}>
