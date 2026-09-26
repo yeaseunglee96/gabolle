@@ -634,7 +634,9 @@ export function PlanStartBar({
           { opacity: sheetIn, transform: [{ translateY: sheetIn.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }] },
         ]}
       >
-        <View style={styles.sheetHead}>
+        {/* 🔴 위 안전영역만큼 내린다(S15P21E201-1772). 시트가 top:0 에 붙어서 ✕ 가 시계·배터리 줄 높이에 그려졌고,
+            안드로이드는 그 자리 누름을 시스템이 먹어 세 번 눌러도 안 닫혔다(Play 37 실기기). 아래는 이미 insets.bottom 을 더한다. */}
+        <View testID="plan-start-sheet-head" style={[styles.sheetHead, { paddingTop: spacing[4] + insets.top }]}>
           {/* ✕ 는 시트만 닫는다. 고른 값은 그대로 남아 알약에 요약으로 보인다. */}
           <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} style={styles.sheetClose}>
             <Text weight="bold">✕</Text>
