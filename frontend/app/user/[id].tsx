@@ -164,12 +164,12 @@ export default function UserProfile() {
         <ScrollView contentContainerStyle={styles.wideContent}>
           <MyPageCover
             name={profile.displayName}
-            // 🔴 남의 이메일은 안 보여 준다. 그리고 서버의 프로필 응답에는 커버·아바타·
+            // 🔴 남의 이메일은 안 보여 준다. 그리고 서버의 프로필 응답에는 커버·
             //    여행 횟수 칸이 «아직 없다» — null 을 주면 부품이 기본 사진을 깔고
-            //    「부산 여행 N번째」 줄은 안 그린다. 칸이 생기면 여기만 채우면 된다.
+            //    「부산 여행 N번째」 줄은 안 그린다. 칸이 생기면 여기만 채우면 된다. 아바타는 서버가 준다(S15P21E201-1821).
             email={null}
             tripCount={null}
-            avatarUri={null}
+            avatarUri={profile.avatarUrl ?? null}
             coverUri={null}
             counts={counts}
             eyebrow={(
@@ -221,7 +221,7 @@ export default function UserProfile() {
           <ProfileCard
             name={profile.displayName}
             email={null}
-            avatarUri={null}
+            avatarUri={profile.avatarUrl ?? null}
             coverUri={null}
             counts={counts}
             actions={cardActions}

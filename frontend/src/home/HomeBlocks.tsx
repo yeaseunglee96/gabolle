@@ -13,6 +13,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
+import { AuthorAvatar } from '@/social/AuthorAvatar';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
 import { HomeRow, homeCardWidth } from './HomeRow';
@@ -71,7 +72,6 @@ function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number })
   const router = useRouter();
   const { tx } = useI18n();
   const where = story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? '';
-  const initial = story.author.displayName.slice(0, 1);
   const body = markdownToPlain(story.body).trim();
   const hasImage = story.images.length > 0;
   // 🔴 같은 글자를 두 번 그리지 않는다 — S15P21E201-1372. 예전에는 제목이 장소, 부제가
@@ -100,7 +100,7 @@ function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number })
         <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1}>{heading}</Text>
         <Text variant="caption" color={color.text.body} numberOfLines={1}>{sub}</Text>
         <View style={styles.storyAuthor}>
-          <View style={styles.storyAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{initial}</Text></View>
+          <AuthorAvatar name={story.author.displayName} uri={story.author.avatarUrl} style={styles.storyAvatar} />
           <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>
         </View>
       </View>

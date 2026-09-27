@@ -383,6 +383,8 @@ export type UserProfileDto = {
   following: boolean;
   blocked?: boolean;
   blockedByUser?: boolean;
+  /** 프로필 사진(S15P21E201-1821). 서버는 늘 보내지만 안 골랐으면 null — 그때는 첫 글자를 그린다. */
+  avatarUrl?: string | null;
 };
 
 export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | FeedFailure;
@@ -390,7 +392,8 @@ export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | 
 export async function getUserProfile(userId: string, accessToken: string | null): Promise<ProfileLoadResult> {
   try {
     const profile = await apiRequest<UserProfileDto>(`/api/v1/users/${encodeURIComponent(userId)}/profile`, { accessToken });
-    return { state: 'success', profile };
+    // 기록의 작성자 사진과 같은 저장소 주소라 같은 방식으로 풀어 쓴다(S15P21E201-1821).
+    return { state: 'success', profile: profile.avatarUrl ? { ...profile, avatarUrl: resolveStoryImageUrl(profile.avatarUrl) } : profile };
   } catch (error) {
     return failure(error);
   }
