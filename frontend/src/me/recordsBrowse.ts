@@ -72,6 +72,30 @@ export function groupByDay(stories: readonly StoryDto[]): Map<string, StoryDto[]
 
 export type MonthCell = { key: string; day: number; inMonth: boolean };
 
+/** 오늘의 칸 열쇠 — 기기 날짜. monthCells 의 key 와 같은 모양이다. */
+export function todayKey(now: Date = new Date()): string {
+  return keyOfDate(now);
+}
+
+/**
+ * 달력 한 칸에 무엇을 그리나 — S15P21E201-1779(고지혁 QA).
+ *
+ * 🔴 전에는 고른 날의 테두리가 칸 전체를, 사진이 칸 전체를 덮고, 그 위에 숫자·점·개수 배지를 겹쳐 얹었다.
+ *    좁은 폰 칸(약 50px)에서 강조끼리 겹치고 숫자를 가렸다. 이제 강조는 **숫자 뒤 동그라미 하나**이고
+ *    (고른 날 = 채움, 오늘 = 테두리, 둘 다면 채움만), 기록 표시는 숫자 **아래 줄**에 따로 둔다.
+ */
+export function calendarCellMarks(input: { selected: boolean; today: boolean; count: number; hasCover: boolean }): {
+  circle: 'filled' | 'ring' | 'none';
+  indicator: 'photo' | 'dot' | 'none';
+  countLabel: string | null;
+} {
+  return {
+    circle: input.selected ? 'filled' : input.today ? 'ring' : 'none',
+    indicator: input.count <= 0 ? 'none' : input.hasCover ? 'photo' : 'dot',
+    countLabel: input.count > 1 ? String(input.count) : null,
+  };
+}
+
 /**
  * 달력 한 달의 칸 — 일요일 시작, 6줄 42칸 고정. 앞뒤 빈칸은 이웃 달의 날짜로 채우되 inMonth=false.
  * 6줄로 고정하는 이유: 달마다 5줄·6줄이 오가면 아래 내용이 위아래로 뛴다.
