@@ -168,6 +168,12 @@ public class JpaItineraryRepository implements ItineraryRepository {
 			throw staleFor(version);
 		}
 
+		// 🔴 포인터를 원시 SQL 로 옮겼으니 1차 캐시의 ItineraryJpaEntity 는 옛 latestVersion 을 들고 있다.
+		//    open-in-view 로 요청 하나가 영속성 컨텍스트 하나를 쓰므로, 편집 컨트롤러가 앞에서
+		//    requireEditor 로 읽어 둔 엔티티를 뒤의 getDetail 이 그대로 받아 바뀌기 전 판을 응답했다 —
+		//    앱이 그 번호로 부른 재계산이 늘 409 였다(S15P21E201-1785). DB 에서 다시 읽어 맞춘다.
+		entityManager.refresh(entityManager.getReference(ItineraryJpaEntity.class, UUID.fromString(version.itineraryId())));
+
 		return version;
 	}
 
