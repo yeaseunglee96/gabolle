@@ -24,6 +24,8 @@ import {
   dayCount,
   formatDateShort,
   parseDateKey,
+  placeEnglishOf,
+  startBarPlaceName,
   summarizeStartBar,
   toDateKey,
   type StartBarValue,
@@ -255,6 +257,22 @@ async function searchOriginsWithNames(query: string, accessToken: string | null,
   return origins.state === 'success' ? { ...origins, items: attachEnglishNames(origins.items, places) } : origins;
 }
 
+/**
+ * 추천 숙소 지역의 둘째 줄 — S15P21E201-1795(고지혁 QA). 영어 화면에도 「바다 앞 호텔·리조트가 모여 있어요」가 나왔다.
+ * 추천 지역의 그 줄은 주소가 아니라 화면 문구라 번역표를 거친다. 검색 결과의 둘째 줄은 주소라 그대로 둔다 —
+ * 카카오는 한국어 주소만 주고, 택시에 보여 줄 값이다.
+ * 🔴 한국어 원문은 origins.ts 의 RECOMMENDED_LODGING_AREAS 와 같은 문장이다. 한쪽을 바꾸면 둘 다 바꾼다.
+ */
+function lodgingAreaNote(candidate: OriginCandidate, tx: (ko: string, en: string) => string): string {
+  switch (candidate.externalId) {
+    case 'lodging-haeundae': return tx('바다 앞 호텔·리조트가 모여 있어요', 'Beachfront hotels and resorts');
+    case 'lodging-seomyeon': return tx('교통 중심 · 어디든 가기 편해요', 'Transit hub · easy to get anywhere');
+    case 'lodging-gwangalli': return tx('야경과 카페 골목', 'Night views and café streets');
+    case 'lodging-nampo': return tx('시장·원도심 도보 여행', 'Markets and old-town walks');
+    default: return candidate.address;
+  }
+}
+
 export function PlanStartBar({
   wide, accessToken, onSubmit, today = new Date(), initialSection = null, initialValue,
   sheet = false, value: controlledValue, onChange, onClose, onOpenSheet,
@@ -293,7 +311,7 @@ export function PlanStartBar({
   //    예전에는 끝없이 넘어가 13개월 뒤를 고를 수 있었고, 여행 만들기 달력은 그 달을 못 보였다.
   const maxOffset = wide ? MAX_MONTH_OFFSET - 1 : MAX_MONTH_OFFSET;
   const todayKey = toDateKey(today);
-  const summary = summarizeStartBar(value, tx);
+  const summary = summarizeStartBar(value, tx, language);
   const ready = canAskForPlan(value);
   // 🔴 단추 이름은 늘 「일정 물어보기」다 — 이름을 이유로 바꿨더니 e2e(core-journey)와 낭독기가 단추를 못 찾았다
   //    (2026-09-21 승격 파이프라인 210801). 이유는 단추 안 둘째 줄로 적는다.
@@ -339,7 +357,8 @@ export function PlanStartBar({
   }, [accessToken, lodgingQuery, ko]);
 
   const pickOrigin = (candidate: OriginCandidate) => {
-    setValue((prev) => ({ ...prev, origin: candidate.name, originLat: candidate.lat, originLng: candidate.lng }));
+    // 영어 이름은 화면용으로 따로 든다 — origin 은 서버로 가는 한국어 이름 그대로다(S15P21E201-1795).
+    setValue((prev) => ({ ...prev, origin: candidate.name, originEnglish: placeEnglishOf(candidate), originLat: candidate.lat, originLng: candidate.lng }));
     setQuery('');
     // 출발지를 고르면 숙소로 넘어간다 — design_handoff_home_lodging.
     setSection('lodging');
@@ -347,14 +366,14 @@ export function PlanStartBar({
 
   const pickLodging = (candidate: OriginCandidate) => {
     // externalId·source 까지 든다 — 좌표만 두면 서버가 숙소를 못 남긴다(S15P21E201-1536).
-    setValue((prev) => ({ ...prev, lodging: candidate.name, lodgingLat: candidate.lat, lodgingLng: candidate.lng, lodgingPlace: lodgingSnapshotOf(candidate) }));
+    setValue((prev) => ({ ...prev, lodging: candidate.name, lodgingEnglish: placeEnglishOf(candidate), lodgingLat: candidate.lat, lodgingLng: candidate.lng, lodgingPlace: lodgingSnapshotOf(candidate) }));
     setLodgingQuery('');
     setSection('dates');
   };
 
   /** 「숙소 아직 안 정했어요」— 탈출구. 숙소는 선택 사항이라 미정으로 두고 다음 칸으로. */
   const clearLodging = () => {
-    setValue((prev) => ({ ...prev, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null }));
+    setValue((prev) => ({ ...prev, lodging: '', lodgingEnglish: null, lodgingLat: null, lodgingLng: null, lodgingPlace: null }));
     setLodgingQuery('');
     setSection('dates');
   };
@@ -378,8 +397,8 @@ export function PlanStartBar({
   }, [monthBase]);
 
   const segmentLabel = (which: Exclude<Section, null>) => {
-    if (which === 'origin') return value.origin || tx('어디서 출발해요?', 'Where from?');
-    if (which === 'lodging') return value.lodging || tx('어디에 머물러요?', 'Where are you staying?');
+    if (which === 'origin') return startBarPlaceName(value.origin, value.originEnglish, language) || tx('어디서 출발해요?', 'Where from?');
+    if (which === 'lodging') return startBarPlaceName(value.lodging, value.lodgingEnglish, language) || tx('어디에 머물러요?', 'Where are you staying?');
     if (which === 'dates') {
       if (!value.startDate) return tx('날짜 추가', 'Add dates');
       const days = dayCount(value.startDate, value.endDate || value.startDate);
@@ -530,7 +549,7 @@ export function PlanStartBar({
       {(lodgingResults.length ? lodgingResults : RECOMMENDED_LODGING_AREAS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickLodging(candidate)} accessibilityRole="button" style={styles.originRow}>
           <Text weight="bold">{stopNameForLanguage(candidate.name, candidate.nameEn, language)}</Text>
-          <Text variant="caption" color={color.text.muted}>{candidate.address}</Text>
+          <Text variant="caption" color={color.text.muted}>{lodgingAreaNote(candidate, tx)}</Text>
         </Pressable>
       ))}
       {/* 탈출구 — 항상 마지막. 검색 결과 중이어도 그대로 둔다, 언제든 «안 정했다」로 빠져나갈 수 있게.

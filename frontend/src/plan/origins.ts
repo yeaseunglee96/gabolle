@@ -101,28 +101,33 @@ export function attachEnglishNames(origins: OriginCandidate[], places: Pick<Plac
 }
 
 // 검색이 0건이거나 서버 연결 전에도 고를 수 있는 부산 주요 출발지. 실제 지명·공개 좌표다.
+// 🔴 nameEn 은 화면용이다 — S15P21E201-1795(고지혁 QA). 비어 있으면 영어 화면에 「부산역 (Busanyeok)」처럼
+//    읽는 법이 나왔다. 부산역·해운대해수욕장·광안리해수욕장은 우리 장소 목록(place.name_en)과 같은 철자다 —
+//    검색해서 고른 것과 추천에서 고른 것이 다른 이름으로 보이지 않게. 서버로 가는 이름은 여전히 name(한국어)이다.
 export const MAJOR_BUSAN_ORIGINS: OriginCandidate[] = [
-  { name: '부산역', address: '부산 동구 중앙대로 206', lat: 35.1152, lng: 129.0403, externalId: 'major-busan-station', source: 'INTERNAL_FALLBACK' },
-  { name: '해운대해수욕장', address: '부산 해운대구 우동', lat: 35.1587, lng: 129.1604, externalId: 'major-haeundae', source: 'INTERNAL_FALLBACK' },
-  { name: '서면역', address: '부산 부산진구 가야대로', lat: 35.1578, lng: 129.0592, externalId: 'major-seomyeon', source: 'INTERNAL_FALLBACK' },
-  { name: '남포동', address: '부산 중구 남포동', lat: 35.0980, lng: 129.0306, externalId: 'major-nampo', source: 'INTERNAL_FALLBACK' },
-  { name: '광안리해수욕장', address: '부산 수영구 광안동', lat: 35.1532, lng: 129.1187, externalId: 'major-gwangalli', source: 'INTERNAL_FALLBACK' },
+  { name: '부산역', nameEn: 'Busan Station', address: '부산 동구 중앙대로 206', lat: 35.1152, lng: 129.0403, externalId: 'major-busan-station', source: 'INTERNAL_FALLBACK' },
+  { name: '해운대해수욕장', nameEn: 'Haeundae Beach', address: '부산 해운대구 우동', lat: 35.1587, lng: 129.1604, externalId: 'major-haeundae', source: 'INTERNAL_FALLBACK' },
+  { name: '서면역', nameEn: 'Seomyeon Station', address: '부산 부산진구 가야대로', lat: 35.1578, lng: 129.0592, externalId: 'major-seomyeon', source: 'INTERNAL_FALLBACK' },
+  { name: '남포동', nameEn: 'Nampo-dong', address: '부산 중구 남포동', lat: 35.0980, lng: 129.0306, externalId: 'major-nampo', source: 'INTERNAL_FALLBACK' },
+  { name: '광안리해수욕장', nameEn: 'Gwangalli Beach', address: '부산 수영구 광안동', lat: 35.1532, lng: 129.1187, externalId: 'major-gwangalli', source: 'INTERNAL_FALLBACK' },
   // 🔴 비행기·시외버스로 오는 사람의 첫 출발지(S15P21E201-1591). 좌표·주소를 지어내지 않았다 —
   //    앱의 출발지 검색(GET /api/v1/origins → 카카오 로컬)이 2026-09-24 에 돌려준 첫 결과 그대로다.
   //    카카오 장소 번호: 김해국제공항 국제선청사 8239831 · 부산종합버스터미널 12479254 · 부산서부버스터미널 18166577.
-  { name: '김해공항', address: '부산 강서구 대저2동 2350-1', lat: 35.172488, lng: 128.946785, externalId: 'major-gimhae-airport', source: 'INTERNAL_FALLBACK' },
-  { name: '부산종합버스터미널(노포)', address: '부산 금정구 중앙대로 2238', lat: 35.284773, lng: 129.095472, externalId: 'major-nopo-terminal', source: 'INTERNAL_FALLBACK' },
-  { name: '부산서부버스터미널(사상)', address: '부산 사상구 사상로 201', lat: 35.163239, lng: 128.982525, externalId: 'major-sasang-terminal', source: 'INTERNAL_FALLBACK' },
+  { name: '김해공항', nameEn: 'Gimhae International Airport', address: '부산 강서구 대저2동 2350-1', lat: 35.172488, lng: 128.946785, externalId: 'major-gimhae-airport', source: 'INTERNAL_FALLBACK' },
+  { name: '부산종합버스터미널(노포)', nameEn: 'Busan Central Bus Terminal (Nopo)', address: '부산 금정구 중앙대로 2238', lat: 35.284773, lng: 129.095472, externalId: 'major-nopo-terminal', source: 'INTERNAL_FALLBACK' },
+  { name: '부산서부버스터미널(사상)', nameEn: 'Busan Seobu Bus Terminal (Sasang)', address: '부산 사상구 사상로 201', lat: 35.163239, lng: 128.982525, externalId: 'major-sasang-terminal', source: 'INTERNAL_FALLBACK' },
 ];
 
 // 숙소 칸이 검색어 없이 보여 주는 추천 지역 — 시안 design_handoff_home_lodging. 출발지와
 // 달리 특정 장소가 아니라 «동네»라서, 좌표는 그 동네를 대표하는 주요 지점을 그대로 쓴다
 // (MAJOR_BUSAN_ORIGINS 의 해운대·서면·광안리·남포동과 같은 값).
+// 🔴 address 칸의 설명 줄은 주소가 아니라 화면 문구다 — 다른 언어로는 PlanStartBar 의 lodgingAreaNote 가
+//    번역표를 거쳐 그린다(S15P21E201-1795). 여기 문장을 바꾸면 그쪽 tx 원문과 번역표 줄도 같이 바꾼다.
 export const RECOMMENDED_LODGING_AREAS: OriginCandidate[] = [
-  { name: '해운대', address: '바다 앞 호텔·리조트가 모여 있어요', lat: 35.1587, lng: 129.1604, externalId: 'lodging-haeundae', source: 'INTERNAL_FALLBACK' },
-  { name: '서면', address: '교통 중심 · 어디든 가기 편해요', lat: 35.1578, lng: 129.0592, externalId: 'lodging-seomyeon', source: 'INTERNAL_FALLBACK' },
-  { name: '광안리', address: '야경과 카페 골목', lat: 35.1532, lng: 129.1187, externalId: 'lodging-gwangalli', source: 'INTERNAL_FALLBACK' },
-  { name: '남포동 · 중앙동', address: '시장·원도심 도보 여행', lat: 35.0980, lng: 129.0306, externalId: 'lodging-nampo', source: 'INTERNAL_FALLBACK' },
+  { name: '해운대', nameEn: 'Haeundae', address: '바다 앞 호텔·리조트가 모여 있어요', lat: 35.1587, lng: 129.1604, externalId: 'lodging-haeundae', source: 'INTERNAL_FALLBACK' },
+  { name: '서면', nameEn: 'Seomyeon', address: '교통 중심 · 어디든 가기 편해요', lat: 35.1578, lng: 129.0592, externalId: 'lodging-seomyeon', source: 'INTERNAL_FALLBACK' },
+  { name: '광안리', nameEn: 'Gwangalli', address: '야경과 카페 골목', lat: 35.1532, lng: 129.1187, externalId: 'lodging-gwangalli', source: 'INTERNAL_FALLBACK' },
+  { name: '남포동 · 중앙동', nameEn: 'Nampo-dong · Jungang-dong', address: '시장·원도심 도보 여행', lat: 35.0980, lng: 129.0306, externalId: 'lodging-nampo', source: 'INTERNAL_FALLBACK' },
 ];
 
 /**
