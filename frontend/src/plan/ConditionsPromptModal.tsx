@@ -22,11 +22,12 @@
 //    목록은 앱에 없다. 서버가 센다 (S15P21E201-1508 · `conditionCoverage.ts`) — 박아 두면
 //    자료가 들어온 날 거짓말이 된다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 conditions-modal / conditions-sheet
-import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Animated, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { shouldDismiss, useSheetDrag } from '@/components/sheetDrag';
 import { useSheetBottomPadding } from '@/components/sheetBottomInset';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -102,6 +103,26 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
 
+  // 휴대폰에서는 손잡이·머리를 아래로 쓸어내려 닫는다 (S15P21E201-1798).
+  // 🔴 시트 전체가 아니라 손잡이·머리에만 붙인다 — 안쪽 ScrollView 의 스크롤을 뺏지 않게.
+  // 닫는 길은 바깥 누름과 같은 onClose('DISMISSED') 다. 이 모달은 어떤 상태에서도
+  // 바깥 누름으로 닫히므로, 쓸어내리기만 막을 상태는 없다.
+  // 문턱값·판정은 다른 시트와 한 곳(`sheetDrag.ts`)을 쓴다 — 창마다 손맛이 다르면 고장으로 보인다.
+  const dragY = useRef(new Animated.Value(0)).current;
+  const dragHandlers = useSheetDrag({
+    onMove: (dy) => dragY.setValue(Math.max(0, dy)),
+    onEnd: (dy, vy) => {
+      if (shouldDismiss(dy, vy)) {
+        Animated.timing(dragY, { toValue: 800, duration: 180, useNativeDriver: false }).start(() => {
+          dragY.setValue(0);
+          onClose('DISMISSED');
+        });
+      } else {
+        Animated.spring(dragY, { toValue: 0, useNativeDriver: false }).start();
+      }
+    },
+  });
+
   // 저장은 이 모달이 한다. 전에는 아무도 안 했다 — 화면 상태만
   // 바꾸고 닫았고, 그 상태는 새로고침 한 번에 사라졌다. 부르는 화면이 넷이라, 그중
   // 하나만 빠뜨려도 같은 사고가 다시 난다. 그래서 여기 한 곳에 둔다.
@@ -158,12 +179,19 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
       */}
       <Pressable onPress={() => onClose('DISMISSED')} style={[styles.backdrop, phone && styles.backdropPhone]}>
         {/* 안쪽 누름이 바깥으로 안 새게 한다 — 고르다가 모달이 닫히면 답이 통째로 날아간다. */}
-        <View onStartShouldSetResponder={() => true} style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide]}>
-          <View style={styles.header}>
+        <Animated.View onStartShouldSetResponder={() => true} style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide, phone && { transform: [{ translateY: dragY }] }]}>
+          <View testID="conditions-sheet-grab" {...(phone ? dragHandlers : {})}>
+          {phone ? (
+            <View testID="conditions-sheet-handle" style={styles.handleWrap} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              <View style={styles.handle} />
+            </View>
+          ) : null}
+          <View style={[styles.header, phone && styles.headerPhone]}>
             <Text variant="title" weight="bold">{tx('여행 조건 미리 알려주기', 'Tell us your travel conditions')}</Text>
             <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={() => onClose('DISMISSED')} style={styles.close}>
               <Text variant="title" weight="bold">✕</Text>
             </Pressable>
+          </View>
           </View>
 
           <ScrollView style={styles.bodyScroll} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
@@ -257,7 +285,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
               containerStyle={styles.save}
             />
           </View>
-        </View>
+        </Animated.View>
       </Pressable>
     </Modal>
   );
@@ -270,6 +298,9 @@ const styles = StyleSheet.create({
   sheetWide: { width: '100%', maxWidth: 640, maxHeight: '88%', borderRadius: radius.lg },
   sheetPhone: { width: '100%', maxHeight: '92%', borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg },
   header: { minHeight: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], borderBottomWidth: 1, borderColor: color.surface.border },
+  handleWrap: { alignItems: 'center', paddingTop: spacing[2], paddingBottom: spacing[1] },
+  handle: { width: 36, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
+  headerPhone: { minHeight: 52 },
   close: { position: 'absolute', right: spacing[2], width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   bodyScroll: { flexShrink: 1 },
   body: { paddingHorizontal: spacing[6], paddingTop: spacing[4], paddingBottom: spacing[4] },
