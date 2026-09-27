@@ -15,7 +15,7 @@ import { Text } from '@/components/Text';
 import { formatDayHeading } from '@/i18n/datetime';
 import { color, radius, spacing } from '@/design/tokens';
 import { RecordCard } from '@/me/RecordCard';
-import { filterStories, groupByDay, latestMonth, monthCells, regionsOf, shiftMonth, tagsOf, type RecordsFilter } from '@/me/recordsBrowse';
+import { calendarCellMarks, filterStories, groupByDay, latestMonth, monthCells, regionsOf, shiftMonth, tagsOf, todayKey, type RecordsFilter } from '@/me/recordsBrowse';
 import type { StoryDto } from '@/social/stories';
 import { regionText } from '@/social/districtNames';
 
@@ -130,6 +130,7 @@ function RecordsCalendar({ stories, tx, locale, onOpen, cardWidth }: { stories: 
   const byDay = useMemo(() => groupByDay(stories), [stories]);
   const cells = useMemo(() => monthCells(month.year, month.month0), [month]);
   const weekdays = useMemo(() => weekdayLabels(locale), [locale]);
+  const today = todayKey();
   const monthCount = cells.reduce((sum, cell) => sum + (cell.inMonth ? (byDay.get(cell.key)?.length ?? 0) : 0), 0);
   const dayStories = selected ? byDay.get(selected) ?? [] : null;
 
@@ -165,20 +166,26 @@ function RecordsCalendar({ stories, tx, locale, onOpen, cardWidth }: { stories: 
           const list = byDay.get(cell.key) ?? [];
           const cover = list.find((s) => s.images[0]?.url)?.images[0]?.url ?? null;
           const on = selected === cell.key;
+          const marks = calendarCellMarks({ selected: on, today: cell.key === today, count: list.length, hasCover: Boolean(cover) });
           return (
             <Pressable
               key={cell.key}
+              testID={`records-day-${cell.key}`}
               accessibilityRole="button"
               accessibilityLabel={list.length ? `${cell.key} · ${list.length}` : cell.key}
               accessibilityState={{ selected: on }}
               disabled={!cell.inMonth}
               onPress={() => setSelected(on ? null : cell.key)}
-              style={[styles.cell, !cell.inMonth && styles.cellOut, on && styles.cellOn]}
+              style={[styles.cell, !cell.inMonth && styles.cellOut]}
             >
-              {cover ? <Image source={{ uri: cover }} resizeMode="cover" accessibilityLabel="" style={styles.cellCover} /> : null}
-              {list.length > 0 && !cover ? <View style={styles.cellDot} /> : null}
-              <Text variant="caption" weight={list.length ? 'bold' : 'regular'} color={cover ? color.text.onAction : cell.inMonth ? color.text.heading : color.text.muted} style={[styles.cellDay, cover && styles.cellDayOnCover]}>{cell.day}</Text>
-              {list.length > 1 ? <View style={styles.cellBadge}><Text variant="util" weight="bold" color={color.text.onAction}>{list.length}</Text></View> : null}
+              <View testID={`records-day-${cell.key}-${marks.circle}`} style={[styles.dayCircle, marks.circle === 'ring' && styles.dayRing, marks.circle === 'filled' && styles.dayFilled]}>
+                <Text variant="caption" weight={list.length || marks.circle !== 'none' ? 'bold' : 'regular'} color={marks.circle === 'filled' ? color.text.onAction : cell.inMonth ? color.text.heading : color.text.muted}>{cell.day}</Text>
+              </View>
+              <View style={styles.cellMarks}>
+                {marks.indicator === 'photo' && cover ? <Image source={{ uri: cover }} resizeMode="cover" accessibilityLabel="" style={styles.cellThumb} /> : null}
+                {marks.indicator === 'dot' ? <View style={styles.cellDot} /> : null}
+                {marks.countLabel ? <Text variant="util" weight="bold" color={color.text.muted}>{marks.countLabel}</Text> : null}
+              </View>
             </Pressable>
           );
         })}
@@ -217,15 +224,16 @@ const styles = StyleSheet.create({
   weekday: { flex: 1, textAlign: 'center' },
   cells: { flexDirection: 'row', flexWrap: 'wrap' },
   // 🔴 7칸이 정확히 한 줄 — gap 을 쓰면 폭 계산이 어긋나 마지막 칸이 다음 줄로 떨어진다. 칸 안 여백으로 띄운다.
-  cell: { width: `${100 / 7}%`, aspectRatio: 1, padding: 3, borderRadius: radius.md, borderWidth: 2, borderColor: 'transparent' },
+  // 🔴 칸 안은 위아래 두 줄 — 숫자(동그라미 안) 위, 기록 표시 아래. 서로 겹치지 않는다(S15P21E201-1779).
+  cell: { width: `${100 / 7}%`, minHeight: 56, paddingVertical: 4, alignItems: 'center', gap: 2 },
   cellOut: { opacity: 0.35 },
-  // 고른 날은 테두리로 — 사진이 칸을 다 채우면 배경색으로는 티가 안 난다.
-  cellOn: { borderColor: color.brand.navy, backgroundColor: color.surface.soft },
-  cellCover: { position: 'absolute', top: 1, left: 1, right: 1, bottom: 1, borderRadius: radius.sm, zIndex: 0 },
-  cellDay: { position: 'absolute', top: 6, left: 0, right: 0, textAlign: 'center' },
-  cellDayOnCover: { textShadowColor: 'rgba(0,0,0,0.6)', textShadowRadius: 4 },
-  cellDot: { position: 'absolute', bottom: 8, alignSelf: 'center', width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.brand.navy },
-  cellBadge: { position: 'absolute', right: 4, bottom: 4, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
+  dayCircle: { width: 30, height: 30, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'transparent' },
+  // 오늘 = 테두리, 고른 날 = 채움. 둘 다면 채움만 — 두 강조를 겹쳐 그리지 않는다.
+  dayRing: { borderColor: color.action.outline },
+  dayFilled: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  cellMarks: { height: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2 },
+  cellThumb: { width: 18, height: 18, borderRadius: radius.sm },
+  cellDot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.brand.navy },
   hint: { textAlign: 'center', paddingVertical: spacing[3] },
   dayList: { gap: spacing[2], marginTop: spacing[2] },
 });
