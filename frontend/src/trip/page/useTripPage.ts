@@ -113,8 +113,12 @@ export function useTripPage(source: TripPageSource) {
   }, [course?.itineraryId, course?.id, course?.preview, accessToken, itineraryNonce]);
 
   const loaded = itinerary?.value ?? null;
-  // 코스·일정이 바뀌면 1일차 첫 곳으로 돌아간다 — 열린 채로 내용만 갈리면 무엇을 보고 있는지 모른다.
-  useEffect(() => { setDayIndex(0); }, [loaded?.id]);
+  // 다른 여행을 열면 1일차부터 본다.
+  useEffect(() => { setDayIndex(0); }, [sourceKey]);
+  // 🔴 코스(A/B/C)만 바꿀 때는 보던 날을 그대로 둔다 (S15P21E201-1813) — 2일차를 보다 코스를 바꿨는데
+  //    1일차로 튀면 「같은 날을 비교」할 수 없다. 새 코스가 더 짧으면 마지막 날로 맞춘다.
+  const dayCount = loaded?.days.length ?? 0;
+  useEffect(() => { if (dayCount > 0) setDayIndex((prev) => Math.min(prev, dayCount - 1)); }, [loaded?.id, dayCount]);
   const items: ItineraryItemDto[] = useMemo(() => loaded?.days[dayIndex]?.items ?? [], [loaded, dayIndex]);
   // 🔴 (옮기며 바꾼 것 ②) 고른 곳이 새 목록에도 있으면 그대로 둔다. 고정 하나 눌렀다고 지도가
   //    첫 장소로 튀어 가면, 방금 누른 장소가 화면에서 사라진다.
