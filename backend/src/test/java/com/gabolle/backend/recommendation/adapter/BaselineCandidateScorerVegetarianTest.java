@@ -73,6 +73,52 @@ class BaselineCandidateScorerVegetarianTest {
 				.isEqualTo(ConstraintVerdict.PASS);
 	}
 
+	@Test
+	@DisplayName("🔴 운영 비건 후보에 들어갔던 집이 전부 빠진다 — S15P21E201-1822")
+	void 비건이면_운영에서_새던_집이_빠진다() {
+		for (String name : List.of("꿀꿀이감자탕", "자매국밥", "엘까르니따스광안리점", "살몬브라더스", "스시시안",
+				"마끼몬스타", "아저씨대구탕", "부다면옥", "비학산칼국수", "화목뷔페", "OO횟집", "민락회센터",
+				"해운대 대게", "원조복국", "수제버거하우스", "밀면전문점")) {
+			assertThat(score(candidate(name, List.of()), diet("VEGAN")).constraintVerdict()).as(name)
+					.isEqualTo(ConstraintVerdict.FAIL);
+		}
+	}
+
+	@Test
+	@DisplayName("채식은 고기 육수 집(감자탕·국밥·면옥·뷔페)까지 빼지만 회·칼국수는 남긴다")
+	void 채식은_고기육수까지() {
+		for (String name : List.of("꿀꿀이감자탕", "자매국밥", "엘까르니따스광안리점", "부다면옥", "화목뷔페")) {
+			assertThat(score(candidate(name, List.of()), diet("VEGETARIAN")).constraintVerdict()).as(name)
+					.isEqualTo(ConstraintVerdict.FAIL);
+		}
+		for (String name : List.of("스시시안", "비학산칼국수")) {
+			assertThat(score(candidate(name, List.of()), diet("VEGETARIAN")).constraintVerdict()).as(name)
+					.isEqualTo(ConstraintVerdict.PASS);
+		}
+	}
+
+	@Test
+	@DisplayName("비건은 해산물·밀면·복국 태그만 붙은 집도 뺀다")
+	void 비건_구조화_태그() {
+		for (PlaceFeatureView tag : List.of(
+				new PlaceFeatureView("CUISINE_TAG", "SEAFOOD", "ESTIMATED", null, null, "FIXTURE"),
+				new PlaceFeatureView("CUISINE_TAG", "MILMYEON", "ESTIMATED", null, null, "FIXTURE"),
+				new PlaceFeatureView("DESIRED_FOOD_TAG", "BOKGUK", "ESTIMATED", null, null, "FIXTURE"))) {
+			assertThat(score(candidate("부산할매집", List.of(tag)), diet("VEGAN")).constraintVerdict())
+					.as(tag.featureKey()).isEqualTo(ConstraintVerdict.FAIL);
+		}
+	}
+
+	@Test
+	@DisplayName("비건·채식을 위한 집, 카페, 짧은 글자 오탐(회관·가게·게스트하우스)은 남긴다")
+	void 비건_오탐_안난다() {
+		for (String name : List.of("채식뷔페 연화", "비건버거 해운대", "사찰음식 전문점", "카페오뜨", "젤라또조이",
+				"해운대회관", "행복한 가게", "광안리 게스트하우스", "회현 베이커리")) {
+			EngineCandidate result = score(candidate(name, List.of()), diet("VEGAN"));
+			assertThat(result.constraintVerdict()).as(name).isEqualTo(ConstraintVerdict.PASS);
+		}
+	}
+
 	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint) {
 		return this.scorer.score(candidate, null, constraint == null ? List.of() : List.of(constraint), 5000,
 				new BaselineEngineProperties.Weights(0.30, 0.20, 0.15, 0.15, 0.10, 0.10),
