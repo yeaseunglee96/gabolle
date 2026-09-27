@@ -1,10 +1,10 @@
-// 휠체어 접근이 확인 안 된 일정임을 알리는 창 — S15P21E201-1160.
+// 이동 보조(휠체어·유아차·큰 짐) 접근이 확인 안 된 일정임을 알리는 창 — S15P21E201-1160, -1814.
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { Text } from './Text';
-import { txf } from '@/i18n/format';
+import { accessibilityHeadline, type MobilityAid } from '@/plan/accessibilityNotice';
 
 type AccessibilityUnverifiedModalProps = {
   visible: boolean;
@@ -12,24 +12,24 @@ type AccessibilityUnverifiedModalProps = {
   unverifiedCount: number;
   /** 일정 전체 장소 수. 0이면 "N곳 중" 을 쓰지 않고 "N곳" 으로만 말한다. */
   totalCount: number;
+  /** 이번 여행에서 고른 이동 보조. 비었으면(모른다) 「고르신 이동 조건」으로 말한다. */
+  aids: readonly MobilityAid[];
   onClose: () => void;
 };
 
-export function AccessibilityUnverifiedModal({ visible, unverifiedCount, totalCount, onClose }: AccessibilityUnverifiedModalProps) {
+export function AccessibilityUnverifiedModal({ visible, unverifiedCount, totalCount, aids, onClose }: AccessibilityUnverifiedModalProps) {
   const { tx } = useI18n();
 
   // 전체 수를 모르면(일정을 아직 못 읽었다) 분모를 지어내지 않는다.
-  const headline = totalCount > 0
-    // 영어는 「전체 중 몇」이 아니라 「몇 / 전체」 순이라 값 순서를 한국어(전체 · 몇)에 맞춰 영어 틀을 고쳐 적었다 — txf 는 앞에서부터 차례로 끼운다.
-    ? txf(tx, '이번 일정 %s곳 중 %s곳은 휠체어로 들어갈 수 있는지 아직 확인되지 않았어요.', 'Of the %s places in this trip, %s have not been checked for wheelchair access yet.', totalCount, unverifiedCount)
-    : txf(tx, '이번 일정의 %s곳은 휠체어로 들어갈 수 있는지 아직 확인되지 않았어요.', '%s places in this trip have not been checked for wheelchair access yet.', unverifiedCount);
+  // 문장은 고른 이동 보조의 말로 쓴다 — 유아차만 고른 사람에게 휠체어 문장을 띄우지 않는다(S15P21E201-1814).
+  const headline = accessibilityHeadline(tx, aids, unverifiedCount, totalCount);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View accessibilityViewIsModal style={styles.card}>
           <View style={styles.mark}>
-            <Text weight="bold" color={color.brand.navy} style={styles.markGlyph}>♿</Text>
+            <Text weight="bold" color={color.brand.navy} style={styles.markGlyph}>{aids.length === 1 && aids[0] !== 'WHEELCHAIR' ? '!' : '♿'}</Text>
           </View>
 
           <Text variant="title" weight="bold">{tx('확인되지 않은 곳이 있어요', 'Some places are unchecked')}</Text>

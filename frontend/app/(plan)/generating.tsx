@@ -15,7 +15,7 @@ import { usePlan } from '@/plan/PlanProvider';
 import { adaptStreamedJob, createRecommendationJobAdapter, type RecommendationJobSnapshot, unavailableJob } from '@/plan/recommendationJob';
 import { openJobProgressStream, supportsJobProgressStream } from '@/plan/recommendationJobStream';
 import { loadRecommendationResult } from '@/plan/recommendations';
-import { ACCESSIBILITY_UNVERIFIED, itineraryAccessibilityCounts } from '@/plan/accessibilityNotice';
+import { ACCESSIBILITY_UNVERIFIED, itineraryAccessibilityCounts, selectedMobilityAids } from '@/plan/accessibilityNotice';
 import { loadItinerary, type ItineraryDto } from '@/plan/itinerary';
 import { TripPass } from '@/plan/TripPass';
 import { markChecklistStep } from '@/onboarding/firstRun';
@@ -91,6 +91,9 @@ export default function Generating() {
     () => (__DEV__ && preview === 'access' ? { unverified: 9, total: 12 } : null),
   );
   const warnedJobRef = useRef<string | null>(null);
+  // 안내 창 문장을 고른 이동 보조에 맞추려고 처음 값을 잡아 둔다(S15P21E201-1814). 일정을 받으면 clear() 가 조건을 지우므로
+  // 그 뒤의 draft 로 고르면 늘 「모름」이 된다.
+  const [mobilityAids] = useState(() => selectedMobilityAids(draft));
   const [delayed, setDelayed] = useState(false); const [reduceMotion, setReduceMotion] = useState(false); const ticketReveal = useRef(new Animated.Value(0)).current; const jobRef = useRef(job);
   const currentStage = stageIndex(job.stage, job.state); const isWorking = job.state === 'accepted' || job.state === 'polling';
   useEffect(() => { jobRef.current = job; }, [job]);
@@ -408,6 +411,7 @@ export default function Generating() {
       visible={accessibilityNotice !== null}
       unverifiedCount={accessibilityNotice?.unverified ?? 0}
       totalCount={accessibilityNotice?.total ?? 0}
+      aids={mobilityAids}
       onClose={() => setAccessibilityNotice(null)}
     />
   </Screen>;
