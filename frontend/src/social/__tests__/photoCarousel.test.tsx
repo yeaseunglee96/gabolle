@@ -4,7 +4,9 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { ScrollView } from 'react-native';
 
-import { PhotoCarousel, photoIndexAt } from '@/social/PhotoCarousel';
+import { Image, StyleSheet } from 'react-native';
+
+import { FRAME_RATIO, PhotoCarousel, photoFrameRatio, photoIndexAt } from '@/social/PhotoCarousel';
 
 jest.mock('@/i18n', () => ({ useI18n: () => ({ tx: (ko: string) => ko }) }));
 
@@ -53,5 +55,36 @@ describe('사진 줄', () => {
     const view = render(<PhotoCarousel urls={urls} onPressPhoto={onPress} pressLabel="기록 자세히 보기" />);
     fireEvent.press(view.getAllByLabelText('기록 자세히 보기')[1]);
     expect(onPress).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('첫 사진 비율로 맞추는 틀(상세)', () => {
+  it('가로로 긴 사진은 그 비율이다 — 정사각 틀에 넣어 위아래가 비지 않는다', () => {
+    expect(photoFrameRatio(1600, 1000)).toBeCloseTo(1.6);
+  });
+
+  it('너무 길거나 높으면 1.91:1 ~ 4:5 에서 자른다', () => {
+    expect(photoFrameRatio(4000, 1000)).toBe(FRAME_RATIO.max);
+    expect(photoFrameRatio(1000, 3000)).toBe(FRAME_RATIO.min);
+  });
+
+  it('크기를 모르면 정하지 않는다', () => {
+    expect(photoFrameRatio(0, 0)).toBeNull();
+  });
+
+  it('첫 사진을 재면 틀이 그 비율이 된다', async () => {
+    const getSize = jest.spyOn(Image, 'getSize').mockImplementation((_uri, ok) => { ok(1600, 1000); return Promise.resolve({ width: 1600, height: 1000 }) as never; });
+    const view = render(<PhotoCarousel urls={urls} fitFirstPhoto style={{ aspectRatio: 1 }} />);
+    const frame = view.UNSAFE_getByType(ScrollView).parent!;
+    expect(getSize).toHaveBeenCalledWith(urls[0], expect.any(Function), expect.any(Function));
+    expect(StyleSheet.flatten(frame.props.style).aspectRatio).toBeCloseTo(1.6);
+    getSize.mockRestore();
+  });
+
+  it('맞추라고 안 하면 재지 않는다 — 피드 목록 커버는 크기가 정해져 있다', () => {
+    const getSize = jest.spyOn(Image, 'getSize');
+    render(<PhotoCarousel urls={urls} style={{ height: 300 }} />);
+    expect(getSize).not.toHaveBeenCalled();
+    getSize.mockRestore();
   });
 });

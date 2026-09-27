@@ -34,14 +34,15 @@ type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'
 
 /**
  * 상세 사진 — 큰 사진 한 장씩 옆으로 넘긴다. 아래 점이 몇 번째인지 따라간다(S15P21E201-1787, 사용자 요청).
- * 전에는 3열 격자(시안 2a)라 사진이 작게만 보였다. 상세는 사진을 보러 오는 곳이라 자르지 않고 전체를 보인다(contain).
+ * 전에는 3열 격자(시안 2a)라 사진이 작게만 보였다. 틀은 첫 사진 비율(가로 1.91:1 ~ 세로 4:5)로 맞춘다 — 정사각 틀에 전체를
+ * 넣었더니 가로로 긴 사진에 위아래 여백이 생겼다(사용자). 비율이 다른 나머지 사진은 틀에 맞춰 잘린다.
  */
 function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
   const { tx } = useI18n();
   if (!images.length) return null;
   return (
     <View accessibilityLabel={tx('여행 기록 사진', 'Trip record photos')}>
-      <PhotoCarousel urls={images.map((image) => image.url)} resizeMode="contain" style={styles.photos} />
+      <PhotoCarousel urls={images.map((image) => image.url)} fitFirstPhoto style={styles.photos} />
     </View>
   );
 }
@@ -807,6 +808,7 @@ const styles = StyleSheet.create({
   images: { marginTop: spacing[2] },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   // ── 상세 2a ──────────────────────────────────────────────
+  // 첫 사진 크기를 재기 전의 틀. 재면 그 비율로 바뀐다(PhotoCarousel fitFirstPhoto).
   photos: { aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
 
   placeHeading: { gap: spacing[2] },
