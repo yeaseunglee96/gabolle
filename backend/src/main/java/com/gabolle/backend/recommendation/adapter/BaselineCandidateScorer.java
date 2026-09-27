@@ -382,6 +382,17 @@ public class BaselineCandidateScorer {
 			List<UserPlaceCodeMap> constraintCodeMap, List<Map<String, Object>> violations,
 			List<Map<String, Object>> unknownFacts, List<String> warnings) {
 
+		// 🔴 채식·비건은 고기가 중심인 집을 «확인된 사실»로 뺀다 — S15P21E201-1815.
+		//    식단 지원 표식(DIETARY_SUPPORT_TAG)이 운영에 0건이라 아래 판정은 전부 「확인 안 됨」
+		//    경고로 끝나고, 채식을 골라도 갈비집이 일정에 들어갔다(QA). 상호명·음식 태그가 고기를
+		//    가리키면 그 집이 채식을 지원하지 않는다는 것은 추정이 아니라 사실에 가깝다.
+		//    뺄 곳이 많아져도 고기집으로 채우지 않는다 — 식사 자리가 줄어드는 쪽이 낫다.
+		if (MEAT_EXCLUDING_DIETS.contains(upper(constraint.constraintKey())) && isMeatCentric(candidate)) {
+			violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
+					"reason", "MEAT_CENTRIC"));
+			return;
+		}
+
 		String featureType = hardFilterFeatureType(constraintCodeMap, "DIET").orElse(null);
 		if (featureType == null) {
 			// 알레르기와 같은 이유로 조용히 넘어가지 않는다.
@@ -416,6 +427,45 @@ public class BaselineCandidateScorer {
 			unknownFacts.add(Map.of("fact", "DIET_SUPPORT_UNVERIFIED", "featureKey", code,
 					"severity", severityOf(constraint)));
 		}
+	}
+
+	/** 고기가 중심인 집을 빼는 식단 코드. */
+	private static final Set<String> MEAT_EXCLUDING_DIETS = Set.of("VEGETARIAN", "VEGAN");
+
+	/**
+	 * 상호명에 이 낱말이 있으면 고기가 중심인 집으로 본다. 애매한 것은 일부러 뺐다 — 밀면·국밥
+	 * (육수는 쓰지만 이름으로 가를 수 없다. 돼지국밥은 「돼지」로 잡힌다), 「오리」(오리지널·오리엔탈).
+	 */
+	private static final List<String> MEAT_NAME_WORDS = List.of(
+			"고기", "갈비", "삼겹", "목살", "돼지", "소고기", "한우", "곱창", "막창", "대창", "양곱창",
+			"족발", "보쌈", "치킨", "통닭", "닭갈비", "닭강정", "양꼬치", "불고기", "육회", "정육",
+			"스테이크", "바베큐", "바비큐", "BBQ", "숯불", "순대", "수육", "돈까스", "돈가스", "삼계탕");
+
+	/** 음식 태그(CUISINE_TAG) 중 고기가 중심인 것. 돼지국밥이다. */
+	private static final Set<String> MEAT_CUISINE_TAGS = Set.of("PORK_SOUP");
+
+	static boolean isMeatCentric(PlaceCandidateResponse.Candidate candidate) {
+		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
+		// 「물고기」(수족관·체험)는 고깃집이 아니다.
+		String cleaned = name.replace("물고기", "");
+		for (String word : MEAT_NAME_WORDS) {
+			if (cleaned.contains(word)) {
+				return true;
+			}
+		}
+		if (candidate.features() != null) {
+			for (PlaceFeatureView feature : candidate.features()) {
+				if ("CUISINE_TAG".equals(feature.featureType()) && feature.featureKey() != null
+						&& MEAT_CUISINE_TAGS.contains(feature.featureKey())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static String upper(String value) {
+		return value == null ? "" : value.toUpperCase(Locale.ROOT);
 	}
 
 	/**
