@@ -720,7 +720,10 @@ export default function StoryDetail() {
                     {image.error ? <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => replyPhotos.retryImage(index)} style={styles.composerPhotoOverlay}>
                       <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('다시 시도', 'Retry')}</Text>
                     </Pressable> : null}
-                    <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} onPress={() => replyPhotos.removeImage(index)} style={styles.composerPhotoRemove}>
+                    {/* 🔴 댓글 사진도 같다 — hitSlop 없이는 24pt (S15P21E201-1794).
+                        빗나가면 뒤의 사진 타일이 눌려 사진이 열린다. 글쓰기 쪽(feed.tsx)과
+                        같은 값을 준다. */}
+                    <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} hitSlop={10} onPress={() => replyPhotos.removeImage(index)} style={styles.composerPhotoRemove}>
                       <Text weight="bold" color={color.text.onAction}>×</Text>
                     </Pressable>
                   </>;

@@ -321,7 +321,11 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
           {image.error ? <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => retryImage(index)} style={styles.composeImageOverlay}>
             <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('다시 시도', 'Retry')}</Text>
           </Pressable> : null}
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} onPress={() => removeImage(index)} style={styles.composeImageRemove}>
+          {/* 🔴 hitSlop 없이는 24pt 다 — 빗나가면 «사진이 열린다» (S15P21E201-1794).
+              이 ×는 누를 수 있는 사진 타일 «위»에 얹혀 있어서(PhotoGrid 의 renderOverlay),
+              빗나간 손가락이 아무 일도 안 하는 게 아니라 뒤의 타일을 눌러 사진을 연다.
+              그래서 한 장 빼는 데 두세 번 눌러야 했다. 10 을 더해 44pt 를 만든다. */}
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} hitSlop={10} onPress={() => removeImage(index)} style={styles.composeImageRemove}>
             <Text weight="bold" color={color.text.onAction}>×</Text>
           </Pressable>
         </>;

@@ -190,7 +190,11 @@ export default function SignUp() {
 
           {kind === 'phone' && <View style={styles.questionProgress}>
             <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx(PANEL_LABELS[panelIndex][0], PANEL_LABELS[panelIndex][1])} {panelIndex + 1} / {PANEL_LABELS.length}</Text></View>
-            <View style={styles.questionDots}>{PANEL_LABELS.map(([labelKo, labelEn], index) => <Pressable key={labelKo} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 단계로 이동', 'Go to %s', tx(labelKo, labelEn))} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, panelValid[index] && styles.questionDotAnswered]} />)}</View>
+            {/* 🔴 점은 높이 4 다 — hitSlop 없이는 세로 터치 영역이 4pt (S15P21E201-1794).
+                「○○ 단계로 이동」 이라고 읽어 주는데 실제로는 거의 안 눌렸다. 44 기준의 1/11.
+                막대 «모양»은 그대로 두고(시안의 얇은 진행 막대다) 누를 수 있는 넓이만
+                위아래로 20씩 넓힌다 — 4 + 40 = 44. */}
+            <View style={styles.questionDots}>{PANEL_LABELS.map(([labelKo, labelEn], index) => <Pressable key={labelKo} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 단계로 이동', 'Go to %s', tx(labelKo, labelEn))} hitSlop={{ top: 20, bottom: 20 }} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, panelValid[index] && styles.questionDotAnswered]} />)}</View>
           </View>}
 
           <Animated.View key={kind === 'phone' ? panelIndex : 'desktop'} entering={kind === 'phone' ? FadeInRight.duration(180).reduceMotion(ReduceMotion.System) : undefined} exiting={kind === 'phone' ? FadeOutLeft.duration(120).reduceMotion(ReduceMotion.System) : undefined} style={styles.form}>
