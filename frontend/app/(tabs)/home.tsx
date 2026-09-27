@@ -223,12 +223,14 @@ export default function Home() {
               <>
                 {/* 🔴 칩이 <View> 였다 — S15P21E201-1502. 알약 모양에 값이 들어 있으면 사람은 누른다.
                     실제로 실기에서 「눌러도 안 들어가진다」로 올라왔다. 누를 데가 아니면 모양을 바꿔야
-                    하는데, 날씨·준비물 화면이 이미 있으므로 그리로 잇는 편이 맞다. */}
+                    하는데, 날씨·준비물 화면이 이미 있으므로 그리로 잇는 편이 맞다.
+                    🔴 목적지는 현장 도구 허브(/field/translate)가 아니라 「날씨·준비물 — 여행 고르기」다(S15P21E201-1791).
+                    허브로 보내면 번역이 먼저 떠서 이름표(「내 여행 날씨·준비물」)와 다른 곳에 닿는다. 허브의 날씨 칸도 같은 곳으로 간다. */}
                 {weather && (weather.maxTemperature !== null || weather.minTemperature !== null) ? (
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={tx('내 여행 날씨·준비물', 'Weather and packing for my trip')}
-                    onPress={() => router.push('/field/translate')}
+                    onPress={() => router.push({ pathname: '/trips', params: { open: 'prepare' } })}
                     style={({ pressed }) => [styles.weatherChip, pressed && styles.pressed]}
                   >
                     <Text variant="caption" weight="bold" numberOfLines={1} style={styles.weatherWord}>
