@@ -183,7 +183,9 @@ export function buildKakaoMapHtml(appKey: string): string {
       styleSelection(content, markerColor, stop.id === selectedId);
       markers[stop.id] = { el: content, color: markerColor };
       (function (stopId) { content.onclick = function () { post('select', stopId); }; })(stop.id);
-      var overlay = new maps.CustomOverlay({ position: position, content: content, yAnchor: 0.5 });
+      // 🔴 출발지·숙소 같은 표시는 번호 장소 아래에 깐다(S15P21E201-1788) — 가까우면 「출발지」가 1번을 덮었다.
+      //    겹쳐도 글자가 더 넓어 옆으로 보인다. 웹 RouteMap.tsx 와 같은 값.
+      var overlay = new maps.CustomOverlay({ position: position, content: content, yAnchor: 0.5, zIndex: layer ? 1 : 2 });
       overlay.setMap(map); overlays.push(overlay);
     }
 
