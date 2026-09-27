@@ -57,20 +57,51 @@ describe('비서가 보낸 일수·인원을 여행 초안에 채운다', () => 
     });
   });
 
-  describe('🔴 이미 정해진 것은 덮지 않는다', () => {
-    it('날짜를 이미 골랐으면 그대로 둔다', () => {
+  describe('🔴 말하지 않은 것은 덮지 않고, 말한 것은 덮는다 — S15P21E201-1826', () => {
+    it('앞으로의 날짜를 골라 뒀으면 그 출발일에서 일수만 센다', () => {
       const chosen = draft({ startDate: '2026-10-01', endDate: '2026-10-03' });
-      expect(assistantPrefillPatch({ days: '2' }, chosen, TODAY)).toEqual({});
+      expect(assistantPrefillPatch({ days: '2' }, chosen, TODAY)).toEqual({ startDate: '2026-10-01', endDate: '2026-10-02' });
     });
 
-    it('한쪽만 골라 둔 경우에도 안 건드린다', () => {
-      const half = draft({ startDate: '2026-10-01' });
-      expect(assistantPrefillPatch({ days: '2' }, half, TODAY)).toEqual({});
+    it('🔴 지난·오늘 당일치기 날짜는 AI 가 날짜를 줬을 때 내일부터 다시 잡는다', () => {
+      const stale = draft({ startDate: TODAY, endDate: TODAY });
+      expect(assistantPrefillPatch({ days: '2' }, stale, TODAY)).toEqual({ startDate: '2026-09-19', endDate: '2026-09-20' });
     });
 
-    it('인원을 이미 바꿔 뒀으면 그대로 둔다', () => {
+    it('🔴 AI 가 날짜를 안 주면 지난 날짜라도 건드리지 않는다', () => {
+      const stale = draft({ startDate: '2026-09-10', endDate: '2026-09-10' });
+      expect(assistantPrefillPatch({ people: '2' }, stale, TODAY)).toEqual({ travelers: 2, adults: 2, children: 0 });
+    });
+
+    it('🔴 말한 인원은 예전 인원을 덮는다 — 「2명」이라 했는데 1명이 남던 것', () => {
       const party = draft({ travelers: 3, adults: 2, children: 1 });
-      expect(assistantPrefillPatch({ people: '5' }, party, TODAY)).toEqual({});
+      expect(assistantPrefillPatch({ people: '2' }, party, TODAY)).toEqual({ travelers: 2, adults: 2, children: 0 });
+    });
+
+    it('🔴 광안리·맛집 — 지역과 취향을 고른다', () => {
+      const old = draft({ travelAreas: ['NAMPO'] });
+      expect(assistantPrefillPatch({ areas: 'GWANGALLI,haeundae,GWANGALLI', categories: 'FOOD' }, old, TODAY)).toEqual({
+        travelAreas: ['GWANGALLI', 'HAEUNDAE'],
+        preferences: ['FOOD'],
+        preferenceAnswerStatus: { ...old.preferenceAnswerStatus, category: 'SELECTED' },
+      });
+    });
+
+    it('모르는 지역·취향 코드는 버린다', () => {
+      expect(assistantPrefillPatch({ areas: 'SEOUL', categories: 'SHOPPING' }, draft(), TODAY)).toEqual({});
+    });
+
+    it('출발일이 오면 그 날부터 일수를 센다', () => {
+      expect(assistantPrefillPatch({ start: '2026-10-03', days: '3' }, draft(), TODAY)).toEqual({ startDate: '2026-10-03', endDate: '2026-10-05' });
+    });
+
+    it('지난 출발일은 무시하고 일수만 쓴다', () => {
+      expect(assistantPrefillPatch({ start: '2026-09-01', days: '1' }, draft(), TODAY)).toEqual({ startDate: '2026-09-19', endDate: '2026-09-19' });
+    });
+
+    it('말하지 않은 칸은 조각에 없다', () => {
+      const patch = assistantPrefillPatch({ areas: 'GWANGALLI' }, draft({ startDate: TODAY, endDate: TODAY }), TODAY);
+      expect(Object.keys(patch)).toEqual(['travelAreas']);
     });
   });
 
