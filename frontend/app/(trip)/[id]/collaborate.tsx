@@ -12,7 +12,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { changeTripMemberRole, getTripActivity, listTripMembers, removeTripMember, type CompanionRole, type TripActivityEntry, type TripActivityOperation, type TripMember, type TripMembersView } from '@/trip/collaboration';
-import { RecordCard } from '@/me/RecordCard';
+import { RecordCard, recordPhoneGrid } from '@/me/RecordCard';
 import { getTripStories, relativeStoryTime, type StoryDto } from '@/social/stories';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
@@ -163,7 +163,7 @@ export default function TripCollaborate() {
         {records.status === 'loading' && <Text variant="caption" color={color.text.muted}>{tx('불러오는 중…', 'Loading…')}</Text>}
         {records.status === 'error' && <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text>}
         {records.status === 'ready' && records.items.length === 0 && <Text variant="caption" color={color.text.muted}>{tx('아직 이 여행에 남긴 기록이 없어요. 사진 한 장이면 충분해요.', 'No records on this trip yet — one photo is enough.')}</Text>}
-        {records.status === 'ready' && records.items.length > 0 && <View style={styles.recordsGrid}>
+        {records.status === 'ready' && records.items.length > 0 && <View style={recordPhoneGrid}>
           {records.items.map((story) => <RecordCard key={story.id} story={story} onPress={() => router.push(`/feed/${story.id}`)} tx={tx} />)}
         </View>}
       </View>}
@@ -189,5 +189,4 @@ const styles = StyleSheet.create({
   inviteButton: { marginTop: spacing[4] },
   recordsSection: { gap: spacing[3], marginTop: spacing[4] },
   recordsHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
-  recordsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
 });

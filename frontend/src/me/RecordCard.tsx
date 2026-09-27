@@ -44,6 +44,20 @@ export function RecordCard({
   );
 }
 
+/**
+ * 폰 기록 격자(2열) — 카드 폭을 따로 안 주는 자리는 모두 이 격자를 쓴다.
+ *
+ * 🔴 가로 `gap` 을 두지 않는다. 카드가 48% 라 두 장이면 96% 이고 남는 4% 가 곧 가로 틈이다.
+ *    여기에 gap(16) 을 더하면 폭 400 미만(4% < 16)인 폰에서 두 번째 카드가 다음 줄로
+ *    밀려 한 줄에 한 장씩 왼쪽에만 섰다 (S15P21E201-1805). 틈은 `space-between`
+ *    (**남는 폭을 카드 사이에 나눠 주는 정렬**)으로 만들고, 세로 틈만 `rowGap` 으로 준다.
+ *    홀수 마지막 카드는 한 장뿐인 줄이라 왼쪽 칸에 선다.
+ */
+export const RECORD_PHONE_CARD_FRACTION = 0.48;
+export const recordPhoneGrid = {
+  flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing[4],
+} as const;
+
 const styles = StyleSheet.create({
   card: { width: '48%', borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
   cover: { width: '100%', aspectRatio: 1 },

@@ -14,7 +14,7 @@ import { PencilIcon } from '@/components/PencilIcon';
 import { Text } from '@/components/Text';
 import { formatDayHeading } from '@/i18n/datetime';
 import { color, radius, spacing } from '@/design/tokens';
-import { RecordCard } from '@/me/RecordCard';
+import { RecordCard, recordPhoneGrid } from '@/me/RecordCard';
 import { calendarCellMarks, filterStories, groupByDay, latestMonth, monthCells, regionsOf, shiftMonth, tagsOf, todayKey, type RecordsFilter } from '@/me/recordsBrowse';
 import type { StoryDto } from '@/social/stories';
 import { regionText } from '@/social/districtNames';
@@ -78,7 +78,7 @@ export function RecordsBrowser({
           <Button label={tx('모두 보기', 'Show all')} variant="tertiary" onPress={() => setFilter({ region: null, tag: null })} compact containerStyle={styles.noneCta} />
         </View>
       ) : view === 'grid' ? (
-        <View style={styles.grid}>
+        <View style={cardWidth ? styles.grid : recordPhoneGrid}>
           {shown.map((story) => <RecordCard key={story.id} story={story} width={cardWidth} onPress={() => onOpen(story)} tx={tx} />)}
           {onCompose && !filtering ? (
             <Pressable accessibilityRole="button" onPress={onCompose} style={[styles.recordNew, cardWidth ? { width: cardWidth } : null]}>
@@ -141,7 +141,7 @@ function RecordsCalendar({ stories, tx, locale, onOpen, cardWidth }: { stories: 
       ) : (
         <View style={styles.dayList}>
           <Text weight="bold">{formatDayHeading(selected ?? '', locale) ?? selected}</Text>
-          <View style={styles.grid}>
+          <View style={cardWidth ? styles.grid : recordPhoneGrid}>
           {dayStories.map((story) => <RecordCard key={story.id} story={story} width={cardWidth} onPress={() => onOpen(story)} tx={tx} />)}
           </View>
         </View>
