@@ -202,7 +202,10 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
         <View style={styles.slot} />
       </View>
 
-      <View style={[styles.paperWindow, printed ? null : styles.clipWhilePrinting]}>
+      {/* 인쇄가 끝나 overflow 가 빠지면 이 창은 배치만 남아 네이티브가 없애 버린다(뷰 평탄화). 그러면 두 면이
+          바깥 카드 레이어로 올라가 거기서 3D 로 돌고, iOS 는 z 가 0 뒤로 넘어간 반쪽을 가린다 — 뒤집을 때 왼쪽·오른쪽이
+          번갈아 사라졌다(S15P21E201-1787). 인쇄 중과 같은 상태로 창을 남겨 두 면을 이 안에 가둔다. 웹은 이 값을 안 쓴다. */}
+      <View collapsable={false} style={[styles.paperWindow, printed ? null : styles.clipWhilePrinting]}>
         <Animated.View
           style={[
             styles.paper,
