@@ -221,6 +221,9 @@ export default function PlanConditions() {
     adults: draft.adults, children: draft.children,
   }, tx), [draft.lodgingPlace, draft.adults, draft.children, draft.endDate, draft.lodging, draft.lodgingLat, draft.lodgingLng, draft.origin, draft.originLat, draft.originLng, draft.startDate, tx]);
 
+  // 칩 줄 맨 앞은 장소 칩(출발지·숙소)이다 — startBarChips 가 이 순서로 넣는다. 폰 위 줄에서 이것만 줄어든다(S15P21E201-1789).
+  const placeChipCount = (draft.origin.trim() ? 1 : 0) + (draft.lodging.trim() ? 1 : 0);
+
   const goTo = (next: number) => setState((prev) => ({ ...prev, open: Math.max(0, Math.min(PLAN_QUESTIONS.length - 1, next)), editing: null }));
   /** 지금 질문을 「건너뜀」으로 적고 다음으로. 선택 질문의 카드 머리에 있는 단추가 부른다. */
   const skipCurrent = () => {
@@ -663,12 +666,17 @@ export default function PlanConditions() {
             <Text variant="title">‹</Text>
           </Pressable>
           {/* 🔴 칩은 줄을 바꾸지 않는다 — 셋(출발·날짜·인원)이 두 줄로 깨져 「성인 1」이 따로 놀았다
-              (2026-09-21 실기, S15P21E201-1401). 넘치면 가로로 밀어 본다. */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={styles.phoneChipsScroll} contentContainerStyle={styles.phoneChips}>
-            {headerChips.map((chip) => (
-              <View key={chip} style={styles.phoneGivenChip}><Text variant="caption" weight="bold" numberOfLines={1}>{chip}</Text></View>
+              (2026-09-21 실기, S15P21E201-1401).
+              🔴 가로로 밀게 두면 390px 에서 「성인 2」가 「수정」 뒤로 잘려 안 보였다 — 밀 수 있다는 걸 아무도 모른다
+              (S15P21E201-1789). 그래서 한 줄 안에 다 들어가게 줄인다 — 이름이 긴 칩(출발지·숙소)만 말줄임으로 줄고,
+              날짜·인원(짧고 꼭 봐야 하는 것)은 줄지 않는다. */}
+          <View style={styles.phoneChips}>
+            {headerChips.map((chip, index) => (
+              <View key={chip} style={[styles.phoneGivenChip, index < placeChipCount && styles.phoneGivenChipShrink]}>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{chip}</Text>
+              </View>
             ))}
-          </ScrollView>
+          </View>
           <View>
             {/* 🔴 -1337 — 받은 것이 없을 때도 그린다. 없으면 「날짜 정하기」로 말만 바꾼다. */}
             <Pressable accessibilityRole="button" onPress={goSetDates} style={styles.phoneGivenEdit}>
@@ -726,10 +734,10 @@ const styles = StyleSheet.create({
   checkBody: { flex: 1, minWidth: 0 },
 
   phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginBottom: spacing[3] },
-  phoneChipsScroll: { flex: 1, minWidth: 0 },
-  phoneChips: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], paddingRight: spacing[1] },
+  phoneChips: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: spacing[1], overflow: 'hidden' },
   phoneBack: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing[3] },
-  phoneGivenChip: { paddingHorizontal: spacing[3], paddingVertical: 6, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
+  phoneGivenChip: { paddingHorizontal: spacing[2], paddingVertical: 6, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, flexShrink: 0 },
+  phoneGivenChipShrink: { flexShrink: 1, minWidth: 0 },
   phoneGivenEdit: { minHeight: 44, paddingLeft: spacing[2], justifyContent: 'center' },
 
   stepHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
