@@ -45,6 +45,17 @@ const COLLAPSED_HEIGHT = 64;
 /** 정차지 카드 한 장과 그 사이 연결부의 폭 — 손잡이가 한 번에 옮길 거리를 이 둘로 센다. */
 const STRIP_CARD_WIDTH = 150;
 const STRIP_LINK_WIDTH = 44;
+/**
+ * 스트립이 멈추는 한 칸 — 카드 + 연결부 + 그 둘 사이의 간격 두 번(`styles.strip` 의 gap).
+ * 손가락으로 밀어도 이 배수에서만 선다 (S15P21E201-1797). 안 그러면 카드 중간에 선다.
+ */
+const STRIP_STEP = STRIP_CARD_WIDTH + STRIP_LINK_WIDTH + spacing[2] * 2;
+
+/** 스트립 화면이 «실제로» 달라지는 값만 모은 것 — 이것이 같으면 다시 그릴 까닭이 없다. */
+function stripLook(view: number, content: number, left: number) {
+  const page = view > 0 ? Math.round(left / view) : 0;
+  return `${left > 4}|${left < content - view - 4}|${page}`;
+}
 
 /**
  * 코스 한 자리 — 카드로 펼쳐져 있거나 한 줄로 접혀 있다. **둘 사이를 잇는다.**
@@ -167,6 +178,8 @@ function RecommendationsClassic() {
   const stripRef = useRef<ScrollView>(null);
   /** 스트립이 칸보다 넓은가(넘치는가) · 지금 얼마나 굴렀나 — 둘 다 재서 안다. */
   const [strip, setStrip] = useState({ view: 0, content: 0, left: 0 });
+  /** 굴린 거리의 정확한 값. 상태(strip.left)는 화면이 바뀔 때만 따라온다 — 아래 onScroll. */
+  const stripLeft = useRef(0);
   const [saved, setSaved] = useState<Record<string, boolean>>({});
   /** 고른 안을 서버가 만드는 중인가 — 두 번 눌러 요청이 겹치지 않게 (S15P21E201-1454). */
   const building = useRef(false);
@@ -252,6 +265,7 @@ function RecommendationsClassic() {
   //    1일차로 옮겼을 때 「없는 뒤쪽」을 보고 있게 된다 — 화면은 비었는데 스크롤만 가 있다.
   useEffect(() => {
     stripRef.current?.scrollTo({ x: 0, animated: false });
+    stripLeft.current = 0;
     setStrip((prev) => ({ ...prev, left: 0 }));
   }, [picked, sheetDay]);
 
@@ -275,7 +289,7 @@ function RecommendationsClassic() {
   /** 한 번에 카드 두 장만큼 옮긴다 — 시안 3절. */
   const nudgeStrip = (direction: 1 | -1) => {
     const step = (STRIP_CARD_WIDTH + STRIP_LINK_WIDTH) * 2;
-    const next = Math.max(0, Math.min(strip.content - strip.view, strip.left + step * direction));
+    const next = Math.max(0, Math.min(strip.content - strip.view, stripLeft.current + step * direction));
     stripRef.current?.scrollTo({ x: next, animated: true });
   };
 
@@ -476,7 +490,23 @@ function RecommendationsClassic() {
               scrollEventThrottle={16}
               onLayout={(event) => setStrip((prev) => ({ ...prev, view: Math.round(event.nativeEvent.layout.width) }))}
               onContentSizeChange={(width) => setStrip((prev) => ({ ...prev, content: Math.round(width) }))}
-              onScroll={(event) => setStrip((prev) => ({ ...prev, left: Math.round(event.nativeEvent.contentOffset.x) }))}
+              // 🔴 카드 한 장 단위로 멈춘다 (S15P21E201-1797) — 첫 카드 앞의 여백은 0 번 자리에도
+              //    있으므로 멈출 자리는 한 칸(STRIP_STEP)의 배수다.
+              snapToInterval={STRIP_STEP}
+              snapToAlignment="start"
+              decelerationRate="fast"
+              // 🔴 굴리는 동안 1초에 60번 오는 값을 그대로 상태에 넣으면 화면 전체가 60번
+              //    다시 그려진다. 화살표·흐림·점이 바뀔 때만 상태를 고친다 — 같으면 prev 를
+              //    그대로 돌려줘서 React 가 다시 그리기를 건너뛴다.
+              onScroll={(event) => {
+                const left = Math.round(event.nativeEvent.contentOffset.x);
+                stripLeft.current = left;
+                setStrip((prev) => (
+                  stripLook(prev.view, prev.content, prev.left) === stripLook(prev.view, prev.content, left)
+                    ? prev
+                    : { ...prev, left }
+                ));
+              }}
               style={styles.stripPane}
               contentContainerStyle={styles.strip}
             >
