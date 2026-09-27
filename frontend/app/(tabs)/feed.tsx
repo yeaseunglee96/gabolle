@@ -1,6 +1,7 @@
 // 여행 기록 피드 —재설계 1단계(구조).
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AuthorAvatar } from '@/social/AuthorAvatar';
 import { ActivityIndicator, Animated, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import * as Clipboard from 'expo-clipboard';
@@ -77,12 +78,6 @@ function StoryImages({ images, compact }: { images: StoryDto['images']; compact:
   />;
 }
 
-/** 이름 첫 글자를 둥근 칸에 넣는다. 프로필 사진은 StoryDto 계약에 아직 없다. */
-function Avatar({ name, compact }: { name: string; compact: boolean }) {
-  return <View style={[styles.avatar, compact && styles.avatarCompact]}>
-    <Text variant="body" weight="bold" color={color.text.onAction}>{name.slice(0, 1)}</Text>
-  </View>;
-}
 
 /**
  * 커버 — 카드 맨 위의 사진 자리.
@@ -159,7 +154,7 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
           onPress={onOpenAuthor}
           style={styles.authorPill}
         >
-          <View style={styles.authorPillAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{story.author.displayName.slice(0, 1)}</Text></View>
+          <AuthorAvatar name={story.author.displayName} uri={story.author.avatarUrl} style={styles.authorPillAvatar} />
           <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1}>{story.author.displayName}</Text>
         </Pressable>
         <CoauthorByline story={story} />

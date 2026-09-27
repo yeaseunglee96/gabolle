@@ -27,7 +27,8 @@ export const VISIBILITY_LABEL: Record<StoryVisibility, [string, string]> = {
 
 export type StoryDto = {
   id: string;
-  author: { id: string; displayName: string };
+  /** avatarUrl — 프로필 사진(S15P21E201-1804). 서버 배포 전에는 칸이 없고, 안 골랐으면 null. 둘 다 첫 글자로 그린다. */
+  author: { id: string; displayName: string; avatarUrl?: string | null };
   body: string;
   region?: string | null;
   place?: { id: string; name: string; lat: number | null; lng: number | null } | null;
@@ -60,7 +61,7 @@ export type StoryDto = {
    * 수락한 사람만, 합류 순서대로, 없으면 빈 배열이다. 탈퇴한 사람은 displayName 이 null 로 남는다.
    * 🔴 서버가 배포되기 전에는 칸 자체가 없다 — 없으면 아무것도 안 그린다.
    */
-  coauthors?: Array<{ id: string; displayName: string | null }>;
+  coauthors?: Array<{ id: string; displayName: string | null; avatarUrl?: string | null }>;
 };
 
 // GET /api/v1/stories/:id 계약이 생기기 전이전)에는 목록에서 받은
@@ -82,7 +83,12 @@ export function resolveStoryImageUrl(url: string) {
 function withDisplayImageUrls(story: StoryDto): StoryDto {
   return {
     ...story,
-    author: { ...story.author, displayName: decodeHtmlText(story.author.displayName) },
+    // 프로필 사진도 기록 사진과 같은 저장소 주소라 같은 방식으로 풀어 쓴다(S15P21E201-1804). 없으면 그대로 둔다.
+    author: {
+      ...story.author,
+      displayName: decodeHtmlText(story.author.displayName),
+      ...(story.author.avatarUrl ? { avatarUrl: resolveStoryImageUrl(story.author.avatarUrl) } : {}),
+    },
     body: decodeHtmlText(story.body),
     images: story.images.map((image) => ({ ...image, url: resolveStoryImageUrl(image.url) })),
   };
