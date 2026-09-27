@@ -3,6 +3,7 @@
 // 전에는 여행 준비물 화면 맨 아래에만 있어 여행을 고르고 들어가야 겨우 보였다. 여행 없이도 바로 열리고,
 // 위에 오늘 부산 날씨 한 줄을 얹어 「현장에 있다」는 느낌을 준다(예보는 진짜 값, 없으면 줄 자체를 안 그린다).
 import { useEffect, useState } from 'react';
+import { localDateKey } from '@/plan/tripProgress';
 import { StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -19,7 +20,7 @@ const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
   CLOUDY: ['흐림', 'Cloudy'],
 };
 
-function today(): string { return new Date().toISOString().slice(0, 10); }
+function today(): string { return localDateKey(new Date()); }
 
 export default function Dialect() {
   const { tx } = useI18n();

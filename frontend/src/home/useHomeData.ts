@@ -58,7 +58,7 @@ const FACET_ROW_COUNT = 10;
 
 
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return localDateKey(new Date());
 }
 
 /**

@@ -1,5 +1,6 @@
 // 16 여행 준비·날씨 — Figma 16_여행 준비·날씨 실측 그대로.
 import { txf } from '@/i18n/format';
+import { localDateKey } from '@/plan/tripProgress';
 import { formatMonthDay } from '@/i18n/datetime';
 import { useEffect, useState } from 'react';
 import { Image, Share as NativeShare, StyleSheet, View } from 'react-native';
@@ -44,7 +45,7 @@ type MemoryMapState =
 
 function isTripEnded(endDate: string | null): boolean {
   if (!endDate) return false;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateKey(new Date());
   return endDate < today;
 }
 

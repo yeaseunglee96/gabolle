@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { localDateKey } from '@/plan/tripProgress';
 import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -27,7 +28,7 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 function dateInputValue(offsetDays = 0) {
   const date = new Date();
   date.setDate(date.getDate() + offsetDays);
-  return date.toISOString().slice(0, 10);
+  return localDateKey(date);
 }
 
 /** 「9월 26일 (토) – 9월 27일 (일)」 — 내 여행 목록과 같은 모양(S15P21E201-1679). 받은 글자(2026-09-26)는 사람이 읽는 말이 아니다. */

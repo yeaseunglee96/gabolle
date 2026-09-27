@@ -2,6 +2,7 @@
 // "축제가 그 날 열리는가" 검사는 그 장소가 실제로 기간이 있는 행사일 때만 걸리고, 보통 장소는
 // 그냥 더해진다.
 import { useEffect, useRef, useState } from 'react';
+import { localDateKey } from '@/plan/tripProgress';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -30,7 +31,7 @@ function dayLabel(startDate: string | null, dayIndex: number, tx: (ko: string, e
   if (Number.isNaN(date.getTime())) return fallback;
   date.setDate(date.getDate() + dayIndex);
   // 날짜 표기는 고른 언어에 맡긴다(9월 20일 (토) · September 20 (Sat) · 9月20日(土)) — S15P21E201-1355 와 같은 방식.
-  const heading = formatDayHeading(date.toISOString().slice(0, 10), locale) ?? `${date.getMonth() + 1}. ${date.getDate()}.`;
+  const heading = formatDayHeading(localDateKey(date), locale) ?? `${date.getMonth() + 1}. ${date.getDate()}.`;
   return txf(tx, '%s일차 · %s', 'Day %s · %s', dayIndex + 1, heading);
 }
 
