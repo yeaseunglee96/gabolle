@@ -1,4 +1,5 @@
-import { getApiLanguage } from '@/api/client';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
 
 // — 부산 음식 8종(밀면·돼지국밥·씨앗호떡·회/해산물·동래파전·복국·부산어묵
 // 낙곱새)의 영문명·발음·원재료·맵기·가격대를 코드가 아니라 설정으로 둔다. 이 값을 고치면
@@ -31,7 +32,8 @@ export type BusanFood = {
 	photoUrl: string | null;
 };
 
-const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+// 화면 언어로 고른다 — 서버용 언어(ko|en 뿐)로 고르면 일본어·중국어 화면에 영어가 나갔다(S15P21E201-1776).
+const t = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 export const BUSAN_FOODS: readonly BusanFood[] = [
 	{
