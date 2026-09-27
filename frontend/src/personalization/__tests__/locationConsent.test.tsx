@@ -176,7 +176,9 @@ describe('지금 카드 — 위치를 안 쓰면', () => {
 
 describe('5. 위치를 읽는 곳은 모두 동의 문을 지난다', () => {
   const root = join(__dirname, '..', '..', '..');
-  const READS = /requestForegroundPermissionsAsync|getCurrentPositionAsync|watchPositionAsync|navigator\.geolocation/;
+  // readCurrentPosition — 시간 제한을 둔 위치 읽기 도우미(S15P21E201-1824). 도우미 자신은 묻지 않으므로, 그것을 부르는 파일이 동의 문을 지나야 한다.
+  const READS = /requestForegroundPermissionsAsync|getCurrentPositionAsync|watchPositionAsync|navigator\.geolocation|readCurrentPosition\(/;
+  const HELPERS = new Set(['src/location/currentPosition.ts']);
   const GATED = /useLocationGate|syncLocationConsent/;
   // 이 훅은 스스로 묻지 않는다 — 부르는 쪽(폰 여행 화면)이 동의가 있을 때만 켠다. 그 쪽은 아래 목록에서 따로 본다.
   const CALLER_GATED: Record<string, string> = { 'src/trip/page/useLiveLocation.ts': 'src/trip/page/TripPageMobile.tsx' };
@@ -198,6 +200,7 @@ describe('5. 위치를 읽는 곳은 모두 동의 문을 지난다', () => {
     const ungated = readers
       .map((file) => relative(root, file).replace(/\\/g, '/'))
       .filter((rel) => {
+        if (HELPERS.has(rel)) return false;
         const gateFile = CALLER_GATED[rel] ?? rel;
         return !GATED.test(readFileSync(join(root, gateFile), 'utf8') as string);
       });
