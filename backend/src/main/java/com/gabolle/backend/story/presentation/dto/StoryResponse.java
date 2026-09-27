@@ -79,11 +79,18 @@ public record StoryResponse(
 		 */
 		List<Coauthor> coauthors) {
 
-	public record Author(String id, String displayName) {
+	/**
+	 * @param avatarUrl 프로필 사진 주소. 안 골랐거나 탈퇴했으면 {@code null} — 화면은 첫 글자를 그린다.
+	 * 나중에 더한 칸이라 구판 앱은 모르고 지나간다 (S15P21E201-1803)
+	 */
+	public record Author(String id, String displayName, String avatarUrl) {
 	}
 
-	/** @param displayName 탈퇴했거나 이름이 비었으면 {@code null} — 무엇으로 부를지는 화면이 정한다 */
-	public record Coauthor(String id, String displayName) {
+	/**
+	 * @param displayName 탈퇴했거나 이름이 비었으면 {@code null} — 무엇으로 부를지는 화면이 정한다
+	 * @param avatarUrl 프로필 사진 주소. 없거나 탈퇴했으면 {@code null}
+	 */
+	public record Coauthor(String id, String displayName, String avatarUrl) {
 	}
 
 	/**
