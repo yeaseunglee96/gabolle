@@ -387,10 +387,20 @@ public class BaselineCandidateScorer {
 		//    경고로 끝나고, 채식을 골라도 갈비집이 일정에 들어갔다(QA). 상호명·음식 태그가 고기를
 		//    가리키면 그 집이 채식을 지원하지 않는다는 것은 추정이 아니라 사실에 가깝다.
 		//    뺄 곳이 많아져도 고기집으로 채우지 않는다 — 식사 자리가 줄어드는 쪽이 낫다.
-		if (MEAT_EXCLUDING_DIETS.contains(upper(constraint.constraintKey())) && isMeatCentric(candidate)) {
-			violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
-					"reason", "MEAT_CENTRIC"));
-			return;
+		//    🔴 S15P21E201-1822: 이름에 「고기」가 없는 고깃집(감자탕·국밥·면옥·까르니따스)이 비건 후보에
+		//    남았다. 채식은 고기 육수 집까지, 비건은 회·초밥·해물·멸치 육수 집까지 뺀다.
+		String dietKey = upper(constraint.constraintKey());
+		if (MEAT_EXCLUDING_DIETS.contains(dietKey) && !isExplicitlyPlantBased(candidate)) {
+			if (isMeatCentric(candidate)) {
+				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
+						"reason", "MEAT_CENTRIC"));
+				return;
+			}
+			if ("VEGAN".equals(dietKey) && isSeafoodCentric(candidate)) {
+				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
+						"reason", "SEAFOOD_CENTRIC"));
+				return;
+			}
 		}
 
 		String featureType = hardFilterFeatureType(constraintCodeMap, "DIET").orElse(null);
@@ -433,16 +443,66 @@ public class BaselineCandidateScorer {
 	private static final Set<String> MEAT_EXCLUDING_DIETS = Set.of("VEGETARIAN", "VEGAN");
 
 	/**
-	 * 상호명에 이 낱말이 있으면 고기가 중심인 집으로 본다. 애매한 것은 일부러 뺐다 — 밀면·국밥
-	 * (육수는 쓰지만 이름으로 가를 수 없다. 돼지국밥은 「돼지」로 잡힌다), 「오리」(오리지널·오리엔탈).
+	 * 상호명에 이 낱말이 있으면 고기가 중심인 집으로 본다. 「오리」는 뺐다(오리지널·오리엔탈).
 	 */
 	private static final List<String> MEAT_NAME_WORDS = List.of(
 			"고기", "갈비", "삼겹", "목살", "돼지", "소고기", "한우", "곱창", "막창", "대창", "양곱창",
 			"족발", "보쌈", "치킨", "통닭", "닭갈비", "닭강정", "양꼬치", "불고기", "육회", "정육",
-			"스테이크", "바베큐", "바비큐", "BBQ", "숯불", "순대", "수육", "돈까스", "돈가스", "삼계탕");
+			"스테이크", "바베큐", "바비큐", "BBQ", "숯불", "순대", "수육", "돈까스", "돈가스", "삼계탕",
+			// S15P21E201-1822 — 이름에 고기가 안 보여도 고기 육수·고기가 주인 집. 국밥은 콩나물국밥도
+			// 멸치·고기 육수를 쓰므로 통째로 뺀다. 밀면·냉면·면옥은 소·돼지 육수다.
+			"감자탕", "뼈해장", "해장국", "국밥", "곰탕", "설렁탕", "육개장", "곱도리", "닭한마리", "찜닭",
+			"닭발", "까르니따스", "카르니타스", "CARNITAS", "케밥", "KEBAB", "밀면", "냉면", "면옥",
+			// 애매하지만 뺀다 — 채식 메뉴가 있을 수는 있어도 고를 근거가 없다. 뷔페는 고기가 반드시 있다.
+			"버거", "BURGER", "샤브", "뷔페", "BUFFET");
 
-	/** 음식 태그(CUISINE_TAG) 중 고기가 중심인 것. 돼지국밥이다. */
-	private static final Set<String> MEAT_CUISINE_TAGS = Set.of("PORK_SOUP");
+	/** 음식 태그(CUISINE_TAG) 중 고기가 중심인 것. 돼지국밥·밀면(돼지·소 육수)이다. */
+	private static final Set<String> MEAT_CUISINE_TAGS = Set.of("PORK_SOUP", "MILMYEON");
+
+	/**
+	 * 이 낱말이 이름에 있으면 무엇이 더 들어 있든 빼지 않는다 — 「채식 뷔페」·「비건 버거」는 그 식단을
+	 * 위한 집이다.
+	 */
+	private static final List<String> PLANT_BASED_NAME_WORDS = List.of(
+			"비건", "채식", "VEGAN", "VEGETARIAN", "사찰음식", "베지");
+
+	/**
+	 * 비건만 추가로 빼는 해산물·생선 중심 낱말(S15P21E201-1822).
+	 *
+	 * <p>🔴 짧은 글자는 일부러 안 넣었다: 「회」(회관·회사·회현), 「게」(가게·게스트하우스),
+	 * 「굴」(굴다리), 「복」(행복). 대신 「횟집」「회센터」「물회」「게장」「대게」처럼 뜻이 하나인
+	 * 낱말만 쓴다. 그래서 「OO회관」은 이 목록으로는 안 빠진다(고깃집이면 위 고기 낱말이 잡는다).
+	 * 카페·젤라또·빵집은 빼지 않는다 — 음료·빵은 비건일 수 있고, 유제품 여부는 이름으로 모른다.
+	 * 칼국수는 뺀다 — 부산 칼국수 육수는 거의 멸치·해물이다.
+	 */
+	private static final List<String> SEAFOOD_NAME_WORDS = List.of(
+			"횟집", "회센터", "물회", "생선회", "활어", "수산", "스시", "초밥", "마끼", "사시미", "연어", "살몬",
+			"SALMON", "SUSHI", "참치", "장어", "대구탕", "복국", "복어", "아구", "아귀", "해물", "해산물",
+			"씨푸드", "SEAFOOD", "조개", "전복", "게장", "대게", "홍게", "킹크랩", "새우", "오뎅", "어묵",
+			"멸치", "칼국수", "낙지", "문어", "주꾸미", "쭈꾸미", "오징어", "생선", "고등어", "갈치");
+
+	/** 비건만 추가로 빼는 음식 태그 — CUISINE_TAG 의 해산물, DESIRED_FOOD_TAG 의 복국. */
+	private static final Set<String> SEAFOOD_TAGS = Set.of("CUISINE_TAG:SEAFOOD", "DESIRED_FOOD_TAG:BOKGUK");
+
+	static boolean isExplicitlyPlantBased(PlaceCandidateResponse.Candidate candidate) {
+		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
+		return PLANT_BASED_NAME_WORDS.stream().anyMatch(name::contains);
+	}
+
+	static boolean isSeafoodCentric(PlaceCandidateResponse.Candidate candidate) {
+		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
+		if (SEAFOOD_NAME_WORDS.stream().anyMatch(name::contains)) {
+			return true;
+		}
+		if (candidate.features() != null) {
+			for (PlaceFeatureView feature : candidate.features()) {
+				if (SEAFOOD_TAGS.contains(feature.featureType() + ":" + feature.featureKey())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	static boolean isMeatCentric(PlaceCandidateResponse.Candidate candidate) {
 		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
