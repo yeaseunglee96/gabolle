@@ -402,7 +402,6 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   // 지도에 어림 선(옅은 선)이 하나라도 있으면 그 뜻을 글로 적는다(S15P21E201-1656 — 점선 대신 옅게 그린다).
   // 옅은 선이 무슨 뜻인지 모르는 사람에게는 진한 선과 다를 바가 없고, 그러면 옅게 그리는
   // 이유가 사라진다. 실제 길만 그려진 지도에는 이 줄이 안 나온다.
-  const hasSlopePieces = (routes ?? []).some((route) => route.weight == null && !!route.path?.length && slopeSegments(route.path, route.pieces) != null);
   const hasEstimatedLine = (routes ?? [{ id: 'selected', color: '', stops }])
     .some((route) => !(route.path?.length && route.estimated === false));
 
@@ -410,13 +409,10 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     return (
       <View style={styles.webShell}>
         {createElement('div', { ref: hostRef, style: { width: '100%', height }, 'aria-label': tx('여행 동선 지도', 'Trip route map') })}
-        {(hasEstimatedLine || hasSlopePieces) && !failure ? (
+        {hasEstimatedLine && !failure ? (
           <Text variant="caption" color={color.text.muted} style={styles.estimateNote}>
-            {[
-              // 걷는 길 경사 색의 뜻 — 조각이 하나라도 그려질 때만(버튼 없이, 사용자 결정 S15P21E201-1658).
-              hasSlopePieces ? tx('걷는 길 — 초록 완만 · 노랑 조금 가파름 · 빨강 경사 8.33% 이상·계단 · 회색 경사 모름', 'Walking paths — green gentle · yellow a bit steep · red 8.33%+ slope or stairs · gray slope unknown') : null,
-              hasEstimatedLine ? tx('옅은 선은 어림한 길이라 실제로 가는 길과 다를 수 있어요.', 'Faded lines are estimates and may differ from the way you actually go.') : null,
-            ].filter(Boolean).join('\n')}
+            {/* 걷는 길 경사 색의 안내 문구는 뺐다 — 어색하다는 사용자 결정(S15P21E201-1820). 색 선은 그대로 긋는다. */}
+            {tx('옅은 선은 어림한 길이라 실제로 가는 길과 다를 수 있어요.', 'Faded lines are estimates and may differ from the way you actually go.')}
           </Text>
         ) : null}
         {failure ? (

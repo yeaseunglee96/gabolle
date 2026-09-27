@@ -4,7 +4,7 @@
 //    ① 색은 세 단계다(사용자 결정) — 5% 미만 초록 · 5~8.33% 노랑 · 8.33% 이상·계단 빨강 · 모름 회색.
 //    ② 조각은 path 의 자리 번호(from·to, 둘 다 포함)로 자른다. 번호가 path 밖이면 조각을 버리고 한 선으로 그린다.
 //    ③ 🔴 스위치가 꺼져 있으면(지금 — !1626 배포 전) 걷기 요청을 보내지 않는다. 켜면 걷는 구간만 걷기로 받는다.
-//    ④ 조각이 있으면 웹·앱 지도 둘 다 조각마다 색을 달리해 긋고, 안내 한 줄을 띄운다.
+//    ④ 조각이 있으면 웹·앱 지도 둘 다 조각마다 색을 달리해 긋는다. 🔴 색의 뜻 안내 문구는 기본 화면에 안 띄운다(S15P21E201-1820, 어색하다는 사용자 결정).
 import { Platform } from 'react-native';
 import { act, create } from 'react-test-renderer';
 import { renderHook, waitFor } from '@testing-library/react-native';
@@ -121,11 +121,13 @@ describe('웹 지도 — 경사 조각', () => {
   });
   beforeEach(() => { lines.length = 0; });
 
-  it('🔴 조각마다 색을 달리해 긋고, 안내 한 줄을 띄운다', () => {
+  it('🔴 조각마다 색을 달리해 긋고, 경사 안내 문구는 띄우지 않는다(S15P21E201-1820)', () => {
     let tree!: ReturnType<typeof create>;
     act(() => { tree = create(<RouteMap stops={mapStops} routes={[walkRoute]} selectedId="a" onSelect={() => {}} />, { createNodeMock: () => fakeDocument.createElement() }); });
     expect(routeColors()).toEqual([color.text.muted, color.state.success, color.state.danger]);
-    expect(JSON.stringify(tree.toJSON())).toContain('초록 완만 · 노랑 조금 가파름 · 빨강 경사 8.33% 이상·계단 · 회색 경사 모름');
+    const text = JSON.stringify(tree.toJSON());
+    expect(text).not.toContain('초록 완만');
+    expect(text).not.toContain('걷는 길 —');
   });
 
   it('조각이 없는 경로는 지금처럼 한 선이고 안내도 없다', () => {
@@ -149,5 +151,18 @@ describe('앱 지도(WebView 안의 HTML) — 경사 조각', () => {
       colors: { navy: '#123', selected: '#456', canvas: '#fff', casing: color.surface.card }, focus: false, shiftY: 0,
     });
     expect(routeColors()).toEqual([color.text.muted, color.state.success, color.state.danger]);
+  });
+});
+
+describe('앱 지도(폰) — 경사 안내 문구', () => {
+  it('🔴 경사 조각이 있어도 안내 문구를 띄우지 않는다(S15P21E201-1820)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { RouteMap: NativeRouteMap } = require('../RouteMap.native.tsx') as typeof import('../RouteMap.native');
+    process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY = 'test-key';
+    let tree!: ReturnType<typeof create>;
+    act(() => { tree = create(<NativeRouteMap stops={mapStops} routes={[walkRoute]} selectedId="a" onSelect={() => {}} />); });
+    const text = JSON.stringify(tree.toJSON());
+    expect(text).not.toContain('초록 완만');
+    expect(text).not.toContain('걷는 길 —');
   });
 });
