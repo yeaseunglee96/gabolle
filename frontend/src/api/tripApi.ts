@@ -1,8 +1,11 @@
-import { apiRequest, getApiLanguage } from '@/api/client';
+import { apiRequest } from '@/api/client';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
 import type { PlanDraft, PreferenceAnswerStatus } from '@/plan/PlanProvider';
 import { lodgingAreaCodeOf, type PlaceSnapshot } from '@/plan/origins';
 
-const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+// 화면 언어로 고른다 — 서버용 언어(ko|en 뿐)로 고르면 일본어·중국어 화면에 영어가 나갔다(S15P21E201-1776).
+const tx = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 export type PreferenceAnswerInput = {
   dimension: string;
