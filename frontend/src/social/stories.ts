@@ -202,6 +202,17 @@ export function resetFeedAfterFollowChange(client: QueryClient = defaultQueryCli
   return client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && (query.queryKey[1] === 'FOLLOWING' || query.queryKey[1] === 'FOR_YOU') });
 }
 
+/**
+ * 차단·차단 해제 뒤 보관소를 비운다 — S15P21E201-1787(QA).
+ *
+ * 차단한 사람의 글은 서버가 거른다(프론트는 목록에서 아무것도 빼지 않는다). 그런데 보관소가 차단 전에 받은 목록을
+ * 30초 동안 그대로 내줘서, 차단하고 피드로 돌아가면 그 사람 글이 새로고침 전까지 남아 있었다. 해제하면 반대로 안 돌아왔다.
+ * 「내 기록」 갈래는 내 글뿐이라 그대로 둔다.
+ */
+export function resetFeedAfterBlockChange(client: QueryClient = defaultQueryClient) {
+  return client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] !== 'MINE' });
+}
+
 export function resetFeedAfterPost(client: QueryClient = defaultQueryClient) {
   return Promise.all([
     client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] === 'MINE' }),
@@ -496,6 +507,7 @@ export async function setBlocked(userId: string, blocked: boolean, accessToken: 
       `/api/v1/users/${encodeURIComponent(userId)}/block`,
       { method: blocked ? 'PUT' : 'DELETE', accessToken },
     );
+    void resetFeedAfterBlockChange();
     return { state: 'success', blocked: dto.blocked };
   } catch (error) {
     return failure(error);
