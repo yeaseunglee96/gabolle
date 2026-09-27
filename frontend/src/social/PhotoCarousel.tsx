@@ -41,8 +41,15 @@ export function PhotoCarousel({
   urls: string[];
   /** 목록 커버는 칸을 채우고(cover), 상세는 사진 전체를 보인다(contain). */
   resizeMode?: ImageResizeMode;
-  /** 사진을 누르면 할 일 — 목록은 상세로 간다. 없으면 사진은 누르는 자리가 아니다. */
-  onPressPhoto?: () => void;
+  /**
+   * 사진을 누르면 할 일 — 목록은 상세로 가고, 상세는 그 사진을 크게 연다.
+   * 없으면 사진은 누르는 자리가 아니다.
+   *
+   * 🔴 «몇 번째» 사진을 눌렀는지 같이 준다 (S15P21E201-1811). 안 주면 여러 장일 때
+   *    부르는 쪽이 어느 사진인지 몰라, 넘겨 보다가 눌러도 늘 첫 장이 열린다.
+   *    목록처럼 어느 장이든 같은 곳으로 가는 쪽은 그냥 무시하면 된다.
+   */
+  onPressPhoto?: (index: number) => void;
   /** 사진을 누르는 자리의 읽기 이름. */
   pressLabel?: string;
   /**
@@ -83,7 +90,7 @@ export function PhotoCarousel({
     const image = <Image source={{ uri: url }} resizeMode={resizeMode} accessibilityIgnoresInvertColors style={styles.image} />;
     const size = { width: width || '100%', height: '100%' } as const;
     return onPressPhoto
-      ? <Pressable key={`${at}:${url}`} accessibilityRole="link" accessibilityLabel={pressLabel} onPress={onPressPhoto} style={size}>{image}</Pressable>
+      ? <Pressable key={`${at}:${url}`} accessibilityRole="link" accessibilityLabel={pressLabel} onPress={() => onPressPhoto(at)} style={size}>{image}</Pressable>
       : <View key={`${at}:${url}`} style={size}>{image}</View>;
   };
 
