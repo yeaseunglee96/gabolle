@@ -26,7 +26,7 @@ import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
 import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { regionText } from '@/social/districtNames';
 import { regionBesidePlace } from '@/social/placeRegion';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, resetFeedAfterPost, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
@@ -317,6 +317,10 @@ export default function StoryDetail() {
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [blockNotice, setBlockNotice] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
+  const [postEditing, setPostEditing] = useState(false);
+  const [postDraft, setPostDraft] = useState('');
+  const [postSaving, setPostSaving] = useState(false);
+  const [postSaveError, setPostSaveError] = useState('');
   // 복사 알림은 목록(feed.tsx)처럼 잠깐 떴다 사라진다. 남겨 두면 다음에 눌렀을 때 같은 글자라 새로 떴는지 모른다.
   useEffect(() => { if (!copyNotice) return; const timer = setTimeout(() => setCopyNotice(''), 2600); return () => clearTimeout(timer); }, [copyNotice]);
   const insets = useSafeAreaInsets();
@@ -436,11 +440,40 @@ export default function StoryDetail() {
     return true;
   };
 
+  // 원글 본문 수정 — 댓글 수정(ReplyCard)과 같은 모양이다. 취소하면 초안을 버리고 원래 본문이 그대로 남는다.
+  const startPostEdit = () => {
+    if (!story) return;
+    setPostDraft(story.body);
+    setPostSaveError('');
+    setConfirmingDelete(false);
+    setPostEditing(true);
+  };
+
+  const savePostEdit = async () => {
+    const body = postDraft.trim();
+    if (!id || postSaving) return;
+    if (!body) { setPostSaveError(tx('1자 이상 입력해 주세요', 'Please enter at least 1 character')); return; }
+    setPostSaving(true);
+    const outcome = await updateStory(id, body, accessToken);
+    setPostSaving(false);
+    if (outcome.state !== 'success') { setPostSaveError(outcome.message); return; }
+    setPostEditing(false);
+    setPostSaveError('');
+    setState({ status: 'loaded', story: outcome.story });
+    // 목록·마이페이지 보관소에 옛 본문이 30초 남지 않게 — 글을 새로 쓴 뒤와 같은 정리.
+    void resetFeedAfterPost(queryClient);
+    setCopyNotice(tx('저장했어요', 'Saved'));
+  };
+
   const menuItems: DropdownMenuItem[] = story
     ? [
         { key: 'copy-link', label: tx('링크 복사', 'Copy link'), onPress: () => void copyLink() },
         ...(story.mine
-        ? [{ key: 'delete', label: tx('삭제', 'Delete'), destructive: true, onPress: () => setConfirmingDelete(true) }]
+        ? [
+            // 🔴 올린 기록을 고칠 입구 — 없어서 작성자가 오타 하나도 못 고쳤다(S15P21E201-1807). 사진은 서버가 못 고친다.
+            { key: 'edit', label: tx('수정', 'Edit'), onPress: startPostEdit },
+            { key: 'delete', label: tx('삭제', 'Delete'), destructive: true, onPress: () => setConfirmingDelete(true) },
+          ]
         : [
             ...(authorFollowing !== null
               ? [{
@@ -625,9 +658,27 @@ export default function StoryDetail() {
           {/* — 마크다운을 그린다. 마크다운을 안 쓴 기존 글은
               문단 하나가 되므로 지금과 똑같이 보인다.
           */}
-          <MarkdownBody source={withoutCourseLink(story.body, courseLink)} />
+          {postEditing ? (
+            <View style={styles.replyEdit}>
+              <TextInput
+                accessibilityLabel={txf(tx, '%s 수정', 'Edit %s', tx('기록', 'record'))}
+                value={postDraft}
+                onChangeText={(value) => setPostDraft(value.slice(0, BODY_MAX))}
+                maxLength={BODY_MAX}
+                multiline
+                style={styles.composerInput}
+              />
+              {postSaveError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{postSaveError}</Text> : null}
+              <View style={styles.confirmButtons}>
+                <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={postSaving} onPress={() => { setPostEditing(false); setPostSaveError(''); }} compact />
+                <Button label={postSaving ? tx('저장 중…', 'Saving…') : tx('저장', 'Save')} variant="secondary" disabled={postSaving || !postDraft.trim()} onPress={() => void savePostEdit()} compact />
+              </View>
+            </View>
+          ) : (
+            <MarkdownBody source={withoutCourseLink(story.body, courseLink)} />
+          )}
           {/* 본문의 코스 링크는 코스 카드로 그린다 — 글자로 또 쓰지 않는다(S15P21E201-1593). */}
-          {courseLink ? <CourseLinkCard token={courseLink.token} /> : null}
+          {courseLink && !postEditing ? <CourseLinkCard token={courseLink.token} /> : null}
 
           {/* 좋아요·인용·저장 — 카드 «안»에 둔다(사용자 지적 2026-09-24, S15P21E201-1576). 카드 밖에 두면 그 기록의 것인지
               아래 댓글의 것인지 흐려진다. 목록(feed.tsx)과 같은 부품이다. */}
