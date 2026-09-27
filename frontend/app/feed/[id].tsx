@@ -1,9 +1,10 @@
 // 기록 상세 — 피드 카드를 누르면 오는 화면.
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
@@ -12,6 +13,7 @@ import { PhotoGrid } from '@/components/PhotoGrid';
 import { Button } from '@/components/Button';
 import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
+import { bottomDockPosition } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
@@ -322,6 +324,9 @@ export default function StoryDetail() {
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [blockNotice, setBlockNotice] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
+  // 복사 알림은 목록(feed.tsx)처럼 잠깐 떴다 사라진다. 남겨 두면 다음에 눌렀을 때 같은 글자라 새로 떴는지 모른다.
+  useEffect(() => { if (!copyNotice) return; const timer = setTimeout(() => setCopyNotice(''), 2600); return () => clearTimeout(timer); }, [copyNotice]);
+  const insets = useSafeAreaInsets();
   const menu = useDropdownMenu();
   // null = 아직 모른다. StoryDto 에는 "내가 이 작성자를 팔로우하는가" 칸이 없어서
   // (반응 카운트와 달리 얹지 않기로 했다) getUserProfile 로 따로 물어봐야 한다
@@ -549,6 +554,8 @@ export default function StoryDetail() {
   };
 
   return (
+    // 복사 알림을 스크롤 밖에 띄우려고 한 겹 감싼다. Screen scroll 은 자식을 전부 굴러가는 판 안에 넣는다.
+    <View style={styles.root}>
     <Screen scroll>
       {/* — 목적지를 약속하지 않는다. 이 화면에 들어오는 입구가 일곱인데
           피드는 그중 하나라, 「피드로」라고 적으면 대부분의 경로에서 라벨과 결과가 어긋난다.
@@ -771,20 +778,25 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
-      {copyNotice ? (
-        <View accessibilityLiveRegion="polite" style={styles.notice}>
-          <Text color={color.text.body}>{copyNotice}</Text>
-        </View>
-      ) : null}
-
       <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
       <ReportModal visible={reportingTargetId !== null} onClose={() => setReportingTargetId(null)} onSubmit={submitReport} />
       <BlockUserDialog visible={confirmingBlock} displayName={story?.author.displayName ?? ''} onClose={() => setConfirmingBlock(false)} onConfirm={confirmBlock} />
     </Screen>
+    {/* 인용·링크 복사 알림(S15P21E201-1787) — 전에는 댓글 아래 글 맨 끝에 붙어서, 글 중간에서 누르면 아무 일도 없는 것처럼 보였다.
+        목록과 같은 토스트로 화면 아래에 띄운다. */}
+    {copyNotice ? (
+      <View pointerEvents="none" accessibilityLiveRegion="polite" style={[styles.copyNoticeDock, { bottom: insets.bottom + spacing[4] }]}>
+        <View style={styles.copyNotice}><Text variant="caption" weight="bold" color={color.text.onAction}>{copyNotice}</Text></View>
+      </View>
+    ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1 },
+  copyNoticeDock: { position: bottomDockPosition(), left: 0, right: 0, alignItems: 'center', zIndex: 25 },
+  copyNotice: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.action.secondary, shadowColor: color.brand.navy, shadowOpacity: 0.18, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   pressed: { opacity: 0.72 },
   sadMascot: { width: 80, height: 80, alignSelf: 'center' },
