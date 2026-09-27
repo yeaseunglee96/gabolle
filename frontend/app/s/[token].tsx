@@ -5,7 +5,7 @@
 // 심어 두면 마지막 제출 지점(recommendationJob.ts)이 일반 생성 대신 복제(clone) API를 부른다.
 import { txf } from '@/i18n/format';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 
@@ -17,6 +17,10 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { formatClock, formatDayHeading, formatFullDate } from '@/i18n/datetime';
 import { koreanTopic } from '@/i18n/korean';
+import { LANGUAGE_OPTIONS } from '@/i18n/languages';
+import { browserLanguages, sharedPageInitialLanguage } from '@/share/sharedPageLanguage';
+import { stopNameForLanguage } from '@/discovery/romanize';
+import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { usePlan } from '@/plan/PlanProvider';
 import { getSharedItinerary, type SharedItineraryDto } from '@/share/sharedItinerary';
@@ -47,13 +51,34 @@ function categoryText(code: string | null, tx: (ko: string, en: string) => strin
   return label ? tx(label[0], label[1]) : null;
 }
 
+/** 로그인 없이 보는 화면이라 설정 화면에 갈 수 없다 — 여기서 바로 언어를 바꾼다. */
+function LanguageSwitch() {
+  const { language, setLanguage, tx } = useI18n();
+  return <View accessibilityRole="radiogroup" accessibilityLabel={tx('언어', 'Language')} style={styles.languages}>
+    {LANGUAGE_OPTIONS.map((option) => {
+      const on = option.code === language;
+      return <Pressable key={option.code} accessibilityRole="radio" accessibilityState={{ checked: on }} accessibilityLabel={option.endonym} onPress={() => setLanguage(option.code)} style={[styles.language, on && styles.languageOn]}>
+        <Text variant="caption" weight="bold" color={on ? color.text.onAction : color.text.body}>{option.endonym}</Text>
+      </Pressable>;
+    })}
+  </View>;
+}
+
 export default function SharedItinerary() {
   const router = useRouter();
-  const { tx, locale } = useI18n();
+  const { tx, locale, language, setLanguage } = useI18n();
+  const { hydrated, hasEnteredApp } = useOnboardingPreferences();
   const { token } = useLocalSearchParams<{ token?: string }>();
   const { update, clear } = usePlan();
   const [status, setStatus] = useState<Status>({ state: 'loading' });
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const next = sharedPageInitialLanguage({ web: Platform.OS === 'web', hydrated, hasEnteredApp, current: language, browserLanguages: browserLanguages() });
+    if (next) setLanguage(next);
+    // 저장소를 다 읽은 뒤 한 번만 — 언어가 바뀔 때마다 다시 보면 사람이 고른 언어를 브라우저 언어로 되돌린다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
 
   useEffect(() => {
     if (!token) { setStatus({ state: 'not_found' }); return; }
@@ -110,6 +135,7 @@ export default function SharedItinerary() {
     .join(tx(' · ', ', '));
 
   return <Screen scroll style={styles.screen}>
+    <LanguageSwitch />
     <View style={styles.heading}>
       <Text variant="eyebrow" weight="bold">{tx('공유된 여행 일정', 'Shared trip itinerary')}</Text>
       <Text variant="display" weight="bold">{data.title}</Text>
@@ -136,7 +162,7 @@ export default function SharedItinerary() {
               {item.startsAt ? formatClock(item.startsAt, locale) : '–'}
             </Text>
             <View style={styles.itemCopy}>
-              <Text weight="bold">{item.placeName}</Text>
+              <Text weight="bold">{stopNameForLanguage(item.placeName, null, language)}</Text>
               <Text variant="caption" color={color.text.muted}>
                 {[categoryText(item.category, tx), item.stayMinutes ? tx(`${item.stayMinutes}분 머묾`, `${item.stayMinutes} min stay`) : null].filter(Boolean).join(' · ')}
               </Text>
@@ -157,7 +183,10 @@ const styles = StyleSheet.create({
   screen: { backgroundColor: color.canvas },
   center: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.ivory },
   card: { gap: spacing[3], width: '100%', maxWidth: 420, padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
-  heading: { gap: spacing[1], marginTop: spacing[6], marginBottom: spacing[4] },
+  heading: { gap: spacing[1], marginTop: spacing[3], marginBottom: spacing[4] },
+  languages: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: spacing[1], marginTop: spacing[4] },
+  language: { minHeight: 32, paddingHorizontal: spacing[3], borderRadius: radius.full, justifyContent: 'center', borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
+  languageOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   notice: { gap: spacing[1], marginBottom: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
   dayCard: { gap: spacing[2], marginBottom: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   dayTitle: { marginBottom: spacing[1] },
