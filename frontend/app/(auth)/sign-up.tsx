@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import Animated, { FadeInRight, FadeOutLeft, ReduceMotion } from 'react-native-reanimated';
 
 import { ApiClientError } from '@/api/client';
 import { resendEmailVerification, signup, type Registration, type SignupLanguage } from '@/auth/authApi';
-import { isSafeReturnPath, savePendingReturnTo } from '@/auth/pendingReturnTo';
+import { useAuth } from '@/auth/AuthProvider';
+import { enterApp } from '@/auth/enterApp';
+import { isSafeReturnPath, savePendingReturnTo, signedInDestination } from '@/auth/pendingReturnTo';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
@@ -59,6 +61,16 @@ export default function SignUp() {
   const [resent, setResent] = useState(false);
   const [panelIndex, setPanelIndex] = useState(0);
   useEffect(() => { void savePendingReturnTo(returnTo); }, [returnTo]);
+  // 🔴 이미 로그인한 사람은 가입 양식을 안 본다 — 로그인 화면과 같은 규칙(S15P21E201-1199 · 1594 → 이 화면은 1793).
+  //    가입은 메일 인증을 거쳐 로그인 화면에서 끝나므로, 여기서 로그인 상태가 되는 일은 없다 — 로그인 화면처럼
+  //    「방금 여기서 로그인했다」를 가릴 필요가 없다. 로그인 복구가 늦게 끝나도 비키도록 ready·user 에 건다.
+  const { user, ready } = useAuth();
+  const leftForSignedIn = useRef(false);
+  useEffect(() => {
+    if (!ready || !user || leftForSignedIn.current) return;
+    leftForSignedIn.current = true;
+    enterApp(router, signedInDestination(returnTo) as Href);
+  }, [ready, user, returnTo, router]);
 
   const passwordChecks = useMemo(() => ({
     length: password.length >= 8 && password.length <= 64,
