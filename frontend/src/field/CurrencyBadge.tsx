@@ -55,11 +55,22 @@ export function currencyKey(code: string): string {
  *    고른 사람이 딴 언어 통화 이름을 본다. 그래서 쓰기 전에 supportedLocalesOf 로 묻고,
  *    자료가 없으면 서버가 준 이름으로 내려간다. (같은 판단이 i18n/datetime.ts 에도 있다)
  */
+/**
+ * 🔴 Intl 자료(ICU — 브라우저·운영체제에 들어 있는 언어 자료)가 틀리게 적은 이름을 여기서 고친다 — S15P21E201-1790.
+ *    크롬·노드의 한국어 자료가 BND 를 「부루나이 달러」로 준다(표준 표기는 「브루나이 달러」, 서버 수출입은행 자료도 이렇게 준다).
+ *    우리 코드나 서버가 아니라 바깥 자료의 오기라 고칠 곳이 없어 보여 주기 직전에 바꾼다. 알려진 것만 적는다.
+ */
+const INTL_NAME_FIXES: Record<string, Record<string, string>> = {
+  ko: { '부루나이 달러': '브루나이 달러' },
+};
+
 export function currencyDisplayName(code: string, locale: string, fallback: string): string {
   try {
     if (!Intl.DisplayNames.supportedLocalesOf([locale]).length) return fallback;
     const names = new Intl.DisplayNames([locale], { type: 'currency' });
-    return names.of(currencyKey(code)) ?? fallback;
+    const name = names.of(currencyKey(code));
+    if (!name) return fallback;
+    return INTL_NAME_FIXES[locale.split('-')[0].toLowerCase()]?.[name] ?? name;
   } catch {
     return fallback;
   }
