@@ -11,7 +11,9 @@ import type { RecommendationJobStreamSnapshot } from '@/plan/recommendationJobSt
 export type RecommendationJobState = 'idle' | 'submitting' | 'accepted' | 'polling' | 'completed' | 'conflict' | 'consent-required' | 'failed' | 'cancelled' | 'unavailable';
 export type RecommendationJobSnapshot = { state: RecommendationJobState; jobId: string | null; progress: number | null; stage: string | null; canCancel: boolean; errorMessage: string | null; resultRef: string | null; requiredConsent?: 'HEALTH_CONSTRAINTS';
   /** 서버 실패 코드 — 화면이 코드에 따라 다음 할 일을 다르게 말할 때 쓴다(S15P21E201-1739). 실패가 아니면 없다. */
-  failureCode?: string | null };
+  failureCode?: string | null;
+  /** 폴링 중 네트워크 오류·시간 초과가 연달아 몇 번 났나(S15P21E201-1823). 성공하면 사라진다. */
+  transientFailures?: number };
 export type RecommendationJobAcceptedDto = { jobId: string };
 export type RecommendationJobPollDto = {
   jobId: string;
@@ -118,7 +120,18 @@ function toFailure(error: unknown, jobId: string | null = null): RecommendationJ
   return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: localizeServer(readableApiError(error, getCurrentLanguage() === 'ko')),
     resultRef: null };
 }
+/** 폴링이 연달아 이만큼 끊기면 그때 «닿지 않음»으로 끝낸다. */
+export const POLL_TRANSIENT_LIMIT = 3;
 export function createRecommendationJobAdapter(accessToken: string | null): RecommendationJobAdapter { return {
   async submit(draft) { try { return acceptJob(draft.cloneShareToken ? await cloneSharedTripAndJob(draft.cloneShareToken, draft, accessToken) : await createTripAndRecommendationJob(draft, accessToken)); } catch (error) { return toFailure(error); } },
-  async poll(jobId, previous) { try { return adaptPolledJob(jobId, await apiRequest<RecommendationJobPollDto>(`/api/v1/jobs/${encodeURIComponent(jobId)}`, { accessToken }), previous); } catch (error) { return toFailure(error, jobId); } },
+  async poll(jobId, previous) { try { return adaptPolledJob(jobId, await apiRequest<RecommendationJobPollDto>(`/api/v1/jobs/${encodeURIComponent(jobId)}`, { accessToken }), previous); } catch (error) {
+    // 🔴 폴링 중 한 번 끊긴 것은 «서버가 멈췄다»가 아니다(S15P21E201-1823). 서버는 계속 만들고 있는데 전에는 한 번의
+    //    네트워크 오류·시간 초과로 끝난 화면(unavailable)이 되고 폴링이 멈췄다. 이전의 진행 중 상태를 그대로 두고
+    //    다시 묻게 하며, 연달아 POLL_TRANSIENT_LIMIT 번 실패해야 끝낸다. 서버가 준 오류(상태 코드가 있는 것)는 바로 끝낸다.
+    const transient = error instanceof ApiClientError && (error.code === 'NETWORK_ERROR' || error.code === 'REQUEST_TIMEOUT');
+    const inFlight = previous && (previous.state === 'accepted' || previous.state === 'polling');
+    const failures = (previous?.transientFailures ?? 0) + 1;
+    if (transient && inFlight && failures < POLL_TRANSIENT_LIMIT) return { ...previous, jobId, transientFailures: failures };
+    return toFailure(error, jobId);
+  } },
 }; }

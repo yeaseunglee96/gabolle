@@ -204,13 +204,23 @@ function PlanConditions() {
    * @param afterConditions 조건 창에서 막 돌아온 길인가. 🔴 참이면 조건을 <b>다시 묻지 않는다.</b>
    *     안 그러면 저장 → 창 열림 → 저장 → 창 열림이 되어 영영 못 나간다.
    */
+  // 🔴 그리기 상태(job.state)만으로는 빠른 두 번 누름을 못 막는다 — 다시 그려지기 전에 두 번째가 들어와 작업이 둘 생긴다
+  //    (S15P21E201-1823). 누르는 즉시 잠그고, 실패로 돌아오면 푼다(성공이면 화면을 떠난다).
+  const submittingNow = useRef(false);
   const submitPlan = async (afterConditions = false) => {
+    if (submittingNow.current) return;
     if (hardUnknown && !afterConditions) { setConditionsOpen(true); return; }
     if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan' } }); return; }
-    setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
-    const next = await createRecommendationJobAdapter(accessToken).submit(draft);
-    setJob(next);
-    if (next.jobId) { void clearQuestionState(); goGenerating(next.jobId); }
+    submittingNow.current = true;
+    try {
+      setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
+      const next = await createRecommendationJobAdapter(accessToken).submit(draft);
+      setJob(next);
+      if (next.jobId) { void clearQuestionState(); goGenerating(next.jobId); } else submittingNow.current = false;
+    } catch (cause) {
+      submittingNow.current = false;
+      throw cause;
+    }
   };
 
   const grantHealthConsentAndRetry = async () => {
