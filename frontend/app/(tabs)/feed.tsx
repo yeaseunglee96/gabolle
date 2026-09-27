@@ -762,8 +762,10 @@ export default function Feed() {
         </Text>
       )}
     </View>
-    <View style={styles.headerActions}>
-      <View accessibilityRole="tablist" style={styles.tabs}>
+    {/* 폰에서는 이 칸이 내용 폭만 차지해 밑줄이 「내 피드」 뒤에서 끊겼다(S15P21E201-1806).
+        폰만 전체 폭으로 편다 — 넓은 화면은 옆에 지도가 있어 지금 그대로가 맞다. */}
+    <View style={[styles.headerActions, compact && styles.headerActionsPhone]}>
+      <View accessibilityRole="tablist" style={[styles.tabs, compact && styles.tabsPhone]}>
         {tabButton('HOT', tx('실시간 인기', 'Trending'))}
         {tabButton('FOR_YOU', tx('맞춤 추천', 'For you'))}
         {/* 「내 피드」는 시안 4 의 02c — 마이페이지 기록 탭과 같은 목록이지만, 피드에서 「내 것도 여기 있다」를 확인하는 자리(S15P21E201-1431). */}
@@ -1033,6 +1035,8 @@ const styles = StyleSheet.create({
   // width:'100%' 를 원했다. 지금은 버튼이 직접 자기 폭을 정한다 — `compact`.
 
   // 넓은 화면은 붙은 세그먼트, 폰은 떨어진 칩.
+  headerActionsPhone: { width: '100%', alignSelf: 'stretch', justifyContent: 'flex-start' },
+  tabsPhone: { flexGrow: 1 },
   tabs: { flexDirection: 'row', gap: spacing[6], borderBottomWidth: 1, borderBottomColor: color.surface.field, alignSelf: 'stretch' },
   tab: { minHeight: 46, alignItems: 'center', justifyContent: 'center', gap: 2, paddingHorizontal: spacing[1] },
   tabDot: { width: 5, height: 5, borderRadius: radius.full, backgroundColor: color.action.outline },
