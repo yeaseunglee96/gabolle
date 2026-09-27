@@ -2828,6 +2828,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   // S15P21E201-1774 — 서버 원문(초대 링크가 없을 때). 영어는 i18n/messages.ts 에 있다.
   '초대를 찾을 수 없습니다.': { ja: '招待が見つかりません。', zhHans: '找不到该邀请。', zhHant: '找不到該邀請。' },
   '검색 결과': { ja: '検索結果', zhHans: '搜索结果', zhHant: '搜尋結果' },
+  '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.': { ja: '日程作成リクエストの有効期限が切れました。もう一度リクエストしてください。', zhHans: '行程生成请求已过期，请重新提交。', zhHant: '行程生成請求已過期，請重新提交。' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {

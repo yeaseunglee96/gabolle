@@ -9,23 +9,25 @@ declare const require: (id: string) => any;
 declare const __dirname: string;
 
 import { setApiLanguage } from '@/api/client';
+import { setCurrentLanguage } from '@/i18n/languages';
 import { adaptPolledJob } from '@/plan/recommendationJob';
 import { isSkippedToday } from '@/trip/page/emptyDay';
 
 const failed = { jobId: 'j', status: 'FAILED' as const, progress: { stage: 'PLANNING', percent: 100 }, failure: { code: 'ITINERARY_NO_TIME_LEFT_TODAY', detail: null }, retryable: false, pollAfterSeconds: null };
 
 describe('① 오늘 남은 시간이 없을 때의 실패', () => {
-  afterEach(() => setApiLanguage('ko'));
+  // 앱은 화면 언어와 서버용 언어를 함께 바꾼다 — 실패 문구는 화면 언어를 본다(S15P21E201-1776).
+  afterEach(() => { setApiLanguage('ko'); setCurrentLanguage('ko'); });
 
   it('🔴 한국어 — 「오늘은 남은 시간이 없어요」로 날짜를 내일로 이끈다', () => {
-    setApiLanguage('ko');
+    setApiLanguage('ko'); setCurrentLanguage('ko');
     const job = adaptPolledJob('j', failed);
     expect(job.state).toBe('failed');
     expect(job.errorMessage).toBe('오늘은 남은 시간이 없어요. 여행을 내일부터로 바꿔 주세요.');
   });
 
   it('영어', () => {
-    setApiLanguage('en');
+    setApiLanguage('en'); setCurrentLanguage('en');
     expect(adaptPolledJob('j', failed).errorMessage).toBe("There's no time left today. Try starting your trip tomorrow.");
   });
 

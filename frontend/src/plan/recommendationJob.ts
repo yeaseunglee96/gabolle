@@ -1,5 +1,8 @@
-import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
+import { apiRequest, ApiClientError } from '@/api/client';
 import { PLAN_UNAVAILABLE_MESSAGE, readableApiError } from '@/api/errorText';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { localizeMessage } from '@/i18n/messages';
+import { pickLanguage } from '@/i18n/pick';
 import { cloneSharedTripAndJob, createTripAndRecommendationJob } from '@/api/tripApi';
 import type { PlanDraft } from '@/plan/PlanProvider';
 import { describeBlockedBy, readBlockedBy } from '@/plan/blockedByMessage';
@@ -63,22 +66,29 @@ const STAGE_FAILURE_MESSAGE: Record<string, Record<string, [string, string]>> = 
 
 const DEFAULT_JOB_FAILURE_MESSAGE = ['일정을 만드는 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.', 'Something went wrong while building your itinerary. Please try again shortly.'] as const;
 
-export const unavailableJob = (message = PLAN_UNAVAILABLE_MESSAGE): RecommendationJobSnapshot => ({ state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: message, resultRef: null });
+// 🔴 화면 언어로 고른다 — S15P21E201-1776. 전에는 서버용 언어(ko|en 뿐)로 골라서 일본어·중국어 화면에 실패 문구가
+//    영어로 나갔고, 한국어로 박힌 문구(엔진 없음 · 만료)와 서버 원문(409 · 403 · 그 밖의 오류)은 영어 화면에도 한국어로
+//    나갔다. 화면(generating.tsx)은 errorMessage 를 그대로 그리므로 여기서 한 번에 옮긴다.
+const jobTx = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
+const jobText = (pair: readonly [string, string]) => jobTx(pair[0], pair[1]);
+const localizeServer = (message: string | null | undefined) => (message ? localizeMessage(jobTx, message) : null);
+const EXPIRED_MESSAGE = ['일정 생성 작업이 만료됐어요. 다시 요청해 주세요.', 'This itinerary request expired. Please request it again.'] as const;
+
+export const unavailableJob = (message = PLAN_UNAVAILABLE_MESSAGE): RecommendationJobSnapshot => ({ state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: localizeServer(message), resultRef: null });
 export function acceptJob(dto: RecommendationJobAcceptedDto): RecommendationJobSnapshot { return { state: 'accepted', jobId: dto.jobId, progress: 0, stage: '요청 접수', canCancel: false, errorMessage: null, resultRef: null }; }
 export function adaptPolledJob(jobId: string, dto: RecommendationJobPollDto, previous?: RecommendationJobSnapshot): RecommendationJobSnapshot {
   const state: RecommendationJobState = ({ QUEUED: 'accepted', PENDING: 'accepted', RUNNING: 'polling', SUCCEEDED: 'completed', FAILED: 'failed', CANCELED: 'cancelled', CANCELLED: 'cancelled', EXPIRED: 'failed' } as const)[dto.status];
   const reported = Math.max(0, Math.min(100, dto.progress.percent));
   const progress = reported === null ? previous?.progress ?? null : Math.max(previous?.progress ?? 0, reported);
-  const isKo = getApiLanguage() !== 'en';
   // 🔴 서버가 «어느 조건이» 막았는지 알려 주면 그것이 먼저다 (S15P21E201-1514).
   //    못 알려 주면(빈 목록 · 모르는 갈래뿐) 예전처럼 단계·코드별 문구로 떨어진다.
   const failureMessage = dto.failure
     ? describeBlockedBy(readBlockedBy(dto.failure.blockedBy))
-      ?? (STAGE_FAILURE_MESSAGE[dto.failure.code]?.[dto.failure.detail ?? '']
+      ?? jobText(STAGE_FAILURE_MESSAGE[dto.failure.code]?.[dto.failure.detail ?? '']
         ?? JOB_FAILURE_MESSAGE[dto.failure.code]
-        ?? DEFAULT_JOB_FAILURE_MESSAGE)[isKo ? 0 : 1]
+        ?? DEFAULT_JOB_FAILURE_MESSAGE)
     : null;
-  const errorMessage = dto.failure ? failureMessage : dto.status === 'EXPIRED' ? '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.' : null;
+  const errorMessage = dto.failure ? failureMessage : dto.status === 'EXPIRED' ? jobText(EXPIRED_MESSAGE) : null;
   return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null, failureCode: dto.failure?.code ?? null };
 }
 // — SSE(GET /api/v1/jobs/{jobId}/progress)가 보내는 건 폴링과 모양이 다르다
@@ -103,9 +113,9 @@ export function adaptStreamedJob(
 export interface RecommendationJobAdapter { submit(draft: PlanDraft): Promise<RecommendationJobSnapshot>; poll(jobId: string, previous?: RecommendationJobSnapshot): Promise<RecommendationJobSnapshot>; }
 function toFailure(error: unknown, jobId: string | null = null): RecommendationJobSnapshot {
   if (error instanceof ApiClientError && (error.status === 404 || error.status === 501 || error.code === 'NETWORK_ERROR')) return { ...unavailableJob(), jobId };
-  if (error instanceof ApiClientError && error.status === 409) return { state: 'conflict', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null };
-  if (error instanceof ApiClientError && error.status === 403 && error.code === 'HEALTH_CONSENT_REQUIRED') return { state: 'consent-required', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null, requiredConsent: 'HEALTH_CONSTRAINTS' };
-  return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: readableApiError(error, getApiLanguage() !== 'en'),
+  if (error instanceof ApiClientError && error.status === 409) return { state: 'conflict', jobId, progress: null, stage: null, canCancel: false, errorMessage: localizeServer(error.message), resultRef: null };
+  if (error instanceof ApiClientError && error.status === 403 && error.code === 'HEALTH_CONSENT_REQUIRED') return { state: 'consent-required', jobId, progress: null, stage: null, canCancel: false, errorMessage: localizeServer(error.message), resultRef: null, requiredConsent: 'HEALTH_CONSTRAINTS' };
+  return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: localizeServer(readableApiError(error, getCurrentLanguage() === 'ko')),
     resultRef: null };
 }
 export function createRecommendationJobAdapter(accessToken: string | null): RecommendationJobAdapter { return {
