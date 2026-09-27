@@ -88,7 +88,6 @@ export function RouteMap({
     }),
     [routes, stops],
   );
-  const hasSlopePieces = drawnRoutes.some((route) => 'segments' in route);
 
   const sendRender = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
@@ -230,12 +229,7 @@ export function RouteMap({
         javaScriptEnabled
         domStorageEnabled
       />
-      {/* 걷는 길 경사 색의 뜻 — 조각이 하나라도 그려질 때만(버튼 없이). 왼쪽 아래는 카카오 로고·축척 자리라 오른쪽 아래. */}
-      {hasSlopePieces ? (
-        <Text variant="caption" color={color.text.muted} style={styles.slopeNote}>
-          {tx('걷는 길 — 초록 완만 · 노랑 조금 가파름 · 빨강 경사 8.33% 이상·계단 · 회색 경사 모름', 'Walking paths — green gentle · yellow a bit steep · red 8.33%+ slope or stairs · gray slope unknown')}
-        </Text>
-      ) : null}
+      {/* 걷는 길 경사 색의 안내 문구는 뺐다 — 어색하다는 사용자 결정(S15P21E201-1820). 색 선은 그대로 긋는다. */}
       {onBackToList ? (
         <View style={styles.backRow}>
           <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} />
@@ -263,10 +257,6 @@ const styles = StyleSheet.create({
    * 빼면 부르는 화면 넷의 높이 계산이 같이 어긋난다.
    */
   backRow: { position: 'absolute', left: spacing[3], top: spacing[3] },
-  slopeNote: {
-    position: 'absolute', right: spacing[2], bottom: spacing[2], maxWidth: '92%',
-    paddingVertical: spacing[1], paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card,
-  },
   empty: { width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft },
   fallback: {
     width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft,
