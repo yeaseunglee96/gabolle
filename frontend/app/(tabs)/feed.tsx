@@ -13,6 +13,7 @@ import { PencilIcon } from '@/components/PencilIcon';
 import { RegionPicker } from '@/components/RegionPicker';
 import { composeEntryFor } from '@/social/composeEntry';
 import { PhotoGrid } from '@/components/PhotoGrid';
+import { PhotoCarousel } from '@/social/PhotoCarousel';
 import { markdownToPlain } from '@/social/markdown';
 import { MarkdownPreview } from '@/social/MarkdownPreview';
 import { Button } from '@/components/Button';
@@ -83,22 +84,21 @@ function Avatar({ name, compact }: { name: string; compact: boolean }) {
   </View>;
 }
 
-/** 커버 — 카드 맨 위의 사진 자리 */
+/**
+ * 커버 — 카드 맨 위의 사진 자리.
+ * 여러 장이면 옆으로 넘기고, 아래 점이 몇 번째인지 따라간다(S15P21E201-1787). 전에는 첫 장만 그리고 점은 장수만 알렸다.
+ * 사진을 누르면 전처럼 상세로 간다 — 넘기는 손짓은 사진 줄이 가져가고, 누르기는 사진이 받는다.
+ */
 function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: boolean; onOpen: () => void }) {
   const { tx } = useI18n();
   const photos = story.images ?? [];
-  const dots = Math.min(photos.length, 5);
+  const coverStyle = [styles.cover, compact ? styles.coverPhone : styles.coverWide];
 
-  const inner = photos.length
-    ? <>
-        <Image source={{ uri: photos[0].url }} resizeMode="cover" style={styles.coverImage} accessibilityIgnoresInvertColors />
-        {dots > 1
-          ? <View style={styles.dots}>{Array.from({ length: dots }).map((_, index) => (
-              <View key={index} style={[styles.dot, index === 0 && styles.dotFirst]} />
-            ))}</View>
-          : null}
-      </>
-    : <View style={styles.coverEmpty}>
+  if (photos.length) {
+    return <PhotoCarousel urls={photos.map((photo) => photo.url)} onPressPhoto={onOpen} pressLabel={tx('기록 자세히 보기', 'View record details')} style={coverStyle} />;
+  }
+
+  const inner = <View style={styles.coverEmpty}>
         <Text variant={compact ? 'display' : 'title'} weight="bold" color={color.text.heading} numberOfLines={5} style={styles.coverEmptyText}>
           {/* 코스 링크는 아래 코스 카드로 그린다 — 글자로 또 쓰지 않는다(S15P21E201-1593). */}
           {markdownToPlain(withoutCourseLink(story.body, findCourseLink(story.body)))}
@@ -110,7 +110,7 @@ function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: bool
       accessibilityRole="link"
       accessibilityLabel={tx('기록 자세히 보기', 'View record details')}
       onPress={onOpen}
-      style={[styles.cover, compact ? styles.coverPhone : styles.coverWide]}
+      style={coverStyle}
     >
       {inner}
     </Pressable>
@@ -1090,13 +1090,9 @@ const styles = StyleSheet.create({
   coverPhone: { height: 300 },
   /** 넓은 화면은 정사각. 2열로 놓을 때 줄이 맞는다. */
   coverWide: { aspectRatio: 1 },
-  coverImage: { width: '100%', height: '100%' },
   // 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
   coverEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[6], backgroundColor: color.surface.tint },
   coverEmptyText: { textAlign: 'center' },
-  dots: { position: 'absolute', left: 0, right: 0, bottom: spacing[3], flexDirection: 'row', justifyContent: 'center', gap: spacing[1] },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.surface.card, opacity: 0.5 },
-  dotFirst: { opacity: 1 },
   // 사진 위가 아니라 카드 맨 위 한 줄이다. 반투명 배경이 필요 없어졌다.
   cardHead: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], paddingHorizontal: spacing[3], paddingTop: spacing[3], paddingBottom: spacing[2] },
   byline: { flexShrink: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: spacing[1] },

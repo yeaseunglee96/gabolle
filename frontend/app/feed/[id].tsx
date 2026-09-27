@@ -13,6 +13,7 @@ import { PhotoGrid } from '@/components/PhotoGrid';
 import { Button } from '@/components/Button';
 import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
+import { PhotoCarousel } from '@/social/PhotoCarousel';
 import { bottomDockPosition } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
@@ -31,24 +32,16 @@ import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
-/** 상세 전용 사진 격자 — 3열 2행, 넘치면 마지막 칸에 「+N」 (시안 2a). */
+/**
+ * 상세 사진 — 큰 사진 한 장씩 옆으로 넘긴다. 아래 점이 몇 번째인지 따라간다(S15P21E201-1787, 사용자 요청).
+ * 전에는 3열 격자(시안 2a)라 사진이 작게만 보였다. 상세는 사진을 보러 오는 곳이라 자르지 않고 전체를 보인다(contain).
+ */
 function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
   const { tx } = useI18n();
   if (!images.length) return null;
-  const SLOTS = 6;
-  const shown = images.slice(0, SLOTS);
-  const rest = images.length - shown.length;
   return (
-    <View accessibilityLabel={tx('여행 기록 사진', 'Trip record photos')} style={styles.grid}>
-      {shown.map((image, index) => (
-        <View key={image.url} style={styles.gridCell}>
-          <Image source={{ uri: image.url }} resizeMode="cover" style={styles.gridImage} accessibilityIgnoresInvertColors />
-          {/* 마지막 칸에만, 그리고 남은 장수가 있을 때만 덮는다. */}
-          {rest > 0 && index === shown.length - 1
-            ? <View style={styles.gridMore}><Text variant="title" weight="bold" color={color.text.onAction}>+{rest}</Text></View>
-            : null}
-        </View>
-      ))}
+    <View accessibilityLabel={tx('여행 기록 사진', 'Trip record photos')}>
+      <PhotoCarousel urls={images.map((image) => image.url)} resizeMode="contain" style={styles.photos} />
     </View>
   );
 }
@@ -814,10 +807,7 @@ const styles = StyleSheet.create({
   images: { marginTop: spacing[2] },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   // ── 상세 2a ──────────────────────────────────────────────
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  gridCell: { position: 'relative', flexBasis: '31.5%', flexGrow: 1, aspectRatio: 1, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.soft },
-  gridImage: { width: '100%', height: '100%' },
-  gridMore: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(25,25,25,0.45)' },
+  photos: { aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
 
   placeHeading: { gap: spacing[2] },
   placeMetaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
