@@ -86,7 +86,8 @@ export default function Home() {
   // 🔴 홈이 그려지고 몇 초 뒤에 서버의 알림 요약 한 번으로 본다(S15P21E201-1702) — 전에는 여는 순간 여행마다 활동을 불렀다.
   const bellDot = useHomeBellDot({ userId: user?.userId ?? null, accessToken, visible: !topNav });
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
-  const saved = useSavedPlaces(accessToken);
+  // 비회원이 하트를 누르면 로그인으로 보내고 돌아온다 (S15P21E201-1795).
+  const saved = useSavedPlaces(accessToken, () => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } }));
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [openingTrip, setOpeningTrip] = useState(false);
   // 동백이 단추는 탭바 윗변에서 12 위 — 안전영역이 있는 폰이든 없는 웹이든 탭바와의 간격이 같다.

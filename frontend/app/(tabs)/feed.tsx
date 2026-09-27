@@ -721,6 +721,9 @@ export default function Feed() {
 
   /** 인용 — 링크를 복사하고 서버에 한 번 센다. 목록에서도 상세와 똑같이 된다. */
   const quote = async (story: StoryDto) => {
+    // 🔴 비회원은 로그인으로 보낸다 (S15P21E201-1795). 상세 화면과 같은 규칙이다 —
+    //    좋아요·저장은 막는데 인용만 열려 있어 비회원이 눌러도 인용 수가 올라갔다.
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } }); return; }
     await Clipboard.setStringAsync(storyShareUrl(story.id));
     setCopyNotice(tx('링크를 복사했어요. 붙여넣어 공유하세요.', 'Link copied. Paste it to share.'));
     const outcome = await recordStoryLinkCopy(story.id, accessToken);

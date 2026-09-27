@@ -118,6 +118,16 @@ export default function Place() {
 
   const toggleSaved = async () => {
     if (!id || !resolved) return;
+    // 🔴 비회원은 로그인으로 보낸다 (S15P21E201-1795).
+    //
+    // 전에는 그냥 저장되고 「내 여행 후보에 저장했어요. 일정을 만들 때 이 장소를 먼저
+    // 넣어요」가 떴다. 기기에는 남으므로 거짓말은 아니지만, 저 문구는 «서버가 일정에
+    // 반영한다»는 약속이다 — 비회원의 저장은 서버에 안 간다(savedPlaces 가 device-only 로
+    // 돌려준다). 로그인해서 돌아오면 그 장소는 어디에도 없다.
+    //
+    // 아래 `sync === 'failed'` 가지는 502 때 거짓 성공을 막으려고 넣은 것인데,
+    // device-only 는 그 가지에 안 걸려 그대로 성공 문구가 나갔다.
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/place/${id}` } }); return; }
     const nextSaved = !isSaved;
     const { sync } = await setSavedPlace(id, nextSaved, accessToken);
     setIsSaved(nextSaved);

@@ -61,7 +61,8 @@ export default function Welcome() {
   const home = useHomeData(isDesktop);
   // 하트는 화면이 한 번 쥐고 줄 둘에 내려 준다 — 줄마다 따로 쥐면 같은 장소가
   // 두 줄에 있을 때 한쪽만 켜진다.
-  const saved = useSavedPlaces(accessToken);
+  // 비회원이 하트를 누르면 로그인으로 보내고 돌아온다 (S15P21E201-1795).
+  const saved = useSavedPlaces(accessToken, () => router.push({ pathname: '/sign-in', params: { returnTo: '/' } }));
   const [assistantOpen, setAssistantOpen] = useState(false);
   const onToggleLike = (placeId: string) => {
     // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
