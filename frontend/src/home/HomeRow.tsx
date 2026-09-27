@@ -122,6 +122,12 @@ export function HomeRow({
         horizontal
         showsHorizontalScrollIndicator={false}
         decelerationRate="fast"
+        // 🔴 2026-09-27 — 손가락으로 밀어도 카드 «한 장» 단위로 멈춘다 (S15P21E201-1797).
+        //    전에는 멈추는 자리를 정하지 않아서, 갤럭시 S10 에서 첫 카드가 반쯤 잘린 채
+        //    섰다. 안쪽 여백(gutter)만큼 첫 카드가 밀려 있지만 그 여백은 0 번 자리에도
+        //    똑같이 있으므로, 멈출 자리는 그냥 «한 칸(step)의 배수» 다. 화살표도 같은 step 을 쓴다.
+        snapToInterval={step}
+        snapToAlignment="start"
         onScroll={(event) => { offset.current = event.nativeEvent.contentOffset.x; }}
         scrollEventThrottle={16}
         // 줄은 화면 좌우 끝까지 흐른다. 바깥 여백을 음수로 빼고 안쪽에서 다시 주면,
