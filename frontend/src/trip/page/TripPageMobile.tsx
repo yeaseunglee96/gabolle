@@ -81,6 +81,8 @@ import { StoryComposeForm } from '@/social/StoryComposeForm';
 
 type Tx = (ko: string, en: string) => string;
 type Panel = 'trip' | 'collapsed';
+/** 창 바탕 — 웹은 흐림과 함께 쓰는 유리색, 폰은 흐림이 없어 불투명(S15P21E201-1796). */
+const SHEET_BG = Platform.OS === 'web' ? color.surface.sheetGlass : color.surface.card;
 
 /**
  * 창이 열렸을 때 위에 남기는 지도 높이(안전영역 아래부터). 시안 390×844 에서 창 위끝이 236, 상태 줄이 47 이다.
@@ -257,7 +259,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const shellStyle = useAnimatedStyle(() => ({
     ...morphSize(grow.value, { width: barWidth, height: TAB_BAR_HEIGHT }, { width: sheetWidth, height: openHeight.value }),
     // 막대는 흰색, 창은 뒤의 지도가 비치는 유리색(S15P21E201-1627) — 자라면서 바뀐다.
-    backgroundColor: interpolateColor(grow.value, [0, 1], [color.surface.card, color.surface.sheetGlass]),
+    // 🔴 유리색은 웹만이다(S15P21E201-1796). 폰에는 흐림(backdropFilter)이 없어 지도가 글자 뒤로 그대로 비쳤다 — 폰은 불투명 흰색.
+    backgroundColor: interpolateColor(grow.value, [0, 1], [color.surface.card, SHEET_BG]),
     opacity: fade.value,
   }), [barWidth, sheetWidth]);
   const tabsStyle = useAnimatedStyle(() => ({ opacity: interpolate(grow.value, [0, TABS_OUT], [1, 0], Extrapolation.CLAMP) }));
@@ -1159,7 +1162,7 @@ const styles = StyleSheet.create({
   shellLayer: { position: 'absolute', bottom: 0, left: '50%' },
   // 🔴 창 뒤로 지도가 비친다 (S15P21E201-1627) — 탭바가 늘어난 것이지 지도 위에 판을 하나 덮은 것이 아니다.
   //    웹은 뒤를 흐려 글자가 지도 선과 겹쳐 읽히지 않게 한다. 네이티브는 흐림 없이 비침만(새 네이티브 모듈 없이).
-  sheet: { backgroundColor: color.surface.sheetGlass, ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px) saturate(1.2)' } as object) : null) },
+  sheet: { backgroundColor: SHEET_BG, ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px) saturate(1.2)' } as object) : null) },
   overlayHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingHorizontal: spacing[4], paddingBottom: spacing[2] },
   handleZone: { height: HANDLE, alignItems: 'center', justifyContent: 'center' },
   handle: { width: 36, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
