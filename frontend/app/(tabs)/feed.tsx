@@ -6,6 +6,7 @@ import { ActivityIndicator, Animated, Easing, Image, Platform, Pressable, Scroll
 import Svg, { Path, Rect } from 'react-native-svg';
 import * as Clipboard from 'expo-clipboard';
 import * as Location from 'expo-location';
+import { readCurrentPosition } from '@/location/currentPosition';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { sortByDistance } from '@/social/nearby';
 
@@ -571,7 +572,7 @@ export default function Feed() {
         if (!(await locationGate.request())) { if (alive) setHere('denied'); return; }
         const permission = await Location.requestForegroundPermissionsAsync();
         if (!permission.granted) { if (alive) setHere('denied'); return; }
-        const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const position = await readCurrentPosition();
         if (alive) setHere({ latitude: position.coords.latitude, longitude: position.coords.longitude });
       } catch {
         if (alive) setHere('denied');
@@ -648,7 +649,8 @@ export default function Feed() {
     setSavingStoryId(story.id);
     const outcome = await setStorySaved(story.id, nextSaved, accessToken);
     setSavingStoryId(null);
-    if (outcome.state !== 'success') return;
+    // 실패를 조용히 삼키면 별이 고장난 것처럼 보인다(S15P21E201-1824).
+    if (outcome.state !== 'success') { setCopyNotice(tx('지금은 반영하지 못했어요. 잠시 뒤 다시 눌러 주세요.', "Couldn't update that right now. Please tap again in a moment.")); return; }
     queryClient.setQueryData<{ state: 'success'; ids: Set<string> }>(['saved-story-ids', signedIn], (current) => {
       const ids = new Set(current?.ids ?? []);
       if (nextSaved) ids.add(story.id); else ids.delete(story.id);
@@ -668,7 +670,7 @@ export default function Feed() {
     setReactingStoryId(story.id);
     const outcome = await setStoryReaction(story.id, next, accessToken);
     setReactingStoryId(null);
-    if (outcome.state !== 'success') return;
+    if (outcome.state !== 'success') { setCopyNotice(tx('지금은 반영하지 못했어요. 잠시 뒤 다시 눌러 주세요.', "Couldn't update that right now. Please tap again in a moment.")); return; }
     replaceItems((current) => current.map((item) => (item.id === story.id ? applyReaction(item, next) : item)));
   };
 
@@ -719,7 +721,7 @@ export default function Feed() {
     // 🔴 비회원은 로그인으로 보낸다 (S15P21E201-1795). 상세 화면과 같은 규칙이다 —
     //    좋아요·저장은 막는데 인용만 열려 있어 비회원이 눌러도 인용 수가 올라갔다.
     if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } }); return; }
-    await Clipboard.setStringAsync(storyShareUrl(story.id));
+    try { await Clipboard.setStringAsync(storyShareUrl(story.id)); } catch { setCopyNotice(tx('링크를 복사하지 못했어요.', "Couldn't copy the link.")); return; }
     setCopyNotice(tx('링크를 복사했어요. 붙여넣어 공유하세요.', 'Link copied. Paste it to share.'));
     const outcome = await recordStoryLinkCopy(story.id, accessToken);
     if (outcome.state === 'success') replaceItems((current) => current.map((item) => (item.id === story.id ? outcome.story : item)));

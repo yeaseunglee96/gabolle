@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
+import { readCurrentPosition } from '@/location/currentPosition';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
@@ -65,7 +66,7 @@ export default function LocalExplore() {
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
       if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return; }
-      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const position = await readCurrentPosition();
       setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
       setLocationState('granted');
     } catch {
@@ -82,7 +83,7 @@ export default function LocalExplore() {
       // 읽고, 처음이거나 거부한 사람은 부산 중심 결과를 먼저 보여 준 뒤 버튼으로 선택하게 한다.
       const permission = await Location.getForegroundPermissionsAsync();
       if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return; }
-      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const position = await readCurrentPosition();
       setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
       setLocationState('granted');
     } catch {

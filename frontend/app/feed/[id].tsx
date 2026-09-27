@@ -441,7 +441,8 @@ export default function StoryDetail() {
     //    인용만 그냥 돌아서, 비회원이 눌러도 인용 수가 올라갔다. 세 단추가 나란히 있는데
     //    하나만 다르게 굴면 사람은 「이건 되는 기능」으로 읽는다.
     if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } }); return; }
-    await Clipboard.setStringAsync(storyShareUrl(story.id));
+    // 웹에서는 권한·포커스가 없으면 클립보드 쓰기가 거절된다 — 잡지 않으면 처리 안 된 오류로 남는다(S15P21E201-1824).
+    try { await Clipboard.setStringAsync(storyShareUrl(story.id)); } catch { setCopyNotice(tx('링크를 복사하지 못했어요.', "Couldn't copy the link.")); return; }
     setCopyNotice(tx('링크를 복사했어요.', 'Link copied.'));
     const outcome = await recordStoryLinkCopy(story.id, accessToken);
     if (outcome.state === 'success') setState({ status: 'loaded', story: outcome.story });
@@ -601,7 +602,8 @@ export default function StoryDetail() {
     setReacting(true);
     const outcome = await setStoryReaction(story.id, next, accessToken);
     setReacting(false);
-    if (outcome.state !== 'success') return;
+    // 실패를 조용히 삼키면 버튼이 고장난 것처럼 보인다(S15P21E201-1824) — 복사 알림과 같은 한 줄로 말한다.
+    if (outcome.state !== 'success') { setCopyNotice(tx('지금은 반영하지 못했어요. 잠시 뒤 다시 눌러 주세요.', "Couldn't update that right now. Please tap again in a moment.")); return; }
     setState((current) => (current.status === 'loaded'
       ? { ...current, story: applyReaction(current.story, next) }
       : current));
@@ -615,7 +617,7 @@ export default function StoryDetail() {
     setSaving(true);
     const outcome = await setStorySaved(story.id, nextSaved, accessToken);
     setSaving(false);
-    if (outcome.state !== 'success') return;
+    if (outcome.state !== 'success') { setCopyNotice(tx('지금은 반영하지 못했어요. 잠시 뒤 다시 눌러 주세요.', "Couldn't update that right now. Please tap again in a moment.")); return; }
     queryClient.setQueryData<{ state: 'success'; ids: Set<string> }>(['saved-story-ids', signedIn], (current) => {
       const ids = new Set(current?.ids ?? []);
       if (nextSaved) ids.add(story.id); else ids.delete(story.id);

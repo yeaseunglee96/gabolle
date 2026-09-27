@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
+import { readCurrentPosition } from '@/location/currentPosition';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { syncLocationConsent } from '@/personalization/locationConsent';
@@ -91,7 +92,7 @@ export default function Bus() {
     try {
       const permission = await Location.getForegroundPermissionsAsync();
       if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return null; }
-      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const position = await readCurrentPosition();
       const next = { latitude: position.coords.latitude, longitude: position.coords.longitude };
       setCoords(next);
       setLocationState('granted');
@@ -119,7 +120,7 @@ export default function Bus() {
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
       if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return; }
-      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const position = await readCurrentPosition();
       const next = { latitude: position.coords.latitude, longitude: position.coords.longitude };
       setCoords(next);
       setLocationState('granted');
