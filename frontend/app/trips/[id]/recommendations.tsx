@@ -125,9 +125,22 @@ function RecommendationsClassic() {
   const queryClient = useQueryClient();
   const { accessToken } = useAuth();
   const { tx, language } = useI18n();
-  const { kind } = useLayout();
+  const { kind, height: screenHeight } = useLayout();
   const insets = useSafeAreaInsets();
   const wide = kind !== 'phone';
+  // 🔴 시트 높이는 화면에 맞춘다 — 560 을 그대로 쓰면 가로에서 위가 잘린다 (S15P21E201-1788).
+  //
+  // TAB_BAR_SHEET_HEIGHT 는 피드 시안(04b)의 값이고, TabBar.tsx 가 「화면마다 다르다 …
+  // 여기 박아 두면 두 화면 중 하나는 반드시 틀린다」고 적어 둔 그 기본값이다. 마이페이지는
+  // myPageSheetHeight() 로 화면 높이에 맞추는데 이 화면만 상수를 그대로 썼다.
+  //
+  // 아이폰 가로는 높이가 402 뿐이라 560 시트는 위로 160 넘게 넘쳤다 — 코스 제목과
+  // 「해당 코스 일정 보기」 단추가 화면 밖으로 나가 코스를 고를 수 없었다.
+  // 아래여백은 탭바와 **같은 함수**로 구한다(두 곳에서 따로 계산하면 한쪽만 고쳐진다).
+  const sheetHeight = Math.min(
+    TAB_BAR_SHEET_HEIGHT,
+    Math.max(TAB_BAR_HEIGHT, screenHeight - insets.top - tabBarBottomMargin(insets.bottom) - spacing[2]),
+  );
   const ko = resolveTextLanguage(language) === 'ko';
   const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
   const tripId = id ?? '';
@@ -612,7 +625,7 @@ function RecommendationsClassic() {
           styles.courseBar,
           {
             bottom: tabBarBottomMargin(insets.bottom),
-            height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, TAB_BAR_SHEET_HEIGHT] }),
+            height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, sheetHeight] }),
             // 🔴 폭도 같이 자란다. 접혔을 때까지 시트 폭을 쓰면 아래 막대만 혼자 넓어
             //    탭바가 있던 자리와 어긋난다 — 같은 자리에 서는 것으로 안 읽힌다.
             maxWidth: grow.interpolate({ inputRange: [0, 1], outputRange: [BAR_MAX_WIDTH, SHEET_MAX_WIDTH] }),
