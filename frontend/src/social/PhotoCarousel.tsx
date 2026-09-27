@@ -5,12 +5,24 @@
 //
 // 🔴 웹은 마우스로 끌어 넘기기가 안 된다 — 웹에서만 좌우 화살표를 둔다. 폰은 손가락으로 넘긴다.
 // 읽기 이름은 카탈로그에 이미 있는 문구(「이전」·「다음」·「사진 %d/%d」)를 쓴다 — 새 문구는 일본어·중국어로 떨어진다.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image, Platform, Pressable, ScrollView, StyleSheet, View, type ImageResizeMode, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+
+/**
+ * 첫 사진 비율로 틀을 맞출 때의 한계(가로 ÷ 세로). 인스타그램과 같은 폭 — 가로는 1.91:1, 세로는 4:5 까지.
+ * 파노라마·세로로 긴 캡처가 화면을 통째로 차지하거나 한 줄로 납작해지지 않게 자른다.
+ */
+export const FRAME_RATIO = { min: 4 / 5, max: 1.91 } as const;
+
+/** 첫 사진의 가로·세로로 틀 비율을 정한다. 크기를 모르면 null — 부르는 쪽의 기본 비율을 쓴다. */
+export function photoFrameRatio(width: number, height: number): number | null {
+  if (!(width > 0) || !(height > 0)) return null;
+  return Math.min(FRAME_RATIO.max, Math.max(FRAME_RATIO.min, width / height));
+}
 
 /** 가로 위치(x)와 한 장 폭(width)으로 지금 보이는 사진 번호를 구한다. 끝을 넘겨 튕겨도 범위 안에 둔다. */
 export function photoIndexAt(x: number, width: number, count: number): number {
@@ -23,6 +35,7 @@ export function PhotoCarousel({
   resizeMode = 'cover',
   onPressPhoto,
   pressLabel,
+  fitFirstPhoto = false,
   style,
 }: {
   urls: string[];
@@ -32,6 +45,11 @@ export function PhotoCarousel({
   onPressPhoto?: () => void;
   /** 사진을 누르는 자리의 읽기 이름. */
   pressLabel?: string;
+  /**
+   * 틀을 첫 사진 비율로 맞춘다(상세, S15P21E201-1787). 서버가 사진 크기를 안 주므로 불러와서 잰다 — 재기 전에는 부르는 쪽 비율이다.
+   * 나머지 사진은 그 틀에 맞춰 잘린다. 넘길 때 틀 높이가 바뀌면 아래 글이 튀어서, 틀은 한 번 정하면 그대로 둔다.
+   */
+  fitFirstPhoto?: boolean;
   /** 크기(높이 또는 비율)는 부르는 쪽이 정한다. */
   style?: StyleProp<ViewStyle>;
 }) {
@@ -40,6 +58,15 @@ export function PhotoCarousel({
   const [index, setIndex] = useState(0);
   const scroller = useRef<ScrollView>(null);
   const count = urls.length;
+  const first = urls[0];
+  const [ratio, setRatio] = useState<number | null>(null);
+  useEffect(() => {
+    if (!fitFirstPhoto || !first || typeof Image.getSize !== 'function') return undefined;
+    let alive = true;
+    // 못 재면(주소 오류 등) 부르는 쪽 비율로 둔다 — 사진 자리가 사라지지 않게.
+    Image.getSize(first, (w, h) => { if (alive) setRatio(photoFrameRatio(w, h)); }, () => {});
+    return () => { alive = false; };
+  }, [fitFirstPhoto, first]);
 
   const onLayout = (event: LayoutChangeEvent) => setWidth(Math.round(event.nativeEvent.layout.width));
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -61,7 +88,7 @@ export function PhotoCarousel({
   };
 
   return (
-    <View onLayout={onLayout} style={[styles.frame, style]}>
+    <View onLayout={onLayout} style={[styles.frame, style, ratio ? { aspectRatio: ratio } : null]}>
       {count > 1 ? (
         <ScrollView
           ref={scroller}
