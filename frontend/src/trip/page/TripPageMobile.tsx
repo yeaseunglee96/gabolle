@@ -92,6 +92,9 @@ const SHEET_BG = Platform.OS === 'web' ? color.surface.sheetGlass : color.surfac
 const MAP_PEEK = 190;
 /** 접었을 때 탭바 위에 뜨는 정차지 카드 폭(시안 150). */
 const STRIP_CARD = 150;
+// 🔴 카드 줄이 멈추는 한 칸 = 카드 폭 + 카드 사이 간격(stripInner 의 gap) (S15P21E201-1800).
+//    좌우 안쪽 여백(paddingHorizontal)은 0 번 자리에도 똑같이 있으므로 배수 자리가 곧 카드 시작점이다.
+const STRIP_STEP = STRIP_CARD + spacing[2];
 /** 타임라인 왼쪽 기둥 폭(시안 그리드 48px | 1fr). */
 const RAIL = 48;
 const THUMB = 64;
@@ -716,6 +719,10 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           style={[styles.strip, { bottom: bottomMargin + TAB_BAR_HEIGHT + spacing[2] }, stripStyle]}
           onLayout={(event) => setStripHeight(Math.ceil(event.nativeEvent.layout.height))}
           contentContainerStyle={styles.stripInner}
+          // 🔴 손을 떼면 카드 «한 장» 단위로 선다 — 전에는 멈출 자리가 없어 카드가 반쯤 잘린 채 섰다 (S15P21E201-1800).
+          snapToInterval={STRIP_STEP}
+          snapToAlignment="start"
+          decelerationRate="fast"
         >
           {items.map((item, index) => (
             <ImpressionView key={item.id} tracker={impressions} placeId={item.placeId} requestId={item.requestId}>
