@@ -6,6 +6,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Pressable } from 'react-native';
 
 import { Eyebrow } from '@/components/Eyebrow';
+import { shouldDismiss, useSheetDrag } from '@/components/sheetDrag';
 import { Text } from '@/components/Text';
 import { tabBarBottomMargin } from '@/components/TabBar';
 import { color, radius, spacing } from '@/design/tokens';
@@ -55,7 +56,11 @@ export function MyPageSheetBody({
   children: React.ReactNode;
   tx: (ko: string, en: string) => string;
 }) {
+  // 손잡이나 머리(제목 줄)를 잡고 끌어 내려도 내린다(S15P21E201-1787). 누르기는 그대로 — 손잡이·「내리기」 칩이 받는다.
+  const drag = useSheetDrag({ onEnd: (dy, vy) => { if (shouldDismiss(dy, vy)) onClose(); } });
+
   return <>
+    <View {...drag}>
     {/* 위 손잡이 — 누르면 내린다. 누르는 자리는 보이는 막대보다 넓다. */}
     <Pressable
       accessibilityRole="button"
@@ -76,13 +81,15 @@ export function MyPageSheetBody({
         <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1}>{tx('내리기', 'Close')}</Text>
       </Pressable>
     </View>
+    </View>
 
     <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>{children}</ScrollView>
   </>;
 }
 
 const styles = StyleSheet.create({
-  handleHit: { alignSelf: 'center', width: 44, height: 20, alignItems: 'center', justifyContent: 'center' },
+  // 누르는 자리를 창 폭 전체로 넓혔다(S15P21E201-1787) — 44 폭이면 막대 옆을 잡으면 안 눌렸다. 높이는 그대로라 배치는 같다.
+  handleHit: { alignSelf: 'stretch', height: 20, alignItems: 'center', justifyContent: 'center' },
   handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: color.surface.field },
   head: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] },
   headCopy: { flex: 1, gap: spacing[1], minWidth: 0 },

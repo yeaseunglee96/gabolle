@@ -1,10 +1,11 @@
 // 여행 이름 바꾸기 · 붙이기 · 지우기. 시안 `design_handoff_trip_name_flow`.
 
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { useSheetBottomPadding } from '@/components/sheetBottomInset';
+import { shouldDismiss, useSheetDrag } from '@/components/sheetDrag';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -215,6 +216,23 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
     </>
   );
 
+  // 손잡이를 잡고 끌어 내리면 닫힌다(S15P21E201-1787). 끄는 동안 창이 손가락을 따라 내려오고, 덜 내렸으면 제자리로 돌아간다.
+  const dragY = useRef(new Animated.Value(0)).current;
+  const sheetDrag = useSheetDrag({
+    onMove: (dy) => dragY.setValue(Math.max(0, dy)),
+    onEnd: (dy, vy) => {
+      if (shouldDismiss(dy, vy)) { onClose(); return; }
+      Animated.spring(dragY, { toValue: 0, bounciness: 0, useNativeDriver: true }).start();
+    },
+  });
+
+  const sheet = (
+    <Pressable onPress={() => {}} style={kind === 'phone' ? [styles.sheet, { paddingBottom: bottomPad }] : styles.card}>
+      {kind === 'phone' ? <View {...sheetDrag} style={styles.handleZone}><View style={styles.handle} /></View> : null}
+      {body}
+    </Pressable>
+  );
+
   return (
     <Modal transparent visible animationType={kind === 'phone' ? 'slide' : 'fade'} onRequestClose={onClose}>
       {/* 🔴 키보드가 입력칸을 가리지 않게(S15P21E201-1684, iOS 심사 공지의 알려진 문제). Modal 은 앱 화면(Screen) 바깥이라
@@ -226,11 +244,8 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
           onPress={onClose}
           style={[styles.backdrop, kind === 'phone' ? styles.backdropPhone : styles.backdropWide]}
         >
-          {/* 안쪽을 눌렀을 때 닫히지 않게 누름을 여기서 멈춘다. */}
-          <Pressable onPress={() => {}} style={kind === 'phone' ? [styles.sheet, { paddingBottom: bottomPad }] : styles.card}>
-            {kind === 'phone' ? <View style={styles.handle} /> : null}
-            {body}
-          </Pressable>
+          {/* 안쪽을 눌렀을 때 닫히지 않게 누름을 여기서 멈춘다(sheet 의 빈 onPress). */}
+          {kind === 'phone' ? <Animated.View style={{ transform: [{ translateY: dragY }] }}>{sheet}</Animated.View> : sheet}
         </Pressable>
       </KeyboardAvoidingView>
     </Modal>
@@ -250,7 +265,9 @@ const styles = StyleSheet.create({
     backgroundColor: color.brand.ivory, borderRadius: radius.lg, padding: spacing[6],
     gap: spacing[3], width: '100%', maxWidth: 480,
   },
-  handle: { width: 40, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field, alignSelf: 'center', marginBottom: spacing[2] },
+  // 잡는 자리는 창 폭 전체·위 여백까지 넓힌다 — 음수 여백으로 넓혀서 막대가 보이는 자리와 아래 배치는 전과 같다.
+  handleZone: { marginTop: -spacing[6], marginHorizontal: -spacing[6], paddingTop: spacing[6], paddingBottom: spacing[2], alignItems: 'center' },
+  handle: { width: 40, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
   suggestions: { gap: spacing[2] },
   softCard: { backgroundColor: color.surface.soft, borderRadius: radius.md, paddingVertical: spacing[3], paddingHorizontal: spacing[4], gap: spacing[1] },
   tintCard: { backgroundColor: color.surface.tint, borderRadius: radius.md, padding: spacing[3] },

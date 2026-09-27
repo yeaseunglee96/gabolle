@@ -24,6 +24,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 import { Skeleton } from '@/components/Skeleton';
+import { settleSheetHeight, useSheetDrag } from '@/components/sheetDrag';
 import { MAX_CONTENT_WIDTH } from '@/components/Screen';
 import { StopName } from '@/components/StopName';
 import { BAR_MAX_WIDTH, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
@@ -94,8 +95,13 @@ const RAIL = 48;
 const THUMB = 64;
 /** 첫 칸 기둥의 위 여백 — 날짜 표시가 이만큼 내려와 선다. */
 const RAIL_FIRST_TOP = 6;
-/** 창의 손잡이 줄 높이(시안 24). */
-const HANDLE = 24;
+/**
+ * 창의 손잡이 줄 높이. 시안은 24 인데 36 으로 키웠다(S15P21E201-1787) — 잡고 끌어 내리는 자리라 24 로는 손가락이 자주 빗나갔다.
+ * 보이는 막대(36×4)는 그대로다.
+ */
+const HANDLE = 36;
+/** 손잡이를 끌어 창을 낮출 수 있는 가장 낮은 높이. 이보다 낮게 내리면 접는다 — 손잡이·제목 한 줄은 남아야 창으로 읽힌다. */
+const MIN_OPEN = TAB_BAR_HEIGHT * 3;
 /** 시안의 곡선 — 미끄러짐·접힘은 부드러운 곡선. */
 const SLIDE = Easing.bezier(0.2, 0.8, 0.2, 1);
 /**
@@ -195,14 +201,19 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   //    지도에 알려서, 고른 곳을 보이는 부분의 가운데로 옮기게 한다(RouteMap 의 bottomInset).
   const mapHeight = height;
   const [stripHeight, setStripHeight] = useState(0);
-  const mapCovered = panel === 'trip' ? height - sheetTop : bottomMargin + TAB_BAR_HEIGHT + spacing[2] + stripHeight;
+  // 손잡이를 끌어 정한 창 높이(S15P21E201-1787). null 이면 다 편 높이다. 지도에 알리는 값이라 손을 뗀 뒤에만 바뀐다.
+  const [resizedHeight, setResizedHeight] = useState<number | null>(null);
+  const mapCovered = panel === 'trip'
+    ? (resizedHeight !== null ? resizedHeight + bottomMargin : height - sheetTop)
+    : bottomMargin + TAB_BAR_HEIGHT + spacing[2] + stripHeight;
   // 지도 위쪽도 가려져 있다 — 상태바, 그 아래 「장소 N곳」 요약(높이 40 자리)과 「경사/그늘」 칩(32). 지도 칸은 모서리를
   // 숨기려 radius.lg 만큼 화면 위로 올라가 있어 그것도 더한다(S15P21E201-1754). 칩 아래 풀이 줄은 켰을 때만 떠서 셈하지 않는다.
   const mapTopCovered = radius.lg + insets.top + spacing[2] + 40 + 32;
   // 🔴 «지도 보기»로 접는 순간에만 지도를 다시 맞춘다(S15P21E201-1754). 창이 열린 채 맞춘 큰 아래 여백이 남아 경로가
   //    화면 위 15% 에 몰렸다. 창을 열 때는 null 이라 안 맞춘다 — 여닫을 때마다 튀지 않게(S15P21E201-1607).
   //    카드 줄 높이가 재어지면 한 번 더 맞춘다(접은 직후 한 번뿐이다).
-  const mapRefitKey = panel === 'collapsed' ? `collapsed:${stripHeight}` : null;
+  //    창을 끌어 낮췄을 때도 맞춘다 — 창을 낮춘 것은 지도를 더 보려는 것이라, 드러난 곳에 경로를 다시 놓아야 한다(S15P21E201-1787).
+  const mapRefitKey = panel === 'collapsed' ? `collapsed:${stripHeight}` : resizedHeight !== null ? `open:${resizedHeight}` : null;
 
   // 🔴 창 안의 내용이 바뀔 때 한 프레임에 툭 바뀌지 않게 한다 (S15P21E201-1627). 창은 부드럽게 오르는데 안만 툭
   //    바뀌면 다른 화면으로 튄 것처럼 읽혔다. 들어가는 판은 오른쪽에서, 일정으로 돌아올 때는 왼쪽에서 온다.
@@ -225,6 +236,9 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const grow = useSharedValue(panel === 'trip' ? 1 : 0);
   /** 움직임 줄이기일 때만 쓴다 — 늘어나는 대신 서서히 나타난다. */
   const fade = useSharedValue(1);
+  /** 편 창의 높이 — 손잡이를 끄는 동안 손가락을 따라간다(S15P21E201-1787). 처음과 접은 뒤에는 다 편 높이다. */
+  const openHeight = useSharedValue(sheetHeight);
+  useEffect(() => { openHeight.value = sheetHeight; setResizedHeight(null); }, [sheetHeight, openHeight]);
   // 🔴 누르면 움직임부터 시작하고, 창 상태(panel)는 움직임이 «끝난 뒤» 바꾼다(S15P21E201-1763, 사용자: 「갤럭시 크롬에서는 좀 버벅인다」).
   //    panel 이 바뀌면 여행 화면 전체(일정 목록까지)를 다시 그린다. 전에는 상태를 먼저 바꾸고 그 뒤에 움직였는데, CPU 6배 느림
   //    실측으로 누른 뒤 움직이기까지 240~350ms 였고 거의 전부 그 다시 그리기였다 — 웹에서는 Reanimated 도 같은 주 스레드에서 돌아
@@ -241,13 +255,14 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
     });
   };
   const shellStyle = useAnimatedStyle(() => ({
-    ...morphSize(grow.value, { width: barWidth, height: TAB_BAR_HEIGHT }, { width: sheetWidth, height: sheetHeight }),
+    ...morphSize(grow.value, { width: barWidth, height: TAB_BAR_HEIGHT }, { width: sheetWidth, height: openHeight.value }),
     // 막대는 흰색, 창은 뒤의 지도가 비치는 유리색(S15P21E201-1627) — 자라면서 바뀐다.
     backgroundColor: interpolateColor(grow.value, [0, 1], [color.surface.card, color.surface.sheetGlass]),
     opacity: fade.value,
-  }), [barWidth, sheetWidth, sheetHeight]);
+  }), [barWidth, sheetWidth]);
   const tabsStyle = useAnimatedStyle(() => ({ opacity: interpolate(grow.value, [0, TABS_OUT], [1, 0], Extrapolation.CLAMP) }));
-  const sheetInnerStyle = useAnimatedStyle(() => ({ opacity: interpolate(grow.value, [CONTENT_IN[0], CONTENT_IN[1]], [0, 1], Extrapolation.CLAMP) }));
+  // 창 속 높이도 편 창 높이를 따라간다 — 속은 바닥에 붙어 있어서, 창만 낮추면 손잡이와 제목이 위로 잘려 나간다.
+  const sheetInnerStyle = useAnimatedStyle(() => ({ height: openHeight.value, opacity: interpolate(grow.value, [CONTENT_IN[0], CONTENT_IN[1]], [0, 1], Extrapolation.CLAMP) }));
   // 정차지 카드 줄은 접힌 막대 위에만 있다 — 펴기 시작하면 곧바로 숨긴다. 창 상태는 움직임이 끝나야 바뀌므로(changePanel)
   // 그것만 보면 커지는 창 양옆으로 끝까지 비쳤다(S15P21E201-1763 사진). 접을 때는 다 접힌 뒤에 나타난다.
   const stripStyle = useAnimatedStyle(() => ({ opacity: grow.value > 0 ? 0 : 1 }));
@@ -267,6 +282,20 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   };
   // 창을 접으면 창 안에 열어 둔 판(동행 초대 등)도 닫는다 — 다시 펴면 일정이 보여야 한다.
   useEffect(() => { if (panel === 'collapsed') setOverlay(null); }, [panel]);
+  // 접으면 끌어 정한 높이도 잊는다 — 「일정 펼치기」는 늘 다 편 창을 연다.
+  useEffect(() => { if (panel === 'collapsed') { openHeight.value = sheetHeight; setResizedHeight(null); } }, [panel, sheetHeight, openHeight]);
+  // 손잡이 끌기(S15P21E201-1787) — 조금 내리면 그 높이에 멈추고(지도가 더 보인다), 많이 내리거나 빠르게 쓸면 접는다. 누르면 지금처럼 접힌다.
+  const dragFrom = useRef(sheetHeight);
+  const handleDrag = useSheetDrag({
+    onStart: () => { dragFrom.current = openHeight.value; },
+    onMove: (dy) => { openHeight.value = Math.min(sheetHeight, Math.max(TAB_BAR_HEIGHT, dragFrom.current - dy)); },
+    onEnd: (dy, vy) => {
+      const settled = settleSheetHeight(dragFrom.current, dy, vy, { min: MIN_OPEN, max: sheetHeight });
+      if (settled.collapse) { changePanel('collapsed'); return; }
+      openHeight.value = withTiming(settled.height, { duration: 160, easing: REasing.out(REasing.quad) });
+      setResizedHeight(settled.height >= sheetHeight ? null : settled.height);
+    },
+  });
   // 창 안의 판은 뒤로 가기(안드로이드)·Escape(웹)로도 닫힌다 — 전에 모달이 하던 일이다.
   useEffect(() => {
     if (!overlay) return undefined;
@@ -728,11 +757,13 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         <Reanimated.View
           pointerEvents={panel === 'trip' ? 'auto' : 'none'}
           aria-hidden={panel !== 'trip' || undefined}
-          style={[styles.shellLayer, { width: sheetWidth, height: sheetHeight, marginLeft: -sheetWidth / 2 }, sheetInnerStyle]}
+          style={[styles.shellLayer, { width: sheetWidth, marginLeft: -sheetWidth / 2 }, sheetInnerStyle]}
         >
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 접기', 'Hide itinerary')} onPress={() => changePanel('collapsed')} style={styles.handleZone}>
-            <View style={styles.handle} />
-          </Pressable>
+          <View {...handleDrag}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 접기', 'Hide itinerary')} onPress={() => changePanel('collapsed')} style={styles.handleZone}>
+              <View style={styles.handle} />
+            </Pressable>
+          </View>
           {/* 🔴 동행 초대·공유·날씨·기록 남기기는 창 «안에서» 내용만 바꾼다(S15P21E201-1607). 전에는 창 위에 아래 판이 하나 더 올라와
               두 겹이 됐다.
               정정(2026-09-26, S15P21E201-1760): 「기록 남기기」는 글쓰기 화면으로 이동했었다(-1607 때 사용자 결정). 그러면 지도와
