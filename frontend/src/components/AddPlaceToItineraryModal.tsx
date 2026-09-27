@@ -7,6 +7,7 @@ import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } fro
 import { useRouter } from 'expo-router';
 
 import { addItineraryItem, recalculateItineraryDay } from '@/plan/itinerary';
+import { effectiveTripStatus } from '@/trip/tripStatus';
 import { loadTripItineraries, loadTrips, tripDisplayTitle, type TripItineraryRefDto, type TripSummaryDto } from '@/trip/trips';
 import { useAuth } from '@/auth/AuthProvider';
 import { color, radius, spacing } from '@/design/tokens';
@@ -70,7 +71,9 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
       if (!active) return;
       if (result.state !== 'success') { setErrorMessage(result.message); setStep('error'); return; }
       // VIEWER 는 이 여행에 못 더한다 — 일정이 아직 없는(PLANNING) 여행도 못 더한다.
-      const eligible = result.trips.filter((trip) => trip.role !== 'VIEWER' && trip.status === 'READY');
+      // 🔴 끝난 여행도 뺀다 — 날짜로 판정한다. 서버 status 는 배치로 늦어 어제 끝난 여행이 READY 로
+      //    남고, 그러면 10월 축제가 9월의 지난 날에 더해졌다(S15P21E201-1786). 진행 중 여행은 넣는다.
+      const eligible = result.trips.filter((trip) => trip.role !== 'VIEWER' && trip.status !== 'PLANNING' && effectiveTripStatus(trip) !== 'COMPLETED');
       setTrips(eligible);
       setStep('pickTrip');
     })();
