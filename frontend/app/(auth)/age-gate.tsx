@@ -51,7 +51,7 @@ export default function AgeGate() {
       <View style={[styles.panel, kind === 'tablet' && styles.webPanel]}>
       {kind === 'tablet' && <View style={styles.webIntro}><Eyebrow>{tx('가볼래 · 부산', 'GABOLLE · Busan')}</Eyebrow><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>{tx('누구나 안심하고\n부산을 여행하도록', 'So anyone can travel\nBusan with confidence')}</Text><Text variant="body" color={color.text.onDarkMuted}>{tx('연령 확인은 안전한 서비스 이용을 위한 최소한의 절차예요. 생년월일은 수집하지 않습니다.', 'Age verification is a minimal step to keep the service safe. We do not collect your birth date.')}</Text><View style={styles.webTrust}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('✓ 생년월일 미수집', '✓ No birth date collected')}</Text><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('✓ 한 번만 확인', '✓ Verified only once')}</Text></View></View>}
       <View style={[styles.gateContent, kind === 'tablet' && styles.webGateContent]}>
-      <View style={styles.header}><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /><View style={styles.step}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('가입 전 확인', 'Before you continue')}</Text></View></View>
+      <View style={styles.header}><BrandLogoLink enter href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /><View style={styles.step}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('가입 전 확인', 'Before you continue')}</Text></View></View>
       <View style={styles.body}>
         <View style={styles.ageMark}><Text variant="title" weight="bold" color={color.action.secondary}>14+</Text></View>
         <Text variant="display" weight="bold" color={color.brand.navy}>

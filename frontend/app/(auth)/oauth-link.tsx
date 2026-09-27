@@ -83,7 +83,7 @@ export default function OAuthLink() {
         <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.replace('/sign-in')} style={styles.backLink}>
           <Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text>
         </Pressable>
-        <BrandLogoLink href="/home" imageStyle={styles.logo} />
+        <BrandLogoLink enter href="/home" imageStyle={styles.logo} />
       </View>
       <Text variant="display" weight="bold" style={styles.title}>{tx('이미 가입된 이메일이에요', 'This email is already registered')}</Text>
       <Text variant="body" color={color.text.body} style={styles.subtitle}>

@@ -176,7 +176,7 @@ export default function SignUp() {
 
   return (
     <Screen scroll wide>
-      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/sign-in')} style={styles.backLink}><Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text></Pressable><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
+      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/sign-in')} style={styles.backLink}><Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text></Pressable><BrandLogoLink enter href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
       <View style={[styles.columns, kind === 'tablet' && styles.columnsWide]}>
         {kind === 'tablet' && <View style={styles.photoPanel}>
           <Image source={introPhoto} resizeMode="cover" accessible={false} accessibilityIgnoresInvertColors style={styles.photoPanelImage} />
