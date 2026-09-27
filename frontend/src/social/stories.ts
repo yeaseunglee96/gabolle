@@ -1,4 +1,6 @@
+import type { QueryClient } from '@tanstack/react-query';
 import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL, APP_WEB_BASE_URL } from '@/api/client';
+import { queryClient as defaultQueryClient } from '@/api/queryClient';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 import { singleFileFormData } from '@/api/multipart';
 import { txf } from '@/i18n/format';
@@ -187,6 +189,28 @@ export const FEED_QUERY_PREFIX = ['feed'] as const;
 // 🔴 정렬이 열쇠에 들어간다 — 갈래를 바꾸면 커서도 새로 시작해야 한다. 인기순 커서를 최신순에 보내면 400(FEED_CURSOR_INVALID).
 export const feedQueryKey = (scope: FeedScope, signedIn: boolean, sort: FeedSort = 'RECENT') =>
   [...FEED_QUERY_PREFIX, scope, signedIn, sort] as const;
+/**
+ * 팔로우·글쓰기 뒤 보관소를 비운다 — S15P21E201-1778(고지혁 QA).
+ *
+ * 🔴 보관소는 30초(staleTime) 동안 받은 목록을 그대로 보여 준다. 팔로우한 뒤 팔로잉 갈래를 열면
+ *    팔로우 전에 받은 「팔로우한 사람의 기록이 없어요」가 다시 불러올 때까지 떠 있었고, 글을 쓴 뒤
+ *    「내 피드」·마이페이지 기록에 방금 쓴 글이 없었다. invalidate 는 옛 목록을 그린 채 다시 불러오므로
+ *    그동안 거짓 빈 화면이 보인다 — reset 으로 옛 목록을 버려 「불러오는 중」을 보인다.
+ */
+export function resetFeedAfterFollowChange(client: QueryClient = defaultQueryClient) {
+  // 팔로잉 갈래와, 팔로우한 사람을 먼저 올리는 추천 갈래가 바뀐다.
+  return client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && (query.queryKey[1] === 'FOLLOWING' || query.queryKey[1] === 'FOR_YOU') });
+}
+
+export function resetFeedAfterPost(client: QueryClient = defaultQueryClient) {
+  return Promise.all([
+    client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] === 'MINE' }),
+    client.resetQueries({ queryKey: ['me', 'stories'] }),
+    // 다른 갈래(전체·추천)는 새 글이 한 줄 끼는 것뿐이라 옛 목록을 두고 다시 불러온다.
+    client.invalidateQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] !== 'MINE' }),
+  ]);
+}
+
 export type FeedLoadResult = { state: 'success'; items: StoryDto[]; nextCursor: string | null; applied?: FeedApplied | null; restarted?: boolean } | FeedFailure;
 
 export async function loadFeed(input: { scope: FeedScope; sort?: FeedSort; cursor?: string | null; limit?: number; accessToken: string | null }): Promise<FeedLoadResult> {
@@ -265,6 +289,8 @@ export async function createStory(input: {
         videoUrl: input.videoUrl,
       },
     }));
+    // 댓글은 피드 목록에 안 나온다 — 원글일 때만 비운다.
+    if (!input.parentStoryId) void resetFeedAfterPost();
     return { state: 'success', story };
   } catch (error) {
     return failure(error);
@@ -451,6 +477,7 @@ export async function setFollowing(userId: string, following: boolean, accessTok
       `/api/v1/users/${encodeURIComponent(userId)}/follow`,
       { method: following ? 'PUT' : 'DELETE', accessToken },
     );
+    void resetFeedAfterFollowChange();
     return { state: 'success', following: dto.following, followerCount: dto.followerCount, followingCount: dto.followingCount };
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 400 && error.code === 'FOLLOW_SELF') return { state: 'error', message: '자기 자신은 팔로우할 수 없어요.' };
