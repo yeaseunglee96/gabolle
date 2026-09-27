@@ -163,6 +163,9 @@ public class StoryResponseAssembler {
 			//    docs/VULNERABILITY-REPORT.md. 본문은 아래에서 인코딩을 유지한다(S15P21E201-835).
 			String displayName = (author == null || author.getDeletedAt() != null || author.getDisplayName() == null
 					|| author.getDisplayName().isBlank()) ? "탈퇴한 사용자" : author.getDisplayName();
+			// 프로필 사진은 팔로우 목록(RelationItemResponse)과 같은 칸(app_user.avatar_url)에서 그대로 낸다.
+			// 탈퇴한 계정은 사진도 내지 않는다 — 이름을 지운 계정의 얼굴만 남으면 안 된다 (S15P21E201-1803).
+			String authorAvatarUrl = avatarOf(author);
 			Place place = story.getPlaceId() == null ? null : places.get(story.getPlaceId());
 			// 기본값으로 공유 배열을 건네지 않는다. 그 배열에 쓰는 변경이 하나라도 들어오면
 			// 모든 글의 수가 예외 없이 조용히 오염된다.
@@ -196,11 +199,11 @@ public class StoryResponseAssembler {
 				// 이름은 원문 그대로 — 작성자 이름과 같은 이유(S15P21E201-1655).
 				String name = (user == null || user.getDeletedAt() != null || user.getDisplayName() == null
 						|| user.getDisplayName().isBlank()) ? null : user.getDisplayName();
-				coauthors.add(new StoryResponse.Coauthor(coauthor.getUserId().toString(), name));
+				coauthors.add(new StoryResponse.Coauthor(coauthor.getUserId().toString(), name, avatarOf(user)));
 			}
 			out.add(new StoryResponse(
 					story.getStoryId().toString(),
-					new StoryResponse.Author(story.getAuthorUserId().toString(), displayName),
+					new StoryResponse.Author(story.getAuthorUserId().toString(), displayName, authorAvatarUrl),
 					// 도메인은 원문을 그대로 갖고, 응답으로 나가는 여기서만 인코딩한다. 본문은 ZAP 이 잡은 자리라
 					// 방어층을 유지한다(S15P21E201-835) — 앱은 마크다운으로 파싱하며 되돌려 그린다.
 					HtmlOutputEncoder.forHtml(story.getBody()),
@@ -230,5 +233,14 @@ public class StoryResponseAssembler {
 					coauthors));
 		}
 		return out;
+	}
+
+	/** 탈퇴했거나 사진을 안 골랐으면 {@code null}. 빈 문자열은 「없음」으로 친다. */
+	private static String avatarOf(AppUser user) {
+		if (user == null || user.getDeletedAt() != null) {
+			return null;
+		}
+		String url = user.getAvatarUrl();
+		return (url == null || url.isBlank()) ? null : url;
 	}
 }

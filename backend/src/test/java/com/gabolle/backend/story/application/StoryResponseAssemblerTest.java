@@ -112,4 +112,32 @@ class StoryResponseAssemblerTest {
 		assertThat(response.body()).as("같은 응답의 본문은 인코딩을 유지한다(S15P21E201-835)")
 				.isEqualTo("A&amp;B 가 갔던 곳 &lt;부산&gt;");
 	}
+
+	@Test
+	@DisplayName("🔴 작성자의 프로필 사진 주소가 응답에 실린다 — 피드에서 남의 사진이 첫 글자로만 보이던 것 (S15P21E201-1803)")
+	void authorAvatarUrlIsSent() {
+		UUID authorId = UUID.randomUUID();
+		AppUser author = authorNamed(authorId, "작성자");
+		author.changeAvatarUrl("/uploads/avatar.jpg");
+		when(this.appUserRepository.findAllById(any())).thenReturn(List.of(author));
+
+		Instant now = Instant.now();
+		Story story = new Story(UUID.randomUUID(), authorId, null, null, "본문", "해운대구",
+				StoryVisibility.PUBLIC, now, now);
+
+		assertThat(this.assembler.one(story, null, now).author().avatarUrl()).isEqualTo("/uploads/avatar.jpg");
+	}
+
+	@Test
+	@DisplayName("사진을 안 골랐으면 avatarUrl 은 null — 화면이 첫 글자를 그린다")
+	void authorWithoutAvatarGetsNull() {
+		UUID authorId = UUID.randomUUID();
+		when(this.appUserRepository.findAllById(any())).thenReturn(List.of(authorNamed(authorId, "작성자")));
+
+		Instant now = Instant.now();
+		Story story = new Story(UUID.randomUUID(), authorId, null, null, "본문", "해운대구",
+				StoryVisibility.PUBLIC, now, now);
+
+		assertThat(this.assembler.one(story, null, now).author().avatarUrl()).isNull();
+	}
 }
