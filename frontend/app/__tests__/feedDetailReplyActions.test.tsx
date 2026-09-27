@@ -248,12 +248,23 @@ describe('댓글 좋아요 — 트위터 답글형 (S15P21E201-1576)', () => {
     const view = render(<StoryDetail />);
     await waitFor(() => expect(view.getByText('남의 댓글이에요')).toBeTruthy());
 
-    // 좋아요 알약은 원글 하나 + 댓글 둘. 남의 댓글 것은 셋째다.
+    // 좋아요 알약은 원글 하나 + 남의 댓글 하나 — 내 댓글 것은 잠겨 이름이 다르다(S15P21E201-1783). 남의 댓글 것은 마지막이다.
     const likes = view.getAllByLabelText('좋아요');
-    fireEvent.press(likes[1 + OTHERS]);
+    fireEvent.press(likes[likes.length - 1]);
 
     await waitFor(() => expect(requests.some((r) => r.path === `/api/v1/stories/${OTHER_REPLY_ID}/reaction`)).toBe(true));
     expect(requests.some((r) => r.path === `/api/v1/stories/${STORY_ID}/reaction`)).toBe(false);
     await waitFor(() => expect(view.getAllByLabelText('좋아요 취소')).toHaveLength(1));
+  });
+
+  it('🔴 내 댓글의 좋아요는 잠겨 있고, 눌러도 요청이 안 나간다 (S15P21E201-1783)', async () => {
+    const view = render(<StoryDetail />);
+    await waitFor(() => expect(view.getByText('제 댓글이에요')).toBeTruthy());
+
+    const locked = view.getAllByLabelText('내 글에는 좋아요를 누를 수 없어요');
+    expect(locked).toHaveLength(1);
+    fireEvent.press(locked[0]);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(requests.some((r) => r.path === `/api/v1/stories/${MY_REPLY_ID}/reaction`)).toBe(false);
   });
 });
