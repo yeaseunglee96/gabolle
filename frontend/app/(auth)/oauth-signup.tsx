@@ -5,7 +5,8 @@
 // 처음부터 다시 밟게 한다., jaehyeon 님 !288 계약.
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { enterApp } from '@/auth/enterApp';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -65,7 +66,7 @@ export default function OAuthSignup() {
         privacyAccepted,
       });
       await acceptTokens(result);
-      router.replace((await resolveDestination(params.returnTo)) as never);
+      enterApp(router, (await resolveDestination(params.returnTo)) as Href);
     } catch (cause) {
       if (cause instanceof ApiClientError && cause.code === 'OAUTH_TICKET_INVALID') {
         setExpired(true);

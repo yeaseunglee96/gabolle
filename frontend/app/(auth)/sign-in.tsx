@@ -148,7 +148,7 @@ export default function SignIn() {
       <Button testID="sign-in-submit" accessibilityRole="button" accessibilityState={{ disabled: !eligible || busy || !!provider, busy }} label={busy ? tx('로그인 중…', 'Signing in…') : tx('로그인', 'Sign in')} disabled={!eligible || busy || !!provider} onPress={() => void submit()} />
       {/* — 보호 화면에서 튕겨 온 것이면 returnTo 로 되돌아가지 않는다.
       */}
-      <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} style={styles.guest} onPress={() => router.replace(guestDestination(returnTo, gated) as Href)}><Text variant="body" weight="bold" color={color.action.primary}>{tx('비회원으로 둘러보기', 'Browse as guest')}</Text></Pressable>
+      <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} style={styles.guest} onPress={() => enterApp(router, guestDestination(returnTo, gated) as Href)}><Text variant="body" weight="bold" color={color.action.primary}>{tx('비회원으로 둘러보기', 'Browse as guest')}</Text></Pressable>
     </View>
     {/* — 제공자마다 글자까지 있는 전체 폭 버튼 넷을 세로로 쌓았더니
         화면이 버튼으로 빽빽해 보인다는 신고가 있었다. 토스 등 참고 화면처럼 동그란

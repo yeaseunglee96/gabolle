@@ -271,7 +271,7 @@ export default function SignUp() {
         )}
           </Animated.View>
 
-        <Button label={tx('비회원으로 둘러보기', 'Browse as guest')} variant="tertiary" containerStyle={styles.guest} onPress={() => router.replace(isSafeReturnPath(returnTo) ? returnTo : '/home')} />
+        <Button label={tx('비회원으로 둘러보기', 'Browse as guest')} variant="tertiary" containerStyle={styles.guest} onPress={() => enterApp(router, (isSafeReturnPath(returnTo) ? returnTo : '/home') as Href)} />
         <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">{tx('이미 계정이 있나요? ', 'Already have an account? ')}<Text variant="body" weight="bold" color={color.action.secondary}>{tx('로그인', 'Sign in')}</Text></Text></Pressable>
         </View>
       </View>
