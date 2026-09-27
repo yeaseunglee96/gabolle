@@ -1,6 +1,7 @@
 // 기록 상세 — 피드 카드를 누르면 오는 화면.
 import { useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { AuthorAvatar } from '@/social/AuthorAvatar';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -191,9 +192,7 @@ export function ReplyCard({
   return (
     <View style={styles.reply}>
       <View style={styles.replyRail}>
-        <View style={styles.replyAvatar}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>{reply.author.displayName.slice(0, 1)}</Text>
-        </View>
+        <AuthorAvatar name={reply.author.displayName} uri={reply.author.avatarUrl} style={styles.replyAvatar} />
         {expanded && childCount > 0 ? <View style={styles.replyRailLine} /> : null}
       </View>
 
