@@ -16,6 +16,7 @@ import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { updateMyConsents } from '@/auth/authApi';
 import { Button } from '@/components/Button';
+import { GuestPlanGate } from '@/plan/GuestPlanGate';
 import { ConditionsPromptModal } from '@/plan/ConditionsPromptModal';
 import { createRecommendationJobAdapter, type RecommendationJobSnapshot } from '@/plan/recommendationJob';
 import { Screen } from '@/components/Screen';
@@ -83,7 +84,18 @@ export function summaryOf(key: QuestionKey, draft: PlanDraft, tx: Tx, skipped: b
   }
 }
 
-export default function PlanConditions() {
+/**
+ * 🔴 비회원이면 질문보다 먼저 「로그인이 필요하다」를 알린다 — S15P21E201-1818.
+ *    예전엔 일곱 질문을 다 답한 뒤 마지막 버튼에서야 로그인으로 보냈다. 인증을 다 읽기 전(authReady 거짓)엔
+ *    로그인한 사람에게 안내가 번쩍이지 않도록 질문 화면을 그대로 둔다(그 화면도 제 로딩 문구를 낸다).
+ */
+export default function PlanQuestionsRoute() {
+  const { user, ready: authReady } = useAuth();
+  if (authReady && !user) return <GuestPlanGate />;
+  return <PlanConditions />;
+}
+
+function PlanConditions() {
   const router = useRouter();
   const { tx, language } = useI18n();
   const { kind } = useLayout();
