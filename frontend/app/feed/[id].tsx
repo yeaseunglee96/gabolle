@@ -11,6 +11,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { MarkdownBody } from '@/components/MarkdownBody';
 import { PhotoGrid } from '@/components/PhotoGrid';
+import { PhotoViewer } from '@/components/PhotoViewer';
 import { Button } from '@/components/Button';
 import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
@@ -40,10 +41,25 @@ type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'
  */
 function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
   const { tx } = useI18n();
+  // 누른 사진을 화면 가득 본다 (S15P21E201-1811). 전에는 눌러도 아무 일이 없었다.
+  const [viewing, setViewing] = useState<string | null>(null);
   if (!images.length) return null;
   return (
     <View accessibilityLabel={tx('여행 기록 사진', 'Trip record photos')}>
-      <PhotoCarousel urls={images.map((image) => image.url)} fitFirstPhoto style={styles.photos} />
+      <PhotoCarousel
+        urls={images.map((image) => image.url)}
+        fitFirstPhoto
+        onPressPhoto={(at) => setViewing(images[at]?.url ?? null)}
+        pressLabel={tx('사진 크게 보기', 'View photo')}
+        style={styles.photos}
+      />
+      <PhotoViewer
+        visible={viewing !== null}
+        uri={viewing}
+        label={tx('여행 기록 사진', 'Trip record photo')}
+        closeLabel={tx('사진 닫기', 'Close photo')}
+        onClose={() => setViewing(null)}
+      />
     </View>
   );
 }
@@ -113,6 +129,8 @@ export function ReplyCard({
   const [saveError, setSaveError] = useState('');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  /** 크게 보는 중인 댓글 사진. null 이면 안 열렸다 (S15P21E201-1811). */
+  const [viewingReplyPhoto, setViewingReplyPhoto] = useState<string | null>(null);
   const menu = useDropdownMenu();
   // 좋아요는 이 카드가 낙관적으로 맞춘다 — 원글과 같은 규칙(applyReaction). 댓글도 글이라 같은 반응 주소를 쓴다.
   // 인용·저장은 댓글에 없다 — linkCopyCount 를 비워 두면 반응 줄이 인용 칸을 안 그린다.
@@ -227,8 +245,19 @@ export function ReplyCard({
         <MarkdownBody source={reply.body} />
       )}
 
+      {/* 댓글 사진도 눌러서 크게 본다 (S15P21E201-1811) — PhotoGrid 의 onPressPhoto 자리가
+          지금까지 «어느 화면에서도» 안 쓰이고 있었다. */}
       {!editing && reply.images.length
-        ? <PhotoGrid photos={reply.images.map((image) => ({ uri: image.url }))} compact accessibilityLabel={tx('댓글 사진', 'Comment photo')} style={styles.replyPhotos} />
+        ? <>
+            <PhotoGrid photos={reply.images.map((image) => ({ uri: image.url }))} compact accessibilityLabel={tx('댓글 사진', 'Comment photo')} onPressPhoto={(index) => setViewingReplyPhoto(reply.images[index]?.url ?? null)} style={styles.replyPhotos} />
+            <PhotoViewer
+              visible={viewingReplyPhoto !== null}
+              uri={viewingReplyPhoto}
+              label={tx('댓글 사진', 'Comment photo')}
+              closeLabel={tx('사진 닫기', 'Close photo')}
+              onClose={() => setViewingReplyPhoto(null)}
+            />
+          </>
         : null}
 
       {confirmingDelete ? (
