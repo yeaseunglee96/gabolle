@@ -17,7 +17,7 @@ import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { CoverButton, MyPageCover } from '@/me/MyPageCover';
 import { ProfileCard, ProfileCardButton } from '@/me/ProfileCard';
-import { RecordCard } from '@/me/RecordCard';
+import { RecordCard, recordPhoneGrid } from '@/me/RecordCard';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { getUserProfile, loadUserStories, setBlocked, setFollowing, type FeedLoadResult, type UserProfileDto } from '@/social/stories';
 import { localizeMessage } from '@/i18n/messages';
@@ -130,7 +130,7 @@ export default function UserProfile() {
 
   // 🔴 남의 프로필에는 「새 기록」 칸이 없다 — 남의 자리에 내 글을 쓰는 입구를 두지 않는다.
   const recordsGrid = (
-    <View style={styles.grid}>
+    <View style={[wide ? styles.grid : recordPhoneGrid, styles.gridTop]}>
       {storiesLoading ? <ActivityIndicator color={color.action.primary} /> : null}
       {!storiesLoading && !items.length ? <Text color={color.text.body} style={styles.empty}>{tx('아직 공개된 기록이 없어요.', 'No public records yet.')}</Text> : null}
       {items.map((story) => (
@@ -251,6 +251,7 @@ const styles = StyleSheet.create({
   wideBody: { paddingHorizontal: desktopGutter, paddingTop: spacing[8] },
 
   // 🔴 남의 프로필은 화살표 없이 전부 펼친다(시안 3절). 폰은 폭을 안 줘서 2열이 된다.
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4], marginTop: spacing[4] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] },
+  gridTop: { marginTop: spacing[4] },
   empty: { textAlign: 'center', marginTop: spacing[4] },
 });
