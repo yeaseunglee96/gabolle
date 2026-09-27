@@ -188,6 +188,9 @@ export function canConfirmCourse(course: TripCourse): boolean {
   return Boolean(course.itineraryId || course.preview);
 }
 
+/** 2안·3안 확정은 서버가 그 자리에서 일정을 만든다 — 앱 기본 12초로는 모자라다(S15P21E201-1823). */
+export const COURSE_CONFIRM_TIMEOUT_MS = 40000;
+
 /**
  * 고른 안의 일정 번호. 이미 있으면 그대로, 없으면(2안·3안) 서버에 만들어 달라고 한다 (S15P21E201-1454).
  *
@@ -208,13 +211,20 @@ export async function ensureCourseItinerary(
   }
   try {
     const chosen = await apiRequest<{ itineraryId?: string | null }>(`/api/v1/trips/${encodeURIComponent(tripId)}/course`, {
-      method: 'POST', accessToken, body: { courseId: course.id },
+      method: 'POST', accessToken, body: { courseId: course.id }, timeoutMs: COURSE_CONFIRM_TIMEOUT_MS,
     });
     if (typeof chosen?.itineraryId === 'string' && chosen.itineraryId !== '') {
       return { state: 'success', itineraryId: chosen.itineraryId };
     }
     return { state: 'error', message: '이 코스로 일정을 만들지 못했어요.' };
   } catch (error) {
+    // 🔴 늦거나 끊긴 것은 «못 만들었다»가 아닐 수 있다 — 서버는 그 사이 일정을 만들어 두었을 수 있다(S15P21E201-1823).
+    //    오류를 보이면 사용자가 또 누른다. 코스 목록을 한 번 다시 받아 그 안에 일정이 생겼으면 성공으로 연다.
+    if (error instanceof ApiClientError && (error.code === 'NETWORK_ERROR' || error.code === 'REQUEST_TIMEOUT')) {
+      const again = await loadTripCourses(tripId, null, accessToken).catch(() => null);
+      const made = again?.state === 'success' ? again.courses.find((item) => item.id === course.id)?.itineraryId : null;
+      if (made) return { state: 'success', itineraryId: made };
+    }
     // 서버가 모르는 응답이면 요청 함수의 「요청을 처리하지 못했어요.」 대신 이 자리의 문장(S15P21E201-1672).
     return { state: 'error', message: error instanceof Error && !isUnknownResponse(error) ? error.message : '이 코스로 일정을 만들지 못했어요.' };
   }

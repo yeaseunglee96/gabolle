@@ -61,6 +61,8 @@ export function assistantAcceptLanguage(language: LanguageCode): string {
   return language;
 }
 
+export const ASSISTANT_TIMEOUT_MS = 45000;
+
 /** 자연어 메시지를 서버(Gemini 기반 AI 도우미)에 물어본다 — S15P21E201-802. */
 export async function askAssistant(
   message: string,
@@ -72,6 +74,8 @@ export async function askAssistant(
     method: 'POST',
     accessToken,
     body: { message, history },
+    // 🔴 AI 답은 12초(앱 기본 제한)를 곧잘 넘긴다 — 넘으면 서버는 답하는데 화면은 「지금은 못 해요」로 떨어졌다(S15P21E201-1823).
+    timeoutMs: ASSISTANT_TIMEOUT_MS,
     // 🔴 앱 전체의 Accept-Language 는 ko/en 뿐이다(서버 오류 문구가 그 둘뿐이라 OnboardingPreferences 가 ja·zh 를 en 으로
     //    접는다). 그래서 일본어·중국어 사용자가 동백이 답을 영어로 받았다(S15P21E201-1427, 예승 1363 ③).
     //    서버(AssistantChatService.normalizeLanguage)는 ja · zh-Hans · zh-Hant 를 알아듣고 그 말로 답하니, 이 호출에만 고른 언어를 그대로 싣는다.
