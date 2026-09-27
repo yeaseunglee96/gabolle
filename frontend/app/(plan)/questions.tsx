@@ -39,7 +39,7 @@ import {
   dayWindowIssue,
 } from '@/plan/planQuestions';
 import { maskTimeInput } from '@/plan/inputMasks';
-import { startBarChips } from '@/home/startBarValue';
+import { startBarChips, startBarPlaceName } from '@/home/startBarValue';
 import { lodgingMissing as isLodgingMissing } from '@/plan/lodgingRequired';
 import { assistantPrefillPatch } from '@/plan/assistantPrefill';
 import { txf } from '@/i18n/format';
@@ -217,9 +217,11 @@ export default function PlanConditions() {
   const headerChips = useMemo(() => startBarChips({
     origin: draft.origin, originLat: draft.originLat, originLng: draft.originLng,
     lodging: draft.lodging, lodgingLat: draft.lodgingLat, lodgingLng: draft.lodgingLng, lodgingPlace: draft.lodgingPlace,
+    // 화면용 영어 이름 — 영어 화면에 「From 부산역」이 나오던 것(S15P21E201-1795).
+    originEnglish: draft.originEnglish, lodgingEnglish: draft.lodgingEnglish,
     startDate: draft.startDate, endDate: draft.endDate,
     adults: draft.adults, children: draft.children,
-  }, tx), [draft.lodgingPlace, draft.adults, draft.children, draft.endDate, draft.lodging, draft.lodgingLat, draft.lodgingLng, draft.origin, draft.originLat, draft.originLng, draft.startDate, tx]);
+  }, tx, language), [draft.lodgingPlace, draft.adults, draft.children, draft.endDate, draft.lodging, draft.lodgingLat, draft.lodgingLng, draft.origin, draft.originLat, draft.originLng, draft.originEnglish, draft.lodgingEnglish, draft.startDate, tx, language]);
 
   // 칩 줄 맨 앞은 장소 칩(출발지·숙소)이다 — startBarChips 가 이 순서로 넣는다. 폰 위 줄에서 이것만 줄어든다(S15P21E201-1789).
   const placeChipCount = (draft.origin.trim() ? 1 : 0) + (draft.lodging.trim() ? 1 : 0);
@@ -593,7 +595,7 @@ export default function PlanConditions() {
               <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
               <View style={styles.answeredBody}>
                 <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx('출발지', 'Starting point')}</Text>
-                <Text variant="caption" weight="bold" numberOfLines={1}>{draft.origin || tx('고른 곳', 'Chosen')}</Text>
+                <Text variant="caption" weight="bold" numberOfLines={1}>{startBarPlaceName(draft.origin, draft.originEnglish, language) || tx('고른 곳', 'Chosen')}</Text>
               </View>
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
             </Pressable>

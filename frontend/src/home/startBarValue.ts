@@ -1,9 +1,21 @@
 // 홈 시작 바가 다루는 값 — 화면이 아니라 여기서 만든다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 
+import { stopNameForLanguage } from '@/discovery/romanize';
 import { txf } from '@/i18n/format';
+import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import { lodgingMissing } from '@/plan/lodgingRequired';
 import type { PlaceSnapshot } from '@/plan/origins';
+
+/**
+ * 고른 출발지·숙소의 영어 이름 — S15P21E201-1795(고지혁 QA). **화면에만 쓴다.**
+ *
+ * 🔴 어느 한국어 이름의 것인지(name)를 같이 든다. origin·lodging 은 여러 곳에서 바뀌는데, 영어 이름만
+ *    따로 들면 한국어 이름이 바뀐 뒤에도 옛 영어 이름이 남아 **다른 곳의 이름**을 보일 수 있다.
+ *    한국어 이름이 같을 때만 쓰므로 그런 값은 저절로 버려진다(englishNameOf).
+ * 🔴 서버로 가는 이름은 언제나 origin·lodging(한국어)이다 — 이 칸은 서버로 안 간다.
+ */
+export type PlaceEnglishName = { name: string; nameEn: string };
 
 export type StartBarValue = {
   origin: string;
@@ -18,11 +30,48 @@ export type StartBarValue = {
    * 없어 버려졌다. 검색 결과가 아닌 것(미정)은 null.
    */
   lodgingPlace: PlaceSnapshot | null;
+  /** 출발지의 영어 이름 — 화면용(PlaceEnglishName). 없으면 null. 예전에 저장된 값에는 칸이 없다. */
+  originEnglish?: PlaceEnglishName | null;
+  /** 숙소의 영어 이름 — 화면용(PlaceEnglishName). 없으면 null. */
+  lodgingEnglish?: PlaceEnglishName | null;
   startDate: string;
   endDate: string;
   adults: number;
   children: number;
 };
+
+/** 고른 후보의 영어 이름을 한국어 이름과 짝지어 든다. 영어 이름이 없으면 null — 지어내지 않는다. */
+export function placeEnglishOf(candidate: { name: string; nameEn?: string | null }): PlaceEnglishName | null {
+  const nameEn = candidate.nameEn?.trim();
+  return nameEn ? { name: candidate.name, nameEn } : null;
+}
+
+/** 지금 이름(name)의 영어 이름. 짝이 다른 이름의 것이면 null — 위 PlaceEnglishName 의 🔴 첫째. */
+export function englishNameOf(name: string, english: PlaceEnglishName | null | undefined): string | null {
+  return english && english.name === name ? english.nameEn : null;
+}
+
+/**
+ * 출발지·숙소를 화면에 적는 이름. 언어를 주면 다른 화면과 같은 규칙(stopNameForLanguage)이다 —
+ * 한국어 화면은 그대로, 그 밖은 「영어 (한글)」, 영어 이름이 없으면 「한글 (로마자)」.
+ * 언어를 안 주면 예전처럼 한국어 이름 그대로다.
+ */
+export function startBarPlaceName(name: string, english: PlaceEnglishName | null | undefined, language?: LanguageCode): string {
+  const trimmed = name.trim();
+  if (!language || !trimmed) return trimmed;
+  return stopNameForLanguage(trimmed, englishNameOf(name, english), language);
+}
+
+/**
+ * 한 줄 요약(summarizeStartBar)에 쓰는 짧은 이름 — 한국어가 아닌 화면이면 영어 이름만, 없으면 한국어 이름 그대로.
+ * 🔴 「Busan Station (부산역) · Haeundae (해운대)」로 쓰면 폰 폭(375)의 알약이 이름만으로 차서 날짜가 잘렸다(2026-09-27 실측).
+ *    알약은 한 줄이라 읽는 법·괄호를 붙이지 않는다. 한글을 같이 보이는 것은 칸·칩(startBarPlaceName)이 한다.
+ */
+export function startBarPlaceShortName(name: string, english: PlaceEnglishName | null | undefined, language?: LanguageCode): string {
+  const trimmed = name.trim();
+  if (!language || resolveTextLanguage(language) === 'ko') return trimmed;
+  return englishNameOf(name, english) ?? trimmed;
+}
 
 export const EMPTY_START_BAR: StartBarValue = {
   origin: '',
@@ -32,6 +81,8 @@ export const EMPTY_START_BAR: StartBarValue = {
   lodgingLat: null,
   lodgingLng: null,
   lodgingPlace: null,
+  originEnglish: null,
+  lodgingEnglish: null,
   startDate: '',
   endDate: '',
   adults: 2,
@@ -72,6 +123,9 @@ export function startBarFromDraft(draft: StartBarValue): StartBarValue {
     lodgingLng: draft.lodgingLng,
     // 예전에 저장된 초안에는 이 칸이 없다 — 없으면 null.
     lodgingPlace: draft.lodgingPlace ?? null,
+    // 화면용 영어 이름(S15P21E201-1795). 예전 초안에는 칸이 없다 — 없는 채로 옮긴다(읽는 쪽이 없음으로 본다).
+    originEnglish: draft.originEnglish,
+    lodgingEnglish: draft.lodgingEnglish,
     startDate: draft.startDate,
     endDate: draft.endDate,
     // 인원은 0 이 될 수 없다. 빈 초안이면 시작 바의 기본값을 쓴다.
@@ -125,16 +179,19 @@ export function formatDateShort(key: string, tx: StartBarTx): string {
   return `${date.getMonth() + 1}.${date.getDate()}(${weekday})`;
 }
 
-/** 시작 바에 한 줄로 보여 줄 요약 — 「부산역 · 9.20(토) – 9.21(일) · 1박 · 성인 2」. */
-export function summarizeStartBar(value: StartBarValue, tx: StartBarTx): string {
+/**
+ * 시작 바에 한 줄로 보여 줄 요약 — 「부산역 · 9.20(토) – 9.21(일) · 1박 · 성인 2」.
+ * language 를 주면 장소 이름을 그 언어로 짧게 적는다(startBarPlaceShortName, S15P21E201-1795).
+ */
+export function summarizeStartBar(value: StartBarValue, tx: StartBarTx, language?: LanguageCode): string {
   // 인원에는 기본값(성인 2)이 들어 있다. 그래서 아무것도 안 고른 사람에게도
   // 요약이 「성인 2」로 나왔고, 알약에 안내 문구 대신 그것이 찍혔다
   // 고른 적 없는 값이 고른 것처럼 보였다.
   if (!value.origin.trim() && !value.startDate) return '';
 
   const parts: string[] = [];
-  if (value.origin.trim()) parts.push(value.origin.trim());
-  if (value.lodging.trim()) parts.push(value.lodging.trim());
+  if (value.origin.trim()) parts.push(startBarPlaceShortName(value.origin, value.originEnglish, language));
+  if (value.lodging.trim()) parts.push(startBarPlaceShortName(value.lodging, value.lodgingEnglish, language));
 
   if (value.startDate) {
     const range = value.endDate && value.endDate !== value.startDate
@@ -153,12 +210,15 @@ export function summarizeStartBar(value: StartBarValue, tx: StartBarTx): string 
   return parts.join(' · ');
 }
 
-/** 「홈에서 받은 정보」를 칩 세 개로 쪼갠다 — 시안 p1 */
-export function startBarChips(value: StartBarValue, tx: StartBarTx): string[] {
+/**
+ * 「홈에서 받은 정보」를 칩 세 개로 쪼갠다 — 시안 p1.
+ * language 를 주면 장소 이름을 그 언어의 규칙으로 적는다 — 영어 화면에 「From 부산역」이 나오던 것(S15P21E201-1795).
+ */
+export function startBarChips(value: StartBarValue, tx: StartBarTx, language?: LanguageCode): string[] {
   if (!value.origin.trim() && !value.startDate) return [];
   const chips: string[] = [];
-  if (value.origin.trim()) chips.push(txf(tx, '%s 출발', 'From %s', value.origin.trim()));
-  if (value.lodging.trim()) chips.push(txf(tx, '%s 숙박', 'Staying in %s', value.lodging.trim()));
+  if (value.origin.trim()) chips.push(txf(tx, '%s 출발', 'From %s', startBarPlaceName(value.origin, value.originEnglish, language)));
+  if (value.lodging.trim()) chips.push(txf(tx, '%s 숙박', 'Staying in %s', startBarPlaceName(value.lodging, value.lodgingEnglish, language)));
   if (value.startDate) {
     const range = value.endDate && value.endDate !== value.startDate
       ? `${formatDateShort(value.startDate, tx)} – ${formatDateShort(value.endDate, tx)}`
@@ -244,6 +304,6 @@ export const START_BAR_PRESETS: StartBarPreset[] = [
     id: 'from-station',
     ko: '부산역 출발',
     en: 'Start at Busan Station',
-    apply: () => ({ origin: '부산역', originLat: 35.1152, originLng: 129.0403 }),
+    apply: () => ({ origin: '부산역', originEnglish: { name: '부산역', nameEn: 'Busan Station' }, originLat: 35.1152, originLng: 129.0403 }),
   },
 ];

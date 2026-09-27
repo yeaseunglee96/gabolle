@@ -117,6 +117,9 @@ export default function Welcome() {
       lodgingLat: value.lodgingLat,
       lodgingLng: value.lodgingLng,
       lodgingPlace: value.lodgingPlace,
+      // 화면용 영어 이름 — 여행 만들기 화면의 칩이 쓴다(S15P21E201-1795). 서버로 안 간다.
+      originEnglish: value.originEnglish ?? null,
+      lodgingEnglish: value.lodgingEnglish ?? null,
       startDate: value.startDate,
       endDate: startBarEndDate(value),
       adults: value.adults,
