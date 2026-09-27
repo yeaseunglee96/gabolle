@@ -68,25 +68,46 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	private static final int MAX_PEOPLE = 20;
 
 	/**
+	 * 앱 조건 화면의 지역 코드(frontend/src/plan/planOptions.ts 의 {@code AREA_OPTIONS})와 같다.
+	 * 목록 밖 값은 쿼리에 싣지 않는다 — S15P21E201-1825.
+	 */
+	static final List<String> AREA_CODES = List.of("HAEUNDAE", "GWANGALLI", "NAMPO", "SEOMYEON", "YEONGDO",
+			"SONGJEONG");
+
+	/** 앱의 여행 카테고리 코드({@code CATEGORY_OPTIONS})와 같다. */
+	static final List<String> CATEGORY_CODES = List.of("SEA_BEACH", "CITY", "CAFE_HEALING", "CULTURE_TEMPLE", "FOOD",
+			"NATURE_WALK", "FESTIVAL_EVENT");
+
+	private static final java.util.regex.Pattern ISO_DATE = java.util.regex.Pattern.compile("20[0-9]{2}-[0-9]{2}-[0-9]{2}");
+
+	/**
 	 * {@code propertyOrdering} 을 명시한다 — Gemini 구조화 출력은 필드를 이 순서대로 생성하는데,
 	 * {@code properties} 를 {@code Map.of()} 로 주면 반복 순서가 보장되지 않는다. 순서가 흐트러지면
 	 * 모델이 {@code days}·{@code people} 같은 뒤쪽 필드를 빠뜨린다.
 	 */
 	private static final Schema RESPONSE_SCHEMA = Schema.builder()
 			.type(Type.Known.OBJECT)
-			.properties(Map.of(
-					"kind", stringEnum("navigate", "phrase", "help"),
-					"reply", string(),
-					"korean", string(),
-					"pronunciation", string(),
-					"label", string(),
-					"href", stringEnum("/plan", "/trips", "/field/translate", "/field/transit",
-							"/field/exchange-rate"),
-					"days", integer(),
-					"people", integer()))
-			.propertyOrdering("kind", "reply", "korean", "pronunciation", "label", "href", "days", "people")
+			.properties(Map.ofEntries(
+					Map.entry("kind", stringEnum("navigate", "phrase", "help")),
+					Map.entry("reply", string()),
+					Map.entry("korean", string()),
+					Map.entry("pronunciation", string()),
+					Map.entry("label", string()),
+					Map.entry("href", stringEnum("/plan", "/trips", "/field/translate", "/field/transit",
+							"/field/exchange-rate")),
+					Map.entry("days", integer()),
+					Map.entry("people", integer()),
+					Map.entry("areas", stringArray(AREA_CODES)),
+					Map.entry("categories", stringArray(CATEGORY_CODES)),
+					Map.entry("startDate", string())))
+			.propertyOrdering("kind", "reply", "korean", "pronunciation", "label", "href", "days", "people", "areas",
+					"categories", "startDate")
 			.required("kind", "reply")
 			.build();
+
+	private static Schema stringArray(List<String> values) {
+		return Schema.builder().type(Type.Known.ARRAY).items(stringEnum(values.toArray(String[]::new))).build();
+	}
 
 	private static Schema string() {
 		return Schema.builder().type(Type.Known.STRING).build();
@@ -143,6 +164,20 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 
 			    입력: "여행 만들고 싶어"
 			    출력: {} (일수·인원 언급이 전혀 없으므로 둘 다 비운다)
+
+			  🔴 지역·취향·출발일도 같은 방식으로 채운다(메시지에 나온 것만).
+			    areas — 해운대 HAEUNDAE · 광안리 GWANGALLI · 남포(남포동·자갈치·국제시장) NAMPO ·
+			            서면 SEOMYEON · 영도 YEONGDO · 송정 SONGJEONG. 영어 이름(Haeundae 등)도 같다.
+			    categories — 맛집·먹거리 FOOD · 카페 CAFE_HEALING · 바다·해변 SEA_BEACH ·
+			            자연·산책 NATURE_WALK · 문화·사찰 CULTURE_TEMPLE · 도심·야경·시장 CITY ·
+			            축제 FESTIVAL_EVENT.
+			    startDate — 사용자가 연·월·일을 분명히 말했을 때만 YYYY-MM-DD. "내일"처럼 모호하면 비운다.
+
+			    입력: "광안리 맛집 위주로 2명 일정 짜줘"
+			    출력: {"href": "/plan", "people": 2, "areas": ["GWANGALLI"], "categories": ["FOOD"]}
+
+			    입력: "Rainy day places near Haeundae"
+			    출력: {"href": "/plan", "areas": ["HAEUNDAE"]}
 
 			  메시지에 없는 값은 절대 추측하지 않는다. 특히 사람 수 언급이 없으면 people 은
 			  반드시 비운다 — 일수 숫자를 people 자리에 넣는 실수를 하지 않는다.
@@ -397,7 +432,35 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 		StringBuilder query = new StringBuilder();
 		appendIfInRange(query, "days", parsed.days(), MIN_DAYS, MAX_DAYS);
 		appendIfInRange(query, "people", parsed.people(), MIN_PEOPLE, MAX_PEOPLE);
+		appendCodes(query, "areas", parsed.areas(), AREA_CODES);
+		appendCodes(query, "categories", parsed.categories(), CATEGORY_CODES);
+		if (parsed.startDate() != null && ISO_DATE.matcher(parsed.startDate().trim()).matches()) {
+			append(query, "start", parsed.startDate().trim());
+		}
 		return query.isEmpty() ? href : href + "?" + query;
+	}
+
+	/** 허용 목록 안의 코드만, 중복 없이 쉼표로 잇는다. 하나도 안 남으면 파라미터를 뺀다. */
+	private void appendCodes(StringBuilder query, String key, List<String> values, List<String> allowed) {
+		if (values == null) {
+			return;
+		}
+		List<String> kept = values.stream()
+				.filter(java.util.Objects::nonNull)
+				.map(value -> value.trim().toUpperCase(Locale.ROOT))
+				.filter(allowed::contains)
+				.distinct()
+				.toList();
+		if (!kept.isEmpty()) {
+			append(query, key, String.join(",", kept));
+		}
+	}
+
+	private void append(StringBuilder query, String key, String value) {
+		if (!query.isEmpty()) {
+			query.append("&");
+		}
+		query.append(key).append("=").append(value);
 	}
 
 	private void appendIfInRange(StringBuilder query, String key, Integer value, int min, int max) {
