@@ -488,7 +488,8 @@ export function PlanStartBar({
         accessibilityLabel={tx('출발지 검색', 'Search starting point')}
       />
       {searching ? <ActivityIndicator color={color.action.primary} /> : null}
-      <Text variant="caption" color={color.text.muted}>{tx('추천 출발지', 'Suggested starting points')}</Text>
+      {/* 결과가 있으면 추천이 아니라 검색 결과다(S15P21E201-1775) — 아래 목록도 그렇게 갈린다. */}
+      <Text testID="origin-list-label" variant="caption" color={color.text.muted}>{results.length ? tx('검색 결과', 'Search results') : tx('추천 출발지', 'Suggested starting points')}</Text>
       {(results.length ? results : MAJOR_BUSAN_ORIGINS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickOrigin(candidate)} accessibilityRole="button" style={styles.originRow}>
           <Text weight="bold">{candidate.name}</Text>
