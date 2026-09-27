@@ -32,11 +32,19 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
   const [items, setItems] = useState<RegionCandidate[]>([]);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  /**
+   * 한 번이라도 «검색을 마쳤는가» — S15P21E201-1804.
+   *
+   * 🔴 items.length === 0 만 보면 안 된다. 아직 아무것도 안 친 처음 상태와, 쳐서 찾아봤는데
+   *    없는 상태가 둘 다 0 이다. 앞의 것에 「찾는 곳이 없어요」를 띄우면 열자마자 없다고
+   *    말하는 꼴이 된다.
+   */
+  const [searched, setSearched] = useState(false);
   const picked = useRef<string | null>(null);
 
   useEffect(() => {
     const text = query.trim();
-    if (text.length < 2) { setItems([]); setFailed(false); return; }
+    if (text.length < 2) { setItems([]); setFailed(false); setSearched(false); return; }
     // 글자를 칠 때마다 부르지 않는다 — 손이 멈춘 뒤에 한 번만 묻는다.
     const timer = setTimeout(() => {
       const controller = new AbortController();
@@ -46,6 +54,7 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
           if (controller.signal.aborted) return;
           if (result.state === 'success') { setItems(result.items); setFailed(false); }
           else { setItems([]); setFailed(true); }
+          setSearched(true);
         })
         .finally(() => { if (!controller.signal.aborted) setBusy(false); });
       return () => controller.abort();
@@ -61,6 +70,8 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
     onChangePlace?.(candidate.placeId ? undefined : candidate.place);
     setQuery('');
     setItems([]);
+    // 고른 뒤에는 「찾는 곳이 없어요」가 남으면 안 된다 — 방금 골랐는데 없다고 말하는 꼴이다.
+    setSearched(false);
   };
 
   return (
@@ -87,6 +98,15 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
       {/* 검색이 실패해도 손으로 쓰는 길은 막지 않는다 — 적은 글자가 그대로 지역이다. */}
       {failed ? <Text variant="caption" color={color.text.muted} style={styles.note}>
         {tx('검색이 안 돼요. 적은 그대로 지역으로 저장돼요.', 'Search is unavailable — what you typed is saved as the region.')}
+      </Text> : null}
+
+      {/* 🔴 찾은 것이 없을 때도 말해 준다 (S15P21E201-1804).
+          검색이 «실패»했을 때는 위에서 안내하는데, 서버가 멀쩡히 「그런 곳 없음」이라고
+          답하면 목록도 안내도 아무것도 안 떴다. 사용자 눈에는 입력칸에 글자만 남고 고를
+          것이 없으니 「이 지역은 안 되는구나」로 읽힌다 — 실제로는 적은 그대로 저장된다.
+          구·동 이름(「수영구」·「광안동」)을 적어도 되는 자리라는 것을 여기서 알린다. */}
+      {!busy && !failed && searched && items.length === 0 ? <Text variant="caption" color={color.text.muted} style={styles.note}>
+        {tx('찾는 곳이 없어요. 적은 그대로 지역으로 저장돼요. 「수영구」처럼 구·동 이름도 괜찮아요.', 'No match. What you typed is saved as the region, and a district or neighborhood name works too.')}
       </Text> : null}
 
       {items.map((item) => (
