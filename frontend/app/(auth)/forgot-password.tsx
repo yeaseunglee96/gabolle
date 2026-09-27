@@ -13,6 +13,7 @@ import { localizeMessage } from '@/i18n/messages';
 
 const logo = require('../../assets/brand/gabolle-logo-hd.png');
 const envelopeIcon = require('../../assets/icons/common/envelope.png');
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ForgotPassword() {
   const router = useRouter();
@@ -24,6 +25,12 @@ export default function ForgotPassword() {
 
   async function submit() {
     if (!email.trim() || submitting) return;
+    // 형식부터 본다 — 안 보면 서버 400 의 일반 문구(「요청 형식이 올바르지 않습니다」)만 떠서
+    // 무엇이 틀렸는지 모른다. 회원가입·로그인과 같은 문구로 알린다(S15P21E201-1784).
+    if (!EMAIL_PATTERN.test(email.trim())) {
+      setError(tx('올바른 이메일 주소를 입력해 주세요.', 'Please enter a valid email address.'));
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
