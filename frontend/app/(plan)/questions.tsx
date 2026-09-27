@@ -223,7 +223,7 @@ export default function PlanConditions() {
     adults: draft.adults, children: draft.children,
   }, tx, language), [draft.lodgingPlace, draft.adults, draft.children, draft.endDate, draft.lodging, draft.lodgingLat, draft.lodgingLng, draft.origin, draft.originLat, draft.originLng, draft.originEnglish, draft.lodgingEnglish, draft.startDate, tx, language]);
 
-  // 칩 줄 맨 앞은 장소 칩(출발지·숙소)이다 — startBarChips 가 이 순서로 넣는다. 폰 위 줄에서 이것만 줄어든다(S15P21E201-1789).
+  // 칩 줄 맨 앞은 장소 칩(출발지·숙소)이다 — startBarChips 가 이 순서로 넣는다. 폰 위 줄은 이것을 뒤로 돌린다(S15P21E201-1789·1802).
   const placeChipCount = (draft.origin.trim() ? 1 : 0) + (draft.lodging.trim() ? 1 : 0);
 
   const goTo = (next: number) => setState((prev) => ({ ...prev, open: Math.max(0, Math.min(PLAN_QUESTIONS.length - 1, next)), editing: null }));
@@ -671,14 +671,22 @@ export default function PlanConditions() {
               (2026-09-21 실기, S15P21E201-1401).
               🔴 가로로 밀게 두면 390px 에서 「성인 2」가 「수정」 뒤로 잘려 안 보였다 — 밀 수 있다는 걸 아무도 모른다
               (S15P21E201-1789). 그래서 한 줄 안에 다 들어가게 줄인다 — 이름이 긴 칩(출발지·숙소)만 말줄임으로 줄고,
-              날짜·인원(짧고 꼭 봐야 하는 것)은 줄지 않는다. */}
-          <View style={styles.phoneChips}>
-            {headerChips.map((chip, index) => (
-              <View key={chip} style={[styles.phoneGivenChip, index < placeChipCount && styles.phoneGivenChipShrink]}>
+              날짜·인원(짧고 꼭 봐야 하는 것)은 줄지 않는다.
+              🔴 그런데 장소 칩에 최소 폭이 없어 360dp 에서 글자 없는 빈 알약(약 18px)으로 줄었다 (S15P21E201-1802).
+              그래서 날짜·인원을 **앞에** 두어 「성인 N」이 언제나 「수정」 앞에 보이게 하고, 장소 칩은 줄이지 않고
+              제 폭(최대 폭 + 말줄임)을 지킨다. 넘치는 것은 뒤에 붙은 장소 칩뿐이고, 그것은 가로로 밀어 본다. */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.phoneChips}
+            contentContainerStyle={styles.phoneChipsRow}
+          >
+            {[...headerChips.slice(placeChipCount), ...headerChips.slice(0, placeChipCount)].map((chip, index, row) => (
+              <View key={chip} style={[styles.phoneGivenChip, index >= row.length - placeChipCount && styles.phoneGivenChipPlace]}>
                 <Text variant="caption" weight="bold" numberOfLines={1}>{chip}</Text>
               </View>
             ))}
-          </View>
+          </ScrollView>
           <View>
             {/* 🔴 -1337 — 받은 것이 없을 때도 그린다. 없으면 「날짜 정하기」로 말만 바꾼다. */}
             <Pressable accessibilityRole="button" onPress={goSetDates} style={styles.phoneGivenEdit}>
@@ -736,10 +744,11 @@ const styles = StyleSheet.create({
   checkBody: { flex: 1, minWidth: 0 },
 
   phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginBottom: spacing[3] },
-  phoneChips: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: spacing[1], overflow: 'hidden' },
+  phoneChips: { flex: 1, minWidth: 0 },
+  phoneChipsRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
   phoneBack: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing[3] },
   phoneGivenChip: { paddingHorizontal: spacing[2], paddingVertical: 6, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, flexShrink: 0 },
-  phoneGivenChipShrink: { flexShrink: 1, minWidth: 0 },
+  phoneGivenChipPlace: { maxWidth: 150 },
   phoneGivenEdit: { minHeight: 44, paddingLeft: spacing[2], justifyContent: 'center' },
 
   stepHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
