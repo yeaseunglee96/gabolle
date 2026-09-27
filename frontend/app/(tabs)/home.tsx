@@ -265,7 +265,12 @@ export default function Home() {
 
 
         {/* 동백이 첫 여행 체크리스트 — 온보딩을 거친 사람, 로그인한 뒤, 셋 다 하기 전까지. */}
-        {signedIn && checklist ? <FirstTripChecklist state={checklist} hasTrip={Boolean(home.trip)} onDismiss={() => { setChecklist({ ...checklist, dismissed: true }); void dismissChecklist(); }} /> : null}
+        {/* 🔴 hasTrips 다 — home.trip 이 아니다 (S15P21E201-1804).
+            home.trip 은 pickActiveTrip() 이 고른 «예정·진행 중» 여행 하나라, 끝났거나
+            날짜가 지난 여행은 걸러 낸다. 그걸 「여행이 있나」로 쓰면 여행을 만들어 다녀온
+            사람이 「첫 여행 만들기」를 아직 안 한 것으로 나온다. 바로 아래 줄(:335)은
+            같은 뜻으로 home.hasTrips 를 쓰고 있었다 — 한 화면에서 두 값이 섞여 있었다. */}
+        {signedIn && checklist ? <FirstTripChecklist state={checklist} hasTrip={home.hasTrips} onDismiss={() => { setChecklist({ ...checklist, dismissed: true }); void dismissChecklist(); }} /> : null}
 
         {/* ── 히어로 ── */}
         <View style={styles.hero}>

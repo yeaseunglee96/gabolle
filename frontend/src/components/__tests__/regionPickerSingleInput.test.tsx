@@ -58,4 +58,31 @@ describe('지역 입력칸', () => {
     expect(state.region).toBe('광안리');
     expect(state.placeId).toBeUndefined();
   });
+
+  // 🔴 찾은 것이 «없을» 때 — S15P21E201-1804.
+  //
+  // 검색이 실패했을 때는 안내가 있었는데, 서버가 멀쩡히 「그런 곳 없음」이라고 답하면
+  // 목록도 안내도 아무것도 안 떴다. 사용자 눈에는 고를 것이 없으니 「이 지역은 안 되는구나」
+  // 로 읽힌다 — 실제로는 적은 그대로 저장된다.
+  it('0건이면 「적은 그대로 저장된다」고 알린다', async () => {
+    mockSearch.mockResolvedValue({ state: 'success', items: [] });
+    render(<Harness />, { wrapper: Providers });
+    // 아직 안 쳤을 때는 말하지 않는다 — 열자마자 「없어요」는 거짓이다.
+    expect(screen.queryByText(/찾는 곳이 없어요/)).toBeNull();
+
+    fireEvent.changeText(screen.getByLabelText('장소나 지역 검색'), '수영구');
+    await act(async () => { jest.advanceTimersByTime(350); });
+    expect(await screen.findByText(/찾는 곳이 없어요/)).toBeTruthy();
+    // 적은 글자는 그대로 지역이다.
+    expect(state.region).toBe('수영구');
+  });
+
+  it('고른 뒤에는 0건 안내가 남지 않는다', async () => {
+    mockSearch.mockResolvedValue({ state: 'success', items: [{ name: '광안리해수욕장', address: '부산 수영구', placeId: 'p-2' }] });
+    render(<Harness />, { wrapper: Providers });
+    fireEvent.changeText(screen.getByLabelText('장소나 지역 검색'), '광안리');
+    await act(async () => { jest.advanceTimersByTime(350); });
+    fireEvent.press(await screen.findByLabelText('광안리해수욕장 고르기'));
+    expect(screen.queryByText(/찾는 곳이 없어요/)).toBeNull();
+  });
 });
