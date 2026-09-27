@@ -85,7 +85,12 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
               <Text variant="caption" color={color.text.muted}>{language === 'ja' ? phrase.pronunciationJa : phrase.pronunciation}</Text>
               {expanded ? (
                 <>
-                  <View style={styles.speedRow}>
+                  {/* 🔴 누름이 카드로 안 새게 막는다 (S15P21E201-1788).
+                      막지 않으면 「▶ 보통」 을 누를 때 카드의 onPress 까지 같이 불려
+                      문장이 재생되면서 카드가 접힌다 — 방금 누른 단추가 손가락 밑에서
+                      사라진다. 웹에서는 단추 속 단추라 마크업도 잘못된다.
+                      같은 처리를 ConditionsPromptModal · trips.tsx 가 이미 쓴다. */}
+                  <View onStartShouldSetResponder={() => true} style={styles.speedRow}>
                     <Pressable accessibilityRole="button" accessibilityLabel={tx('보통 속도로 듣기', 'Listen at normal speed')} onPress={() => speak(phrase, NORMAL_RATE)} style={styles.speedButton}>
                       <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id && speakingRate === NORMAL_RATE ? tx('재생 중', 'Playing') : tx('▶ 보통', '▶ Normal')}</Text>
                     </Pressable>
