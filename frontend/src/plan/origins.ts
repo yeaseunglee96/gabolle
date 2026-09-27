@@ -1,4 +1,5 @@
 import { apiRequest } from '@/api/client';
+import type { PlaceSearchItem } from '@/discovery/places';
 
 export type OriginCandidate = {
   name: string;
@@ -7,6 +8,11 @@ export type OriginCandidate = {
   lng: number;
   externalId: string;
   source: 'KAKAO_LOCAL' | 'INTERNAL_FALLBACK';
+  /**
+   * 우리 장소 목록에서 찾은 같은 장소의 영어 이름 — S15P21E201-1781. 카카오는 한국어 이름만 준다.
+   * 화면에 그릴 때만 쓴다 — 서버로 보내는 이름(스냅샷·출발지 이름)은 언제나 `name`(한국어)이다.
+   */
+  nameEn?: string | null;
 };
 
 /**
@@ -55,6 +61,43 @@ export async function searchOrigins(query: string, accessToken: string | null, s
     if (error instanceof Error && error.name === 'AbortError') return { state: 'success', items: [], degraded: false };
     return { state: 'error', message: error instanceof Error ? error.message : '출발지를 검색하지 못했어요.' };
   }
+}
+
+/** 이 거리(미터) 안이면서 이름이 겹치면 같은 장소로 본다 — 카카오와 우리 좌표는 같은 원천이라 대개 몇 미터 안이다. */
+const SAME_PLACE_METERS = 80;
+
+function metersBetween(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const rad = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * rad;
+  const dLng = (b.lng - a.lng) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) ** 2;
+  return 2 * 6_371_000 * Math.asin(Math.sqrt(h));
+}
+
+const squash = (text: string) => text.replace(/\s+/g, '');
+
+/**
+ * 카카오 결과에 우리 장소의 영어 이름을 붙인다 — S15P21E201-1781(고지혁 QA).
+ *
+ * 🔴 출발지·숙소는 카카오(한국어만)를, 꼭 갈 곳은 우리 장소 목록(name_en 있음)을 불러서 영어 화면에서
+ *    한쪽만 영어였다. 같은 장소라고 볼 때만 붙인다 — 한국어 이름이 같거나, 가까우면서 한쪽 이름이 다른 쪽을 품을 때.
+ *    못 찾으면 붙이지 않는다(영어 이름을 지어내지 않는다) — 화면이 읽는 법(로마자)을 대신 붙인다.
+ */
+export function attachEnglishNames(origins: OriginCandidate[], places: Pick<PlaceSearchItem, 'nameKo' | 'nameEn' | 'lat' | 'lng'>[]): OriginCandidate[] {
+  const named = places.filter((place) => place.nameEn?.trim());
+  if (!named.length) return origins;
+  return origins.map((origin) => {
+    if (origin.nameEn) return origin;
+    const name = squash(origin.name);
+    const match = named.find((place) => squash(place.nameKo) === name)
+      ?? named.find((place) => {
+        const other = squash(place.nameKo);
+        const overlaps = name.includes(other) || other.includes(name);
+        return overlaps && Number.isFinite(place.lat) && Number.isFinite(place.lng)
+          && metersBetween(origin, { lat: place.lat as number, lng: place.lng as number }) <= SAME_PLACE_METERS;
+      });
+    return match ? { ...origin, nameEn: match.nameEn!.trim() } : origin;
+  });
 }
 
 // 검색이 0건이거나 서버 연결 전에도 고를 수 있는 부산 주요 출발지. 실제 지명·공개 좌표다.
