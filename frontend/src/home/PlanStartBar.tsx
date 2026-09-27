@@ -9,7 +9,9 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { resolveTextLanguage } from '@/i18n/languages';
 import { isOvernight } from '@/plan/lodgingRequired';
-import { lodgingSnapshotOf, MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, searchOrigins, type OriginCandidate } from '@/plan/origins';
+import { lodgingSnapshotOf, MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, attachEnglishNames, searchOrigins, type OriginCandidate, type OriginSearchResult } from '@/plan/origins';
+import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { stopNameForLanguage } from '@/discovery/romanize';
 import { MonthPicker } from '@/home/MonthPicker';
 import { MAX_MONTH_OFFSET, monthOffsetOf } from '@/home/monthJump';
 import {
@@ -239,6 +241,20 @@ function SheetCard({
 /** 폰에서 한 줄에 들어가는 개수. 390 폭에서 실측한 값이다. */
 const PHONE_PRESET_COUNT = 3;
 
+/**
+ * 출발지·숙소 검색 — S15P21E201-1781(고지혁 QA). 카카오(searchOrigins)는 한국어 이름만 준다.
+ * 영어 화면이면 꼭 갈 곳 검색과 같은 우리 장소 목록(searchPlacesByName)도 불러 같은 장소의 영어 이름을 붙인다.
+ * 우리 목록이 실패해도 카카오 결과는 그대로 낸다 — 영어 이름은 덤이다.
+ */
+async function searchOriginsWithNames(query: string, accessToken: string | null, signal: AbortSignal, withEnglish: boolean): Promise<OriginSearchResult> {
+  if (!withEnglish) return searchOrigins(query, accessToken, signal);
+  const [origins, places] = await Promise.all([
+    searchOrigins(query, accessToken, signal),
+    searchPlacesByName(query, signal).catch(() => [] as PlaceSearchItem[]),
+  ]);
+  return origins.state === 'success' ? { ...origins, items: attachEnglishNames(origins.items, places) } : origins;
+}
+
 export function PlanStartBar({
   wide, accessToken, onSubmit, today = new Date(), initialSection = null, initialValue,
   sheet = false, value: controlledValue, onChange, onClose, onOpenSheet,
@@ -294,7 +310,7 @@ export function PlanStartBar({
     abortRef.current = controller;
     setSearching(true);
     const timer = setTimeout(async () => {
-      const outcome = await searchOrigins(trimmed, accessToken, controller.signal);
+      const outcome = await searchOriginsWithNames(trimmed, accessToken, controller.signal, !ko);
       if (controller.signal.aborted) return;
       setSearching(false);
       // 실패해도 추천 목록은 그대로 둔다. 검색이 안 된다고 고를 수 없게 되면
@@ -302,7 +318,7 @@ export function PlanStartBar({
       setResults(outcome.state === 'success' ? outcome.items : []);
     }, 250);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [accessToken, query]);
+  }, [accessToken, query, ko]);
 
   // 숙소 검색 — 출발지와 같은 searchOrigins 를 재사용한다(design_handoff_home_lodging).
   // 검색창·중단기를 따로 두는 이유는 두 칸이 동시에 타이핑될 수 있어서다(가짓 값이 아니다).
@@ -314,13 +330,13 @@ export function PlanStartBar({
     lodgingAbortRef.current = controller;
     setLodgingSearching(true);
     const timer = setTimeout(async () => {
-      const outcome = await searchOrigins(trimmed, accessToken, controller.signal);
+      const outcome = await searchOriginsWithNames(trimmed, accessToken, controller.signal, !ko);
       if (controller.signal.aborted) return;
       setLodgingSearching(false);
       setLodgingResults(outcome.state === 'success' ? outcome.items : []);
     }, 250);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [accessToken, lodgingQuery]);
+  }, [accessToken, lodgingQuery, ko]);
 
   const pickOrigin = (candidate: OriginCandidate) => {
     setValue((prev) => ({ ...prev, origin: candidate.name, originLat: candidate.lat, originLng: candidate.lng }));
@@ -492,7 +508,7 @@ export function PlanStartBar({
       <Text testID="origin-list-label" variant="caption" color={color.text.muted}>{results.length ? tx('검색 결과', 'Search results') : tx('추천 출발지', 'Suggested starting points')}</Text>
       {(results.length ? results : MAJOR_BUSAN_ORIGINS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickOrigin(candidate)} accessibilityRole="button" style={styles.originRow}>
-          <Text weight="bold">{candidate.name}</Text>
+          <Text weight="bold">{stopNameForLanguage(candidate.name, candidate.nameEn, language)}</Text>
           <Text variant="caption" color={color.text.muted}>{candidate.address}</Text>
         </Pressable>
       ))}
@@ -513,7 +529,7 @@ export function PlanStartBar({
       <Text variant="caption" color={color.text.muted}>{tx('추천 숙소 지역', 'Suggested areas to stay')}</Text>
       {(lodgingResults.length ? lodgingResults : RECOMMENDED_LODGING_AREAS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickLodging(candidate)} accessibilityRole="button" style={styles.originRow}>
-          <Text weight="bold">{candidate.name}</Text>
+          <Text weight="bold">{stopNameForLanguage(candidate.name, candidate.nameEn, language)}</Text>
           <Text variant="caption" color={color.text.muted}>{candidate.address}</Text>
         </Pressable>
       ))}
