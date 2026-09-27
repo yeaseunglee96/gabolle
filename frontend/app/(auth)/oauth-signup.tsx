@@ -99,7 +99,7 @@ export default function OAuthSignup() {
         <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.replace('/sign-in')} style={styles.backLink}>
           <Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text>
         </Pressable>
-        <BrandLogoLink href="/home" imageStyle={styles.logo} />
+        <BrandLogoLink enter href="/home" imageStyle={styles.logo} />
       </View>
       <Text variant="display" weight="bold" style={styles.title}>{tx('회원가입 완료하기', 'Finish signing up')}</Text>
       <Text variant="body" color={color.text.body} style={styles.subtitle}>{tx('소셜 인증은 끝났어요. 몇 가지만 더 확인할게요.', "You're verified — just a couple more details.")}</Text>

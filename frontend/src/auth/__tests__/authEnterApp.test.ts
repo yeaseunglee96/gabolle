@@ -32,3 +32,27 @@ describe('인증 화면의 비회원·소셜 가입 진입', () => {
     }
   });
 });
+
+// 로고 단추도 앱 안(홈)으로 간다 — 맨 replace 면 홈 아래에 로그인 화면이 남는다 (S15P21E201-1801).
+const LOGO_ENTRIES: Array<[string, string]> = [
+  ['sign-in.tsx', "kind === 'phone' ? '/home' : '/'"],
+];
+const LOGO_LINK_SCREENS = ['sign-up.tsx', 'age-gate.tsx', 'oauth-link.tsx', 'oauth-signup.tsx'];
+
+describe('인증 화면의 로고 단추', () => {
+  it.each(LOGO_ENTRIES)('%s 의 로고는 %s 로 갈 때 enterApp 을 쓴다', (file: string, expr: string) => {
+    const source: string = readFileSync(AUTH_DIR + file, 'utf8');
+    expect(source).toContain('enterApp(router, ' + expr + ')');
+    expect(source).not.toContain('router.replace(' + expr + ')');
+  });
+  it.each(LOGO_LINK_SCREENS)('%s 의 BrandLogoLink 는 enter 를 켠다', (file: string) => {
+    const source: string = readFileSync(AUTH_DIR + file, 'utf8');
+    const links: string[] = source.match(/<BrandLogoLink [^>]*>/g) ?? [];
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) expect(link).toMatch(/^<BrandLogoLink enter /);
+  });
+  it('BrandLogoLink 는 enter 일 때 enterApp 으로 간다', () => {
+    const source: string = readFileSync(__dirname + '/../../components/BrandLogoLink.tsx', 'utf8');
+    expect(source).toContain('enter ? enterApp(router, href as never)');
+  });
+});
