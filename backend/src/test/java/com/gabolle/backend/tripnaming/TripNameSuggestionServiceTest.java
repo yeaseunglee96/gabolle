@@ -196,4 +196,40 @@ class TripNameSuggestionServiceTest {
 
 		verify(this.namer, never()).suggest(any(), anyInt(), anyInt());
 	}
+
+	// ── 영어 화면 — S15P21E201-1780(고지혁 QA) ────────────────────────────
+
+	@Test
+	@DisplayName("🔴 영어 화면이면 영어 이름으로 영어 후보를 준다 — 한국어 조사·「외 N곳」이 안 섞인다")
+	void englishScreenGetsEnglishNames() {
+		when(this.vocabulary.placeNamesOf(TRIP_ID, true))
+				.thenReturn(List.of("Haeundae Beach", "광안리 해수욕장", "Gamcheon Culture Village"));
+
+		TripNameSuggestionsResponse response = this.service.suggest(TRIP_ID, this.requester, true);
+
+		assertThat(response.suggestions()).containsExactly(
+				"Haeundae Beach + 2 more · 2 days", "2 days at Haeundae Beach", "2026-09-19 ~ 2026-09-20");
+		assertThat(response.suggestions()).noneMatch((name) -> name.contains("외 ") || name.contains("일"));
+		assertThat(response.source()).isEqualTo(TripNameSuggestionsResponse.TEMPLATE);
+	}
+
+	@Test
+	@DisplayName("🔴 영어 화면이면 모델을 안 부른다 — 지어낸 장소 거르기가 한글만 보므로 영어 이름은 거를 수 없다")
+	void englishScreenDoesNotCallTheModel() {
+		when(this.vocabulary.placeNamesOf(TRIP_ID, true)).thenReturn(List.of("Haeundae Beach"));
+
+		TripNameSuggestionsResponse response = this.service.suggest(TRIP_ID, this.requester, true);
+
+		verify(this.namer, never()).suggest(any(), anyInt(), anyInt());
+		assertThat(response.suggestions()).first().isEqualTo("Haeundae Beach · 2 days");
+	}
+
+	@Test
+	@DisplayName("영어 화면이라도 남의 여행이면 아무것도 안 보인다")
+	void englishScreenStillChecksMembership() {
+		when(this.queryService.get(eq(TRIP_ID), any())).thenThrow(new TripQueryService.TripNotFoundException(TRIP_ID));
+
+		assertThatThrownBy(() -> this.service.suggest(TRIP_ID, this.requester, true))
+				.isInstanceOf(TripQueryService.TripNotFoundException.class);
+	}
 }
