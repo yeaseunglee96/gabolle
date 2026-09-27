@@ -3,9 +3,10 @@
 // 🔴 넓은 화면은 이 카드를 안 쓴다. 커버 사진이 화면 전폭으로 깔리고 그 위에 프로필이
 //    얹힌다(MyPageCover). 그래서 이 파일에 있던 넓은 화면 가지는 전부 죽은 코드였고
 //    걷어냈다 — 남겨 두면 다음 사람이 고치고서 「왜 안 바뀌지」를 한참 찾는다.
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
+import { PhotoViewer } from '@/components/PhotoViewer';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
@@ -46,11 +47,18 @@ export function ProfileCard({ name, email, guest = false, avatarUri, coverUri, c
   // 기반이라 그 자리에서 따라온다(frontend/CLAUDE.md 의 「폭 분기는 useLayout」).
   const { isLandscape } = useLayout();
   const coverHeight = isLandscape ? COVER_HEIGHT_LANDSCAPE : COVER_HEIGHT;
+  // 커버를 눌러 크게 보는 창 (S15P21E201-1802). 올린 사진이 있을 때만 연다 —
+  // 기본 부산 사진은 「내 사진」이 아니라 빈자리를 채우는 그림이라 크게 볼 것이 없다.
+  const [viewingCover, setViewingCover] = useState(false);
+  const cover = <Image source={coverUri ? { uri: coverUri } : DEFAULT_COVER} resizeMode="cover" style={styles.coverPhoto} accessibilityLabel={coverUri ? tx('배경 사진', 'Cover photo') : ''} />;
   return (
     <View style={styles.card}>
       <View style={[styles.cover, { height: coverHeight }]}>
-        <Image source={coverUri ? { uri: coverUri } : DEFAULT_COVER} resizeMode="cover" style={styles.coverPhoto} accessibilityLabel={coverUri ? tx('배경 사진', 'Cover photo') : ''} />
+        {coverUri
+          ? <Pressable accessibilityRole="imagebutton" accessibilityLabel={tx('배경 사진 크게 보기', 'View cover photo')} onPress={() => setViewingCover(true)} style={styles.coverPress}>{cover}</Pressable>
+          : cover}
       </View>
+      <PhotoViewer visible={viewingCover} uri={coverUri} label={tx('배경 사진', 'Cover photo')} closeLabel={tx('사진 닫기', 'Close photo')} onClose={() => setViewingCover(false)} />
 
       <View style={styles.body}>
         <View style={styles.topRow}>
@@ -120,8 +128,18 @@ export function ProfileCardButton({
   );
 }
 
-/** 시안 02 의 값. 아바타가 걸쳐 앉을 만큼만 있으면 된다. */
-const COVER_HEIGHT = 120;
+/**
+ * 세로에서의 커버 높이.
+ *
+ * 🔴 120 → 180 (S15P21E201-1802, 사용자 요청). 120 은 「아바타(80)가 걸쳐 앉을 만큼」으로
+ *    잡은 최소값이라 사진이 띠처럼 얇게 눌려 무엇을 올렸는지 잘 안 보였다. 넓은 화면은
+ *    같은 사진을 420(MyPageCover)으로 쓰는데 폰만 유독 작았다.
+ *
+ *    180 을 고른 근거 — 아이폰 세로 874 에서 커버 180 + 몸통(아바타 줄·이름·이메일·칩)
+ *    약 250 = 430 이라, 탭바(64+여백)를 빼도 첫 화면에 칩까지 다 들어온다. 실제로 재 보고
+ *    정했다. 더 키우면 칩이 접히기 시작한다.
+ */
+const COVER_HEIGHT = 180;
 /** 가로는 화면 높이가 402 뿐이라 커버를 낮춘다 — 아바타(80)가 여전히 걸쳐 앉는다. */
 const COVER_HEIGHT_LANDSCAPE = 72;
 const AVATAR = 80;
@@ -130,6 +148,7 @@ const styles = StyleSheet.create({
   // 폰에도 테두리와 둥근 모서리를 준다(시안 02). 전에는 띠처럼 화면 폭을 꽉 채웠다.
   card: { borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, overflow: 'hidden' },
   cover: { height: COVER_HEIGHT, backgroundColor: color.surface.soft },
+  coverPress: { width: '100%', height: '100%' },
   coverPhoto: { width: '100%', height: '100%' },
   body: { gap: spacing[2], paddingHorizontal: spacing[4], paddingBottom: spacing[4], marginTop: -40 },
   // 🔴 아바타 줄을 커버 «위»로 올린다. 안 올리면 커버의 overflow: hidden 이 겹친 부분을
