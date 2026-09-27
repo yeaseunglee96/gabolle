@@ -53,9 +53,9 @@ export const ATMOSPHERE_OPTIONS: readonly PlanOption[] = [
 ] as const;
 
 export const PACE_OPTIONS: readonly PlanOption[] = [
-  ['RELAXED', '여유롭게', 'Relaxed', '하루 2–3곳 · 머무는 시간 길게', '2–3 places a day · longer stays'],
-  ['BALANCED', '균형 있게', 'Balanced', '하루 3–4곳', '3–4 places a day'],
-  ['PACKED', '알차게', 'Packed', '하루 5곳 이상 · 이동 빠르게', '5+ places a day · quick hops'],
+  ['RELAXED', '여유롭게', 'Relaxed', '3시간에 한 곳 꼴 · 머무는 시간 길게', 'About one place every 3 hours · longer stays'],
+  ['BALANCED', '균형 있게', 'Balanced', '2시간에 한 곳 꼴', 'About one place every 2 hours'],
+  ['PACKED', '알차게', 'Packed', '1시간 반에 한 곳 꼴 · 이동 빠르게', 'About one place every 90 minutes · quick hops'],
 ] as const;
 
 // 🔴 택시는 없다. 초안의 이동수단 칸이 셋만 받는다 — 화면에만 넣으면 고른 값이 조용히 버려진다.
@@ -97,9 +97,9 @@ export function effectOf(key: QuestionKey, draft: PlanDraft, tx: Tx): string | n
         : tx('최대 셋. 고른 갈래가 정차지의 대부분을 차지해요.', 'Up to three. What you pick fills most of the stops.');
     case 'pace':
       switch (draft.paceLevel) {
-        case 'RELAXED': return tx('하루 2–3곳, 한 곳에 1시간 반 이상 머물러요.', '2–3 places a day, 90+ minutes at each.');
-        case 'BALANCED': return tx('하루 3–4곳, 점심·저녁 사이에 한 곳씩.', '3–4 places a day, one between meals.');
-        case 'PACKED': return tx('하루 5곳 이상, 이동은 가까운 순으로 붙여요.', '5+ places a day, hops ordered by distance.');
+        case 'RELAXED': return tx('3시간에 한 곳 꼴이에요. 12시간 하루면 4곳, 한 곳에 오래 머물러요.', 'About one place every 3 hours: 4 in a 12-hour day, with long stays.');
+        case 'BALANCED': return tx('2시간에 한 곳 꼴이에요. 12시간 하루면 6곳이에요.', 'About one place every 2 hours: 6 in a 12-hour day.');
+        case 'PACKED': return tx('1시간 반에 한 곳 꼴이에요. 12시간 하루면 8곳, 이동은 가까운 순으로 붙여요.', 'About one place every 90 minutes: 8 in a 12-hour day, hops ordered by distance.');
         default: return tx('하루에 도는 장소 수와 머무는 시간이 정해져요.', 'This sets how many places a day and how long you stay.');
       }
     default:
