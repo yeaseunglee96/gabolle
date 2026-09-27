@@ -121,6 +121,8 @@ export function ReplyCard({
   // 인용·저장은 댓글에 없다 — linkCopyCount 를 비워 두면 반응 줄이 인용 칸을 안 그린다.
   const [reaction, setReaction] = useState<ReactableStory>(() => ({
     myReaction: reply.myReaction, likeCount: reply.likeCount, dislikeCount: reply.dislikeCount, linkCopyCount: undefined,
+    // 내 댓글이면 원글처럼 잠근다 — 빠뜨리면 단추는 눌리는데 서버가 409(STORY_REACTION_OWN)로 조용히 거절한다(S15P21E201-1783).
+    mine: reply.mine,
   }));
   const [reacting, setReacting] = useState(false);
 
