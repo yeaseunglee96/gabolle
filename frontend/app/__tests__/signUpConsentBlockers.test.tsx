@@ -25,7 +25,9 @@ jest.mock('react-native-reanimated', () => {
   return { __esModule: true, default: { View }, FadeInRight: chain, FadeOutLeft: chain, ReduceMotion: { System: 'system' } };
 });
 jest.mock('@/auth/authApi', () => ({ signup: jest.fn(), resendEmailVerification: jest.fn() }));
-jest.mock('@/auth/pendingReturnTo', () => ({ savePendingReturnTo: jest.fn(async () => {}), isSafeReturnPath: () => false }));
+jest.mock('@/auth/pendingReturnTo', () => ({ savePendingReturnTo: jest.fn(async () => {}), isSafeReturnPath: () => false, signedInDestination: () => '/home' }));
+// 로그인 안 한 사람의 가입 화면이다 — 로그인한 사람은 비킨다(S15P21E201-1793, signUpWhenSignedIn 시험).
+jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ user: null, ready: true }) }));
 jest.mock('@/components/BrandLogoLink', () => ({ BrandLogoLink: () => null }));
 jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ kind: mockKind, width: mockKind === 'phone' ? 390 : 1440, height: 900, isLandscape: false }) }));
 jest.mock('react-native-safe-area-context', () => ({
