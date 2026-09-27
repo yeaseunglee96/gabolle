@@ -19,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
@@ -52,6 +54,9 @@ class ItineraryPersistenceIntegrationTest {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	private PlatformTransactionManager transactionManager;
 
 	private String itineraryId;
 	private String tripId;
@@ -95,6 +100,22 @@ class ItineraryPersistenceIntegrationTest {
 		var saved = itineraryRepository.findVersion(itineraryId, 2).orElseThrow();
 		assertThat(saved.operation()).isEqualTo(ItineraryVersion.Operation.REPLACE_ITEM);
 		assertThat(saved.createdBy()).isEqualTo(userId);
+	}
+
+	/**
+	 * 🔴 같은 영속성 컨텍스트 안에서 — 요청 하나가 컨텍스트 하나를 쓰는 open-in-view 와 같다 — 편집 전에
+	 * 읽어 둔 일정을 편집 뒤에 다시 읽어도 새 판을 가리켜야 한다. 포인터는 원시 SQL 로 옮기므로
+	 * 1차 캐시를 맞추지 않으면 옛 판을 돌려주고, 편집 응답이 바뀌기 전 판이 된다(S15P21E201-1785).
+	 */
+	@Test
+	void pointerMoveIsVisibleInTheSamePersistenceContext() {
+		new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+			assertThat(itineraryRepository.findById(itineraryId).orElseThrow().latestVersion()).isEqualTo(1);
+
+			itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of(), List.of());
+
+			assertThat(itineraryRepository.findById(itineraryId).orElseThrow().latestVersion()).isEqualTo(2);
+		});
 	}
 
 	/**
