@@ -80,6 +80,14 @@ export default function PlaceReviews() {
 
   const requestVerification = async () => {
     if (!id) return;
+    // 🔴 로그인 확인이 «위치보다 먼저»다 (S15P21E201-1795).
+    //
+    // 전에는 비회원에게도 위치 권한을 묻고 GPS 좌표까지 읽은 «다음»에 서버가 거절해서
+    // 빨간 오류만 났다. 끝내 못 할 일 때문에 위치를 받는 것은 그 자체로 문제다.
+    //
+    // 게다가 위치에서 막히면 kind 가 'permission-denied' 가 되는데, canWrite 가 그것을
+    // 「써도 되는 상태」로 쳐서 비회원에게 후기 작성 칸이 열렸다.
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/place-reviews/${id}` } }); return; }
     // 🔴 위치 동의가 먼저다(S15P21E201-1691). 서버도 방문 인증에 이 동의(PRECISE_LOCATION)를 요구한다(ConsentGuard) —
     //    동의 기록이 없던 때에는 인증이 서버에서 막혔다. 거절하면 기기 권한이 없을 때와 같은 길로 간다.
     if (!(await locationGate.request())) { setVerify({ kind: 'permission-denied' }); return; }
@@ -113,6 +121,9 @@ export default function PlaceReviews() {
 
   const submit = async () => {
     if (!id || !hasAnyScore || submitting) return;
+    // 비회원이 여기까지 왔다면(위 canWrite 경로) 쓴 글을 잃기 전에 로그인으로 보낸다.
+    // 돌아오면 이 화면이 다시 열린다 (S15P21E201-1795).
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/place-reviews/${id}` } }); return; }
     setSubmitting(true);
     setSubmitError(null);
     const result = await submitPlaceReview({ placeId: id, ...scores, body: body.trim() || undefined, accessToken });

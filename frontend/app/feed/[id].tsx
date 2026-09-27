@@ -404,6 +404,10 @@ export default function StoryDetail() {
    */
   const copyLink = async () => {
     if (!story) return;
+    // 🔴 비회원은 로그인으로 보낸다 (S15P21E201-1795). 같은 줄의 좋아요·저장은 그렇게 하는데
+    //    인용만 그냥 돌아서, 비회원이 눌러도 인용 수가 올라갔다. 세 단추가 나란히 있는데
+    //    하나만 다르게 굴면 사람은 「이건 되는 기능」으로 읽는다.
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } }); return; }
     await Clipboard.setStringAsync(storyShareUrl(story.id));
     setCopyNotice(tx('링크를 복사했어요.', 'Link copied.'));
     const outcome = await recordStoryLinkCopy(story.id, accessToken);
@@ -417,6 +421,21 @@ export default function StoryDetail() {
    *
    * 링크 복사는 내 글·남의 글 양쪽에 둔다 — 내 글을 남에게 보내는 것이 더 잦다.
    */
+  /**
+   * 🔴 비회원이면 로그인으로 보내고 그 행동은 하지 않는다 (S15P21E201-1795).
+   *
+   * 이 ⋯ 메뉴는 로그인 여부와 상관없이 늘 그려진다. 그래서 비회원에게도 팔로우·신고·차단이
+   * 보였고, 눌러도 «아무 일도 안 일어났다» — 오류도 안 뜨고 로그인 안내도 없었다.
+   * 이 화면은 공유 링크가 도착하는 곳이라 비회원이 가장 먼저 닿는 화면이다.
+   *
+   * 차단·신고가 특히 나쁘다. 괴롭힘을 막으려고 누른 사람에게 「안 됐다」는 말조차 없다.
+   */
+  const needsSignIn = () => {
+    if (accessToken) return false;
+    router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } });
+    return true;
+  };
+
   const menuItems: DropdownMenuItem[] = story
     ? [
         { key: 'copy-link', label: tx('링크 복사', 'Copy link'), onPress: () => void copyLink() },
@@ -427,11 +446,11 @@ export default function StoryDetail() {
               ? [{
                   key: 'follow',
                   label: authorFollowing ? tx('팔로잉 취소', 'Unfollow') : tx('팔로우', 'Follow'),
-                  onPress: () => void toggleFollow(),
+                  onPress: () => { if (!needsSignIn()) void toggleFollow(); },
                 }]
               : []),
-            { key: 'report', label: tx('이 글 신고', 'Report this post'), onPress: () => setReportingTargetId(story.id) },
-            { key: 'block', label: tx('사용자 차단', 'Block user'), destructive: true, onPress: () => setConfirmingBlock(true) },
+            { key: 'report', label: tx('이 글 신고', 'Report this post'), onPress: () => { if (!needsSignIn()) setReportingTargetId(story.id); } },
+            { key: 'block', label: tx('사용자 차단', 'Block user'), destructive: true, onPress: () => { if (!needsSignIn()) setConfirmingBlock(true); } },
           ]),
       ]
     : [];
@@ -672,7 +691,7 @@ export default function StoryDetail() {
                     accessToken={accessToken}
                     onUpdated={updateReply}
                     onDeleted={removeReply}
-                    onReport={setReportingTargetId}
+                    onReport={(replyId) => { if (!needsSignIn()) setReportingTargetId(replyId); }}
                   />
                 ))}
               </View>
