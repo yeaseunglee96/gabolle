@@ -89,6 +89,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 범위의 <b>위쪽</b>을 고른 이유는, 이 수가 「최대」이고 후보가 모자라면 그보다 적게 들어가기
      * 때문이다. 아래쪽을 고르면 「2–3곳」이라 적어 두고 언제나 2곳만 나온다.
      * <p>
+     * 🔴 S15P21E201-1816 부터 이 표는 <b>활동 시간대를 모르는 여행</b>에만 쓴다. 시간대를 아는 여행은
+     * {@link #itemsForWindow} 가 하루 길이로 센다.
+     * <p>
      * 🔴 이 숫자들은 실측이 아니라 <b>화면이 이미 한 약속</b>이다. 화면 문구를 고치면 여기도
      * 같이 고친다 — 두 곳이 어긋나면 사용자에게는 앱이 거짓말한 것이 된다.
      */
@@ -678,7 +681,43 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         if (trip.pace() == null) {
             return this.maxItemsPerDay;
         }
-        return ITEMS_PER_DAY_BY_PACE.getOrDefault(trip.pace(), this.maxItemsPerDay);
+        DayWindow full = DayWindow.of(trip);
+        if (!full.known() || !ITEMS_PER_DAY_BY_PACE.containsKey(trip.pace())) {
+            return ITEMS_PER_DAY_BY_PACE.getOrDefault(trip.pace(), this.maxItemsPerDay);
+        }
+        return itemsForWindow(trip.pace(), full.minutes());
+    }
+
+    /**
+     * 여행 기분이 「몇 분에 한 곳 꼴」인가 (S15P21E201-1816). 고정 개수였을 때 여유롭게 09:00–21:00 일정이
+     * 3곳뿐이라 빈 시간이 5시간 55분 남았다(QA). 하루가 길면 곳도 늘어야 한다.
+     */
+    private static final java.util.Map<String, Integer> MINUTES_PER_ITEM_BY_PACE = java.util.Map.of(
+            "RELAXED", 180,
+            "BALANCED", 120,
+            "PACKED", 90);
+
+    /** 하루가 아무리 짧아도 이만큼은 둔다 — 한 곳짜리 하루는 일정이 아니다. */
+    static final int MIN_ITEMS_PER_DAY = 2;
+
+    /**
+     * 하루가 아무리 길어도 이보다 많이 넣지 않는다 — 여유롭게·균형 있게는 예전 고정 개수 + 2,
+     * 알차게는 12시간 하루에 8곳(1.5시간에 한 곳)이 나오도록 + 3.
+     */
+    private static final java.util.Map<String, Integer> MAX_ITEMS_BY_PACE = java.util.Map.of(
+            "RELAXED", 5,
+            "BALANCED", 6,
+            "PACKED", 8);
+
+    /**
+     * 그 기분으로 {@code windowMinutes} 분짜리 하루에 몇 곳을 넣을까. 내림이다 — 3시간에 한 곳이면 8시간은
+     * 2곳이지 3곳이 아니다(3곳이면 한 곳에 2시간 40분). 모르는 기분은 {@code -1} 이 아니라 균형 있게로 센다.
+     */
+    public static int itemsForWindow(String pace, long windowMinutes) {
+        int per = MINUTES_PER_ITEM_BY_PACE.getOrDefault(pace, 120);
+        int max = MAX_ITEMS_BY_PACE.getOrDefault(pace, 6);
+        long raw = Math.max(0, windowMinutes) / per;
+        return (int) Math.max(MIN_ITEMS_PER_DAY, Math.min(max, raw));
     }
 
     private int mealsPerDay(DayWindow window) {

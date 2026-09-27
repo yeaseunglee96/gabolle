@@ -1642,6 +1642,69 @@ class ItineraryDraftServiceTest {
 		assertThat(placedCountFor("PACKED", 2)).isEqualTo(2);
 	}
 
+	// ── 하루 길이에 맞춘 곳 수 (S15P21E201-1816) ──────────────────────────
+
+	private int placedCountFor(String pace, int candidates, LocalTime from, LocalTime to) {
+		Trip trip = Trip.builder()
+				.tripId("itn_trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 10)).finishDate(LocalDate.of(2026, 9, 10))
+				.partySize(2).timezone("Asia/Seoul").pace(pace)
+				.timeWindowStart(from).timeWindowEnd(to)
+				.createdAt(Instant.now())
+				.build();
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+		return this.service.assemble(commandOf("itn_trip_1", plannedPlaces(candidates))).items().size();
+	}
+
+	@Test
+	@DisplayName("🔴 여유롭게 09:00–21:00 은 4곳이다 — 고정 3곳이라 빈 시간이 5시간 55분 남았다(QA)")
+	void relaxedTwelveHourDayGetsFourPlaces() {
+		LocalTime nine = LocalTime.of(9, 0);
+		LocalTime nine_pm = LocalTime.of(21, 0);
+		assertThat(placedCountFor("RELAXED", 12, nine, nine_pm)).as("3시간에 한 곳").isEqualTo(4);
+		assertThat(placedCountFor("BALANCED", 12, nine, nine_pm)).as("2시간에 한 곳").isEqualTo(6);
+		assertThat(placedCountFor("PACKED", 12, nine, nine_pm)).as("1.5시간에 한 곳").isEqualTo(8);
+	}
+
+	@Test
+	@DisplayName("하루 길이 → 곳 수: 기분마다 몇 분에 한 곳인지, 내림, 최소 2·최대(기분별)")
+	void itemsForWindowMapping() {
+		// 12시간 — 기준 사례
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 720)).isEqualTo(4);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", 720)).isEqualTo(6);
+		assertThat(ItineraryDraftService.itemsForWindow("PACKED", 720)).isEqualTo(8);
+		// 내림 — 8시간
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 480)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", 480)).isEqualTo(4);
+		assertThat(ItineraryDraftService.itemsForWindow("PACKED", 480)).isEqualTo(5);
+		// 경계 — 딱 나누어떨어지기 한 분 전
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 539)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 540)).isEqualTo(3);
+		// 최소 2 — 짧은 하루, 0, 음수
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 120)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("PACKED", 60)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", 0)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", -30)).isEqualTo(2);
+		// 최대 — 아주 긴 하루(06:00–24:00 = 18시간)
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 1080)).isEqualTo(5);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", 1080)).isEqualTo(6);
+		assertThat(ItineraryDraftService.itemsForWindow("PACKED", 1080)).isEqualTo(8);
+		// 여유롭게는 언제나 균형 있게 이하, 균형 있게는 알차게 이하
+		for (int m = 0; m <= 1440; m += 15) {
+			assertThat(ItineraryDraftService.itemsForWindow("RELAXED", m))
+					.isLessThanOrEqualTo(ItineraryDraftService.itemsForWindow("BALANCED", m));
+			assertThat(ItineraryDraftService.itemsForWindow("BALANCED", m))
+					.isLessThanOrEqualTo(ItineraryDraftService.itemsForWindow("PACKED", m));
+		}
+	}
+
+	@Test
+	@DisplayName("시간대를 모르는 여행은 예전 고정 개수 그대로다 — 길이를 모르면 나눌 것이 없다")
+	void unknownWindowKeepsFixedCounts() {
+		assertThat(placedCountFor("RELAXED", 12, null, null)).isEqualTo(3);
+		assertThat(placedCountFor("PACKED", 12, null, null)).isEqualTo(5);
+	}
+
 	// ── 필요한 자리 수 (S15P21E201-1450) ──────────────────────────────────
 
 	@Test
