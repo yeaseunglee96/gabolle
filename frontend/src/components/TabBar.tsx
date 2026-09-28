@@ -214,13 +214,25 @@ export function TabBar({
             accessibilityState={{ selected, disabled: !tab.route }}
             style={({ pressed }) => [styles.item, pressed && styles.itemPressed]}
             disabled={!tab.route}
+            // 🔴 지금 보고 있는 탭을 다시 눌렀을 때는 아무것도 하지 않는다 (2026-09-22, build 41 실기기).
+            //
+            // 전에는 `selected` 를 안 보고 무조건 router.replace 를 불렀다. 그런데 이 셸은 진짜 탭
+            // 내비게이션이 아니라 Stack 하나이고(이 파일 맨 위 참고) **탭바를 화면마다 따로 그린다.**
+            // 그래서 같은 탭을 눌러도 화면이 통째로 다시 마운트되고, 그때 탭바도 같이 사라졌다 생겼다.
+            // 연타하면 그 재생성 프레임이 「이상한 화면」으로 스친다 — 팀이 실기기에서 본 증상이다.
+            //
+            // 자동화로도 확인했다: 탭 하나를 누르는 순간 **나머지 탭 요소가 전부 무효**가 된다
+            // (「previously found element is no longer available」). 바가 자리에 남아 있었다면 살아 있어야 한다.
+            //
+            // `selected` 는 바로 위에서 이미 계산해 둔 값이다 — 쓰기만 하면 됐다.
             onPress={() => {
-              if (tab.route) router.replace(tab.route);
+              if (tab.route && !selected) router.replace(tab.route);
             }}
           >
             {/* 현재 탭 표시는 굵은 글자 + 진한 아이콘뿐이다. 글자 밑의 붉은 점은 글자를 가렸다(2026-09-21 지적, S15P21E201-1390). */}
             <View style={[styles.iconWrap, tab.key === 'schedule' && styles.createIconWrap]}><Image source={tab.icon} resizeMode="contain" style={[styles.icon, tab.key !== 'schedule' && (selected ? styles.iconSelected : styles.iconInactive)]} /></View>
-            <Text variant="micro" weight={selected ? 'bold' : 'regular'} color={selected ? color.text.heading : color.text.inactiveTab}>
+            {/* 🔴 한 줄로만 — 글자 크기 1.1 폰에서 「여행 만들기」가 두 줄로 꺾여 다른 탭보다 내려갔다(S15P21E201-1747). 넘치면 글자를 줄인다. */}
+            <Text variant="micro" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} weight={selected ? 'bold' : 'regular'} color={selected ? color.text.heading : color.text.inactiveTab}>
               {tx(tab.labelKo, tab.labelEn)}
             </Text>
           </Pressable>
@@ -251,6 +263,16 @@ export function bottomBarClearance(bottomInset: number) {
   return TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset) + spacing[2];
 }
 
+/**
+ * 화면 아래에 떠 있는 것(탭바, 그 위의 떠 있는 단추)의 기준 — 웹에서는 보이는 창, 앱에서는 부모.
+ *
+ * 🔴 탭바 곁에 뜨는 것은 **탭바와 같은 기준**이어야 한다(S15P21E201-1601). 폰 홈의 AI 단추만 `absolute` 로
+ *    남아 있어서, 주소창이 접혀 보이는 창이 길어질 때 탭바만 새 바닥으로 내려가고 단추는 옛 자리에 남았다.
+ */
+export function bottomDockPosition(os: string = Platform.OS): 'absolute' {
+  return os === 'web' ? ('fixed' as 'absolute') : 'absolute';
+}
+
 const styles = StyleSheet.create({
   // 받침 — 화면 아래에 깔리되 자기는 아무것도 안 그린다. 알약을 가운데 세우는 일만 한다.
   dock: {
@@ -258,7 +280,7 @@ const styles = StyleSheet.create({
     // `<View flex:1>` 안에 스크롤 영역과 탭바가 형제로 들어 있는데, 모바일 브라우저는
     // 문서 자체가 스크롤되고 주소창이 접히며 뷰포트 높이까지 바뀐다. 그래서 빠르게
     // 스크롤하면 탭바가 바닥에 안 붙고 내용과 같이 올라와 카드 위를 덮었다.
-    position: Platform.OS === 'web' ? ('fixed' as 'absolute') : 'absolute',
+    position: bottomDockPosition(),
     left: 0,
     right: 0,
     bottom: 0,
@@ -267,6 +289,13 @@ const styles = StyleSheet.create({
     // 🔴 화면 내용 위에 있어야 한다. 마이페이지가 시트를 열 때 어둠막(20)을 깔므로
     //    그보다 높아야 시트가 가려지지 않는다 — 안 주면 나중에 그린 것이 이긴다.
     zIndex: 30,
+    // 🔴 S15P21E201-1552 — zIndex 만으로는 안드로이드에서 «그림»만 이기고 «손짓»은 못
+    //    이겼다. 실기기(갤럭시 S10)에서 이 막대가 눈에는 목록 카드 위에 떠 있는데, 그
+    //    자리를 누르면 밑에 깔린 카드가 눌렸다 — 탭 전환 자체가 안 됐다. 안드로이드는
+    //    형제 뷰 사이의 손짓 우선순위를 zIndex(그리기 순서) 가 아니라 elevation(Z 축
+    //    실제 높이) 으로 가른다. 자식(bar)에만 elevation 이 있었지 이 막대 자신에는
+    //    없어서, 형제인 화면 콘텐츠와 비교할 때 둘 다 0 으로 동률이었다.
+    elevation: 9,
   },
   bar: {
     alignSelf: 'center',

@@ -2,7 +2,7 @@
 // 제목 → 지도 → 요약 → 단계별 안내 → 액션 버튼. 1024px 이상에서는 왼쪽 안내 + 오른쪽 지도
 // 2열로 바뀐다(작업 내용 4번, breakpoint.md = 1023).
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -13,13 +13,12 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { getRouteDirections, type RouteDirectionsResult, type TravelMode } from '@/map/routeDirections';
 import { listAvailableRouteMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 import { txf } from '@/i18n/format';
-import { resolveTextLanguage } from '@/i18n/languages';
 import { localizeMessage } from '@/i18n/messages';
 
 const MODE_LABEL: Record<TravelMode, readonly [string, string]> = {
@@ -40,9 +39,8 @@ function parseText(value: string | string[] | undefined): string | undefined {
 }
 
 export default function RouteDetail() {
-  const { tx, language } = useI18n();
+  const { tx } = useI18n();
   const router = useRouter();
-  const { width } = useWindowDimensions();
   const { accessToken } = useAuth();
   const params = useLocalSearchParams<{ originLat?: string; originLng?: string; originName?: string; destLat?: string; destLng?: string; destName?: string; destPlaceId?: string; mode?: string }>();
 
@@ -88,7 +86,8 @@ export default function RouteDetail() {
     ];
   }, [hasCoords, originLat, originLng, originName, destLat, destLng, destName]);
 
-  const twoColumn = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const twoColumn = useLayout().desktop;
   const directions = result?.state === 'success' ? result.directions : null;
 
   return (
@@ -131,8 +130,8 @@ export default function RouteDetail() {
                   <View style={styles.summaryRow}>
                     <Text color={color.text.body}>{txf(tx, '%s분 · %skm', '%s min · %skm', directions.durationMin, (directions.distanceM / 1000).toFixed(1))}</Text>
                   </View>
-                  {directions.taxiFareKrw != null ? <Text color={color.text.body}>{tx(`택시 요금 약 ${directions.taxiFareKrw.toLocaleString()}원`, `Estimated taxi fare ${directions.taxiFareKrw.toLocaleString()} KRW`)}</Text> : null}
-                  {directions.tollFareKrw != null ? <Text color={color.text.body}>{tx(`통행료 약 ${directions.tollFareKrw.toLocaleString()}원`, `Estimated toll ${directions.tollFareKrw.toLocaleString()} KRW`)}</Text> : null}
+                  {directions.taxiFareKrw != null ? <Text color={color.text.body}>{tx(`택시 요금 약 ${directions.taxiFareKrw.toLocaleString()}원`, `Estimated taxi fare ₩${directions.taxiFareKrw.toLocaleString()}`)}</Text> : null}
+                  {directions.tollFareKrw != null ? <Text color={color.text.body}>{tx(`통행료 약 ${directions.tollFareKrw.toLocaleString()}원`, `Estimated toll ₩${directions.tollFareKrw.toLocaleString()}`)}</Text> : null}
                   {directions.transferCount != null ? <Text color={color.text.body}>{tx(`환승 ${directions.transferCount}회`, `${directions.transferCount} transfer(s)`)}</Text> : null}
                   {directions.estimateReason ? <Text variant="caption" color={color.text.muted}>{directions.estimateReason}</Text> : null}
                 </Card>
@@ -162,7 +161,7 @@ export default function RouteDetail() {
             <View style={styles.actions}>
               {destPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} /> : null}
               {mapApps.map((app) => (
-                <Button key={app.key} variant="tertiary" label={txf(tx, '%s에서 경로 열기', 'Open route in %s', resolveTextLanguage(language) === 'en' ? app.labelEn : app.labelKo)} onPress={() => void app.open()} containerStyle={styles.actionButton} />
+                <Button key={app.key} variant="tertiary" label={txf(tx, '%s에서 경로 열기', 'Open route in %s', tx(app.labelKo, app.labelEn))} onPress={() => void app.open()} containerStyle={styles.actionButton} />
               ))}
             </View>
           </View>

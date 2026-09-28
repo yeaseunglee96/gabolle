@@ -1,17 +1,30 @@
-import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
-import { readableApiError } from '@/api/errorText';
+import { apiRequest, ApiClientError } from '@/api/client';
+import { PLAN_UNAVAILABLE_MESSAGE, readableApiError } from '@/api/errorText';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { localizeMessage } from '@/i18n/messages';
+import { pickLanguage } from '@/i18n/pick';
 import { cloneSharedTripAndJob, createTripAndRecommendationJob } from '@/api/tripApi';
 import type { PlanDraft } from '@/plan/PlanProvider';
+import { describeBlockedBy, readBlockedBy } from '@/plan/blockedByMessage';
 import type { RecommendationJobStreamSnapshot } from '@/plan/recommendationJobStream';
 
 export type RecommendationJobState = 'idle' | 'submitting' | 'accepted' | 'polling' | 'completed' | 'conflict' | 'consent-required' | 'failed' | 'cancelled' | 'unavailable';
-export type RecommendationJobSnapshot = { state: RecommendationJobState; jobId: string | null; progress: number | null; stage: string | null; canCancel: boolean; errorMessage: string | null; resultRef: string | null; requiredConsent?: 'HEALTH_CONSTRAINTS' };
+export type RecommendationJobSnapshot = { state: RecommendationJobState; jobId: string | null; progress: number | null; stage: string | null; canCancel: boolean; errorMessage: string | null; resultRef: string | null; requiredConsent?: 'HEALTH_CONSTRAINTS';
+  /** 서버 실패 코드 — 화면이 코드에 따라 다음 할 일을 다르게 말할 때 쓴다(S15P21E201-1739). 실패가 아니면 없다. */
+  failureCode?: string | null;
+  /** 폴링 중 네트워크 오류·시간 초과가 연달아 몇 번 났나(S15P21E201-1823). 성공하면 사라진다. */
+  transientFailures?: number };
 export type RecommendationJobAcceptedDto = { jobId: string };
 export type RecommendationJobPollDto = {
   jobId: string;
   status: 'QUEUED' | 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELED' | 'CANCELLED' | 'EXPIRED';
   progress: { stage: string; percent: number };
-  failure: { code: string; detail: string | null } | null;
+  /**
+   * `blockedBy` — 어느 조건이 후보를 다 걷어냈나(S15P21E201-1514). 서버가 모양을 바꿔도
+   * 화면이 안 죽게 `unknown` 으로 받아 blockedByMessage.readBlockedBy 가 확인한다.
+   * 설명할 수 없는 실패면 빈 목록이 온다.
+   */
+  failure: { code: string; detail: string | null; blockedBy?: unknown } | null;
   retryable: boolean;
   pollAfterSeconds: number | null;
 };
@@ -26,6 +39,10 @@ const JOB_FAILURE_MESSAGE: Record<string, [string, string]> = {
   ENGINE_UNAVAILABLE: ['추천 엔진에 일시적인 문제가 있어요. 잠시 후 다시 시도해 주세요.', 'The recommendation engine is temporarily unavailable. Please try again shortly.'],
   ENGINE_NOT_CONFIGURED: ['추천 엔진에 일시적인 문제가 있어요. 잠시 후 다시 시도해 주세요.', 'The recommendation engine is temporarily unavailable. Please try again shortly.'],
   ITINERARY_VERSION_CONFLICT: ['다른 곳에서 먼저 일정이 바뀌었어요. 새로고침 후 다시 시도해 주세요.', 'The itinerary changed elsewhere first. Please refresh and try again.'],
+  // 추천 실행기가 꽉 차서 서버가 이 작업을 받지 못했다(S15P21E201-1688). 다시 누르면 새 작업으로 간다.
+  SERVER_BUSY: ['지금 요청이 많아요. 잠시 뒤 다시 시도해 주세요.', 'We are handling a lot of requests right now. Please try again in a moment.'],
+  // 오늘 출발 당일치기를 부산 20:31 뒤에 만들면 남은 시간이 없다(백엔드 !1734, 다시 시도 불가 — 다시 해도 같은 답). S15P21E201-1739.
+  ITINERARY_NO_TIME_LEFT_TODAY: ['오늘은 남은 시간이 없어요. 여행을 내일부터로 바꿔 주세요.', "There's no time left today. Try starting your trip tomorrow."],
 };
 /**
  * 같은 실패 코드라도 «어느 단계에서» 멈췄는지에 따라 할 말이 다르다.
@@ -51,20 +68,30 @@ const STAGE_FAILURE_MESSAGE: Record<string, Record<string, [string, string]>> = 
 
 const DEFAULT_JOB_FAILURE_MESSAGE = ['일정을 만드는 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.', 'Something went wrong while building your itinerary. Please try again shortly.'] as const;
 
-export const unavailableJob = (message = '일정 생성 서버가 아직 준비되지 않았어요. 입력한 조건은 그대로 유지됩니다.'): RecommendationJobSnapshot => ({ state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: message, resultRef: null });
+// 🔴 화면 언어로 고른다 — S15P21E201-1776. 전에는 서버용 언어(ko|en 뿐)로 골라서 일본어·중국어 화면에 실패 문구가
+//    영어로 나갔고, 한국어로 박힌 문구(엔진 없음 · 만료)와 서버 원문(409 · 403 · 그 밖의 오류)은 영어 화면에도 한국어로
+//    나갔다. 화면(generating.tsx)은 errorMessage 를 그대로 그리므로 여기서 한 번에 옮긴다.
+const jobTx = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
+const jobText = (pair: readonly [string, string]) => jobTx(pair[0], pair[1]);
+const localizeServer = (message: string | null | undefined) => (message ? localizeMessage(jobTx, message) : null);
+const EXPIRED_MESSAGE = ['일정 생성 작업이 만료됐어요. 다시 요청해 주세요.', 'This itinerary request expired. Please request it again.'] as const;
+
+export const unavailableJob = (message = PLAN_UNAVAILABLE_MESSAGE): RecommendationJobSnapshot => ({ state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: localizeServer(message), resultRef: null });
 export function acceptJob(dto: RecommendationJobAcceptedDto): RecommendationJobSnapshot { return { state: 'accepted', jobId: dto.jobId, progress: 0, stage: '요청 접수', canCancel: false, errorMessage: null, resultRef: null }; }
 export function adaptPolledJob(jobId: string, dto: RecommendationJobPollDto, previous?: RecommendationJobSnapshot): RecommendationJobSnapshot {
   const state: RecommendationJobState = ({ QUEUED: 'accepted', PENDING: 'accepted', RUNNING: 'polling', SUCCEEDED: 'completed', FAILED: 'failed', CANCELED: 'cancelled', CANCELLED: 'cancelled', EXPIRED: 'failed' } as const)[dto.status];
   const reported = Math.max(0, Math.min(100, dto.progress.percent));
   const progress = reported === null ? previous?.progress ?? null : Math.max(previous?.progress ?? 0, reported);
-  const isKo = getApiLanguage() !== 'en';
+  // 🔴 서버가 «어느 조건이» 막았는지 알려 주면 그것이 먼저다 (S15P21E201-1514).
+  //    못 알려 주면(빈 목록 · 모르는 갈래뿐) 예전처럼 단계·코드별 문구로 떨어진다.
   const failureMessage = dto.failure
-    ? (STAGE_FAILURE_MESSAGE[dto.failure.code]?.[dto.failure.detail ?? '']
-      ?? JOB_FAILURE_MESSAGE[dto.failure.code]
-      ?? DEFAULT_JOB_FAILURE_MESSAGE)[isKo ? 0 : 1]
+    ? describeBlockedBy(readBlockedBy(dto.failure.blockedBy))
+      ?? jobText(STAGE_FAILURE_MESSAGE[dto.failure.code]?.[dto.failure.detail ?? '']
+        ?? JOB_FAILURE_MESSAGE[dto.failure.code]
+        ?? DEFAULT_JOB_FAILURE_MESSAGE)
     : null;
-  const errorMessage = dto.failure ? failureMessage : dto.status === 'EXPIRED' ? '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.' : null;
-  return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null };
+  const errorMessage = dto.failure ? failureMessage : dto.status === 'EXPIRED' ? jobText(EXPIRED_MESSAGE) : null;
+  return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null, failureCode: dto.failure?.code ?? null };
 }
 // — SSE(GET /api/v1/jobs/{jobId}/progress)가 보내는 건 폴링과 모양이 다르다
 // ({jobId, status, stage, percent, code} — 중첩된 progress 객체가 아니다). 판정 로직은
@@ -87,13 +114,24 @@ export function adaptStreamedJob(
 
 export interface RecommendationJobAdapter { submit(draft: PlanDraft): Promise<RecommendationJobSnapshot>; poll(jobId: string, previous?: RecommendationJobSnapshot): Promise<RecommendationJobSnapshot>; }
 function toFailure(error: unknown, jobId: string | null = null): RecommendationJobSnapshot {
-  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501 || error.code === 'NETWORK_ERROR')) return { ...unavailableJob(error.message), jobId };
-  if (error instanceof ApiClientError && error.status === 409) return { state: 'conflict', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null };
-  if (error instanceof ApiClientError && error.status === 403 && error.code === 'HEALTH_CONSENT_REQUIRED') return { state: 'consent-required', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null, requiredConsent: 'HEALTH_CONSTRAINTS' };
-  return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: readableApiError(error, getApiLanguage() !== 'en'),
+  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501 || error.code === 'NETWORK_ERROR')) return { ...unavailableJob(), jobId };
+  if (error instanceof ApiClientError && error.status === 409) return { state: 'conflict', jobId, progress: null, stage: null, canCancel: false, errorMessage: localizeServer(error.message), resultRef: null };
+  if (error instanceof ApiClientError && error.status === 403 && error.code === 'HEALTH_CONSENT_REQUIRED') return { state: 'consent-required', jobId, progress: null, stage: null, canCancel: false, errorMessage: localizeServer(error.message), resultRef: null, requiredConsent: 'HEALTH_CONSTRAINTS' };
+  return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: localizeServer(readableApiError(error, getCurrentLanguage() === 'ko')),
     resultRef: null };
 }
+/** 폴링이 연달아 이만큼 끊기면 그때 «닿지 않음»으로 끝낸다. */
+export const POLL_TRANSIENT_LIMIT = 3;
 export function createRecommendationJobAdapter(accessToken: string | null): RecommendationJobAdapter { return {
   async submit(draft) { try { return acceptJob(draft.cloneShareToken ? await cloneSharedTripAndJob(draft.cloneShareToken, draft, accessToken) : await createTripAndRecommendationJob(draft, accessToken)); } catch (error) { return toFailure(error); } },
-  async poll(jobId, previous) { try { return adaptPolledJob(jobId, await apiRequest<RecommendationJobPollDto>(`/api/v1/jobs/${encodeURIComponent(jobId)}`, { accessToken }), previous); } catch (error) { return toFailure(error, jobId); } },
+  async poll(jobId, previous) { try { return adaptPolledJob(jobId, await apiRequest<RecommendationJobPollDto>(`/api/v1/jobs/${encodeURIComponent(jobId)}`, { accessToken }), previous); } catch (error) {
+    // 🔴 폴링 중 한 번 끊긴 것은 «서버가 멈췄다»가 아니다(S15P21E201-1823). 서버는 계속 만들고 있는데 전에는 한 번의
+    //    네트워크 오류·시간 초과로 끝난 화면(unavailable)이 되고 폴링이 멈췄다. 이전의 진행 중 상태를 그대로 두고
+    //    다시 묻게 하며, 연달아 POLL_TRANSIENT_LIMIT 번 실패해야 끝낸다. 서버가 준 오류(상태 코드가 있는 것)는 바로 끝낸다.
+    const transient = error instanceof ApiClientError && (error.code === 'NETWORK_ERROR' || error.code === 'REQUEST_TIMEOUT');
+    const inFlight = previous && (previous.state === 'accepted' || previous.state === 'polling');
+    const failures = (previous?.transientFailures ?? 0) + 1;
+    if (transient && inFlight && failures < POLL_TRANSIENT_LIMIT) return { ...previous, jobId, transientFailures: failures };
+    return toFailure(error, jobId);
+  } },
 }; }

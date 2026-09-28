@@ -1,4 +1,7 @@
+import type { QueryClient } from '@tanstack/react-query';
+
 import { apiRequest, ApiClientError } from '@/api/client';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 
 // 서버가 쓰는 이름 그대로다 — PLANNING 은 조건만 저장되고 아직 일정이 없는 상태
 // READY 는 일정이 만들어진 상태다. 여기 한때 ACTIVE·ARCHIVED·CANCELLED 라고 적혀 있었는데
@@ -35,6 +38,11 @@ export type TripSummaryDto = {
   /** 첫 방문지 이름. 사진은 앞쪽 몇 곳을 훑어 찾으므로 «사진이 이 장소의 것이 아닐 수 있다». */
   firstStopNameKo: string | null;
   firstStopNameEn: string | null;
+  /**
+   * 카드를 누르면 열 일정 — 마지막으로 「코스 N 으로 확정」한 것, 안 골랐으면 기본 일정, 일정이 없으면 null (S15P21E201-1605).
+   * 🔴 옛 서버에는 이 칸이 **아예 없다**(undefined). 그때는 {@link resolveTripItinerary} 가 일정 목록으로 대신 고른다.
+   */
+  currentItineraryId?: string | null;
 };
 
 /** 여행 카드에 그릴 제목 */
@@ -46,7 +54,7 @@ type TripsFailure = { state: 'unavailable' | 'offline' | 'error'; message: strin
 
 function failure(error: unknown): TripsFailure {
   if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
-  if (error instanceof ApiClientError && (error.status === 404 || error.code === 'INVALID_RESPONSE')) return { state: 'unavailable', message: '내 여행 목록 API가 아직 준비되지 않았어요.' };
+  if (error instanceof ApiClientError && (error.status === 404 || error.code === 'INVALID_RESPONSE')) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
   // — 여기 걸리는 것은 우리가 예상하지 못한 실패라, 서버가 준 문장이 사람에게
   // 읽히는 말이라는 보장이 없다. 실제로 「Invalid UUID string: demo-trip」 같은 개발자용 문장이
   // 화면에 그대로 나왔다. 앞의 두 갈래는 우리가 고른 문구를 쓰므로 그대로 둔다.
@@ -75,7 +83,7 @@ export async function loadTrips(accessToken: string | null): Promise<TripsLoadRe
 export type TripItineraryRefDto = { itineraryId: string; latestVersion: number };
 
 // 이 배열의 순서는 계약이 아니다(jaehyeon 님 명시) — 여럿일 때 어느 것이 최신인지
-// 골라 주는 규칙이 서버에 아직 없다. 하나면 그 하나를 열고, 여럿이면 사용자에게 고르게 한다.
+// 골라 주는 규칙이 이 목록에는 없다. 여행 카드가 무엇을 열지는 resolveTripItinerary 가 정한다(S15P21E201-1605).
 export type TripItinerariesResult = { state: 'success'; role: TripRole; itineraries: TripItineraryRefDto[] } | TripsFailure;
 
 export async function loadTripItineraries(tripId: string, accessToken: string | null): Promise<TripItinerariesResult> {
@@ -91,6 +99,37 @@ export async function loadTripItineraries(tripId: string, accessToken: string | 
   } catch (error) {
     return failure(error);
   }
+}
+
+export type TripItineraryChoice = { state: 'open'; itineraryId: string } | { state: 'none' } | TripsFailure;
+
+/**
+ * 여행 카드를 누르면 열 일정 (S15P21E201-1605). 🔴 여럿이어도 사람에게 묻지 않는다.
+ * 전에는 일정이 여럿이면(B·C안을 고르면 일정이 새로 생긴다) 「열 일정을 골라주세요」 창이 떴다 —
+ * 사용자: 「선택된 것만 보여 주면 되잖아. 왜 한 단계가 더 생겼지?」
+ *
+ * · 서버가 확정 일정(currentItineraryId)을 알려 주면 그것 — 부르지도 않는다
+ * · 옛 서버(칸 없음)면 일정 목록의 **마지막**. 순서는 계약이 아니지만 서버 구현이 만든 순서(오래된 것 먼저,
+ *   JpaItineraryRepository.findByTripIdOrderByCreatedAtAsc)로 주므로 마지막이 가장 최근이다. 배포 전 잠깐만 쓰는 길이다.
+ */
+export async function resolveTripItinerary(
+  trip: Pick<TripSummaryDto, 'tripId' | 'currentItineraryId'>,
+  accessToken: string | null,
+): Promise<TripItineraryChoice> {
+  if (typeof trip.currentItineraryId === 'string' && trip.currentItineraryId !== '') return { state: 'open', itineraryId: trip.currentItineraryId };
+  if (trip.currentItineraryId === null) return { state: 'none' };
+  const listed = await loadTripItineraries(trip.tripId, accessToken);
+  if (listed.state !== 'success') return listed;
+  const latest = listed.itineraries[listed.itineraries.length - 1];
+  return latest ? { state: 'open', itineraryId: latest.itineraryId } : { state: 'none' };
+}
+
+/**
+ * 여행 목록을 든 캐시(내 여행 · 홈 · 마이페이지)를 낡은 것으로 한다 — 코스를 고르면 확정 일정이 바뀐다.
+ * 🔴 안 비우면 돌아가서 카드를 눌렀을 때 30초 동안은 **방금 버린 일정**이 열린다(서버는 새 값을 밀어 주지 않는다).
+ */
+export function invalidateTripLists(queryClient: QueryClient) {
+  return queryClient.invalidateQueries({ predicate: (query) => query.queryKey.includes('trips') });
 }
 
 export type DeleteTripResult = { state: 'success' } | { state: 'forbidden'; message: string } | TripsFailure;

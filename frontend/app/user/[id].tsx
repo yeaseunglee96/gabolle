@@ -14,10 +14,10 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { CoverButton, MyPageCover } from '@/me/MyPageCover';
 import { ProfileCard, ProfileCardButton } from '@/me/ProfileCard';
-import { RecordCard } from '@/me/RecordCard';
+import { RecordCard, recordPhoneGrid } from '@/me/RecordCard';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { getUserProfile, loadUserStories, setBlocked, setFollowing, type FeedLoadResult, type UserProfileDto } from '@/social/stories';
 import { localizeMessage } from '@/i18n/messages';
@@ -30,7 +30,8 @@ export default function UserProfile() {
   const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { width } = useWindowDimensions();
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = useLayout().desktop;
   // 남의 프로필은 화살표 없이 전부 펼친다(시안 3절) — 내 기록 줄과 같은 4열 폭을 쓴다.
   const cardWidth = Math.max(180, Math.floor((width - desktopGutter * 2 - 3 * spacing[4]) / 4));
   const [state, setState] = useState<ProfileState>({ status: 'loading' });
@@ -70,7 +71,11 @@ export default function UserProfile() {
     if (state.status !== 'loaded' || !id) return false;
     const outcome = await setBlocked(id, true, accessToken);
     if (outcome.state !== 'success') return false;
-    setBlockNotice(tx('이제 이 사용자에게 내 글이 보이지 않아요.', "This user can no longer see your posts."));
+    // 🔴 S15P21E201-1722 — S15P21E201-1714 로 차단이 양방향이 됐는데 이 안내는 한 방향만 말하고 있었다.
+    setBlockNotice(tx(
+      '이제 이 사용자에게 내 글이 안 보이고, 내 피드에도 이 사람 글이 안 보여요.',
+      "This user can no longer see your posts, and their posts won't show up in your feed either.",
+    ));
     await load();
     return true;
   };
@@ -125,7 +130,7 @@ export default function UserProfile() {
 
   // 🔴 남의 프로필에는 「새 기록」 칸이 없다 — 남의 자리에 내 글을 쓰는 입구를 두지 않는다.
   const recordsGrid = (
-    <View style={styles.grid}>
+    <View style={[wide ? styles.grid : recordPhoneGrid, styles.gridTop]}>
       {storiesLoading ? <ActivityIndicator color={color.action.primary} /> : null}
       {!storiesLoading && !items.length ? <Text color={color.text.body} style={styles.empty}>{tx('아직 공개된 기록이 없어요.', 'No public records yet.')}</Text> : null}
       {items.map((story) => (
@@ -159,12 +164,12 @@ export default function UserProfile() {
         <ScrollView contentContainerStyle={styles.wideContent}>
           <MyPageCover
             name={profile.displayName}
-            // 🔴 남의 이메일은 안 보여 준다. 그리고 서버의 프로필 응답에는 커버·아바타·
+            // 🔴 남의 이메일은 안 보여 준다. 그리고 서버의 프로필 응답에는 커버·
             //    여행 횟수 칸이 «아직 없다» — null 을 주면 부품이 기본 사진을 깔고
-            //    「부산 여행 N번째」 줄은 안 그린다. 칸이 생기면 여기만 채우면 된다.
+            //    「부산 여행 N번째」 줄은 안 그린다. 칸이 생기면 여기만 채우면 된다. 아바타는 서버가 준다(S15P21E201-1821).
             email={null}
             tripCount={null}
-            avatarUri={null}
+            avatarUri={profile.avatarUrl ?? null}
             coverUri={null}
             counts={counts}
             eyebrow={(
@@ -207,7 +212,7 @@ export default function UserProfile() {
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('프로필을 불러오지 못했어요', "We couldn't load this profile")}</Text>
           <Text color={color.text.body}>{localizeMessage(tx, state.message)}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
+          <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
 
@@ -216,7 +221,7 @@ export default function UserProfile() {
           <ProfileCard
             name={profile.displayName}
             email={null}
-            avatarUri={null}
+            avatarUri={profile.avatarUrl ?? null}
             coverUri={null}
             counts={counts}
             actions={cardActions}
@@ -246,6 +251,7 @@ const styles = StyleSheet.create({
   wideBody: { paddingHorizontal: desktopGutter, paddingTop: spacing[8] },
 
   // 🔴 남의 프로필은 화살표 없이 전부 펼친다(시안 3절). 폰은 폭을 안 줘서 2열이 된다.
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4], marginTop: spacing[4] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] },
+  gridTop: { marginTop: spacing[4] },
   empty: { textAlign: 'center', marginTop: spacing[4] },
 });

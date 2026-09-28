@@ -64,6 +64,25 @@ export async function dismissChecklist(): Promise<void> {
   await write(CHECKLIST, JSON.stringify({ ...current, dismissed: true }));
 }
 
+/**
+ * 로그아웃·탈퇴 때 이 기기의 안내 표시를 비운다 — S15P21E201-1804.
+ *
+ * 🔴 체크리스트는 기기에 남고 «계정을 안 가린다». 그래서 한 번이라도 여행을 만든 기기에서는
+ *    로그아웃하고 새 계정으로 가입해도 「첫 여행 만들기」가 이미 ✓ 로 보였다.
+ *
+ *    AuthProvider 의 signOut 은 바로 이런 것을 정리하라고 clearSavedTrips()·preferences.reset()
+ *    을 부르고 있었고, 그 옆 주석도 「다음 사람이 앞사람의 것을 보면 안 된다」고 적어 뒀다.
+ *    체크리스트만 그 목록에서 빠져 있었다.
+ *
+ *    코치마크 표시도 같이 비운다 — 새 계정은 앱 소개를 다시 지나며 markOnboardingFinished()
+ *    가 다시 켜 주므로, 여기서 비워도 「봐야 할 사람이 못 보는」 일은 없다.
+ */
+export async function clearFirstRunMarks(): Promise<void> {
+  for (const key of [CHECKLIST, COACH_PENDING, COACH_SEEN, ITINERARY_HINT_SEEN]) {
+    try { await AsyncStorage.removeItem(key); } catch { /* 못 지워도 안내가 한 번 더 뜰 뿐이다 */ }
+  }
+}
+
 /** 일정 첫 힌트 — 처음 한 번만. 읽으면서 끈다. */
 export async function takeItineraryHint(): Promise<boolean> {
   if ((await read(ITINERARY_HINT_SEEN)) === 'true') return false;

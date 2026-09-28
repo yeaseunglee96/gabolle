@@ -1,5 +1,5 @@
 // 폰 홈. 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -8,12 +8,13 @@ import { PlanStartBar } from '@/home/PlanStartBar';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
-import { EMPTY_START_BAR, startBarEditSection, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
+import { EMPTY_START_BAR, startBarEditSection, startBarEndDate, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { useTopNavShown } from '@/nav/TopNav';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
-import { TAB_BAR_HEIGHT, TabBar, tabBarBottomMargin } from '@/components/TabBar';
+import { TAB_BAR_HEIGHT, TabBar, bottomDockPosition, tabBarBottomMargin } from '@/components/TabBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -25,14 +26,16 @@ import { FirstTripChecklist } from '@/onboarding/FirstTripChecklist';
 import { HomeCoach, type CoachHole } from '@/onboarding/HomeCoach';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { resolveHomeTripDestination } from '@/home/tripNavigation';
-import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
-import { hasUnseen, loadActivityFeed, loadSeenAt } from '@/notifications/activityFeed';
-import { useFocusEffect } from 'expo-router';
+import { useHomeBellDot } from '@/notifications/useHomeBellDot';
 import { relativeStoryTime } from '@/social/stories';
+import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
+import type { TripSummaryDto } from '@/trip/trips';
+import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
+import { enCount, enPlural, txf } from '@/i18n/format';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
@@ -43,41 +46,48 @@ const heartIcon = require('../../assets/icons/home/heart.png');
  */
 const MOBILE_CARD = 160;
 
-/** 「21° / 28°」 — 최저·최고가 다 있으면 둘, 하나뿐이면 그것만. */
-function weatherTemperatureText(weather: { minTemperature: number | null; maxTemperature: number | null }): string {
-  return weather.minTemperature !== null && weather.maxTemperature !== null
-    ? `${Math.round(weather.minTemperature)}° / ${Math.round(weather.maxTemperature)}°`
-    : `${Math.round((weather.maxTemperature ?? weather.minTemperature) as number)}°`;
+/** 홈 「내 여행」 카드의 날짜 — 여행 목록과 같은 표기(tripDatesLabel, S15P21E201-1738). 날짜를 모르면 「날짜 미정」. */
+function homeTripDates(trip: TripSummaryDto, tx: (ko: string, en: string) => string, locale: string): string {
+  return tripDatesLabel(trip.startDate, trip.endDate, locale) ?? tx('날짜 미정', 'Dates TBD');
+}
+
+/**
+ * 「21° / 28°」 — 최저·최고가 다 있으면 둘, 하나뿐이면 그것만.
+ *
+ * 🔴 반올림한 «뒤에» 같은지 본다 — S15P21E201-1502. 기상청 단기예보는 남은 시간대가 짧으면
+ *    최저와 최고를 같게 준다(밤에 부르면 자주 그렇다). 그대로 이으면 「22° / 22°」가 되고,
+ *    실기에서 그것을 고장으로 읽었다. 21.6 과 22.4 처럼 원값이 달라도 화면에 같은 숫자가
+ *    두 번 보이는 것은 마찬가지라, 비교는 반올림 뒤에 한다.
+ */
+export function weatherTemperatureText(weather: { minTemperature: number | null; maxTemperature: number | null }): string {
+  const low = weather.minTemperature !== null ? Math.round(weather.minTemperature) : null;
+  const high = weather.maxTemperature !== null ? Math.round(weather.maxTemperature) : null;
+  if (low === null || high === null) return `${(high ?? low) as number}°`;
+  return low === high ? `${low}°` : `${low}° / ${high}°`;
 }
 
 export default function Home() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const { accessToken, user } = useAuth();
   const { draft: planDraft, update: updatePlan } = usePlan();
   // 여행 조건 모달. 로그인 후 홈 첫 진입에 한 번, 그리고
   // 「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
-  const { width } = useLayout();
-  const desktop = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const { width, desktop } = useLayout();
+  // 위쪽 메뉴가 떠 있으면(폴드 펼침 등 태블릿) 로그인·종을 거기 맡긴다 — 머리에서 두 번 그리지 않는다.
+  const topNav = useTopNavShown();
   const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
   // 시안 5 Home 의 「⊕ 한국어」 — 외국인이 홈에서 바로 언어를 바꾼다(S15P21E201-1372). 첫 화면의 언어 시트를 그대로 쓴다.
-  // 안 본 알림이 있으면 종에 점 — 여행 활동을 마지막으로 본 시각과 견준다(S15P21E201-1380). 화면에 돌아올 때마다 다시 본다.
-  const [bellDot, setBellDot] = useState(false);
-  useFocusEffect(useCallback(() => {
-    let active = true;
-    if (!user) { setBellDot(false); return undefined; }
-    (async () => {
-      const [feed, seenAt] = await Promise.all([loadActivityFeed(accessToken, tx), loadSeenAt()]);
-      if (active && feed.state === 'success') setBellDot(hasUnseen(feed.items, seenAt));
-    })();
-    return () => { active = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.userId, accessToken]));
   const home = useHomeData(!desktop);
+  // 안 본 알림이 있으면 종에 점 — 여행 활동을 마지막으로 본 시각과 견준다(S15P21E201-1380). 화면에 돌아올 때마다 다시 본다.
+  // 🔴 홈이 그려지고 몇 초 뒤에 서버의 알림 요약 한 번으로 본다(S15P21E201-1702) — 전에는 여는 순간 여행마다 활동을 불렀다.
+  const bellDot = useHomeBellDot({ userId: user?.userId ?? null, accessToken, visible: !topNav });
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
-  const saved = useSavedPlaces(accessToken, 'home-mobile');
+  // 비회원이 하트를 누르면 로그인으로 보내고 돌아온다 (S15P21E201-1795).
+  const saved = useSavedPlaces(accessToken, () => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } }));
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [openingTrip, setOpeningTrip] = useState(false);
   // 동백이 단추는 탭바 윗변에서 12 위 — 안전영역이 있는 폰이든 없는 웹이든 탭바와의 간격이 같다.
@@ -120,10 +130,10 @@ export default function Home() {
   }, [coachQueued, promptChecked, conditions.open]);
   const closeCoach = () => setCoach((current) => ({ ...current, visible: false }));
 
-  const openHomeTrip = async (tripId: string) => {
+  const openHomeTrip = async (trip: TripSummaryDto) => {
     if (openingTrip) return;
     setOpeningTrip(true);
-    const destination = await resolveHomeTripDestination(tripId, accessToken);
+    const destination = await resolveHomeTripDestination(trip, accessToken);
     setOpeningTrip(false);
     router.push(destination as never);
   };
@@ -159,8 +169,15 @@ export default function Home() {
       origin: value.origin,
       originLat: value.originLat,
       originLng: value.originLng,
+      lodging: value.lodging,
+      lodgingLat: value.lodgingLat,
+      lodgingLng: value.lodgingLng,
+      lodgingPlace: value.lodgingPlace,
+      // 화면용 영어 이름 — 여행 만들기 화면의 칩이 쓴다(S15P21E201-1795). 서버로 안 간다.
+      originEnglish: value.originEnglish ?? null,
+      lodgingEnglish: value.lodgingEnglish ?? null,
       startDate: value.startDate,
-      endDate: value.endDate,
+      endDate: startBarEndDate(value),
       adults: value.adults,
       children: value.children,
       travelers: value.adults + value.children,
@@ -208,34 +225,52 @@ export default function Home() {
                 언어는 첫 화면과 마이페이지 설정 「앱 언어」(AppLanguageSetting)에서 바꾼다. */}
             {signedIn ? (
               <>
+                {/* 🔴 칩이 <View> 였다 — S15P21E201-1502. 알약 모양에 값이 들어 있으면 사람은 누른다.
+                    실제로 실기에서 「눌러도 안 들어가진다」로 올라왔다. 누를 데가 아니면 모양을 바꿔야
+                    하는데, 날씨·준비물 화면이 이미 있으므로 그리로 잇는 편이 맞다.
+                    🔴 목적지는 현장 도구 허브(/field/translate)가 아니라 「날씨·준비물 — 여행 고르기」다(S15P21E201-1791).
+                    허브로 보내면 번역이 먼저 떠서 이름표(「내 여행 날씨·준비물」)와 다른 곳에 닿는다. 허브의 날씨 칸도 같은 곳으로 간다. */}
                 {weather && (weather.maxTemperature !== null || weather.minTemperature !== null) ? (
-                  <View style={styles.weatherChip}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={tx('내 여행 날씨·준비물', 'Weather and packing for my trip')}
+                    onPress={() => router.push({ pathname: '/trips', params: { open: 'prepare' } })}
+                    style={({ pressed }) => [styles.weatherChip, pressed && styles.pressed]}
+                  >
                     <Text variant="caption" weight="bold" numberOfLines={1} style={styles.weatherWord}>
                       {weather.skyCondition === 'CLEAR' ? tx('맑음', 'Clear') : weather.skyCondition === 'CLOUDY' ? tx('흐림', 'Cloudy') : tx('구름 조금', 'Partly cloudy')}
                     </Text>
                     <Text variant="caption" numberOfLines={1} style={styles.weatherTemp}>{weatherTemperatureText(weather)}</Text>
-                  </View>
+                  </Pressable>
                 ) : null}
                 {/* 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
                     읽을 것이 없는데도 있는 것처럼 보이고, 안 찍는 쪽이 거짓이 아니다.
                 */}
               </>
-            ) : (
+            ) : topNav ? null : (
               <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
                 <Text weight="bold" color={color.brand.navy}>{tx('로그인', 'Sign in')}</Text>
               </Pressable>
             )}
-            {/* 종은 늘 그 자리에(시안 5 Home). 손님이 누르면 알림 화면이 로그인을 안내한다 — 자리가 비면 「알림이 없는 앱」으로 읽힌다(2026-09-21 지적). */}
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
-              <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
-              {bellDot ? <View style={styles.bellDot} /> : null}
-            </Pressable>
+            {/* 종은 늘 그 자리에(시안 5 Home). 손님이 누르면 알림 화면이 로그인을 안내한다 — 자리가 비면 「알림이 없는 앱」으로 읽힌다(2026-09-21 지적).
+                🔴 위쪽 메뉴가 떠 있으면(폴드 펼침 등 태블릿) 로그인·종이 거기 이미 있다 — 두 번 그리지 않는다(S15P21E201-1547). */}
+            {topNav ? null : (
+              <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
+                <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
+                {bellDot ? <View style={styles.bellDot} /> : null}
+              </Pressable>
+            )}
           </View>
         </View>
 
 
         {/* 동백이 첫 여행 체크리스트 — 온보딩을 거친 사람, 로그인한 뒤, 셋 다 하기 전까지. */}
-        {signedIn && checklist ? <FirstTripChecklist state={checklist} hasTrip={Boolean(home.trip)} onDismiss={() => { setChecklist({ ...checklist, dismissed: true }); void dismissChecklist(); }} /> : null}
+        {/* 🔴 hasTrips 다 — home.trip 이 아니다 (S15P21E201-1804).
+            home.trip 은 pickActiveTrip() 이 고른 «예정·진행 중» 여행 하나라, 끝났거나
+            날짜가 지난 여행은 걸러 낸다. 그걸 「여행이 있나」로 쓰면 여행을 만들어 다녀온
+            사람이 「첫 여행 만들기」를 아직 안 한 것으로 나온다. 바로 아래 줄(:335)은
+            같은 뜻으로 home.hasTrips 를 쓰고 있었다 — 한 화면에서 두 값이 섞여 있었다. */}
+        {signedIn && checklist ? <FirstTripChecklist state={checklist} hasTrip={home.hasTrips} onDismiss={() => { setChecklist({ ...checklist, dismissed: true }); void dismissChecklist(); }} /> : null}
 
         {/* ── 히어로 ── */}
         <View style={styles.hero}>
@@ -282,26 +317,30 @@ export default function Home() {
           <View style={styles.sectionPadded}>
             <Text variant="eyebrow" weight="bold">{tx('내 여행', 'My trip')}</Text>
             {!home.tripsLoaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : home.trip ? (
-              <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTrip, disabled: openingTrip }} disabled={openingTrip} onPress={() => void openHomeTrip(home.trip!.tripId)} style={({ pressed }) => [styles.tripCard, pressed && styles.pressed]}>
+              <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTrip, disabled: openingTrip }} disabled={openingTrip} onPress={() => void openHomeTrip(home.trip!)} style={({ pressed }) => [styles.tripCard, pressed && styles.pressed]}>
                 <Text variant="caption" weight="bold" color={color.state.success}>
-                  {home.trip.status === 'IN_PROGRESS' ? tx('진행 중', 'In progress') : home.trip.status === 'READY' ? tx('준비 완료', 'Ready') : tx('예정', 'Upcoming')}
+                  {/* 여행 목록 카드와 같은 함수 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 오늘 여행에 「준비 완료」가 붙던 것. */}
+                  {tripStatusLabel(effectiveTripStatus(home.trip), tx)}
                 </Text>
-                {/* 여행에 제목이 없다 — 날짜를 제목 자리에 올린다. */}
-                <Text variant="title" weight="bold">
-                  {home.trip.startDate && home.trip.endDate
-                    ? `${home.trip.startDate.slice(5).replace('-', '.')} ~ ${home.trip.endDate.slice(5).replace('-', '.')}`
-                    : tx('날짜 미정', 'Dates TBD')}
+                {/* 이름이 있으면 이름, 없으면 날짜 — 넓은 화면 카드(MyTripCard)·내 여행 목록과 같은 규칙(S15P21E201-1678).
+                    전에는 이름 기능이 생기기 전의 옛 주석대로 날짜만 올려서, 이름을 붙여도 홈에는 안 보였다.
+                    이름을 제목에 올리면 날짜는 둘째 줄로 내린다 — 같은 이름의 여행 둘을 날짜로 가린다. */}
+                <Text variant="title" weight="bold">{tripNameOrDates(home.trip, tx, locale)}</Text>
+                <Text color={color.text.body}>
+                  {humanTripTitle(home.trip.title) && home.trip.startDate
+                    ? txf(tx, '%s · %s일 · %s명', `%s · %s ${enPlural(home.trip.dayCount, 'day', 'days')} · %s ${enPlural(home.trip.partySize, 'traveler', 'travelers')}`, homeTripDates(home.trip, tx, locale), home.trip.dayCount, home.trip.partySize)
+                    : tx(`${home.trip.dayCount}일 · ${home.trip.partySize}명`, `${enCount(home.trip.dayCount, 'day', 'days')} · ${enCount(home.trip.partySize, 'traveler', 'travelers')}`)}
                 </Text>
-                <Text color={color.text.body}>{tx(`${home.trip.dayCount}일 · ${home.trip.partySize}명`, `${home.trip.dayCount} days · ${home.trip.partySize} travelers`)}</Text>
                 <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{openingTrip ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
               </Pressable>
             ) : (
               <View style={styles.tripEmpty}>
                 <GabolleMascot state="idle" style={styles.tripMascot} />
                 <View style={styles.tripEmptyCopy}>
-                  <Text weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
+                  {/* 🔴 지난 여행만 있는 사람에게 「아직 만든 여행이 없어요」는 거짓이다(S15P21E201-1770) — 이 칸은 다가오는·진행 중 여행만 보인다. */}
+                  <Text weight="bold">{home.hasTrips ? tx('다가오는 여행이 없어요', 'No upcoming trips') : tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
                   <Pressable accessibilityRole="button" onPress={() => router.push('/plan/basic')}>
-                    <Text weight="bold" color={color.brand.navy}>{tx('첫 여행 만들기 →', 'Plan your first trip →')}</Text>
+                    <Text weight="bold" color={color.brand.navy}>{home.hasTrips ? tx('새 여행 만들기 →', 'Plan a new trip →') : tx('첫 여행 만들기 →', 'Plan your first trip →')}</Text>
                   </Pressable>
                 </View>
               </View>
@@ -315,6 +354,7 @@ export default function Home() {
             <Text variant="caption" weight="bold" color={color.text.onAction}>{saved.feedback}</Text>
           </View>
         ) : null}
+        {saved.consentPrompt}
         <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </Screen>
 
@@ -427,7 +467,9 @@ const styles = StyleSheet.create({
   saveFeedback: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[6], marginHorizontal: spacing[6], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy },
 
   // 메뉴가 이 상자 위에 뜬다. 절대 위치를 단추가 아니라 감싸는 상자가 가진다.
-  assistantAnchor: { position: 'absolute', right: spacing[6], zIndex: 20 },
+  // 🔴 탭바와 같은 기준으로 선다 — 웹에서는 보이는 창에 고정(S15P21E201-1601). 부모 기준이면 폰 크롬에서 주소창이
+  //    접힐 때 탭바만 내려가고 이 단추는 남아 간격이 벌어졌다.
+  assistantAnchor: { position: bottomDockPosition(), right: spacing[6], zIndex: 20 },
   assistantButton: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.14, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   assistantBadge: { position: 'absolute', top: -2, right: -2, minWidth: 22, height: 18, paddingHorizontal: 5, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
   assistantMascot: { width: 50, height: 50 },

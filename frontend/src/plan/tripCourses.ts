@@ -4,6 +4,7 @@
 //    보여 주던 것은 장소 후보 목록이었다. 장소를 고르는 것과 일정을 고르는 것은 사람이
 //    하는 판단 자체가 다르다 — 앞은 「여기 갈까」이고 뒤는 「이렇게 다닐까」다.
 import { ApiClientError, apiRequest } from '@/api/client';
+import { isUnknownResponse } from '@/api/errorText';
 import { loadItinerary, type ItineraryDto } from '@/plan/itinerary';
 
 export type CourseStatus = 'CONFIRMED' | 'ESTIMATED';
@@ -15,6 +16,14 @@ export type CourseStop = {
   time: string | null;
   note: string | null;
   photoUrl: string | null;
+  /**
+   * 사진 출처 표기 문구. {@link photoUrl} 과 «짝이다».
+   *
+   * 🔴 지금 실려 오는 사진은 TourAPI 등 공공누리 자료라 **출처 표기가 이용 조건**이다.
+   *    그래서 화면은 «출처를 못 그리면 사진도 안 그린다» (CourseCard). 선택 사항이 아니다
+   *    — S15P21E201-1125 의 「출처 표기를 구조로 강제한다」와 같은 선이다.
+   */
+  photoSource: string | null;
   /**
    * 지도에 선을 그리는 재료 —-1333.
    *
@@ -47,20 +56,33 @@ export type TripCourse = {
   rationale: string | null;
   /** 이 안을 고르면 열릴 일정. 서버가 미리 만들어 둔 경우에만 있다. */
   itineraryId: string | null;
+  /**
+   * 일정이 아직 없는 안(2안·3안)을 그릴 재료 — 일정 조회와 **같은 모양**이다 (S15P21E201-1454).
+   *
+   * 🔴 여행 페이지는 코스를 일정 모양으로만 그린다(카드의 비용·이동 시간·지도). 이것이 없으면
+   *    2안을 눌러도 카드가 빈다. 고르면 {@link ensureCourseItinerary} 가 서버에 만들어 달라고 한다.
+   */
+  preview: ItineraryDto | null;
 };
 
 export type TripCoursesResult =
   | { state: 'success'; courses: TripCourse[]; /** 서버가 3안을 보냈나. 한 안뿐이면 false. */ full: boolean }
   | { state: 'empty'; message: string }
+  /** 그런 여행이 없다(지워졌거나 남의 여행) — 다시 불러도 같다. 「다시 시도」 대신 내 여행으로 보낸다(S15P21E201-1641). */
+  | { state: 'not-found'; message: string }
   | { state: 'error'; message: string };
+
+/** 「그런 여행 없음」 — 서버는 이 404 에 TRIP_NOT_FOUND 를 싣는다. 코드가 없는 404 는 옛 서버의 「계약 없음」이다. */
+export const TRIP_NOT_FOUND_MESSAGE = '이 여행을 찾을 수 없어요.';
 
 type CourseDto = {
   id?: string; courseId?: string; title?: string; tagline?: string | null;
-  days?: Array<{ day?: number; stops?: Array<{ placeId?: string | null; name?: string; time?: string | null; note?: string | null; photoUrl?: string | null; lat?: number | null; lng?: number | null }> }>;
+  days?: Array<{ day?: number; stops?: Array<{ placeId?: string | null; name?: string; time?: string | null; note?: string | null; photoUrl?: string | null; photoSource?: string | null; lat?: number | null; lng?: number | null }> }>;
   summary?: { places?: number | null; moveMin?: number | null; walkKm?: number | null; costKrw?: number | null } | null;
   status?: string | null;
   rationale?: string | null;
   itineraryId?: string | null;
+  preview?: ItineraryDto | null;
 };
 type CoursesDto = { courses?: CourseDto[] | null };
 
@@ -71,6 +93,7 @@ function toStop(dto: NonNullable<NonNullable<CourseDto['days']>[number]['stops']
     time: typeof dto?.time === 'string' && dto.time !== '' ? dto.time : null,
     note: typeof dto?.note === 'string' && dto.note !== '' ? dto.note : null,
     photoUrl: typeof dto?.photoUrl === 'string' && dto.photoUrl !== '' ? dto.photoUrl : null,
+    photoSource: typeof dto?.photoSource === 'string' && dto.photoSource !== '' ? dto.photoSource : null,
     lat: coordinate(dto?.lat),
     lng: coordinate(dto?.lng),
   };
@@ -108,6 +131,8 @@ export function adaptCourse(dto: CourseDto): TripCourse {
     status: dto?.status === 'CONFIRMED' ? 'CONFIRMED' : 'ESTIMATED',
     rationale: typeof dto?.rationale === 'string' && dto.rationale !== '' ? dto.rationale : null,
     itineraryId: typeof dto?.itineraryId === 'string' && dto.itineraryId !== '' ? dto.itineraryId : null,
+    // 날이 없는 것은 그릴 수 없다 — 모양이 어긋난 값을 일정인 척 넘기지 않는다.
+    preview: dto?.preview && Array.isArray(dto.preview.days) ? dto.preview : null,
   };
 }
 
@@ -129,6 +154,7 @@ export function courseFromItinerary(itinerary: ItineraryDto): TripCourse {
       note: item.description ?? null,
       // 🔴 일정 항목에는 사진 칸이 없다. 없는 것을 지어내지 않는다 — 화면이 사진 자리를 접는다.
       photoUrl: null,
+      photoSource: null,
       lat: coordinate(item.lat),
       lng: coordinate(item.lng),
     })).filter((stop) => stop.name !== ''),
@@ -150,7 +176,58 @@ export function courseFromItinerary(itinerary: ItineraryDto): TripCourse {
     status: 'ESTIMATED',
     rationale: null,
     itineraryId: itinerary.id,
+    preview: null,
   };
+}
+
+/**
+ * 이 안을 확정할 수 있나 — 일정이 이미 있거나, 서버가 만들어 줄 미리보기가 있다.
+ * 화면들이 버튼을 켜고 끄는 규칙을 각자 들고 있으면 한 화면만 2안을 못 고르는 날이 온다.
+ */
+export function canConfirmCourse(course: TripCourse): boolean {
+  return Boolean(course.itineraryId || course.preview);
+}
+
+/** 2안·3안 확정은 서버가 그 자리에서 일정을 만든다 — 앱 기본 12초로는 모자라다(S15P21E201-1823). */
+export const COURSE_CONFIRM_TIMEOUT_MS = 40000;
+
+/**
+ * 고른 안의 일정 번호. 이미 있으면 그대로, 없으면(2안·3안) 서버에 만들어 달라고 한다 (S15P21E201-1454).
+ *
+ * 🔴 서버는 미리 보여 준 것과 같은 입력으로 만들고, 같은 안을 두 번 골라도 새로 만들지 않는다.
+ *    그래서 실패 뒤에 다시 눌러도 일정이 둘 생기지 않는다.
+ */
+export async function ensureCourseItinerary(
+  tripId: string,
+  course: TripCourse,
+  accessToken: string | null,
+): Promise<{ state: 'success'; itineraryId: string } | { state: 'error'; message: string }> {
+  // 🔴 1안(서버가 미리 만든 일정)도 확정을 서버에 남긴다(S15P21E201-1695, 07 계약). 전에는 이미 일정이 있으면 부르지 않아서
+  //    서버가 「1안을 골랐다」와 「아직 안 골랐다」를 가르지 못했다. 다시 보내도 안전하다(확정 시각만 옮긴다).
+  //    일정은 이미 있으니 기록을 기다리지 않고 연다 — 기록이 실패해도 여는 길을 막지 않는다.
+  if (course.itineraryId) {
+    void apiRequest(`/api/v1/trips/${encodeURIComponent(tripId)}/course`, { method: 'POST', accessToken, body: { courseId: course.id } }).catch(() => undefined);
+    return { state: 'success', itineraryId: course.itineraryId };
+  }
+  try {
+    const chosen = await apiRequest<{ itineraryId?: string | null }>(`/api/v1/trips/${encodeURIComponent(tripId)}/course`, {
+      method: 'POST', accessToken, body: { courseId: course.id }, timeoutMs: COURSE_CONFIRM_TIMEOUT_MS,
+    });
+    if (typeof chosen?.itineraryId === 'string' && chosen.itineraryId !== '') {
+      return { state: 'success', itineraryId: chosen.itineraryId };
+    }
+    return { state: 'error', message: '이 코스로 일정을 만들지 못했어요.' };
+  } catch (error) {
+    // 🔴 늦거나 끊긴 것은 «못 만들었다»가 아닐 수 있다 — 서버는 그 사이 일정을 만들어 두었을 수 있다(S15P21E201-1823).
+    //    오류를 보이면 사용자가 또 누른다. 코스 목록을 한 번 다시 받아 그 안에 일정이 생겼으면 성공으로 연다.
+    if (error instanceof ApiClientError && (error.code === 'NETWORK_ERROR' || error.code === 'REQUEST_TIMEOUT')) {
+      const again = await loadTripCourses(tripId, null, accessToken).catch(() => null);
+      const made = again?.state === 'success' ? again.courses.find((item) => item.id === course.id)?.itineraryId : null;
+      if (made) return { state: 'success', itineraryId: made };
+    }
+    // 서버가 모르는 응답이면 요청 함수의 「요청을 처리하지 못했어요.」 대신 이 자리의 문장(S15P21E201-1672).
+    return { state: 'error', message: error instanceof Error && !isUnknownResponse(error) ? error.message : '이 코스로 일정을 만들지 못했어요.' };
+  }
 }
 
 /**
@@ -170,6 +247,11 @@ export async function loadTripCourses(
   try {
     dto = await apiRequest<CoursesDto>(`/api/v1/trips/${encodeURIComponent(tripId)}/recommendations`, { accessToken });
   } catch (error) {
+    // 🔴 「그런 여행 없음」은 계약이 없는 것과 다르다 — 일정으로 대신 채우려고 또 부르지 않는다(S15P21E201-1641,
+    //    운영에서 없는 여행으로 4일간 55번).
+    if (error instanceof ApiClientError && error.status === 404 && error.code === 'TRIP_NOT_FOUND') {
+      return { state: 'not-found', message: TRIP_NOT_FOUND_MESSAGE };
+    }
     // 아직 없는 자리(404·501)는 실패가 아니다 — 아래에서 일정 하나로 대신한다.
     const missing = error instanceof ApiClientError && (error.status === 404 || error.status === 501);
     if (!missing) {

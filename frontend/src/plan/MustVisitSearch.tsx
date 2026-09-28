@@ -10,6 +10,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import type { MustVisitPlace } from '@/plan/PlanProvider';
 import { txf } from '@/i18n/format';
+import { KOREAN_OR_ENGLISH_HINT, needsKoreanOrEnglishName } from '@/discovery/nameSearchHint';
 
 /** 최대 몇 곳까지 담나. 넘으면 추천이 「이 여행」이 아니라 「이 목록」이 된다. */
 export const MUST_VISIT_MAX = 5;
@@ -103,7 +104,11 @@ export function MustVisitSearch({
           ) : failed ? (
             <View style={styles.note}><Text variant="caption" color={color.text.muted}>{tx('장소를 찾지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not search right now. Please try again shortly.')}</Text></View>
           ) : results.length === 0 ? (
-            <View style={styles.note}><Text variant="caption" color={color.text.muted}>{tx('그런 이름의 장소가 없어요.', 'No place with that name.')}</Text></View>
+            // 🔴 한자·가나로만 치면 서버가 원래 못 찾는다(S15P21E201-1519). 그때 「없어요」라고 하면
+            //    있는 장소를 없다고 단정하게 된다 — 찾아지는 글자를 말해 준다.
+            <View style={styles.note}><Text variant="caption" color={color.text.muted}>{needsKoreanOrEnglishName(query)
+              ? tx(KOREAN_OR_ENGLISH_HINT.ko, KOREAN_OR_ENGLISH_HINT.en)
+              : tx('그런 이름의 장소가 없어요.', 'No place with that name.')}</Text></View>
           ) : results.map((item) => {
             const already = picked.some((place) => place.placeId === item.placeId);
             return (
@@ -115,7 +120,7 @@ export function MustVisitSearch({
                 onPress={() => add(item)}
                 style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
               >
-                <View style={styles.badge}><Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>{item.category.slice(0, 2)}</Text></View>
+                <View style={styles.badge}><Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>{(item.category ?? '').slice(0, 2)}</Text></View>
                 <View style={styles.rowCopy}>
                   <Text weight="bold" numberOfLines={1}>{ko ? item.nameKo : item.nameEn ?? item.nameKo}</Text>
                   <Text variant="caption" color={color.text.muted} numberOfLines={1}>{item.address}</Text>

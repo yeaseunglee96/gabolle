@@ -5,8 +5,12 @@ import { countTasteAnswers, getTasteProfile, TASTE_KEYS, type TasteAnswers } fro
 
 export const PREFERENCES_KEY = ['me', 'preferences'] as const;
 
-/** 세 질문 + 취향. 답한 것만 들어 있다. */
-export type AccountPreferences = { spend: SpendAnswers; taste: TasteAnswers };
+/**
+ * 세 질문 + 취향. 답한 것만 들어 있다.
+ * - loadFailed — 둘 중 하나라도 서버에서 못 읽었다(S15P21E201-1681). 「안 답했다」와 「못 읽었다」는 다른 말이다.
+ * - spendSkipped — 세 질문을 건너뛰었다(서버 상태 SKIPPED). 한 번도 안 물어본 것(UNKNOWN)과 다르다.
+ */
+export type AccountPreferences = { spend: SpendAnswers; taste: TasteAnswers; loadFailed?: boolean; spendSkipped?: boolean };
 
 export const EMPTY_PREFERENCES: AccountPreferences = { spend: {}, taste: {} };
 
@@ -28,9 +32,17 @@ export function countAnswered(preferences: AccountPreferences): number {
  * 필요로 하지 않는다.
  */
 export async function loadAccountPreferences(accessToken: string | null): Promise<AccountPreferences> {
-  const [spend, taste] = await Promise.all([
-    getSpendProfile(accessToken).then((result) => result.answers ?? {}).catch((): SpendAnswers => ({})),
-    getTasteProfile(accessToken).catch((): TasteAnswers => ({})),
+  // 🔴 오류를 빈 답으로 바꾸되 «못 읽었다»는 표시는 남긴다 — 전에는 그냥 삼켜서 화면이 「처음에 건너뛰셨어요」라고 했다.
+  //    서버는 한 번도 저장 안 한 사람에게 404 가 아니라 UNKNOWN 으로 200 을 준다(SpendProfileResponse) — 오류는 진짜 실패다.
+  let loadFailed = false;
+  const [spendProfile, taste] = await Promise.all([
+    getSpendProfile(accessToken).catch(() => { loadFailed = true; return null; }),
+    getTasteProfile(accessToken).catch((): TasteAnswers => { loadFailed = true; return {}; }),
   ]);
-  return { spend, taste };
+  return {
+    spend: spendProfile?.answers ?? {},
+    taste,
+    ...(loadFailed ? { loadFailed: true } : {}),
+    ...(spendProfile?.status === 'SKIPPED' ? { spendSkipped: true } : {}),
+  };
 }

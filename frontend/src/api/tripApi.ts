@@ -1,7 +1,11 @@
-import { apiRequest, getApiLanguage } from '@/api/client';
+import { apiRequest } from '@/api/client';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
 import type { PlanDraft, PreferenceAnswerStatus } from '@/plan/PlanProvider';
+import { lodgingAreaCodeOf, type PlaceSnapshot } from '@/plan/origins';
 
-const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+// 화면 언어로 고른다 — 서버용 언어(ko|en 뿐)로 고르면 일본어·중국어 화면에 영어가 나갔다(S15P21E201-1776).
+const tx = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 export type PreferenceAnswerInput = {
   dimension: string;
@@ -40,6 +44,18 @@ export type CreateTripPayload = {
   // 스무 곳이 전부 출발지 근처였다.
   travelAreas: string[];
   accommodationPlaceId: string | null;
+  /**
+   * 홈 시작 바에서 고른 숙소 — S15P21E201-1536 (서버 S15P21E201-1522).
+   * 🔴 예전에는 accommodationLat·Lng·Name 을 보냈는데 서버에 그 칸이 없어 **조용히 버려졌다** —
+   *    그날 만들어진 여행은 고른 숙소 없이 저장됐다. 서버가 이 스냅샷으로 장소를 찾거나 만들어
+   *    trip.accommodation_place_id 에 넣는다. accommodationPlaceId 가 있으면 서버는 이 칸을 안 본다.
+   */
+  accommodation: PlaceSnapshot | null;
+  /**
+   * 추천 동네를 숙소로 골랐을 때 그 동네 코드(HAEUNDAE 등) — S15P21E201-1566. 서버가 동네 중심을 숙소 자리로 쓴다.
+   * 우리 표의 숙소나 검색한 숙소가 있으면 null — 그쪽이 더 정확하다.
+   */
+  accommodationArea: string | null;
   englishMenuRequired: boolean;
   foreignCardRequired: boolean;
   soloFriendlyPriority: boolean;
@@ -82,10 +98,18 @@ function mobility(
 
 export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
   const constraints: ConstraintInput[] = [
-    ...draft.allergies.map<ConstraintInput>((code) => ({
-      type: 'ALLERGY', constraintKey: code, severity: 'HARD', operator: 'EXCLUDES',
-      value: null, threshold: null, answerStatus: 'SELECTED', dietRequirement: null,
-    })),
+    // 🔴 ALLERGY 를 «일부러» 안 보낸다 (S15P21E201-1497, 결정은 -1468 의 ㄱ).
+    //
+    //    운영 place_feature 에 ALLERGEN_TAG 가 0행이다. 채점기는 표식 없는 후보를
+    //    「확인 못 함」으로 남기고 unknown-exclusion-threshold=REQUIRED 가 그것을 전부
+    //    뺀다 — 보내는 순간 후보가 0건이 되어 일정 생성이 실패한다.
+    //    실측(2026-09-22): 알레르기·식단을 고른 작업 8건 중 성공 0건.
+    //
+    //    🔴 질문을 지우는 것만으로는 부족해서 여기도 막는다. draft.allergies 에는
+    //    «전에 답해 둔 사람»의 값이 그대로 남아 있고, 그 사람들은 질문이 사라져도
+    //    계속 실패하게 된다. 지우지 않고 안 보내기만 한다 — 다시 열 때 그대로 쓴다.
+    //
+    //    다시 보내는 조건: ALLERGEN_TAG 가 VERIFIED 로 쌓였을 때. 그때 이 블록을 되살린다.
     ...draft.dietTypes.map<ConstraintInput>((code) => ({
       type: 'DIET', constraintKey: code, severity: 'HARD', operator: 'EXCLUDES',
       value: null, threshold: null, answerStatus: 'SELECTED', dietRequirement: 'REQUIRED',
@@ -105,6 +129,9 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
     mustVisitPlaceIds: draft.mustVisitPlaces.map((place) => place.placeId),
     travelAreas: draft.travelAreas,
     accommodationPlaceId: draft.accommodationPlace?.placeId ?? null,
+    // 우리 표의 숙소가 있으면 그것만 — 둘 다 보내도 서버가 placeId 를 먼저 보지만, 보내는 쪽에서도 하나만 싣는다.
+    accommodation: draft.accommodationPlace?.placeId ? null : draft.lodgingPlace ?? null,
+    accommodationArea: draft.accommodationPlace?.placeId || draft.lodgingPlace ? null : lodgingAreaCodeOf(draft.lodgingLat, draft.lodgingLng),
     englishMenuRequired: draft.englishMenuRequired,
     foreignCardRequired: draft.foreignCardRequired,
     soloFriendlyPriority: draft.soloDiningPreferred,
@@ -118,13 +145,20 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
     timeWindow: `${draft.dayStartTime}-${draft.dayEndTime}`,
     timezone: 'Asia/Seoul',
     preferences: [
-      preference('category', draft.preferenceAnswerStatus.category, draft.preferences),
+      // 🔴 칩을 골랐으면 「고름(SELECTED)」으로 보낸다 (2026-09-23, S15P21E201-1535). 질문 화면의 칩은
+      //    draft.preferences 만 바꾸고 preferenceAnswerStatus.category 는 안 바꿔서, 테마를 골라도
+      //    UNKNOWN·값 null 로 나갔다 — 서버는 SELECTED 만 읽으므로 **테마가 한 번도 반영되지 않았다.**
+      //    (운영 실측: 최근 여행 전부 테마 없음.) 칩이 비었으면 원래 상태(모름·상관없음)를 그대로 둔다.
+      preference('category', draft.preferences.length ? 'SELECTED' : draft.preferenceAnswerStatus.category, draft.preferences),
       preference('locality', draft.preferenceAnswerStatus.locality, draft.localityLevel),
       preference('quietness', draft.preferenceAnswerStatus.quietness, draft.quietLevel),
       preference('foodPreference', draft.preferenceAnswerStatus.foodPreference, draft.foods),
       preference('transport', 'SELECTED', draft.transport),
       preference('slopePreference', draft.slopeConstraint === null ? 'UNKNOWN' : 'SELECTED', draft.slopeConstraint),
       preference('shadePreference', draft.shadePreference === null ? 'UNKNOWN' : 'SELECTED', draft.shadePreference),
+      // 🔴 「여행 기분」을 묻기만 하고 안 보냈다 (2026-09-23, S15P21E201-1535). 서버는 이 값으로 하루에 넣을
+      //    장소 수를 정한다(RELAXED 3 · BALANCED 4 · PACKED 5, ItineraryDraftService). 안 오면 누구나 4곳이었다.
+      preference('pace', draft.paceLevel ? 'SELECTED' : 'UNKNOWN', draft.paceLevel),
     ],
     constraints,
   };
@@ -159,7 +193,10 @@ export async function createTripAndRecommendationJob(
       accessToken,
       body: {
         preferenceSnapshotVersion: trip.preferenceSnapshot?.version ?? null,
-        topK: 20,
+        // 🔴 20 으로 박아 두지 않는다 (2026-09-23, S15P21E201-1535). 서버는 비우면 여행 길이에 맞춰
+        //    (일수 × 하루 장소 수 × 3, 최소 10) 후보 수를 정하는데, 20 을 주면 그 계산을 덮는다 —
+        //    5일이면 여유가 0 이고 6일부터는 날을 다 못 채웠다(RecommendationService.defaultTopKFor).
+        topK: null,
       },
     },
   );

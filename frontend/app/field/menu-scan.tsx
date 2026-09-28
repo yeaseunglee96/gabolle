@@ -17,7 +17,6 @@ import { describeDish, loadDishImage, DISH_IMAGE_POLL, type Dish } from '@/field
 import { allergenNotice, emptyNotice, scanMenu, unreadNotice, type MenuLine, type MenuScan } from '@/field/menuScan';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_OPTIONS, toBcp47, type LanguageCode } from '@/i18n/languages';
-import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
@@ -31,10 +30,11 @@ type Phase =
 export default function MenuScanScreen() {
   const router = useRouter();
   const { tx, language } = useI18n();
-  const { width } = useLayout();
+  const { desktop } = useLayout();
   const { accessToken } = useAuth();
   const [phase, setPhase] = useState<Phase>({ state: 'idle' });
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = desktop;
 
   const read = async (photoUri: string) => {
     setPhase({ state: 'reading', photoUri });
@@ -120,13 +120,15 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
     {/* 알레르기 안내가 제일 위다. 그리고 「찾은 낱말」과 「직접 확인하라」는 함께 온다
         둘을 떼어 놓을 수 없게 한 함수가 같이 낸다.
     */}
-    <View style={styles.allergenCard} accessibilityRole="summary">
+    {/* 🔴 글자를 한 줄도 못 읽었으면 이 카드 자체를 안 그린다 — allergenNotice 가 null 을
+        낸다(S15P21E201-1489 B-14). 「못 찾았다」는 찾아본 뒤에야 할 수 있는 말이다. */}
+    {allergen && <View style={styles.allergenCard} accessibilityRole="summary">
       <Text variant="title" weight="bold">{allergen.headline}</Text>
       {allergen.words.length > 0 && <View style={styles.wordRow}>
         {allergen.words.map((word) => <View key={word} style={styles.word}><Text variant="caption" weight="bold" color={color.state.danger}>{word}</Text></View>)}
       </View>}
       <Text color={color.text.body}>{allergen.caution}</Text>
-    </View>
+    </View>}
 
     {unread && <View style={styles.unreadCard} accessibilityRole="summary"><Text variant="caption" weight="bold">{unread}</Text></View>}
 
@@ -221,7 +223,7 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
         {line.allergenWords.length > 0 && <Text variant="caption" color={color.state.danger}>{line.allergenWords.join(' · ')}</Text>}
       </View>
       {/* 가격은 사진에서 읽은 그대로다 — 숫자로 바꾸거나 통화를 붙이지 않는다. */}
-      {line.price !== '' && <View style={styles.price}><Text weight="bold">{line.price}</Text></View>}
+      {line.price !== '' && <View style={styles.price}><Text weight="bold" style={styles.priceText}>{line.price}</Text></View>}
       {/* 우리가 이미 보여주고 있는 글자를 그대로 소리내 준다 — 지어내는 것이 없다.
           음식 줄에서는 이름만 읽는다. 가격까지 읽으면 가리키는 데 방해가 된다. */}
       <ListenButtons korean={original} translated={heading} />
@@ -394,7 +396,11 @@ const styles = StyleSheet.create({
   lines: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   lineBlock: { paddingVertical: spacing[1] },
   line: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingTop: spacing[2] },
-  price: { flexShrink: 0 },
+  // 🔴 가격 칸은 폭의 45% 까지만 — S15P21E201-1761. 전에는 flexShrink:0 이라 한 줄에 가격이 여럿이면
+  //    («4,000 / 3,000 / 1,000 / 1,000») 가격이 폭을 다 먹고 이름 칸이 두 글자로 눌려 「막걸 / 리」처럼
+  //    세로로 부서졌다(Play 35 실기기). 넘치는 가격은 그 칸 안에서 줄을 바꾼다.
+  price: { flexShrink: 1, maxWidth: '45%' },
+  priceText: { textAlign: 'right' },
   credit: { marginTop: spacing[1] },
   // 44 는 손가락이 닿는 최소 크기다 — 칩 자체를 작게 만들지 않고 감싸는 칸으로 맞춘다.
   askRow: { minHeight: 44, justifyContent: 'center', alignItems: 'flex-start' },

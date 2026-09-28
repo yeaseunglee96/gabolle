@@ -26,12 +26,13 @@ describe('출발지가 없으면 만들기를 막는다', () => {
   });
 
   it('🔴 마지막 장의 「만들기」가 잠긴다', () => {
-    expect(QUESTIONS).toContain("missing.length > 0 || datesMissing || originMissing || job?.state === 'submitting'");
+    // 1박 이상이면 숙소도 잠금 조건이다(S15P21E201-1584).
+    expect(QUESTIONS).toContain("missing.length > 0 || datesMissing || originMissing || lodgingMissing || job?.state === 'submitting'");
   });
 
   it('🔴 「지금 이대로 만들기」 갈림길도 같이 막힌다 — 한쪽만 막으면 빠른 길로 새어 나간다', () => {
     // 그 갈림길은 readyToBuild 로 그려진다. 거기에 출발지가 들어 있어야 한다.
-    expect(QUESTIONS).toContain('const readyToBuild = missing.length === 0 && !datesMissing && !originMissing;');
+    expect(QUESTIONS).toContain('const readyToBuild = missing.length === 0 && !datesMissing && !originMissing && !lodgingMissing;');
   });
 });
 

@@ -1,46 +1,65 @@
 // 기록 상세 — 피드 카드를 누르면 오는 화면.
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { AuthorAvatar } from '@/social/AuthorAvatar';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
-import { DropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
+import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { MarkdownBody } from '@/components/MarkdownBody';
 import { PhotoGrid } from '@/components/PhotoGrid';
+import { PhotoViewer } from '@/components/PhotoViewer';
 import { Button } from '@/components/Button';
 import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
+import { PhotoCarousel } from '@/social/PhotoCarousel';
+import { bottomDockPosition } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
-import { applyReaction, nextReaction, StoryReactionRow, type Reaction } from '@/social/StoryReactionRow';
+import { CoauthorByline } from '@/social/CoauthorByline';
+import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
+import { CourseLinkCard } from '@/social/CourseLinkCard';
+import { regionText } from '@/social/districtNames';
+import { regionBesidePlace } from '@/social/placeRegion';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, resetFeedAfterPost, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
+import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
-/** 상세 전용 사진 격자 — 3열 2행, 넘치면 마지막 칸에 「+N」 (시안 2a). */
+/**
+ * 상세 사진 — 큰 사진 한 장씩 옆으로 넘긴다. 아래 점이 몇 번째인지 따라간다(S15P21E201-1787, 사용자 요청).
+ * 전에는 3열 격자(시안 2a)라 사진이 작게만 보였다. 틀은 첫 사진 비율(가로 1.91:1 ~ 세로 4:5)로 맞춘다 — 정사각 틀에 전체를
+ * 넣었더니 가로로 긴 사진에 위아래 여백이 생겼다(사용자). 비율이 다른 나머지 사진은 틀에 맞춰 잘린다.
+ */
 function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
   const { tx } = useI18n();
+  // 누른 사진을 화면 가득 본다 (S15P21E201-1811). 전에는 눌러도 아무 일이 없었다.
+  const [viewing, setViewing] = useState<string | null>(null);
   if (!images.length) return null;
-  const SLOTS = 6;
-  const shown = images.slice(0, SLOTS);
-  const rest = images.length - shown.length;
   return (
-    <View accessibilityLabel={tx('여행 기록 사진', 'Trip record photos')} style={styles.grid}>
-      {shown.map((image, index) => (
-        <View key={image.url} style={styles.gridCell}>
-          <Image source={{ uri: image.url }} resizeMode="cover" style={styles.gridImage} accessibilityIgnoresInvertColors />
-          {/* 마지막 칸에만, 그리고 남은 장수가 있을 때만 덮는다. */}
-          {rest > 0 && index === shown.length - 1
-            ? <View style={styles.gridMore}><Text variant="title" weight="bold" color={color.text.onAction}>+{rest}</Text></View>
-            : null}
-        </View>
-      ))}
+    <View accessibilityLabel={tx('여행 기록 사진', 'Trip record photos')}>
+      <PhotoCarousel
+        urls={images.map((image) => image.url)}
+        fitFirstPhoto
+        onPressPhoto={(at) => setViewing(images[at]?.url ?? null)}
+        pressLabel={tx('사진 크게 보기', 'View photo')}
+        style={styles.photos}
+      />
+      <PhotoViewer
+        visible={viewing !== null}
+        uri={viewing}
+        label={tx('여행 기록 사진', 'Trip record photo')}
+        closeLabel={tx('사진 닫기', 'Close photo')}
+        onClose={() => setViewing(null)}
+      />
     </View>
   );
 }
@@ -49,6 +68,8 @@ function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
 function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }) {
   const { tx } = useI18n();
   if (!story.place) return null;
+  // 🔴 지역 칸은 「장소 · 구」라 그대로 쓰면 제목의 장소 이름이 한 번 더 나온다(S15P21E201-1759).
+  const placeRegion = regionBesidePlace(story.region, story.place.name);
   return (
     <Pressable
       accessibilityRole="button"
@@ -57,10 +78,10 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
       style={({ pressed }) => [styles.placeHeading, pressed && styles.pressed]}
     >
       <Text variant="display" weight="bold" color={color.text.heading}>{story.place.name}</Text>
-      {story.region
+      {placeRegion
         ? <View style={styles.placeMetaRow}>
             <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />
-            <Text variant="body" color={color.text.body}>{story.region}</Text>
+            <Text variant="body" color={color.text.body}>{regionText(placeRegion, tx)}</Text>
           </View>
         : null}
     </Pressable>
@@ -108,8 +129,36 @@ export function ReplyCard({
   const [saveError, setSaveError] = useState('');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  /** 크게 보는 중인 댓글 사진. null 이면 안 열렸다 (S15P21E201-1811). */
+  const [viewingReplyPhoto, setViewingReplyPhoto] = useState<string | null>(null);
+  const menu = useDropdownMenu();
+  // 좋아요는 이 카드가 낙관적으로 맞춘다 — 원글과 같은 규칙(applyReaction). 댓글도 글이라 같은 반응 주소를 쓴다.
+  // 인용·저장은 댓글에 없다 — linkCopyCount 를 비워 두면 반응 줄이 인용 칸을 안 그린다.
+  const [reaction, setReaction] = useState<ReactableStory>(() => ({
+    myReaction: reply.myReaction, likeCount: reply.likeCount, dislikeCount: reply.dislikeCount, linkCopyCount: undefined,
+    // 내 댓글이면 원글처럼 잠근다 — 빠뜨리면 단추는 눌리는데 서버가 409(STORY_REACTION_OWN)로 조용히 거절한다(S15P21E201-1783).
+    mine: reply.mine,
+  }));
+  const [reacting, setReacting] = useState(false);
 
   const startEdit = () => { setDraft(reply.body); setSaveError(''); setEditing(true); };
+
+  const react = async (pressed: Reaction) => {
+    if (!accessToken || reacting) return;
+    const next = nextReaction(reaction.myReaction, pressed);
+    setReacting(true);
+    const outcome = await setStoryReaction(reply.id, next, accessToken);
+    setReacting(false);
+    if (outcome.state === 'success') setReaction((current) => applyReaction(current, next));
+  };
+
+  // 수정·삭제·신고는 원글처럼 ⋯ 메뉴 하나로 — 댓글마다 글자 단추가 늘어서면 본문보다 단추가 먼저 읽힌다.
+  const menuItems: DropdownMenuItem[] = reply.mine
+    ? [
+        { key: 'edit', label: tx('수정', 'Edit'), onPress: startEdit },
+        { key: 'delete', label: tx('삭제', 'Delete'), destructive: true, onPress: () => setConfirmingDelete(true) },
+      ]
+    : [{ key: 'report', label: tx('신고', 'Report'), onPress: () => onReport(reply.id) }];
 
   const saveEdit = async () => {
     const body = draft.trim();
@@ -156,14 +205,24 @@ export function ReplyCard({
   // 서버가 세는 값이라 이쪽이 진짜다. 0 이면 단추 자체를 안 그린다 — 눌러도 빈 목록만 나온다.
   const childCount = reply.replyCount ?? 0;
 
+  // 🔴 트위터 답글형(사용자 결정 2026-09-24, S15P21E201-1576) — 원글과 같은 머리(동그라미·이름·시간·⋯)에 본문·사진,
+  //    그 아래 좋아요·답글 줄. 답글을 펼치면 왼쪽 동그라미 밑으로 세로선이 이어져 한 줄기로 읽힌다.
   return (
     <View style={styles.reply}>
+      <View style={styles.replyRail}>
+        <AuthorAvatar name={reply.author.displayName} uri={reply.author.avatarUrl} style={styles.replyAvatar} />
+        {expanded && childCount > 0 ? <View style={styles.replyRailLine} /> : null}
+      </View>
+
+      <View style={styles.replyMain}>
       <View style={styles.replyHead}>
-        <View style={styles.replyAvatar}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>{reply.author.displayName.slice(0, 1)}</Text>
-        </View>
-        <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.grow}>{reply.author.displayName}</Text>
-        <Text variant="caption" color={color.text.muted}>{relativeStoryTime(reply.createdAt, tx)}</Text>
+        <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.replyName}>{reply.author.displayName}</Text>
+        <Text variant="caption" color={color.text.muted} style={styles.grow}>{relativeStoryTime(reply.createdAt, tx)}</Text>
+        {!editing && !confirmingDelete ? (
+          <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('댓글 더 보기', 'More comment options')} onPress={menu.openMenu} style={styles.replyMenuButton}>
+            <Text variant="body" weight="bold" color={color.text.muted}>⋯</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       {editing ? (
@@ -178,66 +237,65 @@ export function ReplyCard({
           />
           {saveError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{saveError}</Text> : null}
           <View style={styles.confirmButtons}>
-            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={saving} onPress={() => setEditing(false)} containerStyle={styles.confirmButton} />
-            <Button label={saving ? tx('저장 중…', 'Saving…') : tx('저장', 'Save')} variant="secondary" disabled={saving || !draft.trim()} onPress={() => void saveEdit()} containerStyle={styles.confirmButton} />
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={saving} onPress={() => setEditing(false)} compact />
+            <Button label={saving ? tx('저장 중…', 'Saving…') : tx('저장', 'Save')} variant="secondary" disabled={saving || !draft.trim()} onPress={() => void saveEdit()} compact />
           </View>
         </View>
       ) : (
         <MarkdownBody source={reply.body} />
       )}
 
+      {/* 댓글 사진도 눌러서 크게 본다 (S15P21E201-1811) — PhotoGrid 의 onPressPhoto 자리가
+          지금까지 «어느 화면에서도» 안 쓰이고 있었다. */}
       {!editing && reply.images.length
-        ? <PhotoGrid photos={reply.images.map((image) => ({ uri: image.url }))} compact accessibilityLabel={tx('댓글 사진', 'Comment photo')} style={styles.replyPhotos} />
+        ? <>
+            <PhotoGrid photos={reply.images.map((image) => ({ uri: image.url }))} compact accessibilityLabel={tx('댓글 사진', 'Comment photo')} onPressPhoto={(index) => setViewingReplyPhoto(reply.images[index]?.url ?? null)} style={styles.replyPhotos} />
+            <PhotoViewer
+              visible={viewingReplyPhoto !== null}
+              uri={viewingReplyPhoto}
+              label={tx('댓글 사진', 'Comment photo')}
+              closeLabel={tx('사진 닫기', 'Close photo')}
+              onClose={() => setViewingReplyPhoto(null)}
+            />
+          </>
         : null}
 
-      {!editing ? (
-        <View style={styles.replyActions}>
-          {reply.mine ? (
-            confirmingDelete ? (
-              <View style={styles.confirmRow}>
-                <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('댓글을 삭제할까요?', 'Delete this comment?')}</Text>
-                <View style={styles.confirmButtons}>
-                  <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
-                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
-                </View>
-              </View>
-            ) : (
-              <>
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 수정', 'Edit comment')} onPress={startEdit} style={styles.replyTextAction}>
-                  <Text variant="caption" weight="bold" color={color.text.accent}>{tx('수정', 'Edit')}</Text>
-                </Pressable>
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 삭제', 'Delete comment')} onPress={() => setConfirmingDelete(true)} style={styles.replyTextAction}>
-                  <Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text>
-                </Pressable>
-              </>
-            )
-          ) : (
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 신고', 'Report comment')} onPress={() => onReport(reply.id)} style={styles.replyTextAction}>
-              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('신고', 'Report')}</Text>
-            </Pressable>
-          )}
+      {confirmingDelete ? (
+        <View style={styles.confirmRow}>
+          <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('댓글을 삭제할까요?', 'Delete this comment?')}</Text>
+          <View style={styles.confirmButtons}>
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} compact />
+            <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} compact />
+          </View>
         </View>
+      ) : null}
+
+      {!editing && !confirmingDelete ? (
+        // 좋아요 · 답글 — 원글과 같은 알약 부품이다.
+        <StoryReactionRow story={reaction} reacting={reacting} onReact={(pressed) => void react(pressed)} style={styles.replyReactions}>
+          {childCount > 0 ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded }}
+              accessibilityLabel={expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개 보기`, `Show ${childCount} replies`)}
+              onPress={toggleChildren}
+              style={storyReactionStyles.button}
+            >
+              <Text variant="util" weight="bold" color={color.text.body}>
+                {expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개`, `${childCount} replies`)}
+              </Text>
+            </Pressable>
+          ) : null}
+        </StoryReactionRow>
       ) : null}
 
       {!editing && childCount > 0 ? (
         <View style={styles.replyThread}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ expanded }}
-            accessibilityLabel={expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개 보기`, `Show ${childCount} replies`)}
-            onPress={toggleChildren}
-            style={styles.replyTextAction}
-          >
-            <Text variant="caption" weight="bold" color={color.text.accent}>
-              {expanded ? tx('답글 접기', 'Hide replies') : tx(`답글 ${childCount}개`, `${childCount} replies`)}
-            </Text>
-          </Pressable>
-
           {expanded ? (
             childrenError ? (
               <View accessibilityRole="alert" style={styles.replyNotice}>
                 <Text variant="caption" color={color.text.body}>{tx('답글을 불러오지 못했어요.', "We couldn't load the replies.")}</Text>
-                <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadChildren()} containerStyle={styles.recoveryButton} />
+                <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadChildren()} containerStyle={styles.recoveryButton} />
               </View>
             ) : loadingChildren || children === null ? (
               <ActivityIndicator color={color.action.primary} />
@@ -265,6 +323,10 @@ export function ReplyCard({
           ) : null}
         </View>
       ) : null}
+      </View>
+
+      {/* 열 때만 그린다 — 댓글마다 닫힌 메뉴 창을 하나씩 깔아 두면 댓글이 많을 때 무겁다. */}
+      {menu.open ? <DropdownMenu visible anchor={menu.anchor} items={menuItems} onClose={menu.close} /> : null}
     </View>
   );
 }
@@ -284,7 +346,14 @@ export default function StoryDetail() {
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [blockNotice, setBlockNotice] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [postEditing, setPostEditing] = useState(false);
+  const [postDraft, setPostDraft] = useState('');
+  const [postSaving, setPostSaving] = useState(false);
+  const [postSaveError, setPostSaveError] = useState('');
+  // 복사 알림은 목록(feed.tsx)처럼 잠깐 떴다 사라진다. 남겨 두면 다음에 눌렀을 때 같은 글자라 새로 떴는지 모른다.
+  useEffect(() => { if (!copyNotice) return; const timer = setTimeout(() => setCopyNotice(''), 2600); return () => clearTimeout(timer); }, [copyNotice]);
+  const insets = useSafeAreaInsets();
+  const menu = useDropdownMenu();
   // null = 아직 모른다. StoryDto 에는 "내가 이 작성자를 팔로우하는가" 칸이 없어서
   // (반응 카운트와 달리 얹지 않기로 했다) getUserProfile 로 따로 물어봐야 한다
   // 안 물어본 상태를 false 로 두면 실제로 팔로우 중인데 "팔로우" 로 잘못 그린다.
@@ -310,6 +379,8 @@ export default function StoryDetail() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState('');
+  // 댓글 사진 — 원글과 같은 부품이다(S15P21E201-1651). 서버는 댓글에도 imageUrls 를 3장까지 받는다.
+  const replyPhotos = useStoryImages(accessToken, tx);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -340,6 +411,7 @@ export default function StoryDetail() {
 
   // 새로 가져오는 동안에도 목록에서 이미 받은 내용을 자리표시로 먼저 보여준다.
   const story = state.status === 'loaded' ? state.story : state.status === 'loading' ? state.cached : null;
+  const courseLink = story ? findCourseLink(story.body) : null;
 
   const shownReplies = replies ?? [];
   // 서버는 기본 50개까지만 준다. 잘린 것을 조용히 숨기면 사용자는 그게 전부인 줄 안다
@@ -365,7 +437,12 @@ export default function StoryDetail() {
    */
   const copyLink = async () => {
     if (!story) return;
-    await Clipboard.setStringAsync(storyShareUrl(story.id));
+    // 🔴 비회원은 로그인으로 보낸다 (S15P21E201-1795). 같은 줄의 좋아요·저장은 그렇게 하는데
+    //    인용만 그냥 돌아서, 비회원이 눌러도 인용 수가 올라갔다. 세 단추가 나란히 있는데
+    //    하나만 다르게 굴면 사람은 「이건 되는 기능」으로 읽는다.
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } }); return; }
+    // 웹에서는 권한·포커스가 없으면 클립보드 쓰기가 거절된다 — 잡지 않으면 처리 안 된 오류로 남는다(S15P21E201-1824).
+    try { await Clipboard.setStringAsync(storyShareUrl(story.id)); } catch { setCopyNotice(tx('링크를 복사하지 못했어요.', "Couldn't copy the link.")); return; }
     setCopyNotice(tx('링크를 복사했어요.', 'Link copied.'));
     const outcome = await recordStoryLinkCopy(story.id, accessToken);
     if (outcome.state === 'success') setState({ status: 'loaded', story: outcome.story });
@@ -378,21 +455,65 @@ export default function StoryDetail() {
    *
    * 링크 복사는 내 글·남의 글 양쪽에 둔다 — 내 글을 남에게 보내는 것이 더 잦다.
    */
+  /**
+   * 🔴 비회원이면 로그인으로 보내고 그 행동은 하지 않는다 (S15P21E201-1795).
+   *
+   * 이 ⋯ 메뉴는 로그인 여부와 상관없이 늘 그려진다. 그래서 비회원에게도 팔로우·신고·차단이
+   * 보였고, 눌러도 «아무 일도 안 일어났다» — 오류도 안 뜨고 로그인 안내도 없었다.
+   * 이 화면은 공유 링크가 도착하는 곳이라 비회원이 가장 먼저 닿는 화면이다.
+   *
+   * 차단·신고가 특히 나쁘다. 괴롭힘을 막으려고 누른 사람에게 「안 됐다」는 말조차 없다.
+   */
+  const needsSignIn = () => {
+    if (accessToken) return false;
+    router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } });
+    return true;
+  };
+
+  // 원글 본문 수정 — 댓글 수정(ReplyCard)과 같은 모양이다. 취소하면 초안을 버리고 원래 본문이 그대로 남는다.
+  const startPostEdit = () => {
+    if (!story) return;
+    setPostDraft(story.body);
+    setPostSaveError('');
+    setConfirmingDelete(false);
+    setPostEditing(true);
+  };
+
+  const savePostEdit = async () => {
+    const body = postDraft.trim();
+    if (!id || postSaving) return;
+    if (!body) { setPostSaveError(tx('1자 이상 입력해 주세요', 'Please enter at least 1 character')); return; }
+    setPostSaving(true);
+    const outcome = await updateStory(id, body, accessToken);
+    setPostSaving(false);
+    if (outcome.state !== 'success') { setPostSaveError(outcome.message); return; }
+    setPostEditing(false);
+    setPostSaveError('');
+    setState({ status: 'loaded', story: outcome.story });
+    // 목록·마이페이지 보관소에 옛 본문이 30초 남지 않게 — 글을 새로 쓴 뒤와 같은 정리.
+    void resetFeedAfterPost(queryClient);
+    setCopyNotice(tx('저장했어요', 'Saved'));
+  };
+
   const menuItems: DropdownMenuItem[] = story
     ? [
         { key: 'copy-link', label: tx('링크 복사', 'Copy link'), onPress: () => void copyLink() },
         ...(story.mine
-        ? [{ key: 'delete', label: tx('삭제', 'Delete'), destructive: true, onPress: () => setConfirmingDelete(true) }]
+        ? [
+            // 🔴 올린 기록을 고칠 입구 — 없어서 작성자가 오타 하나도 못 고쳤다(S15P21E201-1807). 사진은 서버가 못 고친다.
+            { key: 'edit', label: tx('수정', 'Edit'), onPress: startPostEdit },
+            { key: 'delete', label: tx('삭제', 'Delete'), destructive: true, onPress: () => setConfirmingDelete(true) },
+          ]
         : [
             ...(authorFollowing !== null
               ? [{
                   key: 'follow',
                   label: authorFollowing ? tx('팔로잉 취소', 'Unfollow') : tx('팔로우', 'Follow'),
-                  onPress: () => void toggleFollow(),
+                  onPress: () => { if (!needsSignIn()) void toggleFollow(); },
                 }]
               : []),
-            { key: 'report', label: tx('이 글 신고', 'Report this post'), onPress: () => setReportingTargetId(story.id) },
-            { key: 'block', label: tx('사용자 차단', 'Block user'), destructive: true, onPress: () => setConfirmingBlock(true) },
+            { key: 'report', label: tx('이 글 신고', 'Report this post'), onPress: () => { if (!needsSignIn()) setReportingTargetId(story.id); } },
+            { key: 'block', label: tx('사용자 차단', 'Block user'), destructive: true, onPress: () => { if (!needsSignIn()) setConfirmingBlock(true); } },
           ]),
       ]
     : [];
@@ -426,27 +547,32 @@ export default function StoryDetail() {
     if (outcome.state === 'success') setAuthorFollowing(outcome.following);
   };
 
-  // 차단은 「이 글」이 아니라 「이 사람」에 대한 것이다. 차단해도 이 글은 내 화면에서 그대로
-  // 보인다 — 거르는 일은 서버가 상대 쪽 화면에서 한다.
+  // 차단은 「이 글」이 아니라 「이 사람」에 대한 것이다. 지금 이미 열어 둔 이 글은 차단해도 화면에서
+  // 그대로 보인다(직접 주소로 여는 것은 안 막는다) — 하지만 다음에 피드 목록을 다시 열면 이 사람의
+  // 글은 양쪽 다 빠진다(S15P21E201-1714·1722). 「이 글만은 예외」와 「피드 전체가 그렇다」를 헷갈리지 않는다.
   const confirmBlock = async () => {
     const authorId = story?.author.id;
     if (!authorId) return false;
     const outcome = await setBlocked(authorId, true, accessToken);
     if (outcome.state !== 'success') return false;
-    setBlockNotice(tx('이제 이 사용자에게 내 글이 보이지 않아요.', "This user can no longer see your posts."));
+    setBlockNotice(tx(
+      '이제 이 사용자에게 내 글이 안 보이고, 내 피드에도 이 사람 글이 안 보여요.',
+      "This user can no longer see your posts, and their posts won't show up in your feed either.",
+    ));
     return true;
   };
 
   const submitReply = async () => {
     const body = draft.trim();
-    if (!id || !body || sending) return;
+    if (!id || !body || sending || replyPhotos.anyUploading) return;
     setSending(true);
-    // 댓글도 글이다 — 같은 만들기 경로에 부모 id 만 실어 보낸다.
-    const outcome = await createStory({ body, imageUrls: [], parentStoryId: id, accessToken });
+    // 댓글도 글이다 — 같은 만들기 경로에 부모 id 와 올라간 사진 주소를 실어 보낸다.
+    const outcome = await createStory({ body, imageUrls: replyPhotos.uploadedUrls, parentStoryId: id, accessToken });
     setSending(false);
     if (outcome.state !== 'success') { setSendError(outcome.message); return; }
     setDraft('');
     setSendError('');
+    replyPhotos.clearImages();
     // 서버를 다시 부르지 않고 방금 받은 것을 뒤에 붙인다 — 목록 순서가 오래된 것부터다.
     setReplies((current) => [...(current ?? []), outcome.story]);
   };
@@ -476,7 +602,8 @@ export default function StoryDetail() {
     setReacting(true);
     const outcome = await setStoryReaction(story.id, next, accessToken);
     setReacting(false);
-    if (outcome.state !== 'success') return;
+    // 실패를 조용히 삼키면 버튼이 고장난 것처럼 보인다(S15P21E201-1824) — 복사 알림과 같은 한 줄로 말한다.
+    if (outcome.state !== 'success') { setCopyNotice(tx('지금은 반영하지 못했어요. 잠시 뒤 다시 눌러 주세요.', "Couldn't update that right now. Please tap again in a moment.")); return; }
     setState((current) => (current.status === 'loaded'
       ? { ...current, story: applyReaction(current.story, next) }
       : current));
@@ -490,7 +617,7 @@ export default function StoryDetail() {
     setSaving(true);
     const outcome = await setStorySaved(story.id, nextSaved, accessToken);
     setSaving(false);
-    if (outcome.state !== 'success') return;
+    if (outcome.state !== 'success') { setCopyNotice(tx('지금은 반영하지 못했어요. 잠시 뒤 다시 눌러 주세요.', "Couldn't update that right now. Please tap again in a moment.")); return; }
     queryClient.setQueryData<{ state: 'success'; ids: Set<string> }>(['saved-story-ids', signedIn], (current) => {
       const ids = new Set(current?.ids ?? []);
       if (nextSaved) ids.add(story.id); else ids.delete(story.id);
@@ -503,10 +630,12 @@ export default function StoryDetail() {
   };
 
   return (
+    // 복사 알림을 스크롤 밖에 띄우려고 한 겹 감싼다. Screen scroll 은 자식을 전부 굴러가는 판 안에 넣는다.
+    <View style={styles.root}>
     <Screen scroll>
       {/* — 목적지를 약속하지 않는다. 이 화면에 들어오는 입구가 일곱인데
           피드는 그중 하나라, 「피드로」라고 적으면 대부분의 경로에서 라벨과 결과가 어긋난다.
-          place/[id]·collection/[id]·user/[id]·feed/[id]/coauthors 가 쓰는 규칙과 같다.
+          place/[id]·user/[id]·feed/[id]/coauthors 가 쓰는 규칙과 같다.
       */}
       <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
         <Text variant="title" weight="bold">‹ {tx('뒤로', 'Back')}</Text>
@@ -520,24 +649,31 @@ export default function StoryDetail() {
         <View style={styles.notice} accessibilityRole="alert" accessibilityLiveRegion="polite">
           <Text variant="title" weight="bold">{tx('신고가 접수됐어요', 'Report submitted')}</Text>
           <Text color={color.text.body}>{tx('신고한 기록은 더 이상 보이지 않아요. 24시간 안에 처리돼요.', 'This record is no longer shown to you. It will be reviewed within 24 hours.')}</Text>
-          <Button label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
+          <Button compact label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
         </View>
       ) : null}
 
       {story && !reported ? (
         <View style={styles.card}>
           <View style={styles.headerRow}>
-            <Pressable accessibilityRole="link" accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.grow}>
-              <Text variant="title" weight="bold">{story.author.displayName}</Text>
+            {/* 작성자 이름 뒤에 공동 작성자 「· 이예승」(S15P21E201-1583). 이름 버튼 «안»에 둘 수 없어서
+                (버튼 안의 버튼) 이름만 프로필로 가는 버튼이 되고, 시각·지역 줄은 그 아래 글자로 선다. */}
+            <View style={styles.grow}>
+              <View style={styles.bylineRow}>
+                <Pressable accessibilityRole="link" accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.authorLink}>
+                  <Text variant="title" weight="bold" numberOfLines={1}>{story.author.displayName}</Text>
+                </Pressable>
+                <CoauthorByline story={story} large />
+              </View>
               <Text variant="caption" color={color.text.muted}>
                 {relativeStoryTime(story.createdAt, tx)}
-                {story.region ? ` · ${story.region}` : ''}
+                {story.region ? ` · ${regionText(story.region, tx)}` : ''}
               </Text>
-            </Pressable>
+            </View>
             {story.mine && story.visibility !== 'PUBLIC' ? (
               <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View>
             ) : null}
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More options')} onPress={() => setMenuOpen(true)} style={styles.menuButton}>
+            <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More options')} onPress={menu.openMenu} style={styles.menuButton}>
               <Text variant="body" weight="bold" color={color.text.muted}>⋯</Text>
             </Pressable>
           </View>
@@ -553,13 +689,39 @@ export default function StoryDetail() {
           {/* — 마크다운을 그린다. 마크다운을 안 쓴 기존 글은
               문단 하나가 되므로 지금과 똑같이 보인다.
           */}
-          <MarkdownBody source={story.body} />
+          {postEditing ? (
+            <View style={styles.replyEdit}>
+              <TextInput
+                accessibilityLabel={txf(tx, '%s 수정', 'Edit %s', tx('기록', 'record'))}
+                value={postDraft}
+                onChangeText={(value) => setPostDraft(value.slice(0, BODY_MAX))}
+                maxLength={BODY_MAX}
+                multiline
+                style={styles.composerInput}
+              />
+              {postSaveError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{postSaveError}</Text> : null}
+              <View style={styles.confirmButtons}>
+                <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={postSaving} onPress={() => { setPostEditing(false); setPostSaveError(''); }} compact />
+                <Button label={postSaving ? tx('저장 중…', 'Saving…') : tx('저장', 'Save')} variant="secondary" disabled={postSaving || !postDraft.trim()} onPress={() => void savePostEdit()} compact />
+              </View>
+            </View>
+          ) : (
+            <MarkdownBody source={withoutCourseLink(story.body, courseLink)} />
+          )}
+          {/* 본문의 코스 링크는 코스 카드로 그린다 — 글자로 또 쓰지 않는다(S15P21E201-1593). */}
+          {courseLink && !postEditing ? <CourseLinkCard token={courseLink.token} /> : null}
+
+          {/* 좋아요·인용·저장 — 카드 «안»에 둔다(사용자 지적 2026-09-24, S15P21E201-1576). 카드 밖에 두면 그 기록의 것인지
+              아래 댓글의 것인지 흐려진다. 목록(feed.tsx)과 같은 부품이다. */}
+          <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} saved={savedIds.has(story.id)} saving={saving} onToggleSave={() => void toggleSave()} onQuote={() => void copyLink()} style={styles.inCardReactions} />
 
  {/*— 삭제·신고·차단은 우상단 ⋯ 메뉴로 옮겼다. 공동 작성자는
               "더 보기" 성격이 아니라 주된 이동이라 그대로 남긴다. 삭제 확인은 메뉴에서
               "삭제"를 고르면 여기 그대로 펼쳐진다 — 자리만 옮기고 확인 흐름은 안 바꿨다. */}
           <View style={styles.actionRow}>
-            {!confirmingDelete && (
+            {/* 🔴 내 글이면 늘(공동 작성자를 초대하는 입구), 남의 글이면 공동 작성자가 있을 때만(S15P21E201-1673) — 남의 글에서
+                누르면 빈 목록뿐이었다. 서버가 칸을 안 보내는 옛 판이면 남의 글에서는 안 그린다. */}
+            {!confirmingDelete && (story.mine || (story.coauthors?.length ?? 0) > 0) && (
               <Pressable accessibilityRole="button" accessibilityLabel={tx('공동 작성자 보기', 'View co-authors')} onPress={() => router.push(`/feed/${story.id}/coauthors`)} style={styles.textAction}>
                 {/* 「›」 — 글자만 있으면 제목처럼 읽혀서 눌러 볼 생각을 안 한다(2026-09-21 실측, S15P21E201-1372). */}
                 <Text variant="caption" weight="bold" color={color.text.accent}>{tx('공동 작성자', 'Co-authors')} ›</Text>
@@ -569,20 +731,13 @@ export default function StoryDetail() {
               <View style={styles.confirmRow}>
                 <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('정말 삭제할까요? 되돌릴 수 없어요.', 'Delete this record? This cannot be undone.')}</Text>
                 <View style={styles.confirmButtons}>
-                  <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
-                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
+                  <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={deleting} onPress={() => setConfirmingDelete(false)} compact />
+                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} variant="danger" disabled={deleting} onPress={() => void confirmDelete()} compact />
                 </View>
               </View>
             ) : null}
           </View>
         </View>
-      ) : null}
-
-      {/* 좋아요·저장 — S15P21E201-1247. 목록과 같은 부품을 쓴다. 저장 버튼은 목록에만 있고 여기엔 없던 것을 채웠다. 칸 이름을 못 받아
-          비워 뒀던 자리인데가 상세 응답에도 실어 주면서 채웠다.
-      */}
-      {story && !reported ? (
-        <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} saved={savedIds.has(story.id)} saving={saving} onToggleSave={() => void toggleSave()} onQuote={() => void copyLink()} />
       ) : null}
 
       {/* 지표 줄 — S15P21E201-1213. 시안이 정한 자리가 댓글 바로 위다. */}
@@ -601,7 +756,7 @@ export default function StoryDetail() {
           {repliesError ? (
             <View accessibilityRole="alert" style={styles.replyNotice}>
               <Text variant="caption" color={color.text.body}>{tx('댓글을 불러오지 못했어요.', "We couldn't load the comments.")}</Text>
-              <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReplies()} containerStyle={styles.recoveryButton} />
+              <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadReplies()} containerStyle={styles.recoveryButton} />
             </View>
           ) : replies === null ? (
             <ActivityIndicator color={color.action.primary} />
@@ -609,16 +764,19 @@ export default function StoryDetail() {
             <Text variant="caption" color={color.text.muted}>{tx('아직 댓글이 없어요.', 'No comments yet.')}</Text>
           ) : (
             <>
-              {shownReplies.map((reply) => (
-                <ReplyCard
-                  key={reply.id}
-                  reply={reply}
-                  accessToken={accessToken}
-                  onUpdated={updateReply}
-                  onDeleted={removeReply}
-                  onReport={setReportingTargetId}
-                />
-              ))}
+              {/* 원글에서 내려오는 세로선 — 답글 묶음이 원글에 매달린 것으로 읽히게(트위터형, S15P21E201-1576). */}
+              <View style={styles.replyList}>
+                {shownReplies.map((reply) => (
+                  <ReplyCard
+                    key={reply.id}
+                    reply={reply}
+                    accessToken={accessToken}
+                    onUpdated={updateReply}
+                    onDeleted={removeReply}
+                    onReport={(replyId) => { if (!needsSignIn()) setReportingTargetId(replyId); }}
+                  />
+                ))}
+              </View>
               {hasMoreReplies ? (
                 <Text variant="caption" color={color.text.muted}>
                   {tx(`댓글 ${totalReplies}개 중 ${shownReplies.length}개를 보여드렸어요.`, `Showing ${shownReplies.length} of ${totalReplies} comments.`)}
@@ -642,12 +800,45 @@ export default function StoryDetail() {
                 placeholderTextColor={color.text.muted}
                 style={styles.composerInput}
               />
-              <Button
-                label={sending ? tx('보내는 중…', 'Sending…') : tx('남기기', 'Post')}
-                disabled={sending || !draft.trim()}
-                onPress={() => void submitReply()}
-                containerStyle={styles.composerButton}
-              />
+              {/* 고른 사진 — 피드 탭 글쓰기와 같은 부품·같은 모양이다. 🔴 영상은 없다(사용자에게 따로 묻기로 했다). */}
+              {replyPhotos.images.length ? <PhotoGrid
+                photos={replyPhotos.images.map((image) => ({ uri: image.localUri }))}
+                compact
+                accessibilityLabel={tx('고른 사진', 'Selected photo')}
+                style={styles.composerPhotos}
+                renderOverlay={(index) => {
+                  const image = replyPhotos.images[index];
+                  if (!image) return null;
+                  return <>
+                    {image.uploading ? <View style={styles.composerPhotoOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
+                    {image.error ? <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => replyPhotos.retryImage(index)} style={styles.composerPhotoOverlay}>
+                      <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('다시 시도', 'Retry')}</Text>
+                    </Pressable> : null}
+                    {/* 🔴 댓글 사진도 같다 — hitSlop 없이는 24pt (S15P21E201-1794).
+                        빗나가면 뒤의 사진 타일이 눌려 사진이 열린다. 글쓰기 쪽(feed.tsx)과
+                        같은 값을 준다. */}
+                    <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} hitSlop={10} onPress={() => replyPhotos.removeImage(index)} style={styles.composerPhotoRemove}>
+                      <Text weight="bold" color={color.text.onAction}>×</Text>
+                    </Pressable>
+                  </>;
+                }}
+              /> : null}
+              {replyPhotos.images.map((image, index) => image.error
+                ? <Text key={`reply-photo-error-${index}`} variant="caption" color={color.state.danger}>{image.error}</Text>
+                : null)}
+              {replyPhotos.images.length ? <Text variant="caption" color={color.text.muted}>{tx('사진의 위치 정보는 지워져요.', 'Location data is removed from photos.')}</Text> : null}
+              <View style={styles.composerActions}>
+                <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글에 사진 추가', 'Add photo to comment')} disabled={!replyPhotos.canAddMore} onPress={() => void replyPhotos.addImage()} style={[styles.composerTool, !replyPhotos.canAddMore && styles.composerToolBusy]}>
+                  <Image source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.composerToolIcon} />
+                  <Text variant="body" color={color.text.body}>{tx(`사진 ${replyPhotos.images.length}/${MAX_STORY_IMAGES}`, `Photos ${replyPhotos.images.length}/${MAX_STORY_IMAGES}`)}</Text>
+                </Pressable>
+                <Button
+                  label={sending ? tx('보내는 중…', 'Sending…') : tx('남기기', 'Post')}
+                  disabled={sending || !draft.trim() || replyPhotos.anyUploading}
+                  onPress={() => void submitReply()}
+                  containerStyle={styles.composerButton}
+                />
+              </View>
             </View>
           ) : (
             <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } })} style={styles.textAction}>
@@ -665,7 +856,7 @@ export default function StoryDetail() {
         <View style={styles.notice} accessibilityRole="alert">
           <Text variant="title" weight="bold">{tx('기록을 찾을 수 없어요', 'Could not find this record')}</Text>
           <Text color={color.text.body}>{tx('삭제됐거나, 볼 수 없는 기록이에요.', "It's been deleted, or you don't have access to it.")}</Text>
-          <Button label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
+          <Button compact label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
         </View>
       ) : null}
 
@@ -674,7 +865,7 @@ export default function StoryDetail() {
           <GabolleMascot state="sad" style={styles.sadMascot} />
           <Text variant="title" weight="bold">{tx('기록을 불러오지 못했어요', "We couldn't load this record")}</Text>
           <Text color={color.text.body}>{state.message}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} containerStyle={styles.recoveryButton} />
+          <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} containerStyle={styles.recoveryButton} />
         </View>
       ) : null}
 
@@ -684,20 +875,25 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
-      {copyNotice ? (
-        <View accessibilityLiveRegion="polite" style={styles.notice}>
-          <Text color={color.text.body}>{copyNotice}</Text>
-        </View>
-      ) : null}
-
-      <DropdownMenu visible={menuOpen} items={menuItems} onClose={() => setMenuOpen(false)} />
+      <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
       <ReportModal visible={reportingTargetId !== null} onClose={() => setReportingTargetId(null)} onSubmit={submitReport} />
       <BlockUserDialog visible={confirmingBlock} displayName={story?.author.displayName ?? ''} onClose={() => setConfirmingBlock(false)} onConfirm={confirmBlock} />
     </Screen>
+    {/* 인용·링크 복사 알림(S15P21E201-1787) — 전에는 댓글 아래 글 맨 끝에 붙어서, 글 중간에서 누르면 아무 일도 없는 것처럼 보였다.
+        목록과 같은 토스트로 화면 아래에 띄운다. */}
+    {copyNotice ? (
+      <View pointerEvents="none" accessibilityLiveRegion="polite" style={[styles.copyNoticeDock, { bottom: insets.bottom + spacing[4] }]}>
+        <View style={styles.copyNotice}><Text variant="caption" weight="bold" color={color.text.onAction}>{copyNotice}</Text></View>
+      </View>
+    ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1 },
+  copyNoticeDock: { position: bottomDockPosition(), left: 0, right: 0, alignItems: 'center', zIndex: 25 },
+  copyNotice: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.action.secondary, shadowColor: color.brand.navy, shadowOpacity: 0.18, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   pressed: { opacity: 0.72 },
   sadMascot: { width: 80, height: 80, alignSelf: 'center' },
@@ -705,15 +901,15 @@ const styles = StyleSheet.create({
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
   grow: { flex: 1, gap: spacing[1] },
+  bylineRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minWidth: 0 },
+  authorLink: { flexShrink: 1 },
   visibilityBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   menuButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   images: { marginTop: spacing[2] },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   // ── 상세 2a ──────────────────────────────────────────────
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  gridCell: { position: 'relative', flexBasis: '31.5%', flexGrow: 1, aspectRatio: 1, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.soft },
-  gridImage: { width: '100%', height: '100%' },
-  gridMore: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(25,25,25,0.45)' },
+  // 첫 사진 크기를 재기 전의 틀. 재면 그 비율로 바뀐다(PhotoCarousel fitFirstPhoto).
+  photos: { aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
 
   placeHeading: { gap: spacing[2] },
   placeMetaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
@@ -723,7 +919,6 @@ const styles = StyleSheet.create({
   confirmRow: { flex: 1, gap: spacing[2] },
   confirmText: { textAlign: 'right' },
   confirmButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[2] },
-  confirmButton: { width: 'auto', paddingHorizontal: spacing[4] },
   recoveryButton: { marginTop: spacing[2] },
 
   // 지표 줄 — 댓글 머리 바로 위. 붙는 자리라 위 여백만 준다.
@@ -731,18 +926,36 @@ const styles = StyleSheet.create({
 
   // ── 댓글 ────────────────────────────────────────────────
   comments: { gap: spacing[3], marginTop: spacing[4] },
-  reply: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  replyList: { gap: spacing[2], marginLeft: spacing[4], paddingLeft: spacing[3], borderLeftWidth: 2, borderLeftColor: color.surface.border },
+  // 답글 한 장 — 원글 카드와 같은 흰 바탕·둥근 모서리. 왼쪽 동그라미 기둥 + 오른쪽 내용(트위터 답글형, S15P21E201-1576).
+  reply: { flexDirection: 'row', gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  replyRail: { alignItems: 'center' },
+  replyRailLine: { flex: 1, width: 2, marginTop: spacing[1], borderRadius: 1, backgroundColor: color.surface.border },
+  replyMain: { flex: 1, minWidth: 0, gap: spacing[2] },
   replyHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  replyAvatar: { width: 24, height: 24, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  replyName: { flexShrink: 1 },
+  replyMenuButton: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginVertical: -spacing[2] },
+  replyAvatar: { width: 36, height: 36, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  // 반응 줄은 목록 카드용 좌우 여백을 갖고 있다 — 여백 있는 카드 안에서는 뺀다.
+  replyReactions: { paddingHorizontal: 0, paddingBottom: 0, marginTop: 0 },
+  inCardReactions: { paddingHorizontal: 0, paddingBottom: 0, marginTop: 0 },
   replyPhotos: { marginTop: spacing[1] },
   replyNotice: { gap: spacing[2], alignItems: 'flex-start' },
   replyEdit: { gap: spacing[2] },
-  replyActions: { flexDirection: 'row', gap: spacing[1] },
-  replyTextAction: { minHeight: 36, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
   replyThread: { gap: spacing[2] },
   replyChildren: { gap: spacing[2], marginLeft: spacing[3] },
   composer: { gap: spacing[2] },
   // textAlignVertical 은 안드로이드에서 여러 줄 입력이 가운데로 쏠리는 것을 막는다.
   composerInput: { minHeight: 88, padding: spacing[3], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },
-  composerButton: { alignSelf: 'flex-end', width: 'auto', paddingHorizontal: spacing[6] },
+  // 🔴 폭을 박는다. Button 안쪽은 width:'100%' 라 껍데기가 «auto» 면 글자 폭으로 쪼그라들어 「남기기」가 잘렸다
+  //    (사용자 화면 2026-09-24 — S15P21E201-1524 와 같은 원인).
+  composerButton: { alignSelf: 'flex-end', width: 120 },
+  // 사진 추가는 왼쪽, 남기기는 오른쪽 — 피드 탭 글쓰기의 도구 줄과 같은 배치다.
+  composerActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
+  composerTool: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.sm },
+  composerToolBusy: { opacity: 0.6 },
+  composerToolIcon: { width: 16, height: 16, tintColor: color.brand.navy },
+  composerPhotos: { flexDirection: 'row', gap: spacing[2] },
+  composerPhotoOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(25,25,25,0.45)' },
+  composerPhotoRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(25,25,25,0.6)', alignItems: 'center', justifyContent: 'center' },
 });

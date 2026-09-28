@@ -86,7 +86,7 @@ export default function VerifyEmail() {
             <Text variant="body" color={color.text.muted}>
               {tx('이제 로그인할 수 있어요. 잠시 뒤 로그인 화면으로 넘어갑니다.', 'You can sign in now. Taking you to the sign-in screen.')}
             </Text>
-            <Button label={tx('지금 로그인하기', 'Sign in now')} onPress={() => router.replace('/sign-in')} />
+            <Button compact label={tx('지금 로그인하기', 'Sign in now')} onPress={() => router.replace('/sign-in')} />
           </>
         )}
 
@@ -96,8 +96,8 @@ export default function VerifyEmail() {
               {tx('인증을 마치지 못했어요', 'Verification failed')}
             </Text>
             <Text variant="body" color={color.text.muted}>{failureText}</Text>
-            <Button label={tx('가입 화면으로', 'Back to sign-up')} onPress={() => router.replace('/sign-up')} />
-            <Button label={tx('로그인 화면으로', 'Back to sign-in')} variant="tertiary" onPress={() => router.replace('/sign-in')} />
+            <Button compact label={tx('가입 화면으로', 'Back to sign-up')} onPress={() => router.replace('/sign-up')} />
+            <Button compact label={tx('로그인 화면으로', 'Back to sign-in')} variant="tertiary" onPress={() => router.replace('/sign-in')} />
           </>
         )}
       </View>

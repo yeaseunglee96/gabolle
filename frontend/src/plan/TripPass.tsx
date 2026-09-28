@@ -14,8 +14,25 @@ const logo = require('../../assets/brand/gabolle-logo-hd.png');
 const stamp = require('../../assets/brand/busan-arrived-stamp.png');
 const PRINTER_WIDTH = 318;
 const PRINTER_HEIGHT = 52;
-/** 시안의 gbPrint 와 같은 길이. 프린터에서 종이가 다 나오는 데 걸리는 시간이다. */
-const PRINT_MS = 1600;
+/**
+ * 종이가 나오는 방식 — 감열 프린터처럼 **조금 나오고 멈추고**를 되풀이한다(S15P21E201-1577).
+ * 전에는 1.6초 동안 한 번에 매끄럽게 미끄러져 나와 「레이저 프린터 같다」고 했다.
+ *
+ * move 는 종이 한 장 중 이번에 나오는 몫, ms 는 그 몫이 나오는 시간, pauseMs 는 그 뒤에 멈추는 시간.
+ * 모터 속도는 일정하다고 보고 ms 를 move 에 비례하게 두었다. 몫과 멈춤을 일부러 제각각으로 둔다 —
+ * 똑같은 간격이면 기계가 아니라 박자로 읽힌다.
+ */
+export const PRINT_FEED: ReadonlyArray<{ move: number; ms: number; pauseMs: number }> = [
+  { move: 0.11, ms: 115, pauseMs: 90 },
+  { move: 0.17, ms: 180, pauseMs: 60 },
+  { move: 0.09, ms: 95, pauseMs: 140 },
+  { move: 0.19, ms: 200, pauseMs: 75 },
+  { move: 0.13, ms: 135, pauseMs: 120 },
+  { move: 0.18, ms: 190, pauseMs: 65 },
+  { move: 0.13, ms: 135, pauseMs: 0 },
+];
+/** 시안의 gbPrint 와 같은 길이. 프린터에서 종이가 다 나오는 데 걸리는 시간이다 — 끊겨 나와도 이 시간은 그대로다. */
+export const PRINT_MS = 1600;
 /** QR 은 종이가 다 나온 뒤에 인쇄된다 — 시안의 1.7s 딜레이. */
 const QR_DELAY_MS = 1700;
 const QR_MS = 700;
@@ -108,26 +125,40 @@ export type TripPassProps = {
   onOpenMap?: () => void;
   /** 뒷면 머리 사진 — 첫 정차지의 관광공사 사진(S15P21E201-1378). 없으면 안 그린다. */
   coverUrl?: string | null;
+  /**
+   * 찍을 값이 다 왔나. **false 인 동안은 종이를 내보내지 않고, true 가 되는 순간 한 번 출력한다.**
+   *
+   * 🔴 값이 바뀌었다고 다시 출력하지 않는다(S15P21E201-1577). 전에는 코드·날짜가 바뀌면 처음부터
+   *    다시 돌았는데, 일정을 받아 오기 전(코드가 빈 값)에 한 번 나오고 받아 온 뒤에 또 나와서
+   *    사람 눈에는 영수증이 두 번 나왔다. 「다시 출력」은 부르는 쪽이 key 를 바꿔 새로 그린다.
+   */
+  ready?: boolean;
   tx: (ko: string, en: string) => string;
 };
 
-export function TripPass({ data, wide = false, onReprint, details, onOpenItinerary, onOpenMap, coverUrl, tx }: TripPassProps) {
+export function TripPass({ data, wide = false, onReprint, details, onOpenItinerary, onOpenMap, coverUrl, ready = true, tx }: TripPassProps) {
   // 종이는 프린터 뒤에서 내려온다. 시안의 gbPrint 와 같은 값이다.
   const [printed, setPrinted] = useState(false);
   const slide = useRef(new Animated.Value(0)).current;
   const codeMark = useRef(new Animated.Value(0)).current;
-  /** 다시 출력할 때마다 애니메이션을 처음부터 돌리려고 센다. */
-  const printKey = `${data.code}:${data.dateRange ?? ''}`;
 
   useEffect(() => {
     slide.setValue(0);
     codeMark.setValue(0);
-    const print = Animated.timing(slide, {
-      toValue: 1,
-      duration: PRINT_MS,
-      easing: Easing.bezier(0.25, 0.7, 0.25, 1),
-      useNativeDriver: true,
-    });
+    setPrinted(false);
+    if (!ready) return undefined;
+    let fed = 0;
+    const print = Animated.sequence(PRINT_FEED.flatMap((step, index) => {
+      fed += step.move;
+      const chunk = Animated.timing(slide, {
+        // 마지막 조각은 1 에 딱 맞춘다 — 소수를 더한 오차로 종이가 1px 덜 나오지 않게.
+        toValue: index === PRINT_FEED.length - 1 ? 1 : fed,
+        duration: step.ms,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      });
+      return step.pauseMs > 0 ? [chunk, Animated.delay(step.pauseMs)] : [chunk];
+    }));
     const mark = Animated.timing(codeMark, {
       toValue: 1,
       duration: QR_MS,
@@ -135,13 +166,12 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
       easing: Easing.out(Easing.quad),
       useNativeDriver: true,
     });
-    setPrinted(false);
     const sequence = Animated.sequence([print, mark]);
     // 🔴 다 나온 뒤에야 뒤집을 수 있다. 나오는 중에 뒤집으면 종이가 프린터 안에서
     //    돌아가는 꼴이 되고, 창이 잘라 내고 있어서 반쪽만 보인다.
     sequence.start(({ finished }) => { if (finished) setPrinted(true); });
     return () => sequence.stop();
-  }, [printKey, slide, codeMark]);
+  }, [ready, slide, codeMark]);
 
   const translateY = slide.interpolate({ inputRange: [0, 1], outputRange: [-520, 0] });
   const markScale = codeMark.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] });
@@ -150,6 +180,11 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
   const canFlip = printed && Boolean(details && details.length);
   const [flipped, setFlipped] = useState(false);
   const flip = useRef(new Animated.Value(0)).current;
+  // 🔴 안 보이는 면은 화면 읽기(aria-hidden)와 키보드 탭(tabIndex)에서 뺀다(S15P21E201-1674). pointerEvents 는 누르기만 막아서,
+  //    앞면을 보는데 「앞면으로 돌리기」가 읽히고 뒤집은 뒤에는 안 보이는 「내 일정 보기」에 탭이 섰다.
+  const frontHidden = canFlip && flipped;
+  const frontTab = frontHidden ? -1 : 0;
+  const backTab = flipped ? 0 : -1;
 
   useEffect(() => {
     if (!canFlip) return;
@@ -167,7 +202,10 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
         <View style={styles.slot} />
       </View>
 
-      <View style={[styles.paperWindow, printed ? null : styles.clipWhilePrinting]}>
+      {/* 인쇄가 끝나 overflow 가 빠지면 이 창은 배치만 남아 네이티브가 없애 버린다(뷰 평탄화). 그러면 두 면이
+          바깥 카드 레이어로 올라가 거기서 3D 로 돌고, iOS 는 z 가 0 뒤로 넘어간 반쪽을 가린다 — 뒤집을 때 왼쪽·오른쪽이
+          번갈아 사라졌다(S15P21E201-1787). 인쇄 중과 같은 상태로 창을 남겨 두 면을 이 안에 가둔다. 웹은 이 값을 안 쓴다. */}
+      <View collapsable={false} style={[styles.paperWindow, printed ? null : styles.clipWhilePrinting]}>
         <Animated.View
           style={[
             styles.paper,
@@ -183,11 +221,15 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
             //    안드로이드는 판마다 다르다 — 눌림까지 막아야 확실하다.
             canFlip && flipped ? styles.faceHidden : null,
           ]}
-          pointerEvents={canFlip && flipped ? 'none' : 'auto'}
+          pointerEvents={frontHidden ? 'none' : 'auto'}
+          aria-hidden={frontHidden}
         >
+          {/* 🔴 앞면 어디를 눌러도 뒤집히지만 앞면은 «단추»가 아니다(S15P21E201-1666). 단추로 두면 화면 읽기 프로그램이
+              앞면을 한 덩어리로 읽어 안쪽 「내 일정 보기」를 따로 못 누르고, 웹에서는 단추 안에 단추가 들어간다.
+              그래서 낭독(accessible)·키보드(tabIndex)에서는 빼고, 뒤집는 단추는 맨 아래 안내 줄이 맡는다. */}
           <Pressable
-            accessibilityRole={canFlip ? 'button' : undefined}
-            accessibilityLabel={canFlip ? tx('여행표 상세 보기', 'See trip pass details') : undefined}
+            accessible={false}
+            tabIndex={-1}
             disabled={!canFlip}
             onPress={() => setFlipped(true)}
           >
@@ -270,7 +312,17 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
             {/* 🔴 가짜 바코드는 뺐다(2026-09-21 실기, S15P21E201-1400) — QR 과 바코드가 둘이라 「왜 둘인지」를 물었다.
                 남는 것은 진짜로 읽히는 QR 하나. 도장은 QR 옆 제 칸에 크게 — 귀퉁이에 겹쳐 찍었을 때 글자가 안 읽혔다. */}
             <View style={styles.codeRow}>
-              {!!data.url && (
+              {/* 🔴 일정이 다 되면 QR 자리가 「내 일정 보기」 단추가 된다(S15P21E201-1562). 티켓을 눌러 뒤집고
+                  뒷면의 「일정 보기」를 눌러야 다음으로 가는데, 화면이 그걸 말해 주지 않아 사람이 티켓 앞에서 멈췄다.
+                  뒤집어 상세를 보는 것은 그대로다 — 이 단추 밖의 티켓을 누르면 된다. */}
+              {onOpenItinerary ? (
+                <Animated.View style={{ opacity: codeMark, transform: [{ scale: markScale }] }}>
+                  <Pressable accessibilityRole="button" tabIndex={frontTab} onPress={onOpenItinerary} style={({ pressed }) => [styles.nextButton, wide && styles.nextButtonWide, pressed && styles.backPressed]}>
+                    <Text weight="bold" color={color.text.onAction} style={styles.nextLabel}>{tx('내 일정 보기', 'View my itinerary')}</Text>
+                    <Text variant="title" weight="bold" color={color.text.onAction}>→</Text>
+                  </Pressable>
+                </Animated.View>
+              ) : !!data.url && (
                 <Animated.View style={{ opacity: codeMark, transform: [{ scale: markScale }] }}>
                   <QrCode value={data.url} size={wide ? 120 : 104} />
                 </Animated.View>
@@ -289,9 +341,9 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
 
           <TearLine />
           {canFlip ? (
-            <View style={styles.flipHint}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('여행표 상세 보기', 'See trip pass details')} tabIndex={frontTab} onPress={() => setFlipped(true)} style={styles.flipHint}>
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('눌러서 여행표 상세 보기 ↻', 'Tap to see trip pass details ↻')}</Text>
-            </View>
+            </Pressable>
           ) : null}
           </Pressable>
         </Animated.View>
@@ -314,10 +366,12 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
               flipped ? null : styles.faceHidden,
             ]}
             pointerEvents={flipped ? 'auto' : 'none'}
+            aria-hidden={!flipped}
           >
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={tx('앞면으로 돌리기', 'Flip back')}
+              tabIndex={backTab}
               onPress={() => setFlipped(false)}
               style={styles.backHead}
             >
@@ -347,12 +401,12 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
 
             <View style={styles.backActions}>
               {onOpenItinerary ? (
-                <Pressable accessibilityRole="button" onPress={onOpenItinerary} style={({ pressed }) => [styles.backPrimary, pressed && styles.backPressed]}>
+                <Pressable accessibilityRole="button" tabIndex={backTab} onPress={onOpenItinerary} style={({ pressed }) => [styles.backPrimary, pressed && styles.backPressed]}>
                   <Text weight="bold" color={color.text.onAction}>{tx('일정 보기 →', 'View itinerary →')}</Text>
                 </Pressable>
               ) : null}
               {onOpenMap ? (
-                <Pressable accessibilityRole="button" onPress={onOpenMap} style={({ pressed }) => [styles.backGhost, pressed && styles.backPressed]}>
+                <Pressable accessibilityRole="button" tabIndex={backTab} onPress={onOpenMap} style={({ pressed }) => [styles.backGhost, pressed && styles.backPressed]}>
                   <Text weight="bold">{tx('지도에서 보기', 'See on the map')}</Text>
                 </Pressable>
               ) : null}
@@ -427,6 +481,9 @@ const styles = StyleSheet.create({
   backStatus: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
   backDot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.state.success },
   backActions: { gap: spacing[2], marginTop: spacing[2] },
+  nextButton: { width: 120, height: 104, alignItems: 'center', justifyContent: 'center', gap: spacing[1], paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.action.primary },
+  nextButtonWide: { width: 136, height: 120 },
+  nextLabel: { textAlign: 'center' },
   backPrimary: { minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.brand.navy },
   backGhost: { minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   backPressed: { opacity: 0.8 },

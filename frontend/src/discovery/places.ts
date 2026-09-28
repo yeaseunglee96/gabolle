@@ -25,6 +25,7 @@ export type Place = {
   photoSource?: string;
   // 사진 피사체 구분용. 값이 없으면 칸 자체가 안 온다.
   photoSubject?: PhotoSubject | null;
+  photoLicense?: PhotoLicense | null;
   openingHours?: FeatureSlot;
   priceLevel?: FeatureSlot;
 };
@@ -39,23 +40,87 @@ export function missingValueLabel(slot: FeatureSlot, tx: (ko: string, en: string
 // 사진의 피사체가 그 장소가 아닐 수 있음.
 export type PhotoSubject = 'SELF' | 'VENUE';
 
+/**
+ * 사진의 라이선스 — 위키미디어 커먼즈 사진(CC BY·CC BY-SA 등)에만 온다(S15P21E201-1610, 백엔드 S15P21E201-1606).
+ * 🔴 그 사진들은 출처와 함께 «라이선스 이름과 링크»를 보여야 쓸 수 있다. url 은 퍼블릭 도메인이면 null.
+ *    관광공사 공공누리 사진에는 이 칸이 없다 — 그 표기는 photoSource 가 진다.
+ */
+export type PhotoLicense = { name: string; url?: string | null; filePage?: string | null };
+
+// 「KOGL Type 1」은 줄바꿈 안 되는 공백으로 붙인다 — 카드 띠가 두 줄로 꺾일 때 번호 「1」만 둘째 줄에 떨어졌다.
+const koglEn = (type: string) => `KOGL\u00A0Type\u00A0${type}`;
+// 운영 자료의 출처 글자 다섯 가지(2026-09-26 읽기만 해서 확인)가 드는 두 모양.
+const PLAIN_SOURCE = /^한국관광공사 공공누리 제(\d)유형$/;
+const GALLERY_SOURCE = /^한국관광공사 관광사진갤러리 공공누리 제(\d)유형 · 촬영 (.+)$/;
+
+/**
+ * 사진 출처의 영어 — 공공누리 출처 표시 의무는 번역해도 지켜진다(S15P21E201-1705, 조율 세션 결정 A).
+ * 🔴 위 두 모양만 바꾸고, 그 밖의 글자는 그대로 둔다.
+ *    촬영자 이름은 로마자로 바꾸지 않는다 — 본인이 쓰는 철자가 따로 있을 수 있어, 지어내면 틀린 이름이 된다. 이름표만 영어.
+ */
+export function photoSourceEnglish(source: string): string {
+  const plain = source.match(PLAIN_SOURCE);
+  if (plain) return `Korea Tourism Organization · ${koglEn(plain[1])}`;
+  const gallery = source.match(GALLERY_SOURCE);
+  if (gallery) return `Korea Tourism Organization Photo Gallery · ${koglEn(gallery[1])} · Photographer: ${gallery[2]}`;
+  return source;
+}
+
+/** 사진 출처를 화면 언어로 — 한국어판은 받은 글자 그대로, 그 밖은 photoSourceEnglish. */
+export function photoSourceText(source: string, tx: (ko: string, en: string) => string): string {
+  return tx(source, photoSourceEnglish(source));
+}
+
+/**
+ * 좁은 자리(카드 사진 띠·코스 표지)의 짧은 출처 — 기관과 이용 조건(공공누리 유형)만(S15P21E201-1705, 사용자 결정).
+ * 🔴 폰 두 칸 카드의 띠는 두 줄까지(글자 폭 147px)다. 긴 이름은 영어 세 줄, 갤러리는 한국어도 세 줄이라 이용 조건이 잘렸다.
+ *    그래서 한국어는 「한국관광공사 공공누리 제1유형」(갤러리의 「관광사진갤러리」「· 촬영 ○○」를 뺀다), 영어는 「KTO · KOGL Type 1」.
+ *    다섯 모양 밖의 글자는 그대로. 보이는 글자만 줄이고, 화면 낭독에는 긴 것(photoSourceText)을 붙인다.
+ */
+export function photoSourceShortText(source: string, tx: (ko: string, en: string) => string): string {
+  const match = source.match(PLAIN_SOURCE) ?? source.match(GALLERY_SOURCE);
+  if (!match) return source;
+  return tx(`한국관광공사 공공누리 제${match[1]}유형`, `KTO · ${koglEn(match[1])}`);
+}
+
 /** 사진 설명 두 줄 — null 이면 화면에 줄을 안 만든다 */
 export function photoLabels(
-  photo: { photoSource?: string | null; photoSubject?: PhotoSubject | null },
+  photo: { photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null },
   tx: (ko: string, en: string) => string,
-): { badge: string | null; credit: string | null } {
+): { badge: string | null; credit: string | null; licenseUrl: string | null } {
+  // 라이선스 이름은 고유명사라 번역하지 않는다(「CC BY-SA 3.0」). 링크는 파일 페이지가 먼저 — 작성자·라이선스가 거기 다 있다.
+  const license = photo.photoLicense?.name ? photo.photoLicense : null;
   return {
     badge: photo.photoSubject === 'VENUE' ? tx('행사장 사진', 'Venue photo') : null,
-    credit: photo.photoSource ? txf(tx, '사진 제공: %s', 'Photo: %s', photo.photoSource) : null,
+    credit: photo.photoSource ? txf(tx, '사진: %s', 'Photo: %s', photoSourceText(photo.photoSource, tx)) + (license ? ` · ${license.name}` : '') : null,
+    licenseUrl: license ? license.filePage || license.url || null : null,
   };
 }
 
 // 표식 상태 셋 다 화면에 보여준다 — UNKNOWN 은 「확인했으나 결과 없음」이라 그 자체가 정보다.
 // 추정값에는 「추정」을 붙인다. 모르는 모양은 JSON.stringify 대신 사람이 읽을 문장으로 물러선다
 // — 화면에 {"raw":"매일 10:00-22:00"} 이 글자 그대로 찍힌 적이 있다.
-function extractDisplayText(value: unknown, tx: (ko: string, en: string) => string): string {
+/**
+ * 가격대(PRICE_LEVEL) 등급 — 서버 값 {"band":"MID","raw":"mid"} 에서 band 로 고른다(S15P21E201-1680, 조율 세션 결정).
+ * 🔴 raw 는 조사원이 쓴 영어 낱말이다 — 그대로 써서 장소 상세에 「low」·「mid」, 축제 입장료 자리에 「high」가 떴다.
+ */
+const PRICE_BANDS: Readonly<Record<string, readonly [ko: string, en: string]>> = {
+  LOW: ['저렴한 편', 'Inexpensive'],
+  MID: ['보통', 'Moderate'],
+  MID_HIGH: ['조금 비싼 편', 'A bit pricey'],
+  HIGH: ['비싼 편', 'Expensive'],
+};
+
+/** 칸 값을 한 줄로. 안 보여야 하는 값(모르는 가격 등급)이면 null. */
+function extractDisplayText(value: unknown, tx: (ko: string, en: string) => string): string | null {
   if (typeof value === 'string' || typeof value === 'number') return String(value);
   if (value && typeof value === 'object') {
+    // 🔴 가격대를 영업시간보다 먼저 본다 — 영업시간 함수는 raw 글자를 그대로 돌려줘서, 뒤에 두면 「low」가 거기서 샌다.
+    //    모르는 등급이면 안 보인다 — raw 로 물러서면 영어 낱말이 그대로 나간다.
+    if ('band' in value) {
+      const band = PRICE_BANDS[String((value as { band: unknown }).band)];
+      return band ? tx(band[0], band[1]) : null;
+    }
     const hours = formatOpeningHoursValue(value, tx);
     if (hours) return hours;
     if (typeof (value as { raw?: unknown }).raw === 'string') return (value as { raw: string }).raw;
@@ -110,12 +175,8 @@ export function formatFeatureSlot(slot: FeatureSlot | undefined, tx: (ko: string
   if (!slot) return null;
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const text = extractDisplayText(slot.value, tx);
+  if (text === null) return null;
   return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
-}
-
-// 로컬점수(LOCALITY_SCORE) 유무만 확인 — 값 칸 이름이 미정이라 숫자는 안 꺼내고 배지만 표시.
-export function hasLocalityScore(place: Place) {
-  return place.features.some((feature) => feature.featureType === 'LOCALITY_SCORE');
 }
 
 // category 값 목록이 미확정이라 식당·카페 키워드로 식음료 장소를 추정한다.
@@ -239,15 +300,15 @@ export function getPlace(placeId: string, signal?: AbortSignal) {
 // 계약 — GET /api/v1/places, query 와 facetType 은 정확히 하나만(둘 다 없거나 둘 다 있으면 400).
 // photoUrl·photoSource 는 값이 없으면 칸이 안 와서 optional. 사진을 그리면 출처도 같이 그린다
 // — 공공누리 이용 조건.
-export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null };
+export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null };
 
 type PlacePageDto = { items: PlaceSearchItemDto[]; limit: number; nextCursor: string | null; hasNext: boolean; rankTruncated: boolean };
-export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null };
+export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null };
 
 /** 목록 응답 한 건의 화면 모양 변환 */
 export function toPlaceSearchItem(dto: PlaceSearchItemDto): PlaceSearchItem {
-  const { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject } = dto;
-  return { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject };
+  const { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject, photoLicense } = dto;
+  return { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject, photoLicense };
 }
 
 /** 변환에서 일부러 빼는 칸 — 시험이 이 목록만 예외로 친다 */

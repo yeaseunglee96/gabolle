@@ -101,6 +101,10 @@ const styles = StyleSheet.create({
     minHeight: 48,
     borderRadius: radius.md,
     paddingVertical: spacing[3],
+    // 🔴 S15P21E201-1717 — 가로 여백이 없었다. 폭 100% 전폭 버튼에서는 안 보이지만, 가운데 정렬 부모(alignItems: center)
+    //    안에서 글자 폭으로 줄어드는 자리(「내 여행」 빈 화면의 「첫 여행 만들기」)에서는 글자가 알약 끝에 그대로 닿았다
+    //    (안드로이드 실기, 2026-09-26). 여백은 폭 안쪽이라 전폭 버튼의 모습은 그대로다.
+    paddingHorizontal: spacing[4],
     alignItems: 'center',
     justifyContent: 'center',
   },

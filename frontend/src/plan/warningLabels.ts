@@ -18,9 +18,37 @@ export const WARNING_LABEL: Record<string, [string, string]> = {
   ],
   // "못 간다" 가 아니라 "안 재 봤다" 로 옮긴다. 영어도 Not verified 이지
   // Not accessible 이 아니다 — 갈 수 있는 곳을 못 가게 만드는 말이 된다.
+  // 휠체어만이 아니다 — 유아차·큰 짐을 고른 사람에게도 이 경고가 붙는다(S15P21E201-1640, 백엔드 지적).
   ACCESSIBILITY_UNVERIFIED: [
-    '휠체어로 들어갈 수 있는지 아직 확인되지 않은 곳이에요.',
-    'Wheelchair access here has not been checked yet.',
+    '휠체어·유아차·큰 짐으로 다니기 편한지 아직 확인되지 않은 곳이에요.',
+    'Access with a wheelchair, stroller, or large luggage has not been checked here yet.',
+  ],
+  /** 둘레 걷는 길이 휠체어 경사로 기준(8.33%, 1:12)보다 가파르다 — 둘레 길로 짐작한 추정값(백엔드 !1624). */
+  SLOPE_OVER_LIMIT: [
+    '주변 길이 가팔라요(추정). 휠체어·유아차로는 힘들 수 있어요.',
+    'Paths around here are steep (estimated) — may be hard with a wheelchair or stroller.',
+  ],
+
+  // 🔴 식단 미확인 — S15P21E201-1468 의 ㄴ. 서버가 DIET_SUPPORT_UNVERIFIED 를
+  //    unknownFacts 에서 warnings 로 옮기기 «전에» 여기에 먼저 넣는다.
+  //    이 사전에 없는 코드는 화면에 «안 나간다»(describeWarningCodes). 서버부터 옮기면
+  //    경고가 조용히 사라지고 「그냥 추천된 곳」으로 보인다 — 이 파일 위 주석이 적어 둔,
+  //    전에 실제로 겪은 그 일이다.
+  //
+  //    🔴 알레르기(ALLERGEN_UNVERIFIED)는 한때 «여기 안 넣었다»(-1497, 아예 안 묻기로 했다). 2026-09-25 에
+  //    사용자가 새로 정했다(S15P21E201-1640) — 아래 ALLERGEN_UNVERIFIED 의 주석.
+  //
+  //    「안 된다」가 아니라 「안 재 봤다」로 옮긴다 — 위의 넷과 같은 선이다.
+  DIET_SUPPORT_UNVERIFIED: [
+    '이 식단을 지원하는지 아직 확인되지 않은 곳이에요. 안 된다는 뜻은 아니에요.',
+    "Whether this place supports your diet has not been checked yet — it doesn't mean it can't.",
+  ],
+  // 🔴 알레르기 미확인 — 예전에 알레르기를 「반드시」로 건 여행은 다시 짜면 후보가 전부 빠져 실패했다. 사용자가 새로
+  //    정해서, 빼지 않고 이 경고로 남긴다(백엔드 !1629). 들었다고 «확인된» 곳은 서버가 여전히 뺀다.
+  //    식단과 같은 선(「들었다」가 아니라 「모른다」)이되, 알레르기는 사람이 다칠 수 있으니 「물어보라」를 붙인다.
+  ALLERGEN_UNVERIFIED: [
+    '알레르기 재료가 들었는지 아직 확인되지 않은 곳이에요. 드시기 전에 꼭 가게에 물어보세요.',
+    "We haven't confirmed whether this place uses your allergen — please ask the staff before eating.",
   ],
 
   // 서버는 이것들을 이미 보내고 있었다. 사전에 짝이 없어서 화면에 아무것도 안 나갔다.

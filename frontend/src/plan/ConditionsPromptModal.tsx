@@ -1,22 +1,41 @@
-// 여행 조건 모달 — 알레르기 · 식단 · 이동 환경.
+// 여행 조건 모달 — 식단 · 이동 환경.
+//
+// 🔴 알레르기는 «일부러» 안 묻는다 (S15P21E201-1497, 결정은 -1468 의 ㄱ).
+//    묻고 나서 그 답 때문에 여행을 «못 만들게» 하고 있었다. 운영 place_feature 에
+//    ALLERGEN_TAG 가 0행이라, 채점기가 표식 없는 후보를 「확인 못 함」으로 남기고
+//    unknown-exclusion-threshold=REQUIRED 가 그것을 전부 뺀다 — 후보가 0건이 된다.
+//    실측(2026-09-22): 알레르기·식단을 «고른» 작업 8건 중 성공 0건. 한 명도 못 만들었다.
+//
+//    「확인 못 했어요」 경고를 달아 내보내는 길(-1468 의 ㄴ)은 이동 제약에서 실제로
+//    통했지만(표식 1.5%였는데 경고로 바꾼 뒤 55건 성공), 알레르기에는 쓰지 않는다.
+//    접근성 추정이 틀리면 «불편»하고 알레르기 추정이 틀리면 «사람이 다친다».
+//
+//    🔴 여기서 안 묻는 것은 «여행을 만들 때 거는 조건» 하나다. 메뉴판 읽기
+//    (field/menuScan.ts)와 장소 상세의 안전 표시는 그대로다 — 그건 사용자가 그 자리에서
+//    직접 확인하는 것이라 성격이 다르다. 이미 저장된 값도 지우지 않는다.
+//
+//    다시 여는 조건: 운영 place_feature 에 ALLERGEN_TAG 가 VERIFIED 로 쌓였을 때.
+//    ck_place_feature_safety_never_estimated 가 ESTIMATED 저장을 막으므로 추정으로는 못 채운다.
+// 🔴 **판정할 장소 자료가 한 곳도 없는 문항에는 그 사실을 적는다** (S15P21E201-1044).
+//    알레르기와 같은 병인데 처방이 다르다 — 알레르기는 틀린 답이 «사람을 다치게» 해서
+//    질문을 지웠고(-1497), 여기는 고르는 것을 그대로 두고 **무슨 일이 일어나는지만** 적는다.
+//    목록은 앱에 없다. 서버가 센다 (S15P21E201-1508 · `conditionCoverage.ts`) — 박아 두면
+//    자료가 들어온 날 거짓말이 된다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 conditions-modal / conditions-sheet
-import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Animated, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { shouldDismiss, useSheetDrag } from '@/components/sheetDrag';
+import { useSheetBottomPadding } from '@/components/sheetBottomInset';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan, type ConstraintSelectionStatus, type PlanDraft } from '@/plan/PlanProvider';
+import { COVERAGE_FEATURE, hasNoPlaceData, useConditionCoverage } from '@/plan/conditionCoverage';
 import { conditionsFromDraft, saveTravelConditions } from '@/plan/travelConditions';
-
-const ALLERGIES = [
-  ['PEANUT', '땅콩', 'Peanuts'], ['TREE_NUT', '견과류', 'Tree nuts'], ['SHELLFISH_CRUSTACEAN', '갑각류', 'Shellfish'],
-  ['FISH', '생선', 'Fish'], ['EGG', '달걀', 'Egg'], ['MILK_DAIRY', '우유·유제품', 'Milk · dairy'],
-  ['WHEAT', '밀', 'Wheat'], ['SOY', '대두', 'Soy'],
-] as const;
 
 const DIETS = [
   ['VEGETARIAN', '채식', 'Vegetarian'], ['VEGAN', '비건', 'Vegan'], ['HALAL', '할랄', 'Halal'],
@@ -27,6 +46,28 @@ const WALK_LIMITS = [500, 1000, 2000, 0] as const;
 
 /** 사람이 이 모달을 어떻게 닫았나. 「나중에」와 「다시 묻지 않기」는 다른 답이다. */
 export type ConditionsOutcome = 'SAVED' | 'LATER' | 'NEVER' | 'DISMISSED';
+
+/**
+ * 「이 조건을 판정할 장소 자료가 지금 한 곳도 없다」 — S15P21E201-1044.
+ *
+ * 🔴 **자료가 없을 때만 그린다.** 서버에 못 물어봤으면(끝점이 아직 없는 배포·네트워크 실패)
+ *    `hasNoPlaceData` 가 `false` 를 내므로 아무것도 안 나온다 — 모르는 것을 「없다」로
+ *    적으면 화면이 지어내는 것이 된다. 판단은 `conditionCoverage.ts` 한 곳에 있다.
+ *
+ * 🔴 **문항을 지우거나 못 고르게 하지 않는다.** 알레르기는 지웠지만(-1497) 그건 틀린 답이
+ *    사람을 다치게 하는 자리였고, 여기는 아니다. 고르는 것은 그대로 두고 **무슨 일이
+ *    일어나는지만 사실대로 적는다.**
+ */
+function NoPlaceData({ label }: { label: string }) {
+  // 🔴 `alert` 역할을 주지 않는다. 화면을 여는 순간 이미 셋이 붙어 있어서, 알림으로
+  //    읽히면 **한꺼번에 세 번** 끼어든다. 바로 앞 줄에 딸린 설명이라 읽는 차례대로
+  //    나오는 편이 맞다.
+  return (
+    <Text variant="caption" color={color.text.muted} style={styles.noData}>
+      {label}
+    </Text>
+  );
+}
 
 function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   return (
@@ -48,10 +89,39 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
   const { kind } = useLayout();
   const { draft, update } = usePlan();
   const { user, accessToken } = useAuth();
+  // 자료가 한 곳도 없는 문항에 그 사실을 적는다 (S15P21E201-1044). 못 받아오면 null 이고,
+  // 그때는 아무 문항에도 안 붙는다.
+  const coverage = useConditionCoverage();
+  const noData = tx(
+    '지금은 이 조건을 확인할 장소 자료가 없어요 — 골라도 지금은 가려낼 수 없어요.',
+    'We have no place data to check this yet — picking it cannot filter anything right now.',
+  );
   const phone = kind === 'phone';
+  // 🔴 안드로이드 탐색 막대 밑으로 버튼이 들어가지 않게(S15P21E201-1765).
+  const bottomPad = useSheetBottomPadding(spacing[8]);
   const [never, setNever] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
+
+  // 휴대폰에서는 손잡이·머리를 아래로 쓸어내려 닫는다 (S15P21E201-1798).
+  // 🔴 시트 전체가 아니라 손잡이·머리에만 붙인다 — 안쪽 ScrollView 의 스크롤을 뺏지 않게.
+  // 닫는 길은 바깥 누름과 같은 onClose('DISMISSED') 다. 이 모달은 어떤 상태에서도
+  // 바깥 누름으로 닫히므로, 쓸어내리기만 막을 상태는 없다.
+  // 문턱값·판정은 다른 시트와 한 곳(`sheetDrag.ts`)을 쓴다 — 창마다 손맛이 다르면 고장으로 보인다.
+  const dragY = useRef(new Animated.Value(0)).current;
+  const dragHandlers = useSheetDrag({
+    onMove: (dy) => dragY.setValue(Math.max(0, dy)),
+    onEnd: (dy, vy) => {
+      if (shouldDismiss(dy, vy)) {
+        Animated.timing(dragY, { toValue: 800, duration: 180, useNativeDriver: false }).start(() => {
+          dragY.setValue(0);
+          onClose('DISMISSED');
+        });
+      } else {
+        Animated.spring(dragY, { toValue: 0, useNativeDriver: false }).start();
+      }
+    },
+  });
 
   // 저장은 이 모달이 한다. 전에는 아무도 안 했다 — 화면 상태만
   // 바꾸고 닫았고, 그 상태는 새로고침 한 번에 사라졌다. 부르는 화면이 넷이라, 그중
@@ -71,28 +141,30 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
     onClose(outcome);
   };
 
-  const setStatus = (field: 'allergyStatus' | 'dietStatus', answered: 'allergyAnswered' | 'dietAnswered', values: 'allergies' | 'dietTypes', next: ConstraintSelectionStatus) => {
+  const setStatus = (field: 'dietStatus', answered: 'dietAnswered', values: 'dietTypes', next: ConstraintSelectionStatus) => {
     // 「해당 없음」을 고르면 고른 항목을 비운다. 안 비우면 「해당 없음인데 땅콩 선택됨」이
     // 남아, 서버가 둘 중 어느 것을 믿어야 할지 모른다.
     update({ [field]: next, [answered]: true, ...(next === 'VALUES' ? {} : { [values]: [] }) } as Partial<PlanDraft>);
   };
 
-  const toggle = (field: 'allergies' | 'dietTypes', code: string) => {
+  const toggle = (field: 'dietTypes', code: string) => {
     const list = draft[field];
     update({ [field]: list.includes(code) ? list.filter((item) => item !== code) : [...list, code] } as Partial<PlanDraft>);
   };
 
-  // 저장하려면 알레르기·식단 둘 다 답해야 한다. 그 둘은 「모르면 안전하다고 치지 않는」
-  // 자리라, 비운 채로 저장하면 확인 화면이 다시 막는다 — 지금 사용자가 겪은 그것이다.
-  const savable = draft.allergyAnswered && draft.dietAnswered
-    && (draft.allergyStatus !== 'VALUES' || draft.allergies.length > 0)
+  // 저장하려면 식단에 답해야 한다. 「모르면 안전하다고 치지 않는」 자리라, 비운 채로
+  // 저장하면 확인 화면이 다시 막는다.
+  //
+  // 🔴 알레르기는 이 조건에서 «빠져야» 한다. 질문을 지웠으므로 allergyAnswered 가 영영
+  //    false 인 사람이 생기고, 남겨 두면 그런 사람은 저장 단추를 영영 못 누른다.
+  const savable = draft.dietAnswered
     && (draft.dietStatus !== 'VALUES' || draft.dietTypes.length > 0);
 
   const statusRow = (
     label: string,
-    field: 'allergyStatus' | 'dietStatus',
-    answered: 'allergyAnswered' | 'dietAnswered',
-    values: 'allergies' | 'dietTypes',
+    field: 'dietStatus',
+    answered: 'dietAnswered',
+    values: 'dietTypes',
   ) => (
     <View style={styles.chips}>
       <Chip label={tx('해당 없음', 'None')} selected={draft[field] === 'NONE'} onPress={() => setStatus(field, answered, values, 'NONE')} />
@@ -107,34 +179,32 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
       */}
       <Pressable onPress={() => onClose('DISMISSED')} style={[styles.backdrop, phone && styles.backdropPhone]}>
         {/* 안쪽 누름이 바깥으로 안 새게 한다 — 고르다가 모달이 닫히면 답이 통째로 날아간다. */}
-        <View onStartShouldSetResponder={() => true} style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide]}>
-          <View style={styles.header}>
+        <Animated.View onStartShouldSetResponder={() => true} style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide, phone && { transform: [{ translateY: dragY }] }]}>
+          <View testID="conditions-sheet-grab" {...(phone ? dragHandlers : {})}>
+          {phone ? (
+            <View testID="conditions-sheet-handle" style={styles.handleWrap} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              <View style={styles.handle} />
+            </View>
+          ) : null}
+          <View style={[styles.header, phone && styles.headerPhone]}>
             <Text variant="title" weight="bold">{tx('여행 조건 미리 알려주기', 'Tell us your travel conditions')}</Text>
             <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={() => onClose('DISMISSED')} style={styles.close}>
               <Text variant="title" weight="bold">✕</Text>
             </Pressable>
+          </View>
           </View>
 
           <ScrollView style={styles.bodyScroll} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
             <Text color={color.text.body} style={styles.intro}>
               {reprompt
                 ? tx('일정을 만들기 전에 여행 조건을 알려주실래요? 건너뛰면 다음 「일정 물어보기」 때 다시 물어요.', 'Shall we take your travel conditions before building the itinerary? If you skip, we will ask again next time.')
-                : tx('알레르기와 식단은 안전에 걸리는 것이라, 모르면 안전하다고 치지 않아요. 한 번만 알려주시면 다음부터 안 물어봐요.', 'Allergies and diet affect safety — we never assume a place is safe when we do not know. Tell us once and we will not ask again.')}
+                : tx('식단은 안전에 걸리는 것이라, 모르면 안전하다고 치지 않아요. 한 번만 알려주시면 다음부터 안 물어봐요.', 'Diet affects safety — we never assume a place is safe when we do not know. Tell us once and we will not ask again.')}
             </Text>
-
-            <View style={styles.block}>
-              <Text weight="bold">{tx('알레르기', 'Allergies')} <Text color={color.state.danger}>*</Text></Text>
-              {statusRow(tx('알레르기', 'Allergies'), 'allergyStatus', 'allergyAnswered', 'allergies')}
-              {draft.allergyStatus === 'VALUES' ? (
-                <View style={styles.chips}>{ALLERGIES.map(([code, ko, en]) => (
-                  <Chip key={code} label={tx(ko, en)} selected={draft.allergies.includes(code)} onPress={() => toggle('allergies', code)} />
-                ))}</View>
-              ) : null}
-            </View>
 
             <View style={styles.block}>
               <Text weight="bold">{tx('식단', 'Diet')} <Text color={color.state.danger}>*</Text></Text>
               {statusRow(tx('식단', 'Diet'), 'dietStatus', 'dietAnswered', 'dietTypes')}
+              {hasNoPlaceData(coverage, COVERAGE_FEATURE.diet) ? <NoPlaceData label={noData} /> : null}
               {draft.dietStatus === 'VALUES' ? (
                 <View style={styles.chips}>{DIETS.map(([code, ko, en]) => (
                   <Chip key={code} label={tx(ko, en)} selected={draft.dietTypes.includes(code)} onPress={() => toggle('dietTypes', code)} />
@@ -159,17 +229,23 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
                 />
               ))}</View>
 
+              {/* 🔴 마지막 칸은 이 줄이 «실제로 보는» 장소 표식이다 (S15P21E201-1044).
+                  「이동 조건」으로 뭉뚱그리지 않는다 — 접근성은 자료가 있고 계단은 0곳이라,
+                  뭉치면 있는 쪽이 없는 쪽을 덮어 계단 줄이 계속 못 지키는 약속으로 남는다. */}
               {([
-                ['slopeConstraint', '가파른 경사 피하기', 'Avoid steep slopes', 'AVOID', 'ALLOW'],
-                ['stairsConstraint', '계단 피하기', 'Avoid stairs', 'AVOID', 'ALLOW'],
-                ['shadePreference', '그늘길 우선', 'Prefer shaded routes', 'PREFER', 'NO_PREFERENCE'],
-              ] as const).map(([field, ko, en, yes, no]) => (
-                <View key={field} style={styles.binaryRow}>
-                  <Text style={styles.binaryLabel}>{tx(ko, en)}</Text>
-                  <View style={styles.chips}>
-                    <Chip label={tx('예', 'Yes')} selected={draft[field] === yes} onPress={() => update({ [field]: yes } as Partial<PlanDraft>)} />
-                    <Chip label={tx('아니요', 'No')} selected={draft[field] === no} onPress={() => update({ [field]: no } as Partial<PlanDraft>)} />
+                ['slopeConstraint', '가파른 경사 피하기', 'Avoid steep slopes', 'AVOID', 'ALLOW', COVERAGE_FEATURE.slope],
+                ['stairsConstraint', '계단 피하기', 'Avoid stairs', 'AVOID', 'ALLOW', COVERAGE_FEATURE.stairs],
+                ['shadePreference', '그늘길 우선', 'Prefer shaded routes', 'PREFER', 'NO_PREFERENCE', COVERAGE_FEATURE.shade],
+              ] as const).map(([field, ko, en, yes, no, featureType]) => (
+                <View key={field}>
+                  <View style={styles.binaryRow}>
+                    <Text style={styles.binaryLabel}>{tx(ko, en)}</Text>
+                    <View style={styles.chips}>
+                      <Chip label={tx('예', 'Yes')} selected={draft[field] === yes} onPress={() => update({ [field]: yes } as Partial<PlanDraft>)} />
+                      <Chip label={tx('아니요', 'No')} selected={draft[field] === no} onPress={() => update({ [field]: no } as Partial<PlanDraft>)} />
+                    </View>
                   </View>
+                  {hasNoPlaceData(coverage, featureType) ? <NoPlaceData label={noData} /> : null}
                 </View>
               ))}
             </View>
@@ -183,7 +259,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             {tx('서버에 저장하지 못했어요. 이 기기에는 적어 뒀어요 — 한 번 더 눌러 보시고, 그래도 안 되면 그대로 진행해도 괜찮아요.', 'We could not save to the server. It is stored on this device — try once more, or go ahead anyway.')}
           </Text> : null}
 
-          <View style={styles.footer}>
+          <View style={[styles.footer, phone && { paddingBottom: bottomPad }]}>
             <View style={styles.footerLeft}>
               <Pressable accessibilityRole="button" onPress={() => void finish(never ? 'NEVER' : 'LATER')} style={styles.later}>
                 <Text variant="caption" weight="bold" color={color.text.body} style={styles.underline}>
@@ -209,7 +285,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
               containerStyle={styles.save}
             />
           </View>
-        </View>
+        </Animated.View>
       </Pressable>
     </Modal>
   );
@@ -222,6 +298,9 @@ const styles = StyleSheet.create({
   sheetWide: { width: '100%', maxWidth: 640, maxHeight: '88%', borderRadius: radius.lg },
   sheetPhone: { width: '100%', maxHeight: '92%', borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg },
   header: { minHeight: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], borderBottomWidth: 1, borderColor: color.surface.border },
+  handleWrap: { alignItems: 'center', paddingTop: spacing[2], paddingBottom: spacing[1] },
+  handle: { width: 36, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
+  headerPhone: { minHeight: 52 },
   close: { position: 'absolute', right: spacing[2], width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   bodyScroll: { flexShrink: 1 },
   body: { paddingHorizontal: spacing[6], paddingTop: spacing[4], paddingBottom: spacing[4] },
@@ -231,6 +310,8 @@ const styles = StyleSheet.create({
   chip: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.ivory, borderWidth: 1, borderColor: color.surface.border },
   chipOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   binaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[2] },
+  // 앞 줄에 딸린 말이라 줄 바로 밑에 붙인다. 위쪽 여백을 주면 다음 줄의 것으로 읽힌다.
+  noData: { marginTop: spacing[1] },
   binaryLabel: { flex: 1 },
   saveFailed: { paddingHorizontal: spacing[6], paddingTop: spacing[3] },
   footer: { gap: spacing[3], padding: spacing[6], paddingBottom: spacing[8], borderTopWidth: 1, borderColor: color.surface.border },

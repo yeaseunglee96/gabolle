@@ -4,7 +4,8 @@
 // , jaehyeon 님 !288 계약.
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { enterApp } from '@/auth/enterApp';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -48,7 +49,7 @@ export default function OAuthLink() {
     try {
       const result = await completeOAuthLink({ linkTicket: params.linkTicket, password });
       await acceptTokens(result);
-      router.replace((await resolveDestination(params.returnTo)) as never);
+      enterApp(router, (await resolveDestination(params.returnTo)) as Href);
     } catch (cause) {
       if (cause instanceof ApiClientError && cause.status === 429) {
         setError(tx('로그인 시도가 너무 많아요. 잠시 후 다시 시도해 주세요.', 'Too many attempts. Please try again shortly.'));
@@ -70,7 +71,7 @@ export default function OAuthLink() {
         <View style={styles.expiredBody}>
           <Text variant="display" weight="bold">{tx('연결 정보가 만료됐어요', 'Your link request expired')}</Text>
           <Text color={color.text.body}>{tx('소셜 로그인을 처음부터 다시 시작해 주세요.', 'Please start social sign-in again from the beginning.')}</Text>
-          <Button label={tx('로그인으로 돌아가기', 'Back to sign-in')} onPress={() => router.replace('/sign-in')} />
+          <Button compact label={tx('로그인으로 돌아가기', 'Back to sign-in')} onPress={() => router.replace('/sign-in')} />
         </View>
       </Screen>
     );
@@ -82,7 +83,7 @@ export default function OAuthLink() {
         <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.replace('/sign-in')} style={styles.backLink}>
           <Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text>
         </Pressable>
-        <BrandLogoLink href="/home" imageStyle={styles.logo} />
+        <BrandLogoLink enter href="/home" imageStyle={styles.logo} />
       </View>
       <Text variant="display" weight="bold" style={styles.title}>{tx('이미 가입된 이메일이에요', 'This email is already registered')}</Text>
       <Text variant="body" color={color.text.body} style={styles.subtitle}>

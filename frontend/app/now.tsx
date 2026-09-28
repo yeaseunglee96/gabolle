@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { useLocationGate } from '@/personalization/useLocationGate';
 import { idleNowResult, requestNowRecommendations, type NowCandidate, type NowViewModel } from '@/plan/nowRecommendations';
 import { localizeMessage } from '@/i18n/messages';
 
@@ -49,6 +50,7 @@ export default function Now() {
   const router = useRouter();
   const { accessToken } = useAuth();
   const { tx } = useI18n();
+  const locationGate = useLocationGate(accessToken);
   const [locationState, setLocationState] = useState<LocationState>('idle');
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [manualLocation, setManualLocation] = useState('');
@@ -56,6 +58,8 @@ export default function Now() {
   const [result, setResult] = useState<NowViewModel>(idleNowResult());
 
   async function detectLocation() {
+    // 🔴 위치 동의가 먼저다(S15P21E201-1691) — 누른 것은 쓰고 싶다는 뜻이라, 거절했어도 다시 묻는다. 거절하면 직접 입력으로.
+    if (!(await locationGate.request())) { setLocationState('denied'); return; }
     setLocationState('detecting');
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
@@ -188,6 +192,7 @@ export default function Now() {
           ))}
         </View>
       )}
+      {locationGate.sheet}
     </Screen>
   );
 }

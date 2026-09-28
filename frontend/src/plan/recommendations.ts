@@ -1,4 +1,7 @@
-import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
+import { apiRequest, ApiClientError } from '@/api/client';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
+import { koreanSubject } from '@/i18n/korean';
 
 export type RecommendationViewState = 'loading' | 'success' | 'partial' | 'fallback' | 'empty-conflict' | 'error' | 'offline' | 'unavailable';
 export type DataStatus = 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
@@ -18,7 +21,10 @@ export type RecommendationJobResultDto = { status: 'COMPLETED' | 'PARTIAL' | 'FA
 export type RecommendationCourse = RecommendationCourseDto & { reasons: string[]; actionState: CourseActionState };
 export type RecommendationViewModel = { state: RecommendationViewState; courses: RecommendationCourse[]; conflicts: string[]; message: string; itineraryId: string | null; placeCount: number | null; estimatedTravelMinutes: number | null; tripId: string | null };
 
-const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+// 🔴 화면 문구는 고른 언어의 번역표로 — S15P21E201-1767. 전에는 서버용 언어(ko|en 뿐)로 골라서 일본어·중국어
+//    화면에 추천 이유가 「Matches your interests」처럼 영어로 떴다(Play 35 실기기). 표에 줄은 이미 있었다.
+//    intent.ts(S15P21E201-1517)와 같은 방식이다. 표에 없는 문구는 전과 같이 영어로 떨어진다.
+const t = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 // : 이 사전은 한때 BEACH_PREFERENCE 등 다섯 개였는데 백엔드 계약이 통째로
 // 갈아엎어진 뒤에도(BaselineCandidateScorer·RecommendationCodes, back/dev) 안 따라가서
@@ -33,6 +39,18 @@ const REASON: Record<string, [string, string]> = {
   POPULAR: ['인기 있는 곳', 'A popular spot'],
   EDITORIAL_PICK: ['에디터 추천', "Editor's pick"],
   DIVERSITY_RERANKED: ['다양성을 위해 순서 조정됨', 'Reordered for variety'],
+  // 「걷기만」 고른 여행 — 고른 범위 밖이지만 출발지에서 걸어서 30분 안이라 첫날에 넣은 곳(백엔드 !1630).
+  WALK_ONLY_FIRST_DAY: ['출발지에서 걸어갈 수 있어요', 'Within walking distance of your starting point'],
+  // 일정 장소 카드에 이유 한 줄을 달면서 채운 것들(S15P21E201-1645). 서버 코드에서 뽑은 전부 — 백엔드가 목록을 줬다.
+  USER_ADDED: ['내가 직접 넣은 곳', 'A place you added'],
+  SEED_FROM_SHARED_ITINERARY: ['공유받은 일정에서 가져온 곳', 'From a shared itinerary'],
+  TASTE_VECTOR_MATCH: ['내가 좋아한 곳들과 비슷함', 'Similar to places you liked'],
+  PREF_ALIGNED_LOCALITY: ['현지 분위기 취향과 맞음', 'Matches your local-vibe preference'],
+  PREF_ALIGNED_QUIETNESS: ['조용한 곳 취향과 맞음', 'Matches your preference for quiet'],
+  PREF_ALIGNED_TOURIST_PREFERENCE: ['관광지 취향과 맞음', 'Matches your sightseeing preference'],
+  PREF_ALIGNED_SHADE_PREFERENCE: ['그늘 취향과 맞음', 'Matches your shade preference'],
+  PREF_ALIGNED_SLOPE_PREFERENCE: ['완만한 길 취향과 맞음', 'Matches your preference for gentle slopes'],
+  WITHIN_BUDGET: ['예산 안', 'Within your budget'],
 };
 
 // TOP_CONTRIBUTOR_<축 이름> — 축 이름은 score_components 맵의 키를 대소문자까지 그대로
@@ -40,13 +58,13 @@ const REASON: Record<string, [string, string]> = {
 // 어긋난다). 아는 축은 문구를 달고, 모르는 축이 와도 최소한 서로 다른 텍스트가 보이도록
 // 축 이름을 그대로 보여준다 — 전부 같은 안전장치 문구로 뭉개지 않는다.
 const TOP_CONTRIBUTOR_PREFIX = 'TOP_CONTRIBUTOR_';
-const AXIS_LABEL: Record<string, [string, string]> = {
-  distance: ['거리', 'distance'],
-  interest: ['관심 카테고리', 'your interests'],
-  atmosphere: ['분위기', 'mood'],
-  cuisine: ['음식 취향', 'food preferences'],
-  preferenceAlignment: ['취향 일치도', 'preference match'],
-  popularity: ['인기도', 'popularity'],
+const AXIS_LABEL: Record<string, [string, string, string, string]> = {
+  distance: ['거리', 'distance', '다른 곳보다 거리가 돋보임', 'Stands out for distance'],
+  interest: ['관심 카테고리', 'your interests', '다른 곳보다 관심 카테고리가 돋보임', 'Stands out for your interests'],
+  atmosphere: ['분위기', 'mood', '다른 곳보다 분위기가 돋보임', 'Stands out for mood'],
+  cuisine: ['음식 취향', 'food preferences', '다른 곳보다 음식 취향이 돋보임', 'Stands out for food preferences'],
+  preferenceAlignment: ['취향 일치도', 'preference match', '다른 곳보다 취향 일치도가 돋보임', 'Stands out for preference match'],
+  popularity: ['인기도', 'popularity', '다른 곳보다 인기도가 돋보임', 'Stands out for popularity'],
 };
 
 export const reasonLabel = (code: string): string => {
@@ -54,10 +72,44 @@ export const reasonLabel = (code: string): string => {
   if (code.startsWith(TOP_CONTRIBUTOR_PREFIX)) {
     const axis = code.slice(TOP_CONTRIBUTOR_PREFIX.length);
     const label = AXIS_LABEL[axis];
-    return label ? t(`${label[0]} 점수가 가장 높음`, `Highest score in ${label[1]}`) : t(`${axis} 점수가 가장 높음`, `Highest score in ${axis}`);
+    // 🔴 「점수가 가장 높은 축」이 아니라 «같은 결과 안에서 다른 곳보다 가장 두드러진 축»이다(백엔드 !1634 — 전에는 89% 가
+    //    「거리」였다). 그래서 「다른 곳보다 ○○이 돋보임」이라 말한다(S15P21E201-1640).
+    // 🔴 아는 축은 «완성된 문구»로 번역표를 찾는다(S15P21E201-1767). 값을 끼운 틀은 번역표에 없어서
+    //    Play 37 실기기 일본어 화면에 「Stands out for distance」가 그대로 떴다. 모르는 축만 틀로 만든다.
+    if (label) return t(label[2], label[3]);
+    return t(`다른 곳보다 ${axis}${koreanSubject(axis)} 돋보임`, `Stands out for ${axis}`);
   }
   return t('추천 조건 반영', 'Reflects your conditions');
 };
+
+/**
+ * 일정 장소 카드에 달 이유 «한 줄» — 여럿이면 하나만(S15P21E201-1645). 보일 이유가 없으면 null 이고, 그때는 줄을 안 그린다.
+ *
+ * 🔴 순서는 사용자가 정했다(백엔드 제안 순서): 내가 고른 것 → 테마·취향 → 설문 → 그 장소만의 특징 → 출발지 → 인기.
+ *    옛 일정은 거의 모든 곳에 NEAR_ORIGIN·TOP_CONTRIBUTOR_distance 가 저장돼 있어(옛 규칙, 476곳 중 476·470),
+ *    그 둘이 앞이면 모든 카드가 같은 말을 한다. 「왜 여기 있나」를 말하는 걷기 첫날·공유 일정은 내가 고른 것 바로 뒤,
+ *    예산 안·에디터 추천은 맨 뒤다. DIVERSITY_RERANKED 는 순서를 섞었다는 내부 표시라 사람에게 안 보인다.
+ */
+const REASON_RANK: ReadonlyArray<(code: string) => boolean> = [
+  (code) => code === 'MUST_VISIT_PLACE' || code === 'USER_ADDED',
+  (code) => code === 'WALK_ONLY_FIRST_DAY' || code === 'SEED_FROM_SHARED_ITINERARY',
+  (code) => code.startsWith('TAG_MATCH_') || code === 'TASTE_VECTOR_MATCH',
+  (code) => code.startsWith('PREF_ALIGNED_'),
+  (code) => code.startsWith(TOP_CONTRIBUTOR_PREFIX),
+  (code) => code === 'NEAR_ORIGIN',
+  (code) => code === 'POPULAR',
+  (code) => code === 'WITHIN_BUDGET' || code === 'EDITORIAL_PICK',
+];
+
+export function pickReasonLine(codes: readonly string[] | null | undefined): string | null {
+  if (!codes?.length) return null;
+  for (const matches of REASON_RANK) {
+    // 모르는 코드는 「추천 조건 반영」으로 뭉개지 말고 건너뛴다 — 한 줄은 뜻이 있을 때만 단다.
+    const code = codes.find((entry) => matches(entry) && (REASON[entry] || entry.startsWith(TOP_CONTRIBUTOR_PREFIX)));
+    if (code) return reasonLabel(code);
+  }
+  return null;
+}
 
 export function adaptRecommendationResult(dto: RecommendationJobResultDto): RecommendationViewModel {
   const placeCount = dto.placeCount ?? null;

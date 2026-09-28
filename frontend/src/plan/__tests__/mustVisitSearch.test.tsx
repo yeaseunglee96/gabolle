@@ -53,6 +53,18 @@ describe('꼭 가고 싶은 장소 검색', () => {
     expect(places.searchPlacesByName.mock.calls[0][0]).toBe('광안리해');
   });
 
+  it('🔴 검색 결과의 category 가 없어도(광안리 SUP Zone 등 실제 null 사례) 화면이 죽지 않는다 — S15P21E201-1560', async () => {
+    places.searchPlacesByName.mockResolvedValue([
+      { placeId: 'p1', nameKo: '광안리 SUP Zone', nameEn: null, category: null, address: '부산광역시 수영구 남천동', lat: 35, lng: 129 },
+    ]);
+    const { input, view } = open();
+
+    fireEvent.changeText(input, '광안리');
+    act(() => { jest.advanceTimersByTime(300); });
+
+    await waitFor(() => view.getByText('광안리 SUP Zone'));
+  });
+
   it('찾은 것을 누르면 담긴다', async () => {
     const { input, onChange, view } = open();
 

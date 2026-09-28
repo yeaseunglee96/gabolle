@@ -1,5 +1,6 @@
 // 날짜 계산은 눈으로 검산이 안 된다. 「1박 2일」이 이틀인지 사흘인지, 월이 바뀔 때
 // 어떻게 되는지가 여기서 정해진다.
+import { RECOMMENDED_LODGING_AREAS } from '@/plan/origins';
 import {
   EMPTY_START_BAR,
   START_BAR_PRESETS,
@@ -9,6 +10,8 @@ import {
   dayCount,
   nightCount,
   startBarChips,
+  startBarEditSection,
+  startBarFromDraft,
   summarizeStartBar,
   toDateKey,
   type StartBarValue,
@@ -108,6 +111,18 @@ describe('일정 물어보기를 누를 수 있나', () => {
     expect(askForPlanBlocker(value({ startDate: '2026-09-20', adults: 0 }), tx)).toBe('인원을 정해 주세요');
     expect(askForPlanBlocker(value({ startDate: '2026-09-20' }), tx)).toBeNull();
   });
+
+  it('🔴 1박 이상이면 숙소가 있어야 한다 — 당일치기는 숙소 없이 된다 (S15P21E201-1584)', () => {
+    const tx = (ko: string) => ko;
+    const overnight = { startDate: '2026-09-20', endDate: '2026-09-21' };
+    expect(canAskForPlan(value(overnight))).toBe(false);
+    expect(askForPlanBlocker(value(overnight), tx)).toBe('숙소를 골라 주세요');
+    expect(canAskForPlan(value({ startDate: '2026-09-20', endDate: '2026-09-20' }))).toBe(true);
+    const haeundae = RECOMMENDED_LODGING_AREAS.find((area) => area.externalId === 'lodging-haeundae')!;
+    const withArea = value({ ...overnight, lodging: '해운대', lodgingLat: haeundae.lat, lodgingLng: haeundae.lng });
+    expect(canAskForPlan(withArea)).toBe(true);
+    expect(askForPlanBlocker(withArea, tx)).toBeNull();
+  });
 });
 
 describe('바로 시작 프리셋', () => {
@@ -158,5 +173,36 @@ describe('홈에서 받은 정보 칩', () => {
 
   it('어린이가 있으면 인원 칩 하나에 같이 적는다', () => {
     expect(startBarChips(value({ origin: '부산역', adults: 2, children: 1 }), KO).at(-1)).toBe('성인 2 · 어린이 1');
+  });
+});
+
+describe('숙소 — design_handoff_home_lodging', () => {
+  it('요약 줄에 출발지 다음, 날짜 앞에 들어간다', () => {
+    expect(summarizeStartBar(value({ origin: '부산역', lodging: '해운대', startDate: '2026-09-20', endDate: '2026-09-21', adults: 2 }), KO))
+      .toBe('부산역 · 해운대 · 9.20(일) – 9.21(월) · 1박 · 성인 2');
+  });
+
+  it('🔴 정하지 않았으면(빈 문자열) 요약에서 생략한다', () => {
+    expect(summarizeStartBar(value({ origin: '부산역', adults: 2 }), KO)).not.toContain('undefined');
+    expect(summarizeStartBar(value({ origin: '부산역' }), KO)).toBe('부산역 · 성인 2');
+  });
+
+  it('칩 줄에도 따로 들어간다', () => {
+    expect(startBarChips(value({ origin: '부산역', lodging: '해운대', adults: 2 }), KO))
+      .toEqual(['부산역 출발', '해운대 숙박', '성인 2']);
+  });
+
+  it('숙소만으로는 요약도 칩도 만들지 않는다 — 출발지·날짜와 같은 기준을 따른다', () => {
+    expect(summarizeStartBar(value({ lodging: '해운대' }), KO)).toBe('');
+    expect(startBarChips(value({ lodging: '해운대' }), KO)).toEqual([]);
+  });
+
+  it('주소의 ?edit= 값으로 숙소 칸도 열 수 있다', () => {
+    expect(startBarEditSection('lodging')).toBe('lodging');
+  });
+
+  it('초안에서 시작 바로 옮길 때 숙소 좌표까지 같이 옮긴다', () => {
+    const draft = value({ lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604 });
+    expect(startBarFromDraft(draft)).toMatchObject({ lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604 });
   });
 });

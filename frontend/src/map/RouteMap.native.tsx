@@ -9,10 +9,22 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
 import { buildKakaoMapHtml } from './kakaoMapHtml';
+import { fitPadding, focusShiftY } from './mapFocus';
+import { slopeSegments, type SlopePiece } from './slopeGrades';
 
-import type { MapStop } from './types';
+import type { MapPathPoint, MapStop } from './types';
 
-export type MapRouteLayer = { id: string; color: string; stops: MapStop[] };
+/** 웹 RouteMap.tsx 의 MapRouteLayer 와 같은 모양 — 경로·어림·굵기·경사 조각(S15P21E201-1658)까지 WebView 로 그대로 넘긴다. */
+export type MapRouteLayer = {
+  id: string;
+  color: string;
+  stops: MapStop[];
+  path?: MapPathPoint[];
+  estimated?: boolean;
+  weight?: number;
+  opacity?: number;
+  pieces?: SlopePiece[];
+};
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 export type CurrentLocation = { latitude: number; longitude: number };
 
@@ -25,6 +37,14 @@ type RouteMapProps = {
   currentLocation?: CurrentLocation | null;
   onBackToList?: () => void;
   height?: number;
+  /** 지도 아래쪽이 창에 가려진 높이(px) — 웹 RouteMap 과 같은 뜻(S15P21E201-1607). */
+  bottomInset?: number;
+  /** 지도 위쪽이 상태바·칩에 가려진 높이(px) — 웹 RouteMap 과 같은 뜻(S15P21E201-1754). */
+  topInset?: number;
+  /** 이 값이 (null 이 아닌 새 값으로) 바뀌면 지금 여백으로 한 번 다시 맞춘다 — 웹 RouteMap 과 같은 뜻(S15P21E201-1754). */
+  refitKey?: string | number | null;
+  /** 고른 곳을 지도 가운데로 옮긴다 — 웹 RouteMap 과 같은 뜻(S15P21E201-1535). 기본은 꺼짐. */
+  focusSelected?: boolean;
 };
 
 /**
@@ -45,6 +65,10 @@ export function RouteMap({
   currentLocation,
   onBackToList,
   height = 340,
+  bottomInset = 0,
+  topInset = 0,
+  refitKey = null,
+  focusSelected = false,
 }: RouteMapProps) {
   const { tx } = useI18n();
   const webViewRef = useRef<WebView | null>(null);
@@ -56,27 +80,81 @@ export function RouteMap({
   const html = useMemo(() => (appKey ? buildKakaoMapHtml(appKey) : ''), [appKey]);
 
   const visibleStops = useMemo(() => [...stops, ...points.flatMap((layer) => layer.stops)], [points, stops]);
+  // 걷는 길의 경사 조각을 잘라 색을 붙여 둔다 — WebView 안의 스크립트는 slopeGrades.ts 를 못 읽는다(S15P21E201-1658).
+  const drawnRoutes = useMemo(
+    () => (routes ?? [{ id: 'selected', color: color.action.primary, stops }]).map((route) => {
+      const segments = route.weight == null && route.path?.length ? slopeSegments(route.path, route.pieces) : null;
+      return segments ? { ...route, segments } : route;
+    }),
+    [routes, stops],
+  );
 
   const sendRender = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
     const data = {
       stops,
       points,
-      routes: routes ?? [{ id: 'selected', color: color.action.primary, stops }],
+      routes: drawnRoutes,
       selectedId,
       currentLocation: currentLocation ?? null,
-      colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas },
+      // 아래가 창에 가려진 만큼 맞추기 여백을 더 둔다(S15P21E201-1607, 웹과 같은 셈 — mapFocus.ts).
+      // 🔴 이 값만 바뀌어서는 다시 보내지 않는다 — 창을 여닫을 때마다 지도가 다시 맞춰져 튀면 안 된다.
+      //    다시 맞추는 것은 refitKey 가 바뀔 때 한 번뿐이다(아래 sendRefit).
+      fitPadding: fitPadding(bottomInset, height, topInset),
+      colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas, casing: color.surface.card },
+      focus: focusSelected,
+      shiftY: focusShiftY(bottomInset, height),
     };
     webViewRef.current.injectJavaScript(`window.__renderKakaoMap(${JSON.stringify(data)}); true;`);
   };
 
-  // stops·points·routes·selectedId·currentLocation 이 바뀔 때마다 이미 떠 있는 지도에
-  // 새 데이터를 밀어 넣는다. sdk 가 아직 안 떴으면(sdkReadyRef.current === false) 아무 일도
+  // 🔴 고른 곳만 바뀌면 다시 그리지 않는다(S15P21E201-1654) — 전에는 고를 때마다 전체를 다시 그리고 다시 맞춰서
+  //    지도가 여행 전체로 튀었다. 마커 모양만 바꾸고 지금 화면에서 고른 곳으로 민다.
+  const sendSelect = () => {
+    if (!sdkReadyRef.current || !webViewRef.current) return;
+    const data = { selectedId, focus: focusSelected, shiftY: focusShiftY(bottomInset, height) };
+    webViewRef.current.injectJavaScript(`window.__selectKakaoMap(${JSON.stringify(data)}); true;`);
+  };
+
+  // 여백만 새로 보내 같은 범위를 다시 맞춘다(S15P21E201-1754) — «지도 보기»처럼 딱 끊어지는 전환 때만.
+  const sendRefit = () => {
+    if (!sdkReadyRef.current || !webViewRef.current) return;
+    const data = { fitPadding: fitPadding(bottomInset, height, topInset), shiftY: focusShiftY(bottomInset, height) };
+    webViewRef.current.injectJavaScript(`window.__fitKakaoMap(${JSON.stringify(data)}); true;`);
+  };
+
+  // 현재 위치는 점만 옮긴다. 위치 객체는 부를 때마다 새것이라 좌표 두 숫자로 본다.
+  const sendLocation = () => {
+    if (!sdkReadyRef.current || !webViewRef.current) return;
+    webViewRef.current.injectJavaScript(`window.__moveKakaoLocation(${JSON.stringify(currentLocation ?? null)}); true;`);
+  };
+
+  // stops·points·routes 가 바뀔 때마다 이미 떠 있는 지도에 새 데이터를 밀어 넣는다(고른 곳·현재 위치는 아래 따로).
+  // sdk 가 아직 안 떴으면(sdkReadyRef.current === false) 아무 일도
   // 안 하고, onMessage 의 'sdkLoaded' 처리부가 뜬 직후 한 번 sendRender 를 부른다.
   useEffect(() => {
     sendRender();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stops, points, routes, selectedId, currentLocation]);
+  }, [stops, points, routes]);
+
+  useEffect(() => {
+    sendSelect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, focusSelected]);
+
+  // 🔴 null 로 바뀔 때(창을 다시 열 때)는 안 맞춘다 — 창을 열 때 지도가 튀면 안 된다. 처음 뜰 때는 sendRender 가 맞춘다.
+  const lastRefitKey = useRef(refitKey);
+  useEffect(() => {
+    if (refitKey === lastRefitKey.current) return;
+    lastRefitKey.current = refitKey;
+    if (refitKey != null) sendRefit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refitKey]);
+
+  useEffect(() => {
+    sendLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLocation?.latitude, currentLocation?.longitude]);
 
   const onMessage = (event: WebViewMessageEvent) => {
     let message: WebViewOutMessage;
@@ -151,6 +229,7 @@ export function RouteMap({
         javaScriptEnabled
         domStorageEnabled
       />
+      {/* 걷는 길 경사 색의 안내 문구는 뺐다 — 어색하다는 사용자 결정(S15P21E201-1820). 색 선은 그대로 긋는다. */}
       {onBackToList ? (
         <View style={styles.backRow}>
           <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="tertiary" onPress={onBackToList} />
@@ -167,7 +246,17 @@ const MAP_BASE_URL = RAW_MAP_BASE_URL.endsWith('/') ? RAW_MAP_BASE_URL.slice(0, 
 const styles = StyleSheet.create({
   shell: { width: '100%', borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.soft },
   map: { width: '100%', height: '100%', backgroundColor: 'transparent' },
-  backRow: { position: 'absolute', left: spacing[3], bottom: spacing[3] },
+  /**
+   * 🔴 **좌하단에 두지 않는다** — S15P21E201-1490(B-12). 카카오 지도는 그 자리에
+   * **로고와 축척 표시**를 그린다. 전에는 `bottom: spacing[3]` 이라 이 단추가 그 둘을
+   * 덮었고, 지도 제공처 표기는 이용약관상 가려지면 안 되는 자리다(iOS build 39 QA).
+   *
+   * 위쪽으로 옮긴다. 이 앱은 카카오 컨트롤(확대·지도 종류)을 **하나도 안 넣으므로**
+   * (`kakaoMapHtml.ts` — addControl 0건) 지도 위쪽은 비어 있다. 단추를 지도 «밖»으로
+   * 내보내지 않는 이유는 이 부품이 `height` 만큼만 자리를 받기 때문이다 — 밖으로
+   * 빼면 부르는 화면 넷의 높이 계산이 같이 어긋난다.
+   */
+  backRow: { position: 'absolute', left: spacing[3], top: spacing[3] },
   empty: { width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft },
   fallback: {
     width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft,

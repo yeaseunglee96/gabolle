@@ -28,8 +28,11 @@ const SANE_DRIFT_MINUTES = 12 * 60;
 
 export const EMPTY_PROGRESS: TripProgress = { status: 'PLANNED', currentStopIndex: 0, outcomes: {} };
 
-/** 단계 하나가 화면에서 어떤 모습인가. */
-export type StepState = 'done' | 'current' | 'next' | 'later';
+/**
+ * 단계 하나가 화면에서 어떤 모습인가.
+ * `staying` 은 stepStates 가 내지 않는다 — 폰 여행 화면이 지금 머무는 곳 한 곳에만 덧씌운다(S15P21E201-1690).
+ */
+export type StepState = 'done' | 'current' | 'next' | 'later' | 'staying';
 
 /**
  * 단계들의 모습을 정한다.
@@ -37,7 +40,7 @@ export type StepState = 'done' | 'current' | 'next' | 'later';
  * 🔴 「다녀옴」과 「건너뜀」을 **같은 모습으로 그리지 않는다** — 건너뛴 곳은 안 간 곳이다.
  *    같이 그리면 나중에 「거기 갔었나?」를 기억으로만 풀어야 한다.
  */
-export function stepStates(stopIds: string[], progress: TripProgress): StepState[] {
+export function stepStates(stopIds: string[], progress: TripProgress): Exclude<StepState, 'staying'>[] {
   return stopIds.map((id, index) => {
     if (progress.outcomes[id]) return 'done';
     if (progress.status === 'PLANNED') return index === 0 ? 'next' : 'later';
@@ -119,6 +122,25 @@ export function drift(nowIso: string, plannedIso: string | null): { minutes: num
   //    읽고 화면이 고장 났다고 여긴다. 실제로 다음 달 여행을 열어 보면 그렇게 나왔다.
   if (Math.abs(minutes) > SANE_DRIFT_MINUTES) return null;
   return { minutes: Math.abs(minutes), early: minutes > 0 };
+}
+
+/**
+ * 「예정보다 빠름」이 아니라 「N 뒤 시작」이라고 말해야 하나 — S15P21E201-1489(B-13).
+ *
+ * <p>실기기에서 「지금 00:52 · 예정보다 8시간 47분 빠름」이 떴다(iOS build 39). 첫 일정이
+ * 09:39 이니 {@link drift} 의 계산은 정확하다. 틀린 것은 **말**이다 — 「예정보다 빠름」은
+ * 이미 움직이고 있는 사람에게 하는 말이라, 아직 시작도 안 한 여행이 진행 중인 것처럼
+ * 읽힌다. 안 떠난 사람에게 필요한 말은 「언제 시작하나」다.
+ *
+ * <p>🔴 **늦음은 시작 전에도 그대로 둔다.** 첫 일정 시각이 지났는데 아직 {@code PLANNED}
+ * 면 실제로 늦은 것이 맞고, 그때는 그렇게 말해 주는 편이 낫다.
+ *
+ * <p>이 판단을 화면이 아니라 여기에 두는 이유는 시험할 수 있게 하기 위해서다 — 화면에
+ * 두면 여행 하나를 통째로 세워야 하고, 그러면 아무도 안 쓴다.
+ */
+export function saysStartsIn(status: ProgressStatus, drift: { early: boolean } | null): boolean {
+  if (!drift) return false;
+  return status === 'PLANNED' && drift.early;
 }
 
 /**

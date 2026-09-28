@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Regular.ttf);font-weight:400}
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Medium.ttf);font-weight:500}
+@font-face{font-family:Pretendard;src:url(fonts/Pretendard-Bold.ttf);font-weight:700}
+body{margin:0;background:#E4E4E8}
+a{color:#2B2B2E}a:hover{color:#191919}
+@keyframes livePulse{0%{transform:scale(1);opacity:.55}100%{transform:scale(2.8);opacity:0}}
+@keyframes selRing{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+</style>
+</helmet>
+<div style="width:390px;height:844px;border-radius:48px;border:10px solid #191919;overflow:hidden;position:relative;box-sizing:content-box;background:#E9E9EC;font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;word-break:keep-all;color:#191919">
+
+  <div style="position:absolute;left:{{ layerL }};top:{{ layerT }};width:{{ layerW }};height:{{ layerH }};background-image:url(assets/kakao-course-map.jpg);background-size:100% 100%;transition:all 520ms cubic-bezier(0.2,0.8,0.2,1)"></div>
+  <div style="position:absolute;left:{{ ringL }};top:{{ ringT }};width:0;height:0;z-index:2;pointer-events:none;opacity:{{ ringOp }};transition:opacity 240ms ease,left 520ms cubic-bezier(0.2,0.8,0.2,1),top 520ms cubic-bezier(0.2,0.8,0.2,1)">
+    <div style="position:absolute;left:-24px;top:-24px;width:48px;height:48px;box-sizing:border-box;border-radius:999px;border:3px solid #D83A48;animation:selRing 1.8s ease-out infinite"></div>
+    <div style="position:absolute;left:-22px;top:-22px;width:44px;height:44px;box-sizing:border-box;border-radius:999px;border:3px solid #D83A48;box-shadow:0 0 0 6px rgba(216,58,72,0.16)"></div>
+    <div style="position:absolute;left:0;top:28px;transform:translateX(-50%);white-space:nowrap;padding:3px 10px;border-radius:999px;background:#191919;color:#FFFFFF;font-size:12px;line-height:16px;font-weight:700">{{ selLabel }}</div>
+  </div>
+  <div style="position:absolute;left:0;right:0;top:0;height:47px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;font-size:15px;font-weight:700;z-index:5"><span>9:41</span><span style="width:24px;height:11px;border-radius:3px;border:1.5px solid #191919"></span></div>
+  <div style="position:absolute;left:16px;top:56px;z-index:5;padding:8px 12px;border-radius:14px;background:#FFFFFF;box-shadow:0 2px 8px rgba(25,25,25,0.12);font-size:13px;line-height:18px;font-weight:700">{{ mapSummary }}</div>
+
+  <div style="position:absolute;left:0;right:0;bottom:{{ stripBottom }};z-index:4;opacity:{{ stripOp }};pointer-events:{{ stripPe }};transition:opacity 300ms ease,bottom 420ms cubic-bezier(0.2,0.8,0.2,1)">
+    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:8px 16px">
+      <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+        <div onClick="{{ s.pick }}" style="width:150px;flex:none;box-sizing:border-box;display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:14px;border:2px solid {{ s.bd }};background:#FFFFFF;box-shadow:0 4px 12px rgba(25,25,25,0.12);cursor:pointer;transition:border-color 200ms ease">
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:22px;height:22px;border-radius:999px;background:#191919;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ s.n }}</div><span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ s.time }}</span></div>
+          <span style="font-size:15px;line-height:23px;font-weight:700">{{ s.name }}</span>
+          <span style="font-size:12px;line-height:16px;color:#6F6F6F">{{ s.legShort }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div onClick="{{ close }}" style="position:absolute;inset:0;z-index:40;background:rgba(25,25,25,0.40);opacity:{{ dimOp }};pointer-events:{{ dimPe }};transition:opacity 240ms ease"></div>
+
+  <div style="position:absolute;left:0;right:0;bottom:34px;z-index:41;margin:0 auto;width:{{ barW }};height:{{ barH }};border-radius:20px;background:{{ barBg }};box-shadow:0 -2px 14px rgba(25,25,25,0.10);overflow:hidden;transition:width 420ms cubic-bezier(0.34,1.3,0.64,1),height 420ms cubic-bezier(0.34,1.3,0.64,1),background 300ms ease">
+  <div style="position:absolute;left:0;right:0;top:0;height:574px;display:flex;flex-direction:column;opacity:{{ tripOp }};pointer-events:{{ tripPe }};transition:opacity 260ms ease">
+    <div onClick="{{ collapse }}" style="height:24px;flex:none;display:flex;align-items:center;justify-content:center;cursor:pointer"><div style="width:36px;height:4px;border-radius:999px;background:#DADCE2"></div></div>
+    <div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;box-sizing:border-box;padding:4px 16px 16px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">부산 여행</span>
+          <span style="font-size:13px;line-height:18px;color:#6F6F6F">{{ headSub }}</span>
+          <sc-if value="{{ confirmed }}" hint-placeholder-val="{{ false }}"><div onClick="{{ reopenCourse }}" style="align-self:flex-start;margin-top:4px;display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#FFFFFF;font-size:12px;line-height:16px;font-weight:700;cursor:pointer"><span style="color:#2E9E5B">✓ {{ courseName }} 확정</span><span style="color:#8B8B8B">· 바꾸기</span></div></sc-if>
+        </div>
+        <div style="width:44px;height:44px;flex:none;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;cursor:pointer">⋯</div>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <sc-for list="{{ actions }}" as="a" hint-placeholder-count="3">
+          <div onClick="{{ a.pick }}" style="flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:{{ a.bg }};color:{{ a.fg }};font-size:13px;font-weight:700;cursor:pointer;transition:background 200ms ease,color 200ms ease">{{ a.label }}</div>
+        </sc-for>
+      </div>
+
+      <div style="border-radius:20px;background:#191919;padding:16px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:999px;background:#F25454"></div><span style="font-size:13px;line-height:18px;font-weight:700;color:#D83A48">{{ liveLabel }}</span><span style="font-size:13px;line-height:18px;color:#DADADF;white-space:nowrap">{{ liveClock }}</span></div>
+            <span style="font-size:18px;line-height:24px;font-weight:700;color:#FFFFFF">{{ nowTitle }}</span>
+            <span style="font-size:13px;line-height:18px;color:#DADADF">{{ nowDetail }}</span>
+          </div>
+          <sc-if value="{{ notRunning }}" hint-placeholder-val="{{ true }}">
+            <div onClick="{{ start }}" style="flex:none;min-height:44px;display:flex;align-items:center;padding:0 16px;border-radius:14px;background:#D83A48;color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer">{{ startLabel }}</div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ running }}" hint-placeholder-val="{{ false }}">
+          <div style="height:6px;border-radius:999px;background:rgba(255,255,255,0.12);overflow:hidden"><div style="height:6px;border-radius:999px;background:#F25454;width:{{ progressW }};transition:width 120ms linear"></div></div>
+          <div style="display:flex;gap:8px">
+            <div onClick="{{ pause }}" style="min-height:40px;display:flex;align-items:center;padding:0 16px;border-radius:14px;background:rgba(255,255,255,0.16);color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer">⏸ 일정 중지</div>
+            <div onClick="{{ skip }}" style="min-height:40px;display:flex;align-items:center;padding:0 16px;border-radius:14px;background:rgba(255,255,255,0.16);color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer">건너뛰기</div>
+            <span style="flex:1;align-self:center;text-align:right;font-size:12px;line-height:16px;color:#DADADF">도착은 GPS로 자동 기록돼요</span>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="flex:none;max-height:{{ cardMax }};opacity:{{ cardOp }};margin-top:{{ cardMt }};overflow:hidden;transition:max-height 420ms cubic-bezier(0.2,0.8,0.2,1),opacity 300ms ease,margin-top 420ms cubic-bezier(0.2,0.8,0.2,1)">
+      <div style="border-radius:20px;background:#FFFFFF;padding:12px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px;padding:0 4px">
+          <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">추천 코스</span>
+          <span style="padding:2px 8px;border-radius:999px;background:#FFF3DC;color:#B06A00;font-size:12px;line-height:16px;font-weight:700">추정</span>
+        </div>
+        <div style="position:relative;display:flex;padding:4px;border-radius:999px;background:#E9E9EC">
+          <div style="position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px) / 3);border-radius:999px;background:#191919;transform:{{ courseX }};transition:transform 360ms cubic-bezier(0.2,0.8,0.2,1)"></div>
+          <sc-for list="{{ courseTabs }}" as="c" hint-placeholder-count="3">
+            <div onClick="{{ c.pick }}" style="position:relative;flex:1;min-width:0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:999px;color:{{ c.fg }};cursor:pointer;transition:color 240ms ease"><span style="font-size:13px;line-height:18px;font-weight:700">{{ c.mark }}{{ c.title }}</span><span style="font-size:11px;line-height:14px;font-weight:500;opacity:0.85">{{ c.cost }}</span></div>
+          </sc-for>
+        </div>
+        <span style="padding:0 4px;font-size:13px;line-height:18px;color:#444">{{ routeLine }}</span>
+        <div style="max-height:{{ confirmMax }};opacity:{{ confirmOp }};overflow:hidden;transition:max-height 380ms cubic-bezier(0.2,0.8,0.2,1),opacity 260ms ease">
+          <div style="display:flex;align-items:center;gap:8px;padding-top:2px">
+            <span style="flex:1;min-width:0;padding:0 4px;font-size:12px;line-height:16px;color:#6F6F6F">확정하면 이 카드는 접혀요. 위에서 다시 바꿀 수 있어요.</span>
+            <div onClick="{{ confirmCourse }}" style="flex:none;min-height:44px;display:flex;align-items:center;padding:0 16px;border-radius:14px;background:#D83A48;color:#FFFFFF;font-size:15px;font-weight:700;cursor:pointer">{{ courseName }}로 확정</div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;padding:12px 16px;border-radius:14px;background:{{ riskBg }}">
+        <span style="font-size:13px;line-height:18px;font-weight:700;color:{{ riskColor }}">{{ riskText }}</span>
+        <span style="font-size:13px;line-height:18px;color:{{ riskColor }}">· 추정값</span>
+      </div>
+
+      <div style="position:relative;display:flex;flex-direction:column">
+        <div style="position:absolute;left:23px;top:36px;bottom:40px;width:2px;border-radius:999px;background:#DADCE2"></div>
+        <sc-for list="{{ stops }}" as="s" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:48px minmax(0,1fr);column-gap:8px">
+            <div style="position:relative">
+              <sc-if value="{{ s.liveInLeg }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;left:50%;top:{{ s.liveTop }};transform:translate(-50%,-50%);z-index:3;width:16px;height:16px;transition:top 120ms linear"><div style="position:absolute;inset:0;border-radius:999px;background:#F25454;animation:livePulse 1.6s ease-out infinite"></div><div style="position:absolute;inset:0;box-sizing:border-box;border-radius:999px;border:3px solid #FFFFFF;background:#F25454;box-shadow:0 2px 6px rgba(25,25,25,0.25)"></div></div>
+              </sc-if>
+            </div>
+            <div style="height:32px;display:flex;align-items:center;padding-left:4px;font-size:12px;line-height:16px;letter-spacing:0.2px;font-weight:700;color:{{ s.legColor }}">{{ s.legText }}</div>
+            <div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:{{ s.railJustify }};padding-top:{{ s.railPad }}">
+              <sc-if value="{{ s.first }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;background:#F5F5F7;padding:2px 0 4px;position:relative;z-index:1">
+                  <span style="font-size:13px;line-height:18px;font-weight:700">수</span>
+                  <div style="width:32px;height:32px;border-radius:999px;background:#D83A48;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">23</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ s.notFirst }}" hint-placeholder-val="{{ true }}">
+                <div style="width:{{ s.dotSize }};height:{{ s.dotSize }};border-radius:999px;background:{{ s.dotBg }};box-shadow:0 0 0 4px #F5F5F7;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-size:11px;font-weight:700">{{ s.dotMark }}</div>
+              </sc-if>
+              <sc-if value="{{ s.liveAtStop }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;left:50%;top:{{ s.markTop }};transform:translate(-50%,-50%);z-index:3;width:16px;height:16px"><div style="position:absolute;inset:0;border-radius:999px;background:#F25454;animation:livePulse 1.6s ease-out infinite"></div><div style="position:absolute;inset:0;box-sizing:border-box;border-radius:999px;border:3px solid #FFFFFF;background:#F25454;box-shadow:0 2px 6px rgba(25,25,25,0.25)"></div></div>
+              </sc-if>
+            </div>
+            <div style="border-radius:20px;background:#FFFFFF;padding:10px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:64px;height:64px;flex:none;border-radius:14px;background:#F0F0F3;display:flex;align-items:center;justify-content:center;font-size:28px">{{ s.glyph }}</div>
+                <div onClick="{{ s.toggle }}" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;cursor:pointer">
+                  <div style="display:flex;align-items:center;gap:6px"><span style="font-size:15px;line-height:21px;font-weight:700">{{ s.name }}</span><sc-if value="{{ s.done }}" hint-placeholder-val="{{ false }}"><span style="padding:1px 6px;border-radius:999px;background:#E7F5EC;color:#2E9E5B;font-size:12px;line-height:16px;font-weight:700">✓ 다녀옴</span></sc-if><sc-if value="{{ s.here }}" hint-placeholder-val="{{ false }}"><span style="padding:1px 6px;border-radius:999px;background:#FEF0F1;color:#B02A38;font-size:12px;line-height:16px;font-weight:700">● 지금 여기</span></sc-if></div>
+                  <span style="font-size:13px;line-height:18px;color:#6F6F6F">{{ s.time }} · {{ s.category }} · {{ s.cost }}</span>
+                  <sc-if value="{{ s.risk }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;line-height:16px;font-weight:700;color:#B02A38">하루 넘길 위험</span></sc-if>
+                </div>
+                <div onClick="{{ s.lock }}" style="width:40px;height:40px;flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer">{{ s.lockGlyph }}</div>
+              </div>
+              <sc-if value="{{ s.open }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid #EBEBEF">
+                  <span style="flex:1;min-width:0;font-size:13px;line-height:18px;font-weight:700;color:{{ s.paceColor }}">{{ s.paceText }}</span>
+                  <div style="min-height:40px;display:flex;align-items:center;padding:0 12px;border-radius:14px;background:#F0F0F3;font-size:13px;font-weight:700;cursor:pointer">도착 찍기</div>
+                  <div style="min-height:40px;display:flex;align-items:center;padding:0 12px;border-radius:14px;background:#FEF0F1;color:#B02A38;font-size:13px;font-weight:700;cursor:pointer">제외</div>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="border-radius:20px;background:#FFFFFF;padding:16px;display:flex;flex-direction:column;gap:10px;margin-top:8px">
+        <div style="display:flex;justify-content:space-between;gap:8px"><span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">예산 대비</span><span style="font-size:13px;line-height:18px;font-weight:700;color:#2E9E5B">{{ remainText }}</span></div>
+        <div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">{{ totalText }}</span><span style="font-size:13px;line-height:18px;color:#6F6F6F">/ 300,000원</span></div>
+        <div style="display:flex;height:10px;border-radius:999px;overflow:hidden;background:#E9E9EC"><div style="flex:{{ usedFlex }};background:#2B2B2E;transition:flex 400ms ease"></div><div style="flex:{{ leftFlex }};transition:flex 400ms ease"></div></div>
+        <span style="font-size:13px;line-height:18px;color:#6F6F6F">{{ breakdown }}</span>
+      </div>
+      <div style="min-height:48px;border-radius:14px;background:#E9E9EC;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer">순서 수정</div>
+    </div>
+  </div>
+  <div style="position:absolute;left:0;right:0;top:0;height:{{ panelH }};overflow-y:auto;scrollbar-width:none;box-sizing:border-box;padding:12px 16px 16px;display:flex;flex-direction:column;gap:14px;opacity:{{ inviteOp }};pointer-events:{{ invitePe }};transition:opacity 260ms ease">
+    <div onClick="{{ close }}" style="height:16px;display:flex;align-items:center;justify-content:center;cursor:pointer"><div style="width:36px;height:4px;border-radius:999px;background:#DADCE2"></div></div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">함께하는 여행</span>
+      <span style="font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">동행자를 초대해요</span>
+      <span style="font-size:15px;line-height:23px;color:#444">역할을 먼저 고르면 7일 동안 사용할 수 있는 초대 링크를 만들어요.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ roles }}" as="r" hint-placeholder-count="2">
+        <div onClick="{{ r.pick }}" style="display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:14px;background:{{ r.bg }};border:2px solid {{ r.bd }};cursor:pointer">
+          <div style="width:22px;height:22px;flex:none;margin-top:1px;box-sizing:border-box;border-radius:999px;border:2px solid {{ r.radio }};display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:999px;background:{{ r.dot }}"></div></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;line-height:23px;font-weight:700">{{ r.title }}</span><span style="font-size:13px;line-height:18px;color:#444">{{ r.desc }}</span></div>
+        </div>
+      </sc-for>
+    </div>
+    <span style="font-size:13px;line-height:18px;color:#6F6F6F">링크를 받은 사람만 참여할 수 있어요. 링크는 7일 뒤 만료돼요.</span>
+    <div style="min-height:52px;border-radius:14px;background:#D83A48;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer">{{ inviteCta }}</div>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1;min-height:44px;border-radius:14px;background:#E9E9EC;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer">참여자·역할 관리</div>
+      <div style="flex:1;min-height:44px;border-radius:14px;background:#E9E9EC;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer">읽기 전용 링크</div>
+    </div>
+  </div>
+  <div style="position:absolute;left:0;right:0;top:0;height:{{ panelH }};overflow-y:auto;scrollbar-width:none;box-sizing:border-box;padding:12px 16px 16px;display:flex;flex-direction:column;gap:12px;opacity:{{ weatherOp }};pointer-events:{{ weatherPe }};transition:opacity 260ms ease">
+    <div onClick="{{ close }}" style="height:16px;display:flex;align-items:center;justify-content:center;cursor:pointer"><div style="width:36px;height:4px;border-radius:999px;background:#DADCE2"></div></div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">여행 전 · 9월 23일 (수) 출발</span>
+      <span style="font-size:26px;line-height:34px;letter-spacing:-0.2px;font-weight:700">출발일 날씨</span>
+    </div>
+    <div style="border-radius:20px;background:#FFFFFF;padding:16px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:34px;line-height:40px;letter-spacing:-0.25px;font-weight:700">26°</span>
+      <div style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px;line-height:23px;font-weight:700">맑음 · 19~26°</span><span style="font-size:13px;line-height:18px;color:#444">오후 4시부터 구름 많음 · 비 소식 없음</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">1시간별 예보</span>
+      <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px 4px">
+        <sc-for list="{{ hours }}" as="h" hint-placeholder-count="6">
+          <div style="width:60px;flex:none;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:14px;background:{{ h.bg }};border:2px solid {{ h.bd }}">
+            <span style="font-size:12px;line-height:16px;font-weight:700;color:{{ h.timeColor }}">{{ h.label }}</span>
+            <span style="font-size:20px;line-height:24px">{{ h.sky }}</span>
+            <span style="font-size:15px;line-height:21px;font-weight:700">{{ h.temp }}</span>
+            <span style="font-size:12px;line-height:16px;color:{{ h.rainColor }}">{{ h.rain }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="border-radius:20px;background:#FFFFFF;padding:4px 16px">
+      <sc-for list="{{ stopWeather }}" as="s" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:12px;min-height:48px;border-top:{{ s.bt }}">
+          <span style="width:44px;flex:none;font-size:13px;line-height:18px;font-weight:700;color:#6F6F6F">{{ s.time }}</span>
+          <span style="flex:1;min-width:0;font-size:15px;line-height:23px;font-weight:700">{{ s.name }}</span>
+          <span style="font-size:13px;line-height:18px;color:#444">{{ s.fc }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <span style="font-size:13px;line-height:18px;color:#6F6F6F">테두리는 일정이 있는 시간이에요. 예보는 부산 전체 기준이에요.</span>
+  </div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:64px;padding:0 8px;box-sizing:border-box;display:flex;align-items:center;opacity:{{ tabOp }};pointer-events:{{ tabPe }};transition:opacity 200ms ease">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+        <div onClick="{{ t.pick }}" style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer">
+          <div style="width:32px;height:32px;border-radius:16px;background:{{ t.wrapBg }};display:flex;align-items:center;justify-content:center"><sc-if value="{{ t.isBack }}" hint-placeholder-val="{{ false }}"><div style="width:9px;height:9px;margin-left:4px;border-left:2.5px solid #191919;border-bottom:2.5px solid #191919;transform:rotate(45deg)"></div></sc-if><sc-if value="{{ t.isUp }}" hint-placeholder-val="{{ false }}"><div style="width:9px;height:9px;margin-top:5px;border-left:2.5px solid #FFFFFF;border-top:2.5px solid #FFFFFF;transform:rotate(45deg)"></div></sc-if><sc-if value="{{ t.plain }}" hint-placeholder-val="{{ true }}"><img src="{{ t.icon }}" alt="" style="width:20px;height:20px;object-fit:contain;opacity:{{ t.op }};filter:{{ t.filter }}"></sc-if></div>
+          <span style="font-size:12px;line-height:16px;letter-spacing:0.2px;font-weight:{{ t.weight }};color:{{ t.color }}">{{ t.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:410,&quot;height&quot;:864},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;map&quot;,&quot;invite&quot;,&quot;weather&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;'default'|'map'|'invite'|'weather'&quot;}}">
+const STOPS_A = [
+  { id: 's1', n: 1, name: '카페오뜨', category: '카페', time: '09:46', cost: '6,000원', glyph: '☕', leg: '출발지에서 46분 (어림)', legShort: '출발지에서 46분' },
+  { id: 's2', n: 2, name: '늘리', category: '식당', time: '11:53', cost: '50,000원', glyph: '🍽', leg: '이동 21분 (어림)', legShort: '이동 21분' },
+  { id: 's3', n: 3, name: '무슈뱅상', category: '카페', time: '14:08', cost: '4,400원', glyph: '☕', leg: '이동 29분 (어림)', legShort: '이동 29분' },
+  { id: 's4', n: 4, name: '쇼진', category: '식당', time: '16:14', cost: '160,000원', glyph: '🍽', leg: '이동 20분 (어림)', legShort: '이동 20분', risk: true },
+];
+const mk = (id, n, name, category, time, krw, glyph, legShort) => ({ id, n, name, category, time, krw, cost: krw ? `${krw.toLocaleString()}원` : '무료', glyph, legShort, leg: `${legShort} (어림)` });
+const COURSES = [
+  { title: '코스 A', move: 116, risk: '쇼진이 하루를 넘길 수 있어요', stops: STOPS_A },
+  { title: '코스 B', move: 98, risk: null, stops: [
+    mk('b1', 1, '흰여울문화마을', '관광', '10:00', 0, '🏘', '출발지에서 40분'), mk('b2', 2, '태종대', '관광', '12:10', 3000, '⛰', '이동 30분'),
+    mk('b3', 3, '삼진어묵 본점', '식당', '14:30', 24000, '🍢', '이동 25분'), mk('b4', 4, '국제시장 먹자골목', '식당', '16:20', 40000, '🍜', '이동 15분') ] },
+  { title: '코스 C', move: 132, risk: '더베이101 도착이 해 진 뒤예요', stops: [
+    mk('c1', 1, '해운대 블루라인파크', '관광', '09:30', 25000, '🚃', '출발지에서 50분'), mk('c2', 2, '청사포 조개구이', '식당', '12:00', 80000, '🦪', '이동 30분'),
+    mk('c3', 3, '해동용궁사', '관광', '14:20', 0, '⛩', '이동 32분'), mk('c4', 4, '더베이101', '카페', '17:30', 18000, '🌃', '이동 40분') ] },
+];
+[6000, 50000, 4400, 160000].forEach((k, i) => { STOPS_A[i].krw = k; });
+const HOURS = [[8,'☀',19,0],[9,'☀',21,0],[10,'☀',22,0],[11,'☀',24,5],[12,'☀',25,5],[13,'☀',26,10],[14,'🌤',26,10],[15,'🌤',25,10],[16,'⛅',24,20],[17,'⛅',23,20],[18,'☁',22,30],[19,'☁',21,30],[20,'☁',20,20]];
+const TABS = [['home','홈'],['heart','피드'],['plus','여행 만들기'],['map','내 여행'],['user','마이페이지']];
+
+class Component extends DCLogic {
+  state = { view: null, role: 'EDITOR', sel: 's1', open: {}, locked: {}, running: false, pos: 0 };
+
+  componentWillUnmount() { clearInterval(this.timer); }
+  startRun() {
+    clearInterval(this.timer);
+    this.setState(s => ({ running: true, pos: s.pos >= STOPS_A.length ? 0 : s.pos }));
+    this.timer = setInterval(() => {
+      this.setState(s => {
+        const pos = Math.min(STOPS_A.length, s.pos + 0.02);
+        if (pos >= STOPS_A.length) clearInterval(this.timer);
+        return { pos, running: pos < STOPS_A.length };
+      });
+    }, 100);
+  }
+  pauseRun() { clearInterval(this.timer); this.setState({ running: false }); }
+
+  renderVals() {
+    const ci = this.state.course ?? 0, course = COURSES[ci], STOPS = course.stops, isA = ci === 0;
+    const total = STOPS.reduce((a, s) => a + s.krw, 0), budget = 300000, man = v => `${Math.round(v / 1000) / 10}만원`;
+    const byCat = {}; STOPS.forEach(s => { byCat[s.category] = (byCat[s.category] || 0) + s.krw; });
+    const courseVals = {
+      courseX: `translateX(${ci * 100}%)`,
+      courseTabs: COURSES.map((c, i) => ({ title: c.title, mark: i === ci ? '✓ ' : '', cost: `${man(c.stops.reduce((a, s) => a + s.krw, 0))} 예상`,
+        fg: i === ci ? '#FFFFFF' : '#444444', pick: () => { clearInterval(this.timer); this.setState({ course: i, touched: true, sel: c.stops[0].id, running: false, pos: 0, open: {} }); } })),
+      routeLine: STOPS.map(s => s.name).join(' → '),
+      headSub: `9월 23일 (수) · ${STOPS.length}곳 · 약 ${man(total)}`,
+      mapSummary: `장소 ${STOPS.length}곳 · 이동 ${course.move}분`,
+      totalText: `${total.toLocaleString()}원`, remainText: `${man(budget - total)} 남음`,
+      usedFlex: String(total / budget), leftFlex: String(1 - total / budget),
+      breakdown: Object.entries(byCat).map(([k, v]) => `${k} ${v.toLocaleString()}원`).join(' · '),
+      riskText: course.risk ?? '하루 안에 여유 있게 끝나요', riskColor: course.risk ? '#B02A38' : '#2E9E5B', riskBg: course.risk ? '#FEF0F1' : '#E7F5EC',
+      ringOp: isA ? 1 : 0,
+      courseName: course.title, confirmed: !!this.state.confirmed,
+      cardMax: this.state.confirmed ? '0px' : '260px', cardOp: this.state.confirmed ? 0 : 1, cardMt: this.state.confirmed ? '-12px' : '0px',
+      confirmMax: this.state.touched && !this.state.confirmed ? '64px' : '0px', confirmOp: this.state.touched && !this.state.confirmed ? 1 : 0,
+      confirmCourse: () => this.setState({ confirmed: true, touched: false }),
+      reopenCourse: () => this.setState({ confirmed: false, touched: true }),
+    };
+    const { running, pos } = this.state;
+    const started = running || pos > 0;
+    const idx = Math.min(Math.floor(pos), STOPS.length), frac = pos - Math.floor(pos);
+    const finished = idx >= STOPS.length;
+    const moving = frac < 0.6;
+    const cur = STOPS[idx];
+    const toward = n => { const c = n.charCodeAt(n.length - 1) - 0xAC00; const jong = c >= 0 && c < 11172 ? c % 28 : 0; return n + (jong && jong !== 8 ? '으로' : '로'); };
+    const view = this.state.view ?? this.props.view ?? 'default';
+    const set = v => this.setState({ view: view === v ? 'default' : v });
+    const isMap = view === 'map', invite = view === 'invite', weather = view === 'weather', modal = invite || weather, trip = view === 'default';
+    const MK = { s1: [352, 752], s2: [571, 648], s3: [199, 1020], s4: [1778, 282] };
+    const H = isMap ? 700 : 420, W = Math.round(H * 1964 / 1125), k = H / 1125;
+    const vis = isMap ? [47, 690] : [47, 236];
+    const selS = STOPS.find(s => s.id === this.state.sel) ?? STOPS[0];
+    const mkp = MK[selS.id] ?? MK.s1, mx = mkp[0] * k, my = mkp[1] * k;
+    const cx = 195, cy = (vis[0] + vis[1]) / 2;
+    const L = Math.round(Math.min(0, Math.max(390 - W, cx - mx)));
+    const T = Math.round(Math.min(vis[0], Math.max(vis[1] - H, cy - my)));
+    return {
+      ...courseVals,
+      layerL: `${L}px`, layerT: `${T}px`, layerW: `${W}px`, layerH: `${H}px`,
+      ringL: `${Math.round(L + mx)}px`, ringT: `${Math.round(T + my)}px`,
+      selLabel: `${selS.n} ${selS.name}`,
+      stripBottom: isMap ? '106px' : '300px', stripOp: isMap ? 1 : 0, stripPe: isMap ? 'auto' : 'none',
+      upOp: trip ? 1 : 0, upPe: trip ? 'auto' : 'none',
+      tripOp: trip ? 1 : 0, tripPe: trip ? 'auto' : 'none',
+      collapse: () => this.setState({ view: 'map' }),
+      toggleMap: () => set('map'),
+      close: () => this.setState({ view: 'default' }),
+      actions: [['map', '지도 보기'], ['invite', '동행 초대'], ['weather', '날씨']].map(([k, label]) => ({
+        label, pick: () => set(k), bg: view === k ? '#191919' : '#FFFFFF', fg: view === k ? '#FFFFFF' : '#191919' })),
+      stops: STOPS.map((s, i) => {
+        const first = i === 0, open = !!this.state.open[s.id], locked = !!this.state.locked[s.id];
+        const done = started && i < idx, isCur = started && i === idx && !finished;
+        const inLeg = isCur && moving, atStop = isCur && !moving;
+        return { ...s, risk: !!s.risk, first, notFirst: !first, open, done, here: atStop,
+          liveInLeg: inLeg, liveAtStop: atStop,
+          liveTop: `${Math.round(frac / 0.6 * 32)}px`, markTop: first ? '78px' : '50%',
+          legText: inLeg ? `가는 중 · ${s.legShort}` : s.leg, legColor: inLeg ? '#B02A38' : done || (isCur && !moving) ? '#6F6F6F' : '#8B8B8B',
+          dotSize: done ? '18px' : '10px', dotBg: done ? '#2E9E5B' : '#DADCE2', dotMark: done ? '✓' : '',
+          railJustify: first ? 'flex-start' : 'center', railPad: first ? '6px' : '0px',
+          bt: first ? 'none' : '1px solid #EBEBEF',
+          bd: this.state.sel === s.id ? '#D83A48' : '#FFFFFF', pick: () => this.setState({ sel: s.id }),
+          lockGlyph: locked ? '🔒' : '🔓',
+          paceText: `예상 도착 ${s.time} (추정)`, paceColor: s.risk ? '#B02A38' : '#6F6F6F',
+          toggle: () => this.setState(st => ({ sel: s.id, open: { ...st.open, [s.id]: !st.open[s.id] } })),
+          lock: () => this.setState(st => ({ locked: { ...st.locked, [s.id]: !st.locked[s.id] } })) };
+      }),
+      dimOp: modal ? 1 : 0, dimPe: modal ? 'auto' : 'none',
+      hours: HOURS.map(([hr, sky, temp, rain]) => {
+        const stop = STOPS.find(s => parseInt(s.time, 10) === hr);
+        return { label: stop ? `${hr}시 · ${stop.n}` : `${hr}시`, sky, temp: `${temp}°`, rain: `${rain}%`,
+          rainColor: rain >= 30 ? '#2C64B5' : '#8B8B8B', bg: '#FFFFFF', bd: stop ? '#2B2B2E' : '#FFFFFF', timeColor: stop ? '#191919' : '#6F6F6F' };
+      }),
+      stopWeather: STOPS.map((s, i) => { const h = HOURS.find(x => x[0] === parseInt(s.time, 10)) ?? HOURS[0]; return { ...s, bt: i ? '1px solid #EBEBEF' : 'none', fc: `${h[1]} ${h[2]}° · 비 ${h[3]}%` }; }),
+      barW: isMap ? '328px' : '361px', barH: invite ? '640px' : weather ? '600px' : trip ? '574px' : '64px',
+      barBg: invite ? '#FFFFFF' : isMap ? '#FFFFFF' : '#F5F5F7', panelH: invite ? '640px' : '600px',
+      inviteOp: invite ? 1 : 0, invitePe: invite ? 'auto' : 'none',
+      weatherOp: weather ? 1 : 0, weatherPe: weather ? 'auto' : 'none',
+      tabOp: isMap ? 1 : 0, tabPe: isMap ? 'auto' : 'none',
+      running, notRunning: !running,
+      liveLabel: running ? '지금 · 위치 추적 중' : '지금',
+      liveClock: running ? '· 실시간' : started ? '· 일시 중지' : '· 14:40 · 4시간 55분 늦음',
+      nowTitle: finished ? '오늘 일정을 다 돌았어요' : !started ? `다음은 ${cur.name}` : moving ? `${toward(cur.name)} 이동 중` : `${cur.name}에 도착했어요`,
+      nowDetail: finished ? '4곳 모두 다녀왔어요' : !started ? `${STOPS[0].legShort} · 출발을 누르면 위치 추적이 시작돼요` : `4곳 중 ${idx}곳 다녀옴 · 다음 ${cur.time}`,
+      startLabel: finished ? '↺ 처음부터' : started ? '▶ 이어서' : '▶ 출발',
+      progressW: `${Math.round(pos / STOPS.length * 100)}%`,
+      start: () => this.startRun(), pause: () => this.pauseRun(),
+      skip: () => this.setState(s => ({ pos: Math.min(STOPS.length, Math.floor(s.pos) + 1) })),
+      roles: [['EDITOR', '함께 편집', '일정의 장소와 순서를 같이 바꿀 수 있어요.'], ['VIEWER', '보기만 허용', '일정을 변경하지 않고 확인만 할 수 있어요.']].map(([v, title, desc]) => {
+        const on = this.state.role === v;
+        return { title, desc, pick: () => this.setState({ role: v }), bg: on ? '#F0F0F3' : '#FFFFFF', bd: on ? '#2B2B2E' : '#EBEBEF', radio: on ? '#2B2B2E' : '#DADCE2', dot: on ? '#2B2B2E' : 'transparent' };
+      }),
+      inviteCta: this.state.role === 'EDITOR' ? '편집자 초대 링크 만들기' : '열람자 초대 링크 만들기',
+      tabs: TABS.map(([k, label]) => {
+        const back = k === 'user', sel = k === 'map', create = k === 'plus';
+        if (back) return { isBack: true, isUp: false, plain: false, label: '뒤로', wrapBg: '#F0F0F3', weight: 700, color: '#191919', icon: '', op: 1, filter: 'none', pick: undefined };
+        if (create) return { isBack: false, isUp: true, plain: false, label: '일정 펼치기', wrapBg: '#D83A48', weight: 700, color: '#191919', icon: '', op: 1, filter: 'none', pick: () => this.setState({ view: 'default' }) };
+        return { isBack: false, isUp: false, plain: true, pick: undefined, icon: `assets/tab/${k}.png`, label, wrapBg: 'transparent',
+          op: create || sel ? 1 : 0.55, filter: create ? 'none' : sel ? 'brightness(0)' : 'grayscale(1)',
+          weight: sel ? 700 : 400, color: sel ? '#191919' : '#8B8B8B' };
+      }),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import { txf } from '@/i18n/format';
+import { enCount, txf } from '@/i18n/format';
 import { formatClock, formatDayHeading as formatLocaleDayHeading } from '@/i18n/datetime';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -8,12 +8,14 @@ import { TripNameSheet } from '@/trip/TripNameSheet';
 import { NowCard } from '@/plan/NowCard';
 import {
   EMPTY_PROGRESS, arrive as arriveAt, drift, loadProgress, needsManualArrival,
-  isToday, localDateKey, pause as pauseRun, saveProgress, skip as skipStop, start as startRun, stepStates,
+  isToday, localDateKey, pause as pauseRun, saveProgress, saysStartsIn, skip as skipStop, start as startRun, stepStates,
   type TripProgress,
 } from '@/plan/tripProgress';
 import {
   arriveProgress, fetchProgress, pauseProgress, skipProgress, startProgress, type ProgressResult,
 } from '@/plan/tripProgressApi';
+import { arrivedAtOf } from '@/trip/page/actualTime';
+import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -23,8 +25,10 @@ import { Skeleton } from '@/components/Skeleton';
 import { TabBar, bottomBarClearance } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
-import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { TripPageDesktop } from '@/trip/page/TripPageDesktop';
+import { TripPageMobile } from '@/trip/page/TripPageMobile';
+import { formatManwon, tripPageKind } from '@/trip/page/tripPageModel';
 import {
   loadItinerary,
   loadItineraryPace,
@@ -55,10 +59,10 @@ import { useI18n } from '@/i18n';
 import { takeItineraryHint } from '@/onboarding/firstRun';
 import { ItineraryHint } from '@/onboarding/ItineraryHint';
 import { describeWarningCodes } from '@/plan/warningLabels';
-import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
+import { ExcludeConfirmModal, type ExcludeReason } from '@/components/ExcludeConfirmModal';
 import { localizeMessage } from '@/i18n/messages';
 import { koreanToward } from '@/i18n/korean';
-import { humanTripTitle } from '@/trip/tripNaming';
+import { humanTripTitle, tripNameOrDates } from '@/trip/tripNaming';
 import { categoryGlyph, loadPlacePhoto, loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
 import { summarizeItineraryBudget, type BudgetCategoryKey, type BudgetSummary } from '@/plan/itineraryBudget';
 import { loadTripBudget } from '@/trip/tripBudget';
@@ -154,7 +158,7 @@ function BudgetCard({ summary }: { summary: BudgetSummary }) {
   };
 
   // 「10.2만원」 — 헤더 요약과 같은 자릿수 규칙. 영어는 만 단위가 없어 원 단위 그대로.
-  const manwon = (won: number) => tx(`${Math.round(won / 1000) / 10}만원`, `${won.toLocaleString()} KRW`);
+  const manwon = (won: number) => tx(`${Math.round(won / 1000) / 10}만원`, `₩${won.toLocaleString()}`);
 
   // 🔴 **아는 비용이 하나라도 있는가.** 이 값이 카드 전체의 말투를 가른다 —
   //    없으면 숫자도 막대도 안 그리고, 「예산에 맞아요」 같은 판정도 안 한다.
@@ -170,12 +174,12 @@ function BudgetCard({ summary }: { summary: BudgetSummary }) {
     <View style={styles.budgetHead}>
       <View style={styles.budgetHeadLeft}>
         {priced
-          ? <Text variant="display" weight="bold">{txf(tx, '%s원', '%s KRW', summary.krw.toLocaleString())}</Text>
+          ? <Text variant="display" weight="bold">{txf(tx, '%s원', '₩%s', summary.krw.toLocaleString())}</Text>
           : <Text variant="body" weight="bold" color={color.text.muted}>{tx('아직 계산할 수 없어요', "Can't add this up yet")}</Text>}
         {summary.unpriced > 0 ? <Text variant="caption" color={color.text.muted}>{txf(tx, '%s곳 비용 미정', '%s place(s) unpriced', summary.unpriced)}</Text> : null}
       </View>
       {summary.budgetKrw != null ? <View style={styles.budgetHeadRight}>
-        <Text variant="caption" color={color.text.muted}>{txf(tx, '예산 %s원', 'Budget %s KRW', summary.budgetKrw.toLocaleString())}</Text>
+        <Text variant="caption" color={color.text.muted}>{txf(tx, '예산 %s원', 'Budget ₩%s', summary.budgetKrw.toLocaleString())}</Text>
         {/* 🔴 아는 비용이 없을 때 「예산에 맞아요」라고 적지 않는다. 그건 맞는 상태가
             아니라 **맞는지 모르는 상태**다. 12곳 중 0곳의 값으로 예산을 통과시키면,
             사람은 통과한 줄 알고 그 예산으로 떠난다. */}
@@ -214,7 +218,7 @@ function BudgetCard({ summary }: { summary: BudgetSummary }) {
             : txf(tx, '%s곳', '%s place(s)', entry.count)}
         </Text>
         {entry.known > 0
-          ? <Text variant="caption" weight="bold" style={styles.budgetRowValue}>{txf(tx, '%s원', '%s KRW', entry.krw.toLocaleString())}</Text>
+          ? <Text variant="caption" weight="bold" style={styles.budgetRowValue}>{txf(tx, '%s원', '₩%s', entry.krw.toLocaleString())}</Text>
           : <Text variant="caption" color={color.text.muted} style={styles.budgetRowValue}>{tx('미정', 'Unpriced')}</Text>}
       </View>)}
     </View>
@@ -228,7 +232,7 @@ function BudgetCard({ summary }: { summary: BudgetSummary }) {
           {maxDayKrw > 0 ? <><View style={[styles.budgetDayFill, { flex: day.krw }]} /><View style={{ flex: maxDayKrw - day.krw }} /></> : null}
         </View>
         {day.known > 0
-          ? <Text variant="caption" weight="bold" style={styles.budgetDayValue}>{txf(tx, '%s원', '%s KRW', day.krw.toLocaleString())}</Text>
+          ? <Text variant="caption" weight="bold" style={styles.budgetDayValue}>{txf(tx, '%s원', '₩%s', day.krw.toLocaleString())}</Text>
           : <Text variant="caption" color={color.text.muted} style={styles.budgetDayValue}>{tx('미정', 'Unpriced')}</Text>}
       </View>)}
     </View> : null}
@@ -288,7 +292,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
   const facts = [
     walkLabel,
     formatTravelLabel(item, tx, index === 0),
-    item.estimatedCostKrw == null ? null : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '%s KRW', item.estimatedCostKrw.toLocaleString()),
+    item.estimatedCostKrw == null ? null : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '₩%s', item.estimatedCostKrw.toLocaleString()),
   ].filter((fact): fact is string => fact !== null);
 
   // 구간 라벨 — 이 값들은 이 방문지로 들어오는 구간이다(backend ItineraryQueryService
@@ -339,7 +343,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           {/* 펼치는 손잡이는 제목 덩이에만 둔다. 행 전체를 Pressable 로 감싸면 그 안의
               자물쇠가 「버튼 안의 버튼」이 되고, 웹에서는 그게 허용되지 않는다.
           */}
-          <Pressable accessibilityRole="button" accessibilityState={{ expanded }} accessibilityLabel={(expanded ? txf(tx, '%s 접기', 'Collapse %s', item.title) : txf(tx, '%s 자세히', 'Details for %s', item.title))} onPress={onToggleExpand} style={styles.grow}>
+          <Pressable accessibilityRole="button" accessibilityState={{ expanded }} accessibilityLabel={(expanded ? txf(tx, '%s 접기', 'Collapse %s', item.title) : txf(tx, '%s 자세히', 'Details for %s', item.title))} onPress={onToggleExpand} style={styles.stopTitle}>
             <View style={styles.titleLine}>
               <Text variant={wide ? 'title' : 'body'} weight="bold" style={styles.titleText}>{item.title}</Text>
               {item.dataStatus ? <View style={[styles.statusChip, STATUS_CHIP[item.dataStatus]]}><Text variant="caption" weight="bold" color={STATUS_COLOR[item.dataStatus]}>{STATUS_LABEL[item.dataStatus]}</Text></View> : null}
@@ -351,7 +355,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           <View style={[styles.stopRight, wide && styles.stopRightWide]}>
             <View style={wide ? styles.stopRightStack : undefined}>
               <Text variant={wide ? 'title' : 'body'} weight="bold" color={color.brand.navy}>{formatTime(displayTime, locale)}</Text>
-              {wide && item.estimatedCostKrw != null ? <Text variant="caption" color={color.text.muted}>{item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '%s KRW', item.estimatedCostKrw.toLocaleString())}</Text> : null}
+              {wide && item.estimatedCostKrw != null ? <Text variant="caption" color={color.text.muted}>{item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '₩%s', item.estimatedCostKrw.toLocaleString())}</Text> : null}
             </View>
             {lockControl}
           </View>
@@ -362,8 +366,8 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
             {pace.visited ? <Text variant="caption" weight="bold" color={color.state.success}>{txf(tx, '도착 %s', 'Arrived %s', pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--') + (pace.predictedDeparture ? ` · ${txf(tx, '출발 %s', 'Left %s', formatTime(pace.predictedDeparture, locale))}` : '')}</Text>
               : <Text variant="caption" weight="bold" color={pace.atRisk ? color.state.danger : color.text.muted}>{txf(tx, '예상 도착 %s%s', 'Est. arrival %s%s', pace.predictedArrival ? formatTime(pace.predictedArrival, locale) : '--:--', estimated ? tx(' (추정)', ' (est.)') : '')}{pace.atRisk ? ` · ${tx('하루를 넘길 위험', 'Risks running past the day')}` : ''}</Text>}
             {(onRecordArrival || onRecordDeparture) ? <View style={styles.actualButtons}>
-              {!pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
-                : !pace.predictedDeparture ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 출발 찍기', 'Mark departure at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
+              {onRecordArrival && !pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
+                : onRecordDeparture && !pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 출발 찍기', 'Mark departure at %s', item.title)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
             </View> : null}
           </View> : null}
           {!reorderMode && canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 제외', 'Exclude %s', item.title)} accessibilityState={{ busy: excludeBusy, disabled }} disabled={disabled} onPress={onExclude} style={[styles.excludeButton, disabled && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.state.danger}>{excludeBusy ? tx('처리 중', 'Processing') : tx('이 장소 제외', 'Remove this place')}</Text></Pressable> : null}
@@ -381,7 +385,24 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
 
 type ViewMode = 'day' | 'all';
 
+/**
+ * 넓은 화면(데스크톱 판정 — useLayout)은 여행 페이지 통합 화면을 연다 — 추천 코스 + 일정을 한 화면에 (S15P21E201-1535, 시안
+ * frontend/docs/design_handoff_trip_page/). 🔴 `?classic=1` 이면 지금까지의 화면 그대로다 — 새 화면의
+ * ⋯ 「일정 편집」이 이리로 온다. 순서·고정·제외·다시 계산·되돌리기는 여기에만 있다.
+ *
+ * 폰은 같은 통합 화면의 폰 판이다(통합 2단계, TripPageMobile). 아래 ItineraryClassic 은 `?classic=1` 로만 온다
+ * — 어느 판을 여는지의 규칙은 tripPageKind(src/trip/page/tripPageModel.ts)가 갖는다.
+ */
 export default function ItineraryScreen() {
+  const { desktop } = useLayout();
+  const { id, name, classic } = useLocalSearchParams<{ id: string; name?: string; classic?: string }>();
+  const page = id ? tripPageKind(desktop, classic === '1') : 'classic';
+  if (id && page === 'desktop') return <TripPageDesktop source={{ kind: 'itinerary', itineraryId: id }} askName={name === '1'} />;
+  if (id && page === 'mobile') return <TripPageMobile source={{ kind: 'itinerary', itineraryId: id }} askName={name === '1'} />;
+  return <ItineraryClassic />;
+}
+
+function ItineraryClassic() {
   const router = useRouter();
   const { accessToken } = useAuth();
   // 🔴 `name=1` 은 ③ 코스 고르기에서 넘어왔다는 뜻이다. 그때만 이름 묻기가 **열린 채로**
@@ -409,6 +430,8 @@ export default function ItineraryScreen() {
   const [pace, setPace] = useState<ItineraryPaceDto | null>(null);
   const [rhythm, setRhythm] = useState<ItineraryRhythmDto | null>(null);
   const [actualBusyItemId, setActualBusyItemId] = useState<string | null>(null);
+  // 이 화면에서 방금 찍은 도착 — 진행 기록(서버의 도착 표에서 읽는다)은 다시 받기 전까지 모른다(S15P21E201-1690).
+  const [arrivalsHere, setArrivalsHere] = useState<Record<string, string>>({});
   const [replanConfirming, setReplanConfirming] = useState(false);
   const [replanBusy, setReplanBusy] = useState(false);
   const [replanOverflowIds, setReplanOverflowIds] = useState<string[] | null>(null);
@@ -558,6 +581,12 @@ export default function ItineraryScreen() {
 
   const itinerary = result.state === 'success' ? result.itinerary : null;
   const day = itinerary?.days[selectedDay];
+  // 🔴 손으로 찍는 것은 오늘 방문지만(S15P21E201-1690, 조율 세션 결정). 서버는 날짜를 일부러 검사하지 않는다 — 앱이 지킨다.
+  const recordToday = isToday(day?.date, localDateKey(new Date()));
+  // 추천 노출 — 카드가 실제로 화면에 보일 때만 보낸다(S15P21E201-1698, !1691 과 같은 기준).
+  const impressions = useImpressionTracker({ accessToken, sourceScreen: 'TRIP_ITINERARY', active: Boolean(itinerary) });
+  /** 적힌 실제 도착. 도착만 적힌 곳은 서버가 「다녀옴」으로 안 봐서 속도(pace)에는 예측값만 온다 — 여기서 읽는다. */
+  const arrivalOf = (itemId: string) => arrivalsHere[itemId] ?? arrivedAtOf(progress.outcomes, itemId);
 
   // ── 「지금」 카드가 쓰는 값들 ────────────────────────────────────────────
   const dayStops = day?.items ?? [];
@@ -574,8 +603,12 @@ export default function ItineraryScreen() {
         : txf(tx, '%s시간 %s분', '%s h %s min', Math.floor(nowDriftValue.minutes / 60), nowDriftValue.minutes % 60)
       : txf(tx, '%s분', '%s min', nowDriftValue.minutes)
     : null;
+  // 🔴 시작하지도 않은 여행에 「예정보다 빠름」이라고 하지 않는다 — S15P21E201-1489(B-13).
+  //    왜 그런지는 saysStartsIn 의 주석이 소유한다(src/plan/tripProgress.ts).
   const nowDrift = nowDriftValue && driftSpan
-    ? txf(tx, '예정보다 %s %s', '%s %s', driftSpan, nowDriftValue.early ? tx('빠름', 'early') : tx('늦음', 'late'))
+    ? saysStartsIn(progress.status, nowDriftValue)
+      ? txf(tx, '%s 뒤 시작', 'starts in %s', driftSpan)
+      : txf(tx, '예정보다 %s %s', '%s %s', driftSpan, nowDriftValue.early ? tx('빠름', 'early') : tx('늦음', 'late'))
     : null;
   const nowTitle = progress.status === 'DONE'
     ? tx('오늘 일정을 다 돌았어요', 'You finished today')
@@ -588,15 +621,16 @@ export default function ItineraryScreen() {
   //    「4곳 중 1곳 다녀옴 · 다음 12:30」(시안 5 Itinerary)을 적는다 — 어디까지 왔는지는 지어내는 것이 아니라 세는 것이다.
   const doneCount = dayStopIds.filter((stopId) => progress.outcomes[stopId]).length;
   const nowProgressLine = dayStops.length && progress.status !== 'PLANNED'
-    ? txf(tx, '%s곳 중 %s곳 다녀옴', '%s of %s stops done', dayStops.length, doneCount)
+    ? txf(tx, '%s곳 중 %s곳 다녀옴', '%s stops · %s done', dayStops.length, doneCount)
       + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '')
     : null;
   const nowDetail = currentStop?.description ?? nowProgressLine;
   const nowProgressRatio = dayStops.length && progress.status !== 'PLANNED' ? doneCount / dayStops.length : null;
   // 넓은 화면에서만 2단으로 나눈다. 저장소 반응형 표가 「1024~ 사이드바 + 본문」이라
   // 그 경계를 그대로 쓴다 — 여기서 숫자를 새로 정하지 않는다(layout/breakpoints.ts).
-  const { width } = useLayout();
-  const wide = isAtLeast(width, 'lg');
+  const { desktop } = useLayout();
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = desktop;
   const insets = useSafeAreaInsets();
   // — 통계는 값이 있는 것만 만든다. 판정은 itinerarySummary.ts 에 있다.
   const stats = useMemo(() => (itinerary ? itineraryStats(itinerary, tx) : []), [itinerary, tx]);
@@ -646,7 +680,7 @@ export default function ItineraryScreen() {
         : txf(tx, '도보 %s (%s곳 중 %s곳)', '%s on foot (%s places, %s measured)', formatWalk(dayWalkingMeters), dayWalking.total, dayWalking.known),
     dayCost.krw > 0
       ? dayCost.known === dayCost.total
-        ? txf(tx, '%s원', '%s KRW', dayCost.krw.toLocaleString())
+        ? txf(tx, '%s원', '₩%s', dayCost.krw.toLocaleString())
         : txf(tx, '%s원 (%s곳 중 %s곳)', '%s KRW (%s places, %s priced)', dayCost.krw.toLocaleString(), dayCost.total, dayCost.known)
       : null,
   ].filter(Boolean).join(' · '), [dayWalking, dayWalkingMeters, dayCost, displayedItems.length, tx]);
@@ -688,9 +722,14 @@ export default function ItineraryScreen() {
   const recordArrival = async (item: ItineraryItemDto) => {
     if (!itinerary) return;
     setActualBusyItemId(item.id);
-    const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt: new Date().toISOString(), departedAt: null, accessToken });
+    const arrivedAt = new Date().toISOString();
+    const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt, departedAt: null, accessToken });
     setActualBusyItemId(null);
-    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); void refreshPaceAfterActual(); }
+    if (outcome.state === 'success') {
+      setArrivalsHere((current) => ({ ...current, [item.id]: arrivedAt }));
+      setResult({ state: 'success', itinerary: outcome.itinerary });
+      void refreshPaceAfterActual();
+    }
     else if (outcome.state !== 'conflict') setActionMessage(outcome.message);
   };
 
@@ -698,7 +737,10 @@ export default function ItineraryScreen() {
     if (!itinerary) return;
     // PUT은 보낸 것이 최종 상태다(부분 갱신이 아니다) — 이미 기록된 도착 시각을
     // 함께 실어 보내지 않으면 출발만 남고 도착이 null로 지워진다.
-    const existingArrival = paceByItemId.get(item.id)?.predictedArrival ?? null;
+    // 🔴 실제 도착을 싣는다(S15P21E201-1690). 여기에 서버의 «예측» 도착(pace.predictedArrival)을 실었었다 — 도착만 적힌 곳은
+    //    서버가 「다녀옴」으로 안 봐서 예측값을 주고, 그 값이 실제 도착을 덮었다.
+    const existingArrival = arrivalOf(item.id);
+    if (!existingArrival) return;
     setActualBusyItemId(item.id);
     const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt: existingArrival, departedAt: new Date().toISOString(), accessToken });
     setActualBusyItemId(null);
@@ -741,10 +783,11 @@ export default function ItineraryScreen() {
     else setResult(next);
   };
 
-  const excludeItem = async (item: ItineraryItemDto) => {
+  const excludeItem = async (item: ItineraryItemDto, reason: ExcludeReason | null) => {
     if (!itinerary) return;
     setExcludingItemId(item.id); setConflict(null); setActionMessage(null);
-    const accepted = await removeItineraryItem({ itineraryId: itinerary.id, itemId: item.id, baseVersion: itinerary.version, accessToken });
+    // 고른 이유(S15P21E201-1695). 건너뛰면 칸을 비운다.
+    const accepted = await removeItineraryItem({ itineraryId: itinerary.id, itemId: item.id, baseVersion: itinerary.version, operationalReason: reason ?? undefined, accessToken });
     if (accepted.state === 'accepted') { if (await runJob(accepted.jobId)) await reload(); }
     else if (accepted.state === 'conflict') setConflict(accepted.message);
     else setActionMessage(accepted.message);
@@ -891,7 +934,7 @@ export default function ItineraryScreen() {
 
   // 헤더 요약 — 값이 있는 것만 잇는다. 「미확인」이라고 적힌 칸은 정보가 아니라 잡음이다.
   const heroSummary = itinerary ? [
-    itinerary.days.length > 0 ? tx(`${itinerary.days.length}일`, `${itinerary.days.length} days`) : null,
+    itinerary.days.length > 0 ? tx(`${itinerary.days.length}일`, enCount(itinerary.days.length, 'day', 'days')) : null,
     stopCount > 0 ? tx(`${stopCount}곳`, `${stopCount} stops`) : null,
     // 🔴 여기도 「없음」과 「0」을 가른다. 대중교통 여행은 서버가 이 값을 안 채우므로
     //    예전에는 이 칸이 조용히 빠졌다 (S15P21E201-1466).
@@ -899,7 +942,7 @@ export default function ItineraryScreen() {
       ? txf(tx, '도보 %skm', '%skm on foot', (itinerary.totalWalkingMeters / 1000).toFixed(1))
       : null,
     typeof itinerary.totalEstimatedCostKrw === 'number' && itinerary.totalEstimatedCostKrw > 0
-      ? txf(tx, '약 %s만원', 'about %s KRW', Math.round(itinerary.totalEstimatedCostKrw / 10000 * 10) / 10, itinerary.totalEstimatedCostKrw.toLocaleString()) : null,
+      ? txf(tx, '약 %s', 'about %s', formatManwon(itinerary.totalEstimatedCostKrw, tx)) : null,
   ].filter(Boolean).join(' · ') : '';
 
   // ── 네이비 헤더 (시안 design_handoff_itinerary 2·3절) ──────────────────────
@@ -920,7 +963,7 @@ export default function ItineraryScreen() {
         {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.brand.navy}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
       </View>
       <View style={styles.heroTitleRow}>
-        <Text variant="display" weight="bold" color={color.text.heading} style={styles.heroTitle}>{humanTripTitle(itinerary?.title) ?? tx('부산 여행', 'Busan trip')}</Text>
+        <Text variant="display" weight="bold" color={color.text.heading} style={styles.heroTitle}>{tripNameOrDates({ title: itinerary?.title, startDate: itinerary?.days[0]?.date, endDate: itinerary?.days[itinerary.days.length - 1]?.date }, tx, locale)}</Text>
         {/* 「이름 바꾸기」 — 시안 ④. 페이지로 가지 않고 그 자리에서 겹쳐 연다. */}
         {itinerary?.tripId ? (
           <Pressable accessibilityRole="button" onPress={() => setNaming(true)} style={styles.renameButton}>
@@ -1012,7 +1055,7 @@ export default function ItineraryScreen() {
         <View style={styles.stopBody}><Skeleton width="60%" height={16} /><View style={styles.metaRow}><Skeleton width="30%" height={12} /><Skeleton width="30%" height={12} /></View></View>
       </View>
     ))}</View> : null}
-    {!loading && result.state !== 'success' ? <View style={styles.stateCard}><Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('일정 API를 기다리고 있어요', 'Waiting for the itinerary API') : tx('일정을 불러오지 못했어요', 'Could not load the itinerary')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
+    {!loading && result.state !== 'success' ? <View style={styles.stateCard}><Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('일정을 불러오지 못했어요', 'Could not load the itinerary')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
     {!loading && itinerary ? <>
       {hint && canEdit ? <ItineraryHint onDone={() => setHint(false)} /> : null}
       {menuOpen ? <View style={styles.menuPanel}>
@@ -1078,7 +1121,7 @@ export default function ItineraryScreen() {
           {!reorderMode && wide ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} locale={locale} /> : null}
           {displayedItems.length ? <View style={wide ? styles.wideGrid : undefined}>
             <View style={wide ? styles.timelineColumn : undefined}>
-              <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} stepState={dayStepStates[index]} />)}</View>
+              <View style={styles.route}>{displayedItems.map((item, index) => <ImpressionView key={item.id} tracker={impressions} placeId={item.placeId} requestId={item.requestId}><StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={recordToday && !arrivalOf(item.id) ? () => void recordArrival(item) : undefined} onRecordDeparture={recordToday && arrivalOf(item.id) ? () => void recordDeparture(item) : undefined} accessToken={accessToken} stepState={dayStepStates[index]} /></ImpressionView>)}</View>
             </View>
             {/* 이동 요약 — 시안 p6 의 3칸(장소 · 이동 합계 · 수단). 폰에도 둔다
                 「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다.
@@ -1097,7 +1140,7 @@ export default function ItineraryScreen() {
                 <View style={styles.summaryCell}>
                   <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이동 합계', 'Travel')}</Text>
                   {dayTravelMinutes > 0
-                    ? <Text variant="title" weight="bold">{tx(`${dayTravelMinutes}분`, `${dayTravelMinutes}m`)}</Text>
+                    ? <Text variant="title" weight="bold">{tx(`${dayTravelMinutes}분`, `${dayTravelMinutes} min`)}</Text>
                     : <Text variant="caption" color={color.text.muted}>{tx('아직 없어요', 'Not yet')}</Text>}
                 </View>
                 <View style={styles.summaryCell}>
@@ -1116,7 +1159,7 @@ export default function ItineraryScreen() {
                   ? <Text variant="caption" color={color.text.body}>{txf(tx, '도보 %s', '%s on foot', formatWalk(dayWalkingMeters))}</Text>
                   : <Text variant="caption" color={color.text.muted}>{tx('도보 거리 — 대중교통 구간은 재지 않아요', 'Walking distance — not measured on transit legs')}</Text>}
                 {dayTravelMinutes > 0
-                  ? <Text variant="caption" color={color.text.body}>{tx(`이동 합계 ${dayTravelMinutes}분`, `${dayTravelMinutes}m travel in total`)}</Text>
+                  ? <Text variant="caption" color={color.text.body}>{tx(`이동 합계 ${dayTravelMinutes}분`, `${dayTravelMinutes} min travel in total`)}</Text>
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날짜는 구간 이동 시간이 아직 없어요.', 'No leg travel times for this day yet.')}</Text>}
                 {/* 대중교통은 업체가 정해지지 않아 부를 API 가 없다.
                     빈 값을 그리지 않고, 없다는 것을 그대로 적는다.
@@ -1163,10 +1206,10 @@ export default function ItineraryScreen() {
     placeTitle={excludeConfirming?.title ?? ''}
     busy={excludingItemId !== null}
     onCancel={() => setExcludeConfirming(null)}
-    onConfirm={() => {
+    onConfirm={(reason) => {
       const target = excludeConfirming;
       setExcludeConfirming(null);
-      if (target) void excludeItem(target);
+      if (target) void excludeItem(target, reason);
     }}
   />
   <TabBar active="map" /></View>;
@@ -1244,6 +1287,9 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   stopRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
   stopRightWide: { alignItems: 'flex-start' },
   stopRightStack: { alignItems: 'flex-end' },
+  // 제목 덩이 — 사진과 시간·자물쇠 사이의 남는 자리만 쓴다. 공용 `grow` 의 최소 폭 180 을 쓰면
+  // 폰(390)에서 시간·자물쇠가 오른쪽 밖으로 50 쯤 밀려 잘렸다(S15P21E201-1701). 길면 줄을 바꾼다.
+  stopTitle: { flex: 1, minWidth: 0, gap: spacing[1] },
   stopDetail: { gap: spacing[2], paddingTop: spacing[2], borderTopWidth: 1, borderTopColor: color.surface.border },
   lockTouch: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   nodeWide: { width: 40, height: 40 },

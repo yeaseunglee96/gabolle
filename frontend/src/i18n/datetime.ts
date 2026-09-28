@@ -96,6 +96,16 @@ export function formatDayHeading(value: string, locale: string): string | null {
     ?? `${date.getMonth() + 1}. ${date.getDate()}.`;
 }
 
+/**
+ * 「토」 · 「Sat」 · 「土」 · 「周六」 — 요일만. 여행 페이지(폰) 타임라인의 날짜 원 위에 쓴다.
+ * 맡길 수 없으면 null — 요일을 지어내지 않고 그 줄을 안 그린다.
+ */
+export function formatWeekdayShort(value: string, locale: string): string | null {
+  const date = parse(value);
+  if (!date) return null;
+  return intlFormat(locale, { weekday: 'short' }, date);
+}
+
 /** 「9월 20일」 · 「Sep 20」 · 「9月20日」 — 요일 없이 짧게. */
 export function formatMonthDay(value: string, locale: string): string | null {
   const date = parse(value);

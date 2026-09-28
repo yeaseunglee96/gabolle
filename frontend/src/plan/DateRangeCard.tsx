@@ -11,6 +11,8 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { MonthGrid } from '@/home/PlanStartBar';
+import { MonthPicker } from '@/home/MonthPicker';
+import { MAX_MONTH_OFFSET, monthOffsetOf } from '@/home/monthJump';
 import { EMPTY_START_BAR, addDays, formatDateShort, nightCount, toDateKey } from '@/home/startBarValue';
 
 export type DateRange = { startDate: string; endDate: string };
@@ -33,7 +35,9 @@ export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() 
   today?: Date;
 }) {
   const todayKey = toDateKey(today);
-  const [monthOffset, setMonthOffset] = useState(0);
+  // 이미 고른 출발일이 있으면 그 달부터 연다 — S15P21E201-1539. 이번 달부터 열면 고른 날을 보려고 › 를 또 눌러야 했다.
+  const [monthOffset, setMonthOffset] = useState(() => monthOffsetOf(value.startDate, today));
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
   const month = useMemo(() => {
     const base = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
     return { year: base.getFullYear(), month: base.getMonth() };
@@ -76,9 +80,11 @@ export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() 
           <Text weight="bold" color={color.text.heading}>‹</Text>
         </Pressable>
         <View style={styles.monthBody}>
-          <MonthGrid {...month} value={{ ...EMPTY_START_BAR, startDate: value.startDate, endDate: value.endDate }} today={todayKey} onPick={pick} tx={tx} />
+          {monthPickerOpen
+            ? <MonthPicker today={today} selected={monthOffset} onPick={(offset) => { setMonthOffset(offset); setMonthPickerOpen(false); }} tx={tx} />
+            : <MonthGrid {...month} value={{ ...EMPTY_START_BAR, startDate: value.startDate, endDate: value.endDate }} today={todayKey} onPick={pick} tx={tx} onPressTitle={() => setMonthPickerOpen(true)} />}
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('다음 달', 'Next month')} disabled={monthOffset >= 11} onPress={() => setMonthOffset((n) => n + 1)} style={[styles.navButton, monthOffset >= 11 && styles.navOff]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('다음 달', 'Next month')} disabled={monthOffset >= MAX_MONTH_OFFSET} onPress={() => setMonthOffset((n) => Math.min(MAX_MONTH_OFFSET, n + 1))} style={[styles.navButton, monthOffset >= MAX_MONTH_OFFSET && styles.navOff]}>
           <Text weight="bold" color={color.text.heading}>›</Text>
         </Pressable>
       </View>

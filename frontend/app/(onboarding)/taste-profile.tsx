@@ -1,7 +1,7 @@
 // 온보딩 ③ 취향 다섯 — 로컬성·조용함·관광지·음식·경사.
 // 세 질문(spend-profile.tsx) 바로 다음 단계이고, 틀은 그 화면을 그대로 따른다.
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -12,7 +12,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { enterApp } from '@/auth/enterApp';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { FOODS } from '@/plan/foodConflicts';
 import {
   countTasteAnswers,
@@ -94,10 +94,10 @@ export default function TasteProfileScreen() {
   const router = useRouter();
   const { tx } = useI18n();
   const { accessToken, ready } = useAuth();
-  const { width } = useWindowDimensions();
   // 1024 이상 — 사이드바가 들어가는 폭(breakpoints.ts 의 표). 이 화면에는 사이드바가
   // 없지만, 그 폭부터 한 열로 늘어진 문항이 읽기 어려워지는 것은 같다.
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = useLayout().desktop;
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<TasteAnswers>({});
   const [settled, setSettled] = useState<Set<number>>(new Set());

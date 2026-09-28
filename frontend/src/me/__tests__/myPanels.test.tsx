@@ -1,4 +1,4 @@
-// 겹쳐 여는 메뉴 열한 개.
+// 겹쳐 여는 메뉴 전부.
 //
 // 🔴 -1331 — 예전에는 「옮긴 것」과 「아직인 것」을 갈랐다. 이제 **겹쳐 여는 것이 유일한
 //    길이다**(하위 주소를 없앴다). 본문이 하나라도 비면 그 메뉴는 **빈 창이 열리고**,
@@ -6,20 +6,20 @@
 import { panelTitle, isPanelKey, myPanelBody, type MyPanelKey } from '@/me/myPanels';
 
 const ALL: MyPanelKey[] = [
-  'posts', 'saved', 'followers', 'following', 'preferences',
+  'posts', 'saved', 'replies', 'followers', 'following', 'preferences',
   'identities', 'profile', 'notifications', 'blocked', 'help', 'terms',
 ];
 
 const tx = (ko: string) => ko;
 
 describe('마이페이지 패널', () => {
-  it('🔴 열한 개 전부 본문이 있다 — 빈 창이 열리지 않는다', () => {
+  it('🔴 전부 본문이 있다 — 빈 창이 열리지 않는다', () => {
     for (const key of ALL) {
       expect(myPanelBody(key)).toBeTruthy();
     }
   });
 
-  it('열한 개 전부 제목과 설명이 있다 — 머리가 빈 채로 열리지 않는다', () => {
+  it('전부 제목과 설명이 있다 — 머리가 빈 채로 열리지 않는다', () => {
     for (const key of ALL) {
       const { title, description } = panelTitle(key, tx);
       expect(title.length).toBeGreaterThan(0);

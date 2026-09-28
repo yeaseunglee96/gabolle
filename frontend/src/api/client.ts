@@ -281,11 +281,27 @@ function refreshAccessToken(): Promise<string | null> {
   return refreshInFlight;
 }
 
+/**
+ * 🔴 서버 앞 nginx 는 IP 당 요청 수를 제한하고(limit_req 10r/s, burst 20), 넘친 요청을 **503** 으로
+ * 돌려준다. 로그인 뒤 홈은 한꺼번에 API 를 십수 번 부르는데, 그 가운데 절반이 이 503 으로 잘려
+ * 「내 여행」·저장·취향 칸이 빈 채로 떴다(S15P21E201-1574). 서버가 죽은 것이 아니라 «잠깐 몰린 것»이라,
+ * 토큰이 다시 차오르는 시간(초당 10개)만큼만 기다렸다 GET 을 두 번까지 다시 보낸다.
+ * 무작위 지터(jitter — 재시도 시각을 조금씩 흩뜨리는 것)를 섞는 이유는, 잘린 아홉 개가 같은 순간에
+ * 다시 몰려 또 잘리지 않게 하려는 것이다. POST 등은 두 번 실행되면 안 되므로 재시도하지 않는다.
+ */
+export const RATE_LIMIT_RETRY_DELAYS_MS = [500, 1200];
+const RATE_LIMIT_RETRY_JITTER_MS = 500;
+
+function isSafeToRetryMethod(method: string | undefined): boolean {
+  const upper = (method ?? 'GET').toUpperCase();
+  return upper === 'GET' || upper === 'HEAD';
+}
+
 export function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   return performRequest<T>(path, options, false);
 }
 
-async function performRequest<T>(path: string, options: RequestOptions, isRetry: boolean): Promise<T> {
+async function performRequest<T>(path: string, options: RequestOptions, isRetry: boolean, rateLimitAttempt = 0): Promise<T> {
   const { body, accessToken, headers, skipUnauthorizedHandling, timeoutMs, onResponse, ...requestOptions } = options;
   const controller = new AbortController();
   let timedOut = false;
@@ -331,6 +347,22 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
     requestOptions.signal?.removeEventListener('abort', abortFromCaller);
   }
 
+  // 깃발(setApiUnavailable)을 올리기 «전에» 재시도한다 — 잠깐 몰린 503 이 「서버 연결 불가」 배너를 깜빡이게 하면 안 된다.
+  if (
+    response.status === 503
+    && isSafeToRetryMethod(requestOptions.method)
+    && rateLimitAttempt < RATE_LIMIT_RETRY_DELAYS_MS.length
+    && !requestOptions.signal?.aborted
+  ) {
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, RATE_LIMIT_RETRY_DELAYS_MS[rateLimitAttempt] + Math.random() * RATE_LIMIT_RETRY_JITTER_MS);
+    });
+    if (!requestOptions.signal?.aborted) {
+      return performRequest<T>(path, options, isRetry, rateLimitAttempt + 1);
+    }
+    throw new ApiClientError('요청을 취소했어요.', REQUEST_CANCELLED_CODE, 0);
+  }
+
   // HTTP 오류여도 서버 자체에는 다시 연결된 상태다 — 5xx 는 빼고.
   const serverSideFailure = isServerErrorStatus(response.status);
   setApiUnavailable(serverSideFailure);
@@ -363,7 +395,9 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
   const envelope = (await response.json()) as ApiEnvelope<T>;
   if (!response.ok || envelope.error || envelope.data === null) {
     // — 「이 기능은 열쇠가 없다」는 5xx 는 서버가 죽은 것이 아니다.
-    if ((envelope.error?.code ?? '').endsWith('_VENDOR_NOT_CONFIGURED')) setApiUnavailable(false);
+    //    「지금 요청이 많아요」(SERVER_BUSY 503, 추천 실행기가 꽉 참)도 그렇다 — 봉투로 답했으니 살아 있다(S15P21E201-1688).
+    const code = envelope.error?.code ?? '';
+    if (code.endsWith('_VENDOR_NOT_CONFIGURED') || code === 'SERVER_BUSY') setApiUnavailable(false);
     throw new ApiClientError(
       envelope.error?.message ?? '요청을 처리하지 못했어요.',
       envelope.error?.code ?? 'REQUEST_FAILED',

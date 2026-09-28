@@ -47,3 +47,16 @@ export function txf(
 ): string {
   return fillValues(tx(ko, en), values);
 }
+
+/**
+ * 영어 명사의 단수·복수 — 「traveler」·「travelers」 (S15P21E201-1683). 한국어에는 단·복수가 없어 영어 틀에만 쓴다.
+ * 번역표의 한국어 틀(「%s명」)은 그대로 두고 영어 틀만 개수에 맞게 고를 때: txf(tx, '%s명', `%s ${enPlural(n, 'traveler', 'travelers')}`, n).
+ */
+export function enPlural(count: number, one: string, many: string): string {
+  return count === 1 ? one : many;
+}
+
+/** 「1 traveler」·「2 travelers」 — 🔴 「1 travelers」가 심사 공지의 알려진 문제였다(S15P21E201-1683). */
+export function enCount(count: number, one: string, many: string): string {
+  return `${count} ${enPlural(count, one, many)}`;
+}

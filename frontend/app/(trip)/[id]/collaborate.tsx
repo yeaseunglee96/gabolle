@@ -12,7 +12,8 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { changeTripMemberRole, getTripActivity, listTripMembers, removeTripMember, type CompanionRole, type TripActivityEntry, type TripActivityOperation, type TripMember, type TripMembersView } from '@/trip/collaboration';
-import { relativeStoryTime } from '@/social/stories';
+import { RecordCard, recordPhoneGrid } from '@/me/RecordCard';
+import { getTripStories, relativeStoryTime, type StoryDto } from '@/social/stories';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
@@ -50,6 +51,10 @@ export default function TripCollaborate() {
   const [activity, setActivity] = useState<ActivityState>({ status: 'loading' });
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
   const [actionError, setActionError] = useState('');
+  // 🔴 이 여행에 달린 기록 — 동행자가 「다른 사람은 여기서 뭘 했나」를 여행 화면 안에서 본다(S15P21E201-418).
+  //    피드(/feed)와 같은 글이지만 껍데기가 다르다 — 저긴 읽는 목록, 여긴 여행 안의 한 칸. 참여자 목록과 별개
+  //    요청이라 이게 늦거나 실패해도 참여자·최근 변경은 그대로 선다.
+  const [records, setRecords] = useState<{ status: 'loading' } | { status: 'ready'; items: StoryDto[] } | { status: 'hidden' } | { status: 'error' }>({ status: 'loading' });
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -70,7 +75,16 @@ export default function TripCollaborate() {
     else setActivity({ status: 'error', message: result.message });
   }, [id, accessToken]);
 
-  useFocusEffect(useCallback(() => { if (ready) { void load(); void loadActivity(); } }, [ready, load, loadActivity]));
+  const loadRecords = useCallback(async () => {
+    if (!id) return;
+    setRecords({ status: 'loading' });
+    const result = await getTripStories(id, accessToken);
+    if (result.state === 'success') setRecords({ status: 'ready', items: result.items });
+    else if (result.state === 'not-found') setRecords({ status: 'hidden' });
+    else setRecords({ status: 'error' });
+  }, [id, accessToken]);
+
+  useFocusEffect(useCallback(() => { if (ready) { void load(); void loadActivity(); void loadRecords(); } }, [ready, load, loadActivity, loadRecords]));
 
   async function changeRole(member: TripMember, role: CompanionRole) {
     if (!id || busyUserId) return;
@@ -139,6 +153,21 @@ export default function TripCollaborate() {
         ))}
       </View>}
 
+      {records.status !== 'hidden' && <View style={styles.recordsSection}>
+        <View style={styles.recordsHead}>
+          <Text variant="title" weight="bold">{tx('이 여행의 기록', 'Records from this trip')}</Text>
+          <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/feed/compose', params: { tripId: id ?? '' } })} hitSlop={8}>
+            <Text variant="caption" weight="bold" color={color.action.outline}>{tx('기록 남기기 ›', 'Write one ›')}</Text>
+          </Pressable>
+        </View>
+        {records.status === 'loading' && <Text variant="caption" color={color.text.muted}>{tx('불러오는 중…', 'Loading…')}</Text>}
+        {records.status === 'error' && <Text variant="caption" color={color.text.muted}>{tx('기록을 불러오지 못했어요.', "We couldn't load your records.")}</Text>}
+        {records.status === 'ready' && records.items.length === 0 && <Text variant="caption" color={color.text.muted}>{tx('아직 이 여행에 남긴 기록이 없어요. 사진 한 장이면 충분해요.', 'No records on this trip yet — one photo is enough.')}</Text>}
+        {records.status === 'ready' && records.items.length > 0 && <View style={recordPhoneGrid}>
+          {records.items.map((story) => <RecordCard key={story.id} story={story} onPress={() => router.push(`/feed/${story.id}`)} tx={tx} />)}
+        </View>}
+      </View>}
+
       {isOwner && <Button label={tx('동행자 초대하기', 'Invite a companion')} onPress={() => router.push(`/${id}/share`)} containerStyle={styles.inviteButton} />}
     </>}
   </Screen>;
@@ -158,4 +187,6 @@ const styles = StyleSheet.create({
   activitySection: { gap: spacing[2], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   activityRow: { paddingVertical: spacing[1] },
   inviteButton: { marginTop: spacing[4] },
+  recordsSection: { gap: spacing[3], marginTop: spacing[4] },
+  recordsHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
 });

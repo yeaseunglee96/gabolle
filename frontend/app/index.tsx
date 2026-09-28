@@ -4,9 +4,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
 import { PlanStartBar } from '@/home/PlanStartBar';
-import { startBarEditSection, startBarFromDraft } from '@/home/startBarValue';
+import { startBarEditSection, startBarEndDate, startBarFromDraft } from '@/home/startBarValue';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
@@ -22,7 +22,6 @@ import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { FLAG_IMAGES, WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
-import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { useI18n } from '@/i18n';
@@ -45,7 +44,8 @@ const welcomeVideo = require('../assets/video/busan-tram-portrait.mp4');
 
 export default function Welcome() {
   const router = useRouter();
-  const { width } = useLayout();
+  const focused = useIsFocused();
+  const { width, desktop } = useLayout();
   const { language, mobility, setPreferences, hydrated, hasEnteredApp } = useOnboardingPreferences();
   const { tx } = useI18n();
   const { user, ready, accessToken } = useAuth();
@@ -54,13 +54,15 @@ export default function Welcome() {
   const editSection = startBarEditSection(useLocalSearchParams().edit);
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
-  const isDesktop = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const isDesktop = desktop;
   // 홈이 쓰는 값(기록·갈래·날씨·장소·내 여행)을 한곳에서 읽는다. 폰 분기에서도 훅 순서가
   // 바뀌면 안 되므로 조건 없이 위에서 부른다 — 폰에서는 그린 것이 없어 값만 놀고 끝난다.
   const home = useHomeData(isDesktop);
   // 하트는 화면이 한 번 쥐고 줄 둘에 내려 준다 — 줄마다 따로 쥐면 같은 장소가
   // 두 줄에 있을 때 한쪽만 켜진다.
-  const saved = useSavedPlaces(accessToken, 'home-desktop');
+  // 비회원이 하트를 누르면 로그인으로 보내고 돌아온다 (S15P21E201-1795).
+  const saved = useSavedPlaces(accessToken, () => router.push({ pathname: '/sign-in', params: { returnTo: '/' } }));
   const [assistantOpen, setAssistantOpen] = useState(false);
   const onToggleLike = (placeId: string) => {
     // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
@@ -112,8 +114,15 @@ export default function Welcome() {
       origin: value.origin,
       originLat: value.originLat,
       originLng: value.originLng,
+      lodging: value.lodging,
+      lodgingLat: value.lodgingLat,
+      lodgingLng: value.lodgingLng,
+      lodgingPlace: value.lodgingPlace,
+      // 화면용 영어 이름 — 여행 만들기 화면의 칩이 쓴다(S15P21E201-1795). 서버로 안 간다.
+      originEnglish: value.originEnglish ?? null,
+      lodgingEnglish: value.lodgingEnglish ?? null,
       startDate: value.startDate,
-      endDate: value.endDate,
+      endDate: startBarEndDate(value),
       adults: value.adults,
       children: value.children,
       travelers: value.adults + value.children,
@@ -151,7 +160,9 @@ export default function Welcome() {
       {showVideo ? <VideoView player={player} contentFit="cover" nativeControls={false} allowsPictureInPicture={false} style={styles.mobileBackgroundImage} /> : null}
       {/* 어둠막 — 위는 옅게, 아래로 갈수록 짙게. 흰 글자와 단추가 어떤 장면에서도 읽히게 한다. */}
       <LinearGradient pointerEvents="none" colors={['rgba(25,25,25,0.35)', 'rgba(25,25,25,0.15)', 'rgba(25,25,25,0.40)', 'rgba(25,25,25,0.92)']} locations={[0, 0.3, 0.6, 1]} style={styles.mobileBackgroundImage} />
-      <StatusBar style="light" />
+      {/* 🔴 흰 상태바는 영상 위에서만이다. 온보딩은 router.push 로 넘어가서 이 화면이 스택에 남는다 —
+          그대로 두면 밝은 온보딩·나이 확인·권한 화면 내내 시계와 배터리가 흰 글자로 안 보였다(S15P21E201-1747). */}
+      {focused ? <StatusBar style="light" /> : null}
       <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={styles.mobileSafeArea}>
         <ScrollView style={styles.mobileSafeArea} contentContainerStyle={styles.mobileContent}>
         <View style={styles.mobileBrand}>
@@ -236,11 +247,12 @@ export default function Welcome() {
         <Text variant="caption" color={color.text.body}>{saved.feedback}</Text>
       </View>
     ) : null}
+    {saved.consentPrompt}
 
     {/* 로그인 안 했으면 내 여행 자리를 통째로 접는다 — 빈 여백 띠만 남으면 고장으로 보인다. */}
     {user ? (
       <View style={styles.lowerSection}>
-        <MyTripCard trip={home.trip} signedIn loaded={home.tripsLoaded} />
+        <MyTripCard trip={home.trip} signedIn loaded={home.tripsLoaded} hasTrips={home.hasTrips} />
       </View>
     ) : null}
   </ScrollView>

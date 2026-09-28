@@ -120,23 +120,41 @@ async function writeLocal(userId: string | null, record: TravelConditionsRecord)
   }
 }
 
-/** 저장된 조건을 읽는다. 서버가 정본, 기기가 사본이다. */
-export async function loadTravelConditions(
-  userId: string | null,
-  accessToken: string | null,
-): Promise<TravelConditionsRecord> {
-  if (accessToken) {
-    try {
-      const dto = await apiRequest<{ status?: string | null; value?: string | null }>(PATH, { accessToken });
+/**
+ * 🔴 홈의 「물을까」 판정과 새 여행 초안(PlanProvider)이 로그인 직후 거의 동시에 조건을 읽는다 — 요청이 둘 나갔다
+ *    (S15P21E201-1686, 로컬 실측에서 둘째는 45ms 뒤). 같은 계정·같은 표로 잠깐 사이에 다시 읽으면 앞의 요청을 같이 쓴다.
+ *    저장하면 버린다 — 저장 전 답을 돌려주지 않게.
+ */
+const SHARE_MS = 5000;
+let shared: { key: string; at: number; request: Promise<TravelConditionsRecord | null> } | null = null;
+
+/** 서버의 답. 못 닿으면 null. */
+function fetchServerRecord(userId: string | null, accessToken: string): Promise<TravelConditionsRecord | null> {
+  const key = `${userId}:${accessToken}`;
+  if (shared && shared.key === key && Date.now() - shared.at < SHARE_MS) return shared.request;
+  const request = apiRequest<{ status?: string | null; value?: string | null }>(PATH, { accessToken })
+    .then((dto) => {
       const record: TravelConditionsRecord = {
         status: oneOf(dto?.status, ['SAVED', 'LATER', 'NEVER'] as const),
         conditions: decodeConditions(dto?.value),
       };
       void writeLocal(userId, record);
       return record;
-    } catch {
-      // 서버에 못 닿았다. 아래 기기 사본으로 내려간다 — 「안 물어봤다」고 단정하지 않는다.
-    }
+    })
+    .catch(() => null);
+  shared = { key, at: Date.now(), request };
+  return request;
+}
+
+/** 저장된 조건을 읽는다. 서버가 정본, 기기가 사본이다. */
+export async function loadTravelConditions(
+  userId: string | null,
+  accessToken: string | null,
+): Promise<TravelConditionsRecord> {
+  if (accessToken) {
+    const record = await fetchServerRecord(userId, accessToken);
+    if (record) return record;
+    // 서버에 못 닿았다. 아래 기기 사본으로 내려간다 — 「안 물어봤다」고 단정하지 않는다.
   }
   return (await readLocal(userId)) ?? { status: null, conditions: null };
 }
@@ -149,6 +167,7 @@ export async function saveTravelConditions(input: {
   /** `SAVED` 일 때만 채운다. 서버 계약이 그렇다. */
   conditions: TravelConditions | null;
 }): Promise<{ synced: boolean }> {
+  shared = null;
   const record: TravelConditionsRecord = {
     status: input.status,
     conditions: input.status === 'SAVED' ? input.conditions : null,

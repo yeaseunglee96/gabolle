@@ -79,7 +79,7 @@ export function MyPageModal({
             <Text variant="title" weight="bold">✕</Text>
           </Pressable>
         </View>
-        <ScrollView contentContainerStyle={styles.body}>{children}</ScrollView>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.body}>{children}</ScrollView>
       </Animated.View>
     </View>
   );
@@ -106,5 +106,8 @@ const styles = StyleSheet.create({
   headCopy: { flex: 1, gap: spacing[2], minWidth: 0 },
   close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
   pressed: { opacity: 0.72 },
-  body: { paddingHorizontal: spacing[6], paddingBottom: spacing[6] },
+  // 🔴 본문은 폰 창(MyPageSheet)처럼 연회색 + 머리 아래 선이다(S15P21E201-1659). 창 전체가 아이보리일 때는 흰 카드가
+  //    창 바탕에 묻혀 선 하나로만 갈렸다(저장한 기록·내 댓글).
+  scroll: { backgroundColor: color.canvas, borderTopWidth: 1, borderTopColor: color.surface.border },
+  body: { paddingHorizontal: spacing[6], paddingTop: spacing[4], paddingBottom: spacing[6] },
 });

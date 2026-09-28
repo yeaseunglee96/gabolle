@@ -1,6 +1,7 @@
 // 주변 버스 도착 — 현장 도구가 쓴다.
 import { isVendorNotReady } from '@/api/vendorReady';
 import { apiRequest, ApiClientError } from '@/api/client';
+import { coarseCoordinate } from '@/personalization/locationConsent';
 
 export type BusArrival = {
   routeNo: string;
@@ -82,7 +83,8 @@ export async function loadNearbyBusArrivals(
   // 로그인 없이 부르면 401 이다. 갔다 와서 알기보다 여기서 바로 말해 준다.
   if (!accessToken) return { state: 'blocked', reason: 'signed-out' };
   try {
-    const query = new URLSearchParams({ lat: String(coords.latitude), lng: String(coords.longitude) });
+    // 🔴 좌표는 약 100m 로 줄여 보낸다 — 주소창에 실려 서버 접속 기록에 남는다(S15P21E201-1691).
+    const query = new URLSearchParams({ lat: String(coarseCoordinate(coords.latitude)), lng: String(coarseCoordinate(coords.longitude)) });
     const dto = await apiRequest<NearbyBusDto>(`/api/v1/transit/nearby-bus-arrivals?${query.toString()}`, {
       accessToken,
       signal,

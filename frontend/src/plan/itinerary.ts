@@ -1,11 +1,22 @@
 import { apiRequest, ApiClientError } from '@/api/client';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 
 export type ItineraryItemDto = {
   id: string;
   startsAt: string;
+  /**
+   * 이 곳을 떠나는 시각 — 모양은 startsAt 과 같다(S15P21E201-1667 계약). 두 곳 사이의 빈 시각을 여기서 센다.
+   * 🔴 **지금 운영 서버에는 이 칸이 없다**(undefined). 시각을 못 깐 날은 null. 둘 다 「모른다」다 — 짐작해 채우지 않는다.
+   */
+  endsAt?: string | null;
   title: string;
   description?: string | null;
   estimatedCostKrw?: number | null;
+  /**
+   * 추천 이유 코드(백엔드 S15P21E201-1643). 옛 서버에는 칸이 없다(undefined) — 그때는 이유 줄을 안 그린다.
+   * 카드에는 pickReasonLine 이 고른 하나만 단다(S15P21E201-1645).
+   */
+  reasonCodes?: string[];
   walkingMeters?: number | null;
   locked: boolean;
   dataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
@@ -27,6 +38,45 @@ export type ItineraryItemDto = {
    */
   lat?: number | null;
   lng?: number | null;
+  /**
+   * 이 방문지를 낸 추천 요청 번호(07 계약, 백엔드 !1685). 손으로 더한 곳은 null, 옛 서버에는 칸이 없다(undefined).
+   * 추천 노출 기록이 이 번호로 「어느 추천이 보였나」를 잇는다(S15P21E201-1696).
+   */
+  requestId?: string | null;
+  /**
+   * 이 방문지에 붙은 경고(예: ACCESSIBILITY_UNVERIFIED — 휠체어로 들어갈 수 있는지 아직 모름). 없으면 빈 목록
+   * (서버 ItineraryDetailResponse.Item.warningCodes). 옛 서버에는 칸이 없다(undefined).
+   * 휠체어 안내 창이 이것으로 센다(S15P21E201-1732).
+   */
+  warningCodes?: string[];
+};
+
+/**
+ * 하루 끝에 돌아가는 이동 — S15P21E201-1565. 마지막 날이 아니면 숙소(LODGING), 마지막 날이면 여행 출발지(ORIGIN).
+ * 옛 서버에는 칸이 없고(undefined), 돌아갈 자리를 모르는 날은 null 이다.
+ */
+export type DayReturnLeg = {
+  kind: 'LODGING' | 'ORIGIN';
+  /** 숙소 이름 또는 동네 이름. 출발지면 null. */
+  label: string | null;
+  lat: number;
+  lng: number;
+  durationMin: number | null;
+  distanceM: number | null;
+  travelDataStatus: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN' | null;
+};
+
+/**
+ * 그날 일정이 시작하는 자리 — S15P21E201-1580. 첫날은 여행 출발지(ORIGIN), 둘째 날부터는 숙소(LODGING, 숙소를
+ * 모르면 출발지). 규칙은 서버 한 곳(ItineraryLegPlanner.dayStart)이 정한다 — 화면이 따로 추측하지 않는다.
+ * 옛 서버에는 칸이 없고(undefined), 출발지도 모르는 여행은 null 이다.
+ */
+export type DayStart = {
+  kind: 'LODGING' | 'ORIGIN';
+  /** 숙소 이름 또는 동네 이름. 출발지면 null. */
+  label: string | null;
+  lat: number;
+  lng: number;
 };
 
 export type ItineraryDto = {
@@ -41,7 +91,7 @@ export type ItineraryDto = {
    *    「모른다」와 「혼자다」가 구분이 안 된다.
    */
   partySize?: number | null;
-  days: Array<{ date: string; items: ItineraryItemDto[] }>;
+  days: Array<{ date: string; items: ItineraryItemDto[]; returnLeg?: DayReturnLeg | null; start?: DayStart | null }>;
   totalEstimatedCostKrw?: number | null;
   totalWalkingMeters?: number | null;
   fallbackMode?: 'MODEL' | 'RULE' | 'BASELINE' | null;
@@ -83,7 +133,7 @@ function failure(error: unknown): Exclude<ItineraryMutationResult, { state: 'suc
     const latest = Number(error.fields.find((field) => /^latestVersion=/.test(field))?.split('=')[1]);
     return { state: 'conflict', latestVersion: Number.isFinite(latest) ? latest : 0, message: '다른 변경이 먼저 반영됐어요. 최신 일정을 불러와 다시 시도해 주세요.' };
   }
-  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '일정 API가 아직 준비되지 않았어요.' };
+  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
   if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) return { state: 'offline', message: error.message };
   return { state: 'error', message: error instanceof Error ? error.message : '일정을 처리하지 못했어요.' };
 }

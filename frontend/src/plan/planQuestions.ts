@@ -45,8 +45,9 @@ export const PLAN_QUESTIONS: PlanQuestion[] = [
   },
   {
     key: 'budget', ko: '총예산', en: 'Total budget',
-    hintKo: '한 사람이 아니라 이번 여행 전체 예산이에요.',
-    hintEn: 'For the whole trip, not per person.',
+    // 숙박비는 뺀 값이다 — 서버의 예산 상한도 메뉴 값(식비·카페·입장료)만 센다(S15P21E201-1591).
+    hintKo: '한 사람이 아니라 이번 여행 전체 예산이에요. 숙박비는 빼고 식비·카페·입장료 기준이에요.',
+    hintEn: 'For the whole trip, not per person — food, cafes, and admissions only, not lodging.',
     skippable: false,
     answered: (draft) => typeof draft.budgetKrw === 'number' && draft.budgetKrw > 0,
   },

@@ -5,7 +5,8 @@
 // 처음부터 다시 밟게 한다., jaehyeon 님 !288 계약.
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { enterApp } from '@/auth/enterApp';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -17,6 +18,7 @@ import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { webInputNoOutline } from '@/design/webGlobalStyles';
 import { useI18n } from '@/i18n';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { localizeMessage } from '@/i18n/messages';
@@ -36,6 +38,8 @@ export default function OAuthSignup() {
     provider?: OAuthProvider; signupTicket?: string; email?: string; displayName?: string; language?: string; emailProvided?: string; returnTo?: string;
   }>();
   const [displayName, setDisplayName] = useState(params.displayName ?? '');
+  // 포커스 = 붉은 2px 선 — 웹의 검은 기본 외곽선을 끈 대신이다(회원가입 시안과 같게, S15P21E201-1518).
+  const [nameFocused, setNameFocused] = useState(false);
   const [language, setLanguage] = useState<SignupLanguage>(params.language === 'EN' ? 'EN' : 'KO');
   const [ageAccepted, setAgeAccepted] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -62,7 +66,7 @@ export default function OAuthSignup() {
         privacyAccepted,
       });
       await acceptTokens(result);
-      router.replace((await resolveDestination(params.returnTo)) as never);
+      enterApp(router, (await resolveDestination(params.returnTo)) as Href);
     } catch (cause) {
       if (cause instanceof ApiClientError && cause.code === 'OAUTH_TICKET_INVALID') {
         setExpired(true);
@@ -83,7 +87,7 @@ export default function OAuthSignup() {
         <View style={styles.expiredBody}>
           <Text variant="display" weight="bold">{tx('로그인 정보가 만료됐어요', 'Your sign-in info expired')}</Text>
           <Text color={color.text.body}>{tx('소셜 로그인을 처음부터 다시 시작해 주세요.', 'Please start social sign-in again from the beginning.')}</Text>
-          <Button label={tx('로그인으로 돌아가기', 'Back to sign-in')} onPress={() => router.replace('/sign-in')} />
+          <Button compact label={tx('로그인으로 돌아가기', 'Back to sign-in')} onPress={() => router.replace('/sign-in')} />
         </View>
       </Screen>
     );
@@ -95,7 +99,7 @@ export default function OAuthSignup() {
         <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.replace('/sign-in')} style={styles.backLink}>
           <Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text>
         </Pressable>
-        <BrandLogoLink href="/home" imageStyle={styles.logo} />
+        <BrandLogoLink enter href="/home" imageStyle={styles.logo} />
       </View>
       <Text variant="display" weight="bold" style={styles.title}>{tx('회원가입 완료하기', 'Finish signing up')}</Text>
       <Text variant="body" color={color.text.body} style={styles.subtitle}>{tx('소셜 인증은 끝났어요. 몇 가지만 더 확인할게요.', "You're verified — just a couple more details.")}</Text>
@@ -108,7 +112,7 @@ export default function OAuthSignup() {
 
         <View style={styles.field}>
           <Text variant="caption" weight="bold">{tx('이름', 'Name')}</Text>
-          <TextInput accessibilityLabel={tx('이름', 'Name')} autoComplete="name" maxLength={30} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={styles.input} value={displayName} />
+          <TextInput accessibilityLabel={tx('이름', 'Name')} autoComplete="name" maxLength={30} onFocus={() => setNameFocused(true)} onBlur={() => setNameFocused(false)} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={[styles.input, nameFocused && styles.inputFocused]} value={displayName} />
         </View>
 
         <View style={styles.field}>
@@ -152,7 +156,9 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: spacing[1], marginBottom: spacing[6] },
   form: { gap: spacing[4] },
   field: { gap: spacing[2] },
-  input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4] },
+  // 🔴 웹의 검은 포커스 외곽선을 끈다 — 대신 inputFocused 의 붉은 선이 포커스를 보여 준다.
+  input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4], ...webInputNoOutline },
+  inputFocused: { borderColor: color.action.outline, borderWidth: 2 },
   languageRow: { flexDirection: 'row', gap: spacing[2] },
   language: { flex: 1, alignItems: 'center', padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
   languageSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },

@@ -17,9 +17,16 @@
 //   primary=남색 · secondary · field · ghost · accent=주황 · danger
 // 모양이 달라야 하면 `pill`(둥근 알약) 이나 `compact`(글자 폭) prop 을 쓴다.
 //
-// 이 검사는 **색·모서리·테두리만** 본다. width·minHeight 는 아직 안 본다 —
-// 지금 15곳이 그렇게 쓰고 있어서, 함께 걸면 이 검사가 처음부터 빨갛다.
-// 그건 compact·pill 로 옮기는 별도 작업이다 (S15P21E201-1241 설명 참고).
+// 이 첫째 검사는 **색·모서리·테두리만** 본다. width·minHeight 를 껍데기에 주는 것 자체는 막지 않는다 —
+// 폭을 정해 주는 것은 괜찮은 쓰임이다. 폭이 «글자에 맞춰 줄어드는» 경우만 아래 둘째 검사가 잡는다.
+//
+// 🔴 둘째 검사 — 글자 폭으로 쪼그라든 버튼 (S15P21E201-1650)
+//
+// 알맹이(Pressable)는 언제나 껍데기를 꽉 채운다(width 100%). 그래서 껍데기가 글자 폭으로 줄어들면
+// — width:'auto' 이거나 alignSelf 로 가운데·한쪽에 붙으면 — 색 면이 글자에 딱 붙는다. 껍데기에 준
+// paddingHorizontal 은 색 면 «밖»이라 소용없다. 사람 눈에는 「버튼 좌우가 잘렸다」로 보인다.
+// S15P21E201-1524 · 「남기기」(-1576) · 댓글 수정 「취소」「저장」(-1650) 세 번 나왔다.
+// 고치는 법: `compact` prop(폭은 글자, 여백은 색 면 안쪽). 폭을 정해야 하면 width·minWidth 를 준다.
 //
 // 사용법: node tools/check-button-container.mjs
 import { readFileSync, readdirSync } from 'node:fs';
@@ -44,10 +51,21 @@ function listSourceFiles(dir) {
   return out;
 }
 
-/** `styles.foo` · `[styles.foo, styles.bar]` 에서 이름만 꺼낸다. */
+/**
+ * `styles.foo` · `[styles.foo, styles.bar]` 에서 이름만 꺼낸다.
+ * 🔴 조건이 붙은 것(`wide && styles.foo` · `a ? styles.foo : styles.bar`)도 꺼낸다(S15P21E201-1676) — 전에는 못 읽어서
+ *    넓은 화면에서만 붙는 `width: 'auto'` 를 놓쳤고, 마이페이지 「8개 답하기」 단추가 글자 폭으로 쪼그라든 채 남았다.
+ *    조건은 켜진 쪽으로 친다 — 한 번이라도 그렇게 그려지면 결함이다.
+ */
 function styleNames(expression) {
   if (!expression) return [];
   if (ts.isArrayLiteralExpression(expression)) return expression.elements.flatMap(styleNames);
+  if (ts.isParenthesizedExpression(expression)) return styleNames(expression.expression);
+  if (ts.isBinaryExpression(expression)
+    && (expression.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken || expression.operatorToken.kind === ts.SyntaxKind.BarBarToken || expression.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken)) {
+    return [...styleNames(expression.left), ...styleNames(expression.right)];
+  }
+  if (ts.isConditionalExpression(expression)) return [...styleNames(expression.whenTrue), ...styleNames(expression.whenFalse)];
   if (
     ts.isPropertyAccessExpression(expression)
     && ts.isIdentifier(expression.expression)
@@ -80,7 +98,7 @@ function collectStyleSheet(source) {
   return table;
 }
 
-function findings(file, source) {
+function findings(file, source, shrunk) {
   const table = collectStyleSheet(source);
   const out = [];
   const visit = (node) => {
@@ -92,7 +110,18 @@ function findings(file, source) {
         if (!ts.isJsxAttribute(attribute) || attribute.name.getText(source) !== 'containerStyle') continue;
         const initializer = attribute.initializer;
         if (!initializer || !ts.isJsxExpression(initializer)) continue;
-        for (const name of styleNames(initializer.expression)) {
+        const names = styleNames(initializer.expression);
+        const props = names.flatMap((name) => table.get(name)?.properties ?? [])
+          .filter((p) => ts.isPropertyAssignment(p) && ts.isIdentifier(p.name));
+        const value = (key) => props.filter((p) => p.name.text === key).map((p) => p.initializer.getText(source)).pop();
+        const shrinks = value('width') === "'auto'" || ["'center'", "'flex-start'", "'flex-end'", "'baseline'"].includes(value('alignSelf'));
+        const sized = (value('width') !== undefined && value('width') !== "'auto'") || value('minWidth') !== undefined || value('flex') !== undefined || value('flexGrow') !== undefined;
+        const compact = opening.attributes.properties.some((a) => ts.isJsxAttribute(a) && a.name.getText(source) === 'compact');
+        if (shrinks && !sized && !compact) {
+          const { line } = source.getLineAndCharacterOfPosition(opening.getStart(source));
+          shrunk.push({ name: names.join(' + '), line: line + 1 });
+        }
+        for (const name of names) {
           const literal = table.get(name);
           if (!literal) continue;
           const offenders = literal.properties
@@ -111,13 +140,17 @@ function findings(file, source) {
 }
 
 const problems = [];
+const shrunkProblems = [];
 
 for (const directory of SCAN_DIRS) {
   for (const file of listSourceFiles(join(ROOT, directory))) {
     const text = readFileSync(file, 'utf8');
     const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
     const shown = relative(ROOT, file).split('\\').join('/');
-    for (const hit of findings(file, source)) {
+    const shrunk = [];
+    const hits = findings(file, source, shrunk);
+    for (const hit of shrunk) shrunkProblems.push(`  ${shown}:${hit.line}  styles.${hit.name} — 껍데기가 글자 폭으로 줄어드는데 compact·width·minWidth 가 없다`);
+    for (const hit of hits) {
       const key = `${shown}:${hit.name}`;
       problems.push(`  ${shown}:${hit.line}  styles.${hit.name} 에 ${hit.offenders.join(' · ')}`);
     }
@@ -130,6 +163,14 @@ if (problems.length > 0) {
   console.error('\ncontainerStyle 은 버튼 바깥 껍데기에 붙습니다. 색·모서리를 여기 칠하면');
   console.error('둥근 버튼 뒤에 각진 도형이 하나 더 남습니다 — 실기기에서 눈에 보입니다.');
   console.error('여백(margin)만 남기고 빼세요. 색은 variant 가, 모양은 pill·compact 가 갖습니다.');
+  process.exit(1);
+}
+
+if (shrunkProblems.length > 0) {
+  console.error('🔴 글자 폭으로 쪼그라든 버튼이 있습니다 (S15P21E201-1650).\n');
+  console.error(shrunkProblems.join('\n'));
+  console.error('\n버튼의 색 면은 껍데기를 꽉 채웁니다. 껍데기가 글자 폭이면 색 면도 글자에 딱 붙어 좌우가 잘려 보입니다.');
+  console.error('껍데기에 준 paddingHorizontal 은 색 면 밖이라 소용없습니다. `compact` 를 쓰거나 width·minWidth 를 주세요.');
   process.exit(1);
 }
 

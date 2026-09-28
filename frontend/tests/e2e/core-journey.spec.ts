@@ -48,14 +48,13 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   // 시작하기" 단추는 S15P21E201-1245 에서 걷어냈다 — 시작 바가 그 자리를 대신한다.
   await expect(page.getByRole('button', { name: '일정 물어보기' })).toBeVisible({ timeout: 10_000 });
 
-  // 1.5) 처음 로그인한 사람에게는 홈에 들어오자마자 여행 조건(알레르기·식단) 모달이
+  // 1.5) 처음 로그인한 사람에게는 홈에 들어오자마자 여행 조건(식단) 모달이
   //      뜬다(conditionsPromptState.ts의 shouldPromptOnHome — 한 번도 안 물어본
   //      사람은 상태가 null이다). 여기서 답해 두면 "일정 물어보기"를 눌러도 다시
   //      안 묻는다 — shouldPromptBeforePlan이 'SAVED'는 다시 안 묻기 때문이다.
+  //      🔴 알레르기는 S15P21E201-1497 에서 창에서 걷어냈다 — 「해당 없음」은 식단 하나뿐이다.
   await expect(page.getByText('여행 조건 미리 알려주기')).toBeVisible({ timeout: 10_000 });
-  const noneChips = page.getByRole('checkbox', { name: '해당 없음' });
-  await noneChips.nth(0).click(); // 알레르기
-  await noneChips.nth(1).click(); // 식단
+  await page.getByRole('checkbox', { name: '해당 없음' }).click(); // 식단
   await page.getByRole('button', { name: '저장하고 시작' }).click();
 
   // 2) 홈의 시작 바 — 출발지 · 날짜. 인원은 기본값 성인 2명이 이미 유효하다
@@ -69,9 +68,15 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   //    "부산역 출발"이라는 전혀 다른 요소가 동시에 걸렸다. 주소(origins.ts의
   //    MAJOR_BUSAN_ORIGINS)까지 넣어 그 행만 특정한다.
   await page.getByRole('button', { name: /부산역.*중앙대로/ }).click();
-  // 출발지를 고르면 pickOrigin이 곧바로 날짜 패널을 연다(section을 'dates'로 바꾼다) —
-  // "날짜" 세그먼트를 또 누르면 오히려 toggle()이 닫아 버리므로 누르지 않는다.
-  await page.getByRole('button', { name: '1박 2일', exact: true }).click();
+  // 🔴 출발지를 고르면 pickOrigin이 «숙소» 패널을 연다 (S15P21E201-1511 부터 — 출발지 → 숙소 →
+  //    날짜 → 인원). 탈출구 「숙소 아직 안 정했어요」로 넘기면 날짜 패널이 열린다.
+  //    접근성 이름에 부제(「출발지 기준으로 일정을 짜요」)가 붙으므로 exact 로 찾지 않는다.
+  //    "날짜" 세그먼트를 또 누르면 오히려 toggle()이 닫아 버리므로 누르지 않는다.
+  await page.getByRole('button', { name: /^숙소 아직 안 정했어요/ }).click();
+  // 🔴 S15P21E201-1584 부터 1박 이상은 숙소를 골라야 「일정 물어보기」가 열린다 — 「숙소를 골라 주세요」로 잠긴다
+  //    (S15P21E201-1715: 이 시험이 1박 2일을 골라 60초 뒤 시간 초과로 빨개졌다). 당일치기는 숙소 없이 된다.
+  //    숙소를 실제로 고르는 경로는 숙소 검색 서버 호출이 필요해 CI 시험에 넣지 않는다 — startBarValue 단위 시험이 맡는다.
+  await page.getByRole('button', { name: '당일치기', exact: true }).click();
 
   await page.getByRole('button', { name: '일정 물어보기', exact: true }).click();
 
@@ -106,7 +111,7 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   }
   await expect(build).toBeVisible();
 
-  // 4) 추천 요청 제출 — 알레르기·식단은 1.5단계에서 이미 답했으므로(hardUnknown이
+  // 4) 추천 요청 제출 — 식단은 1.5단계에서 이미 답했으므로(hardUnknown이
   //    false다) 여행 조건 모달이 다시 뜨지 않고 바로 제출된다. 이 클릭이
   //    CoreJourneyFunctionalTest(S15P21E201-780)가 검증한 POST /api/v1/trips +
   //    POST .../recommendation-jobs를 실제로 부른다.
