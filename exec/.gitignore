@@ -2,3 +2,5 @@
 *.dump
 *.backup
 *.sql.gz
+# 개인정보를 가린 제출용 사본만 올린다.
+!app_db_masked_*.dump
