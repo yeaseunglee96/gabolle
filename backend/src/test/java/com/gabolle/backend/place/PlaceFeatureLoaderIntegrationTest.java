@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.gabolle.backend.place.loader.PlaceFeatureLoader;
+import com.gabolle.backend.place.loader.PlaceFeatureLoaderRunner;
 import com.gabolle.backend.place.loader.PlaceFeatureNdjsonReader;
 import com.gabolle.backend.place.loader.ResearchQueueReader;
 import com.gabolle.backend.place.loader.SbizPlaceLoader;
@@ -57,13 +58,21 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	@TempDir
 	Path tempDir;
 
+	/**
+	 * 이 시험이 만든 것만 치운다 — 수집분 {@link #DATASET} 로 넣은 표식과 장소 (S15P21E201-1653).
+	 *
+	 * <p>🔴 전에는 {@code SBIZ}·{@code TOURAPI} 장소를 <b>전부</b> 지웠다. 그 안에 마이그레이션이 심은 장소가 있고 그
+	 * 장소의 표식은 다른 출처라 안 지워져, 혼자 돌리면 {@code fk_place_feature_place} 에 막혀 7개가 모두 실패했다.
+	 * 전체 빌드에서는 다른 시험이 먼저 장소를 비워 줘서 통과하던 것이다 — 순서에 기대는 시험이었다.
+	 */
 	@BeforeEach
 	@AfterEach
 	void cleanUp() {
 		// 순서가 중요하다 — place_feature 를 먼저 지워야 fk_place_feature_place 위반이 안 난다.
-		this.jdbcTemplate.update(
-				"DELETE FROM place_feature WHERE source_type IN ('SBIZ', 'RESEARCH_PRICEBAND', 'RESEARCH_VISITOR_FACTS', 'TOURAPI')");
-		this.jdbcTemplate.update("DELETE FROM place WHERE source_type IN ('SBIZ', 'TOURAPI')");
+		// 이 시험의 적재가 붙인 사실(다른 장소에 붙었어도)과, 이 시험이 만든 장소에 딸린 표식을 먼저 지운다.
+		this.jdbcTemplate.update("DELETE FROM place_feature WHERE source_version = ? OR place_id IN "
+				+ "(SELECT place_id FROM place WHERE dataset_version = ?)", DATASET, DATASET);
+		this.jdbcTemplate.update("DELETE FROM place WHERE dataset_version = ?", DATASET);
 	}
 
 	/** 상가업소번호로 장소 하나를 만든다. 값이 붙을 자리가 있어야 하기 때문이다. */
@@ -115,8 +124,8 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		Map<String, Object> row = this.jdbcTemplate.queryForMap("""
 				SELECT feature_type, feature_key, value::text AS value, evidence_status,
 				       source_type, source_id, source_version
-				FROM place_feature WHERE source_type = 'RESEARCH_PRICEBAND'
-				""");
+				FROM place_feature WHERE source_type = 'RESEARCH_PRICEBAND' AND source_version = ?
+				""", DATASET);
 		assertThat(row.get("feature_type")).isEqualTo("PRICE_LEVEL");
 		// 점수형·값형이라 키가 없다 (ck_place_feature_key_shape).
 		assertThat(row.get("feature_key")).isNull();
@@ -160,6 +169,44 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-1625 — 장소 번호판 경사는 오픈스트리트맵 장소에도 붙는다 (전에는 관광공사·상가 번호판이라 못 붙었다)")
+	void 장소_번호로_경사가_붙는다() {
+		java.util.UUID osmPlace = java.util.UUID.randomUUID();
+		java.util.UUID unknown = java.util.UUID.randomUUID();
+		this.jdbcTemplate.update("""
+				INSERT INTO place (place_id, name_ko, category, lat, lng, source_type, source_id, created_at)
+				VALUES (?, '봉래산(부산)', 'NATURE_WALK', 35.0850, 129.0610, 'OSM', ?, now())
+				""", osmPlace, "t-1625-" + osmPlace);
+		try {
+			PlaceFeatureLoader.Saved[] saved = { new PlaceFeatureLoader.Saved(0, 0, 0) };
+			PlaceFeatureNdjsonReader.readPlaceSlopesById(
+					file("place-slope-by-id.ndjson",
+							"{\"placeId\":\"" + osmPlace + "\",\"slopePercent\":16.0,\"segments\":40,"
+									+ "\"walkLengthM\":5777,\"radiusM\":200,\"stat\":\"p50\"}",
+							"{\"placeId\":\"" + unknown + "\",\"slopePercent\":2.0,\"radiusM\":200}"),
+					500,
+					chunk -> saved[0] = saved[0].plus(this.featureLoader.saveChunk(chunk,
+							PlaceFeatureLoaderRunner.DERIVED_SLOPE_SOURCE_TYPE, DATASET, OffsetDateTime.now())));
+
+			assertThat(saved[0].inserted()).isEqualTo(1);
+			assertThat(saved[0].missingPlace()).as("운영에 없는 번호는 세어서 건너뛴다").isEqualTo(1);
+			Map<String, Object> row = this.jdbcTemplate.queryForMap("""
+					SELECT feature_type, value->>'score' AS score, value->>'stat' AS stat, source_type, source_id
+					FROM place_feature WHERE place_id = ?
+					""", osmPlace);
+			assertThat(row.get("feature_type")).isEqualTo("SLOPE_PERCENT");
+			assertThat(row.get("score")).isEqualTo("16.0");
+			assertThat(row.get("stat")).isEqualTo("p50");
+			assertThat(row.get("source_type")).isEqualTo("DERIVED_SLOPE");
+			assertThat(row.get("source_id")).isEqualTo(osmPlace.toString());
+		}
+		finally {
+			this.jdbcTemplate.update("DELETE FROM place_feature WHERE place_id = ?", osmPlace);
+			this.jdbcTemplate.update("DELETE FROM place WHERE place_id = ?", osmPlace);
+		}
+	}
+
+	@Test
 	@DisplayName("🔴 S15P21E201-453 — TourAPI 출처 장소에도 사실을 붙일 수 있다 (전에는 SBIZ 전용이라 못 붙었다)")
 	void TourAPI_장소에도_붙는다() {
 		givenTourApiPlace("129156");
@@ -176,8 +223,8 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(saved[0].missingPlace()).isZero();
 		Map<String, Object> row = this.jdbcTemplate.queryForMap("""
 				SELECT feature_type, feature_key, value::text AS value, evidence_status, source_type, source_id
-				FROM place_feature WHERE source_type = 'RESEARCH_VISITOR_FACTS'
-				""");
+				FROM place_feature WHERE source_type = 'RESEARCH_VISITOR_FACTS' AND source_version = ?
+				""", DATASET);
 		assertThat(row.get("feature_type")).isEqualTo("SOLO_FRIENDLY");
 		assertThat(row.get("feature_key")).isNull();
 		assertThat((String) row.get("value")).isEqualTo("true");
@@ -266,9 +313,11 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		return (value == null || value.isBlank()) ? null : Path.of(value);
 	}
 
+	/** 이 시험의 적재가 넣은 사실만 센다 — 마이그레이션이 같은 출처로 심은 행이 있어도 섞이지 않는다. */
 	private long featureCount(String sourceType) {
 		Long count = this.jdbcTemplate.queryForObject(
-				"SELECT count(*) FROM place_feature WHERE source_type = ?", Long.class, sourceType);
+				"SELECT count(*) FROM place_feature WHERE source_type = ? AND source_version = ?", Long.class, sourceType,
+				DATASET);
 		return count == null ? 0 : count;
 	}
 

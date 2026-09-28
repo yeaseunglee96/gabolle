@@ -75,7 +75,20 @@ public final class TransitNetwork {
 	 *     못 낸다. 지하철은 종류가 하나뿐이라 {@code null} 이어도 된다
 	 */
 	public record Route(String id, String name, Kind kind, List<String> stopIds, int headwayMin,
-			int firstMinOfDay, int lastMinOfDay, String fareType) {
+			int firstMinOfDay, int lastMinOfDay, String fareType, List<Double> hopMinutes) {
+
+		/**
+		 * 역 사이 소요 시간({@code hopMinutes}) 없이 만드는 자리 — 버스가 그렇다. 그러면 달리는
+		 * 시간은 정류장 좌표 거리와 평균 속도로 어림한다(HeadwayJourneyPlanner).
+		 *
+		 * <p>{@code hopMinutes} 는 {@code stopIds} 사이마다 하나, 즉 정류장 수보다 하나 적어야 한다.
+		 * 개수가 안 맞으면 없는 것으로 본다 — 어긋난 값을 쓰면 구간마다 엉뚱한 시간이 붙는다
+		 * (S15P21E201-1757).
+		 */
+		public Route(String id, String name, Kind kind, List<String> stopIds, int headwayMin,
+				int firstMinOfDay, int lastMinOfDay, String fareType) {
+			this(id, name, kind, stopIds, headwayMin, firstMinOfDay, lastMinOfDay, fareType, null);
+		}
 
 		/**
 		 * {@code fareType} 없이 만드는 자리 — 요금을 모르는 노선이 된다({@code null}). 종류를

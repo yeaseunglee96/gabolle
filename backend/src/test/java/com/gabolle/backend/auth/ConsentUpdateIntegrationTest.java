@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.gabolle.backend.auth.api.UserConsentsResponse;
+import com.gabolle.backend.auth.config.AuthProperties;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.support.AuthPostgresIntegrationTest;
@@ -55,6 +56,9 @@ class ConsentUpdateIntegrationTest extends AuthPostgresIntegrationTest {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@Autowired
+	private AuthProperties authProperties;
+
 	private UUID userId;
 
 	@BeforeEach
@@ -88,6 +92,34 @@ class ConsentUpdateIntegrationTest extends AuthPostgresIntegrationTest {
 		// 동의는 없는 상태가 된다.
 		assertThat(personalizationMode()).isEqualTo("BEHAVIOR_ENABLED");
 		assertThat(consentStatus(ConsentType.BEHAVIOR_PERSONALIZATION)).isEqualTo("GRANTED");
+	}
+
+	/**
+	 * 처리방침이 바뀐 날의 흐름 (S15P21E201-1693). 서버의 판이 올라가면 이 사람의 처리방침 동의는 옛 판이 된다. 응답에
+	 * 지금 판이 같이 나가야 앱이 그 차이를 알고, 확인을 누르면 새 판의 행이 생긴다. 옛 판의 행은 지우지 않는다.
+	 */
+	@Test
+	@DisplayName("🔴 판이 올라가면 응답의 지금 판과 항목의 판이 갈리고, 확인하면 새 판 행이 생긴다")
+	void aNewPolicyVersionShowsUpAndConfirmingRecordsIt() {
+		assertThat(this.consentUpdateService.get(this.userId).currentPolicyVersion()).isEqualTo("2026-01");
+
+		String configured = this.authProperties.getConsentPolicyVersion();
+		this.authProperties.setConsentPolicyVersion("2026-09");
+		try {
+			UserConsentsResponse stale = this.consentUpdateService.get(this.userId);
+			assertThat(stale.currentPolicyVersion()).isEqualTo("2026-09");
+			assertThat(stale.consents()).filteredOn(item -> item.consentType().equals("PRIVACY_POLICY"))
+					.extracting(UserConsentsResponse.Item::policyVersion).containsExactly("2026-01");
+
+			UserConsentsResponse confirmed = this.transactionTemplate.execute(status -> this.consentUpdateService
+					.update(this.userId, Map.of("PRIVACY_POLICY", true)));
+			assertThat(confirmed.currentPolicyVersion()).isEqualTo("2026-09");
+			assertThat(confirmed.consents()).filteredOn(item -> item.consentType().equals("PRIVACY_POLICY"))
+					.extracting(UserConsentsResponse.Item::policyVersion).containsExactly("2026-01", "2026-09");
+		}
+		finally {
+			this.authProperties.setConsentPolicyVersion(configured);
+		}
 	}
 
 	@Test

@@ -112,9 +112,21 @@ public class JpaItineraryRepository implements ItineraryRepository {
 		this.exclusionJpaRepository = exclusionJpaRepository;
 	}
 
+	/**
+	 * 번호 형식이 틀리면 「그런 일정 없음」이다 — 예외로 두면 부르는 쪽 오류 번역기가 몰라 500 이 된다.
+	 * 운영에서 추천 화면이 코스 2·3안의 번호({@code 요청번호:1})를 일정 번호로 넘겨 실제로 그랬다
+	 * (S15P21E201-1609).
+	 */
 	@Override
 	public Optional<Itinerary> findById(String itineraryId) {
-		return itineraryJpaRepository.findById(UUID.fromString(itineraryId)).map(JpaItineraryRepository::toDomain);
+		UUID id;
+		try {
+			id = UUID.fromString(itineraryId);
+		}
+		catch (IllegalArgumentException malformed) {
+			return Optional.empty();
+		}
+		return itineraryJpaRepository.findById(id).map(JpaItineraryRepository::toDomain);
 	}
 
 	/**
@@ -155,6 +167,12 @@ public class JpaItineraryRepository implements ItineraryRepository {
 			// 판 번호는 땄는데 그 사이 포인터가 움직였다. 이 트랜잭션 전체가 되돌려진다.
 			throw staleFor(version);
 		}
+
+		// 🔴 포인터를 원시 SQL 로 옮겼으니 1차 캐시의 ItineraryJpaEntity 는 옛 latestVersion 을 들고 있다.
+		//    open-in-view 로 요청 하나가 영속성 컨텍스트 하나를 쓰므로, 편집 컨트롤러가 앞에서
+		//    requireEditor 로 읽어 둔 엔티티를 뒤의 getDetail 이 그대로 받아 바뀌기 전 판을 응답했다 —
+		//    앱이 그 번호로 부른 재계산이 늘 409 였다(S15P21E201-1785). DB 에서 다시 읽어 맞춘다.
+		entityManager.refresh(entityManager.getReference(ItineraryJpaEntity.class, UUID.fromString(version.itineraryId())));
 
 		return version;
 	}
@@ -423,6 +441,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				e.dataStatus(),
 				e.fareKrw(),
 				decodePath(e.path()),
+				e.uncalibratedDurationMin(),
 				toInstant(e.createdAt()));
 	}
 
@@ -443,6 +462,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				leg.dataStatus(),
 				leg.fareKrw(),
 				encodePath(leg.path()),
+				leg.uncalibratedDurationMin(),
 				toOffset(leg.createdAt()));
 	}
 
@@ -515,5 +535,15 @@ public class JpaItineraryRepository implements ItineraryRepository {
 
 	private static Instant toInstant(OffsetDateTime offsetDateTime) {
 		return offsetDateTime == null ? null : offsetDateTime.toInstant();
+	}
+
+	@Override
+	@Transactional
+	public void markChosen(String itineraryId, Instant at) {
+		// 엔티티에 칸을 두지 않는다 — 저장할 때 늘 DB 기본값(now())이 채우고, 바꾸는 곳은 여기 하나다.
+		entityManager.createNativeQuery("UPDATE itineraries SET chosen_at = ?1 WHERE itinerary_id = ?2")
+				.setParameter(1, java.sql.Timestamp.from(at))
+				.setParameter(2, UUID.fromString(itineraryId))
+				.executeUpdate();
 	}
 }

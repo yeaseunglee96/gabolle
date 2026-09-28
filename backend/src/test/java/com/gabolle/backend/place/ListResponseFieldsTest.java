@@ -84,10 +84,10 @@ class ListResponseFieldsTest {
 		// 맨 뒤만 보면 가운데를 끼워 넣어도 안 걸리므로 차례를 통째로 고정한다.
 		assertThat(componentNames(PlaceSummaryResponse.class)).containsExactly(
 				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "matchedField",
-				"photoUrl", "photoSource", "addressEn", "photoSubject");
+				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense");
 		assertThat(componentNames(NearbyPlaceItem.class)).containsExactly(
 				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "distanceM", "hasPhoto",
-				"photoUrl", "photoSource", "addressEn", "photoSubject");
+				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense");
 	}
 
 	@Test
@@ -166,6 +166,23 @@ class ListResponseFieldsTest {
 		assertThat(PlaceSummaryResponse.of(place, null).photoSubject()).isNull();
 		assertThat(PlaceSummaryResponse.ofFacetMatch(place).photoSubject()).isNull();
 		assertThat(NearbyPlaceItem.from(place, 30L).photoSubject()).isNull();
+	}
+
+	/** 위키미디어 사진(CC BY-SA 등)은 라이선스 이름과 링크를 같이 보여야 쓸 수 있다 (S15P21E201-1606). */
+	@Test
+	@DisplayName("🔴 목록 셋이 사진 라이선스를 싣는다 — 칸만 더하고 값을 안 옮기면 컴파일은 통과한다")
+	void listsCarryPhotoLicense() {
+		Place place = placeWithPhoto(null, null);
+		Place.PhotoLicense license = new Place.PhotoLicense("CC BY-SA 3.0",
+				"https://creativecommons.org/licenses/by-sa/3.0",
+				"https://commons.wikimedia.org/wiki/File:Busan_Modern_History_Museum-01.jpg");
+		place.attachPhoto(PHOTO, "Wikimedia Commons", Place.PhotoSubject.SELF, license);
+
+		assertThat(PlaceSummaryResponse.of(place, null).photoLicense()).isEqualTo(license);
+		assertThat(PlaceSummaryResponse.ofFacetMatch(place).photoLicense()).isEqualTo(license);
+		assertThat(NearbyPlaceItem.from(place, 30L).photoLicense()).isEqualTo(license);
+		assertThat(NearbyPlaceItem.from(placeWithPhoto(PHOTO, SOURCE), 30L).photoLicense())
+				.as("라이선스 칸으로 받은 것이 없으면 비어 나간다").isNull();
 	}
 
 	private static List<String> componentNames(Class<?> record) {

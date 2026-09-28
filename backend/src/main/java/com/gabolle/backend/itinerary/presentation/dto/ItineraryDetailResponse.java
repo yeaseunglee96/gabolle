@@ -41,10 +41,49 @@ public record ItineraryDetailResponse(
 		int accessibilityUnverifiedCount,
 
 		/** 이 여행을 몇 명이 가는가. {@code trip.party_size} 그대로다. */
-		int partySize) {
+		int partySize,
 
-	/** 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}). */
-	public record Day(String date, List<Item> items) {
+		/**
+		 * 예산 상한(원) — 일정을 짤 때 넘지 않게 한 값과 같다: {@code 반올림(예산 × (1 + 허용 폭 20%))}
+		 * ({@code BudgetAllowance}). 합계가 예산을 넘었어도 이 값 안이면 앱이 경고 대신 부드럽게 알린다
+		 * (S15P21E201-1743, 사용자 결정 2026-09-26). 예산을 안 정한 여행이면 {@code null}.
+		 */
+		Integer budgetCapKrw) {
+
+	/**
+	 * 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}).
+	 *
+	 * @param returnLeg 그날 마지막 방문지에서 돌아가는 이동(S15P21E201-1565). 돌아갈 자리를 모르면 {@code null}
+	 * @param start     그날 어디서 출발하나(S15P21E201-1581). 첫 방문지로 들어오는 구간이 여기서 잰 것이다.
+	 *                  출발지도 모르는 옛 여행이면 {@code null}
+	 */
+	public record Day(String date, List<Item> items, ReturnLeg returnLeg, Start start) {
+
+		/** 돌아가는 이동도 출발 자리도 모르는 날. */
+		public Day(String date, List<Item> items) {
+			this(date, items, null, null);
+		}
+	}
+
+	/**
+	 * 하루를 여는 자리 — 첫날이거나 숙소를 모르면 여행 출발지, 둘째 날부터는 숙소.
+	 *
+	 * @param kind  {@code ORIGIN}(여행 출발지) · {@code LODGING}(숙소)
+	 * @param label 숙소 이름 또는 동네 이름. 출발지면 {@code null} — 출발지 이름은 저장하지 않는다
+	 */
+	public record Start(String kind, String label, double lat, double lng) {
+	}
+
+	/**
+	 * 하루 끝에 돌아가는 이동 — 마지막 날이 아니면 숙소로, 마지막 날이면 여행 출발지로.
+	 *
+	 * @param kind            {@code LODGING}(숙소) · {@code ORIGIN}(여행 출발지)
+	 * @param label           숙소 이름 또는 동네 이름. 출발지면 {@code null} — 화면이 「출발지」로 적는다
+	 * @param durationMin     못 쟀으면 {@code null}
+	 * @param travelDataStatus {@code VERIFIED}·{@code ESTIMATED}. 어림값을 잰 값처럼 그리지 않게 싣는다
+	 */
+	public record ReturnLeg(String kind, String label, double lat, double lng, Integer durationMin,
+			Integer distanceM, String travelDataStatus) {
 	}
 
 	public record Item(
@@ -52,9 +91,22 @@ public record ItineraryDetailResponse(
 			String id,
 			/** ISO-8601. {@code start_time} 이 없으면 {@code null}. */
 			String startsAt,
+			/**
+			 * 그곳을 떠나는 계획 시각. {@code startsAt} 과 같은 모양이고, {@code startsAt} 이 {@code null} 이면 이것도
+			 * {@code null} 이다(둘 중 하나만 있는 일은 없다).
+			 *
+			 * <p>빈 시각은 이것으로 안다 — 같은 날 이웃한 A → B 에서 {@code B.startsAt − A.endsAt − (B.travelDurationMin ?? 0)}
+			 * (S15P21E201-1667). 곳마다 갈래별로 머물고 남는 시간을 빈 시각으로 두는데, 새 항목 종류를 만들지 않고 두 시각의
+			 * 차로만 드러낸다 — 이미 나간 앱이 모르는 항목을 받으면 깨질 수 있다.
+			 */
+			String endsAt,
 			String title,
 			/** 항상 {@code null} — {@code place} 표에 설명 칸이 없다. 주소를 대신 넣지 않는다. */
 			String description,
+			/**
+			 * 이 여행 인원 <b>전체</b>가 그곳에서 쓸 값(원) — 대표 메뉴 한 그릇 값 × {@code partySize}. 1인분이 아니다
+			 * (S15P21E201-1579). 모르면 {@code null} — {@code 0} 은 "무료"라는 다른 사실이다.
+			 */
 			Integer estimatedCostKrw,
 			/** 이 항목으로 들어오는 구간의 도보 거리. 그 구간이 없거나 도보가 아니면 {@code null}. */
 			Integer walkingMeters,
@@ -113,6 +165,24 @@ public record ItineraryDetailResponse(
 			 * 새 코드를 내보낼 때는 그 사전도 함께 본다.
 			 */
 			List<String> warningCodes,
+
+			/**
+			 * 이 방문지를 왜 넣었는가. {@code itinerary_item.reason_codes} 를 그대로 옮긴다(S15P21E201-1643). 없으면 빈
+			 * 배열이지 {@code null} 이 아니다 — {@code warningCodes} 와 같다. 추천이 넣은 곳은 추천 결과의 이유 코드와 같은
+			 * 어휘({@code NEAR_ORIGIN} · {@code TAG_MATCH_INTEREST} · {@code TOP_CONTRIBUTOR_<축>} 등)이고, 사용자가 손으로
+			 * 넣은 곳은 {@code USER_ADDED} 다.
+			 *
+			 * <p>🔴 <b>그 일정을 만들 때의 코드다.</b> S15P21E201-1638 전에 만든 일정은 옛 규칙이라 모든 곳에
+			 * {@code NEAR_ORIGIN} 이 있고 「가장 크게 기여」가 거의 늘 거리다. 다시 짜면 새 규칙으로 바뀐다.
+			 */
+			List<String> reasonCodes,
+
+			/**
+			 * 이 방문지를 낸 추천 요청 번호({@code itinerary_item.source_request_id}). 사용자가 손으로 더한 곳은 {@code null}
+			 * (S15P21E201-1689). 앱이 추천 노출 이벤트({@code recommendation_impression})를 보낼 때 이 번호와 {@code placeId}
+			 * 만 실으면 된다 — 순위·이유 코드·판은 서버가 이 번호로 채운다. 전에는 응답에 없어 노출을 보낼 수 없었다.
+			 */
+			String requestId,
 
 			/**
 			 * 이 방문지의 좌표. 모르면 {@code null} 이지 {@code 0} 이 아니다 — 위도 0·경도 0 은

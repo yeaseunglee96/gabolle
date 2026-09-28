@@ -137,4 +137,47 @@ class TripConditionRulesTest {
 	void requireIsSilentForAValidSet() {
 		TripConditionRules.require(START, START.plusDays(2), 2, 100_000, 35.15, 129.16, "09:00-18:00");
 	}
+
+	// ── 숙소 (S15P21E201-1585) ─────────────────────────────────────────
+
+	/** 앱은 칸 이름 {@code accommodation} 으로 사람 말을 고른다 — 이름이 바뀌면 화면에 원문이 뜬다. */
+	@Test
+	@DisplayName("🔴 1박인데 숙소 장소도 동네도 없으면 accommodation 칸 하나로 거부한다")
+	void oneNightWithoutLodgingIsRejected() {
+		assertThatThrownBy(() -> TripConditionRules.requireLodging(START, START.plusDays(1), null, null))
+				.isInstanceOfSatisfying(TripConditionRules.TripConditionRejectedException.class,
+						(e) -> assertThat(e.fieldLines()).singleElement().asString().startsWith("accommodation: "));
+	}
+
+	@Test
+	@DisplayName("1박에 숙소 동네만 있어도 된다")
+	void oneNightWithAnAreaIsFine() {
+		TripConditionRules.requireLodging(START, START.plusDays(1), null, "HAEUNDAE");
+	}
+
+	@Test
+	@DisplayName("1박에 숙소 장소만 있어도 된다 — 검색으로 고른 호텔은 장소로 바뀐 뒤 여기로 온다")
+	void oneNightWithAPlaceIsFine() {
+		TripConditionRules.requireLodging(START, START.plusDays(1), "11111111-2222-3333-4444-555555555555", null);
+	}
+
+	@Test
+	@DisplayName("당일치기는 숙소 없이 된다")
+	void aDayTripNeedsNoLodging() {
+		TripConditionRules.requireLodging(START, START, null, null);
+	}
+
+	@Test
+	@DisplayName("모르는 동네 코드·빈 장소 번호는 숙소가 아니다 — 저장할 때 버려질 값으로 통과시키지 않는다")
+	void unknownAreaOrBlankPlaceIsNoLodging() {
+		assertThatThrownBy(() -> TripConditionRules.requireLodging(START, START.plusDays(2), "  ", "GIJANG_NEW_2027"))
+				.isInstanceOf(TripConditionRules.TripConditionRejectedException.class);
+	}
+
+	@Test
+	@DisplayName("날짜가 성립하지 않으면 숙소는 묻지 않는다 — 그 잘못은 날짜 칸이 먼저 말한다")
+	void brokenDatesAreLeftToTheDateRule() {
+		TripConditionRules.requireLodging(START, START.minusDays(1), null, null);
+		TripConditionRules.requireLodging(null, START, null, null);
+	}
 }

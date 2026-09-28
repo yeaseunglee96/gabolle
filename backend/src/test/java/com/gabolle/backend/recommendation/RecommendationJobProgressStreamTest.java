@@ -104,6 +104,18 @@ class RecommendationJobProgressStreamTest {
 	}
 
 	@Test
+	@DisplayName("🔴 진행 중이든 끝났든 스트림 응답에 X-Accel-Buffering: no 가 붙는다 — 없으면 nginx 가 모았다가 한꺼번에 보낸다")
+	void theStreamTellsNginxNotToBuffer() throws Exception {
+		when(this.runner.findJob(this.jobId.toString())).thenReturn(Optional.of(halfwayJob()));
+		assertThat(subscribe(this.ownerId).getResponse().getHeader("X-Accel-Buffering")).isEqualTo("no");
+
+		RecommendationJob finished = halfwayJob();
+		finished.markCompleted(OffsetDateTime.now(), OffsetDateTime.now(), null, null);
+		when(this.runner.findJob(this.jobId.toString())).thenReturn(Optional.of(finished));
+		assertThat(subscribe(this.ownerId).getResponse().getHeader("X-Accel-Buffering")).isEqualTo("no");
+	}
+
+	@Test
 	@DisplayName("접속하면 지금 진행률을 즉시 받는다 — 0%로 되돌아가지 않는다")
 	void subscribingSendsTheCurrentProgressAtOnce() throws Exception {
 		when(this.runner.findJob(this.jobId.toString())).thenReturn(Optional.of(halfwayJob()));

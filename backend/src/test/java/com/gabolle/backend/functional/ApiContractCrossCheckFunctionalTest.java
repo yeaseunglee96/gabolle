@@ -142,7 +142,9 @@ class ApiContractCrossCheckFunctionalTest extends FunctionalJourneyTest {
 		CreateTripRequest.ConstraintInput walkingConstraint = new CreateTripRequest.ConstraintInput(
 				"MOBILITY", "MAX_WALKING_METERS", "SOFT", "LTE", null, 2000.0, "SELECTED", null);
 		CreateTripRequest tripRequest = new CreateTripRequest(start, finish, originLat, originLng, null, 2, null,
-				null, List.of(categoryAnswer), null, List.of(walkingConstraint), null, null, null, null, null);
+				null, List.of(categoryAnswer), null, List.of(walkingConstraint), null, null, null, null, null,
+				// 1박이라 숙소가 있어야 한다(S15P21E201-1585). 출발지(부산역)에서 가까운 동네로.
+				null, null, null, "NAMPO");
 		ResponseEntity<ApiResponse<TripDto>> tripResponse = client.post("/api/v1/trips", tripRequest,
 				new ParameterizedTypeReference<ApiResponse<TripDto>>() {
 				});

@@ -229,4 +229,45 @@ class GeminiAssistantAdapterTest {
 		assertThat(options.timeout()).isPresent();
 	}
 
+	@Test
+	@DisplayName("🔴 재시도를 끈다 — 한 번만 부른다 (S15P21E201-1749)")
+	void retriesAreDisabled() {
+		var options = new GeminiAssistantAdapter(new AssistantProperties(), null).httpOptions();
+
+		// 비워 두면 SDK 가 기본값으로 5번까지 다시 부른다. 1 로 박아 둔다.
+		assertThat(options.retryOptions()).isPresent();
+		assertThat(options.retryOptions().get().attempts()).contains(1);
+	}
+
+
+	@Test
+	@DisplayName("🔴 /plan 이면 지역·취향·출발일도 싣는다 — 광안리 맛집 2명 (S15P21E201-1825)")
+	void planCarriesAreasCategoriesAndStart() {
+		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "안내할게요.", null, null, "여행 만들기",
+				"/plan", null, 2, java.util.List.of("GWANGALLI", "haeundae", "GWANGALLI"), java.util.List.of("FOOD"),
+				"2026-10-03");
+
+		AssistantReply reply = this.adapter.toDomain(parsed);
+
+		assertThat(reply.href()).isEqualTo("/plan?people=2&areas=GWANGALLI,HAEUNDAE&categories=FOOD&start=2026-10-03");
+	}
+
+	@Test
+	@DisplayName("목록 밖 지역·취향 코드와 모양이 틀린 날짜는 뺀다")
+	void planDropsUnknownCodesAndBadDate() {
+		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "안내할게요.", null, null, "여행 만들기",
+				"/plan", null, null, java.util.List.of("SEOUL"), java.util.List.of("SHOPPING"), "내일");
+
+		assertThat(this.adapter.toDomain(parsed).href()).isEqualTo("/plan");
+	}
+
+	@Test
+	@DisplayName("/trips 에는 지역을 싣지 않는다")
+	void tripsIgnoresAreas() {
+		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "안내할게요.", null, null, "내 여행",
+				"/trips", null, null, java.util.List.of("HAEUNDAE"), null, null);
+
+		assertThat(this.adapter.toDomain(parsed).href()).isEqualTo("/trips");
+	}
+
 }

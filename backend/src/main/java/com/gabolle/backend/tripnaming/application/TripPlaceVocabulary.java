@@ -46,6 +46,15 @@ public class TripPlaceVocabulary {
 	 * @return 방문 순서대로, 중복 없이. 일정이 없으면 빈 목록
 	 */
 	public List<String> placeNamesOf(String tripId) {
+		return placeNamesOf(tripId, false);
+	}
+
+	/**
+	 * @param english 영어 화면이 부르는가. 그러면 장소마다 영어 이름({@code name_en})을 쓰고, 없으면 한국어 이름 그대로 —
+	 *     영어 이름을 지어내지 않는다(S15P21E201-1780)
+	 * @return 방문 순서대로, 중복 없이. 일정이 없으면 빈 목록
+	 */
+	public List<String> placeNamesOf(String tripId, boolean english) {
 		List<Itinerary> itineraries = this.itineraryRepository.findByTripId(tripId);
 		if (itineraries.isEmpty()) {
 			return List.of();
@@ -67,7 +76,7 @@ public class TripPlaceVocabulary {
 				.toList();
 
 		Map<UUID, String> nameByPlaceId = this.placeRepository.findByPlaceIdIn(placeIds).stream()
-				.collect(Collectors.toMap(Place::getPlaceId, Place::getNameKo, (a, b) -> a));
+				.collect(Collectors.toMap(Place::getPlaceId, (place) -> displayName(place, english), (a, b) -> a));
 
 		// 방문 순서를 지킨다 — 앞에 오는 곳이 그 여행의 대표일 확률이 높다.
 		LinkedHashSet<String> names = new LinkedHashSet<>();
@@ -78,5 +87,10 @@ public class TripPlaceVocabulary {
 			}
 		}
 		return new ArrayList<>(names).stream().limit(MAX_PLACES).toList();
+	}
+
+	private static String displayName(Place place, boolean english) {
+		String en = place.getNameEn();
+		return (english && en != null && !en.isBlank()) ? en : place.getNameKo();
 	}
 }

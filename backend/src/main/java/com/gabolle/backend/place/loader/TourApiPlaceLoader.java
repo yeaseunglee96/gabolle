@@ -102,7 +102,7 @@ public class TourApiPlaceLoader {
 				// 이 덩어리 안에서 중복된 contentid 다.
 				continue;
 			}
-			String category = TourApiCategory.of(row.contentId(), row.cat1(), row.cat3());
+			String category = TourApiCategory.of(row.contentId(), row.contentTypeId(), row.cat1(), row.cat3());
 
 			Place inDb = alreadyInDb.get(placeId);
 			if (inDb != null) {

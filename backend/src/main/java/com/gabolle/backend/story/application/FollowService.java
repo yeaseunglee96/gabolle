@@ -115,7 +115,7 @@ public class FollowService {
 				&& this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, target));
 		boolean blocked = viewer != null && !me && this.userBlockRepository.hasBlocked(viewer, target);
 		long stories = this.storyRepository.countAuthorStories(target, this.storyService.visibleScopesOf(target, viewer),
-				this.clock.instant());
+				this.storyService.publishedCutoff(target, viewer, this.clock.instant()));
 		return new UserProfileResponse(target.toString(), user.getDisplayName(),
 				this.userFollowRepository.countByKeyFolloweeUserId(target),
 				this.userFollowRepository.countByKeyFollowerUserId(target), stories, following, me,

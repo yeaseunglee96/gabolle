@@ -149,6 +149,11 @@ public class PlaceCandidateQueryService {
 		// 것이고, 그 길은 PlaceRepository.findByCategoryIn 으로 이미 따로 있다.
 		applied.add("NOT_ACCOMMODATION");
 
+		// 🔴 부산 시 경계 밖은 추천 후보에서만 뺀다 (S15P21E201-1617, 사용자 결정). 오픈스트리트맵 적재가 부산을 덮는
+		//    사각형으로 받아 와 김해·양산 장소가 섞였다(운영 858곳). 검색·근처 보기는 이 경로를 안 거쳐 그대로 보이고,
+		//    장소 행도 그대로다. 사용자가 직접 고른 「꼭 갈 곳」은 추천 엔진이 이 조회 뒤에 따로 채워 넣는다.
+		applied.add("WITHIN_BUSAN");
+
 		Map<UUID, Long> distances = new HashMap<>();
 		List<Place> withinRadius = new ArrayList<>();
 		for (Place place : scanned) {
@@ -157,6 +162,9 @@ public class PlaceCandidateQueryService {
 				continue;
 			}
 			if (ACCOMMODATION_CATEGORIES.contains(placeCategory.toLowerCase(Locale.ROOT))) {
+				continue;
+			}
+			if (!BusanBoundary.contains(place.getLat(), place.getLng())) {
 				continue;
 			}
 			if (!categories.isEmpty() && !categories.contains(placeCategory.toLowerCase(Locale.ROOT))) {

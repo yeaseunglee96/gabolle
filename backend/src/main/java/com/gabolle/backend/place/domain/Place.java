@@ -103,6 +103,16 @@ public class Place {
 	@Column(name = "photo_subject", length = 20)
 	private PhotoSubject photoSubject;
 
+	/** 사진의 라이선스 이름. {@link #getPhotoLicense()} 가 나머지 둘과 묶어 내보낸다. */
+	@Column(name = "photo_license", length = 100)
+	private String photoLicense;
+
+	@Column(name = "photo_license_url", length = 500)
+	private String photoLicenseUrl;
+
+	@Column(name = "photo_file_page", length = 500)
+	private String photoFilePage;
+
 	/**
 	 * 현장 안내용 지하철 출구 번호/이름. 예: "2호선 강남역 3번 출구". 채우는 경로가 아직 없어
 	 * 대부분 {@code null} 이다 — 확인 상태를 따로 가질 필요가 없는 안내 문구라
@@ -110,6 +120,23 @@ public class Place {
 	 */
 	@Column(name = "subway_exit", length = 100)
 	private String subwayExit;
+
+	/**
+	 * 추천 후보로 써도 되는가 — S15P21E201-1426. 출처({@link #sourceType})와 다른 질문이다.
+	 *
+	 * <p>{@code null} 이 아니다. DB 기본값이 {@code CURATED} 라 이관 전에 들어온 행은 전부
+	 * 그 값이고, 새 행은 만드는 자리가 정한다.
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "curation_status", nullable = false, length = 20)
+	private CurationStatus curationStatus = CurationStatus.CURATED;
+
+	/**
+	 * 이 줄이 합쳐진 남는 줄 — S15P21E201-1619. 합쳐진 줄({@link CurationStatus#MERGED})에만 값이 있다.
+	 * 합치기는 DB 함수 {@code place_merge} 가 하고 앱은 읽기만 한다.
+	 */
+	@Column(name = "merged_into", insertable = false, updatable = false)
+	private UUID mergedInto;
 
 	protected Place() {
 	}
@@ -158,6 +185,46 @@ public class Place {
 		place.photoUrl = photoUrl;
 		place.photoSource = photoSource;
 		return place;
+	}
+
+	/**
+	 * 사용자가 기록에 붙이려고 고른 장소 — S15P21E201-1426.
+	 *
+	 * <p>{@link #imported} 와 갈라 두는 이유는 {@code curationStatus} 하나 때문이 아니다.
+	 * <b>여기서 만든 행은 아무도 안 본 값이다</b> — 이름·주소·좌표가 남의 검색 결과 그대로다.
+	 * 같은 공장에서 찍으면 나중에 누가 사진이나 피처를 붙일 때 검증된 행과 구분이 안 된다.
+	 *
+	 * <p>🔴 {@code datasetVersion} 을 안 채운다. 그 칸은 「어느 수집분에서 왔나」인데 이 행은
+	 * 수집분에 속하지 않는다. 지어내면 추천 재현이 그 가짜 값을 따라간다. 추천 후보에
+	 * 안 들어가므로 {@code VERSION_UNRESOLVED} 로 실패할 자리도 없다.
+	 *
+	 * @param sourceId 원천의 식별자. 이것과 {@code sourceType} 이 같으면 같은 장소다
+	 *     ({@code uq_place_source})
+	 */
+	public static Place userSubmitted(UUID placeId, String nameKo, String category, String address,
+			Double lat, Double lng, String sourceType, String sourceId, OffsetDateTime createdAt) {
+		Place place = new Place();
+		place.placeId = placeId;
+		place.nameKo = nameKo;
+		place.category = category;
+		place.address = address;
+		place.lat = lat;
+		place.lng = lng;
+		place.createdAt = createdAt;
+		place.sourceType = sourceType;
+		place.sourceId = sourceId;
+		place.collectedAt = createdAt;
+		place.curationStatus = CurationStatus.USER_SUBMITTED;
+		return place;
+	}
+
+	/** 합쳐진 줄이면 남는 줄의 번호, 아니면 {@code null} — S15P21E201-1619. */
+	public UUID getMergedInto() {
+		return this.mergedInto;
+	}
+
+	public CurationStatus getCurationStatus() {
+		return curationStatus;
 	}
 
 	public UUID getPlaceId() {
@@ -269,14 +336,28 @@ public class Place {
 		return this.photoSubject;
 	}
 
+	/** 사진의 라이선스. 이 칸으로 받은 것이 없으면 {@code null} 이다 — 공공누리 사진은 지금 전부 그렇다. */
+	public PhotoLicense getPhotoLicense() {
+		return (this.photoLicense == null) ? null
+				: new PhotoLicense(this.photoLicense, this.photoLicenseUrl, this.photoFilePage);
+	}
+
 	/**
-	 * 이미 있는 장소에 사진을 붙인다. 장소 적재기는 이미 있는 장소를 건너뛰고 고치지 않는데,
-	 * 사진은 나중에 다른 원천에서 오는 값이라 그 규칙에 묶으면 영영 못 채운다.
-	 * 출처 없는 사진이 들어가지 않도록 주소만 받는 메서드는 두지 않는다.
+	 * 사진이 비어 있을 때만 붙인다. 이미 있으면 아무것도 안 하고 {@code false} 를 낸다.
+	 * 장소 적재기는 이미 있는 장소를 건너뛰고 고치지 않는데, 사진은 나중에 다른 원천에서 오는
+	 * 값이라 그 규칙에 묶으면 영영 못 채운다. 출처 없는 사진이 들어가지 않도록 주소만 받는
+	 * 메서드는 두지 않는다.
+	 *
+	 * <p>🔴 <b>있는 사진은 덮지 않는다</b> — {@link #fillMissingCategory} 와 같은 「모름 → 앎」 한
+	 * 방향이다(S15P21E201-1606). 수집본은 사진이 없던 곳만 담아 만들지만, 그 사이 다른 적재나
+	 * 사람이 넣은 사진이 있으면 다시 돌릴 때 조용히 바뀌고 아무 기록도 안 남는다.
 	 *
 	 * @param photoSubject 무엇을 찍은 사진인가. 모르면 {@code null} — {@code SELF} 로 채우지 않는다
+	 * @param license 라이선스. 받은 것이 없으면 {@code null}
+	 * @return 실제로 붙였으면 {@code true}. 부르는 쪽이 몇 곳을 채웠는지 세는 데 쓴다
 	 */
-	public void attachPhoto(String photoUrl, String photoSource, PhotoSubject photoSubject) {
+	public boolean attachPhoto(String photoUrl, String photoSource, PhotoSubject photoSubject,
+			PhotoLicense license) {
 		if (photoUrl == null || photoUrl.isBlank()) {
 			throw new IllegalArgumentException("photoUrl 없이 사진을 붙일 수 없다");
 		}
@@ -284,9 +365,33 @@ public class Place {
 			throw new IllegalArgumentException(
 					"photoSource 없이 사진을 붙일 수 없다 — 출처 표기 없이 남의 사진을 쓰지 않는다");
 		}
+		if (this.photoUrl != null && !this.photoUrl.isBlank()) {
+			return false;
+		}
 		this.photoUrl = photoUrl;
 		this.photoSource = photoSource;
 		this.photoSubject = photoSubject;
+		this.photoLicense = (license == null) ? null : license.name();
+		this.photoLicenseUrl = (license == null) ? null : license.url();
+		this.photoFilePage = (license == null) ? null : license.filePage();
+		return true;
+	}
+
+	/**
+	 * 사진의 라이선스 — 위키미디어 커먼즈 사진(CC BY · CC BY-SA 등)은 작성자와 함께 이것을 보여야
+	 * 쓸 수 있다. 출처 문구({@link #getPhotoSource()})는 문장이라 링크를 걸 수 없어 칸을 갈랐다.
+	 *
+	 * @param name 라이선스 이름. 원천이 준 문구 그대로다(예: {@code CC BY-SA 4.0}, {@code Public domain})
+	 * @param url 라이선스 본문 주소. 원천이 안 주면 {@code null} (Public domain 이 그렇다)
+	 * @param filePage 원본 파일 페이지. 사람이 작성자·라이선스를 되짚는 곳
+	 */
+	public record PhotoLicense(String name, String url, String filePage) {
+
+		public PhotoLicense {
+			if (name == null || name.isBlank()) {
+				throw new IllegalArgumentException("이름 없는 라이선스는 만들지 않는다 — 없으면 null 로 둔다");
+			}
+		}
 	}
 
 	/** 사진이 무엇을 찍은 것인가. 식당·해수욕장도 같은 칸을 쓰므로 축제에만 맞는 이름을 쓰지 않는다. */

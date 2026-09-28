@@ -29,17 +29,24 @@ class SubwayExitLoaderTest extends PlacePostgresIntegrationTest {
 	@Autowired
 	private SubwayExitLoader subwayExitLoader;
 
-	// 다른 TourAPI 통합 테스트와 겹치지 않는 값이어야 한다. 겹치면 그쪽이 남긴 표식 행 때문에
-	// 이 클래스의 cleanUp 이 fk_place_feature_place 위반으로 실패한다.
-	private static final String CONTENT_ID = "5290001";
+	/** 이 시험이 쓰는 contentid 머리. 정본의 contentid(숫자)와도, 다른 시험의 머리와도 안 겹친다. */
+	private static final String ID_PREFIX = "test-1748-subway-";
+
+	private static final String CONTENT_ID = ID_PREFIX + "5290001";
 
 	@BeforeEach
 	@AfterEach
 	void cleanUp() {
-		// TourApiPlaceLoader.saveChunk 가 장소를 만들면서 CATEGORY_TAG 를 같이 넣는다 —
-		// place 를 지우기 전에 그것부터 지워야 fk_place_feature_place 위반이 안 난다.
-		this.jdbcTemplate.update("DELETE FROM place_feature WHERE source_type = 'TOURAPI'");
-		this.jdbcTemplate.update("DELETE FROM place WHERE source_type = 'TOURAPI'");
+		// TourApiPlaceLoader.saveChunk 가 장소를 만들면서 CATEGORY_TAG 를 같이 넣는다 — 표식부터 지운다.
+		// 🔴 이 시험이 넣은 행만 지운다(S15P21E201-1748). 전에는 TOURAPI 행을 통째로 지웠는데, 마이그레이션이
+		//    넣은 TOURAPI 정본(도시 탐험 시장 등)에 MANUAL 출처 태그가 붙은 뒤로(V20260918160000) 외래키
+		//    fk_place_feature_place 에 막혔다. 통째로 지우면 남의 시험이 믿는 정본도 사라진다.
+		//    태그는 출처값이 아니라 장소로 찾아 지운다 — 적재기가 붙이는 표식의 출처가 바뀌어도 안 막힌다.
+		this.jdbcTemplate.update("""
+				DELETE FROM place_feature WHERE place_id IN (
+				    SELECT place_id FROM place WHERE source_type = 'TOURAPI' AND source_id LIKE ?)
+				""", ID_PREFIX + "%");
+		this.jdbcTemplate.update("DELETE FROM place WHERE source_type = 'TOURAPI' AND source_id LIKE ?", ID_PREFIX + "%");
 	}
 
 	private void givenTourApiPlace(String contentId) {
@@ -68,7 +75,7 @@ class SubwayExitLoaderTest extends PlacePostgresIntegrationTest {
 	@DisplayName("🔴 장소가 없으면 실패하지 않고 넘긴 수로 세어진다 — 장소 적재 순서 문제를 숫자로 보여준다")
 	void 장소가_없으면_세어서_건너뛴다() {
 		SubwayExitLoader.Result result = this.subwayExitLoader
-				.load(List.of(new SubwayExitRow("TOURAPI", "999999", "2호선 강남역 3번 출구")));
+				.load(List.of(new SubwayExitRow("TOURAPI", ID_PREFIX + "999999", "2호선 강남역 3번 출구")));
 
 		assertThat(result.attached()).isZero();
 		assertThat(result.noPlace()).isEqualTo(1);

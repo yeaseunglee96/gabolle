@@ -76,7 +76,8 @@ public class PlaceSearchService {
 		String fingerprint = SearchCursor.fingerprint(trimmedQuery, category, effectiveLimit);
 		int offset = resolveOffset(cursor, fingerprint);
 
-		String pattern = ("%" + escapeLike(trimmedQuery) + "%").toLowerCase(Locale.ROOT);
+		// 공백을 뗀다 — 리포지토리가 이름에서도 공백을 떼고 비교한다(S15P21E201-1745).
+		String pattern = ("%" + escapeLike(compact(trimmedQuery)) + "%").toLowerCase(Locale.ROOT);
 		// offset 을 더하지 않는다 — 조건이 같으면 항상 같은 MAX_RANKED 행을 받아야 한다.
 		Limit repoLimit = Limit.of(MAX_RANKED + 1);
 		List<Place> candidates = (category == null || category.isBlank())
@@ -191,7 +192,7 @@ public class PlaceSearchService {
 	}
 
 	private List<RankedPlace> rank(List<Place> candidates, String query) {
-		String queryLower = query.toLowerCase(Locale.ROOT);
+		String queryLower = compact(query).toLowerCase(Locale.ROOT);
 		List<RankedPlace> ranked = new ArrayList<>(candidates.size());
 		for (Place place : candidates) {
 			int koTier = tier(place.getNameKo(), queryLower);
@@ -209,7 +210,7 @@ public class PlaceSearchService {
 
 	/** 0=정확일치, 1=접두일치, 2=포함. 후보는 이미 LIKE 로 걸러졌으니 포함까지는 항상 걸린다. */
 	private int tier(String name, String queryLower) {
-		String nameLower = name.toLowerCase(Locale.ROOT);
+		String nameLower = compact(name).toLowerCase(Locale.ROOT);
 		if (nameLower.equals(queryLower)) {
 			return 0;
 		}
@@ -217,6 +218,11 @@ public class PlaceSearchService {
 			return 1;
 		}
 		return 2;
+	}
+
+	/** 공백을 전부 뗀다. 「해운대 해수욕장」과 「해운대해수욕장」을 같은 이름으로 본다. */
+	private static String compact(String raw) {
+		return raw.replaceAll("\s+", "");
 	}
 
 	/**

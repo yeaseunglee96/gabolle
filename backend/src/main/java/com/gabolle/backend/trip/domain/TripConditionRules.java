@@ -100,6 +100,31 @@ public final class TripConditionRules {
 		}
 	}
 
+	/**
+	 * 1박 이상이면 숙소가 있어야 한다 — 우리 표의 장소든 묵을 동네든 (S15P21E201-1585). 당일치기는 숙소 없이 된다.
+	 *
+	 * <p>숙소를 모르면 둘째 날 아침을 어디서 여는지 몰라 매일 여행 출발지(역·집)에서 나서는 일정이 되고,
+	 * 첫날 밤엔 돌아갈 자리가 없다. 사용자 결정(2026-09-24): 숙소를 안 고르면 추천하지 않는다.
+	 *
+	 * <p>{@link #check} 와 따로 둔 것은 여행 만들기에서 <b>호텔 스냅샷을 장소로 바꾼 뒤</b>에 봐야 해서다 —
+	 * 스냅샷으로 고른 호텔도 숙소다. 추천 요청은 저장된 여행의 두 칸을 그대로 넘긴다.
+	 *
+	 * @param accommodationArea 동네 코드. 모르는 코드는 없는 것이다 — 저장할 때도 버려진다({@link TravelArea#of})
+	 * @throws TripConditionRejectedException {@code accommodation} 칸 하나로 — 화면이 이 이름으로 문장을 고른다
+	 */
+	public static void requireLodging(LocalDate startDate, LocalDate finishDate, String accommodationPlaceId,
+			String accommodationArea) {
+		if (startDate == null || finishDate == null || !finishDate.isAfter(startDate)) {
+			return;
+		}
+		boolean hasPlace = accommodationPlaceId != null && !accommodationPlaceId.isBlank();
+		if (hasPlace || TravelArea.of(accommodationArea).isPresent()) {
+			return;
+		}
+		throw new TripConditionRejectedException(List.of(
+				new Violation("accommodation", "1박 이상 여행은 숙소가 있어야 한다. 숙소나 묵을 동네를 골라 주세요")));
+	}
+
 	/** @param field 응답에 그대로 실려 화면이 어느 칸을 짚을지 정한다 — 요청의 칸 이름과 같게 쓴다 */
 	public record Violation(String field, String reason) {
 

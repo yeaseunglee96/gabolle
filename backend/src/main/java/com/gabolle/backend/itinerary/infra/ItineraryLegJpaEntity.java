@@ -83,6 +83,10 @@ public class ItineraryLegJpaEntity {
 	@Column(name = "path", updatable = false)
 	private String path;
 
+	/** 엔진이 처음 어림한 이동 분 — 보정 전(S15P21E201-1700). {@code durationMin} 은 고친 값이다. */
+	@Column(name = "uncalibrated_duration_min", updatable = false)
+	private Integer uncalibratedDurationMin;
+
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private OffsetDateTime createdAt;
 
@@ -93,7 +97,8 @@ public class ItineraryLegJpaEntity {
 	ItineraryLegJpaEntity(UUID itineraryLegId, UUID itineraryVersionId, int dayIndex, int sequence,
 			UUID fromPlaceId, UUID toPlaceId, String travelMode, Integer distanceM, Integer durationMin,
 			Integer walkingMeters, Integer ascentM, Integer stairSteps,
-			ItineraryItem.DataStatus dataStatus, Integer fareKrw, String path, OffsetDateTime createdAt) {
+			ItineraryItem.DataStatus dataStatus, Integer fareKrw, String path, Integer uncalibratedDurationMin,
+			OffsetDateTime createdAt) {
 		this.itineraryLegId = itineraryLegId;
 		this.itineraryVersionId = itineraryVersionId;
 		this.dayIndex = dayIndex;
@@ -109,6 +114,7 @@ public class ItineraryLegJpaEntity {
 		this.dataStatus = dataStatus;
 		this.fareKrw = fareKrw;
 		this.path = path;
+		this.uncalibratedDurationMin = uncalibratedDurationMin;
 		this.createdAt = createdAt;
 	}
 
@@ -127,5 +133,6 @@ public class ItineraryLegJpaEntity {
 	Integer stairSteps() { return stairSteps; }
 	ItineraryItem.DataStatus dataStatus() { return dataStatus; }
 	Integer fareKrw() { return fareKrw; }
+	Integer uncalibratedDurationMin() { return uncalibratedDurationMin; }
 	OffsetDateTime createdAt() { return createdAt; }
 }

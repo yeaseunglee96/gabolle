@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
@@ -25,6 +26,7 @@ import com.gabolle.backend.event.infra.KafkaEventPublisher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -129,6 +131,45 @@ class KafkaEventPublisherTest {
 		assertThatThrownBy(() -> this.publisher.publish(event()))
 			.isInstanceOf(EventPublisherPort.EventPublishException.class)
 			.hasMessageContaining("카프카 발행 실패");
+	}
+
+	// ── 못 닿음과 이벤트 탓을 가른다 (S15P21E201-1613) ─────────────────────────────
+	// 릴레이는 「못 닿음」을 시도 횟수에 안 센다. 여기서 잘못 가르면 카프카가 몇 분 죽어 있는 동안
+	// 맨 앞 이벤트가 한도를 채워 버려지거나(못 닿음을 보통 실패로), 독약 이벤트가 영영 막는다(반대로).
+
+	@SuppressWarnings("unchecked")
+	@Test
+	@DisplayName("🔴 카프카의 시간 초과(메타데이터를 못 받음 등)는 「못 닿음」이다 — 이벤트 탓이 아니다")
+	void kafkaTimeoutIsBrokerUnavailable() {
+		given(this.kafkaTemplate.send(any(ProducerRecord.class))).willReturn(CompletableFuture.failedFuture(
+				new org.apache.kafka.common.errors.TimeoutException("Topic not present in metadata after 60000 ms")));
+
+		assertThatThrownBy(() -> this.publisher.publish(event()))
+			.isInstanceOf(EventPublisherPort.BrokerUnavailableException.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	@DisplayName("🔴 기다리는 상한을 넘겨도 「못 닿음」이다 — 브로커가 죽지는 않았는데 답이 없는 때")
+	void waitingTooLongIsBrokerUnavailable() throws Exception {
+		CompletableFuture<SendResult<String, String>> silent = mock(CompletableFuture.class);
+		given(silent.get(anyLong(), any(TimeUnit.class))).willThrow(new java.util.concurrent.TimeoutException());
+		given(this.kafkaTemplate.send(any(ProducerRecord.class))).willReturn(silent);
+
+		assertThatThrownBy(() -> this.publisher.publish(event()))
+			.isInstanceOf(EventPublisherPort.BrokerUnavailableException.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	@DisplayName("🔴 이벤트가 너무 크면 「못 닿음」이 아니다 — 다시 해도 안 되는 것은 시도 횟수에 세야 한다")
+	void aRecordTooLargeIsNotBrokerUnavailable() {
+		given(this.kafkaTemplate.send(any(ProducerRecord.class))).willReturn(CompletableFuture.failedFuture(
+				new org.apache.kafka.common.errors.RecordTooLargeException("The message is 2000000 bytes")));
+
+		assertThatThrownBy(() -> this.publisher.publish(event()))
+			.isInstanceOf(EventPublisherPort.EventPublishException.class)
+			.isNotInstanceOf(EventPublisherPort.BrokerUnavailableException.class);
 	}
 
 	@Test

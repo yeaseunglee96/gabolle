@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 
 /**
@@ -23,7 +24,8 @@ import com.gabolle.backend.trip.domain.TripSeedPlace;
  * "공유 일정에서 왔다" 가 붙고, 나중에 그 기록을 읽는 사람이 없는 복제를 찾게 된다.
  *
  * 점수만 올리고 판정은 건드리지 않는다 — 씨앗이라도 제약에 걸리면 {@code constraintVerdict} 가 FAIL 이고
- * {@code CandidateAssembler} 가 뺀다. {@code preRankScore} 가 {@code null} 인 후보도 그대로 둔다.
+ * {@code CandidateAssembler} 가 뺀다. 🔴 예외 하나: 사용자가 직접 적은 곳이 <b>경사 하나 때문에만</b> 걸렸으면 빼지
+ * 않고 경고로 돌린다({@link #keepMustVisitOverSlope}, S15P21E201-1625). {@code preRankScore} 가 {@code null} 인 후보도 그대로 둔다.
  * {@link #BOOST} 가 1.0 인 이유는 기본 점수가 가중치 합 1.0 인 0~1 스케일이라, 1.0 을 더하면 씨앗이 씨앗
  * 아닌 어떤 후보보다 앞서면서 씨앗들 사이의 순서는 원래 점수가 정하기 때문이다.
  *
@@ -60,6 +62,28 @@ public final class SeedBoost {
 	}
 
 	/**
+	 * 사용자가 직접 적어 넣은 곳이 경사 상한 하나 때문에만 탈락했으면 살리고 경고를 단다 — S15P21E201-1625.
+	 *
+	 * <p>🔴 왜. 경사는 둘레 길로 짐작한 추정값이다. 사용자가 이름을 적어 넣은 곳을 추정값으로 조용히 지우면 사용자는
+	 * 적은 곳이 왜 없는지 모른다. 가고 싶다고 한 사람이 스스로 판단하게 경고로 남긴다. 다른 사유(알레르기·확인된
+	 * 접근 불가 등)가 하나라도 섞여 있으면 그대로 둔다 — 그것들은 확인된 사실이다.
+	 */
+	static EngineCandidate keepMustVisitOverSlope(EngineCandidate c) {
+		if (c.constraintVerdict() != ConstraintVerdict.FAIL || c.violations().isEmpty()
+				|| !c.violations().stream().allMatch(v -> BaselineCandidateScorer.SLOPE_OVER_LIMIT.equals(v.get("code")))) {
+			return c;
+		}
+		ConstraintVerdict verdict = c.unknownFacts().isEmpty() ? ConstraintVerdict.PASS : ConstraintVerdict.UNKNOWN;
+		List<String> warnings = new ArrayList<>(c.warningCodes());
+		if (!warnings.contains(BaselineCandidateScorer.SLOPE_OVER_LIMIT)) {
+			warnings.add(BaselineCandidateScorer.SLOPE_OVER_LIMIT);
+		}
+		return new EngineCandidate(c.placeId(), c.candidateSource(), verdict, List.of(), c.unknownFacts(),
+				c.constraintConfidence(), c.featureValues(), c.scoreComponents(), c.preRankScore(), c.reasonCodes(),
+				warnings);
+	}
+
+	/**
 	 * 사용자가 직접 적어 넣은 씨앗인가. 출처가 둘 다 비어 있으면 복제로 따라온 것이 아니다.
 	 * 원본 여행이 지워지면 {@code sourceTripId} 가 {@code null} 이 되므로
 	 * ({@code TripSeedPlace} 주석) 공유 주소 쪽도 함께 본다.
@@ -69,6 +93,9 @@ public final class SeedBoost {
 	}
 
 	private static EngineCandidate boost(EngineCandidate c, TripSeedPlace seed) {
+		if (isMustVisit(seed)) {
+			c = keepMustVisitOverSlope(c);
+		}
 		Double score = (c.preRankScore() == null) ? null : c.preRankScore() + BOOST;
 
 		Map<String, Object> components = new LinkedHashMap<>(c.scoreComponents());

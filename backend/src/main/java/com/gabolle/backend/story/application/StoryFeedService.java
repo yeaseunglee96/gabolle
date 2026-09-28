@@ -274,7 +274,8 @@ public class StoryFeedService {
 		FeedCursor from = FeedCursor.decode(cursor);
 		int size = clamp(limit);
 		List<String> visibilities = this.storyService.visibleScopesOf(author, viewer);
-		List<Story> rows = this.storyRepository.findAuthorFeed(author, visibilities, now, from.publishAt(),
+		List<Story> rows = this.storyRepository.findAuthorFeed(author, visibilities,
+				this.storyService.publishedCutoff(author, viewer, now), from.publishAt(),
 				from.storyId(), size + 1);
 		return page(rows, size, viewer, now);
 	}

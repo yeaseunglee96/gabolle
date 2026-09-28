@@ -65,6 +65,16 @@ public class Trip {
     /** 매일 여기서 시작하고 여기로 돌아온다. 없으면 일정의 시작점·끝점이 매일 달라진다. */
     private final String accommodationPlaceId;
 
+    /**
+     * 묵는 동네. {@code TravelArea} 코드다 — S15P21E201-1544.
+     *
+     * <p>🔴 {@link #accommodationPlaceId} 와 겹치지 않는다. 앞엣것은 <b>정확한 숙소 한 곳</b>이고
+     * 이것은 <b>묵는 동네</b>라 표현하는 대상이 다르고 둘 다 있을 수 있다. 앱의 추천 동네를
+     * 장소 행으로 만들지 않기로 한 결정(2026-09-23)의 받는 자리다 — 그렇게 하면 같은 「해운대」가
+     * 앱 어휘·서버 어휘·장소 행으로 세 벌이 된다.
+     */
+    private final String accommodationArea;
+
     /** 영어 메뉴가 있는 곳을 우선한다 (선호, HARD 필터 아님). */
     private final boolean englishMenuRequired;
 
@@ -150,6 +160,27 @@ public class Trip {
                 boolean soloFriendlyPriority, Integer maxTransitTransfers,
                 String pace,
                 Instant createdAt) {
+        this(tripId, createdBy, ownerType, startDate, finishDate, originLat, originLng, budgetKrw,
+                partySize, timeWindow, timezone, travelModes, timeWindowStart, timeWindowEnd,
+                accommodationPlaceId, englishMenuRequired, foreignCardRequired, soloFriendlyPriority,
+                maxTransitTransfers, pace, createdAt, null);
+    }
+
+    /**
+     * 묵는 동네까지 받는 정본 생성자 — S15P21E201-1544. 위 생성자는 이 칸을 {@code null} 로
+     * 두고 여기에 위임한다. 칸을 뒤에 붙인 것은 기존 호출부를 안 건드리기 위해서다.
+     */
+    public Trip(String tripId, String createdBy, OwnerType ownerType,
+                LocalDate startDate, LocalDate finishDate,
+                Double originLat, Double originLng,
+                Integer budgetKrw, int partySize,
+                String timeWindow, String timezone,
+                String[] travelModes, LocalTime timeWindowStart, LocalTime timeWindowEnd,
+                String accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
+                boolean soloFriendlyPriority, Integer maxTransitTransfers,
+                String pace,
+                Instant createdAt,
+                String accommodationArea) {
 
         if (startDate == null || finishDate == null) {
             throw new IllegalArgumentException("여행 시작일과 종료일은 필수다");
@@ -192,6 +223,7 @@ public class Trip {
         this.timeWindowEnd = timeWindowEnd;
         this.travelModes = validateTravelModes(travelModes);
         this.accommodationPlaceId = accommodationPlaceId;
+        this.accommodationArea = accommodationArea;
         this.englishMenuRequired = englishMenuRequired;
         this.foreignCardRequired = foreignCardRequired;
         this.soloFriendlyPriority = soloFriendlyPriority;
@@ -243,6 +275,7 @@ public class Trip {
         private LocalTime timeWindowEnd;
         private String[] travelModes;
         private String accommodationPlaceId;
+        private String accommodationArea;
         private boolean englishMenuRequired;
         private boolean foreignCardRequired;
         private boolean soloFriendlyPriority;
@@ -272,6 +305,7 @@ public class Trip {
         public Builder timeWindowEnd(LocalTime timeWindowEnd) { this.timeWindowEnd = timeWindowEnd; return this; }
         public Builder travelModes(String[] travelModes) { this.travelModes = travelModes; return this; }
         public Builder accommodationPlaceId(String accommodationPlaceId) { this.accommodationPlaceId = accommodationPlaceId; return this; }
+        public Builder accommodationArea(String accommodationArea) { this.accommodationArea = accommodationArea; return this; }
         public Builder englishMenuRequired(boolean englishMenuRequired) { this.englishMenuRequired = englishMenuRequired; return this; }
         public Builder foreignCardRequired(boolean foreignCardRequired) { this.foreignCardRequired = foreignCardRequired; return this; }
         public Builder soloFriendlyPriority(boolean soloFriendlyPriority) { this.soloFriendlyPriority = soloFriendlyPriority; return this; }
@@ -292,7 +326,7 @@ public class Trip {
             Trip trip = new Trip(tripId, createdBy, ownerType, startDate, finishDate, originLat, originLng,
                     budgetKrw, partySize, timeWindow, timezone, travelModes, timeWindowStart, timeWindowEnd,
                     accommodationPlaceId, englishMenuRequired, foreignCardRequired, soloFriendlyPriority,
-                    maxTransitTransfers, pace, createdAt);
+                    maxTransitTransfers, pace, createdAt, accommodationArea);
             trip.title = title;
             if (status != null) {
                 trip.status = status;
@@ -429,6 +463,7 @@ public class Trip {
     /** 방어적 복사본 — 밖에서 바꿔도 이 여행의 값은 안 바뀐다. */
     public String[] travelModes() { return travelModes.clone(); }
     public String accommodationPlaceId()     { return accommodationPlaceId; }
+    public String accommodationArea()        { return accommodationArea; }
     public boolean englishMenuRequired()     { return englishMenuRequired; }
     public boolean foreignCardRequired()     { return foreignCardRequired; }
     public boolean soloFriendlyPriority()    { return soloFriendlyPriority; }

@@ -10,6 +10,17 @@ package com.gabolle.backend.recommendation.application.port;
  */
 public interface ItineraryDraftPort {
 
+    /**
+     * 오늘 출발하는 당일치기를 너무 늦게 만들어 그날 넣을 시간이 없다 (S15P21E201-1734). 조립이 고장 난 것이 아니라
+     * 사용자에게 알릴 사실이다 — 추천 작업은 {@code ITINERARY_NO_TIME_LEFT_TODAY} 로 끝난다.
+     */
+    final class NoTimeLeftTodayException extends RuntimeException {
+
+        public NoTimeLeftTodayException(String message) {
+            super(message);
+        }
+    }
+
     /** 새 일정을 처음부터 흩뿌린다. */
     ItineraryDraft assemble(ItineraryDraftCommand command);
 

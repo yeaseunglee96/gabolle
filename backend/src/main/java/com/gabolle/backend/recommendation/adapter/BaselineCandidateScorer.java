@@ -10,6 +10,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
@@ -60,13 +62,68 @@ public class BaselineCandidateScorer {
 	 */
 	static final String ACCESSIBILITY_UNVERIFIED_WARNING = RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED;
 
+	/** 알레르기 재료가 들었는지 안 재 봤다는 경고(S15P21E201-1633). 같은 이유로 문자열을 여기서 다시 적지 않는다. */
+	static final String ALLERGEN_UNVERIFIED_WARNING = RecommendationCodes.WARNING_ALLERGEN_UNVERIFIED;
+
 	/** 식단을 안 재 봤다는 경고. 같은 이유로 문자열을 여기서 다시 적지 않는다. */
 	static final String DIET_UNVERIFIED_WARNING = RecommendationCodes.WARNING_DIET_SUPPORT_UNVERIFIED;
 
+	/**
+	 * 경사가 이동 조건(휠체어·유아차·큰 짐)의 상한을 넘었다 — S15P21E201-1625. 「반드시」면 탈락 사유 코드,
+	 * 「되도록」이면 경고 코드로 같은 낱말을 쓴다.
+	 */
+	static final String SLOPE_OVER_LIMIT = "SLOPE_OVER_LIMIT";
+
+	/**
+	 * 이동 조건이 받아들이는 경사 상한(%)의 기본값 — 온톨로지의 휠체어 경사로 기준 1:12({@code bm:RuleWheelchairSlope}).
+	 * 휠체어·유아차·큰 짐이 이 값 하나를 같이 쓴다(2026-09-25 사용자 결정 — 「경사」 하나로 묶는다).
+	 */
+	static final double DEFAULT_MAX_SLOPE_PERCENT = 8.33;
+
 	private final ObjectMapper objectMapper;
 
+	private final double maxSlopePercent;
+
 	public BaselineCandidateScorer(ObjectMapper objectMapper) {
+		this(objectMapper, DEFAULT_MAX_SLOPE_PERCENT);
+	}
+
+	@Autowired
+	public BaselineCandidateScorer(ObjectMapper objectMapper,
+			@Value("${gabolle.recommendation.mobility.max-slope-percent:" + DEFAULT_MAX_SLOPE_PERCENT + "}")
+			double maxSlopePercent) {
 		this.objectMapper = objectMapper;
+		this.maxSlopePercent = maxSlopePercent;
+	}
+
+	/** 사용자가 고른 여행 테마(갈래) — 채점의 관심 항이 읽는 것과 같은 답이다. 안 골랐으면 빈 목록. */
+	List<String> chosenCategories(PreferenceSnapshot preferenceSnapshot) {
+		return PreferenceJson.codesFor(preferenceSnapshot, "CATEGORY", this.objectMapper);
+	}
+
+	/** 태그로 겹침을 재는 취향 — {@link #score} 의 분위기·음식 항과 같은 목록이다. */
+	private static final List<String> TAG_TASTES = List.of("ATMOSPHERE", "FOOD_PREFERENCE");
+
+	/** 점수로 맞춰 보는 취향 — {@link #score} 의 점수형 다섯과 같은 목록이다. */
+	private static final List<String> SCORE_TASTES = List.of("LOCALITY", "QUIETNESS", "TOURIST_PREFERENCE",
+			"SHADE_PREFERENCE", "SLOPE_PREFERENCE");
+
+	/**
+	 * 테마 말고도 채점에 쓰일 취향 답이 있는가 (S15P21E201-1639). 채점이 읽는 그대로 읽는다 — 「상관없어요」(경사 ALLOW ·
+	 * 그늘 NO_PREFERENCE)나 빈 음식 목록은 값이 없어 순위를 가르지 못하므로 거짓이다. 씀씀이는 취향 항이 아니다.
+	 */
+	boolean hasTasteBeyondCategory(PreferenceSnapshot preferenceSnapshot) {
+		for (String dimension : TAG_TASTES) {
+			if (!PreferenceJson.codesFor(preferenceSnapshot, dimension, this.objectMapper).isEmpty()) {
+				return true;
+			}
+		}
+		for (String dimension : SCORE_TASTES) {
+			if (PreferenceJson.scoreFor(preferenceSnapshot, dimension, this.objectMapper) != null) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -125,9 +182,14 @@ public class BaselineCandidateScorer {
 		featureValues.put("distanceM", candidate.distanceM());
 		// 장기 분석은 띠로 센다. 미터만 남기면 질의마다 경계를 다시 정하게 되어 같은 지표가
 		// 사람마다 다른 숫자가 된다.
-		featureValues.put("distanceBucket", DistanceBucket.of(candidate.distanceM()));
+		DistanceBucket distanceBucket = DistanceBucket.of(candidate.distanceM());
+		featureValues.put("distanceBucket", distanceBucket);
 		scoreComponents.put("distance", componentDetail(weights.distance(), distanceComponent, null));
-		reasonCodes.add("NEAR_ORIGIN");
+		// 「출발지에서 가까움」은 걸어갈 만한 곳(띠의 「걷기 상한 안쪽」 — 1km 미만)에만 붙인다 (S15P21E201-1638).
+		// 전에는 거리와 상관없이 모든 후보에 붙어 4.7km 떨어진 곳도 「가까움」이었다. 점수는 그대로다.
+		if (distanceBucket == DistanceBucket.UNDER_500M || distanceBucket == DistanceBucket.M500_TO_1KM) {
+			reasonCodes.add("NEAR_ORIGIN");
+		}
 		total += weights.distance() * distanceComponent;
 
 		// ── 태그 겹침 셋 — 관심·분위기·음식 ──────────────────────────────────
@@ -268,7 +330,8 @@ public class BaselineCandidateScorer {
 			}
 			String type = constraint.type() == null ? "" : constraint.type().toUpperCase(Locale.ROOT);
 			switch (type) {
-				case "ALLERGY" -> evaluateAllergy(candidate, constraint, constraintCodeMap, violations, unknownFacts);
+				case "ALLERGY" ->
+						evaluateAllergy(candidate, constraint, constraintCodeMap, violations, unknownFacts, warnings);
 				case "DIET" ->
 						evaluateDiet(candidate, constraint, constraintCodeMap, violations, unknownFacts, warnings);
 				case "MOBILITY" ->
@@ -281,9 +344,16 @@ public class BaselineCandidateScorer {
 		}
 	}
 
+	/**
+	 * 알레르기.
+	 *
+	 * <p>🔴 <b>확인 안 된 곳은 빼지 않고 경고만</b> 단다 — S15P21E201-1633(사용자 결정 2026-09-25). 앱은 이제 알레르기를
+	 * 묻지 않는데(-1497), 옛 「반드시」 답이 남은 여행은 후보 200곳이 전부 「확인 안 됨」이라 빠져 다시 짜기가 실패했다
+	 * (9/21~22 실패 7건 중 4건). 알레르기 재료가 <b>들었다고 확인된</b> 곳은 지금처럼 뺀다 — 확인된 사실이다.
+	 */
 	private void evaluateAllergy(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
 			List<UserPlaceCodeMap> constraintCodeMap, List<Map<String, Object>> violations,
-			List<Map<String, Object>> unknownFacts) {
+			List<Map<String, Object>> unknownFacts, List<String> warnings) {
 
 		String featureType = hardFilterFeatureType(constraintCodeMap, "ALLERGY").orElse(null);
 		if (featureType == null) {
@@ -297,8 +367,11 @@ public class BaselineCandidateScorer {
 		String code = constraint.constraintKey();
 		switch (bucketFor(candidate, featureType, code)) {
 			case PRESENT -> violations.add(Map.of("code", "ALLERGEN_PRESENT", "featureKey", code));
-			case UNVERIFIED -> unknownFacts.add(Map.of("fact", "ALLERGEN_UNVERIFIED", "featureKey", code,
-					"severity", severityOf(constraint)));
+			case UNVERIFIED -> {
+				if (!warnings.contains(ALLERGEN_UNVERIFIED_WARNING)) {
+					warnings.add(ALLERGEN_UNVERIFIED_WARNING);
+				}
+			}
 			case ABSENT -> {
 				// 확인된 해당 없음 — 통과 기여. 추가로 할 일이 없다.
 			}
@@ -308,6 +381,27 @@ public class BaselineCandidateScorer {
 	private void evaluateDiet(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
 			List<UserPlaceCodeMap> constraintCodeMap, List<Map<String, Object>> violations,
 			List<Map<String, Object>> unknownFacts, List<String> warnings) {
+
+		// 🔴 채식·비건은 고기가 중심인 집을 «확인된 사실»로 뺀다 — S15P21E201-1815.
+		//    식단 지원 표식(DIETARY_SUPPORT_TAG)이 운영에 0건이라 아래 판정은 전부 「확인 안 됨」
+		//    경고로 끝나고, 채식을 골라도 갈비집이 일정에 들어갔다(QA). 상호명·음식 태그가 고기를
+		//    가리키면 그 집이 채식을 지원하지 않는다는 것은 추정이 아니라 사실에 가깝다.
+		//    뺄 곳이 많아져도 고기집으로 채우지 않는다 — 식사 자리가 줄어드는 쪽이 낫다.
+		//    🔴 S15P21E201-1822: 이름에 「고기」가 없는 고깃집(감자탕·국밥·면옥·까르니따스)이 비건 후보에
+		//    남았다. 채식은 고기 육수 집까지, 비건은 회·초밥·해물·멸치 육수 집까지 뺀다.
+		String dietKey = upper(constraint.constraintKey());
+		if (MEAT_EXCLUDING_DIETS.contains(dietKey) && !isExplicitlyPlantBased(candidate)) {
+			if (isMeatCentric(candidate)) {
+				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
+						"reason", "MEAT_CENTRIC"));
+				return;
+			}
+			if ("VEGAN".equals(dietKey) && isSeafoodCentric(candidate)) {
+				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
+						"reason", "SEAFOOD_CENTRIC"));
+				return;
+			}
+		}
 
 		String featureType = hardFilterFeatureType(constraintCodeMap, "DIET").orElse(null);
 		if (featureType == null) {
@@ -343,6 +437,95 @@ public class BaselineCandidateScorer {
 			unknownFacts.add(Map.of("fact", "DIET_SUPPORT_UNVERIFIED", "featureKey", code,
 					"severity", severityOf(constraint)));
 		}
+	}
+
+	/** 고기가 중심인 집을 빼는 식단 코드. */
+	private static final Set<String> MEAT_EXCLUDING_DIETS = Set.of("VEGETARIAN", "VEGAN");
+
+	/**
+	 * 상호명에 이 낱말이 있으면 고기가 중심인 집으로 본다. 「오리」는 뺐다(오리지널·오리엔탈).
+	 */
+	private static final List<String> MEAT_NAME_WORDS = List.of(
+			"고기", "갈비", "삼겹", "목살", "돼지", "소고기", "한우", "곱창", "막창", "대창", "양곱창",
+			"족발", "보쌈", "치킨", "통닭", "닭갈비", "닭강정", "양꼬치", "불고기", "육회", "정육",
+			"스테이크", "바베큐", "바비큐", "BBQ", "숯불", "순대", "수육", "돈까스", "돈가스", "삼계탕",
+			// S15P21E201-1822 — 이름에 고기가 안 보여도 고기 육수·고기가 주인 집. 국밥은 콩나물국밥도
+			// 멸치·고기 육수를 쓰므로 통째로 뺀다. 밀면·냉면·면옥은 소·돼지 육수다.
+			"감자탕", "뼈해장", "해장국", "국밥", "곰탕", "설렁탕", "육개장", "곱도리", "닭한마리", "찜닭",
+			"닭발", "까르니따스", "카르니타스", "CARNITAS", "케밥", "KEBAB", "밀면", "냉면", "면옥",
+			// 애매하지만 뺀다 — 채식 메뉴가 있을 수는 있어도 고를 근거가 없다. 뷔페는 고기가 반드시 있다.
+			"버거", "BURGER", "샤브", "뷔페", "BUFFET");
+
+	/** 음식 태그(CUISINE_TAG) 중 고기가 중심인 것. 돼지국밥·밀면(돼지·소 육수)이다. */
+	private static final Set<String> MEAT_CUISINE_TAGS = Set.of("PORK_SOUP", "MILMYEON");
+
+	/**
+	 * 이 낱말이 이름에 있으면 무엇이 더 들어 있든 빼지 않는다 — 「채식 뷔페」·「비건 버거」는 그 식단을
+	 * 위한 집이다.
+	 */
+	private static final List<String> PLANT_BASED_NAME_WORDS = List.of(
+			"비건", "채식", "VEGAN", "VEGETARIAN", "사찰음식", "베지");
+
+	/**
+	 * 비건만 추가로 빼는 해산물·생선 중심 낱말(S15P21E201-1822).
+	 *
+	 * <p>🔴 짧은 글자는 일부러 안 넣었다: 「회」(회관·회사·회현), 「게」(가게·게스트하우스),
+	 * 「굴」(굴다리), 「복」(행복). 대신 「횟집」「회센터」「물회」「게장」「대게」처럼 뜻이 하나인
+	 * 낱말만 쓴다. 그래서 「OO회관」은 이 목록으로는 안 빠진다(고깃집이면 위 고기 낱말이 잡는다).
+	 * 카페·젤라또·빵집은 빼지 않는다 — 음료·빵은 비건일 수 있고, 유제품 여부는 이름으로 모른다.
+	 * 칼국수는 뺀다 — 부산 칼국수 육수는 거의 멸치·해물이다.
+	 */
+	private static final List<String> SEAFOOD_NAME_WORDS = List.of(
+			"횟집", "회센터", "물회", "생선회", "활어", "수산", "스시", "초밥", "마끼", "사시미", "연어", "살몬",
+			"SALMON", "SUSHI", "참치", "장어", "대구탕", "복국", "복어", "아구", "아귀", "해물", "해산물",
+			"씨푸드", "SEAFOOD", "조개", "전복", "게장", "대게", "홍게", "킹크랩", "새우", "오뎅", "어묵",
+			"멸치", "칼국수", "낙지", "문어", "주꾸미", "쭈꾸미", "오징어", "생선", "고등어", "갈치");
+
+	/** 비건만 추가로 빼는 음식 태그 — CUISINE_TAG 의 해산물, DESIRED_FOOD_TAG 의 복국. */
+	private static final Set<String> SEAFOOD_TAGS = Set.of("CUISINE_TAG:SEAFOOD", "DESIRED_FOOD_TAG:BOKGUK");
+
+	static boolean isExplicitlyPlantBased(PlaceCandidateResponse.Candidate candidate) {
+		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
+		return PLANT_BASED_NAME_WORDS.stream().anyMatch(name::contains);
+	}
+
+	static boolean isSeafoodCentric(PlaceCandidateResponse.Candidate candidate) {
+		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
+		if (SEAFOOD_NAME_WORDS.stream().anyMatch(name::contains)) {
+			return true;
+		}
+		if (candidate.features() != null) {
+			for (PlaceFeatureView feature : candidate.features()) {
+				if (SEAFOOD_TAGS.contains(feature.featureType() + ":" + feature.featureKey())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	static boolean isMeatCentric(PlaceCandidateResponse.Candidate candidate) {
+		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
+		// 「물고기」(수족관·체험)는 고깃집이 아니다.
+		String cleaned = name.replace("물고기", "");
+		for (String word : MEAT_NAME_WORDS) {
+			if (cleaned.contains(word)) {
+				return true;
+			}
+		}
+		if (candidate.features() != null) {
+			for (PlaceFeatureView feature : candidate.features()) {
+				if ("CUISINE_TAG".equals(feature.featureType()) && feature.featureKey() != null
+						&& MEAT_CUISINE_TAGS.contains(feature.featureKey())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static String upper(String value) {
+		return value == null ? "" : value.toUpperCase(Locale.ROOT);
 	}
 
 	/**
@@ -389,10 +572,42 @@ public class BaselineCandidateScorer {
 		switch (bucketFor(candidate, featureType, key)) {
 			// 방향이 알레르기와 반대다 — 여기는 "없다고 확인됨" 이 FAIL 이다.
 			case ABSENT -> violations.add(Map.of("code", "ACCESS_VERIFIED_UNAVAILABLE", "featureKey", key));
-			case UNVERIFIED -> warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
+			case UNVERIFIED -> {
+				warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
+				evaluateSlope(candidate, constraint, violations, warnings);
+			}
 			case PRESENT -> {
 				// 검증된 접근 가능 — 통과 기여.
 			}
+		}
+	}
+
+	/**
+	 * 확인된 접근성 표식이 없는 곳을 경사로 가른다 — S15P21E201-1625.
+	 *
+	 * <p>🔴 왜. 접근성 표식은 운영 6,933곳 중 111줄뿐이라, 유아차를 「반드시」로 골라도 봉래산·사자봉 조망 지점
+	 * 같은 산이 「미확인」 경고만 달고 일정에 들어갔다(여행 79da403f). 경사(주변 걷는 길의 가운데 값)는 거의 모든
+	 * 장소에 있다.
+	 *
+	 * <p>규칙: 상한을 넘으면 「반드시」는 빼고 「되도록」은 경고만. 경사를 모르면 아무것도 더하지 않는다 — 위의 미확인
+	 * 경고가 이미 붙어 있다(전과 같다). 상한 아래여도 미확인 경고는 그대로 둔다 — 경사는 둘레 길로 짐작한 추정값이지
+	 * 그 장소를 잰 것이 아니라, 「갈 수 있음」을 약속하지 못한다.
+	 *
+	 * <p>확인된 표식이 있으면 여기까지 오지 않는다 — 확인된 사실이 추정값보다 앞선다.
+	 * 계단은 경사 자료에 없다(계단은 따로 {@code STAIRS_AVOIDANCE} 가 본다).
+	 */
+	private void evaluateSlope(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
+			List<Map<String, Object>> violations, List<String> warnings) {
+		Double slope = extractPlaceScore(candidate, "SLOPE_PERCENT");
+		if (slope == null || slope <= this.maxSlopePercent) {
+			return;
+		}
+		if (constraint.severity() == TripConstraint.Severity.HARD) {
+			violations.add(Map.of("code", SLOPE_OVER_LIMIT, "featureKey", constraint.constraintKey(),
+					"slopePercent", slope, "maxSlopePercent", this.maxSlopePercent));
+		}
+		else if (!warnings.contains(SLOPE_OVER_LIMIT)) {
+			warnings.add(SLOPE_OVER_LIMIT);
 		}
 	}
 
@@ -640,6 +855,20 @@ public class BaselineCandidateScorer {
 			}
 		}
 		double ratio = matched.size() / (double) userCodes.size();
+
+		// 🔴 여행 테마(CATEGORY)는 장소의 갈래(place.category)와도 맞춰 본다 (2026-09-23, S15P21E201-1535).
+		//    앱의 테마 코드(SEA_BEACH·CITY·CAFE_HEALING·CULTURE_TEMPLE·FOOD·NATURE_WALK)는 place.category 와
+		//    같은 어휘인데, 관심 태그(INTEREST_TAG)는 다른 어휘다(운영: NATURE·WALK·TRADITIONAL_MARKET …).
+		//    태그만 보면 테마가 어떤 장소와도 안 겹쳐 가산이 0 이었다. 전에는 번역기가 갈래로 후보를
+		//    «잘라서» 테마를 반영했는데 그 거르기를 없앴으므로(BaselineCandidateTranslator) 여기서 가산한다.
+		//    장소는 갈래가 하나라 비율이 아니라 «맞으면 만점» 이다 — 테마 둘을 고른 사람에게 바다가 반점이면 안 된다.
+		if ("CATEGORY".equals(preferenceCode) && candidate.category() != null
+				&& userCodes.contains(candidate.category())) {
+			if (!matched.contains(candidate.category())) {
+				matched.add(candidate.category());
+			}
+			ratio = 1.0;
+		}
 
 		featureValues.put(featureValueKey, ratio);
 		scoreComponents.put(componentKey, componentDetail(weight, ratio, Map.of("matched", matched)));

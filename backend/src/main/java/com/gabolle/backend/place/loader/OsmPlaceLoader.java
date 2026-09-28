@@ -50,8 +50,11 @@ public class OsmPlaceLoader {
 
 	private final PlaceRepository placeRepository;
 
-	public OsmPlaceLoader(PlaceRepository placeRepository) {
+	private final SamePlaceGuard samePlaceGuard;
+
+	public OsmPlaceLoader(PlaceRepository placeRepository, SamePlaceGuard samePlaceGuard) {
 		this.placeRepository = placeRepository;
+		this.samePlaceGuard = samePlaceGuard;
 	}
 
 	/**
@@ -61,22 +64,44 @@ public class OsmPlaceLoader {
 	 * 존중한다 — 같은 장소가 두 출처에 있을 때 나중에 온 쪽이 이름을 덮으면, 어느 이름이 맞는지를
 	 * 아무도 못 정한다. 같은 파일을 두 번 돌려도 행이 두 배가 되지 않는 것도 같은 규칙이 지킨다.
 	 *
-	 * <p>여기서 보는 「이미 있다」는 <b>같은 OSM 번호로 들어온 행</b>뿐이다. 이름이 같은 다른
-	 * 출처의 장소와는 안 맞춰 본다 — 이름 대조는 8% 가 오접합한다는 것을 이 팀이 이미 쟀다.
-	 * 그래서 관광공사에 있는 해운대해수욕장과 OSM 의 해운대해수욕장은 두 행으로 남는다. 그것을
-	 * 하나로 잇는 것은 별도 작업이다.
+	 * <p>「이미 있다」는 둘이다. 먼저 <b>같은 OSM 번호로 들어온 행</b> — 합쳐진 줄(S15P21E201-1619)도 번호가 남아 있어
+	 * 여기서 걸리고 되살아나지 않는다. 다음은 <b>다른 번호의 같은 곳</b> — 이름이 같고 가까운 장소가 이미 있으면 넣지
+	 * 않는다({@link SamePlaceGuard}, S15P21E201-1620). 운영의 중복 113줄이 이 적재가 상가·관광공사에 이미 있던 곳을 또
+	 * 넣어 생겼다. 판정이 애매한 짝(체인·넓은 갈래)도 넣지 않고 {@code report} 에 사람 확인으로 남긴다.
 	 */
 	@Transactional
 	public int saveChunk(List<OsmPoiRow> rows, String datasetVersion, OffsetDateTime collectedAt) {
+		return saveChunk(rows, datasetVersion, collectedAt, new SamePlaceReport());
+	}
+
+	/** {@link #saveChunk(List, String, OffsetDateTime)} 에 같은 곳 판정을 모을 자리를 준다 — 실행기가 적재 끝에 찍는다. */
+	@Transactional
+	public int saveChunk(List<OsmPoiRow> rows, String datasetVersion, OffsetDateTime collectedAt,
+			SamePlaceReport report) {
 		List<UUID> ids = rows.stream().map((row) -> placeIdOf(row.osmId())).toList();
 		Set<UUID> existing = new HashSet<>();
 		this.placeRepository.findAllById(ids).forEach((place) -> existing.add(place.getPlaceId()));
 
-		List<Place> places = new ArrayList<>(rows.size());
+		List<OsmPoiRow> fresh = new ArrayList<>(rows.size());
 		for (OsmPoiRow row : rows) {
+			// 이미 있거나(DB) 이 덩어리 안에서 중복된 OSM 번호면 건너뛴다.
+			if (existing.add(placeIdOf(row.osmId()))) {
+				fresh.add(row);
+			}
+		}
+		List<SamePlaceGuard.Candidate> candidates = fresh.stream()
+				.map((row) -> new SamePlaceGuard.Candidate(placeIdOf(row.osmId()), row.name(), row.category(), row.lat(),
+						row.lng(), SOURCE_TYPE, String.valueOf(row.osmId())))
+				.toList();
+		List<SamePlaceGuard.Verdict> verdicts = this.samePlaceGuard.screen(candidates);
+
+		List<Place> places = new ArrayList<>(fresh.size());
+		for (int i = 0; i < fresh.size(); i++) {
+			OsmPoiRow row = fresh.get(i);
 			UUID placeId = placeIdOf(row.osmId());
-			if (!existing.add(placeId)) {
-				// 이미 있거나(DB) 이 덩어리 안에서 중복된 OSM 번호다.
+			SamePlaceGuard.Verdict verdict = verdicts.get(i);
+			if (verdict != null) {
+				report.record(candidates.get(i), verdict);
 				continue;
 			}
 			places.add(Place.imported(placeId, cut(row.name(), NAME_MAX), row.category(),

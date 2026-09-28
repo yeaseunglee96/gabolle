@@ -53,6 +53,20 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 	String NOT_BLOCKED_BY_AUTHOR = " AND NOT EXISTS (SELECT 1 FROM user_block b"
 			+ " WHERE b.blocker_user_id = s.author_user_id AND b.blocked_user_id = :me) ";
 
+	/**
+	 * 내가 차단한 사람의 기록도 내 목록에서 뺀다 (S15P21E201-1714 — App Store 가이드라인 1.2: 차단하면 그 사람의
+	 * 콘텐츠가 차단한 사람의 피드에서 사라져야 한다).
+	 *
+	 * <p>{@link #NOT_BLOCKED_BY_AUTHOR} 의 <b>반대 방향</b>이다({@code blocker = 나}, {@code blocked = 글쓴이}). 둘은
+	 * 서로를 대신하지 않는다 — 앞의 것은 「차단당한 사람에게 내 글을 안 보여준다」, 이것은 「내가 차단한 사람의 글을 나에게
+	 * 안 보여준다」다. 목록에서는 조용히 빼기만 한다. 내 글은 {@code blocker = blocked} 가 될 수 없어(자기 차단 금지) 여기서
+	 * 빠지지 않는다.
+	 *
+	 * <p>{@code :me} 가 있는 질의에만 쓸 수 있다 — 익명 피드에는 안 쓴다.
+	 */
+	String NOT_BLOCKING_AUTHOR = " AND NOT EXISTS (SELECT 1 FROM user_block bb"
+			+ " WHERE bb.blocker_user_id = :me AND bb.blocked_user_id = s.author_user_id) ";
+
 	String BEFORE_CURSOR = " AND (s.publish_at, s.story_id) < (CAST(:cursorAt AS timestamptz), CAST(:cursorId AS uuid)) ";
 
 	/**
@@ -96,7 +110,7 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 
 	/** 전체 피드 — 공개(PUBLIC) 기록, 그리고 내 기록은 범위와 무관하게. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
-			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR + BEFORE_CURSOR
+			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR + NOT_BLOCKING_AUTHOR + BEFORE_CURSOR
 			+ FEED_ORDER, nativeQuery = true)
 	List<Story> findPublicFeed(@Param("me") UUID me, @Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
 			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
@@ -114,7 +128,7 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 
 	/** 전체 피드, 인기순. {@link #findPublicFeed} 와 조건은 같고 정렬과 커서만 다르다. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
-			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR
+			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR + NOT_BLOCKING_AUTHOR
 			+ BEFORE_POPULAR_CURSOR + POPULAR_ORDER, nativeQuery = true)
 	List<Story> findPublicFeedPopular(@Param("me") UUID me, @Param("now") Instant now,
 			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId,
@@ -132,7 +146,7 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
 			+ " AND s.visibility IN ('PUBLIC', 'FOLLOWERS')"
 			+ " AND s.author_user_id IN (SELECT f.followee_user_id FROM user_follow f WHERE f.follower_user_id = :me)"
-			+ NOT_BLOCKED_BY_AUTHOR + BEFORE_POPULAR_CURSOR + POPULAR_ORDER, nativeQuery = true)
+			+ NOT_BLOCKED_BY_AUTHOR + NOT_BLOCKING_AUTHOR + BEFORE_POPULAR_CURSOR + POPULAR_ORDER, nativeQuery = true)
 	List<Story> findFollowingFeedPopular(@Param("me") UUID me, @Param("now") Instant now,
 			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId,
 			@Param("cursorLikes") int cursorLikes, @Param("windowStart") Instant windowStart,
@@ -158,13 +172,25 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			+ " AND s.author_user_id IN (SELECT f.followee_user_id FROM user_follow f WHERE f.follower_user_id = :me)"
 			// 차단이 팔로우를 양쪽 다 끊으므로 이 조건 없이도 지금은 안 나온다. 그래도 건다 —
 			// 나중에 누가 팔로우 해제를 떼어 내면 차단이 말없이 새기 시작한다.
-			+ NOT_BLOCKED_BY_AUTHOR + BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
+			+ NOT_BLOCKED_BY_AUTHOR + NOT_BLOCKING_AUTHOR + BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
 	List<Story> findFollowingFeed(@Param("me") UUID me, @Param("now") Instant now,
 			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId, @Param("limit") int limit);
 
 	/**
+	 * 내가 쓴 댓글·대댓글, 최신순 (S15P21E201-1600). 원글이 지워지거나 가려져도 나온다 — 그것이 이 목록의 이유다.
+	 * 그래서 {@link #NOT_DELETED_AND_PUBLISHED} 를 안 쓴다(그 상수에 「원글만」이 들어 있다). 내가 지운 댓글과
+	 * 검토로 가려진 내 댓글은 뺀다 — 프로필 목록과 같은 기준이다.
+	 */
+	@Query(value = "SELECT s.* FROM story s WHERE s.author_user_id = :me AND s.parent_story_id IS NOT NULL"
+			+ " AND s.deleted_at IS NULL AND s.publish_at <= :now AND s.moderation_state = 'VISIBLE'"
+			+ BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
+	List<Story> findMyReplies(@Param("me") UUID me, @Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
+			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
+
+	/**
 	 * 한 사람의 기록(프로필). 본인이면 전부, 팔로워면 PUBLIC·FOLLOWERS, 그 외에는 PUBLIC 만.
-	 * 어느 경우인지는 호출자가 {@code visibilities} 로 넘긴다.
+	 * 어느 경우인지는 호출자가 {@code visibilities} 로 넘긴다. 🔴 본인이면 {@code :now} 에 먼 미래가 온다 —
+	 * 공개 전 기록도 작성자에게는 보인다({@code StoryService#publishedCutoff}, S15P21E201-1737).
 	 */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
 			+ " AND s.author_user_id = :author AND s.visibility IN (:visibilities)" + BEFORE_CURSOR + FEED_ORDER,
@@ -202,6 +228,22 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			ORDER BY s.createdAt ASC, s.storyId ASC
 			""")
 	List<Story> findReplies(@Param("parentId") UUID parentId, Pageable limit);
+
+	/**
+	 * {@link #findReplies} 에서 <b>내가 차단한 사람의 댓글</b>을 뺀 것 (S15P21E201-1714 — 가이드라인 1.2).
+	 * 로그인한 사람만 쓴다 — {@code :viewer} 가 널이면 타입을 못 정해 질의가 실패하므로, 익명은 조건이 없는
+	 * {@link #findReplies} 를 부른다({@code findPublicFeedForAnonymous} 가 따로 있는 것과 같은 이유).
+	 */
+	@Query("""
+			SELECT s FROM Story s
+			WHERE s.parentStoryId = :parentId AND s.deletedAt IS NULL
+			  AND s.moderationState = com.gabolle.backend.moderation.domain.StoryModerationState.VISIBLE
+			  AND NOT EXISTS (SELECT 1 FROM UserBlock b
+			                  WHERE b.key.blockerUserId = :viewer AND b.key.blockedUserId = s.authorUserId)
+			ORDER BY s.createdAt ASC, s.storyId ASC
+			""")
+	List<Story> findRepliesHidingBlockedBy(@Param("parentId") UUID parentId, @Param("viewer") UUID viewer,
+			Pageable limit);
 
 	/**
 	 * 한 여행에 달린 기록 — 추억 지도가 쓴다. {@link #NOT_DELETED_AND_PUBLISHED} 를 쓰지 않는 것은

@@ -70,6 +70,41 @@ class PlaceSlopeReaderTest {
 		assertThat(facts.get(0).value()).contains("\"segments\":93.0");
 	}
 
+	/** 장소 번호판(S15P21E201-1625) — {@code place-slope-by-id.mjs} 가 낸 줄 그대로. */
+	private static final String BONGNAESAN_BY_ID = """
+			{"placeId":"0a9c1f64-5f8e-3a86-9f53-3a5c5d2f7a11","title":"봉래산(부산)","featureType":"SLOPE_PERCENT",\
+			"evidenceStatus":"ESTIMATED","slopePercent":16.0,"segments":40,"walkLengthM":5777,"radiusM":200,\
+			"stat":"p50"}""";
+
+	private List<PlaceFeatureNdjsonReader.Fact> readAllById(String... lines) throws Exception {
+		Path file = this.dir.resolve("place-slope-by-id.ndjson");
+		Files.writeString(file, String.join("\n", lines) + "\n", StandardCharsets.UTF_8);
+		List<PlaceFeatureNdjsonReader.Fact> facts = new ArrayList<>();
+		PlaceFeatureNdjsonReader.readPlaceSlopesById(file, 500, facts::addAll);
+		return facts;
+	}
+
+	@Test
+	@DisplayName("🔴 장소 번호판은 열쇠가 장소 번호 그대로이고, 어떻게 셌는지(가운데 값)를 같이 남긴다")
+	void byIdKeepsThePlaceIdAndTheStat() throws Exception {
+		List<PlaceFeatureNdjsonReader.Fact> facts = readAllById(BONGNAESAN_BY_ID);
+
+		assertThat(facts).hasSize(1);
+		assertThat(facts.get(0).storeId()).isEqualTo("0a9c1f64-5f8e-3a86-9f53-3a5c5d2f7a11");
+		assertThat(facts.get(0).keySource()).isEqualTo(PlaceFeatureLoader.PLACE_ID_KEY);
+		assertThat(facts.get(0).value()).contains("\"score\":16.0").contains("\"stat\":\"p50\"");
+	}
+
+	@Test
+	@DisplayName("장소 번호가 아닌 열쇠·범위 밖 값은 버리지 않고 멈춘다")
+	void byIdStopsOnBrokenLines() {
+		assertThatThrownBy(() -> readAllById("{\"placeId\":\"1997221\",\"slopePercent\":5.0}"))
+				.hasMessageContaining("장소 번호가 아닌 열쇠");
+		assertThatThrownBy(() -> readAllById(
+				"{\"placeId\":\"0a9c1f64-5f8e-3a86-9f53-3a5c5d2f7a11\",\"slopePercent\":120.0}"))
+				.hasMessageContaining("범위를 벗어난 값");
+	}
+
 	@Test
 	@DisplayName("열쇠나 값이 없는 줄은 버린다")
 	void skipsIncompleteLines() throws Exception {

@@ -25,6 +25,7 @@ import com.gabolle.backend.place.loader.OsmPlaceCategory;
 import com.gabolle.backend.place.loader.OsmPlaceLoader;
 import com.gabolle.backend.place.loader.OsmPoiReader;
 import com.gabolle.backend.place.loader.OsmPoiRow;
+import com.gabolle.backend.place.loader.SamePlaceGuard;
 import com.gabolle.backend.place.repository.PlaceRepository;
 
 /**
@@ -108,6 +109,26 @@ class OsmPlaceLoaderTest {
 	}
 
 	@Test
+	@DisplayName("🔴 두 가게가 한 점에 합쳐진 것(가게 표시 + 명소 표시, 이름 둘)은 안 넣고 세고, 옛 이름·다른 이름은 한 이름만 (S15P21E201-1637)")
+	void mergedPointsAreSkippedAndNamesAreSingle(@TempDir Path dir) throws Exception {
+		Path file = dir.resolve("poi.ndjson");
+		Files.writeString(file, String.join("\n",
+				// 운영 사례 — 마트와 성당이 한 점에. 성당 표시로 명소가 되는데 이름이 마트다
+				"{\"type\":\"node\",\"id\":368669907,\"lat\":35.13,\"lon\":129.047,\"tags\":{\"name\":"
+						+ "\"삼구유통광장마트;대성당\",\"shop\":\"supermarket\",\"amenity\":\"place_of_worship\"}}",
+				// 옛 이름·새 이름 — 한 곳이다
+				"{\"type\":\"node\",\"id\":368707573,\"lat\":35.22,\"lon\":129.085,\"tags\":{\"name\":"
+						+ "\"선모텔;코리아나모텔\",\"tourism\":\"motel\"}}"),
+				StandardCharsets.UTF_8);
+
+		List<OsmPoiRow> taken = new ArrayList<>();
+		OsmPoiReader.Counts counts = OsmPoiReader.read(file, 10, taken::addAll);
+
+		assertThat(counts.mergedPoint()).isEqualTo(1);
+		assertThat(taken).singleElement().extracting(OsmPoiRow::name).isEqualTo("선모텔");
+	}
+
+	@Test
 	@DisplayName("🔴 한국어 이름만 있어도 넣는다 — 부산 여행 서비스가 한국어 이름을 버리면 거꾸로다")
 	void koreanOnlyNameIsStillAName(@TempDir Path dir) throws Exception {
 		Path file = dir.resolve("poi.ndjson");
@@ -143,7 +164,7 @@ class OsmPlaceLoaderTest {
 	@DisplayName("🔴 같은 OSM 번호는 한 번만 넣는다 — 같은 파일을 두 번 돌려도 행이 두 배가 되지 않는다")
 	void theSameOsmIdIsStoredOnce() {
 		when(this.placeRepository.findAllById(anyIterable())).thenReturn(List.of());
-		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository);
+		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository, new SamePlaceGuard(this.placeRepository));
 
 		int saved = loader.saveChunk(List.of(
 				new OsmPoiRow(11L, "어느식당", "FOOD", null, 35.1, 129.0),
@@ -159,7 +180,7 @@ class OsmPlaceLoaderTest {
 		Place already = Place.imported(OsmPlaceLoader.placeIdOf(12L), "먼저 들어온 이름", "FOOD", null,
 				35.1, 129.0, "TOURAPI", "12", OffsetDateTime.now(), null, "tour-1");
 		when(this.placeRepository.findAllById(anyIterable())).thenReturn(List.of(already));
-		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository);
+		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository, new SamePlaceGuard(this.placeRepository));
 
 		int saved = loader.saveChunk(
 				List.of(new OsmPoiRow(12L, "OSM 이름", "FOOD", null, 35.1, 129.0)),
@@ -173,7 +194,7 @@ class OsmPlaceLoaderTest {
 	@DisplayName("출처와 번호를 그대로 남긴다 — 어디서 온 행인지 되짚을 수 있어야 한다")
 	void keepsTheSourceAndItsId() {
 		when(this.placeRepository.findAllById(anyIterable())).thenReturn(List.of());
-		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository);
+		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository, new SamePlaceGuard(this.placeRepository));
 
 		loader.saveChunk(List.of(new OsmPoiRow(368601281L, "부산게스트하우스", "LODGING", null, 35.1591, 129.1071)),
 				"osm-busan-2026-09", OffsetDateTime.now());

@@ -247,7 +247,7 @@ class ShareCloneIntegrationTest {
 
 	private static String body(int partySize, int budgetKrw, List<String> constraints) {
 		return """
-				{ "startDate": "2026-10-01", "finishDate": "2026-10-02",
+				{ "startDate": "2026-10-01", "finishDate": "2026-10-02", "accommodationArea": "HAEUNDAE",
 				  "originLat": 35.10, "originLng": 129.04, "budgetKrw": %d, "partySize": %d,
 				  "timeWindow": "09:00-18:00", "timezone": "Asia/Seoul",
 				  "preferences": [], "constraints": [%s] }

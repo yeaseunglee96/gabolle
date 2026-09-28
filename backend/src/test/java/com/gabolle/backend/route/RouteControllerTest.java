@@ -43,7 +43,7 @@ class RouteControllerTest {
 	void setUp() {
 		RouteProperties properties = new RouteProperties();
 		RouteQueryService service = new RouteQueryService(
-				List.of(new FixedCarProvider()),
+				List.of(new FixedCarProvider(), new FixedWalkProvider()),
 				new StraightLineRouteEstimator(properties),
 				new RouteCache(properties, Clock.fixed(Instant.parse("2026-09-08T00:00:00Z"), ZoneOffset.UTC)));
 
@@ -91,7 +91,31 @@ class RouteControllerTest {
 				.andExpect(jsonPath("$.data.estimateReason").isNotEmpty())
 				.andExpect(jsonPath("$.data.provider").value("STRAIGHT_LINE"))
 				.andExpect(jsonPath("$.data.taxiFareKrw").doesNotExist())
-				.andExpect(jsonPath("$.data.steps").isArray());
+				.andExpect(jsonPath("$.data.steps").isArray())
+				// 경사 조각은 우리 보행 그래프가 찾은 걷기에만 있다 — 추정에는 지어내지 않고 빈 목록이다.
+				.andExpect(jsonPath("$.data.pieces").isArray())
+				.andExpect(jsonPath("$.data.pieces").isEmpty());
+	}
+
+	@Test
+	@DisplayName("🔴 걷기는 실제 길 모양과 경사 조각(pieces)이 온다 — 칸 이름이 프론트와의 계약이다 (S15P21E201-1630)")
+	void walkCarriesPathAndSlopePieces() throws Exception {
+		this.mockMvc.perform(get("/api/v1/routes/directions")
+						.param("originLat", "35.163672").param("originLng", "129.158908")
+						.param("destLat", "35.158523").param("destLng", "129.159855")
+						.param("mode", "WALK")
+						.principal(asUser()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.mode").value("WALK"))
+				.andExpect(jsonPath("$.data.estimated").value(false))
+				.andExpect(jsonPath("$.data.provider").value("OSM_WALK_GRAPH"))
+				.andExpect(jsonPath("$.data.path.length()").value(4))
+				.andExpect(jsonPath("$.data.pieces[0].from").value(0))
+				.andExpect(jsonPath("$.data.pieces[0].to").value(1))
+				.andExpect(jsonPath("$.data.pieces[0].slopePercent").doesNotExist())
+				.andExpect(jsonPath("$.data.pieces[0].stairs").value(false))
+				.andExpect(jsonPath("$.data.pieces[1].slopePercent").value(9.5))
+				.andExpect(jsonPath("$.data.pieces[2].stairs").value(true));
 	}
 
 	@Test
@@ -152,6 +176,31 @@ class RouteControllerTest {
 	}
 
 	/** 자차만 답하는 가짜 업체 — 실제 카카오 응답에서 뽑은 값을 그대로 쓴다. */
+	/** 우리 보행 그래프가 찾은 걷기 — 길 밖 토막(모름) · 가파른 길 9.5% · 계단. */
+	private static final class FixedWalkProvider implements RouteProviderPort {
+
+		@Override
+		public boolean supports(TravelMode mode) {
+			return mode == TravelMode.WALK;
+		}
+
+		@Override
+		public Optional<RouteLeg> find(RouteQuery query) {
+			return Optional.of(new RouteLeg(TravelMode.WALK, 707, 11, null, null, null, false, null,
+					RouteLeg.PROVIDER_WALK_GRAPH,
+					List.of(new double[] { 129.158908, 35.163672 }, new double[] { 129.1589, 35.1635 },
+							new double[] { 129.1595, 35.1600 }, new double[] { 129.159855, 35.158523 }),
+					List.of(), null,
+					List.of(new RouteLeg.Piece(0, 1, null, false), new RouteLeg.Piece(1, 2, 9.5, false),
+							new RouteLeg.Piece(2, 3, null, true))));
+		}
+
+		@Override
+		public String providerName() {
+			return RouteLeg.PROVIDER_WALK_GRAPH;
+		}
+	}
+
 	private static final class FixedCarProvider implements RouteProviderPort {
 
 		@Override

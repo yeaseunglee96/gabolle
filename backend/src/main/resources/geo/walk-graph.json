@@ -1,0 +1,54 @@
+{
+ "step": "process/walk-graph",
+ "format": "GBWG v1 — 머리말 참고",
+ "builtAt": "2026-09-25",
+ "inputs": [
+  {
+   "path": "data/staged/segment-slope.ndjson",
+   "bytes": 15590046,
+   "sha256_16": "e1b7f21de0ad421a"
+  },
+  {
+   "path": "data/raw/pbf/road.ndjson",
+   "bytes": 23105796,
+   "sha256_16": "fabef76d814bab1d"
+  },
+  {
+   "path": "data/raw/pbf/walk.ndjson",
+   "bytes": 10589753,
+   "sha256_16": "b199ffb6eff841c2"
+  },
+  {
+   "path": "data/raw/pbf/stairs.ndjson",
+   "bytes": 168251,
+   "sha256_16": "f0ce86837ec493f6"
+  }
+ ],
+ "output": {
+  "path": "data/staged/walk-graph.bin.gz",
+  "bytes": 4940282,
+  "rawBytes": 6574346,
+  "sha256_16": "0deb5ec85b4c3607"
+ },
+ "counts": {
+  "nodes": 473756,
+  "ways": 66746,
+  "refs": 579264,
+  "stairs": 724,
+  "withSlope": 51417
+ },
+ "largestComponentShare": 0.9776,
+ "rules": {
+  "excludedHighway": [
+   "motorway",
+   "motorway_link",
+   "construction",
+   "proposed"
+  ],
+  "footNo": true,
+  "accessNoWithoutFoot": true,
+  "stairsKeptAsWay": true,
+  "slope": "p50Slope · 30m 이상 · 다리·터널 제외",
+  "nodeKey": "위경도 소수 7자리"
+ }
+}

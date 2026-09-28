@@ -9,14 +9,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.gabolle.backend.auth.domain.LocalCredential;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import com.gabolle.backend.auth.service.AuthCommands;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.LocalAuthService;
+import com.gabolle.backend.auth.service.LoginAttemptGuard;
 import com.gabolle.backend.auth.support.AuthPostgresIntegrationTest;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.PersonalizationMode;
@@ -46,6 +50,9 @@ class LoginAttemptLimitIntegrationTest extends AuthPostgresIntegrationTest {
 
 	@Autowired
 	private LocalAuthService localAuthService;
+
+	@Autowired
+	private LoginAttemptGuard loginAttemptGuard;
 
 	@Autowired
 	private LocalCredentialRepository credentialRepository;
@@ -141,6 +148,72 @@ class LoginAttemptLimitIntegrationTest extends AuthPostgresIntegrationTest {
 
 		assertThat(lockedUntilInDatabase()).isNull();
 		assertThatCode(() -> login(PASSWORD)).doesNotThrowAnyException();
+	}
+
+	// ── S15P21E201-1549 — IP 단위 (계정 단위와 별도) ──────────────────────────
+
+	/**
+	 * 🔴 이 테스트들은 {@link LoginAttemptGuard}만 직접 부른다 — {@link #login}(=
+	 * {@code LocalAuthService.login})을 거치지 않는다. {@code LocalAuthService}는 아직 IP
+	 * 잠금을 확인하지 않기 때문이다(이번 작업 범위 밖, 클래스 Javadoc 참고). 그래서 여기서 재는
+	 * 것은 "IP 카운터가 정확히 세는가"이지 "IP가 잠기면 로그인 자체가 막히는가"가 아니다 — 후자는
+	 * 아직 참이 아니다.
+	 */
+	@Test
+	@DisplayName("완료 기준 — 같은 IP에서 서로 다른 계정으로 30번 틀리면 그 IP가 잠긴다")
+	void sameIpAcrossDifferentAccountsLocksTheIp() {
+		withClientIp("203.0.113.10", () -> {
+			Instant now = Instant.now();
+			assertThat(this.loginAttemptGuard.isIpLocked(now)).as("시작할 때는 안 잠겨 있다").isFalse();
+
+			for (int i = 0; i < 30; i++) {
+				// 계정마다 다른(존재하지 않는) id로 실패시킨다 — IP 단위는 계정과 무관하게 센다.
+				this.loginAttemptGuard.recordFailure(UUID.randomUUID(), now);
+			}
+
+			assertThat(this.loginAttemptGuard.isIpLocked(now)).as("30번째에 잠겨야 한다").isTrue();
+			assertThat(this.loginAttemptGuard.ipLockedUntil()).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("29번까지는 그 IP가 잠기지 않는다")
+	void belowIpThresholdDoesNotLock() {
+		withClientIp("203.0.113.11", () -> {
+			Instant now = Instant.now();
+			for (int i = 0; i < 29; i++) {
+				this.loginAttemptGuard.recordFailure(UUID.randomUUID(), now);
+			}
+			assertThat(this.loginAttemptGuard.isIpLocked(now)).isFalse();
+		});
+	}
+
+	@Test
+	@DisplayName("다른 IP의 실패는 섞이지 않는다")
+	void differentIpsAreCountedSeparately() {
+		Instant now = Instant.now();
+		withClientIp("203.0.113.20", () -> {
+			for (int i = 0; i < 30; i++) {
+				this.loginAttemptGuard.recordFailure(UUID.randomUUID(), now);
+			}
+			assertThat(this.loginAttemptGuard.isIpLocked(now)).as("자기 IP는 잠겨야 한다").isTrue();
+		});
+
+		withClientIp("203.0.113.21", () -> assertThat(this.loginAttemptGuard.isIpLocked(now))
+				.as("다른 IP는 영향받지 않는다").isFalse());
+	}
+
+	/** 지정한 IP로 들어온 요청인 것처럼 꾸며서 action을 실행하고, 끝나면 반드시 원상복구한다. */
+	private void withClientIp(String ip, Runnable action) {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr(ip);
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+		try {
+			action.run();
+		}
+		finally {
+			RequestContextHolder.resetRequestAttributes();
+		}
 	}
 
 	// ── 도구 ──────────────────────────────────────────────────────────────────

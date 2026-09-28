@@ -1,0 +1,4807 @@
+{
+"source": "한식진흥원 「한식메뉴 외국어표기 길라잡이 800선」 (공공데이터포털 15129784, 2023-06-01 판)",
+"url": "https://www.data.go.kr/data/15129784/fileData.do",
+"note": "요리명(띄어쓰기 없앰) → 영어·일본어·중국어 간체·번체 이름. 설명 칸은 싣지 않았다",
+"items": {
+"간장게장정식": {
+"en": "Soy Sauce Marinated Crab Served with Rice and Side Dishes",
+"ja": "カンジャンケジャン定食",
+"zh-Hans": "酱生蟹套餐",
+"zh-Hant": "醬蟹套餐"
+},
+"백반": {
+"en": "Combination Meals",
+"ja": "定食",
+"zh-Hans": "家常套餐",
+"zh-Hant": "家常套餐"
+},
+"보리밥정식": {
+"en": "Barley Rice Served with Side Dishes",
+"ja": "麦ご飯定食",
+"zh-Hans": "大麦饭套餐",
+"zh-Hant": "大麥飯套餐"
+},
+"산채정식": {
+"en": "Wild Vegetable Dish Combo",
+"ja": "山菜定食",
+"zh-Hans": "山菜套餐",
+"zh-Hant": "山菜套餐"
+},
+"쌈밥정식": {
+"en": "Leaf Wraps and Rice Combo",
+"ja": "野菜包みご飯定食",
+"zh-Hans": "蔬菜包饭套餐",
+"zh-Hant": "蔬菜包飯套餐"
+},
+"한정식": {
+"en": "Korean Table d'hote",
+"ja": "韓定食",
+"zh-Hans": "韩定食 (韩式套餐)",
+"zh-Hant": "韓定食"
+},
+"곤드레나물밥": {
+"en": "Thistle Rice",
+"ja": "コンドゥレナムルご飯",
+"zh-Hans": "山蓟菜饭",
+"zh-Hant": "山薊菜飯"
+},
+"굴국밥": {
+"en": "Oyster and Rice Soup",
+"ja": "カキクッパ",
+"zh-Hans": "牡蛎汤饭",
+"zh-Hant": "牡蠣湯飯"
+},
+"굴밥": {
+"en": "Oyster Rice",
+"ja": "カキご飯",
+"zh-Hans": "牡蛎饭",
+"zh-Hant": "牡蠣飯"
+},
+"김밥": {
+"en": "Gimbap",
+"ja": "キンパプ",
+"zh-Hans": "紫菜卷饭",
+"zh-Hant": "紫菜捲飯"
+},
+"김치김밥": {
+"en": "Kimchi Gimbap",
+"ja": "キムチキンパプ",
+"zh-Hans": "辛奇紫菜卷饭",
+"zh-Hant": "辛奇紫菜捲飯"
+},
+"김치볶음밥": {
+"en": "Kimchi Fried Rice",
+"ja": "キムチチャーハン",
+"zh-Hans": "辛奇炒饭",
+"zh-Hant": "辛奇炒飯"
+},
+"깍두기볶음밥": {
+"en": "Diced Radish Kimchi Fried Rice",
+"ja": "カクトゥギチャーハン",
+"zh-Hans": "萝卜块辛奇炒饭",
+"zh-Hant": "蘿蔔塊辛奇炒飯"
+},
+"꼬마김밥": {
+"en": "Mini Gimbap",
+"ja": "ミニキンパプ",
+"zh-Hans": "迷你紫菜包饭",
+"zh-Hant": "迷你海苔飯捲"
+},
+"꼬막비빔밥": {
+"en": "Cockle Bibimbap",
+"ja": "ハイガイビビンバ",
+"zh-Hans": "泥蚶拌饭",
+"zh-Hant": "泥蚶拌飯"
+},
+"낙지덮밥": {
+"en": "Stir-fried Octopus with Rice",
+"ja": "テナガダコ丼",
+"zh-Hans": "章鱼盖饭",
+"zh-Hant": "章魚蓋飯"
+},
+"누룽지": {
+"en": "Scorched Rice",
+"ja": "おこげ湯",
+"zh-Hans": "锅巴粥",
+"zh-Hant": "鍋巴粥"
+},
+"달걀볶음밥": {
+"en": "Egg Fried Rice",
+"ja": "卵チャーハン",
+"zh-Hans": "蛋炒饭",
+"zh-Hant": "蛋炒飯"
+},
+"대나무통밥": {
+"en": "Steamed Rice in Bamboo Tube",
+"ja": "竹筒ご飯",
+"zh-Hans": "竹筒饭",
+"zh-Hant": "竹筒飯"
+},
+"돌솥비빔밥": {
+"en": "Hot Stone Pot Bibimbap",
+"ja": "石焼きビビンバ",
+"zh-Hans": "石锅拌饭",
+"zh-Hant": "石鍋拌飯"
+},
+"돼지국밥": {
+"en": "Pork and Rice Soup",
+"ja": "豚肉クッパ",
+"zh-Hans": "猪肉汤饭",
+"zh-Hant": "豬肉湯飯"
+},
+"따로국밥": {
+"en": "Rice and Soup",
+"ja": "タロクッパ",
+"zh-Hans": "汤加饭",
+"zh-Hant": "湯加飯"
+},
+"매운고추김밥": {
+"en": "Spicy Green Chili Pepper Gimbap",
+"ja": "辛味唐辛子キンパプ",
+"zh-Hans": "辣椒紫菜包饭",
+"zh-Hant": "辣椒海苔飯捲"
+},
+"멍게비빔밥": {
+"en": "Sea Pineapple Bibimbap",
+"ja": "ホヤビビンバ",
+"zh-Hans": "海鞘拌饭",
+"zh-Hant": "海鞘拌飯"
+},
+"메밀감자비빔밥": {
+"en": "Buckwheat and Potato Bibimbap",
+"ja": "そばとじゃがいものビビンバ",
+"zh-Hans": "土豆拌饭荞麦卷饼",
+"zh-Hant": "土豆拌飯蕎麥卷餅"
+},
+"멸치김밥": {
+"en": "Anchovy Gimbap",
+"ja": "ちりめんじゃこキンパプ",
+"zh-Hans": "鳀鱼紫菜包饭",
+"zh-Hant": "鯷魚海苔飯捲"
+},
+"묵밥": {
+"en": "Chilled Acorn Jelly and Rice Soup",
+"ja": "どんぐりこんにゃく入りクッパ",
+"zh-Hans": "凉粉汤饭",
+"zh-Hant": "涼粉湯飯"
+},
+"밥": {
+"en": "Steamed Rice",
+"ja": "ご飯",
+"zh-Hans": "米饭",
+"zh-Hant": "米飯"
+},
+"보리밥": {
+"en": "Steamed Barley Rice",
+"ja": "麦ご飯",
+"zh-Hans": "大麦饭",
+"zh-Hant": "大麥飯"
+},
+"불고기덮밥": {
+"en": "Bulgogi with Rice",
+"ja": "プルゴギ丼 醤",
+"zh-Hans": "烤牛肉盖饭",
+"zh-Hant": "烤牛肉蓋飯"
+},
+"비빔밥": {
+"en": "Bibimbap",
+"ja": "ビビンバ",
+"zh-Hans": "拌饭",
+"zh-Hant": "拌飯"
+},
+"산채비빔밥": {
+"en": "Wild Vegetable Bibimbap",
+"ja": "山菜ビビンバ",
+"zh-Hans": "山菜拌饭",
+"zh-Hant": "山菜拌飯"
+},
+"삼선비빔밥": {
+"en": "Three-delicacy Bibimbap",
+"ja": "三鮮ビビンバ",
+"zh-Hans": "三鲜拌饭",
+"zh-Hant": "三鮮拌飯"
+},
+"새싹비빔밥": {
+"en": "Sprout Bibimbap",
+"ja": "スプラウトビビンバ",
+"zh-Hans": "嫩芽拌饭",
+"zh-Hant": "嫩芽拌飯"
+},
+"새우볶음밥": {
+"en": "Shrimp Fried Rice",
+"ja": "エビチャーハン",
+"zh-Hans": "虾仁炒饭",
+"zh-Hant": "蝦仁炒飯"
+},
+"샐러드김밥": {
+"en": "Salad Gimbap",
+"ja": "サラダキンパプ",
+"zh-Hans": "沙拉紫菜卷饭",
+"zh-Hant": "沙拉紫菜捲飯"
+},
+"소고기국밥": {
+"en": "Beef and Rice Soup",
+"ja": "牛肉クッパ",
+"zh-Hans": "牛肉汤饭",
+"zh-Hant": "牛肉湯飯"
+},
+"소고기김밥": {
+"en": "Beef Gimbap",
+"ja": "牛肉キンパプ",
+"zh-Hans": "牛肉紫菜卷饭",
+"zh-Hant": "牛肉紫菜捲飯"
+},
+"소머리국밥": {
+"en": "Beef Head Meat and Rice Soup",
+"ja": "牛の頭部肉クッパ",
+"zh-Hans": "牛头肉汤饭",
+"zh-Hant": "牛頭肉湯飯"
+},
+"송어덮밥": {
+"en": "Stir-fried Trout with Rice",
+"ja": "マス丼",
+"zh-Hans": "鳟鱼盖饭",
+"zh-Hant": "鱒魚蓋飯"
+},
+"순대국밥": {
+"en": "Blood Sausage and Rice Soup",
+"ja": "スンデクッパ",
+"zh-Hans": "血肠汤饭",
+"zh-Hant": "血腸湯飯"
+},
+"쌈밥": {
+"en": "Leaf Wraps and Rice",
+"ja": "野菜包みご飯",
+"zh-Hans": "蔬菜包饭",
+"zh-Hant": "蔬菜包飯"
+},
+"알밥": {
+"en": "Fish Roe Rice",
+"ja": "魚の卵ご飯",
+"zh-Hans": "鱼子饭",
+"zh-Hant": "魚子飯"
+},
+"양푼비빔밥": {
+"en": "Large Brass Bowl Bibimbap",
+"ja": "ヤンプンビビンバ",
+"zh-Hans": "铜盆拌饭",
+"zh-Hant": "銅盆拌飯"
+},
+"연잎밥": {
+"en": "Lotus Leaf Rice",
+"ja": "蓮の葉ご飯",
+"zh-Hans": "荷叶饭",
+"zh-Hant": "荷葉飯"
+},
+"열무비빔밥": {
+"en": "Young Summer Radish Bibimbap",
+"ja": "大根若菜ビビンバ",
+"zh-Hans": "萝卜缨辛奇拌饭",
+"zh-Hant": "蘿蔔纓辛奇拌飯"
+},
+"영양돌솥밥": {
+"en": "Nutritious Hot Stone Pot Rice",
+"ja": "栄養釜飯",
+"zh-Hans": "营养石锅饭",
+"zh-Hant": "營養石鍋飯"
+},
+"오곡밥": {
+"en": "Steamed Five-grain Rice",
+"ja": "五穀ご飯",
+"zh-Hans": "五谷饭",
+"zh-Hant": "五穀飯"
+},
+"오분자기돌솥밥": {
+"en": "Small Abalone Hot Stone Pot Rice",
+"ja": "トコブシの釜飯",
+"zh-Hans": "小鲍鱼石锅饭",
+"zh-Hant": "小鮑魚石鍋飯"
+},
+"오징어덮밥": {
+"en": "Spicy Stir-fried Squid with Rice",
+"ja": "イカ炒め丼",
+"zh-Hans": "鱿鱼盖饭",
+"zh-Hant": "魷魚蓋飯"
+},
+"우거지사골국밥": {
+"en": "Korean Cabbage and Rice Soup",
+"ja": "白菜入り牛骨クッパ",
+"zh-Hans": "干白菜牛骨汤饭",
+"zh-Hant": "乾白菜牛骨湯飯"
+},
+"우렁된장비빔밥": {
+"en": "Freshwater Snail Soybean PasteBibimbap",
+"ja": "タニシ入りテンジャンビビンバ",
+"zh-Hans": "田螺大酱拌饭",
+"zh-Hant": "田螺大醬拌飯"
+},
+"우렁쌈밥": {
+"en": "Freshwater Snail Leaf Wraps and Rice",
+"ja": "タニシ入り野菜包みご飯",
+"zh-Hans": "田螺包饭",
+"zh-Hant": "田螺包飯"
+},
+"육회돌솥비빔밥": {
+"en": "Beef Tartare Hot Stone Pot Bibimbap",
+"ja": "ユッケ石焼きビビンバ",
+"zh-Hans": "生牛肉石锅拌饭",
+"zh-Hant": "生牛肉石鍋拌飯"
+},
+"육회비빔밥": {
+"en": "Beef Tartare Bibimbap",
+"ja": "ユッケビビンバ",
+"zh-Hans": "生牛肉拌饭",
+"zh-Hant": "生牛肉拌飯"
+},
+"잡곡밥": {
+"en": "Steamed Multi-grain Rice",
+"ja": "雑穀ご飯",
+"zh-Hans": "杂粮饭",
+"zh-Hant": "雜糧飯"
+},
+"잡채덮밥": {
+"en": "Stir-fried Glass Noodles and Vegetables with Rice",
+"ja": "チャプチェ丼",
+"zh-Hans": "什锦炒粉丝盖饭",
+"zh-Hant": "什錦拌粉絲蓋飯"
+},
+"장국밥": {
+"en": "Beef and Rice Soup",
+"ja": "チャンクッパ",
+"zh-Hans": "牛肉汤饭",
+"zh-Hant": "牛肉湯飯"
+},
+"장어덮밥": {
+"en": "Stir-fried Eel with Rice",
+"ja": "ウナギ丼",
+"zh-Hans": "鳗鱼盖饭",
+"zh-Hant": "鰻魚蓋飯"
+},
+"전복돌솥밥": {
+"en": "Abalone Hot Stone Pot Rice",
+"ja": "アワビの釜飯",
+"zh-Hans": "鲍鱼石锅饭",
+"zh-Hant": "鮑魚石鍋飯"
+},
+"전주비빔밥": {
+"en": "Jeonju Bibimbap",
+"ja": "チョンジュビビンバ",
+"zh-Hans": "全州拌饭",
+"zh-Hant": "全州拌飯"
+},
+"제육덮밥": {
+"en": "Spicy Stir-fried Pork with Rice",
+"ja": "豚肉炒め丼",
+"zh-Hans": "辣炒猪肉盖饭",
+"zh-Hant": "辣炒豬肉蓋飯"
+},
+"제육비빔밥": {
+"en": "Spicy Pork Bibimbap",
+"ja": "豚肉炒めビビンバ",
+"zh-Hans": "辣炒猪肉拌饭",
+"zh-Hant": "辣炒豬肉拌飯"
+},
+"제육쌈밥": {
+"en": "Spicy Stir-fried Pork, Leaf Wraps and Rice",
+"ja": "豚肉炒め野菜包みご飯",
+"zh-Hans": "辣炒猪肉包饭",
+"zh-Hant": "辣炒豬肉包飯"
+},
+"주먹밥": {
+"en": "Riceballs",
+"ja": "おにぎり",
+"zh-Hans": "饭团",
+"zh-Hant": "飯糰"
+},
+"진주비빔밥": {
+"en": "Jinju Bibimbap",
+"ja": "チンジュビビンバ",
+"zh-Hans": "晋州拌饭",
+"zh-Hant": "晉州拌飯"
+},
+"참치김밥": {
+"en": "Tuna Gimbap",
+"ja": "ツナキンパプ",
+"zh-Hans": "金枪鱼紫菜卷饭",
+"zh-Hant": "金槍魚紫菜捲飯"
+},
+"참치주먹밥": {
+"en": "Tuna Rice Balls",
+"ja": "ツナおにぎり",
+"zh-Hans": "金枪鱼饭团",
+"zh-Hant": "鮪魚飯糰"
+},
+"채소볶음밥": {
+"en": "Vegetable Fried Rice",
+"ja": "野菜チャーハン",
+"zh-Hans": "蔬菜炒饭",
+"zh-Hant": "蔬菜炒飯"
+},
+"충무김밥": {
+"en": "Chungmu Gimbap",
+"ja": "チュンムキンパプ",
+"zh-Hans": "忠武紫菜卷饭",
+"zh-Hant": "忠武紫菜捲飯"
+},
+"치즈김밥": {
+"en": "Cheese Gimbap",
+"ja": "チーズキンパプ",
+"zh-Hans": "奶酪紫菜卷饭",
+"zh-Hant": "奶酪紫菜捲飯"
+},
+"콩나물국밥": {
+"en": "Bean Sprout and Rice Soup",
+"ja": "豆もやしクッパ",
+"zh-Hans": "豆芽汤饭",
+"zh-Hant": "豆芽湯飯"
+},
+"콩나물밥": {
+"en": "Bean Sprout Rice",
+"ja": "豆もやしご飯",
+"zh-Hans": "豆芽饭",
+"zh-Hant": "豆芽飯"
+},
+"한우국밥": {
+"en": "Korean Beef and Rice Soup",
+"ja": "韓牛クッパ",
+"zh-Hans": "韩牛汤饭",
+"zh-Hant": "韓牛湯飯"
+},
+"헛제삿밥": {
+"en": "Bibimbap with Soy Sauce",
+"ja": "カンジャンビビンバ",
+"zh-Hans": "祭祀菜拌饭",
+"zh-Hant": "祭祀菜拌飯"
+},
+"황태구이덮밥": {
+"en": "Grilled Dried Pollack with Rice",
+"ja": "焼きスケトウダラ丼",
+"zh-Hans": "烤干明太鱼盖饭",
+"zh-Hant": "烤幹明太魚蓋飯"
+},
+"회덮밥": {
+"en": "Raw Fish Bibimbap",
+"ja": "刺身丼",
+"zh-Hans": "生鱼片盖饭",
+"zh-Hant": "生魚片蓋飯"
+},
+"게살죽": {
+"en": "Crab Porridge",
+"ja": "カニ肉粥",
+"zh-Hans": "蟹肉粥",
+"zh-Hant": "蟹肉粥"
+},
+"녹두죽": {
+"en": "Mung Bean Porridge",
+"ja": "緑豆粥",
+"zh-Hans": "绿豆粥",
+"zh-Hant": "綠豆粥"
+},
+"누룽지죽": {
+"en": "ScorchedRice Porridge",
+"ja": "おこげ粥",
+"zh-Hans": "锅巴粥",
+"zh-Hant": "鍋粑粥"
+},
+"단팥죽": {
+"en": "Sweet Red Bean Porridge",
+"ja": "小豆粥",
+"zh-Hans": "甜红豆粥",
+"zh-Hant": "甜紅豆粥"
+},
+"바지락죽": {
+"en": "Clam Porridge",
+"ja": "アサリ粥",
+"zh-Hans": "蛤蜊粥",
+"zh-Hant": "蛤蜊粥"
+},
+"백합죽": {
+"en": "Hard Clam Porridge",
+"ja": "カガミガイ粥",
+"zh-Hans": "白蛤粥",
+"zh-Hant": "白蛤粥"
+},
+"버섯옥수수죽": {
+"en": "Mushroom and Corn Porridge",
+"ja": "きのこととうもろこしのお粥",
+"zh-Hans": "蘑菇玉米粥",
+"zh-Hant": "蘑菇玉米粥"
+},
+"버섯죽": {
+"en": "Mushroom Porridge",
+"ja": "きのこ粥",
+"zh-Hans": "蘑菇粥",
+"zh-Hant": "蘑菇粥"
+},
+"보말죽": {
+"en": "Top Shell Rice Porridge",
+"ja": "クボガイ粥",
+"zh-Hans": "海螺粥",
+"zh-Hant": "海螺粥"
+},
+"삼계죽": {
+"en": "Ginseng and Chicken Porridge",
+"ja": "鶏肉と高麗人蔘のお粥",
+"zh-Hans": "参鸡粥",
+"zh-Hant": "蔘雞粥"
+},
+"소고기미역죽": {
+"en": "Beef and Brown Seaweed Rice Porridge",
+"ja": "牛肉とワカメ粥",
+"zh-Hans": "牛肉海带粥",
+"zh-Hant": "牛肉海帶粥"
+},
+"소고기버섯죽": {
+"en": "Beef and Mushroom Porridge",
+"ja": "牛肉ときのこ粥",
+"zh-Hans": "牛肉蘑菇粥",
+"zh-Hant": "牛肉蘑菇粥"
+},
+"어죽": {
+"en": "Fish Porridge",
+"ja": "魚粥",
+"zh-Hans": "鱼粥",
+"zh-Hant": "魚粥"
+},
+"잣죽": {
+"en": "Pine Nut Porridge",
+"ja": "松の実粥",
+"zh-Hans": "松仁粥",
+"zh-Hant": "松仁粥"
+},
+"전복내장죽": {
+"en": "Abalone Intestine Porridge",
+"ja": "アワビの内臓粥",
+"zh-Hans": "鲍鱼内脏粥",
+"zh-Hant": "鮑魚內臟粥"
+},
+"전복죽": {
+"en": "Abalone Porridge",
+"ja": "アワビ粥",
+"zh-Hans": "鲍鱼粥",
+"zh-Hant": "鮑魚粥"
+},
+"참치죽": {
+"en": "Tuna Porriddge",
+"ja": "ツナ粥",
+"zh-Hans": "金枪鱼粥",
+"zh-Hant": "金槍魚粥"
+},
+"채소죽": {
+"en": "Vegetable Porridge",
+"ja": "野菜粥",
+"zh-Hans": "蔬菜粥",
+"zh-Hant": "蔬菜粥"
+},
+"팥죽": {
+"en": "Red Bean Porridge",
+"ja": "小豆粥",
+"zh-Hans": "红豆粥",
+"zh-Hant": "紅豆粥"
+},
+"해물죽": {
+"en": "Seafood Porridge",
+"ja": "海鮮粥",
+"zh-Hans": "海鲜粥",
+"zh-Hant": "海鮮粥"
+},
+"호박죽": {
+"en": "Pumpkin Porridge",
+"ja": "カボチャ粥",
+"zh-Hans": "南瓜粥",
+"zh-Hant": "南瓜粥"
+},
+"흑임자죽": {
+"en": "Black Sesame Porridge",
+"ja": "黒ごま粥",
+"zh-Hans": "黑芝麻粥",
+"zh-Hant": "黑芝麻粥"
+},
+"감자수제비": {
+"en": "Hand-pulled Potato Dough Soup",
+"ja": "じゃがいもすいとん",
+"zh-Hans": "土豆面片汤",
+"zh-Hant": "土豆麵片湯"
+},
+"감자옹심이": {
+"en": "Potato Ball Soup",
+"ja": "じゃがいも団子スープ",
+"zh-Hans": "土豆粉团汤",
+"zh-Hant": "土豆粉團湯"
+},
+"검정콩국수": {
+"en": "Noodles in Cold Black Soybean Soup",
+"ja": "黒豆豆乳素麺",
+"zh-Hans": "黑豆汁面",
+"zh-Hant": "黑豆汁面"
+},
+"고기국수": {
+"en": "Pork Noodles",
+"ja": "肉素麺",
+"zh-Hans": "猪肉汤面",
+"zh-Hant": "豬肉湯麵"
+},
+"골뱅이소면": {
+"en": "Spicy Sea Snail Salad with Noodles",
+"ja": "つぶ貝と素麺の和え物",
+"zh-Hans": "辣拌海螺龙须面",
+"zh-Hant": "辣拌海螺細麵"
+},
+"곰국시": {
+"en": "Beef Noodles",
+"ja": "牛肉素麺",
+"zh-Hans": "牛肉汤面",
+"zh-Hant": "牛肉湯麵"
+},
+"김치말이국수": {
+"en": "Kimchi Noodles",
+"ja": "キムチ混ぜ素麺",
+"zh-Hans": "辛奇汤面",
+"zh-Hant": "辛奇湯麵"
+},
+"냉메밀국수": {
+"en": "Cold Buckwheat Noodles",
+"ja": "冷そば",
+"zh-Hans": "荞麦凉面",
+"zh-Hant": "蕎麥涼麵"
+},
+"느른국": {
+"en": "Buckwheat Noodle Soup",
+"ja": "そばカルグクス",
+"zh-Hans": "荞麦刀切面",
+"zh-Hant": "蕎麥刀切麵"
+},
+"닭칼국수": {
+"en": "Noodle Soup with Chicken",
+"ja": "鶏肉カルグクス",
+"zh-Hans": "鸡肉刀切面",
+"zh-Hant": "雞肉刀切面"
+},
+"동치미물냉면": {
+"en": "Cold Buckwheat Noodles with Radish Water Kimchi",
+"ja": "大根の水キムチ冷麺",
+"zh-Hans": "盐水萝卜冷面",
+"zh-Hant": "鹽水蘿蔔冷面"
+},
+"들깨수제비": {
+"en": "Hand-pulled Dough in Perilla Seed Soup",
+"ja": "エゴマすいとん",
+"zh-Hans": "紫苏籽面片汤",
+"zh-Hant": "紫蘇籽面片湯"
+},
+"들깨칼국수": {
+"en": "Noodle Soup with Perilla Seeds",
+"ja": "エゴマカルグクス",
+"zh-Hans": "紫苏籽刀切面",
+"zh-Hant": "紫蘇籽刀切面"
+},
+"떡국": {
+"en": "Sliced Rice Cake Soup",
+"ja": "トックク",
+"zh-Hans": "年糕汤",
+"zh-Hant": "年糕湯"
+},
+"막국수": {
+"en": "Buckwheat Noodles",
+"ja": "混ぜそば",
+"zh-Hans": "荞麦凉面",
+"zh-Hant": "蕎麥涼麵"
+},
+"매생이굴칼국수": {
+"en": "Noodle Soup with Seaweed Fulvescens and Oyster",
+"ja": "カプサアオノリとカキのカルグクス",
+"zh-Hans": "海藻牡蛎刀切面",
+"zh-Hant": "海藻牡蠣刀切面"
+},
+"매생이떡국": {
+"en": "Seaweed Fulvescens Rice Cake Soup",
+"ja": "カプサアオノリ入りトックク",
+"zh-Hans": "海藻年糕汤",
+"zh-Hant": "海藻年糕湯"
+},
+"물냉면": {
+"en": "Cold Buckwheat Noodles",
+"ja": "水冷麺",
+"zh-Hans": "冷面",
+"zh-Hant": "冷麵"
+},
+"밀면": {
+"en": "Wheat Noodles",
+"ja": "ミルミョン",
+"zh-Hans": "小麦面",
+"zh-Hant": "小麥麵條"
+},
+"바지락칼국수": {
+"en": "Noodle Soup with Clams",
+"ja": "アサリカルグクス",
+"zh-Hans": "蛤蜊刀切面",
+"zh-Hant": "蛤蜊刀切麵"
+},
+"버섯칼국수": {
+"en": "Mushroom Noodle Soup",
+"ja": "きのこのカルグクス",
+"zh-Hans": "蘑菇刀切面",
+"zh-Hant": "菌菇刀切麵"
+},
+"비빔국수": {
+"en": "Spicy Noodles",
+"ja": "混ぜ素麺",
+"zh-Hans": "拌面",
+"zh-Hant": "拌麵"
+},
+"비빔냉면": {
+"en": "Spicy Buckwheat Noodles",
+"ja": "混ぜ冷麺",
+"zh-Hans": "拌冷面",
+"zh-Hant": "拌冷麵"
+},
+"수제비": {
+"en": "Hand-pulled Dough Soup",
+"ja": "すいとん",
+"zh-Hans": "面片汤",
+"zh-Hant": "麵片湯"
+},
+"안동국시": {
+"en": "Andong Noodle",
+"ja": "アンドン素麺",
+"zh-Hans": "安东面",
+"zh-Hant": "安東面"
+},
+"어탕국수": {
+"en": "Noodle in Fish Stew",
+"ja": "魚スープの素麺",
+"zh-Hans": "鱼汤面",
+"zh-Hant": "魚湯麵"
+},
+"얼큰수제비": {
+"en": "Spicy Hand-pulled Dough Soup",
+"ja": "ピリ辛 すいとん",
+"zh-Hans": "香辣面片汤",
+"zh-Hant": "香辣面片湯"
+},
+"얼큰칼국수": {
+"en": "Spicy Noodle Soup",
+"ja": "ピリ辛カルグクス",
+"zh-Hans": "香辣刀切面",
+"zh-Hant": "香辣刀切面"
+},
+"열무국수": {
+"en": "Young Summer Radish KimchiNoodles",
+"ja": "大根若菜キムチ素麺",
+"zh-Hans": "萝卜缨辛奇面",
+"zh-Hant": "蘿蔔纓辛奇麵"
+},
+"열무냉면": {
+"en": "Buckwheat Noodles with YoungSummer Radish Kimchi",
+"ja": "大根若菜キムチ冷麺",
+"zh-Hans": "萝卜缨辛奇冷面",
+"zh-Hant": "蘿蔔纓辛奇冷面"
+},
+"열무비빔국수": {
+"en": "Spicy Noodles with Young Summer Radish Kimchi",
+"ja": "大根若菜混ぜ素麺",
+"zh-Hans": "萝卜缨辛奇面",
+"zh-Hant": "蘿蔔纓辛奇面"
+},
+"온면": {
+"en": "Warm Noodles",
+"ja": "温麺",
+"zh-Hans": "温面",
+"zh-Hant": "溫面"
+},
+"올챙이국수": {
+"en": "Tadpole Noodles",
+"ja": "とうもろこし麺",
+"zh-Hans": "蝌蚪面",
+"zh-Hant": "蝌蚪狀玉米涼粉"
+},
+"잔치국수": {
+"en": "Banquet Noodles",
+"ja": "にゅうめん",
+"zh-Hans": "喜面",
+"zh-Hant": "喜麵"
+},
+"장칼국수": {
+"en": "Gochujang and Doenjang Noodle Soup",
+"ja": "コチュジャンカルグクス",
+"zh-Hans": "辣椒酱刀切面",
+"zh-Hant": "辣醬刀切麵"
+},
+"쟁반국수": {
+"en": "Jumbo-sized Buckwheat Noodles",
+"ja": "大皿そば",
+"zh-Hans": "大盘荞麦面",
+"zh-Hant": "大盤蕎麥麵"
+},
+"쟁반막국수": {
+"en": "Jumbo-sized Buckwheat Noodles",
+"ja": "大皿混ぜそば",
+"zh-Hans": "大盘荞麦凉面",
+"zh-Hant": "大盤蕎麥涼麵"
+},
+"진주냉면": {
+"en": "Jinju Cold Buckwheat Noodles",
+"ja": "チンジュ冷麺",
+"zh-Hans": "晋州冷面",
+"zh-Hant": "晉州冷面"
+},
+"쫄면": {
+"en": "Spicy Chewy Noodles",
+"ja": "チョルミョン",
+"zh-Hans": "辣拌筋面",
+"zh-Hant": "辣拌筋面"
+},
+"초계국수": {
+"en": "Cold Chicken Noodles",
+"ja": "チョゲグクス",
+"zh-Hans": "醋鸡面",
+"zh-Hant": "醋雞麵"
+},
+"칡냉면": {
+"en": "Cold Arrow Root Noodles",
+"ja": "葛冷麺",
+"zh-Hans": "葛粉冷面",
+"zh-Hant": "葛粉冷面"
+},
+"칼국수": {
+"en": "Noodle Soup",
+"ja": "カルグクス",
+"zh-Hans": "刀切面",
+"zh-Hant": "刀切麵"
+},
+"코다리냉면": {
+"en": "Cold Buckwheat Noodles with Half-dried Pollak",
+"ja": "半干しスケトウダラ入り冷麺",
+"zh-Hans": "半干明太鱼冷面",
+"zh-Hant": "半乾明太魚冷面"
+},
+"콧등치기국수": {
+"en": "Buckwheat Noodles with Potato Balls",
+"ja": "じゃがいも団子入りそば",
+"zh-Hans": "土豆粉团荞麦面",
+"zh-Hant": "土豆粉團蕎麥麵"
+},
+"콩국수": {
+"en": "Noodles in Cold Soybean Soup",
+"ja": "豆乳素麺",
+"zh-Hans": "豆汁面",
+"zh-Hant": "豆汁麵"
+},
+"팥칼국수": {
+"en": "Red Bean Paste Noodle Soup",
+"ja": "小豆カルグクス",
+"zh-Hans": "红豆刀切面",
+"zh-Hant": "紅豆刀切面"
+},
+"평양냉면": {
+"en": "Pyeongyang Cold Buckwheat Noodles",
+"ja": "ピョンヤン冷麺",
+"zh-Hans": "平壤冷面",
+"zh-Hant": "平壤冷面"
+},
+"함흥냉면": {
+"en": "Hamheung Cold Buckwheat Noodles",
+"ja": "ハムフン冷麺",
+"zh-Hans": "咸兴冷面",
+"zh-Hant": "咸興冷面"
+},
+"항아리수제비": {
+"en": "Hand-pulled Dough Soup in Pot",
+"ja": "壷すいとん",
+"zh-Hans": "坛子面片汤",
+"zh-Hant": "壇子麵片湯"
+},
+"해물수제비": {
+"en": "Hand-pulled Dough Soup with Seafood",
+"ja": "海鮮すいとん",
+"zh-Hans": "海鲜刀切面",
+"zh-Hant": "海鮮刀切面"
+},
+"해물칼국수": {
+"en": "Noodle Soup with Seafood",
+"ja": "海鮮カルグクス",
+"zh-Hans": "海鲜刀切面",
+"zh-Hant": "海鮮刀切面"
+},
+"황태비빔막국수": {
+"en": "Spicy Buckwheat Noodles with DriedPollack",
+"ja": "スケトウダラ入り混ぜそば",
+"zh-Hans": "干明太鱼拌荞麦凉面",
+"zh-Hant": "幹明太魚拌蕎麥涼麵"
+},
+"황태칼국수": {
+"en": "Noodle Soup with Dried Pollack",
+"ja": "スケトウダラのカルグクス",
+"zh-Hans": "干明太鱼刀切面",
+"zh-Hant": "幹明太魚刀切麵"
+},
+"회냉면": {
+"en": "Cold Buckwheat Noodles with Raw Fish",
+"ja": "刺身入り冷麺",
+"zh-Hans": "辣拌斑鳐冷面",
+"zh-Hant": "辣拌斑鰩冷麵"
+},
+"곰칫국": {
+"en": "Moray Eel Soup",
+"ja": "ウツボスープ",
+"zh-Hans": "海鳝汤",
+"zh-Hant": "海鱔湯"
+},
+"근댓국": {
+"en": "Leaf Beet Soup",
+"ja": "ふだん草スープ",
+"zh-Hans": "莙荙菜汤",
+"zh-Hant": "莙荙菜湯"
+},
+"김치콩나물국": {
+"en": "Kimchi and Bean Sprout Soup",
+"ja": "キムチと豆もやしスープ",
+"zh-Hans": "辛奇豆芽汤",
+"zh-Hant": "辛奇豆芽湯"
+},
+"김칫국": {
+"en": "Kimchi Soup",
+"ja": "キムチスープ",
+"zh-Hans": "辛奇清汤",
+"zh-Hant": "辛奇清湯"
+},
+"냉이된장국": {
+"en": "Shepherd's Purse Soybean Paste Soup",
+"ja": "ナズナテンジャンクク",
+"zh-Hans": "荠菜大酱清汤",
+"zh-Hant": "薺菜大醬清湯"
+},
+"달걀국": {
+"en": "Egg Soup",
+"ja": "卵スープ",
+"zh-Hans": "鸡蛋汤",
+"zh-Hant": "雞蛋湯"
+},
+"닭개장": {
+"en": "Spicy Chicken Soup",
+"ja": "鶏肉のユッケジャン",
+"zh-Hans": "香辣鸡丝汤",
+"zh-Hant": "香辣雞絲湯"
+},
+"도다리쑥국": {
+"en": "Flounder and Mugwort Soup",
+"ja": "メイタガレイとよもぎスープ",
+"zh-Hans": "木叶鲽鱼艾草汤",
+"zh-Hant": "木葉鰈魚艾草湯"
+},
+"도토리묵사발": {
+"en": "Chilled Acorn Jelly Soup",
+"ja": "どんぐりこんにゃくスープ",
+"zh-Hans": "橡子凉粉汤",
+"zh-Hant": "橡子涼粉湯"
+},
+"된장국": {
+"en": "Soybean Paste Soup",
+"ja": "テンジャンクク",
+"zh-Hans": "大酱清汤",
+"zh-Hant": "大醬清湯"
+},
+"두부새우젓국": {
+"en": "Bean Curd and Salted Shrimp Soup",
+"ja": "豆腐とアミの塩辛スープ",
+"zh-Hans": "豆腐虾酱汤",
+"zh-Hant": "豆腐蝦醬湯"
+},
+"매생이굴국": {
+"en": "Seaweed Fulvescens and Oyster Soup",
+"ja": "カプサアオノリとカキスープ",
+"zh-Hans": "海藻牡蛎汤",
+"zh-Hant": "海藻牡蠣湯"
+},
+"매생잇국": {
+"en": "Seaweed Fulvescens Soup",
+"ja": "カプサアオノリのスープ",
+"zh-Hans": "海藻清汤",
+"zh-Hant": "海藻清湯"
+},
+"무된장국": {
+"en": "Radish Soybean Paste Soup",
+"ja": "大根テンジャンクク",
+"zh-Hans": "萝卜大酱清汤",
+"zh-Hant": "蘿蔔大醬清湯"
+},
+"미역국": {
+"en": "Seaweed Soup",
+"ja": "ワカメスープ",
+"zh-Hans": "海带汤",
+"zh-Hant": "海帶湯"
+},
+"미역냉국": {
+"en": "Chilled Seaweed Soup",
+"ja": "ワカメの冷製スープ",
+"zh-Hans": "海带凉汤",
+"zh-Hant": "海帶涼湯"
+},
+"바지락술국": {
+"en": "Baby Clam Soup Accompaniment to Alcoholic Drinks",
+"ja": "アサリ入り酔い覚ましスープ",
+"zh-Hans": "蛤蜊醒酒汤",
+"zh-Hant": "蛤蜊醒酒湯"
+},
+"바지락조갯국": {
+"en": "Clam Soup",
+"ja": "アサリスープ",
+"zh-Hans": "蛤蜊汤",
+"zh-Hant": "蛤蜊湯"
+},
+"배추된장국": {
+"en": "Cabbage Soybean Paste Soup",
+"ja": "白菜テンジャンクク",
+"zh-Hans": "白菜大酱清汤",
+"zh-Hant": "白菜大醬清湯"
+},
+"버섯육개장": {
+"en": "Spicy Mushroom and Beef Soup",
+"ja": "きのこのユッケジャン",
+"zh-Hans": "香辣蘑菇牛肉汤",
+"zh-Hant": "香辣蘑菇牛肉湯"
+},
+"복국": {
+"en": "Puffer Soup",
+"ja": "ふぐスープ",
+"zh-Hans": "河豚汤",
+"zh-Hant": "河豚湯"
+},
+"북엇국": {
+"en": "Dried Pollack Soup",
+"ja": "干しスケトウダラスープ",
+"zh-Hans": "干明太鱼汤",
+"zh-Hant": "乾明太魚湯"
+},
+"사골우거지해장국": {
+"en": "Korean Cabbage Hangover Soup",
+"ja": "牛骨と白菜の酔い覚ましスープ",
+"zh-Hans": "牛骨干白菜醒酒汤",
+"zh-Hant": "牛骨幹白菜醒酒湯"
+},
+"선짓국": {
+"en": "Beef Blood Soup",
+"ja": "ソンジスープ",
+"zh-Hans": "牛血汤",
+"zh-Hant": "牛血湯"
+},
+"섭국": {
+"en": "Mussel Soup",
+"ja": "ムール貝スープ",
+"zh-Hans": "贻贝汤",
+"zh-Hant": "貽貝湯"
+},
+"소고기뭇국": {
+"en": "Beef and Radish Soup",
+"ja": "牛肉入り大根スープ",
+"zh-Hans": "牛肉萝卜汤",
+"zh-Hant": "牛肉蘿蔔湯"
+},
+"소고기미역국": {
+"en": "Beef and Seaweed Soup",
+"ja": "牛肉入りワカメスープ",
+"zh-Hans": "牛肉海带汤",
+"zh-Hant": "牛肉海帶湯"
+},
+"소고기육개장": {
+"en": "Spicy Beef Soup",
+"ja": "牛肉のユッケジャン",
+"zh-Hans": "香辣牛肉汤",
+"zh-Hant": "香辣牛肉湯"
+},
+"순댓국": {
+"en": "Blood Sausage Soup",
+"ja": "スンデスープ",
+"zh-Hans": "血肠汤",
+"zh-Hant": "血腸湯"
+},
+"시금치된장국": {
+"en": "Spinach Soybean Paste Soup",
+"ja": "ほうれん草テンジャンクク",
+"zh-Hans": "菠菜大酱清汤",
+"zh-Hant": "菠菜大醬清湯"
+},
+"시래기된장국": {
+"en": "Dried Radish Leaf Soybean Paste Soup",
+"ja": "干し菜っ葉テンジャンクク",
+"zh-Hans": "干萝卜缨大酱清汤",
+"zh-Hant": "幹蘿蔔纓大醬清湯"
+},
+"쑥된장국": {
+"en": "Mugwort Soybean Paste Soup",
+"ja": "よもぎテンジャンクク",
+"zh-Hans": "艾草大酱清汤",
+"zh-Hant": "艾草大醬清湯"
+},
+"아욱국": {
+"en": "Curled Mallow Soup",
+"ja": "冬葵スープ",
+"zh-Hans": "冬葵汤",
+"zh-Hant": "冬葵湯"
+},
+"어묵국": {
+"en": "Fishcake Soup",
+"ja": "練り物スープ",
+"zh-Hans": "鱼糕汤",
+"zh-Hant": "魚糕湯"
+},
+"오이냉국": {
+"en": "Chilled Cucumber Soup",
+"ja": "キュウリの冷製スープ",
+"zh-Hans": "黄瓜凉汤",
+"zh-Hant": "黃瓜涼湯"
+},
+"오징엇국": {
+"en": "Squid Soup",
+"ja": "イカスープ",
+"zh-Hans": "鱿鱼汤",
+"zh-Hant": "魷魚湯"
+},
+"올갱잇국": {
+"en": "Melanian Snail Soup",
+"ja": "カワニナスープ",
+"zh-Hans": "川蜷汤",
+"zh-Hant": "川蜷湯"
+},
+"우거지된장국": {
+"en": "Korean Cabbage Soybean Paste Soup",
+"ja": "白菜テンジャンクク",
+"zh-Hans": "干白菜大酱清汤",
+"zh-Hant": "幹白菜大醬清湯"
+},
+"우거지해장국": {
+"en": "Korean Cabbage Hangover Soup",
+"ja": "白菜酔い覚ましスープ",
+"zh-Hans": "干白菜醒酒汤",
+"zh-Hant": "幹白菜醒酒湯"
+},
+"우렁된장국": {
+"en": "Freshwater Snail Soybean Paste Soup",
+"ja": "タニシテンジャンクク",
+"zh-Hans": "田螺大酱清汤",
+"zh-Hant": "田螺大醬清湯"
+},
+"육개장": {
+"en": "Spicy Beef Soup",
+"ja": "ユッケジャン",
+"zh-Hans": "香辣牛肉汤",
+"zh-Hant": "香辣牛肉湯"
+},
+"재첩국": {
+"en": "Freshwater Marsh Clam Soup",
+"ja": "シジミスープ",
+"zh-Hans": "河蚬汤",
+"zh-Hant": "河蜆湯"
+},
+"초당순두부": {
+"en": "Chodang Soft Bean Curd",
+"ja": "チョダンスンドゥブ",
+"zh-Hans": "草堂嫩豆腐",
+"zh-Hant": "草堂嫩豆腐"
+},
+"콩나물국": {
+"en": "Bean Sprout Soup",
+"ja": "豆もやしスープ",
+"zh-Hans": "豆芽汤",
+"zh-Hant": "豆芽湯"
+},
+"콩나물해장국": {
+"en": "Bean Sprout Hangover Soup",
+"ja": "豆もやし酔い覚ましスープ",
+"zh-Hans": "豆芽醒酒汤",
+"zh-Hant": "豆芽醒酒湯"
+},
+"토란국": {
+"en": "Taro Soup",
+"ja": "里芋スープ",
+"zh-Hans": "芋头汤",
+"zh-Hant": "芋頭湯"
+},
+"해장국": {
+"en": "Hangover Soup",
+"ja": "酔い覚ましスープ",
+"zh-Hans": "醒酒汤",
+"zh-Hant": "醒酒湯"
+},
+"홍합미역국": {
+"en": "Mussel and Seaweed Soup",
+"ja": "ムール貝入りワカメスープ",
+"zh-Hans": "贻贝海带汤",
+"zh-Hant": "貽貝海帶湯"
+},
+"황태해장국": {
+"en": "Dried Pollack Hangover Soup",
+"ja": "スケトウダラの酔い覚ましスープ",
+"zh-Hans": "干明太鱼醒酒汤",
+"zh-Hant": "幹明太魚醒酒湯"
+},
+"갈낙탕": {
+"en": "Short Rib and Octopus Soup",
+"ja": "カルビとテナガダコスープ",
+"zh-Hans": "排骨章鱼汤",
+"zh-Hant": "排骨章魚湯"
+},
+"갈비탕": {
+"en": "Short Rib Soup",
+"ja": "カルビタン",
+"zh-Hans": "牛排骨汤",
+"zh-Hant": "牛排骨湯"
+},
+"감자탕": {
+"en": "Pork Back-bone Stew",
+"ja": "カムジャタン",
+"zh-Hans": "脊骨土豆汤",
+"zh-Hant": "脊骨土豆湯"
+},
+"곰탕": {
+"en": "Beef Bone Soup",
+"ja": "コムタン",
+"zh-Hans": "精熬牛骨汤",
+"zh-Hant": "精熬牛骨湯"
+},
+"광어매운탕": {
+"en": "Spicy Flatfish Stew",
+"ja": "ヒラメの辛味スープ",
+"zh-Hans": "鲜辣左口鱼汤",
+"zh-Hant": "鮮辣左口魚湯"
+},
+"굴탕": {
+"en": "Oyster Soup",
+"ja": "カキスープ",
+"zh-Hans": "牡蛎汤",
+"zh-Hant": "牡蠣湯"
+},
+"꼬리곰탕": {
+"en": "Oxtail Soup",
+"ja": "牛テールのコムタン",
+"zh-Hans": "精熬牛尾汤",
+"zh-Hant": "精熬牛尾湯"
+},
+"꽃게탕": {
+"en": "Spicy Blue Crab Stew",
+"ja": "ワタリガニ鍋",
+"zh-Hans": "花蟹汤",
+"zh-Hant": "花蟹湯"
+},
+"내장탕": {
+"en": "Offal Soup",
+"ja": "ネジャンタン",
+"zh-Hans": "内脏汤",
+"zh-Hant": "內臟湯"
+},
+"닭곰탕": {
+"en": "Chicken Soup",
+"ja": "鶏肉のコムタン",
+"zh-Hans": "精熬鸡肉汤",
+"zh-Hant": "精熬雞肉湯"
+},
+"대구맑은탕": {
+"en": "Codfish Soup",
+"ja": "たらスープ",
+"zh-Hans": "鳕鱼清汤",
+"zh-Hant": "鱈魚清湯"
+},
+"대구매운탕": {
+"en": "Spicy Codfish Stew",
+"ja": "たらの辛味スープ",
+"zh-Hans": "鲜辣鳕鱼汤",
+"zh-Hant": "鮮辣鱈魚湯"
+},
+"대합탕": {
+"en": "Hard Clam Soup",
+"ja": "ハマグリスープ",
+"zh-Hans": "文蛤汤",
+"zh-Hant": "文蛤湯"
+},
+"도가니탕": {
+"en": "Ox Knee Soup",
+"ja": "牛の膝軟骨スープ",
+"zh-Hans": "牛膝骨汤",
+"zh-Hant": "牛膝骨湯"
+},
+"도미맑은탕": {
+"en": "Sea Bream Soup",
+"ja": "鯛スープ",
+"zh-Hans": "鲷鱼清汤",
+"zh-Hant": "鯛魚清湯"
+},
+"도미매운탕": {
+"en": "Spicy Sea Bream Stew",
+"ja": "鯛の辛味スープ",
+"zh-Hans": "鲜辣鲷鱼汤",
+"zh-Hant": "鮮辣鯛魚湯"
+},
+"동태탕": {
+"en": "Pollack Soup",
+"ja": "スケトウダラスープ",
+"zh-Hans": "冻明太鱼汤",
+"zh-Hant": "凍明太魚湯"
+},
+"뚜거리탕": {
+"en": "Spicy Floating Goby Stew",
+"ja": "ウキゴリスープ",
+"zh-Hans": "虾虎鱼汤",
+"zh-Hant": "蝦虎魚湯"
+},
+"뚝배기불고기": {
+"en": "Hot Pot Bulgogi",
+"ja": "土鍋プルゴギ",
+"zh-Hans": "砂锅烤牛肉",
+"zh-Hant": "砂鍋烤牛肉"
+},
+"롤삼계탕": {
+"en": "Rolled Ginseng Chicken Soup",
+"ja": "ロールサムゲタン",
+"zh-Hans": "鸡肉卷参鸡汤",
+"zh-Hant": "雞肉卷參雞湯"
+},
+"매운탕": {
+"en": "Spicy Fish Stew",
+"ja": "魚の辛味スープ",
+"zh-Hans": "鲜辣鱼汤",
+"zh-Hant": "鮮辣魚湯"
+},
+"메기매운탕": {
+"en": "Spicy Catfish Stew",
+"ja": "ナマズの辛味スープ",
+"zh-Hans": "鲜辣鲶鱼汤",
+"zh-Hant": "鮮辣鯰魚湯"
+},
+"민어탕": {
+"en": "Croaker Stew",
+"ja": "ニベスープ",
+"zh-Hans": "黄姑鱼汤",
+"zh-Hant": "黃姑魚湯"
+},
+"버섯들깨탕": {
+"en": "Mushroom and Perilla Seed Stew",
+"ja": "きのことエゴマスープ",
+"zh-Hans": "蘑菇紫苏籽汤",
+"zh-Hant": "蘑菇紫蘇籽湯"
+},
+"복맑은탕": {
+"en": "Puffer Fish Soup",
+"ja": "ふぐスープ",
+"zh-Hans": "河豚清汤",
+"zh-Hant": "河豚清湯"
+},
+"복매운탕": {
+"en": "Spicy Puffer Fish Stew",
+"ja": "ふぐの辛味スープ",
+"zh-Hans": "鲜辣",
+"zh-Hant": "鮮辣河豚湯"
+},
+"사골우거지갈비탕": {
+"en": "Korean Cabbage and Short Rib Soup",
+"ja": "牛骨と白菜カルビタン",
+"zh-Hans": "牛骨干白菜排骨汤",
+"zh-Hant": "牛骨幹白菜排骨湯"
+},
+"삼계탕": {
+"en": "Ginseng Chicken Soup",
+"ja": "サムゲタン",
+"zh-Hans": "参鸡汤",
+"zh-Hant": "蔘雞湯"
+},
+"생태탕": {
+"en": "Pollack Soup",
+"ja": "スケトウダラスープ",
+"zh-Hans": "鲜明太鱼汤",
+"zh-Hant": "鮮明太魚湯"
+},
+"설렁탕": {
+"en": "Ox Bone Soup",
+"ja": "ソルロンタン",
+"zh-Hans": "雪浓汤",
+"zh-Hant": "雪濃湯"
+},
+"쏘가리매운탕": {
+"en": "Spicy Mandarin Fish Stew",
+"ja": "コウライケツギョの辛味スープ",
+"zh-Hans": "鲜辣桂鱼汤",
+"zh-Hant": "鮮辣桂魚湯"
+},
+"아귀탕": {
+"en": "Monkfish Soup",
+"ja": "アンコウスープ",
+"zh-Hans": "安康鱼汤",
+"zh-Hant": "安康魚湯"
+},
+"알탕": {
+"en": "Spicy Fish Roe Soup",
+"ja": "魚の卵スープ",
+"zh-Hans": "鱼子汤",
+"zh-Hant": "魚子湯"
+},
+"양곰탕": {
+"en": "Beef Tripe Soup",
+"ja": "牛の胃袋のコムタン",
+"zh-Hans": "精熬牛胃汤",
+"zh-Hant": "精熬牛胃湯"
+},
+"어묵꼬치": {
+"en": "Skewered Fishcake Soup",
+"ja": "串刺し練り天",
+"zh-Hans": "鱼糕串",
+"zh-Hant": "魚板串"
+},
+"연포탕": {
+"en": "Bean Curd Soup",
+"ja": "豆腐スープ",
+"zh-Hans": "豆腐清汤",
+"zh-Hant": "豆腐清湯"
+},
+"영양한우갈비탕": {
+"en": "Nutritious Korean Beef Rib Soup",
+"ja": "栄養韓牛カルビタン",
+"zh-Hans": "营养韩牛排骨汤",
+"zh-Hant": "營養韓牛排骨湯"
+},
+"왕갈비탕": {
+"en": "Beef Rib Soup",
+"ja": "王カルビタン",
+"zh-Hans": "大排骨汤",
+"zh-Hant": "大排骨湯"
+},
+"용봉탕": {
+"en": "Carp, Softshell Turtle, and Chicken Soup",
+"ja": "鯉と鶏肉のスープ",
+"zh-Hans": "龙凤汤",
+"zh-Hant": "龍鳳湯"
+},
+"우거지갈비탕": {
+"en": "Korean Cabbage and Short Rib Soup",
+"ja": "白菜カルビタン",
+"zh-Hans": "干白菜排骨汤",
+"zh-Hant": "乾白菜排骨湯"
+},
+"우럭매운탕": {
+"en": "Spicy Rockfish Stew",
+"ja": "クロソイの辛味スープ",
+"zh-Hans": "鲜辣石斑鱼汤",
+"zh-Hant": "鮮辣石斑魚湯"
+},
+"우족탕": {
+"en": "Ox Feet Soup",
+"ja": "牛足スープ",
+"zh-Hans": "牛蹄汤",
+"zh-Hant": "牛蹄湯"
+},
+"장어탕": {
+"en": "Eel Soup",
+"ja": "ウナギスープ",
+"zh-Hans": "鳗鱼汤",
+"zh-Hant": "鰻魚湯"
+},
+"전복삼계탕": {
+"en": "Abalone and Ginseng Chicken Soup",
+"ja": "アワビサムゲタン",
+"zh-Hans": "鲍鱼参鸡汤",
+"zh-Hant": "鮑魚參雞湯"
+},
+"조개탕": {
+"en": "Clam Soup",
+"ja": "貝のスープ",
+"zh-Hans": "蛤蜊汤",
+"zh-Hant": "蛤蜊湯"
+},
+"조기매운탕": {
+"en": "Spicy Yellow Croaker Stew",
+"ja": "イシモチの辛味スープ",
+"zh-Hans": "鲜辣黄花鱼汤",
+"zh-Hant": "鮮辣黃花魚湯"
+},
+"참게매운탕": {
+"en": "Spicy Hairy Crab Stew",
+"ja": "上海ガニの辛味スープ",
+"zh-Hans": "鲜辣河蟹汤",
+"zh-Hant": "鮮辣河蟹湯"
+},
+"초계탕": {
+"en": "Cold Chicken Soup",
+"ja": "鶏肉の冷製スープ",
+"zh-Hans": "醋鸡凉汤",
+"zh-Hant": "醋雞涼湯"
+},
+"추어탕": {
+"en": "Loach Soup",
+"ja": "どじょうスープ",
+"zh-Hans": "泥鳅汤",
+"zh-Hant": "泥鰍湯"
+},
+"콩비지탕": {
+"en": "Pureed Soybean Soup",
+"ja": "おからスープ",
+"zh-Hans": "黄豆渣汤",
+"zh-Hant": "黃豆渣湯"
+},
+"콩탕": {
+"en": "Soybean Soup",
+"ja": "大豆スープ",
+"zh-Hans": "豆汤",
+"zh-Hant": "豆湯"
+},
+"통추어탕": {
+"en": "Whole Loach Soup",
+"ja": "丸ごとどじょうスープ",
+"zh-Hans": "泥鳅汤",
+"zh-Hant": "整條泥鰍湯"
+},
+"해물탕": {
+"en": "Spicy Seafood Stew",
+"ja": "海鮮鍋",
+"zh-Hans": "海鲜汤",
+"zh-Hant": "海鮮湯"
+},
+"홍어탕": {
+"en": "Skate Soup",
+"ja": "ガンギエイスープ",
+"zh-Hans": "斑鳐汤",
+"zh-Hant": "斑鰩湯"
+},
+"홍합탕": {
+"en": "Mussel Soup",
+"ja": "ムール貝スープ",
+"zh-Hans": "贻贝汤",
+"zh-Hant": "貽貝湯"
+},
+"갈치찌개": {
+"en": "Cutlassfish Stew",
+"ja": "太刀魚チゲ",
+"zh-Hans": "带鱼锅",
+"zh-Hant": "帶魚鍋"
+},
+"강된장": {
+"en": "Seasoned Soybean Paste",
+"ja": "カンテンジャン",
+"zh-Hans": "调味大酱",
+"zh-Hant": "調味大醬"
+},
+"고추장찌개": {
+"en": "Red Chilli Paste Stew",
+"ja": "コチュジャンチゲ",
+"zh-Hans": "辣椒酱锅",
+"zh-Hant": "辣椒醬鍋"
+},
+"김치찌개": {
+"en": "Kimchi Stew",
+"ja": "キムチチゲ",
+"zh-Hans": "辛奇汤",
+"zh-Hant": "辛奇湯"
+},
+"꽁치김치찌개": {
+"en": "Saury and Kimchi Stew",
+"ja": "サンマキムチチゲ",
+"zh-Hans": "秋刀鱼辛奇汤",
+"zh-Hant": "秋刀魚辛奇湯"
+},
+"도루묵찌개": {
+"en": "Spicy Sailfin Sandfish Stew",
+"ja": "ハタハタのチゲ",
+"zh-Hans": "银鱼锅",
+"zh-Hant": "銀魚鍋"
+},
+"동태찌개": {
+"en": "Pollack Stew",
+"ja": "スケトウダラチゲ",
+"zh-Hans": "冻明太鱼汤",
+"zh-Hant": "凍明太魚湯"
+},
+"돼지갈비찌개": {
+"en": "Pork Short Rib Stew",
+"ja": "豚カルビチゲ",
+"zh-Hans": "猪排骨锅",
+"zh-Hant": "豬排骨鍋"
+},
+"돼지고기김치찌개": {
+"en": "Pork and Kimchi Stew",
+"ja": "豚キムチチゲ",
+"zh-Hans": "猪肉辛奇汤",
+"zh-Hant": "豬肉辛奇湯"
+},
+"된장찌개": {
+"en": "Soybean Paste Stew",
+"ja": "テンジャンチゲ",
+"zh-Hans": "大酱汤",
+"zh-Hant": "大醬湯"
+},
+"부대찌개": {
+"en": "Sausage Stew",
+"ja": "プデチゲ",
+"zh-Hans": "火腿肠锅",
+"zh-Hant": "火腿腸鍋"
+},
+"생태찌개": {
+"en": "Pollack Stew",
+"ja": "スケトウダラチゲ",
+"zh-Hans": "鲜明太鱼锅",
+"zh-Hant": "鮮明太魚鍋"
+},
+"순두부찌개": {
+"en": "Soft Bean Curd Stew",
+"ja": "スンドゥブチゲ",
+"zh-Hans": "嫩豆腐锅",
+"zh-Hant": "嫩豆腐鍋"
+},
+"시래기된장지짐": {
+"en": "Braised Dried Radish Leaf Soybean Paste",
+"ja": "干し菜っ葉のテンジャン煮込み",
+"zh-Hans": "大酱炖干萝卜缨",
+"zh-Hant": "大醬燉幹蘿蔔纓"
+},
+"애호박찌개": {
+"en": "Zucchini Stew",
+"ja": "ズッキーニチゲ",
+"zh-Hans": "西葫芦锅",
+"zh-Hant": "西葫蘆鍋"
+},
+"양푼김치찌개": {
+"en": "Kimchi Stew in Large Brass Bowl",
+"ja": "ヤンプンキムチチゲ",
+"zh-Hans": "铜盆辛奇汤",
+"zh-Hant": "銅盆辛奇湯"
+},
+"오분자기뚝배기": {
+"en": "Sea Snail Hot Pot",
+"ja": "トコブシの土鍋スープ",
+"zh-Hans": "小鲍鱼砂锅",
+"zh-Hant": "砂鍋小鮑魚"
+},
+"전복뚝배기": {
+"en": "Abalone Hot Pot",
+"ja": "アワビ土鍋",
+"zh-Hans": "鲍鱼砂锅",
+"zh-Hant": "鮑魚砂鍋"
+},
+"차돌된장찌개": {
+"en": "Beef Brisket Soybean Paste Stew",
+"ja": "牛のともばら肉入りテンジャンチゲ",
+"zh-Hans": "牛胸肉大酱汤",
+"zh-Hant": "牛胸肉大醬湯"
+},
+"참치김치찌개": {
+"en": "Tuna and Kimchi Stew",
+"ja": "ツナキムチチゲ",
+"zh-Hans": "金枪鱼辛奇汤",
+"zh-Hant": "金槍魚辛奇湯"
+},
+"청국장찌개": {
+"en": "Rich Soybean Paste Stew",
+"ja": "チョングクチャンチゲ",
+"zh-Hans": "清麴酱锅",
+"zh-Hant": "清麴醬鍋"
+},
+"콩비지찌개": {
+"en": "Pureed Soybean Stew",
+"ja": "おからチゲ",
+"zh-Hans": "黄豆渣锅",
+"zh-Hant": "黃豆渣鍋"
+},
+"해물된장찌개": {
+"en": "Seafood Soybean Paste Stew",
+"ja": "海鮮テンジャンチゲ",
+"zh-Hans": "海鲜大酱汤",
+"zh-Hant": "海鮮大醬湯"
+},
+"해물뚝배기": {
+"en": "Seafood Hot Pot",
+"ja": "海鮮土鍋",
+"zh-Hans": "海鲜砂锅",
+"zh-Hant": "海鮮砂鍋"
+},
+"해물순두부찌개": {
+"en": "Seafood and Soft Bean Curd Stew",
+"ja": "海鮮スンドゥブチゲ",
+"zh-Hans": "海鲜嫩豆腐锅",
+"zh-Hant": "海鮮嫩豆腐鍋"
+},
+"갈비찜": {
+"en": "Braised Short Ribs",
+"ja": "カルビの蒸し物",
+"zh-Hans": "炖牛排骨",
+"zh-Hant": "燉牛排骨"
+},
+"계란찜": {
+"en": "Steamed Eggs",
+"ja": "茶碗蒸し",
+"zh-Hans": "鸡蛋羹",
+"zh-Hant": "雞蛋羹"
+},
+"굴보쌈": {
+"en": "Kimchi Wraps with Pork and Oyster",
+"ja": "カキのポサム",
+"zh-Hans": "牡蛎菜包肉",
+"zh-Hant": "牡蠣菜包肉"
+},
+"꼬리찜": {
+"en": "Braised Oxtail",
+"ja": "牛テールの蒸し物",
+"zh-Hans": "炖牛尾",
+"zh-Hant": "燉牛尾"
+},
+"꽃게찜": {
+"en": "Steamed Blue Crab",
+"ja": "ワタリガニの蒸し物",
+"zh-Hans": "蒸花蟹",
+"zh-Hant": "清蒸梭子蟹"
+},
+"낙지찜": {
+"en": "Braised Octopus",
+"ja": "テナガダコの蒸し物",
+"zh-Hans": "炖章鱼",
+"zh-Hant": "燉章魚"
+},
+"누룽지닭백숙": {
+"en": "Whole Chicken Soup with Scorched Rice",
+"ja": "おこげ入り鶏肉の水炊き",
+"zh-Hans": "锅巴清炖鸡",
+"zh-Hant": "鍋巴清燉雞"
+},
+"닭백숙": {
+"en": "Whole Chicken Soup",
+"ja": "鶏肉の水炊き",
+"zh-Hans": "清炖鸡",
+"zh-Hant": "清燉雞"
+},
+"대게찜": {
+"en": "Steamed Snow Crab",
+"ja": "ズワイガニの蒸し物",
+"zh-Hans": "蒸雪蟹",
+"zh-Hant": "蒸雪蟹"
+},
+"대구뽈찜": {
+"en": "Braised Codfish Head",
+"ja": "たらの頭の蒸し物",
+"zh-Hans": "炖鳕鱼头",
+"zh-Hant": "燉鱈魚頭"
+},
+"대하찜": {
+"en": "Steamed Prawn",
+"ja": "大正海老の蒸し物",
+"zh-Hans": "蒸大虾",
+"zh-Hant": "蒸明蝦"
+},
+"더덕보쌈": {
+"en": "Kimchi Wraps with Pork and Deodeok",
+"ja": "蔓人参のポサム",
+"zh-Hans": "沙参菜包肉",
+"zh-Hant": "沙參菜包肉"
+},
+"도가니수육": {
+"en": "Boiled Ox Knee",
+"ja": "ゆで牛の膝軟骨",
+"zh-Hans": "白切牛膝骨",
+"zh-Hant": "白切牛膝骨"
+},
+"도미찜": {
+"en": "Steamed Sea Bream",
+"ja": "鯛の蒸し物",
+"zh-Hans": "蒸鲷鱼",
+"zh-Hant": "蒸鯛魚"
+},
+"동태찜": {
+"en": "Braised Pollack",
+"ja": "スケトウダラの蒸し物",
+"zh-Hans": "炖冻明太鱼",
+"zh-Hant": "燉凍明太魚"
+},
+"돼지등뼈찜": {
+"en": "Brasied Pork Back-bone",
+"ja": "豚の背骨の蒸し物",
+"zh-Hans": "炖猪脊骨",
+"zh-Hant": "燉豬脊骨"
+},
+"등갈비묵은지찜": {
+"en": "Braised Pork Rib with Aged Kimchi",
+"ja": "バックリプと熟成キムチの蒸し物",
+"zh-Hans": "炖脊排酸辛奇",
+"zh-Hant": "燉脊排酸辛奇"
+},
+"뚝배기계란찜": {
+"en": "Steamed Egg Hot Pot",
+"ja": "土鍋茶碗蒸し",
+"zh-Hans": "砂锅鸡蛋羹",
+"zh-Hant": "砂鍋雞蛋羹"
+},
+"매운갈비찜": {
+"en": "Spicy Braised Short Ribs",
+"ja": "辛味カルビの蒸し物",
+"zh-Hans": "香辣炖排骨",
+"zh-Hant": "香辣燉排骨"
+},
+"매운닭찜": {
+"en": "Spicy Braised Chicken",
+"ja": "鶏肉と野菜のピリ辛煮",
+"zh-Hans": "辣炖鸡块",
+"zh-Hant": "辣味燉雞"
+},
+"머릿고기": {
+"en": "Pork Head Meat",
+"ja": "ゆで頭部肉",
+"zh-Hans": "白切猪头肉",
+"zh-Hant": "白切豬頭肉"
+},
+"명태찜": {
+"en": "Braised Pollack",
+"ja": "スケトウダラの蒸し物",
+"zh-Hans": "炖明太鱼",
+"zh-Hant": "燉明太魚"
+},
+"묵은지두부찜": {
+"en": "Braised Aged Kimchi and Bean Curd",
+"ja": "熟成キムチと豆腐の煮物",
+"zh-Hans": "酸辛奇炖豆腐",
+"zh-Hant": "酸辛奇燉豆腐"
+},
+"묵은지찜": {
+"en": "Braised Pork with Aged Kimchi",
+"ja": "熟成キムチの蒸し物",
+"zh-Hans": "炖酸辛奇",
+"zh-Hant": "燉酸辛奇"
+},
+"민어찜": {
+"en": "Steamed Croaker",
+"ja": "ニベの蒸し物",
+"zh-Hans": "蒸黄姑鱼",
+"zh-Hant": "蒸黃姑魚"
+},
+"병어찜": {
+"en": "Steamed Pomfret",
+"ja": "マナガツオの蒸し物",
+"zh-Hans": "蒸平鱼",
+"zh-Hant": "蒸平魚"
+},
+"보쌈": {
+"en": "Kimchi Wraps with Pork",
+"ja": "ポサム",
+"zh-Hans": "菜包肉",
+"zh-Hant": "菜包肉"
+},
+"북어찜": {
+"en": "Steamed Dried Pollack",
+"ja": "干しスケトウダラの蒸し物",
+"zh-Hans": "炖干明太鱼",
+"zh-Hant": "燉幹明太魚"
+},
+"소갈비찜": {
+"en": "Braised Beef Short Ribs",
+"ja": "牛カルビの蒸し物",
+"zh-Hans": "炖牛排骨",
+"zh-Hant": "燉牛排骨"
+},
+"소꼬리찜": {
+"en": "Braised Oxtail",
+"ja": "牛テールの蒸し物",
+"zh-Hans": "炖牛尾",
+"zh-Hant": "燉牛尾"
+},
+"소머리수육": {
+"en": "Boiled Beef Head Meat",
+"ja": "ゆで牛の頭部肉",
+"zh-Hans": "白切牛头肉",
+"zh-Hant": "白切牛頭肉"
+},
+"수육": {
+"en": "Boiled Beef Slices / Boiled Pork Slices",
+"ja": "ゆで肉",
+"zh-Hans": "白切肉",
+"zh-Hant": "白切肉"
+},
+"순대": {
+"en": "Blood Sausage",
+"ja": "スンデ",
+"zh-Hans": "血肠",
+"zh-Hant": "血腸"
+},
+"아귀찜": {
+"en": "Braised Spicy Monkfish",
+"ja": "アンコウの蒸し物",
+"zh-Hans": "辣炖安康鱼",
+"zh-Hant": "辣燉鮟鱇魚"
+},
+"아바이순대": {
+"en": "Abai Blood Sausage",
+"ja": "アバイスンデ",
+"zh-Hans": "阿巴伊血肠",
+"zh-Hant": "阿巴伊血腸"
+},
+"안동찜닭": {
+"en": "Andong Braised Chicken",
+"ja": "アンドンチムダク",
+"zh-Hans": "安东炖鸡块",
+"zh-Hant": "安東燉雞塊"
+},
+"오리백숙": {
+"en": "Whole Duck Soup",
+"ja": "鴨肉の水炊き",
+"zh-Hans": "清炖鸭",
+"zh-Hant": "清燉鴨"
+},
+"오이선": {
+"en": "Stuffed Cucumber",
+"ja": "飾りキュウリの甘酢がけ",
+"zh-Hans": "黄瓜膳",
+"zh-Hant": "黃瓜膳"
+},
+"오징어순대": {
+"en": "Stuffed Squid",
+"ja": "イカスンデ",
+"zh-Hans": "鱿鱼血肠",
+"zh-Hant": "魷魚血腸"
+},
+"전복갈비찜": {
+"en": "Braised Short Ribs and Abalone",
+"ja": "アワビとカルビの蒸し物",
+"zh-Hans": "鲍鱼炖排骨",
+"zh-Hant": "鮑魚燉排骨"
+},
+"조기찜": {
+"en": "Steamed Yellow Croaker",
+"ja": "イシモチの蒸し物",
+"zh-Hans": "蒸黄花鱼",
+"zh-Hant": "蒸黃花魚"
+},
+"족발": {
+"en": "Braised Pigs' Feet",
+"ja": "豚足",
+"zh-Hans": "酱猪蹄",
+"zh-Hant": "醬豬蹄"
+},
+"찜닭": {
+"en": "Braised Chicken",
+"ja": "チムダク",
+"zh-Hans": "炖鸡块",
+"zh-Hant": "燉雞塊"
+},
+"참꼬막찜": {
+"en": "Steamed Cockles",
+"ja": "ハイガイの蒸し物",
+"zh-Hans": "蒸血蚶",
+"zh-Hant": "蒸血蚶"
+},
+"코다리찜": {
+"en": "Braised Half-dried Pollack",
+"ja": "半干しスケトウダラの蒸し物",
+"zh-Hans": "炖半干明太鱼",
+"zh-Hant": "燉半幹明太魚"
+},
+"편육": {
+"en": "Cold Pork Slices",
+"ja": "薄切りゆで肉",
+"zh-Hans": "白切肉",
+"zh-Hant": "白切肉"
+},
+"한방오리백숙": {
+"en": "Whole Duck Soup with Medicinal Herbs",
+"ja": "鴨肉の韓方水炊き",
+"zh-Hans": "药膳清炖鸭",
+"zh-Hant": "藥膳清燉鴨"
+},
+"한방오리찜": {
+"en": "Steamed Whole Duck with Medical Herbs",
+"ja": "鴨肉の韓方蒸し物",
+"zh-Hans": "药膳炖鸭",
+"zh-Hant": "藥膳燉鴨"
+},
+"해물찜": {
+"en": "Spicy Braised Seafood",
+"ja": "海鮮の蒸し物",
+"zh-Hans": "辣炖海鲜",
+"zh-Hant": "辣燉海鮮"
+},
+"홍어삼합": {
+"en": "Skate, Pork, and Kimchi Combo",
+"ja": "ガンギエイのサムハプ",
+"zh-Hans": "斑鳐三合",
+"zh-Hant": "斑鰩三合"
+},
+"홍어찜": {
+"en": "Steamed Skate",
+"ja": "ガンギエイの蒸し物",
+"zh-Hans": "蒸斑鳐",
+"zh-Hant": "蒸斑鰩"
+},
+"황기닭백숙": {
+"en": "Whole Chicken Soup with Milk Vetch Roots",
+"ja": "黄耆入り鶏肉の水炊き",
+"zh-Hans": "黄芪清炖鸡",
+"zh-Hant": "黃芪清燉雞"
+},
+"황기족발": {
+"en": "Braised Pigs' Feet with Milk Vetch Root",
+"ja": "黄耆豚足",
+"zh-Hans": "黄芪酱猪蹄",
+"zh-Hant": "黃芪醬豬蹄"
+},
+"황태찜": {
+"en": "Braised Dried Pollack",
+"ja": "干しスケトウダラの蒸し物",
+"zh-Hans": "炖干明太鱼",
+"zh-Hant": "燉幹明太魚"
+},
+"훈제오리보쌈": {
+"en": "Kimchi Wraps with Pork and Smoked Duck",
+"ja": "鴨の燻製ポサム",
+"zh-Hans": "菜包熏鸭肉",
+"zh-Hant": "菜包熏鴨肉"
+},
+"가지볶음": {
+"en": "Stir-fried Eggplant",
+"ja": "なす炒め",
+"zh-Hans": "炒茄子",
+"zh-Hant": "炒茄子"
+},
+"감자볶음": {
+"en": "Stir-fried Potatoes",
+"ja": "じゃがいも炒め",
+"zh-Hans": "炒土豆丝",
+"zh-Hant": "炒土豆絲"
+},
+"고구마맛탕": {
+"en": "Deep-fried and Sugar Glazed Sweet Potatoes",
+"ja": "大学芋",
+"zh-Hans": "拔丝地瓜",
+"zh-Hant": "拔絲地瓜"
+},
+"곰장어볶음": {
+"en": "Stir-fried Sea Eel",
+"ja": "ヌタウナギ炒め",
+"zh-Hans": "辣炒盲鳗",
+"zh-Hant": "辣炒盲鰻"
+},
+"곱창볶음": {
+"en": "(소곱창) Stir-fried Beef Small Intestine(돼지곱창) Stir-fried Pork Small Intestine",
+"ja": "コプチャン炒め",
+"zh-Hans": "(소) 辣炒牛肠(돼지) 辣炒猪肠",
+"zh-Hant": "(소) 辣炒牛腸(돼지) 辣炒豬腸"
+},
+"국물떡볶이": {
+"en": "Stir-fried Rice Cake",
+"ja": "スープトッポッキ",
+"zh-Hans": "辣炒年糕汤",
+"zh-Hant": "辣炒年糕湯"
+},
+"궁중떡볶이": {
+"en": "Royal Stir-fried Rice Cake",
+"ja": "宮中トッポッキ",
+"zh-Hans": "宫廷炒年糕",
+"zh-Hant": "宮廷炒年糕"
+},
+"김치볶음": {
+"en": "Stir-fried Kimchi",
+"ja": "キムチ炒め",
+"zh-Hans": "炒辛奇",
+"zh-Hant": "炒辛奇"
+},
+"깻잎나물볶음": {
+"en": "Stir-fried Perilla Leaves",
+"ja": "エゴマの葉ナムル炒め",
+"zh-Hans": "炒苏子叶",
+"zh-Hant": "炒蘇子葉"
+},
+"꽈리고추멸치볶음": {
+"en": "Stir-fried Shishito Peppers and Dried Anchovies",
+"ja": "ざこと獅子唐辛子炒め",
+"zh-Hans": "炒小青椒鳀鱼",
+"zh-Hant": "炒小青椒鳀魚"
+},
+"낙지볶음": {
+"en": "Stir-fried Octopus",
+"ja": "テナガダコ炒め",
+"zh-Hans": "辣炒章鱼",
+"zh-Hant": "辣炒章魚"
+},
+"낙지철판볶음": {
+"en": "Stir-fried Octopus on Hot Iron Plate",
+"ja": "テナガダコの鉄板炒め",
+"zh-Hans": "铁板章鱼",
+"zh-Hant": "鐵板章魚"
+},
+"느타리버섯볶음": {
+"en": "Stir-fried Oyster Mushrooms",
+"ja": "ヒラタケ炒め",
+"zh-Hans": "炒平菇",
+"zh-Hant": "炒平菇"
+},
+"닭갈비": {
+"en": "Spicy Stir-fried Chicken",
+"ja": "タッカルビ",
+"zh-Hans": "铁板鸡",
+"zh-Hant": "鐵板雞"
+},
+"닭강정": {
+"en": "Deep-fried and Braised Chicken",
+"ja": "鶏肉の唐揚げ",
+"zh-Hans": "调味炸鸡丁",
+"zh-Hant": "調味炸雞丁"
+},
+"닭똥집볶음": {
+"en": "Stir-fried Chicken Gizzard",
+"ja": "砂肝炒め",
+"zh-Hans": "炒鸡胗",
+"zh-Hant": "炒雞胗"
+},
+"닭볶음탕": {
+"en": "Spicy Braised Chicken",
+"ja": "鶏肉の炒め煮",
+"zh-Hans": "辣炖鸡块",
+"zh-Hant": "辣燉雞塊"
+},
+"도치두루치기": {
+"en": "Stir-fried Pacific Spiny Lumpsucker",
+"ja": "イボダンゴ炒め",
+"zh-Hans": "辣炒圆鳍鱼",
+"zh-Hant": "辣炒圓鰭魚"
+},
+"돼지고기두루치기": {
+"en": "Stir-fried Pork",
+"ja": "豚肉炒め",
+"zh-Hans": "辣炒猪肉",
+"zh-Hant": "辣炒豬肉"
+},
+"돼지고기볶음": {
+"en": "Stir-fried Pork",
+"ja": "豚肉炒め",
+"zh-Hans": "炒猪肉",
+"zh-Hant": "炒豬肉"
+},
+"돼지고기주물럭": {
+"en": "Spicy Stir-fried Pork",
+"ja": "豚肉コチュジャン炒め",
+"zh-Hans": "风味炒猪肉",
+"zh-Hant": "調味炒豬肉"
+},
+"돼지껍데기볶음": {
+"en": "Stir-fried Pork Rind",
+"ja": "豚皮炒め",
+"zh-Hans": "辣炒猪皮",
+"zh-Hant": "辣炒豬皮"
+},
+"두부김치": {
+"en": "Bean Curd with Stir-fried Kimchi",
+"ja": "豆腐キムチ",
+"zh-Hans": "炒辛奇豆腐",
+"zh-Hant": "炒辛奇豆腐"
+},
+"떡볶이": {
+"en": "Stir-fried Rice Cake",
+"ja": "トッポッキ",
+"zh-Hans": "辣炒年糕",
+"zh-Hant": "辣炒年糕"
+},
+"라볶이": {
+"en": "Stir-fried Instant Noodle",
+"ja": "ラボキ",
+"zh-Hans": "拉面辣炒年糕",
+"zh-Hant": "拉麵辣炒年糕"
+},
+"마늘종볶음": {
+"en": "Stir-fried Garlic Scape",
+"ja": "にんにくの芽炒め",
+"zh-Hans": "炒蒜苔",
+"zh-Hant": "炒蒜薹"
+},
+"마른새우볶음": {
+"en": "Stir-fried Dried Shrimp",
+"ja": "干し海老炒め",
+"zh-Hans": "炒干虾",
+"zh-Hant": "炒乾蝦"
+},
+"매운닭발볶음": {
+"en": "Spicy Stir-fried Chicken's Feet",
+"ja": "辛味鶏足炒め",
+"zh-Hans": "辣炒鸡爪",
+"zh-Hant": "辣炒雞爪"
+},
+"머위나물볶음": {
+"en": "Stir-fried Butterbur",
+"ja": "フキナムル炒め",
+"zh-Hans": "炒蜂斗菜",
+"zh-Hant": "炒蜂斗菜"
+},
+"물오징어불고기": {
+"en": "Squid Bulgogi",
+"ja": "イカのプルゴギ",
+"zh-Hans": "烤鱿鱼",
+"zh-Hant": "烤魷魚"
+},
+"미역줄기볶음": {
+"en": "Stir-fried Seaweed Stems",
+"ja": "茎ワカメ炒め",
+"zh-Hans": "炒海带丝",
+"zh-Hant": "炒海帶絲"
+},
+"소시지야채볶음": {
+"en": "Stir-fried Sausage with Vegetables",
+"ja": "ソーセージの野菜炒め",
+"zh-Hans": "蔬菜炒香肠",
+"zh-Hant": "蔬菜炒香腸"
+},
+"순대볶음": {
+"en": "Stir-fried Blood Sausage",
+"ja": "スンデ炒め",
+"zh-Hans": "辣炒血肠",
+"zh-Hant": "辣炒血腸"
+},
+"애호박볶음": {
+"en": "Stir-fried Zucchini",
+"ja": "ズッキーニ炒め",
+"zh-Hans": "炒西葫芦",
+"zh-Hant": "炒西葫蘆"
+},
+"양념치킨": {
+"en": "Seasoned Fried Chicken",
+"ja": "ヤンニョムチキン",
+"zh-Hans": "调味炸鸡",
+"zh-Hant": "調味炸雞"
+},
+"어묵볶음": {
+"en": "Stir-fried Fishcake",
+"ja": "練り物炒め",
+"zh-Hans": "炒鱼糕",
+"zh-Hant": "炒魚糕"
+},
+"오리주물럭": {
+"en": "Spicy Stir-fried Duck",
+"ja": "鴨肉コチュジャン炒め",
+"zh-Hans": "调味炒鸭肉",
+"zh-Hant": "調味炒鴨肉"
+},
+"오삼불고기": {
+"en": "Squid and Pork Belly Bulgogi",
+"ja": "イカとサムギョプサルのプルゴギ",
+"zh-Hans": "烤鱿鱼五花肉",
+"zh-Hant": "烤魷魚五花肉"
+},
+"오징어두루치기": {
+"en": "Stir-fried Squid",
+"ja": "イカの野菜炒め",
+"zh-Hans": "辣炒鱿鱼",
+"zh-Hant": "辣炒魷魚"
+},
+"오징어볶음": {
+"en": "Stir-fried Squid",
+"ja": "イカ炒め",
+"zh-Hans": "辣炒鱿鱼",
+"zh-Hant": "辣炒魷魚"
+},
+"오징어채볶음": {
+"en": "Stir-fried Dried Squid Strips",
+"ja": "干しイカ炒め",
+"zh-Hans": "炒干鱿鱼丝",
+"zh-Hant": "炒乾魷魚絲"
+},
+"우삼겹숙주볶음": {
+"en": "Stir-fried Beef Plate with Mung Bean Sprouts",
+"ja": "もやしと牛バラの炒めもの",
+"zh-Hans": "绿豆芽炒牛五花肉",
+"zh-Hant": "綠豆芽炒牛五花"
+},
+"잔멸치볶음": {
+"en": "Stir-fried Small Dried Anchovies",
+"ja": "ざこ炒め",
+"zh-Hans": "炒小鳀鱼",
+"zh-Hant": "炒小鳀魚"
+},
+"제육볶음": {
+"en": "Stir-fried Pork",
+"ja": "豚肉炒め",
+"zh-Hans": "辣炒猪肉",
+"zh-Hant": "辣炒豬肉"
+},
+"주꾸미볶음": {
+"en": "Stir-fried Webfoot Octopus",
+"ja": "イイダコ炒め",
+"zh-Hans": "辣炒八爪鱼",
+"zh-Hant": "辣炒八爪魚"
+},
+"죽순볶음": {
+"en": "Stir-fried Bamboo Shoots",
+"ja": "竹の子炒め",
+"zh-Hans": "炒竹笋",
+"zh-Hant": "炒竹筍"
+},
+"쥐치채볶음": {
+"en": "Stir-fried Dried Filefish Strips",
+"ja": "干しカワハギ炒め",
+"zh-Hans": "炒干鳞鲀丝",
+"zh-Hant": "炒乾鱗魨絲"
+},
+"즉석떡볶이": {
+"en": "Stir-fried Rice Cake",
+"ja": "即席トッポッキ",
+"zh-Hans": "辣炒年糕锅",
+"zh-Hant": "辣炒年糕鍋"
+},
+"철판순대볶음": {
+"en": "Stir-fried Blood Sausage on Hot Iron Plate",
+"ja": "スンデの鉄板炒め",
+"zh-Hans": "铁板血肠",
+"zh-Hant": "鐵板血腸"
+},
+"표고버섯볶음": {
+"en": "Stir-fried Golden Oak Mushrooms",
+"ja": "シイタケ炒め",
+"zh-Hans": "炒香菇",
+"zh-Hant": "炒香菇"
+},
+"해물떡볶이": {
+"en": "Stir-fried Rice Cake and Seafood",
+"ja": "海鮮トッポッキ",
+"zh-Hans": "海鲜辣炒年糕",
+"zh-Hant": "海鮮辣炒年糕"
+},
+"가자미조림": {
+"en": "Braised Plaice",
+"ja": "カレイの煮付け",
+"zh-Hans": "炖鲽鱼",
+"zh-Hant": "燉鰈魚"
+},
+"갈치조림": {
+"en": "Braised Cutlassfish",
+"ja": "太刀魚の煮付け",
+"zh-Hans": "辣炖带鱼",
+"zh-Hant": "辣燉帶魚"
+},
+"감자조림": {
+"en": "Braised Potatoes",
+"ja": "じゃがいもの煮付け",
+"zh-Hans": "酱土豆",
+"zh-Hant": "醬土豆"
+},
+"고등어조림": {
+"en": "Braised Mackerel",
+"ja": "サバの煮付け",
+"zh-Hans": "炖青花鱼",
+"zh-Hant": "燉青花魚"
+},
+"도미조림": {
+"en": "Braised Sea Bream",
+"ja": "鯛の煮付け",
+"zh-Hans": "炖鲷鱼",
+"zh-Hant": "燉鯛魚"
+},
+"돼지고기메추리알장조림": {
+"en": "Braised Pork and Quail Eggs in Soy Sauce",
+"ja": "豚肉とうずらの卵の煮付け",
+"zh-Hans": "酱猪肉鹌鹑蛋",
+"zh-Hant": "醬豬肉鵪鶉蛋"
+},
+"두부조림": {
+"en": "Braised Bean Curd",
+"ja": "豆腐の煮付け",
+"zh-Hans": "烧豆腐",
+"zh-Hant": "燒豆腐"
+},
+"땅콩조림": {
+"en": "Braised Peanuts",
+"ja": "落花生の煮付け",
+"zh-Hans": "酱花生",
+"zh-Hant": "醬花生"
+},
+"메추리알장조림": {
+"en": "Braised Quail Eggs in Soy Sauce",
+"ja": "うずらの卵の煮付け",
+"zh-Hans": "酱鹌鹑蛋",
+"zh-Hant": "醬鵪鶉蛋"
+},
+"명태조림": {
+"en": "Braised Pollack",
+"ja": "スケトウダラの煮付け",
+"zh-Hans": "炖明太鱼",
+"zh-Hant": "燉明太魚"
+},
+"묵은지고등어조림": {
+"en": "Braised Mackerel with Aged Kimchi",
+"ja": "熟成キムチとサバの煮付け",
+"zh-Hans": "炖酸辛奇青花鱼",
+"zh-Hant": "燉酸辛奇青花魚"
+},
+"병어조림": {
+"en": "Braised Pomfret",
+"ja": "マナガツオの煮付け",
+"zh-Hans": "辣炖平鱼",
+"zh-Hant": "辣燉平魚"
+},
+"북어조림": {
+"en": "Braised Dried Pollack",
+"ja": "干しスケトウダラの煮付け",
+"zh-Hans": "炖干明太鱼",
+"zh-Hant": "燉幹明太魚"
+},
+"붕어조림": {
+"en": "Braised Carp",
+"ja": "フナの煮付け",
+"zh-Hans": "红烧鲫鱼",
+"zh-Hant": "燉鯽魚"
+},
+"생멸치조림": {
+"en": "Braised Anchovies",
+"ja": "カタクチイワシの煮付け",
+"zh-Hans": "辣炖鲜鳀鱼",
+"zh-Hant": "辣燉鮮鳀魚"
+},
+"소고기메추리알장조림": {
+"en": "Braised Beef and Quail Eggs in Soy Sauce",
+"ja": "牛肉とうずらの卵の煮付け",
+"zh-Hans": "酱牛肉鹌鹑蛋",
+"zh-Hant": "醬牛肉鵪鶉蛋"
+},
+"연근조림": {
+"en": "Braised Lotus Roots",
+"ja": "れんこんの煮付け",
+"zh-Hans": "酱莲藕",
+"zh-Hant": "醬蓮藕"
+},
+"오징어조림": {
+"en": "Braised Squid",
+"ja": "イカの煮付け",
+"zh-Hans": "红烧鱿鱼",
+"zh-Hant": "紅燒魷魚"
+},
+"우럭조림": {
+"en": "Braised Rockfish",
+"ja": "クロソイの煮付け",
+"zh-Hans": "炖石斑鱼",
+"zh-Hant": "燉石斑魚"
+},
+"우엉조림": {
+"en": "Braised Burdock Roots",
+"ja": "ごぼうの煮付け",
+"zh-Hans": "酱牛蒡",
+"zh-Hant": "醬牛蒡"
+},
+"은대구조림": {
+"en": "Braised Black Cod",
+"ja": "銀だらの煮付け",
+"zh-Hans": "炖银鳕鱼",
+"zh-Hant": "燉銀鱈魚"
+},
+"장조림": {
+"en": "Braised Beef in Soy Sauce",
+"ja": "肉の煮付け",
+"zh-Hans": "酱牛肉",
+"zh-Hant": "醬牛肉"
+},
+"조기조림": {
+"en": "Braised Yellow Croaker",
+"ja": "イシモチの煮付け",
+"zh-Hans": "炖黄花鱼",
+"zh-Hant": "燉黃花魚"
+},
+"코다리조림": {
+"en": "Braised Half-dried Pollack",
+"ja": "半干しスケトウダラの煮付け",
+"zh-Hans": "炖半干明太鱼",
+"zh-Hant": "燉半乾明太魚"
+},
+"콩조림": {
+"en": "Braised Beans",
+"ja": "豆の煮付け",
+"zh-Hans": "酱黄豆",
+"zh-Hant": "醬黃豆"
+},
+"풋고추조림": {
+"en": "Braised Green Chili Pepper",
+"ja": "青唐辛子の煮付け",
+"zh-Hans": "青椒炖菜",
+"zh-Hant": "燉青龍椒"
+},
+"가지나물": {
+"en": "Eggplant Salad",
+"ja": "なすのナムル",
+"zh-Hans": "凉拌茄子",
+"zh-Hant": "涼拌茄子"
+},
+"간편잡채": {
+"en": "Stir-fried Glass Noodles and Vegetables",
+"ja": "簡単チャプチェ",
+"zh-Hans": "简便什锦炒粉丝",
+"zh-Hant": "簡便什錦炒粉絲"
+},
+"고구마순나물": {
+"en": "Sweet Potato Stalk Salad",
+"ja": "さつまいもの茎のナムル",
+"zh-Hans": "凉拌红薯梗",
+"zh-Hant": "涼拌紅薯梗"
+},
+"고사리나물": {
+"en": "Bracken Salad",
+"ja": "ワラビのナムル",
+"zh-Hans": "凉拌蕨菜",
+"zh-Hant": "涼拌蕨菜"
+},
+"고춧잎나물": {
+"en": "Chili Pepper Leaf Salad",
+"ja": "唐辛子の葉のナムル",
+"zh-Hans": "凉拌辣椒叶",
+"zh-Hant": "涼拌辣椒葉"
+},
+"곤드레나물": {
+"en": "Thistle Salad",
+"ja": "コンドゥレナムル",
+"zh-Hans": "凉拌山蓟菜",
+"zh-Hant": "涼拌山薊菜"
+},
+"구절판": {
+"en": "Platter of Nine Delicacies",
+"ja": "クジョルパン",
+"zh-Hans": "九折坂",
+"zh-Hant": "九折坂"
+},
+"깻잎순무침": {
+"en": "Perilla Leaf Salad",
+"ja": "エゴマの葉の和え物",
+"zh-Hans": "凉拌苏子叶",
+"zh-Hant": "涼拌蘇子葉"
+},
+"나물": {
+"en": "Salad",
+"ja": "ナムル",
+"zh-Hans": "素菜",
+"zh-Hant": "素菜"
+},
+"냉이나물": {
+"en": "Shepherd's Purse Salad",
+"ja": "ナズナのナムル",
+"zh-Hans": "凉拌荠菜",
+"zh-Hant": "涼拌薺菜"
+},
+"대하냉채": {
+"en": "Chilled Prawn Salad",
+"ja": "大正海老の冷菜",
+"zh-Hans": "凉拌大虾",
+"zh-Hant": "涼拌大蝦"
+},
+"도라지나물": {
+"en": "Bellflower Root Salad",
+"ja": "桔梗の根のナムル",
+"zh-Hans": "凉拌桔梗",
+"zh-Hant": "涼拌桔梗"
+},
+"무나물": {
+"en": "Radish Salad",
+"ja": "大根のナムル",
+"zh-Hans": "凉拌萝卜丝",
+"zh-Hant": "涼拌蘿蔔絲"
+},
+"미나리나물": {
+"en": "Water Parsley Salad",
+"ja": "セリのナムル",
+"zh-Hans": "凉拌水芹",
+"zh-Hant": "涼拌水芹"
+},
+"미역초무침": {
+"en": "Sweet and Sour Seaweed Salad",
+"ja": "ワカメ酢の物",
+"zh-Hans": "醋拌海带",
+"zh-Hant": "醋拌海帶"
+},
+"비름나물": {
+"en": "Pigweed Salad",
+"ja": "ヒユのナムル",
+"zh-Hans": "凉拌苋菜",
+"zh-Hant": "涼拌莧菜"
+},
+"숙주나물": {
+"en": "Mung Bean Sprout Salad",
+"ja": "もやしのナムル",
+"zh-Hans": "凉拌绿豆芽",
+"zh-Hant": "涼拌綠豆芽"
+},
+"시금치나물": {
+"en": "Spinach Salad",
+"ja": "ほうれん草のナムル",
+"zh-Hans": "凉拌菠菜",
+"zh-Hant": "涼拌菠菜"
+},
+"시래기나물": {
+"en": "Dried Radish Leaf Salad",
+"ja": "干し菜っ葉のナムル",
+"zh-Hans": "凉拌干萝卜缨",
+"zh-Hant": "涼拌幹蘿蔔纓"
+},
+"쑥갓나물무침": {
+"en": "Crown Daisy Salad",
+"ja": "春菊のナムルの和え物",
+"zh-Hans": "凉拌茼蒿",
+"zh-Hant": "涼拌茼蒿"
+},
+"열무된장무침": {
+"en": "Young Radish Soybean Paste Salad",
+"ja": "大根の若菜のテンジャン和え",
+"zh-Hans": "凉拌大酱萝卜缨",
+"zh-Hant": "涼拌大醬蘿蔔纓辛奇"
+},
+"우엉잡채": {
+"en": "Stir-fried Glass Noodles and Vegetables with Burdock Root",
+"ja": "ゴボウチャプチェ",
+"zh-Hans": "牛蒡炒粉丝",
+"zh-Hant": "牛蒡什錦炒粉絲"
+},
+"잡채": {
+"en": "Stir-fried Glass Noodles and Vegetables",
+"ja": "チャプチェ",
+"zh-Hans": "什锦炒粉丝",
+"zh-Hant": "什錦拌粉絲"
+},
+"죽순채": {
+"en": "Seasoned Bamboo Shoots",
+"ja": "竹の子の炒め物",
+"zh-Hans": "竹笋菜",
+"zh-Hant": "竹筍菜"
+},
+"참나물": {
+"en": "Short-fruit Pimpinella Salad",
+"ja": "ヒカゲミツバゼリのナムル",
+"zh-Hans": "凉拌茴芹",
+"zh-Hant": "涼拌茴芹"
+},
+"취나물": {
+"en": "Aster Leaf Salad",
+"ja": "シラヤマギクのナムル",
+"zh-Hans": "凉拌东风菜",
+"zh-Hant": "涼拌東風菜"
+},
+"콩나물무침": {
+"en": "Bean Sprout Salad",
+"ja": "豆もやしの和え物",
+"zh-Hans": "凉拌豆芽",
+"zh-Hant": "涼拌豆芽"
+},
+"탕평채": {
+"en": "Mung Bean Jelly Salad",
+"ja": "ところてんの和え物",
+"zh-Hans": "荡平菜",
+"zh-Hant": "蕩平菜"
+},
+"골뱅이무침": {
+"en": "Spicy Sea Snails Salad",
+"ja": "つぶ貝の和え物",
+"zh-Hans": "凉拌海螺",
+"zh-Hant": "涼拌海螺"
+},
+"굴무침": {
+"en": "Oyster Salad",
+"ja": "カキの和え物",
+"zh-Hans": "凉拌牡蛎",
+"zh-Hant": "涼拌牡蠣"
+},
+"김무침": {
+"en": "Laver Salad",
+"ja": "のりの和え物",
+"zh-Hans": "凉拌紫菜",
+"zh-Hant": "涼拌紫菜"
+},
+"꼬막무침": {
+"en": "Cockle Salad",
+"ja": "ハイガイの和え物",
+"zh-Hans": "凉拌血蚶",
+"zh-Hant": "涼拌泥蚶"
+},
+"냉채족발": {
+"en": "Chilled Pig’s Feet Salad",
+"ja": "豚足冷菜",
+"zh-Hans": "凉拌酱猪蹄",
+"zh-Hant": "豬腳冷盤"
+},
+"노각무침": {
+"en": "Yellow Cucumber Salad",
+"ja": "老いキュウリの和え物",
+"zh-Hans": "凉拌老黄瓜",
+"zh-Hant": "涼拌老黃瓜"
+},
+"달래무침": {
+"en": "Wild Chive Salad",
+"ja": "ヒメニラの和え物",
+"zh-Hans": "凉拌山蒜",
+"zh-Hant": "涼拌山蒜"
+},
+"대구포무침": {
+"en": "Dried Codfish Fillet Salad",
+"ja": "干したらの和え物",
+"zh-Hans": "凉拌鳕鱼干",
+"zh-Hant": "涼拌鱈魚乾"
+},
+"더덕생채": {
+"en": "Deodeok Fresh Salad",
+"ja": "蔓人参の和え物",
+"zh-Hans": "生拌沙参",
+"zh-Hant": "生拌沙參"
+},
+"도라지생채": {
+"en": "Bellflower Root Fresh Salad",
+"ja": "桔梗の根の和え物",
+"zh-Hans": "生拌桔梗",
+"zh-Hant": "生拌桔梗"
+},
+"도토리묵": {
+"en": "Acorn Jelly Salad",
+"ja": "どんぐりこんにゃくの和え物",
+"zh-Hans": "橡子凉粉",
+"zh-Hant": "橡子涼粉"
+},
+"도토리묵무침": {
+"en": "Acorn Jelly Salad",
+"ja": "どんぐりこんにゃくの和え物",
+"zh-Hans": "橡子凉粉",
+"zh-Hant": "橡子涼粉"
+},
+"돌미나리무침": {
+"en": "Wild Parsley Salad",
+"ja": "野芹の和え物",
+"zh-Hans": "凉拌野生水芹",
+"zh-Hant": "涼拌野生水芹"
+},
+"두릅초회": {
+"en": "Parboiled Fatsia Shoot",
+"ja": "タラの芽酢の物",
+"zh-Hans": "白灼刺嫩芽",
+"zh-Hant": "白灼刺嫩芽"
+},
+"마늘종무침": {
+"en": "Spicy Garlic Stem Salad",
+"ja": "にんにくの茎の和え物",
+"zh-Hans": "凉拌蒜薹",
+"zh-Hant": "涼拌蒜薹"
+},
+"메밀무침": {
+"en": "Buckwheat Leaf Salad",
+"ja": "そばの和え物",
+"zh-Hans": "凉拌荞麦叶",
+"zh-Hant": "涼拌蕎麥葉"
+},
+"메밀묵무침": {
+"en": "Buckwheat Jelly Salad",
+"ja": "そば粉こんにゃくの和え物",
+"zh-Hans": "荞麦凉粉",
+"zh-Hant": "蕎麥涼粉"
+},
+"무말랭이무침": {
+"en": "Dried Radish Salad",
+"ja": "干し大根の和え物",
+"zh-Hans": "凉拌萝卜干",
+"zh-Hant": "涼拌蘿蔔乾"
+},
+"무말이강회": {
+"en": "Vegetables and Meat Wrapped in Radish Slices",
+"ja": "大根巻き",
+"zh-Hans": "萝卜片什锦卷",
+"zh-Hant": "蘿蔔片蔬菜捲"
+},
+"무생채": {
+"en": "Julienne Radish Fresh Salad",
+"ja": "大根の和え物",
+"zh-Hans": "生拌萝卜丝",
+"zh-Hant": "生拌蘿蔔絲"
+},
+"부추무침": {
+"en": "Chive Salad",
+"ja": "ニラの和え物",
+"zh-Hans": "凉拌韭菜",
+"zh-Hant": "涼拌韭菜"
+},
+"북어채무침": {
+"en": "Dried Pollack Strip Salad",
+"ja": "干しスケトウダラの和え物",
+"zh-Hans": "凉拌干明太鱼丝",
+"zh-Hant": "涼拌幹明太魚絲"
+},
+"상추겉절이": {
+"en": "Fresh Lettuce Kimchi",
+"ja": "サンチュの和え物",
+"zh-Hans": "鲜辣生菜",
+"zh-Hant": "鮮辣生菜"
+},
+"영양부추겉절이": {
+"en": "Fresh Chive Kimchi",
+"ja": "浅漬けニラ",
+"zh-Hans": "鲜辣韭菜",
+"zh-Hant": "鮮辣韭菜"
+},
+"오이냉채": {
+"en": "Chilled Cucumber Salad",
+"ja": "きゅうり冷菜",
+"zh-Hans": "凉拌黄瓜",
+"zh-Hant": "小黃瓜冷盤"
+},
+"오이무침": {
+"en": "Cucumber Salad",
+"ja": "キュウリの和え物",
+"zh-Hans": "凉拌黄瓜",
+"zh-Hant": "涼拌黃瓜"
+},
+"오이미역초무침": {
+"en": "Sweet and Sour Seaweed Cucumber Salad",
+"ja": "キュウリとワカメの酢の物",
+"zh-Hans": "醋拌黄瓜海带",
+"zh-Hant": "醋拌黃瓜海帶"
+},
+"오이지무침": {
+"en": "Pickled Cucumber Salad",
+"ja": "キュウリの漬物の和え物",
+"zh-Hans": "凉拌腌黄瓜",
+"zh-Hant": "涼拌醃黃瓜"
+},
+"오징어강회": {
+"en": "Squid Wrapped with Chives (or Water Parsley)",
+"ja": "イカのわけぎ巻き",
+"zh-Hans": "鱿鱼什锦卷",
+"zh-Hant": "魷魚什錦卷"
+},
+"오징어무침": {
+"en": "Squid Salad",
+"ja": "イカの和え物",
+"zh-Hans": "凉拌鱿鱼",
+"zh-Hant": "涼拌魷魚"
+},
+"오징어초무침": {
+"en": "Sweet and Sour Squid Salad",
+"ja": "イカ酢の物",
+"zh-Hans": "醋拌鱿鱼",
+"zh-Hant": "醋拌魷魚"
+},
+"올챙이묵": {
+"en": "Corn Starch Noodles",
+"ja": "とうもろこし麺",
+"zh-Hans": "蝌蚪玉米凉粉",
+"zh-Hant": "蝌蚪玉米涼粉"
+},
+"우렁초무침": {
+"en": "Freshwater Snail Salad with Vinegar Dressing",
+"ja": "タニシの酢の物",
+"zh-Hans": "酸辣凉拌田螺",
+"zh-Hant": "醋拌田螺"
+},
+"청포묵무침": {
+"en": "Mung Bean Jelly Salad",
+"ja": "緑豆こんにゃくの和え物",
+"zh-Hans": "绿豆凉粉",
+"zh-Hant": "綠豆涼粉"
+},
+"파강회": {
+"en": "Meat Wrapped with Chives",
+"ja": "わけぎ巻き",
+"zh-Hans": "葱什锦卷",
+"zh-Hant": "蔥什錦捲"
+},
+"파래무침": {
+"en": "Green Laver Salad",
+"ja": "青海苔の和え物",
+"zh-Hans": "凉拌海青菜",
+"zh-Hant": "涼拌海青菜"
+},
+"파무침": {
+"en": "Green Onion Salad",
+"ja": "ねぎの和え物",
+"zh-Hans": "凉拌葱丝",
+"zh-Hant": "涼拌蔥絲"
+},
+"해파리냉채": {
+"en": "Chilled Jellyfish Salad",
+"ja": "クラゲの冷菜",
+"zh-Hans": "凉拌海蜇",
+"zh-Hant": "涼拌海蜇"
+},
+"갈낙전골": {
+"en": "Short Rib and Octopus Hot Pot",
+"ja": "カルビとテナガダコの寄せ鍋",
+"zh-Hans": "排骨章鱼火锅",
+"zh-Hant": "排骨章魚火鍋"
+},
+"곱창전골": {
+"en": "Beef Tripe Hot Pot",
+"ja": "コプチャンの寄せ鍋",
+"zh-Hans": "肥肠火锅",
+"zh-Hant": "肥腸火鍋"
+},
+"국수전골": {
+"en": "Noodle Hot Pot",
+"ja": "麺の寄せ鍋",
+"zh-Hans": "面条火锅",
+"zh-Hant": "麵條火鍋"
+},
+"김치전골": {
+"en": "Kimchi Hot Pot",
+"ja": "キムチの寄せ鍋",
+"zh-Hans": "辛奇火锅",
+"zh-Hant": "辛奇火鍋"
+},
+"낙지곱창새우전골": {
+"en": "Octopus, Shrimp, and Beef Tripe Hot Pot",
+"ja": "テナガダコとコプチャンとエビの寄せ鍋",
+"zh-Hans": "章鱼肥肠虾仁火锅",
+"zh-Hant": "章魚小腸蝦仁火鍋"
+},
+"낙지전골": {
+"en": "Octopus Hot Pot",
+"ja": "テナガダコの寄せ鍋",
+"zh-Hans": "章鱼火锅",
+"zh-Hant": "章魚火鍋"
+},
+"닭한마리": {
+"en": "Whole Chicken Stew",
+"ja": "丸鶏の寄せ鍋",
+"zh-Hans": "全鸡火锅",
+"zh-Hant": "全雞火鍋"
+},
+"두부전골": {
+"en": "Bean Curd Hot Pot",
+"ja": "豆腐の寄せ鍋",
+"zh-Hans": "豆腐火锅",
+"zh-Hant": "豆腐火鍋"
+},
+"만두전골": {
+"en": "Dumpling Hot Pot",
+"ja": "餃子の寄せ鍋",
+"zh-Hans": "饺子火锅",
+"zh-Hant": "餃子火鍋"
+},
+"버섯전골": {
+"en": "Mushroom Hot Pot",
+"ja": "きのこの寄せ鍋",
+"zh-Hans": "蘑菇火锅",
+"zh-Hant": "蘑菇火鍋"
+},
+"불낙전골": {
+"en": "Bulgogi and Octopus Hot Pot",
+"ja": "牛肉とテナガダコの寄せ鍋",
+"zh-Hans": "烤牛肉章鱼火锅",
+"zh-Hant": "烤牛肉章魚火鍋"
+},
+"소고기국수전골": {
+"en": "Beef and Noodle Hot Pot",
+"ja": "牛肉と素麺の寄せ鍋",
+"zh-Hans": "牛肉面条火锅",
+"zh-Hant": "牛肉麵條火鍋"
+},
+"소고기버섯전골": {
+"en": "Beef and Mushroom Hot Pot",
+"ja": "牛肉ときのこの寄せ鍋",
+"zh-Hans": "牛肉蘑菇火锅",
+"zh-Hant": "牛肉蘑菇火鍋"
+},
+"소고기전골": {
+"en": "Beef Hot Pot",
+"ja": "牛肉の寄せ鍋",
+"zh-Hans": "牛肉火锅",
+"zh-Hant": "牛肉火鍋"
+},
+"순두부전골": {
+"en": "Soft Bean Curd Hot Pot",
+"ja": "スンドゥブの寄せ鍋",
+"zh-Hans": "嫩豆腐火锅",
+"zh-Hant": "嫩豆腐火鍋"
+},
+"신선로": {
+"en": "Royal Hot Pot",
+"ja": "宮中鍋",
+"zh-Hans": "神仙炉",
+"zh-Hant": "神仙爐"
+},
+"해물낙지전골": {
+"en": "Seafood and Octopus Hot Pot",
+"ja": "海鮮とテナガダコの寄せ鍋",
+"zh-Hans": "海鲜章鱼火锅",
+"zh-Hant": "海鮮章魚火鍋"
+},
+"송이산적": {
+"en": "Pine Mushroom Skewers",
+"ja": "松茸の串焼き",
+"zh-Hans": "松茸烤串",
+"zh-Hant": "松茸烤串"
+},
+"화양적": {
+"en": "Beef and Vegetable Skewers",
+"ja": "彩り串焼き",
+"zh-Hans": "华阳串",
+"zh-Hant": "華陽串"
+},
+"가리비구이": {
+"en": "Grilled Scallops",
+"ja": "ホタテの貝焼き",
+"zh-Hans": "烤扇贝",
+"zh-Hant": "烤扇貝"
+},
+"가자미구이": {
+"en": "Grilled Plaice",
+"ja": "カレイ焼き",
+"zh-Hans": "烤鲽鱼",
+"zh-Hant": "烤鰈魚"
+},
+"갈치구이": {
+"en": "Grilled Cutlassfish",
+"ja": "太刀魚焼き",
+"zh-Hans": "烤带鱼",
+"zh-Hant": "烤帶魚"
+},
+"고등어구이": {
+"en": "Grilled Mackerel",
+"ja": "サバの塩焼き",
+"zh-Hans": "烤青花鱼",
+"zh-Hant": "烤青花魚"
+},
+"고추장불고기": {
+"en": "Red Chili Paste Bulgogi",
+"ja": "コチュジャンプルゴギ",
+"zh-Hans": "辣椒酱烤牛肉",
+"zh-Hant": "辣椒醬烤牛肉"
+},
+"고추장삼겹살": {
+"en": "Red Chili Paste Pork Belly",
+"ja": "コチュジャンサムギョプサル",
+"zh-Hans": "辣椒酱烤五花肉",
+"zh-Hant": "辣椒醬烤五花肉"
+},
+"곰장어구이": {
+"en": "Grilled Sea Eel",
+"ja": "ヌタウナギ焼き",
+"zh-Hans": "烤盲鳗",
+"zh-Hant": "烤盲鰻"
+},
+"곱창구이": {
+"en": "Grilled Beef TripeGrilled Pork Tripe",
+"ja": "コプチャン焼き",
+"zh-Hans": "烤肥肠",
+"zh-Hant": "烤肥腸"
+},
+"광양불고기": {
+"en": "Gwangyang Bulgogi",
+"ja": "クァンヤンプルゴギ",
+"zh-Hans": "光阳烤牛肉",
+"zh-Hant": "光陽烤牛肉"
+},
+"굴비구이": {
+"en": "Grilled Dried Yellow Croaker",
+"ja": "干しイシモチ焼き",
+"zh-Hans": "烤半干黄花鱼",
+"zh-Hant": "烤半幹黃花魚"
+},
+"김": {
+"en": "Laver",
+"ja": "のり",
+"zh-Hans": "海苔",
+"zh-Hant": "紫菜"
+},
+"꼬치구이": {
+"en": "Grilled Skewers",
+"ja": "串焼き",
+"zh-Hans": "烤串",
+"zh-Hant": "烤串"
+},
+"꽁치구이": {
+"en": "Grilled Saury",
+"ja": "サンマ焼き",
+"zh-Hans": "烤秋刀鱼",
+"zh-Hant": "烤秋刀魚"
+},
+"낙지호롱": {
+"en": "Grilled Whole Octopus",
+"ja": "テナガダコの丸焼き",
+"zh-Hans": "章鱼串",
+"zh-Hant": "章魚串"
+},
+"너비아니": {
+"en": "Marinated Grilled Beef Slices",
+"ja": "宮中焼き肉",
+"zh-Hans": "宫廷烤牛肉",
+"zh-Hant": "宮廷烤牛肉"
+},
+"닭꼬치구이": {
+"en": "Chicken Skewers",
+"ja": "焼き鳥",
+"zh-Hans": "烤鸡肉串",
+"zh-Hant": "烤雞肉串"
+},
+"대창구이": {
+"en": "Grilled Beef Large Intestine",
+"ja": "牛大腸焼き",
+"zh-Hans": "烤牛大肠",
+"zh-Hant": "烤牛大腸"
+},
+"대패삼겹살": {
+"en": "Grilled Thin-sliced Pork Belly",
+"ja": "薄切りサムギョプサル",
+"zh-Hans": "薄切五花肉",
+"zh-Hant": "薄切五花肉"
+},
+"대하구이": {
+"en": "Grilled Prawn",
+"ja": "大正海老焼き",
+"zh-Hans": "烤大虾",
+"zh-Hant": "烤大蝦"
+},
+"대합구이": {
+"en": "Grilled Hard Clams",
+"ja": "ハマグリ焼き",
+"zh-Hans": "烤文蛤",
+"zh-Hant": "烤文蛤"
+},
+"더덕구이": {
+"en": "Grilled Deodeok",
+"ja": "蔓人蔘焼き",
+"zh-Hans": "烤沙参",
+"zh-Hant": "烤沙蔘"
+},
+"도루묵구이": {
+"en": "Grilled Sailfin Sandfish",
+"ja": "ハタハタ焼き",
+"zh-Hans": "烤银鱼",
+"zh-Hant": "烤銀魚"
+},
+"도리뱅뱅": {
+"en": "Spicy Braised Freshwater Sprats",
+"ja": "揚げ出しオイカワの煮物",
+"zh-Hans": "炖炸白糯鱼",
+"zh-Hant": "燉炸白糯魚"
+},
+"도미구이": {
+"en": "Grilled Sea Bream",
+"ja": "鯛焼き",
+"zh-Hans": "烤鲷鱼",
+"zh-Hant": "烤鯛魚"
+},
+"돼지갈비구이": {
+"en": "Grilled Spareribs",
+"ja": "豚カルビ焼き",
+"zh-Hans": "烤猪排",
+"zh-Hant": "烤豬排"
+},
+"돼지막창구이": {
+"en": "Grilled Pork Intestine",
+"ja": "豚てっぽう焼き",
+"zh-Hans": "烤猪肠头",
+"zh-Hant": "烤豬腸頭"
+},
+"등갈비구이": {
+"en": "Grilled Back Ribs",
+"ja": "バックリプ焼き",
+"zh-Hans": "烤脊排",
+"zh-Hant": "烤脊排"
+},
+"등심구이": {
+"en": "Grilled Sirloin",
+"ja": "ロース焼き",
+"zh-Hans": "烤外脊",
+"zh-Hant": "烤外脊"
+},
+"떡갈비": {
+"en": "Grilled Short Rib Patties",
+"ja": "粗挽きカルビ焼き",
+"zh-Hans": "牛肉饼",
+"zh-Hant": "牛肉餅"
+},
+"막창구이": {
+"en": "Grilled Beef Reed Tripe",
+"ja": "ギアラ焼き",
+"zh-Hans": "烤牛胃",
+"zh-Hant": "烤牛胃"
+},
+"매운족발": {
+"en": "Spicy Braised Pigs' Feet",
+"ja": "辛味豚足",
+"zh-Hans": "香辣猪蹄",
+"zh-Hant": "香辣豬蹄"
+},
+"모던불고기": {
+"en": "Modern Bulgogi",
+"ja": "モダンプルゴギ",
+"zh-Hans": "现代式烤牛肉",
+"zh-Hant": "現代式烤牛肉"
+},
+"목살구이": {
+"en": "Grilled Pork Neck",
+"ja": "豚の肩ロース焼き",
+"zh-Hans": "烤猪颈肉",
+"zh-Hant": "烤豬肩肉"
+},
+"바싹불고기": {
+"en": "Thin-sliced Bulgogi",
+"ja": "直火プルゴギ",
+"zh-Hans": "酥烤牛肉",
+"zh-Hant": "酥烤牛肉"
+},
+"병어구이": {
+"en": "Grilled Pomfret",
+"ja": "マナガツオ焼き",
+"zh-Hans": "烤平鱼",
+"zh-Hant": "烤平魚"
+},
+"보리굴비": {
+"en": "Barley-aged Dried Yellow Croaker",
+"ja": "麦熟成の干しイシモチ",
+"zh-Hans": "大麦干黄花鱼",
+"zh-Hant": "大麥乾黃花魚"
+},
+"복불고기": {
+"en": "Puffer Fish Bulgogi",
+"ja": "ふぐプルゴギ",
+"zh-Hans": "炒河豚",
+"zh-Hant": "炒河豚"
+},
+"북어구이": {
+"en": "Grilled Dried Pollack",
+"ja": "干しスケトウダラ焼き",
+"zh-Hans": "烤干明太鱼",
+"zh-Hant": "烤乾明太魚"
+},
+"불고기": {
+"en": "Bulgogi",
+"ja": "プルゴギ",
+"zh-Hans": "烤牛肉",
+"zh-Hant": "烤牛肉"
+},
+"삼겹살": {
+"en": "Grilled Pork Belly",
+"ja": "サムギョプサル",
+"zh-Hans": "烤五花肉",
+"zh-Hant": "烤五花肉"
+},
+"삼치구이": {
+"en": "Grilled Spotted Mackerel",
+"ja": "サワラ焼き",
+"zh-Hans": "烤鲅鱼",
+"zh-Hant": "烤鮁魚"
+},
+"새우구이": {
+"en": "Grilled Shrimp",
+"ja": "海老の塩焼き",
+"zh-Hans": "烤虾",
+"zh-Hant": "烤蝦"
+},
+"생선구이": {
+"en": "Grilled Fish",
+"ja": "焼き魚",
+"zh-Hans": "烤鱼",
+"zh-Hant": "烤魚"
+},
+"생선양념구이": {
+"en": "Seasoned Grilled Fish",
+"ja": "魚のコチュジャン焼き",
+"zh-Hans": "辣酱烤鱼",
+"zh-Hant": "調味炒魚肉"
+},
+"석쇠돼지불고기": {
+"en": "Grilled Pork Bulgogi",
+"ja": "豚肉プルゴギ網焼き",
+"zh-Hans": "烧烤猪肉",
+"zh-Hant": "燒烤豬肉"
+},
+"소갈비구이": {
+"en": "Grilled Beef Ribs",
+"ja": "牛カルビ焼き",
+"zh-Hans": "烤牛排",
+"zh-Hant": "烤牛排"
+},
+"소고기구이": {
+"en": "Grilled Beef",
+"ja": "牛肉焼き",
+"zh-Hans": "烤牛肉",
+"zh-Hant": "烤牛肉"
+},
+"소고기편채": {
+"en": "Sliced Beef with Vegetables",
+"ja": "牛ロースの薄切り",
+"zh-Hans": "肉片菜丝",
+"zh-Hant": "肉片菜絲"
+},
+"소곱창구이": {
+"en": "Grilled Beef Small Intestine",
+"ja": "牛コプチャン焼き",
+"zh-Hans": "烤牛肠",
+"zh-Hant": "烤牛腸"
+},
+"소시지떡꼬치": {
+"en": "Sausage and Rice Cake Skewers",
+"ja": "ソーセージとお餅の串し焼き",
+"zh-Hans": "烤香肠年糕串",
+"zh-Hant": "烤香腸年糕串"
+},
+"솥뚜껑삼겹살": {
+"en": "Caldron Lid-grilled Pork Belly",
+"ja": "釜のふたサムギョプサル",
+"zh-Hans": "锅盖烤五花肉",
+"zh-Hant": "鍋蓋烤五花肉"
+},
+"숯불닭갈비": {
+"en": "Spicy Charcoal-grilled Chicken",
+"ja": "炭火タッカルビ",
+"zh-Hans": "炭烤鸡块",
+"zh-Hant": "炭烤雞塊"
+},
+"숯불삼겹살": {
+"en": "Charcoal-grilled Pork Belly",
+"ja": "炭火サムギョプサル",
+"zh-Hans": "炭烤五花肉",
+"zh-Hant": "炭烤五花肉"
+},
+"양곱창구이": {
+"en": "Grilled Beef Tripe",
+"ja": "牛ミノ焼き",
+"zh-Hans": "烤牛胃",
+"zh-Hant": "烤牛胃"
+},
+"양념갈비": {
+"en": "Marinated Grilled Beef RibsMarinated Grilled Pork Ribs",
+"ja": "味付けカルビ",
+"zh-Hans": "调味排骨",
+"zh-Hant": "調味排骨"
+},
+"양념장어구이": {
+"en": "Grilled Seasoned Eel",
+"ja": "味付けウナギ焼き",
+"zh-Hans": "调味烤鳗鱼",
+"zh-Hant": "調味烤鰻魚"
+},
+"언양불고기": {
+"en": "Eonyang Bulgogi",
+"ja": "オンヤンプルゴギ",
+"zh-Hans": "彦阳烤牛肉",
+"zh-Hant": "彥陽烤牛肉"
+},
+"오리구이": {
+"en": "Grilled Duck",
+"ja": "鴨肉焼き",
+"zh-Hans": "烤鸭肉",
+"zh-Hant": "烤鴨肉"
+},
+"오리로스": {
+"en": "Grilled Duck",
+"ja": "鴨肉ロース",
+"zh-Hans": "烤鸭肉",
+"zh-Hant": "烤鴨肉"
+},
+"오리불고기": {
+"en": "Duck Bulgogi",
+"ja": "鴨肉プルゴギ",
+"zh-Hans": "烤鸭肉",
+"zh-Hant": "烤鴨肉"
+},
+"오징어구이": {
+"en": "Grilled Squid",
+"ja": "イカ焼き",
+"zh-Hans": "烤鱿鱼",
+"zh-Hant": "烤魷魚"
+},
+"오징어불고기": {
+"en": "Squid Bulgogi",
+"ja": "イカのプルゴギ",
+"zh-Hans": "烤鱿鱼",
+"zh-Hant": "烤魷魚"
+},
+"옥돔구이": {
+"en": "Grilled Red Tilefish",
+"ja": "アマダイ焼き",
+"zh-Hans": "烤马头鱼",
+"zh-Hant": "烤馬頭魚"
+},
+"은어구이": {
+"en": "Grilled Sweetfish",
+"ja": "鮎焼き",
+"zh-Hans": "烤香鱼",
+"zh-Hant": "烤香魚"
+},
+"임연수구이": {
+"en": "Grilled Greenling Fish",
+"ja": "ホッケ焼き",
+"zh-Hans": "烤多线鱼",
+"zh-Hant": "烤多線魚"
+},
+"장어구이": {
+"en": "Grilled Eel",
+"ja": "ウナギ焼き",
+"zh-Hans": "烤鳗鱼",
+"zh-Hant": "烤鳗魚"
+},
+"장작구이통닭": {
+"en": "Wood-grilled Chicken",
+"ja": "丸鶏の薪焼き",
+"zh-Hans": "柴烤全鸡",
+"zh-Hant": "柴烤全雞"
+},
+"전복구이": {
+"en": "Grilled Abalone",
+"ja": "アワビ焼き",
+"zh-Hans": "烤鲍鱼",
+"zh-Hant": "烤鮑魚"
+},
+"전어구이": {
+"en": "Grilled Gizzard Shad",
+"ja": "コノシロ焼き",
+"zh-Hans": "烤斑鰶",
+"zh-Hant": "烤斑鰶"
+},
+"조개구이": {
+"en": "Grilled Clams",
+"ja": "貝焼き",
+"zh-Hans": "烤贝壳",
+"zh-Hant": "烤貝殼"
+},
+"조기구이": {
+"en": "Pan-fried Yellow Corvina",
+"ja": "焼きイシモチ",
+"zh-Hans": "烤黄花鱼",
+"zh-Hant": "烤黃花魚"
+},
+"주꾸미삼겹살불고기": {
+"en": "Webfoot Octopus and Pork Belly Bulgogi",
+"ja": "イイダコとサムギョプサルのプルゴギ",
+"zh-Hans": "小章鱼炒五花肉",
+"zh-Hant": "小章魚烤五花肉"
+},
+"차돌박이구이": {
+"en": "Grilled Beef Brisket",
+"ja": "牛のともばら肉焼き",
+"zh-Hans": "烤牛胸肉",
+"zh-Hant": "烤牛胸肉"
+},
+"코다리구이": {
+"en": "Grilled Half-dried Pollack",
+"ja": "半干しスケトウダラ焼き",
+"zh-Hans": "烤半干明太鱼",
+"zh-Hant": "烤半乾明太魚"
+},
+"황태구이": {
+"en": "Grilled Dried Pollack",
+"ja": "スケトウダラ焼き",
+"zh-Hans": "烤干明太鱼",
+"zh-Hant": "烤乾明太魚"
+},
+"훈제삼겹살": {
+"en": "Smoked Pork Belly",
+"ja": "燻製サムギョプサル",
+"zh-Hans": "烟熏五花肉",
+"zh-Hant": "煙燻五花肉"
+},
+"훈제오리": {
+"en": "Smoked Duck",
+"ja": "鴨の燻製",
+"zh-Hans": "烟熏鸭肉",
+"zh-Hant": "煙熏鴨肉"
+},
+"LA갈비": {
+"en": "Marinated Grilled Ribs",
+"ja": "LAカルビ",
+"zh-Hans": "LA排骨",
+"zh-Hant": "LA排骨"
+},
+"간장": {
+"en": "Soy Sauce",
+"ja": "カンジャン",
+"zh-Hans": "酱油",
+"zh-Hant": "醬油"
+},
+"감식초": {
+"en": "Persimmon Vinegar",
+"ja": "柿酢",
+"zh-Hans": "柿子醋",
+"zh-Hant": "柿子醋"
+},
+"고추장": {
+"en": "Red Chili Paste",
+"ja": "コチュジャン",
+"zh-Hans": "辣椒酱",
+"zh-Hant": "辣椒醬"
+},
+"깻묵장": {
+"en": "Sauce Made from Sesame Dregs and Boiled and Fermented Soybeans",
+"ja": "油粕醤",
+"zh-Hans": "油渣酱",
+"zh-Hant": "油渣醬"
+},
+"담북장": {
+"en": "Quick-fermented Soybean Paste",
+"ja": "淡北醤",
+"zh-Hans": "淡水酱",
+"zh-Hant": "淡水醬"
+},
+"된장": {
+"en": "Soybean Paste",
+"ja": "テンジャン",
+"zh-Hans": "大酱",
+"zh-Hant": "大醬"
+},
+"막장": {
+"en": "Fermented Soybean Paste with Red Chili Powder",
+"ja": "マクチャン",
+"zh-Hans": "剁椒豆酱",
+"zh-Hant": "剁椒豆醬"
+},
+"볶음고추장": {
+"en": "Stir-fried Red Chili Paste",
+"ja": "炒めコチュジャン",
+"zh-Hans": "炒辣椒酱",
+"zh-Hant": "炒辣椒醬"
+},
+"쌈장": {
+"en": "Red Chili and Soybean Paste",
+"ja": "サムジャン",
+"zh-Hans": "包饭酱",
+"zh-Hant": "包飯醬"
+},
+"양념간장": {
+"en": "Spicy Soy Sauce",
+"ja": "醤油だれ",
+"zh-Hans": "调味酱油",
+"zh-Hant": "調味醬油"
+},
+"어간장": {
+"en": "Fish Soy Sauce",
+"ja": "魚醤",
+"zh-Hans": "鱼酱油",
+"zh-Hant": "魚醬油"
+},
+"집장": {
+"en": "Seasoned Soybean Paste",
+"ja": "チプ醤",
+"zh-Hans": "发酵大酱",
+"zh-Hant": "菜醬"
+},
+"초간장": {
+"en": "Vinegar Soy Sauce",
+"ja": "チョガンジャン",
+"zh-Hans": "酱油醋",
+"zh-Hant": "醬油醋"
+},
+"초고추장": {
+"en": "Sweet and Sour Red Chili Paste",
+"ja": "チョゴチュジャン",
+"zh-Hans": "糖醋辣酱",
+"zh-Hant": "糖醋辣醬"
+},
+"가죽장아찌": {
+"en": "Pickled Red Toon Shoot",
+"ja": "チャンチンの若芽の漬物",
+"zh-Hans": "椿芽酱菜",
+"zh-Hant": "椿芽醬菜"
+},
+"간장게장": {
+"en": "Soy Sauce Marinated Crab",
+"ja": "カンジャンケジャン",
+"zh-Hans": "酱生蟹",
+"zh-Hant": "醬生蟹"
+},
+"고추장아찌": {
+"en": "Pickled Chili Peppers",
+"ja": "唐辛子の漬物",
+"zh-Hans": "辣椒酱菜",
+"zh-Hant": "辣椒醬菜"
+},
+"김장아찌": {
+"en": "Pickled Laver",
+"ja": "のりの漬物",
+"zh-Hans": "紫菜酱菜",
+"zh-Hant": "紫菜醬菜"
+},
+"깻잎지": {
+"en": "Pickled Perilla Leaf",
+"ja": "エゴマの葉の漬物",
+"zh-Hans": "苏子叶酱菜",
+"zh-Hant": "蘇子葉醬菜"
+},
+"노각장아찌": {
+"en": "Pickled Yellow Cucumber",
+"ja": "老いキュウリの漬物",
+"zh-Hans": "老黄瓜酱菜",
+"zh-Hant": "老黃瓜醬菜"
+},
+"더덕장아찌": {
+"en": "Pickled Deodeok",
+"ja": "蔓人参の漬物",
+"zh-Hans": "沙参酱菜",
+"zh-Hant": "沙參醬菜"
+},
+"두릅장아찌": {
+"en": "Pickled Fastia Shoot",
+"ja": "タラの芽の漬物",
+"zh-Hans": "刺嫩芽酱菜",
+"zh-Hant": "刺嫩芽醬菜"
+},
+"마늘장아찌": {
+"en": "Pickled Garlic",
+"ja": "にんにくの漬物",
+"zh-Hans": "大蒜酱菜",
+"zh-Hant": "大蒜醬菜"
+},
+"마늘종장아찌": {
+"en": "Pickled Garlic Stem",
+"ja": "にんにくの茎の漬物",
+"zh-Hans": "蒜薹酱菜",
+"zh-Hant": "蒜薹醬菜"
+},
+"매실장아찌": {
+"en": "Pickled Green Plum",
+"ja": "梅の漬物",
+"zh-Hans": "青梅酱菜",
+"zh-Hant": "青梅醬菜"
+},
+"명이나물장아찌": {
+"en": "Pickled Victory Onion",
+"ja": "行者にんにくの葉の漬物",
+"zh-Hans": "茖葱叶酱菜",
+"zh-Hant": "茖蔥葉醬菜"
+},
+"무말랭이장아찌": {
+"en": "Pickled Dried Radish",
+"ja": "干し大根の漬物",
+"zh-Hans": "萝卜干酱菜",
+"zh-Hant": "蘿蔔幹醬菜"
+},
+"무장아찌": {
+"en": "Pickled Radish",
+"ja": "大根の漬物",
+"zh-Hans": "萝卜酱菜",
+"zh-Hant": "蘿蔔醬菜"
+},
+"버섯장아찌": {
+"en": "Pickled Mushrooms",
+"ja": "きのこの醤油漬け",
+"zh-Hans": "蘑菇酱菜",
+"zh-Hant": "蘑菇醬菜"
+},
+"새우장": {
+"en": "Soy Sauce Marinated Shrimp",
+"ja": "カンジャンセウ",
+"zh-Hans": "酱生虾",
+"zh-Hant": "醬生蝦"
+},
+"양념게장": {
+"en": "Spicy Marinated Crab",
+"ja": "味付けケジャン",
+"zh-Hans": "鲜辣生蟹",
+"zh-Hant": "鮮辣生蟹"
+},
+"양파장아찌": {
+"en": "Pickled Onion",
+"ja": "玉ねぎの漬物",
+"zh-Hans": "洋葱酱菜",
+"zh-Hant": "洋蔥醬菜"
+},
+"오이지": {
+"en": "Pickled Cucumber",
+"ja": "キュウリの漬物",
+"zh-Hans": "腌黄瓜",
+"zh-Hant": "醃黃瓜"
+},
+"장아찌": {
+"en": "Pickled Vegetables",
+"ja": "漬物",
+"zh-Hans": "酱菜",
+"zh-Hant": "醬菜"
+},
+"죽순장아찌": {
+"en": "Pickled Bamboo Shoot",
+"ja": "竹の子の漬物",
+"zh-Hans": "竹笋酱菜",
+"zh-Hant": "竹筍醬菜"
+},
+"참외장아찌": {
+"en": "Pickled Oriental Melons",
+"ja": "マクワウリの漬物",
+"zh-Hans": "甜瓜酱菜",
+"zh-Hant": "甜瓜醬菜"
+},
+"콩잎장아찌": {
+"en": "Pickled Bean Leaf",
+"ja": "豆の葉の漬物",
+"zh-Hans": "豆叶酱菜",
+"zh-Hant": "豆葉醬菜"
+},
+"가자미전": {
+"en": "Pan-fried Battered Plaice",
+"ja": "カレイのチヂミ",
+"zh-Hans": "香煎鲽鱼片",
+"zh-Hant": "香煎鰈魚片"
+},
+"감자전": {
+"en": "Potato Pancake",
+"ja": "じゃがいものチヂミ",
+"zh-Hans": "土豆煎饼",
+"zh-Hant": "土豆煎餅"
+},
+"계란말이": {
+"en": "Rolled Omelet",
+"ja": "卵焼き",
+"zh-Hans": "鸡蛋卷",
+"zh-Hant": "雞蛋捲"
+},
+"고구마튀김": {
+"en": "Deep-fried Sweet Potatoes",
+"ja": "さつまいも天ぷら",
+"zh-Hans": "炸红薯",
+"zh-Hant": "炸紅薯"
+},
+"고추부각": {
+"en": "Chili Pepper Chips",
+"ja": "唐辛子のパリパリ揚げ",
+"zh-Hans": "干炸辣椒片",
+"zh-Hant": "乾炸辣椒片"
+},
+"고추전": {
+"en": "Pan-fried Battered Chili Pepper",
+"ja": "青唐辛子のチヂミ",
+"zh-Hans": "香煎尖椒",
+"zh-Hant": "香煎尖椒"
+},
+"굴전": {
+"en": "Pan-fried Battered Oyster",
+"ja": "カキのチヂミ",
+"zh-Hans": "香煎牡蛎",
+"zh-Hant": "香煎牡蠣"
+},
+"김말이튀김": {
+"en": "Deep-fried Laver Roll",
+"ja": "春雨のり巻き天ぷら",
+"zh-Hans": "炸紫菜卷",
+"zh-Hant": "炸紫菜捲"
+},
+"김부각": {
+"en": "Laver Chips",
+"ja": "のりのパリパリ揚げ",
+"zh-Hans": "干炸紫菜片",
+"zh-Hant": "乾炸紫菜片"
+},
+"김치빈대떡": {
+"en": "Kimchi and Mung Bean Pancake",
+"ja": "キムチのピンデトク",
+"zh-Hans": "辛奇绿豆煎饼",
+"zh-Hant": "辛奇綠豆煎餅"
+},
+"김치전": {
+"en": "Kimchi Pancake",
+"ja": "キムチのチヂミ",
+"zh-Hans": "辛奇煎饼",
+"zh-Hant": "辛奇煎餅"
+},
+"깻잎전": {
+"en": "Pan-fried Battered Perilla Leaves",
+"ja": "エゴマの葉のチヂミ",
+"zh-Hans": "香煎苏子叶",
+"zh-Hant": "香煎蘇子葉"
+},
+"꼬막전": {
+"en": "Pan-fried Battered Cockles",
+"ja": "ハイガイのチヂミ",
+"zh-Hans": "香煎血蚶",
+"zh-Hant": "香煎泥蚶"
+},
+"녹두전": {
+"en": "Mung Bean Pancake",
+"ja": "緑豆のチヂミ",
+"zh-Hans": "绿豆煎",
+"zh-Hant": "綠豆煎"
+},
+"다시마부각": {
+"en": "Kelp Chips",
+"ja": "昆布のパリパリ揚げ",
+"zh-Hans": "干炸昆布片",
+"zh-Hant": "乾炸昆布片"
+},
+"단군신화전": {
+"en": "Pan-fried Battered Kimchi Roll with Garlic and Beef",
+"ja": "檀君神話チヂミ",
+"zh-Hans": "檀君神话辛奇卷",
+"zh-Hant": "檀君神話辛奇卷"
+},
+"단호박튀김": {
+"en": "Deep-fried Pumpkin",
+"ja": "カボチャ天ぷら",
+"zh-Hans": "炸甜南瓜",
+"zh-Hant": "炸甜南瓜"
+},
+"달래전": {
+"en": "Wild Rocambole Pancake",
+"ja": "ノビルのチヂミ",
+"zh-Hans": "小根蒜煎饼",
+"zh-Hant": "山蒜煎餅"
+},
+"동그랑땡": {
+"en": "Meat Fritters",
+"ja": "肉団子のチヂミ",
+"zh-Hans": "香煎肉饼",
+"zh-Hant": "香煎肉餅"
+},
+"동태전": {
+"en": "Pan-fried Battered Pollack Fillet",
+"ja": "スケトウダラのチヂミ",
+"zh-Hans": "香煎冻明太鱼片",
+"zh-Hant": "香煎凍明太魚片"
+},
+"두부전": {
+"en": "Pan-fried Battered Bean Curd",
+"ja": "豆腐のチヂミ",
+"zh-Hans": "香煎豆腐",
+"zh-Hant": "香煎豆腐"
+},
+"떡튀김": {
+"en": "Deep-fried Rice Cake",
+"ja": "お餅の天ぷら",
+"zh-Hans": "炸年糕",
+"zh-Hant": "炸年糕"
+},
+"만두튀김": {
+"en": "Deep-fried Dumplings",
+"ja": "揚げ餃子",
+"zh-Hans": "炸饺子",
+"zh-Hant": "炸餃子"
+},
+"메밀장떡": {
+"en": "Buckwheat Pancake",
+"ja": "コチュジャン入りそば粉チヂミ",
+"zh-Hans": "荞麦酱饼",
+"zh-Hant": "蕎麥醬餅"
+},
+"메밀전병": {
+"en": "Buckwheat Crepe",
+"ja": "そば粉の薄皮巻き",
+"zh-Hans": "荞麦煎饼",
+"zh-Hant": "蕎麥煎餅"
+},
+"모둠전": {
+"en": "Assorted Savory Pancakes",
+"ja": "チヂミの盛り合わせ",
+"zh-Hans": "煎饼拼盘",
+"zh-Hant": "煎餅拼盤"
+},
+"미꾸라지튀김": {
+"en": "Deep-fried Loach",
+"ja": "どじょう天ぷら",
+"zh-Hans": "炸泥鳅",
+"zh-Hant": "炸泥鰍"
+},
+"미나리전": {
+"en": "Water Parsley Pancake",
+"ja": "セリのチヂミ",
+"zh-Hans": "水芹煎饼",
+"zh-Hant": "水芹煎餅"
+},
+"배추전": {
+"en": "Cabbage Pancake",
+"ja": "白菜のチヂミ",
+"zh-Hans": "白菜煎饼",
+"zh-Hant": "白菜煎餅"
+},
+"버섯전": {
+"en": "Pan-fried Battered Mushrooms",
+"ja": "きのこのチヂミ",
+"zh-Hans": "蘑菇煎饼",
+"zh-Hant": "蘑菇煎餅"
+},
+"복튀김": {
+"en": "Deep-fried Puffer Fish",
+"ja": "ふぐ天ぷら",
+"zh-Hans": "炸河豚",
+"zh-Hant": "炸河豚"
+},
+"봄나물전": {
+"en": "Spring Vegetable Pancake",
+"ja": "春のナムルのチヂミ",
+"zh-Hans": "春菜煎饼",
+"zh-Hant": "春菜煎餅"
+},
+"부각": {
+"en": "Vegetable and Seaweed Chips",
+"ja": "海藻・野菜のパリパリ揚げ",
+"zh-Hans": "干炸片",
+"zh-Hant": "乾炸片"
+},
+"부추전": {
+"en": "Chive Pancake",
+"ja": "にらのチヂミ",
+"zh-Hans": "韭菜煎饼",
+"zh-Hant": "韭菜煎餅"
+},
+"빈대떡": {
+"en": "Mung Bean Pancake",
+"ja": "ピンデトク",
+"zh-Hans": "绿豆煎饼",
+"zh-Hant": "綠豆煎餅"
+},
+"빙떡": {
+"en": "Buckwheat Crepe Stuffed with Radish",
+"ja": "千切り大根ナムル入りそば粉のクレープ巻き",
+"zh-Hans": "荞麦萝卜糕",
+"zh-Hant": "蕎麥蘿蔔糕"
+},
+"빙어튀김": {
+"en": "Deep-fried Smelt",
+"ja": "ワカサギの天ぷら",
+"zh-Hans": "炸西太公鱼",
+"zh-Hant": "炸池沼公魚"
+},
+"산천어튀김": {
+"en": "Deep-fried Masu Salmon",
+"ja": "ヤマメの天ぷら",
+"zh-Hans": "炸山鳟鱼",
+"zh-Hant": "炸櫻鱒"
+},
+"삼색전": {
+"en": "Tricolor Skewers",
+"ja": "三色チヂミ",
+"zh-Hans": "三色煎饼",
+"zh-Hant": "三色煎餅"
+},
+"새우튀김": {
+"en": "Deep-fried Shrimp",
+"ja": "海老天ぷら",
+"zh-Hans": "炸虾",
+"zh-Hant": "炸蝦"
+},
+"생선전": {
+"en": "Pan-fried Battered Fish-fillets",
+"ja": "白身魚のチヂミ",
+"zh-Hans": "香煎鱼片",
+"zh-Hant": "香煎魚片"
+},
+"수수부꾸미": {
+"en": "Pan-fried Millet Rice Cake",
+"ja": "焼ききび餅",
+"zh-Hans": "高粱煎糕",
+"zh-Hant": "高粱煎糕"
+},
+"애호박전": {
+"en": "Pan-fried Battered Zuccinni",
+"ja": "ズッキーニのチヂミ",
+"zh-Hans": "香煎西葫芦",
+"zh-Hant": "香煎西葫蘆"
+},
+"야채튀김": {
+"en": "Deep-fried Vegetables",
+"ja": "野菜天ぷら",
+"zh-Hans": "炸蔬菜",
+"zh-Hant": "炸蔬菜"
+},
+"연근전": {
+"en": "Pan-fried Battered Lotus Roots",
+"ja": "れんこん天ぷら",
+"zh-Hans": "香煎莲藕",
+"zh-Hant": "香煎蓮藕"
+},
+"오징어튀김": {
+"en": "Deep-fried Squid",
+"ja": "イカ天ぷら",
+"zh-Hans": "炸鱿鱼",
+"zh-Hant": "炸魷魚"
+},
+"육전": {
+"en": "Pan-fried Battered Beef",
+"ja": "牛肉のチヂミ",
+"zh-Hans": "香煎肉片",
+"zh-Hant": "香煎肉片"
+},
+"장떡": {
+"en": "Chili Pepper Paste and Vegetable Pancake",
+"ja": "コチュジャン入りチヂミ",
+"zh-Hans": "酱菜煎饼",
+"zh-Hant": "醬餅"
+},
+"추어튀김": {
+"en": "Deep-fried Loach",
+"ja": "どじょうの天ぷら",
+"zh-Hans": "炸泥鳅",
+"zh-Hant": "炸泥鰍"
+},
+"파래전": {
+"en": "Green Laver Pancake",
+"ja": "青海苔のチヂミ",
+"zh-Hans": "海青菜煎饼",
+"zh-Hant": "海青菜煎餅"
+},
+"파전": {
+"en": "Green Onion Pancake",
+"ja": "ねぎのチヂミ",
+"zh-Hans": "葱煎饼",
+"zh-Hant": "蔥煎餅"
+},
+"해물부추전": {
+"en": "Seafood and Chive Pancake",
+"ja": "海鮮とニラのチヂミ",
+"zh-Hans": "海鲜韭菜煎饼",
+"zh-Hant": "海鮮韭菜煎餅"
+},
+"해물파전": {
+"en": "Seafood and Green Onion Pancake",
+"ja": "海鮮とねぎのチヂミ",
+"zh-Hans": "海鲜葱煎饼",
+"zh-Hant": "海鮮蔥煎餅"
+},
+"호박전": {
+"en": "Pan-fried Battered Zucchini",
+"ja": "ズッキーニのチヂミ",
+"zh-Hans": "香煎西葫芦",
+"zh-Hant": "香煎西葫蘆"
+},
+"가자미식해": {
+"en": "Salted and Fermented Flounder",
+"ja": "発酵カレイ",
+"zh-Hans": "发酵鲽鱼酱",
+"zh-Hant": "發酵鰈魚"
+},
+"갈치젓": {
+"en": "Salted Cutlassfish",
+"ja": "太刀魚の塩辛",
+"zh-Hans": "带鱼酱",
+"zh-Hant": "帶魚醬"
+},
+"꼴뚜기젓": {
+"en": "Salted Beka Squid",
+"ja": "ベイカの塩辛",
+"zh-Hans": "墨鱼仔酱",
+"zh-Hant": "墨魚仔醬"
+},
+"낙지젓": {
+"en": "Salted Octopus",
+"ja": "テナガダコの塩辛",
+"zh-Hans": "章鱼酱",
+"zh-Hant": "章魚醬"
+},
+"멸치젓": {
+"en": "Salted Anchovies",
+"ja": "カタクチイワシの塩辛",
+"zh-Hans": "鳀鱼酱",
+"zh-Hant": "鳀魚醬"
+},
+"명란젓": {
+"en": "Salted Pollack Roe",
+"ja": "明太子の塩辛",
+"zh-Hans": "明太鱼子酱",
+"zh-Hant": "明太魚子醬"
+},
+"명태식해": {
+"en": "Salted and Fermented Pollack",
+"ja": "スケトウダラの塩辛",
+"zh-Hans": "发酵明太鱼酱",
+"zh-Hant": "發酵明太魚醬"
+},
+"새우젓": {
+"en": "Salted Shrimp",
+"ja": "アミの塩辛",
+"zh-Hans": "虾酱",
+"zh-Hant": "蝦醬"
+},
+"어리굴젓": {
+"en": "Spicy Salted Oysters",
+"ja": "味付けカキの塩辛",
+"zh-Hans": "辣牡蛎酱",
+"zh-Hant": "辣牡蠣醬"
+},
+"연어장": {
+"en": "Soy Sauce-marinated Salmon",
+"ja": "サーモンの醤油漬け",
+"zh-Hans": "三文鱼酱",
+"zh-Hant": "醬生鮭魚"
+},
+"오징어젓": {
+"en": "Salted Squid",
+"ja": "イカの塩辛",
+"zh-Hans": "鱿鱼酱",
+"zh-Hant": "魷魚醬"
+},
+"전복장": {
+"en": "Soy Sauce-marinated Abalone",
+"ja": "アワビの醤油煮",
+"zh-Hans": "酱鲍鱼",
+"zh-Hant": "醬生鮑魚"
+},
+"젓갈": {
+"en": "Salted Seafood",
+"ja": "塩辛",
+"zh-Hans": "鱼虾酱",
+"zh-Hant": "魚蝦醬"
+},
+"조개젓": {
+"en": "Salted Clam Meat",
+"ja": "貝の塩辛",
+"zh-Hans": "蛤蜊酱",
+"zh-Hant": "蛤蜊醬"
+},
+"황석어젓": {
+"en": "Salted Small Yellow Croaker",
+"ja": "金石魚の塩辛",
+"zh-Hans": "小黄花鱼酱",
+"zh-Hant": "小黃花魚醬"
+},
+"강어회": {
+"en": "Sliced Raw Leather Carp",
+"ja": "カガミゴイの刺身",
+"zh-Hans": "德国镜鲤生鱼片",
+"zh-Hant": "德國鏡鯉生魚片"
+},
+"과메기": {
+"en": "Half-dried Saury",
+"ja": "半干しさんま",
+"zh-Hans": "秋刀鱼干",
+"zh-Hant": "秋刀魚幹"
+},
+"광어회": {
+"en": "Sliced Raw Flatfish",
+"ja": "ヒラメの刺身",
+"zh-Hans": "左口鱼生鱼片",
+"zh-Hant": "左口魚生魚片"
+},
+"두부삼합": {
+"en": "Bean Curd, Pork, and Aged KimchiCombo",
+"ja": "豆腐のサムハプ",
+"zh-Hans": "豆腐三合",
+"zh-Hant": "豆腐三合"
+},
+"멸치회": {
+"en": "Sliced Raw Anchovy",
+"ja": "カタクチイワシの刺身",
+"zh-Hans": "鳀鱼生鱼片",
+"zh-Hant": "鯷魚生魚片"
+},
+"모둠회": {
+"en": "Assorted Sliced Raw Fish",
+"ja": "刺身の盛り合わせ",
+"zh-Hans": "生鱼片拼盘",
+"zh-Hant": "生魚片拼盤"
+},
+"문어삼합": {
+"en": "Octopus, Skate, and Pork Combo",
+"ja": "タコのサムハプ",
+"zh-Hans": "章鱼三合",
+"zh-Hant": "章魚三合"
+},
+"문어숙회": {
+"en": "Parboiled Octopus",
+"ja": "ゆでタコ",
+"zh-Hans": "白灼章鱼",
+"zh-Hant": "白灼章魚"
+},
+"물회": {
+"en": "Cold Raw Fish Soup",
+"ja": "刺身入り冷やしスープ",
+"zh-Hans": "水拌生鱼片",
+"zh-Hant": "水拌生魚片"
+},
+"민어회": {
+"en": "Sliced Raw Croaker",
+"ja": "ニベの刺身",
+"zh-Hans": "黄姑鱼生鱼片",
+"zh-Hant": "黃姑魚生魚片"
+},
+"산낙지": {
+"en": "Live Octopus",
+"ja": "テナガダコの刺身",
+"zh-Hans": "活章鱼",
+"zh-Hant": "活章魚"
+},
+"생선회": {
+"en": "Sliced Raw Fish",
+"ja": "刺身",
+"zh-Hans": "生鱼片",
+"zh-Hant": "生魚片"
+},
+"송어회": {
+"en": "Sliced Raw Trout",
+"ja": "マスの刺身",
+"zh-Hans": "鳟鱼生鱼片",
+"zh-Hant": "鱒魚生魚片"
+},
+"오징어물회": {
+"en": "Cold Raw Squid Soup",
+"ja": "イカ入り冷やしスープ",
+"zh-Hans": "水拌鱿鱼片",
+"zh-Hant": "水拌魷魚片"
+},
+"오징어숙회": {
+"en": "Parboiled Squid",
+"ja": "ゆでイカ",
+"zh-Hans": "白灼鱿鱼片",
+"zh-Hant": "燙魷魚"
+},
+"육회": {
+"en": "Beef Tartare",
+"ja": "ユッケ",
+"zh-Hans": "生拌牛肉",
+"zh-Hant": "生拌牛肉"
+},
+"자리물회": {
+"en": "Cold Raw Pearl-spot Chromis Soup",
+"ja": "スズメダイ入り冷やしスープ",
+"zh-Hans": "水拌雀鲷鱼片",
+"zh-Hant": "水拌雀鯛魚片"
+},
+"전복물회": {
+"en": "Cold Abalone Soup",
+"ja": "アワビの刺身入り冷製スープ",
+"zh-Hans": "水拌鲍鱼刺身",
+"zh-Hant": "水拌生鮑魚"
+},
+"전어무침": {
+"en": "Gizzard Shad Salad",
+"ja": "コノシロの和え物",
+"zh-Hans": "生拌斑鰶",
+"zh-Hant": "生拌斑鰶"
+},
+"전어회": {
+"en": "Sliced Raw Gizzard Shad",
+"ja": "コノシロの刺身",
+"zh-Hans": "斑鰶生鱼片",
+"zh-Hant": "斑鰶生魚片"
+},
+"한치물회": {
+"en": "Cold Raw Swordtip Squid Soup",
+"ja": "ケンサキイカ入り冷やしスープ",
+"zh-Hans": "水拌小鱿鱼片",
+"zh-Hant": "水拌小魷魚片"
+},
+"한치회무침": {
+"en": "Sliced Raw Swordtip Squid Salad",
+"ja": "ケンサキイカの刺身の和え物",
+"zh-Hans": "生拌小鱿鱼",
+"zh-Hant": "生拌小魷魚"
+},
+"홍어회무침": {
+"en": "Sliced Raw Skate Salad",
+"ja": "ガンギエイの刺身の和え物",
+"zh-Hans": "生拌斑鳐",
+"zh-Hant": "生拌斑鰩"
+},
+"회무침": {
+"en": "Spicy Raw Fish Salad",
+"ja": "刺身の和え物",
+"zh-Hans": "凉拌生鱼片",
+"zh-Hant": "涼拌生魚片"
+},
+"갓김치": {
+"en": "Leaf Mustard Kimchi",
+"ja": "カラシナキムチ",
+"zh-Hans": "芥菜辛奇",
+"zh-Hant": "芥菜辛奇"
+},
+"겉절이": {
+"en": "Fresh Kimchi",
+"ja": "浅漬けキムチ",
+"zh-Hans": "鲜辛奇",
+"zh-Hant": "鮮辛奇"
+},
+"고들빼기김치": {
+"en": "Bitter Lettuce Kimchi",
+"ja": "イヌヤクシ草キムチ",
+"zh-Hans": "苦菜辛奇",
+"zh-Hant": "苦菜辛奇"
+},
+"깍두기": {
+"en": "Diced Radish Kimchi",
+"ja": "カクトゥギ",
+"zh-Hans": "萝卜块辛奇",
+"zh-Hant": "蘿蔔塊辛奇"
+},
+"깻잎김치": {
+"en": "Perilla Leaf Kimchi",
+"ja": "エゴマの葉キムチ",
+"zh-Hans": "苏子叶辛奇",
+"zh-Hant": "蘇子葉辛奇"
+},
+"나박김치": {
+"en": "Water Kimchi",
+"ja": "大根と白菜の水キムチ",
+"zh-Hans": "萝卜片水辛奇",
+"zh-Hant": "蘿蔔片水辛奇"
+},
+"돌나물물김치": {
+"en": "Stringy Stonecrop Water Kimchi",
+"ja": "ツルマンネングサの水キムチ",
+"zh-Hans": "垂盆草水辛奇",
+"zh-Hant": "垂盆草水辛奇"
+},
+"돌미나리물김치": {
+"en": "Wild Parsley Water Kimchi",
+"ja": "野芹の水キムチ",
+"zh-Hans": "野生水芹水辛奇",
+"zh-Hant": "野生水芹水辛奇"
+},
+"동치미": {
+"en": "Radish Water Kimchi",
+"ja": "大根の水キムチ",
+"zh-Hans": "水萝卜辛奇",
+"zh-Hant": "水蘿蔔辛奇"
+},
+"배추겉절이": {
+"en": "Fresh Cabbage Kimchi",
+"ja": "浅漬け白菜",
+"zh-Hans": "鲜辛奇",
+"zh-Hant": "鮮辛奇"
+},
+"배추김치": {
+"en": "Kimchi(Baechukimchi)",
+"ja": "白菜キムチ",
+"zh-Hans": "辛奇",
+"zh-Hant": "辛奇"
+},
+"백김치": {
+"en": "White Kimchi",
+"ja": "白キムチ",
+"zh-Hans": "白辛奇",
+"zh-Hant": "白辛奇"
+},
+"보쌈김치": {
+"en": "Wrapped Kimchi",
+"ja": "ポサムキムチ",
+"zh-Hans": "包卷辛奇",
+"zh-Hant": "包卷辛奇"
+},
+"봄동겉절이": {
+"en": "Fresh Winter Cabbage Kimchi",
+"ja": "浅漬け春白菜",
+"zh-Hans": "鲜辣春白菜",
+"zh-Hant": "鮮辣春白菜"
+},
+"부추김치": {
+"en": "Chive Kimchi",
+"ja": "ニラキムチ",
+"zh-Hans": "韭菜辛奇",
+"zh-Hant": "韭菜辛奇"
+},
+"섞박지": {
+"en": "Radish and Cabbage Kimchi",
+"ja": "白菜と大根のキムチ",
+"zh-Hans": "白菜萝卜辛奇",
+"zh-Hant": "白菜蘿蔔辛奇"
+},
+"열무김치": {
+"en": "Young Summer Radish Kimchi",
+"ja": "大根若菜キムチ",
+"zh-Hans": "萝卜缨辛奇",
+"zh-Hant": "蘿蔔纓辛奇"
+},
+"열무얼갈이김치": {
+"en": "Young Summer Radish and Winter Cabbage Kimchi",
+"ja": "大根若菜と山東菜キムチ",
+"zh-Hans": "萝卜缨冬白菜辛奇",
+"zh-Hant": "蘿蔔纓冬白菜辛奇"
+},
+"오이소박이": {
+"en": "Cucumber Kimchi",
+"ja": "キュウリキムチ",
+"zh-Hans": "黄瓜辛奇",
+"zh-Hant": "黃瓜辛奇"
+},
+"총각김치": {
+"en": "Whole Radish Kimchi",
+"ja": "ミニ大根キムチ",
+"zh-Hans": "小萝卜辛奇",
+"zh-Hant": "嫩萝卜辛奇"
+},
+"파김치": {
+"en": "Green Onion Kimchi",
+"ja": "ねぎキムチ",
+"zh-Hans": "葱辛奇",
+"zh-Hant": "蔥辛奇"
+},
+"포기김치": {
+"en": "Kimchi(Pogikimchi)",
+"ja": "白菜キムチ",
+"zh-Hans": "整棵辛奇",
+"zh-Hant": "整棵辛奇"
+},
+"갈비만두": {
+"en": "Pork Rib Dumpling",
+"ja": "カルビ餃子",
+"zh-Hans": "排骨饺子",
+"zh-Hant": "排骨餃子"
+},
+"고기만두": {
+"en": "Meat Dumpling",
+"ja": "肉餃子",
+"zh-Hans": "肉饺",
+"zh-Hant": "肉餃"
+},
+"군만두": {
+"en": "Pan-fried Dumpling",
+"ja": "焼き餃子",
+"zh-Hans": "煎饺",
+"zh-Hant": "煎餃"
+},
+"김치만두": {
+"en": "Kimchi Dumpling",
+"ja": "キムチ餃子",
+"zh-Hans": "辛奇饺子",
+"zh-Hant": "辛奇餃子"
+},
+"꿩만둣국": {
+"en": "Pheasant Dumpling Soup",
+"ja": "キジ肉餃子スープ",
+"zh-Hans": "山鸡肉饺子汤",
+"zh-Hant": "雉雞肉餃子湯"
+},
+"떡만둣국": {
+"en": "Sliced Rice Cake and DumplingSoup",
+"ja": "餅と餃子のスープ",
+"zh-Hans": "年糕饺子汤",
+"zh-Hant": "年糕餃子湯"
+},
+"만두": {
+"en": "Dumplings",
+"ja": "餃子",
+"zh-Hans": "饺子",
+"zh-Hant": "餃子"
+},
+"만둣국": {
+"en": "Dumpling Soup",
+"ja": "餃子スープ",
+"zh-Hans": "饺子汤",
+"zh-Hant": "餃子湯"
+},
+"물만두": {
+"en": "Boiled Dumpling",
+"ja": "水餃子",
+"zh-Hans": "水饺",
+"zh-Hant": "水餃"
+},
+"송어만두": {
+"en": "Trout Dumpling",
+"ja": "マス餃子",
+"zh-Hans": "鳟鱼饺子",
+"zh-Hant": "鱒魚餃子"
+},
+"왕만두": {
+"en": "Jumbo Sized Dumpling",
+"ja": "王餃子",
+"zh-Hans": "大包子",
+"zh-Hant": "大包子"
+},
+"채만두": {
+"en": "Buckwheat Dumpling",
+"ja": "そば餃子",
+"zh-Hans": "荞麦素饺",
+"zh-Hant": "蕎麥素餃"
+},
+"가래떡": {
+"en": "Rice Cake Stick",
+"ja": "カレトク",
+"zh-Hans": "长条年糕",
+"zh-Hant": "長條年糕"
+},
+"감자떡": {
+"en": "Potato Cake",
+"ja": "じゃがいも餅",
+"zh-Hans": "土豆糕",
+"zh-Hant": "土豆糕"
+},
+"경단": {
+"en": "Sweet Rice Balls",
+"ja": "団子",
+"zh-Hans": "琼团糕",
+"zh-Hant": "瓊團糕"
+},
+"깨경단": {
+"en": "Sesame Sweet Rice Balls",
+"ja": "ゴマ団子",
+"zh-Hans": "芝麻琼团糕",
+"zh-Hant": "芝麻瓊團糕"
+},
+"꿀떡": {
+"en": "Honey-filled Rice Cake",
+"ja": "蜂蜜餅",
+"zh-Hans": "蜜糕",
+"zh-Hant": "蜜糕"
+},
+"녹두시루떡": {
+"en": "Mung Bean Steamed Rice Cake",
+"ja": "緑豆のシルトク",
+"zh-Hans": "绿豆蒸糕",
+"zh-Hant": "綠豆蒸糕"
+},
+"무지개떡": {
+"en": "Rainbow Rice Cake",
+"ja": "虹色のシルトク",
+"zh-Hans": "彩虹糕",
+"zh-Hant": "彩虹糕"
+},
+"백설기": {
+"en": "Snow White Rice Cake",
+"ja": "蒸し餅",
+"zh-Hans": "白雪糕",
+"zh-Hant": "白雪糕"
+},
+"송편": {
+"en": "Half-moon Rice Cake",
+"ja": "ソンピョン",
+"zh-Hans": "松糕",
+"zh-Hant": "松糕"
+},
+"수수팥떡": {
+"en": "Red-bean-coated Millet Rice Cake",
+"ja": "小豆きび餅",
+"zh-Hans": "红豆高粱糕",
+"zh-Hant": "紅豆高粱糕"
+},
+"시루떡": {
+"en": "Steamed Rice Cake",
+"ja": "シルトク",
+"zh-Hans": "蒸糕",
+"zh-Hant": "蒸糕"
+},
+"쑥떡": {
+"en": "Mugwort Rice Cake",
+"ja": "よもぎ餅",
+"zh-Hans": "艾草糕",
+"zh-Hant": "艾草糕"
+},
+"씨앗호떡": {
+"en": "Korean Pancake with Seed and Brown Sugar Filling",
+"ja": "種入りホットク",
+"zh-Hans": "坚果糖饼",
+"zh-Hant": "果仁糖餅"
+},
+"약식": {
+"en": "Sweet Rice with Nuts and Jujubes",
+"ja": "おこわ",
+"zh-Hans": "韩式八宝饭",
+"zh-Hant": "韓式八寶飯"
+},
+"인절미": {
+"en": "Bean-powder-coated Rice Cake",
+"ja": "黄な粉餅",
+"zh-Hans": "打糕",
+"zh-Hant": "打糕"
+},
+"절편": {
+"en": "Patterned Rice Cake",
+"ja": "型押し餅",
+"zh-Hans": "片糕",
+"zh-Hant": "片糕"
+},
+"조랭이떡": {
+"en": "Snowman-shaped Rice Cake",
+"ja": "チョレンイトック",
+"zh-Hans": "小葫芦年糕",
+"zh-Hant": "小葫蘆年糕"
+},
+"증편": {
+"en": "Raised Rice Cake",
+"ja": "発酵蒸し餅",
+"zh-Hans": "发糕",
+"zh-Hant": "發糕"
+},
+"찹쌀떡": {
+"en": "Sweet Rice Cake with Red Bean Filling",
+"ja": "あんこ餅",
+"zh-Hans": "红豆馅糯米糕",
+"zh-Hant": "紅豆餡糯米糕"
+},
+"호떡": {
+"en": "Syrup-filled Pancake",
+"ja": "ホットク",
+"zh-Hans": "糖饼",
+"zh-Hant": "糖餅"
+},
+"화전": {
+"en": "Pan-fried Flower Rice Cake",
+"ja": "花びらのチヂミ",
+"zh-Hans": "花煎糕",
+"zh-Hant": "花煎糕"
+},
+"감말랭이": {
+"en": "Dried Persimmon",
+"ja": "干し柿のスライス",
+"zh-Hans": "柿子干",
+"zh-Hant": "柿子乾"
+},
+"강정": {
+"en": "Sweet Rice Puffs",
+"ja": "おこし",
+"zh-Hans": "江米块",
+"zh-Hant": "江米塊"
+},
+"곶감": {
+"en": "Dried Whole Persimmon",
+"ja": "干し柿",
+"zh-Hans": "柿饼",
+"zh-Hant": "柿餅"
+},
+"다식": {
+"en": "Tea Confectionery",
+"ja": "らくがん",
+"zh-Hans": "茶食",
+"zh-Hant": "茶食"
+},
+"도라지정과": {
+"en": "Briased Bellflower Root in Sweet Sauce",
+"ja": "桔梗の根の砂糖煮",
+"zh-Hans": "桔梗蜜饯",
+"zh-Hant": "桔梗蜜餞"
+},
+"매작과": {
+"en": "Fried Twist",
+"ja": "梅雀菓",
+"zh-Hans": "梅雀果",
+"zh-Hant": "梅雀果"
+},
+"붕어빵": {
+"en": "Fish-shaped Bread",
+"ja": "たい焼き",
+"zh-Hans": "红豆鲫鱼饼",
+"zh-Hant": "紅豆鯛魚燒"
+},
+"뻥튀기": {
+"en": "Puffed Grain",
+"ja": "ポン菓子",
+"zh-Hans": "爆米饼",
+"zh-Hant": "爆米餅"
+},
+"산자": {
+"en": "Fried Rice Squares",
+"ja": "四角い油菓",
+"zh-Hans": "馓子油蜜果",
+"zh-Hant": "馓子油蜜果"
+},
+"송화다식": {
+"en": "Pine Flower Powder Tea Confectionery",
+"ja": "松花粉らくがん",
+"zh-Hans": "松花茶食",
+"zh-Hant": "松花茶食"
+},
+"수삼정과": {
+"en": "Briased Ginseng in Sweet Sauce",
+"ja": "生高麗人蔘の砂糖煮",
+"zh-Hans": "水参蜜饯",
+"zh-Hant": "水參蜜餞"
+},
+"약과": {
+"en": "Honey Cookie",
+"ja": "薬菓",
+"zh-Hans": "药果（蜜油饼）",
+"zh-Hant": "藥果"
+},
+"양갱": {
+"en": "Sweet Red Bean Jelly",
+"ja": "羊羹",
+"zh-Hans": "羊羹",
+"zh-Hant": "羊羹"
+},
+"율란": {
+"en": "Chestnut Balls",
+"ja": "栗卵(栗菓子)",
+"zh-Hans": "栗子糕",
+"zh-Hant": "栗子糕"
+},
+"찹쌀꽈배기": {
+"en": "Twisted Sweet Rice Doughnut",
+"ja": "もち米ツイストドーナツ",
+"zh-Hans": "糯米麻花",
+"zh-Hant": "糯米麻花多拿滋"
+},
+"호두과자": {
+"en": "Walnut Cake",
+"ja": "くるみ饅頭",
+"zh-Hans": "核桃果子",
+"zh-Hant": "核桃菓子"
+},
+"호박엿": {
+"en": "Pumpkin Taffy",
+"ja": "カボチャ飴",
+"zh-Hans": "南瓜麦芽糖",
+"zh-Hant": "南瓜麥芽糖"
+},
+"흑임자다식": {
+"en": "Black Sesame Tea Confectionery",
+"ja": "黒ゴマらくがん",
+"zh-Hans": "黑芝麻茶食",
+"zh-Hant": "黑芝麻茶食"
+},
+"구기자차": {
+"en": "Wolfberry Tea",
+"ja": "クコの実茶",
+"zh-Hans": "枸杞茶",
+"zh-Hant": "枸杞茶"
+},
+"꽃차": {
+"en": "Flower Tea",
+"ja": "花茶",
+"zh-Hans": "花茶",
+"zh-Hant": "花茶"
+},
+"녹차": {
+"en": "Green Tea",
+"ja": "緑茶",
+"zh-Hans": "绿茶",
+"zh-Hant": "綠茶"
+},
+"단호박식혜": {
+"en": "Pumpkin Sweet Rice Punch",
+"ja": "かぼちゃのシケ",
+"zh-Hans": "甜南瓜甜米露",
+"zh-Hant": "甜南瓜甜米露"
+},
+"대추차": {
+"en": "Jujube Tea",
+"ja": "なつめ茶",
+"zh-Hans": "红枣茶",
+"zh-Hant": "紅棗茶"
+},
+"막걸리": {
+"en": "Unrefined Rice Wine",
+"ja": "マッコリ",
+"zh-Hans": "马格利酒",
+"zh-Hant": "馬格利酒"
+},
+"매실차": {
+"en": "Green Plum Tea",
+"ja": "梅茶",
+"zh-Hans": "青梅茶",
+"zh-Hant": "青梅茶"
+},
+"모과차": {
+"en": "Quince Tea",
+"ja": "カリン茶",
+"zh-Hans": "木梨茶",
+"zh-Hant": "木梨茶"
+},
+"미숫가루": {
+"en": "Roasted Grain Powder",
+"ja": "ミスッカル",
+"zh-Hans": "油茶面",
+"zh-Hant": "油茶麵"
+},
+"생강차": {
+"en": "Ginger Tea",
+"ja": "生姜茶",
+"zh-Hans": "姜茶",
+"zh-Hant": "薑茶"
+},
+"수정과": {
+"en": "Cinnamon Punch",
+"ja": "スジョングァ",
+"zh-Hans": "水正果（生姜桂皮茶）",
+"zh-Hant": "水正果"
+},
+"식혜": {
+"en": "Sweet Rice Punch",
+"ja": "シケ",
+"zh-Hans": "甜米露",
+"zh-Hant": "甜米露"
+},
+"쌍화차": {
+"en": "Medicinal Herb Tea",
+"ja": "双和茶",
+"zh-Hans": "双和茶",
+"zh-Hant": "雙和茶"
+},
+"오미자화채": {
+"en": "Omija Punch",
+"ja": "五味子ポンチ",
+"zh-Hans": "五味子甜茶",
+"zh-Hant": "五味子甜茶"
+},
+"유자차": {
+"en": "Citrus Tea",
+"ja": "柚子茶",
+"zh-Hans": "柚子茶",
+"zh-Hant": "柚子茶"
+},
+"유자화채": {
+"en": "Citrus Punch",
+"ja": "柚子ポンチ",
+"zh-Hans": "柚子甜茶",
+"zh-Hant": "柚子甜茶"
+},
+"인삼차": {
+"en": "Ginseng Tea",
+"ja": "高麗人蔘茶",
+"zh-Hans": "人参茶",
+"zh-Hant": "人蔘茶"
+},
+"칡차": {
+"en": "Arrowroot Tea",
+"ja": "葛茶",
+"zh-Hans": "葛茶",
+"zh-Hant": "葛根茶"
+},
+"팥빙수": {
+"en": "Shaved Ice with Red Bean Topping",
+"ja": "氷小豆",
+"zh-Hans": "红豆刨冰",
+"zh-Hant": "紅豆刨冰"
+},
+"홍삼차": {
+"en": "Red Ginseng Tea",
+"ja": "紅参茶",
+"zh-Hans": "红参茶",
+"zh-Hant": "紅蔘茶"
+}
+}
+}

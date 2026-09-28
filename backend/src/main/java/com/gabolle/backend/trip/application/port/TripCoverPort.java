@@ -34,6 +34,18 @@ public interface TripCoverPort {
 	Map<String, Cover> coversOf(Collection<String> tripIds);
 
 	/**
+	 * 여행들의 「지금 확정된 일정」 번호를 <b>한 번에</b> (S15P21E201-1602) — 코스를 마지막으로 고른 일정, 안 골랐으면
+	 * 추천이 만든 기본 일정. 앱이 일정이 여럿인 여행을 누를 때 「버전 N」 목록을 안 띄우고 바로 연다.
+	 *
+	 * <p>표지와 달리 실패를 삼키지 않는다 — 「일정이 없다」로 잘못 답하면 앱이 여행을 빈 것으로 그린다.
+	 *
+	 * @return 여행 식별자 → 일정 식별자. 일정이 없는 여행은 키가 없다. 기본 구현은 아무것도 모른다
+	 */
+	default Map<String, String> currentItinerariesOf(Collection<String> tripIds) {
+		return Map.of();
+	}
+
+	/**
 	 * 표지를 아무것도 못 주는 구현. 일정 표가 없는 프로파일과, 표지를 안 보는 시험이 쓴다.
 	 * 여기에 빈 구현을 두는 것은 부르는 쪽에 {@code null} 검사를 퍼뜨리지 않기 위해서다.
 	 */

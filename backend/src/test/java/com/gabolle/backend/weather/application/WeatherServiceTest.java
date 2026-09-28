@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,9 @@ import org.springframework.http.HttpStatus;
 
 import com.gabolle.backend.weather.config.WeatherProperties;
 import com.gabolle.backend.weather.domain.DailyForecast;
+import com.gabolle.backend.weather.domain.HourlyForecast;
 import com.gabolle.backend.weather.domain.KmaBaseTime;
+import com.gabolle.backend.weather.domain.SkyCondition;
 import com.gabolle.backend.weather.domain.WeatherForecastCacheRepository;
 import com.gabolle.backend.weather.domain.WeatherForecastResult;
 import com.gabolle.backend.weather.domain.WeatherQuery;
@@ -155,6 +158,33 @@ class WeatherServiceTest {
 				new WeatherQuery(35.1796, 129.0756, LocalDate.of(2026, 9, 19)));
 
 		assertThat(result.forecast().maxTemperature()).as("이전 회차 값이 이번 회차를 덮었다").isEqualTo(21.0);
+	}
+
+	// 시간별 예보(hourly) — S15P21E201-1534. 두 길 모두 하루 요약을 만든 그 원문에서 채운다.
+
+	@Test
+	@DisplayName("이번 회차 길 — 하루 요약과 같은 원문에서 시간별을 채우고 기상청을 더 부르지 않는다")
+	void currentRoundFillsHourlyFromTheSameRawJson() {
+		WeatherForecastResult result = this.service.getForecast(new WeatherQuery(35.1796, 129.0756, REQUEST_DATE));
+
+		assertThat(result.hourly()).containsExactly(new HourlyForecast(LocalTime.NOON, 25.0, SkyCondition.CLEAR, 20,
+				null));
+		assertThat(this.vendor.callCount).as("시간별을 만들려고 기상청을 한 번 더 불렀다").isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("🔴 이전 회차 길 — 시간별도 하루 요약을 준 그 이전 회차에서 나온다(이번 회차와 섞이지 않는다)")
+	void earlierRoundFillsHourlyFromTheRoundThatAnswered() {
+		WeatherService night = serviceAt(NIGHT);
+		this.cacheRepository.store.put("98_76_202609182300", entry(ROUND_2300_JSON));
+		this.cacheRepository.store.put("98_76_202609182000", entry(ROUND_2000_JSON));
+
+		WeatherForecastResult result = night.getForecast(new WeatherQuery(35.1796, 129.0756, NIGHT_TODAY));
+
+		assertThat(result.forecast().maxTemperature()).isEqualTo(18.0);
+		assertThat(result.hourly()).as("시간별이 하루 요약과 다른 회차에서 왔다")
+				.containsExactly(new HourlyForecast(LocalTime.NOON, 18.0, SkyCondition.CLEAR, 30, null));
+		assertThat(this.vendor.callCount).isZero();
 	}
 
 	private WeatherService serviceAt(Instant instant) {

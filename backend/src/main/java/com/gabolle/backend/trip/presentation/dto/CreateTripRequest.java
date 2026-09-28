@@ -4,7 +4,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.validation.Valid;
+import com.gabolle.backend.place.api.PlaceSnapshotRequest;
+
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -74,7 +78,40 @@ public record CreateTripRequest(
          * 여행 범위. {@link com.gabolle.backend.trip.domain.TravelArea} 코드다. 안 보내면 출발지
          * 하나를 중심으로 후보를 고르고, 보내면 그 지역들에서 고른다.
          */
-        List<String> travelAreas) {
+        List<String> travelAreas,
+
+        /**
+         * 우리 표에 없는 숙소를 골랐을 때 그 자리에서 보내는 스냅샷 — S15P21E201-1522.
+         *
+         * <p>숙소 검색은 출발지 검색을 재사용하고 그 결과는 카카오에서 오므로 우리
+         * {@code place_id} 가 없다. 그래서 지금까지 앱이 좌표로 보냈고 서버에 받을 칸이 없어
+         * <b>그대로 버려졌다.</b> 이 칸이 있으면 서버가 장소를 찾거나 만들어
+         * {@code trip.accommodation_place_id} 에 넣는다.
+         *
+         * <p>🔴 {@code accommodationPlaceId} 가 있으면 <b>이 칸은 안 본다.</b> 우리 표의 숙소를
+         * 고른 것이 확실한데 스냅샷을 또 보면, 둘이 어긋났을 때 어느 쪽이 맞는지 서버가
+         * 정하게 된다.
+         */
+        @Valid PlaceSnapshotRequest accommodation,
+
+        /**
+         * 묵는 동네 — {@code TravelArea} 코드다({@code HAEUNDAE}·{@code SEOMYEON} 등).
+         * S15P21E201-1544.
+         *
+         * <p>앱의 숙소 칸은 검색어가 없을 때 추천 동네를 먼저 보여 준다. 그것을 위
+         * {@code accommodation} 스냅샷으로 보내면 장소 행 「해운대」가 생기는데, 그 동네는
+         * 서버에 {@code TravelArea} 로 <b>이미 있고 좌표까지 같다.</b> 장소로도 만들면 같은
+         * 동네가 세 벌이 되므로 코드로 받는다.
+         *
+         * <p>🔴 모르는 코드가 와도 <b>400 이 아니다.</b> 그 칸만 비운다 —
+         * {@code TravelArea.of} 가 그렇게 만들어져 있고 이유도 적혀 있다: 앱이 새 지역을 먼저
+         * 내보내는 날 여행 생성이 막히면 안 된다.
+         *
+         * <p>🔴 <b>단, 1박 이상 여행은 숙소가 있어야 한다</b>(S15P21E201-1585). 모르는 코드만 오고
+         * 숙소 장소도 없으면 숙소가 없는 여행이라 {@code accommodation} 칸으로 400 이다 — 만들어 놓고
+         * 추천을 못 받는 여행을 남기지 않는다. 당일치기는 그대로 칸만 비운다.
+         */
+        @Size(max = 30) String accommodationArea) {
 
     /** 안 보냈으면 빈 목록이다. */
     public List<String> travelAreasOrEmpty() {
@@ -95,7 +132,7 @@ public record CreateTripRequest(
             List<PreferenceAnswerInput> preferences,
             List<ConstraintInput> constraints) {
         this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
-                preferences, null, constraints, null, null, null, null, null, null, null);
+                preferences, null, constraints, null, null, null, null, null, null, null, null, null);
     }
 
     public CreateTripRequest(
@@ -107,7 +144,7 @@ public record CreateTripRequest(
             SpendProfileAnswerInput spendProfile,
             List<ConstraintInput> constraints) {
         this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
-                preferences, spendProfile, constraints, null, null, null, null, null, null, null);
+                preferences, spendProfile, constraints, null, null, null, null, null, null, null, null, null);
     }
 
     public CreateTripRequest(
@@ -125,7 +162,7 @@ public record CreateTripRequest(
             Integer maxTransitTransfers) {
         this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
                 preferences, spendProfile, constraints, accommodationPlaceId, englishMenuRequired,
-                foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, null, null);
+                foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, null, null, null, null);
     }
 
     /** 안 보냈으면 우선하지 않는 것으로 본다. */

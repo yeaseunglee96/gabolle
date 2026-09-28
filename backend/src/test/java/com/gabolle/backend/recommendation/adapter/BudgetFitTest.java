@@ -11,8 +11,13 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.gabolle.backend.place.api.PlaceCandidateResponse;
+import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.trip.domain.Trip;
+
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * 총예산이 추천 순위를 실제로 움직이는가.
@@ -170,5 +175,30 @@ class BudgetFitTest {
 		assertThat(out.get(0).reasonCodes()).contains(BudgetFit.REASON_WITHIN_BUDGET);
 		assertThat(out.get(1).preRankScore()).isEqualTo(0.50 - BudgetFit.OVER_PENALTY);
 		assertThat(out.get(1).reasonCodes()).contains(BudgetFit.REASON_OVER_BUDGET);
+	}
+
+	/**
+	 * 추천 엔진도 비용을 읽는 다른 곳과 같은 판정({@code MenuPriceWon})을 거친다 (S15P21E201-1615).
+	 * 따로 읽으면 「2인 세트 56,000원」 한 곳이 가격대만 비싼 곳(예산 밖)으로 매겨져 순위가 깎인다.
+	 */
+	@Test
+	@DisplayName("🔴 2인 세트 값은 가격대를 안 만든다 — 1인분 값만 가격대로 접는다")
+	void aTwoPersonSetPriceMakesNoBand() {
+		PlaceCandidateResponse response = new PlaceCandidateResponse(List.of(
+				withMenuPrice(PRICEY, 56_000,
+						"숙성 모듬 사시미 (2인) 56,000원 / 1인 혼술 사시미 30,000원 / 고등어 봉초밥 30,000원"),
+				withMenuPrice(CHEAP, 14_000, "특미초밥 14,000원, 특선초밥 19,000원, 참치 모듬 2인 60,000원")),
+				2, 0, false, List.of(), List.of(), false, List.of());
+
+		Map<UUID, String> bands = BaselineRecommendationEngine.priceBandsOf(response);
+
+		assertThat(bands).doesNotContainKey(PRICEY);
+		assertThat(bands.get(CHEAP)).isEqualTo(BudgetFit.bandOfWon(14_000));
+	}
+
+	private static PlaceCandidateResponse.Candidate withMenuPrice(UUID placeId, int won, String menu) {
+		ObjectNode value = JsonMapper.builder().build().createObjectNode().put("priceWon", won).put("menu", menu);
+		return new PlaceCandidateResponse.Candidate(placeId, "가게", "FOOD", 35.15, 129.05, 100L,
+				List.of(new PlaceFeatureView(BudgetFit.WON_FEATURE_TYPE, null, "ESTIMATED", value, null, "RESEARCH")));
 	}
 }

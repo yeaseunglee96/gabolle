@@ -310,6 +310,21 @@ public class RecommendationJob {
 	}
 
 	/**
+	 * 일정 조립까지 끝난 뒤의 시간을 적는다 — S15P21E201-1622.
+	 *
+	 * <p>🔴 왜 따로 있나. {@link #applyLatencies} 는 조립 <b>전에</b> 불린다 — 조립이 {@link #markCompleted} 뒤에
+	 * 일어나기 때문이다. 그래서 조립 시간 칸은 늘 비어 있었고 전체 시간에서도 조립이 빠졌다. 운영에서 조립이
+	 * 8.3초 걸린 사례(S15P21E201-1621)가 기록에서는 안 보였다.
+	 *
+	 * @param optimizationMs 조립(편집이면 하루 다시 채우기)에만 든 시간
+	 * @param totalMs 요청을 받은 때부터 조립이 끝난 때까지 — 조립 전에 적어 둔 전체 시간을 덮는다
+	 */
+	public void applyOptimizationLatency(long optimizationMs, long totalMs) {
+		this.optimizationLatencyMs = optimizationMs;
+		this.totalLatencyMs = totalMs;
+	}
+
+	/**
 	 * 결과를 만들고 끝났다. 항상 {@link JobStatus#SUCCEEDED} 다.
 	 *
 	 * <p>대체 경로로 만들었어도 성공이다. 그 사실은 상태가 아니라 {@code fallbackMode} 와

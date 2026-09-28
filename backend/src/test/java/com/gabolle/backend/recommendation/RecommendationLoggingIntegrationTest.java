@@ -24,6 +24,7 @@ import com.gabolle.backend.recommendation.application.RecommendationFailedExcept
 import com.gabolle.backend.recommendation.application.RecommendationResult;
 import com.gabolle.backend.recommendation.application.RecommendationService;
 import com.gabolle.backend.recommendation.application.RecommendedPlace;
+import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
 import com.gabolle.backend.recommendation.domain.CandidateStage;
 import com.gabolle.backend.recommendation.domain.ConstraintSeverity;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
@@ -34,6 +35,7 @@ import com.gabolle.backend.recommendation.domain.RecommendationCandidate;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationCandidateRepository;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
+import com.gabolle.backend.recommendation.support.FakeItineraryDraftPort;
 import com.gabolle.backend.recommendation.support.FakeRecommendationEngine;
 import com.gabolle.backend.recommendation.support.PersonalizationFixture;
 import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
@@ -49,6 +51,9 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 
 	@Autowired
 	private FakeRecommendationEngine engine;
+
+	@Autowired
+	private FakeItineraryDraftPort draftPort;
 
 	@Autowired
 	private RecommendationJobRepository jobRepository;
@@ -315,6 +320,26 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 		assertThat(this.candidateRepository.countByRequestId(job.getRequestId())).isEqualTo(1);
 	}
 
+	@Test
+	@DisplayName("🔴 S15P21E201-1734 — 오늘 당일치기를 너무 늦게 만들면 ITINERARY_NO_TIME_LEFT_TODAY 로 끝난다 · 다시 해도 같다")
+	void aDayTripWithNoTimeLeftTodayFailsWithItsOwnCode() {
+		this.engine.willReturn(FakeRecommendationEngine.batchOf(List.of(
+				FakeRecommendationEngine.passing(UUID.randomUUID(), 0.9))));
+		this.draftPort.failAssembleWith(new ItineraryDraftPort.NoTimeLeftTodayException("시험"));
+		try {
+			// 조립 실패(ITINERARY_ASSEMBLY_FAILED)와 섞이면 앱이 「다시 시도」를 권하고, 다시 해도 같은 답이 온다.
+			assertThatThrownBy(() -> this.recommendationService.recommend(command(5)))
+					.isInstanceOf(RecommendationFailedException.class);
+		}
+		finally {
+			this.draftPort.failAssembleWith(null);
+		}
+
+		RecommendationJob job = this.jobRepository.findAll().get(0);
+		assertThat(job.getErrorCode()).isEqualTo(RecommendationCodes.ERROR_ITINERARY_NO_TIME_LEFT_TODAY);
+		assertThat(job.isRetryable()).isFalse();
+	}
+
 	private List<EventOutbox> requestedEvents() {
 		return this.outboxRepository
 				.findByEventTypeOrderByOccurredAtAsc(RecommendationCodes.EVENT_RECOMMENDATION_REQUESTED);
@@ -339,6 +364,25 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 		assertThat(job.getResourceId()).isEqualTo(job.getTripId());
 		assertThat(job.getJobStatus()).isEqualTo(JobStatus.SUCCEEDED);
 		assertThat(job.getPolicyVersion()).isEqualTo("policy-2026-09-01");
+	}
+
+	@Test
+	@DisplayName("🔴 일정 조립 시간이 조립 시간 칸에 적히고 전체 시간에도 들어간다 — 전에는 조립 전에 재고 끝났다")
+	void assemblyTimeIsRecorded() {
+		this.engine.willReturn(FakeRecommendationEngine.batchOf(List.of(
+				FakeRecommendationEngine.passing(UUID.randomUUID(), 0.9))));
+		this.draftPort.delayAssembleBy(300);
+		RecommendationResult result;
+		try {
+			result = this.recommendationService.recommend(command(5));
+		}
+		finally {
+			this.draftPort.delayAssembleBy(0);
+		}
+
+		RecommendationJob job = this.jobRepository.findByRequestId(result.requestId()).orElseThrow();
+		assertThat(job.getOptimizationLatencyMs()).isGreaterThanOrEqualTo(300L);
+		assertThat(job.getTotalLatencyMs()).isGreaterThanOrEqualTo(job.getOptimizationLatencyMs());
 	}
 
 	@Test

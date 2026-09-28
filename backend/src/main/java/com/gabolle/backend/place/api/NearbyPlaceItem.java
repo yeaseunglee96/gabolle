@@ -38,12 +38,16 @@ public record NearbyPlaceItem(
 		 * 그 사진이 무엇을 찍은 것인가 ({@code SELF} = 이 장소, {@code VENUE} = 이 장소가 들어 있는
 		 * 곳). 이 칸이 없으면 화면은 주변 시설 사진을 이 장소 사진처럼 그린다. 값이 없으면 키가 빠진다.
 		 */
-		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject) {
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject,
+
+		/** 사진의 라이선스(S15P21E201-1606). {@link PlaceSummaryResponse#photoLicense()} 와 같다. 없으면 키가 빠진다. */
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense) {
 
 	public static NearbyPlaceItem from(Place place, long distanceM) {
 		return new NearbyPlaceItem(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), distanceM,
 				place.getPhotoUrl() != null && !place.getPhotoUrl().isBlank(),
-				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject());
+				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
+				place.getPhotoLicense());
 	}
 }

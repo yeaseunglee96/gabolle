@@ -1,0 +1,13 @@
+{
+  "_설명": "이동 시간 배율(실제 ÷ 어림) 작업의 검사 기준. 수단마다 따로 잰다. 근거는 backend/calibration/README.md. 배율이 없던 때는 1.0(어림 그대로)이다.",
+  "unit": "배",
+  "decimals": 2,
+  "window_days": 84,
+  "min_samples": 30,
+  "iqr_multiplier": 1.5,
+  "max_change_ratio": 0.2,
+  "min_value": 0.5,
+  "max_value": 2.0,
+  "baseline": {},
+  "baseline_default": 1.0
+}

@@ -103,7 +103,8 @@ public class PlaceDetailService {
 				featureSlot(features, "OPENING_HOURS"),
 				featureSlot(features, "PRICE_LEVEL"),
 				// 이 화면의 주된 값은 이름이라 영문 이름 유무로 판정한다
-				RequestLanguage.resolve(acceptLanguageHeader, place.getNameEn() != null));
+				RequestLanguage.resolve(acceptLanguageHeader, place.getNameEn() != null),
+				place.getPhotoLicense());
 	}
 
 	/**

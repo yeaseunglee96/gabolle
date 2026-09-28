@@ -28,6 +28,9 @@ public class FakeItineraryDraftPort implements ItineraryDraftPort {
 
 	private final JdbcTemplate jdbcTemplate;
 
+	/** 조립이 이만큼 걸린 것처럼 기다린다(밀리초). 조립 시간이 작업 기록에 적히는지 볼 때만 쓴다. */
+	private volatile long assembleDelayMs;
+
 	public FakeItineraryDraftPort(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
@@ -46,8 +49,32 @@ public class FakeItineraryDraftPort implements ItineraryDraftPort {
 		return 1;
 	}
 
+	/** 다음 조립부터 이만큼 기다린다. 0 이면 안 기다린다 — 쓴 시험이 끝나면 0 으로 되돌린다. */
+	public void delayAssembleBy(long millis) {
+		this.assembleDelayMs = millis;
+	}
+
+	/** 조립이 대신 던질 예외. {@code null} 이면 안 던진다 — 쓴 시험이 끝나면 {@code null} 로 되돌린다. */
+	private volatile RuntimeException assembleFailure;
+
+	/** 다음 조립부터 이 예외를 던진다 — 조립 쪽 예외가 작업의 어느 실패 코드가 되는지 볼 때만 쓴다. */
+	public void failAssembleWith(RuntimeException failure) {
+		this.assembleFailure = failure;
+	}
+
 	@Override
 	public ItineraryDraft assemble(ItineraryDraftCommand command) {
+		if (this.assembleFailure != null) {
+			throw this.assembleFailure;
+		}
+		if (this.assembleDelayMs > 0) {
+			try {
+				Thread.sleep(this.assembleDelayMs);
+			}
+			catch (InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			}
+		}
 		// 실제 여행 기간·출발지 계산은 ItineraryDraftServiceTest(itinerary 슬라이스)가 본다.
 		// 여기서는 추천 로깅 테스트가 필요로 하는 "받은 장소만큼 항목이 생긴다"만 지킨다.
 		List<ItineraryDraft.DraftItem> items = new ArrayList<>();

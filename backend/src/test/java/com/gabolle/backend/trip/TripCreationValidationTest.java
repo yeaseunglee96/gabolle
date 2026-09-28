@@ -67,6 +67,7 @@ class TripCreationValidationTest {
                 {
                   "startDate": "2026-09-06",
                   "finishDate": "2026-09-08",
+                  "accommodationArea": "HAEUNDAE",
                   "partySize": 1,
                   "originLat": 35.1587,
                   "originLng": 129.1604,
@@ -89,6 +90,7 @@ class TripCreationValidationTest {
                 {
                   "startDate": "2026-09-06",
                   "finishDate": "2026-09-08",
+                  "accommodationArea": "HAEUNDAE",
                   "partySize": 1,
                   "originLat": 35.1587,
                   "originLng": 129.1604,
@@ -112,6 +114,7 @@ class TripCreationValidationTest {
                 {
                   "startDate": "2026-09-06",
                   "finishDate": "2026-09-08",
+                  "accommodationArea": "HAEUNDAE",
                   "partySize": 1,
                   "originLat": 35.1587,
                   "originLng": 129.1604,

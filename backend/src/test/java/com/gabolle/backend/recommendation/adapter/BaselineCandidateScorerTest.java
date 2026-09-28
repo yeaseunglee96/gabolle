@@ -75,30 +75,36 @@ class BaselineCandidateScorerTest {
 
 	// ── 알레르기 ──────────────────────────────────────────────────────────────
 
+	/**
+	 * 🔴 S15P21E201-1633(사용자 결정 2026-09-25) — 앱이 더 묻지 않는 알레르기의 옛 「반드시」 답은 빼는 조건이 아니라
+	 * 경고다. 전에는 표식이 없는 곳이 「모름(반드시)」이 되어 후보 200곳이 전부 빠지고 다시 짜기가 실패했다.
+	 */
 	@Test
-	@DisplayName("🔴 미확인 알레르기는 절대 PASS 가 아니다 — 표식 행이 없으면 UNKNOWN 이다")
-	void 미확인_알레르기는_통과가_아니다() {
+	@DisplayName("🔴 알레르기 표식이 없는 곳은 빼지 않고 「알레르기 확인 안 됨」 경고를 단다 — 다시 짜기가 실패하지 않게")
+	void 미확인_알레르기는_경고로_남는다() {
 		TripConstraint peanutAllergy = allergy("PEANUT");
 		PlaceCandidateResponse.Candidate candidate = candidate(List.of()); // ALLERGEN_TAG 행 자체가 없다
 
 		EngineCandidate result = score(candidate, null, List.of(peanutAllergy));
 
-		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.PASS);
-		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
-		assertThat(result.unknownFacts()).anySatisfy(fact -> {
-			assertThat(fact.get("fact")).isEqualTo("ALLERGEN_UNVERIFIED");
-			assertThat(fact.get("featureKey")).isEqualTo("PEANUT");
-			assertThat(fact.get("severity")).isEqualTo("REQUIRED");
-		});
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.unknownFacts())
+				.as("「모름(반드시)」이 남으면 후보 고르기가 뺀다")
+				.noneSatisfy(fact -> assertThat(fact.get("fact")).isEqualTo("ALLERGEN_UNVERIFIED"));
+		assertThat(result.warningCodes()).contains("ALLERGEN_UNVERIFIED");
+		assertThat(result.preRankScore()).isNotNull();
 	}
 
 	@Test
 	@DisplayName("🔴 REQUIRED 미확인은 등급까지 사실로 남긴다 — 제외 여부는 채점기가 아니라 임계값 설정이 정한다")
 	void required_미확인은_등급까지_남긴다() {
+		// 알레르기 대조표 줄이 없으면 「판정 못 함(반드시)」이다 — 표식이 없는 것과 달리 설정이 어긋난 것이다.
 		TripConstraint peanutAllergy = allergy("PEANUT");
 		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
 
-		EngineCandidate result = score(candidate, null, List.of(peanutAllergy));
+		EngineCandidate result = this.scorer.score(candidate, null, List.of(peanutAllergy), RADIUS_M, WEIGHTS,
+				ALIGNMENT_WEIGHTS, this.preferenceCodeMap, List.of(), TasteWeightComponent.merge(List.of()),
+				TASTE_MULTIPLIER);
 
 		// 채점기가 점수를 지워서 후보를 빼지 않는다. unknown-exclusion-threshold 를 NONE 으로
 		// 두는 것이 정당한 설정이라, 여기서 점수를 지우면 그 설정이 안 먹는다.
@@ -192,17 +198,23 @@ class BaselineCandidateScorerTest {
 	}
 
 	@Test
-	@DisplayName("🔴 알레르기는 이 처리를 안 받는다 — 미확인이면 여전히 UNKNOWN 이다")
-	void 알레르기는_식단과_같게_다루지_않는다() {
-		// 접근성·식단이 틀리면 불편하고, 알레르기가 틀리면 사람이 다친다. 같은 저울에
-		// 올리지 않는다는 것이 팀 결정이고, 이 시험이 그것을 지킨다.
+	@DisplayName("🔴 알레르기 재료가 들었다고 확인된 곳은 여전히 뺀다 — 경고로 돌리는 것은 「확인 안 됨」뿐이다")
+	void 확인된_알레르기는_그대로_뺀다() {
+		// 옛 팀 결정(「알레르기는 식단처럼 경고로 낮추지 않는다」)은 S15P21E201-1633 에서 「확인 안 됨」에 한해 바뀌었다.
+		// 확인된 사실은 그대로다.
 		TripConstraint peanut = allergy("PEANUT");
-		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
+		PlaceCandidateResponse.Candidate candidate = candidate(List.of(tag("ALLERGEN_TAG", "PEANUT", "VERIFIED", "true")));
 
 		EngineCandidate result = score(candidate, null, List.of(peanut));
 
-		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
+		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.FAIL);
 		assertThat(result.warningCodes()).doesNotContain("ALLERGEN_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("알레르기 경고 낱말은 앱 사전의 이름 그대로다 — 바뀌면 화면에서 조용히 사라진다")
+	void 알레르기_경고_낱말() {
+		assertThat(BaselineCandidateScorer.ALLERGEN_UNVERIFIED_WARNING).isEqualTo("ALLERGEN_UNVERIFIED");
 	}
 
 	@Test
@@ -280,6 +292,69 @@ class BaselineCandidateScorerTest {
 		assertThat(result.warningCodes()).contains("ACCESSIBILITY_UNVERIFIED");
 	}
 
+	// ── 이동 조건을 경사로 (S15P21E201-1625) ───────────────────────────────────
+
+	/** 경사 표식 — {@code place-slope-by-id} 가 적재하는 모양 그대로({@code score} 에 %). */
+	private static PlaceFeatureView slope(double percent) {
+		return scoreFeature("SLOPE_PERCENT", "ESTIMATED", "{\"score\": " + percent + ", \"stat\": \"p50\"}");
+	}
+
+	@Test
+	@DisplayName("🔴 유아차를 「반드시」로 고르면 경사가 상한(8.33%)을 넘는 곳은 빠진다 — 산이 경고만 달고 들어가던 것")
+	void 반드시면_가파른_곳은_빠진다() {
+		for (String key : List.of("STROLLER", "WHEELCHAIR", "HEAVY_LUGGAGE")) {
+			EngineCandidate result = score(candidateOf("NATURE_WALK", List.of(slope(16.0))), null,
+					List.of(mobility(key, TripConstraint.Severity.HARD)));
+
+			assertThat(result.constraintVerdict()).as(key).isEqualTo(ConstraintVerdict.FAIL);
+			assertThat(result.violations()).as(key)
+					.anySatisfy(v -> assertThat(v.get("code")).isEqualTo("SLOPE_OVER_LIMIT"));
+		}
+	}
+
+	@Test
+	@DisplayName("상한 아래면 안 빠지고, 미확인 경고는 그대로 남는다 — 경사는 추정값이라 「갈 수 있음」을 약속하지 않는다")
+	void 완만하면_남고_미확인_경고는_그대로다() {
+		EngineCandidate result = score(candidateOf("NATURE_WALK", List.of(slope(2.8))), null,
+				List.of(mobility("STROLLER", TripConstraint.Severity.HARD)));
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.warningCodes()).contains("ACCESSIBILITY_UNVERIFIED").doesNotContain("SLOPE_OVER_LIMIT");
+	}
+
+	@Test
+	@DisplayName("「되도록」이면 가팔라도 빼지 않고 경고만 단다")
+	void 되도록이면_경고만() {
+		EngineCandidate result = score(candidateOf("NATURE_WALK", List.of(slope(16.0))), null,
+				List.of(mobility("STROLLER", TripConstraint.Severity.SOFT)));
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.warningCodes()).contains("SLOPE_OVER_LIMIT");
+	}
+
+	@Test
+	@DisplayName("🔴 확인된 「갈 수 있음」 표식이 있으면 경사가 높아도 통과한다 — 확인된 사실이 추정값보다 앞선다")
+	void 확인된_표식이_경사보다_앞선다() {
+		EngineCandidate result = score(candidateOf("NATURE_WALK", List.of(
+				tag("ACCESSIBILITY_TAG", "STROLLER", "VERIFIED", "true"), slope(11.4))), null,
+				List.of(mobility("STROLLER", TripConstraint.Severity.HARD)));
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.violations()).isEmpty();
+	}
+
+	@Test
+	@DisplayName("상한은 설정값 하나다 — 12% 로 올리면 10% 인 곳은 안 빠진다")
+	void 상한은_설정값이다() {
+		BaselineCandidateScorer lenient = new BaselineCandidateScorer(new ObjectMapper(), 12.0);
+
+		EngineCandidate result = lenient.score(candidateOf("CULTURE_TEMPLE", List.of(slope(10.0))), null,
+				List.of(mobility("STROLLER", TripConstraint.Severity.HARD)), RADIUS_M, WEIGHTS, ALIGNMENT_WEIGHTS,
+				this.preferenceCodeMap, this.constraintCodeMap, TasteWeightComponent.merge(List.of()), TASTE_MULTIPLIER);
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+	}
+
 	@Test
 	@DisplayName("🔴 안 재 본 곳은 재 보고 갈 수 있는 곳보다 뒤로 밀린다 — 빼지 않는 대신 감점한다")
 	void 미확인은_확인된_곳보다_점수가_낮다() {
@@ -323,22 +398,35 @@ class BaselineCandidateScorerTest {
 	// ── 점수 ──────────────────────────────────────────────────────────────────
 
 	@Test
-	@DisplayName("거리는 항상 NEAR_ORIGIN 을 남기고, 못 구한 피처는 0 이 아니라 null 이다")
+	@DisplayName("거리는 항상 재고, 못 구한 피처는 0 이 아니라 null 이다")
 	void 거리는_항상_계산되고_못구한_피처는_null() {
 		PlaceCandidateResponse.Candidate candidate = candidate(1000L, List.of());
 
 		EngineCandidate result = score(candidate, null, List.of());
 
-		assertThat(result.reasonCodes()).contains("NEAR_ORIGIN");
 		assertThat(result.featureValues().get("distanceM")).isEqualTo(1000L);
 		// 취향 스냅샷 자체가 없으니 관심 태그 겹침을 잴 수 없다 — 0 이 아니라 null.
 		assertThat(result.featureValues().get("interestTagOverlap")).isNull();
 	}
 
 	@Test
+	@DisplayName("🔴 NEAR_ORIGIN 은 1km 미만에만 — 999m 는 붙고 1,000m 는 안 붙는다. 점수는 거리식 그대로다 (S15P21E201-1638)")
+	void 가까움은_1km_미만에만_붙고_점수는_그대로() {
+		EngineCandidate near = score(candidate(999L, List.of()), null, List.of());
+		EngineCandidate far = score(candidate(1000L, List.of()), null, List.of());
+
+		assertThat(near.reasonCodes()).contains("NEAR_ORIGIN");
+		assertThat(far.reasonCodes()).doesNotContain("NEAR_ORIGIN");
+		// 이유를 빼도 점수는 안 움직인다 — 거리 0.30 × (1 - 거리/5000) 뿐이다.
+		assertThat(near.preRankScore()).isCloseTo(0.30 * (1 - 999 / 5000.0), within(1e-9));
+		assertThat(far.preRankScore()).isCloseTo(0.30 * (1 - 1000 / 5000.0), within(1e-9));
+	}
+
+	@Test
 	@DisplayName("관심 태그가 겹치면 TAG_MATCH_INTEREST 와 겹침 비율을 남긴다")
 	void 관심태그_겹치면_리즌코드와_비율() {
-		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\", \"CAFE\"]}");
+		// 두 번째 코드는 이 후보의 갈래(CAFE)가 아니어야 한다 — 갈래가 맞으면 아래 테마 규칙으로 만점이 된다.
+		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\", \"PARK\"]}");
 		PlaceCandidateResponse.Candidate candidate = candidate(
 				List.of(tag("INTEREST_TAG", "SEA", "VERIFIED", null)));
 
@@ -346,6 +434,33 @@ class BaselineCandidateScorerTest {
 
 		assertThat(result.reasonCodes()).contains("TAG_MATCH_INTEREST");
 		assertThat((Double) result.featureValues().get("interestTagOverlap")).isEqualTo(0.5);
+	}
+
+	@Test
+	@DisplayName("🔴 여행 테마가 장소 갈래(place.category)와 같으면 태그가 없어도 관심 만점 — 앱 테마와 관심 태그는 어휘가 다르다")
+	void 테마가_장소갈래와_같으면_관심_만점() {
+		// 운영 관심 태그는 NATURE·WALK·TRADITIONAL_MARKET … 이고 앱 테마는 SEA_BEACH·FOOD … 다(2026-09-23 실측).
+		// 태그만 보면 테마가 아무 데도 안 겹쳐 가산이 0 이었다.
+		PreferenceSnapshot snapshot = snapshot("CATEGORY", "[\"SEA_BEACH\", \"FOOD\"]");
+		PlaceCandidateResponse.Candidate beach = candidateOf("SEA_BEACH", List.of());
+
+		EngineCandidate result = score(beach, snapshot, List.of());
+
+		assertThat(result.reasonCodes()).contains("TAG_MATCH_INTEREST");
+		// 테마를 둘 골랐어도 반점이 아니다 — 장소는 갈래가 하나다.
+		assertThat((Double) result.featureValues().get("interestTagOverlap")).isEqualTo(1.0);
+	}
+
+	@Test
+	@DisplayName("테마와 갈래가 다르면 가산이 없다 — 고른 갈래가 위로 올라오는 것은 이 차이 때문이다")
+	void 테마와_갈래가_다르면_가산없음() {
+		PreferenceSnapshot snapshot = snapshot("CATEGORY", "[\"SEA_BEACH\"]");
+
+		EngineCandidate beach = score(candidateOf("SEA_BEACH", List.of()), snapshot, List.of());
+		EngineCandidate restaurant = score(candidateOf("FOOD", List.of()), snapshot, List.of());
+
+		assertThat((Double) restaurant.featureValues().get("interestTagOverlap")).isEqualTo(0.0);
+		assertThat(beach.preRankScore()).isGreaterThan(restaurant.preRankScore());
 	}
 
 	// ── 도구 ──────────────────────────────────────────────────────────────────
@@ -518,6 +633,11 @@ class BaselineCandidateScorerTest {
 
 	private static PlaceCandidateResponse.Candidate candidate(List<PlaceFeatureView> features) {
 		return candidate(1000L, features);
+	}
+
+	private static PlaceCandidateResponse.Candidate candidateOf(String category, List<PlaceFeatureView> features) {
+		return new PlaceCandidateResponse.Candidate(UUID.randomUUID(), "테스트 장소", category, 35.1, 129.0,
+				1000L, features);
 	}
 
 	private static PlaceCandidateResponse.Candidate candidate(long distanceM, List<PlaceFeatureView> features) {

@@ -152,7 +152,9 @@ class TripStoryJourneyFunctionalTest extends FunctionalJourneyTest {
 	private String createTrip(AuthedClient client) {
 		LocalDate start = LocalDate.now().plusDays(7);
 		CreateTripRequest request = new CreateTripRequest(start, start.plusDays(1), 35.1152, 129.0423, null, 2, null,
-				null, List.of(), null, List.of(), null, null, null, null, null);
+				null, List.of(), null, List.of(), null, null, null, null, null,
+				// 1박이라 숙소가 있어야 한다(S15P21E201-1585). 출발지(부산역)에서 가까운 동네로.
+				null, null, null, "NAMPO");
 		ResponseEntity<ApiResponse<TripDto>> response = client.post("/api/v1/trips", request,
 				new ParameterizedTypeReference<ApiResponse<TripDto>>() {
 				});

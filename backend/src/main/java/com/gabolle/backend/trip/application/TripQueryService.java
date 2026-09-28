@@ -107,14 +107,20 @@ public class TripQueryService {
 			return List.of();
 		}
 
-		Map<String, TripCoverPort.Cover> covers =
-				this.coverPort.coversOf(rows.stream().map((row) -> row.trip().tripId()).toList());
+		List<String> tripIds = rows.stream().map((row) -> row.trip().tripId()).toList();
+		Map<String, TripCoverPort.Cover> covers = this.coverPort.coversOf(tripIds);
+		Map<String, String> currents = this.coverPort.currentItinerariesOf(tripIds);
 
-		return rows.stream().map((row) -> new Listing(row, covers.get(row.trip().tripId()))).toList();
+		return rows.stream()
+				.map((row) -> new Listing(row, covers.get(row.trip().tripId()), currents.get(row.trip().tripId())))
+				.toList();
 	}
 
-	/** 목록 한 줄과 그 줄의 표지. {@code cover} 는 표지를 못 구했을 때 {@code null} 이다. */
-	public record Listing(TripRepository.MemberTrip row, TripCoverPort.Cover cover) {
+	/**
+	 * 목록 한 줄과 그 줄의 표지·확정 일정. {@code cover} 는 표지를 못 구했을 때, {@code currentItineraryId} 는 일정이
+	 * 없을 때 {@code null} 이다.
+	 */
+	public record Listing(TripRepository.MemberTrip row, TripCoverPort.Cover cover, String currentItineraryId) {
 	}
 
 	/**

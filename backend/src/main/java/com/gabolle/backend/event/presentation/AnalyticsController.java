@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,13 +20,15 @@ import com.gabolle.backend.event.presentation.dto.AnalyticsKpiResponse;
  * 지표 조회. 운영자 전용이다 — 내부 운영 숫자는 서비스 규모의 단서라 익명 출입증으로 읽히면
  * 안 된다.
  *
- * <p>인가는 이 컨트롤러가 하지 않고 경로 앞자리가 한다. 이 저장소는 메서드 보안이 꺼져 있어
- * {@code @PreAuthorize} 를 붙여도 조용히 무시된다. 실제로 막는 것은 {@code SecurityConfig} 의
- * {@code requestMatchers("/api/v1/admin/**").hasRole("ADMIN")} 한 줄뿐이므로, 이 클래스를
- * {@code /api/v1/admin/} 밖으로 옮기면 잠금이 풀린다.
+ * 🔴 S15P21E201-1548 — 인가는 이제 **이중**이다. {@code SecurityConfig} 의
+ * {@code requestMatchers("/api/v1/admin/**").hasRole("ADMIN")} 이 경로로 막고, 이 클래스의
+ * {@code @PreAuthorize} 가 메서드 보안({@code @EnableMethodSecurity})으로 한 번 더 막는다.
+ * 이 클래스를 {@code /api/v1/admin/} 밖으로 옮기거나 애너테이션이 지워져도, 남은 방어선
+ * 하나가 여전히 막는다.
  */
 @RestController
 @RequestMapping("/api/v1/admin/analytics")
+@PreAuthorize("hasRole('ADMIN')")
 @Profile({ "db", "dev" })
 public class AnalyticsController {
 

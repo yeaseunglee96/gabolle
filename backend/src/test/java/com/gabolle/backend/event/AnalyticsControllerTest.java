@@ -26,9 +26,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * {@code GET /api/v1/admin/analytics/kpis} 의 표현 계층. DB 없이 돌고
  * {@link AnalyticsQueryService} 는 mock 이다.
  *
- * <p>운영자 잠금은 여기서 재지 않는다. {@code standaloneSetup} 이라 {@code SecurityConfig}
- * 가 없어 {@code /api/v1/admin/**} 규칙이 적용되지 않는다 — 그 잠금은
- * {@code RouteAuthorizationRegistryTest} 가 잰다.
+ * <p>운영자 잠금은 여기서 재지 않는다. {@code standaloneSetup} 이라 Spring 컨텍스트 자체가 없어
+ * {@code SecurityConfig} 의 경로 매처도, 컨트롤러의 {@code @PreAuthorize}(S15P21E201-1548)도
+ * 둘 다 걸리지 않는다 — 그 잠금은 {@code RouteAuthorizationRegistryTest} 와
+ * {@code AdminModerationAuthorizationIntegrationTest} 가 잰다.
  */
 class AnalyticsControllerTest {
 

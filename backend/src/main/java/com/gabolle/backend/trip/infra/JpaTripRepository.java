@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,7 @@ import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.UserPreferenceDefaultsSaved;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -42,6 +44,7 @@ public class JpaTripRepository implements TripRepository {
 	private final PreferenceAnswerJpaRepository preferenceAnswerJpaRepository;
 	private final ConstraintSnapshotJpaRepository constraintSnapshotJpaRepository;
 	private final ConstraintAnswerJpaRepository constraintAnswerJpaRepository;
+	private final ApplicationEventPublisher events;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -51,13 +54,15 @@ public class JpaTripRepository implements TripRepository {
 			PreferenceSnapshotJpaRepository preferenceSnapshotJpaRepository,
 			PreferenceAnswerJpaRepository preferenceAnswerJpaRepository,
 			ConstraintSnapshotJpaRepository constraintSnapshotJpaRepository,
-			ConstraintAnswerJpaRepository constraintAnswerJpaRepository) {
+			ConstraintAnswerJpaRepository constraintAnswerJpaRepository,
+			ApplicationEventPublisher events) {
 		this.tripJpaRepository = tripJpaRepository;
 		this.memberJpaRepository = memberJpaRepository;
 		this.preferenceSnapshotJpaRepository = preferenceSnapshotJpaRepository;
 		this.preferenceAnswerJpaRepository = preferenceAnswerJpaRepository;
 		this.constraintSnapshotJpaRepository = constraintSnapshotJpaRepository;
 		this.constraintAnswerJpaRepository = constraintAnswerJpaRepository;
+		this.events = events;
 	}
 
 	@Override
@@ -236,6 +241,10 @@ public class JpaTripRepository implements TripRepository {
 					UUID.randomUUID(), snapshotId, answer.dimension(), answer.valueJson(),
 					answer.status(), toOffset(at)));
 		}
+		// 취향 판을 새로 접게 알린다 (S15P21E201-1515). 여기서 내는 이유는 계정 기본 취향을 쓰는
+		// 문이 이 메서드 하나라서다 — 설문(PreferenceDefaultsService)도 씀씀이(SpendProfileService)도
+		// 여기를 지난다. 받는 쪽은 커밋 뒤에 돈다. 커밋 전에 접으면 롤백된 설문으로 판을 만든다.
+		this.events.publishEvent(new UserPreferenceDefaultsSaved(ownerUserId));
 		return new PreferenceSnapshot(snapshotId.toString(), null, nextVersion, answers,
 				PersonalizationScope.USER, List.of(), at);
 	}
@@ -307,6 +316,40 @@ public class JpaTripRepository implements TripRepository {
 		}
 
 		Trip existingTrip = findById(existingTripId.toString()).orElseThrow();
+
+		// 🔴 키가 묶인 여행이 이미 지워졌으면(S15P21E201-1716) 재시도로 돌려주지 않는다.
+		//    프론트는 여행 조건(출발지·날짜·인원)으로 늘 같은 키를 만든다. 같은 조건으로 여행을 지웠다 다시 만들면 이 키가
+		//    지운 여행을 가리킨 채 남아 있고, 그 여행을 돌려주면 추천 요청(POST /trips/{id}/recommendation-jobs)이 404 로
+		//    끝난다 — 「지금은 일정을 만들 수 없어요」. 지운 여행은 사용자에게 없는 여행이므로 이 요청은 새 여행이다.
+		//
+		//    갈아 묶기는 「아직 그 지운 여행에 묶여 있을 때만」({@code trip_id = ?5}) 바꾼다. 같은 키로 동시에 온 요청 둘이
+		//    모두 지운 여행을 보았을 때 한쪽만 이기게 하는 장치다(한 행에 대한 갱신은 한 번에 하나만 통과한다).
+		if (existingTrip.isDeleted()) {
+			int rebound = entityManager.createNativeQuery(
+					"UPDATE trip_idempotency SET trip_id = ?3, created_at = ?4 "
+							+ "WHERE user_id = ?1 AND idempotency_key = ?2 AND trip_id = ?5")
+					.setParameter(1, UUID.fromString(userId))
+					.setParameter(2, idempotencyKey)
+					.setParameter(3, UUID.fromString(trip.tripId()))
+					.setParameter(4, toOffset(trip.createdAt()))
+					.setParameter(5, existingTripId)
+					.executeUpdate();
+
+			if (rebound == 1) {
+				save(trip, tripConstraints, owner, snapshot);
+				return new SaveOutcome(trip, snapshot, true);
+			}
+
+			// 동시에 다른 요청이 먼저 갈아 묶었다 — 그 요청이 만든 여행을 돌려준다(이쪽 요청은 재시도가 된다).
+			UUID reboundTripId = (UUID) entityManager.createNativeQuery(
+					"SELECT trip_id FROM trip_idempotency WHERE user_id = ?1 AND idempotency_key = ?2")
+					.setParameter(1, UUID.fromString(userId))
+					.setParameter(2, idempotencyKey)
+					.getSingleResult();
+			Trip winner = findById(reboundTripId.toString()).orElseThrow();
+			return new SaveOutcome(winner, findLatestSnapshot(reboundTripId.toString()).orElse(null), false);
+		}
+
 		PreferenceSnapshot existingSnapshot = findLatestSnapshot(existingTripId.toString()).orElse(null);
 		return new SaveOutcome(existingTrip, existingSnapshot, false);
 	}
@@ -369,7 +412,8 @@ public class JpaTripRepository implements TripRepository {
 				t.accommodationPlaceId() == null ? null : UUID.fromString(t.accommodationPlaceId()),
 				t.englishMenuRequired(), t.foreignCardRequired(), t.soloFriendlyPriority(),
 				t.maxTransitTransfers(), t.pace(), t.title(), t.status(),
-				toOffset(t.createdAt()), toOffset(t.updatedAt()), toOffset(t.deletedAt()));
+				toOffset(t.createdAt()), toOffset(t.updatedAt()), toOffset(t.deletedAt()),
+				t.accommodationArea());
 	}
 
 	private static Trip toDomain(TripJpaEntity e) {
@@ -389,6 +433,7 @@ public class JpaTripRepository implements TripRepository {
 				.travelModes(e.travelModes())
 				.pace(e.pace())
 				.accommodationPlaceId(e.accommodationPlaceId() == null ? null : e.accommodationPlaceId().toString())
+				.accommodationArea(e.accommodationArea())
 				.englishMenuRequired(e.englishMenuRequired())
 				.foreignCardRequired(e.foreignCardRequired())
 				.soloFriendlyPriority(e.soloFriendlyPriority())

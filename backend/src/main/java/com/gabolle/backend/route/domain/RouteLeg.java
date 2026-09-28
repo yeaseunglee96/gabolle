@@ -23,6 +23,8 @@ import java.util.List;
  * @param transitFareKrw 대중교통 요금(원). 환승 할인·차액이 반영된 이 여정 전체의 금액이고
  *        구간별 합이 아니다. 요금을 모르는 노선이 하나라도 끼면 {@code null} 이다 — 아는 것만
  *        더하면 실제보다 싸다. {@code 0} 은 「걷기만 해서 공짜다」라는 다른 사실이다
+ * @param pieces 경로를 경사·계단이 같은 조각으로 나눈 것 — S15P21E201-1630. 우리 보행 그래프가 찾은 걷기에만
+ *        있고 나머지는 빈 목록이다(모른다를 지어내지 않는다)
  */
 public record RouteLeg(
 		TravelMode mode,
@@ -36,21 +38,47 @@ public record RouteLeg(
 		String provider,
 		List<double[]> path,
 		List<Step> steps,
-		Integer transitFareKrw) {
+		Integer transitFareKrw,
+		List<Piece> pieces) {
+
+	public RouteLeg {
+		pieces = (pieces == null) ? List.of() : List.copyOf(pieces);
+	}
+
+	/** 경사 조각이 없는 경로(업체·직선 어림·대중교통)용 — {@code pieces} 를 빈 목록으로 둔다. */
+	public RouteLeg(TravelMode mode, int distanceM, int durationMin, Integer taxiFareKrw, Integer tollFareKrw,
+			Integer transferCount, boolean estimated, String estimateReason, String provider,
+			List<double[]> path, List<Step> steps, Integer transitFareKrw) {
+		this(mode, distanceM, durationMin, taxiFareKrw, tollFareKrw, transferCount, estimated, estimateReason,
+				provider, path, steps, transitFareKrw, List.of());
+	}
 
 	/** 대중교통 요금이라는 것이 없는 경로(자동차·직선거리)용 — {@code transitFareKrw} 를 {@code null} 로 둔다. */
 	public RouteLeg(TravelMode mode, int distanceM, int durationMin, Integer taxiFareKrw, Integer tollFareKrw,
 			Integer transferCount, boolean estimated, String estimateReason, String provider,
 			List<double[]> path, List<Step> steps) {
 		this(mode, distanceM, durationMin, taxiFareKrw, tollFareKrw, transferCount, estimated, estimateReason,
-				provider, path, steps, null);
+				provider, path, steps, null, List.of());
 	}
 
 	/** 단계별 안내 한 줄. */
 	public record Step(String name, String guidance, int distanceM, int durationMin) {
 	}
 
+	/**
+	 * 경로의 한 조각 — S15P21E201-1630. {@code path[from]} 부터 {@code path[to]} 까지(둘 다 포함) 경사·계단이 같다.
+	 *
+	 * @param slopePercent 그 길의 보통 기울기(%, 방향 없는 크기 — 오르막·내리막을 안 가른다). 모르면 {@code null} —
+	 *        30m 미만 조각·다리·터널·길 밖(출발·도착을 길에 붙이는 토막)이다. {@code 0}(평지)과 다르다
+	 * @param stairs 계단인가
+	 */
+	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+	}
+
 	public static final String PROVIDER_KAKAO_MOBILITY = "KAKAO_MOBILITY";
 
 	public static final String PROVIDER_STRAIGHT_LINE = "STRAIGHT_LINE";
+
+	/** 우리 보행 그래프(오픈스트리트맵 걷는 길)가 찾은 걷기 — S15P21E201-1630. */
+	public static final String PROVIDER_WALK_GRAPH = "OSM_WALK_GRAPH";
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
@@ -51,6 +54,9 @@ class ItineraryPersistenceIntegrationTest {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	private PlatformTransactionManager transactionManager;
 
 	private String itineraryId;
 	private String tripId;
@@ -97,6 +103,22 @@ class ItineraryPersistenceIntegrationTest {
 	}
 
 	/**
+	 * 🔴 같은 영속성 컨텍스트 안에서 — 요청 하나가 컨텍스트 하나를 쓰는 open-in-view 와 같다 — 편집 전에
+	 * 읽어 둔 일정을 편집 뒤에 다시 읽어도 새 판을 가리켜야 한다. 포인터는 원시 SQL 로 옮기므로
+	 * 1차 캐시를 맞추지 않으면 옛 판을 돌려주고, 편집 응답이 바뀌기 전 판이 된다(S15P21E201-1785).
+	 */
+	@Test
+	void pointerMoveIsVisibleInTheSamePersistenceContext() {
+		new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+			assertThat(itineraryRepository.findById(itineraryId).orElseThrow().latestVersion()).isEqualTo(1);
+
+			itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of(), List.of());
+
+			assertThat(itineraryRepository.findById(itineraryId).orElseThrow().latestVersion()).isEqualTo(2);
+		});
+	}
+
+	/**
 	 * 판 번호는 비어 있는데 포인터가 그 사이 움직인 경우.
 	 *
 	 * <p>다른 세션이 최신 포인터를 3으로 옮겨 놓은 상태에서 baseVersion 1 로 2번 판을
@@ -131,5 +153,28 @@ class ItineraryPersistenceIntegrationTest {
 
 		// 진 쪽 시도로 포인터가 어긋나지 않는다 — 여전히 2다.
 		assertThat(itineraryRepository.findById(itineraryId).orElseThrow().latestVersion()).isEqualTo(2);
+	}
+
+	// ── 고른 시각 (S15P21E201-1602) ─────────────────────────────────────
+
+	private Instant chosenAt() {
+		return jdbcTemplate.queryForObject("SELECT chosen_at FROM itineraries WHERE itinerary_id = ?",
+				java.sql.Timestamp.class, UUID.fromString(itineraryId)).toInstant();
+	}
+
+	@Test
+	@DisplayName("일정이 생기면 고른 시각이 채워진다 — 일정을 만드는 길 어디서도 따로 적지 않아도 된다")
+	void aNewItineraryIsChosenWhenCreated() {
+		assertThat(chosenAt()).isNotNull();
+	}
+
+	@Test
+	@DisplayName("🔴 다시 고르면 고른 시각이 옮겨진다 — C 를 골랐다가 A 로 되돌아오면 A 가 확정이 되는 근거")
+	void markChosenMovesTheChosenTime() {
+		Instant later = Instant.now().plus(java.time.Duration.ofHours(1)).truncatedTo(ChronoUnit.MICROS);
+
+		itineraryRepository.markChosen(itineraryId, later);
+
+		assertThat(chosenAt()).isEqualTo(later);
 	}
 }

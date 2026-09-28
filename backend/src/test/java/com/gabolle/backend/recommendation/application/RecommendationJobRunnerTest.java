@@ -11,7 +11,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.springframework.core.task.TaskRejectedException;
 
+import com.gabolle.backend.recommendation.domain.JobStage;
 import com.gabolle.backend.recommendation.domain.JobStatus;
 import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
@@ -21,6 +23,7 @@ import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripConditionRules;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
 
@@ -62,12 +65,60 @@ class RecommendationJobRunnerTest {
 		this.runner = new RecommendationJobRunner(this.tripQueryService, this.tripRepository, this.jobRepository,
 				this.recommendationService, this.worker, this.idempotencyRepository);
 
-		Trip trip = new Trip(this.tripId, this.userId, java.time.LocalDate.of(2026, 9, 10),
-				java.time.LocalDate.of(2026, 9, 11), null, null, null, 1, null, "Asia/Seoul", Instant.now());
+		// 1박이라 숙소가 있어야 추천을 받는다(S15P21E201-1585) — 숙소 동네로 채운다.
+		stubTrip(tripOneNight().accommodationArea("HAEUNDAE").build());
+	}
+
+	private Trip.Builder tripOneNight() {
+		return Trip.builder().tripId(this.tripId).createdBy(this.userId)
+				.startDate(java.time.LocalDate.of(2026, 9, 10)).finishDate(java.time.LocalDate.of(2026, 9, 11))
+				.partySize(1).timezone("Asia/Seoul").createdAt(Instant.now());
+	}
+
+	private void stubTrip(Trip trip) {
 		PreferenceSnapshot snapshot = new PreferenceSnapshot(UUID.randomUUID().toString(), this.tripId, 1,
 				List.of(), PersonalizationScope.TRIP, List.of(), Instant.now());
 		when(this.tripQueryService.get(this.tripId, this.userId))
 				.thenReturn(new TripQueryService.View(trip, List.of(), snapshot, TripMember.Role.OWNER));
+	}
+
+	/** 규칙이 생기기 전에 만든 숙소 없는 여러 날 여행 — 여행 만들기와 같은 칸 이름으로 거부된다. */
+	@Test
+	@DisplayName("🔴 S15P21E201-1585 — 숙소 필수 스위치가 켜지면 숙소 없는 1박 이상 옛 여행은 추천을 요청할 수 없다")
+	void rejectsAMultiDayTripWithoutLodging() {
+		this.runner.setLodgingRequired(true);
+		stubTrip(tripOneNight().build());
+
+		assertThatThrownBy(() -> this.runner.enqueue(this.tripId, this.userId, null, null))
+				.isInstanceOf(TripConditionRules.TripConditionRejectedException.class)
+				.hasMessageStartingWith("accommodation: ");
+
+		verify(this.jobRepository, Mockito.never()).save(any());
+		verify(this.worker, Mockito.never()).execute(any(), any());
+	}
+
+	@Test
+	@DisplayName("🔴 스위치가 꺼져 있으면(기본, S15P21E201-1596) 숙소 없는 1박 이상 여행도 추천을 요청할 수 있다")
+	void aMultiDayTripWithoutLodgingIsRecommendedWhileTheSwitchIsOff() {
+		stubTrip(tripOneNight().build());
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		when(this.recommendationService.prepare(any())).thenReturn(RecommendationJob.start(UUID.randomUUID(),
+				UUID.randomUUID(), UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now()));
+
+		assertThat(this.runner.enqueue(this.tripId, this.userId, null, null)).isNotNull();
+	}
+
+	@Test
+	@DisplayName("당일치기는 숙소 없이도 추천을 요청할 수 있다")
+	void aDayTripNeedsNoLodging() {
+		stubTrip(tripOneNight().finishDate(java.time.LocalDate.of(2026, 9, 10)).build());
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		when(this.recommendationService.prepare(any())).thenReturn(RecommendationJob.start(UUID.randomUUID(),
+				UUID.randomUUID(), UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now()));
+
+		assertThat(this.runner.enqueue(this.tripId, this.userId, null, null)).isNotNull();
 	}
 
 	@Test
@@ -88,6 +139,50 @@ class RecommendationJobRunnerTest {
 		InOrder order = Mockito.inOrder(this.jobRepository, this.worker);
 		order.verify(this.jobRepository).save(preparedJob);
 		order.verify(this.worker).execute(any(), any());
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1685 — 실행기가 꽉 차 거부하면 작업을 「실패 · 다시 시도 가능」으로 저장하고 「바쁨」을 알린다")
+	void rejectedDispatchLeavesARetryableFailureInsteadOfAPendingJob() {
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		RecommendationJob preparedJob = RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(),
+				UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		when(this.recommendationService.prepare(any())).thenReturn(preparedJob);
+		Mockito.doThrow(new TaskRejectedException("꽉 참")).when(this.worker).execute(any(), any());
+
+		assertThatThrownBy(() -> this.runner.enqueue(this.tripId, this.userId, null, null))
+				.isInstanceOf(RecommendationBusyException.class)
+				.satisfies((e) -> assertThat(((RecommendationBusyException) e).jobId()).isEqualTo(preparedJob.getJobId()));
+
+		// 전에는 PENDING 으로 저장된 채 아무도 안 건드렸다 — 영영 「대기」였다.
+		assertThat(preparedJob.getJobStatus()).isEqualTo(JobStatus.FAILED);
+		assertThat(preparedJob.getErrorCode()).isEqualTo(RecommendationCodes.ERROR_SERVER_BUSY);
+		assertThat(preparedJob.getFailureStage()).isEqualTo(JobStage.CREATED);
+		assertThat(preparedJob.isRetryable()).isTrue();
+		// 처음 PENDING 저장 한 번 + 실패로 고쳐 저장 한 번.
+		verify(this.jobRepository, Mockito.times(2)).save(preparedJob);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1685 — Idempotency-Key 로 만든 작업도 거부되면 같은 식으로 실패로 남긴다")
+	void rejectedDispatchWithIdempotencyKeyAlsoLeavesARetryableFailure() {
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		RecommendationJob preparedJob = RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(),
+				UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		when(this.recommendationService.prepare(any())).thenReturn(preparedJob);
+		when(this.idempotencyRepository.saveWithIdempotency(any(), anyString(), anyString(), any()))
+				.thenReturn(new RecommendationJobIdempotencyRepository.Claimed(preparedJob, true));
+		Mockito.doThrow(new TaskRejectedException("꽉 참")).when(this.worker).execute(any(), any());
+
+		assertThatThrownBy(() -> this.runner.enqueue(this.tripId, this.userId, null, null, "busy-key"))
+				.isInstanceOf(RecommendationBusyException.class);
+
+		assertThat(preparedJob.getJobStatus()).isEqualTo(JobStatus.FAILED);
+		assertThat(preparedJob.getErrorCode()).isEqualTo(RecommendationCodes.ERROR_SERVER_BUSY);
+		assertThat(preparedJob.isRetryable()).isTrue();
+		verify(this.jobRepository).save(preparedJob);
 	}
 
 	@Test

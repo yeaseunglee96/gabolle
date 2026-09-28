@@ -18,11 +18,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * {@code /internal/**} 을 공유 토큰 하나로 연다. 토큰이 맞으면 {@code ROLE_INTERNAL} 을 심고,
- * 막는 것은 {@code SecurityConfig} 다 — 인가가 두 곳에 있으면 한 곳만 고쳐도 고쳤다고 믿게 된다.
+ * {@code /internal/**} 을 공유 토큰으로 연다(하나 또는 회전용 복수). 토큰 중 하나라도 맞으면
+ * {@code ROLE_INTERNAL} 을 심고, 막는 것은 {@code SecurityConfig} 다 — 인가가 두 곳에 있으면
+ * 한 곳만 고쳐도 고쳤다고 믿게 된다.
  *
- * <p>비교는 {@link MessageDigest#isEqual} 로 한다. {@code String.equals} 는 맞는 글자 수에 따라
- * 걸리는 시간이 달라져 토큰을 한 글자씩 알아낼 수 있다. 길이를 먼저 재지 않는 것도 같은 이유다.
+ * <p>비교는 매 후보마다 {@link MessageDigest#isEqual} 로 한다. {@code String.equals} 는 맞는
+ * 글자 수에 따라 걸리는 시간이 달라져 토큰을 한 글자씩 알아낼 수 있다. 길이를 먼저 재지 않는
+ * 것도 같은 이유다.
  */
 public class InternalTokenAuthenticationFilter extends OncePerRequestFilter {
 
@@ -69,7 +71,12 @@ public class InternalTokenAuthenticationFilter extends OncePerRequestFilter {
 		if (presented == null) {
 			return false;
 		}
-		return MessageDigest.isEqual(presented.getBytes(StandardCharsets.UTF_8),
-				this.properties.getToken().getBytes(StandardCharsets.UTF_8));
+		byte[] presentedBytes = presented.getBytes(StandardCharsets.UTF_8);
+		for (String candidate : this.properties.getTokens()) {
+			if (MessageDigest.isEqual(presentedBytes, candidate.getBytes(StandardCharsets.UTF_8))) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

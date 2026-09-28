@@ -63,6 +63,7 @@ class TripControllerExceptionRoutingTest {
 				{
 				  "startDate": "2026-09-10",
 				  "finishDate": "2026-09-12",
+				  "accommodationArea": "HAEUNDAE",
 				  "partySize": 1,
 				  "originLat": 35.1587,
 				  "originLng": 129.1604,

@@ -9,6 +9,11 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -21,6 +26,7 @@ import org.springframework.web.client.RestClient;
 
 import com.gabolle.backend.transit.application.TransitVendorException;
 import com.gabolle.backend.transit.config.TransitProperties;
+import com.sun.net.httpserver.HttpServer;
 
 class TagoTransitVendorAdapterTest {
 
@@ -144,5 +150,43 @@ class TagoTransitVendorAdapterTest {
 				.satisfies(exception -> assertThat(((TransitVendorException) exception).getCode())
 						.isEqualTo("TRANSIT_VENDOR_UNAVAILABLE"));
 		server.verify();
+	}
+
+	@Test
+	@DisplayName("🔴 덤 호출만 짧은 읽기 제한에 걸린다 — 같은 느린 응답을 보통 호출은 기다려 받는다(S15P21E201-1755)")
+	void extraArrivalsUseTheShortReadTimeout() throws Exception {
+		String body = "{\"response\":{\"header\":{\"resultCode\":\"00\"}}}";
+		HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+		server.createContext("/", exchange -> {
+			try {
+				Thread.sleep(800);
+			}
+			catch (InterruptedException interrupted) {
+				Thread.currentThread().interrupt();
+			}
+			byte[] payload = body.getBytes(StandardCharsets.UTF_8);
+			exchange.sendResponseHeaders(200, payload.length);
+			try (OutputStream out = exchange.getResponseBody()) {
+				out.write(payload);
+			}
+		});
+		server.start();
+		try {
+			TransitProperties properties = new TransitProperties();
+			properties.setServiceKey("test-service-key");
+			properties.setBaseUrl("http://127.0.0.1:" + server.getAddress().getPort());
+			properties.setExtraReadTimeout(Duration.ofMillis(200));
+			// 운영과 같은 생성자 — 두 제한이 실제로 어느 호출에 걸리는지를 본다(보통 호출은 기본 5초)
+			TagoTransitVendorAdapter adapter = new TagoTransitVendorAdapter(RestClient.builder(), properties);
+
+			assertThatThrownBy(() -> adapter.fetchExtraArrivalsJson("25", "N4"))
+					.isInstanceOf(TransitVendorException.class)
+					.satisfies(exception -> assertThat(((TransitVendorException) exception).getCode())
+							.isEqualTo("TRANSIT_VENDOR_UNAVAILABLE"));
+			assertThat(adapter.fetchArrivalsJson("25", "N1")).isEqualTo(body);
+		}
+		finally {
+			server.stop(0);
+		}
 	}
 }

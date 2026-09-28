@@ -299,6 +299,20 @@ class ItineraryPaceIntegrationTest {
 				.andExpect(jsonPath("$.error.code").value("ITINERARY_NOT_FOUND"));
 	}
 
+	/**
+	 * 운영에서 추천 화면이 코스 2·3안의 번호({@code 요청번호:2})를 일정 번호로 넘겨 500 이 났다
+	 * (S15P21E201-1609). 형식이 틀린 번호는 없는 일정이다.
+	 */
+	@Test
+	@DisplayName("🔴 형식이 틀린 일정 번호는 500 이 아니라 404 다 — 코스 번호(요청번호:2)·아무 글자")
+	void malformedItineraryIdIsNotFound() throws Exception {
+		for (String malformed : List.of(this.itineraryId + ":2", "test-trip-id")) {
+			this.mockMvc.perform(get("/api/v1/itineraries/{id}/days/0/pace", malformed).principal(asOwner()))
+					.andExpect(status().isNotFound())
+					.andExpect(jsonPath("$.error.code").value("ITINERARY_NOT_FOUND"));
+		}
+	}
+
 	// ---- 시나리오 도우미 ----
 
 	/**

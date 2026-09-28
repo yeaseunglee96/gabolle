@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.api.PlaceSnapshotRequest;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.place.service.UserSubmittedPlaceService;
 import com.gabolle.backend.story.domain.StorageCleanupEntry;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryImage;
@@ -79,6 +81,8 @@ public class StoryService {
 
 	private final PlaceRepository placeRepository;
 
+	private final UserSubmittedPlaceService userSubmittedPlaces;
+
 	private final StorageCleanupService storageCleanupService;
 
 	private final StoryResponseAssembler assembler;
@@ -98,6 +102,7 @@ public class StoryService {
 	public StoryService(StoryRepository storyRepository, StoryImageRepository storyImageRepository,
 			UploadedImageRepository uploadedImageRepository, UserFollowRepository userFollowRepository,
 			TripRepository tripRepository, PlaceRepository placeRepository,
+			UserSubmittedPlaceService userSubmittedPlaces,
 			StorageCleanupService storageCleanupService, StoryResponseAssembler assembler,
 			StoryVisibilityPolicy visibilityPolicy, StoryViewRepository storyViewRepository,
 			StoryLinkCopyRepository storyLinkCopyRepository, StoryVideoRepository storyVideoRepository,
@@ -108,6 +113,7 @@ public class StoryService {
 		this.userFollowRepository = userFollowRepository;
 		this.tripRepository = tripRepository;
 		this.placeRepository = placeRepository;
+		this.userSubmittedPlaces = userSubmittedPlaces;
 		this.storageCleanupService = storageCleanupService;
 		this.assembler = assembler;
 		this.visibilityPolicy = visibilityPolicy;
@@ -136,6 +142,11 @@ public class StoryService {
 			place = this.placeRepository.findById(request.placeId())
 					.orElseThrow(() -> new InvalidReferenceException("placeId", "그 장소를 찾을 수 없습니다."));
 		}
+		else if (request.place() != null) {
+			// 우리 표에 없는 장소를 골랐다. 서버가 먼저 만들고 그 id 를 쓴다 — 앱이 우리 표에 없는
+			// 식별자를 저장하는 것이 아니다 (S15P21E201-1426).
+			place = resolveSubmittedPlace(request.place());
+		}
 
 		List<UploadedImage> images = resolveImages(authorUserId, request.imageUrlsOrEmpty());
 		// 글을 저장하기 전에 먼저 본다. 저장한 뒤에 거절하면 본문만 남은 기록이 생긴다.
@@ -146,7 +157,9 @@ public class StoryService {
 				: regionOf(place);
 		Instant publishAt = request.publishAt() != null ? request.publishAt() : defaultPublishAt(trip, now);
 
-		Story story = new Story(UUID.randomUUID(), authorUserId, request.tripId(), request.placeId(),
+		// request.placeId() 가 아니라 해석된 장소의 id 다. 스냅샷으로 만든 장소는 요청에 id 가 없다.
+		Story story = new Story(UUID.randomUUID(), authorUserId, request.tripId(),
+				place == null ? null : place.getPlaceId(),
 				request.body(), region, request.visibilityOrDefault(), publishAt, now);
 		this.storyRepository.save(story);
 
@@ -194,13 +207,20 @@ public class StoryService {
 		return this.assembler.one(reply, authorUserId, now);
 	}
 
-	/** 이 글에 직접 달린 댓글. 목록을 여는 것도 조회라 {@link #requireVisible} 을 똑같이 지난다. */
+	/**
+	 * 이 글에 직접 달린 댓글. 목록을 여는 것도 조회라 {@link #requireVisible} 을 똑같이 지난다.
+	 *
+	 * <p>로그인한 사람에게는 <b>내가 차단한 사람의 댓글을 뺀다</b>(S15P21E201-1714 — 가이드라인 1.2). 글의 댓글 수는
+	 * 그대로라 목록이 수보다 적을 수 있다.
+	 */
 	@Transactional(readOnly = true)
 	public List<StoryResponse> replies(UUID storyId, UUID viewer, int limit) {
 		Instant now = this.clock.instant();
 		Story parent = requireVisible(storyId, viewer, now);
-		List<Story> replies = this.storyRepository.findReplies(parent.getStoryId(),
-				org.springframework.data.domain.PageRequest.of(0, limit));
+		org.springframework.data.domain.Pageable page = org.springframework.data.domain.PageRequest.of(0, limit);
+		List<Story> replies = (viewer == null)
+				? this.storyRepository.findReplies(parent.getStoryId(), page)
+				: this.storyRepository.findRepliesHidingBlockedBy(parent.getStoryId(), viewer, page);
 		return this.assembler.many(replies, viewer, now);
 	}
 
@@ -448,6 +468,17 @@ public class StoryService {
 	 * <p>위 셋을 상수로 뽑아 둔 것은 기록 수를 묶어서 세는 쪽이 같은 표를 쓰게 하기 위해서다.
 	 * 저쪽에 범위를 다시 적으면 프로필의 숫자와 목록의 숫자가 소리 없이 어긋난다.
 	 */
+	/**
+	 * 프로필 목록·개수가 «이 시각까지 공개된 것» 으로 거를 기준 시각.
+	 *
+	 * <p>🔴 본인이면 공개 전 기록도 보인다 — 「여행이 끝난 뒤」로 올린 글이 목록에서 빠지면 작성자가
+	 * 찾지도, 고치지도, 지우지도 못한다(S15P21E201-1737). 상세는 이미 그렇게 동작한다. 남에게는 그대로
+	 * {@code now} 다 — 공개 전 기록은 남의 어느 목록에도 없다.
+	 */
+	Instant publishedCutoff(UUID author, UUID viewer, Instant now) {
+		return author.equals(viewer) ? FeedCursor.NONE.publishAt() : now;
+	}
+
 	List<String> visibleScopesOf(UUID author, UUID viewer) {
 		// 🔴 로그인하지 않은 사람은 «남»이다 — S15P21E201-1373.
 		//    이 줄이 없으면 아래에서 viewer 가 null 인 채로 팔로우 관계를 찾게 된다.
@@ -628,6 +659,23 @@ public class StoryService {
 
 		public StoryUnderModerationException(UUID storyId) {
 			super("신고 검토 중인 기록은 고칠 수 없습니다. 지우는 것은 됩니다.");
+		}
+	}
+
+	/**
+	 * 사용자가 검색 결과에서 고른 장소를 우리 표의 장소로 바꾼다 — S15P21E201-1426.
+	 *
+	 * <p>규칙은 {@link UserSubmittedPlaceService} 에 있다. 여기서는 그쪽이 내는 오류를 이 API 의
+	 * 400 으로 옮기기만 한다 — 그러지 않으면 앱이 보낸 값이 잘못됐는데 500 이 나간다.
+	 */
+	private Place resolveSubmittedPlace(PlaceSnapshotRequest snapshot) {
+		try {
+			return this.userSubmittedPlaces.findOrCreate(new UserSubmittedPlaceService.Snapshot(
+					snapshot.source(), snapshot.externalId(), snapshot.name(), snapshot.address(),
+					snapshot.lat(), snapshot.lng(), snapshot.category()));
+		}
+		catch (IllegalArgumentException ex) {
+			throw new InvalidReferenceException("place", ex.getMessage());
 		}
 	}
 
