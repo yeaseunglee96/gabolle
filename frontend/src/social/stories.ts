@@ -1,6 +1,11 @@
+import type { QueryClient } from '@tanstack/react-query';
 import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL, APP_WEB_BASE_URL } from '@/api/client';
+import { queryClient as defaultQueryClient } from '@/api/queryClient';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 import { singleFileFormData } from '@/api/multipart';
 import { txf } from '@/i18n/format';
+import type { StoryPlaceSnapshot } from '@/social/regionSearch';
+import { decodeHtmlText } from '@/social/htmlText';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 /** MINE 은 화면만의 갈래다 — 서버 피드에는 없고 내 프로필 기록 목록(loadUserStories)으로 채운다. */
@@ -22,7 +27,8 @@ export const VISIBILITY_LABEL: Record<StoryVisibility, [string, string]> = {
 
 export type StoryDto = {
   id: string;
-  author: { id: string; displayName: string };
+  /** avatarUrl — 프로필 사진(S15P21E201-1804). 서버 배포 전에는 칸이 없고, 안 골랐으면 null. 둘 다 첫 글자로 그린다. */
+  author: { id: string; displayName: string; avatarUrl?: string | null };
   body: string;
   region?: string | null;
   place?: { id: string; name: string; lat: number | null; lng: number | null } | null;
@@ -50,6 +56,12 @@ export type StoryDto = {
    * 묶으면 싫어요 상태가 "안 누름"으로 보인다 — kojh0124 님 경고 그대로다.
    */
   myReaction?: 'LIKE' | 'DISLIKE' | null;
+  /**
+   * 공동 작성자 — S15P21E201-1583(서버 S15P21E201-1578). 만든 사람은 빠지고(author 칸에 있다),
+   * 수락한 사람만, 합류 순서대로, 없으면 빈 배열이다. 탈퇴한 사람은 displayName 이 null 로 남는다.
+   * 🔴 서버가 배포되기 전에는 칸 자체가 없다 — 없으면 아무것도 안 그린다.
+   */
+  coauthors?: Array<{ id: string; displayName: string | null; avatarUrl?: string | null }>;
 };
 
 // GET /api/v1/stories/:id 계약이 생기기 전이전)에는 목록에서 받은
@@ -63,8 +75,23 @@ export function resolveStoryImageUrl(url: string) {
   return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
+/**
+ * 서버에서 받은 기록을 화면용으로 고친다 — 사진 주소와, 서버가 HTML 인코딩한 이름·본문(S15P21E201-1657).
+ * 🔴 기록을 받는 모든 길이 이것을 지난다. 이름·본문을 되돌리지 않으면 「Tom &amp; Jerry」가 보이고, 댓글 수정 창이
+ *    인코딩된 본문을 입력칸에 넣어 & 가 든 댓글을 고칠 때마다 &amp; 가 글자로 불어난다.
+ */
 function withDisplayImageUrls(story: StoryDto): StoryDto {
-  return { ...story, images: story.images.map((image) => ({ ...image, url: resolveStoryImageUrl(image.url) })) };
+  return {
+    ...story,
+    // 프로필 사진도 기록 사진과 같은 저장소 주소라 같은 방식으로 풀어 쓴다(S15P21E201-1804). 없으면 그대로 둔다.
+    author: {
+      ...story.author,
+      displayName: decodeHtmlText(story.author.displayName),
+      ...(story.author.avatarUrl ? { avatarUrl: resolveStoryImageUrl(story.author.avatarUrl) } : {}),
+    },
+    body: decodeHtmlText(story.body),
+    images: story.images.map((image) => ({ ...image, url: resolveStoryImageUrl(image.url) })),
+  };
 }
 
 /** 글에 붙일 지표 문구들 — S15P21E201-1213. */
@@ -159,7 +186,7 @@ type FeedFailure = { state: 'unavailable' | 'offline' | 'error'; message: string
 
 function failure(error: unknown): FeedFailure {
   if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
-  if (error instanceof ApiClientError && error.code === 'INVALID_RESPONSE') return { state: 'unavailable', message: '기록 피드 API가 아직 준비되지 않았어요.' };
+  if (error instanceof ApiClientError && error.code === 'INVALID_RESPONSE') return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
   return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
 }
 
@@ -168,6 +195,39 @@ export const FEED_QUERY_PREFIX = ['feed'] as const;
 // 🔴 정렬이 열쇠에 들어간다 — 갈래를 바꾸면 커서도 새로 시작해야 한다. 인기순 커서를 최신순에 보내면 400(FEED_CURSOR_INVALID).
 export const feedQueryKey = (scope: FeedScope, signedIn: boolean, sort: FeedSort = 'RECENT') =>
   [...FEED_QUERY_PREFIX, scope, signedIn, sort] as const;
+/**
+ * 팔로우·글쓰기 뒤 보관소를 비운다 — S15P21E201-1778(고지혁 QA).
+ *
+ * 🔴 보관소는 30초(staleTime) 동안 받은 목록을 그대로 보여 준다. 팔로우한 뒤 팔로잉 갈래를 열면
+ *    팔로우 전에 받은 「팔로우한 사람의 기록이 없어요」가 다시 불러올 때까지 떠 있었고, 글을 쓴 뒤
+ *    「내 피드」·마이페이지 기록에 방금 쓴 글이 없었다. invalidate 는 옛 목록을 그린 채 다시 불러오므로
+ *    그동안 거짓 빈 화면이 보인다 — reset 으로 옛 목록을 버려 「불러오는 중」을 보인다.
+ */
+export function resetFeedAfterFollowChange(client: QueryClient = defaultQueryClient) {
+  // 팔로잉 갈래와, 팔로우한 사람을 먼저 올리는 추천 갈래가 바뀐다.
+  return client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && (query.queryKey[1] === 'FOLLOWING' || query.queryKey[1] === 'FOR_YOU') });
+}
+
+/**
+ * 차단·차단 해제 뒤 보관소를 비운다 — S15P21E201-1787(QA).
+ *
+ * 차단한 사람의 글은 서버가 거른다(프론트는 목록에서 아무것도 빼지 않는다). 그런데 보관소가 차단 전에 받은 목록을
+ * 30초 동안 그대로 내줘서, 차단하고 피드로 돌아가면 그 사람 글이 새로고침 전까지 남아 있었다. 해제하면 반대로 안 돌아왔다.
+ * 「내 기록」 갈래는 내 글뿐이라 그대로 둔다.
+ */
+export function resetFeedAfterBlockChange(client: QueryClient = defaultQueryClient) {
+  return client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] !== 'MINE' });
+}
+
+export function resetFeedAfterPost(client: QueryClient = defaultQueryClient) {
+  return Promise.all([
+    client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] === 'MINE' }),
+    client.resetQueries({ queryKey: ['me', 'stories'] }),
+    // 다른 갈래(전체·추천)는 새 글이 한 줄 끼는 것뿐이라 옛 목록을 두고 다시 불러온다.
+    client.invalidateQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] !== 'MINE' }),
+  ]);
+}
+
 export type FeedLoadResult = { state: 'success'; items: StoryDto[]; nextCursor: string | null; applied?: FeedApplied | null; restarted?: boolean } | FeedFailure;
 
 export async function loadFeed(input: { scope: FeedScope; sort?: FeedSort; cursor?: string | null; limit?: number; accessToken: string | null }): Promise<FeedLoadResult> {
@@ -203,6 +263,11 @@ export async function createStory(input: {
   region?: string;
   visibility?: StoryVisibility;
   placeId?: string;
+  /**
+   * 카카오·대체 목록에서 고른 장소 — S15P21E201-1527. placeId 가 있으면 안 싣는다(서버도 placeId 가 이긴다).
+   * 서버가 (source, externalId) 로 찾거나 만들어 글에 잇는다(S15P21E201-1426).
+   */
+  place?: StoryPlaceSnapshot;
   tripId?: string;
   // 없으면 서버가 "여행 종료 다음 날 0시, 여행도 없으면 지금"으로 정한다.
   // "지금 바로 공개"를 고른 경우에만 현재 시각을 실어 보낸다.
@@ -234,12 +299,15 @@ export async function createStory(input: {
         region: input.region || undefined,
         visibility: input.visibility,
         placeId: input.placeId,
+        place: input.placeId ? undefined : input.place,
         tripId: input.tripId,
         publishAt: input.publishAt,
         parentStoryId: input.parentStoryId,
         videoUrl: input.videoUrl,
       },
     }));
+    // 댓글은 피드 목록에 안 나온다 — 원글일 때만 비운다.
+    if (!input.parentStoryId) void resetFeedAfterPost();
     return { state: 'success', story };
   } catch (error) {
     return failure(error);
@@ -315,6 +383,8 @@ export type UserProfileDto = {
   following: boolean;
   blocked?: boolean;
   blockedByUser?: boolean;
+  /** 프로필 사진(S15P21E201-1821). 서버는 늘 보내지만 안 골랐으면 null — 그때는 첫 글자를 그린다. */
+  avatarUrl?: string | null;
 };
 
 export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | FeedFailure;
@@ -322,7 +392,8 @@ export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | 
 export async function getUserProfile(userId: string, accessToken: string | null): Promise<ProfileLoadResult> {
   try {
     const profile = await apiRequest<UserProfileDto>(`/api/v1/users/${encodeURIComponent(userId)}/profile`, { accessToken });
-    return { state: 'success', profile };
+    // 기록의 작성자 사진과 같은 저장소 주소라 같은 방식으로 풀어 쓴다(S15P21E201-1821).
+    return { state: 'success', profile: profile.avatarUrl ? { ...profile, avatarUrl: resolveStoryImageUrl(profile.avatarUrl) } : profile };
   } catch (error) {
     return failure(error);
   }
@@ -426,6 +497,7 @@ export async function setFollowing(userId: string, following: boolean, accessTok
       `/api/v1/users/${encodeURIComponent(userId)}/follow`,
       { method: following ? 'PUT' : 'DELETE', accessToken },
     );
+    void resetFeedAfterFollowChange();
     return { state: 'success', following: dto.following, followerCount: dto.followerCount, followingCount: dto.followingCount };
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 400 && error.code === 'FOLLOW_SELF') return { state: 'error', message: '자기 자신은 팔로우할 수 없어요.' };
@@ -444,6 +516,7 @@ export async function setBlocked(userId: string, blocked: boolean, accessToken: 
       `/api/v1/users/${encodeURIComponent(userId)}/block`,
       { method: blocked ? 'PUT' : 'DELETE', accessToken },
     );
+    void resetFeedAfterBlockChange();
     return { state: 'success', blocked: dto.blocked };
   } catch (error) {
     return failure(error);

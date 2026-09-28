@@ -97,3 +97,41 @@ describe('여행표 맨 아래 힌트', () => {
     }
   });
 });
+
+// ── 인쇄 뒤에도 남는 종이 창 (S15P21E201-1787) ─────────────────────────────────
+//
+// iPhone 실기 — 뒤집는 동안 여행표의 왼쪽·오른쪽 반이 번갈아 사라졌다. 인쇄가 끝나면 종이 창의
+// overflow 가 빠지고, 배치만 남은 창을 네이티브가 없애면서 두 면이 바깥 카드 레이어에서 돌았다.
+// 3D 는 시험 환경에서 그려지지 않으므로, 두 면을 감싼 창이 인쇄 뒤에도 남는지를 본다.
+
+type TreeNode = { parent?: TreeNode | null; props?: { collapsable?: boolean } };
+
+/** 두 노드를 함께 감싼 가장 가까운 조상 — 앞면과 뒷면이면 종이 창이다. */
+function nearestCommonAncestor(a: unknown, b: unknown): TreeNode | null {
+  const seen = new Set<TreeNode>();
+  for (let n = (a as TreeNode).parent ?? null; n; n = n.parent ?? null) seen.add(n);
+  for (let n = (b as TreeNode).parent ?? null; n; n = n.parent ?? null) if (seen.has(n)) return n;
+  return null;
+}
+
+describe('여행표 종이 창', () => {
+  it('인쇄가 끝난 뒤에도 앞면과 뒷면을 감싼 창이 없어지지 않게 막혀 있다', () => {
+    jest.useFakeTimers();
+    try {
+      const view = render(<TripPass data={data} details={details} tx={tx} />);
+      act(() => { jest.runAllTimers(); });
+
+      // Animated.View·Pressable 은 스스로 collapsable=false 를 달기 때문에, 아무 조상이나 보면 창이 없어져도 통과한다.
+      // 그래서 두 면이 처음 만나는 자리 — 종이 창 자체를 본다.
+      // 뒷면은 앞면을 보는 동안 화면 읽기에서 빠져 있다(aria-hidden) — 숨은 것까지 찾는다.
+      const window = nearestCommonAncestor(
+        view.getByText('눌러서 여행표 상세 보기 ↻'),
+        view.getByText('TRIP PASS', { includeHiddenElements: true }),
+      );
+
+      expect(window?.props?.collapsable).toBe(false);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+});

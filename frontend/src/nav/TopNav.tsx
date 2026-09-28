@@ -51,6 +51,20 @@ function isChromeless(pathname: string) {
   return pathname.startsWith('/oauth/');
 }
 
+/**
+ * 위쪽 메뉴(TopNav)가 지금 떠 있나 — 화면이 자기 로고·로그인·알림을 또 그릴지 정할 때 이것을 본다.
+ *
+ * 🔴 기준을 여기 한 벌만 둔다 (2026-09-23, S15P21E201-1547). 화면들이 「폭 1024 이상이면 머리를
+ *    숨긴다」로 따로 판단해서, 메뉴가 뜨는 기준(짧은 변 600 이상)과 어긋났다. 그 틈이 **갤럭시 폴드를
+ *    펼친 화면(717×795)** 이다 — 메뉴가 뜨는데 화면 머리도 떠서 로고·로그인·알림이 두 번 나왔다.
+ *    탭바가 같은 이유로 기준을 kind 로 맞춘 적이 있다(TabBar.tsx, 2026-09-21).
+ */
+export function useTopNavShown() {
+  const { kind } = useLayout();
+  const pathname = usePathname();
+  return kind === 'tablet' && !isChromeless(pathname);
+}
+
 /** 폰 TabBar 의 활성 표식과 같은 모양 — 5×5 점. */
 function ActiveMarker() {
   return <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.marker} />;
@@ -126,7 +140,7 @@ export function TopNav() {
 
     {/* ── 2층 · 주 내비 (높이 60) — 로고 · 캡슐 · CTA ──────────────────────────── */}
     <View style={styles.nav}>
-      <BrandLogoLink href="/" imageStyle={styles.logo} />
+      <BrandLogoLink href="/" imageStyle={styles.logo} inTopNav />
 
       <View style={styles.capsule}>
         {LINKS.map((item) => {

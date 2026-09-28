@@ -124,6 +124,16 @@ for (const dir of SCAN_DIRS) {
         }
         const ko = literalText(props.get('ko'));
         if (ko !== null && literalText(props.get('en')) !== null && !props.has('ja')) check(ko, where);
+        // { labelKo: '…', labelEn: '…' } 처럼 이름 뒤에 Ko/En 이 붙은 짝 — S15P21E201-1520.
+        // 이 모양으로 들고 있다가 tx(tool.labelKo, tool.labelEn) 로 부르면 위의 tx 검사는 «값»만
+        // 봐서 못 잡는다. 챗봇 「대화 없이 바로 실행」 카드 부제 둘이 그렇게 일본어·중국어에서
+        // 영어로 새었다(2026-09-23). 제 손으로 이름Ja 를 든 짝은 표를 안 거치므로 뺀다.
+        for (const [name, init] of props) {
+          const base = /^(.+)Ko$/.exec(name)?.[1];
+          if (!base || props.has(`${base}Ja`)) continue;
+          const text = literalText(init);
+          if (text !== null && KOREAN.test(text) && literalText(props.get(`${base}En`)) !== null) check(text, where);
+        }
       }
       // [ko, en] 튜플 — 앞이 한글, 뒤가 한글이 아닌 문자열.
       if (ts.isArrayLiteralExpression(node) && node.elements.length === 2) {

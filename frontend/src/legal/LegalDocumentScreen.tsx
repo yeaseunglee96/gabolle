@@ -8,14 +8,14 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { LegalSection } from './legalContent';
 
-export function LegalDocumentScreen({ title, lead, sections }: { title: [string, string]; lead: [string, string]; sections: LegalSection[] }) {
+export function LegalDocumentScreen({ title, lead, sections, draftNotice = false }: { title: [string, string]; lead: [string, string]; sections: LegalSection[]; draftNotice?: boolean }) {
   const router = useRouter();
   const { tx } = useI18n();
   return <Screen scroll style={styles.screen}>
     <View style={styles.top}><Pressable accessibilityRole="button" accessibilityLabel={tx('이전 화면으로 이동', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.back}><Text variant="title">‹</Text></Pressable></View>
     <View accessibilityRole="header" style={styles.heading}><Eyebrow>{tx('가볼래 · 약관', 'GABOLLE · Legal')}</Eyebrow><Text variant="display" weight="bold">{tx(...title)}</Text><Text color={color.text.body} style={styles.lead}>{tx(...lead)}</Text></View>
     <View style={styles.list}>{sections.map((section) => <View key={section.title[0]} style={styles.section}><Text variant="title" weight="bold">{tx(...section.title)}</Text>{section.paragraphs.map((paragraph, index) => <Text key={index} color={color.text.body} style={styles.body}>{tx(...paragraph)}</Text>)}</View>)}</View>
-    <View style={styles.draft}><Text variant="caption" weight="bold" color={color.state.warning}>{tx('초안 · 팀 확정 예정', 'Draft · Pending team confirmation')}</Text><Text variant="caption" color={color.text.body}>{tx('법률 검토 전 문서이며, 미확정 운영 정보는 확정 즉시 갱신합니다.', 'This document has not yet received legal review. Pending operational details will be updated once confirmed.')}</Text></View>
+    {draftNotice ? <View style={styles.draft}><Text variant="caption" weight="bold" color={color.state.warning}>{tx('초안 · 팀 확정 예정', 'Draft · Pending team confirmation')}</Text><Text variant="caption" color={color.text.body}>{tx('법률 검토 전 문서이며, 미확정 운영 정보는 확정 즉시 갱신합니다.', 'This document has not yet received legal review. Pending operational details will be updated once confirmed.')}</Text></View> : null}
   </Screen>;
 }
 

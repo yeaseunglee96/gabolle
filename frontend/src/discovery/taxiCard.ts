@@ -7,7 +7,8 @@ import { apiRequest } from '@/api/client';
 export type TaxiCard = {
   placeId: string;
   nameKo: string;
-  addressKo: string;
+  // 🔴 addressEn 과 똑같이 없으면 키가 빠진다(place.address 는 nullable). string 으로 믿으면 기사가 읽을 큰 칸이 빈다(S15P21E201-1736).
+  addressKo?: string;
   addressEn?: string;
   resolvedLanguage: string;
   driverSentence: string;

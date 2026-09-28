@@ -1,4 +1,6 @@
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 import { apiRequest, ApiClientError } from '@/api/client';
+import type { SlopePiece } from '@/map/slopeGrades';
 
 // 계약: backend/src/main/java/com/gabolle/backend/route/presentation/RouteController.java
 // (-184). 좌표 두 개만 있으면 되는 일이라 여행·일정에 매달지 않는다 — 컨트롤러
@@ -21,6 +23,11 @@ export type RouteDirections = {
   provider: string;
   path: [number, number][];
   steps: RouteStep[];
+  /**
+   * 걷는 길의 경사 조각(백엔드 !1626, S15P21E201-1630). 우리 보행 길찾기가 찾은 걷기(provider OSM_WALK_GRAPH ·
+   * estimated false)에만 차고 나머지는 빈 배열이다. 그 전의 서버는 칸이 없다.
+   */
+  pieces?: SlopePiece[];
 };
 
 export type RouteDirectionsResult =
@@ -44,7 +51,7 @@ export async function getRouteDirections(
     return { state: 'success', directions };
   } catch (error) {
     if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
-    if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '경로 조회 API가 아직 준비되지 않았어요.' };
+    if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
     return { state: 'error', message: error instanceof Error ? error.message : '경로를 불러오지 못했어요.' };
   }
 }

@@ -2,26 +2,30 @@
 // · 여행 카드의 제목 — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
 // · 장소 카드의 사진 — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
 // 채우는 작업이 머지되고 목록 API 에 실리면 그때 넣는다.
-import { txf } from '@/i18n/format';
+import { enCount, enPlural, txf } from '@/i18n/format';
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { PlaceVisual } from '@/components/PlaceVisual';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { formatMonthDay } from '@/i18n/datetime';
 import { markdownToPlain } from '@/social/markdown';
+import { AuthorAvatar } from '@/social/AuthorAvatar';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
-import type { PlaceSearchItem } from '@/discovery/places';
 import { HomeRow, homeCardWidth } from './HomeRow';
-import type { HomeFacetRow } from './useHomeData';
+import type { HomeCardPlace, HomeFacetRow } from './useHomeData';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
-import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
+import type { TripSummaryDto } from '@/trip/trips';
+import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
+// 🔴 상태 글자는 여행 목록 카드와 같은 함수다 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 전에는 서버 status 를
+//    그대로 읽는 홈 전용 함수가 따로 있어서, 오늘 진행 중인 여행에도 「준비 완료」가 붙었다.
+import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
 import type { DailyForecastDto } from '@/trip/weather';
+import { regionText } from '@/social/districtNames';
 
 const heartIcon = require('../../assets/icons/home/heart.png');
 
@@ -67,8 +71,7 @@ export function TopNavWeather({ forecast }: { forecast: DailyForecastDto | null 
 function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number }) {
   const router = useRouter();
   const { tx } = useI18n();
-  const where = story.place?.name ?? story.region ?? '';
-  const initial = story.author.displayName.slice(0, 1);
+  const where = story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? '';
   const body = markdownToPlain(story.body).trim();
   const hasImage = story.images.length > 0;
   // 🔴 같은 글자를 두 번 그리지 않는다 — S15P21E201-1372. 예전에는 제목이 장소, 부제가
@@ -97,7 +100,7 @@ function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number })
         <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1}>{heading}</Text>
         <Text variant="caption" color={color.text.body} numberOfLines={1}>{sub}</Text>
         <View style={styles.storyAuthor}>
-          <View style={styles.storyAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{initial}</Text></View>
+          <AuthorAvatar name={story.author.displayName} uri={story.author.avatarUrl} style={styles.storyAvatar} />
           <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>
         </View>
       </View>
@@ -157,7 +160,7 @@ function PlaceCard({
   liked,
   onToggleLike,
 }: {
-  place: PlaceSearchItem;
+  place: HomeCardPlace;
   cardWidth: number;
   liked: boolean;
   onToggleLike: () => void;
@@ -181,6 +184,7 @@ function PlaceCard({
           photoUrl={place.photoUrl}
           photoSource={place.photoSource}
           photoSubject={place.photoSubject}
+          photoLicense={place.photoLicense}
           style={styles.placePhoto}
         />
       </Pressable>
@@ -237,7 +241,8 @@ export function PlaceRow({
       eyebrow={tx('로컬 탐색', 'Explore locally')}
       title={tx(row.titleKo, row.titleEn)}
       openLabel={tx('이 갈래 전체 보기', 'See all in this category')}
-      onOpen={() => router.push({ pathname: '/explore', params: { facet: row.facetKey } })}
+      // 줄마다 여는 곳이 다르다 — 축제는 날짜로 거르는 축제 화면, 나머지는 로컬 탐색(S15P21E201-1594).
+      onOpen={() => router.push(row.href as Href)}
       width={width}
       gutter={gutter}
       arrows={arrows}
@@ -261,26 +266,19 @@ export function PlaceRow({
 
 // ── 내 여행 ───────────────────────────────────────────────────────────────────
 
-function formatDay(iso: string | null, tx: Tx, locale: string) {
-  if (!iso) return tx('날짜 미정', 'Dates TBD');
-  // 「9월 20일」 · 「Sep 20」 · 「9月20日」 — 고른 언어의 방식으로(S15P21E201-1355).
-  return formatMonthDay(iso, locale) ?? iso;
-}
-
-function statusLabel(trip: TripSummaryDto, tx: Tx) {
-  if (trip.status === 'IN_PROGRESS') return tx('진행 중', 'In progress');
-  if (trip.status === 'READY') return tx('준비 완료', 'Ready');
-  return tx('예정', 'Upcoming');
-}
-
-/** 카드에 적을 날짜 범위. 시작일이 없으면 부르는 쪽이 안 쓰게 되어 있다. */
+/** 카드에 적을 날짜 범위 — 여행 목록과 같은 표기(tripDatesLabel, S15P21E201-1738). */
 function dateRange(trip: TripSummaryDto, tx: Tx, locale: string) {
-  return trip.startDate && trip.endDate
-    ? `${formatDay(trip.startDate, tx, locale)} ~ ${formatDay(trip.endDate, tx, locale)}`
-    : formatDay(trip.startDate, tx, locale);
+  return tripDatesLabel(trip.startDate, trip.endDate, locale) ?? tx('날짜 미정', 'Dates TBD');
 }
 
-export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | null; signedIn: boolean; loaded: boolean }) {
+/**
+ * 내 여행 카드.
+ *
+ * @param layout `'column'`(기본) — 홈의 폭 360 세로 카드. `'row'` — 마이페이지 넓은 화면의 가로형:
+ *     칸 폭을 다 쓰고, 왼쪽에 글자·오른쪽에 「일정 보기 →」, 선 없는 흰 카드
+ *     (시안 design_handoff_mypage_v2 변경점 3, S15P21E201-1526). 🔴 홈은 안 바뀐다 — 기본값이 그대로다.
+ */
+export function MyTripCard({ trip, signedIn, loaded, layout = 'column', hasTrips = false }: { trip: TripSummaryDto | null; signedIn: boolean; loaded: boolean; layout?: 'column' | 'row'; /** 지난 여행이라도 있나 — 빈 칸 문구를 가른다(S15P21E201-1770). */ hasTrips?: boolean }) {
   const router = useRouter();
   const { tx, locale } = useI18n();
   const { accessToken } = useAuth();
@@ -288,42 +286,48 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
   const openTrip = async () => {
     if (!trip || opening) return;
     setOpening(true);
-    const destination = await resolveHomeTripDestination(trip.tripId, accessToken);
+    const destination = await resolveHomeTripDestination(trip, accessToken);
     setOpening(false);
     router.push(destination as never);
   };
   if (!signedIn) return null;
+  const row = layout === 'row';
+
+  // 🔴 함수로 둔다 — 여행이 없을 때(trip === null) 미리 만들면 상태 글자(tripStatusLabel)가 null 을 읽다 터진다.
+  const tripCopy = (t: TripSummaryDto) => <>
+    <Text variant="caption" weight="bold" color={color.state.success}>{tripStatusLabel(effectiveTripStatus(t), tx)}</Text>
+    {/* 이름이 있으면 이름, 없으면 날짜. 없는 이름을 지어내지 않는
+        것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다.
+    */}
+    <Text variant="title" weight="bold">
+      {tripNameOrDates(t, tx, locale)}
+    </Text>
+    {/* 이름을 제목에 올리면 날짜가 화면에서 사라진다 — 그러면 같은 이름의 여행
+        둘을 날짜로 가릴 수 없다. 이름이 있을 때만 이 줄에 날짜를 같이 적는다.
+        이름이 없으면 제목이 이미 날짜라 두 번 적지 않는다 (시안 design_handoff_trip_name_flow).
+    */}
+    <Text color={color.text.body}>
+      {humanTripTitle(t.title) && t.startDate
+        ? txf(tx, '%s · %s일 · %s명', `%s · %s ${enPlural(t.dayCount, 'day', 'days')} · %s ${enPlural(t.partySize, 'traveler', 'travelers')}`, dateRange(t, tx, locale), t.dayCount, t.partySize)
+        : tx(`${t.dayCount}일 · ${t.partySize}명`, `${enCount(t.dayCount, 'day', 'days')} · ${enCount(t.partySize, 'traveler', 'travelers')}`)}
+    </Text>
+  </>;
 
   return (
-    <View style={styles.tripBlock}>
+    <View style={[styles.tripBlock, row && styles.tripBlockRow]}>
       <Text variant="eyebrow" weight="bold">{tx('내 여행', 'My trip')}</Text>
-      {!loaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : trip ? (
-        <Pressable accessibilityRole="button" accessibilityState={{ busy: opening, disabled: opening }} disabled={opening} onPress={() => void openTrip()} style={({ pressed }) => [styles.tripCard, pressed && styles.tripCardPressed]}>
-          <Text variant="caption" weight="bold" color={color.state.success}>{statusLabel(trip, tx)}</Text>
-          {/* 이름이 있으면 이름, 없으면 날짜. 없는 이름을 지어내지 않는
-              것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다.
-          */}
-          <Text variant="title" weight="bold">
-            {tripDisplayTitle(trip, dateRange(trip, tx, locale))}
-          </Text>
-          {/* 이름을 제목에 올리면 날짜가 화면에서 사라진다 — 그러면 같은 이름의 여행
-              둘을 날짜로 가릴 수 없다. 이름이 있을 때만 이 줄에 날짜를 같이 적는다.
-              이름이 없으면 제목이 이미 날짜라 두 번 적지 않는다 (시안 design_handoff_trip_name_flow).
-          */}
-          <Text color={color.text.body}>
-            {trip.title?.trim() && trip.startDate
-              ? txf(tx, '%s · %s일 · %s명', '%s · %s days · %s travelers', dateRange(trip, tx, locale), trip.dayCount, trip.partySize)
-              : tx(`${trip.dayCount}일 · ${trip.partySize}명`, `${trip.dayCount} days · ${trip.partySize} travelers`)}
-          </Text>
-          <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{opening ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
+      {!loaded ? <View style={[styles.tripCard, styles.tripSkeleton, row && styles.tripSkeletonRow]} /> : trip ? (
+        <Pressable accessibilityRole="button" accessibilityState={{ busy: opening, disabled: opening }} disabled={opening} onPress={() => void openTrip()} style={({ pressed }) => [styles.tripCard, row && styles.tripCardRow, pressed && (row ? styles.pressed : styles.tripCardPressed)]}>
+          {row ? <View style={styles.tripRowCopy}>{tripCopy(trip)}</View> : tripCopy(trip)}
+          <Text weight="bold" color={color.brand.navy} style={row ? styles.tripGoRow : styles.tripGo}>{opening ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
         </Pressable>
       ) : (
-        <View style={styles.tripEmpty}>
+        <View style={[styles.tripEmpty, row && styles.tripEmptyRow]}>
           <GabolleMascot state="idle" style={styles.tripMascot} />
           <View style={styles.tripEmptyCopy}>
-            <Text weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
+            <Text weight="bold">{hasTrips ? tx('다가오는 여행이 없어요', 'No upcoming trips') : tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
             <Pressable accessibilityRole="button" onPress={() => router.push('/plan')}>
-              <Text weight="bold" color={color.brand.navy}>{tx('첫 여행 만들기 →', 'Plan your first trip →')}</Text>
+              <Text weight="bold" color={color.brand.navy}>{hasTrips ? tx('새 여행 만들기 →', 'Plan a new trip →') : tx('첫 여행 만들기 →', 'Plan your first trip →')}</Text>
             </Pressable>
           </View>
         </View>
@@ -373,4 +377,14 @@ const styles = StyleSheet.create({
   tripEmpty: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },
   tripMascot: { width: 64, height: 64 },
   tripEmptyCopy: { flex: 1, gap: spacing[1] },
+
+  // ── layout="row" — 마이페이지 넓은 화면 (시안 design_handoff_mypage_v2) ──
+  // 칸 폭을 다 쓴다. 눈썹과 카드 사이 8, 카드 아래 16(다음 눈썹 「내 계정」까지).
+  tripBlockRow: { width: '100%', gap: spacing[2], marginBottom: spacing[4] },
+  // 🔴 선 없는 흰 카드 — tokens 규칙 3(카드에 선·그림자 없음). 세로형은 홈 시안이 선을 둬서 그대로 둔다.
+  tripCardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[4], borderWidth: 0 },
+  tripRowCopy: { flex: 1, minWidth: 0, gap: spacing[1] },
+  tripGoRow: { flexShrink: 0 },
+  tripSkeletonRow: { height: 96, borderWidth: 0 },
+  tripEmptyRow: { borderWidth: 0 },
 });

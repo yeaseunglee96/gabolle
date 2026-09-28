@@ -11,7 +11,10 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { formatMonthDay } from '@/i18n/datetime';
+import { txf } from '@/i18n/format';
 import { deleteStory, loadUserStories, relativeStoryTime, VISIBILITY_LABEL, type FeedLoadResult, type StoryDto, type StoryVisibility } from '@/social/stories';
+import { regionText } from '@/social/districtNames';
 
 type Filter = 'ALL' | StoryVisibility;
 
@@ -24,7 +27,7 @@ const FILTERS: Array<{ key: Filter; ko: string; en: string }> = [
 
 export function MyPostsBody() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, locale } = useI18n();
   const { accessToken, user } = useAuth();
   const [result, setResult] = useState<FeedLoadResult>({ state: 'success', items: [], nextCursor: null });
   const [loading, setLoading] = useState(true);
@@ -81,7 +84,7 @@ export function MyPostsBody() {
       {!loading && result.state !== 'success' ? (
         <View style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('기록을 불러오지 못했어요', "We couldn't load your records")}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
+          <Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
         </View>
       ) : null}
 
@@ -99,8 +102,16 @@ export function MyPostsBody() {
           <View key={story.id} style={styles.card}>
             <View style={styles.cardHead}>
               <Text variant="caption" numberOfLines={1} style={styles.cardMeta}>
-                {relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${story.region}` : ''}
+                {relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${regionText(story.region, tx)}` : ''}
               </Text>
+              {/* 🔴 공개 전 기록 — 본인에게만 온다(S15P21E201-1737). 표시가 없으면 공개된 글과 구분이 안 된다. */}
+              {!story.published ? (
+                <View testID={`pending-${story.id}`} style={styles.visPill}>
+                  <Text variant="caption" weight="bold" color={color.text.body}>
+                    {txf(tx, '%s 공개 예정', 'Goes live %s', formatMonthDay(story.publishAt, locale) ?? story.publishAt.slice(5, 10))}
+                  </Text>
+                </View>
+              ) : null}
               <View style={[styles.visPill, story.visibility === 'PUBLIC' && styles.visPillPublic]}>
                 <Text variant="caption" weight="bold" color={story.visibility === 'PUBLIC' ? color.state.success : color.text.body}>
                   {tx(VISIBILITY_LABEL[story.visibility][0], VISIBILITY_LABEL[story.visibility][1])}

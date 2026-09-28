@@ -8,7 +8,12 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { resolveTextLanguage } from '@/i18n/languages';
-import { MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, searchOrigins, type OriginCandidate } from '@/plan/origins';
+import { isOvernight } from '@/plan/lodgingRequired';
+import { lodgingSnapshotOf, MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, attachEnglishNames, searchOrigins, type OriginCandidate, type OriginSearchResult } from '@/plan/origins';
+import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { stopNameForLanguage } from '@/discovery/romanize';
+import { MonthPicker } from '@/home/MonthPicker';
+import { MAX_MONTH_OFFSET, monthOffsetOf } from '@/home/monthJump';
 import {
   EMPTY_START_BAR,
   type StartBarSection,
@@ -19,6 +24,8 @@ import {
   dayCount,
   formatDateShort,
   parseDateKey,
+  placeEnglishOf,
+  startBarPlaceName,
   summarizeStartBar,
   toDateKey,
   type StartBarValue,
@@ -77,18 +84,27 @@ export function monthWeeks(year: number, month: number): Array<Array<string | nu
 }
 
 export function MonthGrid({
-  year, month, value, today, onPick, tx,
+  year, month, value, today, onPick, tx, onPressTitle, titleOpen = false,
 }: {
   year: number; month: number; value: StartBarValue; today: string;
   onPick: (key: string) => void; tx: (ko: string, en: string) => string;
+  /** 있으면 제목을 눌러 «달 바로 고르기»를 연다 — S15P21E201-1539. */
+  onPressTitle?: () => void;
+  titleOpen?: boolean;
 }) {
   const weeks = useMemo(() => monthWeeks(year, month), [year, month]);
   const heads = WEEKDAY_HEADS_KO.map((head, index) => tx(head, WEEKDAY_HEADS_EN[index]));
   return (
     <View style={styles.month}>
-      <Text variant="caption" weight="bold" style={styles.monthTitle}>
-        {tx(`${year}년 ${month + 1}월`, `${month + 1}/${year}`)}
-      </Text>
+      {onPressTitle
+        ? <Pressable accessibilityRole="button" accessibilityState={{ expanded: titleOpen }} onPress={onPressTitle} style={styles.monthTitleButton}>
+            <Text variant="caption" weight="bold" style={styles.monthTitle}>
+              {tx(`${year}년 ${month + 1}월`, `${month + 1}/${year}`)} {titleOpen ? '▴' : '▾'}
+            </Text>
+          </Pressable>
+        : <Text variant="caption" weight="bold" style={styles.monthTitle}>
+            {tx(`${year}년 ${month + 1}월`, `${month + 1}/${year}`)}
+          </Text>}
       <View style={styles.weekHead}>
         {heads.map((head, index) => (
           <Text key={`${head}-${index}`} variant="caption" color={color.text.muted} style={styles.headCell}>{head}</Text>
@@ -102,7 +118,13 @@ export function MonthGrid({
           const past = key < today;
           const isStart = key === value.startDate;
           const isEnd = key === value.endDate;
-          const between = Boolean(value.startDate && value.endDate && key > value.startDate && key < value.endDate);
+          // 🔴 고른 기간은 한 띠로 이어진다(S15P21E201-1720). 전에는 시작·끝 칸을 칸 전체 검정 알약으로, 사이 칸을
+          //    회색 네모로 그려서 셋이 끊겨 보였고, 칸이 넓은 넓은 화면에서는 시작·끝이 가로로 긴 알약이 됐다.
+          //    띠는 칸 폭을 채우고(시작은 가운데부터 · 끝은 가운데까지), 시작·끝은 고정 크기 동그라미를 얹는다.
+          //    줄마다 알약으로 닫는다 — 줄 처음(일요일·앞이 빈칸)은 띠 왼쪽을, 줄 끝(토요일·뒤가 빈칸)은 오른쪽을 둥글게.
+          const range = Boolean(value.startDate && value.endDate && value.startDate !== value.endDate && key >= value.startDate && key <= value.endDate);
+          const rowStart = index === 0 || !week[index - 1];
+          const rowEnd = index === week.length - 1 || !week[index + 1];
           return (
             <Pressable
               key={key}
@@ -111,8 +133,16 @@ export function MonthGrid({
               accessibilityRole="button"
               accessibilityState={{ selected: isStart || isEnd, disabled: past }}
               accessibilityLabel={formatDateShort(key, tx)}
-              style={[styles.cell, between && styles.cellBetween, (isStart || isEnd) && styles.cellPicked]}
+              style={styles.cell}
             >
+              {range ? (
+                <View
+                  testID={`range-band-${key}`}
+                  pointerEvents="none"
+                  style={[styles.band, isStart && styles.bandFromCenter, isEnd && styles.bandToCenter, !isStart && rowStart && styles.bandRoundLeft, !isEnd && rowEnd && styles.bandRoundRight]}
+                />
+              ) : null}
+              {isStart || isEnd ? <View testID={`range-dot-${key}`} pointerEvents="none" style={styles.dot} /> : null}
               <Text
                 variant="caption"
                 weight={isStart || isEnd ? 'bold' : 'regular'}
@@ -171,6 +201,8 @@ export type PlanStartBarProps = {
 
 /** 시트 카드가 펼쳐질 때 제목이 커지고 오른쪽 값이 사라지는 시간. */
 const CARD_MS = 350;
+/** 날짜 칸을 연 뒤 그 칸의 자리가 바뀔 때마다 따라가는 시간 — 위 칸이 접히고 달력이 다 그려질 때까지. */
+const DATES_FOLLOW_MS = 800;
 
 /**
  * 시트의 카드 한 장.
@@ -211,6 +243,36 @@ function SheetCard({
 /** 폰에서 한 줄에 들어가는 개수. 390 폭에서 실측한 값이다. */
 const PHONE_PRESET_COUNT = 3;
 
+/**
+ * 출발지·숙소 검색 — S15P21E201-1781(고지혁 QA). 카카오(searchOrigins)는 한국어 이름만 준다.
+ * 영어 화면이면 꼭 갈 곳 검색과 같은 우리 장소 목록(searchPlacesByName)도 불러 같은 장소의 영어 이름을 붙인다.
+ * 우리 목록이 실패해도 카카오 결과는 그대로 낸다 — 영어 이름은 덤이다.
+ */
+async function searchOriginsWithNames(query: string, accessToken: string | null, signal: AbortSignal, withEnglish: boolean): Promise<OriginSearchResult> {
+  if (!withEnglish) return searchOrigins(query, accessToken, signal);
+  const [origins, places] = await Promise.all([
+    searchOrigins(query, accessToken, signal),
+    searchPlacesByName(query, signal).catch(() => [] as PlaceSearchItem[]),
+  ]);
+  return origins.state === 'success' ? { ...origins, items: attachEnglishNames(origins.items, places) } : origins;
+}
+
+/**
+ * 추천 숙소 지역의 둘째 줄 — S15P21E201-1795(고지혁 QA). 영어 화면에도 「바다 앞 호텔·리조트가 모여 있어요」가 나왔다.
+ * 추천 지역의 그 줄은 주소가 아니라 화면 문구라 번역표를 거친다. 검색 결과의 둘째 줄은 주소라 그대로 둔다 —
+ * 카카오는 한국어 주소만 주고, 택시에 보여 줄 값이다.
+ * 🔴 한국어 원문은 origins.ts 의 RECOMMENDED_LODGING_AREAS 와 같은 문장이다. 한쪽을 바꾸면 둘 다 바꾼다.
+ */
+function lodgingAreaNote(candidate: OriginCandidate, tx: (ko: string, en: string) => string): string {
+  switch (candidate.externalId) {
+    case 'lodging-haeundae': return tx('바다 앞 호텔·리조트가 모여 있어요', 'Beachfront hotels and resorts');
+    case 'lodging-seomyeon': return tx('교통 중심 · 어디든 가기 편해요', 'Transit hub · easy to get anywhere');
+    case 'lodging-gwangalli': return tx('야경과 카페 골목', 'Night views and café streets');
+    case 'lodging-nampo': return tx('시장·원도심 도보 여행', 'Markets and old-town walks');
+    default: return candidate.address;
+  }
+}
+
 export function PlanStartBar({
   wide, accessToken, onSubmit, today = new Date(), initialSection = null, initialValue,
   sheet = false, value: controlledValue, onChange, onClose, onOpenSheet,
@@ -242,9 +304,14 @@ export function PlanStartBar({
   const [lodgingQuery, setLodgingQuery] = useState('');
   const [lodgingResults, setLodgingResults] = useState<OriginCandidate[]>([]);
   const [lodgingSearching, setLodgingSearching] = useState(false);
-  const [monthOffset, setMonthOffset] = useState(0);
+  // 이미 고른 출발일이 있으면 그 달부터 연다 — S15P21E201-1539. 이번 달부터 열면 고른 날을 보려고 › 를 또 눌러야 했다.
+  const [monthOffset, setMonthOffset] = useState(() => monthOffsetOf(value.startDate, today));
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+  // 🔴 여행 만들기 달력(DateRangeCard)과 같은 12개월 — 넓은 화면은 두 달을 나란히 그려서 한 칸 덜 넘긴다.
+  //    예전에는 끝없이 넘어가 13개월 뒤를 고를 수 있었고, 여행 만들기 달력은 그 달을 못 보였다.
+  const maxOffset = wide ? MAX_MONTH_OFFSET - 1 : MAX_MONTH_OFFSET;
   const todayKey = toDateKey(today);
-  const summary = summarizeStartBar(value, tx);
+  const summary = summarizeStartBar(value, tx, language);
   const ready = canAskForPlan(value);
   // 🔴 단추 이름은 늘 「일정 물어보기」다 — 이름을 이유로 바꿨더니 e2e(core-journey)와 낭독기가 단추를 못 찾았다
   //    (2026-09-21 승격 파이프라인 210801). 이유는 단추 안 둘째 줄로 적는다.
@@ -261,7 +328,7 @@ export function PlanStartBar({
     abortRef.current = controller;
     setSearching(true);
     const timer = setTimeout(async () => {
-      const outcome = await searchOrigins(trimmed, accessToken, controller.signal);
+      const outcome = await searchOriginsWithNames(trimmed, accessToken, controller.signal, !ko);
       if (controller.signal.aborted) return;
       setSearching(false);
       // 실패해도 추천 목록은 그대로 둔다. 검색이 안 된다고 고를 수 없게 되면
@@ -269,7 +336,7 @@ export function PlanStartBar({
       setResults(outcome.state === 'success' ? outcome.items : []);
     }, 250);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [accessToken, query]);
+  }, [accessToken, query, ko]);
 
   // 숙소 검색 — 출발지와 같은 searchOrigins 를 재사용한다(design_handoff_home_lodging).
   // 검색창·중단기를 따로 두는 이유는 두 칸이 동시에 타이핑될 수 있어서다(가짓 값이 아니다).
@@ -281,30 +348,32 @@ export function PlanStartBar({
     lodgingAbortRef.current = controller;
     setLodgingSearching(true);
     const timer = setTimeout(async () => {
-      const outcome = await searchOrigins(trimmed, accessToken, controller.signal);
+      const outcome = await searchOriginsWithNames(trimmed, accessToken, controller.signal, !ko);
       if (controller.signal.aborted) return;
       setLodgingSearching(false);
       setLodgingResults(outcome.state === 'success' ? outcome.items : []);
     }, 250);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [accessToken, lodgingQuery]);
+  }, [accessToken, lodgingQuery, ko]);
 
   const pickOrigin = (candidate: OriginCandidate) => {
-    setValue((prev) => ({ ...prev, origin: candidate.name, originLat: candidate.lat, originLng: candidate.lng }));
+    // 영어 이름은 화면용으로 따로 든다 — origin 은 서버로 가는 한국어 이름 그대로다(S15P21E201-1795).
+    setValue((prev) => ({ ...prev, origin: candidate.name, originEnglish: placeEnglishOf(candidate), originLat: candidate.lat, originLng: candidate.lng }));
     setQuery('');
     // 출발지를 고르면 숙소로 넘어간다 — design_handoff_home_lodging.
     setSection('lodging');
   };
 
   const pickLodging = (candidate: OriginCandidate) => {
-    setValue((prev) => ({ ...prev, lodging: candidate.name, lodgingLat: candidate.lat, lodgingLng: candidate.lng }));
+    // externalId·source 까지 든다 — 좌표만 두면 서버가 숙소를 못 남긴다(S15P21E201-1536).
+    setValue((prev) => ({ ...prev, lodging: candidate.name, lodgingEnglish: placeEnglishOf(candidate), lodgingLat: candidate.lat, lodgingLng: candidate.lng, lodgingPlace: lodgingSnapshotOf(candidate) }));
     setLodgingQuery('');
     setSection('dates');
   };
 
   /** 「숙소 아직 안 정했어요」— 탈출구. 숙소는 선택 사항이라 미정으로 두고 다음 칸으로. */
   const clearLodging = () => {
-    setValue((prev) => ({ ...prev, lodging: '', lodgingLat: null, lodgingLng: null }));
+    setValue((prev) => ({ ...prev, lodging: '', lodgingEnglish: null, lodgingLat: null, lodgingLng: null, lodgingPlace: null }));
     setLodgingQuery('');
     setSection('dates');
   };
@@ -328,8 +397,8 @@ export function PlanStartBar({
   }, [monthBase]);
 
   const segmentLabel = (which: Exclude<Section, null>) => {
-    if (which === 'origin') return value.origin || tx('어디서 출발해요?', 'Where from?');
-    if (which === 'lodging') return value.lodging || tx('어디에 머물러요?', 'Where are you staying?');
+    if (which === 'origin') return startBarPlaceName(value.origin, value.originEnglish, language) || tx('어디서 출발해요?', 'Where from?');
+    if (which === 'lodging') return startBarPlaceName(value.lodging, value.lodgingEnglish, language) || tx('어디에 머물러요?', 'Where are you staying?');
     if (which === 'dates') {
       if (!value.startDate) return tx('날짜 추가', 'Add dates');
       const days = dayCount(value.startDate, value.endDate || value.startDate);
@@ -405,6 +474,24 @@ export function PlanStartBar({
     Animated.timing(sheetIn, { toValue: 1, duration: reduceMotion ? 0 : 600, easing: EASE_SOFT, useNativeDriver: false }).start();
   }, [sheet, reduceMotion, sheetIn]);
 
+  // 🔴 날짜 칸으로 넘어가면 그 칸을 화면 위로 올린다 (S15P21E201-1626). 숙소를 고르면 날짜가 펼쳐지는데
+  //    스크롤이 제자리라, 작은 폰(360×640)에서는 달력 마지막 줄과 「1박 2일」 칩이 아래 버튼 줄 밑에 깔렸다.
+  //    위 칸이 접히면서 자리가 바뀌므로 시각(타이머)에 기대지 않는다 — 칸을 연 뒤 잠깐 동안은 날짜 칸의 자리를
+  //    «잴 때마다» 그 자리로 간다(느린 기기에서 옛 자리로 가지 않게). 이미 잰 자리가 있으면 바로 한 번 간다.
+  const sheetScrollRef = useRef<ScrollView>(null);
+  const datesCardY = useRef<number | null>(null);
+  const followDatesUntil = useRef(0);
+  const scrollToDates = () => {
+    if (datesCardY.current === null || Date.now() > followDatesUntil.current) return;
+    sheetScrollRef.current?.scrollTo({ y: Math.max(0, datesCardY.current - spacing[2]), animated: !reduceMotion });
+  };
+  useEffect(() => {
+    if (!sheet || section !== 'dates') { followDatesUntil.current = 0; return; }
+    followDatesUntil.current = Date.now() + DATES_FOLLOW_MS;
+    scrollToDates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sheet, section]);
+
   // 🔴 이 시트는 RN `<Modal>` 이 아니라 그냥 View 라서 `onRequestClose` 가 없다 — 즉
   // 안드로이드 하드웨어 뒤로가기를 이 시트가 알아서 삼켜 주지 않는다. 처리를 안 하면
   // 뒤로가기가 시트를 그대로 통과해 밑에 있는 화면(또는 앱 자체)이 뒤로 간다 —
@@ -436,10 +523,11 @@ export function PlanStartBar({
         accessibilityLabel={tx('출발지 검색', 'Search starting point')}
       />
       {searching ? <ActivityIndicator color={color.action.primary} /> : null}
-      <Text variant="caption" color={color.text.muted}>{tx('추천 출발지', 'Suggested starting points')}</Text>
+      {/* 결과가 있으면 추천이 아니라 검색 결과다(S15P21E201-1775) — 아래 목록도 그렇게 갈린다. */}
+      <Text testID="origin-list-label" variant="caption" color={color.text.muted}>{results.length ? tx('검색 결과', 'Search results') : tx('추천 출발지', 'Suggested starting points')}</Text>
       {(results.length ? results : MAJOR_BUSAN_ORIGINS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickOrigin(candidate)} accessibilityRole="button" style={styles.originRow}>
-          <Text weight="bold">{candidate.name}</Text>
+          <Text weight="bold">{stopNameForLanguage(candidate.name, candidate.nameEn, language)}</Text>
           <Text variant="caption" color={color.text.muted}>{candidate.address}</Text>
         </Pressable>
       ))}
@@ -460,15 +548,19 @@ export function PlanStartBar({
       <Text variant="caption" color={color.text.muted}>{tx('추천 숙소 지역', 'Suggested areas to stay')}</Text>
       {(lodgingResults.length ? lodgingResults : RECOMMENDED_LODGING_AREAS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickLodging(candidate)} accessibilityRole="button" style={styles.originRow}>
-          <Text weight="bold">{candidate.name}</Text>
-          <Text variant="caption" color={color.text.muted}>{candidate.address}</Text>
+          <Text weight="bold">{stopNameForLanguage(candidate.name, candidate.nameEn, language)}</Text>
+          <Text variant="caption" color={color.text.muted}>{lodgingAreaNote(candidate, tx)}</Text>
         </Pressable>
       ))}
-      {/* 탈출구 — 항상 마지막. 검색 결과 중이어도 그대로 둔다, 언제든 «안 정했다」로 빠져나갈 수 있게. */}
-      <Pressable onPress={clearLodging} accessibilityRole="button" style={styles.originRow}>
-        <Text weight="bold">{tx('숙소 아직 안 정했어요', 'Not decided yet')}</Text>
-        <Text variant="caption" color={color.text.muted}>{tx('출발지 기준으로 일정을 짜요', "We'll plan around your starting point")}</Text>
-      </Pressable>
+      {/* 탈출구 — 항상 마지막. 검색 결과 중이어도 그대로 둔다, 언제든 «안 정했다」로 빠져나갈 수 있게.
+          🔴 1박 이상이면 안 보인다(S15P21E201-1591) — 1박 이상은 숙소가 있어야 일정을 만든다(S15P21E201-1584).
+          골라 봐야 「만들기」에서 막히는 길을 열어 두지 않는다. 날짜를 아직 안 골랐으면 모르니 그대로 둔다. */}
+      {isOvernight(value.startDate, value.endDate) ? null : (
+        <Pressable onPress={clearLodging} accessibilityRole="button" style={styles.originRow}>
+          <Text weight="bold">{tx('숙소 아직 안 정했어요', 'Not decided yet')}</Text>
+          <Text variant="caption" color={color.text.muted}>{tx('출발지 기준으로 일정을 짜요', "We'll plan around your starting point")}</Text>
+        </Pressable>
+      )}
     </View>
   );
 
@@ -484,14 +576,22 @@ export function PlanStartBar({
         >
           <Text weight="bold" color={monthOffset === 0 ? color.text.muted : color.text.heading}>‹</Text>
         </Pressable>
-        <Pressable onPress={() => setMonthOffset((n) => n + 1)} accessibilityRole="button" accessibilityLabel={tx('다음 달', 'Next month')} style={styles.navButton}>
-          <Text weight="bold">›</Text>
+        <Pressable
+          onPress={() => setMonthOffset((n) => Math.min(maxOffset, n + 1))}
+          disabled={monthOffset >= maxOffset}
+          accessibilityRole="button"
+          accessibilityLabel={tx('다음 달', 'Next month')}
+          style={styles.navButton}
+        >
+          <Text weight="bold" color={monthOffset >= maxOffset ? color.text.muted : color.text.heading}>›</Text>
         </Pressable>
       </View>
-      <View style={wide ? styles.monthRow : undefined}>
-        <MonthGrid {...monthBase} value={value} today={todayKey} onPick={pickDate} tx={tx} />
-        {wide ? <MonthGrid {...secondMonth} value={value} today={todayKey} onPick={pickDate} tx={tx} /> : null}
-      </View>
+      {monthPickerOpen
+        ? <MonthPicker today={today} selected={monthOffset} onPick={(offset) => { setMonthOffset(Math.min(maxOffset, offset)); setMonthPickerOpen(false); }} tx={tx} />
+        : <View style={wide ? styles.monthRow : undefined}>
+            <MonthGrid {...monthBase} value={value} today={todayKey} onPick={pickDate} tx={tx} onPressTitle={() => setMonthPickerOpen(true)} />
+            {wide ? <MonthGrid {...secondMonth} value={value} today={todayKey} onPick={pickDate} tx={tx} /> : null}
+          </View>}
       <View style={styles.chipRow}>
         {[0, 1, 2, 3].map((nights) => (
           <Pressable
@@ -570,26 +670,29 @@ export function PlanStartBar({
           { opacity: sheetIn, transform: [{ translateY: sheetIn.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }] },
         ]}
       >
-        <View style={styles.sheetHead}>
+        {/* 🔴 위 안전영역만큼 내린다(S15P21E201-1772). 시트가 top:0 에 붙어서 ✕ 가 시계·배터리 줄 높이에 그려졌고,
+            안드로이드는 그 자리 누름을 시스템이 먹어 세 번 눌러도 안 닫혔다(Play 37 실기기). 아래는 이미 insets.bottom 을 더한다. */}
+        <View testID="plan-start-sheet-head" style={[styles.sheetHead, { paddingTop: spacing[4] + insets.top }]}>
           {/* ✕ 는 시트만 닫는다. 고른 값은 그대로 남아 알약에 요약으로 보인다. */}
           <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} style={styles.sheetClose}>
             <Text weight="bold">✕</Text>
           </Pressable>
         </View>
 
-        <ScrollView style={styles.sheetBody} contentContainerStyle={styles.sheetBodyContent} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={sheetScrollRef} style={styles.sheetBody} contentContainerStyle={styles.sheetBodyContent} keyboardShouldPersistTaps="handled">
           {cards.map((card) => (
-            <SheetCard
-              key={card.key}
-              open={section === card.key}
-              label={card.label}
-              summary={segmentLabel(card.key)}
-              onPress={() => setSection(card.key)}
-            >
-              <Animated.View style={{ opacity: swapIn, transform: [{ translateY: swapIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
-                {card.body}
-              </Animated.View>
-            </SheetCard>
+            <View key={card.key} onLayout={card.key === 'dates' ? (event) => { datesCardY.current = event.nativeEvent.layout.y; scrollToDates(); } : undefined}>
+              <SheetCard
+                open={section === card.key}
+                label={card.label}
+                summary={segmentLabel(card.key)}
+                onPress={() => setSection(card.key)}
+              >
+                <Animated.View style={{ opacity: swapIn, transform: [{ translateY: swapIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
+                  {card.body}
+                </Animated.View>
+              </SheetCard>
+            </View>
           ))}
         </ScrollView>
 
@@ -637,7 +740,7 @@ export function PlanStartBar({
               }}
               accessibilityRole="button"
               accessibilityState={{ expanded: section === which }}
-              style={[styles.segment, index > 0 && styles.segmentDivider]}
+              style={[styles.segment, index > 0 && styles.segmentDivider, section === which && styles.segmentOpen]}
             >
               <Text variant="caption" color={color.text.muted}>
                 {which === 'origin' ? tx('출발지', 'From') : which === 'lodging' ? tx('숙소', 'Lodging') : which === 'dates' ? tx('날짜', 'Dates') : tx('인원', 'Travelers')}
@@ -739,7 +842,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', alignSelf: 'center', width: '100%', maxWidth: 920, minHeight: 72,
     padding: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.action.outline,
   },
-  segment: { flex: 1, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
+  // 🔴 칸 넷을 같은 폭(flex:1)으로 나누지 않는다 (S15P21E201-1626). 숙소 이름·긴 날짜 구간이 「파라다이스호텔부산 오…」
+  //    「10.5(월) – 10.25(일) ·…」로 잘리고, 짧은 「성인 2」 칸은 비어 남았다. 값 길이만큼 자리를 갖고, 모자라면
+  //    다 같이 줄되 지금 고르는 칸은 줄지 않는다(segmentOpen). 너무 좁아지지 않게 아랫단을 둔다.
+  segment: { flexGrow: 1, flexShrink: 1, flexBasis: 'auto', minWidth: 112, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
+  segmentOpen: { flexShrink: 0, maxWidth: '46%' },
   segmentDivider: { borderLeftWidth: 1, borderLeftColor: color.surface.border },
   // 고른 칸을 따라다니는 강조 알약. 칸마다 배경을 켜고 끄면 뚝뚝 끊겨 보인다
   // 하나를 깔고 자리만 옮기면 미끄러진다(에어비앤비가 그렇게 한다).
@@ -769,6 +876,8 @@ const styles = StyleSheet.create({
   monthRow: { flexDirection: 'row', gap: spacing[6] },
   month: { flex: 1, gap: spacing[2] },
   monthTitle: { textAlign: 'center' },
+  // 제목을 누르는 자리 — 글자만으로는 누르기 작고 누를 수 있는 줄도 모른다. 알약으로 둔다.
+  monthTitleButton: { minHeight: 32, alignSelf: 'center', justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
   weekHead: { flexDirection: 'row' },
   grid: {},
   // 🔴 한 줄에 일곱 칸을 직접 넣는다. flexWrap 으로 접으면 폭 반올림 때문에 일곱째 칸이
@@ -776,8 +885,16 @@ const styles = StyleSheet.create({
   week: { flexDirection: 'row' },
   cell: { flex: 1, height: 40, alignItems: 'center', justifyContent: 'center' },
   headCell: { flex: 1, textAlign: 'center' },
-  cellBetween: { backgroundColor: color.surface.tint },
-  cellPicked: { backgroundColor: color.brand.navy, borderRadius: radius.full },
+  // 고른 기간의 띠 — 칸 폭을 채운다. 시작 칸은 가운데부터, 끝 칸은 가운데까지(S15P21E201-1720).
+  // 띠와 동그라미는 같은 높이(34)다. 칸(40) 안에서 위아래 3 씩 비운다.
+  band: { position: 'absolute', top: 3, bottom: 3, left: 0, right: 0, backgroundColor: color.surface.tint },
+  bandFromCenter: { left: '50%' },
+  bandToCenter: { right: '50%' },
+  bandRoundLeft: { borderTopLeftRadius: radius.full, borderBottomLeftRadius: radius.full },
+  bandRoundRight: { borderTopRightRadius: radius.full, borderBottomRightRadius: radius.full },
+  // 시작·끝 동그라미 — 크기를 고정한다. 칸 전체를 칠하면 넓은 화면에서 가로로 긴 알약이 됐다.
+  //    34 인 까닭: 칸 폭이 작은 폰(360)에서 29.4 · 390 에서 33.7 이라, 40 이면 옆 날짜 글자와 3 남짓밖에 안 떨어졌다.
+  dot: { position: 'absolute', top: 3, left: '50%', marginLeft: -17, width: 34, height: 34, borderRadius: radius.full, backgroundColor: color.brand.navy },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },
   chip: { minHeight: 32, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
   counterRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

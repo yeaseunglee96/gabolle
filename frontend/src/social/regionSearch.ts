@@ -1,16 +1,21 @@
 // 「지역」 검색 — S15P21E201-1145.
 import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
-import { searchOrigins, type OriginCandidate } from '@/plan/origins';
+import { placeSnapshotOf, searchOrigins, type OriginCandidate, type PlaceSnapshot } from '@/plan/origins';
+
+/** 기록에 싣는 장소 스냅샷 — 숙소와 같은 한 벌이다(plan/origins.ts 의 PlaceSnapshot · S15P21E201-1536). */
+export type StoryPlaceSnapshot = PlaceSnapshot;
 
 export type RegionCandidate = {
   /** 화면에 크게 보이는 이름. */
   name: string;
   address: string;
-  /**
-   * 우리 DB 장소일 때만 있다. 있으면 글에 그 장소를 잇고, 없으면 지역 글자만 남는다.
-   * 카카오 결과에는 일부러 넣지 않는다 — 넣을 값이 있어도 저장하면 안 되기 때문이다.
-   */
+  /** 우리 DB 장소일 때만 있다. 있으면 글에 그 장소를 잇는다. */
   placeId?: string;
+  /**
+   * 카카오·대체 목록 결과일 때만 있다. 예전에는 합칠 때 버려서 지역 글자만 남았다 —
+   * 원글 28건 중 장소가 이어진 것이 5건이었다(2026-09-23 운영 DB).
+   */
+  place?: StoryPlaceSnapshot;
 };
 
 /** 주소에서 「구·군」을 뽑는다 — 지역 칸에 넣을 말. */
@@ -31,7 +36,7 @@ export function regionLabelOf(candidate: RegionCandidate): string {
 /** 두 갈래를 한 목록으로 합친다. */
 export function mergeRegionCandidates(
   ours: Pick<PlaceSearchItem, 'placeId' | 'nameKo' | 'address'>[],
-  kakao: Pick<OriginCandidate, 'name' | 'address'>[],
+  kakao: (Pick<OriginCandidate, 'name' | 'address'> & Partial<OriginCandidate>)[],
   limit = 8,
 ): RegionCandidate[] {
   const merged: RegionCandidate[] = ours.map((place) => ({
@@ -44,7 +49,8 @@ export function mergeRegionCandidates(
     const key = `${item.name}|${item.address}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    merged.push({ name: item.name, address: item.address });
+    const place = placeSnapshotOf(item);
+    merged.push(place ? { name: item.name, address: item.address, place } : { name: item.name, address: item.address });
   }
   return merged.slice(0, limit);
 }

@@ -17,8 +17,26 @@ import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../../assets/icons/home/bell.png');
 
+
+/**
+ * 「오늘」 묶음 — 기기 현지 날짜로 가른다(S15P21E201-1771).
+ * 🔴 전에는 UTC 날짜끼리 비교해서(toISOString().slice(0, 10)) 한국 새벽 0~9시에는 어제 알림이 「오늘」에 섞였다
+ *    (Play 37 실기기, 9/27 04시에 9/26 13시 알림이 「오늘」).
+ */
+export function splitToday<T extends { at: string }>(items: T[], now: Date = new Date()): { today: T[]; earlier: T[] } {
+  const key = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const todayKey = key(now);
+  const today: T[] = [];
+  const earlier: T[] = [];
+  for (const item of items) {
+    const at = new Date(item.at);
+    (!Number.isNaN(at.getTime()) && key(at) === todayKey ? today : earlier).push(item);
+  }
+  return { today, earlier };
+}
+
 export function NotificationsBody() {
-  const { tx, language } = useI18n();
+  const { tx, language, locale } = useI18n();
   const router = useRouter();
   const { accessToken, user } = useAuth();
   // 🔴 알림은 여행 활동에서 나온다(S15P21E201-1380) — 서버 알림 API 가 없어 늘 비어 있던 화면이었다.
@@ -27,7 +45,7 @@ export function NotificationsBody() {
     let active = true;
     if (!user) { setFeed({ state: 'ready', items: [], seenAt: null }); return undefined; }
     (async () => {
-      const [result, seenAt] = await Promise.all([loadActivityFeed(accessToken, tx), loadSeenAt()]);
+      const [result, seenAt] = await Promise.all([loadActivityFeed(accessToken, tx, locale), loadSeenAt()]);
       if (!active) return;
       setFeed(result.state === 'success' ? { state: 'ready', items: result.items, seenAt } : { state: 'error', message: result.message });
       // 목록을 본 순간부터는 읽은 것이다 — 점은 다음에 새것이 올 때만 다시 뜬다.
@@ -92,9 +110,7 @@ export function NotificationsBody() {
   }
 
   if (feed.state === 'ready' && feed.items.length) {
-    const todayKey = new Date().toISOString().slice(0, 10);
-    const today = feed.items.filter((item) => item.at.slice(0, 10) === todayKey);
-    const earlier = feed.items.filter((item) => item.at.slice(0, 10) !== todayKey);
+    const { today, earlier } = splitToday(feed.items);
     const unseenFrom = feed.seenAt;
     const row = (item: ActivityNotice) => {
       const copy = noticeCopy(item, tx);
@@ -159,5 +175,6 @@ const styles = StyleSheet.create({
   permissionCard: { width: '100%', maxWidth: 360, minHeight: 72, marginTop: spacing[4], padding: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   statusDot: { width: 10, height: 10, borderRadius: radius.full },
   permissionCopy: { flex: 1, gap: spacing[1] },
-  action: { maxWidth: 360 },
+  // 가운데 정렬 안에서는 껍데기가 글자 폭으로 줄어 버튼이 쪼그라든다 — 폭을 적어야 360 까지 편다(S15P21E201-1524).
+  action: { width: '100%', maxWidth: 360 },
 });

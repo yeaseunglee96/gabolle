@@ -69,11 +69,14 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   //    MAJOR_BUSAN_ORIGINS)까지 넣어 그 행만 특정한다.
   await page.getByRole('button', { name: /부산역.*중앙대로/ }).click();
   // 🔴 출발지를 고르면 pickOrigin이 «숙소» 패널을 연다 (S15P21E201-1511 부터 — 출발지 → 숙소 →
-  //    날짜 → 인원). 숙소는 선택이라 탈출구 「숙소 아직 안 정했어요」로 넘기면 날짜 패널이 열린다.
+  //    날짜 → 인원). 탈출구 「숙소 아직 안 정했어요」로 넘기면 날짜 패널이 열린다.
   //    접근성 이름에 부제(「출발지 기준으로 일정을 짜요」)가 붙으므로 exact 로 찾지 않는다.
   //    "날짜" 세그먼트를 또 누르면 오히려 toggle()이 닫아 버리므로 누르지 않는다.
   await page.getByRole('button', { name: /^숙소 아직 안 정했어요/ }).click();
-  await page.getByRole('button', { name: '1박 2일', exact: true }).click();
+  // 🔴 S15P21E201-1584 부터 1박 이상은 숙소를 골라야 「일정 물어보기」가 열린다 — 「숙소를 골라 주세요」로 잠긴다
+  //    (S15P21E201-1715: 이 시험이 1박 2일을 골라 60초 뒤 시간 초과로 빨개졌다). 당일치기는 숙소 없이 된다.
+  //    숙소를 실제로 고르는 경로는 숙소 검색 서버 호출이 필요해 CI 시험에 넣지 않는다 — startBarValue 단위 시험이 맡는다.
+  await page.getByRole('button', { name: '당일치기', exact: true }).click();
 
   await page.getByRole('button', { name: '일정 물어보기', exact: true }).click();
 

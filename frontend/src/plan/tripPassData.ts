@@ -3,6 +3,7 @@
 import type { ItineraryDto } from '@/plan/itinerary';
 import { pickLanguage } from '@/i18n';
 import { txf } from '@/i18n/format';
+import { stopNameForLanguage } from '@/discovery/romanize';
 import type { LanguageCode } from '@/i18n/languages';
 
 export type TripPassField = { key: string; value: string; /** 온 칸을 쓴다 — 장소 이름처럼 3분의 1 칸에 안 들어가는 값. */ wide?: boolean };
@@ -110,6 +111,8 @@ export type TripPassInput = {
   transport: string | null;
   ownerName: string | null;
   language: LanguageCode;
+  /** 장소별 영어 이름 — 영어 화면에서 첫·마지막 일정 이름에 쓴다(S15P21E201-1735). 모르면 로마자. */
+  nameEnByPlaceId?: Record<string, string | null | undefined>;
 };
 
 export function buildTripPass(input: TripPassInput): TripPassData {
@@ -154,7 +157,8 @@ export function buildTripPass(input: TripPassInput): TripPassData {
     fields.push({ key: tx('인원', 'Travelers'), value: tx(`${partySize}명`, String(partySize)) });
   }
 
-  const firstStopName = allItems[0]?.title?.trim();
+  const firstTitle = allItems[0]?.title?.trim();
+  const firstStopName = firstTitle ? stopNameForLanguage(firstTitle, input.nameEnByPlaceId?.[allItems[0].placeId], input.language) : undefined;
   if (firstStopName) fields.push({ key: tx('첫 일정', 'First stop'), value: firstStopName, wide: true });
 
   const modeKey = (input.transport ?? '').toUpperCase();
@@ -193,8 +197,9 @@ export function buildTripPassDetails(input: TripPassInput): TripPassDetail[] {
   const stopLabel = (item: (typeof allItems)[number] | undefined) => {
     if (!item) return null;
     const time = formatTime(item.startsAt);
-    const title = item.title?.trim();
-    if (!title) return time;
+    const raw = item.title?.trim();
+    if (!raw) return time;
+    const title = stopNameForLanguage(raw, input.nameEnByPlaceId?.[item.placeId], input.language);
     return time ? `${time} · ${title}` : title;
   };
   const first = stopLabel(allItems[0]);

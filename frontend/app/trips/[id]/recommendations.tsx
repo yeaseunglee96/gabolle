@@ -9,6 +9,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -22,15 +23,18 @@ import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
+import { TripPageDesktop } from '@/trip/page/TripPageDesktop';
+import { TripPageMobile } from '@/trip/page/TripPageMobile';
+import { tripPageKind } from '@/trip/page/tripPageModel';
 import { RouteMap } from '@/map/RouteMap';
 import { CourseCard, CourseRow, courseCost, courseFacts, courseLetter } from '@/plan/CourseCard';
 import { courseMapLayers, dayColor } from '@/plan/courseMap';
 import { useCourseRoutePaths } from '@/map/courseRoutePaths';
 import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
-import { loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
+import { canConfirmCourse, ensureCourseItinerary, loadTripCourses, TRIP_NOT_FOUND_MESSAGE, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
 import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { timeToMinutes } from '@/plan/tripBasics';
-import { loadTrips } from '@/trip/trips';
+import { invalidateTripLists, loadTrips } from '@/trip/trips';
 import { localizeMessage } from '@/i18n/messages';
 
 type Loaded = { state: 'loading' } | { state: 'ready'; result: TripCoursesResult };
@@ -41,6 +45,17 @@ const COLLAPSED_HEIGHT = 64;
 /** 정차지 카드 한 장과 그 사이 연결부의 폭 — 손잡이가 한 번에 옮길 거리를 이 둘로 센다. */
 const STRIP_CARD_WIDTH = 150;
 const STRIP_LINK_WIDTH = 44;
+/**
+ * 스트립이 멈추는 한 칸 — 카드 + 연결부 + 그 둘 사이의 간격 두 번(`styles.strip` 의 gap).
+ * 손가락으로 밀어도 이 배수에서만 선다 (S15P21E201-1797). 안 그러면 카드 중간에 선다.
+ */
+const STRIP_STEP = STRIP_CARD_WIDTH + STRIP_LINK_WIDTH + spacing[2] * 2;
+
+/** 스트립 화면이 «실제로» 달라지는 값만 모은 것 — 이것이 같으면 다시 그릴 까닭이 없다. */
+function stripLook(view: number, content: number, left: number) {
+  const page = view > 0 ? Math.round(left / view) : 0;
+  return `${left > 4}|${left < content - view - 4}|${page}`;
+}
 
 /**
  * 코스 한 자리 — 카드로 펼쳐져 있거나 한 줄로 접혀 있다. **둘 사이를 잇는다.**
@@ -102,13 +117,41 @@ function CourseSlot({ collapsed, card, row }: { collapsed: boolean; card: React.
   );
 }
 
+/**
+ * 넓은 화면(데스크톱 판정 — useLayout)은 여행 페이지 통합 화면을 연다 — 코스 고르기가 그 화면의 「추천 코스」 알약이 된다
+ * (S15P21E201-1535, 시안 frontend/docs/design_handoff_trip_page/). 폰은 같은 화면의 폰 판(TripPageMobile, 2단계)이고,
+ * 그 사이 칸은 없다(S15P21E201-1563) — 규칙은 tripPageKind(src/trip/page/tripPageModel.ts)가 갖는다.
+ */
 export default function Recommendations() {
+  const { desktop } = useLayout();
+  const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
+  const page = id ? tripPageKind(desktop, false) : 'classic';
+  if (id && page === 'desktop') return <TripPageDesktop source={{ kind: 'trip', tripId: id, jobId: jobId ?? null }} />;
+  if (id && page === 'mobile') return <TripPageMobile source={{ kind: 'trip', tripId: id, jobId: jobId ?? null }} />;
+  return <RecommendationsClassic />;
+}
+
+function RecommendationsClassic() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { accessToken } = useAuth();
   const { tx, language } = useI18n();
-  const { kind } = useLayout();
+  const { kind, height: screenHeight } = useLayout();
   const insets = useSafeAreaInsets();
   const wide = kind !== 'phone';
+  // 🔴 시트 높이는 화면에 맞춘다 — 560 을 그대로 쓰면 가로에서 위가 잘린다 (S15P21E201-1788).
+  //
+  // TAB_BAR_SHEET_HEIGHT 는 피드 시안(04b)의 값이고, TabBar.tsx 가 「화면마다 다르다 …
+  // 여기 박아 두면 두 화면 중 하나는 반드시 틀린다」고 적어 둔 그 기본값이다. 마이페이지는
+  // myPageSheetHeight() 로 화면 높이에 맞추는데 이 화면만 상수를 그대로 썼다.
+  //
+  // 아이폰 가로는 높이가 402 뿐이라 560 시트는 위로 160 넘게 넘쳤다 — 코스 제목과
+  // 「해당 코스 일정 보기」 단추가 화면 밖으로 나가 코스를 고를 수 없었다.
+  // 아래여백은 탭바와 **같은 함수**로 구한다(두 곳에서 따로 계산하면 한쪽만 고쳐진다).
+  const sheetHeight = Math.min(
+    TAB_BAR_SHEET_HEIGHT,
+    Math.max(TAB_BAR_HEIGHT, screenHeight - insets.top - tabBarBottomMargin(insets.bottom) - spacing[2]),
+  );
   const ko = resolveTextLanguage(language) === 'ko';
   const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
   const tripId = id ?? '';
@@ -135,7 +178,11 @@ export default function Recommendations() {
   const stripRef = useRef<ScrollView>(null);
   /** 스트립이 칸보다 넓은가(넘치는가) · 지금 얼마나 굴렀나 — 둘 다 재서 안다. */
   const [strip, setStrip] = useState({ view: 0, content: 0, left: 0 });
+  /** 굴린 거리의 정확한 값. 상태(strip.left)는 화면이 바뀔 때만 따라온다 — 아래 onScroll. */
+  const stripLeft = useRef(0);
   const [saved, setSaved] = useState<Record<string, boolean>>({});
+  /** 고른 안을 서버가 만드는 중인가 — 두 번 눌러 요청이 겹치지 않게 (S15P21E201-1454). */
+  const building = useRef(false);
 
   const load = useCallback(async () => {
     setLoaded({ state: 'loading' });
@@ -145,6 +192,11 @@ export default function Recommendations() {
     let job: string | null = jobId ?? null;
     if (!job && tripId) {
       const lookup = await findLatestRecommendationJob(tripId, accessToken);
+      // 🔴 그런 여행이 없으면 여기서 멈춘다 — 코스 목록을 또 부르면 같은 404 만 돌아온다(S15P21E201-1641).
+      if (lookup.state === 'trip-not-found') {
+        setLoaded({ state: 'ready', result: { state: 'not-found', message: TRIP_NOT_FOUND_MESSAGE } });
+        return;
+      }
       // 🔴 「없음」·「못 찾음」에는 번호 칸이 아예 없다. 있다고 치고 읽으면 undefined 가
       //    주소에 박혀 엉뚱한 자리를 부른다.
       job = 'jobId' in lookup ? lookup.jobId : null;
@@ -213,6 +265,7 @@ export default function Recommendations() {
   //    1일차로 옮겼을 때 「없는 뒤쪽」을 보고 있게 된다 — 화면은 비었는데 스크롤만 가 있다.
   useEffect(() => {
     stripRef.current?.scrollTo({ x: 0, animated: false });
+    stripLeft.current = 0;
     setStrip((prev) => ({ ...prev, left: 0 }));
   }, [picked, sheetDay]);
 
@@ -236,7 +289,7 @@ export default function Recommendations() {
   /** 한 번에 카드 두 장만큼 옮긴다 — 시안 3절. */
   const nudgeStrip = (direction: 1 | -1) => {
     const step = (STRIP_CARD_WIDTH + STRIP_LINK_WIDTH) * 2;
-    const next = Math.max(0, Math.min(strip.content - strip.view, strip.left + step * direction));
+    const next = Math.max(0, Math.min(strip.content - strip.view, stripLeft.current + step * direction));
     stripRef.current?.scrollTo({ x: next, animated: true });
   };
 
@@ -250,9 +303,19 @@ export default function Recommendations() {
   const build = async (course: TripCourse) => {
     // 🔴 「코스를 골랐다」는 이벤트를 안 보낸다. 서버가 받는 종류가 넷으로 정해져 있고,
     //    없는 종류를 만들어 보내면 그 줄은 조용히 버려진다 — 재는 줄 알고 안 재게 된다.
-    const itineraryId = course.itineraryId;
-    if (!itineraryId) return;
-    const target = `/trips/${itineraryId}/itinerary`;
+    if (!canConfirmCourse(course) || building.current) return;
+    // 🔴 2안·3안은 고른 지금 서버가 만든다 (S15P21E201-1454). 두 번 눌러 요청이 겹치면 서버가
+    //    「이미 만든 것」을 못 보고 둘 다 만들 수 있다 — 도는 동안은 다시 받지 않는다.
+    building.current = true;
+    const made = await ensureCourseItinerary(tripId, course, accessToken);
+    building.current = false;
+    if (made.state !== 'success') {
+      setLoaded({ state: 'ready', result: { state: 'error', message: made.message } });
+      return;
+    }
+    // 🔴 확정 일정이 바뀌었다 — 여행 목록 캐시를 비워야 돌아가 카드를 눌렀을 때 새로 고른 것이 열린다(S15P21E201-1605).
+    void invalidateTripLists(queryClient);
+    const target = `/trips/${made.itineraryId}/itinerary`;
     try {
       const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
       const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
@@ -272,13 +335,7 @@ export default function Recommendations() {
           ? tx(`${courses.length}가지 코스`, `${courses.length} courses`)
           : tx('추천 코스', 'Your course')}
       </Text>
-      {/* 🔴 한 안뿐인 이유를 말한다. 조용히 하나만 그리면 사용자는 비교를 놓친 줄도 모른다. */}
-      {full ? null : (
-        <Text variant="caption" color={color.text.muted}>
-          {tx('지금은 만들어진 일정 하나만 보여 드려요. 세 가지 코스 비교는 준비 중이에요.',
-            'Only the itinerary we built is shown for now — comparing three courses is on the way.')}
-        </Text>
-      )}
+      {/* 🔴 한 안뿐일 때 코스 비교가 준비 중이라고 말하던 줄을 뺐다 — 발표·심사에서 덜 만든 것처럼 보였다(S15P21E201-1662, 사용자 결정). */}
     </View>
   );
 
@@ -293,9 +350,16 @@ export default function Recommendations() {
       ) : loaded.result.state !== 'success' ? (
         <View style={styles.stateCard}>
           <Text color={color.text.body}>{localizeMessage(tx, loaded.result.message)}</Text>
-          <Pressable accessibilityRole="button" onPress={() => void load()} style={styles.retry}>
-            <Text weight="bold" color={color.brand.navy}>{tx('다시 시도', 'Try again')}</Text>
-          </Pressable>
+          {/* 그런 여행이 없으면 다시 불러도 같다 — 「다시 시도」 대신 내 여행으로(S15P21E201-1641). */}
+          {loaded.result.state === 'not-found' ? (
+            <Pressable accessibilityRole="button" onPress={() => router.replace('/trips')} style={styles.retry}>
+              <Text weight="bold" color={color.brand.navy}>{tx('내 여행', 'My trips')}</Text>
+            </Pressable>
+          ) : (
+            <Pressable accessibilityRole="button" onPress={() => void load()} style={styles.retry}>
+              <Text weight="bold" color={color.brand.navy}>{tx('다시 시도', 'Try again')}</Text>
+            </Pressable>
+          )}
         </View>
       ) : (
         courses.map((course, index) => (
@@ -426,7 +490,23 @@ export default function Recommendations() {
               scrollEventThrottle={16}
               onLayout={(event) => setStrip((prev) => ({ ...prev, view: Math.round(event.nativeEvent.layout.width) }))}
               onContentSizeChange={(width) => setStrip((prev) => ({ ...prev, content: Math.round(width) }))}
-              onScroll={(event) => setStrip((prev) => ({ ...prev, left: Math.round(event.nativeEvent.contentOffset.x) }))}
+              // 🔴 카드 한 장 단위로 멈춘다 (S15P21E201-1797) — 첫 카드 앞의 여백은 0 번 자리에도
+              //    있으므로 멈출 자리는 한 칸(STRIP_STEP)의 배수다.
+              snapToInterval={STRIP_STEP}
+              snapToAlignment="start"
+              decelerationRate="fast"
+              // 🔴 굴리는 동안 1초에 60번 오는 값을 그대로 상태에 넣으면 화면 전체가 60번
+              //    다시 그려진다. 화살표·흐림·점이 바뀔 때만 상태를 고친다 — 같으면 prev 를
+              //    그대로 돌려줘서 React 가 다시 그리기를 건너뛴다.
+              onScroll={(event) => {
+                const left = Math.round(event.nativeEvent.contentOffset.x);
+                stripLeft.current = left;
+                setStrip((prev) => (
+                  stripLook(prev.view, prev.content, prev.left) === stripLook(prev.view, prev.content, left)
+                    ? prev
+                    : { ...prev, left }
+                ));
+              }}
               style={styles.stripPane}
               contentContainerStyle={styles.strip}
             >
@@ -575,7 +655,7 @@ export default function Recommendations() {
           styles.courseBar,
           {
             bottom: tabBarBottomMargin(insets.bottom),
-            height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, TAB_BAR_SHEET_HEIGHT] }),
+            height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, sheetHeight] }),
             // 🔴 폭도 같이 자란다. 접혔을 때까지 시트 폭을 쓰면 아래 막대만 혼자 넓어
             //    탭바가 있던 자리와 어긋난다 — 같은 자리에 서는 것으로 안 읽힌다.
             maxWidth: grow.interpolate({ inputRange: [0, 1], outputRange: [BAR_MAX_WIDTH, SHEET_MAX_WIDTH] }),

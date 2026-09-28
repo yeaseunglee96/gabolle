@@ -28,6 +28,44 @@ Play 에는 **약관 주소를 넣는 칸이 따로 없다.** 개인정보처리
 
 ---
 
+## 매니페스트 권한 전수 — 「이 권한 왜 있나」에 답하는 표 (S15P21E201-1505)
+
+Play 데이터 안전 양식이나 심사가 「이 권한을 왜 쓰나」를 물을 때 **여기서 답을 가져간다.**
+2026-09-24 에 기기에 깔린 build 34 APK 의 `AndroidManifest.xml` 을 직접 풀어 확인한 것이다
+(권한 33개). 아래 설명 문단(ko-KR 등)은 **사용자에게 실제로 묻는 것만** 적고, 이 표는 **묻지 않는
+것까지 전부** 적는다.
+
+| 권한 | 왜 있나 | 출처 | 사용자에게 묻나 |
+|---|---|---|---|
+| `ACCESS_COARSE_LOCATION` · `ACCESS_FINE_LOCATION` | 주변 여행지 안내, 지도에 현재 위치 표시 | 우리가 선언(`app.json`) | 묻는다 |
+| `CAMERA` | 메뉴판 촬영 번역 | expo-image-picker | 묻는다 |
+| `POST_NOTIFICATIONS` | 일정이 만들어졌거나 바뀐 것을 알림 | expo-notifications | 묻는다 |
+| `READ_EXTERNAL_STORAGE` · `WRITE_EXTERNAL_STORAGE` | Android 12 이하에서 사진 고르기·임시 파일 | expo-image-picker · expo-file-system | 12 이하만. 둘 다 `maxSdkVersion=32` 라 **13 이상에서는 요청 목록에 안 뜬다**(APK 실측) |
+| `INTERNET` · `ACCESS_NETWORK_STATE` | 서버와 통신, 연결 상태 확인 | 기본 | 안 묻는다(일반 권한) |
+| `WAKE_LOCK` · `RECEIVE_BOOT_COMPLETED` | 알림 수신, 재부팅 뒤 예약 알림 되살리기 | expo-notifications · Firebase | 안 묻는다 |
+| `VIBRATE` | 알림 진동 | expo-notifications | 안 묻는다 |
+| `MODIFY_AUDIO_SETTINGS` | 오디오·영상 재생 | expo-audio | 안 묻는다 |
+| `USE_BIOMETRIC` · `USE_FINGERPRINT` | 로그인 토큰을 기기 보안 저장소에 넣는 라이브러리가 선언. 앱이 생체 인증 화면을 띄우는 게 아니다 | expo-secure-store(androidx.biometric) | 안 묻는다 |
+| `com.google.android.c2dm.permission.RECEIVE` | 푸시(FCM) 수신 | Firebase | 안 묻는다 |
+| `com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE` | Play 설치 출처 조회 | Google 라이브러리(정확한 출처 미확정) | 안 묻는다 |
+| 런처 배지 21개 (`com.sec.…badge.permission.READ` 등 삼성·HTC·소니·화웨이·오포 계열, `READ_APP_BADGE`) | 런처별 아이콘 숫자 배지를 그리는 ShortcutBadger 가 선언. 앱 코드는 배지 숫자를 직접 쓰지 않는다(`setBadgeCount` 호출 없음) | expo-notifications 의존 | 안 묻는다(일반 권한) |
+| `com.gabolle.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | AndroidX 내부용. 우리 앱만 쓰는 서명 권한 | AndroidX | 해당 없음 |
+
+**일부러 뺀 것 (`tools:node="remove"` / `blockedPermissions`)**
+
+- `FOREGROUND_SERVICE` · `FOREGROUND_SERVICE_MEDIA_PLAYBACK` — 배경 재생을 안 쓴다
+  (`plugins/withoutMediaForegroundService.js`, S15P21E201-1504)
+- `SYSTEM_ALERT_WINDOW`(다른 앱 위에 그리기) — 여행 앱에 필요 없다. `app.json` 의
+  `android.blockedPermissions` 로 뺐다.
+
+🔴 **`SYSTEM_ALERT_WINDOW` 의 출처는 티켓 초안이 짐작한 «react-native 의 debug 매니페스트» 가 아니다.**
+Expo 템플릿(`expo-template-bare-minimum`)의 **main 매니페스트**가 직접 선언한다 — 템플릿 안에
+「OPTIONAL PERMISSIONS, REMOVE WHATEVER YOU DO NOT NEED」라는 주석과 함께 있다. 그래서 릴리스
+빌드에 들어왔고, Expo 가 이런 권한을 빼라고 준 정식 수단이 `blockedPermissions` 다. 같은 주석 아래
+있는 `VIBRATE` 는 알림 진동에 쓰이므로 남긴다.
+
+---
+
 ## ko-KR
 
 ```text

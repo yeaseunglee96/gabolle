@@ -4,12 +4,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
+import { readCurrentPosition } from '@/location/currentPosition';
 
+import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { PhotoCreditBar } from '@/components/PhotoCreditBar';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ScopeSwitch } from '@/discovery/ScopeSwitch';
@@ -17,10 +20,12 @@ import { EXPLORE_GRID_GAP, exploreCardWidth } from '@/discovery/exploreGrid';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { color, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
-import { getPlacesByFacet, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
+import { getPlacesByFacet, photoLabels, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+import { syncLocationConsent } from '@/personalization/locationConsent';
+import { useLocationGate } from '@/personalization/useLocationGate';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
 // 이 값과 일치하는 항목만 골라 순서는 서버가 준 그대로 둔다. 화면 쪽에서 새로 만들지 않는다.
@@ -37,6 +42,8 @@ export default function LocalExplore() {
   const router = useRouter();
   const { facet } = useLocalSearchParams<{ facet?: string }>();
   const { tx, language } = useI18n();
+  const { accessToken } = useAuth();
+  const locationGate = useLocationGate(accessToken);
   const [result, setResult] = useState<FacetsLoadResult>({ state: 'success', facets: [] });
   const [loading, setLoading] = useState(true);
   const requestedFacet = facet && KNOWN_FACET_KEYS.has(facet) ? facet : null;
@@ -53,32 +60,36 @@ export default function LocalExplore() {
   }, []);
 
   const detectLocation = useCallback(async () => {
+    // 🔴 위치 동의가 먼저다(S15P21E201-1691) — 「내 위치로」를 누른 것은 쓰고 싶다는 뜻이라, 거절했어도 다시 묻는다.
+    if (!(await locationGate.request())) { setLocationState('denied'); return; }
     setLocationState('detecting');
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
       if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return; }
-      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const position = await readCurrentPosition();
       setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
       setLocationState('granted');
     } catch {
       setLocationState('denied');
     }
-  }, []);
+  }, [locationGate.request]);
 
   const restoreGrantedLocation = useCallback(async () => {
+    // 🔴 동의가 없으면 조용히 읽지도 않는다(S15P21E201-1691). 묻는 것은 「내 위치로」를 누를 때다.
+    if ((await syncLocationConsent(accessToken)) !== true) { setLocationState('denied'); return; }
     setLocationState('detecting');
     try {
       // 화면을 둘러보기만 해도 권한 팝업부터 띄우지 않는다. 이미 허용한 사람에게만 위치를
       // 읽고, 처음이거나 거부한 사람은 부산 중심 결과를 먼저 보여 준 뒤 버튼으로 선택하게 한다.
       const permission = await Location.getForegroundPermissionsAsync();
       if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return; }
-      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const position = await readCurrentPosition();
       setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
       setLocationState('granted');
     } catch {
       setLocationState('denied');
     }
-  }, []);
+  }, [accessToken]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { void restoreGrantedLocation(); }, [restoreGrantedLocation]);
@@ -98,9 +109,10 @@ export default function LocalExplore() {
   // wide 600~ : 갈래 칩이 줄바꿈되고 결과가 카드 격자가 된다
   // split 1024~ : 내용 최대 폭을 넓게 연다. 배치가 둘로 갈리던 자리였는데, 왼쪽 기둥을
   //               없애고(시안 05) 지금은 폭만 정한다
-  const { width } = useLayout();
+  const { width, desktop } = useLayout();
   const wide = isAtLeast(width, 'md');
-  const split = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const split = desktop;
   const selectedFacet = visibleFacets?.find((entry) => entry.featureKey === selectedKey) ?? visibleFacets?.[0] ?? null;
   // 폰 2열 · 600~1023 3열 · 1024~ 4열. 계산은 exploreGrid 가 하고 여기서는 값만 받는다.
   const cardWidth = exploreCardWidth(width);
@@ -138,9 +150,9 @@ export default function LocalExplore() {
 
       {!loading && result.state !== 'success' ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
-          <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('로컬 탐색 API를 기다리고 있어요', 'Waiting for the local explore API') : tx('갈래를 불러오지 못했어요', 'Could not load categories')}</Text>
+          <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('갈래를 불러오지 못했어요', 'Could not load categories')}</Text>
           <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
-          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="tertiary" compact onPress={() => void load()} />
         </View>
       ) : null}
 
@@ -193,6 +205,7 @@ export default function LocalExplore() {
           {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cardWidth={cardWidth} /> : null}
         </View>
       ) : null}
+      {locationGate.sheet}
     </Screen>
   );
 }
@@ -284,7 +297,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   if (result.state !== 'success') {
     return <View style={styles.branchBody}>
       <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
-      <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }).then(setResult)} containerStyle={styles.branchRetry} />
+      <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }).then(setResult)} compact containerStyle={styles.branchRetry} />
     </View>;
   }
   if (result.items.length === 0) {
@@ -305,8 +318,8 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
         <View style={styles.expandedNotice}>
           <Text variant="caption" weight="bold" color={color.state.info}>{tx('내 위치를 몰라 부산 중심에서 찾았어요. 거리도 그 기준이에요.', 'We searched from the center of Busan because your location is unavailable. Distances use that point.')}</Text>
           {canAskAgain
-            ? <Button label={tx('내 위치로 다시 찾기', 'Search from my location')} variant="tertiary" onPress={onRetryLocation} containerStyle={styles.branchRetry} />
-            : <Button label={tx('설정에서 위치 허용하기', 'Allow location in Settings')} variant="tertiary" onPress={() => void Linking.openSettings()} containerStyle={styles.branchRetry} />}
+            ? <Button label={tx('내 위치로 다시 찾기', 'Search from my location')} variant="tertiary" onPress={onRetryLocation} compact containerStyle={styles.branchRetry} />
+            : <Button label={tx('설정에서 위치 허용하기', 'Allow location in Settings')} variant="tertiary" onPress={() => void Linking.openSettings()} compact containerStyle={styles.branchRetry} />}
         </View>
       )}
       {result.radiusExpanded && (
@@ -358,7 +371,9 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
         <PlacePhoto item={item} style={styles.cardPhoto} />
         {/* 🔴 사진 출처는 꾸밈이 아니라 이용 조건이다. 사진을 그리면 반드시 함께 그리고,
             문구는 서버가 준 값을 쓴다 — 지어내지 않는다. */}
-        {item.photoSource ? <View style={styles.sourcePill}><Text variant="caption" color={color.text.muted} numberOfLines={1}>{txf(tx, '사진: %s', 'Photo: %s', item.photoSource)}</Text></View> : null}
+        {/* 위키미디어 사진은 라이선스 이름을 덧붙이고, 누르면 파일 페이지가 열린다(S15P21E201-1610). */}
+        {/* 홈 카드와 같은 띠(S15P21E201-1682) — 전에는 흰 알약에 흐린 글자라 어두운 사진 위에서 안 읽혔고, 한 줄에서 잘려 이용 조건이 안 보였다. */}
+        {item.photoSource ? <PhotoCreditBar source={item.photoSource} license={item.photoLicense?.name ?? null} licenseUrl={photoLabels(item, tx).licenseUrl} tx={tx} /> : null}
       </View>
       <View style={styles.cardBody}>
         <Text weight="bold" numberOfLines={1}>{localPlaceName(item, language)}</Text>
@@ -411,7 +426,9 @@ const styles = StyleSheet.create({
   resultNote: { flexShrink: 1 },
 
   // 칩이 줄바꿈된다. 숨는 것이 없어야 한다는 게 이 모양의 전부다.
-  facetWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  // 🔴 flex 1 · minWidth 0 — 토글을 뺀 남는 폭만 쓴다. 안 주면 줄지 않고 한 줄로 늘어나, 영어판에서
+  //    범위 토글이 오른쪽 밖으로 밀렸다(S15P21E201-1703 — 1280 에서 「All Busan」, 1024 에서 「Nearby」까지).
+  facetWrap: { flex: 1, minWidth: 0, flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   chipCount: { opacity: 0.75 },
 
   // 사진 — 없을 때가 더 흔하다(7~18%만 온다). 자리표시가 기본 모습이라고 보면 된다.
@@ -425,8 +442,7 @@ const styles = StyleSheet.create({
   //    테두리가 하는 일이 없고, 네 열에서는 테두리 여덟 줄이 사진보다 먼저 눈에 든다.
   cardGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: EXPLORE_GRID_GAP },
   card: { gap: spacing[1] },
-  cardPhotoWrap: { position: 'relative' },
+  cardPhotoWrap: { position: 'relative', overflow: 'hidden', borderRadius: radius.md },
   cardPhoto: { width: '100%', aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
-  sourcePill: { position: 'absolute', left: spacing[2], bottom: spacing[2], maxWidth: '85%', paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.85)' },
   cardBody: { gap: 2, paddingTop: spacing[1] },
 });

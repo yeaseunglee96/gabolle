@@ -1,6 +1,7 @@
 // 댓글 수정·삭제·신고 — S15P21E201-1239.
 import type { ReactElement } from 'react';
 import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react-native';
+import { View } from 'react-native';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -146,32 +147,57 @@ function installApi() {
     if (path === `/api/v1/stories/${MY_REPLY_ID}` && method === 'PATCH') return { ...myReply(), body: '고친 댓글' };
     if (path === `/api/v1/stories/${MY_REPLY_ID}` && method === 'DELETE') return undefined;
     if (path === `/api/v1/stories/${OTHER_REPLY_ID}/reports` && method === 'POST') return undefined;
+    if (path === `/api/v1/stories/${OTHER_REPLY_ID}/reaction` && method === 'PUT') return undefined;
     throw new Error(`시험이 준비 안 한 요청: ${method} ${path}`);
   });
+}
+
+// ⋯ 메뉴는 버튼 자리를 잰 뒤에 열린다(S15P21E201-1576). 시험 환경의 View 는 재는 함수가 아무것도 안 하는
+// 가짜라 그대로 두면 메뉴가 영영 안 열린다 — 버튼 하나의 자리를 돌려주게 한다.
+type Measurable = { measureInWindow: (callback: (x: number, y: number, width: number, height: number) => void) => void };
+function measureButtonsAt(x: number, y: number) {
+  jest.spyOn((View as unknown as { prototype: Measurable }).prototype, 'measureInWindow')
+    .mockImplementation((callback) => callback(x, y, 32, 32));
 }
 
 beforeEach(() => {
   jest.clearAllMocks();
   installApi();
+  measureButtonsAt(300, 100);
 });
 
+// 🔴 수정·삭제·신고는 댓글의 ⋯ 메뉴 안에 있다(트위터 답글형, S15P21E201-1576). 댓글은 [내 것, 남의 것] 순서로 온다.
+const MINE = 0;
+const OTHERS = 1;
+function openReplyMenu(view: ReturnType<typeof render>, index: number) {
+  fireEvent.press(view.getAllByLabelText('댓글 더 보기')[index]);
+}
+
 describe('댓글 카드 — 수정·삭제·신고', () => {
-  it('내 댓글에는 수정·삭제가, 남의 댓글에는 신고가 보인다', async () => {
+  it('내 댓글 ⋯ 에는 수정·삭제가, 남의 댓글 ⋯ 에는 신고가 있다', async () => {
     const view = render(<StoryDetail />);
     await waitFor(() => expect(view.getByText('제 댓글이에요')).toBeTruthy());
 
-    expect(view.getAllByLabelText('댓글 수정')).toHaveLength(1);
-    expect(view.getAllByLabelText('댓글 삭제')).toHaveLength(1);
-    expect(view.getAllByLabelText('댓글 신고')).toHaveLength(1);
-    // 내 댓글에는 신고가, 남의 댓글에는 수정·삭제가 섞여 있지 않다.
-    expect(view.queryAllByLabelText('댓글 수정')).toHaveLength(1);
+    // 메뉴를 열기 전에는 글자 단추가 줄에 늘어서지 않는다.
+    expect(view.queryByText('수정')).toBeNull();
+
+    openReplyMenu(view, MINE);
+    expect(view.getByText('수정')).toBeTruthy();
+    expect(view.getByText('삭제')).toBeTruthy();
+    expect(view.queryByText('신고')).toBeNull();
+    fireEvent.press(view.getByLabelText('메뉴 닫기'));
+
+    openReplyMenu(view, OTHERS);
+    expect(view.getByText('신고')).toBeTruthy();
+    expect(view.queryByText('수정')).toBeNull();
   });
 
   it('🔴 수정 — PATCH 가 그 댓글 id 로 나가고, 화면이 고친 내용으로 바뀐다', async () => {
     const view = render(<StoryDetail />);
     await waitFor(() => expect(view.getByText('제 댓글이에요')).toBeTruthy());
 
-    fireEvent.press(view.getByLabelText('댓글 수정'));
+    openReplyMenu(view, MINE);
+    fireEvent.press(view.getByText('수정'));
     const editField = view.getByDisplayValue('제 댓글이에요');
     fireEvent.changeText(editField, '고친 댓글');
     // 「저장」이 둘이다 — 기록 자체를 저장하는 알약(반응 줄, S15P21E201-1358)과 댓글 고침을 저장하는 단추. 댓글 쪽은 뒤에 온다.
@@ -187,7 +213,8 @@ describe('댓글 카드 — 수정·삭제·신고', () => {
     const view = render(<StoryDetail />);
     await waitFor(() => expect(view.getByText('제 댓글이에요')).toBeTruthy());
 
-    fireEvent.press(view.getByLabelText('댓글 삭제'));
+    openReplyMenu(view, MINE);
+    fireEvent.press(view.getByText('삭제'));
     fireEvent.press(view.getByText('삭제 확정'));
 
     await waitFor(() => expect(view.queryByText('제 댓글이에요')).toBeNull(), { timeout: 5000 });
@@ -201,7 +228,8 @@ describe('댓글 카드 — 수정·삭제·신고', () => {
     const view = render(<StoryDetail />);
     await waitFor(() => expect(view.getByText('남의 댓글이에요')).toBeTruthy());
 
-    fireEvent.press(view.getByLabelText('댓글 신고'));
+    openReplyMenu(view, OTHERS);
+    fireEvent.press(view.getByText('신고'));
     fireEvent.press(view.getByText('스팸'));
     fireEvent.press(view.getByText('신고 접수'));
 
@@ -212,5 +240,31 @@ describe('댓글 카드 — 수정·삭제·신고', () => {
     // 원글 신고와 다르다 — "신고가 접수됐어요" 전체 화면 안내로 안 바뀐다. 원글 본문은 그대로 있다.
     expect(view.getByText('오늘의 기록')).toBeTruthy();
     expect(view.queryByText('신고가 접수됐어요')).toBeNull();
+  });
+});
+
+describe('댓글 좋아요 — 트위터 답글형 (S15P21E201-1576)', () => {
+  it('🔴 댓글의 좋아요는 그 댓글 id 로 나가고, 수가 바로 오른다 — 원글 좋아요와 섞이지 않는다', async () => {
+    const view = render(<StoryDetail />);
+    await waitFor(() => expect(view.getByText('남의 댓글이에요')).toBeTruthy());
+
+    // 좋아요 알약은 원글 하나 + 남의 댓글 하나 — 내 댓글 것은 잠겨 이름이 다르다(S15P21E201-1783). 남의 댓글 것은 마지막이다.
+    const likes = view.getAllByLabelText('좋아요');
+    fireEvent.press(likes[likes.length - 1]);
+
+    await waitFor(() => expect(requests.some((r) => r.path === `/api/v1/stories/${OTHER_REPLY_ID}/reaction`)).toBe(true));
+    expect(requests.some((r) => r.path === `/api/v1/stories/${STORY_ID}/reaction`)).toBe(false);
+    await waitFor(() => expect(view.getAllByLabelText('좋아요 취소')).toHaveLength(1));
+  });
+
+  it('🔴 내 댓글의 좋아요는 잠겨 있고, 눌러도 요청이 안 나간다 (S15P21E201-1783)', async () => {
+    const view = render(<StoryDetail />);
+    await waitFor(() => expect(view.getByText('제 댓글이에요')).toBeTruthy());
+
+    const locked = view.getAllByLabelText('내 글에는 좋아요를 누를 수 없어요');
+    expect(locked).toHaveLength(1);
+    fireEvent.press(locked[0]);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(requests.some((r) => r.path === `/api/v1/stories/${MY_REPLY_ID}/reaction`)).toBe(false);
   });
 });

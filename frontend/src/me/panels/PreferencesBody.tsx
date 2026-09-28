@@ -4,7 +4,7 @@
 import { txf } from '@/i18n/format';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -12,7 +12,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import {
   getSpendProfile,
   MEAL_VARIES_CODE,
@@ -166,9 +166,9 @@ function Chips({ options, values, onChange }: { options: { code: string; label: 
 export function PreferencesBody() {
   const { tx } = useI18n();
   const { accessToken } = useAuth();
-  const { width } = useWindowDimensions();
   // 1024 이상 — breakpoints.ts 의 표에서 사이드바가 들어가는 폭이다.
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = useLayout().desktop;
   const queryClient = useQueryClient();
   const [open, setOpen] = useState<OpenRow | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -261,23 +261,36 @@ export function PreferencesBody() {
     {answeredCount === 0 && <View style={[styles.emptyCard, wide && styles.emptyCardWide]}>
       <Image source={require('../../../assets/mascot/dongbaek-thinking.png')} style={[styles.emptyMascot, wide && styles.emptyMascotWide]} resizeMode="contain" />
       <View style={[styles.emptyCopy, wide && styles.emptyCopyWide]}>
-        <Text variant="title" weight="bold">{tx('아직 기억된 취향이 없어요', 'No preferences saved yet')}</Text>
-        <Text variant="caption" color={color.text.body} style={wide ? undefined : styles.emptyBody}>
-          {tx('처음에 건너뛰셨어요. 지금 답하면 여행을 만들 때 미리 채워 드려요.',
-            'You skipped these at the start. Answer now and we will fill them in when you plan.')}
-        </Text>
-        <Button
-          label={tx('8개 답하기 · 약 1분', 'Answer 8 questions · about a minute')}
-          containerStyle={[styles.emptyCta, wide && styles.emptyCtaWide]}
-          onPress={() => setOpen({ group: 'spend', key: SPEND_QUESTIONS[0].key })}
-        />
+        {/* 🔴 못 읽은 것을 「건너뛰었다」로 말하지 않는다(S15P21E201-1681) — 실패면 다시 시도, 건너뛴(SKIPPED) 사람에게만
+            「처음에 건너뛰셨어요」. 한 번도 답한 적 없는 사람에게는 그 말을 빼고 무엇을 하면 되는지만. */}
+        {saved.loadFailed ? <>
+          <Text variant="title" weight="bold">{tx('취향을 불러오지 못했어요', "We couldn't load your preferences")}</Text>
+          <Text variant="caption" color={color.text.body} style={wide ? undefined : styles.emptyBody}>{tx('잠시 뒤 다시 시도해 주세요.', 'Please try again in a moment.')}</Text>
+          <Button label={tx('다시 시도', 'Try again')} variant="secondary" compact={wide} containerStyle={[styles.emptyCta, wide && styles.emptyCtaWide]} onPress={() => void query.refetch()} />
+        </> : <>
+          <Text variant="title" weight="bold">{tx('아직 기억된 취향이 없어요', 'No preferences saved yet')}</Text>
+          <Text variant="caption" color={color.text.body} style={wide ? undefined : styles.emptyBody}>
+            {saved.spendSkipped
+              ? tx('처음에 건너뛰셨어요. 지금 답하면 여행을 만들 때 미리 채워 드려요.',
+                'You skipped these at the start. Answer now and we will fill them in when you plan.')
+              : tx('지금 답하면 여행을 만들 때 미리 채워 드려요.', 'Answer now and we will fill them in when you plan.')}
+          </Text>
+          <Button
+            label={tx('8개 답하기 · 약 1분', 'Answer 8 questions · about a minute')}
+            compact={wide}
+            containerStyle={[styles.emptyCta, wide && styles.emptyCtaWide]}
+            onPress={() => setOpen({ group: 'spend', key: SPEND_QUESTIONS[0].key })}
+          />
+        </>}
       </View>
     </View>}
 
     {/* 넓은 화면에서는 두 그룹을 나란히. alignItems 를 'flex-start' 로 둬야 한 쪽 줄을
         펼쳤을 때 반대쪽 카드가 같이 늘어나지 않는다 — 늘어나면 빈 흰 바탕이 생긴다.
     */}
-    <View style={wide ? styles.groupsWide : undefined}>
+    {/* 🔴 못 불러왔으면 문항 줄을 숨긴다(S15P21E201-1681, 조율 세션 결정) — 모르는데 줄마다 「답 안 함」이라고 했다.
+        할 일은 위의 「다시 시도」 하나로 또렷하게. */}
+    {!saved.loadFailed && <View style={wide ? styles.groupsWide : undefined}>
     <View style={wide ? styles.groupColumn : undefined}>
     <Eyebrow>{tx('여행 스타일 세 질문', 'Three questions about your style')}</Eyebrow>
     <View style={styles.group}>
@@ -369,7 +382,7 @@ export function PreferencesBody() {
       })}
     </View>
     </View>
-    </View>
+    </View>}
 
     {/* 넓은 화면에서는 설명과 버튼이 한 줄에 눕는다. */}
     {answeredCount > 0 && <View style={[styles.dangerCard, wide && styles.dangerCardWide]}>
@@ -423,9 +436,9 @@ const styles = StyleSheet.create({
   emptyCopyWide: { flex: 1, alignItems: 'flex-start', justifyContent: 'center' },
   emptyBody: { textAlign: 'center' },
   emptyCta: { minHeight: 46, alignSelf: 'stretch', marginTop: spacing[2] },
-  // width: 'auto' 가 있어야 줄어든다. Button 의 기본 스타일에 width: '100%' 가 박혀
-  // 있어서 alignSelf 만으로는 아무 일도 안 일어난다 — 조용히 안 먹는 자리다.
-  emptyCtaWide: { alignSelf: 'flex-start', width: 'auto', paddingHorizontal: spacing[6] },
+  // 넓은 화면에서 글자 폭으로 줄이는 것은 버튼의 compact 가 한다(S15P21E201-1676). 🔴 여기(껍데기)에 width: 'auto'·
+  // paddingHorizontal 을 주면 색 면은 글자에 딱 붙고 여백은 투명한 바깥에 생긴다 — 그렇게 쪼그라든 채 나가 있었다.
+  emptyCtaWide: { alignSelf: 'flex-start' },
   // alignItems: 'flex-start' — 한 쪽 줄을 펼쳤을 때 반대쪽 카드가 같이 늘어나지 않게.
   // 늘어나면 그만큼 빈 흰 바탕이 생기고, 그게 "여기 뭔가 빠졌나" 로 읽힌다.
   groupsWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] },

@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import Animated, { FadeInRight, FadeOutLeft, ReduceMotion } from 'react-native-reanimated';
 
 import { ApiClientError } from '@/api/client';
 import { resendEmailVerification, signup, type Registration, type SignupLanguage } from '@/auth/authApi';
-import { isSafeReturnPath, savePendingReturnTo } from '@/auth/pendingReturnTo';
-import { Card } from '@/components/Card';
-import { Eyebrow } from '@/components/Eyebrow';
+import { useAuth } from '@/auth/AuthProvider';
+import { enterApp } from '@/auth/enterApp';
+import { isSafeReturnPath, savePendingReturnTo, signedInDestination } from '@/auth/pendingReturnTo';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { webInputNoOutline } from '@/design/webGlobalStyles';
 import { useLayout } from '@/layout/useLayout';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
@@ -23,6 +24,12 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SPECIAL_CHARACTER_PATTERN = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
 
 const PANEL_LABELS = [['이메일', 'Email'], ['비밀번호', 'Password'], ['이름·언어', 'Name · Language'], ['약관 동의', 'Agreements']] as const;
+
+// 넓은 화면 왼쪽 판 — 부산 야경 (S15P21E201-1518 시안 6번). 글자는 사진 윗부분 검은 하늘에
+// 얹히므로 어둡게 덮는 막 없이도 읽힌다. 원본은 6192×4128·18MB 라 긴 변 2000 으로 줄여 넣었다.
+const introPhoto = require('../../assets/home/busan-night.jpg');
+
+type FieldKey = 'email' | 'password' | 'confirm' | 'name';
 
 export default function SignUp() {
   const router = useRouter();
@@ -41,7 +48,11 @@ export default function SignUp() {
   const [ageAccepted, setAgeAccepted] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(false);
+  // 🔴 「입력한 뒤에만」 빨갛게 — 처음 연 빈 칸은 오류가 아니다(시안 4번). 그래서 손댄 칸을
+  //    따로 센다. 기준은 떠날 때(onBlur)가 아니라 **바꿀 때(onChangeText)** 다 — 시안과 같다.
+  const [touched, setTouched] = useState<Record<FieldKey, boolean>>({ email: false, password: false, confirm: false, name: false });
+  const [focused, setFocused] = useState<FieldKey | null>(null);
+  const touch = (key: FieldKey) => setTouched((current) => (current[key] ? current : { ...current, [key]: true }));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [duplicateEmail, setDuplicateEmail] = useState(false);
@@ -50,6 +61,16 @@ export default function SignUp() {
   const [resent, setResent] = useState(false);
   const [panelIndex, setPanelIndex] = useState(0);
   useEffect(() => { void savePendingReturnTo(returnTo); }, [returnTo]);
+  // 🔴 이미 로그인한 사람은 가입 양식을 안 본다 — 로그인 화면과 같은 규칙(S15P21E201-1199 · 1594 → 이 화면은 1793).
+  //    가입은 메일 인증을 거쳐 로그인 화면에서 끝나므로, 여기서 로그인 상태가 되는 일은 없다 — 로그인 화면처럼
+  //    「방금 여기서 로그인했다」를 가릴 필요가 없다. 로그인 복구가 늦게 끝나도 비키도록 ready·user 에 건다.
+  const { user, ready } = useAuth();
+  const leftForSignedIn = useRef(false);
+  useEffect(() => {
+    if (!ready || !user || leftForSignedIn.current) return;
+    leftForSignedIn.current = true;
+    enterApp(router, signedInDestination(returnTo) as Href);
+  }, [ready, user, returnTo, router]);
 
   const passwordChecks = useMemo(() => ({
     length: password.length >= 8 && password.length <= 64,
@@ -65,6 +86,37 @@ export default function SignUp() {
     && ageAccepted && termsAccepted && privacyAccepted && !submitting;
   const panelValid = [emailValid, passwordValid && passwordMatches, nameValid, ageAccepted && termsAccepted && privacyAccepted];
   const goToPanel = (index: number) => setPanelIndex(Math.max(0, Math.min(PANEL_LABELS.length - 1, index)));
+
+  // 회원가입 버튼이 왜 잠겼나 — 버튼 바로 위 회색 상자에 적는다(시안 2번). canSubmit 과 같은
+  // 조건을 사람 말로 푼 것이라, 이 목록이 비면 버튼이 열린다(보내는 중만 빼고).
+  //
+  // 🔴 폰도 같은 목록을 쓴다. 시안은 폰에 「동의 셋만」 나온다고 적었는데, 그건 앞 칸의 「다음」이
+  //    이미 막아서 나머지가 늘 비어 있기 때문이다. 위 진행 점을 눌러 칸을 건너뛰면 앞 칸이 빈 채로
+  //    여기 올 수 있다 — 동의 셋만 세면 상자는 사라졌는데 버튼은 잠긴 채가 된다.
+  // 🔴 빨강을 쓰지 않는다. 아직 안 채운 것은 오류가 아니다(tokens 규칙 4).
+  const blockers = [
+    !emailValid && tx('이메일 형식이 올바르지 않아요', 'The email format is not valid'),
+    !passwordChecks.length && tx('비밀번호를 8~64자로 입력해 주세요', 'Use 8-64 characters for your password'),
+    !passwordChecks.letter && tx('비밀번호에 영문을 넣어 주세요', 'Add a letter to your password'),
+    !passwordChecks.number && tx('비밀번호에 숫자를 넣어 주세요', 'Add a number to your password'),
+    !passwordChecks.special && tx('비밀번호에 특수문자(!@#$% 등)를 넣어 주세요', 'Add a symbol (!@#$% etc.) to your password'),
+    password.length > 0 && !passwordMatches && tx('비밀번호 확인이 일치하지 않아요', 'The password confirmation does not match'),
+    !nameValid && tx('이름을 1~30자로 입력해 주세요', 'Enter a name of 1-30 characters'),
+    !ageAccepted && tx('만 14세 이상인지 확인해 주세요', 'Confirm that you are 14 or older'),
+    !termsAccepted && tx('이용약관에 동의해 주세요', 'Agree to the Terms of Service'),
+    !privacyAccepted && tx('개인정보 처리방침에 동의해 주세요', 'Agree to the Privacy Policy'),
+  ].filter((item): item is string => Boolean(item));
+
+  // 칸에 문제가 있나 — 🔴 손댄 뒤에, 값이 있을 때만. 빈 칸·처음 연 칸은 기본 모습이다.
+  const problem: Record<FieldKey, boolean> = {
+    email: (touched.email && email.length > 0 && !emailValid) || duplicateEmail,
+    password: touched.password && password.length > 0 && !passwordValid,
+    confirm: touched.confirm && passwordConfirm.length > 0 && !passwordMatches,
+    name: touched.name && displayName.length > 0 && !nameValid,
+  };
+  // 테두리·채움은 행(inputRow)이 그린다. 포커스는 붉은 2px 선, 문제는 옅은 붉은 채움.
+  const rowStyle = (key: FieldKey) => [styles.inputRow, problem[key] && styles.inputProblem, focused === key && styles.inputFocused];
+  const focusProps = (key: FieldKey) => ({ onFocus: () => setFocused(key), onBlur: () => setFocused((current) => (current === key ? null : current)) });
 
   async function submit() {
     if (!canSubmit) return;
@@ -124,42 +176,51 @@ export default function SignUp() {
 
   return (
     <Screen scroll wide>
-      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/sign-in')} style={styles.backLink}><Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text></Pressable><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
+      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/sign-in')} style={styles.backLink}><Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text></Pressable><BrandLogoLink enter href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
       <View style={[styles.columns, kind === 'tablet' && styles.columnsWide]}>
-        {kind === 'tablet' && <Card tinted style={styles.introCard}><Eyebrow>{tx('가볼래 계정', 'GABOLLE Account')}</Eyebrow><Text variant="display" weight="bold">{tx('내 여행을 안전하게 저장하세요', 'Keep your trips safely saved')}</Text><Text variant="body">{tx('선택한 언어와 여행 조건을 이어서 사용할 수 있어요.', 'Pick up your language and trip details right where you left off.')}</Text></Card>}
+        {kind === 'tablet' && <View style={styles.photoPanel}>
+          <Image source={introPhoto} resizeMode="cover" accessible={false} accessibilityIgnoresInvertColors style={styles.photoPanelImage} />
+          <Text variant="caption" weight="bold" color={color.text.onDarkMuted}>{tx('가볼래 계정', 'GABOLLE Account')}</Text>
+          <Text variant="hero" weight="bold" color={color.text.onAction} style={styles.photoPanelCopy}>{tx('내 여행을 안전하게 저장하세요', 'Keep your trips safely saved')}</Text>
+          <Text variant="body" color={color.text.onDarkMuted} style={styles.photoPanelCopy}>{tx('선택한 언어와 여행 조건을 이어서 사용할 수 있어요.', 'Pick up your language and trip details right where you left off.')}</Text>
+        </View>}
         <View style={styles.formColumn}>
           <Text variant="display" weight="bold">{tx('회원가입', 'Sign up')}</Text>
           <Text variant="body" style={styles.subtitle}>{tx('여행을 저장하고 어디서든 이어보세요.', 'Save your trip and continue it anywhere.')}</Text>
 
           {kind === 'phone' && <View style={styles.questionProgress}>
             <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx(PANEL_LABELS[panelIndex][0], PANEL_LABELS[panelIndex][1])} {panelIndex + 1} / {PANEL_LABELS.length}</Text></View>
-            <View style={styles.questionDots}>{PANEL_LABELS.map(([labelKo, labelEn], index) => <Pressable key={labelKo} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 단계로 이동', 'Go to %s', tx(labelKo, labelEn))} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, panelValid[index] && styles.questionDotAnswered]} />)}</View>
+            {/* 🔴 점은 높이 4 다 — hitSlop 없이는 세로 터치 영역이 4pt (S15P21E201-1794).
+                「○○ 단계로 이동」 이라고 읽어 주는데 실제로는 거의 안 눌렸다. 44 기준의 1/11.
+                막대 «모양»은 그대로 두고(시안의 얇은 진행 막대다) 누를 수 있는 넓이만
+                위아래로 20씩 넓힌다 — 4 + 40 = 44. */}
+            <View style={styles.questionDots}>{PANEL_LABELS.map(([labelKo, labelEn], index) => <Pressable key={labelKo} accessibilityRole="button" accessibilityLabel={txf(tx, '%s 단계로 이동', 'Go to %s', tx(labelKo, labelEn))} hitSlop={{ top: 20, bottom: 20 }} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, panelValid[index] && styles.questionDotAnswered]} />)}</View>
           </View>}
 
           <Animated.View key={kind === 'phone' ? panelIndex : 'desktop'} entering={kind === 'phone' ? FadeInRight.duration(180).reduceMotion(ReduceMotion.System) : undefined} exiting={kind === 'phone' ? FadeOutLeft.duration(120).reduceMotion(ReduceMotion.System) : undefined} style={styles.form}>
 
           {(kind === 'tablet' || panelIndex === 0) && <Field label={tx('이메일', 'Email')}>
-          <View style={[styles.inputRow, ((emailTouched && !emailValid) || duplicateEmail) && styles.inputError]}>
-            <TextInput testID="sign-up-email" accessibilityLabel={tx('이메일', 'Email')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="username" returnKeyType="next" onSubmitEditing={() => passwordRef.current?.focus()} submitBehavior="submit" onBlur={() => setEmailTouched(true)} onChangeText={(value) => { setEmail(value); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={email} />
-            {email.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이메일 지우기', 'Clear email')} onPress={() => setEmail('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+          <View style={rowStyle('email')}>
+            <TextInput testID="sign-up-email" accessibilityLabel={tx('이메일', 'Email')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="username" returnKeyType="next" onSubmitEditing={() => passwordRef.current?.focus()} submitBehavior="submit" {...focusProps('email')} onChangeText={(value) => { setEmail(value); touch('email'); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={email} />
+            {email.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이메일 지우기', 'Clear email')} onPress={() => setEmail('')} tabIndex={-1} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
-          {emailTouched && !emailValid && <ErrorText>{tx('올바른 이메일 주소를 입력해 주세요.', 'Please enter a valid email address.')}</ErrorText>}
+          {touched.email && email.length > 0 && !emailValid && <ErrorText>{tx('올바른 이메일 주소를 입력해 주세요.', 'Please enter a valid email address.')}</ErrorText>}
           {duplicateEmail && <View style={styles.inlineRow}><ErrorText>{tx('이미 가입된 이메일이에요.', 'This email is already registered.')}</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })}><Text variant="caption" weight="bold" color={color.action.secondary}>{tx('로그인하기', 'Sign in')}</Text></Pressable></View>}
         </Field>}
 
         {(kind === 'tablet' || panelIndex === 1) && <>
         <Field label={tx('비밀번호', 'Password')}>
-          <View style={styles.inputRow}>
-            <TextInput testID="sign-up-password" accessibilityLabel={tx('비밀번호', 'Password')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => passwordConfirmRef.current?.focus()} submitBehavior="submit" ref={passwordRef} onChangeText={setPassword} placeholder={tx('영문·숫자·특수문자 포함 8~64자', '8-64 characters with letters, numbers, and symbols')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={password} />
-            {password.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 지우기', 'Clear password')} onPress={() => setPassword('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+          <View style={rowStyle('password')}>
+            <TextInput testID="sign-up-password" accessibilityLabel={tx('비밀번호', 'Password')} autoFocus={kind === 'phone'} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => passwordConfirmRef.current?.focus()} submitBehavior="submit" ref={passwordRef} {...focusProps('password')} onChangeText={(value) => { setPassword(value); touch('password'); }} placeholder={tx('영문·숫자·특수문자 포함 8~64자', '8-64 characters with letters, numbers, and symbols')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={password} />
+            {password.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 지우기', 'Clear password')} onPress={() => setPassword('')} tabIndex={-1} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           <View style={styles.ruleRow}><Rule ok={passwordChecks.length} label={tx('8~64자', '8-64 characters')} /><Rule ok={passwordChecks.letter} label={tx('영문', 'Letters')} /><Rule ok={passwordChecks.number} label={tx('숫자', 'Numbers')} /><Rule ok={passwordChecks.special} label={tx('특수문자 (!@#$% 등)', 'Symbols (!@#$% etc.)')} /></View>
         </Field>
 
         <Field label={tx('비밀번호 확인', 'Confirm password')}>
-          <View style={[styles.inputRow, passwordConfirm.length > 0 && !passwordMatches && styles.inputError]}>
-            <TextInput testID="sign-up-confirm" accessibilityLabel={tx('비밀번호 확인', 'Confirm password')} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => displayNameRef.current?.focus()} submitBehavior="submit" ref={passwordConfirmRef} onChangeText={setPasswordConfirm} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={passwordConfirm} />
-            {passwordConfirm.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 확인 지우기', 'Clear password confirmation')} onPress={() => setPasswordConfirm('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+          <View style={rowStyle('confirm')}>
+            <TextInput testID="sign-up-confirm" accessibilityLabel={tx('비밀번호 확인', 'Confirm password')} autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" returnKeyType="next" onSubmitEditing={() => displayNameRef.current?.focus()} submitBehavior="submit" ref={passwordConfirmRef} {...focusProps('confirm')} onChangeText={(value) => { setPasswordConfirm(value); touch('confirm'); }} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={passwordConfirm} />
+            {passwordConfirm.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 확인 지우기', 'Clear password confirmation')} onPress={() => setPasswordConfirm('')} tabIndex={-1} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           {passwordConfirm.length > 0 && <Text variant="caption" color={passwordMatches ? color.state.success : color.state.danger}>{passwordMatches ? tx('비밀번호가 일치해요.', 'Passwords match.') : tx('비밀번호가 일치하지 않아요.', 'Passwords do not match.')}</Text>}
         </Field>
@@ -167,9 +228,9 @@ export default function SignUp() {
 
         {(kind === 'tablet' || panelIndex === 2) && <>
         <Field label={tx('이름', 'Name')}>
-          <View style={[styles.inputRow, displayName.length > 0 && !nameValid && styles.inputError]}>
-            <TextInput testID="sign-up-name" accessibilityLabel={tx('이름', 'Name')} autoFocus={kind === 'phone'} autoComplete="name" textContentType="name" returnKeyType="done" ref={displayNameRef} maxLength={30} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={displayName} />
-            {displayName.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이름 지우기', 'Clear name')} onPress={() => setDisplayName('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+          <View style={rowStyle('name')}>
+            <TextInput testID="sign-up-name" accessibilityLabel={tx('이름', 'Name')} autoFocus={kind === 'phone'} autoComplete="name" textContentType="name" returnKeyType="done" ref={displayNameRef} maxLength={30} {...focusProps('name')} onChangeText={(value) => { setDisplayName(value); touch('name'); }} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={displayName} />
+            {displayName.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이름 지우기', 'Clear name')} onPress={() => setDisplayName('')} tabIndex={-1} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
           </View>
           <Text variant="caption" color={nameValid ? color.state.success : color.text.muted}>{tx(`${displayName.trim().length}/30자`, `${displayName.trim().length}/30`)}</Text>
         </Field>
@@ -191,6 +252,11 @@ export default function SignUp() {
           </Pressable>
         </View>}
 
+        {(kind === 'tablet' || panelIndex === 3) && blockers.length > 0 && <View accessibilityLiveRegion="polite" style={styles.blockers}>
+          <Text variant="caption" weight="bold" color={color.text.heading}>{tx('회원가입하려면 아래를 마저 채워 주세요', 'To sign up, finish the items below')}</Text>
+          {blockers.map((reason) => <Text key={reason} variant="caption" color={color.text.body}>○ {reason}</Text>)}
+        </View>}
+
         {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{localizeMessage(tx, error)}</ErrorText></View>}
 
         {kind === 'tablet' ? (
@@ -205,7 +271,7 @@ export default function SignUp() {
         )}
           </Animated.View>
 
-        <Button label={tx('비회원으로 둘러보기', 'Browse as guest')} variant="tertiary" onPress={() => router.replace(isSafeReturnPath(returnTo) ? returnTo : '/home')} />
+        <Button label={tx('비회원으로 둘러보기', 'Browse as guest')} variant="tertiary" containerStyle={styles.guest} onPress={() => enterApp(router, (isSafeReturnPath(returnTo) ? returnTo : '/home') as Href)} />
         <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">{tx('이미 계정이 있나요? ', 'Already have an account? ')}<Text variant="body" weight="bold" color={color.action.secondary}>{tx('로그인', 'Sign in')}</Text></Text></Pressable>
         </View>
       </View>
@@ -224,8 +290,14 @@ const styles = StyleSheet.create({
   logo: { width: 176, height: 32 },
   backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   columns: { width: '100%' },
-  columnsWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8] },
-  introCard: { flex: 1, minHeight: 280, justifyContent: 'center', gap: spacing[4] },
+  // 사진 판이 폼 높이만큼 늘어나야 하므로 stretch (시안 6번 — 전에는 flex-start 라 판이 제 글자 높이였다).
+  columnsWide: { flexDirection: 'row', alignItems: 'stretch', gap: spacing[8] },
+  // 글자는 위쪽 — 사진 윗부분이 검은 하늘이라 거기 얹어야 읽힌다. 사진이 뜨기 전에는 먹색 바탕.
+  // 🔴 zIndex: 0 — react-native-web 의 Image 는 그림을 z-index -1 로 그린다. 판이 쌓임 문맥이 아니면
+  //    그림이 판의 먹색 바탕 «뒤»로 가서 안 보인다 (sign-in.tsx 의 같은 판에서 2026-09-21 실측).
+  photoPanel: { flex: 1, minHeight: 280, borderRadius: radius.md, overflow: 'hidden', padding: spacing[8] * 2, justifyContent: 'flex-start', gap: spacing[4], backgroundColor: color.brand.navy, zIndex: 0 },
+  photoPanelImage: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  photoPanelCopy: { maxWidth: 440 },
   formColumn: { flex: 1, width: '100%', maxWidth: 480 },
   resultBody: { flex: 1, justifyContent: 'center', gap: spacing[3] },
   resultMark: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.state.success },
@@ -233,13 +305,22 @@ const styles = StyleSheet.create({
   resultActions: { gap: spacing[2] },
   form: { marginTop: spacing[6], gap: spacing[4] },
   questionProgress: { gap: spacing[2], marginTop: spacing[4] }, questionMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, questionDots: { flexDirection: 'row', gap: spacing[2] }, questionDot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field }, questionDotCurrent: { backgroundColor: color.action.secondary }, questionDotAnswered: { opacity: 0.72, backgroundColor: color.action.secondary },
-  panelNav: { marginTop: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, panelNavButton: { minWidth: 72, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, panelCta: { flex: 1, marginTop: 0 },
+  // 위 간격은 form 의 gap(16)이 이미 준다 — 여기 16 을 더 두면 이유 상자와 버튼 사이가 32 로 벌어진다(시안: 16 → 4).
+  panelNav: { marginTop: spacing[1], flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, panelNavButton: { minWidth: 72, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, panelCta: { flex: 1, marginTop: 0 },
   field: { gap: spacing[2] },
   input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4] },
   inputRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  inputWithClear: { flex: 1, minWidth: 0, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4], paddingVertical: spacing[3] },
+  // 🔴 웹의 검은 포커스 외곽선을 끈다. 포커스 표시는 행(inputRow)의 붉은 선(inputFocused)이 대신한다.
+  inputWithClear: { flex: 1, minWidth: 0, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4], paddingVertical: spacing[3], ...webInputNoOutline },
+  // ✕ 는 tabIndex={-1} — 키보드 탭이 ✕ 에 걸려 이메일 → 비밀번호로 바로 못 가던 것(S15P21E201-1518 피드백).
+  //    누르는 것은 그대로 된다. 키보드로는 칸 안에서 지우면 된다.
   clear: { minWidth: 36, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  inputError: { borderColor: color.state.danger },
+  // 손댄 뒤 값에 문제가 있을 때 — 선은 경고 글자색, 칸 안은 아주 옅은 붉은빛(dangerBg 는 너무 진하다).
+  inputProblem: { borderColor: color.state.danger, backgroundColor: color.state.dangerFieldBg },
+  // 포커스 — 붉은 2px 선. 문제 채움은 그대로 둔다(포커스 + 문제 = 붉은 선 + 옅은 채움). 뒤에 와야 선 색이 이긴다.
+  inputFocused: { borderColor: color.action.outline, borderWidth: 2 },
+  blockers: { gap: spacing[1], paddingVertical: spacing[3], paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  guest: { marginTop: spacing[3] },
   inlineRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] },
   ruleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
   languageRow: { flexDirection: 'row', gap: spacing[2] },

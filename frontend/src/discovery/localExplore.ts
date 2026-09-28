@@ -1,9 +1,11 @@
 // 언어 다섯을 다 받는다. 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
 // 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
 // 떨어뜨리는 일은 여기 한 자리에서 한다.
+import { coarseCoordinate } from '@/personalization/locationConsent';
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
-import type { PhotoSubject } from '@/discovery/places';
+import type { PhotoLicense, PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
+import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string; labelEn?: string | null };
 // 서버 목록과 순서는 그대로 유지한다. 이 사전은 영문 표기가 없는 기존 응답의 번역만 맡는다.
@@ -27,7 +29,7 @@ type FacetsFailure = { state: 'unavailable' | 'offline' | 'error'; message: stri
 // — "아직 준비되지 않았어요" 는 404·501 일 때만 말한다.
 function toFailure(error: unknown): FacetsFailure {
   if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
-  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '로컬 탐색 API가 아직 준비되지 않았어요.' };
+  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
   // 5xx 는 'offline' 도 아니다 — 사용자의 인터넷은 멀쩡하므로 "연결을 확인해 주세요" 는 거짓말이다.
   if (isServerError(error)) return { state: 'error', message: (error as ApiClientError).message };
   return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
@@ -72,6 +74,8 @@ export type NearbyPlaceItem = {
   // — 이 사진이 그 장소를 찍은 것인지, 그 장소가 든 건물을 찍은 것인지.
   // 값이 없으면 칸 자체가 안 온다. 없으면 화면은 아무 말도 안 한다(모르는 것을 아는 척 안 한다).
   photoSubject?: PhotoSubject | null;
+  // 위키미디어 사진의 라이선스 — 뜻은 places.ts 의 PhotoLicense(S15P21E201-1610).
+  photoLicense?: PhotoLicense | null;
 };
 export type NearbyPlacesDto = {
   items: NearbyPlaceItem[];
@@ -91,7 +95,8 @@ export async function getNearbyPlaces(
   params: { lat: number; lng: number; facetKey?: string; radiusMeters?: number; limit?: number },
   signal?: AbortSignal,
 ): Promise<NearbyPlacesLoadResult> {
-  const query = new URLSearchParams({ lat: String(params.lat), lng: String(params.lng) });
+  // 🔴 좌표는 약 100m 로 줄여 보낸다 — 주소창에 실려 서버 접속 기록에 남는다(S15P21E201-1691).
+  const query = new URLSearchParams({ lat: String(coarseCoordinate(params.lat)), lng: String(coarseCoordinate(params.lng)) });
   if (params.facetKey) query.set('facetKey', params.facetKey);
   if (params.radiusMeters) query.set('radiusMeters', String(params.radiusMeters));
   if (params.limit) query.set('limit', String(params.limit));

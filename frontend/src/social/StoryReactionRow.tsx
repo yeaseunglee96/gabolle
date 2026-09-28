@@ -14,7 +14,7 @@
 // 그림문자(👍 ☆)를 선(SVG) 아이콘으로 바꿨다 — 그림문자는 기기마다 모양과 굵기가 달라
 // 어떤 폰에서는 회색 알약 안에서 흐릿했다. 켜진 상태는 글자색만 바꾸지 않고 알약을
 // 짙은 회색으로 채운다(선택 = 짙은 회색, tokens.ts 규칙). 켜짐과 꺼짐이 한눈에 갈린다.
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { Text } from '@/components/Text';
@@ -25,7 +25,7 @@ import type { StoryDto } from '@/social/stories';
 export type Reaction = 'LIKE' | 'DISLIKE';
 
 /** 반응 판정과 그리기에 필요한 최소 칸 — 목록 항목도 상세 응답도 이 모양을 만족한다. */
-export type ReactableStory = Pick<StoryDto, 'myReaction' | 'likeCount' | 'dislikeCount' | 'linkCopyCount'>;
+export type ReactableStory = Pick<StoryDto, 'myReaction' | 'likeCount' | 'dislikeCount' | 'linkCopyCount'> & Partial<Pick<StoryDto, 'mine'>>;
 
 /** 누른 결과가 무엇인가 — 같은 것을 다시 누르면 끄고(null), 다른 것을 누르면 바꾼다. */
 export function nextReaction(was: Reaction | null | undefined, pressed: Reaction): Reaction | null {
@@ -97,6 +97,7 @@ export function StoryReactionRow({
   onToggleSave,
   onQuote,
   children,
+  style,
 }: {
   story: ReactableStory;
   /** 서버 응답을 기다리는 중인가 — 연타로 수가 어긋나는 것을 막는다. */
@@ -115,24 +116,29 @@ export function StoryReactionRow({
   onQuote?: () => void;
   /** 같은 줄에 덧붙일 것. 스타일은 `storyReactionStyles.button` 을 쓴다. */
   children?: React.ReactNode;
+  /** 줄 여백을 덮어쓴다 — 목록 카드는 사진이 끝까지 차서 줄에 좌우 여백이 있는데, 여백 있는 카드 안에 넣으면 두 번 들여써진다. */
+  style?: StyleProp<ViewStyle>;
 }) {
   const { tx } = useI18n();
   const liked = story.myReaction === 'LIKE';
+  // 🔴 내 글(함께 쓰는 글 포함)에는 좋아요를 못 단다 — 서버가 막는다(StoryReactionService). 전에는 단추가 눌리는데
+  //    아무 일도 없어서 고장으로 보였다(S15P21E201-1766, Play 35 실기기). 잠그고 이유를 읽어 준다.
+  const own = story.mine === true;
   const quotes = story.linkCopyCount;
   const likeLabel = tx('좋아요', 'Like');
   const onTint = color.text.onAction;
   const offTint = color.text.body;
 
   return (
-    <View style={storyReactionStyles.row}>
+    <View style={[storyReactionStyles.row, style]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={liked ? tx('좋아요 취소', 'Remove like') : likeLabel}
-        accessibilityState={{ selected: liked, busy: reacting }}
-        disabled={reacting}
+        accessibilityLabel={own ? tx('내 글에는 좋아요를 누를 수 없어요', "You can't like your own post") : liked ? tx('좋아요 취소', 'Remove like') : likeLabel}
+        accessibilityState={{ selected: liked, busy: reacting, disabled: own }}
+        disabled={reacting || own}
         hitSlop={storyReactionTouchSlop}
         onPress={() => onReact('LIKE')}
-        style={[storyReactionStyles.button, liked && storyReactionStyles.buttonOn, reacting && storyReactionStyles.busy]}
+        style={[storyReactionStyles.button, liked && storyReactionStyles.buttonOn, (reacting || own) && storyReactionStyles.busy]}
       >
         <ThumbIcon tint={liked ? onTint : offTint} filled={liked} />
         <Text variant="util" weight="bold" color={liked ? onTint : offTint}>

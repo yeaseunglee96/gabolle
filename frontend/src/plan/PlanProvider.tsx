@@ -5,6 +5,10 @@ import { getApiLanguage } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { conflictingFoodCode, foodLabel } from './foodConflicts';
 import { conditionsToDraftPatch, loadTravelConditions } from './travelConditions';
+import type { PlaceSnapshot } from './origins';
+import type { PlaceEnglishName } from '@/home/startBarValue';
+import { hasPlanInput, parseStoredDraft } from './planDraftCarry';
+import { applyBudgetDefault, DAILY_BUDGET_PER_PERSON_KRW, restoreBudget } from './budgetDefault';
 import { getTasteProfile, type TasteAnswers } from '@/preferences/tasteProfile';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
@@ -28,8 +32,15 @@ export type PlanDraft = {
   lodging: string;
   lodgingLat: number | null;
   lodgingLng: number | null;
+  /** 홈 시작 바에서 고른 숙소의 스냅샷 — 여행 만들기 때 accommodation 으로 싣는다(S15P21E201-1536). */
+  lodgingPlace: PlaceSnapshot | null;
+  /** 출발지·숙소의 영어 이름 — 화면용, 서버로 안 간다(S15P21E201-1795). 짝의 뜻은 startBarValue 의 PlaceEnglishName. */
+  originEnglish?: PlaceEnglishName | null;
+  lodgingEnglish?: PlaceEnglishName | null;
   transport: Transport;
   budgetKrw: number | null;
+  /** 사용자가 예산을 직접 바꿨나 — 안 바꿨으면 인원·날짜를 따라 기본값이 바뀐다(budgetDefault.ts, S15P21E201-1591). */
+  budgetEdited: boolean;
   dayStartTime: string;
   dayEndTime: string;
   walkingLevel: 'LOW' | 'MEDIUM' | 'HIGH';
@@ -82,7 +93,7 @@ const ANONYMOUS_KEY = `${STORAGE_PREFIX}:anonymous`;
 const LEGACY_STORAGE_KEY = STORAGE_PREFIX;
 
 const storageKeyFor = (userId: string | null) => (userId ? `${STORAGE_PREFIX}:${userId}` : ANONYMOUS_KEY);
-export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, transport: 'TRANSIT', budgetKrw: 100000, dayStartTime: '09:00', dayEndTime: '18:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null };
+export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null, originEnglish: null, lodgingEnglish: null, transport: 'TRANSIT', budgetKrw: DAILY_BUDGET_PER_PERSON_KRW, budgetEdited: false, dayStartTime: '09:00', dayEndTime: '21:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null };
 
 const VOLATILE_CONSTRAINTS: Partial<PlanDraft> = {
   allergies: [], dietTypes: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false,
@@ -161,13 +172,23 @@ export function PlanProvider({ children }: { children: ReactNode }) {
 
     let cancelled = false;
     changedBeforeHydration.current = false;
-    AsyncStorage.getItem(storageKey).then((raw) => {
+    // 🔴 로그인된 채로 «처음» 읽을 때만 손님 초안을 본다 — 웹 소셜 로그인은 페이지를 떠났다 돌아와서
+    //    위 갈래(로그인 흐름 안에서 넘겨주기)가 안 걸린다(S15P21E201-1541, planDraftCarry.ts).
+    //    계정을 바꾸는 중(hydratedKey 가 다른 계정)이면 보지 않는다.
+    const carryFromGuest = hydratedKey === null && storageKey !== ANONYMOUS_KEY;
+    Promise.all([AsyncStorage.getItem(storageKey), carryFromGuest ? AsyncStorage.getItem(ANONYMOUS_KEY) : Promise.resolve(null)]).then(([raw, guestRaw]) => {
       if (cancelled) return;
+      const guest = parseStoredDraft<PlanDraft>(guestRaw, VERSION);
+      if (hasPlanInput(guest)) {
+        void AsyncStorage.removeItem(ANONYMOUS_KEY);
+        if (!changedBeforeHydration.current) setDraft(restoreBudget(guest ?? {}, { ...EMPTY_PLAN, ...guest, ...VOLATILE_CONSTRAINTS }));
+        return;
+      }
       let restored: PlanDraft | null = null;
       if (raw) {
         try {
           const stored = JSON.parse(raw) as { version?: number; draft?: PlanDraft };
-          if (stored.version === VERSION && stored.draft) restored = { ...EMPTY_PLAN, ...stored.draft, ...VOLATILE_CONSTRAINTS };
+          if (stored.version === VERSION && stored.draft) restored = restoreBudget(stored.draft, { ...EMPTY_PLAN, ...stored.draft, ...VOLATILE_CONSTRAINTS });
         } catch {
           void AsyncStorage.removeItem(storageKey);
         }
@@ -235,7 +256,8 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   const value = useMemo<PlanContextValue>(() => ({
     draft,
     ready,
-    update: (patch) => { if (!ready) changedBeforeHydration.current = true; setDraft((current) => ({ ...current, ...patch })); },
+    // 인원·날짜가 바뀌면 손대지 않은 예산 기본값이 따라간다 — 모든 입력(홈 시작 바·질문 화면·AI 도우미)이 여기를 지난다.
+    update: (patch) => { if (!ready) changedBeforeHydration.current = true; setDraft((current) => applyBudgetDefault(current, patch)); },
     completeStep: (step) => setDraft((current) => ({ ...current, maxCompletedStep: Math.max(current.maxCompletedStep, step) })),
     clear: async () => { setDraft(EMPTY_PLAN); await AsyncStorage.removeItem(storageKey); },
     basicComplete: Boolean(draft.startDate && draft.endDate && draft.endDate >= draft.startDate && draft.travelers > 0),

@@ -157,6 +157,36 @@ export function markdownToPlain(source: string): string {
   return pieces.join(' ').replace(/\s+/g, ' ').trim();
 }
 
+/** 목록 카드 미리보기의 한 조각. heading 이면 제목(#·##·###…) 줄이었던 글자다. */
+export type PreviewPiece = { text: string; heading: boolean };
+
+/**
+ * 효과를 벗기되 제목 줄이었던 곳만 표시한다 — 목록 카드가 그 줄을 크기 그대로 굵게만 그린다(S15P21E201-1649, 사용자 결정 (다)).
+ * 조각을 띄어쓰기 하나로 이어 붙이면 markdownToPlain 과 같은 글이다.
+ */
+export function markdownToPreview(source: string): PreviewPiece[] {
+  const tokens = md.parse(source ?? '', {}) as unknown as MdToken[];
+  const out: PreviewPiece[] = [];
+  let heading = false;
+  const push = (raw: string) => {
+    const text = raw.replace(/\s+/g, ' ').trim();
+    if (!text) return;
+    const last = out[out.length - 1];
+    if (last && last.heading === heading) last.text = `${last.text} ${text}`;
+    else out.push({ text, heading });
+  };
+  const walk = (list: MdToken[]) => {
+    for (const token of list) {
+      if (token.type === 'heading_open') heading = true;
+      else if (token.type === 'heading_close') heading = false;
+      else if (token.type === 'text' || token.type === 'code_inline' || token.type === 'fence' || token.type === 'code_block') push(token.content);
+      else if (token.children?.length) walk(token.children);
+    }
+  };
+  walk(tokens);
+  return out;
+}
+
 /** 마크다운 표시가 하나라도 있는가 — 「미리보기」를 권할지 정할 때 쓴다. */
 export function looksLikeMarkdown(source: string): boolean {
   return /(^|\n)\s{0,3}(#{1,6}\s|[-*+]\s|\d+\.\s|>\s|```)|(\*\*|__|\*[^\s*]|_[^\s_]|\[[^\]]+\]\()/.test(source ?? '');

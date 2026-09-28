@@ -1,5 +1,6 @@
 // 16 여행 준비·날씨 — Figma 16_여행 준비·날씨 실측 그대로.
 import { txf } from '@/i18n/format';
+import { localDateKey } from '@/plan/tripProgress';
 import { formatMonthDay } from '@/i18n/datetime';
 import { useEffect, useState } from 'react';
 import { Image, Share as NativeShare, StyleSheet, View } from 'react-native';
@@ -21,13 +22,8 @@ import { issueShareLink } from '@/share/sharedItinerary';
 import { getTripStories } from '@/social/stories';
 import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries, loadTrips } from '@/trip/trips';
-import { loadWeatherForecast, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
-
-const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
-  CLEAR: ['맑음', 'Clear'],
-  PARTLY_CLOUDY: ['구름 조금', 'Partly cloudy'],
-  CLOUDY: ['흐림', 'Cloudy'],
-};
+import { TripWeatherCard, weatherHeading } from '@/trip/TripWeatherPanel';
+import { localToday } from '@/plan/tripBasics';
 
 // 🔴 한국어면 손으로, 그 밖이면 «무조건 en-US» 였다 (S15P21E201-1355).
 //    이제는 고른 언어에 맞는 꼴로 운영체제가 만든다.
@@ -49,7 +45,7 @@ type MemoryMapState =
 
 function isTripEnded(endDate: string | null): boolean {
   if (!endDate) return false;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateKey(new Date());
   return endDate < today;
 }
 
@@ -119,9 +115,9 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
   const { tx, locale } = useI18n();
   const router = useRouter();
   const { accessToken } = useAuth();
-  const [firstDayDate, setFirstDayDate] = useState<string | null>(null);
+  // undefined = 아직 모름(불러오는 중). null = 일정이 없어 알 수 없음.
+  const [firstDayDate, setFirstDayDate] = useState<string | null | undefined>(undefined);
   const [tripTitle, setTripTitle] = useState<string | null>(null);
-  const [weather, setWeather] = useState<WeatherLoadResult | null>(null);
   const [memoryMap, setMemoryMap] = useState<MemoryMapState>({ status: 'loading' });
   const [tripSummary, setTripSummary] = useState<{ visitCount: number; photoUrl: string | null } | null>(null);
 
@@ -165,7 +161,6 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
       if (!itineraryId) {
         setFirstDayDate(null);
         setTripTitle(null);
-        setWeather({ state: 'unavailable', message: '일정을 아직 못 불러왔어요.' });
         return;
       }
       const result = await loadItinerary(itineraryId, accessToken);
@@ -173,23 +168,23 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
       const date = result.state === 'success' ? (result.itinerary.days[0]?.date ?? null) : null;
       setFirstDayDate(date);
       setTripTitle(result.state === 'success' ? result.itinerary.title : null);
-      if (!date) { setWeather({ state: 'unavailable', message: '일정을 아직 못 불러왔어요.' }); return; }
-      void loadWeatherForecast(date, accessToken).then((weatherResult) => { if (!cancelled) setWeather(weatherResult); });
     });
     return () => { cancelled = true; };
   }, [tripId, accessToken]);
 
   const departure = firstDayDate ? formatDepartureDate(firstDayDate, locale) : null;
+  // 머리 글은 날짜에 맞춘다 — 지난 여행에 「여행 전」이라 적지 않는다(S15P21E201-1773).
+  const heading = weatherHeading(tx, firstDayDate, departure, localToday());
 
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
           <Eyebrow>
-            {departure ? txf(tx, '여행 전 · %s 출발', 'Before the trip · Departing %s', departure) : tx('여행 전', 'Before the trip')}
+            {heading.eyebrow}
           </Eyebrow>
           <Text variant="display" weight="bold" style={styles.title}>
-            {tx('출발일 날씨', 'Departure-day weather')}
+            {heading.title}
           </Text>
         </View>
       </View>
@@ -200,37 +195,7 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
 
       {memoryMap.status === 'ready' && <MemoryMapCard tripId={tripId} stops={memoryMap.stops} />}
 
-      <View style={styles.weatherCard}>
-        {weather?.state === 'success' ? (
-          <>
-            <View style={styles.weatherTopRow}>
-              <Text variant="hero" weight="bold" color={color.text.heading}>
-                {weather.forecast.maxTemperature != null ? `${Math.round(weather.forecast.maxTemperature)}°` : tx('미확인', 'N/A')}
-              </Text>
-              <View style={styles.weatherStatus}>
-                <Text variant="body" weight="bold">
-                  {weather.forecast.skyCondition ? tx(...SKY_LABEL[weather.forecast.skyCondition]) : tx('하늘 상태 미확인', 'Sky condition unknown')}
-                  {weather.forecast.minTemperature != null && weather.forecast.maxTemperature != null ? ` · ${Math.round(weather.forecast.minTemperature)}~${Math.round(weather.forecast.maxTemperature)}°` : ''}
-                </Text>
-              </View>
-            </View>
-            <Text variant="body" weight="medium" style={styles.weatherRain}>
-              {weather.forecast.precipitationProbability != null
-                ? tx(`강수확률 ${weather.forecast.precipitationProbability}%`, `${weather.forecast.precipitationProbability}% chance of rain`)
-                : tx('강수확률 미확인', 'Rain chance unknown')}
-            </Text>
-            {weather.forecast.precipitationProbability != null && weather.forecast.precipitationProbability >= 60 ? (
-              <Text variant="caption" weight="bold" color={color.state.info}>{tx('☂ 우산을 챙기세요', '☂ Bring an umbrella')}</Text>
-            ) : null}
-          </>
-        ) : weather?.state === 'out-of-range' ? (
-          <Text variant="body" color={color.text.muted}>{tx('출발일 예보는 출발 3일 전부터 보여드려요. 그때 다시 열어 주세요.', 'The departure-day forecast opens 3 days before you leave. Check back then.')}</Text>
-        ) : weather ? (
-          <Text variant="body" color={color.text.muted}>{tx('예보를 가져오지 못했습니다.', 'Could not load the forecast.')}</Text>
-        ) : (
-          <Text variant="body" color={color.text.muted}>{tx('예보를 불러오는 중…', 'Loading the forecast…')}</Text>
-        )}
-      </View>
+      <TripWeatherCard date={firstDayDate} />
 
       {/* : 기념품샵 진입 카드는 최초 배포에서 뺐다 — 기념품샵 갈래 장소가
           0곳이라 눌러도 항상 빈 목록만 나온다. /{tripId}/souvenirs 라우트는 그대로 있다.
@@ -281,24 +246,6 @@ const styles = StyleSheet.create({
   },
   summaryStat: {
     alignItems: 'flex-start',
-  },
-  weatherCard: {
-    marginTop: spacing[6],
-    backgroundColor: color.surface.tint,
-    borderRadius: radius.lg,
-    padding: spacing[4],
-    gap: spacing[2],
-  },
-  weatherTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[3],
-  },
-  weatherStatus: {
-    gap: spacing[1],
-  },
-  weatherRain: {
-    color: color.text.heading,
   },
   prepTitle: {
     marginBottom: spacing[2],

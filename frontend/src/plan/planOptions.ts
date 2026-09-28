@@ -28,6 +28,9 @@ export const CATEGORY_OPTIONS: readonly PlanOption[] = [
   ['CULTURE_TEMPLE', '문화 & 사찰', 'Culture & temples', '용궁사 · 범어사 · 마을', 'Temples · old villages'],
   ['FOOD', '맛집 & 먹거리', 'Food', '국밥 · 밀면 · 시장 음식', 'Gukbap · milmyeon · market food'],
   ['NATURE_WALK', '자연 & 산책', 'Nature & walks', '이기대 · 태종대', 'Igidae · Taejongdae'],
+  // 🔴 부제가 기대를 맞춘다 — 고른 여행에도 «여행 날짜에 여는 축제만» 들어간다(서버 규칙, S15P21E201-1642).
+  //    낱말은 FESTIVAL_EVENT 다. FESTIVAL 은 둘러보기 사전의 「축제」라 서버가 두 사전이 겹치지 않게 지킨다.
+  ['FESTIVAL_EVENT', '축제 & 행사', 'Festivals & events', '여행 날짜에 열리는 축제만', 'Only festivals on your travel dates'],
 ] as const;
 
 /** 여행 취향 카드의 사진 — 글자만 있던 카드가 안 읽혔다(2026-09-21 실기, S15P21E201-1442). 온보딩용으로 그려 둔 그림(assets/taste)의 480px 축소판. */
@@ -38,6 +41,8 @@ export const CATEGORY_IMAGES: Record<string, number> = {
   CULTURE_TEMPLE: require('../../assets/taste/thumb/culture.jpg'),
   FOOD: require('../../assets/taste/thumb/food.jpg'),
   NATURE_WALK: require('../../assets/taste/thumb/nature.jpg'),
+  // 저장소의 광안대교 야경(assets/home/gwangalli.png)을 같은 크기로 자른 것 — 부산불꽃축제·드론쇼가 열리는 자리다. 새 외부 사진이 아니다.
+  FESTIVAL_EVENT: require('../../assets/taste/thumb/festival.jpg'),
 };
 
 export const ATMOSPHERE_OPTIONS: readonly PlanOption[] = [
@@ -48,9 +53,9 @@ export const ATMOSPHERE_OPTIONS: readonly PlanOption[] = [
 ] as const;
 
 export const PACE_OPTIONS: readonly PlanOption[] = [
-  ['RELAXED', '여유롭게', 'Relaxed', '하루 2–3곳 · 머무는 시간 길게', '2–3 places a day · longer stays'],
-  ['BALANCED', '균형 있게', 'Balanced', '하루 3–4곳', '3–4 places a day'],
-  ['PACKED', '알차게', 'Packed', '하루 5곳 이상 · 이동 빠르게', '5+ places a day · quick hops'],
+  ['RELAXED', '여유롭게', 'Relaxed', '3시간에 한 곳 꼴 · 머무는 시간 길게', 'About one place every 3 hours · longer stays'],
+  ['BALANCED', '균형 있게', 'Balanced', '2시간에 한 곳 꼴', 'About one place every 2 hours'],
+  ['PACKED', '알차게', 'Packed', '1시간 반에 한 곳 꼴 · 이동 빠르게', 'About one place every 90 minutes · quick hops'],
 ] as const;
 
 // 🔴 택시는 없다. 초안의 이동수단 칸이 셋만 받는다 — 화면에만 넣으면 고른 값이 조용히 버려진다.
@@ -92,9 +97,9 @@ export function effectOf(key: QuestionKey, draft: PlanDraft, tx: Tx): string | n
         : tx('최대 셋. 고른 갈래가 정차지의 대부분을 차지해요.', 'Up to three. What you pick fills most of the stops.');
     case 'pace':
       switch (draft.paceLevel) {
-        case 'RELAXED': return tx('하루 2–3곳, 한 곳에 1시간 반 이상 머물러요.', '2–3 places a day, 90+ minutes at each.');
-        case 'BALANCED': return tx('하루 3–4곳, 점심·저녁 사이에 한 곳씩.', '3–4 places a day, one between meals.');
-        case 'PACKED': return tx('하루 5곳 이상, 이동은 가까운 순으로 붙여요.', '5+ places a day, hops ordered by distance.');
+        case 'RELAXED': return tx('3시간에 한 곳 꼴이에요. 12시간 하루면 4곳, 한 곳에 오래 머물러요.', 'About one place every 3 hours: 4 in a 12-hour day, with long stays.');
+        case 'BALANCED': return tx('2시간에 한 곳 꼴이에요. 12시간 하루면 6곳이에요.', 'About one place every 2 hours: 6 in a 12-hour day.');
+        case 'PACKED': return tx('1시간 반에 한 곳 꼴이에요. 12시간 하루면 8곳, 이동은 가까운 순으로 붙여요.', 'About one place every 90 minutes: 8 in a 12-hour day, hops ordered by distance.');
         default: return tx('하루에 도는 장소 수와 머무는 시간이 정해져요.', 'This sets how many places a day and how long you stay.');
       }
     default:

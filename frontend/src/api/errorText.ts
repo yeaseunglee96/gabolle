@@ -2,6 +2,20 @@
 // 일정이 안 만들어졌고, 무엇이 문제인지 알 길이 없었다.
 import { ApiClientError } from '@/api/client';
 
+/**
+ * 서버가 이 기능을 아직 모를 때(404·501, 응답 모양이 다를 때) 사용자에게 하는 말 — S15P21E201-1664.
+ * 🔴 전에는 곳마다 「내 여행 목록 API가 아직 준비되지 않았어요」처럼 「API」라는 개발자 말을 보였다(8가지). 한 문장으로 모았다.
+ *    원인을 가르는 것은 사용자 몫이 아니다 — 무엇을 하면 되는지(잠시 뒤 다시)만 말한다.
+ */
+export const UNAVAILABLE_MESSAGE = '지금은 이 정보를 불러올 수 없어요. 잠시 뒤 다시 시도해 주세요.';
+
+/**
+ * 일정 생성 서버가 없거나(404·501) 닿지 않을 때 — 위와 같은 갈래(S15P21E201-1669). 🔴 전에는 서버 오류의 원문(「No static
+ * resource …」)이 그대로 떴고, 기본 문구도 「일정 생성 서버가 아직 준비되지 않았어요」였다. 조건을 다 채운 사람에게
+ * 「입력한 것은 남아 있다」를 같이 말한다 — 처음부터 다시 해야 하나 걱정하지 않게.
+ */
+export const PLAN_UNAVAILABLE_MESSAGE = '지금은 일정을 만들 수 없어요. 잠시 뒤 다시 시도해 주세요. 입력한 조건은 그대로 남아 있어요.';
+
 /** 「error.trip.validation」처럼 문장이 아니라 키인가. */
 export function looksLikeMessageKey(message: string): boolean {
   const text = message.trim();
@@ -40,6 +54,11 @@ const BY_FIELD: Record<string, [string, string]> = {
   startDate: ['가는 날을 아직 안 정했어요.', 'You have not picked a departure date yet.'],
   finishDate: ['오는 날을 아직 안 정했어요.', 'You have not picked a return date yet.'],
   partySize: ['인원을 확인해 주세요.', 'Please check the number of travellers.'],
+  // 1박 이상 여행은 숙소가 있어야 서버가 만든다(S15P21E201-1584). 숙소도 홈 시작 바에서 고른다.
+  accommodation: [
+    '1박 이상 여행은 숙소를 골라야 일정을 만들 수 있어요. 홈에서 숙소를 골라 주세요.',
+    'Trips with an overnight stay need a place to stay. Pick one on the home screen.',
+  ],
 };
 
 /** `"originLat: 출발지 좌표가 없다…"` 에서 칸 이름만 뗀다. 구분자가 없으면 칸 이름이 없는 것이다. */
@@ -93,4 +112,16 @@ export function readableApiError(error: unknown, ko: boolean): string {
   const known = BY_CODE[error.code];
   const body = known ? (ko ? known[0] : known[1]) : generic;
   return error.code ? `${body} (${error.code})` : body;
+}
+
+/**
+ * 서버가 이 요청을 모르는 응답인가 — S15P21E201-1672.
+ *
+ * 우리 봉투 모양이 아닌 응답(없는 주소일 때 Spring 기본 응답 등 — 요청 함수가 코드 없이 REQUEST_FAILED 로 던진다)이거나 501.
+ * 이때 요청 함수가 만든 「요청을 처리하지 못했어요.」는 무엇이 안 됐는지도, 무엇을 하면 되는지도 말하지 않는다 — 부르는 자리가
+ * 제 문장을 쓴다.
+ * 🔴 코드가 붙은 응답은 아니다. 서버가 이유를 알고 보낸 사용자용 문장(「코스를 찾을 수 없어요」 등)이라 덮지 않는다.
+ */
+export function isUnknownResponse(error: unknown): boolean {
+  return error instanceof ApiClientError && (error.code === 'REQUEST_FAILED' || error.status === 501);
 }

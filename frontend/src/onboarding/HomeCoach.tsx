@@ -46,7 +46,67 @@ export function coachCopyPlacement({ screenHeight, insetTop, insetBottom, startB
   return fitsAbove ? 'above' : 'below';
 }
 
-const SCRIM = 'rgba(25,25,25,0.9)';
+/**
+ * 동백이 설명을 시작 바 설명 «안의 한 줄»로 접을지.
+ *
+ * - 아래에 둔 시작 바 설명이 동백이 설명 자리까지 내려오면 접는다(S15P21E201-1403).
+ * - 🔴 동백이 설명이 시작 바(구멍) 자체를 덮어도 접는다 — S15P21E201-1731. 시작 바 설명이 바 «위»로
+ *   올라가면 「동백이 설명과 안 만난다」고 보고 검사를 건너뛰었는데, 동백이 설명은 오른쪽 아래 제자리다.
+ *   새 사용자 홈은 「첫 여행 준비」 카드가 시작 바를 아래로 밀어, 390×844 에서 동백이 설명이 칩 줄 위에 겹쳤다.
+ *   이 검사는 설명의 높이와 무관해서, 접은 뒤 높이가 바뀌어도 판정이 오락가락하지 않는다.
+ */
+export function shouldFoldAssistantCopy({ placement, startBarBottom, startCopyTop, startCopyHeight, assistantCopyTop, gap }: {
+  placement: 'below' | 'above';
+  /** 시작 바 구멍의 아래 끝. 못 쟀으면 null. */
+  startBarBottom: number | null;
+  startCopyTop: number;
+  startCopyHeight: number;
+  assistantCopyTop: number;
+  gap: number;
+}): boolean {
+  if (startBarBottom !== null && assistantCopyTop < startBarBottom + gap) return true;
+  return placement === 'below' && startCopyHeight > 0 && startCopyTop + startCopyHeight + gap > assistantCopyTop;
+}
+
+/**
+ * 어두운 막의 진하기 — S15P21E201-1490(B-06)에서 0.9 → 0.95.
+ *
+ * <h2>먼저, 확인한 것</h2>
+ *
+ * QA(iOS build 39)는 「덮개가 옅어 글자끼리 충돌한다」고 적었다. 그 캡처
+ * (`docs/qa-ios-build39/screenshots/05-home.png`)의 **픽셀을 직접 쟀다.**
+ *
+ * <p>🔴 아래 색은 일부러 샵(#) 없이 적는다. `check:palette` 는 주석을 빼고 검사하는데,
+ * 그 빼는 규칙이 **두 줄 주석(//)과 한 줄 안에서 닫히는 블록 주석만** 지운다. 지금 이
+ * 설명처럼 **여러 줄에 걸친 주석의 가운데 줄은 코드로 본다.** 그래서 이 설명이
+ * 「화면에 색이 박혀 있다」로 잡혔다(MR !1502). 검사를 고치는 쪽이 옳지만 그건 이
+ * 티켓이 아니다 — 잡히는 표기만 피하고 잰 값은 그대로 남긴다.
+ *
+ * <pre>
+ *   덮개가 덮은 흰 바탕   2f2f2f   ← 0.9 가 제대로 먹은 값이다(계산 47 = 2F2F2F)
+ *   구멍(시작 바)         ffffff   ← 구멍도 정상
+ * </pre>
+ *
+ * 즉 **덮개도 마스크도 멀쩡했다.** 웹에서도 같은 자리가 `2e2e2e` 로 같다. 한쪽만
+ * 깨진 것이 아니다 — 🔴 이것을 확인하기 전에 「마스크가 iOS 에서 깨졌을 것」이라 보고
+ * 부품을 갈아 끼웠다가, 캡처를 재고 나서 되돌렸다. **재기 전에 고치면 안 된다.**
+ *
+ * <h2>그럼 무엇이 문제였나 — 덮개 «아래» 글자가 남는다</h2>
+ *
+ * 뒤쪽 기록 카드의 제목은 사진 위의 «흰 글자»다. 0.9 를 씌우면
+ *
+ * <pre>
+ *   흰 글자 → 0.9×25 + 0.1×255 = 47  (2f2f2f)
+ *   사진    → 0.9×25 + 0.1×40  = 26  (1c1c1c)   ← 실측값과 일치
+ * </pre>
+ *
+ * 19단계 차이로 **글자 모양이 그대로 남는다.** 그것이 코치 안내와 «같은 줄»에 놓여
+ * 겹쳐 읽혔다(「궁금한 건 오른쪽 아래 동백이에게」 vs 「송정!!」·「해운대 모래성 축제」).
+ *
+ * 0.95 면 그 차이가 19 → 10 으로 반이 된다. 값 하나로 끝나고 구멍·시안은 그대로다 —
+ * 글자 뒤에 판을 하나 더 까는 방법도 있지만, 그건 시안(01c)을 바꾸는 일이라 여기서 정하지 않는다.
+ */
+const SCRIM = 'rgba(25,25,25,0.95)';
 const RING = color.action.primary;
 
 export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
@@ -84,8 +144,14 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
     copyHeight: startCopyHeight,
     gap: spacing[4],
   }) : 'below';
-  // 위로 올리면 오른쪽 아래 동백이 설명과는 아예 안 만난다 — 접을 이유가 없다.
-  const folded = placement === 'below' && startCopyHeight > 0 && startCopyTop + startCopyHeight + spacing[3] > assistantCopyTop;
+  const folded = shouldFoldAssistantCopy({
+    placement,
+    startBarBottom: startBar ? startBar.y + startBar.height : null,
+    startCopyTop,
+    startCopyHeight,
+    assistantCopyTop,
+    gap: spacing[3],
+  });
   const copyPosition = placement === 'above' && startBar
     ? { bottom: height - startBar.y + spacing[4] }
     : { top: startCopyTop };

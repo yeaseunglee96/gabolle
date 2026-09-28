@@ -5,18 +5,21 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { sendAppEvent } from '@/analytics/appEvents';
+import { useBehaviorConsentAsk } from '@/personalization/consentAsk';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { Screen } from '@/components/Screen';
+import { PhotoCredit } from '@/components/PhotoCredit';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
+import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, needsFoodSafetyCheck, photoLabels, type Place as ApiPlace } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
 import { DEMO_PLACES, loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { txf } from '@/i18n/format';
 
@@ -35,11 +38,13 @@ export default function Place() {
   const { accessToken } = useAuth();
   const { width } = useWindowDimensions();
   // — 넓은 화면에서만 본문과 행동 버튼을 나눈다(피드·일정과 같은 1024 기준).
-  const wide = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const wide = useLayout().desktop;
   const { id } = useLocalSearchParams<{ id?: string }>();
   const demoPlace = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
   const [isSaved, setIsSaved] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const consent = useBehaviorConsentAsk(accessToken);
   const [remote, setRemote] = useState<RemoteState>({ status: 'loading' });
   const [retryCount, setRetryCount] = useState(0);
   const [phraseModalOpen, setPhraseModalOpen] = useState(false);
@@ -49,14 +54,18 @@ export default function Place() {
   // 데모 3곳은 로컬 값을, 그 밖의 id 는 방금 받아온 API 응답을 같은 모양으로 맞춘다.
   // useMemo 로 묶는다 — 안 묶으면 매 렌더 새 객체가 생겨 resolved 를 의존성으로 삼는
   // 아래 effect 들이 재실행 루프에 빠질 수 있다.
+  // 🔴 주소가 없는 장소(OSM 출처 등, address=null)도 있다 — 번역 함수에 null 을 넘기면 일·중 화면이 하얗게 죽었다
+  //    (S15P21E201-1725 · 번역 함수 쪽 방어 !1720 에 더한 호출부 방어 S15P21E201-1726). 없으면 부제를 비운다.
   const resolved = useMemo(() => (
     demoPlace
       ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
       : remote.status === 'loaded'
-        ? { title: placeNameForLanguage(remote.place.nameKo, remote.place.nameEn, language), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
+        ? { title: placeNameForLanguage(remote.place.nameKo, remote.place.nameEn, language), subtitle: remote.place.address ? tx(remote.place.address, remote.place.addressEn ?? remote.place.address) : '', apiPlace: remote.place }
         : null
   ), [demoPlace, remote, tx]);
   const photoUrl = resolved?.apiPlace?.photoUrl ?? null;
+  // 사진 출처 줄 — 위키미디어 사진은 라이선스 이름을 덧붙이고, 누르면 파일 페이지가 열린다(S15P21E201-1610).
+  const photoCredit = resolved?.apiPlace ? photoLabels(resolved.apiPlace, tx) : null;
   const taxiPlaceId = resolved?.apiPlace?.placeId ?? null;
 
   useEffect(() => {
@@ -96,13 +105,29 @@ export default function Place() {
   }, [id, demoPlace, remote.status, accessToken]);
 
   // — 계정에 저장된 것과 기기 것을 합쳐서 본다.
+  // 🔴 이 답이 오기 전에는 저장 단추를 잠근다(S15P21E201-1644). 전에는 먼저 누르면 늦게 온 이 답이 방금 누른 표시를
+  //    되돌려서, 사람 눈에는 「눌렀는데 아무 일도 없다」로 보였다(운영 끝까지 흐르는 시험에서 찾음).
+  const [savedKnown, setSavedKnown] = useState(false);
   useEffect(() => {
     if (!id || !resolved) return;
-    void loadSavedPlaceIds(accessToken).then((ids) => setIsSaved(ids.includes(id)));
+    let alive = true;
+    setSavedKnown(false);
+    void loadSavedPlaceIds(accessToken).then((ids) => { if (!alive) return; setIsSaved(ids.includes(id)); setSavedKnown(true); });
+    return () => { alive = false; };
   }, [id, resolved, accessToken]);
 
   const toggleSaved = async () => {
     if (!id || !resolved) return;
+    // 🔴 비회원은 로그인으로 보낸다 (S15P21E201-1795).
+    //
+    // 전에는 그냥 저장되고 「내 여행 후보에 저장했어요. 일정을 만들 때 이 장소를 먼저
+    // 넣어요」가 떴다. 기기에는 남으므로 거짓말은 아니지만, 저 문구는 «서버가 일정에
+    // 반영한다»는 약속이다 — 비회원의 저장은 서버에 안 간다(savedPlaces 가 device-only 로
+    // 돌려준다). 로그인해서 돌아오면 그 장소는 어디에도 없다.
+    //
+    // 아래 `sync === 'failed'` 가지는 502 때 거짓 성공을 막으려고 넣은 것인데,
+    // device-only 는 그 가지에 안 걸려 그대로 성공 문구가 나갔다.
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/place/${id}` } }); return; }
     const nextSaved = !isSaved;
     const { sync } = await setSavedPlace(id, nextSaved, accessToken);
     setIsSaved(nextSaved);
@@ -113,11 +138,12 @@ export default function Place() {
       setFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
     } else {
       // 🔴 어디에 저장됐는지까지 말한다 — S15P21E201-1489(B-11). 「저장했어요」만 들으면
-      //    부슐랭(컬렉션)을 열어 보고 비어 있어서 「저장이 안 됐다」고 오해한다. 실제로 둘은
-      //    다른 저장소다 — 이쪽은 일정 만들 때 쓰는 후보이고, 부슐랭은 따로 담는다.
+      //    어디에 담겼는지 모른다 — 이쪽은 일정 만들 때 쓰는 후보다.
       setFeedback(nextSaved
         ? tx('내 여행 후보에 저장했어요. 일정을 만들 때 이 장소를 먼저 넣어요.', 'Saved to your trip candidates — we will use it first when building an itinerary.')
         : tx('저장을 해제했어요.', 'Removed from saved.'));
+      // 서버에 저장된 첫 하트 — 다음 추천에 반영할지 한 번 묻는다(S15P21E201-1644).
+      if (nextSaved) void consent.askOnce();
     }
     // 🔴 place_like 는 여기서 보내지 않는다 — S15P21E201-1486. 저장 API(PUT /me/saved-places)가
     //    서버에서 같은 트랜잭션으로 PLACE_LIKE 를 적는다(inserted == 1 일 때만이라 연타·재시도에도
@@ -161,9 +187,6 @@ export default function Place() {
                 <View style={styles.heroCopy}>
                   <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroText}>{resolved.title}</Text>
                   <Text color={color.text.onAction} style={styles.heroText}>{resolved.subtitle}</Text>
-                  {hasLocalityScore(resolved.apiPlace) ? (
-                    <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
-                  ) : null}
                   {/* 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 — S15P21E201-1206.
                       여태 축제 화면만 말하고 여기는 아무 말도 안 했다.
                   */}
@@ -176,8 +199,8 @@ export default function Place() {
                       VoiceOver 는 그것을 영어 알파벳 그대로 읽는다. 화면에는 안 보인다.
 
                       라벨을 주면 식별자는 자동화용으로만 남고 소리로는 안 나간다. */}
-                  {resolved.apiPlace.photoSource ? (
-                    <Text testID="place-photo-credit" accessibilityLabel={txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)} variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{txf(tx, '사진 제공: %s', 'Photo: %s', resolved.apiPlace.photoSource)}</Text>
+                  {photoCredit?.credit ? (
+                    <PhotoCredit testID="place-photo-credit" accessibilityLabel={photoCredit.credit} credit={photoCredit.credit} licenseUrl={photoCredit.licenseUrl} variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]} />
                   ) : null}
                 </View>
               </ImageBackground>
@@ -188,9 +211,6 @@ export default function Place() {
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
-              {resolved.apiPlace && hasLocalityScore(resolved.apiPlace) ? (
-                <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
-              ) : null}
             </View>
           </View>
         )}
@@ -201,13 +221,13 @@ export default function Place() {
         <View style={wide ? styles.mainColumn : undefined}>
         {resolved.apiPlace && (formatFeatureSlot(resolved.apiPlace.openingHours, tx) || formatFeatureSlot(resolved.apiPlace.priceLevel, tx) || formatCheckInOut(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
-            {formatFeatureSlot(resolved.apiPlace.openingHours, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('영업시간', 'Hours')}</Text><Text variant="body">{formatFeatureSlot(resolved.apiPlace.openingHours, tx)}</Text></View> : null}
+            {formatFeatureSlot(resolved.apiPlace.openingHours, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('영업시간', 'Hours')}</Text><Text variant="body" style={styles.infoValue}>{formatFeatureSlot(resolved.apiPlace.openingHours, tx)}</Text></View> : null}
             {/* : 숙박은 영업시간 대신 체크인·체크아웃이 온다 — 둘이 같은 장소에
                 동시에 뜨는 일은 없다(원본 데이터가 한쪽만 채운다), 그래도 나란히 둬서 어느
                 쪽이든 뜬 줄이 같은 자리에 보이게 한다.
             */}
-            {formatCheckInOut(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('체크인·체크아웃', 'Check-in/out')}</Text><Text variant="body">{formatCheckInOut(resolved.apiPlace, tx)}</Text></View> : null}
-            {formatFeatureSlot(resolved.apiPlace.priceLevel, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('가격대', 'Price level')}</Text><Text variant="body">{formatFeatureSlot(resolved.apiPlace.priceLevel, tx)}</Text></View> : null}
+            {formatCheckInOut(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('체크인·체크아웃', 'Check-in/out')}</Text><Text variant="body" style={styles.infoValue}>{formatCheckInOut(resolved.apiPlace, tx)}</Text></View> : null}
+            {formatFeatureSlot(resolved.apiPlace.priceLevel, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('가격대', 'Price level')}</Text><Text variant="body" style={styles.infoValue}>{formatFeatureSlot(resolved.apiPlace.priceLevel, tx)}</Text></View> : null}
           </View>
         ) : null}
         {/* : 현장 이용 정보 — 영어 메뉴·해외카드·예약 필요 여부는 이 셋과 달리
@@ -216,9 +236,9 @@ export default function Place() {
         */}
         {resolved.apiPlace && (formatSoloFriendly(resolved.apiPlace, tx) || formatBreakTime(resolved.apiPlace, tx) || formatLastOrderTime(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
-            {formatSoloFriendly(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('혼밥', 'Solo dining')}</Text><Text variant="body">{formatSoloFriendly(resolved.apiPlace, tx)}</Text></View> : null}
-            {formatBreakTime(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('브레이크타임', 'Break time')}</Text><Text variant="body">{formatBreakTime(resolved.apiPlace, tx)}</Text></View> : null}
-            {formatLastOrderTime(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('라스트오더', 'Last order')}</Text><Text variant="body">{formatLastOrderTime(resolved.apiPlace, tx)}</Text></View> : null}
+            {formatSoloFriendly(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('혼밥', 'Solo dining')}</Text><Text variant="body" style={styles.infoValue}>{formatSoloFriendly(resolved.apiPlace, tx)}</Text></View> : null}
+            {formatBreakTime(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('브레이크타임', 'Break time')}</Text><Text variant="body" style={styles.infoValue}>{formatBreakTime(resolved.apiPlace, tx)}</Text></View> : null}
+            {formatLastOrderTime(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('라스트오더', 'Last order')}</Text><Text variant="body" style={styles.infoValue}>{formatLastOrderTime(resolved.apiPlace, tx)}</Text></View> : null}
           </View>
         ) : null}
         {/* : 이동약자 접근성 — 여기 있는 건 이 장소 자체의 경사·계단 정보다.
@@ -226,8 +246,8 @@ export default function Place() {
         */}
         {resolved.apiPlace && (formatStairsPresent(resolved.apiPlace, tx) || formatSlopePercent(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
-            {formatStairsPresent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('계단', 'Stairs')}</Text><Text variant="body">{formatStairsPresent(resolved.apiPlace, tx)}</Text></View> : null}
-            {formatSlopePercent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('경사도', 'Slope')}</Text><Text variant="body">{formatSlopePercent(resolved.apiPlace, tx)}</Text></View> : null}
+            {formatStairsPresent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('계단', 'Stairs')}</Text><Text variant="body" style={styles.infoValue}>{formatStairsPresent(resolved.apiPlace, tx)}</Text></View> : null}
+            {formatSlopePercent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('경사도', 'Slope')}</Text><Text variant="body" style={styles.infoValue}>{formatSlopePercent(resolved.apiPlace, tx)}</Text></View> : null}
           </View>
         ) : null}
         {resolved.apiPlace && needsFoodSafetyCheck(resolved.apiPlace) ? (
@@ -254,18 +274,20 @@ export default function Place() {
         </View>
         <View style={wide ? styles.asideColumn : undefined}>
         {/* 사용자 리포트 — 버튼 네 개가 전폭으로 세로로 쌓여 가독성이 떨어졌다. 2열 그리드로
-            바꿔 화면을 덜 차지하면서 한눈에 들어오게 한다. Button 컴포넌트 자체(26곳에서 쓴다)는
+            바꿔 화면을 덜 차지하면서 한눈에 들어오게 한다. Button 컴포넌트 자체(여러 화면이 같이 쓴다 — 개수는 적지 않는다, 적으면 낡는다)는
             그대로 두고, 이 화면의 containerStyle 폭만 절반으로 좁힌다 — Button.tsx 상단 주석이
             경고하는 "containerStyle 로 배경색을 흉내내는" 것과는 다르다(폭은 바깥 껍데기의
             레이아웃일 뿐, 안쪽 Pressable 의 색과 부딪히지 않는다).
         */}
         <View style={styles.actions}>
-          <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="tertiary" onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
+          {/* 🔴 저장했는지 알기 전에는 누를 수 없다 — 위 savedKnown 의 주석(S15P21E201-1644). */}
+          <Button label={isSaved ? tx('후보에서 빼기', 'Unsave') : tx('내 여행 후보에 저장', 'Save')} variant="tertiary" disabled={!savedKnown} onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
           <Button label={tx('한국어로 말하기', 'Speak Korean')} variant="field" onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
           {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="tertiary" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
-          {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} variant="field" onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
+          {taxiPlaceId ? <Button label={tx('기사님께 보여주기', 'Show to driver')} variant="field" onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
+        {consent.prompt}
         </View>
         </View>
       </> : null}
@@ -274,8 +296,10 @@ export default function Place() {
 
       {notFound ? <View style={styles.notice} accessibilityRole="alert">
         <Text variant="title" weight="bold">{tx('장소를 찾을 수 없어요', 'Place not found')}</Text>
-        <Text color={color.text.body}>{tx('목록으로 돌아가 다른 장소를 선택해 주세요.', 'Go back to the list and choose another place.')}</Text>
-        <Button label={tx('홈으로 돌아가기', 'Back to home')} onPress={() => router.replace('/home')} containerStyle={styles.recoveryButton} />
+        {/* 문구와 단추가 같은 곳을 가리킨다(S15P21E201-1680). 전에는 「목록으로 돌아가」라고 하고 단추는 홈으로 갔다.
+            들어온 길이 없으면(주소로 바로 연 경우) 뒤로 갈 곳이 없어 홈으로 — 위의 ‹ 단추와 같은 규칙이다. */}
+        <Text color={color.text.body}>{router.canGoBack() ? tx('뒤로 가서 다른 장소를 골라 주세요.', 'Go back and choose another place.') : tx('홈에서 다른 장소를 골라 주세요.', 'Choose another place from home.')}</Text>
+        <Button label={router.canGoBack() ? tx('뒤로 가기', 'Go back') : tx('홈으로', 'Go home')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/home'))} containerStyle={styles.recoveryButton} />
       </View> : null}
 
       {loadFailed ? <View style={styles.notice} accessibilityRole="alert">
@@ -310,12 +334,15 @@ const styles = StyleSheet.create({
   heroText: { textShadowColor: 'rgba(8, 27, 53, 0.9)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
   subjectBadge: { marginTop: spacing[2] },
-  scoreBadge: { alignSelf: 'flex-start', marginTop: spacing[2], borderRadius: radius.full, paddingHorizontal: spacing[3], paddingVertical: spacing[1], backgroundColor: 'rgba(255,255,255,0.18)' },
   // opacity 0.8 을 뽑았다. 이 줄은 공공누리 이용 조건이라
   // 읽힐 수 있어야 한다 — 지켜야 하는 표기를 일부러 흐리게 할 이유가 없다.
   photoCredit: { marginTop: spacing[1] },
   infoRows: { marginTop: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
-  infoRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
+  infoRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
+  // 이름표는 줄지 않고 값만 준다 — 값(요일별 영업시간)이 길면 이름표가 한 글자 폭까지 눌려 세로로 꺾였다(S15P21E201-1727).
+  //    여러 줄이 된 값이 카드 위아래 끝에 닿지 않게 세로 여백도 둔다 — 한 줄이면 minHeight 52 안이라 높이가 그대로다.
+  infoLabel: { flexShrink: 0 },
+  infoValue: { flexShrink: 1 },
   safetyNotice: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
   safetyConfirmed: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.successBg },
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },

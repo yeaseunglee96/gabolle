@@ -3,6 +3,7 @@
 // 연다. 응답에는 출발지 좌표·연락처·예산·인원이 원래 없다(보안 설계 — 값을 null 로 비운 게
 // 아니라 record 자체에 칸이 없다). notShared 는 "화면 고지문이 말해야 할 항목 이름" 목록이다.
 import { apiRequest, ApiClientError, APP_WEB_BASE_URL } from '@/api/client';
+import { isUnknownResponse } from '@/api/errorText';
 
 export type SharedItineraryItem = {
   sequence: number;
@@ -37,7 +38,8 @@ export async function getSharedItinerary(token: string): Promise<SharedItinerary
     if (error instanceof ApiClientError) {
       if (error.code === 'SHARE_LINK_EXPIRED') return { state: 'expired' };
       if (error.code === 'SHARE_LINK_NOT_FOUND' || error.code === 'SHARED_TRIP_NOT_FOUND') return { state: 'not_found' };
-      return { state: 'error', message: error.message };
+      // 서버가 모르는 응답이면 아래 문장으로 간다(S15P21E201-1672) — 로그인 안 한 사람이 처음 보는 화면이다.
+      if (!isUnknownResponse(error)) return { state: 'error', message: error.message };
     }
     return { state: 'error', message: '공유 일정을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.' };
   }

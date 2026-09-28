@@ -1,15 +1,19 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { getCurrentLanguage } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
-import { getApiLanguage, setRefreshHandler, setUnauthorizedHandler } from '@/api/client';
+import { setRefreshHandler, setUnauthorizedHandler } from '@/api/client';
 import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage, type UpdateMeInput } from './authApi';
+import { clearFirstRunMarks } from '@/onboarding/firstRun';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { clearSavedTrips } from '@/trip/tripLibrary';
 import { restoreMobileAuth } from './restoreMobileAuth';
 import { registerPushToken, unregisterPushToken } from '@/notifications/pushToken';
 
-const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+// 화면 언어로 고른다 — 서버용 언어(ko|en 뿐)로 고르면 일본어·중국어 화면에 영어가 나갔다(S15P21E201-1776).
+const tx = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 const REFRESH_TOKEN_KEY = 'gabolle.refresh-token';
 type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; updateProfile: (input: UpdateMeInput) => Promise<void>; deleteAccount: (confirmation: string) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
@@ -108,10 +112,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
     acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
     updateProfile: async (input) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); const currentUser = await updateMe(accessToken, input); applyUser(currentUser); },
-    deleteAccount: async (confirmation) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); await deleteMe(accessToken, confirmation); await clearSavedTrips(); preferences.reset(); clearSession(); router.replace('/'); },
+    deleteAccount: async (confirmation) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); await deleteMe(accessToken, confirmation); await clearSavedTrips(); await clearFirstRunMarks(); preferences.reset(); clearSession(); router.replace('/'); },
     // 로그아웃해도 이 기기에 남는 것들을 정리한다 — 안 그러면 같은 기기에서 다음 사람이
     // 로그인했을 때 앞사람의 여행 목록·언어·이동 성향이 그대로 보인다.
-    signOut: async () => { pushRegisteredFor.current = null; await unregisterPushToken(accessToken); try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
+    signOut: async () => { pushRegisteredFor.current = null; await unregisterPushToken(accessToken); try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); await clearFirstRunMarks(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
   }), [accessToken, preferences, ready, refreshToken, router, user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

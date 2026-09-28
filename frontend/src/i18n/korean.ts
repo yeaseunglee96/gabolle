@@ -21,3 +21,15 @@ export function koreanObject(name: string): '을' | '를' {
   const final = finalConsonant(name);
   return final === null || final === 0 ? '를' : '을';
 }
+
+/** 「쇼진이」·「카페오뜨가」 — 받침이 있으면 「이」. 한글이 아니면 「가」 (S15P21E201-1535, 여행 페이지 「확인할 것」). */
+export function koreanSubject(name: string): '이' | '가' {
+  const final = finalConsonant(name);
+  return final === null || final === 0 ? '가' : '이';
+}
+
+/** 「인원은」·「출발지는」 — 받침이 있으면 「은」. 한글이 아니면 「는」 (S15P21E201-1677, 공유 링크 「…는(은) 공유되지 않아요」). */
+export function koreanTopic(name: string): '은' | '는' {
+  const final = finalConsonant(name);
+  return final === null || final === 0 ? '는' : '은';
+}

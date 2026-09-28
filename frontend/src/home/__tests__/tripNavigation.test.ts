@@ -1,23 +1,27 @@
-import { loadTripItineraries, type TripItinerariesResult } from '@/trip/trips';
+import { resolveTripItinerary, type TripItineraryChoice } from '@/trip/trips';
 import { resolveHomeTripDestination } from '../tripNavigation';
 
-jest.mock('@/trip/trips', () => ({ loadTripItineraries: jest.fn() }));
+// 무엇을 열지는 resolveTripItinerary 가 정한다(그 시험: src/trip/__tests__/resolveTripItinerary.test.ts).
+// 여기서는 그 답을 주소로 옮기는 것만 본다.
+jest.mock('@/trip/trips', () => ({ ...jest.requireActual('@/trip/trips'), resolveTripItinerary: jest.fn() }));
 
-const mockedLoad = jest.mocked(loadTripItineraries);
+const mockedResolve = jest.mocked(resolveTripItinerary);
+
+beforeEach(() => mockedResolve.mockReset());
 
 describe('resolveHomeTripDestination', () => {
-  it('opens the itinerary id returned for a trip', async () => {
-    mockedLoad.mockResolvedValue({ state: 'success', role: 'OWNER', itineraries: [{ itineraryId: 'itinerary-7', latestVersion: 1 }] });
-    await expect(resolveHomeTripDestination('trip-3', 'token')).resolves.toBe('/trips/itinerary-7/itinerary');
-    expect(mockedLoad).toHaveBeenCalledWith('trip-3', 'token');
+  // 🔴 S15P21E201-1605 — 일정이 여럿이어도 고르기로 보내지 않는다. 내 여행 카드와 같은 규칙으로 고른 일정을 연다.
+  it('opens the itinerary the trip rule picked — same rule as the my-trips card', async () => {
+    mockedResolve.mockResolvedValue({ state: 'open', itineraryId: 'it-b' });
+    await expect(resolveHomeTripDestination({ tripId: 'trip-3', currentItineraryId: 'it-b' }, 'token')).resolves.toBe('/trips/it-b/itinerary');
+    expect(mockedResolve).toHaveBeenCalledWith({ tripId: 'trip-3', currentItineraryId: 'it-b' }, 'token');
   });
 
-  it.each<TripItinerariesResult>([
-    { state: 'success', role: 'OWNER', itineraries: [] },
-    { state: 'success', role: 'OWNER', itineraries: [{ itineraryId: 'a', latestVersion: 1 }, { itineraryId: 'b', latestVersion: 2 }] },
+  it.each<TripItineraryChoice>([
+    { state: 'none' },
     { state: 'offline', message: 'offline' },
-  ])('falls back to the trip picker when a direct itinerary is not safe', async (result) => {
-    mockedLoad.mockResolvedValue(result);
-    await expect(resolveHomeTripDestination('trip-3', 'token')).resolves.toBe('/trips');
+  ])('falls back to my trips when there is nothing to open', async (result) => {
+    mockedResolve.mockResolvedValue(result);
+    await expect(resolveHomeTripDestination({ tripId: 'trip-3' }, 'token')).resolves.toBe('/trips');
   });
 });

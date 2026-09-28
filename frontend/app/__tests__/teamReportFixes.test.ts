@@ -25,7 +25,7 @@ function read(relative: string): string {
 // ── ② 동행 초대 두 단추 ─────────────────────────────────────────────────────
 describe('동행 초대의 두 단추가 안 붙어 있다', () => {
   it('「참여자 목록·역할 관리」 아래에 여백이 있다', () => {
-    const source = read('app/(trip)/[id]/share.tsx');
+    const source = read('src/trip/TripInvitePanel.tsx');
     expect(source).toContain('manageButton: { marginTop: spacing[3], marginBottom: spacing[3] }');
   });
 });

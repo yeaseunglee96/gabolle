@@ -4,7 +4,7 @@
 // 「나」에 해당하는 것만 떼어 왔다 — 사진 · 닉네임 · 이메일 · 언어 · 회원 탈퇴.
 import { deviceAvatarKey, loadProfileAvatar } from '@/me/profileAvatar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -17,7 +17,7 @@ import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { usePlan } from '@/plan/PlanProvider';
 import { txf } from '@/i18n/format';
 
@@ -34,8 +34,8 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
   const { tx } = useI18n();
   const plan = usePlan();
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const desktop = isAtLeast(width, 'lg');
+  // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
+  const desktop = useLayout().desktop;
 
 
   async function shareProfile() {
@@ -341,7 +341,10 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
             <View style={styles.impactList}>
               <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{countLabel(deletionPreview?.ownedTripCount)}</Text><Text style={styles.impactCopy}>{tx('내가 만든 여행이 삭제돼요.', 'Trips you created will be deleted.')}</Text></View>
               <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{countLabel(deletionPreview?.itineraryCount)}</Text><Text style={styles.impactCopy}>{tx('그 여행들의 일정이 삭제돼요.', "Those trips' itineraries will be deleted.")}</Text></View>
-              <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{countLabel(deletionPreview?.recordCount)}</Text><Text style={styles.impactCopy}>{tx('작성한 여행 기록이 삭제돼요.', 'Travel records you wrote will be deleted.')}</Text></View>
+              <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{countLabel(deletionPreview?.recordCount)}</Text><Text style={styles.impactCopy}>{tx('피드에 남긴 기록이 삭제돼요.', 'Posts you left on the feed will be deleted.')}</Text></View>
+              {/* 🔴 「작성한 여행 기록」이었다 — 바로 위 「내가 만든 여행」과 같은 것으로 읽혔다(팀원 실기, -1517).
+                  서버는 둘을 따로 센다(recordCount = Story, 피드 글). 마이페이지 「내 기록」이
+                  「피드에 남긴 내 글이에요」라 부르는 그것이라 그 말에 맞춘다. */}
             </View>
             <Text accessibilityRole="alert" weight="bold" color={color.state.danger}>{tx('계정 삭제는 되돌릴 수 없습니다.', 'Account deletion cannot be undone.')}</Text>
             <View style={styles.modalActions}><Button label={tx('취소', 'Cancel')} variant="tertiary" onPress={closeDeletion} containerStyle={styles.modalAction} /><Button variant="outline" label={tx('계속', 'Continue')} onPress={() => setDeleteStep(2)} containerStyle={styles.modalAction} /></View>

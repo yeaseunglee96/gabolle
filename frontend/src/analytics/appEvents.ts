@@ -5,7 +5,7 @@ import { apiRequest } from '@/api/client';
 import { loadBehaviorConsent } from '@/personalization/behaviorConsent';
 
 /** 서버 EventType 의 소문자 이름(wireName) 그대로. 없는 이름을 지어내지 않는다. */
-export type AppEventType = 'place_like' | 'place_dislike' | 'place_view' | 'place_visit';
+export type AppEventType = 'place_like' | 'place_dislike' | 'place_view' | 'place_visit' | 'recommendation_impression';
 
 export type AppEventInput = {
   type: AppEventType;
@@ -18,6 +18,11 @@ export type AppEventInput = {
    * 막히기 전에 안 담는 것이 맞다 — 이벤트 표는 지우기 어려운 자리다.
    */
   payload?: Record<string, unknown>;
+  /**
+   * 행동 동의가 있어야 보내나(기본 참). 추천 노출만 동의와 무관하게 보낸다 — 추천 품질 통계로만 쓰고 취향 학습에는
+   * 안 쓴다(S15P21E201-1696, 07 계약 · 사용자 원칙: 동의하면 개인 취향까지, 아니면 추천 품질만). 서버가 쓰는 쪽에서 가른다.
+   */
+  requiresConsent?: boolean;
 };
 
 /** 부르고 즉시 돌아온다. 절대 던지지 않는다. */
@@ -27,7 +32,7 @@ export function sendAppEvent(input: AppEventInput): void {
 
 async function deliver(input: AppEventInput): Promise<void> {
   if (!input.accessToken) return;
-  if (!(await loadBehaviorConsent())) return;
+  if (input.requiresConsent !== false && !(await loadBehaviorConsent())) return;
   await apiRequest<unknown>('/api/v1/events', {
     method: 'POST',
     accessToken: input.accessToken,
