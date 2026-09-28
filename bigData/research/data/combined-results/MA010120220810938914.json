@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220810938914",
+  "name": "펀자브인도요리",
+  "cat": "기타 동남아식 전문",
+  "attempts": 1,
+  "geminiTokens": 54669,
+  "researchedAt": "2026-09-22T06:56:07.795Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "웨이팅이나 줄서기/혼잡에 관한 특별한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "관광객, 커플, 외국인 무슬림 여행객",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "치킨 티카 마살라",
+      "탄두리 치킨",
+      "버터 난",
+      "버터 치킨 마크니 커리"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 구남로 중심 상권에 위치하여 외국인 관광객과 여행객들이 많이 찾는 곳으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "해운대 구남로 31 2층에 위치한 인도·파키스탄 전통 요리 전문점으로 할랄 옵션 및 다양한 커리와 탄두리 바비큐 메뉴를 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "치킨 티까 마살라 커리",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 구남로에 위치한 인도 요리 전문점으로, 인도 커리(마살라 커리, 빈달루 등), 탄두리 치킨, 난 등 다양한 인도 전통 요리를 제공합니다. 인도 스타일의 아기자기한 인테리어와 수공예 장식품, 인도 음악 등으로 이색적인 분위기를 느낄 수 있으며, 창가 자리에서는 구남로 거리 풍경을 감상할 수 있습니다. 인근에 해운대역이 있어 도보 접근성이 좋으며, 가족 외식이나 데이트 장소로 자주 언급되는 곳입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "할랄(Halal) 인증 고기를 사용하는 무슬림 친화 식당으로 알려져 있으며, 외국인 관광객과 현지인 모두에게 인기가 많습니다. 탄두리 치킨, 치킨 티카 마살라, 각종 커리(마살라, 빈달루 등), 난(버터 난, 갈릭 난), 라씨 등이 대표적입니다.",
+      "url": "https://korean.visitkorea.or.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://korean.visitkorea.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정통 인도·파키스탄 커리와 탄두리 치킨, 난 등 이색적인 전통 요리의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대역 도보 5분 거리 구남로 중심가의 뛰어난 도보 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

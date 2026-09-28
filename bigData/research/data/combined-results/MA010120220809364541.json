@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220809364541",
+  "name": "화명",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 36425,
+  "researchedAt": "2026-09-22T06:19:25.516Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산 북구 화명대로 119(삼한힐파크 아파트 단지) 주소지 내 '화명' 상호의 제과/도넛 전문 매장을 웹상에서 검색하였으나 실존하는 일반 영업점 정보가 확인되지 않음.",
+  "notes": "해당 주소지는 아파트 단지(삼한힐파크)이며, 상가 내 빵/도넛 업종으로 운영 중인 '화명'이라는 소매 매장 정보가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://dorojuso.kr"
+  ],
+  "whyPeopleGo": []
+}

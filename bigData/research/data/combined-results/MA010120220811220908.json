@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220811220908",
+  "name": "헬로우아시아",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 69959,
+  "researchedAt": "2026-09-22T06:52:25.304Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 해운대구 구남로 31)의 상가 입점 상호 목록에 이름만 등재되어 있을 뿐, 실제 운영 중인 베트남 음식점에 대한 블로그 리뷰, 메뉴, 영업시간, 방문 후기 등의 실질적인 정보가 웹상에 존재하지 않습니다(폐업 또는 비영업 상태).",
+  "notes": "부산 해운대구 구남로 31 건물 대장 내 '헬로우아시아' 상호 등록 흔적 외에 실제 식당 영업 관련 상세 정보 부재",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

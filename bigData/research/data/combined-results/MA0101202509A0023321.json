@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202509A0023321",
+  "name": "비스트로치",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 116289,
+  "researchedAt": "2026-09-22T07:06:30.670Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 혼잡에 대한 직접적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "데이트 및 소모임 객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "트러플 크림 파스타",
+      "우니 버터 파스타",
+      "뽈뽀",
+      "아란치니",
+      "한우 암소 스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 21:00 (라스트오더 20:00) / 금·토 12:00 ~ 23:00 (라스트오더 22:00) / 화요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 선호 여부에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락동(민락로 16) 광안리 인근에 위치한 이탈리안 레스토랑(경양식/양식)으로, 파스타와 와인을 즐기는 데이트 명소로 운영됨",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "화이트와 우드톤 인테리어의 아늑하고 고급스러운 분위기로, 데이트나 소모임에 적합합니다. 2층에 단체석(최대 10명 수용 가능)이 마련되어 있어 단체 모임에도 이용이 가능합니다. 주요 메뉴: 트러플 크림 파스타, 우니 버터 파스타, 뽈뽀(문어 요리), 아란치니, 한우 암소 스테이크 등 다양한 파스타와 요리류를 제공합니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "주소: 부산광역시 수영구 민락로 16, 1~2층. 매일: 12:00 ~ 21:00 (라스트 오더 20:00), 금·토: 12:00 ~ 23:00 (라스트 오더 22:00), 정기 휴무: 화요일. 주차장은 따로 마련되어 있지 않아 인근 공영주차장을 이용해야 합니다.",
+      "url": "https://pandarank.net/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://pandarank.net/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화이트와 우드톤의 아늑하고 고급스러운 인테리어 분위기로 데이트나 기념일 소모임에 최적화됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "트러플 크림 파스타, 우니 버터 파스타, 뽈뽀, 한우 암소 스테이크 등 특색 있는 이탈리안 요리를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

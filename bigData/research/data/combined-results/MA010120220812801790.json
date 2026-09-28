@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220812801790",
+  "name": "에이치큐광안",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 95042,
+  "researchedAt": "2026-09-22T10:30:15.200Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 라이브 공연, 트리비아 나이트 등 이벤트가 있는 날에는 붐비고 활기찬 분위기가 형성됨."
+  },
+  "descriptors": {
+    "audience": "외국인 및 현지 거주자, 광안리 방문 관광객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 맥주",
+      "버거",
+      "피자",
+      "치킨 윙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~수 19:00 - 24:00 / 목 19:00 - 01:00 / 금~토 19:00 - 03:00 / 일 17:00 - 24:00 (월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 거주 외국인(익스팻) 커뮤니티의 아지트이자 현지인과 관광객이 고루 찾는 펍 겸 바."
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "행정동/사업자등록 상호 '에이치큐광안'(HQ광안/HQ Bar Gwangan)으로, 광안해변로 237(테마타워 4층)에 위치한 광안대교 뷰의 펍/경양식 바입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "HQ Gwangan (often referred to as HQ Bar) is a popular, long-standing bar and community hub located on the beachfront of Gwangalli Beach in Busan, South Korea. It is well-known for its prime location overlooking Gwangalli Beach, offering stunning night views of the illuminated Gwangan Bridge. It is a popular hangout spot for the expat community and locals alike, known for a lively, social atmosphere. The bar serves a variety of drinks, including craft beers and cocktails, and Western-style pub food menu.",
+      "url": "https://wanderlog.com/place/hq-gwangan/4924296"
+    },
+    {
+      "excerpt": "HQ Gwangan is a popular expat bar located on the beachfront of Gwangalli in Busan, known for its views of the Gwangan Bridge, craft beers, and Western-style pub food. Address: 237 Gwanganhaebyeon-ro, Suyeong-gu, Busan (4th floor). Hours: Monday Closed, Tue-Wed 19:00-24:00, Thu 19:00-01:00, Fri-Sat 19:00-03:00, Sun 17:00-24:00. Food includes burgers, pizza, wings, Mexican food (tacos), and macaroni & cheese.",
+      "url": "https://arrivalguides.com/en/Travel-Guides/Asia/South-Korea/Busan/bars-and-nightlife/hq-gwangan"
+    }
+  ],
+  "sources": [
+    "https://wanderlog.com/place/hq-gwangan/4924296",
+    "https://arrivalguides.com/en/Travel-Guides/Asia/South-Korea/Busan/bars-and-nightlife/hq-gwangan"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변과 광안대교 파노라마 뷰를 감상하며 수제 맥주와 웨스턴 펍 음식을 즐길 수 있는 소셜 허브이기 때문.",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

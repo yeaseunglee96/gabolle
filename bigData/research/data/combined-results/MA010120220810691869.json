@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220810691869",
+  "name": "웅천집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 107986,
+  "researchedAt": "2026-09-22T06:47:53.788Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심이나 저녁 시간대에는 대기 인원이 있을 정도로 붐비며, 예약 또는 전화 주문이 권장됨"
+  },
+  "descriptors": {
+    "audience": "가족 단위 및 단골 손님",
+    "generations": 3,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "향어회",
+      "민물장어구이",
+      "메기매운탕"
+    ],
+    "yearsClaimed": 1965
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 21:30 (브레이크타임 15:00~16:00, 라스트오더 20:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "오랜 세월 동안 지역 주민과 단골 손님들이 주로 찾는 금곡동의 대표적인 향어회 노포 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 북구 금곡동에 위치한 웅천집은 1964~1965년 개업 이래 3대째 이어져 오고 있는 60년 전통의 향어회·민물장어·메기매운탕 전문 노포입니다. 전용 주차장이 마련되어 있어 자차 접근성이 좋으며, 특제 초장과 함께 부위별로 썰어내는 향어회로 유명합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "웅천집은 부산광역시 북구 금곡동에 위치한 향어회, 민물장어, 메기매운탕 전문 음식점입니다. 1965년부터 영업을 시작하여 오랜 전통을 이어오고 있는 지역 맛집으로 알려져 있습니다. 매일 11:30~21:30 (브레이크 타임 15:00~16:00, 라스트 오더 20:30). 전용 주차장이 마련되어 있어 주차가 편리하며 단체 이용, 포장 및 예약이 가능합니다.",
+      "url": "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201008000000&uc_seq=1214"
+    },
+    {
+      "excerpt": "부산광역시 북구 금곡동에 위치한 웅천집은 1965년부터 영업을 시작하여 60년 가까운 전통을 자랑하는 향어회 및 민물고기 요리 전문점입니다. 대표 메뉴는 향어회, 장어구이, 메기매운탕이며 향어회는 부위별로 썰어내어 다양한 식감을 즐길 수 있고 특제 초장이 유명합니다. 점심이나 저녁 시간대에는 대기 인원이 있을 정도로 인기가 많고 식당 앞에 넓은 주차장이 마련되어 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201008000000&uc_seq=1214",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1965년부터 3대째 60년 가까이 이어져 온 전통 있는 민물요리 노포 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "부위별로 썰어내는 쫄깃한 향어회와 이 집만의 특제 초장 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "식당 앞 전용 주차장을 갖추고 있어 자차 방문 및 포장 이용이 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202307A0016485",
+  "name": "암파스타레",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 59101,
+  "researchedAt": "2026-09-22T11:54:58.657Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 혼잡도에 대한 명확한 언급 미발견"
+  },
+  "descriptors": {
+    "audience": "연인, 데이트, 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "파스타",
+      "수비드 스테이크",
+      "뇨끼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 09:00 - 22:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 중심인지에 대한 명시적 구분 내용 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "주택을 개조한 감성적인 인테리어와 정원형 공간을 갖춘 캐주얼 이탈리안 레스토랑으로, 파스타와 수비드 스테이크, 뇨끼 등의 양식 메뉴를 합리적인 가격대에 제공함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "파스타 및 주요 단품 메뉴 약 15,000원대부터 시작",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "암파스타레 광안본점은 부산광역시 수영구 광서로10번길 17, 1층에 위치한 이탈리안 레스토랑입니다. 영업시간: 매일 09:00 - 22:00. 특징: 파스타, 피자, 스테이크 등 다양한 양식 메뉴를 제공하며, 예약 및 배달/포장 이용이 가능합니다. 주차는 지원되지 않으니 방문 시 참고하시기 바랍니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "부산 수영구 광서로10번길 17에 위치해 있으며, 수영역 10번 출구에서 도보로 이동 가능한 거리에 있습니다. 주택을 개조한 감성적인 인테리어와 정원형 공간을 갖추고 있어 데이트나 기념일 장소로 자주 언급됩니다. 파스타, 스테이크, 뇨끼 등을 전문으로 하는 인기 양식 레스토랑입니다.",
+      "url": "https://hanbus.co.kr"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://hanbus.co.kr",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주택을 개조한 감성적인 정원 공간과 인테리어로 데이트·기념일 분위기 적합",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "파스타, 수비드 스테이크, 뇨끼 등 고품질 양식 메뉴를 합리적인 가격대에 제공",
+      "sources": [
+        0,
+        1,
+        2
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

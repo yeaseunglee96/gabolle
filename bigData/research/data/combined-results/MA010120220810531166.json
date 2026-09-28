@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220810531166",
+  "name": "공단매점",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 42401,
+  "researchedAt": "2026-09-22T06:25:01.723Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 감천항로405번길 45 소재 '공단매점'(백반/한정식)에 대해 웹 검색을 실시했으나, 해당 상호의 식당 정보나 후기, 메뉴 및 영업 정보가 전혀 확인되지 않았습니다. 해당 주소지(구평동)는 선박수리 및 조선/해양 관련 공장 및 편의점(CU) 등이 위치한 공단 지역으로 확인되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.juso.go.kr"
+  ],
+  "whyPeopleGo": []
+}

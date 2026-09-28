@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220803454494",
+  "name": "카페생상ː生相",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 43785,
+  "researchedAt": "2026-09-22T06:48:23.992Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 강서구 대저중앙로 304-4)는 냉동생지/식품유통 업체((주)키푸디, 생지상점 등)의 사업장 소재지로 확인되며, '카페생상ː生相' 상호의 실제 운영 정보(메뉴, 가격, 영업시간, 방문후기 등)를 웹상에서 확인할 수 없습니다.",
+  "notes": "소비자 대상 실제 운영 카페 정보 및 후기 부재",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

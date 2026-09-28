@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220808495964",
+  "name": "비비큐랩",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 52633,
+  "researchedAt": "2026-09-22T11:12:53.207Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 소규모 모임",
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "브리스킷",
+      "스페어립",
+      "풀드포크"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 중동(좌동순환로433번길 38-15)에 위치한 텍사스식 정통 바비큐 전문점으로 브리스킷, 스페어립, 풀드포크 플래터 및 수제버거, 타코 등을 취급함. 구체적인 영업시간이나 가격 수치는 공개 웹페이지에서 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "비비큐랩은 부산 해운대구 중동에 위치한 텍사스 바베큐 전문점입니다. 브리스킷(양지머리), 스페어립, 풀드포크 등 정통 텍사스 바베큐를 주력으로 합니다. 'Low & Slow' 방식으로 조리하여 부드럽고 육즙이 풍부한 바베큐를 맛볼 수 있습니다. 바베큐 외에도 수제버거, 타코 등의 메뉴도 함께 취급합니다.",
+      "url": "https://wanderboat.ai"
+    },
+    {
+      "excerpt": "상호: 비비큐랩(BBQ LAB), 도로명주소: 부산광역시 해운대구 좌동순환로433번길 38-15, 1층 일부호(중동)",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://wanderboat.ai",
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "Low & Slow 방식으로 오랜 시간 훈연 조리한 브리스킷, 풀드포크, 스페어립 등 정통 텍사스식 바비큐의 부드러운 식감과 풍미를 즐기기 위해 방문함.",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

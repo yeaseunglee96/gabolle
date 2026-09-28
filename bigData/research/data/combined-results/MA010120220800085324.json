@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220800085324",
+  "name": "만쿠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 72795,
+  "researchedAt": "2026-09-22T11:42:35.513Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼술객, 2차 손님, 커플",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "어묵 (오뎅)"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 18:00~05:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 서면(서전로10번길 18)에 위치한 일본식 오뎅바 겸 이자카야로, 다찌석 중심의 아담하고 감성적인 분위기에서 1인 기본 세팅(어묵 3개 5,000원)으로 가볍게 즐길 수 있어 혼술 및 2차 술자리로 인기가 높습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "1인 기본 세팅(어묵 3개)",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 서면에 위치한 아담한 오뎅바 '만쿠'에 대한 리뷰입니다. 다찌 형식의 좌석으로 구성되어 있으며, 2차로 방문하기 좋은 분위기입니다. 1인 기본 세팅(5,000원, 어묵 3개)으로 이용 가능하며, 추가 메뉴 주문 없이도 즐길 수 있다는 점이 특징입니다. 위치: 부산 부산진구 서전로10번길 18 영업시간: 매일 18:00~05:00",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://app.catchtable.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다찌형 좌석과 아담하고 감성적인 분위기 속에서 1인 기본 세트로 부담 없이 혼술 및 2차 술자리를 즐기기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

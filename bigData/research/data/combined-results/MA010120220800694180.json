@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220800694180",
+  "name": "종손안동찜닭",
+  "cat": "닭/오리고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 71083,
+  "researchedAt": "2026-09-22T10:27:36.050Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "과거 등록 이력 외에 실제 운영 정보나 방문/블로그 후기, 메뉴 및 가격 등 실질적인 음식점 정보를 웹에서 찾을 수 없음 (해당 주소지에 타 업종 입점 확인)",
+  "notes": "상호명 '종손안동찜닭'(부산 남구 천제등로37번길 1 / 대연동 897-20, 051-625-9909)은 과거 등록 이력에만 존재하며, 블로그 방문 후기나 메뉴·가격 등 실제 운영 정보가 확인되지 않아 폐업/미운영으로 판단됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220813899956",
+  "name": "등대횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 46441,
+  "researchedAt": "2026-09-22T12:21:55.068Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "너무 붐비는 곳을 피해 조용하고 편안하게 회를 즐길 수 있는 곳으로 언급됨"
+  },
+  "descriptors": {
+    "audience": "가족 및 소규모 모임",
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모둠회",
+      "코스 요리"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "화려한 관광지 횟집보다는 지역 주민들이 즐겨 찾는 현지인 중심 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 송정강변로 41(송정동 188-4)에 위치한 소박한 횟집으로, 관광지 번화가보다는 단독 룸 및 정성스러운 스키다시·가성비를 갖춘 동네 모임/현지인 위주 식당으로 확인됩니다. 정확한 영업시간 및 메뉴판 전체 목록/가격표는 웹상에 상세 공개되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "화려한 관광지 횟집보다는 가성비가 좋고, 밑반찬(스키다시) 하나하나에 정성이 느껴지는 집이라는 평가가 많습니다. 외관은 소박하지만 내부는 생각보다 넓고 룸도 갖추고 있어 가족 단위 식사나 조용한 모임에 적합하다는 후기가 있습니다. 지역 주민이 추천하는 현지 맛집인 만큼, 너무 붐비는 곳을 피해 조용하고 편안하게 회를 즐기고 싶은 분들께 추천되는 장소입니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "원룸/빌라 건물 1층에 위치하고 있습니다. 내부에 단독 룸이 마련되어 있어 가족 단위나 소규모 모임에 적합하다는 후기가 있습니다. 코스 요리(A, B, C 코스 등)와 단품 메뉴를 제공하며, 푸짐한 상차림과 친절한 서비스로 현지인들에게도 알려진 곳입니다.",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://linktoplace.com",
+    "https://tistory.com",
+    "https://wanderboat.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화려한 관광지형 횟집 대비 알찬 상차림과 가성비 중심 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "단독 룸 구비로 가족 및 소규모 모임에 알맞고 덜 붐비는 아늑한 환경",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "외지 관광객보다 지역 주민들이 편안하게 찾는 로컬 모임 장소",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

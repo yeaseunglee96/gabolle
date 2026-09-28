@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202406A0238297",
+  "name": "푸안",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 67943,
+  "researchedAt": "2026-09-22T12:04:28.853Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기/줄서기 또는 혼잡도에 관한 특별한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼술, 데이트, 모임 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "마라전골",
+      "가지튀김",
+      "유린기",
+      "보리새우 백짬뽕탕"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00~23:00 (라스트오더 22:00, 매주 월요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "광안리 인근 중화요리 포차로 데이트 및 모임 장소로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 민락동에 위치한 중화요리 포차(중식주점)로, 마라전골, 가지튀김, 유린기 등의 시그니처 요리와 붉은 톤의 감성적인 분위기/인테리어가 특징임. 전용 주차장은 없으며 인근 유료주차장 이용 권장.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "마라전골, 유린기 등 중식 안주류",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락로34번길 59-1 1층 푸안. 중식주점 (중화요리 포차). 중국풍 레드톤과 은은한 조명을 활용하여 아늑하고 감성적인 분위기를 갖추고 있으며, 바 테이블, 1인용 닷지 테이블, 룸 및 단체석 등이 마련되어 있어 혼술부터 모임, 데이트까지 적합합니다. 대표 메뉴: 마라전골, 가지튀김, 유린기, 칠리새우, 보리새우 백짬뽕탕. 매주 월요일 정기 휴무.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://catchtable.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "중국풍 레드톤의 감성적인 분위기와 마라전골, 유린기 등 특색 있는 중식 안주 요리를 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

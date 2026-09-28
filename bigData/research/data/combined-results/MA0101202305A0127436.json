@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202305A0127436",
+  "name": "발레Vale",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 75491,
+  "researchedAt": "2026-09-22T10:29:43.875Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트 및 모임 고객, 스페인 요리 애호가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "랑고스티노 & 초리소 피칸테 파에야",
+      "치킨 & 초리소 블랑코 파에야",
+      "감바스 알 아히요",
+      "양갈비 아사도",
+      "소 뽈살 까리예라"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 확인 불가"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 대 관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 우동1로38번가길 20, 2층에 위치한 스페인 요리 전문점 '발레(!vale!)'로, 사업자 등록 상 경양식으로 등재되어 있으나 파에야·타파스 등을 직접 만드는 스페인 레스토랑임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 우동1로38번가길 20, 2층 (해리단길 위치). 스페인 레스토랑을 테마로 한 공간으로, 빨간색 포인트 인테리어와 이국적인 분위기가 특징입니다. 양갈비 아사도, 치킨&초리소 블랑코 파에야, 감바스 알 아히요, 바스크 치즈케이크 등 다양한 스페인 요리를 제공합니다. 10년 이상 스페인 요리를 연구한 사장님이 운영하는 곳으로, 소스부터 소시지, 빵까지 직접 만드는 스페인 현지 스타일의 요리를 제공합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "10년 이상 연구한 셰프가 소스·소시지·빵까지 직접 만드는 정통 스페인 현지 요리의 맛과 붉은 톤의 감성적인 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

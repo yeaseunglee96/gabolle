@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202305A0172565",
+  "name": "오즈;Oddz",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49582,
+  "researchedAt": "2026-09-22T11:36:48.965Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산 해운대구 달맞이길117번나길 75) 및 상호명 '오즈;Oddz'(경양식)로 웹 검색을 진행했으나, 해당 위치는 브런치 카페 '스프링힐(Spring Hill)' 등이 확인되며 경양식 식당 '오즈;Oddz'에 대한 운영 정보, 메뉴, 방문 후기 등의 실재 데이터를 확인할 수 없어 found:false로 처리했습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

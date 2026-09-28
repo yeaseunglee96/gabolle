@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220811443338",
+  "name": "서울반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 49964,
+  "researchedAt": "2026-09-22T11:50:31.192Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "야식·동네 주민·배달 이용객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면",
+      "짬뽕",
+      "해물매운짬뽕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 06:00 (새벽 영업 / 24시간 영업으로도 알려짐)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근 주민과 야식·퇴근길 배달로 주로 이용되는 동네 중국집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광안로 59 (민락동 184-14)에 위치한 중식당으로, 늦은 새벽까지 영업하여 야식 및 배달 중심의 동네 중식당으로 알려져 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 광안로 59 (민락동 184-14), 전화번호: 051-755-3881, 영업시간: 매일 10:00 ~ 06:00 (새벽 영업). 어릴 적 먹던 추억의 맛을 느낄 수 있는 중식당으로 알려져 있으며, 짜장면, 짬뽕 등 기본적인 중식 메뉴를 제공하며, 특히 해물매운짬뽕 등이 언급된 바 있습니다. 새벽까지 영업하여 야식이나 배달로도 많이 이용되는 곳입니다.",
+      "url": "https://koobig.com"
+    },
+    {
+      "excerpt": "새벽까지 영업하는 중국집으로 알려져 있으며 과거에는 24시간 영업하는 곳으로도 유명했습니다. 화려한 정통 중식당이라기보다는, 어릴 적 먹던 옛날 짜장면과 짬뽕 맛을 느낄 수 있는 정감 가는 동네 중국집이라는 평이 많습니다. 블로그 및 커뮤니티 후기에서는 야식이나 퇴근길에 방문했던 경험, 가성비 좋은 세트 메뉴 등에 대한 언급을 찾아보실 수 있습니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://koobig.com",
+    "https://siksinhot.com",
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "새벽 늦게까지 영업하여 야식이나 늦은 퇴근길 식사·배달로 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "어릴 적 먹던 옛날 스타일의 짜장면과 짬뽕 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

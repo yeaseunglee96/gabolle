@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220811407237",
+  "name": "서씨횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 79783,
+  "researchedAt": "2026-09-22T10:37:05.679Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "가게(상호 및 주소, 전화번호)의 사업자 및 상가 입점 존재는 공공/디렉터리 데이터(바다온, 식신 등)를 통해 확인되나, 방문 블로그 후기나 상세 메뉴판/가격/영업시간/혼잡도 등의 텍스트 정보가 웹상에 부재합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 278 (민락동) 서씨횟집 전화번호 051-753-9388",
+      "url": "https://www.badaon.or.kr"
+    }
+  ],
+  "sources": [
+    "https://www.badaon.or.kr",
+    "https://www.siksinhot.com/P/297298"
+  ],
+  "whyPeopleGo": []
+}

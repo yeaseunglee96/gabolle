@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220806387788",
+  "name": "켁터스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 102398,
+  "researchedAt": "2026-09-22T11:59:46.414Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "대학생, 1인 식사진",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "부리또",
+      "부리또 볼",
+      "타코",
+      "퀘사디아"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 남구 용소로8번길 39 한국빌딩 1층에 위치한 '켁터스(켁터스 멕시칸 그릴)'는 부리또, 부리또 볼, 타코, 퀘사디아 등을 판매하는 미국식 멕시칸 패스트푸드 음식점입니다. 서브웨이처럼 재료 조합을 선택할 수 있으며 혼밥하기 좋은 곳으로 알려져 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "켁터스 멕시칸 그릴 (Cactus Mexican Grill) 주소: 부산광역시 남구 용소로8번길 39 한국빌딩 1층 (대연동 67-20) 전화번호: 051-916-0989. 경성대·부경대역 인근에 위치하며, 부리또, 부리또 볼, 타코, 퀘사디아 등을 판매하는 미국식 멕시칸 패스트푸드점입니다. 서브웨이처럼 재료를 직접 선택하여 나만의 조합으로 주문할 수 있는 방식이 특징이며, 깔끔한 매장 분위기 덕분에 혼밥 장소로도 잘 알려져 있습니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "재료를 직접 선택하여 취향대로 즐길 수 있고 혼밥하기 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "부리또 볼과 타코 등 신선하고 담백한 미국식 멕시칸 패스트푸드의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

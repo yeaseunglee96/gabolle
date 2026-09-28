@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202303A0090055",
+  "name": "아따아따",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 61495,
+  "researchedAt": "2026-09-22T10:31:50.586Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 웨이팅 혼잡에 대한 명확한 언급 미확인"
+  },
+  "descriptors": {
+    "audience": "혼밥 및 연인, 친구 단위 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "다이너마이트 텐도지동",
+      "아부리사케동",
+      "마구로히라메 쯔께동"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30~21:00 (브레이크 타임 16:30~17:00, 일부 11:00 오픈 안내)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 대 관광객 비중에 대한 구체적 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "광안리 유명 숙성회 맛집 '첨벙'의 두 번째 브랜드로 오픈한 일본식 덮밥/돈부리 전문점. 돼지카츠, 치킨카츠, 새우튀김 등이 푸짐하게 올라가는 다이너마이트 텐도지동이 시그니처 메뉴임. 전용 주차장은 없음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "아따아따는 부산광역시 수영구 민락동에 위치한 일본식 덮밥 전문점입니다. 광안리 지역의 유명 모둠사시미 맛집인 '첨벙'의 두 번째 브랜드로 알려져 있습니다. 주요 메뉴로는 돼지카츠, 치킨카츠, 새우튀김 등이 올라가는 시그니처 메뉴인 '다이너마이트 텐도지동'과 '아부리사케동', '마구로히라메 쯔께동' 등이 있습니다. 가게 내부는 1인 혼밥을 위한 바 테이블과 4인용 테이블이 마련되어 있습니다. 영업 시간: 매일 11:30~21:00 (브레이크 타임 16:30~17:00). 별도의 전용 주차장은 없으며, 인근 공영 또는 민영 주차장을 이용해야 합니다.",
+      "url": "https://kr.trip.com/travel-guide/foods/busan-120092-restaurant/attaatta-144368142/"
+    },
+    {
+      "excerpt": "위치: 부산광역시 수영구 민락로33번길 16 (광안역 1번 출구에서 도보 약 10분). 영업시간: 매일 11:00 ~ 21:00 (브레이크 타임 16:30 ~ 17:00). 주차: 별도의 주차 공간 없음 (근처 공영 또는 민영 주차장 이용 필요). 특징: 카페 같은 감성적인 외관과 포토존이 마련되어 있는 것이 특징입니다.",
+      "url": "https://m.blog.naver.com"
+    }
+  ],
+  "sources": [
+    "https://kr.trip.com/travel-guide/foods/busan-120092-restaurant/attaatta-144368142/",
+    "https://m.blog.naver.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 유명 사시미 맛집 '첨벙'의 2호점 브랜드이자 돼지카츠, 치킨카츠, 새우튀김이 푸짐하게 올라가는 시그니처 덮밥 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

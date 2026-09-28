@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202505A0009969",
+  "name": "테하노텍스멕스바베큐",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 54787,
+  "researchedAt": "2026-09-22T12:19:40.786Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 상호 및 주소지에서 일치하는 식당 정보를 찾을 수 없습니다.",
+  "notes": "부산광역시 수영구 광안해변로 177 및 광안리 일대에서 '테하노텍스멕스바베큐' 또는 '테하노' 관련 식당 정보 및 웹 기록이 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

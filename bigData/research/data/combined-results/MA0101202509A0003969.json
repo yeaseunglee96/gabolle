@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202509A0003969",
+  "name": "산",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 70731,
+  "researchedAt": "2026-09-22T10:31:21.059Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "카운터석 중심의 작은 공간으로 인기가 많아 캐치테이블 등을 통해 사전 예약 후 방문하는 것을 권장함"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 애주가",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "사시미",
+      "안키모 브륄레",
+      "이소베마키",
+      "치킨 난반",
+      "닭완자오차즈케"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:30 ~ 01:00 (금·토요일 02:00까지 운영, 매월 둘째·넷째 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근 현지인 및 여행객들의 인기 핫플레이스 다이닝 바로 예약 방문이 많은 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "부산 민락동 골목에 위치한 일식 소요리바/재패니즈 다이닝 바 '산(SAAN)'. 제철 회 및 일식 창작 요리와 다양한 주류를 제공하는 인기 이자카야입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락로6번길 17 1층. 일식 기반의 '소요리바' 혹은 '이자카야' 성격의 공간으로, 제철 식재료를 활용한 작은 요리와 메인 요리를 사케, 와인, 칵테일 등 다양한 주류와 함께 즐길 수 있는 다이닝 바입니다. 안키모 브레이레, 사시미, 오뎅, 치킨 난반, 라즈 크랩, 이소베마키, 시즌 연잎생선찜 등이 있으며 카운터석 중심의 작은 공간으로 인기가 많아 캐치테이블 등을 통해 사전 예약 후 방문하는 것을 추천합니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "바다와 산이 만나는 부산의 정체성을 담아낸 공간으로, 세로와 코듀로이 펠라즈의 운영진이 협업하여 오픈했습니다. 일식에 서양식 조리 기법을 결합한 수준 높은 창작 요리와 다양한 주류(사케, 와인, 칵테일 등)를 즐길 수 있는 다이닝 바 형태입니다. 영업시간은 17:30 ~ 01:00, 둘째·넷째 화요일 휴무.",
+      "url": "https://catchtable.net"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://catchtable.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일식에 서양식 기법을 가미한 수준 높은 제철 창작 요리와 소요리를 맛보기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "사케, 와인, 칵테일 등 다양한 주류와 함께 즐길 수 있는 감각적인 다이닝 바 분위기를 즐기기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

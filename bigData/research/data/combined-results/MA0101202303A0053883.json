@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202303A0053883",
+  "name": "유상조",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 70151,
+  "researchedAt": "2026-09-22T11:44:03.020Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 없음",
+  "notes": "부산광역시 수영구 광남로172번길 33-1 및 부산 지역에서 '유상조'라는 상호명의 식당(백반/한정식)에 대한 정보가 웹 검색 결과 일체 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

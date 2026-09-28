@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810524310",
+  "name": "뚱스",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 70235,
+  "researchedAt": "2026-09-22T06:44:57.138Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "지역 주민/동네 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "대패삼겹살",
+      "목살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 주민들이 찾는 동네 맛집/가성비 삼겹살집으로 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 사하구 신평동(다대로144번길 2)에 위치한 한식 돼지고기 구이 전문점으로, 대패삼겹살과 목살 등의 고기 구이 및 기본 찬/계란찜 서비스가 제공되는 가성비 중심의 동네 식당입니다. 구체적인 상세 메뉴판 전체 및 영업시간, 주차 여부는 웹 상에 상세히 공개되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대패삼겹살, 목살 등의 돼지고기 구이를 주로 취급하며, 밑반찬이 다양하게 제공되고 계란찜이 서비스로 나오는 등 동네 맛집으로 알려져 있습니다. 연탄불을 사용하여 화력이 강한 것이 특징입니다. 신평시장 인근에 위치해 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "저렴한 가격에 대패삼겹살 등 돼지고기 구이와 다양한 밑반찬을 즐길 수 있는 동네 가성비 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "신평시장 인근에서 지역 주민들이 편하게 찾는 동네 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

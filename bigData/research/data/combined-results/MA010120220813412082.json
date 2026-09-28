@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220813412082",
+  "name": "착한횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 69230,
+  "researchedAt": "2026-09-22T11:53:19.096Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "단체, 관광객, 가족 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "조개구이",
+      "장어구이",
+      "생선회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "청사포 조개구이 거리 끝자락 및 다릿돌 전망대 인근 바다 앞에 위치해 탁 트인 오션뷰를 갖추고 있으며, 넓은 자체 주차장과 승합차 픽업 서비스 등을 갖춘 횟집/구이 전문점.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "청사포 다릿돌 전망대 입구 근처에 위치하며, 바다 조망을 즐길 수 있는 식당입니다. 건물 규모가 크며 1층은 식사 공간, 2층은 룸, 3층은 노래방 시설을 갖추고 있습니다. 조개구이 및 장어구이: 가격대가 합리적인 것으로 알려져 있습니다. 생선회: 1인분 단위로 주문이 가능하며, 회 주문 시 각종 서비스 요리와 매운탕이 함께 제공됩니다. 넓은 자체 주차장을 보유하고 있으며, 해운대 신도시까지 운행하는 자체 승합 버스도 운영하고 있어 방문이 편리합니다.",
+      "url": "https://daum.net"
+    },
+    {
+      "excerpt": "청사포 조개구이 거리의 가장 안쪽에 위치해 있으며, 바다 바로 앞에 있어 오션뷰를 즐길 수 있습니다. 조개구이와 장어구이가 유명하며, 생선회, 왕새우구이, 전복죽, 해물라면 등 다양한 해산물 요리를 제공합니다. 매장 전용 넓은 주차 공간이 완비되어 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://daum.net",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "청사포 바다 바로 앞 오션뷰와 넓은 주차 공간 및 자체 승합차 등 편의시설을 갖춤",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "조개구이와 장어구이, 1인분 주문 가능한 생선회 등 합리적 가격대의 해산물 메뉴 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

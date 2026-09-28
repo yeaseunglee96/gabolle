@@ -1,0 +1,50 @@
+{
+  "id": "MA0101202601A0045453",
+  "name": "스키야키백화",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 76343,
+  "researchedAt": "2026-09-22T11:45:20.468Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스키야키"
+    ],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": "웹상에 알바 구인 공고 외에 실제 방문기, 영업 정보, 블로그 리뷰가 전무하여 실질적 정보를 찾을 수 없음",
+  "notes": "부산 수영구 감포로 76 주소지의 '스키야키 백화'는 채용 공고 외에 실제 손님 방문 후기나 영업시간, 가격, 메뉴판 등의 상세 정보가 웹상에 등록되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업소명: 스키야키 백화 (또는 '백화'), 위치: 부산광역시 수영구 감포로 76, 1층. 해당 주소지는 최근 채용 공고 등을 통해 '스키야키 백화'라는 상호로 알려져 있으며, 이전에 '징기스 수영점' 등 다른 업소가 위치했던 장소로도 확인됩니다.",
+      "url": "https://www.alba.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.alba.co.kr"
+  ],
+  "whyPeopleGo": []
+}

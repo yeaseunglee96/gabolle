@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202310A0014872",
+  "name": "고래당",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 62019,
+  "researchedAt": "2026-09-22T06:51:25.834Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 관련 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "연인·디저트 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "카스테라",
+      "우유 카스테라",
+      "쑥 카스테라"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 확인 불가 (현재 폐업)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 대 관광객 구분 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 광안로41번길 12에 위치했던 베이커리 카페로 주택 개조 공간 및 우유/쑥 카스테라 디저트 전문점으로 운영되었으나 현재는 폐업 상태로 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "카스테라",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 주택을 개조한 카페로, 귀여운 고래 모양 간판과 부드러운 식감의 카스테라(우유 카스테라, 쑥 카스테라 등)로 유명했던 곳입니다. 위치: 부산광역시 수영구 광안로41번길 12 (광안동)에 위치했었습니다. 확인 결과, 해당 주소지의 '고래당'은 현재 폐업 상태인 것으로 나타납니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 수영구 광안로41번길 12, 1층. 특징: 부드러운 카스테라가 유명한 베이커리 맛집으로 알려져 있습니다.",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://heyyumi.ai",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부드러운 식감의 수제 카스테라(우유/쑥 카스테라) 등 디저트의 맛과 특색",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

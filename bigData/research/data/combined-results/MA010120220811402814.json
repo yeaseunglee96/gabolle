@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220811402814",
+  "name": "피네",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 55235,
+  "researchedAt": "2026-09-22T07:08:15.599Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 상호 등록 기록만 존재하며, 실제 영업 여부 확인 불가 및 블로그·리뷰 등 세부 정보 부재",
+  "notes": "부산 해운대구 중동1로17번길 10-17(대주자유아파트) 소재의 '피네'(경양식)는 건축물/상가 대장 및 사업자 등록 기록상으로만 확인되며, 실제 방문 후기, 메뉴, 영업시간, 사진, 방문 이유 등의 실체 정보가 웹상에 전혀 존재하지 않아 세부 조사가 불가합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.disco.re",
+    "https://www.zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

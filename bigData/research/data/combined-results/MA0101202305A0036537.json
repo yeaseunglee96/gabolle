@@ -1,0 +1,81 @@
+{
+  "id": "MA0101202305A0036537",
+  "name": "풍천만",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 40963,
+  "researchedAt": "2026-09-22T11:35:58.253Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "넓은 매장과 룸 시설을 갖추고 있으며 원활한 이용을 위해 네이버 예약 등을 권장함"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 회식",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "풍천만 민물장어",
+      "강화도 갯벌장어",
+      "뚝배기 장어탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:30 (평일 브레이크 타임 15:00~17:00, 라스트오더 21:30, 주말 브레이크 타임 없음)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대 달맞이길 22에 위치한 '풍천만민물장어 해운대본점'으로, HACCP 인증 100% 국내산 토종 자포니카 민물장어 및 강화도 갯벌장어 전문점입니다. 매장 내 스마트팜 유기농 채소와 직원이 직접 구워주는 그릴링 서비스를 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "풍천장어숯불구이 2인 정식",
+    "priceWon": 59000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "풍천만민물장어 해운대본점은 부산광역시 해운대구 달맞이길 22(중동)에 위치하며, HACCP 인증을 받은 100% 국내산 토종 자포니카 민물장어와 강화도 갯벌장어를 취급합니다. 매장 내 스마트팜을 설치하여 신선한 유기농 야채를 직접 재배해 제공하며, 직원이 테이블에서 직접 구워주는 서비스를 제공합니다. 전용 주차장(약 40대 수용 가능) 및 단체룸 구비.",
+      "url": "https://tripinfo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tripinfo.co.kr",
+    "https://visitkorea.or.kr",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "HACCP 인증 국내산 토종 자포니카 민물장어와 강화도 갯벌장어 등 신선하고 뛰어난 장어 구이 품질",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원이 테이블에서 직접 장어를 구워주는 그릴링 서비스와 매장 내 스마트팜 유기농 채소 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "약 40대 수용 가능한 전용 주차장과 쾌적하고 넓은 단체석 및 프라이빗 룸 구비",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

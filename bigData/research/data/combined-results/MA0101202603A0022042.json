@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202603A0022042",
+  "name": "김모찌",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 53608,
+  "researchedAt": "2026-09-22T11:50:03.994Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "SNS 등에서 광안리 핫플로 알려져 오픈런이나 대기 줄이 생기기도 함"
+  },
+  "descriptors": {
+    "audience": "연인, 젊은층, 디저트/과일모찌 매니아",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "대왕망고모찌",
+      "통메론모찌",
+      "통팥모찌"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 20:00 (화요일 정기휴무 안내 있으나 변동 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 여행객 및 SNS를 보고 찾아오는 관광객·방문객 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 광안리에 위치한 수제 대왕 생과일모찌 전문점으로, 얇은 찹쌀떡 안에 생과일과 크림을 듬뿍 넣어 주문 즉시 만들어주는 디저트로 인기를 끌고 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "대왕망고모찌",
+    "priceWon": 9400
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로 166(민락동, 광안리슈빌DS 1층 103호)에 위치한 김모찌에 대한 정보입니다. 신선한 생과일과 크림이 가득 들어간 '대왕과일모찌'로 유명한 디저트 맛집입니다. 망고, 멜론 등 다양한 과일을 활용한 모찌 메뉴가 인기가 많으며, 주문 즉시 만드는 과정을 볼 수 있는 것이 특징입니다. 전용 주차장이 없으므로 인근 공영 또는 민영 주차장을 이용해야 합니다. SNS 등에서 광안리 핫플레이스로 알려져 있으며, 시간대에 따라 줄을 서서 대기하는 경우가 많으니 방문 시 참고하시기 바랍니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "영업시간: 12:00 ~ 20:00. 대왕망고모찌: 9,400원, 통팥모찌: 5,000원. 그 외 통메론모찌, 왕크림모찌 등 다양한 과일모찌 라인업이 있습니다. 얇고 쫀득한 찹쌀떡 안에 과일이 통째로 들어가 과즙이 풍부하며, SNS에서 인기가 높아 오픈런이 발생하기도 하는 핫플입니다.",
+      "url": "https://popga.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://popga.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 대왕 생과일과 부드러운 크림이 가득 들어간 풍부한 맛과 식감",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "SNS와 유튜브에서 대왕과일모찌 핫플레이스로 화제가 되어 방문 수요 집중",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

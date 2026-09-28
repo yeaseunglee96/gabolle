@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202508A0019880",
+  "name": "란콰이펑누들광안리점",
+  "cat": "분류 안된 외국식 음식점",
+  "attempts": 1,
+  "geminiTokens": 77586,
+  "researchedAt": "2026-09-22T06:59:45.541Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 줄서기 관련 직접적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인, 광안리 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "홍콩식 우육탕면",
+      "토마토탕면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "웹 검색상 구체적인 영업시간 미표기"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 점심 맛집 및 인근 방문객이 찾는 홍콩식 면 요리점으로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 남천동에 위치한 홍콩식 우육탕면 전문 프랜차이즈 지점. 신메뉴 토마토탕면 및 우육탕면이 대표 메뉴임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "란콰이펑누들 광안리점은 부산광역시 수영구 남천동에 위치한 홍콩식 우육탕면 전문점입니다. 주소: 부산광역시 수영구 남천동로108번길 31 (남천동). 주요 메뉴: 홍콩식 우육탕면, 토마토탕면 등.",
+      "url": "https://albamon.com"
+    },
+    {
+      "excerpt": "토마토탕면: 최근 출시된 신메뉴로, 홍콩 스타일의 국물 맛과 중독성 있는 풍미가 특징입니다. 분위기: 홍콩 스타일의 이국적인 분위기를 갖추고 있으며, 특히 연말이나 겨울철 따뜻한 분위기로 방문객들에게 좋은 평을 받고 있습니다. 인기: 광안리 점심 맛집으로 언급되며, 리뷰 대비 높은 만족도와 검색 순위를 기록하고 있는 것으로 확인됩니다.",
+      "url": "https://facebook.com"
+    }
+  ],
+  "sources": [
+    "https://albamon.com",
+    "https://bizno.net",
+    "https://facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "홍콩 현지 스타일의 이국적인 국물 풍미와 토마토탕면·우육탕면 등 특색 있는 홍콩 면 요리의 맛",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 및 남천동 인근에서 점심 식사로 가볍게 방문하기 좋은 접근성",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

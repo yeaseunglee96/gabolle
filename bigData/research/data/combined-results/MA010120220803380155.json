@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220803380155",
+  "name": "미미르",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 67219,
+  "researchedAt": "2026-09-22T11:48:09.141Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 해운대구 좌동순환로8번길 60)에 위치한 '미미르'는 경양식 음식점이 아닌 법인 기업((주)미미르)으로 확인되며, 경양식 식당 '미미르'는 웹상에 존재하지 않습니다.",
+  "notes": "해당 주소지에는 카페 및 법인 기업((주)미미르)만 확인되며, 경양식 음식점 '미미르'는 확인되지 않아 found: false 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://sankun.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

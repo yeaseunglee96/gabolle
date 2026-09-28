@@ -1,0 +1,81 @@
+{
+  "id": "MA0106202201A2132289",
+  "name": "엘까르니따스광안리점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 90928,
+  "researchedAt": "2026-09-22T10:39:43.171Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 맛집으로 대기가 발생할 수 있어 테이블링 등 사전 확인 권장"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 여행객",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "광안따꼬",
+      "까르니따스 따꼬",
+      "파히타 치킨 퀘사디아",
+      "파히타 플래터"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 23:00 (라스트오더: 일~수 21:00, 목~토 22:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 및 광안대교 뷰를 찾는 여행객·관광객의 선호 및 추천이 두드러짐"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안로62번길 39(부산광안대우아이빌 1층)에 위치한 멕시칸 음식 전문점 엘까르니따스 광안리점 조사 완료.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "까르니따스 따꼬 9,900원 / 광안따꼬 16,900원 / 파히타 플래터 39,900원",
+    "priceWon": 9900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "운영 시간: 오전 11:30 ~ 오후 23:00, 라스트오더 일·월·화·수: 21:00, 목·금·토: 22:00. 광안대교가 보이는 뷰가 큰 장점으로 꼽히며, 특히 테라스 좌석이나 창가에서 바다를 보며 맥주를 즐기기에 좋다는 평이 많습니다. 인기 맛집이라 대기가 발생할 수 있으므로 상황에 따라 테이블링 등을 확인하는 것이 좋습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "광안리 타코 맛집으로 잘 알려져 있으며, 특히 퀘사디아에 대한 만족도가 높고 셀프바에서 소스를 자유롭게 이용할 수 있다는 점이 장점으로 꼽힙니다. 분위기가 좋아 멕시코 음식과 함께 데낄라 등을 즐기기 좋으며, 광안리 해변과 가까워 여행객에게 추천하는 곳입니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://polle.com",
+    "https://suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교와 오션뷰를 감상하며 멕시코 음식을 즐길 수 있는 이국적인 분위기와 접근성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "광안따꼬, 치즈가 풍부한 퀘사디아, 파히타 등 정통 멕시칸 타코 메뉴의 우수한 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

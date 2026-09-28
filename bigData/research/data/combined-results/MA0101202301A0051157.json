@@ -1,0 +1,84 @@
+{
+  "id": "MA0101202301A0051157",
+  "name": "모어샌드위치",
+  "cat": "토스트/샌드위치/샐러드",
+  "attempts": 1,
+  "geminiTokens": 57304,
+  "researchedAt": "2026-09-22T06:58:16.407Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "2인 테이블 3개가 마련된 아담한 매장으로 주로 포장·배달·단체 주문 수요 위주"
+  },
+  "descriptors": {
+    "audience": "혼밥/직장인/테이크아웃",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "샌드위치 세트",
+      "수비드 닭가슴살 샐러드",
+      "모어 디톡스 주스"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "~ 18:30 (오후 6시 30분 영업 종료)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 남천동·광안리 주민 및 직장인의 포장/배달/식사 수요 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 14,
+    "found": true
+  },
+  "notes": "부산 수영구 광남로 61-1에 위치한 샌드위치/샐러드 전문점(모어샌드위치 광안남천점). 샐러드, 보울, 샌드위치, 클렌즈 주스 등을 판매하며 소규모 홀(2인 테이블 3개)과 포장/배달 중심으로 운영됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "그린샐러드 7,900원 / 샌드위치 세트 9,000원 / 수비드 닭가슴살 샐러드 8,900원",
+    "priceWon": 7900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로 61-1 1층 (남천동 32-29). 포장, 배달, 예약 및 단체 주문 가능. 2인 테이블 3개가 마련된 아담하고 깔끔한 매장. 오후 6시 30분에 영업이 종료. 메뉴: 샌드위치 + 커피 or 음료 (9,000원), 그린샐러드(7,900원), 수비드 닭가슴살 샐러드(8,900원), 구운 쉬림프 샐러드(9,500원), 단호박 오리훈제 샐러드(9,900원), 우삼겹 그릴 샐러드(10,500원), 모어 디톡스 주스(5,500원), ABC클렌즈 주스(4,900원)",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "모어샌드위치 광안남천점: 부산광역시 수영구 광남로 61-1 1층. 포장/배달 가능.",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 수비드 닭가슴살·쉬림프 등 다양한 샐러드와 샌드위치, 클렌즈 주스를 깔끔하게 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "샌드위치와 음료 세트 구성 및 7,000~10,000원대 든든한 샐러드 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "포장, 배달 및 단체 주문 예약이 편리하며 간편식 수요에 최적화",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

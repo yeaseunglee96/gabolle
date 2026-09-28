@@ -1,0 +1,54 @@
+{
+  "id": "MA0101202512A0030767",
+  "name": "니무스",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 68383,
+  "researchedAt": "2026-09-22T11:56:05.591Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반 베이커리 이용객 및 일본풍 디저트 선호층",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "광안동/광안역 인근에 위치한 신규 일본식 베이커리 '니무스(Nimus)'로 언급되나, 블로그 상세 리뷰나 메뉴판, 가격표, 상세 영업정보는 웹상에서 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안동에 위치한 '니무스(Nimus)'는 최근 광안역 및 광안리 입구 근처에 새롭게 오픈한 일본식 베이커리입니다. 매장에 들어서자마자 일본 여행을 온 듯한 분위기를 느낄 수 있는 공간으로 알려져 있습니다.",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일본 여행을 온 듯한 분위기와 특색 있는 일본식 빵/디저트 매장 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

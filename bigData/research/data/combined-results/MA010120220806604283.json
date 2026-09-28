@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220806604283",
+  "name": "아넬로",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49498,
+  "researchedAt": "2026-09-22T11:45:02.825Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 모임, 가족",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "프렌치랙",
+      "양갈비"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 마린시티3로 51(더샵해운대아델리스 상가)에 위치했던 이탈리안 & 어린 양고기(프렌치랙 등) 전문 레스토랑으로 확인되었습니다. 현재는 영업 상태 변동/폐업 가능성이 높으며 블로그 원문 상세 내용이 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이탈리아어로 '양고기'를 뜻하는 'Agnello'에서 이름을 따왔으며, 어린 양의 고급 부위인 프렌치랙 등을 판매하는 식당으로 알려져 있었습니다.",
+      "url": "https://www.posco.com"
+    }
+  ],
+  "sources": [
+    "https://www.posco.com",
+    "https://www.jobkorea.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "어린 양고기 프렌치랙 등 고급 양고기 요리와 마린시티 해변가 뷰를 즐길 수 있는 이탈리안 레스토랑",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": "MA0101202501A0058586",
+  "name": "싱싱뽈락회",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 46411,
+  "researchedAt": "2026-09-22T12:08:47.574Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "유명 맛집으로 알려져 있어 주말이나 성수기 저녁 피크 타임에는 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 모임, 관광객, 회식",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "뽈락 세꼬시",
+      "뽈락구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 23:00 (또는 22:30), 연중무휴"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해수욕장 인근으로 관광객뿐만 아니라 신선한 자연산 뽈락 세꼬시를 찾는 현지인·가족 외식 손님도 많이 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 해운대해변로209번나길 64에 위치한 '싱싱뽈락회 해운대본점'으로, 자연산 뽈락 세꼬시와 특제 된장소스(초밥밥, 다시마 쌈 등) 조합으로 유명한 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "뽈락세꼬시 (2인) 110,000원 / 뽈락구이 소(4마리) 60,000원",
+    "priceWon": 110000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "자연산 뽈락 세꼬시 전문점으로, 뽈락을 뼈째 썰어낸 세꼬시가 대표 메뉴입니다. 2층 규모의 깔끔한 매장으로 운영되며, 뽈락회와 함께 나오는 특제 된장소스와 곁들임 반찬(초밥용 밥, 다시마, 백김치 등)을 함께 싸 먹는 방식이 별미로 알려져 있습니다.",
+      "url": "https://tripinfo.co.kr"
+    },
+    {
+      "excerpt": "뽈락세꼬시 2인 110,000원 / 3인 140,000원 / 4인 170,000원, 뽈락구이 소 60,000원. 가격대는 다소 높지만, 평소 맛보기 힘든 뽈락회를 신선하게 즐길 수 있는 곳",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "가게 앞에 주차 가능한 공간이 마련되어 있습니다. 유명 맛집으로 알려져 있어 저녁 피크 타임에는 웨이팅이 발생할 수 있으니, 가급적 이른 시간이나 피크 타임을 피해서 방문하시는 것을 추천합니다.",
+      "url": "https://blog.naver.com"
+    }
+  ],
+  "sources": [
+    "https://tripinfo.co.kr",
+    "https://polle.com",
+    "https://blog.naver.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고소하고 쫄깃하게 뼈째 썬 자연산 뽈락 세꼬시와 특제 된장양념 및 쌈 조합의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "신선한 뽈락 세꼬시와 구이를 맛볼 수 있어 피크 시간대 웨이팅이 생길 정도로 인기가 많음",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

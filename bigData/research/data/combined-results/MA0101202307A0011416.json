@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202307A0011416",
+  "name": "광안리엔미포집",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 70214,
+  "researchedAt": "2026-09-22T12:07:21.299Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "광안대교 오션뷰 창가석과 인기 메뉴로 인해 웨이팅이 자주 발생하여 네이버 예약 방문을 권장함"
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 여행객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "미녀 해물장 정식",
+      "전복 솥밥",
+      "문어 솥밥",
+      "갈비 솥밥"
+    ],
+    "yearsClaimed": 40
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (브레이크타임: 평일 15:00~17:00 / 주말 15:30~16:30, 라스트오더 21:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 뷰와 특색 있는 해물장 구성으로 부산 여행객 및 관광객 방문 비율이 매우 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "상호는 정식 상호 및 등록명에 따라 '미포집 광안리직영점'으로 주로 표기되며, 광안해변로 153-1 2층에 위치함. 대표 메뉴는 40년 비법 간장을 내세운 미녀 해물장 정식 및 해물/고기 솥밥류임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "미녀 해물장 정식(1인)",
+    "priceWon": 35000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매장에서 광안리 해수욕장과 광안대교를 조망할 수 있는 오션뷰 맛집입니다. 네이버 예약이 가능하며, 인기 있는 매장으로 방문 시 예약을 권장합니다. 주차는 근처 지웰 오피스텔 주차장 이용 시 1시간 지원을 받을 수 있습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "미녀 해물장 정식: 암게, 숫꽃게, 전복, 문어, 새우, 연어, 골뱅이장, 가리비장 등 다양한 해산물이 40년 비법 간장에 숙성되어 제공됩니다. 솥밥과 12종 찬, 미역국이 포함된 구성입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해수욕장과 광안대교를 한눈에 내려다보는 오션뷰 전망",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "40년 비법 간장으로 숙성한 암꽃게, 전복, 문어 등 다양한 해물장과 솥밥의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

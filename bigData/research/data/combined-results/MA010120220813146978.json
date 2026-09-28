@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220813146978",
+  "name": "부산막창",
+  "cat": "곱창 전골/구이",
+  "attempts": 1,
+  "geminiTokens": 55998,
+  "researchedAt": "2026-09-22T06:51:38.682Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "대기나 혼잡에 대한 명시적 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "관광객 및 현지인",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우곱창모둠구이 무한리필",
+      "소막창구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 24:00 (라스트오더 23:00, 매주 수요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 인근 주민 및 여행객 방문 언급 확인"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "KBS 2TV 생생정보 가격파괴 Why(2024.04.09 방영)에 한우특수부위/모둠구이 무한리필 맛집으로 소개됨. 중동1로19번길 31-1 위치.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "한우특수부위 모둠구이 무한리필 1인",
+    "priceWon": 22900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "KBS 2TV 생생정보 '가격파괴 Why' - 한우곱창모둠구이 무한리필 맛집. 상호: 부산막창, 주소: 부산광역시 해운대구 중동1로19번길 31-1, 영업시간: 17:00 ~ 24:00 (라스트오더 23:00, 매주 수요일 휴무), 1인 22,900원 한우 특수부위(곱창, 막창, 대창, 염통 등) 무한리필",
+      "url": "https://www.kbs.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.kbs.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한우 곱창, 막창, 대창, 염통 모둠구이를 1인 2만 원대 초반의 파격적인 가격에 무한리필로 제공함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220811432307",
+  "name": "수목식육식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 45093,
+  "researchedAt": "2026-09-22T10:46:31.652Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안해변로 314, 1층 108~110호(민락동, 진로비치상가)에 '수목식육식당'으로 인허가 및 사업자 등록 이력이 확인되나, 현재는 일반 블로그 리뷰나 메뉴/가격/영업시간 등 상세 이용 정보를 찾아볼 수 없으며 폐업 또는 상호 변경(현재 해당 위치에 '광복집' 등 타 음식점 입점)된 것으로 추정됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "수목식육식당 부산광역시 수영구 광안해변로 314, 1층 108~110호 (민락동, 진로비치상가) 051-759-3290",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

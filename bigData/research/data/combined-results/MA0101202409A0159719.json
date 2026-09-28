@@ -1,0 +1,77 @@
+{
+  "id": "MA0101202409A0159719",
+  "name": "카페왈츠",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 135153,
+  "researchedAt": "2026-09-22T10:31:56.107Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "평일 늦은 오후에도 손님이 많고, 테이블 수가 많지 않아 주말 핫플 시간대에는 웨이팅이 발생함"
+  },
+  "descriptors": {
+    "audience": "연인·친구·디저트/브런치 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "팬케이크",
+      "아이스아메리카노",
+      "시나노골드사과에이드"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 13:00-20:00 (라스트오더 19:00), 주말 11:00-19:00 (라스트오더 18:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리에 놀러왔을 때 방문하기 좋은 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "팬케이크가 유명한 모던한 분위기의 광안리 디저트/브런치 카페로 샌드위치, 파스타도 함께 판매함.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/b1Frry/btsOk6SLEXd/AAAAAAAAAAAAAAAAAAAAAP_f6IQjhQFGGY-lbiGqlT3y8rj5XixqqX6gLkbmLQO6/img.jpg",
+    "https://blog.kakaocdn.net/dna/dl2bo3/btsOnuxligh/AAAAAAAAAAAAAAAAAAAAAAM_6k1Ea-LNLp7mfKilYsQvgc8IwElQAYlwZd0fCrDZ/img.jpg",
+    "https://blog.kakaocdn.net/dna/dP1YTq/btsOnpW6HlS/AAAAAAAAAAAAAAAAAAAAAJAbk2i58-3rXmaGJHI_3JJXsJxbl8fcuLtG6L7guugz/img.jpg",
+    "https://blog.kakaocdn.net/dna/HPq6i/btsOnrm5hYu/AAAAAAAAAAAAAAAAAAAAANgnjvkaeDTSXnI8HDx9wtuytEamkkfXfPMIm4oQa13H/img.jpg",
+    "https://blog.kakaocdn.net/dna/cel7vS/btsOlWWbaKl/AAAAAAAAAAAAAAAAAAAAAFIatZVoFo9DTngZmJL9arIqM6RCUEcup-WAMwxEYUY-/img.jpg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "팬케이크 14,000원 / 아이스아메리카노 4,800원 / 시나노골드사과에이드 7,000원",
+    "priceWon": 14000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "여기는 팬케이크가 맛있다고 핫플로 소문난 곳! 평일 13:00-20:00 라스트오더 19:00 주말 11:00-19:00 라스트오더 18:00 외관은 블랙 화이트로 깔끔한 느낌이에요! 전용 주차장은 없기 때문에 근처 공영주차장을 이용하시면 됩니다! 평일 늦은 오후에 방문을 했는데도 손님이 많더라구요! 주말 핫플시간대에는 웨이팅도 있다고해요! 테이블 수는 그리 많진 않아서 금방 만석이 되는거 같았어요 대부분 2인석이고 4인석 테이블 하나가 있었어요 팬케이크 / 14,000 아이스아메리카노 / 4,800 시나노골드사과에이드 / 7,000 카페 분위기도 좋고 음료 디저트도 괜찮아서 광안리 놀러오셨다면 한번쯤 방문해보기 좋을거 같네요!",
+      "url": "https://hongdyu.tistory.com/137"
+    }
+  ],
+  "sources": [
+    "https://hongdyu.tistory.com/137"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "벌꿀집과 버터, 시럽이 얹어진 팬케이크 디저트 메뉴의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "모던하고 감각적인 블랙앤화이트 인테리어와 머물기 좋은 조용한 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

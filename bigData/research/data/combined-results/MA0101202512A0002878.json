@@ -1,0 +1,56 @@
+{
+  "id": "MA0101202512A0002878",
+  "name": "안광",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 55226,
+  "researchedAt": "2026-09-22T11:56:33.731Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주점 방문객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 수영구 민락로19번길 12, 3층에 위치한 음식점(한식 포차/요리 주점)으로 등록되어 있으며 구인 공고 및 예약 플랫폼 등록 사실은 확인되나, 일반 방문객 블로그 리뷰, 상세 메뉴판, 가격표, 영업시간, 대기 정보 등 구체적인 후기 정보는 웹 검색 결과에서 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락로19번길 12(민락동, 혜원) 3층 안광. 일반음식점(한식 포차) 및 다이닝 바.",
+      "url": "https://albamon.com"
+    }
+  ],
+  "sources": [
+    "https://albamon.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 인근에서 다양한 한식 안주를 제공하는 한식 요리 주점/포차",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

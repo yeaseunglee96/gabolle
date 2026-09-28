@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220804163794",
+  "name": "라즈쿠쿠",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50382,
+  "researchedAt": "2026-09-22T11:56:12.154Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 호암로14번길 3 (광안동 752-37)에 사업자/업소 등록(분식/경양식, 전화번호 051-754-0229)된 기록은 확인되나, 방문 후기나 블로그 리뷰, 상세 메뉴판, 영업시간 등 실질적인 방문 정보는 웹상에 존재하지 않거나 폐업 상태로 추정됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 라즈쿠쿠, 주소: 부산광역시 수영구 호암로14번길 3 (광안동 752-37), 업종: 분식",
+      "url": "https://infosori.com"
+    }
+  ],
+  "sources": [
+    "https://infosori.com",
+    "https://cylooks.co.kr",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": []
+}

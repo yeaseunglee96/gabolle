@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220811395105",
+  "name": "성신떡방앗간",
+  "cat": "떡/한과",
+  "attempts": 1,
+  "geminiTokens": 28294,
+  "researchedAt": "2026-09-22T09:51:14.845Z",
+  "crowding": {
+    "found": false,
+    "note": ""
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": ""
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "가게의 존재는 tteokzip.com, linktoplace.com 등 업소 디렉터리 사이트에서 확인됨. 주소(부산광역시 수영구 광안해변로277번길 25, 민락동), 전화번호(051-754-0544)는 확인. 그러나 블로그 리뷰, 가격, 영업시간, 메뉴 정보, 사진 등 실질적인 정보는 온라인상에서 전혀 확인되지 않음. 온라인 주문 시스템도 없는 것으로 안내됨. 부산 동구 수정동에 동명의 '성신떡방앗간'이 별도로 존재하므로 혼동 주의.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "성신떡방앗간 | 부산광역시 수영구 광안해변로277번길 25 (민락동) | 전화: 051-754-0544 | 온라인 주문 시스템이 준비되지 않은 곳으로 안내. 리뷰 없음.",
+      "url": "https://tteokzip.com"
+    },
+    {
+      "excerpt": "성신떡방앗간 | 주소: 부산광역시 수영구 광안해변로277번길 25 (민락동 227-63)",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://tteokzip.com",
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": []
+}

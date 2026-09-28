@@ -1,0 +1,60 @@
+{
+  "id": "MA010120220810696685",
+  "name": "신흥갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 51877,
+  "researchedAt": "2026-09-22T06:01:01.727Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "로컬 주민 및 인근 직장인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "갈비",
+      "숯불구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 사상구 새벽로167번길 35(감전동 130-1)에 등록된 신흥갈비는 숯불구이·갈비 전문 식당으로 등록되어 있으나, 블로그 방문 후기나 세부 메뉴판, 영업시간 등 상세 방문 리뷰 기록은 웹상에서 거의 확인되지 않는 동네 음식점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사상구 새벽로167번길 35, 1층 신흥갈비. 사상구 감전시장 인근에 위치해 있으며 로스구이, 숯불구이 등으로 알려진 식당입니다. 전화번호: 051-323-1854",
+      "url": "https://114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://114.co.kr",
+    "https://zippoom.com",
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감전시장 인근 동네 숯불갈비·구이 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202301A0037207",
+  "name": "호호스시",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 63100,
+  "researchedAt": "2026-09-22T11:52:53.544Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "오마카세 입문자, 초밥 선호 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "오마카세",
+      "숙성 스시"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 광서로10번길 36 203호에 위치한 캐주얼 오마카세 전문점으로, 가성비와 숙성 생선 초밥으로 입문자들에게 추천되는 곳임이 확인되었습니다. 구체적인 영업시간/주차/대기 시스템 등의 상세 정보는 별도 노출되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "점심 오마카세",
+    "priceWon": 30000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광서로10번길 36 203호. 합리적인 가격대에 즐길 수 있는 캐주얼한 분위기의 오마카세로, 초밥 입문자들에게 추천되곤 합니다. 수준급의 생선 숙성과 손질을 선보이며, 양이 푸짐하고 셰프의 스토리텔링과 편안한 분위기가 장점으로 꼽힙니다. 점심 기준 약 3만 원대.",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "합리적인 점심 3만 원대의 푸짐하고 뛰어난 가성비의 오마카세 코스 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "수준급 생선 숙성과 정갈한 손질로 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "편안한 분위기와 셰프의 친근한 스토리텔링 서비스",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

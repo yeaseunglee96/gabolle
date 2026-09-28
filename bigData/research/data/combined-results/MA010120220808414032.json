@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220808414032",
+  "name": "이가국밥",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 57862,
+  "researchedAt": "2026-09-22T11:58:01.234Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "조용하고 아늑한 분위기이며 혼밥 바 좌석이 마련되어 있음"
+  },
+  "descriptors": {
+    "audience": "혼밥객 및 해장/식사 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "한우소고기국밥",
+      "한우육회비빔밥",
+      "한우육회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 및 토요일 10:00~04:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객보다는 지역 주민들이 즐겨 찾는 아늑한 국밥집으로 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락동(광안리 인근)에 위치한 소고기 국밥 전문점으로 한우소고기국밥 및 육회비빔밥이 대표적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락로6번길 9 (민락동). 한우소고기국밥, 한우육회비빔밥, 한우육회, 국내산 손두부 등. 고추기름과 후추가 들어가 칼칼하고 시원한 국물 맛이 특징이며, 부드러운 고기가 들어있어 해장이나 아침 식사로 인기가 많습니다. 식당은 조용하고 아늑한 분위기이며, 혼밥이 가능한 바 좌석(콘센트 구비)도 마련되어 있습니다. 관광객보다는 지역 주민들이 즐겨 찾는 아늑한 국밥집으로 알려져 있습니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://wehome.me",
+    "https://matple.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고추기름과 후추 풍미의 얼큰하고 칼칼한 경상도식 한우소고기국밥 맛 자체",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "새벽 늦게까지 영업하며 바 좌석 구비로 1인 식사 및 해장이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

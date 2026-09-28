@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202406A0200505",
+  "name": "오뎅무라",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 60667,
+  "researchedAt": "2026-09-22T10:47:25.427Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "술자리 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스지오뎅탕",
+      "해물부추전"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 무학로 39-1(광안동 109-28)에 위치한 이자카야형 주점 '오뎅무라포차 본점'으로 확인되며, 스지오뎅탕과 해물부추전 등을 주력 안주로 판매합니다. 상세 영업시간 및 대기 정보는 웹상 상세 리뷰가 부족하여 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 무학로 39-1 (광안동 109-28) 1~2층. 스지오뎅탕, 해물부추전 등 다양한 안주를 즐길 수 있는 분위기 좋은 술집으로 알려져 있습니다. 광안리 해수욕장에서 도보로 약 10분 정도 거리에 위치해 있습니다.",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "스지오뎅탕과 해물부추전 등 안주와 함께 한잔하기 좋은 이자카야 포차 분위기",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

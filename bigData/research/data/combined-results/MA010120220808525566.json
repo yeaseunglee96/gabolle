@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220808525566",
+  "name": "조선호떡",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 63924,
+  "researchedAt": "2026-09-22T06:18:55.384Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap",
+    "queueing": false
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 승학로 147(괴정동 1077-19)에 사업자등록(빵/도넛 업종)된 매장으로 확인되나, 일반 소비자 대상 블로그 리뷰나 방문기, 구체적인 영업시간/메뉴 가격/사진 등의 상세 웹 콘텐츠는 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사하구 승학로 147 (괴정동) 조선호떡 업종: 제과점/빵·도넛",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,94 @@
+{
+  "id": "MA010120220811408946",
+  "name": "방파제",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 55671,
+  "researchedAt": "2026-09-22T11:12:56.689Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블이나 전화 예약이 가능하며 개별 룸 구조로 사전 예약 방문이 주로 이루어짐"
+  },
+  "descriptors": {
+    "audience": "가족모임, 상견례, 회식 및 비즈니스 접대 고객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 모둠회",
+      "다이닝 코스",
+      "해물 물회"
+    ],
+    "yearsClaimed": 44
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 22:00 (브레이크 타임: 15:00 ~ 17:00, 라스트 오더: 20:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "백년가게이자 부산 향토음식점으로 지정되어 현지 비즈니스·가족 모임 고객 및 관광객 모두에게 인지도 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "1982년에 개업한 민락동 광안리 수변공원 인근의 자연산 생선회 전문점(THE 방파제)으로, 중소벤처기업부 인증 백년가게 및 블루리본 서베이에 등재된 고급 횟집입니다.",
+  "photoUrls": [
+    "https://bangpaje.co.kr/images/common/logo.png"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "다이닝 에이코스 1인 / 제철 한상세트",
+    "priceWon": 58000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1982년 개업하여 오랜 역사를 자랑하는 곳입니다. 부산시 지정 향토음식점이자 '백년가게'로 선정되었습니다. 자연산 횟감을 우선으로 사용하며, 계절과 제철에 따라 구성이 달라지는 코스 요리를 제공합니다. 4년 연속 블루리본 서베이에 등재된 바 있습니다.",
+      "url": "https://bangpaje.co.kr/"
+    },
+    {
+      "excerpt": "1982년부터 운영된 자연산 제철 횟감 전문점으로, 1층 테이블석부터 2층 개인룸, 3층 단체룸까지 갖추고 있어 상견례, 가족 모임, 회식 등 프라이빗한 자리에 적합합니다. 다이닝 코스 (에이코스): 1인 58,000원. 영업시간: 11:30 ~ 22:00 (브레이크 타임: 15:00 ~ 17:00).",
+      "url": "https://www.siksinhot.com/P/297298"
+    }
+  ],
+  "sources": [
+    "https://bangpaje.co.kr/",
+    "https://www.siksinhot.com/P/297298"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1982년 개업 이래 백년가게 및 향토음식점으로 지정된 전통과 역사",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "양식이 아닌 자연산 제철 횟감 중심의 신선한 코스 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "블루리본 서베이 다년간 연속 등재로 검증된 평가",
+      "sources": [
+        0
+      ],
+      "type": "플랫폼 순위·평점"
+    },
+    {
+      "note": "개인 룸 및 단체 룸 시설이 완비되어 모임 및 상견례에 최적화",
+      "sources": [
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

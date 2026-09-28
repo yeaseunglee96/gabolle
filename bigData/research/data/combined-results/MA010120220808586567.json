@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220808586567",
+  "name": "황금바다",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 90520,
+  "researchedAt": "2026-09-22T11:34:55.373Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "전 석 단독 룸 구조로 프라이빗하게 운영되어 예약 방문이 권장됨"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 모임, 회식, 데이트",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "자연산 활어회",
+      "바다코스",
+      "황금스페셜",
+      "돌돔코스"
+    ],
+    "yearsClaimed": 30
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 23:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 및 민락수변공원 뷰와 프라이빗 룸 시설로 현지인 모임과 관광객 방문이 모두 이루어짐"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락동 풍경타워 3층에 위치한 자연산 활어회 전문 횟집으로, 30년 경력 일식 셰프 운영 및 전 좌석 개별 룸과 광안대교 조망이 특징입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "바다코스 40,000원, 연인코스 50,000원, 황금스페셜 60,000원, 돌돔코스 80,000원, 황금오마카세 130,000원",
+    "priceWon": 40000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "30년 경력의 일식 셰프가 운영하는 곳으로, 전체가 룸으로 구성되어 있어 프라이빗한 모임이나 가족 식사, 회식 등에 적합합니다. 자연산 활어회(광어, 우럭, 참돔 등)와 다양한 해산물 코스 요리를 제공하며, 코스에 따라 회 리필이 가능한 메뉴가 준비되어 있습니다. 건물 내 주차 시설이 완비되어 있어 주차가 편리합니다.",
+      "url": "https://www.siksinhot.com/P/365533"
+    },
+    {
+      "excerpt": "매일 12:00 ~ 23:00 (연중무휴). 모든 테이블이 단독룸으로 구성되어 있어 프라이빗한 식사가 가능합니다. 3층에 위치하여 광안대교 오션뷰를 감상할 수 있습니다. 100% 자연산 활어를 사용하며, 회 리필이 가능한 가성비 좋은 곳으로 알려져 있습니다. 코스 메뉴: 바다코스 40,000원, 연인코스 50,000원, 황금스페셜 60,000원, 돌돔코스 80,000원, 황금오마카세 130,000원.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/365533",
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교 오션뷰가 보이는 전 좌석 프라이빗 단독 룸 구조로 가족 모임 및 회식에 최적화됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "30년 경력 일식 셰프의 자연산 활어회 코스와 회 리필 구성의 만족도",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

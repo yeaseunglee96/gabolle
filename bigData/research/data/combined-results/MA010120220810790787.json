@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220810790787",
+  "name": "코숑과자점",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 93368,
+  "researchedAt": "2026-09-22T11:42:16.344Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 1990
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "과거 동래구 안락동 등지에서부터 운영되던 지역 토종 동네 제과점(제과기능장) 기반"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 수영구 수영로652번길 67(광안동)에 위치한 코숑과자점은 제과기능장이 운영하는 토종 베이커리로, 과거 안락동 등지에서 오랜 기간 운영되다 수영구 광안동으로 이전한 소규모 동네 과자점/제과점입니다. 현재 상세한 메뉴판 가격 및 구체적 영업시간 등은 온라인 상세 정보가 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제과기능장이 운영하는 베이커리로, 매장 안쪽에 주택을 개조한 아늑한 카페 공간이 마련되어 있는 것이 특징입니다. 2022년경 안락동에서 광안동(광안종합시장 인근)으로 이전하여 운영 중인 곳으로 알려져 있습니다. 위치: 부산광역시 수영구 수영로652번길 67 1층 (광안동)",
+      "url": "https://www.busan.com"
+    },
+    {
+      "excerpt": "정직한 재료와 차별화된 맛으로 지역 주민들에게 알려진 토종 제과점",
+      "url": "https://kr.aving.net"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com",
+    "https://kr.aving.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제과기능장이 운영하는 토종 제과점으로 정직한 재료와 오랜 노하우의 빵 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

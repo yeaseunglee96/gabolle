@@ -1,0 +1,68 @@
+{
+  "id": "MA010120220803182114",
+  "name": "왕표고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 72991,
+  "researchedAt": "2026-09-22T11:41:17.905Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 직장인, 커플",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "숙성 돼지고기",
+      "숙성 한우등심",
+      "왕표비빔면",
+      "왕표라면"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:30 ~ 00:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 수영구 민락동에 위치한 숙성 한돈 및 숙성 한우 전문점으로 사장님이 직접 고기를 구워주는 서비스와 얼린 소맥컵, 수저 살균 서비스 등을 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "숙성한돈과 숙성한우를 판매하며, 사장님이 오픈 주방에서 직접 고기를 정성껏 구워주는 '고기 굽기 서비스'를 제공하여 편리하게 식사를 즐길 수 있습니다. 옛날식 고깃집 분위기에 은은한 조명이 더해진 아늑하고 정감 있는 공간으로, 동그란 스테인리스 테이블이 비치되어 있습니다. 수저를 뜨거운 물에 담가 제공하거나 얼린 소맥컵을 내어주는 등 세심한 서비스로 알려져 있습니다. 주요 메뉴: 숙성 돼지고기 세트(500g, 700g), 숙성 한우등심, 된장찌개, 김치찌개, 왕표비빔면, 왕표라면 등, 영업시간: 16:30 ~ 00:00",
+      "url": "https://www.siksinhot.com/P/1271168"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1271168"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오픈 주방에서 고기를 직접 구워주는 그릴링 서비스와 얼린 소맥잔 및 수저 열탕 소독 등 세심한 서비스 제공",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "웻에이징/숙성 한돈 및 숙성 한우 등심 전문의 퀄리티 있는 고기 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

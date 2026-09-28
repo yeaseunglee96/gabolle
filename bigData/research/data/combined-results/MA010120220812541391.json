@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220812541391",
+  "name": "용이초밥",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 61017,
+  "researchedAt": "2026-09-22T11:17:38.174Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "현장 대기가 발생할 수 있으나 별도 원격 줄서기 시스템 없이 매장 상황에 맞춰 방문 대기하는 방식임"
+  },
+  "descriptors": {
+    "audience": "혼밥객 및 연인, 관광객 데이트 코스",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "활어초밥",
+      "연어초밥",
+      "소고기초밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (연중무휴, 브레이크 타임 없음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 및 광안대교 조망 관광지와 인접하여 관광객 및 데이트 방문객이 즐겨 찾음"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "광안대교 오션뷰를 조망할 수 있는 3층 규모의 균일가(접시당 2,000원) 회전초밥 전문점. 매장 앞 게스후 주차장 1시간 지원 가능.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "모든 회전초밥 한 접시 균일가",
+    "priceWon": 2000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로108번길 11 (광안동 197-7) 지하철 2호선 금련산역 1번 출구에서 도보 약 8분 거리(약 570m)에 위치해 있습니다. 광안리 해수욕장과 매우 가까워(도보 1분) 접근성이 좋습니다. 영업시간: 매일 11:00 ~ 22:00 (연중무휴, 브레이크 타임 없음). 단독 3층 건물로 운영되며, 2층과 3층에서 광안대교 오션뷰를 감상할 수 있는 회전초밥 전문점입니다. 가성비가 좋은 회전초밥 맛집으로 알려져 있으며, 혼밥이나 데이트 장소로 인기가 많습니다.",
+      "url": "https://todaybest.kr"
+    },
+    {
+      "excerpt": "용이초밥 광안리점은 가성비 좋은 회전초밥 전문점으로, 모든 접시가 2,000원인 균일가 정책을 운영하고 있습니다. 광안대교와 광안리 해수욕장 조망이 가능한 오션뷰 초밥집입니다. 3층 건물 전체를 사용하며 매장 앞 '게스후 주차장' 이용 시 1시간 주차 지원이 가능합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://todaybest.kr",
+    "https://tistory.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "모든 접시 균일가(2,000원)로 가성비가 매우 뛰어남",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "광안리 해수욕장 인근 위치 및 2~3층에서 광안대교 오션뷰 감상 가능",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "MA010120220810693506",
+  "name": "팩토리",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 68312,
+  "researchedAt": "2026-09-22T11:38:11.027Z",
+  "confidence": "high",
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "notFound": "해당 주소지(부산 남구 수영로 298) 및 인근에서 '팩토리'라는 상호의 경양식 음식점 정보를 웹상에서 찾을 수 없음",
+  "notes": "부산광역시 남구 수영로 298(대연동 산암빌딩)에 위치한 경양식 업종의 '팩토리' 식당을 검색하였으나, 해당 주소지에는 초콜릿팩토리(공연장) 외 경양식 음식점 '팩토리'에 대한 실제 영업 또는 리뷰 정보를 찾을 수 없습니다. 규칙에 따라 없는 가게를 지어내지 않고 found: false로 보고합니다.",
+  "photoUrls": [],
+  "sourceExcerpts": [],
+  "sources": []
+}

@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202601A0004071",
+  "name": "조각부산혼술바광안리점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 98361,
+  "researchedAt": "2026-09-22T10:44:04.232Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼술 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "위스키",
+      "칵테일",
+      "하이볼"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 수영구 광남로 125에 등록된 혼술 전문 바로, 위스키·칵테일·하이볼 및 다트(피닉스다트) 시설이 구비되어 혼술러 및 손님 간 교류 목적으로 방문하는 곳이나 상세 리뷰나 세부 영업시간/가격표는 공개 정보가 매우 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "조각 부산혼술바 광안리점은 광안동 일대에 위치한 위스키, 칵테일, 하이볼 전문 혼술바로 알려져 있습니다. 피닉스다트(PHOENIXDARTS) 설치 매장으로 확인되며, 부산 지역의 다양한 혼술바 정보를 제공하는 '혼술맵' 등에도 등록되어 있습니다.",
+      "url": "https://www.phoenixdarts.com"
+    }
+  ],
+  "sources": [
+    "https://www.phoenixdarts.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "혼자서도 편하게 칵테일이나 위스키, 하이볼을 마시며 다트 게임과 교류를 즐기기 위해",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

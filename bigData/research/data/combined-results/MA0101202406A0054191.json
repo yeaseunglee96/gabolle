@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202406A0054191",
+  "name": "누오토",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 45154,
+  "researchedAt": "2026-09-22T11:34:04.474Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "1인 셰프 매장으로 좌석 수가 적어 예약 권장 또는 필수 예약제로 운영됨"
+  },
+  "descriptors": {
+    "audience": "연인, 미식가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "까르보나라 알 누오토",
+      "뇨끼 알 누오토",
+      "라구 파스타",
+      "트리빠 알라 피오랜티나"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~금 12:00~15:00, 17:00~22:00 / 토~일 12:00~22:00 / 매주 월, 화 정기 휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안동에 위치한 미슐랭 출신 셰프의 1인 정통 생면 파스타 전문 레스토랑. 예약 위주 운영 및 콜키지 가능.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이탈리아 현지에서 미슐랭 경력을 쌓은 셰프가 운영하는 레스토랑으로, 대중적인 타협 없이 정통 클래식 스타일의 생면 파스타를 고집하는 것으로 알려져 있습니다. 물 없이 계란 노른자로만 반죽하여 하루 이상 숙성한 면을 사용하며, 생면임에도 알덴테(Al dente) 식감을 잘 살려낸다는 평가를 받습니다. 정통 까르보나라(페코리노 로마노 치즈와 직접 숙성한 관찰레 사용), 라구 파스타, 감자를 활용한 뇨끼 등이 유명합니다.",
+      "url": "https://youtube.com"
+    },
+    {
+      "excerpt": "1인 운영 레스토랑으로, 주로 예약제로 운영되니 방문 전 예약 확인이 필수입니다. 바 테이블과 단체 테이블이 마련되어 있어 셰프의 조리 과정을 직접 볼 수 있는 즐거움도 있습니다. 콜키지 무료 서비스 등을 제공하여 와인과 함께 식사를 즐기기에 좋은 분위기입니다.",
+      "url": "https://wanderlog.com"
+    }
+  ],
+  "sources": [
+    "https://catchtable.net",
+    "https://wanderlog.com",
+    "https://youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "물 없이 계란 노른자로만 반죽한 숙성 생면 파스타와 페코리노 치즈, 직접 숙성한 관찰레를 쓰는 타협 없는 정통 이탈리안 미식 경험",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

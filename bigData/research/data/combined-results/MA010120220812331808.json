@@ -1,0 +1,87 @@
+{
+  "id": "MA010120220812331808",
+  "name": "쇼미드고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 56043,
+  "researchedAt": "2026-09-22T11:54:14.360Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 직접적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 단체, 외국인 관광객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "뒷고기",
+      "통삼겹살",
+      "목살",
+      "껍데기"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 15:00 ~ 24:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인들과 외국인 관광객들에게도 잘 알려진 고기집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "상호명 '쇼미드고기'는 '쇼미더고기(Show me the GOGI)'로 등록 및 운영 중이며 주소지는 해운대구 중동1로17번길 9~11 일대로 확인됨. 전용 주차장은 없음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "정보 없음",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "뒷고기, 통삼겹살, 목살, 껍데기 등 다양한 고기 부위를 판매하는 곳으로, 현지인들과 외국인들에게도 잘 알려진 고기집입니다. 야장 느낌의 캐주얼한 분위기가 특징이며, 세트 메뉴(된장찌개, 계란찜, 볶음밥 등 포함) 구성이 인기가 많습니다. 영업 시간: 매일 오후 3시부터 밤 12시까지 운영되는 것으로 알려져 있습니다. 다만 전용 주차장은 따로 없으니 방문 시 참고하시기 바랍니다.",
+      "url": "https://openfood.kr"
+    },
+    {
+      "excerpt": "뒷고기, 삼겹살 등 다양한 돼지고기 부위를 가성비 좋은 가격에 제공하는 곳으로 알려져 있으며, 직원들이 고기를 직접 구워주는 서비스로 인기가 많습니다. 야장(야외 테이블) 분위기에서 술 한잔하기 좋은 노포 감성으로도 유명합니다.",
+      "url": "https://trip.com"
+    }
+  ],
+  "sources": [
+    "https://openfood.kr",
+    "https://trip.com",
+    "https://maptons.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "뒷고기, 삼겹살 등 다양한 돼지고기 부위와 찌개/계란찜 구성의 가성비 좋은 세트 메뉴 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "야외 테이블(야장) 특유의 캐주얼하고 정감 넘치는 노포 분위기에서 식사 가능",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원들이 고기를 직접 구워주는 편의 서비스 제공",
+      "sources": [
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

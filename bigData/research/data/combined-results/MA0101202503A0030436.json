@@ -1,0 +1,74 @@
+{
+  "id": "MA0101202503A0030436",
+  "name": "체리씨",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 60759,
+  "researchedAt": "2026-09-22T11:40:48.746Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "디저트·쿠키를 찾는 손님 및 인근 직장인·주민",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 르뱅쿠키",
+      "말차크림 르뱅쿠키",
+      "아메리카노",
+      "말차라떼",
+      "베이컨치즈 계란빵"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금 08:00 ~ 22:00 (라스트 오더 21:30)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 남천바다로9번길 16, 1층 102호 (풍신빌라). 금련산역 1번 출구에서 약 160~200m 거리(도보 약 2분)에 위치해 있으며, 수제 르뱅쿠키와 커피 등을 판매하는 디저트 맛집으로 알려져 있습니다. 매장 건물 주차장을 이용할 수 있으며, 입주민 주차장이 비어있을 시 무료 주차가 가능합니다.",
+      "url": "https://www.youtube.com"
+    },
+    {
+      "excerpt": "특징: 프리미엄 원두 커피와 두툼한 수제 르뱅쿠키를 판매하는 곳으로 알려져 있습니다. 주요 메뉴 예시: 아메리카노와 쿠키 세트, 말차크림 르뱅쿠키, 말차라떼, 베이컨치즈 계란빵 등. 영업시간: 월~금 08:00 ~ 22:00 (라스트 오더 21:30)",
+      "url": "https://hirvezeto.hu"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com",
+    "https://hirvezeto.hu"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두툼한 수제 르뱅쿠키와 프리미엄 원두 커피 등 디저트의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "금련산역 도보 2분 거리의 역세권 및 무료 주차 가능 등 편리한 방문 조건",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

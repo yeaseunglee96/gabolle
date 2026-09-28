@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220810998420",
+  "name": "벤쿠버",
+  "cat": "생맥주 전문",
+  "attempts": 1,
+  "geminiTokens": 89188,
+  "researchedAt": "2026-09-22T06:55:23.537Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 민락수변로 13에 등록되었던 '벤쿠버'(벤쿠버라이브)는 라이브 음악/피아노 반주, 데이트 및 개별룸 등을 갖춘 호프/카페 업소로 확인되나, 현재는 폐업 추정 상태이며 상세 메뉴 가격, 영업시간, 줄서기 후기 및 블로그 사진 등의 세부 정보는 온라인상에 남아있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락수변로 13 주소지로 '벤쿠버라이브'라는 상호가 등록되어 있습니다. 해당 정보에 따르면 업종은 세계음식 > 카페/커피숍으로 분류되어 있으며, 라이브 음악, 데이트, 개별룸 등의 키워드가 포함되어 있습니다. 민락수변로 13 일대는 현재 숙박 시설 등이 위치해 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "라이브 음악과 피아노 연주를 들으며 데이트나 기념일을 보내기 좋은 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

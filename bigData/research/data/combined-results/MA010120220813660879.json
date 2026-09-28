@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220813660879",
+  "name": "비네토",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 120449,
+  "researchedAt": "2026-09-22T07:00:57.495Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "좌석 수가 적은 소규모 매장으로 캐치테이블 등을 통한 사전 예약제로 주로 운영됨"
+  },
+  "descriptors": {
+    "audience": "와인 애호가 및 미식 데이트 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "딸리아뗄레",
+      "라구 뇨끼",
+      "새우 비스크 소스 타야린"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~목 17:00~22:00 (라스트오더 21:30), 금~일 15:00~22:00 (라스트오더 21:30), 매주 월·화 정기휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "미쉐린 가이드 부산 선정 및 감베로 로쏘 선정으로 전국 미식가 및 관광객, 현지 와인 애호가들이 두루 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "이탈리아 요리학교 알마(ALMA) 출신 부부 셰프가 운영하는 정통 이탈리안 레스토랑&와인바로, 미쉐린 가이드 부산(셀렉티드) 및 감베로 로쏘에 등재된 곳입니다. 현재 영업 종료/폐업 상태로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "딸리아뗄레",
+    "priceWon": 24000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "비네토(Vigneto)는 이탈리아 알마(ALMA) 요리학교에서 수학한 부부 셰프가 운영하는 곳으로, 현지 스타일의 완성도 높은 파스타와 요리를 선보입니다. 미쉐린 가이드 부산에 소개된 바 있으며, 이탈리아의 미식 가이드 '감베로 로쏘(Gambero Rosso)'에서 인정받은 레스토랑으로도 알려져 있습니다. 가게 건물은 부부가 집과 식당으로 쓰기 위해 직접 지은 공간으로, 나무 소재를 활용한 아늑하고 포근한 분위기가 특징입니다.",
+      "url": "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201001001000"
+    },
+    {
+      "excerpt": "딸리아뗄레: 24,000원, 라구 뇨끼: 23,000원, 피시소스 한치 샐러드, 새우 비스크 소스 타야린, 로마식 뜨라빠, 로마식 까르보나라 등 이탈리안 요리. 수~목: 17:00~22:00 (라스트 오더 21:30), 금~일: 15:00~22:00 (라스트 오더 21:30), 매주 월, 화요일 휴무.",
+      "url": "https://busantaste.com"
+    },
+    {
+      "excerpt": "It is the first restaurant established by an owner-chef couple who settled in Busan after studying Italian cuisine at ALMA, a renowned culinary school in Italy. The restaurant is housed in a building that serves as both their home and their business, featuring a cozy and warm interior with wooden ceilings and furniture.",
+      "url": "https://guide.michelin.com/en/kr/busan-region/busan/restaurant/vigneto"
+    }
+  ],
+  "sources": [
+    "https://guide.michelin.com/en/kr/busan-region/busan/restaurant/vigneto",
+    "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201001001000",
+    "https://busantaste.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "이탈리아 ALMA 출신 부부 셰프가 선보이는 수준 높은 정통 파스타와 이탈리아 요리의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "미쉐린 가이드 부산 셀렉티드 및 감베로 로쏘 선정 레스토랑",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "투표·독자 선정"
+    }
+  ]
+}

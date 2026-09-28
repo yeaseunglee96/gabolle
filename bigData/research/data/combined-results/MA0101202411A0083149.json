@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202411A0083149",
+  "name": "지라솔레",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 72958,
+  "researchedAt": "2026-09-22T07:09:31.727Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말의 경우 오픈런이나 네이버 예약을 추천할 정도로 붐비며 인근 공영주차장도 주말에 매우 혼잡함"
+  },
+  "descriptors": {
+    "audience": "연인/데이트, 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "단호박 크림 오징어 먹물 뇨끼",
+      "화이트 라구 파스타",
+      "살치살 스테이크"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 22:00 (브레이크 타임 15:00 ~ 17:00, 라스트 오더 21:30)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객에 대한 명시적 언급 확인되지 않음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안리 인근 광남로 120에 위치한 이탈리안 양식 레스토랑 지라솔레(Girasole). 단호박 크림소스와 오징어 먹물 반죽으로 빚어낸 독특한 뇨끼와 아늑한 분위기의 데이트 장소로 인기.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "스몰 플레이트(뇨끼, 아란치니, 샐러드 등) 9,000원대부터 파스타/스테이크 등 구비",
+    "priceWon": 9000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "지라솔레는 광안리에 위치한 아늑한 분위기의 레스토랑으로, 데이트 코스로 인기가 많습니다. 지라솔레의 뇨끼는 오징어 먹물로 반죽하여 해바라기 모양을 낸 것이 특징이며, 주로 단호박 크림소스와 함께 제공됩니다. 뇨끼 외에도 화이트 라구 파스타, 살치살 스테이크 등 다양한 이탈리안 메뉴를 선보이고 있습니다.",
+      "url": "https://pandarank.net"
+    },
+    {
+      "excerpt": "위치: 부산 수영구 광남로 120, 104호. 영업 시간: 매일 11:30~22:00 (브레이크 타임 15:00~17:00, 라스트 오더 21:30). 건물 내 유료 주차장이 있으나 별도의 주차 지원은 제공되지 않으며, 인근 공영주차장은 주말에 매우 혼잡할 수 있으니 방문 시 참고하시기 바랍니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://pandarank.net",
+    "https://pinda.biz",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오징어 먹물 반죽과 단호박 크림소스 조합의 시그니처 뇨끼 및 양식 메뉴의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해변 인근의 따뜻하고 아늑한 분위기로 데이트나 모임에 적합한 공간",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

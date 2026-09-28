@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220810723275",
+  "name": "막구",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 58438,
+  "researchedAt": "2026-09-22T06:43:57.469Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 및 인근 주민 외식/모임",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지막창",
+      "생삼겹살"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 북구 만덕동 소재 막창/생삼겹살 구이 전문점으로, 만덕3공용주차장 이용 편의 및 깔끔한 상차림(오방채, 겉절이, 해물된장 등)이 특징입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "막구. 주소: 부산광역시 북구 만덕3로48번길 8 (만덕동 914-7). 대표메뉴: 돼지막창, 생삼겹살. 홀에 4인 테이블이 다수 마련되어 있으며, 좌식과 입식 좌석을 모두 갖추고 있어 공간이 비교적 넓은 편입니다. 막창과 함께 오방채, 겉절이, 구이용 야채(감자, 양파), 파절이 등을 곁들여 먹는 조합이 추천되며, 해물 된장이나 잔치국수도 인기 있는 메뉴입니다.",
+      "url": "https://www.siksinhot.com/P/1018895"
+    },
+    {
+      "excerpt": "가게 뒷편에 '만덕3공용주차장'이 있어 차량 이용 시 편리하며, 18,000원 이상 이용 시 주차권이 제공된다는 정보가 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1018895",
+    "https://www.bsbukgu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "잡내 없이 깔끔하고 고소한 막창과 생삼겹살 구이 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "가게 뒤 공용주차장 주차 지원 및 넓은 좌식/입식 좌석 완비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

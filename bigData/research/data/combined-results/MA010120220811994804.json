@@ -1,0 +1,88 @@
+{
+  "id": "MA010120220811994804",
+  "name": "남해달인횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 223608,
+  "researchedAt": "2026-09-22T06:34:15.463Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "저녁시간은 예약이 필요하나 점심은 예약 없이 방문 가능하며 주말 점심 여유 있는 편"
+  },
+  "descriptors": {
+    "audience": "모임 및 식사 손님",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "회백반",
+      "회+돔백반",
+      "돔백반"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00~21:00 (브레이크타임 14:00~17:00), 매주 월요일 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "타지에서 '요거 먹으러 다시 부산을 들러야겠다'고 평가하는 방문객 및 생활의 달인 방송을 보고 찾아오는 외지 손님과 인근 단골들이 두루 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "SBS 생활의 달인(회백반의 달인), 허영만의 백반기행 등에 방영된 숙성회 회백반 전문점으로, 1인용 접시에 나오는 숙성회와 생선전, 생선찜/지리탕 등으로 구성된 알찬 정식이 유명함.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/bLLwyQ/btsJzSR1ZAc/AAAAAAAAAAAAAAAAAAAAABZV9wnN-xvykJcqAcKcub48y0iRuYXDv-qujqw-WhxJ/img.jpg",
+    "https://blog.kakaocdn.net/dna/T0Fkx/btsJASXKD13/AAAAAAAAAAAAAAAAAAAAAH5s-Fz3GRIVxCepC3n6nY2RFvs3MlOZjxJtByjH8z1m/img.jpg",
+    "https://blog.kakaocdn.net/dna/lJZb1/btsJARke1St/AAAAAAAAAAAAAAAAAAAAAA3KPvAqAmo5PyQt66K-kOY0k0CRy3sW5YaE8Lycc6Sg/img.jpg",
+    "https://blog.kakaocdn.net/dna/t4tWU/btsJBld5AYw/AAAAAAAAAAAAAAAAAAAAAO76Rxcg2BrXJqLRKRAIBA8YwAYKE5DQi7LnZKtjrP-A/img.jpg",
+    "https://blog.kakaocdn.net/dna/IJbMa/btsJAIukpF3/AAAAAAAAAAAAAAAAAAAAAJGZHY2JHz6Ag0wEWSx1RRmuJCXaMP4HiXOCTtUAQYXP/img.jpg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "회백반 20,000원, 회+돔백반 25,000원, 돔백반 30,000원",
+    "priceWon": 20000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 생활의달인 출연 (회백반의 달인- 남해달인횟집) 12:00~21:00 (브레이크타임 14:00~17:00) 매주 월요일 휴무 식당앞 주차장있음 예약추천 051-292-8838 주말 점심 방문했다. 혹시나해서 전화를 드렸을때 \"저녁시간은 예약이 필요하나 점심은 예약안해도 된다고 하시면서 가게앞 주차장이 있으니 거기 주차해라고\" 친절히 응대해 주셨다.",
+      "url": "https://swms13.tistory.com/84"
+    },
+    {
+      "excerpt": "강력추천하시는 회+돔백반으로 주문하자 와사비 듬북접시와 한식 밑반찬들이 나온다. 특히 계란말이는 포슬포슬하게 부드러워 일본식에 가까웠다. 드디어 주문한 회가 나왔다. 1인접시로 나온회는 사장님 추천으로 와시비접시에 간장과 다진고추를 넣은 소스에 찍어 먹었다. 광어와 돌돔과 우럭회였던걸로 기억한다. 암튼 다 맛있었다. 회를 싹비우자마자 나머지 요리들이 나온다. 돔찜?과 광어살전 그리고 고기살 가득한 생선지리와 흑미밥이 나왔다. 맛있게 먹다보니 너무도 빠르게 식사가 마무리되었다. 개인평 사장님 친절함에 일단합격 모든메뉴가 맛있었고 배반 구성이 알찼던것 같다. 요거 먹으러 다시부산을 들러야겠다.",
+      "url": "https://swms13.tistory.com/84"
+    }
+  ],
+  "sources": [
+    "https://swms13.tistory.com/84"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다시마 등으로 숙성시킨 감칠맛 있는 1인 선어회와 알찬 생선전·생선찜·지리탕 구성의 회백반 코스",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "SBS 생활의 달인 회백반의 달인 및 식객 허영만의 백반기행 등 다수 방송을 통해 검증된 명성",
+      "sources": [
+        0
+      ],
+      "type": "원조·최초"
+    },
+    {
+      "note": "친절한 사장님의 응대와 부담 없는 1인 회백반 상차림 만족도",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202504A0067399",
+  "name": "몽화",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 88201,
+  "researchedAt": "2026-09-22T10:32:15.375Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 소규모 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "닭구이",
+      "고등어 봉초밥",
+      "나폴리탄 파스타",
+      "미즈타키"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매주 월요일 정기 휴무, 보통 18:00 - 익일 02:00 (변동 가능성 있음)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 민락로14번길 33 1층에 위치한 이자카야 '몽화'로, 1인 화로 숯불 닭구이와 고등어 봉초밥, 나폴리탄, 미즈타키 등을 제공하는 카운터석 위주의 선술집입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 수영구 민락로14번길 33 1층. 참숯 구이 전문 이자카야로, 다찌(카운터) 좌석 위주의 차분하고 따뜻한 분위기의 공간입니다. 1인 화로에 직접 구워주는 닭 구이가 대표 메뉴이며, 고등어 봉초밥, 나폴리탄 파스타, 미즈타키 등 일식 요리를 함께 즐길 수 있습니다.",
+      "url": "https://catchtable.net/shop/monghwa_busan"
+    },
+    {
+      "excerpt": "광안리 인근에 위치한 조용한 분위기의 이자카야로 알려져 있습니다. 매주 월요일은 정기 휴무이며, 영업시간은 보통 오후 6시부터 오전 2시까지 운영됩니다(변동 가능성 있음).",
+      "url": "https://catchtable.net/shop/monghwa_busan"
+    }
+  ],
+  "sources": [
+    "https://catchtable.net/shop/monghwa_busan"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "다찌석 위주의 아늑하고 차분한 선술집 분위기 속에서 1인 화로 숯불 구이와 일식 요리를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

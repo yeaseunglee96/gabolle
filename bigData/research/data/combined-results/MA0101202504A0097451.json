@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202504A0097451",
+  "name": "레이어스버터리",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 96159,
+  "researchedAt": "2026-09-22T11:54:11.724Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "품절 시 조기 마감될 수 있으며 매장 내부 공간은 협소하여 주로 포장 위주로 운영됨"
+  },
+  "descriptors": {
+    "audience": "디저트/빵 애호가, 관광객 및 인근 주민",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "크로타(크루아상+에그타르트)",
+      "에그타르트",
+      "명란 크루아상",
+      "뺑스위스"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30 ~ 19:00 (품절 시 조기 마감 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근 베이커리로 디저트/빵지순례 관광객 및 인근 주민 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "부산 수영구 광남로 189-1(광안동)에 위치한 페이스트리 및 구움과자 전문 베이커리로, 크루아상과 에그타르트를 결합한 시그니처 '크로타'와 명란 크루아상 등이 유명합니다. 매장 전용 주차 공간은 없어 길 건너편 동방스카이 주차장 등을 이용해야 합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로 189-1 1층. 영업시간: 매일 10:30~19:00 (품절 시 조기 마감될 수 있음). 페이스트리류를 전문으로 하는 베이커리로, 겉은 바삭하고 속은 쫀득한 식감이 특징입니다. 시그니처: 크로타(크루아상+에그타르트), 명란 크루아상. 매장 앞 도로변은 주정차가 불가하므로, 길 건너편의 '동방스카이 주차장'을 이용하는 것이 가장 가깝고 편리합니다. 깔끔하고 세련된 인테리어의 아담한 공간으로, 친절한 서비스로도 잘 알려져 있습니다.",
+      "url": "https://weseb.com"
+    },
+    {
+      "excerpt": "부산 수영구 광안동에 위치한 베이커리 '레이어스버터리(Layers Buttery)'. 대표 메뉴: 덕화명란 듬뿍 크로와상, 크로타(시그니처 크로와상+에그타르트) 등. 다양한 구움과자와 페이스트리류를 판매하는 베이커리입니다. 매장 공간은 다소 협소하여 주로 포장 위주로 운영되는 것으로 보입니다.",
+      "url": "https://ggoboogi.com"
+    }
+  ],
+  "sources": [
+    "https://weseb.com",
+    "https://ggoboogi.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바삭하고 쫀득한 결이 살아있는 시그니처 크로타(크루아상+에그타르트)와 명란 크루아상 등 특색 있는 페이스트리 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

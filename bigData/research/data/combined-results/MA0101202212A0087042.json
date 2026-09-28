@@ -1,0 +1,38 @@
+{
+  "id": "MA0101202212A0087042",
+  "name": "곽안리",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 60886,
+  "researchedAt": "2026-09-22T11:13:29.755Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게를 찾을 수 없음 (부산 수영구 광남로 74에 '곽안리'라는 상호의 일식 회/초밥집 미존재)",
+  "notes": "부산광역시 수영구 광남로 74 주소 및 광안리 일대 검색 결과, '곽안리'(일식 회/초밥 업종)라는 상호의 식당은 존재하지 않는 것으로 확인되었습니다. 해당 주소(기아자동차 1층)에는 이자카야 '초힛사츠'와 타코 전문점 '타코사운즈클럽' 등이 입점해 있으며, '곽안리'는 지명 '광안리'의 오타이거나 존재하지 않는 상호입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://polle.com",
+    "https://catchtable.net"
+  ],
+  "whyPeopleGo": []
+}

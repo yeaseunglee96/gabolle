@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220812642867",
+  "name": "럭키칠공",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 124609,
+  "researchedAt": "2026-09-22T06:51:21.253Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 직장인/회식객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "삼겹살",
+      "꽃삼겹살",
+      "항정살",
+      "목살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 익일 06:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대역 3번 출구 인근 구남로 메인 도로에 위치하여 관광객 접근성이 뛰어남"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "'럭키칠공'은 부산 해운대구 구남로 23에 소재한 '백년식당'의 법인 사업자등록명((주)럭키칠공)입니다. 실제 운영 매장 상호명은 '백년식당'입니다. 직원이 고기를 직접 구워주는 그릴링 서비스와 늦은 새벽까지 이어지는 영업시간, 주차 지원 편의로 유명합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "(주)럭키칠공 주소: 부산광역시 해운대구 구남로 23 (중동) 업종: 한식 일반 음식점업 (백년식당)",
+      "url": "https://marketbz.com"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 구남로 23. 삼겹살, 목살, 항정살, 꽃삼겹살 등의 돼지고기 구이 전문점이며, 직원이 고기를 직접 구워주는 그릴링 서비스를 제공. 인근 주차장 1시간 무료 주차를 지원하며 매일 11:00 ~ 익일 06:00 영업.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://marketbz.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "직원이 처음부터 끝까지 고기를 직접 구워주어 편리하게 식사할 수 있음",
+      "sources": [
+        1
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "해운대역 도보 2분 역세권 및 매일 익일 06시까지 심야 영업, 주차 지원 편의",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

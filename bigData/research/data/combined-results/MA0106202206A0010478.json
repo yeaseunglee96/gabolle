@@ -1,0 +1,72 @@
+{
+  "id": "MA0106202206A0010478",
+  "name": "버거킹부산영도DT점",
+  "cat": "버거",
+  "attempts": 1,
+  "geminiTokens": 68688,
+  "researchedAt": "2026-09-22T05:57:45.781Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼밥객, 직장인, 드라이브스루 차량 이용객, 가족 단위 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "와퍼",
+      "불고기와퍼",
+      "치즈와퍼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "버거킹 부산영도DT점은 부산 영도구 태종로 173에 위치한 패스트푸드 프랜차이즈 매장으로, 넉넉한 주차 공간과 드라이브스루(DT), 킹오더, 딜리버리 시스템을 갖추고 있어 차량 이용객 및 인근 주민의 접근과 편의성이 높습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "버거킹 부산영도DT점 주소: 부산광역시 영도구 태종로 173 (봉래동4가 10-1) 전화번호: 070-7462-8568 서비스: 드라이브 스루(DT), 주차 가능, 딜리버리, 킹오더 지원 드라이브 스루 시설을 갖추고 있어 차량 이용객에게 매우 편리하며, 주차 공간도 비교적 넉넉한 편이라 주차 스트레스 없이 방문할 수 있다는 평이 많습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "특징: 드라이브 스루(DT)와 주차장을 갖추고 있으며, 매장에서 키오스크를 통해 주문이 가능합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.burgerking.co.kr/",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "드라이브스루(DT)와 전용 주차장을 갖추어 차량 접근 및 테이크아웃 이용이 매우 편리함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "와퍼를 중심으로 안정적인 맛과 딜리버리·킹오더 등 빠른 비대면 주문 시스템 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

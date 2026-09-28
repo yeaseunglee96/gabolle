@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220805988354",
+  "name": "알로이",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 229346,
+  "researchedAt": "2026-09-22T06:52:49.355Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 등을 통한 예약 방문 및 시간대별 방문객이 있으며 주차·웨이팅 정보 확인 필요"
+  },
+  "descriptors": {
+    "audience": "데이트, 가족 외식, 태국 요리 애호가",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "뿌팟퐁커리",
+      "똠얌꿍남콘",
+      "타이식 해물쌀국수",
+      "카오팟싸파롯(파인애플 볶음밥)"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00 (브레이크 타임 15:00 ~ 17:00 / 라스트오더 20:20, 매주 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 광안리·민락동 인근 주민들의 외식 및 데이트 코스로 주로 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 25,
+    "found": true
+  },
+  "notes": "부산 수영구 민락수변로239번길 26에 위치한 정통 태국 음식 전문점(사업자/지도 등록명: 알로이 / 알로이타이레스토랑). 태국 정부 인증 Thai SELECT 및 현지 셰프 운영.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "타이식 해물쌀국수 / 뿌팟퐁커리",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 민락동에 위치한 알로이타이레스토랑에 대한 정보입니다. 위치: 부산 수영구 민락수변로239번길 26 (민락동 336-73). 태국 정부로부터 '타이 셀렉트 프리미엄(Thai SELECT Premium)' 인증을 받은 정통 태국 음식점입니다. 태국 현지 고급 호텔 출신 셰프가 요리하며, 전통적이면서도 깊이 있는 태국 요리를 선보입니다. 영업시간: 11:00 ~ 21:00 (브레이크 타임: 15:00 ~ 17:00 / 라스트 오더: 20:20, 휴무일: 매주 화요일).",
+      "url": "https://www.visitbusan.net/"
+    },
+    {
+      "excerpt": "알로이타이레스토랑 (Aroi Thai Restaurant). 위치: 부산광역시 수영구 민락수변로239번길 26. 영업시간: 월, 수~일: 11:00 ~ 21:00 화요일: 정기 휴무. 특징: 태국 현지 분위기에서 즐기는 전통 태국 요리 전문점입니다. 매장 앞 주차가 가능합니다. 콜키지 프리 서비스를 제공합니다. 메뉴 가격대: 샐러드/애피타이저, 수프, 커리, 볶음밥, 면류, 메인 요리 등으로 구성되어 있습니다.",
+      "url": "https://catchtable.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net/",
+    "https://catchtable.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "태국 정부 공식 인증(Thai SELECT Premium)을 받은 현지 특급 호텔 셰프의 정통 태국 요리 전문점",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "이국적이고 감성적인 분위기와 매장 앞 주차 및 콜키지 편의로 데이트·가족 외식에 선호",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

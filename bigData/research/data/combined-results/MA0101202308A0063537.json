@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202308A0063537",
+  "name": "고낙온",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 121973,
+  "researchedAt": "2026-09-22T06:50:37.915Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장은 아담했지만 식사 피크 시간이 아님에도 손님이 많았음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 여행객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "낙지볶음",
+      "고낙해물부추전",
+      "치즈감자전",
+      "빨낙칼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00~22:00 (브레이크타임 15:30~16:30, 주말 브레이크타임 없음, 라스트오더 21:20)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 여행 온 관광객 방문 후기 확인됨 (식도락 여행차 방문)"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 광안리 해변가에 위치한 낙지 요리 전문점으로 광안대교 오션뷰와 낙지볶음, 부추전 등이 유명함",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/lFllE/dJMcacJnDng/AAAAAAAAAAAAAAAAAAAAAFhC1XDEye76yN0I06rApRuiCb1BPOcUeN0uqfvvLhsc/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=p2l9RAfYyHC%2BEMsPPquW7eCB6uE%3D",
+    "https://blog.kakaocdn.net/dna/cmGu5M/dJMcadhbJ2R/AAAAAAAAAAAAAAAAAAAAAL1z7EwqfTGw-C3j323ZlHHBrei5VoNopcrCjCKVoUEo/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=O5aa0kd780w%2BgBABkSwHspAPxyo%3D",
+    "https://blog.kakaocdn.net/dna/DMz7G/dJMcaibLwwc/AAAAAAAAAAAAAAAAAAAAAAT2UAZw4xtYw5w3CS6wwru5ewscWjr4vj4fOxPs0f7P/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=%2FqySc9I4yPDRF9kWpl8xTfN1GX0%3D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "낙지볶음",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매장은 아담했지만, 식사 피크 시간이 아님에도 손님이 굉장히 많았습니다. 수영구 광안리 해수욕장 낙지 요리와 부추전이 맛있는 '고낙온'은 광안리 해수욕장이 한눈에 보이는 오션뷰를 즐길 수 있는 곳이었는데, 저희는 바다를 보며 식사를 하고 싶어서 바테이블에 자리를 잡아보았어요. 원산지 표시도 잘 되어 있었고, 광안대교가 한눈에 보이는 멋진 오션뷰를 경험 할 수 있었어요b",
+      "url": "https://seon86.tistory.com/573"
+    },
+    {
+      "excerpt": "수영구 광안리 해수욕장 낙지 요리와 부추전이 맛있는 '고낙온'은 낙지볶음으로 유명한 곳이라고 해서, 낙지볶음 2인분과 부추전, 치즈감자전을 주문해보았습니다. 낙지볶음 기본맛이 신라면보다 조금 더 매운정도라고 해서 저희는 덜 매운맛으로 주문했는데, 딱 먹기 좋았습니다. 납작만두와 함께 먹으니 환상궁합~ 부추전은 굉장히 바삭하고 간장소스와 함께 먹으니 최고였습니다b",
+      "url": "https://seon86.tistory.com/573"
+    }
+  ],
+  "sources": [
+    "https://seon86.tistory.com/573"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해수욕장과 광안대교가 한눈에 내려다보이는 정면 오션뷰 환경에서 식사할 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "바삭한 해물부추전과 매콤한 낙지볶음 및 납작만두 조합이 특색 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

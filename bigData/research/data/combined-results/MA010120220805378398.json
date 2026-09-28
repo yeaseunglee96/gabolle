@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220805378398",
+  "name": "소떼농장",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 56678,
+  "researchedAt": "2026-09-22T06:47:23.220Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "정보 없음"
+  },
+  "descriptors": {
+    "audience": "가족 및 일반 외식객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "소떼진갈비살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "정보 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 북구 금곡동(금곡대로616번길 134)에 위치한 '소떼농장 참숯갈비살 금곡점'으로 확인되며, 장애인 접근성 정보 포털(wheelbusan.or.kr) 및 지자체 데이터에 등재되어 있습니다. 주메뉴는 '소떼진갈비살'로 등록되어 있으나, 방문 후기나 블로그 리뷰 등 방문 동기 및 상세 영업시간 관련 데이터는 부족합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "소떼농장 참숯갈비살 금곡점 / 전화번호: 051-365-3339 / 주소: 부산광역시 북구 금곡대로 616번길 134 / 금곡역 6번 출구에서 113m / 주메뉴: 소떼진갈비살",
+      "url": "https://wheelbusan.or.kr"
+    }
+  ],
+  "sources": [
+    "https://wheelbusan.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "금곡역 인근에서 소갈비살(소떼진갈비살)을 숯불구이로 즐길 수 있는 고깃집",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

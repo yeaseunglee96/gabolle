@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202509A0037941",
+  "name": "육장갈비",
+  "cat": "소고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 59196,
+  "researchedAt": "2026-09-22T06:57:03.746Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 단체 모임, 관광객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "육장 서서 갈비",
+      "돼지 왕 갈비",
+      "국내산 생삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~일 10:00~24:00 (매일 10:00~24:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해수욕장 인근 위치로 식사 및 모임 장소로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "해운대 해변 인근 위치한 소갈비/돼지갈비 구이 전문점으로 서서갈비 스타일의 육장 서서 갈비가 시그니처 메뉴입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "육장 서서 갈비 25,000원, 돼지 왕 갈비 17,000원, 국내산 생삼겹살 17,000원",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "육장갈비 해운대점 위치: 부산광역시 해운대구 해운대해변로265번길 11, 2층. 영업시간: 월~일 10:00~24:00. 주요 메뉴: 육장 서서 갈비 25,000원, 돼지 왕 갈비 17,000원, 국내산 생삼겹살 17,000원. 해운대 해수욕장 인근에 위치한 갈비 전문점으로, 식사 및 모임 장소로 이용되고 있습니다.",
+      "url": "https://heyyumi.ai"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "특제 소스에 찍어 먹는 서서갈비 스타일의 육장 서서 갈비와 양념갈비 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 해수욕장 인근에 위치하여 해변 관광 및 식사 모임 접근성 우수",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202510A0009461",
+  "name": "대패생각사상점",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 135340,
+  "researchedAt": "2026-09-22T06:41:47.055Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 웹 언급 없음"
+  },
+  "descriptors": {
+    "audience": "단체 회식 및 가족 외식객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "대패삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "미입력"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 모라동 부산은행 옆 건물 2층에 위치한 대패삼겹살 전문점으로 모라동 회식 및 가성비 고깃집으로 알려져 있음.",
+  "photoUrls": [
+    "https://blog.kakaocdn.net/dna/zctuz/dJMcacC2bkX/AAAAAAAAAAAAAAAAAAAAAMBHDcqyX_4YQEqTZzsReXjQYuVMnHvYf5GCyDRnVXRT/img.jpg?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=%2FGWE4ITZN4GwbA9vmx3U4wldXSQ%3D"
+  ],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "2. 대패생각 사상점 돼지고기구이 블로그 리뷰 20개 방문자 리뷰 114개 전화번호 0507-1482-5886 주소 부산광역시 사상구 사상로 446 2층 위치 설명 모라동 부산은행지점 바로 옆 건물 2층입니다. 키워드 모라동고기집, 사상구단체회식고기집, 모라동회식, 사상구고기집, 모라동가성비고기집",
+      "url": "https://little-cat.tistory.com/entry/%EB%B6%80%EC%82%B0-%EB%AA%A8%EB%9D%BC-%EB%A7%9B%EC%A7%91-%EB%B2%A0%EC%8A%A4%ED%8A%B8-10-%EC%88%9C%EC%9C%84-%EC%B6%94%EC%B2%9C"
+    }
+  ],
+  "sources": [
+    "https://little-cat.tistory.com/entry/%EB%B6%80%EC%82%B0-%EB%AA%A8%EB%9D%BC-%EB%A7%9B%EC%A7%91-%EB%B2%A0%EC%8A%A4%ED%8A%B8-10-%EC%88%9C%EC%9C%84-%EC%B6%94%EC%B2%9C"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "저렴한 대패삼겹살 중심의 모라동 가성비 단체 회식 및 모임 고깃집으로 이용됨",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

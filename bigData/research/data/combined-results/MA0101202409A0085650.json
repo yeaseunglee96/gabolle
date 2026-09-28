@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202409A0085650",
+  "name": "백석",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 61963,
+  "researchedAt": "2026-09-22T06:59:57.503Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트·혼술객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "위스키",
+      "칵테일"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 광남로 191 2층에 위치한 '백석'은 경양식 식당이 아닌 LP바/음악감상 바(낮에는 '낮석' 형태로 카페 운영)입니다. 경양식 업종 관련 메뉴 정보는 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로 191에 위치한 백석은 광안리에서 유명한 LP 바(Bar)입니다. 저녁에는 위스키와 칵테일을 즐길 수 있는 바로 운영되며, 낮에는 '낮석'이라는 이름으로 카페처럼 운영되기도 합니다. 감성적인 분위기와 음악 선곡으로 데이트 코스나 혼술 장소로 인기가 많습니다. 식사를 주로 하는 경양식집이 아닙니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "LP 음악 감상과 분위기 좋은 공간에서 위스키·칵테일을 즐길 수 있는 바",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

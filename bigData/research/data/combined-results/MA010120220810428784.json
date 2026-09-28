@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220810428784",
+  "name": "프로방스베이커리",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 89757,
+  "researchedAt": "2026-09-22T06:49:50.850Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "영도 산복도로(신선동) 일대 주민들이 주로 찾는 전형적인 동네 빵집"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 영도구 하나길 449(신선동2가 95-13)에 위치한 소규모 동네 빵집으로, '프로젝트 영도 2022' 등 지역 문화/도시재생 기록에서 신선동의 오래된 베이커리로 언급되어 있습니다. 상세 메뉴 가격이나 영업시간 등은 온라인에 상세히 등록되어 있지 않은 소규모 로컬 가게입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "프로방스 베이커리: 부산 영도구 신선동2가 95-13. 신선의 빵집. 신선동의 오래된 베이커리.",
+      "url": "https://ydct.works"
+    }
+  ],
+  "sources": [
+    "https://ydct.works"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선동 산복도로 주변에서 오랜 기간 자리를 지켜온 동네 빵집",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "인근 지역 주민들의 일상적인 생활 시설로 이용되는 로컬 베이커리",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

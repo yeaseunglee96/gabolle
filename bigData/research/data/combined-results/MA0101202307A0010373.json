@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202307A0010373",
+  "name": "히든에이스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50394,
+  "researchedAt": "2026-09-22T11:42:25.481Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "불명",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 수영구 광안해변로 239 광안샤인빌딩 3층)의 '히든에이스'는 경양식 식당이 아닌 홀덤펍(주점) 브랜드 매장으로, 경양식 음식점 정보 및 후기가 존재하지 않습니다.",
+  "notes": "'히든에이스 광안리점'은 홀덤펍 업종으로 확인되어 경양식 음식점으로 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "http://hiddenace.co.kr"
+  ],
+  "whyPeopleGo": []
+}

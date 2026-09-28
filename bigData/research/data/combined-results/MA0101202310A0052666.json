@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202310A0052666",
+  "name": "부산식",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 50516,
+  "researchedAt": "2026-09-22T10:45:48.852Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 고기 및 반주를 즐기는 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "삼겹살",
+      "돼지갈비",
+      "돼지꼬리",
+      "된장찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산광역시 수영구 광남로 159에 위치한 고깃집 '부산식'으로, 숯불 삼겹살, 돼지갈비, 돼지꼬리 등의 돼지고기 요리와 된장찌개 등을 판매하는 레트로풍 고깃집입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "레트로한 분위기의 고깃집으로, 숯불에 구운 삼겹살, 돼지갈비, 돼지꼬리 등 다양한 돼지고기 요리를 제공합니다. 매장 내부는 일본 쇼와 시대의 분위기를 재현한 인테리어로 알려져 있으며, 수제 반찬과 장아찌 등을 곁들여 먹을 수 있습니다.",
+      "url": "https://autoreserve.com"
+    },
+    {
+      "excerpt": "방문객들 사이에서 \"광안리에 있는 고깃집 중 최고\", \"된장찌개가 맛있다\"는 등의 긍정적인 평가가 있는 바비큐/고기 요리 전문점입니다.",
+      "url": "https://maptons.com"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com",
+    "https://maptons.com",
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숯불에 구운 삼겹살, 돼지갈비, 돼지꼬리 등 특색 있는 고기 부위와 맛있는 된장찌개 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

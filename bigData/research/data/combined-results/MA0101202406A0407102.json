@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202406A0407102",
+  "name": "아로하광안",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 68393,
+  "researchedAt": "2026-09-22T07:06:45.709Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "창가 오션뷰 자리는 예약 필수이며 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "광안대교 뷰를 즐기려는 관광객 및 데이트 손님",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "게내장크림파스타",
+      "치즈많이쭈삼",
+      "명란치즈새우닭"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 01:00 (금·토 ~ 03:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 오션뷰 명소로 광안리를 찾는 여행객 및 관광객 방문 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영구 광안해변로 237 테마타워 3층 302호에 위치한 퓨전 양식/요리주점으로, 게내장크림파스타와 치즈쭈삼 등이 시그니처이며 광안대교 뷰가 핵심 방문 요인입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "게내장크림파스타 약 2만원대, 요리 안주류 2~3만원대",
+    "priceWon": 23000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'아로하광안'은 부산광역시 수영구 광안해변로 237(테마타워 3층 302호)에 위치한 요리주점입니다. 광안리 해변 근처에 위치하여 광안대교 오션뷰를 즐길 수 있는 곳으로 알려져 있습니다. 주요 메뉴는 게내장크림파스타, 치즈많이쭈삼(쭈꾸미삼겹살), 아로하 샤브샤브, 불닭계란말이 등 다양한 요리주점 메뉴를 판매합니다. 주차는 불가하며 창가 자리를 원할 경우 미리 예약하는 것이 권장됩니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해변과 광안대교가 한눈에 보이는 탁 트인 오션뷰 전망",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "게내장크림파스타와 치즈많이쭈삼 등 특색 있는 퓨전 양식 안주 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

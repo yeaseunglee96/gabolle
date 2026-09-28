@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202603A0044925",
+  "name": "토리시코",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 80091,
+  "researchedAt": "2026-09-22T11:51:41.084Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "술자리·혼술객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "야키토리"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:30 영업 시작"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "식신 및 구인 사이트 등록 정보 외에 세부적인 블로그 리뷰나 상세 메뉴/가격/혼잡도 정보는 웹상에 매우 제한적입니다. 야키토리 전문 주점(이자카야)으로 등록되어 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 감포로 100(민락동, 민락동카라디움주상복합)에 위치한 토리시코는 야키토리(닭꼬치) 전문점입니다. 17:30 영업 시작.",
+      "url": "https://www.siksinhot.com/P/1545625"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1545625"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "민락동·수영역 인근에서 야키토리(닭꼬치구이) 안주를 즐길 수 있는 이자카야",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

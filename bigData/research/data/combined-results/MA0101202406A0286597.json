@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202406A0286597",
+  "name": "로라집",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 80487,
+  "researchedAt": "2026-09-22T12:14:15.182Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 상호명('로라집') 및 주소(부산광역시 수영구 광남로48번길 16)로 검색한 결과, 실제 방문 후기, 메뉴, 영업시간, 사진 등 음식점 운영 관련 유효한 웹 정보가 확인되지 않습니다.",
+  "notes": "부산 수영구 광남로48번길 16에 위치한 '로라집'에 대해 실제 이용 후기 및 상세 정보를 검색하였으나 유의미한 식당 운영 정보가 확인되지 않아 found: false로 처리하였습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

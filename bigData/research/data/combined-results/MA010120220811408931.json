@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220811408931",
+  "name": "여의도",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 73033,
+  "researchedAt": "2026-09-22T11:15:16.899Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid"
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 없음 (실제 후기 및 운영 정보 미확인)",
+  "notes": "부산광역시 수영구 민락수변로 5 (성진회센터) 주소지에 상호 '여의도' 또는 '여의도횟집'이 데이터베이스상 등록된 흔적은 일부 확인되나, 실제 운영 여부나 손님 후기, 가격, 영업시간, 사진 등의 상세 정보가 존재하는 웹 페이지를 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bizno.net",
+    "https://sluurpy.com"
+  ],
+  "whyPeopleGo": []
+}

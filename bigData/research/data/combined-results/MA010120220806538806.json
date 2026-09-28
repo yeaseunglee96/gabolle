@@ -1,0 +1,67 @@
+{
+  "id": "MA010120220806538806",
+  "name": "뉴아쥬앤모찌꼬",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 51475,
+  "researchedAt": "2026-09-22T12:12:42.051Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "빵 애호가, 빵지순례객",
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "바게트",
+      "깜빠뉴",
+      "사워도우",
+      "치아바타",
+      "식빵"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "'아는 사람만 아는 광안리의 기본 빵 맛집'이자 빵 투어 코스로 언급됨"
+  },
+  "menuDiversity": {
+    "found": true
+  },
+  "notFound": null,
+  "notes": "상호 등록/표기상 '뉴아쥬앤모찌꼬' 및 '누아쥬앤모찌꼬'로 혼용되어 알려진 천연발효/식사빵 전문 베이커리. 바게트와 깜빠뉴, 사워도우 등 기본빵으로 유명함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "아는 사람만 아는 광안리의 기본 빵 맛집으로 알려져 있습니다. 빵 투어 코스로 방문하는 분들이 많은 곳입니다. 식빵, 바게트, 깜빠뉴, 사워도우, 치아바타, 통밀빵 등을 판매하며, 통밀빵은 미리 주문해야 합니다. 위치: 부산 수영구 광안로49번길 25, 1층",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://kookje.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "바게트, 사워도우, 깜빠뉴 등 겉바속촉 기본 식사빵과 발효빵의 완성도가 뛰어남",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 빵지순례 코스로 빵 애호가들이 찾아감",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

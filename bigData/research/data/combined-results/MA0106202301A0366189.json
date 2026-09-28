@@ -1,0 +1,61 @@
+{
+  "id": "MA0106202301A0366189",
+  "name": "앨리스도넛",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 64428,
+  "researchedAt": "2026-09-22T12:11:11.011Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "밀락더마켓 복합문화공간 내 입점 매장으로 주말 및 공휴일 방문객 혼잡 언급"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 관광객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "해운대도넛",
+      "바닐라커스터드도넛"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금: 11:00 - 20:30, 토~일: 09:00 - 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 광안리/밀락더마켓을 찾는 관광객 및 나들이객 위주"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영구 민락수변로17번길 56 복합문화공간 밀락더마켓 2층에 입점한 수제도넛 전문점 앨리스도넛 밀락더마켓점 조사 완료.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산 수영구 민락수변로17번길 56, 밀락더마켓 2층 PT-7, 영업시간: 월~금: 11:00 - 20:30 / 토~일: 09:00 - 22:00. 앨리스도넛은 수제 도넛을 전문으로 하는 디저트 브랜드로, 동화 같은 인테리어와 다양한 맛의 도넛을 선보이고 있습니다.",
+      "url": "https://www.youtube.com/"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "밀락더마켓 복합문화공간 2층에 위치하여 쇼핑과 휴식을 겸해 즐길 수 있는 비주얼 좋은 수제 도넛 디저트 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

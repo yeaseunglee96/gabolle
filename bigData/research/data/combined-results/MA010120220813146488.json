@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220813146488",
+  "name": "코헨",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 94515,
+  "researchedAt": "2026-09-22T12:12:23.784Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실질적인 경양식 식당 정보 없음 (과거 음악 카페 혹은 단순 상가 등록 이력만 존재하며 실제 경양식집 후기/메뉴/영업 정보 없음)",
+  "notes": "해당 주소(부산 남구 용소로13번길 18)의 건물 3층에 상호 '코헨'이 등록된 이력 또는 과거 음악 카페 형태의 단편적인 기록만 존재하며, 경양식 음식점으로서의 메뉴, 가격, 영업시간, 줄서기 등 실질적인 방문 정보는 존재하지 않아 없는 가게로 판단(found: false)하였습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.busan.com"
+  ],
+  "whyPeopleGo": []
+}

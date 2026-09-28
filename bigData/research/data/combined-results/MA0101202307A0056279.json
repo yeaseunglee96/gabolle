@@ -1,0 +1,76 @@
+{
+  "id": "MA0101202307A0056279",
+  "name": "시시토리",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 69040,
+  "researchedAt": "2026-09-22T06:50:28.996Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 등을 통해 웨이팅 상황 확인 및 대기 필요 언급 있음"
+  },
+  "descriptors": {
+    "audience": "광안리 해변 인근 관광객 및 혼밥/모임 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "토리마부시 정식",
+      "숯불닭구이덮밥"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 21:00 (브레이크 타임 15:30 ~ 17:00, 라스트 오더 20:00, 매주 수요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 도보 3분 거리로 여행객 및 인근 방문객 언급 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 광안리에 위치한 후쿠오카식 숯불 닭구이 덮밥(토리마부시) 전문점. 24시간 숙성 닭다리살을 숯불에 구워내며 오차즈케 방식으로 즐길 수 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로255번길 36에 위치한 '시시토리'는 숯불 닭구이 덮밥(토리마부시) 전문점입니다. 운영 시간: 11:30 ~ 21:00 (브레이크 타임: 15:30 ~ 17:00, 라스트 오더: 20:00, 매주 수요일 휴무). 24시간 숙성한 국내산 닭 다리살을 숯불에 구워 제공하며 전용 주차장은 없습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "국내산 닭 다리살을 24시간 숙성하여 숯불에 구워낸 '숯불닭구이덮밥'이 대표 메뉴입니다. 따뜻한 밥 위에 닭고기와 수란을 곁들여 부드럽게 즐기거나, 마지막에 육수를 부어 '오차즈케' 스타일로 깔끔하게 마무리하는 방식이 특징입니다.",
+      "url": "https://www.daum.net"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.daum.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "24시간 숙성한 닭다리살 숯불구이를 오차즈케 등 4가지 방식으로 즐기는 별미 덮밥",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해수욕장에서 도보 3분 거리로 접근성이 좋음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

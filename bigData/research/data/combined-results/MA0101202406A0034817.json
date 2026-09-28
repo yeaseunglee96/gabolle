@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202406A0034817",
+  "name": "모스트",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 56122,
+  "researchedAt": "2026-09-22T11:51:20.532Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소에 일반 대중이 이용하는 백반/한정식 식당 정보 없음",
+  "notes": "해당 주소(부산 해운대구 해운대로570번길 25, 우동 644-3 에비앙룸 3층)의 '모스트'는 사업자등록/유흥업소(펍) 등으로 등록된 내역만 일부 존재하며, 소비자가 이용하는 백반/한정식 식당으로서의 웹 리뷰, 메뉴, 가격, 영업 정보가 전무합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bizno.net",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

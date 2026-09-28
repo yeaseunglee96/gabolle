@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220803845084",
+  "name": "부산곰장어",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 56952,
+  "researchedAt": "2026-09-22T10:45:23.611Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 현지인, 술자리 모임",
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "산곰장어 양념구이",
+      "산곰장어 소금구이"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 ~ 02:00 (또는 10:30 ~ 23:00)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "해운대 전통시장(구남로41번길 15) 내 곰장어 골목에 위치한 곰장어 전문 식당으로, 산곰장어 양념구이와 소금구이 등을 취급하며 늦은 밤/새벽까지 영업합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 해운대구 구남로41번길 15 (중동) 전화번호: 051-747-9271 영업시간: 10:30 ~ 02:00 특징: 해운대시장 내에 위치하고 있으며, 주황색 간판이 특징입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://ob.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대시장 곰장어 골목에 위치하여 즉석 산곰장어 양념·소금구이를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대역 도보 접근성 및 심야(새벽 2시)까지 운영하여 술자리/식사 방문이 용이함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

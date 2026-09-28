@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220809704793",
+  "name": "남강반점",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 51189,
+  "researchedAt": "2026-09-22T06:00:30.793Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "웹상에 대기 및 혼잡 관련 후기 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 배달 및 식사",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광객 및 현지인 관련 후기 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 금정구 삼차로 25-1(서동 302-1755)에 등록된 중식당(남강반점, 전화번호 051-529-3603)이나, 온라인상에 세부 메뉴판, 영업시간, 이용 후기, 사진 등이 등록되어 있지 않은 소규모 동네 배달/동네 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 금정구 삼차로 25-1 (서동) 남강반점 전화번호: 051-529-3603 지번 주소: 부산광역시 금정구 서동 302-1755",
+      "url": "https://www.geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

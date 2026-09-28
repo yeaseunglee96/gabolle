@@ -1,0 +1,84 @@
+{
+  "id": "MA010120220812592760",
+  "name": "주례수육",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 45298,
+  "researchedAt": "2026-09-22T06:27:23.522Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심시간 등 피크 타임에는 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "주민, 직장인, 가성비 맛집을 찾는 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "수육칼국수",
+      "수육",
+      "밀면"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 10:00 ~ 오후 21:00 (브레이크타임 15:30 ~ 17:00 / 매달 첫째·셋째 주 일요일 휴무) 혹은 11:00 ~ 20:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "지역 주민들이 즐겨 찾는 가성비 로컬 맛집이자 외부 방문객도 찾는 곳"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 사상구 가야대로 290-18에 위치한 '주례수육칼국수'(업종: 돼지고기 구이/찜·칼국수 전문)에 대한 실제 웹 조사 결과입니다. '주례수육'이라는 이름으로 등록/불리기도 하며 정육점 출신 대표가 운영하는 수육칼국수 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "수육칼국수 6,500원 / 수육(소) 8,000원",
+    "priceWon": 6500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 사상구 가야대로 290-18 (주례3동) '주례수육칼국수'. 칼국수 위에 쫀득한 수육이 올라가며, 진한 육수와 탱탱한 면발이 특징입니다. 정육점 경력을 가진 대표가 운영하며, 돼지·소·생선을 조합한 육수를 사용하여 깊은 맛을 냅니다. 영업시간 오전 10시 ~ 오후 9시, 브레이크 타임 오후 3시 30분 ~ 5시, 매달 첫째·셋째 주 일요일 휴무. 2017년 KBS 2TV 생생정보 가격파괴 WHY 코너에 소개된 바 있습니다.",
+      "url": "http://www.kookje.co.kr/news2011/asp/newsbody.asp?code=0200&key=20170511.99002184133"
+    },
+    {
+      "excerpt": "칼국수 위에 부드러운 수육이 고명으로 푸짐하게 올라가는 수육칼국수가 대표메뉴이며 가성비 좋은 로컬 맛집으로 알려져 점심 피크 타임에는 대기가 생기기도 합니다. 전용 주차장은 없고 주례역 인근 골목에 위치합니다.",
+      "url": "https://www.siksinhot.com/P/1010313"
+    }
+  ],
+  "sources": [
+    "http://www.kookje.co.kr/news2011/asp/newsbody.asp?code=0200&key=20170511.99002184133",
+    "https://www.siksinhot.com/P/1010313"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부드러운 수육 고명이 듬뿍 올라간 진한 칼국수와 수육의 독특한 맛과 조합",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "수육칼국수 6천원대, 수육 8천원대로 가성비가 매우 뛰어나 생생정보 가격파괴 WHY 등에 소개됨",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "주례역 인근 주민과 직장인들이 꾸준히 찾는 동네 로컬 맛집",
+      "sources": [
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

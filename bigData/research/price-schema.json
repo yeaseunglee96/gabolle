@@ -74,6 +74,11 @@
         "dishCount": { "type": ["number", "null"], "description": "메뉴판에서 실제로 셀 수 있었던 메뉴 가짓수" }
       }
     },
+    "photoUrls": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "실제로 읽은 페이지에 있던 이 가게 사진의 '이미지 파일' 주소만 (jpg/png/webp 등으로 끝나는 직링크). 그 페이지의 URL 이 아니라 <img src> 값. 이미지 자체는 절대 내려받지 않는다 — 주소만 적는다. 없으면 빈 배열."
+    },
     "notFound": { "type": ["string", "null"] },
     "notes": { "type": "string" }
   },

@@ -1,0 +1,56 @@
+{
+  "id": "MA0101202412A0084054",
+  "name": "효에스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 63596,
+  "researchedAt": "2026-09-22T10:31:09.507Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "커피 애호가, 광안리 방문객",
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "에스프레소"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토: 10:30 ~ 20:00 (라스트오더 19:30), 일: 10:30 ~ 19:00 (라스트오더 18:30)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "'효에스'는 사업자 인허가명/약칭으로, 실제 해당 주소(부산 수영구 수영로510번길 20, 1층)에서 운영된 상호는 '효 에스프레소 커피바(hyo espresso coffee bar)'입니다. 공공 인허가상 경양식/휴게음식점 계열로 분류되어 있으나 실제로는 에스프레소 전문 커피바입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 효 에스프레소 커피바, 주소: 부산광역시 수영구 수영로510번길 20, 1층, 지하철 2호선 금련산역 1번 출구에서 도보 약 5분 거리, 영업시간 월~토 10:30~20:00, 일요일 10:30~19:00, 주차: 전용 주차장 없음(인근 유료주차장 이용)",
+      "url": "https://maptons.com"
+    }
+  ],
+  "sources": [
+    "https://bizno.net",
+    "https://maptons.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "모던한 공간에서 정통 에스프레소 본연의 맛을 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

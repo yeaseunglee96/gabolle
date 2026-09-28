@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220808253441",
+  "name": "티그히그",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 88623,
+  "researchedAt": "2026-09-22T12:05:44.845Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "queueing": false
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "웹 검색 결과(4회 시도) 해당 주소(부산광역시 수영구 수영로554번가길 14) 및 상호명 '티그히그'에 부합하는 실제 백반/한정식 식당 리뷰, 메뉴, 영업 정보가 확인되지 않음",
+  "notes": "부산 수영구 광안동(수영로554번가길 14)의 '티그히그'를 검색하였으나, 실제 백반/한정식 음식점으로서의 방문기, 메뉴, 영업시간 등의 상세 정보가 존재하지 않아 규칙에 따라 미발견(found: false) 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": []
+}

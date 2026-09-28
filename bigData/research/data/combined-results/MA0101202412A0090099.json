@@ -1,0 +1,73 @@
+{
+  "id": "MA0101202412A0090099",
+  "name": "회사원",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 63971,
+  "researchedAt": "2026-09-22T11:37:23.694Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "지하 매장으로 늦은 시간까지 운영하며 단체 및 술자리 손님이 많은 편이나 전용 대기 시스템은 특정되지 않음"
+  },
+  "descriptors": {
+    "audience": "젊은 층, 직장인 회식 및 술자리 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "막썰어회",
+      "모듬회",
+      "산오징어",
+      "해산물모듬"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 17:00 ~ 05:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서면 번화가에서 가성비 술자리·2차 장소를 찾는 인근 직장인 및 현지 청년층 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 서면 쥬디스태화 인근 지하 1층에 위치한 포장마차/시장 분위기의 가성비 막썰어회 전문 주점. 매일 새벽 5시까지 운영되어 늦은 시간 술자리 및 회식 장소로 자주 이용됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "막썰어회 (소/중/대) 등 포차형 가성비 메뉴 구성",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "서면에서 가성비 횟집으로 알려져 있으며, 매장이 지하/반지하 형태인 것이 특징입니다. 시장 같은 분위기의 인테리어로 운영되며 막썰어회(모듬회), 산오징어, 해산물 등을 저렴한 가격으로 부담 없이 즐길 수 있습니다. 매일 17:00부터 다음 날 05:00까지 운영하여 늦은 시간까지 이용이 가능합니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서면 중심가에서 부담 없는 가격으로 막썰어회와 해산물을 즐길 수 있는 높은 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "매일 오후 5시부터 다음 날 새벽 5시까지 운영하여 늦은 시간 술자리 및 2차 방문 용이",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

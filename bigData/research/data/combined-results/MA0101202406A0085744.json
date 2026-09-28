@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202406A0085744",
+  "name": "세이니쿠",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 89230,
+  "researchedAt": "2026-09-22T12:04:41.698Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "모임/데이트/직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "진갈비살",
+      "우설",
+      "된장술밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미기재"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 무학로 30-4에 위치한 개인 화로 야키니쿠 전문점으로, 다양한 소고기 특수부위 세트 및 단품, 된장술밥 등의 식사류를 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "2인 세트 70,000원, 진갈비살 21,000원, 살치살 18,000원, 한우 우설 23,000원, 된장술밥 9,000원 등",
+    "priceWon": 70000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 무학로 30-4(광안동 120-13)에 위치한 세이니쿠는 개인 화로를 이용해 고기를 즐길 수 있는 야키니쿠 전문점입니다. 주요 메뉴: 진갈비살, 살치살, 우설, 안창살, 등심, 한우 차돌박이 등을 세트로 구성하여 제공합니다. 식사 마무리 메뉴로는 된장술밥이 인기 있습니다. 분위기: 어두운 톤의 목재 인테리어와 은은한 조명을 사용해 아늑한 분위기를 연출하며, 바 테이블과 테이블석, 룸 형태의 자리가 마련되어 있습니다. 세트 메뉴: 2인 세트 70,000원 / 3인 세트 90,000원",
+      "url": "https://siksinhot.com/p/1695420"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com/p/1695420"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "개인 화로에 구워 먹는 다양한 부위의 야키니쿠와 인기 식사 메뉴(된장술밥) 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "어두운 톤의 목재 인테리어와 바/룸 좌석을 갖춘 아늑한 일본풍 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

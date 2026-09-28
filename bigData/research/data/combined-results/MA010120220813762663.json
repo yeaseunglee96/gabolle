@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220813762663",
+  "name": "명품천상",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 54341,
+  "researchedAt": "2026-09-22T12:04:24.573Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "비즈니스 미팅, 조용한 식사 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "사시미",
+      "오마카세",
+      "초밥"
+    ],
+    "yearsClaimed": 2021
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 해운대구 센텀3로 26 (우동, 센텀스퀘어 201호)에 위치한 프리미엄 일식 전문점(법인명: 주식회사 명품천상 / 상호: 천상일식). 2021년 설립되어 사시미, 초밥 코스 및 오마카세를 취급하고 있으며 비즈니스 미팅이나 조용한 식사 모임 목적으로 주로 알려져 있습니다. 세부 영업시간, 가격표 및 대기 관련 블로그 리뷰 자료는 웹상에서 상세하게 공개되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 해운대구 센텀3로 26, 센텀스퀘어 201호. 업종 및 성격: 프리미엄 일식 다이닝 및 식품 중개 전문 기업입니다. 일식 오마카세 및 코스요리 등을 제공하는 전문점으로 알려져 있습니다. 설립일: 2021년 7월 7일.",
+      "url": "https://rndcircle.io"
+    },
+    {
+      "excerpt": "천상일식 (센텀스퀘어 201호): 사시미, 초밥 등을 제공하는 프리미엄 일식 다이닝입니다. 오마카세와 같은 정통 일식 메뉴를 갖추고 있어 비즈니스 미팅이나 조용한 식사 자리에 적합한 곳으로 알려져 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://rndcircle.io",
+    "https://jobkorea.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "비즈니스 미팅이나 조용한 자리에 어울리는 프리미엄 사시미 및 오마카세 코스 요리를 제공함",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

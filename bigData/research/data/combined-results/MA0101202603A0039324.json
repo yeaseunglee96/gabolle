@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202603A0039324",
+  "name": "수련회",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 72606,
+  "researchedAt": "2026-09-22T07:01:29.018Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "친구, 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "숙성회"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 ~ 23:00 (라스트 오더 22:00)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 광안동(광남로 81)에 위치한 숙성회 전문점 '수련회'에 대한 조사 결과입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로 81(광안동 190-7)에 위치한 '수련회'는 광안리 해수욕장 인근의 숙성회 전문점입니다. 업종: 횟집 (숙성회 전문), 주소: 부산광역시 수영구 광남로 81, 1층, 영업시간: 16:00 ~ 23:00 (라스트 오더 22:00)",
+      "url": "https://www.siksinhot.com/P/1971578"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1971578",
+    "https://bizno.net/article/190781"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 인근에서 숙성회를 전문으로 취급하는 이색 상호의 횟집/주점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

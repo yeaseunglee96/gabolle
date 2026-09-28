@@ -1,0 +1,74 @@
+{
+  "id": "MA0101202307A0056610",
+  "name": "씨디씨",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 71448,
+  "researchedAt": "2026-09-22T12:02:44.783Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 있는 곳이라 주말 등에는 웨이팅이 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 소규모 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "유린기",
+      "꿔바로우",
+      "어향가지튀김",
+      "깐쇼새우",
+      "차돌박이 짬뽕탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 - 01:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락로 32에 위치한 중식 타파스 주점(Chinese Drink Club, CDC). 오픈 키친 형태의 바와 세련된 블랙톤 인테리어의 주점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 광안리 민락동에 위치한 CDC(Chinese Drink Club). 상호명: CDC (Chinese Drink Club). 위치: 부산 수영구 민락로 32 1층. 영업시간: 18:00 - 01:00 (연중무휴). 분위기: 힙한 음악이 흐르고 오픈 키친 형태를 갖춘 세련된 중식 요리 주점입니다. 블랙톤의 인테리어와 포인트 조명으로 아늑한 느낌을 주어 데이트나 모임 장소로 인기가 많습니다. 메뉴: 유린기, 어향가지튀김, 꿔바로우, 깐쇼새우, 차돌박이 짬뽕탕 등 다양한 중식 안주를 화요, 위스키, 맥주 등 다양한 주류와 함께 즐길 수 있습니다. 인기가 많은 곳이라 주말 등에는 웨이팅이 발생할 수 있습니다.",
+      "url": "https://www.siksinhot.com/P/1557007"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1557007"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "힙하고 세련된 감성의 오픈키친 분위기에서 즐기는 차이니즈 타파스 요리와 주류",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "데이트나 모임 장소로 어울리는 트렌디하고 감각적인 매장 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

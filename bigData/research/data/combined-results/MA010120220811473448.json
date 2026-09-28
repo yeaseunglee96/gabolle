@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811473448",
+  "name": "시골삼밥집",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 76216,
+  "researchedAt": "2026-09-22T11:57:38.960Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "점심시간에는 해운대구청 직원이나 인근 직장인 손님들로 붐빌 수 있음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인, 주민, 가성비 집밥을 찾는 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "쌈밥정식",
+      "추어탕",
+      "된장찌개",
+      "생삼겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대구청 인근 직장인과 지역 주민들이 집밥 정식 및 쌈밥을 먹기 위해 주로 찾는 현지 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "가게명은 '시골쌈밥집'(또는 시골삼밥집 표기)이며, 쌈밥 정식 주문 시 된장찌개 또는 추어탕을 선택할 수 있는 가성비 쌈밥/백반집입니다. 검색 한도 내에서 정확한 영업시간과 수치 가격표 원문은 추가 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대구청 인근에 위치한 '시골쌈밥집'. 집밥 같은 편안한 분위기의 한식당으로, 푸짐한 쌈과 다양한 밑반찬이 제공되는 곳입니다. 쌈밥정식은 기본 메뉴로 찌개를 추어탕 또는 된장찌개 중 선택할 수 있습니다. 삼겹살이나 두루치기를 추가로 주문하여 곁들여 먹을 수 있습니다. 오랜 기간 해운대 지역에서 쌈밥 전문점으로 알려져 있으며, 점심시간에는 인근 직장인들로 붐빌 수 있습니다.",
+      "url": "https://www.siksinhot.com/P/1013401"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1013401"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 쌈채소와 정갈하고 푸짐한 집밥 스타일 밑반찬에 추어탕 또는 된장찌개를 선택해 즐기는 푸짐한 쌈밥 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "해운대구청 인근 직장인 및 현지인들이 점심 식사로 즐겨 찾는 편안한 백반·쌈밥 전문점",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

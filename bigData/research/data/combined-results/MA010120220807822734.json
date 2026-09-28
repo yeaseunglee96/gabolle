@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220807822734",
+  "name": "사카나식당",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 162675,
+  "researchedAt": "2026-09-22T11:30:12.132Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장 공간이 협소하여 피크타임이나 주말에 웨이팅이 발생할 수 있다는 후기 확인"
+  },
+  "descriptors": {
+    "audience": "연인, 2030, 혼밥객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "구슬초밥",
+      "닭가라아게세트",
+      "스지우동"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 11:30~21:00 (월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길 특성상 독특한 비주얼의 구슬초밥을 찾는 젊은 층 및 관광객 방문 비율이 높았음"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "부산 해운대구 우동1로 34(2층)에 위치했던 일식당으로, 동글동글하게 빚은 구슬초밥과 닭가라아게 세트 등으로 유명했으나 현재는 폐업하여 동일 위치에 다른 매장이 운영 중입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "닭가라아게 세트 / 구슬초밥",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 해리단길에 위치했던 '사카나식당'은 귀여운 비주얼의 '구슬초밥'으로 유명했던 곳입니다. 위치: 부산광역시 해운대구 우동1로 34 (2층). 일반적인 초밥 형태가 아닌, 밥을 동글동글하게 빚어 그 위에 회나 재료를 올린 '구슬초밥'이 대표 메뉴였습니다. 닭 가라아게나 스지우동 등이 포함된 세트 메뉴가 인기가 많았습니다. 현재 해당 자리는 일본식 면 요리 전문점으로 변경되어 운영 중인 것으로 확인됩니다.",
+      "url": "https://www.siksinhot.com/P/367332"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/367332"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동글동글하게 빚어낸 독특하고 아기자기한 비주얼의 시그니처 구슬초밥",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "구슬초밥, 닭가라아게, 미니 스지우동 등이 알차게 구성된 세트 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

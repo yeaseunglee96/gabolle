@@ -1,0 +1,86 @@
+{
+  "id": "MA010120220812652383",
+  "name": "부센동",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 104332,
+  "researchedAt": "2026-09-22T11:27:22.095Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "점심 등 피크 타임에 웨이팅이 발생할 수 있으며 보통 20분 내외 대기가 생김"
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 혼밥, 해산물/카이센동 마니아",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "부센쯔께동",
+      "산더미 시그니처 부센동",
+      "스페셜 카이센동"
+    ],
+    "yearsClaimed": 6
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 21:00 (브레이크타임 15:00 ~ 17:30, 라스트오더 14:30 / 20:30)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안역 1번 출구 앞 접근성으로 광안리를 찾는 관광객뿐만 아니라 현지 덮밥 마니아들에게도 널리 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안리 인근에서 저온 숙성 사시미와 특제 수제 간장을 활용한 카이센동/부센쯔께동 전문점으로 높은 인기를 얻고 있는 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "부센쯔께동(특상) 35,000원 / 시그니처 부센동 29,000원 / 스페셜 카이센동 27,000원 / 사케동 16,000~17,000원",
+    "priceWon": 29000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매일 아침 공수한 신선한 해산물을 특제 소스에 절여 즐기는 '부센쯔께동'이 대표 메뉴입니다. 특히 특대 사이즈 메뉴는 일반 사이즈보다 회의 양이 2배 정도 많고 네기도로, 연어알 등이 푸짐하게 올라가 시각적인 만족감과 가성비를 모두 갖춘 것으로 평가받습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산에서 카이센동을 전문으로 선보인 곳으로, 저온 숙성 사시미와 직접 만든 특제 간장 소스를 사용하는 것이 특징입니다. 점심시간 등 피크 타임에는 약 20분 정도 웨이팅을 하는 경우가 있으며 자리에 있는 키오스크를 통해 주문합니다. 남은 밥에 비벼 먹을 수 있는 매운 참치비빔 소량을 제공하기도 합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매일 아침 들여오는 신선한 해산물과 저온 숙성 회, 수제 간장 베이스의 높은 요리 완성도",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "푸짐하게 쌓아 올린 산더미 부센동과 부센쯔께동 특상 등 비주얼과 푸짐한 구성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "광안역 1번 출구 바로 앞 역세권 상가로 접근성이 뛰어남",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

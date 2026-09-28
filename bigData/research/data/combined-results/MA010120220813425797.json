@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220813425797",
+  "name": "팔딱팔딱식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 57279,
+  "researchedAt": "2026-09-22T11:57:29.351Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안해변로 299(민락동, 씨랜드활어센타 7층)에 등록된 '팔딱팔딱식당'(돼지고기 구이/찜 업종)의 상호 및 위치 정보는 확인되나, 실제 방문자 리뷰/블로그 후기 및 세부 영업 정보(영업시간, 메뉴 가격, 혼잡도 등)는 웹상에 공개되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 299(민락동, 씨랜드활어센타) 팔딱팔딱식당: 씨랜드활어센타 7층에 위치하며, 업종은 돼지고기 구이/찜으로 기재되어 있습니다.",
+      "url": "https://disco.re"
+    }
+  ],
+  "sources": [
+    "https://disco.re"
+  ],
+  "whyPeopleGo": []
+}

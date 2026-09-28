@@ -1,0 +1,86 @@
+{
+  "id": "MA0101202509A0015742",
+  "name": "구름계란덮밥",
+  "cat": "일식 카레/돈가스/덮밥",
+  "attempts": 1,
+  "geminiTokens": 138433,
+  "researchedAt": "2026-09-22T06:53:00.738Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "배달 및 포장 중심 소형 매장으로 대기줄이나 혼잡 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "배달/혼밥 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "돈불고기 구름덮밥",
+      "매콤숯불제육 구름덮밥",
+      "통살돈까스 구름덮밥"
+    ],
+    "yearsClaimed": 2
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "공식 홈페이지 및 검색결과에 지점 영업시간 미기재(배달 앱 실시간 안내)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광객/현지인 구분 언급 없음 (인근 주택·상권 배달/포장 위주)"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "photoUrls": [
+    "https://gooruem.com/images/sns_link.png",
+    "https://gooruem.com/images/main/sec1-tit.png",
+    "https://gooruem.com/images/main/sec1-food1.png",
+    "https://gooruem.com/images/main/sec14-store2.png"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "돈불고기 구름덮밥 / 매콤숯불제육 구름덮밥",
+    "priceWon": 10900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "몽글몽글 시그니처 계란과 수제토핑의 환상적인 만남! 뻔한 덮밥은 이제 그만! 시그니처 계란이 올라간 계란덮밥의 원조! 언제 어디서나 맛있고 푸짐하게! 남녀노소 누구나 좋아하는!",
+      "url": "https://gooruem.com"
+    },
+    {
+      "excerpt": "부산수영점 050-4932-5101 부산 수영구 수영로618번길 114 (광안동) 1층",
+      "url": "https://gooruem.com"
+    }
+  ],
+  "sources": [
+    "https://gooruem.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "몽글몽글하고 부드러운 특제 시그니처 계란과 수제 토핑이 어우러진 차별화된 덮밥을 맛보기 위해",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1만원 안팎의 부담 없는 가격대로 든든하게 식사를 해결할 수 있어서",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "배달과 포장이 편리해 혼밥이나 간편 식사로 접근하기 좋아서",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202306A0090423",
+  "name": "샤브20광안리점",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 67900,
+  "researchedAt": "2026-09-22T06:51:28.137Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "광안대교 오션뷰 맛집으로 방문객이 많아 주말 및 식사 피크 시간에는 웨이팅이 발생함"
+  },
+  "descriptors": {
+    "audience": "가족 외식, 모임, 연인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "소고기 샤브샤브",
+      "돼지고기 샤브샤브",
+      "월남쌈"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (라스트오더 20:50) / 평일 10:00-22:00, 주말 10:00-23:00 변동 가능"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 해변 뷰를 감상할 수 있어 관광객뿐만 아니라 가족 단위 외식 및 모임 장소로 널리 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "소고기 및 돼지고기, 신선한 야채, 샐러드바를 무한리필로 제공하며 5가지 육수(가쓰오부시, 콩, 얼큰, 스키야키, 훠궈) 중 선택 가능한 샤브샤브 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "평일 런치 코스 (80분) / 디너 및 주말·공휴일 코스 (100분)",
+    "priceWon": 20900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 127 (남천동 5-3). 소고기와 돼지고기, 채소 등을 무한리필로 즐길 수 있는 샤브샤브 전문점입니다. 광안대교 뷰를 감상할 수 있는 통창 인테리어로 유명하며, 매장 옆 주차장 이용 시 1시간 30분 무료 주차가 가능합니다.",
+      "url": "https://shabu20.com"
+    },
+    {
+      "excerpt": "평일 런치 코스 (80분): 20,900원 ~ 21,900원 수준, 평일 디너 및 주말/공휴일 코스 (100분): 24,900원 ~ 27,900원 수준. 소고기 샤브샤브와 샐러드바를 무제한으로 이용할 수 있습니다. 가쓰오부시, 콩, 얼큰, 스키야키, 훠궈 등 다양한 육수 중 선택 가능하며, 반반 육수로도 즐길 수 있습니다. 광안리 맛집으로 인기가 많아 특히 주말이나 식사 피크 시간에는 웨이팅이 발생할 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://shabu20.com",
+    "https://tistory.com",
+    "https://suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안대교와 바다가 한눈에 내려다보이는 뛰어난 오션뷰 조망",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "질 좋은 소고기와 돼지고기, 야채와 샐러드바를 무제한으로 즐길 수 있는 가성비",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

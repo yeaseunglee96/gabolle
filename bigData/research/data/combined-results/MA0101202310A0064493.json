@@ -1,0 +1,53 @@
+{
+  "id": "MA0101202310A0064493",
+  "name": "온천라이브",
+  "cat": "무도 유흥 주점",
+  "attempts": 1,
+  "geminiTokens": 67960,
+  "researchedAt": "2026-09-22T06:58:32.728Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "성인/유흥객",
+    "parking": false,
+    "queueing": false,
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 동래구 차밭골로20번길 66에 위치한 '온천라이브'는 무도 유흥 주점 업종으로 인허가 등록되어 있는 업소로 확인됩니다. 일반 음식점/맛집 블로그 리뷰나 메뉴판, 가격 정보, 영업시간, 줄서기 등 상세 이용 후기는 웹상에 거의 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업체명: 온천라이브, 업종: 무도 유흥 주점업 (음식·주점), 위치: 부산광역시 동래구 차밭골로20번길 66, 주요 특징: 감성적이고 분위기가 좋으며, 혼술이 가능한 라운지/포차 형태의 매장입니다. 교통 및 접근성: 온천장역 및 온천예식장에서 도보 1분 거리로 접근성이 매우 좋습니다. 주차 공간은 별도로 마련되어 있지 않아 대중교통 이용이 권장됩니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://bigvalue.ai",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "온천장역 인근 도보 1분 거리에 위치하여 대중교통 접근성이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

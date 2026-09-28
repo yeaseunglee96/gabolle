@@ -1,0 +1,81 @@
+{
+  "id": "MA0101202306A0045059",
+  "name": "청미가",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 49509,
+  "researchedAt": "2026-09-22T11:31:49.607Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 단체 모임, 반려동물 동반 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "3단 조개구이",
+      "조개구이",
+      "장어구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 해운대구 청사포로128번길 30에 위치한 조개구이 전문점으로, 오션뷰 매장에서 3단 조개구이와 장어구이를 판매하며 반려동물 동반 및 주차가 가능한 식당으로 확인됨. 상세 영업시간 및 정확한 단일 메뉴별 가격표는 온라인 공개 자료 부족으로 미확인.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 청사포로128번길 30에 위치한 '청미가'는 부산 청사포에 있는 조개구이 전문점입니다. 상호명: 청미가 (청미가조개구이). 주요 메뉴: 조개구이, 장어구이 등. 특징: 오션뷰와 함께 신선한 조개구이를 즐길 수 있는 곳으로, 예약, 주차, 단체 이용, 반려동물 동반 등이 가능합니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "청사포에서 오션뷰와 함께 조개구이를 즐길 수 있는 식당으로 잘 알려져 있습니다. 주요 메뉴: 3단 조개구이(시그니처 메뉴) 등이 있습니다. 바다를 바라보며 식사할 수 있는 오션뷰 매장입니다. 주차, 예약, 포장, 단체 이용이 가능하며 반려동물 동반도 가능합니다. 위치: 부산 해운대구 청사포로128번길 30",
+      "url": "https://matple.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://matple.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "청사포 바다를 한눈에 볼 수 있는 탁 트인 오션뷰 전망",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "비주얼과 신선함을 갖춘 3단 조개구이 및 장어구이 전문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "주차 편의, 예약, 단체석 및 반려동물 동반 가능 등 편의성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

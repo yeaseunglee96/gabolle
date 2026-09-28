@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220811730345",
+  "name": "함양추어탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 66880,
+  "researchedAt": "2026-09-22T11:52:25.417Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "추어탕"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "부산 수영구 무학로 29-3, 1층(광안동 113-31)에 일반음식점으로 등록된 '함양추어탕' 사업장 정보 및 같은 건물 타 업체의 위치 설명 지표로 언급된 사실이 확인되나, 방문 후기나 블로그 리뷰, 세부 메뉴판/영업시간/혼잡도/사진 등의 상세 웹 기록은 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "함양추어탕 | 부산광역시 수영구 무학로 29-3, 1층 (광안동) | 부산광역시 수영구 광안동 113번지 31호 1층 | 일반음식점",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동네 골목에 자리 잡은 지역 기반 추어탕 전문 식당",
+      "type": "운영·접근 편의"
+    }
+  ]
+}

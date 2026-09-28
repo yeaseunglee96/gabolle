@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202211A0019563",
+  "name": "파복스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49973,
+  "researchedAt": "2026-09-22T11:54:34.447Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인·위스키/칵테일 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "칵테일",
+      "싱글몰트 위스키",
+      "햄버그 스테이크"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "19:00 ~ 03:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 부산진구 중앙대로680번길 30 6층에 위치한 몰트 바 및 다이닝 펍 '파복스(Pavox)'입니다. 싱글몰트 위스키와 칵테일 및 스테이크/파스타류를 취급합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "건물 6층에 위치하고 있습니다. 서면에서 분위기 좋은 바(Bar)로 알려져 있으며, 주로 싱글몰트 위스키와 다양한 칵테일을 즐길 수 있습니다. 출입문이 슬라이딩 책장 형태로 되어 있는 독특한 인테리어가 특징입니다. 햄버그 스테이크, 파스타, 맥앤치즈 등 간단한 안주류도 판매합니다. 매일 19:00 ~ 03:00",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://trip.com",
+    "https://busanfoodguide.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "독특한 책장 슬라이딩 도어 인테리어와 싱글몰트 위스키 및 수준 높은 칵테일을 즐길 수 있는 분위기 좋은 바",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

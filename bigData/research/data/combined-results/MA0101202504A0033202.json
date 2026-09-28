@@ -1,0 +1,46 @@
+{
+  "id": "MA0101202504A0033202",
+  "name": "회오름",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 64469,
+  "researchedAt": "2026-09-22T11:57:18.381Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 해운대구 좌동순환로468번가길 20 소재의 '회오름' 상호는 사업자 등록 정보로 존재함이 확인되나, 방문자 리뷰, 메뉴, 가격, 영업시간 등 상세 후기 및 정량 정보는 웹상에 공개되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 좌동순환로468번가길 20 위치 상호명 '회오름' 확인됨",
+      "url": "https://koreabizmap.com"
+    }
+  ],
+  "sources": [
+    "https://koreabizmap.com"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202511A0023806",
+  "name": "싱싱파머스",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 43039,
+  "researchedAt": "2026-09-22T12:11:33.382Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "cheap",
+    "queueing": null,
+    "signatureDishes": [
+      "소금옥수수빵"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "금~일 주 3일 영업으로 소개된 바 있음"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 해운대구 우동1로38번길 11(해리단길 우일맨션 일대)에 위치한 소규모 매장으로, '소금옥수수빵' 등을 대표 메뉴로 다루며 부산 로컬 축제(포트빌리지 부산 등)에도 참가한 디저트/베이커리 매장으로 확인됩니다. 상세 가격표 및 사진 직링크는 공개 웹 페이지에서 직접 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 해리단길(우동1로38번길)에 위치한 소규모 매장으로, 옥수수빵 등을 판매... 주 3일(금~일) 영업하는 형태의 작은 매장",
+      "url": "https://facebook.com"
+    },
+    {
+      "excerpt": "포트빌리지 부산 축제에 참여한 브랜드 중 하나로, '소금옥수수빵'으로 알려져 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://facebook.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "시그니처 메뉴인 소금옥수수빵 등 특색 있는 옥수수 베이커리 메뉴를 맛보기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

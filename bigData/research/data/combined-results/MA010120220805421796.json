@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220805421796",
+  "name": "오로라키친",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 82702,
+  "researchedAt": "2026-09-22T06:45:08.746Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "새우 감바스 + 버터 모닝빵",
+      "해산물 크림 파스타"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "인근 주거지역(빌라/아파트) 주민들이 주로 찾는 동네 파스타 음식점으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 사하구 신평동(동매역 인근) 장평로299번길에 위치한 파스타 전문 경양식당. 주요 메뉴로 감바스와 크림 파스타가 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오로라키친은 부산광역시 사하구 신평동(장평로299번길 일대)에 위치한 파스타 전문 음식점입니다. 주요 메뉴: 새우 감바스 + 버터 모닝빵, 해산물 크림 파스타 등. 깔끔한 파스타를 제공하는 동네 맛집으로 알려져 있으며, 인근에 신평공영주차장 및 지하철 1호선 동매역이 위치해 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "새우 감바스와 해산물 크림 파스타 등 깔끔하고 정갈한 파스타 메뉴 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "동매역 및 인근 주택가 인근에 위치해 주민들이 접근하기 편함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

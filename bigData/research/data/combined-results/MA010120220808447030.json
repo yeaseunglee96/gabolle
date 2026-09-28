@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220808447030",
+  "name": "스무고개",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 90463,
+  "researchedAt": "2026-09-22T11:59:00.258Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "1층 오마카세는 캐치테이블 예약 필수이며 2층 화로구이는 네이버 예약 또는 방문 이용으로 예약 인기가 높아 사전 예약이 권장됨"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 데이트, 특별한 날 기념일 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "한우 오마카세",
+      "숙성 한우 모듬",
+      "한우 뭉티기",
+      "한우 양념갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 21:30 (평일 브레이크타임 15:00 ~ 17:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 데이트 및 가족 외식 코스로 현지인과 방문객 모두에게 인기 있는 한옥 분위기 한우 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "주소지(해운대구 좌동순환로468번가길 81)의 '스무고개'는 500시간 이상 빙온 숙성한 1++ 한우를 취급하는 전문점으로, 1층 오마카세(캐치테이블 예약)와 2층 화로구이 식육식당(네이버 예약)으로 층별 특화 운영되는 한옥 인테리어 음식점입니다. 사용자의 요청에 돼지고기 구이/찜으로 표기되어 있으나 실제 사업체는 프리미엄 숙성 한우 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "한우 오마카세 (1인) 79,000원",
+    "priceWon": 79000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스무고개는 1층은 한우 오마카세, 2층은 한우 화로구이(식육식당)로 운영됩니다. 500시간 이상 빙온 숙성한 1++ 등급 한우를 사용하며, 한옥풍의 인테리어로 분위기가 좋아 데이트나 모임 장소로 자주 언급됩니다. 영업시간은 매일 11:30~21:30입니다. 지하철 2호선 장산역 11번 출구 인근에 위치해 있습니다.",
+      "url": "https://autoreserve.com/restaurants/11011504"
+    }
+  ],
+  "sources": [
+    "https://autoreserve.com/restaurants/11011504"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "500시간 빙온 숙성 1++ 한우 퀄리티와 1층 한우 오마카세 코스 및 화로구이의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "고즈넉한 한옥풍 독채 건물 인테리어로 기념일이나 모임, 데이트에 최적화된 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

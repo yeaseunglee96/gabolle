@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810517605",
+  "name": "버터플라이케익",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 133754,
+  "researchedAt": "2026-09-22T11:13:11.756Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "주문 제작 및 기념일 맞춤 케이크 구매 고객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "컵케익 6구",
+      "1단 기본 디자인 케이크",
+      "2단 기본 디자인 케이크"
+    ],
+    "yearsClaimed": 2010
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 해운대구 우동1로20번가길 7에 2010년 인허가를 받은 제과점 영업점으로, 기념일·스튜디오 촬영용 맞춤 케이크 전문점입니다. 일반 매장 취식 형태가 아닌 맞춤 제작 중심이어서 영업시간/혼잡도/대기 등의 방문 관련 후기는 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "버터플라이케익 - 주소: 부산광역시 해운대구 우동1로20번가길 7 (우동) / 업종: 제과점 / 인허가일: 2010-10-27",
+      "url": "https://findby.co.kr"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 우동에 위치한 맞춤 케이크 전문점 '버터플라이케익'. 주소: 부산광역시 해운대구 우동1로20번가길 7, 2층. 맞춤 케이크 전문점으로 스튜디오 촬영용 케이크나 행사용 3단 케이크 등 디테일한 디자인의 케이크 제작. 주요 메뉴: 컵케익 6구, 1단 및 2단 기본 디자인 케이크. 전화번호: 070-4090-0372",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://findby.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "스튜디오 촬영이나 기념일 행사를 위한 고급스럽고 디테일한 맞춤 주문 제작 케이크를 구매하기 위해 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "MA0101202504A0091388",
+  "name": "뚜레쥬르부산범일오션점",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 71411,
+  "researchedAt": "2026-09-22T06:17:48.776Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 아파트 주민 및 생활 상권 방문객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "단팥빵",
+      "식빵",
+      "케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "오션브릿지 아파트 단지 내 상가에 입점하여 인근 주민들이 주로 이용하는 생활 편의형 매장임"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 동구 범일로 41 오션브릿지 아파트 상가에 입점한 프랜차이즈 베이커리 매장으로, 대기줄이나 관광객 목적지라기보다는 인근 주민들의 생활 접근성 중심 매장입니다. 상세한 영업시간 및 개별 메뉴판 가격은 웹상에 독립 리뷰로 상세히 기재되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "이 매장은 범일동 소재 오션브릿지 아파트 단지 내 상가(102동 아래)에 입점해 있습니다. 해당 아파트 상가에는 뚜레쥬르 외에도 마트, 편의점(CU), 카페, 세탁소(크린토피아 등)와 같은 다양한 생활 편의 시설이 함께 자리 잡고 있습니다.",
+      "url": "https://namu.wiki/w/범일동"
+    },
+    {
+      "excerpt": "부산광역시 동구 범일로 41에 위치한 '오션브릿지' 아파트의 상가동 1층에 뚜레쥬르 매장이 있습니다. 해당 상가에는 뚜레쥬르 외에도 다양한 편의시설이 입점해 있으며, 인근의 '두산위브 더제니스 하버시티'와 같은 대규모 아파트 단지와 함께 범일동의 주요 생활 상권을 형성하고 있습니다.",
+      "url": "https://namu.wiki/w/오션브릿지"
+    }
+  ],
+  "sources": [
+    "https://namu.wiki/w/범일동",
+    "https://namu.wiki/w/오션브릿지",
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오션브릿지 아파트 상가 내 입점하여 인근 주민의 일상적 빵·음료 구매 및 생활 편의성 우수",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

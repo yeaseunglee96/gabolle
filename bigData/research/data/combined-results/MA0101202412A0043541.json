@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202412A0043541",
+  "name": "디라이크",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 166103,
+  "researchedAt": "2026-09-22T07:08:25.042Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "데이트 및 소모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 채끝 스테이크",
+      "리버스 버섯 파스타",
+      "소고기 육회 with 우니"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "현재 폐업 상태로 영업시간 미제공"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락동에 위치했던 모던 다이닝바 '디라이크(D like)'로, 국세청 사업자 등록 기준 현재는 폐업된 상태입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "디라이크(D like)는 부산광역시 수영구 민락로34번길 50(민락동 169-2)에 위치했던 유러피언 다이닝바입니다. 은은한 조명과 다크 우드톤 인테리어가 특징인 모던한 분위기의 다이닝바로, 오픈형 주방을 볼 수 있는 바 테이블과 일반 테이블석이 마련되어 있었습니다. 한우 채끝 스테이크, 리버스 버섯 파스타, 소고기 육회 with 우니, 봉골레 버섯 만두 등이 대표적인 메뉴로 알려져 있었습니다. 콜키지(유료)가 가능하며 노키즈존으로 운영되기도 했습니다. 국세청 사업자 정보 기준 현재 폐업 상태로 확인됩니다.",
+      "url": "https://bizno.net/article/1173901416"
+    }
+  ],
+  "sources": [
+    "https://bizno.net/article/1173901416"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "은은한 조명과 다크 우드톤의 모던한 분위기 속에서 한우 스테이크와 파스타, 와인 페어링을 즐길 수 있어 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

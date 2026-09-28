@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220812192635",
+  "name": "송우",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 113776,
+  "researchedAt": "2026-09-22T06:15:26.954Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "우대갈비",
+      "매콤 소 갈비찜"
+    ]
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "웹상에 상호 및 주소 등록 내역 외에 실제 방문기/운영 정보가 확인되지 않거나 폐업 상태임",
+  "notes": "부산광역시 강서구 명지오션시티8로 2 '송우'는 상세한 방문 리뷰, 영업시간, 가격 등의 실제 운영 정보가 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

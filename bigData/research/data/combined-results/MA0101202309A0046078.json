@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202309A0046078",
+  "name": "달맞이체코빵",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 37402,
+  "researchedAt": "2026-09-22T11:56:43.725Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 특별한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 연인, 달맞이길 산책객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "뜨르들로(굴뚝빵)",
+      "수제 함박스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 8시 ~ 오후 7~8시 (화요일 휴무 언급)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 명시적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해운대 달맞이길 193에 위치한 곳으로, 70대 자매 어르신이 운영하며 체코 전통 빵인 뜨르들로(굴뚝빵, 시나몬/소보로 등)와 한우 수제 함박스테이크, 브런치, 커피류를 선보이는 베이커리 브런치 카페.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "달맞이체코빵은 부산광역시 해운대구 달맞이길 193(중동, 부광가든 B동 103호)에 위치한 브런치 카페입니다. 70대 자매 할머니께서 운영하는 곳으로, 체코 전통 방식의 굴뚝빵(뜨르들로)을 직접 만들어 판매합니다. 굴뚝빵 외에도 함박스테이크, 파스타 등 다양한 수제 브런치 메뉴를 제공합니다.",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "70대 자매가 직접 굽는 체코 전통 굴뚝빵(뜨르들로)과 정성 가득한 수제 브런치 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220808779156",
+  "name": "프랜드",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 61225,
+  "researchedAt": "2026-09-22T05:58:58.016Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 사상구 백양대로 372-11에 인허가 등록된 일반음식점(경양식) '프랜드'는 구청 인허가/공공데이터상에 존재하나, 블로그 리뷰나 방문 후기, 상세 메뉴 및 영업시간 정보 등 웹상의 이용자 기록이 확인되지 않습니다. 동일 주소지에 '문어도리' 등의 다른 상호 등록 이력도 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 프랜드, 소재지: 부산광역시 사상구 백양대로 372-11 (주례동), 전화번호: 051-817-4168, 업종: 일반음식점",
+      "url": "https://www.sasang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": []
+}

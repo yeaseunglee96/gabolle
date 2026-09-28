@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220812502207",
+  "name": "라미도매수산",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 64773,
+  "researchedAt": "2026-09-22T05:57:54.447Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "방문 전 대기 여부 등을 전화로 미리 확인 권장한다는 언급이 있음"
+  },
+  "descriptors": {
+    "audience": "현지 주민, 회 포장/식사 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 14:00 ~ 02:00 (매달 2, 4번째 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "당감동 인근 주민들이 주로 포장, 배달 및 방문 식사로 찾는 동네 가성비 횟집"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 당감동에 위치한 가성비 중심의 도매 횟집으로, 모듬회 주문 시 초밥용 밥 및 양념게장/미역국/콘치즈 등 다양한 기본 찬이 제공되는 실속형 횟집입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "모듬회: 신선하고 비린내 없는 회를 제공하는 것으로 알려져 있으며, 광어, 밀치, 도다리 등 다양한 어종을 맛볼 수 있습니다. 주문 시 초밥용 밥이 함께 제공되어 직접 초밥을 만들어 먹을 수 있는 것이 특징입니다. 매운탕: 식사의 마무리를 장식할 수 있는 메뉴로, 서비스 매운탕 등을 통해 풍성한 식사를 즐길 수 있다는 평이 있습니다. 양념게장, 미역국, 김치전, 콘치즈 등 다채로운 사이드 메뉴가 제공됩니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 부산진구 당감로64번길 33. 특징: 가성비가 좋은 횟집으로 알려져 있으며, 방문 전 전화 확인을 추천합니다. 영업시간: 매일 14:00 ~ 02:00 (매달 2, 4번째 화요일 정기휴무)",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 모듬회와 함께 초밥용 밥, 다양한 기본 상차림 반찬이 제공되어 가성비가 뛰어남",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "비린내 없이 신선한 광어, 밀치, 도다리 등의 활어회와 칼칼한 매운탕 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

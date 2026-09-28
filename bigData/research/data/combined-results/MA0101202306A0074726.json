@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202306A0074726",
+  "name": "광안술잔",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 60774,
+  "researchedAt": "2026-09-22T12:20:17.595Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트, 소개팅, 단체 모임, 혼술",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "전통주",
+      "하이볼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~목 18:00 - 24:00, 금~토 18:00 - 01:00 (일요일 또는 화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광남로 160 2층에 위치한 전통주 전문 주점으로, 전통주와 하이볼 및 주종에 맞춘 술잔을 제공하는 공간입니다. 상세 메뉴판 및 가격 정보는 웹상에서 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로 160 2층. 다양한 요리와 우리 전통주를 즐길 수 있는 전통주점입니다. 주종에 맞는 다양한 술잔을 제공하여 술 고유의 맛과 향, 그리고 분위기를 즐길 수 있는 공간으로 알려져 있습니다. 단체 이용과 예약이 가능합니다.",
+      "url": "https://www.trip.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 광남로 160, 2층. 다양한 전통주와 하이볼을 즐길 수 있는 전통주점입니다. 술 종류에 맞는 다양한 술잔을 제공하여 맛과 향, 분위기를 즐길 수 있는 공간으로 소개되고 있습니다. 1인석(혼술), 2~4인석, 단체석(룸)을 보유하고 있어 데이트, 소개팅, 단체 모임 등에 적합합니다. 주차는 불가능하며 인근 유료 주차장을 이용해야 합니다.",
+      "url": "https://www.trip.com"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주종에 맞는 다양한 잔과 함께 전통주 및 하이볼을 즐길 수 있는 분위기 좋은 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

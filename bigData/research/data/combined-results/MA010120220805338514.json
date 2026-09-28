@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220805338514",
+  "name": "빨간마후라",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 47951,
+  "researchedAt": "2026-09-22T11:58:08.857Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 해운대구 청사포로128번길 60)에는 '빨간마후라'라는 상호의 가게가 없으며 실제 상호는 '노란마후라'입니다.",
+  "notes": "조사 결과 해당 위치에는 '빨간마후라'가 존재하지 않으며, 실제 사업자 및 영업 매장은 '노란마후라'로 확인되었습니다. 지침(없는 가게를 지어내지 말 것)에 따라 found: false로 제출합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": []
+}

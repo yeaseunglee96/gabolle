@@ -1,0 +1,14 @@
+{
+  "id": "MA010120220805454715",
+  "name": "바오버거",
+  "cat": "버거",
+  "attempts": 1,
+  "geminiTokens": 87038,
+  "researchedAt": "2026-09-22T06:54:23.616Z",
+  "confidence": "high",
+  "found": false,
+  "notFound": "부산광역시 해운대구 송정광어골로 14 및 송정 지역에서 '바오버거' 상호의 음식점 정보가 확인되지 않음 (폐업 또는 정보 없음)",
+  "notes": "해당 주소지 및 송정 일대 검색 결과 '바오버거'에 대한 유효한 음식점 정보 및 리뷰가 검색되지 않아 found: false 처리함.",
+  "photoUrls": [],
+  "sources": []
+}

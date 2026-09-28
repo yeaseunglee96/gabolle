@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220802896439",
+  "name": "에이치에비뉴버블",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 38545,
+  "researchedAt": "2026-09-22T11:29:50.954Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인 데이트객 및 호텔 투숙객",
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "와인",
+      "감바스",
+      "샴페인"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "호텔 부속 루프탑 바 특성상 유동적이며 웹상 정확한 영업시간 미기재"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "호텔 투숙객 및 광안대교 야경을 보러 오는 관광객/방문객 비중이 높음"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 민락수변로 29 바다마루빌딩 12층 에이치에비뉴 호텔 광안리점 내 위치한 루프탑 와인/샴페인 바. 광안대교 오션뷰와 야경 명소로 주로 알려져 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "와인 글라스 약 9,000원 대, 감바스 약 18,000원 대",
+    "priceWon": 18000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 에이치에비뉴(H Avenue) 호텔 내부에 위치한 와인바는 '버블바(Bubble Bar)'입니다. 12층 고층에 위치하여 광안대교와 광안리 해변을 한눈에 내려다볼 수 있는 뛰어난 전망을 자랑합니다. 실내 공간뿐만 아니라 옥외 테라스가 있어 야경을 감상하며 와인을 즐기기에 좋습니다. 호텔 투숙객을 위한 웰컴 드링크 제공, 할인권 증정 등 다양한 제휴 혜택을 제공하기도 합니다.",
+      "url": "https://havenuebridge.com"
+    }
+  ],
+  "sources": [
+    "https://havenuebridge.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "12층 루프탑 테라스에서 광안대교와 바다 파노라마 뷰 및 야경을 감상하며 와인을 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

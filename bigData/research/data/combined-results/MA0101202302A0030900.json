@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202302A0030900",
+  "name": "글로벌양상국",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 56234,
+  "researchedAt": "2026-09-22T06:51:11.091Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적인 언급 확인 불가"
+  },
+  "descriptors": {
+    "audience": "회식 및 가족 외식객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "특양구이",
+      "대창구이",
+      "막창구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~금: 16:00 ~ 23:00 / 토~일: 11:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 해운대로570번길 16 이엠디빌딩 2층에 위치한 '양상국'(글로벌양상국)은 국내산 한우 양대창·특양·막창 등 숯불구이를 전문으로 취급하는 고급 양대창 음식점입니다. 개그맨 양상국과는 무관한 상호입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "양대창/특양구이",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 양상국 해운대점, 주소: 부산광역시 해운대구 해운대로570번길 16, 2층 (우동, 이엠디빌딩), 국내산 한우를 사용하는 양대창 전문점입니다. 신선한 재료와 깔끔한 분위기로 평가받고 있습니다. 매장 내 엘리베이터가 있으며, 주차 시설을 갖추고 있습니다. 영업시간 월~금: 16:00 ~ 23:00, 토~일: 11:00 ~ 23:00",
+      "url": "https://www.wheelbusan.or.kr"
+    }
+  ],
+  "sources": [
+    "https://www.wheelbusan.or.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "국내산 한우를 사용하여 신선하고 깔끔한 분위기에서 숯불 양대창 구이를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

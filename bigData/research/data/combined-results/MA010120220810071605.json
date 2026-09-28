@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220810071605",
+  "name": "피오레",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47112,
+  "researchedAt": "2026-09-22T05:56:54.650Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산 서구 대영로85번길 14 해오름 빌딩) 및 부산 서구 일대에서 경양식 '피오레' 음식점이 확인되지 않음 (폐업 또는 상호/주소 불일치 추정)",
+  "notes": "해당 주소지(부산광역시 서구 대영로85번길 14, 해오름 빌딩) 및 부산 서구 지역에서 '피오레'라는 상호의 경양식 음식점은 웹상에서 존재가 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://apt4.kr"
+  ]
+}

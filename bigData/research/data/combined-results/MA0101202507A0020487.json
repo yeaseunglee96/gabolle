@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202507A0020487",
+  "name": "웜코브",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 68778,
+  "researchedAt": "2026-09-22T10:46:20.286Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "인기 있는 브런치 명소로 알려져 방문 전 웨이팅 여부를 전화로 확인하는 것이 권장됨"
+  },
+  "descriptors": {
+    "audience": "연인 및 브런치 모임 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "브런치",
+      "경양식"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월요일~토요일 07:30 ~ 16:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 확인 불가"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 수영구 수영로554번길 46에 위치한 서양식·경양식/브런치 카페 '웜코브'에 대한 조사 결과입니다. 개별 메뉴의 가격 및 메뉴판 전체 가짓수는 웹상에서 추가로 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 웜코브 (Womkobeu), 주소: 부산광역시 수영구 수영로554번길 46, 영업시간: 월요일~토요일 07:30 ~ 16:00 (일요일 휴무)",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "업종: 서양식·경양식 맛집 및 브런치 카페로 알려져 있습니다. 인기 있는 브런치 명소로 알려져 있으며, 방문 전 웨이팅 여부를 전화로 확인하는 것이 권장됩니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "이른 아침(07:30)부터 오픈하여 이용할 수 있는 광안리 인근 브런치 및 서양식 공간 수요",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

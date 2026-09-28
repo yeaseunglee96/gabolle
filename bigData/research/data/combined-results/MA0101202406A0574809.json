@@ -1,0 +1,85 @@
+{
+  "id": "MA0101202406A0574809",
+  "name": "압구정편의점광안리점",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 174046,
+  "researchedAt": "2026-09-22T10:46:45.105Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "저녁 시간대나 주말에 대기 인원 및 웨이팅이 발생할 수 있는 핫플레이스 포차 술집으로 언급됨"
+  },
+  "descriptors": {
+    "audience": "젊은 층·술자리·모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "숙성회 반반",
+      "육회탕탕이",
+      "알탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오후 5시부터 새벽 3시까지 (17:00 ~ 03:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 상권 특성상 현지 젊은 층뿐만 아니라 관광객들이 많이 찾는 이자카야 술집으로 알려짐"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "편의점 컨셉의 이자카야 스타일 포차로, 숙성회와 다양한 포차 안주를 함께 즐길 수 있는 술집",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 민락로19번길 19 (민락동) 특징: 편의점 콘셉트의 이자카야 스타일 술집으로, 다양한 안주와 함께 술을 즐길 수 있어 광안리에서 인기 있는 맛집 및 술집으로 알려져 있습니다. 영업시간: 일반적으로 오후 5시부터 새벽 3시까지 운영합니다.",
+      "url": "https://www.visitbusan.net/"
+    },
+    {
+      "excerpt": "'압구정편의점'은 이름과 달리 실제 편의점이 아닌, 다양한 안주와 술을 즐길 수 있는 이자카야 또는 포차 형태의 술집이니 방문 시 참고하시기 바랍니다. 숙성회 반반 등의 메뉴를 즐기는 모습을 찾아볼 수 있습니다. 방문 시 대기 인원이 발생할 수 있으므로 예약 가능 여부를 미리 확인하시면 더욱 원활한 이용이 가능합니다.",
+      "url": "https://www.busan.go.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net/",
+    "https://www.busan.go.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "편의점을 모티프로 한 독특한 감성의 인테리어와 분위기 연출",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "숙성회 반반, 육회 등 다채롭고 퀄리티 있는 주점 안주 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 핫플레이스로 대기 인원이 몰리는 인기 포차 술집",
+      "sources": [
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

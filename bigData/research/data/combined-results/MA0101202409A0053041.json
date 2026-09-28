@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202409A0053041",
+  "name": "스위트파프리카",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 69371,
+  "researchedAt": "2026-09-22T11:40:41.783Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지(부산광역시 해운대구 좌동순환로 405 마마아파트 상가동)의 '스위트파프리카'는 과거 건축물/상가 정보에 등록된 경양식 업종 상호 외에 실제 방문 리뷰, 영업시간, 메뉴, 후기 등 유의미한 운영 정보를 확인할 수 없는 폐업 또는 실질 미영업 매장으로 판단됩니다.",
+  "notes": "웹상에서 실제 영업 및 방문 정보가 확인되지 않아 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.disco.re"
+  ],
+  "whyPeopleGo": []
+}

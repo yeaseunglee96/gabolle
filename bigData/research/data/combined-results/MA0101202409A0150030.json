@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202409A0150030",
+  "name": "베이크백광안",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 50935,
+  "researchedAt": "2026-09-22T11:53:45.112Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 빵지순례 코스로 늦게 가면 인기 메뉴의 조기 품절이 발생할 수 있어 픽업 예약 권장"
+  },
+  "descriptors": {
+    "audience": "빵지순례객, 디저트 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모찌빵",
+      "플레인 모찌빵",
+      "바질토마토 모찌빵",
+      "쇼콜라 모찌빵"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 18:00 (매주 화요일, 수요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 빵지순례 필수 코스로 관광객과 디저트 애호가들이 많이 방문함"
+  },
+  "menuDiversity": {
+    "dishCount": 10,
+    "found": true
+  },
+  "notes": "국내 최초 모찌빵 전문점으로 알려진 베이크백의 광안리 지점으로, 초량 본점과는 차별화된 라인업을 선보임",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "국내 최초 모찌빵 전문점으로, 부산 내에서 부산역점과 광안점 두 곳이 운영 중입니다. 광안점은 광리단길 인근에 위치해 있으며, 본점과는 차별화된 이곳만의 단독 라인업을 보유하고 있습니다. 빵지순례 코스로 인기가 많아 조기 품절될 수 있으니 방문 시 참고하시기 바랍니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "영업시간: 11:00 ~ 18:00, 정기휴무: 매주 화요일, 수요일. 광안점은 부산역점과 달리 크림과 퓨전 요소가 가득한 달콤한 구성의 모찌빵을 주로 선보입니다. (플레인, 타로, 쿠앤크 등)",
+      "url": "https://litt.ly"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://litt.ly"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "국내 최초 모찌빵 전문점으로 쫀득한 피와 다양한 크림 속재료의 차별화된 식감과 맛",
+      "sources": [
+        0
+      ],
+      "type": "원조·최초"
+    },
+    {
+      "note": "부산 빵지순례 필수 코스로 꼽히며 광안점만의 단독 모찌빵 라인업 구비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220805689382",
+  "name": "아미티스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 49495,
+  "researchedAt": "2026-09-22T11:41:56.418Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장이 넓고 테이블 간격이 여유로우며 단체룸을 갖추어 쾌적하게 이용 가능함"
+  },
+  "descriptors": {
+    "audience": "데이트 및 모임, 호텔 투숙객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "치킨커리크림파스타",
+      "차돌박이피자",
+      "루꼴라&리코타피자",
+      "전복 리조또"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "방문 전 유선 확인 및 예약 권장 (정확한 영업시간 미표기)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "라비드아틀란호텔 투숙객(관광객) 할인 혜택 및 오션뷰 관광 명소로 자주 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "해운대 구남로 37 라비드아틀란호텔 32층에 위치한 유로피언 이탈리안 스카이라운지 레스토랑. 통창과 야외 테라스 오션뷰가 특징.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 오션뷰를 감상할 수 있는 스카이라운지로, 통창과 야외 테라스를 갖추고 있습니다. 매장 규모가 넓어 다양한 테이블과 단체룸이 마련되어 있어 데이트, 회식, 모임 장소로 언급됩니다. 치킨커리크림파스타, 차돌박이피자, 루꼴라&리코타피자, 전복 리조또 등",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 바다 전망을 내려다보는 32층 스카이라운지 오션뷰와 테라스 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "치킨커리크림파스타, 차돌박이피자, 전복 리조또 등 특색 있는 이탈리안 양식 메뉴",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

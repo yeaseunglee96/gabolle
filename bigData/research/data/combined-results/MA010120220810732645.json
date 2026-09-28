@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220810732645",
+  "name": "돈돈촌",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 64557,
+  "researchedAt": "2026-09-22T06:42:23.304Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장이 상당히 넓고 테이블과 룸이 많아 단체 회식이나 가족 모임 손님을 다수 수용함"
+  },
+  "descriptors": {
+    "audience": "가족 모임 및 단체 회식 고객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "돼지멍석갈비",
+      "생오겹살",
+      "LA양념갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 24:00 (또는 23:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "모라동 인근 주민들의 가족 외식이나 직장인 단체 회식 등 현지 지역 주민들이 주로 이용함"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 사상구 모라동(백양대로 887-26)에 위치한 대형 돼지갈비 전문점으로, 대표 메뉴인 돼지멍석갈비와 전용 주차장, 어린이 놀이방 시설을 갖추어 가족 외식 및 단체 회식 장소로 선호되는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대표 메뉴: '돼지멍석갈비'가 이곳의 인기 메뉴로, 많은 방문객이 이 메뉴를 추천합니다. 매장이 상당히 넓고 테이블이 많아 회식이나 단체 모임 장소로 자주 언급됩니다. 전용 주차장이 넓게 마련되어 있어 차를 이용해 방문하기 편리합니다. 또한 아이들을 위한 놀이방 시설이 갖춰져 있어 가족 단위 방문객에게도 좋은 평가를 받습니다. 신발 분실 방지를 위해 목욕탕 사물함 형태의 신발장을 운영하고 있습니다. 가성비가 좋고 맛이 훌륭하다는 후기가 많습니다.",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "주소: 부산광역시 사상구 백양대로 887-26 (모라역 2번 출구 인근, 모라 행정복지센터 맞은편). 연락처: 051-316-8383. 주요 메뉴: 돼지멍석갈비, 생오겹살, LA양념갈비, 묵은지 옛날찌개 등. 가게 앞에 넓은 주차장이 마련되어 있으며 식사 시 무료 주차 가능. 룸이 마련되어 있어 가족 모임이나 단체 회식 장소로 자주 이용되며 놀이방 시설 구비. 영업시간은 매일 11:00부터 24:00까지(또는 23:00)로 안내.",
+      "url": "https://binfo.co.kr"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://binfo.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "쫄깃하고 풍미가 뛰어난 대표 메뉴 돼지멍석갈비의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "넓은 전용 주차장과 아이들을 위한 놀이방 시설, 단체석 및 룸 완비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "푸짐한 양과 부담 없는 가격대의 고기 메뉴 구성",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

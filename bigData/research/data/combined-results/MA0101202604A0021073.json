@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202604A0021073",
+  "name": "캅스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 57041,
+  "researchedAt": "2026-09-22T12:18:20.043Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "퇴근길 직장인 및 맥주·위스키를 즐기는 주민/손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "할라피뇨 오일파스타",
+      "바질 가라야게",
+      "굴감태 크림파스타"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "인허가상 일반음식점(경양식 등)으로 등록되어 있으나, 광안종합시장 1층에서 파스타, 바질 가라야게, 주류(맥주, 위스키, 칵테일)를 취급하는 펍(Pub/요리주점) 형태의 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 무학로49번길 71 (광안동 94-1) 광안종합시장 1층. 업종: 나이트라이프/펍(Pub). 주요 메뉴: 기린 이치방(생), 기네스(병), 각종 위스키, 데킬라, 칵테일(잭콕, 레몬사와, 진토닉 등)과 안주류(할라피뇨 오일파스타, 바질 가라야게, 굴감태 크림파스타 등)",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 무학로49번길 71 광안종합시장 1층 캅스 (Cops)",
+      "url": "https://autoreserve.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://autoreserve.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안종합시장 내에서 파스타·가라야게 등 요리 안주와 함께 맥주·위스키·칵테일을 즐길 수 있는 분위기 좋은 펍",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

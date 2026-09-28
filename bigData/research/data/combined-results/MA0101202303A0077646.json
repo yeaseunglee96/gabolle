@@ -1,0 +1,79 @@
+{
+  "id": "MA0101202303A0077646",
+  "name": "봉수삼춘",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 69547,
+  "researchedAt": "2026-09-22T11:50:55.911Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기가 많아 웨이팅이 발생할 수 있어 네이버 예약 권장"
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 모임, 관광객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "고등어회",
+      "와사비밥",
+      "매운탕",
+      "어죽"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 23:30 (방문 시점 매장 확인 필요)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "제주도에 가지 않아도 부산 해운대에서 신선한 고등어회를 맛볼 수 있는 곳으로 관광객 및 방문객 후기가 많음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "해운대역/해리단길 인근에 위치한 활고등어회 전문점으로, 주문 즉시 수족관에서 활고등어를 잡아 신선하고 비린내가 적은 것으로 잘 알려져 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "고등어회 (2인 세트)",
+    "priceWon": 57000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "전용 수족관에서 즉석으로 잡은 고등어를 손질해 비린 맛이 적고 고소하며 쫄깃한 식감이 특징입니다. 고등어회가 주력 메뉴이며, 곁들임으로 제공되는 '와사비밥'과 양파절임, 비법 소스 등을 함께 먹는 것이 별미로 꼽힙니다. 매장 식사 및 포장 모두 가능하며, 인기가 많아 네이버 예약 등을 이용하는 것이 좋습니다. 별도의 전용 주차 공간이 없어 인근 공영주차장 이용이 권장됩니다.",
+      "url": "https://navet.co.kr"
+    },
+    {
+      "excerpt": "수족관에서 바로 꺼내어 썰어주기 때문에 비린내가 거의 없고 식감이 쫄깃하고 고소하다는 평이 많습니다. 고등어회와 함께 '와사비밥', 양파절임, 생강 등을 곁들여 먹는 조합이 별미로 유명합니다. 제주도가 아닌 부산에서도 훌륭한 고등어회를 맛볼 수 있는 곳으로 인기가 높습니다.",
+      "url": "https://trip.com"
+    }
+  ],
+  "sources": [
+    "https://navet.co.kr",
+    "https://trip.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수족관에서 바로 잡아 썰어 비린내가 거의 없고 쫄깃하고 고소한 신선한 활고등어회와 와사비밥 조합",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산 도심(해운대)에서 제주도급 신선도의 고등어회를 맛볼 수 있어 웨이팅/예약이 활발함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

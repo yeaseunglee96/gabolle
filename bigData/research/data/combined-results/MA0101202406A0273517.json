@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202406A0273517",
+  "name": "미가곰탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 76000,
+  "researchedAt": "2026-09-22T12:20:54.197Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도의 대기나 줄서기 언급 없음 (테이블 5~6개 규모의 아담한 가정집 개조 식당)"
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "곰탕 정식",
+      "돌솥비빔밥",
+      "수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "재송동 주택가 골목 가정집 개조 식당으로 동네 주민들이 주로 찾는 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 재송동 골목 가정집을 개조한 아담한 식당으로 곰탕 정식 주문 시 갓 지은 냄비밥이 제공되는 것이 특징임.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "곰탕 정식 / 돌솥비빔밥",
+    "priceWon": 12000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "가정집을 개조하여 운영하는 아담한 식당으로 테이블이 5~6개 정도 마련되어 있습니다. 곰탕 정식과 돌솥비빔밥은 12,000원에 제공됩니다. 곰탕 정식을 주문하면 일반 공깃밥이 아닌 냄비밥이 제공되며 국수 소면과 겉절이, 깍두기, 멸치볶음 등의 밑반찬이 함께 나옵니다. 수육, 모듬 전골 등의 메뉴가 준비되어 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "곰탕 정식 주문 시 일반 공깃밥 대신 갓 지어 나오는 따뜻한 냄비밥과 정갈한 밑반찬",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "한우를 재료로 깔끔하고 정갈하게 끓여낸 곰탕과 12,000원의 무난한 가격대",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

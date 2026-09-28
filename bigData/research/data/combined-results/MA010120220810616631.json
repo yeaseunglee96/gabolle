@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220810616631",
+  "name": "오감일식점",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 69020,
+  "researchedAt": "2026-09-22T12:10:43.496Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "전 좌석이 개별 룸 또는 파티션 구조라 프라이빗하며 금·토 저녁 모임 시 예약 권장"
+  },
+  "descriptors": {
+    "audience": "모임, 회식, 가족 외식, 데이트",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "민물장어덮밥(히츠마부시)",
+      "소불고기 영양솥밥",
+      "일식 코스 요리"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 11:50 ~ 21:40 (브레이크타임 14:00~17:00, 라스트오더 20:40) / 매주 일요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "코스 및 솥밥 요리 (세부 변동 문의 요망)",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 중앙대로691번길 52, 2층(부전동). 전 좌석이 룸 또는 파티션으로 나뉘어 있어 조용하고 프라이빗하게 식사하기 좋은 장소로 알려져 있습니다. 월~토: 11:50 ~ 21:40, 브레이크 타임: 14:00 ~ 17:00, 라스트 오더: 20:40, 정기 휴무: 매주 일요일. 인근 황제주차장(트리콜) 또는 삼한주차장 이용 시 1시간 주차 지원이 가능합니다.",
+      "url": "https://pandarank.net"
+    },
+    {
+      "excerpt": "오감 일식점 (구 북해도 일식점). 전 좌석이 프라이빗한 룸 또는 파티션으로 구성되어 있어 모임이나 회식 장소로 인기가 많습니다. 주요 메뉴로는 장어덮밥(히츠마부시), 코스 요리, 솥밥 등이 있습니다.",
+      "url": "https://maptons.com"
+    }
+  ],
+  "sources": [
+    "https://pandarank.net",
+    "https://maptons.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "전 좌석 개별 룸 및 파티션 분리 구조로 모임, 회식, 데이트에 최적화된 프라이빗한 환경을 제공함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "민물장어덮밥(히츠마부시)과 소불고기 솥밥, 일식 코스 요리 등 정갈한 구성을 제공함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

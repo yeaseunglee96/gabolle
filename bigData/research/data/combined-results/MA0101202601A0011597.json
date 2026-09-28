@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202601A0011597",
+  "name": "혼술바내집광안리점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 48260,
+  "researchedAt": "2026-09-22T11:29:24.761Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "혼술족, 1인 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "칵테일"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 광안리에 위치한 1인 전용/혼술 전문 바(Bar)로, 혼자 편안하게 칵테일과 술을 즐길 수 있는 공간으로 알려져 있습니다. 세부 영업시간 및 메뉴판 가격 정보는 온라인상에 상세히 공개되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 광안해변로295번길 49, 1층 (광안리해수욕장에서 도보 약 7분 거리) 특징: 혼자 온 손님들이 편안하게 분위기를 즐길 수 있는 칵테일 바 형태의 공간으로, 광안리 지역의 혼술 명소 중 하나로 알려져 있습니다.",
+      "url": "https://honsulmap.com"
+    }
+  ],
+  "sources": [
+    "https://honsulmap.com",
+    "https://hotplacemap.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "혼자서도 부담 없이 편안하게 칵테일과 술을 즐길 수 있는 혼술 특화 분위기",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

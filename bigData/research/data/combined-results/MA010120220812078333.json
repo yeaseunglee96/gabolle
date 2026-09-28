@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220812078333",
+  "name": "문리버",
+  "cat": "카페",
+  "attempts": 1,
+  "geminiTokens": 70462,
+  "researchedAt": "2026-09-22T06:53:55.317Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 아파트 주민 및 상가 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안해변로 448(민락수변로 213, 수영만아이파크 상가동 201·202호)에 위치한 카페 '문리버'는 행정 인허가 및 상가 등록 정보상 확인되는 업체이나, 대중적인 블로그 리뷰나 방문기, 구체적 메뉴/영업시간/사진 데이터는 공개 웹상에서 거의 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "문리버 / 부산광역시 수영구 민락수변로 213, 수영만아이파크 상가동 201호, 202호 (민락동) / 일반음식점, 카페",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "아파트 단지 상가 내에 입점하여 인근 주민들의 생활 편의상 이용되는 동네 카페",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

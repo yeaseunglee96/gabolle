@@ -1,0 +1,61 @@
+{
+  "id": "MA0101202508A0005088",
+  "name": "프로젝트:코이",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 62154,
+  "researchedAt": "2026-09-22T12:21:32.438Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "서브컬처 및 콘셉트 카페 팬층",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "시그니처 칵테일"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~일 17:00 ~ 23:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "부산 부산진구 동천로 72에 위치한 이색 컨셉 카페(NPC/메이드 카페 콘셉트)입니다. 일반적인 경양식 식당보다는 대화, 공연, 보드게임 및 음료/칵테일을 즐기는 체험형 공간으로 운영되고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "NPC 세계관을 바탕으로 한 이색 체험형 컨셉 카페입니다. 방문객은 '플레이어', 직원은 'NPC'가 되어 대화, 보드게임, 아이돌 댄스 공연 관람, 사진 촬영 등을 즐길 수 있으며 시그니처 칵테일 등을 제공합니다. 개업일: 2025년 8월 25일. 월~일 17:00 ~ 23:00 (연중무휴)",
+      "url": "https://namu.wiki/w/메이드%20카페/대한민국"
+    }
+  ],
+  "sources": [
+    "https://namu.wiki/w/메이드%20카페/대한민국",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "NPC 세계관을 기반으로 직원과의 대화, 보드게임, 공연 관람 등을 즐길 수 있는 이색 체험형 공간이기 때문",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220806851663",
+  "name": "명송오리",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 60111,
+  "researchedAt": "2026-09-22T11:41:10.920Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 관한 구체적 언급 없음(예약 권장 언급 있음)"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리연포탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안해변로 299(민락씨랜드활어센타 3층)에 위치한 곳으로, '명송오리' 혹은 '명송회오리탕'으로 불립니다. 해산물과 오리, 한약재를 함께 끓여낸 오리연포탕이 대표적이며 보양식 및 단체 모임용으로 주로 방문합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대표 메뉴: 오리와 낙지, 전복, 문어, 각종 해산물을 한약재와 함께 끓여내는 '오리연포탕'이 대표적입니다. 사장님께서 문어와 전복을 직접 손질해 주시며, 국물 맛이 깊고 몸보신에 좋다는 평이 많아 겨울철이나 부모님을 모시는 식사 자리, 단체 모임에 적합한 곳으로 언급됩니다. 개별 룸과 단체 테이블 시설을 갖추고 있어 모임에 용이하다는 평가가 있습니다. 성인 3~4명이 충분히 배부르게 먹을 수 있는 양으로 소개됩니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "위치: 부산광역시 수영구 광안해변로 299, 3층 (민락동, 씨랜드회센타 내) / 연락처: 051-755-0990",
+      "url": "https://tistory.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://tistory.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오리와 해산물(문어, 전복, 낙지 등), 한약재를 함께 우려낸 깊은 국물의 오리연포탕 보양식과 친절한 손질 서비스",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "개별 룸과 단체석을 갖추어 부모님 동반 식사나 단체 모임에 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

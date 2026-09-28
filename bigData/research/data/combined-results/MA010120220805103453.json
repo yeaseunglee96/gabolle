@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220805103453",
+  "name": "정순옥",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 51551,
+  "researchedAt": "2026-09-22T11:31:11.000Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "단골, 인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "석쇠오리불고기",
+      "오리소금구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화요일~일요일 11:30 - 22:00 (월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 인근 현지인 및 단골들이 찾는 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "공공데이터 상 '돼지고기 구이/찜' 업종으로 등록되어 있으나 실제 영업 상호는 '정순옥'(또는 '정순옥 오리')으로 석쇠오리불고기 및 오리소금구이 등 오리 요리 전문점으로 운영되는 곳입니다. 블로그 상세 리뷰나 직접적인 사진 링크는 웹상에서 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "정순옥 오리 / 위치: 부산광역시 수영구 남천동 / 특징: 오리구이의 불향이 특징인 식당으로, 대표 메뉴는 석쇠오리불고기와 오리소금구이입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "부산광역시 수영구 남천제1동 35-16 / 화요일~일요일 11:30 - 22:00 (월요일 휴무)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://visla.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "불향이 살아있는 석쇠오리불고기와 오리소금구이의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 인근 단골 및 주민들이 찾는 식당",
+      "sources": [
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

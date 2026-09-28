@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202406A0332418",
+  "name": "유리곤하지백라이브카페",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 71450,
+  "researchedAt": "2026-09-22T11:54:25.317Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 없음 (검색 결과 부재)",
+  "notes": "부산광역시 수영구 남천동로108번길 14 소재 '유리곤하지백라이브카페'는 웹상에서 실제 운영 여부, 메뉴, 후기 등의 정보를 전혀 찾을 수 없어 미운영 또는 실재하지 않는 정보로 판단됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

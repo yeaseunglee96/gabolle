@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220808655238",
+  "name": "모림양과",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 48057,
+  "researchedAt": "2026-09-22T11:42:40.984Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산광역시 수영구 민락로13번길 18 및 인근 지역에서 '모림양과'라는 상호의 빵/도넛/디저트 매장에 대한 검색 결과가 존재하지 않음 (폐업 또는 가공의 상호로 추정). 없는 매장을 지어내지 않는 원칙에 따라 found: false 처리함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

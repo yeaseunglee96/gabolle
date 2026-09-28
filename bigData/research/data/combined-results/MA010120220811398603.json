@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811398603",
+  "name": "청해해물탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 64642,
+  "researchedAt": "2026-09-22T06:49:10.298Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "피크타임 방문 시 대기가 발생할 수 있어 사전 전화 예약 권장 언급"
+  },
+  "descriptors": {
+    "audience": "가족·단체 및 현지인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "해물탕",
+      "해물찜"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "깔끔한 반찬 구성과 담백한 국물로 현지에서도 찾는 식당 중 하나로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 광안로61번길 23(민락동)에 위치한 해물탕/해물찜 전문점으로, 광안리 해수욕장 도보권에 있으며 인근 공영주차장 이용 및 단체/예약 안내가 확인됩니다. 세부 영업시간이나 상세 메뉴판 가격 숫자는 웹상에 구체적으로 명시되어 있지 않아 해당 항목은 미확인 처리했습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "청해해물탕은 부산광역시 수영구 광안로61번길 23(민락동)에 위치해 있으며, 새우, 전복, 꽃게, 문어 등 다양한 해산물이 들어간 해물탕과 해물찜이 주력 메뉴입니다. 국물 간이 비교적 담백하며, 깔끔한 반찬 구성으로 현지에서도 자주 찾는 식당 중 하나로 알려져 있습니다. 광안리 해변과 가까워 접근성이 좋으며, 인근 공영주차장을 이용할 수 있습니다. 피크타임 대기가 발생할 수 있어 전화 예약 후 방문이 권장됩니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 해산물이 푸짐하게 들어간 담백한 국물의 해물탕과 해물찜 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해변과 인접하여 해수욕장 방문객 및 인근 주민의 도보 접근성 양호",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

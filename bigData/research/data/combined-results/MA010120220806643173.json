@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220806643173",
+  "name": "으나수키친두번째이야기",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 72568,
+  "researchedAt": "2026-09-22T12:05:18.804Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 등을 통해 사전 예약 후 이용이 권장될 정도로 인기 있는 이자카야"
+  },
+  "descriptors": {
+    "audience": "데이트, 모임",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "숙성회",
+      "후토마끼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": null
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해리단길에 위치하여 데이트 및 방문객들이 많이 찾는 감성 이자카야"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "해운대 해리단길 가정주택을 개조한 일식 감성 이자카야로 숙성회와 후토마끼가 대표 메뉴입니다. 사전 예약(캐치테이블) 권장 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "으나수키친 두번째 이야기. 부산광역시 해운대구 우동1로38번길 14-5. 가정주택을 개조한 분위기 있는 공간으로, 숙성회와 후토마끼가 대표 메뉴입니다. 캐치테이블 등을 통해 사전 예약 후 이용하는 것이 권장되는 곳입니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "숙성회와 후토마끼 등 대표 일식 요리의 맛과 퀄리티가 우수함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "가정주택을 개조한 아늑하고 특색 있는 공간 분위기와 편의성",
+      "sources": [
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

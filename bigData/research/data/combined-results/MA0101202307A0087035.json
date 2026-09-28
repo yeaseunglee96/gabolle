@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202307A0087035",
+  "name": "끝돈광안리점",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 78723,
+  "researchedAt": "2026-09-22T11:43:47.910Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족, 모임, 연인",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "숙성 삼겹살",
+      "돼지구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광남로 71에 위치했던 '끝돈광안리점'은 숙성 삼겹살/돼지구이 전문점으로 운영되었으며, 사업자 등록 정보 및 이력상 확인되나 현재는 '죽림숯불돼지구이' 등으로 상호가 변경되었거나 폐업/전환된 것으로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "과거 '끝돈 광안리점'은 부산광역시 수영구 광남로 71 1층에 위치해 있었습니다. 프리미엄 숙성 돼지고기 전문점으로 알려져 있었으나, 현재는 운영하지 않거나 다른 상호(죽림숯불돼지구이 등)로 변경되었습니다.",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr",
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "프리미엄 숙성 돼지고기 구이를 전문으로 제공했던 점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

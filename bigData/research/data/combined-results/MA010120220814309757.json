@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220814309757",
+  "name": "이태원판자집",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 125676,
+  "researchedAt": "2026-09-22T12:13:24.939Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "애주가, 직장인, 포차 감성 찾는 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "존슨부대찌개",
+      "육회",
+      "육사시미",
+      "육전"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 골목 안에서 현지인들이 편안하게 술 한잔하기 좋은 로컬 안주 맛집/포차로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 해운대구 구남로24번길 11-1에 위치한 '이태원 판자집'은 포차/노포 감성의 주점으로, 대표 메뉴인 존슨부대찌개와 육회·육사시미·육전 및 기본 안주(감자탕/뼈해장국)로 인기를 끄는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 구남로24번길 11-1에 위치한 '이태원 판자집'은 노포 감성과 레트로한 분위기가 특징인 술집입니다. 벽면의 낙서가 인테리어 요소로 활용되어 아늑하고 편안한 느낌을 줍니다. 대표 메뉴는 칼칼한 국물 맛의 존슨부대찌개와 육회, 육사시미, 육전 등이며 기본 안주로 제공되는 감자탕이나 뼈해장국도 실하고 인기가 높습니다.",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "부산 해운대구 우동에 위치한 '이태원 판자집'은 육회와 뭉티기(육사시미) 등을 전문으로 하는 로컬 맛집입니다. 해운대역 인근 골목에 위치하며 포차 분위기에서 술 한잔하기 좋은 곳으로 현지인들이 즐겨 찾는 안주 맛집으로 자주 언급됩니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "칼칼한 존슨부대찌개와 육회·육사시미 등 술과 어울리는 안주 및 기본 안주 뼈해장국이 푸짐하고 맛이 좋음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "벽면 낙서와 레트로한 포차 인테리어로 편안하고 아늑한 노포 감성을 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "해운대 번화가 골목 안에서 현지인들이 술 한잔하러 즐겨 찾는 로컬 포차로 사랑받음",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

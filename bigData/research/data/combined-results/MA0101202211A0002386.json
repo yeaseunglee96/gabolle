@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202211A0002386",
+  "name": "카츠신",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 50722,
+  "researchedAt": "2026-09-22T11:53:23.544Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "돈카츠"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소지(부산 해운대구 좌동순환로468번길 51 유성빌라 1층)에 등록된 일식/돈카츠 상호는 확인되나, 배달 전문/샵인샵 형태로 운영되었거나 폐업/업종변경('오늘은 오므라이스' 등)되어 상세 방문기, 메뉴판, 영업시간, 줄서기 등 세부 방문 후기 데이터가 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 해운대구 좌동순환로468번길 51, 1층 (중동, 유성빌라) 업체 정보: '카츠신'은 일본식 돈카츠 전문점으로 알려져 있으며, 해당 주소지(유성빌라 1층)에서 운영되었습니다.",
+      "url": "https://modooz.com"
+    }
+  ],
+  "sources": [
+    "https://modooz.com",
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정통 일본식 조리 기법을 활용한 돈카츠를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

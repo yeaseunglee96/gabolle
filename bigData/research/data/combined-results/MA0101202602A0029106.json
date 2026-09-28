@@ -1,0 +1,50 @@
+{
+  "id": "MA0101202602A0029106",
+  "name": "성원뒷고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 76093,
+  "researchedAt": "2026-09-22T06:26:04.233Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "뒷고기"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 사상구 대동로 147-5에 상호 등록 이력은 확인되나 상세 방문 후기나 메뉴/가격/영업시간 등 세부 정보는 웹상에 존재하지 않음 (폐업 또는 정보 미제공 추정).",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "성원뒷고기 위치: 부산광역시 사상구 대동로 147-5 (학장동) 특징: 부산 사상구 학장동에 위치한 뒷고기 전문점입니다",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

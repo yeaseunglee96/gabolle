@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220810102712",
+  "name": "LA족발",
+  "cat": "그 외 기타 간이 음식점",
+  "attempts": 1,
+  "geminiTokens": 94903,
+  "researchedAt": "2026-09-22T06:42:30.848Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "mid",
+    "signatureDishes": [
+      "족발"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 17:00 ~ 01:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "수정동 지역 주민/현지인들 사이에서 입소문이 난 족발집으로 언급됨"
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 동구 고관로 85-1(수정동)에 위치한 족발 음식점으로, 식신 등 포털에 주중 17:00~01:00 영업시간 등이 등록되어 있으나 현재 운영 여부 확인 필요 상태이거나 상세 블로그 리뷰 및 사진 정보가 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 수정동 고관로 85-1에 위치한 족발 전문점입니다. 상호명: LA족발 / 주소: 부산광역시 동구 고관로 85-1 / 주중 17:00 ~ 01:00",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수정동 인근 현지 주민들이 찾는 족발 전문점",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

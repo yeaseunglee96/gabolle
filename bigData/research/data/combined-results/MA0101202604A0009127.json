@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202604A0009127",
+  "name": "마끼몬스타",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 56787,
+  "researchedAt": "2026-09-22T11:59:09.805Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 관한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 혼밥객, 롤 초밥 선호자",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "우나기몬",
+      "사케몬",
+      "우나기&새우롤 콤보",
+      "필라델피아롤"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30~21:00 (월, 수, 목) / 토 11:30~21:30 / 일 11:30~20:30 (화요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 전용 언급 확인되지 않음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "미국 시카고에서 일식당을 운영했던 사장님이 선보이는 정통 아메리칸 스타일 캘리포니아 롤/스시 전문점. 광안리 해변 인근 아파트 상가 1층에 위치함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "우나기&새우롤 콤보: 14,900원, 살몬&아보카도롤: 11,900원, 필라델피아롤: 8,900원, 캘리포니아롤: 6,900원",
+    "priceWon": 10900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "미국 시카고에서 일식당을 운영하셨던 사장님이 선보이는 아메리칸 스타일의 스시 롤을 맛볼 수 있는 곳으로, 주문 즉시 신선하게 만들어 제공합니다. 부산광역시 수영구 광안로 20 (광안동, 쌍용 예가 디 오션 상가 109동 1층 113호)",
+      "url": "https://www.facebook.com/"
+    },
+    {
+      "excerpt": "우나기&새우롤 콤보: 14,900원, 새우튀김몬&캘리포니아 콤보: 12,900원, 캘리&필리&새우롤 콤보: 10,900원, 살몬&아보카도롤: 11,900원, 필라델피아롤: 8,900원, 캘리포니아롤: 6,900원. 영업시간: 11:30~21:00 (월, 수, 목) / 토 11:30~21:30 / 일 11:30~20:30",
+      "url": "https://heyyumi.ai/"
+    }
+  ],
+  "sources": [
+    "https://www.facebook.com/",
+    "https://heyyumi.ai/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "미국 시카고에서 일식당을 운영했던 사장님이 주문 즉시 신선하게 만드는 정통 아메리칸 스타일 스시 롤 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "롤 콤보 및 롤 단품 메뉴가 6,000원~14,000원 선으로 부담 없는 가격대 형성",
+      "sources": [
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

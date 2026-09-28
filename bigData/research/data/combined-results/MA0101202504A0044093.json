@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202504A0044093",
+  "name": "도핀느",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 151833,
+  "researchedAt": "2026-09-22T11:14:40.739Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "매장이 아담하고 협소하여 사전 예약 후 방문 권장"
+  },
+  "descriptors": {
+    "audience": "연인, 미식가, 와인 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "샤퀴테리 아시에뜨",
+      "오리 다리 콩피",
+      "파테 앙 크루트",
+      "부당 누아"
+    ],
+    "yearsClaimed": 2
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "사전 예약 및 영업일 확인 권장"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길에 위치하며 타지 미식가 및 현지인들의 샤퀴테리·와인 비스트로 성지로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 해운대 해리단길(우동1로50번길 5)에 위치한 프랑스 정통 샤퀴테리 및 프렌치 비스트로. 프랑스 폴 보퀴즈 요리학교 및 국가공인 샤퀴티에 문경빈 셰프가 운영함. 블루리본 서베이 수록.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "샤퀴테리 및 프렌치 단품 요리, 와인",
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 해운대구 우동에 위치한 '도핀느(Dauphine)'는 프랑스 폴 보퀴즈 요리학교(Institut Paul Bocuse) 출신이자 프랑스 국가공인 샤퀴티에(Charcutier)인 문경빈 셰프가 운영하는 다이닝 바입니다. 테린, 파테 엉 크루트 등 완성도 높은 샤퀴테리와 오리다리 콩피, 부당 누아와 같은 프랑스 요리를 와인과 함께 즐길 수 있는 곳입니다.",
+      "url": "https://www.metizen.co.kr/"
+    },
+    {
+      "excerpt": "도핀느(Dauphine)는 부산 해운대구 해리단길(우동1로50번길 5)에 위치한 정통 프렌치 샤퀴테리(Charcuterie) 전문점 및 비스트로입니다. 문경빈 셰프는 프랑스의 유명 요리학교인 폴 보퀴즈(Paul Bocuse)를 졸업하고, 프랑스 국가공인 샤퀴티에 자격증을 취득한 전문가입니다. 파리의 유명 샤퀴테리 전문점인 '메종 베로(Maison Verot)' 등에서 풍부한 경력을 쌓았습니다. '서울에 메종조가 있다면 부산에는 도핀느가 있다'는 평가를 받을 정도로 수준 높은 샤퀴테리를 선보입니다.",
+      "url": "https://www.wikitree.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.metizen.co.kr/",
+    "https://www.wikitree.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "프랑스 폴 보퀴즈 출신이자 국가공인 샤퀴티에 문경빈 셰프가 만드는 정통 수제 샤퀴테리와 프렌치 요리의 뛰어난 맛과 전문성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "블루리본 서베이 주목할 만한 신생 맛집 선정 및 '서울의 메종조, 부산의 도핀느'로 불리는 미식 매체/전문가 추천",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "플랫폼 순위·평점"
+    }
+  ]
+}

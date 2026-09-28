@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202409A0149728",
+  "name": "뜨라레2",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 60377,
+  "researchedAt": "2026-09-22T12:21:12.949Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산광역시 수영구 수영로610번길 9)는 주거용 다세대 건물(미르피아빌)로 확인되며, '뜨라레2'라는 상호의 빵/도넛/베이커리 매장은 웹 검색상 실존하지 않거나 폐업/미등록 상태로 파악되어 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

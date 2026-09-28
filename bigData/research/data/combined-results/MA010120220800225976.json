@@ -1,0 +1,83 @@
+{
+  "id": "MA010120220800225976",
+  "name": "연심",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 104819,
+  "researchedAt": "2026-09-22T12:00:46.910Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "웨이팅이나 매장 혼잡도에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "연어 애호가 및 지역 주민, 포장/배달 고객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "연심 모둠한판",
+      "생연어 사시미",
+      "육회&연어사시미",
+      "연심 스페셜 초밥",
+      "특제 생연어 덮밥"
+    ],
+    "yearsClaimed": 2022
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~금: 15:30 ~ 22:00 (라스트오더 21:00) / 토~일: 11:30 ~ 22:00 (라스트오더 21:00) / 월요일 및 공휴일 휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 단골 위주 운영 언급은 있으나 명확한 현지인/관광객 대비 구분 서술 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 수영구 망미번영로38번길 일대(100~104)에 위치한 생연어 전문 프랜차이즈 본점('연어의진심 연심 수영본점')입니다. 최상급 노르웨이 생연어와 1++ 한우육회 세트, 모둠초밥, 덮밥류 등을 주력으로 취급하고 있습니다.",
+  "photoUrls": [
+    "https://ynsim.co.kr/file/menu/23_1.jpg",
+    "https://ynsim.co.kr/file/menu/17_1.jpg",
+    "https://ynsim.co.kr/file/menu/22_1.jpg",
+    "https://ynsim.co.kr/file/menu/20_1.jpg",
+    "https://ynsim.co.kr/file/menu/18_1.jpg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "연심 연어모둠한판(2인) 36,900원 / 생연어사시미(소) 32,900원 / 연심 스페셜초밥 13,900원 / 특제 생연어 덮밥 14,900원",
+    "priceWon": 36900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "AAA+ 최상급 노르웨이 생연어만을 고집하여 고객의 입장에서 오랜 노하우를 반영하여 긴 시간 동안 연구 끝에 런칭한 남녀노소 즐길수 있는 프리미엄 브랜드입니다. 본사교육을 통해 초보자도 손쉽게 가능한 조리법, 많지 않은 재료로 다양한 메뉴를 완성도 높게 만들어 낼수 있어 초보자,1인 운영도 충분히 가능하며, 우수한 식재료 회전율로 신선하게 맛볼수있는 고객의 만족도 또한 최상으로 UP!",
+      "url": "https://ynsim.co.kr"
+    },
+    {
+      "excerpt": "1++한우육회와 생연어사시미 연심의 대표메뉴 / AAA+ 프리미엄 생연어 사시미,급이 다른 연어의 본연의 맛을 느껴보세요 / 연심의 시그니처! 연심 특제소스가 어우러진 중독성 강한 생연어 덮밥",
+      "url": "https://ynsim.co.kr"
+    }
+  ],
+  "sources": [
+    "https://ynsim.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "AAA+ 최상급 노르웨이산 프리미엄 생연어와 1++ 한우 육회 등 신선도 높은 재료의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "연어 사시미부터 덮밥, 초밥 세트까지 혼밥·포장 및 식사/안주 선택의 폭이 다양함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

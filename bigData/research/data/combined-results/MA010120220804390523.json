@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220804390523",
+  "name": "씨든에프앤비",
+  "cat": "피자",
+  "attempts": 1,
+  "geminiTokens": 44511,
+  "researchedAt": "2026-09-22T12:00:58.217Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "실제 운영 매장 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "실제 운영 매장 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "해당 주소지('부산 해운대로 592')의 '씨든에프앤비'는 사업자등록상 음식점/컨설팅 법인 사업체일 뿐, 오프라인 피자 음식점 매장으로 운영되지 않음",
+  "notes": "부산 해운대로 592에 위치한 (주)씨든에프앤비는 법인 기업(사업자 등록상 피자/음식점업/경영컨설팅)으로, 일반 고객 대상의 실제 피자 전문 매장이 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "(주)씨든에프앤비는 부산 해운대구 해운대로 592에 소재지를 둔 기업으로, 일부 데이터상에서는 '피자, 햄버거, 샌드위치 및 유사 음식점업' 또는 '김밥 및 기타 간이 음식점업'으로 분류되어 있습니다. 다만, 해당 기업은 실제 매장 운영 외에도 경영 컨설팅, 프랜차이즈 컨설팅 등을 주요 사업으로 하거나 기업 간 거래(B2B)를 다루는 법인일 가능성이 있습니다. 검색 결과에 나타나는 '피자' 관련 분류는 사업자 등록상의 업종 분류일 뿐, 해당 주소지에 일반적인 피자 전문점 매장이 직접 운영되고 있다는 정보와는 다를 수 있습니다.",
+      "url": "https://gongsinara.com"
+    }
+  ],
+  "sources": [
+    "https://gongsinara.com",
+    "https://rndcircle.io"
+  ],
+  "whyPeopleGo": []
+}

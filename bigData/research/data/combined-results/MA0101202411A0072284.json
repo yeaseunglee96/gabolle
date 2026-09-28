@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202411A0072284",
+  "name": "꽃남이네",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 64967,
+  "researchedAt": "2026-09-22T06:16:59.896Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 등록 주소 정보 외에 실제 방문 후기, 메뉴, 영업시간 등 상세 웹 정보 미존재",
+  "notes": "부산광역시 사하구 옥천로 27-1 상호 등록 내역(공공 데이터/부산시 포털 등록 목록) 외에 실제 식당 방문기, 블로그 리뷰, 메뉴 및 가격 정보 등 구체적인 웹 콘텐츠가 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.busan.go.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA0101202411A0135163",
+  "name": "원웨이브레드",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 72179,
+  "researchedAt": "2026-09-22T11:16:24.685Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 직접적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "베이커리 및 브런치 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "소금버터식빵",
+      "블랙올리브 치즈식빵",
+      "클래식 식빵"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월-금: 10:00 - 20:00, 토-일: 10:00 - 22:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구체적 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안리 광남로 187에 위치한 식빵 전문 베이커리 카페로 소금버터식빵, 블랙올리브치즈식빵 등 식빵 및 브런치 메뉴를 주로 취급합니다. 전용 주차장은 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "소금 식빵 / 블랙 올리브 치즈 식빵",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "광안리 해수욕장 인근 골목에 자리한 베이커리 카페로, 특히 두툼하고 풍미가 좋은 식빵으로 유명한 곳입니다. 매장 분위기가 이국적이며(하와이 또는 휴양지 느낌), 식빵뿐만 아니라 함께 곁들여 먹기 좋은 스프레드, 샌드위치, 커피 및 브런치 메뉴를 판매합니다. 대표 메뉴: '소금버터식빵', '블랙올리브 치즈식빵' 등이 인기가 많으며, 식빵은 '일방통행 식빵'이라는 별칭으로도 불립니다. 위치: 부산광역시 수영구 광남로 187 1층 (광안역 1번 출구에서 도보 약 600m 거리). 영업시간: 월-금: 10:00 - 20:00, 토-일: 10:00 - 22:00. 전용 주차장은 없으며, 인근 공영주차장을 이용해야 합니다.",
+      "url": "https://www.trip.com"
+    },
+    {
+      "excerpt": "소금 식빵(시오 브레드)과 블랙 올리브 치즈 식빵 등은 각 10,000원으로 형성되어 있습니다. 별도의 메뉴판이 마련되어 있지 않으며, 매장 내 토스 오더(키오스크/주문 시스템)를 통해 상세한 메뉴별 그림과 가격을 확인하고 주문하는 방식입니다.",
+      "url": "https://www.instagram.com/onewaybread"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com",
+    "https://www.instagram.com/onewaybread"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "두툼하고 풍미 좋은 시그니처 소금버터식빵과 이국적인 휴양지 분위기의 브런치 베이커리 카페",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

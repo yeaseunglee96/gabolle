@@ -1,0 +1,63 @@
+{
+  "id": "MA010120220805152296",
+  "name": "두루미202",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 169888,
+  "researchedAt": "2026-09-22T10:38:40.766Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "검색된 웹 출처에서 대기 시간 및 혼잡도에 대한 구체적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "친구/모임/데이트",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 모츠나베",
+      "스지수육"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 수영구 광안로61번길 8(민락동)에 위치한 일식당 '두루미202'로 확인됨. 대표 메뉴는 한우 모츠나베와 스지수육 등임. (참고: 전포/광안리에 위치한 유명 돼지고기 구이 전문점 '두루미'와는 다른 식당임)",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "두루미202는 부산광역시 수영구 민락동에 위치한 맛집으로... 대표 메뉴: 한우 모츠나베, 스지수육, 특징: 모츠나베의 깊은 맛을 즐길 수 있는 곳으로 소개되고 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "한우 모츠나베와 스지수육 등 깊은 맛의 일식 나베/안주 요리를 맛보기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

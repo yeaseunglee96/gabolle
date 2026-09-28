@@ -1,0 +1,77 @@
+{
+  "id": "MA010120220811425729",
+  "name": "해주면옥",
+  "cat": "냉면/밀면",
+  "attempts": 1,
+  "geminiTokens": 48690,
+  "researchedAt": "2026-09-22T06:53:52.827Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 및 직장인, 여행객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "물냉면",
+      "비빔냉면",
+      "왕갈비탕",
+      "찜갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 09:00 ~ 21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대구청 인근 위치로 현지인 직장인 식사 및 해운대 여행객들의 아침/해장 식사로 방문 언급"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "해운대구청 근처에 위치하여 냉면과 함께 왕갈비탕, 해장국, 찜갈비 등 식사류를 제공하는 식당",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "물냉면 10,000원, 왕갈비탕 15,000원",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해주면옥은 부산광역시 해운대구 중동2로 7에 위치한 한식당으로, 냉면과 왕갈비탕이 대표 메뉴인 맛집입니다. 해운대구청 인근에 위치해 있어 접근성이 좋으며, 아침 식사 및 포장, 배달이 가능합니다. 현지인들 사이에서 갈비탕과 냉면을 함께 즐길 수 있는 곳으로 잘 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "주요 메뉴 및 가격: 물냉면 10,000원, 비빔냉면 11,000원, 왕갈비탕 15,000원, 찜갈비(중) 40,000원, 왕만두 5,000원, 해장국 7,000원. 영업시간 09:00 ~ 21:00. 주소 부산광역시 해운대구 중동2로 7.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "시원한 냉면과 함께 푸짐한 고기가 든 왕갈비탕을 한 곳에서 즐길 수 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대구청 인근 위치로 접근성이 좋고 이른 아침부터 식사 및 해장이 가능함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

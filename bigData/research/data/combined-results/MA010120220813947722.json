@@ -1,0 +1,51 @@
+{
+  "id": "MA010120220813947722",
+  "name": "연어의맛",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 39247,
+  "researchedAt": "2026-09-22T11:16:49.207Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": [
+      "연어회",
+      "연어초밥"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 수영구 무학로 16-1(광안동)에 위치한 일반음식점(일식 횟집)으로 사업체 등록 및 가맹점 내역이 확인되나, 온라인 블로그 리뷰나 상세 메뉴판/영업시간 등 상세 방문 후기 정보는 극히 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 수영구 무학로 16-1 (광안동). 업종: 음식점(횟집)으로 등록되어 있으며, 동백전 및 각종 지원금 사용이 가능한 가맹점으로 확인됩니다.",
+      "url": "https://www.114.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.114.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "수영구 광안동 일대에서 연어 회 및 일식 요리를 취급하는 동네 음식점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

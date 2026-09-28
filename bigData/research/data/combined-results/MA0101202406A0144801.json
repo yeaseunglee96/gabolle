@@ -1,0 +1,84 @@
+{
+  "id": "MA0101202406A0144801",
+  "name": "몬티",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 47141,
+  "researchedAt": "2026-09-22T11:57:30.245Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "워크인 방문 시 식사가 어렵거나 거절될 수 있어 사전 예약(캐치테이블) 위주로 운영되었음"
+  },
+  "descriptors": {
+    "audience": "연인, 데이트, 소개팅 고객층",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리 라구 파파르델레",
+      "트러플 딸리올리니",
+      "포르치니 리조또",
+      "뿔레 호띠"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "상세 운영시간 미확인 (사전 예약제 위주 운영 및 현재 폐점 상태)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 부산진구 동성로 71 노클레임(더 컴퍼스) 플래그십 스토어 지하 1층에 위치했던 이탈리안 레스토랑(경양식/양식 업종 등록)으로, 현재는 폐점 상태로 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "오리 라구 파파르델레 24,000원, 이 달의 리조또 25,000원, 트러플 딸리올리니 32,000원, 오늘의 생선 18,000원",
+    "priceWon": 24000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 부산진구 동성로 71 (더 컴퍼스 지하 1층) 노클레임(Noclaim) 플래그십 스토어 내에 위치했던 이탈리안 다이닝으로, 뿔레 호띠(치킨 요리), 포르치니 리조또, 파스타 등이 주요 메뉴였습니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "캐치테이블 예약이 가능하며, 워크인 손님은 거절될 수 있으므로 방문 전 캐치테이블을 통한 예약이 필수로 권장됩니다. 조리 시간이 다소 소요(30분 내외)될 수 있으며, 예약제로 운영되는 경우가 많으니 방문 전 캐치테이블 앱을 통해 확인하시기 바랍니다.",
+      "url": "https://polle.com"
+    },
+    {
+      "excerpt": "오리 라구 파파르델레 24,000원, 오늘의 생선 18,000원, 이 달의 리조또 25,000원, 트러플 딸리올리니 32,000원. 현재 해당 매장은 폐점된 것으로 파악됩니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com",
+    "https://noclaim.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오리 라구 파파르델레, 생면 파스타, 리조또 등 완성도 높은 이탈리안 요리 제공",
+      "sources": [
+        1,
+        3
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "노클레임 플래그십 스토어 지하에 위치한 특유의 감성적인 분위기로 데이트나 소개팅에 적합함",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

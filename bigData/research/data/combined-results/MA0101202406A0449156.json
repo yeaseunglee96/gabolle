@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202406A0449156",
+  "name": "무벳",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 60319,
+  "researchedAt": "2026-09-22T10:33:32.107Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 데이트 고객, 와인/미식 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "비프 웰링턴",
+      "오리 스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "광안리 서희스타힐스 센텀프리모 상가에 위치한 프렌치 다이닝 바/와인바로, 대표 시그니처 메뉴인 '비프 웰링턴'과 코스/스테이크 요리로 알려져 있습니다. 소규모 매장 특성상 예약 위주로 방문하는 경우가 많습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로 311 (서희스타힐스 센텀프리모)에 입점해 있는 다이닝 바(와인바)로 비프 웰링턴 등의 요리와 와인을 즐길 수 있는 곳이다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "비프 웰링턴 맛집으로 잘 알려진 프렌치 다이닝바로 와인과 함께 즐기기 좋은 프렌치 요리를 선보이며 분위기가 좋아 데이트 장소로 자주 언급된다.",
+      "url": "https://fivepin.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://fivepin.co.kr",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대표 시그니처 메뉴인 비프 웰링턴 등 수준 높은 프렌치 요리의 뛰어난 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해변 인근 분위기 좋은 다이닝 바/데이트 및 와인 모임 명소",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

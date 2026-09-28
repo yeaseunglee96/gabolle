@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220811919430",
+  "name": "송화소주방",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 61778,
+  "researchedAt": "2026-09-22T06:17:05.096Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "priceBand": "cheap"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 옥천로 32-1(감천동) 소재의 사업자/도로명주소 등록 정보상 일반음식점(분식/한식) '송화소주방'으로 확인되나, 방문 후기, 블로그 리뷰, 상세 메뉴 및 영업시간 정보 등 온라인 공개 리뷰 데이터는 확인되지 않는 소규모 동네 업소입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 사하구 옥천로 32-1 (감천동) 송화소주방 일반음식점",
+      "url": "https://dorojuso.kr"
+    }
+  ],
+  "sources": [
+    "https://dorojuso.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,80 @@
+{
+  "id": "MA0101202406A0593444",
+  "name": "더서서",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 79054,
+  "researchedAt": "2026-09-22T07:09:13.911Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "광안리 핫플로 주말 등에는 웨이팅이 긴 편이라 캐치테이블 원격 줄서기 등록이 권장된다고 언급됨"
+  },
+  "descriptors": {
+    "audience": "20~30대 젊은층, 직장인 혼술 및 2차 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "삿포로 생맥주",
+      "에비스 생맥주",
+      "테바사키",
+      "나폴리탄"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 18:00 - 02:00 (라스트오더 01:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 인근 핫플레이스로 현지 주민들의 2차/혼술 장소이자 광안리를 찾는 관광객들이 즐겨 찾는 스탠딩 바"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "해당 주소(부산 수영구 남천바다로33번길 9)의 사업자 등록 법인명은 '주식회사 더서서'(대표 김미진, 2024년 설립)이며, 실제 매장은 일본식 스탠딩 생맥주 전문점(타치노미)인 '간빠진새'(현 상호명 '간빠맥주' 광안 본점)로 운영되고 있습니다. 회/초밥 전문점이 아닌 일본식 안주(테바사키, 나폴리탄, 야끼소바 등)와 삿포로/에비스 생맥주를 전문으로 하는 타치노미 바입니다.",
+  "photoUrls": [
+    "https://ganmaek.com/uploads/settings/20260120/696ef33277d8b.jpg",
+    "https://ganmaek.com/assets/img/franchise/visual-bg01.jpg",
+    "https://ganmaek.com/assets/img/franchise/visual-bg02.jpg"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "삿포로 생맥주 및 가벼운 안주류(테바사키, 교자 등) 3,000원~10,000원대 안팎",
+    "priceWon": 5000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주식회사 더서서 / 대표: 김미진 / 부산광역시 수영구 남천바다로33번길 9, 1층(광안동, 남정) / Tel : 010-2506-5731 / Copyright© 간빠맥주 All Rights Reserved.",
+      "url": "https://ganmaek.com"
+    },
+    {
+      "excerpt": "간빠진새 (현재 상호명: 간빠맥주) - 부산광역시 수영구 남천바다로33번길 9. 의자 없이 서서 술을 즐기는 일본식 타치노미(立ち飲み) 스타일로 운영되며 삿포로 생맥주, 에비스 생맥주와 테바사키, 나폴리탄 등을 판매합니다. 영업시간: 매일 18:00 ~ 02:00 (라스트오더 01:00), 주말 웨이팅 발생으로 캐치테이블 원격 줄서기 이용. 주차 불가.",
+      "url": "https://ganmaek.com"
+    }
+  ],
+  "sources": [
+    "https://ganmaek.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "의자 없이 서서 가볍게 즐기는 일본 현지 스타일의 타치노미(스탠딩 바) 분위기와 감성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "품질 관리된 시원한 삿포로 및 에비스 프리미엄 생맥주와 가성비 좋은 일본식 안주",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "MA0101202406A0108745",
+  "name": "스타케밥푸드",
+  "cat": "기타 서양식 음식점",
+  "attempts": 1,
+  "geminiTokens": 65902,
+  "researchedAt": "2026-09-22T06:59:04.346Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "대기나 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민, 외국 음식 선호층",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "양고기 도네르케밥",
+      "치킨 케밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 수미로50번길 58에 등록된 '스타케밥푸드'(기타 서양식 음식점)로 사업자/상가 DB 등에 등재되어 있으나, 일반 블로그나 매체 상세 리뷰가 거의 없고 동일 주소지에 '해동돼지국밥' 등이 운영되는 등 배달/소규모 형태 또는 폐업/변경 가능성이 있음. 세부 가격표 및 영업시간 확인 불가.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "스타케밥푸드 부산광역시 수영구 수미로50번길 58 (수영동) 기타전문서양음식점",
+      "url": "https://linktoplace.com"
+    }
+  ],
+  "sources": [
+    "https://linktoplace.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "튀르키예 현지 거주 경험을 바탕으로 한 양고기/치킨 케밥 조리",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

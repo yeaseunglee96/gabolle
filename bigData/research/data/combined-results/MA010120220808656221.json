@@ -1,0 +1,73 @@
+{
+  "id": "MA010120220808656221",
+  "name": "삼목",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 75778,
+  "researchedAt": "2026-09-22T12:39:18.044Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기 정보는 구체적으로 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족/연인/모임",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "삼목세트",
+      "삼겹살",
+      "목살",
+      "왕새우구이",
+      "삼목 해장 술밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "16:00 - 23:00 (라스트 오더 21:30, 매주 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분에 대한 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 해운대구 좌동순환로 443 1층에 위치한 삼겹살/목살 숯불구이 전문점으로, 직원이 직접 고기를 구워주는 그릴링 서비스와 삼목세트/해장 술밥 등이 대표적임. 전용 주차 공간은 없어 인근 문탠로드 또는 미포 공영주차장 이용 필요.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "정보 없음",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 삼목 (삼목미포달맞이고기집), 주소: 부산광역시 해운대구 좌동순환로 443, 1층, 영업시간: 16:00 - 23:00 (라스트 오더 21:30) 매주 화요일 휴무. 삼겹살과 목살을 전문으로 하는 고깃집으로, 육즙이 풍부하고 고소한 맛이 특징입니다. 밑간이 된 왕새우와 삼목 해장 술밥 등이 인기 메뉴입니다. 직원이 고기를 직접 구워주는 서비스를 제공합니다. 문탠로드 공영주차장 또는 미포 공영주차장(유료)을 이용해야 하며, 별도의 전용 주차 지원은 없습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "육즙이 풍부하고 고소한 삼겹살과 목살 본연의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "직원이 숯불에 직접 고기를 구워주어 편리하게 즐길 수 있는 그릴링 서비스",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

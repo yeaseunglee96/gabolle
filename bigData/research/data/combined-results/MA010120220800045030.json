@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220800045030",
+  "name": "맛있는오리",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 70307,
+  "researchedAt": "2026-09-22T06:16:18.080Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "식당 방문 후기 및 운영 상세 정보 미확인",
+  "notes": "부산광역시 금정구 신천로35번길 68 소재 '맛있는오리'에 대해 웹 검색을 진행하였으나 부동산/주변 시설 목록상의 단순 상호 표기 외에 실제 운영 상세 정보(메뉴, 가격, 영업시간, 방문 후기 등)를 확인할 수 있는 콘텐츠가 존재하지 않아 found: false로 보고합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

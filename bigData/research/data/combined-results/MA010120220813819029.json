@@ -1,0 +1,80 @@
+{
+  "id": "MA010120220813819029",
+  "name": "도새기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 120775,
+  "researchedAt": "2026-09-22T11:28:01.618Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "캐치테이블 등 원격 예약이 없어 매장 입구에서 대기해야 하며, 사장님 1인 운영이라 치우는 속도가 다소 느려 대기 시간이 걸릴 수 있음"
+  },
+  "descriptors": {
+    "audience": "현지인 및 관광객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "뒷고기",
+      "오겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매주 월요일 정기휴무, 화~일 16:00 - 05:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "관광객으로 붐비는 곳보다는 부산 현지인들이 주로 찾는 찐 로컬 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안리 해변 인근 골목에 위치한 뒷고기·오겹살 전문점으로, 저렴한 가격과 쫄깃한 뒷고기 맛으로 현지인들에게 인기 있는 식당입니다. 사장님 1인 영업으로 물과 식기 등은 셀프로 운영됩니다.",
+  "photoUrls": [
+    "https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FvW9Sl%2FdJMcafAbZ2T%2FAAAAAAAAAAAAAAAAAAAAAA7NQdQpjcTsGm8BYTlLOaSPiy-E3TgxTvA9Fm8-dofD%2Fimg.jpg%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1790780399%26allow_ip%3D%26allow_referer%3D%26signature%3DTpHmRcOTUC6euXhh%252F5iV%252FR%252BVI8U%253D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "뒷고기(120g)",
+    "priceWon": 7000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오늘은 부산 광안리에서 로컬 맛집으로 유명한 뒷고기 맛집 “도새기” 리뷰를 해보려고 한다. 도새기 부산 수영구 광안로61번길 5 “도새기”는 광안리에 위치하고 있으며 매주 월요일은 정기휴무, 이외 요일은 16:00-05:00동안 영업한다. 외관은 이렇고 따로 캐치테이블이나 줄서기를 할 수 있는 것은 없다. 매장 입구에 줄을 서야하고 사장님 혼자 영업을 하셔서 치우는 속도도 느리셔서 조금 오래 기다리긴 했다. 메뉴는 오겹살과 뒷고기가 시그니쳐인데 둘 다 가격이 매우 저렴하다. 우리는 오겹살 3인분과 뒷고기 2인분을 주문했다. 처음 주문을 하니 이렇게 고기가 나왔고 직접 구워먹어야한다. 우리는 김치와 마늘까지 구워서 야무지게 먹었다. 한 줄 후기: 뒷고기가 정말 맛있다. 오겹살은 다른 곳과는 크게 차별화되는 점을 못느꼈는데 뒷고기는 쫄깃하고 정말 맛있었다. 그리고 무엇보다 120g에 7,000원이니 가성비가 정말 좋다. 부산에서 유명한 소주 대선까지 시켜서 먹으면 한 끼 뚝딱이다. 물이나 식기가 셀프라서 조금 귀찮을 수 있고 매장이 작아서 불편한 점은 없지 않아 있지만 찐로컬 맛집이라 강추한다. 부산 여행을 왔지만 너무 여행객으로 유명한 곳 말고 로컬 맛집도 궁금하신 분들이라먄 강추한다.",
+      "url": "https://ilovefood.tistory.com/463"
+    }
+  ],
+  "sources": [
+    "https://ilovefood.tistory.com/463"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "뒷고기가 쫄깃하고 뛰어난 맛을 냄",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "뒷고기 120g에 7,000원으로 매우 저렴함",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "관광객 식당 대신 부산 현지인 분위기를 느낄 수 있는 찐로컬 식당임",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220812063078",
+  "name": "세이고우",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 63418,
+  "researchedAt": "2026-09-22T12:07:58.045Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 관한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "대학생 및 1인 혼밥/혼술 고객, 포장·배달 이용자",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "왕알 타코야키",
+      "오코노미야키",
+      "야키소바"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 확인 불가"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "경성대·부경대 인근 대학가 상권에서 포장·배달 및 혼밥 손님 위주의 동네/현지 학생 상권 매장으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 남구 대연동(수영로298번길 41)에 위치한 세이고우는 가짜 문어 대신 실제 삶은 문어와 새우를 사용하는 왕알 타코야키, 오코노미야키, 야키소바 등을 주메뉴로 하는 일식 매장으로, 현재는 포장·배달 위주로 운영 중입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "왕알 타코야키",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 남구 수영로298번길 41 1층 (대연동 61-4). 가짜 문어가 아닌 실제 삶은 문어와 새우, 모짜렐라 치즈볼 등을 넣은 '왕알 타코야키'가 대표 메뉴입니다. 기성품이 아닌 자체 개발 소스를 사용하며, 포장 및 배달을 중심으로 운영되고 있습니다. 매장은 아늑하고 일본스러운 분위기로, 키오스크 및 QR 정산 시스템 등을 갖추어 편리한 이용이 가능합니다. 대표 메뉴: 왕알 타코야키, 오코노미야키, 야끼소바",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "실제 삶은 문어와 새우를 넣은 큼직한 수제 왕알 타코야키와 자체 개발 소스의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "키오스크 및 QR 주문 시스템을 갖추고 포장과 배달 중심으로 간편하게 즐기기 편함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

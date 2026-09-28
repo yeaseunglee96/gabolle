@@ -1,0 +1,79 @@
+{
+  "id": "MA010120220804976912",
+  "name": "디에이블",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 55194,
+  "researchedAt": "2026-09-22T11:34:48.132Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 창가 자리를 원하는 경우 방문객이 많아 네이버 예약 등을 권장함"
+  },
+  "descriptors": {
+    "audience": "데이트 연인 및 가족 외식",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "디에이블 파스타",
+      "새우베이컨필라프",
+      "목살 스테이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (라스트 오더 21:15)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 오션뷰 레스토랑으로 부산을 찾는 관광객 및 데이트 코스, 가족 외식객이 주로 찾음"
+  },
+  "menuDiversity": {
+    "dishCount": 20,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "광안리 민락수변로 바다마루 빌딩 3층에 위치하여 광안대교 및 바다 전망을 바로 앞에서 조망할 수 있는 이탈리안 경양식 레스토랑",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "새우베이컨필라프 / 파스타류",
+    "priceWon": 16000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "디에이블 광안점은 부산광역시 수영구 민락수변로 29 (민락동, 바다마루 건물 3층)에 위치해 있으며, 통유리창을 통해 광안대교와 바다를 한눈에 볼 수 있는 '오션뷰 맛집'으로 유명합니다. 영업시간: 매일 11:00 ~ 22:00 (라스트 오더 21:15), 대표 메뉴: 디에이블 파스타, 치킨오이스터 파스타, 새우 베이컨 필라프, 목살 스테이크 & 샐러드 등, 편의 시설: 건물 내 주차 가능(무료 지원), 예약 가능, 단체석 구비",
+      "url": "https://tripinfo.co.kr"
+    },
+    {
+      "excerpt": "광안대교를 가장 가까이서 볼 수 있는 오션뷰 레스토랑으로 유명합니다. 넓은 통유리 창을 통해 바다 전망을 즐길 수 있으며, 데이트나 가족 외식 장소로 인기가 많습니다. 주요 메뉴로는 파스타, 필라프, 리조또, 스테이크, 피자 등이 있으며, 특히 '새우베이컨필라프'가 베스트 메뉴로 꼽힙니다. 건물 지하 주차장을 이용할 수 있으며, 식사 시 2시간 무료 주차를 지원합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://tripinfo.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "통유리창을 통해 광안대교와 바다 풍경을 한눈에 조망할 수 있는 뛰어난 오션뷰 전망",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "디에이블 파스타, 새우베이컨필라프, 목살스테이크 등 대중적이고 만족도 높은 양식 메뉴 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810627924",
+  "name": "가비",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 50593,
+  "researchedAt": "2026-09-22T11:59:24.727Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "와인 및 양식 다이닝 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오징어먹물 파스타",
+      "트러플 라비올리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~토 17:00~01:00 (일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해운대구 좌동순환로8번길 78(해운대메트로하이츠 상가동 5·6호)에 위치한 양식/경양식 와인 레스토랑('가비' / '가비와인레스토랑')으로 확인되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산 해운대구 좌동순환로8번길 78 상가동 5호, 6호 (중동, 해운대메트로하이츠) / 영업시간: 월~토 17:00~01:00 (일요일 휴무)",
+      "url": "https://bktwine.co.kr"
+    },
+    {
+      "excerpt": "가비와인레스토랑 / 대표메뉴: 정통 오징어먹물 파스타, 트러플 라비올리 / 위치: 부산 해운대구 중동",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://bktwine.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정통 오징어먹물 파스타, 트러플 라비올리 등 정통 양식 요리와 와인을 즐기기 위해 방문",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

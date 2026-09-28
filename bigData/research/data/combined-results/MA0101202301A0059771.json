@@ -1,0 +1,81 @@
+{
+  "id": "MA0101202301A0059771",
+  "name": "코지하우스해리단길점",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 74188,
+  "researchedAt": "2026-09-22T10:46:37.786Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 있는 웨이팅 핫플로 매장 입구 키오스크나 테이블링 앱으로 원격 줄서기가 가능함"
+  },
+  "descriptors": {
+    "audience": "데이트·가족 외식·친구 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "10$ 스테이크",
+      "새우 로제 파스타",
+      "큐브 스테이크 필라프"
+    ],
+    "yearsClaimed": 2020
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 22:00 (브레이크타임 15:30 ~ 17:00, 라스트오더 20:50)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해리단길 방문객 및 관광객과 가성비 양식을 찾는 현지 주민 모두 즐겨 찾는 핫플"
+  },
+  "menuDiversity": {
+    "dishCount": 25,
+    "found": true
+  },
+  "notes": "호주 캐주얼 레스토랑 컨셉의 가성비 양식 프랜차이즈 코지하우스의 1호점(해리단길점). 매월 10일 10$ 스테이크 반값 이벤트 등으로 유명함. 전용 주차장은 없으며 인근 유료/공영주차장 이용 권장.",
+  "photoUrls": [
+    "https://cdn.imweb.me/upload/S20210806aa12fa62a1a7d/505b57e46daab.png"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "10$ 스테이크 (160g) 13,900원, 파스타 9,900원~13,900원대",
+    "priceWon": 13900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "코지하우스 해리단길점은 부산광역시 해운대구 우동1로 37 1층에 위치한 가성비 양식 맛집으로, 호주의 캐주얼 레스토랑에서 영감을 받아 10$ 스테이크, 파스타, 필라프, 피자 등 다양한 양식 메뉴를 합리적인 가격에 즐길 수 있어 데이트나 가족 외식 장소로 인기가 많습니다. 인기가 많은 '웨이팅 핫플'로, 매장 입구의 키오스크나 '테이블링' 앱을 통해 대기 예약을 할 수 있으며 전용 주차 공간은 별도로 없습니다. 매월 10일은 10$스테이크가 반값!",
+      "url": "https://cozyhouse.kr/"
+    }
+  ],
+  "sources": [
+    "https://cozyhouse.kr/",
+    "https://www.siksinhot.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "합리적인 가격에 10$ 스테이크와 다양한 파스타, 필라프를 즐길 수 있는 뛰어난 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "호주 길거리 캐주얼 레스토랑 분위기의 편안하고 아늑한 인테리어로 데이트 및 가족 모임에 적합",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해리단길 1호점으로 테이블링 대기를 할 만큼 꾸준한 웨이팅 수요",
+      "sources": [
+        0
+      ],
+      "type": "혼잡·수요"
+    }
+  ]
+}

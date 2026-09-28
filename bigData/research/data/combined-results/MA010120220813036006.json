@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220813036006",
+  "name": "16돈",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 59874,
+  "researchedAt": "2026-09-22T12:06:16.187Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 줄서기에 대한 별도 언급 없음"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 애주가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "삼겹살",
+      "숙성 특수부위"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변가에서 10분 정도 떨어진 골목에 위치해 관광객보다는 동네 주민들이 주로 찾는 분위기"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": false
+  },
+  "notes": "15일간 숙성된 고기와 매월 16일 소주 1,600원 이벤트로 인근 주민과 단골 중심의 숙성 돼지고기 전문점",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "삼겹살 1인분(150g) 기준 가성비 판매",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "15일 숙성을 거친 돼지고기를 사용하여 육질이 찰지고 육즙이 풍부한 것으로 알려져 있습니다. 1인분 기준(150g)으로 고기를 판매하여 양이 푸짐한 편이며, 삼겹살을 비롯한 다양한 특수부위를 합리적인 가격에 즐길 수 있습니다. 식당 이름인 '16돈'과 관련하여, 매월 16일에는 소주 1병을 1,600원에 판매하는 행사를 진행하고 있어 애주가들에게 인기가 많습니다. 광안리 해수욕장에서 도보로 약 10분 정도 떨어진 곳에 위치해 있어 관광객보다는 동네 주민들이 주로 찾는 숨은 맛집 분위기입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "15일 숙성을 거쳐 육질이 찰지고 육즙이 풍부한 한돈 특수부위 및 삼겹살",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "1인분 150g의 넉넉한 양과 매월 16일 소주 1,600원 판매 이벤트 등의 가성비",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "해수욕장 중심가에서 떨어져 동네 주민들이 주로 찾는 로컬 아지트 분위기",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

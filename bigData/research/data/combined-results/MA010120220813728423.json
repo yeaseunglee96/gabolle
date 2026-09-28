@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220813728423",
+  "name": "숲",
+  "cat": "카페",
+  "attempts": 1,
+  "geminiTokens": 58619,
+  "researchedAt": "2026-09-22T06:17:38.044Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "오피스·상가 입주민 및 직장인",
+    "generations": null,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "아메리카노",
+      "카페라떼",
+      "바닐라라떼"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "오션브릿지 상가 내에 위치하여 인근 직장인 및 입주민 생활권 카페로 주로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 동구 범일로 41 오션브릿지 상가 내 입점한 소규모 동네/오피스 카페('숲 카페')로 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "아메리카노 2,500원, 카페라떼 3,500원 등",
+    "priceWon": 2500
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "숲 카페. 부산광역시 동구 범일로 41 (범일동, 오션브릿지). 주요 메뉴 및 가격: 아메리카노 2,500원, 에스프레소 3,000원, 카푸치노 3,500원, 카페라떼 3,500원, 카라멜마끼아또 3,800원, 바닐라라떼 3,800원. 스탬프 10개 적립 시 2,500원 할인 쿠폰 제공.",
+      "url": "https://passorder.co.kr"
+    }
+  ],
+  "sources": [
+    "https://passorder.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "오션브릿지 상가 내에 위치해 직장인 및 입주민들이 합리적인 가격에 커피와 음료를 빠르고 편리하게 이용할 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "아메리카노 2,500원 등 부담 없는 가격대와 스탬프 쿠폰 혜택 제공",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

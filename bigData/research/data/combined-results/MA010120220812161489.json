@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220812161489",
+  "name": "무오",
+  "cat": "카페",
+  "attempts": 1,
+  "geminiTokens": 49466,
+  "researchedAt": "2026-09-22T06:53:47.666Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산광역시 수영구 수영로 532)에 '무오'라는 상호의 카페가 존재하지 않음 (부성빌딩 건물이며 다른 업체들만 입주 확인)",
+  "notes": "부산광역시 수영구 수영로 532 (부성빌딩) 및 광안동 일대에서 '무오' 카페를 검색하였으나, 공식 상호 정보나 블로그/웹 방문 기록이 전혀 확인되지 않아 존재하지 않는 가게(found: false)로 조사 완료하였습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

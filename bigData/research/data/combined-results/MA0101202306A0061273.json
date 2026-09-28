@@ -1,0 +1,70 @@
+{
+  "id": "MA0101202306A0061273",
+  "name": "궈차오훠궈",
+  "cat": "마라탕/훠궈",
+  "attempts": 1,
+  "geminiTokens": 86402,
+  "researchedAt": "2026-09-22T10:27:47.507Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "가족, 모임, 연인",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "훠궈 무한리필",
+      "마라탕"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 대 관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": true
+  },
+  "notes": "부산 해운대 센트럴 푸르지오 상가 2층에 위치한 훠궈 전문점으로 2023년 9월부터 무한리필 방식으로 운영됨",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "훠궈 무한리필",
+    "priceWon": 26900
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 해운대로 650, 해운대 센트럴 푸르지오 201동 2층. 해운대역 1번 출구에서 285m. 영업시간 매일 11:00 ~ 23:00. 깔끔하고 넓은 매장으로, 상가 주차장을 이용할 수 있어 차로 방문하기에도 편리합니다. 테이블에 비치된 키오스크를 통해 주문하는 방식입니다. 육수는 마라 매운맛 등을 선택할 수 있습니다. 2023년 9월부터 무한리필(26,900원) 방식으로 변경되었습니다.",
+      "url": "https://shinystar75.com"
+    }
+  ],
+  "sources": [
+    "https://shinystar75.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "상가 주차장 이용 및 지하철역 인접으로 매장 접근과 주차가 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "26,900원에 훠궈를 무한리필로 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

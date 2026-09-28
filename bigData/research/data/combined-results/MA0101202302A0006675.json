@@ -1,0 +1,86 @@
+{
+  "id": "MA0101202302A0006675",
+  "name": "제이델링",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 58086,
+  "researchedAt": "2026-09-22T12:08:27.983Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "100% 예약제로 운영되는 포장 전문 매장으로 줄서기 대신 사전 예약 후 픽업 방문하는 형태임"
+  },
+  "descriptors": {
+    "audience": "기념일 및 이벤트 케이크 주문 고객, 가족, 연인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "시그니처 케이크",
+      "포토 케이크",
+      "숫자 케이크",
+      "볼링공 케이크",
+      "반전 케이크",
+      "생크림 딸기 케이크"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 20:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "해운대 해리단길 인근에 위치한 수제 맞춤 주문제작 케이크 전문점으로 사전 예약 후 픽업 방문 위주 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "시그니처 케이크 38,000원, 포토 케이크 40,000원, 숫자 케이크 54,000원, 볼링공 케이크 55,000원, 반전 케이크 60,000원, 풍선 케이크 60,000원",
+    "priceWon": 38000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제이델링 부산해운대구점은 부산광역시 해운대구 우동2로 24 1층에 위치한 프리미엄 주문 제작 케이크 전문점입니다. 시그니처 케이크로는 생크림 딸기 케이크, 초코딸기폭탄 등이 있으며, 동물성 순우유 생크림을 사용하여 과하게 달지 않고 촉촉한 맛이 특징입니다. 예약 주문제작 케이크 전문점으로 카카오톡 채널 등을 통해 사전 예약 후 이용하는 포장 전문 매장입니다.",
+      "url": "https://www.siksinhot.com"
+    },
+    {
+      "excerpt": "시그니처 케이크 38,000원 / 포토 케이크 40,000원 / 숫자 케이크 54,000원 / 볼링공 케이크 55,000원 / 반전 케이크 60,000원 / 풍선 케이크 60,000원. 주차 불가. 영업시간 매일 11:00 - 20:00",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "동물성 순우유 생크림을 사용하여 과하게 달지 않고 부드러운 수제 케이크 본연의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "포토 케이크, 반전 케이크, 볼링공 케이크 등 기념일에 특화된 맞춤 제작 서비스",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "카카오톡 채널을 통한 비대면 사전 예약 및 해리단길 인근 방문 픽업 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

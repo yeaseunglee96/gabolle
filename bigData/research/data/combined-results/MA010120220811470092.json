@@ -1,0 +1,85 @@
+{
+  "id": "MA010120220811470092",
+  "name": "엄마손대구탕",
+  "cat": "국/탕/찌개류",
+  "attempts": 1,
+  "geminiTokens": 60913,
+  "researchedAt": "2026-09-22T12:18:14.262Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "식사 시간대나 방문 인원에 따라 웨이팅이 발생할 수 있는 식당임"
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 송정 여행객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "대구탕",
+      "삼겹묵은지",
+      "고등어묵은지"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "07:00 ~ 21:00 (라스트오더 20:00, 상황에 따라 22:00 마감), 매주 월요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동네 주민(현지인)과 송정을 찾는 여행객·관광객 모두에게 꾸준히 사랑받는 곳으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "상호는 대구탕이지만 삼겹묵은지찜, 고등어묵은지, 꽁치묵은지 등 묵은지 요리가 대구탕 못지않게 유명한 곳입니다. 매장 앞과 건물 뒤편에 주차가 가능합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "칼칼한 지리 대구탕이 대표 메뉴이며, 그 외에 고등어 묵은지, 꽁치 묵은지, 삼겹 묵은지 등 묵은지 조림류가 인기가 많습니다. 게장, 멍게젓갈, 나물 등 푸짐한 밑반찬과 고등어구이 정식, 폭탄 계란찜 등도 함께 즐길 수 있는 맛집으로 알려져 있습니다. 매장 앞과 건물 뒤편에 주차가 가능합니다. 식사 시간에는 웨이팅이 발생할 수 있으니 방문 시 참고하시기 바랍니다.",
+      "url": "https://tripinfo.co.kr"
+    },
+    {
+      "excerpt": "대구탕뿐만 아니라 김치찜(제육김치찜 등), 고등어구이, 계란찜 등 다양한 한식 메뉴를 함께 판매하고 있습니다. 해당 식당은 동네 주민과 여행객들에게 꾸준히 사랑받는 곳으로, 방문 인원과 시간에 따라 웨이팅이 발생할 수 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tripinfo.co.kr",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "칼칼하고 시원한 맑은 지리 대구탕과 깊은 맛의 삼겹묵은지 조림이 일품임",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "게장, 멍게젓갈 등 정갈하고 푸짐하게 나오는 밑반찬 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "동네 주민뿐 아니라 송정을 찾는 관광객들에게도 잘 알려진 해장 및 식사 명소",
+      "sources": [
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

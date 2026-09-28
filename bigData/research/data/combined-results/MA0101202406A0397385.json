@@ -1,0 +1,55 @@
+{
+  "id": "MA0101202406A0397385",
+  "name": "더그랜드",
+  "cat": "일반 유흥 주점",
+  "attempts": 1,
+  "geminiTokens": 57094,
+  "researchedAt": "2026-09-22T10:26:19.527Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "접대, 비즈니스 및 음주 목적 고객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 해운대구 해운대해변로 203 오션타워 4층에 위치한 '더그랜드'는 일반 음식점이 아닌 유흥주점(룸살롱) 업종으로, 비즈니스 접대 및 술자리 목적으로 이용되는 업소입니다. 음식 메뉴판이나 줄서기, 현지인 맛집 등의 일반 음식점 데이터는 해당하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 해운대해변로 203에 위치한 오션타워 내(주로 4층 등)에 해당 업소들이 자리하고 있습니다. 현재 검색 결과에서 언급되는 '해운대 더그랜드'는 주로 유흥업소(룸살롱)를 지칭하며, 과거 그랜드 호텔의 명성을 이어간다는 마케팅 문구와 함께 홍보되고 있습니다.",
+      "url": "https://go-guryeo.com"
+    }
+  ],
+  "sources": [
+    "https://go-guryeo.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "비즈니스 접대 및 술자리를 위한 대형 룸살롱 유흥 시설 이용 목적",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

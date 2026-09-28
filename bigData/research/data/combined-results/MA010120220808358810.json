@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220808358810",
+  "name": "쌍둥이왕갈비",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 53751,
+  "researchedAt": "2026-09-22T06:22:03.638Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민, 동네 주민",
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "왕갈비",
+      "양념갈비"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "대형 홍보 맛집이라기보다 동네 주민들이 주로 찾는 동네 갈비 전문점으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 서구 동대신동(대영로74번길 35)에 등록되어 있는 소규모 동네 갈비 전문점으로, 온라인상에 상세 메뉴판/영업시간/사진 등 상세 방문 리뷰는 거의 존재하지 않는 로컬 식당임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 서구 동대신동1가 251번지 (도로명 주소: 부산광역시 서구 대영로74번길 35). 동대신동 지역의 갈비 전문점으로, 친절한 서비스로 알려져 있습니다. 블로그 등에서 대대적으로 홍보되는 대형 맛집이라기보다, 동네 주민들이 찾는 갈비 전문점으로 보입니다.",
+      "url": "https://siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://siksinhot.com",
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부드러운 양념갈비와 친절한 서비스, 인근 동네 주민들이 편하게 찾는 갈비 식당",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "동네 주민들에게 꾸준히 사랑받는 로컬 갈비집",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

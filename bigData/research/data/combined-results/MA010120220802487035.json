@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220802487035",
+  "name": "집부산포",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 69742,
+  "researchedAt": "2026-09-22T11:58:02.512Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "정보 없음",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 해운대구 해운대해변로209번길 8-13 (우동 653-8) 1층에 한식(해산물 요리)/횟집 업종으로 등록된 사업체 정보는 존재하나, 전화번호가 미등록 상태이며 실제 소비자 방문 후기나 블로그 리뷰, 상세 메뉴 및 영업시간 정보 등은 웹상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 해운대해변로209번길 8-13, 1층 (우동 653-8) 집부산포 한식(해산물 요리 전문점), 횟집",
+      "url": "https://pervsi.com"
+    }
+  ],
+  "sources": [
+    "https://pervsi.com"
+  ],
+  "whyPeopleGo": []
+}

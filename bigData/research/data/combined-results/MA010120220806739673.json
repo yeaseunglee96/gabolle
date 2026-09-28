@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220806739673",
+  "name": "주네",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 59529,
+  "researchedAt": "2026-09-22T06:48:15.936Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 강서구 평강로345번길 108(대저1동) 소재 제과점 인허가 등록 정보(2016년 개업) 외에 일반 소비자를 대상으로 한 블로그 후기, 메뉴 및 가격표, 영업시간 등 상세 방문 정보는 웹상에 공개되어 있지 않은 소규모/제조 위주의 업소로 추정됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://juso.app"
+  ],
+  "whyPeopleGo": []
+}

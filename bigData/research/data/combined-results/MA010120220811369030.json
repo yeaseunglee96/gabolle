@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220811369030",
+  "name": "민락고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 64752,
+  "researchedAt": "2026-09-22T11:57:09.592Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "생삼겹살",
+      "돼지갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": false
+  },
+  "notes": "부산광역시 수영구 무학로 47에 '민락고기집'으로 등록되어 있으며, 돌판 삼겹살 및 돼지갈비를 취급하는 고기구이 식당으로 확인되나 상세 방문 후기, 영업시간, 혼잡도 등 세부 정보는 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 민락고기집 / 주소: 부산광역시 수영구 무학로 47 / 특징: 돌판 삼겹살을 전문으로 하는 곳으로, 대표 메뉴는 돼지갈비와 생삼겹살입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "돌판에 구워먹는 삼겹살과 돼지갈비를 맛보기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

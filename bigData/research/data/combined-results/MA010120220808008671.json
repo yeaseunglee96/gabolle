@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220808008671",
+  "name": "키야키",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 60656,
+  "researchedAt": "2026-09-22T12:19:14.278Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "웨이팅이나 혼잡도에 대한 명시적 언급 미확인"
+  },
+  "descriptors": {
+    "audience": "연인, 친구 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "작은야키",
+      "큰야키",
+      "스키야키"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~일 12:00–23:00 (월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 언급 미확인"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산진구 전포동 골목에 위치한 스키야키(전골) 전문점. 2인 기준 작은야키와 3인 기준 큰야키 등을 판매함. 주차 불가.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "작은야키 (2인) 28,000원, 큰야키 (3인) 38,000원",
+    "priceWon": 28000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "작은야키 (2인): 28,000원, 큰야키 (3인): 38,000원 / 화~일 12:00–23:00 (월요일 휴무) / 1, 2층을 운영하며 예약 및 포장, 배달이 가능합니다. 주차는 불가하오니 방문 시 참고하시기 바랍니다.",
+      "url": "https://heyyumi.ai"
+    },
+    {
+      "excerpt": "부산광역시 부산진구 동성로25번길 17-5 (전포동 357-43) 일식 스키야키 전문점. 2인분 기준으로 양이 푸짐하며, 육수를 추가하여 따뜻하게 즐길 수 있다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://heyyumi.ai",
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "푸짐한 양의 일본식 정통 스키야키 전골을 즐기기 위해 방문함",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

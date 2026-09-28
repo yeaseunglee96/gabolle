@@ -1,0 +1,55 @@
+{
+  "id": "MA010120220803720722",
+  "name": "케이크콕",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 66977,
+  "researchedAt": "2026-09-22T11:36:56.030Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "기념일/파티 고객",
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "주문제작 레터링 케이크"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "12:00 ~ 19:00 (연중무휴, 영업시간 외 무인 픽업 가능)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 수영구 남천바다로21번길 100-2 1층에 위치한 주문제작 레터링 케이크 전문점으로, 영업시간 외 무인 픽업을 지원하며 주차는 불가합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산 수영구 광안리에 위치한 주문 제작 레터링 케이크 전문점 케이크콕. 주소: 부산광역시 수영구 남천바다로21번길 100-2 1층, 영업시간: 12:00 ~ 19:00 (연중무휴, 영업시간 외 무인 픽업 가능), 주차 불가.",
+      "url": "https://place.map.kakao.com"
+    }
+  ],
+  "sources": [
+    "https://place.map.kakao.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "기념일 등을 위한 맞춤형 주문제작 레터링 케이크 및 무인 픽업 편의성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

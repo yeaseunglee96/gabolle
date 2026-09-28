@@ -1,0 +1,68 @@
+{
+  "id": "MA0101202504A0007923",
+  "name": "헤아림",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 74163,
+  "researchedAt": "2026-09-22T11:55:06.445Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주문 즉시 크레페를 만드는 동안 소품샵을 구경하며 대기하는 구조"
+  },
+  "descriptors": {
+    "audience": "디저트 및 소품 쇼핑을 즐기는 방문객 및 데이트족",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "대왕 크레페",
+      "누가 크래커",
+      "쫀득쿠키"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 12:00 ~ 18:00 (육아로 인해 평일 휴무 발생 가능)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해리단길 방문객 및 관광객들에게 대왕 크레페와 소품샵 코스로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산 해운대구 우동 해리단길에 위치한 디저트(대왕 크레페, 쿠키 등) 및 아기자기한 소품을 함께 판매하는 소품샵 겸 디저트 매장입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "크레페를 만드는 동안 아기자기한 소품을 구경할 수 있어 기다리는 시간이 지루하지 않으며, 비주얼과 맛을 모두 잡은 디저트로 잘 알려져 있습니다. 매일 12:00 ~ 18:00 (단, 육아로 인해 평일에 휴무가 발생할 수 있으니 방문 전 확인이 필요합니다). 위치: 부산광역시 해운대구 우동 457-8, 1층",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "크레페 외에도 쫀득쿠키, 누가 크래커 등 다양한 디저트를 판매하며, 아기자기한 소품을 함께 구경할 수 있는 곳으로 잘 알려져 있습니다. 가격이 매우 착하다는 평이 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "비주얼과 가성비가 좋은 대왕 크레페와 수제 디저트를 맛보며 아기자기한 소품을 함께 구경할 수 있어서",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

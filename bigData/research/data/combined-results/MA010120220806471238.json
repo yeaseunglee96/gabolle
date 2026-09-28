@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220806471238",
+  "name": "징기스",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 76669,
+  "researchedAt": "2026-09-22T11:56:51.416Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 모임, 회식",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "양갈비",
+      "양고기 모둠",
+      "명란구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notes": "부산광역시 수영구 광안로61번길 71 (민락동 218-10, 1층)에 위치한 북해도식 양고기 화로구이 전문점 '징기스 광안리점'에 대한 조사입니다. 사용자 요청에 '일식 회/초밥'으로 기재되어 있으나 실제로는 징기스 브랜드의 징기스칸 양고기 전문점입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "징기스 광안리점: 일본 북해도식 양고기 전문점입니다. 양갈비, 양목등심, 특수부위 등을 판매하며 직원들이 직접 고기를 구워주는 서비스로 알려져 있습니다. 도로명 주소: 부산광역시 수영구 광안로61번길 71, 1층, 지번 주소: 부산광역시 수영구 민락동 218-10. 양갈비, 양고기 모둠 세트 등이 대표 메뉴입니다. 직원분이 직접 고기를 구워주는 서비스를 제공하며, 예약 및 단체 이용이 가능합니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일본 북해도식 화로구이 방식으로 직원들이 직접 양고기를 구워주는 편리한 서비스를 제공함",
+      "sources": [
+        0
+      ],
+      "type": "서비스·사람"
+    },
+    {
+      "note": "특유의 잡내 없이 부드러운 양갈비와 양고기 모둠 구이의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

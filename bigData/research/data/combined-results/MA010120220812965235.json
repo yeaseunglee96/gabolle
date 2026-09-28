@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220812965235",
+  "name": "메이저",
+  "cat": "일반 유흥 주점",
+  "attempts": 1,
+  "geminiTokens": 60731,
+  "researchedAt": "2026-09-22T10:26:23.217Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(해운대해변로 203, 오션타워) 내 '메이저'라는 일반유흥주점의 상세 정보(메뉴, 가격, 영업시간, 이용자 리뷰 등)를 웹상에서 확인할 수 없음",
+  "notes": "부산광역시 해운대구 해운대해변로 203(오션타워)에 위치한 것으로 등록된 '메이저'(일반유흥주점)는 인허가 등록 상호 혹은 폐업/사업자용 명칭으로 추정되며, 실제 일반 대중용 블로그나 방문 후기, 메뉴, 영업시간, 사진 등의 상세 정보를 웹상에서 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.juso.go.kr"
+  ],
+  "whyPeopleGo": []
+}

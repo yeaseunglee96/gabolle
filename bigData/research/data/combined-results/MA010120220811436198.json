@@ -1,0 +1,81 @@
+{
+  "id": "MA010120220811436198",
+  "name": "청춘식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 66503,
+  "researchedAt": "2026-09-22T11:43:33.067Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "저녁 시간대 대기(웨이팅)가 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "직장인 및 인근 주민, 고기 외식 모임객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "생삼겹살",
+      "항정살",
+      "돼지껍데기",
+      "꽃목살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "평일 18:00~ / 일요일 휴무"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "해운대 우동에 위치한 돼지고기 생고기 구이 전문점으로 생삼겹살, 항정살, 돼지껍데기 등이 대표 메뉴이며 주차장 및 단체석 완비.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "생삼겹살 / 항정살",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 해운대해변로209번길 8-12 (지번: 우동 652-13). 분홍빛 항정살을 맛볼 수 있는 생고기 전문점으로, 삼겹살, 목살, 항정살, 껍데기 등을 제공합니다. 단체석과 주차장이 마련되어 있으며 예약이 가능합니다. 저녁 시간대에는 대기가 발생할 수 있으니 참고하시기 바랍니다. 생삼겹살 10,000원, 항정살 10,000원.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://www.nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "당일 준비한 신선한 생삼겹살과 항정살, 껍데기 등 질 좋은 생고기를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 인근에서 1인분 10,000원 선의 비교적 합리적인 가격대로 생고기를 제공함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "단체석과 주차 시설을 완비하고 예약이 가능해 모임 방문이 용이함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

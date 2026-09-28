@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220810524708",
+  "name": "대연횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 59962,
+  "researchedAt": "2026-09-22T06:22:02.309Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "식사 시간대나 저녁 시간에는 내부 테이블이 손님들로 가득 차며 붐빔"
+  },
+  "descriptors": {
+    "audience": "현지인·동네주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "회비빔밥",
+      "전어회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "등록된 공식 정보 없음 (방문 전 전화 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "시장 골목 안쪽에 위치해 외지 관광객보다 현지인 및 동네 주민들이 주로 찾는 가성비 횟집"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "동대신동 골목시장 내 위치한 소박한 노포 스타일 가성비 횟집으로, 반찬(스끼다시)보다는 활어회 자체에 집중하여 매우 저렴한 가격대에 모듬회를 제공함",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "모듬회(소)",
+    "priceWon": 20000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동대신동 골목시장 안에 위치한 아담한 노포 식당으로, 동대신역과 가까워 접근성이 좋은 편입니다. 현지인들에게 가성비가 매우 뛰어난 횟집으로 잘 알려져 있습니다. 모듬회 외에도 회비빔밥, 재첩정식 등의 메뉴가 있습니다. 시장 안에 위치하여 소박하고 편안한 분위기를 느낄 수 있으며, 식사 시간대에는 손님이 많아 붐비는 경우가 많습니다. 전용 주차장은 따로 없으므로 대중교통 이용이 권장됩니다.",
+      "url": "https://leebommat.com"
+    },
+    {
+      "excerpt": "횟집의 화려한 스끼다시(반찬) 대신 회 자체에 집중하는 구성으로 매우 저렴한 가격을 자랑합니다. 모듬회: 소자 2만원, 중자 3만원, 대자 4만원. 주류 및 음료: 소주와 맥주 3천원, 음료수 1천원. 제철 모듬회가 메인이며, 작성 당시 가을 무렵에는 전어회를 포함해 싱싱한 회를 제공받았습니다. 시장 안에 위치해 있어 차량 접근이 다소 어려울 수 있으나, 현지인 맛집으로 알려져 식당 내부 테이블이 손님들로 가득 차는 경우가 많습니다.",
+      "url": "https://zoominsky.com"
+    }
+  ],
+  "sources": [
+    "https://leebommat.com",
+    "https://zoominsky.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "모듬회 소자 2만 원 등 화려한 밑반찬 대신 회 본연의 구성과 뛰어난 가성비 제공",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "시장 골목 안에서 제철 활어회를 소박하고 편안하게 즐길 수 있어 인근 주민들이 즐겨 찾음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

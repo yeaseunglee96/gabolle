@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220809822828",
+  "name": "고성댁",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 112783,
+  "researchedAt": "2026-09-22T11:55:03.487Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": true,
+    "note": "점심시간 등 식사 시간대에 대기(웨이팅)가 발생할 수 있다고 전해진다."
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 동네 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "곤드레솥밥",
+      "순두부찌개",
+      "곱창전골",
+      "오겹살"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "정보 미확인 (방문 전 051-752-8671 문의 권장)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "골목 안 주택을 개조한 한식당 형태로 인근 주민과 직장인들이 식사로 찾는 로컬 밥집 분위기이다."
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 수영구 수영동 골목 주택가에 위치한 한식 및 돼지고기 음식점입니다. 곤드레솥밥, 순두부찌개, 곱창전골과 함께 오겹살(13,000원), 예약 메뉴인 수육·돼지갈비찜 등을 제공합니다. 주차 공간은 별도로 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "오겹살(150g) 13,000원, 수육/돼지갈비찜 예약(시가)",
+    "priceWon": 13000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 수영로725번길 62-6 (수영동 447-14)에 위치한 '고성댁'은 곤드레솥밥, 순두부찌개, 곱창전골 등 한식 전문 음식점이다. 골목 안 주택을 개조하여 운영하며 전용 주차장이 없어 인근 유료 주차장 이용이 권장된다. 점심시간 등에는 대기가 발생할 수 있다. 오겹살은 1인분(150g) 기준 13,000원에 판매하며 수육, 돼지갈비찜 등은 예약 메뉴로 운영된다.",
+      "url": "https://www.siksinhot.com/P/1559869"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1559869"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "곤드레솥밥, 순두부찌개, 오겹살 등 정갈하고 든든한 한식과 고기 요리를 맛볼 수 있다.",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

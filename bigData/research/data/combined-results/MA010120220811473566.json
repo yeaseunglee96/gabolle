@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220811473566",
+  "name": "거북선횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 52038,
+  "researchedAt": "2026-09-22T10:31:13.478Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족, 단체, 모임",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "자연산 모둠회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 23:00 (명절 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 미포 바다 조망과 함께 과거 문재인 전 대통령 등 유명 인사 방문 맛집 및 관광·방문 명소로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "해운대 미포에 위치해 자연산 모둠회와 6개월 숙성 초장, 바다 조망이 유명한 횟집으로, 상세 가격표는 시가 변동 등으로 인해 유선 문의가 권장됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "해운대 미포에 자리 잡고 있어 자연산 회의 맛이 뛰어난 곳으로 알려져 있습니다. 회뿐만 아니라 밑반찬과 매운탕도 좋은 평가를 받으며, 특히 6개월간 숙성시킨 직접 담근 초장이 맛의 비결로 꼽힙니다. 문재인 전 대통령이 즐겨 찾았던 맛집으로도 유명합니다. 영업시간: 11:00 ~ 23:00 (명절 휴무)",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "6개월 숙성 수제 초장과 신선한 자연산 모둠회의 뛰어난 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전직 대통령 및 유명 인사들이 즐겨 찾은 미포 바다 조망 명소",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

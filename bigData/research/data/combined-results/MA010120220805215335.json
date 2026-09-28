@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220805215335",
+  "name": "엄지네",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 57228,
+  "researchedAt": "2026-09-22T11:17:21.870Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 방문 후기 및 영업 정보 부재 (단순 인허가 상호 DB 외 실체 미확인)",
+  "notes": "부산광역시 부산진구 부전로66번길 36-7에 등록된 '엄지네'(일식 회/초밥)는 인허가/공공 데이터 상호 목록(udanax 등) 수준에만 단순 등재되어 있을 뿐, 실제 방문 후기, 메뉴판, 사진, 영업시간 등의 상세 정보가 웹상에 전혀 존재하지 않거나 폐업/실체 불명 상태입니다. 또한 해당 지번에는 병원 시설 등이 위치해 있어 실제 식당으로서의 정보를 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://udanax.org"
+  ],
+  "whyPeopleGo": []
+}

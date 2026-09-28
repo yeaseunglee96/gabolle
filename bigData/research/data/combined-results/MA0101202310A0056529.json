@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202310A0056529",
+  "name": "티포유",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 52305,
+  "researchedAt": "2026-09-22T11:17:34.035Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 운영 후기 및 상세 정보를 웹에서 찾을 수 없음 (인허가 대장 외 정보 부재/폐업 추정)",
+  "notes": "공공데이터/인허가 포털에 '부산 부산진구 서면로 19-11' 경양식 '티포유' 상호가 등록된 내역 외에 실제 방문기, 메뉴, 영업시간, 사진 등의 상세 정보가 웹상에 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://zippoom.com"
+  ],
+  "whyPeopleGo": []
+}

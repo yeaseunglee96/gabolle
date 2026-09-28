@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202305A0087330",
+  "name": "휴테",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 84229,
+  "researchedAt": "2026-09-22T11:27:15.935Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "queueing": null,
+    "signatureDishes": [],
+    "yearsClaimed": null
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "실제 식당 영업 정보 없음",
+  "notes": "해당 주소(부산 해운대구 달맞이길 30, 엘시티)에 사업자 인허가/상호 DB상 '휴테'(기타 휴게음식점)로 단순 등록된 기록 외에, 실제 소비자가 이용하는 식당/경양식 매장으로서의 메뉴, 영업시간, 방문 후기, 사진 등의 정보가 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [
+    "https://www.infosori.com"
+  ],
+  "whyPeopleGo": []
+}

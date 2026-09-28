@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220812547991",
+  "name": "더스모코",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 127357,
+  "researchedAt": "2026-09-22T11:51:13.030Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 업장으로 사전 예약(캐치테이블 등) 권장 및 대기 발생 가능 언급"
+  },
+  "descriptors": {
+    "audience": "데이트, 모임, 와인 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "기버터 안심 스테이크",
+      "관자 크림 파스타",
+      "프렌치 어니언 수프"
+    ],
+    "yearsClaimed": 6
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~월 11:00~22:00 (매주 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 현지 데이트·기념일 명소 및 관광객 방문 캐주얼 다이닝으로 언급"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "문의 주신 '부산광역시 남구 수영로266번길 74'는 더스모코(The Smoko)의 과거 대연동 시절 사업장 소재지이며, 이후 수영구 민락동(광안해변로294번길 36)으로 확장 이전하여 '기버터 스테이크' 대표 맛집으로 운영 중입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "기버터 스테이크 변동/대표, 파스타 및 다이닝 2~3만원대",
+    "priceWon": 45000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "더스모코(The Smoko)는 국내 최초로 튀르키예 출신 쉐프 누스레트 괵체(솔트배) 스타일의 기버터 스테이크(Ghee Butter Steak)를 선보인 곳으로, 뜨겁게 달군 기버터를 테이블 위 스테이크에 직접 붓는 퍼포먼스와 관자 크림 파스타 등 와인 페어링 요리를 제공합니다. 과거 대연동(남구 수영로266번길 74)에서 시작하여 현재 수영구 광안리(광안해변로294번길 36)로 이전 운영 중입니다.",
+      "url": "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201002000000"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201002000000"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "뜨거운 기버터를 붓는 화려한 퍼포먼스와 부드러운 풍미의 기버터 안심 스테이크",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "앤틱하고 감성적인 인테리어와 다양한 와인 페어링으로 데이트 및 모임에 적합",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "MA0101202511A0017575",
+  "name": "청청",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 73742,
+  "researchedAt": "2026-09-22T11:27:15.397Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "회/주류 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": null,
+    "signatureDishes": [
+      "회"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 수영구 무학로9번길 140 (광안동 207-4)에 상호명 '청청'으로 회/횟집/참치 업종 식당 등록이 확인되었으나, 상세 메뉴 가격, 영업시간, 혼잡도/웨이팅, 현지인 방문 리뷰 등 구체적인 세부 정량 정보는 웹상에 공개된 상세 문서가 극히 드뭅니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매장명: 청청 / 주소: 도로명 부산광역시 수영구 무학로9번길 140 (지번 부산광역시 수영구 광안동 207-4) / 업종: 한국음식 > 회/횟집/참치",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

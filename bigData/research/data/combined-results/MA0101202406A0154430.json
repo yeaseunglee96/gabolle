@@ -1,0 +1,65 @@
+{
+  "id": "MA0101202406A0154430",
+  "name": "촌칼국수",
+  "cat": "국수/칼국수",
+  "attempts": 1,
+  "geminiTokens": 66270,
+  "researchedAt": "2026-09-22T06:47:55.981Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "칼국수",
+      "손수제비"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "사상구 착한가격업소로 지정되어 지역 주민들이 주로 찾는 동네 칼국수 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notes": "부산 사상구 모라동 착한가격업소로 등록된 동네 식당으로 칼국수와 손수제비를 주력으로 함",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 촌칼국수 / 주소: 부산광역시 사상구 모라로110번길 40-13 (모라동) / 연락처: 051-317-6594 / 특징: 부부가 직접 운영하며 저렴한 가격을 유지하고 있어 '착한가격업소'로 알려져 있습니다. 깔끔한 국물 맛으로 지역 주민들에게 알려진 칼국수 및 수제비 전문점입니다.",
+      "url": "https://www.sasang.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.sasang.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "착한가격업소로 지정되어 부담 없는 가격에 정갈한 칼국수와 손수제비를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "부부가 운영하는 깔끔한 국물 맛의 동네 주민 단골 국수 전문점",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

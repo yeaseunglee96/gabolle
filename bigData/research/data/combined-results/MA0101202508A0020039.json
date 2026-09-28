@@ -1,0 +1,85 @@
+{
+  "id": "MA0101202508A0020039",
+  "name": "원조언양불고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 76375,
+  "researchedAt": "2026-09-22T11:29:14.689Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "인기 노포 맛집으로 대기나 방문 전 전화 예약/확인이 추천될 정도로 붐빔"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 관광객·현지인 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "high",
+    "queueing": true,
+    "signatureDishes": [
+      "언양불고기",
+      "등심구이",
+      "김치찌개"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:30 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산 현지인과 관광객 모두에게 인기가 많은 광안리 대표 노포 불고기 전문점"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 광안동(광남로84번길 16)에 위치한 한우 언양불고기 전문 노포로, 얇게 저민 한우를 소금·마늘 등으로 가볍게 양념해 숯불 석쇠에 구워내며 식사 메뉴로 김치찌개가 유명합니다. 전용 주차장을 구비하고 있으며 직원이 고기를 구워주는 서비스를 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "언양불고기 (150g) / 등심구이 (120g) / 생갈비 등 한우 구이류",
+    "priceWon": 39000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "원조언양불고기는 부산광역시 수영구 광안리에 위치한 유명한 한우 불고기 전문점입니다. 주소: 부산광역시 수영구 광남로84번길 16 (광안동). 연락처: 051-756-1710. 영업시간: 10:30 ~ 22:00. 소금과 마늘 등으로 밑간을 한 후 숯불 석쇠에 직화로 굽는 '언양식 불고기'가 대표 메뉴입니다. 그 외 등심구이, 생갈비, 과일양념갈비 등이 있으며, 소고기가 들어간 김치찌개도 인기 있는 사이드 메뉴입니다. 전용 주차장을 갖추고 있으며, 단체 이용, 예약, 포장 등이 가능합니다. 또한 직원들이 직접 고기를 구워주는 서비스를 제공합니다. 오랜 기간 자리를 지켜온 노포로, 부산 현지인과 관광객 모두에게 인기가 많습니다.",
+      "url": "https://www.siksinhot.com/P/256973"
+    },
+    {
+      "excerpt": "원조언양불고기, 주소: 부산광역시 수영구 광남로84번길 16, 전화번호: 051-756-1710. 외국어 메뉴판을 지원하는 음식점으로, 부산의 맛집 100선 및 외국인 친화 음식점으로 선정된 곳입니다.",
+      "url": "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201001000000&uc_seq=1557&lang_cd=ko"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/256973",
+    "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201001000000&uc_seq=1557&lang_cd=ko"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "자극적이지 않고 부드러운 직화 한우 언양불고기와 고기 듬뿍 묵은지 김치찌개의 독보적인 조합",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "오랜 세월 광안리에서 자리를 지키며 현지인과 외지 관광객 모두에게 인정받은 불고기 노포",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "전용 주차장 구비 및 직원이 직접 구워주는 그릴링 서비스로 편안한 식사 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

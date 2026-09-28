@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202406A0016236",
+  "name": "신제주촌오리",
+  "cat": "닭/오리고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 55120,
+  "researchedAt": "2026-09-22T10:27:05.091Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "가게 정보 미존재 또는 폐업 추정 (실제 영업 리뷰 및 매장 정보 부재)",
+  "notes": "부산광역시 수영구 광안해변로 425에 위치한 '신제주촌오리'는 상가/건물 공공 인허가/부동산 데이터베이스상 상호명으로만 일부 파편적으로 잡힐 뿐, 실제 영업 중인 음식점으로서의 블로그 리뷰, 방문기, 메뉴, 영업시간 등의 유효한 영업 정보가 존재하지 않습니다(폐업했거나 데이터만 남은 상태로 판단됨). 동명의 유명 오리고기 음식점은 제주특별자치도 제주시 애월읍에 소재합니다. 규칙에 따라 없는/비영업 가게를 지어내지 않고 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

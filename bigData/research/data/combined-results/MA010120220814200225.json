@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220814200225",
+  "name": "쏘행성",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 83967,
+  "researchedAt": "2026-09-22T11:43:58.234Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 및 상세 내역 웹 검색 결과 없음",
+  "notes": "부산광역시 부산진구 서전로10번길 35-1 주소지 및 '쏘행성' 관련 정보를 검색했으나, 해당 주소지에 위치한 '쏘행성'(일식 회/초밥)에 대한 신뢰할 수 있는 웹 페이지나 상세 정보가 확인되지 않습니다. 과거 서면 일대에 동명의 주점이 존재했던 기록 외에 현재 일식 회/초밥 업종으로서의 상세 정보(영업시간, 가격, 메뉴 등)를 확인할 수 없어 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

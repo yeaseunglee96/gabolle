@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202503A0011899",
+  "name": "난로회관",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 62425,
+  "researchedAt": "2026-09-22T12:13:31.582Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족/데이트/모임",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한우 짝갈비"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 1,
+    "found": false
+  },
+  "notes": "부산광역시 수영구 광안로61번가길(민락동 717-15) 인근에 위치한 '난로회관'은 백반/한정식 형태보다는 한우 짝갈비 전문 구이점으로 검색 및 소개되고 있습니다. 포털 지도 직접 저장이 제한되고 웹상 리뷰 문서 접근 한계로 가격/영업시간/혼잡도 등 세부 정량 정보는 미확인(false) 처리하였습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'난로회관'은 부산광역시 수영구 민락동에 위치한 한우 짝갈비 전문점입니다. 광안리 해수욕장 인근(도보 약 10분 거리)에 위치해 있어 광안리 맛집으로도 잘 알려져 있으며, 깔끔하고 밝은 인테리어 덕분에 데이트나 모임 장소로도 인기가 많습니다.",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 인근에서 깔끔한 인테리어 분위기 속에 즐기는 한우 짝갈비 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

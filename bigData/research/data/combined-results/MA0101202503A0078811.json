@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202503A0078811",
+  "name": "오토스레스토랑",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 57432,
+  "researchedAt": "2026-09-22T11:48:07.251Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "수영구 일반음식점 인허가 데이터 등 공공/사업자 등록 정보상에 '오토스레스토랑'(부산 수영구 광남로48번길 5, 남천동 3-56, 경양식/외국음식점)으로 등재된 내역은 확인되나, 실제 방문객 후기나 블로그 리뷰, 영업시간, 메뉴 가격 등의 세부 정보는 웹상에 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오토스레스토랑 주소: 부산광역시 수영구 광남로48번길 5 (남천동) 업태/종목: 양식(경양식) / 외국음식 일반음식점 전화번호: 051-624-7373",
+      "url": "https://www.suyeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.suyeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

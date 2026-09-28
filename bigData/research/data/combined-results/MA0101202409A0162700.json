@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202409A0162700",
+  "name": "호랑이카츠",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 125851,
+  "researchedAt": "2026-09-22T10:47:00.681Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "해당 주소(부산광역시 수영구 민락본동로19번길 20)에 '호랑이카츠'(전화번호 070-7792-0008, 일식/돈카츠) 상호 등록 및 입점 기록이 확인되나, 방문자 상세 리뷰나 영업시간·가격·웨이팅 등에 관한 구체적인 웹 콘텐츠는 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 민락본동로19번길 20 호랑이카츠 업종: 일식 (돈카츠 전문점) 전화번호: 070-7792-0008",
+      "url": "https://www.bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://www.bigvalue.ai",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": []
+}

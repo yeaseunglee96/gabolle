@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220807173798",
+  "name": "모어허그",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 58006,
+  "researchedAt": "2026-09-22T11:58:41.081Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {},
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 수영구 광일로29번길 26-4)에서 '경양식' 업종으로 운영되는 음식점 '모어허그'는 웹상에서 확인되지 않습니다. (인근 광안동에 동명의 레터링 케이크 주문제작 공방만 확인됨)",
+  "notes": "해당 주소 및 상호의 경양식 음식점 정보를 웹상에서 찾을 수 없어 규정에 따라 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

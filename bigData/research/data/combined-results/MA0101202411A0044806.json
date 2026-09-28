@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202411A0044806",
+  "name": "식감",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 68135,
+  "researchedAt": "2026-09-22T11:59:51.395Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 줄서기 관련 정보를 찾을 수 없습니다."
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "숙성회"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "수영구 광남로 125에 등록된 '식감'은 백반/한정식 업종으로 등록되어 있으나, 실제 매장 정보는 저온 숙성회를 전문으로 하는 음식점으로 확인됩니다. 블로그 상세 후기나 가격표, 영업시간 등 상세 웹 데이터는 확인되지 않았습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "식감 (숙성회 전문점) 주소: 부산광역시 수영구 광남로 125, 1층. 특징: 저온 숙성회를 전문으로 하는 횟집입니다. 미역국, 가자미 구이, 튀김 등 다양한 기본 찬과 함께 풍성한 한 끼 식사를 즐길 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "저온 숙성회와 함께 미역국, 가자미 구이 등 다양한 기본 찬이 함께 제공되어 풍성하게 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

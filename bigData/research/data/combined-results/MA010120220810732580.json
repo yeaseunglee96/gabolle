@@ -1,0 +1,71 @@
+{
+  "id": "MA010120220810732580",
+  "name": "한방오리자매",
+  "cat": "닭/오리고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 52490,
+  "researchedAt": "2026-09-22T06:45:59.835Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false,
+    "note": "대기 및 혼잡 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "가족 및 단체 모임",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "한방백숙",
+      "오리불고기",
+      "옻백숙",
+      "오리소금구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인 (방문 전 051-972-0111 전화 확인 권장)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "관광객/현지인 언급 정보 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 6,
+    "found": true
+  },
+  "notes": "부산 강서구 맥도길/대저2동 인근 주택가에 위치한 한방오리 및 닭·오리고기 요리 전문점으로, 한방백숙·옻백숙·오리불고기·오리소금구이 등을 취급하며 대중 식당보다는 가정집 분위기의 조용한 식당으로 알려져 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "백숙/불고기류 (가격 미기재)",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "일반 가정집 같은 분위기의 식당으로 알려져 있으며, 오리 요리를 전문으로 합니다. 주요 메뉴로는 한방백숙, 옻백숙, 오리 소금구이, 불고기, 오리탕 등이 있습니다. 방문 전 영업 여부나 예약 가능 여부를 전화로 미리 확인하시는 것을 추천드립니다.",
+      "url": "https://linktoplace.com"
+    },
+    {
+      "excerpt": "부산 강서구(대저2동)에 위치한 오리 요리 전문점으로, 일반적인 대중 식당이라기보다는 주택을 개조한 듯한 가정집 느낌의 식당으로 알려져 있습니다. 주요 메뉴: 한방전복오리백숙, 한방백숙, 옻백숙, 오리 소금구이, 오리불고기, 오리탕 등을 판매합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://linktoplace.com",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주택 개조 형태의 편안한 가정집 분위기에서 한방백숙, 옻백숙 등 보양 오리 요리를 즐길 수 있는 곳",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202309A0039340",
+  "name": "회운대",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 79135,
+  "researchedAt": "2026-09-22T11:28:24.996Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "일반 배달 및 포장 고객",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "광어",
+      "대방어",
+      "참돔"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 해운대구 중동(좌동순환로446번길 17-9) 소재의 '회운대'는 주로 배달/포장 위주로 회 및 해산물(광어, 대방어, 전복 등)을 취급하는 횟집으로 확인됩니다. 상세 매장 방문기나 영업시간, 대기열 관련 기록은 공개 웹상에 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구 중동(좌동순환로446번길 17-9)에 위치한 '회운대'는 회와 해산물을 전문으로 하는 음식점입니다. 일식 회/초밥 전문점이며, 배달 주문 시 광어, 전복, 대방어, 멍게, 가리비 등을 제공하는 것으로 알려져 있습니다. 회 두께 선택이 가능하며, 사이드 메뉴로 홍합탕과 두부김치 등이 제공된다는 후기가 있습니다.",
+      "url": "https://www.siksinhot.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://www.nfqs.go.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광어, 대방어 등 신선한 활어회와 해산물 안주 배달/포장 주문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

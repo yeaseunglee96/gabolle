@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220805217238",
+  "name": "구스타보",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 28400,
+  "researchedAt": "2026-09-22T11:58:29.776Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "대기 시간이나 혼잡도에 관한 구체적인 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "연인, 데이트, 친목 모임 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "1++ 한우 타르타르",
+      "그릴 문어 스테이크",
+      "구스타보 플래터"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "17:00 ~ 03:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인 또는 관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 3,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 부산진구 서전로10번길 14에 위치한 와인 조인트(와인바/양식당)로 분위기와 음악, 와인 페어링 요리(한우 타르타르, 문어 스테이크 등)로 방문하는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 서전로10번길 14. 멋진 음악과 분위기를 갖춘 와인 조인트(와인바)로 데이트 장소로 인기. 주요 메뉴 1++ 한우 타르타르, 그릴 문어 스테이크, 구스타보 플래터. 영업시간 17:00 ~ 03:00.",
+      "url": "https://gustavo.tistory.com"
+    }
+  ],
+  "sources": [
+    "https://gustavo.tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "감각적인 음악과 분위기 속에서 한우 타르타르·문어 스테이크 등 와인 페어링 요리를 즐기기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

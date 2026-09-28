@@ -1,0 +1,86 @@
+{
+  "id": "MA010120220811404556",
+  "name": "게스후경양식",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 64751,
+  "researchedAt": "2026-09-22T07:04:22.194Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "광안리 해변 테라스 명당 자리로 주말이나 여름철 관광객·피서객으로 붐빔"
+  },
+  "descriptors": {
+    "audience": "관광객, 가족 외식객, 연인, 모임",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "피자 (콤비네이션/치즈)",
+      "안심 스테이크",
+      "찹스테이크",
+      "파스타"
+    ],
+    "yearsClaimed": 33
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 02:00 (라스트 오더 01:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "1991년 개업 후 오랫동안 부산 시민과 관광객 모두에게 광안리 랜드마크로 사랑받음"
+  },
+  "menuDiversity": {
+    "dishCount": 20,
+    "found": true
+  },
+  "notes": "1991년 4월 개업하여 33년간 광안리 해변의 상징적인 패밀리 레스토랑/경양식 펍으로 운영되었으나, 2024년 9월 말 임대료 인상 등의 이슈로 영업을 종료(폐업)하였습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "피자 / 스테이크 / 파스타류",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "게스후는 1991년 4월에 개업하여 30년 넘게 광안리의 대표적인 레스토랑이자 '해변 테라스 문화'의 원조로 많은 사랑을 받아왔으나, 2024년 9월 30일부로 폐업하였습니다. 광안대교를 조망할 수 있는 테라스와 임실치즈를 사용한 피자, 파스타 등으로 유명했으며, 광안리 해변의 상징적인 장소로 오랫동안 기억되는 곳입니다.",
+      "url": "https://www.busan.com"
+    },
+    {
+      "excerpt": "위치: 부산광역시 수영구 광안해변로 181, 1층. 업종: 패밀리 레스토랑. 운영 시간: 매일 11:00 ~ 02:00. 광안리 해변 근처에 위치한 레스토랑으로 찹스테이크, 소고기 안심 스테이크, 피자 등을 판매.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1991년 개업하여 광안리 해변 테라스 문화를 연 30년 넘는 랜드마크 역사",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "광안대교 바다 전망을 즐길 수 있는 테라스 좌석 및 광안리 해변 바로 앞 입지",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "임실치즈를 듬뿍 얹은 피자와 스테이크, 파스타 등 클래식한 경양식·패밀리 레스토랑 메뉴",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

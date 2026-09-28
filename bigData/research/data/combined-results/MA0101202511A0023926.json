@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202511A0023926",
+  "name": "우하",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 33849,
+  "researchedAt": "2026-09-22T11:52:50.423Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직장인, 회식, 가족 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "high",
+    "queueing": false,
+    "signatureDishes": [
+      "투뿔(1++) 한우",
+      "한우 구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "사업자 인허가 및 업종상 돼지고기/쇠고기 구이 음식점으로 등록되어 있으나 실제로는 최고 등급(투뿔 넘버 나인 1++) 한우를 전문으로 하는 구이 전문점(연산동 '송하' 이전)으로 파악됨. 상세 영업시간 및 블로그 사진 직링크는 공개 웹문서에 부재하여 false 처리.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "우하: 투뿔(1++) 등급의 한우를 전문으로 하는 고기집입니다. 원래 연산동의 '송하'가 이전하여 새롭게 오픈한 곳으로 알려져 있습니다.",
+      "url": "https://www.jobkorea.co.kr"
+    },
+    {
+      "excerpt": "상호명: 우하. 위치: 부산광역시 해운대구 좌동로10번길 67 (중동), 지상 2층. 최고 등급인 투뿔 넘버 나인 한우를 취급하는 한우 전문점으로, 연산동에서 유명했던 '송하'가 해운대 '우하'로 새롭게 오픈한 곳으로 알려져 있습니다. 지하철 2호선 중동역 및 장산역(해운대백병원)에서 도보 약 7분 거리(약 500m)에 위치해 있습니다.",
+      "url": "https://www.facebook.com"
+    }
+  ],
+  "sources": [
+    "https://www.jobkorea.co.kr",
+    "https://www.facebook.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "최고 등급인 투뿔 넘버나인 한우 암소 등 고품질 소고기 구이를 맛보기 위해 방문함",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

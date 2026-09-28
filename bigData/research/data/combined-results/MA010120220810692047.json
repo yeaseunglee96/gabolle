@@ -1,0 +1,75 @@
+{
+  "id": "MA010120220810692047",
+  "name": "낙양회센타",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 100455,
+  "researchedAt": "2026-09-22T06:48:39.569Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열, 혼잡에 대한 명시적 언급 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "인근 산업단지 직장인 및 현지 주민",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "사계절물회",
+      "회덮밥"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "주중 11:00 ~ 20:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "현지인 및 인근 산업단지 직장인들이 주로 찾는 로컬 식당으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "대저 지역 특산물인 대저 토마토를 활용해 숙성한 양념장/초장으로 만드는 비빔물회(사계절물회)와 회덮밥이 대표적입니다. 전용 주차장을 갖추고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대저 지역의 특산물인 대저 토마토를 활용해 숙성한 양념장과 초장을 사용하여 물회와 회덮밥을 만드는 곳으로 알려져 있습니다. 물회는 육수 없이 비벼 먹는 '비빔물회' 형태로 제공됩니다. 가게 옆에 전용 주차장이 마련되어 있어 자차 이용이 편리합니다. 영업시간: 주중 11:00 ~ 20:00",
+      "url": "https://www.siksinhot.com/"
+    },
+    {
+      "excerpt": "현지인들이 즐겨 찾는 물회 맛집으로 알려져 있으며, 특히 여름철이나 입맛이 없을 때 방문하는 손님이 많습니다. 인근 산업단지 직장인들이 자주 찾는 곳이기도 합니다. 주차 및 예약이 가능합니다.",
+      "url": "https://polle.com/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/",
+    "https://polle.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대저 토마토를 숙성해 만든 비법 초장/양념장의 비빔물회와 회덮밥 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "인근 산업단지 직장인과 지역 주민들이 입맛 없을 때 즐겨 찾는 로컬 식당",
+      "sources": [
+        1
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

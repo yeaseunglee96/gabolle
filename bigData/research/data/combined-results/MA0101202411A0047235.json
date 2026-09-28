@@ -1,0 +1,74 @@
+{
+  "id": "MA0101202411A0047235",
+  "name": "케이크온에어",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 69121,
+  "researchedAt": "2026-09-22T11:34:46.656Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "디저트·케이크 포장 및 매장 이용 고객, 반려동물 동반 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모든 생과일 조각케이크",
+      "당일 조각모둠케이크",
+      "골드키위순우유 케이크",
+      "자몽얼그레이 케이크"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "제철 프리미엄 생과일과 동물성 우유 생크림을 활용하여 당일 수제 조각 및 모둠 홀케이크를 만드는 디저트 카페. 매장 전용 주차장은 없으며 포장 및 반려동물 동반이 가능함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "아메리카노",
+    "priceWon": 4000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "제철 프리미엄 생과일과 100% 우유 크림을 사용하여 매일 직접 조각 케이크를 만드는 베이커리 카페입니다. 대표메뉴는 모든 생과일 조각케이크, 당일 조각모둠케이크(2호)입니다. 유럽풍의 아기자기하고 따뜻한 분위기의 매장으로, 반려동물 동반이 가능합니다.",
+      "url": "https://www.siksinhot.com/P/1665477"
+    },
+    {
+      "excerpt": "제철 과일을 듬뿍 올린 수제 케이크가 유명한 디저트 카페입니다. 직접 구운 시트와 99% 동물성 생크림을 사용하여 케이크를 만드는 것으로 알려져 있습니다. 매장 전용 주차장은 없으므로 도보 이용을 권장합니다. 아메리카노(4,000원부터), 라떼(4,500원부터)",
+      "url": "https://cafeinbusan.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1665477",
+    "https://cafeinbusan.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제철 프리미엄 생과일과 100% 동물성 우유 생크림을 사용해 직접 만드는 수제 케이크의 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "당일 조각 모둠 케이크 포장 및 보냉팩 제공 등 선물·포장 편의와 반려동물 동반 가능 매장",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

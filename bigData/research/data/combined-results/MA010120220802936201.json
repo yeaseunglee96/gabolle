@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220802936201",
+  "name": "텐짱",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 50367,
+  "researchedAt": "2026-09-22T11:37:57.073Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "다찌(바) 형식 좌석으로 혼밥하기 좋으며 웨이팅이 있을 수 있음"
+  },
+  "descriptors": {
+    "audience": "대학생, 혼밥족, 직장인",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "텐짱 덴푸라 정식",
+      "모밀 + 덴푸라 세트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00 (라스트 오더 20:30, 매주 일요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "경성대·부경대 대학가 상권에 위치해 학생들과 인근 주민/혼밥족이 주로 찾는 식당"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "해당 가게는 부경대 인근에서 시작하여 대연동 경성대·부경대역 상권(수영로298번길 14 등)으로 이전하여 영업 중인 즉석 튀김(덴푸라) 및 모밀 전문 일식당입니다. 사업자/지번 정보상 수영로334번길 50(부경대 쪽문 인근) 또는 수영로298번길 14로 등록되어 확인됩니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "텐짱 덴푸라 정식 / 모밀 세트",
+    "priceWon": 10000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "과거 부경대 쪽문에 위치했으나 현재는 경성대·부경대역 인근으로 이전하여 운영 중입니다. 다찌(바) 형식의 좌석으로 구성되어 있어 혼밥하기에도 부담 없는 분위기입니다. 텐짱 덴푸라(9종) 정식, 7종 덴푸라 정식, 스페셜 모밀(냉/온) + 덴푸라(9종) 세트 등이 주메뉴입니다. 영업시간은 11:00 ~ 21:00 (라스트 오더 20:30, 매주 일요일 휴무)입니다. 주차는 불가하며 키오스크 주문 방식입니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주문 즉시 눈앞에서 바삭하게 튀겨주는 수준 높은 덴푸라와 모밀을 합리적인 가격에 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "다찌 좌석 형태로 부담 없이 혼자서 식사하기 편함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "MA0101202310A0089482",
+  "name": "대만원",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 72419,
+  "researchedAt": "2026-09-22T06:48:48.513Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "인근 주민 및 공장·상가 근로자",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "짜장면"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산 강서구 제도로 773(강동동 2940-15)에 실존하는 중식당으로 상호 및 주소, 연락처(051-941-3773)와 주요 메뉴(짜장면 등) 등록 정보는 확인되나, 상세 블로그 방문 후기나 영업시간/가격표/혼잡도/사진 등의 상세 리뷰 콘텐츠는 웹상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "대만원 / 부산광역시 강서구 제도로 773 (강동동 2940-15) / 중식당 (주요 메뉴: 짜장면 등) / 전화번호 051-941-3773",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com",
+    "https://nett.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인근 지역(강동동/제도로) 주민 및 근로자 대상의 동네 일반 중식 식사 제공",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

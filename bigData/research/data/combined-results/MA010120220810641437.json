@@ -1,0 +1,59 @@
+{
+  "id": "MA010120220810641437",
+  "name": "콩지팥찌",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 59763,
+  "researchedAt": "2026-09-22T06:42:21.129Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민, 직장인",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "팥칼국수",
+      "비빔밥"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "노부부가 운영하는 작은 골목 식당으로 동네 주민 중심의 소박한 밥집"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "부산 동구 고관로 85-1(수정동)에 위치한 노부부가 운영하는 소박한 백반/팥칼국수 식당. 온라인 정보가 매우 제한적이나 루리웹 및 지역 상가 등록 정보 등을 통해 확인됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 동구 고관로 85-1 (수정동 324-3). 노부부가 운영하는 작은 식당으로, 메뉴는 적지만 푸짐하고 깔끔한 맛으로 알려져 있습니다. 주요 메뉴로는 팥칼국수와 비빔밥 등이 있으며, 정갈한 손맛으로 좋은 평가를 받는 곳입니다.",
+      "url": "https://bbs.ruliweb.com/"
+    }
+  ],
+  "sources": [
+    "https://bbs.ruliweb.com/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "노부부의 정갈한 손맛과 소박하고 깔끔한 팥칼국수·비빔밥 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

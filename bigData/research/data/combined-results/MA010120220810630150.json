@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220810630150",
+  "name": "마쯔리야",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 50278,
+  "researchedAt": "2026-09-22T11:55:17.765Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "친구/지인 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스키야키",
+      "테바교자(닭날개만두)",
+      "메로구이"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "월~목 17:00 ~ 01:00 / 금~일 17:00 ~ 02:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "서면 롯데백화점 후문 골목에 위치한 아담한 이자카야로 주로 현지 단골 및 지인 모임 장소로 이용됨"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 서면 롯데백화점 후문 인근에 위치한 정통 일본식 수제요리 전문 이자카야로, 일본인 주방장이 선보이는 관동식 스키야키와 테바교자 등이 대표적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "일본인 주방장이 직접 요리하는 일본 정통 수제요리 및 이자카야 전문점으로, 스키야키와 테바교자(닭날개 만두) 등이 대표 메뉴로 알려져 있습니다. 한국인 아내와 일본인 남편 부부가 운영하는 곳으로 오랫동안 서면 지역에서 자리를 지켜온 곳입니다. 위치: 부산진구 가야대로784번길 46-8 2층 (롯데백화점 부산본점 후문 인근) 영업시간: 매일 17:00 ~ 01:00",
+      "url": "https://tistory.com"
+    },
+    {
+      "excerpt": "부산 서면에 위치한 '마쯔리야'는 일본인 주방장이 직접 요리하는 정통 일본식 이자카야로, 특히 스키야키 맛집으로 잘 알려져 있습니다. 일본 현지 스타일의 관동식 스키야키가 유명합니다. 짜지 않고 감칠맛이 좋아 국물까지 즐길 수 있다는 평이 많습니다. 닭교자(데바교자), 메로구이, 오뎅탕, 명란 바게트 등 다양한 정통 일식 메뉴를 제공합니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일본인 주방장이 조리하는 정통 스타일의 관동식 스키야키와 수제 요리(테바교자 등) 본연의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

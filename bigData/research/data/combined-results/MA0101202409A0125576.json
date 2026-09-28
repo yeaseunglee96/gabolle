@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202409A0125576",
+  "name": "대티돈까스",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 54181,
+  "researchedAt": "2026-09-22T06:32:03.683Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 대티로1번길 47의 '대티돈까스'는 사업자 인허가 등록 목록성 데이터 외에 실제 방문 후기, 블로그 리뷰, 메뉴 및 영업시간 등 실질적인 정보가 웹상에 확인되지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

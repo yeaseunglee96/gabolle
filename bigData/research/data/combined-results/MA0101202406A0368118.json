@@ -1,0 +1,72 @@
+{
+  "id": "MA0101202406A0368118",
+  "name": "발리우드",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 86120,
+  "researchedAt": "2026-09-22T07:01:10.737Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 웨이팅에 대한 명시적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 외국인 여행객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "탄두리 치킨",
+      "치킨 마크니(버터 치킨)",
+      "난",
+      "팔락 파니르"
+    ],
+    "yearsClaimed": 2016
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "일~목 12:00 ~ 22:30 (라스트오더 22:00), 금~토 12:00 ~ 23:00 (라스트오더 22:30), 매주 화요일 정기 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해변 인근에 위치하며 한국어와 영어 메뉴판을 구비하여 외국인 여행객 및 관광객 접근성이 좋음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "부산 수영구 광남로130번길 9 2층에 위치했던 정통 인도 음식 레스토랑&바(Bollywood). 1층에는 개미집 광안리본점이 위치함. 현재 영업 여부 변동 가능성 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로130번길 9에 위치한 '발리우드(Bollywood Indian Restaurant & Bar)'. 2016년부터 운영 중인 광안리 해변 인근의 인도 요리 맛집입니다. 버터치킨, 탄두리치킨, 난, 다양한 커리 등 정통 인도 요리를 제공하며 할랄 옵션도 갖추고 있습니다. 한국어와 영어 메뉴판이 구비되어 있습니다.",
+      "url": "https://www.siksinhot.com/p/1422000081392365"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/p/1422000081392365"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "할랄 고기 및 비건 옵션을 갖춘 정통 인도 커리와 탄두리 치킨 요리 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해변 인근 위치 및 이국적인 분위기와 세계 맥주를 함께 즐길 수 있는 공간",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

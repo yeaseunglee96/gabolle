@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202406A0281278",
+  "name": "힝",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 62097,
+  "researchedAt": "2026-09-22T11:30:22.399Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "부산광역시 부산진구 중앙대로680번가길 80-5 소재의 일식 회/초밥 음식점 '힝'에 대한 정보가 웹 검색 결과에서 확인되지 않습니다.",
+  "notes": "해당 주소지(부산진구 중앙대로680번가길 80-5) 및 서면 일대에서 일식/초밥 '힝'에 대한 실제 매장 상세 정보 및 리뷰를 찾을 수 없습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

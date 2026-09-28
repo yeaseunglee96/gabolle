@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202212A0022720",
+  "name": "우손미쭈삼이",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 51880,
+  "researchedAt": "2026-09-22T11:54:22.333Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "가게 정보 및 후기 없음",
+  "notes": "'우손미쭈삼이'(부산 해운대구 중동2로 31)를 검색하였으나, 실제 영업 및 리뷰 데이터가 확인되지 않는 사업자/폐업/가공의 상호로 추정되어 미발견 처리합니다. 해당 주소지에는 '운단수산' 등이 위치해 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

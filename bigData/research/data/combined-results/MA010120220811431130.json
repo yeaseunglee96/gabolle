@@ -1,0 +1,78 @@
+{
+  "id": "MA010120220811431130",
+  "name": "길수횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 64881,
+  "researchedAt": "2026-09-22T11:52:03.073Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "바다 전망이 좋은 창가 좌석은 인기가 많아 방문 전 예약하거나 일찍 방문하는 것이 권장됨"
+  },
+  "descriptors": {
+    "audience": "가족 모임, 회식, 단체 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "회 무한리필 A코스",
+      "길수 스페셜"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 24:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 수영구 민락수변로 밀레니엄프라자 2층에 위치한 횟집으로, 광안대교 오션뷰와 함께 회 무한리필 코스 요리로 잘 알려져 있습니다. 매장 전용 주차장은 없으나 인근 공영주차장 주차비 지원 등의 편의를 제공합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "무한리필 A코스 등 1인당 5만~7만 원대",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산 수영구 민락수변로 103, 밀레니엄프라자 2층. 영업시간: 11:00 ~ 24:00. 무한리필 코스는 '길수A' 등 구성에 따라 1인당 약 5만 원에서 7만 원대 수준으로 형성되어 있습니다. 바다 전망이 좋은 좌석은 인기가 많으므로, 방문 전 예약하거나 조금 일찍 방문하는 것이 좋습니다.",
+      "url": "https://www.youtube.com"
+    },
+    {
+      "excerpt": "특징: 오션뷰: 광안리 바다와 광안대교를 조망할 수 있는 위치에 있습니다. 주요 메뉴: 회 무한리필 코스(A코스, 길수 스페셜 등)가 대표적이며, 산낙지, 개불, 멍게 등 신선한 해산물과 매운탕을 함께 즐길 수 있습니다. 편의 시설: 예약 가능, 주차 지원(인근 공영주차장 이용 시 주차비 지원 등), 단체석 구비. 주인장(정길수 대표)의 이름을 걸고 운영하며 직접 선별한 수산물을 사용하는 것을 특징으로 내세우고 있습니다.",
+      "url": "https://www.busan.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com",
+    "https://www.busan.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 바다와 광안대교 야경을 내려다보며 식사할 수 있는 우수한 오션뷰 조망",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "1인당 일정 금액으로 메인 회를 마음껏 즐길 수 있는 무한리필 코스와 알찬 해산물 스끼다시 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

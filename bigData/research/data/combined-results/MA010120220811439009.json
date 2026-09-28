@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811439009",
+  "name": "동백집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 101116,
+  "researchedAt": "2026-09-22T11:35:58.945Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "관광객, 여행객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "조개구이",
+      "조개찜",
+      "장어구이",
+      "해물라면"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~토 11:30–22:00 / 일 11:30–21:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해변열차 이용 전후로 방문하기 좋은 위치에 있어 부산 여행객들에게 조개구이 맛집으로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "부산 청사포 포구 안쪽에 위치한 주택 개조 조개구이/해산물 전문점. 전용 주차장은 없으며 바닷가 갓길 및 항구 주차 라인 이용. 조개찜은 30~40분 소요되어 사전 예약 권장.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주택을 개조하여 아담하고 아늑한 느낌을 주며, 가리비 껍데기로 꾸며진 인테리어와 바다 분위기를 느낄 수 있는 창가 자리가 특징입니다. 신선한 조개가 푸짐하게 들어간 조개찜이 인기 메뉴 중 하나입니다. 조개찜의 경우 조리 시간이 30~40분 정도 소요되므로 전화 예약을 권장합니다. 전용 주차장은 따로 없으나, 청사포 바닷가 쪽 갓길이나 가게 앞 항구 쪽 주차 라인을 이용할 수 있습니다.",
+      "url": "https://www.siksinhot.com/P/1785158857075017"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1785158857075017"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주택을 개조한 아늑한 분위기에서 신선한 조개구이와 조개찜을 바다 정취와 함께 즐길 수 있어서",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 블루라인파크 해변열차 인근에 위치하여 여행 코스 중 들르기 좋아서",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

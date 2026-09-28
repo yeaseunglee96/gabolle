@@ -1,0 +1,62 @@
+{
+  "id": "MA0101202511A0004114",
+  "name": "채플스트릿",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 48361,
+  "researchedAt": "2026-09-22T07:07:32.155Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "연인, 친구, 브런치 모임",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "새우버거 & 칩스",
+      "모닝버거",
+      "아보카도 오픈토스트",
+      "커리 홀렌다이즈 연어 베네딕트",
+      "스티키 데이트 케이크"
+    ],
+    "yearsClaimed": 9
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화~금, 일: 09:30 - 16:30 / 토: 09:30 - 17:30 / 매주 월요일 정기휴무"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 12,
+    "found": true
+  },
+  "notes": "부산 광안리에 위치한 호주식 브런치 전문 카페로 호주 멜버른에서 8~9년 경력을 쌓은 오너 셰프가 운영하는 곳입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "호주 멜버른에서 8년 이상 경력을 쌓은 오너 셰프가 운영하는 호주식 브런치 카페입니다. 멜버른의 '채플 스트릿' 감성을 담은 공간에서 여유로운 브런치를 즐길 수 있습니다. 화~금, 일: 09:30 - 16:30, 토: 09:30 - 17:30, 매주 월요일 정기휴무. 주요 메뉴: 모닝버거, 아보카도 오픈토스트, 새우버거, 스파이시 칠리 에그온 토스트, 홀렌다이즈 연어 베네딕트 등",
+      "url": "https://movementlab.kr"
+    }
+  ],
+  "sources": [
+    "https://movementlab.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "호주 멜버른에서 8~9년 경력의 오너 셰프가 선보이는 현지 감성의 호주식 정통 브런치와 디저트",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

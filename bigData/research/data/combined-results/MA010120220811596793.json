@@ -1,0 +1,52 @@
+{
+  "id": "MA010120220811596793",
+  "name": "진성식당",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 60326,
+  "researchedAt": "2026-09-22T06:00:12.815Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기 및 혼잡도 관련 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 주민/직장인",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 없음"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 리뷰 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 금정구 서동로79번길 56에 위치한 한식/육류구이 일반음식점(전화번호: 051-525-0739)으로 등록되어 있으나, 블로그나 온라인 방문 후기 등 상세 리뷰가 존재하지 않는 동네 골목 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "업체명: 진성식당, 전화번호: 051-525-0739, 주소: 부산광역시 금정구 서동로79번길 56 (서동), 업종: 일반음식점 (한식, 육류·고기요리)",
+      "url": "https://www.geumjeong.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.geumjeong.go.kr"
+  ],
+  "whyPeopleGo": []
+}

@@ -1,0 +1,40 @@
+{
+  "id": "MA010120220808598560",
+  "name": "민락영심이",
+  "cat": "치킨",
+  "attempts": 1,
+  "geminiTokens": 70207,
+  "researchedAt": "2026-09-22T06:59:05.146Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소지에 실제 운영 중인 '민락영심이'(치킨)에 대한 후기, 메뉴, 영업 정보가 웹상에 확인되지 않음",
+  "notes": "부산광역시 수영구 광안해변로277번길 33에 위치한 것으로 제시된 '민락영심이' 치킨 업종에 대해 웹 조사를 수행했으나, 인근 부동산 매물 페이지의 주변 시설 목록에 상호명만 단편적으로 존재할 뿐 실제 방문 후기, 메뉴판, 영업시간 등 유효한 식당 정보를 찾을 수 없었습니다. 지어내지 않는 규칙에 따라 found: false로 제출합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

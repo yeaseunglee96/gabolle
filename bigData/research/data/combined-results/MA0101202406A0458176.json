@@ -1,0 +1,64 @@
+{
+  "id": "MA0101202406A0458176",
+  "name": "공리주택바",
+  "cat": "베트남식 전문",
+  "attempts": 1,
+  "geminiTokens": 68876,
+  "researchedAt": "2026-09-22T12:17:43.092Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 대한 언급을 찾을 수 없음"
+  },
+  "descriptors": {
+    "audience": "혼술객, 위스키 애호가",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "위스키",
+      "하이볼"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 정보 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "요청에 '베트남식 전문 업종'으로 기재되어 있으나, 실제 조사 결과 부산 수영구 광안로35번길 71 2층에 위치한 주택 개조 형태의 위스키/하이볼 바(혼술 바)로 확인되었습니다. (1층은 카페 블루코스모스, 2층은 공리주택바, 숙소 공리별장과 연계)",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "위스키 및 하이볼",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'공리주택'이라는 이름의 3층 규모 리모델링 주택 건물 내에 위치해 있으며, 1층은 카페(블루코스모스), 2층은 위스키바(공리주택바)로 운영되고 있습니다. 기존 주택의 구조를 최대한 보존하면서 한국적 주택 감성을 살려 리모델링한 공간으로, 리얼 빈티지 가구와 소품들을 활용한 분위기가 특징입니다. '공리별장'이라는 이름의 에어비앤비 숙소와도 연계되어 운영되는 경우가 많습니다. 광안리 인근에서 혼술하기 좋은 술집으로도 언급되는 곳입니다.",
+      "url": "https://www.airbnb.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.airbnb.co.kr",
+    "https://www.siksinhot.com/P/1601662998399580"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "빈티지 주택 감성의 공간에서 위스키와 하이볼을 즐기며 혼술하기 좋은 분위기 때문",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

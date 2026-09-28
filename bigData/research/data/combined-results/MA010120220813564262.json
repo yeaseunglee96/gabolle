@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220813564262",
+  "name": "인생과자점",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 68093,
+  "researchedAt": "2026-09-22T11:53:14.399Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡이나 줄서기에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "디저트 및 디저트 빵(스콘, 쫀득바)을 찾는 손님/포장 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "스콘",
+      "쫀득바"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "수~일 12:00 - 20:00 (매주 월요일, 화요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 미포 골목에 위치하여 청사포 및 해운대 여행/방문객 코스로 언급됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 해운대구 미포 달맞이길 골목에 위치한 아담한 디저트/베이커리 카페로 스콘과 쫀득바(버터바)가 주력 메뉴로 포장 및 예약 판매 위주로 운영됨.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "인생과자점은 부산 해운대구 미포 인근(달맞이길50번길 18)에 위치했던 베이커리 카페입니다. 스콘과 쫀득바(버터바 등)가 유명한 아담한 디저트 전문점입니다. 과거 운영 당시 수요일부터 일요일까지 영업(12:00 - 20:00)하며, 월요일과 화요일은 정기 휴무였습니다. 해당 지역의 미포 골목에 위치하여 여행객들이 청사포 등으로 이동하기 전 방문하는 코스로 종종 언급되곤 했습니다. 포장 및 예약이 가능합니다.",
+      "url": "https://polle.com"
+    }
+  ],
+  "sources": [
+    "https://polle.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "대표 메뉴인 스콘과 쫀득바(버터바) 등 구움과자 디저트의 맛과 퀄리티 때문에 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

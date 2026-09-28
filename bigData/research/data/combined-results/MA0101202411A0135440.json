@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202411A0135440",
+  "name": "소수",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 61042,
+  "researchedAt": "2026-09-22T11:51:53.928Z",
+  "confidence": "none",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "signatureDishes": []
+  },
+  "found": false,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notFound": "해당 주소(부산 남구 용소로13번길 18)에서 '소수'라는 일식 회/초밥 업소에 대한 실제 방문기나 등록 정보를 확인할 수 없습니다.",
+  "notes": "부산광역시 남구 용소로13번길 18 소재의 일식 회/초밥 상호 '소수'에 대해 다각도로 검색을 진행하였으나(주소 검색, 인근 대학가 및 상호 검색 등), 실존하는 매장 정보나 리뷰를 찾을 수 없어 found: false로 처리합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [],
+  "sources": [],
+  "whyPeopleGo": []
+}

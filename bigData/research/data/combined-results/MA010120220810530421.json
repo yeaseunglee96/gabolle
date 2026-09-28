@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220810530421",
+  "name": "신동아식당",
+  "cat": "구내식당",
+  "attempts": 1,
+  "geminiTokens": 55075,
+  "researchedAt": "2026-09-22T06:44:55.418Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "직원/관계자"
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "found": false
+  },
+  "notes": "부산광역시 사하구 을숙도대로 581(신평동 536-3)에 위치한 신동아정비 관련 시설 내 기관구내식당업으로 등록된 사업체입니다. 일반 대중 대상의 외식 음식점이 아닌 구내식당 형태로 등록된 시설로, 일반 방문 후기나 메뉴/가격/영업시간 등의 상세 정보는 온라인상에 공개되어 있지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "소재지: 부산광역시 사하구 을숙도대로 581 (신평동 536-3), 업종: 기관구내식당업",
+      "url": "https://bigvalue.ai"
+    }
+  ],
+  "sources": [
+    "https://bigvalue.ai"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "사업장/정비공장 내 상주 직원 및 관계자를 위한 구내식당 시설로 운영됨",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

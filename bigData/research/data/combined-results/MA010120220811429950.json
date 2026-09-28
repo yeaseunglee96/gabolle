@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811429950",
+  "name": "광안아구찜",
+  "cat": "해산물 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 88828,
+  "researchedAt": "2026-09-22T06:53:22.766Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기열에 대한 특별한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생아구찜",
+      "대구뽈찜",
+      "생아구탕",
+      "감자사리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:30 (매주 목요일 휴무, 일부 안내 22:00까지)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 인근 골목 주택을 개조하여 운영 중인 동네 로컬 식당으로 알려져 있음"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "광남로172번길 13에 위치한 일반 주택 개조 아구찜/뽈찜 전문점. 인근 동방스카이주차장 1시간 주차 지원이 제공되며 칼칼한 양념과 감자사리가 주요 특징.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "생아구찜 / 대구뽈찜 (소) 35,000원, 대구탕 13,000원, 생아구탕 15,000원, 섞어찜 (중) 50,000원 / (대) 70,000원",
+    "priceWon": 35000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광남로172번길 13 (민락동)에 위치한 광안아구찜은 광안리 해수욕장 인근 골목에 위치한 로컬 맛집으로, 일반 주택을 개조해 운영하고 있습니다. 주요 메뉴로는 생아구탕, 대구탕, 생아구찜/대구뽈찜 등이 있으며, 감자사리 메뉴가 인기 있는 것으로 알려져 있습니다. 근처 동방스카이주차장 1시간 지원됩니다. 매운맛 조절이 가능합니다.",
+      "url": "https://www.siksinhot.com/P/1014167"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1014167"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "주택을 개조한 편안한 분위기에서 칼칼하고 감칠맛 있는 생아구찜과 감자사리를 즐길 수 있는 동네 숨은 로컬 맛집",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "광안리 해수욕장 인근 골목에 자리 잡은 동네 주민 및 로컬 중심의 해물찜 전문점",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

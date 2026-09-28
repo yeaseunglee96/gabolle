@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220811426189",
+  "name": "호야",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 59051,
+  "researchedAt": "2026-09-22T12:12:38.890Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡 및 대기에 대한 웹 후기 정보 없음"
+  },
+  "descriptors": {
+    "audience": "대학생 및 인근 주민",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "초밥",
+      "회",
+      "돈부리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "영업시간 미확인"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 관련 구체적 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 남구 용소로7번길 63-3(대연동, 경성대·부경대 상권)에 등록된 일식(이자카야/돈부리/회) 매장 호야(HOYA)의 주소 및 기본 사업체 정보는 확인되었으나, 세부 메뉴판 및 후기 텍스트 등은 온라인에 상세히 노출되어 있지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "호야 Hoya 일식; 부산 남구 용소로7번길 63-3; 0507-1361-8392",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "경성대·부경대 대학가 골목에 위치한 일식당으로 접근성 기반 방문",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

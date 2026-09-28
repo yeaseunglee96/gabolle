@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220811416650",
+  "name": "명승제주생고기",
+  "cat": "돼지고기 구이/찜",
+  "attempts": 1,
+  "geminiTokens": 83508,
+  "researchedAt": "2026-09-22T11:55:41.400Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": null,
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오겹살",
+      "생갈비"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 수영구 광안동 소재 명승제주생고기(구 명승숯불돼지갈비)로 확인되며, 제주산 돼지고기 숯불구이 전문점 관련 정보가 존재하나 상세 영업시간/가격 등의 정보는 매우 희소합니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "상호명: 명승제주생고기 (과거 명칭: 명승숯불돼지갈비) 주소: 부산광역시 수영구 수영로594번길 24 (광안동 146-33) 특징: 제주산 돼지고기(흑돼지 오겹살, 생갈비 등)를 숯불에 구워 먹는 곳",
+      "url": "https://www.busan.com"
+    }
+  ],
+  "sources": [
+    "https://www.busan.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "제주산 생돼지고기(오겹살, 생갈비)를 숯불에 구워 먹는 제주식 돼지고기 전문점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

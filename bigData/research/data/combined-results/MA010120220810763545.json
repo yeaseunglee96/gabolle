@@ -1,0 +1,76 @@
+{
+  "id": "MA010120220810763545",
+  "name": "수덕토스트",
+  "cat": "토스트/샌드위치/샐러드",
+  "attempts": 1,
+  "geminiTokens": 50636,
+  "researchedAt": "2026-09-22T06:58:01.062Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "정보 없음"
+  },
+  "descriptors": {
+    "audience": "대학생 및 교직원",
+    "generations": null,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "토스트"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "정보 없음"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "동의대학교 캠퍼스(수덕전) 내 스낵 코너로 관광객보다는 주로 대학생들이 이용하는 학내 시설"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산광역시 부산진구 엄광로 176(동의대학교 가야캠퍼스) 수덕전 2층에 위치한 학내 토스트/스낵 코너로 추정되며, 독립된 로드숍 음식점이라기보다 대학교 학생 복지시설/푸드코트 매장 형태로 등록된 곳입니다. 독립된 상세 리뷰나 사진, 구체적 메뉴판 및 영업시간 정보는 거의 존재하지 않습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "동의대학교 수덕전 2층에는 학생들이 간편하게 식사할 수 있는 스낵 코너가 마련되어 있으며, 이곳에서 토스트를 판매하고 있습니다.",
+      "url": "https://univ100.kr"
+    },
+    {
+      "excerpt": "수덕토스트는 부산광역시 부산진구 엄광로 176(동의대학교 내)에 위치한 토스트/샌드위치 전문점입니다.",
+      "url": "https://udanax.org"
+    }
+  ],
+  "sources": [
+    "https://udanax.org",
+    "https://univ100.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "캠퍼스 내에서 저렴하고 간편하게 끼니를 해결할 수 있는 학내 편의 시설",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "대학가/학내 스낵 코너 특유의 저렴한 가격과 가성비",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

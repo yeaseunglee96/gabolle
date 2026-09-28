@@ -1,0 +1,78 @@
+{
+  "id": "MA0101202406A0261865",
+  "name": "돌닭",
+  "cat": "백반/한정식",
+  "attempts": 1,
+  "geminiTokens": 64548,
+  "researchedAt": "2026-09-22T11:52:19.192Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말 및 공휴일 피크 시간에는 웨이팅이 잦아 캐치테이블 등으로 대기 등록을 추천함"
+  },
+  "descriptors": {
+    "audience": "젊은층, 관광객, 가족, 혼밥객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "돌판 닭볶음탕",
+      "치즈 감자채전",
+      "곱도리탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00 (브레이크타임 평일 14:50/15:00 ~ 16:30, 라스트오더 21:00)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안리 해수욕장 인근 위치 및 독특한 인테리어로 관광객과 젊은 층 방문 비율이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 수영구 광남로 97에 위치한 돌판 닭볶음탕 전문점 돌닭(광안점)에 대한 조사 결과입니다. 양계장 모티브의 이색 인테리어와 돌판 닭볶음탕, 치즈 감자채전 조합이 대표적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "돌판 닭볶음탕 38,000원~49,000원 / 치즈 감자채전 9,000원~14,000원",
+    "priceWon": 38000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "과거 양계장(닭장)을 모티브로 한 독특한 컨셉의 인테리어와 포토존이 마련되어 있어 가족 단위 방문객에게도 인기가 많습니다. 돌판 닭볶음탕이 주력 메뉴이며, 부드러운 닭고기와 매콤달콤한 양념이 특징입니다. 혼밥이 가능한 1인 정식 메뉴도 준비되어 있습니다.",
+      "url": "https://mom-mom.net"
+    },
+    {
+      "excerpt": "돌판 위에 제공되는 닭볶음탕이 대표 메뉴입니다. 한우 곱창을 추가하여 '곱도리탕' 스타일로 즐기거나, 사이드 메뉴인 치즈 감자채전과 함께 먹는 조합이 매우 좋은 평가를 받고 있습니다. 광안리 해수욕장과 가까워 접근성이 좋으나, 주말이나 공휴일에는 웨이팅이 빈번하므로 '캐치테이블' 등을 활용한 예약 또는 대기 등록을 추천합니다. 매장 내 주차 공간은 매우 협소하므로 인근 공영주차장 이용이 권장됩니다.",
+      "url": "https://whatkoreaneat.com"
+    }
+  ],
+  "sources": [
+    "https://mom-mom.net",
+    "https://whatkoreaneat.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "온기가 오래 유지되는 돌판 닭볶음탕과 치즈 감자채전의 조합, 매콤달콤한 양념 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "과거 양계장(닭장)을 모티브로 한 독특하고 힙한 매장 인테리어와 포토존",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

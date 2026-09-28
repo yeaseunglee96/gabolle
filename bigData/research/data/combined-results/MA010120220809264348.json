@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220809264348",
+  "name": "해변횟집",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 46256,
+  "researchedAt": "2026-09-22T11:59:32.947Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 인근 주민",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회",
+      "연탄조개구이",
+      "물회",
+      "전복죽"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "송도해수욕장 인근 암남동에 위치한 횟집으로 모듬회 및 연탄조개구이 등을 취급하며 상세 방문 후기 및 영업시간 정보는 확인되지 않음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 서구 송도해변로 147 (암남동 128-7). 연락처: 051-255-5481. 주요 메뉴: 모듬회, 계절회, 연탄조개구이, 물회, 전복죽 등. 송도해수욕장 인근에 위치한 횟집으로, 신선한 모듬회와 더불어 연탄조개구이 등을 함께 다루는 곳으로 알려져 있습니다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com",
+    "https://siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "신선한 모듬회와 연탄조개구이 등 다양한 해산물 메뉴 구비",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "MA0101202502A0036086",
+  "name": "프로젝트소수",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 81000,
+  "researchedAt": "2026-09-22T11:53:00.145Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "해당 상호의 일반 식당 방문 후기 없음"
+  },
+  "descriptors": {
+    "audience": "",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 0
+  },
+  "found": false,
+  "hours": {
+    "found": false,
+    "text": ""
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "일반 음식점 매장이 아닌 법인사업체로 소비자리뷰 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notFound": "'프로젝트소수'는 일반 소비자를 대상으로 영업하는 단독 식당 상호가 아니라, 서양식 음식점업/외식업을 영위하는 법인명(주식회사 프로젝트소수)입니다. 달맞이길 239-16 소재지에는 전통찻집 '비비비당' 등이 입점해 있으며, 해당 법인은 모먼트 로컬 등의 레스토랑 브랜드를 운영하는 회사로 확인되어 일반 식당 정보(메뉴, 가격, 영업시간 등)가 존재하지 않습니다.",
+  "notes": "해당 주소지의 '프로젝트소수'는 일반 매장이 아닌 외식업 법인(주식회사 프로젝트소수)으로 확인되었습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 해운대구에 위치한 주식회사 프로젝트소수는 서양식 음식점업을 영위하는 기업입니다. 소재지: 부산광역시 해운대구 달맞이길 239-16 (중동). 주요 사업: 레스토랑 운영 및 외식업. 관련 브랜드: 채용 정보 등을 통해 '모먼트 로컬(Moment Local)'이라는 스테이크 및 오이스터 오스테리아(레스토랑)를 운영하고 있는 것으로 확인됩니다. 과거 '신도랩 2.0' 관련 채용 공고도 확인된 바 있습니다.",
+      "url": "https://bizno.net"
+    }
+  ],
+  "sources": [
+    "https://bizno.net"
+  ],
+  "whyPeopleGo": []
+}

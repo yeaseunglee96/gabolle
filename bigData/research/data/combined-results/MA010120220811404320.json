@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220811404320",
+  "name": "이어도",
+  "cat": "횟집",
+  "attempts": 1,
+  "geminiTokens": 62083,
+  "researchedAt": "2026-09-22T11:34:16.930Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "단체 및 룸 이용 시 예약 권장되며 오션뷰 창가석 위주로 손님이 몰림"
+  },
+  "descriptors": {
+    "audience": "모임/가족/회식",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "모듬회 코스",
+      "물회정식",
+      "랍스터찜",
+      "활우럭매운탕"
+    ],
+    "yearsClaimed": 15
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 24:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "광안대교 오션뷰 조망으로 관광객 및 인근 주민/직장인 모임 방문 혼재"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notes": "부산 광안대우아이빌 2층에 위치하여 광안대교 및 바다 조망(오션뷰)이 가능한 자연산 활어 코스요리 전문점. 개별 룸 완비 및 주차비 지원.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "점심특선 30,000원~35,000원 / 코스 50,000원~100,000원 / 회비빔밥·물회 15,000원",
+    "priceWon": 50000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안로62번길 39, 부산광안대우아이빌 2층에 위치한 이어도는 자연산 활어 전문점으로 광안리 해수욕장 및 광안대교를 조망할 수 있는 오션뷰 횟집입니다. 모듬회, 랍스터찜 등을 포함한 코스 요리와 점심특선(물회정식 등)을 제공하며 건물 지하 주차장 또는 인근 주차장 주차비 지원이 가능합니다. 매일 11:00 ~ 24:00 영업합니다.",
+      "url": "https://www.siksinhot.com/P/411326"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/411326"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "광안리 해수욕장 및 광안대교 바다를 한눈에 내려다볼 수 있는 뛰어난 오션뷰 조망",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "자연산 활어회와 랍스터, 메로구이 등 알찬 구성의 코스 요리 제공",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

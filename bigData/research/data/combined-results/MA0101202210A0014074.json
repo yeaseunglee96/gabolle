@@ -1,0 +1,66 @@
+{
+  "id": "MA0101202210A0014074",
+  "name": "오버두",
+  "cat": "요리 주점",
+  "attempts": 1,
+  "geminiTokens": 47751,
+  "researchedAt": "2026-09-22T06:58:09.456Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "일반 영업 시 대기나 혼잡도에 대한 언급 없음"
+  },
+  "descriptors": {
+    "audience": "성인, 펍/주점 방문객",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false,
+    "text": "일반 정기 영업시간 정보 미상 (행사 시 15:00~23:00 운영 이력 확인)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 해운대구 구남로 47에 위치한 요리 주점/펍으로, 루프탑 및 펍 공간을 갖추고 있으며 게임 콜라보레이션 펍 행사 등이 열린 바 있습니다. 일반 상시 메뉴판 및 가격 정보는 웹상에 독립적인 블로그 리뷰나 메뉴판 공개 자료가 제한적입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "모바일 게임 '라스트오리진'이 부산 해운대에 위치한 펍 '오버두(Overdo)'에서 오프라인 콜라보레이션 이벤트를 진행한다. 위치: 부산광역시 해운대구 구남로 47, 일정: 2023년 9월 22일부터 9월 24일까지 오후 3시부터 오후 11시까지 운영. 술집에서 진행된 행사인 만큼 19세 미만은 입장이 제한되었다.",
+      "url": "https://www.khgames.co.kr/news/articleView.html?idxno=218671"
+    },
+    {
+      "excerpt": "부산광역시 해운대구 구남로 47 (중동) 오버두 (기타 주점업, 요리 주점, 칵테일바)",
+      "url": "https://placeview.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.khgames.co.kr/news/articleView.html?idxno=218671",
+    "https://placeview.co.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "해운대 구남로 중심가에 위치한 펍/루프탑 주점으로 접근 편의와 공간 대관 및 이벤트 펍 방문 수요가 있음",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

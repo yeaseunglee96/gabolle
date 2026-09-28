@@ -1,0 +1,55 @@
+{
+  "id": "MA0101202603A0046145",
+  "name": "민로",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 53111,
+  "researchedAt": "2026-09-22T11:36:27.837Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "데이트, 술자리",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": false
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산진구 서전로10번길 31-6 (부전동 168-145) 일대에 위치한 이자카야/횟집으로 확인되나 상세 메뉴 가격 및 영업시간 등 상세 리뷰 정보는 제한적임.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 부전동 일대에 위치한 '민로'는 해당 지역의 이자카야/횟집으로 소개되며, 데이트 장소나 술집으로 언급됩니다. 위치: 부산광역시 부산진구 부전동 168-145 인근 (서전로10번길 인근 지역)",
+      "url": "https://dinnerqueen.net"
+    }
+  ],
+  "sources": [
+    "https://dinnerqueen.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서면 인근에서 사시미/해산물 안주와 함께 데이트나 술자리를 갖기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

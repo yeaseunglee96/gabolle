@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202507A0009988",
+  "name": "필레코드온",
+  "cat": "경양식",
+  "attempts": 1,
+  "geminiTokens": 75688,
+  "researchedAt": "2026-09-22T11:15:07.778Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "음악 애호가, 데이트 손님",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "과일 플레이트",
+      "바닐라 아이스크림"
+    ],
+    "yearsClaimed": 40
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "18:00 - 01:00 (월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 2,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "인허가상 일반음식점(경양식)으로 분류되어 있을 수 있으나, 실제 운영 형태는 40년 경력의 수집가가 고가 극장용 스피커로 운영하는 LP 음악 감상 바(LP Bar)입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산 수영구 남천동로108번길 17 (또는 광남로 74) 2층. 40년 경력의 LP 수집가가 운영하는 곳으로, 1억 원이 넘는 고가의 60년대 독일제 극장용 스피커를 통해 음악을 감상할 수 있는 감성적인 공간. 대표 메뉴: 과일 플레이트, 바닐라 아이스크림 등. 영업시간: 18:00 - 01:00 (월요일 휴무)",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "고가 극장용 빈티지 스피커와 수만 장의 LP를 갖춘 40년 경력 수집가의 음악 감상 공간이기 때문",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

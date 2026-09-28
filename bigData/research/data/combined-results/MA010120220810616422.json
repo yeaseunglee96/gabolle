@@ -1,0 +1,72 @@
+{
+  "id": "MA010120220810616422",
+  "name": "부산복집",
+  "cat": "복 요리 전문",
+  "attempts": 1,
+  "geminiTokens": 84401,
+  "researchedAt": "2026-09-22T06:57:08.183Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "혼잡도 및 줄서기 관련 직접 언급 없음"
+  },
+  "descriptors": {
+    "audience": "인근 직장인 및 해장 손님",
+    "generations": null,
+    "parking": null,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "복국",
+      "복지리",
+      "복매운탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 - 22:00 (일부 09:00 - 22:00 표기)"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": "현지인/관광객 구분 언급 없음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 부산진구 서면문화로 25(부전동 474-82)에 위치한 복요리 전문점 '부산복집' (전화번호: 051-808-3467). 서면역 인근에서 복국, 복지리, 복매운탕 등 복요리를 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 부산진구 서면문화로 25(부전동 474-82)에 위치한 부산복집에 대한 정보입니다. 주소: 부산광역시 부산진구 서면문화로 25 (부전동 474-82). 영업시간: 매일 10:00 - 22:00. 문의전화: 051-808-3467. 특징: 복국(지리/매운탕), 복요리 전문점으로 서면역 인근에 위치해 있습니다.",
+      "url": "https://map.konest.com/dpoi/101344406"
+    }
+  ],
+  "sources": [
+    "https://map.konest.com/dpoi/101344406"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "서면역 인근에서 복국(지리/매운탕) 및 복요리 식사를 하기 위해 방문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "서면 중심가(서면문화로) 인근에 위치하여 접근성이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

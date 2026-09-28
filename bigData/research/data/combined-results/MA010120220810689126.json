@@ -1,0 +1,74 @@
+{
+  "id": "MA010120220810689126",
+  "name": "파네토네",
+  "cat": "빵/도넛",
+  "attempts": 1,
+  "geminiTokens": 57227,
+  "researchedAt": "2026-09-22T05:58:31.602Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "지역 주민 및 단골 손님",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "바게트",
+      "소시지빵",
+      "흰앙금빵",
+      "단팥빵",
+      "햄버거",
+      "도너츠"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "오전 6:30 ~ 오후 12:00 (자정)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "화명동 동네 주민들이 주로 찾는 오랜 전통의 동네 빵집이자 단골 손님 중심의 착한가격업소"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산 북구청 지정 착한가격업소 및 나눔가게로 운영 중인 화명동 동네 빵집입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "햄버거 4,000원, 흰앙금빵 1,700원, 도너츠 1,200원, 마카롱 1,000원",
+    "priceWon": 1700
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "오랜 전통을 자랑하는 화명동의 동네 빵집으로, 가성비가 좋아 단골 손님이 많은 곳입니다. 부산 북구청에서 선정한 '착한가격업소'로 지정되어 있습니다. 주요 메뉴로는 바게트, 소시지빵, 단팥빵, 흰앙금빵, 카스텔라, 햄버거, 도너츠, 호두파이 등이 언급됩니다. 영업시간: 오전 6:30 ~ 오후 12:00",
+      "url": "https://www.bsbukgu.go.kr"
+    }
+  ],
+  "sources": [
+    "https://www.bsbukgu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부산 북구청 지정 착한가격업소로 저렴한 가격에 빵과 과자를 즐길 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "오랜 전통을 바탕으로 화명동 주민들에게 친숙한 동네 빵집이자 단골들이 꾸준히 찾는 곳임",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}

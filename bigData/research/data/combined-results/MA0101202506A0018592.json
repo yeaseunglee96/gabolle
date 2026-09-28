@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202506A0018592",
+  "name": "호네",
+  "cat": "일식 회/초밥",
+  "attempts": 1,
+  "geminiTokens": 59050,
+  "researchedAt": "2026-09-22T10:31:38.735Z",
+  "confidence": "low",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족/친구/혼밥",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "생선구이 정식"
+    ],
+    "yearsClaimed": 1
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 21:00 (평일 브레이크타임 15:00 ~ 16:30, 주말 브레이크타임 없음, 매주 수요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 0,
+    "found": false
+  },
+  "notes": "부산 수영구 광안해변로295번길 4-15에 위치한 숯불 생선구이 정식 전문점 '호네'로 확인됩니다. 과거 동일 주소지에 '요리미치' 이자카야가 운영된 이력이 있으며 생선구이 정식 등으로 운영되고 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 수영구 광안해변로295번길 4-15에 위치한 '호네'는 숯불 생선구이 정식 전문점입니다. 비장탄 숯불을 사용하여 주문 즉시 생선을 구워내어 불향이 가득하고 겉은 바삭, 속은 촉촉한 생선구이를 제공합니다. 일본 가정식 느낌의 차분한 인테리어로 혼밥이나 친구, 가족 모임 모두 가능합니다. 영업시간 11:00 ~ 21:00 매주 수요일 정기휴무, 가게 앞 최대 4대 주차 가능.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "비장탄 숯불에 즉시 구워내는 불향 가득하고 겉바속촉한 생선구이 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "MA010120220810495402",
+  "name": "동주각",
+  "cat": "중국집",
+  "attempts": 1,
+  "geminiTokens": 83749,
+  "researchedAt": "2026-09-22T06:15:35.984Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "동네 주민 및 인근 방문객",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": false,
+    "signatureDishes": [
+      "수소면",
+      "볶음밥",
+      "탕수육"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:00 ~ 20:00 (라스트 오더 19:20), 매주 화요일 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "영주동 산복도로 인근 지역 주민들이 찾는 동네 로컬 식당"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 중구 영주동 망양로 405-1 동주파크 상가에 위치한 중국집으로 수소면과 볶음밥 등 가성비 메뉴로 알려져 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 망양로 405-1 (동주파크 상가 내). 영업시간: 11:00 ~ 20:00, 라스트 오더 19:20, 매주 화요일 휴무, 주차: 민주공원 주차장 이용 가능. 주요 메뉴: 수소면, 볶음밥 등. 영주동 산복도로 인근에 위치해 있어 지역 주민들에게 사랑받는 로컬 맛집",
+      "url": "https://www.youtube.com"
+    }
+  ],
+  "sources": [
+    "https://www.youtube.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "부담 없는 가성비와 특색 있는 수소면 메뉴 때문",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    },
+    {
+      "note": "영주동 산복도로 인근 동네 주민 중심의 로컬 식당",
+      "sources": [
+        0
+      ],
+      "type": "현지인 지지"
+    }
+  ]
+}
