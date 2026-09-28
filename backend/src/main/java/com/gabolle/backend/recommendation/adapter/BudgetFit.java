@@ -39,6 +39,17 @@ public final class BudgetFit {
 	public static final String FEATURE_TYPE = "PRICE_LEVEL";
 
 	/**
+	 * 조사된 대표 메뉴 값의 갈래 이름. {@link #FEATURE_TYPE} 이 없을 때 이것으로 등급을 만든다.
+	 *
+	 * <p>🔴 <b>둘 다 두는 이유.</b> {@code PRICE_LEVEL} 은 사람이 손으로 매긴 등급이고
+	 * {@code MENU_PRICE_WON} 은 조사로 받은 원 단위 값이다. 2026-09-22 실측으로 운영에
+	 * {@code PRICE_LEVEL} 은 <b>0행</b>, {@code MENU_PRICE_WON} 은 <b>189곳</b>이다 — 즉 지금
+	 * 예산이 한 번도 작동하지 않은 것은 이 이름이 어긋나 있었기 때문이다(S15P21E201-1495).
+	 * 등급 쪽을 지우지 않는 것은 사람이 매긴 값이 들어오면 그것이 더 정확하기 때문이다.
+	 */
+	public static final String WON_FEATURE_TYPE = "MENU_PRICE_WON";
+
+	/**
 	 * 싼 것부터 비싼 것까지. 비교는 이 차례의 자리번호로 한다 — 등급을 숫자로 바꿔 저장하지
 	 * 않는 것이 적재기의 결정이고({@code "등급을 숫자로 바꾸지 않는다"}), 그 결정을 여기서
 	 * 뒤집지 않는다. 접는 것은 쓰는 쪽에서 해도 되지만 펴는 것은 못 한다.
@@ -62,6 +73,30 @@ public final class BudgetFit {
 	private static final int MEALS_PER_DAY = 2;
 
 	private BudgetFit() {
+	}
+
+	/**
+	 * 대표 메뉴 한 가지의 값(원)이 어느 등급인가. {@link #targetBand(Trip)} 이 쓰는 경계와
+	 * <b>같은 자</b>를 쓴다 — 여행의 1인 1끼 예산과 장소의 메뉴 한 그릇 값을 견주는 것이라
+	 * 둘의 단위가 맞는다.
+	 *
+	 * <p>🔴 <b>경계를 여기서 다시 적지 않는다.</b> {@link #BAND_CEILINGS_KRW} 하나를 둘이
+	 * 나눠 쓴다. 두 벌이 되면 한쪽만 고쳐졌을 때 "예산 안" 판정이 조용히 어긋난다.
+	 *
+	 * @param won 원 단위 값. {@code null} 이거나 양수가 아니면 {@code null} 을 돌려준다 —
+	 *     <b>모름을 특정 등급으로 접지 않는다.</b> 접으면 조사가 안 된 곳이 그 등급인 것처럼
+	 *     점수를 받는다
+	 */
+	public static String bandOfWon(Integer won) {
+		if (won == null || won <= 0) {
+			return null;
+		}
+		for (int i = 0; i < BAND_CEILINGS_KRW.length; i++) {
+			if (won <= BAND_CEILINGS_KRW[i]) {
+				return BANDS.get(i);
+			}
+		}
+		return BANDS.get(BANDS.size() - 1);
 	}
 
 	/**

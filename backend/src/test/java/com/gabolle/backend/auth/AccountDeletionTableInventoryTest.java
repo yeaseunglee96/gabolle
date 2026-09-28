@@ -45,7 +45,12 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			// 올라간 동영상. uploaded_image 와 같은 자리에서 같은 순서로 지워진다 —
 			// story_video 를 먼저 지우지 않으면 외래키 위반으로 탈퇴 전체가 실패한다.
 			"uploaded_video",
-			"user_block", "user_consent", "user_follow", "user_pace_factor", "user_taste_vector",
+			"user_block", "user_consent", "user_follow", "user_pace_factor",
+			// (사람, 장소) 의 취향 반영 상태. 탈퇴 때 AccountDeletionService 가 직접 지운다 —
+			// CASCADE 는 안 돈다(계정 행을 익명화만 하므로). 안 지우면 탈퇴한 사람의 행동
+			// 이력이 그대로 남는다 (S15P21E201-1500).
+			"user_place_taste_state",
+			"user_taste_vector",
 			"user_travel_constraint");
 
 	@Autowired

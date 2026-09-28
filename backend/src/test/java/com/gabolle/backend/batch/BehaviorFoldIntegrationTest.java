@@ -18,6 +18,7 @@ import com.gabolle.backend.batch.support.TasteVectorFixtures;
 import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.preference.domain.TasteDimension;
 import com.gabolle.backend.preference.domain.TasteEvidence;
+import com.gabolle.backend.preference.domain.TasteWeightComponent;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
 
@@ -99,6 +100,72 @@ class BehaviorFoldIntegrationTest extends BatchPostgresTest {
 				.filteredOn((w) -> w.getEvidence() != TasteEvidence.SURVEY)
 				.as("채점기가 읽을 수 있는 성분이 하나도 없으면 행동 개인화는 도는 척만 한다")
 				.isNotEmpty();
+	}
+
+	/**
+	 * 🔴 S15P21E201-1506 이전에는 이 자리가 두 겹으로 고장나 있었다. 끈 하트가 이벤트로 아예
+	 * 안 남았고, 남았더라도 질의가 <b>첫 관측</b>을 보던 터라 뒤의 「끔」이 앞의 「켬」을
+	 * 못 이겼다. 그래서 끈 하트가 90일 뒤 이벤트가 지워질 때까지 취향에 남았다.
+	 */
+	@Test
+	@DisplayName("🔴 하트를 켰다 끄면 성분이 안 생긴다 — 아예 안 누른 것과 같다")
+	void turningLikesOffLeavesNoComponent() {
+		UUID user = this.fixtures.newUser();
+		UUID cafeA = taggedPlace(CAFE);
+		UUID cafeB = taggedPlace(CAFE);
+
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeB, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE_REMOVED, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE_REMOVED, cafeB, DAY1);
+
+		this.foldService.fold(user, DAY2);
+
+		assertThat(components(user))
+			.filteredOn((w) -> w.getEvidence() != TasteEvidence.SURVEY)
+			.as("끈 하트가 남으면 「이제 관심 없다」를 계속 취향으로 읽는다")
+			.isEmpty();
+	}
+
+	@Test
+	@DisplayName("하트 → 끔 → 다시 하트면 그대로 되돌아온다")
+	void likingAgainAfterRemovalCountsAgain() {
+		UUID user = this.fixtures.newUser();
+		UUID cafeA = taggedPlace(CAFE);
+		UUID cafeB = taggedPlace(CAFE);
+
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeB, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE_REMOVED, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE_REMOVED, cafeB, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeA, DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_LIKE, cafeB, DAY1);
+
+		this.foldService.fold(user, DAY2);
+
+		UserTasteWeight component = onlyComponent(user);
+		assertThat(component.getSupport()).as("장소마다 마지막 상태 하나만 센다").isEqualTo(2);
+		// 처음 두 번 눌렀을 때와 같은 값이어야 한다. raw = 2.0, K = 3 → 2/(2+3)
+		assertThat(component.getWeight()).isEqualTo(0.4);
+	}
+
+	/**
+	 * 🔴 끔과 싫어요를 한 이벤트로 합치면 안 되는 이유가 이 시험이다. 끔은 <b>안 누른 것과
+	 * 같아지는</b> 것이고, 싫어요는 <b>안 누른 것보다 낮아지는</b> 것이다.
+	 */
+	@Test
+	@DisplayName("🔴 싫어요는 끔과 다르다 — 안 누른 것보다 낮게 남는다")
+	void dislikeIsNotTheSameAsTurningTheHeartOff() {
+		UUID user = this.fixtures.newUser();
+
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_DISLIKE, taggedPlace(CAFE), DAY1);
+		this.fixtures.tasteSignalForPlace(user, EventType.PLACE_DISLIKE, taggedPlace(CAFE), DAY1);
+
+		this.foldService.fold(user, DAY2);
+
+		UserTasteWeight component = onlyComponent(user);
+		// raw = -2.0, K = 3 → -2/(2+3). 끔이었다면 성분 자체가 없었을 자리다.
+		assertThat(component.getWeight()).isEqualTo(-0.4);
 	}
 
 	@Test
@@ -200,9 +267,18 @@ class BehaviorFoldIntegrationTest extends BatchPostgresTest {
 		assertThat(components(user)).allMatch((w) -> w.getEvidence() == TasteEvidence.SURVEY);
 	}
 
+	/**
+	 * 🔴 <b>예전에는 이 자리가 {@code BLENDED} 한 행이었다</b> (S15P21E201-1499 이전). PK 가
+	 * {@code (판, 차원, 코드)} 뿐이라 두 행이 될 수 없었기 때문이다. 이제 근거가 키에 들어가서
+	 * 설문 행과 행동 행이 <b>따로</b> 앉는다.
+	 *
+	 * <p>합친 값의 기대치 세 개는 <b>한 글자도 안 바꿨다</b> — 0.75 · support 2 · BLENDED.
+	 * 저장 모양만 바뀌고 읽는 값은 같다는 것이 이 시험이 지키는 약속이다. 합치는 규칙이 원래
+	 * 합이라 성립한다.
+	 */
 	@Test
-	@DisplayName("🔴 설문과 겹치면 BLENDED «한 행» 이다 — PK 가 (판, 차원, 코드) 라 두 행이 될 수 없다")
-	void surveyAndBehaviourMeetInOneBlendedRow() {
+	@DisplayName("🔴 설문과 겹치면 «두 행» 이 된다 — 합치면 예전과 같은 값이다")
+	void surveyAndBehaviourSitInSeparateRowsAndMergeBack() {
 		UUID user = this.fixtures.newUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(user, DAY1);
 		this.fixtures.selectedCodes(snapshot, "CATEGORY", CAFE);
@@ -212,11 +288,16 @@ class BehaviorFoldIntegrationTest extends BatchPostgresTest {
 
 		this.foldService.fold(user, DAY2);
 
-		UserTasteWeight component = onlyComponent(user);
-		assertThat(component.getEvidence()).isEqualTo(TasteEvidence.BLENDED);
+		List<UserTasteWeight> rows = components(user);
+		assertThat(rows).hasSize(2);
+		assertThat(rows).extracting(UserTasteWeight::getEvidence)
+			.containsExactlyInAnyOrder(TasteEvidence.SURVEY, TasteEvidence.INTERACTION);
+
+		TasteWeightComponent merged = TasteWeightComponent.merge(rows).get(0);
+		assertThat(merged.evidence()).isEqualTo(TasteEvidence.BLENDED);
 		// 설문 +1.0 에 행동 -0.25 를 더한다. 평균이 아니라 합이다.
-		assertThat(component.getWeight()).isEqualTo(0.75);
-		assertThat(component.getSupport()).isEqualTo(2);
+		assertThat(merged.weight()).isEqualTo(0.75);
+		assertThat(merged.support()).isEqualTo(2);
 	}
 
 	@Test

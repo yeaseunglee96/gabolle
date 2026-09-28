@@ -14,6 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.TasteSignal;
+import com.gabolle.backend.preference.domain.UserTasteWeight;
 
 /**
  * 행동 이벤트를 취향 성분 {@code (차원, 코드)} 으로 귀속시킨다.
@@ -70,77 +72,18 @@ public class BehaviorTasteFolder {
 	/**
 	 * 한 {@code (차원, 코드)} 에 행동이 남긴 것.
 	 *
-	 * @param weight {@code -1}(싫다) ~ {@code +1}(좋다)
+	 * @param raw 눌러 담기 <b>전</b> 의 기여값 합. 무게로 옮기는 것은
+	 *     {@link UserTasteWeight#confidence(double)} 가 한다 — 여기서 미리 눌러 담아 넘기면
+	 *     저장하는 쪽이 {@code raw} 를 알 수 없고, 그러면 소비자가 증분으로 더할 수 없다
+	 *     (S15P21E201-1500)
 	 * @param support 이 값을 뒷받침한 관측 수
 	 */
-	public record Attribution(TasteDimension dimension, String code, double weight, int support) {
+	public record Attribution(TasteDimension dimension, String code, double raw, int support) {
 	}
 
-	/**
-	 * 이벤트 하나가 그 장소의 태그 쪽으로 미는 힘.
-	 *
-	 * <p>🔴 {@code place_view} 가 작은 것은 <b>「목록 맨 위」가 곧 취향이 되는 것을 막기</b>
-	 * 위해서다. 사람은 위에 있는 것을 더 보고, 위에 있는 이유는 지금 추천이 그렇게 정했기
-	 * 때문이다. 크게 주면 추천이 자기가 고른 것을 근거로 자기를 강화한다.
-	 *
-	 * <p>🔴 {@code itinerary_remove} 가 <b>약한</b> 부정인 것은 일정에서 빼는 이유가 「싫어서」만이
-	 * 아니기 때문이다 — 문 닫았고, 비 오고, 시간이 없다. 운영 사유가 적힌 것은 아예 안 세고
-	 * (질의의 {@code operational_reason} 조건), 안 적힌 것도 확신하지 않는다.
-	 *
-	 * <p>여기 없는 취향 신호({@code itinerary_replace}·{@code route_skip})는 <b>아직 아무도 안
-	 * 만들어서 payload 모양이 안 정해졌다.</b> 모양을 모르는 채로 기여값을 적으면 그것이 계약이
-	 * 된다 — 만드는 쪽이 정해지면 그때 한 줄씩 더한다.
-	 */
-	private static final Map<String, Double> CONTRIBUTION = Map.of(
-			"place_like", 1.0,
-			"place_visit", 0.5,
-			"place_view", 0.1,
-			"place_dislike", -1.0,
-			"itinerary_remove", -0.5);
-
-	/**
-	 * payload 에 장소가 하나 실리고, <b>같은 장소를 두 번 세면 안 되는</b> 이벤트.
-	 *
-	 * <h2>🔴 하트 한 번이 이벤트 두 건이다</h2>
-	 *
-	 * 앱이 하트를 켜면 <b>두 경로가 각자 적는다</b> — 저장 API 가 서버에서
-	 * ({@code SavedPlaceService.recordLike}), 앱이 분석 이벤트로 한 번 더. {@code eventId} 가
-	 * 달라 Outbox 멱등도 안 걸린다. 그래서 한 번 누른 하트가 「두 번 관측」이 되어
-	 * {@link #MIN_SUPPORT} 가드가 무력화된다 (S15P21E201-1485).
-	 *
-	 * <p>그런데 이 {@code DISTINCT} 는 그 중복을 덮는 반창고가 <b>아니다.</b> 하트는 켜짐/꺼짐
-	 * 이라 애초에 「두 번 켠 상태」가 없다 — {@code SavedPlaceService} 주석이 같은 말을 한다.
-	 * 같은 장소를 두 번 좋아할 수는 없으므로 한 번으로 세는 것이 <b>옳은 의미</b>이고,
-	 * 앱 쪽 중복을 걷어내도 이 조건은 그대로 있어야 한다 — 옛 앱 판이 한참 계속 보낸다.
-	 *
-	 * <p>{@code place_dislike} 도 같다. 의견은 상태이지 반복하는 행동이 아니다.
-	 */
-	private static final List<String> ONCE_PER_PLACE_EVENTS = List.of("place_like", "place_dislike");
-
-	/**
-	 * payload 에 장소가 하나 실리고, <b>반복이 뜻을 가지는</b> 이벤트.
-	 *
-	 * <p>같은 장소를 두 번 본 것은 한 번 본 것과 다르고, 두 번 간 것은 한 번 간 것과 다르다.
-	 * 여기에 {@code DISTINCT} 를 걸면 그 차이가 사라진다.
-	 */
-	private static final List<String> REPEATABLE_PLACE_EVENTS = List.of("place_view", "place_visit");
-
-	/** payload 에 장소가 <b>여럿</b> 실리는 이벤트 — {@code place_ids} 배열. */
-	private static final List<String> MANY_PLACE_EVENTS = List.of("itinerary_remove");
-
-	/**
-	 * 「몇 건이면 확신하나」. {@code weight = raw / (|raw| + K)} 의 K 다 — 같은 태그로 K 건이
-	 * 모이면 0.5, 3K 건이면 0.75 가 된다. 올리면 더 신중해지고 내리면 성급해진다.
-	 */
-	private static final double CONFIDENCE_K = 3.0;
-
-	/**
-	 * 이보다 적게 관측된 성분은 안 내보낸다.
-	 *
-	 * <p>🔴 한 번 누른 것을 확신처럼 다루지 않는다. {@code UserTasteWeight} 가
-	 * {@code SURVEY} 가 아닌 성분에 {@code support=0} 을 DB 에서 거부하는 것과 같은 정신이다.
-	 */
-	private static final int MIN_SUPPORT = 2;
+	// 🔴 기여값과 이벤트 분류는 TasteSignal 로 옮겼다 (S15P21E201-1500). 카프카 소비자가
+	//    같은 값으로 같은 판정을 해야 하는데, 두 곳에 두면 반드시 어긋나고 어긋나면
+	//    "배치가 만든 값과 소비자가 만든 값이 다르다"가 오류 없이 생긴다.
 
 	/** JSONB 에는 UUID 가 아닌 문자열도 들어올 수 있다. 캐스팅 전에 모양을 먼저 본다. */
 	private static final String UUID_SHAPE =
@@ -155,16 +98,24 @@ public class BehaviorTasteFolder {
 	 * 뒤에 평가될 수 있어 막지 못한다. 그래서 함수에 들어가기 전에 빈 배열로 바꾼다.
 	 */
 	private static final String ATTRIBUTION_SQL = """
-			WITH signal AS (
-			    -- 하트·싫어요 — 같은 장소는 한 번만. 이유는 ONCE_PER_PLACE_EVENTS 에 있다.
-			    SELECT DISTINCT
-			           e.event_type                          AS event_type,
-			           CAST(e.payload ->> 'placeId' AS uuid) AS place_id
-			      FROM event_outbox e
-			     WHERE e.user_id = ?
-			       AND e.received_at <= ?
-			       AND e.event_type = ANY (string_to_array(?, ','))
-			       AND e.payload ->> 'placeId' ~ ?
+			WITH state AS (
+			    -- 하트·하트끔·싫어요 — «상태» 라 마지막 것만 본다. 이유는 TasteSignal 에 있다.
+			    SELECT DISTINCT ON (place_id) event_type, place_id
+			      FROM (SELECT e.event_type                          AS event_type,
+			                   CAST(e.payload ->> 'placeId' AS uuid) AS place_id,
+			                   e.seq                                 AS seq
+			              FROM event_outbox e
+			             WHERE e.user_id = ?
+			               AND e.received_at <= ?
+			               AND e.event_type = ANY (string_to_array(?, ','))
+			               AND e.payload ->> 'placeId' ~ ?) observed
+			     ORDER BY place_id, seq DESC
+			),
+			signal AS (
+			    -- 마지막이 «끔» 인 장소는 행 자체가 안 나온다 — 하트를 아예 안 누른 것과 같다.
+			    SELECT event_type, place_id
+			      FROM state
+			     WHERE event_type <> ALL (string_to_array(?, ','))
 			    UNION ALL
 			    -- 보기·방문 — 반복이 뜻을 가지므로 그대로 센다.
 			    SELECT e.event_type,
@@ -228,7 +179,7 @@ public class BehaviorTasteFolder {
 			String eventType = rs.getString("event_type");
 			int observations = rs.getInt("observations");
 
-			Double contribution = CONTRIBUTION.get(eventType);
+			Double contribution = TasteSignal.contributionOf(eventType);
 			if (dimension == null || code == null || contribution == null) {
 				// 질의가 골라 온 것이므로 여기 오면 대조표와 이 클래스의 목록이 어긋난 것이다.
 				// 조용히 넘기지 않는다 — 그 어긋남은 "성분이 적게 나온다" 로만 나타난다.
@@ -238,27 +189,19 @@ public class BehaviorTasteFolder {
 			}
 			running.computeIfAbsent(new Key(dimension, code), (k) -> new Running())
 					.add(contribution * observations, observations);
-		}, userId, asOf, String.join(",", ONCE_PER_PLACE_EVENTS), UUID_SHAPE,
-				userId, asOf, String.join(",", REPEATABLE_PLACE_EVENTS), UUID_SHAPE,
-				userId, asOf, String.join(",", MANY_PLACE_EVENTS), UUID_SHAPE);
+		}, userId, asOf, TasteSignal.stateEventsCsv(), UUID_SHAPE,
+				TasteSignal.stateClearingEventsCsv(),
+				userId, asOf, TasteSignal.repeatableEventsCsv(), UUID_SHAPE,
+				userId, asOf, TasteSignal.manyPlaceEventsCsv(), UUID_SHAPE);
 
 		List<Attribution> result = new ArrayList<>();
 		running.forEach((key, sum) -> {
-			if (sum.support < MIN_SUPPORT) {
+			if (sum.support < TasteSignal.MIN_SUPPORT) {
 				return;
 			}
-			result.add(new Attribution(key.dimension(), key.code(), confidence(sum.raw), sum.support));
+			result.add(new Attribution(key.dimension(), key.code(), sum.raw, sum.support));
 		});
 		return result;
-	}
-
-	/**
-	 * 쌓인 힘을 {@code -1 ~ +1} 무게로 옮긴다. 건수가 늘수록 1 에 가까워지되 절대 넘지 않는다 —
-	 * {@code ck_user_taste_weight_range} 가 범위를 막기도 하지만, 잘려서 통과하는 것과 애초에
-	 * 그 안에 있는 것은 다르다. 잘리면 100 건과 1000 건이 같은 값이 된다.
-	 */
-	private static double confidence(double raw) {
-		return raw / (Math.abs(raw) + CONFIDENCE_K);
 	}
 
 	private static TasteDimension parseDimension(String raw) {

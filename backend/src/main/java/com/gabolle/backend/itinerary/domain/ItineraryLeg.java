@@ -1,6 +1,7 @@
 package com.gabolle.backend.itinerary.domain;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * 일정 구간 하나 — 항목과 항목 사이의 이동.
@@ -34,6 +35,19 @@ public class ItineraryLeg {
     /** 경사·계단 데이터가 채울 자리. 지금은 전부 {@code null}. */
     private final Integer ascentM;
     private final Integer stairSteps;
+
+    /**
+     * 이 구간이 지나는 길의 좌표 목록 — 「어느 길로 가는지」. {@code [경도, 위도]} 순서다
+     * (GeoJSON·지도 라이브러리와 같은 순서이고 {@code RouteLeg.path} 가 그렇게 정해 뒀다).
+     * <p>
+     * 🔴 <b>모르면 {@code null} 이고, 직선을 대신 넣지 않는다.</b> 출발·도착 두 점을 이으면
+     * 「선형」 모양이 되긴 하지만 그것은 길이 아니라 직선이다. 한 칸에 섞으면 실제로 잰 길과
+     * 구분이 사라져 화면이 직선을 실선으로 그린다 — 지도에 직선이 그려지던 것이 바로 그
+     * 문제였다(S15P21E201-1251, 프론트는 S15P21E201-1234).
+     * <p>
+     * 이 칸이 생기기 전에 만들어진 판은 {@code null} 이다. 그때 어느 길로 갔는지는 알 수 없다.
+     */
+    private final List<double[]> path;
 
     /**
      * 위의 거리·시간을 얼마나 믿을 수 있는가 — {@code VERIFIED} 길찾기 실제 응답 ·
@@ -83,11 +97,26 @@ public class ItineraryLeg {
                 distanceM, durationMin, walkingMeters, ascentM, stairSteps, dataStatus, null, createdAt);
     }
 
+    /**
+     * 선형 없이 만든다 — 선형 칸 이전의 생성자를 그대로 남긴다. 부르는 곳이 여럿이라 한 번에
+     * 안 고친다. 어느 길로 가는지 모르는 것이 기본값이고, 실제 길찾기 응답을 받은 구간에서만
+     * 값이 들어온다.
+     */
     public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
                         String fromPlaceId, String toPlaceId, String travelMode,
                         Integer distanceM, Integer durationMin, Integer walkingMeters,
                         Integer ascentM, Integer stairSteps, ItineraryItem.DataStatus dataStatus,
                         Integer fareKrw, Instant createdAt) {
+        this(itineraryLegId, itineraryVersionId, dayIndex, sequence, fromPlaceId, toPlaceId, travelMode,
+                distanceM, durationMin, walkingMeters, ascentM, stairSteps, dataStatus, fareKrw, null,
+                createdAt);
+    }
+
+    public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
+                        String fromPlaceId, String toPlaceId, String travelMode,
+                        Integer distanceM, Integer durationMin, Integer walkingMeters,
+                        Integer ascentM, Integer stairSteps, ItineraryItem.DataStatus dataStatus,
+                        Integer fareKrw, List<double[]> path, Instant createdAt) {
 
         if (dayIndex < 0) {
             throw new IllegalArgumentException("dayIndex 는 0 이상이어야 한다: " + dayIndex);
@@ -124,7 +153,19 @@ public class ItineraryLeg {
         this.stairSteps = stairSteps;
         this.dataStatus = dataStatus;
         this.fareKrw = fareKrw;
+        this.path = normalizePath(path);
         this.createdAt = createdAt;
+    }
+
+    /**
+     * 점이 둘 미만인 선형은 없는 것으로 친다.
+     * <p>
+     * 점 하나는 선이 아니고, 빈 목록은 뜻이 「없다」인데 저장해 두면 나중에 읽는 쪽이
+     * 「길을 재 봤는데 결과가 비었다」로 읽는다. 둘은 다른 사실이라 아예 {@code null} 로
+     * 눕힌다 — DB 의 {@code ck_itinerary_leg_path} 도 같은 것을 막는다.
+     */
+    private static List<double[]> normalizePath(List<double[]> path) {
+        return (path == null || path.size() < 2) ? null : List.copyOf(path);
     }
 
     public String itineraryLegId()     { return itineraryLegId; }
@@ -141,6 +182,12 @@ public class ItineraryLeg {
     public Integer stairSteps()        { return stairSteps; }
     public ItineraryItem.DataStatus dataStatus() { return dataStatus; }
     public Integer fareKrw()           { return fareKrw; }
+
+    /** 「어느 길로 가는지」. 모르면 {@code null} — 직선을 대신 넣지 않는다. */
+    public List<double[]> path()       { return path; }
+
+    /** 그릴 수 있는 선형이 있는가. */
+    public boolean hasPath()           { return path != null; }
 
     public Instant createdAt()         { return createdAt; }
 }

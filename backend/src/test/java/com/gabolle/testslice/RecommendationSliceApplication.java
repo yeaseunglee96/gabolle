@@ -36,7 +36,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.place",
 		"com.gabolle.backend.trip.infra",
 		// 테마 설정과 ThemeWeightResolver 가 여기 있다. 추천이 테마별 가중치를 먹이려면 필요하다.
-		"com.gabolle.backend.coursetheme"
+		"com.gabolle.backend.coursetheme",
+		// 🔴 KafkaEventConsumer 가 TasteAttributionService 를 받는다 (S15P21E201-1500). 이
+		// 슬라이스는 consumer-enabled=true 로 왕복 시험을 돌리므로 소비자가 실제로 서야 한다.
+		// application 만 올린다 — 그 클래스는 JdbcTemplate 만 쓰고 엔티티도 저장소도 없어서,
+		// preference 전체를 올리면 이 슬라이스가 안 쓰는 매핑까지 따라온다.
+		"com.gabolle.backend.preference.application"
 })
 @EntityScan(basePackages = {
 		"com.gabolle.backend.event.domain",

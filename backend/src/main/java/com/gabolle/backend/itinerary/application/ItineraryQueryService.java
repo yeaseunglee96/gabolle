@@ -32,6 +32,7 @@ import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionSummaryRes
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionsResponse;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.place.service.PlaceMenuPricePort;
 import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
@@ -64,15 +65,19 @@ public class ItineraryQueryService {
 	/** 방문지의 실제 도착·출발 시각. 판이 아니라 일정에 매달려 있다. */
 	private final ItineraryItemActualRepository actualRepository;
 
+	private final PlaceMenuPricePort menuPrice;
+
 	public ItineraryQueryService(ItineraryRepository itineraryRepository, ItineraryAccess itineraryAccess,
 			PlaceRepository placeRepository, RecommendationJobRepository recommendationJobRepository,
-			ActorNames actorNames, ItineraryItemActualRepository actualRepository) {
+			ActorNames actorNames, ItineraryItemActualRepository actualRepository,
+			PlaceMenuPricePort menuPrice) {
 		this.itineraryRepository = itineraryRepository;
 		this.itineraryAccess = itineraryAccess;
 		this.placeRepository = placeRepository;
 		this.recommendationJobRepository = recommendationJobRepository;
 		this.actorNames = actorNames;
 		this.actualRepository = actualRepository;
+		this.menuPrice = menuPrice;
 	}
 
 	/**
@@ -108,11 +113,16 @@ public class ItineraryQueryService {
 				.stream()
 				.collect(Collectors.toMap(ItineraryItemActual::itemKey, actual -> actual));
 
+		// 🔴 가격은 **읽을 때** 찾는다. 항목에 박아 두지 않는 것은 조사가 아직 도는 중이라
+		// (`price-queue.mjs`) 오늘 만든 일정이 오늘 아는 것에 영원히 묶이기 때문이다.
+		// 항목에 값이 이미 있으면 그것이 먼저다 — 나중에 박아 두기로 바뀌어도 여기는 안 고친다.
+		Map<UUID, Integer> menuPriceByPlaceId = this.menuPrice.pricesOf(placesByPlaceId.keySet());
+
 		List<ItineraryDetailResponse.Day> days = buildDays(trip, itemsByDay, legsByKey, placesByPlaceId,
-				actualsByItemKey);
+				actualsByItemKey, menuPriceByPlaceId);
 
 		Integer totalEstimatedCostKrw = sumOrNull(content.items().stream()
-				.map(ItineraryItem::estimatedCostKrw));
+				.map(item -> costOf(item, menuPriceByPlaceId)));
 		Integer totalWalkingMeters = sumOrNull(content.legs().stream()
 				.map(ItineraryLeg::walkingMeters));
 
@@ -189,7 +199,7 @@ public class ItineraryQueryService {
 	 */
 	private List<ItineraryDetailResponse.Day> buildDays(Trip trip, Map<Integer, List<ItineraryItem>> itemsByDay,
 			Map<LegKey, ItineraryLeg> legsByKey, Map<UUID, Place> placesByPlaceId,
-			Map<String, ItineraryItemActual> actualsByItemKey) {
+			Map<String, ItineraryItemActual> actualsByItemKey, Map<UUID, Integer> menuPriceByPlaceId) {
 
 		List<ItineraryDetailResponse.Day> days = new ArrayList<>(trip.days());
 		LocalDate date = trip.startDate();
@@ -200,7 +210,8 @@ public class ItineraryQueryService {
 
 			List<ItineraryDetailResponse.Item> items = new ArrayList<>(itemsOfDay.size());
 			for (ItineraryItem item : itemsOfDay) {
-				items.add(toItemDto(item, legsByKey, placesByPlaceId, actualsByItemKey.get(item.itemKey())));
+				items.add(toItemDto(item, legsByKey, placesByPlaceId, actualsByItemKey.get(item.itemKey()),
+						menuPriceByPlaceId));
 			}
 
 			days.add(new ItineraryDetailResponse.Day(date.toString(), items));
@@ -214,7 +225,7 @@ public class ItineraryQueryService {
 	 *     그때도 응답의 두 칸은 키가 있고 값만 {@code null} 이다
 	 */
 	private ItineraryDetailResponse.Item toItemDto(ItineraryItem item, Map<LegKey, ItineraryLeg> legsByKey,
-			Map<UUID, Place> placesByPlaceId, ItineraryItemActual actual) {
+			Map<UUID, Place> placesByPlaceId, ItineraryItemActual actual, Map<UUID, Integer> menuPriceByPlaceId) {
 
 		Place place = placesByPlaceId.get(UUID.fromString(item.placeId()));
 		if (place == null) {
@@ -234,13 +245,16 @@ public class ItineraryQueryService {
 		// 요금도 같은 incoming 에 묶인다. 들어오는 구간이 아니면 남의 요금이므로 비운다 —
 		// 모르는 것을 0 으로 채우지 않는다.
 		Integer travelFareKrw = incoming ? incomingLeg.fareKrw() : null;
+		// 선형도 같은 incoming 에 묶인다. 없으면 null 이고, 그때 출발·도착 두 점을 이어
+		// 만들어 주지 않는다 — 그 직선을 화면이 「실제로 잰 길」로 그리게 된다.
+		List<double[]> travelPath = incoming ? incomingLeg.path() : null;
 
 		return new ItineraryDetailResponse.Item(
 				item.itemKey(),
 				startsAt(item),
 				place.getNameKo(),
 				null, // description — place 표에 설명 칸이 없다
-				item.estimatedCostKrw(),
+				costOf(item, menuPriceByPlaceId),
 				walkingMeters,
 				item.locked(),
 				item.dataStatus().name(),
@@ -250,6 +264,7 @@ public class ItineraryQueryService {
 				travelDurationMin,
 				travelDataStatus,
 				travelFareKrw,
+				travelPath,
 				// ItineraryItem 이 생성자에서 빈 목록으로 정규화하므로 여기서 다시 감싸지 않는다.
 				item.warningCodes(),
 				// 모르면 null 이고 0 으로 채우지 않는다 — 위도 0·경도 0 은 기니만 한가운데라
@@ -305,6 +320,21 @@ public class ItineraryQueryService {
 	}
 
 	/** 하나도 값이 없으면 {@code 0} 이 아니라 {@code null} — "안 걸었다"·"공짜"와 "안 쟀다"는 다르다. */
+	/**
+	 * 이 항목의 비용(원). 항목에 박힌 값이 있으면 그것, 없으면 그 장소의 대표 메뉴 값.
+	 *
+	 * <p>🔴 <b>둘 다 없으면 {@code null} 이다. {@code 0} 으로 바꾸지 않는다.</b> 0 은 화면에서
+	 * <b>「무료」</b>로 그려지므로, 조사가 안 된 곳이 공짜인 것처럼 보이고 그 잘못이 합계에
+	 * 섞여 들어간다. {@link #sumOrNull} 이 <b>값이 있는 칸만</b> 더하는 것도 같은 이유다 —
+	 * 그래서 총합은 언제나 「적어도 이만큼」이다.
+	 */
+	private static Integer costOf(ItineraryItem item, Map<UUID, Integer> menuPriceByPlaceId) {
+		if (item.estimatedCostKrw() != null) {
+			return item.estimatedCostKrw();
+		}
+		return menuPriceByPlaceId.get(UUID.fromString(item.placeId()));
+	}
+
 	private static Integer sumOrNull(Stream<Integer> values) {
 		int[] sum = { 0 };
 		boolean[] hasAny = { false };

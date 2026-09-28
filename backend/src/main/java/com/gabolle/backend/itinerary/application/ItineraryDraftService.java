@@ -23,6 +23,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
+import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
@@ -88,6 +90,25 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private final String foodCategory;
 
     /**
+     * 자리 수의 몇 배를 후보로 받을까 (S15P21E201-1494).
+     *
+     * <p>🔴 <b>자리 수만큼만 받으면 고를 여지가 없다.</b> 전부 다 들어가야 하므로, 지역이
+     * 안 맞는 곳이 있어도 바꿔 넣을 것이 없다.
+     *
+     * <p>2026-09-22 운영 사례가 그 자리를 정확히 보여줬다. 2일 × 4곳 = 8자리에
+     * {@code defaultTopK} 가 10이라 여벌이 <b>둘</b> 있었는데, 그 9·10위가 <b>둘 다 해운대</b>
+     * 였다. 영도는 11위가 처음이라 영도 날을 채울 것이 없었다. 여벌이 아주 없었던 것이
+     * 아니라 <b>여벌이 한 지역에 몰려 있었다.</b>
+     *
+     * <p>1 이면 예전 동작(자리 수만큼)이다. 아래로는 안 내려간다 — 0을 주면 후보가 0이 되어
+     * 일정이 통째로 비고, 그 증상은 설정 오타와 구별되지 않는다.
+     *
+     * <p>🔴 이 값은 <b>공짜가 아니다.</b> 추천 엔진이 그만큼 더 계산하고 응답도 커진다
+     * ({@code defaultTopK} 가 이 값을 따라간다). 늘릴 때는 그 비용을 같이 본다.
+     */
+    private final int candidateHeadroom;
+
+    /**
      * 구간(leg) 계산. 생성과 편집(순서 바꾸기) 두 경로가 같은 규칙을 써야 해서
      * {@link ItineraryLegPlanner} 로 뽑았다.
      */
@@ -114,6 +135,15 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private final ObjectProvider<RouteOrderPort> routeOrder;
 
     /**
+     * 날짜를 가를 때 좌표를 읽는 곳 (S15P21E201-1493).
+     *
+     * <p>같은 패키지의 {@code ItineraryLegPlanner} 도 저장소를 직접 쓴다 — 좌표 하나 때문에
+     * 포트를 새로 뚫지 않는다. {@link RouteOrderPort} 처럼 {@code ObjectProvider} 로 받지
+     * 않는 것은, 저장소는 이 서비스가 도는 어떤 판에서도 있기 때문이다.
+     */
+    private final PlaceRepository placeRepository;
+
+    /**
      * 「일정이 생겼다 · 바뀌었다」를 알리는 자리. 듣는 쪽은 동행자 폰에 알림을 띄우는
      * {@code TripPushNotifier} 하나이고, 커밋이 끝난 뒤에만 받는다 (S15P21E201-1391).
      */
@@ -123,15 +153,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
             @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
+            @Value("${gabolle.itinerary.candidate-headroom:3}") int candidateHeadroom,
             ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours,
             PlaceTimeFactFilterPort timeFact, ObjectProvider<RouteOrderPort> routeOrder,
-            ApplicationEventPublisher events) {
+            PlaceRepository placeRepository, ApplicationEventPublisher events) {
+        this.placeRepository = placeRepository;
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
         this.maxItemsPerDay = maxItemsPerDay;
         this.maxFoodPerDay = maxFoodPerDay;
         this.foodCategory = foodCategory;
+        this.candidateHeadroom = Math.max(1, candidateHeadroom);
         this.legPlanner = legPlanner;
         this.openingHours = openingHours;
         this.timeFact = timeFact;
@@ -146,11 +179,16 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * <p>밥집 상한은 <b>더하지 않는다.</b> 상한은 「그중 몇 곳까지 밥집이어도 되나」이지 자리를
      * 늘리는 값이 아니다. 필요한 것은 자리 수이고, 상한에 걸려 밀린 밥집 대신 앉을 것이
      * 후보에 있어야 한다는 뜻이다.
+     *
+     * <p>🔴 S15P21E201-1494 — 자리 수에 {@link #candidateHeadroom} 을 곱한다. 자리 수만큼만
+     * 받으면 전부 다 들어가야 해서 <b>고를 여지가 없고</b>, 지역이 안 맞는 곳이 있어도 바꿔
+     * 넣을 것이 없다. 배정이 지역을 보게 한 것({@code S15P21E201-1493})은 <b>고를 것이
+     * 있을 때만</b> 뜻이 있다.
      */
     @Override
     public int placesNeeded(String tripId) {
         return this.tripRepository.findById(tripId)
-                .map((trip) -> Math.max(1, trip.days() * itemsPerDay(trip)))
+                .map((trip) -> Math.max(1, trip.days() * itemsPerDay(trip) * this.candidateHeadroom))
                 .orElse(1);
     }
 
@@ -217,9 +255,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             }
         }
 
-        List<String> draftWarnings = distribution.sightSlotUnfilled()
-                ? List.of(ItineraryWarningCodes.SIGHT_SLOT_UNFILLED)
-                : List.of();
+        // 경고는 서로 독립이라 같이 나올 수 있다 — 하나를 고르지 않는다.
+        List<String> draftWarnings = new ArrayList<>(2);
+        if (distribution.sightSlotUnfilled()) {
+            draftWarnings.add(ItineraryWarningCodes.SIGHT_SLOT_UNFILLED);
+        }
+        if (distribution.regionMixed()) {
+            draftWarnings.add(ItineraryWarningCodes.DAY_REGION_MIXED);
+        }
 
         return new ItineraryDraft(command.tripId(), command.userId(), command.requestId(),
                 command.modelVersion(), command.featureVersion(), command.ontologyVersion(),
@@ -301,13 +344,38 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         int[] foodPerDay = new int[days];
 
+        // S15P21E201-1493 — 좌표를 미리 한 번에 읽는다. 없으면(저장소가 못 주면) 아래 배정은
+        // 예전처럼 "자리 있는 첫 날" 로 떨어진다 — 좌표가 없다고 일정 생성이 멈추면 안 된다.
+        Map<UUID, double[]> coords = coordinatesOf(places);
+
+        // 하루가 한 지역이 되게 날마다 중심을 잡는다. 순위 1위가 첫 날의 중심이 되고, 그
+        // 다음 중심은 이미 잡힌 중심들에서 가장 먼 곳이다 — 그래야 날끼리 겹치지 않는다.
+        double[][] dayAnchor = seedDayAnchors(places, coords, days);
+
+        // 🔴 S15P21E201-1494 — **두 번 훑는다.** 한 번만 훑으면서 순위대로 무조건 앉히면,
+        //    앞쪽 후보가 자리를 다 채워서 **뒤에 있는 「지역이 맞는 후보」의 차례가 안 온다.**
+        //
+        //    운영 사례가 그랬다. 8자리를 순위 1~8이 다 채우는데 그 8번째가 해운대라
+        //    영도 날에 끼었고, 정작 영도인 11위는 앉을 자리가 없었다. 후보를 더 받아도
+        //    (candidateHeadroom) 쓰이질 않으니 아무것도 안 바뀐다.
+        //
+        //    그래서 첫 훑기는 **지역이 맞는 것만** 앉힌다. 위 8번째는 여기서 건너뛰어지고,
+        //    11위가 영도 날을 채운다. 남은 자리는 두 번째 훑기가 순위대로 메운다.
+        List<ItineraryDraftCommand.PlannedPlace> deferred = new ArrayList<>();
+        for (ItineraryDraftCommand.PlannedPlace place : places) {
+            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor, true)) {
+                deferred.add(place);
+            }
+        }
+
         // 미뤄 둔 밥집으로 빈 자리를 메우지 않는다. 끼니 상한을 무시하고 메우면 명소 데이터가
         // 모자란 지역에서 하루가 통째로 음식점이 되고, 데이터가 모자라다는 사실이 아무 데도
         // 안 보인다. 사용자에게는 "이 앱은 밥집만 추천한다" 로 보이고 팀에게는 신호가 안 온다.
         // 그래서 비워 두고 말한다.
         int rejectedFood = 0;
-        for (ItineraryDraftCommand.PlannedPlace place : places) {
-            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay) && isFood(place)) {
+        for (ItineraryDraftCommand.PlannedPlace place : deferred) {
+            if (!seat(byDay, foodPerDay, place, mealsPerDay, itemsPerDay, coords, dayAnchor, false)
+                    && isFood(place)) {
                 rejectedFood++;
             }
         }
@@ -315,11 +383,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         // 자리는 남았는데 앉힐 것이 밥집밖에 없었던 경우에만 경고한다. 하루가 꽉 차서
         // 밥집이 밀린 것은 정상이고, 그건 빈 자리를 만들지 않는다.
         boolean roomLeft = byDay.stream().anyMatch(day -> day.size() < itemsPerDay);
-        return new Distribution(byDay, roomLeft && rejectedFood > 0);
+        return new Distribution(byDay, roomLeft && rejectedFood > 0, regionMixed(byDay, coords));
     }
 
-    /** 날짜별 배분 결과와, 명소가 모자라 빈 자리가 남았는지. */
-    private record Distribution(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, boolean sightSlotUnfilled) { }
+    /** 날짜별 배분 결과와, 명소가 모자라 빈 자리가 남았는지, 하루에 먼 곳이 섞였는지. */
+    private record Distribution(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, boolean sightSlotUnfilled,
+            boolean regionMixed) { }
 
     /**
      * 고정된 식사 시각대 — 이 시간에 사람은 밥을 먹는다.
@@ -376,15 +445,34 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 순위가 높은 날부터 자리를 찾아 앉힌다. 앉혔으면 {@code true}.
+     * 자리를 찾아 앉힌다. 앉혔으면 {@code true}.
      *
-     * @param respectFoodCap 밥집 상한을 지킬지. 첫 배분에서는 지키고, 명소가 모자라 남은
-     *     자리를 메울 때는 안 지킨다
+     * <p>🔴 S15P21E201-1493 — 예전에는 <b>자리 있는 첫 날</b>에 앉혔다. 그러면 순위 상위
+     * {@code itemsPerDay} 개가 통째로 1일차가 되고, 그때 <b>좌표를 한 번도 안 본다.</b>
+     * 2026-09-22 운영에서 영도 세 곳 사이에 해운대 한 곳이 껴서 16km 를 갔다 돌아왔다
+     * (그 두 구간만 왕복 104분).
+     *
+     * <p>지금은 <b>자리가 있는 날 중 중심이 가장 가까운 날</b>에 앉힌다. 순위 차례로 앉히는
+     * 것은 그대로라 순위가 높을수록 원하는 날을 먼저 고른다 — 순위가 자리를 정하고 지역이
+     * 날을 정한다.
+     *
+     * <p>좌표가 없으면 예전 동작(자리 있는 첫 날)으로 떨어진다. 좌표를 못 구했다고 일정
+     * 생성이 멈추면 안 된다.
+     *
+     * @param regionOnly 참이면 <b>지역이 맞는 자리만</b> 받는다. 맞는 날이 없으면 앉히지 않고
+     *     {@code false} 를 돌려준다 — 부르는 쪽이 미뤄 뒀다가 두 번째 훑기에서 다시 준다.
+     *     이것이 없으면 앞쪽 후보가 자리를 다 채워 뒤의 「지역이 맞는 후보」가 차례를 못 얻는다
+     *     (S15P21E201-1494)
      */
     private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay,
-            ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay) {
+            ItineraryDraftCommand.PlannedPlace place, int mealsPerDay, int itemsPerDay,
+            Map<UUID, double[]> coords, double[][] dayAnchor, boolean regionOnly) {
 
         boolean food = isFood(place);
+        double[] here = coords.get(place.placeId());
+
+        int best = -1;
+        double bestDistance = Double.MAX_VALUE;
         for (int day = 0; day < byDay.size(); day++) {
             if (byDay.get(day).size() >= itemsPerDay) {
                 continue;
@@ -392,13 +480,152 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             if (food && foodPerDay[day] >= mealsPerDay) {
                 continue;
             }
-            byDay.get(day).add(place);
-            if (food) {
-                foodPerDay[day]++;
+            if (here == null || dayAnchor[day] == null) {
+                // 좌표를 모르는 자리가 하나라도 있으면 거리로 고를 수 없다. 예전처럼 첫 날.
+                // 첫 훑기에서는 그냥 미룬다 — 모르는 것을 「지역이 맞다」로 치지 않는다.
+                if (regionOnly) {
+                    return false;
+                }
+                best = day;
+                break;
             }
-            return true;
+            double distance = haversineKm(here, dayAnchor[day]);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                best = day;
+            }
+        }
+        if (best < 0) {
+            return false;
+        }
+        if (regionOnly && bestDistance > REGION_MIXED_KM) {
+            // 자리는 있지만 그 날의 지역이 아니다. 지금 앉히면 뒤에 오는 「그 지역 후보」가
+            // 자리를 못 얻는다. 미뤄 두고 두 번째 훑기에 맡긴다.
+            return false;
+        }
+        byDay.get(best).add(place);
+        if (food) {
+            foodPerDay[best]++;
+        }
+        return true;
+    }
+
+    // ── 지역으로 날을 가르는 부분 (S15P21E201-1493) ──────────────────────────
+
+    /**
+     * 하루 안에서 중심에서 이만큼 넘게 떨어진 곳이 있으면 「먼 곳이 섞였다」고 본다.
+     *
+     * <p>영도~해운대가 약 17km 다. 같은 동네 안의 흩어짐(2~3km)과는 자릿수가 다르므로 그
+     * 사이 어딘가면 된다. 8km 는 그 자리다 — 부산 안에서 「지하철을 타야 하는 거리」쯤이다.
+     *
+     * <p>🔴 이 값은 실측이 아니라 <b>정한 값</b>이다. 실제 일정들의 분포를 재 보고 조정할
+     * 값어치가 있다.
+     */
+    private static final double REGION_MIXED_KM = 8.0;
+
+    /** 좌표를 한 번에 읽는다. 저장소가 못 주는 것은 그냥 빠진다 — 그 자리는 거리 비교를 건너뛴다. */
+    private Map<UUID, double[]> coordinatesOf(List<ItineraryDraftCommand.PlannedPlace> places) {
+        List<UUID> ids = new ArrayList<>(places.size());
+        for (ItineraryDraftCommand.PlannedPlace place : places) {
+            ids.add(place.placeId());
+        }
+        Map<UUID, double[]> coords = new HashMap<>();
+        if (ids.isEmpty()) {
+            return coords;
+        }
+        for (Place place : this.placeRepository.findByPlaceIdIn(ids)) {
+            if (place.getLat() != null && place.getLng() != null) {
+                coords.put(place.getPlaceId(), new double[] { place.getLat(), place.getLng() });
+            }
+        }
+        return coords;
+    }
+
+    /**
+     * 날마다 중심을 하나씩 잡는다.
+     *
+     * <p>첫 날의 중심은 <b>순위 1위</b>가 있는 곳이다 — 가장 좋은 곳이 속한 지역이 첫 날이
+     * 된다. 그 다음 중심은 <b>이미 잡힌 중심들에서 가장 먼</b> 후보다. 가까운 곳을 또 고르면
+     * 두 날의 중심이 붙어 버려 지역이 안 갈린다.
+     *
+     * <p>좌표를 아는 후보가 날 수보다 적으면 남은 날은 {@code null} 로 둔다 — 그런 날은
+     * 거리 비교에서 빠지고 예전처럼 순서대로 채워진다.
+     */
+    private static double[][] seedDayAnchors(List<ItineraryDraftCommand.PlannedPlace> places,
+            Map<UUID, double[]> coords, int days) {
+
+        double[][] anchors = new double[days][];
+        List<double[]> known = new ArrayList<>();
+        for (ItineraryDraftCommand.PlannedPlace place : places) {
+            double[] at = coords.get(place.placeId());
+            if (at != null) {
+                known.add(at);
+            }
+        }
+        if (known.isEmpty()) {
+            return anchors;
+        }
+
+        anchors[0] = known.get(0);
+        for (int day = 1; day < days; day++) {
+            double[] farthest = null;
+            double farthestDistance = -1;
+            for (double[] candidate : known) {
+                double nearest = Double.MAX_VALUE;
+                for (int taken = 0; taken < day; taken++) {
+                    nearest = Math.min(nearest, haversineKm(candidate, anchors[taken]));
+                }
+                if (nearest > farthestDistance) {
+                    farthestDistance = nearest;
+                    farthest = candidate;
+                }
+            }
+            anchors[day] = farthest;
+        }
+        return anchors;
+    }
+
+    /**
+     * 하루 안에 멀리 떨어진 곳이 섞였나. 하나라도 있으면 참이다.
+     *
+     * <p>바꿔 넣지 않고 <b>말하기만</b> 한다. 억지로 바꾸면 순위가 한참 낮은 곳을 넣게 되고,
+     * 그건 이동을 줄이려고 추천 품질을 버리는 맞바꿈이다 — 실측으로도 영도권 후보는 28곳뿐이고
+     * 그중 20곳이 음식점이라, 지역을 맞추려 내려가다 보면 하루가 밥집이 된다.
+     */
+    private static boolean regionMixed(List<List<ItineraryDraftCommand.PlannedPlace>> byDay,
+            Map<UUID, double[]> coords) {
+
+        for (List<ItineraryDraftCommand.PlannedPlace> day : byDay) {
+            List<double[]> here = new ArrayList<>();
+            for (ItineraryDraftCommand.PlannedPlace place : day) {
+                double[] at = coords.get(place.placeId());
+                if (at != null) {
+                    here.add(at);
+                }
+            }
+            if (here.size() < 2) {
+                continue;
+            }
+            for (int i = 0; i < here.size(); i++) {
+                for (int j = i + 1; j < here.size(); j++) {
+                    if (haversineKm(here.get(i), here.get(j)) > REGION_MIXED_KM) {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
+    }
+
+    /** 두 점 사이 거리(km). 지구를 공으로 본 어림이고, 부산 안에서는 오차가 무시할 만하다. */
+    private static double haversineKm(double[] a, double[] b) {
+        double earthRadiusKm = 6371.0;
+        double dLat = Math.toRadians(b[0] - a[0]);
+        double dLng = Math.toRadians(b[1] - a[1]);
+        double s = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(a[0])) * Math.cos(Math.toRadians(b[0]))
+                        * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return 2 * earthRadiusKm * Math.asin(Math.min(1.0, Math.sqrt(s)));
     }
 
     /** 갈래를 모르면 밥집이 아닌 것으로 다룬다 — 모르는 것을 끼니로 세지 않는다. */
@@ -675,7 +902,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     draftLeg.fromPlaceId() != null ? draftLeg.fromPlaceId().toString() : null,
                     draftLeg.toPlaceId().toString(), draftLeg.travelMode(), draftLeg.distanceM(),
                     draftLeg.durationMin(), draftLeg.walkingMeters(), null, null,
-                    draftLeg.dataStatus(), now));
+                    // 요금을 여기서 흘리면 일정을 처음 만들 때 받은 값이 통째로 사라진다.
+                    // 다시 계산하는 경로(ItineraryLegPlanner.toLeg)는 넘기고 있어서, 같은 칸이
+                    // 어느 경로로 만들어졌느냐로 값이 갈렸다 (S15P21E201-1498).
+                    // 선형도 같은 자리에서 같은 이유로 넘긴다 (S15P21E201-1251).
+                    draftLeg.dataStatus(), draftLeg.fareKrw(), draftLeg.path(), now));
         }
 
         // 판과 내용을 한 번에 넘긴다. 판을 먼저 만들고 내용을 나중에 넣으면 그 두 걸음 사이가
@@ -955,7 +1186,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     draftLeg.fromPlaceId() != null ? draftLeg.fromPlaceId().toString() : null,
                     draftLeg.toPlaceId().toString(), draftLeg.travelMode(), draftLeg.distanceM(),
                     draftLeg.durationMin(), draftLeg.walkingMeters(), null, null,
-                    draftLeg.dataStatus(), now));
+                    // 판을 새로 만들 때도 같다 — 요금이 판 하나 넘어갈 때마다 사라지면
+                    // 편집한 일정만 조용히 비용을 잃는다 (S15P21E201-1498).
+                    // 선형도 마찬가지다 (S15P21E201-1251).
+                    draftLeg.dataStatus(), draftLeg.fareKrw(), draftLeg.path(), now));
         }
 
         ItineraryVersion.Versions versions = new ItineraryVersion.Versions(

@@ -26,7 +26,13 @@ public interface SavedPlaceRepository extends JpaRepository<SavedPlace, UUID> {
 
 	boolean existsByUserIdAndPlaceId(UUID userId, UUID placeId);
 
-	void deleteByUserIdAndPlaceId(UUID userId, UUID placeId);
+	/**
+	 * @return 실제로 지워진 행 수. 🔴 부르는 쪽이 이 값으로 「정말 껐는가」를 가른다 —
+	 *     안 켜져 있던 것을 끈 요청까지 취향 신호가 되면 네트워크 재시도가 취향으로
+	 *     기록된다. {@code insertIfAbsent} 가 넣은 행 수를 주는 것과 같은 이유다
+	 *     (S15P21E201-1506)
+	 */
+	int deleteByUserIdAndPlaceId(UUID userId, UUID placeId);
 
 	/**
 	 * 없으면 넣고, 이미 있으면 아무것도 안 한다. 「있는지 보고 없으면 넣는다」는 두 요청 사이가

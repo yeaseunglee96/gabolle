@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
+import com.gabolle.backend.recommendation.application.BlockingConstraintAnalyzer;
 import com.gabolle.backend.recommendation.application.JobProgressBroker;
 import com.gabolle.backend.recommendation.application.RecommendationJobRunner;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
@@ -44,9 +45,14 @@ public class RecommendationJobController {
 	/** 열려 있는 진행률 통로를 들고 있는 쪽. */
 	private final JobProgressBroker progressBroker;
 
-	public RecommendationJobController(RecommendationJobRunner runner, JobProgressBroker progressBroker) {
+	/** 「어느 조건이 후보를 다 걷어냈나」를 후보 행에서 되읽는 쪽. 러너와 조건이 같아 함께 뜬다. */
+	private final BlockingConstraintAnalyzer blockingConstraints;
+
+	public RecommendationJobController(RecommendationJobRunner runner, JobProgressBroker progressBroker,
+			BlockingConstraintAnalyzer blockingConstraints) {
 		this.runner = runner;
 		this.progressBroker = progressBroker;
+		this.blockingConstraints = blockingConstraints;
 	}
 
 	/**
@@ -94,6 +100,8 @@ public class RecommendationJobController {
 			Authentication authentication) {
 		String requester = AuthenticatedUsers.requireId(authentication).toString();
 
+		// 목록에서는 막은 조건을 캐지 않는다 — 작업 수만큼 질의가 늘고, 「어느 조건 때문인가」
+		// 는 실패한 작업 하나를 열어 봤을 때 필요한 말이지 목록에서 필요한 말이 아니다.
 		List<RecommendationJobResponse> jobs = this.runner.findJobsByTrip(tripId, requester).stream()
 				.map(RecommendationJobResponse::of)
 				.toList();
@@ -114,7 +122,15 @@ public class RecommendationJobController {
 		if (!isOwner(job, authentication)) {
 			throw new JobNotFoundException(jobId);
 		}
-		return ApiResponse.success(RecommendationJobResponse.of(job), "req_" + UUID.randomUUID());
+		// 실패한 작업이면 「어느 조건 때문인가」를 함께 싣는다. 실패가 아니면 analyze 가
+		// 질의조차 하지 않고 빈 목록을 돌려주므로, 성공 경로에 질의가 하나 더 붙지 않는다.
+		List<RecommendationJobResponse.BlockedBy> blockedBy = this.blockingConstraints.analyze(job).stream()
+				.map(blocking -> new RecommendationJobResponse.BlockedBy(
+						blocking.constraintType(), blocking.constraintKey(), blocking.reason(),
+						blocking.code(), blocking.blockedCandidates()))
+				.toList();
+
+		return ApiResponse.success(RecommendationJobResponse.of(job, blockedBy), "req_" + UUID.randomUUID());
 	}
 
 	/**

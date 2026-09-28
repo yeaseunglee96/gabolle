@@ -10,24 +10,36 @@ import org.apache.kafka.common.header.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import com.gabolle.backend.event.application.EventConsumptionService;
+import com.gabolle.backend.event.application.EventConsumptionService.ConsumedEvent;
 import com.gabolle.backend.event.config.KafkaEventProperties;
-import com.gabolle.backend.event.domain.EventConsumption;
-import com.gabolle.backend.event.repository.EventConsumptionRepository;
+
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 토픽에서 받아 <b>한 번만</b> 반영한다 (S15P21E201-561).
  *
- * <p>지금 "반영" 은 장부에 한 줄 적는 것이 전부다. 취향 무게로 바꾸는 진짜 정제는
- * S15P21E201-1061 이 규칙을 정한 뒤의 일이다 — 규칙 없이 숫자를 만들면 좋아요 한 번의 무게를
- * 지어내게 된다. <b>경로가 뚫렸다는 것과 무게를 정했다는 것은 다른 일이다.</b>
+ * <p>반영은 둘이다. <b>하나</b> — 장부({@code event_consumption})에 한 줄 적어 같은 이벤트를
+ * 두 번 세지 않게 한다. <b>둘</b> — 장소가 실린 행동 이벤트면 취향 벡터를 증분으로 고친다
+ * ({@code TasteAttributionService}, S15P21E201-1500). 둘은 <b>한 트랜잭션</b>이다
+ * ({@link EventConsumptionService}, S15P21E201-1501).
+ *
+ * <p>예전에는 장부에 적는 것이 전부였다. 취향으로 옮기는 규칙이 아직 없었기 때문이다 —
+ * <b>경로가 뚫렸다는 것과 무게를 정했다는 것은 다른 일이다.</b> 그 규칙이 S15P21E201-1482 로
+ * 정해져서 이제 잇는다.
  *
  * <p>🔴 <b>멱등을 조회로 하지 않는다.</b> "이미 처리했나" 를 물어보고 아니면 처리하는 식은
- * 조회와 쓰기 사이의 틈에서 둘 다 통과한다. 그냥 넣어 보고 <b>기본키가 거부하면</b> 이미
- * 반영된 것으로 읽는다. 그 판정은 데이터베이스가 하므로 틈이 없다.
+ * 조회와 쓰기 사이의 틈에서 둘 다 통과한다. {@code INSERT … ON CONFLICT DO NOTHING} 을 보내고
+ * <b>넣은 행 수</b>로 판정한다 — 그 판정은 데이터베이스가 하므로 틈이 없다.
+ *
+ * <p>🔴 예전에는 JPA {@code saveAndFlush} 가 기본키 위반을 던지기를 기대했는데, <b>그게 안
+ * 일어났다.</b> 번호를 직접 넣는 엔티티라 Spring Data 가 {@code merge} 로 저장하고, merge 는
+ * 이미 있는 행을 만나면 조용히 넘어간다. 중복을 잡는 {@code catch} 는 한 번도 안 도는 코드였고,
+ * 재전송된 보기·방문이 취향에 두 번 더해졌다 (S15P21E201-1501).
  *
  * <p>처리에 실패하면 예외를 <b>그대로 던진다.</b> 여기서 삼키면 스프링 카프카가 "성공했다" 로
  * 보고 오프셋을 넘겨 버려 그 이벤트가 사라진다. 재시도와 DLQ 는
@@ -43,16 +55,32 @@ public class KafkaEventConsumer {
 
 	static final String HEADER_EVENT_TYPE = "event_type";
 
-	private final EventConsumptionRepository repository;
+	/**
+	 * 누구의 사건인가. 🔴 {@code record.key()} 로 대신하지 않는다 — 그건 <b>순서를 지키기 위한</b>
+	 * 파티션 키이지 「누구인가」를 담기로 한 자리가 아니다. 지금은 우연히 같지만, 순서 단위를
+	 * 바꾸는 날 취향이 엉뚱한 사람에게 조용히 붙는다 (S15P21E201-1500).
+	 */
+	static final String HEADER_USER_ID = "user_id";
+
+	static final String HEADER_OCCURRED_AT = "occurred_at";
+
+	/** payload 안에서 장소를 가리키는 칸. {@code SavedPlaceService} 가 이 이름으로 싣는다. */
+	private static final String PAYLOAD_PLACE_ID = "placeId";
+
+	private final EventConsumptionService consumption;
 
 	private final KafkaEventProperties properties;
 
 	private final Clock clock;
 
-	public KafkaEventConsumer(EventConsumptionRepository repository, KafkaEventProperties properties, Clock clock) {
-		this.repository = repository;
+	private final ObjectMapper objectMapper;
+
+	public KafkaEventConsumer(EventConsumptionService consumption, KafkaEventProperties properties, Clock clock,
+			ObjectMapper objectMapper) {
+		this.consumption = consumption;
 		this.properties = properties;
 		this.clock = clock;
+		this.objectMapper = objectMapper;
 	}
 
 	@KafkaListener(topics = "${gabolle.event.kafka.topic:gabolle.events.v1}",
@@ -68,18 +96,64 @@ public class KafkaEventConsumer {
 							+ " offset=" + record.offset());
 		}
 
-		EventConsumption consumption = new EventConsumption(eventId, headerOrDefault(record, HEADER_EVENT_TYPE),
-				record.key() == null ? "" : record.key(), this.properties.getConsumerGroup(), record.partition(),
-				record.offset(), OffsetDateTime.now(this.clock));
+		String eventType = headerOrDefault(record, HEADER_EVENT_TYPE);
+		ConsumedEvent event = new ConsumedEvent(eventId, eventType, record.key() == null ? "" : record.key(),
+				this.properties.getConsumerGroup(), record.partition(), record.offset(), OffsetDateTime.now(this.clock),
+				uuidHeader(record, HEADER_USER_ID), placeIdOf(record), occurredAt(record));
 
-		try {
-			this.repository.saveAndFlush(consumption);
-			log.debug("event=EVENT_CONSUMED eventId={} type={}", eventId, consumption.getEventType());
+		// 예외는 여기서 삼키지 않는다 — 올라가야 카프카가 다시 보내고, 끝내 안 되면 DLQ 로 간다.
+		// 중복은 예외가 아니라 false 로 온다.
+		if (this.consumption.recordFirstTime(event)) {
+			log.debug("event=EVENT_CONSUMED eventId={} type={}", eventId, eventType);
 		}
-		catch (DataIntegrityViolationException duplicate) {
-			// 기본키가 막았다 = 이미 반영했다. 이것은 오류가 아니라 **설계대로 된 것**이다.
-			// 릴레이가 "적어도 한 번" 을 보장하므로 여기 오는 것은 정상 경로에 속한다.
+		else {
 			log.debug("event=EVENT_ALREADY_CONSUMED eventId={}", eventId);
+		}
+	}
+
+	/**
+	 * payload 에서 장소를 꺼낸다. 없거나 모양이 아니면 {@code null} 이다.
+	 *
+	 * <p>🔴 여기서 <b>던지지 않는다.</b> 취향과 무관한 이벤트에도 payload 는 있고, 그 안에
+	 * {@code placeId} 가 없는 것이 정상이다. 던지면 멀쩡한 이벤트가 DLQ 로 간다.
+	 */
+	private UUID placeIdOf(ConsumerRecord<String, String> record) {
+		if (record.value() == null || record.value().isBlank()) {
+			return null;
+		}
+		try {
+			JsonNode node = this.objectMapper.readTree(record.value()).get(PAYLOAD_PLACE_ID);
+			return (node == null || !node.isTextual()) ? null : UUID.fromString(node.asString());
+		}
+		catch (RuntimeException notAPlaceEvent) {
+			return null;
+		}
+	}
+
+	/** 이벤트가 일어난 시각. 헤더가 없거나 모양이 아니면 지금으로 둔다 — 지어내는 것이 아니라 최선이다. */
+	private OffsetDateTime occurredAt(ConsumerRecord<String, String> record) {
+		String raw = header(record, HEADER_OCCURRED_AT);
+		if (raw == null || raw.isBlank()) {
+			return OffsetDateTime.now(this.clock);
+		}
+		try {
+			return OffsetDateTime.parse(raw);
+		}
+		catch (RuntimeException malformed) {
+			return OffsetDateTime.now(this.clock);
+		}
+	}
+
+	private static UUID uuidHeader(ConsumerRecord<String, String> record, String name) {
+		String raw = header(record, name);
+		if (raw == null || raw.isBlank()) {
+			return null;
+		}
+		try {
+			return UUID.fromString(raw);
+		}
+		catch (IllegalArgumentException malformed) {
+			return null;
 		}
 	}
 

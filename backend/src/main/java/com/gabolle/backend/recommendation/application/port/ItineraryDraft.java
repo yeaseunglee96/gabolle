@@ -35,15 +35,29 @@ public record ItineraryDraft(
      * {@code fareKrw} 는 이동 요금(원)이고 {@code null} 은 모른다, {@code 0} 은 공짜다 —
      * 지금 값이 있는 것은 자동차 계열뿐이다.
      */
+    /**
+     * @param path 이 구간이 지나는 길의 좌표 목록. {@code [경도, 위도]} 순서다. 어느 길로
+     *     가는지 모르면 {@code null} 이고, 그때 두 점을 이은 직선을 대신 넣지 않는다
+     *     (S15P21E201-1251)
+     */
     public record DraftLeg(int dayIndex, int sequence, UUID fromPlaceId, UUID toPlaceId,
             String travelMode, Integer distanceM, Integer durationMin, Integer walkingMeters,
-            com.gabolle.backend.itinerary.domain.ItineraryItem.DataStatus dataStatus, Integer fareKrw) {
+            com.gabolle.backend.itinerary.domain.ItineraryItem.DataStatus dataStatus, Integer fareKrw,
+            java.util.List<double[]> path) {
 
         public DraftLeg(int dayIndex, int sequence, UUID fromPlaceId, UUID toPlaceId, String travelMode,
                 Integer distanceM, Integer durationMin, Integer walkingMeters,
                 com.gabolle.backend.itinerary.domain.ItineraryItem.DataStatus dataStatus) {
             this(dayIndex, sequence, fromPlaceId, toPlaceId, travelMode, distanceM, durationMin,
-                    walkingMeters, dataStatus, null);
+                    walkingMeters, dataStatus, null, null);
+        }
+
+        /** 선형 칸 이전의 생성자. 부르는 곳이 여럿이라 한 번에 안 고친다. */
+        public DraftLeg(int dayIndex, int sequence, UUID fromPlaceId, UUID toPlaceId, String travelMode,
+                Integer distanceM, Integer durationMin, Integer walkingMeters,
+                com.gabolle.backend.itinerary.domain.ItineraryItem.DataStatus dataStatus, Integer fareKrw) {
+            this(dayIndex, sequence, fromPlaceId, toPlaceId, travelMode, distanceM, durationMin,
+                    walkingMeters, dataStatus, fareKrw, null);
         }
     }
 }

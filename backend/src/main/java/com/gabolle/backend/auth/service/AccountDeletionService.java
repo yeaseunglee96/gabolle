@@ -524,6 +524,19 @@ public class AccountDeletionService {
 				""", "userId", userId);
 		execute("DELETE FROM UserTasteVector v WHERE v.userId = :userId", "userId", userId);
 
+		// 🔴 (사람, 장소) 의 취향 반영 상태 (S15P21E201-1500). 소비자가 증분할 때 「직전이
+		//    무엇이었나」를 여기서 읽는다 — 남겨 두면 탈퇴한 사람의 행동 이력이 그대로 남는다.
+		//
+		//    app_user 에 외래키로 묶여 있지만 ON DELETE CASCADE 는 일부러 안 걸었다. 탈퇴가
+		//    계정 행을 지우지 않고 익명화하므로 그 CASCADE 는 한 번도 안 돈다 — push_token 이
+		//    그렇게 만들어졌다가 「탈퇴한 사람 폰으로 알림이 계속 간다」로 잡혔다.
+		//
+		//    엔티티가 없어 네이티브다. 쓰는 쪽(TasteAttributionService)이 JdbcTemplate 이라
+		//    매핑을 따로 두지 않았다.
+		this.entityManager.createNativeQuery("DELETE FROM user_place_taste_state WHERE user_id = :userId")
+			.setParameter("userId", userId)
+			.executeUpdate();
+
 		// 실제 방문 시각으로 만든 개인 속도 계수도 개인화 파생값이다. user_pace_factor 는
 		// app_user 에 ON DELETE CASCADE 로 묶여 있지만 계정 행을 익명화만 하므로 그 CASCADE 가
 		// 돌지 않아 여기서 직접 지운다.

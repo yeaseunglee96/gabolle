@@ -20,6 +20,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.place.service.PlaceMenuPricePort;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.recommendation.domain.JobStatus;
 import com.gabolle.backend.recommendation.domain.RecommendationCandidate;
@@ -60,12 +61,16 @@ public class RecommendationResultQueryService {
 
 	private final ObjectMapper objectMapper;
 
+	private final PlaceMenuPricePort menuPrice;
+
 	public RecommendationResultQueryService(RecommendationCandidateRepository candidateRepository,
-			PlaceRepository placeRepository, ItineraryRepository itineraryRepository, ObjectMapper objectMapper) {
+			PlaceRepository placeRepository, ItineraryRepository itineraryRepository, ObjectMapper objectMapper,
+			PlaceMenuPricePort menuPrice) {
 		this.candidateRepository = candidateRepository;
 		this.placeRepository = placeRepository;
 		this.itineraryRepository = itineraryRepository;
 		this.objectMapper = objectMapper;
+		this.menuPrice = menuPrice;
 	}
 
 	/**
@@ -98,6 +103,10 @@ public class RecommendationResultQueryService {
 
 		Map<UUID, Place> placesByPlaceId = lookupPlaces(returnedCandidates);
 
+		// 후보 20곳의 가격을 한 번에 읽는다. 값이 있는 곳만 표에 있고, 없는 곳은 열쇠가 없다 —
+		// 그 차이가 그대로 응답의 null(모름)과 숫자(앎)로 간다.
+		Map<UUID, Integer> menuPriceByPlaceId = this.menuPrice.pricesOf(placesByPlaceId.keySet());
+
 		List<RecommendationResultResponse.Item> items = new ArrayList<>(returnedCandidates.size());
 		Set<String> conflicts = new TreeSet<>();
 		boolean anyUnknownData = false;
@@ -121,9 +130,16 @@ public class RecommendationResultQueryService {
 			items.add(new RecommendationResultResponse.Item(
 					candidate.getPlaceId().toString(),
 					place.getNameKo(),
-					null, // imageUrl — place 표에 이미지 칸이 없다
+					// 사진은 이미 들고 있는 place 에서 그대로 읽는다 — 질의를 더하지 않는다.
+					// 출처·피사체를 같이 싣는 것이 규칙이다: 주소만 보내면 화면이 출처 없이
+					// 사진을 걸고, 공공누리 표기 의무를 서버가 깨게 된다 (S15P21E201-1496).
+					place.getPhotoUrl(),
+					place.getPhotoSource(),
+					place.getPhotoSubject(),
 					List.of(candidate.getReasonCodes()),
-					null, // estimatedCostKrw — 비용 데이터가 없다
+					// 대표 메뉴 한 가지의 값. 조사가 안 된 곳은 null 그대로 둔다 — 0 을 넣으면
+					// 화면이 「무료」로 그린다 (S15P21E201-1479).
+					menuPriceByPlaceId.get(candidate.getPlaceId()),
 					crowdLevel(candidate),
 					mobilityWarnings.isEmpty() ? null : mobilityWarnings,
 					dataStatus,
