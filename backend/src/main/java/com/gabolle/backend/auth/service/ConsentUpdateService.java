@@ -168,6 +168,7 @@ public class ConsentUpdateService {
 
 		return new UserConsentsResponse(
 				user.getPersonalizationMode() == PersonalizationMode.BEHAVIOR_ENABLED,
-				List.copyOf(items));
+				List.copyOf(items),
+				this.properties.getConsentPolicyVersion());
 	}
 }

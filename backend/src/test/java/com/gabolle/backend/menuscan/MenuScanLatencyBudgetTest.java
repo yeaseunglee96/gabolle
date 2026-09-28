@@ -53,6 +53,34 @@ class MenuScanLatencyBudgetTest {
 	}
 
 	@Test
+	@DisplayName("우리 모델이 시간을 다 쓰고 실패한 뒤 GMS 로 대신 읽어도, 앱보다 먼저 포기한다")
+	void theFallbackPathStillGivesUpBeforeTheApp() {
+		// S15P21E201-1538 — 우리 모델(menu-ocr) 이 먼저 돌고, 실패하면 GMS 비전이 대신 읽는다. 최악은
+		// 우리 모델이 읽기 제한까지 다 쓰고 실패한 뒤 GMS 도 제한까지 다 쓰는 경우다
+		MenuScanProperties properties = new MenuScanProperties();
+
+		Duration worstCase = properties.getLocalConnectTimeout().plus(properties.getLocalReadTimeout())
+				.plus(properties.getConnectTimeout()).plus(properties.getReadTimeout());
+
+		assertThat(APP_REQUEST_TIMEOUT.minus(worstCase))
+				.as("우리 모델 %s + %s 와 대체 %s + %s 를 더한 %s 가 앱 대기 %s 보다 1초 넘게 짧아야 한다",
+						properties.getLocalConnectTimeout(), properties.getLocalReadTimeout(),
+						properties.getConnectTimeout(), properties.getReadTimeout(), worstCase, APP_REQUEST_TIMEOUT)
+				.isGreaterThanOrEqualTo(Duration.ofSeconds(1));
+	}
+
+	@Test
+	@DisplayName("우리 모델이 읽고 나서 이름을 옮겨도 앱보다 먼저 끝난다")
+	void theTranslationStepFitsToo() {
+		MenuScanProperties properties = new MenuScanProperties();
+
+		Duration worstCase = properties.getLocalConnectTimeout().plus(properties.getLocalReadTimeout())
+				.plus(properties.getConnectTimeout()).plus(properties.getTranslateReadTimeout());
+
+		assertThat(worstCase).isLessThan(APP_REQUEST_TIMEOUT.minus(Duration.ofSeconds(1)));
+	}
+
+	@Test
 	@DisplayName("읽기가 연결보다는 길다 — 모델이 생각하는 시간이 연결보다 짧을 리 없다")
 	void mostOfTheBudgetGoesToReading() {
 		MenuScanProperties properties = new MenuScanProperties();

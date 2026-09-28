@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.gabolle.backend.place.domain.Place.PhotoLicense;
 import com.gabolle.backend.place.domain.Place.PhotoSubject;
 
 import tools.jackson.databind.json.JsonMapper;
@@ -133,5 +134,140 @@ class PlacePhotoReaderTest {
 	@DisplayName("빈 줄은 건너뛴다")
 	void blankLinesAreSkipped() throws Exception {
 		assertThat(read(REAL_EVENT_PHOTO, "", LANDMARK_MATCHED)).hasSize(2);
+	}
+
+	// ── 출처 열쇠 · 라이선스 · 항목 자신의 사진 (S15P21E201-1606) ─────────────────────────
+	// 아래 줄은 bigData/research/photo-supply/out/ 의 수집본에서 가져왔다. 위키미디어 사진 주소 뒤의
+	// 추적용 꼬리(?utm_…)와 부산항대교 줄의 되짚기용 칸 몇 개만 줄 길이 때문에 뺐다 — 적재기가 안 읽는 칸이다.
+
+	/** OSM 장소에 이름이 같은 관광공사 항목의 대표사진을 붙인 줄 — contentid 가 없다. */
+	private static final String OSM_WITH_TOURAPI_PHOTO = """
+			{"sourceType":"OSM","sourceId":"12964466506","placeId":"2c730787-83d7-3d96-8400-2b09f20621be",\
+			"title":"러브얼스","photoUrl":"http://tong.visitkorea.or.kr/cms/resource/15/2795715_image2_1.jpg",\
+			"photoSource":"한국관광공사","category":"CAFE_HEALING","matchedBy":"tourapi","matchTier":2,\
+			"sourceItemId":"2783646","sourceItemTitle":"러브얼스","distanceM":27,"cpyrhtDivCd":"Type3",\
+			"evidence":"https://apis.data.go.kr/B551011/KorService2/areaBasedList2 (lDongRegnCd=26, contentid=2783646)",\
+			"placeGu":"수영구","placeGuFrom":"nearby"}""";
+
+	/** 관광공사 장소 자신의 추가사진. 운영에서 장소 번호가 계산 규칙과 다른 곳이다. */
+	private static final String TOURAPI_EXTRA_IMAGE = """
+			{"contentid":"2614712","title":"구상반려암 (부산 국가지질공원)",\
+			"photoUrl":"https://tong.visitkorea.or.kr/cms/resource/11/2614711_image2_1.bmp","photoSource":"한국관광공사",\
+			"category":"NATURE_WALK","matchedBy":"tourapi-detailImage2","matchTier":1,"cpyrhtDivCd":"Type3",\
+			"imgname":"구상반려암","serialnum":"2614711_3",\
+			"evidence":"https://apis.data.go.kr/B551011/KorService2/detailImage2 (contentId=2614712)"}""";
+
+	private static final String WIKIMEDIA_CC_BY_SA = """
+			{"sourceType":"OSM","sourceId":"368871416","placeId":"639e6f59-e97e-37a2-b978-aa6a8f42f654",\
+			"title":"부산근대역사관","photoUrl":"https://upload.wikimedia.org/wikipedia/commons/8/83/Busan_Modern_History_Museum-01.jpg",\
+			"photoSource":"Wikimedia Commons","photographer":"桂鷺淵 / Katsura Roen","category":"CULTURE_TEMPLE",\
+			"matchedBy":"wikimedia","matchTier":3,"sourceItemId":"Q11246045","sourceItemTitle":"부산근대역사관",\
+			"distanceM":28,"license":"CC BY-SA 3.0","licenseUrl":"https://creativecommons.org/licenses/by-sa/3.0",\
+			"filePage":"https://commons.wikimedia.org/wiki/File:Busan_Modern_History_Museum-01.jpg",\
+			"evidence":"https://commons.wikimedia.org/wiki/File:Busan_Modern_History_Museum-01.jpg",\
+			"placeGu":"중구","placeGuFrom":"nearby","alsoMatched":["wikimedia:4","gallery:5"]}""";
+
+	/** 퍼블릭 도메인은 라이선스 주소가 없다 — 수집본에 {@code null} 로 온다. */
+	private static final String WIKIMEDIA_PUBLIC_DOMAIN = """
+			{"sourceType":"OSM","sourceId":"7241587087","title":"부산항대교",\
+			"photoUrl":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Busan_Harbor_Bridge2.jpg/1280px-Busan_Harbor_Bridge2.jpg",\
+			"photoSource":"Wikimedia Commons","photographer":"Glabb This photo was taken with DJI FC7203",\
+			"matchedBy":"wikimedia","matchTier":3,"license":"Public domain","licenseUrl":null,\
+			"filePage":"https://commons.wikimedia.org/wiki/File:Busan_Harbor_Bridge2.jpg"}""";
+
+	@Test
+	@DisplayName("🔴 contentid 가 없어도 sourceType+sourceId 로 읽는다 — 상가·OSM·카카오 장소의 사진")
+	void sourceKeyWithoutContentId() throws Exception {
+		PlacePhotoRow row = read(OSM_WITH_TOURAPI_PHOTO).get(0);
+
+		assertThat(row.sourceType()).isEqualTo("OSM");
+		assertThat(row.sourceId()).isEqualTo("12964466506");
+		assertThat(row.photoUrl()).startsWith("https://");
+		assertThat(row.attribution()).isEqualTo("한국관광공사");
+		assertThat(row.license()).isNull();
+	}
+
+	@Test
+	@DisplayName("contentid 가 있으면 관광공사 장소다")
+	void contentIdMeansTourApi() throws Exception {
+		PlacePhotoRow row = read(TOURAPI_EXTRA_IMAGE).get(0);
+
+		assertThat(row.sourceType()).isEqualTo("TOURAPI");
+		assertThat(row.sourceId()).isEqualTo("2614712");
+	}
+
+	/**
+	 * 제목 칸이 없는 사진을 전부 {@code VENUE} 로 두면 식당·다리 사진에 「행사장 사진」 딱지가 붙는다.
+	 * 이 셋은 짝지은 항목 <b>자신의</b> 대표·추가 사진이고 그 항목이 곧 이 장소다.
+	 */
+	@Test
+	@DisplayName("🔴 항목 자신의 사진(관광공사 대표·추가, 위키미디어)은 이 장소를 찍은 사진이다")
+	void ownPhotosAreSelf() throws Exception {
+		assertThat(read(OSM_WITH_TOURAPI_PHOTO, TOURAPI_EXTRA_IMAGE, WIKIMEDIA_CC_BY_SA))
+				.extracting(PlacePhotoRow::subject)
+				.containsOnly(PhotoSubject.SELF);
+	}
+
+	@Test
+	@DisplayName("🔴 사진 제목이 있으면 matchedBy 보다 제목 대조가 먼저다 — 갤러리 사진은 지금처럼 판정한다")
+	void galTitleStillDecidesBeforeMatchedBy() throws Exception {
+		String galleryVenue = """
+				{"contentid":"1","title":"광안리어방축제","photoUrl":"https://x/y.jpg",\
+				"photoSource":"한국관광공사 관광사진갤러리","matchedBy":"tourapi","galTitle":"광안리해수욕장"}""";
+
+		assertThat(read(galleryVenue)).singleElement()
+				.extracting(PlacePhotoRow::subject).isEqualTo(PhotoSubject.VENUE);
+	}
+
+	@Test
+	@DisplayName("모르는 matchedBy 는 지금처럼 행사장 사진이다")
+	void unknownMatchedByIsVenue() throws Exception {
+		String unknown = """
+				{"contentid":"1","title":"어떤축제","photoUrl":"https://x/y.jpg",\
+				"photoSource":"한국관광공사","matchedBy":"name"}""";
+
+		assertThat(read(unknown)).singleElement()
+				.extracting(PlacePhotoRow::subject).isEqualTo(PhotoSubject.VENUE);
+	}
+
+	@Test
+	@DisplayName("🔴 라이선스 이름·주소·원본 파일 페이지를 읽는다 — 출처 문구에는 촬영자만 붙는다")
+	void licenseIsRead() throws Exception {
+		PlacePhotoRow row = read(WIKIMEDIA_CC_BY_SA).get(0);
+
+		assertThat(row.license()).isEqualTo(new PhotoLicense("CC BY-SA 3.0",
+				"https://creativecommons.org/licenses/by-sa/3.0",
+				"https://commons.wikimedia.org/wiki/File:Busan_Modern_History_Museum-01.jpg"));
+		assertThat(row.attribution()).isEqualTo("Wikimedia Commons · 촬영 桂鷺淵 / Katsura Roen");
+	}
+
+	@Test
+	@DisplayName("퍼블릭 도메인은 라이선스 주소 없이 들어간다")
+	void publicDomainHasNoLicenseUrl() throws Exception {
+		assertThat(read(WIKIMEDIA_PUBLIC_DOMAIN).get(0).license()).isEqualTo(new PhotoLicense("Public domain",
+				null, "https://commons.wikimedia.org/wiki/File:Busan_Harbor_Bridge2.jpg"));
+	}
+
+	@Test
+	@DisplayName("🔴 라이선스 이름 없이 주소만 있으면 멈춘다 — 무슨 라이선스인지 모르고 링크만 걸지 않는다")
+	void licenseUrlWithoutNameStops() {
+		String noName = """
+				{"sourceType":"OSM","sourceId":"1","title":"다리","photoUrl":"https://x/y.jpg",\
+				"photoSource":"Wikimedia Commons","licenseUrl":"https://creativecommons.org/licenses/by-sa/3.0"}""";
+
+		assertThatThrownBy(() -> read(noName))
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("license");
+	}
+
+	@Test
+	@DisplayName("🔴 열쇠가 없는 줄은 멈춘다 — contentid 도 sourceType+sourceId 도 없다")
+	void missingKeyStops() {
+		String onlySourceId = """
+				{"sourceId":"12964466506","title":"러브얼스","photoUrl":"https://x/y.jpg","photoSource":"한국관광공사"}""";
+
+		assertThatThrownBy(() -> read(onlySourceId))
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("열쇠");
 	}
 }

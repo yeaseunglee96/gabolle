@@ -374,4 +374,74 @@ class TripCoverTest {
 				UUID.randomUUID(), UUID.fromString(versionId), UUID.randomUUID(), dayIndex,
 				LocalDate.of(2026, 9, 5).plusDays(dayIndex), sequence, placeId, at.atOffset(ZoneOffset.UTC));
 	}
+
+	// ── 지금 확정된 일정 (S15P21E201-1602) ─────────────────────────────
+
+	private void chooseAt(String itineraryId, Instant at) {
+		this.jdbcTemplate.update("UPDATE itineraries SET chosen_at = ? WHERE itinerary_id = ?",
+				at.atOffset(ZoneOffset.UTC), UUID.fromString(itineraryId));
+	}
+
+	@Test
+	void 안_골랐으면_추천이_만든_일정이_확정이다() {
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		String tripId = saveTrip(now);
+		String a = addItinerary(tripId, 1, now);
+
+		assertThat(this.coverPort.currentItinerariesOf(List.of(tripId))).containsEntry(tripId, a);
+	}
+
+	@Test
+	void C를_고르면_C가_확정이다() {
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		String tripId = saveTrip(now);
+		String a = addItinerary(tripId, 1, now);
+		String c = addItinerary(tripId, 1, now.plusSeconds(60));
+		chooseAt(a, now);
+		chooseAt(c, now.plusSeconds(60));
+
+		assertThat(this.coverPort.currentItinerariesOf(List.of(tripId))).containsEntry(tripId, c);
+	}
+
+	/** 「가장 나중에 만든 일정」이 아니다 — 만든 차례로 고르면 여기서 C 가 나온다. */
+	@Test
+	void C를_골랐다가_A를_다시_고르면_A가_확정이다() {
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		String tripId = saveTrip(now);
+		String a = addItinerary(tripId, 1, now);
+		String c = addItinerary(tripId, 1, now.plusSeconds(60));
+		chooseAt(a, now);
+		chooseAt(c, now.plusSeconds(60));
+		chooseAt(a, now.plusSeconds(120));
+
+		assertThat(this.coverPort.currentItinerariesOf(List.of(tripId))).containsEntry(tripId, a);
+	}
+
+	@Test
+	void 일정이_없으면_확정도_없다_여행_여럿도_질의_한_번이다() {
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		String empty = saveTrip(now);
+		String withOne = saveTrip(now);
+		String itinerary = addItinerary(withOne, 1, now);
+
+		Statistics stats = statistics();
+		stats.clear();
+		Map<String, String> current = this.coverPort.currentItinerariesOf(List.of(empty, withOne));
+
+		assertThat(current).doesNotContainKey(empty).containsEntry(withOne, itinerary);
+		assertThat(stats.getPrepareStatementCount()).as("여행마다 묻지 않는다").isEqualTo(1);
+	}
+
+	@Test
+	void 여행_목록_한_줄에_확정_일정이_실린다() {
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+		String tripId = saveTrip(now);
+		String a = addItinerary(tripId, 1, now);
+
+		assertThat(this.queryService.listWithCovers(this.ownerId, 10))
+				.filteredOn((listing) -> listing.row().trip().tripId().equals(tripId))
+				.singleElement()
+				.extracting(TripQueryService.Listing::currentItineraryId)
+				.isEqualTo(a);
+	}
 }

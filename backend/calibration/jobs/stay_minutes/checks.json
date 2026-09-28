@@ -1,0 +1,19 @@
+{
+  "_설명": "체류 시간 작업의 검사 기준. 근거는 backend/calibration/README.md. baseline 은 StayDefaults 와 같아야 한다 — StayCalibrationBaselineTest 가 지킨다.",
+  "window_days": 84,
+  "min_samples": 30,
+  "iqr_multiplier": 1.5,
+  "max_change_ratio": 0.2,
+  "min_value": 20,
+  "max_value": 180,
+  "baseline": {
+    "FOOD": 60,
+    "CAFE_HEALING": 45,
+    "SEA_BEACH": 90,
+    "NATURE_WALK": 60,
+    "CULTURE_TEMPLE": 60,
+    "CITY": 60,
+    "FESTIVAL_EVENT": 90
+  },
+  "baseline_default": 60
+}

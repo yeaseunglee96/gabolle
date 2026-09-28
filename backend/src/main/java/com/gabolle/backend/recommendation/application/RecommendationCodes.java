@@ -79,11 +79,20 @@ public final class RecommendationCodes {
 	 */
 	public static final String WARNING_DIET_SUPPORT_UNVERIFIED = "DIET_SUPPORT_UNVERIFIED";
 
+	/**
+	 * 이 알레르기 재료가 들었는지 <b>안 재 봤다</b>는 경고 — S15P21E201-1633. 앱이 더 묻지 않는 알레르기의 옛 「반드시」
+	 * 답이 남은 여행에만 나온다. 「들었다」(확인된 {@code ALLERGEN_PRESENT})와 다른 사실이다.
+	 *
+	 * <p>🔴 앱의 경고 사전(`warningLabels.ts`)에 이 이름이 있어야 화면에 나온다 — 없으면 조용히 사라진다.
+	 */
+	public static final String WARNING_ALLERGEN_UNVERIFIED = "ALLERGEN_UNVERIFIED";
+
 	/** 이 후보가 편집자가 고른 목록에서 왔다. */
 	public static final String REASON_EDITORIAL_PICK = "EDITORIAL_PICK";
 
 	/**
-	 * 절대 기여 1위 축의 접두사 — {@code TOP_CONTRIBUTOR_DISTANCE} 처럼 붙는다.
+	 * 평소보다 가장 많이 튄 축의 접두사 — {@code TOP_CONTRIBUTOR_interest} 처럼 붙는다. 같은 결과 안의 평균보다
+	 * 높은 축이 없으면 안 붙는다. 절대 기여 1위였던 것을 S15P21E201-1638 에서 바꿨다 — 거의 모든 곳이 「거리」였다.
 	 *
 	 * <p>축 이름은 {@code score_components} 의 키를 글자 그대로 붙이므로
 	 * {@code TOP_CONTRIBUTOR_preferenceAlignment} 처럼 대문자 규칙이 깨져 보인다. 일부러
@@ -139,6 +148,12 @@ public final class RecommendationCodes {
 	/** 후보를 일정(항목·구간)으로 조립하지 못했다. {@code assemble()} 이 트랜잭션 밖에서 던진 것이다. */
 	public static final String ERROR_ITINERARY_ASSEMBLY_FAILED = "ITINERARY_ASSEMBLY_FAILED";
 
+	/**
+	 * 오늘 출발하는 당일치기를 너무 늦게 만들어 넣을 시간이 없다 (S15P21E201-1734). 저녁 22시까지 늦춰도 90분이 안
+	 * 남는 때다. {@code retryable=false} — 다시 해도 같다. 날짜를 내일로 바꾸면 된다.
+	 */
+	public static final String ERROR_ITINERARY_NO_TIME_LEFT_TODAY = "ITINERARY_NO_TIME_LEFT_TODAY";
+
 	/** 조립까지는 됐지만 저장({@code persist()})이 실패했다. */
 	public static final String ERROR_ITINERARY_PERSIST_FAILED = "ITINERARY_PERSIST_FAILED";
 
@@ -152,6 +167,12 @@ public final class RecommendationCodes {
 
 	/** 위 코드들로 분류되지 않는, 예상하지 못한 실패. {@code RecommendationJobWorker} 의 마지막 방어선이 쓴다. */
 	public static final String ERROR_UNEXPECTED = "UNEXPECTED";
+
+	/**
+	 * 추천 실행기가 꽉 차(도는 것 + 줄이 다 참) 작업을 못 받았다 — 시작도 안 했다. 잠시 뒤 같은 요청이면 되므로
+	 * 다시 시도할 수 있다. 응답의 오류 코드도 같은 글자다 (S15P21E201-1685).
+	 */
+	public static final String ERROR_SERVER_BUSY = "SERVER_BUSY";
 
 	private RecommendationCodes() {
 	}

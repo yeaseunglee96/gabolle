@@ -4,9 +4,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import com.gabolle.backend.place.api.PlaceSnapshotRequest;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryVisibility;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -54,7 +56,22 @@ public record StoryCreateRequest(
 		 * <p>{@code story_image} 에 들어가지 않으므로 사진 3장과 자리를 다투지 않는다.
 		 * {@code videoUrl} 없이 이것만 보내면 400 이다.
 		 */
-		String thumbnailUrl) {
+		String thumbnailUrl,
+
+		/**
+		 * 우리 표에 없는 장소를 골랐을 때 그 자리에서 보내는 스냅샷 — S15P21E201-1426.
+		 *
+		 * <p>글 작성 화면은 우리 DB 장소와 카카오 검색 결과를 섞어 보여주는데, 카카오 결과에는
+		 * {@code placeId} 가 없어 지금까지 장소가 안 실렸다. 이 칸이 있으면 서버가
+		 * {@code (source, externalId)} 로 찾거나 만들어 그 id 를 {@code story.place_id} 에 넣는다.
+		 *
+		 * <p>🔴 {@code placeId} 가 있으면 <b>이 칸은 안 본다.</b> 우리 표의 장소를 고른 것이
+		 * 확실한데 스냅샷을 또 보고 upsert 하면, 앱이 실수로 다른 장소의 스냅샷을 실었을 때
+		 * 어느 쪽이 맞는지 서버가 정하게 된다. 둘 다 없으면 지금처럼 장소 없는 기록이다.
+		 */
+		@Valid PlaceSnapshotRequest place) {
+
+
 
 	/**
 	 * {@code parentStoryId} 를 안 적은 자바 호출자를 위한 통로 — 원글로 본다. JSON 역직렬화는 이 생성자를
@@ -62,7 +79,7 @@ public record StoryCreateRequest(
 	 */
 	public StoryCreateRequest(String body, List<String> imageUrls, UUID placeId, UUID tripId, String region,
 			StoryVisibility visibility, Instant publishAt) {
-		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, null, null, null);
+		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, null, null, null, null);
 	}
 
 	/**
@@ -71,7 +88,7 @@ public record StoryCreateRequest(
 	 */
 	public StoryCreateRequest(String body, List<String> imageUrls, UUID placeId, UUID tripId, String region,
 			StoryVisibility visibility, Instant publishAt, UUID parentStoryId) {
-		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, parentStoryId, null, null);
+		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, parentStoryId, null, null, null);
 	}
 
 	public List<String> imageUrlsOrEmpty() {

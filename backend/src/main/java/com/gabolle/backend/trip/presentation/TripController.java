@@ -102,7 +102,7 @@ public class TripController {
 
         List<TripSummaryResponse> trips =
                 queryService.listWithCovers(requester, TripQueryService.MAX_LIST_SIZE).stream()
-                        .map((listing) -> TripSummaryResponse.of(listing.row(), listing.cover()))
+                        .map((listing) -> TripSummaryResponse.of(listing.row(), listing.cover(), listing.currentItineraryId()))
                         .toList();
 
         return ApiResponse.success(trips, "req_" + UUID.randomUUID());

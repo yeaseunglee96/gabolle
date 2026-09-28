@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,7 +18,21 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import jakarta.servlet.DispatcherType;
 
+/**
+ * 🔴 S15P21E201-1548 — {@code @EnableMethodSecurity} 를 켠다. 이전에는 이게 꺼져 있어
+ * {@code AdminModerationController}·{@code AnalyticsController} 가 {@code @PreAuthorize} 를
+ * 붙여도 조용히 무시된다고 스스로 경고하고 있었다 — 방어선이 아래 {@code requestMatchers}
+ * 경로 매처 단 하나뿐이라, 누가 실수로 그 컨트롤러를 {@code /api/v1/admin/} 밖으로 옮기면
+ * 그 즉시 인가가 사라졌다.
+ *
+ * <p>이제 두 컨트롤러에 {@code @PreAuthorize("hasRole('ADMIN')")} 를 추가로 붙여
+ * **이중 방어**로 만든다 — 경로 매처는 대체된 것이 아니라 그대로 남아 있다. 코드베이스
+ * 어디에도 기존 {@code @PreAuthorize}/{@code @Secured}/{@code @RolesAllowed} 사용이 없었으므로
+ * (2026-09-24 확인), 이 스위치를 켜도 다른 곳의 숨은 동작이 갑자기 살아나지 않는다.
+ */
+@EnableMethodSecurity
 @Configuration
 public class SecurityConfig {
 
@@ -53,6 +68,17 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(authenticationEntryPoint))
 			.authorizeHttpRequests(authorize -> authorize
+				// 🔴 S15P21E201-1724 — 비동기 응답이 끝날 때의 재진입(ASYNC)만 인가 검사를 건너뛴다.
+				// 진행률 스트림(SseEmitter)이 끝나면 서블릿 컨테이너가 같은 요청을 ASYNC 로 한 번 더
+				// 들여보내는데, JWT 필터는 그 차례에 안 돌고 세션은 STATELESS 라 신원이 없다. 그래서
+				// 아래 anyRequest().authenticated() 가 거부했고, 응답이 이미 나가는 중이라 401 도 못
+				// 쓰고 예외가 컨테이너까지 올라가 ERROR 를 남기며 청크 응답의 끝 표시 없이 연결을
+				// 끊었다(nginx 의 「upstream prematurely closed」).
+				// 여는 것이 아니다 — ASYNC 재진입은 첫 차례(REQUEST)가 아래 규칙을 통과하고 처리기가
+				// 비동기를 시작한 요청에만 생긴다. 바깥에서 ASYNC 로 들어오는 요청은 없다.
+				// ERROR 재진입은 여기 넣지 않는다 — 그쪽은 필터가 다시 돌아 신원을 되살린다
+				// (HmacJwtAuthenticationFilter#shouldNotFilterErrorDispatch).
+				.dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
 				.requestMatchers("/actuator/health").permitAll()
 				// 기록 사진은 주소를 아는 사람이 그대로 연다 — 화면이 <img> 로 부르므로 그 요청에는
 				// Authorization 헤더가 안 붙는다. 키가 UUID 라 추측할 수 없고, 올리기는 인증이 필요하다.
@@ -60,9 +86,9 @@ public class SecurityConfig {
 				// 공유 조회는 43글자 난수 토큰을 아는 사람이 로그인 없이 연다. 발급(POST)·복제는
 				// 여전히 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/shares/*").permitAll()
-				// 운영자 전용 경로. @PreAuthorize 를 쓰지 않는다 — 이 저장소는 메서드 보안
-				// (@EnableMethodSecurity)이 꺼져 있어 그 애너테이션이 조용히 무시된다. 경로 앞자리로
-				// 막으면 운영자 API 를 새로 만드는 사람이 애너테이션을 잊어도 막힌다.
+				// 운영자 전용 경로. S15P21E201-1548 — 이제 메서드 보안도 켜져 있어 컨트롤러의
+				// @PreAuthorize 가 이중으로 막지만, 이 경로 매처는 대체가 아니라 그대로 둔다 —
+				// 운영자 API 를 새로 만드는 사람이 애너테이션을 잊어도 이 줄이 여전히 막는다.
 				// 권한은 HmacJwtAuthenticationFilter 가 매 요청 DB 에서 role 을 읽어 심는다
 				// (토큰 클레임이 아니라 DB 라서 권한 회수가 즉시 반영된다).
 				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
@@ -134,7 +160,32 @@ public class SecurityConfig {
 				"X-Device-Id", "X-Session-Token", "Idempotency-Key"));
 		configuration.setExposedHeaders(List.of("X-Request-Id"));
 		configuration.setAllowCredentials(true);
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		// 🔴 S15P21E201-1556 — 2026-09-23 App Store 심사에서 Apple 로그인이 Touch ID 이후
+		// «항상» 403(Invalid CORS request)이었다. 실제 리뷰어 IP(17.64.127.x, 애플 자체
+		// 대역)가 이 403을 맞은 것을 nginx 로그로 확인했고, curl 로 Origin 헤더 하나만
+		// appleid.apple.com 으로 줘도 그대로 재현된다.
+		//
+		// 원인: 위 configuration 이 "/**" 전부에 걸리는데, 그 allowed-origins 는 우리
+		// 프론트 주소들뿐이라 appleid.apple.com 이 없다. 그런데 이 경로(형 form-post)는
+		// Apple 서버가 브라우저를 통해 «폼을 그대로 제출»하는 자리이지, 우리 JS 가
+		// fetch/XHR 로 부르는 API 가 아니다 — CORS 는 스크립트가 교차 출처 응답을 읽는
+		// 것을 막는 장치이지 폼이 어디로 제출되는지를 막는 장치가 아닌데, Spring 의 CORS
+		// 필터는 Origin 헤더가 있으면(최신 Safari/Chrome 은 교차 출처 POST 내비게이션에도
+		// 자동으로 붙인다) 경로를 안 가리고 판정한다.
+		//
+		// 그래서 이 경로만 origin 을 아예 안 가리는 별도 설정을 더 앞에 등록한다(더 구체적인
+		// 패턴이 "/**" 보다 먼저 검사돼야 한다). 응답은 JS 가 안 읽고 브라우저가 그대로
+		// 따라가는 302 라 자격 증명(쿠키)도 필요 없다 — allowCredentials 를 켜지 않아야
+		// addAllowedOriginPattern("*") 을 같이 쓸 수 있다(CORS 스펙이 credentials=true 와
+		// 와일드카드 출처의 동시 사용을 금지한다).
+		CorsConfiguration formPostConfiguration = new CorsConfiguration();
+		formPostConfiguration.addAllowedOriginPattern("*");
+		formPostConfiguration.setAllowedMethods(List.of("POST"));
+		formPostConfiguration.setAllowCredentials(false);
+		source.registerCorsConfiguration("/api/v1/auth/oauth/*/form-post", formPostConfiguration);
+
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}

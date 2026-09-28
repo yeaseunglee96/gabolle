@@ -229,7 +229,8 @@ public class BusanTransitNetworkPort implements TransitNetworkPort {
 			String fareType = (type == null || type.isNull()) ? null : type.asString();
 			try {
 				routes.add(new TransitNetwork.Route(route.get("id").asString(), nameOf(route, kind), kind,
-						stopIds, headwayMinutes(route.get("headway")), first, last, fareType));
+						stopIds, headwayMinutes(route.get("headway")), first, last, fareType,
+						hopMinutesOf(route.get("hopMinutes"), stopIds.size())));
 			}
 			catch (IllegalArgumentException rejected) {
 				// 줄 하나가 파일 전체를 못 날리게 한다. 위에서 통째로 잡으면 이상한 노선 하나
@@ -238,6 +239,26 @@ public class BusanTransitNetworkPort implements TransitNetworkPort {
 			}
 		}
 		return routes;
+	}
+
+	/**
+	 * 역 사이 소요 시간(분) — 지하철 원천에만 있다. 같은 열차가 역마다 찍은 도착 시각에서 잰 값이다
+	 * (busan-subway-network.json 의 note). 칸이 없거나, 개수가 「정류장 수 − 1」과 다르거나,
+	 * 0 이하·숫자가 아닌 값이 끼면 {@code null} — 없는 것으로 보고 거리·속도 어림으로 돌아간다.
+	 * 반쯤 맞는 값을 쓰는 것보다 정직한 어림이 낫다 (S15P21E201-1757).
+	 */
+	private static List<Double> hopMinutesOf(JsonNode node, int stopCount) {
+		if (node == null || !node.isArray() || node.size() != stopCount - 1) {
+			return null;
+		}
+		List<Double> hops = new ArrayList<>(node.size());
+		for (JsonNode hop : node) {
+			if (!hop.isNumber() || hop.asDouble() <= 0) {
+				return null;
+			}
+			hops.add(hop.asDouble());
+		}
+		return List.copyOf(hops);
 	}
 
 	/**

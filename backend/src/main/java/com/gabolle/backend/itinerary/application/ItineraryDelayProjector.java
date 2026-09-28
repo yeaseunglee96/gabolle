@@ -75,6 +75,10 @@ public final class ItineraryDelayProjector {
 
         Instant dayEnd = plannedEndOfDay(day);
         Instant cursor = startingPoint(day, actualByKey, now);
+        // 🔴 아직 시작 안 한 날은 첫 항목의 «계획 도착»에서 센다 — 그 시각은 출발지에서 오는 이동을 이미 넣고 깐 것이다
+        //    (ItineraryDraftService.layoutDay). 거기에 첫 구간 이동을 또 더하면 첫 이동(부산역→해운대 79분)만큼 전부 밀려,
+        //    시간 안에 끝나는 일정의 마지막 곳에 「하루 넘길 위험」이 떴다(운영 실측 2026-09-24, S15P21E201-1571).
+        boolean startsAtPlannedArrival = !anyVisited(day, actualByKey) && plannedInstant(day.get(0), day.get(0).startTime()) != null;
 
         List<Entry> entries = new ArrayList<>();
         for (ItineraryItem item : day) {
@@ -84,12 +88,18 @@ public final class ItineraryDelayProjector {
                 continue;
             }
 
-            Integer travelMin = travelMinutesInto(legBySequence.get(item.sequence()), item);
-            Instant predictedArrival = cursor.plus(Duration.ofMinutes(travelMin == null ? 0 : travelMin));
+            Integer travelMin = (startsAtPlannedArrival && item == day.get(0))
+                    ? null
+                    : travelMinutesInto(legBySequence.get(item.sequence()), item);
+            Instant plannedArrival = plannedInstant(item, item.startTime());
+            // 🔴 S15P21E201-1740 — 계획 시각보다 이르게는 안 잡는다. 시각표에는 곳 사이의 빈 시각(자유 시간)이 있다
+            //    (S15P21E201-1667). 이어 붙이기만 하면 그 빈 시각을 건너뛰어 뒤로 갈수록 예상이 앞당겨졌다 — 카드에
+            //    「16:04」와 「예상 도착 11:45」가 함께 떴다. 앞서 있으면 자유 시간이 흡수하고, 늦으면 그만큼 밀린다.
+            Instant chained = cursor.plus(Duration.ofMinutes(travelMin == null ? 0 : travelMin));
+            Instant predictedArrival = plannedArrival != null && plannedArrival.isAfter(chained) ? plannedArrival : chained;
             Instant predictedDeparture = predictedArrival.plus(stayOf(item, factor));
             cursor = predictedDeparture;
 
-            Instant plannedArrival = plannedInstant(item, item.startTime());
             Long delayMinutes = plannedArrival == null
                     ? null
                     : Duration.between(plannedArrival, predictedArrival).toMinutes();
@@ -122,6 +132,10 @@ public final class ItineraryDelayProjector {
         }
         Instant plannedStart = plannedInstant(day.get(0), day.get(0).startTime());
         return plannedStart == null ? now : plannedStart;
+    }
+
+    private static boolean anyVisited(List<ItineraryItem> day, Map<String, ItineraryItemActual> actualByKey) {
+        return day.stream().anyMatch(item -> isVisited(actualByKey.get(item.itemKey())));
     }
 
     /** 그날 마지막 항목의 계획 끝 시각. 이 시각을 넘기는 항목이 "하루를 넘길 위험" 이다. */
@@ -195,7 +209,8 @@ public final class ItineraryDelayProjector {
      * @param visited 이미 다녀온 곳인가. 참이면 아래 예측 값들은 기록된 사실 그대로다
      * @param predictedArrival 예상 도착. 다녀온 곳이면 실제 도착
      * @param predictedDeparture 예상 출발. 다녀온 곳이면 실제 출발
-     * @param delayMinutes 계획보다 몇 분 늦나. 음수면 이르다. 계획 시각이 없으면 {@code null}
+     * @param delayMinutes 계획보다 몇 분 늦나. 0 이상이다 — 앞서면 자유 시간이 흡수해 계획 시각에 닿는다
+     *     (S15P21E201-1740). 계획 시각이 없으면 {@code null}
      */
     public record Entry(String itemKey, boolean visited, Instant predictedArrival,
             Instant predictedDeparture, Instant plannedArrival, Long delayMinutes,

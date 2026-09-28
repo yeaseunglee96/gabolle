@@ -490,6 +490,13 @@ class RouteAuthorizationRegistryTest {
 						+ "같은 404. TripTitleTest (-1023)");
 		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
+		put(m, "GET /api/v1/trips/{}/recommendations", Policy.OWNED,
+				"추천 코스 3안. 참여자만 — 추천 요청과 같은 관문(TripQueryService.get)을 지난다. 비회원과 "
+						+ "없는 여행이 같은 404. 추천이 아직 없으면 빈 목록이다. TripCourseIntegrationTest (-1454)");
+		put(m, "POST /api/v1/trips/{}/course", Policy.OWNED,
+				"고른 코스를 일정으로 만든다. 참여자만 — 같은 관문을 지난다. 남의 여행의 코스 번호를 내 여행 "
+						+ "주소로 보내도 404 다(코스 번호가 그 여행 것인지 따로 본다). "
+						+ "TripCourseIntegrationTest · TripCourseServiceTest (-1454)");
 		put(m, "GET /api/v1/trips/{}/stories", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404 이고, 참여자에게도 그 기록의 공개 범위 판정"
 						+ "(StoryVisibilityPolicy.canView)을 한 번 더 지난다 — 여행에 달렸다는 이유로 남의 "
@@ -497,6 +504,9 @@ class RouteAuthorizationRegistryTest {
 						+ "TripStoryJourneyFunctionalTest (-829)");
 		put(m, "GET /api/v1/trips/{}/activity", Policy.OWNED,
 				"참여자만. TripActivityIntegrationTest");
+		put(m, "GET /api/v1/me/notification-summary", Policy.OWNED,
+				"종 점. 경로에 남의 번호를 넣을 자리가 없고(/me) 내가 참여한 여행의 활동만 센다 — 남의 여행·지운 여행은 "
+						+ "안 센다. NotificationSummaryIntegrationTest (-1699)");
 		put(m, "GET /api/v1/trips/{}/members", Policy.OWNED,
 				"참여자만. TripMemberManagementIntegrationTest");
 		put(m, "POST /api/v1/trips/{}/invites", Policy.OWNED,
@@ -673,6 +683,9 @@ class RouteAuthorizationRegistryTest {
 				"남의 프로필 보기가 기능이다. 위험은 비공개 항목이 섞이는 것. FollowIntegrationTest");
 		put(m, "GET /api/v1/users/{}/stories", Policy.OTHER_USER_OK,
 				"남의 기록 목록 보기가 기능이다. visibleScopesOf 가 팔로우 여부로 범위를 가른다. FollowIntegrationTest");
+		put(m, "GET /api/v1/users/me/replies", Policy.AUTHENTICATED_ONLY,
+				"내 댓글 목록이다. 대상이 인증 주체로만 정해져 남의 댓글 목록을 부를 자리가 없다. 원글 미리보기는 "
+						+ "내가 지금 볼 수 있을 때만 싣는다. MyRepliesIntegrationTest (-1600)");
 		put(m, "PUT /api/v1/users/{}/block", Policy.OTHER_USER_OK,
 				"남을 차단하는 것이 기능이다. 주체는 인증에서만 읽어 남의 이름으로 차단할 수 없다. BlockIntegrationTest");
 		put(m, "DELETE /api/v1/users/{}/block", Policy.OTHER_USER_OK,

@@ -3,6 +3,8 @@ package com.gabolle.backend.recommendation.adapter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -30,6 +32,7 @@ import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.preference.domain.TasteWeightComponent;
 import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
 import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
+import com.gabolle.backend.place.service.MenuPriceWon;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
@@ -44,8 +47,7 @@ import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
-
-import tools.jackson.databind.JsonNode;
+import com.gabolle.backend.trip.domain.WalkOnlyFirstDay;
 
 /**
  * 규칙 기반 BASELINE 추천 엔진. 학습 모델·온톨로지 서버가 아직 없는 동안 이 엔진이
@@ -175,10 +177,12 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		long candidateGenerationStart = System.nanoTime();
 		PlaceCandidateRequest queryRequest =
 				this.translator.translate(location, trip, preferenceSnapshot, constraints);
-		PlaceCandidateResponse response = findCandidatesWithinTravelAreas(trip.tripId(), queryRequest);
+		CandidatePool pool = findCandidatesWithinTravelAreas(trip, queryRequest);
+		PlaceCandidateResponse response = pool.response();
 		// 사용자가 적은 「꼭 가고 싶은 장소」가 반경 밖이면 여기까지 안 들어온다. 끼워 넣는다.
 		List<TripSeedPlace> seeds = this.seedPlaceRepository.findByTripId(trip.tripId());
 		response = includeMissingSeeds(response, seeds);
+		response = withoutClosedEvents(response, trip, seeds);
 		long candidateGenerationMs = elapsedMs(candidateGenerationStart);
 
 		// 대조표는 배치당 한 번만 읽는다 — 후보마다 다시 읽으면 질의 수가 후보 수에 비례한다.
@@ -217,14 +221,20 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 					this.properties.weights(), this.alignmentWeights, preferenceCodeMap, constraintCodeMap,
 					tasteWeights, this.properties.tasteVectorMultiplier()));
 		}
+		candidates = markFirstDayOnly(candidates, pool.firstDayOnly());
 		// 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다 — SeedBoost 참고.
 		candidates = SeedBoost.apply(candidates, seeds);
 		// 총예산에 맞춘다. 역시 점수만 움직이고 후보를 빼지 않는다 — BudgetFit 참고.
 		candidates = BudgetFit.apply(candidates, priceBandsOf(response), BudgetFit.targetBand(trip));
-		// 자르기는 채점을 마친 뒤다.
+		// 전국 프랜차이즈는 점수를 낮춘다 — 동네 가게가 먼저 나오게. 역시 후보를 빼지 않는다 — ChainPenalty 참고.
+		candidates = ChainPenalty.apply(candidates, ChainPenalty.brandsOf(response));
+		// 자르기는 채점을 마친 뒤다. 갈래를 골랐으면 그 갈래·끼니·쉼 갈래에 몫을 먼저 준다({@link #keepWithCategoryShares}).
 		// 갈래를 안 골랐으면 뒤쪽을 여행마다 다르게 채운다 (S15P21E201-1463).
-		boolean noCategoryChosen = queryRequest.categoriesOrEmpty().isEmpty();
-		candidates = keepBestScoring(candidates, this.properties.candidateLimit(), noCategoryChosen, request.tripId());
+		// 🔴 고른 갈래는 질의가 아니라 취향에서 읽는다 — 질의는 갈래로 좁히지 않아(-1535) 늘 비어 있고, 그 탓에
+		//    「안 골랐다」가 모든 여행에 참이 되어 있었다.
+		List<String> chosenCategories = this.scorer.chosenCategories(preferenceSnapshot);
+		candidates = keepBestScoring(candidates, this.properties.candidateLimit(), chosenCategories,
+				this.scorer.hasTasteBeyondCategory(preferenceSnapshot), request.tripId());
 		long rankingMs = elapsedMs(rankingStart);
 
 		String datasetVersion = resolveDatasetVersion(response.datasetVersions());
@@ -275,18 +285,27 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * {@code ItineraryDraftCommand.places} 의 계약이 「rank 오름차순」이고, 화면도 앞쪽을 더 잘
 	 * 맞는 곳으로 읽는다.
 	 *
-	 * @param varyTail 갈래를 안 골라서 뒤쪽을 섞어도 되는가. 골랐으면 {@code false} —
+	 * <p>🔴 <b>갈래는 안 골랐어도 설문 답이 있으면 섞지 않는다</b> (S15P21E201-1639). 가입 설문(음식·동네·조용함·관광·
+	 * 경사)은 여행 답으로 옮겨져 이미 채점되는데, 섞기가 그 효과를 덮었다 — 같은 설문이어도 여행이 다르면 상위 20곳 중
+	 * 11곳이 바뀌었고 설문끼리의 차이는 그 흔들림에 묻혔다(운영 자료 로컬 측정, 2026-09-25). 대가는 같은 설문이면 여행마다
+	 * 같은 곳이 나오는 것이다(사용자 결정). 설문도 없으면 위의 섞기 그대로다.
+	 *
+	 * @param chosenCategories 사용자가 고른 갈래. 비었으면 뒤쪽을 섞고, 골랐으면 섞지 않고 갈래 몫을 먼저 준다 —
 	 *     「카페를 골랐는데 카페가 적네」가 생기면 안 된다
+	 * @param surveyed 갈래 말고도 채점에 쓰이는 취향 답이 있는가 — 있으면 섞지 않고 점수 순으로 자른다
 	 * @param seed 섞기의 씨앗. 같은 값이면 같은 결과다
 	 */
 	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit,
-			boolean varyTail, UUID seed) {
+			List<String> chosenCategories, boolean surveyed, UUID seed) {
 		if (candidates.size() <= limit) {
 			return candidates;
 		}
 		List<EngineCandidate> sorted = new ArrayList<>(candidates);
 		sorted.sort(scoreOrder());
-		if (!varyTail) {
+		if (!chosenCategories.isEmpty()) {
+			return keepWithCategoryShares(sorted, limit, chosenCategories);
+		}
+		if (surveyed) {
 			return new ArrayList<>(sorted.subList(0, limit));
 		}
 
@@ -301,6 +320,65 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		// 고르기는 섞어서 했어도 내보내는 순서는 점수 순이다.
 		kept.sort(scoreOrder());
 		return kept;
+	}
+
+	/**
+	 * 고른 갈래가 남기는 후보에서 차지하는 몫의 합. 앱이 「고른 갈래가 하루 정차지의 약 70%를 차지해요」라고
+	 * 약속한다(frontend {@code planOptions.ts}) — 후보에 그만큼이 없으면 그 약속을 일정이 지킬 수 없다.
+	 */
+	static final double CHOSEN_SHARE = 0.7;
+
+	/** 고르지 않았어도 끼니 자리를 채울 밥집의 몫. 바다·자연만 고른 사람도 밥은 먹는다. */
+	static final double MEAL_SHARE = 0.15;
+
+	/** 고르지 않았어도 쉼 자리(카페)의 몫. 일정이 카페를 하루 한 곳까지 앉힌다(S15P21E201-1573). */
+	static final double REST_SHARE = 0.05;
+
+	static final String MEAL_CATEGORY = "FOOD";
+
+	static final String REST_CATEGORY = "CAFE_HEALING";
+
+	/**
+	 * 갈래를 고른 사람의 자르기 — 갈래마다 최소 몫을 점수 순으로 먼저 채우고, 남은 자리를 전체 점수 순으로 채운다.
+	 *
+	 * <p>🔴 <b>왜.</b> 고른 갈래는 채점에서 «가산점» 이다(-1535). 그런데 운영 장소는 밥집이 압도적이라(광안리+해운대
+	 * 범위: 밥집 1,074 · 카페 156 · 자연 10 · 바다 2) 맛집도 고르면 수천 곳이 같은 가산점을 받고, 밥집에만 붙는
+	 * 인기도·예산 가산까지 얹혀 상위 200 을 밥집이 다 채웠다. 바다·자연·맛집을 고른 운영 여행의 후보가
+	 * <b>밥집 199 · 꼭 갈 곳 1</b> 이었고 코스 셋이 전부 식당으로 찼다(2026-09-24).
+	 *
+	 * <p>한 갈래의 후보가 몫보다 적으면 있는 만큼만 넣는다 — 바다가 2곳이면 2곳이다. 몫의 합이 {@code limit} 의
+	 * 90% 이하라 점수 순으로 채우는 자리가 늘 남는다(꼭 갈 곳은 점수가 맨 위라 거기서 들어온다).
+	 */
+	private static List<EngineCandidate> keepWithCategoryShares(List<EngineCandidate> sorted, int limit,
+			List<String> chosenCategories) {
+		Map<String, Integer> shares = new LinkedHashMap<>();
+		int perChosen = Math.max(1, (int) (limit * CHOSEN_SHARE / chosenCategories.size()));
+		for (String category : chosenCategories) {
+			shares.put(category, perChosen);
+		}
+		shares.putIfAbsent(MEAL_CATEGORY, Math.max(1, (int) (limit * MEAL_SHARE)));
+		shares.putIfAbsent(REST_CATEGORY, Math.max(1, (int) (limit * REST_SHARE)));
+
+		Map<UUID, EngineCandidate> kept = new LinkedHashMap<>();
+		Map<String, Integer> taken = new HashMap<>();
+		for (EngineCandidate candidate : sorted) {
+			Object category = candidate.featureValues() == null ? null : candidate.featureValues().get("category");
+			Integer share = (category == null) ? null : shares.get(category.toString());
+			if (share != null && taken.getOrDefault(category.toString(), 0) < share) {
+				kept.put(candidate.placeId(), candidate);
+				taken.merge(category.toString(), 1, Integer::sum);
+			}
+		}
+		for (EngineCandidate candidate : sorted) {
+			if (kept.size() >= limit) {
+				break;
+			}
+			kept.putIfAbsent(candidate.placeId(), candidate);
+		}
+		List<EngineCandidate> out = new ArrayList<>(kept.values());
+		// 몫으로 골랐어도 내보내는 순서는 점수 순이다 — ItineraryDraftCommand.places 의 계약.
+		out.sort(scoreOrder());
+		return out;
 	}
 
 	/** 점수 내림차순, 동점은 {@code placeId}. 두 곳에서 같은 순서를 써야 해서 따로 뺐다. */
@@ -383,11 +461,36 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * 덮는 원이 도시 전체가 되어 범위를 골랐다는 말이 뜻을 잃는다. 모자라면 출발지 기준
 	 * 조회로 채운다. 거리는 여전히 출발지 기준이고 이 자리는 무엇을 채점할 것인가만 정한다.
 	 */
-	private PlaceCandidateResponse findCandidatesWithinTravelAreas(String tripId, PlaceCandidateRequest base) {
-		List<TravelArea> areas = this.travelAreas.map((repository) -> repository.findByTripId(tripId))
+	/** 후보 조회 결과와, 그중 첫날에만 앉힐 곳(범위 밖인데 출발지 둘레라 들어온 곳). */
+	private record CandidatePool(PlaceCandidateResponse response, Set<UUID> firstDayOnly) {
+	}
+
+	/** 첫날에만 앉힐 곳에 {@link WalkOnlyFirstDay#REASON_CODE} 를 단다 — 일정 조립이 이 코드를 보고 날을 가린다. */
+	private static List<EngineCandidate> markFirstDayOnly(List<EngineCandidate> candidates, Set<UUID> firstDayOnly) {
+		if (firstDayOnly.isEmpty()) {
+			return candidates;
+		}
+		List<EngineCandidate> marked = new ArrayList<>(candidates.size());
+		for (EngineCandidate c : candidates) {
+			if (!firstDayOnly.contains(c.placeId())) {
+				marked.add(c);
+				continue;
+			}
+			List<String> reasons = new ArrayList<>(c.reasonCodes());
+			reasons.add(WalkOnlyFirstDay.REASON_CODE);
+			marked.add(new EngineCandidate(c.placeId(), c.candidateSource(), c.constraintVerdict(), c.violations(),
+					c.unknownFacts(), c.constraintConfidence(), c.featureValues(), c.scoreComponents(), c.preRankScore(),
+					reasons, c.warningCodes()));
+		}
+		return marked;
+	}
+
+	private CandidatePool findCandidatesWithinTravelAreas(Trip trip, PlaceCandidateRequest base) {
+		List<TravelArea> areas = this.travelAreas.map((repository) -> repository.findByTripId(trip.tripId()))
 				.orElse(List.of());
 		if (areas.isEmpty()) {
-			return this.placeCandidateQueryService.findCandidates(base);
+			// 범위를 안 골랐으면 출발지를 중심으로 훑으므로 출발지 둘레가 이미 들어 있다.
+			return new CandidatePool(this.placeCandidateQueryService.findCandidates(base), Set.of());
 		}
 
 		Map<String, PlaceCandidateResponse.Candidate> merged = new LinkedHashMap<>();
@@ -403,6 +506,23 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 			}
 		}
 
+		Set<UUID> firstDayOnly = new HashSet<>();
+		if (WalkOnlyFirstDay.applies(trip)) {
+			// 🔴 걷기만 고른 여행 — 첫날은 출발지에서 걸어갈 만한 곳이어야 하는데(S15P21E201-1634), 범위만 훑으면
+			//    출발지 둘레의 곳이 후보에 하나도 없다(출발 부산역·범위 해운대 → 200곳 전부 8~16km). 한 번 더 훑는다.
+			PlaceCandidateRequest nearOrigin = new PlaceCandidateRequest(
+					new PlaceCandidateRequest.Center(trip.originLat(), trip.originLng()), WalkOnlyFirstDay.RADIUS_M,
+					base.categories(), base.requiredFeatures(), base.excludedFeatures(),
+					base.openNowAt(), base.minimumCount(), base.limit());
+			for (PlaceCandidateResponse.Candidate candidate
+					: this.placeCandidateQueryService.findCandidates(nearOrigin).candidates()) {
+				if (merged.putIfAbsent(candidate.placeId().toString(), candidate) == null) {
+					firstDayOnly.add(candidate.placeId()); // 범위 안에서는 안 나왔다 — 첫날에만
+				}
+			}
+			appliedFilters.add("WALK_ONLY_NEAR_ORIGIN");
+		}
+
 		PlaceCandidateResponse fromAreas = this.placeCandidateQueryService.findCandidates(base);
 		if (merged.size() < MIN_AREA_CANDIDATES) {
 			// 범위 안이 비었다. 출발지 기준 후보로 채우고 그 사실을 appliedFilters 에 남긴다 —
@@ -414,9 +534,9 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		}
 
 		List<PlaceCandidateResponse.Candidate> candidates = List.copyOf(merged.values());
-		return new PlaceCandidateResponse(candidates, candidates.size(), fromAreas.minimumRequired(),
+		return new CandidatePool(new PlaceCandidateResponse(candidates, candidates.size(), fromAreas.minimumRequired(),
 				candidates.size() < fromAreas.minimumRequired(), appliedFilters, fromAreas.notApplied(),
-				fromAreas.scanTruncated(), fromAreas.datasetVersions());
+				fromAreas.scanTruncated(), fromAreas.datasetVersions()), firstDayOnly);
 	}
 
 	/**
@@ -477,6 +597,47 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				response.scanTruncated(), response.datasetVersions());
 	}
 
+	/** 여행 날짜에 하루도 안 여는 행사 장소를 뺐다는 표시. 응답의 appliedFilters 에 남는다. */
+	static final String EVENT_DATES_FILTER = "EVENT_OPEN_ON_TRIP_DATES";
+
+	/**
+	 * 기간표가 있는데 여행 기간에 하루도 안 여는 장소(끝난 축제·아직 안 한 축제)를 후보에서 뺀다 (S15P21E201-1618).
+	 *
+	 * <p>🔴 전에는 이 거르기가 일정 조립에만 있었다({@code ItineraryDraftService.eventDaysOf}). 축제는 갈래가 비어
+	 * 후보에 아예 안 들어와서 문제가 안 됐는데, 축제 갈래(FESTIVAL_EVENT)를 채우면 날짜가 안 맞는 축제가 추천 결과
+	 * 목록에 뜬다. 조립과 같은 판정이고, 조립처럼 사용자가 직접 고른 「꼭 갈 곳」은 빼지 않는다.
+	 */
+	private PlaceCandidateResponse withoutClosedEvents(PlaceCandidateResponse response, Trip trip,
+			List<TripSeedPlace> seeds) {
+		if (response.candidates().isEmpty()) {
+			return response;
+		}
+		Set<UUID> mustVisit = new HashSet<>();
+		for (TripSeedPlace seed : seeds) {
+			mustVisit.add(UUID.fromString(seed.placeId()));
+		}
+		List<UUID> ids = response.candidates().stream()
+				.map(PlaceCandidateResponse.Candidate::placeId)
+				.filter((id) -> !mustVisit.contains(id))
+				.toList();
+		if (ids.isEmpty()) {
+			return response;
+		}
+		Set<UUID> closed = new HashSet<>(
+				this.placeRepository.findEventPlacesClosedThroughout(ids, trip.startDate(), trip.finishDate()));
+		if (closed.isEmpty()) {
+			return response;
+		}
+		List<PlaceCandidateResponse.Candidate> open = response.candidates().stream()
+				.filter((candidate) -> !closed.contains(candidate.placeId()))
+				.toList();
+		List<String> appliedFilters = new ArrayList<>(response.appliedFilters());
+		appliedFilters.add(EVENT_DATES_FILTER);
+		return new PlaceCandidateResponse(open, open.size(), response.minimumRequired(),
+				open.size() < response.minimumRequired(), appliedFilters, response.notApplied(),
+				response.scanTruncated(), response.datasetVersions());
+	}
+
 	/**
 	 * 장소 하나를 자기 좌표를 중심으로 다시 조회해서 후보 모양으로 받아 온다.
 	 * 직접 만들지 않고 조회를 거치는 이유는, 채점기가 보는 표식 값들이 이 조회에서 채워지기
@@ -514,7 +675,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * 등급으로 채우면 조사 안 된 곳이 특정 등급인 것처럼 점수를 받는다. 값이 있는 곳이 아직
 	 * 6,866곳 중 189곳뿐이라 이 구분이 특히 중요하다.
 	 */
-	private static Map<UUID, String> priceBandsOf(PlaceCandidateResponse response) {
+	static Map<UUID, String> priceBandsOf(PlaceCandidateResponse response) {
 		Map<UUID, String> bandByPlace = new LinkedHashMap<>();
 		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
 			String band = null;
@@ -532,9 +693,11 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 					}
 				}
 				else if (BudgetFit.WON_FEATURE_TYPE.equals(feature.featureType()) && fromWon == null) {
-					JsonNode won = feature.value().path("priceWon");
-					if (won.isNumber()) {
-						fromWon = BudgetFit.bandOfWon(won.asInt());
+					// 비용을 읽는 다른 곳과 같은 판정을 거친다 — 「2인 세트」 값은 1인분이 아니라 모름이다
+					// (S15P21E201-1615). 여기서 따로 읽으면 가격대만 비싼 곳으로 잘못 매겨진다.
+					Integer won = MenuPriceWon.wonOfNode(feature.value());
+					if (won != null) {
+						fromWon = BudgetFit.bandOfWon(won);
 					}
 				}
 			}

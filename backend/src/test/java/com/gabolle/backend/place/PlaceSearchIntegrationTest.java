@@ -69,6 +69,37 @@ class PlaceSearchIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 띄어 쓴 검색어도 붙여 쓴 이름을 찾는다 — 「해운대 해수욕장」이 0건이었다(S15P21E201-1745)")
+	void spacedQueryFindsUnspacedName() {
+		UUID placeId = this.fixture.insertPlace("해운대해수욕장", null, "SEA_BEACH", 35.1585, 129.1598);
+
+		PlacePageResponse page = this.placeSearchService.search(this.fixture.prefix() + "해운대 해수욕장", null, null, null);
+
+		assertThat(page.items()).extracting(PlaceSummaryResponse::placeId).contains(placeId);
+	}
+
+	@Test
+	@DisplayName("🔴 붙여 쓴 검색어도 띄어 쓴 이름을 찾는다 — 반대 방향도 같다")
+	void unspacedQueryFindsSpacedName() {
+		UUID placeId = this.fixture.insertPlace("해운대 관광특구", null, "CITY", 35.1631, 129.1635);
+
+		PlacePageResponse page = this.placeSearchService.search(this.fixture.prefix() + "해운대관광특구", null, null, null);
+
+		assertThat(page.items()).extracting(PlaceSummaryResponse::placeId).contains(placeId);
+	}
+
+	@Test
+	@DisplayName("🔴 띄어쓰기만 다르면 정확일치로 친다 — 정확일치가 「…주차장」보다 먼저다")
+	void spacingDifferenceStillRanksAsExactMatch() {
+		UUID parking = this.fixture.insertPlace("해운대해수욕장 주차장", null, "CITY", 35.1590, 129.1600);
+		UUID beach = this.fixture.insertPlace("해운대해수욕장", null, "SEA_BEACH", 35.1585, 129.1598);
+
+		PlacePageResponse page = this.placeSearchService.search(this.fixture.prefix() + "해운대 해수욕장", null, null, null);
+
+		assertThat(page.items()).extracting(PlaceSummaryResponse::placeId).containsSubsequence(beach, parking);
+	}
+
+	@Test
 	@DisplayName("완료 기준 — 영문 이름이 있는 장소는 영어로 검색해도 같은 장소가 나온다")
 	void searchByEnglishNameFindsTheSamePlace() {
 		UUID placeId = this.fixture.insertPlace("감천문화마을", "Gamcheon Culture Village",

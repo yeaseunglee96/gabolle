@@ -6,12 +6,17 @@ import java.time.LocalDate;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,8 +29,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.gabolle.backend.itinerary.application.ItineraryDraftService;
+import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
+import com.gabolle.backend.place.service.PlaceTimeTablePort;
 import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
 import com.gabolle.backend.itinerary.application.port.RouteOrderPort;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
@@ -37,6 +44,15 @@ import com.gabolle.backend.itinerary.domain.ItineraryWarningCodes;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
+import com.gabolle.backend.itinerary.application.port.PlaceEventSchedule;
+import com.gabolle.backend.itinerary.application.port.PlaceEventSchedulePort;
+import com.gabolle.backend.itinerary.domain.Itinerary;
+import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryVersion;
+import com.gabolle.backend.recommendation.adapter.SeedBoost;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionCommand;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionDraft;
+import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripRepository;
 
@@ -76,6 +92,29 @@ class ItineraryDraftServiceTest {
 		}
 	};
 
+	/**
+	 * 시각마다 답하는 가짜 문 둘을 조립기가 받는 영업표 문으로 잇는다(S15P21E201-1663). 가짜는 (장소, 시각)으로 답을
+	 * 정하므로 시각마다 그대로 물어 옮긴다 — 영업표를 한 번 읽는 것은 DB 구현의 일이고 이 파일의 주제가 아니다.
+	 */
+	private static PlaceTimeTablePort tables(OpeningHoursFilterPort openingHours, PlaceTimeFactFilterPort timeFact) {
+		return (placeId) -> new PlaceTimeTablePort.PlaceTimeTable() {
+			@Override
+			public OpeningHoursFilterPort.Answer openAt(java.time.OffsetDateTime at) {
+				return openingHours.openAt(placeId, at);
+			}
+
+			@Override
+			public OpeningHoursFilterPort.Answer breakTimeAt(java.time.OffsetDateTime at) {
+				return timeFact.breakTimeAt(placeId, at);
+			}
+
+			@Override
+			public OpeningHoursFilterPort.Answer lastOrderAt(java.time.OffsetDateTime at) {
+				return timeFact.lastOrderAt(placeId, at);
+			}
+		};
+	}
+
 	private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-09-05T00:00:00Z"), ZoneOffset.UTC);
 
 	private TripRepository tripRepository;
@@ -108,7 +147,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", 1, legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", 1, legPlanner, tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -140,6 +179,10 @@ class ItineraryDraftServiceTest {
 	 * 밥집은 밥 때에 놓는다. 자리 순서가 아니라 그 칸의 시각이 정한다.
 	 * 09:00~18:00 에 네 곳이면 칸이 2시간 15분씩 넷이고, 점심·저녁에 60분 이상 걸리는 것은
 	 * 둘째와 넷째다. 첫 칸(09:00~11:15)은 아침에 30분 걸치지만 스친 것이라 명소 자리다.
+	 *
+	 * <p>실제 시각은 칸이 아니라 곳마다 머무는 시간으로 깐다(S15P21E201-1667). 60분씩 넷이면 300분이 남는데, 저녁이
+	 * 17:00 에 오려면 300분을 다 저녁 앞에 넣어야 한다. 점심 앞에는 고르게 나눈 몫(사이 셋에 100분씩)을 넣어 11:40 —
+	 * 점심 시각대(11:30~14:00) 안이라 그대로 둔다.
 	 */
 	@Test
 	@DisplayName("밥집은 점심·저녁 칸에만 들어가고 오전 첫 칸은 명소가 차지한다")
@@ -155,8 +198,8 @@ class ItineraryDraftServiceTest {
 				.sorted((a, b) -> Integer.compare(a.sequence(), b.sequence()))
 				.toList();
 		assertThat(today.stream().map(ItineraryDraft.DraftItem::startTime))
-				.containsExactly(LocalTime.of(9, 0), LocalTime.of(11, 15),
-						LocalTime.of(13, 30), LocalTime.of(15, 45));
+				.containsExactly(LocalTime.of(9, 0), LocalTime.of(11, 40),
+						LocalTime.of(14, 20), LocalTime.of(17, 0));
 		assertThat(today.stream().map(this::categoryOfItem).map("FOOD"::equals))
 				.containsExactly(false, true, false, true);
 	}
@@ -234,6 +277,161 @@ class ItineraryDraftServiceTest {
 		assertThat(countByDay).containsEntry(0, 4L).containsEntry(1, 4L).containsEntry(2, 4L);
 	}
 
+	/**
+	 * 운영 일정 201개 중 4개가 같은 체인의 다른 지점을 두 번 넣었다 (S15P21E201-1616). 이름은 운영에 실린 모양 그대로
+	 * — 붙여 쓴 「배스킨라빈스광안역점」, 영어 「Starbucks」 — 이다. 띄어쓰기로 가르면 이 둘을 놓친다.
+	 */
+	@Test
+	@DisplayName("🔴 한 일정에 같은 상표는 한 번만 — 순위가 높은 지점만 남고, 체인 아닌 곳은 그대로다")
+	void aBrandAppearsOnceInAnItinerary() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamed(List.of(
+				"배스킨라빈스광안역점", "해운대해수욕장", "베스킨라빈스 해운대점", "동백섬", "Starbucks", "스타벅스 해운대달맞이길점"));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> placed = draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList();
+		assertThat(placed)
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(3).placeId(),
+						places.get(4).placeId())
+				.as("같은 상표의 뒤 지점은 빠진다")
+				.doesNotContain(places.get(2).placeId(), places.get(5).placeId());
+	}
+
+	/**
+	 * 🔴 운영(2026-09-25) — 일정 161개 중 3개에 젤라또부(400m 떨어진 두 지점)·젤라또조이(5km)가 두 번씩 들어갔다.
+	 * 등록된 상표가 아니어도 이름이 같으면 한 곳만 — 띄어쓰기·대소문자는 무시한다(S15P21E201-1631).
+	 */
+	@Test
+	@DisplayName("🔴 등록 상표가 아니어도 이름이 같은 가게는 한 일정에 한 곳만 — 순위가 높은 쪽이 남는다")
+	void sameNameAppearsOnceEvenOffTheBrandList() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamed(List.of(
+				"젤라또부", "해운대해수욕장", "젤라또 부", "동백섬", "Gelato Joy", "gelato joy"));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> placed = draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList();
+		assertThat(placed)
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(3).placeId(),
+						places.get(4).placeId())
+				.as("이름이 같은 뒤 지점은 빠진다")
+				.doesNotContain(places.get(2).placeId(), places.get(5).placeId());
+	}
+
+	/**
+	 * 🔴 시연 점검(2026-09-26) — 광안리 드론쇼가 한 일정에 두 번 앉았다. 운영에 오픈스트리트맵 줄과 TourAPI 줄이 약 400m
+	 * 떨어져 따로 있고, 이름은 괄호 하나만 다르다(S15P21E201-1758). 좌표는 운영 두 줄 그대로다.
+	 */
+	@Test
+	@DisplayName("🔴 괄호 안만 다른 같은 이름이 1km 안이면 한 곳만 — 광안리 드론쇼 두 줄")
+	void parenVariantWithinOneKmAppearsOnce() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamedAt(
+				List.of("광안리 M 드론 라이트쇼", "해운대해수욕장", "광안리 M(Marvelous) 드론 라이트쇼", "동백섬"),
+				List.of(new double[] { 35.15485, 129.12273 }, new double[] { 35.1587, 129.1604 },
+						new double[] { 35.15377, 129.11852 }, new double[] { 35.1530, 129.1520 }));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> placed = draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList();
+		assertThat(placed)
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(3).placeId())
+				.as("400m 떨어진 뒤 줄은 빠진다")
+				.doesNotContain(places.get(2).placeId());
+	}
+
+	@Test
+	@DisplayName("괄호 안만 다른 이름이라도 1km 밖이면 둘 다 남는다 — 괄호가 곳을 가르는 말이다")
+	void parenVariantFartherThanOneKmStays() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamedAt(
+				List.of("전망대(황령산)", "광안리해수욕장", "전망대(이기대)"),
+				List.of(new double[] { 35.1573, 129.0829 }, new double[] { 35.1532, 129.1187 },
+						new double[] { 35.1336, 129.1225 }));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList())
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(2).placeId());
+	}
+
+	/**
+	 * 운영의 갈맷길이 이 모양이다 — 「갈맷길」 여러 줄과 「갈맷길 (녹산)」. 견주는 상대는 남긴 곳뿐이라, 1km 안이라 빠진
+	 * 「갈맷길」이 3km 떨어진 「갈맷길」까지 끌고 가지 않는다.
+	 */
+	@Test
+	@DisplayName("빠진 곳은 다른 곳을 끌고 가지 않는다 — 견주는 상대는 남긴 곳뿐")
+	void droppedParenVariantDoesNotDragAFarSameName() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamedAt(
+				List.of("갈맷길 (녹산)", "해운대해수욕장", "갈맷길", "갈맷길"),
+				List.of(new double[] { 35.1532, 129.1187 }, new double[] { 35.1587, 129.1604 },
+						new double[] { 35.1559, 129.1187 }, new double[] { 35.1800, 129.1187 }));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> placed = draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList();
+		assertThat(placed)
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(3).placeId())
+				.as("300m 안의 「갈맷길」만 빠진다")
+				.doesNotContain(places.get(2).placeId());
+	}
+
+	@Test
+	@DisplayName("좌표를 모르면 괄호 안만 다른 이름이라도 빼지 않는다 — 1km 안인지 모른다")
+	void parenVariantWithoutCoordinatesStays() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		// 앞 곳은 좌표가 있고 뒤 곳만 모른다 — 모르는 쪽을 「가깝다」로 치면 빠진다.
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesNamedAt(
+				List.of("몰운대", "해운대해수욕장", "몰운대(부산)"),
+				Arrays.asList(new double[] { 35.1532, 129.1187 }, new double[] { 35.1587, 129.1604 }, null));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items().stream().map(ItineraryDraft.DraftItem::placeId).toList())
+				.contains(places.get(0).placeId(), places.get(1).placeId(), places.get(2).placeId());
+	}
+
+	/** 이름과 좌표를 붙인 후보. 갈래는 비워 둔다 — 끼니 상한과 섞이지 않게. 좌표가 null 이면 모르는 곳이다. */
+	private List<ItineraryDraftCommand.PlannedPlace> plannedPlacesNamedAt(List<String> names,
+			List<double[]> coordinates) {
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>();
+		List<com.gabolle.backend.place.domain.Place> rows = new ArrayList<>();
+		for (int i = 0; i < names.size(); i++) {
+			UUID placeId = UUID.randomUUID();
+			double[] at = coordinates.get(i);
+			if (at != null) {
+				this.coordinateByPlaceId.put(placeId, at);
+			}
+			places.add(new ItineraryDraftCommand.PlannedPlace(placeId, i + 1, List.of("REASON"), List.of(), null));
+			rows.add(com.gabolle.backend.place.domain.Place.imported(placeId, names.get(i), null, "부산",
+					at == null ? null : at[0], at == null ? null : at[1], "TEST", "test-" + i, null, null, "v1"));
+		}
+		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(rows);
+		return places;
+	}
+
+	/** 이름을 붙인 후보. 갈래·좌표는 비워 둔다 — 끼니 상한·지역 가르기와 섞이지 않게. */
+	private List<ItineraryDraftCommand.PlannedPlace> plannedPlacesNamed(List<String> names) {
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>();
+		List<com.gabolle.backend.place.domain.Place> rows = new ArrayList<>();
+		for (int i = 0; i < names.size(); i++) {
+			UUID placeId = UUID.randomUUID();
+			places.add(new ItineraryDraftCommand.PlannedPlace(placeId, i + 1, List.of("REASON"), List.of(), null));
+			rows.add(com.gabolle.backend.place.domain.Place.imported(placeId, names.get(i), null, "부산", null, null,
+					"TEST", "test-" + i, null, null, "v1"));
+		}
+		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(rows);
+		return places;
+	}
+
 	@Test
 	@DisplayName("순위대로 날짜에 배분한다 — 하루 4개를 채우면 다음 날로 넘긴다")
 	void distributesPlacesAcrossDaysByRankAndCarriesOverflowForward() {
@@ -275,6 +473,34 @@ class ItineraryDraftServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-1565 — 마지막 방문지는 돌아갈 시간만큼 일찍 끝난다(당일치기 = 출발지로)")
+	void lastStopLeavesRoomToGoBack() {
+		LocalDate day = LocalDate.of(2026, 9, 10);
+		Trip trip = new Trip("trip_1", "usr_1", day, day, 35.1152, 129.0422, null, 2, "09:00-18:00", "Asia/Seoul",
+				new String[] { "BUS" }, LocalTime.of(9, 0), LocalTime.of(18, 0), Instant.now());
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		// 방문지에 좌표가 있어야 돌아가는 길을 잰다.
+		when(this.placeRepository.findById(org.mockito.ArgumentMatchers.any(UUID.class))).thenAnswer((call) ->
+				Optional.of(Place.imported(call.getArgument(0), "장소", "CAFE_HEALING", null, 35.16, 129.16,
+						"FIXTURE", call.getArgument(0).toString(), null, null, "v1")));
+		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) ->
+				new TravelTime(5000, 25, ItineraryItem.DataStatus.ESTIMATED);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(port);
+		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
+				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1,
+				new ItineraryLegPlanner(this.placeRepository, provider), tables(ALWAYS_UNKNOWN,
+				ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
+
+		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
+
+		LocalTime lastEnd = draft.items().get(draft.items().size() - 1).endTime();
+		assertThat(lastEnd).as("18:00 에서 돌아가는 25분을 먼저 뗀다 — 나눗셈 나머지만큼 더 이를 수 있다")
+				.isBetween(LocalTime.of(17, 30), LocalTime.of(17, 35));
+	}
+
+	@Test
 	@DisplayName("🔴 S15P21E201-179 — 구간에 실제 이동시간과 그 값의 출처가 실린다")
 	void legsCarryMeasuredTravelTimeAndItsDataStatus() {
 		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
@@ -289,8 +515,8 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
-				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1, legPlanner, ALWAYS_UNKNOWN,
-				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1, legPlanner, tables(ALWAYS_UNKNOWN,
+				ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -321,8 +547,8 @@ class ItineraryDraftServiceTest {
 
 		ItineraryRepository repository = mock(ItineraryRepository.class);
 		ItineraryDraftService service = new ItineraryDraftService(this.tripRepository, repository, CLOCK,
-				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, provider), ALWAYS_UNKNOWN,
-				ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, provider), tables(ALWAYS_UNKNOWN,
+				ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		service.persist(service.assemble(commandOf("trip_1", plannedPlaces(3))));
 
@@ -334,6 +560,67 @@ class ItineraryDraftServiceTest {
 		assertThat(savedLegs.getValue()).allSatisfy((leg) -> assertThat(leg.fareKrw())
 				.as("요금을 받아 놓고 저장에서 흘리면 화면이 비용 줄을 아예 안 그린다")
 				.isEqualTo(12_800));
+	}
+
+	/**
+	 * 실제 이동으로 고친 배율(S15P21E201-1700) — 저장·화면·시각 깔기는 고친 값을 쓰고, 옆 칸에 엔진의 어림을 남긴다. 어림을
+	 * 흘리면 다음 보정 계산이 고친 값을 어림으로 읽어 배율이 겹쳐 곱해진다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-1700 — 새 일정 저장: 이동 시간은 배율을 곱한 값, 옆 칸에는 엔진의 어림이 남는다")
+	void persistKeepsTheUncalibratedTravelTime() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		ItineraryRepository repository = mock(ItineraryRepository.class);
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, travelMinutes(25));
+		planner.setTravelCalibration((mode) -> OptionalDouble.of(1.2));
+		ItineraryDraftService service = new ItineraryDraftService(this.tripRepository, repository, CLOCK, 4, 3, "FOOD", 1,
+				planner, tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
+
+		service.persist(service.assemble(commandOf("trip_1", plannedPlaces(3))));
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryLeg>> savedLegs = ArgumentCaptor.forClass(List.class);
+		verify(repository).create(any(), any(), any(), savedLegs.capture());
+		assertThat(savedLegs.getValue()).isNotEmpty().allSatisfy((leg) -> {
+			assertThat(leg.durationMin()).isEqualTo(30);
+			assertThat(leg.uncalibratedDurationMin()).isEqualTo(25);
+		});
+	}
+
+	@Test
+	@DisplayName("보정이 꺼져 있으면 두 칸이 같다 — 어림이 곧 이동 시간")
+	void withoutCalibrationBothFieldsHoldTheEstimate() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, travelMinutes(25));
+
+		assertThat(planner.buildLegs(trip, List.of(List.of(UUID.randomUUID(), UUID.randomUUID())))).allSatisfy((leg) -> {
+			assertThat(leg.durationMin()).isEqualTo(25);
+			assertThat(leg.uncalibratedDurationMin()).isEqualTo(25);
+		});
+	}
+
+	@Test
+	@DisplayName("배율은 그 수단 것만 곱한다 — 다른 수단의 배율만 있으면 어림 그대로")
+	void aMultiplierForAnotherModeIsNotApplied() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, travelMinutes(25));
+		planner.setTravelCalibration((mode) -> "BUS".equals(mode) ? OptionalDouble.of(2.0) : OptionalDouble.empty());
+
+		// 이 여행은 이동 수단을 안 골라 걷기(WALK)로 짠다.
+		assertThat(planner.buildLegs(trip, List.of(List.of(UUID.randomUUID())))).singleElement().satisfies((leg) -> {
+			assertThat(leg.travelMode()).isEqualTo("WALK");
+			assertThat(leg.durationMin()).isEqualTo(25);
+		});
+	}
+
+	private static ObjectProvider<TravelTimePort> travelMinutes(int minutes) {
+		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) ->
+				new TravelTime(1000, minutes, ItineraryItem.DataStatus.ESTIMATED);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(port);
+		return provider;
 	}
 
 	@Test
@@ -453,6 +740,173 @@ class ItineraryDraftServiceTest {
 				assertThat(item.warningCodes()).contains("OPENING_HOURS_CLOSED"));
 	}
 
+	// ── 디저트 가게는 끼니가 아니다 (S15P21E201-1635) ──────────────────────
+
+	/**
+	 * 09:00~18:00 · 하루 4곳이면 끼니 칸은 둘째(점심)·넷째(저녁)다.
+	 * 순위 1위가 디저트 표식만 있는 「밥집」(젤라또)이다 —
+	 * 전에는 점심 칸에 앉았다. 이제는 카페로 읽혀 진짜 밥집 둘이 끼니 칸을 맡는다.
+	 */
+	@Test
+	@DisplayName("🔴 디저트 표식만 있는 밥집은 끼니로 안 센다 — 점심 칸에 젤라또가 앉던 것")
+	void dessertOnlyFoodIsNotAMeal() {
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(
+				tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10), LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesOf(
+				"FOOD", "FOOD", "FOOD", "CULTURE_TEMPLE", "NATURE_WALK");
+		UUID gelato = places.get(0).placeId();
+		this.service.setDessertOnly(ids -> ids.contains(gelato) ? java.util.Set.of(gelato) : java.util.Set.of());
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> atMeals = draft.items().stream()
+				.filter(item -> item.sequence() == 2 || item.sequence() == 4)
+				.map(ItineraryDraft.DraftItem::placeId)
+				.toList();
+		assertThat(atMeals).as("끼니 칸은 진짜 밥집 둘").containsExactlyInAnyOrder(places.get(1).placeId(),
+				places.get(2).placeId());
+	}
+
+	// ── 걷기만 고른 여행의 첫날 (S15P21E201-1634) ──────────────────────────
+
+	private static final double[] BUSAN_STATION = { 35.1152, 129.0403 };
+
+	/**
+	 * 운영 여행 54854ec1 모양 — 출발 부산역, 여행 범위 해운대, 이틀 · 하루 4곳. 순위 앞쪽이 해운대(15km) {@code haeundae}곳,
+	 * 뒤쪽이 부산역 둘레(1km 안) {@code near}곳이다. 둘레 곳은 엔진이 「범위 밖인데 출발지 둘레라서 들어온 곳」으로 표시해 넘긴다.
+	 */
+	private List<ItineraryDraftCommand.PlannedPlace> walkOnlyCase(int haeundae, int near, String... modes) {
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(Trip.builder()
+				.tripId("trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 10, 1)).finishDate(LocalDate.of(2026, 10, 2))
+				.partySize(2).timezone("Asia/Seoul").travelModes(modes)
+				.originLat(BUSAN_STATION[0]).originLng(BUSAN_STATION[1])
+				.timeWindowStart(LocalTime.of(9, 0)).timeWindowEnd(LocalTime.of(18, 0))
+				.createdAt(Instant.now())
+				.build()));
+		List<double[]> coords = new ArrayList<>();
+		for (int i = 0; i < haeundae; i++) {
+			coords.add(new double[] { 35.1587 + i * 0.001, 129.1604 + i * 0.001 });
+		}
+		for (int i = 0; i < near; i++) {
+			coords.add(new double[] { 35.1152 + i * 0.0015, 129.0403 + i * 0.0005 }); // 0.2~1km
+		}
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>(plannedPlacesAt(
+				java.util.Collections.nCopies(haeundae + near, "CULTURE_TEMPLE"), coords));
+		for (int i = haeundae; i < haeundae + near; i++) {
+			ItineraryDraftCommand.PlannedPlace p = places.get(i);
+			places.set(i, new ItineraryDraftCommand.PlannedPlace(p.placeId(), p.rank(),
+					List.of("REASON", com.gabolle.backend.trip.domain.WalkOnlyFirstDay.REASON_CODE), List.of(),
+					p.category()));
+		}
+		return places;
+	}
+
+	private static List<UUID> dayOf(ItineraryDraft draft, int dayIndex) {
+		return draft.items().stream().filter(item -> item.dayIndex() == dayIndex)
+				.map(ItineraryDraft.DraftItem::placeId).toList();
+	}
+
+	@Test
+	@DisplayName("🔴 걷기만 고른 여행의 첫날은 출발지에서 걸어서 30분 안의 곳만 — 첫날에 빈자리가 남아도 해운대(15km)를 안 넣는다")
+	void walkOnlyFirstDayStaysNearTheOrigin() {
+		// 해운대 여섯 중 넷이 둘째 날을 채우고 둘이 남는다. 규칙이 없으면 그 둘이 첫날 빈자리로 간다.
+		List<ItineraryDraftCommand.PlannedPlace> places = walkOnlyCase(6, 2, "WALK");
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> nearOrigin = places.subList(6, 8).stream().map(ItineraryDraftCommand.PlannedPlace::placeId).toList();
+		assertThat(dayOf(draft, 0)).as("첫날은 부산역 둘레뿐").containsExactlyInAnyOrderElementsOf(nearOrigin);
+	}
+
+	@Test
+	@DisplayName("🔴 범위 밖인데 출발지 둘레라서 들어온 곳은 첫날에만 — 둘째 날은 고른 범위(해운대)")
+	void firstDayOnlyPlacesStayOffOtherDays() {
+		// 둘레 여섯 중 넷이 첫날을 채우고 둘이 남는다. 규칙이 없으면 그 둘이 둘째 날 빈자리로 간다.
+		List<ItineraryDraftCommand.PlannedPlace> places = walkOnlyCase(2, 6, "WALK");
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<UUID> nearOrigin = places.subList(2, 8).stream().map(ItineraryDraftCommand.PlannedPlace::placeId).toList();
+		assertThat(dayOf(draft, 1)).as("둘째 날에 출발지 둘레 곳이 없다").isNotEmpty().noneMatch(nearOrigin::contains);
+	}
+
+	@Test
+	@DisplayName("걷기만이 아니면 지금처럼 — 첫날도 순위대로 고른 범위에서")
+	void otherTripsKeepTheRankOrder() {
+		List<ItineraryDraftCommand.PlannedPlace> places = walkOnlyCase(6, 2, "BUS", "SUBWAY");
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		assertThat(dayOf(draft, 0)).contains(places.get(0).placeId());
+	}
+
+	// ── 그날 남은 곳이 다 닫혔을 때 (S15P21E201-1632) ──────────────────────
+
+	/**
+	 * 09:00~11:00 · 하루 4곳 — 끼니 칸이 없어 명소만 앉는다. 후보 다섯 중 넷이 그날 자리를 받고 다섯째가 남는다.
+	 * 넷째(D)는 늘 닫혀 있어 마지막 칸(10:30)에서 남은 곳이 D 하나뿐이다.
+	 */
+	private List<ItineraryDraftCommand.PlannedPlace> closedLastSlotCase(double[] spareAt) {
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(
+				tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10), LocalTime.of(9, 0), LocalTime.of(11, 0))));
+		return plannedPlacesAt(List.of("CULTURE_TEMPLE", "CULTURE_TEMPLE", "CULTURE_TEMPLE", "CULTURE_TEMPLE",
+				"CULTURE_TEMPLE"), List.of(new double[] { 35.100, 129.030 }, new double[] { 35.101, 129.031 },
+				new double[] { 35.102, 129.032 }, new double[] { 35.103, 129.033 }, spareAt));
+	}
+
+	@Test
+	@DisplayName("🔴 그날 남은 곳이 그 시각에 다 닫혔으면 안 쓴 후보 중 여는 곳으로 바꾼다 — 경고 없이")
+	void aClosedLastPlaceIsSwappedForAnOpenSpare() {
+		List<ItineraryDraftCommand.PlannedPlace> places = closedLastSlotCase(new double[] { 35.104, 129.034 });
+		UUID closed = places.get(3).placeId();
+		ItineraryDraftService service = serviceWith((placeId, at) -> placeId.equals(closed)
+				? OpeningHoursFilterPort.Answer.CLOSED
+				: OpeningHoursFilterPort.Answer.OPEN);
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.hasSize(4)
+				.contains(places.get(4).placeId())
+				.doesNotContain(closed);
+		assertThat(draft.items()).allSatisfy(item ->
+				assertThat(item.warningCodes()).doesNotContain("OPENING_HOURS_CLOSED"));
+	}
+
+	@Test
+	@DisplayName("안 쓴 후보도 그 시각에 다 닫혔으면 지금처럼 앉히고 경고를 단다")
+	void withoutAnOpenSpareTheClosedPlaceStaysWithAWarning() {
+		List<ItineraryDraftCommand.PlannedPlace> places = closedLastSlotCase(new double[] { 35.104, 129.034 });
+		UUID closed = places.get(3).placeId();
+		UUID spare = places.get(4).placeId();
+		ItineraryDraftService service = serviceWith((placeId, at) -> placeId.equals(closed) || placeId.equals(spare)
+				? OpeningHoursFilterPort.Answer.CLOSED
+				: OpeningHoursFilterPort.Answer.OPEN);
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId).contains(closed).doesNotContain(spare);
+		assertThat(draft.items()).filteredOn(item -> item.placeId().equals(closed))
+				.allSatisfy(item -> assertThat(item.warningCodes()).contains("OPENING_HOURS_CLOSED"));
+	}
+
+	@Test
+	@DisplayName("연 후보가 그날 동선에서 8km 넘게 떨어져 있으면 바꾸지 않는다 — 문 연 곳 하나 때문에 도시를 가로지르지 않게")
+	void aFarSpareIsNotUsed() {
+		List<ItineraryDraftCommand.PlannedPlace> places = closedLastSlotCase(new double[] { 35.180, 129.200 }); // 약 18km
+		UUID closed = places.get(3).placeId();
+		ItineraryDraftService service = serviceWith((placeId, at) -> placeId.equals(closed)
+				? OpeningHoursFilterPort.Answer.CLOSED
+				: OpeningHoursFilterPort.Answer.OPEN);
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.contains(closed)
+				.doesNotContain(places.get(4).placeId());
+	}
+
 	@Test
 	@DisplayName("활동 시간대가 없으면 문을 묻지 않는다 — 시각이 없으면 판정할 수가 없다")
 	void withoutATimeWindowNothingIsAsked() {
@@ -553,6 +1007,31 @@ class ItineraryDraftServiceTest {
 				assertThat(item.warningCodes()).contains("BREAK_TIME_CLOSED"));
 	}
 
+	@Test
+	@DisplayName("브레이크타임과 라스트오더가 함께 걸리면 브레이크타임 경고 하나만 — 영업시간 → 브레이크타임 → 라스트오더 차례")
+	void breakTimeIsReportedBeforeLastOrder() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraftService service = serviceWith(ALWAYS_UNKNOWN, new PlaceTimeFactFilterPort() {
+			@Override
+			public OpeningHoursFilterPort.Answer breakTimeAt(UUID placeId, java.time.OffsetDateTime at) {
+				return OpeningHoursFilterPort.Answer.CLOSED;
+			}
+
+			@Override
+			public OpeningHoursFilterPort.Answer lastOrderAt(UUID placeId, java.time.OffsetDateTime at) {
+				return OpeningHoursFilterPort.Answer.CLOSED;
+			}
+		});
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", plannedPlaces(2)));
+
+		assertThat(draft.items()).hasSize(2);
+		assertThat(draft.items()).allSatisfy((item) -> assertThat(item.warningCodes())
+				.contains("BREAK_TIME_CLOSED").doesNotContain("LAST_ORDER_PASSED"));
+	}
+
 	private ItineraryDraftService serviceWith(OpeningHoursFilterPort openingHours) {
 		return serviceWith(openingHours, ALWAYS_UNKNOWN_TIME_FACT);
 	}
@@ -562,7 +1041,7 @@ class ItineraryDraftServiceTest {
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 1,
-				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), tables(openingHours, timeFact),
 				noRouteOrder(), this.placeRepository, noEvents());
 	}
 
@@ -807,7 +1286,7 @@ class ItineraryDraftServiceTest {
 	 * 아래 셋이 그것을 막는다.
 	 */
 	@Test
-	@DisplayName("🔴 S15P21E201-1130 — 시각이 이동 시간을 비켜 간다: 머무는 시간이 줄고 사이가 벌어진다")
+	@DisplayName("🔴 S15P21E201-1130 — 시각이 이동 시간을 비켜 간다: 곳마다 갈래만큼 머물고 사이에 이동 시간과 빈 시각")
 	void stayTimeMakesRoomForTravelBetweenPlaces() {
 		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
 		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
@@ -819,28 +1298,38 @@ class ItineraryDraftServiceTest {
 		List<ItineraryDraft.DraftItem> items = draft.items();
 		assertThat(items).hasSize(3);
 
-		// 활동 시간대 09:00~17:00 = 480분. 이동 75분을 빼고 3으로 나누면 135분씩이다.
-		assertThat(items).allSatisfy((item) ->
-				assertThat(item.stayMinutes())
-						.as("머무는 시간에서 이동 시간을 빼지 않으면 그만큼 매번 늦는다")
-						.isEqualTo(135));
+		// 갈래를 모르는 곳은 60분 머문다(S15P21E201-1667). 480분 - 이동 75분 - 체류 180분 = 빈 시각 225분.
+		assertThat(items).allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(60));
 
 		// 첫 장소도 09:00 에 시작하지 않는다 — 출발지에서 거기까지 25분이 걸린다.
 		assertThat(items.get(0).startTime()).isEqualTo(LocalTime.of(9, 25));
 
-		// 항목과 항목 사이가 정확히 이동 시간만큼 벌어져 있다.
-		for (int i = 1; i < items.size(); i++) {
-			assertThat(Duration.between(items.get(i - 1).endTime(), items.get(i).startTime()).toMinutes())
-					.as("앞 장소가 끝난 뒤 다음 장소가 시작하기까지 이동할 시간이 있어야 한다")
-					.isEqualTo(25);
-		}
+		// 항목과 항목 사이는 이동 25분 + 빈 시각. 빈 시각 225분을 사이 둘에 112·113분.
+		assertThat(Duration.between(items.get(0).endTime(), items.get(1).startTime()).toMinutes())
+				.as("앞 장소가 끝난 뒤 다음 장소가 시작하기까지 이동할 시간이 있어야 한다")
+				.isEqualTo(25 + 112);
+		assertThat(Duration.between(items.get(1).endTime(), items.get(2).startTime()).toMinutes()).isEqualTo(25 + 113);
 
 		// 그러고도 활동 시간대를 넘지 않는다.
 		assertThat(items.get(items.size() - 1).endTime()).isEqualTo(LocalTime.of(17, 0));
 	}
 
 	@Test
-	@DisplayName("🔴 이동 시간을 모르면 예전과 똑같이 나눈다 — 모르는 값을 지어내지 않는다")
+	@DisplayName("🔴 S15P21E201-1692 — 실제 체류로 고친 값이 있는 갈래는 그 값, 없는 갈래는 기본값")
+	void calibratedStayMinutesWinOverDefaults() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		this.service.setStayCalibration((category) -> "CULTURE_TEMPLE".equals(category)
+				? OptionalInt.of(75) : OptionalInt.empty());
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesOf("CULTURE_TEMPLE", "NATURE_WALK")));
+
+		assertThat(draft.items()).extracting((item) -> categoryOfItem(item) + ":" + item.stayMinutes())
+				.containsExactlyInAnyOrder("CULTURE_TEMPLE:75", "NATURE_WALK:60");
+	}
+
+	@Test
+	@DisplayName("🔴 이동 시간을 모르면 0분으로 본다 — 모르는 값을 지어내지 않는다")
 	void withoutMeasuredTravelTheLayoutIsUnchanged() {
 		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
 		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
@@ -848,8 +1337,10 @@ class ItineraryDraftServiceTest {
 		// this.service 는 이동시간 포트가 없는 갈래다 — durationMin 이 null 이다.
 		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlaces(3)));
 
-		assertThat(draft.items()).allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(160));
-		assertThat(draft.items().get(0).startTime()).isEqualTo(LocalTime.of(9, 0));
+		// 곳마다 60분, 남는 300분은 사이 둘에 150분씩.
+		assertThat(draft.items()).allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(60));
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::startTime)
+				.containsExactly(LocalTime.of(9, 0), LocalTime.of(12, 30), LocalTime.of(16, 0));
 		assertThat(draft.items().get(2).endTime()).isEqualTo(LocalTime.of(17, 0));
 	}
 
@@ -880,7 +1371,7 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, provider),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 	}
 
 	private List<ItineraryDraftCommand.PlannedPlace> plannedPlaces(int count) {
@@ -917,7 +1408,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
 				4, 3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, noTravelTime),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, provider, this.placeRepository, noEvents());
+				tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), provider, this.placeRepository, noEvents());
 	}
 
 	private static List<UUID> placeIdsOf(List<ItineraryDraftCommand.PlannedPlace> places) {
@@ -1004,6 +1495,114 @@ class ItineraryDraftServiceTest {
 				.containsExactly("WALK");
 	}
 
+	// ── 카페는 하루 한 곳 (S15P21E201-1573) ─────────────────────────────
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1573 — 카페는 하루 한 곳, 남는 자리는 명소가 먼저 — 카테고리를 안 골라도 자연·문화가 낀다")
+	void oneCafePerDayLeavesRoomForSights() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10), LocalTime.of(9, 0), LocalTime.of(18, 0));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 운영 후보 모양 — 순위 위쪽에 카페가 몰려 있고 명소는 그 뒤다.
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesOf(
+				"CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING", "CULTURE_TEMPLE", "NATURE_WALK", "FOOD", "FOOD")));
+
+		List<String> categories = draft.items().stream().map(this::categoryOfItem).toList();
+		assertThat(categories.stream().filter("CAFE_HEALING"::equals).count()).as("카페는 하루 한 곳").isEqualTo(1);
+		assertThat(categories).contains("CULTURE_TEMPLE", "NATURE_WALK");
+	}
+
+	@Test
+	@DisplayName("명소가 없으면 카페로 빈 자리를 채운다 — 상한 때문에 하루를 비우지 않는다")
+	void cafesFillTheDayWhenThereAreNoSights() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10), LocalTime.of(9, 0), LocalTime.of(18, 0));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesOf(
+				"CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING")));
+
+		assertThat(draft.items()).hasSize(4);
+	}
+
+	// ── 예산 상한 (S15P21E201-1572) ─────────────────────────────────────
+
+	private Trip tripWithBudget(Integer budgetKrw, int partySize) {
+		return Trip.builder()
+				.tripId("itn_trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 10)).finishDate(LocalDate.of(2026, 9, 10))
+				.budgetKrw(budgetKrw).partySize(partySize).timezone("Asia/Seoul")
+				.createdAt(Instant.now())
+				.build();
+	}
+
+	/**
+	 * 순위 1~5 의 명소. 1인분 가격은 A 9만 · B 5만 · C 1만 · D 모름 · E 5천.
+	 * 아래 1인 시험들의 셈은 인원 1명이라 1인분 값이 곧 비용이다(S15P21E201-1579 이후 비용 = 1인분 × 인원).
+	 */
+	private List<UUID> placeBudgetCase(ItineraryDraftService service, Integer budgetKrw) {
+		return placeBudgetCase(service, budgetKrw, 1);
+	}
+
+	private List<UUID> placeBudgetCase(ItineraryDraftService service, Integer budgetKrw, int partySize) {
+		when(this.tripRepository.findById("itn_trip_1"))
+				.thenReturn(Optional.of(tripWithBudget(budgetKrw, partySize)));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesOf("CITY", "CITY", "CITY", "CITY", "CITY");
+		Map<UUID, Integer> prices = new HashMap<>();
+		prices.put(places.get(0).placeId(), 90_000);
+		prices.put(places.get(1).placeId(), 50_000);
+		prices.put(places.get(2).placeId(), 10_000);
+		prices.put(places.get(4).placeId(), 5_000);
+		service.setMenuPrice(ids -> prices);
+		this.budgetCase = places;
+		return placeIdsOfItems(service.assemble(commandOf("itn_trip_1", places)));
+	}
+
+	private List<ItineraryDraftCommand.PlannedPlace> budgetCase;
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1572 — 합계가 예산의 120% 를 넘게 만드는 곳은 건너뛰고 다음 후보가 앉는다")
+	void budgetCapSkipsThePlaceThatWouldBreakIt() {
+		// 예산 10만 → 상한 12만. A(9만) 앉고, B(5만)면 14만이라 건너뛴다. C(1만)·D(모름)·E(5천)가 채운다 = 10.5만.
+		List<UUID> placed = placeBudgetCase(this.service, 100_000);
+
+		assertThat(placed).containsExactlyInAnyOrder(this.budgetCase.get(0).placeId(), this.budgetCase.get(2).placeId(),
+				this.budgetCase.get(3).placeId(), this.budgetCase.get(4).placeId());
+	}
+
+	@Test
+	@DisplayName("값을 모르는 곳은 막지 않는다 — 합계에서 빠지는 것과 같은 규칙(0 원으로 세지 않는다)")
+	void unknownPricesAreNotBlocked() {
+		List<UUID> placed = placeBudgetCase(this.service, 100_000);
+
+		assertThat(placed).contains(this.budgetCase.get(3).placeId());
+	}
+
+	@Test
+	@DisplayName("예산이 없으면 상한도 없다 — 순위 1~4 그대로")
+	void noBudgetMeansNoCap() {
+		List<UUID> placed = placeBudgetCase(this.service, null);
+
+		assertThat(placed).containsExactlyInAnyOrder(this.budgetCase.get(0).placeId(), this.budgetCase.get(1).placeId(),
+				this.budgetCase.get(2).placeId(), this.budgetCase.get(3).placeId());
+	}
+
+	/**
+	 * 메뉴 값은 한 그릇이고 예산은 여행 전체 총액이다. 곱하지 않으면 3명 여행에서 실제 식비의 1/3 만 세어,
+	 * 1명일 때와 같은 곳이 앉는다 — 상한이 사실상 안 걸린다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-1579 — 같은 예산이라도 3명이면 1인분 값 × 3 으로 센다")
+	void budgetCapCountsEveryoneInTheParty() {
+		// 예산 10만 → 상한 12만. 3명: A 27만·B 15만은 혼자서 넘는다. C 3만 + D(모름) + E 1.5만 = 4.5만.
+		List<UUID> forThree = placeBudgetCase(this.service, 100_000, 3);
+
+		assertThat(forThree).containsExactlyInAnyOrder(this.budgetCase.get(2).placeId(),
+				this.budgetCase.get(3).placeId(), this.budgetCase.get(4).placeId());
+
+		// 같은 예산·같은 가격인데 1명이면 A(9만)가 앉는다 — 인원만 다르다.
+		assertThat(placeBudgetCase(this.service, 100_000, 1)).contains(this.budgetCase.get(0).placeId());
+	}
+
 	/** 「여행 기분」을 고른 여행. 나머지 조건은 {@link #tripOf} 와 같다. */
 	private Trip tripWithPace(String pace) {
 		return Trip.builder()
@@ -1041,6 +1640,69 @@ class ItineraryDraftServiceTest {
 	@DisplayName("후보가 모자라면 기분이 정한 수보다 적게 들어간다 — 없는 곳을 지어내지 않는다")
 	void fewerCandidatesThanThePaceAsksFor() {
 		assertThat(placedCountFor("PACKED", 2)).isEqualTo(2);
+	}
+
+	// ── 하루 길이에 맞춘 곳 수 (S15P21E201-1816) ──────────────────────────
+
+	private int placedCountFor(String pace, int candidates, LocalTime from, LocalTime to) {
+		Trip trip = Trip.builder()
+				.tripId("itn_trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 9, 10)).finishDate(LocalDate.of(2026, 9, 10))
+				.partySize(2).timezone("Asia/Seoul").pace(pace)
+				.timeWindowStart(from).timeWindowEnd(to)
+				.createdAt(Instant.now())
+				.build();
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(trip));
+		return this.service.assemble(commandOf("itn_trip_1", plannedPlaces(candidates))).items().size();
+	}
+
+	@Test
+	@DisplayName("🔴 여유롭게 09:00–21:00 은 4곳이다 — 고정 3곳이라 빈 시간이 5시간 55분 남았다(QA)")
+	void relaxedTwelveHourDayGetsFourPlaces() {
+		LocalTime nine = LocalTime.of(9, 0);
+		LocalTime nine_pm = LocalTime.of(21, 0);
+		assertThat(placedCountFor("RELAXED", 12, nine, nine_pm)).as("3시간에 한 곳").isEqualTo(4);
+		assertThat(placedCountFor("BALANCED", 12, nine, nine_pm)).as("2시간에 한 곳").isEqualTo(6);
+		assertThat(placedCountFor("PACKED", 12, nine, nine_pm)).as("1.5시간에 한 곳").isEqualTo(8);
+	}
+
+	@Test
+	@DisplayName("하루 길이 → 곳 수: 기분마다 몇 분에 한 곳인지, 내림, 최소 2·최대(기분별)")
+	void itemsForWindowMapping() {
+		// 12시간 — 기준 사례
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 720)).isEqualTo(4);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", 720)).isEqualTo(6);
+		assertThat(ItineraryDraftService.itemsForWindow("PACKED", 720)).isEqualTo(8);
+		// 내림 — 8시간
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 480)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", 480)).isEqualTo(4);
+		assertThat(ItineraryDraftService.itemsForWindow("PACKED", 480)).isEqualTo(5);
+		// 경계 — 딱 나누어떨어지기 한 분 전
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 539)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 540)).isEqualTo(3);
+		// 최소 2 — 짧은 하루, 0, 음수
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 120)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("PACKED", 60)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", 0)).isEqualTo(2);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", -30)).isEqualTo(2);
+		// 최대 — 아주 긴 하루(06:00–24:00 = 18시간)
+		assertThat(ItineraryDraftService.itemsForWindow("RELAXED", 1080)).isEqualTo(5);
+		assertThat(ItineraryDraftService.itemsForWindow("BALANCED", 1080)).isEqualTo(6);
+		assertThat(ItineraryDraftService.itemsForWindow("PACKED", 1080)).isEqualTo(8);
+		// 여유롭게는 언제나 균형 있게 이하, 균형 있게는 알차게 이하
+		for (int m = 0; m <= 1440; m += 15) {
+			assertThat(ItineraryDraftService.itemsForWindow("RELAXED", m))
+					.isLessThanOrEqualTo(ItineraryDraftService.itemsForWindow("BALANCED", m));
+			assertThat(ItineraryDraftService.itemsForWindow("BALANCED", m))
+					.isLessThanOrEqualTo(ItineraryDraftService.itemsForWindow("PACKED", m));
+		}
+	}
+
+	@Test
+	@DisplayName("시간대를 모르는 여행은 예전 고정 개수 그대로다 — 길이를 모르면 나눌 것이 없다")
+	void unknownWindowKeepsFixedCounts() {
+		assertThat(placedCountFor("RELAXED", 12, null, null)).isEqualTo(3);
+		assertThat(placedCountFor("PACKED", 12, null, null)).isEqualTo(5);
 	}
 
 	// ── 필요한 자리 수 (S15P21E201-1450) ──────────────────────────────────
@@ -1086,7 +1748,7 @@ class ItineraryDraftServiceTest {
 		ItineraryDraftService withHeadroom = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 2,
 				new ItineraryLegPlanner(this.placeRepository, noTravelTimeProvider()),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		assertThat(withHeadroom.placesNeeded("itn_trip_2d"))
 				.as("8자리 × 배수 2")
@@ -1107,7 +1769,7 @@ class ItineraryDraftServiceTest {
 		ItineraryDraftService zeroHeadroom = new ItineraryDraftService(this.tripRepository,
 				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", 0,
 				new ItineraryLegPlanner(this.placeRepository, noTravelTimeProvider()),
-				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT, noRouteOrder(), this.placeRepository, noEvents());
+				tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
 
 		assertThat(zeroHeadroom.placesNeeded("itn_trip_1d"))
 				.as("0 을 곱하면 후보가 0이 되고, 그 증상은 설정 오타와 구별되지 않는다")
@@ -1277,4 +1939,527 @@ class ItineraryDraftServiceTest {
 				.as("하루가 여러 권역에 걸쳤는데 경고가 없다 — 화면이 그냥 좋은 일정으로 그린다")
 				.contains(ItineraryWarningCodes.DAY_REGION_MIXED);
 	}
+
+	/**
+	 * 🔴 2026-09-23 운영 일정(eb0d0494) 그대로 — 하루가 남포 카페 → <b>해운대</b> 밥집 → 영도 시장 → 영도 밥집이었다.
+	 *
+	 * <p>점심·저녁 칸은 «목록에서 처음 나오는 밥집» 을 앉혀서, 먼 밥집이 한가운데 끼면 남포·해운대·영도를
+	 * 오간다. 끼니 칸 규칙을 지키는 차례 중 가장 짧은 것을 고르면 해운대는 맨 끝(또는 맨 앞)으로 간다.
+	 */
+	@Test
+	@DisplayName("🔴 끼니 칸이 동선을 섞지 않는다 — 먼 밥집이 하루 한가운데 끼지 않는다(S15P21E201-1547)")
+	void mealSlotsDoNotZigzagTheDay() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 22), LocalDate.of(2026, 9, 22), LocalTime.of(9, 0), LocalTime.of(18, 0));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		double[] nampoCafe = { 35.0903, 129.0579 };
+		double[] haeundaeFood = { 35.1633, 129.1596 };
+		double[] yeongdoMarket = { 35.0966, 129.0604 };
+		double[] yeongdoFood = { 35.0864, 129.0767 };
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesAt(
+				List.of("CAFE_HEALING", "FOOD", "CITY", "FOOD"),
+				List.of(nampoCafe, haeundaeFood, yeongdoMarket, yeongdoFood));
+
+		// 운영에서는 최적화기가 여행 출발지(해운대)에서 최단 차례를 잡아 해운대 밥집을 맨 앞에 뒀다.
+		// 첫 칸은 밥 때가 아니라 그 밥집을 건너뛰고, 점심 칸이 «목록의 첫 밥집» 인 그것을 앉혔다.
+		List<UUID> fromHaeundae = List.of(places.get(1).placeId(), places.get(0).placeId(),
+				places.get(2).placeId(), places.get(3).placeId());
+		ItineraryDraftService service = serviceWithRouteOrder(request -> fromHaeundae);
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		List<ItineraryDraft.DraftItem> day = draft.items().stream()
+				.sorted(java.util.Comparator.comparing(ItineraryDraft.DraftItem::startTime))
+				.toList();
+		double total = 0;
+		for (int i = 1; i < day.size(); i++) {
+			total += kmBetween(coordinateOf(day.get(i - 1).placeId()), coordinateOf(day.get(i).placeId()));
+		}
+		UUID haeundae = places.get(1).placeId();
+		int haeundaeAt = day.stream().map(ItineraryDraft.DraftItem::placeId).toList().indexOf(haeundae);
+
+		assertThat(haeundaeAt).as("해운대 밥집이 남포·영도 사이에 끼었다").isIn(0, day.size() - 1);
+		// 옛 차례(남포→해운대→영도→영도)는 약 25km 였다.
+		assertThat(total).isLessThan(18.0);
+		// 끼니 칸 규칙은 그대로다 — 두 밥집이 점심·저녁 자리에 있다.
+		assertThat(day.stream().filter(item -> "FOOD".equals(this.categoryByPlaceId.get(item.placeId()))).count()).isEqualTo(2);
+	}
+
+	/**
+	 * 🔴 2026-09-25 운영 일정(55476311) 2일차 그대로 — 09~21시 · 하루 5곳(알차게).
+	 *
+	 * <p>칸이 144분씩이라 저녁 시각대(17~20시)가 넷째 칸(16:12~)과 다섯째 칸(18:36~)에 다 걸려 밥 칸이 셋이었다.
+	 * 밥집은 둘이라 동선을 줄이는 단계가 둘을 저녁 두 칸으로 옮겼다 — 광안리해수욕장 → 카페오뜨 → 동경밥상 16:15
+	 * → 한끼맛있다 18:44. 점심이 사라지고 저녁을 두 번 먹었다.
+	 */
+	@Test
+	@DisplayName("🔴 하루 5곳이어도 점심 1번·저녁 1번이 각 시각대에 들어가고 밥집이 연달아 붙지 않는다(S15P21E201-1624)")
+	void oneLunchAndOneDinnerInTheirBands() {
+		Trip trip = Trip.builder()
+				.tripId("trip_1").createdBy("usr_1")
+				.startDate(LocalDate.of(2026, 10, 17)).finishDate(LocalDate.of(2026, 10, 17))
+				.partySize(4).timezone("Asia/Seoul").pace("PACKED")
+				.timeWindowStart(LocalTime.of(9, 0)).timeWindowEnd(LocalTime.of(21, 0))
+				.createdAt(Instant.now())
+				.build();
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesAt(
+				List.of("NATURE_WALK", "SEA_BEACH", "CAFE_HEALING", "FOOD", "FOOD"),
+				List.of(new double[] { 35.1618, 129.1325 },   // 부산 갈맷길 2코스
+						new double[] { 35.1532, 129.1190 },   // 광안리해수욕장
+						new double[] { 35.1528, 129.1176 },   // 카페오뜨
+						new double[] { 35.1484, 129.1139 },   // 동경밥상
+						new double[] { 35.1546, 129.0619 })); // 한끼맛있다
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		List<ItineraryDraft.DraftItem> day = draft.items().stream()
+				.sorted(java.util.Comparator.comparing(ItineraryDraft.DraftItem::sequence))
+				.toList();
+		assertThat(day).hasSize(5);
+		List<LocalTime> meals = day.stream()
+				.filter(item -> "FOOD".equals(categoryOfItem(item)))
+				.map(ItineraryDraft.DraftItem::startTime)
+				.toList();
+		assertThat(meals).as("밥 먹는 시각").hasSize(2);
+		assertThat(meals.get(0)).as("점심 — 11시~14시 사이에 닿는다").isBetween(LocalTime.of(11, 0), LocalTime.of(14, 0));
+		assertThat(meals.get(1)).as("저녁 — 17시~20시 사이에 닿는다").isBetween(LocalTime.of(17, 0), LocalTime.of(20, 0));
+		for (int i = 1; i < day.size(); i++) {
+			assertThat("FOOD".equals(categoryOfItem(day.get(i - 1))) && "FOOD".equals(categoryOfItem(day.get(i))))
+					.as("%d·%d번째가 둘 다 밥집", i, i + 1)
+					.isFalse();
+		}
+	}
+
+	/**
+	 * 같은 병이 다른 기분에도 있었다. 09~21시를 나누면 — 하루 4곳(균형)은 칸이 180분씩이라 저녁 칸이 15:00·18:00 둘,
+	 * 하루 3곳(여유)은 240분씩이라 09:00 칸이 점심에 90분 걸려 <b>아침 9시에 점심</b>을 먹을 수 있었다.
+	 */
+	@Test
+	@DisplayName("🔴 기분이 무엇이든 09~21시 여행은 점심은 점심 때·저녁은 저녁 때 한 번씩 먹는다(S15P21E201-1624)")
+	void everyPaceEatsLunchAndDinnerInTheirBands() {
+		Map<String, List<String>> dayOf = Map.of(
+				"RELAXED", List.of("FOOD", "FOOD", "SEA_BEACH"),
+				"BALANCED", List.of("FOOD", "FOOD", "SEA_BEACH", "CULTURE_TEMPLE"),
+				"PACKED", List.of("FOOD", "FOOD", "SEA_BEACH", "CULTURE_TEMPLE", "NATURE_WALK"));
+		for (Map.Entry<String, List<String>> pace : dayOf.entrySet()) {
+			Trip trip = Trip.builder()
+					.tripId("trip_1").createdBy("usr_1")
+					.startDate(LocalDate.of(2026, 10, 17)).finishDate(LocalDate.of(2026, 10, 17))
+					.partySize(2).timezone("Asia/Seoul").pace(pace.getKey())
+					.timeWindowStart(LocalTime.of(9, 0)).timeWindowEnd(LocalTime.of(21, 0))
+					.createdAt(Instant.now())
+					.build();
+			when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+			ItineraryDraft draft = this.service.assemble(
+					commandOf("trip_1", plannedPlacesOf(pace.getValue().toArray(String[]::new))));
+
+			List<LocalTime> meals = draft.items().stream()
+					.filter(item -> "FOOD".equals(categoryOfItem(item)))
+					.map(ItineraryDraft.DraftItem::startTime)
+					.sorted()
+					.toList();
+			assertThat(meals).as(pace.getKey()).hasSize(2);
+			assertThat(meals.get(0)).as(pace.getKey() + " 점심").isBetween(LocalTime.of(11, 0), LocalTime.of(14, 0));
+			assertThat(meals.get(1)).as(pace.getKey() + " 저녁").isBetween(LocalTime.of(17, 0), LocalTime.of(20, 0));
+		}
+	}
+
+	// ── 기간이 정해진 장소 — 축제·박람회 ───────────────────────────────
+
+	private static final LocalDate FESTIVAL_TRIP_START = LocalDate.of(2026, 9, 10);
+
+	/** 사흘짜리 여행(9/10~9/12)의 후보 여섯. 순위 1위가 축제다 — 고치기 전에는 첫날 첫 자리에 앉는다. */
+	private List<ItineraryDraftCommand.PlannedPlace> festivalCase(List<String> festivalReasons) {
+		when(this.tripRepository.findById("itn_trip_1"))
+				.thenReturn(Optional.of(tripOf(FESTIVAL_TRIP_START, FESTIVAL_TRIP_START.plusDays(2))));
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>(
+				plannedPlacesOf("CULTURE_TEMPLE", "CITY", "CITY", "CITY", "CITY", "CITY"));
+		ItineraryDraftCommand.PlannedPlace festival = places.get(0);
+		places.set(0, new ItineraryDraftCommand.PlannedPlace(festival.placeId(), festival.rank(), festivalReasons,
+				List.of(), festival.category()));
+		return places;
+	}
+
+	/** 그 장소 하나만 기간이 정해져 있고 {@code openDates} 에만 연다. 나머지는 기간이 없는 장소다. */
+	private static PlaceEventSchedulePort eventOnly(UUID placeId, LocalDate... openDates) {
+		return (id, from, to) -> placeId.toString().equals(id)
+				? PlaceEventSchedule.openOn(List.of(openDates))
+				: PlaceEventSchedule.unscheduled();
+	}
+
+	private static List<String> daysAndPlaces(ItineraryDraft draft) {
+		return draft.items().stream().map((item) -> item.dayIndex() + ":" + item.placeId()).toList();
+	}
+
+	/** 운영(2026-09-24)에서 회차 14개가 전부 끝났는데 「카운트다운 부산」이 9월 여행에 17번 들어갔다. */
+	@Test
+	@DisplayName("🔴 여행 중 한 날도 안 여는 축제(끝난 축제)는 추천 일정에 안 들어간다")
+	void anEndedFestivalIsNotSeated() {
+		List<ItineraryDraftCommand.PlannedPlace> places = festivalCase(List.of("REASON"));
+		// 기간 기록은 있는데 이 여행 날짜에 여는 날이 없다.
+		this.service.setEventSchedule(eventOnly(places.get(0).placeId()));
+
+		List<UUID> placed = placeIdsOfItems(this.service.assemble(commandOf("itn_trip_1", places)));
+
+		assertThat(placed).doesNotContain(places.get(0).placeId());
+		assertThat(placed).containsAll(placeIdsOf(places.subList(1, places.size())));
+	}
+
+	@Test
+	@DisplayName("🔴 여행 둘째 날만 여는 축제는 둘째 날에만 앉는다")
+	void aFestivalOpenOnlyOnTheSecondDaySitsThere() {
+		List<ItineraryDraftCommand.PlannedPlace> places = festivalCase(List.of("REASON"));
+		this.service.setEventSchedule(eventOnly(places.get(0).placeId(), FESTIVAL_TRIP_START.plusDays(1)));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(draft.items()).filteredOn((item) -> item.placeId().equals(places.get(0).placeId()))
+				.singleElement().extracting(ItineraryDraft.DraftItem::dayIndex).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("기간 기록이 없는 장소는 전과 같다 — 기간을 묻는 문이 붙어도 일정이 한 줄도 안 바뀐다")
+	void placesWithoutPeriodsAreUnaffected() {
+		List<ItineraryDraftCommand.PlannedPlace> places = festivalCase(List.of("REASON"));
+		ItineraryDraft without = this.service.assemble(commandOf("itn_trip_1", places));
+
+		this.service.setEventSchedule((id, from, to) -> PlaceEventSchedule.unscheduled());
+		ItineraryDraft with = this.service.assemble(commandOf("itn_trip_1", places));
+
+		assertThat(daysAndPlaces(with)).containsExactlyElementsOf(daysAndPlaces(without));
+	}
+
+	@Test
+	@DisplayName("🔴 사용자가 직접 고른 꼭 갈 장소는 기간을 안 본다 — 사용자의 선택이다")
+	void aMustVisitFestivalIsLeftAlone() {
+		List<ItineraryDraftCommand.PlannedPlace> places = festivalCase(List.of(SeedBoost.REASON_CODE_MUST_VISIT));
+		this.service.setEventSchedule(eventOnly(places.get(0).placeId()));
+
+		assertThat(placeIdsOfItems(this.service.assemble(commandOf("itn_trip_1", places))))
+				.contains(places.get(0).placeId());
+	}
+
+	/**
+	 * 하루 다시 짜기는 순위 풀에서 빈자리를 채운다. 풀이 넷(축제 + 명소 셋)이고 비어 있던 날의 목표도 넷이라, 축제로
+	 * 채우지 않으면 셋만 채워지고 「일부만 채웠다」 경고가 남는다 — 모자라도 안 여는 곳으로 억지로 채우지 않는다.
+	 */
+	@Test
+	@DisplayName("🔴 하루 다시 짜기도 그 날 안 여는 축제로 빈자리를 채우지 않는다")
+	void dayRecalculationSkipsAFestivalClosedThatDay() {
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		ItineraryDraftService reviser = new ItineraryDraftService(this.tripRepository, itineraries, CLOCK, 4, 3, "FOOD", 1,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT),
+				noRouteOrder(), this.placeRepository, noEvents());
+		List<ItineraryDraftCommand.PlannedPlace> pool = festivalCase(List.of("REASON")).subList(0, 4);
+		// 축제는 셋째 날만 연다 — 첫째 날을 다시 짜면 못 들어간다.
+		reviser.setEventSchedule(eventOnly(pool.get(0).placeId(), FESTIVAL_TRIP_START.plusDays(2)));
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(base, List.of(), List.of(), List.of())));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		ItineraryRevisionDraft draft = reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1,
+				"usr_1", JobType.ITINERARY_RECALCULATE, 0, null, List.of(), null, pool, "m", "f", "o", "p", "d"));
+
+		assertThat(draft.filledCount()).as("축제로 채웠다면 넷이다").isEqualTo(3);
+		assertThat(draft.warningCodes()).contains(ItineraryWarningCodes.RECALC_DAY_PARTIALLY_FILLED);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1692 — 하루 다시 짜기도 실제 체류로 고친 값을 쓴다")
+	void dayRecalculationUsesCalibratedStayMinutes() {
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		ItineraryDraftService reviser = new ItineraryDraftService(this.tripRepository, itineraries, CLOCK, 4, 3, "FOOD", 1,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT),
+				noRouteOrder(), this.placeRepository, noEvents());
+		// 이 경로는 갈래를 장소 표에서 읽는데 여기 장소 표는 비어 있다 — 갈래를 몰라도 고친 값을 쓰는지만 본다(기본값은 60분).
+		reviser.setStayCalibration((category) -> OptionalInt.of(75));
+		List<ItineraryDraftCommand.PlannedPlace> pool = festivalCase(List.of("REASON")).subList(1, 4);
+		// 시각을 깔려면 활동 시간대가 있어야 한다 — 없으면 체류도 비운다.
+		when(this.tripRepository.findById("itn_trip_1")).thenReturn(Optional.of(tripOf(FESTIVAL_TRIP_START,
+				FESTIVAL_TRIP_START.plusDays(2), LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(base, List.of(), List.of(), List.of())));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		reviser.publish(reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1,
+				"usr_1", JobType.ITINERARY_RECALCULATE, 0, null, List.of(), null, pool, "m", "f", "o", "p", "d")));
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryItem>> items = ArgumentCaptor.forClass(List.class);
+		verify(itineraries).appendVersion(any(), items.capture(), any(), any());
+		assertThat(items.getValue()).isNotEmpty()
+				.allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(75));
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1700 — 하루 다시 짜기의 새 판도 이동 시간은 고친 값, 옆 칸에는 엔진의 어림")
+	void dayRecalculationKeepsTheUncalibratedTravelTime() {
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, travelMinutes(20));
+		planner.setTravelCalibration((mode) -> OptionalDouble.of(1.5));
+		ItineraryDraftService reviser = new ItineraryDraftService(this.tripRepository, itineraries, CLOCK, 4, 3, "FOOD", 1,
+				planner, tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
+		List<ItineraryDraftCommand.PlannedPlace> pool = festivalCase(List.of("REASON")).subList(1, 4);
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(base, List.of(), List.of(), List.of())));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		reviser.publish(reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1,
+				"usr_1", JobType.ITINERARY_RECALCULATE, 0, null, List.of(), null, pool, "m", "f", "o", "p", "d")));
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryLeg>> legs = ArgumentCaptor.forClass(List.class);
+		verify(itineraries).appendVersion(any(), any(), legs.capture(), any());
+		assertThat(legs.getValue()).isNotEmpty().allSatisfy((leg) -> {
+			assertThat(leg.durationMin()).isEqualTo(30);
+			assertThat(leg.uncalibratedDurationMin()).isEqualTo(20);
+		});
+	}
+
+	/** 판을 옮길 때(고정·빼기·되돌리기 등) 보정 전 이동 분을 흘리면 다음 보정이 고친 값을 어림으로 읽는다. */
+	@Test
+	@DisplayName("🔴 S15P21E201-1700 — 판을 그대로 옮길 때도 보정 전 이동 분이 따라간다")
+	void copyingAVersionKeepsTheUncalibratedTravelTime() {
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		ItineraryLeg leg = new ItineraryLeg(UUID.randomUUID().toString(), base.itineraryVersionId(), 0, 1,
+				UUID.randomUUID().toString(), UUID.randomUUID().toString(), "BUS", 3000, 30, null, null, null,
+				ItineraryItem.DataStatus.ESTIMATED, null, null, 20, Instant.now());
+
+		com.gabolle.backend.itinerary.domain.ItineraryRevision.Draft copied =
+				com.gabolle.backend.itinerary.domain.ItineraryRevision.copyOf(
+						new ItineraryContent(base, List.of(), List.of(leg), List.of()), UUID.randomUUID().toString(),
+						Instant.now());
+
+		assertThat(copied.legs()).singleElement().satisfies((c) -> {
+			assertThat(c.durationMin()).isEqualTo(30);
+			assertThat(c.uncalibratedDurationMin()).isEqualTo(20);
+		});
+	}
+
+	/**
+	 * 빼기는 판을 옮기지 않고 그날 구간을 새로 잰다 (S15P21E201-1706). B 를 빼면 A→C 라는 새 쌍이 생기는데, 그 쌍의 길을
+	 * 경로 쪽이 모르면 비워 둔다 — 바탕 판의 A→B · B→C 길이나 요금을 옮겨 붙이면 지도에 틀린 길이 그려진다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-1706 — 빼기로 생긴 새 쌍(A→C)은 다른 쌍의 길 선 · 요금을 받지 않는다")
+	void removingAStopNeverBorrowsAnotherPairsPathOrFare() {
+		double[] a = { 35.10, 129.01 };
+		double[] b = { 35.11, 129.02 };
+		double[] c = { 35.12, 129.03 };
+		List<Place> rows = new ArrayList<>();
+		List<String> placeIds = new ArrayList<>();
+		for (double[] at : List.of(a, b, c)) {
+			UUID placeId = UUID.randomUUID();
+			placeIds.add(placeId.toString());
+			rows.add(Place.imported(placeId, "곳", null, "부산", at[0], at[1], "TEST", "t-" + placeId, null, null, "v1"));
+		}
+		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(rows);
+		when(this.tripRepository.findById("itn_trip_1"))
+				.thenReturn(Optional.of(tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10))));
+
+		// 경로 쪽은 A→C 길을 모른다(선형 · 요금 없음). 출발지가 없는 첫 구간도 모른다. 나머지 쌍은 자기 길을 준다.
+		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) -> {
+			boolean aToC = fromLat != null && fromLat == a[0] && toLat == c[0];
+			if (fromLat == null || aToC) {
+				return new TravelTime(2_000, 15, ItineraryItem.DataStatus.ESTIMATED);
+			}
+			return new TravelTime(1_000, 10, ItineraryItem.DataStatus.VERIFIED, 3_300,
+					List.of(new double[] { fromLng, fromLat }, new double[] { toLng, toLat }));
+		};
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(port);
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		ItineraryDraftService reviser = new ItineraryDraftService(this.tripRepository, itineraries, CLOCK, 4, 3, "FOOD", 1,
+				new ItineraryLegPlanner(this.placeRepository, provider), tables(ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT),
+				noRouteOrder(), this.placeRepository, noEvents());
+
+		ItineraryVersion base = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, Instant.now());
+		List<ItineraryItem> baseItems = new ArrayList<>();
+		for (int i = 0; i < 3; i++) {
+			baseItems.add(new ItineraryItem(UUID.randomUUID().toString(), base.itineraryVersionId(), "key_" + i, 0,
+					LocalDate.of(2026, 9, 10), i + 1, placeIds.get(i), null, null, null, false, null,
+					ItineraryItem.DataStatus.VERIFIED, List.of(), List.of(), null, Instant.now()));
+		}
+		List<double[]> storedPath = List.of(new double[] { 1.0, 1.0 }, new double[] { 2.0, 2.0 });
+		List<ItineraryLeg> baseLegs = List.of(
+				new ItineraryLeg(UUID.randomUUID().toString(), base.itineraryVersionId(), 0, 2, placeIds.get(0), placeIds.get(1),
+						"WALK", 1_000, 10, null, null, null, ItineraryItem.DataStatus.VERIFIED, 9_900, storedPath, 10, Instant.now()),
+				new ItineraryLeg(UUID.randomUUID().toString(), base.itineraryVersionId(), 0, 3, placeIds.get(1), placeIds.get(2),
+						"WALK", 1_000, 10, null, null, null, ItineraryItem.DataStatus.VERIFIED, 9_900, storedPath, 10, Instant.now()));
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(base, baseItems, baseLegs, List.of())));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		reviser.publish(reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1, "usr_1",
+				JobType.ITEM_REMOVE, 0, "key_1", List.of(), null, List.of(), "m", "f", "o", "p", "d")));
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryLeg>> legs = ArgumentCaptor.forClass(List.class);
+		verify(itineraries).appendVersion(any(), any(), legs.capture(), any());
+		ItineraryLeg aToC = legs.getValue().stream()
+				.filter((leg) -> placeIds.get(0).equals(leg.fromPlaceId()) && placeIds.get(2).equals(leg.toPlaceId()))
+				.findFirst().orElseThrow();
+		assertThat(aToC.path()).as("A→C 는 경로 쪽이 모른다 — 바탕 판의 길을 옮겨 붙이지 않는다").isNull();
+		assertThat(aToC.fareKrw()).isNull();
+		assertThat(legs.getValue()).noneSatisfy((leg) -> assertThat(leg.fareKrw()).isEqualTo(9_900));
+	}
+
+	// ── 오늘 출발하는 여행 (S15P21E201-1734) ─────────────────────────────
+	//
+	// 시각은 전부 부산 시각으로 적고 Instant 로 바꿔 시계에 넣는다. 서버 기본 시간대(CI 러너는 UTC)와 상관없이 같은 답이어야 한다.
+
+	private static final LocalDate TODAY = LocalDate.of(2026, 9, 26);
+
+	private static Instant kst(LocalDate date, String time) {
+		return LocalDateTime.of(date, LocalTime.parse(time)).atZone(ZoneId.of("Asia/Seoul")).toInstant();
+	}
+
+	/** 부산 시각 {@code time} 에 일정을 만드는(또는 고치는) 서비스. */
+	private ItineraryDraftService serviceAt(String time, ItineraryRepository itineraries) {
+		return serviceAt(time, itineraries, ALWAYS_UNKNOWN);
+	}
+
+	private ItineraryDraftService serviceAt(String time, ItineraryRepository itineraries, OpeningHoursFilterPort openingHours) {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		return new ItineraryDraftService(this.tripRepository, itineraries, Clock.fixed(kst(TODAY, time), ZoneOffset.UTC), 4,
+				3, "FOOD", 1, new ItineraryLegPlanner(this.placeRepository, noTravelTime),
+				tables(openingHours, ALWAYS_UNKNOWN_TIME_FACT), noRouteOrder(), this.placeRepository, noEvents());
+	}
+
+	private ItineraryDraft madeAt(String time, LocalDate start, LocalDate finish, String... categories) {
+		when(this.tripRepository.findById("trip_1"))
+				.thenReturn(Optional.of(tripOf(start, finish, LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		return serviceAt(time, mock(ItineraryRepository.class)).assemble(commandOf("trip_1", plannedPlacesOf(categories)));
+	}
+
+	private static List<ItineraryDraft.DraftItem> itemsOfDay(ItineraryDraft draft, int dayIndex) {
+		return draft.items().stream().filter((item) -> item.dayIndex() == dayIndex).toList();
+	}
+
+	private static final String[] MIXED = { "CULTURE_TEMPLE", "FOOD", "CAFE_HEALING", "NATURE_WALK", "FOOD", "CITY",
+			"CULTURE_TEMPLE", "SEA_BEACH", "CAFE_HEALING", "NATURE_WALK" };
+
+	@Test
+	@DisplayName("🔴 오늘 여행을 14:07 에 만들면 첫날은 14:30 부터다 — 09:00 부터 짜서 「예정보다 5시간 늦음」으로 시작하지 않는다")
+	void aTripForTodayMadeInTheAfternoonStartsFromNow() {
+		List<ItineraryDraft.DraftItem> today = itemsOfDay(madeAt("14:07", TODAY, TODAY, MIXED), 0);
+
+		// 앱은 「예정보다 n분」을 지금과 항목 시각의 차이로 센다 — 첫 항목이 지금(올림) 뒤에 있어야 늦음으로 시작하지 않는다.
+		assertThat(today).isNotEmpty().allSatisfy((item) -> {
+			assertThat(item.startTime()).isAfterOrEqualTo(LocalTime.of(14, 30));
+			assertThat(item.endTime()).isBeforeOrEqualTo(LocalTime.of(18, 0));
+		});
+		// 하루 4곳 × 남은 210분 / 540분 = 1.6 → 2곳. 줄이지 않으면 시각표에 안 들어가 그날 시각이 빈다.
+		assertThat(today).hasSize(2);
+	}
+
+	@Test
+	@DisplayName("오늘이 아닌 여행은 그대로다 — 같은 14:07 에 만든 내일 여행은 활동 시작부터 하루치를 짠다")
+	void aTripStartingTomorrowIsUnchanged() {
+		ItineraryDraft draft = madeAt("14:07", TODAY.plusDays(1), TODAY.plusDays(1), MIXED);
+
+		assertThat(itemsOfDay(draft, 0)).hasSize(4);
+		assertThat(itemsOfDay(draft, 0).get(0).startTime()).isBefore(LocalTime.of(12, 0));
+	}
+
+	@Test
+	@DisplayName("🔴 17:40 에 만들면 저녁 — 22:00 까지 늦춰 식당·밤에 볼 만한 곳으로 1~2곳, 절·산길·카페는 안 넣는다")
+	void aTripMadeInTheEveningGetsAnEveningOfFoodAndNightViews() {
+		List<ItineraryDraft.DraftItem> today = itemsOfDay(madeAt("17:40", TODAY, TODAY, MIXED), 0);
+
+		assertThat(today).hasSizeBetween(1, 2).allSatisfy((item) -> {
+			assertThat(item.startTime()).isAfterOrEqualTo(LocalTime.of(18, 0));
+			assertThat(item.endTime()).isBeforeOrEqualTo(LocalTime.of(22, 0));
+		});
+		assertThat(today).extracting(this::categoryOfItem).allMatch((category) -> java.util.Set.of("FOOD", "SEA_BEACH", "CITY")
+				.contains(category));
+	}
+
+	@Test
+	@DisplayName("저녁 날에 앉힌 곳이 그 시각에 닫혀 있으면 바꿔 넣는 곳도 식당·밤에 볼 만한 곳에서만 고른다")
+	void anEveningSubstituteIsAlsoFoodOrANightView() {
+		when(this.tripRepository.findById("trip_1"))
+				.thenReturn(Optional.of(tripOf(TODAY, TODAY, LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlacesOf("CULTURE_TEMPLE", "FOOD", "SEA_BEACH", "FOOD",
+				"CULTURE_TEMPLE");
+		UUID beach = places.get(2).placeId();
+		// 해변이 저녁에 닫혔다고 답한다 — 그 자리를 여벌 후보로 바꿔 넣는다. 절은 열려 있지만 저녁 날에 넣을 곳이 아니다.
+		ItineraryDraft draft = serviceAt("17:40", mock(ItineraryRepository.class),
+				(placeId, at) -> placeId.equals(beach) ? OpeningHoursFilterPort.Answer.CLOSED
+						: OpeningHoursFilterPort.Answer.OPEN)
+				.assemble(commandOf("trip_1", places));
+
+		assertThat(itemsOfDay(draft, 0)).isNotEmpty().extracting(this::categoryOfItem)
+				.as("여벌 거르기가 없으면 열려 있는 절이 해변 자리에 들어온다").doesNotContain("CULTURE_TEMPLE");
+	}
+
+	@Test
+	@DisplayName("🔴 22:10 에 만든 여러 날 여행은 첫날을 비우고 다음 날부터 짠다")
+	void aMultiDayTripMadeTooLateLeavesTheFirstDayEmpty() {
+		ItineraryDraft draft = madeAt("22:10", TODAY, TODAY.plusDays(1), MIXED);
+
+		assertThat(itemsOfDay(draft, 0)).isEmpty();
+		assertThat(itemsOfDay(draft, 1)).hasSize(4);
+		assertThat(itemsOfDay(draft, 1).get(0).startTime()).isBefore(LocalTime.of(12, 0));
+	}
+
+	@Test
+	@DisplayName("🔴 22:10 에 만든 당일치기는 만들지 않는다 — 「오늘은 남은 시간이 없어요」로 알린다")
+	void aDayTripMadeTooLateIsRefused() {
+		assertThatThrownBy(() -> madeAt("22:10", TODAY, TODAY, MIXED))
+				.isInstanceOf(com.gabolle.backend.recommendation.application.port.ItineraryDraftPort.NoTimeLeftTodayException.class);
+	}
+
+	@Test
+	@DisplayName("🔴 오늘 일정을 나중에 고쳐도 첫날은 처음 만든 시각부터다 — 고치는 지금부터 깔면 오전에 들른 곳이 밀린다")
+	void recalculatingTodayKeepsTheStartOfWhenTheItineraryWasMade() {
+		when(this.tripRepository.findById("itn_trip_1"))
+				.thenReturn(Optional.of(tripOf(TODAY, TODAY, LocalTime.of(9, 0), LocalTime.of(18, 0))));
+		ItineraryRepository itineraries = mock(ItineraryRepository.class);
+		// 14:07 에 만든 일정 — 첫날은 14:30 부터 두 곳이었다.
+		ItineraryVersion first = new ItineraryVersion(UUID.randomUUID().toString(), "itn_1", 1, null,
+				ItineraryVersion.Operation.CREATE, "usr_1", "req_1", null, kst(TODAY, "14:07"));
+		List<ItineraryItem> baseItems = List.of(
+				new ItineraryItem("id-a", first.itineraryVersionId(), "a", 0, TODAY, 1, UUID.randomUUID().toString(),
+						LocalTime.of(14, 30), LocalTime.of(15, 30), 60, false, null, ItineraryItem.DataStatus.ESTIMATED,
+						List.of(), List.of(), null, kst(TODAY, "14:07")),
+				new ItineraryItem("id-b", first.itineraryVersionId(), "b", 0, TODAY, 2, UUID.randomUUID().toString(),
+						LocalTime.of(16, 0), LocalTime.of(17, 0), 60, false, null, ItineraryItem.DataStatus.ESTIMATED,
+						List.of(), List.of(), null, kst(TODAY, "14:07")));
+		when(itineraries.findContent("itn_1", 1))
+				.thenReturn(Optional.of(new ItineraryContent(first, baseItems, List.of(), List.of())));
+		when(itineraries.findVersion("itn_1", 1)).thenReturn(Optional.of(first));
+		when(itineraries.findById("itn_1")).thenReturn(Optional.of(new Itinerary("itn_1", "itn_trip_1", 1)));
+
+		// 16:40 에 고친다. 「지금」을 쓰면 17:00 부터라 남은 60분 — 저녁으로 넘어가 22:00 까지 깔린다.
+		ItineraryDraftService reviser = serviceAt("16:40", itineraries);
+		reviser.publish(reviser.revise(new ItineraryRevisionCommand(UUID.randomUUID(), "itn_1", 1, "usr_1",
+				JobType.ITINERARY_RECALCULATE, 0, null, List.of(), null,
+				plannedPlacesOf("CULTURE_TEMPLE", "CAFE_HEALING", "NATURE_WALK"), "m", "f", "o", "p", "d")));
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<ItineraryItem>> saved = ArgumentCaptor.forClass(List.class);
+		verify(itineraries).appendVersion(any(), saved.capture(), any(), any());
+
+		List<ItineraryItem> today = saved.getValue().stream().filter((item) -> item.dayIndex() == 0).toList();
+		assertThat(today).isNotEmpty();
+		assertThat(today.get(0).startTime()).as("처음 만든 14:07 → 14:30 부터").isEqualTo(LocalTime.of(14, 30));
+		assertThat(today).allSatisfy((item) -> assertThat(item.endTime()).isBeforeOrEqualTo(LocalTime.of(18, 0)));
+	}
+
 }

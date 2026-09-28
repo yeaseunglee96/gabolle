@@ -190,8 +190,12 @@ public class InMemoryTripRepository implements TripRepository {
                 if (!prior.fingerprint().equals(fingerprint)) {
                     throw new IdempotencyKeyConflictException(idempotencyKey);
                 }
-                winner[0] = prior.tripId();          // 재시도 — 기존 것을 돌려준다
-                return prior;
+                Trip priorTrip = trips.get(prior.tripId());
+                if (priorTrip == null || !priorTrip.isDeleted()) {
+                    winner[0] = prior.tripId();      // 재시도 — 기존 것을 돌려준다
+                    return prior;
+                }
+                // 키가 묶인 여행이 이미 지워졌다(S15P21E201-1716) — 새 여행으로 갈아 묶고 아래에서 새로 만든다.
             }
             // 이긴 쪽만 여기 들어온다. 저장까지 이 안에서 끝낸다.
             save(trip, tripConstraints, owner, snapshot);

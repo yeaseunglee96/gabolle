@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +108,7 @@ public class TransitRouteAdapter implements RouteProviderPort {
 				: planner.planTypical(network, origins, destinations);
 
 		if (journey.isPresent()) {
-			return Optional.of(toLeg(network, journey.get(), exact ? null : REASON_NO_DEPARTURE_TIME));
+			return Optional.of(toLeg(network, query, journey.get(), exact ? null : REASON_NO_DEPARTURE_TIME));
 		}
 
 		// 시각표가 없는 노선(부산 버스 — BIMS 가 시각표를 안 준다)은 위의 탐색기가 못 찾으므로
@@ -120,7 +121,7 @@ public class TransitRouteAdapter implements RouteProviderPort {
 					new HeadwayJourneyPlanner(this.properties.getRideSpeedKmh())
 							.plan(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
 			if (byHeadway.isPresent()) {
-				return Optional.of(toLeg(network, byHeadway.get(), REASON_HEADWAY_ESTIMATE));
+				return Optional.of(toLeg(network, query, byHeadway.get(), REASON_HEADWAY_ESTIMATE));
 			}
 		}
 
@@ -129,7 +130,15 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		return Optional.empty();
 	}
 
-	/** 걸어갈 만한 정류장 → 거기까지 걷는 분. 가까운 것부터 maxAccessStops 개만 본다. */
+	/**
+	 * 걸어갈 만한 정류장 → 거기까지 걷는 분. 수단(버스·지하철)마다 가까운 것부터
+	 * maxAccessStops 개씩 본다.
+	 *
+	 * 수단을 섞어 가까운 순으로 자르면 안 된다 — S15P21E201-1753. 버스 정류장은 몇십 m 마다
+	 * 있고 지하철역은 몇백 m 에 하나라, 해운대해수욕장에서는 569m 떨어진 해운대역이 버스
+	 * 정류장 6곳 뒤로 밀려 후보에서 빠졌다. 그러자 2호선 한 번이면 가는 서면→해운대가
+	 * 직선 어림값으로 떨어졌다.
+	 */
 	private Map<String, Integer> nearestStops(TransitNetwork network, double lat, double lng) {
 		int radius = this.properties.getAccessRadiusM();
 		record Candidate(String stopId, double distanceM) {
@@ -144,11 +153,15 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		near.sort(Comparator.comparingDouble(Candidate::distanceM));
 
 		Map<String, Integer> access = new LinkedHashMap<>();
+		Map<TransitNetwork.Kind, Integer> takenPerKind = new EnumMap<>(TransitNetwork.Kind.class);
 		double speedMPerMin = (this.properties.getAccessWalkSpeedKmh() * 1000) / 60.0;
 		for (Candidate candidate : near) {
-			if (access.size() >= this.properties.getMaxAccessStops()) {
-				break;
+			TransitNetwork.Kind kind = network.stop(candidate.stopId()).kind();
+			int taken = takenPerKind.getOrDefault(kind, 0);
+			if (taken >= this.properties.getMaxAccessStops()) {
+				continue;
 			}
+			takenPerKind.put(kind, taken + 1);
 			access.put(candidate.stopId(), (int) Math.ceil(candidate.distanceM() / speedMPerMin));
 		}
 		return access;
@@ -160,7 +173,8 @@ public class TransitRouteAdapter implements RouteProviderPort {
 	}
 
 	/** estimateReason 은 어림값일 때만 채우고, 실제 시각표로 잰 것이면 null 이다. */
-	private RouteLeg toLeg(TransitNetwork network, RaptorPlanner.Journey journey, String estimateReason) {
+	private RouteLeg toLeg(TransitNetwork network, RouteQuery query, RaptorPlanner.Journey journey,
+			String estimateReason) {
 		List<RouteLeg.Step> steps = new ArrayList<>();
 		int distanceM = 0;
 		for (RaptorPlanner.Ride ride : journey.rides()) {
@@ -188,7 +202,39 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		Integer fareKrw = this.fareCalculator.fareKrw(journey, network);
 		return new RouteLeg(TravelMode.TRANSIT, distanceM, journey.durationMin(), null, null,
 				journey.transferCount(), estimateReason != null, estimateReason,
-				PROVIDER_TRANSIT_NETWORK, List.of(), List.copyOf(steps), fareKrw);
+				PROVIDER_TRANSIT_NETWORK, pathOf(network, query, journey), List.copyOf(steps), fareKrw);
+	}
+
+	/**
+	 * 지도에 그릴 좌표. {@code [경도, 위도]} 순서다(RouteLeg.path 의 약속).
+	 *
+	 * 예전에는 빈 목록을 실었다 — S15P21E201-1753. 소요시간은 나오는데 지도에는 선이 없었다.
+	 * 출발점 → 탄 구간마다 지나는 정류장·역 좌표를 순서대로 → 도착점. 정류장 사이는 직선이라
+	 * 실제 도로·선로 모양은 아니다(노선망 파일에 선형이 없다). 걸어서 갈아타는 구간은
+	 * 두 정류장을 잇는다.
+	 */
+	private static List<double[]> pathOf(TransitNetwork network, RouteQuery query, RaptorPlanner.Journey journey) {
+		List<double[]> path = new ArrayList<>();
+		path.add(new double[] { query.originLng(), query.originLat() });
+		for (RaptorPlanner.Ride ride : journey.rides()) {
+			List<String> stopIds = List.of(ride.fromStopId(), ride.toStopId());
+			if (!ride.isWalk()) {
+				TransitNetwork.Route route = network.route(ride.routeId());
+				int from = network.sequenceOf(ride.routeId(), ride.fromStopId());
+				int to = network.sequenceOf(ride.routeId(), ride.toStopId());
+				if (route != null && from >= 0 && to > from) {
+					stopIds = route.stopIds().subList(from, to + 1);
+				}
+			}
+			for (String stopId : stopIds) {
+				TransitNetwork.Stop stop = network.stop(stopId);
+				if (stop != null) {
+					path.add(new double[] { stop.lng(), stop.lat() });
+				}
+			}
+		}
+		path.add(new double[] { query.destLng(), query.destLat() });
+		return List.copyOf(path);
 	}
 
 	/**

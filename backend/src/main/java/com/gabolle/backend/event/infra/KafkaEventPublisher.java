@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.errors.RetriableException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -96,12 +97,35 @@ public class KafkaEventPublisher implements EventPublisherPort {
 		}
 		catch (InterruptedException interrupted) {
 			// 🔴 인터럽트 표시를 되살린다. 삼키면 이 스레드를 멈추려는 종료 절차가 안 먹는다.
+			// 배포로 서버가 내려가는 중이다 — 이 이벤트 탓이 아니다.
 			Thread.currentThread().interrupt();
-			throw new EventPublishException("보내는 중에 중단됐다: " + event.getEventId(), interrupted);
+			throw new BrokerUnavailableException("보내는 중에 중단됐다: " + event.getEventId(), interrupted);
 		}
-		catch (ExecutionException | TimeoutException | RuntimeException failure) {
+		catch (TimeoutException waitedTooLong) {
+			throw new BrokerUnavailableException("카프카가 " + SEND_TIMEOUT.toSeconds() + "초 안에 답하지 않았다: "
+					+ event.getEventId(), waitedTooLong);
+		}
+		catch (ExecutionException | RuntimeException failure) {
+			if (brokerUnreachable(failure)) {
+				throw new BrokerUnavailableException("카프카에 닿지 못했다: " + event.getEventId(), failure);
+			}
 			throw new EventPublishException("카프카 발행 실패: " + event.getEventId(), failure);
 		}
+	}
+
+	/**
+	 * 브로커가 죽었거나 잠깐 못 닿는 실패인가 — 원인 사슬에 카프카의 「다시 하면 될 수 있는」 오류
+	 * ({@link RetriableException}: 시간 초과·네트워크 오류·리더 교체 등)가 있으면 그렇다
+	 * (S15P21E201-1613). 스프링 카프카는 원인을 {@code KafkaProducerException} 으로 한 겹 싸서
+	 * 넘기므로 사슬을 끝까지 본다. 이벤트가 너무 크다 같은 것은 다시 해도 안 되므로 여기 안 든다.
+	 */
+	private static boolean brokerUnreachable(Throwable failure) {
+		for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+			if (cause instanceof RetriableException) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static void addHeader(ProducerRecord<String, String> record, String key, String value) {

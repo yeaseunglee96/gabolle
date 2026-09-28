@@ -19,6 +19,16 @@ public interface TransitVendorPort {
 	 */
 	String fetchArrivalsJson(String cityCode, String nodeId);
 
+	/**
+	 * 「덤」 정류소의 도착정보 — {@link #fetchArrivalsJson} 과 같은 호출이되 읽기 제한이 짧다(S15P21E201-1755). 늦으면 기다리지
+	 * 않고 예외로 끝난다. 부르는 쪽은 그 실패를 버린다. 기본 구현은 보통 호출이다(시험 대역용).
+	 *
+	 * @throws TransitVendorException 키가 없거나, 호출이 실패했거나, 짧은 제한 안에 답이 안 왔다
+	 */
+	default String fetchExtraArrivalsJson(String cityCode, String nodeId) {
+		return fetchArrivalsJson(cityCode, nodeId);
+	}
+
 	/** 로그와 응답 진단에 남길 이름. */
 	String providerName();
 }

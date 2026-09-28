@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -273,5 +275,166 @@ class BaselineRecommendationEngineCandidateCutTest {
 
 		List<Double> scores = kept.stream().map(EngineCandidate::preRankScore).toList();
 		assertThat(scores).isSortedAccordingTo(Comparator.<Double>reverseOrder());
+	}
+
+	// ── 고른 갈래의 몫 ──────────────────────────────────────────────
+
+	/**
+	 * 운영 범위의 기울기를 줄여 흉내 낸다 — 밥집 300(가까워 점수가 높다) · 카페 5 · 바다 3 · 자연 3(멀다).
+	 * 운영에서는 밥집이 인기도·예산 가산으로 앞섰다. 여기서는 거리로 앞서게 한다 — 재는 것은 채점이 아니라 자르기다.
+	 */
+	private static List<PlaceCandidateResponse.Candidate> skewedPool() {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>(manyCandidates(300));
+		String[] others = { "CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING", "CAFE_HEALING",
+				"SEA_BEACH", "SEA_BEACH", "SEA_BEACH", "NATURE_WALK", "NATURE_WALK", "NATURE_WALK" };
+		for (int i = 0; i < others.length; i++) {
+			pool.add(new PlaceCandidateResponse.Candidate(new UUID(8L, i), others[i] + i, others[i],
+					35.15, 129.05, 4000L + i, List.of()));
+		}
+		return pool;
+	}
+
+	/** 갈래를 고른 여행(취향 스냅샷에 CATEGORY 답)으로 돌려 남은 후보의 갈래를 센다. */
+	private Map<String, Long> keptCategoriesChoosing(String categoriesJson) {
+		UUID snapshotId = UUID.randomUUID();
+		when(this.tripRepository.findSnapshotById(snapshotId.toString()))
+				.thenReturn(Optional.of(snapshot("CATEGORY", categoriesJson)));
+		when(this.queryService.findCandidates(any())).thenReturn(response(skewedPool()));
+		EngineRequest req = new EngineRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.fromString(TRIP_ID), 1,
+				snapshotId, null, null, null, 10);
+		List<EngineCandidate> kept = engine().generate(req).candidates();
+		assertThat(kept).hasSize(KEEP);
+		assertThat(kept.stream().map(EngineCandidate::preRankScore).toList())
+				.as("몫으로 골랐어도 내보내는 순서는 점수 순이다")
+				.isSortedAccordingTo(Comparator.<Double>reverseOrder());
+		return kept.stream().collect(Collectors.groupingBy(
+				(c) -> String.valueOf(c.featureValues().get("category")), Collectors.counting()));
+	}
+
+	/** 운영(2026-09-24): 바다·맛집·자연을 고른 여행의 후보 200곳이 밥집 199 · 꼭 갈 곳 1 이었다. */
+	@Test
+	@DisplayName("🔴 맛집+바다+자연을 고르면 후보에 바다·자연이 들어온다 — 밥집이 상위를 다 채우지 않는다")
+	void 고른_갈래는_몫을_받는다() {
+		Map<String, Long> kept = keptCategoriesChoosing("[\"SEA_BEACH\", \"FOOD\", \"NATURE_WALK\"]");
+
+		assertThat(kept.getOrDefault("SEA_BEACH", 0L)).isPositive();
+		assertThat(kept.getOrDefault("NATURE_WALK", 0L)).isPositive();
+		assertThat(kept.getOrDefault("FOOD", 0L)).isPositive();
+	}
+
+	@Test
+	@DisplayName("맛집만 고르면 지금처럼 밥집 위주다 — 고르지 않은 바다·자연은 몫이 없다")
+	void 맛집만_고르면_밥집_위주다() {
+		Map<String, Long> kept = keptCategoriesChoosing("[\"FOOD\"]");
+
+		assertThat(kept.getOrDefault("FOOD", 0L)).isGreaterThanOrEqualTo(KEEP - 1);
+		assertThat(kept).doesNotContainKeys("SEA_BEACH", "NATURE_WALK");
+	}
+
+	@Test
+	@DisplayName("바다·자연만 골라도 끼니를 채울 밥집이 남는다")
+	void 밥집을_안_골라도_끼니_몫이_있다() {
+		Map<String, Long> kept = keptCategoriesChoosing("[\"SEA_BEACH\", \"NATURE_WALK\"]");
+
+		assertThat(kept.getOrDefault("FOOD", 0L)).isPositive();
+		assertThat(kept.getOrDefault("SEA_BEACH", 0L) + kept.getOrDefault("NATURE_WALK", 0L)).isPositive();
+	}
+
+	@Test
+	@DisplayName("🔴 아무것도 안 고르면 기존 다양성 규칙(-1463) 그대로다 — 몫을 안 나누고 뒤쪽을 여행마다 다르게 채운다")
+	void 안_고르면_기존_규칙이다() {
+		String tripA = new UUID(9L, 6L).toString();
+		String tripB = new UUID(9L, 7L).toString();
+		List<PlaceCandidateResponse.Candidate> pool = skewedPool();
+
+		List<UUID> a = keptFor(tripA, pool);
+		List<UUID> b = keptFor(tripB, pool);
+
+		assertThat(a).isNotEqualTo(b);
+		assertThat(a).as("안 골랐으면 몫이 없어 점수가 낮은 바다·자연·카페는 안 들어온다")
+				.allMatch((id) -> id.getMostSignificantBits() == 7L);
+	}
+
+	// ── 테마 없이 설문만 있는 여행 — 섞지 않는다 (S15P21E201-1639) ─────────────────
+
+	/**
+	 * 고치기 전 코드(back/dev 929d65b79)가 낸 남은 후보 — {@code 상위비트:하위비트}. 설문도 테마도 없는 여행과 테마를 고른 여행은
+	 * 이 작업 뒤에도 한 곳도 안 바뀌어야 한다. 섞기·몫 규칙을 <b>일부러</b> 바꾸는 작업이면 새 값으로 갈아 끼운다.
+	 */
+	private static final String NO_SURVEY_BEFORE = "7:0 7:1 7:2 7:3 7:4 7:5 7:7 7:18 7:22 7:29";
+
+	private static final String THEME_BEFORE = "7:0 7:1 7:2 7:3 7:4 8:0 8:5 8:6 8:8 8:9";
+
+	/** 여행 번호와 취향 스냅숏을 정해 돌리고, 남은 후보를 {@code 상위비트:하위비트} 로 늘어놓는다. */
+	private String keptWith(String tripId, List<PlaceCandidateResponse.Candidate> pool, PreferenceSnapshot snapshot) {
+		when(this.tripRepository.findById(tripId)).thenReturn(Optional.of(Trip.builder()
+				.tripId(tripId).createdBy(UUID.randomUUID().toString())
+				.startDate(LocalDate.of(2026, 10, 1)).finishDate(LocalDate.of(2026, 10, 3))
+				.originLat(35.15).originLng(129.05).partySize(2).timezone("Asia/Seoul")
+				.build()));
+		when(this.seedPlaceRepository.findByTripId(tripId)).thenReturn(List.of());
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+		UUID snapshotId = UUID.randomUUID();
+		when(this.tripRepository.findSnapshotById(snapshotId.toString())).thenReturn(Optional.ofNullable(snapshot));
+		EngineRequest req = new EngineRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.fromString(tripId), 1,
+				snapshotId, null, null, null, 10);
+		return engine().generate(req).candidates().stream()
+				.map((c) -> c.placeId().getMostSignificantBits() + ":" + c.placeId().getLeastSignificantBits())
+				.collect(Collectors.joining(" "));
+	}
+
+	/** 답 여러 개 — {@code 차원, 값 JSON} 을 번갈아 준다. */
+	private static PreferenceSnapshot answers(String... dimensionAndValue) {
+		List<PreferenceSnapshot.PreferenceAnswer> list = new ArrayList<>();
+		for (int i = 0; i < dimensionAndValue.length; i += 2) {
+			list.add(new PreferenceSnapshot.PreferenceAnswer(dimensionAndValue[i], dimensionAndValue[i + 1],
+					PreferenceSnapshot.AnswerStatus.SELECTED));
+		}
+		return new PreferenceSnapshot(UUID.randomUUID().toString(), TRIP_ID, 1, list, PersonalizationScope.TRIP,
+				List.of(), java.time.Instant.now());
+	}
+
+	/** 운영 여행 답에서 흔한 설문 — 해산물 · 현지 5 · 경사 피함(2026-09-25 최근 열흘). */
+	private static PreferenceSnapshot survey() {
+		return answers("FOOD_PREFERENCE", "[\"SEAFOOD\"]", "LOCALITY", "5", "SLOPE_PREFERENCE", "\"AVOID\"");
+	}
+
+	@Test
+	@DisplayName("🔴 설문도 테마도 없는 여행은 전과 같다 — 뒤쪽을 여행마다 섞는다(-1463)")
+	void 설문이_없으면_전과_같다() {
+		assertThat(keptWith(new UUID(9L, 11L).toString(), manyCandidates(300), null)).isEqualTo(NO_SURVEY_BEFORE);
+	}
+
+	@Test
+	@DisplayName("🔴 테마를 고른 여행은 전과 같다 — 설문이 함께 있어도 갈래 몫이 먼저다")
+	void 테마를_고르면_전과_같다() {
+		PreferenceSnapshot themeAndSurvey = answers("CATEGORY", "[\"SEA_BEACH\", \"FOOD\", \"NATURE_WALK\"]",
+				"FOOD_PREFERENCE", "[\"SEAFOOD\"]", "LOCALITY", "5");
+
+		assertThat(keptWith(new UUID(9L, 12L).toString(), skewedPool(), themeAndSurvey)).isEqualTo(THEME_BEFORE);
+	}
+
+	@Test
+	@DisplayName("🔴 테마 없이 설문만 있으면 섞지 않는다 — 여행이 달라도 같은 곳, 점수 순 상위 그대로")
+	void 설문만_있으면_섞지_않는다() {
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+
+		String a = keptWith(new UUID(9L, 13L).toString(), pool, survey());
+		String b = keptWith(new UUID(9L, 14L).toString(), pool, survey());
+
+		assertThat(a).as("같은 설문이면 여행이 달라도 같다 — 설문 효과가 섞기에 묻히지 않는다").isEqualTo(b);
+		// 후보는 가까운 순으로 점수가 높다(표식이 없어 설문 항은 0) — 섞지 않으면 가장 가까운 열 곳이다.
+		assertThat(a).isEqualTo("7:0 7:1 7:2 7:3 7:4 7:5 7:6 7:7 7:8 7:9");
+	}
+
+	@Test
+	@DisplayName("🔴 채점에 안 쓰이는 답만 있으면 설문 없음과 같다 — 「상관없어요」·씀씀이는 순위를 가를 값이 아니다")
+	void 채점에_안_쓰이는_답만이면_섞는다() {
+		String tripId = new UUID(9L, 15L).toString();
+		List<PlaceCandidateResponse.Candidate> pool = manyCandidates(300);
+		PreferenceSnapshot noSignal = answers("SLOPE_PREFERENCE", "\"ALLOW\"", "SHADE_PREFERENCE",
+				"\"NO_PREFERENCE\"", "SPEND_PROFILE", "\"MODERATE\"", "FOOD_PREFERENCE", "[]");
+
+		assertThat(keptWith(tripId, pool, noSignal)).isEqualTo(keptWith(tripId, pool, null));
 	}
 }

@@ -43,6 +43,8 @@ import com.gabolle.backend.place.domain.Place;
  *        요청했는데 영문 이름이 없어 한국어로 되돌린 경우를 화면이 구분할 수 있어야 "번역이
  *        없습니다" 안내를 할 수 있다. {@code nameKo}·{@code nameEn} 은 언어와 무관하게 둘 다
  *        나간다 — 언어 선택은 칸을 더하는 것이지 기존 칸을 바꾸는 것이 아니다
+ * @param photoLicense 사진의 라이선스 — 이름·주소·원본 파일 페이지(S15P21E201-1606). 위키미디어
+ *        사진(CC BY 등)은 출처 문구와 함께 이것을 보여야 쓸 수 있다. 없으면 키 자체가 빠진다
  */
 public record PlaceDetailResponse(
 		UUID placeId,
@@ -61,7 +63,8 @@ public record PlaceDetailResponse(
 		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject,
 		@JsonInclude(JsonInclude.Include.NON_NULL) FeatureSlot openingHours,
 		@JsonInclude(JsonInclude.Include.NON_NULL) FeatureSlot priceLevel,
-		String resolvedLanguage) {
+		String resolvedLanguage,
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense) {
 
 	/**
 	 * @param observedAt 원천에서 관측된 시각. 어제 수집한 지난달 정보가 있을 수 있어

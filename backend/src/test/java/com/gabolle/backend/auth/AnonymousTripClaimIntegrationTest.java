@@ -1,5 +1,6 @@
 package com.gabolle.backend.auth;
 
+import static com.gabolle.backend.trip.support.TripCommands.withLodging;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -87,7 +88,7 @@ class AnonymousTripClaimIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	private TripCreationService.Result createAnonymousTrip(String sessionId) {
-		TripCreationService.Command command = new TripCreationService.Command(
+		TripCreationService.Command command = withLodging(new TripCreationService.Command(
 				sessionId,
 				LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
 				// 출발지 좌표는 필수다 — 없으면 여행 생성이 400 이라 승계 갈래에 닿지 못한다.
@@ -95,7 +96,7 @@ class AnonymousTripClaimIntegrationTest extends AuthPostgresIntegrationTest {
 				null, "Asia/Seoul",
 				List.<PreferenceSnapshot.PreferenceAnswer>of(),
 				List.<TripCreationService.Command.ConstraintInput>of(),
-				Trip.OwnerType.ANONYMOUS);
+				Trip.OwnerType.ANONYMOUS));
 		return tripCreationService.create(command, null);
 	}
 

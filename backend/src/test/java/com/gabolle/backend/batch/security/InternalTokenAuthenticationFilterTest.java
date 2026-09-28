@@ -104,4 +104,32 @@ class InternalTokenAuthenticationFilterTest {
 
 		assertThat(authentication).isNotNull();
 	}
+
+	@Test
+	@DisplayName("🔴 무중단 회전 — 콤마로 두 토큰을 넣으면 옛 토큰도 새 토큰도 통과한다")
+	void bothTokensInRotationListGrantAccess() throws Exception {
+		String oldToken = TOKEN;
+		String newToken = "fedcba9876543210fedcba9876543210";
+		InternalTokenAuthenticationFilter filter = filterWithToken(oldToken + "," + newToken);
+
+		assertThat(runWith(filter, oldToken)).isNotNull();
+		SecurityContextHolder.clearContext();
+		assertThat(runWith(filter, newToken)).isNotNull();
+	}
+
+	@Test
+	@DisplayName("회전 목록 어디에도 없는 값은 거부한다")
+	void tokenNotInRotationListIsRejected() throws Exception {
+		InternalTokenAuthenticationFilter filter = filterWithToken(TOKEN + ",fedcba9876543210fedcba9876543210");
+
+		assertThat(runWith(filter, "neither-of-the-two")).isNull();
+	}
+
+	@Test
+	@DisplayName("콤마 목록의 빈 항목·앞뒤 공백은 무시한다")
+	void rotationListIgnoresBlankEntriesAndWhitespace() throws Exception {
+		InternalTokenAuthenticationFilter filter = filterWithToken(" " + TOKEN + " ,, ");
+
+		assertThat(runWith(filter, TOKEN)).isNotNull();
+	}
 }

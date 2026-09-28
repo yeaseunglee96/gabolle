@@ -1,5 +1,7 @@
 package com.gabolle.backend.functional.support;
 
+import java.net.URI;
+
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -58,6 +60,19 @@ public final class AuthedClient {
 		headers.setBearerAuth(bearerToken);
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		return rest.exchange(path, HttpMethod.POST, new HttpEntity<>(parts, headers), responseType);
+	}
+
+	/**
+	 * 주소를 다시 인코딩하지 않고 그대로 보내는 {@code GET}. 경로 문자열을 주면 {@code TestRestTemplate} 이 {@code %} 를
+	 * {@code %25} 로 바꿔 버려, 잘못 인코딩된 요청(예: CP949 검색어)을 그대로 재현할 수 없다.
+	 */
+	public <T> ResponseEntity<T> getVerbatim(String pathAndQuery, HttpHeaders extraHeaders,
+			ParameterizedTypeReference<T> responseType) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.addAll(extraHeaders);
+		headers.setBearerAuth(bearerToken);
+		return rest.exchange(URI.create(rest.getRootUri() + pathAndQuery), HttpMethod.GET, new HttpEntity<>(headers),
+				responseType);
 	}
 
 	private <B> HttpEntity<B> authed(B body) {

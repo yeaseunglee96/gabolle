@@ -82,6 +82,10 @@ public class TripJpaEntity {
 	@Column(name = "accommodation_place_id")
 	private UUID accommodationPlaceId;
 
+	/** 묵는 동네. {@code TravelArea} 코드다 — S15P21E201-1544. 위 칸과 다른 사실이다. */
+	@Column(name = "accommodation_area", length = 30)
+	private String accommodationArea;
+
 	@Column(name = "english_menu_required", nullable = false)
 	private boolean englishMenuRequired;
 
@@ -132,7 +136,8 @@ public class TripJpaEntity {
 			LocalTime timeWindowStart, LocalTime timeWindowEnd,
 			UUID accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
 			boolean soloFriendlyPriority, Integer maxTransitTransfers, String pace, String title, Trip.Status status,
-			OffsetDateTime createdAt, OffsetDateTime updatedAt, OffsetDateTime deletedAt) {
+			OffsetDateTime createdAt, OffsetDateTime updatedAt, OffsetDateTime deletedAt,
+			String accommodationArea) {
 		this.tripId = tripId;
 		this.ownerUserId = ownerUserId;
 		this.ownerType = ownerType;
@@ -147,6 +152,7 @@ public class TripJpaEntity {
 		this.timeWindowEnd = timeWindowEnd;
 		this.travelModes = travelModes;
 		this.accommodationPlaceId = accommodationPlaceId;
+		this.accommodationArea = accommodationArea;
 		this.englishMenuRequired = englishMenuRequired;
 		this.foreignCardRequired = foreignCardRequired;
 		this.soloFriendlyPriority = soloFriendlyPriority;
@@ -199,6 +205,8 @@ public class TripJpaEntity {
 	LocalTime timeWindowEnd() { return timeWindowEnd; }
 	String[] travelModes() { return travelModes; }
 	UUID accommodationPlaceId() { return accommodationPlaceId; }
+
+	String accommodationArea() { return accommodationArea; }
 	boolean englishMenuRequired() { return englishMenuRequired; }
 	boolean foreignCardRequired() { return foreignCardRequired; }
 	boolean soloFriendlyPriority() { return soloFriendlyPriority; }

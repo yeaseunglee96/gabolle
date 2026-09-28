@@ -102,6 +102,34 @@ class AppleFormPostJourneyFunctionalTest extends FunctionalJourneyTest {
 		assertThat(response.body()).doesNotContain("AUTHENTICATION_REQUIRED");
 	}
 
+	/**
+	 * 🔴 S15P21E201-1556 — 2026-09-23 App Store 심사에서 재현된 실제 장애. 이 경로의 유일한
+	 * 실제 호출자는 {@code appleid.apple.com} 이 브라우저를 통해 그대로 제출하는 폼이고, 최신
+	 * Safari/Chrome 은 교차 출처 POST 내비게이션에도 {@code Origin} 헤더를 자동으로 붙인다.
+	 *
+	 * <p>위 나머지 시험들은 전부 {@code Origin} 헤더 없이 호출한다 — 그래서 이 버그를 하나도
+	 * 못 잡았다. Spring 의 CORS 필터는 등록된 allowed-origins(우리 프론트 주소들)에 없는
+	 * {@code Origin} 을 보면 이 경로가 인증이 필요 없다는 것과 무관하게 먼저 403(Invalid CORS
+	 * request)으로 거부한다 — 실제 App Store 리뷰어(IP 대역 17.64.127.x)가 정확히 이 403을
+	 * 맞았다(운영 nginx 로그로 확인, 2026-09-24).
+	 */
+	@Test
+	@DisplayName("🔴 애플이 실제로 보내는 Origin 헤더를 달고 와도 403 이 아니다 — S15P21E201-1556")
+	void appleOriginIsNotRejectedByCors() throws Exception {
+		HttpRequest request = HttpRequest.newBuilder(URI.create(baseUri() + PATH))
+				.header("Content-Type", "application/x-www-form-urlencoded")
+				.header("Origin", "https://appleid.apple.com")
+				.POST(HttpRequest.BodyPublishers.ofString("code=apple-auth-code-3&state=st-3"))
+				.build();
+
+		HttpResponse<String> response = client().send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).as("본문: %s", response.body()).isNotEqualTo(403);
+		assertThat(response.body()).doesNotContain("Invalid CORS request");
+		assertThat(response.statusCode()).isEqualTo(302);
+		assertThat(location(response).getQuery()).contains("code=apple-auth-code-3");
+	}
+
 	private URI location(HttpResponse<String> response) {
 		Optional<String> header = response.headers().firstValue("Location");
 		assertThat(header).as("Location 이 없다 — 리다이렉트가 안 나갔다. 상태=%s", response.statusCode()).isPresent();

@@ -23,7 +23,14 @@ public enum EventType {
     RECOMMENDATION_REQUESTED(Producer.SERVER, true, VersionRequirement.RECOMMENDATION,
             AggregateAxis.RECOMMENDATION_REQUEST),
 
-    /** 추천 카드가 실제로 화면에 보임. 목록에 들었다는 이유로 만들지 않는다 */
+    /**
+     * 추천 카드가 실제로 화면에 보임. 목록에 들었다는 이유로 만들지 않는다.
+     *
+     * <p>🔴 행동 관찰({@link #BEHAVIOR_SIGNALS})이 아니다 — 2026-09-25 결정(S15P21E201-1689). 원칙은 「동의하면 개인
+     * 취향까지, 동의하지 않으면 추천 품질만 잰다」. 노출은 「무엇을 보여 줬나」라 동의와 무관하게 적고 추천 품질 집계에만
+     * 쓴다. 이것을 개인 취향 학습에 쓰려는 쪽은 {@code BehaviorConsent} 로 사람을 걸러야 한다(취향 신호
+     * {@link #TASTE_SIGNALS} 에도 없다). 전에는 행동 관찰이라 73명 중 1명 것만 적혔다.
+     */
     RECOMMENDATION_IMPRESSION(Producer.CLIENT, true, VersionRequirement.RECOMMENDATION,
             AggregateAxis.RECOMMENDATION_REQUEST),
 
@@ -47,8 +54,15 @@ public enum EventType {
      * 여행과의 관계는 실컬럼 {@code trip_id} 가 들고 있다.
      */
     PREFERENCE_SET(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.USER),
-    /** 제약 입력 (알레르기·식단·이동) */
-    CONSTRAINT_SET(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.TRIP),
+    /**
+     * 제약 입력 (알레르기·식단·이동). 🔴 값은 싣지 않는다 — 종류·항목·값 유무·반드시 여부·답 상태만(2026-09-25 결정:
+     * 「개인화 정보로 이미 가지고 있다」). 알레르기·식단은 건강 정보다.
+     *
+     * <p>축이 {@code USER} 인 것은 {@link #PREFERENCE_SET} 과 같은 까닭이다 — 계정 「여행 조건」 저장은 여행 밖이라 tripId 가
+     * 없다. 여행과의 관계는 실컬럼 {@code trip_id} 가 든다. 2026-09-25(S15P21E201-1689) 전에는 축이 {@code TRIP} 이었지만
+     * 이 종류를 내는 곳이 없어 운영에 한 건도 없었다 — 축을 바꿔도 이어 붙일 옛 행이 없다.
+     */
+    CONSTRAINT_SET(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.USER),
     /** 여행 생성 */
     TRIP_CREATED(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.TRIP),
 
@@ -118,14 +132,15 @@ public enum EventType {
      *
      * <p>빠진 것도 의도다. 명시 선호·제약·여행 생성은 사람이 직접 넣은 것이고,
      * 추천 요청·실패는 운영 기록이라 끊으면 개인화를 끈 사람의 장애를 조사할 수 없다.
-     * 편집 추천과 사전 계산은 특정 사용자의 사건이 아니다.
+     * 편집 추천과 사전 계산은 특정 사용자의 사건이 아니다. 노출({@link #RECOMMENDATION_IMPRESSION})은 2026-09-25 부터
+     * 빠졌다 — 추천 품질을 재는 기록이다(그 종류의 설명).
      *
      * <p>{@link #TASTE_SIGNALS} 는 이 목록의 부분집합이다 — 세는 것은 좁고 안 모으는 것은 넓다.
      */
     private static final Set<EventType> BEHAVIOR_SIGNALS = EnumSet.of(
             PLACE_VIEW, PLACE_LIKE, PLACE_LIKE_REMOVED, PLACE_DISLIKE, PLACE_VISIT,
             ITINERARY_LOCK, ITINERARY_REMOVE, ITINERARY_REPLACE,
-            ROUTE_SKIP, ROUTE_DEVIATION, RECOMMENDATION_IMPRESSION,
+            ROUTE_SKIP, ROUTE_DEVIATION,
             STORY_LIKE, STORY_DISLIKE);
 
     /**

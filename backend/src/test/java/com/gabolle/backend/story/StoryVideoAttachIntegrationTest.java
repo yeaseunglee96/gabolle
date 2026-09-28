@@ -180,7 +180,8 @@ class StoryVideoAttachIntegrationTest {
 
 	private StoryResponse create(String videoUrl, String thumbnailUrl, List<String> imageUrls) {
 		StoryCreateRequest request = new StoryCreateRequest("동영상 붙은 글", imageUrls, null, null, "부산광역시 해운대구",
-				StoryVisibility.PUBLIC, Instant.now().minusSeconds(3600), null, videoUrl, thumbnailUrl);
+				StoryVisibility.PUBLIC, Instant.now().minusSeconds(3600), null, videoUrl, thumbnailUrl,
+				null);
 		StoryResponse response = this.storyService.create(this.author, request);
 		this.createdStoryId = UUID.fromString(response.id());
 		return response;

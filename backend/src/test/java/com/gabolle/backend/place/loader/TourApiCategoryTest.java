@@ -47,6 +47,25 @@ class TourApiCategoryTest {
 		assertThat(TourApiCategory.of("2614725", "A01", "A01010500")).isEqualTo("NATURE_WALK"); // 일부러 뺐다
 	}
 
+	/**
+	 * 축제는 대분류가 비어 오거나(운영 수집본 57곳) 인문으로 온다. 대분류로 가르면 비거나 문화·사찰이 된다 —
+	 * 전에는 비어서 추천에 한 번도 안 들어갔다 (S15P21E201-1618).
+	 */
+	@Test
+	@DisplayName("🔴 콘텐츠 유형 15(축제·공연·행사)는 대분류와 상관없이 FESTIVAL_EVENT 다")
+	void festivalContentTypeIsFestival() {
+		assertThat(TourApiCategory.of("3498395", "15", "", "")).isEqualTo("FESTIVAL_EVENT");
+		assertThat(TourApiCategory.of("3498395", "15", null, null)).isEqualTo("FESTIVAL_EVENT");
+		assertThat(TourApiCategory.of("3498395", "15", "A02", "A02070200")).isEqualTo("FESTIVAL_EVENT");
+	}
+
+	@Test
+	@DisplayName("다른 유형은 전과 같다 — 관광지(12)의 인문은 여전히 CULTURE_TEMPLE, 레포츠(28)는 비운다")
+	void otherContentTypesAreUnchanged() {
+		assertThat(TourApiCategory.of("1", "12", "A02", "A02010100")).isEqualTo("CULTURE_TEMPLE");
+		assertThat(TourApiCategory.of("1", "28", "A03", "A03021700")).isNull();
+	}
+
 	@Test
 	@DisplayName("인문은 CULTURE_TEMPLE, 쇼핑은 CITY")
 	void humanitiesAndShopping() {

@@ -3,10 +3,13 @@ package com.gabolle.backend.menuscan.application;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.menuscan.adapter.GmsMenuReader;
+import com.gabolle.backend.menuscan.adapter.LocalMenuReader;
 import com.gabolle.backend.menuscan.config.MenuScanProperties;
 import com.gabolle.backend.menuscan.presentation.dto.MenuScanResponse;
 
@@ -24,15 +27,20 @@ import com.gabolle.backend.menuscan.presentation.dto.MenuScanResponse;
 @Profile({ "db", "dev" })
 public class MenuScanService {
 
+	private static final Logger log = LoggerFactory.getLogger(MenuScanService.class);
+
 	private final GmsMenuReader reader;
+
+	private final LocalMenuReader local;
 
 	private final MenuScanRateLimiter rateLimiter;
 
 	private final MenuScanProperties properties;
 
-	public MenuScanService(GmsMenuReader reader, MenuScanRateLimiter rateLimiter,
+	public MenuScanService(GmsMenuReader reader, LocalMenuReader local, MenuScanRateLimiter rateLimiter,
 			MenuScanProperties properties) {
 		this.reader = reader;
+		this.local = local;
 		this.rateLimiter = rateLimiter;
 		this.properties = properties;
 	}
@@ -44,7 +52,7 @@ public class MenuScanService {
 		if (image.length > this.properties.getMaxImageBytes()) {
 			throw new IllegalArgumentException("사진이 너무 큽니다");
 		}
-		if (!this.reader.isConfigured()) {
+		if (!this.local.isConfigured() && !this.reader.isConfigured()) {
 			// «설정이 없어 못 읽었다»와 «읽었는데 못 찾았다»는 다른 뜻이다. 조용히 빈
 			// 결과를 주면 둘이 같아진다.
 			throw new MenuScanUnavailableException("메뉴판 읽기가 아직 준비되지 않았습니다");
@@ -61,6 +69,23 @@ public class MenuScanService {
 		}
 		catch (IOException exception) {
 			throw new IllegalArgumentException("사진을 읽을 수 없습니다");
+		}
+
+		// 먼저 서버 안의 우리 모델로 읽는다. 실패하면 GMS 비전으로 대신 읽는다 — 사용자가 정한 것이다
+		// (2026-09-23, S15P21E201-1538). 대신 읽을 때마다 MENU_SCAN_FALLBACK 을 남겨 우리 모델이 몇 번
+		// 실패했는지 로그로 셀 수 있게 한다. 한도는 위에서 이미 한 번만 셌다 — 대체가 두 번 세지 않는다.
+		if (this.local.isConfigured()) {
+			try {
+				GmsMenuReader.Result result = this.local.read(clean, language);
+				return MenuScanResponse.of(result.lines(), result.unreadLineCount());
+			}
+			catch (LocalMenuReader.LocalReadFailedException exception) {
+				if (!this.reader.isConfigured()) {
+					throw new GmsMenuReader.MenuReadFailedException(GmsMenuReader.MenuReadFailedException.Reason.UNREACHABLE,
+							"우리 모델이 못 읽었고 대신 읽을 GMS 설정도 없다", exception);
+				}
+				log.warn("MENU_SCAN_FALLBACK 우리 모델이 못 읽어 GMS 비전으로 대신 읽는다 — {}", exception.getMessage());
+			}
 		}
 
 		GmsMenuReader.Result result = this.reader.read(clean, language);

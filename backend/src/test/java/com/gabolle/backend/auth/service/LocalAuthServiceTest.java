@@ -221,6 +221,36 @@ class LocalAuthServiceTest {
 		verify(authTokenService, never()).issue(any(), any());
 	}
 
+	/**
+	 * S15P21E201-1549 — IP 단위 잠금은 계정을 찾아보기도 전에 막아야 한다. 그래야 존재하지
+	 * 않는 이메일을 계속 바꿔가며 시도하는 크리덴셜 스터핑도 걸린다. 계정 조회 자체가 아예
+	 * 일어나지 않는 것까지 확인한다 — 그래야 이 잠금이 계정 존재 여부를 안 새는 것도 보장된다.
+	 */
+	@Test
+	void IP_잠금은_계정을_찾기_전에_막는다() {
+		when(loginAttemptGuard.isIpLocked(any())).thenReturn(true);
+		when(loginAttemptGuard.ipLockedUntil()).thenReturn(Instant.parse("2026-01-01T00:05:00Z"));
+
+		assertThatThrownBy(() -> service.login(new AuthCommands.Login("traveler@example.com", "Route!2026", "device-1")))
+				.isInstanceOf(AuthException.class).hasMessageContaining("로그인 시도가 너무 많습니다");
+		verify(credentialRepository, never()).findByEmail(any());
+		verify(authTokenService, never()).issue(any(), any());
+	}
+
+	/**
+	 * 가입되지 않은 이메일로 실패해도 IP 실패로 세야 한다 — 계정 단위 카운터는 계정이 있어야만
+	 * 작동해서, 존재하지 않는 이메일만 계속 바꿔 쓰는 공격은 계정 단위로는 끝까지 안 잡힌다
+	 * (S15P21E201-1549).
+	 */
+	@Test
+	void 가입되지_않은_이메일도_IP_실패로_센다() {
+		when(credentialRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> service.login(new AuthCommands.Login("unknown@example.com", "Route!2026", "device-1")))
+				.isInstanceOf(AuthException.class).hasMessageContaining("이메일 또는 비밀번호");
+		verify(loginAttemptGuard).recordIpFailureForUnknownAccount(any());
+	}
+
 	private Map<String, Boolean> requiredConsents() {
 		return Map.of("TERMS_OF_SERVICE", true, "PRIVACY_POLICY", true);
 	}

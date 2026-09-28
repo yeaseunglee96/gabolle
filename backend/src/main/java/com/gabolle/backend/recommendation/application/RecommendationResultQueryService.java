@@ -136,6 +136,7 @@ public class RecommendationResultQueryService {
 					place.getPhotoUrl(),
 					place.getPhotoSource(),
 					place.getPhotoSubject(),
+					place.getPhotoLicense(),
 					List.of(candidate.getReasonCodes()),
 					// 대표 메뉴 한 가지의 값. 조사가 안 된 곳은 null 그대로 둔다 — 0 을 넣으면
 					// 화면이 「무료」로 그린다 (S15P21E201-1479).

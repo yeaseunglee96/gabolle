@@ -3,6 +3,7 @@ package com.gabolle.backend.moderation.presentation;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,13 +22,16 @@ import com.gabolle.backend.moderation.presentation.dto.ModerationQueueResponse;
 /**
  * 신고 검토 목록과 삭제·기각. 운영자(ADMIN) 전용.
  *
- * 인가는 이 컨트롤러가 하지 않는다. 이 저장소는 메서드 보안({@code @EnableMethodSecurity})이 꺼져
- * 있어 {@code @PreAuthorize} 를 붙여도 조용히 무시된다. ADMIN 검사는 {@code SecurityConfig} 의
- * {@code requestMatchers("/api/v1/admin/**").hasRole("ADMIN")} 이 하고,
+ * 🔴 S15P21E201-1548 — 인가는 이제 **이중**이다. {@code SecurityConfig} 의
+ * {@code requestMatchers("/api/v1/admin/**").hasRole("ADMIN")} 이 경로로 막고, 이 클래스의
+ * {@code @PreAuthorize} 가 메서드 보안({@code @EnableMethodSecurity}, {@code SecurityConfig} 에서
+ * 켜짐)으로 한 번 더 막는다. 둘 중 하나만 있어도 막히므로, 이 컨트롤러가 실수로
+ * {@code /api/v1/admin/} 밖으로 옮겨지거나 애너테이션이 지워져도 나머지 하나가 여전히 막는다.
  * {@link AuthenticatedUsers#requireId} 는 "누구인가" 만 얻는다.
  */
 @RestController
 @RequestMapping("/api/v1/admin/story-reports")
+@PreAuthorize("hasRole('ADMIN')")
 @Profile({ "db", "dev" })
 public class AdminModerationController {
 

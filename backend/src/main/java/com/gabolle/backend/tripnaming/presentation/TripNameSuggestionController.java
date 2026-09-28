@@ -7,11 +7,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
+import com.gabolle.backend.place.service.RequestLanguage;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.tripnaming.application.TripNameSuggestionService;
 import com.gabolle.backend.tripnaming.presentation.dto.TripNameSuggestionsResponse;
@@ -37,9 +39,10 @@ public class TripNameSuggestionController {
 
 	@PostMapping("/name-suggestions")
 	public ApiResponse<TripNameSuggestionsResponse> suggest(
-			@PathVariable String tripId, Authentication authentication) {
+			@PathVariable String tripId, Authentication authentication,
+			@RequestHeader(value = "Accept-Language", required = false) String acceptLanguage) {
 
 		String requester = AuthenticatedUsers.requireId(authentication).toString();
-		return ApiResponse.success(this.service.suggest(tripId, requester), "req_" + UUID.randomUUID());
+		return ApiResponse.success(this.service.suggest(tripId, requester, RequestLanguage.prefersEnglish(acceptLanguage)), "req_" + UUID.randomUUID());
 	}
 }

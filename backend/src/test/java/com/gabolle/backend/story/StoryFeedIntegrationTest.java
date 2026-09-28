@@ -281,6 +281,35 @@ class StoryFeedIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 공개 전 기록은 작성자 본인 프로필 목록·개수에는 있고, 남에게는 목록에도 개수에도 없다 — S15P21E201-1737")
+	void unpublishedStoriesAppearOnlyOnOwnProfile() throws Exception {
+		UUID published = StoryFixture.insertStory(this.jdbc, this.me, "이미 공개", "PUBLIC", this.now.minus(Duration.ofHours(1)));
+		UUID pending = StoryFixture.insertStory(this.jdbc, this.me, "여행 끝나면 공개", "PUBLIC", this.now.plus(Duration.ofDays(2)));
+
+		List<String> mine = profileStoryIds(StoryFixture.as(this.me), this.me);
+		assertThat(mine).as("작성자는 공개 전 것까지 본다 — 안 보이면 찾지도 지우지도 못한다").contains(published.toString(), pending.toString());
+		assertThat(profileStoryCount(StoryFixture.as(this.me), this.me)).isEqualTo(2);
+
+		List<String> theirs = profileStoryIds(StoryFixture.as(this.stranger), this.me);
+		assertThat(theirs).as("남에게 공개 전 기록은 없는 기록이다").contains(published.toString()).doesNotContain(pending.toString());
+		assertThat(profileStoryCount(StoryFixture.as(this.stranger), this.me)).isEqualTo(1);
+	}
+
+	private List<String> profileStoryIds(java.security.Principal who, UUID author) throws Exception {
+		MvcResult result = this.mockMvc.perform(get("/api/v1/users/" + author + "/stories").principal(who).param("limit", "50"))
+				.andExpect(status().isOk()).andReturn();
+		List<String> out = new ArrayList<>();
+		this.json.readTree(result.getResponse().getContentAsString()).get("data").get("items").forEach((n) -> out.add(n.get("id").asText()));
+		return out;
+	}
+
+	private long profileStoryCount(java.security.Principal who, UUID author) throws Exception {
+		MvcResult result = this.mockMvc.perform(get("/api/v1/users/" + author + "/profile").principal(who))
+				.andExpect(status().isOk()).andReturn();
+		return this.json.readTree(result.getResponse().getContentAsString()).get("data").get("storyCount").asLong();
+	}
+
+	@Test
 	@DisplayName("깨진 커서는 400 FEED_CURSOR_INVALID 이고, limit 은 50 을 넘지 않는다")
 	void invalidCursorAndLimitClamp() throws Exception {
 		this.mockMvc.perform(get("/api/v1/stories").principal(StoryFixture.as(this.me)).param("cursor", "not-a-cursor"))

@@ -18,7 +18,9 @@ import org.springframework.test.context.TestPropertySource;
 
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
+import com.gabolle.backend.place.api.PlaceSummaryResponse;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
+import com.gabolle.backend.place.service.PlaceSearchService;
 import com.gabolle.backend.place.support.PlaceFixture;
 import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
@@ -44,7 +46,35 @@ class PlaceCandidateIntegrationTest extends PlacePostgresIntegrationTest {
 	@Autowired
 	private EntityManagerFactory entityManagerFactory;
 
+	@Autowired
+	private PlaceSearchService placeSearchService;
+
 	private PlaceFixture fixture;
+
+	/**
+	 * 🔴 오픈스트리트맵 적재가 부산을 덮는 사각형으로 받아 와 김해·양산 가게가 추천에 섞였다 — 운영 858곳
+	 * (S15P21E201-1617). 사용자 결정은 「추천 후보에서만 뺀다」 — 이름 검색에는 그대로 나와야 한다.
+	 */
+	@Test
+	@DisplayName("🔴 부산 시 경계 밖(김해 율하)은 반경 안이어도 추천 후보에서 빠진다 — 이름 검색에는 그대로 나온다")
+	void placesOutsideBusanAreNotCandidatesButStaySearchable() {
+		// 김해공항(부산 강서구)을 중심으로 15km — 김해 율하가 반경 안에 든다. 좌표는 운영에 실린 그대로다.
+		UUID airport = this.fixture.insertPlace("공항카페", null, "CAFE", 35.1795, 128.9382);
+		UUID yulha = this.fixture.insertPlace("율하카페", null, "CAFE", 35.1767387, 128.8153295);
+
+		PlaceCandidateResponse response = this.candidateQueryService.findCandidates(new PlaceCandidateRequest(
+				new PlaceCandidateRequest.Center(35.1795, 128.9382), 15_000, null, List.of(), null, null, 0, 200));
+
+		assertThat(response.candidates()).extracting(PlaceCandidateResponse.Candidate::placeId)
+				.contains(airport)
+				.doesNotContain(yulha);
+		assertThat(response.appliedFilters()).contains("WITHIN_BUSAN");
+
+		assertThat(this.placeSearchService.search(this.fixture.prefix() + "율하카페", null, null, null).items())
+				.as("이름 검색은 이 거르기를 안 거친다")
+				.extracting(PlaceSummaryResponse::placeId)
+				.contains(yulha);
+	}
 
 	@BeforeEach
 	void setUp() {

@@ -67,8 +67,8 @@ public class PlacePhotoLoaderRunner implements ApplicationRunner {
 		LOGGER.info("사진 적재 끝 — 읽은 줄 {} · {}", rows.size(), result);
 		if (result.noPlace() > 0) {
 			// 조용히 넘어가면 "이 축제는 원래 사진이 없다" 로 오해하게 된다.
-			LOGGER.warn("붙일 장소가 없어 넘긴 줄이 {} 개다 — 장소 적재(--gabolle.place.loader.tourapi)를 "
-					+ "먼저 돌렸는지 확인한다", result.noPlace());
+			LOGGER.warn("붙일 장소가 없어 넘긴 줄이 {} 개다 — 그 출처의 장소 적재를 먼저 돌렸는지, "
+					+ "열쇠(contentid 또는 sourceType+sourceId)가 맞는지 확인한다", result.noPlace());
 		}
 	}
 }

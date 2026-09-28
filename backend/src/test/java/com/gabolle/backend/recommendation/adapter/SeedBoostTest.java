@@ -86,6 +86,45 @@ class SeedBoostTest {
 		assertThat(out.get(0).reasonCodes()).contains(SeedBoost.REASON_CODE);
 	}
 
+	@Test
+	@DisplayName("🔴 사용자가 적은 곳이 경사 하나로만 걸렸으면 빼지 않고 경고로 돌린다 — S15P21E201-1625")
+	void mustVisitSurvivesSlopeAlone() {
+		EngineCandidate out = SeedBoost.apply(List.of(failing(SEED_A, "SLOPE_OVER_LIMIT")), List.of(seed(SEED_A, 1)))
+				.get(0);
+
+		assertThat(out.constraintVerdict()).isEqualTo(ConstraintVerdict.PASS);
+		assertThat(out.violations()).isEmpty();
+		assertThat(out.warningCodes()).contains("SLOPE_OVER_LIMIT");
+	}
+
+	@Test
+	@DisplayName("🔴 다른 사유가 섞였거나 공유 일정에서 따라온 곳이면 그대로 뺀다 — 확인된 사실은 살리지 않는다")
+	void otherFailuresStay() {
+		List<EngineCandidate> out = SeedBoost.apply(
+				List.of(failing(SEED_A, "SLOPE_OVER_LIMIT", "ALLERGEN_PRESENT"), failing(SEED_B, "SLOPE_OVER_LIMIT")),
+				List.of(seed(SEED_A, 1), clonedSeed(SEED_B, 2)));
+
+		assertThat(out.get(0).constraintVerdict()).as("알레르기가 섞였다").isEqualTo(ConstraintVerdict.FAIL);
+		assertThat(out.get(1).constraintVerdict()).as("사용자가 직접 적은 곳이 아니다").isEqualTo(ConstraintVerdict.FAIL);
+	}
+
+	@Test
+	@DisplayName("씨앗이 아닌 곳은 경사로 걸리면 그대로 빠진다")
+	void nonSeedsStillFail() {
+		EngineCandidate out = SeedBoost.apply(List.of(failing(OTHER, "SLOPE_OVER_LIMIT")), List.of(seed(SEED_A, 1)))
+				.get(0);
+
+		assertThat(out.constraintVerdict()).isEqualTo(ConstraintVerdict.FAIL);
+	}
+
+	private static EngineCandidate failing(UUID placeId, String... codes) {
+		List<Map<String, Object>> violations = java.util.Arrays.stream(codes)
+				.map(code -> Map.<String, Object>of("code", code, "featureKey", "STROLLER"))
+				.toList();
+		return new EngineCandidate(placeId, "BASELINE", ConstraintVerdict.FAIL, violations, List.of(), null, Map.of(),
+				Map.of("distance", 0.1), 0.5, List.of("NEAR_ORIGIN"), List.of("ACCESSIBILITY_UNVERIFIED"));
+	}
+
 	private static EngineCandidate candidate(UUID placeId, Double score, ConstraintVerdict verdict) {
 		return new EngineCandidate(placeId, "BASELINE", verdict, List.of(), List.of(), null, Map.of(),
 				Map.of("distance", 0.1), score, List.of("NEAR_ORIGIN"), List.of());

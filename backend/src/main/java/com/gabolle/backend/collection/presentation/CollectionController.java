@@ -2,6 +2,7 @@ package com.gabolle.backend.collection.presentation;
 
 import java.util.UUID;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -46,10 +47,16 @@ import com.gabolle.backend.common.security.AuthenticatedUsers;
  * 컬렉션도 언제나 주인과 함께 찾는다.
  *
  * <p>담는 경로는 종류와 무관하게 하나이고 본문의 {@code kind} 가 가른다.
+ *
+ * <p>🔴 <b>지금은 꺼져 있다</b>(S15P21E201-1588, 2026-09-24 사용자 결정 — 앱에서 부슐랭을 뺐다). 나중에 다시 쓸
+ * 것이라 지우지 않고 <b>밖으로 여는 이 문만</b> 닫았다. {@code gabolle.collections.enabled=true} 면 다시 열린다.
+ * 서비스·저장소·엔티티는 그대로 둔다 — 회원 탈퇴({@code AccountDeletionService})가 엔티티 이름으로 사용자 행을
+ * 지우므로, 그것들까지 조건부로 만들면 빈을 못 찾아 서버가 안 뜰 수 있다. 표와 데이터도 그대로다.
  */
 @RestController
 @RequestMapping("/api/v1/me/collections")
 @Profile({ "db", "dev" })
+@ConditionalOnProperty(prefix = "gabolle.collections", name = "enabled", havingValue = "true")
 public class CollectionController {
 
 	private final CollectionService service;

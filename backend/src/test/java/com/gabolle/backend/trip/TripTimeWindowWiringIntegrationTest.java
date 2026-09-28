@@ -1,5 +1,6 @@
 package com.gabolle.backend.trip;
 
+import static com.gabolle.backend.trip.support.TripCommands.withLodging;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -71,12 +72,12 @@ class TripTimeWindowWiringIntegrationTest {
 
 	private TripCreationService.Command command(
 			String timeWindow, List<PreferenceSnapshot.PreferenceAnswer> preferences) {
-		return new TripCreationService.Command(
+		return withLodging(new TripCreationService.Command(
 				userId,
 				LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
 				35.1587, 129.1604, null, 1, // 출발지 좌표 - 이 검사들이 재는 것은 시간대·이동수단 배선이지 좌표가 아니다
 				timeWindow, "Asia/Seoul",
-				preferences, List.of());
+				preferences, List.of()));
 	}
 
 	private Map<String, Object> readTripRow(String tripId) {

@@ -11,9 +11,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.beans.factory.ObjectProvider;
+
 import com.gabolle.backend.itinerary.application.ItineraryAccess;
 import com.gabolle.backend.itinerary.application.ActorNames;
+import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
 import com.gabolle.backend.itinerary.application.ItineraryQueryService;
+import com.gabolle.backend.itinerary.application.port.TravelTimePort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
@@ -144,6 +148,21 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-1743 — 예산 10만 원 여행의 일정 응답에 상한 120000 이 실린다 · 예산이 없으면 null")
+	void budgetCapIsIncluded() {
+		Trip withBudget = new Trip(this.tripId, this.requesterId, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12),
+				null, null, 100_000, 2, null, "Asia/Seoul", Instant.now());
+		stubTripMembership(withBudget);
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("item_key_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).budgetCapKrw()).isEqualTo(120_000);
+
+		stubTripMembership(threeDayTrip());
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).budgetCapKrw()).isNull();
+	}
+
+	@Test
 	@DisplayName("🔴 최신 판 포인터가 가리키는 내용이 없으면 조용히 대체하지 않고 시끄럽게 실패한다")
 	void missingLatestVersionContentFailsLoudly() {
 		stubTripMembership(threeDayTrip());
@@ -202,6 +221,75 @@ class ItineraryQueryServiceTest {
 		ItineraryDetailResponse.Item item = response.days().stream()
 				.flatMap(d -> d.items().stream()).findFirst().orElseThrow();
 		assertThat(item.warningCodes()).isNotNull().isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1643 — 항목에 저장된 추천 이유가 응답에 그대로 실린다. 저장만 되고 안 나가던 값이다")
+	void itemReasonCodesAreIncluded() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		ItineraryItem withReasons = new ItineraryItem(UUID.randomUUID().toString(), "version-placeholder", "k1", 0, day,
+				1, this.placeId.toString(), LocalTime.of(10, 0), LocalTime.of(11, 0), null, false, null,
+				ItineraryItem.DataStatus.VERIFIED, List.of("NEAR_ORIGIN", "TAG_MATCH_INTEREST", "TOP_CONTRIBUTOR_interest"),
+				List.of(), null, Instant.now());
+		String itineraryId = seedItinerary(1, List.of(withReasons));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(d -> d.items().stream()).findFirst().orElseThrow();
+
+		assertThat(item.reasonCodes()).containsExactly("NEAR_ORIGIN", "TAG_MATCH_INTEREST", "TOP_CONTRIBUTOR_interest");
+		assertThat(item.warningCodes()).as("이유와 경고는 다른 칸이다 — 섞이지 않는다").isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1689 — 항목을 낸 추천 요청 번호가 requestId 로 실린다. 손으로 더한 곳은 null")
+	void itemRequestIdIsIncluded() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String sourceRequestId = UUID.randomUUID().toString();
+		ItineraryItem recommended = new ItineraryItem(UUID.randomUUID().toString(), "version-placeholder", "k1", 0, day,
+				1, this.placeId.toString(), LocalTime.of(10, 0), LocalTime.of(11, 0), null, false, null,
+				ItineraryItem.DataStatus.VERIFIED, List.of("NEAR_ORIGIN"), List.of(), sourceRequestId, Instant.now());
+		ItineraryItem userAdded = itemOf("k2", 0, day, 2, LocalTime.of(12, 0), LocalTime.of(13, 0));
+		String itineraryId = seedItinerary(1, List.of(recommended, userAdded));
+
+		List<ItineraryDetailResponse.Item> items = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(d -> d.items().stream()).toList();
+
+		assertThat(items.get(0).requestId()).isEqualTo(sourceRequestId);
+		assertThat(items.get(1).requestId()).isNull();
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1643 — 이유가 없는 항목의 reasonCodes 는 null 이 아니라 빈 배열")
+	void itemReasonCodesEmptyNotNull() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("k1", 0, day, 1, LocalTime.of(10, 0), LocalTime.of(11, 0))));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(d -> d.items().stream()).findFirst().orElseThrow();
+
+		assertThat(item.reasonCodes()).isNotNull().isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1667 — 끝 시각 endsAt 이 startsAt 과 같은 모양으로 실린다. 시각이 없는 항목은 둘 다 null")
+	void itemEndsAtIsIncluded() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("k1", 0, day, 1, LocalTime.of(10, 0), LocalTime.of(11, 15)),
+				itemOf("k2", 0, day, 2, null, null)));
+
+		List<ItineraryDetailResponse.Item> items = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(d -> d.items().stream()).toList();
+
+		assertThat(items.get(0).startsAt()).isEqualTo("2026-10-01T10:00:00+09:00");
+		assertThat(items.get(0).endsAt()).isEqualTo("2026-10-01T11:15:00+09:00");
+		assertThat(items.get(1).startsAt()).isNull();
+		assertThat(items.get(1).endsAt()).isNull();
 	}
 
 	@Test
@@ -274,6 +362,37 @@ class ItineraryQueryServiceTest {
 		assertThat(this.service.getDetail(itineraryId, this.requesterId).partySize()).isEqualTo(3);
 	}
 
+	// ── 비용 × 인원 (S15P21E201-1579) ─────────────────────────────────────
+
+	/** 대표 메뉴가 한 그릇 15,000원인 장소 하나를 첫날에 둔 일정을, 인원만 바꿔 연다. */
+	private ItineraryDetailResponse detailWithMenuPrice(int partySize) {
+		ItineraryQueryService priced = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
+				new FakeItineraryItemActualRepository(), placeIds -> Map.of(this.placeId, 15_000));
+		stubTripMembership(new Trip(this.tripId, this.requesterId, LocalDate.of(2026, 9, 10),
+				LocalDate.of(2026, 9, 12), null, null, 300_000, partySize, null, "Asia/Seoul", Instant.now()));
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("item_key_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+		return priced.getDetail(itineraryId, this.requesterId);
+	}
+
+	/**
+	 * 예산은 「한 사람이 아니라 이번 여행 전체 예산」으로 묻는다. 비용이 1인분이면 화면이 1인분 식비를 총예산과
+	 * 견준다 — 운영에서 2명 여행의 「삼겹살 1인분 15,000원」 집이 15,000원으로 찍혔다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-1579 — 항목 비용과 합계는 1인분 메뉴 값 × 인원이다")
+	void costIsMenuPriceTimesPartySize() {
+		ItineraryDetailResponse forOne = detailWithMenuPrice(1);
+		ItineraryDetailResponse forThree = detailWithMenuPrice(3);
+
+		assertThat(forOne.days().get(0).items().get(0).estimatedCostKrw()).isEqualTo(15_000);
+		assertThat(forOne.totalEstimatedCostKrw()).isEqualTo(15_000);
+		assertThat(forThree.days().get(0).items().get(0).estimatedCostKrw()).isEqualTo(45_000);
+		assertThat(forThree.totalEstimatedCostKrw()).as("합계도 같은 값을 더한다 — 항목과 합계가 어긋나면 안 된다")
+				.isEqualTo(45_000);
+	}
+
 	// ── 방문지 좌표 ─────────────────────────────────────────────────────────
 
 	/** 좌표가 없으면 코스 화면이 동선을 글로만 세운다. */
@@ -311,6 +430,38 @@ class ItineraryQueryServiceTest {
 
 		assertThat(item.lat()).isNull();
 		assertThat(item.lng()).isNull();
+	}
+
+	// ── 그날 출발 자리 (S15P21E201-1581) ─────────────────────────────────
+
+	/**
+	 * 서버는 둘째 날부터 숙소에서 출발시켜 이동 시간을 재는데, 응답에 그 자리가 없어 앱이 매일 「출발지에서 N분」
+	 * 으로 적었다. 규칙 자체는 {@code ItineraryLegPlannerLodgingTest} 가 본다 — 여기는 응답까지 닿는지만 본다.
+	 */
+	@Test
+	@DisplayName("🔴 일정 응답의 날마다 출발 자리가 실린다 — 첫날 출발지, 둘째 날 숙소 동네")
+	void eachDayCarriesWhereItStarts() {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noRoutes = mock(ObjectProvider.class);
+		ItineraryQueryService withPlanner = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
+				new FakeItineraryItemActualRepository(), placeIds -> Map.of(),
+				new ItineraryLegPlanner(this.placeRepository, noRoutes));
+		// 부산역에서 출발, 해운대 동네에 묵는 1박 2일.
+		stubTripMembership(new Trip(this.tripId, this.requesterId, Trip.OwnerType.USER, LocalDate.of(2026, 9, 10),
+				LocalDate.of(2026, 9, 11), 35.1152, 129.0422, null, 2, null, "Asia/Seoul",
+				new String[] { "WALK" }, null, null, null, false, false, false, null, null, Instant.now(), "HAEUNDAE"));
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, null, null),
+				itemOf("item_2", 1, LocalDate.of(2026, 9, 11), 1, null, null)));
+
+		List<ItineraryDetailResponse.Day> days = withPlanner.getDetail(itineraryId, this.requesterId).days();
+
+		assertThat(days.get(0).start().kind()).isEqualTo("ORIGIN");
+		assertThat(days.get(0).start().label()).isNull();
+		assertThat(days.get(0).start().lat()).isEqualTo(35.1152);
+		assertThat(days.get(1).start().kind()).isEqualTo("LODGING");
+		assertThat(days.get(1).start().label()).isEqualTo("해운대");
 	}
 
 	private String seedItinerary(int version, List<ItineraryItem> items) {

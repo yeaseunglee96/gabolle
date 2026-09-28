@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -40,6 +41,11 @@ import com.gabolle.testslice.StorySliceApplication;
  * 운영 {@code SecurityConfig} 는 JWT·OAuth 설정까지 끌고 와서 올리지 않고, admin 경로 →
  * {@code hasRole("ADMIN")} 한 줄만 옮긴 테스트 전용 {@link SecurityFilterChain} 을 쓴다. 그래서 그
  * 한 줄이 운영 설정에도 그대로 있는지는 이 테스트가 보장하지 않는다.
+ *
+ * 🔴 S15P21E201-1548 — {@code TestSecurity} 에 {@code @EnableMethodSecurity} 를 추가해
+ * 컨트롤러의 {@code @PreAuthorize} 도 이 컨텍스트에서 같이 켜진다. 아래 세 시험은 이제
+ * "경로 매처"와 "메서드 보안" 두 방어선이 겹쳐 있어도 서로 어긋나지 않는지(여전히 정확히
+ * ADMIN 만 통과) 함께 잰다 — 방어선을 하나 더 추가한 것이 기존 동작을 깨지 않았다는 뜻이다.
  */
 @SpringBootTest(classes = StorySliceApplication.class, properties = { "spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none", "spring.flyway.enabled=true" })
@@ -49,6 +55,7 @@ import com.gabolle.testslice.StorySliceApplication;
 class AdminModerationAuthorizationIntegrationTest {
 
 	@TestConfiguration(proxyBeanMethods = false)
+	@EnableMethodSecurity
 	static class TestSecurity {
 
 		/** {@code SecurityConfig} 의 admin 규칙 한 줄만 옮긴 테스트 전용 체인. */

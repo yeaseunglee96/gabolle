@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.UUID;
 
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import com.gabolle.backend.calibration.TravelCalibrationPort;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.application.port.TravelTimePort;
@@ -18,6 +21,7 @@ import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.service.GeoDistance;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
+import com.gabolle.backend.trip.domain.TravelArea;
 import com.gabolle.backend.trip.domain.Trip;
 
 /**
@@ -44,8 +48,19 @@ public class ItineraryLegPlanner {
     }
 
     /**
-     * 날짜별 구간 — 연속한 두 항목 사이. 각 날의 첫 구간은 여행 출발지에서 출발한다
-     * ({@code Trip.originLat/Lng} — "매일 여기서 일정이 시작된다").
+     * 실제 이동으로 고친 수단별 배율(S15P21E201-1700). 스위치가 꺼져 있거나 그 수단의 배율이 아직 없으면 어림을 그대로
+     * 쓴다.
+     */
+    private TravelCalibrationPort travelCalibration;
+
+    @Autowired(required = false)
+    public void setTravelCalibration(TravelCalibrationPort travelCalibration) {
+        this.travelCalibration = travelCalibration;
+    }
+
+    /**
+     * 날짜별 구간 — 연속한 두 항목 사이. 각 날의 첫 구간은 {@link #dayStart} 에서 출발한다 —
+     * 첫날은 여행 출발지, 둘째 날부터는 숙소(있으면).
      */
     public List<ItineraryDraft.DraftLeg> buildLegs(Trip trip, List<List<UUID>> placeIdsByDay) {
         // 여행이 고른 이동수단의 첫 값을 쓴다. 아직 안 고른 여행이면 WALK 로 떨어진다 —
@@ -55,6 +70,7 @@ public class ItineraryLegPlanner {
         String travelMode = (modes == null || modes.length == 0) ? "WALK" : modes[0];
 
         Map<UUID, Place> placesById = lookupPlaces(placeIdsByDay);
+        Anchor lodging = lodgingOf(trip);
 
         List<ItineraryDraft.DraftLeg> legs = new ArrayList<>();
         for (int dayIndex = 0; dayIndex < placeIdsByDay.size(); dayIndex++) {
@@ -67,8 +83,9 @@ public class ItineraryLegPlanner {
                 Double fromLat;
                 Double fromLng;
                 if (fromPlaceId == null) {
-                    fromLat = trip.originLat();
-                    fromLng = trip.originLng();
+                    Double[] start = dayStart(trip, dayIndex, lodging);
+                    fromLat = start[0];
+                    fromLng = start[1];
                 }
                 else {
                     Place from = placesById.get(fromPlaceId);
@@ -91,12 +108,14 @@ public class ItineraryLegPlanner {
                 }
                 Integer walkingMeters = walkingMetersFor(travelMode, distanceM);
 
+                // 어림은 늘 옆 칸에 남기고, 고친 값을 이동 시간으로 쓴다(S15P21E201-1700). 보정이 꺼져 있으면 둘이 같다.
+                Integer estimated = measured.durationMin();
                 legs.add(new ItineraryDraft.DraftLeg(dayIndex, i + 1,
-                        fromPlaceId, toPlaceId, travelMode, distanceM, measured.durationMin(),
+                        fromPlaceId, toPlaceId, travelMode, distanceM, calibrated(travelMode, estimated),
                         walkingMeters, measured.dataStatus(), measured.fareKrw(),
                         // 선형은 실제 길찾기 응답을 받았을 때만 들어온다. 위에서 직선거리로
                         // 메운 경우에는 null 이고, 그 구분이 지도에서 실선과 점선을 가른다.
-                        measured.path()));
+                        measured.path(), estimated));
             }
         }
         return legs;
@@ -142,7 +161,7 @@ public class ItineraryLegPlanner {
                 leg.fromPlaceId() != null ? leg.fromPlaceId().toString() : null,
                 leg.toPlaceId().toString(), leg.travelMode(), leg.distanceM(),
                 leg.durationMin(), leg.walkingMeters(), null, null,
-                leg.dataStatus(), leg.fareKrw(), leg.path(), now);
+                leg.dataStatus(), leg.fareKrw(), leg.path(), leg.uncalibratedDurationMin(), now);
     }
 
     /**
@@ -151,6 +170,15 @@ public class ItineraryLegPlanner {
      * 조용히 넘기는 대신 시끄럽게 실패하는 편이 낫다 — 조용히 넘기면 모든 구간이 이유 없이 비어
      * 나가고 아무도 이유를 못 찾는다.
      */
+    /** 어림에 그 수단의 배율을 곱한다. 어림이 없거나 배율이 없으면 어림 그대로. */
+    private Integer calibrated(String travelMode, Integer estimated) {
+        if (estimated == null || this.travelCalibration == null) {
+            return estimated;
+        }
+        OptionalDouble multiplier = this.travelCalibration.multiplierFor(travelMode);
+        return multiplier.isPresent() ? (int) Math.round(estimated * multiplier.getAsDouble()) : estimated;
+    }
+
     private TravelTime measure(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode) {
         TravelTimePort port = this.travelTime.getIfAvailable();
         if (port == null) {
@@ -168,6 +196,120 @@ public class ItineraryLegPlanner {
      */
     public static Integer walkingMetersFor(String travelMode, Integer distanceM) {
         return "WALK".equals(travelMode) ? distanceM : null;
+    }
+
+    /**
+     * 하루를 열거나 닫는 자리 — 숙소 또는 여행 출발지. 방문지가 아니다.
+     *
+     * @param kind  {@code LODGING}(숙소) · {@code ORIGIN}(여행 출발지)
+     * @param label 화면에 적을 이름. 우리 표의 숙소면 그 이름, 동네 숙소면 동네 이름, 출발지면 {@code null}
+     */
+    public record Anchor(double lat, double lng, String kind, String label) {
+
+        public static final String LODGING = "LODGING";
+
+        public static final String ORIGIN = "ORIGIN";
+    }
+
+    /**
+     * 그날 일정이 시작하는 자리 — {@code [위도, 경도]}.
+     *
+     * <p>🔴 <b>둘째 날부터는 숙소에서 나선다</b> (2026-09-23, S15P21E201-1547). 전에는 매일 여행
+     * 출발지(역·집)에서 시작했다. 사람은 숙소에서 자고 나오는데 일정은 매일 부산역에서 출발하는
+     * 것처럼 이동 시간을 쟀고, 숙소를 입력해도 일정이 한 줄도 안 바뀌었다(숙소는 저장만 됐다).
+     * 첫날은 그대로 출발지다 — 짐을 들고 도착하는 날이다.
+     *
+     * <p>숙소를 모르면 출발지로 둔다. 모르는 자리를 지어내지 않는다. 출발지도 모르는 옛 여행이면
+     * 둘 다 {@code null} 이다(전과 같다).
+     */
+    public Double[] dayStart(Trip trip, int dayIndex, Anchor lodging) {
+        Anchor start = startAnchor(trip, dayIndex, lodging);
+        return (start == null) ? new Double[] { null, null } : new Double[] { start.lat(), start.lng() };
+    }
+
+    /**
+     * {@link #dayStart} 의 자리를 이름·종류까지 담아 낸다 — 일정 응답의 「그날 어디서 출발하나」
+     * (S15P21E201-1581). 규칙은 여기 한 곳이다. 첫날이거나 숙소를 모르면 출발지, 둘째 날부터 숙소.
+     * 출발지도 모르면 {@code null}.
+     */
+    public Anchor startAnchor(Trip trip, int dayIndex, Anchor lodging) {
+        if (dayIndex > 0 && lodging != null) {
+            return lodging;
+        }
+        if (trip.originLat() == null || trip.originLng() == null) {
+            return null;
+        }
+        return new Anchor(trip.originLat(), trip.originLng(), Anchor.ORIGIN, null);
+    }
+
+    /**
+     * 그날 일정이 끝나고 돌아가는 자리 (S15P21E201-1565).
+     *
+     * <p>마지막 날이 아니면 <b>숙소</b>다 — 자러 간다. 마지막 날이면 <b>여행 출발지</b>다 — 역·공항·집으로
+     * 돌아간다. 숙소를 모르는 밤, 출발지를 모르는 마지막 날은 {@code null} 이다. 모르는 자리로 돌아가라고
+     * 지어내지 않는다.
+     */
+    public Anchor dayEnd(Trip trip, int dayIndex, Anchor lodging) {
+        boolean lastDay = dayIndex >= trip.days() - 1;
+        if (!lastDay) {
+            return lodging;
+        }
+        if (trip.originLat() == null || trip.originLng() == null) {
+            return null;
+        }
+        return new Anchor(trip.originLat(), trip.originLng(), Anchor.ORIGIN, null);
+    }
+
+    /**
+     * 그날 마지막 방문지에서 {@link #dayEnd} 까지 가는 데 드는 이동 — 없으면 {@code null}.
+     *
+     * <p>🔴 저장하는 구간({@code itinerary_leg})에는 넣지 않는다. 그 표는 도착지가 방문지(장소 외래키)여야
+     * 하고, 숙소 동네·출발지는 장소가 아니다. 대신 시간표를 깔 때 이 시간을 먼저 떼어 두고(마지막 방문지가
+     * 그만큼 일찍 끝난다), 일정을 읽을 때 같은 규칙으로 다시 재서 화면에 싣는다.
+     */
+    public DayReturn returnFor(Trip trip, int dayIndex, Anchor lodging, UUID lastPlaceId) {
+        Anchor end = dayEnd(trip, dayIndex, lodging);
+        if (end == null || lastPlaceId == null) {
+            return null;
+        }
+        Place last = this.placeRepository.findById(lastPlaceId).orElse(null);
+        if (last == null || !last.hasCoordinates()) {
+            return null;
+        }
+        String[] modes = trip.travelModes();
+        String travelMode = (modes == null || modes.length == 0) ? "WALK" : modes[0];
+        TravelTime measured = measure(last.getLat(), last.getLng(), end.lat(), end.lng(), travelMode);
+        return new DayReturn(end, measured);
+    }
+
+    /** 하루 끝의 돌아가는 이동 — 어디로({@code to}) · 얼마나({@code travel}). */
+    public record DayReturn(Anchor to, TravelTime travel) {
+    }
+
+    /**
+     * 여행의 숙소 — 우리 표의 장소, 아니면 고른 동네의 중심. 둘 다 없으면 {@code null}.
+     * 날마다 부르지 않게 부르는 쪽이 한 번 받아 둔다.
+     *
+     * <p>🔴 <b>동네도 숙소다</b> (S15P21E201-1565). 앱은 홈에서 「해운대」처럼 동네를 숙소로 고르게 하고, 서버는
+     * 그 값을 {@code accommodation_area} 에 저장만 하고 아무도 안 읽었다 — 운영의 최근 여행 20개 중 숙소가
+     * 쓰인 여행이 0개였다. 동네 중심 좌표는 {@link TravelArea} 가 가진 것을 그대로 쓴다(여행 범위와 같은 점).
+     */
+    public Anchor lodgingOf(Trip trip) {
+        String id = trip.accommodationPlaceId();
+        if (id != null && !id.isBlank()) {
+            try {
+                Place place = this.placeRepository.findById(UUID.fromString(id)).orElse(null);
+                if (place != null && place.hasCoordinates()) {
+                    return new Anchor(place.getLat(), place.getLng(), Anchor.LODGING, place.getNameKo());
+                }
+            }
+            catch (IllegalArgumentException malformed) {
+                // 아래 동네로 넘어간다
+            }
+        }
+        return TravelArea.of(trip.accommodationArea())
+                .map(area -> new Anchor(area.lat(), area.lng(), Anchor.LODGING, area.koreanName()))
+                .orElse(null);
     }
 
     private Map<UUID, Place> lookupPlaces(List<List<UUID>> placeIdsByDay) {

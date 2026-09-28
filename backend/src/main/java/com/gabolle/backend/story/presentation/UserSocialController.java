@@ -26,7 +26,8 @@ import com.gabolle.backend.story.presentation.dto.UserProfileResponse;
 /**
  * 사람 단위 — 팔로우·차단·프로필·그 사람의 기록.
  *
- * <p>차단의 방향: A 가 B 를 차단하면 B 가 A 를 못 본다. A 는 (B 가 A 를 차단하지 않았다면) B 를 계속 본다.
+ * <p>차단: A 가 B 를 차단하면 B 가 A 를 못 본다. A 의 피드·댓글 목록에서도 B 의 기록·댓글이 빠진다(S15P21E201-1714).
+ * A 가 B 의 프로필을 직접 여는 것은 그대로 된다 — 차단을 풀 수 있어야 한다.
  *
  * <p>팔로우·차단이 {@code PUT}/{@code DELETE} 인 것은 「이 상태로 만들어 달라」라서다 — 두 번 보내도 결과가 같다.
  */

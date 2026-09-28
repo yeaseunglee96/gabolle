@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -253,6 +254,47 @@ public final class PlaceFeatureNdjsonReader {
 			// 열쇠가 contentid 다. 안 적으면 상가업소번호로 읽혀 한 곳도 못 찾고, 예외 없이
 			// "장소가 없어 못 넣음" 으로만 세어진다.
 			out.add(new Fact(contentId, "SLOPE_PERCENT", write(payload), TourApiPlaceLoader.SOURCE_TYPE));
+			return true;
+		});
+	}
+
+	/**
+	 * 장소 경사 — 장소 번호판을 읽는다 (S15P21E201-1625). {@code bigData/process/place-slope-by-id.mjs} 가 낸
+	 * 줄은 {@code {"placeId":"…","slopePercent":3.2,"segments":38,"walkLengthM":6930,"radiusM":200,"stat":"p50"}}.
+	 *
+	 * <p>{@link #readPlaceSlopes} 와 달리 열쇠가 <b>우리 장소 번호 그대로</b>다. 관광공사·상가 번호로만 붙이던
+	 * 때는 오픈스트리트맵·카카오 장소에 값이 없었다(6,933곳 중 2,682곳). 값을 {@code score} 에 담고 만든 방법을
+	 * 옆에 남기는 것, 0~100 을 벗어나면 멈추는 것은 같다. 장소 번호가 깨져 있어도 멈춘다 — 적재기가 번호를 읽다
+	 * 실패하면 덩어리 전체가 못 들어간다.
+	 */
+	public static Counts readPlaceSlopesById(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
+		return read(file, chunkSize, chunkConsumer, (node, out) -> {
+			String placeId = text(node, "placeId");
+			JsonNode percent = node.path("slopePercent");
+			if (placeId == null || !percent.isNumber()) {
+				return false;
+			}
+			try {
+				UUID.fromString(placeId);
+			}
+			catch (IllegalArgumentException ex) {
+				throw new IllegalArgumentException("장소 경사 산출물에 장소 번호가 아닌 열쇠가 있다: " + placeId, ex);
+			}
+			double value = percent.asDouble();
+			if (value < 0 || value > 100) {
+				throw new IllegalArgumentException(
+						"장소 경사 산출물에 범위를 벗어난 값이 있다: " + value + "% (placeId " + placeId + ")");
+			}
+			ObjectNode payload = MAPPER.createObjectNode();
+			payload.put("score", value);
+			copyNumber(node, payload, "radiusM");
+			copyNumber(node, payload, "segments");
+			copyNumber(node, payload, "walkLengthM");
+			String stat = text(node, "stat");
+			if (stat != null) {
+				payload.put("stat", stat);
+			}
+			out.add(new Fact(placeId, "SLOPE_PERCENT", write(payload), PlaceFeatureLoader.PLACE_ID_KEY));
 			return true;
 		});
 	}

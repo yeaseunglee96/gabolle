@@ -1,11 +1,20 @@
 package com.gabolle.backend.event;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -97,6 +107,12 @@ class OutboxToKafkaRoundTripIntegrationTest {
 	@Autowired
 	private TransactionTemplate transactionTemplate;
 
+	@Autowired
+	private KafkaTemplate<String, String> kafkaTemplate;
+
+	@Autowired
+	private KafkaEventProperties kafkaProperties;
+
 	private EventOutbox appendOne(UUID eventId, String partitionKey) {
 		UUID tripId = UUID.randomUUID();
 		UUID userId = UUID.randomUUID();
@@ -168,6 +184,56 @@ class OutboxToKafkaRoundTripIntegrationTest {
 			.isEqualTo(firstConsumedAt);
 	}
 
+	/**
+	 * 받는 쪽이 끝내 처리 못 한 것은 죽은 편지함({@code <토픽>.DLT})으로 옮겨진다 (S15P21E201-1611).
+	 *
+	 * <p>🔴 이 길을 지키는 시험이 없었다. {@code KafkaConsumerErrorConfiguration} 이 빠지거나 깨지면
+	 * 스프링 카프카 기본 동작으로 돌아가 <b>로그만 남기고 이벤트가 사라진다</b> — 아웃박스에는 「보냈다」로
+	 * 찍혀 있어 다시 보낼 방법도 없다. 그런데도 다른 시험은 전부 초록이다.
+	 *
+	 * <p>실패시키는 방법은 {@code event_id} 머리표를 빼는 것이다. 받는 쪽은 멱등을 걸 수 없어 일부러
+	 * 예외를 낸다({@code KafkaEventConsumer}) — 운영에서도 똑같이 이 길로 간다.
+	 */
+	@Test
+	@DisplayName("🔴 받는 쪽이 끝내 처리 못 한 것은 죽은 편지함(DLT)으로 가고, 뒤 이벤트는 막히지 않는다")
+	void anUnprocessableRecordGoesToTheDeadLetterTopic() throws Exception {
+		String marker = "dlt-test-" + UUID.randomUUID();
+		this.kafkaTemplate.send(new ProducerRecord<>(this.kafkaProperties.getTopic(), "dlt-test", marker))
+			.get(PATIENCE.toSeconds(), TimeUnit.SECONDS);
+
+		try (KafkaConsumer<String, String> deadLetters = deadLetterReader()) {
+			deadLetters.subscribe(List.of(this.kafkaProperties.getDeadLetterTopic()));
+			List<ConsumerRecord<String, String>> seen = new ArrayList<>();
+			await().atMost(PATIENCE).untilAsserted(() -> {
+				deadLetters.poll(Duration.ofMillis(500)).forEach(seen::add);
+				ConsumerRecord<String, String> moved = seen.stream()
+					.filter((record) -> marker.equals(record.value()))
+					.findFirst()
+					.orElseThrow(() -> new AssertionError("죽은 편지함에 아직 안 왔다"));
+				// 사람이 원인을 고친 뒤 원래 토픽으로 되돌려 넣으려면(replay) 어디서 왔는지가 남아야 한다.
+				assertThat(new String(moved.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_TOPIC).value(),
+						StandardCharsets.UTF_8))
+					.isEqualTo(this.kafkaProperties.getTopic());
+			});
+		}
+
+		// 실패한 레코드가 파티션을 막고 있으면 뒤 이벤트가 영영 안 닿는다.
+		UUID laterEventId = UUID.randomUUID();
+		appendOne(laterEventId, "trip:" + UUID.randomUUID());
+		this.relayService.relayOnce();
+		await().atMost(PATIENCE)
+			.untilAsserted(() -> assertThat(this.consumptionRepository.existsById(laterEventId)).isTrue());
+	}
+
+	/** 죽은 편지함을 처음부터 읽는 소비자. 묶음 이름을 매번 새로 줘서 다른 시험의 오프셋과 안 섞인다. */
+	private static KafkaConsumer<String, String> deadLetterReader() {
+		return new KafkaConsumer<>(Map.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, TestKafka.bootstrapServers(),
+				ConsumerConfig.GROUP_ID_CONFIG, "dlt-reader-" + UUID.randomUUID(),
+				ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
+				ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+				ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class));
+	}
+
 	@Test
 	@DisplayName("🔴 브로커가 죽어 있으면 아웃박스에 남는다 — 살아난 뒤에 나간다")
 	void eventSurvivesWhileTheBrokerIsUnreachable() {
@@ -179,9 +245,12 @@ class OutboxToKafkaRoundTripIntegrationTest {
 		KafkaEventPublisher deadBrokerPublisher = new KafkaEventPublisher(deadBrokerTemplate(),
 				new KafkaEventProperties());
 
+		// 🔴 「못 닿음」으로 분류돼야 한다(S15P21E201-1613). 가짜가 아니라 진짜 카프카 클라이언트가 내는
+		//    실패라서, 여기서 보통 실패로 떨어지면 브로커가 죽어 있는 동안 릴레이가 시도 횟수를 세어
+		//    맨 앞 이벤트를 버린다.
 		assertThatThrownBy(() -> deadBrokerPublisher.publish(appended))
 			.as("죽은 브로커로 보내면 반드시 실패해야 한다 — 조용히 성공하면 이벤트가 사라진다")
-			.isInstanceOf(EventPublisherPort.EventPublishException.class);
+			.isInstanceOf(EventPublisherPort.BrokerUnavailableException.class);
 
 		// 실패했어도 적힌 것은 그대로다. 이것이 아웃박스를 두는 이유 전부다.
 		EventOutbox stillThere = this.outboxRepository.findById(eventId).orElseThrow();

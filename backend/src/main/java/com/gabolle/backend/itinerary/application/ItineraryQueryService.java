@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripMember;
 
 /**
  * 완성된 일정표 조회. {@link ItineraryQueryController} 가 부른다.
@@ -67,10 +69,14 @@ public class ItineraryQueryService {
 
 	private final PlaceMenuPricePort menuPrice;
 
+	/** 하루 끝에 돌아가는 이동을 잰다(S15P21E201-1565). 없으면 그 칸을 비운다 — 시험용 생성자가 그렇다. */
+	private final ItineraryLegPlanner legPlanner;
+
+	@Autowired
 	public ItineraryQueryService(ItineraryRepository itineraryRepository, ItineraryAccess itineraryAccess,
 			PlaceRepository placeRepository, RecommendationJobRepository recommendationJobRepository,
 			ActorNames actorNames, ItineraryItemActualRepository actualRepository,
-			PlaceMenuPricePort menuPrice) {
+			PlaceMenuPricePort menuPrice, ItineraryLegPlanner legPlanner) {
 		this.itineraryRepository = itineraryRepository;
 		this.itineraryAccess = itineraryAccess;
 		this.placeRepository = placeRepository;
@@ -78,6 +84,15 @@ public class ItineraryQueryService {
 		this.actorNames = actorNames;
 		this.actualRepository = actualRepository;
 		this.menuPrice = menuPrice;
+		this.legPlanner = legPlanner;
+	}
+
+	public ItineraryQueryService(ItineraryRepository itineraryRepository, ItineraryAccess itineraryAccess,
+			PlaceRepository placeRepository, RecommendationJobRepository recommendationJobRepository,
+			ActorNames actorNames, ItineraryItemActualRepository actualRepository,
+			PlaceMenuPricePort menuPrice) {
+		this(itineraryRepository, itineraryAccess, placeRepository, recommendationJobRepository, actorNames,
+				actualRepository, menuPrice, null);
 	}
 
 	/**
@@ -99,51 +114,81 @@ public class ItineraryQueryService {
 				.orElseThrow(() -> new IllegalStateException(
 						"일정의 최신 판(version=" + latestVersion + ") 내용이 없다: itineraryId=" + itineraryId));
 
-		Map<UUID, Place> placesByPlaceId = lookupPlaces(content.items());
-
-		Map<LegKey, ItineraryLeg> legsByKey = content.legs().stream()
-				.collect(Collectors.toMap(leg -> new LegKey(leg.dayIndex(), leg.sequence()), leg -> leg));
-
-		Map<Integer, List<ItineraryItem>> itemsByDay = content.items().stream()
-				.collect(Collectors.groupingBy(ItineraryItem::dayIndex));
-
 		// 실제 시각은 판이 아니라 일정에 매달려 있으므로 판 번호와 무관하게 한 번에 읽는다.
 		// 편집으로 판이 바뀌어도 같은 item_key 의 기록이 그대로 붙는다.
 		Map<String, ItineraryItemActual> actualsByItemKey = this.actualRepository.findByItineraryId(itineraryId)
 				.stream()
 				.collect(Collectors.toMap(ItineraryItemActual::itemKey, actual -> actual));
 
+		return render(itineraryId, latestVersion, trip, content.items(), content.legs(), actualsByItemKey,
+				resolveFallbackMode(content.version()), access.role().name(), access.role().canEdit(),
+				content.version().warningCodes());
+	}
+
+	/**
+	 * 아직 저장하지 않은 일정(추천 코스 2안·3안)을 저장된 일정과 <b>같은 모양</b>으로 그린다
+	 * (S15P21E201-1454). 화면은 코스를 이 모양으로만 그리므로, 모양이 다르면 미리보기에서만 비용·이동
+	 * 시간이 비는 식으로 어긋난다.
+	 *
+	 * <p>권한은 부르는 쪽({@link TripCourseService})이 여행 회원인지를 이미 본 뒤다. {@code canEdit}
+	 * 은 언제나 거짓이다 — 아직 일정이 아니라서 고칠 판이 없다. 판 번호는 {@code 0} 이다.
+	 *
+	 * @param previewId 화면이 이 미리보기를 가리킬 이름. 일정 번호가 아니다 — 코스 번호다
+	 */
+	@Transactional(readOnly = true)
+	public ItineraryDetailResponse preview(String previewId, Trip trip, TripMember.Role role,
+			List<ItineraryItem> items, List<ItineraryLeg> legs, List<String> warningCodes) {
+		return render(previewId, 0, trip, items, legs, Map.of(), null, role.name(), false, warningCodes);
+	}
+
+	private ItineraryDetailResponse render(String id, int version, Trip trip, List<ItineraryItem> contentItems,
+			List<ItineraryLeg> contentLegs, Map<String, ItineraryItemActual> actualsByItemKey,
+			FallbackMode fallbackMode, String myRole, boolean canEdit, List<String> warningCodes) {
+
+		Map<UUID, Place> placesByPlaceId = lookupPlaces(contentItems);
+
+		Map<LegKey, ItineraryLeg> legsByKey = contentLegs.stream()
+				.collect(Collectors.toMap(leg -> new LegKey(leg.dayIndex(), leg.sequence()), leg -> leg));
+
+		Map<Integer, List<ItineraryItem>> itemsByDay = contentItems.stream()
+				.collect(Collectors.groupingBy(ItineraryItem::dayIndex));
+
 		// 🔴 가격은 **읽을 때** 찾는다. 항목에 박아 두지 않는 것은 조사가 아직 도는 중이라
 		// (`price-queue.mjs`) 오늘 만든 일정이 오늘 아는 것에 영원히 묶이기 때문이다.
 		// 항목에 값이 이미 있으면 그것이 먼저다 — 나중에 박아 두기로 바뀌어도 여기는 안 고친다.
-		Map<UUID, Integer> menuPriceByPlaceId = this.menuPrice.pricesOf(placesByPlaceId.keySet());
+		// 🔴 S15P21E201-1579 — 메뉴 값은 한 그릇(1인분)이다. 여기서 인원수를 곱해 「이 여행이 그곳에서 쓸 값」으로
+		// 바꾼 뒤 항목 비용과 합계에 쓴다. 예산(trip.budget_krw)은 여행 전체 총액이라 이래야 화면이 둘을 견준다.
+		// 일정을 짤 때의 예산 상한(ItineraryDraftService.BudgetCap)도 같은 곱셈을 한다.
+		Map<UUID, Integer> menuPriceByPlaceId = new HashMap<>();
+		this.menuPrice.pricesOf(placesByPlaceId.keySet())
+				.forEach((placeId, won) -> menuPriceByPlaceId.put(placeId, won * trip.partySize()));
 
 		List<ItineraryDetailResponse.Day> days = buildDays(trip, itemsByDay, legsByKey, placesByPlaceId,
 				actualsByItemKey, menuPriceByPlaceId);
 
-		Integer totalEstimatedCostKrw = sumOrNull(content.items().stream()
+		Integer totalEstimatedCostKrw = sumOrNull(contentItems.stream()
 				.map(item -> costOf(item, menuPriceByPlaceId)));
-		Integer totalWalkingMeters = sumOrNull(content.legs().stream()
+		Integer totalWalkingMeters = sumOrNull(contentLegs.stream()
 				.map(ItineraryLeg::walkingMeters));
 
-		FallbackMode fallbackMode = resolveFallbackMode(content.version());
-
 		return new ItineraryDetailResponse(
-				itineraryId,
+				id,
 				// 이름은 Trip 이 정한다 — 사용자가 붙인 것이 있으면 그것, 없으면 기간.
 				trip.displayTitle(),
-				latestVersion,
+				version,
 				days,
 				totalEstimatedCostKrw,
 				totalWalkingMeters,
 				fallbackMode,
-				access.role().name(),
-				access.role().canEdit(),
-				content.version().warningCodes(),
+				myRole,
+				canEdit,
+				warningCodes,
 				trip.tripId(),
 				// 이미 읽어 둔 항목에서 센다. DB 를 다시 묻지 않는다.
-				accessibilityUnverifiedCount(content.items()),
-				trip.partySize());
+				accessibilityUnverifiedCount(contentItems),
+				trip.partySize(),
+				// 일정을 짤 때의 상한과 같은 곳에서 센다 — 두 곳에서 곱하면 반올림이 경계에서 어긋난다.
+				BudgetAllowance.capKrw(trip.budgetKrw()));
 	}
 
 	/**
@@ -203,6 +248,7 @@ public class ItineraryQueryService {
 
 		List<ItineraryDetailResponse.Day> days = new ArrayList<>(trip.days());
 		LocalDate date = trip.startDate();
+		ItineraryLegPlanner.Anchor lodging = (this.legPlanner == null) ? null : this.legPlanner.lodgingOf(trip);
 		for (int dayIndex = 0; dayIndex < trip.days(); dayIndex++) {
 			List<ItineraryItem> itemsOfDay = itemsByDay.getOrDefault(dayIndex, List.of()).stream()
 					.sorted((a, b) -> Integer.compare(a.sequence(), b.sequence()))
@@ -214,10 +260,44 @@ public class ItineraryQueryService {
 						menuPriceByPlaceId));
 			}
 
-			days.add(new ItineraryDetailResponse.Day(date.toString(), items));
+			days.add(new ItineraryDetailResponse.Day(date.toString(), items,
+					returnLegOf(trip, dayIndex, lodging, itemsOfDay), startOf(trip, dayIndex, lodging)));
 			date = date.plusDays(1);
 		}
 		return days;
+	}
+
+	/**
+	 * 그날 출발 자리 — 첫 구간을 잴 때 쓴 것과 <b>같은 함수</b>({@link ItineraryLegPlanner#startAnchor})에서 꺼낸다.
+	 * 여기서 규칙을 다시 쓰면 앱이 적는 출발지와 서버가 잰 이동 시간이 어긋날 수 있다.
+	 */
+	private ItineraryDetailResponse.Start startOf(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging) {
+		if (this.legPlanner == null) {
+			return null;
+		}
+		ItineraryLegPlanner.Anchor start = this.legPlanner.startAnchor(trip, dayIndex, lodging);
+		return (start == null) ? null
+				: new ItineraryDetailResponse.Start(start.kind(), start.label(), start.lat(), start.lng());
+	}
+
+	/**
+	 * 그날 마지막 방문지에서 돌아가는 이동 — 일정을 만들 때 시간표에서 뗀 것과 <b>같은 규칙</b>으로 다시 잰다
+	 * ({@link ItineraryLegPlanner#returnFor}). 저장해 두지 않는 까닭은 그 메서드 설명에 있다.
+	 */
+	private ItineraryDetailResponse.ReturnLeg returnLegOf(Trip trip, int dayIndex, ItineraryLegPlanner.Anchor lodging,
+			List<ItineraryItem> itemsOfDay) {
+		if (this.legPlanner == null || itemsOfDay.isEmpty()) {
+			return null;
+		}
+		ItineraryItem last = itemsOfDay.get(itemsOfDay.size() - 1);
+		ItineraryLegPlanner.DayReturn back = this.legPlanner.returnFor(trip, dayIndex, lodging,
+				UUID.fromString(last.placeId()));
+		if (back == null) {
+			return null;
+		}
+		return new ItineraryDetailResponse.ReturnLeg(back.to().kind(), back.to().label(), back.to().lat(),
+				back.to().lng(), back.travel().durationMin(), back.travel().distanceM(),
+				back.travel().dataStatus() == null ? null : back.travel().dataStatus().name());
 	}
 
 	/**
@@ -252,6 +332,7 @@ public class ItineraryQueryService {
 		return new ItineraryDetailResponse.Item(
 				item.itemKey(),
 				startsAt(item),
+				endsAt(item),
 				place.getNameKo(),
 				null, // description — place 표에 설명 칸이 없다
 				costOf(item, menuPriceByPlaceId),
@@ -267,6 +348,10 @@ public class ItineraryQueryService {
 				travelPath,
 				// ItineraryItem 이 생성자에서 빈 목록으로 정규화하므로 여기서 다시 감싸지 않는다.
 				item.warningCodes(),
+				// 이유 코드도 같다 — 생성자가 빈 목록으로 정규화한다.
+				item.reasonCodes(),
+				// 이 방문지를 낸 추천 요청 — 노출 이벤트가 이 번호로 순위·이유를 찾는다(S15P21E201-1689).
+				item.sourceRequestId(),
 				// 모르면 null 이고 0 으로 채우지 않는다 — 위도 0·경도 0 은 기니만 한가운데라
 				// 지도에 실제로 점이 찍힌다.
 				place.getLat(),
@@ -279,6 +364,15 @@ public class ItineraryQueryService {
 			return null;
 		}
 		ZonedDateTime zoned = ZonedDateTime.of(item.visitDate(), item.startTime(), ZoneId.of("Asia/Seoul"));
+		return zoned.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+	}
+
+	/** {@code visit_date} + {@code end_time} — {@link #startsAt} 과 같은 형식. DB 가 끝이 시작보다 뒤임을 지킨다. */
+	private String endsAt(ItineraryItem item) {
+		if (item.endTime() == null) {
+			return null;
+		}
+		ZonedDateTime zoned = ZonedDateTime.of(item.visitDate(), item.endTime(), ZoneId.of("Asia/Seoul"));
 		return zoned.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 	}
 
@@ -321,7 +415,8 @@ public class ItineraryQueryService {
 
 	/** 하나도 값이 없으면 {@code 0} 이 아니라 {@code null} — "안 걸었다"·"공짜"와 "안 쟀다"는 다르다. */
 	/**
-	 * 이 항목의 비용(원). 항목에 박힌 값이 있으면 그것, 없으면 그 장소의 대표 메뉴 값.
+	 * 이 항목의 비용(원). 항목에 박힌 값이 있으면 그것, 없으면 그 장소의 대표 메뉴 값 × 인원수
+	 * ({@code menuPriceByPlaceId} 가 이미 곱한 값을 들고 온다).
 	 *
 	 * <p>🔴 <b>둘 다 없으면 {@code null} 이다. {@code 0} 으로 바꾸지 않는다.</b> 0 은 화면에서
 	 * <b>「무료」</b>로 그려지므로, 조사가 안 된 곳이 공짜인 것처럼 보이고 그 잘못이 합계에
