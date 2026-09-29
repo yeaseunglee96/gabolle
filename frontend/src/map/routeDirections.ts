@@ -4,9 +4,9 @@ import type { SlopePiece } from '@/map/slopeGrades';
 
 // 계약: backend/src/main/java/com/gabolle/backend/route/presentation/RouteController.java
 // (-184). 좌표 두 개만 있으면 되는 일이라 여행·일정에 매달지 않는다 — 컨트롤러
-// 자체 주석 참고. 대중교통(TRANSIT)은 지하철·버스 경로를 주는 공개 API가 아직 없어서
-// (RouteQueryService 클래스 주석,대기) transferCount 는 항상 null 이고
-// steps 는 항상 빈 배열이다 — 이 화면은 그 사실을 지어내지 않고 그대로 보여준다.
+// 자체 주석 참고. 대중교통(TRANSIT)은 이제 서버가 노선망(TRANSIT_NETWORK)으로 실제 단계(steps)를 답한다 —
+// 전에 「steps 는 항상 빈 배열」이라 적혀 있었는데 더는 맞지 않는다(2026-09-29, 진미리 제보). 그래도 노선망이
+// 못 이은 구간은 빈 배열·null 로 올 수 있고, 이 화면은 없는 단계를 지어내지 않는다.
 export type TravelMode = 'CAR' | 'TRANSIT' | 'WALK';
 
 export type RouteStep = { name: string; guidance: string; distanceM: number; durationMin: number };
