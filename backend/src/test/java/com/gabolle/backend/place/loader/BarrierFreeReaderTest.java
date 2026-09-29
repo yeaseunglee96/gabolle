@@ -75,14 +75,14 @@ class BarrierFreeReaderTest {
 	}
 
 	@Test
-	@DisplayName("한 장소가 둘을 함께 받을 수 있다")
-	void onePlaceCanCarryBothCodes() throws IOException {
+	@DisplayName("유아차 대여 안내는 표식이 되지 않는다 — 휠체어만 붙고 세는 칸에도 STROLLER 가 없다")
+	void strollerRentalAddsNoCode() throws IOException {
 		Path file = write(detail("4", "주출입구는 턱이 없어 휠체어 접근 가능함", "대여가능"));
 
 		BarrierFreeReader.Loaded loaded = BarrierFreeReader.read(file);
 
-		assertThat(loaded.rows().get(0).codes()).containsExactly("WHEELCHAIR", "STROLLER");
-		assertThat(loaded.counts().byCode()).containsEntry("WHEELCHAIR", 1).containsEntry("STROLLER", 1);
+		assertThat(loaded.rows().get(0).codes()).containsExactly("WHEELCHAIR");
+		assertThat(loaded.counts().byCode()).containsEntry("WHEELCHAIR", 1).doesNotContainKey("STROLLER");
 	}
 
 	private Path write(String... lines) throws IOException {

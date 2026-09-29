@@ -2,6 +2,8 @@ package com.gabolle.backend.place.loader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -63,18 +65,26 @@ class BarrierFreeAccessibilityTest {
 		assertThat(BarrierFreeAccessibility.of("", "경사도 10도 내외의 경사구간 있음, 휠체어 사용자 등 중증장애인 주의", ""))
 				.as("경고문이지 접근 가능하다는 말이 아니다").isEmpty();
 	}
+	/**
+	 * 🔴 예전에는 「유모차 칸은 값이 있으면 붙인다」였다. 그 칸은 유아차 <b>대여</b> 안내라(부산 수집본 값 15개가 전부 대여
+	 * 문구) 「유아차로 들어갈 수 있다」는 뜻이 아니다. 확인된 표식은 경사 추정보다 앞서므로, 잘못 붙이면 가파른 곳도
+	 * 「확인됨」으로 통과한다.
+	 */
 	@Test
-	@DisplayName("유모차 칸은 값이 있으면 붙인다")
-	void strollerWhenTheFieldHasAValue() {
-		assertThat(BarrierFreeAccessibility.of("", "", "대여가능")).containsExactly("STROLLER");
-		assertThat(BarrierFreeAccessibility.of("", "", "유모차 있음")).containsExactly("STROLLER");
+	@DisplayName("🔴 유모차 칸의 대여 안내로는 STROLLER 를 안 붙인다 — 빌려준다는 것은 들어갈 수 있다는 말이 아니다")
+	void strollerRentalIsNotAccess() {
+		// 수집본에 실제로 있는 값들이다.
+		for (String rental : List.of("대여가능", "유모차 있음", "유모차 무료 대여(2대,1층안내데스크,신분증보관)",
+				"대여 가능(10대/안내소)", "유모차 대여 가능함", "가능")) {
+			assertThat(BarrierFreeAccessibility.of("", "", rental)).as(rental).isEmpty();
+		}
 	}
 
 	@Test
-	@DisplayName("둘 다 해당하면 둘 다 붙는다")
-	void bothCodesCanApply() {
+	@DisplayName("휠체어 문구와 유모차 대여가 같이 있으면 휠체어만 붙는다")
+	void wheelchairStillAppliesNextToStrollerRental() {
 		assertThat(BarrierFreeAccessibility.of("주출입구는 턱이 없어 휠체어 접근 가능함", "", "대여가능"))
-				.containsExactly("WHEELCHAIR", "STROLLER");
+				.containsExactly("WHEELCHAIR");
 	}
 
 	@Test
