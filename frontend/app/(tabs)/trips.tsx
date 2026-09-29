@@ -19,6 +19,7 @@ import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNami
 import { leaveTrip } from '@/trip/collaboration';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 import { TripActionSheet } from '@/trip/TripActionSheet';
+import { stopNameForLanguage } from '@/discovery/romanize';
 import { enCount, enPlural, txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 
@@ -152,7 +153,8 @@ export default function Trips() {
 
   // 첫 방문지 — 이름 없는 여행은 제목이 날짜뿐이라 같은 날짜 여행 둘을 못 가렸다. 이름을 지어 붙이지 않고(1738) 아래 줄에 적는다.
   const firstStop = (trip: TripSummaryDto) => {
-    const name = language === 'ko' ? trip.firstStopNameKo : (trip.firstStopNameEn || trip.firstStopNameKo);
+    // 영어 이름이 없으면 한글만 나왔다(「From 민락어민활어직판장」) — 일정 카드와 같은 규칙으로 읽는 법을 붙인다(S15P21E201-1867).
+    const name = trip.firstStopNameKo ? stopNameForLanguage(trip.firstStopNameKo, trip.firstStopNameEn, language) : trip.firstStopNameEn;
     return name ? txf(tx, '%s부터', 'From %s', name) : null;
   };
 

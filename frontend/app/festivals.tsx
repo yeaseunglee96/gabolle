@@ -20,6 +20,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
 import { formatFeatureSlot, photoLabels } from '@/discovery/places';
 import { useI18n } from '@/i18n';
+import { romanizeKorean } from '@/discovery/romanize';
 import { formatDayHeading } from '@/i18n/datetime';
 import { localizeMessage } from '@/i18n/messages';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -191,7 +192,7 @@ export default function Festivals() {
           <View style={styles.cardTopRow}>
             <Text variant="caption" weight="bold" color={color.text.eyebrow}>{festivalDates(festival, locale)}</Text>
           </View>
-          <Text variant="title" weight="bold">{localNameFor(festival.localNames, language) ?? tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
+          <Text variant="title" weight="bold">{localNameFor(festival.localNames, language) ?? tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text>{/* 번역 이름이 없는 축제는 읽는 법을 곁들인다(S15P21E201-1867). */}{language !== 'ko' && !localNameFor(festival.localNames, language) && !festival.nameEn && romanizeKorean(festivalDisplayTitle(festival)) ? <Text variant="caption" color={color.text.body}>{romanizeKorean(festivalDisplayTitle(festival))}</Text> : null}<Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
           {festival.photoUrl && photo.credit ? <PhotoCredit credit={photo.credit} licenseUrl={photo.licenseUrl} variant="caption" color={color.text.muted} /> : null}
           <Pressable accessibilityRole="button" onPress={() => accessToken ? setAddPlaceId(festival.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/festivals' } })} style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}>
             <Text variant="caption" weight="bold" color={color.action.outline}>{tx('+ 내 일정에 추가', '+ Add to my itinerary')}</Text>
