@@ -34,10 +34,45 @@ function cardTitle(trip: TripSummaryDto, tx: (ko: string, en: string) => string,
   return tripNameOrDates(trip, tx, locale);
 }
 
+/**
+ * 여행을 «언제»로 나눈다 — 지금 여행 중 · 다가오는 · 지난 · 일정을 못 만든(날짜가 지난 PLANNING).
+ * 날짜가 안 지난 PLANNING 은 다가오는 쪽에 「일정 준비 중」 표시로 둔다 — 곧 만들어질 수 있다.
+ */
+export function splitTrips(trips: TripSummaryDto[], now: Date = new Date()) {
+  const live: TripSummaryDto[] = []; const upcoming: TripSummaryDto[] = []; const past: TripSummaryDto[] = []; const failed: TripSummaryDto[] = [];
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  for (const trip of trips) {
+    if (trip.status === 'PLANNING') {
+      ((trip.endDate ?? trip.startDate) && (trip.endDate ?? trip.startDate)! < todayKey ? failed : upcoming).push(trip);
+      continue;
+    }
+    const status = effectiveTripStatus(trip, now);
+    (status === 'IN_PROGRESS' ? live : status === 'COMPLETED' ? past : upcoming).push(trip);
+  }
+  const byStart = (a: TripSummaryDto, b: TripSummaryDto) => (a.startDate ?? '9999').localeCompare(b.startDate ?? '9999');
+  live.sort((a, b) => byStart(b, a));
+  upcoming.sort(byStart);
+  past.sort((a, b) => (b.endDate ?? b.startDate ?? '').localeCompare(a.endDate ?? a.startDate ?? ''));
+  return { live, upcoming, past, failed };
+}
+
+/** 「내일」 · 「D-9」 — 다가오는 여행의 오른쪽 표. 이틀 안이면 진하게. 지난·진행 중이면 null. */
+export function ddayLabel(trip: Pick<TripSummaryDto, 'startDate'>, tx: (ko: string, en: string) => string, now: Date = new Date()): { text: string; soon: boolean } | null {
+  if (!trip.startDate) return null;
+  const start = new Date(`${trip.startDate}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return null;
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const days = Math.round((start.getTime() - today.getTime()) / 86400000);
+  if (days < 0) return null;
+  if (days === 0) return { text: tx('오늘', 'Today'), soon: true };
+  if (days === 1) return { text: tx('내일', 'Tomorrow'), soon: true };
+  return { text: `D-${days}`, soon: false };
+}
+
 export default function Trips() {
   const router = useRouter();
   const { open } = useLocalSearchParams<{ open?: string }>();
-  const { tx, locale } = useI18n();
+  const { tx, locale, language } = useI18n();
   const { accessToken, user } = useAuth();
   // 넓은 화면은 최대 1200 폭의 3열 카드 격자다(시안 docs/design_handoff_my_trips, S15P21E201-1587).
   // 전에는 카드 한 장이 1440 폭 전체로 늘어진 한 줄 목록이었다.
@@ -109,26 +144,55 @@ export default function Trips() {
   };
 
   const trips = result.state === 'success' ? result.trips : [];
+  const [showPast, setShowPast] = useState(false);
+  const [showFailed, setShowFailed] = useState(false);
+  const sections = splitTrips(trips);
 
-  return <View style={styles.shell}><Screen scroll wide withTabBar style={[styles.canvas, desktop && styles.canvasDesktop]}>
-    {/* 🔴 폰은 헤더 위 여백을 따로 안 준다 — Screen 이 이미 24 를 주고, 헤더의 24 가 겹쳐 48 이 비어 있었다(시안 변경 3).
-        헤더의 행동은 「새 여행」 하나다(시안 변경 2). */}
-    <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
+  // 첫 방문지 — 이름 없는 여행은 제목이 날짜뿐이라 같은 날짜 여행 둘을 못 가렸다. 이름을 지어 붙이지 않고(1738) 아래 줄에 적는다.
+  const firstStop = (trip: TripSummaryDto) => {
+    const name = language === 'ko' ? trip.firstStopNameKo : (trip.firstStopNameEn || trip.firstStopNameKo);
+    return name ? txf(tx, '%s부터', 'From %s', name) : null;
+  };
 
-    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('비회원으로 여행 만들기 화면을 둘러볼 수 있어요.', 'You can browse the trip planner as a guest.')}</Text><Text color={color.text.body}>{tx('내 여행을 저장하고 다시 보려면 로그인해 주세요.', 'Sign in to save and revisit your trips.')}</Text>{/* 🔴 「여행 만들기 둘러보기」를 뺐다 (S15P21E201-1795). 바로 위 헤더의 「새 여행」이
-        같은 /plan 으로 가서, 비회원 화면에만 같은 일을 하는 단추가 둘이었다. 헤더는 로그인
-        여부와 상관없이 늘 그려지므로 둘이 «동시에» 보였다. 이 카드가 할 일은 로그인 유도다
-        — 문구도 「저장하고 다시 보려면 로그인해 주세요」 이다. */}<Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}
+  const menuFor = (trip: TripSummaryDto) => (menuTripId === trip.tripId ? (
+    <View style={styles.cardMenu}>
+      {trip.role !== 'VIEWER' ? <Pressable accessibilityRole="button" onPress={() => { setMenuTripId(null); setNaming(trip); }} style={({ pressed }) => [styles.cardMenuItem, pressed && styles.removeButtonPressed]}>
+        <Text variant="caption" weight="bold" color={color.brand.navy}>{trip.title?.trim() ? tx('이름 바꾸기', 'Rename') : tx('이름 붙이기', 'Name it')}</Text>
+      </Pressable> : null}
+      <Pressable accessibilityRole="button" disabled={removingTripId === trip.tripId} onPress={() => { setMenuTripId(null); setConfirmTarget(trip); }} style={({ pressed }) => [styles.cardMenuItem, pressed && styles.removeButtonPressed]}>
+        <Text variant="caption" weight="bold" color={color.state.danger}>{removingTripId === trip.tripId ? tx('처리 중…', 'Working…') : trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}</Text>
+      </Pressable>
+    </View>
+  ) : null);
 
-    {feedback ? <Pressable accessibilityRole="button" accessibilityLabel={tx('안내 닫기', 'Dismiss notice')} accessibilityLiveRegion="polite" onPress={() => setFeedback('')} style={styles.feedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{feedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Close')}</Text></Pressable> : null}
+  // 작은 줄 — 사진(있으면) · 제목 · 날짜 · 첫 방문지 · 「내일」·「D-9」. 이름·삭제는 ⋯ 안에.
+  const row = (trip: TripSummaryDto) => {
+    const dday = ddayLabel(trip, tx);
+    const pending = trip.status === 'PLANNING';
+    const sub = [humanTripTitle(trip.title) ? dateLabel(trip, tx, locale) : null, firstStop(trip), txf(tx, '%s명', '%s ' + enPlural(trip.partySize, 'traveler', 'travelers'), trip.partySize), trip.role !== 'OWNER' ? tx('초대받은 여행', 'Invited trip') : null].filter(Boolean).join(' · ');
+    return <View key={trip.tripId}>
+      <View style={styles.row}>
+        <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.rowMain, pressed && styles.cardPressed]}>
+          {trip.coverImageUrl ? <Image source={{ uri: trip.coverImageUrl }} resizeMode="cover" accessibilityLabel="" style={styles.rowThumb} /> : <View style={[styles.rowThumb, styles.rowThumbBlank]} />}
+          <View style={styles.rowCopy}>
+            {/* 🔴 D-day 표는 제목 줄이 아니라 아래 줄 맨 앞 — 오른쪽에 두니 날짜 제목 「… – 10월 3일 (토)」의 끝이 잘리거나 「(토)」만 둘째 줄로 떨어졌다. */}
+            <Text weight="bold" numberOfLines={2}>{cardTitle(trip, tx, locale)}</Text>
+            <View style={styles.rowSub}>
+              {pending ? <View style={styles.statusPillPending}><Text variant="micro" weight="bold" color={color.state.danger} numberOfLines={1}>{tx('일정 준비 중', 'Itinerary pending')}</Text></View> : dday ? <View style={[styles.ddayChip, dday.soon && styles.ddayChipSoon]}><Text variant="micro" weight="bold" color={dday.soon ? color.text.onAction : color.text.heading} numberOfLines={1}>{dday.text}</Text></View> : null}
+              <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.rowSubText}>{sub}</Text>
+            </View>
+          </View>
+          {openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : null}
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuTripId === trip.tripId }} onPress={() => setMenuTripId((open) => (open === trip.tripId ? null : trip.tripId))} style={({ pressed }) => [styles.moreButton, pressed && styles.removeButtonPressed]}>
+          <Text variant="title" color={color.text.muted}>⋯</Text>
+        </Pressable>
+      </View>
+      {menuFor(trip)}
+    </View>;
+  };
 
-    {accessToken && loading ? <View accessibilityLiveRegion="polite" style={styles.state}><ActivityIndicator color={color.action.primary} /><Text weight="bold">{tx('내 여행을 불러오고 있어요', 'Loading your trips')}</Text></View> : null}
-
-    {accessToken && !loading && result.state !== 'success' ? <View style={styles.state}><GabolleMascot state="sad" style={styles.sadMascot} /><Text weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('내 여행을 불러오지 못했어요', 'Could not load your trips')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
-
-    {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
-
-    {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={[styles.list, desktop && styles.grid]}>{trips.map((trip) => <View key={trip.tripId} style={desktop ? styles.gridSlot : undefined}><View style={[styles.card, desktop && styles.cardInGrid]}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
+  const bigCard = (trip: TripSummaryDto) => <View key={trip.tripId} style={desktop ? styles.gridSlot : undefined}><View style={[styles.card, desktop && styles.cardInGrid]}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
       <TripCover uri={trip.coverImageUrl} />
       <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx, locale)}</Text>{humanTripTitle(trip.title) ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx, locale)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : <Text variant="title" color={color.text.muted}>›</Text>}</View>
       <View style={styles.meta}>
@@ -180,7 +244,59 @@ export default function Trips() {
           </Pressable>
         </View>
       ) : null}
-    </View></View>)}</View> : null}
+    </View></View>;
+
+  return <View style={styles.shell}><Screen scroll wide withTabBar style={[styles.canvas, desktop && styles.canvasDesktop]}>
+    {/* 🔴 폰은 헤더 위 여백을 따로 안 준다 — Screen 이 이미 24 를 주고, 헤더의 24 가 겹쳐 48 이 비어 있었다(시안 변경 3).
+        헤더의 행동은 「새 여행」 하나다(시안 변경 2). */}
+    <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
+
+    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('비회원으로 여행 만들기 화면을 둘러볼 수 있어요.', 'You can browse the trip planner as a guest.')}</Text><Text color={color.text.body}>{tx('내 여행을 저장하고 다시 보려면 로그인해 주세요.', 'Sign in to save and revisit your trips.')}</Text>{/* 🔴 「여행 만들기 둘러보기」를 뺐다 (S15P21E201-1795). 바로 위 헤더의 「새 여행」이
+        같은 /plan 으로 가서, 비회원 화면에만 같은 일을 하는 단추가 둘이었다. 헤더는 로그인
+        여부와 상관없이 늘 그려지므로 둘이 «동시에» 보였다. 이 카드가 할 일은 로그인 유도다
+        — 문구도 「저장하고 다시 보려면 로그인해 주세요」 이다. */}<Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}
+
+    {feedback ? <Pressable accessibilityRole="button" accessibilityLabel={tx('안내 닫기', 'Dismiss notice')} accessibilityLiveRegion="polite" onPress={() => setFeedback('')} style={styles.feedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{feedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Close')}</Text></Pressable> : null}
+
+    {accessToken && loading ? <View accessibilityLiveRegion="polite" style={styles.state}><ActivityIndicator color={color.action.primary} /><Text weight="bold">{tx('내 여행을 불러오고 있어요', 'Loading your trips')}</Text></View> : null}
+
+    {accessToken && !loading && result.state !== 'success' ? <View style={styles.state}><GabolleMascot state="sad" style={styles.sadMascot} /><Text weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('내 여행을 불러오지 못했어요', 'Could not load your trips')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
+
+    {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
+
+    {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.sections}>
+      {/* 🔴 여행을 «언제»로 나눈다(UI 캔버스 ⑥) — 전에는 만든 순서로 같은 큰 카드가 이어져 한 화면에 1.5개였고,
+          진행 중·예정·지난 여행이 섞였다(실계정 31개). 지금 여행 중인 것만 크게, 나머지는 작은 줄로(폰). */}
+      {sections.live.length ? <View style={styles.section}>
+        <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('지금 여행 중', 'On a trip now')}</Text>
+        <View style={[styles.list, desktop && styles.grid]}>{(desktop ? sections.live : sections.live.slice(0, 1)).map(bigCard)}</View>
+        {!desktop && sections.live.length > 1 ? <>
+          <Text variant="caption" color={color.text.muted}>{tx('그 밖에 진행 중인 여행', 'Other trips in progress')}</Text>
+          <View style={styles.rows}>{sections.live.slice(1).map(row)}</View>
+        </> : null}
+      </View> : null}
+      {sections.upcoming.length ? <View style={styles.section}>
+        <Text variant="caption" weight="bold" color={color.text.eyebrow}>{txf(tx, '다가오는 여행 %s', 'Upcoming %s', String(sections.upcoming.length))}</Text>
+        {desktop ? <View style={[styles.list, styles.grid]}>{sections.upcoming.map(bigCard)}</View> : <View style={styles.rows}>{sections.upcoming.map(row)}</View>}
+      </View> : null}
+      {sections.past.length ? <View style={styles.section}>
+        <Pressable accessibilityRole="button" accessibilityState={{ expanded: showPast }} onPress={() => setShowPast((v) => !v)} style={styles.foldHead}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{txf(tx, '지난 여행 %s', 'Past trips %s', String(sections.past.length))}</Text>
+          <Text variant="caption" weight="bold" color={color.text.muted}>{showPast ? tx('접기', 'Hide') : tx('펼치기', 'Show')}</Text>
+        </Pressable>
+        {showPast ? (desktop ? <View style={[styles.list, styles.grid]}>{sections.past.map(bigCard)}</View> : <View style={styles.rows}>{sections.past.map(row)}</View>) : null}
+      </View> : null}
+      {sections.failed.length ? <View style={styles.section}>
+        <Pressable accessibilityRole="button" accessibilityState={{ expanded: showFailed }} onPress={() => setShowFailed((v) => !v)} style={styles.foldHead}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{txf(tx, '일정을 만들지 못한 여행 %s', 'Trips without an itinerary %s', String(sections.failed.length))}</Text>
+          <Text variant="caption" weight="bold" color={color.text.muted}>{showFailed ? tx('접기', 'Hide') : tx('펼치기', 'Show')}</Text>
+        </Pressable>
+        {showFailed ? <>
+          <Text variant="caption" color={color.text.body}>{tx('날짜가 지났는데 일정이 만들어지지 않은 여행이에요. ⋯ 에서 지우고 새로 만들어 주세요.', 'These trips passed their dates without an itinerary. Delete them from ⋯ and start a new one.')}</Text>
+          <View style={styles.rows}>{sections.failed.map(row)}</View>
+        </> : null}
+      </View> : null}
+    </View> : null}
   </Screen><TabBar active="map" />
 
   {naming ? <TripNameSheet
@@ -243,10 +359,23 @@ const styles = StyleSheet.create({
   empty: { minHeight: 320, marginTop: spacing[6], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, emptyMark: { width: 68, height: 68, borderRadius: radius.full, backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' }, emptyIcon: { width: 32, height: 32, tintColor: color.text.muted }, center: { maxWidth: 300, textAlign: 'center' }, emptyCta: { minWidth: 180, marginTop: spacing[2] },
   cover: { width: '100%', height: 132, borderRadius: radius.md, backgroundColor: color.surface.soft },
   coverDesktop: { height: 160 }, coverBlank: { backgroundColor: color.surface.tint },
-  list: { marginTop: spacing[6], gap: spacing[3] },
+  list: { gap: spacing[3] },
+  sections: { marginTop: spacing[6], gap: spacing[6] },
+  section: { gap: spacing[3] },
+  foldHead: { minHeight: 36, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  rows: { borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
+  row: { flexDirection: 'row', alignItems: 'center', paddingLeft: spacing[3], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
+  rowMain: { flex: 1, minWidth: 0, minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[3] },
+  rowThumb: { width: 48, height: 48, borderRadius: radius.md },
+  rowThumbBlank: { backgroundColor: color.surface.tint },
+  rowCopy: { flex: 1, minWidth: 0, gap: 4 },
+  rowSub: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minWidth: 0 },
+  rowSubText: { flexShrink: 1 },
+  ddayChip: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: color.surface.soft },
+  ddayChipSoon: { backgroundColor: color.action.secondary },
   // 3열 격자 — 칸 사이 16 은 칸마다 사방 8 로 내고, 바깥 8 은 음수 여백으로 거둔다(퍼센트 폭에서 gap 을 빼는 계산이 RN 에 없다).
   // 한 줄의 칸은 줄 높이만큼 늘어나고(stretch), 카드가 칸을 채워 같은 줄 카드 높이가 같다.
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 0, marginTop: spacing[6] - spacing[2], marginHorizontal: -spacing[2], marginBottom: -spacing[2] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 0, marginTop: -spacing[2], marginHorizontal: -spacing[2], marginBottom: -spacing[2] },
   gridSlot: { width: '33.3333%', padding: spacing[2] },
   // 행동 줄(이름 바꾸기 / ⋯)이 늘 카드 바닥에 붙는다.
   cardInGrid: { flex: 1, justifyContent: 'space-between' }, cardBody: { gap: spacing[3] }, card: { padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, gap: spacing[3], shadowColor: color.brand.navy, shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] }, cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, cardCopy: { flex: 1, gap: spacing[1] }, meta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2] }, metaPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },

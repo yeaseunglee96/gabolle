@@ -98,6 +98,8 @@ describe('내 여행 탭 — 새 시안', () => {
 //    알약만 안쪽 여백으로 가운데에 섰다.
 describe('내 여행 카드 상태 줄', () => {
   it('🔴 알약과 글자가 세로 가운데로 맞는다', async () => {
+    // 상태 줄은 큰 카드에 있다 — 폰에서 다가오는 여행은 작은 줄이라(UI 캔버스 ⑥) 큰 카드가 그려지는 넓은 화면에서 본다.
+    mockDesktop = true;
     render(<Trips />, { wrapper: Providers });
     expect(await screen.findByText('광안리 야경 투어', {}, WAIT)).toBeTruthy();
 
