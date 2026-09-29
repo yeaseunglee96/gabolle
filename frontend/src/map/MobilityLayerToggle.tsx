@@ -4,9 +4,28 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { txf } from '@/i18n/format';
 import type { MobilityLayerKind, MobilityLayerResult } from '@/map/mobilityLayers';
 
 type Tx = (ko: string, en: string) => string;
+
+/**
+ * 파일이 적은 기준 한 줄(public/layers/<지역>.json 의 slopeBasis·shadowBasis — 한국어 원문뿐이다)을 고른 언어로.
+ *
+ * 🔴 파일에는 그 원문밖에 없다(나눠 적은 칸이 없다 — tools/build-mobility-layers.mjs). 그래서 아는 원문을 옮긴다.
+ *    그늘 기준은 날짜·시각이 바뀔 수 있어 모양으로 읽어 값만 끼운다.
+ * 🔴 모르는 원문이면 한국어 화면에서만 그대로 내고, 다른 언어에서는 뺀다 — 영어·일본어 화면 한가운데 한국어 한 줄이
+ *    끼는 것보다 없는 편이 낫다(tx 는 번역표에 없는 문구를 영어 쪽으로 떨어뜨리므로 영어 쪽을 비워 둔다).
+ */
+export function layerBasisText(raw: string | null | undefined, tx: Tx): string | null {
+  if (!raw) return null;
+  if (raw === '경사 중앙값 · 30m 이상 길 · 고도 자료로 잰 추정치') {
+    return tx('경사 중앙값 · 30m 이상 길 · 고도 자료로 잰 추정치', 'Median slope · paths 30 m or longer · estimated from elevation data');
+  }
+  const shadow = /^건물 그림자 · (\d{4}-\d{2}-\d{2}) · (\d{1,2})–(\d{1,2})시 평균$/.exec(raw);
+  if (shadow) return txf(tx, '건물 그림자 · %s · %s–%s시 평균', 'Building shadows · %s · %s:00–%s:00 average', shadow[1], shadow[2], shadow[3]);
+  return tx(raw, '') || null;
+}
 
 /**
  * 켠 겹의 한 줄 풀이. 🔴 그린 것이 없으면 「빨간 길은 …」 같은 범례를 내지 않는다 — 안 그린 선의 뜻을 읽히면
@@ -14,7 +33,8 @@ type Tx = (ko: string, en: string) => string;
  */
 export function layerNote(kind: MobilityLayerKind, layer: Pick<MobilityLayerResult, 'status' | 'basis' | 'partial'> & { drawn: boolean }, tx: Tx): string | null {
   const slope = kind === 'slope';
-  const withBasis = (text: string) => (layer.basis ? `${text} · ${layer.basis}` : text);
+  const basis = layerBasisText(layer.basis, tx);
+  const withBasis = (text: string) => (basis ? `${text} · ${basis}` : text);
   switch (layer.status) {
     case 'off': return null;
     case 'loading': return slope ? tx('경사 자료를 불러오는 중…', 'Loading slope data…') : tx('그늘 자료를 불러오는 중…', 'Loading shade data…');
