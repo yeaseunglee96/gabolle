@@ -385,6 +385,9 @@ export type UserProfileDto = {
   blockedByUser?: boolean;
   /** 프로필 사진(S15P21E201-1821). 서버는 늘 보내지만 안 골랐으면 null — 그때는 첫 글자를 그린다. */
   avatarUrl?: string | null;
+  /** 배경 사진 — 프로필 맨 위에 깔리는 큰 사진(S15P21E201-1841). 서버 배포 전에는 칸이 없고, 안 골랐거나
+   *  이 사람이 나를 차단했으면 null. 둘 다 화면이 기본 사진을 깐다. */
+  coverUrl?: string | null;
 };
 
 export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | FeedFailure;
@@ -392,8 +395,15 @@ export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | 
 export async function getUserProfile(userId: string, accessToken: string | null): Promise<ProfileLoadResult> {
   try {
     const profile = await apiRequest<UserProfileDto>(`/api/v1/users/${encodeURIComponent(userId)}/profile`, { accessToken });
-    // 기록의 작성자 사진과 같은 저장소 주소라 같은 방식으로 풀어 쓴다(S15P21E201-1821).
-    return { state: 'success', profile: profile.avatarUrl ? { ...profile, avatarUrl: resolveStoryImageUrl(profile.avatarUrl) } : profile };
+    // 기록의 작성자 사진과 같은 저장소 주소라 같은 방식으로 풀어 쓴다(S15P21E201-1821). 배경 사진도 같다(-1842).
+    return {
+      state: 'success',
+      profile: {
+        ...profile,
+        ...(profile.avatarUrl ? { avatarUrl: resolveStoryImageUrl(profile.avatarUrl) } : {}),
+        ...(profile.coverUrl ? { coverUrl: resolveStoryImageUrl(profile.coverUrl) } : {}),
+      },
+    };
   } catch (error) {
     return failure(error);
   }
