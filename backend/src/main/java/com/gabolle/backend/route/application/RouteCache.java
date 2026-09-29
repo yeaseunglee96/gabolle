@@ -76,11 +76,17 @@ public class RouteCache {
 		}
 	}
 
-	/** 열쇠 — 이동수단과 소수점 넷째 자리까지의 출발·도착 좌표. */
+	/**
+	 * 열쇠 — 이동수단과 소수점 넷째 자리까지의 출발·도착 좌표, 그리고 계단을 피하는 길인가.
+	 *
+	 * <p>🔴 계단을 피하는 길({@code stepFree})은 열쇠를 따로 쓴다. 같이 쓰면 먼저 물은 사람의 계단 길이 휠체어
+	 * 사용자에게 그대로 나간다. 보통 길의 열쇠 모양은 전과 같다 — 붙이는 것은 stepFree 일 때뿐이다.
+	 */
 	static String keyOf(RouteQuery query) {
 		return query.mode().name()
 				+ '|' + round(query.originLat()) + ',' + round(query.originLng())
-				+ '|' + round(query.destLat()) + ',' + round(query.destLng());
+				+ '|' + round(query.destLat()) + ',' + round(query.destLng())
+				+ (query.stepFree() ? "|stepFree" : "");
 	}
 
 	private static String round(double value) {

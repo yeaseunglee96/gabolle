@@ -119,6 +119,25 @@ class RouteControllerTest {
 	}
 
 	@Test
+	@DisplayName("🔴 stepFree=true 면 계단을 피하는 길로 묻는다 — 안 보내면 전처럼 보통 길이다")
+	void stepFreeParamReachesTheQuery() throws Exception {
+		this.mockMvc.perform(get("/api/v1/routes/directions")
+						.param("originLat", "35.163672").param("originLng", "129.158908")
+						.param("destLat", "35.158523").param("destLng", "129.159855")
+						.param("mode", "WALK").param("stepFree", "true")
+						.principal(asUser()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.distanceM").value(999));
+		this.mockMvc.perform(get("/api/v1/routes/directions")
+						.param("originLat", "35.163672").param("originLng", "129.158908")
+						.param("destLat", "35.158523").param("destLng", "129.159855")
+						.param("mode", "WALK")
+						.principal(asUser()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.distanceM").value(707));
+	}
+
+	@Test
 	@DisplayName("이동수단을 안 주면 자차로 본다")
 	void modeDefaultsToCar() throws Exception {
 		this.mockMvc.perform(get("/api/v1/routes/directions")
@@ -186,7 +205,9 @@ class RouteControllerTest {
 
 		@Override
 		public Optional<RouteLeg> find(RouteQuery query) {
-			return Optional.of(new RouteLeg(TravelMode.WALK, 707, 11, null, null, null, false, null,
+			// 계단을 피하는 길을 물었는지 거리로 드러낸다 — 컨트롤러가 그 뜻을 싣는지만 재면 된다.
+			return Optional.of(new RouteLeg(TravelMode.WALK, query.stepFree() ? 999 : 707, 11, null, null, null,
+					false, null,
 					RouteLeg.PROVIDER_WALK_GRAPH,
 					List.of(new double[] { 129.158908, 35.163672 }, new double[] { 129.1589, 35.1635 },
 							new double[] { 129.1595, 35.1600 }, new double[] { 129.159855, 35.158523 }),

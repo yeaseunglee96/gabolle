@@ -68,7 +68,8 @@ public class WalkGraphRouteProvider implements RouteProviderPort {
 		if (loaded == null) {
 			return Optional.empty();
 		}
-		return loaded.route(query.originLat(), query.originLng(), query.destLat(), query.destLng())
+		// 계단·급경사를 피하는 길을 원하면 그 비용으로 찾는다 — WalkGraph.route 의 stepFree 설명 참고.
+		return loaded.route(query.originLat(), query.originLng(), query.destLat(), query.destLng(), query.stepFree())
 				.map(this::legOf);
 	}
 

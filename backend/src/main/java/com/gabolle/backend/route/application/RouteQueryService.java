@@ -62,7 +62,8 @@ public class RouteQueryService {
 	 */
 	private RouteLeg walkIfFaster(RouteQuery query, RouteLeg transit) {
 		RouteLeg walk = this.estimator.estimate(new RouteQuery(query.originLat(), query.originLng(),
-				query.destLat(), query.destLng(), TravelMode.WALK, query.departureAt()), REASON_WALK_FASTER);
+				query.destLat(), query.destLng(), TravelMode.WALK, query.departureAt(), query.stepFree()),
+				REASON_WALK_FASTER);
 		return walk.durationMin() <= transit.durationMin() ? walk : transit;
 	}
 

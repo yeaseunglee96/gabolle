@@ -36,6 +36,19 @@ class RouteCacheTest {
 	}
 
 	@Test
+	@DisplayName("🔴 계단을 피하는 길은 보통 길과 다른 열쇠다 — 같이 쓰면 계단 길이 휠체어 사용자에게 나간다")
+	void stepFreeHasItsOwnEntry() {
+		RouteCache cache = new RouteCache(new RouteProperties(), Clock.fixed(NOW, ZoneOffset.UTC));
+		RouteQuery plain = new RouteQuery(35.1587, 129.1604, 35.1796, 129.0756, TravelMode.WALK);
+		RouteQuery stepFree = new RouteQuery(35.1587, 129.1604, 35.1796, 129.0756, TravelMode.WALK, null, true);
+
+		cache.put(plain, realLeg());
+
+		assertThat(cache.find(stepFree)).isEmpty();
+		assertThat(cache.find(plain)).isPresent();
+	}
+
+	@Test
 	@DisplayName("담아 두면 같은 요청에 그대로 돌려준다")
 	void returnsWhatWasStored() {
 		RouteCache cache = new RouteCache(new RouteProperties(), Clock.fixed(NOW, ZoneOffset.UTC));

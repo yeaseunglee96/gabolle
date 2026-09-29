@@ -43,6 +43,8 @@ public class RouteController {
 			@RequestParam double destLat,
 			@RequestParam double destLng,
 			@RequestParam(required = false, defaultValue = "CAR") String mode,
+			// 계단·급경사를 피하는 길. 안 보내면 전처럼 가장 짧은 길이다 — 예전 화면이 그대로 돈다.
+			@RequestParam(required = false, defaultValue = "false") boolean stepFree,
 			Authentication authentication,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 
@@ -50,7 +52,7 @@ public class RouteController {
 		// 바깥 업체 호출을 대신 시켜 주는 창구가 된다 — 우리 키로, 우리 비용으로.
 		AuthenticatedUsers.requireId(authentication);
 
-		RouteQuery query = new RouteQuery(originLat, originLng, destLat, destLng, parseMode(mode));
+		RouteQuery query = new RouteQuery(originLat, originLng, destLat, destLng, parseMode(mode), null, stepFree);
 		RouteLeg leg = this.routeQueryService.find(query);
 
 		return ApiResponse.success(RouteDirectionsResponse.from(leg), resolveRequestId(requestId));
