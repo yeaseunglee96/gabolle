@@ -1,6 +1,6 @@
 // 로컬 탐색 화면 (상세설계서 v2 P-17). 8개 갈래(축제·야시장·전통시장·액티비티
 // 산책·자연·야경·기념품샵) 중 하나를 고르고, 내 근처와 부산 전체를 전환해 본다.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
@@ -18,7 +18,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { ScopeSwitch } from '@/discovery/ScopeSwitch';
 import { EXPLORE_GRID_GAP, exploreCardWidth } from '@/discovery/exploreGrid';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
-import { color, radius, spacing } from '@/design/tokens';
+import { color, gutter, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { getPlacesByFacet, photoLabels, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
@@ -139,7 +139,7 @@ export default function LocalExplore() {
             색을 안 주면 아이보리 바탕에 흰 글자가 되어 아무것도 안 보인다. 타입도 시험도
             안 잡는 종류라 여기서 반드시 준다. */}
         <Text variant={wide ? 'hero' : 'display'} weight="bold" color={color.text.heading}>
-          {tx('부산을 로컬처럼 둘러보기', 'Explore Busan like a local')}
+          {tx('부산 로컬 둘러보기', 'Explore local Busan')}
         </Text>
         <Text color={color.text.body}>{tx('갈래를 고르고, 내 근처 또는 부산 전체에서 찾아보세요.', 'Choose a category, then search nearby or across Busan.')}</Text>
       </View>
@@ -166,7 +166,7 @@ export default function LocalExplore() {
               전에는 1024 부터 왼쪽 기둥(320)이 됐는데, 그 폭만큼 정작 보러 온 결과가 좁아졌다.
               갈래는 여덟 개뿐이라 한 줄에 들어간다 (시안 05).
           */}
-          <View style={[styles.filterBar, wide && styles.filterBarWide]}>
+          <View style={[styles.filterBar, wide ? styles.filterBarWide : styles.filterBarPhone]}>
             <FacetPicker
               facets={visibleFacets}
               selectedKey={selectedFacet?.featureKey ?? null}
@@ -228,11 +228,20 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
    */
   language: Parameters<typeof localFacetLabel>[1];
 }) {
+  // 🔴 고른 갈래가 칩 줄 밖에 숨어 있으면 무엇을 보고 있는지 모른다 — 홈의 「자연」 카드로 들어오면 첫 화면에
+  //    「전통시장 · 축제 · 액티비티」만 보이고 고른 「자연」은 오른쪽 밖이었다. 고른 칩이 보이게 줄을 옮긴다.
+  const railRef = useRef<ScrollView>(null);
+  const chipX = useRef<Record<string, number>>({});
+  const scrollToSelected = () => {
+    const x = selectedKey ? chipX.current[selectedKey] : undefined;
+    if (x !== undefined) railRef.current?.scrollTo({ x: Math.max(0, x - gutter), animated: false });
+  };
+  useEffect(scrollToSelected, [selectedKey]);
   const chips = facets.map((entry) => {
     const selected = entry.featureKey === selectedKey;
     const label = localFacetLabel(entry, language);
     return (
-      <Pressable key={entry.featureKey} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => onSelect(entry.featureKey)} style={[styles.categoryChip, selected && styles.categoryChipSelected]}>
+      <Pressable key={entry.featureKey} onLayout={(event) => { chipX.current[entry.featureKey] = event.nativeEvent.layout.x; if (selected) scrollToSelected(); }} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => onSelect(entry.featureKey)} style={[styles.categoryChip, selected && styles.categoryChipSelected]}>
         {/* 개수는 이름과 다른 굵기·흐린 색으로 둔다 — 「축제 12」가 한 덩어리로 읽히면
             12가 이름의 일부처럼 보인다 (시안 05). */}
         <Text weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.heading}>{selected ? '✓ ' : ''}{label}</Text>
@@ -241,7 +250,7 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
     );
   });
   if (mode === 'rail') {
-    return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRail}>{chips}</ScrollView>;
+    return <ScrollView ref={railRef} horizontal showsHorizontalScrollIndicator={false} style={styles.categoryRailBleed} contentContainerStyle={styles.categoryRail}>{chips}</ScrollView>;
   }
   return <View style={styles.facetWrap}>{chips}</View>;
 }
@@ -396,7 +405,8 @@ const styles = StyleSheet.create({
   heading: { gap: spacing[2], marginBottom: spacing[6] },
   stateCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
   results: { gap: spacing[4] },
-  categoryRail: { gap: spacing[2], paddingRight: spacing[4] },
+  categoryRail: { gap: spacing[2], paddingHorizontal: gutter },
+  categoryRailBleed: { marginHorizontal: -gutter },
   categoryChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   categoryChipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   branchBody: { padding: spacing[4], paddingTop: 0, gap: spacing[2] },
@@ -413,17 +423,21 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web'
       ? ({ position: 'sticky', top: 0, zIndex: 10 } as object)
       : null),
-    backgroundColor: color.brand.ivory,
+    // 🔴 화면 바탕과 같은 색 — 흰색(brand.ivory)이면 폰에서 여백 안쪽에 흰 상자가 떠 보였고, 칩 줄이 그 상자 끝에서 잘렸다.
+    backgroundColor: color.canvas,
     borderBottomWidth: 1,
     borderBottomColor: color.surface.border,
   },
+  // 폰 — 칩 줄이 화면 끝까지 흐른다. 여백 안에서 잘리면 끝 칩이 반쯤 걸려 「고장」처럼 보인다.
+  filterBarPhone: { marginHorizontal: -gutter, paddingHorizontal: gutter },
   // 넓으면 칩과 토글이 한 행에 선다. 좁으면 칩 레일 아래에 토글이 온다.
   filterBarWide: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[4] },
   scopeWide: { width: 232 },
 
   // 결과 머리 — 제목과 안내 한 줄.
-  resultHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing[3], flexWrap: 'wrap' },
-  resultNote: { flexShrink: 1 },
+  // 🔴 안내 한 줄은 제목 «아래». 오른쪽에 붙이면 폰에서 제목 밑줄과 어긋난 채 두 줄로 꺾여 떠 보였다.
+  resultHead: { gap: spacing[1] },
+  resultNote: { color: color.text.muted },
 
   // 칩이 줄바꿈된다. 숨는 것이 없어야 한다는 게 이 모양의 전부다.
   // 🔴 flex 1 · minWidth 0 — 토글을 뺀 남는 폭만 쓴다. 안 주면 줄지 않고 한 줄로 늘어나, 영어판에서
