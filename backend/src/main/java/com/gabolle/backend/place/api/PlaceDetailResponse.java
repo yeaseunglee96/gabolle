@@ -45,6 +45,9 @@ import com.gabolle.backend.place.domain.Place;
  *        나간다 — 언어 선택은 칸을 더하는 것이지 기존 칸을 바꾸는 것이 아니다
  * @param photoLicense 사진의 라이선스 — 이름·주소·원본 파일 페이지(S15P21E201-1606). 위키미디어
  *        사진(CC BY 등)은 출처 문구와 함께 이것을 보여야 쓸 수 있다. 없으면 키 자체가 빠진다
+ * @param photos 사진 여러 장(S15P21E201-1840). 첫 장은 대표 사진({@code photoUrl})과 같고, 그 뒤로
+ *        {@code place_photo} 의 사진이 순서대로 붙는다. 사진이 한 장도 없으면 키 자체가 빠진다. 화면은 이
+ *        칸이 없으면 지금처럼 {@code photoUrl} 한 장을 그린다 — 이미 배포된 앱은 이 칸을 모른다
  */
 public record PlaceDetailResponse(
 		UUID placeId,
@@ -64,7 +67,17 @@ public record PlaceDetailResponse(
 		@JsonInclude(JsonInclude.Include.NON_NULL) FeatureSlot openingHours,
 		@JsonInclude(JsonInclude.Include.NON_NULL) FeatureSlot priceLevel,
 		String resolvedLanguage,
-		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense) {
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense,
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) List<Photo> photos) {
+
+	/**
+	 * 사진 한 장. {@code source} 는 사진 옆에 그대로 보여 줄 출처 문구다(예: {@code 출처 : 부산관광아카이브}).
+	 *
+	 * @param license 라이선스가 따로 있으면 이름·주소·원본 페이지. 없으면 키가 빠진다
+	 */
+	public record Photo(String url, String source,
+			@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense license) {
+	}
 
 	/**
 	 * @param observedAt 원천에서 관측된 시각. 어제 수집한 지난달 정보가 있을 수 있어

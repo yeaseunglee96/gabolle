@@ -54,9 +54,9 @@ class PlaceDetailResponseFieldsTest {
 		// 사진에 관한 세 칸을 붙여 두면 사진만 그리고 출처·피사체를 빠뜨리기 어렵다.
 		assertThat(names).containsSubsequence(
 				"addressEn", "photoUrl", "photoSource", "photoSubject", "openingHours", "priceLevel",
-				"resolvedLanguage", "photoLicense");
+				"resolvedLanguage", "photoLicense", "photos");
 		assertThat(names.size())
-				.as("기존 열 개 + 뒤에 더해 온 여덟 칸")
-				.isEqualTo(ORIGINAL_FIELD_NAMES.size() + 8);
+				.as("기존 열 개 + 뒤에 더해 온 아홉 칸")
+				.isEqualTo(ORIGINAL_FIELD_NAMES.size() + 9);
 	}
 }

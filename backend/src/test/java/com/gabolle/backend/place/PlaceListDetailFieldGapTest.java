@@ -25,7 +25,10 @@ class PlaceListDetailFieldGapTest {
 
 	/** 상세에만 있는 칸을 찍어 둔 것. 상세나 목록의 칸이 바뀌면 여기도 함께 고친다. */
 	private static final List<String> DETAIL_ONLY_FIELDS = List.of(
-			"features", "itineraryInclusion", "openingHours", "priceLevel", "provenance", "resolvedLanguage");
+			"features", "itineraryInclusion", "openingHours", "priceLevel", "provenance", "resolvedLanguage",
+			// S15P21E201-1840 — 여러 장은 상세 화면에서만 넘겨 본다. 카드·목록은 대표 사진(photoUrl) 한 장이면 되고,
+			// 목록마다 사진 목록을 실으면 응답이 수십 배로 무거워진다.
+			"photos");
 
 	@Test
 	@DisplayName("🔴 상세에만 있는 칸 목록이 그대로다 — 달라졌으면 목록에도 실을지 정하라는 뜻이다")
