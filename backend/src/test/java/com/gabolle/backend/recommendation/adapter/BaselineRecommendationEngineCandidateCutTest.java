@@ -24,9 +24,11 @@ import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
+import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 
@@ -492,5 +494,111 @@ class BaselineRecommendationEngineCandidateCutTest {
 
 		// 예전 규칙(점수 순 상위 200)과 같아야 한다 — 빠질 후보를 지우지 않고 뒤로 미룰 뿐이다.
 		assertThat(kept).containsExactlyElementsOf(allFail.subList(0, 200));
+	}
+
+	// ── 식단 거르기가 식당을 다 지우지 않는다 (S15P21E201-1829) ──────────────────────
+	//
+	// 탈락 판정은 점수를 안 바꾼다. 그래서 가깝고 점수 높은 고깃집(할랄 탈락)이 자리를 먼저 차지하면, 뒤에서 걸러진 뒤
+	// 식당이 0곳이 됐다. 고칠 때는 탈락 후보를 뒤로 보내 통과할 식당이 자리를 받게 한다. 아래 셋은 고치기 전 코드에서
+	// 전부 실패한다(남는 통과 식당이 0).
+
+	/** 가까워서 점수가 높은 고깃집 n곳 — 할랄이면 고기 중심으로 탈락한다. */
+	private static List<PlaceCandidateResponse.Candidate> meatRestaurants(int n) {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>();
+		for (int i = 0; i < n; i++) {
+			pool.add(new PlaceCandidateResponse.Candidate(new UUID(20L, i), "갈비집" + i, "FOOD", 35.15, 129.05,
+					100L + i, List.of()));
+		}
+		return pool;
+	}
+
+	/** 멀어서 점수가 낮은 횟집 n곳 — 할랄은 해산물을 빼지 않으므로 통과한다(확인 안 됨 경고). */
+	private static List<PlaceCandidateResponse.Candidate> seafoodRestaurants(int n) {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>();
+		for (int i = 0; i < n; i++) {
+			pool.add(new PlaceCandidateResponse.Candidate(new UUID(21L, i), "민락횟집" + i, "FOOD", 35.15, 129.05,
+					3000L + i, List.of()));
+		}
+		return pool;
+	}
+
+	private static List<PlaceCandidateResponse.Candidate> beaches(int n) {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>();
+		for (int i = 0; i < n; i++) {
+			pool.add(new PlaceCandidateResponse.Candidate(new UUID(22L, i), "해수욕장" + i, "SEA_BEACH", 35.15, 129.05,
+					4000L + i, List.of()));
+		}
+		return pool;
+	}
+
+	/** 할랄(꼭 지킬 식단) 여행으로 돌린다. 식단 대조표는 운영과 같이 DIETARY_SUPPORT_TAG 거르기다. */
+	private List<EngineCandidate> keptForHalal(List<PlaceCandidateResponse.Candidate> pool, PreferenceSnapshot snapshot) {
+		BaselineRecommendationEngine engine = engine();
+		UserPlaceCodeMap dietMap = mock(UserPlaceCodeMap.class);
+		when(dietMap.getUserInputCode()).thenReturn("DIET");
+		when(dietMap.getPlaceFeatureType()).thenReturn("DIETARY_SUPPORT_TAG");
+		when(dietMap.getMatchKind()).thenReturn(MatchKind.HARD_FILTER);
+		List<UserPlaceCodeMap> constraintMap = List.of(dietMap);
+		List<TripConstraint> halal = List.of(new TripConstraint(UUID.randomUUID().toString(), TRIP_ID, "DIET", "HALAL",
+				TripConstraint.Severity.HARD, "EXCLUDES", null, null, TripConstraint.EvidenceStatus.VERIFIED,
+				TripConstraint.AnswerStatus.SELECTED, PersonalizationScope.TRIP, TripConstraint.DietRequirement.REQUIRED));
+		UUID constraintSnapshotId = UUID.randomUUID();
+		UUID preferenceSnapshotId = UUID.randomUUID();
+		when(this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT))
+				.thenReturn(constraintMap);
+		when(this.tripRepository.findConstraintsBySnapshotId(constraintSnapshotId.toString())).thenReturn(halal);
+		when(this.tripRepository.findSnapshotById(preferenceSnapshotId.toString()))
+				.thenReturn(Optional.ofNullable(snapshot));
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+		return engine.generate(new EngineRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.fromString(TRIP_ID), 1,
+				preferenceSnapshotId, constraintSnapshotId, null, null, 10)).candidates();
+	}
+
+	private static List<EngineCandidate> eligibleRestaurants(List<EngineCandidate> kept) {
+		return kept.stream()
+				.filter((c) -> c.constraintVerdict() != ConstraintVerdict.FAIL)
+				.filter((c) -> "FOOD".equals(String.valueOf(c.featureValues().get("category"))))
+				.toList();
+	}
+
+	@Test
+	@DisplayName("🔴 할랄 — 점수 높은 고깃집 300곳이 자리를 다 먹지 않는다. 남는 자리는 할랄이 갈 수 있는 식당이 받는다")
+	void 탈락할_고깃집이_자리를_먹지_않는다() {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>(meatRestaurants(300));
+		pool.addAll(seafoodRestaurants(20));
+
+		List<EngineCandidate> kept = keptForHalal(pool, null);
+
+		assertThat(kept).hasSize(KEEP);
+		assertThat(eligibleRestaurants(kept)).as("고치기 전에는 10곳 전부 탈락할 갈비집이었다").hasSize(KEEP);
+		assertThat(kept.stream().map(EngineCandidate::preRankScore).toList())
+				.as("고르기만 바꾸고 내보내는 순서는 점수 순 그대로다")
+				.isSortedAccordingTo(Comparator.<Double>reverseOrder());
+	}
+
+	@Test
+	@DisplayName("🔴 할랄 + 테마(바다) — 끼니 몫이 탈락할 고깃집이 아니라 갈 수 있는 식당으로 채워진다")
+	void 끼니_몫은_갈_수_있는_식당이_받는다() {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>(meatRestaurants(300));
+		pool.addAll(seafoodRestaurants(3));
+		pool.addAll(beaches(5));
+
+		List<EngineCandidate> kept = keptForHalal(pool, snapshot("CATEGORY", "[\"SEA_BEACH\"]"));
+
+		assertThat(eligibleRestaurants(kept)).as("통과할 식당 셋이 전부 남는다 — 고치기 전에는 0곳").hasSize(3);
+		assertThat(kept.stream().filter((c) -> "SEA_BEACH".equals(String.valueOf(c.featureValues().get("category")))))
+				.hasSize(5);
+	}
+
+	@Test
+	@DisplayName("할랄 — 반경 안 식당이 전부 고깃집이어도 추천은 멈추지 않고 식당 아닌 곳을 먼저 남긴다")
+	void 식당이_전부_탈락이어도_다른_곳은_남는다() {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>(meatRestaurants(50));
+		pool.addAll(beaches(5));
+
+		List<EngineCandidate> kept = keptForHalal(pool, null);
+
+		assertThat(kept).hasSize(KEEP);
+		assertThat(kept.stream().filter((c) -> c.constraintVerdict() != ConstraintVerdict.FAIL)).hasSize(5);
 	}
 }
