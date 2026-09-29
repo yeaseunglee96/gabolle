@@ -149,7 +149,15 @@ export default function RouteDetail() {
       {!hasCoords ? (
         <Card style={styles.stateCard}><Text variant="title" weight="bold">{tx('경로 정보가 없어요', 'No route information')}</Text><Text color={color.text.body}>{tx('출발지와 도착지 좌표를 확인할 수 없어요.', "We couldn't find the origin and destination coordinates.")}</Text></Card>
       ) : (
-        <>
+        riding && directions?.mode === 'TRANSIT' ? (
+          // 🔴 타는 동안엔 수단 비교(탭)·요약·타는 법을 접는다 — 탭과 큰 지도가 위를 차지해 남은 정류장이 아래로 밀렸다(UI 캔버스 ⑮).
+          //    탑승 카드를 맨 위에, 지도는 작게 그 아래. 「탑승 끝내기」를 누르면 원래 화면으로 돌아온다.
+          <View style={styles.infoStack}>
+            <RidePanel directions={directions} riding={riding} live={live} onStart={() => void startRide()} onStop={() => setRiding(false)} tx={tx} />
+            {map(twoColumn ? 360 : 200)}
+            <Text variant="caption" color={color.text.muted} style={styles.rideNote}>{tx('대중교통·택시·도보 비교는 「탑승 끝내기」 뒤에 다시 보여요', 'Transit, taxi and walking options come back after you end the ride')}</Text>
+          </View>
+        ) : <>
           <View accessibilityRole="tablist" style={styles.tabs}>
             {ROUTE_MODES.map((each) => {
               const selected = each === mode;
@@ -323,6 +331,7 @@ const styles = StyleSheet.create({
   mapColumn: { flex: 1 },
   infoColumn: { flex: 1, gap: spacing[4] },
   infoStack: { gap: spacing[4], marginTop: spacing[4] },
+  rideNote: { textAlign: 'center' },
   summaryCard: { gap: spacing[2] },
   summaryHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   estimatedBadge: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },

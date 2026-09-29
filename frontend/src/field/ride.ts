@@ -64,6 +64,8 @@ export function rideLegs(directions: RouteDirections): RideLeg[] {
 export type RideProgress = {
   /** 내릴 곳까지 남은 정류장 수. 정류장 목록이 없으면 null. */
   remainingStops: number | null;
+  /** 지금 가장 가까운 정류장의 순번(stops 안). 정류장 목록이 없으면 null — 사다리를 그릴 때 쓴다. */
+  currentIndex: number | null;
   /** 다음 정류장 이름. 모르거나 이미 내릴 곳이면 null. */
   nextStop: string | null;
   distanceToAlightM: number | null;
@@ -82,6 +84,7 @@ export function rideProgress(leg: RideLeg, at: LatLng): RideProgress {
   const distanceToAlightM = leg.alight ? straightDistanceM(at, leg.alight) : null;
   let remainingStops: number | null = null;
   let nextStop: string | null = null;
+  let currentIndex: number | null = null;
   if (leg.stops.length >= 2) {
     let nearest = 0;
     let best = Number.POSITIVE_INFINITY;
@@ -89,10 +92,11 @@ export function rideProgress(leg: RideLeg, at: LatLng): RideProgress {
       const d = straightDistanceM(at, { latitude: stop.lat, longitude: stop.lng });
       if (d < best) { best = d; nearest = index; }
     });
+    currentIndex = nearest;
     remainingStops = leg.stops.length - 1 - nearest;
     nextStop = remainingStops > 0 ? leg.stops[nearest + 1].name : null;
   }
   const arrived = distanceToAlightM !== null && distanceToAlightM <= ARRIVED_M;
   const alertNow = !arrived && ((remainingStops !== null && remainingStops <= 1) || (distanceToAlightM !== null && distanceToAlightM <= ALERT_M));
-  return { remainingStops, nextStop, distanceToAlightM, alertNow, arrived };
+  return { remainingStops, currentIndex, nextStop, distanceToAlightM, alertNow, arrived };
 }

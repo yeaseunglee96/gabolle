@@ -2964,6 +2964,12 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '지난 여행 %s': { ja: '過去の旅行 %s', zhHans: '过去的旅行 %s', zhHant: '過去的旅行 %s' },
   '펼치기': { ja: '開く', zhHans: '展开', zhHant: '展開' },
   '그 밖에 진행 중인 여행': { ja: 'ほかに進行中の旅行', zhHans: '其他进行中的旅行', zhHant: '其他進行中的旅行' },
+  '… %s곳 더': { ja: '… ほか%sか所', zhHans: '… 另外%s站', zhHant: '… 另外%s站' },
+  '대중교통·택시·도보 비교는 「탑승 끝내기」 뒤에 다시 보여요': { ja: '公共交通・タクシー・徒歩の比較は「乗車を終える」の後にまた表示されます', zhHans: '公交·出租车·步行的比较会在「结束乘车」后重新显示', zhHant: '公車·計程車·步行的比較會在「結束乘車」後重新顯示' },
+  '여기서 내려요': { ja: 'ここで降ります', zhHans: '在这里下车', zhHant: '在這裡下車' },
+  '지금 · 탑승 중': { ja: 'いま ・ 乗車中', zhHans: '现在 · 乘车中', zhHant: '現在 · 乘車中' },
+  '지금 여기': { ja: 'いまここ', zhHans: '当前位置', zhHant: '目前位置' },
+  '한 정거장 전에 진동·알림으로 알려요. 화면을 켜 두세요.': { ja: '1つ手前で振動・通知でお知らせします。画面をつけたままにしてください。', zhHans: '会在前一站用振动和通知提醒您。请保持屏幕亮着。', zhHant: '會在前一站用震動和通知提醒您。請保持螢幕亮著。' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
