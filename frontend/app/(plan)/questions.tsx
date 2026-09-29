@@ -125,10 +125,16 @@ function PlanConditions() {
   const review = step === REVIEW_STEP;
   const styleSkipped = Boolean(state.skipped.cats || state.skipped.pace);
 
+  // 🔴 확인 표의 칸을 눌러 단계로 갔으면, 고친 뒤 «바로» 확인 표로 돌아온다 — S15P21E201-1869.
+  //    예전엔 3단계 예산을 고치고 4단계를 다시 지나야 표로 돌아왔다(「칸을 누르면 그 자리에서 고쳐요」와 딴판).
+  //    저장하지 않는다 — 앱을 껐다 켜면 평소 단계 흐름으로 돌아가는 게 맞다.
+  const [editFromReview, setEditFromReview] = useState(false);
   const goTo = (next: number) => {
+    setEditFromReview(false);
     setState((prev) => ({ ...prev, open: Math.max(0, Math.min(REVIEW_STEP, next)), editing: null }));
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   };
+  const editFromReviewAt = (next: number) => { goTo(next); setEditFromReview(true); };
   const skipStyle = () => {
     setState((prev) => ({ ...prev, skipped: { ...prev.skipped, cats: true, pace: true } }));
     goTo(REVIEW_STEP);
@@ -196,12 +202,14 @@ function PlanConditions() {
   // 1단계 바닥 한 줄 — 무엇을 골랐는지(시안: 「출발 10월 9일 (금) · 성인 2」, 날짜만 굵게).
   const summary = step === 0 ? whenSummary(draft, tx) : null;
 
+  const backToReview = editFromReview && !review;
   const primaryLabel = review
     ? submitting ? tx('만드는 중…', 'Building…') : blocker ?? tx('이 조건으로 일정 만들기', 'Build my itinerary')
-    : blocker ?? (step === PLAN_STEP_COUNT - 1 ? tx('다음 · 한눈에 보기', 'Next · review') : tx('다음', 'Next'));
+    : blocker ?? (backToReview ? tx('조건 확인으로 돌아가기', 'Back to trip review') : step === PLAN_STEP_COUNT - 1 ? tx('다음 · 한눈에 보기', 'Next · review') : tx('다음', 'Next'));
   const onPrimary = () => {
     completeStep(step + 1);
     if (review) { if (readyToBuild) void submitPlan(); }
+    else if (backToReview) goTo(REVIEW_STEP);
     else goTo(step + 1);
   };
 
@@ -308,7 +316,7 @@ function PlanConditions() {
       readiness={readiness}
       styleSkipped={styleSkipped && !draft.preferences.length}
       accessibilityCounts={accessibilityCounts}
-      goTo={goTo}
+      goTo={review ? editFromReviewAt : goTo}
       onSkipStyle={skipStyle}
       onSearchPlace={openBar}
       onEditConditions={() => setConditionsMode('edit')}
