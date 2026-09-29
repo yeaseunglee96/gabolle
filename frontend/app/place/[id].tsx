@@ -280,7 +280,7 @@ export default function Place() {
         {resolved.apiPlace && (formatStairsPresent(resolved.apiPlace, tx) || formatSlopePercent(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
             {formatStairsPresent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('계단', 'Stairs')}</Text><Text variant="body" style={styles.infoValue}>{formatStairsPresent(resolved.apiPlace, tx)}</Text></View> : null}
-            {formatSlopePercent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('경사도', 'Slope')}</Text><Text variant="body" style={styles.infoValue}>{formatSlopePercent(resolved.apiPlace, tx)}</Text></View> : null}
+            {formatSlopePercent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('경사', 'Slope')}</Text><Text variant="body" style={styles.infoValue}>{formatSlopePercent(resolved.apiPlace, tx)}</Text></View> : null}
           </View>
         ) : null}
         {resolved.apiPlace && needsFoodSafetyCheck(resolved.apiPlace) ? (
@@ -312,12 +312,19 @@ export default function Place() {
             경고하는 "containerStyle 로 배경색을 흉내내는" 것과는 다르다(폭은 바깥 껍데기의
             레이아웃일 뿐, 안쪽 Pressable 의 색과 부딪히지 않는다).
         */}
+        {/* 🔴 네 단추가 같은 무게라 무엇을 먼저 할지 안 보였다. 이 화면에서 할 일은 「후보에 저장」 하나 —
+            그것만 주 단추(빨강 한 번)로 전폭, 현장 도구 둘은 그 아래 반씩 연회색, 리뷰는 글자 링크.
+            저장한 뒤에는 빼기라 주 단추가 아니다(연회색). */}
         <View style={styles.actions}>
           {/* 🔴 저장했는지 알기 전에는 누를 수 없다 — 위 savedKnown 의 주석(S15P21E201-1644). */}
-          <Button label={isSaved ? tx('후보에서 빼기', 'Unsave') : tx('내 여행 후보에 저장', 'Save')} variant="tertiary" disabled={!savedKnown} onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
-          <Button label={tx('한국어로 말하기', 'Speak Korean')} variant="field" onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
-          {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="tertiary" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
-          {taxiPlaceId ? <Button label={tx('기사님께 보여주기', 'Show to driver')} variant="field" onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
+          <Button label={isSaved ? tx('후보에서 빼기', 'Unsave') : tx('내 여행 후보에 저장', 'Save')} variant={isSaved ? 'tertiary' : 'primary'} disabled={!savedKnown} onPress={() => void toggleSaved()} containerStyle={styles.actionFull} />
+          {taxiPlaceId ? <Button label={tx('기사님께 보여주기', 'Show to driver')} variant="tertiary" onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
+          <Button label={tx('한국어로 말하기', 'Speak Korean')} variant="tertiary" onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
+          {taxiPlaceId ? (
+            <Pressable accessibilityRole="link" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} hitSlop={8} style={({ pressed }) => [styles.reviewLink, pressed && styles.pressed]}>
+              <Text weight="bold">{tx('리뷰 보기', 'See reviews')} ›</Text>
+            </Pressable>
+          ) : null}
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
         {consent.prompt}
@@ -385,6 +392,8 @@ const styles = StyleSheet.create({
   // flexBasis 로 최소 폭을 잡고 flexGrow 로 남는 자리를 채운다 — 홀수 개(리뷰·택시 버튼이
   // 없는 장소)일 때도 마지막 버튼이 어색하게 반쪽만 남지 않고 자연스럽게 늘어난다.
   actionHalf: { flexBasis: '46%', flexGrow: 1 },
+  actionFull: { width: '100%' },
+  reviewLink: { width: '100%', minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   feedback: { textAlign: 'center', width: '100%' },
   recoveryButton: { marginTop: spacing[2] },
 });

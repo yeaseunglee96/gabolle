@@ -23,7 +23,7 @@ function placeWith(featureType: string, value: unknown, evidenceStatus = 'ESTIMA
 describe('경사도 — JSON 을 화면에 내보내지 않는다', () => {
   it('🔴 서버가 객체로 줘도 사람이 읽는 값이 나간다', () => {
     const text = formatSlopePercent(placeWith('SLOPE_PERCENT', SLOPE_VALUE), tx);
-    expect(text).toBe('2.7% (추정)');
+    expect(text).toBe('완만해요 · 2.7% (추정)');
   });
 
   it('🔴 어떤 모양이 와도 중괄호가 화면에 안 나간다', () => {
@@ -35,7 +35,7 @@ describe('경사도 — JSON 을 화면에 내보내지 않는다', () => {
   });
 
   it('숫자로 오면 예전처럼 % 를 붙인다', () => {
-    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 3.5), tx)).toBe('3.5% (추정)');
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 3.5), tx)).toBe('완만해요 · 3.5% (추정)');
   });
 
   it('못 읽는 모양이면 JSON 이 아니라 문장으로 물러선다', () => {
@@ -44,7 +44,32 @@ describe('경사도 — JSON 을 화면에 내보내지 않는다', () => {
   });
 });
 
+describe('경사 — 숫자보다 말을 먼저(지도 경사 색과 같은 문턱)', () => {
+  it('5% 미만은 완만 · 8.33% 까지는 조금 가파름 · 그 위는 가파름', () => {
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 4.9, 'VERIFIED'), tx)).toBe('완만해요 · 4.9%');
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 8.33, 'VERIFIED'), tx)).toBe('조금 가파라요 · 8.33%');
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 12, 'VERIFIED'), tx)).toBe('가파라요 · 12%');
+  });
+});
+
 describe('영업시간 — 서버가 읽었다고 한 것을 화면도 읽는다', () => {
+  it('🔴 이어진 요일의 같은 시간은 한 덩어리로, 쉬는 날(closedDays)은 따로 말한다 — 운영 국제시장 응답', () => {
+    const day = [['09:00', '20:00']];
+    const value = { byDay: { mon: day, tue: day, wed: day, thu: day, fri: day, sat: day, sun: [] }, closedDays: ['sun'], status: 'PARSED' };
+    expect(formatOpeningHoursValue(value, tx)).toBe('월–토 09:00~20:00\n일요일 휴무');
+  });
+
+  it('둘만 이어지면 가운뎃점, 끊기면 따로', () => {
+    const a = [['10:00', '18:00']]; const b = [['11:00', '15:00']];
+    const value = { byDay: { mon: a, tue: a, thu: a, sat: b, sun: b } };
+    expect(formatOpeningHoursValue(value, tx)).toBe('월·화 10:00~18:00 · 목 10:00~18:00 · 토·일 11:00~15:00');
+  });
+
+  it('closedDays 가 없으면 쉬는 날 줄도 없다 — 모르는 것을 지어내지 않는다', () => {
+    const day = [['09:00', '20:00']];
+    expect(formatOpeningHoursValue({ byDay: { mon: day, tue: day, wed: day } }, tx)).toBe('월–수 09:00~20:00');
+  });
+
   it('🔴 일곱 요일이 같으면 「매일」 한 줄로 묶는다', () => {
     expect(formatOpeningHoursValue(HOURS_VALUE, tx)).toBe('매일 10:00~20:00');
   });

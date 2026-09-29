@@ -55,6 +55,13 @@ export function PlacePhotoGallery({ urls, onFirstLoad, onIndexChange }: { urls: 
       <View pointerEvents="none" style={styles.counter} accessibilityLabel={tx(`사진 ${index + 1}/${urls.length}`, `Photo ${index + 1}/${urls.length}`)}>
         <Text testID="place-photo-counter" variant="caption" weight="bold" color={color.text.onAction}>{`${index + 1}/${urls.length}`}</Text>
       </View>
+      {/* 넘길 수 있다는 표시 — 「1/8」 숫자만으로는 옆으로 밀어 볼 생각을 못 했다. 지금 쪽만 길게.
+          열 장이 넘으면 점이 사진 폭을 채워 오히려 가린다 — 그때는 숫자만. */}
+      {urls.length <= 10 ? (
+        <View pointerEvents="none" testID="place-photo-dots" style={styles.dots} importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
+          {urls.map((url, i) => <View key={`${i}-${url}`} style={[styles.dot, i === index && styles.dotActive]} />)}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -64,4 +71,8 @@ const styles = StyleSheet.create({
   pageUnmeasured: { width: '100%' },
   // 사진이 밝아도 숫자가 읽히게 어두운 알약 위에 올린다.
   counter: { position: 'absolute', top: spacing[3], right: spacing[3], paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: 'rgba(8, 27, 53, 0.55)' },
+  // 사진 위 글자(이름·출처)는 아래 여백 16 안에서 끝난다 — 점은 그 여백 안, 맨 아래에 둔다.
+  dots: { position: 'absolute', left: 0, right: 0, bottom: 6, flexDirection: 'row', justifyContent: 'center', gap: 5 },
+  dot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: 'rgba(255, 255, 255, 0.5)' },
+  dotActive: { width: 16, backgroundColor: color.text.onAction },
 });

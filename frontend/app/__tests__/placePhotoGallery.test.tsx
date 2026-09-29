@@ -52,6 +52,8 @@ describe('장소 상세 사진 여러 장', () => {
     expect(view.getAllByTestId('place-photo-page')).toHaveLength(3);
     expect(view.getByTestId('place-photo-counter').props.children).toBe('1/3');
     expect(view.getByTestId('place-photo-credit').props.children).toBe('사진: 한국관광공사 공공누리 제1유형');
+    // 넘길 수 있다는 표시 — 사진 수만큼 점(화면 낭독에서는 숨긴다 — 「사진 1/3」이 이미 말한다)
+    expect(view.getByTestId('place-photo-dots', { includeHiddenElements: true }).props.children).toHaveLength(3);
   });
 
   it('🔴 넘기면 쪽 번호와 출처가 그 사진의 것으로 바뀐다 — 출처가 이름표를 달고 오면 「사진: 」을 또 붙이지 않는다', async () => {
