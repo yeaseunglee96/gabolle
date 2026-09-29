@@ -2,6 +2,8 @@ package com.gabolle.backend.place.domain;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -30,6 +32,19 @@ public class Place {
 	/** nullable 이다. 영문 검색은 이 칸이 있는 행에만 걸린다. */
 	@Column(name = "name_en", length = 200)
 	private String nameEn;
+
+	/**
+	 * 일본어·중국어(간체·번체) 이름 — 관광공사 다국어 서비스가 번역해 둔 이름(V20260930130000, S15P21E201-1859).
+	 * 전부 nullable 이다. 관광공사가 번역한 곳은 언어마다 150곳 안팎이라 대부분의 장소는 비어 있다.
+	 */
+	@Column(name = "name_ja", length = 200)
+	private String nameJa;
+
+	@Column(name = "name_zh_hans", length = 200)
+	private String nameZhHans;
+
+	@Column(name = "name_zh_hant", length = 200)
+	private String nameZhHant;
 
 	/**
 	 * 값 목록이 없는 자유 문자열이라 자바에서 검증하지 않는다. enum 을 두면 수집이 다른 값으로
@@ -237,6 +252,24 @@ public class Place {
 
 	public String getNameEn() {
 		return nameEn;
+	}
+
+	/**
+	 * 응답에 싣는 언어별 이름 — 키는 앱의 언어 코드. 비었거나 공백뿐인 칸은 넣지 않는다.
+	 * 순서가 고정이라(일·간·번) 응답을 눈으로 대조하기 쉽다.
+	 */
+	public Map<String, String> localNames() {
+		Map<String, String> names = new LinkedHashMap<>();
+		putIfPresent(names, "ja", nameJa);
+		putIfPresent(names, "zh-Hans", nameZhHans);
+		putIfPresent(names, "zh-Hant", nameZhHant);
+		return names;
+	}
+
+	private static void putIfPresent(Map<String, String> names, String language, String value) {
+		if (value != null && !value.isBlank()) {
+			names.put(language, value.trim());
+		}
 	}
 
 	public String getCategory() {

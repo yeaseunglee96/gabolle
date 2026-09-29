@@ -1,5 +1,6 @@
 package com.gabolle.backend.place.api;
 
+import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -49,14 +50,19 @@ public record PlaceSummaryResponse(
 		 * 출처 문구와 함께 이것을 보여야 쓸 수 있다. 이 칸으로 받은 것이 없으면 키가 빠진다 —
 		 * 공공누리 사진은 지금 전부 그렇고, 그 표기는 {@code photoSource} 가 진다.
 		 */
-		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense) {
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense,
+		/**
+		 * 장소 이름의 일본어·중국어(간체·번체) — 관광공사가 번역해 둔 곳만 있다(V20260930130000, S15P21E201-1859).
+		 * 키는 앱의 언어 코드({@code ja} · {@code zh-Hans} · {@code zh-Hant}), 없는 언어는 빠지고 다 없으면 칸째 빠진다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames) {
 
 	/** 이름 검색 결과 한 줄. 어느 이름 칸이 걸렸는지 서비스 계층의 순위 계산이 정해 준다. */
 	public static PlaceSummaryResponse of(Place place, MatchedField matchedField) {
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), matchedField,
 				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
-				place.getPhotoLicense());
+				place.getPhotoLicense(), place.localNames());
 	}
 
 	/** 갈래 필터 목록 결과 한 줄. 이름 매칭이 아니라 표식으로 골랐으므로 matchedField 가 없다. */
@@ -64,7 +70,7 @@ public record PlaceSummaryResponse(
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), null,
 				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
-				place.getPhotoLicense());
+				place.getPhotoLicense(), place.localNames());
 	}
 
 	/**

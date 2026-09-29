@@ -1,5 +1,6 @@
 package com.gabolle.backend.place.api;
 
+import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -41,13 +42,18 @@ public record NearbyPlaceItem(
 		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject,
 
 		/** 사진의 라이선스(S15P21E201-1606). {@link PlaceSummaryResponse#photoLicense()} 와 같다. 없으면 키가 빠진다. */
-		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense) {
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense,
+		/**
+		 * 장소 이름의 일본어·중국어(간체·번체) — 관광공사가 번역해 둔 곳만 있다(V20260930130000, S15P21E201-1859).
+		 * 키는 앱의 언어 코드({@code ja} · {@code zh-Hans} · {@code zh-Hant}), 없는 언어는 빠지고 다 없으면 칸째 빠진다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames) {
 
 	public static NearbyPlaceItem from(Place place, long distanceM) {
 		return new NearbyPlaceItem(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), distanceM,
 				place.getPhotoUrl() != null && !place.getPhotoUrl().isBlank(),
 				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
-				place.getPhotoLicense());
+				place.getPhotoLicense(), place.localNames());
 	}
 }

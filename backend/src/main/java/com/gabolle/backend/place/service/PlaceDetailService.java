@@ -120,7 +120,8 @@ public class PlaceDetailService {
 				// 이 화면의 주된 값은 이름이라 영문 이름 유무로 판정한다
 				RequestLanguage.resolve(acceptLanguageHeader, place.getNameEn() != null),
 				place.getPhotoLicense(),
-				photosOf(place));
+				photosOf(place),
+				place.localNames());
 	}
 
 	/**
