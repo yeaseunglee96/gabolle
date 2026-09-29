@@ -2980,6 +2980,10 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '축제': { ja: '祭り・イベント', zhHans: '节庆活动', zhHant: '節慶活動' },
   '야시장': { ja: '夜市', zhHans: '夜市', zhHant: '夜市' },
   '산책': { ja: '散歩', zhHans: '散步', zhHant: '散步' },
+  '📍 %s 연결됨': { ja: '📍 %sとつながっています', zhHans: '📍 已关联 %s', zhHant: '📍 已連結 %s' },
+  '%s 연결 빼기': { ja: '%sとのつながりを外す', zhHans: '取消关联 %s', zhHant: '取消連結 %s' },
+  '연결 빼기': { ja: 'つながりを外す', zhHans: '取消关联', zhHant: '取消連結' },
+  '가볼래에 아직 없는 장소라 고칠 때는 지역 이름으로만 남아요.': { ja: 'GABOLLE にまだない場所なので、編集では地域名だけが残ります。', zhHans: '该地点尚未收录于 GABOLLE，编辑时只会保留地区名称。', zhHant: '該地點尚未收錄於 GABOLLE，編輯時只會保留地區名稱。' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {

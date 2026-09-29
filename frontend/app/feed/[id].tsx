@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthProvider';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { MarkdownBody } from '@/components/MarkdownBody';
+import { RegionPicker } from '@/components/RegionPicker';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { PhotoViewer } from '@/components/PhotoViewer';
 import { Button } from '@/components/Button';
@@ -349,6 +350,12 @@ export default function StoryDetail() {
   const [postEditing, setPostEditing] = useState(false);
   const [postDraft, setPostDraft] = useState('');
   const [postVisibility, setPostVisibility] = useState<StoryVisibility>('PUBLIC');
+  // 🔴 쓸 때 고른 지역·장소도 고칠 때 바꿀 수 있어야 한다 — 전에는 본문·공개 범위만 고쳐져서 잘못 단 장소를 떼려면
+  //    지우고 다시 써야 했다(사용자 여정 점검 2026-09-29). 서버는 이미 받는다(StoryUpdateRequest.region·placeId·clearPlace).
+  const [postRegion, setPostRegion] = useState('');
+  const [postPlaceId, setPostPlaceId] = useState<string | undefined>(undefined);
+  // 카카오 결과처럼 가볼래에 아직 없는 장소 — 고칠 때는 서버가 스냅샷을 안 받아서 지역 이름으로만 남는다.
+  const [postPlaceOutside, setPostPlaceOutside] = useState(false);
   const [postSaving, setPostSaving] = useState(false);
   const [postSaveError, setPostSaveError] = useState('');
   // 복사 알림은 목록(feed.tsx)처럼 잠깐 떴다 사라진다. 남겨 두면 다음에 눌렀을 때 같은 글자라 새로 떴는지 모른다.
@@ -480,6 +487,9 @@ export default function StoryDetail() {
     if (!story) return;
     setPostDraft(story.body);
     setPostVisibility(story.visibility);
+    setPostRegion(story.region ?? '');
+    setPostPlaceId(story.place?.id);
+    setPostPlaceOutside(false);
     setPostSaveError('');
     setConfirmingDelete(false);
     setPostEditing(true);
@@ -491,7 +501,14 @@ export default function StoryDetail() {
     if (!body) { setPostSaveError(tx('1자 이상 입력해 주세요', 'Please enter at least 1 character')); return; }
     setPostSaving(true);
     // 공개 범위는 작성자만 — 공동 작성자가 보내면 서버가 거절한다. 바뀌었을 때만 싣는다.
-    const outcome = await updateStory(id, body, accessToken, isAuthor && story && postVisibility !== story.visibility ? { visibility: postVisibility } : {});
+    const changes: Parameters<typeof updateStory>[3] = {};
+    if (isAuthor && story && postVisibility !== story.visibility) changes.visibility = postVisibility;
+    if (story && postRegion.trim() !== (story.region ?? '')) changes.region = postRegion.trim();
+    if (story && postPlaceId !== story.place?.id) {
+      if (postPlaceId) changes.placeId = postPlaceId;
+      else if (story.place) changes.clearPlace = true;
+    }
+    const outcome = await updateStory(id, body, accessToken, changes);
     setPostSaving(false);
     if (outcome.state !== 'success') { setPostSaveError(outcome.message); return; }
     setPostEditing(false);
@@ -723,6 +740,27 @@ export default function StoryDetail() {
                   </View>
                 </View>
               ) : null}
+              <View style={styles.editVisibility}>
+                <Text variant="caption" weight="bold" color={color.text.muted}>{tx('지역 (선택)', 'Region (optional)')}</Text>
+                {/* 글쓰기와 같은 부품 — 지역을 고르는 방법이 쓸 때와 고칠 때 달라지지 않게. */}
+                <RegionPicker
+                  region={postRegion}
+                  onChangeRegion={setPostRegion}
+                  placeId={postPlaceId}
+                  onChangePlaceId={setPostPlaceId}
+                  onChangePlace={(place) => setPostPlaceOutside(Boolean(place))}
+                  accessToken={accessToken}
+                />
+                {postPlaceId && postPlaceId === story.place?.id ? (
+                  <View style={styles.editPlaceRow}>
+                    <Text variant="caption" weight="bold" style={styles.editPlaceName} numberOfLines={1}>{txf(tx, '📍 %s 연결됨', '📍 Linked to %s', story.place.name)}</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 연결 빼기', 'Unlink %s', story.place.name)} hitSlop={8} onPress={() => setPostPlaceId(undefined)}>
+                      <Text variant="caption" weight="bold" color={color.text.muted}>{tx('연결 빼기', 'Unlink')}</Text>
+                    </Pressable>
+                  </View>
+                ) : null}
+                {postPlaceOutside ? <Text variant="caption" color={color.text.muted}>{tx('가볼래에 아직 없는 장소라 고칠 때는 지역 이름으로만 남아요.', 'This place isn’t in GABOLLE yet, so an edit keeps it as a region name only.')}</Text> : null}
+              </View>
               {postSaveError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{postSaveError}</Text> : null}
               <View style={styles.confirmButtons}>
                 <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={postSaving} onPress={() => { setPostEditing(false); setPostSaveError(''); }} compact />
@@ -945,6 +983,7 @@ const styles = StyleSheet.create({
   confirmButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[2] },
   headerAvatar: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
   editVisibility: { gap: spacing[2] },
+  editPlaceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, editPlaceName: { flex: 1 },
   editVisibilityRow: { flexDirection: 'row', gap: spacing[2] },
   editVisibilityOption: { flex: 1, minHeight: 40, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[1], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card },
   editVisibilityOptionSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
