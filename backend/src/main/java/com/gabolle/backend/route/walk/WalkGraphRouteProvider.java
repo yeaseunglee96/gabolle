@@ -70,17 +70,23 @@ public class WalkGraphRouteProvider implements RouteProviderPort {
 		}
 		// 계단·급경사를 피하는 길을 원하면 그 비용으로 찾는다 — WalkGraph.route 의 stepFree 설명 참고.
 		return loaded.route(query.originLat(), query.originLng(), query.destLat(), query.destLng(), query.stepFree())
-				.map(this::legOf);
+				.map(route -> legOf(route, query.stepFree()));
 	}
 
-	private RouteLeg legOf(WalkGraph.Route route) {
+	RouteLeg legOf(WalkGraph.Route route, boolean stepFreeAsked) {
 		int distanceM = (int) Math.round(route.meters());
 		double speedKmh = this.properties.getWalkSpeedKmh() > 0 ? this.properties.getWalkSpeedKmh() : 4;
 		int durationMin = Math.max(1, (int) Math.round(distanceM / (speedKmh * 1000.0 / 60.0)));
+		if (stepFreeAsked && !route.stepFreeHonored()) {
+			// 좌표를 남기지 않는다. 자주 뜨면 점 수 상한(WalkGraph.MAX_SETTLED)을 다시 봐야 한다는 신호다.
+			log.info("계단 피하는 길을 못 찾아 가장 짧은 길로 답한다 — {}m", distanceM);
+		}
 		return new RouteLeg(TravelMode.WALK, distanceM, durationMin,
 				null, null, null, // 걷는 데는 요금·통행료·환승이 없다
 				false, null, RouteLeg.PROVIDER_WALK_GRAPH,
-				route.path(), List.of(), null, route.pieces());
+				route.path(), List.of(), null, route.pieces(),
+				// 부탁이 없었으면 null — 「들어줬다」도 「못 들어줬다」도 아니다.
+				stepFreeAsked ? Boolean.valueOf(route.stepFreeHonored()) : null);
 	}
 
 	/** 기동이 끝나면 뒤에서 읽기 시작한다 — 첫 걷기 질문이 읽기를 기다리지 않게. */

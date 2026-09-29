@@ -164,11 +164,41 @@ class WalkGraphTest {
 	}
 
 	@Test
+	@DisplayName("🔴 계단 피하는 찾기가 점 수 상한에 걸리면 빈 값이 아니라 가장 짧은 길을 내고 「못 들어줬다」고 적는다")
+	void stepFreeFallsBackToShortestWhenBudgetRunsOut() throws IOException {
+		// 상한 2. 보통 찾기는 A·B 두 점만 확정하고 C 에 닿는다. 피하는 찾기는 계단(B-C)이 비싸 D 까지 확정해야 해서
+		// 상한을 넘는다. 예전에는 여기서 빈 값 → 직선 어림으로 떨어져 길 모양도 계단 표시도 사라졌다.
+		WalkGraph tight = sample().withMaxSettled(2);
+
+		WalkGraph.Route route = tight.route(A[0], A[1], C[0], C[1], true).orElseThrow();
+
+		assertThat(route.stepFreeHonored()).as("계단을 피해 달라는 부탁을 못 들어줬다").isFalse();
+		assertThat(anyStairs(route)).as("대신 낸 길의 계단이 조각에 칠해진다").isTrue();
+		assertThat(route.meters()).isBetween(190.0, 215.0);
+		assertThat(tight.route(A[0], A[1], C[0], C[1], false).orElseThrow().stepFreeHonored())
+				.as("부탁이 없던 보통 길은 늘 참").isTrue();
+	}
+
+	@Test
+	@DisplayName("걷기 답에 계단 피하기를 들어줬는지가 실린다 — 부탁이 없었으면 null")
+	void providerCarriesStepFreeHonored() throws IOException {
+		WalkGraphRouteProvider provider = new WalkGraphRouteProvider(new com.gabolle.backend.route.config.RouteProperties());
+		WalkGraph.Route fallback = sample().withMaxSettled(2).route(A[0], A[1], C[0], C[1], true).orElseThrow();
+		WalkGraph.Route plain = sample().route(A[0], A[1], C[0], C[1], false).orElseThrow();
+
+		assertThat(provider.legOf(fallback, true).stepFreeHonored()).isFalse();
+		assertThat(provider.legOf(plain, false).stepFreeHonored()).isNull();
+		assertThat(com.gabolle.backend.route.presentation.dto.RouteDirectionsResponse
+				.from(provider.legOf(fallback, true)).stepFreeHonored()).isFalse();
+	}
+
+	@Test
 	@DisplayName("🔴 계단을 피하는 길은 더 길어도 계단 없는 A-D-C 로 돌아간다 — 거리는 치른 값이 아니라 실제 길이다")
 	void stepFreeTakesLongerDetour() throws IOException {
 		WalkGraph.Route route = sample().route(A[0], A[1], C[0], C[1], true).orElseThrow();
 
 		assertThat(anyStairs(route)).as("휠체어에 계단을 내지 않는다").isFalse();
+		assertThat(route.stepFreeHonored()).isTrue();
 		assertThat(route.path()).hasSize(5); // 출발 · A · D · C · 도착
 		assertThat(route.path().get(2)).as("D 를 지난다").containsExactly(D[1], D[0]);
 		// A-D·D-C 는 각각 약 149m. 계단 배수(×25)가 섞였다면 수천 m 가 된다.

@@ -25,6 +25,9 @@ import java.util.List;
  *        더하면 실제보다 싸다. {@code 0} 은 「걷기만 해서 공짜다」라는 다른 사실이다
  * @param pieces 경로를 경사·계단이 같은 조각으로 나눈 것 — S15P21E201-1630. 우리 보행 그래프가 찾은 걷기에만
  *        있고 나머지는 빈 목록이다(모른다를 지어내지 않는다)
+ * @param stepFreeHonored 계단·급경사를 피해 달라는 부탁(stepFree)을 들어준 걷기인가. 보행 그래프가 피하는 길을 끝내
+ *        못 찾아 가장 짧은 길로 대신 답했으면 {@code false} — 그 길에는 계단이 있을 수 있다. 부탁이 없었거나 보행
+ *        그래프가 찾은 걷기가 아니면 {@code null}(들어줄지 말지를 따진 적이 없다)
  */
 public record RouteLeg(
 		TravelMode mode,
@@ -39,10 +42,19 @@ public record RouteLeg(
 		List<double[]> path,
 		List<Step> steps,
 		Integer transitFareKrw,
-		List<Piece> pieces) {
+		List<Piece> pieces,
+		Boolean stepFreeHonored) {
 
 	public RouteLeg {
 		pieces = (pieces == null) ? List.of() : List.copyOf(pieces);
+	}
+
+	/** 계단 피하기를 따진 적이 없는 경로용 — {@code stepFreeHonored} 를 {@code null} 로 둔다. */
+	public RouteLeg(TravelMode mode, int distanceM, int durationMin, Integer taxiFareKrw, Integer tollFareKrw,
+			Integer transferCount, boolean estimated, String estimateReason, String provider,
+			List<double[]> path, List<Step> steps, Integer transitFareKrw, List<Piece> pieces) {
+		this(mode, distanceM, durationMin, taxiFareKrw, tollFareKrw, transferCount, estimated, estimateReason,
+				provider, path, steps, transitFareKrw, pieces, null);
 	}
 
 	/** 경사 조각이 없는 경로(업체·직선 어림·대중교통)용 — {@code pieces} 를 빈 목록으로 둔다. */
