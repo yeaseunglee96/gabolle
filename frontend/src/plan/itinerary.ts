@@ -2,9 +2,18 @@ import { apiRequest, ApiClientError } from '@/api/client';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 import type { SlopePiece } from '@/map/slopeGrades';
 
+/** 시각 칸(HH:mm). 시각이 없거나 모양이 다르면 null — 부르는 쪽이 「미정」을 그린다. */
+export function stopClock(startsAt: string | null | undefined): string | null {
+  return typeof startsAt === 'string' && startsAt.length >= 16 ? startsAt.slice(11, 16) : null;
+}
+
 export type ItineraryItemDto = {
   id: string;
-  startsAt: string;
+  /**
+   * 이 곳에 닿는 시각(ISO, 부산 현지). 서버가 시각을 못 깐 항목은 null 이다 — 오후에 만든 오늘 출발 여행에서 이동만으로
+   * 첫날이 차거나(DayTimeLayout), 일정을 고치며 새로 넣은 곳이다. 자르기 전에 {@link stopClock} 를 거친다.
+   */
+  startsAt: string | null;
   /**
    * 이 곳을 떠나는 시각 — 모양은 startsAt 과 같다(S15P21E201-1667 계약). 두 곳 사이의 빈 시각을 여기서 센다.
    * 🔴 **지금 운영 서버에는 이 칸이 없다**(undefined). 시각을 못 깐 날은 null. 둘 다 「모른다」다 — 짐작해 채우지 않는다.

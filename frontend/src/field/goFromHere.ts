@@ -50,9 +50,9 @@ export function pickTodayTrip(trips: readonly TripSummaryDto[], today: string): 
 export function todayTargets(itinerary: Pick<ItineraryDto, 'days'>, today: string, now: Date): TodayTargets {
   const day = itinerary.days.find((each) => each.date === today);
   if (!day) return { next: null, lodging: null };
-  const upcoming = day.items.find((item) => finite(item.lat) && finite(item.lng) && Date.parse(item.startsAt) > now.getTime());
+  const upcoming = day.items.find((item) => finite(item.lat) && finite(item.lng) && item.startsAt != null && Date.parse(item.startsAt) > now.getTime());
   const next: Destination | null = upcoming && finite(upcoming.lat) && finite(upcoming.lng)
-    ? { key: `next:${upcoming.id}`, kind: 'next', name: upcoming.title, address: null, latitude: upcoming.lat, longitude: upcoming.lng, placeId: upcoming.placeId, startsAt: upcoming.startsAt }
+    ? { key: `next:${upcoming.id}`, kind: 'next', name: upcoming.title, address: null, latitude: upcoming.lat, longitude: upcoming.lng, placeId: upcoming.placeId, startsAt: upcoming.startsAt ?? undefined }
     : null;
   const back = day.returnLeg;
   const lodging: Destination | null = back && back.kind === 'LODGING' && finite(back.lat) && finite(back.lng)

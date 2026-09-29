@@ -46,7 +46,7 @@ import type { ExcludeReason } from '@/components/ExcludeConfirmModal';
 import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 import {
   pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
-  type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto,
+  type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto, stopClock,
 } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { legRouteParams } from '@/trip/page/legRoute';
@@ -488,7 +488,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const nowDetail = progress.status === 'PLANNED'
     ? (items[0] ? formatTravelLabel(items[0], tx, startKind) : null)
     : txf(tx, '%s곳 중 %s곳 다녀옴', '%s stops · %s done', items.length, doneCount)
-      + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '')
+      + (progress.status !== 'DONE' && stopClock(currentStop?.startsAt) ? ` · ${txf(tx, '다음 %s', 'next %s', stopClock(currentStop?.startsAt) ?? '')}` : '')
       + (leftText ? ` · ${leftText}` : '');
   const nowRatio = items.length && progress.status !== 'PLANNED' ? doneCount / items.length : null;
 
@@ -735,7 +735,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: item.id === selectedId }} onPress={() => setSelectedId(item.id)} style={[styles.stripCard, item.id === selectedId && styles.stripCardOn]}>
               <View style={styles.rowCenter}>
                 <View style={styles.numberDot}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
-                <Text variant="caption" weight="bold" color={color.text.muted}>{item.startsAt.slice(11, 16)}</Text>
+                <Text variant="caption" weight="bold" color={color.text.muted}>{stopClock(item.startsAt) ?? tx('미정', 'TBD')}</Text>
               </View>
               <StopName weight="bold" title={item.title} nameEn={photos[item.placeId]?.nameEn} />
               {formatTravelLabel(item, tx, index === 0 && startKind) ? <Text variant="micro" color={color.text.muted} numberOfLines={1}>{formatTravelLabel(item, tx, index === 0 && startKind)}</Text> : null}
@@ -993,7 +993,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
   const label = photo?.category ? PLACE_CATEGORY_LABELS[photo.category] : undefined;
   // 🔴 값이 없는 칸은 만들지 않는다 — 「비용 미정」을 줄마다 적으면 빈 칸이 화면에서 제일 눈에 띈다(itinerary.tsx 와 같은 규칙).
   const meta = [
-    item.startsAt.slice(11, 16),
+    stopClock(item.startsAt),
     label ? tx(label[0], label[1]) : null,
     typeof item.estimatedCostKrw === 'number' ? (item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '₩%s', item.estimatedCostKrw.toLocaleString(locale))) : null,
   ].filter(Boolean).join(' · ');
@@ -1094,7 +1094,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
               <Text variant="caption" weight="bold" color={pace?.atRisk ? color.state.danger : pace?.visited ? color.state.success : color.text.muted} style={styles.grow}>
                 {pace?.visited
                   ? txf(tx, '도착 %s', 'Arrived %s', pace.predictedArrival ? formatClock(pace.predictedArrival, locale) : '--:--')
-                  : txf(tx, '예상 도착 %s%s', 'Est. arrival %s%s', pace?.predictedArrival ? formatClock(pace.predictedArrival, locale) : item.startsAt.slice(11, 16), paceEstimated ? tx(' (추정)', ' (est.)') : '')}
+                  : txf(tx, '예상 도착 %s%s', 'Est. arrival %s%s', pace?.predictedArrival ? formatClock(pace.predictedArrival, locale) : stopClock(item.startsAt) ?? tx('미정', 'TBD'), paceEstimated ? tx(' (추정)', ' (est.)') : '')}
               </Text>
               {canEdit && onArrive && !pace?.visited ? (
                 <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy }} disabled={busy} onPress={onArrive} style={({ pressed }) => [styles.detailButton, (pressed || busy) && styles.pressed]}>

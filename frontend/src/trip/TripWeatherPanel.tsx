@@ -46,9 +46,9 @@ type Tx = (ko: string, en: string) => string;
 export type WeatherStop = { time: string; name: string };
 
 /** 일정 항목 → 들르는 곳. 시각은 startsAt 글자 그대로(서버가 보낸 현지 시각)에서 읽는다. 시각이 없는 항목은 뺀다. */
-export function weatherStops(items: ReadonlyArray<{ startsAt: string; title: string }> | null | undefined): WeatherStop[] {
+export function weatherStops(items: ReadonlyArray<{ startsAt: string | null; title: string }> | null | undefined): WeatherStop[] {
   return (items ?? []).flatMap((item) => {
-    const clock = /T(\d{2}:\d{2})/.exec(item.startsAt)?.[1];
+    const clock = /T(\d{2}:\d{2})/.exec(item.startsAt ?? '')?.[1];
     return clock ? [{ time: clock, name: item.title }] : [];
   });
 }
@@ -281,7 +281,7 @@ export function weatherHeading(
   return { eyebrow, title };
 }
 
-export function TripWeatherPanel({ date, items, today = localToday() }: { date: string | null | undefined; items?: ReadonlyArray<{ startsAt: string; title: string }> | null; today?: string }) {
+export function TripWeatherPanel({ date, items, today = localToday() }: { date: string | null | undefined; items?: ReadonlyArray<{ startsAt: string | null; title: string }> | null; today?: string }) {
   const { tx, locale } = useI18n();
   const departure = date ? formatMonthDay(date, locale) : null;
   const { eyebrow, title } = weatherHeading(tx, date, departure, today);

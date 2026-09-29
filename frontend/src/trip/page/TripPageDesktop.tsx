@@ -30,7 +30,7 @@ import { localizeMessage } from '@/i18n/messages';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { RouteMap } from '@/map/RouteMap';
 import { courseLetter } from '@/plan/CourseCard';
-import type { DayStart, ItineraryItemDto } from '@/plan/itinerary';
+import { stopClock, type DayStart, type ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { legRouteParams } from '@/trip/page/legRoute';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
@@ -339,7 +339,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                       </View>
                       <View style={styles.bigCopy}>
                         <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><StopName weight="bold" title={item.title} nameEn={photo?.nameEn} /></View>
-                        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[item.startsAt.slice(11, 16), legParams ? null : leg].filter(Boolean).join(' · ')}</Text>
+                        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[stopClock(item.startsAt), legParams ? null : leg].filter(Boolean).join(' · ')}</Text>
                       </View>
                     </Pressable>
                     </ImpressionView>
@@ -466,7 +466,7 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
     <Pressable accessibilityRole="button" accessibilityState={{ selected }} onPress={onPress} style={[styles.card, { width }, selected && styles.selectedBorder]}>
       <View style={styles.rowCenter}>
         <NumberDot n={index + 1} />
-        <Text weight="bold">{item.startsAt.slice(11, 16)}</Text>
+        <Text weight="bold">{stopClock(item.startsAt) ?? tx('미정', 'TBD')}</Text>
         {category ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{category}</Text> : null}
       </View>
       <View style={styles.cardName}>
