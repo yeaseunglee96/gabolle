@@ -28,6 +28,15 @@ export const WARNING_LABEL: Record<string, [string, string]> = {
     '주변 길이 가팔라요(추정). 휠체어·유아차로는 힘들 수 있어요.',
     'Paths around here are steep (estimated) — may be hard with a wheelchair or stroller.',
   ],
+  /**
+   * 「되도록」 휠체어·유아차로 고른 여행에서, 재 보니 들어가기 어렵다고 **확인된** 곳 — 빼지 않고 경고로 남긴다(백엔드
+   * BaselineCandidateScorer 의 ACCESS_VERIFIED_UNAVAILABLE). 🔴 위 ACCESSIBILITY_UNVERIFIED(아직 안 재 봄)와 다른 사실이다 —
+   * 이쪽은 「모른다」가 아니라 「어렵다고 나왔다」라서 그렇게 말한다.
+   */
+  ACCESS_VERIFIED_UNAVAILABLE: [
+    '휠체어·유아차로는 들어가기 어렵다고 확인된 곳이에요.',
+    'This place has been confirmed as hard to get into with a wheelchair or stroller.',
+  ],
 
   // 🔴 식단 미확인 — S15P21E201-1468 의 ㄴ. 서버가 DIET_SUPPORT_UNVERIFIED 를
   //    unknownFacts 에서 warnings 로 옮기기 «전에» 여기에 먼저 넣는다.

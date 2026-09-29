@@ -1,4 +1,6 @@
 // — 일정 화면에 경고 코드가 그대로 노출되던 것.
+import { pickLanguage } from '@/i18n/pick';
+
 import { describeWarningCodes, WARNING_LABEL } from '../warningLabels';
 
 const ko = (korean: string) => korean;
@@ -68,7 +70,25 @@ describe('서버가 실제로 보내는 코드는 하나도 안 사라진다', (
     // 🔴 -1468 의 ㄴ. 서버가 «아직» warnings 로 안 보낸다 — 앱을 먼저 넓히는 것이 순서다.
     //    (BaselineCandidateScorer 가 지금은 unknownFacts 에 담는다: fact=DIET_SUPPORT_UNVERIFIED)
     'DIET_SUPPORT_UNVERIFIED',
+    // 휠체어 후속(백엔드 fix/back/wheelchair-followups) — 「되도록」 휠체어·유아차인데 못 간다고 확인된 곳을 빼지 않고 경고로 남긴다.
+    'ACCESS_VERIFIED_UNAVAILABLE',
+    // 둘레 길 경사 — 이제 코스의 이동 경고(mobilityWarnings)로도 온다.
+    'SLOPE_OVER_LIMIT',
   ];
+
+  it.each(['ACCESS_VERIFIED_UNAVAILABLE', 'SLOPE_OVER_LIMIT'])('🔴 %s 는 일본어·중국어 화면에서도 번역표로 옮긴다(영어로 새지 않는다)', (code) => {
+    const [ko, enText] = WARNING_LABEL[code];
+    for (const language of ['ja', 'zh-Hans', 'zh-Hant'] as const) {
+      const shown = describeWarningCodes([code], (k, e) => pickLanguage(language, { ko: k, en: e }))[0];
+      expect([code, language, shown !== enText && shown !== ko]).toEqual([code, language, true]);
+    }
+  });
+
+  it('🔴 ACCESS_VERIFIED_UNAVAILABLE 는 「확인됐다」고 말한다 — 「아직 모른다」(ACCESSIBILITY_UNVERIFIED)와 섞지 않는다', () => {
+    expect(describeWarningCodes(['ACCESS_VERIFIED_UNAVAILABLE'], ko)[0]).toContain('확인된');
+    expect(describeWarningCodes(['ACCESS_VERIFIED_UNAVAILABLE'], ko)[0]).not.toContain('아직');
+    expect(describeWarningCodes(['ACCESS_VERIFIED_UNAVAILABLE', 'ACCESSIBILITY_UNVERIFIED'], ko)).toHaveLength(2);
+  });
 
   it.each(서버가_보내는_코드)('%s 에 한국어·영어 짝이 있다', (code) => {
     expect(describeWarningCodes([code], ko)).toHaveLength(1);
