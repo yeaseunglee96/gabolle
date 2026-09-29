@@ -234,11 +234,6 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
     <>
       {/* 🔴 기록·팔로워·팔로잉 타일과 「내 피드 보기」는 뺐다(2026-09-21 실기, S15P21E201-1401) — 마이페이지 프로필 카드가
           같은 숫자·같은 문을 이미 갖고 있어 프로필 편집에 들어오면 한 번 더 보였다. 여기만 있는 「프로필 공유」는 남긴다. */}
-      {user ? (
-        <View style={styles.shareRow}>
-          <Button label={tx('프로필 공유', 'Share profile')} variant="tertiary" compact onPress={() => void shareProfile()} />
-        </View>
-      ) : null}
 
       {/* 🔴 로그인 전에는 아예 안 그린다. 커버는 계정에서만 읽히므로 기기에만 저장하면
           아무 데도 안 나온다 — 「저장했어요」라고 말하고 아무 일도 안 일어나는 것이 제일 나쁘다. */}
@@ -323,6 +318,17 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
         </View>
       </View>
 
+      {/* 「프로필 공유」는 카드 위에 혼자 떠 있었다(S15P21E201-1867) — 무엇을 공유하는지 말하는 한 줄로, 편집 카드 아래에 둔다. */}
+      {user ? (
+        <Pressable accessibilityRole="button" onPress={() => void shareProfile()} style={({ pressed }) => [styles.shareRow, pressed && styles.pressed]}>
+          <View style={styles.shareCopy}>
+            <Text weight="bold">{tx('프로필 공유', 'Share profile')}</Text>
+            <Text variant="caption" color={color.text.muted}>{tx('내 기록을 볼 수 있는 링크를 보내요', 'Send a link to your records')}</Text>
+          </View>
+          <Text variant="title" color={color.text.muted}>›</Text>
+        </Pressable>
+      ) : null}
+
       <View style={styles.dangerZone}>
         <View style={styles.dangerCopy}>
           <Text weight="bold" color={color.state.danger}>{tx('회원 탈퇴', 'Delete account')}</Text>
@@ -364,7 +370,8 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
 }
 
 const styles = StyleSheet.create({
-  shareRow: { alignItems: 'flex-end', marginBottom: spacing[3] },
+  shareRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 64, marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  shareCopy: { flex: 1, minWidth: 0, gap: 2 },
   coverCard: { marginBottom: spacing[4], borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
   coverPreview: { height: 96, backgroundColor: color.surface.soft },
   coverPhoto: { width: '100%', height: '100%' },

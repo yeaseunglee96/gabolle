@@ -18,6 +18,7 @@ import { deleteTrip, loadTrips, resolveTripItinerary, type TripsLoadResult, type
 import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
 import { leaveTrip } from '@/trip/collaboration';
 import { TripNameSheet } from '@/trip/TripNameSheet';
+import { TripActionSheet } from '@/trip/TripActionSheet';
 import { enCount, enPlural, txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 
@@ -147,6 +148,7 @@ export default function Trips() {
   const [showPast, setShowPast] = useState(false);
   const [showFailed, setShowFailed] = useState(false);
   const sections = splitTrips(trips);
+  const menuTrip = menuTripId ? trips.find((item) => item.tripId === menuTripId) ?? null : null;
 
   // 첫 방문지 — 이름 없는 여행은 제목이 날짜뿐이라 같은 날짜 여행 둘을 못 가렸다. 이름을 지어 붙이지 않고(1738) 아래 줄에 적는다.
   const firstStop = (trip: TripSummaryDto) => {
@@ -154,16 +156,6 @@ export default function Trips() {
     return name ? txf(tx, '%s부터', 'From %s', name) : null;
   };
 
-  const menuFor = (trip: TripSummaryDto) => (menuTripId === trip.tripId ? (
-    <View style={styles.cardMenu}>
-      {trip.role !== 'VIEWER' ? <Pressable accessibilityRole="button" onPress={() => { setMenuTripId(null); setNaming(trip); }} style={({ pressed }) => [styles.cardMenuItem, pressed && styles.removeButtonPressed]}>
-        <Text variant="caption" weight="bold" color={color.brand.navy}>{trip.title?.trim() ? tx('이름 바꾸기', 'Rename') : tx('이름 붙이기', 'Name it')}</Text>
-      </Pressable> : null}
-      <Pressable accessibilityRole="button" disabled={removingTripId === trip.tripId} onPress={() => { setMenuTripId(null); setConfirmTarget(trip); }} style={({ pressed }) => [styles.cardMenuItem, pressed && styles.removeButtonPressed]}>
-        <Text variant="caption" weight="bold" color={color.state.danger}>{removingTripId === trip.tripId ? tx('처리 중…', 'Working…') : trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}</Text>
-      </Pressable>
-    </View>
-  ) : null);
 
   // 작은 줄 — 사진(있으면) · 제목 · 날짜 · 첫 방문지 · 「내일」·「D-9」. 이름·삭제는 ⋯ 안에.
   const row = (trip: TripSummaryDto) => {
@@ -188,7 +180,6 @@ export default function Trips() {
           <Text variant="title" color={color.text.muted}>⋯</Text>
         </Pressable>
       </View>
-      {menuFor(trip)}
     </View>;
   };
 
@@ -230,20 +221,6 @@ export default function Trips() {
         <Text variant="title" color={color.text.muted}>⋯</Text>
       </Pressable>
       </View>
-      {menuTripId === trip.tripId ? (
-        <View style={styles.cardMenu}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}
-            accessibilityState={{ busy: removingTripId === trip.tripId, disabled: removingTripId === trip.tripId }}
-            disabled={removingTripId === trip.tripId}
-            onPress={(event) => { event.stopPropagation(); setMenuTripId(null); setConfirmTarget(trip); }}
-            style={({ pressed }) => [styles.cardMenuItem, pressed && styles.removeButtonPressed]}
-          >
-            <Text variant="caption" weight="bold" color={color.state.danger}>{removingTripId === trip.tripId ? tx('처리 중…', 'Working…') : trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}</Text>
-          </Pressable>
-        </View>
-      ) : null}
     </View></View>;
 
   return <View style={styles.shell}><Screen scroll wide withTabBar style={[styles.canvas, desktop && styles.canvasDesktop]}>
@@ -251,7 +228,7 @@ export default function Trips() {
         헤더의 행동은 「새 여행」 하나다(시안 변경 2). */}
     <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}>{/* 🔴 폭을 96 으로 박으면 일본어 「新しい旅行」이 두 줄로 꺾였다(5개 언어 점검 2026-09-29) — 최소 폭만 둔다. */}<Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
 
-    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('비회원으로 여행 만들기 화면을 둘러볼 수 있어요.', 'You can browse the trip planner as a guest.')}</Text><Text color={color.text.body}>{tx('내 여행을 저장하고 다시 보려면 로그인해 주세요.', 'Sign in to save and revisit your trips.')}</Text>{/* 🔴 「여행 만들기 둘러보기」를 뺐다 (S15P21E201-1795). 바로 위 헤더의 「새 여행」이
+    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('로그인하면 내 여행을 여기서 모아 볼 수 있어요.', 'Sign in to see all your trips here.')}</Text><Text color={color.text.body}>{tx('만든 여행은 계정에 저장돼 어느 기기에서든 이어서 볼 수 있어요.', 'Trips are saved to your account, so you can pick them up on any device.')}</Text>{/* 🔴 「여행 만들기 둘러보기」를 뺐다 (S15P21E201-1795). 바로 위 헤더의 「새 여행」이
         같은 /plan 으로 가서, 비회원 화면에만 같은 일을 하는 단추가 둘이었다. 헤더는 로그인
         여부와 상관없이 늘 그려지므로 둘이 «동시에» 보였다. 이 카드가 할 일은 로그인 유도다
         — 문구도 「저장하고 다시 보려면 로그인해 주세요」 이다. */}<Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}
@@ -298,6 +275,18 @@ export default function Trips() {
       </View> : null}
     </View> : null}
   </Screen><TabBar active="map" />
+
+  {/* ⋯ 메뉴 — 목록 사이에 끼우지 않고 아래 시트로(S15P21E201-1867). 어느 여행인지 제목으로 말한다. */}
+  {menuTrip ? <TripActionSheet
+    title={cardTitle(menuTrip, tx, locale)}
+    subtitle={humanTripTitle(menuTrip.title) ? dateLabel(menuTrip, tx, locale) : firstStop(menuTrip)}
+    tx={tx}
+    onClose={() => setMenuTripId(null)}
+    actions={[
+      ...(menuTrip.role !== 'VIEWER' ? [{ key: 'name', label: menuTrip.title?.trim() ? tx('이름 바꾸기', 'Rename') : tx('이름 붙이기', 'Name it'), onPress: () => { setMenuTripId(null); setNaming(menuTrip); } }] : []),
+      { key: 'remove', danger: true, disabled: removingTripId === menuTrip.tripId, label: removingTripId === menuTrip.tripId ? tx('처리 중…', 'Working…') : menuTrip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip'), onPress: () => { setMenuTripId(null); setConfirmTarget(menuTrip); } },
+    ]}
+  /> : null}
 
   {naming ? <TripNameSheet
     tripId={naming.tripId}
