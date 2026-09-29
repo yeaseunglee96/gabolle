@@ -381,6 +381,80 @@ GROUP BY 1, 2 ORDER BY 1, 2;
 조사가 계속 도는 중이라 입력 줄은 돌릴 때마다 는다. 적재기는 `ON CONFLICT DO NOTHING`
 이라 **다시 돌려도 앞의 것이 두 배가 되지 않고 늘어난 뒤쪽만** 들어간다.
 
+## 8. 경사 다시 넣기 — 60m 안 되는 길은 「모름」인 판 (2026-09-29 추가)
+
+60m 안 되는 길의 경사를 고도 잡음 그대로 쓰던 것을 고쳤다(bigData !1854 · !1857). 장소 경사는
+**반경 200m 안 걷는 길 경사의 가운데 값(p50)**이라, 길 경사가 바뀌면 장소 값도 다시 내야 한다.
+보행 그래프 파일(`geo/walk-graph.bin.gz`)은 jar 안에 들어 있어 **배포만 하면 바뀐다.** 장소
+경사는 DB 에 있어 **손으로 한 번 넣어야 한다** — 이 절이 그것이다.
+
+🔴 **순서가 있다.** !1852 → !1858 이 배포된 뒤에 한다. !1858 의 마이그레이션
+(`V20260929120100__drop_p90_place_slope`)이 옛 p90 행을 지운다.
+
+### 8-1. 운영 장소 목록 뽑기 (읽기만 한다)
+
+```bash
+ssh -i $PEM $HOST "docker exec local-route-personalization-postgres-1 \
+  psql -U app_user -d app_db -At -F \$'\t' -c \"
+    SELECT p.place_id, p.source_type, coalesce(p.category,''), p.curation_status,
+           replace(replace(p.name_ko, E'\t', ' '), E'\n', ' '), p.lat, p.lng
+      FROM gabolle.place p WHERE p.lat IS NOT NULL ORDER BY p.place_id\"" \
+  > bigData/data/staged/prod-places.tsv
+wc -l bigData/data/staged/prod-places.tsv   # 운영 장소 수와 같아야 한다
+```
+
+### 8-2. 장소 경사 내기 (내 PC)
+
+`segment-slope.ndjson` · `road/walk.ndjson` 이 있는 곳(bigData !1857 을 돌린 PC)에서.
+
+```bash
+cd bigData && node process/place-slope-by-id.mjs   # 종료 코드 0 이어야 한다
+```
+
+옛 판(`git show origin/bigData/dev:bigData/data/staged/place-slope-by-id.ndjson`)과 줄 수·8.33% 이상 곳 수를
+나란히 적어 둔다. 크게 다르면 넣지 말고 멈춘다.
+
+### 8-3. 옛 값을 떠 두고 지운다
+
+🔴 적재기는 **있는 행을 안 건드린다**(`ON CONFLICT DO NOTHING`). 2026-09-25 에 넣은 p50 행이 남아
+있으면 새 값이 하나도 안 들어간다. 그래서 먼저 지운다 — 지우기 전에 뜬다.
+
+```sql
+\copy (SELECT * FROM gabolle.place_feature WHERE feature_type = 'SLOPE_PERCENT') TO '/tmp/slope-backup-20260929.csv' CSV HEADER
+
+BEGIN;
+DELETE FROM gabolle.place_feature
+ WHERE feature_type = 'SLOPE_PERCENT'
+   AND source_type = 'DERIVED_SLOPE'
+   AND source_version = '2026-09-25-slope-p50-r200';
+-- 지운 줄 수를 보고, 8-2 의 옛 판 줄 수와 비슷하면 COMMIT, 아니면 ROLLBACK
+COMMIT;
+```
+
+### 8-4. 새 값 넣기
+
+1·2 절 그대로 파일을 올리고 접속값을 빌린 뒤, 3 절의 `run` 으로:
+
+```bash
+$RUN --gabolle.place.loader.place-slope-by-id=/load/place-slope-by-id.ndjson \
+     --gabolle.place.loader.dataset-version=2026-09-29-slope-p50-r200-short60
+```
+
+### 8-5. 확인
+
+- 4 절처럼 로그의 줄 수가 아니라 **API 로 센다** — `/api/v1/places/facets` 의 경사 축 곳 수가 8-3 에서
+  지운 수와 비슷해야 한다.
+- 휠체어를 「반드시」로 고른 여행을 하나 만들어 본다 — 추천이 「결과 없음」이 아니고, 걷는 구간이
+  계단을 피하는지(`travelPieces` 에 `stairs: true` 가 없거나 적은지) 본다.
+
+### 8-6. 되돌리기
+
+```sql
+DELETE FROM gabolle.place_feature
+ WHERE feature_type = 'SLOPE_PERCENT' AND source_version = '2026-09-29-slope-p50-r200-short60';
+\copy gabolle.place_feature FROM '/tmp/slope-backup-20260929.csv' CSV HEADER
+```
+
 ## 되돌리기
 
 전부 출처와 수집분이 찍힌다.
