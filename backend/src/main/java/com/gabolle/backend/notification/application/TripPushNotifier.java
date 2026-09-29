@@ -199,7 +199,8 @@ public class TripPushNotifier {
 		}
 		Map<String, String> languages = this.actorNames.languagesOf(recipientUserIds);
 		Map<PushCopy.Lang, List<String>> byLang = new EnumMap<>(PushCopy.Lang.class);
-		for (String userId : recipientUserIds) {
+		// 같은 사람이 목록에 두 번 있어도 한 번만 보낸다(AI 리뷰, !1897).
+		for (String userId : new java.util.LinkedHashSet<>(recipientUserIds)) {
 			byLang.computeIfAbsent(PushCopy.lang(languages == null ? null : languages.get(userId)), (key) -> new ArrayList<>())
 					.add(userId);
 		}
