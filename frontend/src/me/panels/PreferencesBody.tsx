@@ -22,10 +22,12 @@ import {
   type SpendKey,
 } from '@/onboarding/spendProfile';
 import { FOODS } from '@/plan/foodConflicts';
+import { DIETS, EMPTY_CONDITIONS, loadTravelConditions, saveTravelConditions, type TravelConditions } from '@/plan/travelConditions';
 import {
   countAnswered,
   EMPTY_PREFERENCES,
   loadAccountPreferences,
+  PREFERENCE_TOTAL,
   PREFERENCES_KEY,
   type AccountPreferences,
 } from '@/preferences/accountPreferences';
@@ -165,7 +167,7 @@ function Chips({ options, values, onChange }: { options: { code: string; label: 
 
 export function PreferencesBody() {
   const { tx } = useI18n();
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   // 1024 이상 — breakpoints.ts 의 표에서 사이드바가 들어가는 폭이다.
   // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
   const wide = useLayout().desktop;
@@ -182,6 +184,19 @@ export function PreferencesBody() {
   });
 
   const saved: Saved = query.data ?? EMPTY_PREFERENCES;
+
+  // 🔴 식단은 취향(/taste — 점수만 올린다)이 아니라 여행 조건(/constraints — 식당을 걸러 낸다)이다(박재현 설계, 2026-09-29).
+  //    전에는 여행 만들기 조건 창에서 한 번 묻고 끝이라, 마이페이지에서 바꿀 길이 없었다.
+  const conditionsKey = ['travel-conditions', user?.userId ?? 'guest'];
+  const conditionsQuery = useQuery({
+    queryKey: conditionsKey,
+    enabled: Boolean(accessToken),
+    queryFn: () => loadTravelConditions(user?.userId ?? null, accessToken),
+  });
+  const conditions: TravelConditions = conditionsQuery.data?.conditions ?? EMPTY_CONDITIONS;
+  const dietText = conditions.dietStatus === 'VALUES' && conditions.dietTypes.length
+    ? txf(tx, '%s만', '%s only', DIETS.filter(([code]) => conditions.dietTypes.includes(code)).map(([, ko, en]) => tx(ko, en)).join('·'))
+    : null;
   const answeredCount = countAnswered(saved);
 
   const showToast = (message: string) => {
@@ -244,6 +259,29 @@ export function PreferencesBody() {
     }, tx('기억된 취향을 모두 지웠어요.', 'Cleared every saved preference.'));
   };
 
+  // 식단만 바꾼다 — 저장된 조건 전체를 먼저 읽고 식단 칸만 갈아 보낸다. 식단만 보내면 알레르기·걷기 값이 지워진다.
+  const setDiet = (dietStatus: TravelConditions['dietStatus'], dietTypes: string[]) => {
+    if (saving) return;
+    const next: TravelConditions = { ...conditions, dietStatus, dietTypes: dietStatus === 'VALUES' ? dietTypes : [] };
+    setSaving(true);
+    queryClient.setQueryData(conditionsKey, { status: 'SAVED', conditions: next });
+    void saveTravelConditions({ userId: user?.userId ?? null, accessToken, status: 'SAVED', conditions: next })
+      .then(({ synced }) => {
+        if (synced) showToast(savedMessage);
+        else {
+          void queryClient.invalidateQueries({ queryKey: conditionsKey });
+          showToast(tx('저장하지 못했어요. 잠시 뒤 다시 해주세요.', 'Could not save. Please try again in a moment.'));
+        }
+      })
+      .finally(() => setSaving(false));
+  };
+  const toggleDiet = (code: string) => {
+    const current = conditions.dietStatus === 'VALUES' ? conditions.dietTypes : [];
+    const nextTypes = current.includes(code) ? current.filter((item) => item !== code) : [...current, code];
+    // 마지막 하나를 빼면 「해당 없음」이다 — 비어 있는 「조건 선택」은 서버가 거를 것이 없다.
+    setDiet(nextTypes.length ? 'VALUES' : 'NONE', nextTypes);
+  };
+
   const toggle = (row: OpenRow) => setOpen((current) => (sameRow(current, row) ? null : row));
 
   // isPending 이 아니라 isLoading 이다. 읽기를 아예 안 켜는 자리(로그인 전 · 화면
@@ -276,7 +314,8 @@ export function PreferencesBody() {
               : tx('지금 답하면 여행을 만들 때 미리 채워 드려요.', 'Answer now and we will fill them in when you plan.')}
           </Text>
           <Button
-            label={tx('8개 답하기 · 약 1분', 'Answer 8 questions · about a minute')}
+            // 🔴 「8개」라고 박혀 있었는데 질문은 일곱이다(스타일 셋 + 취향 넷, PREFERENCE_TOTAL). 숫자는 목록에서 센다.
+            label={txf(tx, '%s개 답하기 · 약 1분', 'Answer %s questions · about a minute', String(PREFERENCE_TOTAL))}
             compact={wide}
             containerStyle={[styles.emptyCta, wide && styles.emptyCtaWide]}
             onPress={() => setOpen({ group: 'spend', key: SPEND_QUESTIONS[0].key })}
@@ -338,7 +377,9 @@ export function PreferencesBody() {
         return <Row
           key={question.key}
           label={shortLabel}
-          current={described ? tx(described.ko, described.en) : null}
+          current={question.key === 'foods'
+            ? [described ? tx(described.ko, described.en) : null, dietText].filter(Boolean).join(' · ') || null
+            : described ? tx(described.ko, described.en) : null}
           open={sameRow(open, row)}
           onPress={() => toggle(row)}
         >
@@ -354,7 +395,8 @@ export function PreferencesBody() {
 
           {question.kind === 'multi' && <Chips
             values={saved.taste.foods ?? []}
-            options={FOODS.map(([code, labelKo, labelEn]) => ({ code, label: tx(labelKo, labelEn) }))}
+            // 「채식」 취향 칩은 아래 식단 「채식」과 이름이 같아 헷갈린다 — 이미 고른 사람만 끌 수 있게 남긴다.
+            options={FOODS.filter(([code]) => code !== 'VEGETARIAN' || (saved.taste.foods ?? []).includes(code)).map(([code, labelKo, labelEn]) => ({ code, label: tx(labelKo, labelEn) }))}
             onChange={(values) => {
               // 마지막 하나까지 빼면 그건 "답 없음" 이다. 빈 배열을 저장해 두면 다음에
               // 「답 안 함」이 아니라 「(아무것도 아님)」이 보인다.
@@ -362,6 +404,22 @@ export function PreferencesBody() {
               else setTaste('foods', values);
             }}
           />}
+
+          {question.key === 'foods' && accessToken ? <View testID="diet-conditions" style={styles.dietBlock}>
+            <Text weight="bold">{tx('식단', 'Diet')} <Text variant="caption" color={color.text.muted}>{tx('· 반드시 지켜요', '· always applied')}</Text></Text>
+            <View style={[styles.chips, styles.dietChips]}>
+              <Pressable accessibilityRole="radio" accessibilityState={{ selected: conditions.dietStatus === 'NONE' }} onPress={() => setDiet('NONE', [])} style={[styles.chip, styles.dietChip, conditions.dietStatus === 'NONE' && styles.chipSelected]}>
+                <Text weight="bold" color={conditions.dietStatus === 'NONE' ? color.text.onAction : color.text.heading}>{tx('해당 없음', 'None')}</Text>
+              </Pressable>
+              {DIETS.map(([code, ko, en]) => {
+                const selected = conditions.dietStatus === 'VALUES' && conditions.dietTypes.includes(code);
+                return <Pressable key={code} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleDiet(code)} style={[styles.chip, styles.dietChip, selected && styles.chipSelected]}>
+                  <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{tx(ko, en)}</Text>
+                </Pressable>;
+              })}
+            </View>
+            <Text variant="caption" color={color.text.muted}>{tx('새 여행 일정에서 이 식단에 안 맞는 식당은 빼요', 'New itineraries leave out restaurants that do not fit this diet')}</Text>
+          </View> : null}
 
           {question.kind === 'choice' && <CardChoice
             value={saved.taste.slope}
@@ -450,6 +508,10 @@ const styles = StyleSheet.create({
   rowCopy: { flex: 1, gap: spacing[1] },
   rowBody: { gap: spacing[3], paddingHorizontal: spacing[4], paddingBottom: spacing[4] },
   openTitle: { marginBottom: spacing[1] },
+  // 네 칩(해당 없음·채식·할랄·글루텐 프리)이 폰 한 줄에 들어가게 — 「글루텐 프리」 하나만 둘째 줄로 떨어졌다.
+  dietChips: { gap: 6 },
+  dietChip: { paddingHorizontal: 11 },
+  dietBlock: { gap: spacing[2], marginTop: spacing[4], paddingTop: spacing[4], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.surface.border },
   rowActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[1] },
   clearLink: { minHeight: 44, justifyContent: 'center' },
   closeButton: { minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.secondary },

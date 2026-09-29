@@ -79,7 +79,9 @@ export function ProfileCard({ name, email, guest = false, avatarUri, coverUri, c
 
         {/* 🔴 숫자가 버튼이 된다(시안 02). 전에는 글자라 눌러도 되는지 안 보였다 —
             눌리는 것은 눌리게 생겨야 한다. */}
-        <View style={styles.counts}>
+        {/* 🔴 손님에게는 숫자 칸을 안 그린다 — 「– 기록 · – 팔로워 · – 팔로잉」 대시 줄은 고장처럼 보였다.
+            로그인은 커버 오른쪽 「로그인」 단추가 맡는다. */}
+        {guest ? null : <View style={styles.counts}>
           {counts.map((count) => (
             <Pressable
               key={count.label}
@@ -95,7 +97,7 @@ export function ProfileCard({ name, email, guest = false, avatarUri, coverUri, c
               <Text variant="caption" color={color.text.muted} numberOfLines={1}>{count.label}</Text>
             </Pressable>
           ))}
-        </View>
+        </View>}
       </View>
     </View>
   );
