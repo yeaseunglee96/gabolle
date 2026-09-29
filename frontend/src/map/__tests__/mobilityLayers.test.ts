@@ -15,10 +15,16 @@ const file: MobilityLayerFile = {
 };
 
 describe('경사·그늘 겹', () => {
-  it('🔴 경사는 파일의 기준(8.33%) 이상만 — 앱에 숫자를 따로 박지 않는다', () => {
+  it('🔴 경사는 파일의 기준(8.33%)을 넘는 것만 — 앱에 숫자를 따로 박지 않는다', () => {
     const lines = layerLines([file], 'slope', [stop]);
     expect(lines).toHaveLength(1);
     expect(layerLines([{ ...file, steepPermille: 40 }], 'slope', [stop])).toHaveLength(2);
+  });
+
+  it('🔴 기준과 같은 경사는 안 칠한다 — 서버가 8.33% 이하를 통과로 본다(천분율 83 은 안, 84 부터)', () => {
+    const at = (permille: number) => layerLines([{ ...file, segs: [[permille, null, near]] }], 'slope', [stop]);
+    expect(at(83)).toHaveLength(0);
+    expect(at(84)).toHaveLength(1);
   });
 
   it('그늘은 그림자가 있는 구간을, 짙을수록 진하게', () => {

@@ -4,6 +4,9 @@
 // 🔴 기준값은 여기 한 곳에만 둔다.
 //    · 8.33% — 온톨로지의 휠체어 경사로 기준(1:12). 경사 판정과 같은 값이다. 경사 겹(mobilityLayers.ts)은 이 값을
 //      파일에서 천분율 정수(83 = 8.3%)로 읽는다 — 반올림 차이일 뿐 같은 기준이고, 색(state.danger)도 같다.
+//    🔴 빨강은 8.33% 를 «넘는» 것이다(> 8.33, 8.33 자신은 노랑). 서버는 경사가 8.33% 이하면 통과로 본다
+//       (slope <= 8.33 — 휠체어 경사로 기준 1:12 가 «이하»다). 앱이 >= 로 칠하면 서버가 통과시킨 8.33% 길을 빨갛게,
+//       즉 「못 간다」로 보여 준다. 경사 겹도 같은 규칙이다(mobilityLayers.ts 의 layerLines).
 //    · 5% — 우리가 정한 값이다(온톨로지 기준이 아니다). 「조금 가파름」의 시작.
 import { color } from '@/design/tokens';
 
@@ -19,11 +22,11 @@ export const MODERATE_SLOPE_PERCENT = 5;
  */
 export type SlopePiece = { from: number; to: number; slopePercent: number | null; stairs: boolean };
 
-/** 조각의 색 — 8.33% 이상·계단 빨강 · 5~8.33% 노랑 · 5% 미만 초록 · 모름 회색. */
+/** 조각의 색 — 8.33% 초과·계단 빨강 · 5~8.33%(둘 다 포함) 노랑 · 5% 미만 초록 · 모름 회색. */
 export function slopeColor(piece: Pick<SlopePiece, 'slopePercent' | 'stairs'>): string {
   if (piece.stairs) return color.state.danger;
   if (piece.slopePercent == null) return color.text.muted;
-  if (piece.slopePercent >= STEEP_SLOPE_PERCENT) return color.state.danger;
+  if (piece.slopePercent > STEEP_SLOPE_PERCENT) return color.state.danger;
   if (piece.slopePercent >= MODERATE_SLOPE_PERCENT) return color.state.warning;
   return color.state.success;
 }

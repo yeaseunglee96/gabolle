@@ -714,7 +714,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         </View>
       ) : null}
       {loaded && map.stops.length ? (
-        <MobilityLayerToggle value={layerKind} onChange={setLayerKind} basis={mobility.basis} tx={tx} style={[styles.mapLayers, { top: insets.top + spacing[2] + 40 }]} />
+        <MobilityLayerToggle value={layerKind} onChange={setLayerKind} layer={mobility} tx={tx} style={[styles.mapLayers, { top: insets.top + spacing[2] + 40 }]} />
       ) : null}
 
       {/* ── 접었을 때 — 탭바 위 정차지 카드 줄 (시안 4b) ──────────────────────────── */}

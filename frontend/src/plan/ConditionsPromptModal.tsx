@@ -232,10 +232,12 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
               {/* 🔴 마지막 칸은 이 줄이 «실제로 보는» 장소 표식이다 (S15P21E201-1044).
                   「이동 조건」으로 뭉뚱그리지 않는다 — 접근성은 자료가 있고 계단은 0곳이라,
                   뭉치면 있는 쪽이 없는 쪽을 덮어 계단 줄이 계속 못 지키는 약속으로 남는다. */}
+              {/* 🔴 그늘은 「그늘 많은 곳 우선」이다 — 「그늘길 우선」이라고 적었더니 길을 골라 주는 것처럼 읽혔는데,
+                  이 답은 장소 점수에만 들어가고 걷는 길은 안 바꾼다. 저장하는 값(PREFER)은 그대로다. */}
               {([
                 ['slopeConstraint', '가파른 경사 피하기', 'Avoid steep slopes', 'AVOID', 'ALLOW', COVERAGE_FEATURE.slope],
                 ['stairsConstraint', '계단 피하기', 'Avoid stairs', 'AVOID', 'ALLOW', COVERAGE_FEATURE.stairs],
-                ['shadePreference', '그늘길 우선', 'Prefer shaded routes', 'PREFER', 'NO_PREFERENCE', COVERAGE_FEATURE.shade],
+                ['shadePreference', '그늘 많은 곳 우선', 'Prefer shadier places', 'PREFER', 'NO_PREFERENCE', COVERAGE_FEATURE.shade],
               ] as const).map(([field, ko, en, yes, no, featureType]) => (
                 <View key={field}>
                   <View style={styles.binaryRow}>

@@ -1,5 +1,6 @@
 import { apiRequest, ApiClientError } from '@/api/client';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
+import type { SlopePiece } from '@/map/slopeGrades';
 
 export type ItineraryItemDto = {
   id: string;
@@ -29,6 +30,16 @@ export type ItineraryItemDto = {
    * 걷는 구간·옛 서버는 null/undefined 다(운영 실측 2026-09-29: 서면→청학시장 1,550원). S15P21E201-1833.
    */
   travelFareKrw?: number | null;
+  /**
+   * 이 곳으로 들어오는 구간이 실제로 지나는 길 — [[경도, 위도], …](GeoJSON 순서, 서버 ItineraryDetailResponse.Item.travelPath).
+   * 길찾기 응답을 실제로 받은 구간에만 있다. null·없음은 「어느 길인지 모른다」이지 직선을 그리라는 뜻이 아니다.
+   */
+  travelPath?: Array<[number, number]> | null;
+  /**
+   * 그 길(travelPath)의 경사 조각 — 길찾기 걷기 응답의 pieces 와 같은 모양(from·to 는 travelPath 의 자리 번호).
+   * 있으면 지도가 길을 다시 묻지 않고 이것으로 경사·계단을 칠한다. 옛 서버에는 칸이 없다(undefined).
+   */
+  travelPieces?: SlopePiece[] | null;
   // — 이 항목이 가리키는 장소. "다녀오셨나요" 평가를
   // 어느 장소로 보낼지 여기서 얻는다. ItineraryDetailResponse.Item 기준.
   placeId: string;
@@ -104,6 +115,11 @@ export type ItineraryDto = {
   canEdit?: boolean;
   // — 이 일정이 어느 여행의 것인가.
   tripId?: string;
+  /**
+   * 이 여행이 계단·급경사를 피하는 길로 다녀야 하나 — 휠체어·유아차·계단 피하기를 골랐으면 true(서버가 정한다).
+   * 지도가 구간 길을 물을 때 stepFree=true 를 싣는다(routeDirections.ts). 옛 서버에는 칸이 없다(undefined) — 보통 길로 묻는다.
+   */
+  stepFree?: boolean;
 };
 
 export type ItineraryVersionEntryDto = {

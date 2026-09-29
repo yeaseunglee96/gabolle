@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { getApiLanguage } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { conflictingFoodCode, foodLabel } from './foodConflicts';
-import { conditionsToDraftPatch, loadTravelConditions } from './travelConditions';
+import { loadTravelConditions, type TravelConditions } from './travelConditions';
 import type { PlaceSnapshot } from './origins';
 import type { PlaceEnglishName } from '@/home/startBarValue';
 import { hasPlanInput, parseStoredDraft } from './planDraftCarry';
@@ -133,6 +133,35 @@ export function applyTasteProfile(current: PlanDraft, saved: TasteAnswers): Plan
   return changed ? { ...current, ...patch, preferenceAnswerStatus: status } : current;
 }
 
+/**
+ * 저장해 둔 여행 조건을 이번 여행에서 **아직 답하지 않은 칸에만** 넣는다 — 평소 취향(applyTasteProfile)과 같은 규칙.
+ *
+ * 🔴 전에는 저장값 전체를 덮어썼다(`{ ...current, ...저장값 }`). 그래서
+ *    ① 저장값의 slopeConstraint 가 null 이면, 먼저 도착한 평소 취향이 채운 경사 답을 null 로 지웠다 — 두 응답 중
+ *       어느 것이 먼저 오느냐에 따라 경사 답이 있다 없다 했다.
+ *    ② 알레르기·식단이 「모름」인 동안에는 로그인 열쇠가 바뀔 때마다(한 시간마다) 다시 덮어써서, 이번 여행에서
+ *       고친 경사·계단·걷기 답이 저장값으로 되돌아갔다.
+ *    이제 null·UNKNOWN 인 칸만 채우고, 값이 있는 칸은 건드리지 않는다. 바뀐 것이 없으면 같은 객체를 돌려준다.
+ */
+export function fillSavedConditions(current: PlanDraft, saved: TravelConditions): PlanDraft {
+  const patch: Partial<PlanDraft> = {};
+  if (current.allergyStatus === 'UNKNOWN' && saved.allergyStatus !== 'UNKNOWN') {
+    patch.allergyStatus = saved.allergyStatus;
+    patch.allergies = saved.allergyStatus === 'VALUES' ? [...saved.allergies] : [];
+    patch.allergyAnswered = true;
+  }
+  if (current.dietStatus === 'UNKNOWN' && saved.dietStatus !== 'UNKNOWN') {
+    patch.dietStatus = saved.dietStatus;
+    patch.dietTypes = saved.dietStatus === 'VALUES' ? [...saved.dietTypes] : [];
+    patch.dietAnswered = true;
+  }
+  if (current.maxWalkingDistanceM === null && saved.maxWalkingDistanceM !== null) patch.maxWalkingDistanceM = saved.maxWalkingDistanceM;
+  if (current.slopeConstraint === null && saved.slopeConstraint !== null) patch.slopeConstraint = saved.slopeConstraint;
+  if (current.stairsConstraint === null && saved.stairsConstraint !== null) patch.stairsConstraint = saved.stairsConstraint;
+  if (current.shadePreference === null && saved.shadePreference !== null) patch.shadePreference = saved.shadePreference;
+  return Object.keys(patch).length ? { ...current, ...patch } : current;
+}
+
 type PlanContextValue = {
   draft: PlanDraft;
   ready: boolean;
@@ -157,6 +186,10 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   const [foodConflictNotice, setFoodConflictNotice] = useState<string | null>(null);
   const changedBeforeHydration = useRef(false);
   const tasteProfileAppliedKey = useRef<string | null>(null);
+  // 저장해 둔 여행 조건을 이 열쇠(계정)에 얹었나 — 로그인 열쇠가 바뀔 때마다 다시 얹지 않는다(fillSavedConditions 주석 ②).
+  const conditionsAppliedKey = useRef<string | null>(null);
+  // clear() 로 새 여행을 시작할 때 늘린다 — 비운 초안에 저장해 둔 여행 조건을 다시 기본값으로 얹는다.
+  const [conditionsNonce, setConditionsNonce] = useState(0);
   const ready = hydratedKey !== null;
 
   useEffect(() => {
@@ -212,17 +245,17 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // 로그인 안 한 사람에게도 얹는다. 그 사람의 답은 기기에만 있지만, 이번 여행에는
     // 똑같이 걸린다 — 여기서 빼면 로그인 전에 적은 알레르기가 새로고침 한 번에 사라진다.
-    if (!authReady || hydratedKey !== storageKey) return;
+    if (!authReady || hydratedKey !== storageKey || conditionsAppliedKey.current === storageKey) return;
     let alive = true;
     void loadTravelConditions(userId, accessToken).then((record) => {
       const saved = record.conditions;
       if (!alive || !saved) return;
-      setDraft((current) => (current.allergyStatus === 'UNKNOWN' && current.dietStatus === 'UNKNOWN'
-        ? { ...current, ...conditionsToDraftPatch(saved) }
-        : current));
-    });
+      // 🔴 받아서 얹은 뒤에만 표시한다 — 받는 도중 열쇠가 바뀌어 이 답을 버렸으면 다음 번에 다시 묻는다.
+      conditionsAppliedKey.current = storageKey;
+      setDraft((current) => fillSavedConditions(current, saved));
+    }).catch(() => { /* 여행 조건을 못 읽어도 여행 작성은 막지 않는다. */ });
     return () => { alive = false; };
-  }, [accessToken, authReady, hydratedKey, storageKey, userId]);
+  }, [accessToken, authReady, hydratedKey, storageKey, userId, conditionsNonce]);
 
   // 계정에 저장된 평소 취향(로컬성·조용함·음식·경사)을 새 여행의 기본값으로 얹는다.
   // 여행 조건(위)과 같은 방식이다 — 아직 답하지 않은 칸에만 넣으므로, /plan 에서 그 문항을
@@ -264,7 +297,12 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     // 인원·날짜가 바뀌면 손대지 않은 예산 기본값이 따라간다 — 모든 입력(홈 시작 바·질문 화면·AI 도우미)이 여기를 지난다.
     update: (patch) => { if (!ready) changedBeforeHydration.current = true; setDraft((current) => applyBudgetDefault(current, patch)); },
     completeStep: (step) => setDraft((current) => ({ ...current, maxCompletedStep: Math.max(current.maxCompletedStep, step) })),
-    clear: async () => { setDraft(EMPTY_PLAN); await AsyncStorage.removeItem(storageKey); },
+    clear: async () => {
+      setDraft(EMPTY_PLAN);
+      conditionsAppliedKey.current = null;
+      setConditionsNonce((n) => n + 1);
+      await AsyncStorage.removeItem(storageKey);
+    },
     basicComplete: Boolean(draft.startDate && draft.endDate && draft.endDate >= draft.startDate && draft.travelers > 0),
     foodConflictNotice,
     clearFoodConflictNotice: () => setFoodConflictNotice(null),
