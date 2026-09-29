@@ -51,6 +51,7 @@ import {
   type ItineraryPaceItemDto,
   type ItineraryRhythmDto,
   type ItineraryVersionEntryDto,
+  stopClock,
 } from '@/plan/itinerary';
 import { nextSyncPollDelay, SYNC_POLL_BASE_MS } from '@/plan/syncPoll';
 import { formatTravelLabel, itineraryStats, totalTravelMinutes } from '@/plan/itinerarySummary';
@@ -91,6 +92,11 @@ function formatTime(value: string, locale: string) {
   return formatClock(value, locale);
 }
 
+// 일정 칸의 시각. 시각이 없는 항목(startsAt null)은 null — 부르는 쪽이 「미정」을 그린다. 1970년 시각을 만들지 않는다.
+function formatStopTime(value: string | null, locale: string): string | null {
+  return value ? formatClock(value, locale) : null;
+}
+
 // 1000m 이상은 km 한 자리로 (시안 1절). 「1200m」보다 「1.2km」가 걷는 거리로 읽힌다.
 function formatWalk(meters: number) {
   return meters >= 1000 ? `${(meters / 1000).toFixed(1)}km` : `${meters}m`;
@@ -106,7 +112,7 @@ function formatDayHeading(value: string, index: number, tx: (ko: string, en: str
 }
 
 // 지도 대신 노선도 — 디자인 확정안 B안(09-디자인-인계-일정).
-function RouteStrip({ items, times, tx, locale }: { items: ItineraryItemDto[]; times: string[]; tx: (ko: string, en: string) => string; locale: string }) {
+function RouteStrip({ items, times, tx, locale }: { items: ItineraryItemDto[]; times: (string | null)[]; tx: (ko: string, en: string) => string; locale: string }) {
   if (!items.length) return null;
   return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
     {items.map((item, index) => {
@@ -128,7 +134,7 @@ function RouteStrip({ items, times, tx, locale }: { items: ItineraryItemDto[]; t
         <View style={styles.stop}>
           <View style={[styles.node, index === 0 && styles.nodeFirst]}><Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
           <Text variant="caption" weight="bold" numberOfLines={1} style={styles.stopName}>{item.title}</Text>
-          <Text variant="caption" color={color.text.muted}>{formatTime(times[index] ?? item.startsAt, locale)}</Text>
+          <Text variant="caption" color={color.text.muted}>{formatStopTime(times[index] ?? item.startsAt, locale) ?? tx('미정', 'TBD')}</Text>
         </View>
       </View>;
     })}
@@ -255,14 +261,15 @@ function StopPhoto({ placeId, wide }: { placeId: string; wide: boolean }) {
   return <View style={[styles.stopPhoto, styles.stopPhotoEmpty, wide && styles.stopPhotoWide]}><Text variant={wide ? 'title' : 'body'}>{categoryGlyph(photo?.category)}</Text></View>;
 }
 
-function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken, stepState }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null;
+function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken, stepState }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string | null; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null;
   /** 시안 ⑤ — 다녀옴 · 현재 · 다음 · 이후. 모르면 안 준다(진행을 안 켠 화면). */
   stepState?: 'done' | 'current' | 'next' | 'later' }) {
   const { tx, locale } = useI18n();
   const disabled = !canEdit || lockBusy || excludeBusy || dayBusy;
 
   // 다녀오셨나요 평가 — 방문 예정 시각이 지난 칸에만 띄운다.
-  const isPastVisit = useMemo(() => new Date(item.startsAt).getTime() < Date.now(), [item.startsAt]);
+  // 시각이 없는 곳은 지났다고 보지 않는다 — new Date(null) 은 1970년이라 가지도 않은 곳에 후기를 물었다.
+  const isPastVisit = useMemo(() => item.startsAt != null && new Date(item.startsAt).getTime() < Date.now(), [item.startsAt]);
   const [reviewStatus, setReviewStatus] = useState<'checking' | 'can-review' | 'reviewed'>('checking');
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   useEffect(() => {
@@ -354,7 +361,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           </Pressable>
           <View style={[styles.stopRight, wide && styles.stopRightWide]}>
             <View style={wide ? styles.stopRightStack : undefined}>
-              <Text variant={wide ? 'title' : 'body'} weight="bold" color={color.brand.navy}>{formatTime(displayTime, locale)}</Text>
+              <Text variant={wide ? 'title' : 'body'} weight="bold" color={color.brand.navy}>{formatStopTime(displayTime, locale) ?? tx('미정', 'TBD')}</Text>
               {wide && item.estimatedCostKrw != null ? <Text variant="caption" color={color.text.muted}>{item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '₩%s', item.estimatedCostKrw.toLocaleString())}</Text> : null}
             </View>
             {lockControl}
@@ -622,7 +629,7 @@ function ItineraryClassic() {
   const doneCount = dayStopIds.filter((stopId) => progress.outcomes[stopId]).length;
   const nowProgressLine = dayStops.length && progress.status !== 'PLANNED'
     ? txf(tx, '%s곳 중 %s곳 다녀옴', '%s stops · %s done', dayStops.length, doneCount)
-      + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '')
+      + (progress.status !== 'DONE' && stopClock(currentStop?.startsAt) ? ` · ${txf(tx, '다음 %s', 'next %s', stopClock(currentStop?.startsAt) ?? '')}` : '')
     : null;
   const nowDetail = currentStop?.description ?? nowProgressLine;
   const nowProgressRatio = dayStops.length && progress.status !== 'PLANNED' ? doneCount / dayStops.length : null;

@@ -32,7 +32,8 @@ export function isRecommendationJobPollDto(value: unknown): value is Recommendat
 function isItineraryItemDto(value: unknown): boolean {
   if (!isRecord(value)) return false;
   if (typeof value.id !== 'string') return false;
-  if (typeof value.startsAt !== 'string') return false;
+  // 시각을 못 깐 항목은 null 이다(서버 계약) — 그것을 깨진 응답으로 보지 않는다.
+  if (value.startsAt !== null && typeof value.startsAt !== 'string') return false;
   if (typeof value.title !== 'string') return false;
   if (typeof value.locked !== 'boolean') return false;
   if (typeof value.placeId !== 'string') return false;
