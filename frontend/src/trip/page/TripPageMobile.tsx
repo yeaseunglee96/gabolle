@@ -49,6 +49,7 @@ import {
   type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto,
 } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
+import { legRouteParams } from '@/trip/page/legRoute';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
@@ -641,6 +642,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   onArrive={canEdit && todayDay && !arrivedAtOf(progress.outcomes, item.id) ? () => void recordArrival(item) : null}
                   onExclude={() => setExcludeTarget(item)}
                   onOpenPlace={() => router.push(`/place/${item.placeId}`)}
+                  onOpenLeg={(() => {
+                    // 들어오는 구간을 경로 상세로 — 대중교통·택시·도보를 나란히 본다(S15P21E201-1831).
+                    const params = legRouteParams(items, index, day?.start, nameOf, tx);
+                    return params ? () => router.push({ pathname: '/route-detail', params }) : null;
+                  })()}
                   tx={tx}
                   locale={locale}
                 />
@@ -971,11 +977,13 @@ function RiskStrip({ atRisk, known, estimated, nameOf, tx }: { atRisk: Itinerary
   );
 }
 
-function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, tx, locale }: {
+function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, tx, locale }: {
   item: ItineraryItemDto; /** 화면에 적을 장소 이름 — 영어면 로마자가 붙는다(S15P21E201-1735). */ name: string; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
   /** 오늘 방문지이고 아직 도착이 안 적혔을 때만 — 아니면 null 이고 「도착 찍기」를 안 그린다(S15P21E201-1690). */
-  onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; onOpenPlace: () => void; tx: Tx; locale: string;
+  onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; onOpenPlace: () => void;
+  /** 들어오는 구간을 경로 상세로 연다. 앞 곳이나 이 곳의 좌표를 모르면 null — 누를 수 없는 글자로 둔다(legRoute.ts). */
+  onOpenLeg: (() => void) | null; tx: Tx; locale: string;
 }) {
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const reason = pickReasonLine(item.reasonCodes);
@@ -1005,10 +1013,22 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
         </View>
       ) : null}
       {/* 들어오는 구간 — 카드 사이 32px 줄. 첫 곳은 「출발지에서 …」. */}
-      {index > 0 || leg ? (
+      {/* 구간 줄을 누르면 무엇을 타는지·택시로 얼마인지 본다(S15P21E201-1831) — 전에는 「이동 25분」 글자뿐이었다. */}
+      {index > 0 || leg || onOpenLeg ? (
         <View style={styles.legRow}>
           <View style={styles.legRail}>{index > 0 ? <View style={[styles.railLine, styles.railFull]} /> : null}</View>
-          {leg ? <Text variant="micro" weight="bold" color={color.text.inactiveTab}>{leg}</Text> : null}
+          {onOpenLeg ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={txf(tx, '%s까지 가는 길 보기', 'Directions to %s', name)}
+              onPress={onOpenLeg}
+              hitSlop={8}
+              style={({ pressed }) => [styles.legLink, pressed && styles.pressed]}
+            >
+              {leg ? <Text variant="micro" weight="bold" color={color.text.inactiveTab}>{leg}</Text> : null}
+              <Text variant="micro" weight="bold" color={color.brand.navy}>{tx('길 보기 ›', 'Directions ›')}</Text>
+            </Pressable>
+          ) : leg ? <Text variant="micro" weight="bold" color={color.text.inactiveTab}>{leg}</Text> : null}
         </View>
       ) : null}
       <View style={styles.stopRow}>
@@ -1207,6 +1227,7 @@ const styles = StyleSheet.create({
   courseCard: { padding: spacing[3], gap: 10, borderRadius: radius.lg, backgroundColor: color.surface.card },
   courseHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[1] },
   coursePad: { paddingHorizontal: spacing[1] },
+  legLink: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 32 },
   chipEstimated: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: color.state.warningBg },
   track: { flexDirection: 'row', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   // 🔴 고른 칸은 먹색이다(tokens 규칙 2 — 선택에 빨강을 쓰지 않는다).
