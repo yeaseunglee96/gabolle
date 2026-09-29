@@ -26,6 +26,9 @@ export type Place = {
   // 사진 피사체 구분용. 값이 없으면 칸 자체가 안 온다.
   photoSubject?: PhotoSubject | null;
   photoLicense?: PhotoLicense | null;
+  // 장소 상세의 사진 여러 장(S15P21E201-1839). 순서대로 오고 [0] 이 대표 사진(= photoUrl)이다.
+  // 한 장도 없으면 칸 자체가 안 온다 — 그때는 위 photoUrl·photoSource 로 지금처럼 그린다(placePhotos).
+  photos?: PlacePhoto[];
   openingHours?: FeatureSlot;
   priceLevel?: FeatureSlot;
 };
@@ -47,11 +50,29 @@ export type PhotoSubject = 'SELF' | 'VENUE';
  */
 export type PhotoLicense = { name: string; url?: string | null; filePage?: string | null };
 
+/** 장소 사진 한 장 — 출처(source)는 사진마다 다르다(「출처 : 부산관광아카이브」·「Google 지도 · 사진 …」). license 는 없을 수 있다. */
+export type PlacePhoto = { url: string; source?: string | null; license?: PhotoLicense | null };
+
+/**
+ * 장소 상세에 그릴 사진 목록 — photos 가 있으면 그것, 없으면 옛 칸(photoUrl·photoSource·photoLicense) 한 장(S15P21E201-1839).
+ * 🔴 서버가 photos 를 아직 안 보내는 판과도 맞아야 한다 — 그래서 옛 칸으로 물러서는 길을 지운다면 여기서 지운다.
+ *    주소가 빈 사진은 뺀다 — 넘겨 보다 빈 장이 나온다.
+ */
+export function placePhotos(place: Pick<Place, 'photoUrl' | 'photoSource' | 'photoLicense' | 'photos'>): PlacePhoto[] {
+  const list = (place.photos ?? []).filter((photo) => !!photo?.url);
+  if (list.length > 0) return list;
+  return place.photoUrl ? [{ url: place.photoUrl, source: place.photoSource ?? null, license: place.photoLicense ?? null }] : [];
+}
+
 // 「KOGL Type 1」은 줄바꿈 안 되는 공백으로 붙인다 — 카드 띠가 두 줄로 꺾일 때 번호 「1」만 둘째 줄에 떨어졌다.
 const koglEn = (type: string) => `KOGL\u00A0Type\u00A0${type}`;
 // 운영 자료의 출처 글자 다섯 가지(2026-09-26 읽기만 해서 확인)가 드는 두 모양.
 const PLAIN_SOURCE = /^한국관광공사 공공누리 제(\d)유형$/;
 const GALLERY_SOURCE = /^한국관광공사 관광사진갤러리 공공누리 제(\d)유형 · 촬영 (.+)$/;
+// 장소 사진 여러 장(S15P21E201-1839)의 출처는 이름표를 스스로 달고 온다 — 「출처 : 부산관광아카이브」·「Google 지도 · 사진 …」.
+// 🔴 거기에 「사진: 」을 또 붙이면 「사진: 출처 : …」가 된다. 그래서 이 두 모양은 받은 글자만 쓴다.
+const SOURCE_LABELLED_KO = /^출처\s*:\s*(.+)$/;
+const SELF_LABELLED_SOURCE = /^(출처\s*:|Google\s)/;
 
 /**
  * 사진 출처의 영어 — 공공누리 출처 표시 의무는 번역해도 지켜진다(S15P21E201-1705, 조율 세션 결정 A).
@@ -63,6 +84,8 @@ export function photoSourceEnglish(source: string): string {
   if (plain) return `Korea Tourism Organization · ${koglEn(plain[1])}`;
   const gallery = source.match(GALLERY_SOURCE);
   if (gallery) return `Korea Tourism Organization Photo Gallery · ${koglEn(gallery[1])} · Photographer: ${gallery[2]}`;
+  const labelled = source.match(SOURCE_LABELLED_KO);
+  if (labelled) return `Source: ${labelled[1]}`;
   return source;
 }
 
@@ -92,7 +115,9 @@ export function photoLabels(
   const license = photo.photoLicense?.name ? photo.photoLicense : null;
   return {
     badge: photo.photoSubject === 'VENUE' ? tx('행사장 사진', 'Venue photo') : null,
-    credit: photo.photoSource ? txf(tx, '사진: %s', 'Photo: %s', photoSourceText(photo.photoSource, tx)) + (license ? ` · ${license.name}` : '') : null,
+    credit: photo.photoSource
+      ? (SELF_LABELLED_SOURCE.test(photo.photoSource) ? photoSourceText(photo.photoSource, tx) : txf(tx, '사진: %s', 'Photo: %s', photoSourceText(photo.photoSource, tx))) + (license ? ` · ${license.name}` : '')
+      : null,
     licenseUrl: license ? license.filePage || license.url || null : null,
   };
 }

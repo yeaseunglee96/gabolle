@@ -12,9 +12,10 @@ import { Button } from '@/components/Button';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { Screen } from '@/components/Screen';
 import { PhotoCredit } from '@/components/PhotoCredit';
+import { PlacePhotoGallery } from '@/components/PlacePhotoGallery';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, needsFoodSafetyCheck, photoLabels, type Place as ApiPlace } from '@/discovery/places';
+import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, needsFoodSafetyCheck, photoLabels, placePhotos, type Place as ApiPlace } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
 import { DEMO_PLACES, loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
@@ -50,6 +51,8 @@ export default function Place() {
   const [phraseModalOpen, setPhraseModalOpen] = useState(false);
   const [heroLoaded, setHeroLoaded] = useState(false);
   const heroReveal = useRef(new Animated.Value(0)).current;
+  // 여러 장일 때 지금 보이는 사진 — 출처 줄이 그 사진의 것이어야 한다(S15P21E201-1839).
+  const [photoIndex, setPhotoIndex] = useState(0);
 
   // 데모 3곳은 로컬 값을, 그 밖의 id 는 방금 받아온 API 응답을 같은 모양으로 맞춘다.
   // useMemo 로 묶는다 — 안 묶으면 매 렌더 새 객체가 생겨 resolved 를 의존성으로 삼는
@@ -63,13 +66,20 @@ export default function Place() {
         ? { title: placeNameForLanguage(remote.place.nameKo, remote.place.nameEn, language), subtitle: remote.place.address ? tx(remote.place.address, remote.place.addressEn ?? remote.place.address) : '', apiPlace: remote.place }
         : null
   ), [demoPlace, remote, tx]);
-  const photoUrl = resolved?.apiPlace?.photoUrl ?? null;
+  // 사진 목록 — 서버가 photos 를 보내면 그것, 안 보내면 옛 photoUrl 한 장(S15P21E201-1839).
+  const photos = useMemo(() => (resolved?.apiPlace ? placePhotos(resolved.apiPlace) : []), [resolved]);
+  const photoUrl = photos[0]?.url ?? null;
+  const currentPhoto = photos[Math.min(photoIndex, Math.max(0, photos.length - 1))] ?? null;
   // 사진 출처 줄 — 위키미디어 사진은 라이선스 이름을 덧붙이고, 누르면 파일 페이지가 열린다(S15P21E201-1610).
-  const photoCredit = resolved?.apiPlace ? photoLabels(resolved.apiPlace, tx) : null;
+  //    여러 장이면 지금 보이는 사진의 출처·라이선스다. 「행사장 사진」 표시는 대표 사진(첫 장)에 대한 말이라 첫 장에서만.
+  const photoCredit = resolved?.apiPlace && currentPhoto
+    ? photoLabels({ photoSource: currentPhoto.source, photoLicense: currentPhoto.license, photoSubject: photoIndex === 0 ? resolved.apiPlace.photoSubject : null }, tx)
+    : null;
   const taxiPlaceId = resolved?.apiPlace?.placeId ?? null;
 
   useEffect(() => {
     setHeroLoaded(false);
+    setPhotoIndex(0);
     heroReveal.setValue(0);
   }, [photoUrl, heroReveal]);
 
@@ -175,11 +185,34 @@ export default function Place() {
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
             </View>
           </ImageBackground>
-        ) : resolved.apiPlace?.photoUrl ? (
+        ) : photos.length > 1 ? (
+          // 여러 장 — 옆으로 넘긴다(S15P21E201-1839). 그늘·글자는 사진 판 위에 한 벌만 얹고, 손가락은 아래 판까지 통과시킨다.
+          <View style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]}>
+            <View style={[StyleSheet.absoluteFill, styles.heroPlaceholder]} />
+            <Animated.View style={[StyleSheet.absoluteFill, { opacity: heroReveal }]}>
+              <PlacePhotoGallery urls={photos.map((photo) => photo.url)} onFirstLoad={() => setHeroLoaded(true)} onIndexChange={setPhotoIndex} />
+            </Animated.View>
+            <View pointerEvents="box-none" style={[StyleSheet.absoluteFill, styles.heroFill]}>
+              <View pointerEvents="none" style={styles.shade} />
+              <View pointerEvents="none" style={styles.shadeLow} />
+              <View pointerEvents="none" style={styles.shadeLower} />
+              <View pointerEvents="none" style={styles.shadeLowest} />
+              <View pointerEvents="box-none" style={styles.heroCopy}>
+                <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroText}>{resolved.title}</Text>
+                <Text color={color.text.onAction} style={styles.heroText}>{resolved.subtitle}</Text>
+                {/* 「행사장 사진」 표시·출처 줄의 접근성 라벨이 왜 있는지는 아래 한 장 그림의 주석에 있다. */}
+                <PhotoSubjectBadge photoSubject={photoIndex === 0 ? resolved.apiPlace?.photoSubject : null} style={styles.subjectBadge} />
+                {photoCredit?.credit ? (
+                  <PhotoCredit testID="place-photo-credit" accessibilityLabel={photoCredit.credit} credit={photoCredit.credit} licenseUrl={photoCredit.licenseUrl} variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]} />
+                ) : null}
+              </View>
+            </View>
+          </View>
+        ) : photoUrl ? (
           <View style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]}>
             <View style={[StyleSheet.absoluteFill, styles.heroPlaceholder]} />
             <Animated.View style={[StyleSheet.absoluteFill, { opacity: heroReveal, transform: [{ scale: heroReveal.interpolate({ inputRange: [0, 1], outputRange: [1.04, 1] }) }] }]}>
-              <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={styles.heroFill} imageStyle={styles.heroImage} onLoad={() => setHeroLoaded(true)} onError={() => setHeroLoaded(true)}>
+              <ImageBackground source={{ uri: photoUrl }} resizeMode="cover" style={styles.heroFill} imageStyle={styles.heroImage} onLoad={() => setHeroLoaded(true)} onError={() => setHeroLoaded(true)}>
                 <View style={styles.shade} />
                 <View style={styles.shadeLow} />
                 <View style={styles.shadeLower} />
@@ -190,7 +223,7 @@ export default function Place() {
                   {/* 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 — S15P21E201-1206.
                       여태 축제 화면만 말하고 여기는 아무 말도 안 했다.
                   */}
-                  <PhotoSubjectBadge photoSubject={resolved.apiPlace.photoSubject} style={styles.subjectBadge} />
+                  <PhotoSubjectBadge photoSubject={resolved.apiPlace?.photoSubject} style={styles.subjectBadge} />
                   {/* 🔴 accessibilityLabel 을 반드시 함께 준다 (2026-09-22, build 41 실기기).
 
                       iOS 에서는 testID 가 accessibility identifier 로 나가는데, 라벨이 없으면
