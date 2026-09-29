@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -398,6 +399,13 @@ public class BaselineCandidateScorer {
 		//    (WHY_VISIT) 글도 같은 낱말로 본다. 운영 식당 4,298곳 중 이름 말고 글이 있는 곳이 1,550곳이고,
 		//    실제로 추천된 식당 341곳 중에서는 262곳이다(2026-09-29 실측).
 		String dietKey = upper(constraint.constraintKey());
+		// 🔴 S15P21E201-1829: 할랄은 술이 중심인 집(주점·이자카야·포차·펍·맥주집)을 무엇을 팔든 뺀다. 채식 집이어도 술집이면
+		//    뺀다 — 그래서 아래 식물성 이름 검사보다 먼저 본다.
+		if ("HALAL".equals(dietKey) && isAlcoholCentric(candidate)) {
+			violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
+					"reason", "ALCOHOL_CENTRIC", "evidence", "NAME"));
+			return;
+		}
 		if (MEAT_EXCLUDING_DIETS.contains(dietKey) && !isExplicitlyPlantBased(candidate)) {
 			DietEvidence evidence = dietExclusionEvidence(candidate, "VEGAN".equals(dietKey));
 			if (evidence != null) {
@@ -443,8 +451,68 @@ public class BaselineCandidateScorer {
 		}
 	}
 
-	/** 고기가 중심인 집을 빼는 식단 코드. */
-	private static final Set<String> MEAT_EXCLUDING_DIETS = Set.of("VEGETARIAN", "VEGAN");
+	/**
+	 * 고기가 중심인 집을 빼는 식단 코드.
+	 *
+	 * <p>🔴 할랄(S15P21E201-1829)은 고기의 «종류»를 가리지 않는다. 할랄 도축을 확인할 수 없는 고기는 소·닭·꿩이어도 할랄이
+	 * 아니므로, 「국밥」이 돼지인지 소인지 몰라도 된다(해운대원조할매국밥은 소고기국밥이다 — 이름만 보고
+	 * 「돼지」라고 말하면 틀린다). 그래서 빠지는 이유도 MEAT_CENTRIC 이지 돼지가 아니다.
+	 * 해산물은 할랄에서 뺄 근거가 아니다 — 한국관광공사 무슬림 친화 식당 목록(2021-12 기준)의 부산
+	 * 한식당이 복국·대구탕·아구찜 집이다. 할랄이라고 확인된 곳(DIETARY_SUPPORT_TAG)은 아직 0건이라
+	 * 남는 곳은 전부 「확인 안 됨」 경고로 통과한다.
+	 */
+	private static final Set<String> MEAT_EXCLUDING_DIETS = Set.of("VEGETARIAN", "VEGAN", "HALAL");
+
+	/**
+	 * 할랄 — 술이 중심인 집의 이름 낱말. 운영 식당·카페·도시 장소 이름 전부에 대 보고 골랐다(2026-09-29).
+	 * 이 낱말들은 술집에만 걸렸다. 「사케」는 뺐다 — 사케동(연어 덮밥)에 걸린다.
+	 *
+	 * <p>이름으로만 본다. 대표 메뉴·방문 이유 글의 「와인 페어링」「하이볼」은 술을 «파는» 집이지 술이
+	 * «중심인» 집이 아니고, 한국관광공사 기준으로도 무슬림 친화 식당은 주류를 팔 수 있다.
+	 */
+	private static final List<String> ALCOHOL_NAME_WORDS = List.of(
+			"주점", "술집", "혼술", "이자카야", "포차", "포장마차", "호프", "펍", "와인", "칵테일", "하이볼", "막걸리",
+			"맥주", "비어", "소주", "위스키");
+
+	/**
+	 * 영어 이름의 술집 낱말 — 앞뒤가 영문자·숫자가 아닐 때만 본다. 「PUB」은 PUBLIC 에, 「BAR」는
+	 * BARBECUE·BARN 에 걸리면 안 된다. 🔴 {@code \b} 를 쓰지 않는다 — JDK 판에 따라 한글을 낱말 글자로
+	 * 쳐서 「로즈bar」의 즈와 B 사이를 경계로 보지 않는다(시험이 잡았다).
+	 */
+	private static final Pattern ALCOHOL_NAME_LATIN = Pattern.compile(
+			"(?<![A-Z0-9])(PUB|BAR|BEER|WINE|COCKTAIL|IZAKAYA|HOF|WHISKY|WHISKEY|BREWERY|HIGHBALL)(?![A-Z0-9])");
+
+	/** 「바」가 술집이 아닌 영어 이름 — 먼저 지운다. */
+	private static final List<String> NOT_A_DRINKING_BAR = List.of(
+			"SNACK BAR", "SALAD BAR", "JUICE BAR", "ESPRESSO BAR", "DESSERT BAR");
+
+	/**
+	 * 식당(FOOD) 이름에서만 보는 한 글자 「술」. 운영 식당 중 11곳에 걸렸고 전부 술집이었다(혼술바·술잔·
+	 * 청하통술…). 미술관·예술 같은 낱말은 먼저 지우고, 식당이 아닌 갈래에서는 아예 안 본다.
+	 */
+	private static final List<String> SUL_LOOKALIKES = List.of("예술", "미술", "기술", "마술", "수술");
+
+	static boolean isAlcoholCentric(PlaceCandidateResponse.Candidate candidate) {
+		String name = cleaned(candidate.nameKo());
+		if (containsAny(name, ALCOHOL_NAME_WORDS)) {
+			return true;
+		}
+		String latin = name;
+		for (String phrase : NOT_A_DRINKING_BAR) {
+			latin = latin.replace(phrase, "");
+		}
+		if (ALCOHOL_NAME_LATIN.matcher(latin).find()) {
+			return true;
+		}
+		if (!"FOOD".equals(candidate.category())) {
+			return false;
+		}
+		String withoutLookalikes = name;
+		for (String word : SUL_LOOKALIKES) {
+			withoutLookalikes = withoutLookalikes.replace(word, "");
+		}
+		return withoutLookalikes.contains("술");
+	}
 
 	/**
 	 * 상호명에 이 낱말이 있으면 고기가 중심인 집으로 본다. 「오리」는 뺐다(오리지널·오리엔탈).

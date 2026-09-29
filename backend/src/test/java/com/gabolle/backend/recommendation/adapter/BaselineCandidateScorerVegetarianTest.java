@@ -65,9 +65,9 @@ class BaselineCandidateScorerVegetarianTest {
 	}
 
 	@Test
-	@DisplayName("채식을 안 고른 사람에게는 고기집이 그대로 나온다")
+	@DisplayName("채식을 안 고른 사람에게는 고기집이 그대로 나온다 (할랄은 이제 고기를 뺀다 — BaselineCandidateScorerHalalTest)")
 	void 다른_식단이면_안뺀다() {
-		assertThat(score(candidate("해운대암소갈비집", List.of()), diet("HALAL")).constraintVerdict())
+		assertThat(score(candidate("해운대암소갈비집", List.of()), diet("GLUTEN_FREE")).constraintVerdict())
 				.isNotEqualTo(ConstraintVerdict.FAIL);
 		assertThat(score(candidate("해운대암소갈비집", List.of()), null).constraintVerdict())
 				.isEqualTo(ConstraintVerdict.PASS);
