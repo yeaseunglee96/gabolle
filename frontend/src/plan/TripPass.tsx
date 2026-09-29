@@ -344,12 +344,14 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                   뒷면의 「일정 보기」를 눌러야 다음으로 가는데, 화면이 그걸 말해 주지 않아 사람이 티켓 앞에서 멈췄다.
                   뒤집어 상세를 보는 것은 그대로다 — 이 단추 밖의 티켓을 누르면 된다. */}
               {onOpenItinerary ? (
-                <Animated.View style={{ width: '100%', opacity: codeMark, transform: [{ scale: markScale }] }}>
+                // 🔴 단추는 종이에 처음부터 인쇄돼 나온다(UI 캔버스 ⑤-6 PassAfter). 전에는 QR 처럼 인쇄가 끝난 뒤 따로 커지며
+                //    나타나서, 다 나온 승차권 위에 단추가 «튀어나오는» 것으로 보였다(사용자 지적, S15P21E201-1866).
+                <View style={styles.nextButtonRow}>
                   <Pressable accessibilityRole="button" tabIndex={frontTab} onPress={onOpenItinerary} style={({ pressed }) => [styles.nextButton, wide && styles.nextButtonWide, styles.nextButtonFull, pressed && styles.backPressed]}>
                     <Text weight="bold" color={color.text.onAction} style={styles.nextLabel}>{tx('내 일정 보기', 'View my itinerary')}</Text>
                     <Text variant="title" weight="bold" color={color.text.onAction}>→</Text>
                   </Pressable>
-                </Animated.View>
+                </View>
               ) : !!data.url && (
                 <Animated.View style={{ opacity: codeMark, transform: [{ scale: markScale }] }}>
                   <QrCode value={data.url} size={wide ? 120 : 104} />
@@ -525,6 +527,7 @@ const styles = StyleSheet.create({
   codeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[4] },
   conditions: { gap: 2, paddingVertical: spacing[2], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   legNameRight: { textAlign: 'right' },
+  nextButtonRow: { width: '100%' },
   codeRowButton: { alignSelf: 'stretch', justifyContent: 'center' },
   nextButtonFull: { width: '100%', height: 56, flexDirection: 'row', gap: spacing[2] },
   stamp: { width: 112, height: 112, transform: [{ rotate: '-8deg' }], pointerEvents: 'none' },
