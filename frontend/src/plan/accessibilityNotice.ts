@@ -24,14 +24,16 @@ export function itineraryAccessibilityCounts(itinerary: { days: Array<{ items: A
 //    유아차만·큰 짐만 고른 사람에게도 휠체어 문장이 떴다(QA, 진미리). 무엇을 골랐는지는 이 앱이 안다 — 여기서 고른다.
 //    하나만 골랐으면 그것의 말로, 둘 이상이거나 모르면(조건을 이미 지운 뒤) 휠체어를 지어내지 않고 「고르신 이동 조건」으로.
 
-export type MobilityAid = 'WHEELCHAIR' | 'STROLLER' | 'HEAVY_LUGGAGE';
+// 🔴 HEAVY_LUGGAGE 를 뺐다 (S15P21E201-1855). 앱이 더는 그 조건을 묻지도 보내지도 않는다 —
+//    서버에 그 값을 «읽는» 코드가 한 줄도 없어서, 물어도 판정에도 경로에도 안 쓰였다.
+//    유아차는 남는다: 장소 태그는 없지만 계단 없는 길로 묻는 STEP_FREE_KEYS 에 들어 있다.
+export type MobilityAid = 'WHEELCHAIR' | 'STROLLER';
 
 /** 이번 여행에서 «예»라고 고른 이동 보조. 안 고름·모름(null)은 넣지 않는다. */
-export function selectedMobilityAids(draft: { wheelchair: boolean | null; stroller: boolean | null; luggage: boolean | null }): MobilityAid[] {
+export function selectedMobilityAids(draft: { wheelchair: boolean | null; stroller: boolean | null }): MobilityAid[] {
   const aids: MobilityAid[] = [];
   if (draft.wheelchair === true) aids.push('WHEELCHAIR');
   if (draft.stroller === true) aids.push('STROLLER');
-  if (draft.luggage === true) aids.push('HEAVY_LUGGAGE');
   return aids;
 }
 
@@ -47,10 +49,6 @@ const HEADLINE: Record<MobilityAid | 'ANY', Template> = {
   STROLLER: {
     withTotal: ['이번 일정 %s곳 중 %s곳은 유아차로 다니기 편한지 아직 확인되지 않았어요.', 'Of the %s places in this trip, %s have not been checked for stroller access yet.'],
     withoutTotal: ['이번 일정의 %s곳은 유아차로 다니기 편한지 아직 확인되지 않았어요.', '%s places in this trip have not been checked for stroller access yet.'],
-  },
-  HEAVY_LUGGAGE: {
-    withTotal: ['이번 일정 %s곳 중 %s곳은 큰 짐을 들고 다니기 편한지 아직 확인되지 않았어요.', 'Of the %s places in this trip, %s have not been checked for access with large luggage yet.'],
-    withoutTotal: ['이번 일정의 %s곳은 큰 짐을 들고 다니기 편한지 아직 확인되지 않았어요.', '%s places in this trip have not been checked for access with large luggage yet.'],
   },
   ANY: {
     withTotal: ['이번 일정 %s곳 중 %s곳은 고르신 이동 조건으로 다니기 편한지 아직 확인되지 않았어요.', 'Of the %s places in this trip, %s have not been checked for the mobility needs you chose yet.'],

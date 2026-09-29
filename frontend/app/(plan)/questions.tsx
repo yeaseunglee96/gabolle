@@ -18,6 +18,7 @@ import { updateMyConsents } from '@/auth/authApi';
 import { Button } from '@/components/Button';
 import { GuestPlanGate } from '@/plan/GuestPlanGate';
 import { ConditionsPromptModal } from '@/plan/ConditionsPromptModal';
+import { COVERAGE_FEATURE, coverageCountsOf, hasScarcePlaceData, useConditionCoverage } from '@/plan/conditionCoverage';
 import { createRecommendationJobAdapter, type RecommendationJobSnapshot } from '@/plan/recommendationJob';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
@@ -74,7 +75,6 @@ export function summaryOf(key: QuestionKey, draft: PlanDraft, tx: Tx, skipped: b
       const parts: string[] = [];
       if (draft.wheelchair) parts.push(tx('휠체어', 'Wheelchair'));
       if (draft.stroller) parts.push(tx('유아차', 'Stroller'));
-      if (draft.luggage) parts.push(tx('큰 짐', 'Large luggage'));
       return parts.length ? parts.join(' · ') : tx('해당 없음', 'None');
     }
     case 'must': return draft.mustVisitPlaces.length
@@ -102,6 +102,12 @@ function PlanConditions() {
   const wide = kind !== 'phone';
   const { draft, ready, update, completeStep } = usePlan();
   const { user, accessToken } = useAuth();
+  // 접근성 자료가 얼마나 덮였나 — 「있는데 적을 때」만 이동 보조 문항 아래에 적는다(S15P21E201-1855).
+  // 못 물어봤으면(끝점 없는 서버·네트워크 실패) null 이라 아무 말도 안 나간다.
+  const coverage = useConditionCoverage();
+  const accessibilityCounts = hasScarcePlaceData(coverage, COVERAGE_FEATURE.accessibility)
+    ? coverageCountsOf(coverage, COVERAGE_FEATURE.accessibility)
+    : null;
   const [job, setJob] = useState<RecommendationJobSnapshot | null>(null);
   const [conditionsOpen, setConditionsOpen] = useState(false);
   // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다 — S15P21E201-1296.
@@ -343,10 +349,13 @@ function PlanConditions() {
       case 'pace':
         return optionGrid(PACE_OPTIONS, draft.paceLevel ? [draft.paceLevel] : [], (code) => update({ paceLevel: code as PlanDraft['paceLevel'] }));
       case 'aids':
+        // 🔴 큰 짐 문항을 뺐다 (S15P21E201-1855). 물어도 아무 일이 안 일어났다 —
+        //    백엔드에 HEAVY_LUGGAGE 를 «읽는» 코드가 한 줄도 없다. 장소 자료에 무거운 짐을
+        //    가리키는 칸이 없고(BarrierFreeAccessibility), 계단 없는 길로 묻는
+        //    STEP_FREE_KEYS 에도 없다. 휠체어·유아차는 둘 다 그 목록에 있어 남긴다.
         return <View style={styles.stack}>{([
           ['wheelchair', '휠체어를 써요', 'I use a wheelchair'],
           ['stroller', '유아차가 있어요', 'I have a stroller'],
-          ['luggage', '큰 짐이 있어요', 'I have large luggage'],
         ] as const).map(([field, k, e]) => (
           <View key={field} style={styles.binaryRow}>
             <Text style={styles.binaryLabel}>{tx(k, e)}</Text>
@@ -364,7 +373,24 @@ function PlanConditions() {
               ))}
             </View>
           </View>
-        ))}</View>;
+        ))}
+          {/* 🔴 자료가 «있는데 적다»는 것을 미리 말한다 (S15P21E201-1855). 접근성 표식은
+              6,866곳 중 102곳(1.5%)뿐이라, 고르고 나면 거의 모든 곳에 「확인되지 않았어요」가
+              붙는다. 그때 처음 알면 「앱이 고장 났다」로 읽힌다 — 고르기 전에 말하면
+              「아직 덜 모았구나」가 된다. 숫자는 서버가 세어 준 것이고, 못 물어봤으면 안 적는다. */}
+          {accessibilityCounts ? (
+            <Text variant="caption" color={color.text.muted} style={styles.coverageNote}>
+              {txf(
+                tx,
+                // 영어도 값 순서를 한국어(전체 · 확인된 수)에 맞춰 틀을 고쳐 적었다 — txf 는 앞에서부터 차례로 끼운다.
+                '지금 접근성을 확인한 곳은 %s곳 중 %s곳이에요. 고르시면 나머지는 「아직 확인되지 않았어요」로 나와요 — 못 간다는 뜻은 아니에요.',
+                'Of %s places, we have checked access for %s so far. The rest will show as "not checked yet" — that does not mean you cannot go.',
+                accessibilityCounts.totalPlaceCount,
+                accessibilityCounts.placeCount,
+              )}
+            </Text>
+          ) : null}
+        </View>;
       case 'must':
         return (
           <MustVisitSearch
@@ -818,5 +844,6 @@ const styles = StyleSheet.create({
   timeField: { flex: 1, gap: spacing[1] },
   input: { minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, color: color.text.heading },
   binaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
+  coverageNote: { marginTop: spacing[1] },
   binaryLabel: { flex: 1 },
 });

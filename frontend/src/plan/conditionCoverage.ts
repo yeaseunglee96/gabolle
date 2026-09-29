@@ -52,6 +52,7 @@ export const COVERAGE_FEATURE = {
   slope: 'SLOPE_PERCENT',
   stairs: 'STAIRS_PRESENT',
   shade: 'SHADE_SCORE',
+  accessibility: 'ACCESSIBILITY_TAG',
 } as const;
 
 const NUMBER = (value: unknown): number => (typeof value === 'number' && Number.isFinite(value) ? value : 0);
@@ -86,6 +87,34 @@ export function hasNoPlaceData(coverage: ConditionCoverage | null, featureType: 
   // 없어요」라고 적으면 원인을 엉뚱한 곳으로 돌린다.
   if (feature.totalPlaceCount <= 0) return false;
   return feature.placeCount <= 0;
+}
+
+/**
+ * 「있기는 한데 너무 적다」 — S15P21E201-1855.
+ *
+ * 🔴 `hasNoPlaceData` 로는 이 상태를 못 잡는다. 접근성 표식은 **6,866곳 중 102곳(1.5%)** 이라
+ *    0곳이 아니고, 그래서 화면이 아무 말도 안 했다. 그런데 휠체어를 고르면 **거의 모든 곳**이
+ *    「확인되지 않았어요」로 나온다 — 사용자는 그것을 「앱이 고장 났다」로 읽는다.
+ *    자료가 적다는 것이 사실이고, 그 사실을 말하면 「고장」이 「아직 덜 모았구나」가 된다.
+ *
+ * 「없다」와 마찬가지로 **모르면 `false`** 다. 못 물어본 서버에 숫자를 지어내지 않는다.
+ */
+export const SCARCE_COVERAGE_RATIO = 0.1;
+
+export function hasScarcePlaceData(coverage: ConditionCoverage | null, featureType: string): boolean {
+  const feature = coverage?.[featureType];
+  if (!feature) return false;
+  if (feature.totalPlaceCount <= 0) return false;
+  // 0곳은 「없다」쪽이 말한다. 여기는 「있는데 적다」만 맡는다 — 한 줄에 두 말이 겹치지 않게.
+  if (feature.placeCount <= 0) return false;
+  return feature.placeCount / feature.totalPlaceCount < SCARCE_COVERAGE_RATIO;
+}
+
+/** 덮임을 「102 / 6,866」처럼 적는다. 비율만 적으면 얼마나 적은지가 안 와닿는다. */
+export function coverageCountsOf(coverage: ConditionCoverage | null, featureType: string): { placeCount: number; totalPlaceCount: number } | null {
+  const feature = coverage?.[featureType];
+  if (!feature || feature.totalPlaceCount <= 0) return null;
+  return { placeCount: feature.placeCount, totalPlaceCount: feature.totalPlaceCount };
 }
 
 export const CONDITION_COVERAGE_KEY = ['condition-coverage'] as const;
