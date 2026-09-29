@@ -32,6 +32,7 @@ import { RouteMap } from '@/map/RouteMap';
 import { courseLetter } from '@/plan/CourseCard';
 import type { DayStart, ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
+import { legRouteParams } from '@/trip/page/legRoute';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
@@ -90,6 +91,13 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const impressions = useImpressionTracker({ accessToken, sourceScreen: confirmed ? 'TRIP_ITINERARY' : 'TRIP_COURSES', active: page?.state === 'ready' });
   // 그날 첫 곳은 어디서 오나 — 둘째 날부터는 숙소다(S15P21E201-1580). 서버가 안 알려 주면(옛 응답) 출발지.
   const startKind: DayStart['kind'] = loaded?.days[dayIndex]?.start?.kind ?? 'ORIGIN';
+  // 장소 카드 줄 아래의 「길 보기」 — 고른 카드로 들어오는 구간(S15P21E201-1831).
+  const selectedLeg = (() => {
+    const index = items.findIndex((each) => each.id === selectedId);
+    if (index < 0) return null;
+    const params = legRouteParams(items, index, loaded?.days[dayIndex]?.start, (each) => each.title, tx);
+    return params ? { item: items[index], params, label: formatTravelLabel(items[index], tx, index === 0 && startKind) } : null;
+  })();
   const [layout, setLayout] = useState<Layout>('cards');
   // 🔴 ⋯ 메뉴는 공용 DropdownMenu(창)다(S15P21E201-1593). 전에는 화면 위에 직접 그린 판이라 닫는 길이 「⋯ 다시 누르기」뿐이었다 —
   //    메뉴를 연 채 「동행 초대」를 누르면 메뉴가 초대 창 위에 남고 Escape 로도 안 닫혔다(넓은 화면 실측).
@@ -258,6 +266,19 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                   ? <View style={styles.rowCenter}><Text variant="caption" weight="bold">{tx('오늘은 늦어서 내일부터 짰어요.', 'It was too late for today, so your trip starts tomorrow.')}</Text><Pressable accessibilityRole="button" onPress={() => setDayIndex(dayIndex + 1)}><Text variant="caption" weight="bold" color={color.action.primary}>{tx('내일 일정 보기 ›', "See tomorrow's plan ›")}</Text></Pressable></View>
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text>) : null}
               </View>
+              {/* 고른 카드로 들어오는 구간의 길 — 카드 전체가 버튼이라 그 안에 버튼을 또 둘 수 없어 카드 줄 아래에 둔다(S15P21E201-1831). */}
+              {selectedLeg ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={txf(tx, '%s까지 가는 길 보기', 'Directions to %s', selectedLeg.item.title)}
+                  onPress={() => router.push({ pathname: '/route-detail', params: selectedLeg.params })}
+                  style={({ pressed }) => [styles.selectedLeg, pressed && styles.pressed]}
+                >
+                  <Text variant="caption" weight="bold" numberOfLines={1} style={styles.shrinkText}>{selectedLeg.item.title}</Text>
+                  {selectedLeg.label ? <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.shrinkText}>{selectedLeg.label}</Text> : null}
+                  <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('길 보기 ›', 'Directions ›')}</Text>
+                </Pressable>
+              ) : null}
               {/* 하루 끝 — 숙소(마지막 날은 출발지)로 돌아가기 (S15P21E201-1566) */}
               <DayReturnRow leg={loaded?.days[dayIndex]?.returnLeg} tx={tx} />
               <View style={styles.summaryRow}>
@@ -265,8 +286,9 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                 <View style={[styles.summaryCard, styles.summaryFlex1]}>
                   <Text variant="caption" weight="bold" color={color.text.muted}>{tx('이동', 'Travel')}</Text>
                   <Text variant="display" weight="bold">{travelTotal > 0 ? txf(tx, '%s분', '%s min', travelTotal) : tx('미집계', 'Not measured')}</Text>
-                  {/* 🔴 모르는 것을 지우지 않고 «모른다» 고 적는다 — 도보는 대중교통 여행에서 서버가 안 잰다(itinerary.tsx 주석). */}
-                  <Text variant="caption" color={color.text.muted}>{tx('도보 거리 미집계 · 대중교통 안내 아직 없어요', 'Walking distance not measured · no transit guidance yet')}</Text>
+                  {/* 🔴 모르는 것을 지우지 않고 «모른다» 고 적는다 — 도보는 대중교통 여행에서 서버가 안 잰다(itinerary.tsx 주석).
+                      「대중교통 안내 아직 없어요」는 지웠다 — 구간마다 「길 보기」가 버스·지하철 단계를 보여준다(S15P21E201-1831). */}
+                  <Text variant="caption" color={color.text.muted}>{tx('도보 거리 미집계 · 버스·지하철은 「길 보기」에서', 'Walking distance not measured · bus and metro in Directions')}</Text>
                 </View>
                 <View style={[styles.summaryCard, styles.summaryFlex1]}>
                   <Text variant="caption" weight="bold" color={color.text.muted}>{tx('확인할 것', 'Check')}</Text>
@@ -293,10 +315,23 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
               {items.map((item, index) => {
                 const photo = photos[item.placeId] ?? null;
                 const leg = formatTravelLabel(item, tx, index === 0 && startKind);
+                // 들어오는 구간을 경로 상세로 — 대중교통·택시·도보를 나란히 본다(S15P21E201-1831). 좌표를 모르면 글자만.
+                const legParams = legRouteParams(items, index, loaded?.days[dayIndex]?.start, (each) => each.title, tx);
                 return (
                   <Fragment key={item.id}>
                     {/* 앞 곳과 이 곳 사이에 남는 시간 — 「자유 시간 · 50분」(S15P21E201-1668). 모르거나 30분이 안 되면 안 그린다. */}
                     {index > 0 ? <FreeTimeRow minutes={freeTimeMinutes(items, index - 1)} tx={tx} style={styles.bigFree} /> : null}
+                    {legParams ? (
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={txf(tx, '%s까지 가는 길 보기', 'Directions to %s', item.title)}
+                        onPress={() => router.push({ pathname: '/route-detail', params: legParams })}
+                        style={({ pressed }) => [styles.bigLeg, pressed && styles.pressed]}
+                      >
+                        {leg ? <Text variant="caption" color={color.text.muted}>{leg}</Text> : null}
+                        <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('길 보기 ›', 'Directions ›')}</Text>
+                      </Pressable>
+                    ) : null}
                     <ImpressionView tracker={impressions} placeId={item.placeId} requestId={item.requestId}>
                     <Pressable accessibilityRole="button" accessibilityState={{ selected: item.id === selectedId }} onPress={() => setSelectedId(item.id)} style={[styles.bigRow, item.id === selectedId && styles.selectedBorder]}>
                       <View style={styles.bigThumb}>
@@ -304,7 +339,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                       </View>
                       <View style={styles.bigCopy}>
                         <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><StopName weight="bold" title={item.title} nameEn={photo?.nameEn} /></View>
-                        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[item.startsAt.slice(11, 16), leg].filter(Boolean).join(' · ')}</Text>
+                        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[item.startsAt.slice(11, 16), legParams ? null : leg].filter(Boolean).join(' · ')}</Text>
                       </View>
                     </Pressable>
                     </ImpressionView>
@@ -557,6 +592,9 @@ const styles = StyleSheet.create({
 
   bigList: { width: BIG_LIST_WIDTH, gap: spacing[2] },
   bigFree: { marginLeft: spacing[3] },
+  selectedLeg: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, alignSelf: 'stretch' },
+  shrinkText: { flexShrink: 1 },
+  bigLeg: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 32, marginLeft: spacing[3], alignSelf: 'flex-start' },
   bigRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, borderWidth: 2, borderColor: color.surface.card, backgroundColor: color.surface.card },
   bigThumb: { width: 48, height: 48, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' },
   bigCopy: { flex: 1, minWidth: 0, gap: 2 },
