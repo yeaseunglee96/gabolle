@@ -735,6 +735,12 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s 언팔로우': { ja: '%sのフォローを解除', zhHans: '取消关注 %s', zhHant: '取消追蹤 %s' },
   '%s 기록 보기': { ja: '%sの記録を見る', zhHans: '查看 %s 的记录', zhHant: '查看 %s 的記錄' },
   '%s 지도에서 보기': { ja: '%sを地図で見る', zhHans: '在地图上查看 %s', zhHant: '在地圖上查看 %s' },
+  // 주변 버스 지도·가까운 지하철역 — S15P21E201-1830.
+  '지하철': { ja: '地下鉄', zhHans: '地铁', zhHant: '捷運' },
+  '가까운 지하철역': { ja: '近くの地下鉄駅', zhHans: '附近的地铁站', zhHant: '附近的捷運站' },
+  '%s역': { ja: '%s駅', zhHans: '%s站', zhHant: '%s站' },
+  '%s호선': { ja: '%s号線', zhHans: '%s号线', zhHant: '%s號線' },
+  '%s · 걸어서 약 %s분': { ja: '%s · 徒歩約%s分', zhHans: '%s · 步行约 %s 分钟', zhHant: '%s · 步行約 %s 分鐘' },
   '%s 제거': { ja: '%sを削除', zhHans: '移除 %s', zhHant: '移除 %s' },
   '%s 참여자 제거': { ja: '参加者 %sを削除', zhHans: '移除参与者 %s', zhHant: '移除參與者 %s' },
   // 🔴 조사·동사 앞에 공백을 두지 않는다 — S15P21E201-1489(B-18). 일본어·중국어는
