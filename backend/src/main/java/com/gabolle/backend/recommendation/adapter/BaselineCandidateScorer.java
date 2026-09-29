@@ -394,6 +394,10 @@ public class BaselineCandidateScorer {
 		//    뺄 곳이 많아져도 고기집으로 채우지 않는다 — 식사 자리가 줄어드는 쪽이 낫다.
 		//    🔴 S15P21E201-1822: 이름에 「고기」가 없는 고깃집(감자탕·국밥·면옥·까르니따스)이 비건 후보에
 		//    남았다. 채식은 고기 육수 집까지, 비건은 회·초밥·해물·멸치 육수 집까지 뺀다.
+		//    S15P21E201-1828: 식단을 채식 하나로 합쳤다. 달걀·유제품은 우리 자료(이름·대표 메뉴·방문 이유)로
+		//    가릴 수 없어 비건과 채식의 차이를 지킬 수 없고, 페스코는 거르는 규칙이 없어 갈비집이 통과했다.
+		//    그래서 채식·비건·페스코 모두 고기·해산물 중심 집을 뺀다. 앱은 채식만 고르게 하고, 옛 여행에 남은
+		//    VEGAN·PESCATARIAN 은 채식과 똑같이 판정한다.
 		//    🔴 S15P21E201-1828: 이름만 보면 대패·식육·라멘·짬뽕 집이 남고, 이름이 고기를 말하지 않는 집(돈반 — 경양식
 		//    돈까스, 신흥관 — 사천짜장)은 아예 못 잡았다. 적재된 대표 메뉴(MENU_PRICE_WON)와 방문 이유
 		//    (WHY_VISIT) 글도 같은 낱말로 본다. 운영 식당 4,298곳 중 이름 말고 글이 있는 곳이 1,550곳이고,
@@ -407,7 +411,7 @@ public class BaselineCandidateScorer {
 			return;
 		}
 		if (MEAT_EXCLUDING_DIETS.contains(dietKey) && !isExplicitlyPlantBased(candidate)) {
-			DietEvidence evidence = dietExclusionEvidence(candidate, "VEGAN".equals(dietKey));
+			DietEvidence evidence = dietExclusionEvidence(candidate, SEAFOOD_EXCLUDING_DIETS.contains(dietKey));
 			if (evidence != null) {
 				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
 						"reason", evidence.reason(), "evidence", evidence.source()));
@@ -461,7 +465,10 @@ public class BaselineCandidateScorer {
 	 * 한식당이 복국·대구탕·아구찜 집이다. 할랄이라고 확인된 곳(DIETARY_SUPPORT_TAG)은 아직 0건이라
 	 * 남는 곳은 전부 「확인 안 됨」 경고로 통과한다.
 	 */
-	private static final Set<String> MEAT_EXCLUDING_DIETS = Set.of("VEGETARIAN", "VEGAN", "HALAL");
+	private static final Set<String> MEAT_EXCLUDING_DIETS = Set.of("VEGETARIAN", "VEGAN", "PESCATARIAN", "HALAL");
+
+	/** 해산물 중심 집까지 빼는 식단 — 채식 하나로 합친 코드들(S15P21E201-1828). 할랄은 해산물을 빼지 않는다. */
+	private static final Set<String> SEAFOOD_EXCLUDING_DIETS = Set.of("VEGETARIAN", "VEGAN", "PESCATARIAN");
 
 	/**
 	 * 할랄 — 술이 중심인 집의 이름 낱말. 운영 식당·카페·도시 장소 이름 전부에 대 보고 골랐다(2026-09-29).
@@ -558,7 +565,7 @@ public class BaselineCandidateScorer {
 			"비건", "채식", "VEGAN", "VEGETARIAN", "사찰음식", "베지");
 
 	/**
-	 * 비건만 추가로 빼는 해산물·생선 중심 낱말(S15P21E201-1822).
+	 * 채식이 고기에 더해 빼는 해산물·생선 중심 낱말(S15P21E201-1822, 채식 통합은 S15P21E201-1828).
 	 *
 	 * <p>🔴 짧은 글자는 일부러 안 넣었다: 「회」(회관·회사·회현), 「게」(가게·게스트하우스),
 	 * 「굴」(굴다리), 「복」(행복). 대신 「횟집」「회센터」「물회」「게장」「대게」처럼 뜻이 하나인
@@ -578,7 +585,7 @@ public class BaselineCandidateScorer {
 			"우동", "소바", "조개구이", "매운탕", "알탕", "꽃게", "게내장", "아나고", "붕장어", "광어", "재첩",
 			"FISH", "OYSTER", "SHRIMP", "CRAB");
 
-	/** 비건만 추가로 빼는 음식 태그 — CUISINE_TAG 의 해산물, DESIRED_FOOD_TAG 의 복국. */
+	/** 채식이 해산물 집으로 빼는 음식 태그 — CUISINE_TAG 의 해산물, DESIRED_FOOD_TAG 의 복국. */
 	private static final Set<String> SEAFOOD_TAGS = Set.of("CUISINE_TAG:SEAFOOD", "DESIRED_FOOD_TAG:BOKGUK");
 
 	/**
@@ -609,11 +616,11 @@ public class BaselineCandidateScorer {
 	 * 채식·비건 낱말이 있으면 그 집은 글 근거로 빼지 않는다 — 「비건 샌드위치도 있다」는 집을 메뉴의 햄으로
 	 * 지우지 않기 위해서다.
 	 */
-	static DietEvidence dietExclusionEvidence(PlaceCandidateResponse.Candidate candidate, boolean vegan) {
+	static DietEvidence dietExclusionEvidence(PlaceCandidateResponse.Candidate candidate, boolean excludeSeafood) {
 		if (isMeatCentric(candidate)) {
 			return new DietEvidence("MEAT_CENTRIC", "NAME_OR_TAG");
 		}
-		if (vegan && isSeafoodCentric(candidate)) {
+		if (excludeSeafood && isSeafoodCentric(candidate)) {
 			return new DietEvidence("SEAFOOD_CENTRIC", "NAME_OR_TAG");
 		}
 		if (containsAny(cleaned(candidate.nameKo()), USUALLY_HAS_VEGETARIAN_DISHES)) {
@@ -630,7 +637,7 @@ public class BaselineCandidateScorer {
 			if (containsAny(body, MEAT_NAME_WORDS)) {
 				return new DietEvidence("MEAT_CENTRIC", text.getKey());
 			}
-			if (vegan && containsAny(body, SEAFOOD_NAME_WORDS)) {
+			if (excludeSeafood && containsAny(body, SEAFOOD_NAME_WORDS)) {
 				return new DietEvidence("SEAFOOD_CENTRIC", text.getKey());
 			}
 		}

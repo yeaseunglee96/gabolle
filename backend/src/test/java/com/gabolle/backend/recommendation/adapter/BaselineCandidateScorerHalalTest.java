@@ -100,7 +100,7 @@ class BaselineCandidateScorerHalalTest {
 	@Test
 	@DisplayName("술 규칙은 할랄에만 — 채식·비건에게 이자카야는 이름만으로는 빠지지 않는다")
 	void 술_규칙은_할랄에만() {
-		for (String code : List.of("VEGETARIAN", "VEGAN")) {
+		for (String code : List.of("VEGETARIAN", "VEGAN", "PESCATARIAN")) {
 			assertThat(score(candidate("이츠키 이자카야", List.of()), diet(code)).constraintVerdict()).as(code)
 					.isEqualTo(ConstraintVerdict.PASS);
 		}
