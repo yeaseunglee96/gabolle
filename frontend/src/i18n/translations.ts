@@ -1042,7 +1042,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '계단 피하기': { ja: '階段を避ける', zhHans: '避开台阶', zhHant: '避開樓梯' },
   '계단 허용': { ja: '階段OK', zhHans: '可接受台阶', zhHant: '可接受樓梯' },
   '계단 미확인': { ja: '階段の希望未確認', zhHans: '台阶偏好未确认', zhHant: '樓梯偏好未確認' },
-  '그늘길 우선': { ja: '日陰の道を優先', zhHans: '优先阴凉路线', zhHant: '優先陰涼路線' },
+  '그늘 많은 곳 우선': { ja: '日陰の多い場所を優先', zhHans: '优先阴凉多的地点', zhHant: '優先陰涼多的地點' },
   '그늘 무관': { ja: '日陰は問わない', zhHans: '阴凉与否均可', zhHant: '陰涼與否均可' },
   '그늘 미확인': { ja: '日陰の希望未確認', zhHans: '阴凉偏好未确认', zhHant: '陰涼偏好未確認' },
   '휠체어 미확인': { ja: '車椅子の利用未確認', zhHans: '轮椅使用未确认', zhHant: '輪椅使用未確認' },
