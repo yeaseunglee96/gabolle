@@ -73,8 +73,27 @@ public record RouteLeg(
 				provider, path, steps, null, List.of());
 	}
 
-	/** 단계별 안내 한 줄. */
-	public record Step(String name, String guidance, int distanceM, int durationMin) {
+	/**
+	 * 단계별 안내 한 줄.
+	 *
+	 * @param stops 이 단계에서 지나는 정류장·역 — 타는 곳부터 내리는 곳까지 노선 순서대로(둘 다 포함). S15P21E201-1836.
+	 *        대중교통 단계에만 있고, 걷기·자동차 단계와 다른 길찾기는 빈 목록이다. 앱의 「탑승 중」 화면이 남은 정류장과
+	 *        내릴 곳을 알리는 데 쓴다 — 전에는 이 목록을 계산해 경로선 좌표로만 쓰고 이름을 버렸다
+	 */
+	public record Step(String name, String guidance, int distanceM, int durationMin, List<StopPoint> stops) {
+
+		public Step {
+			stops = (stops == null) ? List.of() : List.copyOf(stops);
+		}
+
+		/** 지나는 정류장을 모르는(대중교통이 아닌) 단계용 — {@code stops} 를 빈 목록으로 둔다. */
+		public Step(String name, String guidance, int distanceM, int durationMin) {
+			this(name, guidance, distanceM, durationMin, List.of());
+		}
+	}
+
+	/** 지나는 정류장·역 하나. */
+	public record StopPoint(String name, double lat, double lng) {
 	}
 
 	/**

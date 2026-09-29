@@ -194,7 +194,9 @@ public class TransitRouteAdapter implements RouteProviderPort {
 				name = route.name();
 				guidance = from.name() + "에서 " + route.name() + "을(를) 타고 " + to.name() + "에서 내립니다.";
 			}
-			steps.add(new RouteLeg.Step(name, guidance, segmentM, ride.durationMin()));
+			// 걷는 환승은 지나는 정류장이 없다 — 대중교통을 탄 단계만 싣는다(S15P21E201-1836).
+			List<RouteLeg.StopPoint> stops = ride.isWalk() ? List.of() : stopPointsOf(network, ride);
+			steps.add(new RouteLeg.Step(name, guidance, segmentM, ride.durationMin(), stops));
 		}
 
 		// 요금은 구간별 합이 아니라 여정 전체다 — 환승 할인·차액이 그 안에서 끝나기 때문이다.
@@ -217,16 +219,7 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		List<double[]> path = new ArrayList<>();
 		path.add(new double[] { query.originLng(), query.originLat() });
 		for (RaptorPlanner.Ride ride : journey.rides()) {
-			List<String> stopIds = List.of(ride.fromStopId(), ride.toStopId());
-			if (!ride.isWalk()) {
-				TransitNetwork.Route route = network.route(ride.routeId());
-				int from = network.sequenceOf(ride.routeId(), ride.fromStopId());
-				int to = network.sequenceOf(ride.routeId(), ride.toStopId());
-				if (route != null && from >= 0 && to > from) {
-					stopIds = route.stopIds().subList(from, to + 1);
-				}
-			}
-			for (String stopId : stopIds) {
+			for (String stopId : stopIdsOf(network, ride)) {
 				TransitNetwork.Stop stop = network.stop(stopId);
 				if (stop != null) {
 					path.add(new double[] { stop.lng(), stop.lat() });
@@ -235,6 +228,34 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		}
 		path.add(new double[] { query.destLng(), query.destLat() });
 		return List.copyOf(path);
+	}
+
+	/**
+	 * 한 번 탄 구간에서 지나는 정류장 id — 타는 곳부터 내리는 곳까지 노선 순서대로(둘 다 포함). 걷는 환승이거나 노선에서
+	 * 순서를 못 찾으면 두 끝만. 경로선({@link #pathOf})과 단계의 정류장 목록({@link #stopPointsOf})이 같은 목록을 쓴다.
+	 */
+	private static List<String> stopIdsOf(TransitNetwork network, RaptorPlanner.Ride ride) {
+		if (!ride.isWalk()) {
+			TransitNetwork.Route route = network.route(ride.routeId());
+			int from = network.sequenceOf(ride.routeId(), ride.fromStopId());
+			int to = network.sequenceOf(ride.routeId(), ride.toStopId());
+			if (route != null && from >= 0 && to > from) {
+				return route.stopIds().subList(from, to + 1);
+			}
+		}
+		return List.of(ride.fromStopId(), ride.toStopId());
+	}
+
+	/** 단계에 싣는 정류장 목록 — 이름과 좌표. 노선망에 없는 id 는 건너뛴다(경로선과 같은 규칙). */
+	private static List<RouteLeg.StopPoint> stopPointsOf(TransitNetwork network, RaptorPlanner.Ride ride) {
+		List<RouteLeg.StopPoint> points = new ArrayList<>();
+		for (String stopId : stopIdsOf(network, ride)) {
+			TransitNetwork.Stop stop = network.stop(stopId);
+			if (stop != null) {
+				points.add(new RouteLeg.StopPoint(stop.name(), stop.lat(), stop.lng()));
+			}
+		}
+		return List.copyOf(points);
 	}
 
 	/**
