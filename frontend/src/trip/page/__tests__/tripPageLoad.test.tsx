@@ -15,7 +15,9 @@ import type { TripCourse, TripCoursesResult } from '@/plan/tripCourses';
 import { useTripPage } from '@/trip/page/useTripPage';
 
 const auth = { accessToken: null as string | null, ready: false };
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+// push·replace 를 밖에서 보려고 한 벌만 만든다 — 확정 길이 replace 인지 여기서 센다(S15P21E201-1872).
+const mockRouter = { push: jest.fn(), replace: jest.fn() };
+jest.mock('expo-router', () => ({ useRouter: () => mockRouter }));
 jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => auth }));
 jest.mock('@/plan/itinerary', () => ({
   ...jest.requireActual('@/plan/itinerary'),
@@ -118,6 +120,19 @@ describe('여행 일정 화면 여는 길', () => {
     invalidateTripLists.mockClear();
     await act(async () => { await view.result.current.confirm(view.result.current.courses[1]); });
     expect(invalidateTripLists).toHaveBeenCalledTimes(1);
+  });
+
+  it('🔴 코스를 확정하면 일정으로 push 가 아니라 replace 로 간다 — 확정 전 화면이 뒤로 가기에 다시 나오지 않게 (S15P21E201-1872)', async () => {
+    auth.accessToken = 'token-1';
+    auth.ready = true;
+    const view = renderHook(() => useTripPage({ kind: 'trip', tripId: 'trip-1', jobId: null }), { wrapper });
+    await waitFor(() => expect(view.result.current.courses).toHaveLength(3));
+    mockRouter.push.mockClear();
+    mockRouter.replace.mockClear();
+    await act(async () => { await view.result.current.confirm(view.result.current.courses[1]); });
+    expect(mockRouter.replace).toHaveBeenCalledTimes(1);
+    expect(String(mockRouter.replace.mock.calls[0][0])).toMatch(/^\/trips\/[^/]+\/itinerary/);
+    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 
   it('🔴 2·3안(미리보기)을 보다 1안으로 돌아와도 미리보기 번호로 pace 를 부르지 않는다 (S15P21E201-1641)', async () => {

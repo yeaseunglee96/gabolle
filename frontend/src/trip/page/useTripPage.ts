@@ -241,7 +241,7 @@ export function useTripPage(source: TripPageSource) {
       const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
       const currentTitle = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
       // 코스를 고른 직후에만 이름 묻기가 열린 채로 들어간다 — recommendations.tsx 와 같은 규칙.
-      if (shouldAskTripName({ title: currentTitle, alreadyAsked })) { router.push(`${path}?name=1`); return; }
+      if (shouldAskTripName({ title: currentTitle, alreadyAsked })) { router.replace(`${path}?name=1`); return; }
     } catch {
       // 물어볼지 정하다 실패하면 묻지 않고 지나간다. 일정을 여는 길을 막지 않는다.
     } finally {
@@ -249,7 +249,9 @@ export function useTripPage(source: TripPageSource) {
     }
     // 같은 일정이면 주소가 같다 — 옮기지 않고 확정 표시만 켠다.
     if (source.kind === 'itinerary' && source.itineraryId === id) { setConfirmed(true); return; }
-    router.push(path);
+    // 🔴 push 가 아니라 replace 다(S15P21E201-1872). 폰의 「내 일정 보기」는 이 훅(TripPageMobile)을 쓰므로
+    //    push 면 「코스 A로 확정」이 있는 확정 전 화면이 뒤에 남아 뒤로 가기(하드웨어 포함)에 다시 나온다.
+    router.replace(path);
   };
 
   return {

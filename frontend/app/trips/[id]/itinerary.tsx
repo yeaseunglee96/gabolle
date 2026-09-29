@@ -1219,6 +1219,9 @@ function ItineraryClassic() {
   {!wide && itinerary && canReorder && !reorderMode ? <View style={[styles.bottomBar, { paddingBottom: bottomBarClearance(insets.bottom) }]}>
     <Button testID="itinerary-reorder-button" label={tx('순서 수정', 'Reorder')} variant="tertiary" onPress={startReorder} />
   </View> : null}
+  {/* 🔴 순서 수정 중에는 위 단추 줄이 사라져 스크롤 창이 떠 있는 탭바 밑까지 늘어났다 — 두 번째 장소의 위/아래
+      화살표가 탭바에 깔려 못 눌렀다(S15P21E201-1872 실기). 같은 높이를 비워 창이 탭바 위에서 끝나게 한다. */}
+  {!wide && itinerary && reorderMode ? <View testID="itinerary-reorder-tabbar-spacer" pointerEvents="none" style={{ height: bottomBarClearance(insets.bottom) }} /> : null}
   <ExcludeConfirmModal
     visible={excludeConfirming !== null}
     placeTitle={excludeConfirming?.title ?? ''}
