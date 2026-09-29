@@ -22,7 +22,7 @@ const data: TripPassData = {
   owner: '진미리',
   fields: [{ key: '방문지', value: '9곳' }],
   url: PASS_URL,
-  validText: '이 승차권은 10.3 여행에만 쓸 수 있어요',
+  validText: '이 승차권은 10.3 여행에만 쓸 수 있어요', firstStop: null, lastStop: null, conditions: []
 };
 
 describe('여행표 앞면의 「내 일정 보기」', () => {
