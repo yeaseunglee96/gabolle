@@ -22,6 +22,7 @@ import { markChecklistStep } from '@/onboarding/firstRun';
 import { loadPlacePhotos } from '@/plan/placePhotos';
 import { buildTripPass, buildTripPassDetails } from '@/plan/tripPassData';
 import { useI18n } from '@/i18n';
+import { otherNameFor } from '@/discovery/localNames';
 
 const STAGES = [
   { keys: ['접수', '후보', 'COLLECT', 'CANDIDATE', 'CREATED', 'VERSION_RESOLUTION'], label: '후보 장소 수집', en: 'Collect candidate places' },
@@ -261,7 +262,7 @@ export default function Generating() {
   useEffect(() => {
     if (!stopIds) return undefined;
     let active = true;
-    void loadPlacePhotos(stopIds.split(',')).then((photos) => { if (active) setNameEnByPlaceId(Object.fromEntries(Object.entries(photos).map(([id, photo]) => [id, photo.nameEn ?? null]))); });
+    void loadPlacePhotos(stopIds.split(',')).then((photos) => { if (active) setNameEnByPlaceId(Object.fromEntries(Object.entries(photos).map(([id, photo]) => [id, otherNameFor(photo.nameEn, photo.localNames, language)]))); });
     return () => { active = false; };
   }, [stopIds]);
   const visitCount = itinerary?.days.reduce((sum, day) => sum + day.items.length, 0) ?? 0;

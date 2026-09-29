@@ -23,6 +23,7 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { txf } from '@/i18n/format';
+import { otherNameFor } from '@/discovery/localNames';
 
 // 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
 const PLACES = DEMO_PLACES;
@@ -63,7 +64,7 @@ export default function Place() {
     demoPlace
       ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
       : remote.status === 'loaded'
-        ? { title: placeNameForLanguage(remote.place.nameKo, remote.place.nameEn, language), subtitle: remote.place.address ? tx(remote.place.address, remote.place.addressEn ?? remote.place.address) : '', apiPlace: remote.place }
+        ? { title: placeNameForLanguage(remote.place.nameKo, otherNameFor(remote.place.nameEn, remote.place.localNames, language), language), subtitle: remote.place.address ? tx(remote.place.address, remote.place.addressEn ?? remote.place.address) : '', apiPlace: remote.place }
         : null
   ), [demoPlace, remote, tx]);
   // 사진 목록 — 서버가 photos 를 보내면 그것, 안 보내면 옛 photoUrl 한 장(S15P21E201-1839).

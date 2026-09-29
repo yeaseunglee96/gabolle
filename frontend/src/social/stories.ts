@@ -6,6 +6,8 @@ import { singleFileFormData } from '@/api/multipart';
 import { txf } from '@/i18n/format';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { decodeHtmlText } from '@/social/htmlText';
+import { localNameFor, type LocalNames } from '@/discovery/localNames';
+import type { LanguageCode } from '@/i18n/languages';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 /** MINE 은 화면만의 갈래다 — 서버 피드에는 없고 내 프로필 기록 목록(loadUserStories)으로 채운다. */
@@ -31,7 +33,8 @@ export type StoryDto = {
   author: { id: string; displayName: string; avatarUrl?: string | null };
   body: string;
   region?: string | null;
-  place?: { id: string; name: string; lat: number | null; lng: number | null } | null;
+  /** nameEn·addressEn — 서버가 영문 값이 있을 때만 싣는다(S15P21E201-1189, NON_NULL). 화면에 그릴 이름은 storyPlaceName. */
+  place?: { id: string; name: string; lat: number | null; lng: number | null; address?: string | null; nameEn?: string; addressEn?: string; localNames?: LocalNames } | null;
   tripId?: string | null;
   images: Array<{ url: string; position: number }>;
   visibility: StoryVisibility;
@@ -179,6 +182,16 @@ export async function deleteStory(id: string, accessToken: string | null): Promi
   } catch (error) {
     return failure(error);
   }
+}
+
+/**
+ * 기록에 달린 장소 이름을 화면 언어로.
+ * 🔴 서버는 9/17부터 영어 이름(nameEn)을 실어 보냈는데 앱이 한국어 이름만 그려서, 영어·일본어·중국어 화면의
+ *    추억 지도 칩·기록 카드 제목이 전부 한국어였다(사용자 지적 2026-09-30).
+ *    한국어는 그대로, 영어는 nameEn, 일본어·중국어는 관광공사 번역 이름(localNames, S15P21E201-1859) → 앱 번역표 → nameEn → 한국어.
+ */
+export function storyPlaceName(place: { name: string; nameEn?: string | null; localNames?: LocalNames }, tx: (ko: string, en: string) => string, language: LanguageCode): string {
+  return localNameFor(place.localNames, language) ?? tx(place.name, place.nameEn?.trim() || place.name);
 }
 
 export function relativeStoryTime(iso: string, tx: (ko: string, en: string) => string) {

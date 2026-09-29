@@ -6,6 +6,7 @@ import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import type { PhotoLicense, PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
+import { localNameFor, type LocalNames } from '@/discovery/localNames';
 
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string; labelEn?: string | null };
 // 서버 목록과 순서는 그대로 유지한다. 이 사전은 영문 표기가 없는 기존 응답의 번역만 맡는다.
@@ -26,7 +27,10 @@ export function localFacetLabel(entry: FacetKeyEntry, language: LanguageCode, tx
   const tableLanguage = language === 'ja' || language === 'zh-Hans' || language === 'zh-Hant';
   return tableLanguage && tx ? tx(entry.labelKo, english) : english;
 }
-export function localPlaceName(place: { nameKo: string; nameEn: string | null }, language: LanguageCode): string {
+export function localPlaceName(place: { nameKo: string; nameEn: string | null; localNames?: LocalNames }, language: LanguageCode): string {
+  // 일본어·중국어는 관광공사 번역 이름이 먼저(S15P21E201-1860). 없으면 예전처럼 영어 → 한국어.
+  const local = localNameFor(place.localNames, language);
+  if (local) return local;
   return resolveTextLanguage(language) === 'en' ? place.nameEn?.trim() || place.nameKo : place.nameKo;
 }
 export type LocalFacetEntry = FacetKeyEntry & { placeFeatureType: string };
@@ -69,6 +73,8 @@ export type NearbyPlaceItem = {
   placeId: string;
   nameKo: string;
   nameEn: string | null;
+  /** 일본어·중국어 이름 — 관광공사가 번역해 둔 곳만(S15P21E201-1859). 없으면 칸째 빠져 온다. */
+  localNames?: LocalNames;
   category: string | null;
   address: string | null;
   addressEn?: string;

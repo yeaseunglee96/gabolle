@@ -28,7 +28,7 @@ import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
 import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { regionText } from '@/social/districtNames';
 import { regionBesidePlace } from '@/social/placeRegion';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, resetFeedAfterPost, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryVisibility, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, resetFeedAfterPost, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryVisibility, type StoryReportReason, storyPlaceName } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
@@ -67,18 +67,18 @@ function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
 
 /** 장소 제목 블록 — 시안 2a 의 맨 위 */
 function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }) {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   if (!story.place) return null;
   // 🔴 지역 칸은 「장소 · 구」라 그대로 쓰면 제목의 장소 이름이 한 번 더 나온다(S15P21E201-1759).
   const placeRegion = regionBesidePlace(story.region, story.place.name);
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', story.place.name)}
+      accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', storyPlaceName(story.place, tx, language))}
       onPress={onOpen}
       style={({ pressed }) => [styles.placeHeading, pressed && styles.pressed]}
     >
-      <Text variant="display" weight="bold" color={color.text.heading}>{story.place.name}</Text>
+      <Text variant="display" weight="bold" color={color.text.heading}>{storyPlaceName(story.place, tx, language)}</Text>
       {placeRegion
         ? <View style={styles.placeMetaRow}>
             <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />

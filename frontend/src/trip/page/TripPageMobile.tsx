@@ -82,6 +82,7 @@ import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
 import { StoryComposeForm } from '@/social/StoryComposeForm';
+import { otherNameFor } from '@/discovery/localNames';
 
 type Tx = (ko: string, en: string) => string;
 type Panel = 'trip' | 'collapsed';
@@ -145,7 +146,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
     photos, pace, reloadPace, map, routes, points, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
   // 영어(일·중) 화면의 장소 이름 — 「돈반 (Donban)」, 영어 이름이 있으면 영어 먼저(S15P21E201-1735). 한국어는 제목 그대로.
-  const nameOf = (item: ItineraryItemDto) => stopNameForLanguage(item.title, photos[item.placeId]?.nameEn, language);
+  // 일본어·중국어는 관광공사 번역 이름이 먼저(S15P21E201-1860) — 사진 조회에 함께 실려 온다.
+  const nameOf = (item: ItineraryItemDto) => stopNameForLanguage(item.title, otherNameFor(photos[item.placeId]?.nameEn, photos[item.placeId]?.localNames, language), language);
 
   const [panel, setPanel] = useState<Panel>('trip');
   const [expandedId, setExpandedId] = useState<string | null>(null);

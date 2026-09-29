@@ -22,6 +22,7 @@ import { getPlace, needsFoodSafetyCheck } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
+import { otherNameFor } from '@/discovery/localNames';
 
 type SavedCard = { placeId: string; title: string; subtitle: string; image: number | { uri: string } | null; needsFoodSafetyCheck: boolean };
 
@@ -37,7 +38,7 @@ async function resolveSavedPlace(placeId: string, tx: (ko: string, en: string) =
   }
   try {
     const place = await getPlace(placeId);
-    return { placeId, title: placeNameForLanguage(place.nameKo, place.nameEn, language), subtitle: tx(place.address, place.addressEn ?? place.address), image: place.photoUrl ? { uri: place.photoUrl } : null, needsFoodSafetyCheck: needsFoodSafetyCheck(place) };
+    return { placeId, title: placeNameForLanguage(place.nameKo, otherNameFor(place.nameEn, place.localNames, language), language), subtitle: tx(place.address, place.addressEn ?? place.address), image: place.photoUrl ? { uri: place.photoUrl } : null, needsFoodSafetyCheck: needsFoodSafetyCheck(place) };
   } catch (error) {
     // 삭제됐거나(404) 서버가 잠깐 안 되는 장소는 목록에서 조용히 뺀다 — 저장한 것 자체는
     // 기기에 그대로 남아 있으니 다음에 다시 시도하면 보일 수 있다.

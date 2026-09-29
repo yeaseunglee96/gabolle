@@ -12,12 +12,12 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
-import { loadSavedStories, relativeStoryTime, setStorySaved, type FeedLoadResult, type StoryDto } from '@/social/stories';
+import { loadSavedStories, relativeStoryTime, setStorySaved, type FeedLoadResult, type StoryDto, storyPlaceName } from '@/social/stories';
 import { regionText } from '@/social/districtNames';
 
 export function SavedRecordsBody() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { accessToken } = useAuth();
   const [result, setResult] = useState<FeedLoadResult>({ state: 'success', items: [], nextCursor: null });
   const [loading, setLoading] = useState(true);
@@ -69,7 +69,7 @@ export function SavedRecordsBody() {
         {items.map((story: StoryDto) => (
           <View key={story.id} style={styles.card}>
             <Text variant="caption" numberOfLines={1} style={styles.cardMeta}>
-              {story.author.displayName}{' · '}{relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${regionText(story.region, tx)}` : ''}
+              {story.author.displayName}{' · '}{relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${storyPlaceName(story.place, tx, language)}` : story.region ? ` · ${regionText(story.region, tx)}` : ''}
             </Text>
 
             <View style={styles.cardBody}>

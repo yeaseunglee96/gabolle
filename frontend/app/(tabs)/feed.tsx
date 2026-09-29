@@ -33,7 +33,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RouteMap } from '@/map/RouteMap';
 
-import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type FeedSort, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type FeedSort, type StoryDto, type StoryReportReason, type StoryVisibility, storyPlaceName } from '@/social/stories';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { applyReaction, nextReaction, StoryReactionRow } from '@/social/StoryReactionRow';
@@ -131,12 +131,12 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
   onReact: (reaction: 'LIKE' | 'DISLIKE') => void;
   onQuote: () => void;
 }) {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const hasPhoto = (story.images?.length ?? 0) > 0;
   const courseLink = findCourseLink(story.body);
 
   // 제목은 장소 이름이다. 장소가 없으면 「OO의 기록」 — 비워 두지 않는다(시안 「자주 틀리는 것」 5번).
-  const title = story.place?.name ?? txf(tx, '%s의 기록', "%s's record", story.author.displayName);
+  const title = (story.place ? storyPlaceName(story.place, tx, language) : null) ?? txf(tx, '%s의 기록', "%s's record", story.author.displayName);
 
   const medal = rank ? RANK_COLOR[rank] : undefined;
 
@@ -404,7 +404,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
   sheet?: boolean;
   onCollapse?: () => void;
 }) {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   // 시트 안에서는 지도가 남는 높이를 다 쓴다. 그런데 지도는 높이를 숫자로 받으므로
   // 자리를 재서 넘긴다 — 시트 높이에서 빼는 산수를 적어 두면 안쪽 여백을 고칠 때마다
   // 그 식이 조용히 틀어진다.
@@ -414,7 +414,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
     .map((story, index) => ({
       id: story.id,
       number: index + 1,
-      name: story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? tx('기록', 'Record'),
+      name: (story.place ? storyPlaceName(story.place, tx, language) : null) ?? (story.region ? regionText(story.region, tx) : null) ?? tx('기록', 'Record'),
       latitude: story.place?.lat as number,
       longitude: story.place?.lng as number,
     }));
