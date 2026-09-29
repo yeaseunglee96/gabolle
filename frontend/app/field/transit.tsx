@@ -224,6 +224,8 @@ export default function Bus() {
         routes={NO_ROUTES}
         selectedId={selectedId}
         onSelect={setSelectedId}
+        // 목록의 정류장·역이나 지도의 점을 누르면 그곳으로 지도를 옮긴다(S15P21E201-1834) — 전에는 강조만 바뀌었다.
+        focusSelected
         currentLocation={located ? coords : null}
         height={wide ? 520 : 260}
       />
