@@ -32,9 +32,28 @@ public class ItineraryLeg {
      */
     private final Integer walkingMeters;
 
-    /** 경사·계단 데이터가 채울 자리. 지금은 전부 {@code null}. */
+    /**
+     * 오르막 합(m)·계단 칸 수. 둘 다 아직 아무도 채우지 않아 전부 {@code null} 이다 — 보행 그래프는 계단이 「있는지」만
+     * 알고 몇 칸인지는 모른다. 길의 경사·계단은 {@link #pieces} 가 조각 단위로 싣는다.
+     */
     private final Integer ascentM;
     private final Integer stairSteps;
+
+    /**
+     * 길을 경사·계단이 같은 조각으로 나눈 것 — 번호는 {@link #path} 의 자리다({@code path[from]..path[to]}, 둘 다 포함).
+     * 경로 API({@code /routes})의 {@code pieces} 와 같은 뜻이다.
+     * <p>
+     * 🔴 선형이 있을 때만 있다. 선형이 없으면 가리킬 자리가 없으므로 {@code null} 이다. 우리 보행 그래프가 찾은 걷기만
+     * 조각을 내고, 자동차·대중교통·어림 구간은 {@code null} 이다 — 모르는 경사를 0(평지)으로 지어내지 않는다.
+     * 이 칸이 생기기 전(2026-09-29)에 만든 판도 {@code null} 이다.
+     */
+    private final List<Piece> pieces;
+
+    /**
+     * 조각 하나. {@code slopePercent} 는 방향 없는 기울기(%)이고 모르면 {@code null} — 0(평지)과 다르다.
+     */
+    public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+    }
 
     /**
      * 이 구간이 지나는 길의 좌표 목록 — 「어느 길로 가는지」. {@code [경도, 위도]} 순서다
@@ -130,11 +149,23 @@ public class ItineraryLeg {
                 createdAt);
     }
 
+    /** 경사 조각 칸 이전의 생성자 — 조각 없이 만든 구간이다. 부르는 곳이 여럿이라 한 번에 안 고친다. */
     public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
                         String fromPlaceId, String toPlaceId, String travelMode,
                         Integer distanceM, Integer durationMin, Integer walkingMeters,
                         Integer ascentM, Integer stairSteps, ItineraryItem.DataStatus dataStatus,
                         Integer fareKrw, List<double[]> path, Integer uncalibratedDurationMin, Instant createdAt) {
+        this(itineraryLegId, itineraryVersionId, dayIndex, sequence, fromPlaceId, toPlaceId, travelMode,
+                distanceM, durationMin, walkingMeters, ascentM, stairSteps, dataStatus, fareKrw, path, null,
+                uncalibratedDurationMin, createdAt);
+    }
+
+    public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
+                        String fromPlaceId, String toPlaceId, String travelMode,
+                        Integer distanceM, Integer durationMin, Integer walkingMeters,
+                        Integer ascentM, Integer stairSteps, ItineraryItem.DataStatus dataStatus,
+                        Integer fareKrw, List<double[]> path, List<Piece> pieces, Integer uncalibratedDurationMin,
+                        Instant createdAt) {
 
         if (dayIndex < 0) {
             throw new IllegalArgumentException("dayIndex 는 0 이상이어야 한다: " + dayIndex);
@@ -172,6 +203,8 @@ public class ItineraryLeg {
         this.dataStatus = dataStatus;
         this.fareKrw = fareKrw;
         this.path = normalizePath(path);
+        // 선형이 없으면 조각이 가리킬 자리가 없다. 빈 목록도 「없다」로 눕힌다 — 선형과 같은 규칙이다.
+        this.pieces = (this.path == null || pieces == null || pieces.isEmpty()) ? null : List.copyOf(pieces);
         this.uncalibratedDurationMin = uncalibratedDurationMin;
         this.createdAt = createdAt;
     }
@@ -208,6 +241,9 @@ public class ItineraryLeg {
 
     /** 그릴 수 있는 선형이 있는가. */
     public boolean hasPath()           { return path != null; }
+
+    /** 길의 경사·계단 조각. 선형이 없거나 조각을 모르면 {@code null}. */
+    public List<Piece> pieces()        { return pieces; }
 
     public Instant createdAt()         { return createdAt; }
 }

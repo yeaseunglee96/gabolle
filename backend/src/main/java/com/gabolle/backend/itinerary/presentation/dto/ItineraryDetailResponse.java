@@ -48,7 +48,32 @@ public record ItineraryDetailResponse(
 		 * ({@code BudgetAllowance}). 합계가 예산을 넘었어도 이 값 안이면 앱이 경고 대신 부드럽게 알린다
 		 * (S15P21E201-1743, 사용자 결정 2026-09-26). 예산을 안 정한 여행이면 {@code null}.
 		 */
-		Integer budgetCapKrw) {
+		Integer budgetCapKrw,
+
+		/**
+		 * 이 여행의 걷는 길을 계단·급경사를 피해 찾았나 — 이동 조건에 휠체어·유아차·계단 피하기 가운데 하나를
+		 * 「골랐다」면 {@code true}. 일정 구간을 잴 때({@code ItineraryLegPlanner.needsStepFree})와 같은 규칙 한 곳에서
+		 * 센다. 앱이 한 구간의 길을 다시 물을 때 이 값을 {@code /routes?stepFree=} 에 그대로 실으면 일정과 같은 길이
+		 * 나온다.
+		 */
+		boolean stepFree) {
+
+	/** 계단 피하기 칸 이전의 생성자 — 보통 길로 잰 일정이다. */
+	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
+			Integer totalEstimatedCostKrw, Integer totalWalkingMeters, FallbackMode fallbackMode, String myRole,
+			boolean canEdit, List<String> warningCodes, String tripId, int accessibilityUnverifiedCount,
+			int partySize, Integer budgetCapKrw) {
+		this(id, title, version, days, totalEstimatedCostKrw, totalWalkingMeters, fallbackMode, myRole, canEdit,
+				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, false);
+	}
+
+	/**
+	 * 길 조각 하나 — 경로 API({@code /routes})의 {@code pieces} 와 같은 모양이다.
+	 * {@code travelPath[from]..travelPath[to]}(둘 다 포함)의 경사(%, 방향 없음 · 모르면 {@code null} — 0(평지)과
+	 * 다르다)와 계단 여부.
+	 */
+	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+	}
 
 	/**
 	 * 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}).
@@ -157,6 +182,14 @@ public record ItineraryDetailResponse(
 			 * 그때 어느 길로 갔는지는 남아 있지 않다.
 			 */
 			List<double[]> travelPath,
+
+			/**
+			 * {@code travelPath} 를 경사·계단이 같은 조각으로 나눈 것 — {@code [{from, to, slopePercent, stairs}, …]}.
+			 * 번호는 {@code travelPath} 의 자리다. 🔴 {@code travelPath} 가 있을 때만 있고, 그중에서도 우리 보행 그래프가
+			 * 찾은 걷기만 조각이 있다(자동차·대중교통·어림 구간은 {@code null}). 이 칸이 생기기 전(2026-09-29)에 만든 판도
+			 * {@code null} 이다. 빈 배열은 나가지 않는다.
+			 */
+			List<Piece> travelPieces,
 
 			/**
 			 * 이 항목에 붙은 경고. {@code itinerary_item.warning_codes} 를 그대로 옮긴다. 경고가

@@ -425,6 +425,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	}
 
 	private static ItineraryLeg toDomain(ItineraryLegJpaEntity e) {
+		List<double[]> path = decodePath(e.path());
 		return new ItineraryLeg(
 				e.itineraryLegId().toString(),
 				e.itineraryVersionId().toString(),
@@ -440,12 +441,14 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				e.stairSteps(),
 				e.dataStatus(),
 				e.fareKrw(),
-				decodePath(e.path()),
+				path,
+				decodePieces(e.pieces(), path),
 				e.uncalibratedDurationMin(),
 				toInstant(e.createdAt()));
 	}
 
 	private static ItineraryLegJpaEntity toEntity(UUID versionId, ItineraryLeg leg) {
+		String path = encodePath(leg.path());
 		return new ItineraryLegJpaEntity(
 				UUID.fromString(leg.itineraryLegId()),
 				versionId,
@@ -461,9 +464,72 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				leg.stairSteps(),
 				leg.dataStatus(),
 				leg.fareKrw(),
-				encodePath(leg.path()),
+				path,
+				// 선형을 못 적었으면 조각도 적지 않는다 — 가리킬 자리가 없는 조각이 된다.
+				(path == null) ? null : encodePieces(leg.pieces()),
 				leg.uncalibratedDurationMin(),
 				toOffset(leg.createdAt()));
+	}
+
+	/**
+	 * 경사·계단 조각을 {@code [{"from":0,"to":3,"slopePercent":2.5,"stairs":false}, …]} JSON 으로 적는다 — 경로 API 의
+	 * {@code pieces} 와 같은 모양이다. 없으면 {@code null}. 선형과 같은 이유로 손으로 잇는다(숫자·참거짓뿐이다).
+	 * 경사가 NaN·무한대면 JSON 이 아니므로 모름({@code null})으로 적는다.
+	 */
+	static String encodePieces(List<ItineraryLeg.Piece> pieces) {
+		if (pieces == null || pieces.isEmpty()) {
+			return null;
+		}
+		StringBuilder json = new StringBuilder(pieces.size() * 56).append('[');
+		for (int i = 0; i < pieces.size(); i++) {
+			ItineraryLeg.Piece piece = pieces.get(i);
+			if (i > 0) {
+				json.append(',');
+			}
+			Double slope = piece.slopePercent();
+			json.append("{\"from\":").append(piece.from())
+					.append(",\"to\":").append(piece.to())
+					.append(",\"slopePercent\":").append((slope == null || !Double.isFinite(slope)) ? "null" : slope)
+					.append(",\"stairs\":").append(piece.stairs())
+					.append('}');
+		}
+		return json.append(']').toString();
+	}
+
+	/**
+	 * 조각 JSON 을 읽는다. 선형이 없거나, 값이 깨졌거나, 번호가 선형 밖을 가리키면 {@code null} — 선형과 같이 그 구간만
+	 * 조각 없이 두고 일정 전체를 실패시키지 않는다. 틀린 자리를 칠하느니 안 칠하는 편이 낫다.
+	 */
+	static List<ItineraryLeg.Piece> decodePieces(String json, List<double[]> path) {
+		if (json == null || json.isBlank() || path == null) {
+			return null;
+		}
+		try {
+			JsonNode root = PATH_MAPPER.readTree(json);
+			if (!root.isArray() || root.size() == 0) {
+				return null;
+			}
+			List<ItineraryLeg.Piece> pieces = new ArrayList<>(root.size());
+			for (JsonNode node : root) {
+				JsonNode from = node.get("from");
+				JsonNode to = node.get("to");
+				JsonNode slope = node.get("slopePercent");
+				JsonNode stairs = node.get("stairs");
+				if (from == null || !from.isInt() || to == null || !to.isInt() || stairs == null
+						|| !stairs.isBoolean() || (slope != null && !slope.isNull() && !slope.isNumber())) {
+					return null;
+				}
+				if (from.intValue() < 0 || to.intValue() < from.intValue() || to.intValue() >= path.size()) {
+					return null;
+				}
+				pieces.add(new ItineraryLeg.Piece(from.intValue(), to.intValue(),
+						(slope == null || slope.isNull()) ? null : slope.doubleValue(), stairs.booleanValue()));
+			}
+			return pieces;
+		}
+		catch (JacksonException malformed) {
+			return null;
+		}
 	}
 
 	/**

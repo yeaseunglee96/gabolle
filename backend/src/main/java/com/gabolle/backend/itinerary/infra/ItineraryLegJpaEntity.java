@@ -83,6 +83,14 @@ public class ItineraryLegJpaEntity {
 	@Column(name = "path", updatable = false)
 	private String path;
 
+	/**
+	 * 길의 경사·계단 조각을 JSON 으로 — {@code [{"from":0,"to":3,"slopePercent":2.5,"stairs":false}, …]}. 번호는
+	 * {@code path} 의 자리다. {@code null} 은 "조각을 모른다" 이고 선형이 없으면 늘 {@code null} 이다.
+	 */
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "pieces", updatable = false)
+	private String pieces;
+
 	/** 엔진이 처음 어림한 이동 분 — 보정 전(S15P21E201-1700). {@code durationMin} 은 고친 값이다. */
 	@Column(name = "uncalibrated_duration_min", updatable = false)
 	private Integer uncalibratedDurationMin;
@@ -97,8 +105,9 @@ public class ItineraryLegJpaEntity {
 	ItineraryLegJpaEntity(UUID itineraryLegId, UUID itineraryVersionId, int dayIndex, int sequence,
 			UUID fromPlaceId, UUID toPlaceId, String travelMode, Integer distanceM, Integer durationMin,
 			Integer walkingMeters, Integer ascentM, Integer stairSteps,
-			ItineraryItem.DataStatus dataStatus, Integer fareKrw, String path, Integer uncalibratedDurationMin,
-			OffsetDateTime createdAt) {
+			ItineraryItem.DataStatus dataStatus, Integer fareKrw, String path, String pieces,
+			Integer uncalibratedDurationMin, OffsetDateTime createdAt) {
+		this.pieces = pieces;
 		this.itineraryLegId = itineraryLegId;
 		this.itineraryVersionId = itineraryVersionId;
 		this.dayIndex = dayIndex;
@@ -119,6 +128,7 @@ public class ItineraryLegJpaEntity {
 	}
 
 	String path() { return path; }
+	String pieces() { return pieces; }
 	UUID itineraryLegId() { return itineraryLegId; }
 	UUID itineraryVersionId() { return itineraryVersionId; }
 	int dayIndex() { return dayIndex; }

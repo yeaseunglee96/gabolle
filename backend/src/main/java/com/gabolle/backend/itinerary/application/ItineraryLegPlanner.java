@@ -138,7 +138,9 @@ public class ItineraryLegPlanner {
                         walkingMeters, measured.dataStatus(), measured.fareKrw(),
                         // 선형은 실제 길찾기 응답을 받았을 때만 들어온다. 위에서 직선거리로
                         // 메운 경우에는 null 이고, 그 구분이 지도에서 실선과 점선을 가른다.
-                        measured.path(), estimated));
+                        measured.path(), estimated,
+                        // 경사·계단 조각도 선형과 같이 온다 — 선형이 없으면 조각도 없다.
+                        measured.pieces()));
             }
         }
         return legs;
@@ -184,7 +186,7 @@ public class ItineraryLegPlanner {
                 leg.fromPlaceId() != null ? leg.fromPlaceId().toString() : null,
                 leg.toPlaceId().toString(), leg.travelMode(), leg.distanceM(),
                 leg.durationMin(), leg.walkingMeters(), null, null,
-                leg.dataStatus(), leg.fareKrw(), leg.path(), leg.uncalibratedDurationMin(), now);
+                leg.dataStatus(), leg.fareKrw(), leg.path(), leg.pieces(), leg.uncalibratedDurationMin(), now);
     }
 
     /**
@@ -218,7 +220,7 @@ public class ItineraryLegPlanner {
      * .evaluateConstraints})가 이동 조건을 읽는 규칙과 같다 — 추천은 휠체어로 들어갈 수 있는 곳을 골라 놓고 가는 길은
      * 계단으로 내면 안 된다. 제약은 추천 작업과 같게 가장 최신 판을 읽는다({@code RecommendationJobRunner}).
      */
-    boolean needsStepFree(Trip trip) {
+    public boolean needsStepFree(Trip trip) {
         if (this.tripRepository == null || trip == null || trip.tripId() == null) {
             return false;
         }

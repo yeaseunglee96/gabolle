@@ -42,11 +42,22 @@ public record ItineraryDraft(
      * @param durationMin 이동 분 — 실제 이동으로 고친 배율이 켜져 있으면 고친 값이다. 화면과 시각 깔기가 이 값을 쓴다
      * @param uncalibratedDurationMin 엔진이 처음 어림한 이동 분(보정 전). 보정 계산이 「실제 ÷ 이 값」을 잰다 — 고친 값과
      *     견주면 배율이 겹쳐 곱해진다(S15P21E201-1700)
+     * @param pieces {@code path} 를 경사·계단이 같은 조각으로 나눈 것. 선형이 없거나 조각을 모르면 {@code null}
      */
     public record DraftLeg(int dayIndex, int sequence, UUID fromPlaceId, UUID toPlaceId,
             String travelMode, Integer distanceM, Integer durationMin, Integer walkingMeters,
             com.gabolle.backend.itinerary.domain.ItineraryItem.DataStatus dataStatus, Integer fareKrw,
-            java.util.List<double[]> path, Integer uncalibratedDurationMin) {
+            java.util.List<double[]> path, Integer uncalibratedDurationMin,
+            java.util.List<com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece> pieces) {
+
+        /** 경사 조각 칸 이전의 생성자. 조각 없이 만든 구간이다. */
+        public DraftLeg(int dayIndex, int sequence, UUID fromPlaceId, UUID toPlaceId, String travelMode,
+                Integer distanceM, Integer durationMin, Integer walkingMeters,
+                com.gabolle.backend.itinerary.domain.ItineraryItem.DataStatus dataStatus, Integer fareKrw,
+                java.util.List<double[]> path, Integer uncalibratedDurationMin) {
+            this(dayIndex, sequence, fromPlaceId, toPlaceId, travelMode, distanceM, durationMin,
+                    walkingMeters, dataStatus, fareKrw, path, uncalibratedDurationMin, null);
+        }
 
         /** 보정 전 칸 이전의 생성자. 보정 없이 만든 구간이다. */
         public DraftLeg(int dayIndex, int sequence, UUID fromPlaceId, UUID toPlaceId, String travelMode,
