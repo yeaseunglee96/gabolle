@@ -38,13 +38,21 @@ public record RouteDirectionsResponse(
 	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
 	}
 
-	/** 안내 한 줄 — 예: {@code name="해운대해수욕장삼거리"}, {@code guidance="송정 방면으로 우회전"}. */
-	public record Step(String name, String guidance, int distanceM, int durationMin) {
+	/**
+	 * 안내 한 줄 — 예: {@code name="해운대해수욕장삼거리"}, {@code guidance="송정 방면으로 우회전"}.
+	 * {@code stops} 는 대중교통 단계에서 지나는 정류장·역(타는 곳~내리는 곳, 노선 순서). 그 밖의 단계는 빈 목록 — S15P21E201-1836.
+	 */
+	public record Step(String name, String guidance, int distanceM, int durationMin, List<Stop> stops) {
+	}
+
+	/** 지나는 정류장·역 하나. */
+	public record Stop(String name, double lat, double lng) {
 	}
 
 	public static RouteDirectionsResponse from(RouteLeg leg) {
 		List<Step> steps = leg.steps().stream()
-				.map(step -> new Step(step.name(), step.guidance(), step.distanceM(), step.durationMin()))
+				.map(step -> new Step(step.name(), step.guidance(), step.distanceM(), step.durationMin(),
+						step.stops().stream().map(stop -> new Stop(stop.name(), stop.lat(), stop.lng())).toList()))
 				.toList();
 		return new RouteDirectionsResponse(
 				leg.mode().name(),
