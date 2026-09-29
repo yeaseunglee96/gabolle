@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
 import { act, render } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
-import { applyBudgetDefault, defaultBudgetKrw, LEGACY_DEFAULT_BUDGET_KRW, restoreBudget, tripDayCount } from '@/plan/budgetDefault';
+import { applyBudgetDefault, budgetForDaily, defaultBudgetKrw, LEGACY_DEFAULT_BUDGET_KRW, restoreBudget, tripDayCount } from '@/plan/budgetDefault';
 import { EMPTY_PLAN, PlanProvider, usePlan } from '@/plan/PlanProvider';
 
 jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ user: null, accessToken: null }) }));
@@ -86,5 +86,15 @@ describe('초안 공급자 — 모든 입력이 지나는 update', () => {
     act(() => plan.update({ budgetKrw: 200000 }));
     act(() => plan.update({ adults: 4, travelers: 4 }));
     expect(plan.draft.budgetKrw).toBe(200000);
+  });
+});
+
+describe('예산 칩 — 1인 하루 값으로 합계 (UI 캔버스 ⑤)', () => {
+  it('2명 · 2박 3일이면 하루 3만 = 18만, 8만 = 48만', () => {
+    const basis = { adults: 2, children: 0, startDate: '2026-10-03', endDate: '2026-10-05' };
+    expect(budgetForDaily(basis, 30000)).toBe(180000);
+    expect(budgetForDaily(basis, 80000)).toBe(480000);
+    // 가운데 칩이 앱 기본값과 같다 — 처음 열면 「보통」이 골라져 있다.
+    expect(budgetForDaily(basis, 50000)).toBe(defaultBudgetKrw(basis));
   });
 });

@@ -21,6 +21,12 @@ export function tripDayCount(startDate: string, endDate: string): number {
   return Number.isFinite(days) && days > 0 ? days : 1;
 }
 
+/** 1인 하루 값으로 여행 전체 합계 — 1만원 단위(UI 캔버스 ⑤ 예산 칩 3·5·8만). */
+export function budgetForDaily(basis: BudgetBasis, perPersonPerDay: number): number {
+  const people = Math.max(1, (basis.adults || 0) + (basis.children || 0));
+  return Math.round((people * tripDayCount(basis.startDate, basis.endDate) * perPersonPerDay) / 10000) * 10000;
+}
+
 /** 1인 × 일수 × 5만원, 1만원 단위. 인원을 아직 모르면 한 명으로 본다. */
 export function defaultBudgetKrw(basis: BudgetBasis): number {
   const people = Math.max(1, (basis.adults || 0) + (basis.children || 0));

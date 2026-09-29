@@ -9,11 +9,13 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
+import { txf } from '@/i18n/format';
 import { color, radius, spacing } from '@/design/tokens';
 import { MonthGrid } from '@/home/PlanStartBar';
 import { MonthPicker } from '@/home/MonthPicker';
 import { MAX_MONTH_OFFSET, monthOffsetOf } from '@/home/monthJump';
-import { EMPTY_START_BAR, addDays, formatDateShort, nightCount, toDateKey } from '@/home/startBarValue';
+import { EMPTY_START_BAR, MAX_TRIP_NIGHTS, addDays, formatDateShort, nightCount, toDateKey } from '@/home/startBarValue';
+
 
 export type DateRange = { startDate: string; endDate: string };
 
@@ -43,6 +45,9 @@ export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() 
     return { year: base.getFullYear(), month: base.getMonth() };
   }, [today, monthOffset]);
   const complete = Boolean(value.startDate && value.endDate);
+  // 출발일만 찍은 동안 — 8일째 뒤는 못 누른다. 「○일까지」를 글로도 적는다(제약을 먼저 보여준다, UI 캔버스 ⑤).
+  const pickingEnd = Boolean(value.startDate && !value.endDate);
+  const lastPickable = pickingEnd ? addDays(value.startDate, MAX_TRIP_NIGHTS) : undefined;
   const label = dateRangeLabel(value, tx);
 
   // 첫 탭은 출발일, 두 번째 탭은 귀환일. 앞선 날짜를 다시 찍으면 처음부터 — 홈 시작 줄과 같은 규칙.
@@ -82,13 +87,16 @@ export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() 
         <View style={styles.monthBody}>
           {monthPickerOpen
             ? <MonthPicker today={today} selected={monthOffset} onPick={(offset) => { setMonthOffset(offset); setMonthPickerOpen(false); }} tx={tx} />
-            : <MonthGrid {...month} value={{ ...EMPTY_START_BAR, startDate: value.startDate, endDate: value.endDate }} today={todayKey} onPick={pick} tx={tx} onPressTitle={() => setMonthPickerOpen(true)} />}
+            : <MonthGrid {...month} value={{ ...EMPTY_START_BAR, startDate: value.startDate, endDate: value.endDate }} today={todayKey} onPick={pick} tx={tx} onPressTitle={() => setMonthPickerOpen(true)} maxDate={lastPickable} />}
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={tx('다음 달', 'Next month')} disabled={monthOffset >= MAX_MONTH_OFFSET} onPress={() => setMonthOffset((n) => Math.min(MAX_MONTH_OFFSET, n + 1))} style={[styles.navButton, monthOffset >= MAX_MONTH_OFFSET && styles.navOff]}>
           <Text weight="bold" color={color.text.heading}>›</Text>
         </Pressable>
       </View>
 
+      {lastPickable ? (
+        <Text variant="caption" color={color.text.muted}>{txf(tx, '돌아오는 날은 %s까지 고를 수 있어요 (최대 7박)', 'You can come back as late as %s (up to 7 nights)', formatDateShort(lastPickable, tx))}</Text>
+      ) : null}
       <Pressable accessibilityRole="button" accessibilityState={{ disabled: !complete }} disabled={!complete} onPress={onDone} style={[styles.done, !complete && styles.doneOff]}>
         <Text weight="bold" color={color.text.onAction}>{complete && label ? `${label} · ${tx('이 날짜로', 'Use these dates')}` : tx('귀환일까지 골라 주세요', 'Pick the return date too')}</Text>
       </Pressable>
