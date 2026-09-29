@@ -72,17 +72,20 @@ describe('폰 — 결과 화면', () => {
     expect(opacityOf(screen.getByText('코스 A로 확정'))).toBe(1);
   });
 
-  it('🔴 하루 안에 끝나는지 모르면 그렇게 말한다', () => {
+  // 모를 때 띠를 아예 안 그린다(UI 캔버스 ④) — 할 일이 없는 문장이라 일정 맨 위를 차지할 이유가 없다.
+  //   그래도 🔴 「괜찮다」고 말해서는 안 된다(S15P21E201-1670).
+  it('🔴 하루 안에 끝나는지 모르면 괜찮다고 말하지 않는다 — 띠를 안 그린다', () => {
     render(<TripPageMobile source={source} />, { wrapper });
-    expect(screen.getByText('하루 안에 끝나는지 아직 몰라요')).toBeTruthy();
+    expect(screen.queryByText('하루 안에 여유 있게 끝나요')).toBeNull();
+    expect(screen.queryByText('하루 안에 끝나는지 아직 몰라요')).toBeNull();
     expect(screen.queryByText('아직 확인 못 했어요')).toBeNull();
   });
 });
 
 describe('넓은 화면 — 「확인할 것」 칸', () => {
-  it('🔴 모르면 같은 문구, 초록이 아니라 흐린 색이다', () => {
+  it('🔴 모르면 언제 알게 되는지 적고, 초록이 아니라 흐린 색이다', () => {
     render(<TripPageDesktop source={source} />, { wrapper });
-    const unknown = screen.getByText('하루 안에 끝나는지 아직 몰라요');
+    const unknown = screen.getByText('여행 당일 이동 기록이 쌓이면 알려 드려요');
     expect(colorOf(unknown)).not.toBe(color.state.success);
     expect(screen.queryByText('아직 확인 못 했어요')).toBeNull();
   });
