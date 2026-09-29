@@ -41,7 +41,7 @@ const TYPE_LABEL: Record<ConstraintType, LocalizedText> = {
 };
 
 /**
- * 앱이 실제로 보내는 값만 적는다 — 식단은 ConditionsPromptModal 의 DIETS,
+ * 앱이 실제로 보내는 값만 적는다 — 식단은 travelConditions 의 DIETS,
  * 이동은 tripApi 의 mobility(). 알레르기는 -1497 부터 안 보내므로 값 이름을 두지 않는다
  * (오더라도 갈래 이름 「알레르기」로 적힌다).
  */

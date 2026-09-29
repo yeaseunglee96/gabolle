@@ -251,8 +251,8 @@ export default function Me() {
           tripCount={tripCount}
           avatarUri={avatarUri}
           coverUri={user?.coverUrl ?? null}
-          // 로그인 전에도 눌린다 — 「–」 타일이 아무 반응이 없으면 고장으로 읽힌다. 로그인하고 그 패널로 돌아온다.
-          counts={[
+          // 🔴 손님에게는 숫자 칸을 안 그린다 — 「– 기록 · – 팔로워」 대시 줄은 고장처럼 보였다. 로그인은 커버의 「로그인」 단추가 맡는다(폰 카드와 같다).
+          counts={!user ? [] : [
             { label: tx('기록', 'Records'), value: storyCount, onPress: () => (user ? openPanel('posts') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=posts' } })) },
             { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => (user ? openPanel('followers') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=followers' } })) },
             { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => (user ? openPanel('following') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=following' } })) },
@@ -260,8 +260,9 @@ export default function Me() {
           eyebrow={<Eyebrow>{tx('내 계정', 'Account')}</Eyebrow>}
           actions={(
             <CoverButton
-              label={tx('프로필 편집', 'Edit profile')}
-              onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
+              label={user ? tx('프로필 편집', 'Edit profile') : tx('로그인', 'Sign in')}
+              tone={user ? 'light' : 'primary'}
+              onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me' } }))}
             />
           )}
           tx={tx}
@@ -346,10 +347,11 @@ export default function Me() {
         { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => (user ? openPanel('followers') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=followers' } })) },
         { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => (user ? openPanel('following') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=following' } })) },
       ]}
+      // 🔴 손님에게는 「로그인」이라고 쓴다 — 전에는 「프로필 편집」이라 적혀 있고 누르면 로그인으로 갔다(이름과 하는 일이 달랐다).
       actions={(
         <ProfileCardButton
-          label={tx('프로필 편집', 'Edit profile')}
-          onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
+          label={user ? tx('프로필 편집', 'Edit profile') : tx('로그인', 'Sign in')}
+          onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me' } }))}
         />
       )}
       tx={tx}
@@ -365,7 +367,8 @@ export default function Me() {
       panes={{ records: (
       /* 🔴 비었을 때는 격자 대신 시안 4 의 02c — 동백이가 「아직 남긴 기록이 없어요」라고 말한다(S15P21E201-1418).
           예전엔 「새 기록 남기기」 타일 하나만 덩그러니 있어 빈 화면이 고장처럼 보였다. 못 불러온 것(null)은 비어 있는 것과 다르다. */
-      user && myStories !== null && myStories.length === 0 ? (
+      // 손님도 같은 빈 판을 본다 — 전에는 기록 탭이 아무것도 없는 흰 칸이었다.
+      !user || (myStories !== null && myStories.length === 0) ? (
         <View style={styles.recordsEmpty}>
           <GabolleMascot state="thinking" still style={styles.recordsEmptyMascot} />
           <Text variant="title" weight="bold">{tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>

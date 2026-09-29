@@ -22,6 +22,13 @@ export type ConditionsAnswerStatus = 'SAVED' | 'LATER' | 'NEVER';
 
 export type TravelConditionsRecord = { status: ConditionsAnswerStatus | null; conditions: TravelConditions | null };
 
+// 비건·페스코는 뺐다(S15P21E201-1828). 서버가 달걀·유제품을 가릴 자료가 없어 비건과 채식을 구분하지
+// 못하고, 셋 다 고기·해산물 중심 집을 빼는 같은 규칙으로 판정한다. 옛 저장값은 travelConditions 가 채식으로 읽는다.
+/** 식단 칩 — 여행 만들기 조건 창과 마이페이지 음식 취향이 같이 쓴다. 한 곳에 둬야 서버 판정(!1851)과 안 어긋난다. */
+export const DIETS = [
+  ['VEGETARIAN', '채식', 'Vegetarian'], ['HALAL', '할랄', 'Halal'], ['GLUTEN_FREE', '글루텐 프리', 'Gluten-free'],
+] as const;
+
 const PATH = '/api/v1/me/preferences/constraints';
 const LOCAL_KEY = 'gabolle.travel-conditions';
 const VALUE_VERSION = 1;
