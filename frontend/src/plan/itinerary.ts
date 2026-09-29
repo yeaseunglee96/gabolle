@@ -24,6 +24,11 @@ export type ItineraryItemDto = {
   // 그리면 사용자가 그 시간에 맞춰 움직이다 늦는다. 이 기능 이전에 만들어진 판은 null 이다.
   travelDurationMin?: number | null;
   travelDataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN' | null;
+  /**
+   * 이 곳으로 들어오는 구간의 대중교통 요금(원) — 서버 ItineraryDetailResponse.Item.travelFareKrw. 대중교통으로 가는 구간에만 차고
+   * 걷는 구간·옛 서버는 null/undefined 다(운영 실측 2026-09-29: 서면→청학시장 1,550원). S15P21E201-1833.
+   */
+  travelFareKrw?: number | null;
   // — 이 항목이 가리키는 장소. "다녀오셨나요" 평가를
   // 어느 장소로 보낼지 여기서 얻는다. ItineraryDetailResponse.Item 기준.
   placeId: string;
