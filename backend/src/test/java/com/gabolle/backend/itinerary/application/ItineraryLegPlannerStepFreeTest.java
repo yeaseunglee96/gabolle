@@ -123,6 +123,36 @@ class ItineraryLegPlannerStepFreeTest {
 		assertThat(this.askedStepFree).containsExactly(false);
 	}
 
+	@Test
+	@DisplayName("🔴 이동 시간 문이 준 경사·계단 조각이 저장할 구간까지 간다 — 예전에는 선형만 가고 조각은 버렸다")
+	void 경사_계단_조각이_구간까지_간다() {
+		List<double[]> road = List.of(new double[] { 129.0422, 35.1152 }, new double[] { 129.1000, 35.1400 },
+				new double[] { 129.1638, 35.1631 });
+		List<com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece> pieces = List.of(
+				new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(0, 1, 3.0, false),
+				new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(1, 2, null, true));
+		TravelTimePort withPieces = new TravelTimePort() {
+			@Override
+			public TravelTime between(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode) {
+				return new TravelTime(900, 14, ItineraryItem.DataStatus.VERIFIED, null, road, pieces);
+			}
+		};
+		when(this.places.findByPlaceIdIn(any())).thenReturn(List.of(this.stop));
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(withPieces);
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.places, provider);
+
+		List<com.gabolle.backend.recommendation.application.port.ItineraryDraft.DraftLeg> legs =
+				planner.buildLegs(trip(), List.of(List.of(this.stop.getPlaceId())));
+		com.gabolle.backend.itinerary.domain.ItineraryLeg saved = ItineraryLegPlanner.toLeg(legs.get(0), "ver_1",
+				Instant.now());
+
+		assertThat(legs.get(0).pieces()).isEqualTo(pieces);
+		assertThat(saved.pieces()).isEqualTo(pieces);
+		assertThat(saved.path()).hasSize(3);
+	}
+
 	private static TripConstraint mobility(String key, TripConstraint.Severity severity,
 			TripConstraint.AnswerStatus answerStatus) {
 		boolean selected = answerStatus == TripConstraint.AnswerStatus.SELECTED;

@@ -3,6 +3,7 @@ package com.gabolle.backend.itinerary.application.port;
 import java.util.List;
 
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
+import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 
 /**
  * 구간 하나의 이동 거리·시간과 그 값을 얼마나 믿을 수 있는지.
@@ -20,9 +21,17 @@ import com.gabolle.backend.itinerary.domain.ItineraryItem;
  *        <b>어느 길로 가는지 모르면 {@code null}</b> 이고, 그때 출발·도착 두 점을 이어
  *        만든 직선을 넣지 않는다 — 그러면 실제로 잰 길과 구분이 사라져 화면이 직선을
  *        실선으로 그린다(S15P21E201-1251·1234)
+ * @param pieces {@code path} 를 경사·계단이 같은 조각으로 나눈 것({@link ItineraryLeg.Piece}). 선형이 없거나 조각을
+ *        모르면(자동차·대중교통·어림) {@code null} — 경사를 모르는 길을 평지로 지어내지 않는다
  */
 public record TravelTime(Integer distanceM, Integer durationMin, ItineraryItem.DataStatus dataStatus,
-		Integer fareKrw, List<double[]> path) {
+		Integer fareKrw, List<double[]> path, List<ItineraryLeg.Piece> pieces) {
+
+	/** 조각 없이 만든다 — 경사·계단 조각을 모르는 선형이다. */
+	public TravelTime(Integer distanceM, Integer durationMin, ItineraryItem.DataStatus dataStatus,
+			Integer fareKrw, List<double[]> path) {
+		this(distanceM, durationMin, dataStatus, fareKrw, path, null);
+	}
 
 	/**
 	 * 요금 없이 만든다. 도보처럼 요금이라는 것이 아예 없는 이동수단이 이 자리를 쓴다.

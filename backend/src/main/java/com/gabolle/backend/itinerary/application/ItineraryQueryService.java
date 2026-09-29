@@ -188,7 +188,10 @@ public class ItineraryQueryService {
 				accessibilityUnverifiedCount(contentItems),
 				trip.partySize(),
 				// 일정을 짤 때의 상한과 같은 곳에서 센다 — 두 곳에서 곱하면 반올림이 경계에서 어긋난다.
-				BudgetAllowance.capKrw(trip.budgetKrw()));
+				BudgetAllowance.capKrw(trip.budgetKrw()),
+				// 구간을 잴 때와 같은 규칙 한 곳(ItineraryLegPlanner.needsStepFree)에서 센다 — 두 벌이 되면 일정은 계단
+				// 없는 길로 쟀는데 앱이 다시 물은 길은 계단 길이 되는 날이 온다.
+				this.legPlanner != null && this.legPlanner.needsStepFree(trip));
 	}
 
 	/**
@@ -328,6 +331,13 @@ public class ItineraryQueryService {
 		// 선형도 같은 incoming 에 묶인다. 없으면 null 이고, 그때 출발·도착 두 점을 이어
 		// 만들어 주지 않는다 — 그 직선을 화면이 「실제로 잰 길」로 그리게 된다.
 		List<double[]> travelPath = incoming ? incomingLeg.path() : null;
+		// 경사·계단 조각도 같은 incoming 에 묶인다. 선형이 없으면 가리킬 자리가 없으므로 비운다.
+		List<ItineraryDetailResponse.Piece> travelPieces = (travelPath == null || incomingLeg.pieces() == null)
+				? null
+				: incomingLeg.pieces().stream()
+						.map(piece -> new ItineraryDetailResponse.Piece(piece.from(), piece.to(), piece.slopePercent(),
+								piece.stairs()))
+						.toList();
 
 		return new ItineraryDetailResponse.Item(
 				item.itemKey(),
@@ -346,6 +356,7 @@ public class ItineraryQueryService {
 				travelDataStatus,
 				travelFareKrw,
 				travelPath,
+				travelPieces,
 				// ItineraryItem 이 생성자에서 빈 목록으로 정규화하므로 여기서 다시 감싸지 않는다.
 				item.warningCodes(),
 				// 이유 코드도 같다 — 생성자가 빈 목록으로 정규화한다.

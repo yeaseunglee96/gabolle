@@ -166,4 +166,39 @@ class ItineraryLegPathPersistenceIntegrationTest {
 				UUID.fromString(this.toPlaceId)))
 				.hasMessageContaining("ck_itinerary_leg_path");
 	}
+
+	// ── 경사·계단 조각 (V20260929120000__itinerary_leg_pieces.sql) ─────────────
+
+	@Test
+	@DisplayName("🔴 경사·계단 조각이 JSONB 를 한 바퀴 돌아 그대로 돌아온다 — 모르는 경사는 null 로 남는다")
+	void piecesSurviveTheRoundTrip() {
+		List<ItineraryLeg.Piece> pieces = List.of(new ItineraryLeg.Piece(0, 1, 9.5, false),
+				new ItineraryLeg.Piece(1, 2, null, true));
+		ItineraryLeg leg = new ItineraryLeg(UUID.randomUUID().toString(), null, 0, 1,
+				this.fromPlaceId, this.toPlaceId, "WALK", 8_400, 21, 8_400, null, null,
+				ItineraryItem.DataStatus.VERIFIED, null, ROAD, pieces, null,
+				Instant.now().truncatedTo(ChronoUnit.MICROS));
+
+		ItineraryLeg read = saveAndReadBack(leg, 2);
+
+		assertThat(read.pieces()).isEqualTo(pieces);
+		assertThat(saveAndReadBack(leg(ROAD), 3).pieces()).as("조각을 모르는 선형").isNull();
+	}
+
+	@Test
+	@DisplayName("🔴 ck_itinerary_leg_pieces 가 선형 없는 조각과 빈 배열을 막는다")
+	void checkConstraintRejectsPiecesWithoutPath() {
+		this.itineraryRepository.appendVersion(versionCandidate(2), List.of(), List.of(leg(null)), List.of());
+
+		assertThatThrownBy(() -> this.jdbcTemplate.update(
+				"UPDATE itinerary_leg SET pieces = '[{\"from\":0,\"to\":1,\"slopePercent\":1.0,\"stairs\":false}]'::jsonb"
+						+ " WHERE to_place_id = ?",
+				UUID.fromString(this.toPlaceId)))
+				.hasMessageContaining("ck_itinerary_leg_pieces");
+		assertThatThrownBy(() -> this.jdbcTemplate.update(
+				"UPDATE itinerary_leg SET path = '[[129.1,35.1],[129.2,35.2]]'::jsonb, pieces = '[]'::jsonb"
+						+ " WHERE to_place_id = ?",
+				UUID.fromString(this.toPlaceId)))
+				.hasMessageContaining("ck_itinerary_leg_pieces");
+	}
 }

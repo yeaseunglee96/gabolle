@@ -81,8 +81,18 @@ public final class WalkGraph {
 
 	private final int mainNodes;
 
+	/** 한 번 찾기에서 확정하는 점 수 상한. 운영은 {@link #MAX_SETTLED} 이고, 시험만 {@link #withMaxSettled} 로 줄인다. */
+	private final int maxSettled;
+
 	private WalkGraph(int[] latE7, int[] lonE7, int[] adjStart, int[] adjTo, float[] adjMeters, int[] adjWay,
 			short[] waySlopePermille, boolean[] wayStairs, Map<Long, int[]> cells, int mainNodes) {
+		this(latE7, lonE7, adjStart, adjTo, adjMeters, adjWay, waySlopePermille, wayStairs, cells, mainNodes,
+				MAX_SETTLED);
+	}
+
+	private WalkGraph(int[] latE7, int[] lonE7, int[] adjStart, int[] adjTo, float[] adjMeters, int[] adjWay,
+			short[] waySlopePermille, boolean[] wayStairs, Map<Long, int[]> cells, int mainNodes, int maxSettled) {
+		this.maxSettled = maxSettled;
 		this.latE7 = latE7;
 		this.lonE7 = lonE7;
 		this.adjStart = adjStart;
@@ -108,14 +118,28 @@ public final class WalkGraph {
 		return this.mainNodes;
 	}
 
+	/** 같은 그래프를 점 수 상한만 바꿔 든다 — 배열은 나눠 쓴다. 상한을 넘는 경우를 작은 그래프로 재 보려는 시험용이다. */
+	WalkGraph withMaxSettled(int limit) {
+		return new WalkGraph(this.latE7, this.lonE7, this.adjStart, this.adjTo, this.adjMeters, this.adjWay,
+				this.waySlopePermille, this.wayStairs, this.cells, this.mainNodes, limit);
+	}
+
 	/**
 	 * 찾은 길.
 	 *
 	 * @param path {@code [경도, 위도]} 목록 — 출발 좌표, 길 위의 점들, 도착 좌표 순이다
 	 * @param pieces 경로를 경사·계단이 같은 조각으로 나눈 것. 번호는 {@code path} 의 자리다
 	 * @param meters 출발·도착을 길에 붙이는 거리까지 더한 길이
+	 * @param stepFreeHonored 계단·급경사를 피해 달라는 부탁을 들어준 길인가. 피하는 찾기가 상한에 걸리거나 못 이어
+	 *        가장 짧은 길로 대신 답했으면 {@code false} 다 — 그 길에는 계단이 있을 수 있다(조각의 계단 표시를 본다).
+	 *        피해 달라고 안 했으면 늘 {@code true}(들어줄 부탁이 없었다)
 	 */
-	public record Route(List<double[]> path, List<RouteLeg.Piece> pieces, double meters) {
+	public record Route(List<double[]> path, List<RouteLeg.Piece> pieces, double meters, boolean stepFreeHonored) {
+
+		/** 부탁을 그대로 들어준 길 — 보통 길과 피하기에 성공한 길. */
+		public Route(List<double[]> path, List<RouteLeg.Piece> pieces, double meters) {
+			this(path, pieces, meters, true);
+		}
 	}
 
 	public static WalkGraph read(InputStream gzip) throws IOException {
@@ -245,6 +269,11 @@ public final class WalkGraph {
 	 *
 	 * <p>돌려주는 {@link Route#meters()} 는 치른 값이 아니라 <b>실제 길이</b>다 — 걷는 시간이 거기서 나온다.
 	 *
+	 * <p>🔴 피하는 찾기가 못 끝나면 가장 짧은 길로 대신 답한다. 배수를 치르면 A* 의 어림(직선거리)이 실제 값보다
+	 * 한참 작아져 확정하는 점이 늘고, 먼 구간은 {@link #MAX_SETTLED} 에 걸린다. 예전에는 그때 빈 값을 줘서 직선
+	 * 어림으로 떨어졌고, 길 모양도 계단 표시도 사라진 채 「계단 없는 길」처럼 보였다. 이제는 가장 짧은 길을 내고
+	 * {@link Route#stepFreeHonored()} 를 거짓으로 둔다 — 계단은 조각에 그대로 칠해진다.
+	 *
 	 * @param stepFree 계단과 급경사를 피할까. {@code false} 면 전과 똑같이 가장 짧은 길이다
 	 */
 	public Optional<Route> route(double originLat, double originLng, double destLat, double destLng,
@@ -255,9 +284,16 @@ public final class WalkGraph {
 			return Optional.empty();
 		}
 		int[] nodes = search(s, g, stepFree);
+		boolean honored = true;
+		if (nodes == null && stepFree) {
+			nodes = search(s, g, false);
+			honored = false;
+		}
 		if (nodes == null) {
 			return Optional.empty();
 		}
+		// 아래 조각 고르기도 실제로 찾은 값으로 해야 찾은 길과 조각이 어긋나지 않는다(edgeBetween 설명).
+		boolean searchedStepFree = stepFree && honored;
 
 		List<double[]> path = new ArrayList<>(nodes.length + 2);
 		List<RouteLeg.Piece> pieces = new ArrayList<>();
@@ -271,7 +307,7 @@ public final class WalkGraph {
 		// 출발 좌표 → 첫 점: 길 밖이라 경사를 모른다.
 		addPiece(pieces, 0, 1, null, false);
 		for (int i = 1; i < nodes.length; i++) {
-			int a = edgeBetween(nodes[i - 1], nodes[i], stepFree);
+			int a = edgeBetween(nodes[i - 1], nodes[i], searchedStepFree);
 			meters += this.adjMeters[a];
 			int wayIndex = this.adjWay[a];
 			short permille = this.waySlopePermille[wayIndex];
@@ -280,7 +316,7 @@ public final class WalkGraph {
 		path.add(new double[] { destLng, destLat });
 		meters += planarMeters(this.latE7[g] / 1e7, this.lonE7[g] / 1e7, destLat, destLng);
 		addPiece(pieces, nodes.length, nodes.length + 1, null, false);
-		return Optional.of(new Route(List.copyOf(path), List.copyOf(pieces), meters));
+		return Optional.of(new Route(List.copyOf(path), List.copyOf(pieces), meters, honored));
 	}
 
 	/** 앞 조각과 경사·계단이 같으면 이어 붙이고, 다르면 새 조각을 연다. */
@@ -375,7 +411,7 @@ public final class WalkGraph {
 			if (u == g) {
 				return trace(prev, s, g);
 			}
-			if (++settled > MAX_SETTLED) {
+			if (++settled > this.maxSettled) {
 				return null;
 			}
 			for (int a = this.adjStart[u]; a < this.adjStart[u + 1]; a++) {

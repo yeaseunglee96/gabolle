@@ -107,4 +107,34 @@ class RouteTravelTimePathTest {
 		assertThat(measured.known()).isFalse();
 		assertThat(measured.path()).isNull();
 	}
+
+	// ── 경사·계단 조각 ────────────────────────────────────────────────────────
+
+	private static final List<RouteLeg.Piece> PIECES = List.of(
+			new RouteLeg.Piece(0, 1, 2.5, false), new RouteLeg.Piece(1, 2, null, true));
+
+	@Test
+	@DisplayName("🔴 보행 그래프가 준 경사·계단 조각이 일정 쪽까지 온다 — 예전에는 선형만 오고 조각은 버렸다")
+	void carriesPiecesWithTheRoad() {
+		RouteLeg graphWalk = new RouteLeg(TravelMode.WALK, 8_400, 21, null, null, null, false, null,
+				RouteLeg.PROVIDER_WALK_GRAPH, ROAD, List.of(), null, PIECES);
+
+		TravelTime measured = measure(graphWalk);
+
+		assertThat(measured.pieces()).extracting(piece -> piece.from() + "-" + piece.to())
+				.containsExactly("0-1", "1-2");
+		assertThat(measured.pieces().get(0).slopePercent()).isEqualTo(2.5);
+		assertThat(measured.pieces().get(1).slopePercent()).as("모르는 경사는 모른다로 남는다").isNull();
+		assertThat(measured.pieces().get(1).stairs()).isTrue();
+	}
+
+	@Test
+	@DisplayName("선형을 버리는 어림 구간은 조각도 버린다 — 가리킬 자리가 없다. 조각이 없는 길(자동차)도 null 이다")
+	void dropsPiecesWhenThereIsNoRoad() {
+		RouteLeg estimatedWithPieces = new RouteLeg(TravelMode.WALK, 8_400, 21, null, null, null, true, "어림",
+				RouteLeg.PROVIDER_STRAIGHT_LINE, ROAD, List.of(), null, PIECES);
+
+		assertThat(measure(estimatedWithPieces).pieces()).isNull();
+		assertThat(measure(routed(ROAD)).pieces()).as("조각이 없는 실제 길").isNull();
+	}
 }

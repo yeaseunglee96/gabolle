@@ -191,6 +191,19 @@ class PreferenceValueShapeAndScaleTest {
 		assertThat(component(shady, "preferenceAlignment"))
 				.isGreaterThan(component(sunny, "preferenceAlignment"));
 		assertThat(shady.reasonCodes()).contains("PREF_ALIGNED_SHADE_PREFERENCE");
+		// 🔴 뙤약볕(정렬도 0.1)에 「그늘 취향에 맞음」을 붙이면 거짓말이다 — 정렬도 0.5 미만은 이유 코드가 없다.
+		assertThat(sunny.reasonCodes()).doesNotContain("PREF_ALIGNED_SHADE_PREFERENCE");
+	}
+
+	@Test
+	@DisplayName("정렬도가 딱 0.5 이면 이유 코드가 붙는다 — 경계는 「이상」이다")
+	void 정렬도_경계값은_이유코드가_붙는다() {
+		EngineCandidate half = score(
+				candidate(List.of(value("SHADE_SCORE", "ESTIMATED", "0.5"))),
+				snapshot("SHADE_PREFERENCE", "\"PREFER\""));
+
+		assertThat(component(half, "preferenceAlignment")).isCloseTo(0.5, within(1e-9));
+		assertThat(half.reasonCodes()).contains("PREF_ALIGNED_SHADE_PREFERENCE");
 	}
 
 	@Test

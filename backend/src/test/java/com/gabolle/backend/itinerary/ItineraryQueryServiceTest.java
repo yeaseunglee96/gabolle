@@ -464,6 +464,64 @@ class ItineraryQueryServiceTest {
 		assertThat(days.get(1).start().label()).isEqualTo("해운대");
 	}
 
+	// ── 걷는 길의 경사·계단 조각과 계단 피하기 ───────────────────────────────
+
+	@Test
+	@DisplayName("🔴 들어오는 구간의 경사·계단 조각이 travelPieces 로 실리고, 휠체어 여행이면 판 수준 stepFree 가 참이다")
+	void itemCarriesTravelPiecesAndDetailCarriesStepFree() {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noRoutes = mock(ObjectProvider.class);
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, noRoutes);
+		com.gabolle.backend.trip.domain.TripRepository trips = mock(com.gabolle.backend.trip.domain.TripRepository.class);
+		when(trips.findLatestConstraintSnapshotId(this.tripId)).thenReturn(java.util.Optional.of("cs_1"));
+		when(trips.findConstraintsBySnapshotId("cs_1")).thenReturn(List.of(new com.gabolle.backend.trip.domain.TripConstraint(
+				UUID.randomUUID().toString(), this.tripId, "MOBILITY", "WHEELCHAIR",
+				com.gabolle.backend.trip.domain.TripConstraint.Severity.HARD, "EXCLUDES", "true", null,
+				com.gabolle.backend.trip.domain.TripConstraint.EvidenceStatus.VERIFIED,
+				com.gabolle.backend.trip.domain.TripConstraint.AnswerStatus.SELECTED,
+				com.gabolle.backend.trip.domain.PersonalizationScope.TRIP, null)));
+		planner.setTripRepository(trips);
+		ItineraryQueryService withPlanner = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
+				new FakeItineraryItemActualRepository(), placeIds -> Map.of(), planner);
+		stubTripMembership(threeDayTrip());
+		String itineraryId = "itn_" + UUID.randomUUID();
+		ItineraryVersion v = new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, 1, null,
+				ItineraryVersion.Operation.CREATE, this.requesterId, "req_1", null, Instant.now());
+		com.gabolle.backend.itinerary.domain.ItineraryLeg leg = new com.gabolle.backend.itinerary.domain.ItineraryLeg(
+				UUID.randomUUID().toString(), v.itineraryVersionId(), 0, 1, null, this.placeId.toString(), "WALK",
+				300, 5, 300, null, null, ItineraryItem.DataStatus.VERIFIED, null,
+				List.of(new double[] { 129.1590, 35.1580 }, new double[] { 129.1600, 35.1585 },
+						new double[] { 129.1604, 35.1587 }),
+				List.of(new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(0, 1, 9.5, false),
+						new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(1, 2, null, true)),
+				null, Instant.now());
+		this.itineraryRepository.create(new Itinerary(itineraryId, this.tripId, 1), v,
+				List.of(itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)), List.of(leg));
+
+		ItineraryDetailResponse detail = withPlanner.getDetail(itineraryId, this.requesterId);
+		ItineraryDetailResponse.Item item = detail.days().get(0).items().get(0);
+
+		assertThat(detail.stepFree()).as("휠체어를 고른 여행 — 앱이 /routes?stepFree=true 로 묻는다").isTrue();
+		assertThat(item.travelPath()).hasSize(3);
+		assertThat(item.travelPieces()).containsExactly(
+				new ItineraryDetailResponse.Piece(0, 1, 9.5, false),
+				new ItineraryDetailResponse.Piece(1, 2, null, true));
+	}
+
+	@Test
+	@DisplayName("구간이 없거나 이동 조건을 못 읽으면 travelPieces 는 null, stepFree 는 거짓이다")
+	void noPiecesAndNoStepFreeByDefault() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+
+		ItineraryDetailResponse detail = this.service.getDetail(itineraryId, this.requesterId);
+
+		assertThat(detail.stepFree()).isFalse();
+		assertThat(detail.days().get(0).items().get(0).travelPieces()).isNull();
+	}
+
 	private String seedItinerary(int version, List<ItineraryItem> items) {
 		String itineraryId = "itn_" + UUID.randomUUID();
 		Itinerary itinerary = new Itinerary(itineraryId, this.tripId, version);

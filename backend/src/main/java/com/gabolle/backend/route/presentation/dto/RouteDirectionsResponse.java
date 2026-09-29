@@ -32,7 +32,14 @@ public record RouteDirectionsResponse(
 		 * 경사 조각 — S15P21E201-1630. 우리 보행 그래프가 찾은 걷기({@code provider=OSM_WALK_GRAPH})에만 있고 나머지는
 		 * 빈 목록이다. 조각마다 {@code path[from]..path[to]}(둘 다 포함)의 경사(%, 방향 없음 · 모르면 null)와 계단 여부.
 		 */
-		List<Piece> pieces) {
+		List<Piece> pieces,
+
+		/**
+		 * 계단 피하기({@code stepFree=true})를 들어준 걷기인가. {@code false} 면 계단 없는 길을 못 찾아 가장 짧은 길로
+		 * 대신 답한 것이라 계단이 섞였을 수 있다 — {@code pieces} 의 {@code stairs} 가 어디인지 알려 준다. 부탁이 없었거나
+		 * 보행 그래프가 찾은 걷기가 아니면 {@code null}.
+		 */
+		Boolean stepFreeHonored) {
 
 	/** 경사 조각 하나. {@code slopePercent} 가 {@code null} 이면 모른다 — 0(평지)과 다르다. */
 	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
@@ -61,6 +68,7 @@ public record RouteDirectionsResponse(
 				leg.transitFareKrw(),
 				leg.pieces().stream()
 						.map(piece -> new Piece(piece.from(), piece.to(), piece.slopePercent(), piece.stairs()))
-						.toList());
+						.toList(),
+				leg.stepFreeHonored());
 	}
 }

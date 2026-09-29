@@ -448,7 +448,7 @@ public final class ItineraryRevision {
                     // 뒤의 판은 같은 구간인데도 지도 길 선이 점선이 되고 교통비 줄이 사라졌다. 여기는 구간 하나를 같은
                     // 출발 곳·도착 곳·수단 그대로 옮기는 자리라 그 길과 요금이 여전히 참이다. 쌍이 바뀌는 편집(빼기·
                     // 하루 다시 짜기·그날 순서 바꾸기)은 이 복사를 안 쓰고 구간을 새로 잰다 — 다른 쌍의 길을 옮길 일이 없다.
-                    leg.fareKrw(), leg.path(),
+                    leg.fareKrw(), leg.path(), leg.pieces(),
                     // 보정 전 이동 분은 반드시 넘긴다 — 흘리면 보정 계산이 고친 값을 어림으로 읽어 배율이 겹쳐
                     // 곱해진다 (S15P21E201-1700).
                     leg.uncalibratedDurationMin(),

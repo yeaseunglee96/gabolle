@@ -49,9 +49,13 @@ public class RecommendationResultQueryService {
 	private static final double CROWD_LEVEL_LOW_MAX = 0.34;
 	private static final double CROWD_LEVEL_MEDIUM_MAX = 0.67;
 
-	/** 이동 관련 경고만 고른다 — {@code STAIRS_PRESENT}·{@code WALKING_OVER_LIMIT} 은 정확히,
-	 * {@code ACCESS*} 는 접두어로. */
-	private static final Set<String> MOBILITY_EXACT_CODES = Set.of("STAIRS_PRESENT", "WALKING_OVER_LIMIT");
+	/** 이동 관련 경고만 고른다 — {@code STAIRS_PRESENT}·{@code WALKING_OVER_LIMIT}·{@code SLOPE_OVER_LIMIT} 은 정확히,
+	 * {@code ACCESS*} 는 접두어로.
+	 *
+	 * <p>{@code SLOPE_OVER_LIMIT} 은 「되도록」 휠체어·유아차에서 경사가 상한을 넘은 곳에 채점기가 다는 경고다.
+	 * 예전에는 이 목록에 없어 채점기가 경고를 달아도 결과 API 에서 조용히 사라졌다. */
+	private static final Set<String> MOBILITY_EXACT_CODES = Set.of("STAIRS_PRESENT", "WALKING_OVER_LIMIT",
+			"SLOPE_OVER_LIMIT");
 
 	private final RecommendationCandidateRepository candidateRepository;
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.application.port.TravelTimePort;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
+import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.route.application.RouteQueryService;
 import com.gabolle.backend.route.domain.RouteLeg;
 import com.gabolle.backend.route.domain.RouteQuery;
@@ -65,7 +66,20 @@ public class RouteTravelTimeAdapter implements TravelTimePort {
 
 		return new TravelTime(leg.distanceM(), leg.durationMin(),
 				leg.estimated() ? ItineraryItem.DataStatus.ESTIMATED : ItineraryItem.DataStatus.VERIFIED,
-				fareOf(leg), pathOf(leg));
+				fareOf(leg), pathOf(leg), piecesOf(leg));
+	}
+
+	/**
+	 * 길의 경사·계단 조각. 선형을 싣는 구간에만 싣는다 — 번호가 선형의 자리를 가리키므로 선형을 버리면 조각도 버린다.
+	 * 조각이 없는 길(자동차·대중교통)은 {@code null} 이다.
+	 */
+	private static List<ItineraryLeg.Piece> piecesOf(RouteLeg leg) {
+		if (pathOf(leg) == null || leg.pieces().isEmpty()) {
+			return null;
+		}
+		return leg.pieces().stream()
+				.map(piece -> new ItineraryLeg.Piece(piece.from(), piece.to(), piece.slopePercent(), piece.stairs()))
+				.toList();
 	}
 
 	/**

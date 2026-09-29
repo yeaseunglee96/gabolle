@@ -59,6 +59,19 @@ public class StraightLineRouteEstimator {
 				List.of());
 	}
 
+	/**
+	 * 우회 없이 직선으로 곧장 걸어도 걸리는 분 — 실제로 걷는 시간은 이보다 짧을 수 없다(아래 한계).
+	 *
+	 * <p>대중교통과 걷기를 견줄 때 보행 그래프 탐색을 아끼는 데 쓴다. 이 값조차 대중교통보다 느리면 실제 길을 찾아
+	 * 봐도 걷기가 이길 수 없다. 반올림하지 않고 내림한다 — 한계가 실제보다 커지면 안 된다.
+	 */
+	public int straightWalkMinutesFloor(RouteQuery query) {
+		double straightMeters = GeoDistance.meters(query.originLat(), query.originLng(),
+				query.destLat(), query.destLng());
+		double speedKmh = this.properties.getWalkSpeedKmh() > 0 ? this.properties.getWalkSpeedKmh() : 1;
+		return (int) Math.floor(straightMeters / (speedKmh * 1000.0 / 60.0));
+	}
+
 	private double speedFor(TravelMode mode) {
 		return switch (mode) {
 			case CAR -> this.properties.getCarSpeedKmh();

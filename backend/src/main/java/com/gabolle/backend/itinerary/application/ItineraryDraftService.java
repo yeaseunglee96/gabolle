@@ -1757,7 +1757,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     // 다시 계산하는 경로(ItineraryLegPlanner.toLeg)는 넘기고 있어서, 같은 칸이
                     // 어느 경로로 만들어졌느냐로 값이 갈렸다 (S15P21E201-1498).
                     // 선형도 같은 자리에서 같은 이유로 넘긴다 (S15P21E201-1251).
-                    draftLeg.dataStatus(), draftLeg.fareKrw(), draftLeg.path(),
+                    draftLeg.dataStatus(), draftLeg.fareKrw(), draftLeg.path(), draftLeg.pieces(),
                     draftLeg.uncalibratedDurationMin(), now));
         }
         return new DraftContent(items, legs);
@@ -2061,7 +2061,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     // 판을 새로 만들 때도 같다 — 요금이 판 하나 넘어갈 때마다 사라지면
                     // 편집한 일정만 조용히 비용을 잃는다 (S15P21E201-1498).
                     // 선형도 마찬가지다 (S15P21E201-1251).
-                    draftLeg.dataStatus(), draftLeg.fareKrw(), draftLeg.path(),
+                    draftLeg.dataStatus(), draftLeg.fareKrw(), draftLeg.path(), draftLeg.pieces(),
                     draftLeg.uncalibratedDurationMin(), now));
         }
 
