@@ -32,6 +32,7 @@ import com.gabolle.backend.recommendation.domain.DistanceBucket;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripConstraint;
 
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -392,16 +393,16 @@ public class BaselineCandidateScorer {
 		//    뺄 곳이 많아져도 고기집으로 채우지 않는다 — 식사 자리가 줄어드는 쪽이 낫다.
 		//    🔴 S15P21E201-1822: 이름에 「고기」가 없는 고깃집(감자탕·국밥·면옥·까르니따스)이 비건 후보에
 		//    남았다. 채식은 고기 육수 집까지, 비건은 회·초밥·해물·멸치 육수 집까지 뺀다.
+		//    🔴 S15P21E201-1828: 이름만 보면 대패·식육·라멘·짬뽕 집이 남고, 이름이 고기를 말하지 않는 집(돈반 — 경양식
+		//    돈까스, 신흥관 — 사천짜장)은 아예 못 잡았다. 적재된 대표 메뉴(MENU_PRICE_WON)와 방문 이유
+		//    (WHY_VISIT) 글도 같은 낱말로 본다. 운영 식당 4,298곳 중 이름 말고 글이 있는 곳이 1,550곳이고,
+		//    실제로 추천된 식당 341곳 중에서는 262곳이다(2026-09-29 실측).
 		String dietKey = upper(constraint.constraintKey());
 		if (MEAT_EXCLUDING_DIETS.contains(dietKey) && !isExplicitlyPlantBased(candidate)) {
-			if (isMeatCentric(candidate)) {
+			DietEvidence evidence = dietExclusionEvidence(candidate, "VEGAN".equals(dietKey));
+			if (evidence != null) {
 				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
-						"reason", "MEAT_CENTRIC"));
-				return;
-			}
-			if ("VEGAN".equals(dietKey) && isSeafoodCentric(candidate)) {
-				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
-						"reason", "SEAFOOD_CENTRIC"));
+						"reason", evidence.reason(), "evidence", evidence.source()));
 				return;
 			}
 		}
@@ -457,7 +458,26 @@ public class BaselineCandidateScorer {
 			"감자탕", "뼈해장", "해장국", "국밥", "곰탕", "설렁탕", "육개장", "곱도리", "닭한마리", "찜닭",
 			"닭발", "까르니따스", "카르니타스", "CARNITAS", "케밥", "KEBAB", "밀면", "냉면", "면옥",
 			// 애매하지만 뺀다 — 채식 메뉴가 있을 수는 있어도 고를 근거가 없다. 뷔페는 고기가 반드시 있다.
-			"버거", "BURGER", "샤브", "뷔페", "BUFFET");
+			"버거", "BURGER", "샤브", "뷔페", "BUFFET",
+			// 운영 비건·채식 후보로 실제 새던 이름에서 모았다(2026-09-29). 부위·조리법(대패·항정·가브리살·
+			// 식육·제육), 고기 육수가 기본인 면(라멘·쌀국수·돈코츠·차슈), 돼지고기가 든 중식(짜장·짬뽕),
+			// 이름 끝이 고기인 외국 음식(카츠·타코·부리또·야키토리·부어스트·굴라쉬). 「오리」는 여전히
+			// 홀로 쓰지 않는다 — 오리 요리 이름으로만 쓴다.
+			"대패", "식육", "갈매기살", "항정", "가브리살", "꼬리곰탕", "소머리", "선지", "제육", "김치찜",
+			"카츠", "가츠", "라멘", "짬뽕", "짜장", "쌀국수", "분짜", "반미", "야키토리", "꼬치", "로바타",
+			"오리구이", "오리고기", "훈제오리", "오리백숙", "오리불고기", "오리주물럭", "오리탕", "후라이드",
+			"순살", "육전", "육쌈", "핫도그", "소시지", "베이컨", "하몽", "차슈", "돈코츠", "타코", "TACO",
+			"부리또", "BURRITO", "부어스트", "굴라쉬", "낙곱새", "PORK", "BEEF", "CHICKEN", "STEAK", "RAMEN",
+			"KATSU");
+
+	/**
+	 * 식당(FOOD) 이름에서만 보는 한 글자 — 「돈」(돼지)·「닭」.
+	 *
+	 * <p>한 글자는 오탐이 무섭지만 식당 이름에서는 뜻이 하나다. 운영 식당 중 이름에 「돈」이 든 89곳을 훑었고
+	 * (우돈애·배돈·뚱돈·송정돈가·돈반…) 돼지고기 집이 아닌 곳을 못 찾았다. 다른 갈래(문화·자연)에는
+	 * 「돈대」 같은 이름이 있을 수 있어 식당에만 쓴다.
+	 */
+	private static final List<String> MEAT_SYLLABLES_FOOD_ONLY = List.of("돈", "닭");
 
 	/** 음식 태그(CUISINE_TAG) 중 고기가 중심인 것. 돼지국밥·밀면(돼지·소 육수)이다. */
 	private static final Set<String> MEAT_CUISINE_TAGS = Set.of("PORK_SOUP", "MILMYEON");
@@ -482,19 +502,117 @@ public class BaselineCandidateScorer {
 			"횟집", "회센터", "물회", "생선회", "활어", "수산", "스시", "초밥", "마끼", "사시미", "연어", "살몬",
 			"SALMON", "SUSHI", "참치", "장어", "대구탕", "복국", "복어", "아구", "아귀", "해물", "해산물",
 			"씨푸드", "SEAFOOD", "조개", "전복", "게장", "대게", "홍게", "킹크랩", "새우", "오뎅", "어묵",
-			"멸치", "칼국수", "낙지", "문어", "주꾸미", "쭈꾸미", "오징어", "생선", "고등어", "갈치");
+			"멸치", "칼국수", "낙지", "문어", "주꾸미", "쭈꾸미", "오징어", "생선", "고등어", "갈치",
+			// 운영 비건 후보로 새던 이름에서 모았다(2026-09-29). 우동·소바는 가다랑어 육수가 기본이다.
+			// 「소바」는 「에스프레소바」에 걸리므로 비교 전에 「에스프레소」를 지운다(cleaned).
+			// 「도미」는 뺐다 — 도미노피자에 걸린다.
+			"추어", "곰장어", "꼼장어", "석화", "생굴", "가리비", "멍게", "해삼", "성게", "오마카세", "자연산",
+			"우동", "소바", "조개구이", "매운탕", "알탕", "꽃게", "게내장", "아나고", "붕장어", "광어", "재첩",
+			"FISH", "OYSTER", "SHRIMP", "CRAB");
 
 	/** 비건만 추가로 빼는 음식 태그 — CUISINE_TAG 의 해산물, DESIRED_FOOD_TAG 의 복국. */
 	private static final Set<String> SEAFOOD_TAGS = Set.of("CUISINE_TAG:SEAFOOD", "DESIRED_FOOD_TAG:BOKGUK");
 
+	/**
+	 * 인도·네팔 식당 — 대표 메뉴가 닭고기 커리여도 채식 메뉴를 거의 늘 따로 둔다. 그래서 «글에 고기가 보인다»
+	 * 로는 빼지 않는다(이름 근거는 그대로 본다). 확인된 것은 아니므로 예전처럼 「확인 안 됨」 경고로 남는다.
+	 * 부산에서 채식을 고른 사람에게 남는 몇 안 되는 선택지라 글 근거로 지우면 잃는 것이 크다.
+	 */
+	private static final List<String> USUALLY_HAS_VEGETARIAN_DISHES = List.of("인도", "인디아", "INDIA", "네팔", "NEPAL");
+
+	/** 대표 메뉴 — {@code {"priceWon":…,"menu":"…"}} 의 menu. */
+	private static final String MENU_FEATURE = "MENU_PRICE_WON";
+
+	/** 방문 이유 — {@code {"reasons":[{"type":…,"note":"…"}],"sources":[…]}} 의 note. 출처 주소는 안 본다. */
+	private static final String WHY_VISIT_FEATURE = "WHY_VISIT";
+
+	/**
+	 * 고기·해산물 중심이라는 근거 하나와 그것을 어디서 봤는가. {@code source} 는 NAME_OR_TAG ·
+	 * MENU_PRICE_WON · WHY_VISIT 중 하나다 — 운영에서 어떤 집이 왜 빠졌는지를 violations 에서 바로 되짚는다.
+	 */
+	record DietEvidence(String reason, String source) {
+	}
+
+	/**
+	 * 채식·비건이 그 집을 빼야 할 근거. 없으면 null — 그때는 아래 식단 지원 표식 판정(대부분 「확인 안 됨」)으로 간다.
+	 *
+	 * <p>🔴 글 근거는 «빼는 쪽»으로만 쓴다. 글은 조사 에이전트가 모은 추정이라, 글에 「비건」이 있다고
+	 * 통과시키지는 않는다(안전 판정을 추정으로 만들지 않는다 — S15P21E201-666 과 같은 원칙). 대신 어느 글에든
+	 * 채식·비건 낱말이 있으면 그 집은 글 근거로 빼지 않는다 — 「비건 샌드위치도 있다」는 집을 메뉴의 햄으로
+	 * 지우지 않기 위해서다.
+	 */
+	static DietEvidence dietExclusionEvidence(PlaceCandidateResponse.Candidate candidate, boolean vegan) {
+		if (isMeatCentric(candidate)) {
+			return new DietEvidence("MEAT_CENTRIC", "NAME_OR_TAG");
+		}
+		if (vegan && isSeafoodCentric(candidate)) {
+			return new DietEvidence("SEAFOOD_CENTRIC", "NAME_OR_TAG");
+		}
+		if (containsAny(cleaned(candidate.nameKo()), USUALLY_HAS_VEGETARIAN_DISHES)) {
+			return null;
+		}
+		Map<String, String> texts = describedTexts(candidate);
+		if (texts.values().stream().anyMatch(text -> containsAny(cleaned(text), PLANT_BASED_NAME_WORDS))) {
+			return null;
+		}
+		for (Map.Entry<String, String> text : texts.entrySet()) {
+			// 글에서는 「자갈치」가 대개 위치다(「자갈치시장 앞 빵집」) — 「갈치」로 읽지 않는다. 이름에서는 지우지
+			// 않는다: 이름의 자갈치는 거의 해산물 집이다(자갈치회센타·자갈치왕곰장어).
+			String body = cleaned(text.getValue()).replace("자갈치", "");
+			if (containsAny(body, MEAT_NAME_WORDS)) {
+				return new DietEvidence("MEAT_CENTRIC", text.getKey());
+			}
+			if (vegan && containsAny(body, SEAFOOD_NAME_WORDS)) {
+				return new DietEvidence("SEAFOOD_CENTRIC", text.getKey());
+			}
+		}
+		return null;
+	}
+
+	/** 대표 메뉴와 방문 이유의 글만 모은다(순서 유지). 값이 없거나 모양이 다르면 빈 글로 본다. */
+	private static Map<String, String> describedTexts(PlaceCandidateResponse.Candidate candidate) {
+		Map<String, String> texts = new LinkedHashMap<>();
+		if (candidate.features() == null) {
+			return texts;
+		}
+		for (PlaceFeatureView feature : candidate.features()) {
+			if (feature.value() == null) {
+				continue;
+			}
+			if (MENU_FEATURE.equals(feature.featureType())) {
+				texts.merge(MENU_FEATURE, feature.value().path("menu").asString(""), (a, b) -> a + " " + b);
+			}
+			else if (WHY_VISIT_FEATURE.equals(feature.featureType())) {
+				StringBuilder notes = new StringBuilder();
+				for (JsonNode reason : feature.value().path("reasons")) {
+					notes.append(reason.path("note").asString("")).append(' ');
+				}
+				texts.merge(WHY_VISIT_FEATURE, notes.toString(), (a, b) -> a + " " + b);
+			}
+		}
+		return texts;
+	}
+
+	/** 대문자로 맞추고, 고기·소바로 잘못 읽히는 낱말(물고기 · 에스프레소)을 지운다. */
+	private static String cleaned(String value) {
+		return value == null ? "" : value.toUpperCase(Locale.ROOT).replace("물고기", "").replace("에스프레소", "");
+	}
+
+	private static boolean containsAny(String text, List<String> words) {
+		for (String word : words) {
+			if (text.contains(word)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	static boolean isExplicitlyPlantBased(PlaceCandidateResponse.Candidate candidate) {
-		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
-		return PLANT_BASED_NAME_WORDS.stream().anyMatch(name::contains);
+		return containsAny(cleaned(candidate.nameKo()), PLANT_BASED_NAME_WORDS);
 	}
 
 	static boolean isSeafoodCentric(PlaceCandidateResponse.Candidate candidate) {
-		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
-		if (SEAFOOD_NAME_WORDS.stream().anyMatch(name::contains)) {
+		if (containsAny(cleaned(candidate.nameKo()), SEAFOOD_NAME_WORDS)) {
 			return true;
 		}
 		if (candidate.features() != null) {
@@ -508,13 +626,13 @@ public class BaselineCandidateScorer {
 	}
 
 	static boolean isMeatCentric(PlaceCandidateResponse.Candidate candidate) {
-		String name = candidate.nameKo() == null ? "" : candidate.nameKo().toUpperCase(Locale.ROOT);
-		// 「물고기」(수족관·체험)는 고깃집이 아니다.
-		String cleaned = name.replace("물고기", "");
-		for (String word : MEAT_NAME_WORDS) {
-			if (cleaned.contains(word)) {
-				return true;
-			}
+		// 「물고기」(수족관·체험)는 고깃집이 아니다 — cleaned 가 지운다.
+		String name = cleaned(candidate.nameKo());
+		if (containsAny(name, MEAT_NAME_WORDS)) {
+			return true;
+		}
+		if ("FOOD".equals(candidate.category()) && containsAny(name, MEAT_SYLLABLES_FOOD_ONLY)) {
+			return true;
 		}
 		if (candidate.features() != null) {
 			for (PlaceFeatureView feature : candidate.features()) {
