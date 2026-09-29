@@ -1,0 +1,67 @@
+{
+  "no": "102",
+  "nameEn": "Mugunghwa (Lotte Hotel Busan)",
+  "nameKo": "무궁화 (롯데호텔부산)",
+  "roadAddrKo": "부산 부산진구 가야대로 772 롯데호텔부산 43층",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://app.catchtable.co.kr/ct/shop/mugunghwa",
+      "date": null,
+      "note": "예약 페이지 운영 중이나 날짜 미확인"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-810-6330\"",
+    "롯데호텔부산 무궁화 한식당 할랄",
+    "Mugunghwa Lotte Hotel Busan halal Korean set muslim"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=138362",
+    "https://www.diningcode.com/profile.php?rid=yKNKlxbcPvc3",
+    "https://www.wherehalal.com/outlets/mugunghwa-lotte-hotel-busan"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "기관 선정",
+      "note": "한국관광공사 무슬림 친화 식당 목록에 올라 있음",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "사전 요청 시 할랄 스페셜 세트 제공",
+      "sources": [
+        0,
+        2
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "43층에서 백양산 조망, 고급 분위기",
+      "sources": [
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "호텔 주차 가능",
+    "audience": "mixed",
+    "signatureDishes": [
+      "할랄 스페셜 세트",
+      "돌솥 야채 비빔밥"
+    ],
+    "priceBand": "expensive"
+  },
+  "photoCandidates": [],
+  "notes": "할랄 메뉴는 사전 전화 요청 조건으로 소개됨. 호텔 내 한식당이라 폐업 신호는 없으나 날짜 근거 없음."
+}

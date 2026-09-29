@@ -1,0 +1,70 @@
+{
+  "no": "324",
+  "nameEn": "Seogane Ori",
+  "nameKo": "서가네오리",
+  "roadAddrKo": "부산 부산진구 가야공원로 83-33",
+  "addressMatchesPdf": false,
+  "operating": "open",
+  "operatingEvidence": [
+    {
+      "url": "https://www.diningcode.com/profile.php?rid=9NXFHsiZrp9O",
+      "date": "2025-04",
+      "note": "2025년 4월 방문 후기가 검색 요약에 있음(원문 날짜 직접 확인은 못 함)"
+    },
+    {
+      "url": "https://www.threads.com/@jmu_stone/post/DU0U_LXkn72",
+      "date": null,
+      "note": "영업 홍보성 글, 협찬 표기"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-897-1223\"",
+    "서가네오리 부산진구 후기 2025 오리불고기 가야공원"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=9NXFHsiZrp9O",
+    "https://www.threads.com/@jmu_stone/post/DU0U_LXkn72"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오리불고기와 백숙, 직원이 직접 구워 줌",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "계곡 옆 야외석",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "무료 주차장 100대 이상, 단체석·룸",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "무료 100대 이상",
+    "audience": "local",
+    "signatureDishes": [
+      "오리불고기",
+      "오리백숙"
+    ],
+    "priceBand": "expensive"
+  },
+  "photoCandidates": [],
+  "notes": "PDF는 가야공원로 86, 검색 결과는 83-33으로 번지 차이. 같은 가게로 보이나 지도로 재확인 필요. 협찬 의심 글 있음."
+}

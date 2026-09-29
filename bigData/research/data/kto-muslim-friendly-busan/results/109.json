@@ -1,0 +1,65 @@
+{
+  "newAddress": null,
+  "found": true,
+  "newTypes": [],
+  "photoCandidates": [],
+  "no": "109",
+  "nameEn": "Bombay Brau (Haeundae Branch)",
+  "nameKo": "봄베이브로이 해운대점",
+  "roadAddrKo": "부산광역시 해운대구 구남로 30 2층",
+  "addressMatchesPdf": true,
+  "operating": "open",
+  "operatingEvidence": [
+    {
+      "url": "https://www.instagram.com/p/DC0beyPPKFz/",
+      "date": null,
+      "note": "해운대점 공식 계정 게시물, 날짜 미확인(2024년 말로 추정되나 확인 못 함)"
+    },
+    {
+      "url": "https://www.shuttledelivery.co.kr/ko/restaurant/menu/913/%EB%B4%84%EB%B2%A0%EC%9D%B4-%EB%B8%8C%EB%A1%9C%EC%9D%B4-%ED%95%B4%EC%9A%B4%EB%8C%80",
+      "date": null,
+      "note": "배달 플랫폼 등록, 전화 051-747-3855 일치"
+    }
+  ],
+  "queries": [
+    "\"051-747-3855\"",
+    "봄베이브로이 해운대점 구남로 인도 레스토랑",
+    "봄베이브로이 해운대점 후기 2025"
+  ],
+  "confidence": "medium",
+  "sources": [
+    "https://www.tripadvisor.com/Restaurant_Review-g297884-d10457455-Reviews-Bombay_Brau_Haeundae-Busan.html",
+    "https://www.instagram.com/p/DC0beyPPKFz/",
+    "https://www.shuttledelivery.co.kr/ko/restaurant/menu/913/%EB%B4%84%EB%B2%A0%EC%9D%B4-%EB%B8%8C%EB%A1%9C%EC%9D%B4-%ED%95%B4%EC%9A%B4%EB%8C%80"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "탄두리 치킨과 화덕 난",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "탄두르(화덕)로 굽는 인도식 조리",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "탄두리 치킨",
+      "램 커리",
+      "난"
+    ],
+    "priceBand": null
+  },
+  "notes": "2025~2026 날짜가 명확한 방문기는 확인하지 못했다. 배달 앱과 공식 SNS가 살아 있어 open으로 두되 근거는 약함. 사진 후보 없음."
+}
