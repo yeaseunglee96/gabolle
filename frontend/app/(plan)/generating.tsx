@@ -23,7 +23,7 @@ import { loadPlacePhotos } from '@/plan/placePhotos';
 import { buildTripPass, buildTripPassDetails } from '@/plan/tripPassData';
 import { useI18n } from '@/i18n';
 import { otherNameFor } from '@/discovery/localNames';
-import { DIETS } from '@/plan/travelConditions';
+import { conditionLabels } from '@/plan/conditionLabels';
 import { txf } from '@/i18n/format';
 
 const STAGES = [
@@ -275,14 +275,8 @@ export default function Generating() {
   // 여행 티켓에 찍히는 값 — 시안(TripPassCard)대로 실제 일정에서 만든다
   // 계산은 tripPassData 가 하고 시험이 붙든다.
   // 「이 조건을 지켜서 만들었어요」 — 서버에 실어 보낸 조건만(모르는 칸은 안 적는다).
-  const keptConditions = [
-    ...(draft.dietStatus === 'VALUES' ? DIETS.filter(([code]) => draft.dietTypes.includes(code)).map(([, ko, en]) => tx(ko, en)) : []),
-    ...(typeof draft.maxWalkingDistanceM === 'number' ? [txf(tx, '한 번에 %s까지 걷기', 'Walk up to %s at a time', draft.maxWalkingDistanceM >= 1000 ? `${draft.maxWalkingDistanceM / 1000}km` : `${draft.maxWalkingDistanceM}m`)] : []),
-    ...(draft.slopeConstraint === 'AVOID' ? [tx('가파른 경사 피하기', 'Avoid steep slopes')] : []),
-    ...(draft.stairsConstraint === 'AVOID' ? [tx('계단 피하기', 'Avoid stairs')] : []),
-    ...(draft.wheelchair ? [tx('휠체어', 'Wheelchair')] : []),
-    ...(draft.stroller ? [tx('유아차', 'Stroller')] : []),
-  ];
+  // 확인 표(여행 만들기)와 같은 함수 — 두 곳이 같은 말을 해야 한다.
+  const keptConditions = conditionLabels(draft, tx);
   const tripPass = buildTripPass({
     conditions: keptConditions,
     itinerary,
