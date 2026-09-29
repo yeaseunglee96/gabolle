@@ -155,7 +155,7 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
               <Text variant="caption" color={color.text.body}>{tx('어느 여행에 더할까요?', 'Which trip should this go to?')}</Text>
               {trips.map((trip) => (
                 <Pressable key={trip.tripId} accessibilityRole="button" onPress={() => void pickTrip(trip)} style={styles.optionRow}>
-                  <Text variant="body" weight="bold">{tripDisplayTitle(trip, `${trip.startDate ?? ''} · ${trip.dayCount}${tx('일', ' days')}`)}</Text>
+                  <Text variant="body" weight="bold">{tripDisplayTitle(trip, `${trip.startDate ?? ''} · ${tx(`${trip.dayCount}일`, `${trip.dayCount} days`)}`)}</Text>
                 </Pressable>
               ))}
             </ScrollView>

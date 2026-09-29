@@ -103,7 +103,24 @@ export function photoSourceEnglish(source: string): string {
 
 /** 사진 출처를 화면 언어로 — 한국어판은 받은 글자 그대로, 그 밖은 photoSourceEnglish. */
 export function photoSourceText(source: string, tx: (ko: string, en: string) => string): string {
+  // 🔴 이름표(「출처 :」「Google 지도 · 사진」)는 번역표를 거친다 — 전에는 일본어·중국어에도 영어 「Source:」가 떴다(S15P21E201-1868).
+  //    한국어판은 받은 글자를 한 글자도 안 바꾼다(띄어쓰기까지) — 틀로 만든 글자가 한국어 틀과 같으면 원문을 돌려준다.
+  const labelled = source.match(SOURCE_LABELLED_KO);
+  if (labelled) {
+    const text = txf(tx, '출처 : %s', 'Source: %s', labelled[1]);
+    return text === `출처 : ${labelled[1]}` ? source : text;
+  }
+  const google = source.match(GOOGLE_SOURCE);
+  if (google) {
+    const text = txf(tx, 'Google 지도 · 사진 %s', 'Google Maps · Photo: %s', google[1]);
+    return text === `Google 지도 · 사진 ${google[1]}` ? source : text;
+  }
   return tx(source, photoSourceEnglish(source));
+}
+
+/** 출처 글자에 라이선스 이름이 이미 들어 있나 — 그러면 「 · 이름」을 또 붙이지 않는다(S15P21E201-1868, 「CC BY-SA 4.0 · CC BY-SA 4.0」). */
+export function sourceMentionsLicense(source: string, licenseName: string): boolean {
+  return source.includes(licenseName.trim());
 }
 
 /**
@@ -128,7 +145,7 @@ export function photoLabels(
   return {
     badge: photo.photoSubject === 'VENUE' ? tx('행사장 사진', 'Venue photo') : null,
     credit: photo.photoSource
-      ? (SELF_LABELLED_SOURCE.test(photo.photoSource) ? photoSourceText(photo.photoSource, tx) : txf(tx, '사진: %s', 'Photo: %s', photoSourceText(photo.photoSource, tx))) + (license ? ` · ${license.name}` : '')
+      ? (SELF_LABELLED_SOURCE.test(photo.photoSource) ? photoSourceText(photo.photoSource, tx) : txf(tx, '사진: %s', 'Photo: %s', photoSourceText(photo.photoSource, tx))) + (license && !sourceMentionsLicense(photo.photoSource, license.name) ? ` · ${license.name}` : '')
       : null,
     licenseUrl: license ? license.filePage || license.url || null : null,
   };
