@@ -294,6 +294,16 @@ class BaselineCandidateScorerTest {
 	}
 
 	@Test
+	@DisplayName("🔴 휠체어·유아차를 같이 골라도 「접근성 미확인」 경고는 한 번만 붙는다 — 화면에 두 줄 뜨던 것")
+	void 미확인_경고는_조건이_둘이어도_한번만() {
+		EngineCandidate result = score(candidate(List.of()), null, List.of(
+				mobility("WHEELCHAIR", TripConstraint.Severity.HARD),
+				mobility("STROLLER", TripConstraint.Severity.SOFT)));
+
+		assertThat(result.warningCodes()).containsOnlyOnce("ACCESSIBILITY_UNVERIFIED");
+	}
+
+	@Test
 	@DisplayName("🔴 MOBILITY 미확인은 FAIL 이 아니라 경고다 — S15P21E201-540")
 	void 이동제약_미확인은_FAIL이_아니라_경고다() {
 		TripConstraint stroller = mobility("STROLLER", TripConstraint.Severity.SOFT);

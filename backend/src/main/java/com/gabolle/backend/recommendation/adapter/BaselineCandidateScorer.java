@@ -595,7 +595,11 @@ public class BaselineCandidateScorer {
 				}
 			}
 			case UNVERIFIED -> {
-				warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
+				// 휠체어·유아차를 같이 고르면 이 갈래를 두 번 지난다. 경고는 「이 장소는 안 재 봤다」 한 가지 사실이라
+				// 한 번만 단다 — 두 번 달면 화면에 같은 경고가 두 줄 뜬다.
+				if (!warnings.contains(ACCESSIBILITY_UNVERIFIED_WARNING)) {
+					warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
+				}
 				evaluateSlope(candidate, constraint, violations, warnings);
 			}
 			case PRESENT -> {
