@@ -299,8 +299,9 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                         : txf(tx, '%s곳이 하루를 넘길 수 있어요', '%s places may run past the day', atRisk.length)}
                     </Text>
                   ) : (
-                    // 🔴 모르면 초록(괜찮다는 색)으로 칠하지 않는다 — 폰 위험 띠와 같은 흐린 색·같은 문구(S15P21E201-1670).
-                    <Text weight="bold" color={pace ? color.state.success : color.text.muted}>{pace ? tx('하루 안에 여유 있게 끝나요', 'The day ends comfortably') : tx('하루 안에 끝나는지 아직 몰라요', 'Not sure yet if the day fits')}</Text>
+                    // 🔴 모르면 초록(괜찮다는 색)으로 칠하지 않는다(S15P21E201-1670). 모를 때 적던 「아직 몰라요」는 할 일이 없는
+                    //    문장이라 폰 위험 띠처럼 빼고, 무엇을 모르는지만 흐리게 적는다(UI 캔버스 ④).
+                    <Text weight="bold" color={pace ? color.state.success : color.text.muted}>{pace ? tx('하루 안에 여유 있게 끝나요', 'The day ends comfortably') : tx('여행 당일 이동 기록이 쌓이면 알려 드려요', 'We will tell you once trip-day records come in')}</Text>
                   )}
                   {allEstimated ? <Text variant="caption" color={color.text.muted}>{tx('기록이 적어 추정값이에요. 모든 장소가 「추정」 상태예요.', 'Few records yet, so these are estimates. Every place is marked “estimated”.')}</Text> : null}
                 </View>

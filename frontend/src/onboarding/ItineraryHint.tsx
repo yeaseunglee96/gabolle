@@ -14,7 +14,7 @@ export function ItineraryHint({ onDone }: { onDone: () => void }) {
     <View accessibilityRole="alert" style={styles.card}>
       <Text variant="body" weight="bold" color={color.text.onAction}>{tx('이 일정은 초안이에요', 'This itinerary is a draft')}</Text>
       <Text variant="util" color={color.text.onDarkMuted}>
-        {tx('꼭 갈 곳은 🔒 고정, 빼고 싶은 곳은 「이 장소 제외」. 그다음 「다시 계산」이 나머지를 맞춰요.', 'Lock 🔒 the places you must visit, remove the ones you don’t want, then “Recalculate” fits the rest around them.')}
+        {tx('꼭 갈 곳은 핀을 눌러 「고정됨」으로, 빼고 싶은 곳은 「이 장소 제외」. 그다음 「다시 계산」이 나머지를 맞춰요.', 'Tap the pin on places you must visit, remove the ones you don’t want, then “Recalculate” fits the rest around them.')}
       </Text>
       <Pressable accessibilityRole="button" onPress={onDone} style={({ pressed }) => [styles.ok, pressed && styles.pressed]}>
         <Text variant="util" weight="bold" color={color.text.onAction}>{tx('알겠어요', 'Got it')}</Text>

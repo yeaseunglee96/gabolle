@@ -24,6 +24,7 @@ import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
 import { TabBar, bottomBarClearance } from '@/components/TabBar';
 import { Text } from '@/components/Text';
+import { LockToggle } from '@/components/LockToggle';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { TripPageDesktop } from '@/trip/page/TripPageDesktop';
@@ -314,8 +315,9 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
         <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 아래로 이동', 'Move %s down', item.title)} accessibilityState={{ disabled: !canMoveDown || moveBusy }} disabled={!canMoveDown || moveBusy} onPress={onMoveDown} style={[styles.moveButton, (!canMoveDown || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▼</Text></Pressable>
       </View>)
     : canEdit
-      ? <Pressable accessibilityRole="button" accessibilityLabel={(item.locked ? txf(tx, '%s 고정 해제', 'Unlock %s', item.title) : txf(tx, '%s 고정', 'Lock %s', item.title))} accessibilityState={{ selected: item.locked, busy: lockBusy, disabled }} disabled={disabled} onPress={onLock} style={[styles.lockTouch, disabled && styles.actionDisabled]}><Text variant="body">{lockBusy ? '…' : item.locked ? '🔒' : '🔓'}</Text></Pressable>
-      : item.locked ? <View style={styles.lockTouch}><Text variant="body">🔒</Text></View> : null;
+      // 🔓/🔒 그림 글자 대신 상태를 말로 적는 알약 — 폰 여행 화면과 같은 부품(UI 캔버스 ④).
+      ? <LockToggle locked={item.locked} name={item.title} busy={lockBusy} disabled={disabled} onPress={onLock} tx={tx} />
+      : <LockToggle locked={item.locked} name={item.title} tx={tx} />;
 
   return <>
     {/* 구간 — 세로선과 「도보 1.2km」. 넓은 화면은 위쪽 가로 노선도가 같은 것을 보여주므로 생략한다. */}
@@ -1298,7 +1300,7 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   // 폰(390)에서 시간·자물쇠가 오른쪽 밖으로 50 쯤 밀려 잘렸다(S15P21E201-1701). 길면 줄을 바꾼다.
   stopTitle: { flex: 1, minWidth: 0, gap: spacing[1] },
   stopDetail: { gap: spacing[2], paddingTop: spacing[2], borderTopWidth: 1, borderTopColor: color.surface.border },
-  lockTouch: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+
   nodeWide: { width: 40, height: 40 },
   // 날짜 줄 (시안 3.2) — 왼쪽 날짜, 오른쪽 그날 합계
   dayLine: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing[2], flexWrap: 'wrap', marginTop: spacing[4] },

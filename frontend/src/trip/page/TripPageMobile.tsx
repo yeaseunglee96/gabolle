@@ -28,7 +28,10 @@ import { settleSheetHeight, useSheetDrag } from '@/components/sheetDrag';
 import { MAX_CONTENT_WIDTH } from '@/components/Screen';
 import { StopName } from '@/components/StopName';
 import { BAR_MAX_WIDTH, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
+import { GabolleMascot } from '@/components/DongbaekMascot';
+import { LockToggle } from '@/components/LockToggle';
 import { Text } from '@/components/Text';
+import { TripActionIcon, type TripActionKind } from '@/components/TripActionIcon';
 import { color, radius, spacing } from '@/design/tokens';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { stopNameForLanguage } from '@/discovery/romanize';
@@ -410,6 +413,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const nowDriftValue = drift(new Date().toISOString(), currentStop?.startsAt ?? null);
   // 지금 머무는 곳 — 「출발」 모드이거나 오늘 일정을 다 돈 뒤(마지막 곳의 출발을 적을 수 있게).
   const stayId = progress.status === 'RUNNING' || progress.status === 'DONE' ? stayingStopId(stopIds, progress.outcomes, departedIds) : null;
+  // 지금 향하는 곳 하나 — 머무는 중이 아니면 「지금」 칸, 머무는 중이거나 아직 출발 전이면 그다음 칸(UI 캔버스 ⑧).
+  const aimIndex = (() => {
+    const heading = steps.findIndex((step, index) => step === 'current' && items[index]?.id !== stayId);
+    return heading >= 0 ? heading : steps.findIndex((step) => step === 'next');
+  })();
   const stayItem = stayId ? items.find((item) => item.id === stayId) ?? null : null;
   const stayArrivedAt = stayId ? (arrivalFix?.id === stayId ? arrivalFix.at : arrivedAtOf(progress.outcomes, stayId)) : null;
   const lastDepartureItem = lastDeparture ? items.find((item) => item.id === lastDeparture.id) ?? null : null;
@@ -523,15 +531,16 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         ) : null}
       </View>
 
-      {/* 알약 — 지도 보기(= 창 접기) · 동행 초대 · 공유 · 기록 남기기 · 날씨. 창은 화면을 옮기지 않고 아래 시트로 연다(S15P21E201-1561).
+      {/* 도구 한 줄 — 지도 보기(= 창 접기) · 동행 초대 · 공유 · 기록 남기기 · 날씨. 알약 다섯이 두 줄로 쌓여 일정을 밀어내던 것을
+          아이콘 한 줄로 줄였다(UI 캔버스 ④). 창은 화면을 옮기지 않고 아래 시트로 연다(S15P21E201-1561).
           「공유」는 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기다(S15P21E201-1593) — 넷 다 창 안에서 연다(S15P21E201-1760). */}
       {ready ? (
         <View style={styles.actions}>
-          <ActionPill label={tx('지도 보기', 'View map')} onPress={() => changePanel('collapsed')} />
-          {tripId ? <ActionPill label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
-          {tripId ? <ActionPill label={tx('공유', 'Share')} onPress={() => setOverlay('share')} /> : null}
-          {tripId ? <ActionPill label={tx('기록 남기기', 'Write a record')} onPress={() => setOverlay('record')} /> : null}
-          {tripId ? <ActionPill label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
+          <ActionTile icon="map" label={tx('지도 보기', 'View map')} onPress={() => changePanel('collapsed')} />
+          {tripId ? <ActionTile icon="invite" label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
+          {tripId ? <ActionTile icon="share" label={tx('공유', 'Share')} onPress={() => setOverlay('share')} /> : null}
+          {tripId ? <ActionTile icon="record" label={tx('기록 남기기', 'Write a record')} onPress={() => setOverlay('record')} /> : null}
+          {tripId ? <ActionTile icon="weather" label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
         </View>
       ) : null}
 
@@ -630,6 +639,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   photo={photos[item.placeId] ?? null}
                   name={nameOf(item)}
                   step={progressId ? (item.id === stayId ? 'staying' : steps[index]) : undefined}
+                  aim={Boolean(progressId) && item.id !== stayId && index === aimIndex}
                   risky={pace?.atRiskItemIds.includes(item.id) ?? false}
                   pace={paceByItemId.get(item.id)}
                   paceEstimated={paceEstimated}
@@ -855,10 +865,12 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
 
 // ── 부품 ────────────────────────────────────────────────────────────────────
 
-function ActionPill({ label, onPress }: { label: string; onPress: () => void }) {
+function ActionTile({ icon, label, onPress }: { icon: TripActionKind; label: string; onPress: () => void }) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.actionPill, pressed && styles.pressed]}>
-      <Text variant="caption" weight="bold" numberOfLines={1}>{label}</Text>
+    // 🔴 글자를 두 줄까지 둔다 — 일본어 「同行者を招待」처럼 긴 말이 한 줄이면 「同行者を…」로 잘린다.
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [styles.actionTile, pressed && styles.pressed]}>
+      <View style={styles.actionIcon}><TripActionIcon kind={icon} tint={color.text.heading} /></View>
+      <Text variant="micro" weight="bold" color={color.text.body} numberOfLines={2} style={styles.actionLabel}>{label}</Text>
     </Pressable>
   );
 }
@@ -960,25 +972,31 @@ function CourseCardMobile({ open, courses, index, full, estimated, items, confir
   );
 }
 
-/** 위험 띠 — 하루를 넘길 곳이 있으면 연분홍에 빨간 글자, 없으면 초록. 🔴 모르면 「모른다」고 적는다. */
+/**
+ * 위험 띠 — 하루를 넘길 곳이 있으면 연분홍에 빨간 글자, 없으면 초록.
+ * 🔴 모르면 띠를 안 그린다(UI 캔버스 ④). 「하루 안에 끝나는지 아직 몰라요」는 할 일이 없는 문장이라
+ *    일정 맨 위를 차지할 이유가 없다. 초록(괜찮다)으로 칠하지 않는 규칙(S15P21E201-1670)은 그대로다.
+ */
 function RiskStrip({ atRisk, known, estimated, nameOf, tx }: { atRisk: ItineraryItemDto[]; known: boolean; estimated: boolean; nameOf: (item: ItineraryItemDto) => string; tx: Tx }) {
   const risky = atRisk.length > 0;
+  if (!risky && !known) return null;
   const text = risky
     ? atRisk.length === 1
       ? txf(tx, `%s${koreanSubject(atRisk[0].title)} 하루를 넘길 수 있어요`, '%s may run past the day', nameOf(atRisk[0]))
       : txf(tx, '%s곳이 하루를 넘길 수 있어요', '%s places may run past the day', atRisk.length)
-    : known ? tx('하루 안에 여유 있게 끝나요', 'The day ends comfortably') : tx('하루 안에 끝나는지 아직 몰라요', 'Not sure yet if the day fits');
-  const tone = risky ? color.state.danger : known ? color.state.success : color.text.muted;
+    : tx('하루 안에 여유 있게 끝나요', 'The day ends comfortably');
+  const tone = risky ? color.state.danger : color.state.success;
   return (
-    <View style={[styles.risk, risky ? styles.riskBad : known ? styles.riskOk : styles.riskUnknown]}>
+    <View style={[styles.risk, risky ? styles.riskBad : styles.riskOk]}>
       <Text variant="caption" weight="bold" color={tone} style={styles.shrink}>{text}</Text>
       {known && estimated ? <Text variant="caption" color={tone}>{`· ${tx('추정값', 'estimate')}`}</Text> : null}
     </View>
   );
 }
 
-function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, tx, locale }: {
-  item: ItineraryItemDto; /** 화면에 적을 장소 이름 — 영어면 로마자가 붙는다(S15P21E201-1735). */ name: string; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
+function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, aim = false, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, tx, locale }: {
+  item: ItineraryItemDto; /** 화면에 적을 장소 이름 — 영어면 로마자가 붙는다(S15P21E201-1735). */ name: string; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState;
+  /** 지금 향하는 곳 — 빨간 고리와 「다음」 표. 한 날에 한 곳뿐이다. */ aim?: boolean; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
   /** 오늘 방문지이고 아직 도착이 안 적혔을 때만 — 아니면 null 이고 「도착 찍기」를 안 그린다(S15P21E201-1690). */
   onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; onOpenPlace: () => void;
@@ -1047,6 +1065,11 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
             </View>
           ) : done ? (
             <View style={styles.dotDone}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+          ) : staying ? (
+            // 머무는 곳은 동백이가 서 있다 — 탑승 중 사다리의 「지금 여기」와 같은 표시다.
+            <View style={styles.dotHere}><GabolleMascot state="open" still style={styles.dotMascot} /></View>
+          ) : aim ? (
+            <View style={styles.dotAim} />
           ) : (
             <View style={styles.dot} />
           )}
@@ -1067,6 +1090,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
               <View style={styles.titleLine}>
                 <Text weight="bold" style={styles.shrink}>{name}</Text>
                 {done ? <View style={styles.chipDone}><Text variant="micro" weight="bold" color={color.state.success}>{tx('✓ 다녀옴', '✓ Visited')}</Text></View> : null}
+                {aim ? <View style={styles.chipAim}><Text variant="micro" weight="bold" color={color.text.heading}>{tx('다음 갈 곳', 'Up next')}</Text></View> : null}
                 {staying ? <View style={styles.chipStaying}><Text variant="micro" weight="bold" color={color.text.body}>{tx('머무는 중', 'Here now')}</Text></View> : null}
               </View>
               {meta ? <Text variant="caption" color={color.text.muted}>{meta}</Text> : null}
@@ -1075,18 +1099,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
               {reason ? <Text variant="caption" color={color.text.body} numberOfLines={2}>{reason}</Text> : null}
               {risky ? <Text variant="micro" weight="bold" color={color.state.danger}>{tx('하루 넘길 위험', 'May run past the day')}</Text> : null}
             </Pressable>
-            {canEdit ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={item.locked ? txf(tx, '%s 고정 해제', 'Unlock %s', item.title) : txf(tx, '%s 고정', 'Lock %s', item.title)}
-                accessibilityState={{ selected: item.locked, busy, disabled: busy }}
-                disabled={busy}
-                onPress={onLock}
-                style={({ pressed }) => [styles.lock, (pressed || busy) && styles.pressed]}
-              >
-                <Text>{busy ? '…' : item.locked ? '🔒' : '🔓'}</Text>
-              </Pressable>
-            ) : item.locked ? <View style={styles.lock}><Text>🔒</Text></View> : null}
+            <LockToggle compact locked={item.locked} name={item.title} busy={busy} onPress={canEdit ? onLock : undefined} tx={tx} />
           </View>
           {expanded ? (
             <>
@@ -1214,7 +1227,10 @@ const styles = StyleSheet.create({
   confirmedChip: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', marginTop: spacing[1], paddingHorizontal: 10, paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.card },
   circle44: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   // 알약이 다섯이라(S15P21E201-1593) 한 줄이면 「지도 …」처럼 잘린다 — 한 줄에 셋까지, 넘치면 다음 줄로 감긴다.
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  actions: { flexDirection: 'row', gap: spacing[1] },
+  actionTile: { flex: 1, minWidth: 0, minHeight: 44, alignItems: 'center', gap: 4, paddingVertical: spacing[1] },
+  actionIcon: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
+  actionLabel: { textAlign: 'center' },
   actionPill: { flexGrow: 1, flexBasis: '30%', minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   dayRow: { flexDirection: 'row', gap: spacing[2] },
   dayChip: { minHeight: 36, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card },
@@ -1243,7 +1259,6 @@ const styles = StyleSheet.create({
   risk: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, paddingVertical: spacing[3], paddingHorizontal: spacing[4], borderRadius: radius.md },
   riskBad: { backgroundColor: color.state.dangerBg },
   riskOk: { backgroundColor: color.state.successBg },
-  riskUnknown: { backgroundColor: color.surface.tint },
 
   // 카드 타임라인 — 그리드 48 | 1fr, 왼쪽 세로선 2px(가운데)
   legRow: { height: 32, flexDirection: 'row', alignItems: 'center', gap: spacing[2] + spacing[1] },
@@ -1266,6 +1281,10 @@ const styles = StyleSheet.create({
   // 점 — 바탕색 4px 고리로 세로선을 끊는다(시안 box-shadow 0 0 0 4px #F5F5F7).
   dot: { width: 18, height: 18, borderRadius: radius.full, borderWidth: 4, borderColor: color.canvas, backgroundColor: color.surface.field },
   dotDone: { width: 26, height: 26, borderRadius: radius.full, borderWidth: 4, borderColor: color.canvas, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' },
+  // 🔴 고리 색은 state.dot — 글자가 아니라 점이라 쓸 수 있다(tokens 규칙). 바탕색 고리로 세로선을 끊는 것은 다른 점과 같다.
+  dotAim: { width: 20, height: 20, borderRadius: radius.full, borderWidth: 4, borderColor: color.state.dot, backgroundColor: color.canvas },
+  dotHere: { width: 32, height: 32, borderRadius: radius.full, backgroundColor: color.canvas, alignItems: 'center', justifyContent: 'center' },
+  dotMascot: { width: 28, height: 28 },
   stopCard: { flex: 1, minWidth: 0, padding: 10, gap: 10, borderRadius: radius.lg, backgroundColor: color.surface.card },
   stopHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   thumb: { width: THUMB, height: THUMB, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' },
@@ -1273,8 +1292,8 @@ const styles = StyleSheet.create({
   stopCopy: { flex: 1, minWidth: 0, gap: spacing[1] },
   titleLine: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 },
   chipDone: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: radius.full, backgroundColor: color.state.successBg },
+  chipAim: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: radius.full, borderWidth: 1, borderColor: color.state.dot },
   chipStaying: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: radius.full, backgroundColor: color.surface.soft },
-  lock: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   stopDetail: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingTop: 10, borderTopWidth: 1, borderTopColor: color.surface.border },
   detailButton: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint, justifyContent: 'center' },
   placeLink: { alignSelf: 'flex-start', marginTop: spacing[2] },
