@@ -148,13 +148,21 @@ export async function getStoryReplies(storyId: string, accessToken: string | nul
 /**
  * 기록 고치기 — PATCH 는 없는 칸을 「안 바꾼다」로 읽는다(StoryUpdateRequest).
  * 공개 범위는 작성자만 바꿀 수 있다(서버가 공동 작성자의 visibility 를 거절한다) — 부르는 쪽이 작성자일 때만 싣는다.
+ * 지역·장소는 공동 작성자도 고칠 수 있다(StoryService.update). 빈 지역("")은 지역을 지운다, clearPlace 는 장소 연결을 끊는다.
+ * 🔴 바뀐 것만 싣는다 — 서버는 없는 칸을 «그대로 두기»로 읽는다.
  */
-export async function updateStory(id: string, body: string, accessToken: string | null, changes: { visibility?: StoryVisibility } = {}): Promise<StoryMutationResult> {
+export async function updateStory(id: string, body: string, accessToken: string | null, changes: { visibility?: StoryVisibility; region?: string; placeId?: string; clearPlace?: boolean } = {}): Promise<StoryMutationResult> {
   try {
     const story = withDisplayImageUrls(await apiRequest<StoryDto>(`/api/v1/stories/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       accessToken,
-      body: { body, ...(changes.visibility ? { visibility: changes.visibility } : {}) },
+      body: {
+        body,
+        ...(changes.visibility ? { visibility: changes.visibility } : {}),
+        ...(changes.region !== undefined ? { region: changes.region } : {}),
+        ...(changes.placeId ? { placeId: changes.placeId } : {}),
+        ...(changes.clearPlace ? { clearPlace: true } : {}),
+      },
     }));
     storyCache.set(story.id, story);
     return { state: 'success', story };
