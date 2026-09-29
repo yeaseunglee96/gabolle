@@ -41,6 +41,13 @@ public class RouteTravelTimeAdapter implements TravelTimePort {
 
 	@Override
 	public TravelTime between(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode) {
+		return between(fromLat, fromLng, toLat, toLng, travelMode, false);
+	}
+
+	/** 계단·급경사를 피하는 길은 경로 질문에 그대로 싣는다 — 실제로 길을 고르는 것은 보행 그래프다. */
+	@Override
+	public TravelTime between(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode,
+			boolean stepFree) {
 		if (fromLat == null || fromLng == null || toLat == null || toLng == null) {
 			// 좌표가 없으면 아무것도 지어내지 않는다. 0 을 돌려주면 "붙어 있다" 가 된다.
 			return TravelTime.unknown();
@@ -49,7 +56,7 @@ public class RouteTravelTimeAdapter implements TravelTimePort {
 		RouteLeg leg;
 		try {
 			leg = this.routeQueryService.find(
-					new RouteQuery(fromLat, fromLng, toLat, toLng, modeOf(travelMode)));
+					new RouteQuery(fromLat, fromLng, toLat, toLng, modeOf(travelMode), null, stepFree));
 		}
 		catch (IllegalArgumentException invalidCoordinate) {
 			// 좌표 범위를 벗어났다 — 저장된 값이 어긋난 것이고, 일정 생성을 멈출 이유는 아니다.

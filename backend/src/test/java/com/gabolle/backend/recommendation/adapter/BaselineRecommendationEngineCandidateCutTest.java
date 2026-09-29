@@ -437,4 +437,60 @@ class BaselineRecommendationEngineCandidateCutTest {
 
 		assertThat(keptWith(tripId, pool, noSignal)).isEqualTo(keptWith(tripId, pool, null));
 	}
+
+	// ── 빠질 후보가 상한을 차지하지 않는다 ─────────────────────────────────────
+
+	/**
+	 * 점수 순으로 위 {@code failing} 곳은 빠질 후보(FAIL), 그 아래 {@code passing} 곳은 통과 후보다.
+	 * 「반드시」 휠체어인데 경사가 상한을 넘는 곳이 점수는 더 높은 모양을 흉내 낸다.
+	 */
+	private static List<EngineCandidate> failingOnTop(int failing, int passing) {
+		List<EngineCandidate> out = new ArrayList<>();
+		for (int i = 0; i < failing + passing; i++) {
+			boolean fail = i < failing;
+			out.add(new EngineCandidate(new UUID(5L, i), "BASELINE_PLACE_QUERY",
+					fail ? com.gabolle.backend.recommendation.domain.ConstraintVerdict.FAIL
+							: com.gabolle.backend.recommendation.domain.ConstraintVerdict.PASS,
+					fail ? List.of(Map.of("code", "SLOPE_OVER_LIMIT", "featureKey", "WHEELCHAIR")) : List.of(),
+					List.of(), 1.0, Map.of("category", "FOOD"), Map.of(), 1.0 - i * 0.001, List.of(), List.of()));
+		}
+		return out;
+	}
+
+	@Test
+	@DisplayName("🔴 점수 위 220곳이 빠질 후보여도 통과하는 30곳은 전부 상한 200 안에 남는다 — 섞기 규칙에서")
+	void 빠질_후보가_상한을_차지하지_않는다_섞기() {
+		List<EngineCandidate> kept = BaselineRecommendationEngine.keepBestScoring(failingOnTop(220, 30), 200,
+				List.of(), false, new UUID(9L, 21L));
+
+		assertThat(kept).hasSize(200);
+		assertThat(kept.stream().filter((c) -> !c.hardFailed()).count()).isEqualTo(30);
+		assertThat(kept.subList(0, 30)).as("통과 후보가 앞이다").noneMatch(EngineCandidate::hardFailed);
+	}
+
+	@Test
+	@DisplayName("🔴 설문만 있는 점수 순 자르기·갈래 몫 자르기에서도 통과하는 30곳은 전부 남는다")
+	void 빠질_후보가_상한을_차지하지_않는다_점수순과_몫() {
+		List<EngineCandidate> bySurvey = BaselineRecommendationEngine.keepBestScoring(failingOnTop(220, 30), 200,
+				List.of(), true, new UUID(9L, 22L));
+		List<EngineCandidate> byShares = BaselineRecommendationEngine.keepBestScoring(failingOnTop(220, 30), 200,
+				List.of("FOOD"), false, new UUID(9L, 23L));
+
+		assertThat(bySurvey).hasSize(200);
+		assertThat(bySurvey.stream().filter((c) -> !c.hardFailed()).count()).isEqualTo(30);
+		assertThat(byShares).hasSize(200);
+		assertThat(byShares.stream().filter((c) -> !c.hardFailed()).count()).isEqualTo(30);
+	}
+
+	@Test
+	@DisplayName("🔴 전부 빠질 후보면 예전과 같은 곳이 남는다 — 「어느 조건이 막았나」 설명이 그 행들을 읽는다")
+	void 전부_빠질_후보면_예전과_같다() {
+		List<EngineCandidate> allFail = failingOnTop(250, 0);
+
+		List<EngineCandidate> kept = BaselineRecommendationEngine.keepBestScoring(allFail, 200,
+				List.of(), true, new UUID(9L, 24L));
+
+		// 예전 규칙(점수 순 상위 200)과 같아야 한다 — 빠질 후보를 지우지 않고 뒤로 미룰 뿐이다.
+		assertThat(kept).containsExactlyElementsOf(allFail.subList(0, 200));
+	}
 }

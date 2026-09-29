@@ -300,7 +300,7 @@ public class CandidateAssembler {
 		if (candidate.constraintVerdict() == ConstraintVerdict.PASS) {
 			return null;
 		}
-		if (candidate.constraintVerdict() == ConstraintVerdict.FAIL) {
+		if (candidate.hardFailed()) {
 			// 제약 위반이 확인됐다. 점수로 되살리지 않는다.
 			return new Filtered(candidate, CandidateStage.HARD_FILTERED, warnings);
 		}

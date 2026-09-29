@@ -213,24 +213,27 @@ public class BaselineCandidateScorer {
 		// 가중 평균이다 — 단순 평균이면 가장 강하게 답한 축조차 총점에 0.10 ÷ 5 = 0.02 밖에
 		// 기여하지 못해 거리(0.30)에 덮인다. 비율과 계산은 PreferenceAlignmentWeights 에 있다.
 		Map<String, Double> alignments = new LinkedHashMap<>();
+		List<String> imputedDimensions = new ArrayList<>();
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "LOCALITY", "localityScore",
-				false, featureValues, alignments, reasonCodes);
+				false, featureValues, alignments, imputedDimensions, reasonCodes);
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "QUIETNESS", "quietnessScore",
-				false, featureValues, alignments, reasonCodes);
+				false, featureValues, alignments, imputedDimensions, reasonCodes);
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "TOURIST_PREFERENCE",
-				"touristRatio", false, featureValues, alignments, reasonCodes);
+				"touristRatio", false, featureValues, alignments, imputedDimensions, reasonCodes);
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "SHADE_PREFERENCE", "shadeScore",
-				false, featureValues, alignments, reasonCodes);
+				false, featureValues, alignments, imputedDimensions, reasonCodes);
 		// SLOPE_PERCENT 는 0~100 퍼센트이고 선호값은 0~1 스케일이다 — 비교 전에 100 으로 나눠
 		// 같은 축으로 맞춘다.
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "SLOPE_PREFERENCE", "slopePercent",
-				true, featureValues, alignments, reasonCodes);
+				true, featureValues, alignments, imputedDimensions, reasonCodes);
 
 		Double alignmentAverage = alignmentWeights.weightedAverage(alignments);
 		// dimensions 옆에 dimensionWeights 를 같이 남긴다. 정렬도만 남기면 "이 장소가 왜 이
-		// 순위인가" 를 되짚을 때 어느 축이 얼마나 셌는지를 알 수 없다.
+		// 순위인가" 를 되짚을 때 어느 축이 얼마나 셌는지를 알 수 없다. imputedDimensions 는
+		// 장소 값이 없어 중간값으로 채운 축이다 — dimensions 의 그 숫자는 잰 것이 아니다.
 		scoreComponents.put("preferenceAlignment", componentDetail(weights.preferenceAlignment(), alignmentAverage,
-				Map.of("dimensions", alignments, "dimensionWeights", alignmentWeights.weightsUsed(alignments))));
+				Map.of("dimensions", alignments, "dimensionWeights", alignmentWeights.weightsUsed(alignments),
+						"imputedDimensions", imputedDimensions)));
 		if (alignmentAverage != null) {
 			total += weights.preferenceAlignment() * alignmentAverage;
 		}
@@ -881,17 +884,33 @@ public class BaselineCandidateScorer {
 	private void applyAlignmentDimension(PlaceCandidateResponse.Candidate candidate,
 			PreferenceSnapshot preferenceSnapshot, List<UserPlaceCodeMap> preferenceCodeMap, String preferenceCode,
 			String featureValueKey, boolean placeValueIsPercent, Map<String, Object> featureValues,
-			Map<String, Double> alignments, List<String> reasonCodes) {
+			Map<String, Double> alignments, List<String> imputedDimensions, List<String> reasonCodes) {
 
 		String featureType = featureTypeFor(preferenceCodeMap, preferenceCode).orElse(null);
 		Double placeScore = (featureType == null) ? null : extractPlaceScore(candidate, featureType);
+		// 채운 값이 아니라 잰 값을 남긴다 — 설명 쪽은 null 을 「모름」으로 읽어야 한다.
 		featureValues.put(featureValueKey, placeScore);
 
-		if (placeScore == null) {
-			return;
-		}
 		Double prefScore = PreferenceJson.scoreFor(preferenceSnapshot, preferenceCode, this.objectMapper);
 		if (prefScore == null) {
+			// 사용자가 이 축을 안 봤다(「상관없어요」·무응답). 전처럼 축을 뺀다.
+			return;
+		}
+		if (placeScore == null) {
+			if (featureType == null) {
+				// 대조표에 이 축이 없다 — 장소 탓이 아니라 모든 장소가 똑같이 모르는 것이라 뺀다.
+				return;
+			}
+			// 🔴 모름이 평균보다 이기면 안 된다. 예전에는 장소 값이 없으면 이 축을 빼고 나머지로 평균을
+			//    다시 냈다. 그러면 그늘 자료가 「없는」 곳이 그늘이 「중간인」 곳을 이겼다 — 그늘 점수는
+			//    0~1 백분위라 중간인 곳은 「그늘 우선」(1.0)과 0.5 로 맞는데, 자료 없는 곳은 그 0.5 가 빠져
+			//    경사 축 하나(0.97)만으로 평균이 났다. 자료를 모으지 않은 곳이 상을 받는 셈이다.
+			//    그래서 빼지 않고 「장소 값이 0~1 에 고르게 퍼져 있다면 기대되는 정렬도」로 채운다:
+			//    ∫₀¹ (1 - |x - p|) dx = 1 - (p² + (1-p)²) / 2. p=1 이면 0.5, p=0.5 면 0.75 다.
+			//    맞춘 것이 없으니 PREF_ALIGNED_ 이유 코드는 붙이지 않는다.
+			double p = clamp01(prefScore);
+			alignments.put(preferenceCode, 1.0 - (p * p + (1.0 - p) * (1.0 - p)) / 2.0);
+			imputedDimensions.add(preferenceCode);
 			return;
 		}
 		double normalizedPlace = placeValueIsPercent ? placeScore / 100.0 : placeScore;

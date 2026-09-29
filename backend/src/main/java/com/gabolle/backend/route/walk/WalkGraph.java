@@ -35,6 +35,26 @@ public final class WalkGraph {
 	/** 한 번 찾기에서 확정하는 점 수 상한 — 못 이을 때 그래프 전체를 훑지 않게. */
 	static final int MAX_SETTLED = 400_000;
 
+	/**
+	 * 계단을 피하는 길(stepFree)에서 계단 길 1m 를 몇 m 로 칠까. 휠체어·유모차는 계단을 못 지나므로 사실상 「다른
+	 * 길이 아예 없을 때만」 쓰게 크게 둔다. 끝없이(∞) 두지 않는 것은, 계단 말고 이을 길이 없는 곳에서 경로가 통째로
+	 * 사라지면 직선 어림으로 떨어져 오히려 계단이 있는지조차 안 보이기 때문이다 — 계단 표시가 조각에 남는다.
+	 */
+	static final double STAIRS_COST_FACTOR = 25;
+
+	/**
+	 * 계단을 피하는 길에서 가파른 길 1m 를 몇 m 로 칠까. 4배 안쪽으로 돌아가는 평지 길이 있으면 그쪽으로 간다.
+	 * 경사를 모르는 길(-1)은 1배다 — 모르는 것을 가파르다고 치면 자료가 빈 동네 전체를 피하게 된다.
+	 */
+	static final double STEEP_COST_FACTOR = 4;
+
+	/**
+	 * 가파르다고 보는 경사(천분율). 83‰ = 8.33% 는 휠체어 경사로 기준(1:12)이고, 추천의 경사 상한
+	 * {@code gabolle.recommendation.mobility.max-slope-percent=8.33}(application.properties)과 같은 값이다 —
+	 * 장소는 들어갈 수 있다고 해 놓고 가는 길은 못 가게 되면 안 된다.
+	 */
+	static final int STEEP_PERMILLE = 83;
+
 	private static final double M_PER_DEG_LAT = 110_574;
 
 	/** 붙일 점을 찾는 칸의 크기(도). 약 220m. */
@@ -211,14 +231,30 @@ public final class WalkGraph {
 		return new WalkGraph(lat, lon, start, adjTo, adjMeters, adjWay, slope, stairs, cells, bestSize);
 	}
 
-	/** 두 좌표 사이 최단 보행 경로. 붙일 길이 없거나 못 이으면 빈 값이다. */
+	/** 두 좌표 사이 최단 보행 경로. 붙일 길이 없거나 못 이으면 빈 값이다. 계단은 가리지 않는다. */
 	public Optional<Route> route(double originLat, double originLng, double destLat, double destLng) {
+		return route(originLat, originLng, destLat, destLng, false);
+	}
+
+	/**
+	 * 두 좌표 사이 보행 경로.
+	 *
+	 * <p>🔴 {@code stepFree} 면 가장 <b>짧은</b> 길이 아니라 계단·급경사를 치른 값이 가장 <b>싼</b> 길을 찾는다 —
+	 * 계단 길은 길이 × {@link #STAIRS_COST_FACTOR}, 가파른 길은 × {@link #STEEP_COST_FACTOR} 로 친다. 전에는 경사와
+	 * 계단을 지도에 칠하기만 하고 길 고르기에는 안 써서, 휠체어 사용자에게도 계단 지름길을 냈다.
+	 *
+	 * <p>돌려주는 {@link Route#meters()} 는 치른 값이 아니라 <b>실제 길이</b>다 — 걷는 시간이 거기서 나온다.
+	 *
+	 * @param stepFree 계단과 급경사를 피할까. {@code false} 면 전과 똑같이 가장 짧은 길이다
+	 */
+	public Optional<Route> route(double originLat, double originLng, double destLat, double destLng,
+			boolean stepFree) {
 		int s = nearest(originLat, originLng);
 		int g = nearest(destLat, destLng);
 		if (s < 0 || g < 0) {
 			return Optional.empty();
 		}
-		int[] nodes = search(s, g);
+		int[] nodes = search(s, g, stepFree);
 		if (nodes == null) {
 			return Optional.empty();
 		}
@@ -235,7 +271,7 @@ public final class WalkGraph {
 		// 출발 좌표 → 첫 점: 길 밖이라 경사를 모른다.
 		addPiece(pieces, 0, 1, null, false);
 		for (int i = 1; i < nodes.length; i++) {
-			int a = edgeBetween(nodes[i - 1], nodes[i]);
+			int a = edgeBetween(nodes[i - 1], nodes[i], stepFree);
 			meters += this.adjMeters[a];
 			int wayIndex = this.adjWay[a];
 			short permille = this.waySlopePermille[wayIndex];
@@ -260,15 +296,39 @@ public final class WalkGraph {
 		pieces.add(new RouteLeg.Piece(from, to, slopePercent, stairs));
 	}
 
-	/** 두 점을 잇는 조각 중 가장 짧은 것 — 같은 두 점을 잇는 길이 둘일 수 있다. */
-	private int edgeBetween(int u, int v) {
+	/**
+	 * 두 점을 잇는 조각 중 가장 싼 것 — 같은 두 점을 잇는 길이 둘일 수 있다(예: 계단과 옆 경사로).
+	 *
+	 * <p>찾기({@link #search})와 같은 값({@link #cost})으로 고른다. 길이로만 고르면 찾기는 경사로를 골랐는데 조각에는
+	 * 옆의 계단이 실려, 지도가 「계단으로 가라」고 칠하고 거리도 다른 길의 것이 된다.
+	 */
+	private int edgeBetween(int u, int v, boolean stepFree) {
 		int best = -1;
 		for (int a = this.adjStart[u]; a < this.adjStart[u + 1]; a++) {
-			if (this.adjTo[a] == v && (best < 0 || this.adjMeters[a] < this.adjMeters[best])) {
+			if (this.adjTo[a] == v && (best < 0 || cost(a, stepFree) < cost(best, stepFree))) {
 				best = a;
 			}
 		}
 		return best;
+	}
+
+	/**
+	 * 조각 하나를 지나는 값. 보통은 길이(m) 그대로이고, stepFree 면 계단·급경사에 배수를 곱한다.
+	 *
+	 * <p>배수는 전부 1 이상이다 — 그래서 값이 실제 길이보다 작아지는 일이 없고, 직선거리로 잡은 어림
+	 * ({@link #heuristic})이 여전히 남은 값을 넘지 않아 A* 가 가장 싼 길을 놓치지 않는다.
+	 */
+	private double cost(int a, boolean stepFree) {
+		double meters = this.adjMeters[a];
+		if (!stepFree) {
+			return meters;
+		}
+		int wayIndex = this.adjWay[a];
+		if (this.wayStairs[wayIndex]) {
+			return meters * STAIRS_COST_FACTOR;
+		}
+		// -1(모름)은 83 을 넘지 않으므로 1배다.
+		return (this.waySlopePermille[wayIndex] > STEEP_PERMILLE) ? meters * STEEP_COST_FACTOR : meters;
 	}
 
 	/** 한 덩어리 안에서 가장 가까운 점. {@link #MAX_SNAP_M} 안에 없으면 -1. */
@@ -295,8 +355,8 @@ public final class WalkGraph {
 		return best;
 	}
 
-	/** A*. 점 번호 줄(출발 → 도착)을 돌려주고, 못 이으면 {@code null}. */
-	private int[] search(int s, int g) {
+	/** A*. 점 번호 줄(출발 → 도착)을 돌려주고, 못 이으면 {@code null}. 값은 {@link #cost} 로 센다. */
+	private int[] search(int s, int g, boolean stepFree) {
 		double goalLat = this.latE7[g] / 1e7;
 		double goalLng = this.lonE7[g] / 1e7;
 		Map<Integer, Double> dist = new HashMap<>();
@@ -320,7 +380,7 @@ public final class WalkGraph {
 			}
 			for (int a = this.adjStart[u]; a < this.adjStart[u + 1]; a++) {
 				int v = this.adjTo[a];
-				double nd = du + this.adjMeters[a];
+				double nd = du + cost(a, stepFree);
 				Double old = dist.get(v);
 				if (old == null || nd < old) {
 					dist.put(v, nd);

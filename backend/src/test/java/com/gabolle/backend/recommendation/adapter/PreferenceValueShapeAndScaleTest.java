@@ -215,6 +215,55 @@ class PreferenceValueShapeAndScaleTest {
 		assertThat(component(result, "preferenceAlignment")).isNull();
 	}
 
+	// ── 장소 값이 없을 때 — 모름이 평균보다 이기면 안 된다 ────────────────────────
+
+	@Test
+	@DisplayName("🔴 그늘 자료가 없는 곳이 그늘이 중간인 곳을 이기지 않는다 — 경사 피함 + 그늘 우선, 둘 다 경사 3%")
+	void 그늘_모름이_그늘_중간을_이기지_않는다() {
+		PreferenceSnapshot slopeAvoidShadePrefer = answers(
+				"SLOPE_PREFERENCE", "\"AVOID\"", "SHADE_PREFERENCE", "\"PREFER\"");
+		EngineCandidate median = score(
+				candidate(List.of(value("SLOPE_PERCENT", "ESTIMATED", "3"),
+						value("SHADE_SCORE", "ESTIMATED", "0.5"))),
+				slopeAvoidShadePrefer);
+		EngineCandidate unknownShade = score(
+				candidate(List.of(value("SLOPE_PERCENT", "ESTIMATED", "3"))),
+				slopeAvoidShadePrefer);
+
+		// 예전: 중간인 곳 (0.97 + 0.5) / 2 = 0.735, 모르는 곳은 그늘 축이 빠져 0.97 — 모르는 곳이 이겼다.
+		// 지금: 모르는 곳도 그늘 축을 1 - (1² + 0²) / 2 = 0.5 로 채워 0.735 — 이기지 못한다.
+		assertThat(component(median, "preferenceAlignment")).isCloseTo(0.735, within(1e-9));
+		assertThat(component(unknownShade, "preferenceAlignment")).isCloseTo(0.735, within(1e-9));
+		assertThat(component(unknownShade, "preferenceAlignment"))
+				.isLessThanOrEqualTo(component(median, "preferenceAlignment"));
+		assertThat(unknownShade.preRankScore()).isLessThanOrEqualTo(median.preRankScore());
+
+		// 채운 축은 맞춘 것이 아니다 — 이유 코드가 없고, 설명 쪽에는 「모름」(null)이 남는다.
+		assertThat(unknownShade.reasonCodes()).doesNotContain("PREF_ALIGNED_SHADE_PREFERENCE");
+		assertThat(unknownShade.reasonCodes()).contains("PREF_ALIGNED_SLOPE_PREFERENCE");
+		assertThat(unknownShade.featureValues()).containsEntry("shadeScore", null);
+		assertThat(imputed(unknownShade)).containsExactly("SHADE_PREFERENCE");
+		assertThat(imputed(median)).isEmpty();
+	}
+
+	@Test
+	@DisplayName("답한 축 하나뿐인데 장소 값이 없으면 항이 빠지지 않고 중간값이다 — 한쪽 끝 취향이면 0.5")
+	void 답한_축의_장소_값이_없으면_중간값이다() {
+		EngineCandidate result = score(candidate(List.of()), snapshot("SHADE_PREFERENCE", "\"PREFER\""));
+
+		assertThat(component(result, "preferenceAlignment")).isCloseTo(0.5, within(1e-9));
+		assertThat(result.reasonCodes()).doesNotContain("PREF_ALIGNED_SHADE_PREFERENCE");
+	}
+
+	@Test
+	@DisplayName("답하지 않은 축은 장소 값이 없어도 예전처럼 빠진다 — 채우는 것은 답한 축뿐이다")
+	void 답하지_않은_축은_그대로_빠진다() {
+		EngineCandidate result = score(candidate(List.of()), snapshot("SHADE_PREFERENCE", "\"NO_PREFERENCE\""));
+
+		assertThat(component(result, "preferenceAlignment")).isNull();
+		assertThat(imputed(result)).isEmpty();
+	}
+
 	// ── 여기서 고치지 않는 것 ─────────────────────────────────────────────────
 
 	@Test
@@ -239,6 +288,23 @@ class PreferenceValueShapeAndScaleTest {
 	private static Double component(EngineCandidate candidate, String key) {
 		Map<String, Object> detail = (Map<String, Object>) candidate.scoreComponents().get(key);
 		return (Double) detail.get("value");
+	}
+
+	@SuppressWarnings("unchecked")
+	private static List<String> imputed(EngineCandidate candidate) {
+		Map<String, Object> detail = (Map<String, Object>) candidate.scoreComponents().get("preferenceAlignment");
+		return (List<String>) detail.get("imputedDimensions");
+	}
+
+	/** 답 여러 개 — {@code 차원, 값 JSON} 을 번갈아 준다. */
+	private static PreferenceSnapshot answers(String... dimensionAndValue) {
+		List<PreferenceSnapshot.PreferenceAnswer> list = new java.util.ArrayList<>();
+		for (int i = 0; i < dimensionAndValue.length; i += 2) {
+			list.add(new PreferenceSnapshot.PreferenceAnswer(dimensionAndValue[i], dimensionAndValue[i + 1],
+					PreferenceSnapshot.AnswerStatus.SELECTED));
+		}
+		return new PreferenceSnapshot(UUID.randomUUID().toString(), UUID.randomUUID().toString(), 1, list,
+				PersonalizationScope.TRIP, List.of(), Instant.now());
 	}
 
 	private PlaceCandidateResponse.Candidate candidate(List<PlaceFeatureView> features) {
