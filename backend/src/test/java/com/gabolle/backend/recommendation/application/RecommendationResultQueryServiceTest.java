@@ -216,6 +216,21 @@ class RecommendationResultQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 mobilityWarnings — 「되도록」 경사 경고 SLOPE_OVER_LIMIT 도 실린다(예전에는 조용히 빠졌다). 이동과 무관한 경고는 안 실린다")
+	void slopeWarningReachesMobilityWarnings() {
+		RecommendationCandidate candidate = returnedCandidateBuilder()
+				.warningCodes(new String[] { "SLOPE_OVER_LIMIT", "ACCESSIBILITY_UNVERIFIED", "ALLERGEN_UNVERIFIED" })
+				.build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = this.service.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.items().get(0).mobilityWarnings())
+				.containsExactly("SLOPE_OVER_LIMIT", "ACCESSIBILITY_UNVERIFIED");
+	}
+
+	@Test
 	@DisplayName("placeCount 는 items 개수와 같다")
 	void placeCountMatchesItemCount() {
 		RecommendationCandidate candidate = returnedCandidateBuilder().build();
