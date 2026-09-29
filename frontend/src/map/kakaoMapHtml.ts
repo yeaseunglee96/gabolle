@@ -135,6 +135,8 @@ export function buildKakaoMapHtml(appKey: string): string {
     for (var p = 0; p < points.length; p++) {
       for (var q = 0; q < points[p].stops.length; q++) pointStops.push(points[p].stops[q]);
     }
+    // 점 표시(지하철역 등)도 고를 수 있다 — 웹 RouteMap.tsx 와 같다(S15P21E201-1834).
+    for (var ps = 0; ps < pointStops.length; ps++) if (!stopsById[pointStops[ps].id]) stopsById[pointStops[ps].id] = pointStops[ps];
     var visible = stops.concat(pointStops);
     if (!visible.length) return;
 

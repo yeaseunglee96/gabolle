@@ -28,6 +28,7 @@ import { txf } from '@/i18n/format';
 import { RouteMap, type MapPointLayer, type MapRouteLayer } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { distanceText, nearbyStations, straightDistanceM, walkMinutes } from '@/field/subwayStations';
+import { DestinationPicker } from '@/field/DestinationPicker';
 
 /** 위치를 모를 때 기준으로 삼는 부산 중심 — explore.tsx 와 같은 자리. */
 const BUSAN_CENTER = { latitude: 35.1796, longitude: 129.0756 };
@@ -59,12 +60,16 @@ export default function Bus() {
   const [stops, setStops] = useState<BusStop[]>([]);
   const [checkedAt, setCheckedAt] = useState<Date | null>(null);
   const [selectedId, setSelectedId] = useState('');
+  // 목적지로 가는 버스 번호들 — 아래 도착 목록에서 강조한다(S15P21E201-1834).
+  const [lines, setLines] = useState<Set<string>>(() => new Set());
 
   // 화면 상태를 눈으로 확인하기 위한 자리 — exchange.tsx 의 preview=ui 와 같은 방식이다.
   // 버스 도착은 로그인해야 받을 수 있어서, 로그인 없이 "시간이 찍힌 화면" 을 볼 길이 달리
   // 없다. __DEV__ 에서만 산다 — 배포본에는 이 가지가 아예 안 들어간다.
   const previewStops: BusStop[] = [
-    { nodeId: 'p1', nodeName: '해운대해수욕장', lat: 35.15918, lng: 129.15906, arrivals: [
+    // 「어디로 가세요?」의 실시간 도착 맞물림을 보려고 운영 실측 정류장 이름을 쓴다(해운대→자갈치 = 1003번, 이 정류장에서 탄다).
+    { nodeId: 'p1', nodeName: '해운대해수욕장입구', lat: 35.15976, lng: 129.16098, arrivals: [
+      { routeNo: '1003', arrivalSeconds: 485, remainingStops: 4, vehicleType: null },
       { routeNo: '139', arrivalSeconds: 95, remainingStops: 1, vehicleType: null },
       { routeNo: '1001', arrivalSeconds: 420, remainingStops: 4, vehicleType: null },
       { routeNo: '307', arrivalSeconds: null, remainingStops: null, vehicleType: null },
@@ -219,6 +224,8 @@ export default function Bus() {
         routes={NO_ROUTES}
         selectedId={selectedId}
         onSelect={setSelectedId}
+        // 목록의 정류장·역이나 지도의 점을 누르면 그곳으로 지도를 옮긴다(S15P21E201-1834) — 전에는 강조만 바뀌었다.
+        focusSelected
         currentLocation={located ? coords : null}
         height={wide ? 520 : 260}
       />
@@ -233,8 +240,19 @@ export default function Bus() {
     <Screen scroll wide>
       <Text variant="display" weight="bold">{tx('주변 버스', 'Buses nearby')}</Text>
       <Text variant="caption" color={color.text.body} style={styles.subtitle}>
-        {tx('기다릴지 택시를 탈지, 남은 시간을 보고 정하세요.', 'See how long the wait is, then decide: bus or taxi.')}
+        {tx('어디로 가는지 알려주면 탈 버스와 기다릴 시간을 알려드려요.', 'Tell us where you are going and we will show which bus to take and how long to wait.')}
       </Text>
+
+      {/* 🔴 버스는 목적지가 있어야 탄다 — 「어디로 가세요?」가 먼저다(S15P21E201-1834). */}
+      <DestinationPicker
+        origin={located ? coords : null}
+        stops={stops}
+        accessToken={accessToken}
+        tx={tx}
+        onLinesChange={setLines}
+        onAskLocation={() => void askForLocation()}
+        askLabel={canAskAgain ? tx('내 위치로 찾기', 'Use my location') : tx('설정 열기', 'Open settings')}
+      />
 
       {/* 어느 좌표를 기준으로 찾았는지 숨기지 않는다 — 내 위치가 아니면 그렇게 말한다. */}
       <View style={styles.originRow}>
@@ -344,7 +362,7 @@ export default function Bus() {
                     ) : (
                       stop.arrivals.map((arrival, index) => (
                         <View key={`${stop.nodeId}-${arrival.routeNo}-${index}`} style={styles.arrivalRow}>
-                          <View style={styles.routeBadge}>
+                          <View style={[styles.routeBadge, lines.has(arrival.routeNo) && styles.routeBadgeMatch]}>
                             <Text variant="caption" weight="bold" color={color.text.onAction}>{arrival.routeNo}</Text>
                           </View>
                           <Text variant="title" weight="bold" style={styles.arrivalTime}>{arrivalText(arrival.arrivalSeconds)}</Text>
@@ -401,6 +419,8 @@ const styles = StyleSheet.create({
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   cardWide: { flexGrow: 1, flexBasis: 320, maxWidth: 480 },
   arrivalRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
+  // 목적지로 가는 버스 — 경로 상세의 버스 칩과 같은 색(S15P21E201-1834).
+  routeBadgeMatch: { backgroundColor: color.state.info },
   routeBadge: { minWidth: 56, minHeight: 32, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.sm, backgroundColor: color.brand.navy },
   arrivalTime: { flex: 1 },
   blockedBody: { lineHeight: 22 },

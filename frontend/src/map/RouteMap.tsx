@@ -286,7 +286,8 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // 고른 곳으로 «지금 화면·줌에서» 민다 — 고른 곳만 바뀔 때는 이것만 부른다(아래 effect).
         const focusOnSelected = () => {
           if (!focusRef.current) return;
-          const selectedStop = stops.find((stop) => stop.id === selectedRef.current);
+          // 점 표시(지하철역 등)도 고를 수 있다 — 번호 장소만 찾으면 역을 눌러도 지도가 안 움직였다(S15P21E201-1834).
+          const selectedStop = visibleStops.find((stop) => stop.id === selectedRef.current);
           if (!selectedStop) return;
           // 보이는 부분의 가운데로 — 지도 중심을 가린 높이의 절반만큼 아래에 둔다(mapFocus.ts).
           const target = new maps.LatLng(selectedStop.latitude, selectedStop.longitude);
