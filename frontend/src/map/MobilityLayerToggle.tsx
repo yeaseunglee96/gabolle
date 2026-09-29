@@ -30,8 +30,11 @@ export function layerBasisText(raw: string | null | undefined, tx: Tx): string |
 /**
  * 켠 겹의 한 줄 풀이. 🔴 그린 것이 없으면 「빨간 길은 …」 같은 범례를 내지 않는다 — 안 그린 선의 뜻을 읽히면
  *    「이 둘레엔 가파른 길이 없구나」와 「아직 못 받았구나」가 구분되지 않는다. 형편(status)마다 말이 따로 있다.
+ * 🔴 경사를 휠체어 문제로만 말하지 않는다. 경사 겹은 누구나 켜는데, 전에는 모두에게 「휠체어 경사로 기준(1:12)보다
+ *    가팔라요」라고 적어 경사가 곧 휠체어 문제인 것처럼 읽혔다. 선의 뜻(8.33% 넘는 가파른 길)만 말하고, 휠체어·유아차·
+ *    계단 피하기를 고른 여행(stepFree)에만 한 마디 더 붙인다. 8.33% 는 여전히 1:12 경사로 기준에서 온 값이다 — 숫자는 그대로다.
  */
-export function layerNote(kind: MobilityLayerKind, layer: Pick<MobilityLayerResult, 'status' | 'basis' | 'partial'> & { drawn: boolean }, tx: Tx): string | null {
+export function layerNote(kind: MobilityLayerKind, layer: Pick<MobilityLayerResult, 'status' | 'basis' | 'partial'> & { drawn: boolean }, tx: Tx, stepFree = false): string | null {
   const slope = kind === 'slope';
   const basis = layerBasisText(layer.basis, tx);
   const withBasis = (text: string) => (basis ? `${text} · ${basis}` : text);
@@ -48,25 +51,28 @@ export function layerNote(kind: MobilityLayerKind, layer: Pick<MobilityLayerResu
       const partial = layer.partial ? ` · ${tx('일부 지역 자료는 못 불러왔어요', 'some areas could not be loaded')}` : '';
       if (!layer.drawn) {
         return withBasis(slope
-          ? tx('장소 둘레에 휠체어 경사로 기준(1:12)보다 가파른 길이 없어요', 'No paths near these stops are steeper than the 1:12 wheelchair ramp standard')
+          ? tx('장소 둘레에 경사 8.33% 넘는 가파른 길이 없어요', 'No paths near these stops are steeper than 8.33%')
           : tx('장소 둘레에 그늘 자료가 있는 길이 없어요', 'No paths with shade data near these stops')) + partial;
       }
       return withBasis(slope
-        ? tx('빨간 길: 경사 8.33% 초과 — 휠체어 경사로 기준(1:12)보다 가팔라요', 'Red: slope over 8.33% — steeper than the 1:12 wheelchair ramp standard')
+        ? tx('빨간 길: 경사 8.33% 넘는 가파른 길', 'Red: paths steeper than 8.33%')
+          + (stepFree ? ` · ${tx('휠체어·유아차로는 피하는 게 좋아요', 'best avoided with a wheelchair or stroller')}` : '')
         : tx('파란 길이 짙을수록 그늘이 많아요', 'Darker blue = more shade')) + partial;
     }
   }
 }
 
-export function MobilityLayerToggle({ value, onChange, layer, tx, style }: {
+export function MobilityLayerToggle({ value, onChange, layer, tx, style, stepFree = false }: {
   value: MobilityLayerKind | null;
   onChange: (next: MobilityLayerKind | null) => void;
   /** 켠 겹의 형편과 선 — useMobilityLayer 가 준다. */
   layer: MobilityLayerResult;
   tx: Tx;
   style?: StyleProp<ViewStyle>;
+  /** 이 여행이 휠체어·유아차·계단 피하기를 골랐나(일정 응답의 stepFree). 그때만 범례에 휠체어 한 마디를 붙인다. */
+  stepFree?: boolean;
 }) {
-  const note = value ? layerNote(value, { ...layer, drawn: layer.lines.length > 0 }, tx) : null;
+  const note = value ? layerNote(value, { ...layer, drawn: layer.lines.length > 0 }, tx, stepFree) : null;
   const chip = (kind: MobilityLayerKind, label: string) => {
     const on = value === kind;
     return (

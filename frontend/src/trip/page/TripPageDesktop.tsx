@@ -138,7 +138,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
         <View style={styles.mapEmpty}><Text variant="caption" color={color.text.muted}>{tx('장소의 좌표가 아직 없어 지도에 그릴 수 없어요.', 'These places have no coordinates yet, so the map is empty.')}</Text></View>
       )}
       <View pointerEvents="none" style={styles.mapSummary}><Text variant="caption" weight="bold" numberOfLines={1}>{mapSummary}</Text></View>
-      {map.stops.length ? <MobilityLayerToggle value={layerKind} onChange={setLayerKind} layer={mobility} tx={tx} style={styles.mapLayers} /> : null}
+      {map.stops.length ? <MobilityLayerToggle value={layerKind} onChange={setLayerKind} layer={mobility} tx={tx} stepFree={loaded?.stepFree === true} style={styles.mapLayers} /> : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={layout === 'map' ? tx('장소 카드로 보기', 'Show place cards') : tx('큰 지도로 보기', 'Show the big map')}
