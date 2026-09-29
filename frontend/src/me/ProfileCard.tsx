@@ -106,16 +106,16 @@ export function ProfileCard({ name, email, guest = false, avatarUri, coverUri, c
 /**
  * 폰 프로필 카드용 단추 — 시안은 동백 채움이다.
  *
- * <p>🔴 이 화면에는 동백 채움이 둘이 된다(이 단추 + 활성 탭). tokens.ts 규칙 1
- * 「채움은 화면당 하나」 위반이고, 사용자가 시안대로 가기로 정했다(2026-09-21).
- * 되돌릴 때는 tone 을 'outline' 으로 바꾸면 된다 — 붉은 선 단추로 내려간다.
+ * <p>🔴 2026-09-29 사용자 결정으로 되돌렸다(UI 캔버스 ⑱). 전에는 이 단추 + 활성 탭이 둘 다 동백 채움이라
+ * tokens.ts 규칙 1 「채움은 화면당 하나」를 어겼다(2026-09-21 결정으로 시안대로 뒀던 것).
+ * 이제 「프로필 편집」은 연회색(soft), 손님의 「로그인」만 동백 채움(primary)이다. 활성 탭은 짙은 회색(me.tsx).
  */
 export function ProfileCardButton({
   label, onPress, tone = 'primary', disabled,
 }: {
   label: string;
   onPress: () => void;
-  tone?: 'primary' | 'outline';
+  tone?: 'primary' | 'outline' | 'soft';
   disabled?: boolean;
 }) {
   return (
@@ -123,9 +123,9 @@ export function ProfileCardButton({
       accessibilityRole="button"
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.actionButton, tone === 'primary' ? styles.actionPrimary : styles.actionOutline, (pressed || disabled) && styles.pressed]}
+      style={({ pressed }) => [styles.actionButton, tone === 'primary' ? styles.actionPrimary : tone === 'soft' ? styles.actionSoft : styles.actionOutline, (pressed || disabled) && styles.pressed]}
     >
-      <Text weight="bold" color={tone === 'primary' ? color.text.onAction : color.action.outline} numberOfLines={1}>{label}</Text>
+      <Text weight="bold" color={tone === 'primary' ? color.text.onAction : tone === 'soft' ? color.text.heading : color.action.outline} numberOfLines={1}>{label}</Text>
     </Pressable>
   );
 }
@@ -167,6 +167,7 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   actionButton: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full },
   actionPrimary: { backgroundColor: color.action.primary },
+  actionSoft: { backgroundColor: color.surface.soft },
   actionOutline: { backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
 
   counts: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[2] },
