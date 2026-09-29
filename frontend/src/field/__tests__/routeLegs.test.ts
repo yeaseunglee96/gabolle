@@ -21,9 +21,10 @@ describe('경로 상세 재료 (S15P21E201-1831)', () => {
     expect(modeFromTravelModes([])).toBeNull();
   });
 
-  it('택시비는 자동차에만 — 대중교통 요금은 지어내지 않는다', () => {
+  it('택시는 택시비 · 대중교통은 서버가 준 요금 — 없으면 지어내지 않는다', () => {
     expect(modeFareLine(base, ko)).toBe('택시 약 22,800원');
     expect(modeFareLine({ ...base, mode: 'TRANSIT', taxiFareKrw: null }, ko)).toBeNull();
+    expect(modeFareLine({ ...base, mode: 'TRANSIT', taxiFareKrw: null, transitFareKrw: 1550 }, ko)).toBe('1,550원');
     expect(modeFareLine({ ...base, taxiFareKrw: null }, ko)).toBeNull();
   });
 
