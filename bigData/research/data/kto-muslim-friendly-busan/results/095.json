@@ -1,0 +1,60 @@
+{
+  "no": "095",
+  "nameEn": "Rama & Bavana (Seomyeon Branch)",
+  "nameKo": "라마앤바바나 서면점",
+  "roadAddrKo": "부산 부산진구 중앙대로680번길 45-8 (다이닝코드 표기)",
+  "addressMatchesPdf": null,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://www.diningcode.com/profile.php?rid=Z0Ef8xA6aEFM",
+      "date": null,
+      "note": "영업시간·네이버 예약 이벤트가 실려 있으나 글 날짜 없음"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-804-0901\"",
+    "라마앤바바나 서면점 부산진구 후기",
+    "라마앤바바나 서면 중앙대로702번길 33 이전 폐업"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=Z0Ef8xA6aEFM",
+    "https://english.visitkorea.or.kr/svc/contents/infoHtmlView.do?vcontsId=138274",
+    "https://www.tripadvisor.co.kr/Restaurant_Review-g297884-d9289521-Reviews-Rama_and_Ba_Bana-Busan.html"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "나시고랭과 난·커리 조합이 대표로 언급됨",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "향신료가 세지 않아 한국인 입맛에 맞는다는 평",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "근처 유료주차장 30분 지원(다이닝코드)",
+    "audience": "mixed",
+    "signatureDishes": [
+      "나시고랭",
+      "버터갈릭 난",
+      "커리"
+    ],
+    "priceBand": "moderate"
+  },
+  "photoCandidates": [],
+  "notes": "다이닝코드 주소(중앙대로680번길 45-8)와 PDF(중앙대로702번길 33)가 다름. 도로명 표기 차이인지 이전인지 미확인. 다른 검색 요약에는 702번길 33으로 나옴. 2025~2026 날짜 근거 못 찾음."
+}

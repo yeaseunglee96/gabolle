@@ -1,0 +1,60 @@
+{
+  "no": "099",
+  "nameEn": "Bombay Brau (Munhyeon Branch)",
+  "nameKo": "봄베이브로이 문현점",
+  "roadAddrKo": "부산 남구 문현금융로 40 BIFC MALL 306호",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://www.tabling.co.kr/place/68351da8a71996ff43b4a67d",
+      "date": null,
+      "note": "BIFC몰점 테이블링 등록, 날짜 미확인"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-634-7828\"",
+    "봄베이브라우 문현점 남구 부산 인도음식",
+    "봄베이브로이 문현점 부산 남구 문현금융로 40 후기 2026"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=138353",
+    "https://www.tabling.co.kr/place/68351da8a71996ff43b4a67d",
+    "https://www.diningcode.com/profile.php?rid=wqNxZBiFvXHj"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "치킨 티카 마살라·버터치킨 등 커리",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "인도풍 외관, 인도인 직원 안내",
+      "sources": [
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가능(다이닝코드 요약)",
+    "audience": "mixed",
+    "signatureDishes": [
+      "버터치킨",
+      "치킨 티카 마살라",
+      "탄두리"
+    ],
+    "priceBand": "moderate"
+  },
+  "photoCandidates": [],
+  "notes": "PDF 주소와 같은 건물 주소로 확인. 송도 지점 페이지(인천)는 다른 곳이라 제외함."
+}

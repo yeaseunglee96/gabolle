@@ -1,0 +1,66 @@
+{
+  "no": "100",
+  "nameEn": "New Little India (Busan Station Branch)",
+  "nameKo": "뉴리틀인디아 부산역점",
+  "roadAddrKo": "부산 동구 중앙대로 205 지하1층",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://www.siksinhot.com/P/361880",
+      "date": null,
+      "note": "식신 정보 페이지, 영업시간 10:00-23:00, 날짜 없음"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-467-4127\"",
+    "뉴리틀인디아 부산역점 동구 후기",
+    "뉴리틀인디아 부산역 중앙대로 205 인도음식 2025"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.siksinhot.com/P/361880",
+    "https://www.visitkorea.or.id/halal_restaurant/new-littleindia-busan-station",
+    "https://www.mangoplate.com/en/restaurants/2223GZcgQfVP"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "기관 선정",
+      "note": "한국관광공사 무슬림 친화 식당으로 소개",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "인도인 셰프, 인도 직수입 재료를 내세움",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "동네·시장 지목",
+      "note": "부산역 맞은편 초량 일대라 접근이 쉽다는 소개",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "탄두리 치킨",
+      "치킨 비리야니"
+    ],
+    "priceBand": "cheap"
+  },
+  "photoCandidates": [],
+  "notes": "남포동 본점 경험으로 부산역점을 냈다는 소개가 있음. 최근 방문 날짜 근거 없음."
+}
