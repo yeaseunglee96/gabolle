@@ -24,6 +24,7 @@ import { formatDayHeading } from '@/i18n/datetime';
 import { localizeMessage } from '@/i18n/messages';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { localNameFor } from '@/discovery/localNames';
 
 type SortMode = 'soon' | 'name';
 /** 기간을 어떻게 골랐나 — 한 달(오늘부터 30일) · 이번 주말 · 달력에서 직접. */
@@ -56,7 +57,7 @@ function festivalDates(festival: Festival, locale: string): string {
 
 export default function Festivals() {
   const router = useRouter();
-  const { tx, locale } = useI18n();
+  const { tx, locale, language } = useI18n();
   const { width } = useLayout();
   const { accessToken } = useAuth();
   const [from, setFrom] = useState(() => dateInputValue());
@@ -190,7 +191,7 @@ export default function Festivals() {
           <View style={styles.cardTopRow}>
             <Text variant="caption" weight="bold" color={color.text.eyebrow}>{festivalDates(festival, locale)}</Text>
           </View>
-          <Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
+          <Text variant="title" weight="bold">{localNameFor(festival.localNames, language) ?? tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
           {festival.photoUrl && photo.credit ? <PhotoCredit credit={photo.credit} licenseUrl={photo.licenseUrl} variant="caption" color={color.text.muted} /> : null}
           <Pressable accessibilityRole="button" onPress={() => accessToken ? setAddPlaceId(festival.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/festivals' } })} style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}>
             <Text variant="caption" weight="bold" color={color.action.outline}>{tx('+ 내 일정에 추가', '+ Add to my itinerary')}</Text>

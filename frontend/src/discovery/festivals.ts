@@ -1,5 +1,6 @@
 import { apiRequest } from '@/api/client';
 import type { FeatureSlot, PhotoLicense, PhotoSubject } from '@/discovery/places';
+import type { LocalNames } from '@/discovery/localNames';
 
 // 칸 이름은 서버(FestivalResponse.FestivalItem)를 그대로 따른다. 서버가 NON_NULL 이라
 // 값이 없는 칸은 키째 빠지므로 물음표를 붙인다. 입장료(priceLevel)는 문자열이 아니라
@@ -9,6 +10,8 @@ export type Festival = {
   title?: string | null;
   nameKo: string;
   nameEn?: string | null;
+  /** 일본어·중국어 이름 — 관광공사가 번역해 둔 곳만(S15P21E201-1859). 없으면 칸째 빠져 온다. */
+  localNames?: LocalNames;
   address: string;
   startDate: string;
   endDate: string;

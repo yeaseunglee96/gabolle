@@ -18,7 +18,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
 import { HomeRow, homeCardWidth } from './HomeRow';
 import type { HomeCardPlace, HomeFacetRow } from './useHomeData';
-import { relativeStoryTime, type StoryDto } from '@/social/stories';
+import { relativeStoryTime, type StoryDto, storyPlaceName } from '@/social/stories';
 import type { TripSummaryDto } from '@/trip/trips';
 import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
 // 🔴 상태 글자는 여행 목록 카드와 같은 함수다 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 전에는 서버 status 를
@@ -70,8 +70,8 @@ export function TopNavWeather({ forecast }: { forecast: DailyForecastDto | null 
 
 function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number }) {
   const router = useRouter();
-  const { tx } = useI18n();
-  const where = story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? '';
+  const { tx, language } = useI18n();
+  const where = (story.place ? storyPlaceName(story.place, tx, language) : null) ?? (story.region ? regionText(story.region, tx) : null) ?? '';
   const body = markdownToPlain(story.body).trim();
   const hasImage = story.images.length > 0;
   // 🔴 같은 글자를 두 번 그리지 않는다 — S15P21E201-1372. 예전에는 제목이 장소, 부제가

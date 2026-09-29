@@ -20,6 +20,7 @@ import { useI18n } from '@/i18n';
 import { loadPlaceReviews, submitPlaceReview, verifyPlaceVisit, type PlaceReviewDto, type ThreeStepScore, type VisitVerificationStatus } from '@/review/placeReviews';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+import { otherNameFor } from '@/discovery/localNames';
 
 const CATEGORIES: Array<{ key: 'food' | 'price' | 'accessibility' | 'onsite'; labelKo: string; labelEn: string }> = [
   { key: 'food', labelKo: '음식', labelEn: 'Food' },
@@ -138,7 +139,7 @@ export default function PlaceReviews() {
     }
   };
 
-  const title = place ? placeNameForLanguage(place.nameKo, place.nameEn, language) : '';
+  const title = place ? placeNameForLanguage(place.nameKo, otherNameFor(place.nameEn, place.localNames, language), language) : '';
 
   return (
     <Screen scroll style={styles.screen}>

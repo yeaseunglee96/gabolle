@@ -7,8 +7,9 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { relativeStoryTime, type StoryDto } from '@/social/stories';
+import { relativeStoryTime, type StoryDto, storyPlaceName } from '@/social/stories';
 import { regionText } from '@/social/districtNames';
+import { useI18n } from '@/i18n';
 
 export function RecordCard({
   story, onPress, tx, width,
@@ -22,9 +23,11 @@ export function RecordCard({
    */
   width?: number;
 }) {
+  // 장소 이름을 화면 언어로 고르려고 — tx 는 부르는 쪽이 주지만 언어 코드는 여기서 읽는다(S15P21E201-1860).
+  const { language } = useI18n();
   const cover = story.images[0]?.url ?? null;
   // 제목 자리는 장소 이름이 먼저다 — 피드 카드와 같은 규칙.
-  const title = story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? tx('기록', 'Record');
+  const title = (story.place ? storyPlaceName(story.place, tx, language) : null) ?? (story.region ? regionText(story.region, tx) : null) ?? tx('기록', 'Record');
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={[styles.card, width ? { width } : null]}>
       {cover ? (

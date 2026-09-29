@@ -13,7 +13,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { formatMonthDay } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
-import { deleteStory, loadUserStories, relativeStoryTime, VISIBILITY_LABEL, type FeedLoadResult, type StoryDto, type StoryVisibility } from '@/social/stories';
+import { deleteStory, loadUserStories, relativeStoryTime, VISIBILITY_LABEL, type FeedLoadResult, type StoryDto, type StoryVisibility, storyPlaceName } from '@/social/stories';
 import { regionText } from '@/social/districtNames';
 
 type Filter = 'ALL' | StoryVisibility;
@@ -27,7 +27,7 @@ const FILTERS: Array<{ key: Filter; ko: string; en: string }> = [
 
 export function MyPostsBody() {
   const router = useRouter();
-  const { tx, locale } = useI18n();
+  const { tx, locale, language } = useI18n();
   const { accessToken, user } = useAuth();
   const [result, setResult] = useState<FeedLoadResult>({ state: 'success', items: [], nextCursor: null });
   const [loading, setLoading] = useState(true);
@@ -102,7 +102,7 @@ export function MyPostsBody() {
           <View key={story.id} style={styles.card}>
             <View style={styles.cardHead}>
               <Text variant="caption" numberOfLines={1} style={styles.cardMeta}>
-                {relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${regionText(story.region, tx)}` : ''}
+                {relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${storyPlaceName(story.place, tx, language)}` : story.region ? ` · ${regionText(story.region, tx)}` : ''}
               </Text>
               {/* 🔴 공개 전 기록 — 본인에게만 온다(S15P21E201-1737). 표시가 없으면 공개된 글과 구분이 안 된다. */}
               {!story.published ? (

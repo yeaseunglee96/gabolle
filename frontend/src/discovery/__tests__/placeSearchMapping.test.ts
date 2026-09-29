@@ -11,6 +11,7 @@ const FULL: Required<PlaceSearchItemDto> = {
   placeId: 'p-1',
   nameKo: '광안리해수욕장',
   nameEn: 'Gwangalli Beach',
+  localNames: { ja: '広安里海水浴場', 'zh-Hans': '广安里海水浴场' },
   category: 'SEA_BEACH',
   address: '부산 수영구 광안해변로 219',
   addressEn: '219 Gwangan Haebyeon-ro, Suyeong-gu, Busan',

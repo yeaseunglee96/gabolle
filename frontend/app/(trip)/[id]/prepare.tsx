@@ -19,7 +19,7 @@ import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { loadItinerary } from '@/plan/itinerary';
 import { issueShareLink } from '@/share/sharedItinerary';
-import { getTripStories } from '@/social/stories';
+import { getTripStories, storyPlaceName } from '@/social/stories';
 import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries, loadTrips } from '@/trip/trips';
 import { TripWeatherCard, weatherHeading } from '@/trip/TripWeatherPanel';
@@ -112,7 +112,7 @@ export default function Prepare() {
 }
 
 function PrepareForTrip({ tripId }: { tripId: string }) {
-  const { tx, locale } = useI18n();
+  const { tx, locale, language } = useI18n();
   const router = useRouter();
   const { accessToken } = useAuth();
   // undefined = 아직 모름(불러오는 중). null = 일정이 없어 알 수 없음.
@@ -135,7 +135,7 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
         .map((story, index) => ({
           id: story.id,
           number: index + 1,
-          name: story.place?.name ?? story.body.slice(0, 20),
+          name: (story.place ? storyPlaceName(story.place, tx, language) : null) ?? story.body.slice(0, 20),
           latitude: story.place!.lat as number,
           longitude: story.place!.lng as number,
           imageUrl: story.images[0]?.url,

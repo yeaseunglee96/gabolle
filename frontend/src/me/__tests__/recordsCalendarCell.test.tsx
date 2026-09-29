@@ -5,6 +5,7 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { RecordsBrowser } from '@/me/RecordsBrowser';
+import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { calendarCellMarks, todayKey } from '@/me/recordsBrowse';
 import type { StoryDto } from '@/social/stories';
 
@@ -30,7 +31,8 @@ describe('달력 칸 표시', () => {
   });
 
   it('🔴 화면에서도 오늘 칸은 테두리였다가, 누르면 채움 하나만 남는다', () => {
-    render(<RecordsBrowser stories={[story('a'), story('b')]} tx={(ko) => ko} locale="ko-KR" onOpen={jest.fn()} />);
+    // 기록 카드가 장소 이름의 언어를 읽는다(S15P21E201-1860) — 언어 공급자 안에 그린다.
+    render(<OnboardingPreferencesProvider><RecordsBrowser stories={[story('a'), story('b')]} tx={(ko) => ko} locale="ko-KR" onOpen={jest.fn()} /></OnboardingPreferencesProvider>);
     fireEvent.press(screen.getByText('달력'));
     const key = todayKey();
     expect(screen.getByTestId(`records-day-${key}-ring`)).toBeTruthy();

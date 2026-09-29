@@ -1,5 +1,6 @@
 import { txf } from '@/i18n/format';
 import { apiRequest } from '@/api/client';
+import type { LocalNames } from '@/discovery/localNames';
 
 // openingHours·priceLevel — place_feature 의 OPENING_HOURS·PRICE_LEVEL 표식. 행이 있으면
 // 상태와 무관하게 실리고 행이 없으면 키 자체가 빠져서 optional 이다. value 의 JSON 구조가
@@ -15,6 +16,8 @@ export type Place = {
   placeId: string;
   nameKo: string;
   nameEn: string | null;
+  /** 일본어·중국어 이름 — 관광공사가 번역해 둔 곳만(S15P21E201-1859). 없으면 칸째 빠져 온다. */
+  localNames?: LocalNames;
   category: string;
   address: string;
   addressEn?: string;
@@ -384,15 +387,15 @@ export function getPlace(placeId: string, signal?: AbortSignal) {
 // 계약 — GET /api/v1/places, query 와 facetType 은 정확히 하나만(둘 다 없거나 둘 다 있으면 400).
 // photoUrl·photoSource 는 값이 없으면 칸이 안 와서 optional. 사진을 그리면 출처도 같이 그린다
 // — 공공누리 이용 조건.
-export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null };
+export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; localNames?: LocalNames; category: string; address: string; addressEn?: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null };
 
 type PlacePageDto = { items: PlaceSearchItemDto[]; limit: number; nextCursor: string | null; hasNext: boolean; rankTruncated: boolean };
-export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null };
+export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; localNames?: LocalNames; category: string; address: string; addressEn?: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null; photoLicense?: PhotoLicense | null };
 
 /** 목록 응답 한 건의 화면 모양 변환 */
 export function toPlaceSearchItem(dto: PlaceSearchItemDto): PlaceSearchItem {
-  const { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject, photoLicense } = dto;
-  return { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject, photoLicense };
+  const { placeId, nameKo, nameEn, localNames, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject, photoLicense } = dto;
+  return { placeId, nameKo, nameEn, localNames, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject, photoLicense };
 }
 
 /** 변환에서 일부러 빼는 칸 — 시험이 이 목록만 예외로 친다 */
