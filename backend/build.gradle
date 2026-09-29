@@ -30,6 +30,13 @@ dependencyLocking {
 // 기다리지 않고 이 좌표만 강제로 올린다.
 ext['tomcat.version'] = '11.0.25'
 
+// 같은 이유로 jackson-databind 도 올린다. 2026-09-28 에 공개된 셋(GHSA-q4xh-88c3-wmh7 은 CVSS 7.5 —
+// 날짜 문자열의 끝없는 숫자 해석, GHSA-gx83-3vf8-gh7j · GHSA-wjgm-6hv5-3cvf)이 2.21.6 · 3.1.6 에서 고쳐졌다
+// (osv.dev · Maven Central 확인, 2026-09-29). Boot 4 는 3.x 를 쓰고, 2.x 는 아직 2.x 를 부르는 라이브러리 몫이다 —
+// 둘 다 올려야 스캐너가 초록이 된다.
+ext['jackson-bom.version'] = '3.1.6'
+ext['jackson-2-bom.version'] = '2.21.6'
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
