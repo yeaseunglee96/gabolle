@@ -83,6 +83,9 @@ public class SecurityConfig {
 				// 기록 사진은 주소를 아는 사람이 그대로 연다 — 화면이 <img> 로 부르므로 그 요청에는
 				// Authorization 헤더가 안 붙는다. 키가 UUID 라 추측할 수 없고, 올리기는 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/uploads/images/**").permitAll()
+				// 장소 사진 대리 조회(S15P21E201-1832)도 화면이 <img> 로 부른다 — 위와 같은 이유로 헤더가 없다.
+				// 장소 번호가 UUID 이고, Google 장소 번호가 저장된 장소에만 답한다(PlacePhotoController).
+				.requestMatchers(HttpMethod.GET, "/api/v1/places/*/photo").permitAll()
 				// 공유 조회는 43글자 난수 토큰을 아는 사람이 로그인 없이 연다. 발급(POST)·복제는
 				// 여전히 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/shares/*").permitAll()

@@ -377,6 +377,8 @@ pipeline {
                     // TagoTransitVendorAdapter 가 이 값을 주소에 그대로 붙이고 따로 인코딩하지 않으므로
                     // **Encoding 쪽**이어야 한다. Decoding 을 넣으면 슬래시와 등호가 주소를 깨뜨린다.
                     string(credentialsId: 'gabolle-transit-service-key', variable: 'GABOLLE_TRANSIT_SERVICE_KEY'),
+                    // S15P21E201-1832 — Google 장소 사진 대리 조회(Places API (New)). 서버 IP 로 묶인 키다.
+                    string(credentialsId: 'gabolle-google-places-key', variable: 'GABOLLE_GOOGLE_PLACES_API_KEY'),
                     // 🔴 S15P21E201-1253 — 비서 키를 여기서 안 넘긴다. 일부러 뺀 것이다.
                     //    비서는 메뉴판 읽기와 같은 GMS 키를 쓴다. application-dev.properties 의
                     //    gabolle.assistant.api-key 가 GABOLLE_MENU_SCAN_API_KEY 로 물러서므로,
@@ -537,6 +539,7 @@ pipeline {
                             -e GABOLLE_CALIBRATION_STAY_ENABLED="${GABOLLE_CALIBRATION_STAY_ENABLED:-true}" \
                             -e GABOLLE_CALIBRATION_TRAVEL_ENABLED="${GABOLLE_CALIBRATION_TRAVEL_ENABLED:-true}" \
                             -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
+                            -e GABOLLE_GOOGLE_PLACES_API_KEY="$GABOLLE_GOOGLE_PLACES_API_KEY" \
                             -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                             local-route-backend:candidate
@@ -650,6 +653,8 @@ pipeline {
                             // S15P21E201-1186 — TAGO(국토교통부 대중교통) serviceKey. 위와 같은 이유로
                             // **Encoding 쪽**이어야 한다. 되돌리기 경로에서 빠지면 롤백한 순간 다시 죽는다.
                             string(credentialsId: 'gabolle-transit-service-key', variable: 'GABOLLE_TRANSIT_SERVICE_KEY'),
+                            // S15P21E201-1832 — Google 장소 사진 대리 조회(Places API (New)). 서버 IP 로 묶인 키다.
+                            string(credentialsId: 'gabolle-google-places-key', variable: 'GABOLLE_GOOGLE_PLACES_API_KEY'),
                             // 🔴 S15P21E201-1253 — 비서 키를 여기서 안 넘긴다. 일부러 뺀 것이다.
                             //    비서는 메뉴판 읽기와 같은 GMS 키를 쓴다. application-dev.properties 의
                             //    gabolle.assistant.api-key 가 GABOLLE_MENU_SCAN_API_KEY 로 물러서므로,
@@ -739,6 +744,7 @@ pipeline {
                                     -e GABOLLE_CALIBRATION_STAY_ENABLED="${GABOLLE_CALIBRATION_STAY_ENABLED:-true}" \
                                     -e GABOLLE_CALIBRATION_TRAVEL_ENABLED="${GABOLLE_CALIBRATION_TRAVEL_ENABLED:-true}" \
                                     -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
+                                    -e GABOLLE_GOOGLE_PLACES_API_KEY="$GABOLLE_GOOGLE_PLACES_API_KEY" \
                                     -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                                     local-route-backend:latest

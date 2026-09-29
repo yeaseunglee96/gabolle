@@ -116,6 +116,8 @@ services:
       # 🔴 S15P21E201-988 을 만들 때 이 줄을 빠뜨렸었다 — 위 KMA 키와 같은 증상(설정 파일은
       #    읽는데 여기 나열에 없어 컨테이너 안까지 안 감)이라 여기서 같이 고친다.
       GABOLLE_TRANSIT_SERVICE_KEY: ${GABOLLE_TRANSIT_SERVICE_KEY:-}
+      # S15P21E201-1832 — Google 장소 사진 대리 조회 키. 위 KMA·TRANSIT 키와 같은 함정을 피하려고 같이 적는다.
+      GABOLLE_GOOGLE_PLACES_API_KEY: ${GABOLLE_GOOGLE_PLACES_API_KEY:-}
       GABOLLE_EXCHANGE_RATE_AUTH_KEY: ${GABOLLE_EXCHANGE_RATE_AUTH_KEY:-}
       # 🔴 S15P21E201-561 — 위 KMA·TRANSIT 키와 똑같은 함정을 피하려고 처음부터 적어 둔다.
       #    여기 나열에 없으면 .env 에 값을 넣어도 컨테이너 안까지 안 간다.
