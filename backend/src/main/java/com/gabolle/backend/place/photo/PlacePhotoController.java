@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -45,6 +46,8 @@ public class PlacePhotoController {
 
 	private final Map<UUID, Cached> cache = new ConcurrentHashMap<>();
 
+	// 생성자가 둘이라 스프링이 고를 것을 적는다 — 안 적으면 기본 생성자를 찾다가 앱 전체가 안 뜬다.
+	@Autowired
 	public PlacePhotoController(PlaceRepository placeRepository, GooglePlacePhotoClient client,
 			GooglePlacePhotoProperties properties) {
 		this(placeRepository, client, properties, Clock.systemUTC());
