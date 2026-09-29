@@ -25,12 +25,18 @@ import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { txf } from '@/i18n/format';
-import { RouteMap, type MapPointLayer } from '@/map/RouteMap';
+import { RouteMap, type MapPointLayer, type MapRouteLayer } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { distanceText, nearbyStations, straightDistanceM, walkMinutes } from '@/field/subwayStations';
 
 /** 위치를 모를 때 기준으로 삼는 부산 중심 — explore.tsx 와 같은 자리. */
 const BUSAN_CENTER = { latitude: 35.1796, longitude: 129.0756 };
+/**
+ * 이 지도는 경로가 아니다 — 정류장·역을 번호 순으로 잇지 않는다. routes 를 안 넘기면 RouteMap 이 번호 점을 선으로 잇고
+ * 「옅은 선은 어림한 길…」까지 붙였다(배포본 2026-09-29, S15P21E201-1830). 컴포넌트 밖에 한 번만 만든다 — 매번 새 배열이면
+ * 지도 효과가 다시 돈다(RouteMap 의 NO_POINT_LAYERS 와 같은 이유).
+ */
+const NO_ROUTES: MapRouteLayer[] = [];
 /** preview=ui 의 기준점 — 해운대해수욕장 앞. */
 const PREVIEW_ORIGIN = { latitude: 35.15870, longitude: 129.16040 };
 
@@ -210,6 +216,7 @@ export default function Bus() {
       <RouteMap
         stops={mapStops}
         points={mapPoints}
+        routes={NO_ROUTES}
         selectedId={selectedId}
         onSelect={setSelectedId}
         currentLocation={located ? coords : null}
@@ -237,7 +244,7 @@ export default function Bus() {
         <Text variant="caption" color={color.text.muted} style={styles.originText}>
           {locationState === 'granted'
             ? tx('내 위치 기준', 'From your location')
-            : tx('부산 중심 기준 · 내 위치를 켜면 더 정확해요', 'From central Busan · turn on location for accuracy')}
+            : tx('부산 중심 기준 · 내 위치를 켜면 걸어서 몇 분인지 알려드려요', 'From central Busan · turn on location to see walking times')}
         </Text>
         {locationState !== 'granted' ? (
           <Pressable
