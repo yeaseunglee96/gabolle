@@ -31,6 +31,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.notification.application.PushMessage;
 import com.gabolle.backend.notification.application.PushSender;
 import com.gabolle.backend.notification.application.PushTokenService;
+import com.gabolle.backend.notification.application.PushCopy;
 import com.gabolle.backend.notification.application.TripPushNotifier;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripMember;
@@ -149,8 +150,9 @@ class TripPushNotifierTest {
 				new ItineraryChangedByMember(ITINERARY_ID, 1, ItineraryVersion.Operation.CREATE, ME));
 
 		PushMessage message = onlySent().message();
-		assertThat(message.title()).isEqualTo("일정이 만들어졌어요");
-		assertThat(message.body()).isEqualTo("「부산 바다 2박 3일」 — 확인하고 저장해 주세요.");
+		// UI 캔버스 ⑰ — 「확인하고 저장해 주세요」는 무엇을 저장하라는지 모호했다.
+		assertThat(message.title()).isEqualTo("부산 여행 일정이 완성됐어요");
+		assertThat(message.body()).isEqualTo("부산 바다 2박 3일 · 눌러서 일정 보기");
 		assertThat(message.body()).doesNotContain("수민");
 	}
 
@@ -161,8 +163,9 @@ class TripPushNotifierTest {
 				new ItineraryChangedByMember(ITINERARY_ID, 6, ItineraryVersion.Operation.REORDER, ME));
 
 		PushMessage message = onlySent().message();
-		assertThat(message.title()).isEqualTo("일정 순서가 바뀌었어요");
-		assertThat(message.body()).isEqualTo("「부산 바다 2박 3일」 — 수민님이 순서를 바꿨어요.");
+		// 🔴 제목이 누가·무엇을 — 전에는 「일정 순서가 바뀌었어요」라 누가 했는지가 본문 끝에 있었다(UI 캔버스 ⑰).
+		assertThat(message.title()).isEqualTo("수민님이 일정 순서를 바꿨어요");
+		assertThat(message.body()).isEqualTo("부산 바다 2박 3일 · 눌러서 바뀐 일정 보기");
 	}
 
 	@Test
@@ -186,7 +189,8 @@ class TripPushNotifierTest {
 		this.notifier.onItineraryChanged(
 				new ItineraryChangedByMember(ITINERARY_ID, 6, ItineraryVersion.Operation.REORDER, ME));
 
-		assertThat(onlySent().message().body()).isEqualTo("「부산 바다 2박 3일」");
+		assertThat(onlySent().message().title()).isEqualTo("일정 순서가 바뀌었어요");
+		assertThat(onlySent().message().body()).isEqualTo("부산 바다 2박 3일 · 눌러서 바뀐 일정 보기");
 	}
 
 	@Test
@@ -197,7 +201,8 @@ class TripPushNotifierTest {
 		this.notifier.onItineraryChanged(
 				new ItineraryChangedByMember(ITINERARY_ID, 6, ItineraryVersion.Operation.REORDER, ME));
 
-		assertThat(onlySent().message().body()).isEqualTo("「2026-10-01 ~ 2026-10-03」 — 수민님이 순서를 바꿨어요.");
+		// 🔴 날짜 원문(「2026-10-01 ~ 2026-10-03」)이 아니라 사람이 읽는 날짜로(UI 캔버스 ⑰). 이름은 지어내지 않는다(1738).
+		assertThat(onlySent().message().body()).isEqualTo("10월 1일 – 3일 · 눌러서 바뀐 일정 보기");
 	}
 
 	@ParameterizedTest
@@ -218,8 +223,8 @@ class TripPushNotifierTest {
 
 		RecordingSender.Sent sent = onlySent();
 		assertThat(sent.tokens()).containsExactlyInAnyOrder("tok:" + ME, "tok:" + VIEWER);
-		assertThat(sent.message().title()).isEqualTo("동행이 합류했어요");
-		assertThat(sent.message().body()).isEqualTo("「부산 바다 2박 3일」 — 지훈님이 함께하기로 했어요.");
+		assertThat(sent.message().title()).isEqualTo("지훈님이 여행에 합류했어요");
+		assertThat(sent.message().body()).isEqualTo("부산 바다 2박 3일");
 		assertThat(sent.message().href()).isEqualTo("/" + TRIP_ID + "/collaborate");
 	}
 
@@ -231,7 +236,7 @@ class TripPushNotifierTest {
 		RecordingSender.Sent sent = onlySent();
 		assertThat(sent.tokens()).containsExactly("tok:" + MATE);
 		assertThat(sent.message().title()).isEqualTo("이제 일정을 보기만 할 수 있어요");
-		assertThat(sent.message().body()).isEqualTo("「부산 바다 2박 3일」 — 수민님이 역할을 바꿨어요.");
+		assertThat(sent.message().body()).isEqualTo("부산 바다 2박 3일 · 수민님이 바꿨어요");
 	}
 
 	@Test
@@ -326,8 +331,9 @@ class TripPushNotifierTest {
 
 		RecordingSender.Sent sent = onlySent();
 		assertThat(sent.tokens()).containsExactlyInAnyOrder("tok:" + ME, "tok:" + MATE, "tok:" + VIEWER);
-		// 이름이 없으면 여행 이름만 — 서버가 「누군가」를 지어내지 않는다.
-		assertThat(sent.message().body()).isEqualTo("「부산 바다 2박 3일」");
+		// 이름이 없으면 일어난 일만 — 서버가 「누군가」를 지어내지 않는다.
+		assertThat(sent.message().title()).isEqualTo("일정 순서가 바뀌었어요");
+		assertThat(sent.message().body()).isEqualTo("부산 바다 2박 3일 · 눌러서 바뀐 일정 보기");
 	}
 
 	@Test
@@ -339,6 +345,32 @@ class TripPushNotifierTest {
 		RecordingSender.Sent sent = onlySent();
 		assertThat(sent.tokens()).containsExactly("tok:" + MATE);
 		assertThat(sent.message().title()).isEqualTo("이제 일정을 보기만 할 수 있어요");
-		assertThat(sent.message().body()).isEqualTo("「부산 바다 2박 3일」");
+		assertThat(sent.message().body()).isEqualTo("부산 바다 2박 3일");
+	}
+
+	@Test
+	@DisplayName("🔴 받는 사람의 앱 언어로 간다 — 영어·일본어로 쓰는 사람에게 한국어 알림이 가던 것(UI 캔버스 ⑰)")
+	void eachRecipientGetsTheirOwnLanguage() {
+		when(this.actorNames.languagesOf(anyCollection())).thenReturn(Map.of(MATE, "en", VIEWER, "ja"));
+
+		this.notifier.onItineraryChanged(
+				new ItineraryChangedByMember(ITINERARY_ID, 6, ItineraryVersion.Operation.REMOVE_ITEM, ME));
+
+		assertThat(this.sender.sent).hasSize(2);
+		RecordingSender.Sent english = this.sender.sent.stream().filter((it) -> it.tokens().contains("tok:" + MATE)).findFirst().orElseThrow();
+		RecordingSender.Sent japanese = this.sender.sent.stream().filter((it) -> it.tokens().contains("tok:" + VIEWER)).findFirst().orElseThrow();
+		assertThat(english.message().title()).isEqualTo("수민 removed a place");
+		assertThat(english.message().body()).isEqualTo("부산 바다 2박 3일 · Tap to see what changed");
+		assertThat(japanese.message().title()).isEqualTo("수민さんが場所を外しました");
+	}
+
+	@Test
+	@DisplayName("이름 없는 여행의 날짜도 그 언어로 — 달이 바뀌면 달을 다시 적는다")
+	void unnamedTripDatesFollowTheLanguage() {
+		assertThat(PushCopy.dates(LocalDate.of(2026, 9, 30), LocalDate.of(2026, 10, 2), PushCopy.Lang.KO)).isEqualTo("9월 30일 – 10월 2일");
+		assertThat(PushCopy.dates(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3), PushCopy.Lang.EN)).isEqualTo("Oct 1 – 3");
+		assertThat(PushCopy.dates(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 1), PushCopy.Lang.JA)).isEqualTo("10月1日");
+		assertThat(PushCopy.lang("zh-Hant")).isEqualTo(PushCopy.Lang.ZH_HANT);
+		assertThat(PushCopy.lang(null)).isEqualTo(PushCopy.Lang.KO);
 	}
 }
