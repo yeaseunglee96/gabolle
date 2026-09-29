@@ -11,6 +11,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { arrivalLabel, type BusStop } from '@/field/busArrivals';
 import { busLinesOf, loadTodayTargets, rideSummary, searchDestinations, type Destination, type TodayTargets } from '@/field/goFromHere';
 import { formatDuration } from '@/field/routeLegs';
+import { taxiCardHref } from '@/field/taxiDestination';
 import { txf } from '@/i18n/format';
 import { getRouteDirections, type RouteDirections, type RouteDirectionsResult } from '@/map/routeDirections';
 
@@ -78,7 +79,10 @@ export function DestinationPicker({ origin, stops, accessToken, tx, onLinesChang
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dest?.key, originKey, accessToken]);
 
-  const transitDirections: RouteDirections | null = transit?.state === 'success' ? transit.directions : null;
+  // 🔴 서버가 길을 못 찾으면 직선 거리로 어림한 시간만 준다(provider STRAIGHT_LINE — 운영 해운대→자갈치 「59분」 실측).
+  //    그것을 「총 59분」이라 적으면 진짜 걸리는 시간처럼 읽힌다. 버스 번호도 타는 곳도 없는 숫자다 — 사실대로 말한다.
+  const guessed = transit?.state === 'success' && transit.directions.provider === 'STRAIGHT_LINE' ? transit.directions : null;
+  const transitDirections: RouteDirections | null = transit?.state === 'success' && !guessed ? transit.directions : null;
   const carDirections: RouteDirections | null = car?.state === 'success' ? car.directions : null;
   const ride = useMemo(() => (transitDirections ? rideSummary(transitDirections, stops) : null), [transitDirections, stops]);
 
@@ -174,7 +178,12 @@ export function DestinationPicker({ origin, stops, accessToken, tx, onLinesChang
       {dest && origin ? (
         <View style={styles.answer}>
           {!transit ? <Text color={color.text.muted}>{tx('길을 찾고 있어요…', 'Finding the way…')}</Text> : null}
-          {transit && transit.state !== 'success' ? <Text color={color.text.body}>{tx('대중교통 길을 못 찾았어요.', 'Could not find a transit route.')}</Text> : null}
+          {transit && (transit.state !== 'success' || guessed) ? (
+            <View style={styles.notFound}>
+              <Text weight="bold">{tx('버스·지하철 길을 찾지 못했어요', 'We could not find a bus or metro route')}</Text>
+              {guessed ? <Text variant="caption" color={color.text.body}>{txf(tx, '직선 거리로 어림하면 약 %s이지만 실제와 다를 수 있어요', 'A straight-line guess is about %s, but the real trip may differ', formatDuration(guessed.durationMin, tx))}</Text> : null}
+            </View>
+          ) : null}
 
           {ride ? (
             <View style={styles.rideRow}>
@@ -201,10 +210,14 @@ export function DestinationPicker({ origin, stops, accessToken, tx, onLinesChang
             </Text>
           ) : null}
 
-          {carDirections?.taxiFareKrw != null ? (
-            <Text variant="caption" color={color.text.muted}>
-              {txf(tx, '택시로 %s · 약 %s원', 'By taxi %s · about ₩%s', formatDuration(carDirections.durationMin, tx), carDirections.taxiFareKrw.toLocaleString('en-US'))}
-            </Text>
+          {/* 택시는 대안이라 큰 단추가 아니라 한 줄 — 누르면 기사에게 보여줄 카드(이름·주소)가 바로 뜬다. */}
+          {carDirections?.taxiFareKrw != null && dest ? (
+            <Pressable accessibilityRole="link" onPress={() => router.push(taxiCardHref({ key: dest.key, placeId: dest.placeId, name: nameOf(dest), address: dest.address }) as never)} style={({ pressed }) => [styles.taxiRow, pressed && styles.pressed]}>
+              <Text variant="caption" color={color.text.body} style={styles.grow}>
+                {txf(tx, '택시로 %s · 약 %s원', 'By taxi %s · about ₩%s', formatDuration(carDirections.durationMin, tx), carDirections.taxiFareKrw.toLocaleString('en-US'))}
+              </Text>
+              <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('기사에게 보여주기 ›', 'Show the driver ›')}</Text>
+            </Pressable>
           ) : null}
 
           {transitDirections || carDirections ? (
@@ -233,5 +246,7 @@ const styles = StyleSheet.create({
   smallButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.tint },
   linkButton: { alignSelf: 'flex-start', minHeight: 32, justifyContent: 'center' },
   grow: { flex: 1 },
+  notFound: { gap: 2, padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  taxiRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 40 },
   pressed: { opacity: 0.72 },
 });

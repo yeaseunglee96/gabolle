@@ -221,7 +221,7 @@ function Summary({ directions, tx }: { directions: RouteDirections; tx: Tx }) {
         ) : null}
       </View>
       <Text color={color.text.body}>{`${formatDuration(directions.durationMin, tx)} · ${(directions.distanceM / 1000).toFixed(1)}km`}</Text>
-      {directions.taxiFareKrw != null ? <Text color={color.text.body}>{tx(`택시 요금 약 ${directions.taxiFareKrw.toLocaleString()}원`, `Estimated taxi fare ₩${directions.taxiFareKrw.toLocaleString()}`)}</Text> : null}
+      {/* 요금은 위 탭의 둘째 줄이 말한다 — 여기 또 적으면 같은 숫자가 두 번 나왔다(UI 캔버스 ⑭). */}
       {directions.tollFareKrw != null ? <Text color={color.text.body}>{tx(`통행료 약 ${directions.tollFareKrw.toLocaleString()}원`, `Estimated toll ₩${directions.tollFareKrw.toLocaleString()}`)}</Text> : null}
       {directions.mode === 'TRANSIT' && directions.transferCount != null ? (
         <Text color={color.text.body}>{directions.transferCount === 0 ? tx('갈아타지 않아요', 'No transfers') : tx(`환승 ${directions.transferCount}회`, `${directions.transferCount} transfer(s)`)}</Text>

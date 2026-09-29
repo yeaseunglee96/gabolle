@@ -16,6 +16,8 @@ export type RouteDirections = {
   distanceM: number;
   durationMin: number;
   taxiFareKrw: number | null;
+  /** 대중교통 요금(원, 어른 교통카드 기준) — 서버 RouteDirectionsResponse. 대중교통이 아니거나 모르면 null, 옛 서버는 칸이 없다. */
+  transitFareKrw?: number | null;
   tollFareKrw: number | null;
   transferCount: number | null;
   estimated: boolean;

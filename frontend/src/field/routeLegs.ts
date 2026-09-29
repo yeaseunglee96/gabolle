@@ -8,6 +8,7 @@
  * 화면은 이 차이를 지어내지 않고 그대로 옮긴다.
  */
 import type { RouteDirections, RouteStep, TravelMode } from '@/map/routeDirections';
+import { txf } from '@/i18n/format';
 import type { MapPathPoint } from '@/map/types';
 
 type Tx = (ko: string, en: string) => string;
@@ -43,13 +44,20 @@ export function transitStepKind(step: RouteStep): TransitStepKind {
 }
 
 /**
- * 탭의 둘째 줄 — 택시비. 390 폭 탭 한 칸에 「42분 · 약 22,800원」이 안 들어가 잘렸다(S15P21E201-1831 실측).
- * 🔴 택시비는 자동차 탭에만 있다. 대중교통 요금은 서버가 아직 안 준다(transitFareKrw 가 null) — 지어내지 않는다.
+ * 탭의 둘째 줄 — 요금. 390 폭 탭 한 칸에 「42분 · 약 22,800원」이 안 들어가 잘렸다(S15P21E201-1831 실측).
+ * 택시는 택시비, 대중교통은 서버가 준 요금(transitFareKrw — 운영 부산역→광안리 1,550원 실측). 없으면 안 적는다 — 지어내지 않는다.
+ * 🔴 전에는 대중교통 요금을 서버가 안 준다고 적어 두고 비웠는데, 서버가 칸을 준 뒤에도 이 화면만 시간뿐이었다(UI 캔버스 ⑭).
  */
 export function modeFareLine(directions: RouteDirections, tx: Tx): string | null {
-  if (directions.mode !== 'CAR' || directions.taxiFareKrw == null) return null;
-  const fare = directions.taxiFareKrw.toLocaleString('en-US');
-  return tx(`택시 약 ${fare}원`, `Taxi ~₩${fare}`);
+  if (directions.mode === 'CAR' && directions.taxiFareKrw != null) {
+    const fare = directions.taxiFareKrw.toLocaleString('en-US');
+    return tx(`택시 약 ${fare}원`, `Taxi ~₩${fare}`);
+  }
+  if (directions.mode === 'TRANSIT' && directions.transitFareKrw != null) {
+    const fare = directions.transitFareKrw.toLocaleString('en-US');
+    return txf(tx, '%s원', '₩%s', fare);
+  }
+  return null;
 }
 
 /**

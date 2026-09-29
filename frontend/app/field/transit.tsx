@@ -15,6 +15,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import {
   arrivalLabel,
+  catchVerdict,
   loadNearbyBusArrivals,
   sortStops,
   type BusBlockedReason,
@@ -190,10 +191,22 @@ export default function Bus() {
     return tx(`${label.minutes}분`, `${label.minutes} min`);
   }
 
+  // 걸어가서 탈 수 있나 — 내 위치를 알 때만 판정한다(모르면 걷는 시간을 모른다).
+  function verdictChip(verdict: ReturnType<typeof catchVerdict>) {
+    if (!verdict) return null;
+    const text = verdict === 'catch' ? tx('✓ 걸어가면 타요', '✓ You can make it') : verdict === 'tight' ? tx('놓칠 수 있어요', 'Tight') : tx('놓쳐요', 'Too soon');
+    return <View style={[styles.verdict, verdict === 'catch' && styles.verdictCatch]}><Text variant="micro" weight="bold" color={verdict === 'catch' ? color.state.success : color.text.muted} numberOfLines={1}>{text}</Text></View>;
+  }
+
   // 🔴 거리는 내 위치를 알 때만 적는다. 부산 중심에서 잰 「350m」는 걸어갈 사람에게 거짓말이다.
   const located = locationState === 'granted';
   const stations = useMemo(() => nearbyStations(coords), [coords]);
-  const busStops = state === 'ready' ? stops : [];
+  // 🔴 내 위치를 알면 가까운 정류장부터. 「가장 빨리 오는 버스」 순이면 걸어서 7분 걸리는 정류장의 「곧 도착」(못 타는 버스)이
+  //    맨 위에 왔다. 지도 번호도 이 순서를 따른다 — 목록의 「1」과 지도의 「1」이 같은 곳이어야 한다.
+  const orderedStops = useMemo(() => (located && coords
+    ? [...stops].sort((a, b) => straightDistanceM(coords, { latitude: a.lat, longitude: a.lng }) - straightDistanceM(coords, { latitude: b.lat, longitude: b.lng }))
+    : stops), [located, coords, stops]);
+  const busStops = state === 'ready' ? orderedStops : [];
   // 버스 정류장은 목록과 같은 번호로 찍는다 — 지도에서 본 「2」를 목록에서 바로 찾게.
   // 🔴 지하철역은 「지하철」 표시로 따로 찍는데, 버스 정류장이 하나도 없을 때(로그인 전·정보 없음)는 역을 번호로 찍는다.
   //    폰 지도(RouteMap.native)는 번호 장소가 없으면 빈 칸만 그려서, 역만 있는 지도가 아예 안 떴다.
@@ -227,7 +240,8 @@ export default function Bus() {
         // 목록의 정류장·역이나 지도의 점을 누르면 그곳으로 지도를 옮긴다(S15P21E201-1834) — 전에는 강조만 바뀌었다.
         focusSelected
         currentLocation={located ? coords : null}
-        height={wide ? 520 : 260}
+        // 폰은 낮게 — 지도가 260 이면 도착 정보가 첫 화면 밖으로 밀렸다(UI 캔버스 ⑬). 크게 보려면 지도를 누른다.
+        height={wide ? 520 : 180}
       />
     </View>
   ) : null;
@@ -281,35 +295,9 @@ export default function Bus() {
       {!wide ? mapView : null}
       <View style={wide && showMap ? styles.columns : undefined}>
         <View style={wide && showMap ? styles.listColumn : undefined}>
-          {stations.length > 0 ? (
-            <View style={[styles.card, styles.stationCard]}>
-              <Text variant="body" weight="bold">{tx('가까운 지하철역', 'Nearby metro stations')}</Text>
-              {stations.map((station, index) => {
-                const id = `subway-${station.name}`;
-                return (
-                  <Pressable
-                    key={id}
-                    accessibilityRole="button"
-                    accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', txf(tx, '%s역', '%s Station', station.name))}
-                    onPress={() => setSelectedId(id)}
-                    style={[styles.stationRow, selectedId === id && styles.selectedRow]}
-                  >
-                    {stationsNumbered ? <View style={styles.numberBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View> : null}
-                    <View style={styles.grow}>
-                      <Text weight="bold">{txf(tx, '%s역', '%s Station', station.name)}</Text>
-                      {located ? <Text variant="caption" color={color.text.muted}>{howFar(station.latitude, station.longitude)}</Text> : null}
-                    </View>
-                    <View style={styles.lineChips}>
-                      {station.lines.map((line) => (
-                        <View key={line} style={styles.lineChip}><Text variant="micro" weight="bold" color={color.state.warning}>{txf(tx, '%s호선', 'Line %s', line)}</Text></View>
-                      ))}
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
-          ) : null}
-
+          {/* 🔴 「주변 버스」 화면이라 버스가 먼저다 — 전에는 지하철역 목록이 위에 있어 도착 정보가 첫 화면 밖이었다.
+              이 목록은 목적지와 상관없이 «이 근처»에 오는 버스다 — 위 「어디로 가세요?」의 답과 헷갈리지 않게 제목으로 밝힌다. */}
+          <Text variant="body" weight="bold" style={styles.sectionTitle}>{tx('이 근처에서 곧 오는 버스', 'Buses arriving nearby')}</Text>
           {state === 'loading' ? (
             <View style={styles.card}><Text color={color.text.muted}>{tx('도착 정보를 확인하고 있어요…', 'Checking arrivals…')}</Text></View>
           ) : null}
@@ -342,7 +330,7 @@ export default function Bus() {
           {state === 'ready' && stops.length > 0 ? (
             <>
               <View style={[styles.list, wide && !showMap && styles.listWide]}>
-                {stops.map((stop, stopIndex) => (
+                {orderedStops.map((stop, stopIndex) => (
                   <Pressable
                     key={stop.nodeId}
                     accessibilityRole="button"
@@ -373,6 +361,7 @@ export default function Bus() {
                           {arrival.remainingStops != null && arrival.remainingStops > 0 ? (
                             <Text variant="caption" color={color.text.muted}>{tx(`${arrival.remainingStops}정류장 전`, `${arrival.remainingStops} stops away`)}</Text>
                           ) : null}
+                          {located ? verdictChip(catchVerdict(arrival.arrivalSeconds, walkMinutes(straightDistanceM(coords, { latitude: stop.lat, longitude: stop.lng })))) : null}
                         </View>
                       ))
                     )}
@@ -387,6 +376,36 @@ export default function Bus() {
               ) : null}
             </>
           ) : null}
+
+          {stations.length > 0 ? (
+            <View style={[styles.card, styles.stationCard, styles.stationCardAfter]}>
+              <Text variant="body" weight="bold">{tx('가까운 지하철역', 'Nearby metro stations')}</Text>
+              {stations.map((station, index) => {
+                const id = `subway-${station.name}`;
+                return (
+                  <Pressable
+                    key={id}
+                    accessibilityRole="button"
+                    accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', txf(tx, '%s역', '%s Station', station.name))}
+                    onPress={() => setSelectedId(id)}
+                    style={[styles.stationRow, selectedId === id && styles.selectedRow]}
+                  >
+                    {stationsNumbered ? <View style={styles.numberBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View> : null}
+                    <View style={styles.grow}>
+                      <Text weight="bold">{txf(tx, '%s역', '%s Station', station.name)}</Text>
+                      {located ? <Text variant="caption" color={color.text.muted}>{howFar(station.latitude, station.longitude)}</Text> : null}
+                    </View>
+                    <View style={styles.lineChips}>
+                      {station.lines.map((line) => (
+                        <View key={line} style={styles.lineChip}><Text variant="micro" weight="bold" color={color.state.warning}>{txf(tx, '%s호선', 'Line %s', line)}</Text></View>
+                      ))}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
+
         </View>
         {wide ? mapView : null}
       </View>
@@ -407,6 +426,10 @@ const styles = StyleSheet.create({
   listColumn: { flex: 1, minWidth: 0 },
   mapColumn: { flex: 1 },
   stationCard: { marginBottom: spacing[4], gap: spacing[2] },
+  stationCardAfter: { marginTop: spacing[4] },
+  sectionTitle: { marginBottom: spacing[3] },
+  verdict: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: color.surface.tint },
+  verdictCatch: { backgroundColor: color.state.successBg },
   stationRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 44, paddingVertical: spacing[1], paddingHorizontal: spacing[2], marginHorizontal: -spacing[2], borderRadius: radius.md },
   selectedRow: { backgroundColor: color.surface.tint },
   selectedCard: { backgroundColor: color.surface.tint },
