@@ -10,6 +10,10 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { askRideNotifications, RidePanel } from '@/field/RidePanel';
+import { useLocationGate } from '@/personalization/useLocationGate';
+import { usableFix } from '@/trip/page/autoArrival';
+import { useLiveLocation } from '@/trip/page/useLiveLocation';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
 import { Text } from '@/components/Text';
@@ -58,6 +62,17 @@ export default function RouteDetail() {
   const destPlaceId = parseText(params.destPlaceId);
   // 부르는 쪽이 여행의 이동수단을 넘긴다. 안 넘기면 대중교통 — 이제 서버가 노선망으로 찾는다(S15P21E201-1831).
   const [mode, setMode] = useState<TravelMode>(parseTravelMode(parseText(params.mode)) ?? 'TRANSIT');
+  // 탑승 중 — S15P21E201-1837. 위치는 「탑승 시작」을 누른 뒤에만 켠다(일정 화면의 출발과 같은 규칙: 왜 필요한지 분명할 때 묻는다).
+  const [riding, setRiding] = useState(false);
+  const locationGate = useLocationGate(accessToken);
+  const live = useLiveLocation(riding);
+  const startRide = async () => {
+    if (!(await locationGate.request())) return;
+    void askRideNotifications();
+    setRiding(true);
+  };
+  // 대중교통이 아닌 탭으로 옮기면 탑승을 끝낸다 — 보이지 않는 곳에서 위치를 계속 쓰지 않는다.
+  useEffect(() => { if (mode !== 'TRANSIT') setRiding(false); }, [mode]);
 
   const [results, setResults] = useState<Partial<Record<TravelMode, RouteDirectionsResult>>>({});
 
@@ -115,7 +130,8 @@ export default function RouteDetail() {
     return got?.state === 'success' ? modeFareLine(got.directions, tx) : null;
   }
 
-  const map = (height: number) => <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={routes} height={height} refitKey={mode} />;
+  const liveFix = riding && live.fix && usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null;
+  const map = (height: number) => <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={routes} height={height} refitKey={mode} currentLocation={liveFix} />;
 
   return (
     <Screen scroll wide>
@@ -165,6 +181,9 @@ export default function RouteDetail() {
                 <Card style={styles.stateCard} accessibilityRole="alert"><Text variant="title" weight="bold">{tx('경로를 불러오지 못했어요', 'Could not load the route')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text></Card>
               ) : null}
 
+              {mode === 'TRANSIT' && directions?.mode === 'TRANSIT' ? (
+                <RidePanel directions={directions} riding={riding} live={live} onStart={() => void startRide()} onStop={() => setRiding(false)} tx={tx} />
+              ) : null}
               {directions ? <Summary directions={directions} tx={tx} /> : null}
               {directions ? <Steps directions={directions} originName={originName} destName={destName} tx={tx} /> : null}
 
@@ -183,6 +202,7 @@ export default function RouteDetail() {
           </View>
         </>
       )}
+      {locationGate.sheet}
     </Screen>
   );
 }
