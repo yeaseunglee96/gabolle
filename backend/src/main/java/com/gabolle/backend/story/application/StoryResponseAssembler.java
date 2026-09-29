@@ -211,7 +211,7 @@ public class StoryResponseAssembler {
 					place == null ? null
 							: new StoryResponse.PlaceRef(place.getPlaceId().toString(), place.getNameKo(),
 									place.getLat(), place.getLng(), place.getAddress(), place.getNameEn(),
-									place.getAddressEn()),
+									place.getAddressEn(), place.localNames()),
 					story.getTripId() == null ? null : story.getTripId().toString(),
 					images,
 					story.getVisibility().name(),

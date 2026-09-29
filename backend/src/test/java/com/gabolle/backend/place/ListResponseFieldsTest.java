@@ -84,10 +84,10 @@ class ListResponseFieldsTest {
 		// 맨 뒤만 보면 가운데를 끼워 넣어도 안 걸리므로 차례를 통째로 고정한다.
 		assertThat(componentNames(PlaceSummaryResponse.class)).containsExactly(
 				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "matchedField",
-				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense");
+				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense", "localNames");
 		assertThat(componentNames(NearbyPlaceItem.class)).containsExactly(
 				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "distanceM", "hasPhoto",
-				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense");
+				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense", "localNames");
 	}
 
 	@Test

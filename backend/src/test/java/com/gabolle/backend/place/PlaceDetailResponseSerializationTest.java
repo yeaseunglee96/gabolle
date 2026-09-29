@@ -1,6 +1,7 @@
 package com.gabolle.backend.place;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -145,6 +146,6 @@ class PlaceDetailResponseSerializationTest {
 				List.of(),
 				new PlaceDetailResponse.ItineraryInclusion("UNAVAILABLE", "ITINERARY_NOT_SPECIFIED"),
 				addressEn, photoUrl, photoSource, photoSubject, openingHours, priceLevel, resolvedLanguage,
-				photoLicense, List.of());
+				photoLicense, List.of(), Map.of());
 	}
 }

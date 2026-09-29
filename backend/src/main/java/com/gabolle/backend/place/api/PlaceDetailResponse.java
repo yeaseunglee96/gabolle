@@ -2,6 +2,7 @@ package com.gabolle.backend.place.api;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -68,7 +69,12 @@ public record PlaceDetailResponse(
 		@JsonInclude(JsonInclude.Include.NON_NULL) FeatureSlot priceLevel,
 		String resolvedLanguage,
 		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense,
-		@JsonInclude(JsonInclude.Include.NON_EMPTY) List<Photo> photos) {
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) List<Photo> photos,
+		/**
+		 * 장소 이름의 일본어·중국어(간체·번체) — 관광공사가 번역해 둔 곳만 있다(V20260930130000, S15P21E201-1859).
+		 * 키는 앱의 언어 코드({@code ja} · {@code zh-Hans} · {@code zh-Hant}), 없는 언어는 빠지고 다 없으면 칸째 빠진다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames) {
 
 	/**
 	 * 사진 한 장. {@code source} 는 사진 옆에 그대로 보여 줄 출처 문구다(예: {@code 출처 : 부산관광아카이브}).

@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -89,6 +90,6 @@ class PlaceDetailAcceptLanguageWiringTest {
 				new PlaceDetailResponse.Provenance(null, null, null, null, null),
 				List.of(),
 				new PlaceDetailResponse.ItineraryInclusion("UNAVAILABLE", "ITINERARY_NOT_SPECIFIED"),
-				null, null, null, null, null, null, "ko", null, List.of());
+				null, null, null, null, null, null, "ko", null, List.of(), Map.of());
 	}
 }

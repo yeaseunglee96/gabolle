@@ -1,6 +1,7 @@
 package com.gabolle.backend.story.presentation.dto;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -104,7 +105,12 @@ public record StoryResponse(
 	 */
 	public record PlaceRef(String id, String name, Double lat, Double lng, String address,
 		@JsonInclude(JsonInclude.Include.NON_NULL) String nameEn,
-		@JsonInclude(JsonInclude.Include.NON_NULL) String addressEn) {
+		@JsonInclude(JsonInclude.Include.NON_NULL) String addressEn,
+	/**
+	 * 장소 이름의 일본어·중국어(간체·번체) — 관광공사가 번역해 둔 곳만 있다(V20260930130000, S15P21E201-1859).
+	 * 키는 앱의 언어 코드({@code ja} · {@code zh-Hans} · {@code zh-Hant}), 없는 언어는 빠지고 다 없으면 칸째 빠진다.
+	 */
+	@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames) {
 	}
 
 	public record Image(String url, int position) {
