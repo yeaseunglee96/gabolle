@@ -571,7 +571,8 @@ function ReviewStep({ draft, update, tx, language, styleSkipped, accessibilityCo
                   <Chip key={field} role="checkbox" label={tx(ko, en)} selected={draft[field] === true} onPress={() => update({ [field]: !(draft[field] === true) } as Partial<PlanDraft>)} />
                 ))}
               </View>
-              {(draft.wheelchair || draft.stroller) && accessibilityCounts ? (
+              {/* 🔴 고르기 «전에» 알린다 — 고른 뒤에야 뜨면 이미 정한 사람에게 늦은 말이다(S15P21E201-1869, !1888 의 뜻). */}
+              {accessibilityCounts ? (
                 <Text variant="micro" color={color.text.muted}>{txf(tx, '지금 접근성을 확인한 곳은 %s곳 중 %s곳이에요. 고르시면 나머지는 「아직 확인되지 않았어요」로 나와요 — 못 간다는 뜻은 아니에요.', 'Of %s places, we have checked access for %s so far. The rest will show as "not checked yet" — that does not mean you cannot go.', accessibilityCounts.totalPlaceCount, accessibilityCounts.placeCount)}</Text>
               ) : null}
             </View>
