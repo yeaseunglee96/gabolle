@@ -49,7 +49,8 @@ describe('장소 상세 사진 여러 장', () => {
     mockPlace = { ...basePlace, photos: threePhotos };
     const view = mount();
     await view.findByTestId('place-photo-gallery');
-    expect(view.getAllByTestId('place-photo-page')).toHaveLength(3);
+    // 세 쪽 자리는 다 있고, 사진을 실제로 그리는 것은 지금 쪽 ±1 (S15P21E201-1868)
+    expect(view.getAllByTestId('place-photo-page').length + view.queryAllByTestId('place-photo-page-placeholder').length).toBe(3);
     expect(view.getByTestId('place-photo-counter').props.children).toBe('1/3');
     expect(view.getByTestId('place-photo-credit').props.children).toBe('사진: 한국관광공사 공공누리 제1유형');
     // 넘길 수 있다는 표시 — 사진 수만큼 점(화면 낭독에서는 숨긴다 — 「사진 1/3」이 이미 말한다)

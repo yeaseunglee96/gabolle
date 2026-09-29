@@ -11,6 +11,18 @@ import { useI18n } from '@/i18n';
 
 import { Text } from './Text';
 
+/**
+ * 🔴 사진을 실제로 그리는(디코딩하는) 쪽은 지금 쪽 ±1 뿐이다 — S15P21E201-1868.
+ * 장소 상세를 연달아 열면(뒤로 안 가고) 쌓인 화면마다 모든 쪽이 원본 해상도로 풀려 있어
+ * 갤럭시 S10 에서 앱 메모리가 666MB 까지 차고 사진이 회색으로 비었다. 나머지 쪽은 빈 판(자리만)이다.
+ * 🔴 사진 주소는 바꾸지 않는다 — 제3유형(변경 금지) 원본을 그대로 받고, 축소는 기기 안의 디코딩에서만 한다.
+ */
+export const GALLERY_RENDER_WINDOW = 1;
+
+export function isGalleryPageRendered(page: number, current: number): boolean {
+  return Math.abs(page - current) <= GALLERY_RENDER_WINDOW;
+}
+
 export function PlacePhotoGallery({ urls, onFirstLoad, onIndexChange }: { urls: string[]; onFirstLoad?: () => void; onIndexChange?: (index: number) => void }) {
   const { tx } = useI18n();
   const [pageWidth, setPageWidth] = useState(0);
@@ -38,18 +50,26 @@ export function PlacePhotoGallery({ urls, onFirstLoad, onIndexChange }: { urls: 
         scrollEventThrottle={16}
         style={StyleSheet.absoluteFill}
       >
-        {urls.map((url, i) => (
-          <ImageBackground
-            key={`${i}-${url}`}
-            testID="place-photo-page"
-            source={{ uri: url }}
-            resizeMode="cover"
-            // 폭을 재기 전(0)에도 첫 장은 자리를 차지하게 — 안 그러면 첫 그림에서 사진이 비었다가 나온다.
-            style={[styles.page, pageWidth ? { width: pageWidth } : styles.pageUnmeasured]}
-            onLoad={i === 0 ? onFirstLoad : undefined}
-            onError={i === 0 ? onFirstLoad : undefined}
-          />
-        ))}
+        {urls.map((url, i) => {
+          // 폭을 재기 전(0)에도 첫 장은 자리를 차지하게 — 안 그러면 첫 그림에서 사진이 비었다가 나온다.
+          const pageStyle = [styles.page, pageWidth ? { width: pageWidth } : styles.pageUnmeasured];
+          if (!isGalleryPageRendered(i, index)) {
+            return <View key={`${i}-${url}`} testID="place-photo-page-placeholder" style={pageStyle} />;
+          }
+          return (
+            <ImageBackground
+              key={`${i}-${url}`}
+              testID="place-photo-page"
+              source={{ uri: url }}
+              resizeMode="cover"
+              // 안드로이드: 원본(2000px 넘는 것이 흔하다)을 칸 크기로 줄여서 디코딩한다. 주소는 그대로.
+              resizeMethod="resize"
+              style={pageStyle}
+              onLoad={i === 0 ? onFirstLoad : undefined}
+              onError={i === 0 ? onFirstLoad : undefined}
+            />
+          );
+        })}
       </ScrollView>
       {/* 몇 장 중 몇 번째인가 — 보이는 글자는 짧게, 화면 낭독에는 「사진 1/5」. */}
       <View pointerEvents="none" style={styles.counter} accessibilityLabel={tx(`사진 ${index + 1}/${urls.length}`, `Photo ${index + 1}/${urls.length}`)}>
