@@ -23,7 +23,7 @@ import { humanTripTitle, tripNameOrDates, shouldAskTripName, wasTripNameAsked } 
 import { invalidateTripLists, loadTrips } from '@/trip/trips';
 
 import { itineraryFirstPage, loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
-import { dayMap, dayRoutes, formatManwon, returnRoute, returnTrip, startTrip } from './tripPageModel';
+import { dayMap, dayRoutes, formatManwon, itineraryLegs, returnRoute, returnTrip, startTrip } from './tripPageModel';
 
 export type TripItinerary = { id: string; value: ItineraryDto | null; message: string | null };
 
@@ -172,7 +172,10 @@ export function useTripPage(source: TripPageSource) {
   // 🔴 휠체어·유아차·계단 피하기 여행이면 계단을 피하는 길로 묻는다 — 안 그러면 일정은 계단 없는 길로 짜 놓고
   //    지도에는 계단 길을 그린다. 서버가 stepFree 를 안 보내면(옛 서버) 전처럼 보통 길이다.
   const stepFree = loaded?.stepFree === true;
-  const legs = useCourseRoutePaths(legDays, accessToken, { walkInto, stepFree });
+  // 일정 응답에 경사 조각 길(travelPath + travelPieces)이 실려 온 구간은 길을 다시 묻지 않고 그것으로 칠한다.
+  // 옛 서버(칸 없음)면 빈 객체라 전처럼 전부 받아 온다.
+  const known = useMemo(() => itineraryLegs(items, map, dayIndex + 1), [items, map, dayIndex]);
+  const legs = useCourseRoutePaths(legDays, accessToken, { walkInto, stepFree, known });
   const routes = useMemo(
     () => [
       ...(start ? [returnRoute(start, color.brand.navy, legs)] : []),

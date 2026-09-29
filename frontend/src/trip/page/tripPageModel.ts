@@ -5,6 +5,7 @@
 //    통째로 띄워야만 그 규칙을 볼 수 있다.
 import type { MapRouteLayer } from '@/map/RouteMap';
 import { legKey, type LegPath } from '@/map/courseRoutePaths';
+import { slopeSegments } from '@/map/slopeGrades';
 import type { MapStop } from '@/map/types';
 import type { DayReturnLeg, DayStart, ItineraryItemDto } from '@/plan/itinerary';
 import { lodgingAreaCodeOf } from '@/plan/origins';
@@ -161,6 +162,32 @@ export function startTrip(map: DayMap, dayNumber: number, start: DayStart | null
 export function returnRoute(back: ReturnTrip, lineColor: string, legs: Record<string, LegPath>): MapRouteLayer {
   const leg = back.approximate ? undefined : legs[legKey(back.day.day, 0)];
   return { id: `return-${back.day.day}`, color: lineColor, stops: back.day.stops, path: leg?.path, estimated: leg ? leg.estimated : true };
+}
+
+/**
+ * 일정 응답에 이미 실려 온 구간 길 — 들어오는 곳의 travelPath + travelPieces. 이것이 있는 구간은 길을 다시 묻지 않고
+ * 이것으로 경사·계단을 칠한다(useCourseRoutePaths 의 known).
+ *
+ * 🔴 조각이 있는 구간만 쓴다. 조각 없는 길까지 여기서 쓰면 지금 받아 오는 길(걷기·자동차)과 모양이 달라진다 — 그건 이 일이 아니다.
+ * 🔴 지도의 이웃 정차지가 일정의 이웃 항목일 때만 쓴다. 좌표 없는 곳을 건너뛰면 지도의 두 점 사이 구간은 그 길이 아니다.
+ * 🔴 조각 번호가 길 밖이면(slopeSegments 가 null) 버린다 — 그때는 전처럼 길을 받아 온다.
+ */
+export function itineraryLegs(items: ItineraryItemDto[], map: DayMap, dayNumber: number): Record<string, LegPath> {
+  const legs: Record<string, LegPath> = {};
+  for (let i = 0; i + 1 < map.stops.length; i += 1) {
+    const from = map.stops[i];
+    const to = map.stops[i + 1];
+    if (to.number !== from.number + 1) continue;
+    const item = items[to.number - 1];
+    if (!item || item.id !== to.id || !Array.isArray(item.travelPath) || !item.travelPieces?.length) continue;
+    const valid = item.travelPath.every((point) => Array.isArray(point) && Number.isFinite(point[0]) && Number.isFinite(point[1]));
+    if (!valid || item.travelPath.length < 2) continue;
+    // 서버는 [경도, 위도] 순서다(courseRoutePaths.ts 와 같은 까닭 — S15P21E201-1567).
+    const path = item.travelPath.map(([lng, lat]) => ({ latitude: lat, longitude: lng }));
+    if (slopeSegments(path, item.travelPieces) == null) continue;
+    legs[legKey(dayNumber, i)] = { path, estimated: false, pieces: item.travelPieces };
+  }
+  return legs;
 }
 
 /** 정차지 사이 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선(estimated). */
