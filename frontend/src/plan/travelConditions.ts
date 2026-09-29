@@ -60,6 +60,12 @@ const isSelection = (value: unknown): value is ConstraintSelectionStatus =>
 const codes = (value: unknown): string[] =>
   Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 
+// 앱에서 뺀 식단 코드(S15P21E201-1828). 칩이 없어 사용자가 끌 수 없는 값으로 남지 않게 채식으로 읽는다.
+const MERGED_INTO_VEGETARIAN = ['VEGAN', 'PESCATARIAN'];
+
+const dietCodes = (value: unknown): string[] =>
+  [...new Set(codes(value).map((code) => (MERGED_INTO_VEGETARIAN.includes(code) ? 'VEGETARIAN' : code)))];
+
 const oneOf = <T extends string>(value: unknown, allowed: readonly T[]): T | null =>
   allowed.includes(value as T) ? (value as T) : null;
 
@@ -81,7 +87,7 @@ export function decodeConditions(raw: string | null | undefined): TravelConditio
       allergyStatus: parsed.allergyStatus,
       allergies: parsed.allergyStatus === 'VALUES' ? codes(parsed.allergies) : [],
       dietStatus: parsed.dietStatus,
-      dietTypes: parsed.dietStatus === 'VALUES' ? codes(parsed.dietTypes) : [],
+      dietTypes: parsed.dietStatus === 'VALUES' ? dietCodes(parsed.dietTypes) : [],
       maxWalkingDistanceM: typeof walking === 'number' && Number.isFinite(walking) && walking >= 0 ? walking : null,
       slopeConstraint: oneOf(parsed.slopeConstraint, ['AVOID', 'ALLOW'] as const),
       stairsConstraint: oneOf(parsed.stairsConstraint, ['AVOID', 'ALLOW'] as const),
