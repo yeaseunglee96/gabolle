@@ -7,6 +7,9 @@
 // 달력 칸(MonthGrid)은 홈 시작 줄의 것을 그대로 쓴다 — 같은 달력이 두 벌이면 하나만 고쳐진다.
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+
+import { GabolleMascot } from '@/components/DongbaekMascot';
 
 import { Text } from '@/components/Text';
 import { txf } from '@/i18n/format';
@@ -117,5 +120,103 @@ const styles = StyleSheet.create({
   navOff: { opacity: 0.3 },
   done: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.action.primary },
   doneOff: { backgroundColor: color.surface.field },
+  pressed: { opacity: 0.8 },
+});
+
+/**
+ * 여행 만들기 1단계의 날짜 고르기(UI 캔버스 ⑤ PlanStep1After) — 빠른 칩은 카드 밖, 카드 안은 달 제목(왼쪽)·화살표(오른쪽)·달력·동백이 안내.
+ * 🔴 규칙(첫 탭 출발 · 둘째 탭 귀환 · 최대 7박)은 위 DateRangeCard 와 같다 — 달력 칸(MonthGrid)도 같은 것을 쓴다.
+ */
+export function DateRangePicker({ value, onChange, tx, today = new Date() }: {
+  value: DateRange;
+  onChange: (next: DateRange) => void;
+  tx: (ko: string, en: string) => string;
+  today?: Date;
+}) {
+  const todayKey = toDateKey(today);
+  const [monthOffset, setMonthOffset] = useState(() => monthOffsetOf(value.startDate, today));
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+  const month = useMemo(() => {
+    const base = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+    return { year: base.getFullYear(), month: base.getMonth() };
+  }, [today, monthOffset]);
+  const pickingEnd = Boolean(value.startDate && !value.endDate);
+  const lastPickable = pickingEnd ? addDays(value.startDate, MAX_TRIP_NIGHTS) : undefined;
+  const pick = (key: string) => {
+    if (!value.startDate || value.endDate || key < value.startDate) onChange({ startDate: key, endDate: '' });
+    else onChange({ startDate: value.startDate, endDate: key });
+  };
+  const quick = (nights: number) => {
+    const start = value.startDate && value.startDate >= todayKey ? value.startDate : todayKey;
+    onChange({ startDate: start, endDate: addDays(start, nights) });
+  };
+  const quickNights = value.startDate && value.endDate ? nightCount(value.startDate, value.endDate) : null;
+  const canPrev = monthOffset > 0;
+  const canNext = monthOffset < MAX_MONTH_OFFSET;
+  return (
+    <View style={pickerStyles.stack}>
+      <View style={pickerStyles.chipRow}>
+        {[0, 1, 2, 3].map((nights) => {
+          const on = quickNights === nights;
+          return (
+            <Pressable key={nights} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => quick(nights)} style={({ pressed }) => [pickerStyles.chip, on && pickerStyles.chipOn, pressed && pickerStyles.pressed]}>
+              <Text variant="caption" weight="bold" color={on ? color.text.onAction : color.text.heading} numberOfLines={1}>{nights === 0 ? tx('당일치기', 'Day trip') : tx(`${nights}박 ${nights + 1}일`, `${nights} ${nights === 1 ? 'night' : 'nights'}`)}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <View style={pickerStyles.card}>
+        <View style={pickerStyles.head}>
+          <Pressable accessibilityRole="button" accessibilityState={{ expanded: monthPickerOpen }} accessibilityLabel={tx('달 바로 고르기', 'Jump to a month')} onPress={() => setMonthPickerOpen((open) => !open)} style={pickerStyles.title}>
+            <Text weight="bold">{tx(`${month.year}년 ${month.month + 1}월`, `${month.month + 1}/${month.year}`)}</Text>
+            <Text variant="micro" color={color.text.muted}>{monthPickerOpen ? '▴' : '▾'}</Text>
+          </Pressable>
+          <View style={pickerStyles.arrows}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 달', 'Previous month')} disabled={!canPrev} onPress={() => setMonthOffset((n) => n - 1)} style={pickerStyles.arrow}>
+              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={canPrev ? color.text.heading : color.surface.field} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d="M15 5l-7 7 7 7" /></Svg>
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('다음 달', 'Next month')} disabled={!canNext} onPress={() => setMonthOffset((n) => Math.min(MAX_MONTH_OFFSET, n + 1))} style={pickerStyles.arrow}>
+              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={canNext ? color.text.heading : color.surface.field} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d="M9 5l7 7-7 7" /></Svg>
+            </Pressable>
+          </View>
+        </View>
+        {monthPickerOpen
+          ? <MonthPicker today={today} selected={monthOffset} onPick={(offset) => { setMonthOffset(offset); setMonthPickerOpen(false); }} tx={tx} />
+          : <MonthGrid {...month} hideTitle value={{ ...EMPTY_START_BAR, startDate: value.startDate, endDate: value.endDate }} today={todayKey} onPick={pick} tx={tx} maxDate={lastPickable} />}
+        {/* 동백이 안내 — 지금 무엇을 누를 차례인지. 다 골랐으면 아래 요약 줄이 대신 말한다. */}
+        {!value.endDate ? (
+          <View accessibilityRole="text" style={pickerStyles.hint}>
+            <GabolleMascot state="open" still style={pickerStyles.hintMascot} />
+            {lastPickable ? (
+              <Text variant="caption" color={color.text.body} style={pickerStyles.grow}>
+                <Text variant="caption" weight="bold">{tx('돌아오는 날을 눌러요.', 'Now tap the day you come back.')}</Text>
+                {' '}{txf(tx, '여행은 최대 7박 8일이라 %s까지 고를 수 있어요.', 'Trips are up to 7 nights, so you can pick until %s.', formatDateShort(lastPickable, tx))}
+              </Text>
+            ) : (
+              <Text variant="caption" color={color.text.body} style={pickerStyles.grow}>
+                <Text variant="caption" weight="bold">{tx('출발하는 날을 눌러요.', 'Tap the day you leave.')}</Text>
+                {' '}{tx('그다음 돌아오는 날을 누르면 돼요.', 'Then tap the day you come back.')}
+              </Text>
+            )}
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+const pickerStyles = StyleSheet.create({
+  stack: { gap: spacing[3] },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  chip: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.chip, backgroundColor: color.surface.card },
+  chipOn: { backgroundColor: color.action.secondary },
+  card: { gap: 4, padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, paddingBottom: 2 },
+  title: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36 },
+  arrows: { flexDirection: 'row', gap: 4 },
+  arrow: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  hint: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: spacing[2], paddingVertical: 10, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  hintMascot: { width: 28, height: 28 },
+  grow: { flex: 1, minWidth: 0 },
   pressed: { opacity: 0.8 },
 });

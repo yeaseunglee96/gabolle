@@ -19,38 +19,38 @@ const { join } = require('path');
 
 const QUESTIONS = readFileSync(
   join(__dirname, '..', '..', '..', 'app', '(plan)', 'questions.tsx'), 'utf8') as string;
+// 🔴 S15P21E201-1865 부터 출발지는 여행 만들기 2단계가 묻는다 — 단계 몸은 PlanSteps.tsx.
+const STEPS = readFileSync(join(__dirname, '..', 'PlanSteps.tsx'), 'utf8') as string;
 
 describe('출발지가 없으면 만들기를 막는다', () => {
   it('🔴 출발지가 있는지 화면이 «직접» 본다 — 서버에 물어보고 알지 않는다', () => {
-    expect(QUESTIONS).toContain('const originMissing = draft.originLat === null || draft.originLng === null;');
+    expect(QUESTIONS).toContain('originMissing: draft.originLat === null || draft.originLng === null,');
   });
 
-  it('🔴 마지막 장의 「만들기」가 잠긴다', () => {
-    // 1박 이상이면 숙소도 잠금 조건이다(S15P21E201-1584).
-    expect(QUESTIONS).toContain("missing.length > 0 || datesMissing || originMissing || lodgingMissing || job?.state === 'submitting'");
-  });
-
-  it('🔴 「지금 이대로 만들기」 갈림길도 같이 막힌다 — 한쪽만 막으면 빠른 길로 새어 나간다', () => {
-    // 그 갈림길은 readyToBuild 로 그려진다. 거기에 출발지가 들어 있어야 한다.
-    expect(QUESTIONS).toContain('const readyToBuild = missing.length === 0 && !datesMissing && !originMissing && !lodgingMissing;');
+  it('🔴 2단계에서 못 넘어가고, 만들기 단추도 잠긴다 — 한쪽만 막으면 다른 길로 새어 나간다', () => {
+    expect(STEPS).toContain('case 1: return !r.originMissing && !r.lodgingMissing');
+    expect(QUESTIONS).toContain('const readyToBuild = missing.length === 0 && !readiness.datesMissing && !readiness.originMissing && !readiness.lodgingMissing;');
+    expect(QUESTIONS).toContain('!readyToBuild');
   });
 });
 
 describe('고치러 갈 길이 있다', () => {
-  it('🔴 출발지 칸이 «열린 채로» 열린다 — 그냥 홈으로 보내면 -1350 과 같은 실수다', () => {
-    expect(QUESTIONS).toContain("params: { edit: 'origin' }");
+  it('🔴 없을 때 그 자리에서 묻는다 — 추천 출발지를 바로 고르고, 나머지는 검색 시트로', () => {
+    expect(STEPS).toContain('어디서 출발하세요?');
+    expect(STEPS).toContain('ORIGIN_SHORTLIST');
+    expect(STEPS).toContain("onSearchPlace('origin')");
+    expect(QUESTIONS).toContain('onSearchPlace={openBar}');
   });
 
-  it('🔴 없을 때 묻는 자리를 그린다 — 막아 놓고 문을 안 주지 않는다', () => {
-    expect(QUESTIONS).toContain('어디에서 출발하세요?');
-    expect(QUESTIONS).toContain('goPickOrigin');
+  it('🔴 홈으로 튕겨 보내지 않는다 — 돌아오면 답하던 자리가 흐트러졌다(UI 캔버스 ⑤)', () => {
+    expect(QUESTIONS).not.toContain("params: { edit: 'origin' }");
   });
 
-  it('골라 둔 뒤에는 ✓ 줄로 보이고 다시 고칠 수 있다', () => {
-    expect(QUESTIONS).toContain("tx('출발지 수정', 'Edit starting point')");
+  it('골라 둔 뒤에도 다시 고칠 수 있다', () => {
+    expect(STEPS).toMatch(/hasOrigin \? tx\('바꾸기', 'Change'\)/);
   });
 
-  it('필수를 다 채웠는데 출발지만 없으면 그렇게 말한다 — 「날짜만 정하면」이라고 하지 않는다', () => {
-    expect(QUESTIONS).toContain('출발지만 고르면 만들 수 있어요');
+  it('잠긴 단추가 이유를 말한다 — 「날짜만 정하면」이라고 하지 않는다', () => {
+    expect(STEPS).toContain("tx('출발지를 골라 주세요'");
   });
 });
