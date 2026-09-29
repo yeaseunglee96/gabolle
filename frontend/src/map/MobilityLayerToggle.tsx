@@ -52,7 +52,7 @@ export function layerNote(kind: MobilityLayerKind, layer: Pick<MobilityLayerResu
           : tx('장소 둘레에 그늘 자료가 있는 길이 없어요', 'No paths with shade data near these stops')) + partial;
       }
       return withBasis(slope
-        ? tx('빨간 길: 경사 8.33% 이상 — 휠체어 경사로 기준(1:12)을 넘어요', 'Red: slope 8.33%+ — steeper than the 1:12 wheelchair ramp standard')
+        ? tx('빨간 길: 경사 8.33% 초과 — 휠체어 경사로 기준(1:12)보다 가팔라요', 'Red: slope over 8.33% — steeper than the 1:12 wheelchair ramp standard')
         : tx('파란 길이 짙을수록 그늘이 많아요', 'Darker blue = more shade')) + partial;
     }
   }

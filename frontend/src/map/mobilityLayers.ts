@@ -41,14 +41,16 @@ export function areasFor(stops: MapStop[]): string[] {
 
 /**
  * 파일을 선으로 — 정차지 둘레만.
- *   · 경사: 파일의 기준(steepPermille) 이상인 구간만 빨강. 그 아래는 안 그린다 — 「가파른 길」을 보여 주는 겹이다
+ *   · 경사: 파일의 기준(steepPermille)을 «넘는» 구간만 빨강(> — 서버는 기준 «이하»를 통과로 본다, slopeGrades.ts 주석).
+ *     파일의 경사는 천분율 정수라(83 = 8.3%) 83 은 안 칠하고 84(8.4%)부터 칠한다. 8.33~8.35% 는 반올림으로 83 이 되어
+ *     안 칠해진다 — 정수로 적은 파일에서는 가를 수 없는 폭이다. 그 아래는 안 그린다 — 「가파른 길」을 보여 주는 겹이다
  *   · 그늘: 건물 그림자가 있는 구간을 파랑으로, 짙을수록 그늘이 많다. 선을 따로 긋지 않는다 — 온톨로지가 그늘 기준을 안 정했다
  */
 export function layerLines(files: MobilityLayerFile[], kind: MobilityLayerKind, stops: MapStop[]): MapRouteLayer[] {
   const lines: MapRouteLayer[] = [];
   for (const file of files) {
     file.segs.forEach(([slope, shadow, flat], index) => {
-      const draw = kind === 'slope' ? slope != null && slope >= file.steepPermille : shadow != null && shadow > 0;
+      const draw = kind === 'slope' ? slope != null && slope > file.steepPermille : shadow != null && shadow > 0;
       if (!draw) return;
       const path = [];
       for (let i = 0; i + 1 < flat.length; i += 2) path.push({ latitude: flat[i + 1], longitude: flat[i] });
